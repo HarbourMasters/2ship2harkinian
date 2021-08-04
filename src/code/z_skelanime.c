@@ -618,12 +618,12 @@ void SkelAnime_AnimateFrame(AnimationHeader* animationSeg, s32 currentFrame, s32
     }
 }
 
-s16 SkelAnime_GetTotalFrames(AnimationHeaderCommon* animationSeg) {
+s16 SkelAnime_GetTotalFrames(void* animationSeg) {
     AnimationHeaderCommon* animation = Lib_SegmentedToVirtual(animationSeg);
     return animation->frameCount;
 }
 
-s16 SkelAnime_GetFrameCount(AnimationHeaderCommon* animationSeg) {
+s16 SkelAnime_GetFrameCount(void* animationSeg) {
     AnimationHeaderCommon* animation = Lib_SegmentedToVirtual(animationSeg);
 
     return (u16)animation->frameCount - 1;
@@ -851,7 +851,7 @@ Gfx* SkelAnime_DrawSV2(GlobalContext* globalCtx, void** skeleton, Vec3s* limbDra
 // Function is unused.
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_skelanime/func_80134FFC.s")
 
-s16 func_801353D4(AnimationHeaderCommon* animationSeg) {
+s16 func_801353D4(void* animationSeg) {
     AnimationHeaderCommon* animation = Lib_SegmentedToVirtual(animationSeg);
 
     return animation->unk02;
@@ -861,7 +861,7 @@ s16 func_801353D4(AnimationHeaderCommon* animationSeg) {
  * Appears to be unused anywhere in the game.  Appears to be a clone of
  * SkelAnime_GetTotalFrames
  */
-s16 SkelAnime_GetTotalFrames2(AnimationHeaderCommon* animationSeg) {
+s16 SkelAnime_GetTotalFrames2(void* animationSeg) {
     AnimationHeaderCommon* animation = Lib_SegmentedToVirtual(animationSeg);
 
     return animation->frameCount;
@@ -871,7 +871,7 @@ s16 SkelAnime_GetTotalFrames2(AnimationHeaderCommon* animationSeg) {
  * Appears to be unused anywhere in the game.  Appears to be a clone of
  * SkelAnime_GetFrameCount
  */
-s16 SkelAnime_GetFrameCount2(AnimationHeaderCommon* animationSeg) {
+s16 SkelAnime_GetFrameCount2(void* animationSeg) {
     AnimationHeaderCommon* animation = Lib_SegmentedToVirtual(animationSeg);
 
     return animation->frameCount - 1;
