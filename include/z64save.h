@@ -9,7 +9,7 @@ typedef struct {
     /* 0x00 */ u8 buttonItems[4][4];
     /* 0x10 */ u8 cButtonSlots[4][4];
     /* 0x20 */ u16 equipment;
-} ItemEquips; // size = 0x0A
+} ItemEquips; // size = 0x22
 
 typedef struct {
     /* 0x00 */ u8 items[24];
@@ -30,9 +30,9 @@ typedef struct {
 } HorseData; // size = 0x0A
 
 typedef struct {
-    /* 0x0 */ Vec3f pos;
-    /* 0xC */ s16 yaw;
-    /* 0xE */ s16 playerParams;
+    /* 0x00 */ Vec3f pos;
+    /* 0x0C */ s16 yaw;
+    /* 0x0E */ s16 playerParams;
     /* 0x10 */ u16 entranceIndex;
     /* 0x12 */ u8 roomIndex;
     /* 0x13 */ s8 data;
@@ -40,6 +40,43 @@ typedef struct {
     /* 0x18 */ u32 unk_18;
     /* 0x1C */ u32 tempCollectFlags;
 } RespawnData; // size = 0x20
+
+typedef struct {
+    /* 0x00 */ u32 chest;
+    /* 0x04 */ u32 swch0;
+    /* 0x08 */ u32 swch1;
+    /* 0x0C */ u32 clearedRoom;
+    /* 0x10 */ u32 collectible;
+} CycleSceneFlags; // size = 0x14
+
+typedef struct {
+    /* 0x00 */ u16 optionId;                     // original name: option_id
+    /* 0x02 */ u8 language;                      // original name: j_n
+    /* 0x03 */ s8 audioSetting;                  // original name: s_sound
+    /* 0x04 */ u8 languageSetting;               // original name: language
+    /* 0x05 */ u8 zTargetSetting;                // 0: Switch; 1: Hold
+} SaveOptions; // size = 0x06
+
+typedef struct {
+    /* 0x0000 */ char newf[6];                   // original name: newf"               Will always be "ZELDA3 for a valid save
+    /* 0x0006 */ u16 deaths;                     // original name: savect
+    /* 0x0008 */ char playerName[8];             // original name: player_name
+    /* 0x0010 */ s16 healthCapacity;             // original name: max_life
+    /* 0x0012 */ s16 health;                     // original name: now_life
+    /* 0x0014 */ s8 magicLevel;                  // original name: magic_max
+    /* 0x0015 */ s8 magic;                       // original name: magic_now
+    /* 0x0016 */ s16 rupees;                     // original name: lupy_count
+    /* 0x0018 */ u16 swordHealth;                // original name: long_sword_hp
+    /* 0x001A */ u16 tatlTimer;                  // original name: navi_timer
+    /* 0x001C */ u8 magicAcquired;               // original name: magic_mode
+    /* 0x001D */ u8 doubleMagic;                 // original name: magic_ability
+    /* 0x001E */ u8 doubleDefense;               // original name: life_ability
+    /* 0x001F */ u8 unk_1F;                      // original name: ocarina_round
+    /* 0x0020 */ u8 unk_20;                      // original name: first_memory
+    /* 0x0022 */ u16 owlActivationFlags;         // original name: memory_warp_point
+    /* 0x0024 */ u8 unk_24;                      // original name: last_warp_pt
+    /* 0x0026 */ s16 savedSceneNum;              // original name: scene_data_ID
+} SavePlayerData; // size = 0x28
 
 typedef struct {
     /* 0x0000 */ u32 entranceIndex;          // "scene_no"
@@ -51,51 +88,38 @@ typedef struct {
     /* 0x000C */ u16 time;                   // "zelda_time"
     /* 0x000E */ u16 owlSaveLocation;
     /* 0x0010 */ s32 isNight;                // "asahiru_fg"
-    /* 0x0014 */ u32 unk_14;                 // "change_zelda_time"
+    /* 0x0014 */ u32 daySpeed;               // "change_zelda_time"
     /* 0x0018 */ s32 day;                    // "totalday"
     /* 0x001C */ u32 daysElapsed;            // "eventday"
     /* 0x0020 */ u8 playerForm;              // "player_character"
     /* 0x0021 */ u8 snowheadCleared;         // "spring_flag"
     /* 0x0022 */ u8 hasTatl;                 // "bell_flag"
     /* 0x0023 */ u8 isOwlSave;
-    /* 0x0024 */ char newf[6];               // Will always be "ZELDA3" for a valid save
-    /* 0x002B */ u16 deaths;                 // "savect"
-    /* 0x002C */ char playerName[8];         // "player_name"
-    /* 0x0034 */ s16 healthCapacity;         // "max_life"
-    /* 0x0036 */ s16 health;                 // "now_life"
-    /* 0x0038 */ s8 magicLevel;              // "magic_max"
-    /* 0x0039 */ s8 magic;                   // "magic_now"
-    /* 0x003A */ s16 rupees;                 // "lupy_count"
-    /* 0x003C */ u16 swordHealth;            // "long_sword_hp"
-    /* 0x003E */ u16 naviTimer;              // "navi_timer"
-    /* 0x0040 */ u8 magicAcquired;           // "magic_mode"
-    /* 0x0041 */ u8 doubleMagic;             // "magic_ability"
-    /* 0x0042 */ u8 doubleDefense;           // "life_ability"
-    /* 0x0043 */ u8 unk_43;                  // "ocarina_round"
-    /* 0x0044 */ u8 unk_44;                  // "first_memory"
-    /* 0x0046 */ u16 owlActivationFlags;     // "memory_warp_point"
-    /* 0x0048 */ u8 unk_48;                  // "last_warp_pt"
-    /* 0x004A */ s16 savedSceneNum;          // "scene_data_ID"
+    /* 0x0024 */ SavePlayerData playerData;
     /* 0x004C */ ItemEquips equips;
     /* 0x0070 */ Inventory inventory;
     /* 0x00F8 */ u32 roomInf[128][7];
     /* 0x0EF8 */ u8 weekEventReg[100];       // "week_event_reg"
     /* 0x0F5C */ u32 mapsVisited;            // "area_arrival"
-    /* 0x0F60 */ u32 unk_F60;                // "cloud_clear"
+    /* 0x0F60 */ u32 mapsVisible;            // "cloud_clear"
     /* 0x0F64 */ u8 unk_F64;                 // "oca_rec_flag"
     /* 0x0F65 */ u8 unk_F65;                 // "oca_rec_flag8"
-    /* 0x0F66 */ u8 unk_F66[128];            // "oca_rec_buff8"
-    /* 0x0FE6 */ s8 unk_FE6;                 // "aikotoba_index"
-    /* 0x0FE7 */ s8 unk_FE7[5];              // "aikotoba_table"
+    /* 0x0F66 */ u8 scarecrowsSong[128];     // "oca_rec_buff8"
+    /* 0x0FE6 */ s8 bombersCaughtNum;        // "aikotoba_index"
+    /* 0x0FE7 */ s8 bombersCaughtOrder[5];   // "aikotoba_table"
     /* 0x0FEC */ s8 lotteryCodes[3][3];      // "numbers_table"
     /* 0x0FF5 */ s8 spiderHouseMaskOrder[6]; // "kinsta_color_table"
     /* 0x0FFB */ s8 bomberCode[5];           // "bombers_aikotoba_table"
     /* 0x1000 */ HorseData horseData;
     /* 0x100A */ u16 checksum; // "check_sum"
+} Save; // size = 0x100C
+
+typedef struct {
+    /* 0x0000 */ Save save;
     /* 0x100C */ u8 eventInf[8];
     /* 0x1014 */ u8 unk_1014; // "stone_set_flag"
     /* 0x1015 */ u8 unk_1015;
-    /* 0x1016 */ u16 unk_1016;
+    /* 0x1016 */ u16 jinxTimer;
     /* 0x1018 */ s16 rupeeAccumulator; // "lupy_udct"
     /* 0x101A */ u8 unk_101A[6];       // "bottle_status", one entry for each bottle
     /* 0x1020 */ OSTime unk_1020[6];   // "bottle_ostime", one entry for each bottle
@@ -152,11 +176,7 @@ typedef struct {
     /* 0x3F3C */ u16 unk_3F3C;           // "yabusame_out_ct"
     /* 0x3F3E */ u8 unk_3F3E;            // "no_save"
     /* 0x3F3F */ u8 unk_3F3F;            // "flash_flag"
-    /* 0x3F40 */ u16 option_id;          // "option_id"
-    /* 0x3F42 */ u8 language;            // "j_n"
-    /* 0x3F43 */ u8 audioSetting;        // "s_sound"
-    /* 0x3F44 */ u8 unk_3F44;            // "language"
-    /* 0x3F45 */ u8 zTargetSetting;      // 0: Switch; 1: Hold
+    /* 0x3F40 */ SaveOptions options;
     /* 0x3F46 */ u16 unk_3F46;           // "NottoriBgm"
     /* 0x3F48 */ u8 unk_3F48;            // "fade_go"
     /* 0x3F4A */ u16 nextCutsceneIndex;  // "next_daytime"
@@ -164,7 +184,7 @@ typedef struct {
     /* 0x3F4D */ u8 unk_3F4D;            // "Kenjya_no"
     /* 0x3F4E */ u16 nextDayTime;        // "next_zelda_time"
     /* 0x3F50 */ u8 fadeDuration;        // "fade_speed"
-    /* 0x3F51 */ u8 unk_3F51;            // "wipe_speed"
+    /* 0x3F51 */ u8 fadeSpeed;           // "wipe_speed"
     /* 0x3F52 */ u16 environmentTime;    // "kankyo_time"
     /* 0x3F54 */ u8 dogIsLost;           // "dog_event_flag"
     /* 0x3F55 */ u8 nextTransition;      // "next_wipe"
@@ -172,12 +192,12 @@ typedef struct {
     /* 0x3F58 */ s16 unk_3F58;           // "sunmoon_flag"
     /* 0x3F5A */ s16 healthAccumulator;  // "life_mode"
     /* 0x3F5C */ s32 unk_3F5C;           // "bet_rupees"
-    /* 0x3F60 */ u8 unk_3F60;            // "framescale_flag"
-    /* 0x3F64 */ f32 unk_3F64;           // "framescale_scale"
-    /* 0x3F68 */ u32 unk_3F68[5][120];
+    /* 0x3F60 */ u8 screenScaleFlag;     // "framescale_flag"
+    /* 0x3F64 */ f32 screenScale;        // "framescale_scale"
+    /* 0x3F68 */ CycleSceneFlags cycleSceneFlags[120];
     /* 0x48C8 */ u16 unk_48C8;           // "scene_id_mix"
     /* 0x48CA */ u8 maskMaskBit[3];      // masks given away on the Moon
-    /* 0x48CD */ char unk_48CD[24];
+    /* 0x48CD */ u8 unk_48CD[24];
 } SaveContext; // size = 0x48C8
 
 typedef enum {
