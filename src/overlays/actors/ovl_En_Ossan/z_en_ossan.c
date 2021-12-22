@@ -304,7 +304,7 @@ s32 EnOssan_TestCancelOption(EnOssan* this, GlobalContext* globalCtx, Input* inp
 }
 
 void EnOssan_SetupStartShopping(GlobalContext* globalCtx, EnOssan* this, u8 skipHello) {
-    func_8011552C(globalCtx, 0x10);
+    Interface_SetDoAction(globalCtx, DO_ACTION_NEXT);
     if (!skipHello) {
         EnOssan_SetupAction(this, EnOssan_Hello);
     } else {
@@ -315,7 +315,7 @@ void EnOssan_SetupStartShopping(GlobalContext* globalCtx, EnOssan* this, u8 skip
 void EnOssan_StartShopping(GlobalContext* globalCtx, EnOssan* this) {
     EnOssan_SetupAction(this, EnOssan_FaceShopkeeper);
     func_80151938(globalCtx, 0x640);
-    func_8011552C(globalCtx, 6);
+    Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
     this->stickRightPrompt.isEnabled = true;
     this->stickLeftPrompt.isEnabled = true;
 }
@@ -568,7 +568,7 @@ s32 EnOssan_FacingShopkeeperDialogResult(EnOssan* this, GlobalContext* globalCtx
             }
             EnOssan_SetupAction(this, EnOssan_TalkToShopkeeper);
             func_80151938(globalCtx, sTalkOptionTextIds[this->actor.params]);
-            func_8011552C(globalCtx, 6);
+            Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
             this->stickLeftPrompt.isEnabled = false;
             this->stickRightPrompt.isEnabled = false;
             return true;
@@ -595,7 +595,7 @@ void EnOssan_FaceShopkeeper(EnOssan* this, GlobalContext* globalCtx) {
         this->cutsceneState = ENOSSAN_CUTSCENESTATE_WAITING;
     } else {
         if (talkState == 4) {
-            func_8011552C(globalCtx, 6);
+            Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
             if (!EnOssan_TestEndInteraction(this, globalCtx, CONTROLLER1(globalCtx)) &&
                 (!func_80147624(globalCtx) || !EnOssan_FacingShopkeeperDialogResult(this, globalCtx))) {
                 if (this->stickAccumX < 0) {
@@ -603,7 +603,7 @@ void EnOssan_FaceShopkeeper(EnOssan* this, GlobalContext* globalCtx) {
                     if (cursorIdx != CURSOR_INVALID) {
                         this->cursorIdx = cursorIdx;
                         EnOssan_SetupAction(this, EnOssan_LookToLeftShelf);
-                        func_8011552C(globalCtx, 6);
+                        Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
                         this->stickLeftPrompt.isEnabled = false;
                         play_sound(NA_SE_SY_CURSOR);
                     }
@@ -612,7 +612,7 @@ void EnOssan_FaceShopkeeper(EnOssan* this, GlobalContext* globalCtx) {
                     if (cursorIdx != CURSOR_INVALID) {
                         this->cursorIdx = cursorIdx;
                         EnOssan_SetupAction(this, EnOssan_LookToRightShelf);
-                        func_8011552C(globalCtx, 6);
+                        Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
                         this->stickRightPrompt.isEnabled = false;
                         play_sound(NA_SE_SY_CURSOR);
                     }
@@ -818,7 +818,7 @@ void EnOssan_BrowseLeftShelf(EnOssan* this, GlobalContext* globalCtx) {
         this->stickRightPrompt.isEnabled = true;
         EnOssan_UpdateCursorPos(globalCtx, this);
         if (talkState == 5) {
-            func_8011552C(globalCtx, 6);
+            Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
             if (!EnOssan_HasPlayerSelectedItem(globalCtx, this, CONTROLLER1(globalCtx))) {
                 if (this->moveHorizontal) {
                     if (this->stickAccumX > 0) {
@@ -876,7 +876,7 @@ void EnOssan_BrowseRightShelf(EnOssan* this, GlobalContext* globalCtx) {
         this->stickLeftPrompt.isEnabled = true;
         EnOssan_UpdateCursorPos(globalCtx, this);
         if (talkState == 5) {
-            func_8011552C(globalCtx, 6);
+            Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
             if (!EnOssan_HasPlayerSelectedItem(globalCtx, this, CONTROLLER1(globalCtx))) {
                 if (this->moveHorizontal != 0) {
                     if (this->stickAccumX < 0) {
@@ -1017,7 +1017,7 @@ void EnOssan_SelectItem(EnOssan* this, GlobalContext* globalCtx) {
     u8 talkState = func_80152498(&globalCtx->msgCtx);
 
     if (EnOssan_TakeItemOffShelf(this) && talkState == 4) {
-        func_8011552C(globalCtx, 6);
+        Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
         if (!EnOssan_TestCancelOption(this, globalCtx, CONTROLLER1(globalCtx)) && func_80147624(globalCtx)) {
             switch (globalCtx->msgCtx.choiceIndex) {
                 case 0:
@@ -1084,7 +1084,7 @@ void EnOssan_ContinueShopping(EnOssan* this, GlobalContext* globalCtx) {
     EnGirlA* item;
 
     if (talkState == 4) {
-        func_8011552C(globalCtx, 6);
+        Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
         if (func_80147624(globalCtx)) {
             EnOssan_ResetItemPosition(this);
             item = this->items[this->cursorIdx];

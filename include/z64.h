@@ -602,6 +602,52 @@ typedef struct {
     /* 0x2CA */ s16 unk_2CA;
 } PauseContext; // size = 0x2D0
 
+typedef enum {
+    /* 0x00 */ DO_ACTION_UNK00,
+    /* 0x01 */ DO_ACTION_UNK01,
+    /* 0x02 */ DO_ACTION_UNK02,
+    /* 0x03 */ DO_ACTION_UNK03,
+    /* 0x04 */ DO_ACTION_UNK04,
+    /* 0x05 */ DO_ACTION_UNK05,
+    /* 0x06 */ DO_ACTION_DECIDE,
+    /* 0x07 */ DO_ACTION_UNK07,
+    /* 0x08 */ DO_ACTION_UNK08,
+    /* 0x09 */ DO_ACTION_UNK09,
+    /* 0x0A */ DO_ACTION_NONE,  // in do_action_static, the texture at this position is NAVI, however this value is in practice the "No Action" value
+    /* 0x0B */ DO_ACTION_UNK0B,
+    /* 0x0C */ DO_ACTION_UNK0C,
+    /* 0x0D */ DO_ACTION_UNK0D,
+    /* 0x0E */ DO_ACTION_UNK0E,
+    /* 0x0F */ DO_ACTION_UNK0F,
+    /* 0x10 */ DO_ACTION_NEXT,
+    /* 0x11 */ DO_ACTION_UNK11,
+    /* 0x12 */ DO_ACTION_UNK12,
+    /* 0x13 */ DO_ACTION_UNK13,
+    /* 0x14 */ DO_ACTION_UNK14,
+    /* 0x15 */ DO_ACTION_UNK15,
+    /* 0x16 */ DO_ACTION_UNK16,
+    /* 0x17 */ DO_ACTION_UNK17,
+    /* 0x18 */ DO_ACTION_UNK18,
+    /* 0x19 */ DO_ACTION_UNK19,
+    /* 0x1A */ DO_ACTION_UNK1A,
+    /* 0x1B */ DO_ACTION_UNK1B,
+    /* 0x1C */ DO_ACTION_UNK1C,
+    /* 0x1D */ DO_ACTION_UNK1D,
+    /* 0x1E */ DO_ACTION_UNK1E,
+    /* 0x1F */ DO_ACTION_UNK1F,
+    /* 0x20 */ DO_ACTION_UNK20,
+    /* 0x21 */ DO_ACTION_UNK21,
+    /* 0x22 */ DO_ACTION_UNK22,
+    /* 0x23 */ DO_ACTION_UNK23,
+    /* 0x24 */ DO_ACTION_UNK24,
+    /* 0x25 */ DO_ACTION_UNK25,
+    /* 0x26 */ DO_ACTION_UNK26,
+    /* 0x27 */ DO_ACTION_UNK27,
+    /* 0x28 */ DO_ACTION_UNK28,
+    /* 0x29 */ DO_ACTION_UNK29,
+    /* 0x2A */ DO_ACTION_MAX
+} DoAction;
+
 typedef struct {
     /* 0x000 */ View view;
     /* 0x168 */ Vtx* actionVtx;

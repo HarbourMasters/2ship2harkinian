@@ -357,9 +357,9 @@ s32 D_801BFA84[] = {
     0x00010005, 0x00010005, 0x000A0014, 0x00320064, 0x00C80000,
 };
 
-s32 D_801BFAB0[] = {
-    0x09000000,
-    0x09000180,
+s32 sDoActionTextures[] = {
+    0x09000000, // gAttackDoActionENGTex
+    0x09000180, // gCheckDoActionENGTex
 };
 
 s32 D_801BFAB8[] = {
@@ -1737,33 +1737,218 @@ void func_80112BE4(GlobalContext* globalCtx, u8 arg1) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Item_Give.s")
 
+s32 func_801143CC(u8);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_801143CC.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80114978.s")
+s32 func_80114978(u8 arg0) {
+    return func_801143CC(arg0);
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_801149A0.s")
+void func_801149A0(s16 arg0, s16 arg1) {
+    s16 phi_v0;
+    s32 phi_a1;
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80114A9C.s")
+    gSaveContext.save.inventory.items[arg1] = 0xFF;
+
+    for (phi_v0 = 1; phi_v0 < 4; phi_v0++) {
+        if (phi_v0 == 0) {
+            phi_a1 = gSaveContext.save.equips.buttonItems[CUR_FORM][phi_v0];
+        } else {
+            phi_a1 = gSaveContext.save.equips.buttonItems[0][phi_v0];
+        }
+        if (arg0 == (phi_a1 & 0xFF)) {
+            if (phi_v0 == 0) {
+                phi_a1 = CUR_FORM;
+                gSaveContext.save.equips.buttonItems[phi_a1][phi_v0] = 0xFF;
+            } else {
+                gSaveContext.save.equips.buttonItems[0][phi_v0] = 0xFF;
+            }
+            if (phi_v0 == 0) {
+                phi_a1 = CUR_FORM;
+                gSaveContext.save.equips.cButtonSlots[phi_a1][phi_v0] = 0xFF;
+            } else {
+                gSaveContext.save.equips.cButtonSlots[0][phi_v0] = 0xFF;
+            }
+        }
+    }
+}
+
+void func_80114A9C(s16 arg0) {
+    s16 phi_v0;
+    s32 phi_a1;
+
+    for (phi_v0 = 1; phi_v0 < 4; phi_v0++) {
+        if (phi_v0 == 0) {
+            phi_a1 = gSaveContext.save.equips.buttonItems[CUR_FORM][phi_v0];
+        } else {
+            phi_a1 = gSaveContext.save.equips.buttonItems[0][phi_v0];
+        }
+        if (arg0 == (phi_a1 & 0xFF)) {
+            if (phi_v0 == 0) {
+                phi_a1 = CUR_FORM;
+                gSaveContext.save.equips.buttonItems[phi_a1][phi_v0] = 0xFF;
+            } else {
+                gSaveContext.save.equips.buttonItems[0][phi_v0] = 0xFF;
+            }
+            if (phi_v0 == 0) {
+                phi_a1 = CUR_FORM;
+                gSaveContext.save.equips.cButtonSlots[phi_a1][phi_v0] = 0xFF;
+            } else {
+                gSaveContext.save.equips.cButtonSlots[0][phi_v0] = 0xFF;
+            }
+        }
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80114B84.s")
+/* s32 func_80114B84(s32 arg0, u8 arg1, u8 arg2) {
+    u8 phi_a3;
+    s32 phi_a0;
+    u8 phi_a3_2;
+    for (phi_a3 = 0; phi_a3 < 24; phi_a3++) {
+        if (gSaveContext.save.inventory.items[phi_a3] == arg1) {
+            gSaveContext.save.inventory.items[phi_a3] = arg2;
+            for (phi_a3_2 = 1; phi_a3_2 < 4; phi_a3_2++) {
+                if (phi_a3_2 == 0) {
+                    phi_a0 = gSaveContext.save.equips.buttonItems[CUR_FORM][phi_a3_2];
+                } else {
+                    phi_a0 = gSaveContext.save.equips.buttonItems[0][phi_a3_2];
+                }
+                if (arg1 == (phi_a0 & 0xFF)) {
+                    if (phi_a3_2 == 0) {
+                        phi_a0 = CUR_FORM;
+                        gSaveContext.save.equips.buttonItems[phi_a0][phi_a3_2] = arg2;
+                    } else {
+                        gSaveContext.save.equips.buttonItems[0][phi_a3_2] = arg2;
+                    }
+                    Interface_LoadItemIcon(arg0, phi_a3_2 & 0xFF);
+                    return 1;
+                }
+            }
+            return 1;
+        }
+    }
+    return 0;
+} */
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80114CA0.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80114E90.s")
+s32 func_80114E90(void) {
+    s32 i;
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80114F2C.s")
+    for (i = 18; i < 24; i++) {
+        if (gSaveContext.save.inventory.items[i] == ITEM_BOTTLE) {
+            return true;
+        }
+    }
+    return false;
+}
+
+s32 func_80114F2C(u8 arg0) {
+    s32 i;
+
+    for (i = 18; i < 24; i++) {
+        if (gSaveContext.save.inventory.items[i] == arg0) {
+            return true;
+        }
+    }
+    return false;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80114FD0.s")
+/* void func_80114FD0(GlobalContext* globalCtx, u8 arg1, u8 arg2) {
+    u8 phi_v1;
+    s32 phi_a0;
+    if (arg2 == 0) {
+        phi_v1 = gSaveContext.save.equips.cButtonSlots[CUR_FORM][arg2];
+    } else {
+        phi_v1 = gSaveContext.save.equips.cButtonSlots[0][arg2];
+    }
+    gSaveContext.save.inventory.items[phi_v1] = arg1;
+    if (arg2 == 0) {
+        phi_a0 = CUR_FORM;
+        gSaveContext.save.equips.buttonItems[phi_a0][arg2] = arg1;
+    } else {
+        gSaveContext.save.equips.buttonItems[0][arg2] = arg1;
+    }
+    Interface_LoadItemIcon(globalCtx, arg2);
+    globalCtx->pauseCtx.cursorItem[0] = arg1;
+    gSaveContext.buttonStatus[arg2] = 0;
+    if (arg1 == 0x20) {
+        if (arg2 == 0) {
+            phi_a0 = CUR_FORM;
+            phi_v1 = gSaveContext.save.equips.cButtonSlots[phi_a0][arg2];
+        } else {
+            phi_v1 = gSaveContext.save.equips.cButtonSlots[0][arg2];
+        }
+        func_8012FB84(0x3C, phi_v1 - 0x12);
+    }
+} */
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80115130.s")
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_801152B8.s")
+/* void func_801152B8(GlobalContext* globalCtx, s16 arg1, s16 arg2) {
+    s16 phi_s0;
+    u8 phi_v1;
+    gSaveContext.save.inventory.items[arg1] = arg2;
+    for (phi_s0 = 1; phi_s0 < 4; phi_s0++) {
+        if (phi_s0 == 0) {
+            phi_v1 = gSaveContext.save.equips.cButtonSlots[CUR_FORM][phi_s0];
+        } else {
+            phi_v1 = gSaveContext.save.equips.cButtonSlots[0][phi_s0];
+        }
+        if (arg1 == (phi_v1 & 0xFF)) {
+            if (phi_s0 == 0) {
+                gSaveContext.save.equips.buttonItems[CUR_FORM][phi_s0] = arg2;
+            } else {
+                gSaveContext.save.equips.buttonItems[0][phi_s0] = arg2;
+            }
+            Interface_LoadItemIcon(globalCtx, phi_s0);
+        }
+    }
+} */
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_801153C8.s")
+void func_801153C8(s32* buf, s32 size) {
+    s32 i;
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80115428.s")
+    for (i = 0; i != size; i++) {
+        buf[i] = 0;
+    }
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011552C.s")
+void Interface_LoadActionLabel(InterfaceContext* interfaceCtx, u16 action, s16 loadOffset) {
+    if (action >= DO_ACTION_MAX) {
+        action = DO_ACTION_NONE;
+    }
+
+    if (action != DO_ACTION_NONE) {
+        osCreateMesgQueue(&interfaceCtx->loadQueue, &interfaceCtx->loadMsg, 1);
+        DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest_184, (u32)interfaceCtx->doActionSegment + (loadOffset * 0x180),
+                            (u32)_do_action_staticSegmentRomStart + (action * 0x180), 0x180, 0,
+                            &interfaceCtx->loadQueue, 0);
+        osRecvMesg(&interfaceCtx->loadQueue, NULL, OS_MESG_BLOCK);
+        return;
+    }
+
+    gSegments[0x09] = PHYSICAL_TO_VIRTUAL(interfaceCtx->doActionSegment);
+    func_801153C8(Lib_SegmentedToVirtual(sDoActionTextures[loadOffset]), 0x60);
+}
+
+void Interface_SetDoAction(GlobalContext* globalCtx, u16 action) {
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+    PauseContext* pauseCtx = &globalCtx->pauseCtx;
+
+    if (interfaceCtx->unk_214 != action) {
+        interfaceCtx->unk_214 = action;
+        interfaceCtx->unk_210 = 1;
+        interfaceCtx->unk_218 = 0.0f;
+        Interface_LoadActionLabel(interfaceCtx, action, 1);
+        if (pauseCtx->state != 0) {
+            interfaceCtx->unk_210 = 3;
+        }
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_801155B4.s")
 
@@ -1779,7 +1964,14 @@ void func_80112BE4(GlobalContext* globalCtx, u8 arg1) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80115A14.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Parameter_AddMagic.s")
+void Interface_AddMagic(GlobalContext* globalCtx, s16 arg1) {
+    if (gSaveContext.save.playerData.magic) {}
+    
+    if (gSaveContext.save.playerData.magic < gSaveContext.unk_3F2E) {
+        gSaveContext.unk_3F34 += arg1;
+        gSaveContext.unk_3F2A = 1;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80115D5C.s")
 
@@ -1835,9 +2027,41 @@ void func_80112BE4(GlobalContext* globalCtx, u8 arg1) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_Draw.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80120F90.s")
+#ifdef NON_MATCHING
+void func_80120F90(GlobalContext* globalCtx, s32 block) {
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80121064.s")
+    switch (interfaceCtx->unk_31C) {
+        case 0:
+            if (interfaceCtx->unk_33C == NULL) {
+                break;
+            }
+            osCreateMesgQueue(&interfaceCtx->unk_320, interfaceCtx->unk_338, 1);
+            DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest_184, interfaceCtx->unk_33C, interfaceCtx->unk_340,
+                                interfaceCtx->unk_344, 0, &interfaceCtx->unk_320, NULL);
+            interfaceCtx->unk_31C = 1;
+        case 1:
+            if (osRecvMesg(&interfaceCtx->unk_320, NULL, block) == 0) {
+                interfaceCtx->unk_31C = 2;
+            }
+            break;
+    }
+}
+#else
+#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80120F90.s")
+#endif
+
+void func_80121064(GlobalContext* globalCtx) {
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+
+    interfaceCtx->unk_340 = (u32)_story_staticSegmentRomStart;
+    interfaceCtx->unk_344 = (u32)_story_staticSegmentRomEnd - (u32)_story_staticSegmentRomStart;
+
+    if (interfaceCtx->unk_33C == NULL) {
+        interfaceCtx->unk_33C = ZeldaArena_Malloc(interfaceCtx->unk_344);
+    }
+    func_80120F90(globalCtx, 0);
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_Update.s")
 

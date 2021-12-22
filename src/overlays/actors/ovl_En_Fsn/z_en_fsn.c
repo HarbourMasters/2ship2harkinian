@@ -789,7 +789,7 @@ void EnFsn_BeginInteraction(EnFsn* this, GlobalContext* globalCtx) {
             ActorCutscene_StartAndSetFlag(this->cutscene, &this->actor);
             this->cutsceneState = 2;
             if (Player_GetMask(globalCtx) == PLAYER_MASK_NONE) {
-                func_8011552C(globalCtx, 16);
+                Interface_SetDoAction(globalCtx, DO_ACTION_NEXT);
                 if (EnFsn_HasItemsToSell()) {
                     this->actionFunc = EnFsn_AskBuyOrSell;
                 } else {
@@ -868,7 +868,7 @@ void EnFsn_AskBuyOrSell(EnFsn* this, GlobalContext* globalCtx) {
             }
         }
     } else if (talkState == 4) {
-        func_8011552C(globalCtx, 6);
+        Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
         if (!EnFsn_TestEndInteraction(this, globalCtx, CONTROLLER1(globalCtx)) && func_80147624(globalCtx)) {
             u32 trueTmp = true;
             switch (globalCtx->msgCtx.choiceIndex) {
@@ -1045,7 +1045,7 @@ void EnFsn_ResumeShoppingInteraction(EnFsn* this, GlobalContext* globalCtx) {
             } else if (this->actor.textId != 0x29D6) {
                 this->actionFunc = EnFsn_AskCanBuyAterRunningOutOfItems;
             } else {
-                func_8011552C(globalCtx, 6);
+                Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
                 this->stickLeftPrompt.isEnabled = false;
                 this->stickRightPrompt.isEnabled = true;
                 this->actionFunc = EnFsn_FaceShopkeeperSelling;
@@ -1096,7 +1096,7 @@ void EnFsn_BrowseShelf(EnFsn* this, GlobalContext* globalCtx) {
         this->stickLeftPrompt.isEnabled = true;
         EnFsn_UpdateCursorPos(this, globalCtx);
         if (talkstate == 5) {
-            func_8011552C(globalCtx, 6);
+            Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
             if (!EnFsn_HasPlayerSelectedItem(this, globalCtx, CONTROLLER1(globalCtx))) {
                 EnFsn_CursorLeftRight(this);
                 if (this->cursorIdx != prevCursorIdx) {
@@ -1198,7 +1198,7 @@ void EnFsn_SelectItem(EnFsn* this, GlobalContext* globalCtx) {
     u8 talkState = func_80152498(&globalCtx->msgCtx);
 
     if (EnFsn_TakeItemOffShelf(this) && talkState == 4) {
-        func_8011552C(globalCtx, 6);
+        Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
         if (!EnFsn_TestCancelOption(this, globalCtx, CONTROLLER1(globalCtx)) && func_80147624(globalCtx)) {
             switch (globalCtx->msgCtx.choiceIndex) {
                 case 0:
@@ -1318,7 +1318,7 @@ void EnFsn_FaceShopkeeperSelling(EnFsn* this, GlobalContext* globalCtx) {
     u8 cursorIdx;
 
     if (talkState == 4) {
-        func_8011552C(globalCtx, 6);
+        Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
         if (!EnFsn_TestEndInteraction(this, globalCtx, CONTROLLER1(globalCtx)) &&
             (!func_80147624(globalCtx) || !EnFsn_FacingShopkeeperDialogResult(this, globalCtx)) &&
             this->stickAccumX > 0) {
@@ -1326,7 +1326,7 @@ void EnFsn_FaceShopkeeperSelling(EnFsn* this, GlobalContext* globalCtx) {
             if (cursorIdx != CURSOR_INVALID) {
                 this->cursorIdx = cursorIdx;
                 this->actionFunc = EnFsn_LookToShelf;
-                func_8011552C(globalCtx, 6);
+                Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
                 this->stickRightPrompt.isEnabled = false;
                 play_sound(NA_SE_SY_CURSOR);
             }

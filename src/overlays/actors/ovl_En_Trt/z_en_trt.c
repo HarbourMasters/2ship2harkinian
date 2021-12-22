@@ -250,7 +250,7 @@ s32 EnTrt_TestCancelOption(EnTrt* this, GlobalContext* globalCtx, Input* input) 
 }
 
 void EnTrt_SetupStartShopping(GlobalContext* globalCtx, EnTrt* this, u8 skipHello) {
-    func_8011552C(globalCtx, 0x10);
+    Interface_SetDoAction(globalCtx, DO_ACTION_NEXT);
     if (!skipHello) {
         this->actionFunc = EnTrt_Hello;
     } else {
@@ -260,7 +260,7 @@ void EnTrt_SetupStartShopping(GlobalContext* globalCtx, EnTrt* this, u8 skipHell
 
 void EnTrt_StartShopping(GlobalContext* globalCtx, EnTrt* this) {
     func_80151938(globalCtx, 0x83E);
-    func_8011552C(globalCtx, 6);
+    Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
     this->stickLeftPrompt.isEnabled = false;
     this->stickRightPrompt.isEnabled = true;
     this->actionFunc = EnTrt_FaceShopkeeper;
@@ -529,7 +529,7 @@ void EnTrt_FaceShopkeeper(EnTrt* this, GlobalContext* globalCtx) {
         ActorCutscene_SetIntentToPlay(this->cutscene);
         this->cutsceneState = ENTRT_CUTSCENESTATE_WAITING;
     } else if (talkState == 4) {
-        func_8011552C(globalCtx, 6);
+        Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
         if (!EnTrt_TestEndInteraction(this, globalCtx, CONTROLLER1(globalCtx))) {
             if ((!func_80147624(globalCtx) || !EnTrt_FacingShopkeeperDialogResult(this, globalCtx)) &&
                 (this->stickAccumX > 0)) {
@@ -537,7 +537,7 @@ void EnTrt_FaceShopkeeper(EnTrt* this, GlobalContext* globalCtx) {
                 if (cursorIdx != CURSOR_INVALID) {
                     this->cursorIdx = cursorIdx;
                     this->actionFunc = EnTrt_LookToShelf;
-                    func_8011552C(globalCtx, 6);
+                    Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
                     this->stickRightPrompt.isEnabled = false;
                     play_sound(NA_SE_SY_CURSOR);
                 }
@@ -631,7 +631,7 @@ void EnTrt_BrowseShelf(EnTrt* this, GlobalContext* globalCtx) {
         this->stickLeftPrompt.isEnabled = true;
         EnTrt_UpdateCursorPos(globalCtx, this);
         if (talkState == 5) {
-            func_8011552C(globalCtx, 6);
+            Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
             if (!EnTrt_HasPlayerSelectedItem(globalCtx, this, CONTROLLER1(globalCtx))) {
                 EnTrt_CursorLeftRight(globalCtx, this);
                 if (this->cursorIdx != prevCursorIdx) {
@@ -716,7 +716,7 @@ void EnTrt_SelectItem(EnTrt* this, GlobalContext* globalCtx) {
 
     if (EnTrt_TakeItemOffShelf(this)) {
         if (talkState == 4) {
-            func_8011552C(globalCtx, 6);
+            Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
             if (!EnTrt_TestCancelOption(this, globalCtx, CONTROLLER1(globalCtx)) && func_80147624(globalCtx)) {
                 switch (globalCtx->msgCtx.choiceIndex) {
                     case 0:
@@ -885,7 +885,7 @@ void EnTrt_BeginInteraction(EnTrt* this, GlobalContext* globalCtx) {
             case 0x834:
                 if (!(gSaveContext.save.weekEventReg[0xC] & 8) && !(gSaveContext.save.weekEventReg[0x54] & 0x40) &&
                     !(gSaveContext.save.weekEventReg[0x10] & 0x10) && !(gSaveContext.save.weekEventReg[0x11] & 1)) {
-                    func_8011552C(globalCtx, 6);
+                    Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
                     this->stickLeftPrompt.isEnabled = false;
                     this->stickRightPrompt.isEnabled = true;
                     this->actionFunc = EnTrt_Hello;
@@ -894,7 +894,7 @@ void EnTrt_BeginInteraction(EnTrt* this, GlobalContext* globalCtx) {
                 }
                 break;
             case 0x83E:
-                func_8011552C(globalCtx, 6);
+                Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
                 this->stickLeftPrompt.isEnabled = false;
                 this->stickRightPrompt.isEnabled = true;
                 this->actionFunc = EnTrt_FaceShopkeeper;
@@ -1103,7 +1103,7 @@ void EnTrt_ContinueShopping(EnTrt* this, GlobalContext* globalCtx) {
     EnGirlA* item;
 
     if (talkState == 4) {
-        func_8011552C(globalCtx, 6);
+        Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
         if (func_80147624(globalCtx)) {
             EnTrt_ResetItemPosition(this);
             item = this->items[this->cursorIdx];
@@ -1417,7 +1417,7 @@ void EnTrt_TalkToShopkeeper(EnTrt* this, GlobalContext* globalCtx) {
 void EnTrt_SetupTalkToShopkeeper(GlobalContext* globalCtx, EnTrt* this) {
     this->actionFunc = EnTrt_TalkToShopkeeper;
     func_80151938(globalCtx, this->talkOptionTextId);
-    func_8011552C(globalCtx, 6);
+    Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
     this->stickLeftPrompt.isEnabled = false;
     this->stickRightPrompt.isEnabled = false;
 }

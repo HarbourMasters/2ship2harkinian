@@ -484,7 +484,7 @@ s32 EnSob1_TestCancelOption(EnSob1* this, GlobalContext* globalCtx, Input* input
 }
 
 void EnSob1_SetupStartShopping(GlobalContext* globalCtx, EnSob1* this, u8 skipHello) {
-    func_8011552C(globalCtx, 16);
+    Interface_SetDoAction(globalCtx, DO_ACTION_NEXT);
     if (!skipHello) {
         EnSob1_SetupAction(this, EnSob1_Hello);
     } else {
@@ -495,7 +495,7 @@ void EnSob1_SetupStartShopping(GlobalContext* globalCtx, EnSob1* this, u8 skipHe
 void EnSob1_StartShopping(GlobalContext* globalCtx, EnSob1* this) {
     EnSob1_SetupAction(this, EnSob1_FaceShopkeeper);
     func_80151938(globalCtx, sFacingShopkeeperTextIds[this->shopType]);
-    func_8011552C(globalCtx, 6);
+    Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
     this->stickLeftPrompt.isEnabled = false;
     this->stickRightPrompt.isEnabled = true;
 }
@@ -504,7 +504,7 @@ void EnSob1_TalkToShopkeeper(GlobalContext* globalCtx, EnSob1* this) {
     EnSob1_SetupAction(this, EnSob1_TalkingToShopkeeper);
     this->talkOptionTextId = EnSob1_GetTalkOption(this, globalCtx);
     func_80151938(globalCtx, this->talkOptionTextId);
-    func_8011552C(globalCtx, 6);
+    Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
     this->stickLeftPrompt.isEnabled = false;
     this->stickRightPrompt.isEnabled = false;
 }
@@ -670,7 +670,7 @@ void EnSob1_FaceShopkeeper(EnSob1* this, GlobalContext* globalCtx) {
         this->cutsceneState = ENSOB1_CUTSCENESTATE_WAITING;
     } else {
         if (talkState == 4) {
-            func_8011552C(globalCtx, 6);
+            Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
             if (!EnSob1_TestEndInteraction(this, globalCtx, CONTROLLER1(globalCtx))) {
                 if (!func_80147624(globalCtx) || !EnSob1_FacingShopkeeperDialogResult(this, globalCtx)) {
                     if (this->stickAccumX > 0) {
@@ -678,7 +678,7 @@ void EnSob1_FaceShopkeeper(EnSob1* this, GlobalContext* globalCtx) {
                         if (cursorIdx != CURSOR_INVALID) {
                             this->cursorIdx = cursorIdx;
                             EnSob1_SetupAction(this, EnSob1_LookToShelf);
-                            func_8011552C(globalCtx, 6);
+                            Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
                             this->stickRightPrompt.isEnabled = false;
                             play_sound(NA_SE_SY_CURSOR);
                         }
@@ -924,7 +924,7 @@ void EnSob1_BrowseShelf(EnSob1* this, GlobalContext* globalCtx) {
         this->stickLeftPrompt.isEnabled = true;
         EnSob1_UpdateCursorPos(globalCtx, this);
         if (talkState == 5) {
-            func_8011552C(globalCtx, 6);
+            Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
             if (!EnSob1_HasPlayerSelectedItem(globalCtx, this, CONTROLLER1(globalCtx))) {
                 EnSob1_CursorLeftRight(globalCtx, this);
                 cursorIdx = this->cursorIdx;
@@ -1032,7 +1032,7 @@ void EnSob1_SelectItem(EnSob1* this, GlobalContext* globalCtx) {
     u8 talkState = func_80152498(&globalCtx->msgCtx);
 
     if (EnSob1_TakeItemOffShelf(this) && talkState == 4) {
-        func_8011552C(globalCtx, 6);
+        Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
         if (!EnSob1_TestCancelOption(this, globalCtx, CONTROLLER1(globalCtx)) && func_80147624(globalCtx)) {
             switch (globalCtx->msgCtx.choiceIndex) {
                 case 0:

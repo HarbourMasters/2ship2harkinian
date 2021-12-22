@@ -1107,7 +1107,7 @@ extern UNK_PTR D_801BF5C0;
 // extern UNK_TYPE2 D_801BFA64;
 // extern UNK_TYPE2 D_801BFA74;
 // extern UNK_TYPE4 D_801BFA84;
-// extern UNK_TYPE1 D_801BFAB0;
+// extern UNK_TYPE1 sDoActionTextures;
 // extern UNK_TYPE1 D_801BFAB8;
 // extern UNK_TYPE1 D_801BFAC4;
 // extern UNK_TYPE1 D_801BFACC;
