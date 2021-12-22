@@ -184,13 +184,7 @@ s32 D_801BF8E8[] = {
     0x00000000,
 };
 
-s32 D_801BF8F0[] = {
-	0x00000000,
-};
-
-s32 D_801BF8F4[] = {
-	0x00000000,
-};
+OSTime D_801BF8F0 = 0;
 
 s32 D_801BF8F8[] = {
     0x00000000,
@@ -689,61 +683,1055 @@ s32 D_801BFDA0[] = {
     0x025C025F, 0x01DC024E, 0x025201DD, 0x01D90214, 0x01E401E1, 0x01E201E3,
 };
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8010CB80.s")
+Gfx* Gfx_TextureRGBA16(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft,
+                       s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy) {
+    gDPLoadTextureBlock(displayListHead++, texture, G_IM_FMT_RGBA, G_IM_SIZ_16b, textureWidth, textureHeight, 0,
+                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
+                        G_TX_NOLOD);
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8010CD98.s")
+    gSPTextureRectangle(displayListHead++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4,
+                        (rectTop + rectHeight) * 4, G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8010CFBC.s")
+    return displayListHead;
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8010D2D4.s")
+Gfx* Gfx_TextureIA8(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft, s16 rectTop,
+                    s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy) {
+    gDPLoadTextureBlock(displayListHead++, texture, G_IM_FMT_IA, G_IM_SIZ_8b, textureWidth, textureHeight, 0,
+                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
+                        G_TX_NOLOD);
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8010D480.s")
+    gSPTextureRectangle(displayListHead++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4,
+                        (rectTop + rectHeight) * 4, G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8010D7D0.s")
+    return displayListHead;
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8010D9F4.s")
+Gfx* func_8010CFBC(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft, s16 rectTop,
+                   s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy, s16 r, s16 g, s16 b, s16 a) {
+    s16 temp_var = a;
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8010DC58.s")
+    if (a > 100) {
+        temp_var = 100;
+    }
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8010DE38.s")
+    gDPPipeSync(displayListHead++);
+    gDPSetPrimColor(displayListHead++, 0, 0, 0, 0, 0, temp_var);
+
+    gDPLoadTextureBlock(displayListHead++, texture, G_IM_FMT_IA, G_IM_SIZ_8b, textureWidth, textureHeight, 0,
+                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
+                        G_TX_NOLOD);
+
+    gSPTextureRectangle(displayListHead++, (rectLeft + 2) * 4, (rectTop + 2) * 4, (rectLeft + rectWidth + 2) * 4,
+                        (rectTop + rectHeight + 2) * 4, G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
+
+    gDPPipeSync(displayListHead++);
+    gDPSetPrimColor(displayListHead++, 0, 0, r, g, b, a);
+
+    gSPTextureRectangle(displayListHead++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4,
+                        (rectTop + rectHeight) * 4, G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
+
+    return displayListHead;
+}
+
+Gfx* func_8010D2D4(Gfx* displayListHead, s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy,
+                   s16 r, s16 g, s16 b, s16 a) {
+    s16 temp_var = a;
+
+    if (a > 100) {
+        temp_var = 100;
+    }
+
+    gDPPipeSync(displayListHead++);
+    gDPSetPrimColor(displayListHead++, 0, 0, 0, 0, 0, temp_var);
+    gSPTextureRectangle(displayListHead++, (rectLeft + 2) * 4, (rectTop + 2) * 4, (rectLeft + rectWidth + 2) * 4,
+                        (rectTop + rectHeight + 2) * 4, G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
+
+    gDPPipeSync(displayListHead++);
+    gDPSetPrimColor(displayListHead++, 0, 0, r, g, b, a);
+
+    gSPTextureRectangle(displayListHead++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4,
+                        (rectTop + rectHeight) * 4, G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
+
+    return displayListHead;
+}
+
+Gfx* func_8010D480(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft, s16 rectTop,
+                   s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy, s16 r, s16 g, s16 b, s16 a, s32 argE, s32 argF) {
+    s16 temp_var = a;
+
+    if (a > 100) {
+        temp_var = 100;
+    }
+
+    gDPPipeSync(displayListHead++);
+    gDPSetPrimColor(displayListHead++, 0, 0, 0, 0, 0, temp_var);
+
+    gDPLoadTextureBlock(displayListHead++, texture, G_IM_FMT_IA, G_IM_SIZ_8b, textureWidth, textureHeight, 0,
+                        G_TX_MIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, argE, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+
+    gSPTextureRectangle(displayListHead++, (rectLeft + 2) * 4, (rectTop + 2) * 4, (rectLeft + rectWidth + 2) * 4,
+                        (rectTop + rectHeight + 2) * 4, G_TX_RENDERTILE, argF, 0, dsdx, dtdy);
+
+    gDPPipeSync(displayListHead++);
+    gDPSetPrimColor(displayListHead++, 0, 0, r, g, b, a);
+
+    gSPTextureRectangle(displayListHead++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4,
+                        (rectTop + rectHeight) * 4, G_TX_RENDERTILE, argF, 0, dsdx, dtdy);
+
+    return displayListHead;
+}
+
+Gfx* Gfx_TextureI8(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft, s16 rectTop,
+                   s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy) {
+    gDPLoadTextureBlock(displayListHead++, texture, G_IM_FMT_I, G_IM_SIZ_8b, textureWidth, textureHeight, 0,
+                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
+                        G_TX_NOLOD);
+
+    gSPTextureRectangle(displayListHead++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4,
+                        (rectTop + rectHeight) * 4, G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
+
+    return displayListHead;
+}
+
+Gfx* func_8010D9F4(Gfx* displayListHead, void* texture, s32 fmt, s16 textureWidth, s16 textureHeight, s16 rectLeft,
+                   s16 rectTop, s16 rectWidth, s16 rectHeight, s32 cms, s32 masks, s32 s, u16 dsdx, u16 dtdy) {
+    gDPLoadTextureBlock_4b(displayListHead++, texture, fmt, textureWidth, textureHeight, 0, cms,
+                           G_TX_NOMIRROR | G_TX_WRAP, masks, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+
+    gSPTextureRectangle(displayListHead++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4,
+                        (rectTop + rectHeight) * 4, G_TX_RENDERTILE, s, 0, dsdx, dtdy);
+
+    return displayListHead;
+}
+
+Gfx* func_8010DC58(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, u16 i) {
+    gDPLoadTextureBlock(displayListHead++, texture, G_IM_FMT_IA, G_IM_SIZ_8b, textureWidth, textureHeight, 0,
+                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
+                        G_TX_NOLOD);
+
+    gSP1Quadrangle(displayListHead++, i, i + 2, i + 3, i + 1, 0);
+
+    return displayListHead;
+}
+
+Gfx* func_8010DE38(Gfx* displayListHead, void* texture, s32 fmt, s16 textureWidth, s16 textureHeight, u16 i) {
+    gDPLoadTextureBlock_4b(displayListHead++, texture, fmt, textureWidth, textureHeight, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                           G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+
+    gSP1Quadrangle(displayListHead++, i, i + 2, i + 3, i + 1, 0);
+
+    return displayListHead;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8010E028.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8010E968.s")
+void func_8010E968(s32 arg0) {
+    s32 btnAPressed;
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8010E9F0.s")
+    func_80175E68(&D_801F5850[0], 0);
+    btnAPressed = CHECK_BTN_ALL(D_801F5850[0].cur.button, BTN_A);
+    if ((btnAPressed != D_801BFA84[0]) && btnAPressed) {
+        gSaveContext.unk_3DC8 = osGetTime();
+        gSaveContext.unk_3DD0[0] = 15;
+    }
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8010EA9C.s")
+    D_801BFA84[0] = btnAPressed;
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8010EB50.s")
+void func_8010E9F0(s16 arg0, s16 arg1) {
+    gSaveContext.timerX[arg0] = 115;
+    gSaveContext.timerY[arg0] = 80;
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8010EBA0.s")
+    D_801BF8E0 = 0;
+
+    gSaveContext.unk_3DE0[arg0] = arg1 * 100;
+    gSaveContext.unk_3E18[arg0] = gSaveContext.unk_3DE0[arg0];
+
+    if (gSaveContext.unk_3DE0[arg0] != 0) {
+        gSaveContext.unk_3DD7[arg0] = 0;
+    } else {
+        gSaveContext.unk_3DD7[arg0] = 1;
+    }
+
+    gSaveContext.unk_3DD0[arg0] = 1;
+}
+
+void func_8010EA9C(s16 arg0, s16 arg1) {
+    gSaveContext.timerX[0] = 115;
+    gSaveContext.timerY[0] = 80;
+
+    D_801BF8E4 = arg1;
+
+    gSaveContext.unk_3DE0[0] = arg0 * 100;
+    gSaveContext.unk_3E18[0] = gSaveContext.unk_3DE0[0];
+
+    if (gSaveContext.unk_3DE0[0] != 0) {
+        gSaveContext.unk_3DD7[0] = 0;
+    } else {
+        gSaveContext.unk_3DD7[0] = 1;
+    }
+    gSaveContext.unk_3DD0[0] = 13;
+
+    gSaveContext.unk_3E88[0] = 0;
+    gSaveContext.unk_3EC0[0] = 0;
+}
+
+void func_8010EB50(s32 arg0) {
+    if (gSaveContext.unk_3DD0[6] != 0) {
+        // Goron race started
+        if (gSaveContext.eventInf[1] & 1) {
+            gSaveContext.unk_3DE0[6] = 239;
+        } else {
+            gSaveContext.unk_3DE0[6] = 1;
+        }
+    }
+}
+
+void func_8010EBA0(s16 arg0, s16 arg1) {
+    gSaveContext.unk_101A[arg1] = 1;
+    gSaveContext.unk_1080[arg1] = arg0 * 100;
+    gSaveContext.unk_1050[arg1] = gSaveContext.unk_1080[arg1];
+    gSaveContext.unk_1020[arg1] = osGetTime();
+    gSaveContext.unk_10B0[arg1] = 0;
+    D_801BF8F0 = 0;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8010EC54.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8010EE74.s")
+void func_8010EE74(GlobalContext* globalCtx, s32 arg1) {
+    s32 pad;
+    s16 phi_t0 = arg1 - 1;
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_ChangeAlpha.s")
+    if (phi_t0 < 0 || phi_t0 >= 3) {
+        phi_t0 = 0;
+    }
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8010EF9C.s")
+    DmaMgr_SendRequest0((u32)globalCtx->interfaceCtx.doActionSegment + 0x780, (u32)_week_staticSegmentRomStart + phi_t0 * 0x510,
+                        0x510);
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8010F0D4.s")
+    for (phi_t0 = 0; phi_t0 < 120; phi_t0++) {
+        gSaveContext.save.roomInf[phi_t0][0] = gSaveContext.cycleSceneFlags[phi_t0].chest;
+        gSaveContext.save.roomInf[phi_t0][1] = gSaveContext.cycleSceneFlags[phi_t0].swch0;
+        gSaveContext.save.roomInf[phi_t0][2] = gSaveContext.cycleSceneFlags[phi_t0].swch1;
+        gSaveContext.save.roomInf[phi_t0][3] = gSaveContext.cycleSceneFlags[phi_t0].clearedRoom;
+        gSaveContext.save.roomInf[phi_t0][4] = gSaveContext.cycleSceneFlags[phi_t0].collectible;
+    }
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8010F1A8.s")
+void Interface_ChangeAlpha(u16 alphaType) {
+    if (gSaveContext.unk_3F22 != alphaType) {
+        gSaveContext.unk_3F22 = alphaType;
+        gSaveContext.unk_3F20 = alphaType;
+        gSaveContext.unk_3F24 = 1;
+    }
+}
 
+/**
+ * Nearly identical to func_80082644 from OoT
+ */
+void func_8010EF9C(GlobalContext* globalCtx, s16 alpha) {
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+
+    if ((gSaveContext.buttonStatus[0] == BTN_DISABLED) || (gSaveContext.unk_1015 == 0xFF)) {
+        if (interfaceCtx->bAlpha != 70) {
+            interfaceCtx->bAlpha = 70;
+        }
+    } else {
+        if (interfaceCtx->bAlpha != 255) {
+            interfaceCtx->bAlpha = alpha;
+        }
+    }
+
+    if (gSaveContext.buttonStatus[1] == BTN_DISABLED) {
+        if (interfaceCtx->cLeftAlpha != 70) {
+            interfaceCtx->cLeftAlpha = 70;
+        }
+    } else {
+        if (interfaceCtx->cLeftAlpha != 255) {
+            interfaceCtx->cLeftAlpha = alpha;
+        }
+    }
+
+    if (gSaveContext.buttonStatus[2] == BTN_DISABLED) {
+        if (interfaceCtx->cDownAlpha != 70) {
+            interfaceCtx->cDownAlpha = 70;
+        }
+    } else {
+        if (interfaceCtx->cDownAlpha != 255) {
+            interfaceCtx->cDownAlpha = alpha;
+        }
+    }
+
+    if (gSaveContext.buttonStatus[3] == BTN_DISABLED) {
+        if (interfaceCtx->cRightAlpha != 70) {
+            interfaceCtx->cRightAlpha = 70;
+        }
+    } else {
+        if (interfaceCtx->cRightAlpha != 255) {
+            interfaceCtx->cRightAlpha = alpha;
+        }
+    }
+
+    if (gSaveContext.buttonStatus[4] == BTN_DISABLED) {
+        if (interfaceCtx->aAlpha != 70) {
+            interfaceCtx->aAlpha = 70;
+        }
+    } else {
+        if (interfaceCtx->aAlpha != 255) {
+            interfaceCtx->aAlpha = alpha;
+        }
+    }
+}
+
+/**
+ * Identical to func_8008277C from OoT
+ */
+void func_8010F0D4(GlobalContext* globalCtx, s16 maxAlpha, s16 alpha) {
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+
+    if (gSaveContext.unk_3F1E != 0) {
+        func_8010EF9C(globalCtx, alpha);
+        return;
+    }
+
+    if ((interfaceCtx->bAlpha != 0) && (interfaceCtx->bAlpha > maxAlpha)) {
+        interfaceCtx->bAlpha = maxAlpha;
+    }
+
+    if ((interfaceCtx->aAlpha != 0) && (interfaceCtx->aAlpha > maxAlpha)) {
+        interfaceCtx->aAlpha = maxAlpha;
+    }
+
+    if ((interfaceCtx->cLeftAlpha != 0) && (interfaceCtx->cLeftAlpha > maxAlpha)) {
+        interfaceCtx->cLeftAlpha = maxAlpha;
+    }
+
+    if ((interfaceCtx->cDownAlpha != 0) && (interfaceCtx->cDownAlpha > maxAlpha)) {
+        interfaceCtx->cDownAlpha = maxAlpha;
+    }
+
+    if ((interfaceCtx->cRightAlpha != 0) && (interfaceCtx->cRightAlpha > maxAlpha)) {
+        interfaceCtx->cRightAlpha = maxAlpha;
+    }
+}
+
+void func_8010F1A8(GlobalContext* globalCtx, s16 maxAlpha) {
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+    s16 alpha = 255 - maxAlpha;
+
+    switch (gSaveContext.unk_3F20) {
+        case 1:
+        case 2:
+        case 8:
+            if (gSaveContext.unk_3F20 == 8) {
+                if (interfaceCtx->bAlpha != 255) {
+                    interfaceCtx->bAlpha = alpha;
+                }
+            } else {
+                if ((interfaceCtx->bAlpha != 0) && (interfaceCtx->bAlpha > maxAlpha)) {
+                    interfaceCtx->bAlpha = maxAlpha;
+                }
+            }
+
+            if ((interfaceCtx->aAlpha != 0) && (interfaceCtx->aAlpha > maxAlpha)) {
+                interfaceCtx->aAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cLeftAlpha != 0) && (interfaceCtx->cLeftAlpha > maxAlpha)) {
+                interfaceCtx->cLeftAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cDownAlpha != 0) && (interfaceCtx->cDownAlpha > maxAlpha)) {
+                interfaceCtx->cDownAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cRightAlpha != 0) && (interfaceCtx->cRightAlpha > maxAlpha)) {
+                interfaceCtx->cRightAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->healthAlpha != 0) && (interfaceCtx->healthAlpha > maxAlpha)) {
+                interfaceCtx->healthAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->magicAlpha != 0) && (interfaceCtx->magicAlpha > maxAlpha)) {
+                interfaceCtx->magicAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->minimapAlpha != 0) && (interfaceCtx->minimapAlpha > maxAlpha)) {
+                interfaceCtx->minimapAlpha = maxAlpha;
+            }
+
+            break;
+        case 3:
+            if ((interfaceCtx->aAlpha != 0) && (interfaceCtx->aAlpha > maxAlpha)) {
+                interfaceCtx->aAlpha = maxAlpha;
+            }
+
+            func_8010F0D4(globalCtx, maxAlpha, alpha + 0);
+
+            if ((interfaceCtx->magicAlpha != 0) && (interfaceCtx->magicAlpha > maxAlpha)) {
+                interfaceCtx->magicAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->minimapAlpha != 0) && (interfaceCtx->minimapAlpha > maxAlpha)) {
+                interfaceCtx->minimapAlpha = maxAlpha;
+            }
+
+            if (interfaceCtx->healthAlpha != 255) {
+                interfaceCtx->healthAlpha = alpha;
+            }
+
+            break;
+        case 4:
+            if ((interfaceCtx->bAlpha != 0) && (interfaceCtx->bAlpha > maxAlpha)) {
+                interfaceCtx->bAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->aAlpha != 0) && (interfaceCtx->aAlpha > maxAlpha)) {
+                interfaceCtx->aAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cLeftAlpha != 0) && (interfaceCtx->cLeftAlpha > maxAlpha)) {
+                interfaceCtx->cLeftAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cDownAlpha != 0) && (interfaceCtx->cDownAlpha > maxAlpha)) {
+                interfaceCtx->cDownAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cRightAlpha != 0) && (interfaceCtx->cRightAlpha > maxAlpha)) {
+                interfaceCtx->cRightAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->healthAlpha != 0) && (interfaceCtx->healthAlpha > maxAlpha)) {
+                interfaceCtx->healthAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->magicAlpha != 0) && (interfaceCtx->magicAlpha > maxAlpha)) {
+                interfaceCtx->magicAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->minimapAlpha != 0) && (interfaceCtx->minimapAlpha > maxAlpha)) {
+                interfaceCtx->minimapAlpha = maxAlpha;
+            }
+
+            if (interfaceCtx->aAlpha != 255) {
+                interfaceCtx->aAlpha = alpha;
+            }
+
+            break;
+        case 5:
+            func_8010F0D4(globalCtx, maxAlpha, alpha);
+
+            if ((interfaceCtx->minimapAlpha != 0) && (interfaceCtx->minimapAlpha > maxAlpha)) {
+                interfaceCtx->minimapAlpha = maxAlpha;
+            }
+
+            if (interfaceCtx->aAlpha != 255) {
+                interfaceCtx->aAlpha = alpha;
+            }
+
+            if (interfaceCtx->healthAlpha != 255) {
+                interfaceCtx->healthAlpha = alpha;
+            }
+
+            if (interfaceCtx->magicAlpha != 255) {
+                interfaceCtx->magicAlpha = alpha;
+            }
+
+            break;
+        case 6:
+            func_8010F0D4(globalCtx, maxAlpha, alpha);
+
+            if (interfaceCtx->aAlpha != 255) {
+                interfaceCtx->aAlpha = alpha;
+            }
+
+            if (interfaceCtx->healthAlpha != 255) {
+                interfaceCtx->healthAlpha = alpha;
+            }
+
+            if (interfaceCtx->magicAlpha != 255) {
+                interfaceCtx->magicAlpha = alpha;
+            }
+
+            if (globalCtx->sceneNum == SCENE_SPOT00) {
+                if (interfaceCtx->minimapAlpha < 170) {
+                    interfaceCtx->minimapAlpha = alpha;
+                } else {
+                    interfaceCtx->minimapAlpha = 170;
+                }
+            } else if (interfaceCtx->minimapAlpha != 255) {
+                interfaceCtx->minimapAlpha = alpha;
+            }
+
+            break;
+        case 7:
+            if ((interfaceCtx->minimapAlpha != 0) && (interfaceCtx->minimapAlpha > maxAlpha)) {
+                interfaceCtx->minimapAlpha = maxAlpha;
+            }
+
+            func_8010EF9C(globalCtx, alpha);
+
+            if (interfaceCtx->healthAlpha != 255) {
+                interfaceCtx->healthAlpha = alpha;
+            }
+
+            if (interfaceCtx->magicAlpha != 255) {
+                interfaceCtx->magicAlpha = alpha;
+            }
+
+            break;
+        case 9:
+            if ((interfaceCtx->bAlpha != 0) && (interfaceCtx->bAlpha > maxAlpha)) {
+                interfaceCtx->bAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->aAlpha != 0) && (interfaceCtx->aAlpha > maxAlpha)) {
+                interfaceCtx->aAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cLeftAlpha != 0) && (interfaceCtx->cLeftAlpha > maxAlpha)) {
+                interfaceCtx->cLeftAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cDownAlpha != 0) && (interfaceCtx->cDownAlpha > maxAlpha)) {
+                interfaceCtx->cDownAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cRightAlpha != 0) && (interfaceCtx->cRightAlpha > maxAlpha)) {
+                interfaceCtx->cRightAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->minimapAlpha != 0) && (interfaceCtx->minimapAlpha > maxAlpha)) {
+                interfaceCtx->minimapAlpha = maxAlpha;
+            }
+
+            if (interfaceCtx->magicAlpha != 255) {
+                interfaceCtx->magicAlpha = alpha;
+            }
+
+            if (interfaceCtx->healthAlpha != 255) {
+                interfaceCtx->healthAlpha = alpha;
+            }
+
+            break;
+        case 10:
+            if ((interfaceCtx->aAlpha != 0) && (interfaceCtx->aAlpha > maxAlpha)) {
+                interfaceCtx->aAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cLeftAlpha != 0) && (interfaceCtx->cLeftAlpha > maxAlpha)) {
+                interfaceCtx->cLeftAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cDownAlpha != 0) && (interfaceCtx->cDownAlpha > maxAlpha)) {
+                interfaceCtx->cDownAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cRightAlpha != 0) && (interfaceCtx->cRightAlpha > maxAlpha)) {
+                interfaceCtx->cRightAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->healthAlpha != 0) && (interfaceCtx->healthAlpha > maxAlpha)) {
+                interfaceCtx->healthAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->magicAlpha != 0) && (interfaceCtx->magicAlpha > maxAlpha)) {
+                interfaceCtx->magicAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->minimapAlpha != 0) && (interfaceCtx->minimapAlpha > maxAlpha)) {
+                interfaceCtx->minimapAlpha = maxAlpha;
+            }
+
+            if (interfaceCtx->bAlpha != 255) {
+                interfaceCtx->bAlpha = alpha;
+            }
+
+            break;
+        case 11:
+            if ((interfaceCtx->bAlpha != 0) && (interfaceCtx->bAlpha > maxAlpha)) {
+                interfaceCtx->bAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->aAlpha != 0) && (interfaceCtx->aAlpha > maxAlpha)) {
+                interfaceCtx->aAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cLeftAlpha != 0) && (interfaceCtx->cLeftAlpha > maxAlpha)) {
+                interfaceCtx->cLeftAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cDownAlpha != 0) && (interfaceCtx->cDownAlpha > maxAlpha)) {
+                interfaceCtx->cDownAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cRightAlpha != 0) && (interfaceCtx->cRightAlpha > maxAlpha)) {
+                interfaceCtx->cRightAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->minimapAlpha != 0) && (interfaceCtx->minimapAlpha > maxAlpha)) {
+                interfaceCtx->minimapAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->magicAlpha != 0) && (interfaceCtx->magicAlpha > maxAlpha)) {
+                interfaceCtx->magicAlpha = maxAlpha;
+            }
+
+            if (interfaceCtx->healthAlpha != 255) {
+                interfaceCtx->healthAlpha = alpha;
+            }
+
+            break;
+        case 12:
+            if (interfaceCtx->aAlpha != 255) {
+                interfaceCtx->aAlpha = alpha;
+            }
+
+            if ((gSaveContext.buttonStatus[0] == BTN_DISABLED) || (gSaveContext.unk_1015 == 0xFF)) {
+                if (interfaceCtx->bAlpha != 70) {
+                    interfaceCtx->bAlpha = 70;
+                }
+            } else {
+                if (interfaceCtx->bAlpha != 255) {
+                    interfaceCtx->bAlpha = alpha;
+                }
+            }
+
+            if (interfaceCtx->minimapAlpha != 255) {
+                interfaceCtx->minimapAlpha = alpha;
+            }
+
+            if ((interfaceCtx->cLeftAlpha != 0) && (interfaceCtx->cLeftAlpha > maxAlpha)) {
+                interfaceCtx->cLeftAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cDownAlpha != 0) && (interfaceCtx->cDownAlpha > maxAlpha)) {
+                interfaceCtx->cDownAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cRightAlpha != 0) && (interfaceCtx->cRightAlpha > maxAlpha)) {
+                interfaceCtx->cRightAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->magicAlpha != 0) && (interfaceCtx->magicAlpha > maxAlpha)) {
+                interfaceCtx->magicAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->healthAlpha != 0) && (interfaceCtx->healthAlpha > maxAlpha)) {
+                interfaceCtx->healthAlpha = maxAlpha;
+            }
+
+            break;
+        case 13:
+            func_8010F0D4(globalCtx, maxAlpha, alpha);
+
+            if ((interfaceCtx->minimapAlpha != 0) && (interfaceCtx->minimapAlpha > maxAlpha)) {
+                interfaceCtx->minimapAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->aAlpha != 0) && (interfaceCtx->aAlpha > maxAlpha)) {
+                interfaceCtx->aAlpha = maxAlpha;
+            }
+
+            if (interfaceCtx->magicAlpha != 255) {
+                interfaceCtx->magicAlpha = alpha;
+            }
+
+            if (interfaceCtx->healthAlpha != 255) {
+                interfaceCtx->healthAlpha = alpha;
+            }
+
+            break;
+        case 14:
+            if ((interfaceCtx->bAlpha != 0) && (interfaceCtx->bAlpha > maxAlpha)) {
+                interfaceCtx->bAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->aAlpha != 0) && (interfaceCtx->aAlpha > maxAlpha)) {
+                interfaceCtx->aAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->minimapAlpha != 0) && (interfaceCtx->minimapAlpha > maxAlpha)) {
+                interfaceCtx->minimapAlpha = maxAlpha;
+            }
+
+            if (interfaceCtx->cLeftAlpha != 255) {
+                interfaceCtx->cLeftAlpha = alpha;
+            }
+
+            if (interfaceCtx->cDownAlpha != 255) {
+                interfaceCtx->cDownAlpha = alpha;
+            }
+
+            if (interfaceCtx->cRightAlpha != 255) {
+                interfaceCtx->cRightAlpha = alpha;
+            }
+
+            if (interfaceCtx->magicAlpha != 255) {
+                interfaceCtx->magicAlpha = alpha;
+            }
+
+            if (interfaceCtx->healthAlpha != 255) {
+                interfaceCtx->healthAlpha = alpha;
+            }
+
+            break;
+        case 15:
+            if ((interfaceCtx->minimapAlpha != 0) && (interfaceCtx->minimapAlpha > maxAlpha)) {
+                interfaceCtx->minimapAlpha = maxAlpha;
+            }
+
+            if (interfaceCtx->bAlpha != 255) {
+                interfaceCtx->bAlpha = alpha;
+            }
+
+            if (interfaceCtx->aAlpha != 255) {
+                interfaceCtx->aAlpha = alpha;
+            }
+
+            if (interfaceCtx->cLeftAlpha != 255) {
+                interfaceCtx->cLeftAlpha = alpha;
+            }
+
+            if (interfaceCtx->cDownAlpha != 255) {
+                interfaceCtx->cDownAlpha = alpha;
+            }
+
+            if (interfaceCtx->cRightAlpha != 255) {
+                interfaceCtx->cRightAlpha = alpha;
+            }
+
+            if (interfaceCtx->magicAlpha != 255) {
+                interfaceCtx->magicAlpha = alpha;
+            }
+
+            if (interfaceCtx->healthAlpha != 255) {
+                interfaceCtx->healthAlpha = alpha;
+            }
+
+            break;
+
+        case 16:
+            if ((interfaceCtx->minimapAlpha != 0) && (interfaceCtx->minimapAlpha > maxAlpha)) {
+                interfaceCtx->minimapAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->magicAlpha != 0) && (interfaceCtx->magicAlpha > maxAlpha)) {
+                interfaceCtx->magicAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->healthAlpha != 0) && (interfaceCtx->healthAlpha > maxAlpha)) {
+                interfaceCtx->healthAlpha = maxAlpha;
+            }
+
+            if (interfaceCtx->bAlpha != 255) {
+                interfaceCtx->bAlpha = alpha;
+            }
+
+            if (interfaceCtx->aAlpha != 255) {
+                interfaceCtx->aAlpha = alpha;
+            }
+
+            if (interfaceCtx->cLeftAlpha != 255) {
+                interfaceCtx->cLeftAlpha = alpha;
+            }
+
+            if (interfaceCtx->cDownAlpha != 255) {
+                interfaceCtx->cDownAlpha = alpha;
+            }
+
+            if (interfaceCtx->cRightAlpha != 255) {
+                interfaceCtx->cRightAlpha = alpha;
+            }
+
+            break;
+        case 17:
+            if ((interfaceCtx->aAlpha != 0) && (interfaceCtx->aAlpha > maxAlpha)) {
+                interfaceCtx->aAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cLeftAlpha != 0) && (interfaceCtx->cLeftAlpha > maxAlpha)) {
+                interfaceCtx->cLeftAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cDownAlpha != 0) && (interfaceCtx->cDownAlpha > maxAlpha)) {
+                interfaceCtx->cDownAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cRightAlpha != 0) && (interfaceCtx->cRightAlpha > maxAlpha)) {
+                interfaceCtx->cRightAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->magicAlpha != 0) && (interfaceCtx->magicAlpha > maxAlpha)) {
+                interfaceCtx->magicAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->healthAlpha != 0) && (interfaceCtx->healthAlpha > maxAlpha)) {
+                interfaceCtx->healthAlpha = maxAlpha;
+            }
+
+            if (interfaceCtx->bAlpha != 255) {
+                interfaceCtx->bAlpha = alpha;
+            }
+
+            if (interfaceCtx->minimapAlpha != 255) {
+                interfaceCtx->minimapAlpha = alpha;
+            }
+
+            break;
+        case 18:
+            if ((interfaceCtx->bAlpha != 0) && (interfaceCtx->bAlpha > maxAlpha)) {
+                interfaceCtx->bAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->aAlpha != 0) && (interfaceCtx->aAlpha > maxAlpha)) {
+                interfaceCtx->aAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cLeftAlpha != 0) && (interfaceCtx->cLeftAlpha > maxAlpha)) {
+                interfaceCtx->cLeftAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cDownAlpha != 0) && (interfaceCtx->cDownAlpha > maxAlpha)) {
+                interfaceCtx->cDownAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cRightAlpha != 0) && (interfaceCtx->cRightAlpha > maxAlpha)) {
+                interfaceCtx->cRightAlpha = maxAlpha;
+            }
+
+            if (interfaceCtx->healthAlpha != 255) {
+                interfaceCtx->healthAlpha = alpha;
+            }
+
+            if (interfaceCtx->magicAlpha != 255) {
+                interfaceCtx->magicAlpha = alpha;
+            }
+
+            if (interfaceCtx->minimapAlpha != 255) {
+                interfaceCtx->minimapAlpha = alpha;
+            }
+
+            break;
+        case 19:
+            if ((interfaceCtx->bAlpha != 0) && (interfaceCtx->bAlpha > maxAlpha)) {
+                interfaceCtx->bAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cLeftAlpha != 0) && (interfaceCtx->cLeftAlpha > maxAlpha)) {
+                interfaceCtx->cLeftAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cDownAlpha != 0) && (interfaceCtx->cDownAlpha > maxAlpha)) {
+                interfaceCtx->cDownAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cRightAlpha != 0) && (interfaceCtx->cRightAlpha > maxAlpha)) {
+                interfaceCtx->cRightAlpha = maxAlpha;
+            }
+
+            if (interfaceCtx->aAlpha != 255) {
+                interfaceCtx->aAlpha = alpha;
+            }
+
+            if (interfaceCtx->minimapAlpha != 255) {
+                interfaceCtx->minimapAlpha = alpha;
+            }
+
+            if (interfaceCtx->magicAlpha != 255) {
+                interfaceCtx->magicAlpha = alpha;
+            }
+
+            if (interfaceCtx->healthAlpha != 255) {
+                interfaceCtx->healthAlpha = alpha;
+            }
+
+            break;
+        case 20:
+            if ((interfaceCtx->aAlpha != 0) && (interfaceCtx->aAlpha > maxAlpha)) {
+                interfaceCtx->aAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cLeftAlpha != 0) && (interfaceCtx->cLeftAlpha > maxAlpha)) {
+                interfaceCtx->cLeftAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cDownAlpha != 0) && (interfaceCtx->cDownAlpha > maxAlpha)) {
+                interfaceCtx->cDownAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cRightAlpha != 0) && (interfaceCtx->cRightAlpha > maxAlpha)) {
+                interfaceCtx->cRightAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->minimapAlpha != 0) && (interfaceCtx->minimapAlpha > maxAlpha)) {
+                interfaceCtx->minimapAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->healthAlpha != 0) && (interfaceCtx->healthAlpha > maxAlpha)) {
+                interfaceCtx->healthAlpha = maxAlpha;
+            }
+
+            if (interfaceCtx->bAlpha != 255) {
+                interfaceCtx->bAlpha = alpha;
+            }
+
+            if (interfaceCtx->magicAlpha != 255) {
+                interfaceCtx->magicAlpha = alpha;
+            }
+
+            break;
+        case 21:
+            if (interfaceCtx->aAlpha != 255) {
+                interfaceCtx->aAlpha = alpha;
+            }
+
+            if (interfaceCtx->bAlpha != 255) {
+                interfaceCtx->bAlpha = alpha;
+            }
+
+            if ((interfaceCtx->cLeftAlpha != 0) && (interfaceCtx->cLeftAlpha > maxAlpha)) {
+                interfaceCtx->cLeftAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cDownAlpha != 0) && (interfaceCtx->cDownAlpha > maxAlpha)) {
+                interfaceCtx->cDownAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cRightAlpha != 0) && (interfaceCtx->cRightAlpha > maxAlpha)) {
+                interfaceCtx->cRightAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->minimapAlpha != 0) && (interfaceCtx->minimapAlpha > maxAlpha)) {
+                interfaceCtx->minimapAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->magicAlpha != 0) && (interfaceCtx->magicAlpha > maxAlpha)) {
+                interfaceCtx->magicAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->healthAlpha != 0) && (interfaceCtx->healthAlpha > maxAlpha)) {
+                interfaceCtx->healthAlpha = maxAlpha;
+            }
+
+            break;
+        case 22:
+            if ((interfaceCtx->cLeftAlpha != 0) && (interfaceCtx->cLeftAlpha > maxAlpha)) {
+                interfaceCtx->cLeftAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cDownAlpha != 0) && (interfaceCtx->cDownAlpha > maxAlpha)) {
+                interfaceCtx->cDownAlpha = maxAlpha;
+            }
+
+            if ((interfaceCtx->cRightAlpha != 0) && (interfaceCtx->cRightAlpha > maxAlpha)) {
+                interfaceCtx->cRightAlpha = maxAlpha;
+            }
+
+            if (interfaceCtx->bAlpha != 255) {
+                interfaceCtx->bAlpha = alpha;
+            }
+
+            if (interfaceCtx->aAlpha != 255) {
+                interfaceCtx->aAlpha = alpha;
+            }
+
+            if (interfaceCtx->minimapAlpha != 255) {
+                interfaceCtx->minimapAlpha = alpha;
+            }
+
+            if (interfaceCtx->magicAlpha != 255) {
+                interfaceCtx->magicAlpha = alpha;
+            }
+
+            if (interfaceCtx->healthAlpha != 255) {
+                interfaceCtx->healthAlpha = alpha;
+            }
+
+            break;
+    }
+
+    if ((globalCtx->roomCtx.currRoom.unk3 == 1) && (interfaceCtx->minimapAlpha >= 255)) {
+        interfaceCtx->minimapAlpha = 255;
+    }
+}
+
+// oot func_80083108
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80110038.s")
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80111CB4.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_801129E4.s")
+void func_801129E4(GlobalContext* globalCtx) {
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+    s16 i = 0;
+    u8 currentScene;
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80112AF4.s")
+    do {
+        currentScene = (u8)globalCtx->sceneNum;
+        if (sRestrictionFlags[i].scene == currentScene) {
+            interfaceCtx->restrictions.hGauge = (sRestrictionFlags[i].flags1 & 0xC0) >> 6;
+            interfaceCtx->restrictions.bButton = (sRestrictionFlags[i].flags1 & 0x30) >> 4;
+            interfaceCtx->restrictions.aButton = (sRestrictionFlags[i].flags1 & 0x0C) >> 2;
+            interfaceCtx->restrictions.tradeItems = (sRestrictionFlags[i].flags1 & 0x03) >> 0;
+            interfaceCtx->restrictions.unk_312 = (sRestrictionFlags[i].flags2 & 0xC0) >> 6;
+            interfaceCtx->restrictions.unk_313 = (sRestrictionFlags[i].flags2 & 0x30) >> 4;
+            interfaceCtx->restrictions.unk_314 = (sRestrictionFlags[i].flags2 & 0x0C) >> 2;
+            interfaceCtx->restrictions.songOfSoaring = (sRestrictionFlags[i].flags2 & 0x03) >> 0;
+            interfaceCtx->restrictions.songOfStorms = (sRestrictionFlags[i].flags3 & 0xC0) >> 6;
+            interfaceCtx->restrictions.unk_317 = (sRestrictionFlags[i].flags3 & 0x30) >> 4;
+            interfaceCtx->restrictions.pictographBox = (sRestrictionFlags[i].flags3 & 0x0C) >> 2;
+            interfaceCtx->restrictions.all = (sRestrictionFlags[i].flags3 & 0x03) >> 0;
+            return;
+        }
+        i++;
+    } while (sRestrictionFlags[i].scene != 0xFF);
+}
 
+void func_80112AF4(void) {
+}
+
+#ifdef NON_MATCHING
+void func_80112AFC(GlobalContext* globalCtx) {
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+
+    gSaveContext.minigameState = 1;
+    gSaveContext.minigameScore = 0;
+    gSaveContext.unk_3F3C = 0;
+
+    D_801BF88C = 0;
+
+    interfaceCtx->unk_262 = 0;
+    interfaceCtx->unk_25E = 0;
+    interfaceCtx->unk_25C = 0;
+    interfaceCtx->hbaAmmo = 0x14;
+}
+#else
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80112AFC.s")
+#endif
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80112B40.s")
+void func_801B45D8(u32 romSegment, u8 arg1, void* dst, u32 size);
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80112BE4.s")
+#define SAVE_GET(field) ((void)0, field)
+#define TRANSFORMATION SAVE_GET(gSaveContext.playerForm)
+#define TRANSFORMATION_CHECK ((TRANSFORMATION == 4) ? 0 : TRANSFORMATION)
+
+#ifdef NON_EQUIVALENT
+void Interface_LoadItemIcon(GlobalContext* globalCtx, u8 arg1) {
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+    u8 phi_v0 = (arg1 == 0) ? gSaveContext.equips.buttonItems[TRANSFORMATION_CHECK][arg1] : gSaveContext.equips.buttonItems[0][arg1];
+
+    func_80178E3C(_icon_item_static_testSegmentRomStart, phi_v0, (u32)interfaceCtx->iconItemSegment + (arg1 * 0x1000), 0x1000);
+}
+#else
+#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_LoadItemIcon.s")
+#endif
+
+void func_80112BE4(GlobalContext* globalCtx, u8 arg1) {
+    Interface_LoadItemIcon(globalCtx, arg1);
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80112C0C.s")
 
@@ -845,14 +1833,17 @@ s32 D_801BFDA0[] = {
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011E730.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011F0E0.s")
+#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_Draw.s")
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80120F90.s")
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80121064.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_801210E0.s")
+#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_Update.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80121F94.s")
+void func_80121F94(void) {
+    func_8010A410();
+    func_80174F9C(func_8010E968, NULL);
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80121FC4.s")

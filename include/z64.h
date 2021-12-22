@@ -679,7 +679,7 @@ typedef struct {
     /* 0x30A */ s16 unk_30A;
     /* 0x30C */ s16 unk_30C;
     struct {
-        /* 0x30E */ u8 unk_30E; // "h_gauge"
+        /* 0x30E */ u8 hGauge;
         /* 0x30F */ u8 bButton;
         /* 0x310 */ u8 aButton;
         /* 0x311 */ u8 tradeItems;
