@@ -435,8 +435,8 @@ void func_8012ED34(s16 equipment);
 u8 func_8012ED78(GlobalContext* globalCtx, s16 equipment);
 #pragma GLOBAL_ASM("asm/non_matchings/code/code_8012EC80/func_8012ED78.s")
 
-void func_8012EDE8(s16 arg0, u32 arg1);
-#pragma GLOBAL_ASM("asm/non_matchings/code/code_8012EC80/func_8012EDE8.s")
+void Inventory_ChangeUpgrade(s16 arg0, u32 arg1);
+#pragma GLOBAL_ASM("asm/non_matchings/code/code_8012EC80/Inventory_ChangeUpgrade.s")
 
 s32 func_8012EE34(s16 arg0) {
     s16 num = 0;

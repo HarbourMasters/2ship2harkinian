@@ -150,17 +150,11 @@ s32 D_801BF89C[] = {
     0x00000000,
 };
 
-s32 D_801BF8A0[] = {
-    0x00FF0000,
-};
+s16 D_801BF8A0 = 0xFF;
 
-s32 D_801BF8A4[] = {
-    0x00FF0000,
-};
+s16 D_801BF8A4 = 0xFF;
 
-s32 D_801BF8A8[] = {
-    0x00FF0000,
-};
+s16 D_801BF8A8 = 0xFF;
 
 s32 D_801BF8AC[] = {
     0x00020000,
@@ -1712,18 +1706,20 @@ void func_80112AFC(GlobalContext* globalCtx) {
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80112AFC.s")
 #endif
 
-void func_801B45D8(u32 romSegment, u8 arg1, void* dst, u32 size);
-
-#define SAVE_GET(field) ((void)0, field)
-#define TRANSFORMATION SAVE_GET(gSaveContext.playerForm)
-#define TRANSFORMATION_CHECK ((TRANSFORMATION == 4) ? 0 : TRANSFORMATION)
+void func_80178E3C(u32 romSegment, u32 arg1, void* dst, u32 size);
 
 #ifdef NON_EQUIVALENT
-void Interface_LoadItemIcon(GlobalContext* globalCtx, u8 arg1) {
+void Interface_LoadItemIcon(GlobalContext* globalCtx, volatile u8 arg1) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
-    u8 phi_v0 = (arg1 == 0) ? gSaveContext.equips.buttonItems[TRANSFORMATION_CHECK][arg1] : gSaveContext.equips.buttonItems[0][arg1];
+    u8 phi_v0;
+    
+    if (arg1 == 0) {
+        phi_v0 = gSaveContext.save.equips.buttonItems[CUR_FORM][arg1];
+    } else {
+        phi_v0 = gSaveContext.save.equips.buttonItems[0][arg1];
+    }
 
-    func_80178E3C(_icon_item_static_testSegmentRomStart, phi_v0, (u32)interfaceCtx->iconItemSegment + (arg1 * 0x1000), 0x1000);
+    func_80178E3C((u32)_icon_item_static_testSegmentRomStart, phi_v0 & 0xFF, (u32)interfaceCtx->iconItemSegment + (arg1 * 0x1000), 0x1000);
 }
 #else
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_LoadItemIcon.s")
@@ -1800,10 +1796,10 @@ void func_80114A9C(s16 arg0) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80114B84.s")
-/* s32 func_80114B84(s32 arg0, u8 arg1, u8 arg2) {
+#ifdef NON_MATCHING
+s32 func_80114B84(s32 arg0, u8 arg1, u8 arg2) {
     u8 phi_a3;
-    s32 phi_a0;
+    u8 phi_a0;
     u8 phi_a3_2;
     for (phi_a3 = 0; phi_a3 < 24; phi_a3++) {
         if (gSaveContext.save.inventory.items[phi_a3] == arg1) {
@@ -1814,22 +1810,26 @@ void func_80114A9C(s16 arg0) {
                 } else {
                     phi_a0 = gSaveContext.save.equips.buttonItems[0][phi_a3_2];
                 }
+
                 if (arg1 == (phi_a0 & 0xFF)) {
                     if (phi_a3_2 == 0) {
-                        phi_a0 = CUR_FORM;
-                        gSaveContext.save.equips.buttonItems[phi_a0][phi_a3_2] = arg2;
+                        gSaveContext.save.equips.buttonItems[CUR_FORM][phi_a3_2] = arg2;
                     } else {
                         gSaveContext.save.equips.buttonItems[0][phi_a3_2] = arg2;
                     }
+
                     Interface_LoadItemIcon(arg0, phi_a3_2 & 0xFF);
-                    return 1;
+                    return true;
                 }
             }
-            return 1;
+            return true;
         }
     }
-    return 0;
-} */
+    return false;
+}
+#else
+#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80114B84.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80114CA0.s")
 
@@ -1973,11 +1973,34 @@ void Interface_AddMagic(GlobalContext* globalCtx, s16 arg1) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80115D5C.s")
+void func_80115D5C(GameState* gamestate) {
+    if ((gSaveContext.unk_3F28 != 8) && (gSaveContext.unk_3F28 != 9)) {
+        D_801BF8A0 = D_801BF8A4 = D_801BF8A8 = 0xFF;
+        gSaveContext.unk_3F28 = 0;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80115DB4.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80116088.s")
+void func_80116088(void) {
+    if (gSaveContext.unk_3F2A != 0) {
+        gSaveContext.save.playerData.magic += 4;
+        play_sound(NA_SE_SY_GAUGE_UP - SFX_FLAG);
+        if (gSaveContext.save.playerData.magic >= gSaveContext.unk_3F2E) {
+            if (gSaveContext.save.playerData.magic) {}
+            gSaveContext.save.playerData.magic = gSaveContext.unk_3F2E;
+            gSaveContext.unk_3F34 = 0;
+            gSaveContext.unk_3F2A = 0;
+        } else {
+            gSaveContext.unk_3F34 -= 4;
+            if (gSaveContext.unk_3F34 <= 0) {
+                gSaveContext.unk_3F34 = 0;
+                gSaveContext.unk_3F2A = 0;
+            }
+        }
+
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80116114.s")
 
@@ -1985,9 +2008,35 @@ void Interface_AddMagic(GlobalContext* globalCtx, s16 arg1) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80116918.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80116FD8.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_801170B8.s")
+void func_80116FD8(GlobalContext* globalCtx, s32 topY, s32 bottomY, s32 leftX, s32 rightX) {
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+    Vec3f eye;
+    Vec3f lookAt;
+    Vec3f up;
+
+    eye.x = eye.y = eye.z = 0.0f;
+    lookAt.x = lookAt.y = 0.0f;
+    lookAt.z = -1.0f;
+    up.x = up.z = 0.0f;
+    up.y = 1.0f;
+
+    View_SetViewOrientation(&interfaceCtx->view, &eye, &lookAt, &up);
+
+    interfaceCtx->viewport.topY = topY;
+    interfaceCtx->viewport.bottomY = bottomY;
+    interfaceCtx->viewport.leftX = leftX;
+    interfaceCtx->viewport.rightX = rightX;
+    View_SetViewport(&interfaceCtx->view, &interfaceCtx->viewport);
+
+    func_8013F0D0(&interfaceCtx->view, 60.0f, 10.0f, 60.0f);
+    func_8013FD74(&interfaceCtx->view);
+}
+
+void func_801170B8(InterfaceContext* interfaceCtx) {
+    SET_FULLSCREEN_VIEWPORT(&interfaceCtx->view);
+    func_8013FBC8(&interfaceCtx->view);
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80117100.s")
 
@@ -2005,7 +2054,36 @@ void Interface_AddMagic(GlobalContext* globalCtx, s16 arg1) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80119610.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011B4E0.s")
+void func_8011B4E0(GlobalContext* globalCtx, s16 arg1) {
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+    s16 i;
+
+    interfaceCtx->unk_286 = 1;
+    interfaceCtx->unk_288 = arg1;
+    interfaceCtx->unk_2FC[0] = 255;
+    interfaceCtx->unk_2FC[1] = 165;
+    interfaceCtx->unk_2FC[2] = 55;
+    interfaceCtx->unk_2FC[3] = 255;
+    interfaceCtx->unk_30A = 0x14;
+    interfaceCtx->unk_308 = 0;
+    interfaceCtx->unk_304 = 1;
+    interfaceCtx->unk_30C = 0;
+
+    for (i = 0; i < 8; i++) {
+        interfaceCtx->unk_2AA[i] = 0;
+        interfaceCtx->unk_29A[i] = 0;
+        interfaceCtx->unk_28A[i] = interfaceCtx->unk_2AA[i];
+        if (interfaceCtx->unk_288 == 1) {
+            interfaceCtx->unk_2BC[i] = 140.0f;
+            interfaceCtx->unk_2DC[i] = 100.0f;
+        } else {
+            interfaceCtx->unk_2DC[i] = 200.0f;
+            interfaceCtx->unk_2BC[i] = 200.0f;
+        }
+    }
+
+    interfaceCtx->unk_28A[0] = 1;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011B5C0.s")
 
@@ -2015,7 +2093,23 @@ void Interface_AddMagic(GlobalContext* globalCtx, s16 arg1) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011C4C4.s")
 
+#ifdef NON_MATCHING
+void func_8011C808(GlobalContext* globalCtx) {
+    if (globalCtx->actorCtx.unk5 & 2) {
+        Audio_QueueSeqCmd(0xE0000100);
+    }
+
+    gSaveContext.save.day = 4;
+    gSaveContext.save.daysElapsed = gSaveContext.save.day;
+    gSaveContext.save.time = 0x400A;
+    globalCtx->nextEntranceIndex = 0x54C0;
+    gSaveContext.nextCutsceneIndex = 0;
+    globalCtx->sceneLoadFlag = 0x14;
+    globalCtx->unk_1887F = 3;
+}
+#else
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011C808.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011C898.s")
 

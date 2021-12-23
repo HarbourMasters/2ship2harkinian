@@ -2408,7 +2408,7 @@
     0x8012EC80:("func_8012EC80",),
     0x8012ED34:("func_8012ED34",),
     0x8012ED78:("func_8012ED78",),
-    0x8012EDE8:("func_8012EDE8",),
+    0x8012EDE8:("Inventory_ChangeUpgrade",),
     0x8012EE34:("func_8012EE34",),
     0x8012EF0C:("func_8012EF0C",),
     0x8012F0EC:("func_8012F0EC",),
