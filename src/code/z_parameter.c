@@ -1,4 +1,5 @@
 #include "global.h"
+#include "misc/parameter_static/parameter_static.h"
 
 typedef struct {
     /* 0x00 */ u8 scene;
@@ -372,8 +373,14 @@ s32 D_801BFACC[] = {
     0x00020001,
 };
 
-s32 D_801BFAD4[] = {
-    0x02002AE0, 0x02002AE0, 0x02002BA0, 0x02002C60, 0x02002D20, 0x00820088, 0x00880088, 0x00880000,
+TexturePtr D_801BFAD4[] = {
+    gTatlCUpENGTex, gTatlCUpENGTex, gTatlCUpGERTex, gTatlCUpFRATex, gTatlCUpESPTex,
+};
+
+s32 D_801BFAE8[] = {
+    0x00820088,
+    0x00880088,
+    0x00880000,
 };
 
 s32 D_801BFAF4[] = {
@@ -426,15 +433,18 @@ s32 D_801BFB34[] = {
     0x00000000,
 };
 
-s32 D_801BFB38[] = {
-    0x00000AAA, 0x15552000, 0x2AAA3555, 0x40004AAA, 0x55556000, 0x6AAA7555, 0x80008AAA,
-    0x9555A000, 0xAAAAB555, 0xC000CAAA, 0xD555E000, 0xEAAAF555, 0xFFFF0000,
+s16 D_801BFB38[] = {
+    0x0000, 0x0AAA, 0x1555, 0x2000, 0x2AAA, 0x3555, 0x4000, 0x4AAA, 0x5555, 0x6000, 0x6AAA, 0x7555, 0x8000,
+    0x8AAA, 0x9555, 0xA000, 0xAAAA, 0xB555, 0xC000, 0xCAAA, 0xD555, 0xE000, 0xEAAA, 0xF555, 0xFFFF, 0x0000,
 };
 
-s32 D_801BFB6C[] = {
-    0x02006440, 0x02006498, 0x020064F0, 0x02006548, 0x020065A0, 0x020065F8, 0x02006650, 0x020066A8,
-    0x02006700, 0x02006758, 0x020067B0, 0x02006808, 0x02006440, 0x02006498, 0x020064F0, 0x02006548,
-    0x020065A0, 0x020065F8, 0x02006650, 0x020066A8, 0x02006700, 0x02006758, 0x020067B0, 0x02006808,
+TexturePtr D_801BFB6C[] = {
+    gThreeDayTimerHour12Tex, gThreeDayTimerHour1Tex, gThreeDayTimerHour2Tex,  gThreeDayTimerHour3Tex,
+    gThreeDayTimerHour4Tex,  gThreeDayTimerHour5Tex, gThreeDayTimerHour6Tex,  gThreeDayTimerHour7Tex,
+    gThreeDayTimerHour8Tex,  gThreeDayTimerHour9Tex, gThreeDayTimerHour10Tex, gThreeDayTimerHour11Tex,
+    gThreeDayTimerHour12Tex, gThreeDayTimerHour1Tex, gThreeDayTimerHour2Tex,  gThreeDayTimerHour3Tex,
+    gThreeDayTimerHour4Tex,  gThreeDayTimerHour5Tex, gThreeDayTimerHour6Tex,  gThreeDayTimerHour7Tex,
+    gThreeDayTimerHour8Tex,  gThreeDayTimerHour9Tex, gThreeDayTimerHour10Tex, gThreeDayTimerHour11Tex,
 };
 
 s32 D_801BFBCC[] = {
@@ -509,9 +519,10 @@ s32 D_801BFC10[] = {
     0x00640000,
 };
 
-s32 D_801BFC14[] = {
-    0x02006860, 0x020068A0, 0x020068E0, 0x02006920, 0x02006960, 0x020069A0,
-    0x020069E0, 0x02006A20, 0x02006A60, 0x02006AA0, 0x02006AE0,
+TexturePtr D_801BFC14[] = {
+    gFinalHoursTimerDigit0Tex, gFinalHoursTimerDigit1Tex, gFinalHoursTimerDigit2Tex, gFinalHoursTimerDigit3Tex,
+    gFinalHoursTimerDigit4Tex, gFinalHoursTimerDigit5Tex, gFinalHoursTimerDigit6Tex, gFinalHoursTimerDigit7Tex,
+    gFinalHoursTimerDigit8Tex, gFinalHoursTimerDigit9Tex, gFinalHoursTimerColonTex,
 };
 
 s32 D_801BFC40[] = {
@@ -537,18 +548,12 @@ s32 D_801BFC64[] = {
     0x00A50037,
 };
 
-s32 D_801BFC6C[] = {
-    0x004E0036,
-    0x001D0005,
-    0xFFEEFFD6,
-    0xFFBDFFAB,
+s16 D_801BFC6C[] = {
+    0x004E, 0x0036, 0x001D, 0x0005, 0xFFEE, 0xFFD6, 0xFFBD, 0xFFAB,
 };
 
-s32 D_801BFC7C[] = {
-    0x00B400B4,
-    0x00B400B4,
-    0xFF4CFF4C,
-    0xFF4CFF4C,
+s16 D_801BFC7C[] = {
+    0x00B4, 0x00B4, 0x00B4, 0x00B4, 0xFF4C, 0xFF4C, 0xFF4C, 0xFF4C,
 };
 
 s32 D_801BFC8C[] = {
@@ -577,8 +582,9 @@ s32 D_801BFCB8[] = {
     0x00A50037,
 };
 
-s32 D_801BFCC4[] = {
-    0x02007B28, 0x02007D38, 0x02007F48, 0x02008158, 0x02007D38, 0x02008368, 0x02008578, 0x02008788,
+TexturePtr D_801BFCC4[] = {
+    gMinigameLetterPTex, gMinigameLetterETex, gMinigameLetterRTex, gMinigameLetterFTex,
+    gMinigameLetterETex, gMinigameLetterCTex, gMinigameLetterTTex, gMinigameExclamationTex,
 };
 
 s32 D_801BFCE4[] = {
@@ -605,18 +611,12 @@ s32 D_801BFCF8[] = {
     0x00630000,
 };
 
-s32 D_801BFCFC[] = {
-    0x00100019,
-    0x0022002A,
-    0x0033003C,
-    0x0044004D,
+s16 D_801BFCFC[] = {
+    0x10, 0x19, 0x22, 0x2A, 0x33, 0x3C, 0x44, 0x4D,
 };
 
-s32 D_801BFD0C[] = {
-    0x00090009,
-    0x00080009,
-    0x00090008,
-    0x00090009,
+s16 D_801BFD0C[] = {
+    9, 9, 8, 9, 9, 8, 9, 9,
 };
 
 s32 D_801BFD1C[] = {
@@ -629,6 +629,7 @@ s32 D_801BFD24[] = {
     0x00030000,
 };
 
+// Likely rbga values
 s32 D_801BFD2C[] = {
     0x00C800FF, 0x006400AA, 0x00AA00FF, 0x00FF0069, 0x00690000,
 };
@@ -637,18 +638,22 @@ s32 D_801BFD40[] = {
     0x00000050, 0x0000000A, 0x000A0050, 0x0028000A, 0x00000000,
 };
 
-s32 D_801BFD54[] = {
-    0x02007828,
-    0x02007528,
-    0x02007228,
-    0x02006D28,
+TexturePtr D_801BFD54[] = {
+    gMinigameCountdown3Tex,
+    gMinigameCountdown2Tex,
+    gMinigameCountdown1Tex,
+    gMinigameGoTex,
 };
 
-s32 D_801BFD64[] = {
-    0x00180018,
-    0x00180028,
+// Texture heights of D_801BFD54
+s16 D_801BFD64[] = {
+    24,
+    24,
+    24,
+    40,
 };
 
+// Likely rbga values
 s32 D_801BFD6C[] = {
     0x006400FF, 0x006400FF, 0x00FF003C, 0x00FF0064, 0x00000078, 0x00AA00FF,
 };
@@ -672,9 +677,9 @@ s32 D_801BFD98[] = {
     0x00000000,
 };
 
-s32 D_801BFDA0[] = {
-    0x01DE01FF, 0x025D01DB, 0x01DA01FE, 0x0219024C, 0x0221025E, 0x020001FD,
-    0x025C025F, 0x01DC024E, 0x025201DD, 0x01D90214, 0x01E401E1, 0x01E201E3,
+s16 D_801BFDA0[] = {
+    0x1DE, 0x1FF, 0x25D, 0x1DB, 0x1DA, 0x1FE, 0x219, 0x24C, 0x221, 0x25E, 0x200, 0x1FD,
+    0x25C, 0x25F, 0x1DC, 0x24E, 0x252, 0x1DD, 0x1D9, 0x214, 0x1E4, 0x1E1, 0x1E2, 0x1E3,
 };
 
 Gfx* Gfx_TextureRGBA16(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft,
@@ -901,8 +906,8 @@ void func_8010EE74(GlobalContext* globalCtx, s32 arg1) {
         phi_t0 = 0;
     }
 
-    DmaMgr_SendRequest0((u32)globalCtx->interfaceCtx.doActionSegment + 0x780, (u32)_week_staticSegmentRomStart + phi_t0 * 0x510,
-                        0x510);
+    DmaMgr_SendRequest0((u32)globalCtx->interfaceCtx.doActionSegment + 0x780,
+                        (u32)_week_staticSegmentRomStart + phi_t0 * 0x510, 0x510);
 
     for (phi_t0 = 0; phi_t0 < 120; phi_t0++) {
         gSaveContext.save.roomInf[phi_t0][0] = gSaveContext.cycleSceneFlags[phi_t0].chest;
@@ -1712,14 +1717,15 @@ void func_80178E3C(u32 romSegment, u32 arg1, void* dst, u32 size);
 void Interface_LoadItemIcon(GlobalContext* globalCtx, volatile u8 arg1) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
     u8 phi_v0;
-    
+
     if (arg1 == 0) {
         phi_v0 = gSaveContext.save.equips.buttonItems[CUR_FORM][arg1];
     } else {
         phi_v0 = gSaveContext.save.equips.buttonItems[0][arg1];
     }
 
-    func_80178E3C((u32)_icon_item_static_testSegmentRomStart, phi_v0 & 0xFF, (u32)interfaceCtx->iconItemSegment + (arg1 * 0x1000), 0x1000);
+    func_80178E3C((u32)_icon_item_static_testSegmentRomStart, phi_v0 & 0xFF,
+                  (u32)interfaceCtx->iconItemSegment + (arg1 * 0x1000), 0x1000);
 }
 #else
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_LoadItemIcon.s")
@@ -1925,8 +1931,8 @@ void Interface_LoadActionLabel(InterfaceContext* interfaceCtx, u16 action, s16 l
     if (action != DO_ACTION_NONE) {
         osCreateMesgQueue(&interfaceCtx->loadQueue, &interfaceCtx->loadMsg, 1);
         DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest_184, (u32)interfaceCtx->doActionSegment + (loadOffset * 0x180),
-                            (u32)_do_action_staticSegmentRomStart + (action * 0x180), 0x180, 0,
-                            &interfaceCtx->loadQueue, 0);
+                               (u32)_do_action_staticSegmentRomStart + (action * 0x180), 0x180, 0,
+                               &interfaceCtx->loadQueue, 0);
         osRecvMesg(&interfaceCtx->loadQueue, NULL, OS_MESG_BLOCK);
         return;
     }
@@ -1966,7 +1972,7 @@ void Interface_SetDoAction(GlobalContext* globalCtx, u16 action) {
 
 void Interface_AddMagic(GlobalContext* globalCtx, s16 arg1) {
     if (gSaveContext.save.playerData.magic) {}
-    
+
     if (gSaveContext.save.playerData.magic < gSaveContext.unk_3F2E) {
         gSaveContext.unk_3F34 += arg1;
         gSaveContext.unk_3F2A = 1;
@@ -1998,7 +2004,6 @@ void func_80116088(void) {
                 gSaveContext.unk_3F2A = 0;
             }
         }
-
     }
 }
 
@@ -2007,7 +2012,6 @@ void func_80116088(void) {
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80116348.s")
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80116918.s")
-
 
 void func_80116FD8(GlobalContext* globalCtx, s32 topY, s32 bottomY, s32 leftX, s32 rightX) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
@@ -2132,7 +2136,7 @@ void func_80120F90(GlobalContext* globalCtx, s32 block) {
             }
             osCreateMesgQueue(&interfaceCtx->unk_320, interfaceCtx->unk_338, 1);
             DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest_184, interfaceCtx->unk_33C, interfaceCtx->unk_340,
-                                interfaceCtx->unk_344, 0, &interfaceCtx->unk_320, NULL);
+                                   interfaceCtx->unk_344, 0, &interfaceCtx->unk_320, NULL);
             interfaceCtx->unk_31C = 1;
         case 1:
             if (osRecvMesg(&interfaceCtx->unk_320, NULL, block) == 0) {

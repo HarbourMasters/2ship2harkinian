@@ -45,8 +45,8 @@ void BgTobira01_Open(BgTobira01* this, GlobalContext* globalCtx) {
         } else {
             ActorCutscene_SetIntentToPlay(cutsceneId);
         }
-    } else if (!(gSaveContext.save.weekEventReg[88] & 0x40) && (this->timer == 0) && (globalCtx->actorCtx.unk1F5 != 0) &&
-               (globalCtx->actorCtx.unk1F4 == 0) &&
+    } else if (!(gSaveContext.save.weekEventReg[88] & 0x40) && (this->timer == 0) &&
+               (globalCtx->actorCtx.unk1F5 != 0) && (globalCtx->actorCtx.unk1F4 == 0) &&
                (SurfaceType_GetSceneExitIndex(&globalCtx->colCtx, player->actor.floorPoly, player->actor.floorBgId) ==
                 6)) {
         this->playCutscene = true;

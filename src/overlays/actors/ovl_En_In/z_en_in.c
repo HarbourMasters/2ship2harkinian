@@ -10,17 +10,17 @@
 
 #define THIS ((EnIn*)thisx)
 
-#define SET_FLAGS_FINISH_RACE                                                                   \
-    {                                                                                           \
-        gSaveContext.save.weekEventReg[92] &= (u8) ~(1 | 2 | 4);                                     \
-        gSaveContext.save.weekEventReg[92] =                                                         \
+#define SET_FLAGS_FINISH_RACE                                                                             \
+    {                                                                                                     \
+        gSaveContext.save.weekEventReg[92] &= (u8) ~(1 | 2 | 4);                                          \
+        gSaveContext.save.weekEventReg[92] =                                                              \
             gSaveContext.save.weekEventReg[92] | (u8)(gSaveContext.save.weekEventReg[92] & ~(1 | 2 | 4)); \
     }
 
-#define SET_FLAGS_START_RACE                                                                          \
-    {                                                                                                 \
-        gSaveContext.save.weekEventReg[92] &= (u8) ~(1 | 2 | 4);                                           \
-        gSaveContext.save.weekEventReg[92] =                                                               \
+#define SET_FLAGS_START_RACE                                                                                    \
+    {                                                                                                           \
+        gSaveContext.save.weekEventReg[92] &= (u8) ~(1 | 2 | 4);                                                \
+        gSaveContext.save.weekEventReg[92] =                                                                    \
             gSaveContext.save.weekEventReg[92] | (u8)((gSaveContext.save.weekEventReg[92] & ~(1 | 2 | 4)) | 1); \
     }
 
@@ -267,7 +267,8 @@ s32 func_808F3334(EnIn* this, GlobalContext* globalCtx) {
 s32 func_808F33B8(void) {
     s32 ret;
 
-    if (((ret = gSaveContext.save.day == 1) && (ret = gSaveContext.save.time >= 0x3AAA) && (ret = gSaveContext.save.time <= 0x4000)) ||
+    if (((ret = gSaveContext.save.day == 1) && (ret = gSaveContext.save.time >= 0x3AAA) &&
+         (ret = gSaveContext.save.time <= 0x4000)) ||
         (ret = gSaveContext.save.day >= 2)) {
         ret = (gSaveContext.save.weekEventReg[22] & 1) == 0;
     }
@@ -512,7 +513,8 @@ u16 func_808F3DD4(GlobalContext* globalCtx, EnIn* this, u32 arg2) {
     } else {
         switch (arg2) {
             case 0:
-                if ((gSaveContext.save.playerForm == PLAYER_FORM_ZORA) || (gSaveContext.save.playerForm == PLAYER_FORM_GORON)) {
+                if ((gSaveContext.save.playerForm == PLAYER_FORM_ZORA) ||
+                    (gSaveContext.save.playerForm == PLAYER_FORM_GORON)) {
                     textId = 0x345C;
                 } else if (gSaveContext.save.playerForm == PLAYER_FORM_DEKU) {
                     textId = 0x3460;
@@ -542,7 +544,8 @@ u16 func_808F3DD4(GlobalContext* globalCtx, EnIn* this, u32 arg2) {
                 }
                 break;
             case 4:
-                if (gSaveContext.save.playerForm == PLAYER_FORM_ZORA || gSaveContext.save.playerForm == PLAYER_FORM_GORON) {
+                if (gSaveContext.save.playerForm == PLAYER_FORM_ZORA ||
+                    gSaveContext.save.playerForm == PLAYER_FORM_GORON) {
                     textId = 0x348A;
                 } else if (gSaveContext.save.playerForm == PLAYER_FORM_DEKU) {
                     textId = 0x348B;
