@@ -739,13 +739,13 @@ typedef struct {
         /* 0x319 */ u8 all;     // "another"; enables all item restrictions
     } restrictions; // size = 0xC
     /* 0x31A */ u8 unk_31A;
-    /* 0x31B */ u8 unk_31B;
-    /* 0x31C */ u8 unk_31C;
-    /* 0x320 */ OSMesgQueue unk_320;
-    /* 0x338 */ OSMesg unk_338;
-    /* 0x33C */ void* unk_33C;
-    /* 0x340 */ u32 unk_340;
-    /* 0x344 */ u32 unk_344;
+    /* 0x31B */ u8 storyType;
+    /* 0x31C */ u8 storyState;
+    /* 0x320 */ OSMesgQueue storyMsgQueue;
+    /* 0x338 */ OSMesg storyMsgBuf;
+    /* 0x33C */ void* storySegment;
+    /* 0x340 */ u32 storyAddr;
+    /* 0x344 */ u32 storySize;
 } InterfaceContext; // size = 0x348
 
 typedef struct {

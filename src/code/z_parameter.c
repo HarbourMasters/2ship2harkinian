@@ -763,9 +763,8 @@ Gfx* func_8010DE38(Gfx* displayListHead, void* texture, s32 fmt, s16 textureWidt
     return displayListHead;
 }
 
-// Interface_InitVertices
-void func_8010E028(GlobalContext* globalCtx);
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8010E028.s")
+void Interface_InitVertices(GlobalContext* globalCtx);
+#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_InitVertices.s")
 
 void func_8010E968(s32 arg0) {
     s32 btnAPressed;
@@ -1953,8 +1952,8 @@ void func_80116088(void) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80116348.s")
 
-void func_80116918(GlobalContext* globalCtx);
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80116918.s")
+void Interface_DrawMagicBar(GlobalContext* globalCtx);
+#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_DrawMagicBar.s")
 
 void func_80116FD8(GlobalContext* globalCtx, s32 topY, s32 bottomY, s32 leftX, s32 rightX) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
@@ -1985,8 +1984,8 @@ void func_801170B8(InterfaceContext* interfaceCtx) {
     func_8013FBC8(&interfaceCtx->view);
 }
 
-void func_80117100(GlobalContext* globalCtx);
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80117100.s")
+void Interface_DrawItemButtons(GlobalContext* globalCtx);
+#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_DrawItemButtons.s")
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80117A20.s")
 
@@ -2114,12 +2113,13 @@ Color_RGB16 D_801BFD6C[] = {
     { 120, 170, 255 },
 };
 
+// grandma's story pictures
 s32 D_801BFD84[] = {
     0x07000000,
     0x07012C00,
 };
 
-// TLUT
+// grandma's story TLUT
 u32 D_801BFD8C[] = {
     0x07025800,
     0x07025A00,
@@ -2148,11 +2148,11 @@ void Interface_Draw(GlobalContext* globalCtx) {
     gSPSegment(OVERLAY_DISP++, 0x0B, interfaceCtx->mapSegment);
 
     if (pauseCtx->debugState == 0) {
-        func_8010E028(globalCtx);
+        Interface_InitVertices(globalCtx);
         func_801170B8(interfaceCtx);
 
-        if (interfaceCtx->unk_31C == 2) {
-            gSPSegment(OVERLAY_DISP++, 0x07, interfaceCtx->unk_33C);
+        if (interfaceCtx->storyState == 2) {
+            gSPSegment(OVERLAY_DISP++, 0x07, interfaceCtx->storySegment);
             func_8012C628(globalCtx->state.gfxCtx);
 
             gDPSetTextureFilter(POLY_OPA_DISP++, G_TF_POINT);
@@ -2160,7 +2160,7 @@ void Interface_Draw(GlobalContext* globalCtx) {
             gSPLoadUcodeEx(OVERLAY_DISP++, OS_K0_TO_PHYSICAL(D_801ABAB0), OS_K0_TO_PHYSICAL(D_801E3BB0), 0x800);
 
             gfx = OVERLAY_DISP;
-            func_80172758(&gfx, D_801BFD84[interfaceCtx->unk_31B], D_801BFD8C[interfaceCtx->unk_31B], 0x140, 0xF0, 2, 1,
+            func_80172758(&gfx, D_801BFD84[interfaceCtx->storyType], D_801BFD8C[interfaceCtx->storyType], 0x140, 0xF0, 2, 1,
                           0x8000, 0x100, 0.0f, 0.0f, 1.0f, 1.0f, 0);
             OVERLAY_DISP = gfx;
 
@@ -2347,7 +2347,7 @@ void Interface_Draw(GlobalContext* globalCtx) {
                                 1 << 10);
         }
 
-        func_80116918(globalCtx);
+        Interface_DrawMagicBar(globalCtx);
         func_8010A54C(globalCtx);
 
         if ((gGameInfo->data[0xBE] != 2) && (gGameInfo->data[0xBE] != 3)) {
@@ -2355,7 +2355,8 @@ void Interface_Draw(GlobalContext* globalCtx) {
         }
 
         func_8012C654(globalCtx->state.gfxCtx);
-        func_80117100(globalCtx);
+
+        Interface_DrawItemButtons(globalCtx);
 
         if (player->transformation == ((void)0, gSaveContext.save.playerForm)) {
             func_80118084(globalCtx);
@@ -2367,6 +2368,7 @@ void Interface_Draw(GlobalContext* globalCtx) {
 
         if ((globalCtx->pauseCtx.state == 0) && (globalCtx->pauseCtx.debugState == 0)) {
             if ((interfaceCtx->unk_280 != 0) && (interfaceCtx->unk_280 < 20)) {
+                // Minigame Countdown
                 if (((u32)interfaceCtx->unk_280 % 2) == 0) {
 
                     sp2CE = (interfaceCtx->unk_280 >> 1) - 1;
@@ -2509,39 +2511,39 @@ void Interface_Draw(GlobalContext* globalCtx) {
 #endif
 
 #ifdef NON_MATCHING
-void func_80120F90(GlobalContext* globalCtx, s32 block) {
+void Interface_LoadStory(GlobalContext* globalCtx, s32 block) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
 
-    switch (interfaceCtx->unk_31C) {
+    switch (interfaceCtx->storyState) {
         case 0:
-            if (interfaceCtx->unk_33C == NULL) {
+            if (interfaceCtx->storySegment == NULL) {
                 break;
             }
-            osCreateMesgQueue(&interfaceCtx->unk_320, interfaceCtx->unk_338, 1);
-            DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest_184, interfaceCtx->unk_33C, interfaceCtx->unk_340,
-                                   interfaceCtx->unk_344, 0, &interfaceCtx->unk_320, NULL);
-            interfaceCtx->unk_31C = 1;
+            osCreateMesgQueue(&interfaceCtx->storyMsgQueue, interfaceCtx->storyMsgBuf, 1);
+            DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest_184, interfaceCtx->storySegment, interfaceCtx->storyAddr,
+                                   interfaceCtx->storySize, 0, &interfaceCtx->storyMsgQueue, NULL);
+            interfaceCtx->storyState = 1;
         case 1:
-            if (osRecvMesg(&interfaceCtx->unk_320, NULL, block) == 0) {
-                interfaceCtx->unk_31C = 2;
+            if (osRecvMesg(&interfaceCtx->storyMsgQueue, NULL, block) == 0) {
+                interfaceCtx->storyState = 2;
             }
             break;
     }
 }
 #else
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80120F90.s")
+#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_LoadStory.s")
 #endif
 
-void func_80121064(GlobalContext* globalCtx) {
+void Interface_AllocStory(GlobalContext* globalCtx) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
 
-    interfaceCtx->unk_340 = (u32)_story_staticSegmentRomStart;
-    interfaceCtx->unk_344 = (u32)_story_staticSegmentRomEnd - (u32)_story_staticSegmentRomStart;
+    interfaceCtx->storyAddr = (u32)_story_staticSegmentRomStart;
+    interfaceCtx->storySize = (u32)_story_staticSegmentRomEnd - (u32)_story_staticSegmentRomStart;
 
-    if (interfaceCtx->unk_33C == NULL) {
-        interfaceCtx->unk_33C = ZeldaArena_Malloc(interfaceCtx->unk_344);
+    if (interfaceCtx->storySegment == NULL) {
+        interfaceCtx->storySegment = ZeldaArena_Malloc(interfaceCtx->storySize);
     }
-    func_80120F90(globalCtx, 0);
+    Interface_LoadStory(globalCtx, 0);
 }
 
 s32 D_801BFD94[] = {
