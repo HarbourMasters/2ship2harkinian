@@ -36,9 +36,9 @@ typedef struct {
 } Color_RGBAu32;
 
 typedef struct {
-    /* 0x0 */ u16 r;
-    /* 0x1 */ u16 g;
-    /* 0x2 */ u16 b;
+    /* 0x0 */ s16 r;
+    /* 0x1 */ s16 g;
+    /* 0x2 */ s16 b;
 } Color_RGB16; // size = 0x6
 
 typedef union {
