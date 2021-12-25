@@ -1484,7 +1484,9 @@ struct GlobalContext {
     /* 0x18B4C */ PreRender pauseBgPreRender;
     /* 0x18B9C */ char unk_18B9C[0x2B8];
     /* 0x18E54 */ SceneTableEntry* loadedScene;
-    /* 0x18E58 */ char unk_18E58[0x400];
+    /* 0x18E58 */ char unk_18E58[0x4];
+    /* 0x18E5C */ void* unk_18E5C;
+    /* 0x18E60 */ char unk_18E60[0x3F8];
 }; // size = 0x19258
 
 typedef struct {
