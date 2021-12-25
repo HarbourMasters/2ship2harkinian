@@ -1967,7 +1967,7 @@ void func_8010A2DC(GlobalContext* globalCtx);
 void func_8010A33C(GlobalContext* globalCtx, s16 param_2);
 // void func_8010A410(void);
 // void func_8010A430(void);
-// void func_8010A54C(void);
+void func_8010A54C(GlobalContext* globalCtx);
 // void func_8010A580(void);
 // void func_8010A760(void);
 // void func_8010A7CC(void);
