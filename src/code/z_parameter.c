@@ -408,7 +408,6 @@ s32 D_801BFB24[] = {
     0x00640000,
 };
 
-
 Gfx* Gfx_TextureRGBA16(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft,
                        s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy) {
     gDPLoadTextureBlock(displayListHead++, texture, G_IM_FMT_RGBA, G_IM_SIZ_16b, textureWidth, textureHeight, 0,
@@ -1568,22 +1567,22 @@ s32 func_80114B84(s32 arg0, u8 arg1, u8 arg2) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80114CA0.s")
 
-s32 func_80114E90(void) {
-    s32 i;
+s32 Interface_HasEmptyBottle(void) {
+    s32 slot;
 
-    for (i = 18; i < 24; i++) {
-        if (gSaveContext.save.inventory.items[i] == ITEM_BOTTLE) {
+    for (slot = SLOT_BOTTLE_1; slot <= SLOT_BOTTLE_6; slot++) {
+        if (gSaveContext.save.inventory.items[slot] == ITEM_BOTTLE) {
             return true;
         }
     }
     return false;
 }
 
-s32 func_80114F2C(u8 arg0) {
-    s32 i;
+s32 Interface_HasItemInBottle(u8 itemId) {
+    s32 slot;
 
-    for (i = 18; i < 24; i++) {
-        if (gSaveContext.save.inventory.items[i] == arg0) {
+    for (slot = SLOT_BOTTLE_1; slot <= SLOT_BOTTLE_6; slot++) {
+        if (gSaveContext.save.inventory.items[slot] == itemId) {
             return true;
         }
     }
@@ -1792,14 +1791,20 @@ void func_80118BA4(GlobalContext* globalCtx);
 void func_80119030(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80119030.s")
 
+/**
+ * Draws either the analog three-day clock or the digital final-hours clock
+ */
 #ifdef NON_EQUIVALENT
-void func_80119610(GlobalContext* globalCtx) {
+void Interface_DrawClock(GlobalContext* globalCtx) {
     static s16 D_801BFB2C = 255;
     static s16 D_801BFB30 = 0;
     static s16 D_801BFB34 = 0;
     static u16 D_801BFB38[] = {
-        0x0000, 0x0AAA, 0x1555, 0x2000, 0x2AAA, 0x3555, 0x4000, 0x4AAA, 0x5555, 0x6000, 0x6AAA, 0x7555, 0x8000,
-        0x8AAA, 0x9555, 0xA000, 0xAAAA, 0xB555, 0xC000, 0xCAAA, 0xD555, 0xE000, 0xEAAA, 0xF555, 0xFFFF,
+        CLOCK_TIME(0, 0),  CLOCK_TIME(1, 0),  CLOCK_TIME(2, 0),  CLOCK_TIME(3, 0),  CLOCK_TIME(4, 0),
+        CLOCK_TIME(5, 0),  CLOCK_TIME(6, 0),  CLOCK_TIME(7, 0),  CLOCK_TIME(8, 0),  CLOCK_TIME(9, 0),
+        CLOCK_TIME(10, 0), CLOCK_TIME(11, 0), CLOCK_TIME(12, 0), CLOCK_TIME(13, 0), CLOCK_TIME(14, 0),
+        CLOCK_TIME(15, 0), CLOCK_TIME(16, 0), CLOCK_TIME(17, 0), CLOCK_TIME(18, 0), CLOCK_TIME(19, 0),
+        CLOCK_TIME(20, 0), CLOCK_TIME(21, 0), CLOCK_TIME(22, 0), CLOCK_TIME(23, 0), CLOCK_TIME(24, 0) - 1,
     };
     static TexturePtr D_801BFB6C[] = {
         gThreeDayTimerHour12Tex, gThreeDayTimerHour1Tex, gThreeDayTimerHour2Tex,  gThreeDayTimerHour3Tex,
@@ -1833,10 +1838,7 @@ void func_80119610(GlobalContext* globalCtx) {
         gFinalHoursTimerDigit8Tex, gFinalHoursTimerDigit9Tex, gFinalHoursTimerColonTex,
     };
     static s16 D_801BFC40[] = {
-        0x007F, 0x0088,
-        0x0090, 0x0097,
-        0x00A0, 0x00A8,
-        0x00AF, 0x00B8,
+        0x007F, 0x0088, 0x0090, 0x0097, 0x00A0, 0x00A8, 0x00AF, 0x00B8,
     };
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
     MessageContext* msgCtx = &globalCtx->msgCtx;
@@ -1866,7 +1868,9 @@ void func_80119610(GlobalContext* globalCtx) {
     OPEN_DISPS(globalCtx->state.gfxCtx);
 
     if (gGameInfo->data[0xF] != 0) {
-        if ((msgCtx->unk11F22 == 0) || ((globalCtx->actorCtx.unk5 & 2) && (func_801690CC(globalCtx) == 0)) || (msgCtx->unk11F22 == 0) || ((msgCtx->unk11F04 >= 0x100) && (msgCtx->unk11F04 < 0x201)) || (gSaveContext.gameMode == 3)) {
+        if ((msgCtx->unk11F22 == 0) || ((globalCtx->actorCtx.unk5 & 2) && (func_801690CC(globalCtx) == 0)) ||
+            (msgCtx->unk11F22 == 0) || ((msgCtx->unk11F04 >= 0x100) && (msgCtx->unk11F04 < 0x201)) ||
+            (gSaveContext.gameMode == 3)) {
             if (FrameAdvance_IsEnabled(globalCtx) == 0) {
                 if (func_800FE4A8() == 0) {
                     if ((0, gSaveContext.save.day) < 4) {
@@ -1909,17 +1913,22 @@ void func_80119610(GlobalContext* globalCtx) {
                             gDPSetAlphaCompare(OVERLAY_DISP++, G_AC_THRESHOLD);
                             gDPSetRenderMode(OVERLAY_DISP++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 130, 130, 130, D_801BFB2C);
-                            gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0);
+                            gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0,
+                                              PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0);
 
-                            OVERLAY_DISP = func_8010D9F4(OVERLAY_DISP, gThreeDayTimerHourLinesTex, 4, 64, 35, 96, 180, 128, 35, 1, 6, 0, 1 << 10, 1 << 10);
+                            OVERLAY_DISP = func_8010D9F4(OVERLAY_DISP, gThreeDayTimerHourLinesTex, 4, 64, 35, 96, 180,
+                                                         128, 35, 1, 6, 0, 1 << 10, 1 << 10);
 
                             gDPPipeSync(OVERLAY_DISP++);
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, D_801BFB2C);
-                            gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0);
-                            
-                            OVERLAY_DISP = func_8010D9F4(OVERLAY_DISP, gThreeDayTimerDialBoarderTex, 4, 64, 50, 96, 168, 128, 50, 1, 6, 0, 1 << 10, 1 << 10);
+                            gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0,
+                                              PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0);
 
-                            if (((CURRENT_DAY >= 4) || ((CURRENT_DAY == 3) && ((0, gSaveContext.save.time) >= 5) && ((0, gSaveContext.save.time) < 0x4000)))) {
+                            OVERLAY_DISP = func_8010D9F4(OVERLAY_DISP, gThreeDayTimerDialBoarderTex, 4, 64, 50, 96, 168,
+                                                         128, 50, 1, 6, 0, 1 << 10, 1 << 10);
+
+                            if (((CURRENT_DAY >= 4) || ((CURRENT_DAY == 3) && ((0, gSaveContext.save.time) >= 5) &&
+                                                        ((0, gSaveContext.save.time) < 0x4000)))) {
                                 func_8012C8D4(globalCtx->state.gfxCtx);
                                 gSPMatrix(OVERLAY_DISP++, &D_801D1DE0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                             } else {
@@ -1989,7 +1998,9 @@ void func_80119610(GlobalContext* globalCtx) {
                                         D_801BFBE0 = color4;
                                     }
 
-                                    gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+                                    gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT,
+                                                      TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE, ENVIRONMENT, TEXEL0,
+                                                      ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
                                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, D_801BFBCC, D_801BFBD0, 255, D_801BFB2C);
                                     gDPSetEnvColor(OVERLAY_DISP++, D_801BFBD8, D_801BFBDC, D_801BFBE0, 0);
                                 } else {
@@ -1997,12 +2008,14 @@ void func_80119610(GlobalContext* globalCtx) {
                                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 170, 100, D_801BFB2C);
                                 }
 
-                                OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, gThreeDayTimerDiamondTex, 40, 32, 140, 190, 40, 32, 1 << 10, 1 << 10);
+                                OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, gThreeDayTimerDiamondTex, 40, 32, 140, 190,
+                                                              40, 32, 1 << 10, 1 << 10);
 
                                 gDPPipeSync(OVERLAY_DISP++);
                                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 155, D_801BFB2C);
 
-                                OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, interfaceCtx->doActionSegment + 0x780, 48, 27, 137, 192, 48, 27, 1 << 10, 1 << 10);
+                                OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, interfaceCtx->doActionSegment + 0x780, 48,
+                                                              27, 137, 192, 48, 27, 1 << 10, 1 << 10);
 
                                 gDPPipeSync(OVERLAY_DISP++);
 
@@ -2013,14 +2026,15 @@ void func_80119610(GlobalContext* globalCtx) {
                                     D_801BF980 -= 0.02f;
                                     D_801BF97C -= 11;
                                 }
-                                
+
                                 D_801BF978--;
                                 if (D_801BF978 == 0) {
                                     D_801BF978 = 10;
                                     D_801BF974 ^= 1;
                                 }
 
-                                sp1D0 = (s16)((0, gSaveContext.save.time) * 1.3183594f) - ((((0, gSaveContext.save.time) * 1.3183594f) / 3600.0f) * 3600.0f);
+                                sp1D0 = (s16)((0, gSaveContext.save.time) * 1.3183594f) -
+                                        ((((0, gSaveContext.save.time) * 1.3183594f) / 3600.0f) * 3600.0f);
 
                                 func_8012C8D4(globalCtx->state.gfxCtx);
 
@@ -2040,14 +2054,18 @@ void func_80119610(GlobalContext* globalCtx) {
                                 Matrix_Scale(1.0f, 1.0f, D_801BF980, MTXMODE_APPLY);
                                 Matrix_InsertZRotation_f(-(sp1D0 * 0.0175f) / 10.0f, MTXMODE_APPLY);
 
-                                gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                                gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx),
+                                          G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                                 gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[0xC], 4, 0);
-                                gDPLoadTextureBlock_4b(OVERLAY_DISP++, gThreeDayTimerStarMinuteTex, G_IM_FMT_I, 16, 16, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                                gDPLoadTextureBlock_4b(OVERLAY_DISP++, gThreeDayTimerStarMinuteTex, G_IM_FMT_I, 16, 16,
+                                                       0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP,
+                                                       G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
                                 gSP1Quadrangle(OVERLAY_DISP++, 0, 2, 3, 1, 0);
                             }
 
                             gDPPipeSync(OVERLAY_DISP++);
-                            gDPSetScissorFrac(OVERLAY_DISP++, G_SC_NON_INTERLACE, 400, 620, 880, gGameInfo->data[0x56C] * 4.0f);
+                            gDPSetScissorFrac(OVERLAY_DISP++, G_SC_NON_INTERLACE, 400, 620, 880,
+                                              gGameInfo->data[0x56C] * 4.0f);
 
                             for (phi_t0_3 = 0; phi_t0_3 < 25; phi_t0_3++) {
                                 if (((0, gSaveContext.save.time) & 0xFFFF) >= D_801BFB38[phi_t0_3 + 1]) {
@@ -2065,7 +2083,8 @@ void func_80119610(GlobalContext* globalCtx) {
                             Matrix_InsertTranslation(sp1D8, temp_f14, 0.0f, MTXMODE_NEW);
                             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
 
-                            gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                            gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx),
+                                      G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[0x10], 4, 0);
 
                             OVERLAY_DISP = func_8010DC58(OVERLAY_DISP, gThreeDayTimerSunHourTex, 24, 24, 0);
@@ -2079,26 +2098,30 @@ void func_80119610(GlobalContext* globalCtx) {
 
                             Matrix_InsertTranslation(sp1D8, temp_f14, 0.0f, MTXMODE_NEW);
                             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
-                            gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                            gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx),
+                                      G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[0x14], 4, 0);
 
                             OVERLAY_DISP = func_8010DC58(OVERLAY_DISP, gThreeDayTimerMoonHourTex, 24, 24, 0);
 
                             gDPPipeSync(OVERLAY_DISP++);
-                            gDPSetScissorFrac(OVERLAY_DISP++, G_SC_NON_INTERLACE, 400, 620, 880, gGameInfo->data[0x56D] * 4.0f);
+                            gDPSetScissorFrac(OVERLAY_DISP++, G_SC_NON_INTERLACE, 400, 620, 880,
+                                              gGameInfo->data[0x56D] * 4.0f);
 
                             sp1CC = (0, gSaveContext.save.time) * 0.000096131f;
 
                             Matrix_InsertTranslation(0.0f, gGameInfo->data[0x56B] / 10.0f, 0.0f, MTXMODE_NEW);
                             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
                             Matrix_InsertZRotation_f(-(sp1CC - 3.15f), MTXMODE_APPLY);
-                            gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                            gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx),
+                                      G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
 
                             gDPPipeSync(OVERLAY_DISP++);
-                            gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0);
+                            gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0,
+                                              PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0);
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, D_801BFB2C);
                             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[0x18], 8, 0);
-                            
+
                             OVERLAY_DISP = func_8010DE38(OVERLAY_DISP, D_801BFB6C[phi_t0_3], 4, 16, 11, 0);
 
                             gDPPipeSync(OVERLAY_DISP++);
@@ -2108,10 +2131,12 @@ void func_80119610(GlobalContext* globalCtx) {
                             Matrix_InsertTranslation(0.0f, gGameInfo->data[0x56B] / 10.0f, 0.0f, MTXMODE_NEW);
                             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
                             Matrix_InsertZRotation_f(-sp1CC, MTXMODE_APPLY);
-                            gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                            gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx),
+                                      G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
 
                             gDPPipeSync(OVERLAY_DISP++);
-                            gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0);
+                            gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0,
+                                              PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0);
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, D_801BFB2C);
                             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[0x20], 8, 0);
 
@@ -2122,7 +2147,8 @@ void func_80119610(GlobalContext* globalCtx) {
                             gSP1Quadrangle(OVERLAY_DISP++, 4, 6, 7, 5, 0);
                             gSPDisplayList(OVERLAY_DISP++, D_0E0001C8);
 
-                            if ((CURRENT_DAY >= 4) || ((CURRENT_DAY == 3) && ((0, gSaveContext.save.time) >= 5) && ((0, gSaveContext.save.time) < 0x4000))) {
+                            if ((CURRENT_DAY >= 4) || ((CURRENT_DAY == 3) && ((0, gSaveContext.save.time) >= 5) &&
+                                                       ((0, gSaveContext.save.time) < 0x4000))) {
                                 if ((0, gSaveContext.save.time) >= 0x3555) {
 
                                     color1 = D_801BFC04[D_801BFA00];
@@ -2186,24 +2212,30 @@ void func_80119610(GlobalContext* globalCtx) {
                                 gSPMatrix(OVERLAY_DISP++, &D_801D1DE0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                                 gDPSetAlphaCompare(OVERLAY_DISP++, G_AC_THRESHOLD);
                                 gDPSetRenderMode(OVERLAY_DISP++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-                                gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+                                gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0,
+                                                  0, PRIMITIVE, 0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0,
+                                                  0, PRIMITIVE, 0);
                                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 195, sp1E6);
                                 gDPSetEnvColor(OVERLAY_DISP++, D_801BF9F0, D_801BF9F4, D_801BF9F8, 0);
 
-                                OVERLAY_DISP = func_8010D9F4(OVERLAY_DISP, gFinalHoursTimerFrameTex, 3, 80, 13, 119, 202, 80, 13, 0, 0, 0, 1 << 10, 1 << 10);
-                                
-                                temp_a1_7 = (-(CURRENT_DAY << 0x10) - (((0, gSaveContext.save.time) - 0x4000) & 0xFFFF)) + 0x40000;
+                                OVERLAY_DISP = func_8010D9F4(OVERLAY_DISP, gFinalHoursTimerFrameTex, 3, 80, 13, 119,
+                                                             202, 80, 13, 0, 0, 0, 1 << 10, 1 << 10);
+
+                                temp_a1_7 =
+                                    (-(CURRENT_DAY << 0x10) - (((0, gSaveContext.save.time) - 0x4000) & 0xFFFF)) +
+                                    0x40000;
                                 temp_f0 = temp_a1_7 * 0.021972656f;
-                                
+
                                 sp1AC[0] = 0;
-                                sp1AC[1] = temp_f0 / 60.0f;;
-                                sp1AC[2] = temp_f0 / 60.0f;;
+                                sp1AC[1] = temp_f0 / 60.0f;
+                                ;
+                                sp1AC[2] = temp_f0 / 60.0f;
+                                ;
 
                                 while (sp1AC[1] >= 0xA) {
                                     sp1AC[0]++;
                                     sp1AC[1] -= 10;
                                 }
-
 
                                 sp1AC[3] = 0;
                                 sp1AC[4] = (s32)temp_f0 % 60;
@@ -2230,7 +2262,8 @@ void func_80119610(GlobalContext* globalCtx) {
                                 gDPSetEnvColor(OVERLAY_DISP++, D_801BF9EC, 0, 0, 0);
 
                                 for (sp1C6 = 0; sp1C6 < 8; sp1C6++) {
-                                    OVERLAY_DISP = Gfx_TextureI8(OVERLAY_DISP, D_801BFC14[sp1AC[sp1C6]], 8, 8, D_801BFC40[sp1C6], 205, 8, 8, 1 << 10, 1 << 10);
+                                    OVERLAY_DISP = Gfx_TextureI8(OVERLAY_DISP, D_801BFC14[sp1AC[sp1C6]], 8, 8,
+                                                                 D_801BFC40[sp1C6], 205, 8, 8, 1 << 10, 1 << 10);
                                 }
                             }
                         }
@@ -2246,8 +2279,11 @@ s16 D_801BFB2C = 255;
 s16 D_801BFB30 = 0;
 s16 D_801BFB34 = 0;
 u16 D_801BFB38[] = {
-    0x0000, 0x0AAA, 0x1555, 0x2000, 0x2AAA, 0x3555, 0x4000, 0x4AAA, 0x5555, 0x6000, 0x6AAA, 0x7555, 0x8000,
-    0x8AAA, 0x9555, 0xA000, 0xAAAA, 0xB555, 0xC000, 0xCAAA, 0xD555, 0xE000, 0xEAAA, 0xF555, 0xFFFF,
+    CLOCK_TIME(0, 0),  CLOCK_TIME(1, 0),  CLOCK_TIME(2, 0),  CLOCK_TIME(3, 0),  CLOCK_TIME(4, 0),
+    CLOCK_TIME(5, 0),  CLOCK_TIME(6, 0),  CLOCK_TIME(7, 0),  CLOCK_TIME(8, 0),  CLOCK_TIME(9, 0),
+    CLOCK_TIME(10, 0), CLOCK_TIME(11, 0), CLOCK_TIME(12, 0), CLOCK_TIME(13, 0), CLOCK_TIME(14, 0),
+    CLOCK_TIME(15, 0), CLOCK_TIME(16, 0), CLOCK_TIME(17, 0), CLOCK_TIME(18, 0), CLOCK_TIME(19, 0),
+    CLOCK_TIME(20, 0), CLOCK_TIME(21, 0), CLOCK_TIME(22, 0), CLOCK_TIME(23, 0), CLOCK_TIME(24, 0) - 1,
 };
 TexturePtr D_801BFB6C[] = {
     gThreeDayTimerHour12Tex, gThreeDayTimerHour1Tex, gThreeDayTimerHour2Tex,  gThreeDayTimerHour3Tex,
@@ -2257,7 +2293,7 @@ TexturePtr D_801BFB6C[] = {
     gThreeDayTimerHour4Tex,  gThreeDayTimerHour5Tex, gThreeDayTimerHour6Tex,  gThreeDayTimerHour7Tex,
     gThreeDayTimerHour8Tex,  gThreeDayTimerHour9Tex, gThreeDayTimerHour10Tex, gThreeDayTimerHour11Tex,
 };
-s16 D_801BFBCC = 0; // color R
+s16 D_801BFBCC = 0;   // color R
 s16 D_801BFBD0 = 155; // color G
 s16 D_801BFBD4 = 255;
 s16 D_801BFBD8 = 0;
@@ -2281,16 +2317,11 @@ TexturePtr D_801BFC14[] = {
     gFinalHoursTimerDigit8Tex, gFinalHoursTimerDigit9Tex, gFinalHoursTimerColonTex,
 };
 s16 D_801BFC40[] = {
-    0x007F, 0x0088,
-    0x0090, 0x0097,
-    0x00A0, 0x00A8,
-    0x00AF, 0x00B8,
+    0x007F, 0x0088, 0x0090, 0x0097, 0x00A0, 0x00A8, 0x00AF, 0x00B8,
 };
-void func_80119610(GlobalContext* globalCtx);
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80119610.s")
+void Interface_DrawClock(GlobalContext* globalCtx);
+#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_DrawClock.s")
 #endif
-
-
 
 void func_8011B4E0(GlobalContext* globalCtx, s16 arg1) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
@@ -2319,7 +2350,6 @@ void func_8011B4E0(GlobalContext* globalCtx, s16 arg1) {
             interfaceCtx->unk_2BC[i] = 200.0f;
         }
     }
-
     interfaceCtx->unk_28A[0] = 1;
 }
 
@@ -2330,11 +2360,9 @@ s32 D_801BFC50[] = {
     0xA0008000,
     0x60004000,
 };
-
 s32 D_801BFC60[] = {
     0x00FF00FF,
 };
-
 s32 D_801BFC64[] = {
     0x00FF00FF,
     0x00A50037,
@@ -2346,17 +2374,14 @@ void func_8011B5C0(GlobalContext* globalCtx);
 s16 D_801BFC6C[] = {
     0x004E, 0x0036, 0x001D, 0x0005, 0xFFEE, 0xFFD6, 0xFFBD, 0xFFAB,
 };
-
 s16 D_801BFC7C[] = {
     0x00B4, 0x00B4, 0x00B4, 0x00B4, 0xFF4C, 0xFF4C, 0xFF4C, 0xFF4C,
 };
-
 s32 D_801BFC8C[] = {
     0x00FF00FF,
     0x00FF00FF,
     0x00A50037,
 };
-
 void func_8011B9E0(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011B9E0.s")
 
@@ -2367,20 +2392,17 @@ s32 D_801BFC98[] = {
     0xFFEEFFD6,
     0xFFBDFFAB,
 };
-
 s32 D_801BFCA8[] = {
     0xC000E000,
     0x00002000,
     0xA0008000,
     0x60004000,
 };
-
 s32 D_801BFCB8[] = {
     0x00FF00FF,
     0x00FF00FF,
     0x00A50037,
 };
-
 void func_8011BF70(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011BF70.s")
 
@@ -2389,9 +2411,9 @@ TexturePtr D_801BFCC4[] = {
     gMinigameLetterPTex, gMinigameLetterETex, gMinigameLetterRTex, gMinigameLetterFTex,
     gMinigameLetterETex, gMinigameLetterCTex, gMinigameLetterTTex, gMinigameExclamationTex,
 };
-
 void func_8011C4C4(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011C4C4.s")
+
 
 #ifdef NON_MATCHING
 void func_8011C808(GlobalContext* globalCtx) {
@@ -2417,64 +2439,55 @@ void func_8011C808(GlobalContext* globalCtx) {
 s32 D_801BFCE4[] = {
     0x00000000,
 };
-
 s32 D_801BFCE8[] = {
     0x00000000,
 };
-
 s32 D_801BFCEC[] = {
     0x00000000,
 };
-
 s32 D_801BFCF0[] = {
     0x00000000,
 };
-
 s32 D_801BFCF4[] = {
     0x00000000,
 };
-
 s32 D_801BFCF8[] = {
     0x00630000,
 };
-
 s16 D_801BFCFC[] = {
     0x10, 0x19, 0x22, 0x2A, 0x33, 0x3C, 0x44, 0x4D,
 };
-
 s16 D_801BFD0C[] = {
     9, 9, 8, 9, 9, 8, 9, 9,
 };
-
 void func_8011CA64(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011CA64.s")
+
 
 void func_8011E3B4(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011E3B4.s")
 
+
 void func_8011E730(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011E730.s")
 
+
 // rupeeDigitsFirst
 s16 D_801BFD1C[] = { 1, 0, 0, 0 };
-
 // rupeeDigitsCount
 s16 D_801BFD24[] = { 2, 3, 3, 0 };
-
 // rupeeIconPrimColor
 Color_RGB16 D_801BFD2C[] = {
     { 200, 255, 100 },
     { 170, 170, 255 },
     { 255, 105, 105 },
 };
-
 // rupeeIconEnvColor
 Color_RGB16 D_801BFD40[] = {
     { 0, 80, 0 },
     { 10, 10, 80 },
     { 40, 10, 0 },
 };
-
 // minigameCountdownTexs
 TexturePtr D_801BFD54[] = {
     gMinigameCountdown3Tex,
@@ -2482,10 +2495,8 @@ TexturePtr D_801BFD54[] = {
     gMinigameCountdown1Tex,
     gMinigameCountdownGoTex,
 };
-
 // minigameCountdownTexHeights
 s16 D_801BFD64[] = { 24, 24, 24, 40 };
-
 // minigameCountdownPrimColor
 Color_RGB16 D_801BFD6C[] = {
     { 100, 255, 100 },
@@ -2493,19 +2504,16 @@ Color_RGB16 D_801BFD6C[] = {
     { 255, 100, 0 },
     { 120, 170, 255 },
 };
-
 // grandma's story pictures
 s32 D_801BFD84[] = {
     0x07000000,
     0x07012C00,
 };
-
 // grandma's story TLUT
 u32 D_801BFD8C[] = {
     0x07025800,
     0x07025A00,
 };
-
 #ifdef NON_MATCHING
 void Interface_Draw(GlobalContext* globalCtx) {
     s32 pad;
@@ -2781,7 +2789,7 @@ void Interface_Draw(GlobalContext* globalCtx) {
                     OVERLAY_DISP = func_8010DC58(OVERLAY_DISP, D_801BFD54[sp2CE], D_801BFD64[sp2CE], 32, 0);
                 }
             } else {
-                func_80119610(globalCtx);
+                Interface_DrawClock(globalCtx);
             }
         }
 
