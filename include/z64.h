@@ -899,7 +899,7 @@ typedef struct {
     /* 0x11F14 */ UNK_TYPE1 pad11F14[0xE];
     /* 0x11F22 */ u8 unk11F22;
     /* 0x11F23 */ UNK_TYPE1 pad11F23[0xE3];
-    /* 0x11F23 */ s16 unk12006;
+    /* 0x12006 */ s16 unk12006;
     /* 0x12007 */ UNK_TYPE1 pad12007[0x18];
     /* 0x12020 */ u8 unk12020;
     /* 0x12021 */ u8 choiceIndex;

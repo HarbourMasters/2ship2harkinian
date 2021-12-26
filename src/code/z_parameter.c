@@ -1,10 +1,13 @@
 #include "global.h"
 #include "misc/parameter_static/parameter_static.h"
 
-void func_801663C4(u8* arg0, u8* arg1, u32 arg2);
 void Map_Update(GlobalContext* globalCtx);
+u8 func_800FE4A8();
+s32 func_801234D4(GlobalContext* globalCtx);
 s16 func_801242DC(GlobalContext*); // s32 func_8008F2F8 (OoT)
+void func_801663C4(u8* arg0, u8* arg1, u32 arg2);
 
+extern Gfx D_0E0001C8[]; // Display List
 extern Gfx D_0E0002E0[]; // Display List
 extern u8 D_801ABAB0[];
 extern u8 D_801E3BB0[];
@@ -214,22 +217,15 @@ s32 D_801BF970[] = {
     0x00630000,
 };
 
-s32 D_801BF974[] = {
-    0x00000000,
-};
+u32 D_801BF974 = 0;
 
-s32 D_801BF978[] = {
-    0x000A0000,
-};
+s16 D_801BF978 = 10;
 
-s32 D_801BF97C[] = {
-    0x00FF0000,
-};
+s16 D_801BF97C = 255;
 
-s32 D_801BF980[] = {
-    0x3F800000, // f32: 1.0
-    0x00000000,
-};
+f32 D_801BF980 = 1.0f;
+
+s32 D_801BF984 = 0;
 
 // Display List
 Gfx D_801BF988[] = {
@@ -293,29 +289,17 @@ s32 D_801BF9E8[] = {
     0x026C026C,
 };
 
-s32 D_801BF9EC[] = {
-    0x00000000,
-};
+s16 D_801BF9EC = 0;
 
-s32 D_801BF9F0[] = {
-    0x00000000,
-};
+s16 D_801BF9F0 = 0;
 
-s32 D_801BF9F4[] = {
-    0x00000000,
-};
+s16 D_801BF9F4 = 0;
 
-s32 D_801BF9F8[] = {
-    0x00000000,
-};
+s16 D_801BF9F8 = 0;
 
-s32 D_801BF9FC[] = {
-    0x000F0000,
-};
+s16 D_801BF9FC = 0xF;
 
-s32 D_801BFA00[] = {
-    0x00000000,
-};
+u32 D_801BFA00 = 0;
 
 s32 D_801BFA04[] = {
     0xFFF2FFF2, 0xFFE8FFF8, 0xFFF4FFF4, 0xFFF9FFF8, 0xFFF9FFF8, 0xFFF40000,
@@ -424,203 +408,6 @@ s32 D_801BFB24[] = {
     0x00640000,
 };
 
-s32 D_801BFB2C[] = {
-    0x00FF0000,
-};
-
-s32 D_801BFB30[] = {
-    0x00000000,
-};
-
-s32 D_801BFB34[] = {
-    0x00000000,
-};
-
-s16 D_801BFB38[] = {
-    0x0000, 0x0AAA, 0x1555, 0x2000, 0x2AAA, 0x3555, 0x4000, 0x4AAA, 0x5555, 0x6000, 0x6AAA, 0x7555, 0x8000,
-    0x8AAA, 0x9555, 0xA000, 0xAAAA, 0xB555, 0xC000, 0xCAAA, 0xD555, 0xE000, 0xEAAA, 0xF555, 0xFFFF, 0x0000,
-};
-
-TexturePtr D_801BFB6C[] = {
-    gThreeDayTimerHour12Tex, gThreeDayTimerHour1Tex, gThreeDayTimerHour2Tex,  gThreeDayTimerHour3Tex,
-    gThreeDayTimerHour4Tex,  gThreeDayTimerHour5Tex, gThreeDayTimerHour6Tex,  gThreeDayTimerHour7Tex,
-    gThreeDayTimerHour8Tex,  gThreeDayTimerHour9Tex, gThreeDayTimerHour10Tex, gThreeDayTimerHour11Tex,
-    gThreeDayTimerHour12Tex, gThreeDayTimerHour1Tex, gThreeDayTimerHour2Tex,  gThreeDayTimerHour3Tex,
-    gThreeDayTimerHour4Tex,  gThreeDayTimerHour5Tex, gThreeDayTimerHour6Tex,  gThreeDayTimerHour7Tex,
-    gThreeDayTimerHour8Tex,  gThreeDayTimerHour9Tex, gThreeDayTimerHour10Tex, gThreeDayTimerHour11Tex,
-};
-
-s32 D_801BFBCC[] = {
-    0x00000000,
-};
-
-s32 D_801BFBD0[] = {
-    0x009B0000,
-};
-
-s32 D_801BFBD4[] = {
-    0x00FF0000,
-};
-
-s32 D_801BFBD8[] = {
-    0x00000000,
-};
-
-s32 D_801BFBDC[] = {
-    0x00000000,
-};
-
-s32 D_801BFBE0[] = {
-    0x00000000,
-};
-
-s32 D_801BFBE4[] = {
-    0x000F0000,
-};
-
-s32 D_801BFBE8[] = {
-    0x00000000,
-};
-
-s32 D_801BFBEC[] = {
-    0x00640000,
-};
-
-s32 D_801BFBF0[] = {
-    0x00CD009B,
-};
-
-s32 D_801BFBF4[] = {
-    0x00FF00FF,
-};
-
-s32 D_801BFBF8[] = {
-    0x001E0000,
-};
-
-s32 D_801BFBFC[] = {
-    0x001E0000,
-};
-
-s32 D_801BFC00[] = {
-    0x00640000,
-};
-
-s32 D_801BFC04[] = {
-    0x00FF0000,
-};
-
-s32 D_801BFC08[] = {
-    0x00640000,
-};
-
-s32 D_801BFC0C[] = {
-    0x001E0000,
-};
-
-s32 D_801BFC10[] = {
-    0x00640000,
-};
-
-TexturePtr D_801BFC14[] = {
-    gFinalHoursTimerDigit0Tex, gFinalHoursTimerDigit1Tex, gFinalHoursTimerDigit2Tex, gFinalHoursTimerDigit3Tex,
-    gFinalHoursTimerDigit4Tex, gFinalHoursTimerDigit5Tex, gFinalHoursTimerDigit6Tex, gFinalHoursTimerDigit7Tex,
-    gFinalHoursTimerDigit8Tex, gFinalHoursTimerDigit9Tex, gFinalHoursTimerColonTex,
-};
-
-s32 D_801BFC40[] = {
-    0x007F0088,
-    0x00900097,
-    0x00A000A8,
-    0x00AF00B8,
-};
-
-s32 D_801BFC50[] = {
-    0xC000E000,
-    0x00002000,
-    0xA0008000,
-    0x60004000,
-};
-
-s32 D_801BFC60[] = {
-    0x00FF00FF,
-};
-
-s32 D_801BFC64[] = {
-    0x00FF00FF,
-    0x00A50037,
-};
-
-s16 D_801BFC6C[] = {
-    0x004E, 0x0036, 0x001D, 0x0005, 0xFFEE, 0xFFD6, 0xFFBD, 0xFFAB,
-};
-
-s16 D_801BFC7C[] = {
-    0x00B4, 0x00B4, 0x00B4, 0x00B4, 0xFF4C, 0xFF4C, 0xFF4C, 0xFF4C,
-};
-
-s32 D_801BFC8C[] = {
-    0x00FF00FF,
-    0x00FF00FF,
-    0x00A50037,
-};
-
-s32 D_801BFC98[] = {
-    0x004E0036,
-    0x001D0005,
-    0xFFEEFFD6,
-    0xFFBDFFAB,
-};
-
-s32 D_801BFCA8[] = {
-    0xC000E000,
-    0x00002000,
-    0xA0008000,
-    0x60004000,
-};
-
-s32 D_801BFCB8[] = {
-    0x00FF00FF,
-    0x00FF00FF,
-    0x00A50037,
-};
-
-TexturePtr D_801BFCC4[] = {
-    gMinigameLetterPTex, gMinigameLetterETex, gMinigameLetterRTex, gMinigameLetterFTex,
-    gMinigameLetterETex, gMinigameLetterCTex, gMinigameLetterTTex, gMinigameExclamationTex,
-};
-
-s32 D_801BFCE4[] = {
-    0x00000000,
-};
-
-s32 D_801BFCE8[] = {
-    0x00000000,
-};
-
-s32 D_801BFCEC[] = {
-    0x00000000,
-};
-
-s32 D_801BFCF0[] = {
-    0x00000000,
-};
-
-s32 D_801BFCF4[] = {
-    0x00000000,
-};
-
-s32 D_801BFCF8[] = {
-    0x00630000,
-};
-
-s16 D_801BFCFC[] = {
-    0x10, 0x19, 0x22, 0x2A, 0x33, 0x3C, 0x44, 0x4D,
-};
-
-s16 D_801BFD0C[] = {
-    9, 9, 8, 9, 9, 8, 9, 9,
-};
 
 Gfx* Gfx_TextureRGBA16(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft,
                        s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy) {
@@ -2005,8 +1792,505 @@ void func_80118BA4(GlobalContext* globalCtx);
 void func_80119030(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80119030.s")
 
+#ifdef NON_EQUIVALENT
+void func_80119610(GlobalContext* globalCtx) {
+    static s16 D_801BFB2C = 255;
+    static s16 D_801BFB30 = 0;
+    static s16 D_801BFB34 = 0;
+    static u16 D_801BFB38[] = {
+        0x0000, 0x0AAA, 0x1555, 0x2000, 0x2AAA, 0x3555, 0x4000, 0x4AAA, 0x5555, 0x6000, 0x6AAA, 0x7555, 0x8000,
+        0x8AAA, 0x9555, 0xA000, 0xAAAA, 0xB555, 0xC000, 0xCAAA, 0xD555, 0xE000, 0xEAAA, 0xF555, 0xFFFF,
+    };
+    static TexturePtr D_801BFB6C[] = {
+        gThreeDayTimerHour12Tex, gThreeDayTimerHour1Tex, gThreeDayTimerHour2Tex,  gThreeDayTimerHour3Tex,
+        gThreeDayTimerHour4Tex,  gThreeDayTimerHour5Tex, gThreeDayTimerHour6Tex,  gThreeDayTimerHour7Tex,
+        gThreeDayTimerHour8Tex,  gThreeDayTimerHour9Tex, gThreeDayTimerHour10Tex, gThreeDayTimerHour11Tex,
+        gThreeDayTimerHour12Tex, gThreeDayTimerHour1Tex, gThreeDayTimerHour2Tex,  gThreeDayTimerHour3Tex,
+        gThreeDayTimerHour4Tex,  gThreeDayTimerHour5Tex, gThreeDayTimerHour6Tex,  gThreeDayTimerHour7Tex,
+        gThreeDayTimerHour8Tex,  gThreeDayTimerHour9Tex, gThreeDayTimerHour10Tex, gThreeDayTimerHour11Tex,
+    };
+    static s16 D_801BFBCC = 0; // color R
+    static s16 D_801BFBD0 = 0; // color G
+    static s16 D_801BFBD4 = 255;
+    static s16 D_801BFBD8 = 0;
+    static s16 D_801BFBDC = 0;
+    static s16 D_801BFBE0 = 0;
+    static s16 D_801BFBE4 = 0xF;
+    static u32 D_801BFBE8 = 0;
+    static s16 D_801BFBEC[] = { 100, 0 };
+    static s16 D_801BFBF0[] = { 205, 155 };
+    static s16 D_801BFBF4[] = { 255, 255 };
+    static s16 D_801BFBF8[] = { 30, 0 };
+    static s16 D_801BFBFC[] = { 30, 0 };
+    static s16 D_801BFC00[] = { 100, 0 };
+    static s16 D_801BFC04[] = { 255, 0 };
+    static s16 D_801BFC08[] = { 100, 0 };
+    static s16 D_801BFC0C[] = { 30, 0 };
+    static s16 D_801BFC10[] = { 100, 0 };
+    static TexturePtr D_801BFC14[] = {
+        gFinalHoursTimerDigit0Tex, gFinalHoursTimerDigit1Tex, gFinalHoursTimerDigit2Tex, gFinalHoursTimerDigit3Tex,
+        gFinalHoursTimerDigit4Tex, gFinalHoursTimerDigit5Tex, gFinalHoursTimerDigit6Tex, gFinalHoursTimerDigit7Tex,
+        gFinalHoursTimerDigit8Tex, gFinalHoursTimerDigit9Tex, gFinalHoursTimerColonTex,
+    };
+    static s16 D_801BFC40[] = {
+        0x007F, 0x0088,
+        0x0090, 0x0097,
+        0x00A0, 0x00A8,
+        0x00AF, 0x00B8,
+    };
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+    MessageContext* msgCtx = &globalCtx->msgCtx;
+    s16 sp1E6;
+    f32 sp1D8;
+    f32 sp1D0;
+    f32 sp1CC;
+    s16 sp1C6;
+    s16 sp1AC[8];
+
+    f32 temp_f0;
+    f32 temp_f14;
+    u32 temp_a1_7;
+    s32 phi_v1_2;
+    s16 phi_t0_3;
+
+    s16 frac;
+    s16 color1;
+    s16 color2;
+    s16 color3;
+    s16 color4;
+    f32 new_var1;
+    f32 new_var2;
+
+    s32 pad[5]; // available temps to use
+
+    OPEN_DISPS(globalCtx->state.gfxCtx);
+
+    if (gGameInfo->data[0xF] != 0) {
+        if ((msgCtx->unk11F22 == 0) || ((globalCtx->actorCtx.unk5 & 2) && (func_801690CC(globalCtx) == 0)) || (msgCtx->unk11F22 == 0) || ((msgCtx->unk11F04 >= 0x100) && (msgCtx->unk11F04 < 0x201)) || (gSaveContext.gameMode == 3)) {
+            if (FrameAdvance_IsEnabled(globalCtx) == 0) {
+                if (func_800FE4A8() == 0) {
+                    if ((0, gSaveContext.save.day) < 4) {
+                        if ((0, gSaveContext.unk_3F22) == 0x32) {
+                            if (func_801234D4(globalCtx) != 0) {
+                                D_801BFB2C = 80;
+                                D_801BFB34 = 20;
+                                D_801BFB30 = 5;
+                            } else if (D_801BFB34 != 0) {
+                                D_801BFB34--;
+                            } else if (D_801BFB30 != 0) {
+                                D_801BFB2C += (s16)(ABS_ALT(D_801BFB2C - 255) / D_801BFB30);
+                                if (D_801BFB2C >= 255) {
+                                    D_801BFB2C = 255;
+                                    D_801BFB30 = 0;
+                                }
+                            } else {
+                                if (globalCtx->actorCtx.unk5 & 2) {
+                                    D_801BFB2C = 255;
+                                } else {
+                                    D_801BFB2C = interfaceCtx->bAlpha;
+                                }
+                                D_801BFB34 = 0;
+                                D_801BFB30 = 0;
+                            }
+                        } else {
+                            if (globalCtx->actorCtx.unk5 & 2) {
+                                D_801BFB2C = 255;
+                            } else {
+                                D_801BFB2C = interfaceCtx->bAlpha;
+                            }
+                            D_801BFB34 = 0;
+                            D_801BFB30 = 0;
+                        }
+
+                        if ((globalCtx->pauseCtx.state == 0) && (globalCtx->pauseCtx.debugState == 0)) {
+
+                            func_8012C654(globalCtx->state.gfxCtx);
+
+                            gDPSetAlphaCompare(OVERLAY_DISP++, G_AC_THRESHOLD);
+                            gDPSetRenderMode(OVERLAY_DISP++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+                            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 130, 130, 130, D_801BFB2C);
+                            gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0);
+
+                            OVERLAY_DISP = func_8010D9F4(OVERLAY_DISP, gThreeDayTimerHourLinesTex, 4, 64, 35, 96, 180, 128, 35, 1, 6, 0, 1 << 10, 1 << 10);
+
+                            gDPPipeSync(OVERLAY_DISP++);
+                            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, D_801BFB2C);
+                            gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0);
+                            
+                            OVERLAY_DISP = func_8010D9F4(OVERLAY_DISP, gThreeDayTimerDialBoarderTex, 4, 64, 50, 96, 168, 128, 50, 1, 6, 0, 1 << 10, 1 << 10);
+
+                            if (((CURRENT_DAY >= 4) || ((CURRENT_DAY == 3) && ((0, gSaveContext.save.time) >= 5) && ((0, gSaveContext.save.time) < 0x4000)))) {
+                                func_8012C8D4(globalCtx->state.gfxCtx);
+                                gSPMatrix(OVERLAY_DISP++, &D_801D1DE0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                            } else {
+                                gDPPipeSync(OVERLAY_DISP++);
+
+                                if (gSaveContext.save.daySpeed == -2) {
+                                    color1 = D_801BFBEC[D_801BFBE8];
+                                    phi_v1_2 = ABS_ALT(D_801BFBCC - color1);
+                                    frac = phi_v1_2 / D_801BFBE4;
+                                    if (D_801BFBCC >= color1) {
+                                        D_801BFBCC -= frac;
+                                    } else {
+                                        D_801BFBCC += frac;
+                                    }
+
+                                    color2 = D_801BFBF0[D_801BFBE8];
+                                    phi_v1_2 = ABS_ALT(D_801BFBD0 - color2);
+                                    frac = phi_v1_2 / D_801BFBE4;
+                                    if (D_801BFBD0 >= color2) {
+                                        D_801BFBD0 -= frac;
+                                    } else {
+                                        D_801BFBD0 += frac;
+                                    }
+
+                                    phi_v1_2 = ABS_ALT(D_801BFBD4 - D_801BFBF4[D_801BFBE8]);
+                                    frac = phi_v1_2 / D_801BFBE4;
+                                    if (D_801BFBD4 >= D_801BFBF4[D_801BFBE8]) {
+                                        D_801BFBD4 -= frac;
+                                    } else {
+                                        D_801BFBD4 += frac;
+                                    }
+
+                                    phi_v1_2 = ABS_ALT(D_801BFBD8 - D_801BFBF8[D_801BFBE8]);
+                                    frac = phi_v1_2 / D_801BFBE4;
+                                    if (D_801BFBD8 >= D_801BFBF8[D_801BFBE8]) {
+                                        D_801BFBD8 -= frac;
+                                    } else {
+                                        D_801BFBD8 += frac;
+                                    }
+
+                                    color3 = D_801BFBFC[D_801BFBE8];
+                                    phi_v1_2 = ABS_ALT(D_801BFBDC - color3);
+                                    frac = phi_v1_2 / D_801BFBE4;
+                                    if (D_801BFBDC >= color3) {
+                                        D_801BFBDC -= frac;
+                                    } else {
+                                        D_801BFBDC += frac;
+                                    }
+
+                                    color4 = D_801BFC00[D_801BFBE8];
+                                    phi_v1_2 = ABS_ALT(D_801BFBE0 - color4);
+                                    frac = phi_v1_2 / D_801BFBE4;
+                                    if (D_801BFBE0 >= color4) {
+                                        D_801BFBE0 -= frac;
+                                    } else {
+                                        D_801BFBE0 += frac;
+                                    }
+
+                                    D_801BFBE4--;
+
+                                    if (D_801BFBE4 == 0) {
+                                        D_801BFBCC = color1;
+                                        D_801BFBE4 = 0xF;
+                                        D_801BFBE8 ^= 1;
+                                        D_801BFBD8 = color2;
+                                        D_801BFBDC = color3;
+                                        D_801BFBE0 = color4;
+                                    }
+
+                                    gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+                                    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, D_801BFBCC, D_801BFBD0, 255, D_801BFB2C);
+                                    gDPSetEnvColor(OVERLAY_DISP++, D_801BFBD8, D_801BFBDC, D_801BFBE0, 0);
+                                } else {
+                                    gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+                                    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 170, 100, D_801BFB2C);
+                                }
+
+                                OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, gThreeDayTimerDiamondTex, 40, 32, 140, 190, 40, 32, 1 << 10, 1 << 10);
+
+                                gDPPipeSync(OVERLAY_DISP++);
+                                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 155, D_801BFB2C);
+
+                                OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, interfaceCtx->doActionSegment + 0x780, 48, 27, 137, 192, 48, 27, 1 << 10, 1 << 10);
+
+                                gDPPipeSync(OVERLAY_DISP++);
+
+                                if (D_801BF974 != 0) {
+                                    D_801BF980 += 0.02f;
+                                    D_801BF97C += 11;
+                                } else {
+                                    D_801BF980 -= 0.02f;
+                                    D_801BF97C -= 11;
+                                }
+                                
+                                D_801BF978--;
+                                if (D_801BF978 == 0) {
+                                    D_801BF978 = 10;
+                                    D_801BF974 ^= 1;
+                                }
+
+                                sp1D0 = (s16)((0, gSaveContext.save.time) * 1.3183594f) - ((((0, gSaveContext.save.time) * 1.3183594f) / 3600.0f) * 3600.0f);
+
+                                func_8012C8D4(globalCtx->state.gfxCtx);
+
+                                gSPMatrix(OVERLAY_DISP++, &D_801D1DE0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+
+                                if (D_801BFB2C != 255) {
+                                    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 110, D_801BFB2C);
+                                } else {
+                                    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 110, D_801BF97C);
+                                }
+
+                                gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+                                gDPSetAlphaCompare(OVERLAY_DISP++, G_AC_THRESHOLD);
+                                gDPSetRenderMode(OVERLAY_DISP++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+
+                                Matrix_InsertTranslation(0.0f, -86.0f, 0.0f, MTXMODE_NEW);
+                                Matrix_Scale(1.0f, 1.0f, D_801BF980, MTXMODE_APPLY);
+                                Matrix_InsertZRotation_f(-(sp1D0 * 0.0175f) / 10.0f, MTXMODE_APPLY);
+
+                                gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                                gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[0xC], 4, 0);
+                                gDPLoadTextureBlock_4b(OVERLAY_DISP++, gThreeDayTimerStarMinuteTex, G_IM_FMT_I, 16, 16, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                                gSP1Quadrangle(OVERLAY_DISP++, 0, 2, 3, 1, 0);
+                            }
+
+                            gDPPipeSync(OVERLAY_DISP++);
+                            gDPSetScissorFrac(OVERLAY_DISP++, G_SC_NON_INTERLACE, 400, 620, 880, gGameInfo->data[0x56C] * 4.0f);
+
+                            for (phi_t0_3 = 0; phi_t0_3 < 25; phi_t0_3++) {
+                                if (((0, gSaveContext.save.time) & 0xFFFF) >= D_801BFB38[phi_t0_3 + 1]) {
+                                    break;
+                                }
+                            }
+
+                            sp1D8 = Math_SinS(gSaveContext.save.time) * -40.0f;
+                            temp_f14 = Math_CosS(gSaveContext.save.time) * -34.0f;
+
+                            gDPPipeSync(OVERLAY_DISP++);
+                            gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+                            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 100, 110, D_801BFB2C);
+
+                            Matrix_InsertTranslation(sp1D8, temp_f14, 0.0f, MTXMODE_NEW);
+                            Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
+
+                            gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                            gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[0x10], 4, 0);
+
+                            OVERLAY_DISP = func_8010DC58(OVERLAY_DISP, gThreeDayTimerSunHourTex, 24, 24, 0);
+
+                            sp1D8 = Math_SinS(gSaveContext.save.time) * 40.0f;
+                            temp_f14 = Math_CosS(gSaveContext.save.time) * 34.0f;
+
+                            gDPPipeSync(OVERLAY_DISP++);
+                            gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+                            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 55, D_801BFB2C);
+
+                            Matrix_InsertTranslation(sp1D8, temp_f14, 0.0f, MTXMODE_NEW);
+                            Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
+                            gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                            gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[0x14], 4, 0);
+
+                            OVERLAY_DISP = func_8010DC58(OVERLAY_DISP, gThreeDayTimerMoonHourTex, 24, 24, 0);
+
+                            gDPPipeSync(OVERLAY_DISP++);
+                            gDPSetScissorFrac(OVERLAY_DISP++, G_SC_NON_INTERLACE, 400, 620, 880, gGameInfo->data[0x56D] * 4.0f);
+
+                            sp1CC = (0, gSaveContext.save.time) * 0.000096131f;
+
+                            Matrix_InsertTranslation(0.0f, gGameInfo->data[0x56B] / 10.0f, 0.0f, MTXMODE_NEW);
+                            Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
+                            Matrix_InsertZRotation_f(-(sp1CC - 3.15f), MTXMODE_APPLY);
+                            gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+
+                            gDPPipeSync(OVERLAY_DISP++);
+                            gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0);
+                            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, D_801BFB2C);
+                            gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[0x18], 8, 0);
+                            
+                            OVERLAY_DISP = func_8010DE38(OVERLAY_DISP, D_801BFB6C[phi_t0_3], 4, 16, 11, 0);
+
+                            gDPPipeSync(OVERLAY_DISP++);
+                            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 155, D_801BFB2C);
+                            gSP1Quadrangle(OVERLAY_DISP++, 4, 6, 7, 5, 0);
+
+                            Matrix_InsertTranslation(0.0f, gGameInfo->data[0x56B] / 10.0f, 0.0f, MTXMODE_NEW);
+                            Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
+                            Matrix_InsertZRotation_f(-sp1CC, MTXMODE_APPLY);
+                            gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+
+                            gDPPipeSync(OVERLAY_DISP++);
+                            gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0);
+                            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, D_801BFB2C);
+                            gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[0x20], 8, 0);
+
+                            OVERLAY_DISP = func_8010DE38(OVERLAY_DISP, D_801BFB6C[phi_t0_3], 4, 16, 11, 0);
+
+                            gDPPipeSync(OVERLAY_DISP++);
+                            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 155, D_801BFB2C);
+                            gSP1Quadrangle(OVERLAY_DISP++, 4, 6, 7, 5, 0);
+                            gSPDisplayList(OVERLAY_DISP++, D_0E0001C8);
+
+                            if ((CURRENT_DAY >= 4) || ((CURRENT_DAY == 3) && ((0, gSaveContext.save.time) >= 5) && ((0, gSaveContext.save.time) < 0x4000))) {
+                                if ((0, gSaveContext.save.time) >= 0x3555) {
+
+                                    color1 = D_801BFC04[D_801BFA00];
+                                    phi_v1_2 = ABS_ALT(D_801BF9EC - color1);
+
+                                    frac = phi_v1_2 / D_801BF9FC;
+                                    if (D_801BF9EC >= color1) {
+                                        D_801BF9EC -= frac;
+                                    } else {
+                                        D_801BF9EC += frac;
+                                    }
+
+                                    color2 = D_801BFC08[D_801BFA00];
+                                    phi_v1_2 = ABS_ALT(D_801BF9F0 - color2);
+
+                                    frac = phi_v1_2 / D_801BF9FC;
+                                    if (D_801BF9F0 >= color2) {
+                                        D_801BF9F0 -= frac;
+                                    } else {
+                                        D_801BF9F0 += frac;
+                                    }
+
+                                    color3 = D_801BFC0C[D_801BFA00];
+                                    phi_v1_2 = ABS_ALT(D_801BF9F4 - color3);
+
+                                    frac = phi_v1_2 / D_801BF9FC;
+                                    if (D_801BF9F4 >= color3) {
+                                        D_801BF9F4 -= frac;
+                                    } else {
+                                        D_801BF9F4 += frac;
+                                    }
+
+                                    color4 = D_801BFC10[D_801BFA00];
+                                    phi_v1_2 = ABS_ALT(D_801BF9F8 - color4);
+
+                                    frac = phi_v1_2 / D_801BF9FC;
+                                    if (D_801BF9F8 >= color4) {
+                                        D_801BF9F8 -= frac;
+                                    } else {
+                                        D_801BF9F8 += frac;
+                                    }
+
+                                    D_801BF9FC--;
+                                    if (D_801BF9FC == 0) {
+                                        D_801BF9EC = color1;
+                                        D_801BF9F0 = color2;
+                                        D_801BF9F4 = color3;
+                                        D_801BF9F8 = color4;
+                                        D_801BF9FC = 6;
+                                        D_801BFA00 ^= 1;
+                                    }
+                                }
+
+                                sp1E6 = D_801BFB2C;
+                                if (D_801BFB2C != 0) {
+                                    sp1E6 = 0xFF;
+                                }
+
+                                func_8012C654(globalCtx->state.gfxCtx);
+
+                                gSPMatrix(OVERLAY_DISP++, &D_801D1DE0, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                                gDPSetAlphaCompare(OVERLAY_DISP++, G_AC_THRESHOLD);
+                                gDPSetRenderMode(OVERLAY_DISP++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+                                gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+                                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 195, sp1E6);
+                                gDPSetEnvColor(OVERLAY_DISP++, D_801BF9F0, D_801BF9F4, D_801BF9F8, 0);
+
+                                OVERLAY_DISP = func_8010D9F4(OVERLAY_DISP, gFinalHoursTimerFrameTex, 3, 80, 13, 119, 202, 80, 13, 0, 0, 0, 1 << 10, 1 << 10);
+                                
+                                temp_a1_7 = (-(CURRENT_DAY << 0x10) - (((0, gSaveContext.save.time) - 0x4000) & 0xFFFF)) + 0x40000;
+                                temp_f0 = temp_a1_7 * 0.021972656f;
+                                
+                                sp1AC[0] = 0;
+                                sp1AC[1] = temp_f0 / 60.0f;;
+                                sp1AC[2] = temp_f0 / 60.0f;;
+
+                                while (sp1AC[1] >= 0xA) {
+                                    sp1AC[0]++;
+                                    sp1AC[1] -= 10;
+                                }
+
+
+                                sp1AC[3] = 0;
+                                sp1AC[4] = (s32)temp_f0 % 60;
+
+                                while (sp1AC[4] >= 10) {
+                                    sp1AC[3]++;
+                                    sp1AC[4] -= 10;
+                                }
+
+                                sp1AC[6] = 0;
+                                new_var1 = (sp1AC[4] * 45.511112f);
+                                sp1AC[7] = temp_a1_7 - (u32)(new_var1 + (sp1AC[2] * 2730.6667f));
+
+                                while (sp1AC[7] >= 10) {
+                                    sp1AC[6]++;
+                                    sp1AC[7] -= 10;
+                                }
+
+                                sp1AC[2] = 10;
+                                sp1AC[5] = 10;
+
+                                gDPPipeSync(OVERLAY_DISP++);
+                                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, D_801BF9EC, 0, 0, sp1E6);
+                                gDPSetEnvColor(OVERLAY_DISP++, D_801BF9EC, 0, 0, 0);
+
+                                for (sp1C6 = 0; sp1C6 < 8; sp1C6++) {
+                                    OVERLAY_DISP = Gfx_TextureI8(OVERLAY_DISP, D_801BFC14[sp1AC[sp1C6]], 8, 8, D_801BFC40[sp1C6], 205, 8, 8, 1 << 10, 1 << 10);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    CLOSE_DISPS(globalCtx->state.gfxCtx);
+}
+#else
+s16 D_801BFB2C = 255;
+s16 D_801BFB30 = 0;
+s16 D_801BFB34 = 0;
+u16 D_801BFB38[] = {
+    0x0000, 0x0AAA, 0x1555, 0x2000, 0x2AAA, 0x3555, 0x4000, 0x4AAA, 0x5555, 0x6000, 0x6AAA, 0x7555, 0x8000,
+    0x8AAA, 0x9555, 0xA000, 0xAAAA, 0xB555, 0xC000, 0xCAAA, 0xD555, 0xE000, 0xEAAA, 0xF555, 0xFFFF,
+};
+TexturePtr D_801BFB6C[] = {
+    gThreeDayTimerHour12Tex, gThreeDayTimerHour1Tex, gThreeDayTimerHour2Tex,  gThreeDayTimerHour3Tex,
+    gThreeDayTimerHour4Tex,  gThreeDayTimerHour5Tex, gThreeDayTimerHour6Tex,  gThreeDayTimerHour7Tex,
+    gThreeDayTimerHour8Tex,  gThreeDayTimerHour9Tex, gThreeDayTimerHour10Tex, gThreeDayTimerHour11Tex,
+    gThreeDayTimerHour12Tex, gThreeDayTimerHour1Tex, gThreeDayTimerHour2Tex,  gThreeDayTimerHour3Tex,
+    gThreeDayTimerHour4Tex,  gThreeDayTimerHour5Tex, gThreeDayTimerHour6Tex,  gThreeDayTimerHour7Tex,
+    gThreeDayTimerHour8Tex,  gThreeDayTimerHour9Tex, gThreeDayTimerHour10Tex, gThreeDayTimerHour11Tex,
+};
+s16 D_801BFBCC = 0; // color R
+s16 D_801BFBD0 = 155; // color G
+s16 D_801BFBD4 = 255;
+s16 D_801BFBD8 = 0;
+s16 D_801BFBDC = 0;
+s16 D_801BFBE0 = 0;
+s16 D_801BFBE4 = 0xF;
+u32 D_801BFBE8 = 0;
+s16 D_801BFBEC[] = { 100, 0 };
+s16 D_801BFBF0[] = { 205, 155 };
+s16 D_801BFBF4[] = { 255, 255 };
+s16 D_801BFBF8[] = { 30, 0 };
+s16 D_801BFBFC[] = { 30, 0 };
+s16 D_801BFC00[] = { 100, 0 };
+s16 D_801BFC04[] = { 255, 0 };
+s16 D_801BFC08[] = { 100, 0 };
+s16 D_801BFC0C[] = { 30, 0 };
+s16 D_801BFC10[] = { 100, 0 };
+TexturePtr D_801BFC14[] = {
+    gFinalHoursTimerDigit0Tex, gFinalHoursTimerDigit1Tex, gFinalHoursTimerDigit2Tex, gFinalHoursTimerDigit3Tex,
+    gFinalHoursTimerDigit4Tex, gFinalHoursTimerDigit5Tex, gFinalHoursTimerDigit6Tex, gFinalHoursTimerDigit7Tex,
+    gFinalHoursTimerDigit8Tex, gFinalHoursTimerDigit9Tex, gFinalHoursTimerColonTex,
+};
+s16 D_801BFC40[] = {
+    0x007F, 0x0088,
+    0x0090, 0x0097,
+    0x00A0, 0x00A8,
+    0x00AF, 0x00B8,
+};
 void func_80119610(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80119610.s")
+#endif
+
+
 
 void func_8011B4E0(GlobalContext* globalCtx, s16 arg1) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
@@ -2039,14 +2323,72 @@ void func_8011B4E0(GlobalContext* globalCtx, s16 arg1) {
     interfaceCtx->unk_28A[0] = 1;
 }
 
+
+s32 D_801BFC50[] = {
+    0xC000E000,
+    0x00002000,
+    0xA0008000,
+    0x60004000,
+};
+
+s32 D_801BFC60[] = {
+    0x00FF00FF,
+};
+
+s32 D_801BFC64[] = {
+    0x00FF00FF,
+    0x00A50037,
+};
 void func_8011B5C0(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011B5C0.s")
+
+
+s16 D_801BFC6C[] = {
+    0x004E, 0x0036, 0x001D, 0x0005, 0xFFEE, 0xFFD6, 0xFFBD, 0xFFAB,
+};
+
+s16 D_801BFC7C[] = {
+    0x00B4, 0x00B4, 0x00B4, 0x00B4, 0xFF4C, 0xFF4C, 0xFF4C, 0xFF4C,
+};
+
+s32 D_801BFC8C[] = {
+    0x00FF00FF,
+    0x00FF00FF,
+    0x00A50037,
+};
 
 void func_8011B9E0(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011B9E0.s")
 
+
+s32 D_801BFC98[] = {
+    0x004E0036,
+    0x001D0005,
+    0xFFEEFFD6,
+    0xFFBDFFAB,
+};
+
+s32 D_801BFCA8[] = {
+    0xC000E000,
+    0x00002000,
+    0xA0008000,
+    0x60004000,
+};
+
+s32 D_801BFCB8[] = {
+    0x00FF00FF,
+    0x00FF00FF,
+    0x00A50037,
+};
+
 void func_8011BF70(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011BF70.s")
+
+
+TexturePtr D_801BFCC4[] = {
+    gMinigameLetterPTex, gMinigameLetterETex, gMinigameLetterRTex, gMinigameLetterFTex,
+    gMinigameLetterETex, gMinigameLetterCTex, gMinigameLetterTTex, gMinigameExclamationTex,
+};
 
 void func_8011C4C4(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011C4C4.s")
@@ -2070,6 +2412,39 @@ void func_8011C808(GlobalContext* globalCtx) {
 #endif
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011C898.s")
+
+
+s32 D_801BFCE4[] = {
+    0x00000000,
+};
+
+s32 D_801BFCE8[] = {
+    0x00000000,
+};
+
+s32 D_801BFCEC[] = {
+    0x00000000,
+};
+
+s32 D_801BFCF0[] = {
+    0x00000000,
+};
+
+s32 D_801BFCF4[] = {
+    0x00000000,
+};
+
+s32 D_801BFCF8[] = {
+    0x00630000,
+};
+
+s16 D_801BFCFC[] = {
+    0x10, 0x19, 0x22, 0x2A, 0x33, 0x3C, 0x44, 0x4D,
+};
+
+s16 D_801BFD0C[] = {
+    9, 9, 8, 9, 9, 8, 9, 9,
+};
 
 void func_8011CA64(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011CA64.s")
