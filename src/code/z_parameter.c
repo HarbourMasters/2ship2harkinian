@@ -2166,8 +2166,8 @@ void Interface_Draw(GlobalContext* globalCtx) {
             gSPLoadUcodeEx(OVERLAY_DISP++, OS_K0_TO_PHYSICAL(D_801ABAB0), OS_K0_TO_PHYSICAL(D_801E3BB0), 0x800);
 
             gfx = OVERLAY_DISP;
-            func_80172758(&gfx, D_801BFD84[interfaceCtx->storyType], D_801BFD8C[interfaceCtx->storyType], 0x140, 0xF0, 2, 1,
-                          0x8000, 0x100, 0.0f, 0.0f, 1.0f, 1.0f, 0);
+            func_80172758(&gfx, D_801BFD84[interfaceCtx->storyType], D_801BFD8C[interfaceCtx->storyType], 0x140, 0xF0,
+                          2, 1, 0x8000, 0x100, 0.0f, 0.0f, 1.0f, 1.0f, 0);
             OVERLAY_DISP = gfx;
 
             gSPLoadUcodeEx(OVERLAY_DISP++, SysUcode_GetUCode(), SysUcode_GetUCodeData(), 0x800);
@@ -2552,16 +2552,15 @@ void Interface_AllocStory(GlobalContext* globalCtx) {
     Interface_LoadStory(globalCtx, 0);
 }
 
-// Is Matching: Need to work out D_801BFD98 conflicting with Player_Lib
-#ifdef NON_MATCHING
 void Interface_Update(GlobalContext* globalCtx) {
     static u8 D_801BFD94 = 0;
     static s16 D_801BFD98 = 0;
+    static s16 D_801BFD9C = 0;
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
     MessageContext* msgCtx = &globalCtx->msgCtx;
     Player* player = GET_PLAYER(globalCtx);
-    s16 alpha; // sp32
-    s16 alpha1; // sp30
+    s16 alpha;
+    s16 alpha1;
     u16 action;
     s16 health;
 
@@ -2572,9 +2571,9 @@ void Interface_Update(GlobalContext* globalCtx) {
     }
 
     switch (gSaveContext.unk_3F20) {
-        case 0x1:  
-        case 0x2:  
-        case 0x8:  
+        case 0x1:
+        case 0x2:
+        case 0x8:
             alpha = 255 - (gSaveContext.unk_3F24 << 5);
             if (alpha < 0) {
                 alpha = 0;
@@ -2587,25 +2586,25 @@ void Interface_Update(GlobalContext* globalCtx) {
                 gSaveContext.unk_3F20 = 0;
             }
             break;
-        case 0x3:  
-        case 0x4:  
-        case 0x5:  
-        case 0x6:  
-        case 0x7:  
-        case 0x9:  
-        case 0xA:  
-        case 0xB:  
-        case 0xC:  
-        case 0xD:  
-        case 0xE:  
-        case 0xF:  
-        case 0x10: 
-        case 0x11: 
-        case 0x12: 
-        case 0x13: 
-        case 0x14: 
-        case 0x15: 
-        case 0x16: 
+        case 0x3:
+        case 0x4:
+        case 0x5:
+        case 0x6:
+        case 0x7:
+        case 0x9:
+        case 0xA:
+        case 0xB:
+        case 0xC:
+        case 0xD:
+        case 0xE:
+        case 0xF:
+        case 0x10:
+        case 0x11:
+        case 0x12:
+        case 0x13:
+        case 0x14:
+        case 0x15:
+        case 0x16:
             alpha = 255 - (gSaveContext.unk_3F24 << 5);
             if (alpha < 0) {
                 alpha = 0;
@@ -2618,7 +2617,7 @@ void Interface_Update(GlobalContext* globalCtx) {
             }
             break;
 
-        case 0x32: 
+        case 0x32:
             alpha = 255 - (gSaveContext.unk_3F24 << 5);
             if (alpha < 0) {
                 alpha = 0;
@@ -2666,13 +2665,12 @@ void Interface_Update(GlobalContext* globalCtx) {
             }
             break;
 
-        case 0x34: 
+        case 0x34:
             gSaveContext.unk_3F20 = 1;
             func_8010F1A8(globalCtx, 0);
             gSaveContext.unk_3F20 = 0;
-        default:   
+        default:
             break;
-
     }
 
     Map_Update(globalCtx);
@@ -2685,7 +2683,6 @@ void Interface_Update(GlobalContext* globalCtx) {
             play_sound(NA_SE_SY_HP_RECOVER);
         }
 
-        // TODO: Missing s16 cast
         health = gSaveContext.save.playerData.health;
         if (health >= gSaveContext.save.playerData.healthCapacity) {
             gSaveContext.save.playerData.health = gSaveContext.save.playerData.healthCapacity;
@@ -2708,6 +2705,7 @@ void Interface_Update(GlobalContext* globalCtx) {
 
     LifeMeter_UpdateColors(globalCtx);
 
+    // Update Rupees
     if (gSaveContext.rupeeAccumulator != 0) {
         if (gSaveContext.rupeeAccumulator > 0) {
             if (gSaveContext.save.playerData.rupees < CUR_CAPACITY(UPG_WALLET)) {
@@ -2735,7 +2733,6 @@ void Interface_Update(GlobalContext* globalCtx) {
         } else {
             gSaveContext.rupeeAccumulator = 0;
         }
-        
     }
 
     if ((globalCtx->pauseCtx.state == 0) && (globalCtx->pauseCtx.debugState == 0)) {
@@ -2750,13 +2747,14 @@ void Interface_Update(GlobalContext* globalCtx) {
         }
     }
 
+    // Update Minigame State
     if ((globalCtx->pauseCtx.state == 0) && (globalCtx->pauseCtx.debugState == 0)) {
         if (interfaceCtx->unk_280) {
             switch (interfaceCtx->unk_280) {
-                case 1:
-                case 3:
-                case 5:
-                case 7:
+                case 1: // minigame countdown 3
+                case 3: // minigame countdown 2
+                case 5: // minigame countdown 1
+                case 7: // minigame countdown Go!
                     interfaceCtx->unk_282 = 255;
                     interfaceCtx->unk_284 = 100;
                     interfaceCtx->unk_280++;
@@ -2792,10 +2790,11 @@ void Interface_Update(GlobalContext* globalCtx) {
                         interfaceCtx->unk_280 = 30;
                     }
                     break;
-        }
+            }
         }
     }
 
+    // Update Do-Actions
     switch (interfaceCtx->unk_210) {
         case 1:
             interfaceCtx->unk_218 += 10466.667f;
@@ -2840,12 +2839,13 @@ void Interface_Update(GlobalContext* globalCtx) {
                 if ((action == DO_ACTION_MAX) || (action == DO_ACTION_MAX + 1)) {
                     action = DO_ACTION_NONE;
                 }
-                
+
                 Interface_LoadActionLabel(&globalCtx->interfaceCtx, action, 0);
             }
             break;
     }
 
+    // Update Magic
     if (!(player->stateFlags1 & 0x200)) {
         if (gGameInfo->data[0x544] == 1) {
             if (gSaveContext.save.playerData.magicAcquired == 0) {
@@ -2879,7 +2879,6 @@ void Interface_Update(GlobalContext* globalCtx) {
         func_80116088();
     }
 
-
     if (gSaveContext.unk_3DD0[5] == 0) {
         if ((D_801BF8DC == 1) || (D_801BF8DC == 4)) {
             if (CUR_FORM != 2) {
@@ -2900,6 +2899,7 @@ void Interface_Update(GlobalContext* globalCtx) {
         }
     }
 
+    // Update Horseback Archery (remnant of OoT)
     if (gSaveContext.minigameState == 1) {
         gSaveContext.minigameScore += interfaceCtx->unk_25C;
         gSaveContext.unk_3F3C += interfaceCtx->unk_25E;
@@ -2936,9 +2936,10 @@ void Interface_Update(GlobalContext* globalCtx) {
         }
     }
 
+    // Update sun song
     if (gSaveContext.sunsSongState != SUNSSONG_INACTIVE) {
         // exit out of ocarina mode after suns song finishes playing
-        if ((msgCtx->ocarinaAction != 0x39) && (gSaveContext.sunsSongState == SUNSSONG_START) ) {
+        if ((msgCtx->ocarinaAction != 0x39) && (gSaveContext.sunsSongState == SUNSSONG_START)) {
             globalCtx->msgCtx.ocarinaMode = 4;
         }
 
@@ -2971,6 +2972,7 @@ void Interface_Update(GlobalContext* globalCtx) {
 
     func_8011E3B4(globalCtx);
 
+    // Update Grandma's Story
     if (interfaceCtx->unk_31A != 0) {
         if (interfaceCtx->unk_31A == 1) {
             interfaceCtx->storyState = 0;
@@ -3004,12 +3006,6 @@ void Interface_Update(GlobalContext* globalCtx) {
         }
     }
 }
-#else
-u8 D_801BFD94 = 0;
-s16 D_801BFD98 = 0;
-s32 D_801BFD9C = 0;
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_Update.s")
-#endif
 
 void func_80121F94(void) {
     func_8010A410();
@@ -3018,7 +3014,7 @@ void func_80121F94(void) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80121FC4.s")
 
-// Likely belongs to z_player_lib (D_801BFD98 + 6)
+// Belongs to z_player_lib
 s16 D_801BFDA0[] = {
     0x1DE, 0x1FF, 0x25D, 0x1DB, 0x1DA, 0x1FE, 0x219, 0x24C, 0x221, 0x25E, 0x200, 0x1FD,
     0x25C, 0x25F, 0x1DC, 0x24E, 0x252, 0x1DD, 0x1D9, 0x214, 0x1E4, 0x1E1, 0x1E2, 0x1E3,
