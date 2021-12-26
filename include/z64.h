@@ -750,7 +750,7 @@ typedef struct {
 
 typedef struct {
     /* 0x00 */ u16 unk_0;
-    /* 0x02 */ u16 unk_2;
+    /* 0x02 */ u16 timeIncrement;
     /* 0x04 */ f32 unk_4;
     /* 0x08 */ f32 unk_8;
     /* 0x0C */ f32 unk_C;
@@ -898,14 +898,16 @@ typedef struct {
     /* 0x11F10 */ s32 unk11F10;
     /* 0x11F14 */ UNK_TYPE1 pad11F14[0xE];
     /* 0x11F22 */ u8 unk11F22;
-    /* 0x11F23 */ UNK_TYPE1 pad11F23[0xFD];
+    /* 0x11F23 */ UNK_TYPE1 pad11F23[0xE3];
+    /* 0x11F23 */ s16 unk12006;
+    /* 0x12007 */ UNK_TYPE1 pad12007[0x18];
     /* 0x12020 */ u8 unk12020;
     /* 0x12021 */ u8 choiceIndex;
     /* 0x12022 */ u8 unk12022;
     /* 0x12023 */ u8 unk12023;
     /* 0x12024 */ UNK_TYPE1 unk12024[0x6];
-    /* 0x1202A */ u16 unk1202A;
-    /* 0x1202C */ UNK_TYPE1 pad1202C[0x2];
+    /* 0x1202A */ u16 ocarinaMode;
+    /* 0x1202C */ u16 ocarinaAction;
     /* 0x1202E */ u16 unk1202E;
     /* 0x12030 */ UNK_TYPE1 pad12030[0x14];
     /* 0x12044 */ s16 unk12044;

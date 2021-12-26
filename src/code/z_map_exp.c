@@ -28,4 +28,4 @@
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_map_exp/func_8010A54C.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_map_exp/func_8010A580.s")
+#pragma GLOBAL_ASM("asm/non_matchings/code/z_map_exp/Map_Update.s")

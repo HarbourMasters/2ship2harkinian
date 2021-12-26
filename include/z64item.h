@@ -8,7 +8,8 @@
 
 typedef enum {
     /* 0x0 */ EQUIP_SWORD,
-    /* 0x1 */ EQUIP_SHIELD
+    /* 0x1 */ EQUIP_SHIELD,
+    /* 0x2 */ EQUIP_TUNIC // Remnant of OoT
 } EquipmentType;
 
 typedef enum {

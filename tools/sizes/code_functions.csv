@@ -1522,7 +1522,7 @@ asm/non_matchings/code/z_map_exp/func_8010A33C.s,func_8010A33C,0x8010A33C,0x35
 asm/non_matchings/code/z_map_exp/func_8010A410.s,func_8010A410,0x8010A410,0x8
 asm/non_matchings/code/z_map_exp/func_8010A430.s,func_8010A430,0x8010A430,0x47
 asm/non_matchings/code/z_map_exp/func_8010A54C.s,func_8010A54C,0x8010A54C,0xD
-asm/non_matchings/code/z_map_exp/func_8010A580.s,func_8010A580,0x8010A580,0x78
+asm/non_matchings/code/z_map_exp/Map_Update.s,Map_Update,0x8010A580,0x78
 asm/non_matchings/code/z_msgevent/func_8010A760.s,func_8010A760,0x8010A760,0x1B
 asm/non_matchings/code/z_msgevent/func_8010A7CC.s,func_8010A7CC,0x8010A7CC,0x12
 asm/non_matchings/code/z_msgevent/func_8010A814.s,func_8010A814,0x8010A814,0x12
@@ -1653,7 +1653,7 @@ asm/non_matchings/code/z_parameter/func_80115D5C.s,func_80115D5C,0x80115D5C,0x16
 asm/non_matchings/code/z_parameter/func_80115DB4.s,func_80115DB4,0x80115DB4,0xB5
 asm/non_matchings/code/z_parameter/func_80116088.s,func_80116088,0x80116088,0x23
 asm/non_matchings/code/z_parameter/func_80116114.s,func_80116114,0x80116114,0x8D
-asm/non_matchings/code/z_parameter/func_80116348.s,func_80116348,0x80116348,0x174
+asm/non_matchings/code/z_parameter/Interface_UpdateMagicBar.s,Interface_UpdateMagicBar,0x80116348,0x174
 asm/non_matchings/code/z_parameter/Interface_DrawMagicBar.s,Interface_DrawMagicBar,0x80116918,0x1B0
 asm/non_matchings/code/z_parameter/func_80116FD8.s,func_80116FD8,0x80116FD8,0x38
 asm/non_matchings/code/z_parameter/func_801170B8.s,func_801170B8,0x801170B8,0x12

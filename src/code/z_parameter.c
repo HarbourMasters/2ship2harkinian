@@ -2,6 +2,9 @@
 #include "misc/parameter_static/parameter_static.h"
 
 void func_801663C4(u8* arg0, u8* arg1, u32 arg2);
+void Map_Update(GlobalContext* globalCtx);
+s16 func_801242DC(GlobalContext*); // s32 func_8008F2F8 (OoT)
+
 extern Gfx D_0E0002E0[]; // Display List
 extern u8 D_801ABAB0[];
 extern u8 D_801E3BB0[];
@@ -139,12 +142,11 @@ s32 D_801BF888[] = {
     0x00000000,
 };
 
+// sMinigameScoreTier
 s16 D_801BF88C = 0;
 
-s32 D_801BF890[] = {
-    0x00000000,
-    0x00000000,
-};
+// sMinigameScoreDigits
+u16 D_801BF890[] = { 0, 0, 0, 0 };
 
 s32 D_801BF898[] = {
     0x00000000,
@@ -169,9 +171,7 @@ s32 D_801BF8B0[] = {
     0x00010007, 0x00070007, 0x00070008, 0x00080009, 0x00090000,
 };
 
-s32 D_801BF8DC[] = {
-    0x00000000,
-};
+s16 D_801BF8DC = 0;
 
 s16 D_801BF8E0 = 0;
 
@@ -1602,6 +1602,7 @@ void func_8010F1A8(GlobalContext* globalCtx, s16 maxAlpha) {
 // oot func_80083108
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80110038.s")
 
+void func_80111CB4(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80111CB4.s")
 
 void func_801129E4(GlobalContext* globalCtx) {
@@ -1950,7 +1951,8 @@ void func_80116088(void) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80116114.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80116348.s")
+void Interface_UpdateMagicBar(GlobalContext* globalCtx);
+#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_UpdateMagicBar.s")
 
 void Interface_DrawMagicBar(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_DrawMagicBar.s")
@@ -2037,10 +2039,13 @@ void func_8011B4E0(GlobalContext* globalCtx, s16 arg1) {
     interfaceCtx->unk_28A[0] = 1;
 }
 
+void func_8011B5C0(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011B5C0.s")
 
+void func_8011B9E0(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011B9E0.s")
 
+void func_8011BF70(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011BF70.s")
 
 void func_8011C4C4(GlobalContext* globalCtx);
@@ -2069,6 +2074,7 @@ void func_8011C808(GlobalContext* globalCtx) {
 void func_8011CA64(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011CA64.s")
 
+void func_8011E3B4(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011E3B4.s")
 
 void func_8011E730(GlobalContext* globalCtx);
@@ -2335,7 +2341,7 @@ void Interface_Draw(GlobalContext* globalCtx) {
 
             gDPPipeSync(OVERLAY_DISP++);
 
-            if (gSaveContext.save.playerData.rupees == CAPACITY(UPG_WALLET, CUR_UPG_VALUE(UPG_WALLET))) {
+            if (gSaveContext.save.playerData.rupees == CUR_CAPACITY(UPG_WALLET)) {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 120, 255, 0, interfaceCtx->magicAlpha);
             } else if (gSaveContext.save.playerData.rupees != 0) {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->magicAlpha);
@@ -2546,15 +2552,464 @@ void Interface_AllocStory(GlobalContext* globalCtx) {
     Interface_LoadStory(globalCtx, 0);
 }
 
-s32 D_801BFD94[] = {
-    0x00000000,
-};
-s32 D_801BFD98[] = {
-    0x00000000,
-    0x00000000,
-};
+// Is Matching: Need to work out D_801BFD98 conflicting with Player_Lib
+#ifdef NON_MATCHING
+void Interface_Update(GlobalContext* globalCtx) {
+    static u8 D_801BFD94 = 0;
+    static s16 D_801BFD98 = 0;
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+    MessageContext* msgCtx = &globalCtx->msgCtx;
+    Player* player = GET_PLAYER(globalCtx);
+    s16 alpha; // sp32
+    s16 alpha1; // sp30
+    u16 action;
+    s16 health;
 
+    if ((globalCtx->pauseCtx.state == 0) && (globalCtx->pauseCtx.debugState == 0)) {
+        if (globalCtx->gameOverCtx.state == 0) {
+            func_80111CB4(globalCtx);
+        }
+    }
+
+    switch (gSaveContext.unk_3F20) {
+        case 0x1:  
+        case 0x2:  
+        case 0x8:  
+            alpha = 255 - (gSaveContext.unk_3F24 << 5);
+            if (alpha < 0) {
+                alpha = 0;
+            }
+
+            func_8010F1A8(globalCtx, alpha);
+            health = 2; // Fake
+            gSaveContext.unk_3F24 += health;
+            if (alpha == 0) {
+                gSaveContext.unk_3F20 = 0;
+            }
+            break;
+        case 0x3:  
+        case 0x4:  
+        case 0x5:  
+        case 0x6:  
+        case 0x7:  
+        case 0x9:  
+        case 0xA:  
+        case 0xB:  
+        case 0xC:  
+        case 0xD:  
+        case 0xE:  
+        case 0xF:  
+        case 0x10: 
+        case 0x11: 
+        case 0x12: 
+        case 0x13: 
+        case 0x14: 
+        case 0x15: 
+        case 0x16: 
+            alpha = 255 - (gSaveContext.unk_3F24 << 5);
+            if (alpha < 0) {
+                alpha = 0;
+            }
+
+            func_8010F1A8(globalCtx, alpha);
+            gSaveContext.unk_3F24++;
+            if (alpha == 0) {
+                gSaveContext.unk_3F20 = 0;
+            }
+            break;
+
+        case 0x32: 
+            alpha = 255 - (gSaveContext.unk_3F24 << 5);
+            if (alpha < 0) {
+                alpha = 0;
+            }
+
+            alpha1 = 255 - alpha;
+            if (alpha1 >= 255) {
+                alpha1 = 255;
+            }
+
+            func_8010EF9C(globalCtx, alpha1);
+
+            if (gSaveContext.buttonStatus[5] == 0xFF) {
+                if (interfaceCtx->startAlpha != 70) {
+                    interfaceCtx->startAlpha = 70;
+                }
+            } else {
+                if (interfaceCtx->startAlpha != 255) {
+                    interfaceCtx->startAlpha = alpha1;
+                }
+            }
+
+            if (interfaceCtx->healthAlpha != 255) {
+                interfaceCtx->healthAlpha = alpha1;
+            }
+
+            if (interfaceCtx->magicAlpha != 255) {
+                interfaceCtx->magicAlpha = alpha1;
+            }
+
+            if (globalCtx->sceneNum == SCENE_SPOT00) {
+                if (interfaceCtx->minimapAlpha < 170) {
+                    interfaceCtx->minimapAlpha = alpha1;
+                } else {
+                    interfaceCtx->minimapAlpha = 170;
+                }
+            } else if (interfaceCtx->minimapAlpha != 255) {
+                interfaceCtx->minimapAlpha = alpha1;
+            }
+
+            gSaveContext.unk_3F24++;
+
+            if (alpha1 == 255) {
+                gSaveContext.unk_3F20 = 0;
+            }
+            break;
+
+        case 0x34: 
+            gSaveContext.unk_3F20 = 1;
+            func_8010F1A8(globalCtx, 0);
+            gSaveContext.unk_3F20 = 0;
+        default:   
+            break;
+
+    }
+
+    Map_Update(globalCtx);
+
+    if (gSaveContext.healthAccumulator != 0) {
+        gSaveContext.healthAccumulator -= 4;
+        gSaveContext.save.playerData.health += 4;
+
+        if ((gSaveContext.save.playerData.health & 0xF) < 4) {
+            play_sound(NA_SE_SY_HP_RECOVER);
+        }
+
+        // TODO: Missing s16 cast
+        health = gSaveContext.save.playerData.health;
+        if (health >= gSaveContext.save.playerData.healthCapacity) {
+            gSaveContext.save.playerData.health = gSaveContext.save.playerData.healthCapacity;
+            gSaveContext.healthAccumulator = 0;
+        }
+    }
+
+    LifeMeter_UpdateSizeAndBeep(globalCtx);
+    D_801BF8DC = func_801242DC(globalCtx);
+
+    if (D_801BF8DC == 1) {
+        if (CUR_EQUIP_VALUE_VOID(EQUIP_TUNIC) == 2) {
+            D_801BF8DC = 0;
+        }
+    } else if ((func_801242DC(globalCtx) >= 2) && (func_801242DC(globalCtx) < 5)) {
+        if (CUR_EQUIP_VALUE_VOID(EQUIP_TUNIC) == 3) {
+            D_801BF8DC = 0;
+        }
+    }
+
+    LifeMeter_UpdateColors(globalCtx);
+
+    if (gSaveContext.rupeeAccumulator != 0) {
+        if (gSaveContext.rupeeAccumulator > 0) {
+            if (gSaveContext.save.playerData.rupees < CUR_CAPACITY(UPG_WALLET)) {
+                gSaveContext.rupeeAccumulator--;
+                gSaveContext.save.playerData.rupees++;
+                play_sound(NA_SE_SY_RUPY_COUNT);
+            } else {
+                // Max rupees
+                gSaveContext.save.playerData.rupees = CUR_CAPACITY(UPG_WALLET);
+                gSaveContext.rupeeAccumulator = 0;
+            }
+        } else if (gSaveContext.save.playerData.rupees != 0) {
+            if (gSaveContext.rupeeAccumulator <= -50) {
+                gSaveContext.rupeeAccumulator += 10;
+                gSaveContext.save.playerData.rupees -= 10;
+                if (gSaveContext.save.playerData.rupees < 0) {
+                    gSaveContext.save.playerData.rupees = 0;
+                }
+                play_sound(NA_SE_SY_RUPY_COUNT);
+            } else {
+                gSaveContext.rupeeAccumulator++;
+                gSaveContext.save.playerData.rupees--;
+                play_sound(NA_SE_SY_RUPY_COUNT);
+            }
+        } else {
+            gSaveContext.rupeeAccumulator = 0;
+        }
+        
+    }
+
+    if ((globalCtx->pauseCtx.state == 0) && (globalCtx->pauseCtx.debugState == 0)) {
+        if (interfaceCtx->unk_286 != 0) {
+            if (interfaceCtx->unk_288 == 1) {
+                func_8011B5C0(globalCtx);
+            } else if (interfaceCtx->unk_288 == 2) {
+                func_8011B9E0(globalCtx);
+            } else if (interfaceCtx->unk_288 == 3) {
+                func_8011BF70(globalCtx);
+            }
+        }
+    }
+
+    if ((globalCtx->pauseCtx.state == 0) && (globalCtx->pauseCtx.debugState == 0)) {
+        if (interfaceCtx->unk_280) {
+            switch (interfaceCtx->unk_280) {
+                case 1:
+                case 3:
+                case 5:
+                case 7:
+                    interfaceCtx->unk_282 = 255;
+                    interfaceCtx->unk_284 = 100;
+                    interfaceCtx->unk_280++;
+                    if (interfaceCtx->unk_280 == 8) {
+                        interfaceCtx->unk_284 = 160;
+                        play_sound(NA_SE_SY_START_SHOT);
+                    } else {
+                        play_sound(NA_SE_SY_WARNING_COUNT_E);
+                    }
+                    break;
+                case 2:
+                case 4:
+                case 6:
+                    interfaceCtx->unk_282 -= 10;
+                    interfaceCtx->unk_284 += 3;
+                    if (interfaceCtx->unk_282 < 22) {
+                        interfaceCtx->unk_280++;
+                    }
+                    break;
+                case 8:
+                    interfaceCtx->unk_282 += -10;
+                    if (interfaceCtx->unk_282 <= 150) {
+                        interfaceCtx->unk_280 = 0x1E;
+                    }
+                    break;
+                case 20:
+                    interfaceCtx->unk_282 = 0;
+                    interfaceCtx->unk_280++;
+                    break;
+                case 21:
+                    interfaceCtx->unk_282++;
+                    if (interfaceCtx->unk_282 >= 18) {
+                        interfaceCtx->unk_280 = 30;
+                    }
+                    break;
+        }
+        }
+    }
+
+    switch (interfaceCtx->unk_210) {
+        case 1:
+            interfaceCtx->unk_218 += 10466.667f;
+            if (interfaceCtx->unk_218 >= 15700.0f) {
+                interfaceCtx->unk_218 = -15700.0f;
+                interfaceCtx->unk_210 = 2;
+
+                if ((msgCtx->unk11F22 != 0) && (msgCtx->unk12006 == 0x26)) {
+                    gGameInfo->data[0x55F] = -14;
+                } else {
+                    gGameInfo->data[0x55F] = 0;
+                }
+            }
+            break;
+        case 2:
+            interfaceCtx->unk_218 += 10466.667f;
+            if (interfaceCtx->unk_218 >= 0.0f) {
+                interfaceCtx->unk_218 = 0.0f;
+                interfaceCtx->unk_210 = 0;
+                interfaceCtx->unk_212 = interfaceCtx->unk_214;
+                action = interfaceCtx->unk_212;
+                if ((action == DO_ACTION_MAX) || (action == DO_ACTION_MAX + 1)) {
+                    action = DO_ACTION_NONE;
+                }
+                Interface_LoadActionLabel(&globalCtx->interfaceCtx, action, 0);
+            }
+            break;
+        case 3:
+            interfaceCtx->unk_218 += 10466.667f;
+            if (interfaceCtx->unk_218 >= 15700.0f) {
+                interfaceCtx->unk_218 = -15700.0f;
+                interfaceCtx->unk_210 = 2;
+            }
+            break;
+        case 4:
+            interfaceCtx->unk_218 += 10466.667f;
+            if (interfaceCtx->unk_218 >= 0.0f) {
+                interfaceCtx->unk_218 = 0.0f;
+                interfaceCtx->unk_210 = 0;
+                interfaceCtx->unk_212 = interfaceCtx->unk_214;
+                action = interfaceCtx->unk_212;
+                if ((action == DO_ACTION_MAX) || (action == DO_ACTION_MAX + 1)) {
+                    action = DO_ACTION_NONE;
+                }
+                
+                Interface_LoadActionLabel(&globalCtx->interfaceCtx, action, 0);
+            }
+            break;
+    }
+
+    if (!(player->stateFlags1 & 0x200)) {
+        if (gGameInfo->data[0x544] == 1) {
+            if (gSaveContext.save.playerData.magicAcquired == 0) {
+                gSaveContext.save.playerData.magicAcquired = 1;
+            }
+            gSaveContext.save.playerData.doubleMagic = 1;
+            gSaveContext.save.playerData.magic = 0x60;
+            gSaveContext.save.playerData.magicLevel = 0;
+            gGameInfo->data[0x544] = 0;
+        } else if (gGameInfo->data[0x544] == -1) {
+            if (gSaveContext.save.playerData.magicAcquired == 0) {
+                gSaveContext.save.playerData.magicAcquired = 1;
+            }
+            gSaveContext.save.playerData.doubleMagic = 0;
+            gSaveContext.save.playerData.magic = 0x30;
+            gSaveContext.save.playerData.magicLevel = 0;
+            gGameInfo->data[0x544] = 0;
+        }
+
+        if (gSaveContext.save.playerData.magicAcquired != 0) {
+            if (gSaveContext.save.playerData.magicLevel == 0) {
+                gSaveContext.save.playerData.magicLevel = gSaveContext.save.playerData.doubleMagic + 1;
+                gSaveContext.unk_3F30 = gSaveContext.save.playerData.magic;
+                gSaveContext.save.playerData.magic = 0;
+                gSaveContext.unk_3F28 = 8;
+                gSaveContext.save.equips.buttonItems[3][0] = ITEM_NUT;
+            }
+        }
+        Interface_UpdateMagicBar(globalCtx);
+
+        func_80116088();
+    }
+
+
+    if (gSaveContext.unk_3DD0[5] == 0) {
+        if ((D_801BF8DC == 1) || (D_801BF8DC == 4)) {
+            if (CUR_FORM != 2) {
+                if (globalCtx->gameOverCtx.state == 0) {
+                    if ((gSaveContext.save.playerData.health >> 1) != 0) {
+                        gSaveContext.unk_3DD0[5] = 8;
+                        gSaveContext.timerX[5] = 115;
+                        gSaveContext.timerY[5] = 80;
+                        D_801BF8E0 = 1;
+                        gSaveContext.unk_3DD7[5] = 0;
+                    }
+                }
+            }
+        }
+    } else {
+        if (((D_801BF8DC == 0) || (D_801BF8DC == 3)) && (gSaveContext.unk_3DD0[5] < 5)) {
+            gSaveContext.unk_3DD0[5] = 0;
+        }
+    }
+
+    if (gSaveContext.minigameState == 1) {
+        gSaveContext.minigameScore += interfaceCtx->unk_25C;
+        gSaveContext.unk_3F3C += interfaceCtx->unk_25E;
+        interfaceCtx->unk_25C = 0;
+        interfaceCtx->unk_25E = 0;
+
+        if (D_801BF88C == 0) {
+            if (gSaveContext.minigameScore >= 1000) {
+                D_801BF88C++;
+            }
+        } else if (D_801BF88C == 1) {
+            if (gSaveContext.minigameScore >= 1500) {
+                D_801BF88C++;
+            }
+        }
+
+        D_801BF890[0] = D_801BF890[1] = 0;
+        D_801BF890[2] = 0;
+        D_801BF890[3] = gSaveContext.minigameScore;
+
+        while (D_801BF890[3] >= 1000) {
+            D_801BF890[0]++;
+            D_801BF890[3] -= 1000;
+        }
+
+        while (D_801BF890[3] >= 100) {
+            D_801BF890[1]++;
+            D_801BF890[3] -= 100;
+        }
+
+        while (D_801BF890[3] >= 10) {
+            D_801BF890[2]++;
+            D_801BF890[3] -= 10;
+        }
+    }
+
+    if (gSaveContext.sunsSongState != SUNSSONG_INACTIVE) {
+        // exit out of ocarina mode after suns song finishes playing
+        if ((msgCtx->ocarinaAction != 0x39) && (gSaveContext.sunsSongState == SUNSSONG_START) ) {
+            globalCtx->msgCtx.ocarinaMode = 4;
+        }
+
+        // handle suns song in areas where time moves
+        if (globalCtx->envCtx.timeIncrement != 0) {
+            if (gSaveContext.sunsSongState != SUNSSONG_SPEED_TIME) {
+                D_801BFD94 = false;
+                if ((gSaveContext.save.time >= CLOCK_TIME(6, 0)) && (gSaveContext.save.time <= CLOCK_TIME(18, 0))) {
+                    D_801BFD94 = true;
+                }
+
+                gSaveContext.sunsSongState = SUNSSONG_SPEED_TIME;
+                D_801BFD98 = gGameInfo->data[0xF];
+                gGameInfo->data[0xF] = 400;
+            } else if (!D_801BFD94) {
+                if ((gSaveContext.save.time >= CLOCK_TIME(6, 0)) && (gSaveContext.save.time <= CLOCK_TIME(18, 0))) {
+                    gSaveContext.sunsSongState = SUNSSONG_INACTIVE;
+                    gGameInfo->data[0xF] = D_801BFD98;
+                    globalCtx->msgCtx.ocarinaMode = 4;
+                }
+            } else if (gSaveContext.save.time > CLOCK_TIME(18, 0)) {
+                gSaveContext.sunsSongState = SUNSSONG_INACTIVE;
+                gGameInfo->data[0xF] = D_801BFD98;
+                globalCtx->msgCtx.ocarinaMode = 4;
+            }
+        } else {
+            gSaveContext.sunsSongState = SUNSSONG_SPECIAL;
+        }
+    }
+
+    func_8011E3B4(globalCtx);
+
+    if (interfaceCtx->unk_31A != 0) {
+        if (interfaceCtx->unk_31A == 1) {
+            interfaceCtx->storyState = 0;
+            interfaceCtx->unk_31A = 2;
+            gGameInfo->data[0x59B] = 0;
+        }
+
+        Interface_AllocStory(globalCtx);
+
+        if (interfaceCtx->unk_31A == 3) {
+            interfaceCtx->unk_31A = 0;
+            interfaceCtx->storyState = 0;
+            if (interfaceCtx->storySegment != NULL) {
+                ZeldaArena_Free(interfaceCtx->storySegment);
+                interfaceCtx->storySegment = NULL;
+            }
+        } else if (interfaceCtx->unk_31A == 4) {
+            interfaceCtx->unk_31A = 2;
+        } else if (interfaceCtx->unk_31A == 5) {
+            gGameInfo->data[0x59B] += 10;
+            if (gGameInfo->data[0x59B] >= 250) {
+                gGameInfo->data[0x59B] = 255;
+                interfaceCtx->unk_31A = 2;
+            }
+        } else if (interfaceCtx->unk_31A == 6) {
+            gGameInfo->data[0x59B] -= 10;
+            if (gGameInfo->data[0x59B] < 0) {
+                gGameInfo->data[0x59B] = 0;
+                interfaceCtx->unk_31A = 2;
+            }
+        }
+    }
+}
+#else
+u8 D_801BFD94 = 0;
+s16 D_801BFD98 = 0;
+s32 D_801BFD9C = 0;
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_Update.s")
+#endif
 
 void func_80121F94(void) {
     func_8010A410();

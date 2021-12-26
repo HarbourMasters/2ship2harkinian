@@ -270,7 +270,7 @@ void EnCow_Talk(EnCow* this, GlobalContext* globalCtx) {
 }
 
 void EnCow_Idle(EnCow* this, GlobalContext* globalCtx) {
-    if ((globalCtx->msgCtx.unk1202A == 0) || (globalCtx->msgCtx.unk1202A == 4)) {
+    if ((globalCtx->msgCtx.ocarinaMode == 0) || (globalCtx->msgCtx.ocarinaMode == 4)) {
         if (D_801BDAA4 != 0) {
             if (this->flags & EN_COW_FLAG_WONT_GIVE_MILK) {
                 this->flags &= ~EN_COW_FLAG_WONT_GIVE_MILK;

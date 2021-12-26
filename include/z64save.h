@@ -189,7 +189,7 @@ typedef struct {
     /* 0x3F54 */ u8 dogIsLost;           // "dog_event_flag"
     /* 0x3F55 */ u8 nextTransition;      // "next_wipe"
     /* 0x3F56 */ s16 worldMapArea;       // "area_type"
-    /* 0x3F58 */ s16 unk_3F58;           // "sunmoon_flag"
+    /* 0x3F58 */ s16 sunsSongState;      // "sunmoon_flag"
     /* 0x3F5A */ s16 healthAccumulator;  // "life_mode"
     /* 0x3F5C */ s32 unk_3F5C;           // "bet_rupees"
     /* 0x3F60 */ u8 screenScaleFlag;     // "framescale_flag"
@@ -216,5 +216,12 @@ typedef enum {
     /* 0x00 */ BTN_ENABLED,
     /* 0xFF */ BTN_DISABLED = 0xFF
 } ButtonStatus;
+
+typedef enum {
+    /* 0 */ SUNSSONG_INACTIVE,
+    /* 1 */ SUNSSONG_START, // the suns ocarina effect signals that the song has finished playing
+    /* 2 */ SUNSSONG_SPEED_TIME, // suns was played where time passes, speed up the advancement of time
+    /* 3 */ SUNSSONG_SPECIAL // time does not advance, but signals the song was played. used for freezing redeads
+} SunsSongState;
 
 #endif
