@@ -5,6 +5,8 @@
 #include "z64math.h"
 #include "os.h"
 
+#define DAY_SPEED_INVERTED -2
+
 typedef struct {
     /* 0x00 */ u8 buttonItems[4][4];
     /* 0x10 */ u8 cButtonSlots[4][4];
