@@ -289,17 +289,12 @@ s32 D_801BF9E8[] = {
     0x026C026C,
 };
 
-s16 D_801BF9EC = 0;
-
-s16 D_801BF9F0 = 0;
-
-s16 D_801BF9F4 = 0;
-
-s16 D_801BF9F8 = 0;
-
-s16 D_801BF9FC = 0xF;
-
-s16 D_801BFA00 = 0;
+s16 sFinalHoursClockDigitsRed = 0;
+s16 sFinalHoursClockFrameEnvRed = 0;
+s16 sFinalHoursClockFrameEnvGreen = 0;
+s16 sFinalHoursClockFrameEnvBlue = 0;
+s16 sFinalHoursClockColorTimer = 15;
+s16 sFinalHoursClockColorTargetIndex = 0;
 
 s32 D_801BFA04[] = {
     0xFFF2FFF2, 0xFFE8FFF8, 0xFFF4FFF4, 0xFFF9FFF8, 0xFFF9FFF8, 0xFFF40000,
@@ -1835,9 +1830,10 @@ void func_80119030(GlobalContext* globalCtx);
  */
 #ifdef NON_EQUIVALENT
 void Interface_DrawClock(GlobalContext* globalCtx) {
-    static s16 D_801BFB2C = 255;
-    static s16 D_801BFB30 = 0;
-    static s16 D_801BFB34 = 0;
+    static s16 D_801BFB2C = 255; // clockAlpha
+    static s16 D_801BFB30 = 0;   // clockAlphaTimer1
+    static s16 D_801BFB34 = 0;   // clockAlphaTimer2
+    // clockHours
     static u16 D_801BFB38[] = {
         CLOCK_TIME(0, 0),  CLOCK_TIME(1, 0),  CLOCK_TIME(2, 0),  CLOCK_TIME(3, 0),  CLOCK_TIME(4, 0),
         CLOCK_TIME(5, 0),  CLOCK_TIME(6, 0),  CLOCK_TIME(7, 0),  CLOCK_TIME(8, 0),  CLOCK_TIME(9, 0),
@@ -1845,6 +1841,7 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
         CLOCK_TIME(15, 0), CLOCK_TIME(16, 0), CLOCK_TIME(17, 0), CLOCK_TIME(18, 0), CLOCK_TIME(19, 0),
         CLOCK_TIME(20, 0), CLOCK_TIME(21, 0), CLOCK_TIME(22, 0), CLOCK_TIME(23, 0), CLOCK_TIME(24, 0) - 1,
     };
+    // threeDayTimerHourTexs
     static TexturePtr D_801BFB6C[] = {
         gThreeDayTimerHour12Tex, gThreeDayTimerHour1Tex, gThreeDayTimerHour2Tex,  gThreeDayTimerHour3Tex,
         gThreeDayTimerHour4Tex,  gThreeDayTimerHour5Tex, gThreeDayTimerHour6Tex,  gThreeDayTimerHour7Tex,
@@ -1853,31 +1850,31 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
         gThreeDayTimerHour4Tex,  gThreeDayTimerHour5Tex, gThreeDayTimerHour6Tex,  gThreeDayTimerHour7Tex,
         gThreeDayTimerHour8Tex,  gThreeDayTimerHour9Tex, gThreeDayTimerHour10Tex, gThreeDayTimerHour11Tex,
     };
-    static s16 D_801BFBCC = 0;   // color R
-    static s16 D_801BFBD0 = 0;   // color G
-    static s16 D_801BFBD4 = 255; // color B
-    static s16 D_801BFBD8 = 0;
-    static s16 D_801BFBDC = 0;
-    static s16 D_801BFBE0 = 0;
-    static s16 D_801BFBE4 = 0xF;
-    static s16 D_801BFBE8 = 0;
-    static s16 D_801BFBEC[] = { 100, 0 };
-    static s16 D_801BFBF0[] = { 205, 155 };
-    static s16 D_801BFBF4[] = { 255, 255 };
-    static s16 D_801BFBF8[] = { 30, 0 };
-    static s16 D_801BFBFC[] = { 30, 0 };
-    static s16 D_801BFC00[] = { 100, 0 };
-    static s16 D_801BFC04[] = { 255, 0 };
-    static s16 D_801BFC08[] = { 100, 0 };
-    static s16 D_801BFC0C[] = { 30, 0 };
-    static s16 D_801BFC10[] = { 100, 0 };
-    // sFinalHoursCounterDigitTex
+    static s16 D_801BFBCC = 0;              // clockInvDiamondPrimRed
+    static s16 D_801BFBD0 = 0;              // clockInvDiamondPrimGreen
+    static s16 D_801BFBD4 = 255;            // clockInvDiamondPrimBlue
+    static s16 D_801BFBD8 = 0;              // clockInvDiamondEnvRed
+    static s16 D_801BFBDC = 0;              // clockInvDiamondEnvGreen
+    static s16 D_801BFBE0 = 0;              // clockInvDiamondEnvBlue
+    static s16 D_801BFBE4 = 15;             // clockInvDiamondTimer
+    static s16 D_801BFBE8 = 0;              // clockInvDiamondTargetIndex
+    static s16 D_801BFBEC[] = { 100, 0 };   // clockInvDiamondPrimRedTargets
+    static s16 D_801BFBF0[] = { 205, 155 }; // clockInvDiamondPrimGreenTargets
+    static s16 D_801BFBF4[] = { 255, 255 }; // clockInvDiamondPrimBlueTargets
+    static s16 D_801BFBF8[] = { 30, 0 };    // clockInvDiamondEnvRedTargets
+    static s16 D_801BFBFC[] = { 30, 0 };    // clockInvDiamondEnvGreenTargets
+    static s16 D_801BFC00[] = { 100, 0 };   // clockInvDiamondEnvBlueTargets
+    static s16 D_801BFC04[] = { 255, 0 };   // finalHoursClockDigitsRed
+    static s16 D_801BFC08[] = { 100, 0 };   // finalHoursClockFrameEnvRedTargets
+    static s16 D_801BFC0C[] = { 30, 0 };    // finalHoursClockFrameEnvGreenTargets
+    static s16 D_801BFC10[] = { 100, 0 };   // finalHoursClockFrameEnvBlueTargets
+    // finalHoursCounterDigitTex
     static TexturePtr D_801BFC14[] = {
         gFinalHoursTimerDigit0Tex, gFinalHoursTimerDigit1Tex, gFinalHoursTimerDigit2Tex, gFinalHoursTimerDigit3Tex,
         gFinalHoursTimerDigit4Tex, gFinalHoursTimerDigit5Tex, gFinalHoursTimerDigit6Tex, gFinalHoursTimerDigit7Tex,
         gFinalHoursTimerDigit8Tex, gFinalHoursTimerDigit9Tex, gFinalHoursTimerColonTex,
     };
-    // sFinalHoursDigitSlotPosXOffset
+    // finalHoursDigitSlotPosXOffset
     static s16 D_801BFC40[] = {
         127, 136, 144, 151, 160, 168, 175, 184,
     };
@@ -1920,7 +1917,7 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                                 D_801BFB34--;
                             } else if (D_801BFB30 != 0) {
                                 TIMED_STEP_UP_TO(D_801BFB2C, 255, D_801BFB30, colorStep);
-                                
+
                                 if (D_801BFB2C >= 255) {
                                     D_801BFB2C = 255;
                                     D_801BFB30 = 0;
@@ -2085,8 +2082,7 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                              * Cuts off Three-Day Clock's Sun and Moon when they dip below the clock
                              */
                             gDPPipeSync(OVERLAY_DISP++);
-                            gDPSetScissorFrac(OVERLAY_DISP++, G_SC_NON_INTERLACE, 400, 620, 880,
-                                              XREG(44) * 4.0f);
+                            gDPSetScissorFrac(OVERLAY_DISP++, G_SC_NON_INTERLACE, 400, 620, 880, XREG(44) * 4.0f);
 
                             // determines the current hour
                             for (currentHour = 0; currentHour <= 24; currentHour++) {
@@ -2138,8 +2134,7 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                              * Cuts off Three-Day Clock's Hour Digits when they dip below the clock
                              */
                             gDPPipeSync(OVERLAY_DISP++);
-                            gDPSetScissorFrac(OVERLAY_DISP++, G_SC_NON_INTERLACE, 400, 620, 880,
-                                              XREG(45) * 4.0f);
+                            gDPSetScissorFrac(OVERLAY_DISP++, G_SC_NON_INTERLACE, 400, 620, 880, XREG(45) * 4.0f);
 
                             /**
                              * Draws Three-Day Clock's Hour Digit Above the Sun
@@ -2171,7 +2166,7 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                              * Draws Three-Day Clock's Hour Digit Above the Moon
                              */
                             // Rotates Three-Day Clock's Hour Digit To Above the Moon
-                            
+
                             Matrix_InsertTranslation(0.0f, XREG(43) / 10.0f, 0.0f, MTXMODE_NEW);
                             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
                             Matrix_InsertZRotation_f(-sp1CC, MTXMODE_APPLY);
@@ -2201,21 +2196,29 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                                 sp1C6 = 0;
                                 if ((0, gSaveContext.save.time) >= CLOCK_TIME(5, 0)) {
                                     // The Final Hours clock will flash red
-                                    
-                                    TIMED_STEP_TO(D_801BF9EC, D_801BFC04[D_801BFA00], D_801BF9FC, colorStep);
-                                    TIMED_STEP_TO(D_801BF9F0, D_801BFC08[D_801BFA00], D_801BF9FC, colorStep);
-                                    TIMED_STEP_TO(D_801BF9F4, D_801BFC0C[D_801BFA00], D_801BF9FC, colorStep);
-                                    TIMED_STEP_TO(D_801BF9F8, D_801BFC10[D_801BFA00], D_801BF9FC, colorStep);
 
-                                    D_801BF9FC--;
+                                    TIMED_STEP_TO(sFinalHoursClockDigitsRed,
+                                                  D_801BFC04[sFinalHoursClockColorTargetIndex],
+                                                  sFinalHoursClockColorTimer, colorStep);
+                                    TIMED_STEP_TO(sFinalHoursClockFrameEnvRed,
+                                                  D_801BFC08[sFinalHoursClockColorTargetIndex],
+                                                  sFinalHoursClockColorTimer, colorStep);
+                                    TIMED_STEP_TO(sFinalHoursClockFrameEnvGreen,
+                                                  D_801BFC0C[sFinalHoursClockColorTargetIndex],
+                                                  sFinalHoursClockColorTimer, colorStep);
+                                    TIMED_STEP_TO(sFinalHoursClockFrameEnvBlue,
+                                                  D_801BFC10[sFinalHoursClockColorTargetIndex],
+                                                  sFinalHoursClockColorTimer, colorStep);
 
-                                    if (D_801BF9FC == 0) {
-                                        D_801BF9EC = D_801BFC04[D_801BFA00];
-                                        D_801BF9F0 = D_801BFC08[D_801BFA00];
-                                        D_801BF9F4 = D_801BFC0C[D_801BFA00];
-                                        D_801BF9F8 = D_801BFC10[D_801BFA00];
-                                        D_801BF9FC = 6;
-                                        D_801BFA00 ^= 1;
+                                    sFinalHoursClockColorTimer--;
+
+                                    if (sFinalHoursClockColorTimer == 0) {
+                                        sFinalHoursClockDigitsRed = D_801BFC04[sFinalHoursClockColorTargetIndex];
+                                        sFinalHoursClockFrameEnvRed = D_801BFC08[sFinalHoursClockColorTargetIndex];
+                                        sFinalHoursClockFrameEnvGreen = D_801BFC0C[sFinalHoursClockColorTargetIndex];
+                                        sFinalHoursClockFrameEnvBlue = D_801BFC10[sFinalHoursClockColorTargetIndex];
+                                        sFinalHoursClockColorTimer = 6;
+                                        sFinalHoursClockColorTargetIndex ^= 1;
                                     }
                                 }
 
@@ -2236,7 +2239,8 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                                                   0, PRIMITIVE, 0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0,
                                                   0, PRIMITIVE, 0);
                                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 195, sp1E6);
-                                gDPSetEnvColor(OVERLAY_DISP++, D_801BF9F0, D_801BF9F4, D_801BF9F8, 0);
+                                gDPSetEnvColor(OVERLAY_DISP++, sFinalHoursClockFrameEnvRed,
+                                               sFinalHoursClockFrameEnvGreen, sFinalHoursClockFrameEnvBlue, 0);
 
                                 OVERLAY_DISP = func_8010D9F4(OVERLAY_DISP, gFinalHoursTimerFrameTex, 3, 80, 13, 119,
                                                              202, 80, 13, 0, 0, 0, 1 << 10, 1 << 10);
@@ -2285,8 +2289,8 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                                  * Draws Final-Hours Clock's Digits
                                  */
                                 gDPPipeSync(OVERLAY_DISP++);
-                                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, D_801BF9EC, 0, 0, sp1E6);
-                                gDPSetEnvColor(OVERLAY_DISP++, D_801BF9EC, 0, 0, 0);
+                                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, sFinalHoursClockDigitsRed, 0, 0, sp1E6);
+                                gDPSetEnvColor(OVERLAY_DISP++, sFinalHoursClockDigitsRed, 0, 0, 0);
 
                                 for (; sp1C6 < 8; sp1C6++) {
                                     OVERLAY_DISP = Gfx_TextureI8(OVERLAY_DISP, D_801BFC14[finalHoursClockSlots[sp1C6]],
