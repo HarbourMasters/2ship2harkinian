@@ -1738,8 +1738,59 @@ void func_80116088(void) {
 void Interface_UpdateMagicBar(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_UpdateMagicBar.s")
 
-void Interface_DrawMagicBar(GlobalContext* globalCtx);
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_DrawMagicBar.s")
+void Interface_DrawMagicBar(GlobalContext* globalCtx) {
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+    s16 magicBarY;
+
+    OPEN_DISPS(globalCtx->state.gfxCtx);
+
+    if (gSaveContext.save.playerData.magicLevel != 0) {
+        if (gSaveContext.save.playerData.healthCapacity > 0xA0) {
+            magicBarY = 42;
+        } else {
+            magicBarY = 34;
+        }
+
+        func_8012C654(globalCtx->state.gfxCtx);
+
+        gDPSetEnvColor(OVERLAY_DISP++, 100, 50, 50, 255);
+
+        OVERLAY_DISP = func_8010CFBC(OVERLAY_DISP, gMagicBarEndTex, 8, 16, 18, magicBarY, 8, 16, 1 << 10, 1 << 10, D_801BF8A0, D_801BF8A4, D_801BF8A8, interfaceCtx->magicAlpha);
+        OVERLAY_DISP = func_8010CFBC(OVERLAY_DISP, gMagicBarMidTex, 24, 16, 26, magicBarY, ((void)0, gSaveContext.unk_3F2E), 16, 1 << 10, 1 << 10, D_801BF8A0, D_801BF8A4, D_801BF8A8, interfaceCtx->magicAlpha);
+        OVERLAY_DISP = func_8010D480(OVERLAY_DISP, gMagicBarEndTex, 8, 16, ((void)0, gSaveContext.unk_3F2E) + 26, magicBarY, 8, 16, 1 << 10, 1 << 10, D_801BF8A0, D_801BF8A4, D_801BF8A8, interfaceCtx->magicAlpha, 3, 0x100);
+       
+        gDPPipeSync(OVERLAY_DISP++);
+        gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, 0, 0, 0, PRIMITIVE, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, 0, 0, 0, PRIMITIVE);
+        gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 255);
+
+        if (gSaveContext.unk_3F28 == 4) {
+            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 250, 250, 0, interfaceCtx->magicAlpha);
+            gDPLoadTextureBlock_4b(OVERLAY_DISP++, gMagicBarFillTex, G_IM_FMT_I, 16, 16, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            gSPTextureRectangle(OVERLAY_DISP++, 104, (magicBarY + 3) << 2, (((void)0, gSaveContext.save.playerData.magic) + 26) << 2, (magicBarY + 10) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+
+            gDPPipeSync(OVERLAY_DISP++);
+
+            if (gSaveContext.save.weekEventReg[0xE] & 8) {
+                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 200, interfaceCtx->magicAlpha);
+            } else {
+                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 200, 0, interfaceCtx->magicAlpha);
+            }
+
+            gSPTextureRectangle(OVERLAY_DISP++, 104, (magicBarY + 3) << 2, ((((void)0, gSaveContext.save.playerData.magic) - ((void)0, gSaveContext.unk_3F32)) + 26) << 2, (magicBarY + 10) << 2, G_TX_RENDERTILE, 0, 0, 0x0400, 0x0400);
+        } else {
+            if (gSaveContext.save.weekEventReg[0xE] & 8) {
+                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 200, interfaceCtx->magicAlpha);
+            } else {
+                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 200, 0, interfaceCtx->magicAlpha);
+            }
+
+            gDPLoadTextureBlock_4b(OVERLAY_DISP++, gMagicBarFillTex, G_IM_FMT_I, 16, 16, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            gSPTextureRectangle(OVERLAY_DISP++, 104, (magicBarY + 3) << 2, (((void)0, gSaveContext.save.playerData.magic) + 26) << 2, (magicBarY + 10) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+        }
+    }
+
+    CLOSE_DISPS(globalCtx->state.gfxCtx);
+}
 
 void func_80116FD8(GlobalContext* globalCtx, s32 topY, s32 bottomY, s32 leftX, s32 rightX) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
