@@ -1479,7 +1479,7 @@ void func_801149A0(s16 itemId, s16 invSlot) {
     s16 new_var;
     s32 phi_a1;
 
-    gSaveContext.save.inventory.items[invSlot] = ITEM_NONE;;
+    gSaveContext.save.inventory.items[invSlot] = ITEM_NONE;
 
     for (i = 1; i < 4; i++) {
         if (i == 0) {
@@ -1491,15 +1491,15 @@ void func_801149A0(s16 itemId, s16 invSlot) {
         if (itemId == (phi_a1 & 0xFF)) {
             if (i == 0) {
                 phi_a1 = CUR_FORM;
-                gSaveContext.save.equips.buttonItems[phi_a1][i] = ITEM_NONE;;
+                gSaveContext.save.equips.buttonItems[phi_a1][i] = ITEM_NONE;
             } else {
-                gSaveContext.save.equips.buttonItems[0][i] = ITEM_NONE;;
+                gSaveContext.save.equips.buttonItems[0][i] = ITEM_NONE;
             }
             if (i == 0) {
                 phi_a1 = CUR_FORM;
-                gSaveContext.save.equips.cButtonSlots[phi_a1][i] = ITEM_NONE;;
+                gSaveContext.save.equips.cButtonSlots[phi_a1][i] = ITEM_NONE;
             } else {
-                gSaveContext.save.equips.cButtonSlots[0][i] = ITEM_NONE;;
+                gSaveContext.save.equips.cButtonSlots[0][i] = ITEM_NONE;
             }
         }
     }
@@ -2356,7 +2356,6 @@ void func_8011B4E0(GlobalContext* globalCtx, s16 arg1) {
     interfaceCtx->unk_28A[0] = 1;
 }
 
-
 s32 D_801BFC50[] = {
     0xC000E000,
     0x00002000,
@@ -2373,7 +2372,6 @@ s32 D_801BFC64[] = {
 void func_8011B5C0(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011B5C0.s")
 
-
 s16 D_801BFC6C[] = {
     0x004E, 0x0036, 0x001D, 0x0005, 0xFFEE, 0xFFD6, 0xFFBD, 0xFFAB,
 };
@@ -2387,7 +2385,6 @@ s32 D_801BFC8C[] = {
 };
 void func_8011B9E0(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011B9E0.s")
-
 
 s32 D_801BFC98[] = {
     0x004E0036,
@@ -2409,14 +2406,12 @@ s32 D_801BFCB8[] = {
 void func_8011BF70(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011BF70.s")
 
-
 TexturePtr D_801BFCC4[] = {
     gMinigameLetterPTex, gMinigameLetterETex, gMinigameLetterRTex, gMinigameLetterFTex,
     gMinigameLetterETex, gMinigameLetterCTex, gMinigameLetterTTex, gMinigameExclamationTex,
 };
 void func_8011C4C4(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011C4C4.s")
-
 
 #ifdef NON_MATCHING
 void func_8011C808(GlobalContext* globalCtx) {
@@ -2437,7 +2432,6 @@ void func_8011C808(GlobalContext* globalCtx) {
 #endif
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011C898.s")
-
 
 s32 D_801BFCE4[] = {
     0x00000000,
@@ -2466,14 +2460,11 @@ s16 D_801BFD0C[] = {
 void func_8011CA64(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011CA64.s")
 
-
 void func_8011E3B4(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011E3B4.s")
 
-
 void func_8011E730(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011E730.s")
-
 
 // rupeeDigitsFirst
 s16 D_801BFD1C[] = { 1, 0, 0, 0 };

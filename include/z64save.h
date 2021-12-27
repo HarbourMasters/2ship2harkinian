@@ -58,24 +58,24 @@ typedef struct {
 } SaveOptions; // size = 0x06
 
 typedef struct {
-    /* 0x0000 */ char newf[6];                   // original name: newf"               Will always be "ZELDA3 for a valid save
-    /* 0x0006 */ u16 deaths;                     // original name: savect
-    /* 0x0008 */ char playerName[8];             // original name: player_name
-    /* 0x0010 */ s16 healthCapacity;             // original name: max_life
-    /* 0x0012 */ s16 health;                     // original name: now_life
-    /* 0x0014 */ s8 magicLevel;                  // original name: magic_max
-    /* 0x0015 */ s8 magic;                       // original name: magic_now
-    /* 0x0016 */ s16 rupees;                     // original name: lupy_count
-    /* 0x0018 */ u16 swordHealth;                // original name: long_sword_hp
-    /* 0x001A */ u16 tatlTimer;                  // original name: navi_timer
-    /* 0x001C */ u8 magicAcquired;               // original name: magic_mode
-    /* 0x001D */ u8 doubleMagic;                 // original name: magic_ability
-    /* 0x001E */ u8 doubleDefense;               // original name: life_ability
-    /* 0x001F */ u8 unk_1F;                      // original name: ocarina_round
-    /* 0x0020 */ u8 unk_20;                      // original name: first_memory
-    /* 0x0022 */ u16 owlActivationFlags;         // original name: memory_warp_point
-    /* 0x0024 */ u8 unk_24;                      // original name: last_warp_pt
-    /* 0x0026 */ s16 savedSceneNum;              // original name: scene_data_ID
+    /* 0x0000 */ char newf[6];                   // "newf" Will always be "ZELDA3 for a valid save
+    /* 0x0006 */ u16 deaths;                     // "savect"
+    /* 0x0008 */ char playerName[8];             // "player_name"
+    /* 0x0010 */ s16 healthCapacity;             // "max_life"
+    /* 0x0012 */ s16 health;                     // "now_life"
+    /* 0x0014 */ s8 magicLevel;                  // "magic_max"
+    /* 0x0015 */ s8 magic;                       // "magic_now"
+    /* 0x0016 */ s16 rupees;                     // "lupy_count"
+    /* 0x0018 */ u16 swordHealth;                // "long_sword_hp"
+    /* 0x001A */ u16 tatlTimer;                  // "navi_timer"
+    /* 0x001C */ u8 magicAcquired;               // "magic_mode"
+    /* 0x001D */ u8 doubleMagic;                 // "magic_ability"
+    /* 0x001E */ u8 doubleDefense;               // "life_ability"
+    /* 0x001F */ u8 unk_1F;                      // "ocarina_round"
+    /* 0x0020 */ u8 unk_20;                      // "first_memory"
+    /* 0x0022 */ u16 owlActivationFlags;         // "memory_warp_point"
+    /* 0x0024 */ u8 unk_24;                      // "last_warp_pt"
+    /* 0x0026 */ s16 savedSceneNum;              // "scene_data_ID"
 } SavePlayerData; // size = 0x28
 
 typedef struct {
