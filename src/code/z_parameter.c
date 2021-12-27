@@ -1,5 +1,5 @@
 #include "global.h"
-#include "misc/parameter_static/parameter_static.h"
+#include "interface/parameter_static/parameter_static.h"
 
 void Map_Update(GlobalContext* globalCtx);
 u8 func_800FE4A8();
@@ -1843,12 +1843,12 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
     };
     // threeDayTimerHourTexs
     static TexturePtr D_801BFB6C[] = {
-        gThreeDayTimerHour12Tex, gThreeDayTimerHour1Tex, gThreeDayTimerHour2Tex,  gThreeDayTimerHour3Tex,
-        gThreeDayTimerHour4Tex,  gThreeDayTimerHour5Tex, gThreeDayTimerHour6Tex,  gThreeDayTimerHour7Tex,
-        gThreeDayTimerHour8Tex,  gThreeDayTimerHour9Tex, gThreeDayTimerHour10Tex, gThreeDayTimerHour11Tex,
-        gThreeDayTimerHour12Tex, gThreeDayTimerHour1Tex, gThreeDayTimerHour2Tex,  gThreeDayTimerHour3Tex,
-        gThreeDayTimerHour4Tex,  gThreeDayTimerHour5Tex, gThreeDayTimerHour6Tex,  gThreeDayTimerHour7Tex,
-        gThreeDayTimerHour8Tex,  gThreeDayTimerHour9Tex, gThreeDayTimerHour10Tex, gThreeDayTimerHour11Tex,
+        gThreeDayClockHour12Tex, gThreeDayClockHour1Tex, gThreeDayClockHour2Tex,  gThreeDayClockHour3Tex,
+        gThreeDayClockHour4Tex,  gThreeDayClockHour5Tex, gThreeDayClockHour6Tex,  gThreeDayClockHour7Tex,
+        gThreeDayClockHour8Tex,  gThreeDayClockHour9Tex, gThreeDayClockHour10Tex, gThreeDayClockHour11Tex,
+        gThreeDayClockHour12Tex, gThreeDayClockHour1Tex, gThreeDayClockHour2Tex,  gThreeDayClockHour3Tex,
+        gThreeDayClockHour4Tex,  gThreeDayClockHour5Tex, gThreeDayClockHour6Tex,  gThreeDayClockHour7Tex,
+        gThreeDayClockHour8Tex,  gThreeDayClockHour9Tex, gThreeDayClockHour10Tex, gThreeDayClockHour11Tex,
     };
     static s16 D_801BFBCC = 0;              // clockInvDiamondPrimRed
     static s16 D_801BFBD0 = 0;              // clockInvDiamondPrimGreen
@@ -1870,9 +1870,9 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
     static s16 D_801BFC10[] = { 100, 0 };   // finalHoursClockFrameEnvBlueTargets
     // finalHoursCounterDigitTex
     static TexturePtr D_801BFC14[] = {
-        gFinalHoursTimerDigit0Tex, gFinalHoursTimerDigit1Tex, gFinalHoursTimerDigit2Tex, gFinalHoursTimerDigit3Tex,
-        gFinalHoursTimerDigit4Tex, gFinalHoursTimerDigit5Tex, gFinalHoursTimerDigit6Tex, gFinalHoursTimerDigit7Tex,
-        gFinalHoursTimerDigit8Tex, gFinalHoursTimerDigit9Tex, gFinalHoursTimerColonTex,
+        gFinalHoursClockDigit0Tex, gFinalHoursClockDigit1Tex, gFinalHoursClockDigit2Tex, gFinalHoursClockDigit3Tex,
+        gFinalHoursClockDigit4Tex, gFinalHoursClockDigit5Tex, gFinalHoursClockDigit6Tex, gFinalHoursClockDigit7Tex,
+        gFinalHoursClockDigit8Tex, gFinalHoursClockDigit9Tex, gFinalHoursClockColonTex,
     };
     // finalHoursDigitSlotPosXOffset
     static s16 D_801BFC40[] = {
@@ -1954,7 +1954,7 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                             gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0,
                                               PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0);
 
-                            OVERLAY_DISP = func_8010D9F4(OVERLAY_DISP, gThreeDayTimerHourLinesTex, 4, 64, 35, 96, 180,
+                            OVERLAY_DISP = func_8010D9F4(OVERLAY_DISP, gThreeDayClockHourLinesTex, 4, 64, 35, 96, 180,
                                                          128, 35, 1, 6, 0, 1 << 10, 1 << 10);
 
                             /**
@@ -1969,7 +1969,7 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                             //!      resulting in this reading into the next texture. This results in a white
                             //!      dot in the bottom center of the clock. For the three-day clock, this is
                             //!      covered by the diamond. However, it can be seen by the final-hours clock.
-                            OVERLAY_DISP = func_8010D9F4(OVERLAY_DISP, gThreeDayTimerDialBoarderTex, 4, 64, 50, 96, 168,
+                            OVERLAY_DISP = func_8010D9F4(OVERLAY_DISP, gThreeDayClockDialBorderTex, 4, 64, 50, 96, 168,
                                                          128, 50, 1, 6, 0, 1 << 10, 1 << 10);
 
                             if (((CURRENT_DAY >= 4) || ((CURRENT_DAY == 3) && ((0, gSaveContext.save.time) >= 5) &&
@@ -2016,7 +2016,7 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 170, 100, D_801BFB2C);
                                 }
 
-                                OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, gThreeDayTimerDiamondTex, 40, 32, 140, 190,
+                                OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, gThreeDayClockDiamondTex, 40, 32, 140, 190,
                                                               40, 32, 1 << 10, 1 << 10);
 
                                 /**
@@ -2048,7 +2048,6 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                                 }
 
                                 sp1D0 = ((((0, gSaveContext.save.time)) * 1.3183594f) / 3600.0f) * 3600.0f;
-
                                 sp1D0 = (s16)((0, gSaveContext.save.time) * 1.3183594f) - sp1D0;
 
                                 func_8012C8D4(globalCtx->state.gfxCtx);
@@ -2072,7 +2071,7 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                                 gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx),
                                           G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                                 gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[12], 4, 0);
-                                gDPLoadTextureBlock_4b(OVERLAY_DISP++, gThreeDayTimerStarMinuteTex, G_IM_FMT_I, 16, 16,
+                                gDPLoadTextureBlock_4b(OVERLAY_DISP++, gThreeDayClockStarMinuteTex, G_IM_FMT_I, 16, 16,
                                                        0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP,
                                                        G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
                                 gSP1Quadrangle(OVERLAY_DISP++, 0, 2, 3, 1, 0);
@@ -2094,7 +2093,6 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                             /**
                              * Draw Three-Day Clock's Sun for the Day-Time Hours Tracker
                              */
-
                             time = gSaveContext.save.time;
                             sp1D8 = Math_SinS(time) * -40.0f;
                             temp_f14 = Math_CosS(time) * -34.0f;
@@ -2110,7 +2108,7 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                                       G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[16], 4, 0);
 
-                            OVERLAY_DISP = func_8010DC58(OVERLAY_DISP, gThreeDayTimerSunHourTex, 24, 24, 0);
+                            OVERLAY_DISP = func_8010DC58(OVERLAY_DISP, gThreeDayClockSunHourTex, 24, 24, 0);
 
                             /**
                              * Draw Three-Day Clock's Moon for the Night-Time Hours Tracker
@@ -2128,7 +2126,7 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                                       G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[20], 4, 0);
 
-                            OVERLAY_DISP = func_8010DC58(OVERLAY_DISP, gThreeDayTimerMoonHourTex, 24, 24, 0);
+                            OVERLAY_DISP = func_8010DC58(OVERLAY_DISP, gThreeDayClockMoonHourTex, 24, 24, 0);
 
                             /**
                              * Cuts off Three-Day Clock's Hour Digits when they dip below the clock
@@ -2139,9 +2137,9 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                             /**
                              * Draws Three-Day Clock's Hour Digit Above the Sun
                              */
-                            // Rotates Three-Day Clock's Hour Digit To Above the Sun
                             sp1CC = gSaveContext.save.time * 0.000096131f;
 
+                            // Rotates Three-Day Clock's Hour Digit To Above the Sun
                             Matrix_InsertTranslation(0.0f, XREG(43) / 10.0f, 0.0f, MTXMODE_NEW);
                             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
                             Matrix_InsertZRotation_f(-(sp1CC - 3.15f), MTXMODE_APPLY);
@@ -2166,7 +2164,6 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                              * Draws Three-Day Clock's Hour Digit Above the Moon
                              */
                             // Rotates Three-Day Clock's Hour Digit To Above the Moon
-
                             Matrix_InsertTranslation(0.0f, XREG(43) / 10.0f, 0.0f, MTXMODE_NEW);
                             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
                             Matrix_InsertZRotation_f(-sp1CC, MTXMODE_APPLY);
@@ -2242,7 +2239,7 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                                 gDPSetEnvColor(OVERLAY_DISP++, sFinalHoursClockFrameEnvRed,
                                                sFinalHoursClockFrameEnvGreen, sFinalHoursClockFrameEnvBlue, 0);
 
-                                OVERLAY_DISP = func_8010D9F4(OVERLAY_DISP, gFinalHoursTimerFrameTex, 3, 80, 13, 119,
+                                OVERLAY_DISP = func_8010D9F4(OVERLAY_DISP, gFinalHoursClockFrameTex, 3, 80, 13, 119,
                                                              202, 80, 13, 0, 0, 0, 1 << 10, 1 << 10);
 
                                 temp_a1_7 =
@@ -2317,12 +2314,12 @@ u16 D_801BFB38[] = {
     CLOCK_TIME(20, 0), CLOCK_TIME(21, 0), CLOCK_TIME(22, 0), CLOCK_TIME(23, 0), CLOCK_TIME(24, 0) - 1,
 };
 TexturePtr D_801BFB6C[] = {
-    gThreeDayTimerHour12Tex, gThreeDayTimerHour1Tex, gThreeDayTimerHour2Tex,  gThreeDayTimerHour3Tex,
-    gThreeDayTimerHour4Tex,  gThreeDayTimerHour5Tex, gThreeDayTimerHour6Tex,  gThreeDayTimerHour7Tex,
-    gThreeDayTimerHour8Tex,  gThreeDayTimerHour9Tex, gThreeDayTimerHour10Tex, gThreeDayTimerHour11Tex,
-    gThreeDayTimerHour12Tex, gThreeDayTimerHour1Tex, gThreeDayTimerHour2Tex,  gThreeDayTimerHour3Tex,
-    gThreeDayTimerHour4Tex,  gThreeDayTimerHour5Tex, gThreeDayTimerHour6Tex,  gThreeDayTimerHour7Tex,
-    gThreeDayTimerHour8Tex,  gThreeDayTimerHour9Tex, gThreeDayTimerHour10Tex, gThreeDayTimerHour11Tex,
+    gThreeDayClockHour12Tex, gThreeDayClockHour1Tex, gThreeDayClockHour2Tex,  gThreeDayClockHour3Tex,
+    gThreeDayClockHour4Tex,  gThreeDayClockHour5Tex, gThreeDayClockHour6Tex,  gThreeDayClockHour7Tex,
+    gThreeDayClockHour8Tex,  gThreeDayClockHour9Tex, gThreeDayClockHour10Tex, gThreeDayClockHour11Tex,
+    gThreeDayClockHour12Tex, gThreeDayClockHour1Tex, gThreeDayClockHour2Tex,  gThreeDayClockHour3Tex,
+    gThreeDayClockHour4Tex,  gThreeDayClockHour5Tex, gThreeDayClockHour6Tex,  gThreeDayClockHour7Tex,
+    gThreeDayClockHour8Tex,  gThreeDayClockHour9Tex, gThreeDayClockHour10Tex, gThreeDayClockHour11Tex,
 };
 s16 D_801BFBCC = 0;   // color R
 s16 D_801BFBD0 = 155; // color G
@@ -2343,9 +2340,9 @@ s16 D_801BFC08[] = { 100, 0 };
 s16 D_801BFC0C[] = { 30, 0 };
 s16 D_801BFC10[] = { 100, 0 };
 TexturePtr D_801BFC14[] = {
-    gFinalHoursTimerDigit0Tex, gFinalHoursTimerDigit1Tex, gFinalHoursTimerDigit2Tex, gFinalHoursTimerDigit3Tex,
-    gFinalHoursTimerDigit4Tex, gFinalHoursTimerDigit5Tex, gFinalHoursTimerDigit6Tex, gFinalHoursTimerDigit7Tex,
-    gFinalHoursTimerDigit8Tex, gFinalHoursTimerDigit9Tex, gFinalHoursTimerColonTex,
+    gFinalHoursClockDigit0Tex, gFinalHoursClockDigit1Tex, gFinalHoursClockDigit2Tex, gFinalHoursClockDigit3Tex,
+    gFinalHoursClockDigit4Tex, gFinalHoursClockDigit5Tex, gFinalHoursClockDigit6Tex, gFinalHoursClockDigit7Tex,
+    gFinalHoursClockDigit8Tex, gFinalHoursClockDigit9Tex, gFinalHoursClockColonTex,
 };
 s16 D_801BFC40[] = {
     0x007F, 0x0088, 0x0090, 0x0097, 0x00A0, 0x00A8, 0x00AF, 0x00B8,
