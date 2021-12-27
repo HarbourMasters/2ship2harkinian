@@ -1474,57 +1474,60 @@ s32 func_80114978(u8 arg0) {
     return func_801143CC(arg0);
 }
 
-void func_801149A0(s16 arg0, s16 arg1) {
-    s16 phi_v0;
+void func_801149A0(s16 itemId, s16 invSlot) {
+    s16 i;
+    s16 new_var;
     s32 phi_a1;
 
-    gSaveContext.save.inventory.items[arg1] = 0xFF;
+    gSaveContext.save.inventory.items[invSlot] = ITEM_NONE;;
 
-    for (phi_v0 = 1; phi_v0 < 4; phi_v0++) {
-        if (phi_v0 == 0) {
-            phi_a1 = gSaveContext.save.equips.buttonItems[CUR_FORM][phi_v0];
+    for (i = 1; i < 4; i++) {
+        if (i == 0) {
+            phi_a1 = CUR_FORM_EQUIP(i);
         } else {
-            phi_a1 = gSaveContext.save.equips.buttonItems[0][phi_v0];
+            phi_a1 = gSaveContext.save.equips.buttonItems[0][i];
         }
-        if (arg0 == (phi_a1 & 0xFF)) {
-            if (phi_v0 == 0) {
+
+        if (itemId == (phi_a1 & 0xFF)) {
+            if (i == 0) {
                 phi_a1 = CUR_FORM;
-                gSaveContext.save.equips.buttonItems[phi_a1][phi_v0] = 0xFF;
+                gSaveContext.save.equips.buttonItems[phi_a1][i] = ITEM_NONE;;
             } else {
-                gSaveContext.save.equips.buttonItems[0][phi_v0] = 0xFF;
+                gSaveContext.save.equips.buttonItems[0][i] = ITEM_NONE;;
             }
-            if (phi_v0 == 0) {
+            if (i == 0) {
                 phi_a1 = CUR_FORM;
-                gSaveContext.save.equips.cButtonSlots[phi_a1][phi_v0] = 0xFF;
+                gSaveContext.save.equips.cButtonSlots[phi_a1][i] = ITEM_NONE;;
             } else {
-                gSaveContext.save.equips.cButtonSlots[0][phi_v0] = 0xFF;
+                gSaveContext.save.equips.cButtonSlots[0][i] = ITEM_NONE;;
             }
         }
     }
 }
 
-void func_80114A9C(s16 arg0) {
-    s16 phi_v0;
+void func_80114A9C(s16 itemId) {
+    s16 i;
     s32 phi_a1;
 
-    for (phi_v0 = 1; phi_v0 < 4; phi_v0++) {
-        if (phi_v0 == 0) {
-            phi_a1 = gSaveContext.save.equips.buttonItems[CUR_FORM][phi_v0];
+    for (i = 1; i < 4; i++) {
+        if (i == 0) {
+            phi_a1 = gSaveContext.save.equips.buttonItems[CUR_FORM][i];
         } else {
-            phi_a1 = gSaveContext.save.equips.buttonItems[0][phi_v0];
+            phi_a1 = gSaveContext.save.equips.buttonItems[0][i];
         }
-        if (arg0 == (phi_a1 & 0xFF)) {
-            if (phi_v0 == 0) {
+
+        if (itemId == (phi_a1 & 0xFF)) {
+            if (i == 0) {
                 phi_a1 = CUR_FORM;
-                gSaveContext.save.equips.buttonItems[phi_a1][phi_v0] = 0xFF;
+                gSaveContext.save.equips.buttonItems[phi_a1][i] = ITEM_NONE;
             } else {
-                gSaveContext.save.equips.buttonItems[0][phi_v0] = 0xFF;
+                gSaveContext.save.equips.buttonItems[0][i] = ITEM_NONE;
             }
-            if (phi_v0 == 0) {
+            if (i == 0) {
                 phi_a1 = CUR_FORM;
-                gSaveContext.save.equips.cButtonSlots[phi_a1][phi_v0] = 0xFF;
+                gSaveContext.save.equips.cButtonSlots[phi_a1][i] = ITEM_NONE;
             } else {
-                gSaveContext.save.equips.cButtonSlots[0][phi_v0] = 0xFF;
+                gSaveContext.save.equips.cButtonSlots[0][i] = ITEM_NONE;
             }
         }
     }
