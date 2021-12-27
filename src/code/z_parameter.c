@@ -1935,7 +1935,6 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                             /**
                              * Draw Clock's Hour Lines
                              */
-
                             gDPSetAlphaCompare(OVERLAY_DISP++, G_AC_THRESHOLD);
                             gDPSetRenderMode(OVERLAY_DISP++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 130, 130, 130, D_801BFB2C);
@@ -1948,7 +1947,6 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                             /**
                              * Draw Clock's Border
                              */
-
                             gDPPipeSync(OVERLAY_DISP++);
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, D_801BFB2C);
                             gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0,
@@ -1969,7 +1967,6 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                                 /**
                                  * Draw Three-Day Clock's Diamond
                                  */
-
                                 gDPPipeSync(OVERLAY_DISP++);
 
                                 // Time is slowed down to half speed with inverted song of time
@@ -2012,7 +2009,6 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                                 /**
                                  * Draw Three-Day Clock's Day Number over Diamond
                                  */
-
                                 gDPPipeSync(OVERLAY_DISP++);
                                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 155, D_801BFB2C);
 
@@ -2022,7 +2018,6 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                                 /**
                                  * Draw Three-Day Clock's Star for the Minute Tracker
                                  */
-
                                 gDPPipeSync(OVERLAY_DISP++);
 
                                 if (D_801BF974 != 0) {
@@ -2072,7 +2067,6 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                             /**
                              * Cuts off Three-Day Clock's Sun and Moon when they dip below the clock
                              */
-
                             gDPPipeSync(OVERLAY_DISP++);
                             gDPSetScissorFrac(OVERLAY_DISP++, G_SC_NON_INTERLACE, 400, 620, 880,
                                               gGameInfo->data[0x56C] * 4.0f);
@@ -2086,7 +2080,6 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                             /**
                              * Draw Three-Day Clock's Sun for the Day-Time Hours Tracker
                              */
-
                             sp1D8 = Math_SinS(gSaveContext.save.time) * -40.0f;
                             temp_f14 = Math_CosS(gSaveContext.save.time) * -34.0f;
 
@@ -2106,7 +2099,6 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                             /**
                              * Draw Three-Day Clock's Moon for the Night-Time Hours Tracker
                              */
-
                             sp1D8 = Math_SinS(gSaveContext.save.time) * 40.0f;
                             temp_f14 = Math_CosS(gSaveContext.save.time) * 34.0f;
 
@@ -2125,7 +2117,6 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                             /**
                              * Cuts off Three-Day Clock's Hour Digits when they dip below the clock
                              */
-
                             gDPPipeSync(OVERLAY_DISP++);
                             gDPSetScissorFrac(OVERLAY_DISP++, G_SC_NON_INTERLACE, 400, 620, 880,
                                               gGameInfo->data[0x56D] * 4.0f);
@@ -2160,7 +2151,6 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                             /**
                              * Draws Three-Day Clock's Hour Digit Above the Moon
                              */
-
                             // Rotates Three-Day Clock's Hour Digit To Above the Moon
                             Matrix_InsertTranslation(0.0f, gGameInfo->data[0x56B] / 10.0f, 0.0f, MTXMODE_NEW);
                             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
@@ -2217,7 +2207,6 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                                 /**
                                  * Draws Final-Hours Clock's Frame
                                  */
-
                                 gSPMatrix(OVERLAY_DISP++, &gIdentityMtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                                 gDPSetAlphaCompare(OVERLAY_DISP++, G_AC_THRESHOLD);
                                 gDPSetRenderMode(OVERLAY_DISP++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
@@ -2273,7 +2262,6 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                                 /**
                                  * Draws Final-Hours Clock's Digits
                                  */
-
                                 gDPPipeSync(OVERLAY_DISP++);
                                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, D_801BF9EC, 0, 0, sp1E6);
                                 gDPSetEnvColor(OVERLAY_DISP++, D_801BF9EC, 0, 0, 0);
