@@ -1669,7 +1669,7 @@ asm/non_matchings/code/z_parameter/func_8011B4E0.s,func_8011B4E0,0x8011B4E0,0x38
 asm/non_matchings/code/z_parameter/func_8011B5C0.s,func_8011B5C0,0x8011B5C0,0x108
 asm/non_matchings/code/z_parameter/func_8011B9E0.s,func_8011B9E0,0x8011B9E0,0x164
 asm/non_matchings/code/z_parameter/func_8011BF70.s,func_8011BF70,0x8011BF70,0x155
-asm/non_matchings/code/z_parameter/func_8011C4C4.s,func_8011C4C4,0x8011C4C4,0xD1
+asm/non_matchings/code/z_parameter/Interface_DrawMinigamePerfect.s,Interface_DrawMinigamePerfect,0x8011C4C4,0xD1
 asm/non_matchings/code/z_parameter/func_8011C808.s,func_8011C808,0x8011C808,0x24
 asm/non_matchings/code/z_parameter/func_8011C898.s,func_8011C898,0x8011C898,0x73
 asm/non_matchings/code/z_parameter/func_8011CA64.s,func_8011CA64,0x8011CA64,0x654

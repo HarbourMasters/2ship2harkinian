@@ -2155,7 +2155,7 @@
     0x8011B5C0:("func_8011B5C0",),
     0x8011B9E0:("func_8011B9E0",),
     0x8011BF70:("func_8011BF70",),
-    0x8011C4C4:("func_8011C4C4",),
+    0x8011C4C4:("Interface_DrawMinigamePerfect",),
     0x8011C808:("func_8011C808",),
     0x8011C898:("func_8011C898",),
     0x8011CA64:("func_8011CA64",),

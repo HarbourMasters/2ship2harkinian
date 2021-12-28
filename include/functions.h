@@ -2099,7 +2099,7 @@ void func_8011B4E0(GlobalContext* globalCtx, s16 arg1);
 // void func_8011B5C0(void);
 // void func_8011B9E0(void);
 // void func_8011BF70(void);
-// void func_8011C4C4(void);
+// void Interface_DrawMinigamePerfect(void);
 void func_8011C808(GlobalContext* globalCtx);
 // void func_8011C898(void);
 // void func_8011CA64(void);

@@ -2945,21 +2945,94 @@ void func_8011B4E0(GlobalContext* globalCtx, s16 arg1) {
     interfaceCtx->unk_28A[0] = 1;
 }
 
-s32 D_801BFC50[] = {
-    0xC000E000,
-    0x00002000,
-    0xA0008000,
-    0x60004000,
-};
-s32 D_801BFC60[] = {
-    0x00FF00FF,
-};
-s32 D_801BFC64[] = {
-    0x00FF00FF,
-    0x00A50037,
-};
-void func_8011B5C0(GlobalContext* globalCtx);
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011B5C0.s")
+void func_8011B5C0(GlobalContext* globalCtx) {
+    static u16 D_801BFC50[] = {
+        0xC000, 0xE000, 0x0000, 0x2000, 0xA000, 0x8000, 0x6000, 0x4000,
+    };
+    static s16 D_801BFC60[][3] = {
+        255, 255, 255, 255, 165, 55,
+    };
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+    s16 i;
+    s16 count;
+    s16 colorStepR;
+    s16 colorStepG;
+    s16 colorStepB;
+
+    for (count = 0, i = 0; i < interfaceCtx->unk_304; i++, count += 4) {
+        if (interfaceCtx->unk_28A[i] == 1) {
+            interfaceCtx->unk_29A[i] = D_801BFC50[i] + 0xA000;
+            interfaceCtx->unk_28A[i] = 2;
+        } else if (interfaceCtx->unk_28A[i] == 2) {
+            interfaceCtx->unk_29A[i] -= 0x800;
+            if (interfaceCtx->unk_29A[i] == D_801BFC50[i]) {
+                interfaceCtx->unk_28A[i] = 3;
+            }
+        } else if (interfaceCtx->unk_28A[i] == 4) {
+            interfaceCtx->unk_29A[i] -= 0x800;
+            if (interfaceCtx->unk_29A[i] == (u16)(D_801BFC50[i] - 0x8000)) {
+                interfaceCtx->unk_28A[i] = 0;
+            }
+        }
+    }
+
+    if ((interfaceCtx->unk_28A[interfaceCtx->unk_304] == 0) && (interfaceCtx->unk_304 < 8)) {
+        interfaceCtx->unk_28A[interfaceCtx->unk_304] = 1;
+        interfaceCtx->unk_2BC[interfaceCtx->unk_304] = 140.0f;
+        interfaceCtx->unk_2DC[interfaceCtx->unk_304] = 100.0f;
+        interfaceCtx->unk_29A[interfaceCtx->unk_304] = D_801BFC50[interfaceCtx->unk_304] + 0xA000;
+        interfaceCtx->unk_304++;
+    }
+
+    if ((interfaceCtx->unk_304 == 8) && (interfaceCtx->unk_28A[7] == 3)) {
+
+        colorStepR = ABS_ALT(interfaceCtx->unk_2FC[0] - D_801BFC60[interfaceCtx->unk_308][0]) / interfaceCtx->unk_30A;
+        colorStepG = ABS_ALT(interfaceCtx->unk_2FC[1] - D_801BFC60[interfaceCtx->unk_308][1]) / interfaceCtx->unk_30A;
+        colorStepB = ABS_ALT(interfaceCtx->unk_2FC[2] - D_801BFC60[interfaceCtx->unk_308][2]) / interfaceCtx->unk_30A;
+
+        if (interfaceCtx->unk_2FC[0] >= D_801BFC60[interfaceCtx->unk_308][0]) {
+            interfaceCtx->unk_2FC[0] -= colorStepR;
+        } else {
+            interfaceCtx->unk_2FC[0] += colorStepR;
+        }
+
+        if (interfaceCtx->unk_2FC[1] >= D_801BFC60[interfaceCtx->unk_308][1]) {
+            interfaceCtx->unk_2FC[1] -= colorStepG;
+        } else {
+            interfaceCtx->unk_2FC[1] += colorStepG;
+        }
+
+        if (interfaceCtx->unk_2FC[2] >= D_801BFC60[interfaceCtx->unk_308][2]) {
+            interfaceCtx->unk_2FC[2] -= colorStepB;
+        } else {
+            interfaceCtx->unk_2FC[2] += colorStepB;
+        }
+
+        interfaceCtx->unk_30A--;
+
+        if (interfaceCtx->unk_30A == 0) {
+            interfaceCtx->unk_30A = 20;
+            interfaceCtx->unk_308 ^= 1;
+            interfaceCtx->unk_30C++;
+
+            if (interfaceCtx->unk_30C == 6) {
+                for (i = 0; i < 8; i++) {
+                    interfaceCtx->unk_28A[i] = 4;
+                }
+            }
+        }
+    }
+
+    for (count = 0, i = 0; i < 8; i++) {
+        if (interfaceCtx->unk_28A[i] == 0) {
+            count++;
+        }
+    }
+
+    if (count == 8) {
+        interfaceCtx->unk_286 = 0;
+    }
+}
 
 s16 D_801BFC6C[] = {
     0x004E, 0x0036, 0x001D, 0x0005, 0xFFEE, 0xFFD6, 0xFFBD, 0xFFAB,
@@ -2995,12 +3068,59 @@ s32 D_801BFCB8[] = {
 void func_8011BF70(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011BF70.s")
 
-TexturePtr D_801BFCC4[] = {
-    gMinigameLetterPTex, gMinigameLetterETex, gMinigameLetterRTex, gMinigameLetterFTex,
-    gMinigameLetterETex, gMinigameLetterCTex, gMinigameLetterTTex, gMinigameExclamationTex,
-};
-void func_8011C4C4(GlobalContext* globalCtx);
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011C4C4.s")
+void Interface_DrawMinigamePerfect(GlobalContext* globalCtx) {
+    static TexturePtr D_801BFCC4[] = {
+        gMinigameLetterPTex, gMinigameLetterETex, gMinigameLetterRTex, gMinigameLetterFTex,
+        gMinigameLetterETex, gMinigameLetterCTex, gMinigameLetterTTex, gMinigameExclamationTex,
+    };
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+    f32 temp_f22;
+    f32 temp_f24;
+    s16 i;
+    s16 phi_s7;
+
+    OPEN_DISPS(globalCtx->state.gfxCtx);
+
+    func_8012C8D4(globalCtx->state.gfxCtx);
+
+    gSPMatrix(OVERLAY_DISP++, &gIdentityMtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0,
+                      PRIMITIVE, 0);
+
+    for (phi_s7 = 0, i = 0; i < 8; phi_s7 += 4, i++) {
+        if (interfaceCtx->unk_28A[i] != 0) {
+            temp_f24 = Math_SinS(interfaceCtx->unk_29A[i]) * interfaceCtx->unk_2BC[i];
+            temp_f22 = Math_CosS(interfaceCtx->unk_29A[i]) * interfaceCtx->unk_2DC[i];
+
+            gDPPipeSync(OVERLAY_DISP++);
+            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, interfaceCtx->unk_2FC[3]);
+
+            Matrix_InsertTranslation(temp_f24, temp_f22, 0.0f, MTXMODE_NEW);
+            Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
+
+            gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx),
+                      G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+            gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[phi_s7] + 0x2C, 4, 0);
+
+            OVERLAY_DISP = func_8010DE38(OVERLAY_DISP, D_801BFCC4[i], 4, 32, 33, 0);
+
+            gDPPipeSync(OVERLAY_DISP++);
+            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, interfaceCtx->unk_2FC[0], interfaceCtx->unk_2FC[1],
+                            interfaceCtx->unk_2FC[2], interfaceCtx->unk_2FC[3]);
+
+            Matrix_InsertTranslation(temp_f24, temp_f22, 0.0f, MTXMODE_NEW);
+            Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
+
+            gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx),
+                      G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+            gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[phi_s7] + 0x4C, 4, 0);
+
+            OVERLAY_DISP = func_8010DE38(OVERLAY_DISP, D_801BFCC4[i], 4, 32, 33, 0);
+        }
+    }
+
+    CLOSE_DISPS(globalCtx->state.gfxCtx);
+}
 
 #ifdef NON_MATCHING
 void func_8011C808(GlobalContext* globalCtx) {
@@ -3377,7 +3497,7 @@ void Interface_Draw(GlobalContext* globalCtx) {
         }
 
         if (interfaceCtx->unk_286 != 0) {
-            func_8011C4C4(globalCtx);
+            Interface_DrawMinigamePerfect(globalCtx);
         }
 
         func_8011E730(globalCtx);
