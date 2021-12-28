@@ -74,6 +74,7 @@
 #define CUR_FORM_EQUIP(button) (gSaveContext.save.equips.buttonItems[CUR_FORM][button])
 #define CHECK_QUEST_ITEM(item) (((void)0, gSaveContext.save.inventory.questItems) & gBitFlags[item])
 #define REMOVE_QUEST_ITEM(item) (gSaveContext.save.inventory.questItems = (((void)0, gSaveContext.save.inventory.questItems) & (-1 - gBitFlags[item])))
+#define SET_EQUIP_VALUE(equip, value) (gSaveContext.save.equips.equipment = ((((void)0, gSaveContext.save.equips.equipment) & (gEquipNegMasks[equip])) | (u16)((u16)(value) << gEquipShifts[equip])))
 
 #define CAPACITY(upg, value) gUpgradeCapacities[upg][value]
 #define CUR_CAPACITY(upg) CAPACITY(upg, CUR_UPG_VALUE(upg))
