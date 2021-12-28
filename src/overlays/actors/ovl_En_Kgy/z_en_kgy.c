@@ -732,7 +732,7 @@ void func_80B41E18(EnKgy* this, GlobalContext* globalCtx) {
                             this->actor.textId = 0xC43;
                             CUR_FORM_EQUIP(EQUIP_SLOT_B) = ITEM_NONE;
                             TAKE_EQUIPPED_ITEM(EQUIP_SWORD);
-                            Interface_LoadItemIcon(globalCtx, 0);
+                            Interface_LoadItemIconImpl(globalCtx, 0);
                             func_80B40C74(globalCtx);
                             break;
 

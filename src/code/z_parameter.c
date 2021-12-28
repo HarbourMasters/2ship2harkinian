@@ -1402,9 +1402,6 @@ void Interface_SetSceneRestrictions(GlobalContext* globalCtx) {
 void func_80112AF4(void) {
 }
 
-/**
- * Initializes Romani's balloon horseback archery minigame
- */
 void Interface_InitMinigame(GlobalContext* globalCtx) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
 
@@ -1418,28 +1415,16 @@ void Interface_InitMinigame(GlobalContext* globalCtx) {
     interfaceCtx->hbaAmmo = 20;
 }
 
-void func_80178E3C(u32 romSegment, u32 arg1, void* dst, u32 size);
-
-#ifdef NON_EQUIVALENT
-void Interface_LoadItemIcon(GlobalContext* globalCtx, u8 arg1) {
+void Interface_LoadItemIconImpl(GlobalContext* globalCtx, u8 arg1) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
-    u8 phi_v0;
+    u32 new_var = arg1;
 
-    if (arg1 == 0) {
-        phi_v0 = gSaveContext.save.equips.buttonItems[CUR_FORM][arg1];
-    } else {
-        phi_v0 = gSaveContext.save.equips.buttonItems[0][arg1];
-    }
-
-    func_80178E3C((u32)_icon_item_static_testSegmentRomStart, phi_v0 & 0xFF,
-                  (u32)interfaceCtx->iconItemSegment + (arg1 * 0x1000), 0x1000);
+    func_80178E3C(_icon_item_static_testSegmentRomStart, CUR_FORM_BTN_ITEM(new_var),
+                  &interfaceCtx->iconItemSegment[new_var * 0x1000], 0x1000);
 }
-#else
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_LoadItemIcon.s")
-#endif
 
-void func_80112BE4(GlobalContext* globalCtx, u8 arg1) {
-    Interface_LoadItemIcon(globalCtx, arg1);
+void Interface_LoadItemIcon(GlobalContext* globalCtx, u8 arg1) {
+    Interface_LoadItemIconImpl(globalCtx, arg1);
 }
 
 void func_80112C0C(GlobalContext* globalCtx, u16 flag) {
@@ -1454,12 +1439,12 @@ void func_80112C0C(GlobalContext* globalCtx, u16 flag) {
                 (gSaveContext.save.equips.buttonItems[CUR_FORM][0] == ITEM_BOMBCHU) ||
                 (gSaveContext.save.equips.buttonItems[CUR_FORM][0] == ITEM_FISHING_POLE)) {
                 gSaveContext.save.equips.buttonItems[CUR_FORM][0] = gSaveContext.buttonStatus[0];
-                Interface_LoadItemIcon(globalCtx, 0);
+                Interface_LoadItemIconImpl(globalCtx, 0);
             }
         } else if (gSaveContext.save.equips.buttonItems[CUR_FORM][0] == ITEM_NONE) {
             if (gSaveContext.save.equips.buttonItems[CUR_FORM][0] != ITEM_NONE) {
                 gSaveContext.save.equips.buttonItems[CUR_FORM][0] = gSaveContext.buttonStatus[0];
-                Interface_LoadItemIcon(globalCtx, 0);
+                Interface_LoadItemIconImpl(globalCtx, 0);
             }
         }
 
@@ -1523,7 +1508,7 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
         value = item - ITEM_SWORD_KOKIRI - 1;
         SET_EQUIP_VALUE(EQUIP_SWORD, value);
         gSaveContext.save.equips.buttonItems[CUR_FORM][0] = item;
-        Interface_LoadItemIcon(globalCtx, 0);
+        Interface_LoadItemIconImpl(globalCtx, 0);
         if (item == ITEM_SWORD_RAZOR) {
             gSaveContext.save.playerData.swordHealth = 100;
         }
@@ -1866,15 +1851,15 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
 
                     if ((slot + i) == gSaveContext.save.equips.cButtonSlots[0][1]) {
                         gSaveContext.save.equips.buttonItems[0][1] = item;
-                        Interface_LoadItemIcon(globalCtx, 1);
+                        Interface_LoadItemIconImpl(globalCtx, 1);
                         gSaveContext.buttonStatus[1] = 0;
                     } else if ((slot + i) == gSaveContext.save.equips.cButtonSlots[0][2]) {
                         gSaveContext.save.equips.buttonItems[0][2] = item;
-                        Interface_LoadItemIcon(globalCtx, 2);
+                        Interface_LoadItemIconImpl(globalCtx, 2);
                         gSaveContext.buttonStatus[2] = 0;
                     } else if ((slot + i) == gSaveContext.save.equips.cButtonSlots[0][3]) {
                         gSaveContext.save.equips.buttonItems[0][3] = item;
-                        Interface_LoadItemIcon(globalCtx, 3);
+                        Interface_LoadItemIconImpl(globalCtx, 3);
                         gSaveContext.buttonStatus[3] = 0;
                     }
 
@@ -1908,7 +1893,7 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
                     } else {
                         gSaveContext.save.equips.buttonItems[0][i] = item;
                     }
-                    Interface_LoadItemIcon(globalCtx, i);
+                    Interface_LoadItemIconImpl(globalCtx, i);
                     return ITEM_NONE;
                 }
             }
@@ -1988,7 +1973,7 @@ s32 Inventory_ReplaceItem(GlobalContext* globalCtx, u8 oldItem, u8 newItem) {
                         gSaveContext.save.equips.buttonItems[0][i] = newItem;
                     }
 
-                    Interface_LoadItemIcon(globalCtx, i);
+                    Interface_LoadItemIconImpl(globalCtx, i);
                     break;
                 }
             }
@@ -2029,7 +2014,7 @@ void func_80114FD0(GlobalContext* globalCtx, u8 item, u8 arg2) {
     } else {
         gSaveContext.save.equips.buttonItems[0][arg2] = item;
     }
-    Interface_LoadItemIcon(globalCtx, arg2);
+    Interface_LoadItemIconImpl(globalCtx, arg2);
     globalCtx->pauseCtx.unk_25E[0] = item;
     gSaveContext.buttonStatus[arg2] = 0;
     if (item == ITEM_HOT_SPRING_WATER) {
@@ -2050,7 +2035,7 @@ void func_801152B8(GlobalContext* globalCtx, s16 slot, s16 item) {
             } else {
                 gSaveContext.save.equips.buttonItems[0][i] = item;
             }
-            Interface_LoadItemIcon(globalCtx, i);
+            Interface_LoadItemIconImpl(globalCtx, i);
         }
     }
 }
