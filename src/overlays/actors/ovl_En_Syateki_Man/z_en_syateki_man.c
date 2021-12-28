@@ -332,7 +332,7 @@ void func_809C6C2C(EnSyatekiMan* this, GlobalContext* globalCtx) {
                 globalCtx->msgCtx.unk11F22 = 0x43;
                 globalCtx->msgCtx.unk12023 = 4;
                 player->actor.freezeTimer = 0;
-                func_80112AFC(globalCtx);
+                Interface_InitMinigame(globalCtx);
                 globalCtx->interfaceCtx.hbaAmmo = 80;
                 func_80123F2C(globalCtx, 80);
                 this->unk_26A = 1;
@@ -654,7 +654,7 @@ void func_809C7620(EnSyatekiMan* this, GlobalContext* globalCtx) {
                 globalCtx->msgCtx.unk12023 = 4;
                 player->actor.freezeTimer = 0;
                 this->unk_27E = 0;
-                func_80112AFC(globalCtx);
+                Interface_InitMinigame(globalCtx);
                 func_80123F2C(globalCtx, 0x63);
                 this->unk_26A = 1;
                 func_801A2BB8(NA_BGM_MINI_GAME_2);

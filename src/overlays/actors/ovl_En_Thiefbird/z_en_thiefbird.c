@@ -249,7 +249,7 @@ s32 func_80C10B0C(EnThiefbird* this, GlobalContext* globalCtx) {
     }
 
     if (isItemFound) {
-        func_801149A0(itemId2, slotId);
+        Inventory_DeleteItem(itemId2, slotId);
         this->unk_3E8 = D_060033B0;
         if (!func_80152498(&globalCtx->msgCtx)) {
             func_801518B0(globalCtx, 0xF4, NULL);
@@ -266,7 +266,7 @@ s32 func_80C10B0C(EnThiefbird* this, GlobalContext* globalCtx) {
 
         itemId1 = phi_a3 + (ITEM_SWORD_KOKIRI - 1);
         if (phi_a3 == 4) {
-            func_801149A0(ITEM_SWORD_GREAT_FAIRY, SLOT_SWORD_GREAT_FAIRY);
+            Inventory_DeleteItem(ITEM_SWORD_GREAT_FAIRY, SLOT_SWORD_GREAT_FAIRY);
             this->unk_3E8 = D_06003D58;
             itemId1 = ITEM_SWORD_GREAT_FAIRY;
         } else {

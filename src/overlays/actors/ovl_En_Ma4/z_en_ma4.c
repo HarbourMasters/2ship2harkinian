@@ -713,7 +713,7 @@ void EnMa4_InitHorsebackGame(EnMa4* this, GlobalContext* globalCtx) {
     globalCtx->interfaceCtx.unk_280 = 1;
     func_8010E9F0(4, 0);
     gSaveContext.save.weekEventReg[0x8] |= 0x01;
-    func_80112AFC(globalCtx);
+    Interface_InitMinigame(globalCtx);
     player->stateFlags1 |= 0x20;
     this->actionFunc = EnMa4_SetupHorsebackGameWait;
 }
