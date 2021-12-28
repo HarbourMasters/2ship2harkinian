@@ -12,6 +12,56 @@ extern Gfx D_0E0002E0[]; // Display List
 extern u8 D_801ABAB0[];
 extern u8 D_801E3BB0[];
 
+/**
+ * Steps `var` towards `target` linearly, so that it will arrive in `timeRemaining` seconds. Can be used from either
+ * direction. `timeRemaining` must be decremented separately for this to work properly, and obviously timeRemaining = 0
+ * must be handled separately.
+ *
+ * @param var Variable to step.
+ * @param target Target to step towards.
+ * @param timeRemaining Number of times this function should be run for `var` to reach `target`
+ * @param stepVar Variable to use for the step (required to match).
+ *
+ * The progression is not quite linear because of truncation in the division, but the variable will always reach
+ * `target` at the appropriate time since the last step is always the full difference.
+ */
+#define TIMED_STEP_TO(var, target, timeRemaining, stepVar) \
+    {                                                      \
+        stepVar = ABS_ALT(var - target) / timeRemaining;   \
+        if (var >= target) {                               \
+            var -= stepVar;                                \
+        } else {                                           \
+            var += stepVar;                                \
+        }                                                  \
+    }                                                      \
+    (void)0
+
+/**
+ * Similar to `TIMED_STEP_TO`, but will always increase `var`. If var > target, this will eventually increase `var` by
+ * an amount that is at most ( timeRemaining + 1 ) * | var - target |, but which depends on the amount lost to
+ * truncation from the divisions.
+ */
+#define TIMED_STEP_UP_TO(var, target, timeRemaining, stepVar) \
+    {                                                         \
+        stepVar = ABS_ALT(var - target) / timeRemaining;      \
+        var += stepVar;                                       \
+    }                                                         \
+    (void)0
+
+/**
+ * Similar to `TIMED_STEP_TO`, but will always increase `var`. If var < target, this will eventually dncrease `var` by
+ * an amount that is at most ( timeRemaining + 1 ) * | var - target |, but which depends on the amount lost to
+ * truncation from the divisions.
+ */
+#define TIMED_STEP_DOWN_TO(var, target, timeRemaining, stepVar) \
+    {                                                           \
+        stepVar = ABS_ALT(var - target) / timeRemaining;        \
+        var -= stepVar;                                         \
+    }                                                           \
+    (void)0
+
+
+
 typedef struct {
     /* 0x00 */ u8 scene;
     /* 0x01 */ u8 flags1;
@@ -2194,12 +2244,54 @@ void func_80116088(void) {
     }
 }
 
-s16 D_801BFAB8[] = {
-    255, 255, 255, 150, 150, 150,
-};
-s16 D_801BFAC4[] = { 0, 1, 1, 0 };
-s16 D_801BFACC[] = { 2, 1, 2, 1 };
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80116114.s")
+void func_80116114(void) {
+    static s16 magicBorderColors[][3] = {
+        { 255, 255, 255 }, 
+        { 150, 150, 150 },
+    };
+    static s16 magicBorderIndices[] = { 0, 1, 1, 0 };
+    static s16 magicBorderColorTimerIndex[] = { 2, 1, 2, 1 }; 
+    s16 colorStep1;
+    s16 colorStep2;
+    s16 colorStep3;
+    s16 index;
+
+    index = magicBorderIndices[D_801BF8B0];
+    colorStep1 = ABS_ALT(sMagicBarOutlinePrimRed - magicBorderColors[index][0]) / D_801BF8AC;
+    colorStep2 = ABS_ALT(sMagicBarOutlinePrimGreen - magicBorderColors[index][1]) / D_801BF8AC;
+    colorStep3 = ABS_ALT(sMagicBarOutlinePrimBlue - magicBorderColors[index][2]) / D_801BF8AC;
+
+    if (sMagicBarOutlinePrimRed >= magicBorderColors[index][0]) {
+        sMagicBarOutlinePrimRed -= colorStep1;
+    } else {
+        sMagicBarOutlinePrimRed += colorStep1;
+    }
+
+    if (sMagicBarOutlinePrimGreen >= magicBorderColors[index][1]) {
+        sMagicBarOutlinePrimGreen -= colorStep2;
+    } else {
+        sMagicBarOutlinePrimGreen += colorStep2;
+    }
+
+    if (sMagicBarOutlinePrimBlue >= magicBorderColors[index][2]) {
+        sMagicBarOutlinePrimBlue -= colorStep3;
+    } else {
+        sMagicBarOutlinePrimBlue += colorStep3;
+    }
+
+    D_801BF8AC--;
+
+    if (D_801BF8AC == 0) {
+        sMagicBarOutlinePrimRed = magicBorderColors[index][0];
+        sMagicBarOutlinePrimGreen = magicBorderColors[index][1];
+        sMagicBarOutlinePrimBlue = magicBorderColors[index][2];
+        D_801BF8AC = magicBorderColorTimerIndex[D_801BF8B0];
+        D_801BF8B0++;
+        if (D_801BF8B0 >= 4) {
+            D_801BF8B0 = 0;
+        }
+    }
+}
 
 void Interface_UpdateMagicBar(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_UpdateMagicBar.s")
@@ -2342,42 +2434,6 @@ s16 D_801BFB1C[] = { 0, 100, 255, 0 };
 s16 D_801BFB24[] = { 0, 255, 100, 0 };
 void func_80119030(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80119030.s")
-
-/**
- * Steps `var` towards `target` linearly, so that it will arrive in `timeRemaining` seconds. Can be used from either
- * direction. `timeRemaining` must be decremented separately for this to work properly, and obviously timeRemaining = 0
- * must be handled separately.
- *
- * @param var Variable to step.
- * @param target Target to step towards.
- * @param timeRemaining Number of times this function should be run for `var` to reach `target`
- * @param stepVar Variable to use for the step (required to match).
- *
- * The progression is not quite linear because of truncation in the division, but the variable will always reach
- * `target` at the appropriate time since the last step is always the full difference.
- */
-#define TIMED_STEP_TO(var, target, timeRemaining, stepVar) \
-    {                                                      \
-        stepVar = ABS_ALT(var - target) / timeRemaining;   \
-        if (var >= target) {                               \
-            var -= stepVar;                                \
-        } else {                                           \
-            var += stepVar;                                \
-        }                                                  \
-    }                                                      \
-    (void)0
-
-/**
- * Similar to `TIMED_STEP_TO`, but will always increase `var`. If var > target, this will eventually increase `var` by
- * an amount that is at most ( timeRemaining + 1 ) * | var - target |, but which depends on the amount lost to
- * truncation from the divisions.
- */
-#define TIMED_STEP_UP_TO(var, target, timeRemaining, stepVar) \
-    {                                                         \
-        stepVar = ABS_ALT(var - target) / timeRemaining;      \
-        var += stepVar;                                       \
-    }                                                         \
-    (void)0
 
 /**
  * Draws either the analog three-day clock or the digital final-hours clock
