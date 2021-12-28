@@ -1315,7 +1315,7 @@ void func_80BEF360(EnAkindonuts* this, GlobalContext* globalCtx) {
     if (this->unk_32C & 0x40) {
         if (Actor_HasParent(&this->actor, globalCtx)) {
             this->actor.parent = NULL;
-            func_801159EC(this->unk_364);
+            Rupees_ChangeBy(this->unk_364);
             this->unk_32C &= ~0x40;
             this->actionFunc = func_80BEF450;
         } else {

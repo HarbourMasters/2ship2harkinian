@@ -398,12 +398,12 @@ void EnGirlA_BuyBottleItem(GlobalContext* globalCtx, EnGirlA* this) {
             Item_Give(globalCtx, ITEM_FAIRY);
             break;
     }
-    func_801159EC(-globalCtx->msgCtx.unk1206C);
+    Rupees_ChangeBy(-globalCtx->msgCtx.unk1206C);
 }
 
 void EnGirlA_BuyArrows(GlobalContext* globalCtx, EnGirlA* this) {
     func_80115A14(ITEM_BOW, this->itemParams);
-    func_801159EC(-globalCtx->msgCtx.unk1206C);
+    Rupees_ChangeBy(-globalCtx->msgCtx.unk1206C);
 }
 
 void EnGirlA_BuyNuts(GlobalContext* globalCtx, EnGirlA* this) {
@@ -415,22 +415,22 @@ void EnGirlA_BuyNuts(GlobalContext* globalCtx, EnGirlA* this) {
             Item_Give(globalCtx, ITEM_NUTS_10);
             break;
     }
-    func_801159EC(-globalCtx->msgCtx.unk1206C);
+    Rupees_ChangeBy(-globalCtx->msgCtx.unk1206C);
 }
 
 void EnGirlA_BuyShieldHero(GlobalContext* globalCtx, EnGirlA* this) {
     Item_Give(globalCtx, ITEM_SHIELD_HERO);
-    func_801159EC(-globalCtx->msgCtx.unk1206C);
+    Rupees_ChangeBy(-globalCtx->msgCtx.unk1206C);
 }
 
 void EnGirlA_BuyStick(GlobalContext* globalCtx, EnGirlA* this) {
     Item_Give(globalCtx, ITEM_STICK);
-    func_801159EC(-globalCtx->msgCtx.unk1206C);
+    Rupees_ChangeBy(-globalCtx->msgCtx.unk1206C);
 }
 
 void EnGirlA_BuyMaskAllNight(GlobalContext* globalCtx, EnGirlA* this) {
     Item_Give(globalCtx, ITEM_MASK_ALL_NIGHT);
-    func_801159EC(-globalCtx->msgCtx.unk1206C);
+    Rupees_ChangeBy(-globalCtx->msgCtx.unk1206C);
 }
 
 void EnGirlA_BuyBombBag(GlobalContext* globalCtx, EnGirlA* this) {
@@ -446,14 +446,14 @@ void EnGirlA_BuyBombBag(GlobalContext* globalCtx, EnGirlA* this) {
             Item_Give(globalCtx, ITEM_BOMB_BAG_40);
             break;
     }
-    func_801159EC(-globalCtx->msgCtx.unk1206C);
+    Rupees_ChangeBy(-globalCtx->msgCtx.unk1206C);
 }
 
 void EnGirlA_BuyBombchus(GlobalContext* globalCtx, EnGirlA* this) {
     if (this->itemParams == 10) {
         Item_Give(globalCtx, ITEM_BOMBCHUS_10);
     }
-    func_801159EC(-globalCtx->msgCtx.unk1206C);
+    Rupees_ChangeBy(-globalCtx->msgCtx.unk1206C);
 }
 
 void EnGirlA_BuyBombs(GlobalContext* globalCtx, EnGirlA* this) {
@@ -471,12 +471,12 @@ void EnGirlA_BuyBombs(GlobalContext* globalCtx, EnGirlA* this) {
             Item_Give(globalCtx, ITEM_BOMBS_30);
             break;
     }
-    func_801159EC(-globalCtx->msgCtx.unk1206C);
+    Rupees_ChangeBy(-globalCtx->msgCtx.unk1206C);
 }
 
 void EnGirlA_BuyBottle(GlobalContext* globalCtx, EnGirlA* this) {
     Item_Give(globalCtx, ITEM_BOTTLE);
-    func_801159EC(-globalCtx->msgCtx.unk1206C);
+    Rupees_ChangeBy(-globalCtx->msgCtx.unk1206C);
 }
 
 void EnGirlA_BuySword(GlobalContext* globalCtx, EnGirlA* this) {
@@ -494,17 +494,17 @@ void EnGirlA_BuySword(GlobalContext* globalCtx, EnGirlA* this) {
             Item_Give(globalCtx, ITEM_SWORD_GREAT_FAIRY);
             break;
     }
-    func_801159EC(-globalCtx->msgCtx.unk1206C);
+    Rupees_ChangeBy(-globalCtx->msgCtx.unk1206C);
 }
 
 void EnGirlA_BuyShieldMirror(GlobalContext* globalCtx, EnGirlA* this) {
     Item_Give(globalCtx, ITEM_SHIELD_MIRROR);
-    func_801159EC(-globalCtx->msgCtx.unk1206C);
+    Rupees_ChangeBy(-globalCtx->msgCtx.unk1206C);
 }
 
 // Fanfare is handled by ovl_en_ossan
 void EnGirlA_BuyFanfare(GlobalContext* globalCtx, EnGirlA* this) {
-    func_801159EC(-globalCtx->msgCtx.unk1206C);
+    Rupees_ChangeBy(-globalCtx->msgCtx.unk1206C);
 }
 
 void EnGirlA_DoNothing(EnGirlA* this, GlobalContext* globalCtx) {

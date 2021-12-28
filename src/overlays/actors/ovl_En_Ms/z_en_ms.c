@@ -128,7 +128,7 @@ void EnMs_Talk(EnMs* this, GlobalContext* globalCtx) {
                         } else {
                             func_8019F208();
                             func_800B8A1C(&this->actor, globalCtx, GI_MAGIC_BEANS, 90.0f, 10.0f);
-                            func_801159EC(-10);
+                            Rupees_ChangeBy(-10);
                             this->actionFunc = EnMs_Sell;
                         }
                         break;

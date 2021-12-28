@@ -474,7 +474,7 @@ void func_80B973BC(EnZot* this, GlobalContext* globalCtx) {
                 break;
 
             case 0x126F:
-                func_801159EC(90);
+                Rupees_ChangeBy(90);
                 func_80151938(globalCtx, 0x1270);
                 break;
 
@@ -483,7 +483,7 @@ void func_80B973BC(EnZot* this, GlobalContext* globalCtx) {
                     func_80151938(globalCtx, 0x1277);
                 } else {
                     func_80151938(globalCtx, 0x1278);
-                    func_801159EC(-10);
+                    Rupees_ChangeBy(-10);
                 }
                 break;
 

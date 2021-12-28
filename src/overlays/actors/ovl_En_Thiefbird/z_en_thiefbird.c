@@ -416,7 +416,7 @@ s32 func_80C10E98(GlobalContext* globalCtx) {
 
     AMMO(ITEM_BOMB) -= spB0 * 5;
     AMMO(ITEM_BOW) -= spAC * 10;
-    func_801159EC(-((phi_s0_2 * 50) + (spA0 * 20) + (phi_s2 * 5) + spA8));
+    Rupees_ChangeBy(-((phi_s0_2 * 50) + (spA0 * 20) + (phi_s2 * 5) + spA8));
     return true;
 }
 

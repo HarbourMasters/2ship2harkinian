@@ -622,7 +622,7 @@ s32 func_808F4150(GlobalContext* globalCtx, EnIn* this, s32 arg2, MessageContext
     if (msgCtx->choiceIndex == 0) {
         func_8019F208();
         if (gSaveContext.save.playerData.rupees >= globalCtx->msgCtx.unk1206C) {
-            func_801159EC(-globalCtx->msgCtx.unk1206C);
+            Rupees_ChangeBy(-globalCtx->msgCtx.unk1206C);
             if (!(gSaveContext.save.weekEventReg[57] & 1)) {
                 func_808F4108(this, globalCtx, 0x3474);
             } else if (this->unk4AC & 8) {
@@ -648,7 +648,7 @@ s32 func_808F4270(GlobalContext* globalCtx, EnIn* this, s32 arg2, MessageContext
     if (msgCtx->choiceIndex == 0) {
         func_8019F208();
         if (gSaveContext.save.playerData.rupees >= fee) {
-            func_801159EC(-fee);
+            Rupees_ChangeBy(-fee);
             if (!(gSaveContext.save.weekEventReg[57] & 1)) {
                 if (arg4 != 0) {
                     func_800E8EA0(globalCtx, &this->actor, 0x3474);
@@ -796,7 +796,7 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
                             if (Interface_HasEmptyBottle()) {
                                 this->actionFunc = func_808F3C40;
                                 func_800B8A1C(&this->actor, globalCtx, 0x92, 500.0f, 100.0f);
-                                func_801159EC(-globalCtx->msgCtx.unk1206C);
+                                Rupees_ChangeBy(-globalCtx->msgCtx.unk1206C);
                                 ret = true;
                             } else {
                                 func_800E8EA0(globalCtx, &this->actor, 0x3469);
@@ -1048,7 +1048,7 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
                             if (Interface_HasEmptyBottle()) {
                                 this->actionFunc = func_808F3C40;
                                 func_800B8A1C(&this->actor, globalCtx, 0x92, 500.0f, 100.0f);
-                                func_801159EC(-globalCtx->msgCtx.unk1206C);
+                                Rupees_ChangeBy(-globalCtx->msgCtx.unk1206C);
                                 ret = true;
                             } else {
                                 func_800E8EA0(globalCtx, &this->actor, 0x3469);

@@ -1701,7 +1701,7 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
         return item;
 
     } else if ((item >= ITEM_RUPEE_GREEN) && (item <= ITEM_RUPEE_HUGE)) {
-        func_801159EC(sAmmoRefillCounts[item - ITEM_RUPEE_GREEN + 10]);
+        Rupees_ChangeBy(sAmmoRefillCounts[item - ITEM_RUPEE_GREEN + 10]);
         return ITEM_NONE;
 
     } else if (item == ITEM_LONGSHOT) {
@@ -2060,8 +2060,9 @@ void Interface_SetDoAction(GlobalContext* globalCtx, u16 action) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_801159c0.s")
 
-// Rupees_ChangeBy
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_801159EC.s")
+void Rupees_ChangeBy(s16 rupeeChange) {
+    gSaveContext.rupeeAccumulator += rupeeChange;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80115A14.s")
 
