@@ -285,7 +285,7 @@ s32 func_80BED140(GlobalContext* globalCtx) {
 }
 
 s32 func_80BED208(EnAkindonuts* this) {
-    if (INV_CONTENT(ITEM_MAGIC_BEANS) != 10U) {
+    if (INV_CONTENT(ITEM_BEAN) != 10U) {
         return 0;
     }
 
@@ -293,7 +293,7 @@ s32 func_80BED208(EnAkindonuts* this) {
         return 1;
     }
 
-    if (AMMO(ITEM_MAGIC_BEANS) >= 20) {
+    if (AMMO(ITEM_BEAN) >= 20) {
         return 2;
     }
 

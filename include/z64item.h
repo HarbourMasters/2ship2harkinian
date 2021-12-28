@@ -113,7 +113,7 @@ typedef enum {
     /* 0x07 */ ITEM_BOMBCHU,
     /* 0x08 */ ITEM_STICK,
     /* 0x09 */ ITEM_NUT,
-    /* 0x0A */ ITEM_MAGIC_BEANS,
+    /* 0x0A */ ITEM_BEAN,
     /* 0x0B */ ITEM_SLINGSHOT,
     /* 0x0C */ ITEM_POWDER_KEG,
     /* 0x0D */ ITEM_PICTO_BOX,

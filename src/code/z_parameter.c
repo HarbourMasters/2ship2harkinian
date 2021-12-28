@@ -529,7 +529,39 @@ void func_8010EBA0(s16 arg0, s16 arg1) {
     D_801BF8F0 = 0;
 }
 
+// Crazy u64 math
+#ifdef NON_EQUIVALENT
+s32 func_8010EC54(s32 timerId) {
+    u64 time;
+    s16 sp22;
+    s16 sp20;
+    s16 sp1E;
+    s16 sp1C;
+    s16 temp_a0;
+    s16 final;
+
+    time = gSaveContext.unk_3DE0[timerId];
+
+    sp1C = time / 36000;
+    time -= sp1C * 36000;
+
+    sp1E = time / 6000;
+    time -= sp1E * 6000;
+
+    sp20 = time / 1000;
+    time -= sp20 * 1000;
+
+    sp22 = time / 100;
+    time -= sp22 * 100;
+
+    temp_a0 = time / 10;
+    time -= sp22 * 10;
+
+    return (s16)time | (sp1C << 0x14) | (sp1E << 0x10) | (sp20 << 0xC) | (sp22 << 8) | (temp_a0 << 4);
+}
+#else
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8010EC54.s")
+#endif
 
 void func_8010EE74(GlobalContext* globalCtx, s32 arg1) {
     s32 pad;
@@ -1661,19 +1693,19 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
         INV_CONTENT(ITEM_OCARINA) = 0;
         return ITEM_NONE;
 
-    } else if (item == ITEM_MAGIC_BEANS) {
-        if (INV_CONTENT(ITEM_MAGIC_BEANS) == ITEM_NONE) {
-            INV_CONTENT(ITEM_MAGIC_BEANS) = item;
-            AMMO(ITEM_MAGIC_BEANS) = 1;
+    } else if (item == ITEM_BEAN) {
+        if (INV_CONTENT(ITEM_BEAN) == ITEM_NONE) {
+            INV_CONTENT(ITEM_BEAN) = item;
+            AMMO(ITEM_BEAN) = 1;
             return ITEM_NONE;
         }
 
-        if (AMMO(ITEM_MAGIC_BEANS) < 20) {
-            AMMO(ITEM_MAGIC_BEANS)++;
+        if (AMMO(ITEM_BEAN) < 20) {
+            AMMO(ITEM_BEAN)++;
             return ITEM_NONE;
         }
 
-        AMMO(ITEM_MAGIC_BEANS) = 20;
+        AMMO(ITEM_BEAN) = 20;
         return ITEM_NONE;
 
     } else if ((item >= ITEM_REMAINS_ODOLWA) && (item <= ITEM_REMAINS_TWINMOLD)) {
@@ -2058,13 +2090,72 @@ void Interface_SetDoAction(GlobalContext* globalCtx, u16 action) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80115908.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_801159c0.s")
+void Health_GiveHearts(s16 hearts) {
+    gSaveContext.save.playerData.healthCapacity += hearts * 0x10;
+}
 
 void Rupees_ChangeBy(s16 rupeeChange) {
     gSaveContext.rupeeAccumulator += rupeeChange;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80115A14.s")
+void Inventory_ChangeAmmo(s16 item, s16 ammoChange) {
+    if (item == ITEM_STICK) {
+        AMMO(ITEM_STICK) += ammoChange;
+
+        if (AMMO(ITEM_STICK) >= CUR_CAPACITY(UPG_STICKS)) {
+            AMMO(ITEM_STICK) = CUR_CAPACITY(UPG_STICKS);
+        } else if (AMMO(ITEM_STICK) < 0) {
+            AMMO(ITEM_STICK) = 0;
+        }
+
+    } else if (item == ITEM_NUT) {
+        AMMO(ITEM_NUT) += ammoChange;
+
+        if (AMMO(ITEM_NUT) >= CUR_CAPACITY(UPG_NUTS)) {
+            AMMO(ITEM_NUT) = CUR_CAPACITY(UPG_NUTS);
+        } else if (AMMO(ITEM_NUT) < 0) {
+            AMMO(ITEM_NUT) = 0;
+        }
+
+    } else if (item == ITEM_BOMBCHU) {
+        AMMO(ITEM_BOMBCHU) += ammoChange;
+
+        if (AMMO(ITEM_BOMBCHU) >= CUR_CAPACITY(UPG_BOMB_BAG)) {
+            AMMO(ITEM_BOMBCHU) = CUR_CAPACITY(UPG_BOMB_BAG);
+        } else if (AMMO(ITEM_BOMBCHU) < 0) {
+            AMMO(ITEM_BOMBCHU) = 0;
+        }
+
+    } else if (item == ITEM_BOW) {
+        AMMO(ITEM_BOW) += ammoChange;
+
+        if (AMMO(ITEM_BOW) >= CUR_CAPACITY(UPG_QUIVER)) {
+            AMMO(ITEM_BOW) = CUR_CAPACITY(UPG_QUIVER);
+        } else if (AMMO(ITEM_BOW) < 0) {
+            AMMO(ITEM_BOW) = 0;
+        }
+        
+    } else if (item == ITEM_BOMB) {
+        AMMO(ITEM_BOMB) += ammoChange;
+
+        if (AMMO(ITEM_BOMB) >= CUR_CAPACITY(UPG_BOMB_BAG)) {
+            AMMO(ITEM_BOMB) = CUR_CAPACITY(UPG_BOMB_BAG);
+        } else if (AMMO(ITEM_BOMB) < 0) {
+            AMMO(ITEM_BOMB) = 0;
+        }
+
+    } else if (item == ITEM_BEAN) {
+        AMMO(ITEM_BEAN) += ammoChange;
+
+    } else if (item == ITEM_POWDER_KEG) {
+        AMMO(ITEM_POWDER_KEG) += ammoChange;
+        if (AMMO(ITEM_POWDER_KEG) >= 1) {
+            AMMO(ITEM_POWDER_KEG) = 1;
+        } else if (AMMO(ITEM_POWDER_KEG) < 0) {
+            AMMO(ITEM_POWDER_KEG) = 0;
+        }
+    }
+}
 
 void Interface_AddMagic(GlobalContext* globalCtx, s16 arg1) {
     if (gSaveContext.save.playerData.magic) {}

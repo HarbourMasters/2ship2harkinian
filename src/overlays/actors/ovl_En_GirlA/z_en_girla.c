@@ -402,7 +402,7 @@ void EnGirlA_BuyBottleItem(GlobalContext* globalCtx, EnGirlA* this) {
 }
 
 void EnGirlA_BuyArrows(GlobalContext* globalCtx, EnGirlA* this) {
-    func_80115A14(ITEM_BOW, this->itemParams);
+    Inventory_ChangeAmmo(ITEM_BOW, this->itemParams);
     Rupees_ChangeBy(-globalCtx->msgCtx.unk1206C);
 }
 
