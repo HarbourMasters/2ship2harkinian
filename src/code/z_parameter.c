@@ -36,30 +36,6 @@ extern u8 D_801E3BB0[];
     }                                                      \
     (void)0
 
-/**
- * Similar to `TIMED_STEP_TO`, but will always increase `var`. If var > target, this will eventually increase `var` by
- * an amount that is at most ( timeRemaining + 1 ) * | var - target |, but which depends on the amount lost to
- * truncation from the divisions.
- */
-#define TIMED_STEP_UP_TO(var, target, timeRemaining, stepVar) \
-    {                                                         \
-        stepVar = ABS_ALT(var - target) / timeRemaining;      \
-        var += stepVar;                                       \
-    }                                                         \
-    (void)0
-
-/**
- * Similar to `TIMED_STEP_TO`, but will always increase `var`. If var < target, this will eventually dncrease `var` by
- * an amount that is at most ( timeRemaining + 1 ) * | var - target |, but which depends on the amount lost to
- * truncation from the divisions.
- */
-#define TIMED_STEP_DOWN_TO(var, target, timeRemaining, stepVar) \
-    {                                                           \
-        stepVar = ABS_ALT(var - target) / timeRemaining;        \
-        var -= stepVar;                                         \
-    }                                                           \
-    (void)0
-
 typedef struct {
     /* 0x00 */ u8 scene;
     /* 0x01 */ u8 flags1;
@@ -292,9 +268,9 @@ s16 D_801BF9C8[] = {
     0x16,
 };
 
-s32 D_801BF9CC[] = {
-    0xC3BE0000, // f32: -380.0
-    0xC3AF0000, // f32: -350.0
+f32 D_801BF9CC[] = {
+    -380.0f,
+    -350.0f,
 };
 
 s16 D_801BF9D4[] = {
@@ -517,37 +493,37 @@ void func_8010E968(s32 arg0) {
     D_801BFA84 = btnAPressed;
 }
 
-void func_8010E9F0(s16 timerId, s16 arg1) {
+void func_8010E9F0(s16 timerId, s16 timeLimit) {
     gSaveContext.timerX[timerId] = 115;
     gSaveContext.timerY[timerId] = 80;
 
     D_801BF8E0 = 0;
 
-    gSaveContext.unk_3DE0[timerId] = arg1 * 100;
+    gSaveContext.unk_3DE0[timerId] = timeLimit * 100;
     gSaveContext.unk_3E18[timerId] = gSaveContext.unk_3DE0[timerId];
 
     if (gSaveContext.unk_3DE0[timerId] != 0) {
-        gSaveContext.unk_3DD7[timerId] = 0;
+        gSaveContext.timersNoTimeLimit[timerId] = false;
     } else {
-        gSaveContext.unk_3DD7[timerId] = 1;
+        gSaveContext.timersNoTimeLimit[timerId] = true;
     }
 
     gSaveContext.unk_3DD0[timerId] = 1;
 }
 
-void func_8010EA9C(s16 arg0, s16 arg1) {
+void func_8010EA9C(s16 timeLimit, s16 arg1) {
     gSaveContext.timerX[0] = 115;
     gSaveContext.timerY[0] = 80;
 
     D_801BF8E4 = arg1;
 
-    gSaveContext.unk_3DE0[0] = arg0 * 100;
+    gSaveContext.unk_3DE0[0] = timeLimit * 100;
     gSaveContext.unk_3E18[0] = gSaveContext.unk_3DE0[0];
 
     if (gSaveContext.unk_3DE0[0] != 0) {
-        gSaveContext.unk_3DD7[0] = 0;
+        gSaveContext.timersNoTimeLimit[0] = false;
     } else {
-        gSaveContext.unk_3DD7[0] = 1;
+        gSaveContext.timersNoTimeLimit[0] = true;
     }
     gSaveContext.unk_3DD0[0] = 13;
 
@@ -588,15 +564,20 @@ s32 func_8010EC54(s16 timerId) {
 
     time = gSaveContext.unk_3DE0[timerId];
 
+    // hours
     time -= (sp1C = time / 36000) * 36000;
     if (1) {}
 
+    // minutes
     time -= (sp1E = time / 6000) * 6000;
 
+    // seconds
     time -= (sp20 = time / 1000) * 1000;
 
+    // 100 milliseconds
     time -= (sp22 = time / 100) * 100;
 
+    // 10 miliseconds
     time -= (temp_a0 = time / 10) * 10;
 
     final = (sp1C << 0x14);
@@ -607,23 +588,26 @@ s32 func_8010EC54(s16 timerId) {
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8010EC54.s")
 #endif
 
-void func_8010EE74(GlobalContext* globalCtx, s32 arg1) {
+void Interface_NewDay(GlobalContext* globalCtx, s32 day) {
     s32 pad;
-    s16 phi_t0 = arg1 - 1;
+    s16 i = day - 1;
 
-    if (phi_t0 < 0 || phi_t0 >= 3) {
-        phi_t0 = 0;
+    // i is used to store dayMinusOne
+    if (i < 0 || i >= 3) {
+        i = 0;
     }
 
+    // Loads day number from week_static for the three-day clock
     DmaMgr_SendRequest0((u32)globalCtx->interfaceCtx.doActionSegment + 0x780,
-                        (u32)_week_staticSegmentRomStart + phi_t0 * 0x510, 0x510);
+                        (u32)_week_staticSegmentRomStart + i * 0x510, 0x510);
 
-    for (phi_t0 = 0; phi_t0 < 120; phi_t0++) {
-        gSaveContext.save.roomInf[phi_t0][0] = gSaveContext.cycleSceneFlags[phi_t0].chest;
-        gSaveContext.save.roomInf[phi_t0][1] = gSaveContext.cycleSceneFlags[phi_t0].swch0;
-        gSaveContext.save.roomInf[phi_t0][2] = gSaveContext.cycleSceneFlags[phi_t0].swch1;
-        gSaveContext.save.roomInf[phi_t0][3] = gSaveContext.cycleSceneFlags[phi_t0].clearedRoom;
-        gSaveContext.save.roomInf[phi_t0][4] = gSaveContext.cycleSceneFlags[phi_t0].collectible;
+    // i is used to store sceneId
+    for (i = 0; i < 120; i++) {
+        gSaveContext.save.roomInf[i][0] = gSaveContext.cycleSceneFlags[i].chest;
+        gSaveContext.save.roomInf[i][1] = gSaveContext.cycleSceneFlags[i].swch0;
+        gSaveContext.save.roomInf[i][2] = gSaveContext.cycleSceneFlags[i].swch1;
+        gSaveContext.save.roomInf[i][3] = gSaveContext.cycleSceneFlags[i].clearedRoom;
+        gSaveContext.save.roomInf[i][4] = gSaveContext.cycleSceneFlags[i].collectible;
     }
 }
 
@@ -2367,12 +2351,24 @@ s16 D_801BFAF8[] = {
 void Interface_DrawItemButtons(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_DrawItemButtons.s")
 
-s16 D_801BFAFC[] = { 30, 24, 24, 24 };
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80117A20.s")
+void Interface_DrawItemIconTexture(GlobalContext* globalCtx, void* texture, s16 button) {
+    static s16 D_801BFAFC[] = { 30, 24, 24, 24 };
+
+    OPEN_DISPS(globalCtx->state.gfxCtx);
+
+    gDPLoadTextureBlock(OVERLAY_DISP++, texture, G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 32, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+
+    gSPTextureRectangle(OVERLAY_DISP++, D_801BF9D4[button] << 2, D_801BF9DC[button] << 2,
+                        (D_801BF9D4[button] + D_801BFAFC[button]) << 2, (D_801BF9DC[button] + D_801BFAFC[button]) << 2,
+                        G_TX_RENDERTILE, 0, 0, D_801BF9BC[button] << 1, D_801BF9BC[button] << 1);
+
+    CLOSE_DISPS(globalCtx->state.gfxCtx);
+}
 
 s16 D_801BFB04[] = { 0xA2, 0xE4, 0xFA, 0x110 };
 s16 D_801BFB0C[] = { 0x23, 0x23, 0x33, 0x23 };
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80117BD0.s")
+#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_DrawAmmoCount.s")
 
 void func_80118084(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80118084.s")
@@ -2380,8 +2376,65 @@ void func_80118084(GlobalContext* globalCtx);
 void func_80118890(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80118890.s")
 
-void func_80118BA4(GlobalContext* globalCtx);
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80118BA4.s")
+void func_80118BA4(GlobalContext* globalCtx) {
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+    s16 aAlpha;
+
+    OPEN_DISPS(globalCtx->state.gfxCtx);
+
+    aAlpha = interfaceCtx->aAlpha;
+
+    if (aAlpha > 100) {
+        aAlpha = 100;
+    }
+
+    func_8012C8D4(globalCtx->state.gfxCtx);
+
+    func_80116FD8(globalCtx, gGameInfo->data[0x55F] + 0x19, gGameInfo->data[0x55F] + 0x46, 192, 237);
+
+    gSPClearGeometryMode(OVERLAY_DISP++, G_CULL_BOTH);
+    gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+    gDPSetAlphaCompare(OVERLAY_DISP++, G_AC_THRESHOLD);
+
+    Matrix_InsertTranslation(0.0f, 0.0f, -38.0f, MTXMODE_NEW);
+    Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
+    Matrix_RotateStateAroundXAxis(interfaceCtx->unk_218 / 10000.0f);
+
+    gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gDPPipeSync(OVERLAY_DISP++);
+    gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[4], 4, 0);
+    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, aAlpha);
+
+    OVERLAY_DISP = func_8010DC58(OVERLAY_DISP, gButtonBackgroundTex, 32, 32, 0);
+
+    gDPPipeSync(OVERLAY_DISP++);
+    func_80116FD8(globalCtx, gGameInfo->data[0x55F] + 0x17, gGameInfo->data[0x55F] + 0x44, 190, 235);
+    gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[0], 4, 0);
+    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 100, 200, 255, interfaceCtx->aAlpha);
+    gSP1Quadrangle(OVERLAY_DISP++, 0, 2, 3, 1, 0);
+
+    gDPPipeSync(OVERLAY_DISP++);
+    func_80116FD8(globalCtx, gGameInfo->data[0x55F] + 0x17, gGameInfo->data[0x55F] + 0x44, 190, 235);
+    gSPSetGeometryMode(OVERLAY_DISP++, G_CULL_BACK);
+    gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE,
+                      ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->aAlpha);
+    gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 0);
+
+    Matrix_InsertTranslation(0.0f, 0.0f, D_801BF9CC[gSaveContext.options.language] / 10.0f, MTXMODE_NEW);
+    Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
+    Matrix_RotateStateAroundXAxis(interfaceCtx->unk_218 / 10000.0f);
+    gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[8], 4, 0);
+
+    if (((interfaceCtx->unk_210 < 2) || (interfaceCtx->unk_210 == 3))) {
+        OVERLAY_DISP = func_8010DE38(OVERLAY_DISP, interfaceCtx->doActionSegment, 3, 0x30, 0x10, 0);
+    } else {
+        OVERLAY_DISP = func_8010DE38(OVERLAY_DISP, interfaceCtx->doActionSegment + 0x180, 3, 0x30, 0x10, 0);
+    }
+
+    CLOSE_DISPS(globalCtx->state.gfxCtx);
+}
 
 s16 D_801BFB14[] = { 255, 100, 255, 0 };
 s16 D_801BFB1C[] = { 0, 100, 255, 0 };
@@ -2480,7 +2533,8 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                             } else if (D_801BFB34 != 0) {
                                 D_801BFB34--;
                             } else if (D_801BFB30 != 0) {
-                                TIMED_STEP_UP_TO(D_801BFB2C, 255, D_801BFB30, colorStep);
+                                colorStep = ABS_ALT(D_801BFB2C - 255) / D_801BFB30;
+                                D_801BFB2C += colorStep;
 
                                 if (D_801BFB2C >= 255) {
                                     D_801BFB2C = 255;
@@ -3166,14 +3220,14 @@ s16 D_801BFCFC[] = {
 s16 D_801BFD0C[] = {
     9, 9, 8, 9, 9, 8, 9, 9,
 };
-void func_8011CA64(GlobalContext* globalCtx);
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011CA64.s")
+void Interface_DrawTimers(GlobalContext* globalCtx);
+#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_DrawTimers.s")
 
 void func_8011E3B4(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011E3B4.s")
 
-void func_8011E730(GlobalContext* globalCtx);
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011E730.s")
+void Interface_DrawMinigame(GlobalContext* globalCtx);
+#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_DrawMinigame.s")
 
 // rupeeDigitsFirst
 s16 D_801BFD1C[] = { 1, 0, 0, 0 };
@@ -3500,8 +3554,8 @@ void Interface_Draw(GlobalContext* globalCtx) {
             Interface_DrawMinigamePerfect(globalCtx);
         }
 
-        func_8011E730(globalCtx);
-        func_8011CA64(globalCtx);
+        Interface_DrawMinigame(globalCtx);
+        Interface_DrawTimers(globalCtx);
     }
 
     // PictoBox
@@ -3974,7 +4028,7 @@ void Interface_Update(GlobalContext* globalCtx) {
                         gSaveContext.timerX[5] = 115;
                         gSaveContext.timerY[5] = 80;
                         D_801BF8E0 = 1;
-                        gSaveContext.unk_3DD7[5] = 0;
+                        gSaveContext.timersNoTimeLimit[5] = false;
                     }
                 }
             }

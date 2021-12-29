@@ -58,7 +58,7 @@ void func_80A41D70(EnTest4* this, GlobalContext* globalCtx) {
             this->unk_146 = gSaveContext.save.time += CLOCK_TIME_MINUTE;
         }
 
-        func_8010EE74(globalCtx, CURRENT_DAY);
+        Interface_NewDay(globalCtx, CURRENT_DAY);
         D_801BDBC8 = 0xFE;
         func_800FB758(globalCtx);
         func_800FEAF4(&globalCtx->envCtx);
@@ -94,7 +94,7 @@ void func_80A41FA4(EnTest4* this, GlobalContext* globalCtx) {
     } else if ((sCutscenes[this->unk_144] < 0) || ((globalCtx->actorCtx.unk5 & 2) != 0)) {
         Sram_IncrementDay();
         gSaveContext.save.time = CLOCK_TIME(6, 0);
-        func_8010EE74(globalCtx, CURRENT_DAY);
+        Interface_NewDay(globalCtx, CURRENT_DAY);
         func_80151A68(globalCtx, sDayMessages2[CURRENT_DAY - 1]);
         D_801BDBC8 = 0xFE;
         func_800FB758(globalCtx);

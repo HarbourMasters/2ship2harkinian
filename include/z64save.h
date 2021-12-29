@@ -148,7 +148,7 @@ typedef struct {
     /* 0x3DC2 */ u8 unk_3DC2;            // "pad1"
     /* 0x3DC8 */ OSTime unk_3DC8;        // "get_time"
     /* 0x3DD0 */ u8 unk_3DD0[7];         // "event_fg"
-    /* 0x3DD7 */ u8 unk_3DD7[7];         // "calc_flag"
+    /* 0x3DD7 */ u8 timersNoTimeLimit[7];         // "calc_flag"
     /* 0x3DE0 */ OSTime unk_3DE0[7];     // "event_ostime"
     /* 0x3E18 */ OSTime unk_3E18[7];     // "event_sub"
     /* 0x3E50 */ OSTime unk_3E50[7];     // "func_time"
