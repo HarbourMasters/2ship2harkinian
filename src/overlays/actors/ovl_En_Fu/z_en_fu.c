@@ -806,7 +806,7 @@ void func_80962F4C(EnFu* this, GlobalContext* globalCtx) {
             gSaveContext.unk_3DE0[4] = 0;
             gSaveContext.unk_3DD0[4] = 5;
             func_801A3098(NA_BGM_GET_ITEM | 0x900);
-            func_8011B4E0(globalCtx, 1);
+            Interface_SetPerfectMinigame(globalCtx, 1);
             this->unk_54A = 3;
             func_809632D0(this);
         }
@@ -853,7 +853,7 @@ void func_80963350(EnFu* this, GlobalContext* globalCtx) {
         D_80964C24 = 1;
     }
 
-    if ((this->unk_54A == 3) && (globalCtx->interfaceCtx.unk_286 == 0)) {
+    if ((this->unk_54A == 3) && !globalCtx->interfaceCtx.isMinigamePerfect) {
         this->unk_54A = 2;
         D_80964C24 = 1;
     }

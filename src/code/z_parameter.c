@@ -1947,7 +1947,6 @@ s32 Inventory_ReplaceItem(GlobalContext* globalCtx, u8 oldItem, u8 newItem) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80114CA0.s")
 
-
 s32 Inventory_HasEmptyBottle(void) {
     s32 slot;
 
@@ -1980,7 +1979,7 @@ void Inventory_UpdateBottleItem(GlobalContext* globalCtx, u8 item, u8 btn) {
     gSaveContext.buttonStatus[btn] = BTN_ENABLED;
 
     if (item == ITEM_HOT_SPRING_WATER) {
-        func_8010EBA0(60, GET_CUR_FORM_BTN_SLOT(btn) - 18); 
+        func_8010EBA0(60, GET_CUR_FORM_BTN_SLOT(btn) - 18);
     }
 }
 
@@ -2947,17 +2946,17 @@ void Interface_DrawClock(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_DrawClock.s")
 #endif
 
-void func_8011B4E0(GlobalContext* globalCtx, s16 arg1) {
+void Interface_SetPerfectMinigame(GlobalContext* globalCtx, s16 rewardType) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
     s16 i;
 
-    interfaceCtx->unk_286 = 1;
-    interfaceCtx->unk_288 = arg1;
+    interfaceCtx->isMinigamePerfect = true;
+    interfaceCtx->minigameRewardType = rewardType;
     interfaceCtx->unk_2FC[0] = 255;
     interfaceCtx->unk_2FC[1] = 165;
     interfaceCtx->unk_2FC[2] = 55;
     interfaceCtx->unk_2FC[3] = 255;
-    interfaceCtx->unk_30A = 0x14;
+    interfaceCtx->unk_30A = 20;
     interfaceCtx->unk_308 = 0;
     interfaceCtx->unk_304 = 1;
     interfaceCtx->unk_30C = 0;
@@ -2966,7 +2965,7 @@ void func_8011B4E0(GlobalContext* globalCtx, s16 arg1) {
         interfaceCtx->unk_2AA[i] = 0;
         interfaceCtx->unk_29A[i] = 0;
         interfaceCtx->unk_28A[i] = interfaceCtx->unk_2AA[i];
-        if (interfaceCtx->unk_288 == 1) {
+        if (interfaceCtx->minigameRewardType == 1) {
             interfaceCtx->unk_2BC[i] = 140.0f;
             interfaceCtx->unk_2DC[i] = 100.0f;
         } else {
@@ -3062,7 +3061,7 @@ void func_8011B5C0(GlobalContext* globalCtx) {
     }
 
     if (count == 8) {
-        interfaceCtx->unk_286 = 0;
+        interfaceCtx->isMinigamePerfect = false;
     }
 }
 
@@ -3528,7 +3527,7 @@ void Interface_Draw(GlobalContext* globalCtx) {
             }
         }
 
-        if (interfaceCtx->unk_286 != 0) {
+        if (interfaceCtx->isMinigamePerfect != 0) {
             Interface_DrawMinigamePerfect(globalCtx);
         }
 
@@ -3854,12 +3853,12 @@ void Interface_Update(GlobalContext* globalCtx) {
     }
 
     if ((globalCtx->pauseCtx.state == 0) && (globalCtx->pauseCtx.debugState == 0)) {
-        if (interfaceCtx->unk_286 != 0) {
-            if (interfaceCtx->unk_288 == 1) {
+        if (interfaceCtx->isMinigamePerfect) {
+            if (interfaceCtx->minigameRewardType == 1) {
                 func_8011B5C0(globalCtx);
-            } else if (interfaceCtx->unk_288 == 2) {
+            } else if (interfaceCtx->minigameRewardType == 2) {
                 func_8011B9E0(globalCtx);
-            } else if (interfaceCtx->unk_288 == 3) {
+            } else if (interfaceCtx->minigameRewardType == 3) {
                 func_8011BF70(globalCtx);
             }
         }

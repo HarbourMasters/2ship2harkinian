@@ -2151,7 +2151,7 @@
     0x80118BA4:("func_80118BA4",),
     0x80119030:("func_80119030",),
     0x80119610:("Interface_DrawClock",),
-    0x8011B4E0:("func_8011B4E0",),
+    0x8011B4E0:("Interface_SetPerfectMinigame",),
     0x8011B5C0:("func_8011B5C0",),
     0x8011B9E0:("func_8011B9E0",),
     0x8011BF70:("func_8011BF70",),

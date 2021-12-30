@@ -2095,7 +2095,7 @@ void func_80115D5C(GameState* gamestate);
 // void func_80118BA4(void);
 // void func_80119030(void);
 // void Interface_DrawClock(void);
-void func_8011B4E0(GlobalContext* globalCtx, s16 arg1);
+void Interface_SetPerfectMinigame(GlobalContext* globalCtx, s16 rewardType);
 // void func_8011B5C0(void);
 // void func_8011B9E0(void);
 // void func_8011BF70(void);

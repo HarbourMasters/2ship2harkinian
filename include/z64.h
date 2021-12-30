@@ -711,8 +711,8 @@ typedef struct {
     /* 0x280 */ u8 unk_280;
     /* 0x282 */ s16 unk_282;
     /* 0x284 */ s16 unk_284;
-    /* 0x286 */ s16 unk_286;
-    /* 0x288 */ s16 unk_288;
+    /* 0x286 */ s16 isMinigamePerfect;
+    /* 0x288 */ s16 minigameRewardType;
     /* 0x28A */ s16 unk_28A[8];
     /* 0x29A */ u16 unk_29A[8];
     /* 0x2AA */ s16 unk_2AA[8];

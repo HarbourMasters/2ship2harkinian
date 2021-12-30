@@ -966,7 +966,7 @@ void func_809C81D0(EnSyatekiMan* this, GlobalContext* globalCtx) {
         func_801A2C20();
         this->unk_26A = 5;
         if (this->unk_280 == 0x848) {
-            func_8011B4E0(globalCtx, 2);
+            Interface_SetPerfectMinigame(globalCtx, 2);
             gSaveContext.unk_3DD0[1] = 6;
             this->actionFunc = func_809C8610;
         } else {
@@ -1026,7 +1026,7 @@ void func_809C8610(EnSyatekiMan* this, GlobalContext* globalCtx) {
     Player* player = GET_PLAYER(globalCtx);
 
     player->stateFlags1 |= 0x20;
-    if (globalCtx->interfaceCtx.unk_286 == 0) {
+    if (!globalCtx->interfaceCtx.isMinigamePerfect) {
         if (gSaveContext.unk_3DE0[1] == 0) {
             gSaveContext.unk_3DE0[1] = 0;
             gSaveContext.unk_3DD0[1] = 5;
@@ -1162,7 +1162,7 @@ void func_809C898C(EnSyatekiMan* this, GlobalContext* globalCtx) {
             this->actionFunc = func_809C8BF0;
             if (this->unk_280 == 50) {
                 func_801A3098(NA_BGM_GET_ITEM | 0x900);
-                func_8011B4E0(globalCtx, 1);
+                Interface_SetPerfectMinigame(globalCtx, 1);
             }
         }
     }
@@ -1171,7 +1171,7 @@ void func_809C898C(EnSyatekiMan* this, GlobalContext* globalCtx) {
 void func_809C8BF0(EnSyatekiMan* this, GlobalContext* globalCtx) {
     if (this->unk_26A == 1) {
         this->unk_190 = 0;
-        if ((this->unk_270 <= 0) && (globalCtx->interfaceCtx.unk_286 == 0)) {
+        if ((this->unk_270 <= 0) && !globalCtx->interfaceCtx.isMinigamePerfect) {
             Actor_SetAllChestFlag(globalCtx, this->unk_280);
             this->unk_270 = 15;
             if (((s32)(gSaveContext.save.roomInf[127][6] & 0xFFFF) < this->unk_280) || (this->unk_280 == 50)) {
