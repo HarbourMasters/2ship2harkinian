@@ -3201,11 +3201,11 @@ s16 D_801BFD0C[] = {
 void Interface_DrawTimers(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_DrawTimers.s")
 
-void func_8011E3B4(GlobalContext* globalCtx);
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011E3B4.s")
+void Interface_UpdateTimers(GlobalContext* globalCtx);
+#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_UpdateTimers.s")
 
-void Interface_DrawMinigame(GlobalContext* globalCtx);
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_DrawMinigame.s")
+void Interface_DrawMinigameIcons(GlobalContext* globalCtx);
+#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_DrawMinigameIcons.s")
 
 // rupeeDigitsFirst
 s16 D_801BFD1C[] = { 1, 0, 0, 0 };
@@ -3532,7 +3532,7 @@ void Interface_Draw(GlobalContext* globalCtx) {
             Interface_DrawMinigamePerfect(globalCtx);
         }
 
-        Interface_DrawMinigame(globalCtx);
+        Interface_DrawMinigameIcons(globalCtx);
         Interface_DrawTimers(globalCtx);
     }
 
@@ -4088,7 +4088,7 @@ void Interface_Update(GlobalContext* globalCtx) {
         }
     }
 
-    func_8011E3B4(globalCtx);
+    Interface_UpdateTimers(globalCtx);
 
     // Update Grandma's Story
     if (interfaceCtx->unk_31A != 0) {

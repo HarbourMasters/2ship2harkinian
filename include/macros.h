@@ -83,8 +83,6 @@
         gSaveContext.save.equips.cButtonSlots[0][btn] = (slot); \
     }
 
-
-
 #define ALL_EQUIP_VALUE(equip) ((gSaveContext.save.inventory.equipment & gEquipMasks[equip]) >> gEquipShifts[equip])
 #define CUR_EQUIP_VALUE(equip) ((gSaveContext.save.equips.equipment & gEquipMasks[equip]) >> gEquipShifts[equip])
 #define CUR_UPG_VALUE(upg) ((gSaveContext.save.inventory.upgrades & gUpgradeMasks[upg]) >> gUpgradeShifts[upg])
