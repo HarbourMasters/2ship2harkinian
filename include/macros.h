@@ -66,8 +66,24 @@
 #define INV_CONTENT_VOID(item) ((void)0, gSaveContext.save.inventory.items)[SLOT(item)]
 
 #define CUR_FORM ((gSaveContext.save.playerForm == PLAYER_FORM_HUMAN) ? 0 : gSaveContext.save.playerForm)
-#define CUR_FORM_BTN_ITEM(btn) ((u8)((btn) == 0 ? gSaveContext.save.equips.buttonItems[CUR_FORM][btn] : gSaveContext.save.equips.buttonItems[0][btn]))
-#define CUR_FORM_CBTN_SLOT(btn) ((u8)((btn) == 0 ? gSaveContext.save.equips.cButtonSlots[CUR_FORM][btn] : gSaveContext.save.equips.cButtonSlots[0][btn]))
+#define GET_CUR_FORM_BTN_ITEM(btn) ((u8)((btn) == 0 ? gSaveContext.save.equips.buttonItems[CUR_FORM][btn] : gSaveContext.save.equips.buttonItems[0][btn]))
+#define GET_CUR_FORM_BTN_SLOT(btn) ((u8)((btn) == 0 ? gSaveContext.save.equips.cButtonSlots[CUR_FORM][btn] : gSaveContext.save.equips.cButtonSlots[0][btn]))
+
+#define SET_CUR_FORM_BTN_ITEM(btn, item) \
+    if ((btn) == 0) { \
+        gSaveContext.save.equips.buttonItems[CUR_FORM][btn] = (item); \
+    } else { \
+        gSaveContext.save.equips.buttonItems[0][btn] = (item); \
+    }
+
+#define SET_CUR_FORM_BTN_SLOT(btn, slot) \
+    if ((btn) == 0) { \
+        gSaveContext.save.equips.cButtonSlots[CUR_FORM][btn] = (slot); \
+    } else { \
+        gSaveContext.save.equips.cButtonSlots[0][btn] = (slot); \
+    }
+
+
 
 #define ALL_EQUIP_VALUE(equip) ((gSaveContext.save.inventory.equipment & gEquipMasks[equip]) >> gEquipShifts[equip])
 #define CUR_EQUIP_VALUE(equip) ((gSaveContext.save.equips.equipment & gEquipMasks[equip]) >> gEquipShifts[equip])

@@ -542,12 +542,12 @@ void func_8010EB50(s32 arg0) {
     }
 }
 
-void func_8010EBA0(s16 arg0, s16 arg1) {
-    gSaveContext.unk_101A[arg1] = 1;
-    gSaveContext.unk_1080[arg1] = arg0 * 100;
-    gSaveContext.unk_1050[arg1] = gSaveContext.unk_1080[arg1];
-    gSaveContext.unk_1020[arg1] = osGetTime();
-    gSaveContext.unk_10B0[arg1] = 0;
+void func_8010EBA0(s16 timer, s16 timerId) {
+    gSaveContext.unk_101A[timerId] = 1;
+    gSaveContext.unk_1080[timerId] = timer * 100;
+    gSaveContext.unk_1050[timerId] = gSaveContext.unk_1080[timerId];
+    gSaveContext.unk_1020[timerId] = osGetTime();
+    gSaveContext.unk_10B0[timerId] = 0;
     D_801BF8F0 = 0;
 }
 
@@ -1399,16 +1399,15 @@ void Interface_InitMinigame(GlobalContext* globalCtx) {
     interfaceCtx->hbaAmmo = 20;
 }
 
-void Interface_LoadItemIconImpl(GlobalContext* globalCtx, u8 arg1) {
+void Interface_LoadItemIconImpl(GlobalContext* globalCtx, u8 btn) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
-    u32 new_var = arg1;
 
-    func_80178E3C(_icon_item_static_testSegmentRomStart, CUR_FORM_BTN_ITEM(new_var),
-                  &interfaceCtx->iconItemSegment[new_var * 0x1000], 0x1000);
+    func_80178E3C(_icon_item_static_testSegmentRomStart, GET_CUR_FORM_BTN_ITEM(btn),
+                  &interfaceCtx->iconItemSegment[(u32)btn * 0x1000], 0x1000);
 }
 
-void Interface_LoadItemIcon(GlobalContext* globalCtx, u8 arg1) {
-    Interface_LoadItemIconImpl(globalCtx, arg1);
+void Interface_LoadItemIcon(GlobalContext* globalCtx, u8 btn) {
+    Interface_LoadItemIconImpl(globalCtx, btn);
 }
 
 void func_80112C0C(GlobalContext* globalCtx, u16 flag) {
@@ -1830,21 +1829,21 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
             for (i = 0; i < 6; i++) {
                 if (gSaveContext.save.inventory.items[slot + i] == 0x12) {
                     if (item == 0x20) {
-                        func_8010EBA0(0x3C, i);
+                        func_8010EBA0(60, i);
                     }
 
                     if ((slot + i) == gSaveContext.save.equips.cButtonSlots[0][1]) {
                         gSaveContext.save.equips.buttonItems[0][1] = item;
                         Interface_LoadItemIconImpl(globalCtx, 1);
-                        gSaveContext.buttonStatus[1] = 0;
+                        gSaveContext.buttonStatus[1] = BTN_ENABLED;
                     } else if ((slot + i) == gSaveContext.save.equips.cButtonSlots[0][2]) {
                         gSaveContext.save.equips.buttonItems[0][2] = item;
                         Interface_LoadItemIconImpl(globalCtx, 2);
-                        gSaveContext.buttonStatus[2] = 0;
+                        gSaveContext.buttonStatus[2] = BTN_ENABLED;
                     } else if ((slot + i) == gSaveContext.save.equips.cButtonSlots[0][3]) {
                         gSaveContext.save.equips.buttonItems[0][3] = item;
                         Interface_LoadItemIconImpl(globalCtx, 3);
-                        gSaveContext.buttonStatus[3] = 0;
+                        gSaveContext.buttonStatus[3] = BTN_ENABLED;
                     }
 
                     gSaveContext.save.inventory.items[slot] = item;
@@ -1902,42 +1901,26 @@ s32 Item_CheckObtainability(u8 item) {
     return Item_CheckObtainabilityImpl(item);
 }
 
-void Inventory_DeleteItem(s16 itemId, s16 invSlot) {
-    s16 i;
+void Inventory_DeleteItem(s16 item, s16 invSlot) {
+    s16 btn;
 
     gSaveContext.save.inventory.items[invSlot] = ITEM_NONE;
 
-    for (i = 1; i < 4; i++) {
-        if (itemId == CUR_FORM_BTN_ITEM(i)) {
-            if (i == 0) {
-                gSaveContext.save.equips.buttonItems[CUR_FORM][i] = ITEM_NONE;
-            } else {
-                gSaveContext.save.equips.buttonItems[0][i] = ITEM_NONE;
-            }
-            if (i == 0) {
-                gSaveContext.save.equips.cButtonSlots[CUR_FORM][i] = SLOT_NONE;
-            } else {
-                gSaveContext.save.equips.cButtonSlots[0][i] = SLOT_NONE;
-            }
+    for (btn = 1; btn < 4; btn++) {
+        if (GET_CUR_FORM_BTN_ITEM(btn) == item) {
+            SET_CUR_FORM_BTN_ITEM(btn, ITEM_NONE);
+            SET_CUR_FORM_BTN_SLOT(btn, SLOT_NONE);
         }
     }
 }
 
-void Inventory_UnequipItem(s16 itemId) {
-    s16 i;
+void Inventory_UnequipItem(s16 item) {
+    s16 btn;
 
-    for (i = 1; i < 4; i++) {
-        if (itemId == CUR_FORM_BTN_ITEM(i)) {
-            if (i == 0) {
-                gSaveContext.save.equips.buttonItems[CUR_FORM][i] = ITEM_NONE;
-            } else {
-                gSaveContext.save.equips.buttonItems[0][i] = ITEM_NONE;
-            }
-            if (i == 0) {
-                gSaveContext.save.equips.cButtonSlots[CUR_FORM][i] = SLOT_NONE;
-            } else {
-                gSaveContext.save.equips.cButtonSlots[0][i] = SLOT_NONE;
-            }
+    for (btn = 1; btn < 4; btn++) {
+        if (GET_CUR_FORM_BTN_ITEM(btn) == item) {
+            SET_CUR_FORM_BTN_ITEM(btn, ITEM_NONE);
+            SET_CUR_FORM_BTN_SLOT(btn, SLOT_NONE);
         }
     }
 }
@@ -1950,13 +1933,8 @@ s32 Inventory_ReplaceItem(GlobalContext* globalCtx, u8 oldItem, u8 newItem) {
             gSaveContext.save.inventory.items[i] = newItem;
 
             for (i = 1; i < 4; i++) {
-                if (oldItem == CUR_FORM_BTN_ITEM(i)) {
-                    if (i == 0) {
-                        gSaveContext.save.equips.buttonItems[CUR_FORM][i] = newItem;
-                    } else {
-                        gSaveContext.save.equips.buttonItems[0][i] = newItem;
-                    }
-
+                if (GET_CUR_FORM_BTN_ITEM(i) == oldItem) {
+                    SET_CUR_FORM_BTN_ITEM(i, newItem);
                     Interface_LoadItemIconImpl(globalCtx, i);
                     break;
                 }
@@ -1969,6 +1947,7 @@ s32 Inventory_ReplaceItem(GlobalContext* globalCtx, u8 oldItem, u8 newItem) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80114CA0.s")
 
+
 s32 Inventory_HasEmptyBottle(void) {
     s32 slot;
 
@@ -1980,46 +1959,45 @@ s32 Inventory_HasEmptyBottle(void) {
     return false;
 }
 
-s32 Inventory_HasItemInBottle(u8 itemId) {
+s32 Inventory_HasItemInBottle(u8 item) {
     s32 slot;
 
     for (slot = SLOT_BOTTLE_1; slot <= SLOT_BOTTLE_6; slot++) {
-        if (gSaveContext.save.inventory.items[slot] == itemId) {
+        if (gSaveContext.save.inventory.items[slot] == item) {
             return true;
         }
     }
     return false;
 }
 
-void func_80114FD0(GlobalContext* globalCtx, u8 item, u8 arg2) {
-    gSaveContext.save.inventory.items[CUR_FORM_CBTN_SLOT(arg2)] = item;
-    if (arg2 == 0) {
-        gSaveContext.save.equips.buttonItems[CUR_FORM][arg2] = item;
-    } else {
-        gSaveContext.save.equips.buttonItems[0][arg2] = item;
-    }
-    Interface_LoadItemIconImpl(globalCtx, arg2);
-    globalCtx->pauseCtx.unk_25E[0] = item;
-    gSaveContext.buttonStatus[arg2] = 0;
+void Inventory_UpdateBottleItem(GlobalContext* globalCtx, u8 item, u8 btn) {
+    gSaveContext.save.inventory.items[GET_CUR_FORM_BTN_SLOT(btn)] = item;
+    SET_CUR_FORM_BTN_ITEM(btn, item);
+
+    Interface_LoadItemIconImpl(globalCtx, btn);
+
+    globalCtx->pauseCtx.cursorItem[0] = item;
+    gSaveContext.buttonStatus[btn] = BTN_ENABLED;
+
     if (item == ITEM_HOT_SPRING_WATER) {
-        func_8010EBA0(0x3C, CUR_FORM_CBTN_SLOT(arg2) - 0x12);
+        func_8010EBA0(60, GET_CUR_FORM_BTN_SLOT(btn) - 18); 
     }
 }
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80115130.s")
 
-void func_801152B8(GlobalContext* globalCtx, s16 slot, s16 item) {
-    s16 i;
+/**
+ * Only used to equip spring water when hot sprint water timer runs out
+ */
+void Inventory_UpdateItem(GlobalContext* globalCtx, s16 slot, s16 item) {
+    s16 btn;
 
     gSaveContext.save.inventory.items[slot] = item;
-    for (i = 1; i < 4; i++) {
-        if (slot == CUR_FORM_CBTN_SLOT(i)) {
-            if (i == 0) {
-                gSaveContext.save.equips.buttonItems[CUR_FORM][i] = item;
-            } else {
-                gSaveContext.save.equips.buttonItems[0][i] = item;
-            }
-            Interface_LoadItemIconImpl(globalCtx, i);
+
+    for (btn = 1; btn < 4; btn++) {
+        if (GET_CUR_FORM_BTN_SLOT(btn) == slot) {
+            SET_CUR_FORM_BTN_ITEM(btn, item);
+            Interface_LoadItemIconImpl(globalCtx, btn);
         }
     }
 }
@@ -3770,7 +3748,7 @@ void Interface_Update(GlobalContext* globalCtx) {
 
             func_8010EF9C(globalCtx, alpha1);
 
-            if (gSaveContext.buttonStatus[5] == 0xFF) {
+            if (gSaveContext.buttonStatus[5] == BTN_DISABLED) {
                 if (interfaceCtx->startAlpha != 70) {
                     interfaceCtx->startAlpha = 70;
                 }
