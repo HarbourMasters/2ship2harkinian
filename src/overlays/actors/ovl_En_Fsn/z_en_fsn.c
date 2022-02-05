@@ -299,14 +299,13 @@ s16 EnFsn_GetStolenItemId(u32 stolenItem) {
 
 s32 EnFsn_HasItemsToSell(void) {
     if (CURRENT_DAY != 3) {
-        if (((gSaveContext.save.roomInf[126][5] & 0xFF000000) >> 0x18) ||
-            ((gSaveContext.save.roomInf[126][5] & 0xFF0000) >> 0x10)) {
+        if (((gSaveContext.save.stolenItems & 0xFF000000) >> 0x18) || ((gSaveContext.save.stolenItems & 0xFF0000) >> 0x10)) {
             return true;
         }
         return false;
     } else {
-        if (((gSaveContext.save.roomInf[126][5] & 0xFF000000) >> 0x18) ||
-            ((gSaveContext.save.roomInf[126][5] & 0xFF0000) >> 0x10) || !(gSaveContext.save.weekEventReg[0x21] & 4)) {
+        if (((gSaveContext.save.stolenItems & 0xFF000000) >> 0x18) || ((gSaveContext.save.stolenItems & 0xFF0000) >> 0x10) ||
+            !(gSaveContext.save.weekEventReg[0x21] & 4)) {
             return true;
         }
         return false;
@@ -314,8 +313,8 @@ s32 EnFsn_HasItemsToSell(void) {
 }
 
 void EnFsn_GetShopItemIds(EnFsn* this) {
-    u32 stolenItem1 = (gSaveContext.save.roomInf[126][5] & 0xFF000000) >> 0x18;
-    u32 stolenItem2 = (gSaveContext.save.roomInf[126][5] & 0xFF0000) >> 0x10;
+    u32 stolenItem1 = (gSaveContext.save.stolenItems & 0xFF000000) >> 0x18;
+    u32 stolenItem2 = (gSaveContext.save.stolenItems & 0xFF0000) >> 0x10;
     s16 itemId;
 
     this->stolenItem1 = this->stolenItem2 = 0;
@@ -362,7 +361,7 @@ void EnFsn_EndInteraction(EnFsn* this, GlobalContext* globalCtx) {
         this->cutsceneState = 0;
     }
     Actor_ProcessTalkRequest(&this->actor, &globalCtx->state);
-    globalCtx->msgCtx.unk11F22 = 0x43;
+    globalCtx->msgCtx.msgMode = 0x43;
     globalCtx->msgCtx.unk12023 = 4;
     Interface_ChangeAlpha(50);
     this->drawCursor = 0;
@@ -935,7 +934,7 @@ void EnFsn_MakeOffer(EnFsn* this, GlobalContext* globalCtx) {
         switch (globalCtx->msgCtx.choiceIndex) {
             case 0:
                 func_8019F208();
-                globalCtx->msgCtx.unk11F22 = 0x43;
+                globalCtx->msgCtx.msgMode = 0x43;
                 globalCtx->msgCtx.unk12023 = 4;
                 if (this->cutsceneState == 2) {
                     ActorCutscene_Stop(this->cutscene);
@@ -1135,7 +1134,7 @@ void EnFsn_HandleCanPlayerBuyItem(EnFsn* this, GlobalContext* globalCtx) {
             item = this->items[this->cursorIdx];
             item->buyFanfareFunc(globalCtx, item);
             Actor_PickUp(&this->actor, globalCtx, this->items[this->cursorIdx]->getItemId, 300.0f, 300.0f);
-            globalCtx->msgCtx.unk11F22 = 0x43;
+            globalCtx->msgCtx.msgMode = 0x43;
             globalCtx->msgCtx.unk12023 = 4;
             Interface_ChangeAlpha(50);
             this->drawCursor = 0;
@@ -1143,9 +1142,9 @@ void EnFsn_HandleCanPlayerBuyItem(EnFsn* this, GlobalContext* globalCtx) {
             item = this->items[this->cursorIdx];
             item->boughtFunc(globalCtx, item);
             if (this->stolenItem1 == this->cursorIdx) {
-                gSaveContext.save.roomInf[126][5] &= ~0xFF000000;
+                gSaveContext.save.stolenItems &= ~0xFF000000;
             } else if (this->stolenItem2 == this->cursorIdx) {
-                gSaveContext.save.roomInf[126][5] &= ~0xFF0000;
+                gSaveContext.save.stolenItems &= ~0xFF0000;
             }
             this->numSellingItems--;
             this->itemIds[this->cursorIdx] = -1;
@@ -1172,7 +1171,7 @@ void EnFsn_SetupEndInteraction(EnFsn* this, GlobalContext* globalCtx) {
             if (globalCtx->msgCtx.unk120B1 == 0) {
                 EnFsn_EndInteraction(this, globalCtx);
             } else {
-                globalCtx->msgCtx.unk11F22 = 0x43;
+                globalCtx->msgCtx.msgMode = 0x43;
                 globalCtx->msgCtx.unk12023 = 4;
             }
         } else {
@@ -1244,7 +1243,7 @@ void EnFsn_AskCanBuyMore(EnFsn* this, GlobalContext* globalCtx) {
             if (globalCtx->msgCtx.unk120B1 == 0) {
                 EnFsn_EndInteraction(this, globalCtx);
             } else {
-                globalCtx->msgCtx.unk11F22 = 0x43;
+                globalCtx->msgCtx.msgMode = 0x43;
                 globalCtx->msgCtx.unk12023 = 4;
             }
         } else {
@@ -1291,7 +1290,7 @@ void EnFsn_AskCanBuyAterRunningOutOfItems(EnFsn* this, GlobalContext* globalCtx)
             if (globalCtx->msgCtx.unk120B1 == 0) {
                 EnFsn_EndInteraction(this, globalCtx);
             } else {
-                globalCtx->msgCtx.unk11F22 = 0x43;
+                globalCtx->msgCtx.msgMode = 0x43;
                 globalCtx->msgCtx.unk12023 = 4;
             }
         } else {
@@ -1345,12 +1344,12 @@ void EnFsn_ConverseBackroom(EnFsn* this, GlobalContext* globalCtx) {
     if (Message_GetState(&globalCtx->msgCtx) == 5 && func_80147624(globalCtx)) {
         if (this->flags & ENFSN_END_CONVERSATION) {
             this->flags &= ~ENFSN_END_CONVERSATION;
-            globalCtx->msgCtx.unk11F22 = 0x43;
+            globalCtx->msgCtx.msgMode = 0x43;
             globalCtx->msgCtx.unk12023 = 4;
             this->actionFunc = EnFsn_IdleBackroom;
         } else if (this->flags & ENFSN_GIVE_ITEM) {
             this->flags &= ~ENFSN_GIVE_ITEM;
-            globalCtx->msgCtx.unk11F22 = 0x43;
+            globalCtx->msgCtx.msgMode = 0x43;
             globalCtx->msgCtx.unk12023 = 4;
             this->actionFunc = EnFsn_GiveItem;
         } else {

@@ -909,9 +909,9 @@ void EnMa4_StartDialogue(EnMa4* this, GlobalContext* globalCtx) {
                     this->textId = 0x336D;
                 } else {
                     time = gSaveContext.unk_3DE0[4];
-                    if ((s32)time < (s32)gSaveContext.save.roomInf[127][4]) {
+                    if ((s32)time < (s32)gSaveContext.save.horseBackBalloonHighScore) {
                         // [Score] New record!
-                        gSaveContext.save.roomInf[127][4] = time;
+                        gSaveContext.save.horseBackBalloonHighScore = time;
                         EnMa4_SetFaceExpression(this, 0, 3);
                         func_801518B0(globalCtx, 0x3350, &this->actor);
                         this->textId = 0x3350;
@@ -953,8 +953,8 @@ void EnMa4_StartDialogue(EnMa4* this, GlobalContext* globalCtx) {
                     this->textId = 0x3356;
                 } else {
                     time = gSaveContext.unk_3DE0[4];
-                    if ((s32)time < (s32)gSaveContext.save.roomInf[127][4]) {
-                        gSaveContext.save.roomInf[127][4] = time;
+                    if ((s32)time < (s32)gSaveContext.save.horseBackBalloonHighScore) {
+                        gSaveContext.save.horseBackBalloonHighScore = time;
                         EnMa4_SetFaceExpression(this, 0, 3);
                         func_801518B0(globalCtx, 0x3350, &this->actor);
                         this->textId = 0x3350;
@@ -980,9 +980,9 @@ void EnMa4_StartDialogue(EnMa4* this, GlobalContext* globalCtx) {
                     this->textId = 0x3356;
                 } else {
                     time = gSaveContext.unk_3DE0[4];
-                    if ((s32)time < (s32)gSaveContext.save.roomInf[127][4]) {
+                    if ((s32)time < (s32)gSaveContext.save.horseBackBalloonHighScore) {
                         // New record
-                        gSaveContext.save.roomInf[127][4] = time;
+                        gSaveContext.save.horseBackBalloonHighScore = time;
                         func_801518B0(globalCtx, 0x335D, &this->actor);
                         this->textId = 0x335D;
                     } else {

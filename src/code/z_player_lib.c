@@ -113,7 +113,7 @@ void func_801229FC(Player* player) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_player_lib/func_80123C58.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_player_lib/func_80123C90.s")
+#pragma GLOBAL_ASM("asm/non_matchings/code/z_player_lib/Player_SetEquipmentData.s")
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_player_lib/func_80123D50.s")
 

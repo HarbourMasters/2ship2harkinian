@@ -411,14 +411,17 @@ void Scene_HeaderCmdTimeSettings(GlobalContext* globalCtx, SceneCmd* cmd) {
     if (globalCtx->envCtx.timeIncrement == 0 && gSaveContext.save.cutscene < 0xFFF0) {
         gSaveContext.environmentTime = gSaveContext.save.time;
 
-        if (gSaveContext.environmentTime >= 0x2AAA && gSaveContext.environmentTime < 0x4555) {
-            gSaveContext.environmentTime = 0x3555;
-        } else if (gSaveContext.environmentTime >= 0x4555 && gSaveContext.environmentTime < 0x5555) {
-            gSaveContext.environmentTime = 0x5555;
-        } else if (gSaveContext.environmentTime >= 0xAAAA && gSaveContext.environmentTime < 0xB555) {
-            gSaveContext.environmentTime = 0xB555;
-        } else if (gSaveContext.environmentTime >= 0xC000 && gSaveContext.environmentTime < 0xCAAA) {
-            gSaveContext.environmentTime = 0xCAAA;
+        if (gSaveContext.environmentTime >= CLOCK_TIME(4, 0) && gSaveContext.environmentTime < CLOCK_TIME(6, 30)) {
+            gSaveContext.environmentTime = CLOCK_TIME(5, 0);
+        } else if (gSaveContext.environmentTime >= CLOCK_TIME(6, 30) &&
+                   gSaveContext.environmentTime < CLOCK_TIME(8, 0)) {
+            gSaveContext.environmentTime = CLOCK_TIME(8, 0);
+        } else if (gSaveContext.environmentTime >= CLOCK_TIME(16, 0) &&
+                   gSaveContext.environmentTime < CLOCK_TIME(17, 0)) {
+            gSaveContext.environmentTime = CLOCK_TIME(17, 0);
+        } else if (gSaveContext.environmentTime >= CLOCK_TIME(18, 0) &&
+                   gSaveContext.environmentTime < CLOCK_TIME(19, 0)) {
+            gSaveContext.environmentTime = CLOCK_TIME(19, 0);
         }
     }
 }

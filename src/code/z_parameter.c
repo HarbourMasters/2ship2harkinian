@@ -603,11 +603,11 @@ void Interface_NewDay(GlobalContext* globalCtx, s32 day) {
 
     // i is used to store sceneId
     for (i = 0; i < 120; i++) {
-        gSaveContext.save.roomInf[i][0] = gSaveContext.cycleSceneFlags[i].chest;
-        gSaveContext.save.roomInf[i][1] = gSaveContext.cycleSceneFlags[i].swch0;
-        gSaveContext.save.roomInf[i][2] = gSaveContext.cycleSceneFlags[i].swch1;
-        gSaveContext.save.roomInf[i][3] = gSaveContext.cycleSceneFlags[i].clearedRoom;
-        gSaveContext.save.roomInf[i][4] = gSaveContext.cycleSceneFlags[i].collectible;
+        gSaveContext.cycleSceneFlags[i].chest = gSaveContext.cycleSceneFlags[i].chest;
+        gSaveContext.cycleSceneFlags[i].swch0 = gSaveContext.cycleSceneFlags[i].swch0;
+        gSaveContext.cycleSceneFlags[i].swch1 = gSaveContext.cycleSceneFlags[i].swch1;
+        gSaveContext.cycleSceneFlags[i].clearedRoom = gSaveContext.cycleSceneFlags[i].clearedRoom;
+        gSaveContext.cycleSceneFlags[i].collectible = gSaveContext.cycleSceneFlags[i].collectible;
     }
 }
 
@@ -2493,8 +2493,8 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
     OPEN_DISPS(globalCtx->state.gfxCtx);
 
     if (REG(15) != 0) {
-        if ((msgCtx->unk11F22 == 0) || ((globalCtx->actorCtx.unk5 & 2) && !func_801690CC(globalCtx)) ||
-            (msgCtx->unk11F22 == 0) || ((msgCtx->unk11F04 >= 0x100) && (msgCtx->unk11F04 <= 0x200)) ||
+        if ((msgCtx->msgMode == 0) || ((globalCtx->actorCtx.unk5 & 2) && !func_801690CC(globalCtx)) ||
+            (msgCtx->msgMode == 0) || ((msgCtx->unk11F04 >= 0x100) && (msgCtx->unk11F04 <= 0x200)) ||
             (gSaveContext.gameMode == 3)) {
             if (FrameAdvance_IsEnabled(globalCtx) == 0) {
                 if (func_800FE4A8() == 0) {
@@ -3919,7 +3919,7 @@ void Interface_Update(GlobalContext* globalCtx) {
                 interfaceCtx->unk_218 = -15700.0f;
                 interfaceCtx->unk_210 = 2;
 
-                if ((msgCtx->unk11F22 != 0) && (msgCtx->unk12006 == 0x26)) {
+                if ((msgCtx->msgMode != 0) && (msgCtx->unk12006 == 0x26)) {
                     gGameInfo->data[0x55F] = -14;
                 } else {
                     gGameInfo->data[0x55F] = 0;
