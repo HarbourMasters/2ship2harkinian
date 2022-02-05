@@ -603,11 +603,11 @@ void Interface_NewDay(GlobalContext* globalCtx, s32 day) {
 
     // i is used to store sceneId
     for (i = 0; i < 120; i++) {
-        gSaveContext.cycleSceneFlags[i].chest = gSaveContext.cycleSceneFlags[i].chest;
-        gSaveContext.cycleSceneFlags[i].swch0 = gSaveContext.cycleSceneFlags[i].swch0;
-        gSaveContext.cycleSceneFlags[i].swch1 = gSaveContext.cycleSceneFlags[i].swch1;
-        gSaveContext.cycleSceneFlags[i].clearedRoom = gSaveContext.cycleSceneFlags[i].clearedRoom;
-        gSaveContext.cycleSceneFlags[i].collectible = gSaveContext.cycleSceneFlags[i].collectible;
+        gSaveContext.save.permanentSceneFlags[i].chest = gSaveContext.cycleSceneFlags[i].chest;
+        gSaveContext.save.permanentSceneFlags[i].swch0 = gSaveContext.cycleSceneFlags[i].swch0;
+        gSaveContext.save.permanentSceneFlags[i].swch1 = gSaveContext.cycleSceneFlags[i].swch1;
+        gSaveContext.save.permanentSceneFlags[i].clearedRoom = gSaveContext.cycleSceneFlags[i].clearedRoom;
+        gSaveContext.save.permanentSceneFlags[i].collectible = gSaveContext.cycleSceneFlags[i].collectible;
     }
 }
 
