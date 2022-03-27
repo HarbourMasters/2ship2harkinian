@@ -2484,7 +2484,7 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
     f32 temp_f0;
     f32 temp_f14;
     u32 temp_a1_7;
-    s32 phi_v1_2;
+    s32 phi_v1_2; // Unused
     s16 currentHour;
     u16 time;
     f32 new_var1;
@@ -3071,13 +3071,134 @@ s16 D_801BFC6C[] = {
 s16 D_801BFC7C[] = {
     0x00B4, 0x00B4, 0x00B4, 0x00B4, 0xFF4C, 0xFF4C, 0xFF4C, 0xFF4C,
 };
-s32 D_801BFC8C[] = {
-    0x00FF00FF,
-    0x00FF00FF,
-    0x00A50037,
+s16 D_801BFC8C[2][3] = {
+    { 0xFF, 0xFF, 0xFF }, 
+    { 0xFF, 0xA5, 0x37 },
 };
-void func_8011B9E0(GlobalContext* globalCtx);
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011B9E0.s")
+void func_8011B9E0(GlobalContext* globalCtx) {
+    s16 i;
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+    s16 stepVar1;
+    s16 stepVar2;
+    s16 stepVar3;
+    s16 new_var;
+    s16 j = 0; // unused incrementer
+
+    for (i = 0; i < interfaceCtx->unk_304; i++, j += 4) {
+        if (interfaceCtx->unk_28A[i] == 1) {
+            interfaceCtx->unk_29A[i] = i << 0xD;
+            interfaceCtx->unk_2BC[i] = 200.0f;
+            interfaceCtx->unk_2DC[i] = 200.0f;
+            interfaceCtx->unk_2AA[i] = 0;
+            interfaceCtx->unk_28A[i] = 2;
+        } else if (interfaceCtx->unk_28A[i] == 2) {
+            interfaceCtx->unk_29A[i] -= 0x800;
+            interfaceCtx->unk_2BC[i] -= 8.0f;
+            interfaceCtx->unk_2DC[i] -= 8.0f;
+            if (interfaceCtx->unk_2BC[i] <= 0.0f) {
+                interfaceCtx->unk_2DC[i] = 0.0f;
+                interfaceCtx->unk_2BC[i] = 0.0f;
+                interfaceCtx->unk_28A[i] = 3;
+                if (i == 7) {
+                    interfaceCtx->unk_30A = 5;
+                    interfaceCtx->unk_28A[7] = 4;
+                    interfaceCtx->unk_28A[6] = interfaceCtx->unk_28A[7];
+                    interfaceCtx->unk_28A[5] = interfaceCtx->unk_28A[7];
+                    interfaceCtx->unk_28A[4] = interfaceCtx->unk_28A[7];
+                    interfaceCtx->unk_28A[3] = interfaceCtx->unk_28A[7];
+                    interfaceCtx->unk_28A[2] = interfaceCtx->unk_28A[7];
+                    interfaceCtx->unk_28A[1] = interfaceCtx->unk_28A[7];
+                    interfaceCtx->unk_28A[0] = interfaceCtx->unk_28A[7];
+                }
+            }
+        } else if (interfaceCtx->unk_28A[i] == 4) {
+
+            stepVar1 = ABS_ALT(interfaceCtx->unk_2AA[i] - D_801BFC6C[i]) / interfaceCtx->unk_30A;
+            if (interfaceCtx->unk_2AA[i] >= D_801BFC6C[i]) {
+                interfaceCtx->unk_2AA[i] -= stepVar1;
+            } else {
+                interfaceCtx->unk_2AA[i] += stepVar1;
+            }
+        } else if (interfaceCtx->unk_28A[i] == 6) {
+
+            stepVar1 = ABS_ALT(interfaceCtx->unk_2AA[i] - D_801BFC7C[i]) / interfaceCtx->unk_30A;
+            if (interfaceCtx->unk_2AA[i] >= D_801BFC7C[i]) {
+                interfaceCtx->unk_2AA[i] -= stepVar1;
+            } else {
+                interfaceCtx->unk_2AA[i] += stepVar1;
+            }
+        }
+    
+    }
+
+    if ((interfaceCtx->unk_28A[0] == 4) || (interfaceCtx->unk_28A[0] == 6)) {
+        if (interfaceCtx->unk_28A[0] == 6) {
+            new_var = interfaceCtx->unk_2FC[3] / interfaceCtx->unk_30A;
+            interfaceCtx->unk_2FC[3] -= new_var;
+        }
+        interfaceCtx->unk_30A--;
+        if (interfaceCtx->unk_30A == 0) {
+
+            if (interfaceCtx->unk_28A[0] == 4) {
+                for (i = 0; i < 8; i++) {
+                    interfaceCtx->unk_28A[i] = 5;
+                }
+                interfaceCtx->unk_30A = 20;
+            } else {
+                for (i = 0; i < 8; i++) {
+                    interfaceCtx->unk_28A[i] = 0;
+                }
+                interfaceCtx->isMinigamePerfect = 0;
+            }
+        }
+    }
+
+    if (interfaceCtx->unk_28A[interfaceCtx->unk_304] == 0) {
+        if (interfaceCtx->unk_304 < 8) {
+            interfaceCtx->unk_28A[interfaceCtx->unk_304] = 1;
+            interfaceCtx->unk_304++;
+        }
+    }
+    if (interfaceCtx->unk_304 == 8) {
+        if (interfaceCtx->unk_28A[7] == 5) {
+
+            stepVar1 = ABS_ALT(interfaceCtx->unk_2FC[0] - D_801BFC8C[interfaceCtx->unk_308][0]) / interfaceCtx->unk_30A;
+            stepVar2 = ABS_ALT(interfaceCtx->unk_2FC[1] - D_801BFC8C[interfaceCtx->unk_308][1]) / interfaceCtx->unk_30A;
+            stepVar3 = ABS_ALT(interfaceCtx->unk_2FC[2] - D_801BFC8C[interfaceCtx->unk_308][2]) / interfaceCtx->unk_30A;
+
+            if (interfaceCtx->unk_2FC[0] >= D_801BFC8C[interfaceCtx->unk_308][0]) {
+                interfaceCtx->unk_2FC[0] -= stepVar1;
+            } else {
+                interfaceCtx->unk_2FC[0] += stepVar1;
+            }
+
+            if (interfaceCtx->unk_2FC[1] >= D_801BFC8C[interfaceCtx->unk_308][1]) {
+                interfaceCtx->unk_2FC[1] -= stepVar2;
+            } else {
+                interfaceCtx->unk_2FC[1] += stepVar2;
+            }
+
+            if (interfaceCtx->unk_2FC[2] >= D_801BFC8C[interfaceCtx->unk_308][2]) {
+                interfaceCtx->unk_2FC[2] -= stepVar3;
+            } else {
+                interfaceCtx->unk_2FC[2] += stepVar3;
+            }
+
+            interfaceCtx->unk_30A--;
+            if (interfaceCtx->unk_30A == 0) {
+                interfaceCtx->unk_30A = 20;
+                interfaceCtx->unk_308 ^= 1;
+                interfaceCtx->unk_30C++;
+                if (interfaceCtx->unk_30C == 6) {
+                    for (i = 0; i < 8; i++) {
+                        interfaceCtx->unk_28A[i] = 6;
+                    }
+                    interfaceCtx->unk_30A = 5;
+                }
+            }
+        }
+    }
+}
 
 s32 D_801BFC98[] = {
     0x004E0036,
