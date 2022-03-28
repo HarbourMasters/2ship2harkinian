@@ -2138,7 +2138,111 @@ void func_80115D5C(GameState* gamestate) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80115DB4.s")
+s32 func_80115DB4(GlobalContext* globalCtx, s16 arg1, s16 arg2) {
+    if (gSaveContext.save.playerData.magicAcquired == 0) {
+        return 0;
+    }
+
+    if ((gSaveContext.save.playerData.magic - arg1) < 0) {
+        if (gSaveContext.unk_3F2E != 0) {
+            play_sound(NA_SE_SY_ERROR);
+        }
+        return 0;
+    }
+
+    switch (arg2) {
+        case 0:
+        case 2:
+            if ((gSaveContext.unk_3F28 == 0) || (gSaveContext.unk_3F28 == 7)) {
+                if (gSaveContext.unk_3F28 == 7) {
+                    globalCtx->actorCtx.unk3 = 0;
+                }
+                if (gSaveContext.save.weekEventReg[0xE] & 8) {
+                    arg1 = 0;
+                }
+                gSaveContext.unk_3F32 = arg1;
+                gSaveContext.unk_3F28 = 1;
+                return 1;
+            }
+
+            play_sound(NA_SE_SY_ERROR);
+            return 0;
+        case 1:
+            if ((gSaveContext.unk_3F28 == 0) || (gSaveContext.unk_3F28 == 7)) {
+                if (gSaveContext.unk_3F28 == 7) {
+                    globalCtx->actorCtx.unk3 = 0;
+                }
+                if (gSaveContext.save.weekEventReg[0xE] & 8) {
+                    arg1 = 0;
+                }
+                gSaveContext.unk_3F32 = arg1;
+                gSaveContext.unk_3F28 = 6;
+                return 1;
+            }
+
+            play_sound(NA_SE_SY_ERROR);
+            return 0;
+        case 3:
+            if (gSaveContext.unk_3F28 == 0) {
+                if (gSaveContext.save.playerData.magic != 0) {
+                    globalCtx->interfaceCtx.unk_258 = 0x50;
+                    gSaveContext.unk_3F28 = 7;
+                    return 1;
+                }
+                return 0;
+            }
+            if (gSaveContext.unk_3F28 == 7) {
+                return 1;
+            }
+            return 0;
+        case 4:
+            if ((gSaveContext.unk_3F28 == 0) || (gSaveContext.unk_3F28 == 7)) {
+                if (gSaveContext.unk_3F28 == 7) {
+                    globalCtx->actorCtx.unk3 = 0;
+                }
+                gSaveContext.unk_3F32 = arg1;
+                gSaveContext.unk_3F28 = 4;
+                return 1;
+            }
+            play_sound(NA_SE_SY_ERROR);
+            return 0;
+        case 5:
+            if (gSaveContext.save.playerData.magic != 0) {
+                globalCtx->interfaceCtx.unk_258 = 0xA;
+                gSaveContext.unk_3F28 = 0xA;
+                return 1;
+            }
+            return 0;
+        case 6:
+            if (gSaveContext.unk_3F28 == 0) {
+                if (gSaveContext.save.playerData.magic != 0) {
+                    globalCtx->interfaceCtx.unk_258 = gGameInfo->data[0x569];
+                    gSaveContext.unk_3F28 = 0xC;
+                    return 1;
+                }
+                return 0;
+            }
+            if (gSaveContext.unk_3F28 == 0xC) {
+                return 1;
+            }
+            return 0;
+        case 7:
+            if ((gSaveContext.unk_3F28 == 0) || (gSaveContext.unk_3F28 == 7)) {
+                if (gSaveContext.unk_3F28 == 7) {
+                    globalCtx->actorCtx.unk3 = 0;
+                }
+                if (gSaveContext.save.weekEventReg[0xE] & 8) {
+                    arg1 = 0;
+                }
+                gSaveContext.save.playerData.magic -= arg1;
+                return 1;
+            }
+            play_sound(NA_SE_SY_ERROR);
+            return 0;
+        default:
+            return 0;
+    }
+}
 
 void func_80116088(void) {
     if (gSaveContext.unk_3F2A != 0) {
@@ -3200,25 +3304,142 @@ void func_8011B9E0(GlobalContext* globalCtx) {
     }
 }
 
-s32 D_801BFC98[] = {
-    0x004E0036,
-    0x001D0005,
-    0xFFEEFFD6,
-    0xFFBDFFAB,
+s16 D_801BFC98[] = {
+    0x004E, 0x0036,
+    0x001D, 0x0005,
+    0xFFEE, 0xFFD6,
+    0xFFBD, 0xFFAB,
 };
-s32 D_801BFCA8[] = {
-    0xC000E000,
-    0x00002000,
-    0xA0008000,
-    0x60004000,
+u16 D_801BFCA8[] = {
+    0xC000, 0xE000,
+    0x0000, 0x2000,
+    0xA000, 0x8000,
+    0x6000, 0x4000,
 };
-s32 D_801BFCB8[] = {
-    0x00FF00FF,
-    0x00FF00FF,
-    0x00A50037,
+s16 D_801BFCB8[2][3] = {
+    { 0xFF, 0xFF, 0xFF }, 
+    { 0xFF, 0xA5, 0x37 },
 };
-void func_8011BF70(GlobalContext* globalCtx);
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011BF70.s")
+void func_8011BF70(GlobalContext* globalCtx) {
+    s16 i;
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+    s16 stepVar1;
+    s16 stepVar2;
+    s16 stepVar3;
+    s16 stepVar4;
+    s16 j = 0;
+
+    for (i = 0; i < interfaceCtx->unk_304; i++, j += 4) {
+        if (interfaceCtx->unk_28A[i] == 1) {
+            interfaceCtx->unk_29A[i] = i << 0xD;
+            interfaceCtx->unk_2BC[i] = 200.0f;
+            interfaceCtx->unk_2DC[i] = 200.0f;
+            interfaceCtx->unk_2AA[i] = 0;
+            interfaceCtx->unk_28A[i] = 2;
+        } else if (interfaceCtx->unk_28A[i] == 2) {
+            interfaceCtx->unk_29A[i] += -0x800;
+            interfaceCtx->unk_2BC[i] -= 8.0f;
+            interfaceCtx->unk_2DC[i] -= 8.0f;
+            if (interfaceCtx->unk_2BC[i] <= 0.0f) {
+                interfaceCtx->unk_2DC[i] = 0.0f;
+                interfaceCtx->unk_2BC[i] = 0.0f;
+                interfaceCtx->unk_28A[i] = 3;
+                if (i == 7) {
+                    interfaceCtx->unk_28A[7] = 4;
+                    interfaceCtx->unk_30A = 5;
+                    interfaceCtx->unk_28A[6] = interfaceCtx->unk_28A[7];
+                    interfaceCtx->unk_28A[5] = interfaceCtx->unk_28A[7];
+                    interfaceCtx->unk_28A[4] = interfaceCtx->unk_28A[7];
+                    interfaceCtx->unk_28A[3] = interfaceCtx->unk_28A[7];
+                    interfaceCtx->unk_28A[2] = interfaceCtx->unk_28A[7];
+                    interfaceCtx->unk_28A[1] = interfaceCtx->unk_28A[7];
+                    interfaceCtx->unk_28A[0] = interfaceCtx->unk_28A[7];
+                }
+            }
+        } else if (interfaceCtx->unk_28A[i] == 4) {
+            stepVar1 = ABS_ALT(interfaceCtx->unk_2AA[i] - D_801BFC98[i]) / interfaceCtx->unk_30A;
+            if (interfaceCtx->unk_2AA[i] >= D_801BFC98[i]) {
+                interfaceCtx->unk_2AA[i] -= stepVar1;
+            } else {
+                interfaceCtx->unk_2AA[i] += stepVar1;
+            }
+        } else if (interfaceCtx->unk_28A[i] == 6) {
+            interfaceCtx->unk_29A[i] -= 0x800;
+            if (interfaceCtx->unk_29A[i] == (u16)(D_801BFCA8[i] - 0x8000)) {
+                interfaceCtx->unk_28A[i] = 0;
+            }
+        }
+    }
+
+    if (interfaceCtx->unk_28A[0] == 4) {
+        interfaceCtx->unk_30A--;
+        if (interfaceCtx->unk_30A == 0) {
+            for (i = 0; i < 8; i++) {
+                interfaceCtx->unk_28A[i] = 5;
+            }
+            interfaceCtx->unk_30A = 20;
+        }
+    }
+
+    if ((interfaceCtx->unk_28A[interfaceCtx->unk_304] == 0) && (interfaceCtx->unk_304 < 8)) {
+        interfaceCtx->unk_28A[interfaceCtx->unk_304] = 1;
+        interfaceCtx->unk_304++;
+    }
+
+    if ((interfaceCtx->unk_304 == 8) && (interfaceCtx->unk_28A[7] == 5)) {
+
+        stepVar1 = ABS_ALT(interfaceCtx->unk_2FC[0] - D_801BFCB8[interfaceCtx->unk_308][0]) / interfaceCtx->unk_30A;
+        stepVar2 = ABS_ALT(interfaceCtx->unk_2FC[1] - D_801BFCB8[interfaceCtx->unk_308][1]) / interfaceCtx->unk_30A;
+        stepVar3 = ABS_ALT(interfaceCtx->unk_2FC[2] - D_801BFCB8[interfaceCtx->unk_308][2]) / interfaceCtx->unk_30A;
+
+        if (interfaceCtx->unk_2FC[0] >= D_801BFCB8[interfaceCtx->unk_308][0]) {
+            interfaceCtx->unk_2FC[0] -= stepVar1;
+        } else {
+            interfaceCtx->unk_2FC[0] += stepVar1;
+        }
+
+        if (interfaceCtx->unk_2FC[1] >= D_801BFCB8[interfaceCtx->unk_308][1]) {
+            interfaceCtx->unk_2FC[1] -= stepVar2;
+        } else {
+            interfaceCtx->unk_2FC[1] += stepVar2;
+        }
+
+        if (interfaceCtx->unk_2FC[2] >= D_801BFCB8[interfaceCtx->unk_308][2]) {
+            interfaceCtx->unk_2FC[2] -= stepVar3;
+        } else {
+            interfaceCtx->unk_2FC[2] += stepVar3;
+        }
+
+        interfaceCtx->unk_30A--;
+        if (interfaceCtx->unk_30A == 0) {
+            interfaceCtx->unk_30A = 20;
+            interfaceCtx->unk_308 ^= 1;
+            interfaceCtx->unk_30C++;
+            if (interfaceCtx->unk_30C == 6) {
+                for (i = 0; i < 8; i++) {
+                    interfaceCtx->unk_2BC[i] = 140.0f;
+                    interfaceCtx->unk_2DC[i] = 100.0f;
+                    interfaceCtx->unk_29A[i] = D_801BFCA8[i];
+                    interfaceCtx->unk_28A[i] = 6;
+                }
+                interfaceCtx->unk_30A = 5;
+            }
+        }
+    }
+
+    j = 0;
+    for (i = 0; i < 8; i++) {
+        if (interfaceCtx->unk_28A[i] == 0) {
+            j++;
+        }
+    }
+
+    if (j == 8) {
+        interfaceCtx->isMinigamePerfect = 0;
+    }
+}
+
+
 
 void Interface_DrawMinigamePerfect(GlobalContext* globalCtx) {
     static TexturePtr D_801BFCC4[] = {
