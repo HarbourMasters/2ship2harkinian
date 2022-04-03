@@ -2903,7 +2903,7 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                             //!      resulting in this reading into the next texture. This results in a white
                             //!      dot in the bottom center of the clock. For the three-day clock, this is
                             //!      covered by the diamond. However, it can be seen by the final-hours clock.
-                            OVERLAY_DISP = func_8010D9F4(OVERLAY_DISP, gThreeDayClockDialBorderTex, 4, 64, 50, 96, 168,
+                            OVERLAY_DISP = func_8010D9F4(OVERLAY_DISP, gThreeDayClockBorderTex, 4, 64, 50, 96, 168,
                                                          128, 50, 1, 6, 0, 1 << 10, 1 << 10);
 
                             if (((CURRENT_DAY >= 4) || ((CURRENT_DAY == 3) && ((0, gSaveContext.save.time) >= 5) &&
