@@ -4210,7 +4210,6 @@ void Interface_Draw(GlobalContext* globalCtx) {
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_Draw.s")
 #endif
 
-#ifdef NON_MATCHING
 void Interface_LoadStory(GlobalContext* globalCtx, s32 block) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
 
@@ -4219,7 +4218,7 @@ void Interface_LoadStory(GlobalContext* globalCtx, s32 block) {
             if (interfaceCtx->storySegment == NULL) {
                 break;
             }
-            osCreateMesgQueue(&interfaceCtx->storyMsgQueue, interfaceCtx->storyMsgBuf, 1);
+            osCreateMesgQueue(&interfaceCtx->storyMsgQueue, &interfaceCtx->storyMsgBuf, 1);
             DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest_184, interfaceCtx->storySegment, interfaceCtx->storyAddr,
                                    interfaceCtx->storySize, 0, &interfaceCtx->storyMsgQueue, NULL);
             interfaceCtx->storyState = 1;
@@ -4230,9 +4229,6 @@ void Interface_LoadStory(GlobalContext* globalCtx, s32 block) {
             break;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_LoadStory.s")
-#endif
 
 void Interface_AllocStory(GlobalContext* globalCtx) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
