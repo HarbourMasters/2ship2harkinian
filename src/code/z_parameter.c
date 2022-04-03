@@ -179,7 +179,7 @@ s16 sMagicBarOutlinePrimRed = 255;
 s16 sMagicBarOutlinePrimGreen = 255;
 s16 sMagicBarOutlinePrimBlue = 255;
 
-s16 D_801BF8AC = 2;
+s16 D_801BF8AC = 2; // sMagicBorderRatio
 
 s16 D_801BF8B0 = 1;
 
@@ -2263,6 +2263,7 @@ void func_80116088(void) {
     }
 }
 
+// Part of Interface_UpdateMagicBar in OoT, but that function was broken into parts 
 void func_80116114(void) {
     static s16 magicBorderColors[][3] = {
         { 255, 255, 255 },
@@ -2312,8 +2313,170 @@ void func_80116114(void) {
     }
 }
 
-void Interface_UpdateMagicBar(GlobalContext* globalCtx);
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_UpdateMagicBar.s")
+void Interface_UpdateMagicBar(GlobalContext* globalCtx) {
+    MessageContext* msgCtx = &globalCtx->msgCtx;
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+    s16 temp;
+
+    if (gSaveContext.save.weekEventReg[0xE] & 8) {
+        func_80116114();
+    }
+
+    switch (gSaveContext.unk_3F28) {
+        case 8:
+            temp = gSaveContext.save.playerData.magicLevel * 0x30;
+            if (gSaveContext.unk_3F2E != temp) {
+                if (gSaveContext.unk_3F2E < temp) {
+                    gSaveContext.unk_3F2E += 0x10;
+                    if (gSaveContext.unk_3F2E > temp) {
+                        gSaveContext.unk_3F2E = temp;
+                    }
+                } else {
+                    gSaveContext.unk_3F2E -= 0x10;
+                    if (gSaveContext.unk_3F2E <= temp) {
+                        gSaveContext.unk_3F2E = temp;
+                    }
+                }
+            } else {
+                gSaveContext.unk_3F28 = 9;
+            }
+            break;
+
+        case 9:
+            gSaveContext.save.playerData.magic += 0x10;
+            
+            if ((gSaveContext.gameMode == 0) && (gSaveContext.sceneSetupIndex < 4)) {
+                play_sound(NA_SE_SY_GAUGE_UP - SFX_FLAG);
+            }
+
+            if (((void)0, gSaveContext.save.playerData.magic) >= ((void)0, gSaveContext.unk_3F30)) {
+                gSaveContext.save.playerData.magic = gSaveContext.unk_3F30;
+                gSaveContext.unk_3F28 = 0;
+            }
+            break;
+
+        case 1:
+            D_801BF8AC = 2;
+            gSaveContext.unk_3F28 = 2;
+            break;
+
+        case 2:
+            if (!(gSaveContext.save.weekEventReg[0xE] & 8)) {
+                gSaveContext.save.playerData.magic = ((void)0, gSaveContext.save.playerData.magic) - ((void)0, gSaveContext.unk_3F32);
+                if (gSaveContext.save.playerData.magic <= 0) {
+                    gSaveContext.save.playerData.magic = 0;
+                }
+                gSaveContext.unk_3F28 = 3;
+                sMagicBarOutlinePrimBlue = 255;
+                sMagicBarOutlinePrimGreen = sMagicBarOutlinePrimBlue;
+                sMagicBarOutlinePrimRed = sMagicBarOutlinePrimGreen;
+            }
+            // fallthrough
+
+        case 3:
+        case 4:
+        case 6:
+            if (!(gSaveContext.save.weekEventReg[0xE] & 8)) {
+                func_80116114();
+            }
+            break;
+
+        case 5:
+            sMagicBarOutlinePrimRed = sMagicBarOutlinePrimGreen = sMagicBarOutlinePrimBlue = 255;
+            gSaveContext.unk_3F28 = 0;
+            break;
+
+        case 7:
+            if ((globalCtx->pauseCtx.state == 0) && (globalCtx->pauseCtx.debugState == 0) &&
+                (msgCtx->msgMode == 0) && (globalCtx->gameOverCtx.state == 0) &&
+                (globalCtx->sceneLoadFlag == 0) && (globalCtx->unk_18B4A == 0)) {
+                if (!func_801690CC(globalCtx)) {
+                    if ((gSaveContext.save.playerData.magic == 0) ||
+                        ((func_801242DC(globalCtx) >= 2) && (func_801242DC(globalCtx) < 5)) ||
+                        (((gSaveContext.save.equips.buttonItems[0][1]) != ITEM_LENS) &&
+                         (gSaveContext.save.equips.buttonItems[0][2] != ITEM_LENS) &&
+                         (gSaveContext.save.equips.buttonItems[0][3] != ITEM_LENS)) ||
+                        (globalCtx->actorCtx.unk3 == 0)) {
+                        globalCtx->actorCtx.unk3 = false;
+                        play_sound(NA_SE_SY_GLASSMODE_OFF);
+                        gSaveContext.unk_3F28 = 0;
+                        sMagicBarOutlinePrimRed = sMagicBarOutlinePrimGreen = sMagicBarOutlinePrimBlue = 255;
+                        break;
+                    }
+
+                    interfaceCtx->unk_258--;
+                    if (interfaceCtx->unk_258 == 0) {
+                        if (!(gSaveContext.save.weekEventReg[0xE] & 8)) {
+                            gSaveContext.save.playerData.magic--;
+                        }
+                        interfaceCtx->unk_258 = 80;
+                    }
+                }
+            }
+            if (!(gSaveContext.save.weekEventReg[0xE] & 8)) {
+                func_80116114();
+            }
+            break;
+
+        case 10:
+            if (!(gSaveContext.save.weekEventReg[0xE] & 8)) {
+                gSaveContext.save.playerData.magic -= 2;
+            }
+            if (gSaveContext.save.playerData.magic <= 0) {
+                gSaveContext.save.playerData.magic = 0;
+            }
+            gSaveContext.unk_3F28 = 11;
+            // fallthrough
+
+        case 11:
+            if ((globalCtx->pauseCtx.state == 0) && (globalCtx->pauseCtx.debugState == 0) &&
+                (msgCtx->msgMode == 0) && (globalCtx->gameOverCtx.state == 0) &&
+                (globalCtx->sceneLoadFlag == 0) && (globalCtx->unk_18B4A == 0)) {
+                if (!func_801690CC(globalCtx)) {
+                    interfaceCtx->unk_258--;
+                    if (interfaceCtx->unk_258 == 0) {
+                        if (!(gSaveContext.save.weekEventReg[0xE] & 8)) {
+                            gSaveContext.save.playerData.magic--;
+                        }
+                        if (gSaveContext.save.playerData.magic <= 0) {
+                            gSaveContext.save.playerData.magic = 0;
+                        }
+                        interfaceCtx->unk_258 = 10;
+                    }
+                }
+            }
+            if (!(gSaveContext.save.weekEventReg[0xE] & 8)) {
+                func_80116114();
+            }
+            break;
+
+        case 12:
+            if ((globalCtx->pauseCtx.state == 0) && (globalCtx->pauseCtx.debugState == 0) &&
+                (msgCtx->msgMode == 0) && (globalCtx->gameOverCtx.state == 0) &&
+                (globalCtx->sceneLoadFlag == 0) && (globalCtx->unk_18B4A == 0)) {
+                if (!func_801690CC(globalCtx)) {
+                    interfaceCtx->unk_258--;
+                    if (interfaceCtx->unk_258 == 0) {
+                        if (!(gSaveContext.save.weekEventReg[0xE] & 8)) {
+                            gSaveContext.save.playerData.magic--;
+                        }
+                        if (gSaveContext.save.playerData.magic <= 0) {
+                            gSaveContext.save.playerData.magic = 0;
+                        }
+                        interfaceCtx->unk_258 = gGameInfo->data[0x569];
+                    }
+                }
+            }
+            if (!(gSaveContext.save.weekEventReg[0xE] & 8)) {
+                func_80116114();
+            }
+            break;
+
+        default:
+            gSaveContext.unk_3F28 = 0;
+            break;
+    }
+}
 
 void Interface_DrawMagicBar(GlobalContext* globalCtx) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
