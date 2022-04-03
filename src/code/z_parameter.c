@@ -2289,7 +2289,7 @@ s32 func_80115DB4(GlobalContext* globalCtx, s16 arg1, s16 arg2) {
         case 6:
             if (gSaveContext.unk_3F28 == 0) {
                 if (gSaveContext.save.playerData.magic != 0) {
-                    globalCtx->interfaceCtx.unk_258 = gGameInfo->data[0x569];
+                    globalCtx->interfaceCtx.unk_258 = XREG(41);
                     gSaveContext.unk_3F28 = 0xC;
                     return 1;
                 }
@@ -2535,7 +2535,7 @@ void Interface_UpdateMagicBar(GlobalContext* globalCtx) {
                         if (gSaveContext.save.playerData.magic <= 0) {
                             gSaveContext.save.playerData.magic = 0;
                         }
-                        interfaceCtx->unk_258 = gGameInfo->data[0x569];
+                        interfaceCtx->unk_258 = XREG(41);
                     }
                 }
             }
@@ -2706,7 +2706,7 @@ void func_80118BA4(GlobalContext* globalCtx) {
 
     func_8012C8D4(globalCtx->state.gfxCtx);
 
-    func_80116FD8(globalCtx, gGameInfo->data[0x55F] + 0x19, gGameInfo->data[0x55F] + 0x46, 192, 237);
+    func_80116FD8(globalCtx, XREG(31) + 0x19, XREG(31) + 0x46, 192, 237);
 
     gSPClearGeometryMode(OVERLAY_DISP++, G_CULL_BOTH);
     gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
@@ -2724,13 +2724,13 @@ void func_80118BA4(GlobalContext* globalCtx) {
     OVERLAY_DISP = func_8010DC58(OVERLAY_DISP, gButtonBackgroundTex, 32, 32, 0);
 
     gDPPipeSync(OVERLAY_DISP++);
-    func_80116FD8(globalCtx, gGameInfo->data[0x55F] + 0x17, gGameInfo->data[0x55F] + 0x44, 190, 235);
+    func_80116FD8(globalCtx, XREG(31) + 0x17, XREG(31) + 0x44, 190, 235);
     gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[0], 4, 0);
     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 100, 200, 255, interfaceCtx->aAlpha);
     gSP1Quadrangle(OVERLAY_DISP++, 0, 2, 3, 1, 0);
 
     gDPPipeSync(OVERLAY_DISP++);
-    func_80116FD8(globalCtx, gGameInfo->data[0x55F] + 0x17, gGameInfo->data[0x55F] + 0x44, 190, 235);
+    func_80116FD8(globalCtx, XREG(31) + 0x17, XREG(31) + 0x44, 190, 235);
     gSPSetGeometryMode(OVERLAY_DISP++, G_CULL_BACK);
     gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE,
                       ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
@@ -3868,7 +3868,7 @@ void Interface_Draw(GlobalContext* globalCtx) {
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetRenderMode(OVERLAY_DISP++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
             gDPSetCombineMode(OVERLAY_DISP++, G_CC_PRIMITIVE, G_CC_PRIMITIVE);
-            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, gGameInfo->data[0x59B]);
+            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, XREG(91));
             gDPFillRectangle(OVERLAY_DISP++, 0, 0, 320, 240);
         }
 
@@ -4050,7 +4050,7 @@ void Interface_Draw(GlobalContext* globalCtx) {
         Interface_DrawMagicBar(globalCtx);
         func_8010A54C(globalCtx);
 
-        if ((gGameInfo->data[0xBE] != 2) && (gGameInfo->data[0xBE] != 3)) {
+        if ((SREG(94) != 2) && (SREG(94) != 3)) {
             func_800B5208(&globalCtx->actorCtx.targetContext, globalCtx); // Draw Z-Target
         }
 
@@ -4222,6 +4222,8 @@ void Interface_LoadStory(GlobalContext* globalCtx, s32 block) {
             DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest_184, interfaceCtx->storySegment, interfaceCtx->storyAddr,
                                    interfaceCtx->storySize, 0, &interfaceCtx->storyMsgQueue, NULL);
             interfaceCtx->storyState = 1;
+            // fallthrough
+
         case 1:
             if (osRecvMesg(&interfaceCtx->storyMsgQueue, NULL, block) == 0) {
                 interfaceCtx->storyState = 2;
@@ -4493,9 +4495,9 @@ void Interface_Update(GlobalContext* globalCtx) {
                 interfaceCtx->unk_210 = 2;
 
                 if ((msgCtx->msgMode != 0) && (msgCtx->unk12006 == 0x26)) {
-                    gGameInfo->data[0x55F] = -14;
+                    XREG(31) = -14;
                 } else {
-                    gGameInfo->data[0x55F] = 0;
+                    XREG(31) = 0;
                 }
             }
             break;
@@ -4537,22 +4539,22 @@ void Interface_Update(GlobalContext* globalCtx) {
 
     // Update Magic
     if (!(player->stateFlags1 & 0x200)) {
-        if (gGameInfo->data[0x544] == 1) {
+        if (XREG(4) == 1) {
             if (gSaveContext.save.playerData.magicAcquired == 0) {
                 gSaveContext.save.playerData.magicAcquired = 1;
             }
             gSaveContext.save.playerData.doubleMagic = 1;
             gSaveContext.save.playerData.magic = 0x60;
             gSaveContext.save.playerData.magicLevel = 0;
-            gGameInfo->data[0x544] = 0;
-        } else if (gGameInfo->data[0x544] == -1) {
+            XREG(4) = 0;
+        } else if (XREG(4) == -1) {
             if (gSaveContext.save.playerData.magicAcquired == 0) {
                 gSaveContext.save.playerData.magicAcquired = 1;
             }
             gSaveContext.save.playerData.doubleMagic = 0;
             gSaveContext.save.playerData.magic = 0x30;
             gSaveContext.save.playerData.magicLevel = 0;
-            gGameInfo->data[0x544] = 0;
+            XREG(4) = 0;
         }
 
         if (gSaveContext.save.playerData.magicAcquired != 0) {
@@ -4642,17 +4644,17 @@ void Interface_Update(GlobalContext* globalCtx) {
                 }
 
                 gSaveContext.sunsSongState = SUNSSONG_SPEED_TIME;
-                D_801BFD98 = gGameInfo->data[0xF];
-                gGameInfo->data[0xF] = 400;
+                D_801BFD98 = REG(15);
+                REG(15) = 400;
             } else if (!D_801BFD94) {
                 if ((gSaveContext.save.time >= CLOCK_TIME(6, 0)) && (gSaveContext.save.time <= CLOCK_TIME(18, 0))) {
                     gSaveContext.sunsSongState = SUNSSONG_INACTIVE;
-                    gGameInfo->data[0xF] = D_801BFD98;
+                    REG(15) = D_801BFD98;
                     globalCtx->msgCtx.ocarinaMode = 4;
                 }
             } else if (gSaveContext.save.time > CLOCK_TIME(18, 0)) {
                 gSaveContext.sunsSongState = SUNSSONG_INACTIVE;
-                gGameInfo->data[0xF] = D_801BFD98;
+                REG(15) = D_801BFD98;
                 globalCtx->msgCtx.ocarinaMode = 4;
             }
         } else {
@@ -4667,7 +4669,7 @@ void Interface_Update(GlobalContext* globalCtx) {
         if (interfaceCtx->unk_31A == 1) {
             interfaceCtx->storyState = 0;
             interfaceCtx->unk_31A = 2;
-            gGameInfo->data[0x59B] = 0;
+            XREG(91) = 0;
         }
 
         Interface_AllocStory(globalCtx);
@@ -4682,15 +4684,15 @@ void Interface_Update(GlobalContext* globalCtx) {
         } else if (interfaceCtx->unk_31A == 4) {
             interfaceCtx->unk_31A = 2;
         } else if (interfaceCtx->unk_31A == 5) {
-            gGameInfo->data[0x59B] += 10;
-            if (gGameInfo->data[0x59B] >= 250) {
-                gGameInfo->data[0x59B] = 255;
+            XREG(91) += 10;
+            if (XREG(91) >= 250) {
+                XREG(91) = 255;
                 interfaceCtx->unk_31A = 2;
             }
         } else if (interfaceCtx->unk_31A == 6) {
-            gGameInfo->data[0x59B] -= 10;
-            if (gGameInfo->data[0x59B] < 0) {
-                gGameInfo->data[0x59B] = 0;
+            XREG(91) -= 10;
+            if (XREG(91) < 0) {
+                XREG(91) = 0;
                 interfaceCtx->unk_31A = 2;
             }
         }
