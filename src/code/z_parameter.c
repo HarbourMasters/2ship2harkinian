@@ -171,9 +171,8 @@ s16 sHBAScoreTier = 0;
 
 u16 sMinigameScoreDigits[] = { 0, 0, 0, 0 };
 
-s32 D_801BF898 = 0;
-
-s32 D_801BF89C = 0;
+s16 D_801BF898 = 0;
+s16 D_801BF89C = 0;
 
 s16 sMagicBarOutlinePrimRed = 255;
 s16 sMagicBarOutlinePrimGreen = 255;
@@ -1750,7 +1749,7 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
         return ITEM_NONE;
 
     } else if (item == ITEM_HEART) {
-        func_80115908(globalCtx, 0x10);
+        Health_ChangeBy(globalCtx, 0x10);
         return item;
 
     } else if (item == ITEM_MAGIC_SMALL) {
@@ -2047,13 +2046,89 @@ void Interface_SetDoAction(GlobalContext* globalCtx, u16 action) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_801155B4.s")
+void func_801155B4(GlobalContext* globalCtx, s16 arg1) {
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80115764.s")
+    if (((gSaveContext.save.equips.buttonItems[CUR_FORM][0] >= ITEM_SWORD_KOKIRI) &&
+         (gSaveContext.save.equips.buttonItems[CUR_FORM][0] <= ITEM_SWORD_GILDED)) ||
+        (gSaveContext.save.equips.buttonItems[CUR_FORM][0] == ITEM_NONE) ||
+        (gSaveContext.save.equips.buttonItems[CUR_FORM][0] == ITEM_NUT)) {
+        if ((CUR_FORM == PLAYER_FORM_DEKU) && (gSaveContext.save.playerData.magicAcquired == 0)) {
+            interfaceCtx->unk_21E = 0xFD;
+        } else {
+            interfaceCtx->unk_21E = arg1;
+            if (interfaceCtx->unk_21E != 0xA) {
+                osCreateMesgQueue(&interfaceCtx->loadQueue, &interfaceCtx->loadMsg, 1);
+                DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest_184, interfaceCtx->doActionSegment + 0x600,
+                                       (arg1 * 0x180) + SEGMENT_ROM_START(do_action_static), 0x180, 0,
+                                       &interfaceCtx->loadQueue, NULL);
+                osRecvMesg(&interfaceCtx->loadQueue, NULL, OS_MESG_BLOCK);
+            }
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80115844.s")
+            interfaceCtx->unk_21C = 1;
+        }
+    } else {
+        interfaceCtx->unk_21C = 0;
+        interfaceCtx->unk_21E = 0;
+    }
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80115908.s")
+void Interface_SetNaviCall(GlobalContext* globalCtx, u16 naviCallState) {
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+
+    if (((naviCallState == 0x2A) || (naviCallState == 0x2B)) && (interfaceCtx->unk_220 == 0) &&
+        (globalCtx->csCtx.state == 0)) {
+        if (naviCallState == 0x2B) {
+            play_sound(NA_SE_VO_NAVY_CALL);
+        }
+        if (naviCallState == 0x2A) {
+            func_8019FDC8(&D_801DB4A4, NA_SE_VO_NA_HELLO_2, 0x20);
+        }
+        interfaceCtx->unk_220 = 1;
+        D_801BF898 = 0;
+        D_801BF89C = 10;
+    } else if (naviCallState == 0x2C) {
+        if (interfaceCtx->unk_220 != 0) {
+            interfaceCtx->unk_220 = 0;
+        }
+    }
+}
+
+// Interface_LoadActionLabelB?
+void func_80115844(GlobalContext* globalCtx, s16 arg1) {
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+
+    interfaceCtx->unk_224 = arg1;
+
+    osCreateMesgQueue(&globalCtx->interfaceCtx.loadQueue, &globalCtx->interfaceCtx.loadMsg, 1);
+    DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest_184, interfaceCtx->doActionSegment + 0x480, (arg1 * 0x180) + SEGMENT_ROM_START(do_action_static), 0x180, 0, &interfaceCtx->loadQueue, NULL);
+    osRecvMesg(&interfaceCtx->loadQueue, NULL, OS_MESG_BLOCK);
+
+    interfaceCtx->unk_222 = 1;
+}
+
+s32 Health_ChangeBy(GlobalContext* globalCtx, s16 healthChange) {
+
+    if (healthChange > 0) {
+        play_sound(NA_SE_SY_HP_RECOVER);
+    } else if ((gSaveContext.save.playerData.doubleDefense != 0) && (healthChange < 0)) {
+        healthChange >>= 1;
+    }
+
+    gSaveContext.save.playerData.health += healthChange;
+
+    if (((void)0, gSaveContext.save.playerData.health) > ((void)0, gSaveContext.save.playerData.healthCapacity)) {
+        gSaveContext.save.playerData.health = gSaveContext.save.playerData.healthCapacity;
+    }
+
+    if (gSaveContext.save.playerData.health <= 0) {
+        gSaveContext.save.playerData.health = 0;
+        return false;
+    } else {
+        return true;
+    }
+}
+
 
 void Health_GiveHearts(s16 hearts) {
     gSaveContext.save.playerData.healthCapacity += hearts * 0x10;
