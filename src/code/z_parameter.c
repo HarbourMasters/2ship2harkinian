@@ -2198,9 +2198,7 @@ void Inventory_ChangeAmmo(s16 item, s16 ammoChange) {
 }
 
 void Interface_AddMagic(GlobalContext* globalCtx, s16 arg1) {
-    if (gSaveContext.save.playerData.magic) {}
-
-    if (gSaveContext.save.playerData.magic < gSaveContext.unk_3F2E) {
+    if (((void)0, gSaveContext.save.playerData.magic) < ((void)0, gSaveContext.unk_3F2E)) {
         gSaveContext.unk_3F34 += arg1;
         gSaveContext.unk_3F2A = 1;
     }
@@ -2323,8 +2321,7 @@ void func_80116088(void) {
     if (gSaveContext.unk_3F2A != 0) {
         gSaveContext.save.playerData.magic += 4;
         play_sound(NA_SE_SY_GAUGE_UP - SFX_FLAG);
-        if (gSaveContext.save.playerData.magic >= gSaveContext.unk_3F2E) {
-            if (gSaveContext.save.playerData.magic) {}
+        if (((void)0, gSaveContext.save.playerData.magic) >= ((void)0, gSaveContext.unk_3F2E)) {
             gSaveContext.save.playerData.magic = gSaveContext.unk_3F2E;
             gSaveContext.unk_3F34 = 0;
             gSaveContext.unk_3F2A = 0;
