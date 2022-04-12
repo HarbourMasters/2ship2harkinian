@@ -1440,16 +1440,14 @@ void func_80112C0C(GlobalContext* globalCtx, u16 flag) {
     }
 }
 
-#ifdef NON_EQUIVALENT
 u8 Item_Give(GlobalContext* globalCtx, u8 item) {
     static s16 sAmmoRefillCounts[] = {
         5, 10, 20, 30, 10, 30, 40, 50, 20, 10, 1, 5, 1, 5, 10, 20, 50, 100, 200, 0,
     };
     Player* player = GET_PLAYER(globalCtx);
     u8 i;
+    u8 temp;
     u8 slot;
-    u16 value;
-    u8 phi_a2_2;
 
     slot = SLOT(item);
     if (item >= ITEM_STICKS_5) {
@@ -1457,15 +1455,15 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
     }
 
     if (item == ITEM_SKULL_TOKEN) {
-        gSaveContext.save.inventory.questItems |= gBitFlags[item - ITEM_SKULL_TOKEN + QUEST_SKULL_TOKEN];
-        func_8012F1BC(globalCtx->sceneNum);
+        gSaveContext.save.inventory.questItems = ((void)0, gSaveContext.save.inventory.questItems) | gBitFlags[item - ITEM_SKULL_TOKEN + QUEST_SKULL_TOKEN - 4];
+        Inventory_IncrementSkullTokenCount(globalCtx->sceneNum);
         return ITEM_NONE;
 
     } else if (item == ITEM_TINGLE_MAP) {
         return ITEM_NONE;
 
     } else if (item == ITEM_BOMBERS_NOTEBOOK) {
-        gSaveContext.save.inventory.questItems |= gBitFlags[QUEST_BOMBERS_NOTEBOOK];
+        gSaveContext.save.inventory.questItems = ((void)0, gSaveContext.save.inventory.questItems) | gBitFlags[QUEST_BOMBERS_NOTEBOOK];
         return ITEM_NONE;
 
     } else if ((item == ITEM_HEART_PIECE_2) || (item == ITEM_HEART_PIECE)) {
@@ -1483,12 +1481,11 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
         return ITEM_NONE;
 
     } else if ((item >= ITEM_SONG_SONATA) && (item <= ITEM_SONG_LULLABY_INTRO)) {
-        gSaveContext.save.inventory.questItems |= gBitFlags[item - ITEM_SONG_SONATA + QUEST_SONG_SONATA];
+        gSaveContext.save.inventory.questItems = ((void)0, gSaveContext.save.inventory.questItems) | gBitFlags[item - ITEM_SONG_SONATA + QUEST_SONG_SONATA];
         return ITEM_NONE;
 
     } else if ((item >= ITEM_SWORD_KOKIRI) && (item <= ITEM_SWORD_GILDED)) {
-        value = item - ITEM_SWORD_KOKIRI - 1;
-        SET_EQUIP_VALUE(EQUIP_SWORD, value);
+        SET_EQUIP_VALUE(EQUIP_SWORD, item - ITEM_SWORD_KOKIRI + 1);
         gSaveContext.save.equips.buttonItems[CUR_FORM][0] = item;
         Interface_LoadItemIconImpl(globalCtx, 0);
         if (item == ITEM_SWORD_RAZOR) {
@@ -1497,24 +1494,23 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
         return ITEM_NONE;
 
     } else if ((item >= ITEM_SHIELD_HERO) && (item <= ITEM_SHIELD_MIRROR)) {
-        value = item - ITEM_SHIELD_HERO - 1;
-        if (value != CUR_EQUIP_VALUE(EQUIP_SHIELD)) {
-            SET_EQUIP_VALUE(EQUIP_SHIELD, value);
-            func_80123C90(globalCtx, player);
+        if (CUR_EQUIP_VALUE_VOID(EQUIP_SHIELD) != (u16)(item - ITEM_SHIELD_HERO + 1)) {
+            SET_EQUIP_VALUE(EQUIP_SHIELD, item - ITEM_SHIELD_HERO + 1);
+            Player_SetEquipmentData(globalCtx, player);
             return ITEM_NONE;
         }
         return item;
 
     } else if ((item == ITEM_KEY_BOSS) || (item == ITEM_COMPASS) || (item == ITEM_DUNGEON_MAP)) {
-        gSaveContext.save.inventory.dungeonItems[gSaveContext.mapIndex] |= gBitFlags[item - ITEM_KEY_BOSS];
+        gSaveContext.save.inventory.dungeonItems[(void)0, gSaveContext.mapIndex] |= (u8)gBitFlags[item - ITEM_KEY_BOSS];
         return ITEM_NONE;
 
     } else if (item == ITEM_KEY_SMALL) {
-        if (gSaveContext.save.inventory.dungeonKeys[gSaveContext.mapIndex] < 0) {
-            gSaveContext.save.inventory.dungeonKeys[gSaveContext.mapIndex] = 1;
+        if (gSaveContext.save.inventory.dungeonKeys[(void)0, gSaveContext.mapIndex] < 0) {
+            gSaveContext.save.inventory.dungeonKeys[(void)0, gSaveContext.mapIndex] = 1;
             return ITEM_NONE;
         } else {
-            gSaveContext.save.inventory.dungeonKeys[gSaveContext.mapIndex]++;
+            gSaveContext.save.inventory.dungeonKeys[(void)0, gSaveContext.mapIndex]++;
             return ITEM_NONE;
         }
 
@@ -1526,7 +1522,7 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
             return ITEM_NONE;
         } else {
             AMMO(ITEM_BOW)++;
-            if (AMMO(ITEM_BOW) > CUR_CAPACITY(UPG_QUIVER)) {
+            if (AMMO(ITEM_BOW) > (s8)CUR_CAPACITY(UPG_QUIVER)) {
                 AMMO(ITEM_BOW) = CUR_CAPACITY(UPG_QUIVER);
             }
         }
@@ -1612,7 +1608,6 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
         if (INV_CONTENT(ITEM_STICK) != ITEM_STICK) {
             Inventory_ChangeUpgrade(UPG_STICKS, 1);
             AMMO(ITEM_STICK) = 1;
-            slot = gItemSlots[item];
         } else {
             AMMO(ITEM_STICK)++;
             if (AMMO(ITEM_STICK) > CUR_CAPACITY(UPG_STICKS)) {
@@ -1631,13 +1626,11 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
         }
 
         item = ITEM_STICK;
-        slot = gItemSlots[8];
 
     } else if (item == ITEM_NUT) {
         if (INV_CONTENT(ITEM_NUT) != ITEM_NUT) {
             Inventory_ChangeUpgrade(UPG_NUTS, 1);
             AMMO(ITEM_NUT) = 1;
-            slot = gItemSlots[item];
         } else {
             AMMO(ITEM_NUT)++;
             if (AMMO(ITEM_NUT) > CUR_CAPACITY(UPG_NUTS)) {
@@ -1656,7 +1649,6 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
             }
         }
         item = ITEM_NUT;
-        slot = gItemSlots[9];
 
     } else if (item == ITEM_POWDER_KEG) {
         if (INV_CONTENT(ITEM_POWDER_KEG) != ITEM_POWDER_KEG) {
@@ -1667,8 +1659,7 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
         return ITEM_NONE;
 
     } else if (item == ITEM_BOMB) {
-        AMMO(ITEM_BOMB)++;
-        if (AMMO(ITEM_BOMB) > CUR_CAPACITY(UPG_BOMB_BAG)) {
+        if ((AMMO(ITEM_BOMB) += 1) > CUR_CAPACITY(UPG_BOMB_BAG)) {
             AMMO(ITEM_BOMB) = CUR_CAPACITY(UPG_BOMB_BAG);
         }
         return ITEM_NONE;
@@ -1680,9 +1671,7 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
             return ITEM_NONE;
         }
 
-        AMMO(ITEM_BOMB) += sAmmoRefillCounts[item - ITEM_BOMBS_5];
-
-        if (AMMO(ITEM_BOMB) > CUR_CAPACITY(UPG_BOMB_BAG)) {
+        if ((AMMO(ITEM_BOMB) += sAmmoRefillCounts[item - ITEM_BOMBS_5]) > CUR_CAPACITY(UPG_BOMB_BAG)) {
             AMMO(ITEM_BOMB) = CUR_CAPACITY(UPG_BOMB_BAG);
         }
         return ITEM_NONE;
@@ -1693,9 +1682,7 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
             AMMO(ITEM_BOMBCHU) = 10;
             return ITEM_NONE;
         }
-
-        AMMO(ITEM_BOMBCHU) += 10;
-        if (AMMO(ITEM_BOMBCHU) > CUR_CAPACITY(UPG_BOMB_BAG)) {
+        if ((AMMO(ITEM_BOMBCHU) += 10) > CUR_CAPACITY(UPG_BOMB_BAG)) {
             AMMO(ITEM_BOMBCHU) = CUR_CAPACITY(UPG_BOMB_BAG);
         }
         return ITEM_NONE;
@@ -1703,7 +1690,7 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
     } else if ((item >= ITEM_BOMBCHUS_20) && (item <= ITEM_BOMBCHUS_5)) {
         if (gSaveContext.save.inventory.items[7] != ITEM_BOMBCHU) {
             INV_CONTENT(ITEM_BOMBCHU) = ITEM_BOMBCHU;
-            AMMO(ITEM_BOMBCHU) += sAmmoRefillCounts[item - ITEM_BOMBCHUS_20];
+            AMMO(ITEM_BOMBCHU) += sAmmoRefillCounts[item - ITEM_BOMBCHUS_20 + 8];
 
             if (AMMO(ITEM_BOMBCHU) > CUR_CAPACITY(UPG_BOMB_BAG)) {
                 AMMO(ITEM_BOMBCHU) = CUR_CAPACITY(UPG_BOMB_BAG);
@@ -1711,8 +1698,7 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
             return ITEM_NONE;
         }
 
-        AMMO(ITEM_BOMBCHU) += sAmmoRefillCounts[item - ITEM_BOMBCHUS_20];
-        if (AMMO(ITEM_BOMBCHU) > CUR_CAPACITY(UPG_BOMB_BAG)) {
+        if ((AMMO(ITEM_BOMBCHU) += sAmmoRefillCounts[item - ITEM_BOMBCHUS_20 + 8]) > CUR_CAPACITY(UPG_BOMB_BAG)) {
             AMMO(ITEM_BOMBCHU) = CUR_CAPACITY(UPG_BOMB_BAG);
         }
         return ITEM_NONE;
@@ -1731,21 +1717,17 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
 
     } else if (item == ITEM_BEAN) {
         if (INV_CONTENT(ITEM_BEAN) == ITEM_NONE) {
-            INV_CONTENT(ITEM_BEAN) = item;
+            gSaveContext.save.inventory.items[SLOT(item)] = item;
             AMMO(ITEM_BEAN) = 1;
-            return ITEM_NONE;
-        }
-
-        if (AMMO(ITEM_BEAN) < 20) {
+        } else if (AMMO(ITEM_BEAN) < 20) {
             AMMO(ITEM_BEAN)++;
-            return ITEM_NONE;
+        } else {
+            AMMO(ITEM_BEAN) = 20;
         }
-
-        AMMO(ITEM_BEAN) = 20;
         return ITEM_NONE;
 
     } else if ((item >= ITEM_REMAINS_ODOLWA) && (item <= ITEM_REMAINS_TWINMOLD)) {
-        gSaveContext.save.inventory.questItems |= gBitFlags[item - ITEM_REMAINS_ODOLWA + QUEST_REMAINS_ODOWLA];
+        gSaveContext.save.inventory.questItems = ((void)0, gSaveContext.save.inventory.questItems ) | gBitFlags[item - ITEM_REMAINS_ODOLWA + QUEST_REMAINS_ODOWLA];
         return ITEM_NONE;
 
     } else if (item == ITEM_HEART) {
@@ -1769,30 +1751,37 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
         return item;
 
     } else if ((item >= ITEM_RUPEE_GREEN) && (item <= ITEM_RUPEE_HUGE)) {
-        Rupees_ChangeBy(sAmmoRefillCounts[item - ITEM_RUPEE_GREEN + 10]);
+        Rupees_ChangeBy(sAmmoRefillCounts[item - ITEM_RUPEE_GREEN + 12]);
         return ITEM_NONE;
 
     } else if (item == ITEM_LONGSHOT) {
+        slot = SLOT(item);
+        
         for (i = 0; i < 6; i++) {
-            if (gSaveContext.save.inventory.items[i] == ITEM_NONE) {
-                gSaveContext.save.inventory.items[i] = ITEM_POTION_RED;
+            if (gSaveContext.save.inventory.items[slot + i] == ITEM_NONE) {
+                gSaveContext.save.inventory.items[slot + i] = ITEM_POTION_RED;
+                return ITEM_NONE;
             }
         }
         return item;
 
     } else if ((item == 0x18) || (item == 0x1D) || (item == 0x22) || (item == 0x25) || (item == 0x26)) {
+        slot = SLOT(item);
+
         for (i = 0; i < 6; i++) {
-            if (gSaveContext.save.inventory.items[i] == ITEM_NONE) {
-                gSaveContext.save.inventory.items[i] = item;
+            if (gSaveContext.save.inventory.items[slot + i] == ITEM_NONE) {
+                gSaveContext.save.inventory.items[slot + i] = item;
                 return ITEM_NONE;
             }
         }
         return item;
 
     } else if (item == 0x12) {
+        slot = SLOT(item);
+
         for (i = 0; i < 6; i++) {
-            if (gSaveContext.save.inventory.items[i] == ITEM_NONE) {
-                gSaveContext.save.inventory.items[i] = item;
+            if (gSaveContext.save.inventory.items[slot + i] == ITEM_NONE) {
+                gSaveContext.save.inventory.items[slot + i] = item;
                 return ITEM_NONE;
             }
         }
@@ -1800,30 +1789,25 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
 
     } else if (((item >= 0x13) && (item < 0x28)) || (item == 0x9F) || (item == 0xA0) || (item == 0xA1) ||
                (item == 0xA2) || (item == 0xA3)) {
-
-        slot = gItemSlots[item];
+        slot = SLOT(item);
+        
         if ((item != 0x18) && (item != 0x19)) {
-            // i = 0;
             if (item == 0x9F) {
-                slot = gItemSlots[0x25];
                 item = 0x25;
 
             } else if (item == 0xA0) {
-                slot = gItemSlots[0x18];
                 item = 0x18;
 
             } else if (item == 0xA1) {
-                slot = gItemSlots[0x22];
                 item = 0x22;
 
             } else if (item == 0xA2) {
-                slot = gItemSlots[0x26];
                 item = 0x26;
 
             } else if (item == 0xA3) {
-                slot = gItemSlots[0x24];
                 item = 0x24;
             }
+            slot = SLOT(item);
 
             for (i = 0; i < 6; i++) {
                 if (gSaveContext.save.inventory.items[slot + i] == 0x12) {
@@ -1845,36 +1829,27 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
                         gSaveContext.buttonStatus[3] = BTN_ENABLED;
                     }
 
-                    gSaveContext.save.inventory.items[slot] = item;
+                    gSaveContext.save.inventory.items[slot + i] = item;
                     return ITEM_NONE;
                 }
             }
         } else {
             for (i = 0; i < 6; i++) {
-                if (gSaveContext.save.inventory.items[i] == ITEM_NONE) {
-                    gSaveContext.save.inventory.items[i] = item;
+                if (gSaveContext.save.inventory.items[slot + i] == ITEM_NONE) {
+                    gSaveContext.save.inventory.items[slot + i] = item;
                     return ITEM_NONE;
                 }
             }
         }
+        
 
     } else if ((item >= ITEM_MOON_TEAR) && (item <= ITEM_MASK_GIANT)) {
-        INV_CONTENT(item);
-        gSaveContext.save.inventory.items[gItemSlots[item]] = item;
-        if ((item >= ITEM_MOON_TEAR) && (item <= ITEM_PENDANT_MEMORIES) && (INV_CONTENT(item) != ITEM_NONE)) {
+        temp = INV_CONTENT(item);
+        INV_CONTENT(item) = item;
+        if ((item >= ITEM_MOON_TEAR) && (item <= ITEM_PENDANT_MEMORIES) && (temp != ITEM_NONE)) {
             for (i = 1; i < 4; i++) {
-                if (i == 0) {
-                    phi_a2_2 = gSaveContext.save.equips.buttonItems[CUR_FORM][i];
-                } else {
-                    phi_a2_2 = gSaveContext.save.equips.buttonItems[0][i];
-                }
-
-                if (INV_CONTENT(item) == phi_a2_2) {
-                    if (i == 0) {
-                        gSaveContext.save.equips.buttonItems[CUR_FORM][i] = item;
-                    } else {
-                        gSaveContext.save.equips.buttonItems[0][i] = item;
-                    }
+                if (temp == GET_CUR_FORM_BTN_ITEM(i)) {
+                    SET_CUR_FORM_BTN_ITEM(i, item);
                     Interface_LoadItemIconImpl(globalCtx, i);
                     return ITEM_NONE;
                 }
@@ -1883,15 +1858,10 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
         return ITEM_NONE;
     }
 
-    gSaveContext.save.inventory.items[slot] = item;
-    return gSaveContext.save.inventory.items[slot];
+    temp = gSaveContext.save.inventory.items[slot];
+    INV_CONTENT(item) = item;
+    return temp;
 }
-#else
-s16 sAmmoRefillCounts[] = {
-    5, 10, 20, 30, 10, 30, 40, 50, 20, 10, 1, 5, 1, 5, 10, 20, 50, 100, 200, 0,
-};
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Item_Give.s")
-#endif
 
 s32 Item_CheckObtainabilityImpl(u8 item);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Item_CheckObtainabilityImpl.s")
