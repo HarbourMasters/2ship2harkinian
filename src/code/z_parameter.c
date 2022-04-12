@@ -1911,6 +1911,7 @@ u8 Item_CheckObtainabilityImpl(u8 item) {
         return INV_CONTENT(item);
 
     } else if ((item >= ITEM_BOMBS_5) && (item == ITEM_BOMBS_30)) {
+        //! @bug: Should be a range check: (item <= ITEM_BOMBS_30)
         if (CUR_UPG_VALUE(UPG_BOMB_BAG) == 0) {
             return ITEM_NONE;
         }
