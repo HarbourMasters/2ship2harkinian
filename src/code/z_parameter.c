@@ -603,8 +603,8 @@ void Interface_NewDay(GlobalContext* globalCtx, s32 day) {
     // i is used to store sceneId
     for (i = 0; i < 120; i++) {
         gSaveContext.save.permanentSceneFlags[i].chest = gSaveContext.cycleSceneFlags[i].chest;
-        gSaveContext.save.permanentSceneFlags[i].swch0 = gSaveContext.cycleSceneFlags[i].swch0;
-        gSaveContext.save.permanentSceneFlags[i].swch1 = gSaveContext.cycleSceneFlags[i].swch1;
+        gSaveContext.save.permanentSceneFlags[i].switch0 = gSaveContext.cycleSceneFlags[i].switch0;
+        gSaveContext.save.permanentSceneFlags[i].switch1 = gSaveContext.cycleSceneFlags[i].switch1;
         gSaveContext.save.permanentSceneFlags[i].clearedRoom = gSaveContext.cycleSceneFlags[i].clearedRoom;
         gSaveContext.save.permanentSceneFlags[i].collectible = gSaveContext.cycleSceneFlags[i].collectible;
     }
@@ -1494,7 +1494,7 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
         return ITEM_NONE;
 
     } else if ((item >= ITEM_SHIELD_HERO) && (item <= ITEM_SHIELD_MIRROR)) {
-        if (CUR_EQUIP_VALUE_VOID(EQUIP_SHIELD) != (u16)(item - ITEM_SHIELD_HERO + 1)) {
+        if (GET_CUR_EQUIP_VALUE(EQUIP_SHIELD) != (u16)(item - ITEM_SHIELD_HERO + 1)) {
             SET_EQUIP_VALUE(EQUIP_SHIELD, item - ITEM_SHIELD_HERO + 1);
             Player_SetEquipmentData(globalCtx, player);
             return ITEM_NONE;
@@ -1894,10 +1894,10 @@ void Inventory_UnequipItem(s16 item) {
     }
 }
 
-s32 Inventory_ReplaceItem(GlobalContext* globalCtx, u8 oldItem, u8 newItem) {
+s32 Inventory_ReplaceItem(GlobalContext* globalCtx, u8 oldItem, u8 newItem) { 
     u8 i;
 
-    for (i = 0; i < ARRAY_COUNT(gSaveContext.save.inventory.items); i++) {
+    for (i = 0; i < 24; i++) {
         if (gSaveContext.save.inventory.items[i] == oldItem) {
             gSaveContext.save.inventory.items[i] = newItem;
 
@@ -2432,7 +2432,7 @@ void Interface_UpdateMagicBar(GlobalContext* globalCtx) {
             if ((globalCtx->pauseCtx.state == 0) && (globalCtx->pauseCtx.debugState == 0) &&
                 (msgCtx->msgMode == 0) && (globalCtx->gameOverCtx.state == 0) &&
                 (globalCtx->sceneLoadFlag == 0) && (globalCtx->unk_18B4A == 0)) {
-                if (!func_801690CC(globalCtx)) {
+                if (!Play_InCsMode(globalCtx)) {
                     if ((gSaveContext.save.playerData.magic == 0) ||
                         ((func_801242DC(globalCtx) >= 2) && (func_801242DC(globalCtx) < 5)) ||
                         (((gSaveContext.save.equips.buttonItems[0][1]) != ITEM_LENS) &&
@@ -2474,7 +2474,7 @@ void Interface_UpdateMagicBar(GlobalContext* globalCtx) {
             if ((globalCtx->pauseCtx.state == 0) && (globalCtx->pauseCtx.debugState == 0) &&
                 (msgCtx->msgMode == 0) && (globalCtx->gameOverCtx.state == 0) &&
                 (globalCtx->sceneLoadFlag == 0) && (globalCtx->unk_18B4A == 0)) {
-                if (!func_801690CC(globalCtx)) {
+                if (!Play_InCsMode(globalCtx)) {
                     interfaceCtx->unk_258--;
                     if (interfaceCtx->unk_258 == 0) {
                         if (!(gSaveContext.save.weekEventReg[0xE] & 8)) {
@@ -2496,7 +2496,7 @@ void Interface_UpdateMagicBar(GlobalContext* globalCtx) {
             if ((globalCtx->pauseCtx.state == 0) && (globalCtx->pauseCtx.debugState == 0) &&
                 (msgCtx->msgMode == 0) && (globalCtx->gameOverCtx.state == 0) &&
                 (globalCtx->sceneLoadFlag == 0) && (globalCtx->unk_18B4A == 0)) {
-                if (!func_801690CC(globalCtx)) {
+                if (!Play_InCsMode(globalCtx)) {
                     interfaceCtx->unk_258--;
                     if (interfaceCtx->unk_258 == 0) {
                         if (!(gSaveContext.save.weekEventReg[0xE] & 8)) {
@@ -4356,11 +4356,11 @@ void Interface_Update(GlobalContext* globalCtx) {
     D_801BF8DC = func_801242DC(globalCtx);
 
     if (D_801BF8DC == 1) {
-        if (CUR_EQUIP_VALUE_VOID(EQUIP_TUNIC) == 2) {
+        if (GET_CUR_EQUIP_VALUE(EQUIP_TUNIC) == 2) {
             D_801BF8DC = 0;
         }
     } else if ((func_801242DC(globalCtx) >= 2) && (func_801242DC(globalCtx) < 5)) {
-        if (CUR_EQUIP_VALUE_VOID(EQUIP_TUNIC) == 3) {
+        if (GET_CUR_EQUIP_VALUE(EQUIP_TUNIC) == 3) {
             D_801BF8DC = 0;
         }
     }

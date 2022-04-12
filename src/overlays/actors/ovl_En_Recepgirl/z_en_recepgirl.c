@@ -7,7 +7,7 @@
 #include "z_en_recepgirl.h"
 #include "objects/object_bg/object_bg.h"
 
-#define FLAGS 0x00000009
+#define FLAGS (ACTOR_FLAG_1 | ACTOR_FLAG_8)
 
 #define THIS ((EnRecepgirl*)thisx)
 
@@ -144,7 +144,7 @@ void EnRecepgirl_Talk(EnRecepgirl* this, GlobalContext* globalCtx) {
     if (temp_v0_2 == 2) {
         this->actor.textId = 0x2ADC; // hear directions again?
         EnRecepgirl_SetupWait(this);
-    } else if ((temp_v0_2 == 5) && (func_80147624(globalCtx) != 0)) {
+    } else if ((temp_v0_2 == 5) && (Message_ShouldAdvance(globalCtx) != 0)) {
         if (this->actor.textId == 0x2AD9) { // "Welcome..."
             Flags_SetSwitch(globalCtx, this->actor.params);
             Animation_MorphToPlayOnce(&this->skelAnime, &object_bg_Anim_00AD98, 10.0f);

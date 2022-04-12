@@ -193,7 +193,7 @@ void Daytelop_Draw(DaytelopContext* this) {
 void Daytelop_Main(GameState* thisx) {
     DaytelopContext* this = (DaytelopContext*)thisx;
 
-    func_8012CF0C(this->state.gfxCtx, 1, 1, 0, 0, 0);
+    func_8012CF0C(this->state.gfxCtx, true, true, 0, 0, 0);
 
     OPEN_DISPS(this->state.gfxCtx);
     gSPSegment(POLY_OPA_DISP++, 0x09, this->daytelopStaticFile);
@@ -236,7 +236,7 @@ void Daytelop_Init(GameState* thisx) {
 
     if (gSaveContext.save.day < 9) {
         if (gSaveContext.save.day == 0) {
-            func_80143AC4();
+            Sram_ClearFlagsAtDawnOfTheFirstDay();
         }
         Sram_IncrementDay();
     }

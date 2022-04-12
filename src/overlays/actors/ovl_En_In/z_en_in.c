@@ -6,24 +6,11 @@
 
 #include "z_en_in.h"
 #include "objects/object_in/object_in.h"
+#include "overlays/actors/ovl_En_Horse_Game_Check/z_en_horse_game_check.h"
 
-#define FLAGS 0x00000019
+#define FLAGS (ACTOR_FLAG_1 | ACTOR_FLAG_8 | ACTOR_FLAG_10)
 
 #define THIS ((EnIn*)thisx)
-
-#define SET_FLAGS_FINISH_RACE                                                                             \
-    {                                                                                                     \
-        gSaveContext.save.weekEventReg[92] &= (u8) ~(1 | 2 | 4);                                          \
-        gSaveContext.save.weekEventReg[92] =                                                              \
-            gSaveContext.save.weekEventReg[92] | (u8)(gSaveContext.save.weekEventReg[92] & ~(1 | 2 | 4)); \
-    }
-
-#define SET_FLAGS_START_RACE                                                                                    \
-    {                                                                                                           \
-        gSaveContext.save.weekEventReg[92] &= (u8) ~(1 | 2 | 4);                                                \
-        gSaveContext.save.weekEventReg[92] =                                                                    \
-            gSaveContext.save.weekEventReg[92] | (u8)((gSaveContext.save.weekEventReg[92] & ~(1 | 2 | 4)) | 1); \
-    }
 
 void EnIn_Init(Actor* thisx, GlobalContext* globalCtx);
 void EnIn_Destroy(Actor* thisx, GlobalContext* globalCtx);
@@ -131,16 +118,25 @@ static DamageTable sDamageTable = {
     /* Powder Keg     */ DMG_ENTRY(0, 0x0),
 };
 
-static ActorAnimationEntryS sAnimations[] = {
-    { &object_in_Anim_001D10, 1.0f, 0, -1, 0, 0 },  { &object_in_Anim_001D10, 1.0f, 0, -1, 0, -4 },
-    { &object_in_Anim_014F8C, 1.0f, 0, -1, 0, 0 },  { &object_in_Anim_014F8C, 1.0f, 0, -1, 0, -4 },
-    { &object_in_Anim_000CB0, 1.0f, 0, -1, 0, -4 }, { &object_in_Anim_0003B4, 1.0f, 0, -1, 0, -4 },
-    { &object_in_Anim_001BE0, 1.0f, 0, -1, 0, -4 }, { &object_in_Anim_015918, 1.0f, 0, -1, 0, -4 },
-    { &object_in_Anim_01C0B0, 1.0f, 0, -1, 0, 0 },  { &object_in_Anim_01C0B0, 1.0f, 0, -1, 0, -4 },
-    { &object_in_Anim_01A140, 1.0f, 0, -1, 0, 0 },  { &object_in_Anim_01A140, 1.0f, 0, -1, 0, -4 },
-    { &object_in_Anim_01B904, 1.0f, 0, -1, 0, 0 },  { &object_in_Anim_01B904, 1.0f, 0, -1, 0, -4 },
-    { &object_in_Anim_01B3C4, 1.0f, 0, -1, 0, 0 },  { &object_in_Anim_01B3C4, 0.0f, 0, -1, 2, 0 },
-    { &object_in_Anim_01B3C4, 1.0f, 0, -1, 0, -4 }, { &object_in_Anim_019EB4, 1.0f, 0, -1, 2, -4 },
+static AnimationInfoS sAnimations[] = {
+    { &object_in_Anim_001D10, 1.0f, 0, -1, ANIMMODE_LOOP, 0 },
+    { &object_in_Anim_001D10, 1.0f, 0, -1, ANIMMODE_LOOP, -4 },
+    { &object_in_Anim_014F8C, 1.0f, 0, -1, ANIMMODE_LOOP, 0 },
+    { &object_in_Anim_014F8C, 1.0f, 0, -1, ANIMMODE_LOOP, -4 },
+    { &object_in_Anim_000CB0, 1.0f, 0, -1, ANIMMODE_LOOP, -4 },
+    { &object_in_Anim_0003B4, 1.0f, 0, -1, ANIMMODE_LOOP, -4 },
+    { &object_in_Anim_001BE0, 1.0f, 0, -1, ANIMMODE_LOOP, -4 },
+    { &object_in_Anim_015918, 1.0f, 0, -1, ANIMMODE_LOOP, -4 },
+    { &object_in_Anim_01C0B0, 1.0f, 0, -1, ANIMMODE_LOOP, 0 },
+    { &object_in_Anim_01C0B0, 1.0f, 0, -1, ANIMMODE_LOOP, -4 },
+    { &object_in_Anim_01A140, 1.0f, 0, -1, ANIMMODE_LOOP, 0 },
+    { &object_in_Anim_01A140, 1.0f, 0, -1, ANIMMODE_LOOP, -4 },
+    { &object_in_Anim_01B904, 1.0f, 0, -1, ANIMMODE_LOOP, 0 },
+    { &object_in_Anim_01B904, 1.0f, 0, -1, ANIMMODE_LOOP, -4 },
+    { &object_in_Anim_01B3C4, 1.0f, 0, -1, ANIMMODE_LOOP, 0 },
+    { &object_in_Anim_01B3C4, 0.0f, 0, -1, ANIMMODE_ONCE, 0 },
+    { &object_in_Anim_01B3C4, 1.0f, 0, -1, ANIMMODE_LOOP, -4 },
+    { &object_in_Anim_019EB4, 1.0f, 0, -1, ANIMMODE_ONCE, -4 },
 };
 
 static u16 D_808F6C0C[] = {
@@ -155,11 +151,11 @@ s32 func_808F30B0(SkelAnime* skelAnime, s16 animIndex) {
         ret = true;
         frameCount = sAnimations[animIndex].frameCount;
         if (frameCount < 0) {
-            frameCount = Animation_GetLastFrame(sAnimations[animIndex].animationSeg);
+            frameCount = Animation_GetLastFrame(sAnimations[animIndex].animation);
         }
-        Animation_Change(skelAnime, sAnimations[animIndex].animationSeg, sAnimations[animIndex].playbackSpeed,
-                         sAnimations[animIndex].frame, frameCount, sAnimations[animIndex].mode,
-                         sAnimations[animIndex].transitionRate);
+        Animation_Change(skelAnime, sAnimations[animIndex].animation, sAnimations[animIndex].playSpeed,
+                         sAnimations[animIndex].startFrame, frameCount, sAnimations[animIndex].mode,
+                         sAnimations[animIndex].morphFrames);
     }
     return ret;
 }
@@ -169,11 +165,11 @@ s32 func_808F3178(EnIn* this, GlobalContext* globalCtx) {
     u8 prevUnk261 = this->unk261;
     u8 tmp;
 
-    this->unk260 = tmp = func_8013DB90(globalCtx, &this->unk248, -6.0f);
+    this->unk260 = tmp = SubS_IsFloorAbove(globalCtx, &this->unk248, -6.0f);
     if (this->unk260 != 0 && prevUnk260 == 0 && tmp) {
         Actor_PlaySfxAtPos(&this->actor, NA_SE_PL_WALK_CONCRETE);
     }
-    this->unk261 = tmp = func_8013DB90(globalCtx, &this->unk254, -6.0f);
+    this->unk261 = tmp = SubS_IsFloorAbove(globalCtx, &this->unk254, -6.0f);
     if (this->unk261 != 0 && prevUnk261 == 0 && tmp) {
         Actor_PlaySfxAtPos(&this->actor, NA_SE_PL_WALK_CONCRETE);
     }
@@ -215,20 +211,18 @@ s32 func_808F3334(EnIn* this, GlobalContext* globalCtx) {
         if (this->colliderJntSph.base.atFlags & AT_BOUNCED) {
             return 0;
         }
-        Actor_PlaySfxAtPos(&player->actor, 0x83E);
+        Actor_PlaySfxAtPos(&player->actor, NA_SE_PL_BODY_HIT);
         func_800B8D98(globalCtx, &this->actor, 3.0f, this->actor.yawTowardsPlayer, 6.0f);
     }
     return 1;
 }
 
 s32 func_808F33B8(void) {
-    s32 ret;
+    s32 ret = (((gSaveContext.save.day == 1) &&
+                ((gSaveContext.save.time >= CLOCK_TIME(5, 30)) && (gSaveContext.save.time <= CLOCK_TIME(6, 0)))) ||
+               (gSaveContext.save.day >= 2)) &&
+              !(gSaveContext.save.weekEventReg[22] & 1);
 
-    if (((ret = gSaveContext.save.day == 1) && (ret = gSaveContext.save.time >= 0x3AAA) &&
-         (ret = gSaveContext.save.time <= 0x4000)) ||
-        (ret = gSaveContext.save.day >= 2)) {
-        ret = (gSaveContext.save.weekEventReg[22] & 1) == 0;
-    }
     return ret;
 }
 
@@ -239,7 +233,7 @@ void func_808F3414(EnIn* this, GlobalContext* globalCtx) {
     if (this->unk23D == 0) {
         this->unk494 = SkelAnime_Update(&this->skelAnime);
     }
-    if (func_8013D5E8(this->actor.shape.rot.y, 0x2710, this->actor.yawTowardsPlayer)) {
+    if (SubS_AngleDiffLessEqual(this->actor.shape.rot.y, 0x2710, this->actor.yawTowardsPlayer)) {
         sp30.x = player->actor.world.pos.x;
         sp30.y = player->bodyPartsPos[7].y + 3.0f;
         sp30.z = player->actor.world.pos.z;
@@ -255,7 +249,7 @@ void func_808F3414(EnIn* this, GlobalContext* globalCtx) {
     }
     func_808F322C(this, 3);
     func_808F3178(this, globalCtx);
-    func_8013D9C8(globalCtx, this->unk376, this->unk39E, 20);
+    SubS_FillLimbRotTables(globalCtx, this->unk376, this->unk39E, ARRAY_COUNT(this->unk376));
 }
 
 void func_808F35AC(EnIn* this, GlobalContext* globalCtx) {
@@ -292,7 +286,7 @@ void func_808F3690(EnIn* this, GlobalContext* globalCtx) {
 
     Math_SmoothStepToF(&this->actor.speedXZ, 1.0f, 0.4f, 1000.0f, 0.0f);
     sp36 = this->actor.speedXZ * 400.0f;
-    if (func_8013D68C(this->path, this->unk244, &sp28) && func_8013D768(&this->actor, &sp28, sp36)) {
+    if (SubS_CopyPointFromPath(this->path, this->unk244, &sp28) && SubS_MoveActorToPoint(&this->actor, &sp28, sp36)) {
         this->unk244++;
         if (this->unk244 >= this->path->count) {
             this->unk244 = 0;
@@ -301,9 +295,10 @@ void func_808F3690(EnIn* this, GlobalContext* globalCtx) {
 }
 
 void func_808F374C(EnIn* this, GlobalContext* globalCtx) {
-    AnimationHeader* animations[] = { &object_in_Anim_015E38, &object_in_Anim_016A60, &object_in_Anim_0177AC,
-                                      &object_in_Anim_016484, &object_in_Anim_0170DC, &object_in_Anim_018240,
-                                      &object_in_Anim_0187C8, &object_in_Anim_0198A8 };
+    AnimationHeader* sAnimations[] = {
+        &object_in_Anim_015E38, &object_in_Anim_016A60, &object_in_Anim_0177AC, &object_in_Anim_016484,
+        &object_in_Anim_0170DC, &object_in_Anim_018240, &object_in_Anim_0187C8, &object_in_Anim_0198A8,
+    };
 
     if (this->skelAnime.animation == &object_in_Anim_016484 || this->skelAnime.animation == &object_in_Anim_0170DC) {
         if (Animation_OnFrame(&this->skelAnime, 8.0f)) {
@@ -318,9 +313,10 @@ void func_808F374C(EnIn* this, GlobalContext* globalCtx) {
         Actor_PlaySfxAtPos(&this->actor, NA_SE_VO_IN_CRY_0);
     }
     if (SkelAnime_Update(&this->skelAnime)) {
-        this->unk486 = this->unk488 %= 8;
-        Animation_Change(&this->skelAnime, animations[this->unk488], 1.0f, 0.0f,
-                         Animation_GetLastFrame(animations[this->unk488]), 2, -10.0f);
+        this->unk488 %= ARRAY_COUNT(sAnimations);
+        this->unk486 = this->unk488;
+        Animation_Change(&this->skelAnime, sAnimations[this->unk488], 1.0f, 0.0f,
+                         Animation_GetLastFrame(sAnimations[this->unk488]), 2, -10.0f);
     }
 }
 
@@ -337,11 +333,11 @@ void func_808F38F8(EnIn* this, GlobalContext* globalCtx) {
 }
 
 void func_808F395C(EnIn* this, GlobalContext* globalCtx) {
-    if (this->unk4B0 == 0) {
+    if (this->unk4B0 == RACE_FLAG_END) {
         this->actionFunc = func_808F5A94;
     }
     if (Actor_ProcessTalkRequest(&this->actor, &globalCtx->state)) {
-        this->actor.flags &= ~0x10000;
+        this->actor.flags &= ~ACTOR_FLAG_10000;
         this->actionFunc = func_808F5A34;
         this->unk48C = 1;
     } else {
@@ -353,30 +349,30 @@ void func_808F39DC(EnIn* this, GlobalContext* globalCtx) {
     u16 textId = 0;
 
     if (gSaveContext.save.day != 3) {
-        switch (gSaveContext.save.weekEventReg[92] & (1 | 2 | 4)) {
-            case 2:
+        switch (GET_RACE_FLAGS) {
+            case RACE_FLAG_2:
                 textId = 0x347A;
                 break;
-            case 3:
+            case RACE_FLAG_3:
                 textId = 0x3476;
                 break;
         }
-        SET_FLAGS_FINISH_RACE;
+        SET_RACE_FLAGS(RACE_FLAG_END);
     } else {
-        switch (gSaveContext.save.weekEventReg[92] & (1 | 2 | 4)) {
-            case 2:
+        switch (GET_RACE_FLAGS) {
+            case RACE_FLAG_2:
                 textId = 0x349D;
                 break;
-            case 3:
+            case RACE_FLAG_3:
                 textId = 0x3499;
                 break;
         }
-        SET_FLAGS_FINISH_RACE;
+        SET_RACE_FLAGS(RACE_FLAG_END);
     }
-    this->actor.flags |= 0x10000;
+    this->actor.flags |= ACTOR_FLAG_10000;
     this->actor.textId = textId;
     this->actionFunc = func_808F395C;
-    if (this->unk4B0 == 2) {
+    if (this->unk4B0 == RACE_FLAG_2) {
         Actor_PlaySfxAtPos(&this->actor, NA_SE_VO_IN_LOST);
     } else {
         Actor_PlaySfxAtPos(&this->actor, NA_SE_VO_IN_JOY0);
@@ -385,7 +381,7 @@ void func_808F39DC(EnIn* this, GlobalContext* globalCtx) {
 
 void func_808F3AD4(EnIn* this, GlobalContext* globalCtx) {
     if (Actor_ProcessTalkRequest(&this->actor, &globalCtx->state)) {
-        this->actor.flags &= ~0x10000;
+        this->actor.flags &= ~ACTOR_FLAG_10000;
         this->unk48C = 1;
         this->actionFunc = func_808F5A94;
     } else {
@@ -398,7 +394,7 @@ void func_808F3B40(EnIn* this, GlobalContext* globalCtx) {
 
     if (Actor_HasParent(&this->actor, globalCtx)) {
         this->actor.parent = NULL;
-        this->actor.flags |= 0x10000;
+        this->actor.flags |= ACTOR_FLAG_10000;
         this->actionFunc = func_808F3AD4;
         textId = gSaveContext.save.day != 3 ? 0x3481 : 0x34A4;
         this->actor.textId = textId;
@@ -409,7 +405,7 @@ void func_808F3B40(EnIn* this, GlobalContext* globalCtx) {
 
 void func_808F3BD4(EnIn* this, GlobalContext* globalCtx) {
     if (Actor_ProcessTalkRequest(&this->actor, &globalCtx->state)) {
-        this->actor.flags &= ~0x10000;
+        this->actor.flags &= ~ACTOR_FLAG_10000;
         this->unk48C = 1;
         this->actionFunc = func_808F5A94;
     } else {
@@ -422,7 +418,7 @@ void func_808F3C40(EnIn* this, GlobalContext* globalCtx) {
 
     if (Actor_HasParent(&this->actor, globalCtx)) {
         this->actor.parent = NULL;
-        this->actor.flags |= 0x10000;
+        this->actor.flags |= ACTOR_FLAG_10000;
         this->actionFunc = func_808F3BD4;
         textId = gSaveContext.save.day != 3 ? 0x346A : 0x3492;
         this->actor.textId = textId;
@@ -433,7 +429,7 @@ void func_808F3C40(EnIn* this, GlobalContext* globalCtx) {
 
 void func_808F3CD4(EnIn* this, GlobalContext* globalCtx) {
     if (Actor_ProcessTalkRequest(&this->actor, &globalCtx->state)) {
-        this->actor.flags &= ~0x10000;
+        this->actor.flags &= ~ACTOR_FLAG_10000;
         this->unk48C = 1;
         this->actionFunc = func_808F5A94;
     } else {
@@ -449,7 +445,7 @@ void func_808F3D40(EnIn* this, GlobalContext* globalCtx) {
         this->actionFunc = func_808F3CD4;
         textId = gSaveContext.save.day != 3 ? 0x347D : 0x34A0;
         this->actor.textId = textId;
-        this->actor.flags |= 0x10000;
+        this->actor.flags |= ACTOR_FLAG_10000;
     } else {
         Actor_PickUp(&this->actor, globalCtx, GI_MASK_GARO, 500.0f, 100.0f);
     }
@@ -638,7 +634,7 @@ s32 func_808F4270(GlobalContext* globalCtx, EnIn* this, s32 arg2, MessageContext
 s32 func_808F43E0(EnIn* this) {
     this->unk48C = 0;
     this->actor.textId = 0;
-    SET_FLAGS_FINISH_RACE;
+    SET_RACE_FLAGS(RACE_FLAG_END);
     return 0;
 }
 
@@ -735,7 +731,7 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
         case 1:
             switch (textId) {
                 case 0x3463:
-                    gSaveContext.save.weekEventReg[15] |= 16;
+                    gSaveContext.save.weekEventReg[15] |= 0x10;
                     func_800E8EA0(globalCtx, &this->actor, 0x3464);
                     ret = false;
                     break;
@@ -820,7 +816,7 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
                     func_80151BB4(globalCtx, 0x11);
                     break;
                 case 0x3475:
-                    SET_FLAGS_START_RACE;
+                    SET_RACE_FLAGS(RACE_FLAG_START);
                     func_800FD750(NA_BGM_HORSE);
                     globalCtx->nextEntranceIndex = 0xCE50;
                     globalCtx->unk_1887F = 5;
@@ -1067,7 +1063,7 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
                     ret = false;
                     break;
                 case 0x3475:
-                    SET_FLAGS_START_RACE;
+                    SET_RACE_FLAGS(RACE_FLAG_START);
                     func_800FD750(NA_BGM_HORSE);
                     globalCtx->nextEntranceIndex = 0xCE50;
                     globalCtx->unk_1887F = 5;
@@ -1190,7 +1186,7 @@ s32 func_808F5674(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
             break;
         case 4:
         case 5:
-            if (func_80147624(globalCtx) && func_808F4414(globalCtx, this, arg2)) {
+            if (Message_ShouldAdvance(globalCtx) && func_808F4414(globalCtx, this, arg2)) {
                 func_801477B4(globalCtx);
                 ret = true;
             }
@@ -1202,14 +1198,13 @@ s32 func_808F5674(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
 s32 func_808F5728(GlobalContext* globalCtx, EnIn* this, s32 arg2, s32* arg3) {
     s16 rotDiff;
     s16 yawDiff;
-    s16 yawDiffA;
     Player* player;
 
     if (*arg3 == 4) {
         return 0;
     }
     if (*arg3 == 2) {
-        func_801518B0(globalCtx, this->actor.textId, &this->actor);
+        Message_StartTextbox(globalCtx, this->actor.textId, &this->actor);
         *arg3 = 1;
         return 0;
     }
@@ -1247,9 +1242,8 @@ s32 func_808F5728(GlobalContext* globalCtx, EnIn* this, s32 arg2, s32* arg3) {
     if (!func_800B8934(globalCtx, &this->actor)) {
         return 0;
     }
-    yawDiff = this->actor.yawTowardsPlayer - this->actor.shape.rot.y;
-    yawDiffA = ABS_ALT(yawDiff);
-    if (yawDiffA >= 0x4300) {
+    yawDiff = ABS_ALT(BINANG_SUB(this->actor.yawTowardsPlayer, this->actor.shape.rot.y));
+    if (yawDiff >= 0x4300) {
         return 0;
     }
     if (this->actor.xyzDistToPlayerSq > SQ(160.0f) && !this->actor.isTargeted) {
@@ -1327,7 +1321,7 @@ void func_808F5B58(EnIn* this, GlobalContext* globalCtx) {
 }
 
 void func_808F5C98(EnIn* this, GlobalContext* globalCtx) {
-    if (this->unk4B0 == 0) {
+    if (this->unk4B0 == RACE_FLAG_END) {
         this->actionFunc = func_808F5B58;
     }
     if ((Player_GetMask(globalCtx) == PLAYER_MASK_CIRCUS_LEADER && gSaveContext.save.weekEventReg[63] & 0x40) ||
@@ -1339,7 +1333,7 @@ void func_808F5C98(EnIn* this, GlobalContext* globalCtx) {
         }
     }
     if (this->unk4A8 == 2) {
-        if (this->unk4B0 == 2) {
+        if (this->unk4B0 == RACE_FLAG_2) {
             Actor_PlaySfxAtPos(&this->actor, NA_SE_VO_IN_LOST);
         } else {
             Actor_PlaySfxAtPos(&this->actor, NA_SE_VO_IN_JOY0);
@@ -1372,8 +1366,8 @@ void EnIn_Init(Actor* thisx, GlobalContext* globalCtx) {
     this->unk48C = 0;
     this->unk4AC = 0;
     type = ENIN_GET_TYPE(thisx);
-    this->unk4B0 = gSaveContext.save.weekEventReg[92] & (1 | 2 | 4);
-    if (type == ENIN_HORSE_RIDER_BLUE_SHIRT || type == 4) {
+    this->unk4B0 = GET_RACE_FLAGS;
+    if (type == ENIN_HORSE_RIDER_BLUE_SHIRT || type == ENIN_BLUE_SHIRT) {
         this->unk4AC |= 8;
     }
     if (type == ENIN_HORSE_RIDER_YELLOW_SHIRT || type == ENIN_HORSE_RIDER_BLUE_SHIRT) {
@@ -1390,23 +1384,22 @@ void EnIn_Init(Actor* thisx, GlobalContext* globalCtx) {
         Collider_SetJntSph(globalCtx, &this->colliderJntSph, &this->actor, &sJntSphInit, &this->colliderJntSphElement);
         Actor_SetScale(&this->actor, 0.01f);
         this->actor.gravity = -4.0f;
-        this->path = func_8013D648(globalCtx, ENIN_GET_PATH(&this->actor), 0x3F);
+        this->path = SubS_GetPathByIndex(globalCtx, ENIN_GET_PATH(&this->actor), 0x3F);
         this->unk23D = 0;
         if (type == ENIN_YELLOW_SHIRT || type == ENIN_BLUE_SHIRT) {
-            if ((gSaveContext.save.weekEventReg[92] & (1 | 2 | 4)) == 2 ||
-                (gSaveContext.save.weekEventReg[92] & (1 | 2 | 4)) == 3) {
+            if (GET_RACE_FLAGS == RACE_FLAG_2 || GET_RACE_FLAGS == RACE_FLAG_3) {
                 gSaveContext.save.weekEventReg[56] &= (u8)~8;
                 this->unk4A8 = 0;
                 this->unk4AC |= 2;
                 func_808F35AC(this, globalCtx);
                 this->unk23C = 0;
                 D_801BDAA0 = 0;
-                if ((gSaveContext.save.weekEventReg[92] & (1 | 2 | 4)) == 2) {
+                if (GET_RACE_FLAGS == RACE_FLAG_2) {
                     func_808F30B0(&this->skelAnime, 6);
                 } else {
                     func_808F30B0(&this->skelAnime, 4);
                 }
-                if ((gSaveContext.save.weekEventReg[92] & (1 | 2 | 4)) == 2) {
+                if (GET_RACE_FLAGS == RACE_FLAG_2) {
                     this->skelAnime.curFrame = ((Rand_ZeroOne() * 0.6f) + 0.2f) * this->skelAnime.endFrame;
                 }
                 if (this->unk4AC & 8) {
@@ -1415,7 +1408,7 @@ void EnIn_Init(Actor* thisx, GlobalContext* globalCtx) {
                     this->actionFunc = func_808F5C98;
                 }
             } else {
-                if ((gSaveContext.save.weekEventReg[92] & (1 | 2 | 4)) != 1) {
+                if (GET_RACE_FLAGS != RACE_FLAG_START) {
                     gSaveContext.save.weekEventReg[56] &= (u8)~8;
                     this->unk23C = 0;
                     this->unk4AC |= 2;
@@ -1488,7 +1481,7 @@ void func_808F6334(EnIn* this, GlobalContext* globalCtx) {
 
     Matrix_InsertTranslation(this->unk4C4, 0.0f, 0.0f, MTXMODE_APPLY);
     if (&this->actor == player->targetActor &&
-        !(globalCtx->msgCtx.unk11F04 >= 0xFF && globalCtx->msgCtx.unk11F04 <= 0x200) && newUnk4C8 == 3 &&
+        !(globalCtx->msgCtx.currentTextId >= 0xFF && globalCtx->msgCtx.currentTextId <= 0x200) && newUnk4C8 == 3 &&
         this->unk4C8 == 3) {
         if (!(globalCtx->state.frames & 1)) {
             this->unk4C0 = this->unk4C0 != 0.0f ? 0.0f : 1.0f;

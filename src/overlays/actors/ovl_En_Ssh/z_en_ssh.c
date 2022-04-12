@@ -7,7 +7,7 @@
 #include "z_en_ssh.h"
 #include "objects/object_ssh/object_ssh.h"
 
-#define FLAGS 0x00000035
+#define FLAGS (ACTOR_FLAG_1 | ACTOR_FLAG_4 | ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
 #define THIS ((EnSsh*)thisx)
 
@@ -151,8 +151,8 @@ s32 EnSsh_CheckCeilingPos(EnSsh* this, GlobalContext* globalCtx) {
     posB.x = this->actor.world.pos.x;
     posB.y = this->actor.world.pos.y + 1000.0f;
     posB.z = this->actor.world.pos.z;
-    if (!BgCheck_EntityLineTest1(&globalCtx->colCtx, &this->actor.world.pos, &posB, &this->ceilingPos, &poly, 0, 0, 1,
-                                 1, &bgId)) {
+    if (!BgCheck_EntityLineTest1(&globalCtx->colCtx, &this->actor.world.pos, &posB, &this->ceilingPos, &poly, false,
+                                 false, true, true, &bgId)) {
         return false;
     }
     return true;
@@ -683,8 +683,8 @@ void EnSsh_Wait(EnSsh* this, GlobalContext* globalCtx) {
 void EnSsh_Talk(EnSsh* this, GlobalContext* globalCtx) {
     EnSsh_Bob(this, globalCtx);
 
-    if ((Message_GetState(&globalCtx->msgCtx) == 5) && func_80147624(globalCtx)) {
-        switch (globalCtx->msgCtx.unk11F04) {
+    if ((Message_GetState(&globalCtx->msgCtx) == 5) && Message_ShouldAdvance(globalCtx)) {
+        switch (globalCtx->msgCtx.currentTextId) {
             case 0x904:
             case 0x905:
             case 0x906:
@@ -693,7 +693,7 @@ void EnSsh_Talk(EnSsh* this, GlobalContext* globalCtx) {
             case 0x911:
             case 0x912:
             case 0x914:
-                func_80151938(globalCtx, globalCtx->msgCtx.unk11F04 + 1);
+                func_80151938(globalCtx, globalCtx->msgCtx.currentTextId + 1);
                 break;
 
             default:
@@ -713,7 +713,7 @@ void func_809756D0(EnSsh* this, GlobalContext* globalCtx) {
         phi_a1 = 0x910;
         gSaveContext.save.weekEventReg[34] |= 8;
     }
-    func_801518B0(globalCtx, phi_a1, &this->actor);
+    Message_StartTextbox(globalCtx, phi_a1, &this->actor);
 }
 
 void EnSsh_Idle(EnSsh* this, GlobalContext* globalCtx) {

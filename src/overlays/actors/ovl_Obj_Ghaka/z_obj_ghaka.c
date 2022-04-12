@@ -7,7 +7,7 @@
 #include "z_obj_ghaka.h"
 #include "objects/object_ghaka/object_ghaka.h"
 
-#define FLAGS 0x00000029
+#define FLAGS (ACTOR_FLAG_1 | ACTOR_FLAG_8 | ACTOR_FLAG_20)
 
 #define THIS ((ObjGhaka*)thisx)
 
@@ -97,23 +97,23 @@ void func_80B3C4E0(ObjGhaka* this, GlobalContext* globalCtx) {
     u8 talkState = Message_GetState(&globalCtx->msgCtx);
 
     if (talkState == 5) {
-        if (func_80147624(globalCtx)) {
+        if (Message_ShouldAdvance(globalCtx)) {
             globalCtx->msgCtx.msgMode = 0x43;
             globalCtx->msgCtx.unk12023 = 4;
             func_80B3C260(this);
         }
     } else if (talkState == 4) {
-        if (func_80147624(globalCtx)) {
+        if (Message_ShouldAdvance(globalCtx)) {
             switch (globalCtx->msgCtx.choiceIndex) {
                 case 0:
                     func_8019F208();
                     this->dyna.actor.textId = 0xCF5;
-                    func_801518B0(globalCtx, this->dyna.actor.textId, &this->dyna.actor);
+                    Message_StartTextbox(globalCtx, this->dyna.actor.textId, &this->dyna.actor);
                     break;
                 case 1:
                     func_8019F208();
                     this->dyna.actor.textId = 0xCF7;
-                    func_801518B0(globalCtx, this->dyna.actor.textId, &this->dyna.actor);
+                    Message_StartTextbox(globalCtx, this->dyna.actor.textId, &this->dyna.actor);
                     break;
                 case 2:
                     func_8019F230();

@@ -3,7 +3,8 @@
 SaveContext gSaveContext;
 
 void SaveContext_Init(void) {
-    bzero(&gSaveContext, sizeof(gSaveContext));
+    bzero(&gSaveContext, sizeof(SaveContext));
+
     gSaveContext.save.playerForm = 0;
     gSaveContext.seqIndex = (u8)NA_BGM_DISABLED;
     gSaveContext.nightSeqIndex = 0xFF;

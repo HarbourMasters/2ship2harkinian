@@ -8,7 +8,7 @@
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "objects/object_bubble/object_bubble.h"
 
-#define FLAGS 0x00000030
+#define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
 #define THIS ((DemoKankyo*)thisx)
 
@@ -518,12 +518,12 @@ void DemoKakyo_DrawLostWoodsSparkle(Actor* thisx, GlobalContext* globalCtx2) {
     Vec3f screenPos;
 
     // if not underwater
-    if (!(globalCtx->cameraPtrs[MAIN_CAM]->flags2 & 0x100)) {
+    if (!(globalCtx->cameraPtrs[CAM_ID_MAIN]->flags2 & 0x100)) {
         OPEN_DISPS(globalCtx->state.gfxCtx);
 
         POLY_XLU_DISP = Gfx_CallSetupDL(POLY_XLU_DISP, 20);
 
-        gSPSegment(POLY_XLU_DISP++, 0x08, Lib_SegmentedToVirtual(gameplay_keep_Tex_079B10));
+        gSPSegment(POLY_XLU_DISP++, 0x08, Lib_SegmentedToVirtual(gSun1Tex));
         gSPDisplayList(POLY_XLU_DISP++, gameplay_keep_DL_07AB10);
 
         for (i = 0; i < globalCtx->envCtx.unk_F2[3]; i++) {
@@ -633,7 +633,7 @@ void DemoKankyo_DrawMoonAndGiant(Actor* thisx, GlobalContext* globalCtx2) {
                 Matrix_Scale(this->particles[i].scale * alphaScale, this->particles[i].scale * alphaScale,
                              this->particles[i].scale * alphaScale, MTXMODE_APPLY);
                 alphaScale = Math_Vec3f_DistXYZ(&worldPos, &globalCtx->view.eye) / 300.0f;
-                alphaScale = (alphaScale > 1.0f) ? 0.0f : (1.0f - alphaScale) > 1.0f ? 1.0f : 1.0f - alphaScale;
+                alphaScale = CLAMP(1.0f - alphaScale, 0.0f, 1.0f);
 
                 if (this->actor.params == DEMO_KANKYO_TYPE_GIANTS) {
                     this->particles[i].alpha = 255.0f * alphaScale;
@@ -655,7 +655,7 @@ void DemoKankyo_DrawMoonAndGiant(Actor* thisx, GlobalContext* globalCtx2) {
                         break;
                 }
 
-                gSPDisplayList(POLY_XLU_DISP++, &gameplay_keep_DL_023348);
+                gSPDisplayList(POLY_XLU_DISP++, &gLightOrb1DL);
 
                 Matrix_InsertMatrix(&globalCtx->billboardMtxF, MTXMODE_APPLY);
 
@@ -667,7 +667,7 @@ void DemoKankyo_DrawMoonAndGiant(Actor* thisx, GlobalContext* globalCtx2) {
                 if (this->actor.params == DEMO_KANKYO_TYPE_GIANTS) {
                     gSPDisplayList(POLY_XLU_DISP++, object_bubble_DL_001000);
                 } else {
-                    gSPDisplayList(POLY_XLU_DISP++, gameplay_keep_DL_023428);
+                    gSPDisplayList(POLY_XLU_DISP++, gLightOrbVtxDL);
                 }
             }
         }

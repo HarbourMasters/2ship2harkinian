@@ -118,9 +118,9 @@ s32 D_80BF57E4[][4] = {
     { 56, 34, 44, 41 }, { 60, 38, 50, 45 }, { 67, 42, 55, 49 }, { 74, 47, 61, 54 },
 };
 
-ActorAnimationEntryS D_80BF5914[] = {
-    { &object_oF1d_map_Anim_012DE0, 2.0f, 0, -1, 2, 0 },
-    { &object_oF1d_map_Anim_012DE0, -2.0f, 0, -1, 2, 0 },
+AnimationInfoS D_80BF5914[] = {
+    { &object_oF1d_map_Anim_012DE0, 2.0f, 0, -1, ANIMMODE_ONCE, 0 },
+    { &object_oF1d_map_Anim_012DE0, -2.0f, 0, -1, ANIMMODE_ONCE, 0 },
 };
 
 TexturePtr D_80BF5934[] = {
@@ -303,7 +303,7 @@ s32 func_80BF409C(EnRg* this, s32 arg1) {
 
     if (arg1 != this->unk_334) {
         this->unk_334 = arg1;
-        ret = func_8013BC6C(&this->skelAnime, D_80BF5914, arg1);
+        ret = SubS_ChangeAnimationByInfoS(&this->skelAnime, D_80BF5914, arg1);
         this->unk_314 = this->skelAnime.playSpeed;
     }
     return ret;
@@ -383,8 +383,8 @@ s32 func_80BF43FC(EnRg* this) {
     s32 phi_s0 = D_80BF57E4[this->unk_344][temp_s7];
 
     while (true) {
-        func_8013C8B8(this->path, phi_s0 - 1, &sp9C);
-        func_8013C8B8(this->path, phi_s0 + 1, &sp90);
+        SubS_CopyPointFromPathCheckBounds(this->path, phi_s0 - 1, &sp9C);
+        SubS_CopyPointFromPathCheckBounds(this->path, phi_s0 + 1, &sp90);
         if (Math3D_PointDistToLine2D(this->actor.world.pos.x, this->actor.world.pos.z, sp9C.x, sp9C.z, sp90.x, sp90.z,
                                      &sp8C, &sp88, &sp84) &&
             (!phi_s6 || ((phi_s4 + 1) == phi_s0) || (sp84 < phi_f20))) {
@@ -477,11 +477,11 @@ s32 func_80BF47AC(EnRg* this, GlobalContext* globalCtx) {
 
     if ((this->unk_310 & 0x400) || (this->unk_310 & 0x1000)) {
         phi_f0 = 0.0f;
-    } else if (this->unk_348 >= 2) {
+    } else if (this->numCheckpointsAheadOfPlayer >= 2) {
         phi_f0 = phi_f2 * 0.5f;
-    } else if (this->unk_348 == 1) {
+    } else if (this->numCheckpointsAheadOfPlayer == 1) {
         phi_f0 = phi_f2 * 0.75f;
-    } else if (this->unk_348 == 0) {
+    } else if (this->numCheckpointsAheadOfPlayer == 0) {
         s16 temp_v0_3 = this->actor.yawTowardsPlayer - this->actor.world.rot.y;
 
         if ((ABS_ALT(temp_v0_3) > 0x4000) || (this->unk_326 > 0)) {
@@ -489,7 +489,7 @@ s32 func_80BF47AC(EnRg* this, GlobalContext* globalCtx) {
         } else {
             phi_f0 = phi_f2 * 0.94f;
         }
-    } else if (this->unk_348 == -1) {
+    } else if (this->numCheckpointsAheadOfPlayer == -1) {
         phi_f0 = phi_f2 * 1.6f;
     } else {
         phi_f0 = 2.0f * phi_f2;
@@ -521,7 +521,7 @@ void func_80BF4964(EnRg* this) {
     if (this->path != NULL) {
         sp3C = Lib_SegmentedToVirtual(this->path->points);
 
-        if (func_8013BD40(&this->actor, this->path, this->unk_33C)) {
+        if (SubS_HasReachedPoint(&this->actor, this->path, this->unk_33C)) {
             if ((this->path->count - 1) < (this->unk_33C + 1)) {
                 this->unk_33C = this->path->count - 1;
             } else {
@@ -677,13 +677,13 @@ void func_80BF4EBC(EnRg* this, GlobalContext* globalCtx) {
             this->unk_318 = Rand_S16Offset(0, 20);
         }
     }
-    func_8013D9C8(globalCtx, this->unk_32E, this->unk_328, ARRAY_COUNT(this->unk_328));
+    SubS_FillLimbRotTables(globalCtx, this->unk_32E, this->unk_328, ARRAY_COUNT(this->unk_328));
 }
 
 void func_80BF4FC4(EnRg* this, GlobalContext* globalCtx) {
     this->unk_344 = func_80BF4560(this, globalCtx);
 
-    if (!func_801690CC(globalCtx)) {
+    if (!Play_InCsMode(globalCtx)) {
         if (this->actor.bgCheckFlags & 2) {
             if (this->unk_310 & 0x400) {
                 this->unk_310 &= ~0x400;
@@ -749,7 +749,7 @@ void EnRg_Init(Actor* thisx, GlobalContext* globalCtx) {
 
         Effect_Add(globalCtx, &this->unk_340, EFFECT_TIRE_MARK, 0, 0, &D_80BF59F0);
 
-        this->path = func_8013BEDC(globalCtx, ENRG_GET_7F80(&this->actor), 255, &this->unk_33C);
+        this->path = SubS_GetDayDependentPath(globalCtx, ENRG_GET_7F80(&this->actor), 255, &this->unk_33C);
         if (this->path != NULL) {
             this->unk_33C = 1;
         }
@@ -757,7 +757,7 @@ void EnRg_Init(Actor* thisx, GlobalContext* globalCtx) {
         this->actor.flags &= ~ACTOR_FLAG_1;
         this->unk_310 = 8;
         this->actor.gravity = -1.0f;
-        func_8013AED4(&this->unk_310, 3, 7);
+        SubS_UpdateFlags(&this->unk_310, 3, 7);
 
         if (!(gSaveContext.save.weekEventReg[12] & 2)) {
             this->unk_318 = Rand_S16Offset(30, 30);
@@ -802,7 +802,7 @@ void EnRg_Update(Actor* thisx, GlobalContext* globalCtx) {
 
     func_80BF3ED4(this, globalCtx);
 
-    if (!func_801690CC(globalCtx)) {
+    if (!Play_InCsMode(globalCtx)) {
         func_80BF3C64(this);
     }
 }

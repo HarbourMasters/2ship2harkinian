@@ -13,7 +13,7 @@ void Opening_SetupForTitleCutscene(OpeningContext* this) {
     gSaveContext.eventInf[1] &= (u8)~0x80;
     gSaveContext.gameMode = 1;
 
-    func_80144890();
+    Sram_InitNewSave();
 
     gSaveContext.save.entranceIndex = openingEntrances[D_801BB12C];
     gSaveContext.nextCutsceneIndex = gSaveContext.save.cutscene = openingCutscenes[D_801BB12C];
@@ -37,7 +37,7 @@ void func_80803EA0(OpeningContext* this) {
 void Opening_Main(GameState* thisx) {
     OpeningContext* this = (OpeningContext*)thisx;
 
-    func_8012CF0C(this->gameState.gfxCtx, 0, 1, 0, 0, 0);
+    func_8012CF0C(this->gameState.gfxCtx, false, true, 0, 0, 0);
     Opening_SetupForTitleCutscene(this);
     func_80803EA0(this);
 }
@@ -57,8 +57,8 @@ void Opening_Init(GameState* thisx) {
     this->gameState.destroy = Opening_Destroy;
 
     gSaveContext.respawnFlag = 0;
-    gSaveContext.respawn[4].entranceIndex = 0xFF;
-    gSaveContext.respawn[5].entranceIndex = 0xFF;
-    gSaveContext.respawn[6].entranceIndex = 0xFF;
-    gSaveContext.respawn[7].entranceIndex = 0xFF;
+    gSaveContext.respawn[RESPAWN_MODE_GORON].entranceIndex = 0xFF;
+    gSaveContext.respawn[RESPAWN_MODE_ZORA].entranceIndex = 0xFF;
+    gSaveContext.respawn[RESPAWN_MODE_DEKU].entranceIndex = 0xFF;
+    gSaveContext.respawn[RESPAWN_MODE_HUMAN].entranceIndex = 0xFF;
 }

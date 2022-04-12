@@ -107,7 +107,7 @@ void* gItemIcons[] = {
     0x08007000,        // ITEM_BOMBCHU
     0x08008000,        // ITEM_STICK
     0x08009000,        // ITEM_NUT
-    0x0800A000,        // ITEM_MAGIC_BEANS
+    0x0800A000,        // ITEM_BEAN
     0x0800B000,        // ITEM_SLINGSHOT
     0x0800C000,        // ITEM_POWDER_KEG
     0x0800D000,        // ITEM_PICTO_BOX
@@ -504,7 +504,7 @@ void Inventory_ChangeEquipment(s16 value) {
 u8 Inventory_DeleteEquipment(GlobalContext* globalCtx, s16 equipment) {
     Player* player = GET_PLAYER(globalCtx);
 
-    if (CUR_EQUIP_VALUE_VOID(EQUIP_SHIELD) != 0) {
+    if (GET_CUR_EQUIP_VALUE(EQUIP_SHIELD) != 0) {
         SET_EQUIP_VALUE(EQUIP_SHIELD, 0);
         Player_SetEquipmentData(globalCtx, player);
         return true;
@@ -691,15 +691,17 @@ void Inventory_SaveDekuPlaygroundHighScore(s16 timerId) {
     gSaveContext.save.dekuPlaygroundHighScores[CURRENT_DAY - 1] = gSaveContext.unk_3DE0[timerId];
 
     for (i = 0; i < 8; i++) {
-        gSaveContext.save.inventory.dekuPlaygroundPlayerName[CURRENT_DAY - 1][i] = gSaveContext.save.playerData.playerName[i];
+        gSaveContext.save.inventory.dekuPlaygroundPlayerName[CURRENT_DAY - 1][i] =
+            gSaveContext.save.playerData.playerName[i];
     }
 }
 
 void Inventory_IncrementSkullTokenCount(s16 sceneIndex) {
     if (sceneIndex == SCENE_KINSTA1) {
         // Swamp Spider House (increment high bits of skullTokenCount)
-        gSaveContext.save.skullTokenCount = ((u16)(((gSaveContext.save.skullTokenCount & 0xFFFF0000) >> 0x10) + 1) << 0x10) |
-                                       (gSaveContext.save.skullTokenCount & 0xFFFF);
+        gSaveContext.save.skullTokenCount =
+            ((u16)(((gSaveContext.save.skullTokenCount & 0xFFFF0000) >> 0x10) + 1) << 0x10) |
+            (gSaveContext.save.skullTokenCount & 0xFFFF);
     } else {
         // Ocean Spider House (increment low bits of skullTokenCount)
         gSaveContext.save.skullTokenCount =
@@ -720,8 +722,9 @@ s16 Inventory_GetSkullTokenCount(s16 sceneIndex) {
 void Inventory_SaveLotteryCodeGuess(GlobalContext* globalCtx) {
     u16 lotteryCodeGuess;
 
-    lotteryCodeGuess = ((globalCtx->msgCtx.unk12054 & 0xF) << 8);  // First Digit
-    lotteryCodeGuess |= ((globalCtx->msgCtx.unk12056 & 0xF) << 4); // Second Digit
-    lotteryCodeGuess |= (globalCtx->msgCtx.unk12058 & 0xF);        // Third Digit
-    gSaveContext.save.lotteryCodeGuess = (gSaveContext.save.lotteryCodeGuess & 0xFFFF0000) | (lotteryCodeGuess & 0xFFFF);
+    lotteryCodeGuess = ((globalCtx->msgCtx.unk12054[0] & 0xF) << 8);  // First Digit
+    lotteryCodeGuess |= ((globalCtx->msgCtx.unk12054[1] & 0xF) << 4); // Second Digit
+    lotteryCodeGuess |= (globalCtx->msgCtx.unk12054[2] & 0xF);        // Third Digit
+    gSaveContext.save.lotteryCodeGuess =
+        (gSaveContext.save.lotteryCodeGuess & 0xFFFF0000) | (lotteryCodeGuess & 0xFFFF);
 }

@@ -7,7 +7,7 @@
 #include "z_en_baisen.h"
 #include "objects/object_bai/object_bai.h"
 
-#define FLAGS 0x00000009
+#define FLAGS (ACTOR_FLAG_1 | ACTOR_FLAG_8)
 
 #define THIS ((EnBaisen*)thisx)
 
@@ -59,7 +59,7 @@ static u16 sTextIds[] = { 0x2ABD, 0x2ABB, 0x2AD5, 0x2AD6, 0x2AD7, 0x2AD8, 0x2AC6
 
 static AnimationHeader* D_80BE8E4C[] = { &object_bai_Anim_0011C0, &object_bai_Anim_0008B4, &object_bai_Anim_008198 };
 
-static u8 animModes[] = { 0, 0 };
+static u8 animModes[] = { ANIMMODE_LOOP, ANIMMODE_LOOP };
 
 void EnBaisen_Init(Actor* thisx, GlobalContext* globalCtx) {
     EnBaisen* this = THIS;
@@ -198,8 +198,8 @@ void func_80BE89D8(EnBaisen* this, GlobalContext* globalCtx) {
             EnBaisen_ChangeAnimation(this, 0);
         }
     }
-    if ((globalCtx->msgCtx.unk11F04 == 0x2AC6) || (globalCtx->msgCtx.unk11F04 == 0x2AC7) ||
-        (globalCtx->msgCtx.unk11F04 == 0x2AC8)) {
+    if ((globalCtx->msgCtx.currentTextId == 0x2AC6) || (globalCtx->msgCtx.currentTextId == 0x2AC7) ||
+        (globalCtx->msgCtx.currentTextId == 0x2AC8)) {
         this->skelAnime.playSpeed = 0.0f;
         this->unk29E = this->actor.yawTowardsPlayer;
     }
@@ -222,7 +222,7 @@ void func_80BE8AAC(EnBaisen* this, GlobalContext* globalCtx) {
             EnBaisen_ChangeAnimation(this, 0);
         }
     }
-    if ((Message_GetState(&globalCtx->msgCtx) == 5) && func_80147624(globalCtx)) {
+    if ((Message_GetState(&globalCtx->msgCtx) == 5) && Message_ShouldAdvance(globalCtx)) {
         func_801477B4(globalCtx);
         this->textIdIndex++;
         if (this->textIdIndex < 6) {

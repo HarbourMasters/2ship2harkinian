@@ -10,7 +10,7 @@
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "objects/object_fb/object_fb.h"
 
-#define FLAGS 0x00000019
+#define FLAGS (ACTOR_FLAG_1 | ACTOR_FLAG_8 | ACTOR_FLAG_10)
 
 #define THIS ((EnFish2*)thisx)
 
@@ -209,7 +209,7 @@ void EnFish2_Init(Actor* thisx, GlobalContext* globalCtx) {
     } else if (this->actor.params != 0) {
         this->unk_2B4 = 10;
         this->actor.draw = NULL;
-        this->actor.flags |= 0x8000000;
+        this->actor.flags |= ACTOR_FLAG_8000000;
         this->actionFunc = func_80B2A01C;
     }
 }
@@ -434,7 +434,7 @@ void func_80B29128(EnFish2* this) {
 }
 
 void func_80B2913C(EnFish2* this, GlobalContext* globalCtx) {
-    if ((Message_GetState(&globalCtx->msgCtx) == 5) && func_80147624(globalCtx)) {
+    if ((Message_GetState(&globalCtx->msgCtx) == 5) && Message_ShouldAdvance(globalCtx)) {
         func_801477B4(globalCtx);
         func_80B28B5C(this);
     }
@@ -894,8 +894,8 @@ void func_80B2A498(EnFish2* this, GlobalContext* globalCtx) {
             gSaveContext.save.weekEventReg[81] &= (u8)~0x20;
             gSaveContext.save.weekEventReg[81] &= (u8)~0x40;
             gSaveContext.save.weekEventReg[81] &= (u8)~0x80;
-            gSaveContext.save.weekEventReg[82] &= (u8)~0x1;
-            gSaveContext.save.weekEventReg[82] &= (u8)~0x2;
+            gSaveContext.save.weekEventReg[82] &= (u8)~1;
+            gSaveContext.save.weekEventReg[82] &= (u8)~2;
         }
     }
 
@@ -1094,9 +1094,9 @@ void func_80B2ADB0(EnFish2* this, Vec3f* vec, s16 arg2) {
             TexturePtr phi_v0;
 
             if (Rand_ZeroOne() < 0.5f) {
-                phi_v0 = gameplay_keep_Tex_091CE0;
+                phi_v0 = gEffBubble2Tex;
             } else {
-                phi_v0 = gameplay_keep_Tex_091BE0;
+                phi_v0 = gEffBubble1Tex;
             }
 
             ptr->unk_20 = VIRTUAL_TO_PHYSICAL(SEGMENTED_TO_VIRTUAL(phi_v0));
@@ -1168,7 +1168,7 @@ void func_80B2B180(EnFish2* this, GlobalContext* globalCtx) {
             gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, 255);
             gDPSetEnvColor(POLY_OPA_DISP++, 150, 150, 150, 0);
             gSPSegment(POLY_OPA_DISP++, 0x08, ptr->unk_20);
-            gSPDisplayList(POLY_OPA_DISP++, gameplay_keep_DL_0301B0);
+            gSPDisplayList(POLY_OPA_DISP++, gEffBubbleDL);
         }
     }
 
