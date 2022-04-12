@@ -2071,7 +2071,32 @@ s32 Inventory_ReplaceItem(GlobalContext* globalCtx, u8 oldItem, u8 newItem) {
     return false;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80114CA0.s")
+void Inventory_UpdateDeitySwordEquip(GlobalContext* globalCtx) {
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+    u8 btn;
+
+    if (CUR_FORM == 0) {
+        interfaceCtx->unk_21C = 0;
+        interfaceCtx->unk_21E = 0;
+        if ((((gSaveContext.save.playerForm > 0) && (gSaveContext.save.playerForm < 4)) ? 1 : gSaveContext.save.playerForm >> 1) == 0) {
+            BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_SWORD_DEITY;
+        } else {
+            if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_SWORD_DEITY) {
+                if (GET_CUR_EQUIP_VALUE(EQUIP_SWORD) == 0) {
+                    BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_NONE;
+                } else {
+                    BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = GET_CUR_EQUIP_VALUE(EQUIP_SWORD) + ITEM_SWORD_KOKIRI - 1;
+                }
+            }
+        }
+    }
+
+    for (btn = 0; btn < 1; btn++) {
+        if ((GET_CUR_FORM_BTN_ITEM(btn) != ITEM_NONE) && (GET_CUR_FORM_BTN_ITEM(btn) != ITEM_UNK_FD)) {
+            Interface_LoadItemIconImpl(globalCtx, btn);
+        }
+    }
+}
 
 s32 Inventory_HasEmptyBottle(void) {
     s32 slot;
@@ -2109,7 +2134,29 @@ void Inventory_UpdateBottleItem(GlobalContext* globalCtx, u8 item, u8 btn) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80115130.s")
+s32 Inventory_ConsumeFairy(GlobalContext* globalCtx) {
+    u8 bottleSlot = SLOT(ITEM_FAIRY);
+    u8 btn;
+    u8 i;
+
+    for (i = 0; i < 6; i++) {
+        if (gSaveContext.save.inventory.items[bottleSlot + i] == ITEM_FAIRY) {
+            for (btn = 1; btn < 4; btn++) {
+                if (GET_CUR_FORM_BTN_ITEM(btn) == ITEM_FAIRY) {
+                    SET_CUR_FORM_BTN_ITEM(btn, ITEM_BOTTLE);
+                    Interface_LoadItemIconImpl(globalCtx, btn);
+                    bottleSlot = GET_CUR_FORM_BTN_SLOT(btn);
+                    i = 0;
+                    break;
+                }
+            }
+            gSaveContext.save.inventory.items[bottleSlot + i] = ITEM_BOTTLE;
+            return true;
+        }
+    }
+
+    return false;
+}
 
 /**
  * Only used to equip spring water when hot sprint water timer runs out

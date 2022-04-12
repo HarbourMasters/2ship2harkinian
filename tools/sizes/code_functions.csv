@@ -1632,11 +1632,11 @@ asm/non_matchings/code/z_parameter/Item_CheckObtainability.s,Item_CheckObtainabi
 asm/non_matchings/code/z_parameter/Inventory_DeleteItem.s,Inventory_DeleteItem,0x801149A0,0x3F
 asm/non_matchings/code/z_parameter/Inventory_UnequipItem.s,Inventory_UnequipItem,0x80114A9C,0x3A
 asm/non_matchings/code/z_parameter/Inventory_ReplaceItem.s,Inventory_ReplaceItem,0x80114B84,0x47
-asm/non_matchings/code/z_parameter/func_80114CA0.s,func_80114CA0,0x80114CA0,0x7C
+asm/non_matchings/code/z_parameter/Inventory_UpdateDeitySwordEquip.s,Inventory_UpdateDeitySwordEquip,0x80114CA0,0x7C
 asm/non_matchings/code/z_parameter/Inventory_HasEmptyBottle.s,Inventory_HasEmptyBottle,0x80114E90,0x27
 asm/non_matchings/code/z_parameter/Inventory_HasItemInBottle.s,Inventory_HasItemInBottle,0x80114F2C,0x29
 asm/non_matchings/code/z_parameter/Inventory_UpdateBottleItem.s,Inventory_UpdateBottleItem,0x80114FD0,0x58
-asm/non_matchings/code/z_parameter/func_80115130.s,func_80115130,0x80115130,0x62
+asm/non_matchings/code/z_parameter/Inventory_ConsumeFairy.s,Inventory_ConsumeFairy,0x80115130,0x62
 asm/non_matchings/code/z_parameter/Inventory_UpdateItem.s,Inventory_UpdateItem,0x801152B8,0x44
 asm/non_matchings/code/z_parameter/func_801153C8.s,func_801153C8,0x801153C8,0x18
 asm/non_matchings/code/z_parameter/Interface_LoadActionLabel.s,Interface_LoadActionLabel,0x80115428,0x41
