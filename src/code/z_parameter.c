@@ -1411,21 +1411,21 @@ void Interface_LoadItemIcon(GlobalContext* globalCtx, u8 btn) {
 
 void func_80112C0C(GlobalContext* globalCtx, u16 flag) {
     if (flag) {
-        if ((gSaveContext.save.equips.buttonItems[CUR_FORM][0] == ITEM_BOW) ||
-            (gSaveContext.save.equips.buttonItems[CUR_FORM][0] == ITEM_BOMB) ||
-            (gSaveContext.save.equips.buttonItems[CUR_FORM][0] == ITEM_BOMBCHU) ||
-            (gSaveContext.save.equips.buttonItems[CUR_FORM][0] == ITEM_FISHING_POLE) ||
+        if ((BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOW) ||
+            (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOMB) ||
+            (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOMBCHU) ||
+            (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_FISHING_POLE) ||
             (gSaveContext.buttonStatus[0] == BTN_DISABLED)) {
-            if ((gSaveContext.save.equips.buttonItems[CUR_FORM][0] == ITEM_BOW) ||
-                (gSaveContext.save.equips.buttonItems[CUR_FORM][0] == ITEM_BOMB) ||
-                (gSaveContext.save.equips.buttonItems[CUR_FORM][0] == ITEM_BOMBCHU) ||
-                (gSaveContext.save.equips.buttonItems[CUR_FORM][0] == ITEM_FISHING_POLE)) {
-                gSaveContext.save.equips.buttonItems[CUR_FORM][0] = gSaveContext.buttonStatus[0];
+            if ((BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOW) ||
+                (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOMB) ||
+                (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOMBCHU) ||
+                (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_FISHING_POLE)) {
+                BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = gSaveContext.buttonStatus[0];
                 Interface_LoadItemIconImpl(globalCtx, 0);
             }
-        } else if (gSaveContext.save.equips.buttonItems[CUR_FORM][0] == ITEM_NONE) {
-            if (gSaveContext.save.equips.buttonItems[CUR_FORM][0] != ITEM_NONE) {
-                gSaveContext.save.equips.buttonItems[CUR_FORM][0] = gSaveContext.buttonStatus[0];
+        } else if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_NONE) {
+            if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NONE) {
+                BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = gSaveContext.buttonStatus[0];
                 Interface_LoadItemIconImpl(globalCtx, 0);
             }
         }
@@ -1489,7 +1489,7 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
 
     } else if ((item >= ITEM_SWORD_KOKIRI) && (item <= ITEM_SWORD_GILDED)) {
         SET_EQUIP_VALUE(EQUIP_SWORD, item - ITEM_SWORD_KOKIRI + 1);
-        gSaveContext.save.equips.buttonItems[CUR_FORM][0] = item;
+        BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = item;
         Interface_LoadItemIconImpl(globalCtx, 0);
         if (item == ITEM_SWORD_RAZOR) {
             gSaveContext.save.playerData.swordHealth = 100;
@@ -1668,7 +1668,7 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
         return ITEM_NONE;
 
     } else if ((item >= ITEM_BOMBS_5) && (item <= ITEM_BOMBS_30)) {
-        if (gSaveContext.save.inventory.items[6] != ITEM_BOMB) {
+        if (gSaveContext.save.inventory.items[SLOT_BOMB] != ITEM_BOMB) {
             INV_CONTENT(ITEM_BOMB) = ITEM_BOMB;
             AMMO(ITEM_BOMB) += sAmmoRefillCounts[item - ITEM_BOMBS_5];
             return ITEM_NONE;
@@ -1691,7 +1691,7 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
         return ITEM_NONE;
 
     } else if ((item >= ITEM_BOMBCHUS_20) && (item <= ITEM_BOMBCHUS_5)) {
-        if (gSaveContext.save.inventory.items[7] != ITEM_BOMBCHU) {
+        if (gSaveContext.save.inventory.items[SLOT_BOMBCHU] != ITEM_BOMBCHU) {
             INV_CONTENT(ITEM_BOMBCHU) = ITEM_BOMBCHU;
             AMMO(ITEM_BOMBCHU) += sAmmoRefillCounts[item - ITEM_BOMBCHUS_20 + 8];
 
@@ -1720,7 +1720,7 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
 
     } else if (item == ITEM_BEAN) {
         if (INV_CONTENT(ITEM_BEAN) == ITEM_NONE) {
-            gSaveContext.save.inventory.items[SLOT(item)] = item;
+            INV_CONTENT(item) = item;
             AMMO(ITEM_BEAN) = 1;
         } else if (AMMO(ITEM_BEAN) < 20) {
             AMMO(ITEM_BEAN)++;
@@ -1769,7 +1769,8 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
         }
         return item;
 
-    } else if ((item == 0x18) || (item == 0x1D) || (item == 0x22) || (item == 0x25) || (item == 0x26)) {
+    } else if ((item == ITEM_MILK_BOTTLE) || (item == ITEM_POE) || (item == ITEM_GOLD_DUST) || (item == ITEM_CHATEAU) ||
+               (item == ITEM_HYLIAN_LOACH)) {
         slot = SLOT(item);
 
         for (i = 0; i < 6; i++) {
@@ -1780,7 +1781,7 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
         }
         return item;
 
-    } else if (item == 0x12) {
+    } else if (item == ITEM_BOTTLE) {
         slot = SLOT(item);
 
         for (i = 0; i < 6; i++) {
@@ -1791,44 +1792,45 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
         }
         return item;
 
-    } else if (((item >= 0x13) && (item < 0x28)) || (item == 0x9F) || (item == 0xA0) || (item == 0xA1) ||
-               (item == 0xA2) || (item == 0xA3)) {
+    } else if (((item >= ITEM_POTION_RED) && (item <= ITEM_OBABA_DRINK)) || (item == ITEM_CHATEAU_2) ||
+               (item == ITEM_MILK) || (item == ITEM_GOLD_DUST_2) || (item == ITEM_HYLIAN_LOACH_2) ||
+               (item == ITEM_SEA_HORSE_CAUGHT)) {
         slot = SLOT(item);
 
-        if ((item != 0x18) && (item != 0x19)) {
-            if (item == 0x9F) {
-                item = 0x25;
+        if ((item != ITEM_MILK_BOTTLE) && (item != ITEM_MILK_HALF)) {
+            if (item == ITEM_CHATEAU_2) {
+                item = ITEM_CHATEAU;
 
-            } else if (item == 0xA0) {
-                item = 0x18;
+            } else if (item == ITEM_MILK) {
+                item = ITEM_MILK_BOTTLE;
 
-            } else if (item == 0xA1) {
-                item = 0x22;
+            } else if (item == ITEM_GOLD_DUST_2) {
+                item = ITEM_GOLD_DUST;
 
-            } else if (item == 0xA2) {
-                item = 0x26;
+            } else if (item == ITEM_HYLIAN_LOACH_2) {
+                item = ITEM_HYLIAN_LOACH;
 
-            } else if (item == 0xA3) {
-                item = 0x24;
+            } else if (item == ITEM_SEA_HORSE_CAUGHT) {
+                item = ITEM_SEA_HORSE;
             }
             slot = SLOT(item);
 
             for (i = 0; i < 6; i++) {
-                if (gSaveContext.save.inventory.items[slot + i] == 0x12) {
-                    if (item == 0x20) {
+                if (gSaveContext.save.inventory.items[slot + i] == ITEM_BOTTLE) {
+                    if (item == ITEM_HOT_SPRING_WATER) {
                         func_8010EBA0(60, i);
                     }
 
-                    if ((slot + i) == gSaveContext.save.equips.cButtonSlots[0][1]) {
-                        gSaveContext.save.equips.buttonItems[0][1] = item;
+                    if ((slot + i) == C_SLOT_EQUIP(0, 1)) {
+                        BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT) = item;
                         Interface_LoadItemIconImpl(globalCtx, 1);
                         gSaveContext.buttonStatus[1] = BTN_ENABLED;
-                    } else if ((slot + i) == gSaveContext.save.equips.cButtonSlots[0][2]) {
-                        gSaveContext.save.equips.buttonItems[0][2] = item;
+                    } else if ((slot + i) == C_SLOT_EQUIP(0, 2)) {
+                        BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) = item;
                         Interface_LoadItemIconImpl(globalCtx, 2);
                         gSaveContext.buttonStatus[2] = BTN_ENABLED;
-                    } else if ((slot + i) == gSaveContext.save.equips.cButtonSlots[0][3]) {
-                        gSaveContext.save.equips.buttonItems[0][3] = item;
+                    } else if ((slot + i) == C_SLOT_EQUIP(0, 3)) {
+                        BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) = item;
                         Interface_LoadItemIconImpl(globalCtx, 3);
                         gSaveContext.buttonStatus[3] = BTN_ENABLED;
                     }
@@ -2022,10 +2024,10 @@ void Interface_SetDoAction(GlobalContext* globalCtx, u16 action) {
 void func_801155B4(GlobalContext* globalCtx, s16 arg1) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
 
-    if (((gSaveContext.save.equips.buttonItems[CUR_FORM][0] >= ITEM_SWORD_KOKIRI) &&
-         (gSaveContext.save.equips.buttonItems[CUR_FORM][0] <= ITEM_SWORD_GILDED)) ||
-        (gSaveContext.save.equips.buttonItems[CUR_FORM][0] == ITEM_NONE) ||
-        (gSaveContext.save.equips.buttonItems[CUR_FORM][0] == ITEM_NUT)) {
+    if (((BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) >= ITEM_SWORD_KOKIRI) &&
+         (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) <= ITEM_SWORD_GILDED)) ||
+        (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_NONE) ||
+        (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_NUT)) {
         if ((CUR_FORM == PLAYER_FORM_DEKU) && (gSaveContext.save.playerData.magicAcquired == 0)) {
             interfaceCtx->unk_21E = 0xFD;
         } else {
@@ -2439,9 +2441,9 @@ void Interface_UpdateMagicBar(GlobalContext* globalCtx) {
                 if (!Play_InCsMode(globalCtx)) {
                     if ((gSaveContext.save.playerData.magic == 0) ||
                         ((func_801242DC(globalCtx) >= 2) && (func_801242DC(globalCtx) < 5)) ||
-                        (((gSaveContext.save.equips.buttonItems[0][1]) != ITEM_LENS) &&
-                         (gSaveContext.save.equips.buttonItems[0][2] != ITEM_LENS) &&
-                         (gSaveContext.save.equips.buttonItems[0][3] != ITEM_LENS)) ||
+                        ((BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT) != ITEM_LENS) &&
+                         (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) != ITEM_LENS) &&
+                         (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) != ITEM_LENS)) ||
                         (globalCtx->actorCtx.unk3 == 0)) {
                         globalCtx->actorCtx.unk3 = false;
                         play_sound(NA_SE_SY_GLASSMODE_OFF);
@@ -4526,7 +4528,7 @@ void Interface_Update(GlobalContext* globalCtx) {
                 gSaveContext.unk_3F30 = gSaveContext.save.playerData.magic;
                 gSaveContext.save.playerData.magic = 0;
                 gSaveContext.unk_3F28 = 8;
-                gSaveContext.save.equips.buttonItems[3][0] = ITEM_NUT;
+                BUTTON_ITEM_EQUIP(PLAYER_FORM_DEKU, EQUIP_SLOT_B) = ITEM_NUT;
             }
         }
         Interface_UpdateMagicBar(globalCtx);
