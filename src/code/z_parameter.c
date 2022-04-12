@@ -1868,10 +1868,161 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
     return temp;
 }
 
-s32 Item_CheckObtainabilityImpl(u8 item);
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Item_CheckObtainabilityImpl.s")
+u8 Item_CheckObtainabilityImpl(u8 item) {
+    s16 i;
+    u8 slot;
+    u8 temp;
 
-s32 Item_CheckObtainability(u8 item) {
+    slot = SLOT(item);
+    if (item >= ITEM_STICKS_5) {
+        slot = SLOT(sExtraItemBases[item - ITEM_STICKS_5]);
+    }
+
+    if (item == ITEM_SKULL_TOKEN) {
+        return ITEM_NONE;
+
+    } else if (item == ITEM_TINGLE_MAP) {
+        return ITEM_NONE;
+
+    } else if (item == ITEM_BOMBERS_NOTEBOOK) {
+        return ITEM_NONE;
+
+    } else if ((item >= ITEM_SWORD_KOKIRI) && (item <= ITEM_SWORD_GILDED)) {
+        return ITEM_NONE;
+
+    } else if ((item >= ITEM_SHIELD_HERO) && (item <= ITEM_SHIELD_MIRROR)) {
+        return ITEM_NONE;
+
+    } else if ((item == ITEM_KEY_BOSS) || (item == ITEM_COMPASS) || (item == ITEM_DUNGEON_MAP)) {
+        if (!(gSaveContext.save.inventory.dungeonItems[(void)0, gSaveContext.mapIndex] &
+              gBitFlags[item - ITEM_KEY_BOSS])) {
+            return ITEM_NONE;
+        }
+        return item;
+
+    } else if (item == ITEM_KEY_SMALL) {
+        return ITEM_NONE;
+
+    } else if ((item == ITEM_OCARINA) || (item == ITEM_BOMBCHU) || (item == ITEM_HOOKSHOT) || (item == ITEM_LENS) ||
+               (item == ITEM_SWORD_GREAT_FAIRY) || (item == ITEM_PICTO_BOX)) {
+        if (INV_CONTENT(item) == ITEM_NONE) {
+            return ITEM_NONE;
+        }
+        return INV_CONTENT(item);
+
+    } else if ((item >= ITEM_BOMBS_5) && (item == ITEM_BOMBS_30)) {
+        if (CUR_UPG_VALUE(UPG_BOMB_BAG) == 0) {
+            return ITEM_NONE;
+        }
+        return 0;
+
+    } else if ((item >= ITEM_BOMBCHUS_20) && (item <= ITEM_BOMBCHUS_5)) {
+        if (CUR_UPG_VALUE(UPG_BOMB_BAG) == 0) {
+            return ITEM_NONE;
+        }
+        return 0;
+
+    } else if ((item == ITEM_QUIVER_30) || (item == ITEM_BOW)) {
+        if (CUR_UPG_VALUE(UPG_QUIVER) == 0) {
+            return ITEM_NONE;
+        }
+        return 0;
+
+    } else if ((item == ITEM_QUIVER_40) || (item == ITEM_QUIVER_50)) {
+        return ITEM_NONE;
+
+    } else if ((item == ITEM_BOMB_BAG_20) || (item == ITEM_BOMB)) {
+        if (CUR_UPG_VALUE(UPG_BOMB_BAG) == 0) {
+            return ITEM_NONE;
+        }
+        return 0;
+
+    } else if ((item >= ITEM_STICK_UPGRADE_20) && (item <= ITEM_NUT_UPGRADE_40)) {
+        return ITEM_NONE;
+
+    } else if ((item >= ITEM_BOMB_BAG_30) && (item <= ITEM_WALLET_GIANT)) {
+        return ITEM_NONE;
+
+    } else if (item == ITEM_BEAN) {
+        return ITEM_NONE;
+
+    } else if (item == ITEM_POWDER_KEG) {
+        return ITEM_NONE;
+
+    } else if ((item == ITEM_HEART_PIECE_2) || (item == ITEM_HEART_PIECE)) {
+        return ITEM_NONE;
+
+    } else if (item == ITEM_HEART_CONTAINER) {
+        return ITEM_NONE;
+
+    } else if (item == ITEM_HEART) {
+        return ITEM_HEART;
+
+    } else if ((item == ITEM_MAGIC_SMALL) || (item == ITEM_MAGIC_LARGE)) {
+        if (!(gSaveContext.save.weekEventReg[12] & 0x80)) {
+            return ITEM_NONE;
+        }
+        return item;
+
+    } else if ((item >= ITEM_RUPEE_GREEN) && (item <= ITEM_RUPEE_HUGE)) {
+        return ITEM_NONE;
+
+    } else if ((item >= ITEM_REMAINS_ODOLWA) && (item <= ITEM_REMAINS_TWINMOLD)) {
+        return ITEM_NONE;
+
+    } else if (item == ITEM_LONGSHOT) {
+        return ITEM_NONE;
+
+    } else if (item == ITEM_BOTTLE) {
+        return ITEM_NONE;
+
+    } else if ((item == ITEM_MILK_BOTTLE) || (item == ITEM_POE) || (item == ITEM_GOLD_DUST) || (item == ITEM_CHATEAU) ||
+               (item == ITEM_HYLIAN_LOACH)) {
+        return ITEM_NONE;
+
+    } else if (((item >= ITEM_POTION_RED) && (item <= ITEM_OBABA_DRINK)) || (item == ITEM_CHATEAU_2) ||
+               (item == ITEM_MILK) || (item == ITEM_GOLD_DUST_2) || (item == ITEM_HYLIAN_LOACH_2) ||
+               (item == ITEM_SEA_HORSE_CAUGHT)) {
+        temp = SLOT(item);
+
+        if ((item != ITEM_MILK_BOTTLE) && (item != ITEM_MILK_HALF)) {
+            if (item == ITEM_CHATEAU_2) {
+                item = ITEM_CHATEAU;
+
+            } else if (item == ITEM_MILK) {
+                item = ITEM_MILK_BOTTLE;
+
+            } else if (item == ITEM_GOLD_DUST_2) {
+                item = ITEM_GOLD_DUST;
+
+            } else if (item == ITEM_HYLIAN_LOACH_2) {
+                item = ITEM_HYLIAN_LOACH;
+
+            } else if (item == ITEM_SEA_HORSE_CAUGHT) {
+                item = ITEM_SEA_HORSE;
+            }
+            temp = SLOT(item);
+
+            for (i = 0; i < 6; i++) {
+                if (gSaveContext.save.inventory.items[temp + i] == ITEM_BOTTLE) {
+                    return ITEM_NONE;
+                }
+            }
+        } else {
+            for (i = 0; i < 6; i++) {
+                if (gSaveContext.save.inventory.items[temp + i] == ITEM_NONE) {
+                    return ITEM_NONE;
+                }
+            }
+        }
+    } else if ((item >= ITEM_MOON_TEAR) && (item <= ITEM_MASK_GIANT)) {
+        return ITEM_NONE;
+    }
+
+    return gSaveContext.save.inventory.items[slot];
+}
+
+u8 Item_CheckObtainability(u8 item) {
     return Item_CheckObtainabilityImpl(item);
 }
 

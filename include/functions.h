@@ -1915,7 +1915,7 @@ void Interface_LoadItemIconImpl(GlobalContext* globalCtx, u8 arg1);
 // void func_80112C0C(void);
 u8 Item_Give(GlobalContext* globalCtx, u8 param_2);
 // void Item_CheckObtainabilityImpl(void);
-s32 Item_CheckObtainability(u8 arg0);
+u8 Item_CheckObtainability(u8 arg0);
 void Inventory_DeleteItem(s16 arg0, s16 arg1);
 // void Inventory_UnequipItem(void);
 // void Inventory_ReplaceItem(void);
