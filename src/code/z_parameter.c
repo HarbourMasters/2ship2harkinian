@@ -2955,7 +2955,71 @@ void Interface_DrawItemIconTexture(GlobalContext* globalCtx, void* texture, s16 
 
 s16 D_801BFB04[] = { 0xA2, 0xE4, 0xFA, 0x110 };
 s16 D_801BFB0C[] = { 0x23, 0x23, 0x33, 0x23 };
+#ifdef NON_MATCHING
+void Interface_DrawAmmoCount(GlobalContext* globalCtx, s16 button, s16 alpha) {
+    u8 i;
+    u16 ammo;
+
+    OPEN_DISPS(globalCtx->state.gfxCtx);
+
+    i = (((button) == EQUIP_SLOT_B ? BUTTON_ITEM_EQUIP(CUR_FORM, button) : BUTTON_ITEM_EQUIP(0, button)) & 0xFF);
+
+    if ((i == ITEM_STICK) || (i == ITEM_NUT) || (i == ITEM_BOMB) || (i == ITEM_BOW) ||
+        ((i >= ITEM_BOW_ARROW_FIRE) && (i <= ITEM_BOW_ARROW_LIGHT)) || (i == ITEM_BOMBCHU) || (i == ITEM_POWDER_KEG) ||
+        (i == ITEM_BEAN) || (i == ITEM_PICTO_BOX)) {
+
+        if ((i >= ITEM_BOW_ARROW_FIRE) && (i <= ITEM_BOW_ARROW_LIGHT)) {
+            i = ITEM_BOW;
+        }
+
+        ammo = AMMO(i);
+
+        if (i == ITEM_PICTO_BOX) {
+            if ((((void)0, gSaveContext.save.inventory.questItems) & (gBitFlags[0, QUEST_UNK_19])) == 0) {
+                ammo = 0;
+            } else {
+                ammo = 1;
+            }
+        }
+
+        gDPPipeSync(OVERLAY_DISP++);
+
+        if ((button == 0) && (gSaveContext.minigameState == 1)) {
+            ammo = globalCtx->interfaceCtx.hbaAmmo;
+        } else if ((button == 0) && (globalCtx->unk_1887C > 1)) {
+            ammo = globalCtx->unk_1887C - 1;
+        } else if (((i == ITEM_BOW) && (AMMO(i) == CUR_CAPACITY(UPG_QUIVER))) ||
+                   ((i == ITEM_BOMB) && (AMMO(i) == CUR_CAPACITY(UPG_BOMB_BAG))) ||
+                   ((i == ITEM_STICK) && (AMMO(i) == CUR_CAPACITY(UPG_STICKS))) ||
+                   ((i == ITEM_NUT) && (AMMO(i) == CUR_CAPACITY(UPG_NUTS))) ||
+                   ((i == ITEM_BOMBCHU) && (AMMO(i) == CUR_CAPACITY(UPG_BOMB_BAG))) ||
+                   ((i == ITEM_POWDER_KEG) && (ammo == 1)) || ((i == ITEM_PICTO_BOX) && (ammo == 1)) ||
+                   ((i == ITEM_BEAN) && (ammo == 20))) {
+            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 120, 255, 0, alpha);
+        }
+
+        if (!ammo) { // TODO: No == 0
+            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 100, 100, 100, alpha);
+        }
+
+        for (i = 0; ammo >= 10; i++) {
+            ammo -= 10;
+        }
+
+        if (i) { // TODO: No != 0
+            OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, ((u8*)gAmmoDigit0Tex + ((8 * 8) * i)), 8, 8, D_801BFB04[button],
+                                          D_801BFB0C[button], 8, 8, 0x400, 0x400);
+        }
+
+        OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, ((u8*)gAmmoDigit0Tex + ((8 * 8) * ammo)), 8, 8,
+                                      D_801BFB04[button] + 6, D_801BFB0C[button], 8, 8, 0x400, 0x400);
+    }
+
+    CLOSE_DISPS(globalCtx->state.gfxCtx);
+}
+#else
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_DrawAmmoCount.s")
+#endif
 
 void func_80118084(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80118084.s")
