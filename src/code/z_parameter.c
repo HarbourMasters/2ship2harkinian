@@ -171,8 +171,8 @@ s16 sHBAScoreTier = 0;
 
 u16 sMinigameScoreDigits[] = { 0, 0, 0, 0 };
 
-s16 D_801BF898 = 0;
-s16 D_801BF89C = 0;
+u16 sCUpInvisible = 0;
+u16 sCUpTimer = 0;
 
 s16 sMagicBarOutlinePrimRed = 255;
 s16 sMagicBarOutlinePrimGreen = 255;
@@ -2078,14 +2078,17 @@ void Inventory_UpdateDeitySwordEquip(GlobalContext* globalCtx) {
     if (CUR_FORM == 0) {
         interfaceCtx->unk_21C = 0;
         interfaceCtx->unk_21E = 0;
-        if ((((gSaveContext.save.playerForm > 0) && (gSaveContext.save.playerForm < 4)) ? 1 : gSaveContext.save.playerForm >> 1) == 0) {
+        if ((((gSaveContext.save.playerForm > 0) && (gSaveContext.save.playerForm < 4))
+                 ? 1
+                 : gSaveContext.save.playerForm >> 1) == 0) {
             BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_SWORD_DEITY;
         } else {
             if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_SWORD_DEITY) {
                 if (GET_CUR_EQUIP_VALUE(EQUIP_SWORD) == 0) {
                     BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_NONE;
                 } else {
-                    BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = GET_CUR_EQUIP_VALUE(EQUIP_SWORD) + ITEM_SWORD_KOKIRI - 1;
+                    BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) =
+                        GET_CUR_EQUIP_VALUE(EQUIP_SWORD) + ITEM_SWORD_KOKIRI - 1;
                 }
             }
         }
@@ -2250,7 +2253,7 @@ void func_801155B4(GlobalContext* globalCtx, s16 arg1) {
 void Interface_SetNaviCall(GlobalContext* globalCtx, u16 naviCallState) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
 
-    if (((naviCallState == 0x2A) || (naviCallState == 0x2B)) && (interfaceCtx->unk_220 == 0) &&
+    if (((naviCallState == 0x2A) || (naviCallState == 0x2B)) && !interfaceCtx->naviCalling &&
         (globalCtx->csCtx.state == 0)) {
         if (naviCallState == 0x2B) {
             play_sound(NA_SE_VO_NAVY_CALL);
@@ -2258,12 +2261,12 @@ void Interface_SetNaviCall(GlobalContext* globalCtx, u16 naviCallState) {
         if (naviCallState == 0x2A) {
             func_8019FDC8(&D_801DB4A4, NA_SE_VO_NA_HELLO_2, 0x20);
         }
-        interfaceCtx->unk_220 = 1;
-        D_801BF898 = 0;
-        D_801BF89C = 10;
+        interfaceCtx->naviCalling = true;
+        sCUpInvisible = 0;
+        sCUpTimer = 10;
     } else if (naviCallState == 0x2C) {
-        if (interfaceCtx->unk_220 != 0) {
-            interfaceCtx->unk_220 = 0;
+        if (interfaceCtx->naviCalling) {
+            interfaceCtx->naviCalling = false;
         }
     }
 }
@@ -2823,22 +2826,117 @@ void func_801170B8(InterfaceContext* interfaceCtx) {
     func_8013FBC8(&interfaceCtx->view);
 }
 
-TexturePtr D_801BFAD4[] = {
-    gTatlCUpENGTex, gTatlCUpENGTex, gTatlCUpGERTex, gTatlCUpFRATex, gTatlCUpESPTex,
-};
-s16 D_801BFAE8[] = {
-    130, 136, 136, 136, 136,
-};
-s16 D_801BFAF4[] = {
-    0x1D,
-    0x1B,
-};
-s16 D_801BFAF8[] = {
-    0x1B,
-    0x1B,
-};
-void Interface_DrawItemButtons(GlobalContext* globalCtx);
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_DrawItemButtons.s")
+void Interface_DrawItemButtons(GlobalContext* globalCtx) {
+    static TexturePtr cUpLabelTextures[] = {
+        gTatlCUpENGTex, gTatlCUpENGTex, gTatlCUpGERTex, gTatlCUpFRATex, gTatlCUpESPTex,
+    };
+    static s16 startButtonLeftPos[] = {
+        // Remnant of OoT
+        130, 136, 136, 136, 136,
+    };
+    static s16 D_801BFAF4[] = { 0x1D, 0x1B };
+    static s16 D_801BFAF8[] = { 0x1B, 0x1B };
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+    Player* player = GET_PLAYER(globalCtx);
+    PauseContext* pauseCtx = &globalCtx->pauseCtx;
+    MessageContext* msgCtx = &globalCtx->msgCtx;
+    s16 temp; // Used as both an alpha value and a button index
+    s32 pad;
+
+    OPEN_DISPS(globalCtx->state.gfxCtx);
+
+    gDPPipeSync(OVERLAY_DISP++);
+    gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+
+    // B Button Color & Texture
+    OVERLAY_DISP =
+        func_8010CFBC(OVERLAY_DISP, gButtonBackgroundTex, 0x20, 0x20, D_801BF9D4[0], D_801BF9DC[0], D_801BFAF4[0],
+                      D_801BFAF4[0], D_801BF9E4[0] * 2, D_801BF9E4[0] * 2, 0x64, 0xFF, 0x78, interfaceCtx->bAlpha);
+    if (1) {}
+    gDPPipeSync(OVERLAY_DISP++);
+
+    // C-Left Button Color & Texture
+    OVERLAY_DISP = func_8010D2D4(OVERLAY_DISP, D_801BF9D4[1], D_801BF9DC[1], D_801BFAF4[1], D_801BFAF4[1],
+                                 D_801BF9E4[1] * 2, D_801BF9E4[1] * 2, 0xFF, 0xF0, 0, interfaceCtx->cLeftAlpha);
+    // C-Down Button Color & Texture
+    OVERLAY_DISP = func_8010D2D4(OVERLAY_DISP, D_801BF9D8[0], D_801BF9E0[0], D_801BFAF8[0], D_801BFAF8[0],
+                                 D_801BF9E8[0] * 2, D_801BF9E8[0] * 2, 0xFF, 0xF0, 0, interfaceCtx->cDownAlpha);
+    // C-Right Button Color & Texture
+    OVERLAY_DISP = func_8010D2D4(OVERLAY_DISP, D_801BF9D8[1], D_801BF9E0[1], D_801BFAF8[1], D_801BFAF8[1],
+                                 D_801BF9E8[1] * 2, D_801BF9E8[1] * 2, 0xFF, 0xF0, 0, interfaceCtx->cRightAlpha);
+
+    if ((pauseCtx->state < 8) || (pauseCtx->state >= 19)) {
+        if ((globalCtx->pauseCtx.state != 0) || (globalCtx->pauseCtx.debugState != 0)) {
+            OVERLAY_DISP = func_8010D2D4(OVERLAY_DISP, 0x88, 0x11, 0x16, 0x16, 0x5B6, 0x5B6, 0xFF, 0x82, 0x3C,
+                                         interfaceCtx->startAlpha);
+            // Start Button Texture, Color & Label
+            gDPPipeSync(OVERLAY_DISP++);
+            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->startAlpha);
+            gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 0);
+            gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
+                              PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+            gDPLoadTextureBlock_4b(OVERLAY_DISP++, interfaceCtx->doActionSegment + 0x300, G_IM_FMT_IA, 48, 16, 0,
+                                   G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                   G_TX_NOLOD, G_TX_NOLOD);
+            gSPTextureRectangle(OVERLAY_DISP++, 0x01F8, 0x0054, 0x02D4, 0x009C, G_TX_RENDERTILE, 0, 0, 0x04A6, 0x04A6);
+        }
+    }
+
+    if (interfaceCtx->naviCalling && (globalCtx->pauseCtx.state == 0) && (globalCtx->pauseCtx.debugState == 0) &&
+        (globalCtx->csCtx.state == 0) && (D_801BF884 == 0)) {
+        if (sCUpInvisible == 0) {
+            // C-Up Button Texture, Color & Label (Tatl Text)
+            gDPPipeSync(OVERLAY_DISP++);
+
+            if ((gSaveContext.unk_3F22 == 1) || (gSaveContext.unk_3F22 == 2) || (gSaveContext.unk_3F22 == 5) ||
+                (msgCtx->msgMode != 0)) {
+                temp = 0;
+            } else if (player->stateFlags1 & 0x200000) {
+                temp = 70;
+            } else {
+                temp = interfaceCtx->aAlpha;
+            }
+
+            OVERLAY_DISP = func_8010D2D4(OVERLAY_DISP, 0xFE, 0x10, 0x10, 0x10, 0x800, 0x800, 0xFF, 0xF0, 0, temp);
+
+            gDPPipeSync(OVERLAY_DISP++);
+            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, temp);
+            gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 0);
+            gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
+                              PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+            gDPLoadTextureBlock_4b(OVERLAY_DISP++, cUpLabelTextures[gSaveContext.options.language], G_IM_FMT_IA, 32, 12,
+                                   0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                   G_TX_NOLOD, G_TX_NOLOD);
+            gSPTextureRectangle(OVERLAY_DISP++, 0x03DC, 0x0048, 0x045C, 0x0078, G_TX_RENDERTILE, 0, 0, 0x0400, 0x0400);
+        }
+
+        sCUpTimer--;
+        if (sCUpTimer == 0) {
+            sCUpInvisible ^= 1;
+            sCUpTimer = 10;
+        }
+    }
+
+    gDPPipeSync(OVERLAY_DISP++);
+
+    // Empty C Button Arrows
+    for (temp = 1; temp < 4; temp++) {
+        if (GET_CUR_FORM_BTN_ITEM(temp) > 0xF0) {
+            if (temp == 1) {
+                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 240, 0, interfaceCtx->cLeftAlpha);
+            } else if (temp == 2) {
+                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 240, 0, interfaceCtx->cDownAlpha);
+            } else {
+                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 240, 0, interfaceCtx->cRightAlpha);
+            }
+            OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, ((u8*)gButtonBackgroundTex + ((32 * 32) * (temp + 1))), 0x20,
+                                          0x20, D_801BF9D4[temp], D_801BF9DC[temp], D_801BFAF4[temp], D_801BFAF4[temp],
+                                          D_801BF9E4[temp] * 2, D_801BF9E4[temp] * 2);
+        }
+    }
+
+    CLOSE_DISPS(globalCtx->state.gfxCtx);
+}
 
 void Interface_DrawItemIconTexture(GlobalContext* globalCtx, void* texture, s16 button) {
     static s16 D_801BFAFC[] = { 30, 24, 24, 24 };
