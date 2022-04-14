@@ -3239,7 +3239,7 @@ void Interface_DrawMagicBar(GlobalContext* globalCtx) {
             gSPTextureRectangle(
                 OVERLAY_DISP++, 104, (magicBarY + 3) << 2,
                 ((((void)0, gSaveContext.save.playerData.magic) - ((void)0, gSaveContext.unk_3F32)) + 26) << 2,
-                (magicBarY + 10) << 2, G_TX_RENDERTILE, 0, 0, 0x0400, 0x0400);
+                (magicBarY + 10) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
         } else {
             if (gSaveContext.save.weekEventReg[14] & 8) {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 200, interfaceCtx->magicAlpha);
@@ -3368,7 +3368,8 @@ void Interface_DrawItemButtons(GlobalContext* globalCtx) {
             gDPLoadTextureBlock_4b(OVERLAY_DISP++, cUpLabelTextures[gSaveContext.options.language], G_IM_FMT_IA, 32, 12,
                                    0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                    G_TX_NOLOD, G_TX_NOLOD);
-            gSPTextureRectangle(OVERLAY_DISP++, 0x03DC, 0x0048, 0x045C, 0x0078, G_TX_RENDERTILE, 0, 0, 0x0400, 0x0400);
+            gSPTextureRectangle(OVERLAY_DISP++, 0x03DC, 0x0048, 0x045C, 0x0078, G_TX_RENDERTILE, 0, 0, 1 << 10,
+                                1 << 10);
         }
 
         sCUpTimer--;
@@ -4748,7 +4749,6 @@ void Interface_DrawTimers(GlobalContext* globalCtx);
 void Interface_UpdateTimers(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_UpdateTimers.s")
 
-#ifdef NON_EQUIVALENT
 void Interface_DrawMinigameIcons(GlobalContext* globalCtx) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
     s16 sp42;
@@ -4758,29 +4758,32 @@ void Interface_DrawMinigameIcons(GlobalContext* globalCtx) {
     s16 phi_a0;
     s16 phi_a1;
 
+    OPEN_DISPS(globalCtx->state.gfxCtx);
+
     func_8012C654(globalCtx->state.gfxCtx);
 
     if ((globalCtx->pauseCtx.state == 0) && (globalCtx->pauseCtx.debugState == 0)) {
+        // Carrots rendering if the action corresponds to riding a horse
         if (interfaceCtx->unk_212 == 8) {
+            // Load Carrot Icon
             gDPLoadTextureBlock(OVERLAY_DISP++, gCarrotIconTex, G_IM_FMT_RGBA, G_IM_SIZ_32b, 16, 16, 0,
                                 G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                 G_TX_NOLOD, G_TX_NOLOD);
 
-            if (interfaceCtx->unk_280 != 0) {
-                sp3C = 200;
-            } else {
-                sp3C = 56;
-            }
+            sp3E = 110;
+            sp3C = (interfaceCtx->unk_280 != 0) ? 200 : 56;
 
-            for (sp42 = 1, sp3E = 110; sp42 < 7; sp42++, sp3E += 16) {
+            // Draw 6 carrots
+            for (sp42 = 1; sp42 < 7; sp42++, sp3E += 16) {
+                // Carrot Color (based on availability)
                 if ((interfaceCtx->numHorseBoosts == 0) || (interfaceCtx->numHorseBoosts < sp42)) {
                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 150, 255, interfaceCtx->aAlpha);
                 } else {
                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->aAlpha);
                 }
 
-                gSPTextureRectangle(OVERLAY_DISP++, (sp3E * 4), (sp3C * 4), (sp3E * 4), ((sp3C + 0x10) * 4),
-                                    G_TX_RENDERTILE, 0, 0, 0x0400, 0x0400);
+                gSPTextureRectangle(OVERLAY_DISP++, sp3E << 2, sp3C << 2, (sp3E + 16) << 2, (sp3C + 16) << 2,
+                                    G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
             }
         }
 
@@ -4788,9 +4791,9 @@ void Interface_DrawMinigameIcons(GlobalContext* globalCtx) {
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
                               PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
-            sp3E = 0x14;
             phi_a0 = 0x18;
             phi_a1 = 0x10;
+            sp3E = 0x14;
             if (gSaveContext.save.playerData.healthCapacity > 0xA0) {
                 sp3C = 0x4B;
             } else {
@@ -4811,14 +4814,14 @@ void Interface_DrawMinigameIcons(GlobalContext* globalCtx) {
                                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                         G_TX_NOLOD, G_TX_NOLOD);
                 } else if (globalCtx->sceneNum == 0x37) {
+                    phi_a0 = 0x10;
+                    phi_a1 = 0x1E;
+                    sp3E = 0x18;
                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 100, 75, interfaceCtx->bAlpha);
                     gDPSetEnvColor(OVERLAY_DISP++, 55, 55, 0, 255);
                     gDPLoadTextureBlock(OVERLAY_DISP++, gFishermanMinigameTorchIconTex, G_IM_FMT_IA, G_IM_SIZ_8b, 16,
                                         30, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
                                         G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
-                    sp3E = 0x18;
-                    phi_a0 = 0x10;
-                    phi_a1 = 0x1E;
                 } else {
                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->bAlpha);
                     gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 255);
@@ -4828,14 +4831,14 @@ void Interface_DrawMinigameIcons(GlobalContext* globalCtx) {
                 }
             }
 
-            gSPTextureRectangle(OVERLAY_DISP++, (sp3E * 4), (sp3C * 4), ((sp3E + phi_a0) * 4), ((sp3C + phi_a1) * 4),
-                                G_TX_RENDERTILE, 0, 0, 0x0400, 0x0400);
+            gSPTextureRectangle(OVERLAY_DISP++, (sp3E << 2), (sp3C << 2), ((sp3E + phi_a0) << 2),
+                                ((sp3C + phi_a1) << 2), G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->bAlpha);
             gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0,
                               0, PRIMITIVE, 0);
 
-            if (globalCtx->sceneNum == 0x37) {
+            if (globalCtx->sceneNum == SCENE_30GYOSON) {
                 sp3E += 0x14;
                 if (gSaveContext.save.playerData.healthCapacity > 0xA0) {
                     sp3C = 0x57;
@@ -4848,7 +4851,6 @@ void Interface_DrawMinigameIcons(GlobalContext* globalCtx) {
 
             for (sp42 = sp40 = 0; sp42 < 4; sp42++) {
                 if ((sMinigameScoreDigits[sp42] != 0) || (sp40 != 0) || (sp42 >= 3)) {
-                    // (u8*)gCounterDigit0Tex + (8 * 16 * counterDigits[2])
                     OVERLAY_DISP =
                         Gfx_TextureI8(OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * sMinigameScoreDigits[sp42])), 8,
                                       0x10, sp3E, sp3C - 2, 9, 0xFA, 0x370, 0x370);
@@ -4861,11 +4863,9 @@ void Interface_DrawMinigameIcons(GlobalContext* globalCtx) {
             gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
         }
     }
+
+    CLOSE_DISPS(globalCtx->state.gfxCtx);
 }
-#else
-void Interface_DrawMinigameIcons(GlobalContext* globalCtx);
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_DrawMinigameIcons.s")
-#endif
 
 // rupeeDigitsFirst
 s16 D_801BFD1C[] = { 1, 0, 0, 0 };
