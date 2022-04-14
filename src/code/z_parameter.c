@@ -598,7 +598,7 @@ void Interface_NewDay(GlobalContext* globalCtx, s32 day) {
 
     // Loads day number from week_static for the three-day clock
     DmaMgr_SendRequest0((u32)globalCtx->interfaceCtx.doActionSegment + 0x780,
-                        (u32)_week_staticSegmentRomStart + i * 0x510, 0x510);
+                        (u32)SEGMENT_ROM_START(week_static) + i * 0x510, 0x510);
 
     // i is used to store sceneId
     for (i = 0; i < 120; i++) {
@@ -1862,7 +1862,7 @@ void Interface_InitMinigame(GlobalContext* globalCtx) {
 void Interface_LoadItemIconImpl(GlobalContext* globalCtx, u8 btn) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
 
-    func_80178E3C(_icon_item_static_testSegmentRomStart, GET_CUR_FORM_BTN_ITEM(btn),
+    func_80178E3C(SEGMENT_ROM_START(icon_item_static_test), GET_CUR_FORM_BTN_ITEM(btn),
                   &interfaceCtx->iconItemSegment[(u32)btn * 0x1000], 0x1000);
 }
 
@@ -2659,7 +2659,7 @@ void Interface_LoadActionLabel(InterfaceContext* interfaceCtx, u16 action, s16 l
     if (action != DO_ACTION_NONE) {
         osCreateMesgQueue(&interfaceCtx->loadQueue, &interfaceCtx->loadMsg, 1);
         DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest_184, (u32)interfaceCtx->doActionSegment + (loadOffset * 0x180),
-                               (u32)_do_action_staticSegmentRomStart + (action * 0x180), 0x180, 0,
+                               (u32)SEGMENT_ROM_START(do_action_static) + (action * 0x180), 0x180, 0,
                                &interfaceCtx->loadQueue, 0);
         osRecvMesg(&interfaceCtx->loadQueue, NULL, OS_MESG_BLOCK);
         return;
@@ -5319,8 +5319,8 @@ void Interface_LoadStory(GlobalContext* globalCtx, s32 block) {
 void Interface_AllocStory(GlobalContext* globalCtx) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
 
-    interfaceCtx->storyAddr = (u32)_story_staticSegmentRomStart;
-    interfaceCtx->storySize = (u32)_story_staticSegmentRomEnd - (u32)_story_staticSegmentRomStart;
+    interfaceCtx->storyAddr = SEGMENT_ROM_START(story_static);
+    interfaceCtx->storySize = SEGMENT_ROM_SIZE(story_static);
 
     if (interfaceCtx->storySegment == NULL) {
         interfaceCtx->storySegment = ZeldaArena_Malloc(interfaceCtx->storySize);
@@ -5790,12 +5790,12 @@ void func_80121F94(void) {
 
 // OoT func_801109B0 (from z_construct.c)
 void Interface_Init(GlobalContext* globalCtx) {
-    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
-    s32 i;
     s32 pad;
-    size_t parameterSize;
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+    size_t parameterStaticSize;
+    s32 i;
 
-    bzero(interfaceCtx, 0x348);
+    bzero(interfaceCtx, sizeof(InterfaceContext));
 
     gSaveContext.sunsSongState = 0;
     gSaveContext.unk_3F20 = 0;
@@ -5806,15 +5806,13 @@ void Interface_Init(GlobalContext* globalCtx) {
     interfaceCtx->unk_258 = 0x10;
     interfaceCtx->unkTimer = 200;
 
-    parameterSize = (u32)_parameter_staticSegmentRomEnd - (u32)_parameter_staticSegmentRomStart;
-
-    interfaceCtx->parameterSegment = THA_AllocEndAlign16(&globalCtx->state.heap, parameterSize);
-
-    DmaMgr_SendRequest0(interfaceCtx->parameterSegment, _parameter_staticSegmentRomStart, parameterSize);
+    parameterStaticSize = SEGMENT_ROM_SIZE(parameter_static);
+    interfaceCtx->parameterSegment = THA_AllocEndAlign16(&globalCtx->state.heap, parameterStaticSize);
+    DmaMgr_SendRequest0(interfaceCtx->parameterSegment, SEGMENT_ROM_START(parameter_static), parameterStaticSize);
 
     interfaceCtx->doActionSegment = THA_AllocEndAlign16(&globalCtx->state.heap, 0xC90);
-    DmaMgr_SendRequest0(interfaceCtx->doActionSegment, _do_action_staticSegmentRomStart, 0x300);
-    DmaMgr_SendRequest0(interfaceCtx->doActionSegment + 0x300, _do_action_staticSegmentRomStart + 0x480, 0x180);
+    DmaMgr_SendRequest0(interfaceCtx->doActionSegment, SEGMENT_ROM_START(do_action_static), 0x300);
+    DmaMgr_SendRequest0(interfaceCtx->doActionSegment + 0x300, SEGMENT_ROM_START(do_action_static) + 0x480, 0x180);
 
     Interface_NewDay(globalCtx, CURRENT_DAY);
 
@@ -5827,23 +5825,23 @@ void Interface_Init(GlobalContext* globalCtx) {
         Interface_LoadItemIconImpl(globalCtx, 0);
     }
 
-    if (gSaveContext.save.equips.buttonItems[0][1] < 0xF0) {
+    if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT) < 0xF0) {
         Interface_LoadItemIconImpl(globalCtx, 1);
     }
 
-    if (gSaveContext.save.equips.buttonItems[0][2] < 0xF0) {
+    if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) < 0xF0) {
         Interface_LoadItemIconImpl(globalCtx, 2);
     }
 
-    if (gSaveContext.save.equips.buttonItems[0][3] < 0xF0) {
+    if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) < 0xF0) {
         Interface_LoadItemIconImpl(globalCtx, 3);
     }
 
     if (((gSaveContext.unk_3DD0[4] == 4) || (gSaveContext.unk_3DD0[6] == 4)) &&
         ((gSaveContext.respawnFlag == -1) || (gSaveContext.respawnFlag == 1)) && (gSaveContext.unk_3DD0[4] == 4)) {
         gSaveContext.unk_3DD0[4] = 1;
-        gSaveContext.timerX[4] = 0x73;
-        gSaveContext.timerY[4] = 0x50;
+        gSaveContext.timerX[4] = 115;
+        gSaveContext.timerY[4] = 80;
     }
 
     LifeMeter_Init(globalCtx);
@@ -5855,7 +5853,7 @@ void Interface_Init(GlobalContext* globalCtx) {
     interfaceCtx->unk_2FC[2] = 55;
 
     if (gSaveContext.eventInf[3] & 0x10) {
-        gSaveContext.eventInf[3] &= 0xEF;
+        gSaveContext.eventInf[3] &= (u8)~0x10;
         gSaveContext.unk_3DD0[4] = 0;
     }
 
@@ -5883,21 +5881,19 @@ void Interface_Init(GlobalContext* globalCtx) {
         (globalCtx->sceneNum != SCENE_LAST_DEKU) && (globalCtx->sceneNum != SCENE_LAST_GORON) &&
         (globalCtx->sceneNum != SCENE_LAST_ZORA) && (globalCtx->sceneNum != SCENE_LAST_LINK)) {
 
-        gSaveContext.eventInf[5] &= 0xF7;
-        gSaveContext.eventInf[5] &= 0xEF;
-        gSaveContext.eventInf[5] &= 0xDF;
-        gSaveContext.eventInf[5] &= 0xBF;
-        gSaveContext.eventInf[5] &= 0x7F;
-        gSaveContext.eventInf[6] &= 0xFE;
-        gSaveContext.eventInf[6] &= 0xFD;
-        gSaveContext.eventInf[6] &= 0xFB;
-        gSaveContext.eventInf[6] &= 0xF7;
+        gSaveContext.eventInf[5] &= (u8)~0x8;
+        gSaveContext.eventInf[5] &= (u8)~0x10;
+        gSaveContext.eventInf[5] &= (u8)~0x20;
+        gSaveContext.eventInf[5] &= (u8)~0x40;
+        gSaveContext.eventInf[5] &= (u8)~0x80;
+        gSaveContext.eventInf[6] &= (u8)~0x1;
+        gSaveContext.eventInf[6] &= (u8)~0x2;
+        gSaveContext.eventInf[6] &= (u8)~0x4;
+        gSaveContext.eventInf[6] &= (u8)~0x8;
     }
 
-    sFinalHoursClockFrameEnvBlue = 0;
-    sFinalHoursClockFrameEnvGreen = sFinalHoursClockFrameEnvBlue;
-    sFinalHoursClockFrameEnvRed = sFinalHoursClockFrameEnvGreen;
-    sFinalHoursClockDigitsRed = sFinalHoursClockFrameEnvRed;
-    sFinalHoursClockColorTimer = 0xF;
+    sFinalHoursClockDigitsRed = sFinalHoursClockFrameEnvRed = sFinalHoursClockFrameEnvGreen =
+        sFinalHoursClockFrameEnvBlue = 0;
+    sFinalHoursClockColorTimer = 15;
     sFinalHoursClockColorTargetIndex = 0;
 }
