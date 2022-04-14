@@ -1351,7 +1351,481 @@ void func_8010F1A8(GlobalContext* globalCtx, s16 maxAlpha) {
 }
 
 // oot func_80083108
+#ifdef NON_EQUIVALENT
+void func_80110038(GlobalContext* globalCtx) {
+    MessageContext* msgCtx = &globalCtx->msgCtx;
+    Player* player = GET_PLAYER(globalCtx);
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+    s16 i;
+    u8 temp_t9;
+    u8 phi_a1_6;
+    s16 phi_t3 = false;
+
+    if (gSaveContext.eventInf[4] & 2) {
+
+        for (i = 1; i < 4; i++) {
+            if ((GET_CUR_FORM_BTN_ITEM(i) != ITEM_PICTO_BOX) || (msgCtx->msgMode != 0)) {
+                if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
+                    phi_t3 = true;
+                }
+                gSaveContext.buttonStatus[i] = BTN_DISABLED;
+            } else {
+                if (gSaveContext.buttonStatus[i] == BTN_DISABLED) {
+                    phi_t3 = true;
+                }
+                gSaveContext.buttonStatus[i] = BTN_ENABLED;
+            }
+        }
+
+        if (D_801BF884 == 0) {
+            if (gSaveContext.buttonStatus[0] != BTN_DISABLED) {
+                phi_t3 = true;
+            }
+            gSaveContext.buttonStatus[0] = BTN_DISABLED;
+        } else {
+            if (gSaveContext.buttonStatus[0] == BTN_DISABLED) {
+                phi_t3 = true;
+            }
+            gSaveContext.buttonStatus[0] = BTN_ENABLED;
+        }
+    } else {
+        if (gSaveContext.save.weekEventReg[90] & 0x20) {
+            for (i = 1; i < 4; i++) {
+                if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
+                    gSaveContext.buttonStatus[i] = BTN_DISABLED;
+                }
+            }
+
+            Interface_ChangeAlpha(8);
+        } else if (gSaveContext.save.weekEventReg[0x52] & 8) {
+            for (i = 1; i < 4; i++) {
+                if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
+                    gSaveContext.buttonStatus[i] = BTN_DISABLED;
+                }
+            }
+
+            Interface_ChangeAlpha(22);
+        } else if (gSaveContext.save.weekEventReg[84] & 0x20) {
+            if (player->currentMask == PLAYER_MASK_FIERCE_DEITY) {
+
+                for (i = 1; i < 4; i++) {
+                    if ((GET_CUR_FORM_BTN_ITEM(i) == ITEM_MASK_FIERCE_DEITY) ||
+                        ((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_BOTTLE) && (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_OBABA_DRINK))) {
+                        if (gSaveContext.buttonStatus[i] == BTN_DISABLED) {
+                            phi_t3 = true;
+                            gSaveContext.buttonStatus[i] = BTN_DISABLED;
+                        }
+                    } else {
+                        if (gSaveContext.buttonStatus[i] != BTN_DISABLED) {
+                            gSaveContext.buttonStatus[i] = BTN_ENABLED;
+                            phi_t3 = true;
+                        }
+                    }
+                }
+            } else {
+
+                for (i = 1; i < 4; i++) {
+                    if ((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_MASK_DEKU) && (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_MASK_ZORA)) {
+                        if (gSaveContext.buttonStatus[i] != BTN_DISABLED) {
+                            phi_t3 = true;
+                        }
+                        gSaveContext.buttonStatus[i] = BTN_DISABLED;
+                    } else {
+                        if (gSaveContext.buttonStatus[i] == BTN_DISABLED) {
+                            phi_t3 = true;
+                        }
+                        gSaveContext.buttonStatus[i] = BTN_ENABLED;
+                    }
+                }
+            }
+        } else if ((globalCtx->sceneNum == SCENE_SPOT00) && (gSaveContext.sceneSetupIndex == 6)) {
+            for (i = 1; i < 4; i++) {
+                if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
+                    phi_t3 = true;
+                }
+                gSaveContext.buttonStatus[i] = BTN_DISABLED;
+            }
+        } else if (gSaveContext.eventInf[3] & 0x10) {
+            if (player->stateFlags3 & 0x1000000) {
+                if (gSaveContext.save.inventory.items[SLOT_NUT] == ITEM_NUT) {
+                    BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_NUT;
+                    Interface_LoadItemIconImpl(globalCtx, 0);
+                } else {
+                    gSaveContext.buttonStatus[0] = BTN_DISABLED;
+                    phi_t3 = true;
+                }
+            } else {
+                if (gSaveContext.buttonStatus[0] == BTN_DISABLED) {
+                    gSaveContext.buttonStatus[0] = BTN_ENABLED;
+                    phi_t3 = true;
+                }
+
+                for (i = 1; i < 4; i++) {
+                    if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
+                        phi_t3 = true;
+                    }
+                    gSaveContext.buttonStatus[i] = BTN_DISABLED;
+                }
+            }
+            if (phi_t3 || (gSaveContext.unk_3F22 != 0xC)) {
+                gSaveContext.unk_3F22 = 0;
+                Interface_ChangeAlpha(0xC);
+                phi_t3 = false;
+            }
+        } else if (player->stateFlags3 & 0x1000000) {
+            if (gSaveContext.save.inventory.items[SLOT_NUT] == ITEM_NUT) {
+                if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NUT) {
+                    BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_NUT;
+                    Interface_LoadItemIconImpl(globalCtx, 0);
+                    gSaveContext.buttonStatus[0] = BTN_ENABLED;
+                    phi_t3 = true;
+                }
+            } else if (gSaveContext.buttonStatus[0] == BTN_ENABLED) {
+                gSaveContext.buttonStatus[0] = BTN_DISABLED;
+                phi_t3 = true;
+            }
+
+            if (phi_t3) {
+                gSaveContext.buttonStatus[1] = BTN_DISABLED;
+                gSaveContext.buttonStatus[2] = BTN_DISABLED;
+                gSaveContext.buttonStatus[3] = BTN_DISABLED;
+            }
+        } else if ((gSaveContext.save.playerData.magicAcquired == 0) && (CUR_FORM == PLAYER_FORM_DEKU) &&
+                   (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_NUT)) {
+            BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_UNK_FD;
+            gSaveContext.buttonStatus[0] = BTN_DISABLED;
+        } else {
+            if ((func_801242DC(globalCtx) >= 2) && (func_801242DC(globalCtx) < 5)) {
+                if (CUR_FORM != 2) {
+                    if ((player->currentMask == PLAYER_MASK_BLAST) && (player->unk_B60 == 0)) {
+                        if (gSaveContext.unk_1015 == 0xFF) {
+                            phi_t3 = true;
+                        }
+                        gSaveContext.unk_1015 = 0;
+                    } else if ((interfaceCtx->unk_21E == 0x18) && (player->currentMask == PLAYER_MASK_BLAST)) {
+                        if (gSaveContext.unk_1015 != 0xFF) {
+                            gSaveContext.unk_1015 = 0xFF;
+                            phi_t3 = true;
+                        }
+                    } else {
+                        if (gSaveContext.buttonStatus[0] != BTN_DISABLED) {
+                            phi_t3 = true;
+                        }
+                        gSaveContext.buttonStatus[0] = BTN_DISABLED;
+                    }
+                } else {
+                    if (gSaveContext.buttonStatus[0] == BTN_DISABLED) {
+                        phi_t3 = true;
+                    }
+                    gSaveContext.buttonStatus[0] = BTN_ENABLED;
+                }
+
+                for (i = 1; i < 4; i++) {
+                    if (GET_CUR_FORM_BTN_ITEM(i) != ITEM_MASK_ZORA) {
+                        if (func_801242DC(globalCtx) == 2) {
+                            if ((GET_CUR_FORM_BTN_ITEM(i) < ITEM_BOTTLE) ||
+                                (GET_CUR_FORM_BTN_ITEM(i) > ITEM_OBABA_DRINK)) {
+                                if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
+                                    phi_t3 = true;
+                                }
+                                gSaveContext.buttonStatus[i] = BTN_DISABLED;
+                            } else {
+                                if (gSaveContext.buttonStatus[i] == BTN_DISABLED) {
+                                    phi_t3 = true;
+                                }
+                                gSaveContext.buttonStatus[i] = BTN_ENABLED;
+                            }
+                        } else {
+                            if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
+                                phi_t3 = true;
+                            }
+                            gSaveContext.buttonStatus[i] = BTN_DISABLED;
+                        }
+                    } else if (gSaveContext.buttonStatus[i] == BTN_DISABLED) {
+                        gSaveContext.buttonStatus[i] = BTN_ENABLED;
+                        phi_t3 = true;
+                    }
+                }
+
+                if (phi_t3) {
+                    gSaveContext.unk_3F22 = 0;
+                }
+
+                if ((globalCtx->sceneLoadFlag == 0) && (globalCtx->unk_18B4A == 0)) {
+                    if (ActorCutscene_GetCurrentIndex() == -1) {
+                        Interface_ChangeAlpha(50);
+                    }
+                }
+            } else {
+                if (player->stateFlags1 & 0x200000) {
+
+                    for (i = 1; i < 4; i++) {
+                        if (GET_CUR_FORM_BTN_ITEM(i) != ITEM_LENS) {
+                            if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
+                                phi_t3 = true;
+                            }
+                            gSaveContext.buttonStatus[i] = BTN_DISABLED;
+                        } else {
+                            if (gSaveContext.buttonStatus[i] == BTN_DISABLED) {
+                                phi_t3 = true;
+                            }
+                            gSaveContext.buttonStatus[i] = BTN_ENABLED;
+                        }
+                    }
+
+                    if (gSaveContext.buttonStatus[0] != BTN_DISABLED) {
+                        gSaveContext.buttonStatus[0] = BTN_DISABLED;
+                        phi_t3 = true;
+                    }
+                } else if (player->stateFlags1 & 0x2000) {
+                    if (gSaveContext.buttonStatus[0] != BTN_DISABLED) {
+                        gSaveContext.buttonStatus[0] = BTN_DISABLED;
+                        gSaveContext.buttonStatus[1] = BTN_DISABLED;
+                        gSaveContext.buttonStatus[2] = BTN_DISABLED;
+                        gSaveContext.buttonStatus[3] = BTN_DISABLED;
+                        phi_t3 = true;
+                        Interface_ChangeAlpha(50);
+                    }
+                } else {
+                    if ((interfaceCtx->unk_21E == 0x18) && (player->currentMask == PLAYER_MASK_BLAST) &&
+                        (player->unk_B60 != 0)) {
+                        if (gSaveContext.unk_1015 != 0xFF) {
+                            gSaveContext.unk_1015 = 0xFF;
+                            phi_t3 = true;
+                        }
+                    } else {
+                        if (gSaveContext.unk_1015 == 0xFF) {
+                            gSaveContext.unk_1015 = 0;
+                            phi_t3 = true;
+                        }
+
+                        if (interfaceCtx->restrictions.bButton == 0) {
+                            if ((BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOW) ||
+                                (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOMB) ||
+                                (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOMBCHU)) {
+                                if (GET_CUR_EQUIP_VALUE(EQUIP_SWORD) == 0) {
+                                    gSaveContext.buttonStatus[0] = BTN_DISABLED;
+                                }
+                                phi_a1_6 = gSaveContext.buttonStatus[0];
+                                if (gSaveContext.buttonStatus[0] == BTN_ENABLED) {
+                                    temp_t9 = GET_CUR_EQUIP_VALUE(EQUIP_SWORD) + ITEM_SWORD_KOKIRI - 1;
+                                    gSaveContext.buttonStatus[0] = temp_t9;
+                                    phi_a1_6 = temp_t9 & 0xFF;
+                                }
+
+                                BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = phi_a1_6;
+                                if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NONE) {
+                                    Interface_LoadItemIconImpl(globalCtx, 0);
+                                }
+                                phi_t3 = true;
+                            } else if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_NONE) {
+                                if (interfaceCtx->unk_21E != 0) {
+                                    if (gSaveContext.buttonStatus[0] == BTN_DISABLED) {
+                                        phi_t3 = true;
+                                        gSaveContext.buttonStatus[0] = BTN_ENABLED;
+                                    }
+                                } else {
+                                    if (gSaveContext.buttonStatus[0] != BTN_DISABLED) {
+                                        phi_t3 = true;
+                                        gSaveContext.buttonStatus[0] = BTN_DISABLED;
+                                    }
+                                }
+                            } else {
+                                if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_NONE) {
+                                    if (gSaveContext.buttonStatus[0] != BTN_DISABLED) {
+                                        phi_t3 = true;
+                                        gSaveContext.buttonStatus[0] = BTN_DISABLED;
+                                    }
+                                } else {
+                                    if (gSaveContext.buttonStatus[0] == BTN_DISABLED) {
+                                        phi_t3 = true;
+                                        gSaveContext.buttonStatus[0] = BTN_ENABLED;
+                                    }
+                                }
+                            }
+                        } else {
+                            if (interfaceCtx->restrictions.bButton != 0) {
+                                if ((BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOW) ||
+                                    (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOMB) ||
+                                    (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOMBCHU)) {
+                                    if (GET_CUR_EQUIP_VALUE(EQUIP_SWORD) == 0) {
+                                        gSaveContext.buttonStatus[0] = BTN_DISABLED;
+                                    }
+
+                                    BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = gSaveContext.buttonStatus[0];
+
+                                    if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NONE) {
+                                        Interface_LoadItemIconImpl(globalCtx, 0);
+                                    }
+                                    phi_t3 = true;
+                                }
+                                if (gSaveContext.buttonStatus[0] != BTN_DISABLED) {
+                                    gSaveContext.buttonStatus[0] = BTN_DISABLED;
+                                    phi_t3 = true;
+                                }
+                            }
+                        }
+                    }
+
+                    if (gSaveContext.save.playerForm == player->transformation) {
+                        for (i = 1; i < 4; i++) {
+
+                            if (!D_801C2410[gSaveContext.save.playerForm][GET_CUR_FORM_BTN_ITEM(i)]) {
+                                if (gSaveContext.buttonStatus[i] != BTN_DISABLED) {
+                                    gSaveContext.buttonStatus[i] = BTN_DISABLED;
+                                    phi_t3 = true;
+                                }
+                            } else if (player->actor.id != 0) {
+                                if (gSaveContext.buttonStatus[i] != BTN_DISABLED) {
+                                    gSaveContext.buttonStatus[i] = BTN_DISABLED;
+                                    phi_t3 = true;
+                                }
+                            } else if (player->currentMask == PLAYER_MASK_GIANT) {
+
+                                if (GET_CUR_FORM_BTN_ITEM(i) != ITEM_MASK_GIANT) {
+                                    if (gSaveContext.buttonStatus[i] != BTN_DISABLED) {
+                                        gSaveContext.buttonStatus[i] = BTN_DISABLED;
+                                        phi_t3 = true;
+                                    }
+                                } else if (gSaveContext.buttonStatus[i] == BTN_DISABLED) {
+                                    phi_t3 = true;
+                                    gSaveContext.buttonStatus[i] = BTN_ENABLED;
+                                }
+                            } else if (GET_CUR_FORM_BTN_ITEM(i) == ITEM_MASK_GIANT) {
+                                if (globalCtx->sceneNum != SCENE_INISIE_BS) {
+                                    if (gSaveContext.buttonStatus[i] != BTN_DISABLED) {
+                                        gSaveContext.buttonStatus[i] = BTN_DISABLED;
+                                        phi_t3 = true;
+                                    }
+                                } else if (gSaveContext.buttonStatus[i] == BTN_DISABLED) {
+                                    phi_t3 = true;
+                                    gSaveContext.buttonStatus[i] = BTN_ENABLED;
+                                }
+                            } else if (GET_CUR_FORM_BTN_ITEM(i) == ITEM_MASK_FIERCE_DEITY) {
+                                if ((globalCtx->sceneNum != SCENE_MITURIN_BS) &&
+                                    (globalCtx->sceneNum != SCENE_HAKUGIN_BS) &&
+                                    (globalCtx->sceneNum != SCENE_SEA_BS) && (globalCtx->sceneNum != SCENE_INISIE_BS) &&
+                                    (globalCtx->sceneNum != SCENE_LAST_BS)) {
+                                    if (gSaveContext.buttonStatus[i] != BTN_DISABLED) {
+                                        gSaveContext.buttonStatus[i] = BTN_DISABLED;
+                                        phi_t3 = true;
+                                    }
+                                } else if (gSaveContext.buttonStatus[i] == BTN_DISABLED) {
+                                    phi_t3 = true;
+                                    gSaveContext.buttonStatus[i] = BTN_ENABLED;
+                                }
+                            } else {
+                                if (interfaceCtx->restrictions.tradeItems != 0) {
+                                    if (((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_MOON_TEAR) &&
+                                         (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_PENDANT_MEMORIES)) ||
+                                        ((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_BOTTLE) &&
+                                         (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_OBABA_DRINK)) ||
+                                        (GET_CUR_FORM_BTN_ITEM(i) == ITEM_OCARINA)) {
+                                        if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
+                                            phi_t3 = true;
+                                        }
+                                        gSaveContext.buttonStatus[i] = BTN_DISABLED;
+                                    }
+                                } else if (interfaceCtx->restrictions.tradeItems == 0) {
+                                    if (((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_MOON_TEAR) &&
+                                         (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_PENDANT_MEMORIES)) ||
+                                        ((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_BOTTLE) &&
+                                         (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_OBABA_DRINK)) ||
+                                        (GET_CUR_FORM_BTN_ITEM(i) == ITEM_OCARINA)) {
+                                        if (gSaveContext.buttonStatus[i] == BTN_DISABLED) {
+                                            phi_t3 = true;
+                                        }
+                                        gSaveContext.buttonStatus[i] = BTN_ENABLED;
+                                    }
+                                }
+
+                                if (interfaceCtx->restrictions.unk_317 != 0) {
+                                    if (GET_CUR_FORM_BTN_ITEM(i) >= ITEM_MASK_DEKU) {
+                                        if (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_MASK_GIANT) {
+                                            if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
+                                                phi_t3 = true;
+                                            }
+                                            gSaveContext.buttonStatus[i] = BTN_DISABLED;
+                                        }
+                                    }
+                                } else if (interfaceCtx->restrictions.unk_317 == 0) {
+                                    if (GET_CUR_FORM_BTN_ITEM(i) >= ITEM_MASK_DEKU) {
+                                        if (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_MASK_GIANT) {
+                                            if (gSaveContext.buttonStatus[i] == BTN_DISABLED) {
+                                                phi_t3 = true;
+                                            }
+                                            gSaveContext.buttonStatus[i] = BTN_ENABLED;
+                                        }
+                                    }
+                                }
+
+                                if (interfaceCtx->restrictions.pictographBox != 0) {
+                                    if (GET_CUR_FORM_BTN_ITEM(i) == ITEM_PICTO_BOX) {
+                                        if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
+                                            phi_t3 = true;
+                                        }
+                                        gSaveContext.buttonStatus[i] = BTN_DISABLED;
+                                    }
+                                } else if (interfaceCtx->restrictions.pictographBox == 0) {
+                                    if (GET_CUR_FORM_BTN_ITEM(i) == ITEM_PICTO_BOX) {
+                                        if (gSaveContext.buttonStatus[i] == BTN_DISABLED) {
+                                            phi_t3 = true;
+                                        }
+                                        gSaveContext.buttonStatus[i] = BTN_ENABLED;
+                                    }
+                                }
+
+                                if (interfaceCtx->restrictions.all != 0) {
+                                    if (!((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_MOON_TEAR) &&
+                                          (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_PENDANT_MEMORIES))) {
+                                        if (!((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_BOTTLE) &&
+                                              (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_OBABA_DRINK))) {
+                                            if (GET_CUR_FORM_BTN_ITEM(i) != ITEM_OCARINA) {
+                                                if (!((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_MASK_DEKU) &&
+                                                      (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_MASK_GIANT))) {
+                                                    if ((GET_CUR_FORM_BTN_ITEM(i) != ITEM_PICTO_BOX) &&
+                                                        (gSaveContext.buttonStatus[i] == BTN_ENABLED)) {
+                                                        phi_t3 = true;
+                                                        gSaveContext.buttonStatus[i] = BTN_DISABLED;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                } else if (interfaceCtx->restrictions.all == 0) {
+                                    if (!((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_MOON_TEAR) &&
+                                          (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_PENDANT_MEMORIES))) {
+                                        if (!((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_BOTTLE) &&
+                                              (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_OBABA_DRINK))) {
+                                            if (GET_CUR_FORM_BTN_ITEM(i) != ITEM_OCARINA) {
+                                                if (!((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_MASK_DEKU) &&
+                                                      (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_MASK_GIANT))) {
+                                                    if ((GET_CUR_FORM_BTN_ITEM(i) != ITEM_PICTO_BOX) &&
+                                                        (gSaveContext.buttonStatus[i] == BTN_DISABLED)) {
+                                                        phi_t3 = true;
+                                                        gSaveContext.buttonStatus[i] = BTN_ENABLED;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if (phi_t3 && (globalCtx->activeCamera == 0) && (globalCtx->sceneLoadFlag == 0) && (globalCtx->unk_18B4A == 0)) {
+        gSaveContext.unk_3F22 = 0;
+        Interface_ChangeAlpha(50);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80110038.s")
+#endif
 
 void func_80111CB4(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80111CB4.s")
@@ -3033,7 +3507,7 @@ void func_80118084(GlobalContext* globalCtx) {
     gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
 
     if ((interfaceCtx->unk_222 == 0) && (player->stateFlags3 & 0x1000000)) {
-        if (gSaveContext.buttonStatus[0] != 0xFF) {
+        if (gSaveContext.buttonStatus[0] != BTN_DISABLED) {
             Interface_DrawItemIconTexture(globalCtx, interfaceCtx->iconItemSegment, 0);
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,

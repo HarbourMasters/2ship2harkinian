@@ -1342,7 +1342,7 @@ extern void* gItemIcons[];
 extern u8 gItemSlots[];
 extern s16 gItemPrices[];
 extern u16 gScenesPerRegion[11][27];
-extern u32 D_801C2410[];
+extern u8 D_801C2410[5][114];
 extern s16 gLinkFormObjectIndexes[8];
 extern RomFile objectFileTable[643];
 extern SceneTableEntry gSceneTable[];
