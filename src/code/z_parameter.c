@@ -243,11 +243,11 @@ Gfx D_801BF988[] = {
     gsSPEndDisplayList(),
 };
 
-s32 D_801BF9B0 = 0;
+s16 D_801BF9B0 = 0;
 
-s32 D_801BF9B4[] = {
-    0x42C80000, // f32: 100.0
-    0x42DA0000, // f32: 109.0
+f32 D_801BF9B4[] = {
+    100.0f,
+    109.0f,
 };
 
 s16 D_801BF9BC[] = {
@@ -3021,8 +3021,84 @@ void Interface_DrawAmmoCount(GlobalContext* globalCtx, s16 button, s16 alpha) {
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_DrawAmmoCount.s")
 #endif
 
-void func_80118084(GlobalContext* globalCtx);
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80118084.s")
+void func_80118084(GlobalContext* globalCtx) {
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+    Player* player = GET_PLAYER(globalCtx);
+
+    OPEN_DISPS(globalCtx->state.gfxCtx);
+
+    gDPPipeSync(OVERLAY_DISP++);
+    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->bAlpha);
+    gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+
+    if ((interfaceCtx->unk_222 == 0) && (player->stateFlags3 & 0x1000000)) {
+        if (gSaveContext.buttonStatus[0] != 0xFF) {
+            Interface_DrawItemIconTexture(globalCtx, interfaceCtx->iconItemSegment, 0);
+            gDPPipeSync(OVERLAY_DISP++);
+            gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
+                              PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+
+            Interface_DrawAmmoCount(globalCtx, 0, interfaceCtx->bAlpha);
+        }
+    } else if (((interfaceCtx->unk_21C == 0) && (interfaceCtx->unk_222 == 0)) ||
+               ((interfaceCtx->unk_21C != 0) &&
+                ((BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) < ITEM_SWORD_KOKIRI) ||
+                 (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) > ITEM_SWORD_GILDED)) &&
+                BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NONE) &&
+                   (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NUT)) {
+        if ((player->transformation == PLAYER_FORM_FIERCE_DEITY) || (player->transformation == PLAYER_FORM_HUMAN)) {
+            if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NONE) {
+                Interface_DrawItemIconTexture(globalCtx, interfaceCtx->iconItemSegment, 0);
+                if ((player->stateFlags1 & 0x800000) || (gSaveContext.save.weekEventReg[8] & 1) ||
+                    (globalCtx->unk_1887C >= 2)) {
+                    gDPPipeSync(OVERLAY_DISP++);
+                    gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE,
+                                      0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+
+                    if ((globalCtx->sceneNum != SCENE_SYATEKI_MIZU) && (globalCtx->sceneNum != SCENE_SYATEKI_MORI) &&
+                        (globalCtx->sceneNum != SCENE_BOWLING) &&
+                        ((gSaveContext.minigameState != 1) || (gSaveContext.save.entranceIndex != 0x6400)) &&
+                        ((gSaveContext.minigameState != 1) || !(gSaveContext.eventInf[3] & 0x20)) &&
+                        (!(gSaveContext.save.weekEventReg[31] & 0x80) || (globalCtx->unk_1887C != 0x64))) {
+                        Interface_DrawAmmoCount(globalCtx, 0, interfaceCtx->bAlpha);
+                    }
+                }
+            }
+        }
+    } else if (interfaceCtx->unk_222 != 0) {
+        gDPPipeSync(OVERLAY_DISP++);
+        gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
+                          PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+        gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->bAlpha);
+        gDPLoadTextureBlock_4b(OVERLAY_DISP++, interfaceCtx->doActionSegment + 0x480, G_IM_FMT_IA, 48, 16, 0,
+                               G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                               G_TX_NOLOD, G_TX_NOLOD);
+
+        D_801BF9B0 = 1024.0f / (D_801BF9B4[gSaveContext.options.language] / 100.0f);
+
+        gSPTextureRectangle(
+            OVERLAY_DISP++, (D_801BF9C4[gSaveContext.options.language] * 4),
+            (D_801BF9C8[gSaveContext.options.language] * 4), ((D_801BF9C4[gSaveContext.options.language] + 0x30) << 2),
+            ((D_801BF9C8[gSaveContext.options.language] + 0x10) << 2), G_TX_RENDERTILE, 0, 0, D_801BF9B0, D_801BF9B0);
+    } else if (interfaceCtx->unk_21E != 0xA) {
+        gDPPipeSync(OVERLAY_DISP++);
+        gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
+                          PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+        gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->bAlpha);
+        gDPLoadTextureBlock_4b(OVERLAY_DISP++, interfaceCtx->doActionSegment + 0x600, G_IM_FMT_IA, 48, 16, 0,
+                               G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                               G_TX_NOLOD, G_TX_NOLOD);
+
+        D_801BF9B0 = 1024.0f / (D_801BF9B4[gSaveContext.options.language] / 100.0f);
+
+        gSPTextureRectangle(
+            OVERLAY_DISP++, (D_801BF9C4[gSaveContext.options.language] * 4),
+            (D_801BF9C8[gSaveContext.options.language] * 4), ((D_801BF9C4[gSaveContext.options.language] + 0x30) << 2),
+            ((D_801BF9C8[gSaveContext.options.language] + 0x10) << 2), G_TX_RENDERTILE, 0, 0, D_801BF9B0, D_801BF9B0);
+    }
+
+    CLOSE_DISPS(globalCtx->state.gfxCtx);
+}
 
 void func_80118890(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80118890.s")
