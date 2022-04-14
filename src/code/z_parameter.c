@@ -550,7 +550,7 @@ void func_8010EBA0(s16 timer, s16 timerId) {
     D_801BF8F0 = 0;
 }
 
-// Crazy u64 math
+// u64 nonsense
 #ifdef NON_EQUIVALENT
 s32 func_8010EC54(s16 timerId) {
     u64 time;
@@ -4254,6 +4254,7 @@ void func_8011C808(GlobalContext* globalCtx) {
     globalCtx->unk_1887F = 3;
 }
 
+// u64 nonsense
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011C898.s")
 
 s32 D_801BFCE4[] = {
@@ -4286,8 +4287,124 @@ void Interface_DrawTimers(GlobalContext* globalCtx);
 void Interface_UpdateTimers(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_UpdateTimers.s")
 
+#ifdef NON_EQUIVALENT
+void Interface_DrawMinigameIcons(GlobalContext* globalCtx) {
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+    s16 sp42;
+    s16 sp40;
+    s16 sp3E;
+    s16 sp3C;
+    s16 phi_a0;
+    s16 phi_a1;
+
+    func_8012C654(globalCtx->state.gfxCtx);
+
+    if ((globalCtx->pauseCtx.state == 0) && (globalCtx->pauseCtx.debugState == 0)) {
+        if (interfaceCtx->unk_212 == 8) {
+            gDPLoadTextureBlock(OVERLAY_DISP++, gCarrotIconTex, G_IM_FMT_RGBA, G_IM_SIZ_32b, 16, 16, 0,
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                G_TX_NOLOD, G_TX_NOLOD);
+
+            if (interfaceCtx->unk_280 != 0) {
+                sp3C = 200;
+            } else {
+                sp3C = 56;
+            }
+
+            for (sp42 = 1, sp3E = 110; sp42 < 7; sp42++, sp3E += 16) {
+                if ((interfaceCtx->numHorseBoosts == 0) || (interfaceCtx->numHorseBoosts < sp42)) {
+                    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 150, 255, interfaceCtx->aAlpha);
+                } else {
+                    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->aAlpha);
+                }
+
+                gSPTextureRectangle(OVERLAY_DISP++, (sp3E * 4), (sp3C * 4), (sp3E * 4), ((sp3C + 0x10) * 4),
+                                    G_TX_RENDERTILE, 0, 0, 0x0400, 0x0400);
+            }
+        }
+
+        if (gSaveContext.minigameState == 1) {
+            gDPPipeSync(OVERLAY_DISP++);
+            gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
+                              PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+            sp3E = 0x14;
+            phi_a0 = 0x18;
+            phi_a1 = 0x10;
+            if (gSaveContext.save.playerData.healthCapacity > 0xA0) {
+                sp3C = 0x4B;
+            } else {
+                sp3C = 0x43;
+            }
+
+            if (gSaveContext.save.entranceIndex == 0x8E10) {
+                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->bAlpha);
+                gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 255);
+                gDPLoadTextureBlock(OVERLAY_DISP++, gBeaverRingIconTex, G_IM_FMT_RGBA, G_IM_SIZ_32b, 24, 16, 0,
+                                    G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                    G_TX_NOLOD, G_TX_NOLOD);
+            } else {
+                if (globalCtx->sceneNum == 0x54) {
+                    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 140, 50, interfaceCtx->bAlpha);
+                    gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 255);
+                    gDPLoadTextureBlock(OVERLAY_DISP++, gSwordTrainingLogIconTex, G_IM_FMT_IA, G_IM_SIZ_8b, 24, 16, 0,
+                                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                        G_TX_NOLOD, G_TX_NOLOD);
+                } else if (globalCtx->sceneNum == 0x37) {
+                    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 100, 75, interfaceCtx->bAlpha);
+                    gDPSetEnvColor(OVERLAY_DISP++, 55, 55, 0, 255);
+                    gDPLoadTextureBlock(OVERLAY_DISP++, gFishermanMinigameTorchIconTex, G_IM_FMT_IA, G_IM_SIZ_8b, 16,
+                                        30, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
+                                        G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                    sp3E = 0x18;
+                    phi_a0 = 0x10;
+                    phi_a1 = 0x1E;
+                } else {
+                    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->bAlpha);
+                    gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 255);
+                    gDPLoadTextureBlock(OVERLAY_DISP++, gArcheryScoreIconTex, G_IM_FMT_RGBA, G_IM_SIZ_16b, 24, 16, 0,
+                                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                        G_TX_NOLOD, G_TX_NOLOD);
+                }
+            }
+
+            gSPTextureRectangle(OVERLAY_DISP++, (sp3E * 4), (sp3C * 4), ((sp3E + phi_a0) * 4), ((sp3C + phi_a1) * 4),
+                                G_TX_RENDERTILE, 0, 0, 0x0400, 0x0400);
+            gDPPipeSync(OVERLAY_DISP++);
+            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->bAlpha);
+            gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0,
+                              0, PRIMITIVE, 0);
+
+            if (globalCtx->sceneNum == 0x37) {
+                sp3E += 0x14;
+                if (gSaveContext.save.playerData.healthCapacity > 0xA0) {
+                    sp3C = 0x57;
+                } else {
+                    sp3C = 0x4F;
+                }
+            } else {
+                sp3E += 0x1A;
+            }
+
+            for (sp42 = sp40 = 0; sp42 < 4; sp42++) {
+                if ((sMinigameScoreDigits[sp42] != 0) || (sp40 != 0) || (sp42 >= 3)) {
+                    // (u8*)gCounterDigit0Tex + (8 * 16 * counterDigits[2])
+                    OVERLAY_DISP =
+                        Gfx_TextureI8(OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * sMinigameScoreDigits[sp42])), 8,
+                                      0x10, sp3E, sp3C - 2, 9, 0xFA, 0x370, 0x370);
+                    sp3E += 9;
+                    sp40++;
+                }
+            }
+
+            gDPPipeSync(OVERLAY_DISP++);
+            gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+        }
+    }
+}
+#else
 void Interface_DrawMinigameIcons(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_DrawMinigameIcons.s")
+#endif
 
 // rupeeDigitsFirst
 s16 D_801BFD1C[] = { 1, 0, 0, 0 };
