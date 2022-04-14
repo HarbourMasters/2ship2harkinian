@@ -3208,11 +3208,74 @@ void func_80118BA4(GlobalContext* globalCtx) {
     CLOSE_DISPS(globalCtx->state.gfxCtx);
 }
 
-s16 D_801BFB14[] = { 255, 100, 255, 0 };
-s16 D_801BFB1C[] = { 0, 100, 255, 0 };
-s16 D_801BFB24[] = { 0, 255, 100, 0 };
-void func_80119030(GlobalContext* globalCtx);
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80119030.s")
+extern TexturePtr D_08095AC0;            // gMagicArrowEquipEffectTex
+s16 D_801BFB14[] = { 255, 100, 255, 0 }; // magicArrowEffectsR
+s16 D_801BFB1C[] = { 0, 100, 255, 0 };   // magicArrowEffectsG
+s16 D_801BFB24[] = { 0, 255, 100, 0 };   // magicArrowEffectsB
+void func_80119030(GlobalContext* globalCtx) {
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+    PauseContext* pauseCtx = &globalCtx->pauseCtx;
+    s16 temp;
+
+    OPEN_DISPS(globalCtx->state.gfxCtx);
+
+    gDPPipeSync(OVERLAY_DISP++);
+
+    func_801170B8(interfaceCtx);
+
+    if (pauseCtx->state == 6) {
+        if ((pauseCtx->unk_200 == 3) || (pauseCtx->unk_200 == 0xF)) {
+            // Inventory Equip Effects
+            gSPSegment(OVERLAY_DISP++, 0x08, pauseCtx->iconItemSegment);
+            func_8012C8D4(globalCtx->state.gfxCtx);
+            gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+            gDPSetAlphaCompare(OVERLAY_DISP++, G_AC_THRESHOLD);
+            gSPMatrix(OVERLAY_DISP++, &gIdentityMtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+
+            pauseCtx->cursorVtx[16].v.ob[0] = pauseCtx->cursorVtx[18].v.ob[0] = pauseCtx->equipAnimX / 10;
+            pauseCtx->cursorVtx[17].v.ob[0] = pauseCtx->cursorVtx[19].v.ob[0] =
+                pauseCtx->cursorVtx[16].v.ob[0] + (pauseCtx->unk_2BA / 10);
+            pauseCtx->cursorVtx[16].v.ob[1] = pauseCtx->cursorVtx[17].v.ob[1] = pauseCtx->equipAnimY / 10;
+            pauseCtx->cursorVtx[18].v.ob[1] = pauseCtx->cursorVtx[19].v.ob[1] =
+                pauseCtx->cursorVtx[16].v.ob[1] - (pauseCtx->unk_2BA / 10);
+
+            if (pauseCtx->equipTargetItem < 0xB5) {
+                // Normal Equip (icon goes from the inventory slot to the C button when equipping it)
+                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, pauseCtx->equipAnimAlpha);
+                gSPVertex(OVERLAY_DISP++, &pauseCtx->cursorVtx[16], 4, 0);
+                gDPLoadTextureBlock(OVERLAY_DISP++, gItemIcons[pauseCtx->equipTargetItem], G_IM_FMT_RGBA, G_IM_SIZ_32b,
+                                    32, 32, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
+                                    G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            } else {
+                // Magic Arrow Equip Effect
+                temp = pauseCtx->equipTargetItem - 0xB5;
+                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, D_801BFB14[temp], D_801BFB1C[temp], D_801BFB24[temp],
+                                pauseCtx->equipAnimAlpha);
+
+                if ((pauseCtx->equipAnimAlpha > 0) && (pauseCtx->equipAnimAlpha < 255)) {
+                    temp = (pauseCtx->equipAnimAlpha / 8) / 2;
+                    pauseCtx->cursorVtx[16].v.ob[0] = pauseCtx->cursorVtx[18].v.ob[0] =
+                        pauseCtx->cursorVtx[16].v.ob[0] - temp;
+                    pauseCtx->cursorVtx[17].v.ob[0] = pauseCtx->cursorVtx[19].v.ob[0] =
+                        pauseCtx->cursorVtx[16].v.ob[0] + temp * 2 + 32;
+                    pauseCtx->cursorVtx[16].v.ob[1] = pauseCtx->cursorVtx[17].v.ob[1] =
+                        pauseCtx->cursorVtx[16].v.ob[1] + temp;
+                    pauseCtx->cursorVtx[18].v.ob[1] = pauseCtx->cursorVtx[19].v.ob[1] =
+                        pauseCtx->cursorVtx[16].v.ob[1] - temp * 2 - 32;
+                }
+
+                gSPVertex(OVERLAY_DISP++, &pauseCtx->cursorVtx[16], 4, 0);
+                gDPLoadTextureBlock(OVERLAY_DISP++, &D_08095AC0, G_IM_FMT_IA, G_IM_SIZ_8b, 32, 32, 0,
+                                    G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                    G_TX_NOLOD, G_TX_NOLOD);
+            }
+
+            gSP1Quadrangle(OVERLAY_DISP++, 0, 2, 3, 1, 0);
+        }
+    }
+
+    CLOSE_DISPS(globalCtx->state.gfxCtx);
+}
 
 /**
  * Draws either the analog three-day clock or the digital final-hours clock
@@ -4177,23 +4240,19 @@ void Interface_DrawMinigamePerfect(GlobalContext* globalCtx) {
     CLOSE_DISPS(globalCtx->state.gfxCtx);
 }
 
-#ifdef NON_MATCHING
 void func_8011C808(GlobalContext* globalCtx) {
     if (globalCtx->actorCtx.unk5 & 2) {
         Audio_QueueSeqCmd(0xE0000100);
     }
 
     gSaveContext.save.day = 4;
-    gSaveContext.save.daysElapsed = gSaveContext.save.day;
+    gSaveContext.save.daysElapsed = 4;
     gSaveContext.save.time = 0x400A;
     globalCtx->nextEntranceIndex = 0x54C0;
     gSaveContext.nextCutsceneIndex = 0;
     globalCtx->sceneLoadFlag = 0x14;
     globalCtx->unk_1887F = 3;
 }
-#else
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011C808.s")
-#endif
 
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011C898.s")
 
