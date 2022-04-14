@@ -1680,7 +1680,7 @@ asm/non_matchings/code/z_parameter/Interface_LoadStory.s,Interface_LoadStory,0x8
 asm/non_matchings/code/z_parameter/Interface_AllocStory.s,Interface_AllocStory,0x80121064,0x1F
 asm/non_matchings/code/z_parameter/Interface_Update.s,Interface_Update,0x801210E0,0x3AD
 asm/non_matchings/code/z_parameter/func_80121F94.s,func_80121F94,0x80121F94,0xC
-asm/non_matchings/code/z_parameter/func_80121FC4.s,func_80121FC4,0x80121FC4,0x147
+asm/non_matchings/code/z_parameter/Interface_Init.s,Interface_Init,0x80121FC4,0x147
 asm/non_matchings/code/z_path/func_801224E0.s,func_801224E0,0x801224E0,0x11
 asm/non_matchings/code/z_path/func_80122524.s,func_80122524,0x80122524,0x2A
 asm/non_matchings/code/z_path/func_801225CC.s,func_801225CC,0x801225CC,0x25

@@ -165,7 +165,7 @@ static RestrictionFlags sRestrictionFlags[] = {
 
 s16 D_801BF884 = 0; // pictoBox related
 
-s32 D_801BF888 = 0;
+s16 D_801BF888 = 0;
 
 s16 sHBAScoreTier = 0;
 
@@ -1393,7 +1393,7 @@ void func_80110038(GlobalContext* globalCtx) {
             }
 
             Interface_ChangeAlpha(8);
-        } else if (gSaveContext.save.weekEventReg[0x52] & 8) {
+        } else if (gSaveContext.save.weekEventReg[82] & 8) {
             for (i = 1; i < 4; i++) {
                 if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
                     gSaveContext.buttonStatus[i] = BTN_DISABLED;
@@ -1492,7 +1492,7 @@ void func_80110038(GlobalContext* globalCtx) {
             gSaveContext.buttonStatus[0] = BTN_DISABLED;
         } else {
             if ((func_801242DC(globalCtx) >= 2) && (func_801242DC(globalCtx) < 5)) {
-                if (CUR_FORM != 2) {
+                if (CUR_FORM != PLAYER_FORM_ZORA) {
                     if ((player->currentMask == PLAYER_MASK_BLAST) && (player->unk_B60 == 0)) {
                         if (gSaveContext.unk_1015 == 0xFF) {
                             phi_t3 = true;
@@ -2201,16 +2201,16 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
 
     } else if (item == ITEM_MAGIC_SMALL) {
         Interface_AddMagic(globalCtx, 0x18);
-        if (!(gSaveContext.save.weekEventReg[0xC] & 0x80)) {
-            gSaveContext.save.weekEventReg[0xC] |= 0x80;
+        if (!(gSaveContext.save.weekEventReg[12] & 0x80)) {
+            gSaveContext.save.weekEventReg[12] |= 0x80;
             return ITEM_NONE;
         }
         return item;
 
     } else if (item == ITEM_MAGIC_LARGE) {
         Interface_AddMagic(globalCtx, 0x30);
-        if (!(gSaveContext.save.weekEventReg[0xC] & 0x80)) {
-            gSaveContext.save.weekEventReg[0xC] |= 0x80;
+        if (!(gSaveContext.save.weekEventReg[12] & 0x80)) {
+            gSaveContext.save.weekEventReg[12] |= 0x80;
             return ITEM_NONE;
         }
         return item;
@@ -2536,7 +2536,7 @@ void Inventory_UpdateDeitySwordEquip(GlobalContext* globalCtx) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
     u8 btn;
 
-    if (CUR_FORM == 0) {
+    if (CUR_FORM == PLAYER_FORM_FIERCE_DEITY) {
         interfaceCtx->unk_21C = 0;
         interfaceCtx->unk_21E = 0;
         if ((((gSaveContext.save.playerForm > 0) && (gSaveContext.save.playerForm < 4))
@@ -2869,7 +2869,7 @@ s32 func_80115DB4(GlobalContext* globalCtx, s16 arg1, s16 arg2) {
                 if (gSaveContext.unk_3F28 == 7) {
                     globalCtx->actorCtx.unk3 = 0;
                 }
-                if (gSaveContext.save.weekEventReg[0xE] & 8) {
+                if (gSaveContext.save.weekEventReg[14] & 8) {
                     arg1 = 0;
                 }
                 gSaveContext.unk_3F32 = arg1;
@@ -2884,7 +2884,7 @@ s32 func_80115DB4(GlobalContext* globalCtx, s16 arg1, s16 arg2) {
                 if (gSaveContext.unk_3F28 == 7) {
                     globalCtx->actorCtx.unk3 = 0;
                 }
-                if (gSaveContext.save.weekEventReg[0xE] & 8) {
+                if (gSaveContext.save.weekEventReg[14] & 8) {
                     arg1 = 0;
                 }
                 gSaveContext.unk_3F32 = arg1;
@@ -2943,7 +2943,7 @@ s32 func_80115DB4(GlobalContext* globalCtx, s16 arg1, s16 arg2) {
                 if (gSaveContext.unk_3F28 == 7) {
                     globalCtx->actorCtx.unk3 = 0;
                 }
-                if (gSaveContext.save.weekEventReg[0xE] & 8) {
+                if (gSaveContext.save.weekEventReg[14] & 8) {
                     arg1 = 0;
                 }
                 gSaveContext.save.playerData.magic -= arg1;
@@ -3029,7 +3029,7 @@ void Interface_UpdateMagicBar(GlobalContext* globalCtx) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
     s16 temp;
 
-    if (gSaveContext.save.weekEventReg[0xE] & 8) {
+    if (gSaveContext.save.weekEventReg[14] & 8) {
         func_80116114();
     }
 
@@ -3072,7 +3072,7 @@ void Interface_UpdateMagicBar(GlobalContext* globalCtx) {
             break;
 
         case 2:
-            if (!(gSaveContext.save.weekEventReg[0xE] & 8)) {
+            if (!(gSaveContext.save.weekEventReg[14] & 8)) {
                 gSaveContext.save.playerData.magic =
                     ((void)0, gSaveContext.save.playerData.magic) - ((void)0, gSaveContext.unk_3F32);
                 if (gSaveContext.save.playerData.magic <= 0) {
@@ -3088,7 +3088,7 @@ void Interface_UpdateMagicBar(GlobalContext* globalCtx) {
         case 3:
         case 4:
         case 6:
-            if (!(gSaveContext.save.weekEventReg[0xE] & 8)) {
+            if (!(gSaveContext.save.weekEventReg[14] & 8)) {
                 func_80116114();
             }
             break;
@@ -3117,20 +3117,20 @@ void Interface_UpdateMagicBar(GlobalContext* globalCtx) {
 
                     interfaceCtx->unk_258--;
                     if (interfaceCtx->unk_258 == 0) {
-                        if (!(gSaveContext.save.weekEventReg[0xE] & 8)) {
+                        if (!(gSaveContext.save.weekEventReg[14] & 8)) {
                             gSaveContext.save.playerData.magic--;
                         }
                         interfaceCtx->unk_258 = 80;
                     }
                 }
             }
-            if (!(gSaveContext.save.weekEventReg[0xE] & 8)) {
+            if (!(gSaveContext.save.weekEventReg[14] & 8)) {
                 func_80116114();
             }
             break;
 
         case 10:
-            if (!(gSaveContext.save.weekEventReg[0xE] & 8)) {
+            if (!(gSaveContext.save.weekEventReg[14] & 8)) {
                 gSaveContext.save.playerData.magic -= 2;
             }
             if (gSaveContext.save.playerData.magic <= 0) {
@@ -3145,7 +3145,7 @@ void Interface_UpdateMagicBar(GlobalContext* globalCtx) {
                 if (!Play_InCsMode(globalCtx)) {
                     interfaceCtx->unk_258--;
                     if (interfaceCtx->unk_258 == 0) {
-                        if (!(gSaveContext.save.weekEventReg[0xE] & 8)) {
+                        if (!(gSaveContext.save.weekEventReg[14] & 8)) {
                             gSaveContext.save.playerData.magic--;
                         }
                         if (gSaveContext.save.playerData.magic <= 0) {
@@ -3155,7 +3155,7 @@ void Interface_UpdateMagicBar(GlobalContext* globalCtx) {
                     }
                 }
             }
-            if (!(gSaveContext.save.weekEventReg[0xE] & 8)) {
+            if (!(gSaveContext.save.weekEventReg[14] & 8)) {
                 func_80116114();
             }
             break;
@@ -3166,7 +3166,7 @@ void Interface_UpdateMagicBar(GlobalContext* globalCtx) {
                 if (!Play_InCsMode(globalCtx)) {
                     interfaceCtx->unk_258--;
                     if (interfaceCtx->unk_258 == 0) {
-                        if (!(gSaveContext.save.weekEventReg[0xE] & 8)) {
+                        if (!(gSaveContext.save.weekEventReg[14] & 8)) {
                             gSaveContext.save.playerData.magic--;
                         }
                         if (gSaveContext.save.playerData.magic <= 0) {
@@ -3176,7 +3176,7 @@ void Interface_UpdateMagicBar(GlobalContext* globalCtx) {
                     }
                 }
             }
-            if (!(gSaveContext.save.weekEventReg[0xE] & 8)) {
+            if (!(gSaveContext.save.weekEventReg[14] & 8)) {
                 func_80116114();
             }
             break;
@@ -3230,7 +3230,7 @@ void Interface_DrawMagicBar(GlobalContext* globalCtx) {
 
             gDPPipeSync(OVERLAY_DISP++);
 
-            if (gSaveContext.save.weekEventReg[0xE] & 8) {
+            if (gSaveContext.save.weekEventReg[14] & 8) {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 200, interfaceCtx->magicAlpha);
             } else {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 200, 0, interfaceCtx->magicAlpha);
@@ -3241,7 +3241,7 @@ void Interface_DrawMagicBar(GlobalContext* globalCtx) {
                 ((((void)0, gSaveContext.save.playerData.magic) - ((void)0, gSaveContext.unk_3F32)) + 26) << 2,
                 (magicBarY + 10) << 2, G_TX_RENDERTILE, 0, 0, 0x0400, 0x0400);
         } else {
-            if (gSaveContext.save.weekEventReg[0xE] & 8) {
+            if (gSaveContext.save.weekEventReg[14] & 8) {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 200, interfaceCtx->magicAlpha);
             } else {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 200, 0, interfaceCtx->magicAlpha);
@@ -5657,7 +5657,7 @@ void Interface_Update(GlobalContext* globalCtx) {
 
     if (gSaveContext.unk_3DD0[5] == 0) {
         if ((D_801BF8DC == 1) || (D_801BF8DC == 4)) {
-            if (CUR_FORM != 2) {
+            if (CUR_FORM != PLAYER_FORM_ZORA) {
                 if (globalCtx->gameOverCtx.state == 0) {
                     if ((gSaveContext.save.playerData.health >> 1) != 0) {
                         gSaveContext.unk_3DD0[5] = 8;
@@ -5788,4 +5788,116 @@ void func_80121F94(void) {
     func_80174F9C(func_8010E968, NULL);
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80121FC4.s")
+// OoT func_801109B0 (from z_construct.c)
+void Interface_Init(GlobalContext* globalCtx) {
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+    s32 i;
+    s32 pad;
+    size_t parameterSize;
+
+    bzero(interfaceCtx, 0x348);
+
+    gSaveContext.sunsSongState = 0;
+    gSaveContext.unk_3F20 = 0;
+    gSaveContext.unk_3F22 = 0;
+
+    View_Init(&interfaceCtx->view, globalCtx->state.gfxCtx);
+
+    interfaceCtx->unk_258 = 0x10;
+    interfaceCtx->unkTimer = 200;
+
+    parameterSize = (u32)_parameter_staticSegmentRomEnd - (u32)_parameter_staticSegmentRomStart;
+
+    interfaceCtx->parameterSegment = THA_AllocEndAlign16(&globalCtx->state.heap, parameterSize);
+
+    DmaMgr_SendRequest0(interfaceCtx->parameterSegment, _parameter_staticSegmentRomStart, parameterSize);
+
+    interfaceCtx->doActionSegment = THA_AllocEndAlign16(&globalCtx->state.heap, 0xC90);
+    DmaMgr_SendRequest0(interfaceCtx->doActionSegment, _do_action_staticSegmentRomStart, 0x300);
+    DmaMgr_SendRequest0(interfaceCtx->doActionSegment + 0x300, _do_action_staticSegmentRomStart + 0x480, 0x180);
+
+    Interface_NewDay(globalCtx, CURRENT_DAY);
+
+    interfaceCtx->iconItemSegment = THA_AllocEndAlign16(&globalCtx->state.heap, 0x4000);
+
+    if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) < 0xF0) {
+        Interface_LoadItemIconImpl(globalCtx, 0);
+    } else if ((BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NONE) &&
+               (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_UNK_FD)) {
+        Interface_LoadItemIconImpl(globalCtx, 0);
+    }
+
+    if (gSaveContext.save.equips.buttonItems[0][1] < 0xF0) {
+        Interface_LoadItemIconImpl(globalCtx, 1);
+    }
+
+    if (gSaveContext.save.equips.buttonItems[0][2] < 0xF0) {
+        Interface_LoadItemIconImpl(globalCtx, 2);
+    }
+
+    if (gSaveContext.save.equips.buttonItems[0][3] < 0xF0) {
+        Interface_LoadItemIconImpl(globalCtx, 3);
+    }
+
+    if (((gSaveContext.unk_3DD0[4] == 4) || (gSaveContext.unk_3DD0[6] == 4)) &&
+        ((gSaveContext.respawnFlag == -1) || (gSaveContext.respawnFlag == 1)) && (gSaveContext.unk_3DD0[4] == 4)) {
+        gSaveContext.unk_3DD0[4] = 1;
+        gSaveContext.timerX[4] = 0x73;
+        gSaveContext.timerY[4] = 0x50;
+    }
+
+    LifeMeter_Init(globalCtx);
+    func_8010A430(globalCtx);
+
+    gSaveContext.minigameState = 3;
+    interfaceCtx->unk_2FC[0] = 255;
+    interfaceCtx->unk_2FC[1] = 165;
+    interfaceCtx->unk_2FC[2] = 55;
+
+    if (gSaveContext.eventInf[3] & 0x10) {
+        gSaveContext.eventInf[3] &= 0xEF;
+        gSaveContext.unk_3DD0[4] = 0;
+    }
+
+    gSaveContext.unk_3DD0[1] = 0;
+    gSaveContext.unk_3DE0[1] = 0;
+    gSaveContext.unk_3E18[1] = 0;
+    gSaveContext.unk_3E50[1] = 0;
+    gSaveContext.unk_3E88[1] = 0;
+    gSaveContext.unk_3EC0[1] = 0;
+
+    for (i = 0; i < 7; i++) {
+        if (gSaveContext.unk_3DD0[i] == 7) {
+            gSaveContext.unk_3DD0[i] = 0;
+        }
+    }
+
+    D_801BF884 = 0;
+    D_801BF888 = 0;
+
+    if ((globalCtx->sceneNum != SCENE_MITURIN_BS) && (globalCtx->sceneNum != SCENE_HAKUGIN_BS) &&
+        (globalCtx->sceneNum != SCENE_SEA_BS) && (globalCtx->sceneNum != SCENE_INISIE_BS) &&
+        (globalCtx->sceneNum != SCENE_LAST_BS) && (globalCtx->sceneNum != SCENE_MITURIN) &&
+        (globalCtx->sceneNum != SCENE_HAKUGIN) && (globalCtx->sceneNum != SCENE_SEA) &&
+        (globalCtx->sceneNum != SCENE_INISIE_N) && (globalCtx->sceneNum != SCENE_INISIE_R) &&
+        (globalCtx->sceneNum != SCENE_LAST_DEKU) && (globalCtx->sceneNum != SCENE_LAST_GORON) &&
+        (globalCtx->sceneNum != SCENE_LAST_ZORA) && (globalCtx->sceneNum != SCENE_LAST_LINK)) {
+
+        gSaveContext.eventInf[5] &= 0xF7;
+        gSaveContext.eventInf[5] &= 0xEF;
+        gSaveContext.eventInf[5] &= 0xDF;
+        gSaveContext.eventInf[5] &= 0xBF;
+        gSaveContext.eventInf[5] &= 0x7F;
+        gSaveContext.eventInf[6] &= 0xFE;
+        gSaveContext.eventInf[6] &= 0xFD;
+        gSaveContext.eventInf[6] &= 0xFB;
+        gSaveContext.eventInf[6] &= 0xF7;
+    }
+
+    sFinalHoursClockFrameEnvBlue = 0;
+    sFinalHoursClockFrameEnvGreen = sFinalHoursClockFrameEnvBlue;
+    sFinalHoursClockFrameEnvRed = sFinalHoursClockFrameEnvGreen;
+    sFinalHoursClockDigitsRed = sFinalHoursClockFrameEnvRed;
+    sFinalHoursClockColorTimer = 0xF;
+    sFinalHoursClockColorTargetIndex = 0;
+}

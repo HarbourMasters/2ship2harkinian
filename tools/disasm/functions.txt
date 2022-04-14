@@ -2166,7 +2166,7 @@
     0x80121064:("Interface_AllocStory",),
     0x801210E0:("Interface_Update",),
     0x80121F94:("func_80121F94",),
-    0x80121FC4:("func_80121FC4",),
+    0x80121FC4:("Interface_Init",),
     0x801224E0:("Path_GetByIndex",),
     0x80122524:("Path_OrientAndGetDistSq",),
     0x801225CC:("Path_CopyLastPoint",),
