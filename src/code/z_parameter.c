@@ -309,32 +309,6 @@ s16 sFinalHoursClockFrameEnvBlue = 0;
 s16 sFinalHoursClockColorTimer = 15;
 s16 sFinalHoursClockColorTargetIndex = 0;
 
-s16 D_801BFA04[] = {
-    0xFFF2, 0xFFF2, 0xFFE8, 0xFFF8, 0xFFF4, 0xFFF4, 0xFFF9, 0xFFF8, 0xFFF9, 0xFFF8, 0xFFF4, 0,
-};
-
-s16 D_801BFA1C[] = {
-    0x1C, 0x1C, 0x30, 0x10, 0x18, 0x18, 0x10, 0x10, 0x10, 0x10, 0x18, 0,
-};
-
-s16 D_801BFA34[] = {
-    0xE, 0xE, 0x8, 0x18, 0xFFAE, 0xFFAE, 0x3A, 0x3B, 0x3A, 0x3B, 0x20, 0,
-};
-
-s16 D_801BFA4C[] = {
-    0x1C, 0x1C, 0x10, 0x10, 0x18, 0x18, 0xB, 0xB, 0xB, 0xB, 0x20, 0,
-};
-
-s16 D_801BFA64[] = {
-    0xFFC3, 0xFFD3, 0x001D, 0x0068, 0xFF8B, 0xFFD6, 0x0020, 0x0037,
-};
-
-s16 D_801BFA74[] = {
-    0x0001, 0xFFBA, 0xFF9D, 0xFFBA, 0x0047, 0x0065, 0x0048, 0x0001,
-};
-
-s32 D_801BFA84 = 0;
-
 Gfx* Gfx_TextureRGBA16(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft,
                        s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy) {
     gDPLoadTextureBlock(displayListHead++, texture, G_IM_FMT_RGBA, G_IM_SIZ_16b, textureWidth, textureHeight, 0,
@@ -476,9 +450,216 @@ Gfx* func_8010DE38(Gfx* displayListHead, void* texture, s32 fmt, s16 textureWidt
     return displayListHead;
 }
 
+s16 D_801BFA04[] = {
+    0xFFF2, 0xFFF2, 0xFFE8, 0xFFF8, 0xFFF4, 0xFFF4, 0xFFF9, 0xFFF8, 0xFFF9, 0xFFF8, 0xFFF4, 0,
+};
+s16 D_801BFA1C[] = {
+    0x1C, 0x1C, 0x30, 0x10, 0x18, 0x18, 0x10, 0x10, 0x10, 0x10, 0x18, 0,
+};
+s16 D_801BFA34[] = {
+    0xE, 0xE, 0x8, 0x18, 0xFFAE, 0xFFAE, 0x3A, 0x3B, 0x3A, 0x3B, 0x20, 0,
+};
+s16 D_801BFA4C[] = {
+    0x1C, 0x1C, 0x10, 0x10, 0x18, 0x18, 0xB, 0xB, 0xB, 0xB, 0x20, 0,
+};
+s16 D_801BFA64[] = {
+    0xFFC3, 0xFFD3, 0x001D, 0x0068, 0xFF8B, 0xFFD6, 0x0020, 0x0037,
+};
+s16 D_801BFA74[] = {
+    0x0001, 0xFFBA, 0xFF9D, 0xFFBA, 0x0047, 0x0065, 0x0048, 0x0001,
+};
+#ifdef NON_MATCHING
+void Interface_InitVertices(GlobalContext* globalCtx) {
+    InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
+    s16 i;
+    s16 j;
+    s16 k;
+    s16 counter;
+    s16 offset;
+
+    globalCtx->interfaceCtx.actionVtx = GRAPH_ALLOC(globalCtx->state.gfxCtx, 108 * sizeof(Vtx));
+
+    // clang-format off
+    for (counter = 0, i = 0; i < 44; i += 4, counter++) {
+        interfaceCtx->actionVtx[i].v.ob[0] = 
+        interfaceCtx->actionVtx[i + 2].v.ob[0] = D_801BFA04[counter];
+
+        interfaceCtx->actionVtx[i + 1].v.ob[0] = 
+        interfaceCtx->actionVtx[i + 3].v.ob[0] = interfaceCtx->actionVtx[i].v.ob[0] + D_801BFA1C[counter];
+        
+        interfaceCtx->actionVtx[i].v.ob[1] = 
+        interfaceCtx->actionVtx[i + 1].v.ob[1] = D_801BFA34[counter];
+
+        interfaceCtx->actionVtx[i + 2].v.ob[1] = 
+        interfaceCtx->actionVtx[i + 3].v.ob[1] = interfaceCtx->actionVtx[i].v.ob[1] - D_801BFA4C[counter];
+
+        interfaceCtx->actionVtx[i].v.ob[2] = 
+        interfaceCtx->actionVtx[i + 1].v.ob[2] = 
+        interfaceCtx->actionVtx[i + 2].v.ob[2] = 
+        interfaceCtx->actionVtx[i + 3].v.ob[2] = 0;
+
+        interfaceCtx->actionVtx[i].v.flag = 
+        interfaceCtx->actionVtx[i + 1].v.flag = 
+        interfaceCtx->actionVtx[i + 2].v.flag = 
+        interfaceCtx->actionVtx[i + 3].v.flag = 0;
+
+        interfaceCtx->actionVtx[i].v.tc[0] = 
+        interfaceCtx->actionVtx[i].v.tc[1] = 
+        interfaceCtx->actionVtx[i + 1].v.tc[1] = 
+        interfaceCtx->actionVtx[i + 2].v.tc[0] = 0;
+
+        interfaceCtx->actionVtx[i + 1].v.tc[0] = 
+        interfaceCtx->actionVtx[i + 3].v.tc[0] = D_801BFA1C[counter] << 5;
+
+        interfaceCtx->actionVtx[i + 2].v.tc[1] = 
+        interfaceCtx->actionVtx[i + 3].v.tc[1] = D_801BFA4C[counter] << 5;
+
+        interfaceCtx->actionVtx[i].v.cn[0] = 
+        interfaceCtx->actionVtx[i + 1].v.cn[0] = 
+        interfaceCtx->actionVtx[i + 2].v.cn[0] = 
+        interfaceCtx->actionVtx[i + 3].v.cn[0] = 
+        interfaceCtx->actionVtx[i].v.cn[1] = 
+        interfaceCtx->actionVtx[i + 1].v.cn[1] = 
+        interfaceCtx->actionVtx[i + 2].v.cn[1] = 
+        interfaceCtx->actionVtx[i + 3].v.cn[1] = 
+        interfaceCtx->actionVtx[i].v.cn[2] = 
+        interfaceCtx->actionVtx[i + 1].v.cn[2] = 
+        interfaceCtx->actionVtx[i + 2].v.cn[2] = 
+        interfaceCtx->actionVtx[i + 3].v.cn[2] = 255;
+
+        interfaceCtx->actionVtx[i].v.cn[3] = 
+        interfaceCtx->actionVtx[i + 1].v.cn[3] = 
+        interfaceCtx->actionVtx[i + 2].v.cn[3] = 
+        interfaceCtx->actionVtx[i + 3].v.cn[3] = 255;
+    }
+
+    interfaceCtx->actionVtx[1].v.tc[0] = 
+    interfaceCtx->actionVtx[3].v.tc[0] = 
+    interfaceCtx->actionVtx[2].v.tc[1] = 
+    interfaceCtx->actionVtx[3].v.tc[1] = 0x400;
+
+    interfaceCtx->actionVtx[5].v.tc[0] = 
+    interfaceCtx->actionVtx[7].v.tc[0] = 
+    interfaceCtx->actionVtx[6].v.tc[1] = 
+    interfaceCtx->actionVtx[7].v.tc[1] = 0x400;
+
+    for (offset = 2, j = 0; j < 2; j++, offset -= 2) {
+        for (k = 0; k < 8; k++, i += 4) {
+            if ((interfaceCtx->minigameRewardType == 1) || ((interfaceCtx->minigameRewardType == 3) && (interfaceCtx->unk_28A[0] == 6))) {
+                interfaceCtx->actionVtx[i].v.ob[0] = 
+                interfaceCtx->actionVtx[i + 2].v.ob[0] = -((D_801BFA64[k] - offset) + 0x10);
+
+                interfaceCtx->actionVtx[i + 1].v.ob[0] = 
+                interfaceCtx->actionVtx[i + 3].v.ob[0] = interfaceCtx->actionVtx[i].v.ob[0] + 0x20;
+
+                interfaceCtx->actionVtx[i].v.ob[1] = 
+                interfaceCtx->actionVtx[i + 1].v.ob[1] = (D_801BFA74[k] - offset) + 0x10;
+
+                interfaceCtx->actionVtx[i + 2].v.ob[1] = 
+                interfaceCtx->actionVtx[i + 3].v.ob[1] = interfaceCtx->actionVtx[i].v.ob[1] - 0x21;
+
+            } else if ((interfaceCtx->minigameRewardType == 2) || (interfaceCtx->minigameRewardType == 3)) {
+                interfaceCtx->actionVtx[i].v.ob[0] = 
+                interfaceCtx->actionVtx[i + 2].v.ob[0] = -(interfaceCtx->unk_2AA[k] - offset + 0x10);
+
+                interfaceCtx->actionVtx[i + 1].v.ob[0] = 
+                interfaceCtx->actionVtx[i + 3].v.ob[0] = interfaceCtx->actionVtx[i].v.ob[0] + 0x20;
+
+                interfaceCtx->actionVtx[i].v.ob[1] = 
+                interfaceCtx->actionVtx[i + 1].v.ob[1] = 0x10 - offset;
+
+                interfaceCtx->actionVtx[i + 2].v.ob[1] = 
+                interfaceCtx->actionVtx[i + 3].v.ob[1] = interfaceCtx->actionVtx[i].v.ob[1] - 0x21;
+
+            } else {
+                interfaceCtx->actionVtx[i].v.ob[0] = 
+                interfaceCtx->actionVtx[i + 2].v.ob[0] = -(0xD8 - offset);
+
+                interfaceCtx->actionVtx[i + 1].v.ob[0] = 
+                interfaceCtx->actionVtx[i + 3].v.ob[0] = interfaceCtx->actionVtx[i].v.ob[0] + 0x20;
+
+                interfaceCtx->actionVtx[i].v.ob[1] = 
+                interfaceCtx->actionVtx[i + 1].v.ob[1] = 0x18 - offset;
+
+                interfaceCtx->actionVtx[i + 2].v.ob[1] = 
+                interfaceCtx->actionVtx[i + 3].v.ob[1] = interfaceCtx->actionVtx[i].v.ob[1] - 0x21;
+            }
+
+            interfaceCtx->actionVtx[i].v.ob[2] = 
+            interfaceCtx->actionVtx[i + 1].v.ob[2] = 
+            interfaceCtx->actionVtx[i + 2].v.ob[2] = 
+            interfaceCtx->actionVtx[i + 3].v.ob[2] = 0;
+
+            interfaceCtx->actionVtx[i].v.flag = 
+            interfaceCtx->actionVtx[i + 1].v.flag = 
+            interfaceCtx->actionVtx[i + 2].v.flag = 
+            interfaceCtx->actionVtx[i + 3].v.flag = 0;
+
+            interfaceCtx->actionVtx[i].v.tc[0] = 
+            interfaceCtx->actionVtx[i].v.tc[1] = 
+            interfaceCtx->actionVtx[i + 1].v.tc[1] = 
+            interfaceCtx->actionVtx[i + 2].v.tc[0] = 0;
+
+            interfaceCtx->actionVtx[i + 1].v.tc[0] = 
+            interfaceCtx->actionVtx[i + 3].v.tc[0] = 0x400;
+
+            interfaceCtx->actionVtx[i + 2].v.tc[1] = 
+            interfaceCtx->actionVtx[i + 3].v.tc[1] = 0x420;
+
+            interfaceCtx->actionVtx[i].v.cn[0] = 
+            interfaceCtx->actionVtx[i + 1].v.cn[0] = 
+            interfaceCtx->actionVtx[i + 2].v.cn[0] = 
+            interfaceCtx->actionVtx[i + 3].v.cn[0] = 
+            interfaceCtx->actionVtx[i].v.cn[1] = 
+            interfaceCtx->actionVtx[i + 1].v.cn[1] = 
+            interfaceCtx->actionVtx[i + 2].v.cn[1] = 
+            interfaceCtx->actionVtx[i + 3].v.cn[1] = 
+            interfaceCtx->actionVtx[i].v.cn[2] = 
+            interfaceCtx->actionVtx[i + 1].v.cn[2] = 
+            interfaceCtx->actionVtx[i + 2].v.cn[2] = 
+            interfaceCtx->actionVtx[i + 3].v.cn[2] = 255;
+
+            interfaceCtx->actionVtx[i].v.cn[3] = 
+            interfaceCtx->actionVtx[i + 1].v.cn[3] = 
+            interfaceCtx->actionVtx[i + 2].v.cn[3] = 
+            interfaceCtx->actionVtx[i + 3].v.cn[3] = 255;
+        }
+    }
+
+    interfaceCtx->beatingHeartVtx = GRAPH_ALLOC(globalCtx->state.gfxCtx, 4 * sizeof(Vtx));
+
+    interfaceCtx->beatingHeartVtx[0].v.ob[0] = interfaceCtx->beatingHeartVtx[2].v.ob[0] = -8;
+    interfaceCtx->beatingHeartVtx[1].v.ob[0] = interfaceCtx->beatingHeartVtx[3].v.ob[0] = 8;
+    interfaceCtx->beatingHeartVtx[0].v.ob[1] = interfaceCtx->beatingHeartVtx[1].v.ob[1] = 8;
+    interfaceCtx->beatingHeartVtx[2].v.ob[1] = interfaceCtx->beatingHeartVtx[3].v.ob[1] = -8;
+
+    interfaceCtx->beatingHeartVtx[0].v.ob[2] = interfaceCtx->beatingHeartVtx[1].v.ob[2] =
+    interfaceCtx->beatingHeartVtx[2].v.ob[2] = interfaceCtx->beatingHeartVtx[3].v.ob[2] = 0;
+
+    interfaceCtx->beatingHeartVtx[0].v.flag = interfaceCtx->beatingHeartVtx[1].v.flag =
+    interfaceCtx->beatingHeartVtx[2].v.flag = interfaceCtx->beatingHeartVtx[3].v.flag = 0;
+
+    interfaceCtx->beatingHeartVtx[0].v.tc[0] = interfaceCtx->beatingHeartVtx[0].v.tc[1] =
+    interfaceCtx->beatingHeartVtx[1].v.tc[1] = interfaceCtx->beatingHeartVtx[2].v.tc[0] = 0;
+    interfaceCtx->beatingHeartVtx[1].v.tc[0] = interfaceCtx->beatingHeartVtx[2].v.tc[1] =
+    interfaceCtx->beatingHeartVtx[3].v.tc[0] = interfaceCtx->beatingHeartVtx[3].v.tc[1] = 512;
+
+    interfaceCtx->beatingHeartVtx[0].v.cn[0] = interfaceCtx->beatingHeartVtx[1].v.cn[0] =
+    interfaceCtx->beatingHeartVtx[2].v.cn[0] = interfaceCtx->beatingHeartVtx[3].v.cn[0] =
+    interfaceCtx->beatingHeartVtx[0].v.cn[1] = interfaceCtx->beatingHeartVtx[1].v.cn[1] =
+    interfaceCtx->beatingHeartVtx[2].v.cn[1] = interfaceCtx->beatingHeartVtx[3].v.cn[1] =
+    interfaceCtx->beatingHeartVtx[0].v.cn[2] = interfaceCtx->beatingHeartVtx[1].v.cn[2] =
+    interfaceCtx->beatingHeartVtx[2].v.cn[2] = interfaceCtx->beatingHeartVtx[3].v.cn[2] =
+    interfaceCtx->beatingHeartVtx[0].v.cn[3] = interfaceCtx->beatingHeartVtx[1].v.cn[3] =
+    interfaceCtx->beatingHeartVtx[2].v.cn[3] = interfaceCtx->beatingHeartVtx[3].v.cn[3] = 255;
+    // clang-format on
+}
+#else
 void Interface_InitVertices(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_InitVertices.s")
+#endif
 
+s32 D_801BFA84 = 0;
 void func_8010E968(s32 arg0) {
     s32 btnAPressed;
 
@@ -4806,29 +4987,27 @@ void Interface_DrawMinigameIcons(GlobalContext* globalCtx) {
                 gDPLoadTextureBlock(OVERLAY_DISP++, gBeaverRingIconTex, G_IM_FMT_RGBA, G_IM_SIZ_32b, 24, 16, 0,
                                     G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                     G_TX_NOLOD, G_TX_NOLOD);
+            } else if (globalCtx->sceneNum == SCENE_DOUJOU) {
+                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 140, 50, interfaceCtx->bAlpha);
+                gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 255);
+                gDPLoadTextureBlock(OVERLAY_DISP++, gSwordTrainingLogIconTex, G_IM_FMT_IA, G_IM_SIZ_8b, 24, 16, 0,
+                                    G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                    G_TX_NOLOD, G_TX_NOLOD);
+            } else if (globalCtx->sceneNum == SCENE_30GYOSON) {
+                phi_a0 = 0x10;
+                phi_a1 = 0x1E;
+                sp3E = 0x18;
+                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 100, 75, interfaceCtx->bAlpha);
+                gDPSetEnvColor(OVERLAY_DISP++, 55, 55, 0, 255);
+                gDPLoadTextureBlock(OVERLAY_DISP++, gFishermanMinigameTorchIconTex, G_IM_FMT_IA, G_IM_SIZ_8b, 16, 30, 0,
+                                    G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                    G_TX_NOLOD, G_TX_NOLOD);
             } else {
-                if (globalCtx->sceneNum == 0x54) {
-                    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 140, 50, interfaceCtx->bAlpha);
-                    gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 255);
-                    gDPLoadTextureBlock(OVERLAY_DISP++, gSwordTrainingLogIconTex, G_IM_FMT_IA, G_IM_SIZ_8b, 24, 16, 0,
-                                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                        G_TX_NOLOD, G_TX_NOLOD);
-                } else if (globalCtx->sceneNum == 0x37) {
-                    phi_a0 = 0x10;
-                    phi_a1 = 0x1E;
-                    sp3E = 0x18;
-                    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 100, 75, interfaceCtx->bAlpha);
-                    gDPSetEnvColor(OVERLAY_DISP++, 55, 55, 0, 255);
-                    gDPLoadTextureBlock(OVERLAY_DISP++, gFishermanMinigameTorchIconTex, G_IM_FMT_IA, G_IM_SIZ_8b, 16,
-                                        30, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
-                                        G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
-                } else {
-                    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->bAlpha);
-                    gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 255);
-                    gDPLoadTextureBlock(OVERLAY_DISP++, gArcheryScoreIconTex, G_IM_FMT_RGBA, G_IM_SIZ_16b, 24, 16, 0,
-                                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                        G_TX_NOLOD, G_TX_NOLOD);
-                }
+                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->bAlpha);
+                gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 255);
+                gDPLoadTextureBlock(OVERLAY_DISP++, gArcheryScoreIconTex, G_IM_FMT_RGBA, G_IM_SIZ_16b, 24, 16, 0,
+                                    G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                    G_TX_NOLOD, G_TX_NOLOD);
             }
 
             gSPTextureRectangle(OVERLAY_DISP++, (sp3E << 2), (sp3C << 2), ((sp3E + phi_a0) << 2),
@@ -5041,7 +5220,7 @@ void Interface_Draw(GlobalContext* globalCtx) {
                                   TEXEL0, 0, PRIMITIVE, 0);
 
                 counterDigits[2] = 0;
-                counterDigits[3] = func_8012F22C(globalCtx->sceneNum);
+                counterDigits[3] = Inventory_GetSkullTokenCount(globalCtx->sceneNum);
 
                 while (counterDigits[3] >= 10) {
                     counterDigits[2]++;
@@ -5135,7 +5314,7 @@ void Interface_Draw(GlobalContext* globalCtx) {
         func_8010A54C(globalCtx);
 
         if ((SREG(94) != 2) && (SREG(94) != 3)) {
-            func_800B5208(&globalCtx->actorCtx.targetContext, globalCtx); // Draw Z-Target
+            Actor_DrawZTarget(&globalCtx->actorCtx.targetContext, globalCtx);
         }
 
         func_8012C654(globalCtx->state.gfxCtx);
@@ -5275,7 +5454,7 @@ void Interface_Draw(GlobalContext* globalCtx) {
                                     G_IM_FMT_I, G_IM_SIZ_8b, 160, 8, 0, G_TX_NOMIRROR | G_TX_WRAP,
                                     G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
-                gSPTextureRectangle(OVERLAY_DISP++, ((void)0, 320), phi_a2 * 4, ((void)0, 960), phi_a2 * 4 + 0x20,
+                gSPTextureRectangle(OVERLAY_DISP++, ((void)0, 320), phi_a2 * 4, ((void)0, 960), (phi_a2 + 8) * 4,
                                     G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
             }
         }
