@@ -217,7 +217,7 @@ s32 D_801BF934[] = {
 
 s32 D_801BF968 = 0;
 
-s32 D_801BF96C = 0;
+u8 D_801BF96C = 0;
 
 s16 D_801BF970 = 99;
 
@@ -733,34 +733,35 @@ void func_8010EBA0(s16 timer, s16 timerId) {
 
 s32 func_8010EC54(s16 timerId) {
     u64 time;
-    s16 timeArr[6];
+    s16 timerArr[6];
 
     time = gSaveContext.unk_3DE0[timerId];
 
     // hours
-    timeArr[0] = time / 36000;
-    time -= timeArr[0] * 36000;
+    timerArr[0] = time / 36000;
+    time -= timerArr[0] * 36000;
 
     // minutes
-    timeArr[1] = time / 6000;
-    time -= timeArr[1] * 6000;
+    timerArr[1] = time / 6000;
+    time -= timerArr[1] * 6000;
 
     // seconds
-    timeArr[2] = time / 1000;
-    time -= timeArr[2] * 1000;
+    timerArr[2] = time / 1000;
+    time -= timerArr[2] * 1000;
 
     // 100 milliseconds
-    timeArr[3] = time / 100;
-    time -= timeArr[3] * 100;
+    timerArr[3] = time / 100;
+    time -= timerArr[3] * 100;
 
-    // 10 miliseconds
-    timeArr[4] = time / 10;
-    time -= timeArr[4] * 10;
+    // 10 milliseconds
+    timerArr[4] = time / 10;
+    time -= timerArr[4] * 10;
 
-    timeArr[5] = time;
+    // milliseconds
+    timerArr[5] = time;
 
-    return (timeArr[0] << 0x14) | (timeArr[1] << 0x10) | (timeArr[2] << 0xC) | (timeArr[3] << 8) | (timeArr[4] << 4) |
-           timeArr[5];
+    return (timerArr[0] << 0x14) | (timerArr[1] << 0x10) | (timerArr[2] << 0xC) | (timerArr[3] << 8) |
+           (timerArr[4] << 4) | timerArr[5];
 }
 
 void Interface_NewDay(GlobalContext* globalCtx, s32 day) {
@@ -4892,25 +4893,31 @@ void func_8011C808(GlobalContext* globalCtx) {
     globalCtx->unk_1887F = 3;
 }
 
-void func_8011C898(u64 arg0, s16* arg2) {
-    u64 timer = arg0;
+void func_8011C898(u64 timer, s16* timerArr) {
+    u64 time = timer;
 
-    arg2[0] = timer / 36000;
-    timer -= arg2[0] * 36000;
+    // hours
+    timerArr[0] = time / 36000;
+    time -= timerArr[0] * 36000;
 
-    arg2[1] = timer / 6000;
-    timer -= arg2[1] * 6000;
+    // minutes
+    timerArr[1] = time / 6000;
+    time -= timerArr[1] * 6000;
 
-    arg2[3] = timer / 1000;
-    timer -= arg2[3] * 1000;
+    // seconds
+    timerArr[3] = time / 1000;
+    time -= timerArr[3] * 1000;
 
-    arg2[4] = timer / 100;
-    timer -= arg2[4] * 100;
+    // 100 milliseconds
+    timerArr[4] = time / 100;
+    time -= timerArr[4] * 100;
 
-    arg2[6] = timer / 10;
-    timer -= arg2[6] * 10;
+    // 10 milliseconds
+    timerArr[6] = time / 10;
+    time -= timerArr[6] * 10;
 
-    arg2[7] = timer;
+    // milliseconds
+    timerArr[7] = time;
 }
 
 s32 D_801BFCE4[] = {
@@ -4940,8 +4947,73 @@ s16 D_801BFD0C[] = {
 void Interface_DrawTimers(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_DrawTimers.s")
 
+#ifdef NON_MATCHING
+void Interface_UpdateTimers(GlobalContext* globalCtx) {
+    MessageContext* msgCtx = &globalCtx->msgCtx;
+    s16 i;
+    // u64 var0;
+    // u64 var1;
+    // u64 var2;
+    u64 var3;
+    u64 temp_ret;
+    // s32 pad[2];
+
+    if ((globalCtx->pauseCtx.state == 0) && (globalCtx->pauseCtx.debugState == 0) &&
+        (globalCtx->gameOverCtx.state == 0) &&
+        ((msgCtx->msgMode == 0) || ((msgCtx->currentTextId >= 0x100) && (msgCtx->currentTextId <= 0x200)) ||
+         ((msgCtx->currentTextId >= 0x1BB2) && (msgCtx->currentTextId <= 0x1BB6))) &&
+        (globalCtx->sceneLoadFlag == 0) && (globalCtx->unk_18B4A == 0) && !Play_InCsMode(globalCtx)) {
+
+        if (D_801BF96C != 0) {
+            temp_ret = osGetTime();
+
+            for (i = 0; i < 6; i++) {
+                if (gSaveContext.unk_101A[i] == 1) {
+                    gSaveContext.unk_10B0[i] += temp_ret - D_801BF8F0;
+                }
+            }
+
+            D_801BF96C = 0;
+        }
+
+        D_801BF970 = 99;
+
+        for (i = 0; i < 6; i++) {
+            if (gSaveContext.unk_101A[i] == 1) {
+                temp_ret = osGetTime();
+                temp_ret = temp_ret - gSaveContext.unk_10B0[i];
+                var3 = temp_ret - gSaveContext.unk_1020[i];
+                var3 = var3 / 1000;
+                var3 = var3 * 64;
+                var3 = var3 / 3000;
+                if (var3 == 0) {
+                    gSaveContext.unk_1080[i] = gSaveContext.unk_1050[i] - var3;
+                } else if (gSaveContext.unk_1050[i] >= var3) {
+                    if (gSaveContext.unk_1050[i] <= var3) {
+                        gSaveContext.unk_1080[i] = 0;
+                    } else {
+                        gSaveContext.unk_1080[i] = gSaveContext.unk_1050[i] - var3;
+                    }
+                } else {
+                    gSaveContext.unk_1080[i] = 0;
+
+                    if (gSaveContext.save.inventory.items[SLOT_BOTTLE_1 + i] == ITEM_HOT_SPRING_WATER) {
+                        Inventory_UpdateItem(globalCtx, i + SLOT_BOTTLE_1, ITEM_SPRING_WATER);
+                        Message_StartTextbox(globalCtx, 0xFA, NULL);
+                    }
+                    gSaveContext.unk_101A[i] = 0;
+                }
+            }
+        }
+    } else if (D_801BF96C == 0) {
+        D_801BF8F0 = osGetTime();
+        D_801BF96C = 1;
+    }
+}
+#else
 void Interface_UpdateTimers(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_UpdateTimers.s")
+#endif
 
 void Interface_DrawMinigameIcons(GlobalContext* globalCtx) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
