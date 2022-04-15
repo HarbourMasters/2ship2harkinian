@@ -731,42 +731,36 @@ void func_8010EBA0(s16 timer, s16 timerId) {
     D_801BF8F0 = 0;
 }
 
-// u64 nonsense
-#ifdef NON_EQUIVALENT
 s32 func_8010EC54(s16 timerId) {
     u64 time;
-    s16 sp22;
-    s16 sp20;
-    s16 sp1E;
-    s16 sp1C;
-    s16 temp_a0;
-    s16 final;
+    s16 timeArr[6];
 
     time = gSaveContext.unk_3DE0[timerId];
 
     // hours
-    time -= (sp1C = time / 36000) * 36000;
-    if (1) {}
+    timeArr[0] = time / 36000;
+    time -= timeArr[0] * 36000;
 
     // minutes
-    time -= (sp1E = time / 6000) * 6000;
+    timeArr[1] = time / 6000;
+    time -= timeArr[1] * 6000;
 
     // seconds
-    time -= (sp20 = time / 1000) * 1000;
+    timeArr[2] = time / 1000;
+    time -= timeArr[2] * 1000;
 
     // 100 milliseconds
-    time -= (sp22 = time / 100) * 100;
+    timeArr[3] = time / 100;
+    time -= timeArr[3] * 100;
 
     // 10 miliseconds
-    time -= (temp_a0 = time / 10) * 10;
+    timeArr[4] = time / 10;
+    time -= timeArr[4] * 10;
 
-    final = (sp1C << 0x14);
+    timeArr[5] = time;
 
-    return time | final | (sp1E << 0x10) | (sp20 << 0xC) | (sp22 << 8) | (temp_a0 << 4);
+    return (timeArr[0] << 0x14) | (timeArr[1] << 0x10) | (timeArr[2] << 0xC) | (timeArr[3] << 8) | (timeArr[4] << 4) | timeArr[5];
 }
-#else
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8010EC54.s")
-#endif
 
 void Interface_NewDay(GlobalContext* globalCtx, s32 day) {
     s32 pad;
@@ -4897,8 +4891,26 @@ void func_8011C808(GlobalContext* globalCtx) {
     globalCtx->unk_1887F = 3;
 }
 
-// u64 nonsense
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011C898.s")
+void func_8011C898(u64 arg0, s16* arg2) {
+    u64 timer = arg0;
+
+    arg2[0] = timer / 36000;
+    timer -= arg2[0] * 36000;
+
+    arg2[1] = timer / 6000;
+    timer -= arg2[1] * 6000;
+
+    arg2[3] = timer / 1000;
+    timer -= arg2[3] * 1000;
+
+    arg2[4] = timer / 100;
+    timer -= arg2[4] * 100;
+
+    arg2[6] = timer / 10;
+    timer -= arg2[6] * 10;
+
+    arg2[7] = timer;
+}
 
 s32 D_801BFCE4[] = {
     0x00000000,
