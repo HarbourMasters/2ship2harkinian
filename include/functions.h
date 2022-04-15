@@ -2735,7 +2735,7 @@ void func_80165690(void);
 Gfx* func_801660B8(GlobalContext* globalCtx, Gfx* gfx);
 void Play_Fini(GameState* gameState);
 // void func_801663C4(void);
-// void func_80166644(void);
+void func_80166644(u8* arg0, void* arg1, s32 arg2);
 // void func_801668B4(void);
 void func_80166968(GlobalContext* globalCtx, Camera* camera);
 void func_80166B30(GlobalContext* globalCtx);
