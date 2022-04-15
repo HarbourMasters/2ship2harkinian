@@ -759,7 +759,8 @@ s32 func_8010EC54(s16 timerId) {
 
     timeArr[5] = time;
 
-    return (timeArr[0] << 0x14) | (timeArr[1] << 0x10) | (timeArr[2] << 0xC) | (timeArr[3] << 8) | (timeArr[4] << 4) | timeArr[5];
+    return (timeArr[0] << 0x14) | (timeArr[1] << 0x10) | (timeArr[2] << 0xC) | (timeArr[3] << 8) | (timeArr[4] << 4) |
+           timeArr[5];
 }
 
 void Interface_NewDay(GlobalContext* globalCtx, s32 day) {
