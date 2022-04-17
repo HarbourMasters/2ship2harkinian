@@ -195,10 +195,10 @@ s16 D_801BF8E4 = 0;
 
 OSTime D_801BF8E8 = 0;
 OSTime D_801BF8F0 = 0;
-u64 D_801BF8F8[] = { // D_801BF8FC
+u64 D_801BF8F8[] = {
     0, 0, 0, 0, 0, 0, 0,
 };
-u64 D_801BF930[] = { // D_801BF934
+u64 D_801BF930[] = {
     0, 0, 0, 0, 0, 0, 0,
 };
 
@@ -2045,7 +2045,7 @@ void func_80111CB4(GlobalContext* globalCtx) {
                             } else {
                                 Interface_LoadItemIconImpl(globalCtx, 0);
                             }
-                            
+
                             gSaveContext.buttonStatus[1] = BTN_DISABLED;
                             gSaveContext.buttonStatus[2] = BTN_DISABLED;
                             gSaveContext.buttonStatus[3] = BTN_DISABLED;
@@ -2199,7 +2199,8 @@ void func_80111CB4(GlobalContext* globalCtx) {
                 Interface_ChangeAlpha(21);
                 D_801BF884 = 1;
             } else {
-                func_80166644((u8*)gSaveContext.pictoPhoto, ((void)0, (globalCtx->unk_18E5C != NULL) ? globalCtx->unk_18E5C : D_801FBB90), 0x4600);
+                func_80166644((u8*)gSaveContext.pictoPhoto,
+                              ((void)0, (globalCtx->unk_18E5C != NULL) ? globalCtx->unk_18E5C : D_801FBB90), 0x4600);
                 globalCtx->unk_18845 = 1;
                 D_801BF884 = 2;
             }
@@ -5141,9 +5142,7 @@ void func_8011C898(u64 timer, s16* timerArr) {
 }
 
 s32 D_801BFCE4 = 0;
-u16 D_801BFCE8[] = {
-    0, 0, 0, 0, 0, 0, 0, 0
-};
+u16 D_801BFCE8[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 s16 D_801BFCF8 = 0x63;
 s16 D_801BFCFC[] = {
     0x10, 0x19, 0x22, 0x2A, 0x33, 0x3C, 0x44, 0x4D,
@@ -5168,10 +5167,9 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
     if ((globalCtx->pauseCtx.state == 0) && (globalCtx->pauseCtx.debugState == 0) &&
         (globalCtx->gameOverCtx.state == 0) &&
         ((msgCtx->msgMode == 0) ||
-         ((msgCtx->msgMode != 0) && (msgCtx->currentTextId >= 0x1BB2) &&
-          (msgCtx->currentTextId <= 0x1BB6))) &&
-        !(player->stateFlags1 & 0x200) && (globalCtx->sceneLoadFlag == 0) &&
-        (globalCtx->unk_18B4A == 0) && !Play_InCsMode(globalCtx)) {
+         ((msgCtx->msgMode != 0) && (msgCtx->currentTextId >= 0x1BB2) && (msgCtx->currentTextId <= 0x1BB6))) &&
+        !(player->stateFlags1 & 0x200) && (globalCtx->sceneLoadFlag == 0) && (globalCtx->unk_18B4A == 0) &&
+        !Play_InCsMode(globalCtx)) {
         if (D_801BF968) {
             osTime = osGetTime();
 
@@ -5185,7 +5183,7 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
         }
 
         D_801BF970 = 99;
-        
+
         for (i = 0; i < 7; i++) {
             if (gSaveContext.unk_3DD0[i] != 0) {
                 D_801BF970 = i;
@@ -5200,7 +5198,8 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                             func_80174F7C(func_8010E968, NULL);
                             break;
                         case 15:
-                            osTime = (gSaveContext.unk_3DC8 - gSaveContext.unk_3DE0[0] - gSaveContext.unk_3EC0[0]) * 0x40;
+                            osTime =
+                                (gSaveContext.unk_3DC8 - gSaveContext.unk_3DE0[0] - gSaveContext.unk_3EC0[0]) * 0x40;
                             osTime = osTime / 3000;
                             osTime = osTime / 10000;
 
@@ -5213,7 +5212,7 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                         case 16:
                             break;
                     }
-                    
+
                     break;
                 } else {
                     switch (gSaveContext.unk_3DD0[D_801BF970]) {
@@ -5266,8 +5265,8 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                                     gSaveContext.timerY[D_801BF970] -
                                     ((gSaveContext.timerY[D_801BF970] - XREG(80)) / D_801BFCE4);
                             } else {
-                                gSaveContext.timerX[D_801BF970] =
-                                    gSaveContext.timerX[D_801BF970] - ((gSaveContext.timerX[D_801BF970] - 26) / D_801BFCE4);
+                                gSaveContext.timerX[D_801BF970] = gSaveContext.timerX[D_801BF970] -
+                                                                  ((gSaveContext.timerX[D_801BF970] - 26) / D_801BFCE4);
                                 if (gSaveContext.save.playerData.healthCapacity > 0xA0) {
                                     phi_t0_2 = (gSaveContext.timerY[D_801BF970] - 54) / D_801BFCE4;
                                 } else {
@@ -5307,7 +5306,7 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
 
                         case 10:
                             D_801BF8F8[D_801BF970] = osGetTime();
-                            D_801BF930[D_801BF970] = 0;                        
+                            D_801BF930[D_801BF970] = 0;
                             gSaveContext.unk_3DD0[D_801BF970] = 11;
                             // fallthrough
 
@@ -5317,8 +5316,9 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
 
                         case 12:
                             osTime = osGetTime();
-                            gSaveContext.unk_3EC0[D_801BF970] = gSaveContext.unk_3EC0[D_801BF970] + osTime - D_801BF8F8[D_801BF970];
-                            D_801BF930[D_801BF970] = 0; 
+                            gSaveContext.unk_3EC0[D_801BF970] =
+                                gSaveContext.unk_3EC0[D_801BF970] + osTime - D_801BF8F8[D_801BF970];
+                            D_801BF930[D_801BF970] = 0;
                             gSaveContext.unk_3DD0[D_801BF970] = 4;
                             break;
 
@@ -5376,7 +5376,7 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                                     gSaveContext.unk_3DE0[D_801BF970] = 12000;
                                 }
                             } else if ((gSaveContext.eventInf[3] & 0x10) && (globalCtx->sceneNum == SCENE_DEKUTES) &&
-                                    (gSaveContext.unk_3E88[D_801BF970] >= 12000)) {
+                                       (gSaveContext.unk_3E88[D_801BF970] >= 12000)) {
                                 gSaveContext.unk_3DE0[D_801BF970] = 12000;
                             }
                             gSaveContext.unk_3DD0[D_801BF970] = 7;
@@ -5392,14 +5392,13 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                             break;
                     }
                 }
-            break;
+                break;
             }
         }
 
-
         if ((D_801BF970 != 99) && (gSaveContext.unk_3DD0[D_801BF970] != 0)) {
             if (gSaveContext.timersNoTimeLimit[D_801BF970] == 0) {
-                D_801BFCE8[0] =  D_801BFCE8[1] = D_801BFCE8[3] = D_801BFCE8[4] = D_801BFCE8[6] = 0;
+                D_801BFCE8[0] = D_801BFCE8[1] = D_801BFCE8[3] = D_801BFCE8[4] = D_801BFCE8[6] = 0;
                 D_801BFCE8[2] = D_801BFCE8[5] = 10;
                 if ((gSaveContext.unk_3DD0[D_801BF970] == 4) || (gSaveContext.unk_3DD0[D_801BF970] == 10) ||
                     (gSaveContext.unk_3DD0[D_801BF970] == 11) || (gSaveContext.unk_3DD0[D_801BF970] == 14)) {
@@ -5461,7 +5460,9 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
 
                 if ((gSaveContext.unk_3DD0[D_801BF970] == 4) || (gSaveContext.unk_3DD0[D_801BF970] == 14)) {
                     osTime = osGetTime();
-                    osTime = (osTime - gSaveContext.unk_3E50[D_801BF970] - gSaveContext.unk_3EC0[D_801BF970] - D_801BF930[D_801BF970]) * 64;
+                    osTime = (osTime - gSaveContext.unk_3E50[D_801BF970] - gSaveContext.unk_3EC0[D_801BF970] -
+                              D_801BF930[D_801BF970]) *
+                             64;
                     osTime = osTime / 3000;
                     osTime = osTime / 10000;
 
@@ -5478,7 +5479,8 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                     if (spD0 >= 12000) {
                         spD0 = 12000;
                     }
-                } else if (((gSaveContext.eventInf[3] & 0x10) != 0) && (globalCtx->sceneNum == SCENE_DEKUTES) && (spD0 >= 12000)) {
+                } else if (((gSaveContext.eventInf[3] & 0x10) != 0) && (globalCtx->sceneNum == SCENE_DEKUTES) &&
+                           (spD0 >= 12000)) {
                     spD0 = 12000;
                 }
 
@@ -5491,7 +5493,9 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                         D_801BFCF8 = D_801BFCE8[4];
                     }
                 } else if (((gSaveContext.eventInf[3] & 0x10) != 0) && (globalCtx->sceneNum == SCENE_DEKUTES)) {
-                    if ((gSaveContext.unk_3DE0[D_801BF970] >= (gSaveContext.save.dekuPlaygroundHighScores[CURRENT_DAY] - 900)) && (D_801BFCF8 != D_801BFCE8[4])) {
+                    if ((gSaveContext.unk_3DE0[D_801BF970] >=
+                         (gSaveContext.save.dekuPlaygroundHighScores[CURRENT_DAY] - 900)) &&
+                        (D_801BFCF8 != D_801BFCE8[4])) {
                         play_sound(NA_SE_SY_WARNING_COUNT_E);
                         D_801BFCF8 = D_801BFCE8[4];
                     }
@@ -5502,13 +5506,13 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 255);
             gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 0);
             OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, gTimerClockIconTex, 0x10, 0x10, gSaveContext.timerX[D_801BF970],
-                                        gSaveContext.timerY[D_801BF970] + 2, 0x10, 0x10, 0x400, 0x400);
+                                          gSaveContext.timerY[D_801BF970] + 2, 0x10, 0x10, 0x400, 0x400);
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0,
-                            0, PRIMITIVE, 0);
+                              0, PRIMITIVE, 0);
 
             if (((D_801BF970 == 0) && (gSaveContext.unk_3DD0[0] == 14) && (D_801BF8E4 == 0) &&
-                (gSaveContext.unk_3DE0[0] < 300)) ||
+                 (gSaveContext.unk_3DE0[0] < 300)) ||
                 (D_801BF8E4 == 2) || (gSaveContext.unk_3DD0[D_801BF970] < 13)) {
                 if (gSaveContext.unk_3DD0[D_801BF970] != 0) {
                     if (D_801BF970 == 2) {
@@ -5525,14 +5529,18 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 255);
                             }
                         } else if ((gSaveContext.eventInf[3] & 0x10) && (globalCtx->sceneNum == SCENE_DEKUTES)) {
-                            if (gSaveContext.unk_3DE0[D_801BF970] >= gSaveContext.save.dekuPlaygroundHighScores[CURRENT_DAY]) {
+                            if (gSaveContext.unk_3DE0[D_801BF970] >=
+                                gSaveContext.save.dekuPlaygroundHighScores[CURRENT_DAY]) {
                                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 50, 0, 255);
-                            } else if (gSaveContext.unk_3DE0[D_801BF970] >= (gSaveContext.save.dekuPlaygroundHighScores[CURRENT_DAY] - 900)) {
+                            } else if (gSaveContext.unk_3DE0[D_801BF970] >=
+                                       (gSaveContext.save.dekuPlaygroundHighScores[CURRENT_DAY] - 900)) {
                                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 0, 255);
                             } else {
                                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 255);
                             }
-                        } else if ((gSaveContext.unk_3DE0[D_801BF970] < 1000) && (gSaveContext.timersNoTimeLimit[D_801BF970] == 0) && (gSaveContext.unk_3DD0[D_801BF970] != 11)) {
+                        } else if ((gSaveContext.unk_3DE0[D_801BF970] < 1000) &&
+                                   (gSaveContext.timersNoTimeLimit[D_801BF970] == 0) &&
+                                   (gSaveContext.unk_3DD0[D_801BF970] != 11)) {
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 50, 0, 255);
                         } else {
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 255);
@@ -5545,23 +5553,23 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                         for (i = 0; i < 4; i++) {
                             OVERLAY_DISP =
                                 Gfx_TextureI8(OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * D_801BFCE8[3 + i])), 8,
-                                            0x10, D_801BFCFC[i] + gSaveContext.timerX[D_801BF970],
-                                            gSaveContext.timerY[D_801BF970], D_801BFD0C[i], 0xFA, 0x370, 0x370);
+                                              0x10, D_801BFCFC[i] + gSaveContext.timerX[D_801BF970],
+                                              gSaveContext.timerY[D_801BF970], D_801BFD0C[i], 0xFA, 0x370, 0x370);
                         }
                     } else {
                         for (i = 0; i < 5; i++) {
                             OVERLAY_DISP =
                                 Gfx_TextureI8(OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * D_801BFCE8[3 + i])), 8,
-                                            0x10, D_801BFCFC[i] + gSaveContext.timerX[D_801BF970],
-                                            gSaveContext.timerY[D_801BF970], D_801BFD0C[i], 0xFA, 0x370, 0x370);
+                                              0x10, D_801BFCFC[i] + gSaveContext.timerX[D_801BF970],
+                                              gSaveContext.timerY[D_801BF970], D_801BFD0C[i], 0xFA, 0x370, 0x370);
                         }
                     }
                 } else {
                     for (i = 0; i < 8; i++) {
                         OVERLAY_DISP =
                             Gfx_TextureI8(OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * D_801BFCE8[i])), 8, 0x10,
-                                        D_801BFCFC[i] + gSaveContext.timerX[D_801BF970],
-                                        gSaveContext.timerY[D_801BF970], D_801BFD0C[i], 0xFA, 0x370, 0x370);
+                                          D_801BFCFC[i] + gSaveContext.timerX[D_801BF970],
+                                          gSaveContext.timerY[D_801BF970], D_801BFD0C[i], 0xFA, 0x370, 0x370);
                     }
                 }
             }
