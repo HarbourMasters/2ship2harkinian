@@ -430,30 +430,28 @@ s16 D_801BFA64[] = {
 s16 D_801BFA74[] = {
     0x0001, 0xFFBA, 0xFF9D, 0xFFBA, 0x0047, 0x0065, 0x0048, 0x0001,
 };
-#ifdef NON_MATCHING
 void Interface_InitVertices(GlobalContext* globalCtx) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
     s16 i;
     s16 j;
     s16 k;
-    s16 counter;
     s16 offset;
 
     globalCtx->interfaceCtx.actionVtx = GRAPH_ALLOC(globalCtx->state.gfxCtx, 108 * sizeof(Vtx));
 
     // clang-format off
-    for (counter = 0, i = 0; i < 44; i += 4, counter++) {
+    for (k = 0, i = 0; i < 44; i += 4, k++) {
         interfaceCtx->actionVtx[i].v.ob[0] = 
-        interfaceCtx->actionVtx[i + 2].v.ob[0] = D_801BFA04[counter];
+        interfaceCtx->actionVtx[i + 2].v.ob[0] = D_801BFA04[k];
 
         interfaceCtx->actionVtx[i + 1].v.ob[0] = 
-        interfaceCtx->actionVtx[i + 3].v.ob[0] = interfaceCtx->actionVtx[i].v.ob[0] + D_801BFA1C[counter];
+        interfaceCtx->actionVtx[i + 3].v.ob[0] = interfaceCtx->actionVtx[i].v.ob[0] + D_801BFA1C[k];
         
         interfaceCtx->actionVtx[i].v.ob[1] = 
-        interfaceCtx->actionVtx[i + 1].v.ob[1] = D_801BFA34[counter];
+        interfaceCtx->actionVtx[i + 1].v.ob[1] = D_801BFA34[k];
 
         interfaceCtx->actionVtx[i + 2].v.ob[1] = 
-        interfaceCtx->actionVtx[i + 3].v.ob[1] = interfaceCtx->actionVtx[i].v.ob[1] - D_801BFA4C[counter];
+        interfaceCtx->actionVtx[i + 3].v.ob[1] = interfaceCtx->actionVtx[i].v.ob[1] - D_801BFA4C[k];
 
         interfaceCtx->actionVtx[i].v.ob[2] = 
         interfaceCtx->actionVtx[i + 1].v.ob[2] = 
@@ -471,10 +469,10 @@ void Interface_InitVertices(GlobalContext* globalCtx) {
         interfaceCtx->actionVtx[i + 2].v.tc[0] = 0;
 
         interfaceCtx->actionVtx[i + 1].v.tc[0] = 
-        interfaceCtx->actionVtx[i + 3].v.tc[0] = D_801BFA1C[counter] << 5;
+        interfaceCtx->actionVtx[i + 3].v.tc[0] = D_801BFA1C[k] << 5;
 
         interfaceCtx->actionVtx[i + 2].v.tc[1] = 
-        interfaceCtx->actionVtx[i + 3].v.tc[1] = D_801BFA4C[counter] << 5;
+        interfaceCtx->actionVtx[i + 3].v.tc[1] = D_801BFA4C[k] << 5;
 
         interfaceCtx->actionVtx[i].v.cn[0] = 
         interfaceCtx->actionVtx[i + 1].v.cn[0] = 
@@ -505,7 +503,7 @@ void Interface_InitVertices(GlobalContext* globalCtx) {
     interfaceCtx->actionVtx[6].v.tc[1] = 
     interfaceCtx->actionVtx[7].v.tc[1] = 0x400;
 
-    for (offset = 2, j = 0; j < 2; j++, offset -= 2) {
+    for (j = 0, offset = 2; j < 2; j++, offset -= 2) {
         for (k = 0; k < 8; k++, i += 4) {
             if ((interfaceCtx->minigameRewardType == 1) || ((interfaceCtx->minigameRewardType == 3) && (interfaceCtx->unk_28A[0] == 6))) {
                 interfaceCtx->actionVtx[i].v.ob[0] = 
@@ -616,10 +614,6 @@ void Interface_InitVertices(GlobalContext* globalCtx) {
     interfaceCtx->beatingHeartVtx[2].v.cn[3] = interfaceCtx->beatingHeartVtx[3].v.cn[3] = 255;
     // clang-format on
 }
-#else
-void Interface_InitVertices(GlobalContext* globalCtx);
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_InitVertices.s")
-#endif
 
 s32 D_801BFA84 = 0;
 void func_8010E968(s32 arg0) {
