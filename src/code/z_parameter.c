@@ -163,9 +163,8 @@ static RestrictionFlags sRestrictionFlags[] = {
     { SCENE_ALLEY, 0x00, 0x00, 0x00 },
 };
 
-s16 D_801BF884 = 0; // pictoBox related
-
-s16 D_801BF888 = 0;
+s16 D_801BF884 = 0;     // pictoBox related
+s16 D_801BF888 = false; // pictoBox related
 
 s16 sHBAScoreTier = 0;
 
@@ -1997,8 +1996,6 @@ void func_80111CB4(GlobalContext* globalCtx) {
     Player* player = GET_PLAYER(globalCtx);
     void* phi_a1;
     s32 sp28;
-    s32 pad;
-    s32 pad2;
 
     sp28 = false;
     if (gSaveContext.save.cutscene < 0xFFF0) {
@@ -2010,59 +2007,59 @@ void func_80111CB4(GlobalContext* globalCtx) {
                 sp28 = true;
                 gSaveContext.unk_1015 = 0;
             }
+
             if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NONE) {
                 if ((player->transformation == PLAYER_FORM_DEKU) && (gSaveContext.save.weekEventReg[8] & 1)) {
                     gSaveContext.unk_3F1E = 1;
                     if (globalCtx->sceneNum == SCENE_BOWLING) {
-                        if (gSaveContext.buttonStatus[0] == 0xFF) {
-                            gSaveContext.buttonStatus[0] = 0;
-                            gSaveContext.buttonStatus[1] = 0xFF;
-                            gSaveContext.buttonStatus[2] = 0xFF;
-                            gSaveContext.buttonStatus[3] = 0xFF;
+                        if (gSaveContext.buttonStatus[0] == BTN_DISABLED) {
+                            gSaveContext.buttonStatus[0] = BTN_ENABLED;
+                            gSaveContext.buttonStatus[1] = BTN_DISABLED;
+                            gSaveContext.buttonStatus[2] = BTN_DISABLED;
+                            gSaveContext.buttonStatus[3] = BTN_DISABLED;
                         }
-                    } else if (gSaveContext.buttonStatus[0] == 0xFF) {
-                        gSaveContext.buttonStatus[0] = 0;
-                        gSaveContext.buttonStatus[1] = 0;
-                        gSaveContext.buttonStatus[2] = 0;
-                        gSaveContext.buttonStatus[3] = 0;
+                    } else if (gSaveContext.buttonStatus[0] == BTN_DISABLED) {
+                        gSaveContext.buttonStatus[0] = BTN_ENABLED;
+                        gSaveContext.buttonStatus[1] = BTN_ENABLED;
+                        gSaveContext.buttonStatus[2] = BTN_ENABLED;
+                        gSaveContext.buttonStatus[3] = BTN_ENABLED;
                     }
+
                     Interface_ChangeAlpha(20);
                 } else {
-                    if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_BOW) {
-                        if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_BOMB) {
-                            if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_BOMBCHU) {
-                                gSaveContext.unk_3F1E = 1;
-                                gSaveContext.buttonStatus[0] = BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B);
-                                gSaveContext.buttonStatus[1] = 0;
-                                gSaveContext.buttonStatus[2] = 0;
-                                gSaveContext.buttonStatus[3] = 0;
-                                if (globalCtx->sceneNum == SCENE_BOWLING) {
-                                    if (CURRENT_DAY == 1) {
-                                        BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOMBCHU;
-                                    } else if (CURRENT_DAY == 2) {
-                                        BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOMB;
-                                    } else {
-                                        BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOW;
-                                    }
-                                    Interface_LoadItemIconImpl(globalCtx, 0);
-                                    gSaveContext.buttonStatus[1] = 0xFF;
-                                    gSaveContext.buttonStatus[2] = 0xFF;
-                                    gSaveContext.buttonStatus[3] = 0xFF;
-                                } else {
-                                    BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOW;
-                                    if (globalCtx->unk_1887C >= 2) {
-                                        Interface_LoadItemIconImpl(globalCtx, 0);
-                                    } else if (gSaveContext.save.inventory.items[1] == 0xFF) {
-                                        BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_NONE;
-                                    } else {
-                                        Interface_LoadItemIconImpl(globalCtx, 0);
-                                    }
-                                    gSaveContext.buttonStatus[1] = 0xFF;
-                                    gSaveContext.buttonStatus[2] = 0xFF;
-                                    gSaveContext.buttonStatus[3] = 0xFF;
-                                    Interface_ChangeAlpha(6);
-                                }
+                    if ((BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_BOW) &&
+                        (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_BOMB) &&
+                        (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_BOMBCHU)) {
+                        gSaveContext.unk_3F1E = 1;
+                        gSaveContext.buttonStatus[0] = BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B);
+                        gSaveContext.buttonStatus[1] = BTN_ENABLED;
+                        gSaveContext.buttonStatus[2] = BTN_ENABLED;
+                        gSaveContext.buttonStatus[3] = BTN_ENABLED;
+                        if (globalCtx->sceneNum == SCENE_BOWLING) {
+                            if (CURRENT_DAY == 1) {
+                                BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOMBCHU;
+                            } else if (CURRENT_DAY == 2) {
+                                BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOMB;
+                            } else {
+                                BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOW;
                             }
+                            Interface_LoadItemIconImpl(globalCtx, 0);
+                            gSaveContext.buttonStatus[1] = BTN_DISABLED;
+                            gSaveContext.buttonStatus[2] = BTN_DISABLED;
+                            gSaveContext.buttonStatus[3] = BTN_DISABLED;
+                        } else {
+                            BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOW;
+                            if (globalCtx->unk_1887C >= 2) {
+                                Interface_LoadItemIconImpl(globalCtx, 0);
+                            } else if (gSaveContext.save.inventory.items[SLOT_BOW] == ITEM_NONE) {
+                                BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_NONE;
+                            } else {
+                                Interface_LoadItemIconImpl(globalCtx, 0);
+                            }
+                            gSaveContext.buttonStatus[1] = BTN_DISABLED;
+                            gSaveContext.buttonStatus[2] = BTN_DISABLED;
+                            gSaveContext.buttonStatus[3] = BTN_DISABLED;
+                            Interface_ChangeAlpha(6);
                         }
                     }
 
@@ -2078,9 +2075,9 @@ void func_80111CB4(GlobalContext* globalCtx) {
                     } else if (globalCtx->unk_1887C >= 2) {
                         Interface_ChangeAlpha(8);
                     } else if (gSaveContext.save.weekEventReg[8] & 1) {
-                        gSaveContext.buttonStatus[1] = 0xFF;
-                        gSaveContext.buttonStatus[2] = 0xFF;
-                        gSaveContext.buttonStatus[3] = 0xFF;
+                        gSaveContext.buttonStatus[1] = BTN_DISABLED;
+                        gSaveContext.buttonStatus[2] = BTN_DISABLED;
+                        gSaveContext.buttonStatus[3] = BTN_DISABLED;
                         Interface_ChangeAlpha(12);
                     } else if (player->stateFlags1 & 0x800000) {
                         Interface_ChangeAlpha(12);
@@ -2090,6 +2087,7 @@ void func_80111CB4(GlobalContext* globalCtx) {
                 if (player->stateFlags1 & 0x800000) {
                     Interface_ChangeAlpha(12);
                 }
+
                 if (globalCtx->sceneNum == SCENE_BOWLING) {
                     if (CURRENT_DAY == 1) {
                         BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOMBCHU;
@@ -2098,12 +2096,13 @@ void func_80111CB4(GlobalContext* globalCtx) {
                     } else {
                         BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOW;
                     }
-                    gSaveContext.buttonStatus[1] = 0xFF;
-                    gSaveContext.buttonStatus[2] = 0xFF;
-                    gSaveContext.buttonStatus[3] = 0xFF;
+                    gSaveContext.buttonStatus[1] = BTN_DISABLED;
+                    gSaveContext.buttonStatus[2] = BTN_DISABLED;
+                    gSaveContext.buttonStatus[3] = BTN_DISABLED;
                 } else {
                     BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOW;
                 }
+
                 if (globalCtx->unk_1887C >= 2) {
                     Interface_LoadItemIconImpl(globalCtx, 0);
                 } else if (gSaveContext.save.inventory.items[SLOT_BOW] == ITEM_NONE) {
@@ -2111,13 +2110,15 @@ void func_80111CB4(GlobalContext* globalCtx) {
                 } else {
                     Interface_LoadItemIconImpl(globalCtx, 0);
                 }
-                if (gSaveContext.buttonStatus[0] == 0xFF) {
-                    gSaveContext.buttonStatus[0] = 0;
+
+                if (gSaveContext.buttonStatus[0] == BTN_DISABLED) {
+                    gSaveContext.buttonStatus[0] = BTN_ENABLED;
                     sp28 = true;
                 }
-                gSaveContext.buttonStatus[1] = 0xFF;
-                gSaveContext.buttonStatus[2] = 0xFF;
-                gSaveContext.buttonStatus[3] = 0xFF;
+
+                gSaveContext.buttonStatus[1] = BTN_DISABLED;
+                gSaveContext.buttonStatus[2] = BTN_DISABLED;
+                gSaveContext.buttonStatus[3] = BTN_DISABLED;
                 Interface_ChangeAlpha(6);
 
                 if (globalCtx->unk_18B4A != 0) {
@@ -2130,105 +2131,91 @@ void func_80111CB4(GlobalContext* globalCtx) {
                 } else if (globalCtx->unk_1887C >= 2) {
                     Interface_ChangeAlpha(8);
                 } else if (gSaveContext.save.weekEventReg[8] & 1) {
-                    gSaveContext.buttonStatus[1] = 0xFF;
-                    gSaveContext.buttonStatus[2] = 0xFF;
-                    gSaveContext.buttonStatus[3] = 0xFF;
+                    gSaveContext.buttonStatus[1] = BTN_DISABLED;
+                    gSaveContext.buttonStatus[2] = BTN_DISABLED;
+                    gSaveContext.buttonStatus[3] = BTN_DISABLED;
                     Interface_ChangeAlpha(12);
                 } else if (player->stateFlags1 & 0x800000) {
                     Interface_ChangeAlpha(12);
                 }
             }
-        } else {
-            if (D_801BF884 != 0) {
-                if (D_801BF884 == 1) {
-                    if (!(globalCtx->actorCtx.unk5 & 4)) {
-                        func_801663C4((u8*)((globalCtx->unk_18E5C != NULL) ? globalCtx->unk_18E5C : D_801FBB90),
-                                      gSaveContext.pictoPhoto, 0x4600);
-                        interfaceCtx->unk_224 = 0;
-                        interfaceCtx->unk_222 = interfaceCtx->unk_224;
-                        sp28 = true;
-                        D_801BF884 = 0;
-                    } else {
-                        if (~(globalCtx->state.input[0].press.button | ~0x4000) == 0) {
-                            globalCtx->actorCtx.unk5 &= 0xFFFB;
-                            interfaceCtx->unk_224 = 0;
-                            interfaceCtx->unk_222 = interfaceCtx->unk_224;
-                            sp28 = true;
-                            D_801BF884 = 0;
-                        } else if ((~(globalCtx->state.input[0].press.button | 0xFFFF7FFF) == 0) ||
-                                   (func_801A5100() == 1)) {
-                            if (!(gSaveContext.eventInf[4] & 2) ||
-                                ((gSaveContext.eventInf[4] & 2) && (ActorCutscene_GetCurrentIndex() == -1))) {
-                                play_sound(0x4850);
-                                gGameInfo->data[0xB9] = 1;
-                                globalCtx->unk_18845 = 1;
-                                D_801BF884 = 2;
-                                D_801BF888 = 1;
-                            }
-                        }
-                    }
-                } else if (D_801BF884 >= 2) {
-                    if (Message_GetState(&globalCtx->msgCtx) == 4) {
-                        if (Message_ShouldAdvance(globalCtx)) {
-                            globalCtx->unk_18845 = 0;
-                            player->stateFlags1 &= ~0x200;
-                            func_801477B4(globalCtx);
-                            if (globalCtx->msgCtx.choiceIndex != 0) {
-                                func_8019F230();
-                                func_80115844(globalCtx, 0x12);
-                                Interface_ChangeAlpha(21);
-                                D_801BF884 = 1;
-                                gSaveContext.save.inventory.questItems =
-                                    ((void)0, gSaveContext.save.inventory.questItems) & (-1 - gBitFlags[QUEST_UNK_19]);
-                            } else {
-                                func_8019F208();
-                                interfaceCtx->unk_224 = 0;
-                                interfaceCtx->unk_222 = interfaceCtx->unk_224;
-                                sp28 = true;
-                                Interface_ChangeAlpha(50);
-                                D_801BF884 = 0;
-                                if (D_801BF888 != 0) {
-                                    func_801663C4(
-                                        (u8*)((globalCtx->unk_18E5C != NULL) ? globalCtx->unk_18E5C : D_801FBB90),
-                                        gSaveContext.pictoPhoto, 0x4600);
-                                    func_8013A240(globalCtx);
-                                }
-                                globalCtx->actorCtx.unk5 &= 0xFFFB;
-                                gSaveContext.save.inventory.questItems =
-                                    ((void)0, gSaveContext.save.inventory.questItems) | gBitFlags[QUEST_UNK_19];
-                                D_801BF888 = 0;
-                            }
-                        }
-                    }
-                }
-            } else {
-                if ((gSaveContext.minigameState == 1) && (gSaveContext.save.entranceIndex == 0x8E10) &&
-                    (globalCtx->sceneLoadFlag == 0) && (globalCtx->unk_18B4A == 0)) {
-                    gSaveContext.buttonStatus[1] = 0xFF;
-                    gSaveContext.buttonStatus[2] = 0xFF;
-                    gSaveContext.buttonStatus[3] = 0xFF;
-                    Interface_ChangeAlpha(12);
-                } else if ((gSaveContext.save.entranceIndex == 0xD010) && (globalCtx->sceneLoadFlag == 0) &&
-                           (globalCtx->unk_18B4A == 0)) {
-                    gSaveContext.buttonStatus[1] = 0xFF;
-                    gSaveContext.buttonStatus[2] = 0xFF;
-                    gSaveContext.buttonStatus[3] = 0xFF;
-                    Interface_ChangeAlpha(22);
-                } else if (globalCtx->actorCtx.unk5 & 4) {
-                    if ((((void)0, gSaveContext.save.inventory.questItems) & gBitFlags[QUEST_UNK_19]) == 0) {
-                        func_80115844(globalCtx, 0x12);
-                        Interface_ChangeAlpha(21);
-                        D_801BF884 = 1;
-                    } else {
-                        phi_a1 = (globalCtx->unk_18E5C != NULL) ? globalCtx->unk_18E5C : D_801FBB90;
-                        func_80166644(gSaveContext.pictoPhoto, phi_a1, 0x4600);
+        } else if (D_801BF884 != 0) {
+            if (D_801BF884 == 1) {
+                if (!(globalCtx->actorCtx.unk5 & 4)) {
+                    func_801663C4((u8*)((globalCtx->unk_18E5C != NULL) ? globalCtx->unk_18E5C : D_801FBB90),
+                                  gSaveContext.pictoPhoto, 0x4600);
+                    interfaceCtx->unk_224 = 0;
+                    interfaceCtx->unk_222 = interfaceCtx->unk_224;
+                    sp28 = true;
+                    D_801BF884 = 0;
+                } else if (CHECK_BTN_ALL(CONTROLLER1(globalCtx)->press.button, BTN_B)) {
+                    globalCtx->actorCtx.unk5 &= 0xFFFB;
+                    interfaceCtx->unk_224 = 0;
+                    interfaceCtx->unk_222 = interfaceCtx->unk_224;
+                    sp28 = true;
+                    D_801BF884 = 0;
+                } else if (CHECK_BTN_ALL(CONTROLLER1(globalCtx)->press.button, BTN_A) || (func_801A5100() == 1)) {
+                    if (!(gSaveContext.eventInf[4] & 2) ||
+                        ((gSaveContext.eventInf[4] & 2) && (ActorCutscene_GetCurrentIndex() == -1))) {
+                        play_sound(NA_SE_SY_CAMERA_SHUTTER);
+                        SREG(89) = 1;
                         globalCtx->unk_18845 = 1;
                         D_801BF884 = 2;
+                        D_801BF888 = true;
                     }
+                }
+            } else if ((D_801BF884 >= 2) && (Message_GetState(&globalCtx->msgCtx) == 4) &&
+                       Message_ShouldAdvance(globalCtx)) {
+                globalCtx->unk_18845 = 0;
+                player->stateFlags1 &= ~0x200;
+                func_801477B4(globalCtx);
+                if (globalCtx->msgCtx.choiceIndex != 0) {
+                    func_8019F230();
+                    func_80115844(globalCtx, 0x12);
+                    Interface_ChangeAlpha(21);
+                    D_801BF884 = 1;
+                    REMOVE_QUEST_ITEM(QUEST_PICTOBOX);
                 } else {
-                    func_80110038(globalCtx);
+                    func_8019F208();
+                    interfaceCtx->unk_222 = interfaceCtx->unk_224 = 0;
+                    sp28 = true;
+                    Interface_ChangeAlpha(50);
+                    D_801BF884 = 0;
+                    if (D_801BF888) {
+                        func_801663C4((u8*)((globalCtx->unk_18E5C != NULL) ? globalCtx->unk_18E5C : D_801FBB90),
+                                      gSaveContext.pictoPhoto, 0x4600);
+                        func_8013A240(globalCtx);
+                    }
+                    globalCtx->actorCtx.unk5 &= ~0x4;
+                    SET_QUEST_ITEM(QUEST_PICTOBOX);
+                    D_801BF888 = false;
                 }
             }
+        } else if ((gSaveContext.minigameState == 1) && (gSaveContext.save.entranceIndex == 0x8E10) &&
+                   (globalCtx->sceneLoadFlag == 0) && (globalCtx->unk_18B4A == 0)) {
+            gSaveContext.buttonStatus[1] = BTN_DISABLED;
+            gSaveContext.buttonStatus[2] = BTN_DISABLED;
+            gSaveContext.buttonStatus[3] = BTN_DISABLED;
+            Interface_ChangeAlpha(12);
+        } else if ((gSaveContext.save.entranceIndex == 0xD010) && (globalCtx->sceneLoadFlag == 0) &&
+                   (globalCtx->unk_18B4A == 0)) {
+            gSaveContext.buttonStatus[1] = BTN_DISABLED;
+            gSaveContext.buttonStatus[2] = BTN_DISABLED;
+            gSaveContext.buttonStatus[3] = BTN_DISABLED;
+            Interface_ChangeAlpha(22);
+        } else if (globalCtx->actorCtx.unk5 & 4) {
+            if (!CHECK_QUEST_ITEM(QUEST_PICTOBOX)) {
+                func_80115844(globalCtx, 0x12);
+                Interface_ChangeAlpha(21);
+                D_801BF884 = 1;
+            } else {
+                phi_a1 = (globalCtx->unk_18E5C != NULL) ? globalCtx->unk_18E5C : D_801FBB90;
+                func_80166644(gSaveContext.pictoPhoto, phi_a1, 0x4600);
+                globalCtx->unk_18845 = 1;
+                D_801BF884 = 2;
+            }
+        } else {
+            func_80110038(globalCtx);
         }
     }
     if (sp28) {
@@ -2342,8 +2329,7 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
     }
 
     if (item == ITEM_SKULL_TOKEN) {
-        gSaveContext.save.inventory.questItems = ((void)0, gSaveContext.save.inventory.questItems) |
-                                                 gBitFlags[item - ITEM_SKULL_TOKEN + QUEST_SKULL_TOKEN - 4];
+        SET_QUEST_ITEM(item - ITEM_SKULL_TOKEN + QUEST_SKULL_TOKEN);
         Inventory_IncrementSkullTokenCount(globalCtx->sceneNum);
         return ITEM_NONE;
 
@@ -2351,8 +2337,7 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
         return ITEM_NONE;
 
     } else if (item == ITEM_BOMBERS_NOTEBOOK) {
-        gSaveContext.save.inventory.questItems =
-            ((void)0, gSaveContext.save.inventory.questItems) | gBitFlags[QUEST_BOMBERS_NOTEBOOK];
+        SET_QUEST_ITEM(QUEST_BOMBERS_NOTEBOOK);
         return ITEM_NONE;
 
     } else if ((item == ITEM_HEART_PIECE_2) || (item == ITEM_HEART_PIECE)) {
@@ -2370,8 +2355,7 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
         return ITEM_NONE;
 
     } else if ((item >= ITEM_SONG_SONATA) && (item <= ITEM_SONG_LULLABY_INTRO)) {
-        gSaveContext.save.inventory.questItems =
-            ((void)0, gSaveContext.save.inventory.questItems) | gBitFlags[item - ITEM_SONG_SONATA + QUEST_SONG_SONATA];
+        SET_QUEST_ITEM(item - ITEM_SONG_SONATA + QUEST_SONG_SONATA);
         return ITEM_NONE;
 
     } else if ((item >= ITEM_SWORD_KOKIRI) && (item <= ITEM_SWORD_GILDED)) {
@@ -2392,15 +2376,15 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
         return item;
 
     } else if ((item == ITEM_KEY_BOSS) || (item == ITEM_COMPASS) || (item == ITEM_DUNGEON_MAP)) {
-        gSaveContext.save.inventory.dungeonItems[(void)0, gSaveContext.mapIndex] |= (u8)gBitFlags[item - ITEM_KEY_BOSS];
+        SET_DUNGEON_ITEM(item - ITEM_KEY_BOSS, gSaveContext.mapIndex);
         return ITEM_NONE;
 
     } else if (item == ITEM_KEY_SMALL) {
-        if (gSaveContext.save.inventory.dungeonKeys[(void)0, gSaveContext.mapIndex] < 0) {
-            gSaveContext.save.inventory.dungeonKeys[(void)0, gSaveContext.mapIndex] = 1;
+        if (DUNGEON_KEY_COUNT(gSaveContext.mapIndex) < 0) {
+            DUNGEON_KEY_COUNT(gSaveContext.mapIndex) = 1;
             return ITEM_NONE;
         } else {
-            gSaveContext.save.inventory.dungeonKeys[(void)0, gSaveContext.mapIndex]++;
+            DUNGEON_KEY_COUNT(gSaveContext.mapIndex)++;
             return ITEM_NONE;
         }
 
@@ -2617,8 +2601,7 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
         return ITEM_NONE;
 
     } else if ((item >= ITEM_REMAINS_ODOLWA) && (item <= ITEM_REMAINS_TWINMOLD)) {
-        gSaveContext.save.inventory.questItems = ((void)0, gSaveContext.save.inventory.questItems) |
-                                                 gBitFlags[item - ITEM_REMAINS_ODOLWA + QUEST_REMAINS_ODOWLA];
+        SET_QUEST_ITEM(item - ITEM_REMAINS_ODOLWA + QUEST_REMAINS_ODOWLA);
         return ITEM_NONE;
 
     } else if (item == ITEM_HEART) {
@@ -2642,7 +2625,7 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
         return item;
 
     } else if ((item >= ITEM_RUPEE_GREEN) && (item <= ITEM_RUPEE_HUGE)) {
-        Rupees_ChangeBy(sAmmoRefillCounts[item - ITEM_RUPEE_GREEN + 12]);
+        Rupees_ChangeBy(sAmmoRefillCounts[item - ITEM_RUPEE_GREEN + 12]); // TODO: Different to OoT? Or wrong.
         return ITEM_NONE;
 
     } else if (item == ITEM_LONGSHOT) {
@@ -2781,8 +2764,7 @@ u8 Item_CheckObtainabilityImpl(u8 item) {
         return ITEM_NONE;
 
     } else if ((item == ITEM_KEY_BOSS) || (item == ITEM_COMPASS) || (item == ITEM_DUNGEON_MAP)) {
-        if (!(gSaveContext.save.inventory.dungeonItems[(void)0, gSaveContext.mapIndex] &
-              gBitFlags[item - ITEM_KEY_BOSS])) {
+        if (!CHECK_DUNGEON_ITEM(item - ITEM_KEY_BOSS, gSaveContext.mapIndex)) {
             return ITEM_NONE;
         }
         return item;
@@ -3864,7 +3846,7 @@ void Interface_DrawAmmoCount(GlobalContext* globalCtx, s16 button, s16 alpha) {
 
         if (i == ITEM_PICTO_BOX) {
             // TODO: index of gBitFlags?
-            if ((((void)0, gSaveContext.save.inventory.questItems) & (gBitFlags[0, QUEST_UNK_19])) == 0) {
+            if (!CHECK_QUEST_ITEM(((void)0, QUEST_PICTOBOX))) {
                 ammo = 0;
             } else {
                 ammo = 1;
@@ -5486,7 +5468,7 @@ void Interface_Draw(GlobalContext* globalCtx) {
             case SCENE_MITURIN:
             case SCENE_HAKUGIN:
             case SCENE_SEA:
-                if (gSaveContext.save.inventory.dungeonKeys[(void)0, gSaveContext.mapIndex] >= 0) {
+                if (DUNGEON_KEY_COUNT(gSaveContext.mapIndex) >= 0) {
                     // Small Key Icon
                     gDPPipeSync(OVERLAY_DISP++);
                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 200, 230, 255, interfaceCtx->magicAlpha);
@@ -5500,7 +5482,7 @@ void Interface_Draw(GlobalContext* globalCtx) {
                                       TEXEL0, 0, PRIMITIVE, 0);
 
                     counterDigits[2] = 0;
-                    counterDigits[3] = gSaveContext.save.inventory.dungeonKeys[(void)0, gSaveContext.mapIndex];
+                    counterDigits[3] = DUNGEON_KEY_COUNT(gSaveContext.mapIndex);
 
                     while (counterDigits[3] >= 10) {
                         counterDigits[2]++;
@@ -6384,7 +6366,7 @@ void Interface_Init(GlobalContext* globalCtx) {
     }
 
     D_801BF884 = 0;
-    D_801BF888 = 0;
+    D_801BF888 = false;
 
     if ((globalCtx->sceneNum != SCENE_MITURIN_BS) && (globalCtx->sceneNum != SCENE_HAKUGIN_BS) &&
         (globalCtx->sceneNum != SCENE_SEA_BS) && (globalCtx->sceneNum != SCENE_INISIE_BS) &&

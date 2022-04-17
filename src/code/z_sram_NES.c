@@ -354,7 +354,7 @@ void Sram_SaveEndOfCycle(GlobalContext* globalCtx) {
         }
     }
 
-    REMOVE_QUEST_ITEM(QUEST_UNK_19);
+    REMOVE_QUEST_ITEM(QUEST_PICTOBOX);
 
     if (gSaveContext.save.playerData.health < 0x30) {
         gSaveContext.save.playerData.health = 0x30;
