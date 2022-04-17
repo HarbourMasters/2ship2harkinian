@@ -3785,14 +3785,13 @@ void Interface_DrawItemIconTexture(GlobalContext* globalCtx, void* texture, s16 
 
 s16 D_801BFB04[] = { 0xA2, 0xE4, 0xFA, 0x110 };
 s16 D_801BFB0C[] = { 0x23, 0x23, 0x33, 0x23 };
-#ifdef NON_MATCHING
 void Interface_DrawAmmoCount(GlobalContext* globalCtx, s16 button, s16 alpha) {
     u8 i;
     u16 ammo;
 
     OPEN_DISPS(globalCtx->state.gfxCtx);
 
-    i = (((button) == EQUIP_SLOT_B ? BUTTON_ITEM_EQUIP(CUR_FORM, button) : BUTTON_ITEM_EQUIP(0, button)) & 0xFF);
+    i = ((void)0, GET_CUR_FORM_BTN_ITEM(button));
 
     if ((i == ITEM_STICK) || (i == ITEM_NUT) || (i == ITEM_BOMB) || (i == ITEM_BOW) ||
         ((i >= ITEM_BOW_ARROW_FIRE) && (i <= ITEM_BOW_ARROW_LIGHT)) || (i == ITEM_BOMBCHU) || (i == ITEM_POWDER_KEG) ||
@@ -3805,8 +3804,7 @@ void Interface_DrawAmmoCount(GlobalContext* globalCtx, s16 button, s16 alpha) {
         ammo = AMMO(i);
 
         if (i == ITEM_PICTO_BOX) {
-            // TODO: index of gBitFlags?
-            if (!CHECK_QUEST_ITEM(((void)0, QUEST_PICTOBOX))) {
+            if (!CHECK_QUEST_ITEM(QUEST_PICTOBOX)) {
                 ammo = 0;
             } else {
                 ammo = 1;
@@ -3829,7 +3827,7 @@ void Interface_DrawAmmoCount(GlobalContext* globalCtx, s16 button, s16 alpha) {
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 120, 255, 0, alpha);
         }
 
-        if (!ammo) { // TODO: No == 0
+        if (!ammo) {
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 100, 100, 100, alpha);
         }
 
@@ -3837,20 +3835,17 @@ void Interface_DrawAmmoCount(GlobalContext* globalCtx, s16 button, s16 alpha) {
             ammo -= 10;
         }
 
-        if (i) { // TODO: No != 0
+        if (i) {
             OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, ((u8*)gAmmoDigit0Tex + ((8 * 8) * i)), 8, 8, D_801BFB04[button],
-                                          D_801BFB0C[button], 8, 8, 0x400, 0x400);
+                                          D_801BFB0C[button], 8, 8, 1 << 10, 1 << 10);
         }
 
         OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, ((u8*)gAmmoDigit0Tex + ((8 * 8) * ammo)), 8, 8,
-                                      D_801BFB04[button] + 6, D_801BFB0C[button], 8, 8, 0x400, 0x400);
+                                      D_801BFB04[button] + 6, D_801BFB0C[button], 8, 8, 1 << 10, 1 << 10);
     }
 
     CLOSE_DISPS(globalCtx->state.gfxCtx);
 }
-#else
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_DrawAmmoCount.s")
-#endif
 
 void func_80118084(GlobalContext* globalCtx) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
