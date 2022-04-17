@@ -3320,7 +3320,7 @@ extern OSViMode D_801FBB30;
 extern u32* gFramebuffers[2];
 extern OSViMode* D_801FBB88;
 extern u16* gZBufferPtr;
-extern void* D_801FBB90;
+extern u8* D_801FBB90;
 extern u64* gGfxSPTaskOutputBufferPtr;
 extern size_t gGfxSPTaskOutputBufferSize;
 // extern UNK_TYPE1 D_801FBB9C;

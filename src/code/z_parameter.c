@@ -1990,11 +1990,12 @@ void func_80110038(GlobalContext* globalCtx) {
     }
 }
 
+// a0/a1 swap. Likely related to globalCtx->unk_18E5C
 #ifdef NON_MATCHING
 void func_80111CB4(GlobalContext* globalCtx) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
     Player* player = GET_PLAYER(globalCtx);
-    void* phi_a1;
+    s32 pad;
     s32 sp28;
 
     sp28 = false;
@@ -2049,6 +2050,7 @@ void func_80111CB4(GlobalContext* globalCtx) {
                             gSaveContext.buttonStatus[3] = BTN_DISABLED;
                         } else {
                             BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOW;
+
                             if (globalCtx->unk_1887C >= 2) {
                                 Interface_LoadItemIconImpl(globalCtx, 0);
                             } else if (gSaveContext.save.inventory.items[SLOT_BOW] == ITEM_NONE) {
@@ -2056,6 +2058,7 @@ void func_80111CB4(GlobalContext* globalCtx) {
                             } else {
                                 Interface_LoadItemIconImpl(globalCtx, 0);
                             }
+                            
                             gSaveContext.buttonStatus[1] = BTN_DISABLED;
                             gSaveContext.buttonStatus[2] = BTN_DISABLED;
                             gSaveContext.buttonStatus[3] = BTN_DISABLED;
@@ -2142,8 +2145,8 @@ void func_80111CB4(GlobalContext* globalCtx) {
         } else if (D_801BF884 != 0) {
             if (D_801BF884 == 1) {
                 if (!(globalCtx->actorCtx.unk5 & 4)) {
-                    func_801663C4((u8*)((globalCtx->unk_18E5C != NULL) ? globalCtx->unk_18E5C : D_801FBB90),
-                                  gSaveContext.pictoPhoto, 0x4600);
+                    func_801663C4((globalCtx->unk_18E5C != NULL) ? globalCtx->unk_18E5C : D_801FBB90,
+                                  (u8*)gSaveContext.pictoPhoto, 0x4600);
                     interfaceCtx->unk_224 = 0;
                     interfaceCtx->unk_222 = interfaceCtx->unk_224;
                     sp28 = true;
@@ -2182,8 +2185,8 @@ void func_80111CB4(GlobalContext* globalCtx) {
                     Interface_ChangeAlpha(50);
                     D_801BF884 = 0;
                     if (D_801BF888) {
-                        func_801663C4((u8*)((globalCtx->unk_18E5C != NULL) ? globalCtx->unk_18E5C : D_801FBB90),
-                                      gSaveContext.pictoPhoto, 0x4600);
+                        func_801663C4((globalCtx->unk_18E5C != NULL) ? globalCtx->unk_18E5C : D_801FBB90,
+                                      (u8*)gSaveContext.pictoPhoto, 0x4600);
                         func_8013A240(globalCtx);
                     }
                     globalCtx->actorCtx.unk5 &= ~0x4;
@@ -2209,8 +2212,7 @@ void func_80111CB4(GlobalContext* globalCtx) {
                 Interface_ChangeAlpha(21);
                 D_801BF884 = 1;
             } else {
-                phi_a1 = (globalCtx->unk_18E5C != NULL) ? globalCtx->unk_18E5C : D_801FBB90;
-                func_80166644(gSaveContext.pictoPhoto, phi_a1, 0x4600);
+                func_80166644((u8*)gSaveContext.pictoPhoto, ((void)0, (globalCtx->unk_18E5C != NULL) ? globalCtx->unk_18E5C : D_801FBB90), 0x4600);
                 globalCtx->unk_18845 = 1;
                 D_801BF884 = 2;
             }
@@ -5728,7 +5730,7 @@ void Interface_Draw(GlobalContext* globalCtx) {
     if (D_801BF884 >= 2) {
         if ((globalCtx->actorCtx.unk5 & 4) == 0) {
             func_801663C4((u8*)((globalCtx->unk_18E5C != NULL) ? globalCtx->unk_18E5C : D_801FBB90),
-                          gSaveContext.pictoPhoto, 0x4600);
+                          (u8*)gSaveContext.pictoPhoto, 0x4600);
 
             interfaceCtx->unk_224 = 0;
             interfaceCtx->unk_222 = interfaceCtx->unk_224;
