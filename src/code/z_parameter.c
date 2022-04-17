@@ -1536,7 +1536,6 @@ void func_80110038(GlobalContext* globalCtx) {
             Interface_ChangeAlpha(22);
         } else if (gSaveContext.save.weekEventReg[84] & 0x20) {
             if (player->currentMask == PLAYER_MASK_FIERCE_DEITY) {
-
                 for (i = 1; i < 4; i++) {
                     if ((GET_CUR_FORM_BTN_ITEM(i) == ITEM_MASK_FIERCE_DEITY) ||
                         ((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_BOTTLE) && (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_OBABA_DRINK))) {
@@ -1552,7 +1551,6 @@ void func_80110038(GlobalContext* globalCtx) {
                     }
                 }
             } else {
-
                 for (i = 1; i < 4; i++) {
                     if ((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_MASK_DEKU) && (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_MASK_ZORA)) {
                         if (gSaveContext.buttonStatus[i] != BTN_DISABLED) {
@@ -1596,6 +1594,7 @@ void func_80110038(GlobalContext* globalCtx) {
                     gSaveContext.buttonStatus[i] = BTN_DISABLED;
                 }
             }
+
             if (phi_t3 || (gSaveContext.unk_3F22 != 0xC)) {
                 gSaveContext.unk_3F22 = 0;
                 Interface_ChangeAlpha(12);
@@ -1687,7 +1686,6 @@ void func_80110038(GlobalContext* globalCtx) {
                 }
             } else {
                 if (player->stateFlags1 & 0x200000) {
-
                     for (i = 1; i < 4; i++) {
                         if (GET_CUR_FORM_BTN_ITEM(i) != ITEM_LENS) {
                             if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
@@ -1798,7 +1796,6 @@ void func_80110038(GlobalContext* globalCtx) {
 
                     if (gSaveContext.save.playerForm == player->transformation) {
                         for (i = 1; i < 4; i++) {
-
                             if (!D_801C2410[(void)0, gSaveContext.save.playerForm][GET_CUR_FORM_BTN_ITEM(i)]) {
                                 if (gSaveContext.buttonStatus[i] != BTN_DISABLED) {
                                     gSaveContext.buttonStatus[i] = BTN_DISABLED;
@@ -2109,7 +2106,7 @@ void func_80111CB4(GlobalContext* globalCtx) {
                     sp28 = true;
                     D_801BF884 = 0;
                 } else if (CHECK_BTN_ALL(CONTROLLER1(globalCtx)->press.button, BTN_B)) {
-                    globalCtx->actorCtx.unk5 &= 0xFFFB;
+                    globalCtx->actorCtx.unk5 &= ~4;
                     interfaceCtx->unk_224 = 0;
                     interfaceCtx->unk_222 = interfaceCtx->unk_224;
                     sp28 = true;
@@ -2146,7 +2143,7 @@ void func_80111CB4(GlobalContext* globalCtx) {
                                       (u8*)gSaveContext.pictoPhoto, 0x4600);
                         func_8013A240(globalCtx);
                     }
-                    globalCtx->actorCtx.unk5 &= ~0x4;
+                    globalCtx->actorCtx.unk5 &= ~4;
                     SET_QUEST_ITEM(QUEST_PICTOBOX);
                     D_801BF888 = false;
                 }
@@ -5217,7 +5214,7 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                 if (D_801BF970 == 0) {
                     switch (gSaveContext.unk_3DD0[0]) {
                         case 13:
-                            if (gSaveContext.timersNoTimeLimit[0] != 0) {
+                            if (gSaveContext.timersNoTimeLimit[0]) {
                                 gSaveContext.unk_3E50[0] = osGetTime();
                             }
                             gSaveContext.unk_3DD0[0] = 14;
@@ -5351,7 +5348,7 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
 
                         case 8:
                             gSaveContext.unk_3DE0[D_801BF970] = (gSaveContext.save.playerData.health >> 1) * 100;
-                            gSaveContext.timersNoTimeLimit[D_801BF970] = 0;
+                            gSaveContext.timersNoTimeLimit[D_801BF970] = false;
                             gSaveContext.unk_3E18[D_801BF970] = gSaveContext.unk_3DE0[D_801BF970];
                             gSaveContext.unk_3DD0[D_801BF970] = 3;
                             D_801BFCE4 = 20;
@@ -5424,7 +5421,7 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
         }
 
         if ((D_801BF970 != 99) && (gSaveContext.unk_3DD0[D_801BF970] != 0)) {
-            if (gSaveContext.timersNoTimeLimit[D_801BF970] == 0) {
+            if (!gSaveContext.timersNoTimeLimit[D_801BF970]) {
                 D_801BFCE8[0] = D_801BFCE8[1] = D_801BFCE8[3] = D_801BFCE8[4] = D_801BFCE8[6] = 0;
                 D_801BFCE8[2] = D_801BFCE8[5] = 10;
                 if ((gSaveContext.unk_3DD0[D_801BF970] == 4) || (gSaveContext.unk_3DD0[D_801BF970] == 10) ||
@@ -5533,7 +5530,7 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 255);
             gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 0);
             OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, gTimerClockIconTex, 0x10, 0x10, gSaveContext.timerX[D_801BF970],
-                                          gSaveContext.timerY[D_801BF970] + 2, 0x10, 0x10, 0x400, 0x400);
+                                          gSaveContext.timerY[D_801BF970] + 2, 0x10, 0x10, 1 << 10, 1 << 10);
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0,
                               0, PRIMITIVE, 0);
@@ -5566,7 +5563,7 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 255);
                             }
                         } else if ((gSaveContext.unk_3DE0[D_801BF970] < 1000) &&
-                                   (gSaveContext.timersNoTimeLimit[D_801BF970] == 0) &&
+                                   !gSaveContext.timersNoTimeLimit[D_801BF970] &&
                                    (gSaveContext.unk_3DD0[D_801BF970] != 11)) {
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 50, 0, 255);
                         } else {
@@ -6162,7 +6159,7 @@ void Interface_Draw(GlobalContext* globalCtx) {
     }
 
     if (D_801BF884 >= 2) {
-        if ((globalCtx->actorCtx.unk5 & 4) == 0) {
+        if (!(globalCtx->actorCtx.unk5 & 4)) {
             func_801663C4((u8*)((globalCtx->unk_18E5C != NULL) ? globalCtx->unk_18E5C : D_801FBB90),
                           (u8*)gSaveContext.pictoPhoto, 0x4600);
 
@@ -6198,6 +6195,7 @@ void Interface_Draw(GlobalContext* globalCtx) {
             gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEI_PRIM, G_CC_MODULATEI_PRIM);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 250, 160, 160, 255);
 
+            // Regalloc. Could be reused temps?
             phi_a2 = 0x1F;
             for (phi_t0_2 = 0; phi_t0_2 < 14; phi_t0_2++, phi_a2 += 8) {
                 gDPLoadTextureBlock(OVERLAY_DISP++,
