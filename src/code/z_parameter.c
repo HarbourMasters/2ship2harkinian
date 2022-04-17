@@ -12,30 +12,6 @@ extern Gfx D_0E0002E0[]; // Display List
 extern u8 D_801ABAB0[];
 extern u8 D_801E3BB0[];
 
-/**
- * Steps `var` towards `target` linearly, so that it will arrive in `timeRemaining` seconds. Can be used from either
- * direction. `timeRemaining` must be decremented separately for this to work properly, and obviously timeRemaining = 0
- * must be handled separately.
- *
- * @param var Variable to step.
- * @param target Target to step towards.
- * @param timeRemaining Number of times this function should be run for `var` to reach `target`
- * @param stepVar Variable to use for the step (required to match).
- *
- * The progression is not quite linear because of truncation in the division, but the variable will always reach
- * `target` at the appropriate time since the last step is always the full difference.
- */
-#define TIMED_STEP_TO(var, target, timeRemaining, stepVar) \
-    {                                                      \
-        stepVar = ABS_ALT(var - target) / timeRemaining;   \
-        if (var >= target) {                               \
-            var -= stepVar;                                \
-        } else {                                           \
-            var += stepVar;                                \
-        }                                                  \
-    }                                                      \
-    (void)0
-
 typedef struct {
     /* 0x00 */ u8 scene;
     /* 0x01 */ u8 flags1;
@@ -3902,11 +3878,11 @@ void func_80118084(GlobalContext* globalCtx) {
             Interface_DrawAmmoCount(globalCtx, 0, interfaceCtx->bAlpha);
         }
     } else if (((interfaceCtx->unk_21C == 0) && (interfaceCtx->unk_222 == 0)) ||
-               ((interfaceCtx->unk_21C != 0) &&
-                ((BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) < ITEM_SWORD_KOKIRI) ||
-                 (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) > ITEM_SWORD_GILDED)) &&
-                BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NONE) &&
-                   (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NUT)) {
+               (((interfaceCtx->unk_21C != 0) &&
+                 ((BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) < ITEM_SWORD_KOKIRI) ||
+                  (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) > ITEM_SWORD_GILDED)) &&
+                 BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NONE) &&
+                (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NUT))) {
         if ((player->transformation == PLAYER_FORM_FIERCE_DEITY) || (player->transformation == PLAYER_FORM_HUMAN)) {
             if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NONE) {
                 Interface_DrawItemIconTexture(globalCtx, interfaceCtx->iconItemSegment, 0);
@@ -6214,7 +6190,7 @@ void Interface_Draw(GlobalContext* globalCtx) {
 
             if (D_801BF884 == 2) {
                 D_801BF884 = 3;
-                func_801518B0(globalCtx, 0xF8, NULL);
+                Message_StartTextbox(globalCtx, 0xF8, NULL);
                 Interface_ChangeAlpha(1);
                 player->stateFlags1 |= 0x200;
             }
