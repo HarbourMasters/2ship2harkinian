@@ -4202,17 +4202,18 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
     f32 temp_f0;
     f32 temp_f14;
     u32 temp_a1_7;
-    s32 phi_v1_2; // Unused
+    f32 new_var;
     s16 currentHour;
     u16 time;
-    f32 new_var1;
+    s16 pad;
+    s16 sp1B4;
     s16 colorStep;
 
     OPEN_DISPS(globalCtx->state.gfxCtx);
 
     if (REG(15) != 0) {
-        if ((msgCtx->msgMode == 0) || ((globalCtx->actorCtx.unk5 & 2) && !func_801690CC(globalCtx)) ||
-            (msgCtx->msgMode == 0) || ((msgCtx->unk11F04 >= 0x100) && (msgCtx->unk11F04 <= 0x200)) ||
+        if ((msgCtx->msgMode == 0) || ((globalCtx->actorCtx.unk5 & 2) && !Play_InCsMode(globalCtx)) ||
+            (msgCtx->msgMode == 0) || ((msgCtx->currentTextId >= 0x100) && (msgCtx->currentTextId <= 0x200)) ||
             (gSaveContext.gameMode == 3)) {
             if (FrameAdvance_IsEnabled(globalCtx) == 0) {
                 if (func_800FE4A8() == 0) {
@@ -4298,12 +4299,47 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                                 // Time is slowed down to half speed with inverted song of time
                                 if (gSaveContext.save.daySpeed == -2) {
                                     // Clock diamond is blue and flashes white
-                                    TIMED_STEP_TO(D_801BFBCC, D_801BFBEC[D_801BFBE8], D_801BFBE4, colorStep);
-                                    TIMED_STEP_TO(D_801BFBD0, D_801BFBF0[D_801BFBE8], D_801BFBE4, colorStep);
-                                    TIMED_STEP_TO(D_801BFBD4, D_801BFBF4[D_801BFBE8], D_801BFBE4, colorStep);
-                                    TIMED_STEP_TO(D_801BFBD8, D_801BFBF8[D_801BFBE8], D_801BFBE4, colorStep);
-                                    TIMED_STEP_TO(D_801BFBDC, D_801BFBFC[D_801BFBE8], D_801BFBE4, colorStep);
-                                    TIMED_STEP_TO(D_801BFBE0, D_801BFC00[D_801BFBE8], D_801BFBE4, colorStep);
+                                    colorStep = ABS_ALT(D_801BFBCC - D_801BFBEC[D_801BFBE8]) / D_801BFBE4;
+                                    if (D_801BFBCC >= D_801BFBEC[D_801BFBE8]) {
+                                        D_801BFBCC -= colorStep;
+                                    } else {
+                                        D_801BFBCC += colorStep;
+                                    }
+
+                                    colorStep = ABS_ALT(D_801BFBD0 - D_801BFBF0[D_801BFBE8]) / D_801BFBE4;
+                                    if (D_801BFBD0 >= D_801BFBF0[D_801BFBE8]) {
+                                        D_801BFBD0 -= colorStep;
+                                    } else {
+                                        D_801BFBD0 += colorStep;
+                                    }
+
+                                    colorStep = ABS_ALT(D_801BFBD4 - D_801BFBF4[D_801BFBE8]) / D_801BFBE4;
+                                    if (D_801BFBD4 >= D_801BFBF4[D_801BFBE8]) {
+                                        D_801BFBD4 -= colorStep;
+                                    } else {
+                                        D_801BFBD4 += colorStep;
+                                    }
+
+                                    colorStep = ABS_ALT(D_801BFBD8 - D_801BFBF8[D_801BFBE8]) / D_801BFBE4;
+                                    if (D_801BFBD8 >= D_801BFBF8[D_801BFBE8]) {
+                                        D_801BFBD8 -= colorStep;
+                                    } else {
+                                        D_801BFBD8 += colorStep;
+                                    }
+
+                                    colorStep = ABS_ALT(D_801BFBDC - D_801BFBFC[D_801BFBE8]) / D_801BFBE4;
+                                    if (D_801BFBDC >= D_801BFBFC[D_801BFBE8]) {
+                                        D_801BFBDC -= colorStep;
+                                    } else {
+                                        D_801BFBDC += colorStep;
+                                    }
+
+                                    colorStep = ABS_ALT(D_801BFBE0 - D_801BFC00[D_801BFBE8]) / D_801BFBE4;
+                                    if (D_801BFBE0 >= D_801BFC00[D_801BFBE8]) {
+                                        D_801BFBE0 -= colorStep;
+                                    } else {
+                                        D_801BFBE0 += colorStep;
+                                    }
 
                                     D_801BFBE4--;
 
@@ -4311,7 +4347,7 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                                         D_801BFBCC = D_801BFBEC[D_801BFBE8];
                                         D_801BFBD0 = D_801BFBF0[D_801BFBE8];
                                         D_801BFBD4 = D_801BFBF4[D_801BFBE8];
-                                        D_801BFBD8 = D_801BFBF0[D_801BFBE8];
+                                        D_801BFBD8 = D_801BFBF8[D_801BFBE8];
                                         D_801BFBDC = D_801BFBFC[D_801BFBE8];
                                         D_801BFBE0 = D_801BFC00[D_801BFBE8];
                                         D_801BFBE4 = 15;
@@ -4507,18 +4543,41 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                                 if ((0, gSaveContext.save.time) >= CLOCK_TIME(5, 0)) {
                                     // The Final Hours clock will flash red
 
-                                    TIMED_STEP_TO(sFinalHoursClockDigitsRed,
-                                                  D_801BFC04[sFinalHoursClockColorTargetIndex],
-                                                  sFinalHoursClockColorTimer, colorStep);
-                                    TIMED_STEP_TO(sFinalHoursClockFrameEnvRed,
-                                                  D_801BFC08[sFinalHoursClockColorTargetIndex],
-                                                  sFinalHoursClockColorTimer, colorStep);
-                                    TIMED_STEP_TO(sFinalHoursClockFrameEnvGreen,
-                                                  D_801BFC0C[sFinalHoursClockColorTargetIndex],
-                                                  sFinalHoursClockColorTimer, colorStep);
-                                    TIMED_STEP_TO(sFinalHoursClockFrameEnvBlue,
-                                                  D_801BFC10[sFinalHoursClockColorTargetIndex],
-                                                  sFinalHoursClockColorTimer, colorStep);
+                                    colorStep = ABS_ALT(sFinalHoursClockDigitsRed -
+                                                        D_801BFC04[sFinalHoursClockColorTargetIndex]) /
+                                                sFinalHoursClockColorTimer;
+                                    if (sFinalHoursClockDigitsRed >= D_801BFC04[sFinalHoursClockColorTargetIndex]) {
+                                        sFinalHoursClockDigitsRed -= colorStep;
+                                    } else {
+                                        sFinalHoursClockDigitsRed += colorStep;
+                                    }
+
+                                    colorStep = ABS_ALT(sFinalHoursClockFrameEnvRed -
+                                                        D_801BFC08[sFinalHoursClockColorTargetIndex]) /
+                                                sFinalHoursClockColorTimer;
+                                    if (sFinalHoursClockFrameEnvRed >= D_801BFC08[sFinalHoursClockColorTargetIndex]) {
+                                        sFinalHoursClockFrameEnvRed -= colorStep;
+                                    } else {
+                                        sFinalHoursClockFrameEnvRed += colorStep;
+                                    }
+
+                                    colorStep = ABS_ALT(sFinalHoursClockFrameEnvGreen -
+                                                        D_801BFC0C[sFinalHoursClockColorTargetIndex]) /
+                                                sFinalHoursClockColorTimer;
+                                    if (sFinalHoursClockFrameEnvGreen >= D_801BFC0C[sFinalHoursClockColorTargetIndex]) {
+                                        sFinalHoursClockFrameEnvGreen -= colorStep;
+                                    } else {
+                                        sFinalHoursClockFrameEnvGreen += colorStep;
+                                    }
+
+                                    colorStep = ABS_ALT(sFinalHoursClockFrameEnvBlue -
+                                                        D_801BFC10[sFinalHoursClockColorTargetIndex]) /
+                                                sFinalHoursClockColorTimer;
+                                    if (sFinalHoursClockFrameEnvBlue >= D_801BFC10[sFinalHoursClockColorTargetIndex]) {
+                                        sFinalHoursClockFrameEnvBlue -= colorStep;
+                                    } else {
+                                        sFinalHoursClockFrameEnvBlue += colorStep;
+                                    }
 
                                     sFinalHoursClockColorTimer--;
 
@@ -4556,7 +4615,8 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                                                              202, 80, 13, 0, 0, 0, 1 << 10, 1 << 10);
 
                                 temp_a1_7 =
-                                    (-(CURRENT_DAY << 0x10) - (u16)((0, gSaveContext.save.time) - 0x4000)) + 0x40000;
+                                    (-(CURRENT_DAY << 0x10) - (u16)(((void)0, gSaveContext.save.time) - 0x4000)) +
+                                    0x40000;
 
                                 temp_f0 = temp_a1_7 * 0.021972656f;
 
@@ -4571,7 +4631,9 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                                 }
 
                                 finalHoursClockSlots[3] = 0;
-                                finalHoursClockSlots[4] = (s16)temp_f0 % 60;
+                                sp1B4 = (s16)temp_f0 % 60;
+                                finalHoursClockSlots[4] = sp1B4;
+                                if (sp1B4) {} // TODO: Needed?
 
                                 // digits for minutes
                                 while (finalHoursClockSlots[4] >= 10) {
@@ -4580,9 +4642,8 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                                 }
 
                                 finalHoursClockSlots[6] = 0;
-                                new_var1 = (finalHoursClockSlots[4] * 45.511112f);
-                                finalHoursClockSlots[7] =
-                                    temp_a1_7 - (u32)(new_var1 + (finalHoursClockSlots[2] * 2730.6667f));
+                                finalHoursClockSlots[7] = temp_a1_7 - (u32)((finalHoursClockSlots[2] * 2730.6667f) +
+                                                                            (finalHoursClockSlots[4] * 45.511112f));
 
                                 // digits for seconds
                                 while (finalHoursClockSlots[7] >= 10) {
@@ -4590,6 +4651,7 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                                     finalHoursClockSlots[7] -= 10;
                                 }
 
+                                // TODO: May be one line
                                 // Colon separating hours from minutes
                                 finalHoursClockSlots[2] = 10;
                                 // Colon separating minutes from seconds
