@@ -5650,7 +5650,7 @@ void Interface_UpdateTimers(GlobalContext* globalCtx) {
                 temp_ret = osGetTime();
                 temp_ret = temp_ret - gSaveContext.unk_10B0[i];
                 var3 = temp_ret - gSaveContext.unk_1020[i];
-                var3 = var3 / 1000;
+                var3 = var3 / 10000;
                 var3 = var3 * 64;
                 var3 = var3 / 3000;
                 if (var3 == 0) {
