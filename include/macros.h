@@ -98,6 +98,7 @@
     } else {                                         \
         BUTTON_ITEM_EQUIP(0, (btn)) = (item);        \
     }                                                \
+    (void)0
 
 #define SET_CUR_FORM_BTN_SLOT(btn, item)        \
     if ((btn) == EQUIP_SLOT_B) {                \
@@ -105,6 +106,7 @@
     } else {                                    \
         C_SLOT_EQUIP(0, (btn)) = (item);        \
     }                                           \
+    (void)0
 
 #define STOLEN_ITEM_NONE (0)
 
