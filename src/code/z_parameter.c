@@ -5611,16 +5611,12 @@ void Interface_DrawTimers(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_DrawTimers.s")
 #endif
 
-#ifdef NON_MATCHING
 void Interface_UpdateTimers(GlobalContext* globalCtx) {
     MessageContext* msgCtx = &globalCtx->msgCtx;
     s16 i;
-    // u64 var0;
-    // u64 var1;
-    // u64 var2;
+    s16 j;
     u64 var3;
-    u64 temp_ret;
-    // s32 pad[2];
+    s32 pad[2];
 
     if ((globalCtx->pauseCtx.state == 0) && (globalCtx->pauseCtx.debugState == 0) &&
         (globalCtx->gameOverCtx.state == 0) &&
@@ -5629,11 +5625,11 @@ void Interface_UpdateTimers(GlobalContext* globalCtx) {
         (globalCtx->sceneLoadFlag == 0) && (globalCtx->unk_18B4A == 0) && !Play_InCsMode(globalCtx)) {
 
         if (D_801BF96C) {
-            temp_ret = osGetTime();
+            var3 = osGetTime();
 
-            for (i = 0; i < 6; i++) {
-                if (gSaveContext.unk_101A[i] == 1) {
-                    gSaveContext.unk_10B0[i] += temp_ret - D_801BF8F0;
+            for (j = 0; j < 6; j++) {
+                if (gSaveContext.unk_101A[j] == 1) {
+                    gSaveContext.unk_10B0[j] += var3 - D_801BF8F0;
                 }
             }
 
@@ -5644,12 +5640,8 @@ void Interface_UpdateTimers(GlobalContext* globalCtx) {
 
         for (i = 0; i < 6; i++) {
             if (gSaveContext.unk_101A[i] == 1) {
-                temp_ret = osGetTime();
-                temp_ret = temp_ret - gSaveContext.unk_10B0[i];
-                var3 = temp_ret - gSaveContext.unk_1020[i];
-                var3 = var3 / 10000;
-                var3 = var3 * 64;
-                var3 = var3 / 3000;
+                var3 = osGetTime();
+                var3 = (((var3 - ((void)0, gSaveContext.unk_10B0[i]) - ((void)0, gSaveContext.unk_1020[i])) / 10000) * 64) / 3000;
                 if (var3 == 0) {
                     gSaveContext.unk_1080[i] = gSaveContext.unk_1050[i] - var3;
                 } else if (gSaveContext.unk_1050[i] >= var3) {
@@ -5674,10 +5666,6 @@ void Interface_UpdateTimers(GlobalContext* globalCtx) {
         D_801BF96C = true;
     }
 }
-#else
-void Interface_UpdateTimers(GlobalContext* globalCtx);
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_UpdateTimers.s")
-#endif
 
 void Interface_DrawMinigameIcons(GlobalContext* globalCtx) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
