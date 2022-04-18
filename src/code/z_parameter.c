@@ -5163,22 +5163,24 @@ void func_8011C898(u64 timer, s16* timerArr) {
     timerArr[7] = time;
 }
 
-s16 D_801BFCE4 = 0; // May or may not be in-function static (does affect regalloc)
-s16 D_801BFCE8[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-s16 D_801BFCF8 = 0x63;
-s16 D_801BFCFC[] = {
-    0x10, 0x19, 0x22, 0x2A, 0x33, 0x3C, 0x44, 0x4D,
-};
-s16 D_801BFD0C[] = {
-    9, 9, 8, 9, 9, 8, 9, 9,
-};
 #ifdef NON_EQUIVALENT
 void Interface_DrawTimers(GlobalContext* globalCtx) {
+    static s16 D_801BFCE4 = 0;
+    static s16 D_801BFCE8[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+    static s16 D_801BFCF8 = 0x63;
+    static s16 D_801BFCFC[] = {
+        // timer digit width
+        0x10, 0x19, 0x22, 0x2A, 0x33, 0x3C, 0x44, 0x4D,
+    };
+    static s16 D_801BFD0C[] = {
+        // digit width
+        9, 9, 8, 9, 9, 8, 9, 9,
+    };
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
     MessageContext* msgCtx = &globalCtx->msgCtx;
     Player* player = GET_PLAYER(globalCtx);
     OSTime spD0;
-    s16 timerX;
+    s16 timerTemp;
     s16 timerY;
     s16 i; // spC6
     s16 j;
@@ -5273,25 +5275,29 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                         case 2:
                             D_801BFCE4--;
                             if (D_801BFCE4 == 0) {
-                                gSaveContext.unk_3DD0[D_801BF970] = 3;
                                 D_801BFCE4 = 20;
+                                gSaveContext.unk_3DD0[D_801BF970] = 3;
                             }
                             break;
 
                         case 3:
                             if (D_801BF970 == 3) {
                                 // TODO: s16 casts
-                                gSaveContext.timerX[D_801BF970] -=
-                                    (s16)((gSaveContext.timerX[D_801BF970] - XREG(81)) / D_801BFCE4);
-                                gSaveContext.timerY[D_801BF970] -=
-                                    (s16)((gSaveContext.timerY[D_801BF970] - XREG(80)) / D_801BFCE4);
+                                timerTemp = gSaveContext.timerX[D_801BF970];
+                                timerTemp = ((timerTemp - XREG(81)) / D_801BFCE4);
+                                gSaveContext.timerX[D_801BF970] = (gSaveContext.timerX[D_801BF970]) - timerTemp;
+
+                                timerTemp = gSaveContext.timerY[D_801BF970];
+                                timerTemp = ((timerTemp - XREG(80)) / D_801BFCE4);
+                                gSaveContext.timerY[D_801BF970] = (gSaveContext.timerY[D_801BF970]) - timerTemp;
                             } else {
-                                gSaveContext.timerX[D_801BF970] -=
-                                    (s16)((gSaveContext.timerX[D_801BF970] - 26) / D_801BFCE4);
-                                gSaveContext.timerY[D_801BF970] -=
-                                    (gSaveContext.save.playerData.healthCapacity > 0xA0)
-                                        ? (s16)((gSaveContext.timerY[D_801BF970] - 54) / D_801BFCE4)
-                                        : (s16)((gSaveContext.timerY[D_801BF970] - 46) / D_801BFCE4);
+                                timerTemp = (((gSaveContext.timerX[D_801BF970]) - 26) / D_801BFCE4);
+                                gSaveContext.timerX[D_801BF970] = (gSaveContext.timerX[D_801BF970]) - timerTemp;
+
+                                timerTemp = (gSaveContext.save.playerData.healthCapacity > 0xA0)
+                                                ? (((gSaveContext.timerY[D_801BF970]) - 54) / D_801BFCE4)
+                                                : (((gSaveContext.timerY[D_801BF970]) - 46) / D_801BFCE4);
+                                gSaveContext.timerY[D_801BF970] = (gSaveContext.timerY[D_801BF970]) - timerTemp;
                             }
 
                             D_801BFCE4--;
@@ -5345,8 +5351,8 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                             gSaveContext.unk_3DE0[D_801BF970] = (gSaveContext.save.playerData.health >> 1) * 100;
                             gSaveContext.timersNoTimeLimit[D_801BF970] = false;
                             gSaveContext.unk_3E18[D_801BF970] = gSaveContext.unk_3DE0[D_801BF970];
-                            gSaveContext.unk_3DD0[D_801BF970] = 3;
                             D_801BFCE4 = 20;
+                            gSaveContext.unk_3DD0[D_801BF970] = 3;
                             break;
 
                         case 5:
@@ -5440,12 +5446,12 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                     gSaveContext.unk_3DD0[D_801BF970] = 5;
                     if (D_801BF8E0 != 0) {
                         gSaveContext.save.playerData.health = 0;
-                        globalCtx->damagePlayer(globalCtx, -(gSaveContext.save.playerData.health + 2));
+                        globalCtx->damagePlayer(globalCtx, -(((void)0, gSaveContext.save.playerData.health) + 2));
                     }
                     D_801BF8E0 = 0;
                 }
 
-                func_8011C898(gSaveContext.unk_3DE0[D_801BF970], D_801BFCE8);
+                func_8011C898(((void)0, gSaveContext.unk_3DE0[D_801BF970]), D_801BFCE8);
 
                 if (gSaveContext.unk_3DE0[D_801BF970] > 6000) {
                     if ((D_801BFCF8 != D_801BFCE8[4]) && (D_801BFCE8[4] == 1)) {
@@ -5462,7 +5468,7 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                     D_801BFCF8 = D_801BFCE8[4];
                 }
             } else {
-                D_801BFCE8[0] = D_801BFCE8[4] = 0;
+                D_801BFCE8[0] = D_801BFCE8[1] = D_801BFCE8[3] = D_801BFCE8[4] = D_801BFCE8[6] = 0;
                 D_801BFCE8[2] = D_801BFCE8[5] = 10;
 
                 if ((gSaveContext.unk_3DD0[D_801BF970] == 4) || (gSaveContext.unk_3DD0[D_801BF970] == 14)) {
@@ -5496,7 +5502,7 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                         D_801BFCF8 = D_801BFCE8[4];
                     }
                 } else if ((gSaveContext.eventInf[3] & 0x10) && (globalCtx->sceneNum == SCENE_DEKUTES)) {
-                    if ((gSaveContext.unk_3DE0[D_801BF970] >=
+                    if ((((void)0, gSaveContext.unk_3DE0[D_801BF970]) >=
                          (gSaveContext.save.dekuPlaygroundHighScores[CURRENT_DAY - 1] - 900)) &&
                         (D_801BFCF8 != D_801BFCE8[4])) {
                         play_sound(NA_SE_SY_WARNING_COUNT_E);
@@ -5508,8 +5514,9 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 255);
             gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 0);
-            OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, gTimerClockIconTex, 0x10, 0x10, gSaveContext.timerX[D_801BF970],
-                                          gSaveContext.timerY[D_801BF970] + 2, 0x10, 0x10, 1 << 10, 1 << 10);
+            OVERLAY_DISP =
+                Gfx_TextureIA8(OVERLAY_DISP, gTimerClockIconTex, 0x10, 0x10, ((void)0, gSaveContext.timerX[D_801BF970]),
+                               ((void)0, gSaveContext.timerY[D_801BF970]) + 2, 0x10, 0x10, 1 << 10, 1 << 10);
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0,
                               0, PRIMITIVE, 0);
@@ -5531,10 +5538,10 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 255);
                         }
                     } else if ((gSaveContext.eventInf[3] & 0x10) && (globalCtx->sceneNum == SCENE_DEKUTES)) {
-                        if (gSaveContext.unk_3DE0[D_801BF970] >=
+                        if (((void)0, gSaveContext.unk_3DE0[D_801BF970]) >=
                             gSaveContext.save.dekuPlaygroundHighScores[CURRENT_DAY - 1]) {
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 50, 0, 255);
-                        } else if (gSaveContext.unk_3DE0[D_801BF970] >=
+                        } else if (((void)0, gSaveContext.unk_3DE0[D_801BF970]) >=
                                    (gSaveContext.save.dekuPlaygroundHighScores[CURRENT_DAY - 1] - 900)) {
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 0, 255);
                         } else {
@@ -5552,28 +5559,25 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                 if (D_801BF970 == 0) {
                     if (D_801BF8E4 == 2) {
                         for (j = 0; j < 4; j++) {
-                            timerX = gSaveContext.timerX[D_801BF970];
-                            timerY = gSaveContext.timerY[D_801BF970];
-                            OVERLAY_DISP =
-                                Gfx_TextureI8(OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * D_801BFCE8[j + 3])), 8,
-                                              0x10, D_801BFCFC[j] + timerX, timerY, D_801BFD0C[j], 0xFA, 0x370, 0x370);
+                            OVERLAY_DISP = Gfx_TextureI8(
+                                OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * D_801BFCE8[j + 3])), 8, 0x10,
+                                ((void)0, gSaveContext.timerX[D_801BF970]) + D_801BFCFC[j],
+                                ((void)0, gSaveContext.timerY[D_801BF970]), D_801BFD0C[j], 0xFA, 0x370, 0x370);
                         }
                     } else {
                         for (j = 0; j < 5; j++) {
-                            timerX = gSaveContext.timerX[D_801BF970];
-                            timerY = gSaveContext.timerY[D_801BF970];
-                            OVERLAY_DISP =
-                                Gfx_TextureI8(OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * D_801BFCE8[j + 3])), 8,
-                                              0x10, D_801BFCFC[j] + timerX, timerY, D_801BFD0C[j], 0xFA, 0x370, 0x370);
+                            OVERLAY_DISP = Gfx_TextureI8(
+                                OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * D_801BFCE8[j + 3])), 8, 0x10,
+                                ((void)0, gSaveContext.timerX[D_801BF970]) + D_801BFCFC[j],
+                                ((void)0, gSaveContext.timerY[D_801BF970]), D_801BFD0C[j], 0xFA, 0x370, 0x370);
                         }
                     }
                 } else {
                     for (j = 0; j < 8; j++) {
-                        timerX = gSaveContext.timerX[D_801BF970];
-                        timerY = gSaveContext.timerY[D_801BF970];
-                        OVERLAY_DISP =
-                            Gfx_TextureI8(OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * D_801BFCE8[j])), 8, 0x10,
-                                          D_801BFCFC[j] + timerX, timerY, D_801BFD0C[j], 0xFA, 0x370, 0x370);
+                        OVERLAY_DISP = Gfx_TextureI8(
+                            OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * D_801BFCE8[j])), 8, 0x10,
+                            ((void)0, gSaveContext.timerX[D_801BF970]) + D_801BFCFC[j],
+                            ((void)0, gSaveContext.timerY[D_801BF970]), D_801BFD0C[j], 0xFA, 0x370, 0x370);
                     }
                 }
             }
