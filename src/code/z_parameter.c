@@ -169,10 +169,10 @@ s16 D_801BF8E4 = 0;
 
 OSTime D_801BF8E8 = 0;
 OSTime D_801BF8F0 = 0;
-u64 D_801BF8F8[] = {
+OSTime D_801BF8F8[] = {
     0, 0, 0, 0, 0, 0, 0,
 };
-u64 D_801BF930[] = {
+OSTime D_801BF930[] = {
     0, 0, 0, 0, 0, 0, 0,
 };
 
@@ -5163,8 +5163,8 @@ void func_8011C898(u64 timer, s16* timerArr) {
     timerArr[7] = time;
 }
 
-s32 D_801BFCE4 = 0;
-u16 D_801BFCE8[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+s16 D_801BFCE4 = 0; // May or may not be in-function static (does affect regalloc)
+s16 D_801BFCE8[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 s16 D_801BFCF8 = 0x63;
 s16 D_801BFCFC[] = {
     0x10, 0x19, 0x22, 0x2A, 0x33, 0x3C, 0x44, 0x4D,
@@ -5172,17 +5172,16 @@ s16 D_801BFCFC[] = {
 s16 D_801BFD0C[] = {
     9, 9, 8, 9, 9, 8, 9, 9,
 };
-// Likely very non-equivalent, unsure about both control-flow logic and u64 logic
 #ifdef NON_EQUIVALENT
 void Interface_DrawTimers(GlobalContext* globalCtx) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
     MessageContext* msgCtx = &globalCtx->msgCtx;
     Player* player = GET_PLAYER(globalCtx);
-    s16 i; // spC6
-
-    OSTime osTime;
     OSTime spD0;
-    s16 phi_t0_2;
+    s16 timerX;
+    s16 timerY;
+    s16 i; // spC6
+    s16 j;
 
     OPEN_DISPS(globalCtx->state.gfxCtx);
 
@@ -5192,12 +5191,13 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
          ((msgCtx->msgMode != 0) && (msgCtx->currentTextId >= 0x1BB2) && (msgCtx->currentTextId <= 0x1BB6))) &&
         !(player->stateFlags1 & 0x200) && (globalCtx->sceneLoadFlag == 0) && (globalCtx->unk_18B4A == 0) &&
         !Play_InCsMode(globalCtx)) {
-        if (D_801BF968) {
-            osTime = osGetTime();
 
-            for (i = 0; i < 7; i++) {
-                if (gSaveContext.unk_3DD0[i] == 4) {
-                    gSaveContext.unk_3EC0[i] = gSaveContext.unk_3EC0[i] + osTime - D_801BF8E8;
+        if (D_801BF968) {
+            spD0 = osGetTime();
+
+            for (j = 0; j < 7; j++) {
+                if (gSaveContext.unk_3DD0[j] == 4) {
+                    gSaveContext.unk_3EC0[j] += spD0 - D_801BF8E8;
                 }
             }
 
@@ -5219,17 +5219,17 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                             D_801BFA84 = 1;
                             func_80174F7C(func_8010E968, NULL);
                             break;
-                        case 15:
-                            osTime =
-                                (gSaveContext.unk_3DC8 - gSaveContext.unk_3DE0[0] - gSaveContext.unk_3EC0[0]) * 0x40;
-                            osTime = osTime / 3000;
-                            osTime = osTime / 10000;
 
-                            gSaveContext.unk_3DE0[0] = osTime;
+                        case 15:
+                            spD0 = gSaveContext.unk_3DC8;
+                            gSaveContext.unk_3DE0[0] =
+                                (spD0 - ((void)0, gSaveContext.unk_3E50[0]) - ((void)0, gSaveContext.unk_3EC0[0])) *
+                                64 / 3000 / 10000;
                             gSaveContext.unk_3DD0[0] = 16;
 
                             func_80174F9C(func_8010E968, NULL);
                             break;
+
                         case 14:
                         case 16:
                             break;
@@ -5280,21 +5280,18 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
 
                         case 3:
                             if (D_801BF970 == 3) {
-                                gSaveContext.timerX[D_801BF970] =
-                                    gSaveContext.timerX[D_801BF970] -
-                                    ((gSaveContext.timerX[D_801BF970] - XREG(81)) / D_801BFCE4);
-                                gSaveContext.timerY[D_801BF970] =
-                                    gSaveContext.timerY[D_801BF970] -
-                                    ((gSaveContext.timerY[D_801BF970] - XREG(80)) / D_801BFCE4);
+                                // TODO: s16 casts
+                                gSaveContext.timerX[D_801BF970] -=
+                                    (s16)((gSaveContext.timerX[D_801BF970] - XREG(81)) / D_801BFCE4);
+                                gSaveContext.timerY[D_801BF970] -=
+                                    (s16)((gSaveContext.timerY[D_801BF970] - XREG(80)) / D_801BFCE4);
                             } else {
-                                gSaveContext.timerX[D_801BF970] = gSaveContext.timerX[D_801BF970] -
-                                                                  ((gSaveContext.timerX[D_801BF970] - 26) / D_801BFCE4);
-                                if (gSaveContext.save.playerData.healthCapacity > 0xA0) {
-                                    phi_t0_2 = (gSaveContext.timerY[D_801BF970] - 54) / D_801BFCE4;
-                                } else {
-                                    phi_t0_2 = (gSaveContext.timerY[D_801BF970] - 46) / D_801BFCE4;
-                                }
-                                gSaveContext.timerY[D_801BF970] -= phi_t0_2;
+                                gSaveContext.timerX[D_801BF970] -=
+                                    (s16)((gSaveContext.timerX[D_801BF970] - 26) / D_801BFCE4);
+                                gSaveContext.timerY[D_801BF970] -=
+                                    (gSaveContext.save.playerData.healthCapacity > 0xA0)
+                                        ? (s16)((gSaveContext.timerY[D_801BF970] - 54) / D_801BFCE4)
+                                        : (s16)((gSaveContext.timerY[D_801BF970] - 46) / D_801BFCE4);
                             }
 
                             D_801BFCE4--;
@@ -5337,9 +5334,9 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                             break;
 
                         case 12:
-                            osTime = osGetTime();
+                            spD0 = osGetTime();
                             gSaveContext.unk_3EC0[D_801BF970] =
-                                gSaveContext.unk_3EC0[D_801BF970] + osTime - D_801BF8F8[D_801BF970];
+                                gSaveContext.unk_3EC0[D_801BF970] + spD0 - D_801BF8F8[D_801BF970];
                             D_801BF930[D_801BF970] = 0;
                             gSaveContext.unk_3DD0[D_801BF970] = 4;
                             break;
@@ -5353,14 +5350,11 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                             break;
 
                         case 5:
-                            osTime = osGetTime();
+                            spD0 = osGetTime();
 
-                            osTime =
-                                (osTime - gSaveContext.unk_3E50[D_801BF970] - gSaveContext.unk_3EC0[D_801BF970]) * 0x40;
-                            osTime = osTime / 3000;
-                            osTime = osTime / 10000;
-
-                            gSaveContext.unk_3E88[D_801BF970] = osTime;
+                            gSaveContext.unk_3E88[D_801BF970] = (spD0 - ((void)0, gSaveContext.unk_3E50[D_801BF970]) -
+                                                                 ((void)0, gSaveContext.unk_3EC0[D_801BF970])) *
+                                                                64 / 3000 / 10000;
 
                             gSaveContext.unk_3DD0[D_801BF970] = 0;
 
@@ -5383,14 +5377,11 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                             break;
 
                         case 6:
-                            osTime = osGetTime();
+                            spD0 = osGetTime();
 
-                            osTime =
-                                (osTime - gSaveContext.unk_3E50[D_801BF970] - gSaveContext.unk_3EC0[D_801BF970]) * 0x40;
-                            osTime = osTime / 3000;
-                            osTime = osTime / 10000;
-
-                            gSaveContext.unk_3E88[D_801BF970] = osTime;
+                            gSaveContext.unk_3E88[D_801BF970] = (spD0 - ((void)0, gSaveContext.unk_3E50[D_801BF970]) -
+                                                                 ((void)0, gSaveContext.unk_3EC0[D_801BF970])) *
+                                                                64 / 3000 / 10000;
 
                             if ((gSaveContext.minigameState == 1) && (gSaveContext.save.entranceIndex == 0x6400)) {
                                 if (gSaveContext.unk_3E88[D_801BF970] >= 12000) {
@@ -5406,7 +5397,7 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                             if (gSaveContext.unk_3DD0[6] != 0) {
                                 gSaveContext.timerX[6] = 115;
                                 gSaveContext.timerY[6] = 80;
-                                if (gSaveContext.unk_3DD0[6] < 0xB) {
+                                if (gSaveContext.unk_3DD0[6] < 11) {
                                     gSaveContext.unk_3DD0[6] = 3;
                                 }
                                 gSaveContext.unk_3DD0[D_801BF970] = 0;
@@ -5424,12 +5415,10 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                 D_801BFCE8[2] = D_801BFCE8[5] = 10;
                 if ((gSaveContext.unk_3DD0[D_801BF970] == 4) || (gSaveContext.unk_3DD0[D_801BF970] == 10) ||
                     (gSaveContext.unk_3DD0[D_801BF970] == 11) || (gSaveContext.unk_3DD0[D_801BF970] == 14)) {
-                    osTime = osGetTime();
-                    osTime = (osTime - gSaveContext.unk_3EC0[D_801BF970] - D_801BF930[D_801BF970]) * 64;
-                    osTime = osTime / 3000;
-                    osTime = osTime / 10000;
-
-                    spD0 = osTime;
+                    spD0 = osGetTime();
+                    spD0 = (spD0 - ((void)0, gSaveContext.unk_3EC0[D_801BF970]) - D_801BF930[D_801BF970] -
+                            ((void)0, gSaveContext.unk_3E50[D_801BF970])) *
+                           64 / 3000 / 10000;
                 } else {
                     if (gSaveContext.unk_3DD0[D_801BF970] == 7) {
                         spD0 = gSaveContext.unk_3E88[D_801BF970];
@@ -5440,22 +5429,20 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
 
                 if (spD0 == 0) {
                     gSaveContext.unk_3DE0[D_801BF970] = gSaveContext.unk_3E18[D_801BF970] - spD0;
-                } else {
-                    if (gSaveContext.unk_3E18[D_801BF970] >= spD0) {
-                        if (gSaveContext.unk_3E18[D_801BF970] <= spD0) {
-                            gSaveContext.unk_3DE0[D_801BF970] = 0;
-                        } else {
-                            gSaveContext.unk_3DE0[D_801BF970] = gSaveContext.unk_3E18[D_801BF970] - spD0;
-                        }
-                    } else {
+                } else if (gSaveContext.unk_3E18[D_801BF970] >= spD0) {
+                    if (gSaveContext.unk_3E18[D_801BF970] <= spD0) {
                         gSaveContext.unk_3DE0[D_801BF970] = 0;
-                        gSaveContext.unk_3DD0[D_801BF970] = 5;
-                        if (D_801BF8E0 != 0) {
-                            gSaveContext.save.playerData.health = 0;
-                            globalCtx->damagePlayer(globalCtx, -2 - gSaveContext.save.playerData.health);
-                        }
-                        D_801BF8E0 = 0;
+                    } else {
+                        gSaveContext.unk_3DE0[D_801BF970] = gSaveContext.unk_3E18[D_801BF970] - spD0;
                     }
+                } else {
+                    gSaveContext.unk_3DE0[D_801BF970] = 0;
+                    gSaveContext.unk_3DD0[D_801BF970] = 5;
+                    if (D_801BF8E0 != 0) {
+                        gSaveContext.save.playerData.health = 0;
+                        globalCtx->damagePlayer(globalCtx, -(gSaveContext.save.playerData.health + 2));
+                    }
+                    D_801BF8E0 = 0;
                 }
 
                 func_8011C898(gSaveContext.unk_3DE0[D_801BF970], D_801BFCE8);
@@ -5466,7 +5453,7 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                         D_801BFCF8 = D_801BFCE8[4];
                     }
                 } else if (gSaveContext.unk_3DE0[D_801BF970] > 1000) {
-                    if ((D_801BFCF8 != D_801BFCE8[4]) && ((D_801BFCE8[4] & 1) != 0)) {
+                    if ((D_801BFCF8 != D_801BFCE8[4]) && ((D_801BFCE8[4] % 2) != 0)) {
                         play_sound(NA_SE_SY_WARNING_COUNT_N);
                         D_801BFCF8 = D_801BFCE8[4];
                     }
@@ -5475,20 +5462,14 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                     D_801BFCF8 = D_801BFCE8[4];
                 }
             } else {
-                D_801BFCE8[4] = 0;
-                D_801BFCE8[0] = 0;
-                D_801BFCE8[5] = 10;
-                D_801BFCE8[2] = D_801BFCE8[5];
+                D_801BFCE8[0] = D_801BFCE8[4] = 0;
+                D_801BFCE8[2] = D_801BFCE8[5] = 10;
 
                 if ((gSaveContext.unk_3DD0[D_801BF970] == 4) || (gSaveContext.unk_3DD0[D_801BF970] == 14)) {
-                    osTime = osGetTime();
-                    osTime = (osTime - gSaveContext.unk_3E50[D_801BF970] - gSaveContext.unk_3EC0[D_801BF970] -
-                              D_801BF930[D_801BF970]) *
-                             64;
-                    osTime = osTime / 3000;
-                    osTime = osTime / 10000;
-
-                    spD0 = osTime;
+                    spD0 = osGetTime();
+                    spD0 = (spD0 - ((void)0, gSaveContext.unk_3E50[D_801BF970]) -
+                            ((void)0, gSaveContext.unk_3EC0[D_801BF970]) - D_801BF930[D_801BF970]) *
+                           64 / 3000 / 10000;
                 } else if (gSaveContext.unk_3DD0[D_801BF970] == 7) {
                     spD0 = gSaveContext.unk_3E88[D_801BF970];
                 } else if (D_801BF970 == 0) {
@@ -5501,7 +5482,7 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                     if (spD0 >= 12000) {
                         spD0 = 12000;
                     }
-                } else if (((gSaveContext.eventInf[3] & 0x10) != 0) && (globalCtx->sceneNum == SCENE_DEKUTES) &&
+                } else if ((gSaveContext.eventInf[3] & 0x10) && (globalCtx->sceneNum == SCENE_DEKUTES) &&
                            (spD0 >= 12000)) {
                     spD0 = 12000;
                 }
@@ -5514,9 +5495,9 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                         play_sound(NA_SE_SY_WARNING_COUNT_E);
                         D_801BFCF8 = D_801BFCE8[4];
                     }
-                } else if (((gSaveContext.eventInf[3] & 0x10) != 0) && (globalCtx->sceneNum == SCENE_DEKUTES)) {
+                } else if ((gSaveContext.eventInf[3] & 0x10) && (globalCtx->sceneNum == SCENE_DEKUTES)) {
                     if ((gSaveContext.unk_3DE0[D_801BF970] >=
-                         (gSaveContext.save.dekuPlaygroundHighScores[CURRENT_DAY] - 900)) &&
+                         (gSaveContext.save.dekuPlaygroundHighScores[CURRENT_DAY - 1] - 900)) &&
                         (D_801BFCF8 != D_801BFCE8[4])) {
                         play_sound(NA_SE_SY_WARNING_COUNT_E);
                         D_801BFCF8 = D_801BFCE8[4];
@@ -5543,55 +5524,56 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                         } else {
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 255);
                         }
-                    } else {
-                        if ((gSaveContext.minigameState == 1) && (gSaveContext.save.entranceIndex == 0x6400)) {
-                            if (gSaveContext.unk_3DE0[D_801BF970] > 11000) {
-                                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 50, 0, 255);
-                            } else {
-                                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 255);
-                            }
-                        } else if ((gSaveContext.eventInf[3] & 0x10) && (globalCtx->sceneNum == SCENE_DEKUTES)) {
-                            if (gSaveContext.unk_3DE0[D_801BF970] >=
-                                gSaveContext.save.dekuPlaygroundHighScores[CURRENT_DAY]) {
-                                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 50, 0, 255);
-                            } else if (gSaveContext.unk_3DE0[D_801BF970] >=
-                                       (gSaveContext.save.dekuPlaygroundHighScores[CURRENT_DAY] - 900)) {
-                                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 0, 255);
-                            } else {
-                                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 255);
-                            }
-                        } else if ((gSaveContext.unk_3DE0[D_801BF970] < 1000) &&
-                                   !gSaveContext.timersNoTimeLimit[D_801BF970] &&
-                                   (gSaveContext.unk_3DD0[D_801BF970] != 11)) {
+                    } else if ((gSaveContext.minigameState == 1) && (gSaveContext.save.entranceIndex == 0x6400)) {
+                        if (gSaveContext.unk_3DE0[D_801BF970] >= 11000) {
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 50, 0, 255);
                         } else {
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 255);
                         }
+                    } else if ((gSaveContext.eventInf[3] & 0x10) && (globalCtx->sceneNum == SCENE_DEKUTES)) {
+                        if (gSaveContext.unk_3DE0[D_801BF970] >=
+                            gSaveContext.save.dekuPlaygroundHighScores[CURRENT_DAY - 1]) {
+                            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 50, 0, 255);
+                        } else if (gSaveContext.unk_3DE0[D_801BF970] >=
+                                   (gSaveContext.save.dekuPlaygroundHighScores[CURRENT_DAY - 1] - 900)) {
+                            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 0, 255);
+                        } else {
+                            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 255);
+                        }
+                    } else if ((gSaveContext.unk_3DE0[D_801BF970] < 1000) &&
+                               !gSaveContext.timersNoTimeLimit[D_801BF970] &&
+                               (gSaveContext.unk_3DD0[D_801BF970] != 11)) {
+                        gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 50, 0, 255);
+                    } else {
+                        gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 255);
                     }
                 }
 
                 if (D_801BF970 == 0) {
                     if (D_801BF8E4 == 2) {
-                        for (i = 0; i < 4; i++) {
+                        for (j = 0; j < 4; j++) {
+                            timerX = gSaveContext.timerX[D_801BF970];
+                            timerY = gSaveContext.timerY[D_801BF970];
                             OVERLAY_DISP =
-                                Gfx_TextureI8(OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * D_801BFCE8[3 + i])), 8,
-                                              0x10, D_801BFCFC[i] + gSaveContext.timerX[D_801BF970],
-                                              gSaveContext.timerY[D_801BF970], D_801BFD0C[i], 0xFA, 0x370, 0x370);
+                                Gfx_TextureI8(OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * D_801BFCE8[j + 3])), 8,
+                                              0x10, D_801BFCFC[j] + timerX, timerY, D_801BFD0C[j], 0xFA, 0x370, 0x370);
                         }
                     } else {
-                        for (i = 0; i < 5; i++) {
+                        for (j = 0; j < 5; j++) {
+                            timerX = gSaveContext.timerX[D_801BF970];
+                            timerY = gSaveContext.timerY[D_801BF970];
                             OVERLAY_DISP =
-                                Gfx_TextureI8(OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * D_801BFCE8[3 + i])), 8,
-                                              0x10, D_801BFCFC[i] + gSaveContext.timerX[D_801BF970],
-                                              gSaveContext.timerY[D_801BF970], D_801BFD0C[i], 0xFA, 0x370, 0x370);
+                                Gfx_TextureI8(OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * D_801BFCE8[j + 3])), 8,
+                                              0x10, D_801BFCFC[j] + timerX, timerY, D_801BFD0C[j], 0xFA, 0x370, 0x370);
                         }
                     }
                 } else {
-                    for (i = 0; i < 8; i++) {
+                    for (j = 0; j < 8; j++) {
+                        timerX = gSaveContext.timerX[D_801BF970];
+                        timerY = gSaveContext.timerY[D_801BF970];
                         OVERLAY_DISP =
-                            Gfx_TextureI8(OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * D_801BFCE8[i])), 8, 0x10,
-                                          D_801BFCFC[i] + gSaveContext.timerX[D_801BF970],
-                                          gSaveContext.timerY[D_801BF970], D_801BFD0C[i], 0xFA, 0x370, 0x370);
+                            Gfx_TextureI8(OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * D_801BFCE8[j])), 8, 0x10,
+                                          D_801BFCFC[j] + timerX, timerY, D_801BFD0C[j], 0xFA, 0x370, 0x370);
                     }
                 }
             }
