@@ -5163,7 +5163,7 @@ void func_8011C898(u64 timer, s16* timerArr) {
     timerArr[7] = time;
 }
 
-#ifdef NON_EQUIVALENT
+#ifdef NON_MATCHING
 void Interface_DrawTimers(GlobalContext* globalCtx) {
     static s16 D_801BFCE4 = 0;
     static s16 D_801BFCE8[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
@@ -5180,8 +5180,8 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
     MessageContext* msgCtx = &globalCtx->msgCtx;
     Player* player = GET_PLAYER(globalCtx);
     OSTime spD0;
+    OSTime spCC;
     s16 timerTemp;
-    s16 timerY;
     s16 i; // spC6
     s16 j;
 
@@ -5223,9 +5223,9 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                             break;
 
                         case 15:
-                            spD0 = gSaveContext.unk_3DC8;
+                            spCC = gSaveContext.unk_3DC8;
                             gSaveContext.unk_3DE0[0] =
-                                (spD0 - ((void)0, gSaveContext.unk_3E50[0]) - ((void)0, gSaveContext.unk_3EC0[0])) *
+                                (spCC - ((void)0, gSaveContext.unk_3E50[0]) - ((void)0, gSaveContext.unk_3EC0[0])) *
                                 64 / 3000 / 10000;
                             gSaveContext.unk_3DD0[0] = 16;
 
@@ -5283,21 +5283,19 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                         case 3:
                             if (D_801BF970 == 3) {
                                 // TODO: s16 casts
-                                timerTemp = gSaveContext.timerX[D_801BF970];
-                                timerTemp = ((timerTemp - XREG(81)) / D_801BFCE4);
-                                gSaveContext.timerX[D_801BF970] = (gSaveContext.timerX[D_801BF970]) - timerTemp;
-
-                                timerTemp = gSaveContext.timerY[D_801BF970];
-                                timerTemp = ((timerTemp - XREG(80)) / D_801BFCE4);
-                                gSaveContext.timerY[D_801BF970] = (gSaveContext.timerY[D_801BF970]) - timerTemp;
+                                timerTemp = ((((void)0, gSaveContext.timerX[D_801BF970]) - XREG(81)) / D_801BFCE4);
+                                gSaveContext.timerX[D_801BF970] -= timerTemp;
+                                timerTemp = ((((void)0, gSaveContext.timerY[D_801BF970]) - XREG(80)) / D_801BFCE4);
+                            dummy:; // TODO: Needed?
+                                gSaveContext.timerY[D_801BF970] -= timerTemp;
                             } else {
-                                timerTemp = (((gSaveContext.timerX[D_801BF970]) - 26) / D_801BFCE4);
-                                gSaveContext.timerX[D_801BF970] = (gSaveContext.timerX[D_801BF970]) - timerTemp;
+                                timerTemp = ((((void)0, gSaveContext.timerX[D_801BF970]) - 26) / D_801BFCE4);
+                                gSaveContext.timerX[D_801BF970] -= timerTemp;
 
                                 timerTemp = (gSaveContext.save.playerData.healthCapacity > 0xA0)
-                                                ? (((gSaveContext.timerY[D_801BF970]) - 54) / D_801BFCE4)
-                                                : (((gSaveContext.timerY[D_801BF970]) - 46) / D_801BFCE4);
-                                gSaveContext.timerY[D_801BF970] = (gSaveContext.timerY[D_801BF970]) - timerTemp;
+                                                ? ((((void)0, gSaveContext.timerY[D_801BF970]) - 54) / D_801BFCE4)
+                                                : ((((void)0, gSaveContext.timerY[D_801BF970]) - 46) / D_801BFCE4);
+                                gSaveContext.timerY[D_801BF970] -= timerTemp;
                             }
 
                             D_801BFCE4--;
@@ -5325,6 +5323,10 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                         case 4:
                             if ((gSaveContext.unk_3DD0[D_801BF970] == 4) && (D_801BF970 == 3)) {
                                 gSaveContext.timerX[3] = XREG(81);
+                                if (1) {}
+                                if (1) {}
+                                if (1) {}
+                                if (1) {} // TODO: Needed?
                                 gSaveContext.timerY[3] = XREG(80);
                             }
                             break;
@@ -5415,7 +5417,7 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
             }
         }
 
-        if ((D_801BF970 != 99) && (gSaveContext.unk_3DD0[D_801BF970] != 0)) {
+        if ((D_801BF970 != 99) && gSaveContext.unk_3DD0[D_801BF970]) { // TODO: No != 0
             if (!gSaveContext.timersNoTimeLimit[D_801BF970]) {
                 D_801BFCE8[0] = D_801BFCE8[1] = D_801BFCE8[3] = D_801BFCE8[4] = D_801BFCE8[6] = 0;
                 D_801BFCE8[2] = D_801BFCE8[5] = 10;
@@ -5502,7 +5504,7 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                         D_801BFCF8 = D_801BFCE8[4];
                     }
                 } else if ((gSaveContext.eventInf[3] & 0x10) && (globalCtx->sceneNum == SCENE_DEKUTES)) {
-                    if ((((void)0, gSaveContext.unk_3DE0[D_801BF970]) >=
+                    if ((((void)0, gSaveContext.unk_3DE0[D_801BF970]) >
                          (gSaveContext.save.dekuPlaygroundHighScores[CURRENT_DAY - 1] - 900)) &&
                         (D_801BFCF8 != D_801BFCE8[4])) {
                         play_sound(NA_SE_SY_WARNING_COUNT_E);
@@ -5524,7 +5526,7 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
             if (((D_801BF970 == 0) && (gSaveContext.unk_3DD0[0] == 14) && (D_801BF8E4 == 0) &&
                  (gSaveContext.unk_3DE0[0] < 300)) ||
                 (D_801BF8E4 == 2) || (gSaveContext.unk_3DD0[D_801BF970] < 13)) {
-                if (gSaveContext.unk_3DD0[D_801BF970] != 0) {
+                if (gSaveContext.unk_3DD0[D_801BF970]) { // TODO: No != 0
                     if (D_801BF970 == 2) {
                         if ((gSaveContext.unk_3DE0[D_801BF970] == 0) || (gSaveContext.unk_3DD0[D_801BF970] == 4)) {
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 50, 0, 255);
@@ -5591,6 +5593,17 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
     CLOSE_DISPS(globalCtx->state.gfxCtx);
 }
 #else
+static s16 D_801BFCE4 = 0;
+static s16 D_801BFCE8[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+static s16 D_801BFCF8 = 0x63;
+static s16 D_801BFCFC[] = {
+    // timer digit width
+    0x10, 0x19, 0x22, 0x2A, 0x33, 0x3C, 0x44, 0x4D,
+};
+static s16 D_801BFD0C[] = {
+    // digit width
+    9, 9, 8, 9, 9, 8, 9, 9,
+};
 void Interface_DrawTimers(GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_DrawTimers.s")
 #endif
