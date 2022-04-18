@@ -4147,20 +4147,19 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
     MessageContext* msgCtx = &globalCtx->msgCtx;
     s16 sp1E6;
+    f32 temp_f14;
+    u32 dayTime;
     f32 sp1D8;
+    f32 timeInMinutes;
     f32 sp1D0;
     f32 sp1CC;
-    s16 sp1C6;
-    s16 finalHoursClockSlots[8]; // sp1AC
-
-    f32 temp_f0;
-    f32 temp_f14;
-    u32 temp_a1_7;
     f32 new_var;
+    s16 sp1C6;
     s16 currentHour;
     u16 time;
+    s16 temp;
     s16 pad;
-    s16 sp1B4;
+    s16 finalHoursClockSlots[8]; // sp1AC
     s16 colorStep;
 
     OPEN_DISPS(globalCtx->state.gfxCtx);
@@ -4240,8 +4239,8 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                             OVERLAY_DISP = func_8010D9F4(OVERLAY_DISP, gThreeDayClockBorderTex, 4, 64, 50, 96, 168, 128,
                                                          50, 1, 6, 0, 1 << 10, 1 << 10);
 
-                            if (((CURRENT_DAY >= 4) || ((CURRENT_DAY == 3) && ((0, gSaveContext.save.time) >= 5) &&
-                                                        ((0, gSaveContext.save.time) < CLOCK_TIME(6, 0))))) {
+                            if (((CURRENT_DAY >= 4) || ((CURRENT_DAY == 3) && (((void)0, gSaveContext.save.time) >= 5) &&
+                                                        (((void)0, gSaveContext.save.time) < CLOCK_TIME(6, 0))))) {
                                 func_8012C8D4(globalCtx->state.gfxCtx);
                                 gSPMatrix(OVERLAY_DISP++, &gIdentityMtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                             } else {
@@ -4350,8 +4349,8 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                                     D_801BF974 ^= 1;
                                 }
 
-                                sp1D0 = ((((0, gSaveContext.save.time)) * 1.3183594f) / 3600.0f) * 3600.0f;
-                                sp1D0 = (s16)((0, gSaveContext.save.time) * 1.3183594f) - sp1D0;
+                                sp1D0 = ((s16)((gSaveContext.save.time * 1.3183594f) / 3600.0f)) * 3600.0f;
+                                sp1D0 = (gSaveContext.save.time * 1.3183594f) - sp1D0;
 
                                 func_8012C8D4(globalCtx->state.gfxCtx);
 
@@ -4387,8 +4386,8 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                             gDPSetScissorFrac(OVERLAY_DISP++, G_SC_NON_INTERLACE, 400, 620, 880, XREG(44) * 4.0f);
 
                             // determines the current hour
-                            for (currentHour = 0; currentHour <= 24; currentHour++) {
-                                if ((0, gSaveContext.save.time) < D_801BFB38[currentHour + 1]) {
+                            for (sp1C6 = 0; sp1C6 <= 24; sp1C6++) {
+                                if (((void)0, gSaveContext.save.time) < D_801BFB38[sp1C6 + 1]) {
                                     break;
                                 }
                             }
@@ -4456,7 +4455,7 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, D_801BFB2C);
                             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[24], 8, 0);
 
-                            OVERLAY_DISP = func_8010DE38(OVERLAY_DISP, D_801BFB6C[currentHour], 4, 16, 11, 0);
+                            OVERLAY_DISP = func_8010DE38(OVERLAY_DISP, D_801BFB6C[sp1C6], 4, 16, 11, 0);
 
                             // Colours the Three-Day Clocks's Hour Digit Above the Sun
                             gDPPipeSync(OVERLAY_DISP++);
@@ -4480,7 +4479,7 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, D_801BFB2C);
                             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[32], 8, 0);
 
-                            OVERLAY_DISP = func_8010DE38(OVERLAY_DISP, D_801BFB6C[currentHour], 4, 16, 11, 0);
+                            OVERLAY_DISP = func_8010DE38(OVERLAY_DISP, D_801BFB6C[sp1C6], 4, 16, 11, 0);
 
                             // Colours the Three-Day Clocks's Hour Digit Above the Moon
                             gDPPipeSync(OVERLAY_DISP++);
@@ -4491,10 +4490,9 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                             gSPDisplayList(OVERLAY_DISP++, D_0E0001C8);
 
                             // Final Hours
-                            if ((CURRENT_DAY >= 4) || ((CURRENT_DAY == 3) && ((0, gSaveContext.save.time) >= 5) &&
-                                                       ((0, gSaveContext.save.time) < CLOCK_TIME(6, 0)))) {
-                                sp1C6 = 0;
-                                if ((0, gSaveContext.save.time) >= CLOCK_TIME(5, 0)) {
+                            if ((CURRENT_DAY >= 4) || ((CURRENT_DAY == 3) && (((void)0, gSaveContext.save.time) >= 5) &&
+                                                       (((void)0, gSaveContext.save.time) < CLOCK_TIME(6, 0)))) {
+                                if (((void)0, gSaveContext.save.time) >= CLOCK_TIME(5, 0)) {
                                     // The Final Hours clock will flash red
 
                                     colorStep = ABS_ALT(sFinalHoursClockDigitsRed -
@@ -4568,26 +4566,26 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                                 OVERLAY_DISP = func_8010D9F4(OVERLAY_DISP, gFinalHoursClockFrameTex, 3, 80, 13, 119,
                                                              202, 80, 13, 0, 0, 0, 1 << 10, 1 << 10);
 
-                                temp_a1_7 =
-                                    (-(CURRENT_DAY << 0x10) - (u16)(((void)0, gSaveContext.save.time) - 0x4000)) +
-                                    0x40000;
-
-                                temp_f0 = temp_a1_7 * 0.021972656f;
-
                                 finalHoursClockSlots[0] = 0;
-                                finalHoursClockSlots[1] = temp_f0 / 60.0f;
-                                finalHoursClockSlots[2] = temp_f0 / 60.0f;
+
+                                dayTime =
+                                    (4 << 16) - (CURRENT_DAY << 16) - (u16)(-0x4000 + ((void)0, gSaveContext.save.time));
+
+                                timeInMinutes = TIME_TO_MINUTES_F(dayTime);
+
+                                finalHoursClockSlots[2] = finalHoursClockSlots[1] = timeInMinutes / 60.0f;
+                                // finalHoursClockSlots[2] = timeInMinutes / 60.0f;
 
                                 // digits for hours
                                 while (finalHoursClockSlots[1] >= 10) {
                                     finalHoursClockSlots[0]++;
                                     finalHoursClockSlots[1] -= 10;
                                 }
-
+    
+                                // temp = (s16)timeInMinutes % 60;
                                 finalHoursClockSlots[3] = 0;
-                                sp1B4 = (s16)temp_f0 % 60;
-                                finalHoursClockSlots[4] = sp1B4;
-                                if (sp1B4) {} // TODO: Needed?
+                                finalHoursClockSlots[4] = (s32)timeInMinutes % 60;
+                                // if (temp) {} // TODO: Needed?
 
                                 // digits for minutes
                                 while (finalHoursClockSlots[4] >= 10) {
@@ -4596,8 +4594,8 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                                 }
 
                                 finalHoursClockSlots[6] = 0;
-                                finalHoursClockSlots[7] = temp_a1_7 - (u32)((finalHoursClockSlots[2] * 2730.6667f) +
-                                                                            (finalHoursClockSlots[4] * 45.511112f));
+                                finalHoursClockSlots[7] = dayTime - (u32)((finalHoursClockSlots[2] * 2730.6667f) + // 2^13 / 3
+                                                                            (finalHoursClockSlots[4] * 45.511112f)); // 2^13 / 3 / 60
 
                                 // digits for seconds
                                 while (finalHoursClockSlots[7] >= 10) {
@@ -4607,9 +4605,9 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
 
                                 // TODO: May be one line
                                 // Colon separating hours from minutes
-                                finalHoursClockSlots[2] = 10;
+                                finalHoursClockSlots[2] = finalHoursClockSlots[5] = 10;
                                 // Colon separating minutes from seconds
-                                finalHoursClockSlots[5] = 10;
+                                // finalHoursClockSlots[5] = 10;
 
                                 /**
                                  * Draws Final-Hours Clock's Digits
@@ -4618,7 +4616,7 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, sFinalHoursClockDigitsRed, 0, 0, sp1E6);
                                 gDPSetEnvColor(OVERLAY_DISP++, sFinalHoursClockDigitsRed, 0, 0, 0);
 
-                                for (; sp1C6 < 8; sp1C6++) {
+                                for (sp1C6 = 0; sp1C6 < 8; sp1C6++) {
                                     OVERLAY_DISP = Gfx_TextureI8(OVERLAY_DISP, D_801BFC14[finalHoursClockSlots[sp1C6]],
                                                                  8, 8, D_801BFC40[sp1C6], 205, 8, 8, 1 << 10, 1 << 10);
                                 }
