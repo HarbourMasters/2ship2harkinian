@@ -2910,7 +2910,7 @@ void Main(void* arg);
 u32 Padmgr_GetControllerBitmask(void);
 // void func_80174F24(void);
 // void func_80174F44(void);
-void func_80174F7C(void (*arg0)(void*), void* arg1);
+void func_80174F7C(void (*arg0)(s32), void* arg1);
 void func_80174F9C(void (*arg0)(s32), void* arg1);
 // OSMesgQueue* Padmgr_GetEventCallback(void);
 // void func_80175008(void);
