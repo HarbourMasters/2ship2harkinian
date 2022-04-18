@@ -9,8 +9,6 @@ void func_801663C4(u8* arg0, u8* arg1, u32 arg2);
 
 extern Gfx D_0E0001C8[]; // Display List
 extern Gfx D_0E0002E0[]; // Display List
-extern u8 D_801ABAB0[];
-extern u8 D_801E3BB0[];
 
 typedef struct {
     /* 0x00 */ u8 scene;
@@ -5641,7 +5639,9 @@ void Interface_UpdateTimers(GlobalContext* globalCtx) {
         for (i = 0; i < 6; i++) {
             if (gSaveContext.unk_101A[i] == 1) {
                 var3 = osGetTime();
-                var3 = (((var3 - ((void)0, gSaveContext.unk_10B0[i]) - ((void)0, gSaveContext.unk_1020[i])) / 10000) * 64) / 3000;
+                var3 = (((var3 - ((void)0, gSaveContext.unk_10B0[i]) - ((void)0, gSaveContext.unk_1020[i])) / 10000) *
+                        64) /
+                       3000;
                 if (var3 == 0) {
                     gSaveContext.unk_1080[i] = gSaveContext.unk_1050[i] - var3;
                 } else if (gSaveContext.unk_1050[i] >= var3) {
@@ -5825,7 +5825,6 @@ u32 D_801BFD8C[] = {
     0x07025800,
     0x07025A00,
 };
-#ifdef NON_MATCHING
 void Interface_Draw(GlobalContext* globalCtx) {
     s32 pad;
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
@@ -5857,7 +5856,8 @@ void Interface_Draw(GlobalContext* globalCtx) {
 
             gDPSetTextureFilter(POLY_OPA_DISP++, G_TF_POINT);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, pauseCtx->alpha);
-            gSPLoadUcodeEx(OVERLAY_DISP++, OS_K0_TO_PHYSICAL(D_801ABAB0), OS_K0_TO_PHYSICAL(D_801E3BB0), 0x800);
+            gSPLoadUcodeEx(OVERLAY_DISP++, OS_K0_TO_PHYSICAL(gspS2DEX2_fifoTextStart),
+                           OS_K0_TO_PHYSICAL(gspS2DEX2_fifoDataStart), 0x800);
 
             gfx = OVERLAY_DISP;
             func_80172758(&gfx, D_801BFD84[interfaceCtx->storyType], D_801BFD8C[interfaceCtx->storyType], 0x140, 0xF0,
@@ -6075,13 +6075,13 @@ void Interface_Draw(GlobalContext* globalCtx) {
                     sp2C0 = interfaceCtx->unk_284 / 100.0f;
 
                     if (sp2CE == 3) {
-                        interfaceCtx->actionVtx[0x28].v.ob[0] = interfaceCtx->actionVtx[0x2A].v.ob[0] = -0x14;
-                        interfaceCtx->actionVtx[0x29].v.ob[0] = interfaceCtx->actionVtx[0x2B].v.ob[0] =
-                            interfaceCtx->actionVtx[0x28].v.ob[0] + 0x28;
-                        interfaceCtx->actionVtx[0x29].v.tc[0] = interfaceCtx->actionVtx[0x2B].v.tc[0] = 0x500;
+                        interfaceCtx->actionVtx[40].v.ob[0] = interfaceCtx->actionVtx[42].v.ob[0] = -20;
+                        interfaceCtx->actionVtx[41].v.ob[0] = interfaceCtx->actionVtx[43].v.ob[0] =
+                            interfaceCtx->actionVtx[40].v.ob[0] + 40;
+                        interfaceCtx->actionVtx[41].v.tc[0] = interfaceCtx->actionVtx[43].v.tc[0] = 0x500;
                     }
 
-                    interfaceCtx->actionVtx[0x2A].v.tc[1] = interfaceCtx->actionVtx[0x2B].v.tc[1] = 0x400;
+                    interfaceCtx->actionVtx[42].v.tc[1] = interfaceCtx->actionVtx[43].v.tc[1] = 0x400;
 
                     func_8012C8D4(globalCtx->state.gfxCtx);
 
@@ -6124,35 +6124,36 @@ void Interface_Draw(GlobalContext* globalCtx) {
         gDPLoadTextureBlock_4b(OVERLAY_DISP++, gPictoBoxFocusBorderTex, G_IM_FMT_IA, 16, 16, 0, G_TX_MIRROR | G_TX_WRAP,
                                G_TX_MIRROR | G_TX_WRAP, 4, 4, G_TX_NOLOD, G_TX_NOLOD);
 
-        gSPTextureRectangle(OVERLAY_DISP++, YREG(32) * 4, YREG(33) * 4, (YREG(32) * 4) + 0x40, (YREG(33) * 4) + 0x40,
+        gSPTextureRectangle(OVERLAY_DISP++, YREG(32) * 4, YREG(33) * 4, (YREG(32) + 0x10) * 4, (YREG(33) + 0x10) * 4,
                             G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
-        gSPTextureRectangle(OVERLAY_DISP++, YREG(34) * 4, YREG(35) * 4, (YREG(34) * 4) + 0x40, (YREG(35) * 4) + 0x40,
-                            G_TX_RENDERTILE, 0x200, 0, 1 << 10, 1 << 10);
-        gSPTextureRectangle(OVERLAY_DISP++, YREG(36) * 4, YREG(37) * 4, (YREG(36) * 4) + 0x40, (YREG(37) * 4) + 0x40,
-                            G_TX_RENDERTILE, 0, 0x200, 1 << 10, 1 << 10);
-        gSPTextureRectangle(OVERLAY_DISP++, YREG(38) * 4, YREG(39) * 4, (YREG(38) * 4) + 0x40, (YREG(39) * 4) + 0x40,
-                            G_TX_RENDERTILE, 0x200, 0x200, 1 << 10, 1 << 10);
+        gSPTextureRectangle(OVERLAY_DISP++, YREG(34) * 4, YREG(35) * 4, (YREG(34) + 0x10) * 4, (YREG(35) + 0x10) * 4,
+                            G_TX_RENDERTILE, 512, 0, 1 << 10, 1 << 10);
+        gSPTextureRectangle(OVERLAY_DISP++, YREG(36) * 4, YREG(37) * 4, (YREG(36) + 0x10) * 4, (YREG(37) + 0x10) * 4,
+                            G_TX_RENDERTILE, 0, 512, 1 << 10, 1 << 10);
+        gSPTextureRectangle(OVERLAY_DISP++, YREG(38) * 4, YREG(39) * 4, (YREG(38) + 0x10) * 4, (YREG(39) + 0x10) * 4,
+                            G_TX_RENDERTILE, 512, 512, 1 << 10, 1 << 10);
 
         gDPLoadTextureBlock_4b(OVERLAY_DISP++, gPictoBoxFocusIconTex, G_IM_FMT_I, 32, 16, 0, G_TX_NOMIRROR | G_TX_WRAP,
                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
-        gSPTextureRectangle(OVERLAY_DISP++, YREG(40) * 4, YREG(41) * 4, (YREG(40) * 4) + 0x80, (YREG(41) * 4) + 0x40,
+        gSPTextureRectangle(OVERLAY_DISP++, YREG(40) * 4, YREG(41) * 4, (YREG(40) + 0x20) * 4, (YREG(41) + 0x10) * 4,
                             G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+
+        if (1) {}
 
         gDPLoadTextureBlock_4b(OVERLAY_DISP++, gPictoBoxFocusTextTex, G_IM_FMT_I, 32, 8, 0, G_TX_NOMIRROR | G_TX_WRAP,
                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
-        gSPTextureRectangle(OVERLAY_DISP++, YREG(42) * 4, YREG(43) * 4, (YREG(42) * 4) + 0x80, (YREG(43) * 4) + 0x20,
+        gSPTextureRectangle(OVERLAY_DISP++, YREG(42) * 4, YREG(43) * 4, (YREG(42) + 0x20) * 4, (YREG(43) + 0x8) * 4,
                             G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
     }
 
     if (D_801BF884 >= 2) {
         if (!(globalCtx->actorCtx.unk5 & 4)) {
-            func_801663C4((u8*)((globalCtx->unk_18E5C != NULL) ? globalCtx->unk_18E5C : D_801FBB90),
+            func_801663C4((globalCtx->unk_18E5C != NULL) ? globalCtx->unk_18E5C : D_801FBB90,
                           (u8*)gSaveContext.pictoPhoto, 0x4600);
 
-            interfaceCtx->unk_224 = 0;
-            interfaceCtx->unk_222 = interfaceCtx->unk_224;
+            interfaceCtx->unk_222 = interfaceCtx->unk_224 = 0;
 
             D_801BF884 = 0;
             gSaveContext.unk_3F22 = 0;
@@ -6160,7 +6161,6 @@ void Interface_Draw(GlobalContext* globalCtx) {
 
         } else {
             s16 phi_a2;
-            s16 phi_t0_2;
 
             if (D_801BF884 == 2) {
                 D_801BF884 = 3;
@@ -6168,8 +6168,6 @@ void Interface_Draw(GlobalContext* globalCtx) {
                 Interface_ChangeAlpha(1);
                 player->stateFlags1 |= 0x200;
             }
-
-            if (1) {}
 
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetRenderMode(OVERLAY_DISP++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
@@ -6183,12 +6181,11 @@ void Interface_Draw(GlobalContext* globalCtx) {
             gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEI_PRIM, G_CC_MODULATEI_PRIM);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 250, 160, 160, 255);
 
-            // Regalloc. Could be reused temps?
             phi_a2 = 0x1F;
-            for (phi_t0_2 = 0; phi_t0_2 < 14; phi_t0_2++, phi_a2 += 8) {
+            for (sp2CC = 0; sp2CC < 14; sp2CC++, phi_a2 += 8) {
                 gDPLoadTextureBlock(OVERLAY_DISP++,
                                     (u8*)((globalCtx->unk_18E5C != NULL) ? globalCtx->unk_18E5C : D_801FBB90) +
-                                        (0x500 * phi_t0_2),
+                                        (0x500 * sp2CC),
                                     G_IM_FMT_I, G_IM_SIZ_8b, 160, 8, 0, G_TX_NOMIRROR | G_TX_WRAP,
                                     G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
@@ -6207,9 +6204,6 @@ void Interface_Draw(GlobalContext* globalCtx) {
 
     CLOSE_DISPS(globalCtx->state.gfxCtx);
 }
-#else
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_Draw.s")
-#endif
 
 void Interface_LoadStory(GlobalContext* globalCtx, s32 block) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
