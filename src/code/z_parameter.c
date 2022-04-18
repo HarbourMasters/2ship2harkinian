@@ -1942,8 +1942,6 @@ void func_80110038(GlobalContext* globalCtx) {
     }
 }
 
-// a0/a1 swap. Likely related to globalCtx->unk_18E5C
-#ifdef NON_MATCHING
 void func_80111CB4(GlobalContext* globalCtx) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
     Player* player = GET_PLAYER(globalCtx);
@@ -2098,7 +2096,7 @@ void func_80111CB4(GlobalContext* globalCtx) {
             if (D_801BF884 == 1) {
                 if (!(globalCtx->actorCtx.unk5 & 4)) {
                     func_801663C4((globalCtx->unk_18E5C != NULL) ? globalCtx->unk_18E5C : D_801FBB90,
-                                  (u8*)gSaveContext.pictoPhoto, 0x4600);
+                                  (u8*)((void)0, gSaveContext.pictoPhoto), 0x4600);
                     interfaceCtx->unk_224 = 0;
                     interfaceCtx->unk_222 = interfaceCtx->unk_224;
                     sp28 = true;
@@ -2138,7 +2136,7 @@ void func_80111CB4(GlobalContext* globalCtx) {
                     D_801BF884 = 0;
                     if (D_801BF888) {
                         func_801663C4((globalCtx->unk_18E5C != NULL) ? globalCtx->unk_18E5C : D_801FBB90,
-                                      (u8*)gSaveContext.pictoPhoto, 0x4600);
+                                      (u8*)((void)0, gSaveContext.pictoPhoto), 0x4600);
                         func_8013A240(globalCtx);
                     }
                     globalCtx->actorCtx.unk5 &= ~4;
@@ -2164,8 +2162,8 @@ void func_80111CB4(GlobalContext* globalCtx) {
                 Interface_ChangeAlpha(21);
                 D_801BF884 = 1;
             } else {
-                func_80166644((u8*)gSaveContext.pictoPhoto,
-                              ((void)0, (globalCtx->unk_18E5C != NULL) ? globalCtx->unk_18E5C : D_801FBB90), 0x4600);
+                func_80166644((u8*)((void)0, gSaveContext.pictoPhoto),
+                              (globalCtx->unk_18E5C != NULL) ? globalCtx->unk_18E5C : D_801FBB90, 0x4600);
                 globalCtx->unk_18845 = 1;
                 D_801BF884 = 2;
             }
@@ -2180,10 +2178,6 @@ void func_80111CB4(GlobalContext* globalCtx) {
         }
     }
 }
-#else
-void func_80111CB4(GlobalContext* globalCtx);
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80111CB4.s")
-#endif
 
 void Interface_SetSceneRestrictions(GlobalContext* globalCtx) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
