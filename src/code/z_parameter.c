@@ -2263,10 +2263,10 @@ void func_80112C0C(GlobalContext* globalCtx, u16 flag) {
     }
 }
 
+s16 sAmmoRefillCounts[] = {
+    5, 10, 20, 30, 10, 30, 40, 50, 20, 10, 1, 5, 1, 5, 10, 20, 50, 100, 200, 0,
+};
 u8 Item_Give(GlobalContext* globalCtx, u8 item) {
-    static s16 sAmmoRefillCounts[] = {
-        5, 10, 20, 30, 10, 30, 40, 50, 20, 10, 1, 5, 1, 5, 10, 20, 50, 100, 200, 0,
-    };
     Player* player = GET_PLAYER(globalCtx);
     u8 i;
     u8 temp;
@@ -3105,7 +3105,6 @@ void func_80115844(GlobalContext* globalCtx, s16 arg1) {
 }
 
 s32 Health_ChangeBy(GlobalContext* globalCtx, s16 healthChange) {
-
     if (healthChange > 0) {
         play_sound(NA_SE_SY_HP_RECOVER);
     } else if ((gSaveContext.save.playerData.doubleDefense != 0) && (healthChange < 0)) {
