@@ -3225,7 +3225,7 @@ s32 Magic_Consume(GlobalContext* globalCtx, s16 magicToConsume, s16 consumeType)
         case MAGIC_BAR_CONSUME_LENS:
             if (gSaveContext.magicBarAction == MAGIC_BAR_ACTION_IDLE) {
                 if (gSaveContext.save.playerData.magic != 0) {
-                    interfaceCtx->unk_258 = 80;
+                    interfaceCtx->lensMagicDepletionTimer = 80;
                     gSaveContext.magicBarAction = MAGIC_BAR_ACTION_LENS_CONSUME;
                     return true;
                 } else {
@@ -3253,7 +3253,7 @@ s32 Magic_Consume(GlobalContext* globalCtx, s16 magicToConsume, s16 consumeType)
 
         case MAGIC_BAR_CONSUME_2:
             if (gSaveContext.save.playerData.magic != 0) {
-                interfaceCtx->unk_258 = 10;
+                interfaceCtx->lensMagicDepletionTimer = 10;
                 gSaveContext.magicBarAction = MAGIC_BAR_ACTION_CONSUME_2;
                 return true;
             } else {
@@ -3263,7 +3263,7 @@ s32 Magic_Consume(GlobalContext* globalCtx, s16 magicToConsume, s16 consumeType)
         case MAGIC_BAR_CONSUME_4:
             if (gSaveContext.magicBarAction == MAGIC_BAR_ACTION_IDLE) {
                 if (gSaveContext.save.playerData.magic != 0) {
-                    interfaceCtx->unk_258 = XREG(41);
+                    interfaceCtx->lensMagicDepletionTimer = XREG(41);
                     gSaveContext.magicBarAction = MAGIC_BAR_ACTION_CONSUME_4;
                     return true;
                 } else {
@@ -3452,12 +3452,12 @@ void Magic_UpdateBar(GlobalContext* globalCtx) {
                         break;
                     }
 
-                    interfaceCtx->unk_258--;
-                    if (interfaceCtx->unk_258 == 0) {
+                    interfaceCtx->lensMagicDepletionTimer--;
+                    if (interfaceCtx->lensMagicDepletionTimer == 0) {
                         if (!(gSaveContext.save.weekEventReg[14] & 8)) {
                             gSaveContext.save.playerData.magic--;
                         }
-                        interfaceCtx->unk_258 = 80;
+                        interfaceCtx->lensMagicDepletionTimer = 80;
                     }
                 }
             }
@@ -3466,29 +3466,29 @@ void Magic_UpdateBar(GlobalContext* globalCtx) {
             }
             break;
 
-        case 10:
+        case MAGIC_BAR_ACTION_CONSUME_2:
             if (!(gSaveContext.save.weekEventReg[14] & 8)) {
                 gSaveContext.save.playerData.magic -= 2;
             }
             if (gSaveContext.save.playerData.magic <= 0) {
                 gSaveContext.save.playerData.magic = 0;
             }
-            gSaveContext.magicBarAction = 11;
+            gSaveContext.magicBarAction = MAGIC_BAR_ACTION_CONSUME_3;
             // fallthrough
 
         case MAGIC_BAR_ACTION_CONSUME_3:
             if ((globalCtx->pauseCtx.state == 0) && (globalCtx->pauseCtx.debugState == 0) && (msgCtx->msgMode == 0) &&
                 (globalCtx->gameOverCtx.state == 0) && (globalCtx->sceneLoadFlag == 0) && (globalCtx->unk_18B4A == 0)) {
                 if (!Play_InCsMode(globalCtx)) {
-                    interfaceCtx->unk_258--;
-                    if (interfaceCtx->unk_258 == 0) {
+                    interfaceCtx->lensMagicDepletionTimer--;
+                    if (interfaceCtx->lensMagicDepletionTimer == 0) {
                         if (!(gSaveContext.save.weekEventReg[14] & 8)) {
                             gSaveContext.save.playerData.magic--;
                         }
                         if (gSaveContext.save.playerData.magic <= 0) {
                             gSaveContext.save.playerData.magic = 0;
                         }
-                        interfaceCtx->unk_258 = 10;
+                        interfaceCtx->lensMagicDepletionTimer = 10;
                     }
                 }
             }
@@ -3501,15 +3501,15 @@ void Magic_UpdateBar(GlobalContext* globalCtx) {
             if ((globalCtx->pauseCtx.state == 0) && (globalCtx->pauseCtx.debugState == 0) && (msgCtx->msgMode == 0) &&
                 (globalCtx->gameOverCtx.state == 0) && (globalCtx->sceneLoadFlag == 0) && (globalCtx->unk_18B4A == 0)) {
                 if (!Play_InCsMode(globalCtx)) {
-                    interfaceCtx->unk_258--;
-                    if (interfaceCtx->unk_258 == 0) {
+                    interfaceCtx->lensMagicDepletionTimer--;
+                    if (interfaceCtx->lensMagicDepletionTimer == 0) {
                         if (!(gSaveContext.save.weekEventReg[14] & 8)) {
                             gSaveContext.save.playerData.magic--;
                         }
                         if (gSaveContext.save.playerData.magic <= 0) {
                             gSaveContext.save.playerData.magic = 0;
                         }
-                        interfaceCtx->unk_258 = XREG(41);
+                        interfaceCtx->lensMagicDepletionTimer = XREG(41);
                     }
                 }
             }
@@ -3532,9 +3532,9 @@ void Magic_DrawBar(GlobalContext* globalCtx) {
 
     if (gSaveContext.save.playerData.magicLevel != 0) {
         if (gSaveContext.save.playerData.healthCapacity > 0xA0) {
-            magicBarY = 42;
+            magicBarY = 42; // two rows of hearts
         } else {
-            magicBarY = 34;
+            magicBarY = 34; // one row of hearts
         }
 
         func_8012C654(globalCtx->state.gfxCtx);
@@ -3559,6 +3559,7 @@ void Magic_DrawBar(GlobalContext* globalCtx) {
         gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 255);
 
         if (gSaveContext.magicBarAction == MAGIC_BAR_ACTION_BORDER_CHANGE_2) {
+            // Yellow part of the bar indicating the amount of magic to be subtracted
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 250, 250, 0, interfaceCtx->magicAlpha);
             gDPLoadTextureBlock_4b(OVERLAY_DISP++, gMagicBarFillTex, G_IM_FMT_I, 16, 16, 0, G_TX_NOMIRROR | G_TX_WRAP,
                                    G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
@@ -3566,8 +3567,8 @@ void Magic_DrawBar(GlobalContext* globalCtx) {
                                 (((void)0, gSaveContext.save.playerData.magic) + 26) << 2, (magicBarY + 10) << 2,
                                 G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
 
+            // Fill the rest of the bar with the normal magic color
             gDPPipeSync(OVERLAY_DISP++);
-
             if (gSaveContext.save.weekEventReg[14] & 8) {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 200, interfaceCtx->magicAlpha);
             } else {
@@ -3579,6 +3580,7 @@ void Magic_DrawBar(GlobalContext* globalCtx) {
                 ((((void)0, gSaveContext.save.playerData.magic) - ((void)0, gSaveContext.magicToConsume)) + 26) << 2,
                 (magicBarY + 10) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
         } else {
+            // Fill the whole bar with the normal magic color
             if (gSaveContext.save.weekEventReg[14] & 8) {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 200, interfaceCtx->magicAlpha);
             } else {
@@ -6222,7 +6224,6 @@ void Interface_Update(GlobalContext* globalCtx) {
     s16 alpha;
     s16 alpha1;
     u16 action;
-    s16 health;
 
     if ((globalCtx->pauseCtx.state == 0) && (globalCtx->pauseCtx.debugState == 0)) {
         if (globalCtx->gameOverCtx.state == 0) {
@@ -6240,12 +6241,12 @@ void Interface_Update(GlobalContext* globalCtx) {
             }
 
             func_8010F1A8(globalCtx, alpha);
-            health = 2; // Fake
-            gSaveContext.unk_3F24 += health;
+            gSaveContext.unk_3F24 += 2;
             if (alpha == 0) {
                 gSaveContext.unk_3F20 = 0;
             }
             break;
+
         case 0x3:
         case 0x4:
         case 0x5:
@@ -6329,6 +6330,8 @@ void Interface_Update(GlobalContext* globalCtx) {
             gSaveContext.unk_3F20 = 1;
             func_8010F1A8(globalCtx, 0);
             gSaveContext.unk_3F20 = 0;
+            // fallthrough
+
         default:
             break;
     }
@@ -6343,8 +6346,7 @@ void Interface_Update(GlobalContext* globalCtx) {
             play_sound(NA_SE_SY_HP_RECOVER);
         }
 
-        health = gSaveContext.save.playerData.health;
-        if (health >= gSaveContext.save.playerData.healthCapacity) {
+        if (((void)0, gSaveContext.save.playerData.health) >= ((void)0, gSaveContext.save.playerData.healthCapacity)) {
             gSaveContext.save.playerData.health = gSaveContext.save.playerData.healthCapacity;
             gSaveContext.healthAccumulator = 0;
         }
@@ -6687,7 +6689,7 @@ void Interface_Init(GlobalContext* globalCtx) {
 
     View_Init(&interfaceCtx->view, globalCtx->state.gfxCtx);
 
-    interfaceCtx->unk_258 = 16;
+    interfaceCtx->lensMagicDepletionTimer = 16;
     interfaceCtx->unkTimer = 200;
 
     parameterStaticSize = SEGMENT_ROM_SIZE(parameter_static);

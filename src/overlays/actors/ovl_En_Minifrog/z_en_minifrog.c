@@ -255,8 +255,6 @@ void EnMinifrog_SpawnDust(EnMinifrog* this, GlobalContext* globalCtx) {
 }
 
 void EnMinifrog_ReturnFrogCutscene(EnMinifrog* this, GlobalContext* globalCtx) {
-    u8 flag;
-
     EnMinifrog_TurnToPlayer(this);
     EnMinifrog_Jump(this);
     if ((Message_GetState(&globalCtx->msgCtx) == 5) && Message_ShouldAdvance(globalCtx)) {
@@ -277,9 +275,9 @@ void EnMinifrog_ReturnFrogCutscene(EnMinifrog* this, GlobalContext* globalCtx) {
                     func_80151938(globalCtx, 0xD86); // "Could it be... You came all this way looking for me?"
                 }
 
-                flag = gSaveContext.save.weekEventReg[isFrogReturnedFlags[this->frogIndex] >> 8];
                 gSaveContext.save.weekEventReg[isFrogReturnedFlags[this->frogIndex] >> 8] =
-                    flag | (u8)isFrogReturnedFlags[this->frogIndex];
+                    ((void)0, gSaveContext.save.weekEventReg[isFrogReturnedFlags[this->frogIndex] >> 8]) |
+                    (u8)isFrogReturnedFlags[this->frogIndex];
                 break;
             case 0xD85: // "I understand. I shall head for the mountains immediately."
             default:
