@@ -27,7 +27,15 @@ typedef enum {
     /* 1 */ EQUIP_VALUE_SHIELD_HERO,
     /* 2 */ EQUIP_VALUE_SHIELD_MIRROR,
     /* 3 */ EQUIP_VALUE_SHIELD_MAX
-} EquipValueShield;
+} EquipValueShield; 
+
+typedef enum {
+    /* 0 */ EQUIP_VALUE_TUNIC_NONE,
+    /* 1 */ EQUIP_VALUE_TUNIC_KOKIRI,
+    /* 2 */ EQUIP_VALUE_TUNIC_GORON,
+    /* 3 */ EQUIP_VALUE_TUNIC_ZORA,
+    /* 4 */ EQUIP_VALUE_TUNIC_MAX
+} EquipValueTunic; // Remnant of OoT
 
 typedef enum {
     /* 0 */ UPG_QUIVER,
@@ -284,9 +292,6 @@ typedef enum {
     /* 0xFD */ ITEM_UNK_FD = 0xFD,
     /* 0xFF */ ITEM_NONE = 0xFF
 } ItemId;
-
-#define BOTTLE_FIRST 0
-#define BOTTLE_MAX 6
 
 #define BOTTLE_FIRST 0
 #define BOTTLE_MAX 6

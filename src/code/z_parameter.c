@@ -715,7 +715,7 @@ void Interface_ChangeAlpha(u16 alphaType) {
 void func_8010EF9C(GlobalContext* globalCtx, s16 alpha) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
 
-    if ((gSaveContext.buttonStatus[0] == BTN_DISABLED) || (gSaveContext.unk_1015 == 0xFF)) {
+    if ((gSaveContext.buttonStatus[EQUIP_SLOT_B] == BTN_DISABLED) || (gSaveContext.unk_1015 == 0xFF)) {
         if (interfaceCtx->bAlpha != 70) {
             interfaceCtx->bAlpha = 70;
         }
@@ -725,7 +725,7 @@ void func_8010EF9C(GlobalContext* globalCtx, s16 alpha) {
         }
     }
 
-    if (gSaveContext.buttonStatus[1] == BTN_DISABLED) {
+    if (gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] == BTN_DISABLED) {
         if (interfaceCtx->cLeftAlpha != 70) {
             interfaceCtx->cLeftAlpha = 70;
         }
@@ -735,7 +735,7 @@ void func_8010EF9C(GlobalContext* globalCtx, s16 alpha) {
         }
     }
 
-    if (gSaveContext.buttonStatus[2] == BTN_DISABLED) {
+    if (gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] == BTN_DISABLED) {
         if (interfaceCtx->cDownAlpha != 70) {
             interfaceCtx->cDownAlpha = 70;
         }
@@ -745,7 +745,7 @@ void func_8010EF9C(GlobalContext* globalCtx, s16 alpha) {
         }
     }
 
-    if (gSaveContext.buttonStatus[3] == BTN_DISABLED) {
+    if (gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] == BTN_DISABLED) {
         if (interfaceCtx->cRightAlpha != 70) {
             interfaceCtx->cRightAlpha = 70;
         }
@@ -755,7 +755,7 @@ void func_8010EF9C(GlobalContext* globalCtx, s16 alpha) {
         }
     }
 
-    if (gSaveContext.buttonStatus[4] == BTN_DISABLED) {
+    if (gSaveContext.buttonStatus[EQUIP_SLOT_A] == BTN_DISABLED) {
         if (interfaceCtx->aAlpha != 70) {
             interfaceCtx->aAlpha = 70;
         }
@@ -1072,7 +1072,7 @@ void func_8010F1A8(GlobalContext* globalCtx, s16 maxAlpha) {
                 interfaceCtx->aAlpha = alpha;
             }
 
-            if ((gSaveContext.buttonStatus[0] == BTN_DISABLED) || (gSaveContext.unk_1015 == 0xFF)) {
+            if ((gSaveContext.buttonStatus[EQUIP_SLOT_B] == BTN_DISABLED) || (gSaveContext.unk_1015 == 0xFF)) {
                 if (interfaceCtx->bAlpha != 70) {
                     interfaceCtx->bAlpha = 70;
                 }
@@ -1450,7 +1450,7 @@ void func_80110038(GlobalContext* globalCtx) {
 
     if (gSaveContext.eventInf[4] & 2) {
 
-        for (i = 1; i < 4; i++) {
+        for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
             if ((GET_CUR_FORM_BTN_ITEM(i) != ITEM_PICTO_BOX) || (msgCtx->msgMode != 0)) {
                 if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
                     phi_t3 = true;
@@ -1465,19 +1465,19 @@ void func_80110038(GlobalContext* globalCtx) {
         }
 
         if (D_801BF884 == 0) {
-            if (gSaveContext.buttonStatus[0] != BTN_DISABLED) {
+            if (gSaveContext.buttonStatus[EQUIP_SLOT_B] != BTN_DISABLED) {
                 phi_t3 = true;
             }
-            gSaveContext.buttonStatus[0] = BTN_DISABLED;
+            gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_DISABLED;
         } else {
-            if (gSaveContext.buttonStatus[0] == BTN_DISABLED) {
+            if (gSaveContext.buttonStatus[EQUIP_SLOT_B] == BTN_DISABLED) {
                 phi_t3 = true;
             }
-            gSaveContext.buttonStatus[0] = BTN_ENABLED;
+            gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_ENABLED;
         }
     } else {
         if (gSaveContext.save.weekEventReg[90] & 0x20) {
-            for (i = 1; i < 4; i++) {
+            for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
                 if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
                     gSaveContext.buttonStatus[i] = BTN_DISABLED;
                 }
@@ -1485,7 +1485,7 @@ void func_80110038(GlobalContext* globalCtx) {
 
             Interface_ChangeAlpha(8);
         } else if (gSaveContext.save.weekEventReg[82] & 8) {
-            for (i = 1; i < 4; i++) {
+            for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
                 if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
                     gSaveContext.buttonStatus[i] = BTN_DISABLED;
                 }
@@ -1494,7 +1494,7 @@ void func_80110038(GlobalContext* globalCtx) {
             Interface_ChangeAlpha(22);
         } else if (gSaveContext.save.weekEventReg[84] & 0x20) {
             if (player->currentMask == PLAYER_MASK_FIERCE_DEITY) {
-                for (i = 1; i < 4; i++) {
+                for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
                     if ((GET_CUR_FORM_BTN_ITEM(i) == ITEM_MASK_FIERCE_DEITY) ||
                         ((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_BOTTLE) && (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_OBABA_DRINK))) {
                         if (gSaveContext.buttonStatus[i] == BTN_DISABLED) {
@@ -1509,7 +1509,7 @@ void func_80110038(GlobalContext* globalCtx) {
                     }
                 }
             } else {
-                for (i = 1; i < 4; i++) {
+                for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
                     if ((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_MASK_DEKU) && (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_MASK_ZORA)) {
                         if (gSaveContext.buttonStatus[i] != BTN_DISABLED) {
                             phi_t3 = true;
@@ -1524,7 +1524,7 @@ void func_80110038(GlobalContext* globalCtx) {
                 }
             }
         } else if ((globalCtx->sceneNum == SCENE_SPOT00) && (gSaveContext.sceneSetupIndex == 6)) {
-            for (i = 1; i < 4; i++) {
+            for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
                 if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
                     phi_t3 = true;
                 }
@@ -1534,18 +1534,18 @@ void func_80110038(GlobalContext* globalCtx) {
             if (player->stateFlags3 & 0x1000000) {
                 if (gSaveContext.save.inventory.items[SLOT_NUT] == ITEM_NUT) {
                     BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_NUT;
-                    Interface_LoadItemIconImpl(globalCtx, 0);
+                    Interface_LoadItemIconImpl(globalCtx, EQUIP_SLOT_B);
                 } else {
-                    gSaveContext.buttonStatus[0] = BTN_DISABLED;
+                    gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_DISABLED;
                     phi_t3 = true;
                 }
             } else {
-                if (gSaveContext.buttonStatus[0] == BTN_DISABLED) {
-                    gSaveContext.buttonStatus[0] = BTN_ENABLED;
+                if (gSaveContext.buttonStatus[EQUIP_SLOT_B] == BTN_DISABLED) {
+                    gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_ENABLED;
                     phi_t3 = true;
                 }
 
-                for (i = 1; i < 4; i++) {
+                for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
                     if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
                         phi_t3 = true;
                     }
@@ -1562,24 +1562,24 @@ void func_80110038(GlobalContext* globalCtx) {
             if (gSaveContext.save.inventory.items[SLOT_NUT] == ITEM_NUT) {
                 if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NUT) {
                     BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_NUT;
-                    Interface_LoadItemIconImpl(globalCtx, 0);
-                    gSaveContext.buttonStatus[0] = BTN_ENABLED;
+                    Interface_LoadItemIconImpl(globalCtx, EQUIP_SLOT_B);
+                    gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_ENABLED;
                     phi_t3 = true;
                 }
-            } else if (gSaveContext.buttonStatus[0] == BTN_ENABLED) {
-                gSaveContext.buttonStatus[0] = BTN_DISABLED;
+            } else if (gSaveContext.buttonStatus[EQUIP_SLOT_B] == BTN_ENABLED) {
+                gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_DISABLED;
                 phi_t3 = true;
             }
 
             if (phi_t3) {
-                gSaveContext.buttonStatus[1] = BTN_DISABLED;
-                gSaveContext.buttonStatus[2] = BTN_DISABLED;
-                gSaveContext.buttonStatus[3] = BTN_DISABLED;
+                gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
+                gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
+                gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
             }
         } else if ((gSaveContext.save.playerData.magicAcquired == 0) && (CUR_FORM == PLAYER_FORM_DEKU) &&
                    (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_NUT)) {
             BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_UNK_FD;
-            gSaveContext.buttonStatus[0] = BTN_DISABLED;
+            gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_DISABLED;
         } else {
             if ((func_801242DC(globalCtx) >= 2) && (func_801242DC(globalCtx) < 5)) {
                 if (CUR_FORM != PLAYER_FORM_ZORA) {
@@ -1594,19 +1594,19 @@ void func_80110038(GlobalContext* globalCtx) {
                             phi_t3 = true;
                         }
                     } else {
-                        if (gSaveContext.buttonStatus[0] != BTN_DISABLED) {
+                        if (gSaveContext.buttonStatus[EQUIP_SLOT_B] != BTN_DISABLED) {
                             phi_t3 = true;
                         }
-                        gSaveContext.buttonStatus[0] = BTN_DISABLED;
+                        gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_DISABLED;
                     }
                 } else {
-                    if (gSaveContext.buttonStatus[0] == BTN_DISABLED) {
+                    if (gSaveContext.buttonStatus[EQUIP_SLOT_B] == BTN_DISABLED) {
                         phi_t3 = true;
                     }
-                    gSaveContext.buttonStatus[0] = BTN_ENABLED;
+                    gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_ENABLED;
                 }
 
-                for (i = 1; i < 4; i++) {
+                for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
                     if (GET_CUR_FORM_BTN_ITEM(i) != ITEM_MASK_ZORA) {
                         if (func_801242DC(globalCtx) == 2) {
                             if ((GET_CUR_FORM_BTN_ITEM(i) < ITEM_BOTTLE) ||
@@ -1644,7 +1644,7 @@ void func_80110038(GlobalContext* globalCtx) {
                 }
             } else {
                 if (player->stateFlags1 & 0x200000) {
-                    for (i = 1; i < 4; i++) {
+                    for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
                         if (GET_CUR_FORM_BTN_ITEM(i) != ITEM_LENS) {
                             if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
                                 phi_t3 = true;
@@ -1658,16 +1658,16 @@ void func_80110038(GlobalContext* globalCtx) {
                         }
                     }
 
-                    if (gSaveContext.buttonStatus[0] != BTN_DISABLED) {
-                        gSaveContext.buttonStatus[0] = BTN_DISABLED;
+                    if (gSaveContext.buttonStatus[EQUIP_SLOT_B] != BTN_DISABLED) {
+                        gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_DISABLED;
                         phi_t3 = true;
                     }
                 } else if (player->stateFlags1 & 0x2000) {
-                    if (gSaveContext.buttonStatus[0] != BTN_DISABLED) {
-                        gSaveContext.buttonStatus[0] = BTN_DISABLED;
-                        gSaveContext.buttonStatus[1] = BTN_DISABLED;
-                        gSaveContext.buttonStatus[2] = BTN_DISABLED;
-                        gSaveContext.buttonStatus[3] = BTN_DISABLED;
+                    if (gSaveContext.buttonStatus[EQUIP_SLOT_B] != BTN_DISABLED) {
+                        gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_DISABLED;
+                        gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
+                        gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
+                        gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
                         phi_t3 = true;
                         Interface_ChangeAlpha(50);
                     }
@@ -1688,43 +1688,44 @@ void func_80110038(GlobalContext* globalCtx) {
                             if ((BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOW) ||
                                 (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOMB) ||
                                 (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOMBCHU)) {
-                                if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) == 0) {
-                                    gSaveContext.buttonStatus[0] = BTN_DISABLED;
+                                if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) == EQUIP_VALUE_SWORD_NONE) {
+                                    gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_DISABLED;
                                 }
 
-                                if (gSaveContext.buttonStatus[0] == BTN_ENABLED) {
-                                    gSaveContext.buttonStatus[0] =
-                                        GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) + ITEM_SWORD_KOKIRI - 1;
+                                if (gSaveContext.buttonStatus[EQUIP_SLOT_B] == BTN_ENABLED) {
+                                    gSaveContext.buttonStatus[EQUIP_SLOT_B] = ITEM_SWORD_KOKIRI +
+                                                                              GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) -
+                                                                              EQUIP_VALUE_SWORD_KOKIRI;
                                 }
 
-                                BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = gSaveContext.buttonStatus[0];
+                                BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = gSaveContext.buttonStatus[EQUIP_SLOT_B];
 
                                 if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NONE) {
-                                    Interface_LoadItemIconImpl(globalCtx, 0);
+                                    Interface_LoadItemIconImpl(globalCtx, EQUIP_SLOT_B);
                                 }
                                 phi_t3 = true;
                             } else if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_NONE) {
                                 if (interfaceCtx->unk_21E != 0) {
-                                    if (gSaveContext.buttonStatus[0] == BTN_DISABLED) {
+                                    if (gSaveContext.buttonStatus[EQUIP_SLOT_B] == BTN_DISABLED) {
                                         phi_t3 = true;
-                                        gSaveContext.buttonStatus[0] = BTN_ENABLED;
+                                        gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_ENABLED;
                                     }
                                 } else {
-                                    if (gSaveContext.buttonStatus[0] != BTN_DISABLED) {
+                                    if (gSaveContext.buttonStatus[EQUIP_SLOT_B] != BTN_DISABLED) {
                                         phi_t3 = true;
-                                        gSaveContext.buttonStatus[0] = BTN_DISABLED;
+                                        gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_DISABLED;
                                     }
                                 }
                             } else {
                                 if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_NONE) {
-                                    if (gSaveContext.buttonStatus[0] != BTN_DISABLED) {
+                                    if (gSaveContext.buttonStatus[EQUIP_SLOT_B] != BTN_DISABLED) {
                                         phi_t3 = true;
-                                        gSaveContext.buttonStatus[0] = BTN_DISABLED;
+                                        gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_DISABLED;
                                     }
                                 } else {
-                                    if (gSaveContext.buttonStatus[0] == BTN_DISABLED) {
+                                    if (gSaveContext.buttonStatus[EQUIP_SLOT_B] == BTN_DISABLED) {
                                         phi_t3 = true;
-                                        gSaveContext.buttonStatus[0] = BTN_ENABLED;
+                                        gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_ENABLED;
                                     }
                                 }
                             }
@@ -1733,19 +1734,19 @@ void func_80110038(GlobalContext* globalCtx) {
                                 if ((BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOW) ||
                                     (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOMB) ||
                                     (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOMBCHU)) {
-                                    if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) == 0) {
-                                        gSaveContext.buttonStatus[0] = BTN_DISABLED;
+                                    if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) == EQUIP_VALUE_SWORD_NONE) {
+                                        gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_DISABLED;
                                     }
 
-                                    BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = gSaveContext.buttonStatus[0];
+                                    BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = gSaveContext.buttonStatus[EQUIP_SLOT_B];
 
                                     if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NONE) {
-                                        Interface_LoadItemIconImpl(globalCtx, 0);
+                                        Interface_LoadItemIconImpl(globalCtx, EQUIP_SLOT_B);
                                     }
                                     phi_t3 = true;
                                 }
-                                if (gSaveContext.buttonStatus[0] != BTN_DISABLED) {
-                                    gSaveContext.buttonStatus[0] = BTN_DISABLED;
+                                if (gSaveContext.buttonStatus[EQUIP_SLOT_B] != BTN_DISABLED) {
+                                    gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_DISABLED;
                                     phi_t3 = true;
                                 }
                             }
@@ -1753,7 +1754,7 @@ void func_80110038(GlobalContext* globalCtx) {
                     }
 
                     if (gSaveContext.save.playerForm == player->transformation) {
-                        for (i = 1; i < 4; i++) {
+                        for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
                             if (!D_801C2410[(void)0, gSaveContext.save.playerForm][GET_CUR_FORM_BTN_ITEM(i)]) {
                                 if (gSaveContext.buttonStatus[i] != BTN_DISABLED) {
                                     gSaveContext.buttonStatus[i] = BTN_DISABLED;
@@ -1923,17 +1924,17 @@ void func_80111CB4(GlobalContext* globalCtx) {
                 if ((player->transformation == PLAYER_FORM_DEKU) && (gSaveContext.save.weekEventReg[8] & 1)) {
                     gSaveContext.unk_3F1E = 1;
                     if (globalCtx->sceneNum == SCENE_BOWLING) {
-                        if (gSaveContext.buttonStatus[0] == BTN_DISABLED) {
-                            gSaveContext.buttonStatus[0] = BTN_ENABLED;
-                            gSaveContext.buttonStatus[1] = BTN_DISABLED;
-                            gSaveContext.buttonStatus[2] = BTN_DISABLED;
-                            gSaveContext.buttonStatus[3] = BTN_DISABLED;
+                        if (gSaveContext.buttonStatus[EQUIP_SLOT_B] == BTN_DISABLED) {
+                            gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_ENABLED;
+                            gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
+                            gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
+                            gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
                         }
-                    } else if (gSaveContext.buttonStatus[0] == BTN_DISABLED) {
-                        gSaveContext.buttonStatus[0] = BTN_ENABLED;
-                        gSaveContext.buttonStatus[1] = BTN_ENABLED;
-                        gSaveContext.buttonStatus[2] = BTN_ENABLED;
-                        gSaveContext.buttonStatus[3] = BTN_ENABLED;
+                    } else if (gSaveContext.buttonStatus[EQUIP_SLOT_B] == BTN_DISABLED) {
+                        gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_ENABLED;
+                        gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_ENABLED;
+                        gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_ENABLED;
+                        gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_ENABLED;
                     }
 
                     Interface_ChangeAlpha(20);
@@ -1942,10 +1943,10 @@ void func_80111CB4(GlobalContext* globalCtx) {
                         (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_BOMB) &&
                         (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_BOMBCHU)) {
                         gSaveContext.unk_3F1E = 1;
-                        gSaveContext.buttonStatus[0] = BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B);
-                        gSaveContext.buttonStatus[1] = BTN_ENABLED;
-                        gSaveContext.buttonStatus[2] = BTN_ENABLED;
-                        gSaveContext.buttonStatus[3] = BTN_ENABLED;
+                        gSaveContext.buttonStatus[EQUIP_SLOT_B] = BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B);
+                        gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_ENABLED;
+                        gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_ENABLED;
+                        gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_ENABLED;
                         if (globalCtx->sceneNum == SCENE_BOWLING) {
                             if (CURRENT_DAY == 1) {
                                 BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOMBCHU;
@@ -1954,24 +1955,24 @@ void func_80111CB4(GlobalContext* globalCtx) {
                             } else {
                                 BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOW;
                             }
-                            Interface_LoadItemIconImpl(globalCtx, 0);
-                            gSaveContext.buttonStatus[1] = BTN_DISABLED;
-                            gSaveContext.buttonStatus[2] = BTN_DISABLED;
-                            gSaveContext.buttonStatus[3] = BTN_DISABLED;
+                            Interface_LoadItemIconImpl(globalCtx, EQUIP_SLOT_B);
+                            gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
+                            gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
+                            gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
                         } else {
                             BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOW;
 
                             if (globalCtx->unk_1887C >= 2) {
-                                Interface_LoadItemIconImpl(globalCtx, 0);
+                                Interface_LoadItemIconImpl(globalCtx, EQUIP_SLOT_B);
                             } else if (gSaveContext.save.inventory.items[SLOT_BOW] == ITEM_NONE) {
                                 BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_NONE;
                             } else {
-                                Interface_LoadItemIconImpl(globalCtx, 0);
+                                Interface_LoadItemIconImpl(globalCtx, EQUIP_SLOT_B);
                             }
 
-                            gSaveContext.buttonStatus[1] = BTN_DISABLED;
-                            gSaveContext.buttonStatus[2] = BTN_DISABLED;
-                            gSaveContext.buttonStatus[3] = BTN_DISABLED;
+                            gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
+                            gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
+                            gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
                             Interface_ChangeAlpha(6);
                         }
                     }
@@ -1988,9 +1989,9 @@ void func_80111CB4(GlobalContext* globalCtx) {
                     } else if (globalCtx->unk_1887C >= 2) {
                         Interface_ChangeAlpha(8);
                     } else if (gSaveContext.save.weekEventReg[8] & 1) {
-                        gSaveContext.buttonStatus[1] = BTN_DISABLED;
-                        gSaveContext.buttonStatus[2] = BTN_DISABLED;
-                        gSaveContext.buttonStatus[3] = BTN_DISABLED;
+                        gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
+                        gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
+                        gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
                         Interface_ChangeAlpha(12);
                     } else if (player->stateFlags1 & 0x800000) {
                         Interface_ChangeAlpha(12);
@@ -2009,29 +2010,29 @@ void func_80111CB4(GlobalContext* globalCtx) {
                     } else {
                         BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOW;
                     }
-                    gSaveContext.buttonStatus[1] = BTN_DISABLED;
-                    gSaveContext.buttonStatus[2] = BTN_DISABLED;
-                    gSaveContext.buttonStatus[3] = BTN_DISABLED;
+                    gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
+                    gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
+                    gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
                 } else {
                     BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOW;
                 }
 
                 if (globalCtx->unk_1887C >= 2) {
-                    Interface_LoadItemIconImpl(globalCtx, 0);
+                    Interface_LoadItemIconImpl(globalCtx, EQUIP_SLOT_B);
                 } else if (gSaveContext.save.inventory.items[SLOT_BOW] == ITEM_NONE) {
                     BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_NONE;
                 } else {
-                    Interface_LoadItemIconImpl(globalCtx, 0);
+                    Interface_LoadItemIconImpl(globalCtx, EQUIP_SLOT_B);
                 }
 
-                if (gSaveContext.buttonStatus[0] == BTN_DISABLED) {
-                    gSaveContext.buttonStatus[0] = BTN_ENABLED;
+                if (gSaveContext.buttonStatus[EQUIP_SLOT_B] == BTN_DISABLED) {
+                    gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_ENABLED;
                     sp28 = true;
                 }
 
-                gSaveContext.buttonStatus[1] = BTN_DISABLED;
-                gSaveContext.buttonStatus[2] = BTN_DISABLED;
-                gSaveContext.buttonStatus[3] = BTN_DISABLED;
+                gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
+                gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
+                gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
                 Interface_ChangeAlpha(6);
 
                 if (globalCtx->unk_18B4A != 0) {
@@ -2044,9 +2045,9 @@ void func_80111CB4(GlobalContext* globalCtx) {
                 } else if (globalCtx->unk_1887C >= 2) {
                     Interface_ChangeAlpha(8);
                 } else if (gSaveContext.save.weekEventReg[8] & 1) {
-                    gSaveContext.buttonStatus[1] = BTN_DISABLED;
-                    gSaveContext.buttonStatus[2] = BTN_DISABLED;
-                    gSaveContext.buttonStatus[3] = BTN_DISABLED;
+                    gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
+                    gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
+                    gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
                     Interface_ChangeAlpha(12);
                 } else if (player->stateFlags1 & 0x800000) {
                     Interface_ChangeAlpha(12);
@@ -2106,15 +2107,15 @@ void func_80111CB4(GlobalContext* globalCtx) {
             }
         } else if ((gSaveContext.minigameState == 1) && (gSaveContext.save.entranceIndex == 0x8E10) &&
                    (globalCtx->sceneLoadFlag == 0) && (globalCtx->unk_18B4A == 0)) {
-            gSaveContext.buttonStatus[1] = BTN_DISABLED;
-            gSaveContext.buttonStatus[2] = BTN_DISABLED;
-            gSaveContext.buttonStatus[3] = BTN_DISABLED;
+            gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
+            gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
+            gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
             Interface_ChangeAlpha(12);
         } else if ((gSaveContext.save.entranceIndex == 0xD010) && (globalCtx->sceneLoadFlag == 0) &&
                    (globalCtx->unk_18B4A == 0)) {
-            gSaveContext.buttonStatus[1] = BTN_DISABLED;
-            gSaveContext.buttonStatus[2] = BTN_DISABLED;
-            gSaveContext.buttonStatus[3] = BTN_DISABLED;
+            gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
+            gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
+            gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
             Interface_ChangeAlpha(22);
         } else if (globalCtx->actorCtx.unk5 & 4) {
             if (!CHECK_QUEST_ITEM(QUEST_PICTOGRAPH)) {
@@ -2198,27 +2199,27 @@ void func_80112C0C(GlobalContext* globalCtx, u16 flag) {
             (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOMB) ||
             (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOMBCHU) ||
             (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_FISHING_POLE) ||
-            (gSaveContext.buttonStatus[0] == BTN_DISABLED)) {
+            (gSaveContext.buttonStatus[EQUIP_SLOT_B] == BTN_DISABLED)) {
             if ((BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOW) ||
                 (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOMB) ||
                 (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOMBCHU) ||
                 (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_FISHING_POLE)) {
-                BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = gSaveContext.buttonStatus[0];
-                Interface_LoadItemIconImpl(globalCtx, 0);
+                BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = gSaveContext.buttonStatus[EQUIP_SLOT_B];
+                Interface_LoadItemIconImpl(globalCtx, EQUIP_SLOT_B);
             }
         } else if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_NONE) {
             if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NONE) {
-                BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = gSaveContext.buttonStatus[0];
-                Interface_LoadItemIconImpl(globalCtx, 0);
+                BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = gSaveContext.buttonStatus[EQUIP_SLOT_B];
+                Interface_LoadItemIconImpl(globalCtx, EQUIP_SLOT_B);
             }
         }
 
-        gSaveContext.buttonStatus[3] = gSaveContext.buttonStatus[2] = gSaveContext.buttonStatus[1] =
-            gSaveContext.buttonStatus[0] = BTN_ENABLED;
+        gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] =
+            gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_ENABLED;
         Interface_ChangeAlpha(7);
     } else {
-        gSaveContext.buttonStatus[3] = gSaveContext.buttonStatus[2] = gSaveContext.buttonStatus[1] =
-            gSaveContext.buttonStatus[0] = BTN_ENABLED;
+        gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] =
+            gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_ENABLED;
         func_80111CB4(globalCtx);
     }
 }
@@ -3702,7 +3703,7 @@ void Interface_DrawItemButtons(GlobalContext* globalCtx) {
     gDPPipeSync(OVERLAY_DISP++);
 
     // Empty C Button Arrows
-    for (temp = 1; temp < 4; temp++) {
+    for (temp = EQUIP_SLOT_C_LEFT; temp <= EQUIP_SLOT_C_RIGHT; temp++) {
         if (GET_CUR_FORM_BTN_ITEM(temp) > 0xF0) {
             if (temp == 1) {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 240, 0, interfaceCtx->cLeftAlpha);
@@ -3810,7 +3811,7 @@ void func_80118084(GlobalContext* globalCtx) {
     gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
 
     if ((interfaceCtx->unk_222 == 0) && (player->stateFlags3 & 0x1000000)) {
-        if (gSaveContext.buttonStatus[0] != BTN_DISABLED) {
+        if (gSaveContext.buttonStatus[EQUIP_SLOT_B] != BTN_DISABLED) {
             Interface_DrawItemIconTexture(globalCtx, interfaceCtx->iconItemSegment, 0);
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
@@ -5551,7 +5552,7 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
 #else
 static s16 D_801BFCE4 = 0;
 static s16 D_801BFCE8[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
-static s16 D_801BFCF8 = 0x63;
+static s16 D_801BFCF8 = 99;
 static s16 D_801BFCFC[] = {
     // timer digit width
     0x10, 0x19, 0x22, 0x2A, 0x33, 0x3C, 0x44, 0x4D,
@@ -5580,7 +5581,7 @@ void Interface_UpdateTimers(GlobalContext* globalCtx) {
         if (D_801BF96C) {
             var3 = osGetTime();
 
-            for (j = 0; j < 6; j++) {
+            for (j = BOTTLE_FIRST; j < BOTTLE_MAX; j++) {
                 if (gSaveContext.unk_101A[j] == 1) {
                     gSaveContext.unk_10B0[j] += var3 - D_801BF8F0;
                 }
@@ -5591,7 +5592,7 @@ void Interface_UpdateTimers(GlobalContext* globalCtx) {
 
         D_801BF970 = 99;
 
-        for (i = 0; i < 6; i++) {
+        for (i = BOTTLE_FIRST; i < BOTTLE_MAX; i++) {
             if (gSaveContext.unk_101A[i] == 1) {
                 var3 = osGetTime();
                 var3 = (((var3 - ((void)0, gSaveContext.unk_10B0[i]) - ((void)0, gSaveContext.unk_1020[i])) / 10000) *
@@ -6336,11 +6337,11 @@ void Interface_Update(GlobalContext* globalCtx) {
     D_801BF8DC = func_801242DC(globalCtx);
 
     if (D_801BF8DC == 1) {
-        if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_TUNIC) == 2) {
+        if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_TUNIC) == EQUIP_VALUE_TUNIC_GORON) {
             D_801BF8DC = 0;
         }
     } else if ((func_801242DC(globalCtx) >= 2) && (func_801242DC(globalCtx) < 5)) {
-        if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_TUNIC) == 3) {
+        if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_TUNIC) == EQUIP_VALUE_TUNIC_ZORA) {
             D_801BF8DC = 0;
         }
     }
@@ -6663,7 +6664,7 @@ void Interface_Init(GlobalContext* globalCtx) {
 
     bzero(interfaceCtx, sizeof(InterfaceContext));
 
-    gSaveContext.sunsSongState = 0;
+    gSaveContext.sunsSongState = SUNSSONG_INACTIVE;
     gSaveContext.unk_3F20 = 0;
     gSaveContext.unk_3F22 = 0;
 
@@ -6685,22 +6686,22 @@ void Interface_Init(GlobalContext* globalCtx) {
     interfaceCtx->iconItemSegment = THA_AllocEndAlign16(&globalCtx->state.heap, 0x4000);
 
     if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) < 0xF0) {
-        Interface_LoadItemIconImpl(globalCtx, 0);
+        Interface_LoadItemIconImpl(globalCtx, EQUIP_SLOT_B);
     } else if ((BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NONE) &&
                (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_UNK_FD)) {
-        Interface_LoadItemIconImpl(globalCtx, 0);
+        Interface_LoadItemIconImpl(globalCtx, EQUIP_SLOT_B);
     }
 
     if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT) < 0xF0) {
-        Interface_LoadItemIconImpl(globalCtx, 1);
+        Interface_LoadItemIconImpl(globalCtx, EQUIP_SLOT_C_LEFT);
     }
 
     if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) < 0xF0) {
-        Interface_LoadItemIconImpl(globalCtx, 2);
+        Interface_LoadItemIconImpl(globalCtx, EQUIP_SLOT_C_DOWN);
     }
 
     if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) < 0xF0) {
-        Interface_LoadItemIconImpl(globalCtx, 3);
+        Interface_LoadItemIconImpl(globalCtx, EQUIP_SLOT_C_RIGHT);
     }
 
     if (((gSaveContext.unk_3DD0[4] == 4) || (gSaveContext.unk_3DD0[6] == 4)) &&
