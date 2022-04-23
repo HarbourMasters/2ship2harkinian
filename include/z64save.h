@@ -35,9 +35,9 @@ typedef enum MagicBarAction {
     /* 07 */ MAGIC_BAR_ACTION_LENS_CONSUME, // Magic slowly consumed by lens. 
     /* 08 */ MAGIC_BAR_ACTION_GROW_WIDE, // Init magic on a new load, grow from a width of 0 to magicCapacity
     /* 09 */ MAGIC_BAR_ACTION_FILL,
-    /* 10 */ MAGIC_BAR_ACTION_CONSUME_2,
-    /* 11 */ MAGIC_BAR_ACTION_CONSUME_3,
-    /* 12 */ MAGIC_BAR_ACTION_CONSUME_4
+    /* 10 */ MAGIC_BAR_ACTION_CONSUME_GORON_ZORA_SETUP,
+    /* 11 */ MAGIC_BAR_ACTION_CONSUME_GORON_ZORA,
+    /* 12 */ MAGIC_BAR_ACTION_CONSUME_GIANTS_MASK
 } MagicBarAction;
 
 typedef enum MagicBarChange {
@@ -46,9 +46,9 @@ typedef enum MagicBarChange {
     /* 2 */ MAGIC_BAR_CONSUME_NOW_ALT, // Identical behaviour to MAGIC_BAR_CONSUME_NOW. Unused
     /* 3 */ MAGIC_BAR_CONSUME_LENS, // Lens consumption
     /* 4 */ MAGIC_BAR_CONSUME_WAIT_PREVIEW, // Sets consume target but waits to consume. Draws yellow magic to target consumption
-    /* 5 */ MAGIC_BAR_CONSUME_2,
-    /* 6 */ MAGIC_BAR_CONSUME_4,
-    /* 7 */ MAGIC_BAR_CONSUME_UNK
+    /* 5 */ MAGIC_BAR_CONSUME_GORON_ZORA, // Zora shock and Goron Spike Roll slow consumption
+    /* 6 */ MAGIC_BAR_CONSUME_GIANTS_MASK, // Giants Mask Slow consumption
+    /* 7 */ MAGIC_BAR_CONSUME_DEITY_BEAM // Fierce Deity Beam consumption, consumed magic now and directly
 } MagicBarChange;
 
 #define MAGIC_HALF_BAR 0x30

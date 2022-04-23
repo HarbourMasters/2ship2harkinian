@@ -413,7 +413,7 @@ s32 func_80AECE60(EnTk* this, GlobalContext* globalCtx) {
         this->unk_3CE |= 4;
     }
 
-    if ((globalCtx->unk_18B4A != 0) || (this->unk_3D0 == 0)) {
+    if ((globalCtx->transitionMode != 0) || (this->unk_3D0 == 0)) {
         sp78 = this->unk_3F0;
         sp74 = this->unk_3EC;
         sp7C = this->actor.world.pos;
@@ -430,7 +430,7 @@ s32 func_80AECE60(EnTk* this, GlobalContext* globalCtx) {
         this->actor.world.rot.y = Math_Vec3f_Yaw(&sp94, &sp88);
     }
 
-    if ((globalCtx->unk_18B4A != 0) || (this->unk_3D0 == 0)) {
+    if ((globalCtx->transitionMode != 0) || (this->unk_3D0 == 0)) {
         this->unk_3F0 = sp78;
         this->unk_3EC = sp74;
         this->unk_3D4 = sp7C;

@@ -572,7 +572,7 @@ void Boss02_Init(Actor* thisx, GlobalContext* globalCtx) {
         } else {
             this->unk_1D20 = 1;
         }
-        XREG(41) = KREG(14) + 20;
+        R_MAGIC_CONSUME_TIMER_GIANT = KREG(14) + 20;
         this->unk_01AC = 1.0f;
         Actor_SpawnAsChild(&globalCtx->actorCtx, &this->actor, globalCtx, ACTOR_EN_TANRON5, 0.0f, 1000.0f, 0.0f, 0, 0,
                            0, 0);

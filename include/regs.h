@@ -70,6 +70,7 @@
 #define R_A_ICON_Y                  XREG(19)
 #define R_A_ICON_X                  XREG(20)
 #define R_A_BTN_COLOR(i)            XREG(22 + i)
+#define R_MAGIC_CONSUME_TIMER_GIANT XREG(41)
 #define R_MAGIC_BAR_SMALL_Y         XREG(48)
 #define R_MAGIC_BAR_X               XREG(49)
 #define R_MAGIC_BAR_LARGE_Y         XREG(50)

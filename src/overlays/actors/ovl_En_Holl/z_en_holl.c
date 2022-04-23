@@ -162,7 +162,7 @@ void EnHoll_VisibleIdle(EnHoll* this, GlobalContext* globalCtx) {
             func_800B9010(&this->actor, NA_SE_EV_INVISIBLE_MONKEY - SFX_FLAG);
         }
     }
-    if ((globalCtx->sceneLoadFlag != 0) || (globalCtx->unk_18B4A != 0)) {
+    if ((globalCtx->sceneLoadFlag != 0) || (globalCtx->transitionMode != 0)) {
         this->alpha = 255;
     } else {
         f32 enHollBottom = EN_HOLL_BOTTOM_DEFAULT;
@@ -309,7 +309,7 @@ void EnHoll_Update(Actor* thisx, GlobalContext* globalCtx) {
     EnHoll* this = THIS;
     Player* player = GET_PLAYER(globalCtx);
 
-    if ((globalCtx->sceneLoadFlag == 0) && (globalCtx->unk_18B4A == 0) && !(player->stateFlags1 & 0x200)) {
+    if ((globalCtx->sceneLoadFlag == 0) && (globalCtx->transitionMode == 0) && !(player->stateFlags1 & 0x200)) {
         this->actionFunc(this, globalCtx);
     }
 }

@@ -657,7 +657,7 @@ typedef struct {
     /* 0x252 */ s16 lifeSizeChange;
     /* 0x254 */ s16 lifeSizeChangeDirection; // 1 means shrinking, 0 growing
     /* 0x256 */ s16 unk_256;
-    /* 0x258 */ s16 lensMagicDepletionTimer;
+    /* 0x258 */ s16 magicConsumptionTimer;
     /* 0x25A */ u8 numHorseBoosts;
     /* 0x25C */ u16 unk_25C;
     /* 0x25E */ u16 unk_25E;
@@ -1416,7 +1416,7 @@ struct GlobalContext {
     /* 0x18B20 */ u16 envFlags[20];
     /* 0x18B48 */ u8 curSpawn;
     /* 0x18B49 */ u8 unk_18B49;
-    /* 0x18B4A */ u8 unk_18B4A;
+    /* 0x18B4A */ u8 transitionMode;
     /* 0x18B4C */ PreRender pauseBgPreRender;
     /* 0x18B9C */ char unk_18B9C[0x2B8];
     /* 0x18E54 */ SceneTableEntry* loadedScene;
