@@ -149,9 +149,9 @@ s32 D_801C6798[] = {
 };
 
 u8 D_801C67B0[24] = {
-    ITEM_NONE,  ITEM_BOW,  ITEM_NONE, ITEM_NONE, ITEM_NONE,       ITEM_NONE,      ITEM_BOMB, ITEM_BOMBCHU,
-    ITEM_STICK, ITEM_NUT,  ITEM_BEAN, ITEM_NONE, ITEM_POWDER_KEG, ITEM_PICTO_BOX, ITEM_NONE, ITEM_NONE,
-    ITEM_NONE,  ITEM_NONE, ITEM_NONE, ITEM_NONE, ITEM_NONE,       ITEM_NONE,      ITEM_NONE, ITEM_NONE,
+    ITEM_NONE,  ITEM_BOW,  ITEM_NONE,        ITEM_NONE, ITEM_NONE,       ITEM_NONE,      ITEM_BOMB, ITEM_BOMBCHU,
+    ITEM_STICK, ITEM_NUT,  ITEM_MAGIC_BEANS, ITEM_NONE, ITEM_POWDER_KEG, ITEM_PICTO_BOX, ITEM_NONE, ITEM_NONE,
+    ITEM_NONE,  ITEM_NONE, ITEM_NONE,        ITEM_NONE, ITEM_NONE,       ITEM_NONE,      ITEM_NONE, ITEM_NONE,
 };
 
 s32 D_801C67C8[] = { 0, 0x40, 0x80, 0xC0, 0x100, 0x180, 0x200, 0x280 };
@@ -360,20 +360,20 @@ void Sram_SaveEndOfCycle(GlobalContext* globalCtx) {
         gSaveContext.save.playerData.health = 0x30;
     }
 
-    if (GET_CUR_EQUIP_VALUE(EQUIP_SWORD) < 3) {
-        SET_EQUIP_VALUE(EQUIP_SWORD, 1);
+    if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) < 3) {
+        SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, 1);
 
         if (CUR_FORM == 0) {
             if ((STOLEN_ITEM_1 >= ITEM_SWORD_GILDED) || (STOLEN_ITEM_2 >= ITEM_SWORD_GILDED)) {
                 BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_SWORD_GILDED;
-                SET_EQUIP_VALUE(EQUIP_SWORD, 3);
+                SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, 3);
             } else {
                 BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_SWORD_KOKIRI;
             }
         } else {
             if ((STOLEN_ITEM_1 >= ITEM_SWORD_GILDED) || (STOLEN_ITEM_2 >= ITEM_SWORD_GILDED)) {
                 BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_GILDED;
-                SET_EQUIP_VALUE(EQUIP_SWORD, 3);
+                SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, 3);
             } else {
                 BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_KOKIRI;
             }
@@ -717,7 +717,7 @@ Inventory sSaveDebugInventory = {
         ITEM_BOMBCHU,
         ITEM_STICK,
         ITEM_NUT,
-        ITEM_BEAN,
+        ITEM_MAGIC_BEANS,
         ITEM_ROOM_KEY,
         ITEM_POWDER_KEG,
         ITEM_PICTO_BOX,
