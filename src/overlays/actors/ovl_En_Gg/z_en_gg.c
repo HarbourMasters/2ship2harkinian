@@ -231,7 +231,7 @@ void func_80B35450(EnGg* this, GlobalContext* globalCtx) {
 
     if (Actor_ProcessTalkRequest(&this->actor, &globalCtx->state)) {
         if (CHECK_FLAG_ALL(this->actor.flags, ACTOR_FLAG_80)) {
-            func_800B90F4(globalCtx);
+            Actor_DisableLens(globalCtx);
         }
         this->unk_308 = 1;
         this->actionFunc = func_80B352A4;

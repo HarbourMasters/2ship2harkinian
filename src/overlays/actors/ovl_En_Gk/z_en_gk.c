@@ -727,8 +727,8 @@ void func_80B51B40(EnGk* this, GlobalContext* globalCtx) {
                     globalCtx->sceneLoadFlag = 0x14;
                     globalCtx->unk_1887F = 3;
                     gSaveContext.nextTransition = 3;
-                    Interface_AddMagic(globalCtx, ((void)0, gSaveContext.unk_3F30) +
-                                                      (gSaveContext.save.playerData.doubleMagic * 0x30) + 0x30);
+                    Magic_Add(globalCtx, ((void)0, gSaveContext.magicCapacity) +
+                                             (gSaveContext.save.playerData.isDoubleMagicAcquired + 1) * MAGIC_HALF_BAR);
                 } else {
                     this->actionFunc = func_80B51760;
                 }

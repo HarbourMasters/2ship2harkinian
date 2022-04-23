@@ -651,10 +651,9 @@ void func_80962A10(EnFu* this, GlobalContext* globalCtx) {
         this->unk_546 = 1;
     }
 
-    if ((gSaveContext.save.playerForm == PLAYER_FORM_DEKU) && gSaveContext.save.playerData.magicAcquired) {
-        s16 temp = gSaveContext.unk_3F30;
-
-        Interface_AddMagic(globalCtx, temp + (gSaveContext.save.playerData.doubleMagic * 48) + 48);
+    if ((gSaveContext.save.playerForm == PLAYER_FORM_DEKU) && gSaveContext.save.playerData.isMagicAcquired) {
+        Magic_Add(globalCtx, ((void)0, gSaveContext.magicCapacity) +
+                                 (gSaveContext.save.playerData.isDoubleMagicAcquired + 1) * MAGIC_HALF_BAR);
     }
 
     func_80962F10(this);
@@ -1139,7 +1138,7 @@ void func_80963DE4(EnFu* this, GlobalContext* globalCtx) {
 }
 
 void func_80963EAC(EnFu* this, GlobalContext* globalCtx) {
-    if (gSaveContext.save.playerData.magicAcquired) {
+    if (gSaveContext.save.playerData.isMagicAcquired) {
         if (this->unk_540 == 1) {
             Message_StartTextbox(globalCtx, 0x2847, &this->actor);
             this->unk_552 = 0x2847;

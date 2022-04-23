@@ -139,7 +139,7 @@ void EnArrow_Destroy(Actor* thisx, GlobalContext* globalCtx) {
     }
 
     if ((this->actor.params >= ENARROW_3) && (this->actor.params < ENARROW_6) && (this->actor.child == NULL)) {
-        func_80115D5C(&globalCtx->state);
+        Magic_ResetBar(&globalCtx->state);
     }
 }
 
@@ -162,13 +162,13 @@ void func_8088A594(EnArrow* this, GlobalContext* globalCtx) {
             this->bubble.unk_148++;
             if (this->bubble.unk_148 > 20) {
                 this->actionFunc = func_8088ACE0;
-                func_80115D5C(&globalCtx->state);
+                Magic_ResetBar(&globalCtx->state);
             }
         }
     } else {
         if ((this->actor.params != ENARROW_8) && (player->unk_D57 == 0)) {
             if (this->actor.params == ENARROW_7) {
-                func_80115D5C(&globalCtx->state);
+                Magic_ResetBar(&globalCtx->state);
             }
             Actor_MarkForDeath(&this->actor);
             return;
@@ -202,7 +202,7 @@ void func_8088A594(EnArrow* this, GlobalContext* globalCtx) {
             this->bubble.unk_144 = CLAMP_MIN(this->bubble.unk_144, 3.5f);
             func_8088A514(this);
             this->unk_260 = 99;
-            func_80115D5C(&globalCtx->state);
+            Magic_ResetBar(&globalCtx->state);
         } else if (this->actor.params >= ENARROW_6) {
             if ((this->actor.params == ENARROW_8) && (this->actor.world.rot.x < 0)) {
                 Actor_SetScale(&this->actor, 0.009f);
@@ -311,7 +311,7 @@ void func_8088AA98(EnArrow* this, GlobalContext* globalCtx) {
                 return;
             }
 
-            func_80115D5C(&globalCtx->state);
+            Magic_ResetBar(&globalCtx->state);
         }
     }
 }

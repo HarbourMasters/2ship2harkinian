@@ -2214,10 +2214,10 @@ s32 func_800B90AC(GlobalContext* globalCtx, Actor* actor, CollisionPoly* polygon
     return false;
 }
 
-void func_800B90F4(GlobalContext* globalCtx) {
-    if (globalCtx->actorCtx.unk3 != 0) {
-        globalCtx->actorCtx.unk3 = 0;
-        func_80115D5C(&globalCtx->state);
+void Actor_DisableLens(GlobalContext* globalCtx) {
+    if (globalCtx->actorCtx.lensActive) {
+        globalCtx->actorCtx.lensActive = false;
+        Magic_ResetBar(&globalCtx->state);
     }
 }
 
@@ -2906,14 +2906,15 @@ void Actor_DrawAll(GlobalContext* globalCtx, ActorContext* actorCtx) {
     gSPDisplayList(sp58, &ref2[1]);
     POLY_XLU_DISP = &ref2[1];
 
-    if (globalCtx->actorCtx.unk3 != 0) {
+    if (globalCtx->actorCtx.lensActive) {
         Math_StepToC(&globalCtx->actorCtx.unk4, 100, 20);
         if (GET_PLAYER(globalCtx)->stateFlags2 & 0x8000000) {
-            func_800B90F4(globalCtx);
+            Actor_DisableLens(globalCtx);
         }
     } else {
         Math_StepToC(&globalCtx->actorCtx.unk4, 0, 10);
     }
+
     if (globalCtx->actorCtx.unk4 != 0) {
         globalCtx->actorCtx.unkB = 1;
         func_800B9EF4(globalCtx, globalCtx->actorCtx.undrawnActorCount, globalCtx->actorCtx.undrawnActors);
