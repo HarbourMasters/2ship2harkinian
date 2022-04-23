@@ -235,7 +235,7 @@ s32 func_80AE6704(EnShn* thisx, GlobalContext* globalCtx) {
 
     switch (this->unk_2C6) {
         case 0:
-            if (!CHECK_QUEST_ITEM(QUEST_PICTOBOX)) {
+            if (!CHECK_QUEST_ITEM(QUEST_PICTOGRAPH)) {
                 this->unk_2C6 = 6;
                 ret = 1;
             } else {
@@ -250,7 +250,7 @@ s32 func_80AE6704(EnShn* thisx, GlobalContext* globalCtx) {
             if (func_8013A4C4(D_80AE7258[this->unk_2C6])) {
                 this->unk_2C6 = 6;
                 ret = 1;
-                REMOVE_QUEST_ITEM(QUEST_PICTOBOX);
+                REMOVE_QUEST_ITEM(QUEST_PICTOGRAPH);
             } else {
                 this->unk_2C6++;
             }
@@ -380,7 +380,7 @@ void EnShn_Update(Actor* thisx, GlobalContext* globalCtx) {
     func_80AE6130(this);
     func_80AE63A8(this, globalCtx);
     this->unk_2E0 = 0;
-    func_8013C964(&this->actor, globalCtx, 120.0f, 40.0f, 0, this->unk_1D8 & 7);
+    func_8013C964(&this->actor, globalCtx, 120.0f, 40.0f, EXCH_ITEM_NONE, this->unk_1D8 & 7);
 }
 
 s32 EnShn_OverrideLimbDraw(GlobalContext* globalCtx, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx) {

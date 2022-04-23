@@ -7,10 +7,10 @@
 // TODO fill out these enums
 
 typedef enum {
-    /* 0x0 */ EQUIP_TYPE_SWORD,
-    /* 0x1 */ EQUIP_TYPE_SHIELD,
-    /* 0x2 */ EQUIP_TYPE_TUNIC, // Remnant of OoT
-    /* 0x2 */ EQUIP_TYPE_MAX
+    /* 0 */ EQUIP_TYPE_SWORD,
+    /* 1 */ EQUIP_TYPE_SHIELD,
+    /* 2 */ EQUIP_TYPE_TUNIC, // Remnant of OoT
+    /* 3 */ EQUIP_TYPE_MAX
 } EquipmentType;
 
 typedef enum {
@@ -30,14 +30,14 @@ typedef enum {
 } EquipValueShield;
 
 typedef enum {
-    /* 0x00 */ UPG_QUIVER,
-    /* 0x01 */ UPG_BOMB_BAG,
-    /* 0x02 */ UPG_STRENGTH,
-    /* 0x03 */ UPG_SCALE,
-    /* 0x04 */ UPG_WALLET,
-    /* 0x05 */ UPG_BULLET_BAG,
-    /* 0x06 */ UPG_STICKS,
-    /* 0x07 */ UPG_NUTS
+    /* 0 */ UPG_QUIVER,
+    /* 1 */ UPG_BOMB_BAG,
+    /* 2 */ UPG_STRENGTH,
+    /* 3 */ UPG_SCALE,
+    /* 4 */ UPG_WALLET,
+    /* 5 */ UPG_BULLET_BAG,
+    /* 6 */ UPG_STICKS,
+    /* 7 */ UPG_NUTS
 } UpgradeType;
 
 typedef enum {
@@ -62,8 +62,8 @@ typedef enum {
     /* 0x12 */ QUEST_BOMBERS_NOTEBOOK, // Obtained Bombers Notebook
     /* 0x13 */ QUEST_SKULL_TOKEN,
     /* 0x18 */ QUEST_SONG_LULLABY_INTRO = 0x18,
-    /* 0x19 */ QUEST_PICTOBOX, // Photo taken from PictoBox
-    /* 0x1C */ QUEST_HEART_PIECE_COUNT = 0x1C,
+    /* 0x19 */ QUEST_PICTOGRAPH, // A photo from the pictograph box is saved
+    /* 0x1C */ QUEST_HEART_PIECE_COUNT = 0x1C
 } QuestItem;
 
 typedef enum {
@@ -288,6 +288,9 @@ typedef enum {
 #define BOTTLE_FIRST 0
 #define BOTTLE_MAX 6
 
+#define BOTTLE_FIRST 0
+#define BOTTLE_MAX 6
+
 typedef enum {
     /* 0x00 */ GI_NONE,
     /* 0x01 */ GI_RUPEE_GREEN,
@@ -397,7 +400,8 @@ typedef enum {
     /* 0x31 */ GID_POTION_RED,
     /* 0x32 */ GID_POTION_BLUE,
     /* 0x33 */ GID_SHIELD_MIRROR,
-    /* 0x3A */ GID_3A = 0x3A,
+    /* 0x39 */ GID_39 = 0x39,
+    /* 0x3A */ GID_3A,
     /* 0x3B */ GID_FAIRY,
     /* 0x3E */ GID_3E = 0x3E,
     /* 0x44 */ GID_44 = 0x44,

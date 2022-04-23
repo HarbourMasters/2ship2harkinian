@@ -740,7 +740,7 @@ void EnHorse_Init(Actor* thisx, GlobalContext* globalCtx2) {
         this->stateFlags = ENHORSE_FLAG_19 | ENHORSE_CANT_JUMP | ENHORSE_UNRIDEABLE;
     } else if (this->actor.params == ENHORSE_8) {
         this->stateFlags = ENHORSE_FLAG_19 | ENHORSE_CANT_JUMP;
-        if (CHECK_QUEST_ITEM(14)) {
+        if (CHECK_QUEST_ITEM(QUEST_SONG_EPONA)) {
             this->stateFlags &= ~ENHORSE_CANT_JUMP;
             this->stateFlags |= ENHORSE_FLAG_26;
         }
@@ -4555,7 +4555,6 @@ void EnHorse_PostDraw(Actor* thisx, GlobalContext* globalCtx, Skin* skin) {
                     if (this->type == HORSE_2) {
                         Skin_GetLimbPos(skin, 28, &hoofOffset, &sp64);
                     } else {
-                        curFrame = curFrame;
                         Skin_GetLimbPos(skin, 28, &hoofOffset, &sp64);
                     }
                     EnHorse_RandomOffset(&sp64, 10.0f, &this->frontRightHoof);

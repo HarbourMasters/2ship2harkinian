@@ -2087,7 +2087,7 @@ void func_80111CB4(GlobalContext* globalCtx) {
                     func_80115844(globalCtx, 0x12);
                     Interface_ChangeAlpha(21);
                     D_801BF884 = 1;
-                    REMOVE_QUEST_ITEM(QUEST_PICTOBOX);
+                    REMOVE_QUEST_ITEM(QUEST_PICTOGRAPH);
                 } else {
                     func_8019F208();
                     interfaceCtx->unk_222 = interfaceCtx->unk_224 = 0;
@@ -2100,7 +2100,7 @@ void func_80111CB4(GlobalContext* globalCtx) {
                         func_8013A240(globalCtx);
                     }
                     globalCtx->actorCtx.unk5 &= ~4;
-                    SET_QUEST_ITEM(QUEST_PICTOBOX);
+                    SET_QUEST_ITEM(QUEST_PICTOGRAPH);
                     D_801BF888 = false;
                 }
             }
@@ -2117,7 +2117,7 @@ void func_80111CB4(GlobalContext* globalCtx) {
             gSaveContext.buttonStatus[3] = BTN_DISABLED;
             Interface_ChangeAlpha(22);
         } else if (globalCtx->actorCtx.unk5 & 4) {
-            if (!CHECK_QUEST_ITEM(QUEST_PICTOBOX)) {
+            if (!CHECK_QUEST_ITEM(QUEST_PICTOGRAPH)) {
                 func_80115844(globalCtx, 0x12);
                 Interface_ChangeAlpha(21);
                 D_801BF884 = 1;
@@ -3756,7 +3756,7 @@ void Interface_DrawAmmoCount(GlobalContext* globalCtx, s16 button, s16 alpha) {
         ammo = AMMO(i);
 
         if (i == ITEM_PICTO_BOX) {
-            if (!CHECK_QUEST_ITEM(QUEST_PICTOBOX)) {
+            if (!CHECK_QUEST_ITEM(QUEST_PICTOGRAPH)) {
                 ammo = 0;
             } else {
                 ammo = 1;

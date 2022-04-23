@@ -758,7 +758,7 @@ s32 func_80BABFD4(EnSuttari* this, GlobalContext* globalCtx) {
     }
     this->actor.world.pos.x = sp58.x;
     this->actor.world.pos.z = sp58.z;
-    if (func_8013AD6C(globalCtx)) {
+    if (SubS_InCsMode(globalCtx)) {
         sp54 = this->unk424;
         sp50 = this->unk420;
         sp58 = this->actor.world.pos;
@@ -772,7 +772,7 @@ s32 func_80BABFD4(EnSuttari* this, GlobalContext* globalCtx) {
         sp64 = this->unk408;
         this->actor.world.rot.y = Math_Vec3f_Yaw(&sp70, &sp64);
     }
-    if (func_8013AD6C(globalCtx)) {
+    if (SubS_InCsMode(globalCtx)) {
         this->unk424 = sp54;
         this->unk420 = sp50;
         this->unk408 = sp58;
@@ -981,7 +981,7 @@ void func_80BACA14(EnSuttari* this, GlobalContext* globalCtx) {
             this->actionFunc = func_80BACBB0;
         }
     } else if ((player->transformation == PLAYER_FORM_HUMAN) &&
-               GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) != EQUIP_VALUE_SWORD_NONE) {
+               (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) != EQUIP_VALUE_SWORD_NONE)) {
         if (Actor_ProcessTalkRequest(&this->actor, &globalCtx->state)) {
             this->unk3F2 = this->unk2DC.y;
             func_80BAAB78(this, globalCtx);
