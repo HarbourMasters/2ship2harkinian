@@ -133,15 +133,18 @@ void EnMuto_Idle(EnMuto* this, GlobalContext* globalCtx) {
     Player* player;
     this->actor.textId = sTextIds[this->textIdIndex];
 
-    if (!this->isInMayorsRoom && (player = GET_PLAYER(globalCtx))->transformation == PLAYER_FORM_DEKU) {
-        if (!(gSaveContext.save.weekEventReg[88] & 8)) {
-            this->actor.textId = 0x62C;
-        } else {
-            this->actor.textId = 0x62B;
+    if (!this->isInMayorsRoom) {
+        player = GET_PLAYER(globalCtx);
+        if (player->transformation == PLAYER_FORM_DEKU) {
+            if (!(gSaveContext.save.weekEventReg[88] & 8)) {
+                this->actor.textId = 0x62C;
+            } else {
+                this->actor.textId = 0x62B;
+            }
         }
     }
 
-    if (1) {} // Needed to match
+    if (1) {} // Needed  match
 
     if (!this->isInMayorsRoom && Player_GetMask(globalCtx) == PLAYER_MASK_KAFEIS_MASK) {
         this->actor.textId = 0x2363;

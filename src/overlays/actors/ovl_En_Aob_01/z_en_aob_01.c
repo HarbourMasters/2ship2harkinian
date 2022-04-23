@@ -100,11 +100,8 @@ void func_809C10B0(EnAob01* this, s32 arg1) {
 }
 
 void func_809C1124(void) {
-    u16 time = gSaveContext.save.time;
-
-    gSaveContext.save.time = (u16)REG(15) + time;
-    time = gSaveContext.save.time;
-    gSaveContext.save.time = (u16)gSaveContext.save.daySpeed + time;
+    gSaveContext.save.time = ((void)0, gSaveContext.save.time) + (u16)REG(15);
+    gSaveContext.save.time = ((void)0, gSaveContext.save.time) + (u16)((void)0, gSaveContext.save.daySpeed);
 }
 
 void func_809C1158(EnAob01* this, GlobalContext* globalCtx) {
