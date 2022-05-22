@@ -68,7 +68,7 @@ const ActorInit En_Death_InitVars = {
 
 // static ColliderSphereInit sSphereInit = {
 static ColliderSphereInit D_808C98E0 = {
-    { COLTYPE_HIT3, AT_NONE, AC_NONE | AC_TYPE_PLAYER, OC1_NONE, OC2_TYPE_1, COLSHAPE_SPHERE, },
+    { COLTYPE_HIT3, AT_NONE, AC_NONE | AC_TYPE_GET_PLAYER(globalCtx), OC1_NONE, OC2_TYPE_1, COLSHAPE_SPHERE, },
     { ELEMTYPE_UNK0, { 0xF7CFFFFF, 0x00, 0x00 }, { 0xF7CFFFFF, 0x00, 0x00 }, TOUCH_NONE | TOUCH_SFX_NORMAL, BUMP_ON, OCELEM_NONE, },
     { 1, { { 0, 0, 0 }, 22 }, 100 },
 };
@@ -94,7 +94,7 @@ static ColliderTrisElementInit D_808C9938[2] = {
 
 // static ColliderTrisInit sTrisInit = {
 static ColliderTrisInit D_808C99B0 = {
-    { COLTYPE_METAL, AT_ON | AT_TYPE_ENEMY, AC_ON | AC_HARD | AC_TYPE_PLAYER, OC1_NONE, OC2_TYPE_1, COLSHAPE_TRIS, },
+    { COLTYPE_METAL, AT_ON | AT_TYPE_ENEMY, AC_ON | AC_HARD | AC_TYPE_GET_PLAYER(globalCtx), OC1_NONE, OC2_TYPE_1, COLSHAPE_TRIS, },
     2, D_808C9938, // sTrisElementsInit,
 };
 
@@ -168,8 +168,8 @@ extern Vec3f D_808C9B00;
 extern Vec3f D_808C9B0C[];
 extern s8 D_808C9B48[];
 extern Vec3f D_808C9ABC;
-extern Vec3f D_808C9AC8;
-extern Vec3f D_808C9ACC;
+extern Color_RGBA8 D_808C9AC8;
+extern Color_RGBA8 D_808C9ACC;
 
 extern FlexSkeletonHeader D_0600AD08;
 extern AnimationHeader D_06003CAC;
@@ -348,11 +348,12 @@ f32 func_808C566C(EnDeath* this) {
     this->unk_2F6 += (s16)(65536.0f * (22.5f / (this->unk_308 * (2 * M_PI))));
 }
 #else
+f32 func_808C566C(EnDeath* this);
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Death/func_808C566C.s")
 #endif
 
 void func_808C571C(EnDeath* this, GlobalContext* globalCtx) {
-    Player* player = PLAYER;
+    Player* player = GET_PLAYER(globalCtx);
     Vec3f sp30;
     Vec3f sp24;
 
@@ -374,7 +375,7 @@ void func_808C571C(EnDeath* this, GlobalContext* globalCtx) {
 }
 
 void func_808C589C(EnDeath* this, GlobalContext* globalCtx) {
-    Player* player = PLAYER;
+    Player* player = GET_PLAYER(globalCtx);
 
     player->actor.world.pos.x = Math_SinS(this->actor.home.rot.y - 0x370) * 463.0f + this->actor.world.pos.x;
     player->actor.world.pos.z = Math_CosS(this->actor.home.rot.y - 0x370) * 463.0f + this->actor.world.pos.z;
@@ -823,7 +824,7 @@ void func_808C6F6C(EnDeath* this, GlobalContext* globalCtx) {
 void func_808C70D8(EnDeath* this, GlobalContext* globalCtx) {
     LightSettings* lightSettings1;
     LightSettings* lightSettings2;
-    Player* player = PLAYER;
+    Player* player = GET_PLAYER(globalCtx);
     Vec3f sp40;
     Vec3f sp34;
     f32 sp30;
@@ -867,7 +868,7 @@ void func_808C72AC(EnDeath* this, GlobalContext* globalCtx) {
 
     this->unk_2EE--;
     if (this->unk_2EE >= 0 && this->unk_2EE < 3) {
-        temp_v1 = Camera_GetCamDirYaw(ACTIVE_CAM) + 0x8000;
+        temp_v1 = Camera_GetCamDirYaw(GET_ACTIVE_CAM(globalCtx)) + 0x8000;
         sin = Math_SinS(temp_v1);
         cos = Math_CosS(temp_v1);
         Matrix_InsertTranslation(this->actor.world.pos.x + (83.0f * sin) + (-38.0f * cos),
@@ -879,7 +880,7 @@ void func_808C72AC(EnDeath* this, GlobalContext* globalCtx) {
         Matrix_Scale(0.01f, 0.01f, 0.01f, 1);
         Matrix_CopyCurrentState(&this->unk_6A4);
         if (this->unk_2EE == 0) {
-            func_800DFD04(ACTIVE_CAM, 2, 4, 6);
+            func_800DFD04(GET_ACTIVE_CAM(globalCtx), 2, 4, 6);
             func_8013ECE0(this->actor.xyzDistToPlayerSq, 0xB4, 0x14, 0x64);
             func_801A7328(&this->unk_338, 0x3AAE);
             Audio_PlaySfxAtPos(&this->unk_338, 0x3AAF);
@@ -935,7 +936,7 @@ void func_808C7888(EnDeath* this, GlobalContext* globalCtx) {
                 sp74.x = randPlusMinusPoint5Scaled(4.0f);
                 sp74.y = randPlusMinusPoint5Scaled(4.0f);
                 sp74.z = Rand_ZeroFloat(2.0f) + 3.0f;
-                EffectSsKiraKira_SpawnSmall(globalCtx, &this->actor.world, &sp74, &D_808C9ABC, &D_808C9AC8,
+                EffectSsKiraKira_SpawnSmall(globalCtx, &this->actor.world.pos, &sp74, &D_808C9ABC, &D_808C9AC8,
                                             &D_808C9ACC);
             }
             Actor_PlaySfxAtPos(&this->actor, 0x3AB5);
@@ -1056,7 +1057,7 @@ void func_808C7E24(EnDeath* this, GlobalContext* globalCtx) {
         if (this->unk_320.y < this->actor.floorHeight) {
             this->unk_320.y = this->actor.floorHeight;
             func_800B3030(globalCtx, &this->unk_320, &gZeroVec3f, &gZeroVec3f, 0x64, 0, 0);
-            func_800F0568(globalCtx, &this->unk_320, 0xB, 0x3878);
+            SoundSource_PlaySfxAtFixedWorldPos(globalCtx, &this->unk_320, 0xB, 0x3878);
             this->unk_18D = 0;
         }
     }
@@ -1076,7 +1077,7 @@ void func_808C7EDC(EnDeath* this, GlobalContext* globalCtx) {
             this->unk_308 = -1.0f;
             this->unk_2F6 = this->actor.shape.rot.y;
             Math_Vec3s_ToVec3f(&this->unk_320, &this->unk_808.dim.worldSphere.center);
-            func_800F0568(globalCtx, &this->unk_320, 0x1E, 0x3842);
+            SoundSource_PlaySfxAtFixedWorldPos(globalCtx, &this->unk_320, 0x1E, 0x3842);
 
             if (this->actor.colChkInfo.damageEffect == 4 && this->unk_188 != func_808C7B88) {
                 for (i = 0; i < ARRAY_COUNT(this->unk_6E4); i++) {
@@ -1230,6 +1231,7 @@ void func_808C84A4(EnDeath* this, GlobalContext* globalCtx) {
     CLOSE_DISPS(globalCtx->state.gfxCtx);
 }
 #else
+void func_808C84A4(EnDeath* this, GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Death/func_808C84A4.s")
 #endif
 
@@ -1276,8 +1278,10 @@ void func_808C8690(EnDeath* this, GlobalContext* globalCtx) {
     CLOSE_DISPS(globalCtx->state.gfxCtx);
 }
 
+void func_808C882C(EnDeath* this, GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Death/func_808C882C.s")
 
+void func_808C8D18(EnDeath* this, GlobalContext* globalCtx);
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Death/func_808C8D18.s")
 
 void func_808C9160(EnDeath* this, GlobalContext* globalCtx) {
@@ -1302,7 +1306,7 @@ void func_808C9160(EnDeath* this, GlobalContext* globalCtx) {
     CLOSE_DISPS(globalCtx->state.gfxCtx);
 }
 
-s32 func_808C9220(GlobalContext* globalCtx, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, void* thisx) {
+s32 func_808C9220(GlobalContext* globalCtx, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx) {
     EnDeath* this = THIS;
     f32 temp_f12;
     s32 temp_v0;
@@ -1330,7 +1334,7 @@ s32 func_808C9220(GlobalContext* globalCtx, s32 limbIndex, Gfx** dList, Vec3f* p
 
 #ifdef NON_MATCHING
 // A lot towards the bottom, original wants to mult but mine optimizes to shifts
-void func_808C9340(GlobalContext* globalCtx, s32 limbIndex, Gfx** dList, Vec3s* rot, void* thisx) {
+void func_808C9340(GlobalContext* globalCtx, s32 limbIndex, Gfx** dList, Vec3s* rot, Actor* thisx) {
     EnDeath* this = THIS;
     Vec3f sp6C;
     Vec3f sp60;
@@ -1348,7 +1352,7 @@ void func_808C9340(GlobalContext* globalCtx, s32 limbIndex, Gfx** dList, Vec3s* 
     if (limbIndex == 0x15) {
         Matrix_GetStateTranslation(&this->unk_32C);
         if ((this->unk_788.base.atFlags & 1) && this->unk_2EC != this->unk_2EE) {
-            Math_Vec3f_Copy(&sp6C, &this->unk_788.dim);
+            Math_Vec3f_Copy(&sp6C, &this->unk_788.dim.quad[0]);
             Math_Vec3f_Copy(&sp60, &this->unk_788.dim.quad[1]);
             if (this->unk_188 == func_808C682C) {
                 Matrix_GetStateTranslationAndScaledX(6000.0f, &sp54);
@@ -1363,9 +1367,9 @@ void func_808C9340(GlobalContext* globalCtx, s32 limbIndex, Gfx** dList, Vec3s* 
         } else if (this->unk_18C != 0) {
             if (this->unk_188 == func_808C682C) {
                 Matrix_GetStateTranslationAndScaledX(6000.0f, &this->unk_788.dim.quad[1]);
-                Matrix_MultiplyVector3fByState(&D_808C9AF4, &this->unk_788.dim);
+                Matrix_MultiplyVector3fByState(&D_808C9AF4, &this->unk_788.dim.quad[0]);
             } else {
-                Matrix_GetStateTranslationAndScaledY(5000.0f, &this->unk_788.dim);
+                Matrix_GetStateTranslationAndScaledY(5000.0f, &this->unk_788.dim.quad[0]);
                 Matrix_MultiplyVector3fByState(&D_808C9B00, &this->unk_788.dim.quad[1]);
             }
             this->unk_18C = 0;
@@ -1376,7 +1380,7 @@ void func_808C9340(GlobalContext* globalCtx, s32 limbIndex, Gfx** dList, Vec3s* 
         Matrix_StatePush();
         func_808C9160(this, globalCtx);
         Matrix_StatePop();
-        Matrix_GetStateTranslation(&this->actor.focus);
+        Matrix_GetStateTranslation(&this->actor.focus.pos);
         this->unk_808.dim.worldSphere.center.x = this->actor.focus.pos.x;
         this->unk_808.dim.worldSphere.center.y = this->actor.focus.pos.y;
         this->unk_808.dim.worldSphere.center.z = this->actor.focus.pos.z;
@@ -1408,7 +1412,7 @@ void func_808C9340(GlobalContext* globalCtx, s32 limbIndex, Gfx** dList, Vec3s* 
     }
 }
 #else
-void func_808C9340(GlobalContext* globalCtx, s32 limbIndex, Gfx** dList, Vec3s* rot, void* thisx);
+void func_808C9340(GlobalContext* globalCtx, s32 limbIndex, Gfx** dList, Vec3s* rot, Actor* thisx);
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Death/func_808C9340.s")
 #endif
 
@@ -1428,7 +1432,7 @@ void EnDeath_Draw(Actor* thisx, GlobalContext* globalCtx) {
 
     if (this->unk_188 != func_808C7AAC && this->unk_188 != func_808C7888) {
         SkelAnime_DrawFlexOpa(globalCtx, this->skelAnime.skeleton, this->skelAnime.jointTable, this->skelAnime.dListCount,
-                         func_808C9220, func_808C9340, this);
+                         func_808C9220, func_808C9340, &this->actor);
     }
     if (this->unk_188 == func_808C7888) {
         func_808C9160(this, globalCtx);
