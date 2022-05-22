@@ -2,8 +2,11 @@
 #define Z_EN_OSSAN_H
 
 #include "global.h"
-
 #include "overlays/actors/ovl_En_GirlA/z_en_girla.h"
+#include "objects/object_ani/object_ani.h"
+#include "objects/object_fsn/object_fsn.h"
+
+#define ENOSSAN_LIMB_MAX MAX(FSN_LIMB_MAX + 1, ANI_LIMB_MAX)
 
 struct EnOssan;
 
@@ -26,13 +29,8 @@ typedef struct EnOssan {
     /* 0x20C */ s32 stickAccumY;
     /* 0x210 */ u8 moveHorizontal;
     /* 0x211 */ u8 moveVertical;
-    /* 0x214 */ f32 cursorX;
-    /* 0x218 */ f32 cursorY;
-    /* 0x21C */ f32 cursorZ;
-    /* 0x220 */ u32 cursorColorR;
-    /* 0x224 */ u32 cursorColorG;
-    /* 0x228 */ u32 cursorColorB;
-    /* 0x22C */ u32 cursorColorA;
+    /* 0x214 */ Vec3f cursorPos;
+    /* 0x220 */ Color_RGBAu32 cursorColor;
     /* 0x230 */ f32 cursorAnimTween;
     /* 0x234 */ u8 cursorAnimState;
     /* 0x235 */ u8 drawCursor;
@@ -55,9 +53,9 @@ typedef struct EnOssan {
     /* 0x2CC */ Vec3s unk2CC; // Set but never used
     /* 0x2D2 */ s16 limbRotTableY[19];
     /* 0x2F8 */ s16 limbRotTableZ[19];
-    /* 0x31E */ Vec3s limbDrawTbl[19];
-    /* 0x390 */ Vec3s transitionDrawTbl[19];
-    /* 0x402 */ s16 animationIdx;
+    /* 0x31E */ Vec3s jointTable[ENOSSAN_LIMB_MAX];
+    /* 0x390 */ Vec3s morphTable[ENOSSAN_LIMB_MAX];
+    /* 0x402 */ s16 animationIndex;
     /* 0x404 */ Vec3s headRotPartTimeWorker;
     /* 0x40A */ u16 flags;
 } EnOssan; // size = 0x40C
@@ -72,12 +70,6 @@ typedef enum {
     /* 0 */ ENOSSAN_CURIOSITY_SHOP_MAN,
     /* 1 */ ENOSSAN_PART_TIME_WORKER
 } EnOssanWorker;
-
-typedef enum {
-    /* 0 */ ENOSSAN_CUTSCENESTATE_STOPPED,
-    /* 1 */ ENOSSAN_CUTSCENESTATE_WAITING,
-    /* 2 */ ENOSSAN_CUTSCENESTATE_PLAYING
-} EnOssanCutsceneState;
 
 extern const ActorInit En_Ossan_InitVars;
 

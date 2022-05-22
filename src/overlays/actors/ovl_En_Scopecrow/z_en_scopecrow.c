@@ -1,6 +1,12 @@
+/*
+ * File: z_en_scopecrow.c
+ * Overlay: ovl_En_Scopecrow
+ * Description: Astral Observatory - Guay in Telescope
+ */
+
 #include "z_en_scopecrow.h"
 
-#define FLAGS 0x00000030
+#define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
 #define THIS ((EnScopecrow*)thisx)
 

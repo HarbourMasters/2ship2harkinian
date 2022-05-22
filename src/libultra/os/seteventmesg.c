@@ -2,6 +2,8 @@
 
 UNK_TYPE4 D_80097F10 = 0;
 
+__OSEventState __osEventStateTab[16];
+
 void osSetEventMesg(OSEvent e, OSMesgQueue* mq, OSMesg m) {
     register u32 saveMask;
     __OSEventState* es;
@@ -15,7 +17,7 @@ void osSetEventMesg(OSEvent e, OSMesgQueue* mq, OSMesg m) {
 
     if (e == 14) {
         if (__osShutdown != 0 && D_80097F10 == 0) {
-            osSendMesg(mq, m, 0);
+            osSendMesg(mq, m, OS_MESG_NOBLOCK);
         }
         D_80097F10 = 1;
     }

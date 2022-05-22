@@ -7,7 +7,7 @@
 #define _PROUT(fmt, _size)                 \
     if (_size > 0) {                       \
         arg = (void*)pfn(arg, fmt, _size); \
-        if (arg != 0)                      \
+        if (arg != NULL)                   \
             x.nchar += _size;              \
         else                               \
             return x.nchar;                \
@@ -25,16 +25,10 @@
         }                            \
     }
 
-#define FLAGS_SPACE 1
-#define FLAGS_PLUS 2
-#define FLAGS_MINUS 4
-#define FLAGS_HASH 8
-#define FLAGS_ZERO 16
-
 char spaces[] = "                                ";
 char zeroes[] = "00000000000000000000000000000000";
 
-int _Printf(printf_func pfn, void* arg, const char* fmt, va_list ap) {
+int _Printf(PrintCallback pfn, void* arg, const char* fmt, va_list ap) {
     _Pft x;
     x.nchar = 0;
     while (1) {

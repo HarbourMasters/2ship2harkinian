@@ -54,18 +54,16 @@ s32 func_800E8FA4(Actor* actor, Vec3f* param_2, Vec3s* param_3, Vec3s* param_4) 
 }
 
 s32 func_800E9138(GlobalContext* globalCtx, Actor* actor, Vec3s* param_3, Vec3s* param_4, f32 param_5) {
-    Player* player = PLAYER;
+    Player* player = GET_PLAYER(globalCtx);
     s16 sVar3;
     Vec3f local_14;
-    s16 sVar3A;
 
     actor->focus.pos = actor->world.pos;
     actor->focus.pos.y += param_5;
 
     if (((globalCtx->csCtx).state == 0) && (D_801D0D50 == 0)) {
-        sVar3 = actor->yawTowardsPlayer - actor->shape.rot.y;
-        sVar3A = ABS_ALT(sVar3);
-        if (sVar3A >= 0x4300) {
+        sVar3 = ABS_ALT(BINANG_SUB(actor->yawTowardsPlayer, actor->shape.rot.y));
+        if (sVar3 >= 0x4300) {
             func_800E8F08(param_3, param_4);
             return 0;
         }
@@ -83,17 +81,15 @@ s32 func_800E9138(GlobalContext* globalCtx, Actor* actor, Vec3s* param_3, Vec3s*
 }
 
 s32 func_800E9250(GlobalContext* globalCtx, Actor* actor, Vec3s* param_3, Vec3s* param_4, Vec3f param_5) {
-    Player* player = PLAYER;
+    Player* player = GET_PLAYER(globalCtx);
     s16 sVar3;
     Vec3f local_14;
-    s16 sVar3A;
 
     actor->focus.pos = param_5;
 
     if (((globalCtx->csCtx).state == 0) && (D_801D0D50 == 0)) {
-        sVar3 = actor->yawTowardsPlayer - actor->shape.rot.y;
-        sVar3A = ABS_ALT(sVar3);
-        if (sVar3A >= 0x4300) {
+        sVar3 = ABS_ALT(BINANG_SUB(actor->yawTowardsPlayer, actor->shape.rot.y));
+        if (sVar3 >= 0x4300) {
             func_800E8F08(param_3, param_4);
             return 0;
         }

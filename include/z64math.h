@@ -6,8 +6,13 @@
 #define VEC_SET(V,X,Y,Z) V.x=X;V.y=Y;V.z=Z
 
 typedef struct {
+    /* 0x00 */ s16 x;
+    /* 0x02 */ s16 z;
+} Vec2s; // size = 0x04
+
+typedef struct {
     /* 0x00 */ f32 x;
-    /* 0x04 */ f32 y;
+    /* 0x04 */ f32 z;
 } Vec2f; // size = 0x08
 
 typedef struct {
@@ -44,6 +49,10 @@ typedef struct {
     /* 0x0C */ f32   radius;
 } Spheref; // size = 0x10
 
+/* 
+The plane paramaters are of form `ax + by + cz + d = 0` 
+where `(a,b,c)` is the plane's normal vector and d is the originDist
+ */
 typedef struct {
     /* 0x00 */ Vec3f normal;
     /* 0x0C */ f32   originDist;
@@ -85,9 +94,10 @@ typedef struct {
     /* 0x06 */ s16 yaw;     // azimuthal angle
 } VecSph; // size = 0x08
 
-#define F32_LERP(v0,v1,t) ((1.0f - (t)) * (v0) + (t) * (v1))
-#define F32_LERPIMP(v0, v1, t) (v0 + ((v1 - v0) * t))
-#define F32_LERPIMPINV(v0, v1, t) ((v0) + (((v1) - (v0)) / (t)))
+#define LERPIMP(v0, v1, t) ((v0) + (((v1) - (v0)) * (t)))
+#define F32_LERP(v0, v1, t) ((1.0f - (t)) * (f32)(v0) + (t) * (f32)(v1))
+#define F32_LERPIMP(v0, v1, t) ((f32)(v0) + (((f32)(v1) - (f32)(v0)) * (t)))
+#define F32_LERPIMPINV(v0, v1, t) ((f32)(v0) + (((f32)(v1) - (f32)(v0)) / (t)))
 #define BINANG_LERPIMP(v0, v1, t) ((v0) + (s16)(BINANG_SUB((v1), (v0)) * (t)))
 #define BINANG_LERPIMPINV(v0, v1, t) ((v0) + BINANG_SUB((v1), (v0)) / (t))
 
@@ -106,6 +116,7 @@ typedef struct {
 #define DEGF_TO_RADF(degf) (degf * (M_PI / 180.0f))
 #define BINANG_ROT180(angle) ((s16)(angle + 0x8000))
 #define BINANG_SUB(a, b) ((s16)(a - b))
+#define BINANG_ADD(a, b) ((s16)(a + b))
 #define DEG_TO_RAD(degrees) ((degrees) * (M_PI / 180.0f))
 #define BINANG_TO_DEGF(binang) ((f32)binang * (360.0001525f / 65535.0f))
 #define BINANG_TO_RAD(binang) (((f32)binang / 32768.0f) * M_PI)

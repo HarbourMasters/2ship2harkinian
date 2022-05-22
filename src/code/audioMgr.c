@@ -51,7 +51,7 @@ void AudioMgr_HandleRetrace(AudioMgr* audioMgr) {
                 osSyncPrintf("AUDIO SP TIMEOUT %08x %08x\n", audioMgr->rspTask, audioMgr->rspTask->task);
                 if (retryCount >= 0) {
                     retryCount--;
-                    func_8017703C(audioMgr->sched);
+                    Sched_SendAudioCancelMsg(audioMgr->sched);
                 } else {
                     osSyncPrintf("audioMgr.c:もうダメ！死ぬ！\n");
                     osDestroyThread(NULL);
@@ -79,7 +79,7 @@ void AudioMgr_ThreadEntry(void* arg) {
     s32 exit;
 
     func_801A4C30();
-    func_80190B38(DmaMgr_DmaCallback0);
+    AudioLoad_SetDmaHandler(DmaMgr_DmaHandler);
     func_801A4D00();
     osSendMesg(&audioMgr->lockMsgQ, NULL, OS_MESG_BLOCK);
     IrqMgr_AddClient(audioMgr->irqMgr, &irqClient, &audioMgr->interruptMsgQ);

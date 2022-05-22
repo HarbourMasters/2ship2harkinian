@@ -3,7 +3,7 @@
 import argparse, os, struct
 
 actor_names = [
-    "ovl_Player_Actor",
+    "ovl_player_actor",
     "ovl_En_Test",
     "ovl_En_GirlA",
     "ovl_En_Part",
@@ -719,7 +719,7 @@ def read_actor_ovl_tbl():
             actortbl.append((actor_names[i], entry[0], entry[1], entry[2], entry[3]))
             entry = as_word_list(codefile.read(0x20))
             i += 1
-        actortbl[0] = ['ovl_Player_Actor', 0xCA7F00, 0xCDCF60, 0x8082DA90, 0x80862B70 ]
+        actortbl[0] = ['ovl_player_actor', 0xCA7F00, 0xCDCF60, 0x8082DA90, 0x80862B70 ]
     return actortbl
 
 actor_tbl = read_actor_ovl_tbl()
@@ -731,10 +731,10 @@ def resolve_symbol(address):
     for entry in actor_tbl:
         if address >= 0x80000000:
             if entry[3] <= address < entry[4]:
-                return repo + "baserom/overlays" + os.sep + entry[0], address - entry[3]
+                return repo + "baserom" + os.sep + entry[0], address - entry[3]
         else:
             if entry[1] <= address < entry[2]:
-                return repo + "baserom/overlays" + os.sep + entry[0], address - entry[1]
+                return repo + "baserom" + os.sep + entry[0], address - entry[1]
     else:
         raise RuntimeError('Symbol not found in actor overlay table file ranges. Are you sure the file is an actor overlay?')
 
