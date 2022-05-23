@@ -13,6 +13,11 @@ void func_801663C4(u8* arg0, u8* arg1, u32 arg2);
 extern Gfx D_0E0001C8[]; // Display List
 extern Gfx D_0E0002E0[]; // Display List
 
+// TODO extract this information from the texture definitions themselves
+#define DO_ACTION_TEX_WIDTH 48
+#define DO_ACTION_TEX_HEIGHT 16
+#define DO_ACTION_TEX_SIZE ((DO_ACTION_TEX_WIDTH * DO_ACTION_TEX_HEIGHT) / 2) // (sizeof(gCheckDoActionENGTex))
+
 typedef struct {
     /* 0x00 */ u8 scene;
     /* 0x01 */ u8 flags1;
@@ -2981,9 +2986,10 @@ void Interface_LoadActionLabel(InterfaceContext* interfaceCtx, u16 action, s16 l
 
     if (action != DO_ACTION_NONE) {
         osCreateMesgQueue(&interfaceCtx->loadQueue, &interfaceCtx->loadMsg, 1);
-        DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest_184, (u32)interfaceCtx->doActionSegment + (loadOffset * 0x180),
-                               (u32)SEGMENT_ROM_START(do_action_static) + (action * 0x180), 0x180, 0,
-                               &interfaceCtx->loadQueue, 0);
+        DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest_184,
+                               (u32)interfaceCtx->doActionSegment + (loadOffset * DO_ACTION_TEX_SIZE),
+                               (u32)SEGMENT_ROM_START(do_action_static) + (action * DO_ACTION_TEX_SIZE),
+                               DO_ACTION_TEX_SIZE, 0, &interfaceCtx->loadQueue, 0);
         osRecvMesg(&interfaceCtx->loadQueue, NULL, OS_MESG_BLOCK);
         return;
     }
@@ -3708,9 +3714,9 @@ void Interface_DrawItemButtons(GlobalContext* globalCtx) {
             gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 0);
             gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
                               PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
-            gDPLoadTextureBlock_4b(OVERLAY_DISP++, interfaceCtx->doActionSegment + 0x300, G_IM_FMT_IA, 48, 16, 0,
-                                   G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                   G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureBlock_4b(OVERLAY_DISP++, interfaceCtx->doActionSegment + DO_ACTION_TEX_SIZE * 2, G_IM_FMT_IA,
+                                   DO_ACTION_TEX_WIDTH, DO_ACTION_TEX_HEIGHT, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                                   G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
             gSPTextureRectangle(OVERLAY_DISP++, 0x01F8, 0x0054, 0x02D4, 0x009C, G_TX_RENDERTILE, 0, 0, 0x04A6, 0x04A6);
         }
     }
@@ -4028,10 +4034,13 @@ void func_80118BA4(GlobalContext* globalCtx) {
     gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[8], 4, 0);
 
+    // Draw Action Label
     if (((interfaceCtx->unk_210 < 2) || (interfaceCtx->unk_210 == 3))) {
-        OVERLAY_DISP = func_8010DE38(OVERLAY_DISP, interfaceCtx->doActionSegment, 3, 0x30, 0x10, 0);
+        OVERLAY_DISP =
+            func_8010DE38(OVERLAY_DISP, interfaceCtx->doActionSegment, 3, DO_ACTION_TEX_WIDTH, DO_ACTION_TEX_HEIGHT, 0);
     } else {
-        OVERLAY_DISP = func_8010DE38(OVERLAY_DISP, interfaceCtx->doActionSegment + 0x180, 3, 0x30, 0x10, 0);
+        OVERLAY_DISP = func_8010DE38(OVERLAY_DISP, interfaceCtx->doActionSegment + DO_ACTION_TEX_SIZE, 3,
+                                     DO_ACTION_TEX_WIDTH, DO_ACTION_TEX_HEIGHT, 0);
     }
 
     CLOSE_DISPS(globalCtx->state.gfxCtx);

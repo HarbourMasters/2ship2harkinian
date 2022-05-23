@@ -343,9 +343,9 @@ void func_80151938(GlobalContext* globalCtx, u16 textId) {
 
     if (interfaceCtx->unk_222 == 0) {
         if (textId != 0x1B93) {
-            Interface_SetDoAction(globalCtx, 0x10);
+            Interface_SetDoAction(globalCtx, DO_ACTION_NEXT);
         } else if (textId != 0xF8) {
-            Interface_SetDoAction(globalCtx, 6);
+            Interface_SetDoAction(globalCtx, DO_ACTION_DECIDE);
         }
     }
     msgCtx->unk1203C = msgCtx->unk1203A;
