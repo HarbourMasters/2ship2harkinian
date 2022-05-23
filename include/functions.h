@@ -1938,7 +1938,7 @@ void Magic_Add(GlobalContext* globalCtx, s16 arg1);
 void Magic_Reset(GameState* gamestate);
 // void Magic_Consume(void);
 // void Magic_UpdateAddRequest(void);
-// void Magic_UpdateMeterBorderColor(void);
+// void Magic_FlashMeterBorder(void);
 // void Magic_Update(void);
 // void Magic_DrawMeter(void);
 // void func_80116FD8(UNK_TYPE1 param_1, UNK_TYPE1 param_2, UNK_TYPE1 param_3, UNK_TYPE1 param_4, UNK_TYPE4 param_5);

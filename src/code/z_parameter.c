@@ -3071,7 +3071,7 @@ void func_80115844(GlobalContext* globalCtx, s16 arg1) {
 }
 
 /**
- * Returns true if player still has health left. Otherwise, return false.
+ * @return false if player is out of health
  */
 s32 Health_ChangeBy(GlobalContext* globalCtx, s16 healthChange) {
     if (healthChange > 0) {
@@ -3175,13 +3175,21 @@ void Magic_Reset(GameState* gamestate) {
     }
 }
 
+/**
+ * Request to consume magic.
+ * @param amount the positive-valued amount to decrease magic by
+ * @param type how the magic is consumed.
+ * @return false if the request failed
+ */
 s32 Magic_Consume(GlobalContext* globalCtx, s16 magicToConsume, s16 type) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
 
+    // Magic is not acquired yet
     if (!gSaveContext.save.playerData.isMagicAcquired) {
         return false;
     }
 
+    // Not enough magic available to consume
     if ((gSaveContext.save.playerData.magic - magicToConsume) < 0) {
         if (gSaveContext.magicCapacity != 0) {
             play_sound(NA_SE_SY_ERROR);
@@ -3190,9 +3198,10 @@ s32 Magic_Consume(GlobalContext* globalCtx, s16 magicToConsume, s16 type) {
     }
 
     switch (type) {
-        case MAGIC_BAR_CONSUME_NOW:
-        case MAGIC_BAR_CONSUME_NOW_ALT:
-            // Deku Bubble
+        case MAGIC_CONSUME_NOW:
+        case MAGIC_CONSUME_NOW_ALT:
+            // Consume magic immediately
+            // Ex. Deku Bubble
             if ((gSaveContext.magicState == MAGIC_STATE_IDLE) ||
                 (gSaveContext.magicState == MAGIC_STATE_CONSUME_LENS)) {
                 if (gSaveContext.magicState == MAGIC_STATE_CONSUME_LENS) {
@@ -3209,7 +3218,9 @@ s32 Magic_Consume(GlobalContext* globalCtx, s16 magicToConsume, s16 type) {
                 return false;
             }
 
-        case MAGIC_BAR_CONSUME_WAIT_NO_PREVIEW:
+        case MAGIC_CONSUME_WAIT_NO_PREVIEW:
+            // Sets consume target but waits to consume.
+            // No yellow magic to preview target consumption.
             if ((gSaveContext.magicState == MAGIC_STATE_IDLE) ||
                 (gSaveContext.magicState == MAGIC_STATE_CONSUME_LENS)) {
                 if (gSaveContext.magicState == MAGIC_STATE_CONSUME_LENS) {
@@ -3226,7 +3237,7 @@ s32 Magic_Consume(GlobalContext* globalCtx, s16 magicToConsume, s16 type) {
                 return false;
             }
 
-        case MAGIC_BAR_CONSUME_LENS:
+        case MAGIC_CONSUME_LENS:
             if (gSaveContext.magicState == MAGIC_STATE_IDLE) {
                 if (gSaveContext.save.playerData.magic != 0) {
                     interfaceCtx->magicConsumptionTimer = 80;
@@ -3241,8 +3252,10 @@ s32 Magic_Consume(GlobalContext* globalCtx, s16 magicToConsume, s16 type) {
                 return false;
             }
 
-        case MAGIC_BAR_CONSUME_WAIT_PREVIEW:
-            // Spin Attack
+        case MAGIC_CONSUME_WAIT_PREVIEW:
+            // Sets consume target but waits to consume.
+            // Preview consumption with a yellow bar
+            // Ex. Spin Attack
             if ((gSaveContext.magicState == MAGIC_STATE_IDLE) ||
                 (gSaveContext.magicState == MAGIC_STATE_CONSUME_LENS)) {
                 if (gSaveContext.magicState == MAGIC_STATE_CONSUME_LENS) {
@@ -3256,7 +3269,7 @@ s32 Magic_Consume(GlobalContext* globalCtx, s16 magicToConsume, s16 type) {
                 return false;
             }
 
-        case MAGIC_BAR_CONSUME_GORON_ZORA:
+        case MAGIC_CONSUME_GORON_ZORA:
             // Zora Shock, Goron Spike Roll
             if (gSaveContext.save.playerData.magic != 0) {
                 interfaceCtx->magicConsumptionTimer = 10;
@@ -3266,7 +3279,7 @@ s32 Magic_Consume(GlobalContext* globalCtx, s16 magicToConsume, s16 type) {
                 return false;
             }
 
-        case MAGIC_BAR_CONSUME_GIANTS_MASK:
+        case MAGIC_CONSUME_GIANTS_MASK:
             // Wearing Giants Mask
             if (gSaveContext.magicState == MAGIC_STATE_IDLE) {
                 if (gSaveContext.save.playerData.magic != 0) {
@@ -3283,7 +3296,7 @@ s32 Magic_Consume(GlobalContext* globalCtx, s16 magicToConsume, s16 type) {
                 return false;
             }
 
-        case MAGIC_BAR_CONSUME_DEITY_BEAM:
+        case MAGIC_CONSUME_DEITY_BEAM:
             // Using Fierce Deity Beam
             // Consumes magic immediately
             if ((gSaveContext.magicState == MAGIC_STATE_IDLE) ||
@@ -3330,7 +3343,7 @@ s16 sMagicBorderColors[][3] = {
 };
 s16 sMagicBorderIndices[] = { 0, 1, 1, 0 };
 s16 sMagicBorderColorTimerIndex[] = { 2, 1, 2, 1 };
-void Magic_UpdateMeterBorderColor(void) {
+void Magic_FlashMeterBorder(void) {
     s16 borderChangeR;
     s16 borderChangeG;
     s16 borderChangeB;
@@ -3379,11 +3392,13 @@ void Magic_Update(GlobalContext* globalCtx) {
     s16 magicCapacityTarget;
 
     if (gSaveContext.save.weekEventReg[14] & 8) {
-        Magic_UpdateMeterBorderColor();
+        Magic_FlashMeterBorder();
     }
 
     switch (gSaveContext.magicState) {
         case MAGIC_STATE_STEP_CAPACITY:
+            // Step magicCapacity to the capacity determined by magicLevel
+            // This changes the width of the magic meter drawn
             magicCapacityTarget = gSaveContext.save.playerData.magicLevel * MAGIC_NORMAL_METER;
             if (gSaveContext.magicCapacity != magicCapacityTarget) {
                 if (gSaveContext.magicCapacity < magicCapacityTarget) {
@@ -3398,11 +3413,14 @@ void Magic_Update(GlobalContext* globalCtx) {
                     }
                 }
             } else {
+                // Once the capacity has reached its target,
+                // follow up by filling magic to magicFillTarget
                 gSaveContext.magicState = MAGIC_STATE_FILL;
             }
             break;
 
         case MAGIC_STATE_FILL:
+            // Add magic until magicFillTarget is reached
             gSaveContext.save.playerData.magic += 0x10;
 
             if ((gSaveContext.gameMode == 0) && (gSaveContext.sceneSetupIndex < 4)) {
@@ -3416,11 +3434,13 @@ void Magic_Update(GlobalContext* globalCtx) {
             break;
 
         case MAGIC_STATE_CONSUME_SETUP:
+            // Sets the speed at which magic border flashes
             sMagicBorderRatio = 2;
             gSaveContext.magicState = MAGIC_STATE_CONSUME;
             break;
 
         case MAGIC_STATE_CONSUME:
+            // Consume magic until target is reached or no more magic is available
             if (!(gSaveContext.save.weekEventReg[14] & 8)) {
                 gSaveContext.save.playerData.magic =
                     ((void)0, gSaveContext.save.playerData.magic) - ((void)0, gSaveContext.magicToConsume);
@@ -3430,13 +3450,12 @@ void Magic_Update(GlobalContext* globalCtx) {
                 gSaveContext.magicState = MAGIC_STATE_METER_FLASH_1;
                 sMagicMeterOutlinePrimRed = sMagicMeterOutlinePrimGreen = sMagicMeterOutlinePrimBlue = 255;
             }
-            // fallthrough
-
+            // fallthrough (flash border while magic is being consumed)
         case MAGIC_STATE_METER_FLASH_1:
         case MAGIC_STATE_METER_FLASH_2:
         case MAGIC_STATE_METER_FLASH_3:
             if (!(gSaveContext.save.weekEventReg[14] & 8)) {
-                Magic_UpdateMeterBorderColor();
+                Magic_FlashMeterBorder();
             }
             break;
 
@@ -3457,7 +3476,7 @@ void Magic_Update(GlobalContext* globalCtx) {
                      (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) != ITEM_LENS) &&
                      (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) != ITEM_LENS)) ||
                     !globalCtx->actorCtx.lensActive) {
-                    // Force lens off and set magic meter state to idle
+                    // Force lens off and set magic state to idle
                     globalCtx->actorCtx.lensActive = false;
                     play_sound(NA_SE_SY_GLASSMODE_OFF);
                     gSaveContext.magicState = MAGIC_STATE_IDLE;
@@ -3474,7 +3493,7 @@ void Magic_Update(GlobalContext* globalCtx) {
                 }
             }
             if (!(gSaveContext.save.weekEventReg[14] & 8)) {
-                Magic_UpdateMeterBorderColor();
+                Magic_FlashMeterBorder();
             }
             break;
 
@@ -3505,7 +3524,7 @@ void Magic_Update(GlobalContext* globalCtx) {
                 }
             }
             if (!(gSaveContext.save.weekEventReg[14] & 8)) {
-                Magic_UpdateMeterBorderColor();
+                Magic_FlashMeterBorder();
             }
             break;
 
@@ -3527,7 +3546,7 @@ void Magic_Update(GlobalContext* globalCtx) {
                 }
             }
             if (!(gSaveContext.save.weekEventReg[14] & 8)) {
-                Magic_UpdateMeterBorderColor();
+                Magic_FlashMeterBorder();
             }
             break;
 
@@ -6523,6 +6542,7 @@ void Interface_Update(GlobalContext* globalCtx) {
     // Update Magic
     if (!(player->stateFlags1 & 0x200)) {
         if (XREG(4) == 1) {
+            // Upgrade to double magic
             if (!gSaveContext.save.playerData.isMagicAcquired) {
                 gSaveContext.save.playerData.isMagicAcquired = true;
             }
@@ -6531,6 +6551,7 @@ void Interface_Update(GlobalContext* globalCtx) {
             gSaveContext.save.playerData.magicLevel = 0;
             XREG(4) = 0;
         } else if (XREG(4) == -1) {
+            // Upgrade to normal magic
             if (!gSaveContext.save.playerData.isMagicAcquired) {
                 gSaveContext.save.playerData.isMagicAcquired = true;
             }
@@ -6541,6 +6562,7 @@ void Interface_Update(GlobalContext* globalCtx) {
         }
 
         if ((gSaveContext.save.playerData.isMagicAcquired) && (gSaveContext.save.playerData.magicLevel == 0)) {
+            // Prepare to step `magicCapacity` to full capacity
             gSaveContext.save.playerData.magicLevel = gSaveContext.save.playerData.isDoubleMagicAcquired + 1;
             gSaveContext.magicFillTarget = gSaveContext.save.playerData.magic;
             gSaveContext.save.playerData.magic = 0;

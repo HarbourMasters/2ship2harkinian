@@ -2138,7 +2138,7 @@
     0x80115D5C:("Magic_Reset",),
     0x80115DB4:("Magic_Consume",),
     0x80116088:("Magic_UpdateAddRequest",),
-    0x80116114:("Magic_UpdateMeterBorderColor",),
+    0x80116114:("Magic_FlashMeterBorder",),
     0x80116348:("Magic_Update",),
     0x80116918:("Magic_DrawMeter",),
     0x80116FD8:("func_80116FD8",),

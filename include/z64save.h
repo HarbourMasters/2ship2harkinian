@@ -41,14 +41,14 @@ typedef enum {
 } MagicState;
 
 typedef enum {
-    /* 0 */ MAGIC_BAR_CONSUME_NOW, // Consume Magic immediately without preview
-    /* 1 */ MAGIC_BAR_CONSUME_WAIT_NO_PREVIEW, // Sets consume target but waits to consume. No yellow magic preview to target consumption. Unused
-    /* 2 */ MAGIC_BAR_CONSUME_NOW_ALT, // Identical behaviour to MAGIC_BAR_CONSUME_NOW. Unused
-    /* 3 */ MAGIC_BAR_CONSUME_LENS, // Lens consumption
-    /* 4 */ MAGIC_BAR_CONSUME_WAIT_PREVIEW, // Sets consume target but waits to consume. Draws yellow magic to target consumption
-    /* 5 */ MAGIC_BAR_CONSUME_GORON_ZORA, // Zora shock and Goron Spike Roll slow consumption
-    /* 6 */ MAGIC_BAR_CONSUME_GIANTS_MASK, // Giants Mask Slow consumption
-    /* 7 */ MAGIC_BAR_CONSUME_DEITY_BEAM // Fierce Deity Beam consumption, consumed magic now and not via request
+    /* 0 */ MAGIC_CONSUME_NOW, // Consume Magic immediately without preview
+    /* 1 */ MAGIC_CONSUME_WAIT_NO_PREVIEW, // Sets consume target but waits to consume. No yellow magic preview to target consumption. Unused
+    /* 2 */ MAGIC_CONSUME_NOW_ALT, // Identical behaviour to MAGIC_CONSUME_NOW. Unused
+    /* 3 */ MAGIC_CONSUME_LENS, // Lens consumption
+    /* 4 */ MAGIC_CONSUME_WAIT_PREVIEW, // Sets consume target but waits to consume. Draws yellow magic to target consumption
+    /* 5 */ MAGIC_CONSUME_GORON_ZORA, // Zora shock and Goron Spike Roll slow consumption
+    /* 6 */ MAGIC_CONSUME_GIANTS_MASK, // Giants Mask Slow consumption
+    /* 7 */ MAGIC_CONSUME_DEITY_BEAM // Fierce Deity Beam consumption, consumed magic now and not via request
 } MagicChangeType;
 
 #define MAGIC_NORMAL_METER 0x30
