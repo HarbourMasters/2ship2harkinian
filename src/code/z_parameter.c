@@ -3183,7 +3183,7 @@ void Magic_Reset(GameState* gamestate) {
 
 /**
  * Request to consume magic.
- * @param amount the positive-valued amount to decrease magic by
+ * @param magicToConsume the positive-valued amount to decrease magic by
  * @param type how the magic is consumed.
  * @return false if the request failed
  */
