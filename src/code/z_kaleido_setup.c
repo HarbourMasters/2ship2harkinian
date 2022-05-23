@@ -73,8 +73,8 @@ void KaleidoSetup_Update(GlobalContext* globalCtx) {
         if ((globalCtx->sceneLoadFlag == 0) && (globalCtx->transitionMode == 0)) {
             if ((gSaveContext.save.cutscene < 0xFFF0) && (gSaveContext.nextCutsceneIndex < 0xFFF0)) {
                 if (!Play_InCsMode(globalCtx) || ((msgCtx->msgMode != 0) && (msgCtx->currentTextId == 0xFF))) {
-                    if ((globalCtx->unk_1887C < 2) && (gSaveContext.magicBarAction != MAGIC_BAR_ACTION_GROW_WIDE) &&
-                        (gSaveContext.magicBarAction != MAGIC_BAR_ACTION_FILL)) {
+                    if ((globalCtx->unk_1887C < 2) && (gSaveContext.magicState != MAGIC_STATE_STEP_CAPACITY) &&
+                        (gSaveContext.magicState != MAGIC_STATE_FILL)) {
                         if (!(gSaveContext.eventInf[1] & 0x80) && !(player->stateFlags1 & 0x20)) {
                             if (!(globalCtx->actorCtx.unk5 & 2) && !(globalCtx->actorCtx.unk5 & 4)) {
                                 if ((globalCtx->actorCtx.unk268 == 0) &&

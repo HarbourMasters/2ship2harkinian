@@ -576,7 +576,7 @@ SavePlayerData sSaveDefaultPlayerData = {
     0x30,                                               // healthCapacity
     0x30,                                               // health
     0,                                                  // magicLevel
-    MAGIC_HALF_BAR,                                     // magic
+    MAGIC_NORMAL_METER,                                 // magic
     0,                                                  // rupees
     0,                                                  // swordHealth
     0,                                                  // tatlTimer
@@ -674,7 +674,7 @@ SavePlayerData sSaveDebugPlayerData = {
     0x80,                                               // healthCapacity
     0x80,                                               // health
     0,                                                  // magicLevel
-    MAGIC_HALF_BAR,                                     // magic
+    MAGIC_NORMAL_METER,                                 // magic
     50,                                                 // rupees
     100,                                                // swordHealth
     0,                                                  // tatlTimer

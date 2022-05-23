@@ -1649,12 +1649,12 @@ asm/non_matchings/code/z_parameter/Health_GiveHearts.s,Health_GiveHearts,0x80115
 asm/non_matchings/code/z_parameter/Rupees_ChangeBy.s,Rupees_ChangeBy,0x801159EC,0xA
 asm/non_matchings/code/z_parameter/Inventory_ChangeAmmo.s,Inventory_ChangeAmmo,0x80115A14,0xC0
 asm/non_matchings/code/z_parameter/Magic_Add.s,Magic_Add,0x80115D14,0x12
-asm/non_matchings/code/z_parameter/Magic_ResetBar.s,Magic_ResetBar,0x80115D5C,0x16
+asm/non_matchings/code/z_parameter/Magic_Reset.s,Magic_Reset,0x80115D5C,0x16
 asm/non_matchings/code/z_parameter/Magic_Consume.s,Magic_Consume,0x80115DB4,0xB5
-asm/non_matchings/code/z_parameter/Magic_UpdateAdd.s,Magic_UpdateAdd,0x80116088,0x23
-asm/non_matchings/code/z_parameter/Magic_UpdateBarBorderColor.s,Magic_UpdateBarBorderColor,0x80116114,0x8D
-asm/non_matchings/code/z_parameter/Magic_UpdateBar.s,Magic_UpdateBar,0x80116348,0x174
-asm/non_matchings/code/z_parameter/Magic_DrawBar.s,Magic_DrawBar,0x80116918,0x1B0
+asm/non_matchings/code/z_parameter/Magic_UpdateAddRequest.s,Magic_UpdateAddRequest,0x80116088,0x23
+asm/non_matchings/code/z_parameter/Magic_UpdateMeterBorderColor.s,Magic_UpdateMeterBorderColor,0x80116114,0x8D
+asm/non_matchings/code/z_parameter/Magic_Update.s,Magic_Update,0x80116348,0x174
+asm/non_matchings/code/z_parameter/Magic_DrawMeter.s,Magic_DrawMeter,0x80116918,0x1B0
 asm/non_matchings/code/z_parameter/func_80116FD8.s,func_80116FD8,0x80116FD8,0x38
 asm/non_matchings/code/z_parameter/func_801170B8.s,func_801170B8,0x801170B8,0x12
 asm/non_matchings/code/z_parameter/Interface_DrawItemButtons.s,Interface_DrawItemButtons,0x80117100,0x248

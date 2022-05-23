@@ -675,8 +675,8 @@ void func_8088DD34(EnElf* this, GlobalContext* globalCtx) {
         !func_8088C804(&this->actor.world.pos, &refActor->actor.world.pos, 10.0f)) {
         Health_ChangeBy(globalCtx, 0x80);
         if (this->fairyFlags & 0x200) {
-            Magic_Add(globalCtx, ((void)0, gSaveContext.magicCapacity) +
-                                     (gSaveContext.save.playerData.isDoubleMagicAcquired + 1) * MAGIC_HALF_BAR);
+            Magic_Add(globalCtx, ((void)0, gSaveContext.magicFillTarget) +
+                                     (gSaveContext.save.playerData.isDoubleMagicAcquired + 1) * MAGIC_NORMAL_METER);
         }
         gSaveContext.jinxTimer = 0;
         this->unk_254 = 50.0f;

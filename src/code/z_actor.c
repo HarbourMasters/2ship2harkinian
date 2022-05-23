@@ -2217,7 +2217,7 @@ s32 func_800B90AC(GlobalContext* globalCtx, Actor* actor, CollisionPoly* polygon
 void Actor_DisableLens(GlobalContext* globalCtx) {
     if (globalCtx->actorCtx.lensActive) {
         globalCtx->actorCtx.lensActive = false;
-        Magic_ResetBar(&globalCtx->state);
+        Magic_Reset(&globalCtx->state);
     }
 }
 
