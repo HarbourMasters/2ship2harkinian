@@ -1,5 +1,7 @@
 #include "global.h"
 #include "interface/parameter_static/parameter_static.h"
+#include "interface/do_action_static/do_action_static.h"
+#include "misc/story_static/story_static.h"
 #include "overlays/gamestates/ovl_file_choose/z_file_choose.h"
 
 void Map_Update(GlobalContext* globalCtx);
@@ -197,7 +199,6 @@ s16 D_801BF97C = 255;
 f32 D_801BF980 = 1.0f;
 s32 D_801BF984 = 0;
 
-// Display List
 Gfx D_801BF988[] = {
     gsDPPipeSync(),
     gsSPClearGeometryMode(G_ZBUFFER | G_SHADE | G_CULL_BOTH | G_FOG | G_LIGHTING | G_TEXTURE_GEN |
@@ -2861,6 +2862,8 @@ void Inventory_UpdateDeitySwordEquip(GlobalContext* globalCtx) {
     if (CUR_FORM == PLAYER_FORM_FIERCE_DEITY) {
         interfaceCtx->unk_21C = 0;
         interfaceCtx->unk_21E = 0;
+
+        // Is simply checking if (gSaveContext.save.playerForm == PLAYER_FORM_FIERCE_DEITY)
         if ((((gSaveContext.save.playerForm > 0) && (gSaveContext.save.playerForm < 4))
                  ? 1
                  : gSaveContext.save.playerForm >> 1) == 0) {
@@ -2968,8 +2971,8 @@ void func_801153C8(s32* buf, s32 size) {
 
 void Interface_LoadActionLabel(InterfaceContext* interfaceCtx, u16 action, s16 loadOffset) {
     static TexturePtr sDoActionTextures[] = {
-        0x09000000, // gAttackDoActionENGTex
-        0x09000180, // gCheckDoActionENGTex
+        gDoActionAttackENGTex,
+        gDoActionCheckENGTex,
     };
 
     if (action >= DO_ACTION_MAX) {
@@ -5798,13 +5801,13 @@ Color_RGB16 D_801BFD6C[] = {
 };
 // grandma's story pictures
 s32 D_801BFD84[] = {
-    0x07000000,
-    0x07012C00,
+    gStoryMaskFestivalTex,
+    gStoryGiantsLeavingTex,
 };
 // grandma's story TLUT
 u32 D_801BFD8C[] = {
-    0x07025800,
-    0x07025A00,
+    gStoryMaskFestivalTLUT,
+    gStoryGiantsLeavingTLUT,
 };
 void Interface_Draw(GlobalContext* globalCtx) {
     s32 pad;
