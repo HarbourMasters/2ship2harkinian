@@ -820,7 +820,7 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
                     func_800FD750(NA_BGM_HORSE);
                     globalCtx->nextEntranceIndex = 0xCE50;
                     globalCtx->unk_1887F = 5;
-                    globalCtx->sceneLoadFlag = 0x14;
+                    globalCtx->transitionTrigger = 0x14;
                     gSaveContext.save.weekEventReg[57] |= 1;
                     break;
                 case 0x3478:
@@ -1067,7 +1067,7 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
                     func_800FD750(NA_BGM_HORSE);
                     globalCtx->nextEntranceIndex = 0xCE50;
                     globalCtx->unk_1887F = 5;
-                    globalCtx->sceneLoadFlag = 0x14;
+                    globalCtx->transitionTrigger = 0x14;
                     gSaveContext.save.weekEventReg[57] |= 1;
                     break;
                 case 0x349D:

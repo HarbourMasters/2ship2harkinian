@@ -684,7 +684,7 @@ void func_80BD9B4C(EnPamera* this, GlobalContext* globalCtx) {
 
 void func_80BD9C70(EnPamera* this, GlobalContext* globalCtx) {
     globalCtx->nextEntranceIndex = 0x2020;
-    globalCtx->sceneLoadFlag = 0x14;
+    globalCtx->transitionTrigger = 0x14;
     globalCtx->unk_1887F = 0x46;
     gSaveContext.nextTransition = 2;
 }

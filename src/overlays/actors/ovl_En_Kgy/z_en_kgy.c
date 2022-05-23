@@ -515,7 +515,7 @@ void func_80B41A48(EnKgy* this, GlobalContext* globalCtx) {
         this->unk_2E4--;
     } else {
         globalCtx->nextEntranceIndex = globalCtx->setupExitList[ENKGY_GET_1F(&this->actor)];
-        globalCtx->sceneLoadFlag = 20;
+        globalCtx->transitionTrigger = 20;
     }
 }
 

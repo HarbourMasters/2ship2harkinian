@@ -376,7 +376,7 @@ void func_80B76BB8(EnTruMt* this, GlobalContext* globalCtx) {
             globalCtx->nextEntranceIndex = 0xA810;
             globalCtx->unk_1887F = 3;
             gSaveContext.nextTransition = 3;
-            globalCtx->sceneLoadFlag = 0x14;
+            globalCtx->transitionTrigger = 0x14;
         }
     }
 }

@@ -759,7 +759,7 @@ void func_80BFFBC4(EnBomjima* this, GlobalContext* globalCtx) {
         func_801477B4(globalCtx);
         globalCtx->nextEntranceIndex = Entrance_CreateIndexFromSpawn(6);
         gSaveContext.nextCutsceneIndex = 0;
-        globalCtx->sceneLoadFlag = 20;
+        globalCtx->transitionTrigger = 20;
         globalCtx->unk_1887F = 0x56;
         gSaveContext.nextTransition = 3;
         ActorCutscene_Stop(this->unk_2D4[1]);

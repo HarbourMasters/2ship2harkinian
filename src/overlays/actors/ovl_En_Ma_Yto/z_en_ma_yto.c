@@ -1088,7 +1088,7 @@ void EnMaYto_PostMilkRunEnd(EnMaYto* this, GlobalContext* globalCtx) {
         globalCtx->nextEntranceIndex = 0x6480;
     }
     gSaveContext.nextCutsceneIndex = 0;
-    globalCtx->sceneLoadFlag = 0x14;
+    globalCtx->transitionTrigger = 0x14;
     globalCtx->unk_1887F = 0x50;
     gSaveContext.nextTransition = 3;
 }

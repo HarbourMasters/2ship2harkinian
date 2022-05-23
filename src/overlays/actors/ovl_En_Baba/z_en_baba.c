@@ -255,7 +255,7 @@ void func_80BA8C4C(GlobalContext* globalCtx, u16 nextEntrance) {
     globalCtx->nextEntranceIndex = nextEntrance;
     globalCtx->unk_1887F = 0x40;
     gSaveContext.nextTransition = 0x40;
-    globalCtx->sceneLoadFlag = 0x14;
+    globalCtx->transitionTrigger = 0x14;
 }
 
 void func_80BA8C90(EnBaba* this, GlobalContext* globalCtx) {

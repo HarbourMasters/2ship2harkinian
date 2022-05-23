@@ -173,7 +173,7 @@ s32 func_808F8EB0(EnHorseGameCheck* this, GlobalContext* globalCtx) {
         D_801BDAA0 = 1;
     }
     globalCtx->nextEntranceIndex = 0xCE20;
-    globalCtx->sceneLoadFlag = 0x14;
+    globalCtx->transitionTrigger = 0x14;
     return false;
 }
 

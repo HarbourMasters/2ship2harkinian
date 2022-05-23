@@ -249,7 +249,7 @@ void func_809542A0(BgIngate* this, GlobalContext* globalCtx) {
         globalCtx->nextEntranceIndex = 0xA810;
     }
     gSaveContext.nextCutsceneIndex = 0;
-    globalCtx->sceneLoadFlag = 0x14;
+    globalCtx->transitionTrigger = 0x14;
     globalCtx->unk_1887F = 3;
     gSaveContext.nextTransition = 3;
     this->actionFunc = func_80953F8C;

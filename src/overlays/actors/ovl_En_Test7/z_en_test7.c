@@ -669,7 +669,7 @@ void func_80AF2350(EnTest7* this, GlobalContext* globalCtx) {
         }
     }
 
-    globalCtx->sceneLoadFlag = 0x14;
+    globalCtx->transitionTrigger = 0x14;
     globalCtx->unk_1887F = 2;
     gSaveContext.seqIndex = 0xFF;
     gSaveContext.nightSeqIndex = 0xFF;

@@ -421,7 +421,7 @@ void func_809C1C9C(EnAob01* this, GlobalContext* globalCtx) {
         gSaveContext.nextTransition = 0x40;
         gSaveContext.eventInf[0] = (gSaveContext.eventInf[0] & (u8)~7) | 2;
         gSaveContext.eventInf[0] = (gSaveContext.eventInf[0] & 7) | (this->unk_432 * 8);
-        globalCtx->sceneLoadFlag = 0x14;
+        globalCtx->transitionTrigger = 0x14;
     }
 }
 
@@ -671,7 +671,7 @@ void func_809C2788(EnAob01* this, GlobalContext* globalCtx) {
             gSaveContext.eventInf[0] = (gSaveContext.eventInf[0] & (u8)~7) | 3;
             globalCtx->unk_1887F = 0x40;
             gSaveContext.nextTransition = 3;
-            globalCtx->sceneLoadFlag = 0x14;
+            globalCtx->transitionTrigger = 0x14;
         }
     }
 }

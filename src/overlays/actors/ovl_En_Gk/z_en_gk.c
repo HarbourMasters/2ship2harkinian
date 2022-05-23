@@ -724,7 +724,7 @@ void func_80B51B40(EnGk* this, GlobalContext* globalCtx) {
 
                 if (this->unk_31C == 0xE8F) {
                     globalCtx->nextEntranceIndex = 0xD010;
-                    globalCtx->sceneLoadFlag = 0x14;
+                    globalCtx->transitionTrigger = 0x14;
                     globalCtx->unk_1887F = 3;
                     gSaveContext.nextTransition = 3;
                     Magic_Add(globalCtx,

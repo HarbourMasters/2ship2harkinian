@@ -359,14 +359,14 @@ void func_80B0FE18(GlobalContext* globalCtx) {
     globalCtx->nextEntranceIndex = 0x9C10;
     globalCtx->unk_1887F = 0x40;
     gSaveContext.nextTransition = 0x40;
-    globalCtx->sceneLoadFlag = 0x14;
+    globalCtx->transitionTrigger = 0x14;
 }
 
 void func_80B0FE7C(GlobalContext* globalCtx) {
     globalCtx->nextEntranceIndex = 0x9C20;
     globalCtx->unk_1887F = 0x40;
     gSaveContext.nextTransition = 0x40;
-    globalCtx->sceneLoadFlag = 0x14;
+    globalCtx->transitionTrigger = 0x14;
 }
 
 void func_80B0FEBC(EnGb2* this, GlobalContext* globalCtx) {

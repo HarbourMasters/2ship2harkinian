@@ -129,7 +129,7 @@ void DoorAna_WaitOpen(DoorAna* this, GlobalContext* globalCtx) {
     s32 grottoType = DOORANA_GET_TYPE(&this->actor);
 
     if (Math_StepToF(&this->actor.scale.x, 0.01f, 0.001f)) {
-        if (this->actor.targetMode != 0 && globalCtx->sceneLoadFlag == 0 && globalCtx->transitionMode == 0 &&
+        if (this->actor.targetMode != 0 && globalCtx->transitionTrigger == 0 && globalCtx->transitionMode == 0 &&
             (player->stateFlags1 & 0x80000000) && player->unk_AE7 == 0) {
 
             if (grottoType == DOORANA_TYPE_VISIBLE_SCENE_EXIT) {

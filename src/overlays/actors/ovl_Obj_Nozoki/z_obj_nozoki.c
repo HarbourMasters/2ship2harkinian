@@ -443,7 +443,7 @@ void func_80BA3344(ObjNozoki* this, GlobalContext* globalCtx) {
         }
     } else if ((this->dyna.actor.textId == 0) || Actor_TextboxIsClosing(&this->dyna.actor, globalCtx)) {
         globalCtx->nextEntranceIndex = 0xE20;
-        globalCtx->sceneLoadFlag = 0x14;
+        globalCtx->transitionTrigger = 0x14;
     }
 }
 

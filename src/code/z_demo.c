@@ -81,7 +81,7 @@ CutsceneStateHandler sCsStateHandlers2[] = {
 };
 
 void Cutscene_Update2(GlobalContext* globalCtx, CutsceneContext* csCtx) {
-    if ((gSaveContext.cutsceneTrigger != 0) && (globalCtx->sceneLoadFlag == 0x14)) {
+    if ((gSaveContext.cutsceneTrigger != 0) && (globalCtx->transitionTrigger == 0x14)) {
         gSaveContext.cutsceneTrigger = 0;
     }
 
@@ -292,7 +292,7 @@ void Cutscene_Command_Misc(GlobalContext* globalCtx2, CutsceneContext* csCtx, Cs
             if (isStartFrame) {
                 globalCtx->nextEntranceIndex = 0x1C00;
                 gSaveContext.nextCutsceneIndex = 0xFFF8;
-                globalCtx->sceneLoadFlag = 0x14;
+                globalCtx->transitionTrigger = 0x14;
                 globalCtx->unk_1887F = 3;
             }
             break;
@@ -571,7 +571,7 @@ void Cutscene_TerminatorImpl(GlobalContext* globalCtx, CutsceneContext* csCtx, C
     if (cmd->base == 1) {
         globalCtx->nextEntranceIndex = globalCtx->csCtx.sceneCsList[globalCtx->csCtx.currentCsIndex].nextEntranceIndex;
         gSaveContext.nextCutsceneIndex = 0;
-        globalCtx->sceneLoadFlag = 0x14;
+        globalCtx->transitionTrigger = 0x14;
         if (gSaveContext.gameMode != 1) {
             Scene_SetExitFade(globalCtx);
         } else {
@@ -604,12 +604,12 @@ void Cutscene_Command_Terminator(GlobalContext* globalCtx, CutsceneContext* csCt
                 case 0x1F:
                     if (gSaveContext.save.weekEventReg[20] & 2) {
                         globalCtx->nextEntranceIndex = 0x3010;
-                        globalCtx->sceneLoadFlag = 0x14;
+                        globalCtx->transitionTrigger = 0x14;
                         globalCtx->unk_1887F = 3;
                     } else {
                         globalCtx->nextEntranceIndex = 0x8600;
                         gSaveContext.nextCutsceneIndex = 0xFFF0;
-                        globalCtx->sceneLoadFlag = 0x14;
+                        globalCtx->transitionTrigger = 0x14;
                         globalCtx->unk_1887F = 3;
                     }
                     break;
@@ -617,12 +617,12 @@ void Cutscene_Command_Terminator(GlobalContext* globalCtx, CutsceneContext* csCt
                 case 0x44:
                     if (gSaveContext.save.weekEventReg[33] & 0x80) {
                         globalCtx->nextEntranceIndex = 0xAE70;
-                        globalCtx->sceneLoadFlag = 0x14;
+                        globalCtx->transitionTrigger = 0x14;
                         globalCtx->unk_1887F = 3;
                     } else {
                         globalCtx->nextEntranceIndex = 0xAE00;
                         gSaveContext.nextCutsceneIndex = 0xFFF0;
-                        globalCtx->sceneLoadFlag = 0x14;
+                        globalCtx->transitionTrigger = 0x14;
                         globalCtx->unk_1887F = 3;
                     }
                     break;
@@ -631,7 +631,7 @@ void Cutscene_Command_Terminator(GlobalContext* globalCtx, CutsceneContext* csCt
                     gSaveContext.save.weekEventReg[55] |= 0x80;
                     globalCtx->nextEntranceIndex = 0x6A80;
                     gSaveContext.nextCutsceneIndex = 0xFFF0;
-                    globalCtx->sceneLoadFlag = 0x14;
+                    globalCtx->transitionTrigger = 0x14;
                     globalCtx->unk_1887F = 3;
                     break;
 
@@ -639,7 +639,7 @@ void Cutscene_Command_Terminator(GlobalContext* globalCtx, CutsceneContext* csCt
                     gSaveContext.save.weekEventReg[52] |= 0x20;
                     globalCtx->nextEntranceIndex = 0x2000;
                     gSaveContext.nextCutsceneIndex = 0xFFF1;
-                    globalCtx->sceneLoadFlag = 0x14;
+                    globalCtx->transitionTrigger = 0x14;
                     globalCtx->unk_1887F = 3;
                     break;
             }
@@ -666,7 +666,7 @@ void Cutscene_Command_ChooseCreditsScenes(GlobalContext* globalCtx, CutsceneCont
                     globalCtx->nextEntranceIndex = 0x1C00;
                     gSaveContext.nextCutsceneIndex = 0xFFF9;
                 }
-                globalCtx->sceneLoadFlag = 0x14;
+                globalCtx->transitionTrigger = 0x14;
                 break;
 
             case 3:
@@ -679,7 +679,7 @@ void Cutscene_Command_ChooseCreditsScenes(GlobalContext* globalCtx, CutsceneCont
                     globalCtx->nextEntranceIndex = 0x1C10;
                     gSaveContext.nextCutsceneIndex = 0xFFF9;
                 }
-                globalCtx->sceneLoadFlag = 0x14;
+                globalCtx->transitionTrigger = 0x14;
                 break;
 
             case 4:
@@ -692,7 +692,7 @@ void Cutscene_Command_ChooseCreditsScenes(GlobalContext* globalCtx, CutsceneCont
                     globalCtx->nextEntranceIndex = 0x1C20;
                     gSaveContext.nextCutsceneIndex = 0xFFF9;
                 }
-                globalCtx->sceneLoadFlag = 0x14;
+                globalCtx->transitionTrigger = 0x14;
                 break;
 
             case 5:
@@ -705,7 +705,7 @@ void Cutscene_Command_ChooseCreditsScenes(GlobalContext* globalCtx, CutsceneCont
                     globalCtx->nextEntranceIndex = 0x1C30;
                     gSaveContext.nextCutsceneIndex = 0xFFF9;
                 }
-                globalCtx->sceneLoadFlag = 0x14;
+                globalCtx->transitionTrigger = 0x14;
                 break;
 
             case 6:
@@ -718,7 +718,7 @@ void Cutscene_Command_ChooseCreditsScenes(GlobalContext* globalCtx, CutsceneCont
                     globalCtx->nextEntranceIndex = 0x1C50;
                     gSaveContext.nextCutsceneIndex = 0xFFF9;
                 }
-                globalCtx->sceneLoadFlag = 0x14;
+                globalCtx->transitionTrigger = 0x14;
                 break;
 
             case 7:
@@ -731,14 +731,14 @@ void Cutscene_Command_ChooseCreditsScenes(GlobalContext* globalCtx, CutsceneCont
                     globalCtx->nextEntranceIndex = 0x1C60;
                     gSaveContext.nextCutsceneIndex = 0xFFF9;
                 }
-                globalCtx->sceneLoadFlag = 0x14;
+                globalCtx->transitionTrigger = 0x14;
                 break;
 
             case 8:
                 // Ikana canyon
                 globalCtx->nextEntranceIndex = 0x2000;
                 gSaveContext.nextCutsceneIndex = 0xFFF3;
-                globalCtx->sceneLoadFlag = 0x14;
+                globalCtx->transitionTrigger = 0x14;
                 break;
 
             case 9:
@@ -751,7 +751,7 @@ void Cutscene_Command_ChooseCreditsScenes(GlobalContext* globalCtx, CutsceneCont
                     globalCtx->nextEntranceIndex = 0x1C70;
                     gSaveContext.nextCutsceneIndex = 0xFFF9;
                 }
-                globalCtx->sceneLoadFlag = 0x14;
+                globalCtx->transitionTrigger = 0x14;
                 break;
 
             case 10:
@@ -764,7 +764,7 @@ void Cutscene_Command_ChooseCreditsScenes(GlobalContext* globalCtx, CutsceneCont
                     globalCtx->nextEntranceIndex = 0x1C40;
                     gSaveContext.nextCutsceneIndex = 0xFFF9;
                 }
-                globalCtx->sceneLoadFlag = 0x14;
+                globalCtx->transitionTrigger = 0x14;
                 break;
 
             case 11:
@@ -777,7 +777,7 @@ void Cutscene_Command_ChooseCreditsScenes(GlobalContext* globalCtx, CutsceneCont
                     globalCtx->nextEntranceIndex = 0x1C80;
                     gSaveContext.nextCutsceneIndex = 0xFFF9;
                 }
-                globalCtx->sceneLoadFlag = 0x14;
+                globalCtx->transitionTrigger = 0x14;
                 break;
         }
     }
@@ -1175,7 +1175,8 @@ void Cutscene_ProcessCommands(GlobalContext* globalCtx, CutsceneContext* csCtx, 
     bcopy(cutscenePtr, &cutsceneEndFrame, sizeof(s32));
     cutscenePtr += sizeof(s32);
 
-    if (((u16)cutsceneEndFrame < csCtx->frames) && (globalCtx->sceneLoadFlag != 0x14) && (csCtx->state != CS_STATE_4)) {
+    if (((u16)cutsceneEndFrame < csCtx->frames) && (globalCtx->transitionTrigger != 0x14) &&
+        (csCtx->state != CS_STATE_4)) {
         csCtx->state = CS_STATE_3;
         return;
     }

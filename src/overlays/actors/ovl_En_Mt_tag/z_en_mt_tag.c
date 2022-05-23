@@ -242,7 +242,7 @@ s32 EnMttag_ExitRace(GlobalContext* globalCtx, s32 arg1, s32 nextTransition) {
         gSaveContext.nextCutsceneIndex = 0;
     }
 
-    globalCtx->sceneLoadFlag = 0x14;
+    globalCtx->transitionTrigger = 0x14;
     globalCtx->unk_1887F = arg1;
     gSaveContext.nextTransition = nextTransition;
     func_801477B4(globalCtx);
@@ -428,7 +428,7 @@ void EnMttag_PotentiallyRestartRace(EnMttag* this, GlobalContext* globalCtx) {
                 gSaveContext.nextCutsceneIndex = 0;
             }
 
-            globalCtx->sceneLoadFlag = 0x14;
+            globalCtx->transitionTrigger = 0x14;
             globalCtx->unk_1887F = 2;
             gSaveContext.nextTransition = 2;
             func_801477B4(globalCtx);

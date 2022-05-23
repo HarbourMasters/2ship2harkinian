@@ -457,7 +457,7 @@ void ObjTokeidai_TowerOpening_EndCutscene(ObjTokeidai* this, GlobalContext* glob
             gSaveContext.save.cutscene = 0;
             gSaveContext.nextCutsceneIndex = 0;
             gSaveContext.respawnFlag = 2;
-            globalCtx->sceneLoadFlag = 0x14;
+            globalCtx->transitionTrigger = 0x14;
             globalCtx->nextEntranceIndex = gSaveContext.respawn[RESTART_MODE_RETURN].entranceIndex;
             globalCtx->unk_1887F = 2;
             if (gSaveContext.respawn[RESTART_MODE_RETURN].playerParams == 0xCFF) {

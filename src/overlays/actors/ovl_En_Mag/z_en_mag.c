@@ -381,7 +381,7 @@ void EnMag_Update(Actor* thisx, GlobalContext* globalCtx) {
                         if (CHECK_BTN_ALL(CONTROLLER1(globalCtx)->press.button, BTN_START) ||
                             CHECK_BTN_ALL(CONTROLLER1(globalCtx)->press.button, BTN_A) ||
                             CHECK_BTN_ALL(CONTROLLER1(globalCtx)->press.button, BTN_B)) {
-                            if (globalCtx->sceneLoadFlag != 0x14) {
+                            if (globalCtx->transitionTrigger != 0x14) {
                                 Audio_SetCutsceneFlag(false);
                                 D_801BB12C++;
                                 if (D_801BB12C >= 2) {
@@ -389,7 +389,7 @@ void EnMag_Update(Actor* thisx, GlobalContext* globalCtx) {
                                 }
                                 play_sound(NA_SE_SY_PIECE_OF_HEART);
                                 gSaveContext.gameMode = 2; // Go to FileChoose
-                                globalCtx->sceneLoadFlag = 0x14;
+                                globalCtx->transitionTrigger = 0x14;
                                 globalCtx->unk_1887F = 2;
                                 globalCtx->nextEntranceIndex = 0x1C00;
                                 gSaveContext.save.cutscene = 0;

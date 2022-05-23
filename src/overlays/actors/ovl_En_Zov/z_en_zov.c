@@ -425,7 +425,7 @@ void func_80BD1DB8(EnZov* this, GlobalContext* globalCtx) {
             case 0x1039:
                 globalCtx->nextEntranceIndex = globalCtx->setupExitList[ENZOV_GET_FE00(&this->actor)];
                 globalCtx->unk_1887F = 5;
-                globalCtx->sceneLoadFlag = 0x14;
+                globalCtx->transitionTrigger = 0x14;
                 gSaveContext.save.weekEventReg[78] |= 1;
                 this->actionFunc = func_80BD1D94;
                 globalCtx->msgCtx.unk11F10 = 0;

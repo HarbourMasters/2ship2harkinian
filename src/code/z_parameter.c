@@ -148,9 +148,9 @@ u16 sMinigameScoreDigits[] = { 0, 0, 0, 0 };
 u16 sCUpInvisible = 0;
 u16 sCUpTimer = 0;
 
-s16 sMagicBarOutlinePrimRed = 255;
-s16 sMagicBarOutlinePrimGreen = 255;
-s16 sMagicBarOutlinePrimBlue = 255;
+s16 sMagicMeterOutlinePrimRed = 255;
+s16 sMagicMeterOutlinePrimGreen = 255;
+s16 sMagicMeterOutlinePrimBlue = 255;
 s16 sMagicBorderRatio = 2;
 s16 sMagicBorderStep = 1;
 
@@ -1638,7 +1638,7 @@ void func_80110038(GlobalContext* globalCtx) {
                     gSaveContext.unk_3F22 = 0;
                 }
 
-                if ((globalCtx->sceneLoadFlag == 0) && (globalCtx->transitionMode == 0)) {
+                if ((globalCtx->transitionTrigger == 0) && (globalCtx->transitionMode == 0)) {
                     if (ActorCutscene_GetCurrentIndex() == -1) {
                         Interface_ChangeAlpha(50);
                     }
@@ -1898,7 +1898,7 @@ void func_80110038(GlobalContext* globalCtx) {
         }
     }
 
-    if (phi_t3 && (globalCtx->activeCamera == 0) && (globalCtx->sceneLoadFlag == 0) &&
+    if (phi_t3 && (globalCtx->activeCamera == 0) && (globalCtx->transitionTrigger == 0) &&
         (globalCtx->transitionMode == 0)) {
         gSaveContext.unk_3F22 = 0;
         Interface_ChangeAlpha(50);
@@ -1982,7 +1982,7 @@ void func_80111CB4(GlobalContext* globalCtx) {
                     if (globalCtx->transitionMode != 0) {
                         Interface_ChangeAlpha(1);
                     } else if ((gSaveContext.minigameState == 1) && (gSaveContext.save.entranceIndex == 0x6400) &&
-                               (Cutscene_GetSceneSetupIndex(globalCtx) != 0) && (globalCtx->sceneLoadFlag == 0)) {
+                               (Cutscene_GetSceneSetupIndex(globalCtx) != 0) && (globalCtx->transitionTrigger == 0)) {
                         Interface_ChangeAlpha(12);
                     } else if ((gSaveContext.minigameState == 1) && (gSaveContext.eventInf[3] & 0x20)) {
                         Interface_ChangeAlpha(17);
@@ -2040,7 +2040,7 @@ void func_80111CB4(GlobalContext* globalCtx) {
                 if (globalCtx->transitionMode != 0) {
                     Interface_ChangeAlpha(1);
                 } else if ((gSaveContext.minigameState == 1) && (gSaveContext.save.entranceIndex == 0x6400) &&
-                           (Cutscene_GetSceneSetupIndex(globalCtx) != 0) && (globalCtx->sceneLoadFlag == 0)) {
+                           (Cutscene_GetSceneSetupIndex(globalCtx) != 0) && (globalCtx->transitionTrigger == 0)) {
                     Interface_ChangeAlpha(12);
                 } else if (gSaveContext.minigameState == 1) {
                     Interface_ChangeAlpha(8);
@@ -2108,12 +2108,12 @@ void func_80111CB4(GlobalContext* globalCtx) {
                 }
             }
         } else if ((gSaveContext.minigameState == 1) && (gSaveContext.save.entranceIndex == 0x8E10) &&
-                   (globalCtx->sceneLoadFlag == 0) && (globalCtx->transitionMode == 0)) {
+                   (globalCtx->transitionTrigger == 0) && (globalCtx->transitionMode == 0)) {
             gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
             Interface_ChangeAlpha(12);
-        } else if ((gSaveContext.save.entranceIndex == 0xD010) && (globalCtx->sceneLoadFlag == 0) &&
+        } else if ((gSaveContext.save.entranceIndex == 0xD010) && (globalCtx->transitionTrigger == 0) &&
                    (globalCtx->transitionMode == 0)) {
             gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
@@ -2136,7 +2136,7 @@ void func_80111CB4(GlobalContext* globalCtx) {
     }
     if (sp28) {
         gSaveContext.unk_3F22 = 0;
-        if ((globalCtx->sceneLoadFlag == 0) && (globalCtx->transitionMode == 0)) {
+        if ((globalCtx->transitionTrigger == 0) && (globalCtx->transitionMode == 0)) {
             Interface_ChangeAlpha(50);
         }
     }
@@ -3170,12 +3170,12 @@ void Magic_Add(GlobalContext* globalCtx, s16 magicToAdd) {
 
 void Magic_Reset(GameState* gamestate) {
     if ((gSaveContext.magicState != MAGIC_STATE_STEP_CAPACITY) && (gSaveContext.magicState != MAGIC_STATE_FILL)) {
-        sMagicBarOutlinePrimRed = sMagicBarOutlinePrimGreen = sMagicBarOutlinePrimBlue = 255;
+        sMagicMeterOutlinePrimRed = sMagicMeterOutlinePrimGreen = sMagicMeterOutlinePrimBlue = 255;
         gSaveContext.magicState = MAGIC_STATE_IDLE;
     }
 }
 
-s32 Magic_Consume(GlobalContext* globalCtx, s16 magicToConsume, s16 consumeType) {
+s32 Magic_Consume(GlobalContext* globalCtx, s16 magicToConsume, s16 type) {
     InterfaceContext* interfaceCtx = &globalCtx->interfaceCtx;
 
     if (!gSaveContext.save.playerData.isMagicAcquired) {
@@ -3189,9 +3189,10 @@ s32 Magic_Consume(GlobalContext* globalCtx, s16 magicToConsume, s16 consumeType)
         return false;
     }
 
-    switch (consumeType) {
-        case MAGIC_BAR_CONSUME_NOW: // Deku Bubble
+    switch (type) {
+        case MAGIC_BAR_CONSUME_NOW:
         case MAGIC_BAR_CONSUME_NOW_ALT:
+            // Deku Bubble
             if ((gSaveContext.magicState == MAGIC_STATE_IDLE) ||
                 (gSaveContext.magicState == MAGIC_STATE_CONSUME_LENS)) {
                 if (gSaveContext.magicState == MAGIC_STATE_CONSUME_LENS) {
@@ -3225,7 +3226,7 @@ s32 Magic_Consume(GlobalContext* globalCtx, s16 magicToConsume, s16 consumeType)
                 return false;
             }
 
-        case MAGIC_BAR_CONSUME_LENS: // Lens
+        case MAGIC_BAR_CONSUME_LENS:
             if (gSaveContext.magicState == MAGIC_STATE_IDLE) {
                 if (gSaveContext.save.playerData.magic != 0) {
                     interfaceCtx->magicConsumptionTimer = 80;
@@ -3240,7 +3241,8 @@ s32 Magic_Consume(GlobalContext* globalCtx, s16 magicToConsume, s16 consumeType)
                 return false;
             }
 
-        case MAGIC_BAR_CONSUME_WAIT_PREVIEW: // Spin Attack
+        case MAGIC_BAR_CONSUME_WAIT_PREVIEW:
+            // Spin Attack
             if ((gSaveContext.magicState == MAGIC_STATE_IDLE) ||
                 (gSaveContext.magicState == MAGIC_STATE_CONSUME_LENS)) {
                 if (gSaveContext.magicState == MAGIC_STATE_CONSUME_LENS) {
@@ -3254,7 +3256,8 @@ s32 Magic_Consume(GlobalContext* globalCtx, s16 magicToConsume, s16 consumeType)
                 return false;
             }
 
-        case MAGIC_BAR_CONSUME_GORON_ZORA: // Zora Shock, Goron Spike Roll
+        case MAGIC_BAR_CONSUME_GORON_ZORA:
+            // Zora Shock, Goron Spike Roll
             if (gSaveContext.save.playerData.magic != 0) {
                 interfaceCtx->magicConsumptionTimer = 10;
                 gSaveContext.magicState = MAGIC_STATE_CONSUME_GORON_ZORA_SETUP;
@@ -3263,7 +3266,8 @@ s32 Magic_Consume(GlobalContext* globalCtx, s16 magicToConsume, s16 consumeType)
                 return false;
             }
 
-        case MAGIC_BAR_CONSUME_GIANTS_MASK: // Giants Mask
+        case MAGIC_BAR_CONSUME_GIANTS_MASK:
+            // Wearing Giants Mask
             if (gSaveContext.magicState == MAGIC_STATE_IDLE) {
                 if (gSaveContext.save.playerData.magic != 0) {
                     interfaceCtx->magicConsumptionTimer = R_MAGIC_CONSUME_TIMER_GIANT;
@@ -3279,7 +3283,9 @@ s32 Magic_Consume(GlobalContext* globalCtx, s16 magicToConsume, s16 consumeType)
                 return false;
             }
 
-        case MAGIC_BAR_CONSUME_DEITY_BEAM: // Fierce Deity Beam
+        case MAGIC_BAR_CONSUME_DEITY_BEAM:
+            // Using Fierce Deity Beam
+            // Consumes magic immediately
             if ((gSaveContext.magicState == MAGIC_STATE_IDLE) ||
                 (gSaveContext.magicState == MAGIC_STATE_CONSUME_LENS)) {
                 if (gSaveContext.magicState == MAGIC_STATE_CONSUME_LENS) {
@@ -3294,10 +3300,9 @@ s32 Magic_Consume(GlobalContext* globalCtx, s16 magicToConsume, s16 consumeType)
                 play_sound(NA_SE_SY_ERROR);
                 return false;
             }
-
-        default:
-            return false;
     }
+
+    return false;
 }
 
 void Magic_UpdateAddRequest(void) {
@@ -3331,33 +3336,33 @@ void Magic_UpdateMeterBorderColor(void) {
     s16 borderChangeB;
     s16 index = sMagicBorderIndices[sMagicBorderStep];
 
-    borderChangeR = ABS_ALT(sMagicBarOutlinePrimRed - sMagicBorderColors[index][0]) / sMagicBorderRatio;
-    borderChangeG = ABS_ALT(sMagicBarOutlinePrimGreen - sMagicBorderColors[index][1]) / sMagicBorderRatio;
-    borderChangeB = ABS_ALT(sMagicBarOutlinePrimBlue - sMagicBorderColors[index][2]) / sMagicBorderRatio;
+    borderChangeR = ABS_ALT(sMagicMeterOutlinePrimRed - sMagicBorderColors[index][0]) / sMagicBorderRatio;
+    borderChangeG = ABS_ALT(sMagicMeterOutlinePrimGreen - sMagicBorderColors[index][1]) / sMagicBorderRatio;
+    borderChangeB = ABS_ALT(sMagicMeterOutlinePrimBlue - sMagicBorderColors[index][2]) / sMagicBorderRatio;
 
-    if (sMagicBarOutlinePrimRed >= sMagicBorderColors[index][0]) {
-        sMagicBarOutlinePrimRed -= borderChangeR;
+    if (sMagicMeterOutlinePrimRed >= sMagicBorderColors[index][0]) {
+        sMagicMeterOutlinePrimRed -= borderChangeR;
     } else {
-        sMagicBarOutlinePrimRed += borderChangeR;
+        sMagicMeterOutlinePrimRed += borderChangeR;
     }
 
-    if (sMagicBarOutlinePrimGreen >= sMagicBorderColors[index][1]) {
-        sMagicBarOutlinePrimGreen -= borderChangeG;
+    if (sMagicMeterOutlinePrimGreen >= sMagicBorderColors[index][1]) {
+        sMagicMeterOutlinePrimGreen -= borderChangeG;
     } else {
-        sMagicBarOutlinePrimGreen += borderChangeG;
+        sMagicMeterOutlinePrimGreen += borderChangeG;
     }
 
-    if (sMagicBarOutlinePrimBlue >= sMagicBorderColors[index][2]) {
-        sMagicBarOutlinePrimBlue -= borderChangeB;
+    if (sMagicMeterOutlinePrimBlue >= sMagicBorderColors[index][2]) {
+        sMagicMeterOutlinePrimBlue -= borderChangeB;
     } else {
-        sMagicBarOutlinePrimBlue += borderChangeB;
+        sMagicMeterOutlinePrimBlue += borderChangeB;
     }
 
     sMagicBorderRatio--;
     if (sMagicBorderRatio == 0) {
-        sMagicBarOutlinePrimRed = sMagicBorderColors[index][0];
-        sMagicBarOutlinePrimGreen = sMagicBorderColors[index][1];
-        sMagicBarOutlinePrimBlue = sMagicBorderColors[index][2];
+        sMagicMeterOutlinePrimRed = sMagicBorderColors[index][0];
+        sMagicMeterOutlinePrimGreen = sMagicBorderColors[index][1];
+        sMagicMeterOutlinePrimBlue = sMagicBorderColors[index][2];
 
         sMagicBorderRatio = sMagicBorderColorTimerIndex[sMagicBorderStep];
 
@@ -3423,7 +3428,7 @@ void Magic_Update(GlobalContext* globalCtx) {
                     gSaveContext.save.playerData.magic = 0;
                 }
                 gSaveContext.magicState = MAGIC_STATE_METER_FLASH_1;
-                sMagicBarOutlinePrimRed = sMagicBarOutlinePrimGreen = sMagicBarOutlinePrimBlue = 255;
+                sMagicMeterOutlinePrimRed = sMagicMeterOutlinePrimGreen = sMagicMeterOutlinePrimBlue = 255;
             }
             // fallthrough
 
@@ -3436,13 +3441,14 @@ void Magic_Update(GlobalContext* globalCtx) {
             break;
 
         case MAGIC_STATE_RESET:
-            sMagicBarOutlinePrimRed = sMagicBarOutlinePrimGreen = sMagicBarOutlinePrimBlue = 255;
+            sMagicMeterOutlinePrimRed = sMagicMeterOutlinePrimGreen = sMagicMeterOutlinePrimBlue = 255;
             gSaveContext.magicState = MAGIC_STATE_IDLE;
             break;
 
         case MAGIC_STATE_CONSUME_LENS:
+            // Slowly consume magic while lens is on
             if ((globalCtx->pauseCtx.state == 0) && (globalCtx->pauseCtx.debugState == 0) && (msgCtx->msgMode == 0) &&
-                (globalCtx->gameOverCtx.state == 0) && (globalCtx->sceneLoadFlag == 0) &&
+                (globalCtx->gameOverCtx.state == 0) && (globalCtx->transitionTrigger == 0) &&
                 (globalCtx->transitionMode == 0) && !Play_InCsMode(globalCtx)) {
 
                 if ((gSaveContext.save.playerData.magic == 0) ||
@@ -3451,10 +3457,11 @@ void Magic_Update(GlobalContext* globalCtx) {
                      (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) != ITEM_LENS) &&
                      (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) != ITEM_LENS)) ||
                     !globalCtx->actorCtx.lensActive) {
+                    // Force lens off and set magic meter state to idle
                     globalCtx->actorCtx.lensActive = false;
                     play_sound(NA_SE_SY_GLASSMODE_OFF);
                     gSaveContext.magicState = MAGIC_STATE_IDLE;
-                    sMagicBarOutlinePrimRed = sMagicBarOutlinePrimGreen = sMagicBarOutlinePrimBlue = 255;
+                    sMagicMeterOutlinePrimRed = sMagicMeterOutlinePrimGreen = sMagicMeterOutlinePrimBlue = 255;
                     break;
                 }
 
@@ -3482,7 +3489,7 @@ void Magic_Update(GlobalContext* globalCtx) {
             // fallthrough
         case MAGIC_STATE_CONSUME_GORON_ZORA:
             if ((globalCtx->pauseCtx.state == 0) && (globalCtx->pauseCtx.debugState == 0) && (msgCtx->msgMode == 0) &&
-                (globalCtx->gameOverCtx.state == 0) && (globalCtx->sceneLoadFlag == 0) &&
+                (globalCtx->gameOverCtx.state == 0) && (globalCtx->transitionTrigger == 0) &&
                 (globalCtx->transitionMode == 0)) {
                 if (!Play_InCsMode(globalCtx)) {
                     interfaceCtx->magicConsumptionTimer--;
@@ -3504,7 +3511,7 @@ void Magic_Update(GlobalContext* globalCtx) {
 
         case MAGIC_STATE_CONSUME_GIANTS_MASK:
             if ((globalCtx->pauseCtx.state == 0) && (globalCtx->pauseCtx.debugState == 0) && (msgCtx->msgMode == 0) &&
-                (globalCtx->gameOverCtx.state == 0) && (globalCtx->sceneLoadFlag == 0) &&
+                (globalCtx->gameOverCtx.state == 0) && (globalCtx->transitionTrigger == 0) &&
                 (globalCtx->transitionMode == 0)) {
                 if (!Play_InCsMode(globalCtx)) {
                     interfaceCtx->magicConsumptionTimer--;
@@ -3548,16 +3555,16 @@ void Magic_DrawMeter(GlobalContext* globalCtx) {
         gDPSetEnvColor(OVERLAY_DISP++, 100, 50, 50, 255);
 
         OVERLAY_DISP = func_8010CFBC(OVERLAY_DISP, gMagicMeterEndTex, 8, 16, 18, magicBarY, 8, 16, 1 << 10, 1 << 10,
-                                     sMagicBarOutlinePrimRed, sMagicBarOutlinePrimGreen, sMagicBarOutlinePrimBlue,
+                                     sMagicMeterOutlinePrimRed, sMagicMeterOutlinePrimGreen, sMagicMeterOutlinePrimBlue,
                                      interfaceCtx->magicAlpha);
         OVERLAY_DISP =
             func_8010CFBC(OVERLAY_DISP, gMagicMeterMidTex, 24, 16, 26, magicBarY, ((void)0, gSaveContext.magicCapacity),
-                          16, 1 << 10, 1 << 10, sMagicBarOutlinePrimRed, sMagicBarOutlinePrimGreen,
-                          sMagicBarOutlinePrimBlue, interfaceCtx->magicAlpha);
+                          16, 1 << 10, 1 << 10, sMagicMeterOutlinePrimRed, sMagicMeterOutlinePrimGreen,
+                          sMagicMeterOutlinePrimBlue, interfaceCtx->magicAlpha);
         OVERLAY_DISP =
             func_8010D480(OVERLAY_DISP, gMagicMeterEndTex, 8, 16, ((void)0, gSaveContext.magicCapacity) + 26, magicBarY,
-                          8, 16, 1 << 10, 1 << 10, sMagicBarOutlinePrimRed, sMagicBarOutlinePrimGreen,
-                          sMagicBarOutlinePrimBlue, interfaceCtx->magicAlpha, 3, 0x100);
+                          8, 16, 1 << 10, 1 << 10, sMagicMeterOutlinePrimRed, sMagicMeterOutlinePrimGreen,
+                          sMagicMeterOutlinePrimBlue, interfaceCtx->magicAlpha, 3, 0x100);
 
         gDPPipeSync(OVERLAY_DISP++);
         gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, 0, 0, 0, PRIMITIVE, PRIMITIVE,
@@ -5114,7 +5121,7 @@ void func_8011C808(GlobalContext* globalCtx) {
     gSaveContext.save.time = 0x400A;
     globalCtx->nextEntranceIndex = 0x54C0;
     gSaveContext.nextCutsceneIndex = 0;
-    globalCtx->sceneLoadFlag = 0x14;
+    globalCtx->transitionTrigger = 0x14;
     globalCtx->unk_1887F = 3;
 }
 
@@ -5173,7 +5180,7 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
         (globalCtx->gameOverCtx.state == 0) &&
         ((msgCtx->msgMode == 0) ||
          ((msgCtx->msgMode != 0) && (msgCtx->currentTextId >= 0x1BB2) && (msgCtx->currentTextId <= 0x1BB6))) &&
-        !(player->stateFlags1 & 0x200) && (globalCtx->sceneLoadFlag == 0) && (globalCtx->transitionMode == 0) &&
+        !(player->stateFlags1 & 0x200) && (globalCtx->transitionTrigger == 0) && (globalCtx->transitionMode == 0) &&
         !Play_InCsMode(globalCtx)) {
 
         if (D_801BF968) {
@@ -5353,7 +5360,7 @@ void Interface_DrawTimers(GlobalContext* globalCtx) {
                                 if ((globalCtx->sceneNum == SCENE_OKUJOU) && (gSaveContext.sceneSetupIndex == 3)) {
                                     globalCtx->nextEntranceIndex = 0x5410;
                                     gSaveContext.nextCutsceneIndex = 0xFFF0;
-                                    globalCtx->sceneLoadFlag = 0x14;
+                                    globalCtx->transitionTrigger = 0x14;
                                 } else {
                                     func_8011C808(globalCtx);
                                 }
@@ -5601,7 +5608,7 @@ void Interface_UpdateTimers(GlobalContext* globalCtx) {
         (globalCtx->gameOverCtx.state == 0) &&
         ((msgCtx->msgMode == 0) || ((msgCtx->currentTextId >= 0x100) && (msgCtx->currentTextId <= 0x200)) ||
          ((msgCtx->currentTextId >= 0x1BB2) && (msgCtx->currentTextId <= 0x1BB6))) &&
-        (globalCtx->sceneLoadFlag == 0) && (globalCtx->transitionMode == 0) && !Play_InCsMode(globalCtx)) {
+        (globalCtx->transitionTrigger == 0) && (globalCtx->transitionMode == 0) && !Play_InCsMode(globalCtx)) {
 
         if (D_801BF96C) {
             var3 = osGetTime();

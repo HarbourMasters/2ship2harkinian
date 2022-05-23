@@ -335,7 +335,7 @@ void func_809C51B4(EnBomBowlMan* this, GlobalContext* globalCtx) {
         ((globalCtx->msgCtx.msgMode == 0) || (Message_GetState(&globalCtx->msgCtx) == 6))) {
         globalCtx->nextEntranceIndex = Entrance_CreateIndexFromSpawn(6);
         gSaveContext.nextCutsceneIndex = 0;
-        globalCtx->sceneLoadFlag = 0x14;
+        globalCtx->transitionTrigger = 0x14;
         globalCtx->unk_1887F = 0x56;
         gSaveContext.nextTransition = 3;
         gSaveContext.save.weekEventReg[75] &= (u8)~0x40;

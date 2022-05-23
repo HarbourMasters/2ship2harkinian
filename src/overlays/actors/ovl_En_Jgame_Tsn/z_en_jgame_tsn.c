@@ -368,7 +368,7 @@ void func_80C144E4(EnJgameTsn* this) {
 
 void func_80C144F8(EnJgameTsn* this, GlobalContext* globalCtx) {
     globalCtx->nextEntranceIndex = 0x68D0;
-    globalCtx->sceneLoadFlag = 0x14;
+    globalCtx->transitionTrigger = 0x14;
     globalCtx->unk_1887F = 0x50;
     gSaveContext.nextTransition = 3;
 }

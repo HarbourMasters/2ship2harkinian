@@ -215,7 +215,7 @@ void func_80169EFC(GameState* gameState) {
     globalCtx->nextEntranceIndex = gSaveContext.respawn[RESTART_MODE_DOWN].entranceIndex;
     gSaveContext.respawnFlag = 1;
     func_80169ECC(globalCtx);
-    globalCtx->sceneLoadFlag = 0x14;
+    globalCtx->transitionTrigger = 0x14;
     globalCtx->unk_1887F = 2;
 }
 
@@ -227,7 +227,7 @@ void func_80169F78(GameState* gameState) {
     globalCtx->nextEntranceIndex = gSaveContext.respawn[RESTART_MODE_TOP].entranceIndex;
     gSaveContext.respawnFlag = -1;
     func_80169ECC(globalCtx);
-    globalCtx->sceneLoadFlag = 0x14;
+    globalCtx->transitionTrigger = 0x14;
     globalCtx->unk_1887F = 2;
 }
 

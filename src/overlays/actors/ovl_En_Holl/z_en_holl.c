@@ -162,7 +162,7 @@ void EnHoll_VisibleIdle(EnHoll* this, GlobalContext* globalCtx) {
             func_800B9010(&this->actor, NA_SE_EV_INVISIBLE_MONKEY - SFX_FLAG);
         }
     }
-    if ((globalCtx->sceneLoadFlag != 0) || (globalCtx->transitionMode != 0)) {
+    if ((globalCtx->transitionTrigger != 0) || (globalCtx->transitionMode != 0)) {
         this->alpha = 255;
     } else {
         f32 enHollBottom = EN_HOLL_BOTTOM_DEFAULT;
@@ -191,7 +191,7 @@ void EnHoll_VisibleIdle(EnHoll* this, GlobalContext* globalCtx) {
                 globalCtx->nextEntranceIndex = globalCtx->setupExitList[EN_HOLL_GET_EXIT_LIST_INDEX(this)];
                 gSaveContext.unk_3DBB = 1;
                 Scene_SetExitFade(globalCtx);
-                globalCtx->sceneLoadFlag = 0x14;
+                globalCtx->transitionTrigger = 0x14;
                 globalCtx->unk_1878C(globalCtx);
             } else {
                 this->actor.room = globalCtx->doorCtx.transitionActorList[enHollId].sides[this->playerSide ^ 1].room;
@@ -309,7 +309,7 @@ void EnHoll_Update(Actor* thisx, GlobalContext* globalCtx) {
     EnHoll* this = THIS;
     Player* player = GET_PLAYER(globalCtx);
 
-    if ((globalCtx->sceneLoadFlag == 0) && (globalCtx->transitionMode == 0) && !(player->stateFlags1 & 0x200)) {
+    if ((globalCtx->transitionTrigger == 0) && (globalCtx->transitionMode == 0) && !(player->stateFlags1 & 0x200)) {
         this->actionFunc(this, globalCtx);
     }
 }

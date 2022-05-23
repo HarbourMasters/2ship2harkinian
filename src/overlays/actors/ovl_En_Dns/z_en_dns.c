@@ -442,7 +442,7 @@ void func_8092D330(EnDns* this, GlobalContext* globalCtx) {
         this->unk_2C6 &= ~0x100;
         globalCtx->nextEntranceIndex = 0x5010;
         gSaveContext.nextCutsceneIndex = 0;
-        globalCtx->sceneLoadFlag = 0x14;
+        globalCtx->transitionTrigger = 0x14;
         globalCtx->unk_1887F = 3;
         gSaveContext.nextTransition = 3;
     }

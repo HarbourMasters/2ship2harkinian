@@ -243,7 +243,7 @@ void EnWarpTag_GrottoReturn(EnWarptag* this, GlobalContext* globalCtx) {
     if (this->grottoExitDelay++ == 10) {
         globalCtx->nextEntranceIndex = globalCtx->setupExitList[GET_WARPTAG_EXIT_INDEX(&this->dyna.actor)];
         Scene_SetExitFade(globalCtx);
-        globalCtx->sceneLoadFlag = 0x14;
+        globalCtx->transitionTrigger = 0x14;
         func_8019F128(NA_SE_OC_SECRET_HOLE_OUT);
         func_801A4058(5);
         if (1) {}

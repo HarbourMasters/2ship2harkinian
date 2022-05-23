@@ -215,7 +215,7 @@ void func_809532C0(EnHs* this, GlobalContext* globalCtx) {
 void func_809532D0(EnHs* this, GlobalContext* globalCtx) {
     if (DECR(this->unk_2A2) == 0) {
         globalCtx->nextEntranceIndex = globalCtx->setupExitList[ENHS_GET_F(&this->actor)];
-        globalCtx->sceneLoadFlag = 0x14;
+        globalCtx->transitionTrigger = 0x14;
         gSaveContext.save.weekEventReg[25] |= 8;
         this->actionFunc = func_809532C0;
     }

@@ -1998,7 +1998,7 @@ void func_80B47108(EnInvadepoh* this, GlobalContext* globalCtx) {
     if (this->actionTimer <= 0) {
         globalCtx->nextEntranceIndex = 0x6460;
         gSaveContext.nextCutsceneIndex = 0;
-        globalCtx->sceneLoadFlag = 0x14;
+        globalCtx->transitionTrigger = 0x14;
         globalCtx->unk_1887F = 0x49;
         gSaveContext.nextTransition = 0x48;
         D_801BDAA0 = 1;
@@ -2016,7 +2016,7 @@ void func_80B471E0(EnInvadepoh* this, GlobalContext* globalCtx) {
     if (D_80B4E998) {
         globalCtx->nextEntranceIndex = 0x6470;
         gSaveContext.nextCutsceneIndex = 0;
-        globalCtx->sceneLoadFlag = 0x14;
+        globalCtx->transitionTrigger = 0x14;
         globalCtx->unk_1887F = 0x48;
         gSaveContext.nextTransition = 0x48;
         func_80B47248(this);
@@ -2039,7 +2039,7 @@ void func_80B47278(EnInvadepoh* this) {
 void func_80B47298(EnInvadepoh* this, GlobalContext* globalCtx) {
     globalCtx->nextEntranceIndex = 0x6400;
     gSaveContext.nextCutsceneIndex = 0xFFF3;
-    globalCtx->sceneLoadFlag = 0x14;
+    globalCtx->transitionTrigger = 0x14;
     globalCtx->unk_1887F = 0x48;
     gSaveContext.nextTransition = 0x48;
     gSaveContext.save.weekEventReg[89] |= 0x10;

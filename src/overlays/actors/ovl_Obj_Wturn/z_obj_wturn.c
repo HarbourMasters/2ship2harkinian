@@ -117,7 +117,7 @@ void func_808A7C78(ObjWturn* this, GlobalContext* globalCtx) {
         } else {
             globalCtx->nextEntranceIndex = 0xAA10;
         }
-        globalCtx->sceneLoadFlag = 0x14;
+        globalCtx->transitionTrigger = 0x14;
     }
 }
 

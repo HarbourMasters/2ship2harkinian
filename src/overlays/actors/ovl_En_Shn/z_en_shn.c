@@ -260,7 +260,7 @@ s32 func_80AE6704(EnShn* thisx, GlobalContext* globalCtx) {
             func_800B7298(globalCtx, &this->actor, 7);
             globalCtx->nextEntranceIndex = 0x8460;
             gSaveContext.nextCutsceneIndex = 0;
-            globalCtx->sceneLoadFlag = 0x14;
+            globalCtx->transitionTrigger = 0x14;
             globalCtx->unk_1887F = 3;
             gSaveContext.nextTransition = 7;
             this->unk_2C6++;

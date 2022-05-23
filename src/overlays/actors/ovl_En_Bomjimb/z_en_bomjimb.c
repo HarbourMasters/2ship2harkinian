@@ -789,11 +789,11 @@ void func_80C02CA4(EnBomjimb* this, GlobalContext* globalCtx) {
         globalCtx->nextEntranceIndex = globalCtx->setupExitList[this->unk_2B2];
         gSaveContext.nextCutsceneIndex = 0;
         Scene_SetExitFade(globalCtx);
-        globalCtx->sceneLoadFlag = 0x14;
+        globalCtx->transitionTrigger = 0x14;
     } else {
         globalCtx->nextEntranceIndex = Entrance_CreateIndexFromSpawn(5);
         gSaveContext.nextCutsceneIndex = 0;
-        globalCtx->sceneLoadFlag = 0x14;
+        globalCtx->transitionTrigger = 0x14;
         globalCtx->unk_1887F = 0x56;
         gSaveContext.nextTransition = 3;
     }

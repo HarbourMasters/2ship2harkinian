@@ -223,7 +223,7 @@ void EnSuttari_SetNextEntrance(GlobalContext* globalCtx, u16 nextEntranceIndex) 
     globalCtx->nextEntranceIndex = nextEntranceIndex;
     globalCtx->unk_1887F = 0x40;
     gSaveContext.nextTransition = 0x40;
-    globalCtx->sceneLoadFlag = 0x14;
+    globalCtx->transitionTrigger = 0x14;
 }
 
 void EnSuttari_UpdateTime(void) {

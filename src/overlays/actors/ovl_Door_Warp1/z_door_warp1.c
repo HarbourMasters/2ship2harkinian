@@ -486,7 +486,7 @@ void func_808B98A8(DoorWarp1* this, GlobalContext* globalCtx) {
             if (DOORWARP1_GET_FF00_1(&this->dyna.actor) != 0xFF) {
                 globalCtx->nextEntranceIndex = globalCtx->setupExitList[DOORWARP1_GET_FF00_3(&this->dyna.actor)];
                 Scene_SetExitFade(globalCtx);
-                globalCtx->sceneLoadFlag = 0x14;
+                globalCtx->transitionTrigger = 0x14;
             } else {
                 func_80169FDC(&globalCtx->state);
             }
@@ -704,7 +704,7 @@ void func_808BA10C(DoorWarp1* this, GlobalContext* globalCtx) {
                 gSaveContext.nextCutsceneIndex = phi_v0_3 + 0xFFF0;
             }
 
-            globalCtx->sceneLoadFlag = 0x14;
+            globalCtx->transitionTrigger = 0x14;
             globalCtx->unk_1887F = 3;
             gSaveContext.nextTransition = 3;
         } else {
@@ -713,13 +713,13 @@ void func_808BA10C(DoorWarp1* this, GlobalContext* globalCtx) {
                     if (gSaveContext.save.weekEventReg[20] & 2) {
                         gSaveContext.save.weekEventReg[7] |= 0x80;
                         globalCtx->nextEntranceIndex = 0x3010;
-                        globalCtx->sceneLoadFlag = 0x14;
+                        globalCtx->transitionTrigger = 0x14;
                         globalCtx->unk_1887F = 3;
                         gSaveContext.nextTransition = 3;
                     } else {
                         globalCtx->nextEntranceIndex = 0x8600;
                         gSaveContext.nextCutsceneIndex = 0xFFF0;
-                        globalCtx->sceneLoadFlag = 0x14;
+                        globalCtx->transitionTrigger = 0x14;
                         globalCtx->unk_1887F = 3;
                         gSaveContext.nextTransition = 3;
                     }
@@ -728,7 +728,7 @@ void func_808BA10C(DoorWarp1* this, GlobalContext* globalCtx) {
                 case 1:
                     gSaveContext.save.weekEventReg[33] |= 0x80;
                     globalCtx->nextEntranceIndex = 0xAE70;
-                    globalCtx->sceneLoadFlag = 0x14;
+                    globalCtx->transitionTrigger = 0x14;
                     globalCtx->unk_1887F = 3;
                     gSaveContext.nextTransition = 3;
                     break;
@@ -737,14 +737,14 @@ void func_808BA10C(DoorWarp1* this, GlobalContext* globalCtx) {
                     if (gSaveContext.save.weekEventReg[55] & 0x80) {
                         globalCtx->nextEntranceIndex = 0x6A90;
                         gSaveContext.nextCutsceneIndex = 0xFFF0;
-                        globalCtx->sceneLoadFlag = 0x14;
+                        globalCtx->transitionTrigger = 0x14;
                         globalCtx->unk_1887F = 3;
                         gSaveContext.nextTransition = 3;
                     } else {
                         gSaveContext.save.weekEventReg[55] |= 0x80;
                         globalCtx->nextEntranceIndex = 0x6A80;
                         gSaveContext.nextCutsceneIndex = 0xFFF0;
-                        globalCtx->sceneLoadFlag = 0x14;
+                        globalCtx->transitionTrigger = 0x14;
                         globalCtx->unk_1887F = 3;
                         gSaveContext.nextTransition = 3;
                     }
@@ -754,7 +754,7 @@ void func_808BA10C(DoorWarp1* this, GlobalContext* globalCtx) {
                     gSaveContext.save.weekEventReg[52] |= 0x20;
                     globalCtx->nextEntranceIndex = 0x20F0;
                     gSaveContext.nextCutsceneIndex = 0xFFF2;
-                    globalCtx->sceneLoadFlag = 0x14;
+                    globalCtx->transitionTrigger = 0x14;
                     globalCtx->unk_1887F = 3;
                     gSaveContext.nextTransition = 3;
                     break;
@@ -766,7 +766,7 @@ void func_808BA10C(DoorWarp1* this, GlobalContext* globalCtx) {
         }
         globalCtx->nextEntranceIndex = globalCtx->setupExitList[DOORWARP1_GET_FF00_3(&this->dyna.actor)];
         Scene_SetExitFade(globalCtx);
-        globalCtx->sceneLoadFlag = 0x14;
+        globalCtx->transitionTrigger = 0x14;
     } else {
         func_80169FDC(&globalCtx->state);
     }

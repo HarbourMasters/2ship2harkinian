@@ -70,7 +70,7 @@ void KaleidoSetup_Update(GlobalContext* globalCtx) {
     }
 
     if ((pauseCtx->state == 0) && (pauseCtx->debugState == 0) && (globalCtx->gameOverCtx.state == GAMEOVER_INACTIVE)) {
-        if ((globalCtx->sceneLoadFlag == 0) && (globalCtx->transitionMode == 0)) {
+        if ((globalCtx->transitionTrigger == 0) && (globalCtx->transitionMode == 0)) {
             if ((gSaveContext.save.cutscene < 0xFFF0) && (gSaveContext.nextCutsceneIndex < 0xFFF0)) {
                 if (!Play_InCsMode(globalCtx) || ((msgCtx->msgMode != 0) && (msgCtx->currentTextId == 0xFF))) {
                     if ((globalCtx->unk_1887C < 2) && (gSaveContext.magicState != MAGIC_STATE_STEP_CAPACITY) &&

@@ -1040,7 +1040,7 @@ void EnTrt_ShopkeeperGone(EnTrt* this, GlobalContext* globalCtx) {
         }
         globalCtx->unk_1887F = 0x40;
         gSaveContext.nextTransition = 0x40;
-        globalCtx->sceneLoadFlag = 0x14;
+        globalCtx->transitionTrigger = 0x14;
     }
 }
 
