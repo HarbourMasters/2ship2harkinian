@@ -2529,7 +2529,7 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
         return item;
 
     } else if (item == ITEM_MAGIC_SMALL) {
-        Magic_Add(globalCtx, 0x18);
+        Magic_Add(globalCtx, MAGIC_NORMAL_METER / 2);
         if (!(gSaveContext.save.weekEventReg[12] & 0x80)) {
             gSaveContext.save.weekEventReg[12] |= 0x80;
             return ITEM_NONE;
@@ -2537,7 +2537,7 @@ u8 Item_Give(GlobalContext* globalCtx, u8 item) {
         return item;
 
     } else if (item == ITEM_MAGIC_LARGE) {
-        Magic_Add(globalCtx, 0x30);
+        Magic_Add(globalCtx, MAGIC_NORMAL_METER);
         if (!(gSaveContext.save.weekEventReg[12] & 0x80)) {
             gSaveContext.save.weekEventReg[12] |= 0x80;
             return ITEM_NONE;
