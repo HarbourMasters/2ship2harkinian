@@ -312,7 +312,7 @@ void func_80A76748(EnPrz* this) {
 void func_80A767A8(EnPrz* this, GlobalContext* globalCtx) {
     Player* player = GET_PLAYER(globalCtx);
     EnPr* pr = (EnPr*)this->actor.parent;
-    f32 sqrt;
+    f32 distXZ;
     s32 pad[2];
 
     if (func_80A762C0(this, globalCtx)) {
@@ -322,10 +322,10 @@ void func_80A767A8(EnPrz* this, GlobalContext* globalCtx) {
         return;
     }
 
-    sqrt = sqrtf(SQ(player->actor.world.pos.x - this->actor.parent->home.pos.x) +
-                 SQ(player->actor.world.pos.z - this->actor.parent->home.pos.z));
+    distXZ = sqrtf(SQ(player->actor.world.pos.x - this->actor.parent->home.pos.x) +
+                   SQ(player->actor.world.pos.z - this->actor.parent->home.pos.z));
 
-    if (!(player->stateFlags1 & 0x8000000) || (pr->unk_2C8 < sqrt)) {
+    if (!(player->stateFlags1 & 0x8000000) || (pr->unk_2C8 < distXZ)) {
         this->unk_1F2 = 100;
         this->skelAnime.playSpeed = 1.0f;
         func_80A76388(this);
@@ -494,8 +494,8 @@ void func_80A76FCC(GlobalContext* globalCtx, s32 limbIndex, Gfx** dList, Vec3s* 
     EnPrz* this = THIS;
 
     if (limbIndex == 2) {
-        Matrix_InsertTranslation(0.0f, 0.0f, 0.0f, MTXMODE_APPLY);
-        Matrix_MultiplyVector3fByState(&sp1C, &this->unk_1CC);
+        Matrix_Translate(0.0f, 0.0f, 0.0f, MTXMODE_APPLY);
+        Matrix_MultVec3f(&sp1C, &this->unk_1CC);
     }
 }
 

@@ -408,7 +408,7 @@ u32 func_80151C9C(GlobalContext* globalCtx) {
 
     while (true) {
         if (msgCtx->unk120B1 == 0) {
-            return 0;
+            return false;
         }
         msgCtx->unk120B1--;
 
@@ -420,7 +420,7 @@ u32 func_80151C9C(GlobalContext* globalCtx) {
             if ((D_801C6AB8[msgCtx->unk120B2[msgCtx->unk120B1]] != 0) && CHECK_QUEST_ITEM(QUEST_BOMBERS_NOTEBOOK)) {
                 func_80151938(globalCtx, D_801C6AB8[msgCtx->unk120B2[msgCtx->unk120B1]]);
                 play_sound(NA_SE_SY_SCHEDULE_WRITE);
-                return 1;
+                return true;
             }
         }
     }

@@ -4003,9 +4003,9 @@ void func_80118BA4(GlobalContext* globalCtx) {
     gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
     gDPSetAlphaCompare(OVERLAY_DISP++, G_AC_THRESHOLD);
 
-    Matrix_InsertTranslation(0.0f, 0.0f, -38.0f, MTXMODE_NEW);
+    Matrix_Translate(0.0f, 0.0f, -38.0f, MTXMODE_NEW);
     Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
-    Matrix_RotateStateAroundXAxis(interfaceCtx->unk_218 / 10000.0f);
+    Matrix_RotateXFApply(interfaceCtx->unk_218 / 10000.0f);
 
     gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gDPPipeSync(OVERLAY_DISP++);
@@ -4028,9 +4028,9 @@ void func_80118BA4(GlobalContext* globalCtx) {
     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->aAlpha);
     gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 0);
 
-    Matrix_InsertTranslation(0.0f, 0.0f, D_801BF9CC[gSaveContext.options.language] / 10.0f, MTXMODE_NEW);
+    Matrix_Translate(0.0f, 0.0f, D_801BF9CC[gSaveContext.options.language] / 10.0f, MTXMODE_NEW);
     Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
-    Matrix_RotateStateAroundXAxis(interfaceCtx->unk_218 / 10000.0f);
+    Matrix_RotateXFApply(interfaceCtx->unk_218 / 10000.0f);
     gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[8], 4, 0);
 
@@ -4391,9 +4391,9 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                                 gDPSetAlphaCompare(OVERLAY_DISP++, G_AC_THRESHOLD);
                                 gDPSetRenderMode(OVERLAY_DISP++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
 
-                                Matrix_InsertTranslation(0.0f, -86.0f, 0.0f, MTXMODE_NEW);
+                                Matrix_Translate(0.0f, -86.0f, 0.0f, MTXMODE_NEW);
                                 Matrix_Scale(1.0f, 1.0f, D_801BF980, MTXMODE_APPLY);
-                                Matrix_InsertZRotation_f(-(sp1D0 * 0.0175f) / 10.0f, MTXMODE_APPLY);
+                                Matrix_RotateZF(-(sp1D0 * 0.0175f) / 10.0f, MTXMODE_APPLY);
 
                                 gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx),
                                           G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
@@ -4428,7 +4428,7 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                             gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 100, 110, D_801BFB2C);
 
-                            Matrix_InsertTranslation(sp1D8, temp_f14, 0.0f, MTXMODE_NEW);
+                            Matrix_Translate(sp1D8, temp_f14, 0.0f, MTXMODE_NEW);
                             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
 
                             gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx),
@@ -4447,7 +4447,7 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                             gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 55, D_801BFB2C);
 
-                            Matrix_InsertTranslation(sp1D8, temp_f14, 0.0f, MTXMODE_NEW);
+                            Matrix_Translate(sp1D8, temp_f14, 0.0f, MTXMODE_NEW);
                             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
                             gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx),
                                       G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
@@ -4467,9 +4467,9 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                             sp1CC = gSaveContext.save.time * 0.000096131f;
 
                             // Rotates Three-Day Clock's Hour Digit To Above the Sun
-                            Matrix_InsertTranslation(0.0f, XREG(43) / 10.0f, 0.0f, MTXMODE_NEW);
+                            Matrix_Translate(0.0f, XREG(43) / 10.0f, 0.0f, MTXMODE_NEW);
                             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
-                            Matrix_InsertZRotation_f(-(sp1CC - 3.15f), MTXMODE_APPLY);
+                            Matrix_RotateZF(-(sp1CC - 3.15f), MTXMODE_APPLY);
                             gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx),
                                       G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
 
@@ -4491,9 +4491,9 @@ void Interface_DrawClock(GlobalContext* globalCtx) {
                              * Draws Three-Day Clock's Hour Digit Above the Moon
                              */
                             // Rotates Three-Day Clock's Hour Digit To Above the Moon
-                            Matrix_InsertTranslation(0.0f, XREG(43) / 10.0f, 0.0f, MTXMODE_NEW);
+                            Matrix_Translate(0.0f, XREG(43) / 10.0f, 0.0f, MTXMODE_NEW);
                             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
-                            Matrix_InsertZRotation_f(-sp1CC, MTXMODE_APPLY);
+                            Matrix_RotateZF(-sp1CC, MTXMODE_APPLY);
                             gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx),
                                       G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
 
@@ -5112,7 +5112,7 @@ void Interface_DrawMinigamePerfect(GlobalContext* globalCtx) {
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, interfaceCtx->unk_2FC[3]);
 
-            Matrix_InsertTranslation(temp_f24, temp_f22, 0.0f, MTXMODE_NEW);
+            Matrix_Translate(temp_f24, temp_f22, 0.0f, MTXMODE_NEW);
             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
 
             gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx),
@@ -5125,7 +5125,7 @@ void Interface_DrawMinigamePerfect(GlobalContext* globalCtx) {
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, interfaceCtx->unk_2FC[0], interfaceCtx->unk_2FC[1],
                             interfaceCtx->unk_2FC[2], interfaceCtx->unk_2FC[3]);
 
-            Matrix_InsertTranslation(temp_f24, temp_f22, 0.0f, MTXMODE_NEW);
+            Matrix_Translate(temp_f24, temp_f22, 0.0f, MTXMODE_NEW);
             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
 
             gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx),
@@ -6106,7 +6106,7 @@ void Interface_Draw(GlobalContext* globalCtx) {
                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, D_801BFD6C[sp2CE].r, D_801BFD6C[sp2CE].g, D_801BFD6C[sp2CE].b,
                                     interfaceCtx->unk_282);
 
-                    Matrix_InsertTranslation(0.0f, -40.0f, 0.0f, MTXMODE_NEW);
+                    Matrix_Translate(0.0f, -40.0f, 0.0f, MTXMODE_NEW);
                     Matrix_Scale(sp2C0, sp2C0, 0.0f, MTXMODE_APPLY);
 
                     gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx),
