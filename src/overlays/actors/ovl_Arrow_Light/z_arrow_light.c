@@ -56,7 +56,7 @@ void ArrowLight_Init(Actor* thisx, GlobalContext* globalCtx) {
 }
 
 void ArrowLight_Destroy(Actor* thisx, GlobalContext* globalCtx) {
-    Magic_Reset(&globalCtx->state);
+    Magic_Reset(globalCtx);
     (void)"消滅"; // Unreferenced in retail, means "Disappearance"
 }
 

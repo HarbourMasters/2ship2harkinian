@@ -81,7 +81,7 @@ void ArrowFire_Init(Actor* thisx, GlobalContext* globalCtx) {
 void ArrowFire_Destroy(Actor* thisx, GlobalContext* globalCtx) {
     ArrowFire* this = THIS;
 
-    Magic_Reset(&globalCtx->state);
+    Magic_Reset(globalCtx);
     Collider_DestroyQuad(globalCtx, &this->collider1);
     Collider_DestroyQuad(globalCtx, &this->collider2);
 }

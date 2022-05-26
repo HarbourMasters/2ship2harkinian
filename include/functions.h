@@ -1934,7 +1934,7 @@ void Health_GiveHearts(s16 hearts);
 void Rupees_ChangeBy(s16 rupeeChange);
 void Inventory_ChangeAmmo(s16 item, s16 ammoChange);
 void Magic_Add(GlobalContext* globalCtx, s16 magicToAdd);
-void Magic_Reset(GameState* gamestate);
+void Magic_Reset(GlobalContext* globalCtx);
 s32 Magic_Consume(GlobalContext* globalCtx, s16 magicToConsume, s16 type);
 // void func_80116FD8(UNK_TYPE1 param_1, UNK_TYPE1 param_2, UNK_TYPE1 param_3, UNK_TYPE1 param_4, UNK_TYPE4 param_5);
 // void func_801170B8(void);

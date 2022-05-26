@@ -3174,7 +3174,7 @@ void Magic_Add(GlobalContext* globalCtx, s16 magicToAdd) {
     }
 }
 
-void Magic_Reset(GameState* gamestate) {
+void Magic_Reset(GlobalContext* globalCtx) {
     if ((gSaveContext.magicState != MAGIC_STATE_STEP_CAPACITY) && (gSaveContext.magicState != MAGIC_STATE_FILL)) {
         sMagicMeterOutlinePrimRed = sMagicMeterOutlinePrimGreen = sMagicMeterOutlinePrimBlue = 255;
         gSaveContext.magicState = MAGIC_STATE_IDLE;

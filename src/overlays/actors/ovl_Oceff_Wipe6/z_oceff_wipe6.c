@@ -38,7 +38,7 @@ void OceffWipe6_Init(Actor* thisx, GlobalContext* globalCtx) {
 }
 
 void OceffWipe6_Destroy(Actor* thisx, GlobalContext* globalCtx) {
-    Magic_Reset(&globalCtx->state);
+    Magic_Reset(globalCtx);
     globalCtx->msgCtx.unk120B0 = 0;
 }
 
