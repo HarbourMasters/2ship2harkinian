@@ -6156,13 +6156,12 @@ void Interface_Draw(GlobalContext* globalCtx) {
         gSPTextureRectangle(OVERLAY_DISP++, YREG(40) * 4, YREG(41) * 4, (YREG(40) + 0x20) * 4, (YREG(41) + 0x10) * 4,
                             G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
 
-        if (1) {}
-
         gDPLoadTextureBlock_4b(OVERLAY_DISP++, gPictoBoxFocusTextTex, G_IM_FMT_I, 32, 8, 0, G_TX_NOMIRROR | G_TX_WRAP,
                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
         gSPTextureRectangle(OVERLAY_DISP++, YREG(42) * 4, YREG(43) * 4, (YREG(42) + 0x20) * 4, (YREG(43) + 0x8) * 4,
                             G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+        if (1) {}
     }
 
     if (D_801BF884 >= 2) {
