@@ -2069,13 +2069,14 @@ void func_80111CB4(GlobalContext* globalCtx) {
                     interfaceCtx->unk_222 = interfaceCtx->unk_224;
                     sp28 = true;
                     D_801BF884 = 0;
-                } else if (CHECK_BTN_ALL(CONTROLLER1(globalCtx)->press.button, BTN_B)) {
+                } else if (CHECK_BTN_ALL(CONTROLLER1(&globalCtx->state)->press.button, BTN_B)) {
                     globalCtx->actorCtx.unk5 &= ~4;
                     interfaceCtx->unk_224 = 0;
                     interfaceCtx->unk_222 = interfaceCtx->unk_224;
                     sp28 = true;
                     D_801BF884 = 0;
-                } else if (CHECK_BTN_ALL(CONTROLLER1(globalCtx)->press.button, BTN_A) || (func_801A5100() == 1)) {
+                } else if (CHECK_BTN_ALL(CONTROLLER1(&globalCtx->state)->press.button, BTN_A) ||
+                           (func_801A5100() == 1)) {
                     if (!(gSaveContext.eventInf[4] & 2) ||
                         ((gSaveContext.eventInf[4] & 2) && (ActorCutscene_GetCurrentIndex() == -1))) {
                         play_sound(NA_SE_SY_CAMERA_SHUTTER);
