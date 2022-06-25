@@ -315,7 +315,7 @@ s32 func_80BD0898(EnHgo* this, GlobalContext* globalCtx) {
 }
 
 void func_80BD0B8C(EnHgo* this, GlobalContext* globalCtx) {
-    func_800E9250(globalCtx, &this->actor, &this->unk_300, &this->unk_306, this->actor.focus.pos);
+    Actor_TrackPlayer(globalCtx, &this->actor, &this->unk_300, &this->unk_306, this->actor.focus.pos);
     if (this->unk_30E > 2) {
         this->unk_30E--;
     } else if (this->unk_30E == 2) {
@@ -337,7 +337,7 @@ void EnHgo_Update(Actor* thisx, GlobalContext* globalCtx) {
     this->actionFunc(this, globalCtx);
     SkelAnime_Update(&this->skelAnime);
     if (func_80BD0898(this, globalCtx)) {
-        func_800E8F08(&this->unk_300, &this->unk_306);
+        Actor_TrackNone(&this->unk_300, &this->unk_306);
     } else if (this->actionFunc != func_80BD0410) {
         if (this->actionFunc != func_80BD0434) {
             Collider_UpdateCylinder(&this->actor, &this->collider);
@@ -361,8 +361,8 @@ void EnHgo_PostLimbDraw(GlobalContext* globalCtx, s32 limbIndex, Gfx** dList, Ve
     EnHgo* this = THIS;
 
     if (limbIndex == HGO_LIMB_PELVIS) {
-        Matrix_CopyCurrentState(&this->unk_1D8);
-        Matrix_GetStateTranslation(&this->actor.focus.pos);
+        Matrix_Get(&this->unk_1D8);
+        Matrix_MultZero(&this->actor.focus.pos);
     }
 }
 
@@ -374,7 +374,7 @@ void EnHgo_Draw(Actor* thisx, GlobalContext* globalCtx) {
     gSPSegment(POLY_OPA_DISP++, 0x08, Lib_SegmentedToVirtual(sEyeTextures[this->unk_30C]));
     SkelAnime_DrawFlexOpa(globalCtx, this->skelAnime.skeleton, this->skelAnime.jointTable, this->skelAnime.dListCount,
                           EnHgo_OverrideLimbDraw, &EnHgo_PostLimbDraw, &this->actor);
-    Matrix_SetCurrentState(&this->unk_1D8);
+    Matrix_Put(&this->unk_1D8);
     gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gSPDisplayList(POLY_OPA_DISP++, object_harfgibud_DL_00F248);
     CLOSE_DISPS(globalCtx->state.gfxCtx);

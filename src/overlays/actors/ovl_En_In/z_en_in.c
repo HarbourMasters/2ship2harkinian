@@ -139,8 +139,11 @@ static AnimationInfoS sAnimations[] = {
     { &object_in_Anim_019EB4, 1.0f, 0, -1, ANIMMODE_ONCE, -4 },
 };
 
-static u16 D_808F6C0C[] = {
-    4000, 4, 1, 3, 6000, 4, 1, 6, 4000, 4, 1, 3, 6000, 4, 1, 6,
+static TrackOptionsSet sTrackOptions = {
+    { 0xFA0, 4, 1, 3 },
+    { 0x1770, 4, 1, 6 },
+    { 0xFA0, 4, 1, 3 },
+    { 0x1770, 4, 1, 6 },
 };
 
 s32 func_808F30B0(SkelAnime* skelAnime, s16 animIndex) {
@@ -228,24 +231,24 @@ s32 func_808F33B8(void) {
 
 void func_808F3414(EnIn* this, GlobalContext* globalCtx) {
     Player* player = GET_PLAYER(globalCtx);
-    Vec3f sp30;
+    Vec3f point;
 
     if (this->unk23D == 0) {
         this->unk494 = SkelAnime_Update(&this->skelAnime);
     }
     if (SubS_AngleDiffLessEqual(this->actor.shape.rot.y, 0x2710, this->actor.yawTowardsPlayer)) {
-        sp30.x = player->actor.world.pos.x;
-        sp30.y = player->bodyPartsPos[7].y + 3.0f;
-        sp30.z = player->actor.world.pos.z;
-        func_8013D2E0(&sp30, &this->actor.focus.pos, &this->actor.shape.rot, &this->unk352, &this->unk358,
-                      &this->unk35E, D_808F6C0C);
+        point.x = player->actor.world.pos.x;
+        point.y = player->bodyPartsPos[7].y + 3.0f;
+        point.z = player->actor.world.pos.z;
+        SubS_TrackPoint(&point, &this->actor.focus.pos, &this->actor.shape.rot, &this->trackTarget, &this->headRot,
+                        &this->torsoRot, &sTrackOptions);
     } else {
-        Math_SmoothStepToS(&this->unk352.x, 0, 4, 1000, 1);
-        Math_SmoothStepToS(&this->unk352.y, 0, 4, 1000, 1);
-        Math_SmoothStepToS(&this->unk358.x, 0, 4, 1000, 1);
-        Math_SmoothStepToS(&this->unk358.y, 0, 4, 1000, 1);
-        Math_SmoothStepToS(&this->unk35E.x, 0, 4, 1000, 1);
-        Math_SmoothStepToS(&this->unk35E.y, 0, 4, 1000, 1);
+        Math_SmoothStepToS(&this->trackTarget.x, 0, 4, 0x3E8, 1);
+        Math_SmoothStepToS(&this->trackTarget.y, 0, 4, 0x3E8, 1);
+        Math_SmoothStepToS(&this->headRot.x, 0, 4, 0x3E8, 1);
+        Math_SmoothStepToS(&this->headRot.y, 0, 4, 0x3E8, 1);
+        Math_SmoothStepToS(&this->torsoRot.x, 0, 4, 0x3E8, 1);
+        Math_SmoothStepToS(&this->torsoRot.y, 0, 4, 0x3E8, 1);
     }
     func_808F322C(this, 3);
     func_808F3178(this, globalCtx);
@@ -582,15 +585,15 @@ s32 func_808F4150(GlobalContext* globalCtx, EnIn* this, s32 arg2, MessageContext
             } else if (this->unk4AC & 8) {
                 func_808F4108(this, globalCtx, 0x3475);
             } else {
-                func_800E8EA0(globalCtx, &this->actor, 0x3475);
+                Actor_ContinueText(globalCtx, &this->actor, 0x3475);
             }
         } else {
             play_sound(NA_SE_SY_ERROR);
-            func_800E8EA0(globalCtx, &this->actor, 0x3473);
+            Actor_ContinueText(globalCtx, &this->actor, 0x3473);
         }
     } else {
         func_8019F230();
-        func_800E8EA0(globalCtx, &this->actor, 0x3472);
+        Actor_ContinueText(globalCtx, &this->actor, 0x3472);
     }
     return 0;
 }
@@ -605,13 +608,13 @@ s32 func_808F4270(GlobalContext* globalCtx, EnIn* this, s32 arg2, MessageContext
             func_801159EC(-fee);
             if (!(gSaveContext.save.weekEventReg[57] & 1)) {
                 if (arg4 != 0) {
-                    func_800E8EA0(globalCtx, &this->actor, 0x3474);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x3474);
                 } else {
                     func_808F4108(this, globalCtx, 0x3474);
                 }
             } else {
                 if (arg4 != 0) {
-                    func_800E8EA0(globalCtx, &this->actor, 0x3475);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x3475);
                 } else {
                     func_808F4108(this, globalCtx, 0x3475);
                 }
@@ -619,14 +622,14 @@ s32 func_808F4270(GlobalContext* globalCtx, EnIn* this, s32 arg2, MessageContext
         } else {
             play_sound(NA_SE_SY_ERROR);
             if (arg4 != 0) {
-                func_800E8EA0(globalCtx, &this->actor, 0x3473);
+                Actor_ContinueText(globalCtx, &this->actor, 0x3473);
             } else {
                 func_808F4108(this, globalCtx, 0x3473);
             }
         }
     } else {
         func_8019F230();
-        func_800E8EA0(globalCtx, &this->actor, 0x3472);
+        Actor_ContinueText(globalCtx, &this->actor, 0x3472);
     }
     return 0;
 }
@@ -646,7 +649,7 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
 
     switch (textId) {
         case 0x34AF:
-            func_800E8EA0(globalCtx, &this->actor, 0x34B0);
+            Actor_ContinueText(globalCtx, &this->actor, 0x34B0);
             ret = false;
             break;
         case 0x34A9:
@@ -667,11 +670,11 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
             ret = false;
             break;
         case 0x34AD:
-            func_800E8EA0(globalCtx, &this->actor, 0x34AE);
+            Actor_ContinueText(globalCtx, &this->actor, 0x34AE);
             ret = false;
             break;
         case 0x34B1:
-            func_800E8EA0(globalCtx, &this->actor, 0x34B2);
+            Actor_ContinueText(globalCtx, &this->actor, 0x34B2);
             ret = false;
             break;
         default:
@@ -683,11 +686,11 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
             switch (textId) {
                 case 0x3458:
                     gSaveContext.save.weekEventReg[15] |= 8;
-                    func_800E8EA0(globalCtx, &this->actor, 0x3459);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x3459);
                     ret = false;
                     break;
                 case 0x3459:
-                    func_800E8EA0(globalCtx, &this->actor, 0x345A);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x345A);
                     ret = false;
                     break;
                 case 0x345A:
@@ -699,15 +702,15 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
                     ret = true;
                     break;
                 case 0x345C:
-                    func_800E8EA0(globalCtx, &this->actor, 0x345D);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x345D);
                     ret = false;
                     break;
                 case 0x345D:
-                    func_800E8EA0(globalCtx, &this->actor, 0x345E);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x345E);
                     ret = false;
                     break;
                 case 0x345E:
-                    func_800E8EA0(globalCtx, &this->actor, 0x345F);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x345F);
                     ret = false;
                     break;
                 case 0x345F:
@@ -715,11 +718,11 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
                     ret = true;
                     break;
                 case 0x3460:
-                    func_800E8EA0(globalCtx, &this->actor, 0x3461);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x3461);
                     ret = false;
                     break;
                 case 0x3461:
-                    func_800E8EA0(globalCtx, &this->actor, 0x3462);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x3462);
                     ret = false;
                     break;
                 case 0x3462:
@@ -732,15 +735,15 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
             switch (textId) {
                 case 0x3463:
                     gSaveContext.save.weekEventReg[15] |= 0x10;
-                    func_800E8EA0(globalCtx, &this->actor, 0x3464);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x3464);
                     ret = false;
                     break;
                 case 0x3464:
-                    func_800E8EA0(globalCtx, &this->actor, 0x3465);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x3465);
                     ret = false;
                     break;
                 case 0x3465:
-                    func_800E8EA0(globalCtx, &this->actor, 0x3466);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x3466);
                     ret = false;
                     break;
                 case 0x3466:
@@ -753,17 +756,17 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
                                 func_801159EC(-globalCtx->msgCtx.unk1206C);
                                 ret = true;
                             } else {
-                                func_800E8EA0(globalCtx, &this->actor, 0x3469);
+                                Actor_ContinueText(globalCtx, &this->actor, 0x3469);
                                 ret = false;
                             }
                         } else {
                             play_sound(NA_SE_SY_ERROR);
-                            func_800E8EA0(globalCtx, &this->actor, 0x3468);
+                            Actor_ContinueText(globalCtx, &this->actor, 0x3468);
                             ret = false;
                         }
                     } else {
                         func_8019F230();
-                        func_800E8EA0(globalCtx, &this->actor, 0x3467);
+                        Actor_ContinueText(globalCtx, &this->actor, 0x3467);
                         ret = false;
                     }
                     break;
@@ -774,11 +777,11 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
                     ret = true;
                     break;
                 case 0x346B:
-                    func_800E8EA0(globalCtx, &this->actor, 0x346C);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x346C);
                     ret = false;
                     break;
                 case 0x346C:
-                    func_800E8EA0(globalCtx, &this->actor, 0x3466);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x3466);
                     ret = false;
                     break;
                 case 0x346A:
@@ -794,11 +797,11 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
                     ret = false;
                     break;
                 case 0x3470:
-                    func_800E8EA0(globalCtx, &this->actor, 0x3471);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x3471);
                     ret = false;
                     break;
                 case 0x3483:
-                    func_800E8EA0(globalCtx, &this->actor, 0x3471);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x3471);
                     ret = false;
                     break;
                 case 0x3471:
@@ -869,7 +872,7 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
                     ret = false;
                     break;
                 case 0x3476:
-                    func_800E8EA0(globalCtx, &this->actor, 0x3477);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x3477);
                     func_808F30B0(&this->skelAnime, 1);
                     func_808F30B0(&this->unk4A4->skelAnime, 7);
                     ret = false;
@@ -883,7 +886,7 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
                     func_808F30B0(&this->skelAnime, 1);
                     func_808F30B0(&this->unk4A4->skelAnime, 7);
                     if (INV_CONTENT(ITEM_MASK_GARO) == ITEM_MASK_GARO) {
-                        func_800E8EA0(globalCtx, &this->actor, 0x347E);
+                        Actor_ContinueText(globalCtx, &this->actor, 0x347E);
                         ret = false;
                     } else {
                         gSaveContext.save.weekEventReg[56] |= 8;
@@ -898,12 +901,12 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
                         Actor_PickUp(&this->actor, globalCtx, GI_MILK, 500.0f, 100.0f);
                         ret = true;
                     } else {
-                        func_800E8EA0(globalCtx, &this->actor, 0x347F);
+                        Actor_ContinueText(globalCtx, &this->actor, 0x347F);
                         ret = false;
                     }
                     break;
                 case 0x347F:
-                    func_800E8EA0(globalCtx, &this->actor, 0x3480);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x3480);
                     ret = false;
                     break;
                 case 0x3480:
@@ -941,12 +944,12 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
         case 4:
             switch (textId) {
                 case 0x3486:
-                    func_800E8EA0(globalCtx, &this->actor, 0x3487);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x3487);
                     gSaveContext.save.weekEventReg[16] |= 1;
                     ret = false;
                     break;
                 case 0x3487:
-                    func_800E8EA0(globalCtx, &this->actor, 0x3488);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x3488);
                     ret = false;
                     break;
                 case 0x3488:
@@ -960,11 +963,11 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
                     func_80151BB4(globalCtx, 0x11);
                     break;
                 case 0x348B:
-                    func_800E8EA0(globalCtx, &this->actor, 0x348C);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x348C);
                     ret = false;
                     break;
                 case 0x348C:
-                    func_800E8EA0(globalCtx, &this->actor, 0x348D);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x348D);
                     ret = false;
                     break;
                 case 0x348D:
@@ -982,17 +985,17 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
                     break;
                 case 0x348E:
                 case 0x34B3:
-                    func_800E8EA0(globalCtx, &this->actor, 0x348F);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x348F);
                     gSaveContext.save.weekEventReg[16] |= 2;
                     ret = false;
                     break;
                 case 0x3493:
-                    func_800E8EA0(globalCtx, &this->actor, 0x3494);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x3494);
                     ret = false;
                     break;
                 case 0x348F:
                 case 0x3494:
-                    func_800E8EA0(globalCtx, &this->actor, 0x3490);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x3490);
                     ret = false;
                     break;
                 case 0x3490:
@@ -1005,17 +1008,17 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
                                 func_801159EC(-globalCtx->msgCtx.unk1206C);
                                 ret = true;
                             } else {
-                                func_800E8EA0(globalCtx, &this->actor, 0x3469);
+                                Actor_ContinueText(globalCtx, &this->actor, 0x3469);
                                 ret = false;
                             }
                         } else {
                             play_sound(NA_SE_SY_ERROR);
-                            func_800E8EA0(globalCtx, &this->actor, 0x3468);
+                            Actor_ContinueText(globalCtx, &this->actor, 0x3468);
                             ret = false;
                         }
                     } else {
                         func_8019F230();
-                        func_800E8EA0(globalCtx, &this->actor, 0x3491);
+                        Actor_ContinueText(globalCtx, &this->actor, 0x3491);
                         ret = false;
                     }
                     break;
@@ -1059,7 +1062,7 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
                     func_80151BB4(globalCtx, 0x11);
                     break;
                 case 0x3474:
-                    func_800E8EA0(globalCtx, &this->actor, 0x3475);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x3475);
                     ret = false;
                     break;
                 case 0x3475:
@@ -1074,7 +1077,7 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
                     func_808F30B0(&this->skelAnime, 1);
                     func_808F30B0(&this->unk4A4->skelAnime, 7);
                     if (INV_CONTENT(ITEM_MASK_GARO) == ITEM_MASK_GARO) {
-                        func_800E8EA0(globalCtx, &this->actor, 0x34A1);
+                        Actor_ContinueText(globalCtx, &this->actor, 0x34A1);
                         ret = false;
                     } else {
                         gSaveContext.save.weekEventReg[56] |= 8;
@@ -1102,12 +1105,12 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
                         Actor_PickUp(&this->actor, globalCtx, GI_MILK, 500.0f, 100.0f);
                         ret = true;
                     } else {
-                        func_800E8EA0(globalCtx, &this->actor, 0x34A2);
+                        Actor_ContinueText(globalCtx, &this->actor, 0x34A2);
                         ret = false;
                     }
                     break;
                 case 0x34A2:
-                    func_800E8EA0(globalCtx, &this->actor, 0x34A3);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x34A3);
                     ret = false;
                     break;
                 case 0x34A3:
@@ -1116,13 +1119,13 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
                     ret = true;
                     break;
                 case 0x3499:
-                    func_800E8EA0(globalCtx, &this->actor, 0x349A);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x349A);
                     func_808F30B0(&this->skelAnime, 1);
                     func_808F30B0(&this->unk4A4->skelAnime, 7);
                     ret = false;
                     break;
                 case 0x349A:
-                    func_800E8EA0(globalCtx, &this->actor, 0x349B);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x349B);
                     ret = false;
                     break;
                 case 0x349B:
@@ -1131,7 +1134,7 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
                         ret = false;
                     } else {
                         func_8019F230();
-                        func_800E8EA0(globalCtx, &this->actor, 0x349C);
+                        Actor_ContinueText(globalCtx, &this->actor, 0x349C);
                         ret = false;
                     }
                     break;
@@ -1151,7 +1154,7 @@ s32 func_808F4414(GlobalContext* globalCtx, EnIn* this, s32 arg2) {
                     break;
                 case 0x3498:
                 case 0x34A6:
-                    func_800E8EA0(globalCtx, &this->actor, 0x3471);
+                    Actor_ContinueText(globalCtx, &this->actor, 0x3471);
                     ret = false;
                     break;
                 case 0x3471:
@@ -1479,7 +1482,7 @@ void func_808F6334(EnIn* this, GlobalContext* globalCtx) {
     this->unk4C4 += this->unk4C0 != 0.0f ? 40.0f : -40.0f;
     this->unk4C4 = CLAMP(this->unk4C4, 0.0f, 80.0f);
 
-    Matrix_InsertTranslation(this->unk4C4, 0.0f, 0.0f, MTXMODE_APPLY);
+    Matrix_Translate(this->unk4C4, 0.0f, 0.0f, MTXMODE_APPLY);
     if (&this->actor == player->targetActor &&
         !(globalCtx->msgCtx.currentTextId >= 0xFF && globalCtx->msgCtx.currentTextId <= 0x200) && newUnk4C8 == 3 &&
         this->unk4C8 == 3) {
@@ -1540,15 +1543,15 @@ s32 EnIn_OverrideLimbDraw(GlobalContext* globalCtx, s32 limbIndex, Gfx** dList, 
     CLOSE_DISPS(globalCtx->state.gfxCtx);
 
     if (limbIndex == 16) {
-        Matrix_InsertTranslation(1500.0f, 0.0f, 0.0f, MTXMODE_APPLY);
-        Matrix_InsertXRotation_s(this->unk358.y, MTXMODE_APPLY);
-        Matrix_InsertZRotation_s(-this->unk358.x, MTXMODE_APPLY);
-        Matrix_InsertTranslation(-1500.0f, 0.0f, 0.0f, MTXMODE_APPLY);
+        Matrix_Translate(1500.0f, 0.0f, 0.0f, MTXMODE_APPLY);
+        Matrix_RotateXS(this->headRot.y, MTXMODE_APPLY);
+        Matrix_RotateZS(-this->headRot.x, MTXMODE_APPLY);
+        Matrix_Translate(-1500.0f, 0.0f, 0.0f, MTXMODE_APPLY);
         func_808F6334(this, globalCtx);
     }
     if (limbIndex == 9) {
-        Matrix_RotateY(this->unk35E.y, MTXMODE_APPLY);
-        Matrix_InsertXRotation_s(this->unk35E.x, MTXMODE_APPLY);
+        Matrix_RotateYS(this->torsoRot.y, MTXMODE_APPLY);
+        Matrix_RotateXS(this->torsoRot.x, MTXMODE_APPLY);
     }
     if (limbIndex == 9 || limbIndex == 10 || limbIndex == 13) {
         rot->y += (s16)(Math_SinS(this->unk376[limbIndex]) * 200.0f);
@@ -1578,16 +1581,16 @@ void EnIn_PostLimbDraw(GlobalContext* globalCtx, s32 limbIndex, Gfx** dList, Vec
     Vec3f sp44 = { 0.0f, 0.0f, 0.0f };
 
     if (limbIndex == 16) {
-        Matrix_MultiplyVector3fByState(&sp50, &this->unk4B4);
+        Matrix_MultVec3f(&sp50, &this->unk4B4);
         Math_Vec3f_Copy(&this->actor.focus.pos, &this->unk4B4);
     }
     if (this->unk23D == 0) {
         Collider_UpdateSpheres(limbIndex, &this->colliderJntSph);
         if (limbIndex == 4) {
-            Matrix_MultiplyVector3fByState(&sp44, &this->unk248);
+            Matrix_MultVec3f(&sp44, &this->unk248);
         }
         if (limbIndex == 7) {
-            Matrix_MultiplyVector3fByState(&sp44, &this->unk254);
+            Matrix_MultVec3f(&sp44, &this->unk254);
         }
         if (this->unk23C == 0) {
             if (!(this->unk4AC & 8)) {

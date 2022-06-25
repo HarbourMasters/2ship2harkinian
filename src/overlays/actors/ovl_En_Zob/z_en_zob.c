@@ -726,7 +726,7 @@ void EnZob_Update(Actor* thisx, GlobalContext* globalCtx) {
     }
 
     if (this->unk_2F4 & 1) {
-        func_800E9250(globalCtx, &this->actor, &this->unk_2F6, &this->unk_2FC, this->actor.focus.pos);
+        Actor_TrackPlayer(globalCtx, &this->actor, &this->unk_2F6, &this->unk_2FC, this->actor.focus.pos);
     } else {
         Math_SmoothStepToS(&this->unk_2F6.x, 0, 6, 6200, 100);
         Math_SmoothStepToS(&this->unk_2F6.y, 0, 6, 6200, 100);
@@ -749,7 +749,7 @@ void func_80BA0FAC(GlobalContext* globalCtx, s32 limbIndex, Gfx** dList, Vec3s* 
     EnZob* this = THIS;
 
     if (limbIndex == 9) {
-        Matrix_MultiplyVector3fByState(&D_80BA1120, &this->actor.focus.pos);
+        Matrix_MultVec3f(&D_80BA1120, &this->actor.focus.pos);
     }
 }
 

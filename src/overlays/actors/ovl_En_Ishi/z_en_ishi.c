@@ -203,8 +203,8 @@ void func_8095D804(Actor* thisx, GlobalContext* globalCtx) {
         spC4.y += (Rand_ZeroOne() * 7.0f) + 6.0f;
         spC4.z += (Rand_ZeroOne() - 0.5f) * 11.0f;
 
-        EffectSsKakera_Spawn(globalCtx, &spB8, &spC4, &spB8, -420, (Rand_Next() > 0) ? 65 : 33, 30, 5, 0, D_8095F74C[i],
-                             3, 10, 40, -1, temp, phi_s4);
+        EffectSsKakera_Spawn(globalCtx, &spB8, &spC4, &spB8, -420, ((s32)Rand_Next() > 0) ? 65 : 33, 30, 5, 0,
+                             D_8095F74C[i], 3, 10, 40, -1, temp, phi_s4);
     }
 }
 
@@ -309,11 +309,11 @@ void func_8095DFF0(EnIshi* this, GlobalContext* globalCtx) {
     if (temp >= 0) {
         sp3C = Item_DropCollectible(globalCtx, &this->actor.world.pos, temp | (ENISHI_GET_FE00(&this->actor) << 8));
         if (sp3C != NULL) {
-            Matrix_StatePush();
-            Matrix_RotateY(this->actor.shape.rot.y, MTXMODE_NEW);
-            Matrix_InsertXRotation_s(this->actor.shape.rot.x, MTXMODE_APPLY);
-            Matrix_InsertZRotation_s(this->actor.shape.rot.z, MTXMODE_APPLY);
-            Matrix_GetStateTranslationAndScaledY(1.0f, &sp30);
+            Matrix_Push();
+            Matrix_RotateYS(this->actor.shape.rot.y, MTXMODE_NEW);
+            Matrix_RotateXS(this->actor.shape.rot.x, MTXMODE_APPLY);
+            Matrix_RotateZS(this->actor.shape.rot.z, MTXMODE_APPLY);
+            Matrix_MultVecY(1.0f, &sp30);
             sp2C = Math3D_Parallel(&sp30, &D_8095F778);
             if (sp2C < 0.707f) {
                 temp_v1_2 = Math_FAtan2F(sp30.z, sp30.x) - sp3C->world.rot.y;
@@ -326,7 +326,7 @@ void func_8095DFF0(EnIshi* this, GlobalContext* globalCtx) {
                 }
                 sp3C->velocity.y *= temp_f2;
             }
-            Matrix_StatePop();
+            Matrix_Pop();
         }
     }
 }
@@ -389,7 +389,7 @@ void EnIshi_Init(Actor* thisx, GlobalContext* globalCtx) {
     }
 
     if ((this->actor.shape.rot.y == 0) && !(this->unk_197 & 2)) {
-        this->actor.shape.rot.y = this->actor.world.rot.y = (u32)Rand_Next() >> 0x10;
+        this->actor.shape.rot.y = this->actor.world.rot.y = Rand_Next() >> 0x10;
     }
 
     Actor_SetScale(&this->actor, D_8095F6B8[sp34]);

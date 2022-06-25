@@ -449,7 +449,7 @@ void func_80876DC4(EnDodongo* this, GlobalContext* globalCtx) {
     f32 temp_f20;
 
     Math_Vec3f_Copy(&sp68, &this->limbPos[0]);
-    sp66 = (Rand_Next() >> 0x12) + this->actor.shape.rot.y;
+    sp66 = ((s32)Rand_Next() >> 0x12) + this->actor.shape.rot.y;
     temp_f20 = Math_CosS(sp66);
     temp_f22 = Math_SinS(sp66);
 
@@ -482,7 +482,7 @@ void func_80876DC4(EnDodongo* this, GlobalContext* globalCtx) {
     sp62 = this->unk_334 * 25.0f;
     func_800B0EB0(globalCtx, &sp68, &sp80, &sp74, &this->unk_32C, &this->unk_330, sp64, sp62, 0x14);
 
-    sp66 = ((u32)Rand_Next() >> 0x13) + this->actor.shape.rot.y;
+    sp66 = (Rand_Next() >> 0x13) + this->actor.shape.rot.y;
     temp_f20 = Math_CosS(sp66);
     temp_f22 = Math_SinS(sp66);
 
@@ -1081,16 +1081,16 @@ void EnDodongo_PostLimbDraw(GlobalContext* globalCtx, s32 limbIndex, Gfx** dList
     Collider_UpdateSpheres(limbIndex, &this->collider1);
     Collider_UpdateSpheres(limbIndex, &this->collider2);
     if (D_80879388[limbIndex] != -1) {
-        Matrix_GetStateTranslation(&this->limbPos[D_80879388[limbIndex]]);
+        Matrix_MultZero(&this->limbPos[D_80879388[limbIndex]]);
     }
 
     if (limbIndex == 7) {
-        Matrix_MultiplyVector3fByState(&D_80879370, &this->unk_308);
-        Matrix_MultiplyVector3fByState(&D_8087937C, &this->limbPos[0]);
-        Matrix_GetStateTranslation(&this->actor.focus.pos);
-        Matrix_GetStateTranslationAndScaledY(-200.0f, &this->limbPos[1]);
+        Matrix_MultVec3f(&D_80879370, &this->unk_308);
+        Matrix_MultVec3f(&D_8087937C, &this->limbPos[0]);
+        Matrix_MultZero(&this->actor.focus.pos);
+        Matrix_MultVecY(-200.0f, &this->limbPos[1]);
     } else if (limbIndex == 13) {
-        Matrix_GetStateTranslationAndScaledX(1600.0f, &this->unk_320);
+        Matrix_MultVecX(1600.0f, &this->unk_320);
     }
 
     if ((limbIndex == 30) && (this->actionFunc == func_80878424) && (this->timer != this->unk_304)) {

@@ -295,7 +295,7 @@ void func_80B84610(BgDblueWaterfall* this, GlobalContext* globalCtx) {
     if (this->unk_1A7 <= 0) {
         this->unk_1A7 = 16;
     } else {
-        this->unk_1A7 -= (s8)((u32)Rand_Next() >> 0x1F);
+        this->unk_1A7 -= (s8)(Rand_Next() >> 0x1F);
     }
 
     if (this->unk_1A7 >= 6) {
@@ -314,10 +314,10 @@ void func_80B84610(BgDblueWaterfall* this, GlobalContext* globalCtx) {
         }
     }
 
-    Matrix_StatePush();
-    Matrix_RotateY(BINANG_ADD(this->actor.yawTowardsPlayer, 0x4000), MTXMODE_NEW);
-    Matrix_GetStateTranslationAndScaledZ(this->unk_1A8, &sp34);
-    Matrix_StatePop();
+    Matrix_Push();
+    Matrix_RotateYS(BINANG_ADD(this->actor.yawTowardsPlayer, 0x4000), MTXMODE_NEW);
+    Matrix_MultVecZ(this->unk_1A8, &sp34);
+    Matrix_Pop();
 
     player->actor.world.pos.x += sp34.x;
     player->actor.world.pos.z += sp34.z;

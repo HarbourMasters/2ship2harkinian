@@ -114,11 +114,11 @@ s32 EnTrt_TestItemSelected(GlobalContext* globalCtx) {
     MessageContext* msgCtx = &globalCtx->msgCtx;
 
     if (msgCtx->unk12020 == 0x10 || msgCtx->unk12020 == 0x11) {
-        return CHECK_BTN_ALL(CONTROLLER1(globalCtx)->press.button, BTN_A);
+        return CHECK_BTN_ALL(CONTROLLER1(&globalCtx->state)->press.button, BTN_A);
     }
-    return CHECK_BTN_ALL(CONTROLLER1(globalCtx)->press.button, BTN_A) ||
-           CHECK_BTN_ALL(CONTROLLER1(globalCtx)->press.button, BTN_B) ||
-           CHECK_BTN_ALL(CONTROLLER1(globalCtx)->press.button, BTN_CUP);
+    return CHECK_BTN_ALL(CONTROLLER1(&globalCtx->state)->press.button, BTN_A) ||
+           CHECK_BTN_ALL(CONTROLLER1(&globalCtx->state)->press.button, BTN_B) ||
+           CHECK_BTN_ALL(CONTROLLER1(&globalCtx->state)->press.button, BTN_CUP);
 }
 
 void EnTrt_SpawnShopItems(EnTrt* this, GlobalContext* globalCtx, ShopItem* shopItem) {
@@ -257,8 +257,8 @@ void EnTrt_StartShopping(GlobalContext* globalCtx, EnTrt* this) {
 }
 
 void EnTrt_UpdateJoystickInputState(GlobalContext* globalCtx, EnTrt* this) {
-    s8 stickX = CONTROLLER1(globalCtx)->rel.stick_x;
-    s8 stickY = CONTROLLER1(globalCtx)->rel.stick_y;
+    s8 stickX = CONTROLLER1(&globalCtx->state)->rel.stick_x;
+    s8 stickY = CONTROLLER1(&globalCtx->state)->rel.stick_y;
 
     if (this->stickAccumX == 0) {
         if (stickX > 30 || stickX < -30) {
@@ -314,7 +314,7 @@ void EnTrt_Hello(EnTrt* this, GlobalContext* globalCtx) {
     }
     if (talkState == 5 && Message_ShouldAdvance(globalCtx)) {
         play_sound(NA_SE_SY_MESSAGE_PASS);
-        if (!EnTrt_TestEndInteraction(this, globalCtx, CONTROLLER1(globalCtx))) {
+        if (!EnTrt_TestEndInteraction(this, globalCtx, CONTROLLER1(&globalCtx->state))) {
             EnTrt_StartShopping(globalCtx, this);
         }
     }
@@ -520,7 +520,7 @@ void EnTrt_FaceShopkeeper(EnTrt* this, GlobalContext* globalCtx) {
         this->cutsceneState = ENTRT_CUTSCENESTATE_WAITING;
     } else if (talkState == 4) {
         func_8011552C(globalCtx, 6);
-        if (!EnTrt_TestEndInteraction(this, globalCtx, CONTROLLER1(globalCtx))) {
+        if (!EnTrt_TestEndInteraction(this, globalCtx, CONTROLLER1(&globalCtx->state))) {
             if ((!Message_ShouldAdvance(globalCtx) || !EnTrt_FacingShopkeeperDialogResult(this, globalCtx)) &&
                 (this->stickAccumX > 0)) {
                 cursorIdx = EnTrt_SetCursorIndexFromNeutral(this, 2);
@@ -622,7 +622,7 @@ void EnTrt_BrowseShelf(EnTrt* this, GlobalContext* globalCtx) {
         EnTrt_UpdateCursorPos(globalCtx, this);
         if (talkState == 5) {
             func_8011552C(globalCtx, 6);
-            if (!EnTrt_HasPlayerSelectedItem(globalCtx, this, CONTROLLER1(globalCtx))) {
+            if (!EnTrt_HasPlayerSelectedItem(globalCtx, this, CONTROLLER1(&globalCtx->state))) {
                 EnTrt_CursorLeftRight(globalCtx, this);
                 if (this->cursorIdx != prevCursorIdx) {
                     func_80151938(globalCtx, EnTrt_GetItemTextId(this));
@@ -707,7 +707,8 @@ void EnTrt_SelectItem(EnTrt* this, GlobalContext* globalCtx) {
     if (EnTrt_TakeItemOffShelf(this)) {
         if (talkState == 4) {
             func_8011552C(globalCtx, 6);
-            if (!EnTrt_TestCancelOption(this, globalCtx, CONTROLLER1(globalCtx)) && Message_ShouldAdvance(globalCtx)) {
+            if (!EnTrt_TestCancelOption(this, globalCtx, CONTROLLER1(&globalCtx->state)) &&
+                Message_ShouldAdvance(globalCtx)) {
                 switch (globalCtx->msgCtx.choiceIndex) {
                     case 0:
                         EnTrt_HandleCanBuyItem(globalCtx, this);
@@ -1098,7 +1099,7 @@ void EnTrt_ContinueShopping(EnTrt* this, GlobalContext* globalCtx) {
             EnTrt_ResetItemPosition(this);
             item = this->items[this->cursorIdx];
             item->restockFunc(globalCtx, item);
-            if (!EnTrt_TestEndInteraction(this, globalCtx, CONTROLLER1(globalCtx))) {
+            if (!EnTrt_TestEndInteraction(this, globalCtx, CONTROLLER1(&globalCtx->state))) {
                 switch (globalCtx->msgCtx.choiceIndex) {
                     case 0:
                         func_8019F208();
@@ -1221,7 +1222,7 @@ void EnTrt_UpdateCursorAnim(EnTrt* this) {
 void EnTrt_UpdateStickDirectionPromptAnim(EnTrt* this) {
     f32 arrowAnimTween = this->arrowAnimTween;
     f32 stickAnimTween = this->stickAnimTween;
-    s32 maxColor = 255; // POSSIBLY FAKE
+    s32 maxColor = 255; //! FAKE:
 
     if (this->arrowAnimState == 0) {
         arrowAnimTween += 0.05f;
@@ -1697,9 +1698,9 @@ void EnTrt_UpdateHeadPosAndRot(s16 pitch, s16 yaw, Vec3f* pos, Vec3s* rot, s32 i
     Vec3s newRot;
     MtxF currentState;
 
-    Matrix_MultiplyVector3fByState(&zeroVec, &newPos);
-    Matrix_CopyCurrentState(&currentState);
-    func_8018219C(&currentState, &newRot, MTXMODE_NEW);
+    Matrix_MultVec3f(&zeroVec, &newPos);
+    Matrix_Get(&currentState);
+    Matrix_MtxFToYXZRot(&currentState, &newRot, false);
     *pos = newPos;
     if (isFullyAwake) {
         newRot.x += pitch;
@@ -1740,11 +1741,11 @@ void EnTrt_PostLimbDraw(GlobalContext* globalCtx, s32 limbIndex, Gfx** dList, Ve
     }
     if (limbIndex == 21) {
         EnTrt_UpdateHeadPosAndRot(this->headPitch, this->headYaw, &this->headPos, &this->headRot, isFullyAwake);
-        Matrix_InsertTranslation(this->headPos.x, this->headPos.y, this->headPos.z, MTXMODE_NEW);
+        Matrix_Translate(this->headPos.x, this->headPos.y, this->headPos.z, MTXMODE_NEW);
         Matrix_Scale(this->actor.scale.x, this->actor.scale.y, this->actor.scale.z, MTXMODE_APPLY);
-        Matrix_RotateY(this->headRot.y, MTXMODE_APPLY);
-        Matrix_InsertXRotation_s(this->headRot.x, MTXMODE_APPLY);
-        Matrix_InsertZRotation_s(this->headRot.z, MTXMODE_APPLY);
+        Matrix_RotateYS(this->headRot.y, MTXMODE_APPLY);
+        Matrix_RotateXS(this->headRot.x, MTXMODE_APPLY);
+        Matrix_RotateZS(this->headRot.z, MTXMODE_APPLY);
     }
 }
 
@@ -1752,11 +1753,11 @@ void EnTrt_TransformLimbDraw(GlobalContext* globalCtx, s32 limbIndex, Actor* thi
     EnTrt* this = THIS;
 
     if (limbIndex == 21) {
-        Matrix_InsertTranslation(this->headPos.x, this->headPos.y, this->headPos.z, MTXMODE_NEW);
+        Matrix_Translate(this->headPos.x, this->headPos.y, this->headPos.z, MTXMODE_NEW);
         Matrix_Scale(this->actor.scale.x, this->actor.scale.y, this->actor.scale.z, MTXMODE_APPLY);
-        Matrix_RotateY(this->headRot.y, MTXMODE_APPLY);
-        Matrix_InsertXRotation_s(this->headRot.x, MTXMODE_APPLY);
-        Matrix_InsertZRotation_s(this->headRot.z, MTXMODE_APPLY);
+        Matrix_RotateYS(this->headRot.y, MTXMODE_APPLY);
+        Matrix_RotateXS(this->headRot.x, MTXMODE_APPLY);
+        Matrix_RotateZS(this->headRot.z, MTXMODE_APPLY);
     }
 }
 

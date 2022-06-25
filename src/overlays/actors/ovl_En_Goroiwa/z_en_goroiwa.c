@@ -560,12 +560,12 @@ void func_8093FAA4(EnGoroiwa* this, GlobalContext* globalCtx) {
         sp64 = this->unk_1B4;
     }
 
-    Matrix_InsertRotationAroundUnitVector_f(sp7C, &sp64, MTXMODE_NEW);
-    Matrix_RotateY(this->actor.shape.rot.y, MTXMODE_APPLY);
-    Matrix_InsertXRotation_s(this->actor.shape.rot.x, MTXMODE_APPLY);
-    Matrix_InsertZRotation_s(this->actor.shape.rot.z, MTXMODE_APPLY);
-    Matrix_CopyCurrentState(&sp24);
-    func_8018219C(&sp24, &this->actor.shape.rot, MTXMODE_NEW);
+    Matrix_RotateAxisF(sp7C, &sp64, MTXMODE_NEW);
+    Matrix_RotateYS(this->actor.shape.rot.y, MTXMODE_APPLY);
+    Matrix_RotateXS(this->actor.shape.rot.x, MTXMODE_APPLY);
+    Matrix_RotateZS(this->actor.shape.rot.z, MTXMODE_APPLY);
+    Matrix_Get(&sp24);
+    Matrix_MtxFToYXZRot(&sp24, &this->actor.shape.rot, false);
 }
 
 void func_8093FC00(EnGoroiwa* this) {
@@ -599,7 +599,7 @@ void func_8093FC6C(EnGoroiwa* this, GlobalContext* globalCtx) {
     temp = 0x10000 / sp80;
 
     for (i = 0, phi_s0 = 0; i < sp80; i++, phi_s0 += temp) {
-        temp_s3 = (u32)Rand_Next() >> 0x10;
+        temp_s3 = Rand_Next() >> 0x10;
         temp_f20 = Math_SinS(temp_s3);
         temp_f22 = Math_CosS(temp_s3);
 
@@ -701,7 +701,7 @@ void func_80940090(EnGoroiwa* this, GlobalContext* globalCtx) {
                     phi_s1 = D_80942E0C[sp120][0];
                     phi_s3 = 1;
                     phi_f22 = 0.8f;
-                    if (Rand_Next() > 0) {
+                    if ((s32)Rand_Next() > 0) {
                         phi_s0 = 0x21;
                     } else {
                         phi_s0 = 0x41;
@@ -739,24 +739,22 @@ void func_80940090(EnGoroiwa* this, GlobalContext* globalCtx) {
     }
 }
 
-#ifdef NON_MATCHING
-// Stack
 void func_80940588(GlobalContext* globalCtx, Vec3f* arg1, Gfx* arg2[], Color_RGBA8* arg3, Color_RGBA8* arg4, f32 arg5) {
     Gfx* phi_s7;
     Vec3f sp100;
     Vec3f spF4;
     Vec3f spE8;
     f32 temp_f20;
-    s32 phi_fp;
+    f32 spB0;
     s32 j;
     s32 i;
     s32 phi_s0;
     s32 spD0;
     s16 spCE;
-    s16 spC8;
-    f32 spB0;
-    f32 spAC;
     s16 spA8;
+    s16 phi_fp;
+    s16 spC8;
+    f32 spAC;
 
     spD0 = (s32)(arg5 * 35.0f) + 6;
     temp_f20 = (arg5 + 0.1f) * 0.5f;
@@ -781,7 +779,7 @@ void func_80940588(GlobalContext* globalCtx, Vec3f* arg1, Gfx* arg2[], Color_RGB
             phi_s7 = arg2[0];
             phi_fp = -0x190;
             spC8 = 1;
-            if (Rand_Next() > 0) {
+            if ((s32)Rand_Next() > 0) {
                 phi_s0 = 0x21;
             } else {
                 phi_s0 = 0x41;
@@ -815,10 +813,6 @@ void func_80940588(GlobalContext* globalCtx, Vec3f* arg1, Gfx* arg2[], Color_RGB
         }
     }
 }
-#else
-void func_80940588(GlobalContext* globalCtx, Vec3f* arg1, Gfx* arg2[], Color_RGBA8* arg3, Color_RGBA8* arg4, f32 arg5);
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Goroiwa/func_80940588.s")
-#endif
 
 void func_80940A1C(GlobalContext* globalCtx, Vec3f* arg1, Gfx** arg2, Color_RGBA8* arg3, Color_RGBA8* arg4, f32 arg5) {
     s32 i;
@@ -862,7 +856,7 @@ void func_80940A1C(GlobalContext* globalCtx, Vec3f* arg1, Gfx** arg2, Color_RGBA
             if ((i & 3) == 1) {
                 phi_s1 = arg2[1];
                 phi_s2 = -0x154;
-                if (Rand_Next() > 0) {
+                if ((s32)Rand_Next() > 0) {
                     phi_s0 = 0x21;
                 } else {
                     phi_s0 = 0x41;
@@ -870,7 +864,7 @@ void func_80940A1C(GlobalContext* globalCtx, Vec3f* arg1, Gfx** arg2, Color_RGBA
             } else {
                 phi_s1 = arg2[0];
                 phi_s2 = -0x190;
-                if (Rand_Next() > 0) {
+                if ((s32)Rand_Next() > 0) {
                     phi_s0 = 0x21;
                 } else {
                     phi_s0 = 0x41;
@@ -1355,8 +1349,8 @@ void func_8094220C(EnGoroiwa* this, GlobalContext* globalCtx) {
             ptr->unk_18 = BgCheck_EntityRaycastFloor5(&globalCtx->colCtx, &ptr->unk_28, &spD0, &this->actor, &spC4);
 
             if (ptr->unk_10 <= 0.0f) {
-                Matrix_InsertRotation(ptr->unk_1C, ptr->unk_1E, ptr->unk_20, MTXMODE_NEW);
-                Matrix_MultiplyVector3fByState(&D_80942E6C, &spB8);
+                Matrix_RotateZYX(ptr->unk_1C, ptr->unk_1E, ptr->unk_20, MTXMODE_NEW);
+                Matrix_MultVec3f(&D_80942E6C, &spB8);
                 temp_f20 = this->unk_1DC * 0.9f;
 
                 if (spB8.y > 0.0f) {
@@ -1572,7 +1566,7 @@ void func_80942B1C(EnGoroiwa* this, GlobalContext* globalCtx) {
             sp80.y = ptr->unk_1E;
             sp80.z = ptr->unk_20;
 
-            Matrix_SetStateRotationAndTranslation(ptr->unk_00.x, ptr->unk_00.y, ptr->unk_00.z, &sp80);
+            Matrix_SetTranslateRotateYXZ(ptr->unk_00.x, ptr->unk_00.y, ptr->unk_00.z, &sp80);
             Matrix_Scale(this->actor.scale.x, this->actor.scale.y, this->actor.scale.z, MTXMODE_APPLY);
             Gfx_DrawDListOpa(globalCtx, phi_fp);
 
@@ -1586,7 +1580,7 @@ void func_80942B1C(EnGoroiwa* this, GlobalContext* globalCtx) {
                 gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 0, 0, 0, ptr->unk_2C);
 
                 func_800C0094(ptr->unk_28, ptr->unk_00.x, ptr->unk_18, ptr->unk_00.z, &sp88);
-                Matrix_SetCurrentState(&sp88);
+                Matrix_Put(&sp88);
                 Matrix_Scale(this->actor.scale.x * 7.5f, 1.0f, this->actor.scale.z * 7.5f, MTXMODE_APPLY);
 
                 gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx),

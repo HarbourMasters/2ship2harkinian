@@ -777,7 +777,8 @@ void EnTalkGibud_PassiveIdle(EnTalkGibud* this, GlobalContext* globalCtx) {
         Actor_PlaySfxAtPos(&this->actor, NA_SE_EN_REDEAD_AIM);
         EnTalkGibud_SetupTalk(this);
     } else if (this->actor.xzDistToPlayer < 100.0f && !(this->collider.base.acFlags & AC_HIT)) {
-        func_800E9250(globalCtx, &this->actor, &this->headRotation, &this->upperBodyRotation, this->actor.focus.pos);
+        Actor_TrackPlayer(globalCtx, &this->actor, &this->headRotation, &this->upperBodyRotation,
+                          this->actor.focus.pos);
         func_800B8614(&this->actor, globalCtx, 100.0f);
     } else {
         Math_SmoothStepToS(&this->headRotation.y, 0, 1, 100, 0);
@@ -1173,7 +1174,7 @@ void EnTalkGibud_PostLimbDraw(GlobalContext* globalCtx, s32 limbIndex, Gfx** dLi
          (limbIndex == GIBDO_LIMB_LEFT_FOREARM) || (limbIndex == GIBDO_LIMB_LEFT_HAND) ||
          (limbIndex == GIBDO_LIMB_RIGHT_SHOULDER_AND_UPPER_ARM) || (limbIndex == GIBDO_LIMB_RIGHT_FOREARM) ||
          (limbIndex == GIBDO_LIMB_RIGHT_HAND) || (limbIndex == GIBDO_LIMB_HEAD) || (limbIndex == GIBDO_LIMB_PELVIS))) {
-        Matrix_GetStateTranslation(&this->limbPos[this->limbIndex]);
+        Matrix_MultZero(&this->limbPos[this->limbIndex]);
         this->limbIndex++;
     }
 }

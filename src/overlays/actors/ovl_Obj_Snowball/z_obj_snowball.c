@@ -205,7 +205,7 @@ void func_80B030F8(ObjSnowball* this, GlobalContext* globalCtx) {
             gravity = -400;
             phi_s4 = 1;
             phi_f22 = 0.8f;
-            if (Rand_Next() > 0) {
+            if ((s32)Rand_Next() > 0) {
                 phi_s0 = 0x21;
             } else {
                 phi_s0 = 0x41;
@@ -245,7 +245,7 @@ void func_80B030F8(ObjSnowball* this, GlobalContext* globalCtx) {
         temp_f26 = this->unk_20C * 60.0f;
 
         for (i = 0, phi_s6 = 0; i < 16; i++, phi_s6 += 0x1000) {
-            temp_s0 = (u32)Rand_Next() >> 0x10;
+            temp_s0 = Rand_Next() >> 0x10;
             temp_f20 = Math_SinS(temp_s0);
             temp_f22 = Math_CosS(temp_s0);
 
@@ -368,7 +368,7 @@ void func_80B03A80(GlobalContext* globalCtx, f32 arg1, Vec3f* arg2) {
             temp_s1 = D_80B04FC8[0];
             phi_s2 = -400;
             phi_s3 = 1;
-            if (Rand_Next() > 0) {
+            if ((s32)Rand_Next() > 0) {
                 phi_s0 = 0x21;
             } else {
                 phi_s0 = 0x41;
@@ -377,7 +377,7 @@ void func_80B03A80(GlobalContext* globalCtx, f32 arg1, Vec3f* arg2) {
             temp_s1 = D_80B04FC8[1];
             phi_s2 = -340;
             phi_s3 = 1;
-            if (Rand_Next() > 0) {
+            if ((s32)Rand_Next() > 0) {
                 phi_s0 = 0x21;
             } else {
                 phi_s0 = 0x41;
@@ -474,7 +474,7 @@ void ObjSnowball_Init(Actor* thisx, GlobalContext* globalCtx) {
     this->actor.world.pos.y += 20.0f * phi_f20;
     this->actor.uncullZoneScale = 150.0f * phi_f20;
     this->actor.uncullZoneDownward = 300.0f * phi_f20;
-    this->actor.shape.rot.y = (u32)Rand_Next() >> 0x10;
+    this->actor.shape.rot.y = Rand_Next() >> 0x10;
     this->unk_20C = phi_f20;
 
     if (sp34) {
@@ -687,8 +687,8 @@ void func_80B047C0(ObjSnowball* this, GlobalContext* globalCtx) {
             ptr->unk_18 = BgCheck_EntityRaycastFloor5(&globalCtx->colCtx, &ptr->unk_28, &sp98, &this->actor, &sp9C);
 
             if (ptr->unk_10 <= 0.0f) {
-                Matrix_InsertRotation(ptr->unk_1C.x, ptr->unk_1C.y, ptr->unk_1C.z, MTXMODE_NEW);
-                Matrix_MultiplyVector3fByState(&D_80B04FE4, &sp88);
+                Matrix_RotateZYX(ptr->unk_1C.x, ptr->unk_1C.y, ptr->unk_1C.z, MTXMODE_NEW);
+                Matrix_MultVec3f(&D_80B04FE4, &sp88);
 
                 sp84 = this->unk_20C * 60.0f * 0.9f;
                 if (sp88.y > 0.0f) {
@@ -812,7 +812,7 @@ void func_80B04D34(Actor* thisx, GlobalContext* globalCtx) {
             sp80.y = ptr->unk_1C.y;
             sp80.z = ptr->unk_1C.z;
 
-            Matrix_SetStateRotationAndTranslation(ptr->unk_00.x, ptr->unk_00.y, ptr->unk_00.z, &sp80);
+            Matrix_SetTranslateRotateYXZ(ptr->unk_00.x, ptr->unk_00.y, ptr->unk_00.z, &sp80);
             Matrix_Scale(this->actor.scale.x, this->actor.scale.y, this->actor.scale.z, MTXMODE_APPLY);
             Gfx_DrawDListOpa(globalCtx, object_goroiwa_DL_0082D0);
 
@@ -826,7 +826,7 @@ void func_80B04D34(Actor* thisx, GlobalContext* globalCtx) {
                 gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 0, 0, 0, ptr->unk_2C);
 
                 func_800C0094(ptr->unk_28, ptr->unk_00.x, ptr->unk_18, ptr->unk_00.z, &sp88);
-                Matrix_SetCurrentState(&sp88);
+                Matrix_Put(&sp88);
                 Matrix_Scale(this->actor.scale.x * 7.5f, 1.0f, this->actor.scale.z * 7.5f, MTXMODE_APPLY);
 
                 gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx),

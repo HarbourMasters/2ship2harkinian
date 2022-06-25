@@ -132,7 +132,6 @@ void Cutscene_Command_Misc(GlobalContext* globalCtx2, CutsceneContext* csCtx, Cs
     u8 isStartFrame = false;
     f32 progress;
     SceneTableEntry* loadedScene;
-    u16 time;
 
     if ((csCtx->frames < cmd->startFrame) || ((csCtx->frames >= cmd->endFrame) && (cmd->endFrame != cmd->startFrame))) {
         return;
@@ -250,11 +249,9 @@ void Cutscene_Command_Misc(GlobalContext* globalCtx2, CutsceneContext* csCtx, Cs
             break;
         case 0x12:
             if (!gSaveContext.save.isNight) {
-                time = gSaveContext.save.time;
-                gSaveContext.save.time = time - (u16)REG(15);
+                gSaveContext.save.time = ((void)0, gSaveContext.save.time) - (u16)REG(15);
             } else {
-                time = gSaveContext.save.time;
-                gSaveContext.save.time = time - (u16)(2 * REG(15));
+                gSaveContext.save.time = ((void)0, gSaveContext.save.time) - (u16)(2 * REG(15));
             }
             break;
         case 0x13:
@@ -328,10 +325,9 @@ void Cutscene_Command_Misc(GlobalContext* globalCtx2, CutsceneContext* csCtx, Cs
                 D_801BB15C = csCtx->frames;
 
                 if (REG(15) != 0) {
-                    time = gSaveContext.save.time;
-                    gSaveContext.save.time = (u16)REG(15) + time;
-                    time = gSaveContext.save.time;
-                    gSaveContext.save.time = (u16)gSaveContext.save.daySpeed + time;
+                    gSaveContext.save.time = ((void)0, gSaveContext.save.time) + (u16)REG(15);
+                    gSaveContext.save.time =
+                        ((void)0, gSaveContext.save.time) + (u16)((void)0, gSaveContext.save.daySpeed);
                 }
             }
             break;
@@ -921,7 +917,7 @@ s32 Cutscene_Command_Camera(GlobalContext* globalCtx, u8* cmd) {
 
     bcopy(cmd, &sp1C, sizeof(s32));
     cmd += sizeof(s32);
-    if (func_8016A168() == 0) {
+    if (!Play_IsDebugCamEnabled()) {
         func_80161998(cmd, &sCutsceneCameraInfo);
     }
     return sp1C + sizeof(s32);

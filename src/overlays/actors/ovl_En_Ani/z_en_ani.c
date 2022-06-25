@@ -292,7 +292,7 @@ void EnAni_Update(Actor* thisx, GlobalContext* globalCtx) {
     Actor_UpdateBgCheckInfo(globalCtx, &this->actor, 0.0f, 0.0f, 0.0f, 4);
     this->actionFunc(this, globalCtx);
     if (this->actor.xzDistToPlayer < 100.0f && !(this->stateFlags & ANI_STATE_CLIMBING)) {
-        func_800E9250(globalCtx, &this->actor, &this->headRot, &this->chestRot, this->actor.focus.pos);
+        Actor_TrackPlayer(globalCtx, &this->actor, &this->headRot, &this->chestRot, this->actor.focus.pos);
         this->chestRot.x = this->chestRot.y = this->chestRot.z = 0;
     } else {
         Math_SmoothStepToS(&this->headRot.x, 0, 0x6, 0x1838, 0x64);
@@ -331,7 +331,7 @@ void EnAni_PostLimbDraw(GlobalContext* globalCtx, s32 limbIndex, Gfx** dList, Ve
     static Vec3f D_809686A4 = { 800.0f, 500.0f, 0.0f };
 
     if (limbIndex == ANI_LIMB_HEAD) {
-        Matrix_MultiplyVector3fByState(&D_809686A4, &thisx->focus.pos);
+        Matrix_MultVec3f(&D_809686A4, &thisx->focus.pos);
     }
 }
 
@@ -342,7 +342,7 @@ void EnAni_Draw(Actor* thisx, GlobalContext* globalCtx) {
 
     OPEN_DISPS(globalCtx->state.gfxCtx);
 
-    Matrix_InsertTranslation(0.0f, 0.0f, -1000.0f, MTXMODE_APPLY);
+    Matrix_Translate(0.0f, 0.0f, -1000.0f, MTXMODE_APPLY);
     func_8012C5B0(globalCtx->state.gfxCtx);
 
     gSPSegment(POLY_OPA_DISP++, 0x08, Lib_SegmentedToVirtual(sEyeTextures[this->eyeState]));

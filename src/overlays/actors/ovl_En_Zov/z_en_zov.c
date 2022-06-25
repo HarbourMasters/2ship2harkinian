@@ -482,7 +482,7 @@ void EnZov_Update(Actor* thisx, GlobalContext* globalCtx) {
     }
 
     if ((this->unk_320 & 1) && func_80BD15A4(this, globalCtx)) {
-        func_800E9250(globalCtx, &this->actor, &this->unk_2F0, &this->unk_2F6, this->actor.focus.pos);
+        Actor_TrackPlayer(globalCtx, &this->actor, &this->unk_2F0, &this->unk_2F6, this->actor.focus.pos);
     } else {
         if ((this->unk_320 & 0x10) && (this->unk_322 == 0)) {
             Math_SmoothStepToS(&this->unk_2F0.x, -0x1B58, 6, 0x1838, 0x64);
@@ -535,17 +535,17 @@ void EnZov_PostLimbDraw(GlobalContext* globalCtx, s32 limbIndex, Gfx** dList, Ve
     EnZov* this = THIS;
 
     if (limbIndex == 12) {
-        Matrix_MultiplyVector3fByState(&D_80BD2744, &this->actor.focus.pos);
+        Matrix_MultVec3f(&D_80BD2744, &this->actor.focus.pos);
         Math_Vec3f_Copy(&this->unk_2FC, &this->actor.focus.pos);
         this->unk_2FC.y += 10.0f;
     }
 
     if (limbIndex == 18) {
-        Matrix_MultiplyVector3fByState(&D_80BD2750, &this->unk_308);
+        Matrix_MultVec3f(&D_80BD2750, &this->unk_308);
     }
 
     if (limbIndex == 13) {
-        Matrix_MultiplyVector3fByState(&D_80BD2750, &this->unk_314);
+        Matrix_MultVec3f(&D_80BD2750, &this->unk_314);
     }
 }
 

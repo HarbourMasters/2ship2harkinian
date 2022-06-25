@@ -486,7 +486,7 @@ void func_80B67B50(EnSth* this, GlobalContext* globalCtx) {
     } else {
         this->unk_29C &= ~1;
         gSaveContext.save.weekEventReg[34] |= 8;
-        Actor_PickUp(&this->actor, globalCtx, GI_MASK_CAPTAIN, 10000.0f, 50.0f);
+        Actor_PickUp(&this->actor, globalCtx, GI_MASK_TRUTH, 10000.0f, 50.0f);
     }
 }
 
@@ -635,7 +635,7 @@ void func_80B680A8(Actor* thisx, GlobalContext* globalCtx) {
     if (func_80B6703C(this, globalCtx) && !(this->unk_29C & 8) && (this->unk_29A != 5)) {
         sp38.x = sp38.y = sp38.z = 0;
 
-        func_800E9250(globalCtx, &this->actor, &this->unk_294, &sp38, this->actor.focus.pos);
+        Actor_TrackPlayer(globalCtx, &this->actor, &this->unk_294, &sp38, this->actor.focus.pos);
     } else {
         Math_SmoothStepToS(&this->unk_294.x, 0, 6, 6200, 100);
         Math_SmoothStepToS(&this->unk_294.y, 0, 6, 6200, 100);
@@ -665,7 +665,7 @@ void func_80B68310(GlobalContext* globalCtx, s32 limbIndex, Gfx** dList, Vec3s* 
     if (limbIndex == 15) {
         s32 pad;
 
-        Matrix_MultiplyVector3fByState(&D_80B6D200, &this->actor.focus.pos);
+        Matrix_MultVec3f(&D_80B6D200, &this->actor.focus.pos);
 
         if (!ENSTH_GET_100(&this->actor)) {
             OPEN_DISPS(globalCtx->state.gfxCtx);
@@ -678,16 +678,16 @@ void func_80B68310(GlobalContext* globalCtx, s32 limbIndex, Gfx** dList, Vec3s* 
 
             if (this->unk_29C & 1) {
                 if (Object_IsLoaded(&globalCtx->objectCtx, this->unk_29F)) {
-                    Matrix_StatePush();
-                    Matrix_InsertZRotation_s(0x3A98, MTXMODE_APPLY);
-                    Matrix_InsertTranslation(0.0f, 190.0f, 0.0f, MTXMODE_APPLY);
+                    Matrix_Push();
+                    Matrix_RotateZS(0x3A98, MTXMODE_APPLY);
+                    Matrix_Translate(0.0f, 190.0f, 0.0f, MTXMODE_APPLY);
 
                     gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx),
                               G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                     gSPSegment(POLY_OPA_DISP++, 0x0A, globalCtx->objectCtx.status[this->unk_29F].segment);
                     gSPDisplayList(POLY_OPA_DISP++, object_mask_truth_DL_0001A0);
 
-                    Matrix_StatePop();
+                    Matrix_Pop();
                 }
             }
 

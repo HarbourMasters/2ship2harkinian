@@ -341,7 +341,7 @@ void ObjComb_Init(Actor* thisx, GlobalContext* globalCtx) {
 
     Collider_SetJntSph(globalCtx, &this->collider, &this->actor, &sJntSphInit, &this->colliderElement);
 
-    if ((sp2C == 0) && func_800A81A4(globalCtx, OBJCOMB_GET_3F(&this->actor), OBJCOMB_GET_7F00(&this->actor))) {
+    if ((sp2C == 0) && Item_CanDropBigFairy(globalCtx, OBJCOMB_GET_3F(&this->actor), OBJCOMB_GET_7F00(&this->actor))) {
         this->unk_1B7 = 1;
         this->actor.flags |= ACTOR_FLAG_10;
     }
@@ -554,12 +554,12 @@ void ObjComb_Draw(Actor* thisx, GlobalContext* globalCtx) {
     OPEN_DISPS(globalCtx->state.gfxCtx);
 
     func_8012C28C(globalCtx->state.gfxCtx);
-    Matrix_InsertTranslation(this->actor.world.pos.x, this->actor.world.pos.y + (118.0f * this->actor.scale.y),
-                             this->actor.world.pos.z, MTXMODE_NEW);
-    Matrix_RotateY(this->actor.shape.rot.y, MTXMODE_APPLY);
-    Matrix_InsertXRotation_s(this->actor.shape.rot.x, MTXMODE_APPLY);
-    Matrix_InsertZRotation_s(this->actor.shape.rot.z, MTXMODE_APPLY);
-    Matrix_InsertTranslation(0.0f, -(this->actor.scale.y * 118.0f), 0.0f, MTXMODE_APPLY);
+    Matrix_Translate(this->actor.world.pos.x, this->actor.world.pos.y + (118.0f * this->actor.scale.y),
+                     this->actor.world.pos.z, MTXMODE_NEW);
+    Matrix_RotateYS(this->actor.shape.rot.y, MTXMODE_APPLY);
+    Matrix_RotateXS(this->actor.shape.rot.x, MTXMODE_APPLY);
+    Matrix_RotateZS(this->actor.shape.rot.z, MTXMODE_APPLY);
+    Matrix_Translate(0.0f, -(this->actor.scale.y * 118.0f), 0.0f, MTXMODE_APPLY);
     Matrix_Scale(this->actor.scale.x, this->actor.scale.y, this->actor.scale.z, MTXMODE_APPLY);
 
     gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);

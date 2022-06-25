@@ -2089,9 +2089,9 @@ void EnBigslime_SetupIdleLookAround(EnBigslime* this) {
     this->idleTimer = 60;
     this->actor.speedXZ = 0.0f;
     if (BINANG_SUB(Actor_YawToPoint(&this->actor, &this->actor.home.pos), this->gekkoRot.y) > 0) {
-        this->gekkoYaw = this->gekkoRot.y + ((u32)Rand_Next() >> 20) + 0x2000;
+        this->gekkoYaw = this->gekkoRot.y + (Rand_Next() >> 20) + 0x2000;
     } else {
-        this->gekkoYaw = this->gekkoRot.y - ((u32)Rand_Next() >> 20) - 0x2000;
+        this->gekkoYaw = this->gekkoRot.y - (Rand_Next() >> 20) - 0x2000;
     }
     this->actionFunc = EnBigslime_IdleLookAround;
 }
@@ -2111,9 +2111,9 @@ void EnBigslime_IdleLookAround(EnBigslime* this, GlobalContext* globalCtx) {
     if ((this->skelAnime.animation == &gGekkoNervousIdleAnim) &&
         Math_ScaledStepToS(&this->gekkoRot.y, this->gekkoYaw, 0x400)) {
         if (BINANG_SUB(Actor_YawToPoint(&this->actor, &this->actor.home.pos), this->gekkoRot.y) > 0) {
-            this->gekkoYaw = this->gekkoRot.y + ((u32)Rand_Next() >> 20) + 0x2000;
+            this->gekkoYaw = this->gekkoRot.y + (Rand_Next() >> 20) + 0x2000;
         } else {
-            this->gekkoYaw = this->gekkoRot.y - ((u32)Rand_Next() >> 20) - 0x2000;
+            this->gekkoYaw = this->gekkoRot.y - (Rand_Next() >> 20) - 0x2000;
         }
     }
 
@@ -2700,10 +2700,10 @@ void EnBigslime_AddIceShardEffect(EnBigslime* this, GlobalContext* globalCtx) {
             iceShardEffect->pos.x = (targetVtx->n.ob[0] * this->actor.scale.x) + this->actor.world.pos.x;
             iceShardEffect->pos.y = (targetVtx->n.ob[1] * this->actor.scale.y) + this->actor.world.pos.y;
             iceShardEffect->pos.z = (targetVtx->n.ob[2] * this->actor.scale.z) + this->actor.world.pos.z;
-            iceShardEffect->rotation.x = Rand_Next() >> 0x10;
-            iceShardEffect->rotation.y = Rand_Next() >> 0x10;
-            iceShardEffect->rotation.z = Rand_Next() >> 0x10;
-            iceShardEffect->isActive = true;
+            iceShardEffect->rot.x = (s32)Rand_Next() >> 0x10;
+            iceShardEffect->rot.y = (s32)Rand_Next() >> 0x10;
+            iceShardEffect->rot.z = (s32)Rand_Next() >> 0x10;
+            iceShardEffect->isEnabled = true;
             randPitch = Rand_S16Offset(0x1000, 0x3000);
             vtxZ = targetVtx->n.ob[2];
             vtxX = targetVtx->n.ob[0];
@@ -2715,9 +2715,9 @@ void EnBigslime_AddIceShardEffect(EnBigslime* this, GlobalContext* globalCtx) {
                 xzDist = Math_CosS(randPitch) * randFloat;
             }
 
-            iceShardEffect->vel.x = targetVtx->n.ob[0] * xzDist;
-            iceShardEffect->vel.y = Math_SinS(randPitch) * randFloat;
-            iceShardEffect->vel.z = targetVtx->n.ob[2] * xzDist;
+            iceShardEffect->velocity.x = targetVtx->n.ob[0] * xzDist;
+            iceShardEffect->velocity.y = Math_SinS(randPitch) * randFloat;
+            iceShardEffect->velocity.z = targetVtx->n.ob[2] * xzDist;
             iceShardEffect->scale = 0.001f * (Rand_ZeroFloat(6.0f) + 2.0f);
         }
     }
@@ -2736,15 +2736,15 @@ void EnBigslime_UpdateEffects(EnBigslime* this) {
     // Update ice shards
     for (i = 0; i < BIGSLIME_NUM_ICE_SHARD; i++) {
         iceShardEffect = &this->iceShardEffect[i];
-        if (iceShardEffect->isActive > false) {
-            iceShardEffect->vel.y += -1.0f;
-            Math_Vec3f_Sum(&iceShardEffect->pos, &iceShardEffect->vel, &iceShardEffect->pos);
+        if (iceShardEffect->isEnabled > false) {
+            iceShardEffect->velocity.y += -1.0f;
+            Math_Vec3f_Sum(&iceShardEffect->pos, &iceShardEffect->velocity, &iceShardEffect->pos);
             if (iceShardEffect->pos.y < (GBT_ROOM_5_MIN_Y - 20.0f)) {
-                iceShardEffect->isActive = false;
+                iceShardEffect->isEnabled = false;
             }
-            iceShardEffect->rotation.x += (s16)(((u32)Rand_Next() >> 0x17) + 0x700);
-            iceShardEffect->rotation.y += (s16)(((u32)Rand_Next() >> 0x17) + 0x900);
-            iceShardEffect->rotation.z += (s16)(((u32)Rand_Next() >> 0x17) + 0xB00);
+            iceShardEffect->rot.x += (s16)((Rand_Next() >> 0x17) + 0x700);
+            iceShardEffect->rot.y += (s16)((Rand_Next() >> 0x17) + 0x900);
+            iceShardEffect->rot.z += (s16)((Rand_Next() >> 0x17) + 0xB00);
         }
     }
 
@@ -2873,35 +2873,35 @@ void EnBigslime_UpdateGekko(Actor* thisx, GlobalContext* globalCtx) {
 void EnBigslime_SetSysMatrix(Vec3f* pos, GlobalContext* globalCtx, Gfx* shadowDList, f32 scaleX, f32 scalez, f32 scaleY,
                              s16 rotation, f32 alpha) {
     f32 yDistMinY;
-    f32 xz;
-    MtxF* sysMatrix = Matrix_GetCurrentState();
+    f32 zx;
+    MtxF* sysMatrix = Matrix_GetCurrent();
 
     yDistMinY = pos->y - scaleY - GBT_ROOM_5_MIN_Y;
     yDistMinY = CLAMP((yDistMinY), 0.0f, (GBT_ROOM_5_CENTER_Y - GBT_ROOM_5_MIN_Y) / 2);
-    xz = 1.0f - (yDistMinY * (1.0f / 1550.0f));
+    zx = 1.0f - (yDistMinY * (1.0f / 1550.0f));
 
     OPEN_DISPS(globalCtx->state.gfxCtx);
     POLY_OPA_DISP = Gfx_CallSetupDL(POLY_OPA_DISP, 0x2C);
-    sysMatrix->xx = xz;
+    sysMatrix->xx = zx;
     sysMatrix->yy = 1.0f;
-    sysMatrix->zz = xz;
-    sysMatrix->xz = sysMatrix->xy = 0.0f;
-    sysMatrix->yz = sysMatrix->yx = 0.0f;
-    sysMatrix->zy = sysMatrix->zx = 0.0f;
-    sysMatrix->wx = pos->x;
-    sysMatrix->wy = GBT_ROOM_5_MIN_Y;
-    sysMatrix->wz = pos->z;
-    sysMatrix->xw = sysMatrix->yw = sysMatrix->zw = 0.0f;
+    sysMatrix->zz = zx;
+    sysMatrix->zx = sysMatrix->yx = 0.0f;
+    sysMatrix->zy = sysMatrix->xy = 0.0f;
+    sysMatrix->yz = sysMatrix->xz = 0.0f;
+    sysMatrix->xw = pos->x;
+    sysMatrix->yw = GBT_ROOM_5_MIN_Y;
+    sysMatrix->zw = pos->z;
+    sysMatrix->wx = sysMatrix->wy = sysMatrix->wz = 0.0f;
     sysMatrix->ww = 1.0f;
 
-    Matrix_RotateY(rotation, MTXMODE_APPLY);
+    Matrix_RotateYS(rotation, MTXMODE_APPLY);
     Matrix_Scale(scaleX, 1.0f, scalez, MTXMODE_APPLY);
     if (shadowDList != gBigslimeShadowDL) {
         gDPSetCombineLERP(POLY_OPA_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, COMBINED, 0, 0, 0,
                           COMBINED);
     }
 
-    gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 0, 0, 0, (u8)(alpha * xz));
+    gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 0, 0, 0, (u8)(alpha * zx));
     gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gSPDisplayList(POLY_OPA_DISP++, shadowDList);
     CLOSE_DISPS(globalCtx->state.gfxCtx);
@@ -2940,14 +2940,14 @@ void EnBigslime_DrawMinislime(EnBigslime* this, GlobalContext* globalCtx2) {
         Lights_Draw(lights, globalCtx->state.gfxCtx);
         func_8012C2DC(globalCtx->state.gfxCtx);
         func_800B8118(&minislime->actor, globalCtx, 0);
-        Matrix_SetStateRotationAndTranslation(minislime->actor.world.pos.x, minislime->actor.world.pos.y,
-                                              minislime->actor.world.pos.z, &minislime->actor.shape.rot);
+        Matrix_SetTranslateRotateYXZ(minislime->actor.world.pos.x, minislime->actor.world.pos.y,
+                                     minislime->actor.world.pos.z, &minislime->actor.shape.rot);
         Matrix_Scale(minislime->actor.scale.x, minislime->actor.scale.y, minislime->actor.scale.z, MTXMODE_APPLY);
         gDPSetPrimColor(POLY_XLU_DISP++, 0, 0x80, 255, 255, 255, minislime->actor.shape.shadowAlpha);
         gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gSPDisplayList(POLY_XLU_DISP++, &gMinislimeNormalDL);
         if (minislime->frozenAlpha > 0) {
-            Matrix_InsertTranslation(0.0f, (0.1f - minislime->frozenScale) * -4000.0f, 0.0f, MTXMODE_APPLY);
+            Matrix_Translate(0.0f, (0.1f - minislime->frozenScale) * -4000.0f, 0.0f, MTXMODE_APPLY);
             Matrix_Scale(0.1f, minislime->frozenScale, 0.1f, MTXMODE_APPLY);
             AnimatedMat_Draw(globalCtx, this->minislimeFrozenTexAnim);
             gDPSetPrimColor(POLY_XLU_DISP++, 0, 0x80, 255, 255, 255, minislime->frozenAlpha);
@@ -2999,18 +2999,18 @@ void EnBigslime_DrawBigslime(Actor* thisx, GlobalContext* globalCtx) {
 
     // Draw bubbles inside Bigslime
     if (this->actor.scale.x > 0.0f) {
-        Matrix_SetCurrentState(&globalCtx->billboardMtxF);
+        Matrix_Put(&globalCtx->billboardMtxF);
         Matrix_Scale(0.0050000003f, 0.0050000003f, 0.0050000003f, MTXMODE_APPLY);
-        billboardMtxF = Matrix_GetCurrentState();
+        billboardMtxF = Matrix_GetCurrent();
 
         for (i = 0; i < 28; i++) {
             bubblesInfoPtr = &bubblesInfo[i];
             dynamicVtx = &sBigslimeDynamicVtx[this->dynamicVtxState][bubblesInfoPtr->v];
-            billboardMtxF->wx =
+            billboardMtxF->xw =
                 dynamicVtx->n.ob[0] * this->actor.scale.x * bubblesInfoPtr->scaleVtx + this->actor.world.pos.x;
-            billboardMtxF->wy =
+            billboardMtxF->yw =
                 dynamicVtx->n.ob[1] * this->actor.scale.y * bubblesInfoPtr->scaleVtx + this->actor.world.pos.y;
-            billboardMtxF->wz =
+            billboardMtxF->zw =
                 dynamicVtx->n.ob[2] * this->actor.scale.z * bubblesInfoPtr->scaleVtx + this->actor.world.pos.z;
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx),
                       G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
@@ -3048,16 +3048,16 @@ void EnBigslime_PostLimbDraw(GlobalContext* globalCtx, s32 limbIndex, Gfx** dLis
     Vec3f rightFootOffset;
 
     if (limbIndex == GEKKO_LIMB_HEAD) {
-        Matrix_GetStateTranslation(&this->actor.focus.pos);
+        Matrix_MultZero(&this->actor.focus.pos);
         this->actor.focus.rot.y = this->gekkoRot.y;
     }
 
     if (limbPosIndex[limbIndex] != -1) {
-        Matrix_GetStateTranslation(&this->limbPos[limbPosIndex[limbIndex]]);
+        Matrix_MultZero(&this->limbPos[limbPosIndex[limbIndex]]);
     }
 
     if (limbIndex == GEKKO_LIMB_R_ANKLE) {
-        Matrix_MultiplyVector3fByState(&rightFootOffsetRef, &rightFootOffset);
+        Matrix_MultVec3f(&rightFootOffsetRef, &rightFootOffset);
         this->gekkoCollider.dim.pos.y = rightFootOffset.y;
     }
 }
@@ -3087,7 +3087,7 @@ void EnBigslime_DrawGekko(Actor* thisx, GlobalContext* globalCtx) {
     OPEN_DISPS(globalCtx->state.gfxCtx);
 
     Math_Vec3f_Sum(&this->actor.world.pos, &this->gekkoPosOffset, &gekkoPos);
-    Matrix_SetStateRotationAndTranslation(gekkoPos.x, gekkoPos.y, gekkoPos.z, &this->gekkoRot);
+    Matrix_SetTranslateRotateYXZ(gekkoPos.x, gekkoPos.y, gekkoPos.z, &this->gekkoRot);
     Matrix_Scale(this->gekkoScale, this->gekkoScale, this->gekkoScale, MTXMODE_APPLY);
     SkinMatrix_Vec3fMtxFMultXYZ(&globalCtx->viewProjectionMtxF, &gekkoPos, &this->gekkoProjectedPos);
     gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
@@ -3131,7 +3131,7 @@ void EnBigslime_DrawShatteringEffects(EnBigslime* this, GlobalContext* globalCtx
                    Gfx_TwoTexScroll(globalCtx->state.gfxCtx, 0, globalCtx->gameplayFrames % 128,
                                     (u8)(globalCtx->gameplayFrames * 8), 32, 64, 1,
                                     (-globalCtx->gameplayFrames * 2) % 64, 0, 16, 16));
-        Matrix_InsertTranslation(this->frozenPos.x, this->frozenPos.y, this->frozenPos.z, MTXMODE_NEW);
+        Matrix_Translate(this->frozenPos.x, this->frozenPos.y, this->frozenPos.z, MTXMODE_NEW);
         Matrix_Scale(this->shockwaveScale, this->shockwaveScale, this->shockwaveScale, MTXMODE_APPLY);
         gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gSPDisplayList(POLY_XLU_DISP++, &gBigslimeShockwaveDL);
@@ -3143,9 +3143,9 @@ void EnBigslime_DrawShatteringEffects(EnBigslime* this, GlobalContext* globalCtx
 
     for (i = 0; i < BIGSLIME_NUM_ICE_SHARD; i++) {
         iceShardEffect = &this->iceShardEffect[i];
-        if (iceShardEffect->isActive > false) {
-            Matrix_SetStateRotationAndTranslation(iceShardEffect->pos.x, iceShardEffect->pos.y, iceShardEffect->pos.z,
-                                                  &iceShardEffect->rotation);
+        if (iceShardEffect->isEnabled > false) {
+            Matrix_SetTranslateRotateYXZ(iceShardEffect->pos.x, iceShardEffect->pos.y, iceShardEffect->pos.z,
+                                         &iceShardEffect->rot);
             Matrix_Scale(iceShardEffect->scale, iceShardEffect->scale, iceShardEffect->scale, MTXMODE_APPLY);
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(globalCtx->state.gfxCtx),
                       G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);

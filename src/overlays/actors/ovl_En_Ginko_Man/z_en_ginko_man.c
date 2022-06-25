@@ -612,9 +612,9 @@ void EnGinkoMan_SwitchAnimation(EnGinkoMan* this, GlobalContext* globalCtx) {
 void EnGinkoMan_FacePlayer(EnGinkoMan* this, GlobalContext* globalCtx) {
     SkelAnime_Update(&this->skelAnime);
     if (this->skelAnime.animation != &object_boj_Anim_004A7C) {
-        func_800E9250(globalCtx, &this->actor, &this->limb15Rot, &this->limb8Rot, this->actor.focus.pos);
+        Actor_TrackPlayer(globalCtx, &this->actor, &this->limb15Rot, &this->limb8Rot, this->actor.focus.pos);
     } else {
-        func_800E8F08(&this->limb15Rot, &this->limb8Rot);
+        Actor_TrackNone(&this->limb15Rot, &this->limb8Rot);
     }
 }
 
@@ -636,13 +636,13 @@ s32 EnGinkoMan_OverrideLimbDraw(GlobalContext* globalCtx, s32 limbIndex, Gfx** d
     }
 
     if (limbIndex == 15) {
-        Matrix_InsertTranslation(1500.0f, 0.0f, 0.0f, MTXMODE_APPLY);
-        Matrix_InsertXRotation_s(this->limb15Rot.y, MTXMODE_APPLY);
-        Matrix_InsertZRotation_s(this->limb15Rot.x, MTXMODE_APPLY);
-        Matrix_InsertTranslation(-1500.0f, 0.0f, 0.0f, MTXMODE_APPLY);
+        Matrix_Translate(1500.0f, 0.0f, 0.0f, MTXMODE_APPLY);
+        Matrix_RotateXS(this->limb15Rot.y, MTXMODE_APPLY);
+        Matrix_RotateZS(this->limb15Rot.x, MTXMODE_APPLY);
+        Matrix_Translate(-1500.0f, 0.0f, 0.0f, MTXMODE_APPLY);
     } else if (limbIndex == 8) {
-        Matrix_InsertXRotation_s(-this->limb8Rot.y, MTXMODE_APPLY);
-        Matrix_InsertZRotation_s(-this->limb8Rot.x, MTXMODE_APPLY);
+        Matrix_RotateXS(-this->limb8Rot.y, MTXMODE_APPLY);
+        Matrix_RotateZS(-this->limb8Rot.x, MTXMODE_APPLY);
     }
 
     return false;
