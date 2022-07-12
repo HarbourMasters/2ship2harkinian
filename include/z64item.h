@@ -27,7 +27,7 @@ typedef enum {
     /* 1 */ EQUIP_VALUE_SHIELD_HERO,
     /* 2 */ EQUIP_VALUE_SHIELD_MIRROR,
     /* 3 */ EQUIP_VALUE_SHIELD_MAX
-} EquipValueShield; 
+} EquipValueShield;
 
 typedef enum {
     /* 0 */ EQUIP_VALUE_TUNIC_NONE,

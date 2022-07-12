@@ -394,6 +394,7 @@ s16 D_801BFA64[] = {
 s16 D_801BFA74[] = {
     1, -70, -99, -70, 71, 101, 72, 1,
 };
+
 void Interface_InitVertices(PlayState* play) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
     s16 i;
@@ -2232,6 +2233,7 @@ s16 sAmmoRefillCounts[] = { 5, 10, 20, 30 }; // Sticks, nuts, bombs
 s16 sArrowRefillCounts[] = { 10, 30, 40, 50 };
 s16 sBombchuRefillCounts[] = { 20, 10, 1, 5 };
 s16 sRupeeRefillCounts[] = { 1, 5, 10, 20, 50, 100, 200 };
+
 u8 Item_Give(PlayState* play, u8 item) {
     Player* player = GET_PLAYER(play);
     u8 i;
@@ -3346,6 +3348,7 @@ s16 sMagicBorderColors[][3] = {
 };
 s16 sMagicBorderIndices[] = { 0, 1, 1, 0 };
 s16 sMagicBorderColorTimerIndex[] = { 2, 1, 2, 1 };
+
 void Magic_FlashMeterBorder(void) {
     s16 borderChangeR;
     s16 borderChangeG;
@@ -3790,6 +3793,7 @@ void Interface_DrawItemIconTexture(PlayState* play, void* texture, s16 button) {
 
 s16 D_801BFB04[] = { 0xA2, 0xE4, 0xFA, 0x110 };
 s16 D_801BFB0C[] = { 0x23, 0x23, 0x33, 0x23 };
+
 void Interface_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
     u8 i;
     u16 ammo;
@@ -4045,6 +4049,7 @@ extern TexturePtr D_08095AC0;            // gMagicArrowEquipEffectTex
 s16 D_801BFB14[] = { 255, 100, 255, 0 }; // magicArrowEffectsR
 s16 D_801BFB1C[] = { 0, 100, 255, 0 };   // magicArrowEffectsG
 s16 D_801BFB24[] = { 0, 255, 100, 0 };   // magicArrowEffectsB
+
 void func_80119030(PlayState* play) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
     PauseContext* pauseCtx = &play->pauseCtx;
@@ -4826,6 +4831,7 @@ s16 D_801BFC8C[2][3] = {
     { 0xFF, 0xFF, 0xFF },
     { 0xFF, 0xA5, 0x37 },
 };
+
 void func_8011B9E0(PlayState* play) {
     s16 i;
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
@@ -4960,6 +4966,7 @@ s16 D_801BFCB8[2][3] = {
     { 0xFF, 0xFF, 0xFF },
     { 0xFF, 0xA5, 0x37 },
 };
+
 void func_8011BF70(PlayState* play) {
     s16 i;
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
@@ -5830,6 +5837,7 @@ u32 D_801BFD8C[] = {
     gStoryMaskFestivalTLUT,
     gStoryGiantsLeavingTLUT,
 };
+
 void Interface_Draw(PlayState* play) {
     s32 pad;
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
