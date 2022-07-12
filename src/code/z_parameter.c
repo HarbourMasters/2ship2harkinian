@@ -4,10 +4,9 @@
 #include "misc/story_static/story_static.h"
 #include "overlays/gamestates/ovl_file_choose/z_file_choose.h"
 
-void Map_Update(PlayState* play);
 u8 func_800FE4A8();
 s32 func_801234D4(PlayState* play);
-s16 func_801242DC(PlayState*); // s32 func_8008F2F8 (OoT)
+// s16 func_801242DC(PlayState*); // s32 func_8008F2F8 (OoT)
 void func_801663C4(u8* arg0, u8* arg1, u32 arg2);
 
 extern Gfx D_0E0001C8[]; // Display List
@@ -1585,7 +1584,7 @@ void func_80110038(PlayState* play) {
             }
         } else if (!gSaveContext.save.playerData.isMagicAcquired && (CUR_FORM == PLAYER_FORM_DEKU) &&
                    (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_NUT)) {
-            BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_UNK_FD;
+            BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_FD;
             gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_DISABLED;
         } else {
             if ((func_801242DC(play) >= 2) && (func_801242DC(play) < 5)) {
@@ -1595,7 +1594,8 @@ void func_80110038(PlayState* play) {
                             phi_t3 = true;
                         }
                         gSaveContext.unk_1015 = 0;
-                    } else if ((interfaceCtx->unk_21E == 0x18) && (player->currentMask == PLAYER_MASK_BLAST)) {
+                    } else if ((interfaceCtx->bButtonDoAction == DO_ACTION_EXPLODE) &&
+                               (player->currentMask == PLAYER_MASK_BLAST)) {
                         if (gSaveContext.unk_1015 != 0xFF) {
                             gSaveContext.unk_1015 = 0xFF;
                             phi_t3 = true;
@@ -1679,8 +1679,8 @@ void func_80110038(PlayState* play) {
                         Interface_ChangeAlpha(50);
                     }
                 } else {
-                    if ((interfaceCtx->unk_21E == 0x18) && (player->currentMask == PLAYER_MASK_BLAST) &&
-                        (player->unk_B60 != 0)) {
+                    if ((interfaceCtx->bButtonDoAction == DO_ACTION_EXPLODE) &&
+                        (player->currentMask == PLAYER_MASK_BLAST) && (player->unk_B60 != 0)) {
                         if (gSaveContext.unk_1015 != 0xFF) {
                             gSaveContext.unk_1015 = 0xFF;
                             phi_t3 = true;
@@ -1712,7 +1712,7 @@ void func_80110038(PlayState* play) {
                                 }
                                 phi_t3 = true;
                             } else if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_NONE) {
-                                if (interfaceCtx->unk_21E != 0) {
+                                if (interfaceCtx->bButtonDoAction != 0) {
                                     if (gSaveContext.buttonStatus[EQUIP_SLOT_B] == BTN_DISABLED) {
                                         phi_t3 = true;
                                         gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_ENABLED;
@@ -1903,7 +1903,7 @@ void func_80110038(PlayState* play) {
         }
     }
 
-    if (phi_t3 && (play->activeCamera == 0) && (play->transitionTrigger == 0) && (play->transitionMode == 0)) {
+    if (phi_t3 && (play->activeCamId == CAM_ID_MAIN) && (play->transitionTrigger == 0) && (play->transitionMode == 0)) {
         gSaveContext.unk_3F22 = 0;
         Interface_ChangeAlpha(50);
     }
@@ -2865,7 +2865,7 @@ void Inventory_UpdateDeitySwordEquip(PlayState* play) {
 
     if (CUR_FORM == PLAYER_FORM_FIERCE_DEITY) {
         interfaceCtx->unk_21C = 0;
-        interfaceCtx->unk_21E = 0;
+        interfaceCtx->bButtonDoAction = 0;
 
         // Is simply checking if (gSaveContext.save.playerForm == PLAYER_FORM_FIERCE_DEITY)
         if ((((gSaveContext.save.playerForm > 0) && (gSaveContext.save.playerForm < 4))
@@ -2883,7 +2883,7 @@ void Inventory_UpdateDeitySwordEquip(PlayState* play) {
     }
 
     for (btn = EQUIP_SLOT_B; btn <= EQUIP_SLOT_B; btn++) {
-        if ((GET_CUR_FORM_BTN_ITEM(btn) != ITEM_NONE) && (GET_CUR_FORM_BTN_ITEM(btn) != ITEM_UNK_FD)) {
+        if ((GET_CUR_FORM_BTN_ITEM(btn) != ITEM_NONE) && (GET_CUR_FORM_BTN_ITEM(btn) != ITEM_FD)) {
             Interface_LoadItemIconImpl(play, btn);
         }
     }
@@ -3012,7 +3012,7 @@ void Interface_SetDoAction(PlayState* play, u16 action) {
     }
 }
 
-void func_801155B4(PlayState* play, s16 arg1) {
+void func_801155B4(PlayState* play, s16 bButtonDoAction) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
 
     if (((BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) >= ITEM_SWORD_KOKIRI) &&
@@ -3020,13 +3020,13 @@ void func_801155B4(PlayState* play, s16 arg1) {
         (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_NONE) ||
         (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_NUT)) {
         if ((CUR_FORM == PLAYER_FORM_DEKU) && !gSaveContext.save.playerData.isMagicAcquired) {
-            interfaceCtx->unk_21E = 0xFD;
+            interfaceCtx->bButtonDoAction = 0xFD;
         } else {
-            interfaceCtx->unk_21E = arg1;
-            if (interfaceCtx->unk_21E != 0xA) {
+            interfaceCtx->bButtonDoAction = bButtonDoAction;
+            if (interfaceCtx->bButtonDoAction != DO_ACTION_NONE) {
                 osCreateMesgQueue(&interfaceCtx->loadQueue, &interfaceCtx->loadMsg, 1);
                 DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest_184, interfaceCtx->doActionSegment + 0x600,
-                                       (arg1 * 0x180) + SEGMENT_ROM_START(do_action_static), 0x180, 0,
+                                       (bButtonDoAction * 0x180) + SEGMENT_ROM_START(do_action_static), 0x180, 0,
                                        &interfaceCtx->loadQueue, NULL);
                 osRecvMesg(&interfaceCtx->loadQueue, NULL, OS_MESG_BLOCK);
             }
@@ -3035,7 +3035,7 @@ void func_801155B4(PlayState* play, s16 arg1) {
         }
     } else {
         interfaceCtx->unk_21C = 0;
-        interfaceCtx->unk_21E = 0;
+        interfaceCtx->bButtonDoAction = 0;
     }
 }
 
@@ -3915,7 +3915,7 @@ void func_80118084(PlayState* play) {
             OVERLAY_DISP++, (D_801BF9C4[gSaveContext.options.language] * 4),
             (D_801BF9C8[gSaveContext.options.language] * 4), ((D_801BF9C4[gSaveContext.options.language] + 0x30) << 2),
             ((D_801BF9C8[gSaveContext.options.language] + 0x10) << 2), G_TX_RENDERTILE, 0, 0, D_801BF9B0, D_801BF9B0);
-    } else if (interfaceCtx->unk_21E != 0xA) {
+    } else if (interfaceCtx->bButtonDoAction != DO_ACTION_NONE) {
         gDPPipeSync(OVERLAY_DISP++);
         gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
                           PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
@@ -6061,7 +6061,7 @@ void Interface_Draw(PlayState* play) {
         }
 
         Magic_DrawMeter(play);
-        func_8010A54C(play);
+        Minimap_Draw(play);
 
         if ((SREG(94) != 2) && (SREG(94) != 3)) {
             Actor_DrawZTarget(&play->actorCtx.targetContext, play);
@@ -6707,7 +6707,7 @@ void Interface_Update(PlayState* play) {
 }
 
 void func_80121F94(void) {
-    func_8010A410();
+    Map_Destroy();
     func_80174F9C(func_8010E968, NULL);
 }
 
@@ -6744,7 +6744,7 @@ void Interface_Init(PlayState* play) {
     if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) < 0xF0) {
         Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
     } else if ((BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NONE) &&
-               (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_UNK_FD)) {
+               (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_FD)) {
         Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
     }
 
@@ -6768,7 +6768,7 @@ void Interface_Init(PlayState* play) {
     }
 
     LifeMeter_Init(play);
-    func_8010A430(play);
+    Map_Init(play);
 
     gSaveContext.minigameState = 3;
     interfaceCtx->unk_2FC[0] = 255;
