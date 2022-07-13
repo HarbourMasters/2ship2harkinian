@@ -854,7 +854,7 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
 
             break;
 
-        case HUD_MODE_HEARTS_W_OVERWRITE:
+        case HUD_MODE_HEARTS_WITH_DIM_BTN:
             // aAlpha is immediately overwritten in Interface_DimButtonAlphas
             if ((interfaceCtx->aAlpha != 0) && (interfaceCtx->aAlpha > dimmingAlpha)) {
                 interfaceCtx->aAlpha = dimmingAlpha;
@@ -916,7 +916,7 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
 
             break;
 
-        case HUD_MODE_A_HEARTS_MAGIC_W_OVERWRITE:
+        case HUD_MODE_A_HEARTS_MAGIC_WITH_DIM_BTN:
             Interface_DimButtonAlphas(play, dimmingAlpha, risingAlpha);
 
             if ((interfaceCtx->minimapAlpha != 0) && (interfaceCtx->minimapAlpha > dimmingAlpha)) {
@@ -938,7 +938,7 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
 
             break;
 
-        case HUD_MODE_A_HEARTS_MAGIC_MINIMAP_W_OVERWRITE:
+        case HUD_MODE_A_HEARTS_MAGIC_MINIMAP_WITH_DIM_BTN:
             Interface_DimButtonAlphas(play, dimmingAlpha, risingAlpha);
 
             // aAlpha overwrites the value set in Interface_DimButtonAlphas
@@ -1129,7 +1129,7 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
 
             break;
 
-        case HUD_MODE_HEARTS_MAGIC_W_OVERWRITE:
+        case HUD_MODE_HEARTS_MAGIC_WITH_DIM_BTN:
             Interface_DimButtonAlphas(play, dimmingAlpha, risingAlpha);
 
             if ((interfaceCtx->minimapAlpha != 0) && (interfaceCtx->minimapAlpha > dimmingAlpha)) {
@@ -2004,7 +2004,7 @@ void func_80111CB4(PlayState* play) {
                             gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
                             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
                             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
-                            Interface_ChangeHudMode(HUD_MODE_A_HEARTS_MAGIC_MINIMAP_W_OVERWRITE);
+                            Interface_ChangeHudMode(HUD_MODE_A_HEARTS_MAGIC_MINIMAP_WITH_DIM_BTN);
                         }
                     }
 
@@ -2064,7 +2064,7 @@ void func_80111CB4(PlayState* play) {
                 gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
                 gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
                 gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
-                Interface_ChangeHudMode(HUD_MODE_A_HEARTS_MAGIC_MINIMAP_W_OVERWRITE);
+                Interface_ChangeHudMode(HUD_MODE_A_HEARTS_MAGIC_MINIMAP_WITH_DIM_BTN);
 
                 if (play->transitionMode != 0) {
                     Interface_ChangeHudMode(HUD_MODE_OFF);
@@ -3751,7 +3751,7 @@ void Interface_DrawItemButtons(PlayState* play) {
             gDPPipeSync(OVERLAY_DISP++);
 
             if ((gSaveContext.curHudMode == HUD_MODE_OFF) || (gSaveContext.curHudMode == HUD_MODE_OFF_ALT) ||
-                (gSaveContext.curHudMode == HUD_MODE_A_HEARTS_MAGIC_W_OVERWRITE) || (msgCtx->msgMode != 0)) {
+                (gSaveContext.curHudMode == HUD_MODE_A_HEARTS_MAGIC_WITH_DIM_BTN) || (msgCtx->msgMode != 0)) {
                 temp = 0;
             } else if (player->stateFlags1 & 0x200000) {
                 temp = 70;
@@ -6309,16 +6309,16 @@ void Interface_Update(PlayState* play) {
             }
             break;
 
-        case HUD_MODE_HEARTS_W_OVERWRITE:
+        case HUD_MODE_HEARTS_WITH_DIM_BTN:
         case HUD_MODE_A:
-        case HUD_MODE_A_HEARTS_MAGIC_W_OVERWRITE:
-        case HUD_MODE_A_HEARTS_MAGIC_MINIMAP_W_OVERWRITE:
+        case HUD_MODE_A_HEARTS_MAGIC_WITH_DIM_BTN:
+        case HUD_MODE_A_HEARTS_MAGIC_MINIMAP_WITH_DIM_BTN:
         case HUD_MODE_ALL_NO_MINIMAP_W_DISABLED:
         case HUD_MODE_HEARTS_MAGIC:
         case HUD_MODE_B:
         case HUD_MODE_HEARTS:
         case HUD_MODE_A_B_MINIMAP:
-        case HUD_MODE_HEARTS_MAGIC_W_OVERWRITE:
+        case HUD_MODE_HEARTS_MAGIC_WITH_DIM_BTN:
         case HUD_MODE_HEARTS_MAGIC_C:
         case HUD_MODE_ALL_NO_MINIMAP:
         case HUD_MODE_A_B_C:
