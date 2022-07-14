@@ -253,7 +253,7 @@ s32 EnMttag_ExitRace(PlayState* play, s32 arg1, s32 nextTransition) {
  * Displays the text which says that the player has made a false start.
  */
 void EnMttag_ShowFalseStartMessage(EnMttag* this, PlayState* play) {
-    gSaveContext.unk_3DD0[4] = 0;
+    gSaveContext.timerState[TIMER_ID_4] = TIMER_STATE_OFF;
     Message_StartTextbox(play, 0xE95, NULL); // An entrant made a false start
     func_800B7298(play, &this->actor, 7);
     Audio_QueueSeqCmd(0x101400FF);
@@ -314,7 +314,7 @@ void EnMttag_RaceStart(EnMttag* this, PlayState* play) {
             gSaveContext.eventInf[1] |= 8;
         } else {
             if (DECR(this->timer) == 60) {
-                func_8010E9F0(4, 0);
+                func_8010E9F0(TIMER_ID_4, 0);
                 play->interfaceCtx.unk_280 = 1;
                 Audio_QueueSeqCmd(NA_BGM_GORON_RACE | 0x8000);
                 play->envCtx.unk_E4 = 0xFE;
@@ -359,14 +359,14 @@ void EnMttag_Race(EnMttag* this, PlayState* play) {
     s32 playerCheatStatus;
 
     if (EnMttag_IsInFinishLine(playerPos)) {
-        gSaveContext.unk_3DD0[4] = 6;
+        gSaveContext.timerState[TIMER_ID_4] = TIMER_STATE_6;
         play_sound(NA_SE_SY_START_SHOT);
         Audio_QueueSeqCmd(NA_BGM_GORON_GOAL | 0x8000);
         this->timer = 55;
         gSaveContext.eventInf[1] |= 2;
         this->actionFunc = EnMttag_RaceFinish;
     } else if (EnMttag_IsAnyRaceGoronOverFinishLine(this)) {
-        gSaveContext.unk_3DD0[4] = 6;
+        gSaveContext.timerState[TIMER_ID_4] = TIMER_STATE_6;
         play_sound(NA_SE_SY_START_SHOT);
         Audio_QueueSeqCmd(NA_BGM_GORON_GOAL | 0x8000);
         this->timer = 55;
@@ -457,7 +457,7 @@ void EnMttag_HandleCantWinChoice(EnMttag* this, PlayState* play) {
         if (play->msgCtx.choiceIndex != 0) {
             // Exit the race
             func_8019F230();
-            gSaveContext.unk_3DD0[4] = 0;
+            gSaveContext.timerState[TIMER_ID_4] = TIMER_STATE_OFF;
             EnMttag_ExitRace(play, 2, 2);
             gSaveContext.eventInf[1] &= (u8)~8;
             gSaveContext.eventInf[1] |= 4;
@@ -503,8 +503,8 @@ void EnMttag_Init(Actor* thisx, PlayState* play) {
 
 void EnMttag_Destroy(Actor* thisx, PlayState* play) {
     EnMttag* this = THIS;
-    if (gSaveContext.unk_3DD0[4] != 6) {
-        gSaveContext.unk_3DD0[4] = 5;
+    if (gSaveContext.timerState[TIMER_ID_4] != TIMER_STATE_6) {
+        gSaveContext.timerState[TIMER_ID_4] = TIMER_STATE_5;
     }
 }
 

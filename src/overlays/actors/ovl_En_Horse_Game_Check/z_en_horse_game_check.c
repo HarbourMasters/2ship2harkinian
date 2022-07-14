@@ -121,7 +121,7 @@ s32 func_808F8CCC(EnHorseGameCheck* this, PlayState* play2) {
         return false;
     }
 
-    func_8010E9F0(4, 0);
+    func_8010E9F0(TIMER_ID_4, 0);
     play->interfaceCtx.unk_280 = 1;
 
     this->horse1 =
@@ -145,7 +145,7 @@ s32 func_808F8CCC(EnHorseGameCheck* this, PlayState* play2) {
 }
 
 s32 func_808F8E94(EnHorseGameCheck* this, PlayState* play) {
-    gSaveContext.unk_3DD0[4] = 0;
+    gSaveContext.timerState[TIMER_ID_4] = TIMER_STATE_OFF;
     return true;
 }
 
@@ -247,11 +247,11 @@ s32 func_808F8FAC(EnHorseGameCheck* this, PlayState* play) {
         return true;
     }
 
-    if (gSaveContext.unk_3DE0[4] >= 0x4650) {
+    if (gSaveContext.eventTimer1Value[TIMER_ID_4] >= 0x4650) {
         Audio_QueueSeqCmd(0x8041);
         play_sound(NA_SE_SY_START_SHOT);
         this->unk_164 |= 0x40000;
-        gSaveContext.unk_3DD0[4] = 6;
+        gSaveContext.timerState[TIMER_ID_4] = TIMER_STATE_6;
         SET_RACE_FLAGS(RACE_FLAG_4);
         this->unk_174 = 60;
     }
@@ -284,7 +284,7 @@ s32 func_808F8FAC(EnHorseGameCheck* this, PlayState* play) {
         Audio_QueueSeqCmd(0x8041);
         play_sound(NA_SE_SY_START_SHOT);
         this->unk_164 |= 0x40000;
-        gSaveContext.unk_3DD0[4] = 6;
+        gSaveContext.timerState[TIMER_ID_4] = TIMER_STATE_6;
         SET_RACE_FLAGS(RACE_FLAG_3);
         this->unk_174 = 60;
     }
@@ -317,7 +317,7 @@ s32 func_808F8FAC(EnHorseGameCheck* this, PlayState* play) {
         Audio_QueueSeqCmd(0x8041);
         play_sound(NA_SE_SY_START_SHOT);
         this->unk_164 |= 0x02000000;
-        gSaveContext.unk_3DD0[4] = 6;
+        gSaveContext.timerState[TIMER_ID_4] = TIMER_STATE_6;
         SET_RACE_FLAGS(RACE_FLAG_3);
         this->unk_174 = 60;
     }
@@ -346,7 +346,7 @@ s32 func_808F8FAC(EnHorseGameCheck* this, PlayState* play) {
         Audio_QueueSeqCmd(0x8041);
         play_sound(NA_SE_SY_START_SHOT);
         this->unk_164 |= 0x800;
-        gSaveContext.unk_3DD0[4] = 6;
+        gSaveContext.timerState[TIMER_ID_4] = TIMER_STATE_6;
         SET_RACE_FLAGS(RACE_FLAG_2);
         this->unk_174 = 60;
     }

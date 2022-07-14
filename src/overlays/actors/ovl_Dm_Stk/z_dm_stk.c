@@ -1046,9 +1046,9 @@ void DmStk_Init(Actor* thisx, PlayState* play) {
 
             if (gSaveContext.save.entranceIndex == 0x2C00) {
                 if (gSaveContext.sceneSetupIndex == 0) {
-                    if (gSaveContext.unk_3DD0[3] == 0) {
+                    if (gSaveContext.timerState[TIMER_ID_3] == TIMER_STATE_OFF) {
                         // Starts a 5 minute (300 second) timer until the moon falls.
-                        func_8010E9F0(3, 300);
+                        func_8010E9F0(TIMER_ID_3, 300);
                         XREG(80) = 200;
                         XREG(81) = 115;
                     }
@@ -1063,10 +1063,10 @@ void DmStk_Init(Actor* thisx, PlayState* play) {
 
                 } else if (gSaveContext.sceneSetupIndex == 3) {
                     this->animationId = SK_ANIMATION_FLOATING_ARMS_CROSSED;
-                    if (gSaveContext.unk_3DD0[3] == 0) {
+                    if (gSaveContext.timerState[TIMER_ID_3] == TIMER_STATE_OFF) {
                         // This code is called when the Giants fail to stop the moon.
                         // Starts a 1 minute (60 second) timer until the moon falls.
-                        func_8010E9F0(3, 60);
+                        func_8010E9F0(TIMER_ID_3, 60);
                         XREG(80) = 200;
                         XREG(81) = 115;
                     }

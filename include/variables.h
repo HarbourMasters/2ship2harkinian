@@ -1048,7 +1048,7 @@ extern UNK_PTR D_801BF5C0;
 // extern UNK_TYPE1 D_801BF96A;
 // extern UNK_TYPE1 D_801BF96C;
 // extern UNK_TYPE1 D_801BF96E;
-// extern UNK_TYPE2 D_801BF970;
+// extern UNK_TYPE2 sTimerId;
 // extern UNK_TYPE1 D_801BF972;
 // extern UNK_TYPE2 D_801BF974;
 // extern UNK_TYPE2 D_801BF978;

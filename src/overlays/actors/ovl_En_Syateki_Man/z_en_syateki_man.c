@@ -894,7 +894,7 @@ void func_809C80C0(EnSyatekiMan* this, PlayState* play) {
         this->unk_27A = 0;
         this->unk_27C = 0;
         this->unk_26E = 0;
-        func_8010E9F0(1, 100);
+        func_8010E9F0(TIMER_ID_1, 100);
         this->actor.draw = NULL;
         this->actionFunc = func_809C81D0;
     }
@@ -937,9 +937,9 @@ void func_809C81D0(EnSyatekiMan* this, PlayState* play) {
     }
 
     this->unk_26C++;
-    if (gSaveContext.unk_3DE0[1] == 0) {
-        gSaveContext.unk_3DE0[1] = 0;
-        gSaveContext.unk_3DD0[1] = 5;
+    if (gSaveContext.eventTimer1Value[TIMER_ID_1] == 0) {
+        gSaveContext.eventTimer1Value[TIMER_ID_1] = 0;
+        gSaveContext.timerState[TIMER_ID_1] = TIMER_STATE_5;
         this->actor.draw = EnSyatekiMan_Draw;
         this->unk_27E = 0;
         this->unk_27C = 0;
@@ -957,10 +957,10 @@ void func_809C81D0(EnSyatekiMan* this, PlayState* play) {
         this->unk_26A = 5;
         if (this->unk_280 == 0x848) {
             Interface_SetPerfectMinigame(play, 2);
-            gSaveContext.unk_3DD0[1] = 6;
+            gSaveContext.timerState[TIMER_ID_1] = TIMER_STATE_6;
             this->actionFunc = func_809C8610;
         } else {
-            gSaveContext.unk_3DD0[1] = 5;
+            gSaveContext.timerState[TIMER_ID_1] = TIMER_STATE_5;
             this->actionFunc = func_809C8488;
         }
     }
@@ -1016,15 +1016,15 @@ void func_809C8610(EnSyatekiMan* this, PlayState* play) {
 
     player->stateFlags1 |= 0x20;
     if (!play->interfaceCtx.isMinigamePerfect) {
-        if (gSaveContext.unk_3DE0[1] == 0) {
-            gSaveContext.unk_3DE0[1] = 0;
-            gSaveContext.unk_3DD0[1] = 5;
+        if (gSaveContext.eventTimer1Value[TIMER_ID_1] == 0) {
+            gSaveContext.eventTimer1Value[TIMER_ID_1] = 0;
+            gSaveContext.timerState[TIMER_ID_1] = TIMER_STATE_5;
             this->unk_27E = 0;
             this->unk_27C = 0;
             this->actionFunc = func_809C8488;
             D_809C94A0 = 0;
         } else if (D_809C94A0 > 10) {
-            gSaveContext.unk_3E88[1] += 100;
+            gSaveContext.funcTimer2Value[TIMER_ID_1] += 100;
             play->interfaceCtx.unk_25C += 10;
             this->unk_280 += 10;
             Actor_PlaySfxAtPos(&this->actor, NA_SE_SY_TRE_BOX_APPEAR);
@@ -1084,7 +1084,7 @@ void func_809C8808(EnSyatekiMan* this, PlayState* play) {
         this->unk_26C = 70;
         this->unk_26E = 0;
         D_809C94A4 = 30;
-        func_8010E9F0(1, 75);
+        func_8010E9F0(TIMER_ID_1, 75);
         this->actor.draw = NULL;
         this->actionFunc = func_809C898C;
     }
@@ -1097,15 +1097,15 @@ void func_809C898C(EnSyatekiMan* this, PlayState* play) {
     };
     static s32 D_809C94A8 = 0;
     Player* player = GET_PLAYER(play);
-    s32 sp30 = (((void)0, gSaveContext.unk_3DE0[1]) * 0.1f) + 1.0f;
+    s32 sp30 = (((void)0, gSaveContext.eventTimer1Value[TIMER_ID_1]) * 0.1f) + 1.0f;
 
     if (sp30 < 0x2EF) {
         s32 temp;
 
         if (D_809C94A8 == 0) {
-            temp = ((void)0, gSaveContext.unk_3DE0[1]) % 500;
+            temp = ((void)0, gSaveContext.eventTimer1Value[TIMER_ID_1]) % 500;
         } else {
-            temp = (((void)0, gSaveContext.unk_3DE0[1]) + 250) % 500;
+            temp = (((void)0, gSaveContext.eventTimer1Value[TIMER_ID_1]) + 250) % 500;
         }
 
         if (temp < 100) {
@@ -1114,7 +1114,7 @@ void func_809C898C(EnSyatekiMan* this, PlayState* play) {
 
         if (this->unk_26E != 0) {
             if (this->unk_26E == 2) {
-                gSaveContext.unk_3E18[1] -= 250;
+                gSaveContext.eventTimer2Value[TIMER_ID_1] -= 250;
                 D_809C94A8 = (D_809C94A8 + 25) % 50;
             }
             this->unk_26E = 0;
@@ -1132,11 +1132,11 @@ void func_809C898C(EnSyatekiMan* this, PlayState* play) {
             }
         }
 
-        if (gSaveContext.unk_3DE0[1] == 0) {
+        if (gSaveContext.eventTimer1Value[TIMER_ID_1] == 0) {
             this->unk_27E = 0;
             this->unk_26C = 80;
-            gSaveContext.unk_3DE0[1] = 0;
-            gSaveContext.unk_3DD0[1] = 5;
+            gSaveContext.eventTimer1Value[TIMER_ID_1] = 0;
+            gSaveContext.timerState[TIMER_ID_1] = TIMER_STATE_5;
             player->stateFlags1 |= 0x20;
             D_809C94A8 = 0;
             this->actor.draw = EnSyatekiMan_Draw;

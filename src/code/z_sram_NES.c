@@ -873,13 +873,13 @@ void func_80144A94(SramContext* sramCtx) {
         gSaveContext.cycleSceneFlags[i].collectible = gSaveContext.save.permanentSceneFlags[i].collectible;
     }
 
-    for (i = 0; i < ARRAY_COUNT(gSaveContext.unk_3DD0); i++) {
-        gSaveContext.unk_3DD0[i] = 0;
-        gSaveContext.unk_3DE0[i] = 0;
-        gSaveContext.unk_3E18[i] = 0;
-        gSaveContext.unk_3E50[i] = 0;
-        gSaveContext.unk_3E88[i] = 0;
-        gSaveContext.unk_3EC0[i] = 0;
+    for (i = 0; i < ARRAY_COUNT(gSaveContext.timerState); i++) {
+        gSaveContext.timerState[i] = TIMER_STATE_OFF;
+        gSaveContext.eventTimer1Value[i] = 0;
+        gSaveContext.eventTimer2Value[i] = 0;
+        gSaveContext.funcTimer1Value[i] = 0;
+        gSaveContext.funcTimer2Value[i] = 0;
+        gSaveContext.funcTimer3Value[i] = 0;
     }
 
     D_801BDAA0 = 1;
@@ -944,13 +944,13 @@ void Sram_OpenSave(FileChooseContext* fileChooseCtx, SramContext* sramCtx) {
             gSaveContext.cycleSceneFlags[i].collectible = gSaveContext.save.permanentSceneFlags[i].collectible;
         }
 
-        for (i = 0; i < ARRAY_COUNT(gSaveContext.unk_3DD0); i++) {
-            gSaveContext.unk_3DD0[i] = 0;
-            gSaveContext.unk_3DE0[i] = 0;
-            gSaveContext.unk_3E18[i] = 0;
-            gSaveContext.unk_3E50[i] = 0;
-            gSaveContext.unk_3E88[i] = 0;
-            gSaveContext.unk_3EC0[i] = 0;
+        for (i = 0; i < ARRAY_COUNT(gSaveContext.timerState); i++) {
+            gSaveContext.timerState[i] = TIMER_STATE_OFF;
+            gSaveContext.eventTimer1Value[i] = 0;
+            gSaveContext.eventTimer2Value[i] = 0;
+            gSaveContext.funcTimer1Value[i] = 0;
+            gSaveContext.funcTimer2Value[i] = 0;
+            gSaveContext.funcTimer3Value[i] = 0;
         }
 
         if (gSaveContext.save.isFirstCycle) {

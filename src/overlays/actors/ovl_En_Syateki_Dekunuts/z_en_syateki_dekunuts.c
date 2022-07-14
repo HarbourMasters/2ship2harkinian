@@ -270,7 +270,7 @@ void func_80A2C2E0(EnSyatekiDekunuts* this, PlayState* play) {
 void func_80A2C33C(EnSyatekiDekunuts* this, PlayState* play) {
     EnSyatekiMan* syatekiMan = (EnSyatekiMan*)this->actor.parent;
 
-    if ((gSaveContext.unk_3DE0[1] <= 0) || (syatekiMan->unk_26A != 1)) {
+    if ((gSaveContext.eventTimer1Value[TIMER_ID_1] <= 0) || (syatekiMan->unk_26A != 1)) {
         func_80A2C3AC(this);
     }
 

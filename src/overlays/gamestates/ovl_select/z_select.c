@@ -365,13 +365,13 @@ void Select_UpdateMenu(SelectContext* this) {
 
     if (this->verticalInputAccumulator == 0) {
         if (CHECK_BTN_ALL(controller1->press.button, BTN_A) || CHECK_BTN_ALL(controller1->press.button, BTN_START)) {
-            for (i = 0; i < ARRAY_COUNT(gSaveContext.unk_3EC0); i++) {
-                gSaveContext.unk_3DD0[i] = 0;
-                gSaveContext.unk_3DE0[i] = 0;
-                gSaveContext.unk_3E18[i] = 0;
-                gSaveContext.unk_3E50[i] = 0;
-                gSaveContext.unk_3E88[i] = 0;
-                gSaveContext.unk_3EC0[i] = 0;
+            for (i = 0; i < ARRAY_COUNT(gSaveContext.funcTimer3Value); i++) {
+                gSaveContext.timerState[i] = TIMER_STATE_OFF;
+                gSaveContext.eventTimer1Value[i] = 0;
+                gSaveContext.eventTimer2Value[i] = 0;
+                gSaveContext.funcTimer1Value[i] = 0;
+                gSaveContext.funcTimer2Value[i] = 0;
+                gSaveContext.funcTimer3Value[i] = 0;
             }
             gSaveContext.minigameState = 0;
 

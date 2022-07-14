@@ -401,7 +401,7 @@ void func_80962340(EnFu* this, PlayState* play) {
                     Message_StartTextbox(play, 0x287E, &this->actor);
                     this->unk_552 = 0x287E;
                 }
-            } else if ((gSaveContext.unk_3DE0[4] == 0) && (this->unk_552 != 0x2888)) {
+            } else if ((gSaveContext.eventTimer1Value[TIMER_ID_4] == 0) && (this->unk_552 != 0x2888)) {
                 Message_StartTextbox(play, 0x2886, &this->actor);
                 this->unk_552 = 0x2886;
             } else {
@@ -644,7 +644,7 @@ void func_80962A10(EnFu* this, PlayState* play) {
 
     play_sound(NA_SE_SY_FOUND);
     player->stateFlags1 &= ~0x20;
-    func_8010E9F0(4, 60);
+    func_8010E9F0(TIMER_ID_4, 60);
     if (this->unk_546 == 1) {
         func_809616E0(this, play);
     } else {
@@ -682,7 +682,7 @@ void func_80962BCC(EnFu* this, PlayState* play) {
     play_sound(NA_SE_SY_FOUND);
     player->stateFlags1 &= ~0x20;
     player->stateFlags3 |= 0x400000;
-    func_8010E9F0(4, 60);
+    func_8010E9F0(TIMER_ID_4, 60);
 
     if (this->unk_546 == 1) {
         func_809616E0(this, play);
@@ -713,7 +713,7 @@ void func_80962D60(EnFu* this, PlayState* play) {
     play_sound(NA_SE_SY_FOUND);
     player->stateFlags1 &= ~0x20;
     player->stateFlags3 |= 0x400000;
-    func_8010E9F0(4, 60);
+    func_8010E9F0(TIMER_ID_4, 60);
 
     if (this->unk_546 == 1) {
         func_809616E0(this, play);
@@ -761,11 +761,11 @@ void func_80962F4C(EnFu* this, PlayState* play) {
             break;
     }
 
-    if (gSaveContext.unk_3DE0[4] < 2000) {
+    if (gSaveContext.eventTimer1Value[TIMER_ID_4] < 2000) {
         s16 val = D_80964B00[this->unk_542] + 200;
 
         Math_SmoothStepToS(&fuKaiten->rotationSpeed, val, 10, 5, 5);
-    } else if (gSaveContext.unk_3DE0[4] < 4000) {
+    } else if (gSaveContext.eventTimer1Value[TIMER_ID_4] < 4000) {
         s16 val = D_80964B00[this->unk_542] + 100;
 
         Math_SmoothStepToS(&fuKaiten->rotationSpeed, val, 10, 5, 5);
@@ -777,12 +777,12 @@ void func_80962F4C(EnFu* this, PlayState* play) {
 
     if ((!DynaPolyActor_IsInRidingRotatingState((DynaPolyActor*)this->actor.child) &&
          (player->actor.bgCheckFlags & 1)) ||
-        (gSaveContext.unk_3DE0[4] < 1) || (this->unk_548 == this->unk_54C)) {
+        (gSaveContext.eventTimer1Value[TIMER_ID_4] < 1) || (this->unk_548 == this->unk_54C)) {
         player->stateFlags3 &= ~0x400000;
         func_80961E88(play);
         player->stateFlags1 |= 0x20;
         if (this->unk_548 < this->unk_54C) {
-            if (gSaveContext.unk_3DE0[4] == 0) {
+            if (gSaveContext.eventTimer1Value[TIMER_ID_4] == 0) {
                 Message_StartTextbox(play, 0x2885, &this->actor);
                 this->unk_552 = 0x2885;
             } else {
@@ -790,15 +790,15 @@ void func_80962F4C(EnFu* this, PlayState* play) {
                 this->unk_552 = 0x2888;
             }
             func_801A2C20();
-            gSaveContext.unk_3DE0[4] = 0;
-            gSaveContext.unk_3DD0[4] = 5;
+            gSaveContext.eventTimer1Value[TIMER_ID_4] = 0;
+            gSaveContext.timerState[TIMER_ID_4] = TIMER_STATE_5;
             this->unk_548 = 0;
             func_809632D0(this);
         } else {
             this->unk_548 = 0;
             func_801A2C20();
-            gSaveContext.unk_3DE0[4] = 0;
-            gSaveContext.unk_3DD0[4] = 5;
+            gSaveContext.eventTimer1Value[TIMER_ID_4] = 0;
+            gSaveContext.timerState[TIMER_ID_4] = TIMER_STATE_5;
             func_801A3098(NA_BGM_GET_ITEM | 0x900);
             Interface_SetPerfectMinigame(play, 1);
             this->unk_54A = 3;

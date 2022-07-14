@@ -54,6 +54,38 @@ typedef enum {
 #define MAGIC_NORMAL_METER 0x30
 #define MAGIC_DOUBLE_METER (2 * MAGIC_NORMAL_METER)
 
+typedef enum {
+    /* 0 */ TIMER_STATE_OFF,
+    /* 1 */ TIMER_STATE_1,
+    /* 2 */ TIMER_STATE_2,
+    /* 3 */ TIMER_STATE_3,
+    /* 4 */ TIMER_STATE_4,
+    /* 5 */ TIMER_STATE_5,
+    /* 6 */ TIMER_STATE_6,
+    /* 7 */ TIMER_STATE_7,
+    /* 8 */ TIMER_STATE_8,
+    /* 9 */ TIMER_STATE_9,
+    /* 10 */ TIMER_STATE_10,
+    /* 11 */ TIMER_STATE_11,
+    /* 12 */ TIMER_STATE_12,
+    /* 13 */ TIMER_STATE_13,
+    /* 14 */ TIMER_STATE_14,
+    /* 15 */ TIMER_STATE_15,
+    /* 16 */ TIMER_STATE_16
+} TimerState;
+
+typedef enum {
+    /* 0 */ TIMER_ID_0,
+    /* 1 */ TIMER_ID_1,
+    /* 2 */ TIMER_ID_2,
+    /* 3 */ TIMER_ID_3, // countdown until mooncrash
+    /* 4 */ TIMER_ID_4,
+    /* 5 */ TIMER_ID_5,
+    /* 6 */ TIMER_ID_6,
+    /* 7 */ TIMER_ID_MAX,
+    /* 99 */ TIMER_ID_NONE = 99,
+} TimerId;
+
 typedef struct SramContext {
     /* 0x00 */ u8* readBuff;
     /* 0x04 */ u8 *saveBuf;
@@ -214,11 +246,11 @@ typedef struct SaveContext {
     /* 0x1015 */ u8 unk_1015;
     /* 0x1016 */ u16 jinxTimer;
     /* 0x1018 */ s16 rupeeAccumulator;                  // "lupy_udct"
-    /* 0x101A */ u8 unk_101A[6];                        // "bottle_status", one entry for each bottle
-    /* 0x1020 */ OSTime unk_1020[6];                    // "bottle_ostime", one entry for each bottle
-    /* 0x1050 */ OSTime unk_1050[6];                    // "bottle_sub", one entry for each bottle
-    /* 0x1080 */ OSTime unk_1080[6];                    // "bottle_time", one entry for each bottle
-    /* 0x10B0 */ OSTime unk_10B0[6];                    // "bottle_stop_time", one entry for each bottle
+    /* 0x101A */ u8 bottleStatus[6];                        // "bottle_status", one entry for each bottle
+    /* 0x1020 */ OSTime bottleTimer1Value[6];                    // "bottle_ostime", one entry for each bottle
+    /* 0x1050 */ OSTime bottleTimer2Value[6];                    // "bottle_sub", one entry for each bottle
+    /* 0x1080 */ OSTime bottleTimer3Value[6];                    // "bottle_time", one entry for each bottle
+    /* 0x10B0 */ OSTime bottleTimer4Value[6];                    // "bottle_stop_time", one entry for each bottle
     /* 0x10E0 */ u64 pictoPhoto[1400];                  // buffer containing the pictograph photo
     /* 0x3CA0 */ s32 fileNum;                           // "file_no"
     /* 0x3CA4 */ s16 powderKegTimer;                    // "big_bom_timer"
@@ -237,14 +269,14 @@ typedef struct SaveContext {
     /* 0x3DBF */ u8 showTitleCard;                      // "name_display"
     /* 0x3DC0 */ s16 unk_3DC0;                          // "shield_magic_timer"
     /* 0x3DC2 */ u8 unk_3DC2;                           // "pad1"
-    /* 0x3DC8 */ OSTime unk_3DC8;                       // "get_time"
-    /* 0x3DD0 */ u8 unk_3DD0[7];                        // "event_fg"
+    /* 0x3DC8 */ OSTime timerOsTime;                       // "get_time"
+    /* 0x3DD0 */ u8 timerState[7];                        // "event_fg"
     /* 0x3DD7 */ u8 timersNoTimeLimit[7];               // "calc_flag"
-    /* 0x3DE0 */ OSTime unk_3DE0[7];                    // "event_ostime"
-    /* 0x3E18 */ OSTime unk_3E18[7];                    // "event_sub"
-    /* 0x3E50 */ OSTime unk_3E50[7];                    // "func_time"
-    /* 0x3E88 */ OSTime unk_3E88[7];                    // "func_end_time"
-    /* 0x3EC0 */ OSTime unk_3EC0[7];                    // "func_stop_time"
+    /* 0x3DE0 */ OSTime eventTimer1Value[7];                    // "event_ostime"
+    /* 0x3E18 */ OSTime eventTimer2Value[7];                    // "event_sub"
+    /* 0x3E50 */ OSTime funcTimer1Value[7];                    // "func_time"
+    /* 0x3E88 */ OSTime funcTimer2Value[7];                    // "func_end_time"
+    /* 0x3EC0 */ OSTime funcTimer3Value[7];                    // "func_stop_time"
     /* 0x3EF8 */ s16 timerX[7];                         // "event_xp"
     /* 0x3F06 */ s16 timerY[7];                         // "event_yp"
     /* 0x3F14 */ s16 unk_3F14;                          // "character_change"
