@@ -64,6 +64,7 @@
 #include "z64subs.h"
 #include "z64transition.h"
 #include "z64view.h"
+#include "z64msgevent.h"
 #include "regs.h"
 
 typedef struct {

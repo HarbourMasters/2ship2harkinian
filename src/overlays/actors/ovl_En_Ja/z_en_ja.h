@@ -54,7 +54,7 @@ typedef struct EnJa {
     /* 0x362 */ s16 unk_362;
     /* 0x364 */ s16 unk_364;
     /* 0x366 */ s16 unk_366;
-    /* 0x368 */ void* unk_368;
+    /* 0x368 */ MsgEventCallback unk_368;
     /* 0x36C */ s32 unk_36C;
     /* 0x370 */ UNK_TYPE1 unk_370[4];
     /* 0x374 */ s32 prevTalkState;
