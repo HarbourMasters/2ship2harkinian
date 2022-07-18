@@ -11492,7 +11492,7 @@
     0x80A4334A:("sDayMessages1","s16","[3]",0x6),
     0x80A43352:("sNightMessages2","s16","[3]",0x6),
     0x80A4335A:("sDayMessages2","s16","[3]",0x6),
-    0x80A43364:("D_80A43364","u16","[2]",0x4),
+    0x80A43364:("sDayNightTransitionTimes","u16","[2]",0x4),
     0x80A434D0:("sCutscenes","s16","[2]",0x4),
     0x80A434D4:("sCurrentCs","s16","",0x2),
     0x80A449E0:("En_Bat_InitVars","UNK_TYPE1","",0x1),

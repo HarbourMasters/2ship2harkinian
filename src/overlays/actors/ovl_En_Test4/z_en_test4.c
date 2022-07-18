@@ -1,7 +1,7 @@
 /*
  * File: z_en_test4.c
  * Overlay: ovl_En_Test4
- * Description: Three-Day Timer
+ * Description: Three-Day Clock
  */
 
 #include "z_en_test4.h"
@@ -28,8 +28,13 @@ const ActorInit En_Test4_InitVars = {
     (ActorFunc)EnTest4_Init,
     (ActorFunc)EnTest4_Destroy,
     (ActorFunc)EnTest4_Update,
-    (ActorFunc)NULL,
+    (ActorFunc)NULL, // Interface_DrawClock
 };
+
+typedef enum {
+    /* 0 */ TIME_DAY,
+    /* 1 */ TIME_NIGHT,
+} NightFlag;
 
 static s32 sIsLoaded = false;
 // "Night of ..."
@@ -40,7 +45,7 @@ static s16 sDayMessages1[] = { 0x1BB2, 0x1BB2, 0x1BB3 };
 static s16 sNightMessages2[] = { 0x1BB4, 0x1BB5, 0x1BB6 };
 // "Dawn of ..." (Note: first two message are the same)
 static s16 sDayMessages2[] = { 0x1BB2, 0x1BB2, 0x1BB3 };
-static u16 D_80A43364[] = { CLOCK_TIME(6, 0), CLOCK_TIME(18, 0) };
+static u16 sDayNightTransitionTimes[] = { CLOCK_TIME(6, 0), CLOCK_TIME(18, 0) };
 
 static s16 sCutscenes[2];
 static s16 sCurrentCs;
@@ -48,7 +53,7 @@ static s16 sCurrentCs;
 void func_80A41D70(EnTest4* this, PlayState* play) {
     if (this->unk_144 != 0) {
         func_80151A68(play, sNightMessages1[CURRENT_DAY - 1]);
-    } else if ((sCutscenes[this->unk_144] < 0) || ((play->actorCtx.unk5 & 2) != 0)) {
+    } else if ((sCutscenes[this->unk_144] < 0) || (play->actorCtx.unk5 & 2)) {
         if (play->actorCtx.unk5 & 2) {
             Sram_IncrementDay();
             gSaveContext.save.time = CLOCK_TIME(6, 0);
@@ -91,7 +96,7 @@ void func_80A41D70(EnTest4* this, PlayState* play) {
 void func_80A41FA4(EnTest4* this, PlayState* play) {
     if (this->unk_144 != 0) {
         func_80151A68(play, sNightMessages2[CURRENT_DAY - 1]);
-    } else if ((sCutscenes[this->unk_144] < 0) || ((play->actorCtx.unk5 & 2) != 0)) {
+    } else if ((sCutscenes[this->unk_144] < 0) || (play->actorCtx.unk5 & 2)) {
         Sram_IncrementDay();
         gSaveContext.save.time = CLOCK_TIME(6, 0);
         Interface_NewDay(play, CURRENT_DAY);
@@ -103,7 +108,7 @@ void func_80A41FA4(EnTest4* this, PlayState* play) {
     }
 
     if (gSaveContext.cutsceneTrigger == 0) {
-        if ((sCutscenes[this->unk_144] >= 0) && ((play->actorCtx.unk5 & 2) == 0)) {
+        if ((sCutscenes[this->unk_144] >= 0) && !(play->actorCtx.unk5 & 2)) {
             this->actionFunc = func_80A42F20;
             sCurrentCs = sCutscenes[this->unk_144];
             this->transitionCsTimer = 0;
@@ -277,7 +282,7 @@ void func_80A425E4(EnTest4* this, PlayState* play) {
             this->nextBellTime = CLOCK_TIME(17, 30);
         }
 
-        if ((sCutscenes[this->unk_144] < 0) || ((play->actorCtx.unk5 & 2) != 0) || (CURRENT_DAY == 3) ||
+        if ((sCutscenes[this->unk_144] < 0) || (play->actorCtx.unk5 & 2) || (CURRENT_DAY == 3) ||
             (gSaveContext.save.time >= CLOCK_TIME(17, 0))) {
             gSaveContext.screenScale = 1000.0f;
         }
@@ -371,7 +376,7 @@ void func_80A42AB8(EnTest4* this, PlayState* play) {
     if ((play->transitionMode == 0) && !Play_InCsMode(play) && (play->numSetupActors <= 0) &&
         (play->roomCtx.unk31 == 0) && !Play_IsDebugCamEnabled()) {
         s16 temp_a2;
-        u16 temp_a0 = D_80A43364[this->unk_144];
+        u16 temp_a0 = sDayNightTransitionTimes[this->unk_144];
         s16 temp_a3;
         s16 bellDiff;
         s16 new_var;
@@ -419,7 +424,7 @@ void func_80A42AB8(EnTest4* this, PlayState* play) {
                 }
             }
 
-            if ((sCutscenes[this->unk_144] >= 0) && ((play->actorCtx.unk5 & 2) == 0)) {
+            if ((sCutscenes[this->unk_144] >= 0) && !(play->actorCtx.unk5 & 2)) {
                 player->stateFlags1 |= 0x200;
                 this->unk_146 = gSaveContext.save.time;
             } else {
@@ -442,7 +447,7 @@ void func_80A42AB8(EnTest4* this, PlayState* play) {
                     s32 playerParams;
                     u32 entranceIndex = gSaveContext.save.entranceIndex;
 
-                    if ((play->actorCtx.unk5 & 2)) {
+                    if (play->actorCtx.unk5 & 2) {
                         playerParams = 0xCFF;
                     } else {
                         playerParams = 0xBFF;
