@@ -13,10 +13,11 @@ void SaveContext_Init(void) {
     gSaveContext.cutsceneTrigger = 0;
     gSaveContext.unk_3F4D = 0;
     gSaveContext.nextDayTime = 0xFFFF;
-    gSaveContext.environmentTime = 0;
+    gSaveContext.skyboxTime = 0;
     gSaveContext.dogIsLost = true;
-    gSaveContext.nextTransition = 0xFF;
+    gSaveContext.nextTransitionType = TRANS_NEXT_TYPE_DEFAULT;
     gSaveContext.prevHudMode = HUD_MODE_ALL;
+
     gSaveContext.options.language = 1;
     gSaveContext.options.audioSetting = 0;
     gSaveContext.options.zTargetSetting = 0;

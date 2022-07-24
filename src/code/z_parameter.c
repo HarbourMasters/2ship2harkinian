@@ -2,7 +2,7 @@
 #include "interface/parameter_static/parameter_static.h"
 #include "interface/do_action_static/do_action_static.h"
 #include "misc/story_static/story_static.h"
-#include "overlays/gamestates/ovl_file_choose/z_file_choose.h"
+#include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 
 u8 func_800FE4A8();
 s32 func_801234D4(PlayState* play);
@@ -1669,7 +1669,7 @@ void func_80110038(PlayState* play) {
                     gSaveContext.curHudMode = HUD_MODE_IDLE;
                 }
 
-                if ((play->transitionTrigger == 0) && (play->transitionMode == 0)) {
+                if ((play->transitionTrigger == TRANS_TRIGGER_OFF) && (play->transitionMode == TRANS_MODE_OFF)) {
                     if (ActorCutscene_GetCurrentIndex() == -1) {
                         Interface_ChangeHudMode(HUD_MODE_ALL);
                     }
@@ -1833,7 +1833,7 @@ void func_80110038(PlayState* play) {
                             } else {
                                 if (interfaceCtx->restrictions.tradeItems != 0) {
                                     if (((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_MOON_TEAR) &&
-                                         (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_PENDANT_MEMORIES)) ||
+                                         (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_PENDANT_OF_MEMORIES)) ||
                                         ((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_BOTTLE) &&
                                          (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_OBABA_DRINK)) ||
                                         (GET_CUR_FORM_BTN_ITEM(i) == ITEM_OCARINA)) {
@@ -1844,7 +1844,7 @@ void func_80110038(PlayState* play) {
                                     }
                                 } else if (interfaceCtx->restrictions.tradeItems == 0) {
                                     if (((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_MOON_TEAR) &&
-                                         (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_PENDANT_MEMORIES)) ||
+                                         (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_PENDANT_OF_MEMORIES)) ||
                                         ((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_BOTTLE) &&
                                          (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_OBABA_DRINK)) ||
                                         (GET_CUR_FORM_BTN_ITEM(i) == ITEM_OCARINA)) {
@@ -1891,7 +1891,7 @@ void func_80110038(PlayState* play) {
 
                                 if (interfaceCtx->restrictions.all != 0) {
                                     if (!((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_MOON_TEAR) &&
-                                          (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_PENDANT_MEMORIES)) &&
+                                          (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_PENDANT_OF_MEMORIES)) &&
                                         !((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_BOTTLE) &&
                                           (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_OBABA_DRINK)) &&
                                         (GET_CUR_FORM_BTN_ITEM(i) != ITEM_OCARINA) &&
@@ -1906,7 +1906,7 @@ void func_80110038(PlayState* play) {
                                     }
                                 } else if (interfaceCtx->restrictions.all == 0) {
                                     if (!((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_MOON_TEAR) &&
-                                          (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_PENDANT_MEMORIES)) &&
+                                          (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_PENDANT_OF_MEMORIES)) &&
                                         !((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_BOTTLE) &&
                                           (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_OBABA_DRINK)) &&
                                         (GET_CUR_FORM_BTN_ITEM(i) != ITEM_OCARINA) &&
@@ -1928,7 +1928,8 @@ void func_80110038(PlayState* play) {
         }
     }
 
-    if (phi_t3 && (play->activeCamId == CAM_ID_MAIN) && (play->transitionTrigger == 0) && (play->transitionMode == 0)) {
+    if (phi_t3 && (play->activeCamId == CAM_ID_MAIN) && (play->transitionTrigger == TRANS_TRIGGER_OFF) &&
+        (play->transitionMode == TRANS_MODE_OFF)) {
         gSaveContext.curHudMode = HUD_MODE_IDLE;
         Interface_ChangeHudMode(HUD_MODE_ALL);
     }
@@ -2008,10 +2009,11 @@ void func_80111CB4(PlayState* play) {
                         }
                     }
 
-                    if (play->transitionMode != 0) {
+                    if (play->transitionMode != TRANS_MODE_OFF) {
                         Interface_ChangeHudMode(HUD_MODE_OFF);
                     } else if ((gSaveContext.minigameState == 1) && (gSaveContext.save.entranceIndex == 0x6400) &&
-                               (Cutscene_GetSceneSetupIndex(play) != 0) && (play->transitionTrigger == 0)) {
+                               (Cutscene_GetSceneSetupIndex(play) != 0) &&
+                               (play->transitionTrigger == TRANS_TRIGGER_OFF)) {
                         Interface_ChangeHudMode(HUD_MODE_A_B_MINIMAP);
                     } else if ((gSaveContext.minigameState == 1) && (gSaveContext.eventInf[3] & 0x20)) {
                         Interface_ChangeHudMode(HUD_MODE_B_MINIMAP);
@@ -2066,10 +2068,10 @@ void func_80111CB4(PlayState* play) {
                 gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
                 Interface_ChangeHudMode(HUD_MODE_A_HEARTS_MAGIC_MINIMAP_WITH_DIM_BTN);
 
-                if (play->transitionMode != 0) {
+                if (play->transitionMode != TRANS_MODE_OFF) {
                     Interface_ChangeHudMode(HUD_MODE_OFF);
                 } else if ((gSaveContext.minigameState == 1) && (gSaveContext.save.entranceIndex == 0x6400) &&
-                           (Cutscene_GetSceneSetupIndex(play) != 0) && (play->transitionTrigger == 0)) {
+                           (Cutscene_GetSceneSetupIndex(play) != 0) && (play->transitionTrigger == TRANS_TRIGGER_OFF)) {
                     Interface_ChangeHudMode(HUD_MODE_A_B_MINIMAP);
                 } else if (gSaveContext.minigameState == 1) {
                     Interface_ChangeHudMode(HUD_MODE_B_FAST);
@@ -2136,13 +2138,13 @@ void func_80111CB4(PlayState* play) {
                 }
             }
         } else if ((gSaveContext.minigameState == 1) && (gSaveContext.save.entranceIndex == 0x8E10) &&
-                   (play->transitionTrigger == 0) && (play->transitionMode == 0)) {
+                   (play->transitionTrigger == TRANS_TRIGGER_OFF) && (play->transitionMode == TRANS_MODE_OFF)) {
             gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
             Interface_ChangeHudMode(HUD_MODE_A_B_MINIMAP);
-        } else if ((gSaveContext.save.entranceIndex == 0xD010) && (play->transitionTrigger == 0) &&
-                   (play->transitionMode == 0)) {
+        } else if ((gSaveContext.save.entranceIndex == 0xD010) && (play->transitionTrigger == TRANS_TRIGGER_OFF) &&
+                   (play->transitionMode == TRANS_MODE_OFF)) {
             gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
@@ -2164,7 +2166,7 @@ void func_80111CB4(PlayState* play) {
     }
     if (sp28) {
         gSaveContext.curHudMode = HUD_MODE_IDLE;
-        if ((play->transitionTrigger == 0) && (play->transitionMode == 0)) {
+        if ((play->transitionTrigger == TRANS_TRIGGER_OFF) && (play->transitionMode == TRANS_MODE_OFF)) {
             Interface_ChangeHudMode(HUD_MODE_ALL);
         }
     }
@@ -2548,7 +2550,7 @@ u8 Item_Give(PlayState* play, u8 item) {
         SET_QUEST_ITEM(item - ITEM_REMAINS_ODOLWA + QUEST_REMAINS_ODOWLA);
         return ITEM_NONE;
 
-    } else if (item == ITEM_HEART) {
+    } else if (item == ITEM_RECOVERY_HEART) {
         Health_ChangeBy(play, 0x10);
         return item;
 
@@ -2608,7 +2610,7 @@ u8 Item_Give(PlayState* play, u8 item) {
 
     } else if (((item >= ITEM_POTION_RED) && (item <= ITEM_OBABA_DRINK)) || (item == ITEM_CHATEAU_2) ||
                (item == ITEM_MILK) || (item == ITEM_GOLD_DUST_2) || (item == ITEM_HYLIAN_LOACH_2) ||
-               (item == ITEM_SEA_HORSE_CAUGHT)) {
+               (item == ITEM_SEAHORSE_CAUGHT)) {
         slot = SLOT(item);
 
         if ((item != ITEM_MILK_BOTTLE) && (item != ITEM_MILK_HALF)) {
@@ -2624,8 +2626,8 @@ u8 Item_Give(PlayState* play, u8 item) {
             } else if (item == ITEM_HYLIAN_LOACH_2) {
                 item = ITEM_HYLIAN_LOACH;
 
-            } else if (item == ITEM_SEA_HORSE_CAUGHT) {
-                item = ITEM_SEA_HORSE;
+            } else if (item == ITEM_SEAHORSE_CAUGHT) {
+                item = ITEM_SEAHORSE;
             }
             slot = SLOT(item);
 
@@ -2665,7 +2667,7 @@ u8 Item_Give(PlayState* play, u8 item) {
     } else if ((item >= ITEM_MOON_TEAR) && (item <= ITEM_MASK_GIANT)) {
         temp = INV_CONTENT(item);
         INV_CONTENT(item) = item;
-        if ((item >= ITEM_MOON_TEAR) && (item <= ITEM_PENDANT_MEMORIES) && (temp != ITEM_NONE)) {
+        if ((item >= ITEM_MOON_TEAR) && (item <= ITEM_PENDANT_OF_MEMORIES) && (temp != ITEM_NONE)) {
             for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
                 if (temp == GET_CUR_FORM_BTN_ITEM(i)) {
                     SET_CUR_FORM_BTN_ITEM(i, item);
@@ -2769,8 +2771,8 @@ u8 Item_CheckObtainabilityImpl(u8 item) {
     } else if (item == ITEM_HEART_CONTAINER) {
         return ITEM_NONE;
 
-    } else if (item == ITEM_HEART) {
-        return ITEM_HEART;
+    } else if (item == ITEM_RECOVERY_HEART) {
+        return ITEM_RECOVERY_HEART;
 
     } else if ((item == ITEM_MAGIC_SMALL) || (item == ITEM_MAGIC_LARGE)) {
         if (!(gSaveContext.save.weekEventReg[12] & 0x80)) {
@@ -2796,7 +2798,7 @@ u8 Item_CheckObtainabilityImpl(u8 item) {
 
     } else if (((item >= ITEM_POTION_RED) && (item <= ITEM_OBABA_DRINK)) || (item == ITEM_CHATEAU_2) ||
                (item == ITEM_MILK) || (item == ITEM_GOLD_DUST_2) || (item == ITEM_HYLIAN_LOACH_2) ||
-               (item == ITEM_SEA_HORSE_CAUGHT)) {
+               (item == ITEM_SEAHORSE_CAUGHT)) {
         bottleSlot = SLOT(item);
 
         if ((item != ITEM_MILK_BOTTLE) && (item != ITEM_MILK_HALF)) {
@@ -2812,8 +2814,8 @@ u8 Item_CheckObtainabilityImpl(u8 item) {
             } else if (item == ITEM_HYLIAN_LOACH_2) {
                 item = ITEM_HYLIAN_LOACH;
 
-            } else if (item == ITEM_SEA_HORSE_CAUGHT) {
-                item = ITEM_SEA_HORSE;
+            } else if (item == ITEM_SEAHORSE_CAUGHT) {
+                item = ITEM_SEAHORSE;
             }
             bottleSlot = SLOT(item);
 
@@ -2942,7 +2944,7 @@ void Inventory_UpdateBottleItem(PlayState* play, u8 item, u8 btn) {
 
     Interface_LoadItemIconImpl(play, btn);
 
-    play->pauseCtx.cursorItem[PAUSE_0] = item;
+    play->pauseCtx.cursorItem[PAUSE_ITEM] = item;
     gSaveContext.buttonStatus[btn] = BTN_ENABLED;
 
     if (item == ITEM_HOT_SPRING_WATER) {
@@ -3497,8 +3499,9 @@ void Magic_Update(PlayState* play) {
 
         case MAGIC_STATE_CONSUME_LENS:
             // Slowly consume magic while lens is on
-            if ((play->pauseCtx.state == 0) && (play->pauseCtx.debugState == 0) && (msgCtx->msgMode == 0) &&
-                (play->gameOverCtx.state == 0) && (play->transitionTrigger == 0) && (play->transitionMode == 0) &&
+            if ((play->pauseCtx.state == 0) && (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE) &&
+                (msgCtx->msgMode == 0) && (play->gameOverCtx.state == GAMEOVER_INACTIVE) &&
+                (play->transitionTrigger == TRANS_TRIGGER_OFF) && (play->transitionMode == TRANS_MODE_OFF) &&
                 !Play_InCsMode(play)) {
 
                 if ((gSaveContext.save.playerData.magic == 0) ||
@@ -3538,8 +3541,9 @@ void Magic_Update(PlayState* play) {
             gSaveContext.magicState = MAGIC_STATE_CONSUME_GORON_ZORA;
             // fallthrough
         case MAGIC_STATE_CONSUME_GORON_ZORA:
-            if ((play->pauseCtx.state == 0) && (play->pauseCtx.debugState == 0) && (msgCtx->msgMode == 0) &&
-                (play->gameOverCtx.state == 0) && (play->transitionTrigger == 0) && (play->transitionMode == 0)) {
+            if ((play->pauseCtx.state == 0) && (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE) &&
+                (msgCtx->msgMode == 0) && (play->gameOverCtx.state == GAMEOVER_INACTIVE) &&
+                (play->transitionTrigger == TRANS_TRIGGER_OFF) && (play->transitionMode == TRANS_MODE_OFF)) {
                 if (!Play_InCsMode(play)) {
                     interfaceCtx->magicConsumptionTimer--;
                     if (interfaceCtx->magicConsumptionTimer == 0) {
@@ -3559,8 +3563,9 @@ void Magic_Update(PlayState* play) {
             break;
 
         case MAGIC_STATE_CONSUME_GIANTS_MASK:
-            if ((play->pauseCtx.state == 0) && (play->pauseCtx.debugState == 0) && (msgCtx->msgMode == 0) &&
-                (play->gameOverCtx.state == 0) && (play->transitionTrigger == 0) && (play->transitionMode == 0)) {
+            if ((play->pauseCtx.state == 0) && (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE) &&
+                (msgCtx->msgMode == 0) && (play->gameOverCtx.state == GAMEOVER_INACTIVE) &&
+                (play->transitionTrigger == TRANS_TRIGGER_OFF) && (play->transitionMode == TRANS_MODE_OFF)) {
                 if (!Play_InCsMode(play)) {
                     interfaceCtx->magicConsumptionTimer--;
                     if (interfaceCtx->magicConsumptionTimer == 0) {
@@ -3728,7 +3733,7 @@ void Interface_DrawItemButtons(PlayState* play) {
                                  D_801BF9E8[1] * 2, D_801BF9E8[1] * 2, 0xFF, 0xF0, 0, interfaceCtx->cRightAlpha);
 
     if ((pauseCtx->state < 8) || (pauseCtx->state >= 19)) {
-        if ((play->pauseCtx.state != 0) || (play->pauseCtx.debugState != 0)) {
+        if ((play->pauseCtx.state != 0) || (play->pauseCtx.debugEditor != DEBUG_EDITOR_NONE)) {
             OVERLAY_DISP = func_8010D2D4(OVERLAY_DISP, 0x88, 0x11, 0x16, 0x16, 0x5B6, 0x5B6, 0xFF, 0x82, 0x3C,
                                          interfaceCtx->startAlpha);
             // Start Button Texture, Color & Label
@@ -3744,7 +3749,7 @@ void Interface_DrawItemButtons(PlayState* play) {
         }
     }
 
-    if (interfaceCtx->naviCalling && (play->pauseCtx.state == 0) && (play->pauseCtx.debugState == 0) &&
+    if (interfaceCtx->naviCalling && (play->pauseCtx.state == 0) && (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE) &&
         (play->csCtx.state == 0) && (D_801BF884 == 0)) {
         if (sCUpInvisible == 0) {
             // C-Up Button Texture, Color & Label (Tatl Text)
@@ -4256,7 +4261,7 @@ void Interface_DrawClock(PlayState* play) {
                             D_801BFB30 = 0;
                         }
 
-                        if ((play->pauseCtx.state == 0) && (play->pauseCtx.debugState == 0)) {
+                        if ((play->pauseCtx.state == 0) && (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE)) {
 
                             func_8012C654(play->state.gfxCtx);
 
@@ -5173,8 +5178,8 @@ void func_8011C808(PlayState* play) {
     gSaveContext.save.time = 0x400A;
     play->nextEntranceIndex = 0x54C0;
     gSaveContext.nextCutsceneIndex = 0;
-    play->transitionTrigger = 0x14;
-    play->unk_1887F = 3;
+    play->transitionTrigger = TRANS_TRIGGER_START;
+    play->transitionType = TRANS_TYPE_03;
 }
 
 void func_8011C898(u64 timer, s16* timerArr) {
@@ -5228,11 +5233,12 @@ void Interface_DrawTimers(PlayState* play) {
 
     OPEN_DISPS(play->state.gfxCtx);
 
-    if ((play->pauseCtx.state == 0) && (play->pauseCtx.debugState == 0) && (play->gameOverCtx.state == 0) &&
+    if ((play->pauseCtx.state == 0) && (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE) &&
+        (play->gameOverCtx.state == GAMEOVER_INACTIVE) &&
         ((msgCtx->msgMode == 0) ||
          ((msgCtx->msgMode != 0) && (msgCtx->currentTextId >= 0x1BB2) && (msgCtx->currentTextId <= 0x1BB6))) &&
-        !(player->stateFlags1 & 0x200) && (play->transitionTrigger == 0) && (play->transitionMode == 0) &&
-        !Play_InCsMode(play)) {
+        !(player->stateFlags1 & 0x200) && (play->transitionTrigger == TRANS_TRIGGER_OFF) &&
+        (play->transitionMode == TRANS_MODE_OFF) && !Play_InCsMode(play)) {
 
         if (D_801BF968) {
             spD0 = osGetTime();
@@ -5411,7 +5417,7 @@ void Interface_DrawTimers(PlayState* play) {
                                 if ((play->sceneNum == SCENE_OKUJOU) && (gSaveContext.sceneSetupIndex == 3)) {
                                     play->nextEntranceIndex = 0x5410;
                                     gSaveContext.nextCutsceneIndex = 0xFFF0;
-                                    play->transitionTrigger = 0x14;
+                                    play->transitionTrigger = TRANS_TRIGGER_START;
                                 } else {
                                     func_8011C808(play);
                                 }
@@ -5659,10 +5665,12 @@ void Interface_UpdateTimers(PlayState* play) {
     u64 var3;
     s32 pad[2];
 
-    if ((play->pauseCtx.state == 0) && (play->pauseCtx.debugState == 0) && (play->gameOverCtx.state == 0) &&
+    if ((play->pauseCtx.state == 0) && (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE) &&
+        (play->gameOverCtx.state == GAMEOVER_INACTIVE) &&
         ((msgCtx->msgMode == 0) || ((msgCtx->currentTextId >= 0x100) && (msgCtx->currentTextId <= 0x200)) ||
          ((msgCtx->currentTextId >= 0x1BB2) && (msgCtx->currentTextId <= 0x1BB6))) &&
-        (play->transitionTrigger == 0) && (play->transitionMode == 0) && !Play_InCsMode(play)) {
+        (play->transitionTrigger == TRANS_TRIGGER_OFF) && (play->transitionMode == TRANS_MODE_OFF) &&
+        !Play_InCsMode(play)) {
 
         if (D_801BF96C) {
             var3 = osGetTime();
@@ -5724,7 +5732,7 @@ void Interface_DrawMinigameIcons(PlayState* play) {
 
     func_8012C654(play->state.gfxCtx);
 
-    if ((play->pauseCtx.state == 0) && (play->pauseCtx.debugState == 0)) {
+    if ((play->pauseCtx.state == 0) && (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE)) {
         // Carrots rendering if the action corresponds to riding a horse
         if (interfaceCtx->unk_212 == 8) {
             // Load Carrot Icon
@@ -5891,7 +5899,7 @@ void Interface_Draw(PlayState* play) {
     gSPSegment(OVERLAY_DISP++, 0x08, interfaceCtx->iconItemSegment);
     gSPSegment(OVERLAY_DISP++, 0x0B, interfaceCtx->mapSegment);
 
-    if (pauseCtx->debugState == 0) {
+    if (pauseCtx->debugEditor == DEBUG_EDITOR_NONE) {
         Interface_InitVertices(play);
         func_801170B8(interfaceCtx);
 
@@ -6111,7 +6119,7 @@ void Interface_Draw(PlayState* play) {
         func_80118BA4(play);
         func_80119030(play);
 
-        if ((play->pauseCtx.state == 0) && (play->pauseCtx.debugState == 0)) {
+        if ((play->pauseCtx.state == 0) && (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE)) {
             if ((interfaceCtx->unk_280 != 0) && (interfaceCtx->unk_280 < 20)) {
                 // Minigame Countdown
                 if (((u32)interfaceCtx->unk_280 % 2) == 0) {
@@ -6293,8 +6301,8 @@ void Interface_Update(PlayState* play) {
     s16 risingAlpha;
     u16 action;
 
-    if ((play->pauseCtx.state == 0) && (play->pauseCtx.debugState == 0)) {
-        if (play->gameOverCtx.state == 0) {
+    if ((play->pauseCtx.state == 0) && (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE)) {
+        if (play->gameOverCtx.state == GAMEOVER_INACTIVE) {
             func_80111CB4(play);
         }
     }
@@ -6467,7 +6475,7 @@ void Interface_Update(PlayState* play) {
         }
     }
 
-    if ((play->pauseCtx.state == 0) && (play->pauseCtx.debugState == 0)) {
+    if ((play->pauseCtx.state == 0) && (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE)) {
         if (interfaceCtx->isMinigamePerfect) {
             if (interfaceCtx->minigameRewardType == 1) {
                 func_8011B5C0(play);
@@ -6480,7 +6488,7 @@ void Interface_Update(PlayState* play) {
     }
 
     // Update Minigame State
-    if ((play->pauseCtx.state == 0) && (play->pauseCtx.debugState == 0)) {
+    if ((play->pauseCtx.state == 0) && (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE)) {
         if (interfaceCtx->unk_280) {
             switch (interfaceCtx->unk_280) {
                 case 1: // minigame countdown 3
@@ -6615,7 +6623,7 @@ void Interface_Update(PlayState* play) {
     if (gSaveContext.timerState[TIMER_ID_5] == TIMER_STATE_OFF) {
         if ((D_801BF8DC == 1) || (D_801BF8DC == 4)) {
             if (CUR_FORM != PLAYER_FORM_ZORA) {
-                if (play->gameOverCtx.state == 0) {
+                if (play->gameOverCtx.state == GAMEOVER_INACTIVE) {
                     if ((gSaveContext.save.playerData.health >> 1) != 0) {
                         gSaveContext.timerState[TIMER_ID_5] = TIMER_STATE_8;
                         gSaveContext.timerX[TIMER_ID_5] = 115;
