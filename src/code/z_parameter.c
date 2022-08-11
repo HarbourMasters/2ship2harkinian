@@ -2130,7 +2130,7 @@ void func_80111CB4(PlayState* play) {
                     if (D_801BF888) {
                         func_801663C4((play->unk_18E5C != NULL) ? play->unk_18E5C : D_801FBB90,
                                       (u8*)((void)0, gSaveContext.pictoPhoto), 0x4600);
-                        func_8013A240(play);
+                        Snap_RecordPictographedActors(play);
                     }
                     play->actorCtx.unk5 &= ~4;
                     SET_QUEST_ITEM(QUEST_PICTOGRAPH);
@@ -3075,7 +3075,7 @@ void Interface_SetNaviCall(PlayState* play, u16 naviCallState) {
             play_sound(NA_SE_VO_NAVY_CALL);
         }
         if (naviCallState == 0x2A) {
-            func_8019FDC8(&D_801DB4A4, NA_SE_VO_NA_HELLO_2, 0x20);
+            func_8019FDC8(&gSfxDefaultPos, NA_SE_VO_NA_HELLO_2, 0x20);
         }
         interfaceCtx->naviCalling = true;
         sCUpInvisible = 0;
