@@ -27,10 +27,10 @@ void MapSelect_LoadGame(MapSelectState* this, u32 entranceIndex, s32 opt) {
     gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_ENABLED;
     gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_ENABLED;
     gSaveContext.buttonStatus[EQUIP_SLOT_A] = BTN_ENABLED;
-    gSaveContext.hudModeDimOnlyDisabledButtons = false;
-    gSaveContext.requestHudMode = HUD_MODE_IDLE;
-    gSaveContext.curHudMode = HUD_MODE_IDLE;
-    gSaveContext.hudModeCounter = 0;
+    gSaveContext.hudVisibilityForceButtonAlphasByStatus = false;
+    gSaveContext.nextHudVisibility = HUD_VISIBILITY_IDLE;
+    gSaveContext.hudVisibility = HUD_VISIBILITY_IDLE;
+    gSaveContext.hudVisibilityTimer = 0;
 
     Audio_QueueSeqCmd(NA_BGM_STOP);
     gSaveContext.save.entranceIndex = entranceIndex;

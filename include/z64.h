@@ -531,32 +531,19 @@ typedef enum {
 } DoAction;
 
 typedef enum {
-    /*  0 */ HUD_MODE_IDLE,
-    /*  1 */ HUD_MODE_OFF,
-    /*  2 */ HUD_MODE_OFF_ALT, // Identical to HUD_MODE_OFF
-    /*  3 */ HUD_MODE_HEARTS_WITH_DIM_BTN, // Uses Interface_DimButtonAlphas so gives the opportunity to dim only disabled buttons
-    /*  4 */ HUD_MODE_A,
-    /*  5 */ HUD_MODE_A_HEARTS_MAGIC_WITH_DIM_BTN, // Uses Interface_DimButtonAlphas so gives the opportunity to dim only disabled buttons
-    /*  6 */ HUD_MODE_A_HEARTS_MAGIC_MINIMAP_WITH_DIM_BTN, // Uses Interface_DimButtonAlphas so gives the opportunity to dim only disabled buttons
-    /*  7 */ HUD_MODE_ALL_NO_MINIMAP_W_DISABLED, // Only raises button alphas if not disabled
-    /*  8 */ HUD_MODE_B_FAST, // reaches target twice as fast
-    /*  9 */ HUD_MODE_HEARTS_MAGIC,
-    /* 10 */ HUD_MODE_B,
-    /* 11 */ HUD_MODE_HEARTS,
-    /* 12 */ HUD_MODE_A_B_MINIMAP,
-    /* 13 */ HUD_MODE_HEARTS_MAGIC_WITH_DIM_BTN, // Uses Interface_DimButtonAlphas so gives the opportunity to dim only disabled buttons
-    /* 14 */ HUD_MODE_HEARTS_MAGIC_C,
-    /* 15 */ HUD_MODE_ALL_NO_MINIMAP,
-    /* 16 */ HUD_MODE_A_B_C,
-    /* 17 */ HUD_MODE_B_MINIMAP,
-    /* 18 */ HUD_MODE_HEARTS_MAGIC_MINIMAP,
-    /* 19 */ HUD_MODE_A_HEARTS_MAGIC_MINIMAP,
-    /* 20 */ HUD_MODE_B_MAGIC,
-    /* 21 */ HUD_MODE_A_B,
-    /* 22 */ HUD_MODE_A_B_HEARTS_MAGIC_MINIMAP,
-    /* 50 */ HUD_MODE_ALL = 50,
-    /* 52 */ HUD_MODE_OFF_NOW = 52
-} HudMode;
+    /*  0 */ MINIGAME_STATE_NONE,
+    /*  1 */ MINIGAME_STATE_COUNTDOWN_START_3,
+    /*  2 */ MINIGAME_STATE_COUNTDOWN_3,
+    /*  3 */ MINIGAME_STATE_COUNTDOWN_START_2,
+    /*  4 */ MINIGAME_STATE_COUNTDOWN_2,
+    /*  5 */ MINIGAME_STATE_COUNTDOWN_START_1,
+    /*  6 */ MINIGAME_STATE_COUNTDOWN_1,
+    /*  7 */ MINIGAME_STATE_COUNTDOWN_START_GO,
+    /*  8 */ MINIGAME_STATE_COUNTDOWN_GO,
+    /* 20 */ MINIGAME_STATE_20 = 20,
+    /* 21 */ MINIGAME_STATE_21,
+    /* 30 */ MINIGAME_STATE_30 = 30
+} MinigameState;
 
 typedef struct {
     /* 0x000 */ View view;
@@ -618,7 +605,7 @@ typedef struct {
     /* 0x27C */ s16 mapRoomNum;
     /* 0x27E */ u8 unk_27E;
     /* 0x27F */ u8 unk_27F;
-    /* 0x280 */ u8 unk_280;
+    /* 0x280 */ u8 minigameState;
     /* 0x282 */ s16 unk_282;
     /* 0x284 */ s16 unk_284;
     /* 0x286 */ s16 isMinigamePerfect;
