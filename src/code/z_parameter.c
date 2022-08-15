@@ -2012,7 +2012,8 @@ void func_80111CB4(PlayState* play) {
 
                     if (play->transitionMode != TRANS_MODE_OFF) {
                         Interface_SetHudVisibility(HUD_VISIBILITY_OFF);
-                    } else if ((gSaveContext.minigameState == 1) && (gSaveContext.save.entranceIndex == 0x6400) &&
+                    } else if ((gSaveContext.minigameState == 1) &&
+                               (gSaveContext.save.entrance == ENTRANCE(ROMANI_RANCH, 0)) &&
                                (Cutscene_GetSceneSetupIndex(play) != 0) &&
                                (play->transitionTrigger == TRANS_TRIGGER_OFF)) {
                         Interface_SetHudVisibility(HUD_VISIBILITY_A_B_MINIMAP);
@@ -2071,7 +2072,8 @@ void func_80111CB4(PlayState* play) {
 
                 if (play->transitionMode != TRANS_MODE_OFF) {
                     Interface_SetHudVisibility(HUD_VISIBILITY_OFF);
-                } else if ((gSaveContext.minigameState == 1) && (gSaveContext.save.entranceIndex == 0x6400) &&
+                } else if ((gSaveContext.minigameState == 1) &&
+                           (gSaveContext.save.entrance == ENTRANCE(ROMANI_RANCH, 0)) &&
                            (Cutscene_GetSceneSetupIndex(play) != 0) && (play->transitionTrigger == TRANS_TRIGGER_OFF)) {
                     Interface_SetHudVisibility(HUD_VISIBILITY_A_B_MINIMAP);
                 } else if (gSaveContext.minigameState == 1) {
@@ -2138,14 +2140,14 @@ void func_80111CB4(PlayState* play) {
                     D_801BF888 = false;
                 }
             }
-        } else if ((gSaveContext.minigameState == 1) && (gSaveContext.save.entranceIndex == 0x8E10) &&
+        } else if ((gSaveContext.minigameState == 1) && (gSaveContext.save.entrance == ENTRANCE(WATERFALL_RAPIDS, 1)) &&
                    (play->transitionTrigger == TRANS_TRIGGER_OFF) && (play->transitionMode == TRANS_MODE_OFF)) {
             gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
             Interface_SetHudVisibility(HUD_VISIBILITY_A_B_MINIMAP);
-        } else if ((gSaveContext.save.entranceIndex == 0xD010) && (play->transitionTrigger == TRANS_TRIGGER_OFF) &&
-                   (play->transitionMode == TRANS_MODE_OFF)) {
+        } else if ((gSaveContext.save.entrance == ENTRANCE(GORON_RACETRACK, 1)) &&
+                   (play->transitionTrigger == TRANS_TRIGGER_OFF) && (play->transitionMode == TRANS_MODE_OFF)) {
             gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
@@ -2231,12 +2233,12 @@ void func_80112C0C(PlayState* play, u16 flag) {
         if ((BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOW) ||
             (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOMB) ||
             (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOMBCHU) ||
-            (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_FISHING_POLE) ||
+            (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_FISHING_ROD) ||
             (gSaveContext.buttonStatus[EQUIP_SLOT_B] == BTN_DISABLED)) {
             if ((BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOW) ||
                 (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOMB) ||
                 (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOMBCHU) ||
-                (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_FISHING_POLE)) {
+                (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_FISHING_ROD)) {
                 BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = gSaveContext.buttonStatus[EQUIP_SLOT_B];
                 Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
             }
@@ -3924,7 +3926,8 @@ void func_80118084(PlayState* play) {
 
                     if ((play->sceneNum != SCENE_SYATEKI_MIZU) && (play->sceneNum != SCENE_SYATEKI_MORI) &&
                         (play->sceneNum != SCENE_BOWLING) &&
-                        ((gSaveContext.minigameState != 1) || (gSaveContext.save.entranceIndex != 0x6400)) &&
+                        ((gSaveContext.minigameState != 1) ||
+                         (gSaveContext.save.entrance != ENTRANCE(ROMANI_RANCH, 0))) &&
                         ((gSaveContext.minigameState != 1) || !(gSaveContext.eventInf[3] & 0x20)) &&
                         (!(gSaveContext.save.weekEventReg[31] & 0x80) || (play->unk_1887C != 0x64))) {
                         Interface_DrawAmmoCount(play, 0, interfaceCtx->bAlpha);
@@ -5178,7 +5181,7 @@ void func_8011C808(PlayState* play) {
     gSaveContext.save.day = 4;
     gSaveContext.save.daysElapsed = 4;
     gSaveContext.save.time = 0x400A;
-    play->nextEntranceIndex = 0x54C0;
+    play->nextEntrance = ENTRANCE(TERMINA_FIELD, 12);
     gSaveContext.nextCutsceneIndex = 0;
     play->transitionTrigger = TRANS_TRIGGER_START;
     play->transitionType = TRANS_TYPE_03;
@@ -5414,7 +5417,7 @@ void Interface_DrawTimers(PlayState* play) {
                     if (sTimerId == TIMER_ID_3) {
                         gSaveContext.save.day = 4;
                         if ((play->sceneNum == SCENE_OKUJOU) && (gSaveContext.sceneSetupIndex == 3)) {
-                            play->nextEntranceIndex = 0x5410;
+                            play->nextEntrance = ENTRANCE(TERMINA_FIELD, 1);
                             gSaveContext.nextCutsceneIndex = 0xFFF0;
                             play->transitionTrigger = TRANS_TRIGGER_START;
                         } else {
@@ -5436,7 +5439,8 @@ void Interface_DrawTimers(PlayState* play) {
                                                               ((void)0, gSaveContext.funcTimer3Value[sTimerId])) *
                                                              64 / 3000 / 10000;
 
-                    if ((gSaveContext.minigameState == 1) && (gSaveContext.save.entranceIndex == 0x6400)) {
+                    if ((gSaveContext.minigameState == 1) &&
+                        (gSaveContext.save.entrance == ENTRANCE(ROMANI_RANCH, 0))) {
                         if (gSaveContext.funcTimer2Value[sTimerId] >= 12000) {
                             gSaveContext.funcTimer2Value[sTimerId] = 12000;
                             gSaveContext.eventTimer1Value[sTimerId] = 12000;
@@ -5532,7 +5536,7 @@ void Interface_DrawTimers(PlayState* play) {
                     spD0 = 0;
                 }
 
-                if ((gSaveContext.minigameState == 1) && (gSaveContext.save.entranceIndex == 0x6400)) {
+                if ((gSaveContext.minigameState == 1) && (gSaveContext.save.entrance == ENTRANCE(ROMANI_RANCH, 0))) {
                     if (spD0 >= 12000) {
                         spD0 = 12000;
                     }
@@ -5544,7 +5548,7 @@ void Interface_DrawTimers(PlayState* play) {
 
                 func_8011C898(spD0, D_801BFCE8);
 
-                if ((gSaveContext.minigameState == 1) && (gSaveContext.save.entranceIndex == 0x6400)) {
+                if ((gSaveContext.minigameState == 1) && (gSaveContext.save.entrance == ENTRANCE(ROMANI_RANCH, 0))) {
                     if ((gSaveContext.eventTimer1Value[sTimerId] > 11000) && (D_801BFCF8 != D_801BFCE8[4])) {
                         play_sound(NA_SE_SY_WARNING_COUNT_E);
                         D_801BFCF8 = D_801BFCE8[4];
@@ -5580,7 +5584,8 @@ void Interface_DrawTimers(PlayState* play) {
                         } else {
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 255);
                         }
-                    } else if ((gSaveContext.minigameState == 1) && (gSaveContext.save.entranceIndex == 0x6400)) {
+                    } else if ((gSaveContext.minigameState == 1) &&
+                               (gSaveContext.save.entrance == ENTRANCE(ROMANI_RANCH, 0))) {
                         if (gSaveContext.eventTimer1Value[sTimerId] >= 11000) {
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 50, 0, 255);
                         } else {
@@ -5752,7 +5757,7 @@ void Interface_DrawMinigameIcons(PlayState* play) {
                 sp3C = 0x43;
             }
 
-            if (gSaveContext.save.entranceIndex == 0x8E10) {
+            if (gSaveContext.save.entrance == ENTRANCE(WATERFALL_RAPIDS, 1)) {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->bAlpha);
                 gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 255);
                 gDPLoadTextureBlock(OVERLAY_DISP++, gBeaverRingIconTex, G_IM_FMT_RGBA, G_IM_SIZ_32b, 24, 16, 0,
