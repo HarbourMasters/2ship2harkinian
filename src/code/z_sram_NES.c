@@ -219,13 +219,13 @@ void Sram_ActivateOwl(u8 owlId) {
 void Sram_ClearHighscores(void) {
     gSaveContext.save.unk_EE8 = (gSaveContext.save.unk_EE8 & 0xFFFF) | 0x130000;
     gSaveContext.save.unk_EE8 = (gSaveContext.save.unk_EE8 & 0xFFFF0000) | 0xA;
-    gSaveContext.save.horseBackBalloonHighScore = 6000; // 60 seconds
+    gSaveContext.save.horseBackBalloonHighScore = SECONDS_TO_TIMER(60);
     SET_TOWN_SHOOTING_GALLERY_HIGH_SCORE(39);
     SET_SWAMP_SHOOTING_GALLERY_HIGH_SCORE(10);
 
-    gSaveContext.save.dekuPlaygroundHighScores[0] = 7500; // 75 seconds
-    gSaveContext.save.dekuPlaygroundHighScores[1] = 7500; // 75 seconds
-    gSaveContext.save.dekuPlaygroundHighScores[2] = 7600; // 76 seconds
+    gSaveContext.save.dekuPlaygroundHighScores[0] = SECONDS_TO_TIMER(75);
+    gSaveContext.save.dekuPlaygroundHighScores[1] = SECONDS_TO_TIMER(75);
+    gSaveContext.save.dekuPlaygroundHighScores[2] = SECONDS_TO_TIMER(76);
 }
 
 /**
@@ -896,11 +896,11 @@ void func_80144A94(SramContext* sramCtx) {
 
     for (i = 0; i < ARRAY_COUNT(gSaveContext.timerState); i++) {
         gSaveContext.timerState[i] = TIMER_STATE_OFF;
-        gSaveContext.eventTimer1Value[i] = 0;
-        gSaveContext.eventTimer2Value[i] = 0;
-        gSaveContext.funcTimer1Value[i] = 0;
-        gSaveContext.funcTimer2Value[i] = 0;
-        gSaveContext.funcTimer3Value[i] = 0;
+        gSaveContext.timerCurTime[i] = SECONDS_TO_TIMER(0);
+        gSaveContext.timerCurSubTime[i] = SECONDS_TO_TIMER(0);
+        gSaveContext.timerStartOsTime[i] = 0;
+        gSaveContext.timerEndOsTime[i] = 0;
+        gSaveContext.timerPausedOsTime[i] = 0;
     }
 
     D_801BDAA0 = 1;
@@ -971,11 +971,11 @@ void Sram_OpenSave(FileChooseContext* fileChooseCtx, SramContext* sramCtx) {
 
         for (i = 0; i < ARRAY_COUNT(gSaveContext.timerState); i++) {
             gSaveContext.timerState[i] = TIMER_STATE_OFF;
-            gSaveContext.eventTimer1Value[i] = 0;
-            gSaveContext.eventTimer2Value[i] = 0;
-            gSaveContext.funcTimer1Value[i] = 0;
-            gSaveContext.funcTimer2Value[i] = 0;
-            gSaveContext.funcTimer3Value[i] = 0;
+            gSaveContext.timerCurTime[i] = SECONDS_TO_TIMER(0);
+            gSaveContext.timerCurSubTime[i] = SECONDS_TO_TIMER(0);
+            gSaveContext.timerStartOsTime[i] = 0;
+            gSaveContext.timerEndOsTime[i] = 0;
+            gSaveContext.timerPausedOsTime[i] = 0;
         }
 
         if (gSaveContext.save.isFirstCycle) {

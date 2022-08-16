@@ -121,7 +121,7 @@ s32 func_808F8CCC(EnHorseGameCheck* this, PlayState* play2) {
         return false;
     }
 
-    func_8010E9F0(TIMER_ID_4, 0);
+    Interface_StartTimer(TIMER_ID_4, 0);
     play->interfaceCtx.minigameState = 1;
 
     this->horse1 = (EnHorse*)Actor_Spawn(&play->actorCtx, play, ACTOR_EN_HORSE, -1149.0f, -106.0f, 470.0f, 0, 0x7FFF, 0,
@@ -247,7 +247,7 @@ s32 func_808F8FAC(EnHorseGameCheck* this, PlayState* play) {
         return true;
     }
 
-    if (gSaveContext.eventTimer1Value[TIMER_ID_4] >= 0x4650) {
+    if (gSaveContext.timerCurTime[TIMER_ID_4] >= SECONDS_TO_TIMER(180)) {
         Audio_QueueSeqCmd(0x8041);
         play_sound(NA_SE_SY_START_SHOT);
         this->unk_164 |= 0x40000;

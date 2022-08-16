@@ -299,9 +299,6 @@ typedef enum {
 #define BOTTLE_FIRST 0
 #define BOTTLE_MAX 6
 
-#define BOTTLE_FIRST 0
-#define BOTTLE_MAX 6
-
 typedef enum {
     /* 0x00 */ GI_NONE,
     /* 0x01 */ GI_RUPEE_GREEN,

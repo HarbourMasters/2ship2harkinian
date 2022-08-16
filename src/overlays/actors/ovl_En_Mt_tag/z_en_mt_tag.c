@@ -314,7 +314,7 @@ void EnMttag_RaceStart(EnMttag* this, PlayState* play) {
             gSaveContext.eventInf[1] |= 8;
         } else {
             if (DECR(this->timer) == 60) {
-                func_8010E9F0(TIMER_ID_4, 0);
+                Interface_StartTimer(TIMER_ID_4, 0);
                 play->interfaceCtx.minigameState = 1;
                 Audio_QueueSeqCmd(NA_BGM_GORON_RACE | 0x8000);
                 play->envCtx.unk_E4 = 0xFE;
@@ -504,7 +504,7 @@ void EnMttag_Init(Actor* thisx, PlayState* play) {
 void EnMttag_Destroy(Actor* thisx, PlayState* play) {
     EnMttag* this = THIS;
     if (gSaveContext.timerState[TIMER_ID_4] != TIMER_STATE_6) {
-        gSaveContext.timerState[TIMER_ID_4] = TIMER_STATE_5;
+        gSaveContext.timerState[TIMER_ID_4] = TIMER_STATE_STOP;
     }
 }
 
