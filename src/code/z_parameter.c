@@ -186,7 +186,6 @@ s16 sExtraItemBases[] = {
 s16 sEnvTimerType = PLAYER_ENV_TIMER_NONE;
 s16 sEnvTimerActive = false;
 s16 sPostmanBunnyHoodState = 0;
-
 OSTime sTimerPausedOsTime = 0;
 OSTime sBottleTimerPausedOsTime = 0;
 OSTime D_801BF8F8[] = {
@@ -195,11 +194,10 @@ OSTime D_801BF8F8[] = {
 OSTime D_801BF930[] = {
     0, 0, 0, 0, 0, 0, 0,
 };
-
 u8 sIsTimerPaused = false;
 u8 sIsBottleTimerPaused = false;
-
 s16 sTimerId = TIMER_ID_NONE;
+
 s16 D_801BF974 = 0;
 s16 D_801BF978 = 10;
 s16 D_801BF97C = 255;
@@ -603,7 +601,7 @@ void Interface_StartTimer(s16 timerId, s16 seconds) {
     sEnvTimerActive = false;
 
     gSaveContext.timerCurTime[timerId] = SECONDS_TO_TIMER(seconds);
-    gSaveContext.timerCurSubTime[timerId] = gSaveContext.timerCurTime[timerId];
+    gSaveContext.timerTimeLimit[timerId] = gSaveContext.timerCurTime[timerId];
 
     if (gSaveContext.timerCurTime[timerId] != SECONDS_TO_TIMER(0)) {
         gSaveContext.timerDirection[timerId] = TIMER_COUNT_DOWN;
@@ -611,7 +609,7 @@ void Interface_StartTimer(s16 timerId, s16 seconds) {
         gSaveContext.timerDirection[timerId] = TIMER_COUNT_UP;
     }
 
-    gSaveContext.timerState[timerId] = TIMER_STATE_1;
+    gSaveContext.timerState[timerId] = TIMER_STATE_START;
 }
 
 void Interface_StartPostmanTimer(s16 seconds, s16 bunnyHoodState) {
@@ -621,7 +619,7 @@ void Interface_StartPostmanTimer(s16 seconds, s16 bunnyHoodState) {
     sPostmanBunnyHoodState = bunnyHoodState;
 
     gSaveContext.timerCurTime[TIMER_ID_POSTMAN] = SECONDS_TO_TIMER(seconds);
-    gSaveContext.timerCurSubTime[TIMER_ID_POSTMAN] = gSaveContext.timerCurTime[TIMER_ID_POSTMAN];
+    gSaveContext.timerTimeLimit[TIMER_ID_POSTMAN] = gSaveContext.timerCurTime[TIMER_ID_POSTMAN];
 
     if (gSaveContext.timerCurTime[TIMER_ID_POSTMAN] != SECONDS_TO_TIMER(0)) {
         gSaveContext.timerDirection[TIMER_ID_POSTMAN] = TIMER_COUNT_DOWN;
@@ -634,7 +632,7 @@ void Interface_StartPostmanTimer(s16 seconds, s16 bunnyHoodState) {
     gSaveContext.timerPausedOsTime[TIMER_ID_POSTMAN] = 0;
 }
 
-// Unused, goron race actually uses TIMER_ID_4
+// Unused, goron race actually uses TIMER_ID_MINIGAME_2
 void Interface_StartGoronRaceTimer(s32 arg0) {
     if (gSaveContext.timerState[TIMER_ID_GORON_RACE_UNUSED] != TIMER_STATE_OFF) {
         // Goron race started
@@ -648,8 +646,8 @@ void Interface_StartGoronRaceTimer(s32 arg0) {
 
 void Interface_StartBottleTimer(s16 seconds, s16 timerId) {
     gSaveContext.bottleTimerState[timerId] = BOTTLE_TIMER_STATE_COUNTING;
-    gSaveContext.bottleTimerCurTime[timerId] = seconds * 100;
-    gSaveContext.bottleTimerCurSubTime[timerId] = gSaveContext.bottleTimerCurTime[timerId];
+    gSaveContext.bottleTimerCurTime[timerId] = SECONDS_TO_TIMER(seconds);
+    gSaveContext.bottleTimerCurTimeLimit[timerId] = gSaveContext.bottleTimerCurTime[timerId];
     gSaveContext.bottleTimerStartOsTime[timerId] = osGetTime();
     gSaveContext.bottleTimerPausedOsTime[timerId] = 0;
     sBottleTimerPausedOsTime = 0;
@@ -5232,12 +5230,10 @@ void Interface_DrawTimers(PlayState* play) {
     static s16 sTimerStateTimer = 0;
     static s16 sTimerDigits[] = { 0, 0, 0, 0, 0, 0, 0, 0 };
     static s16 sTimerBeepSfxSeconds = 99;
-    static s16 D_801BFCFC[] = {
-        // timer digit width
-        0x10, 0x19, 0x22, 0x2A, 0x33, 0x3C, 0x44, 0x4D,
+    static s16 sTimerDigitsOffsetX[] = {
+        16, 25, 34, 42, 51, 60, 68, 77,
     };
-    static s16 D_801BFD0C[] = {
-        // digit width
+    static s16 sTimerDigitsWidth[] = {
         9, 9, 8, 9, 9, 8, 9, 9,
     };
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
@@ -5263,7 +5259,7 @@ void Interface_DrawTimers(PlayState* play) {
             osTime = osGetTime();
 
             for (j = 0; j < TIMER_ID_MAX; j++) {
-                if (gSaveContext.timerState[j] == TIMER_STATE_4) {
+                if (gSaveContext.timerState[j] == TIMER_STATE_COUNTING) {
                     gSaveContext.timerPausedOsTime[j] =
                         gSaveContext.timerPausedOsTime[j] + (osTime - sTimerPausedOsTime);
                 }
@@ -5296,9 +5292,8 @@ void Interface_DrawTimers(PlayState* play) {
                     case TIMER_STATE_POSTMAN_STOP:
                         timerOsTime = gSaveContext.timerOsTime;
                         gSaveContext.timerCurTime[TIMER_ID_POSTMAN] =
-                            (timerOsTime - ((void)0, gSaveContext.timerStartOsTime[TIMER_ID_POSTMAN]) -
-                             ((void)0, gSaveContext.timerPausedOsTime[TIMER_ID_POSTMAN])) *
-                            64 / 3000 / 10000;
+                            OSTIME_TO_TIMER(timerOsTime - ((void)0, gSaveContext.timerStartOsTime[TIMER_ID_POSTMAN]) -
+                                            ((void)0, gSaveContext.timerPausedOsTime[TIMER_ID_POSTMAN]));
                         gSaveContext.timerState[TIMER_ID_POSTMAN] = TIMER_STATE_POSTMAN_END;
                         func_80174F9C(Interface_PostmanTimerCallback, NULL);
                         break;
@@ -5312,8 +5307,8 @@ void Interface_DrawTimers(PlayState* play) {
 
             // process the remaining timers
             switch (gSaveContext.timerState[sTimerId]) {
-                case TIMER_STATE_1:
-                case TIMER_STATE_9:
+                case TIMER_STATE_START:
+                case TIMER_STATE_ALT_START:
                     sTimerStateTimer = 20;
                     if (interfaceCtx->minigameState != MINIGAME_STATE_NONE) {
                         gSaveContext.timerX[sTimerId] = 26;
@@ -5328,10 +5323,10 @@ void Interface_DrawTimers(PlayState* play) {
 
                         if ((interfaceCtx->minigameState == MINIGAME_STATE_COUNTDOWN_GO) ||
                             (interfaceCtx->minigameState == MINIGAME_STATE_30)) {
-                            if (gSaveContext.timerState[sTimerId] == TIMER_STATE_1) {
-                                gSaveContext.timerState[sTimerId] = TIMER_STATE_4;
+                            if (gSaveContext.timerState[sTimerId] == TIMER_STATE_START) {
+                                gSaveContext.timerState[sTimerId] = TIMER_STATE_COUNTING;
                             } else {
-                                gSaveContext.timerState[sTimerId] = TIMER_STATE_11;
+                                gSaveContext.timerState[sTimerId] = TIMER_STATE_ALT_COUNTING;
                                 D_801BF8F8[sTimerId] = osGetTime();
                                 D_801BF930[sTimerId] = 0;
                             }
@@ -5341,11 +5336,11 @@ void Interface_DrawTimers(PlayState* play) {
                             gSaveContext.timerPausedOsTime[sTimerId] = 0;
                         }
                     } else {
-                        gSaveContext.timerState[sTimerId] = TIMER_STATE_2;
+                        gSaveContext.timerState[sTimerId] = TIMER_STATE_HOLD_TIMER;
                     }
                     break;
 
-                case TIMER_STATE_2:
+                case TIMER_STATE_HOLD_TIMER:
                     sTimerStateTimer--;
                     if (sTimerStateTimer == 0) {
                         sTimerStateTimer = 20;
@@ -5384,14 +5379,15 @@ void Interface_DrawTimers(PlayState* play) {
                             }
                         }
 
-                        gSaveContext.timerState[sTimerId] = TIMER_STATE_4;
+                        gSaveContext.timerState[sTimerId] = TIMER_STATE_COUNTING;
                         gSaveContext.timerStartOsTime[sTimerId] = osGetTime();
                         gSaveContext.timerEndOsTime[sTimerId] = 0;
                         gSaveContext.timerPausedOsTime[sTimerId] = 0;
                     }
                     // fallthrough
-                case TIMER_STATE_4:
-                    if ((gSaveContext.timerState[sTimerId] == TIMER_STATE_4) && (sTimerId == TIMER_ID_FINAL_HOURS)) {
+                case TIMER_STATE_COUNTING:
+                    if ((gSaveContext.timerState[sTimerId] == TIMER_STATE_COUNTING) &&
+                        (sTimerId == TIMER_ID_FINAL_HOURS)) {
                         gSaveContext.timerX[TIMER_ID_FINAL_HOURS] = R_FINAL_HOURS_TIMER_X;
                         gSaveContext.timerY[TIMER_ID_FINAL_HOURS] = R_FINAL_HOURS_TIMER_Y;
                     }
@@ -5400,9 +5396,9 @@ void Interface_DrawTimers(PlayState* play) {
                 case TIMER_STATE_10:
                     D_801BF8F8[sTimerId] = osGetTime();
                     D_801BF930[sTimerId] = 0;
-                    gSaveContext.timerState[sTimerId] = TIMER_STATE_11;
+                    gSaveContext.timerState[sTimerId] = TIMER_STATE_ALT_COUNTING;
                     // fallthrough
-                case TIMER_STATE_11:
+                case TIMER_STATE_ALT_COUNTING:
                     D_801BF930[sTimerId] = osGetTime() - D_801BF8F8[sTimerId];
                     break;
 
@@ -5412,13 +5408,13 @@ void Interface_DrawTimers(PlayState* play) {
                     gSaveContext.timerPausedOsTime[sTimerId] =
                         gSaveContext.timerPausedOsTime[sTimerId] + osTime - D_801BF8F8[sTimerId];
                     D_801BF930[sTimerId] = 0;
-                    gSaveContext.timerState[sTimerId] = TIMER_STATE_4;
+                    gSaveContext.timerState[sTimerId] = TIMER_STATE_COUNTING;
                     break;
 
                 case TIMER_STATE_ENV_START:
                     gSaveContext.timerCurTime[sTimerId] = SECONDS_TO_TIMER(gSaveContext.save.playerData.health >> 1);
                     gSaveContext.timerDirection[sTimerId] = TIMER_COUNT_DOWN;
-                    gSaveContext.timerCurSubTime[sTimerId] = gSaveContext.timerCurTime[sTimerId];
+                    gSaveContext.timerTimeLimit[sTimerId] = gSaveContext.timerCurTime[sTimerId];
                     sTimerStateTimer = 20;
                     gSaveContext.timerState[sTimerId] = TIMER_STATE_MOVING_TIMER;
                     break;
@@ -5427,9 +5423,8 @@ void Interface_DrawTimers(PlayState* play) {
                     osTime = osGetTime();
 
                     gSaveContext.timerEndOsTime[sTimerId] =
-                        (osTime - ((void)0, gSaveContext.timerStartOsTime[sTimerId]) -
-                         ((void)0, gSaveContext.timerPausedOsTime[sTimerId])) *
-                        64 / 3000 / 10000;
+                        OSTIME_TO_TIMER(osTime - ((void)0, gSaveContext.timerStartOsTime[sTimerId]) -
+                                        ((void)0, gSaveContext.timerPausedOsTime[sTimerId]));
 
                     gSaveContext.timerState[sTimerId] = TIMER_STATE_OFF;
 
@@ -5455,9 +5450,8 @@ void Interface_DrawTimers(PlayState* play) {
                     osTime = osGetTime();
 
                     gSaveContext.timerEndOsTime[sTimerId] =
-                        (osTime - ((void)0, gSaveContext.timerStartOsTime[sTimerId]) -
-                         ((void)0, gSaveContext.timerPausedOsTime[sTimerId])) *
-                        64 / 3000 / 10000;
+                        OSTIME_TO_TIMER(osTime - ((void)0, gSaveContext.timerStartOsTime[sTimerId]) -
+                                        ((void)0, gSaveContext.timerPausedOsTime[sTimerId]));
 
                     if ((gSaveContext.minigameState == 1) &&
                         (gSaveContext.save.entrance == ENTRANCE(ROMANI_RANCH, 0))) {
@@ -5491,14 +5485,13 @@ void Interface_DrawTimers(PlayState* play) {
                 // used to index the counter colon
                 sTimerDigits[2] = sTimerDigits[5] = 10;
 
-                if ((gSaveContext.timerState[sTimerId] == TIMER_STATE_4) ||
+                if ((gSaveContext.timerState[sTimerId] == TIMER_STATE_COUNTING) ||
                     (gSaveContext.timerState[sTimerId] == TIMER_STATE_10) ||
-                    (gSaveContext.timerState[sTimerId] == TIMER_STATE_11) ||
+                    (gSaveContext.timerState[sTimerId] == TIMER_STATE_ALT_COUNTING) ||
                     (gSaveContext.timerState[sTimerId] == TIMER_STATE_POSTMAN_COUNTING)) {
                     osTime = osGetTime();
-                    osTime = (osTime - ((void)0, gSaveContext.timerPausedOsTime[sTimerId]) - D_801BF930[sTimerId] -
-                              ((void)0, gSaveContext.timerStartOsTime[sTimerId])) *
-                             64 / 3000 / 10000;
+                    osTime = OSTIME_TO_TIMER(osTime - ((void)0, gSaveContext.timerPausedOsTime[sTimerId]) -
+                                             D_801BF930[sTimerId] - ((void)0, gSaveContext.timerStartOsTime[sTimerId]));
                 } else if (gSaveContext.timerState[sTimerId] == TIMER_STATE_7) {
                     osTime = gSaveContext.timerEndOsTime[sTimerId];
                 } else {
@@ -5506,12 +5499,12 @@ void Interface_DrawTimers(PlayState* play) {
                 }
 
                 if (osTime == 0) {
-                    gSaveContext.timerCurTime[sTimerId] = gSaveContext.timerCurSubTime[sTimerId] - osTime;
-                } else if (gSaveContext.timerCurSubTime[sTimerId] >= osTime) {
-                    if (gSaveContext.timerCurSubTime[sTimerId] <= osTime) {
+                    gSaveContext.timerCurTime[sTimerId] = gSaveContext.timerTimeLimit[sTimerId] - osTime;
+                } else if (osTime <= gSaveContext.timerTimeLimit[sTimerId]) {
+                    if (osTime >= gSaveContext.timerTimeLimit[sTimerId]) {
                         gSaveContext.timerCurTime[sTimerId] = SECONDS_TO_TIMER(0);
                     } else {
-                        gSaveContext.timerCurTime[sTimerId] = gSaveContext.timerCurSubTime[sTimerId] - osTime;
+                        gSaveContext.timerCurTime[sTimerId] = gSaveContext.timerTimeLimit[sTimerId] - osTime;
                     }
                 } else {
                     gSaveContext.timerCurTime[sTimerId] = SECONDS_TO_TIMER(0);
@@ -5546,12 +5539,12 @@ void Interface_DrawTimers(PlayState* play) {
                 // used to index the counter colon
                 sTimerDigits[2] = sTimerDigits[5] = 10;
 
-                if ((gSaveContext.timerState[sTimerId] == TIMER_STATE_4) ||
+                if ((gSaveContext.timerState[sTimerId] == TIMER_STATE_COUNTING) ||
                     (gSaveContext.timerState[sTimerId] == TIMER_STATE_POSTMAN_COUNTING)) {
                     osTime = osGetTime();
-                    osTime = (osTime - ((void)0, gSaveContext.timerStartOsTime[sTimerId]) -
-                              ((void)0, gSaveContext.timerPausedOsTime[sTimerId]) - D_801BF930[sTimerId]) *
-                             64 / 3000 / 10000;
+                    osTime =
+                        OSTIME_TO_TIMER(osTime - ((void)0, gSaveContext.timerStartOsTime[sTimerId]) -
+                                        ((void)0, gSaveContext.timerPausedOsTime[sTimerId]) - D_801BF930[sTimerId]);
                 } else if (gSaveContext.timerState[sTimerId] == TIMER_STATE_7) {
                     osTime = gSaveContext.timerEndOsTime[sTimerId];
                 } else if (sTimerId == TIMER_ID_POSTMAN) {
@@ -5575,7 +5568,8 @@ void Interface_DrawTimers(PlayState* play) {
 
                 // Use seconds to determine when to beep
                 if ((gSaveContext.minigameState == 1) && (gSaveContext.save.entrance == ENTRANCE(ROMANI_RANCH, 0))) {
-                    if ((gSaveContext.timerCurTime[sTimerId] > 11000) && (sTimerBeepSfxSeconds != sTimerDigits[4])) {
+                    if ((gSaveContext.timerCurTime[sTimerId] > SECONDS_TO_TIMER(110)) &&
+                        (sTimerBeepSfxSeconds != sTimerDigits[4])) {
                         play_sound(NA_SE_SY_WARNING_COUNT_E);
                         sTimerBeepSfxSeconds = sTimerDigits[4];
                     }
@@ -5604,7 +5598,7 @@ void Interface_DrawTimers(PlayState* play) {
                 if (gSaveContext.timerState[sTimerId]) { // != TIMER_STATE_OFF
                     if (sTimerId == TIMER_ID_2) {
                         if ((gSaveContext.timerCurTime[sTimerId] == SECONDS_TO_TIMER(0)) ||
-                            (gSaveContext.timerState[sTimerId] == TIMER_STATE_4)) {
+                            (gSaveContext.timerState[sTimerId] == TIMER_STATE_COUNTING)) {
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 50, 0, 255);
                         } else {
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 255);
@@ -5629,7 +5623,7 @@ void Interface_DrawTimers(PlayState* play) {
                         }
                     } else if ((gSaveContext.timerCurTime[sTimerId] < SECONDS_TO_TIMER(10)) &&
                                (gSaveContext.timerDirection[sTimerId] == TIMER_COUNT_DOWN) &&
-                               (gSaveContext.timerState[sTimerId] != TIMER_STATE_11)) {
+                               (gSaveContext.timerState[sTimerId] != TIMER_STATE_ALT_COUNTING)) {
                         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 50, 0, 255);
                     } else {
                         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 255);
@@ -5643,25 +5637,25 @@ void Interface_DrawTimers(PlayState* play) {
                         for (j = 0; j < 4; j++) {
                             OVERLAY_DISP = Gfx_TextureI8(
                                 OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * sTimerDigits[j + 3])), 8, 0x10,
-                                ((void)0, gSaveContext.timerX[sTimerId]) + D_801BFCFC[j],
-                                ((void)0, gSaveContext.timerY[sTimerId]), D_801BFD0C[j], 0xFA, 0x370, 0x370);
+                                ((void)0, gSaveContext.timerX[sTimerId]) + sTimerDigitsOffsetX[j],
+                                ((void)0, gSaveContext.timerY[sTimerId]), sTimerDigitsWidth[j], 0xFA, 0x370, 0x370);
                         }
                     } else {
                         // draw sTimerDigits[3] (10s of seconds) to sTimerDigits[7] (10s of milliseconds)
                         for (j = 0; j < 5; j++) {
                             OVERLAY_DISP = Gfx_TextureI8(
                                 OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * sTimerDigits[j + 3])), 8, 0x10,
-                                ((void)0, gSaveContext.timerX[sTimerId]) + D_801BFCFC[j],
-                                ((void)0, gSaveContext.timerY[sTimerId]), D_801BFD0C[j], 0xFA, 0x370, 0x370);
+                                ((void)0, gSaveContext.timerX[sTimerId]) + sTimerDigitsOffsetX[j],
+                                ((void)0, gSaveContext.timerY[sTimerId]), sTimerDigitsWidth[j], 0xFA, 0x370, 0x370);
                         }
                     }
                 } else {
                     // draw sTimerDigits[3] (6s of minutes) to sTimerDigits[7] (10s of milliseconds)
                     for (j = 0; j < 8; j++) {
-                        OVERLAY_DISP =
-                            Gfx_TextureI8(OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * sTimerDigits[j])), 8, 0x10,
-                                          ((void)0, gSaveContext.timerX[sTimerId]) + D_801BFCFC[j],
-                                          ((void)0, gSaveContext.timerY[sTimerId]), D_801BFD0C[j], 0xFA, 0x370, 0x370);
+                        OVERLAY_DISP = Gfx_TextureI8(
+                            OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * sTimerDigits[j])), 8, 0x10,
+                            ((void)0, gSaveContext.timerX[sTimerId]) + sTimerDigitsOffsetX[j],
+                            ((void)0, gSaveContext.timerY[sTimerId]), sTimerDigitsWidth[j], 0xFA, 0x370, 0x370);
                     }
                 }
             }
@@ -5708,18 +5702,15 @@ void Interface_UpdateBottleTimers(PlayState* play) {
         for (i = BOTTLE_FIRST; i < BOTTLE_MAX; i++) {
             if (gSaveContext.bottleTimerState[i] == BOTTLE_TIMER_STATE_COUNTING) {
                 osTime = osGetTime();
-                osTime = (((osTime - ((void)0, gSaveContext.bottleTimerPausedOsTime[i]) -
-                            ((void)0, gSaveContext.bottleTimerStartOsTime[i])) /
-                           10000) *
-                          64) /
-                         3000;
+                osTime = OSTIME_TO_TIMER_ALT(osTime - ((void)0, gSaveContext.bottleTimerPausedOsTime[i]) -
+                                             ((void)0, gSaveContext.bottleTimerStartOsTime[i]));
                 if (osTime == 0) {
-                    gSaveContext.bottleTimerCurTime[i] = gSaveContext.bottleTimerCurSubTime[i] - osTime;
-                } else if (gSaveContext.bottleTimerCurSubTime[i] >= osTime) {
-                    if (gSaveContext.bottleTimerCurSubTime[i] <= osTime) {
+                    gSaveContext.bottleTimerCurTime[i] = gSaveContext.bottleTimerCurTimeLimit[i] - osTime;
+                } else if (osTime <= gSaveContext.bottleTimerCurTimeLimit[i]) {
+                    if (osTime >= gSaveContext.bottleTimerCurTimeLimit[i]) {
                         gSaveContext.bottleTimerCurTime[i] = 0;
                     } else {
-                        gSaveContext.bottleTimerCurTime[i] = gSaveContext.bottleTimerCurSubTime[i] - osTime;
+                        gSaveContext.bottleTimerCurTime[i] = gSaveContext.bottleTimerCurTimeLimit[i] - osTime;
                     }
                 } else {
                     gSaveContext.bottleTimerCurTime[i] = 0;
@@ -6664,7 +6655,7 @@ void Interface_Update(PlayState* play) {
             }
         }
     } else if (((sEnvTimerType == PLAYER_ENV_TIMER_NONE) || (sEnvTimerType == PLAYER_ENV_TIMER_SWIMMING)) &&
-               (gSaveContext.timerState[TIMER_ID_ENV] <= TIMER_STATE_4)) {
+               (gSaveContext.timerState[TIMER_ID_ENV] <= TIMER_STATE_COUNTING)) {
         gSaveContext.timerState[TIMER_ID_ENV] = TIMER_STATE_OFF;
     }
 
@@ -6829,13 +6820,13 @@ void Interface_Init(PlayState* play) {
         Interface_LoadItemIconImpl(play, EQUIP_SLOT_C_RIGHT);
     }
 
-    if (((gSaveContext.timerState[TIMER_ID_4] == TIMER_STATE_4) ||
-         (gSaveContext.timerState[TIMER_ID_GORON_RACE_UNUSED] == TIMER_STATE_4)) &&
+    if (((gSaveContext.timerState[TIMER_ID_MINIGAME_2] == TIMER_STATE_COUNTING) ||
+         (gSaveContext.timerState[TIMER_ID_GORON_RACE_UNUSED] == TIMER_STATE_COUNTING)) &&
         ((gSaveContext.respawnFlag == -1) || (gSaveContext.respawnFlag == 1)) &&
-        (gSaveContext.timerState[TIMER_ID_4] == TIMER_STATE_4)) {
-        gSaveContext.timerState[TIMER_ID_4] = TIMER_STATE_1;
-        gSaveContext.timerX[TIMER_ID_4] = 115;
-        gSaveContext.timerY[TIMER_ID_4] = 80;
+        (gSaveContext.timerState[TIMER_ID_MINIGAME_2] == TIMER_STATE_COUNTING)) {
+        gSaveContext.timerState[TIMER_ID_MINIGAME_2] = TIMER_STATE_START;
+        gSaveContext.timerX[TIMER_ID_MINIGAME_2] = 115;
+        gSaveContext.timerY[TIMER_ID_MINIGAME_2] = 80;
     }
 
     LifeMeter_Init(play);
@@ -6848,15 +6839,15 @@ void Interface_Init(PlayState* play) {
 
     if (gSaveContext.eventInf[3] & 0x10) {
         gSaveContext.eventInf[3] &= (u8)~0x10;
-        gSaveContext.timerState[TIMER_ID_4] = TIMER_STATE_OFF;
+        gSaveContext.timerState[TIMER_ID_MINIGAME_2] = TIMER_STATE_OFF;
     }
 
-    gSaveContext.timerState[TIMER_ID_1] = TIMER_STATE_OFF;
-    gSaveContext.timerCurTime[TIMER_ID_1] = SECONDS_TO_TIMER(0);
-    gSaveContext.timerCurSubTime[TIMER_ID_1] = SECONDS_TO_TIMER(0);
-    gSaveContext.timerStartOsTime[TIMER_ID_1] = 0;
-    gSaveContext.timerEndOsTime[TIMER_ID_1] = 0;
-    gSaveContext.timerPausedOsTime[TIMER_ID_1] = 0;
+    gSaveContext.timerState[TIMER_ID_MINIGAME_1] = TIMER_STATE_OFF;
+    gSaveContext.timerCurTime[TIMER_ID_MINIGAME_1] = SECONDS_TO_TIMER(0);
+    gSaveContext.timerTimeLimit[TIMER_ID_MINIGAME_1] = SECONDS_TO_TIMER(0);
+    gSaveContext.timerStartOsTime[TIMER_ID_MINIGAME_1] = 0;
+    gSaveContext.timerEndOsTime[TIMER_ID_MINIGAME_1] = 0;
+    gSaveContext.timerPausedOsTime[TIMER_ID_MINIGAME_1] = 0;
 
     for (i = 0; i < TIMER_ID_MAX; i++) {
         if (gSaveContext.timerState[i] == TIMER_STATE_7) {

@@ -897,7 +897,7 @@ void func_80144A94(SramContext* sramCtx) {
     for (i = 0; i < ARRAY_COUNT(gSaveContext.timerState); i++) {
         gSaveContext.timerState[i] = TIMER_STATE_OFF;
         gSaveContext.timerCurTime[i] = SECONDS_TO_TIMER(0);
-        gSaveContext.timerCurSubTime[i] = SECONDS_TO_TIMER(0);
+        gSaveContext.timerTimeLimit[i] = SECONDS_TO_TIMER(0);
         gSaveContext.timerStartOsTime[i] = 0;
         gSaveContext.timerEndOsTime[i] = 0;
         gSaveContext.timerPausedOsTime[i] = 0;
@@ -972,7 +972,7 @@ void Sram_OpenSave(FileChooseContext* fileChooseCtx, SramContext* sramCtx) {
         for (i = 0; i < ARRAY_COUNT(gSaveContext.timerState); i++) {
             gSaveContext.timerState[i] = TIMER_STATE_OFF;
             gSaveContext.timerCurTime[i] = SECONDS_TO_TIMER(0);
-            gSaveContext.timerCurSubTime[i] = SECONDS_TO_TIMER(0);
+            gSaveContext.timerTimeLimit[i] = SECONDS_TO_TIMER(0);
             gSaveContext.timerStartOsTime[i] = 0;
             gSaveContext.timerEndOsTime[i] = 0;
             gSaveContext.timerPausedOsTime[i] = 0;
@@ -1602,7 +1602,7 @@ void func_80147068(SramContext* sramCtx) {
                 sramCtx->status = 4;
             }
         }
-    } else if (((osGetTime() - sramCtx->unk_18) * 0x40) / 3000 / 10000 >= 200) {
+    } else if (OSTIME_TO_TIMER(osGetTime() - sramCtx->unk_18) >= SECONDS_TO_TIMER(2)) {
         sramCtx->status = 0;
     }
 }
@@ -1639,7 +1639,7 @@ void func_80147198(SramContext* sramCtx) {
                 sramCtx->status = 4;
             }
         }
-    } else if (((osGetTime() - sramCtx->unk_18) * 0x40) / 3000 / 10000 >= 200) {
+    } else if (OSTIME_TO_TIMER(osGetTime() - sramCtx->unk_18) >= SECONDS_TO_TIMER(2)) {
         sramCtx->status = 0;
         bzero(sramCtx->saveBuf, SAVE_BUFFER_SIZE);
         gSaveContext.save.isOwlSave = false;

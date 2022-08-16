@@ -517,7 +517,7 @@ void MapSelect_UpdateMenu(MapSelectState* this) {
             for (i = 0; i < ARRAY_COUNT(gSaveContext.timerPausedOsTime); i++) {
                 gSaveContext.timerState[i] = TIMER_STATE_OFF;
                 gSaveContext.timerCurTime[i] = 0;
-                gSaveContext.timerCurSubTime[i] = SECONDS_TO_TIMER(0);
+                gSaveContext.timerTimeLimit[i] = SECONDS_TO_TIMER(0);
                 gSaveContext.timerStartOsTime[i] = 0;
                 gSaveContext.timerEndOsTime[i] = 0;
                 gSaveContext.timerPausedOsTime[i] = 0;

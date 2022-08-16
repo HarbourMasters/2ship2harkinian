@@ -57,15 +57,18 @@ typedef enum {
 
 #define SECONDS_TO_TIMER(seconds) ((seconds) * 100)
 
+#define OSTIME_TO_TIMER(osTime) ((osTime) * 64 / 3000 / 10000)
+#define OSTIME_TO_TIMER_ALT(osTime) ((osTime) / 10000 * 64 / 3000)
+
 // 1 centiSecond = 10 milliSeconds = 1/100 seconds
 #define SECONDS_TO_TIMER_PRECISE(seconds, centiSeconds) ((seconds) * 100 + (centiSeconds))
 
 typedef enum {
     /*  0 */ TIMER_ID_POSTMAN, // postman's counting minigame
-    /*  1 */ TIMER_ID_1, // minigame timer
+    /*  1 */ TIMER_ID_MINIGAME_1, // minigame timer
     /*  2 */ TIMER_ID_2,
     /*  3 */ TIMER_ID_FINAL_HOURS, // countdown until mooncrash
-    /*  4 */ TIMER_ID_4,
+    /*  4 */ TIMER_ID_MINIGAME_2, // minigame timer
     /*  5 */ TIMER_ID_ENV, // environmental timer (underwater or hot room)
     /*  6 */ TIMER_ID_GORON_RACE_UNUSED,
     /*  7 */ TIMER_ID_MAX,
@@ -79,18 +82,18 @@ typedef enum {
 
 typedef enum {
     /*  0 */ TIMER_STATE_OFF,
-    /*  1 */ TIMER_STATE_1,
-    /*  2 */ TIMER_STATE_2,
-    /*  3 */ TIMER_STATE_MOVING_TIMER, 
-    /*  4 */ TIMER_STATE_4,
+    /*  1 */ TIMER_STATE_START,
+    /*  2 */ TIMER_STATE_HOLD_TIMER, // Hold timer frozen at the screen center
+    /*  3 */ TIMER_STATE_MOVING_TIMER, // Move timer to a target location
+    /*  4 */ TIMER_STATE_COUNTING,
     /*  5 */ TIMER_STATE_STOP,
-    /*  6 */ TIMER_STATE_6,
-    /*  7 */ TIMER_STATE_7,
+    /*  6 */ TIMER_STATE_6, // like `TIMER_STATE_STOP` but with extra minigame checks
+    /*  7 */ TIMER_STATE_7, // stopped but still update `timerCurTime`
     /*  8 */ TIMER_STATE_ENV_START,
-    /*  9 */ TIMER_STATE_9,
-    /* 10 */ TIMER_STATE_10,
-    /* 11 */ TIMER_STATE_11,
-    /* 12 */ TIMER_STATE_12,
+    /*  9 */ TIMER_STATE_ALT_START,
+    /* 10 */ TIMER_STATE_10, // precursor to `TIMER_STATE_ALT_COUNTING`
+    /* 11 */ TIMER_STATE_ALT_COUNTING,
+    /* 12 */ TIMER_STATE_12, // Updated paused time?
     /* 13 */ TIMER_STATE_POSTMAN_START,
     /* 14 */ TIMER_STATE_POSTMAN_COUNTING,
     /* 15 */ TIMER_STATE_POSTMAN_STOP,
@@ -292,7 +295,7 @@ typedef struct SaveContext {
     /* 0x1018 */ s16 rupeeAccumulator;                  // "lupy_udct"
     /* 0x101A */ u8 bottleTimerState[BOTTLE_MAX];            // "bottle_status", one entry for each bottle
     /* 0x1020 */ OSTime bottleTimerStartOsTime[BOTTLE_MAX];  // "bottle_ostime", one entry for each bottle
-    /* 0x1050 */ u64 bottleTimerCurSubTime[BOTTLE_MAX];      // "bottle_sub", one entry for each bottle
+    /* 0x1050 */ u64 bottleTimerCurTimeLimit[BOTTLE_MAX];      // "bottle_sub", one entry for each bottle
     /* 0x1080 */ u64 bottleTimerCurTime[BOTTLE_MAX];         // "bottle_time", one entry for each bottle
     /* 0x10B0 */ OSTime bottleTimerPausedOsTime[BOTTLE_MAX]; // "bottle_stop_time", one entry for each bottle
     /* 0x10E0 */ u64 pictoPhoto[1400];                  // buffer containing the pictograph photo
@@ -317,7 +320,7 @@ typedef struct SaveContext {
     /* 0x3DD0 */ u8 timerState[TIMER_ID_MAX];           // "event_fg"
     /* 0x3DD7 */ u8 timerDirection[TIMER_ID_MAX];       // "calc_flag"
     /* 0x3DE0 */ u64 timerCurTime[TIMER_ID_MAX];        // "event_ostime"
-    /* 0x3E18 */ u64 timerCurSubTime[TIMER_ID_MAX];     // "event_sub"
+    /* 0x3E18 */ u64 timerTimeLimit[TIMER_ID_MAX];     // "event_sub"
     /* 0x3E50 */ OSTime timerStartOsTime[TIMER_ID_MAX]; // "func_time"
     /* 0x3E88 */ OSTime timerEndOsTime[TIMER_ID_MAX];   // "func_end_time"
     /* 0x3EC0 */ OSTime timerPausedOsTime[TIMER_ID_MAX]; // "func_stop_time"
