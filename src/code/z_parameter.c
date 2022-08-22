@@ -262,14 +262,14 @@ Gfx* Gfx_DrawRectTextureIA8(Gfx* displayListHead, void* texture, s16 textureWidt
 Gfx* Gfx_DrawRectTextureIA8_DropShadow(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight,
                                        s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy,
                                        s16 r, s16 g, s16 b, s16 a) {
-    s16 temp_var = a;
+    s16 dropShadowAlpha = a;
 
     if (a > 100) {
-        temp_var = 100;
+        dropShadowAlpha = 100;
     }
 
     gDPPipeSync(displayListHead++);
-    gDPSetPrimColor(displayListHead++, 0, 0, 0, 0, 0, temp_var);
+    gDPSetPrimColor(displayListHead++, 0, 0, 0, 0, 0, dropShadowAlpha);
 
     gDPLoadTextureBlock(displayListHead++, texture, G_IM_FMT_IA, G_IM_SIZ_8b, textureWidth, textureHeight, 0,
                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
@@ -289,14 +289,14 @@ Gfx* Gfx_DrawRectTextureIA8_DropShadow(Gfx* displayListHead, void* texture, s16 
 
 Gfx* Gfx_DrawRect_DropShadow(Gfx* displayListHead, s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx,
                              u16 dtdy, s16 r, s16 g, s16 b, s16 a) {
-    s16 temp_var = a;
+    s16 dropShadowAlpha = a;
 
     if (a > 100) {
-        temp_var = 100;
+        dropShadowAlpha = 100;
     }
 
     gDPPipeSync(displayListHead++);
-    gDPSetPrimColor(displayListHead++, 0, 0, 0, 0, 0, temp_var);
+    gDPSetPrimColor(displayListHead++, 0, 0, 0, 0, 0, dropShadowAlpha);
     gSPTextureRectangle(displayListHead++, (rectLeft + 2) * 4, (rectTop + 2) * 4, (rectLeft + rectWidth + 2) * 4,
                         (rectTop + rectHeight + 2) * 4, G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
 
@@ -311,27 +311,27 @@ Gfx* Gfx_DrawRect_DropShadow(Gfx* displayListHead, s16 rectLeft, s16 rectTop, s1
 
 Gfx* Gfx_DrawRectTextureIA8_DropShadowOffset(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight,
                                              s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx,
-                                             u16 dtdy, s16 r, s16 g, s16 b, s16 a, s32 argE, s32 argF) {
-    s16 temp_var = a;
+                                             u16 dtdy, s16 r, s16 g, s16 b, s16 a, s32 masks, s32 rectS) {
+    s16 dropShadowAlpha = a;
 
     if (a > 100) {
-        temp_var = 100;
+        dropShadowAlpha = 100;
     }
 
     gDPPipeSync(displayListHead++);
-    gDPSetPrimColor(displayListHead++, 0, 0, 0, 0, 0, temp_var);
+    gDPSetPrimColor(displayListHead++, 0, 0, 0, 0, 0, dropShadowAlpha);
 
     gDPLoadTextureBlock(displayListHead++, texture, G_IM_FMT_IA, G_IM_SIZ_8b, textureWidth, textureHeight, 0,
-                        G_TX_MIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, argE, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                        G_TX_MIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, masks, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
     gSPTextureRectangle(displayListHead++, (rectLeft + 2) * 4, (rectTop + 2) * 4, (rectLeft + rectWidth + 2) * 4,
-                        (rectTop + rectHeight + 2) * 4, G_TX_RENDERTILE, argF, 0, dsdx, dtdy);
+                        (rectTop + rectHeight + 2) * 4, G_TX_RENDERTILE, rectS, 0, dsdx, dtdy);
 
     gDPPipeSync(displayListHead++);
     gDPSetPrimColor(displayListHead++, 0, 0, r, g, b, a);
 
     gSPTextureRectangle(displayListHead++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4,
-                        (rectTop + rectHeight) * 4, G_TX_RENDERTILE, argF, 0, dsdx, dtdy);
+                        (rectTop + rectHeight) * 4, G_TX_RENDERTILE, rectS, 0, dsdx, dtdy);
 
     return displayListHead;
 }
@@ -360,21 +360,21 @@ Gfx* Gfx_DrawRectTexture(Gfx* displayListHead, void* texture, s32 fmt, s16 textu
     return displayListHead;
 }
 
-Gfx* Gfx_DrawQuadTextureIA8(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, u16 i) {
+Gfx* Gfx_DrawQuadTextureIA8(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, u16 point) {
     gDPLoadTextureBlock(displayListHead++, texture, G_IM_FMT_IA, G_IM_SIZ_8b, textureWidth, textureHeight, 0,
                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                         G_TX_NOLOD);
 
-    gSP1Quadrangle(displayListHead++, i, i + 2, i + 3, i + 1, 0);
+    gSP1Quadrangle(displayListHead++, point, point + 2, point + 3, point + 1, 0);
 
     return displayListHead;
 }
 
-Gfx* Gfx_DrawQuadTexture(Gfx* displayListHead, void* texture, s32 fmt, s16 textureWidth, s16 textureHeight, u16 i) {
+Gfx* Gfx_DrawQuadTexture(Gfx* displayListHead, void* texture, s32 fmt, s16 textureWidth, s16 textureHeight, u16 point) {
     gDPLoadTextureBlock_4b(displayListHead++, texture, fmt, textureWidth, textureHeight, 0, G_TX_NOMIRROR | G_TX_WRAP,
                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
-    gSP1Quadrangle(displayListHead++, i, i + 2, i + 3, i + 1, 0);
+    gSP1Quadrangle(displayListHead++, point, point + 2, point + 3, point + 1, 0);
 
     return displayListHead;
 }
@@ -383,13 +383,13 @@ s16 D_801BFA04[] = {
     -14, -14, -24, -8, -12, -12, -7, -8, -7, -8, -12, 0,
 };
 s16 D_801BFA1C[] = {
-    0x1C, 0x1C, 0x30, 0x10, 0x18, 0x18, 0x10, 0x10, 0x10, 0x10, 0x18, 0,
+    28, 28, 48, 16, 24, 24, 16, 16, 16, 16, 24, 0,
 };
 s16 D_801BFA34[] = {
     14, 14, 8, 24, -82, -82, 58, 59, 58, 59, 32, 0,
 };
 s16 D_801BFA4C[] = {
-    0x1C, 0x1C, 0x10, 0x10, 0x18, 0x18, 0xB, 0xB, 0xB, 0xB, 0x20, 0,
+    28, 28, 16, 16, 24, 24, 11, 11, 11, 11, 32, 0,
 };
 s16 D_801BFA64[] = {
     -61, -45, 29, 104, -117, -42, 32, 55,
@@ -397,7 +397,6 @@ s16 D_801BFA64[] = {
 s16 D_801BFA74[] = {
     1, -70, -99, -70, 71, 101, 72, 1,
 };
-
 void Interface_InitVertices(PlayState* play) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
     s16 i;
@@ -1767,26 +1766,24 @@ void func_80110038(PlayState* play) {
                                     }
                                 }
                             }
-                        } else {
-                            if (interfaceCtx->restrictions.bButton != 0) {
-                                if ((BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOW) ||
-                                    (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOMB) ||
-                                    (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOMBCHU)) {
-                                    if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) == EQUIP_VALUE_SWORD_NONE) {
-                                        gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_DISABLED;
-                                    }
-
-                                    BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = gSaveContext.buttonStatus[EQUIP_SLOT_B];
-
-                                    if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NONE) {
-                                        Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
-                                    }
-                                    phi_t3 = true;
-                                }
-                                if (gSaveContext.buttonStatus[EQUIP_SLOT_B] != BTN_DISABLED) {
+                        } else if (interfaceCtx->restrictions.bButton != 0) {
+                            if ((BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOW) ||
+                                (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOMB) ||
+                                (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOMBCHU)) {
+                                if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) == EQUIP_VALUE_SWORD_NONE) {
                                     gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_DISABLED;
-                                    phi_t3 = true;
                                 }
+
+                                BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = gSaveContext.buttonStatus[EQUIP_SLOT_B];
+
+                                if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NONE) {
+                                    Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
+                                }
+                                phi_t3 = true;
+                            }
+                            if (gSaveContext.buttonStatus[EQUIP_SLOT_B] != BTN_DISABLED) {
+                                gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_DISABLED;
+                                phi_t3 = true;
                             }
                         }
                     }
@@ -1949,7 +1946,7 @@ void func_80111CB4(PlayState* play) {
 
     sp28 = false;
     if (gSaveContext.save.cutscene < 0xFFF0) {
-        gSaveContext.hudVisibilityForceButtonAlphasByStatus = 0;
+        gSaveContext.hudVisibilityForceButtonAlphasByStatus = false;
         if ((player->stateFlags1 & PLAYER_STATE1_800000) || (gSaveContext.save.weekEventReg[8] & 1) ||
             (!(gSaveContext.eventInf[4] & 2) && (play->unk_1887C >= 2))) {
             if ((player->stateFlags1 & PLAYER_STATE1_800000) && (player->currentMask == PLAYER_MASK_BLAST) &&
@@ -3673,7 +3670,7 @@ void Magic_DrawMeter(PlayState* play) {
     CLOSE_DISPS(play->state.gfxCtx);
 }
 
-void func_80116FD8(PlayState* play, s32 topY, s32 bottomY, s32 leftX, s32 rightX) {
+void Interface_SetView1(PlayState* play, s32 topY, s32 bottomY, s32 leftX, s32 rightX) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
     Vec3f eye;
     Vec3f lookAt;
@@ -3697,7 +3694,7 @@ void func_80116FD8(PlayState* play, s32 topY, s32 bottomY, s32 leftX, s32 rightX
     func_8013FD74(&interfaceCtx->view);
 }
 
-void func_801170B8(InterfaceContext* interfaceCtx) {
+void Interface_SetView2(InterfaceContext* interfaceCtx) {
     SET_FULLSCREEN_VIEWPORT(&interfaceCtx->view);
     func_8013FBC8(&interfaceCtx->view);
 }
@@ -4041,7 +4038,7 @@ void func_80118BA4(PlayState* play) {
 
     func_8012C8D4(play->state.gfxCtx);
 
-    func_80116FD8(play, XREG(31) + 0x19, XREG(31) + 0x46, 192, 237);
+    Interface_SetView1(play, XREG(31) + 0x19, XREG(31) + 0x46, 192, 237);
 
     gSPClearGeometryMode(OVERLAY_DISP++, G_CULL_BOTH);
     gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
@@ -4059,13 +4056,13 @@ void func_80118BA4(PlayState* play) {
     OVERLAY_DISP = Gfx_DrawQuadTextureIA8(OVERLAY_DISP, gButtonBackgroundTex, 32, 32, 0);
 
     gDPPipeSync(OVERLAY_DISP++);
-    func_80116FD8(play, XREG(31) + 0x17, XREG(31) + 0x44, 190, 235);
+    Interface_SetView1(play, XREG(31) + 0x17, XREG(31) + 0x44, 190, 235);
     gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[0], 4, 0);
     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 100, 200, 255, interfaceCtx->aAlpha);
     gSP1Quadrangle(OVERLAY_DISP++, 0, 2, 3, 1, 0);
 
     gDPPipeSync(OVERLAY_DISP++);
-    func_80116FD8(play, XREG(31) + 0x17, XREG(31) + 0x44, 190, 235);
+    Interface_SetView1(play, XREG(31) + 0x17, XREG(31) + 0x44, 190, 235);
     gSPSetGeometryMode(OVERLAY_DISP++, G_CULL_BACK);
     gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE,
                       ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
@@ -4104,7 +4101,7 @@ void func_80119030(PlayState* play) {
 
     gDPPipeSync(OVERLAY_DISP++);
 
-    func_801170B8(interfaceCtx);
+    Interface_SetView2(interfaceCtx);
 
     if (pauseCtx->state == 6) {
         if ((pauseCtx->unk_200 == 3) || (pauseCtx->unk_200 == 0xF)) {
@@ -5920,7 +5917,7 @@ void Interface_Draw(PlayState* play) {
 
     if (pauseCtx->debugEditor == DEBUG_EDITOR_NONE) {
         Interface_InitVertices(play);
-        func_801170B8(interfaceCtx);
+        Interface_SetView2(interfaceCtx);
 
         if (interfaceCtx->storyState == 2) {
             gSPSegment(OVERLAY_DISP++, 0x07, interfaceCtx->storySegment);

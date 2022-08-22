@@ -1655,8 +1655,8 @@ asm/non_matchings/code/z_parameter/Magic_UpdateAddRequest.s,Magic_UpdateAddReque
 asm/non_matchings/code/z_parameter/Magic_FlashMeterBorder.s,Magic_FlashMeterBorder,0x80116114,0x8D
 asm/non_matchings/code/z_parameter/Magic_Update.s,Magic_Update,0x80116348,0x174
 asm/non_matchings/code/z_parameter/Magic_DrawMeter.s,Magic_DrawMeter,0x80116918,0x1B0
-asm/non_matchings/code/z_parameter/func_80116FD8.s,func_80116FD8,0x80116FD8,0x38
-asm/non_matchings/code/z_parameter/func_801170B8.s,func_801170B8,0x801170B8,0x12
+asm/non_matchings/code/z_parameter/Interface_SetView1.s,Interface_SetView1,0x80116FD8,0x38
+asm/non_matchings/code/z_parameter/Interface_SetView2.s,Interface_SetView2,0x801170B8,0x12
 asm/non_matchings/code/z_parameter/Interface_DrawItemButtons.s,Interface_DrawItemButtons,0x80117100,0x248
 asm/non_matchings/code/z_parameter/Interface_DrawItemIconTexture.s,Interface_DrawItemIconTexture,0x80117A20,0x6C
 asm/non_matchings/code/z_parameter/Interface_DrawAmmoCount.s,Interface_DrawAmmoCount,0x80117BD0,0x12D
