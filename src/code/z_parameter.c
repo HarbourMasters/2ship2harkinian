@@ -235,8 +235,8 @@ s16 sFinalHoursClockFrameEnvBlue = 0;
 s16 sFinalHoursClockColorTimer = 15;
 s16 sFinalHoursClockColorTargetIndex = 0;
 
-Gfx* Gfx_TextureRGBA16(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft,
-                       s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy) {
+Gfx* Gfx_DrawRectTextureRGBA16(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft,
+                               s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy) {
     gDPLoadTextureBlock(displayListHead++, texture, G_IM_FMT_RGBA, G_IM_SIZ_16b, textureWidth, textureHeight, 0,
                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                         G_TX_NOLOD);
@@ -247,8 +247,8 @@ Gfx* Gfx_TextureRGBA16(Gfx* displayListHead, void* texture, s16 textureWidth, s1
     return displayListHead;
 }
 
-Gfx* Gfx_TextureIA8(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft, s16 rectTop,
-                    s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy) {
+Gfx* Gfx_DrawRectTextureIA8(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft,
+                            s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy) {
     gDPLoadTextureBlock(displayListHead++, texture, G_IM_FMT_IA, G_IM_SIZ_8b, textureWidth, textureHeight, 0,
                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                         G_TX_NOLOD);
@@ -259,8 +259,9 @@ Gfx* Gfx_TextureIA8(Gfx* displayListHead, void* texture, s16 textureWidth, s16 t
     return displayListHead;
 }
 
-Gfx* func_8010CFBC(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft, s16 rectTop,
-                   s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy, s16 r, s16 g, s16 b, s16 a) {
+Gfx* Gfx_DrawRectTextureIA8_DropShadow(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight,
+                                       s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy,
+                                       s16 r, s16 g, s16 b, s16 a) {
     s16 temp_var = a;
 
     if (a > 100) {
@@ -286,8 +287,8 @@ Gfx* func_8010CFBC(Gfx* displayListHead, void* texture, s16 textureWidth, s16 te
     return displayListHead;
 }
 
-Gfx* func_8010D2D4(Gfx* displayListHead, s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy,
-                   s16 r, s16 g, s16 b, s16 a) {
+Gfx* Gfx_DrawRect_DropShadow(Gfx* displayListHead, s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx,
+                             u16 dtdy, s16 r, s16 g, s16 b, s16 a) {
     s16 temp_var = a;
 
     if (a > 100) {
@@ -308,8 +309,9 @@ Gfx* func_8010D2D4(Gfx* displayListHead, s16 rectLeft, s16 rectTop, s16 rectWidt
     return displayListHead;
 }
 
-Gfx* func_8010D480(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft, s16 rectTop,
-                   s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy, s16 r, s16 g, s16 b, s16 a, s32 argE, s32 argF) {
+Gfx* Gfx_DrawRectTextureIA8_DropShadowOffset(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight,
+                                             s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx,
+                                             u16 dtdy, s16 r, s16 g, s16 b, s16 a, s32 argE, s32 argF) {
     s16 temp_var = a;
 
     if (a > 100) {
@@ -334,8 +336,8 @@ Gfx* func_8010D480(Gfx* displayListHead, void* texture, s16 textureWidth, s16 te
     return displayListHead;
 }
 
-Gfx* Gfx_TextureI8(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft, s16 rectTop,
-                   s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy) {
+Gfx* Gfx_DrawRectTextureI8(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft,
+                           s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy) {
     gDPLoadTextureBlock(displayListHead++, texture, G_IM_FMT_I, G_IM_SIZ_8b, textureWidth, textureHeight, 0,
                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                         G_TX_NOLOD);
@@ -346,8 +348,9 @@ Gfx* Gfx_TextureI8(Gfx* displayListHead, void* texture, s16 textureWidth, s16 te
     return displayListHead;
 }
 
-Gfx* func_8010D9F4(Gfx* displayListHead, void* texture, s32 fmt, s16 textureWidth, s16 textureHeight, s16 rectLeft,
-                   s16 rectTop, s16 rectWidth, s16 rectHeight, s32 cms, s32 masks, s32 s, u16 dsdx, u16 dtdy) {
+Gfx* Gfx_DrawRectTexture(Gfx* displayListHead, void* texture, s32 fmt, s16 textureWidth, s16 textureHeight,
+                         s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, s32 cms, s32 masks, s32 s, u16 dsdx,
+                         u16 dtdy) {
     gDPLoadTextureBlock_4b(displayListHead++, texture, fmt, textureWidth, textureHeight, 0, cms,
                            G_TX_NOMIRROR | G_TX_WRAP, masks, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
@@ -357,7 +360,7 @@ Gfx* func_8010D9F4(Gfx* displayListHead, void* texture, s32 fmt, s16 textureWidt
     return displayListHead;
 }
 
-Gfx* func_8010DC58(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, u16 i) {
+Gfx* Gfx_DrawQuadTextureIA8(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, u16 i) {
     gDPLoadTextureBlock(displayListHead++, texture, G_IM_FMT_IA, G_IM_SIZ_8b, textureWidth, textureHeight, 0,
                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                         G_TX_NOLOD);
@@ -367,7 +370,7 @@ Gfx* func_8010DC58(Gfx* displayListHead, void* texture, s16 textureWidth, s16 te
     return displayListHead;
 }
 
-Gfx* func_8010DE38(Gfx* displayListHead, void* texture, s32 fmt, s16 textureWidth, s16 textureHeight, u16 i) {
+Gfx* Gfx_DrawQuadTexture(Gfx* displayListHead, void* texture, s32 fmt, s16 textureWidth, s16 textureHeight, u16 i) {
     gDPLoadTextureBlock_4b(displayListHead++, texture, fmt, textureWidth, textureHeight, 0, G_TX_NOMIRROR | G_TX_WRAP,
                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
@@ -3613,17 +3616,17 @@ void Magic_DrawMeter(PlayState* play) {
 
         gDPSetEnvColor(OVERLAY_DISP++, 100, 50, 50, 255);
 
-        OVERLAY_DISP = func_8010CFBC(OVERLAY_DISP, gMagicMeterEndTex, 8, 16, 18, magicBarY, 8, 16, 1 << 10, 1 << 10,
-                                     sMagicMeterOutlinePrimRed, sMagicMeterOutlinePrimGreen, sMagicMeterOutlinePrimBlue,
-                                     interfaceCtx->magicAlpha);
-        OVERLAY_DISP =
-            func_8010CFBC(OVERLAY_DISP, gMagicMeterMidTex, 24, 16, 26, magicBarY, ((void)0, gSaveContext.magicCapacity),
-                          16, 1 << 10, 1 << 10, sMagicMeterOutlinePrimRed, sMagicMeterOutlinePrimGreen,
-                          sMagicMeterOutlinePrimBlue, interfaceCtx->magicAlpha);
-        OVERLAY_DISP =
-            func_8010D480(OVERLAY_DISP, gMagicMeterEndTex, 8, 16, ((void)0, gSaveContext.magicCapacity) + 26, magicBarY,
-                          8, 16, 1 << 10, 1 << 10, sMagicMeterOutlinePrimRed, sMagicMeterOutlinePrimGreen,
-                          sMagicMeterOutlinePrimBlue, interfaceCtx->magicAlpha, 3, 0x100);
+        OVERLAY_DISP = Gfx_DrawRectTextureIA8_DropShadow(
+            OVERLAY_DISP, gMagicMeterEndTex, 8, 16, 18, magicBarY, 8, 16, 1 << 10, 1 << 10, sMagicMeterOutlinePrimRed,
+            sMagicMeterOutlinePrimGreen, sMagicMeterOutlinePrimBlue, interfaceCtx->magicAlpha);
+        OVERLAY_DISP = Gfx_DrawRectTextureIA8_DropShadow(OVERLAY_DISP, gMagicMeterMidTex, 24, 16, 26, magicBarY,
+                                                         ((void)0, gSaveContext.magicCapacity), 16, 1 << 10, 1 << 10,
+                                                         sMagicMeterOutlinePrimRed, sMagicMeterOutlinePrimGreen,
+                                                         sMagicMeterOutlinePrimBlue, interfaceCtx->magicAlpha);
+        OVERLAY_DISP = Gfx_DrawRectTextureIA8_DropShadowOffset(
+            OVERLAY_DISP, gMagicMeterEndTex, 8, 16, ((void)0, gSaveContext.magicCapacity) + 26, magicBarY, 8, 16,
+            1 << 10, 1 << 10, sMagicMeterOutlinePrimRed, sMagicMeterOutlinePrimGreen, sMagicMeterOutlinePrimBlue,
+            interfaceCtx->magicAlpha, 3, 0x100);
 
         gDPPipeSync(OVERLAY_DISP++);
         gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, 0, 0, 0, PRIMITIVE, PRIMITIVE,
@@ -3722,26 +3725,29 @@ void Interface_DrawItemButtons(PlayState* play) {
     gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
 
     // B Button Color & Texture
-    OVERLAY_DISP =
-        func_8010CFBC(OVERLAY_DISP, gButtonBackgroundTex, 0x20, 0x20, D_801BF9D4[0], D_801BF9DC[0], D_801BFAF4[0],
-                      D_801BFAF4[0], D_801BF9E4[0] * 2, D_801BF9E4[0] * 2, 0x64, 0xFF, 0x78, interfaceCtx->bAlpha);
+    OVERLAY_DISP = Gfx_DrawRectTextureIA8_DropShadow(OVERLAY_DISP, gButtonBackgroundTex, 0x20, 0x20, D_801BF9D4[0],
+                                                     D_801BF9DC[0], D_801BFAF4[0], D_801BFAF4[0], D_801BF9E4[0] * 2,
+                                                     D_801BF9E4[0] * 2, 0x64, 0xFF, 0x78, interfaceCtx->bAlpha);
     if (1) {}
     gDPPipeSync(OVERLAY_DISP++);
 
     // C-Left Button Color & Texture
-    OVERLAY_DISP = func_8010D2D4(OVERLAY_DISP, D_801BF9D4[1], D_801BF9DC[1], D_801BFAF4[1], D_801BFAF4[1],
-                                 D_801BF9E4[1] * 2, D_801BF9E4[1] * 2, 0xFF, 0xF0, 0, interfaceCtx->cLeftAlpha);
+    OVERLAY_DISP =
+        Gfx_DrawRect_DropShadow(OVERLAY_DISP, D_801BF9D4[1], D_801BF9DC[1], D_801BFAF4[1], D_801BFAF4[1],
+                                D_801BF9E4[1] * 2, D_801BF9E4[1] * 2, 0xFF, 0xF0, 0, interfaceCtx->cLeftAlpha);
     // C-Down Button Color & Texture
-    OVERLAY_DISP = func_8010D2D4(OVERLAY_DISP, D_801BF9D8[0], D_801BF9E0[0], D_801BFAF8[0], D_801BFAF8[0],
-                                 D_801BF9E8[0] * 2, D_801BF9E8[0] * 2, 0xFF, 0xF0, 0, interfaceCtx->cDownAlpha);
+    OVERLAY_DISP =
+        Gfx_DrawRect_DropShadow(OVERLAY_DISP, D_801BF9D8[0], D_801BF9E0[0], D_801BFAF8[0], D_801BFAF8[0],
+                                D_801BF9E8[0] * 2, D_801BF9E8[0] * 2, 0xFF, 0xF0, 0, interfaceCtx->cDownAlpha);
     // C-Right Button Color & Texture
-    OVERLAY_DISP = func_8010D2D4(OVERLAY_DISP, D_801BF9D8[1], D_801BF9E0[1], D_801BFAF8[1], D_801BFAF8[1],
-                                 D_801BF9E8[1] * 2, D_801BF9E8[1] * 2, 0xFF, 0xF0, 0, interfaceCtx->cRightAlpha);
+    OVERLAY_DISP =
+        Gfx_DrawRect_DropShadow(OVERLAY_DISP, D_801BF9D8[1], D_801BF9E0[1], D_801BFAF8[1], D_801BFAF8[1],
+                                D_801BF9E8[1] * 2, D_801BF9E8[1] * 2, 0xFF, 0xF0, 0, interfaceCtx->cRightAlpha);
 
     if ((pauseCtx->state < 8) || (pauseCtx->state >= 19)) {
         if ((play->pauseCtx.state != 0) || (play->pauseCtx.debugEditor != DEBUG_EDITOR_NONE)) {
-            OVERLAY_DISP = func_8010D2D4(OVERLAY_DISP, 0x88, 0x11, 0x16, 0x16, 0x5B6, 0x5B6, 0xFF, 0x82, 0x3C,
-                                         interfaceCtx->startAlpha);
+            OVERLAY_DISP = Gfx_DrawRect_DropShadow(OVERLAY_DISP, 0x88, 0x11, 0x16, 0x16, 0x5B6, 0x5B6, 0xFF, 0x82, 0x3C,
+                                                   interfaceCtx->startAlpha);
             // Start Button Texture, Color & Label
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->startAlpha);
@@ -3771,7 +3777,8 @@ void Interface_DrawItemButtons(PlayState* play) {
                 temp = interfaceCtx->aAlpha;
             }
 
-            OVERLAY_DISP = func_8010D2D4(OVERLAY_DISP, 0xFE, 0x10, 0x10, 0x10, 0x800, 0x800, 0xFF, 0xF0, 0, temp);
+            OVERLAY_DISP =
+                Gfx_DrawRect_DropShadow(OVERLAY_DISP, 0xFE, 0x10, 0x10, 0x10, 0x800, 0x800, 0xFF, 0xF0, 0, temp);
 
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, temp);
@@ -3804,9 +3811,9 @@ void Interface_DrawItemButtons(PlayState* play) {
             } else {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 240, 0, interfaceCtx->cRightAlpha);
             }
-            OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, ((u8*)gButtonBackgroundTex + ((32 * 32) * (temp + 1))), 0x20,
-                                          0x20, D_801BF9D4[temp], D_801BF9DC[temp], D_801BFAF4[temp], D_801BFAF4[temp],
-                                          D_801BF9E4[temp] * 2, D_801BF9E4[temp] * 2);
+            OVERLAY_DISP = Gfx_DrawRectTextureIA8(OVERLAY_DISP, ((u8*)gButtonBackgroundTex + ((32 * 32) * (temp + 1))),
+                                                  0x20, 0x20, D_801BF9D4[temp], D_801BF9DC[temp], D_801BFAF4[temp],
+                                                  D_801BFAF4[temp], D_801BF9E4[temp] * 2, D_801BF9E4[temp] * 2);
         }
     }
 
@@ -3882,12 +3889,12 @@ void Interface_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
         }
 
         if (i) {
-            OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, ((u8*)gAmmoDigit0Tex + ((8 * 8) * i)), 8, 8, D_801BFB04[button],
-                                          D_801BFB0C[button], 8, 8, 1 << 10, 1 << 10);
+            OVERLAY_DISP = Gfx_DrawRectTextureIA8(OVERLAY_DISP, ((u8*)gAmmoDigit0Tex + ((8 * 8) * i)), 8, 8,
+                                                  D_801BFB04[button], D_801BFB0C[button], 8, 8, 1 << 10, 1 << 10);
         }
 
-        OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, ((u8*)gAmmoDigit0Tex + ((8 * 8) * ammo)), 8, 8,
-                                      D_801BFB04[button] + 6, D_801BFB0C[button], 8, 8, 1 << 10, 1 << 10);
+        OVERLAY_DISP = Gfx_DrawRectTextureIA8(OVERLAY_DISP, ((u8*)gAmmoDigit0Tex + ((8 * 8) * ammo)), 8, 8,
+                                              D_801BFB04[button] + 6, D_801BFB0C[button], 8, 8, 1 << 10, 1 << 10);
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -4049,7 +4056,7 @@ void func_80118BA4(PlayState* play) {
     gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[4], 4, 0);
     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, aAlpha);
 
-    OVERLAY_DISP = func_8010DC58(OVERLAY_DISP, gButtonBackgroundTex, 32, 32, 0);
+    OVERLAY_DISP = Gfx_DrawQuadTextureIA8(OVERLAY_DISP, gButtonBackgroundTex, 32, 32, 0);
 
     gDPPipeSync(OVERLAY_DISP++);
     func_80116FD8(play, XREG(31) + 0x17, XREG(31) + 0x44, 190, 235);
@@ -4073,11 +4080,11 @@ void func_80118BA4(PlayState* play) {
 
     // Draw Action Label
     if (((interfaceCtx->unk_210 < 2) || (interfaceCtx->unk_210 == 3))) {
-        OVERLAY_DISP =
-            func_8010DE38(OVERLAY_DISP, interfaceCtx->doActionSegment, 3, DO_ACTION_TEX_WIDTH, DO_ACTION_TEX_HEIGHT, 0);
+        OVERLAY_DISP = Gfx_DrawQuadTexture(OVERLAY_DISP, interfaceCtx->doActionSegment, 3, DO_ACTION_TEX_WIDTH,
+                                           DO_ACTION_TEX_HEIGHT, 0);
     } else {
-        OVERLAY_DISP = func_8010DE38(OVERLAY_DISP, interfaceCtx->doActionSegment + DO_ACTION_TEX_SIZE, 3,
-                                     DO_ACTION_TEX_WIDTH, DO_ACTION_TEX_HEIGHT, 0);
+        OVERLAY_DISP = Gfx_DrawQuadTexture(OVERLAY_DISP, interfaceCtx->doActionSegment + DO_ACTION_TEX_SIZE, 3,
+                                           DO_ACTION_TEX_WIDTH, DO_ACTION_TEX_HEIGHT, 0);
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -4282,8 +4289,8 @@ void Interface_DrawClock(PlayState* play) {
                             gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0,
                                               PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0);
 
-                            OVERLAY_DISP = func_8010D9F4(OVERLAY_DISP, gThreeDayClockHourLinesTex, 4, 64, 35, 96, 180,
-                                                         128, 35, 1, 6, 0, 1 << 10, 1 << 10);
+                            OVERLAY_DISP = Gfx_DrawRectTexture(OVERLAY_DISP, gThreeDayClockHourLinesTex, 4, 64, 35, 96,
+                                                               180, 128, 35, 1, 6, 0, 1 << 10, 1 << 10);
 
                             /**
                              * Draw Clock's Border
@@ -4297,8 +4304,8 @@ void Interface_DrawClock(PlayState* play) {
                             //!      resulting in this reading into the next texture. This results in a white
                             //!      dot in the bottom center of the clock. For the three-day clock, this is
                             //!      covered by the diamond. However, it can be seen by the final-hours clock.
-                            OVERLAY_DISP = func_8010D9F4(OVERLAY_DISP, gThreeDayClockBorderTex, 4, 64, 50, 96, 168, 128,
-                                                         50, 1, 6, 0, 1 << 10, 1 << 10);
+                            OVERLAY_DISP = Gfx_DrawRectTexture(OVERLAY_DISP, gThreeDayClockBorderTex, 4, 64, 50, 96,
+                                                               168, 128, 50, 1, 6, 0, 1 << 10, 1 << 10);
 
                             if (((CURRENT_DAY >= 4) ||
                                  ((CURRENT_DAY == 3) && (((void)0, gSaveContext.save.time) >= 5) &&
@@ -4380,8 +4387,8 @@ void Interface_DrawClock(PlayState* play) {
                                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 170, 100, D_801BFB2C);
                                 }
 
-                                OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, gThreeDayClockDiamondTex, 40, 32, 140, 190,
-                                                              40, 32, 1 << 10, 1 << 10);
+                                OVERLAY_DISP = Gfx_DrawRectTextureIA8(OVERLAY_DISP, gThreeDayClockDiamondTex, 40, 32,
+                                                                      140, 190, 40, 32, 1 << 10, 1 << 10);
 
                                 /**
                                  * Draw Three-Day Clock's Day-Number over Diamond
@@ -4389,8 +4396,9 @@ void Interface_DrawClock(PlayState* play) {
                                 gDPPipeSync(OVERLAY_DISP++);
                                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 155, D_801BFB2C);
 
-                                OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, interfaceCtx->doActionSegment + 0x780, 48,
-                                                              27, 137, 192, 48, 27, 1 << 10, 1 << 10);
+                                OVERLAY_DISP =
+                                    Gfx_DrawRectTextureIA8(OVERLAY_DISP, interfaceCtx->doActionSegment + 0x780, 48, 27,
+                                                           137, 192, 48, 27, 1 << 10, 1 << 10);
 
                                 /**
                                  * Draw Three-Day Clock's Star for the Minute Tracker
@@ -4472,7 +4480,7 @@ void Interface_DrawClock(PlayState* play) {
                                       G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[16], 4, 0);
 
-                            OVERLAY_DISP = func_8010DC58(OVERLAY_DISP, gThreeDayClockSunHourTex, 24, 24, 0);
+                            OVERLAY_DISP = Gfx_DrawQuadTextureIA8(OVERLAY_DISP, gThreeDayClockSunHourTex, 24, 24, 0);
 
                             /**
                              * Draw Three-Day Clock's Moon for the Night-Time Hours Tracker
@@ -4490,7 +4498,7 @@ void Interface_DrawClock(PlayState* play) {
                                       G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[20], 4, 0);
 
-                            OVERLAY_DISP = func_8010DC58(OVERLAY_DISP, gThreeDayClockMoonHourTex, 24, 24, 0);
+                            OVERLAY_DISP = Gfx_DrawQuadTextureIA8(OVERLAY_DISP, gThreeDayClockMoonHourTex, 24, 24, 0);
 
                             /**
                              * Cuts off Three-Day Clock's Hour Digits when they dip below the clock
@@ -4517,7 +4525,7 @@ void Interface_DrawClock(PlayState* play) {
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, D_801BFB2C);
                             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[24], 8, 0);
 
-                            OVERLAY_DISP = func_8010DE38(OVERLAY_DISP, D_801BFB6C[sp1C6], 4, 16, 11, 0);
+                            OVERLAY_DISP = Gfx_DrawQuadTexture(OVERLAY_DISP, D_801BFB6C[sp1C6], 4, 16, 11, 0);
 
                             // Colours the Three-Day Clocks's Hour Digit Above the Sun
                             gDPPipeSync(OVERLAY_DISP++);
@@ -4541,7 +4549,7 @@ void Interface_DrawClock(PlayState* play) {
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, D_801BFB2C);
                             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[32], 8, 0);
 
-                            OVERLAY_DISP = func_8010DE38(OVERLAY_DISP, D_801BFB6C[sp1C6], 4, 16, 11, 0);
+                            OVERLAY_DISP = Gfx_DrawQuadTexture(OVERLAY_DISP, D_801BFB6C[sp1C6], 4, 16, 11, 0);
 
                             // Colours the Three-Day Clocks's Hour Digit Above the Moon
                             gDPPipeSync(OVERLAY_DISP++);
@@ -4625,8 +4633,8 @@ void Interface_DrawClock(PlayState* play) {
                                 gDPSetEnvColor(OVERLAY_DISP++, sFinalHoursClockFrameEnvRed,
                                                sFinalHoursClockFrameEnvGreen, sFinalHoursClockFrameEnvBlue, 0);
 
-                                OVERLAY_DISP = func_8010D9F4(OVERLAY_DISP, gFinalHoursClockFrameTex, 3, 80, 13, 119,
-                                                             202, 80, 13, 0, 0, 0, 1 << 10, 1 << 10);
+                                OVERLAY_DISP = Gfx_DrawRectTexture(OVERLAY_DISP, gFinalHoursClockFrameTex, 3, 80, 13,
+                                                                   119, 202, 80, 13, 0, 0, 0, 1 << 10, 1 << 10);
 
                                 finalHoursClockSlots[0] = 0;
 
@@ -4679,8 +4687,9 @@ void Interface_DrawClock(PlayState* play) {
                                 for (sp1C6 = 0; sp1C6 < 8; sp1C6++) {
                                     index = D_801BFC40[sp1C6];
 
-                                    OVERLAY_DISP = Gfx_TextureI8(OVERLAY_DISP, D_801BFC14[finalHoursClockSlots[sp1C6]],
-                                                                 8, 8, index, 205, 8, 8, 1 << 10, 1 << 10);
+                                    OVERLAY_DISP =
+                                        Gfx_DrawRectTextureI8(OVERLAY_DISP, D_801BFC14[finalHoursClockSlots[sp1C6]], 8,
+                                                              8, index, 205, 8, 8, 1 << 10, 1 << 10);
                                 }
                             }
                         }
@@ -5157,7 +5166,7 @@ void Interface_DrawMinigamePerfect(PlayState* play) {
             gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[phi_s7] + 0x2C, 4, 0);
 
-            OVERLAY_DISP = func_8010DE38(OVERLAY_DISP, D_801BFCC4[i], 4, 32, 33, 0);
+            OVERLAY_DISP = Gfx_DrawQuadTexture(OVERLAY_DISP, D_801BFCC4[i], 4, 32, 33, 0);
 
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, interfaceCtx->unk_2FC[0], interfaceCtx->unk_2FC[1],
@@ -5169,7 +5178,7 @@ void Interface_DrawMinigamePerfect(PlayState* play) {
             gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[phi_s7] + 0x4C, 4, 0);
 
-            OVERLAY_DISP = func_8010DE38(OVERLAY_DISP, D_801BFCC4[i], 4, 32, 33, 0);
+            OVERLAY_DISP = Gfx_DrawQuadTexture(OVERLAY_DISP, D_801BFCC4[i], 4, 32, 33, 0);
         }
     }
 
@@ -5586,9 +5595,9 @@ void Interface_DrawTimers(PlayState* play) {
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 255);
             gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 0);
-            OVERLAY_DISP =
-                Gfx_TextureIA8(OVERLAY_DISP, gTimerClockIconTex, 0x10, 0x10, ((void)0, gSaveContext.timerX[sTimerId]),
-                               ((void)0, gSaveContext.timerY[sTimerId]) + 2, 0x10, 0x10, 1 << 10, 1 << 10);
+            OVERLAY_DISP = Gfx_DrawRectTextureIA8(
+                OVERLAY_DISP, gTimerClockIconTex, 0x10, 0x10, ((void)0, gSaveContext.timerX[sTimerId]),
+                ((void)0, gSaveContext.timerY[sTimerId]) + 2, 0x10, 0x10, 1 << 10, 1 << 10);
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0,
                               0, PRIMITIVE, 0);
@@ -5635,7 +5644,7 @@ void Interface_DrawTimers(PlayState* play) {
                     if (sPostmanBunnyHoodState == POSTMAN_MINIGAME_BUNNY_HOOD_ON) {
                         // draw sTimerDigits[3] (10s of seconds) to sTimerDigits[6] (100s of milliseconds)
                         for (j = 0; j < 4; j++) {
-                            OVERLAY_DISP = Gfx_TextureI8(
+                            OVERLAY_DISP = Gfx_DrawRectTextureI8(
                                 OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * sTimerDigits[j + 3])), 8, 0x10,
                                 ((void)0, gSaveContext.timerX[sTimerId]) + sTimerDigitsOffsetX[j],
                                 ((void)0, gSaveContext.timerY[sTimerId]), sTimerDigitsWidth[j], 0xFA, 0x370, 0x370);
@@ -5643,7 +5652,7 @@ void Interface_DrawTimers(PlayState* play) {
                     } else {
                         // draw sTimerDigits[3] (10s of seconds) to sTimerDigits[7] (10s of milliseconds)
                         for (j = 0; j < 5; j++) {
-                            OVERLAY_DISP = Gfx_TextureI8(
+                            OVERLAY_DISP = Gfx_DrawRectTextureI8(
                                 OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * sTimerDigits[j + 3])), 8, 0x10,
                                 ((void)0, gSaveContext.timerX[sTimerId]) + sTimerDigitsOffsetX[j],
                                 ((void)0, gSaveContext.timerY[sTimerId]), sTimerDigitsWidth[j], 0xFA, 0x370, 0x370);
@@ -5652,7 +5661,7 @@ void Interface_DrawTimers(PlayState* play) {
                 } else {
                     // draw sTimerDigits[3] (6s of minutes) to sTimerDigits[7] (10s of milliseconds)
                     for (j = 0; j < 8; j++) {
-                        OVERLAY_DISP = Gfx_TextureI8(
+                        OVERLAY_DISP = Gfx_DrawRectTextureI8(
                             OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * sTimerDigits[j])), 8, 0x10,
                             ((void)0, gSaveContext.timerX[sTimerId]) + sTimerDigitsOffsetX[j],
                             ((void)0, gSaveContext.timerY[sTimerId]), sTimerDigitsWidth[j], 0xFA, 0x370, 0x370);
@@ -5829,9 +5838,9 @@ void Interface_DrawMinigameIcons(PlayState* play) {
 
             for (sp42 = sp40 = 0; sp42 < 4; sp42++) {
                 if ((sMinigameScoreDigits[sp42] != 0) || (sp40 != 0) || (sp42 >= 3)) {
-                    OVERLAY_DISP =
-                        Gfx_TextureI8(OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * sMinigameScoreDigits[sp42])), 8,
-                                      0x10, sp3E, sp3C - 2, 9, 0xFA, 0x370, 0x370);
+                    OVERLAY_DISP = Gfx_DrawRectTextureI8(
+                        OVERLAY_DISP, ((u8*)gCounterDigit0Tex + (8 * 16 * sMinigameScoreDigits[sp42])), 8, 0x10, sp3E,
+                        sp3C - 2, 9, 0xFA, 0x370, 0x370);
                     sp3E += 9;
                     sp40++;
                 }
@@ -5944,7 +5953,8 @@ void Interface_Draw(PlayState* play) {
                         D_801BFD2C[CUR_UPG_VALUE(4)].b, interfaceCtx->magicAlpha);
         gDPSetEnvColor(OVERLAY_DISP++, D_801BFD40[CUR_UPG_VALUE(4)].r, D_801BFD40[CUR_UPG_VALUE(4)].g,
                        D_801BFD40[CUR_UPG_VALUE(4)].b, 255);
-        OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, gRupeeCounterIconTex, 16, 16, 26, 206, 16, 16, 1 << 10, 1 << 10);
+        OVERLAY_DISP =
+            Gfx_DrawRectTextureIA8(OVERLAY_DISP, gRupeeCounterIconTex, 16, 16, 26, 206, 16, 16, 1 << 10, 1 << 10);
 
         switch (play->sceneNum) {
             case SCENE_INISIE_N:
@@ -5957,8 +5967,8 @@ void Interface_Draw(PlayState* play) {
                     gDPPipeSync(OVERLAY_DISP++);
                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 200, 230, 255, interfaceCtx->magicAlpha);
                     gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 20, 255);
-                    OVERLAY_DISP = Gfx_TextureIA8(OVERLAY_DISP, gSmallKeyCounterIconTex, 16, 16, 26, 190, 16, 16,
-                                                  1 << 10, 1 << 10);
+                    OVERLAY_DISP = Gfx_DrawRectTextureIA8(OVERLAY_DISP, gSmallKeyCounterIconTex, 16, 16, 26, 190, 16,
+                                                          16, 1 << 10, 1 << 10);
 
                     // Small Key Counter
                     gDPPipeSync(OVERLAY_DISP++);
@@ -5979,8 +5989,9 @@ void Interface_Draw(PlayState* play) {
                         gDPPipeSync(OVERLAY_DISP++);
                         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, interfaceCtx->magicAlpha);
 
-                        OVERLAY_DISP = Gfx_TextureI8(OVERLAY_DISP, (u8*)gCounterDigit0Tex + (8 * 16 * counterDigits[2]),
-                                                     8, 16, 43, 191, 8, 16, 1 << 10, 1 << 10);
+                        OVERLAY_DISP =
+                            Gfx_DrawRectTextureI8(OVERLAY_DISP, (u8*)gCounterDigit0Tex + (8 * 16 * counterDigits[2]), 8,
+                                                  16, 43, 191, 8, 16, 1 << 10, 1 << 10);
 
                         gDPPipeSync(OVERLAY_DISP++);
                         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->magicAlpha);
@@ -5993,8 +6004,9 @@ void Interface_Draw(PlayState* play) {
                     gDPPipeSync(OVERLAY_DISP++);
                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, interfaceCtx->magicAlpha);
 
-                    OVERLAY_DISP = Gfx_TextureI8(OVERLAY_DISP, (u8*)gCounterDigit0Tex + (8 * 16 * counterDigits[3]), 8,
-                                                 16, sp2CA + 1, 191, 8, 16, 1 << 10, 1 << 10);
+                    OVERLAY_DISP =
+                        Gfx_DrawRectTextureI8(OVERLAY_DISP, (u8*)gCounterDigit0Tex + (8 * 16 * counterDigits[3]), 8, 16,
+                                              sp2CA + 1, 191, 8, 16, 1 << 10, 1 << 10);
 
                     gDPPipeSync(OVERLAY_DISP++);
                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->magicAlpha);
@@ -6033,8 +6045,9 @@ void Interface_Draw(PlayState* play) {
                     gDPPipeSync(OVERLAY_DISP++);
                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, interfaceCtx->magicAlpha);
 
-                    OVERLAY_DISP = Gfx_TextureI8(OVERLAY_DISP, (u8*)gCounterDigit0Tex + (8 * 16 * counterDigits[2]), 8,
-                                                 16, 43, 191, 8, 16, 1 << 10, 1 << 10);
+                    OVERLAY_DISP =
+                        Gfx_DrawRectTextureI8(OVERLAY_DISP, (u8*)gCounterDigit0Tex + (8 * 16 * counterDigits[2]), 8, 16,
+                                              43, 191, 8, 16, 1 << 10, 1 << 10);
 
                     gDPPipeSync(OVERLAY_DISP++);
                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->magicAlpha);
@@ -6046,8 +6059,8 @@ void Interface_Draw(PlayState* play) {
                 gDPPipeSync(OVERLAY_DISP++);
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, interfaceCtx->magicAlpha);
 
-                OVERLAY_DISP = Gfx_TextureI8(OVERLAY_DISP, (u8*)gCounterDigit0Tex + (8 * 16 * counterDigits[3]), 8, 16,
-                                             sp2CA + 1, 191, 8, 16, 1 << 10, 1 << 10);
+                OVERLAY_DISP = Gfx_DrawRectTextureI8(OVERLAY_DISP, (u8*)gCounterDigit0Tex + (8 * 16 * counterDigits[3]),
+                                                     8, 16, sp2CA + 1, 191, 8, 16, 1 << 10, 1 << 10);
 
                 gDPPipeSync(OVERLAY_DISP++);
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->magicAlpha);
@@ -6093,8 +6106,8 @@ void Interface_Draw(PlayState* play) {
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, sp4C);
 
-            OVERLAY_DISP = Gfx_TextureI8(OVERLAY_DISP, (u8*)gCounterDigit0Tex + (8 * 16 * counterDigits[sp2CC]), 8, 16,
-                                         sp2CA + 1, 207, 8, 16, 1 << 10, 1 << 10);
+            OVERLAY_DISP = Gfx_DrawRectTextureI8(OVERLAY_DISP, (u8*)gCounterDigit0Tex + (8 * 16 * counterDigits[sp2CC]),
+                                                 8, 16, sp2CA + 1, 207, 8, 16, 1 << 10, 1 << 10);
 
             gDPPipeSync(OVERLAY_DISP++);
 
@@ -6161,7 +6174,7 @@ void Interface_Draw(PlayState* play) {
                               G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                     gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[0x28], 4, 0);
 
-                    OVERLAY_DISP = func_8010DC58(OVERLAY_DISP, D_801BFD54[sp2CE], D_801BFD64[sp2CE], 32, 0);
+                    OVERLAY_DISP = Gfx_DrawQuadTextureIA8(OVERLAY_DISP, D_801BFD54[sp2CE], D_801BFD64[sp2CE], 32, 0);
                 }
             } else {
                 Interface_DrawClock(play);
