@@ -514,13 +514,13 @@ void MapSelect_UpdateMenu(MapSelectState* this) {
 
     if (this->verticalInputAccumulator == 0) {
         if (CHECK_BTN_ALL(controller1->press.button, BTN_A) || CHECK_BTN_ALL(controller1->press.button, BTN_START)) {
-            for (i = 0; i < ARRAY_COUNT(gSaveContext.timerPausedOsTime); i++) {
-                gSaveContext.timerState[i] = TIMER_STATE_OFF;
-                gSaveContext.timerCurTime[i] = 0;
-                gSaveContext.timerTimeLimit[i] = SECONDS_TO_TIMER(0);
-                gSaveContext.timerStartOsTime[i] = 0;
-                gSaveContext.timerEndOsTime[i] = 0;
-                gSaveContext.timerPausedOsTime[i] = 0;
+            for (i = 0; i < ARRAY_COUNT(gSaveContext.timerPausedOsTimes); i++) {
+                gSaveContext.timerStates[i] = TIMER_STATE_OFF;
+                gSaveContext.timerCurTimes[i] = 0;
+                gSaveContext.timerTimeLimits[i] = SECONDS_TO_TIMER(0);
+                gSaveContext.timerStartOsTimes[i] = 0;
+                gSaveContext.timerEndOsTimes[i] = 0;
+                gSaveContext.timerPausedOsTimes[i] = 0;
             }
             gSaveContext.minigameState = 0;
 
