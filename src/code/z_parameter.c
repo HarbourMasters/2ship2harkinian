@@ -8,7 +8,7 @@
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "overlays/actors/ovl_En_Mm3/z_en_mm3.h"
 
-u8 func_800FE4A8();
+u8 func_800FE4A8(void);
 s32 func_801234D4(PlayState* play);
 void func_801663C4(u8* arg0, u8* arg1, u32 arg2);
 
@@ -29,120 +29,127 @@ typedef struct {
 
 Input sPostmanTimerInput[4];
 
+// TODO: Better way to do this?
+#define SET_RESTRICTIONS(hGauge, bButton, aButton, tradeItems, unk_312, unk_313, unk_314, songOfSoaring, songOfStorms, \
+                         unk_317, pictoBox, all)                                                                       \
+    ((((hGauge)&3) << 6) | (((bButton)&3) << 4) | (((aButton)&3) << 2) | (((tradeItems)&3) << 0)),                     \
+        ((((unk_312)&3) << 6) | (((unk_313)&3) << 4) | (((unk_314)&3) << 2) | (((songOfSoaring)&3) << 0)),             \
+        ((((songOfStorms)&3) << 6) | (((unk_317)&3) << 4) | (((pictoBox)&3) << 2) | (((all)&3) << 0))
+
 RestrictionFlags sRestrictionFlags[] = {
-    { SCENE_20SICHITAI2, 0x00, 0x00, 0x00 },
-    { SCENE_UNSET_1, 0x00, 0x00, 0x00 },
-    { SCENE_UNSET_2, 0x00, 0x00, 0x00 },
-    { SCENE_UNSET_3, 0x00, 0x00, 0x00 },
-    { SCENE_UNSET_4, 0x00, 0x00, 0x00 },
-    { SCENE_UNSET_5, 0x00, 0x00, 0x00 },
-    { SCENE_UNSET_6, 0x00, 0x00, 0x00 },
-    { SCENE_KAKUSIANA, 0x00, 0x00, 0x00 },
-    { SCENE_SPOT00, 0x00, 0x00, 0x00 },
-    { SCENE_UNSET_9, 0x00, 0x00, 0x00 },
-    { SCENE_WITCH_SHOP, 0x10, 0x30, 0xC1 },
-    { SCENE_LAST_BS, 0x00, 0x3F, 0x00 },
-    { SCENE_HAKASHITA, 0x00, 0x00, 0x00 },
-    { SCENE_AYASHIISHOP, 0x10, 0x30, 0xC1 },
-    { SCENE_UNSET_E, 0x00, 0x00, 0x00 },
-    { SCENE_UNSET_F, 0x00, 0x00, 0x00 },
-    { SCENE_OMOYA, 0x00, 0x33, 0x00 },
-    { SCENE_BOWLING, 0x10, 0x30, 0xC1 },
-    { SCENE_SONCHONOIE, 0x10, 0x30, 0xC1 },
-    { SCENE_IKANA, 0x00, 0x00, 0x00 },
-    { SCENE_KAIZOKU, 0x00, 0x00, 0x00 },
-    { SCENE_MILK_BAR, 0x10, 0x30, 0xC1 },
-    { SCENE_INISIE_N, 0x00, 0x00, 0x00 },
-    { SCENE_TAKARAYA, 0x10, 0x30, 0xC1 },
-    { SCENE_INISIE_R, 0x00, 0x00, 0x00 },
-    { SCENE_OKUJOU, 0x00, 0x3F, 0xF0 },
-    { SCENE_OPENINGDAN, 0x00, 0x00, 0x00 },
-    { SCENE_MITURIN, 0x00, 0x00, 0x00 },
-    { SCENE_13HUBUKINOMITI, 0x00, 0x00, 0x00 },
-    { SCENE_CASTLE, 0x00, 0x00, 0x00 },
-    { SCENE_DEKUTES, 0x10, 0x30, 0x01 },
-    { SCENE_MITURIN_BS, 0x00, 0x00, 0x00 },
-    { SCENE_SYATEKI_MIZU, 0x10, 0x30, 0xC1 },
-    { SCENE_HAKUGIN, 0x00, 0x00, 0x00 },
-    { SCENE_ROMANYMAE, 0x00, 0x00, 0x00 },
-    { SCENE_PIRATE, 0x00, 0x00, 0x00 },
-    { SCENE_SYATEKI_MORI, 0x10, 0x30, 0xC1 },
-    { SCENE_SINKAI, 0x00, 0x00, 0x00 },
-    { SCENE_YOUSEI_IZUMI, 0x00, 0x00, 0x00 },
-    { SCENE_KINSTA1, 0x00, 0x30, 0x00 },
-    { SCENE_KINDAN2, 0x00, 0x30, 0x00 },
-    { SCENE_TENMON_DAI, 0x00, 0x03, 0xC0 },
-    { SCENE_LAST_DEKU, 0x00, 0x3F, 0x00 },
-    { SCENE_22DEKUCITY, 0x00, 0x00, 0x00 },
-    { SCENE_KAJIYA, 0x00, 0x30, 0xC0 },
-    { SCENE_00KEIKOKU, 0x00, 0x00, 0x00 },
-    { SCENE_POSTHOUSE, 0x00, 0x30, 0xC1 },
-    { SCENE_LABO, 0x00, 0x30, 0xC1 },
-    { SCENE_DANPEI2TEST, 0x00, 0x30, 0x00 },
-    { SCENE_UNSET_31, 0x00, 0x00, 0x00 },
-    { SCENE_16GORON_HOUSE, 0x00, 0x00, 0x00 },
-    { SCENE_33ZORACITY, 0x00, 0x00, 0xC0 },
-    { SCENE_8ITEMSHOP, 0x00, 0x30, 0xC1 },
-    { SCENE_F01, 0x00, 0x00, 0x00 },
-    { SCENE_INISIE_BS, 0x00, 0x00, 0x00 },
-    { SCENE_30GYOSON, 0x00, 0x00, 0x00 },
-    { SCENE_31MISAKI, 0x00, 0x00, 0x00 },
-    { SCENE_TAKARAKUJI, 0x00, 0x30, 0xC1 },
-    { SCENE_UNSET_3A, 0x00, 0x00, 0x00 },
-    { SCENE_TORIDE, 0x00, 0x00, 0x00 },
-    { SCENE_FISHERMAN, 0x00, 0x30, 0xC1 },
-    { SCENE_GORONSHOP, 0x10, 0x30, 0xC1 },
-    { SCENE_DEKU_KING, 0x00, 0x30, 0xC0 },
-    { SCENE_LAST_GORON, 0x00, 0x3F, 0x00 },
-    { SCENE_24KEMONOMITI, 0x00, 0x00, 0x00 },
-    { SCENE_F01_B, 0x00, 0x30, 0x00 },
-    { SCENE_F01C, 0x00, 0x30, 0x00 },
-    { SCENE_BOTI, 0x00, 0x00, 0x00 },
-    { SCENE_HAKUGIN_BS, 0x00, 0x00, 0x00 },
-    { SCENE_20SICHITAI, 0x00, 0x00, 0x00 },
-    { SCENE_21MITURINMAE, 0x00, 0x00, 0x00 },
-    { SCENE_LAST_ZORA, 0x00, 0x3F, 0x00 },
-    { SCENE_11GORONNOSATO2, 0x00, 0x00, 0x00 },
-    { SCENE_SEA, 0x00, 0x00, 0x00 },
-    { SCENE_35TAKI, 0x00, 0x00, 0x00 },
-    { SCENE_REDEAD, 0x00, 0x00, 0x00 },
-    { SCENE_BANDROOM, 0x00, 0x30, 0xC0 },
-    { SCENE_11GORONNOSATO, 0x00, 0x00, 0x00 },
-    { SCENE_GORON_HAKA, 0x00, 0x00, 0x00 },
-    { SCENE_SECOM, 0x00, 0x3C, 0xC0 },
-    { SCENE_10YUKIYAMANOMURA, 0x00, 0x00, 0x00 },
-    { SCENE_TOUGITES, 0x00, 0x3F, 0xF0 },
-    { SCENE_DANPEI, 0x00, 0x30, 0x00 },
-    { SCENE_IKANAMAE, 0x00, 0x00, 0x00 },
-    { SCENE_DOUJOU, 0x00, 0x30, 0xC1 },
-    { SCENE_MUSICHOUSE, 0x00, 0x30, 0xC0 },
-    { SCENE_IKNINSIDE, 0x00, 0x3F, 0xC0 },
-    { SCENE_MAP_SHOP, 0x10, 0x30, 0xC1 },
-    { SCENE_F40, 0x00, 0x00, 0x00 },
-    { SCENE_F41, 0x00, 0x00, 0x00 },
-    { SCENE_10YUKIYAMANOMURA2, 0x00, 0x00, 0x00 },
-    { SCENE_14YUKIDAMANOMITI, 0x00, 0x00, 0x00 },
-    { SCENE_12HAKUGINMAE, 0x00, 0x00, 0x00 },
-    { SCENE_17SETUGEN, 0x00, 0x00, 0x00 },
-    { SCENE_17SETUGEN2, 0x00, 0x00, 0x00 },
-    { SCENE_SEA_BS, 0x00, 0x00, 0x00 },
-    { SCENE_RANDOM, 0x00, 0x00, 0x00 },
-    { SCENE_YADOYA, 0x10, 0x30, 0xC1 },
-    { SCENE_KONPEKI_ENT, 0x00, 0x00, 0x00 },
-    { SCENE_INSIDETOWER, 0x00, 0xFF, 0xC0 },
-    { SCENE_26SARUNOMORI, 0x00, 0x30, 0x00 },
-    { SCENE_LOST_WOODS, 0x00, 0x00, 0x00 },
-    { SCENE_LAST_LINK, 0x00, 0x3F, 0x00 },
-    { SCENE_SOUGEN, 0x00, 0x3F, 0x00 },
-    { SCENE_BOMYA, 0x10, 0x30, 0xC1 },
-    { SCENE_KYOJINNOMA, 0x00, 0x00, 0x00 },
-    { SCENE_KOEPONARACE, 0x00, 0x30, 0x00 },
-    { SCENE_GORONRACE, 0x00, 0x00, 0x00 },
-    { SCENE_TOWN, 0x00, 0x00, 0x00 },
-    { SCENE_ICHIBA, 0x00, 0x00, 0x00 },
-    { SCENE_BACKTOWN, 0x00, 0x00, 0x00 },
-    { SCENE_CLOCKTOWER, 0x00, 0x00, 0x00 },
-    { SCENE_ALLEY, 0x00, 0x00, 0x00 },
+    { SCENE_20SICHITAI2, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_UNSET_1, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_UNSET_2, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_UNSET_3, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_UNSET_4, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_UNSET_5, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_UNSET_6, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_KAKUSIANA, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_SPOT00, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_UNSET_9, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_WITCH_SHOP, SET_RESTRICTIONS(0, 1, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
+    { SCENE_LAST_BS, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 3, 3, 0, 0, 0, 0) },
+    { SCENE_HAKASHITA, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_AYASHIISHOP, SET_RESTRICTIONS(0, 1, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
+    { SCENE_UNSET_E, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_UNSET_F, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_OMOYA, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 3, 0, 0, 0, 0) },
+    { SCENE_BOWLING, SET_RESTRICTIONS(0, 1, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
+    { SCENE_SONCHONOIE, SET_RESTRICTIONS(0, 1, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
+    { SCENE_IKANA, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_KAIZOKU, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_MILK_BAR, SET_RESTRICTIONS(0, 1, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
+    { SCENE_INISIE_N, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_TAKARAYA, SET_RESTRICTIONS(0, 1, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
+    { SCENE_INISIE_R, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_OKUJOU, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 0, 0) },
+    { SCENE_OPENINGDAN, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_MITURIN, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_13HUBUKINOMITI, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_CASTLE, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_DEKUTES, SET_RESTRICTIONS(0, 1, 0, 0, 0, 3, 0, 0, 0, 0, 0, 1) },
+    { SCENE_MITURIN_BS, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_SYATEKI_MIZU, SET_RESTRICTIONS(0, 1, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
+    { SCENE_HAKUGIN, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_ROMANYMAE, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_PIRATE, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_SYATEKI_MORI, SET_RESTRICTIONS(0, 1, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
+    { SCENE_SINKAI, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_YOUSEI_IZUMI, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_KINSTA1, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0) },
+    { SCENE_KINDAN2, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0) },
+    { SCENE_TENMON_DAI, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 3, 3, 0, 0, 0) },
+    { SCENE_LAST_DEKU, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 3, 3, 0, 0, 0, 0) },
+    { SCENE_22DEKUCITY, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_KAJIYA, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 0) },
+    { SCENE_00KEIKOKU, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_POSTHOUSE, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
+    { SCENE_LABO, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
+    { SCENE_DANPEI2TEST, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0) },
+    { SCENE_UNSET_31, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_16GORON_HOUSE, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_33ZORACITY, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0) },
+    { SCENE_8ITEMSHOP, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
+    { SCENE_F01, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_INISIE_BS, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_30GYOSON, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_31MISAKI, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_TAKARAKUJI, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
+    { SCENE_UNSET_3A, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_TORIDE, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_FISHERMAN, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
+    { SCENE_GORONSHOP, SET_RESTRICTIONS(0, 1, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
+    { SCENE_DEKU_KING, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 0) },
+    { SCENE_LAST_GORON, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 3, 3, 0, 0, 0, 0) },
+    { SCENE_24KEMONOMITI, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_F01_B, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0) },
+    { SCENE_F01C, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0) },
+    { SCENE_BOTI, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_HAKUGIN_BS, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_20SICHITAI, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_21MITURINMAE, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_LAST_ZORA, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 3, 3, 0, 0, 0, 0) },
+    { SCENE_11GORONNOSATO2, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_SEA, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_35TAKI, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_REDEAD, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_BANDROOM, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 0) },
+    { SCENE_11GORONNOSATO, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_GORON_HAKA, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_SECOM, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 3, 0, 3, 0, 0, 0) },
+    { SCENE_10YUKIYAMANOMURA, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_TOUGITES, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 0, 0) },
+    { SCENE_DANPEI, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0) },
+    { SCENE_IKANAMAE, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_DOUJOU, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
+    { SCENE_MUSICHOUSE, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 0) },
+    { SCENE_IKNINSIDE, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0) },
+    { SCENE_MAP_SHOP, SET_RESTRICTIONS(0, 1, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
+    { SCENE_F40, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_F41, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_10YUKIYAMANOMURA2, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_14YUKIDAMANOMITI, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_12HAKUGINMAE, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_17SETUGEN, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_17SETUGEN2, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_SEA_BS, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_RANDOM, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_YADOYA, SET_RESTRICTIONS(0, 1, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
+    { SCENE_KONPEKI_ENT, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_INSIDETOWER, SET_RESTRICTIONS(0, 0, 0, 0, 3, 3, 3, 3, 3, 0, 0, 0) },
+    { SCENE_26SARUNOMORI, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0) },
+    { SCENE_LOST_WOODS, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_LAST_LINK, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 3, 3, 0, 0, 0, 0) },
+    { SCENE_SOUGEN, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 3, 3, 0, 0, 0, 0) },
+    { SCENE_BOMYA, SET_RESTRICTIONS(0, 1, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
+    { SCENE_KYOJINNOMA, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_KOEPONARACE, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0) },
+    { SCENE_GORONRACE, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_TOWN, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_ICHIBA, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_BACKTOWN, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_CLOCKTOWER, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_ALLEY, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
 };
 
 s16 D_801BF884 = 0;     // pictoBox related
@@ -4214,7 +4221,7 @@ void Interface_DrawClock(PlayState* play) {
     MessageContext* msgCtx = &play->msgCtx;
     s16 sp1E6;
     f32 temp_f14;
-    u32 dayTime;
+    u32 timeBeforeMoonCrash;
     f32 sp1D8;
     f32 timeInMinutes;
     f32 sp1D0;
@@ -4635,10 +4642,10 @@ void Interface_DrawClock(PlayState* play) {
 
                                 finalHoursClockSlots[0] = 0;
 
-                                dayTime = (4 << 16) - (CURRENT_DAY << 16) -
-                                          (u16)(-0x4000 + ((void)0, gSaveContext.save.time));
+                                timeBeforeMoonCrash = (4 - CURRENT_DAY) * DAY_LENGTH -
+                                                      (u16)(((void)0, gSaveContext.save.time) - CLOCK_TIME(6, 0));
 
-                                timeInMinutes = TIME_TO_MINUTES_F(dayTime);
+                                timeInMinutes = TIME_TO_MINUTES_F(timeBeforeMoonCrash);
 
                                 finalHoursClockSlots[1] = timeInMinutes / 60.0f;
                                 finalHoursClockSlots[2] = timeInMinutes / 60.0f;
@@ -4662,8 +4669,9 @@ void Interface_DrawClock(PlayState* play) {
 
                                 finalHoursClockSlots[6] = 0;
                                 finalHoursClockSlots[7] =
-                                    dayTime - (u32)((finalHoursClockSlots[2] * 2730.6667f) + // 2^13 / 3 (ft1 - e6c4)
-                                                    (((void)0, temp) * 45.511112f)); // 2^13 / 3 / 60 (ft0 - e758)
+                                    timeBeforeMoonCrash -
+                                    (u32)((finalHoursClockSlots[2] * 2730.6667f) + // 2^13 / 3 (ft1 - e6c4)
+                                          (((void)0, temp) * 45.511112f));         // 2^13 / 3 / 60 (ft0 - e758)
 
                                 // digits for seconds
                                 while (finalHoursClockSlots[7] >= 10) {
