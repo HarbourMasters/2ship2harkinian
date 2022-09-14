@@ -70,7 +70,7 @@
 #define R_A_ICON_Y                  XREG(19)
 #define R_A_ICON_X                  XREG(20)
 #define R_A_BTN_COLOR(i)            XREG(22 + i)
-#define R_MAGIC_CONSUME_TIMER_GIANT XREG(41)
+#define R_MAGIC_CONSUME_TIMER_GIANTS_MASK XREG(41)
 #define R_FINAL_HOURS_TIMER_Y          XREG(80)
 #define R_FINAL_HOURS_TIMER_X          XREG(81)
 #define R_MINIMAP_DISABLED          XREG(95)
@@ -94,9 +94,9 @@
 #define R_ITEM_ICON_WIDTH(i)        VREG(76 + i)
 #define R_ITEM_BTN_WIDTH(i)         VREG(80 + i)
 
-#define R_FB_FILTER_TYPE            SREG(80)
-#define R_FB_FILTER_PRIM_COLOR(c)   SREG(81 + c)
-#define R_FB_FILTER_A               SREG(84)
-#define R_FB_FILTER_ENV_COLOR(c)    SREG(85 + c)
+#define R_FB_FILTER_TYPE                  SREG(80)
+#define R_FB_FILTER_PRIM_COLOR(c)         SREG(81 + c)
+#define R_FB_FILTER_A                     SREG(84)
+#define R_FB_FILTER_ENV_COLOR(c)          SREG(85 + c)
 
 #endif

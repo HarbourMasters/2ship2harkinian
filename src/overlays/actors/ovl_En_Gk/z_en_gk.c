@@ -724,8 +724,7 @@ void func_80B51B40(EnGk* this, PlayState* play) {
                     play->transitionTrigger = TRANS_TRIGGER_START;
                     play->transitionType = TRANS_TYPE_03;
                     gSaveContext.nextTransitionType = TRANS_TYPE_03;
-                    Magic_Add(play, ((void)0, gSaveContext.magicFillTarget) +
-                                        (gSaveContext.save.playerData.isDoubleMagicAcquired + 1) * MAGIC_NORMAL_METER);
+                    Magic_Add(play, MAGIC_FILL_TO_CAPACITY);
                 } else {
                     this->actionFunc = func_80B51760;
                 }

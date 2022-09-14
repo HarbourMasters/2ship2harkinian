@@ -3327,7 +3327,7 @@ s32 Magic_Consume(PlayState* play, s16 magicToConsume, s16 type) {
             // Wearing Giants Mask
             if (gSaveContext.magicState == MAGIC_STATE_IDLE) {
                 if (gSaveContext.save.playerData.magic != 0) {
-                    interfaceCtx->magicConsumptionTimer = R_MAGIC_CONSUME_TIMER_GIANT;
+                    interfaceCtx->magicConsumptionTimer = R_MAGIC_CONSUME_TIMER_GIANTS_MASK;
                     gSaveContext.magicState = MAGIC_STATE_CONSUME_GIANTS_MASK;
                     return true;
                 } else {
@@ -3588,7 +3588,7 @@ void Magic_Update(PlayState* play) {
                         if (gSaveContext.save.playerData.magic <= 0) {
                             gSaveContext.save.playerData.magic = 0;
                         }
-                        interfaceCtx->magicConsumptionTimer = R_MAGIC_CONSUME_TIMER_GIANT;
+                        interfaceCtx->magicConsumptionTimer = R_MAGIC_CONSUME_TIMER_GIANTS_MASK;
                     }
                 }
             }
