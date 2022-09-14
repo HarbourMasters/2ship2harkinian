@@ -242,8 +242,8 @@ s16 sFinalHoursClockFrameEnvBlue = 0;
 s16 sFinalHoursClockColorTimer = 15;
 s16 sFinalHoursClockColorTargetIndex = 0;
 
-Gfx* Gfx_DrawRectTextureRGBA16(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft,
-                               s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy) {
+Gfx* Gfx_DrawRectTextureRGBA16(Gfx* displayListHead, TexturePtr texture, s16 textureWidth, s16 textureHeight,
+                               s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy) {
     gDPLoadTextureBlock(displayListHead++, texture, G_IM_FMT_RGBA, G_IM_SIZ_16b, textureWidth, textureHeight, 0,
                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                         G_TX_NOLOD);
@@ -254,7 +254,7 @@ Gfx* Gfx_DrawRectTextureRGBA16(Gfx* displayListHead, void* texture, s16 textureW
     return displayListHead;
 }
 
-Gfx* Gfx_DrawRectTextureIA8(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft,
+Gfx* Gfx_DrawRectTextureIA8(Gfx* displayListHead, TexturePtr texture, s16 textureWidth, s16 textureHeight, s16 rectLeft,
                             s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy) {
     gDPLoadTextureBlock(displayListHead++, texture, G_IM_FMT_IA, G_IM_SIZ_8b, textureWidth, textureHeight, 0,
                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
@@ -266,7 +266,7 @@ Gfx* Gfx_DrawRectTextureIA8(Gfx* displayListHead, void* texture, s16 textureWidt
     return displayListHead;
 }
 
-Gfx* Gfx_DrawRectTextureIA8_DropShadow(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight,
+Gfx* Gfx_DrawRectTextureIA8_DropShadow(Gfx* displayListHead, TexturePtr texture, s16 textureWidth, s16 textureHeight,
                                        s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy,
                                        s16 r, s16 g, s16 b, s16 a) {
     s16 dropShadowAlpha = a;
@@ -316,9 +316,10 @@ Gfx* Gfx_DrawRect_DropShadow(Gfx* displayListHead, s16 rectLeft, s16 rectTop, s1
     return displayListHead;
 }
 
-Gfx* Gfx_DrawRectTextureIA8_DropShadowOffset(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight,
-                                             s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx,
-                                             u16 dtdy, s16 r, s16 g, s16 b, s16 a, s32 masks, s32 rectS) {
+Gfx* Gfx_DrawRectTextureIA8_DropShadowOffset(Gfx* displayListHead, TexturePtr texture, s16 textureWidth,
+                                             s16 textureHeight, s16 rectLeft, s16 rectTop, s16 rectWidth,
+                                             s16 rectHeight, u16 dsdx, u16 dtdy, s16 r, s16 g, s16 b, s16 a, s32 masks,
+                                             s32 rectS) {
     s16 dropShadowAlpha = a;
 
     if (a > 100) {
@@ -343,7 +344,7 @@ Gfx* Gfx_DrawRectTextureIA8_DropShadowOffset(Gfx* displayListHead, void* texture
     return displayListHead;
 }
 
-Gfx* Gfx_DrawRectTextureI8(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, s16 rectLeft,
+Gfx* Gfx_DrawRectTextureI8(Gfx* displayListHead, TexturePtr texture, s16 textureWidth, s16 textureHeight, s16 rectLeft,
                            s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy) {
     gDPLoadTextureBlock(displayListHead++, texture, G_IM_FMT_I, G_IM_SIZ_8b, textureWidth, textureHeight, 0,
                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
@@ -355,7 +356,7 @@ Gfx* Gfx_DrawRectTextureI8(Gfx* displayListHead, void* texture, s16 textureWidth
     return displayListHead;
 }
 
-Gfx* Gfx_DrawRectTexture(Gfx* displayListHead, void* texture, s32 fmt, s16 textureWidth, s16 textureHeight,
+Gfx* Gfx_DrawRectTexture(Gfx* displayListHead, TexturePtr texture, s32 fmt, s16 textureWidth, s16 textureHeight,
                          s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, s32 cms, s32 masks, s32 s, u16 dsdx,
                          u16 dtdy) {
     gDPLoadTextureBlock_4b(displayListHead++, texture, fmt, textureWidth, textureHeight, 0, cms,
@@ -367,7 +368,7 @@ Gfx* Gfx_DrawRectTexture(Gfx* displayListHead, void* texture, s32 fmt, s16 textu
     return displayListHead;
 }
 
-Gfx* Gfx_DrawQuadTextureIA8(Gfx* displayListHead, void* texture, s16 textureWidth, s16 textureHeight, u16 point) {
+Gfx* Gfx_DrawQuadTextureIA8(Gfx* displayListHead, TexturePtr texture, s16 textureWidth, s16 textureHeight, u16 point) {
     gDPLoadTextureBlock(displayListHead++, texture, G_IM_FMT_IA, G_IM_SIZ_8b, textureWidth, textureHeight, 0,
                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                         G_TX_NOLOD);
@@ -377,7 +378,8 @@ Gfx* Gfx_DrawQuadTextureIA8(Gfx* displayListHead, void* texture, s16 textureWidt
     return displayListHead;
 }
 
-Gfx* Gfx_DrawQuadTexture(Gfx* displayListHead, void* texture, s32 fmt, s16 textureWidth, s16 textureHeight, u16 point) {
+Gfx* Gfx_DrawQuadTexture(Gfx* displayListHead, TexturePtr texture, s32 fmt, s16 textureWidth, s16 textureHeight,
+                         u16 point) {
     gDPLoadTextureBlock_4b(displayListHead++, texture, fmt, textureWidth, textureHeight, 0, G_TX_NOMIRROR | G_TX_WRAP,
                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
@@ -3036,22 +3038,22 @@ void Interface_LoadActionLabel(InterfaceContext* interfaceCtx, u16 action, s16 l
     func_801153C8(Lib_SegmentedToVirtual(sDoActionTextures[loadOffset]), 0x60);
 }
 
-void Interface_SetDoAction(PlayState* play, u16 action) {
+void Interface_SetAButtonDoAction(PlayState* play, u16 aButtonDoAction) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
     PauseContext* pauseCtx = &play->pauseCtx;
 
-    if (interfaceCtx->unk_214 != action) {
-        interfaceCtx->unk_214 = action;
+    if (interfaceCtx->unk_214 != aButtonDoAction) {
+        interfaceCtx->unk_214 = aButtonDoAction;
         interfaceCtx->unk_210 = 1;
         interfaceCtx->unk_218 = 0.0f;
-        Interface_LoadActionLabel(interfaceCtx, action, 1);
+        Interface_LoadActionLabel(interfaceCtx, aButtonDoAction, 1);
         if (pauseCtx->state != 0) {
             interfaceCtx->unk_210 = 3;
         }
     }
 }
 
-void func_801155B4(PlayState* play, s16 bButtonDoAction) {
+void Interface_SetBButtonDoAction(PlayState* play, s16 bButtonDoAction) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
 
     if (((BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) >= ITEM_SWORD_KOKIRI) &&
@@ -3078,23 +3080,23 @@ void func_801155B4(PlayState* play, s16 bButtonDoAction) {
     }
 }
 
-void Interface_SetNaviCall(PlayState* play, u16 naviCallState) {
+void Interface_SetTatlCall(PlayState* play, u16 tatlCallState) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
 
-    if (((naviCallState == 0x2A) || (naviCallState == 0x2B)) && !interfaceCtx->naviCalling &&
+    if (((tatlCallState == 0x2A) || (tatlCallState == 0x2B)) && !interfaceCtx->tatlCalling &&
         (play->csCtx.state == 0)) {
-        if (naviCallState == 0x2B) {
+        if (tatlCallState == 0x2B) {
             play_sound(NA_SE_VO_NAVY_CALL);
         }
-        if (naviCallState == 0x2A) {
+        if (tatlCallState == 0x2A) {
             func_8019FDC8(&gSfxDefaultPos, NA_SE_VO_NA_HELLO_2, 0x20);
         }
-        interfaceCtx->naviCalling = true;
+        interfaceCtx->tatlCalling = true;
         sCUpInvisible = 0;
         sCUpTimer = 10;
-    } else if (naviCallState == 0x2C) {
-        if (interfaceCtx->naviCalling) {
-            interfaceCtx->naviCalling = false;
+    } else if (tatlCallState == 0x2C) {
+        if (interfaceCtx->tatlCalling) {
+            interfaceCtx->tatlCalling = false;
         }
     }
 }
@@ -3765,7 +3767,7 @@ void Interface_DrawItemButtons(PlayState* play) {
         }
     }
 
-    if (interfaceCtx->naviCalling && (play->pauseCtx.state == 0) && (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE) &&
+    if (interfaceCtx->tatlCalling && (play->pauseCtx.state == 0) && (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE) &&
         (play->csCtx.state == 0) && (D_801BF884 == 0)) {
         if (sCUpInvisible == 0) {
             // C-Up Button Texture, Color & Label (Tatl Text)
@@ -3824,7 +3826,7 @@ void Interface_DrawItemButtons(PlayState* play) {
     CLOSE_DISPS(play->state.gfxCtx);
 }
 
-void Interface_DrawItemIconTexture(PlayState* play, void* texture, s16 button) {
+void Interface_DrawItemIconTexture(PlayState* play, TexturePtr texture, s16 button) {
     static s16 D_801BFAFC[] = { 30, 24, 24, 24 };
 
     OPEN_DISPS(play->state.gfxCtx);
@@ -6787,8 +6789,8 @@ void Interface_Update(PlayState* play) {
     }
 }
 
-void Interface_Destroy(void) {
-    Map_Destroy();
+void Interface_Destroy(PlayState* play) {
+    Map_Destroy(play);
     func_80174F9C(Interface_PostmanTimerCallback, NULL);
 }
 

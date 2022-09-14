@@ -321,9 +321,9 @@ void func_80151938(PlayState* play, u16 textId) {
 
     if (interfaceCtx->unk_222 == 0) {
         if (textId != 0x1B93) {
-            Interface_SetDoAction(play, DO_ACTION_NEXT);
+            Interface_SetAButtonDoAction(play, DO_ACTION_NEXT);
         } else if (textId != 0xF8) {
-            Interface_SetDoAction(play, DO_ACTION_DECIDE);
+            Interface_SetAButtonDoAction(play, DO_ACTION_DECIDE);
         }
     }
     msgCtx->unk1203C = msgCtx->unk1203A;
