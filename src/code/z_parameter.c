@@ -2102,7 +2102,7 @@ void func_80111CB4(PlayState* play) {
             }
         } else if (D_801BF884 != 0) {
             if (D_801BF884 == 1) {
-                if (!(play->actorCtx.unk5 & 4)) {
+                if (!(play->actorCtx.flags & ACTORCTX_FLAG_2)) {
                     func_801663C4((play->unk_18E5C != NULL) ? play->unk_18E5C : D_801FBB90,
                                   (u8*)((void)0, gSaveContext.pictoPhoto), 0x4600);
                     interfaceCtx->unk_224 = 0;
@@ -2110,7 +2110,7 @@ void func_80111CB4(PlayState* play) {
                     sp28 = true;
                     D_801BF884 = 0;
                 } else if (CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, BTN_B)) {
-                    play->actorCtx.unk5 &= ~4;
+                    play->actorCtx.flags &= ~ACTORCTX_FLAG_2;
                     interfaceCtx->unk_224 = 0;
                     interfaceCtx->unk_222 = interfaceCtx->unk_224;
                     sp28 = true;
@@ -2146,7 +2146,7 @@ void func_80111CB4(PlayState* play) {
                                       (u8*)((void)0, gSaveContext.pictoPhoto), 0x4600);
                         Snap_RecordPictographedActors(play);
                     }
-                    play->actorCtx.unk5 &= ~4;
+                    play->actorCtx.flags &= ~ACTORCTX_FLAG_2;
                     SET_QUEST_ITEM(QUEST_PICTOGRAPH);
                     D_801BF888 = false;
                 }
@@ -2163,7 +2163,7 @@ void func_80111CB4(PlayState* play) {
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
             Interface_SetHudVisibility(HUD_VISIBILITY_A_B_HEARTS_MAGIC_MINIMAP);
-        } else if (play->actorCtx.unk5 & 4) {
+        } else if (play->actorCtx.flags & ACTORCTX_FLAG_2) {
             if (!CHECK_QUEST_ITEM(QUEST_PICTOGRAPH)) {
                 func_80115844(play, 0x12);
                 Interface_SetHudVisibility(HUD_VISIBILITY_A_B);
@@ -4240,8 +4240,9 @@ void Interface_DrawClock(PlayState* play) {
     OPEN_DISPS(play->state.gfxCtx);
 
     if (REG(15) != 0) {
-        if ((msgCtx->msgMode == 0) || ((play->actorCtx.unk5 & 2) && !Play_InCsMode(play)) || (msgCtx->msgMode == 0) ||
-            ((msgCtx->currentTextId >= 0x100) && (msgCtx->currentTextId <= 0x200)) || (gSaveContext.gameMode == 3)) {
+        if ((msgCtx->msgMode == 0) || ((play->actorCtx.flags & ACTORCTX_FLAG_1) && !Play_InCsMode(play)) ||
+            (msgCtx->msgMode == 0) || ((msgCtx->currentTextId >= 0x100) && (msgCtx->currentTextId <= 0x200)) ||
+            (gSaveContext.gameMode == 3)) {
             if (!FrameAdvance_IsEnabled(&play->state)) {
                 if (func_800FE4A8() == 0) {
                     if (((void)0, gSaveContext.save.day) < 4) {
@@ -4264,7 +4265,7 @@ void Interface_DrawClock(PlayState* play) {
                                     D_801BFB30 = 0;
                                 }
                             } else {
-                                if (play->actorCtx.unk5 & 2) {
+                                if (play->actorCtx.flags & ACTORCTX_FLAG_1) {
                                     D_801BFB2C = 255;
                                 } else {
                                     D_801BFB2C = interfaceCtx->bAlpha;
@@ -4273,7 +4274,7 @@ void Interface_DrawClock(PlayState* play) {
                                 D_801BFB30 = 0;
                             }
                         } else {
-                            if (play->actorCtx.unk5 & 2) {
+                            if (play->actorCtx.flags & ACTORCTX_FLAG_1) {
                                 D_801BFB2C = 255;
                             } else {
                                 D_801BFB2C = interfaceCtx->bAlpha;
@@ -5193,7 +5194,7 @@ void Interface_DrawMinigamePerfect(PlayState* play) {
 }
 
 void Interface_StartMoonCrash(PlayState* play) {
-    if (play->actorCtx.unk5 & 2) {
+    if (play->actorCtx.flags & ACTORCTX_FLAG_1) {
         Audio_QueueSeqCmd(0xE0000100);
     }
 
@@ -6234,7 +6235,7 @@ void Interface_Draw(PlayState* play) {
     }
 
     if (D_801BF884 >= 2) {
-        if (!(play->actorCtx.unk5 & 4)) {
+        if (!(play->actorCtx.flags & ACTORCTX_FLAG_2)) {
             func_801663C4((play->unk_18E5C != NULL) ? play->unk_18E5C : D_801FBB90, (u8*)gSaveContext.pictoPhoto,
                           0x4600);
 
