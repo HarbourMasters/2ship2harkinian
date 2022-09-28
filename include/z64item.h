@@ -437,7 +437,7 @@ typedef enum {
     /* 0xB8 */ GI_TINGLE_MAP_GREAT_BAY,
     /* 0xB9 */ GI_TINGLE_MAP_STONE_TOWER,
     /* 0xBA */ GI_MAX
-} GetItemID;
+} GetItemId;
 
 typedef enum {
     /* 0x00 */ GID_BOTTLE,

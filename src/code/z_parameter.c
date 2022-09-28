@@ -824,10 +824,10 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
     s16 risingAlpha = 255 - dimmingAlpha;
 
     switch (gSaveContext.nextHudVisibility) {
-        case HUD_VISIBILITY_OFF:
-        case HUD_VISIBILITY_OFF_ALT:
-        case HUD_VISIBILITY_B_FAST:
-            if (gSaveContext.nextHudVisibility == HUD_VISIBILITY_B_FAST) {
+        case HUD_VISIBILITY_NONE:
+        case HUD_VISIBILITY_NONE_ALT:
+        case HUD_VISIBILITY_B:
+            if (gSaveContext.nextHudVisibility == HUD_VISIBILITY_B) {
                 if (interfaceCtx->bAlpha != 255) {
                     interfaceCtx->bAlpha = risingAlpha;
                 }
@@ -867,7 +867,7 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
 
             break;
 
-        case HUD_VISIBILITY_HEARTS_WITH_DIM_BTN:
+        case HUD_VISIBILITY_HEARTS_WITH_OVERWRITE:
             // aAlpha is immediately overwritten in Interface_UpdateButtonAlphas
             if ((interfaceCtx->aAlpha != 0) && (interfaceCtx->aAlpha > dimmingAlpha)) {
                 interfaceCtx->aAlpha = dimmingAlpha;
@@ -929,7 +929,7 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
 
             break;
 
-        case HUD_VISIBILITY_A_HEARTS_MAGIC_WITH_DIM_BTN:
+        case HUD_VISIBILITY_A_HEARTS_MAGIC_WITH_OVERWRITE:
             Interface_UpdateButtonAlphas(play, dimmingAlpha, risingAlpha);
 
             if ((interfaceCtx->minimapAlpha != 0) && (interfaceCtx->minimapAlpha > dimmingAlpha)) {
@@ -951,7 +951,7 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
 
             break;
 
-        case HUD_VISIBILITY_A_HEARTS_MAGIC_MINIMAP_WITH_DIM_BTN:
+        case HUD_VISIBILITY_A_HEARTS_MAGIC_MINIMAP_WITH_OVERWRITE:
             Interface_UpdateButtonAlphas(play, dimmingAlpha, risingAlpha);
 
             // aAlpha overwrites the value set in Interface_UpdateButtonAlphas
@@ -1031,7 +1031,7 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
 
             break;
 
-        case HUD_VISIBILITY_B:
+        case HUD_VISIBILITY_B_ALT:
             if ((interfaceCtx->aAlpha != 0) && (interfaceCtx->aAlpha > dimmingAlpha)) {
                 interfaceCtx->aAlpha = dimmingAlpha;
             }
@@ -1142,7 +1142,7 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
 
             break;
 
-        case HUD_VISIBILITY_HEARTS_MAGIC_WITH_DIM_BTN:
+        case HUD_VISIBILITY_HEARTS_MAGIC_WITH_OVERWRITE:
             Interface_UpdateButtonAlphas(play, dimmingAlpha, risingAlpha);
 
             if ((interfaceCtx->minimapAlpha != 0) && (interfaceCtx->minimapAlpha > dimmingAlpha)) {
@@ -1480,7 +1480,7 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             break;
     }
 
-    if ((play->roomCtx.currRoom.unk3 == 1) && (interfaceCtx->minimapAlpha >= 255)) {
+    if ((play->roomCtx.curRoom.unk3 == 1) && (interfaceCtx->minimapAlpha >= 255)) {
         interfaceCtx->minimapAlpha = 255;
     }
 }
@@ -1527,7 +1527,7 @@ void func_80110038(PlayState* play) {
                 }
             }
 
-            Interface_SetHudVisibility(HUD_VISIBILITY_B_FAST);
+            Interface_SetHudVisibility(HUD_VISIBILITY_B);
         } else if (gSaveContext.save.weekEventReg[82] & 8) {
             for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
                 if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
@@ -2017,12 +2017,12 @@ void func_80111CB4(PlayState* play) {
                             gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
                             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
                             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
-                            Interface_SetHudVisibility(HUD_VISIBILITY_A_HEARTS_MAGIC_MINIMAP_WITH_DIM_BTN);
+                            Interface_SetHudVisibility(HUD_VISIBILITY_A_HEARTS_MAGIC_MINIMAP_WITH_OVERWRITE);
                         }
                     }
 
                     if (play->transitionMode != TRANS_MODE_OFF) {
-                        Interface_SetHudVisibility(HUD_VISIBILITY_OFF);
+                        Interface_SetHudVisibility(HUD_VISIBILITY_NONE);
                     } else if ((gSaveContext.minigameState == 1) &&
                                (gSaveContext.save.entrance == ENTRANCE(ROMANI_RANCH, 0)) &&
                                (Cutscene_GetSceneSetupIndex(play) != 0) &&
@@ -2031,9 +2031,9 @@ void func_80111CB4(PlayState* play) {
                     } else if ((gSaveContext.minigameState == 1) && (gSaveContext.eventInf[3] & 0x20)) {
                         Interface_SetHudVisibility(HUD_VISIBILITY_B_MINIMAP);
                     } else if (!(gSaveContext.save.weekEventReg[0x52] & 8) && (gSaveContext.minigameState == 1)) {
-                        Interface_SetHudVisibility(HUD_VISIBILITY_B_FAST);
+                        Interface_SetHudVisibility(HUD_VISIBILITY_B);
                     } else if (play->unk_1887C >= 2) {
-                        Interface_SetHudVisibility(HUD_VISIBILITY_B_FAST);
+                        Interface_SetHudVisibility(HUD_VISIBILITY_B);
                     } else if (gSaveContext.save.weekEventReg[8] & 1) {
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
@@ -2079,18 +2079,18 @@ void func_80111CB4(PlayState* play) {
                 gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
                 gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
                 gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
-                Interface_SetHudVisibility(HUD_VISIBILITY_A_HEARTS_MAGIC_MINIMAP_WITH_DIM_BTN);
+                Interface_SetHudVisibility(HUD_VISIBILITY_A_HEARTS_MAGIC_MINIMAP_WITH_OVERWRITE);
 
                 if (play->transitionMode != TRANS_MODE_OFF) {
-                    Interface_SetHudVisibility(HUD_VISIBILITY_OFF);
+                    Interface_SetHudVisibility(HUD_VISIBILITY_NONE);
                 } else if ((gSaveContext.minigameState == 1) &&
                            (gSaveContext.save.entrance == ENTRANCE(ROMANI_RANCH, 0)) &&
                            (Cutscene_GetSceneSetupIndex(play) != 0) && (play->transitionTrigger == TRANS_TRIGGER_OFF)) {
                     Interface_SetHudVisibility(HUD_VISIBILITY_A_B_MINIMAP);
                 } else if (gSaveContext.minigameState == 1) {
-                    Interface_SetHudVisibility(HUD_VISIBILITY_B_FAST);
+                    Interface_SetHudVisibility(HUD_VISIBILITY_B);
                 } else if (play->unk_1887C >= 2) {
-                    Interface_SetHudVisibility(HUD_VISIBILITY_B_FAST);
+                    Interface_SetHudVisibility(HUD_VISIBILITY_B);
                 } else if (gSaveContext.save.weekEventReg[8] & 1) {
                     gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
                     gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
@@ -3773,9 +3773,10 @@ void Interface_DrawItemButtons(PlayState* play) {
             // C-Up Button Texture, Color & Label (Tatl Text)
             gDPPipeSync(OVERLAY_DISP++);
 
-            if ((gSaveContext.hudVisibility == HUD_VISIBILITY_OFF) ||
-                (gSaveContext.hudVisibility == HUD_VISIBILITY_OFF_ALT) ||
-                (gSaveContext.hudVisibility == HUD_VISIBILITY_A_HEARTS_MAGIC_WITH_DIM_BTN) || (msgCtx->msgMode != 0)) {
+            if ((gSaveContext.hudVisibility == HUD_VISIBILITY_NONE) ||
+                (gSaveContext.hudVisibility == HUD_VISIBILITY_NONE_ALT) ||
+                (gSaveContext.hudVisibility == HUD_VISIBILITY_A_HEARTS_MAGIC_WITH_OVERWRITE) ||
+                (msgCtx->msgMode != 0)) {
                 temp = 0;
             } else if (player->stateFlags1 & PLAYER_STATE1_200000) {
                 temp = 70;
@@ -4123,10 +4124,10 @@ void func_80119030(PlayState* play) {
 
             pauseCtx->cursorVtx[16].v.ob[0] = pauseCtx->cursorVtx[18].v.ob[0] = pauseCtx->equipAnimX / 10;
             pauseCtx->cursorVtx[17].v.ob[0] = pauseCtx->cursorVtx[19].v.ob[0] =
-                pauseCtx->cursorVtx[16].v.ob[0] + (pauseCtx->unk_2BA / 10);
+                pauseCtx->cursorVtx[16].v.ob[0] + (pauseCtx->equipAnimScale / 10);
             pauseCtx->cursorVtx[16].v.ob[1] = pauseCtx->cursorVtx[17].v.ob[1] = pauseCtx->equipAnimY / 10;
             pauseCtx->cursorVtx[18].v.ob[1] = pauseCtx->cursorVtx[19].v.ob[1] =
-                pauseCtx->cursorVtx[16].v.ob[1] - (pauseCtx->unk_2BA / 10);
+                pauseCtx->cursorVtx[16].v.ob[1] - (pauseCtx->equipAnimScale / 10);
 
             if (pauseCtx->equipTargetItem < 0xB5) {
                 // Normal Equip (icon goes from the inventory slot to the C button when equipping it)
@@ -6251,7 +6252,7 @@ void Interface_Draw(PlayState* play) {
             if (D_801BF884 == 2) {
                 D_801BF884 = 3;
                 Message_StartTextbox(play, 0xF8, NULL);
-                Interface_SetHudVisibility(HUD_VISIBILITY_OFF);
+                Interface_SetHudVisibility(HUD_VISIBILITY_NONE);
                 player->stateFlags1 |= PLAYER_STATE1_200;
             }
 
@@ -6343,9 +6344,9 @@ void Interface_Update(PlayState* play) {
 
     // Update hud mode
     switch (gSaveContext.nextHudVisibility) {
-        case HUD_VISIBILITY_OFF:
-        case HUD_VISIBILITY_OFF_ALT:
-        case HUD_VISIBILITY_B_FAST:
+        case HUD_VISIBILITY_NONE:
+        case HUD_VISIBILITY_NONE_ALT:
+        case HUD_VISIBILITY_B:
             dimmingAlpha = 255 - (gSaveContext.hudVisibilityTimer << 5);
             if (dimmingAlpha < 0) {
                 dimmingAlpha = 0;
@@ -6358,16 +6359,16 @@ void Interface_Update(PlayState* play) {
             }
             break;
 
-        case HUD_VISIBILITY_HEARTS_WITH_DIM_BTN:
+        case HUD_VISIBILITY_HEARTS_WITH_OVERWRITE:
         case HUD_VISIBILITY_A:
-        case HUD_VISIBILITY_A_HEARTS_MAGIC_WITH_DIM_BTN:
-        case HUD_VISIBILITY_A_HEARTS_MAGIC_MINIMAP_WITH_DIM_BTN:
+        case HUD_VISIBILITY_A_HEARTS_MAGIC_WITH_OVERWRITE:
+        case HUD_VISIBILITY_A_HEARTS_MAGIC_MINIMAP_WITH_OVERWRITE:
         case HUD_VISIBILITY_ALL_NO_MINIMAP_W_DISABLED:
         case HUD_VISIBILITY_HEARTS_MAGIC:
-        case HUD_VISIBILITY_B:
+        case HUD_VISIBILITY_B_ALT:
         case HUD_VISIBILITY_HEARTS:
         case HUD_VISIBILITY_A_B_MINIMAP:
-        case HUD_VISIBILITY_HEARTS_MAGIC_WITH_DIM_BTN:
+        case HUD_VISIBILITY_HEARTS_MAGIC_WITH_OVERWRITE:
         case HUD_VISIBILITY_HEARTS_MAGIC_C:
         case HUD_VISIBILITY_ALL_NO_MINIMAP:
         case HUD_VISIBILITY_A_B_C:
@@ -6438,9 +6439,9 @@ void Interface_Update(PlayState* play) {
 
             break;
 
-        case HUD_VISIBILITY_OFF_NOW:
+        case HUD_VISIBILITY_NONE_INSTANT:
             // Turn off all Hud immediately
-            gSaveContext.nextHudVisibility = HUD_VISIBILITY_OFF;
+            gSaveContext.nextHudVisibility = HUD_VISIBILITY_NONE;
             Interface_UpdateHudAlphas(play, 0);
             gSaveContext.nextHudVisibility = HUD_VISIBILITY_IDLE;
             // fallthrough
