@@ -502,6 +502,7 @@ void EnMttag_Init(Actor* thisx, PlayState* play) {
 
 void EnMttag_Destroy(Actor* thisx, PlayState* play) {
     EnMttag* this = THIS;
+
     if (gSaveContext.timerStates[TIMER_ID_MINIGAME_2] != TIMER_STATE_6) {
         gSaveContext.timerStates[TIMER_ID_MINIGAME_2] = TIMER_STATE_STOP;
     }
@@ -509,5 +510,6 @@ void EnMttag_Destroy(Actor* thisx, PlayState* play) {
 
 void EnMttag_Update(Actor* thisx, PlayState* play) {
     EnMttag* this = THIS;
+
     this->actionFunc(this, play);
 }

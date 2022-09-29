@@ -76,7 +76,7 @@ typedef enum {
     /* 2 */ PLAYER_ENV_TIMER_UNDERWATER_FLOOR,
     /* 3 */ PLAYER_ENV_TIMER_SWIMMING,
     /* 4 */ PLAYER_ENV_TIMER_UNDERWATER_FREE
-} PlayerEnvTimer;
+} PlayerEnvTimerType;
 
 typedef enum PlayerActionParam {
     /*   -1 */ PLAYER_AP_MINUS1 = -1,

@@ -45,7 +45,7 @@ void ObjRoomtimer_Init(Actor* thisx, PlayState* play) {
 void ObjRoomtimer_Destroy(Actor* thisx, PlayState* play) {
     ObjRoomtimer* this = THIS;
 
-    if (this->actor.params != 0x1FF && gSaveContext.timerStates[TIMER_ID_MINIGAME_2] >= TIMER_STATE_START) {
+    if ((this->actor.params != 0x1FF) && (gSaveContext.timerStates[TIMER_ID_MINIGAME_2] >= TIMER_STATE_START)) {
         gSaveContext.timerStates[TIMER_ID_MINIGAME_2] = TIMER_STATE_STOP;
     }
 }
@@ -66,7 +66,7 @@ void func_80973D3C(ObjRoomtimer* this, PlayState* play) {
         }
         ActorCutscene_SetIntentToPlay(this->actor.cutscene);
         this->actionFunc = func_80973DE0;
-    } else if (this->actor.params != 0x1FF && gSaveContext.timerStates[TIMER_ID_MINIGAME_2] == TIMER_STATE_OFF) {
+    } else if ((this->actor.params != 0x1FF) && (gSaveContext.timerStates[TIMER_ID_MINIGAME_2] == TIMER_STATE_OFF)) {
         play_sound(NA_SE_OC_ABYSS);
         func_80169EFC(&play->state);
         Actor_MarkForDeath(&this->actor);

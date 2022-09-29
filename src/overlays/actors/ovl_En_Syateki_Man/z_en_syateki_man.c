@@ -154,7 +154,7 @@ static s32 sSwampTargetActorListLengths[] = {
 };
 
 static Vec3f sSwampPlayerPos = { 0.0f, 10.0f, 140.0f };
-static Vec3f sTownFierceDietyPlayerPos = { -20.0f, 20.0f, 198.0f };
+static Vec3f sTownFierceDeityPlayerPos = { -20.0f, 20.0f, 198.0f };
 static Vec3f sTownPlayerPos = { -20.0f, 40.0f, 175.0f };
 
 /**
@@ -1156,7 +1156,7 @@ void EnSyatekiMan_Swamp_AddBonusPoints(EnSyatekiMan* this, PlayState* play) {
             this->actionFunc = EnSyatekiMan_Swamp_EndGame;
             sBonusTimer = 0;
         } else if (sBonusTimer > 10) {
-            gSaveContext.timerStopTimes[TIMER_ID_MINIGAME_1] += 100;
+            gSaveContext.timerStopTimes[TIMER_ID_MINIGAME_1] += SECONDS_TO_TIMER(1);
             play->interfaceCtx.unk_25C += 10;
             this->score += 10;
             Actor_PlaySfxAtPos(&this->actor, NA_SE_SY_TRE_BOX_APPEAR);
@@ -1171,7 +1171,7 @@ void EnSyatekiMan_Town_MovePlayerAndSayHighScore(EnSyatekiMan* this, PlayState* 
     Vec3f targetPlayerPos;
 
     if (gSaveContext.save.playerForm == PLAYER_FORM_FIERCE_DEITY) {
-        targetPlayerPos = sTownFierceDietyPlayerPos;
+        targetPlayerPos = sTownFierceDeityPlayerPos;
     } else {
         targetPlayerPos = sTownPlayerPos;
     }
@@ -1198,7 +1198,7 @@ void EnSyatekiMan_Town_StartGame(EnSyatekiMan* this, PlayState* play) {
 
     if (sGameStartTimer == 30) {
         if (player->transformation == PLAYER_FORM_FIERCE_DEITY) {
-            player->actor.world.pos = sTownFierceDietyPlayerPos;
+            player->actor.world.pos = sTownFierceDeityPlayerPos;
         } else {
             player->actor.world.pos = sTownPlayerPos;
         }
