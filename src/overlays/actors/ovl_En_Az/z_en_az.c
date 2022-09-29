@@ -1484,7 +1484,7 @@ void func_80A97D5C(EnAz* this, PlayState* play) {
     player->stateFlags1 |= PLAYER_STATE1_20;
     Interface_InitMinigame(play);
     gSaveContext.minigameScore = (this->unk_374 & 2) ? 25 : 20;
-    play->interfaceCtx.minigameState = 1;
+    play->interfaceCtx.minigameState = MINIGAME_STATE_COUNTDOWN_START_3;
     if ((this->unk_2FA == 1) || (this->unk_2FA == 3)) {
         Interface_StartTimer(TIMER_ID_MINIGAME_2, 120);
     } else if (gSaveContext.save.weekEventReg[25] & 1) {
@@ -1498,7 +1498,7 @@ void func_80A97D5C(EnAz* this, PlayState* play) {
 void func_80A97E48(EnAz* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
 
-    if (play->interfaceCtx.minigameState >= 8) {
+    if (play->interfaceCtx.minigameState >= MINIGAME_STATE_COUNTDOWN_GO) {
         player->stateFlags1 &= ~PLAYER_STATE1_20;
         func_80A97EAC(this, play);
     }

@@ -800,7 +800,7 @@ void func_80962F4C(EnFu* this, PlayState* play) {
             gSaveContext.timerCurTimes[TIMER_ID_MINIGAME_2] = SECONDS_TO_TIMER(0);
             gSaveContext.timerStates[TIMER_ID_MINIGAME_2] = TIMER_STATE_STOP;
             func_801A3098(NA_BGM_GET_ITEM | 0x900);
-            Interface_SetPerfectMinigame(play, 1);
+            Interface_SetMinigamePerfect(play, MINIGAME_PERFECT_TYPE_1);
             this->unk_54A = 3;
             func_809632D0(this);
         }

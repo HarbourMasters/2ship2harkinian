@@ -13,7 +13,7 @@ s32 func_801234D4(PlayState* play);
 void func_801663C4(u8* arg0, u8* arg1, u32 arg2);
 
 extern Gfx D_0E0001C8[]; // Display List
-extern Gfx D_0E0002E0[]; // Display List
+extern Gfx D_0E0002E0[]; // gScreenFillDL
 
 // TODO extract this information from the texture definitions themselves
 #define DO_ACTION_TEX_WIDTH 48
@@ -211,7 +211,7 @@ s16 D_801BF97C = 255;
 f32 D_801BF980 = 1.0f;
 s32 D_801BF984 = 0;
 
-Gfx D_801BF988[] = {
+Gfx gScreenFillSetupDL[] = {
     gsDPPipeSync(),
     gsSPClearGeometryMode(G_ZBUFFER | G_SHADE | G_CULL_BOTH | G_FOG | G_LIGHTING | G_TEXTURE_GEN |
                           G_TEXTURE_GEN_LINEAR | G_LOD | G_SHADING_SMOOTH),
@@ -413,152 +413,152 @@ void Interface_InitVertices(PlayState* play) {
     s16 k;
     s16 offset;
 
-    play->interfaceCtx.actionVtx = GRAPH_ALLOC(play->state.gfxCtx, 108 * sizeof(Vtx));
+    play->interfaceCtx.aButtonVtx = GRAPH_ALLOC(play->state.gfxCtx, 108 * sizeof(Vtx));
 
     // clang-format off
     for (k = 0, i = 0; i < 44; i += 4, k++) {
-        interfaceCtx->actionVtx[i].v.ob[0] = 
-        interfaceCtx->actionVtx[i + 2].v.ob[0] = D_801BFA04[k];
+        interfaceCtx->aButtonVtx[i].v.ob[0] = 
+        interfaceCtx->aButtonVtx[i + 2].v.ob[0] = D_801BFA04[k];
 
-        interfaceCtx->actionVtx[i + 1].v.ob[0] = 
-        interfaceCtx->actionVtx[i + 3].v.ob[0] = interfaceCtx->actionVtx[i].v.ob[0] + D_801BFA1C[k];
+        interfaceCtx->aButtonVtx[i + 1].v.ob[0] = 
+        interfaceCtx->aButtonVtx[i + 3].v.ob[0] = interfaceCtx->aButtonVtx[i].v.ob[0] + D_801BFA1C[k];
         
-        interfaceCtx->actionVtx[i].v.ob[1] = 
-        interfaceCtx->actionVtx[i + 1].v.ob[1] = D_801BFA34[k];
+        interfaceCtx->aButtonVtx[i].v.ob[1] = 
+        interfaceCtx->aButtonVtx[i + 1].v.ob[1] = D_801BFA34[k];
 
-        interfaceCtx->actionVtx[i + 2].v.ob[1] = 
-        interfaceCtx->actionVtx[i + 3].v.ob[1] = interfaceCtx->actionVtx[i].v.ob[1] - D_801BFA4C[k];
+        interfaceCtx->aButtonVtx[i + 2].v.ob[1] = 
+        interfaceCtx->aButtonVtx[i + 3].v.ob[1] = interfaceCtx->aButtonVtx[i].v.ob[1] - D_801BFA4C[k];
 
-        interfaceCtx->actionVtx[i].v.ob[2] = 
-        interfaceCtx->actionVtx[i + 1].v.ob[2] = 
-        interfaceCtx->actionVtx[i + 2].v.ob[2] = 
-        interfaceCtx->actionVtx[i + 3].v.ob[2] = 0;
+        interfaceCtx->aButtonVtx[i].v.ob[2] = 
+        interfaceCtx->aButtonVtx[i + 1].v.ob[2] = 
+        interfaceCtx->aButtonVtx[i + 2].v.ob[2] = 
+        interfaceCtx->aButtonVtx[i + 3].v.ob[2] = 0;
 
-        interfaceCtx->actionVtx[i].v.flag = 
-        interfaceCtx->actionVtx[i + 1].v.flag = 
-        interfaceCtx->actionVtx[i + 2].v.flag = 
-        interfaceCtx->actionVtx[i + 3].v.flag = 0;
+        interfaceCtx->aButtonVtx[i].v.flag = 
+        interfaceCtx->aButtonVtx[i + 1].v.flag = 
+        interfaceCtx->aButtonVtx[i + 2].v.flag = 
+        interfaceCtx->aButtonVtx[i + 3].v.flag = 0;
 
-        interfaceCtx->actionVtx[i].v.tc[0] = 
-        interfaceCtx->actionVtx[i].v.tc[1] = 
-        interfaceCtx->actionVtx[i + 1].v.tc[1] = 
-        interfaceCtx->actionVtx[i + 2].v.tc[0] = 0;
+        interfaceCtx->aButtonVtx[i].v.tc[0] = 
+        interfaceCtx->aButtonVtx[i].v.tc[1] = 
+        interfaceCtx->aButtonVtx[i + 1].v.tc[1] = 
+        interfaceCtx->aButtonVtx[i + 2].v.tc[0] = 0;
 
-        interfaceCtx->actionVtx[i + 1].v.tc[0] = 
-        interfaceCtx->actionVtx[i + 3].v.tc[0] = D_801BFA1C[k] << 5;
+        interfaceCtx->aButtonVtx[i + 1].v.tc[0] = 
+        interfaceCtx->aButtonVtx[i + 3].v.tc[0] = D_801BFA1C[k] << 5;
 
-        interfaceCtx->actionVtx[i + 2].v.tc[1] = 
-        interfaceCtx->actionVtx[i + 3].v.tc[1] = D_801BFA4C[k] << 5;
+        interfaceCtx->aButtonVtx[i + 2].v.tc[1] = 
+        interfaceCtx->aButtonVtx[i + 3].v.tc[1] = D_801BFA4C[k] << 5;
 
-        interfaceCtx->actionVtx[i].v.cn[0] = 
-        interfaceCtx->actionVtx[i + 1].v.cn[0] = 
-        interfaceCtx->actionVtx[i + 2].v.cn[0] = 
-        interfaceCtx->actionVtx[i + 3].v.cn[0] = 
-        interfaceCtx->actionVtx[i].v.cn[1] = 
-        interfaceCtx->actionVtx[i + 1].v.cn[1] = 
-        interfaceCtx->actionVtx[i + 2].v.cn[1] = 
-        interfaceCtx->actionVtx[i + 3].v.cn[1] = 
-        interfaceCtx->actionVtx[i].v.cn[2] = 
-        interfaceCtx->actionVtx[i + 1].v.cn[2] = 
-        interfaceCtx->actionVtx[i + 2].v.cn[2] = 
-        interfaceCtx->actionVtx[i + 3].v.cn[2] = 255;
+        interfaceCtx->aButtonVtx[i].v.cn[0] = 
+        interfaceCtx->aButtonVtx[i + 1].v.cn[0] = 
+        interfaceCtx->aButtonVtx[i + 2].v.cn[0] = 
+        interfaceCtx->aButtonVtx[i + 3].v.cn[0] = 
+        interfaceCtx->aButtonVtx[i].v.cn[1] = 
+        interfaceCtx->aButtonVtx[i + 1].v.cn[1] = 
+        interfaceCtx->aButtonVtx[i + 2].v.cn[1] = 
+        interfaceCtx->aButtonVtx[i + 3].v.cn[1] = 
+        interfaceCtx->aButtonVtx[i].v.cn[2] = 
+        interfaceCtx->aButtonVtx[i + 1].v.cn[2] = 
+        interfaceCtx->aButtonVtx[i + 2].v.cn[2] = 
+        interfaceCtx->aButtonVtx[i + 3].v.cn[2] = 255;
 
-        interfaceCtx->actionVtx[i].v.cn[3] = 
-        interfaceCtx->actionVtx[i + 1].v.cn[3] = 
-        interfaceCtx->actionVtx[i + 2].v.cn[3] = 
-        interfaceCtx->actionVtx[i + 3].v.cn[3] = 255;
+        interfaceCtx->aButtonVtx[i].v.cn[3] = 
+        interfaceCtx->aButtonVtx[i + 1].v.cn[3] = 
+        interfaceCtx->aButtonVtx[i + 2].v.cn[3] = 
+        interfaceCtx->aButtonVtx[i + 3].v.cn[3] = 255;
     }
 
-    interfaceCtx->actionVtx[1].v.tc[0] = 
-    interfaceCtx->actionVtx[3].v.tc[0] = 
-    interfaceCtx->actionVtx[2].v.tc[1] = 
-    interfaceCtx->actionVtx[3].v.tc[1] = 0x400;
+    interfaceCtx->aButtonVtx[1].v.tc[0] = 
+    interfaceCtx->aButtonVtx[3].v.tc[0] = 
+    interfaceCtx->aButtonVtx[2].v.tc[1] = 
+    interfaceCtx->aButtonVtx[3].v.tc[1] = 0x400;
 
-    interfaceCtx->actionVtx[5].v.tc[0] = 
-    interfaceCtx->actionVtx[7].v.tc[0] = 
-    interfaceCtx->actionVtx[6].v.tc[1] = 
-    interfaceCtx->actionVtx[7].v.tc[1] = 0x400;
+    interfaceCtx->aButtonVtx[5].v.tc[0] = 
+    interfaceCtx->aButtonVtx[7].v.tc[0] = 
+    interfaceCtx->aButtonVtx[6].v.tc[1] = 
+    interfaceCtx->aButtonVtx[7].v.tc[1] = 0x400;
 
     for (j = 0, offset = 2; j < 2; j++, offset -= 2) {
         for (k = 0; k < 8; k++, i += 4) {
-            if ((interfaceCtx->minigameRewardType == 1) || ((interfaceCtx->minigameRewardType == 3) && (interfaceCtx->unk_28A[0] == 6))) {
-                interfaceCtx->actionVtx[i].v.ob[0] = 
-                interfaceCtx->actionVtx[i + 2].v.ob[0] = -((D_801BFA64[k] - offset) + 0x10);
+            if ((interfaceCtx->minigamePerfectType == MINIGAME_PERFECT_TYPE_1) || ((interfaceCtx->minigamePerfectType == MINIGAME_PERFECT_TYPE_3) && (interfaceCtx->minigamePerfectState[0] == MINIGAME_PERFECT_STATE_6))) {
+                interfaceCtx->aButtonVtx[i].v.ob[0] = 
+                interfaceCtx->aButtonVtx[i + 2].v.ob[0] = -((D_801BFA64[k] - offset) + 0x10);
 
-                interfaceCtx->actionVtx[i + 1].v.ob[0] = 
-                interfaceCtx->actionVtx[i + 3].v.ob[0] = interfaceCtx->actionVtx[i].v.ob[0] + 0x20;
+                interfaceCtx->aButtonVtx[i + 1].v.ob[0] = 
+                interfaceCtx->aButtonVtx[i + 3].v.ob[0] = interfaceCtx->aButtonVtx[i].v.ob[0] + 0x20;
 
-                interfaceCtx->actionVtx[i].v.ob[1] = 
-                interfaceCtx->actionVtx[i + 1].v.ob[1] = (D_801BFA74[k] - offset) + 0x10;
+                interfaceCtx->aButtonVtx[i].v.ob[1] = 
+                interfaceCtx->aButtonVtx[i + 1].v.ob[1] = (D_801BFA74[k] - offset) + 0x10;
 
-                interfaceCtx->actionVtx[i + 2].v.ob[1] = 
-                interfaceCtx->actionVtx[i + 3].v.ob[1] = interfaceCtx->actionVtx[i].v.ob[1] - 0x21;
+                interfaceCtx->aButtonVtx[i + 2].v.ob[1] = 
+                interfaceCtx->aButtonVtx[i + 3].v.ob[1] = interfaceCtx->aButtonVtx[i].v.ob[1] - 0x21;
 
-            } else if ((interfaceCtx->minigameRewardType == 2) || (interfaceCtx->minigameRewardType == 3)) {
-                interfaceCtx->actionVtx[i].v.ob[0] = 
-                interfaceCtx->actionVtx[i + 2].v.ob[0] = -(interfaceCtx->unk_2AA[k] - offset + 0x10);
+            } else if ((interfaceCtx->minigamePerfectType == MINIGAME_PERFECT_TYPE_2) || (interfaceCtx->minigamePerfectType == MINIGAME_PERFECT_TYPE_3)) {
+                interfaceCtx->aButtonVtx[i].v.ob[0] = 
+                interfaceCtx->aButtonVtx[i + 2].v.ob[0] = -(interfaceCtx->minigamePerfectVtxOffset[k] - offset + 0x10);
 
-                interfaceCtx->actionVtx[i + 1].v.ob[0] = 
-                interfaceCtx->actionVtx[i + 3].v.ob[0] = interfaceCtx->actionVtx[i].v.ob[0] + 0x20;
+                interfaceCtx->aButtonVtx[i + 1].v.ob[0] = 
+                interfaceCtx->aButtonVtx[i + 3].v.ob[0] = interfaceCtx->aButtonVtx[i].v.ob[0] + 0x20;
 
-                interfaceCtx->actionVtx[i].v.ob[1] = 
-                interfaceCtx->actionVtx[i + 1].v.ob[1] = 0x10 - offset;
+                interfaceCtx->aButtonVtx[i].v.ob[1] = 
+                interfaceCtx->aButtonVtx[i + 1].v.ob[1] = 0x10 - offset;
 
-                interfaceCtx->actionVtx[i + 2].v.ob[1] = 
-                interfaceCtx->actionVtx[i + 3].v.ob[1] = interfaceCtx->actionVtx[i].v.ob[1] - 0x21;
+                interfaceCtx->aButtonVtx[i + 2].v.ob[1] = 
+                interfaceCtx->aButtonVtx[i + 3].v.ob[1] = interfaceCtx->aButtonVtx[i].v.ob[1] - 0x21;
 
             } else {
-                interfaceCtx->actionVtx[i].v.ob[0] = 
-                interfaceCtx->actionVtx[i + 2].v.ob[0] = -(0xD8 - offset);
+                interfaceCtx->aButtonVtx[i].v.ob[0] = 
+                interfaceCtx->aButtonVtx[i + 2].v.ob[0] = -(0xD8 - offset);
 
-                interfaceCtx->actionVtx[i + 1].v.ob[0] = 
-                interfaceCtx->actionVtx[i + 3].v.ob[0] = interfaceCtx->actionVtx[i].v.ob[0] + 0x20;
+                interfaceCtx->aButtonVtx[i + 1].v.ob[0] = 
+                interfaceCtx->aButtonVtx[i + 3].v.ob[0] = interfaceCtx->aButtonVtx[i].v.ob[0] + 0x20;
 
-                interfaceCtx->actionVtx[i].v.ob[1] = 
-                interfaceCtx->actionVtx[i + 1].v.ob[1] = 0x18 - offset;
+                interfaceCtx->aButtonVtx[i].v.ob[1] = 
+                interfaceCtx->aButtonVtx[i + 1].v.ob[1] = 0x18 - offset;
 
-                interfaceCtx->actionVtx[i + 2].v.ob[1] = 
-                interfaceCtx->actionVtx[i + 3].v.ob[1] = interfaceCtx->actionVtx[i].v.ob[1] - 0x21;
+                interfaceCtx->aButtonVtx[i + 2].v.ob[1] = 
+                interfaceCtx->aButtonVtx[i + 3].v.ob[1] = interfaceCtx->aButtonVtx[i].v.ob[1] - 0x21;
             }
 
-            interfaceCtx->actionVtx[i].v.ob[2] = 
-            interfaceCtx->actionVtx[i + 1].v.ob[2] = 
-            interfaceCtx->actionVtx[i + 2].v.ob[2] = 
-            interfaceCtx->actionVtx[i + 3].v.ob[2] = 0;
+            interfaceCtx->aButtonVtx[i].v.ob[2] = 
+            interfaceCtx->aButtonVtx[i + 1].v.ob[2] = 
+            interfaceCtx->aButtonVtx[i + 2].v.ob[2] = 
+            interfaceCtx->aButtonVtx[i + 3].v.ob[2] = 0;
 
-            interfaceCtx->actionVtx[i].v.flag = 
-            interfaceCtx->actionVtx[i + 1].v.flag = 
-            interfaceCtx->actionVtx[i + 2].v.flag = 
-            interfaceCtx->actionVtx[i + 3].v.flag = 0;
+            interfaceCtx->aButtonVtx[i].v.flag = 
+            interfaceCtx->aButtonVtx[i + 1].v.flag = 
+            interfaceCtx->aButtonVtx[i + 2].v.flag = 
+            interfaceCtx->aButtonVtx[i + 3].v.flag = 0;
 
-            interfaceCtx->actionVtx[i].v.tc[0] = 
-            interfaceCtx->actionVtx[i].v.tc[1] = 
-            interfaceCtx->actionVtx[i + 1].v.tc[1] = 
-            interfaceCtx->actionVtx[i + 2].v.tc[0] = 0;
+            interfaceCtx->aButtonVtx[i].v.tc[0] = 
+            interfaceCtx->aButtonVtx[i].v.tc[1] = 
+            interfaceCtx->aButtonVtx[i + 1].v.tc[1] = 
+            interfaceCtx->aButtonVtx[i + 2].v.tc[0] = 0;
 
-            interfaceCtx->actionVtx[i + 1].v.tc[0] = 
-            interfaceCtx->actionVtx[i + 3].v.tc[0] = 0x400;
+            interfaceCtx->aButtonVtx[i + 1].v.tc[0] = 
+            interfaceCtx->aButtonVtx[i + 3].v.tc[0] = 0x400;
 
-            interfaceCtx->actionVtx[i + 2].v.tc[1] = 
-            interfaceCtx->actionVtx[i + 3].v.tc[1] = 0x420;
+            interfaceCtx->aButtonVtx[i + 2].v.tc[1] = 
+            interfaceCtx->aButtonVtx[i + 3].v.tc[1] = 0x420;
 
-            interfaceCtx->actionVtx[i].v.cn[0] = 
-            interfaceCtx->actionVtx[i + 1].v.cn[0] = 
-            interfaceCtx->actionVtx[i + 2].v.cn[0] = 
-            interfaceCtx->actionVtx[i + 3].v.cn[0] = 
-            interfaceCtx->actionVtx[i].v.cn[1] = 
-            interfaceCtx->actionVtx[i + 1].v.cn[1] = 
-            interfaceCtx->actionVtx[i + 2].v.cn[1] = 
-            interfaceCtx->actionVtx[i + 3].v.cn[1] = 
-            interfaceCtx->actionVtx[i].v.cn[2] = 
-            interfaceCtx->actionVtx[i + 1].v.cn[2] = 
-            interfaceCtx->actionVtx[i + 2].v.cn[2] = 
-            interfaceCtx->actionVtx[i + 3].v.cn[2] = 255;
+            interfaceCtx->aButtonVtx[i].v.cn[0] = 
+            interfaceCtx->aButtonVtx[i + 1].v.cn[0] = 
+            interfaceCtx->aButtonVtx[i + 2].v.cn[0] = 
+            interfaceCtx->aButtonVtx[i + 3].v.cn[0] = 
+            interfaceCtx->aButtonVtx[i].v.cn[1] = 
+            interfaceCtx->aButtonVtx[i + 1].v.cn[1] = 
+            interfaceCtx->aButtonVtx[i + 2].v.cn[1] = 
+            interfaceCtx->aButtonVtx[i + 3].v.cn[1] = 
+            interfaceCtx->aButtonVtx[i].v.cn[2] = 
+            interfaceCtx->aButtonVtx[i + 1].v.cn[2] = 
+            interfaceCtx->aButtonVtx[i + 2].v.cn[2] = 
+            interfaceCtx->aButtonVtx[i + 3].v.cn[2] = 255;
 
-            interfaceCtx->actionVtx[i].v.cn[3] = 
-            interfaceCtx->actionVtx[i + 1].v.cn[3] = 
-            interfaceCtx->actionVtx[i + 2].v.cn[3] = 
-            interfaceCtx->actionVtx[i + 3].v.cn[3] = 255;
+            interfaceCtx->aButtonVtx[i].v.cn[3] = 
+            interfaceCtx->aButtonVtx[i + 1].v.cn[3] = 
+            interfaceCtx->aButtonVtx[i + 2].v.cn[3] = 
+            interfaceCtx->aButtonVtx[i + 3].v.cn[3] = 255;
         }
     }
 
@@ -2023,14 +2023,16 @@ void func_80111CB4(PlayState* play) {
 
                     if (play->transitionMode != TRANS_MODE_OFF) {
                         Interface_SetHudVisibility(HUD_VISIBILITY_NONE);
-                    } else if ((gSaveContext.minigameState == 1) &&
+                    } else if ((gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE) &&
                                (gSaveContext.save.entrance == ENTRANCE(ROMANI_RANCH, 0)) &&
                                (Cutscene_GetSceneSetupIndex(play) != 0) &&
                                (play->transitionTrigger == TRANS_TRIGGER_OFF)) {
                         Interface_SetHudVisibility(HUD_VISIBILITY_A_B_MINIMAP);
-                    } else if ((gSaveContext.minigameState == 1) && (gSaveContext.eventInf[3] & 0x20)) {
+                    } else if ((gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE) &&
+                               (gSaveContext.eventInf[3] & 0x20)) {
                         Interface_SetHudVisibility(HUD_VISIBILITY_B_MINIMAP);
-                    } else if (!(gSaveContext.save.weekEventReg[0x52] & 8) && (gSaveContext.minigameState == 1)) {
+                    } else if (!(gSaveContext.save.weekEventReg[0x52] & 8) &&
+                               (gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE)) {
                         Interface_SetHudVisibility(HUD_VISIBILITY_B);
                     } else if (play->unk_1887C >= 2) {
                         Interface_SetHudVisibility(HUD_VISIBILITY_B);
@@ -2083,11 +2085,11 @@ void func_80111CB4(PlayState* play) {
 
                 if (play->transitionMode != TRANS_MODE_OFF) {
                     Interface_SetHudVisibility(HUD_VISIBILITY_NONE);
-                } else if ((gSaveContext.minigameState == 1) &&
+                } else if ((gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE) &&
                            (gSaveContext.save.entrance == ENTRANCE(ROMANI_RANCH, 0)) &&
                            (Cutscene_GetSceneSetupIndex(play) != 0) && (play->transitionTrigger == TRANS_TRIGGER_OFF)) {
                     Interface_SetHudVisibility(HUD_VISIBILITY_A_B_MINIMAP);
-                } else if (gSaveContext.minigameState == 1) {
+                } else if (gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE) {
                     Interface_SetHudVisibility(HUD_VISIBILITY_B);
                 } else if (play->unk_1887C >= 2) {
                     Interface_SetHudVisibility(HUD_VISIBILITY_B);
@@ -2151,7 +2153,8 @@ void func_80111CB4(PlayState* play) {
                     D_801BF888 = false;
                 }
             }
-        } else if ((gSaveContext.minigameState == 1) && (gSaveContext.save.entrance == ENTRANCE(WATERFALL_RAPIDS, 1)) &&
+        } else if ((gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE) &&
+                   (gSaveContext.save.entrance == ENTRANCE(WATERFALL_RAPIDS, 1)) &&
                    (play->transitionTrigger == TRANS_TRIGGER_OFF) && (play->transitionMode == TRANS_MODE_OFF)) {
             gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
@@ -2212,20 +2215,20 @@ void Interface_SetSceneRestrictions(PlayState* play) {
     } while (sRestrictionFlags[i].scene != 0xFF);
 }
 
-void func_80112AF4(void) {
+void Interface_Noop(void) {
 }
 
 void Interface_InitMinigame(PlayState* play) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
 
-    gSaveContext.minigameState = 1;
+    gSaveContext.minigameStatus = MINIGAME_STATUS_ACTIVE;
     gSaveContext.minigameScore = 0;
-    gSaveContext.unk_3F3C = 0;
+    gSaveContext.minigameHiddenScore = 0;
 
     sHBAScoreTier = 0;
-    interfaceCtx->unk_25C = interfaceCtx->unk_25E = interfaceCtx->unk_262 = 0;
+    interfaceCtx->minigamePoints = interfaceCtx->minigameHiddenPoints = interfaceCtx->minigameUnusedPoints = 0;
 
-    interfaceCtx->hbaAmmo = 20;
+    interfaceCtx->minigameAmmo = 20;
 }
 
 void Interface_LoadItemIconImpl(PlayState* play, u8 btn) {
@@ -2905,7 +2908,7 @@ void Inventory_UpdateDeitySwordEquip(PlayState* play) {
     u8 btn;
 
     if (CUR_FORM == PLAYER_FORM_FIERCE_DEITY) {
-        interfaceCtx->unk_21C = 0;
+        interfaceCtx->bButtonDoActionActive = false;
         interfaceCtx->bButtonDoAction = 0;
 
         // Is simply checking if (gSaveContext.save.playerForm == PLAYER_FORM_FIERCE_DEITY)
@@ -3072,10 +3075,10 @@ void Interface_SetBButtonDoAction(PlayState* play, s16 bButtonDoAction) {
                 osRecvMesg(&interfaceCtx->loadQueue, NULL, OS_MESG_BLOCK);
             }
 
-            interfaceCtx->unk_21C = 1;
+            interfaceCtx->bButtonDoActionActive = true;
         }
     } else {
-        interfaceCtx->unk_21C = 0;
+        interfaceCtx->bButtonDoActionActive = false;
         interfaceCtx->bButtonDoAction = 0;
     }
 }
@@ -3873,8 +3876,8 @@ void Interface_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
 
         gDPPipeSync(OVERLAY_DISP++);
 
-        if ((button == 0) && (gSaveContext.minigameState == 1)) {
-            ammo = play->interfaceCtx.hbaAmmo;
+        if ((button == 0) && (gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE)) {
+            ammo = play->interfaceCtx.minigameAmmo;
         } else if ((button == 0) && (play->unk_1887C > 1)) {
             ammo = play->unk_1887C - 1;
         } else if (((i == ITEM_BOW) && (AMMO(i) == CUR_CAPACITY(UPG_QUIVER))) ||
@@ -3926,8 +3929,8 @@ void func_80118084(PlayState* play) {
 
             Interface_DrawAmmoCount(play, 0, interfaceCtx->bAlpha);
         }
-    } else if (((interfaceCtx->unk_21C == 0) && (interfaceCtx->unk_222 == 0)) ||
-               (((interfaceCtx->unk_21C != 0) &&
+    } else if ((!interfaceCtx->bButtonDoActionActive && (interfaceCtx->unk_222 == 0)) ||
+               ((interfaceCtx->bButtonDoActionActive &&
                  ((BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) < ITEM_SWORD_KOKIRI) ||
                   (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) > ITEM_SWORD_GILDED)) &&
                  BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NONE) &&
@@ -3943,9 +3946,10 @@ void func_80118084(PlayState* play) {
 
                     if ((play->sceneNum != SCENE_SYATEKI_MIZU) && (play->sceneNum != SCENE_SYATEKI_MORI) &&
                         (play->sceneNum != SCENE_BOWLING) &&
-                        ((gSaveContext.minigameState != 1) ||
+                        ((gSaveContext.minigameStatus != MINIGAME_STATUS_ACTIVE) ||
                          (gSaveContext.save.entrance != ENTRANCE(ROMANI_RANCH, 0))) &&
-                        ((gSaveContext.minigameState != 1) || !(gSaveContext.eventInf[3] & 0x20)) &&
+                        ((gSaveContext.minigameStatus != MINIGAME_STATUS_ACTIVE) ||
+                         !(gSaveContext.eventInf[3] & 0x20)) &&
                         (!(gSaveContext.save.weekEventReg[31] & 0x80) || (play->unk_1887C != 0x64))) {
                         Interface_DrawAmmoCount(play, 0, interfaceCtx->bAlpha);
                     }
@@ -4060,14 +4064,14 @@ void func_80118BA4(PlayState* play) {
 
     gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gDPPipeSync(OVERLAY_DISP++);
-    gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[4], 4, 0);
+    gSPVertex(OVERLAY_DISP++, &interfaceCtx->aButtonVtx[4], 4, 0);
     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, aAlpha);
 
     OVERLAY_DISP = Gfx_DrawQuadTextureIA8(OVERLAY_DISP, gButtonBackgroundTex, 32, 32, 0);
 
     gDPPipeSync(OVERLAY_DISP++);
     Interface_SetView1(play, XREG(31) + 0x17, XREG(31) + 0x44, 190, 235);
-    gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[0], 4, 0);
+    gSPVertex(OVERLAY_DISP++, &interfaceCtx->aButtonVtx[0], 4, 0);
     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 100, 200, 255, interfaceCtx->aAlpha);
     gSP1Quadrangle(OVERLAY_DISP++, 0, 2, 3, 1, 0);
 
@@ -4083,7 +4087,7 @@ void func_80118BA4(PlayState* play) {
     Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
     Matrix_RotateXFApply(interfaceCtx->unk_218 / 10000.0f);
     gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-    gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[8], 4, 0);
+    gSPVertex(OVERLAY_DISP++, &interfaceCtx->aButtonVtx[8], 4, 0);
 
     // Draw Action Label
     if (((interfaceCtx->unk_210 < 2) || (interfaceCtx->unk_210 == 3))) {
@@ -4450,7 +4454,7 @@ void Interface_DrawClock(PlayState* play) {
 
                                 gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx),
                                           G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-                                gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[12], 4, 0);
+                                gSPVertex(OVERLAY_DISP++, &interfaceCtx->aButtonVtx[12], 4, 0);
                                 gDPLoadTextureBlock_4b(OVERLAY_DISP++, gThreeDayClockStarMinuteTex, G_IM_FMT_I, 16, 16,
                                                        0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP,
                                                        G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
@@ -4486,7 +4490,7 @@ void Interface_DrawClock(PlayState* play) {
 
                             gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx),
                                       G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-                            gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[16], 4, 0);
+                            gSPVertex(OVERLAY_DISP++, &interfaceCtx->aButtonVtx[16], 4, 0);
 
                             OVERLAY_DISP = Gfx_DrawQuadTextureIA8(OVERLAY_DISP, gThreeDayClockSunHourTex, 24, 24, 0);
 
@@ -4504,7 +4508,7 @@ void Interface_DrawClock(PlayState* play) {
                             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
                             gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx),
                                       G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-                            gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[20], 4, 0);
+                            gSPVertex(OVERLAY_DISP++, &interfaceCtx->aButtonVtx[20], 4, 0);
 
                             OVERLAY_DISP = Gfx_DrawQuadTextureIA8(OVERLAY_DISP, gThreeDayClockMoonHourTex, 24, 24, 0);
 
@@ -4531,7 +4535,7 @@ void Interface_DrawClock(PlayState* play) {
                             gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0,
                                               PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0);
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, D_801BFB2C);
-                            gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[24], 8, 0);
+                            gSPVertex(OVERLAY_DISP++, &interfaceCtx->aButtonVtx[24], 8, 0);
 
                             OVERLAY_DISP = Gfx_DrawQuadTexture(OVERLAY_DISP, D_801BFB6C[sp1C6], 4, 16, 11, 0);
 
@@ -4555,7 +4559,7 @@ void Interface_DrawClock(PlayState* play) {
                             gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0,
                                               PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0);
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, D_801BFB2C);
-                            gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[32], 8, 0);
+                            gSPVertex(OVERLAY_DISP++, &interfaceCtx->aButtonVtx[32], 8, 0);
 
                             OVERLAY_DISP = Gfx_DrawQuadTexture(OVERLAY_DISP, D_801BFB6C[sp1C6], 4, 16, 11, 0);
 
@@ -4758,43 +4762,46 @@ void Interface_DrawClock(PlayState* play);
 #pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_DrawClock.s")
 #endif
 
-void Interface_SetPerfectMinigame(PlayState* play, s16 rewardType) {
+void Interface_SetMinigamePerfect(PlayState* play, s16 minigamePerfectType) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
     s16 i;
 
     interfaceCtx->isMinigamePerfect = true;
-    interfaceCtx->minigameRewardType = rewardType;
-    interfaceCtx->unk_2FC[0] = 255;
-    interfaceCtx->unk_2FC[1] = 165;
-    interfaceCtx->unk_2FC[2] = 55;
-    interfaceCtx->unk_2FC[3] = 255;
-    interfaceCtx->unk_30A = 20;
-    interfaceCtx->unk_308 = 0;
-    interfaceCtx->unk_304 = 1;
-    interfaceCtx->unk_30C = 0;
+    interfaceCtx->minigamePerfectType = minigamePerfectType;
+
+    interfaceCtx->minigamePerfectPrimColor[0] = 255;
+    interfaceCtx->minigamePerfectPrimColor[1] = 165;
+    interfaceCtx->minigamePerfectPrimColor[2] = 55;
+    interfaceCtx->minigamePerfectPrimColor[3] = 255;
+    interfaceCtx->minigamePerfectColorTimer = 20;
+
+    interfaceCtx->minigamePerfectColorTargetIndex = 0;
+    interfaceCtx->minigamePerfectLetterCount = 1;
+    interfaceCtx->minigamePerfectTimer = 0;
 
     for (i = 0; i < 8; i++) {
-        interfaceCtx->unk_2AA[i] = 0;
-        interfaceCtx->unk_29A[i] = 0;
-        interfaceCtx->unk_28A[i] = interfaceCtx->unk_2AA[i];
-        if (interfaceCtx->minigameRewardType == 1) {
-            interfaceCtx->unk_2BC[i] = 140.0f;
-            interfaceCtx->unk_2DC[i] = 100.0f;
+        interfaceCtx->minigamePerfectLetterDirection[i] = 0;
+        interfaceCtx->minigamePerfectState[i] = interfaceCtx->minigamePerfectVtxOffset[i] = 0;
+        if (interfaceCtx->minigamePerfectType == MINIGAME_PERFECT_TYPE_1) {
+            interfaceCtx->minigamePerfectLetterPosX[i] = 140.0f;
+            interfaceCtx->minigamePerfectLetterPosY[i] = 100.0f;
         } else {
-            interfaceCtx->unk_2DC[i] = 200.0f;
-            interfaceCtx->unk_2BC[i] = 200.0f;
+            interfaceCtx->minigamePerfectLetterPosY[i] = 200.0f;
+            interfaceCtx->minigamePerfectLetterPosX[i] = 200.0f;
         }
     }
-    interfaceCtx->unk_28A[0] = 1;
+    interfaceCtx->minigamePerfectState[0] = MINIGAME_PERFECT_STATE_1;
 }
 
-void func_8011B5C0(PlayState* play) {
-    static u16 D_801BFC50[] = {
-        0xC000, 0xE000, 0x0000, 0x2000, 0xA000, 0x8000, 0x6000, 0x4000,
-    };
-    static s16 D_801BFC60[][3] = {
-        255, 255, 255, 255, 165, 55,
-    };
+u16 D_801BFC50[] = {
+    0xC000, 0xE000, 0x0000, 0x2000, 0xA000, 0x8000, 0x6000, 0x4000,
+};
+s16 sMinigamePerfectType1PrimColorTargets[2][3] = {
+    { 255, 255, 255 },
+    { 255, 165, 55 },
+};
+
+void Interface_UpdateMinigamePerfectType1(PlayState* play) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
     s16 i;
     s16 count;
@@ -4802,72 +4809,84 @@ void func_8011B5C0(PlayState* play) {
     s16 colorStepG;
     s16 colorStepB;
 
-    for (count = 0, i = 0; i < interfaceCtx->unk_304; i++, count += 4) {
-        if (interfaceCtx->unk_28A[i] == 1) {
-            interfaceCtx->unk_29A[i] = D_801BFC50[i] + 0xA000;
-            interfaceCtx->unk_28A[i] = 2;
-        } else if (interfaceCtx->unk_28A[i] == 2) {
-            interfaceCtx->unk_29A[i] -= 0x800;
-            if (interfaceCtx->unk_29A[i] == D_801BFC50[i]) {
-                interfaceCtx->unk_28A[i] = 3;
+    for (count = 0, i = 0; i < interfaceCtx->minigamePerfectLetterCount; i++, count += 4) {
+        if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_1) {
+            interfaceCtx->minigamePerfectLetterDirection[i] = D_801BFC50[i] + 0xA000;
+            interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_2;
+        } else if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_2) {
+            interfaceCtx->minigamePerfectLetterDirection[i] -= 0x800;
+            if (interfaceCtx->minigamePerfectLetterDirection[i] == D_801BFC50[i]) {
+                interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_3;
             }
-        } else if (interfaceCtx->unk_28A[i] == 4) {
-            interfaceCtx->unk_29A[i] -= 0x800;
-            if (interfaceCtx->unk_29A[i] == (u16)(D_801BFC50[i] - 0x8000)) {
-                interfaceCtx->unk_28A[i] = 0;
+        } else if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_4) {
+            interfaceCtx->minigamePerfectLetterDirection[i] -= 0x800;
+            if (interfaceCtx->minigamePerfectLetterDirection[i] == (u16)(D_801BFC50[i] - 0x8000)) {
+                interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_0;
             }
         }
     }
 
-    if ((interfaceCtx->unk_28A[interfaceCtx->unk_304] == 0) && (interfaceCtx->unk_304 < 8)) {
-        interfaceCtx->unk_28A[interfaceCtx->unk_304] = 1;
-        interfaceCtx->unk_2BC[interfaceCtx->unk_304] = 140.0f;
-        interfaceCtx->unk_2DC[interfaceCtx->unk_304] = 100.0f;
-        interfaceCtx->unk_29A[interfaceCtx->unk_304] = D_801BFC50[interfaceCtx->unk_304] + 0xA000;
-        interfaceCtx->unk_304++;
+    if ((interfaceCtx->minigamePerfectState[interfaceCtx->minigamePerfectLetterCount] == MINIGAME_PERFECT_STATE_0) &&
+        (interfaceCtx->minigamePerfectLetterCount < 8)) {
+        interfaceCtx->minigamePerfectState[interfaceCtx->minigamePerfectLetterCount] = MINIGAME_PERFECT_STATE_1;
+        interfaceCtx->minigamePerfectLetterPosX[interfaceCtx->minigamePerfectLetterCount] = 140.0f;
+        interfaceCtx->minigamePerfectLetterPosY[interfaceCtx->minigamePerfectLetterCount] = 100.0f;
+        interfaceCtx->minigamePerfectLetterDirection[interfaceCtx->minigamePerfectLetterCount] =
+            D_801BFC50[interfaceCtx->minigamePerfectLetterCount] + 0xA000;
+        interfaceCtx->minigamePerfectLetterCount++;
     }
 
-    if ((interfaceCtx->unk_304 == 8) && (interfaceCtx->unk_28A[7] == 3)) {
+    if ((interfaceCtx->minigamePerfectLetterCount == 8) &&
+        (interfaceCtx->minigamePerfectState[7] == MINIGAME_PERFECT_STATE_3)) {
 
-        colorStepR = ABS_ALT(interfaceCtx->unk_2FC[0] - D_801BFC60[interfaceCtx->unk_308][0]) / interfaceCtx->unk_30A;
-        colorStepG = ABS_ALT(interfaceCtx->unk_2FC[1] - D_801BFC60[interfaceCtx->unk_308][1]) / interfaceCtx->unk_30A;
-        colorStepB = ABS_ALT(interfaceCtx->unk_2FC[2] - D_801BFC60[interfaceCtx->unk_308][2]) / interfaceCtx->unk_30A;
+        colorStepR = ABS_ALT(interfaceCtx->minigamePerfectPrimColor[0] -
+                             sMinigamePerfectType1PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][0]) /
+                     interfaceCtx->minigamePerfectColorTimer;
+        colorStepG = ABS_ALT(interfaceCtx->minigamePerfectPrimColor[1] -
+                             sMinigamePerfectType1PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][1]) /
+                     interfaceCtx->minigamePerfectColorTimer;
+        colorStepB = ABS_ALT(interfaceCtx->minigamePerfectPrimColor[2] -
+                             sMinigamePerfectType1PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][2]) /
+                     interfaceCtx->minigamePerfectColorTimer;
 
-        if (interfaceCtx->unk_2FC[0] >= D_801BFC60[interfaceCtx->unk_308][0]) {
-            interfaceCtx->unk_2FC[0] -= colorStepR;
+        if (interfaceCtx->minigamePerfectPrimColor[0] >=
+            sMinigamePerfectType1PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][0]) {
+            interfaceCtx->minigamePerfectPrimColor[0] -= colorStepR;
         } else {
-            interfaceCtx->unk_2FC[0] += colorStepR;
+            interfaceCtx->minigamePerfectPrimColor[0] += colorStepR;
         }
 
-        if (interfaceCtx->unk_2FC[1] >= D_801BFC60[interfaceCtx->unk_308][1]) {
-            interfaceCtx->unk_2FC[1] -= colorStepG;
+        if (interfaceCtx->minigamePerfectPrimColor[1] >=
+            sMinigamePerfectType1PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][1]) {
+            interfaceCtx->minigamePerfectPrimColor[1] -= colorStepG;
         } else {
-            interfaceCtx->unk_2FC[1] += colorStepG;
+            interfaceCtx->minigamePerfectPrimColor[1] += colorStepG;
         }
 
-        if (interfaceCtx->unk_2FC[2] >= D_801BFC60[interfaceCtx->unk_308][2]) {
-            interfaceCtx->unk_2FC[2] -= colorStepB;
+        if (interfaceCtx->minigamePerfectPrimColor[2] >=
+            sMinigamePerfectType1PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][2]) {
+            interfaceCtx->minigamePerfectPrimColor[2] -= colorStepB;
         } else {
-            interfaceCtx->unk_2FC[2] += colorStepB;
+            interfaceCtx->minigamePerfectPrimColor[2] += colorStepB;
         }
 
-        interfaceCtx->unk_30A--;
+        interfaceCtx->minigamePerfectColorTimer--;
 
-        if (interfaceCtx->unk_30A == 0) {
-            interfaceCtx->unk_30A = 20;
-            interfaceCtx->unk_308 ^= 1;
-            interfaceCtx->unk_30C++;
+        if (interfaceCtx->minigamePerfectColorTimer == 0) {
+            interfaceCtx->minigamePerfectColorTimer = 20;
+            interfaceCtx->minigamePerfectColorTargetIndex ^= 1;
+            interfaceCtx->minigamePerfectTimer++;
 
-            if (interfaceCtx->unk_30C == 6) {
+            if (interfaceCtx->minigamePerfectTimer == 6) {
                 for (i = 0; i < 8; i++) {
-                    interfaceCtx->unk_28A[i] = 4;
+                    interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_4;
                 }
             }
         }
     }
 
     for (count = 0, i = 0; i < 8; i++) {
-        if (interfaceCtx->unk_28A[i] == 0) {
+        if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_0) {
             count++;
         }
     }
@@ -4883,12 +4902,12 @@ s16 D_801BFC6C[] = {
 s16 D_801BFC7C[] = {
     0x00B4, 0x00B4, 0x00B4, 0x00B4, 0xFF4C, 0xFF4C, 0xFF4C, 0xFF4C,
 };
-s16 D_801BFC8C[2][3] = {
-    { 0xFF, 0xFF, 0xFF },
-    { 0xFF, 0xA5, 0x37 },
+s16 sMinigamePerfectType2PrimColorTargets[2][3] = {
+    { 255, 255, 255 },
+    { 255, 165, 55 },
 };
 
-void func_8011B9E0(PlayState* play) {
+void Interface_UpdateMinigamePerfectType2(PlayState* play) {
     s16 i;
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
     s16 stepVar1;
@@ -4897,115 +4916,130 @@ void func_8011B9E0(PlayState* play) {
     s16 new_var;
     s16 j = 0; // unused incrementer
 
-    for (i = 0; i < interfaceCtx->unk_304; i++, j += 4) {
-        if (interfaceCtx->unk_28A[i] == 1) {
-            interfaceCtx->unk_29A[i] = i << 0xD;
-            interfaceCtx->unk_2BC[i] = 200.0f;
-            interfaceCtx->unk_2DC[i] = 200.0f;
-            interfaceCtx->unk_2AA[i] = 0;
-            interfaceCtx->unk_28A[i] = 2;
-        } else if (interfaceCtx->unk_28A[i] == 2) {
-            interfaceCtx->unk_29A[i] -= 0x800;
-            interfaceCtx->unk_2BC[i] -= 8.0f;
-            interfaceCtx->unk_2DC[i] -= 8.0f;
-            if (interfaceCtx->unk_2BC[i] <= 0.0f) {
-                interfaceCtx->unk_2DC[i] = 0.0f;
-                interfaceCtx->unk_2BC[i] = 0.0f;
-                interfaceCtx->unk_28A[i] = 3;
+    for (i = 0; i < interfaceCtx->minigamePerfectLetterCount; i++, j += 4) {
+        if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_1) {
+            interfaceCtx->minigamePerfectLetterDirection[i] = i << 0xD;
+            interfaceCtx->minigamePerfectLetterPosX[i] = 200.0f;
+            interfaceCtx->minigamePerfectLetterPosY[i] = 200.0f;
+            interfaceCtx->minigamePerfectVtxOffset[i] = 0;
+            interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_2;
+        } else if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_2) {
+            interfaceCtx->minigamePerfectLetterDirection[i] -= 0x800;
+            interfaceCtx->minigamePerfectLetterPosX[i] -= 8.0f;
+            interfaceCtx->minigamePerfectLetterPosY[i] -= 8.0f;
+            if (interfaceCtx->minigamePerfectLetterPosX[i] <= 0.0f) {
+                interfaceCtx->minigamePerfectLetterPosY[i] = 0.0f;
+                interfaceCtx->minigamePerfectLetterPosX[i] = 0.0f;
+                interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_3;
                 if (i == 7) {
-                    interfaceCtx->unk_30A = 5;
-                    interfaceCtx->unk_28A[7] = 4;
-                    interfaceCtx->unk_28A[6] = interfaceCtx->unk_28A[7];
-                    interfaceCtx->unk_28A[5] = interfaceCtx->unk_28A[7];
-                    interfaceCtx->unk_28A[4] = interfaceCtx->unk_28A[7];
-                    interfaceCtx->unk_28A[3] = interfaceCtx->unk_28A[7];
-                    interfaceCtx->unk_28A[2] = interfaceCtx->unk_28A[7];
-                    interfaceCtx->unk_28A[1] = interfaceCtx->unk_28A[7];
-                    interfaceCtx->unk_28A[0] = interfaceCtx->unk_28A[7];
+                    interfaceCtx->minigamePerfectColorTimer = 5;
+                    interfaceCtx->minigamePerfectState[7] = MINIGAME_PERFECT_STATE_4;
+                    interfaceCtx->minigamePerfectState[6] = interfaceCtx->minigamePerfectState[7];
+                    interfaceCtx->minigamePerfectState[5] = interfaceCtx->minigamePerfectState[7];
+                    interfaceCtx->minigamePerfectState[4] = interfaceCtx->minigamePerfectState[7];
+                    interfaceCtx->minigamePerfectState[3] = interfaceCtx->minigamePerfectState[7];
+                    interfaceCtx->minigamePerfectState[2] = interfaceCtx->minigamePerfectState[7];
+                    interfaceCtx->minigamePerfectState[1] = interfaceCtx->minigamePerfectState[7];
+                    interfaceCtx->minigamePerfectState[0] = interfaceCtx->minigamePerfectState[7];
                 }
             }
-        } else if (interfaceCtx->unk_28A[i] == 4) {
+        } else if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_4) {
 
-            stepVar1 = ABS_ALT(interfaceCtx->unk_2AA[i] - D_801BFC6C[i]) / interfaceCtx->unk_30A;
-            if (interfaceCtx->unk_2AA[i] >= D_801BFC6C[i]) {
-                interfaceCtx->unk_2AA[i] -= stepVar1;
+            stepVar1 = ABS_ALT(interfaceCtx->minigamePerfectVtxOffset[i] - D_801BFC6C[i]) /
+                       interfaceCtx->minigamePerfectColorTimer;
+            if (interfaceCtx->minigamePerfectVtxOffset[i] >= D_801BFC6C[i]) {
+                interfaceCtx->minigamePerfectVtxOffset[i] -= stepVar1;
             } else {
-                interfaceCtx->unk_2AA[i] += stepVar1;
+                interfaceCtx->minigamePerfectVtxOffset[i] += stepVar1;
             }
-        } else if (interfaceCtx->unk_28A[i] == 6) {
+        } else if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_6) {
 
-            stepVar1 = ABS_ALT(interfaceCtx->unk_2AA[i] - D_801BFC7C[i]) / interfaceCtx->unk_30A;
-            if (interfaceCtx->unk_2AA[i] >= D_801BFC7C[i]) {
-                interfaceCtx->unk_2AA[i] -= stepVar1;
+            stepVar1 = ABS_ALT(interfaceCtx->minigamePerfectVtxOffset[i] - D_801BFC7C[i]) /
+                       interfaceCtx->minigamePerfectColorTimer;
+            if (interfaceCtx->minigamePerfectVtxOffset[i] >= D_801BFC7C[i]) {
+                interfaceCtx->minigamePerfectVtxOffset[i] -= stepVar1;
             } else {
-                interfaceCtx->unk_2AA[i] += stepVar1;
+                interfaceCtx->minigamePerfectVtxOffset[i] += stepVar1;
             }
         }
     }
 
-    if ((interfaceCtx->unk_28A[0] == 4) || (interfaceCtx->unk_28A[0] == 6)) {
-        if (interfaceCtx->unk_28A[0] == 6) {
-            new_var = interfaceCtx->unk_2FC[3] / interfaceCtx->unk_30A;
-            interfaceCtx->unk_2FC[3] -= new_var;
+    if ((interfaceCtx->minigamePerfectState[0] == MINIGAME_PERFECT_STATE_4) ||
+        (interfaceCtx->minigamePerfectState[0] == MINIGAME_PERFECT_STATE_6)) {
+        if (interfaceCtx->minigamePerfectState[0] == MINIGAME_PERFECT_STATE_6) {
+            new_var = interfaceCtx->minigamePerfectPrimColor[3] / interfaceCtx->minigamePerfectColorTimer;
+            interfaceCtx->minigamePerfectPrimColor[3] -= new_var;
         }
-        interfaceCtx->unk_30A--;
-        if (interfaceCtx->unk_30A == 0) {
+        interfaceCtx->minigamePerfectColorTimer--;
+        if (interfaceCtx->minigamePerfectColorTimer == 0) {
 
-            if (interfaceCtx->unk_28A[0] == 4) {
+            if (interfaceCtx->minigamePerfectState[0] == MINIGAME_PERFECT_STATE_4) {
                 for (i = 0; i < 8; i++) {
-                    interfaceCtx->unk_28A[i] = 5;
+                    interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_5;
                 }
-                interfaceCtx->unk_30A = 20;
+                interfaceCtx->minigamePerfectColorTimer = 20;
             } else {
                 for (i = 0; i < 8; i++) {
-                    interfaceCtx->unk_28A[i] = 0;
+                    interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_0;
                 }
-                interfaceCtx->isMinigamePerfect = 0;
+                interfaceCtx->isMinigamePerfect = false;
             }
         }
     }
 
-    if (interfaceCtx->unk_28A[interfaceCtx->unk_304] == 0) {
-        if (interfaceCtx->unk_304 < 8) {
-            interfaceCtx->unk_28A[interfaceCtx->unk_304] = 1;
-            interfaceCtx->unk_304++;
+    if (interfaceCtx->minigamePerfectState[interfaceCtx->minigamePerfectLetterCount] == MINIGAME_PERFECT_STATE_0) {
+        if (interfaceCtx->minigamePerfectLetterCount < 8) {
+            interfaceCtx->minigamePerfectState[interfaceCtx->minigamePerfectLetterCount] = MINIGAME_PERFECT_STATE_1;
+            interfaceCtx->minigamePerfectLetterCount++;
         }
     }
-    if (interfaceCtx->unk_304 == 8) {
-        if (interfaceCtx->unk_28A[7] == 5) {
+    if (interfaceCtx->minigamePerfectLetterCount == 8) {
+        if (interfaceCtx->minigamePerfectState[7] == MINIGAME_PERFECT_STATE_5) {
 
-            stepVar1 = ABS_ALT(interfaceCtx->unk_2FC[0] - D_801BFC8C[interfaceCtx->unk_308][0]) / interfaceCtx->unk_30A;
-            stepVar2 = ABS_ALT(interfaceCtx->unk_2FC[1] - D_801BFC8C[interfaceCtx->unk_308][1]) / interfaceCtx->unk_30A;
-            stepVar3 = ABS_ALT(interfaceCtx->unk_2FC[2] - D_801BFC8C[interfaceCtx->unk_308][2]) / interfaceCtx->unk_30A;
+            stepVar1 =
+                ABS_ALT(interfaceCtx->minigamePerfectPrimColor[0] -
+                        sMinigamePerfectType2PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][0]) /
+                interfaceCtx->minigamePerfectColorTimer;
+            stepVar2 =
+                ABS_ALT(interfaceCtx->minigamePerfectPrimColor[1] -
+                        sMinigamePerfectType2PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][1]) /
+                interfaceCtx->minigamePerfectColorTimer;
+            stepVar3 =
+                ABS_ALT(interfaceCtx->minigamePerfectPrimColor[2] -
+                        sMinigamePerfectType2PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][2]) /
+                interfaceCtx->minigamePerfectColorTimer;
 
-            if (interfaceCtx->unk_2FC[0] >= D_801BFC8C[interfaceCtx->unk_308][0]) {
-                interfaceCtx->unk_2FC[0] -= stepVar1;
+            if (interfaceCtx->minigamePerfectPrimColor[0] >=
+                sMinigamePerfectType2PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][0]) {
+                interfaceCtx->minigamePerfectPrimColor[0] -= stepVar1;
             } else {
-                interfaceCtx->unk_2FC[0] += stepVar1;
+                interfaceCtx->minigamePerfectPrimColor[0] += stepVar1;
             }
 
-            if (interfaceCtx->unk_2FC[1] >= D_801BFC8C[interfaceCtx->unk_308][1]) {
-                interfaceCtx->unk_2FC[1] -= stepVar2;
+            if (interfaceCtx->minigamePerfectPrimColor[1] >=
+                sMinigamePerfectType2PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][1]) {
+                interfaceCtx->minigamePerfectPrimColor[1] -= stepVar2;
             } else {
-                interfaceCtx->unk_2FC[1] += stepVar2;
+                interfaceCtx->minigamePerfectPrimColor[1] += stepVar2;
             }
 
-            if (interfaceCtx->unk_2FC[2] >= D_801BFC8C[interfaceCtx->unk_308][2]) {
-                interfaceCtx->unk_2FC[2] -= stepVar3;
+            if (interfaceCtx->minigamePerfectPrimColor[2] >=
+                sMinigamePerfectType2PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][2]) {
+                interfaceCtx->minigamePerfectPrimColor[2] -= stepVar3;
             } else {
-                interfaceCtx->unk_2FC[2] += stepVar3;
+                interfaceCtx->minigamePerfectPrimColor[2] += stepVar3;
             }
 
-            interfaceCtx->unk_30A--;
-            if (interfaceCtx->unk_30A == 0) {
-                interfaceCtx->unk_30A = 20;
-                interfaceCtx->unk_308 ^= 1;
-                interfaceCtx->unk_30C++;
-                if (interfaceCtx->unk_30C == 6) {
+            interfaceCtx->minigamePerfectColorTimer--;
+            if (interfaceCtx->minigamePerfectColorTimer == 0) {
+                interfaceCtx->minigamePerfectColorTimer = 20;
+                interfaceCtx->minigamePerfectColorTargetIndex ^= 1;
+                interfaceCtx->minigamePerfectTimer++;
+                if (interfaceCtx->minigamePerfectTimer == 6) {
                     for (i = 0; i < 8; i++) {
-                        interfaceCtx->unk_28A[i] = 6;
+                        interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_6;
                     }
-                    interfaceCtx->unk_30A = 5;
+                    interfaceCtx->minigamePerfectColorTimer = 5;
                 }
             }
         }
@@ -5018,12 +5052,12 @@ s16 D_801BFC98[] = {
 u16 D_801BFCA8[] = {
     0xC000, 0xE000, 0x0000, 0x2000, 0xA000, 0x8000, 0x6000, 0x4000,
 };
-s16 D_801BFCB8[2][3] = {
-    { 0xFF, 0xFF, 0xFF },
-    { 0xFF, 0xA5, 0x37 },
+s16 sMinigamePerfectType3PrimColorTargets[2][3] = {
+    { 255, 255, 255 },
+    { 255, 165, 55 },
 };
 
-void func_8011BF70(PlayState* play) {
+void Interface_UpdateMinigamePerfectType3(PlayState* play) {
     s16 i;
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
     s16 stepVar1;
@@ -5032,113 +5066,125 @@ void func_8011BF70(PlayState* play) {
     s16 stepVar4;
     s16 j = 0;
 
-    for (i = 0; i < interfaceCtx->unk_304; i++, j += 4) {
-        if (interfaceCtx->unk_28A[i] == 1) {
-            interfaceCtx->unk_29A[i] = i << 0xD;
-            interfaceCtx->unk_2BC[i] = 200.0f;
-            interfaceCtx->unk_2DC[i] = 200.0f;
-            interfaceCtx->unk_2AA[i] = 0;
-            interfaceCtx->unk_28A[i] = 2;
-        } else if (interfaceCtx->unk_28A[i] == 2) {
-            interfaceCtx->unk_29A[i] -= 0x800;
-            interfaceCtx->unk_2BC[i] -= 8.0f;
-            interfaceCtx->unk_2DC[i] -= 8.0f;
-            if (interfaceCtx->unk_2BC[i] <= 0.0f) {
-                interfaceCtx->unk_2DC[i] = 0.0f;
-                interfaceCtx->unk_2BC[i] = 0.0f;
-                interfaceCtx->unk_28A[i] = 3;
+    for (i = 0; i < interfaceCtx->minigamePerfectLetterCount; i++, j += 4) {
+        if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_1) {
+            interfaceCtx->minigamePerfectLetterDirection[i] = i << 0xD;
+            interfaceCtx->minigamePerfectLetterPosX[i] = 200.0f;
+            interfaceCtx->minigamePerfectLetterPosY[i] = 200.0f;
+            interfaceCtx->minigamePerfectVtxOffset[i] = 0;
+            interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_2;
+        } else if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_2) {
+            interfaceCtx->minigamePerfectLetterDirection[i] -= 0x800;
+            interfaceCtx->minigamePerfectLetterPosX[i] -= 8.0f;
+            interfaceCtx->minigamePerfectLetterPosY[i] -= 8.0f;
+            if (interfaceCtx->minigamePerfectLetterPosX[i] <= 0.0f) {
+                interfaceCtx->minigamePerfectLetterPosY[i] = 0.0f;
+                interfaceCtx->minigamePerfectLetterPosX[i] = 0.0f;
+                interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_3;
                 if (i == 7) {
-                    interfaceCtx->unk_28A[7] = 4;
-                    interfaceCtx->unk_30A = 5;
-                    interfaceCtx->unk_28A[6] = interfaceCtx->unk_28A[7];
-                    interfaceCtx->unk_28A[5] = interfaceCtx->unk_28A[7];
-                    interfaceCtx->unk_28A[4] = interfaceCtx->unk_28A[7];
-                    interfaceCtx->unk_28A[3] = interfaceCtx->unk_28A[7];
-                    interfaceCtx->unk_28A[2] = interfaceCtx->unk_28A[7];
-                    interfaceCtx->unk_28A[1] = interfaceCtx->unk_28A[7];
-                    interfaceCtx->unk_28A[0] = interfaceCtx->unk_28A[7];
+                    interfaceCtx->minigamePerfectState[7] = MINIGAME_PERFECT_STATE_4;
+                    interfaceCtx->minigamePerfectColorTimer = 5;
+                    interfaceCtx->minigamePerfectState[6] = interfaceCtx->minigamePerfectState[7];
+                    interfaceCtx->minigamePerfectState[5] = interfaceCtx->minigamePerfectState[7];
+                    interfaceCtx->minigamePerfectState[4] = interfaceCtx->minigamePerfectState[7];
+                    interfaceCtx->minigamePerfectState[3] = interfaceCtx->minigamePerfectState[7];
+                    interfaceCtx->minigamePerfectState[2] = interfaceCtx->minigamePerfectState[7];
+                    interfaceCtx->minigamePerfectState[1] = interfaceCtx->minigamePerfectState[7];
+                    interfaceCtx->minigamePerfectState[0] = interfaceCtx->minigamePerfectState[7];
                 }
             }
-        } else if (interfaceCtx->unk_28A[i] == 4) {
-            stepVar1 = ABS_ALT(interfaceCtx->unk_2AA[i] - D_801BFC98[i]) / interfaceCtx->unk_30A;
-            if (interfaceCtx->unk_2AA[i] >= D_801BFC98[i]) {
-                interfaceCtx->unk_2AA[i] -= stepVar1;
+        } else if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_4) {
+            stepVar1 = ABS_ALT(interfaceCtx->minigamePerfectVtxOffset[i] - D_801BFC98[i]) /
+                       interfaceCtx->minigamePerfectColorTimer;
+            if (interfaceCtx->minigamePerfectVtxOffset[i] >= D_801BFC98[i]) {
+                interfaceCtx->minigamePerfectVtxOffset[i] -= stepVar1;
             } else {
-                interfaceCtx->unk_2AA[i] += stepVar1;
+                interfaceCtx->minigamePerfectVtxOffset[i] += stepVar1;
             }
-        } else if (interfaceCtx->unk_28A[i] == 6) {
-            interfaceCtx->unk_29A[i] -= 0x800;
-            if (interfaceCtx->unk_29A[i] == (u16)(D_801BFCA8[i] - 0x8000)) {
-                interfaceCtx->unk_28A[i] = 0;
+        } else if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_6) {
+            interfaceCtx->minigamePerfectLetterDirection[i] -= 0x800;
+            if (interfaceCtx->minigamePerfectLetterDirection[i] == (u16)(D_801BFCA8[i] - 0x8000)) {
+                interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_0;
             }
         }
     }
 
-    if (interfaceCtx->unk_28A[0] == 4) {
-        interfaceCtx->unk_30A--;
-        if (interfaceCtx->unk_30A == 0) {
+    if (interfaceCtx->minigamePerfectState[0] == MINIGAME_PERFECT_STATE_4) {
+        interfaceCtx->minigamePerfectColorTimer--;
+        if (interfaceCtx->minigamePerfectColorTimer == 0) {
             for (i = 0; i < 8; i++) {
-                interfaceCtx->unk_28A[i] = 5;
+                interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_5;
             }
-            interfaceCtx->unk_30A = 20;
+            interfaceCtx->minigamePerfectColorTimer = 20;
         }
     }
 
-    if ((interfaceCtx->unk_28A[interfaceCtx->unk_304] == 0) && (interfaceCtx->unk_304 < 8)) {
-        interfaceCtx->unk_28A[interfaceCtx->unk_304] = 1;
-        interfaceCtx->unk_304++;
+    if ((interfaceCtx->minigamePerfectState[interfaceCtx->minigamePerfectLetterCount] == MINIGAME_PERFECT_STATE_0) &&
+        (interfaceCtx->minigamePerfectLetterCount < 8)) {
+        interfaceCtx->minigamePerfectState[interfaceCtx->minigamePerfectLetterCount] = MINIGAME_PERFECT_STATE_1;
+        interfaceCtx->minigamePerfectLetterCount++;
     }
 
-    if ((interfaceCtx->unk_304 == 8) && (interfaceCtx->unk_28A[7] == 5)) {
+    if ((interfaceCtx->minigamePerfectLetterCount == 8) &&
+        (interfaceCtx->minigamePerfectState[7] == MINIGAME_PERFECT_STATE_5)) {
 
-        stepVar1 = ABS_ALT(interfaceCtx->unk_2FC[0] - D_801BFCB8[interfaceCtx->unk_308][0]) / interfaceCtx->unk_30A;
-        stepVar2 = ABS_ALT(interfaceCtx->unk_2FC[1] - D_801BFCB8[interfaceCtx->unk_308][1]) / interfaceCtx->unk_30A;
-        stepVar3 = ABS_ALT(interfaceCtx->unk_2FC[2] - D_801BFCB8[interfaceCtx->unk_308][2]) / interfaceCtx->unk_30A;
+        stepVar1 = ABS_ALT(interfaceCtx->minigamePerfectPrimColor[0] -
+                           sMinigamePerfectType3PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][0]) /
+                   interfaceCtx->minigamePerfectColorTimer;
+        stepVar2 = ABS_ALT(interfaceCtx->minigamePerfectPrimColor[1] -
+                           sMinigamePerfectType3PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][1]) /
+                   interfaceCtx->minigamePerfectColorTimer;
+        stepVar3 = ABS_ALT(interfaceCtx->minigamePerfectPrimColor[2] -
+                           sMinigamePerfectType3PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][2]) /
+                   interfaceCtx->minigamePerfectColorTimer;
 
-        if (interfaceCtx->unk_2FC[0] >= D_801BFCB8[interfaceCtx->unk_308][0]) {
-            interfaceCtx->unk_2FC[0] -= stepVar1;
+        if (interfaceCtx->minigamePerfectPrimColor[0] >=
+            sMinigamePerfectType3PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][0]) {
+            interfaceCtx->minigamePerfectPrimColor[0] -= stepVar1;
         } else {
-            interfaceCtx->unk_2FC[0] += stepVar1;
+            interfaceCtx->minigamePerfectPrimColor[0] += stepVar1;
         }
 
-        if (interfaceCtx->unk_2FC[1] >= D_801BFCB8[interfaceCtx->unk_308][1]) {
-            interfaceCtx->unk_2FC[1] -= stepVar2;
+        if (interfaceCtx->minigamePerfectPrimColor[1] >=
+            sMinigamePerfectType3PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][1]) {
+            interfaceCtx->minigamePerfectPrimColor[1] -= stepVar2;
         } else {
-            interfaceCtx->unk_2FC[1] += stepVar2;
+            interfaceCtx->minigamePerfectPrimColor[1] += stepVar2;
         }
 
-        if (interfaceCtx->unk_2FC[2] >= D_801BFCB8[interfaceCtx->unk_308][2]) {
-            interfaceCtx->unk_2FC[2] -= stepVar3;
+        if (interfaceCtx->minigamePerfectPrimColor[2] >=
+            sMinigamePerfectType3PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][2]) {
+            interfaceCtx->minigamePerfectPrimColor[2] -= stepVar3;
         } else {
-            interfaceCtx->unk_2FC[2] += stepVar3;
+            interfaceCtx->minigamePerfectPrimColor[2] += stepVar3;
         }
 
-        interfaceCtx->unk_30A--;
-        if (interfaceCtx->unk_30A == 0) {
-            interfaceCtx->unk_30A = 20;
-            interfaceCtx->unk_308 ^= 1;
-            interfaceCtx->unk_30C++;
-            if (interfaceCtx->unk_30C == 6) {
+        interfaceCtx->minigamePerfectColorTimer--;
+        if (interfaceCtx->minigamePerfectColorTimer == 0) {
+            interfaceCtx->minigamePerfectColorTimer = 20;
+            interfaceCtx->minigamePerfectColorTargetIndex ^= 1;
+            interfaceCtx->minigamePerfectTimer++;
+            if (interfaceCtx->minigamePerfectTimer == 6) {
                 for (i = 0; i < 8; i++) {
-                    interfaceCtx->unk_2BC[i] = 140.0f;
-                    interfaceCtx->unk_2DC[i] = 100.0f;
-                    interfaceCtx->unk_29A[i] = D_801BFCA8[i];
-                    interfaceCtx->unk_28A[i] = 6;
+                    interfaceCtx->minigamePerfectLetterPosX[i] = 140.0f;
+                    interfaceCtx->minigamePerfectLetterPosY[i] = 100.0f;
+                    interfaceCtx->minigamePerfectLetterDirection[i] = D_801BFCA8[i];
+                    interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_6;
                 }
-                interfaceCtx->unk_30A = 5;
+                interfaceCtx->minigamePerfectColorTimer = 5;
             }
         }
     }
 
     j = 0;
     for (i = 0; i < 8; i++) {
-        if (interfaceCtx->unk_28A[i] == 0) {
+        if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_0) {
             j++;
         }
     }
 
     if (j == 8) {
-        interfaceCtx->isMinigamePerfect = 0;
+        interfaceCtx->isMinigamePerfect = false;
     }
 }
 
@@ -5148,10 +5194,10 @@ void Interface_DrawMinigamePerfect(PlayState* play) {
         gMinigameLetterETex, gMinigameLetterCTex, gMinigameLetterTTex, gMinigameExclamationTex,
     };
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
-    f32 temp_f22;
-    f32 temp_f24;
+    f32 letterX;
+    f32 letterY;
     s16 i;
-    s16 phi_s7;
+    s16 vtxOffset;
 
     OPEN_DISPS(play->state.gfxCtx);
 
@@ -5161,31 +5207,34 @@ void Interface_DrawMinigamePerfect(PlayState* play) {
     gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0,
                       PRIMITIVE, 0);
 
-    for (phi_s7 = 0, i = 0; i < 8; phi_s7 += 4, i++) {
-        if (interfaceCtx->unk_28A[i] != 0) {
-            temp_f24 = Math_SinS(interfaceCtx->unk_29A[i]) * interfaceCtx->unk_2BC[i];
-            temp_f22 = Math_CosS(interfaceCtx->unk_29A[i]) * interfaceCtx->unk_2DC[i];
+    for (vtxOffset = 0, i = 0; i < 8; vtxOffset += 4, i++) {
+        if (interfaceCtx->minigamePerfectState[i] != MINIGAME_PERFECT_STATE_0) {
+            letterX =
+                Math_SinS(interfaceCtx->minigamePerfectLetterDirection[i]) * interfaceCtx->minigamePerfectLetterPosX[i];
+            letterY =
+                Math_CosS(interfaceCtx->minigamePerfectLetterDirection[i]) * interfaceCtx->minigamePerfectLetterPosY[i];
 
             gDPPipeSync(OVERLAY_DISP++);
-            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, interfaceCtx->unk_2FC[3]);
+            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, interfaceCtx->minigamePerfectPrimColor[3]);
 
-            Matrix_Translate(temp_f24, temp_f22, 0.0f, MTXMODE_NEW);
+            Matrix_Translate(letterX, letterY, 0.0f, MTXMODE_NEW);
             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
 
             gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-            gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[phi_s7] + 0x2C, 4, 0);
+            gSPVertex(OVERLAY_DISP++, &interfaceCtx->aButtonVtx[vtxOffset] + 0x2C, 4, 0);
 
             OVERLAY_DISP = Gfx_DrawQuadTexture(OVERLAY_DISP, D_801BFCC4[i], 4, 32, 33, 0);
 
             gDPPipeSync(OVERLAY_DISP++);
-            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, interfaceCtx->unk_2FC[0], interfaceCtx->unk_2FC[1],
-                            interfaceCtx->unk_2FC[2], interfaceCtx->unk_2FC[3]);
+            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, interfaceCtx->minigamePerfectPrimColor[0],
+                            interfaceCtx->minigamePerfectPrimColor[1], interfaceCtx->minigamePerfectPrimColor[2],
+                            interfaceCtx->minigamePerfectPrimColor[3]);
 
-            Matrix_Translate(temp_f24, temp_f22, 0.0f, MTXMODE_NEW);
+            Matrix_Translate(letterX, letterY, 0.0f, MTXMODE_NEW);
             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
 
             gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-            gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[phi_s7] + 0x4C, 4, 0);
+            gSPVertex(OVERLAY_DISP++, &interfaceCtx->aButtonVtx[vtxOffset] + 0x4C, 4, 0);
 
             OVERLAY_DISP = Gfx_DrawQuadTexture(OVERLAY_DISP, D_801BFCC4[i], 4, 32, 33, 0);
         }
@@ -5472,7 +5521,7 @@ void Interface_DrawTimers(PlayState* play) {
                         OSTIME_TO_TIMER(osTime - ((void)0, gSaveContext.timerStartOsTimes[sTimerId]) -
                                         ((void)0, gSaveContext.timerPausedOsTimes[sTimerId]));
 
-                    if ((gSaveContext.minigameState == 1) &&
+                    if ((gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE) &&
                         (gSaveContext.save.entrance == ENTRANCE(ROMANI_RANCH, 0))) {
                         if (gSaveContext.timerStopTimes[sTimerId] >= SECONDS_TO_TIMER(120)) {
                             gSaveContext.timerStopTimes[sTimerId] = SECONDS_TO_TIMER(120);
@@ -5573,7 +5622,8 @@ void Interface_DrawTimers(PlayState* play) {
                     osTime = SECONDS_TO_TIMER(0);
                 }
 
-                if ((gSaveContext.minigameState == 1) && (gSaveContext.save.entrance == ENTRANCE(ROMANI_RANCH, 0))) {
+                if ((gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE) &&
+                    (gSaveContext.save.entrance == ENTRANCE(ROMANI_RANCH, 0))) {
                     if (osTime >= SECONDS_TO_TIMER(120)) {
                         osTime = SECONDS_TO_TIMER(120);
                     }
@@ -5587,7 +5637,8 @@ void Interface_DrawTimers(PlayState* play) {
                 Interface_GetTimerDigits(osTime, sTimerDigits);
 
                 // Use seconds to determine when to beep
-                if ((gSaveContext.minigameState == 1) && (gSaveContext.save.entrance == ENTRANCE(ROMANI_RANCH, 0))) {
+                if ((gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE) &&
+                    (gSaveContext.save.entrance == ENTRANCE(ROMANI_RANCH, 0))) {
                     if ((gSaveContext.timerCurTimes[sTimerId] > SECONDS_TO_TIMER(110)) &&
                         (sTimerBeepSfxSeconds != sTimerDigits[4])) {
                         play_sound(NA_SE_SY_WARNING_COUNT_E);
@@ -5623,7 +5674,7 @@ void Interface_DrawTimers(PlayState* play) {
                         } else {
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 255);
                         }
-                    } else if ((gSaveContext.minigameState == 1) &&
+                    } else if ((gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE) &&
                                (gSaveContext.save.entrance == ENTRANCE(ROMANI_RANCH, 0))) {
                         if (gSaveContext.timerCurTimes[sTimerId] >= SECONDS_TO_TIMER(110)) {
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 50, 0, 255);
@@ -5787,7 +5838,7 @@ void Interface_DrawMinigameIcons(PlayState* play) {
             }
         }
 
-        if (gSaveContext.minigameState == 1) {
+        if (gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE) {
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
                               PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
@@ -5881,17 +5932,14 @@ Color_RGB16 D_801BFD40[] = {
     { 10, 10, 80 },
     { 40, 10, 0 },
 };
-// minigameCountdownTexs
-TexturePtr D_801BFD54[] = {
+TexturePtr sMinigameCountdownTextures[] = {
     gMinigameCountdown3Tex,
     gMinigameCountdown2Tex,
     gMinigameCountdown1Tex,
     gMinigameCountdownGoTex,
 };
-// minigameCountdownTexHeights
-s16 D_801BFD64[] = { 24, 24, 24, 40 };
-// minigameCountdownPrimColor
-Color_RGB16 D_801BFD6C[] = {
+s16 sMinigameCountdownTexWidths[] = { 24, 24, 24, 40 };
+Color_RGB16 sMinigameCountdownPrimColors[] = {
     { 100, 255, 100 },
     { 255, 255, 60 },
     { 255, 100, 0 },
@@ -6160,39 +6208,41 @@ void Interface_Draw(PlayState* play) {
                 if (((u32)interfaceCtx->minigameState % 2) == 0) {
 
                     sp2CE = (interfaceCtx->minigameState >> 1) - 1;
-                    sp2C0 = interfaceCtx->unk_284 / 100.0f;
+                    sp2C0 = interfaceCtx->minigameCountdownScale / 100.0f;
 
                     if (sp2CE == 3) {
-                        interfaceCtx->actionVtx[40].v.ob[0] = interfaceCtx->actionVtx[42].v.ob[0] = -20;
-                        interfaceCtx->actionVtx[41].v.ob[0] = interfaceCtx->actionVtx[43].v.ob[0] =
-                            interfaceCtx->actionVtx[40].v.ob[0] + 40;
-                        interfaceCtx->actionVtx[41].v.tc[0] = interfaceCtx->actionVtx[43].v.tc[0] = 0x500;
+                        interfaceCtx->aButtonVtx[40].v.ob[0] = interfaceCtx->aButtonVtx[42].v.ob[0] = -20;
+                        interfaceCtx->aButtonVtx[41].v.ob[0] = interfaceCtx->aButtonVtx[43].v.ob[0] =
+                            interfaceCtx->aButtonVtx[40].v.ob[0] + 40;
+                        interfaceCtx->aButtonVtx[41].v.tc[0] = interfaceCtx->aButtonVtx[43].v.tc[0] = 0x500;
                     }
 
-                    interfaceCtx->actionVtx[42].v.tc[1] = interfaceCtx->actionVtx[43].v.tc[1] = 0x400;
+                    interfaceCtx->aButtonVtx[42].v.tc[1] = interfaceCtx->aButtonVtx[43].v.tc[1] = 0x400;
 
                     func_8012C8D4(play->state.gfxCtx);
 
                     gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
                     gDPSetAlphaCompare(OVERLAY_DISP++, G_AC_THRESHOLD);
-                    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, D_801BFD6C[sp2CE].r, D_801BFD6C[sp2CE].g, D_801BFD6C[sp2CE].b,
-                                    interfaceCtx->unk_282);
+                    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, sMinigameCountdownPrimColors[sp2CE].r,
+                                    sMinigameCountdownPrimColors[sp2CE].g, sMinigameCountdownPrimColors[sp2CE].b,
+                                    interfaceCtx->minigameCountdownAlpha);
 
                     Matrix_Translate(0.0f, -40.0f, 0.0f, MTXMODE_NEW);
                     Matrix_Scale(sp2C0, sp2C0, 0.0f, MTXMODE_APPLY);
 
                     gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx),
                               G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-                    gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[0x28], 4, 0);
+                    gSPVertex(OVERLAY_DISP++, &interfaceCtx->aButtonVtx[0x28], 4, 0);
 
-                    OVERLAY_DISP = Gfx_DrawQuadTextureIA8(OVERLAY_DISP, D_801BFD54[sp2CE], D_801BFD64[sp2CE], 32, 0);
+                    OVERLAY_DISP = Gfx_DrawQuadTextureIA8(OVERLAY_DISP, sMinigameCountdownTextures[sp2CE],
+                                                          sMinigameCountdownTexWidths[sp2CE], 32, 0);
                 }
             } else {
                 Interface_DrawClock(play);
             }
         }
 
-        if (interfaceCtx->isMinigamePerfect != 0) {
+        if (interfaceCtx->isMinigamePerfect) {
             Interface_DrawMinigamePerfect(play);
         }
 
@@ -6281,10 +6331,10 @@ void Interface_Draw(PlayState* play) {
         }
     }
 
-    if (interfaceCtx->unk_264 != 0) {
+    if (interfaceCtx->screenFillAlpha != 0) {
         gDPPipeSync(OVERLAY_DISP++);
-        gSPDisplayList(OVERLAY_DISP++, D_801BF988);
-        gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, interfaceCtx->unk_264);
+        gSPDisplayList(OVERLAY_DISP++, gScreenFillSetupDL);
+        gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, interfaceCtx->screenFillAlpha);
         gSPDisplayList(OVERLAY_DISP++, D_0E0002E0);
     }
 
@@ -6513,12 +6563,12 @@ void Interface_Update(PlayState* play) {
 
     if ((play->pauseCtx.state == 0) && (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE)) {
         if (interfaceCtx->isMinigamePerfect) {
-            if (interfaceCtx->minigameRewardType == 1) {
-                func_8011B5C0(play);
-            } else if (interfaceCtx->minigameRewardType == 2) {
-                func_8011B9E0(play);
-            } else if (interfaceCtx->minigameRewardType == 3) {
-                func_8011BF70(play);
+            if (interfaceCtx->minigamePerfectType == MINIGAME_PERFECT_TYPE_1) {
+                Interface_UpdateMinigamePerfectType1(play);
+            } else if (interfaceCtx->minigamePerfectType == MINIGAME_PERFECT_TYPE_2) {
+                Interface_UpdateMinigamePerfectType2(play);
+            } else if (interfaceCtx->minigamePerfectType == MINIGAME_PERFECT_TYPE_3) {
+                Interface_UpdateMinigamePerfectType3(play);
             }
         }
     }
@@ -6531,11 +6581,11 @@ void Interface_Update(PlayState* play) {
                 case MINIGAME_STATE_COUNTDOWN_START_2:  // minigame countdown 2
                 case MINIGAME_STATE_COUNTDOWN_START_1:  // minigame countdown 1
                 case MINIGAME_STATE_COUNTDOWN_START_GO: // minigame countdown Go!
-                    interfaceCtx->unk_282 = 255;
-                    interfaceCtx->unk_284 = 100;
+                    interfaceCtx->minigameCountdownAlpha = 255;
+                    interfaceCtx->minigameCountdownScale = 100;
                     interfaceCtx->minigameState++;
                     if (interfaceCtx->minigameState == MINIGAME_STATE_COUNTDOWN_GO) {
-                        interfaceCtx->unk_284 = 160;
+                        interfaceCtx->minigameCountdownScale = 160;
                         play_sound(NA_SE_SY_START_SHOT);
                     } else {
                         play_sound(NA_SE_SY_WARNING_COUNT_E);
@@ -6545,28 +6595,28 @@ void Interface_Update(PlayState* play) {
                 case MINIGAME_STATE_COUNTDOWN_3:
                 case MINIGAME_STATE_COUNTDOWN_2:
                 case MINIGAME_STATE_COUNTDOWN_1:
-                    interfaceCtx->unk_282 -= 10;
-                    interfaceCtx->unk_284 += 3;
-                    if (interfaceCtx->unk_282 < 22) {
+                    interfaceCtx->minigameCountdownAlpha -= 10;
+                    interfaceCtx->minigameCountdownScale += 3;
+                    if (interfaceCtx->minigameCountdownAlpha < 22) {
                         interfaceCtx->minigameState++;
                     }
                     break;
 
                 case MINIGAME_STATE_COUNTDOWN_GO:
-                    interfaceCtx->unk_282 -= 10;
-                    if (interfaceCtx->unk_282 <= 150) {
+                    interfaceCtx->minigameCountdownAlpha -= 10;
+                    if (interfaceCtx->minigameCountdownAlpha <= 150) {
                         interfaceCtx->minigameState = MINIGAME_STATE_30;
                     }
                     break;
 
                 case MINIGAME_STATE_20:
-                    interfaceCtx->unk_282 = 0;
+                    interfaceCtx->minigameCountdownAlpha = 0;
                     interfaceCtx->minigameState++;
                     break;
 
                 case MINIGAME_STATE_21:
-                    interfaceCtx->unk_282++;
-                    if (interfaceCtx->unk_282 >= 18) {
+                    interfaceCtx->minigameCountdownAlpha++;
+                    if (interfaceCtx->minigameCountdownAlpha >= 18) {
                         interfaceCtx->minigameState = MINIGAME_STATE_30;
                     }
                     break;
@@ -6683,13 +6733,14 @@ void Interface_Update(PlayState* play) {
         gSaveContext.timerStates[TIMER_ID_ENV] = TIMER_STATE_OFF;
     }
 
-    // Update Minigame
-    if (gSaveContext.minigameState == 1) {
-        gSaveContext.minigameScore += interfaceCtx->unk_25C;
-        gSaveContext.unk_3F3C += interfaceCtx->unk_25E;
-        interfaceCtx->unk_25C = 0;
-        interfaceCtx->unk_25E = 0;
+    // Update minigame
+    if (gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE) {
+        gSaveContext.minigameScore += interfaceCtx->minigamePoints;
+        gSaveContext.minigameHiddenScore += interfaceCtx->minigameHiddenPoints;
+        interfaceCtx->minigamePoints = 0;
+        interfaceCtx->minigameHiddenPoints = 0;
 
+        // Update horseback archery tier, unused remnant of OoT.
         if (sHBAScoreTier == 0) {
             if (gSaveContext.minigameScore >= 1000) {
                 sHBAScoreTier++;
@@ -6700,6 +6751,7 @@ void Interface_Update(PlayState* play) {
             }
         }
 
+        // Get minigame digits
         sMinigameScoreDigits[0] = sMinigameScoreDigits[1] = 0;
         sMinigameScoreDigits[2] = 0;
         sMinigameScoreDigits[3] = gSaveContext.minigameScore;
@@ -6856,10 +6908,10 @@ void Interface_Init(PlayState* play) {
     LifeMeter_Init(play);
     Map_Init(play);
 
-    gSaveContext.minigameState = 3;
-    interfaceCtx->unk_2FC[0] = 255;
-    interfaceCtx->unk_2FC[1] = 165;
-    interfaceCtx->unk_2FC[2] = 55;
+    gSaveContext.minigameStatus = MINIGAME_STATUS_DONE;
+    interfaceCtx->minigamePerfectPrimColor[0] = 255;
+    interfaceCtx->minigamePerfectPrimColor[1] = 165;
+    interfaceCtx->minigamePerfectPrimColor[2] = 55;
 
     if (gSaveContext.eventInf[3] & 0x10) {
         gSaveContext.eventInf[3] &= (u8)~0x10;
