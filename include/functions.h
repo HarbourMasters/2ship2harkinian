@@ -1822,7 +1822,7 @@ void Interface_SetSceneRestrictions(PlayState* play);
 void Interface_InitMinigame(PlayState* play);
 void Interface_LoadItemIconImpl(PlayState* play, u8 btn);
 void Interface_LoadItemIcon(PlayState* play, u8 btn);
-void func_80112C0C(PlayState* play, u16 flag);
+void Interface_UpdateButtonsAlt(PlayState* play, u16 flag);
 u8 Item_Give(PlayState* play, u8 item);
 u8 Item_CheckObtainability(u8 item);
 void Inventory_DeleteItem(s16 item, s16 slot);

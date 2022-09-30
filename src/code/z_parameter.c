@@ -2249,7 +2249,11 @@ void Interface_LoadItemIcon(PlayState* play, u8 btn) {
     Interface_LoadItemIconImpl(play, btn);
 }
 
-void func_80112C0C(PlayState* play, u16 flag) {
+/**
+ * @param play PlayState
+ * @param flag 0 for default update, 1 for simplified update
+ */
+void Interface_UpdateButtonsAlt(PlayState* play, u16 flag) {
     if (flag) {
         if ((BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOW) ||
             (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOMB) ||

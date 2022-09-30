@@ -2111,7 +2111,7 @@
     0x80112AFC:("Interface_InitMinigame",),
     0x80112B40:("Interface_LoadItemIconImpl",),
     0x80112BE4:("Interface_LoadItemIcon",),
-    0x80112C0C:("func_80112C0C",),
+    0x80112C0C:("Interface_UpdateButtonsAlt",),
     0x80112E80:("Item_Give",),
     0x801143CC:("Item_CheckObtainabilityImpl",),
     0x80114978:("Item_CheckObtainability",),

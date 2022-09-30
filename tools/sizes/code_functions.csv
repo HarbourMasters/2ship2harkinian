@@ -1625,7 +1625,7 @@ asm/non_matchings/code/z_parameter/Interface_Noop.s,Interface_Noop,0x80112AF4,0x
 asm/non_matchings/code/z_parameter/Interface_InitMinigame.s,Interface_InitMinigame,0x80112AFC,0x11
 asm/non_matchings/code/z_parameter/Interface_LoadItemIconImpl.s,Interface_LoadItemIconImpl,0x80112B40,0x29
 asm/non_matchings/code/z_parameter/Interface_LoadItemIcon.s,Interface_LoadItemIcon,0x80112BE4,0xA
-asm/non_matchings/code/z_parameter/func_80112C0C.s,func_80112C0C,0x80112C0C,0x9D
+asm/non_matchings/code/z_parameter/Interface_UpdateButtonsAlt.s,Interface_UpdateButtonsAlt,0x80112C0C,0x9D
 asm/non_matchings/code/z_parameter/Item_Give.s,Item_Give,0x80112E80,0x553
 asm/non_matchings/code/z_parameter/Item_CheckObtainabilityImpl.s,Item_CheckObtainabilityImpl,0x801143CC,0x16B
 asm/non_matchings/code/z_parameter/Item_CheckObtainability.s,Item_CheckObtainability,0x80114978,0xA
