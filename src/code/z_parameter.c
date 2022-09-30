@@ -1493,6 +1493,9 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
     }
 }
 
+/**
+ * A continuation of the if-else chain from Interface_UpdateButtonsPart1
+ */
 void Interface_UpdateButtonsPart2(PlayState* play) {
     MessageContext* msgCtx = &play->msgCtx;
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
