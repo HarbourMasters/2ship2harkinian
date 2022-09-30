@@ -233,10 +233,10 @@ void Cutscene_Command_Misc(PlayState* play, CutsceneContext* csCtx, CsCmdBase* c
             }
             break;
         case 0xE:
-            play->unk_18845 = 1;
+            play->haltAllActors = true;
             break;
         case 0xF:
-            play->unk_18845 = 0;
+            play->haltAllActors = false;
             break;
         case 0x10:
             if (isStartFrame) {

@@ -1817,7 +1817,7 @@ void Interface_StartTimer(s16 timerId, s16 timeLimit);
 void Interface_StartPostmanTimer(s16 timeLimit, s16 bunnyHoodState);
 void Interface_NewDay(PlayState* play, s32 day);
 void Interface_SetHudVisibility(u16 hudVisibility);
-void func_80110038(PlayState* play);
+void Interface_UpdateButtonsPart2(PlayState* play);
 void Interface_SetSceneRestrictions(PlayState* play);
 void Interface_InitMinigame(PlayState* play);
 void Interface_LoadItemIconImpl(PlayState* play, u8 btn);

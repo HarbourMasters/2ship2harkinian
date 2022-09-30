@@ -1618,8 +1618,8 @@ asm/non_matchings/code/z_parameter/Interface_SetHudVisibility.s,Interface_SetHud
 asm/non_matchings/code/z_parameter/Interface_UpdateButtonAlphasByStatus.s,Interface_UpdateButtonAlphasByStatus,0x8010EF9C,0x4E
 asm/non_matchings/code/z_parameter/Interface_UpdateButtonAlphas.s,Interface_UpdateButtonAlphas,0x8010F0D4,0x35
 asm/non_matchings/code/z_parameter/Interface_UpdateHudAlphas.s,Interface_UpdateHudAlphas,0x8010F1A8,0x3A4
-asm/non_matchings/code/z_parameter/func_80110038.s,func_80110038,0x80110038,0x71F
-asm/non_matchings/code/z_parameter/func_80111CB4.s,func_80111CB4,0x80111CB4,0x34C
+asm/non_matchings/code/z_parameter/Interface_UpdateButtonsPart2.s,Interface_UpdateButtonsPart2,0x80110038,0x71F
+asm/non_matchings/code/z_parameter/Interface_UpdateButtonsPart1.s,Interface_UpdateButtonsPart1,0x80111CB4,0x34C
 asm/non_matchings/code/z_parameter/Interface_SetSceneRestrictions.s,Interface_SetSceneRestrictions,0x801129E4,0x44
 asm/non_matchings/code/z_parameter/Interface_Noop.s,Interface_Noop,0x80112AF4,0x2
 asm/non_matchings/code/z_parameter/Interface_InitMinigame.s,Interface_InitMinigame,0x80112AFC,0x11
