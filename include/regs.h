@@ -73,6 +73,7 @@
 #define R_MAGIC_CONSUME_TIMER_GIANTS_MASK XREG(41)
 #define R_MOON_CRASH_TIMER_Y              XREG(80)
 #define R_MOON_CRASH_TIMER_X              XREG(81)
+#define R_STORY_FILL_SCREEN_ALPHA         XREG(91)
 #define R_MINIMAP_DISABLED                XREG(95)
 #define R_B_LABEL_DD                      WREG(0)
 #define R_OW_MINIMAP_X                    WREG(29)

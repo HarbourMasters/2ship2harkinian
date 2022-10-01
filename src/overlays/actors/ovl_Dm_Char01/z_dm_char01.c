@@ -4,7 +4,6 @@
  * Description: Woodfall scene objects (temple, water, walls, etc)
  */
 
-#include "prevent_bss_reordering.h"
 #include "z_dm_char01.h"
 #include "objects/object_mtoride/object_mtoride.h"
 #include "overlays/actors/ovl_Obj_Etcetera/z_obj_etcetera.h"
@@ -74,7 +73,7 @@ void DmChar01_Init(Actor* thisx, PlayState* play) {
                 break;
             }
 
-            if (gSaveContext.sceneSetupIndex == 0) {
+            if (gSaveContext.sceneLayer == 0) {
                 play->envCtx.unk_1F = 5;
                 play->envCtx.unk_20 = 5;
             }
@@ -88,7 +87,7 @@ void DmChar01_Init(Actor* thisx, PlayState* play) {
             DynaPolyActor_LoadMesh(play, &this->dyna, &gWoodfallSceneryPoisonWaterDamageCol);
 
             this->unk_34D = true;
-            if (gSaveContext.sceneSetupIndex == 1) {
+            if (gSaveContext.sceneLayer == 1) {
                 this->unk_34C = 1;
                 this->actionFunc = func_80AA8C28;
             } else {
@@ -98,7 +97,7 @@ void DmChar01_Init(Actor* thisx, PlayState* play) {
             break;
 
         case DMCHAR01_1:
-            if ((gSaveContext.save.weekEventReg[20] & 2) || (gSaveContext.sceneSetupIndex == 1)) {
+            if ((gSaveContext.save.weekEventReg[20] & 2) || (gSaveContext.sceneLayer == 1)) {
                 this->unk_34C = 1;
                 this->actionFunc = func_80AA8F1C;
             } else {
@@ -412,7 +411,7 @@ void DmChar01_Draw(Actor* thisx, PlayState* play) {
                     break;
 
                 case 1:
-                    if (gSaveContext.sceneSetupIndex == 1) {
+                    if (gSaveContext.sceneLayer == 1) {
                         AnimatedMat_Draw(play, Lib_SegmentedToVirtual(&gWoodfallSceneryPurifiedWaterTexAnim));
                         Gfx_DrawDListOpa(play, gWoodfallSceneryFloorDL);
                         Gfx_DrawDListXlu(play, gWoodfallSceneryPurifiedWaterDL);

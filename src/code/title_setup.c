@@ -27,7 +27,7 @@ void Setup_SetRegs(void) {
     XREG(88) = 86;
     XREG(89) = 600;
     XREG(90) = 450;
-    XREG(91) = 0;
+    R_STORY_FILL_SCREEN_ALPHA = 0;
     XREG(94) = 0;
     XREG(95) = 0;
 

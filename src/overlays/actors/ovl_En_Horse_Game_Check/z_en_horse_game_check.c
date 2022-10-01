@@ -122,7 +122,7 @@ s32 func_808F8CCC(EnHorseGameCheck* this, PlayState* play2) {
     }
 
     Interface_StartTimer(TIMER_ID_MINIGAME_2, 0);
-    play->interfaceCtx.minigameState = MINIGAME_STATE_COUNTDOWN_START_3;
+    play->interfaceCtx.minigameState = MINIGAME_STATE_COUNTDOWN_SETUP_3;
 
     this->horse1 = (EnHorse*)Actor_Spawn(&play->actorCtx, play, ACTOR_EN_HORSE, -1149.0f, -106.0f, 470.0f, 0, 0x7FFF, 0,
                                          ENHORSE_PARAMS(ENHORSE_PARAM_BANDIT, ENHORSE_4));

@@ -207,7 +207,7 @@ void EnMa4_Init(Actor* thisx, PlayState* play) {
         this->hasBow = false;
     }
 
-    if (Cutscene_GetSceneSetupIndex(play) != 0) { // if (sceneSetupIndex != 0)
+    if (Cutscene_GetSceneLayer(play) != 0) {
         EnMa4_ChangeAnim(this, 0);
         this->state = MA4_STATE_HORSEBACKGAME;
         EnMa4_InitHorsebackGame(this, play);
@@ -688,7 +688,7 @@ void EnMa4_HorsebackGameTalking(EnMa4* this, PlayState* play) {
 void EnMa4_InitHorsebackGame(EnMa4* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
 
-    play->interfaceCtx.minigameState = MINIGAME_STATE_COUNTDOWN_START_3;
+    play->interfaceCtx.minigameState = MINIGAME_STATE_COUNTDOWN_SETUP_3;
     Interface_StartTimer(TIMER_ID_MINIGAME_2, 0);
     gSaveContext.save.weekEventReg[8] |= 1;
     Interface_InitMinigame(play);

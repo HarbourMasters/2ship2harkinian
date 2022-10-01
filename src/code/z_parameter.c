@@ -974,7 +974,7 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
                 interfaceCtx->magicAlpha = risingAlpha;
             }
 
-            if (play->sceneNum == SCENE_SPOT00) {
+            if (play->sceneId == SCENE_SPOT00) {
                 if (interfaceCtx->minimapAlpha < 170) {
                     interfaceCtx->minimapAlpha = risingAlpha;
                 } else {
@@ -1576,7 +1576,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                 }
             }
         }
-    } else if ((play->sceneNum == SCENE_SPOT00) && (gSaveContext.sceneSetupIndex == 6)) {
+    } else if ((play->sceneId == SCENE_SPOT00) && (gSaveContext.sceneLayer == 6)) {
         for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
             if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
                 restoreHudVisibility = true;
@@ -1824,7 +1824,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                         gSaveContext.buttonStatus[i] = BTN_ENABLED;
                     }
                 } else if (GET_CUR_FORM_BTN_ITEM(i) == ITEM_MASK_GIANT) {
-                    if (play->sceneNum != SCENE_INISIE_BS) {
+                    if (play->sceneId != SCENE_INISIE_BS) {
                         if (gSaveContext.buttonStatus[i] != BTN_DISABLED) {
                             gSaveContext.buttonStatus[i] = BTN_DISABLED;
                             restoreHudVisibility = true;
@@ -1834,9 +1834,9 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                         gSaveContext.buttonStatus[i] = BTN_ENABLED;
                     }
                 } else if (GET_CUR_FORM_BTN_ITEM(i) == ITEM_MASK_FIERCE_DEITY) {
-                    if ((play->sceneNum != SCENE_MITURIN_BS) && (play->sceneNum != SCENE_HAKUGIN_BS) &&
-                        (play->sceneNum != SCENE_SEA_BS) && (play->sceneNum != SCENE_INISIE_BS) &&
-                        (play->sceneNum != SCENE_LAST_BS)) {
+                    if ((play->sceneId != SCENE_MITURIN_BS) && (play->sceneId != SCENE_HAKUGIN_BS) &&
+                        (play->sceneId != SCENE_SEA_BS) && (play->sceneId != SCENE_INISIE_BS) &&
+                        (play->sceneId != SCENE_LAST_BS)) {
                         if (gSaveContext.buttonStatus[i] != BTN_DISABLED) {
                             gSaveContext.buttonStatus[i] = BTN_DISABLED;
                             restoreHudVisibility = true;
@@ -1967,7 +1967,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
             if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NONE) {
                 if ((player->transformation == PLAYER_FORM_DEKU) && (gSaveContext.save.weekEventReg[8] & 1)) {
                     gSaveContext.hudVisibilityForceButtonAlphasByStatus = true;
-                    if (play->sceneNum == SCENE_BOWLING) {
+                    if (play->sceneId == SCENE_BOWLING) {
                         if (gSaveContext.buttonStatus[EQUIP_SLOT_B] == BTN_DISABLED) {
                             gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_ENABLED;
                             gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
@@ -1991,7 +1991,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_ENABLED;
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_ENABLED;
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_ENABLED;
-                        if (play->sceneNum == SCENE_BOWLING) {
+                        if (play->sceneId == SCENE_BOWLING) {
                             if (CURRENT_DAY == 1) {
                                 BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOMBCHU;
                             } else if (CURRENT_DAY == 2) {
@@ -2025,8 +2025,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                         Interface_SetHudVisibility(HUD_VISIBILITY_NONE);
                     } else if ((gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE) &&
                                (gSaveContext.save.entrance == ENTRANCE(ROMANI_RANCH, 0)) &&
-                               (Cutscene_GetSceneSetupIndex(play) != 0) &&
-                               (play->transitionTrigger == TRANS_TRIGGER_OFF)) {
+                               (Cutscene_GetSceneLayer(play) != 0) && (play->transitionTrigger == TRANS_TRIGGER_OFF)) {
                         Interface_SetHudVisibility(HUD_VISIBILITY_A_B_MINIMAP);
                     } else if ((gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE) &&
                                (gSaveContext.eventInf[3] & 0x20)) {
@@ -2050,7 +2049,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                     Interface_SetHudVisibility(HUD_VISIBILITY_A_B_MINIMAP);
                 }
 
-                if (play->sceneNum == SCENE_BOWLING) {
+                if (play->sceneId == SCENE_BOWLING) {
                     if (CURRENT_DAY == 1) {
                         BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOMBCHU;
                     } else if (CURRENT_DAY == 2) {
@@ -2087,7 +2086,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                     Interface_SetHudVisibility(HUD_VISIBILITY_NONE);
                 } else if ((gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE) &&
                            (gSaveContext.save.entrance == ENTRANCE(ROMANI_RANCH, 0)) &&
-                           (Cutscene_GetSceneSetupIndex(play) != 0) && (play->transitionTrigger == TRANS_TRIGGER_OFF)) {
+                           (Cutscene_GetSceneLayer(play) != 0) && (play->transitionTrigger == TRANS_TRIGGER_OFF)) {
                     Interface_SetHudVisibility(HUD_VISIBILITY_A_B_MINIMAP);
                 } else if (gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE) {
                     Interface_SetHudVisibility(HUD_VISIBILITY_B);
@@ -2202,7 +2201,7 @@ void Interface_SetSceneRestrictions(PlayState* play) {
     u8 currentScene;
 
     do {
-        currentScene = (u8)play->sceneNum;
+        currentScene = (u8)play->sceneId;
         if (sRestrictionFlags[i].scene == currentScene) {
             interfaceCtx->restrictions.hGauge = (sRestrictionFlags[i].flags1 & 0xC0) >> 6;
             interfaceCtx->restrictions.bButton = (sRestrictionFlags[i].flags1 & 0x30) >> 4;
@@ -2302,7 +2301,7 @@ u8 Item_Give(PlayState* play, u8 item) {
 
     if (item == ITEM_SKULL_TOKEN) {
         SET_QUEST_ITEM(item - ITEM_SKULL_TOKEN + QUEST_SKULL_TOKEN);
-        Inventory_IncrementSkullTokenCount(play->sceneNum);
+        Inventory_IncrementSkullTokenCount(play->sceneId);
         return ITEM_NONE;
 
     } else if (item == ITEM_TINGLE_MAP) {
@@ -3484,7 +3483,7 @@ void Magic_Update(PlayState* play) {
             // Add magic until magicFillTarget is reached
             gSaveContext.save.playerData.magic += 0x10;
 
-            if ((gSaveContext.gameMode == 0) && (gSaveContext.sceneSetupIndex < 4)) {
+            if ((gSaveContext.gameMode == 0) && (gSaveContext.sceneLayer < 4)) {
                 play_sound(NA_SE_SY_GAUGE_UP - SFX_FLAG);
             }
 
@@ -3955,8 +3954,8 @@ void func_80118084(PlayState* play) {
                     gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE,
                                       0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
 
-                    if ((play->sceneNum != SCENE_SYATEKI_MIZU) && (play->sceneNum != SCENE_SYATEKI_MORI) &&
-                        (play->sceneNum != SCENE_BOWLING) &&
+                    if ((play->sceneId != SCENE_SYATEKI_MIZU) && (play->sceneId != SCENE_SYATEKI_MORI) &&
+                        (play->sceneId != SCENE_BOWLING) &&
                         ((gSaveContext.minigameStatus != MINIGAME_STATUS_ACTIVE) ||
                          (gSaveContext.save.entrance != ENTRANCE(ROMANI_RANCH, 0))) &&
                         ((gSaveContext.minigameStatus != MINIGAME_STATUS_ACTIVE) ||
@@ -5401,7 +5400,7 @@ void Interface_DrawTimers(PlayState* play) {
                         }
 
                         if ((interfaceCtx->minigameState == MINIGAME_STATE_COUNTDOWN_GO) ||
-                            (interfaceCtx->minigameState == MINIGAME_STATE_30)) {
+                            (interfaceCtx->minigameState == MINIGAME_STATE_PLAYING)) {
                             if (gSaveContext.timerStates[sTimerId] == TIMER_STATE_START) {
                                 gSaveContext.timerStates[sTimerId] = TIMER_STATE_COUNTING;
                             } else {
@@ -5509,7 +5508,7 @@ void Interface_DrawTimers(PlayState* play) {
 
                     if (sTimerId == TIMER_ID_MOON_CRASH) {
                         gSaveContext.save.day = 4;
-                        if ((play->sceneNum == SCENE_OKUJOU) && (gSaveContext.sceneSetupIndex == 3)) {
+                        if ((play->sceneId == SCENE_OKUJOU) && (gSaveContext.sceneLayer == 3)) {
                             play->nextEntrance = ENTRANCE(TERMINA_FIELD, 1);
                             gSaveContext.nextCutsceneIndex = 0xFFF0;
                             play->transitionTrigger = TRANS_TRIGGER_START;
@@ -5538,7 +5537,7 @@ void Interface_DrawTimers(PlayState* play) {
                             gSaveContext.timerStopTimes[sTimerId] = SECONDS_TO_TIMER(120);
                             gSaveContext.timerCurTimes[sTimerId] = SECONDS_TO_TIMER(120);
                         }
-                    } else if ((gSaveContext.eventInf[3] & 0x10) && (play->sceneNum == SCENE_DEKUTES) &&
+                    } else if ((gSaveContext.eventInf[3] & 0x10) && (play->sceneId == SCENE_DEKUTES) &&
                                (gSaveContext.timerStopTimes[sTimerId] >= SECONDS_TO_TIMER(120))) {
                         gSaveContext.timerCurTimes[sTimerId] = SECONDS_TO_TIMER(120);
                     }
@@ -5638,7 +5637,7 @@ void Interface_DrawTimers(PlayState* play) {
                     if (osTime >= SECONDS_TO_TIMER(120)) {
                         osTime = SECONDS_TO_TIMER(120);
                     }
-                } else if ((gSaveContext.eventInf[3] & 0x10) && (play->sceneNum == SCENE_DEKUTES) &&
+                } else if ((gSaveContext.eventInf[3] & 0x10) && (play->sceneId == SCENE_DEKUTES) &&
                            (osTime >= SECONDS_TO_TIMER(120))) {
                     osTime = SECONDS_TO_TIMER(120);
                 }
@@ -5655,7 +5654,7 @@ void Interface_DrawTimers(PlayState* play) {
                         play_sound(NA_SE_SY_WARNING_COUNT_E);
                         sTimerBeepSfxSeconds = sTimerDigits[4];
                     }
-                } else if ((gSaveContext.eventInf[3] & 0x10) && (play->sceneNum == SCENE_DEKUTES)) {
+                } else if ((gSaveContext.eventInf[3] & 0x10) && (play->sceneId == SCENE_DEKUTES)) {
                     if ((((void)0, gSaveContext.timerCurTimes[sTimerId]) >
                          (gSaveContext.save.dekuPlaygroundHighScores[CURRENT_DAY - 1] - SECONDS_TO_TIMER(9))) &&
                         (sTimerBeepSfxSeconds != sTimerDigits[4])) {
@@ -5692,7 +5691,7 @@ void Interface_DrawTimers(PlayState* play) {
                         } else {
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 255);
                         }
-                    } else if ((gSaveContext.eventInf[3] & 0x10) && (play->sceneNum == SCENE_DEKUTES)) {
+                    } else if ((gSaveContext.eventInf[3] & 0x10) && (play->sceneId == SCENE_DEKUTES)) {
                         if (((void)0, gSaveContext.timerCurTimes[sTimerId]) >=
                             gSaveContext.save.dekuPlaygroundHighScores[CURRENT_DAY - 1]) {
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 50, 0, 255);
@@ -5868,13 +5867,13 @@ void Interface_DrawMinigameIcons(PlayState* play) {
                 gDPLoadTextureBlock(OVERLAY_DISP++, gBeaverRingIconTex, G_IM_FMT_RGBA, G_IM_SIZ_32b, 24, 16, 0,
                                     G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                     G_TX_NOLOD, G_TX_NOLOD);
-            } else if (play->sceneNum == SCENE_DOUJOU) {
+            } else if (play->sceneId == SCENE_DOUJOU) {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 140, 50, interfaceCtx->bAlpha);
                 gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 255);
                 gDPLoadTextureBlock(OVERLAY_DISP++, gSwordTrainingLogIconTex, G_IM_FMT_IA, G_IM_SIZ_8b, 24, 16, 0,
                                     G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                     G_TX_NOLOD, G_TX_NOLOD);
-            } else if (play->sceneNum == SCENE_30GYOSON) {
+            } else if (play->sceneId == SCENE_30GYOSON) {
                 phi_a0 = 0x10;
                 phi_a1 = 0x1E;
                 sp3E = 0x18;
@@ -5898,7 +5897,7 @@ void Interface_DrawMinigameIcons(PlayState* play) {
             gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0,
                               0, PRIMITIVE, 0);
 
-            if (play->sceneNum == SCENE_30GYOSON) {
+            if (play->sceneId == SCENE_30GYOSON) {
                 sp3E += 0x14;
                 if (gSaveContext.save.playerData.healthCapacity > 0xA0) {
                     sp3C = 0x57;
@@ -5927,18 +5926,14 @@ void Interface_DrawMinigameIcons(PlayState* play) {
     CLOSE_DISPS(play->state.gfxCtx);
 }
 
-// rupeeDigitsFirst
-s16 D_801BFD1C[] = { 1, 0, 0, 0 };
-// rupeeDigitsCount
-s16 D_801BFD24[] = { 2, 3, 3, 0 };
-// rupeeIconPrimColor
-Color_RGB16 D_801BFD2C[] = {
+s16 sRupeeDigitsFirst[] = { 1, 0, 0, 0 };
+s16 sRupeeDigitsCount[] = { 2, 3, 3, 0 };
+Color_RGB16 sRupeeCounterIconPrimColors[] = {
     { 200, 255, 100 },
     { 170, 170, 255 },
     { 255, 105, 105 },
 };
-// rupeeIconEnvColor
-Color_RGB16 D_801BFD40[] = {
+Color_RGB16 sRupeeCounterIconEnvColors[] = {
     { 0, 80, 0 },
     { 10, 10, 80 },
     { 40, 10, 0 },
@@ -5956,16 +5951,17 @@ Color_RGB16 sMinigameCountdownPrimColors[] = {
     { 255, 100, 0 },
     { 120, 170, 255 },
 };
-// grandma's story pictures
-s32 D_801BFD84[] = {
+TexturePtr gStoryTextures[] = {
     gStoryMaskFestivalTex,
     gStoryGiantsLeavingTex,
 };
-// grandma's story TLUT
-u32 D_801BFD8C[] = {
+TexturePtr gStoryTLUTs[] = {
     gStoryMaskFestivalTLUT,
     gStoryGiantsLeavingTLUT,
 };
+
+// TODO: ucode.h? (see OoT)
+#define SP_UCODE_DATA_SIZE 0x800
 
 void Interface_Draw(PlayState* play) {
     s32 pad;
@@ -5992,41 +5988,46 @@ void Interface_Draw(PlayState* play) {
         Interface_InitVertices(play);
         Interface_SetView2(interfaceCtx);
 
-        if (interfaceCtx->storyState == 2) {
+        // Draw Grandma's Story
+        if (interfaceCtx->storyLoadStatus == STORY_LOAD_STATUS_FINISHED) {
             gSPSegment(OVERLAY_DISP++, 0x07, interfaceCtx->storySegment);
             func_8012C628(play->state.gfxCtx);
 
             gDPSetTextureFilter(POLY_OPA_DISP++, G_TF_POINT);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, pauseCtx->alpha);
-            gSPLoadUcodeEx(OVERLAY_DISP++, OS_K0_TO_PHYSICAL(gspS2DEX2_fifoTextStart),
-                           OS_K0_TO_PHYSICAL(gspS2DEX2_fifoDataStart), 0x800);
 
+            // Load in Grandma's Story
+            gSPLoadUcodeL(OVERLAY_DISP++, gspS2DEX2_fifo);
             gfx = OVERLAY_DISP;
-            func_80172758(&gfx, D_801BFD84[interfaceCtx->storyType], D_801BFD8C[interfaceCtx->storyType], 0x140, 0xF0,
-                          2, 1, 0x8000, 0x100, 0.0f, 0.0f, 1.0f, 1.0f, 0);
+            func_80172758(&gfx, gStoryTextures[interfaceCtx->storyType], gStoryTLUTs[interfaceCtx->storyType],
+                          SCREEN_WIDTH, SCREEN_HEIGHT, 2, 1, 0x8000, 0x100, 0.0f, 0.0f, 1.0f, 1.0f, 0);
             OVERLAY_DISP = gfx;
+            gSPLoadUcode(OVERLAY_DISP++, SysUcode_GetUCode(), SysUcode_GetUCodeData());
 
-            gSPLoadUcodeEx(OVERLAY_DISP++, SysUcode_GetUCode(), SysUcode_GetUCodeData(), 0x800);
             gDPPipeSync(OVERLAY_DISP++);
+
+            // Fill the screen with a black rectangle
             gDPSetRenderMode(OVERLAY_DISP++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
             gDPSetCombineMode(OVERLAY_DISP++, G_CC_PRIMITIVE, G_CC_PRIMITIVE);
-            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, XREG(91));
-            gDPFillRectangle(OVERLAY_DISP++, 0, 0, 320, 240);
+            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, R_STORY_FILL_SCREEN_ALPHA);
+            gDPFillRectangle(OVERLAY_DISP++, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
         }
 
         LifeMeter_Draw(play);
 
         func_8012C654(play->state.gfxCtx);
 
-        // Rupee Icon
-        gDPSetPrimColor(OVERLAY_DISP++, 0, 0, D_801BFD2C[CUR_UPG_VALUE(4)].r, D_801BFD2C[CUR_UPG_VALUE(4)].g,
-                        D_801BFD2C[CUR_UPG_VALUE(4)].b, interfaceCtx->magicAlpha);
-        gDPSetEnvColor(OVERLAY_DISP++, D_801BFD40[CUR_UPG_VALUE(4)].r, D_801BFD40[CUR_UPG_VALUE(4)].g,
-                       D_801BFD40[CUR_UPG_VALUE(4)].b, 255);
+        // Draw Rupee Icon
+        gDPSetPrimColor(OVERLAY_DISP++, 0, 0, sRupeeCounterIconPrimColors[CUR_UPG_VALUE(4)].r,
+                        sRupeeCounterIconPrimColors[CUR_UPG_VALUE(4)].g,
+                        sRupeeCounterIconPrimColors[CUR_UPG_VALUE(4)].b, interfaceCtx->magicAlpha);
+        gDPSetEnvColor(OVERLAY_DISP++, sRupeeCounterIconEnvColors[CUR_UPG_VALUE(4)].r,
+                       sRupeeCounterIconEnvColors[CUR_UPG_VALUE(4)].g, sRupeeCounterIconEnvColors[CUR_UPG_VALUE(4)].b,
+                       255);
         OVERLAY_DISP =
             Gfx_DrawRectTextureIA8(OVERLAY_DISP, gRupeeCounterIconTex, 16, 16, 26, 206, 16, 16, 1 << 10, 1 << 10);
 
-        switch (play->sceneNum) {
+        switch (play->sceneId) {
             case SCENE_INISIE_N:
             case SCENE_INISIE_R:
             case SCENE_MITURIN:
@@ -6102,7 +6103,7 @@ void Interface_Draw(PlayState* play) {
                                   TEXEL0, 0, PRIMITIVE, 0);
 
                 counterDigits[2] = 0;
-                counterDigits[3] = Inventory_GetSkullTokenCount(play->sceneNum);
+                counterDigits[3] = Inventory_GetSkullTokenCount(play->sceneId);
 
                 while (counterDigits[3] >= 10) {
                     counterDigits[2]++;
@@ -6164,8 +6165,8 @@ void Interface_Draw(PlayState* play) {
             counterDigits[2] -= 10;
         }
 
-        sp2CC = D_801BFD1C[CUR_UPG_VALUE(UPG_WALLET)];
-        sp2C8 = D_801BFD24[CUR_UPG_VALUE(UPG_WALLET)];
+        sp2CC = sRupeeDigitsFirst[CUR_UPG_VALUE(UPG_WALLET)];
+        sp2C8 = sRupeeDigitsCount[CUR_UPG_VALUE(UPG_WALLET)];
 
         sp4C = interfaceCtx->magicAlpha;
         if (sp4C > 180) {
@@ -6214,7 +6215,7 @@ void Interface_Draw(PlayState* play) {
 
         if ((play->pauseCtx.state == 0) && (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE)) {
             if ((interfaceCtx->minigameState != MINIGAME_STATE_NONE) &&
-                (interfaceCtx->minigameState < MINIGAME_STATE_20)) {
+                (interfaceCtx->minigameState < MINIGAME_STATE_NO_COUNTDOWN_SETUP)) {
                 // Minigame Countdown
                 if (((u32)interfaceCtx->minigameState % 2) == 0) {
 
@@ -6356,19 +6357,19 @@ void Interface_Draw(PlayState* play) {
 void Interface_LoadStory(PlayState* play, s32 block) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
 
-    switch (interfaceCtx->storyState) {
-        case 0:
+    switch (interfaceCtx->storyLoadStatus) {
+        case STORY_LOAD_STATUS_REQUESTED:
             if (interfaceCtx->storySegment == NULL) {
                 break;
             }
             osCreateMesgQueue(&interfaceCtx->storyMsgQueue, &interfaceCtx->storyMsgBuf, 1);
             DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest_184, interfaceCtx->storySegment, interfaceCtx->storyAddr,
                                    interfaceCtx->storySize, 0, &interfaceCtx->storyMsgQueue, NULL);
-            interfaceCtx->storyState = 1;
+            interfaceCtx->storyLoadStatus = STORY_LOAD_STATUS_WAITING;
             // fallthrough
-        case 1:
+        case STORY_LOAD_STATUS_WAITING:
             if (osRecvMesg(&interfaceCtx->storyMsgQueue, NULL, block) == 0) {
-                interfaceCtx->storyState = 2;
+                interfaceCtx->storyLoadStatus = STORY_LOAD_STATUS_FINISHED;
             }
             break;
 
@@ -6485,7 +6486,7 @@ void Interface_Update(PlayState* play) {
                 interfaceCtx->magicAlpha = risingAlpha;
             }
 
-            if (play->sceneNum == SCENE_SPOT00) {
+            if (play->sceneId == SCENE_SPOT00) {
                 if (interfaceCtx->minimapAlpha < 170) {
                     interfaceCtx->minimapAlpha = risingAlpha;
                 } else {
@@ -6591,10 +6592,10 @@ void Interface_Update(PlayState* play) {
     if ((play->pauseCtx.state == 0) && (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE)) {
         if (interfaceCtx->minigameState) { // != MINIGAME_STATE_NONE
             switch (interfaceCtx->minigameState) {
-                case MINIGAME_STATE_COUNTDOWN_START_3:  // minigame countdown 3
-                case MINIGAME_STATE_COUNTDOWN_START_2:  // minigame countdown 2
-                case MINIGAME_STATE_COUNTDOWN_START_1:  // minigame countdown 1
-                case MINIGAME_STATE_COUNTDOWN_START_GO: // minigame countdown Go!
+                case MINIGAME_STATE_COUNTDOWN_SETUP_3:  // minigame countdown 3
+                case MINIGAME_STATE_COUNTDOWN_SETUP_2:  // minigame countdown 2
+                case MINIGAME_STATE_COUNTDOWN_SETUP_1:  // minigame countdown 1
+                case MINIGAME_STATE_COUNTDOWN_SETUP_GO: // minigame countdown Go!
                     interfaceCtx->minigameCountdownAlpha = 255;
                     interfaceCtx->minigameCountdownScale = 100;
                     interfaceCtx->minigameState++;
@@ -6619,19 +6620,19 @@ void Interface_Update(PlayState* play) {
                 case MINIGAME_STATE_COUNTDOWN_GO:
                     interfaceCtx->minigameCountdownAlpha -= 10;
                     if (interfaceCtx->minigameCountdownAlpha <= 150) {
-                        interfaceCtx->minigameState = MINIGAME_STATE_30;
+                        interfaceCtx->minigameState = MINIGAME_STATE_PLAYING;
                     }
                     break;
 
-                case MINIGAME_STATE_20:
+                case MINIGAME_STATE_NO_COUNTDOWN_SETUP:
                     interfaceCtx->minigameCountdownAlpha = 0;
                     interfaceCtx->minigameState++;
                     break;
 
-                case MINIGAME_STATE_21:
+                case MINIGAME_STATE_NO_COUNTDOWN:
                     interfaceCtx->minigameCountdownAlpha++;
                     if (interfaceCtx->minigameCountdownAlpha >= 18) {
-                        interfaceCtx->minigameState = MINIGAME_STATE_30;
+                        interfaceCtx->minigameState = MINIGAME_STATE_PLAYING;
                     }
                     break;
             }
@@ -6823,35 +6824,35 @@ void Interface_Update(PlayState* play) {
     Interface_UpdateBottleTimers(play);
 
     // Update Grandma's Story
-    if (interfaceCtx->unk_31A != 0) {
-        if (interfaceCtx->unk_31A == 1) {
-            interfaceCtx->storyState = 0;
-            interfaceCtx->unk_31A = 2;
-            XREG(91) = 0;
+    if (interfaceCtx->storyState != STORY_STATE_OFF) {
+        if (interfaceCtx->storyState == STORY_STATE_INIT) {
+            interfaceCtx->storyLoadStatus = STORY_LOAD_STATUS_REQUESTED;
+            interfaceCtx->storyState = STORY_STATE_IDLE;
+            R_STORY_FILL_SCREEN_ALPHA = 0;
         }
 
         Interface_AllocStory(play);
 
-        if (interfaceCtx->unk_31A == 3) {
-            interfaceCtx->unk_31A = 0;
-            interfaceCtx->storyState = 0;
+        if (interfaceCtx->storyState == STORY_STATE_DESTROY) {
+            interfaceCtx->storyState = STORY_STATE_OFF;
+            interfaceCtx->storyLoadStatus = STORY_LOAD_STATUS_REQUESTED;
             if (interfaceCtx->storySegment != NULL) {
                 ZeldaArena_Free(interfaceCtx->storySegment);
                 interfaceCtx->storySegment = NULL;
             }
-        } else if (interfaceCtx->unk_31A == 4) {
-            interfaceCtx->unk_31A = 2;
-        } else if (interfaceCtx->unk_31A == 5) {
-            XREG(91) += 10;
-            if (XREG(91) >= 250) {
-                XREG(91) = 255;
-                interfaceCtx->unk_31A = 2;
+        } else if (interfaceCtx->storyState == STORY_STATE_SETUP_IDLE) {
+            interfaceCtx->storyState = STORY_STATE_IDLE;
+        } else if (interfaceCtx->storyState == STORY_STATE_FADE_OUT) {
+            R_STORY_FILL_SCREEN_ALPHA += 10;
+            if (R_STORY_FILL_SCREEN_ALPHA >= 250) {
+                R_STORY_FILL_SCREEN_ALPHA = 255;
+                interfaceCtx->storyState = STORY_STATE_IDLE;
             }
-        } else if (interfaceCtx->unk_31A == 6) {
-            XREG(91) -= 10;
-            if (XREG(91) < 0) {
-                XREG(91) = 0;
-                interfaceCtx->unk_31A = 2;
+        } else if (interfaceCtx->storyState == STORY_STATE_FADE_IN) {
+            R_STORY_FILL_SCREEN_ALPHA -= 10;
+            if (R_STORY_FILL_SCREEN_ALPHA < 0) {
+                R_STORY_FILL_SCREEN_ALPHA = 0;
+                interfaceCtx->storyState = STORY_STATE_IDLE;
             }
         }
     }
@@ -6948,12 +6949,12 @@ void Interface_Init(PlayState* play) {
     sPictographState = PICTOGRAPH_STATE_OFF;
     sPictographPhotoBeingTaken = false;
 
-    if ((play->sceneNum != SCENE_MITURIN_BS) && (play->sceneNum != SCENE_HAKUGIN_BS) &&
-        (play->sceneNum != SCENE_SEA_BS) && (play->sceneNum != SCENE_INISIE_BS) && (play->sceneNum != SCENE_LAST_BS) &&
-        (play->sceneNum != SCENE_MITURIN) && (play->sceneNum != SCENE_HAKUGIN) && (play->sceneNum != SCENE_SEA) &&
-        (play->sceneNum != SCENE_INISIE_N) && (play->sceneNum != SCENE_INISIE_R) &&
-        (play->sceneNum != SCENE_LAST_DEKU) && (play->sceneNum != SCENE_LAST_GORON) &&
-        (play->sceneNum != SCENE_LAST_ZORA) && (play->sceneNum != SCENE_LAST_LINK)) {
+    if ((play->sceneId != SCENE_MITURIN_BS) && (play->sceneId != SCENE_HAKUGIN_BS) && (play->sceneId != SCENE_SEA_BS) &&
+        (play->sceneId != SCENE_INISIE_BS) && (play->sceneId != SCENE_LAST_BS) && (play->sceneId != SCENE_MITURIN) &&
+        (play->sceneId != SCENE_HAKUGIN) && (play->sceneId != SCENE_SEA) && (play->sceneId != SCENE_INISIE_N) &&
+        (play->sceneId != SCENE_INISIE_R) && (play->sceneId != SCENE_LAST_DEKU) &&
+        (play->sceneId != SCENE_LAST_GORON) && (play->sceneId != SCENE_LAST_ZORA) &&
+        (play->sceneId != SCENE_LAST_LINK)) {
 
         gSaveContext.eventInf[5] &= (u8)~0x8;
         gSaveContext.eventInf[5] &= (u8)~0x10;

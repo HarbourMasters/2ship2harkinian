@@ -284,7 +284,7 @@ void func_80C1410C(EnJgameTsn* this, PlayState* play) {
 
     player->stateFlags1 |= 0x20;
     func_801A2BB8(0x25);
-    play->interfaceCtx.minigameState = MINIGAME_STATE_COUNTDOWN_START_3;
+    play->interfaceCtx.minigameState = MINIGAME_STATE_COUNTDOWN_SETUP_3;
     Interface_InitMinigame(play);
     gSaveContext.save.weekEventReg[90] |= 0x20;
     Interface_StartTimer(TIMER_ID_MINIGAME_2, 120);
