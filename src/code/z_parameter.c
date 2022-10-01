@@ -6085,6 +6085,7 @@ void Interface_Draw(PlayState* play) {
                                         1 << 10, 1 << 10);
                 }
                 break;
+
             case SCENE_KINSTA1:
             case SCENE_KINDAN2:
                 // Gold Skulltula Icon
@@ -6137,8 +6138,8 @@ void Interface_Draw(PlayState* play) {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->magicAlpha);
                 gSPTextureRectangle(OVERLAY_DISP++, sp2CA * 4, 760, (sp2CA * 4) + 0x20, 824, G_TX_RENDERTILE, 0, 0,
                                     1 << 10, 1 << 10);
-
                 break;
+
             default:
                 break;
         }
@@ -6213,6 +6214,7 @@ void Interface_Draw(PlayState* play) {
         func_80118BA4(play);
         func_80119030(play);
 
+        // Draw either the minigame countdown or the three-day clock
         if ((play->pauseCtx.state == 0) && (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE)) {
             if ((interfaceCtx->minigameState != MINIGAME_STATE_NONE) &&
                 (interfaceCtx->minigameState < MINIGAME_STATE_NO_COUNTDOWN_SETUP)) {
@@ -6254,6 +6256,7 @@ void Interface_Draw(PlayState* play) {
             }
         }
 
+        // Draw the letters of minigame perfect
         if (interfaceCtx->isMinigamePerfect) {
             Interface_DrawMinigamePerfect(play);
         }
@@ -6387,7 +6390,7 @@ void Interface_AllocStory(PlayState* play) {
     if (interfaceCtx->storySegment == NULL) {
         interfaceCtx->storySegment = ZeldaArena_Malloc(interfaceCtx->storySize);
     }
-    Interface_LoadStory(play, 0);
+    Interface_LoadStory(play, OS_MESG_NOBLOCK);
 }
 
 void Interface_Update(PlayState* play) {
