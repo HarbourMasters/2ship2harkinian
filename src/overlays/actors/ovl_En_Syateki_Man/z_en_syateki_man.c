@@ -760,7 +760,7 @@ void EnSyatekiMan_Town_HandleNormalMessage(EnSyatekiMan* this, PlayState* play) 
                 player->actor.freezeTimer = 0;
                 this->flagsIndex = 0;
                 Interface_InitMinigame(play);
-                func_80123F2C(play, 0x63);
+                func_80123F2C(play, 99);
                 this->shootingGameState = SG_GAME_STATE_RUNNING;
                 func_801A2BB8(NA_BGM_TIMED_MINI_GAME);
                 this->actionFunc = EnSyatekiMan_Town_StartGame;

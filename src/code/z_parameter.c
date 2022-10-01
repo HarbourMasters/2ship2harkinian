@@ -1598,6 +1598,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
     s16 restoreHudVisibility = false;
 
     if (gSaveContext.eventInf[4] & 2) {
+        // Related to swamp boat (non-minigame)?
         for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
             if ((GET_CUR_FORM_BTN_ITEM(i) != ITEM_PICTO_BOX) || (msgCtx->msgMode != 0)) {
                 if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
@@ -1624,6 +1625,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
             gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_ENABLED;
         }
     } else if (gSaveContext.save.weekEventReg[90] & 0x20) {
+        // Fishermans's jumping minigame
         for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
             if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
                 gSaveContext.buttonStatus[i] = BTN_DISABLED;
@@ -1632,6 +1634,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
 
         Interface_SetHudVisibility(HUD_VISIBILITY_B);
     } else if (gSaveContext.save.weekEventReg[82] & 8) {
+        // Swordsman's log minigame
         for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
             if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
                 gSaveContext.buttonStatus[i] = BTN_DISABLED;
@@ -1640,6 +1643,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
 
         Interface_SetHudVisibility(HUD_VISIBILITY_A_B_HEARTS_MAGIC_MINIMAP);
     } else if (gSaveContext.save.weekEventReg[84] & 0x20) {
+        // Related to moon child
         if (player->currentMask == PLAYER_MASK_FIERCE_DEITY) {
             for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
                 if ((GET_CUR_FORM_BTN_ITEM(i) == ITEM_MASK_FIERCE_DEITY) ||
@@ -1671,6 +1675,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
             }
         }
     } else if ((play->sceneId == SCENE_SPOT00) && (gSaveContext.sceneLayer == 6)) {
+        // Unknown cutscene
         for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
             if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
                 restoreHudVisibility = true;
@@ -1678,6 +1683,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
             gSaveContext.buttonStatus[i] = BTN_DISABLED;
         }
     } else if (gSaveContext.eventInf[3] & 0x10) {
+        // Deku playground minigame
         if (player->stateFlags3 & PLAYER_STATE3_1000000) {
             if (gSaveContext.save.inventory.items[SLOT_NUT] == ITEM_NUT) {
                 BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_NUT;
@@ -1706,6 +1712,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
             restoreHudVisibility = false;
         }
     } else if (player->stateFlags3 & PLAYER_STATE3_1000000) {
+        // Nuts on B (from flying as Deku Link)
         if (gSaveContext.save.inventory.items[SLOT_NUT] == ITEM_NUT) {
             if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NUT) {
                 BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_NUT;
@@ -1725,10 +1732,12 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
         }
     } else if (!gSaveContext.save.playerData.isMagicAcquired && (CUR_FORM == PLAYER_FORM_DEKU) &&
                (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_NUT)) {
+        // Nuts on B (as Deku Link)
         BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_FD;
         gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_DISABLED;
     } else if ((Player_GetEnvTimerType(play) >= PLAYER_ENV_TIMER_UNDERWATER_FLOOR) &&
                (Player_GetEnvTimerType(play) <= PLAYER_ENV_TIMER_UNDERWATER_FREE)) {
+        // Swimming underwater
         if (CUR_FORM != PLAYER_FORM_ZORA) {
             if ((player->currentMask == PLAYER_MASK_BLAST) && (player->blastMaskTimer == 0)) {
                 if (gSaveContext.bButtonStatus == BTN_DISABLED) {
@@ -1791,6 +1800,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
             }
         }
     } else if (player->stateFlags1 & PLAYER_STATE1_200000) {
+        // First person view
         for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
             if (GET_CUR_FORM_BTN_ITEM(i) != ITEM_LENS) {
                 if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
@@ -1810,6 +1820,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
             restoreHudVisibility = true;
         }
     } else if (player->stateFlags1 & PLAYER_STATE1_2000) {
+        // Hanging from a ledge
         if (gSaveContext.buttonStatus[EQUIP_SLOT_B] != BTN_DISABLED) {
             gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
@@ -1819,18 +1830,24 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
             Interface_SetHudVisibility(HUD_VISIBILITY_ALL);
         }
     } else {
+        // End of special event cases
+
+        // B button
         if ((interfaceCtx->bButtonDoAction == DO_ACTION_EXPLODE) && (player->currentMask == PLAYER_MASK_BLAST) &&
             (player->blastMaskTimer != 0)) {
+            // Cooldown period for blast mask
             if (gSaveContext.bButtonStatus != BTN_DISABLED) {
                 gSaveContext.bButtonStatus = BTN_DISABLED;
                 restoreHudVisibility = true;
             }
         } else {
+            // default to enabled
             if (gSaveContext.bButtonStatus == BTN_DISABLED) {
                 gSaveContext.bButtonStatus = BTN_ENABLED;
                 restoreHudVisibility = true;
             }
 
+            // Apply B button restriction
             if (interfaceCtx->restrictions.bButton == 0) {
                 if ((BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOW) ||
                     (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_BOMB) ||
@@ -1895,19 +1912,24 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
             }
         }
 
+        // C buttons
         if (gSaveContext.save.playerForm == player->transformation) {
             for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
+                // Individual C button
                 if (!D_801C2410[(void)0, gSaveContext.save.playerForm][GET_CUR_FORM_BTN_ITEM(i)]) {
+                    // Item not usable in current playerForm
                     if (gSaveContext.buttonStatus[i] != BTN_DISABLED) {
                         gSaveContext.buttonStatus[i] = BTN_DISABLED;
                         restoreHudVisibility = true;
                     }
                 } else if (player->actor.id != ACTOR_PLAYER) {
+                    // Currently not playing as the main player
                     if (gSaveContext.buttonStatus[i] != BTN_DISABLED) {
                         gSaveContext.buttonStatus[i] = BTN_DISABLED;
                         restoreHudVisibility = true;
                     }
                 } else if (player->currentMask == PLAYER_MASK_GIANT) {
+                    // Currently wearing Giant's Mask
                     if (GET_CUR_FORM_BTN_ITEM(i) != ITEM_MASK_GIANT) {
                         if (gSaveContext.buttonStatus[i] != BTN_DISABLED) {
                             gSaveContext.buttonStatus[i] = BTN_DISABLED;
@@ -1918,6 +1940,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                         gSaveContext.buttonStatus[i] = BTN_ENABLED;
                     }
                 } else if (GET_CUR_FORM_BTN_ITEM(i) == ITEM_MASK_GIANT) {
+                    // Giant's Mask is equipped
                     if (play->sceneId != SCENE_INISIE_BS) {
                         if (gSaveContext.buttonStatus[i] != BTN_DISABLED) {
                             gSaveContext.buttonStatus[i] = BTN_DISABLED;
@@ -1928,6 +1951,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                         gSaveContext.buttonStatus[i] = BTN_ENABLED;
                     }
                 } else if (GET_CUR_FORM_BTN_ITEM(i) == ITEM_MASK_FIERCE_DEITY) {
+                    // Fierce Deity's Mask is equipped
                     if ((play->sceneId != SCENE_MITURIN_BS) && (play->sceneId != SCENE_HAKUGIN_BS) &&
                         (play->sceneId != SCENE_SEA_BS) && (play->sceneId != SCENE_INISIE_BS) &&
                         (play->sceneId != SCENE_LAST_BS)) {
@@ -1940,6 +1964,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                         gSaveContext.buttonStatus[i] = BTN_ENABLED;
                     }
                 } else {
+                    // End of special item cases. Apply restrictions to buttons
                     if (interfaceCtx->restrictions.tradeItems != 0) {
                         if (((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_MOON_TEAR) &&
                              (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_PENDANT_OF_MEMORIES)) ||
@@ -2051,9 +2076,11 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
         gSaveContext.hudVisibilityForceButtonAlphasByStatus = false;
         if ((player->stateFlags1 & PLAYER_STATE1_800000) || (gSaveContext.save.weekEventReg[8] & 1) ||
             (!(gSaveContext.eventInf[4] & 2) && (play->unk_1887C >= 2))) {
-            // Update specific minigames?
+            // Riding Epona OR Honey & Darling minigame OR Horseback balloon minigame OR related to swamp boat
+            // (non-minigame?)
             if ((player->stateFlags1 & PLAYER_STATE1_800000) && (player->currentMask == PLAYER_MASK_BLAST) &&
                 (gSaveContext.bButtonStatus == BTN_DISABLED)) {
+                // Riding Epona with blast mask
                 restoreHudVisibility = true;
                 gSaveContext.bButtonStatus = BTN_ENABLED;
             }
@@ -2196,7 +2223,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                 }
             }
         } else if (sPictographState != PICTOGRAPH_STATE_OFF) {
-            // Update pictograph
+            // Related to pictograph
             if (sPictographState == PICTOGRAPH_STATE_LENS) {
                 if (!(play->actorCtx.flags & ACTORCTX_FLAG_PICTOGRAPH_ON)) {
                     func_801663C4((play->unk_18E5C != NULL) ? play->unk_18E5C : D_801FBB90,
@@ -2251,20 +2278,20 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
         } else if ((gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE) &&
                    (gSaveContext.save.entrance == ENTRANCE(WATERFALL_RAPIDS, 1)) &&
                    (play->transitionTrigger == TRANS_TRIGGER_OFF) && (play->transitionMode == TRANS_MODE_OFF)) {
-            // Update beaver race minigame
+            // Beaver race minigame
             gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
             Interface_SetHudVisibility(HUD_VISIBILITY_A_B_MINIMAP);
         } else if ((gSaveContext.save.entrance == ENTRANCE(GORON_RACETRACK, 1)) &&
                    (play->transitionTrigger == TRANS_TRIGGER_OFF) && (play->transitionMode == TRANS_MODE_OFF)) {
-            // Update goron race minigame
+            // Goron race minigame
             gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
             Interface_SetHudVisibility(HUD_VISIBILITY_A_B_HEARTS_MAGIC_MINIMAP);
         } else if (play->actorCtx.flags & ACTORCTX_FLAG_PICTOGRAPH_ON) {
-            // Update pictograph
+            // Related to pictograph
             if (!CHECK_QUEST_ITEM(QUEST_PICTOGRAPH)) {
                 func_80115844(play, 0x12);
                 Interface_SetHudVisibility(HUD_VISIBILITY_A_B);
@@ -2276,7 +2303,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                 sPictographState = PICTOGRAPH_STATE_SETUP_PHOTO;
             }
         } else {
-            // Update remaining cases
+            // Continue processing the remaining cases
             Interface_UpdateButtonsPart2(play);
         }
     }
