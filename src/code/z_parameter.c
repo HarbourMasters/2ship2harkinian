@@ -249,353 +249,447 @@ s16 sFinalHoursClockFrameEnvBlue = 0;
 s16 sFinalHoursClockColorTimer = 15;
 s16 sFinalHoursClockColorTargetIndex = 0;
 
-Gfx* Gfx_DrawRectTextureRGBA16(Gfx* displayListHead, TexturePtr texture, s16 textureWidth, s16 textureHeight,
-                               s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy) {
-    gDPLoadTextureBlock(displayListHead++, texture, G_IM_FMT_RGBA, G_IM_SIZ_16b, textureWidth, textureHeight, 0,
+Gfx* Gfx_DrawRectTextureRGBA16(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 textureHeight, s16 rectLeft,
+                               s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy) {
+    gDPLoadTextureBlock(gfx++, texture, G_IM_FMT_RGBA, G_IM_SIZ_16b, textureWidth, textureHeight, 0,
                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                         G_TX_NOLOD);
 
-    gSPTextureRectangle(displayListHead++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4,
-                        (rectTop + rectHeight) * 4, G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
+    gSPTextureRectangle(gfx++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4, (rectTop + rectHeight) * 4,
+                        G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
 
-    return displayListHead;
+    return gfx;
 }
 
-Gfx* Gfx_DrawRectTextureIA8(Gfx* displayListHead, TexturePtr texture, s16 textureWidth, s16 textureHeight, s16 rectLeft,
+Gfx* Gfx_DrawRectTextureIA8(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 textureHeight, s16 rectLeft,
                             s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy) {
-    gDPLoadTextureBlock(displayListHead++, texture, G_IM_FMT_IA, G_IM_SIZ_8b, textureWidth, textureHeight, 0,
+    gDPLoadTextureBlock(gfx++, texture, G_IM_FMT_IA, G_IM_SIZ_8b, textureWidth, textureHeight, 0,
                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                         G_TX_NOLOD);
 
-    gSPTextureRectangle(displayListHead++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4,
-                        (rectTop + rectHeight) * 4, G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
+    gSPTextureRectangle(gfx++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4, (rectTop + rectHeight) * 4,
+                        G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
 
-    return displayListHead;
+    return gfx;
 }
 
-Gfx* Gfx_DrawRectTextureIA8_DropShadow(Gfx* displayListHead, TexturePtr texture, s16 textureWidth, s16 textureHeight,
-                                       s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy,
-                                       s16 r, s16 g, s16 b, s16 a) {
+Gfx* Gfx_DrawRectTextureIA8_DropShadow(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 textureHeight, s16 rectLeft,
+                                       s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy, s16 r, s16 g,
+                                       s16 b, s16 a) {
     s16 dropShadowAlpha = a;
 
     if (a > 100) {
         dropShadowAlpha = 100;
     }
 
-    gDPPipeSync(displayListHead++);
-    gDPSetPrimColor(displayListHead++, 0, 0, 0, 0, 0, dropShadowAlpha);
+    gDPPipeSync(gfx++);
+    gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, dropShadowAlpha);
 
-    gDPLoadTextureBlock(displayListHead++, texture, G_IM_FMT_IA, G_IM_SIZ_8b, textureWidth, textureHeight, 0,
+    gDPLoadTextureBlock(gfx++, texture, G_IM_FMT_IA, G_IM_SIZ_8b, textureWidth, textureHeight, 0,
                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                         G_TX_NOLOD);
 
-    gSPTextureRectangle(displayListHead++, (rectLeft + 2) * 4, (rectTop + 2) * 4, (rectLeft + rectWidth + 2) * 4,
+    gSPTextureRectangle(gfx++, (rectLeft + 2) * 4, (rectTop + 2) * 4, (rectLeft + rectWidth + 2) * 4,
                         (rectTop + rectHeight + 2) * 4, G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
 
-    gDPPipeSync(displayListHead++);
-    gDPSetPrimColor(displayListHead++, 0, 0, r, g, b, a);
+    gDPPipeSync(gfx++);
+    gDPSetPrimColor(gfx++, 0, 0, r, g, b, a);
 
-    gSPTextureRectangle(displayListHead++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4,
-                        (rectTop + rectHeight) * 4, G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
+    gSPTextureRectangle(gfx++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4, (rectTop + rectHeight) * 4,
+                        G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
 
-    return displayListHead;
+    return gfx;
 }
 
-Gfx* Gfx_DrawRect_DropShadow(Gfx* displayListHead, s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx,
-                             u16 dtdy, s16 r, s16 g, s16 b, s16 a) {
+Gfx* Gfx_DrawRect_DropShadow(Gfx* gfx, s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy,
+                             s16 r, s16 g, s16 b, s16 a) {
     s16 dropShadowAlpha = a;
 
     if (a > 100) {
         dropShadowAlpha = 100;
     }
 
-    gDPPipeSync(displayListHead++);
-    gDPSetPrimColor(displayListHead++, 0, 0, 0, 0, 0, dropShadowAlpha);
-    gSPTextureRectangle(displayListHead++, (rectLeft + 2) * 4, (rectTop + 2) * 4, (rectLeft + rectWidth + 2) * 4,
+    gDPPipeSync(gfx++);
+    gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, dropShadowAlpha);
+    gSPTextureRectangle(gfx++, (rectLeft + 2) * 4, (rectTop + 2) * 4, (rectLeft + rectWidth + 2) * 4,
                         (rectTop + rectHeight + 2) * 4, G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
 
-    gDPPipeSync(displayListHead++);
-    gDPSetPrimColor(displayListHead++, 0, 0, r, g, b, a);
+    gDPPipeSync(gfx++);
+    gDPSetPrimColor(gfx++, 0, 0, r, g, b, a);
 
-    gSPTextureRectangle(displayListHead++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4,
-                        (rectTop + rectHeight) * 4, G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
+    gSPTextureRectangle(gfx++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4, (rectTop + rectHeight) * 4,
+                        G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
 
-    return displayListHead;
+    return gfx;
 }
 
-Gfx* Gfx_DrawRectTextureIA8_DropShadowOffset(Gfx* displayListHead, TexturePtr texture, s16 textureWidth,
-                                             s16 textureHeight, s16 rectLeft, s16 rectTop, s16 rectWidth,
-                                             s16 rectHeight, u16 dsdx, u16 dtdy, s16 r, s16 g, s16 b, s16 a, s32 masks,
-                                             s32 rectS) {
+Gfx* Gfx_DrawRectTextureIA8_DropShadowOffset(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 textureHeight,
+                                             s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx,
+                                             u16 dtdy, s16 r, s16 g, s16 b, s16 a, s32 masks, s32 rectS) {
     s16 dropShadowAlpha = a;
 
     if (a > 100) {
         dropShadowAlpha = 100;
     }
 
-    gDPPipeSync(displayListHead++);
-    gDPSetPrimColor(displayListHead++, 0, 0, 0, 0, 0, dropShadowAlpha);
+    gDPPipeSync(gfx++);
+    gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, dropShadowAlpha);
 
-    gDPLoadTextureBlock(displayListHead++, texture, G_IM_FMT_IA, G_IM_SIZ_8b, textureWidth, textureHeight, 0,
+    gDPLoadTextureBlock(gfx++, texture, G_IM_FMT_IA, G_IM_SIZ_8b, textureWidth, textureHeight, 0,
                         G_TX_MIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, masks, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
-    gSPTextureRectangle(displayListHead++, (rectLeft + 2) * 4, (rectTop + 2) * 4, (rectLeft + rectWidth + 2) * 4,
+    gSPTextureRectangle(gfx++, (rectLeft + 2) * 4, (rectTop + 2) * 4, (rectLeft + rectWidth + 2) * 4,
                         (rectTop + rectHeight + 2) * 4, G_TX_RENDERTILE, rectS, 0, dsdx, dtdy);
 
-    gDPPipeSync(displayListHead++);
-    gDPSetPrimColor(displayListHead++, 0, 0, r, g, b, a);
+    gDPPipeSync(gfx++);
+    gDPSetPrimColor(gfx++, 0, 0, r, g, b, a);
 
-    gSPTextureRectangle(displayListHead++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4,
-                        (rectTop + rectHeight) * 4, G_TX_RENDERTILE, rectS, 0, dsdx, dtdy);
+    gSPTextureRectangle(gfx++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4, (rectTop + rectHeight) * 4,
+                        G_TX_RENDERTILE, rectS, 0, dsdx, dtdy);
 
-    return displayListHead;
+    return gfx;
 }
 
-Gfx* Gfx_DrawRectTextureI8(Gfx* displayListHead, TexturePtr texture, s16 textureWidth, s16 textureHeight, s16 rectLeft,
-                           s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy) {
-    gDPLoadTextureBlock(displayListHead++, texture, G_IM_FMT_I, G_IM_SIZ_8b, textureWidth, textureHeight, 0,
+Gfx* Gfx_DrawRectTextureI8(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 textureHeight, s16 rectLeft, s16 rectTop,
+                           s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy) {
+    gDPLoadTextureBlock(gfx++, texture, G_IM_FMT_I, G_IM_SIZ_8b, textureWidth, textureHeight, 0,
                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                         G_TX_NOLOD);
 
-    gSPTextureRectangle(displayListHead++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4,
-                        (rectTop + rectHeight) * 4, G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
+    gSPTextureRectangle(gfx++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4, (rectTop + rectHeight) * 4,
+                        G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
 
-    return displayListHead;
+    return gfx;
 }
 
-Gfx* Gfx_DrawRectTexture(Gfx* displayListHead, TexturePtr texture, s32 fmt, s16 textureWidth, s16 textureHeight,
-                         s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, s32 cms, s32 masks, s32 s, u16 dsdx,
-                         u16 dtdy) {
-    gDPLoadTextureBlock_4b(displayListHead++, texture, fmt, textureWidth, textureHeight, 0, cms,
-                           G_TX_NOMIRROR | G_TX_WRAP, masks, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+Gfx* Gfx_DrawRectTexture(Gfx* gfx, TexturePtr texture, s32 fmt, s16 textureWidth, s16 textureHeight, s16 rectLeft,
+                         s16 rectTop, s16 rectWidth, s16 rectHeight, s32 cms, s32 masks, s32 s, u16 dsdx, u16 dtdy) {
+    gDPLoadTextureBlock_4b(gfx++, texture, fmt, textureWidth, textureHeight, 0, cms, G_TX_NOMIRROR | G_TX_WRAP, masks,
+                           G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
-    gSPTextureRectangle(displayListHead++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4,
-                        (rectTop + rectHeight) * 4, G_TX_RENDERTILE, s, 0, dsdx, dtdy);
+    gSPTextureRectangle(gfx++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4, (rectTop + rectHeight) * 4,
+                        G_TX_RENDERTILE, s, 0, dsdx, dtdy);
 
-    return displayListHead;
+    return gfx;
 }
 
-Gfx* Gfx_DrawQuadTextureIA8(Gfx* displayListHead, TexturePtr texture, s16 textureWidth, s16 textureHeight, u16 point) {
-    gDPLoadTextureBlock(displayListHead++, texture, G_IM_FMT_IA, G_IM_SIZ_8b, textureWidth, textureHeight, 0,
+Gfx* Gfx_DrawQuadTextureIA8(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 textureHeight, u16 point) {
+    gDPLoadTextureBlock(gfx++, texture, G_IM_FMT_IA, G_IM_SIZ_8b, textureWidth, textureHeight, 0,
                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                         G_TX_NOLOD);
 
-    gSP1Quadrangle(displayListHead++, point, point + 2, point + 3, point + 1, 0);
+    gSP1Quadrangle(gfx++, point, point + 2, point + 3, point + 1, 0);
 
-    return displayListHead;
+    return gfx;
 }
 
-Gfx* Gfx_DrawQuadTexture(Gfx* displayListHead, TexturePtr texture, s32 fmt, s16 textureWidth, s16 textureHeight,
-                         u16 point) {
-    gDPLoadTextureBlock_4b(displayListHead++, texture, fmt, textureWidth, textureHeight, 0, G_TX_NOMIRROR | G_TX_WRAP,
+Gfx* Gfx_DrawQuadTexture(Gfx* gfx, TexturePtr texture, s32 fmt, s16 textureWidth, s16 textureHeight, u16 point) {
+    gDPLoadTextureBlock_4b(gfx++, texture, fmt, textureWidth, textureHeight, 0, G_TX_NOMIRROR | G_TX_WRAP,
                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
-    gSP1Quadrangle(displayListHead++, point, point + 2, point + 3, point + 1, 0);
+    gSP1Quadrangle(gfx++, point, point + 2, point + 3, point + 1, 0);
 
-    return displayListHead;
+    return gfx;
 }
 
-s16 D_801BFA04[] = {
-    -14, -14, -24, -8, -12, -12, -7, -8, -7, -8, -12, 0,
+s16 sActionVtxPosX[] = {
+    -14, // A Button
+    -14, // A Button Background
+    -24, // A Button Do-Action
+    -8,  // Three-Day Clock's Star (for the Minute Tracker)
+    -12, // Three-Day Clock's Sun (for the Day-Time Hours Tracker)
+    -12, // Three-Day Clock's Moon (for the Night-Time Hours Tracker)
+    -7,  // Three-Day Clock's Hour Digit Above the Sun
+    -8,  // Three-Day Clock's Hour Digit Above the Sun
+    -7,  // Three-Day Clock's Hour Digit Above the Moon
+    -8,  // Three-Day Clock's Hour Digit Above the Moon
+    -12, // Minigame Countdown Textures
 };
-s16 D_801BFA1C[] = {
-    28, 28, 48, 16, 24, 24, 16, 16, 16, 16, 24, 0,
+s16 sActionVtxWidths[] = {
+    28, // A Button
+    28, // A Button Background
+    48, // A Button Do-Action
+    16, // Three-Day Clock's Star (for the Minute Tracker)
+    24, // Three-Day Clock's Sun (for the Day-Time Hours Tracker)
+    24, // Three-Day Clock's Moon (for the Night-Time Hours Tracker)
+    16, // Three-Day Clock's Hour Digit Above the Sun
+    16, // Three-Day Clock's Hour Digit Above the Sun
+    16, // Three-Day Clock's Hour Digit Above the Moon
+    16, // Three-Day Clock's Hour Digit Above the Moon
+    24, // Minigame Countdown Textures
 };
-s16 D_801BFA34[] = {
-    14, 14, 8, 24, -82, -82, 58, 59, 58, 59, 32, 0,
+s16 sActionVtxPosY[] = {
+    14,  // A Button
+    14,  // A Button Background
+    8,   // A Button Do-Action
+    24,  // Three-Day Clock's Star (for the Minute Tracker)
+    -82, // Three-Day Clock's Sun (for the Day-Time Hours Tracker)
+    -82, // Three-Day Clock's Moon (for the Night-Time Hours Tracker)
+    58,  // Three-Day Clock's Hour Digit Above the Sun
+    59,  // Three-Day Clock's Hour Digit Above the Sun
+    58,  // Three-Day Clock's Hour Digit Above the Moon
+    59,  // Three-Day Clock's Hour Digit Above the Moon
+    32,  // Minigame Countdown Textures
 };
-s16 D_801BFA4C[] = {
-    28, 28, 16, 16, 24, 24, 11, 11, 11, 11, 32, 0,
+s16 sActionVtxHeights[] = {
+    28, // A Button
+    28, // A Button Background
+    16, // A Button Do-Action
+    16, // Three-Day Clock's Star (for the Minute Tracker)
+    24, // Three-Day Clock's Sun (for the Day-Time Hours Tracker)
+    24, // Three-Day Clock's Moon (for the Night-Time Hours Tracker)
+    11, // Three-Day Clock's Hour Digit Above the Sun
+    11, // Three-Day Clock's Hour Digit Above the Sun
+    11, // Three-Day Clock's Hour Digit Above the Moon
+    11, // Three-Day Clock's Hour Digit Above the Moon
+    32, // Minigame Countdown Textures
 };
-s16 D_801BFA64[] = {
+
+#define MINIGAME_PERFECT_VTX_WIDTH 32
+#define MINIGAME_PERFECT_VTX_HEIGHT 33
+
+// Both minigame-perfect vtx data indexed as the 8 letters of:
+// 'p', 'e', 'r', 'f', 'e', 'c', 't', '!'
+s16 sMinigamePerfectVtxPosX[] = {
     -61, -45, 29, 104, -117, -42, 32, 55,
 };
-s16 D_801BFA74[] = {
+s16 sMinigamePerfectVtxPosY[] = {
     1, -70, -99, -70, 71, 101, 72, 1,
 };
+
+/**
+ * interfaceCtx->actionVtx[0]   -> A Button
+ * interfaceCtx->actionVtx[4]   -> A Button Background
+ * interfaceCtx->actionVtx[8]   -> A Button Do-Action
+ * interfaceCtx->actionVtx[12]  -> Three-Day Clock's Star (for the Minute Tracker)
+ * interfaceCtx->actionVtx[16]  -> Three-Day Clock's Sun (for the Day-Time Hours Tracker)
+ * interfaceCtx->actionVtx[20]  -> Three-Day Clock's Moon (for the Night-Time Hours Tracker)
+ * interfaceCtx->actionVtx[24]  -> Three-Day Clock's Hour Digit Above the Sun (uses 8 vertices)
+ * interfaceCtx->actionVtx[32]  -> Three-Day Clock's Hour Digit Above the Moon (uses 8 vertices)
+ * interfaceCtx->actionVtx[40]  -> Minigame Countdown Textures
+ * interfaceCtx->actionVtx[44]  -> Minigame Perfect Letter P Shadow
+ * interfaceCtx->actionVtx[48]  -> Minigame Perfect Letter E Shadow
+ * interfaceCtx->actionVtx[52]  -> Minigame Perfect Letter R Shadow
+ * interfaceCtx->actionVtx[56]  -> Minigame Perfect Letter F Shadow
+ * interfaceCtx->actionVtx[60]  -> Minigame Perfect Letter E Shadow
+ * interfaceCtx->actionVtx[64]  -> Minigame Perfect Letter C Shadow
+ * interfaceCtx->actionVtx[68]  -> Minigame Perfect Letter T Shadow
+ * interfaceCtx->actionVtx[72]  -> Minigame Perfect Letter ! Shadow
+ * interfaceCtx->actionVtx[76]  -> Minigame Perfect Letter P Colored
+ * interfaceCtx->actionVtx[80]  -> Minigame Perfect Letter E Colored
+ * interfaceCtx->actionVtx[84]  -> Minigame Perfect Letter R Colored
+ * interfaceCtx->actionVtx[88]  -> Minigame Perfect Letter F Colored
+ * interfaceCtx->actionVtx[92]  -> Minigame Perfect Letter E Colored
+ * interfaceCtx->actionVtx[96]  -> Minigame Perfect Letter C Colored
+ * interfaceCtx->actionVtx[100] -> Minigame Perfect Letter T Colored
+ * interfaceCtx->actionVtx[104] -> Minigame Perfect Letter ! Colored
+ */
+
+// TODO: Mess with macros
+#define MINIGAME_PERFECT_VTX_SHADOW(index) (interfaceCtx->actionVtx[44 + index])
+#define MINIGAME_PERFECT_VTX_COLOR(index) (interfaceCtx->actionVtx[76 + index])
+
+#define BEATING_HEART_VTX_X -8
+#define BEATING_HEART_VTX_Y -8
+#define BEATING_HEART_VTX_WIDTH 16
+
 void Interface_InitVertices(PlayState* play) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
     s16 i;
     s16 j;
     s16 k;
-    s16 offset;
+    s16 letteroffset;
 
-    play->interfaceCtx.aButtonVtx = GRAPH_ALLOC(play->state.gfxCtx, 108 * sizeof(Vtx));
+    // 108 = 11 + (2 * 8 minigame perfect)) * 4 vertices per quad
+    play->interfaceCtx.actionVtx = GRAPH_ALLOC(play->state.gfxCtx, 108 * sizeof(Vtx));
 
-    // clang-format off
+    // Loop over all non-minigame perfect vertices
     for (k = 0, i = 0; i < 44; i += 4, k++) {
-        interfaceCtx->aButtonVtx[i].v.ob[0] = 
-        interfaceCtx->aButtonVtx[i + 2].v.ob[0] = D_801BFA04[k];
+        // Left vertices x Pos
+        interfaceCtx->actionVtx[i + 0].v.ob[0] = interfaceCtx->actionVtx[i + 2].v.ob[0] = sActionVtxPosX[k];
 
-        interfaceCtx->aButtonVtx[i + 1].v.ob[0] = 
-        interfaceCtx->aButtonVtx[i + 3].v.ob[0] = interfaceCtx->aButtonVtx[i].v.ob[0] + D_801BFA1C[k];
-        
-        interfaceCtx->aButtonVtx[i].v.ob[1] = 
-        interfaceCtx->aButtonVtx[i + 1].v.ob[1] = D_801BFA34[k];
+        // Right vertices x Pos
+        interfaceCtx->actionVtx[i + 1].v.ob[0] = interfaceCtx->actionVtx[i + 3].v.ob[0] =
+            interfaceCtx->actionVtx[i].v.ob[0] + sActionVtxWidths[k];
 
-        interfaceCtx->aButtonVtx[i + 2].v.ob[1] = 
-        interfaceCtx->aButtonVtx[i + 3].v.ob[1] = interfaceCtx->aButtonVtx[i].v.ob[1] - D_801BFA4C[k];
+        // Top vertices y Pos
+        interfaceCtx->actionVtx[i].v.ob[1] = interfaceCtx->actionVtx[i + 1].v.ob[1] = sActionVtxPosY[k];
 
-        interfaceCtx->aButtonVtx[i].v.ob[2] = 
-        interfaceCtx->aButtonVtx[i + 1].v.ob[2] = 
-        interfaceCtx->aButtonVtx[i + 2].v.ob[2] = 
-        interfaceCtx->aButtonVtx[i + 3].v.ob[2] = 0;
+        // Bottom vertices y Pos
+        interfaceCtx->actionVtx[i + 2].v.ob[1] = interfaceCtx->actionVtx[i + 3].v.ob[1] =
+            interfaceCtx->actionVtx[i].v.ob[1] - sActionVtxHeights[k];
 
-        interfaceCtx->aButtonVtx[i].v.flag = 
-        interfaceCtx->aButtonVtx[i + 1].v.flag = 
-        interfaceCtx->aButtonVtx[i + 2].v.flag = 
-        interfaceCtx->aButtonVtx[i + 3].v.flag = 0;
+        // All vertices z Pos
+        interfaceCtx->actionVtx[i + 0].v.ob[2] = interfaceCtx->actionVtx[i + 1].v.ob[2] =
+            interfaceCtx->actionVtx[i + 2].v.ob[2] = interfaceCtx->actionVtx[i + 3].v.ob[2] = 0;
 
-        interfaceCtx->aButtonVtx[i].v.tc[0] = 
-        interfaceCtx->aButtonVtx[i].v.tc[1] = 
-        interfaceCtx->aButtonVtx[i + 1].v.tc[1] = 
-        interfaceCtx->aButtonVtx[i + 2].v.tc[0] = 0;
+        // Unused flag
+        interfaceCtx->actionVtx[i + 0].v.flag = interfaceCtx->actionVtx[i + 1].v.flag =
+            interfaceCtx->actionVtx[i + 2].v.flag = interfaceCtx->actionVtx[i + 3].v.flag = 0;
 
-        interfaceCtx->aButtonVtx[i + 1].v.tc[0] = 
-        interfaceCtx->aButtonVtx[i + 3].v.tc[0] = D_801BFA1C[k] << 5;
+        // Left and Top texture coordinates
+        interfaceCtx->actionVtx[i + 0].v.tc[0] = interfaceCtx->actionVtx[i + 0].v.tc[1] =
+            interfaceCtx->actionVtx[i + 1].v.tc[1] = interfaceCtx->actionVtx[i + 2].v.tc[0] = 0;
 
-        interfaceCtx->aButtonVtx[i + 2].v.tc[1] = 
-        interfaceCtx->aButtonVtx[i + 3].v.tc[1] = D_801BFA4C[k] << 5;
+        // Right vertices texture coordinates
+        interfaceCtx->actionVtx[i + 1].v.tc[0] = interfaceCtx->actionVtx[i + 3].v.tc[0] = sActionVtxWidths[k] << 5;
 
-        interfaceCtx->aButtonVtx[i].v.cn[0] = 
-        interfaceCtx->aButtonVtx[i + 1].v.cn[0] = 
-        interfaceCtx->aButtonVtx[i + 2].v.cn[0] = 
-        interfaceCtx->aButtonVtx[i + 3].v.cn[0] = 
-        interfaceCtx->aButtonVtx[i].v.cn[1] = 
-        interfaceCtx->aButtonVtx[i + 1].v.cn[1] = 
-        interfaceCtx->aButtonVtx[i + 2].v.cn[1] = 
-        interfaceCtx->aButtonVtx[i + 3].v.cn[1] = 
-        interfaceCtx->aButtonVtx[i].v.cn[2] = 
-        interfaceCtx->aButtonVtx[i + 1].v.cn[2] = 
-        interfaceCtx->aButtonVtx[i + 2].v.cn[2] = 
-        interfaceCtx->aButtonVtx[i + 3].v.cn[2] = 255;
+        // Bottom vertices texture coordinates
+        interfaceCtx->actionVtx[i + 2].v.tc[1] = interfaceCtx->actionVtx[i + 3].v.tc[1] = sActionVtxHeights[k] << 5;
 
-        interfaceCtx->aButtonVtx[i].v.cn[3] = 
-        interfaceCtx->aButtonVtx[i + 1].v.cn[3] = 
-        interfaceCtx->aButtonVtx[i + 2].v.cn[3] = 
-        interfaceCtx->aButtonVtx[i + 3].v.cn[3] = 255;
+        // Set color
+        interfaceCtx->actionVtx[i + 0].v.cn[0] = interfaceCtx->actionVtx[i + 1].v.cn[0] =
+            interfaceCtx->actionVtx[i + 2].v.cn[0] = interfaceCtx->actionVtx[i + 3].v.cn[0] =
+                interfaceCtx->actionVtx[i + 0].v.cn[1] = interfaceCtx->actionVtx[i + 1].v.cn[1] =
+                    interfaceCtx->actionVtx[i + 2].v.cn[1] = interfaceCtx->actionVtx[i + 3].v.cn[1] =
+                        interfaceCtx->actionVtx[i + 0].v.cn[2] = interfaceCtx->actionVtx[i + 1].v.cn[2] =
+                            interfaceCtx->actionVtx[i + 2].v.cn[2] = interfaceCtx->actionVtx[i + 3].v.cn[2] = 255;
+
+        // Set alpha
+        interfaceCtx->actionVtx[i + 0].v.cn[3] = interfaceCtx->actionVtx[i + 1].v.cn[3] =
+            interfaceCtx->actionVtx[i + 2].v.cn[3] = interfaceCtx->actionVtx[i + 3].v.cn[3] = 255;
     }
 
-    interfaceCtx->aButtonVtx[1].v.tc[0] = 
-    interfaceCtx->aButtonVtx[3].v.tc[0] = 
-    interfaceCtx->aButtonVtx[2].v.tc[1] = 
-    interfaceCtx->aButtonVtx[3].v.tc[1] = 0x400;
+    // A button right and top texture coordinates
+    interfaceCtx->actionVtx[1].v.tc[0] = interfaceCtx->actionVtx[3].v.tc[0] = interfaceCtx->actionVtx[2].v.tc[1] =
+        interfaceCtx->actionVtx[3].v.tc[1] = 32 << 5;
 
-    interfaceCtx->aButtonVtx[5].v.tc[0] = 
-    interfaceCtx->aButtonVtx[7].v.tc[0] = 
-    interfaceCtx->aButtonVtx[6].v.tc[1] = 
-    interfaceCtx->aButtonVtx[7].v.tc[1] = 0x400;
+    // A button background right and top texture coordinates
+    interfaceCtx->actionVtx[5].v.tc[0] = interfaceCtx->actionVtx[7].v.tc[0] = interfaceCtx->actionVtx[6].v.tc[1] =
+        interfaceCtx->actionVtx[7].v.tc[1] = 32 << 5;
 
-    for (j = 0, offset = 2; j < 2; j++, offset -= 2) {
+    // Loop over vertices for the minigame-perfect letters
+    // Outer loop is to loop over 2 sets of letters: shadowed letters and colored letters
+    for (j = 0, letteroffset = 2; j < 2; j++, letteroffset -= 2) {
         for (k = 0; k < 8; k++, i += 4) {
-            if ((interfaceCtx->minigamePerfectType == MINIGAME_PERFECT_TYPE_1) || ((interfaceCtx->minigamePerfectType == MINIGAME_PERFECT_TYPE_3) && (interfaceCtx->minigamePerfectState[0] == MINIGAME_PERFECT_STATE_6))) {
-                interfaceCtx->aButtonVtx[i].v.ob[0] = 
-                interfaceCtx->aButtonVtx[i + 2].v.ob[0] = -((D_801BFA64[k] - offset) + 0x10);
+            if ((interfaceCtx->minigamePerfectType == MINIGAME_PERFECT_TYPE_1) ||
+                ((interfaceCtx->minigamePerfectType == MINIGAME_PERFECT_TYPE_3) &&
+                 (interfaceCtx->minigamePerfectState[0] == MINIGAME_PERFECT_STATE_6))) {
+                // Left vertices x Pos
+                interfaceCtx->actionVtx[i].v.ob[0] = interfaceCtx->actionVtx[i + 2].v.ob[0] =
+                    -((sMinigamePerfectVtxPosX[k] - letteroffset) + 16);
 
-                interfaceCtx->aButtonVtx[i + 1].v.ob[0] = 
-                interfaceCtx->aButtonVtx[i + 3].v.ob[0] = interfaceCtx->aButtonVtx[i].v.ob[0] + 0x20;
+                // Right vertices x Pos
+                interfaceCtx->actionVtx[i + 1].v.ob[0] = interfaceCtx->actionVtx[i + 3].v.ob[0] =
+                    interfaceCtx->actionVtx[i].v.ob[0] + MINIGAME_PERFECT_VTX_WIDTH;
 
-                interfaceCtx->aButtonVtx[i].v.ob[1] = 
-                interfaceCtx->aButtonVtx[i + 1].v.ob[1] = (D_801BFA74[k] - offset) + 0x10;
+                // Top vertices y Pos
+                interfaceCtx->actionVtx[i].v.ob[1] = interfaceCtx->actionVtx[i + 1].v.ob[1] =
+                    (sMinigamePerfectVtxPosY[k] - letteroffset) + 16;
 
-                interfaceCtx->aButtonVtx[i + 2].v.ob[1] = 
-                interfaceCtx->aButtonVtx[i + 3].v.ob[1] = interfaceCtx->aButtonVtx[i].v.ob[1] - 0x21;
+                // Bottom vertices y Pos
+                interfaceCtx->actionVtx[i + 2].v.ob[1] = interfaceCtx->actionVtx[i + 3].v.ob[1] =
+                    interfaceCtx->actionVtx[i].v.ob[1] - MINIGAME_PERFECT_VTX_HEIGHT;
 
-            } else if ((interfaceCtx->minigamePerfectType == MINIGAME_PERFECT_TYPE_2) || (interfaceCtx->minigamePerfectType == MINIGAME_PERFECT_TYPE_3)) {
-                interfaceCtx->aButtonVtx[i].v.ob[0] = 
-                interfaceCtx->aButtonVtx[i + 2].v.ob[0] = -(interfaceCtx->minigamePerfectVtxOffset[k] - offset + 0x10);
+            } else if ((interfaceCtx->minigamePerfectType == MINIGAME_PERFECT_TYPE_2) ||
+                       (interfaceCtx->minigamePerfectType == MINIGAME_PERFECT_TYPE_3)) {
+                // Left vertices x Pos
+                interfaceCtx->actionVtx[i].v.ob[0] = interfaceCtx->actionVtx[i + 2].v.ob[0] =
+                    -(interfaceCtx->minigamePerfectVtxOffset[k] - letteroffset + 16);
 
-                interfaceCtx->aButtonVtx[i + 1].v.ob[0] = 
-                interfaceCtx->aButtonVtx[i + 3].v.ob[0] = interfaceCtx->aButtonVtx[i].v.ob[0] + 0x20;
+                // Right vertices x Pos
+                interfaceCtx->actionVtx[i + 1].v.ob[0] = interfaceCtx->actionVtx[i + 3].v.ob[0] =
+                    interfaceCtx->actionVtx[i].v.ob[0] + MINIGAME_PERFECT_VTX_WIDTH;
 
-                interfaceCtx->aButtonVtx[i].v.ob[1] = 
-                interfaceCtx->aButtonVtx[i + 1].v.ob[1] = 0x10 - offset;
+                // Top vertices y Pos
+                interfaceCtx->actionVtx[i].v.ob[1] = interfaceCtx->actionVtx[i + 1].v.ob[1] = 16 - letteroffset;
 
-                interfaceCtx->aButtonVtx[i + 2].v.ob[1] = 
-                interfaceCtx->aButtonVtx[i + 3].v.ob[1] = interfaceCtx->aButtonVtx[i].v.ob[1] - 0x21;
+                // Bottom vertices y Pos
+                interfaceCtx->actionVtx[i + 2].v.ob[1] = interfaceCtx->actionVtx[i + 3].v.ob[1] =
+                    interfaceCtx->actionVtx[i].v.ob[1] - MINIGAME_PERFECT_VTX_HEIGHT;
 
             } else {
-                interfaceCtx->aButtonVtx[i].v.ob[0] = 
-                interfaceCtx->aButtonVtx[i + 2].v.ob[0] = -(0xD8 - offset);
+                // Left vertices x Pos
+                interfaceCtx->actionVtx[i].v.ob[0] = interfaceCtx->actionVtx[i + 2].v.ob[0] = -(216 - letteroffset);
 
-                interfaceCtx->aButtonVtx[i + 1].v.ob[0] = 
-                interfaceCtx->aButtonVtx[i + 3].v.ob[0] = interfaceCtx->aButtonVtx[i].v.ob[0] + 0x20;
+                // Right vertices x Pos
+                interfaceCtx->actionVtx[i + 1].v.ob[0] = interfaceCtx->actionVtx[i + 3].v.ob[0] =
+                    interfaceCtx->actionVtx[i].v.ob[0] + MINIGAME_PERFECT_VTX_WIDTH;
 
-                interfaceCtx->aButtonVtx[i].v.ob[1] = 
-                interfaceCtx->aButtonVtx[i + 1].v.ob[1] = 0x18 - offset;
+                // Top vertices y Pos
+                interfaceCtx->actionVtx[i].v.ob[1] = interfaceCtx->actionVtx[i + 1].v.ob[1] = 24 - letteroffset;
 
-                interfaceCtx->aButtonVtx[i + 2].v.ob[1] = 
-                interfaceCtx->aButtonVtx[i + 3].v.ob[1] = interfaceCtx->aButtonVtx[i].v.ob[1] - 0x21;
+                // Bottom vertices y Pos
+                interfaceCtx->actionVtx[i + 2].v.ob[1] = interfaceCtx->actionVtx[i + 3].v.ob[1] =
+                    interfaceCtx->actionVtx[i].v.ob[1] - MINIGAME_PERFECT_VTX_HEIGHT;
             }
 
-            interfaceCtx->aButtonVtx[i].v.ob[2] = 
-            interfaceCtx->aButtonVtx[i + 1].v.ob[2] = 
-            interfaceCtx->aButtonVtx[i + 2].v.ob[2] = 
-            interfaceCtx->aButtonVtx[i + 3].v.ob[2] = 0;
+            // All vertices z Pos
+            interfaceCtx->actionVtx[i].v.ob[2] = interfaceCtx->actionVtx[i + 1].v.ob[2] =
+                interfaceCtx->actionVtx[i + 2].v.ob[2] = interfaceCtx->actionVtx[i + 3].v.ob[2] = 0;
 
-            interfaceCtx->aButtonVtx[i].v.flag = 
-            interfaceCtx->aButtonVtx[i + 1].v.flag = 
-            interfaceCtx->aButtonVtx[i + 2].v.flag = 
-            interfaceCtx->aButtonVtx[i + 3].v.flag = 0;
+            // Unused flag
+            interfaceCtx->actionVtx[i].v.flag = interfaceCtx->actionVtx[i + 1].v.flag =
+                interfaceCtx->actionVtx[i + 2].v.flag = interfaceCtx->actionVtx[i + 3].v.flag = 0;
 
-            interfaceCtx->aButtonVtx[i].v.tc[0] = 
-            interfaceCtx->aButtonVtx[i].v.tc[1] = 
-            interfaceCtx->aButtonVtx[i + 1].v.tc[1] = 
-            interfaceCtx->aButtonVtx[i + 2].v.tc[0] = 0;
+            // Left and Top texture coordinates
+            interfaceCtx->actionVtx[i].v.tc[0] = interfaceCtx->actionVtx[i].v.tc[1] =
+                interfaceCtx->actionVtx[i + 1].v.tc[1] = interfaceCtx->actionVtx[i + 2].v.tc[0] = 0;
 
-            interfaceCtx->aButtonVtx[i + 1].v.tc[0] = 
-            interfaceCtx->aButtonVtx[i + 3].v.tc[0] = 0x400;
+            // Right vertices texture coordinates
+            interfaceCtx->actionVtx[i + 1].v.tc[0] = interfaceCtx->actionVtx[i + 3].v.tc[0] = MINIGAME_PERFECT_VTX_WIDTH
+                                                                                              << 5;
 
-            interfaceCtx->aButtonVtx[i + 2].v.tc[1] = 
-            interfaceCtx->aButtonVtx[i + 3].v.tc[1] = 0x420;
+            // Bottom vertices texture coordinates
+            interfaceCtx->actionVtx[i + 2].v.tc[1] = interfaceCtx->actionVtx[i + 3].v.tc[1] =
+                MINIGAME_PERFECT_VTX_HEIGHT << 5;
 
-            interfaceCtx->aButtonVtx[i].v.cn[0] = 
-            interfaceCtx->aButtonVtx[i + 1].v.cn[0] = 
-            interfaceCtx->aButtonVtx[i + 2].v.cn[0] = 
-            interfaceCtx->aButtonVtx[i + 3].v.cn[0] = 
-            interfaceCtx->aButtonVtx[i].v.cn[1] = 
-            interfaceCtx->aButtonVtx[i + 1].v.cn[1] = 
-            interfaceCtx->aButtonVtx[i + 2].v.cn[1] = 
-            interfaceCtx->aButtonVtx[i + 3].v.cn[1] = 
-            interfaceCtx->aButtonVtx[i].v.cn[2] = 
-            interfaceCtx->aButtonVtx[i + 1].v.cn[2] = 
-            interfaceCtx->aButtonVtx[i + 2].v.cn[2] = 
-            interfaceCtx->aButtonVtx[i + 3].v.cn[2] = 255;
+            // Set color
+            interfaceCtx->actionVtx[i].v.cn[0] = interfaceCtx->actionVtx[i + 1].v.cn[0] =
+                interfaceCtx->actionVtx[i + 2].v.cn[0] = interfaceCtx->actionVtx[i + 3].v.cn[0] =
+                    interfaceCtx->actionVtx[i].v.cn[1] = interfaceCtx->actionVtx[i + 1].v.cn[1] =
+                        interfaceCtx->actionVtx[i + 2].v.cn[1] = interfaceCtx->actionVtx[i + 3].v.cn[1] =
+                            interfaceCtx->actionVtx[i].v.cn[2] = interfaceCtx->actionVtx[i + 1].v.cn[2] =
+                                interfaceCtx->actionVtx[i + 2].v.cn[2] = interfaceCtx->actionVtx[i + 3].v.cn[2] = 255;
 
-            interfaceCtx->aButtonVtx[i].v.cn[3] = 
-            interfaceCtx->aButtonVtx[i + 1].v.cn[3] = 
-            interfaceCtx->aButtonVtx[i + 2].v.cn[3] = 
-            interfaceCtx->aButtonVtx[i + 3].v.cn[3] = 255;
+            // Set alpha
+            interfaceCtx->actionVtx[i].v.cn[3] = interfaceCtx->actionVtx[i + 1].v.cn[3] =
+                interfaceCtx->actionVtx[i + 2].v.cn[3] = interfaceCtx->actionVtx[i + 3].v.cn[3] = 255;
         }
     }
 
+    // Beating Hearts Vertices
     interfaceCtx->beatingHeartVtx = GRAPH_ALLOC(play->state.gfxCtx, 4 * sizeof(Vtx));
 
-    interfaceCtx->beatingHeartVtx[0].v.ob[0] = interfaceCtx->beatingHeartVtx[2].v.ob[0] = -8;
-    interfaceCtx->beatingHeartVtx[1].v.ob[0] = interfaceCtx->beatingHeartVtx[3].v.ob[0] = 8;
-    interfaceCtx->beatingHeartVtx[0].v.ob[1] = interfaceCtx->beatingHeartVtx[1].v.ob[1] = 8;
-    interfaceCtx->beatingHeartVtx[2].v.ob[1] = interfaceCtx->beatingHeartVtx[3].v.ob[1] = -8;
+    // Left vertices x Pos
+    interfaceCtx->beatingHeartVtx[0].v.ob[0] = interfaceCtx->beatingHeartVtx[2].v.ob[0] = BEATING_HEART_VTX_X;
 
+    // Right vertices x Pos
+    interfaceCtx->beatingHeartVtx[1].v.ob[0] = interfaceCtx->beatingHeartVtx[3].v.ob[0] =
+        BEATING_HEART_VTX_X + BEATING_HEART_VTX_WIDTH;
+
+    // Top vertices y Pos
+    interfaceCtx->beatingHeartVtx[0].v.ob[1] = interfaceCtx->beatingHeartVtx[1].v.ob[1] =
+        BEATING_HEART_VTX_Y + BEATING_HEART_VTX_WIDTH;
+
+    // Bottom vertices y Pos
+    interfaceCtx->beatingHeartVtx[2].v.ob[1] = interfaceCtx->beatingHeartVtx[3].v.ob[1] = BEATING_HEART_VTX_Y;
+
+    // All vertices z Pos
     interfaceCtx->beatingHeartVtx[0].v.ob[2] = interfaceCtx->beatingHeartVtx[1].v.ob[2] =
-    interfaceCtx->beatingHeartVtx[2].v.ob[2] = interfaceCtx->beatingHeartVtx[3].v.ob[2] = 0;
+        interfaceCtx->beatingHeartVtx[2].v.ob[2] = interfaceCtx->beatingHeartVtx[3].v.ob[2] = 0;
 
+    // unused flag
     interfaceCtx->beatingHeartVtx[0].v.flag = interfaceCtx->beatingHeartVtx[1].v.flag =
-    interfaceCtx->beatingHeartVtx[2].v.flag = interfaceCtx->beatingHeartVtx[3].v.flag = 0;
+        interfaceCtx->beatingHeartVtx[2].v.flag = interfaceCtx->beatingHeartVtx[3].v.flag = 0;
 
+    // Texture Coordinates
     interfaceCtx->beatingHeartVtx[0].v.tc[0] = interfaceCtx->beatingHeartVtx[0].v.tc[1] =
-    interfaceCtx->beatingHeartVtx[1].v.tc[1] = interfaceCtx->beatingHeartVtx[2].v.tc[0] = 0;
+        interfaceCtx->beatingHeartVtx[1].v.tc[1] = interfaceCtx->beatingHeartVtx[2].v.tc[0] = 0;
     interfaceCtx->beatingHeartVtx[1].v.tc[0] = interfaceCtx->beatingHeartVtx[2].v.tc[1] =
-    interfaceCtx->beatingHeartVtx[3].v.tc[0] = interfaceCtx->beatingHeartVtx[3].v.tc[1] = 512;
+        interfaceCtx->beatingHeartVtx[3].v.tc[0] = interfaceCtx->beatingHeartVtx[3].v.tc[1] =
+            BEATING_HEART_VTX_WIDTH << 5;
 
+    // Set color
     interfaceCtx->beatingHeartVtx[0].v.cn[0] = interfaceCtx->beatingHeartVtx[1].v.cn[0] =
-    interfaceCtx->beatingHeartVtx[2].v.cn[0] = interfaceCtx->beatingHeartVtx[3].v.cn[0] =
-    interfaceCtx->beatingHeartVtx[0].v.cn[1] = interfaceCtx->beatingHeartVtx[1].v.cn[1] =
-    interfaceCtx->beatingHeartVtx[2].v.cn[1] = interfaceCtx->beatingHeartVtx[3].v.cn[1] =
-    interfaceCtx->beatingHeartVtx[0].v.cn[2] = interfaceCtx->beatingHeartVtx[1].v.cn[2] =
-    interfaceCtx->beatingHeartVtx[2].v.cn[2] = interfaceCtx->beatingHeartVtx[3].v.cn[2] =
-    interfaceCtx->beatingHeartVtx[0].v.cn[3] = interfaceCtx->beatingHeartVtx[1].v.cn[3] =
-    interfaceCtx->beatingHeartVtx[2].v.cn[3] = interfaceCtx->beatingHeartVtx[3].v.cn[3] = 255;
-    // clang-format on
+        interfaceCtx->beatingHeartVtx[2].v.cn[0] = interfaceCtx->beatingHeartVtx[3].v.cn[0] =
+            interfaceCtx->beatingHeartVtx[0].v.cn[1] = interfaceCtx->beatingHeartVtx[1].v.cn[1] =
+                interfaceCtx->beatingHeartVtx[2].v.cn[1] = interfaceCtx->beatingHeartVtx[3].v.cn[1] =
+                    interfaceCtx->beatingHeartVtx[0].v.cn[2] = interfaceCtx->beatingHeartVtx[1].v.cn[2] =
+                        interfaceCtx->beatingHeartVtx[2].v.cn[2] = interfaceCtx->beatingHeartVtx[3].v.cn[2] =
+                            interfaceCtx->beatingHeartVtx[0].v.cn[3] = interfaceCtx->beatingHeartVtx[1].v.cn[3] =
+                                interfaceCtx->beatingHeartVtx[2].v.cn[3] = interfaceCtx->beatingHeartVtx[3].v.cn[3] =
+                                    255;
 }
 
 s32 sPostmanTimerInputBtnAPressed = false;
@@ -4074,14 +4168,14 @@ void func_80118BA4(PlayState* play) {
 
     gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gDPPipeSync(OVERLAY_DISP++);
-    gSPVertex(OVERLAY_DISP++, &interfaceCtx->aButtonVtx[4], 4, 0);
+    gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[4], 4, 0);
     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, aAlpha);
 
     OVERLAY_DISP = Gfx_DrawQuadTextureIA8(OVERLAY_DISP, gButtonBackgroundTex, 32, 32, 0);
 
     gDPPipeSync(OVERLAY_DISP++);
     Interface_SetView1(play, XREG(31) + 0x17, XREG(31) + 0x44, 190, 235);
-    gSPVertex(OVERLAY_DISP++, &interfaceCtx->aButtonVtx[0], 4, 0);
+    gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[0], 4, 0);
     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 100, 200, 255, interfaceCtx->aAlpha);
     gSP1Quadrangle(OVERLAY_DISP++, 0, 2, 3, 1, 0);
 
@@ -4097,7 +4191,7 @@ void func_80118BA4(PlayState* play) {
     Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
     Matrix_RotateXFApply(interfaceCtx->unk_218 / 10000.0f);
     gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-    gSPVertex(OVERLAY_DISP++, &interfaceCtx->aButtonVtx[8], 4, 0);
+    gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[8], 4, 0);
 
     // Draw Action Label
     if (((interfaceCtx->unk_210 < 2) || (interfaceCtx->unk_210 == 3))) {
@@ -4423,7 +4517,7 @@ void Interface_DrawClock(PlayState* play) {
                                                            137, 192, 48, 27, 1 << 10, 1 << 10);
 
                                 /**
-                                 * Draw Three-Day Clock's Star for the Minute Tracker
+                                 * Draw Three-Day Clock's Star (for the Minute Tracker)
                                  */
                                 gDPPipeSync(OVERLAY_DISP++);
 
@@ -4464,7 +4558,7 @@ void Interface_DrawClock(PlayState* play) {
 
                                 gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx),
                                           G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-                                gSPVertex(OVERLAY_DISP++, &interfaceCtx->aButtonVtx[12], 4, 0);
+                                gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[12], 4, 0);
                                 gDPLoadTextureBlock_4b(OVERLAY_DISP++, gThreeDayClockStarMinuteTex, G_IM_FMT_I, 16, 16,
                                                        0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP,
                                                        G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
@@ -4485,7 +4579,7 @@ void Interface_DrawClock(PlayState* play) {
                             }
 
                             /**
-                             * Draw Three-Day Clock's Sun for the Day-Time Hours Tracker
+                             * Draw Three-Day Clock's Sun (for the Day-Time Hours Tracker)
                              */
                             time = gSaveContext.save.time;
                             sp1D8 = Math_SinS(time) * -40.0f;
@@ -4500,12 +4594,12 @@ void Interface_DrawClock(PlayState* play) {
 
                             gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx),
                                       G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-                            gSPVertex(OVERLAY_DISP++, &interfaceCtx->aButtonVtx[16], 4, 0);
+                            gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[16], 4, 0);
 
                             OVERLAY_DISP = Gfx_DrawQuadTextureIA8(OVERLAY_DISP, gThreeDayClockSunHourTex, 24, 24, 0);
 
                             /**
-                             * Draw Three-Day Clock's Moon for the Night-Time Hours Tracker
+                             * Draw Three-Day Clock's Moon (for the Night-Time Hours Tracker)
                              */
                             sp1D8 = Math_SinS(time) * 40.0f;
                             temp_f14 = Math_CosS(time) * 34.0f;
@@ -4518,7 +4612,7 @@ void Interface_DrawClock(PlayState* play) {
                             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
                             gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx),
                                       G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-                            gSPVertex(OVERLAY_DISP++, &interfaceCtx->aButtonVtx[20], 4, 0);
+                            gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[20], 4, 0);
 
                             OVERLAY_DISP = Gfx_DrawQuadTextureIA8(OVERLAY_DISP, gThreeDayClockMoonHourTex, 24, 24, 0);
 
@@ -4545,7 +4639,7 @@ void Interface_DrawClock(PlayState* play) {
                             gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0,
                                               PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0);
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, D_801BFB2C);
-                            gSPVertex(OVERLAY_DISP++, &interfaceCtx->aButtonVtx[24], 8, 0);
+                            gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[24], 8, 0);
 
                             OVERLAY_DISP = Gfx_DrawQuadTexture(OVERLAY_DISP, D_801BFB6C[sp1C6], 4, 16, 11, 0);
 
@@ -4569,7 +4663,7 @@ void Interface_DrawClock(PlayState* play) {
                             gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0,
                                               PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0);
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, D_801BFB2C);
-                            gSPVertex(OVERLAY_DISP++, &interfaceCtx->aButtonVtx[32], 8, 0);
+                            gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[32], 8, 0);
 
                             OVERLAY_DISP = Gfx_DrawQuadTexture(OVERLAY_DISP, D_801BFB6C[sp1C6], 4, 16, 11, 0);
 
@@ -5199,7 +5293,7 @@ void Interface_UpdateMinigamePerfectType3(PlayState* play) {
 }
 
 void Interface_DrawMinigamePerfect(PlayState* play) {
-    static TexturePtr D_801BFCC4[] = {
+    static TexturePtr sMinigamePerfectTextures[] = {
         gMinigameLetterPTex, gMinigameLetterETex, gMinigameLetterRTex, gMinigameLetterFTex,
         gMinigameLetterETex, gMinigameLetterCTex, gMinigameLetterTTex, gMinigameExclamationTex,
     };
@@ -5224,6 +5318,7 @@ void Interface_DrawMinigamePerfect(PlayState* play) {
             letterY =
                 Math_CosS(interfaceCtx->minigamePerfectLetterDirection[i]) * interfaceCtx->minigamePerfectLetterPosY[i];
 
+            // Draw Minigame Perfect Shadows
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, interfaceCtx->minigamePerfectPrimColor[3]);
 
@@ -5231,10 +5326,11 @@ void Interface_DrawMinigamePerfect(PlayState* play) {
             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
 
             gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-            gSPVertex(OVERLAY_DISP++, &interfaceCtx->aButtonVtx[vtxOffset] + 0x2C, 4, 0);
+            gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[44 + vtxOffset], 4, 0);
 
-            OVERLAY_DISP = Gfx_DrawQuadTexture(OVERLAY_DISP, D_801BFCC4[i], 4, 32, 33, 0);
+            OVERLAY_DISP = Gfx_DrawQuadTexture(OVERLAY_DISP, sMinigamePerfectTextures[i], 4, 32, 33, 0);
 
+            // Draw Minigame Perfect Colored Letters
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, interfaceCtx->minigamePerfectPrimColor[0],
                             interfaceCtx->minigamePerfectPrimColor[1], interfaceCtx->minigamePerfectPrimColor[2],
@@ -5244,9 +5340,9 @@ void Interface_DrawMinigamePerfect(PlayState* play) {
             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
 
             gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-            gSPVertex(OVERLAY_DISP++, &interfaceCtx->aButtonVtx[vtxOffset] + 0x4C, 4, 0);
+            gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[76 + vtxOffset], 4, 0);
 
-            OVERLAY_DISP = Gfx_DrawQuadTexture(OVERLAY_DISP, D_801BFCC4[i], 4, 32, 33, 0);
+            OVERLAY_DISP = Gfx_DrawQuadTexture(OVERLAY_DISP, sMinigamePerfectTextures[i], 4, 32, 33, 0);
         }
     }
 
@@ -5989,7 +6085,7 @@ void Interface_Draw(PlayState* play) {
         Interface_SetView2(interfaceCtx);
 
         // Draw Grandma's Story
-        if (interfaceCtx->storyLoadStatus == STORY_LOAD_STATUS_FINISHED) {
+        if (interfaceCtx->storyDmaStatus == STORY_DMA_DONE) {
             gSPSegment(OVERLAY_DISP++, 0x07, interfaceCtx->storySegment);
             func_8012C628(play->state.gfxCtx);
 
@@ -6225,13 +6321,13 @@ void Interface_Draw(PlayState* play) {
                     sp2C0 = interfaceCtx->minigameCountdownScale / 100.0f;
 
                     if (sp2CE == 3) {
-                        interfaceCtx->aButtonVtx[40].v.ob[0] = interfaceCtx->aButtonVtx[42].v.ob[0] = -20;
-                        interfaceCtx->aButtonVtx[41].v.ob[0] = interfaceCtx->aButtonVtx[43].v.ob[0] =
-                            interfaceCtx->aButtonVtx[40].v.ob[0] + 40;
-                        interfaceCtx->aButtonVtx[41].v.tc[0] = interfaceCtx->aButtonVtx[43].v.tc[0] = 0x500;
+                        interfaceCtx->actionVtx[40 + 0].v.ob[0] = interfaceCtx->actionVtx[40 + 2].v.ob[0] = -20;
+                        interfaceCtx->actionVtx[40 + 1].v.ob[0] = interfaceCtx->actionVtx[40 + 3].v.ob[0] =
+                            interfaceCtx->actionVtx[40 + 0].v.ob[0] + 40;
+                        interfaceCtx->actionVtx[40 + 1].v.tc[0] = interfaceCtx->actionVtx[40 + 3].v.tc[0] = 40 << 5;
                     }
 
-                    interfaceCtx->aButtonVtx[42].v.tc[1] = interfaceCtx->aButtonVtx[43].v.tc[1] = 0x400;
+                    interfaceCtx->actionVtx[40 + 2].v.tc[1] = interfaceCtx->actionVtx[40 + 3].v.tc[1] = 32 << 5;
 
                     func_8012C8D4(play->state.gfxCtx);
 
@@ -6246,7 +6342,7 @@ void Interface_Draw(PlayState* play) {
 
                     gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx),
                               G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-                    gSPVertex(OVERLAY_DISP++, &interfaceCtx->aButtonVtx[0x28], 4, 0);
+                    gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[40], 4, 0);
 
                     OVERLAY_DISP = Gfx_DrawQuadTextureIA8(OVERLAY_DISP, sMinigameCountdownTextures[sp2CE],
                                                           sMinigameCountdownTexWidths[sp2CE], 32, 0);
@@ -6360,19 +6456,19 @@ void Interface_Draw(PlayState* play) {
 void Interface_LoadStory(PlayState* play, s32 block) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
 
-    switch (interfaceCtx->storyLoadStatus) {
-        case STORY_LOAD_STATUS_REQUESTED:
+    switch (interfaceCtx->storyDmaStatus) {
+        case STORY_DMA_IDLE:
             if (interfaceCtx->storySegment == NULL) {
                 break;
             }
             osCreateMesgQueue(&interfaceCtx->storyMsgQueue, &interfaceCtx->storyMsgBuf, 1);
             DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest_184, interfaceCtx->storySegment, interfaceCtx->storyAddr,
                                    interfaceCtx->storySize, 0, &interfaceCtx->storyMsgQueue, NULL);
-            interfaceCtx->storyLoadStatus = STORY_LOAD_STATUS_WAITING;
+            interfaceCtx->storyDmaStatus = STORY_DMA_LOADING;
             // fallthrough
-        case STORY_LOAD_STATUS_WAITING:
+        case STORY_DMA_LOADING:
             if (osRecvMesg(&interfaceCtx->storyMsgQueue, NULL, block) == 0) {
-                interfaceCtx->storyLoadStatus = STORY_LOAD_STATUS_FINISHED;
+                interfaceCtx->storyDmaStatus = STORY_DMA_DONE;
             }
             break;
 
@@ -6829,7 +6925,7 @@ void Interface_Update(PlayState* play) {
     // Update Grandma's Story
     if (interfaceCtx->storyState != STORY_STATE_OFF) {
         if (interfaceCtx->storyState == STORY_STATE_INIT) {
-            interfaceCtx->storyLoadStatus = STORY_LOAD_STATUS_REQUESTED;
+            interfaceCtx->storyDmaStatus = STORY_DMA_IDLE;
             interfaceCtx->storyState = STORY_STATE_IDLE;
             R_STORY_FILL_SCREEN_ALPHA = 0;
         }
@@ -6838,7 +6934,7 @@ void Interface_Update(PlayState* play) {
 
         if (interfaceCtx->storyState == STORY_STATE_DESTROY) {
             interfaceCtx->storyState = STORY_STATE_OFF;
-            interfaceCtx->storyLoadStatus = STORY_LOAD_STATUS_REQUESTED;
+            interfaceCtx->storyDmaStatus = STORY_DMA_IDLE;
             if (interfaceCtx->storySegment != NULL) {
                 ZeldaArena_Free(interfaceCtx->storySegment);
                 interfaceCtx->storySegment = NULL;

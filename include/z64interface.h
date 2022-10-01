@@ -83,9 +83,9 @@ typedef enum {
 } MinigamePerfectState;
 
 typedef enum {
-    /* 0 */ STORY_LOAD_STATUS_REQUESTED,
-    /* 1 */ STORY_LOAD_STATUS_WAITING,
-    /* 2 */ STORY_LOAD_STATUS_FINISHED
+    /* 0 */ STORY_DMA_IDLE,
+    /* 1 */ STORY_DMA_LOADING,
+    /* 2 */ STORY_DMA_DONE
 } StoryLoadStatus;
 
 typedef enum {
@@ -105,13 +105,13 @@ typedef enum {
 
 typedef struct {
     /* 0x000 */ View view;
-    /* 0x168 */ Vtx* aButtonVtx;
+    /* 0x168 */ Vtx* actionVtx;
     /* 0x16C */ Vtx* beatingHeartVtx;
     /* 0x170 */ u8* parameterSegment;
     /* 0x174 */ u8* doActionSegment;
     /* 0x178 */ u8* iconItemSegment;
     /* 0x17C */ u8* mapSegment;
-    /* 0x180 */ u8* unk_180;
+    /* 0x180 */ u8* unk_180; // unused segment?
     /* 0x184 */ DmaRequest dmaRequest_184;
     /* 0x1A4 */ DmaRequest dmaRequest_1A4;
     /* 0x1C4 */ DmaRequest dmaRequest_1C4;
@@ -195,7 +195,7 @@ typedef struct {
     } restrictions; // size = 0xC
     /* 0x31A */ u8 storyState;
     /* 0x31B */ u8 storyType;
-    /* 0x31C */ u8 storyLoadStatus;
+    /* 0x31C */ u8 storyDmaStatus;
     /* 0x320 */ OSMesgQueue storyMsgQueue;
     /* 0x338 */ OSMesg storyMsgBuf;
     /* 0x33C */ u8* storySegment;
