@@ -2075,7 +2075,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
     if (gSaveContext.save.cutscene < 0xFFF0) {
         gSaveContext.hudVisibilityForceButtonAlphasByStatus = false;
         if ((player->stateFlags1 & PLAYER_STATE1_800000) || (gSaveContext.save.weekEventReg[8] & 1) ||
-            (!(gSaveContext.eventInf[4] & 2) && (play->unk_1887C >= 2))) {
+            (!(gSaveContext.eventInf[4] & 2) && (play->bButtonAmmoPlusOne >= 2))) {
             // Riding Epona OR Honey & Darling minigame OR Horseback balloon minigame OR related to swamp boat
             // (non-minigame?)
             if ((player->stateFlags1 & PLAYER_STATE1_800000) && (player->currentMask == PLAYER_MASK_BLAST) &&
@@ -2127,7 +2127,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                         } else {
                             BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOW;
 
-                            if (play->unk_1887C >= 2) {
+                            if (play->bButtonAmmoPlusOne >= 2) {
                                 Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
                             } else if (gSaveContext.save.inventory.items[SLOT_BOW] == ITEM_NONE) {
                                 BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_NONE;
@@ -2154,7 +2154,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                     } else if (!(gSaveContext.save.weekEventReg[0x52] & 8) &&
                                (gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE)) {
                         Interface_SetHudVisibility(HUD_VISIBILITY_B);
-                    } else if (play->unk_1887C >= 2) {
+                    } else if (play->bButtonAmmoPlusOne >= 2) {
                         Interface_SetHudVisibility(HUD_VISIBILITY_B);
                     } else if (gSaveContext.save.weekEventReg[8] & 1) {
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
@@ -2185,7 +2185,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                     BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOW;
                 }
 
-                if (play->unk_1887C >= 2) {
+                if (play->bButtonAmmoPlusOne >= 2) {
                     Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
                 } else if (gSaveContext.save.inventory.items[SLOT_BOW] == ITEM_NONE) {
                     BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_NONE;
@@ -2211,7 +2211,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                     Interface_SetHudVisibility(HUD_VISIBILITY_A_B_MINIMAP);
                 } else if (gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE) {
                     Interface_SetHudVisibility(HUD_VISIBILITY_B);
-                } else if (play->unk_1887C >= 2) {
+                } else if (play->bButtonAmmoPlusOne >= 2) {
                     Interface_SetHudVisibility(HUD_VISIBILITY_B);
                 } else if (gSaveContext.save.weekEventReg[8] & 1) {
                     gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
@@ -2336,7 +2336,7 @@ void Interface_SetSceneRestrictions(PlayState* play) {
             interfaceCtx->restrictions.unk_317 = (sRestrictionFlags[i].flags3 & 0x30) >> 4;
             interfaceCtx->restrictions.pictographBox = (sRestrictionFlags[i].flags3 & 0x0C) >> 2;
             interfaceCtx->restrictions.all = (sRestrictionFlags[i].flags3 & 0x03) >> 0;
-            return;
+            break;
         }
         i++;
     } while (sRestrictionFlags[i].scene != 0xFF);
@@ -3945,11 +3945,11 @@ void Interface_DrawItemButtons(PlayState* play) {
     // Empty C Button Arrows
     for (temp = EQUIP_SLOT_C_LEFT; temp <= EQUIP_SLOT_C_RIGHT; temp++) {
         if (GET_CUR_FORM_BTN_ITEM(temp) > 0xF0) {
-            if (temp == 1) {
+            if (temp == EQUIP_SLOT_C_LEFT) {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 240, 0, interfaceCtx->cLeftAlpha);
-            } else if (temp == 2) {
+            } else if (temp == EQUIP_SLOT_C_DOWN) {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 240, 0, interfaceCtx->cDownAlpha);
-            } else {
+            } else { // EQUIP_SLOT_C_RIGHT
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 240, 0, interfaceCtx->cRightAlpha);
             }
             OVERLAY_DISP = Gfx_DrawRectTextureIA8(OVERLAY_DISP, ((u8*)gButtonBackgroundTex + ((32 * 32) * (temp + 1))),
@@ -4007,10 +4007,10 @@ void Interface_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
 
         gDPPipeSync(OVERLAY_DISP++);
 
-        if ((button == 0) && (gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE)) {
+        if ((button == EQUIP_SLOT_B) && (gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE)) {
             ammo = play->interfaceCtx.minigameAmmo;
-        } else if ((button == 0) && (play->unk_1887C > 1)) {
-            ammo = play->unk_1887C - 1;
+        } else if ((button == EQUIP_SLOT_B) && (play->bButtonAmmoPlusOne > 1)) {
+            ammo = play->bButtonAmmoPlusOne - 1;
         } else if (((i == ITEM_BOW) && (AMMO(i) == CUR_CAPACITY(UPG_QUIVER))) ||
                    ((i == ITEM_BOMB) && (AMMO(i) == CUR_CAPACITY(UPG_BOMB_BAG))) ||
                    ((i == ITEM_STICK) && (AMMO(i) == CUR_CAPACITY(UPG_STICKS))) ||
@@ -4029,11 +4029,13 @@ void Interface_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
             ammo -= 10;
         }
 
+        // Draw upper digit (tens)
         if (i) {
             OVERLAY_DISP = Gfx_DrawRectTextureIA8(OVERLAY_DISP, ((u8*)gAmmoDigit0Tex + ((8 * 8) * i)), 8, 8,
                                                   D_801BFB04[button], D_801BFB0C[button], 8, 8, 1 << 10, 1 << 10);
         }
 
+        // Draw lower digit (ones)
         OVERLAY_DISP = Gfx_DrawRectTextureIA8(OVERLAY_DISP, ((u8*)gAmmoDigit0Tex + ((8 * 8) * ammo)), 8, 8,
                                               D_801BFB04[button] + 6, D_801BFB0C[button], 8, 8, 1 << 10, 1 << 10);
     }
@@ -4053,12 +4055,12 @@ void func_80118084(PlayState* play) {
 
     if ((interfaceCtx->unk_222 == 0) && (player->stateFlags3 & PLAYER_STATE3_1000000)) {
         if (gSaveContext.buttonStatus[EQUIP_SLOT_B] != BTN_DISABLED) {
-            Interface_DrawItemIconTexture(play, interfaceCtx->iconItemSegment, 0);
+            Interface_DrawItemIconTexture(play, interfaceCtx->iconItemSegment, EQUIP_SLOT_B);
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
                               PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
 
-            Interface_DrawAmmoCount(play, 0, interfaceCtx->bAlpha);
+            Interface_DrawAmmoCount(play, EQUIP_SLOT_B, interfaceCtx->bAlpha);
         }
     } else if ((!interfaceCtx->bButtonDoActionActive && (interfaceCtx->unk_222 == 0)) ||
                ((interfaceCtx->bButtonDoActionActive &&
@@ -4068,9 +4070,9 @@ void func_80118084(PlayState* play) {
                 (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NUT))) {
         if ((player->transformation == PLAYER_FORM_FIERCE_DEITY) || (player->transformation == PLAYER_FORM_HUMAN)) {
             if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NONE) {
-                Interface_DrawItemIconTexture(play, interfaceCtx->iconItemSegment, 0);
+                Interface_DrawItemIconTexture(play, interfaceCtx->iconItemSegment, EQUIP_SLOT_B);
                 if ((player->stateFlags1 & PLAYER_STATE1_800000) || (gSaveContext.save.weekEventReg[8] & 1) ||
-                    (play->unk_1887C >= 2)) {
+                    (play->bButtonAmmoPlusOne >= 2)) {
                     gDPPipeSync(OVERLAY_DISP++);
                     gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE,
                                       0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
@@ -4081,8 +4083,8 @@ void func_80118084(PlayState* play) {
                          (gSaveContext.save.entrance != ENTRANCE(ROMANI_RANCH, 0))) &&
                         ((gSaveContext.minigameStatus != MINIGAME_STATUS_ACTIVE) ||
                          !(gSaveContext.eventInf[3] & 0x20)) &&
-                        (!(gSaveContext.save.weekEventReg[31] & 0x80) || (play->unk_1887C != 0x64))) {
-                        Interface_DrawAmmoCount(play, 0, interfaceCtx->bAlpha);
+                        (!(gSaveContext.save.weekEventReg[31] & 0x80) || (play->bButtonAmmoPlusOne != 100))) {
+                        Interface_DrawAmmoCount(play, EQUIP_SLOT_B, interfaceCtx->bAlpha);
                     }
                 }
             }
@@ -4133,11 +4135,11 @@ void func_80118890(PlayState* play) {
     if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT) < 0xF0) {
         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->cLeftAlpha);
         gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
-        Interface_DrawItemIconTexture(play, interfaceCtx->iconItemSegment + 0x1000, 1);
+        Interface_DrawItemIconTexture(play, interfaceCtx->iconItemSegment + 0x1000, EQUIP_SLOT_C_LEFT);
         gDPPipeSync(OVERLAY_DISP++);
         gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
                           PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
-        Interface_DrawAmmoCount(play, 1, interfaceCtx->cLeftAlpha);
+        Interface_DrawAmmoCount(play, EQUIP_SLOT_C_LEFT, interfaceCtx->cLeftAlpha);
     }
 
     gDPPipeSync(OVERLAY_DISP++);
@@ -4146,11 +4148,11 @@ void func_80118890(PlayState* play) {
     if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) < 0xF0) {
         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->cDownAlpha);
         gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
-        Interface_DrawItemIconTexture(play, interfaceCtx->iconItemSegment + 0x2000, 2);
+        Interface_DrawItemIconTexture(play, interfaceCtx->iconItemSegment + 0x2000, EQUIP_SLOT_C_DOWN);
         gDPPipeSync(OVERLAY_DISP++);
         gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
                           PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
-        Interface_DrawAmmoCount(play, 2, interfaceCtx->cDownAlpha);
+        Interface_DrawAmmoCount(play, EQUIP_SLOT_C_DOWN, interfaceCtx->cDownAlpha);
     }
 
     gDPPipeSync(OVERLAY_DISP++);
@@ -4159,11 +4161,11 @@ void func_80118890(PlayState* play) {
     if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) < 0xF0) {
         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->cRightAlpha);
         gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
-        Interface_DrawItemIconTexture(play, interfaceCtx->iconItemSegment + 0x3000, 3);
+        Interface_DrawItemIconTexture(play, interfaceCtx->iconItemSegment + 0x3000, EQUIP_SLOT_C_RIGHT);
         gDPPipeSync(OVERLAY_DISP++);
         gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
                           PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
-        Interface_DrawAmmoCount(play, 3, interfaceCtx->cRightAlpha);
+        Interface_DrawAmmoCount(play, EQUIP_SLOT_C_RIGHT, interfaceCtx->cRightAlpha);
     }
 
     CLOSE_DISPS(play->state.gfxCtx);

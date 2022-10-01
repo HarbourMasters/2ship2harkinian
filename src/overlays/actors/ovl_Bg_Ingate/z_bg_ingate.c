@@ -131,7 +131,7 @@ s32 func_80953DA8(BgIngate* this, PlayState* play) {
         gSaveContext.eventInf[4] |= 2;
     }
     Camera_ChangeSetting(mainCam, CAM_SET_BOAT_CRUISE);
-    play->unk_1887C = 0x63;
+    play->bButtonAmmoPlusOne = 99;
 
     return false;
 }
@@ -143,7 +143,7 @@ void func_80953E38(PlayState* play) {
         gSaveContext.eventInf[4] &= (u8)~2;
     }
 
-    play->unk_1887C = -1;
+    play->bButtonAmmoPlusOne = -1;
 }
 
 void func_80953EA4(BgIngate* this, PlayState* play) {
