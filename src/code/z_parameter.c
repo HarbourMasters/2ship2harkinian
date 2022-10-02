@@ -1,6 +1,6 @@
 #include "global.h"
 #include "z64snap.h"
-
+#include "z64view.h"
 #include "interface/parameter_static/parameter_static.h"
 #include "interface/do_action_static/do_action_static.h"
 #include "misc/story_static/story_static.h"
@@ -3825,7 +3825,7 @@ void Interface_SetView1(PlayState* play, s32 topY, s32 bottomY, s32 leftX, s32 r
     up.x = up.z = 0.0f;
     up.y = 1.0f;
 
-    View_SetViewOrientation(&interfaceCtx->view, &eye, &lookAt, &up);
+    View_LookAt(&interfaceCtx->view, &eye, &lookAt, &up);
 
     interfaceCtx->viewport.topY = topY;
     interfaceCtx->viewport.bottomY = bottomY;
@@ -3833,13 +3833,13 @@ void Interface_SetView1(PlayState* play, s32 topY, s32 bottomY, s32 leftX, s32 r
     interfaceCtx->viewport.rightX = rightX;
     View_SetViewport(&interfaceCtx->view, &interfaceCtx->viewport);
 
-    func_8013F0D0(&interfaceCtx->view, 60.0f, 10.0f, 60.0f);
-    func_8013FD74(&interfaceCtx->view);
+    View_SetPerspective(&interfaceCtx->view, 60.0f, 10.0f, 60.0f);
+    View_ApplyPerspectiveToOverlay(&interfaceCtx->view);
 }
 
 void Interface_SetView2(InterfaceContext* interfaceCtx) {
     SET_FULLSCREEN_VIEWPORT(&interfaceCtx->view);
-    func_8013FBC8(&interfaceCtx->view);
+    View_ApplyOrthoToOverlay(&interfaceCtx->view);
 }
 
 void Interface_DrawItemButtons(PlayState* play) {
