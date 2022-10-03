@@ -8,12 +8,9 @@
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "overlays/actors/ovl_En_Mm3/z_en_mm3.h"
 
-u8 func_800FE4A8(void);
-s32 func_801234D4(PlayState* play);
-void func_801663C4(u8* arg0, u8* arg1, u32 arg2);
-
-extern Gfx D_0E0001C8[]; // Display List
-extern Gfx D_0E0002E0[]; // gScreenFillDL
+extern Gfx D_0E0001C8[];      // Display List
+extern Gfx D_0E0002E0[];      // gScreenFillDL
+extern TexturePtr D_08095AC0; // gMagicArrowEquipEffectTex
 
 typedef enum {
     /* 0 */ PICTOGRAPH_STATE_OFF,         // Not using the pictograph
@@ -1916,7 +1913,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
         if (gSaveContext.save.playerForm == player->transformation) {
             for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
                 // Individual C button
-                if (!D_801C2410[(void)0, gSaveContext.save.playerForm][GET_CUR_FORM_BTN_ITEM(i)]) {
+                if (!gPlayerFormItemRestrictions[(void)0, gSaveContext.save.playerForm][GET_CUR_FORM_BTN_ITEM(i)]) {
                     // Item not usable in current playerForm
                     if (gSaveContext.buttonStatus[i] != BTN_DISABLED) {
                         gSaveContext.buttonStatus[i] = BTN_DISABLED;
@@ -2080,7 +2077,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
             // (non-minigame?)
             if ((player->stateFlags1 & PLAYER_STATE1_800000) && (player->currentMask == PLAYER_MASK_BLAST) &&
                 (gSaveContext.bButtonStatus == BTN_DISABLED)) {
-                // Riding Epona with blast mask
+                // Riding Epona with blast mask?
                 restoreHudVisibility = true;
                 gSaveContext.bButtonStatus = BTN_ENABLED;
             }
@@ -4234,10 +4231,9 @@ void Interface_DrawAButton(PlayState* play) {
     CLOSE_DISPS(play->state.gfxCtx);
 }
 
-extern TexturePtr D_08095AC0;            // gMagicArrowEquipEffectTex
-s16 D_801BFB14[] = { 255, 100, 255, 0 }; // magicArrowEffectsR
-s16 D_801BFB1C[] = { 0, 100, 255, 0 };   // magicArrowEffectsG
-s16 D_801BFB24[] = { 0, 255, 100, 0 };   // magicArrowEffectsB
+static s16 sMagicArrowEffectsR[] = { 255, 100, 255 }; // magicArrowEffectsR
+static s16 sMagicArrowEffectsG[] = { 0, 100, 255 };   // magicArrowEffectsG
+static s16 sMagicArrowEffectsB[] = { 0, 255, 100 };   // magicArrowEffectsB
 
 void Interface_DrawPauseMenuEquippingIcons(PlayState* play) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
@@ -4248,57 +4244,57 @@ void Interface_DrawPauseMenuEquippingIcons(PlayState* play) {
 
     gDPPipeSync(OVERLAY_DISP++);
 
+    // This is needed as `Interface_DrawPauseMenuEquippingIcons` is call immediately
+    // after `Interface_DrawAButton`, which sets the view to perspective mode
     Interface_SetOrthoView(interfaceCtx);
 
-    if (pauseCtx->state == 6) {
-        if ((pauseCtx->unk_200 == 3) || (pauseCtx->unk_200 == 0xF)) {
-            // Inventory Equip Effects
-            gSPSegment(OVERLAY_DISP++, 0x08, pauseCtx->iconItemSegment);
-            func_8012C8D4(play->state.gfxCtx);
-            gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
-            gDPSetAlphaCompare(OVERLAY_DISP++, G_AC_THRESHOLD);
-            gSPMatrix(OVERLAY_DISP++, &gIdentityMtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    if ((pauseCtx->state == 6) && ((pauseCtx->unk_200 == 3) || (pauseCtx->unk_200 == 0xF))) {
+        // Inventory Equip Effects
+        gSPSegment(OVERLAY_DISP++, 0x08, pauseCtx->iconItemSegment);
+        func_8012C8D4(play->state.gfxCtx);
+        gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+        gDPSetAlphaCompare(OVERLAY_DISP++, G_AC_THRESHOLD);
+        gSPMatrix(OVERLAY_DISP++, &gIdentityMtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
 
-            pauseCtx->cursorVtx[16].v.ob[0] = pauseCtx->cursorVtx[18].v.ob[0] = pauseCtx->equipAnimX / 10;
-            pauseCtx->cursorVtx[17].v.ob[0] = pauseCtx->cursorVtx[19].v.ob[0] =
-                pauseCtx->cursorVtx[16].v.ob[0] + (pauseCtx->equipAnimScale / 10);
-            pauseCtx->cursorVtx[16].v.ob[1] = pauseCtx->cursorVtx[17].v.ob[1] = pauseCtx->equipAnimY / 10;
-            pauseCtx->cursorVtx[18].v.ob[1] = pauseCtx->cursorVtx[19].v.ob[1] =
-                pauseCtx->cursorVtx[16].v.ob[1] - (pauseCtx->equipAnimScale / 10);
+        pauseCtx->cursorVtx[16].v.ob[0] = pauseCtx->cursorVtx[18].v.ob[0] = pauseCtx->equipAnimX / 10;
+        pauseCtx->cursorVtx[17].v.ob[0] = pauseCtx->cursorVtx[19].v.ob[0] =
+            pauseCtx->cursorVtx[16].v.ob[0] + (pauseCtx->equipAnimScale / 10);
+        pauseCtx->cursorVtx[16].v.ob[1] = pauseCtx->cursorVtx[17].v.ob[1] = pauseCtx->equipAnimY / 10;
+        pauseCtx->cursorVtx[18].v.ob[1] = pauseCtx->cursorVtx[19].v.ob[1] =
+            pauseCtx->cursorVtx[16].v.ob[1] - (pauseCtx->equipAnimScale / 10);
 
-            if (pauseCtx->equipTargetItem < 0xB5) {
-                // Normal Equip (icon goes from the inventory slot to the C button when equipping it)
-                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, pauseCtx->equipAnimAlpha);
-                gSPVertex(OVERLAY_DISP++, &pauseCtx->cursorVtx[16], 4, 0);
-                gDPLoadTextureBlock(OVERLAY_DISP++, gItemIcons[pauseCtx->equipTargetItem], G_IM_FMT_RGBA, G_IM_SIZ_32b,
-                                    32, 32, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
-                                    G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
-            } else {
-                // Magic Arrow Equip Effect
-                temp = pauseCtx->equipTargetItem - 0xB5;
-                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, D_801BFB14[temp], D_801BFB1C[temp], D_801BFB24[temp],
-                                pauseCtx->equipAnimAlpha);
+        if (pauseCtx->equipTargetItem < 0xB5) {
+            // Normal Equip (icon goes from the inventory slot to the C button when equipping it)
+            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, pauseCtx->equipAnimAlpha);
+            gSPVertex(OVERLAY_DISP++, &pauseCtx->cursorVtx[16], 4, 0);
+            gDPLoadTextureBlock(OVERLAY_DISP++, gItemIcons[pauseCtx->equipTargetItem], G_IM_FMT_RGBA, G_IM_SIZ_32b, 32,
+                                32, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                G_TX_NOLOD, G_TX_NOLOD);
+        } else {
+            // Magic Arrow Equip Effect
+            temp = pauseCtx->equipTargetItem - 0xB5;
+            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, sMagicArrowEffectsR[temp], sMagicArrowEffectsG[temp],
+                            sMagicArrowEffectsB[temp], pauseCtx->equipAnimAlpha);
 
-                if ((pauseCtx->equipAnimAlpha > 0) && (pauseCtx->equipAnimAlpha < 255)) {
-                    temp = (pauseCtx->equipAnimAlpha / 8) / 2;
-                    pauseCtx->cursorVtx[16].v.ob[0] = pauseCtx->cursorVtx[18].v.ob[0] =
-                        pauseCtx->cursorVtx[16].v.ob[0] - temp;
-                    pauseCtx->cursorVtx[17].v.ob[0] = pauseCtx->cursorVtx[19].v.ob[0] =
-                        pauseCtx->cursorVtx[16].v.ob[0] + temp * 2 + 32;
-                    pauseCtx->cursorVtx[16].v.ob[1] = pauseCtx->cursorVtx[17].v.ob[1] =
-                        pauseCtx->cursorVtx[16].v.ob[1] + temp;
-                    pauseCtx->cursorVtx[18].v.ob[1] = pauseCtx->cursorVtx[19].v.ob[1] =
-                        pauseCtx->cursorVtx[16].v.ob[1] - temp * 2 - 32;
-                }
-
-                gSPVertex(OVERLAY_DISP++, &pauseCtx->cursorVtx[16], 4, 0);
-                gDPLoadTextureBlock(OVERLAY_DISP++, &D_08095AC0, G_IM_FMT_IA, G_IM_SIZ_8b, 32, 32, 0,
-                                    G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                    G_TX_NOLOD, G_TX_NOLOD);
+            if ((pauseCtx->equipAnimAlpha > 0) && (pauseCtx->equipAnimAlpha < 255)) {
+                temp = (pauseCtx->equipAnimAlpha / 8) / 2;
+                pauseCtx->cursorVtx[16].v.ob[0] = pauseCtx->cursorVtx[18].v.ob[0] =
+                    pauseCtx->cursorVtx[16].v.ob[0] - temp;
+                pauseCtx->cursorVtx[17].v.ob[0] = pauseCtx->cursorVtx[19].v.ob[0] =
+                    pauseCtx->cursorVtx[16].v.ob[0] + temp * 2 + 32;
+                pauseCtx->cursorVtx[16].v.ob[1] = pauseCtx->cursorVtx[17].v.ob[1] =
+                    pauseCtx->cursorVtx[16].v.ob[1] + temp;
+                pauseCtx->cursorVtx[18].v.ob[1] = pauseCtx->cursorVtx[19].v.ob[1] =
+                    pauseCtx->cursorVtx[16].v.ob[1] - temp * 2 - 32;
             }
 
-            gSP1Quadrangle(OVERLAY_DISP++, 0, 2, 3, 1, 0);
+            gSPVertex(OVERLAY_DISP++, &pauseCtx->cursorVtx[16], 4, 0);
+            gDPLoadTextureBlock(OVERLAY_DISP++, &D_08095AC0, G_IM_FMT_IA, G_IM_SIZ_8b, 32, 32, 0,
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                G_TX_NOLOD, G_TX_NOLOD);
         }
+
+        gSP1Quadrangle(OVERLAY_DISP++, 0, 2, 3, 1, 0);
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
