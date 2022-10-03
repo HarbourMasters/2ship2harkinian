@@ -1837,7 +1837,7 @@ void Inventory_UpdateItem(PlayState* play, s16 slot, s16 item);
 void Interface_SetAButtonDoAction(PlayState* play, u16 aButtonDoAction);
 void Interface_SetBButtonDoAction(PlayState* play, s16 bButtonDoAction);
 void Interface_SetTatlCall(PlayState* play, u16 tatlCallState);
-void func_80115844(PlayState* play, s16 arg1);
+void Interface_LoadBButtonDoActionLabel(PlayState* play, s16 bButtonDoAction);
 s32 Health_ChangeBy(PlayState* play, s16 healthChange);
 void Health_GiveHearts(s16 hearts);
 void Rupees_ChangeBy(s16 rupeeChange);

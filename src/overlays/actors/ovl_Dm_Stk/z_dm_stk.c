@@ -1816,8 +1816,8 @@ void DmStk_Update(Actor* thisx, PlayState* play) {
             (play->msgCtx.currentTextId == 0x5E6) && !FrameAdvance_IsEnabled(&play->state) &&
             (play->transitionTrigger == TRANS_TRIGGER_OFF) && (ActorCutscene_GetCurrentIndex() == -1) &&
             (play->csCtx.state == 0)) {
-            gSaveContext.save.time = ((void)0, gSaveContext.save.time) + (u16)REG(15);
-            if (REG(15) != 0) {
+            gSaveContext.save.time = ((void)0, gSaveContext.save.time) + (u16)R_TIME_SPEED;
+            if (R_TIME_SPEED != 0) {
                 gSaveContext.save.time = ((void)0, gSaveContext.save.time) + (u16)((void)0, gSaveContext.save.daySpeed);
             }
         }

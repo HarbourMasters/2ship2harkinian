@@ -5,6 +5,14 @@
 #include "z64view.h"
 
 typedef enum {
+    /* 0 */ A_BTN_STATE_0,
+    /* 1 */ A_BTN_STATE_1,
+    /* 2 */ A_BTN_STATE_2,
+    /* 3 */ A_BTN_STATE_3,
+    /* 4 */ A_BTN_STATE_4
+} AButtonState;
+
+typedef enum {
     /* 0x00 */ DO_ACTION_ATTACK,
     /* 0x01 */ DO_ACTION_CHECK,
     /* 0x02 */ DO_ACTION_ENTER,
@@ -118,10 +126,10 @@ typedef struct {
     /* 0x1E4 */ OSMesgQueue loadQueue;
     /* 0x1FC */ OSMesg loadMsg;
     /* 0x200 */ Viewport viewport;
-    /* 0x210 */ s16 unk_210;
-    /* 0x212 */ u16 unk_212;
-    /* 0x214 */ u16 unk_214;
-    /* 0x218 */ f32 unk_218;
+    /* 0x210 */ s16 aButtonState;
+    /* 0x212 */ u16 aButtonHorseDoAction; // TODO: Confirm. Only seems to be used for Epona and "DO_ACTION_FASTER"
+    /* 0x214 */ u16 aButtonDoAction;
+    /* 0x218 */ f32 aButtonRoll;
     /* 0x21C */ s16 bButtonDoActionActive;
     /* 0x21E */ s16 bButtonDoAction;
     /* 0x220 */ s16 tatlCalling;
@@ -138,7 +146,7 @@ typedef struct {
     /* 0x246 */ s16 heartsEnvG[2];
     /* 0x24A */ s16 heartsEnvB[2];
     /* 0x24E */ s16 health;
-    /* 0x250 */ s16 unkTimer;
+    /* 0x250 */ s16 healthTimer;
     /* 0x252 */ s16 lifeSizeChange;
     /* 0x254 */ s16 lifeSizeChangeDirection; // 1 means shrinking, 0 growing
     /* 0x256 */ s16 unk_256;

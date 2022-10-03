@@ -495,7 +495,7 @@ typedef enum {
 
 typedef struct {
     /* 0x00 */ u16 unk_0;
-    /* 0x02 */ u16 timeIncrement;
+    /* 0x02 */ u16 sceneTimeSpeed; // time speed value from the scene file
     /* 0x04 */ f32 unk_4;
     /* 0x08 */ f32 unk_8;
     /* 0x0C */ f32 unk_C;

@@ -43,8 +43,9 @@
 #define bREG(r) BASE_REG(28, r)
 
 /* TODO: Actually confirm these, in case of miss-match it's at least a simple list to `sed` */
-#define R_ENABLE_ARENA_DBG                SREG(0) // Same as OoT
+#define R_TIME_SPEED                      REG(15)
 #define R_RUN_SPEED_LIMIT                 REG(45)
+#define R_ENABLE_ARENA_DBG                SREG(0) // Same as OoT
 #define R_UPDATE_RATE                     SREG(30)
 #define R_PAUSE_MENU_MODE                 SREG(94)
 #define R_C_UP_ICON_X                     YREG(88)
@@ -65,11 +66,13 @@
 #define R_ITEM_ICON_X(i)                  ZREG(82 + i)
 #define R_ITEM_ICON_Y(i)                  ZREG(86 + i)
 #define R_ITEM_ICON_DD(i)                 ZREG(90 + i)
+#define R_MAGIC_DBG_SET_UPGRADE           XREG(4)
 #define R_A_BTN_Y                         XREG(16)
 #define R_A_BTN_X                         XREG(17)
 #define R_A_ICON_Y                        XREG(19)
 #define R_A_ICON_X                        XREG(20)
 #define R_A_BTN_COLOR(i)                  XREG(22 + i)
+#define R_A_BTN_Y_OFFSET                  XREG(31)
 #define R_MAGIC_CONSUME_TIMER_GIANTS_MASK XREG(41)
 #define R_MOON_CRASH_TIMER_Y              XREG(80)
 #define R_MOON_CRASH_TIMER_X              XREG(81)
