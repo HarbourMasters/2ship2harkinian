@@ -2284,9 +2284,7 @@ beginseg
     name "ovl_En_Knight"
     compress
     include "build/src/overlays/actors/ovl_En_Knight/z_en_knight.o"
-    include "build/data/ovl_En_Knight/ovl_En_Knight.data.o"
-    include "build/data/ovl_En_Knight/ovl_En_Knight.bss.o"
-    include "build/data/ovl_En_Knight/ovl_En_Knight.reloc.o"
+    include "build/src/overlays/actors/ovl_En_Knight/ovl_En_Knight_reloc.o"
 endseg
 
 beginseg
