@@ -6419,7 +6419,6 @@ void Interface_Draw(PlayState* play) {
 
         gSPTextureRectangle(OVERLAY_DISP++, YREG(42) * 4, YREG(43) * 4, (YREG(42) + 0x20) * 4, (YREG(43) + 0x8) * 4,
                             G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
-        if (1) {}
     }
 
     // Draw pictograph photo
