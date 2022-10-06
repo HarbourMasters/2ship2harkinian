@@ -3479,7 +3479,7 @@ extern GfxPool gGfxPools[2];
 extern u8 gAudioHeap[0x138000];
 extern u8 gSystemHeap[UNK_SIZE];
 
-extern u8 D_80780000[0x4600];
+extern u8 gPictoPhotoI8[]; // PICTO_RESOLUTION_X * PICTO_RESOLUTION_Y
 extern u8 D_80784600[0x56200];
 extern u16 gFramebuffer0[SCREEN_HEIGHT][SCREEN_WIDTH];
 

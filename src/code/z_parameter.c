@@ -2223,8 +2223,9 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
             // Related to pictograph
             if (sPictographState == PICTOGRAPH_STATE_LENS) {
                 if (!(play->actorCtx.flags & ACTORCTX_FLAG_PICTOGRAPH_ON)) {
-                    func_801663C4((play->unk_18E5C != NULL) ? play->unk_18E5C : D_801FBB90,
-                                  (u8*)((void)0, gSaveContext.pictoPhoto), 0x4600);
+                    Play_CompressI8ToI5((play->pictoPhotoI8 != NULL) ? play->pictoPhotoI8 : D_801FBB90,
+                                        (u8*)((void)0, gSaveContext.pictoPhotoI5),
+                                        PICTO_RESOLUTION_X * PICTO_RESOLUTION_Y);
                     interfaceCtx->unk_222 = interfaceCtx->unk_224 = 0;
                     restoreHudVisibility = true;
                     sPictographState = PICTOGRAPH_STATE_OFF;
@@ -2261,8 +2262,9 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                     Interface_SetHudVisibility(HUD_VISIBILITY_ALL);
                     sPictographState = PICTOGRAPH_STATE_OFF;
                     if (sPictographPhotoBeingTaken) {
-                        func_801663C4((play->unk_18E5C != NULL) ? play->unk_18E5C : D_801FBB90,
-                                      (u8*)((void)0, gSaveContext.pictoPhoto), 0x4600);
+                        Play_CompressI8ToI5((play->pictoPhotoI8 != NULL) ? play->pictoPhotoI8 : D_801FBB90,
+                                            (u8*)((void)0, gSaveContext.pictoPhotoI5),
+                                            PICTO_RESOLUTION_X * PICTO_RESOLUTION_Y);
                         Snap_RecordPictographedActors(play);
                     }
                     play->actorCtx.flags &= ~ACTORCTX_FLAG_PICTOGRAPH_ON;
@@ -2292,8 +2294,9 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                 Interface_SetHudVisibility(HUD_VISIBILITY_A_B);
                 sPictographState = PICTOGRAPH_STATE_LENS;
             } else {
-                func_80166644((u8*)((void)0, gSaveContext.pictoPhoto),
-                              (play->unk_18E5C != NULL) ? play->unk_18E5C : D_801FBB90, 0x4600);
+                Play_DecompressI5ToI8((u8*)((void)0, gSaveContext.pictoPhotoI5),
+                                      (play->pictoPhotoI8 != NULL) ? play->pictoPhotoI8 : D_801FBB90,
+                                      PICTO_RESOLUTION_X * PICTO_RESOLUTION_Y);
                 play->haltAllActors = true;
                 sPictographState = PICTOGRAPH_STATE_SETUP_PHOTO;
             }
@@ -6399,33 +6402,33 @@ void Interface_Draw(PlayState* play) {
         gDPLoadTextureBlock_4b(OVERLAY_DISP++, gPictoBoxFocusBorderTex, G_IM_FMT_IA, 16, 16, 0, G_TX_MIRROR | G_TX_WRAP,
                                G_TX_MIRROR | G_TX_WRAP, 4, 4, G_TX_NOLOD, G_TX_NOLOD);
 
-        gSPTextureRectangle(OVERLAY_DISP++, YREG(32) * 4, YREG(33) * 4, (YREG(32) + 0x10) * 4, (YREG(33) + 0x10) * 4,
-                            G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
-        gSPTextureRectangle(OVERLAY_DISP++, YREG(34) * 4, YREG(35) * 4, (YREG(34) + 0x10) * 4, (YREG(35) + 0x10) * 4,
-                            G_TX_RENDERTILE, 512, 0, 1 << 10, 1 << 10);
-        gSPTextureRectangle(OVERLAY_DISP++, YREG(36) * 4, YREG(37) * 4, (YREG(36) + 0x10) * 4, (YREG(37) + 0x10) * 4,
-                            G_TX_RENDERTILE, 0, 512, 1 << 10, 1 << 10);
-        gSPTextureRectangle(OVERLAY_DISP++, YREG(38) * 4, YREG(39) * 4, (YREG(38) + 0x10) * 4, (YREG(39) + 0x10) * 4,
-                            G_TX_RENDERTILE, 512, 512, 1 << 10, 1 << 10);
+        gSPTextureRectangle(OVERLAY_DISP++, YREG(32) << 2, YREG(33) << 2, (YREG(32) << 2) + (16 << 2),
+                            (YREG(33) << 2) + (16 << 2), G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+        gSPTextureRectangle(OVERLAY_DISP++, YREG(34) << 2, YREG(35) << 2, (YREG(34) << 2) + (16 << 2),
+                            (YREG(35) << 2) + (16 << 2), G_TX_RENDERTILE, 512, 0, 1 << 10, 1 << 10);
+        gSPTextureRectangle(OVERLAY_DISP++, YREG(36) << 2, YREG(37) << 2, (YREG(36) << 2) + (16 << 2),
+                            (YREG(37) << 2) + (16 << 2), G_TX_RENDERTILE, 0, 512, 1 << 10, 1 << 10);
+        gSPTextureRectangle(OVERLAY_DISP++, YREG(38) << 2, YREG(39) << 2, (YREG(38) << 2) + (16 << 2),
+                            (YREG(39) << 2) + (16 << 2), G_TX_RENDERTILE, 512, 512, 1 << 10, 1 << 10);
 
         gDPLoadTextureBlock_4b(OVERLAY_DISP++, gPictoBoxFocusIconTex, G_IM_FMT_I, 32, 16, 0, G_TX_NOMIRROR | G_TX_WRAP,
                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
-        gSPTextureRectangle(OVERLAY_DISP++, YREG(40) * 4, YREG(41) * 4, (YREG(40) + 0x20) * 4, (YREG(41) + 0x10) * 4,
-                            G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+        gSPTextureRectangle(OVERLAY_DISP++, YREG(40) << 2, YREG(41) << 2, (YREG(40) << 2) + 0x80,
+                            (YREG(41) << 2) + (16 << 2), G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
 
         gDPLoadTextureBlock_4b(OVERLAY_DISP++, gPictoBoxFocusTextTex, G_IM_FMT_I, 32, 8, 0, G_TX_NOMIRROR | G_TX_WRAP,
                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
-        gSPTextureRectangle(OVERLAY_DISP++, YREG(42) * 4, YREG(43) * 4, (YREG(42) + 0x20) * 4, (YREG(43) + 0x8) * 4,
-                            G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+        gSPTextureRectangle(OVERLAY_DISP++, YREG(42) << 2, YREG(43) << 2, (YREG(42) << 2) + 0x80,
+                            (YREG(43) << 2) + 0x20, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
     }
 
     // Draw pictograph photo
     if (sPictographState >= PICTOGRAPH_STATE_SETUP_PHOTO) {
         if (!(play->actorCtx.flags & ACTORCTX_FLAG_PICTOGRAPH_ON)) {
-            func_801663C4((play->unk_18E5C != NULL) ? play->unk_18E5C : D_801FBB90, (u8*)gSaveContext.pictoPhoto,
-                          0x4600);
+            Play_CompressI8ToI5((play->pictoPhotoI8 != NULL) ? play->pictoPhotoI8 : D_801FBB90,
+                                (u8*)gSaveContext.pictoPhotoI5, PICTO_RESOLUTION_X * PICTO_RESOLUTION_Y);
 
             interfaceCtx->unk_222 = interfaceCtx->unk_224 = 0;
 
@@ -6433,7 +6436,7 @@ void Interface_Draw(PlayState* play) {
             gSaveContext.hudVisibility = HUD_VISIBILITY_IDLE;
             Interface_SetHudVisibility(HUD_VISIBILITY_ALL);
         } else {
-            s16 phi_a2;
+            s16 pictoRectTop;
 
             if (sPictographState == PICTOGRAPH_STATE_SETUP_PHOTO) {
                 sPictographState = PICTOGRAPH_STATE_PHOTO;
@@ -6454,14 +6457,16 @@ void Interface_Draw(PlayState* play) {
             gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEI_PRIM, G_CC_MODULATEI_PRIM);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 250, 160, 160, 255);
 
-            phi_a2 = 0x1F;
-            for (sp2CC = 0; sp2CC < 14; sp2CC++, phi_a2 += 8) {
+            pictoRectTop = PICTO_POS_Y;
+            for (sp2CC = 0; sp2CC < (PICTO_RESOLUTION_Y / 8); sp2CC++, pictoRectTop += 8) {
                 gDPLoadTextureBlock(OVERLAY_DISP++,
-                                    (u8*)((play->unk_18E5C != NULL) ? play->unk_18E5C : D_801FBB90) + (0x500 * sp2CC),
-                                    G_IM_FMT_I, G_IM_SIZ_8b, 160, 8, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                                    (u8*)((play->pictoPhotoI8 != NULL) ? play->pictoPhotoI8 : D_801FBB90) +
+                                        (0x500 * sp2CC),
+                                    G_IM_FMT_I, G_IM_SIZ_8b, PICTO_RESOLUTION_X, 8, 0, G_TX_NOMIRROR | G_TX_WRAP,
                                     G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
-                gSPTextureRectangle(OVERLAY_DISP++, ((void)0, 320), phi_a2 * 4, ((void)0, 960), (phi_a2 + 8) * 4,
+                gSPTextureRectangle(OVERLAY_DISP++, PICTO_POS_X << 2, pictoRectTop << 2,
+                                    (PICTO_POS_X + PICTO_RESOLUTION_X) << 2, (pictoRectTop << 2) + (8 << 2),
                                     G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
             }
         }

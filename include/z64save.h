@@ -145,6 +145,13 @@ typedef enum {
     /* 52 */ HUD_VISIBILITY_NONE_INSTANT = 52
 } HudVisibility;
 
+#define PICTO_RESOLUTION_X 160
+#define PICTO_RESOLUTION_Y 112
+
+#define PICTO_POS_X ((void)0, ((SCREEN_WIDTH - PICTO_RESOLUTION_X) / 2))
+// Picture is offset up by 33 pixels to give room for the message box at the bottom
+#define PICTO_POS_Y (((void)0, ((SCREEN_HEIGHT - PICTO_RESOLUTION_Y) / 2)) - 33)
+
 typedef struct SramContext {
     /* 0x00 */ u8* readBuff;
     /* 0x04 */ u8 *saveBuf;
@@ -310,7 +317,7 @@ typedef struct SaveContext {
     /* 0x1050 */ u64 bottleTimerTimeLimits[BOTTLE_MAX]; // The original total time given before the timer expires, in centiseconds (1/100th sec). "bottle_sub"
     /* 0x1080 */ u64 bottleTimerCurTimes[BOTTLE_MAX]; // The remaining time left before the timer expires, in centiseconds (1/100th sec). "bottle_time"
     /* 0x10B0 */ OSTime bottleTimerPausedOsTimes[BOTTLE_MAX]; // The cumulative osTime spent with the timer paused. "bottle_stop_time"
-    /* 0x10E0 */ u64 pictoPhoto[1400];                  // buffer containing the pictograph photo
+    /* 0x10E0 */ u8 pictoPhotoI5[PICTO_RESOLUTION_X * PICTO_RESOLUTION_Y * 5 / 8]; // buffer containing the pictograph photo
     /* 0x3CA0 */ s32 fileNum;                           // "file_no"
     /* 0x3CA4 */ s16 powderKegTimer;                    // "big_bom_timer"
     /* 0x3CA6 */ u8 unk_3CA6;
