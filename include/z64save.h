@@ -148,9 +148,9 @@ typedef enum {
 #define PICTO_RESOLUTION_X 160
 #define PICTO_RESOLUTION_Y 112
 
-#define PICTO_POS_X ((void)0, ((SCREEN_WIDTH - PICTO_RESOLUTION_X) / 2))
+#define PICTO_TOPLEFT_X ((SCREEN_WIDTH - PICTO_RESOLUTION_X) / 2)
 // Picture is offset up by 33 pixels to give room for the message box at the bottom
-#define PICTO_POS_Y (((void)0, ((SCREEN_HEIGHT - PICTO_RESOLUTION_Y) / 2)) - 33)
+#define PICTO_TOPLEFT_Y (((SCREEN_HEIGHT - PICTO_RESOLUTION_Y) / 2) - 33)
 
 typedef struct SramContext {
     /* 0x00 */ u8* readBuff;

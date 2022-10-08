@@ -4594,7 +4594,8 @@ void Interface_DrawClock(PlayState* play) {
                              * Cuts off Three-Day Clock's Sun and Moon when they dip below the clock
                              */
                             gDPPipeSync(OVERLAY_DISP++);
-                            gDPSetScissorFrac(OVERLAY_DISP++, G_SC_NON_INTERLACE, 400, 620, 880, XREG(44) * 4.0f);
+                            gDPSetScissorFrac(OVERLAY_DISP++, G_SC_NON_INTERLACE, 400, 620, 880,
+                                              R_THREE_DAY_CLOCK_SUN_MOON_CUTOFF * 4.0f);
 
                             // determines the current hour
                             for (sp1C6 = 0; sp1C6 <= 24; sp1C6++) {
@@ -4645,7 +4646,8 @@ void Interface_DrawClock(PlayState* play) {
                              * Cuts off Three-Day Clock's Hour Digits when they dip below the clock
                              */
                             gDPPipeSync(OVERLAY_DISP++);
-                            gDPSetScissorFrac(OVERLAY_DISP++, G_SC_NON_INTERLACE, 400, 620, 880, XREG(45) * 4.0f);
+                            gDPSetScissorFrac(OVERLAY_DISP++, G_SC_NON_INTERLACE, 400, 620, 880,
+                                              R_THREE_DAY_CLOCK_HOUR_DIGIT_CUTOFF * 4.0f);
 
                             /**
                              * Draws Three-Day Clock's Hour Digit Above the Sun
@@ -4653,7 +4655,7 @@ void Interface_DrawClock(PlayState* play) {
                             sp1CC = gSaveContext.save.time * 0.000096131f;
 
                             // Rotates Three-Day Clock's Hour Digit To Above the Sun
-                            Matrix_Translate(0.0f, XREG(43) / 10.0f, 0.0f, MTXMODE_NEW);
+                            Matrix_Translate(0.0f, R_THREE_DAY_CLOCK_Y_POS / 10.0f, 0.0f, MTXMODE_NEW);
                             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
                             Matrix_RotateZF(-(sp1CC - 3.15f), MTXMODE_APPLY);
                             gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx),
@@ -4678,7 +4680,7 @@ void Interface_DrawClock(PlayState* play) {
                              * Draws Three-Day Clock's Hour Digit Above the Moon
                              */
                             // Rotates Three-Day Clock's Hour Digit To Above the Moon
-                            Matrix_Translate(0.0f, XREG(43) / 10.0f, 0.0f, MTXMODE_NEW);
+                            Matrix_Translate(0.0f, R_THREE_DAY_CLOCK_Y_POS / 10.0f, 0.0f, MTXMODE_NEW);
                             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
                             Matrix_RotateZF(-sp1CC, MTXMODE_APPLY);
                             gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx),
@@ -6099,9 +6101,9 @@ void Interface_Draw(PlayState* play) {
     s16 sp2CA;
     s16 sp2C8;
     PauseContext* pauseCtx = &play->pauseCtx;
-    f32 sp2C0;
-    s16 counterDigits[4]; // sp2B8
-    s16 sp4C;
+    f32 minigameCountdownScale;
+    s16 counterDigits[4];
+    s16 magicAlpha;
 
     OPEN_DISPS(play->state.gfxCtx);
 
@@ -6293,14 +6295,14 @@ void Interface_Draw(PlayState* play) {
         sp2CC = sRupeeDigitsFirst[CUR_UPG_VALUE(UPG_WALLET)];
         sp2C8 = sRupeeDigitsCount[CUR_UPG_VALUE(UPG_WALLET)];
 
-        sp4C = interfaceCtx->magicAlpha;
-        if (sp4C > 180) {
-            sp4C = 180;
+        magicAlpha = interfaceCtx->magicAlpha;
+        if (magicAlpha > 180) {
+            magicAlpha = 180;
         }
 
         for (sp2CE = 0, sp2CA = 42; sp2CE < sp2C8; sp2CE++, sp2CC++, sp2CA += 8) {
             gDPPipeSync(OVERLAY_DISP++);
-            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, sp4C);
+            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, magicAlpha);
 
             OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, (u8*)gCounterDigit0Tex + (8 * 16 * counterDigits[sp2CC]), 8,
                                              16, sp2CA + 1, 207, 8, 16, 1 << 10, 1 << 10);
@@ -6322,7 +6324,7 @@ void Interface_Draw(PlayState* play) {
         Magic_DrawMeter(play);
         Minimap_Draw(play);
 
-        if ((SREG(94) != 2) && (SREG(94) != 3)) {
+        if ((R_PAUSE_MENU_MODE != 2) && (R_PAUSE_MENU_MODE != 3)) {
             Actor_DrawZTarget(&play->actorCtx.targetContext, play);
         }
 
@@ -6347,7 +6349,7 @@ void Interface_Draw(PlayState* play) {
                 if (((u32)interfaceCtx->minigameState % 2) == 0) {
 
                     sp2CE = (interfaceCtx->minigameState >> 1) - 1;
-                    sp2C0 = interfaceCtx->minigameCountdownScale / 100.0f;
+                    minigameCountdownScale = interfaceCtx->minigameCountdownScale / 100.0f;
 
                     if (sp2CE == 3) {
                         interfaceCtx->actionVtx[40 + 0].v.ob[0] = interfaceCtx->actionVtx[40 + 2].v.ob[0] = -20;
@@ -6367,7 +6369,7 @@ void Interface_Draw(PlayState* play) {
                                     interfaceCtx->minigameCountdownAlpha);
 
                     Matrix_Translate(0.0f, -40.0f, 0.0f, MTXMODE_NEW);
-                    Matrix_Scale(sp2C0, sp2C0, 0.0f, MTXMODE_APPLY);
+                    Matrix_Scale(minigameCountdownScale, minigameCountdownScale, 0.0f, MTXMODE_APPLY);
 
                     gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx),
                               G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
@@ -6402,26 +6404,35 @@ void Interface_Draw(PlayState* play) {
         gDPLoadTextureBlock_4b(OVERLAY_DISP++, gPictoBoxFocusBorderTex, G_IM_FMT_IA, 16, 16, 0, G_TX_MIRROR | G_TX_WRAP,
                                G_TX_MIRROR | G_TX_WRAP, 4, 4, G_TX_NOLOD, G_TX_NOLOD);
 
-        gSPTextureRectangle(OVERLAY_DISP++, YREG(32) << 2, YREG(33) << 2, (YREG(32) << 2) + (16 << 2),
-                            (YREG(33) << 2) + (16 << 2), G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
-        gSPTextureRectangle(OVERLAY_DISP++, YREG(34) << 2, YREG(35) << 2, (YREG(34) << 2) + (16 << 2),
-                            (YREG(35) << 2) + (16 << 2), G_TX_RENDERTILE, 512, 0, 1 << 10, 1 << 10);
-        gSPTextureRectangle(OVERLAY_DISP++, YREG(36) << 2, YREG(37) << 2, (YREG(36) << 2) + (16 << 2),
-                            (YREG(37) << 2) + (16 << 2), G_TX_RENDERTILE, 0, 512, 1 << 10, 1 << 10);
-        gSPTextureRectangle(OVERLAY_DISP++, YREG(38) << 2, YREG(39) << 2, (YREG(38) << 2) + (16 << 2),
-                            (YREG(39) << 2) + (16 << 2), G_TX_RENDERTILE, 512, 512, 1 << 10, 1 << 10);
+        gSPTextureRectangle(OVERLAY_DISP++, R_PICTO_FOCUS_BORDER_TOPLEFT_X << 2, R_PICTO_FOCUS_BORDER_TOPLEFT_Y << 2,
+                            (R_PICTO_FOCUS_BORDER_TOPLEFT_X << 2) + (16 << 2),
+                            (R_PICTO_FOCUS_BORDER_TOPLEFT_Y << 2) + (16 << 2), G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+        gSPTextureRectangle(OVERLAY_DISP++, R_PICTO_FOCUS_BORDER_TOPRIGHT_X << 2, R_PICTO_FOCUS_BORDER_TOPRIGHT_Y << 2,
+                            (R_PICTO_FOCUS_BORDER_TOPRIGHT_X << 2) + (16 << 2),
+                            (R_PICTO_FOCUS_BORDER_TOPRIGHT_Y << 2) + (16 << 2), G_TX_RENDERTILE, 512, 0, 1 << 10,
+                            1 << 10);
+        gSPTextureRectangle(
+            OVERLAY_DISP++, R_PICTO_FOCUS_BORDER_BOTTOMLEFT_X << 2, R_PICTO_FOCUS_BORDER_BOTTOMLEFT_Y << 2,
+            (R_PICTO_FOCUS_BORDER_BOTTOMLEFT_X << 2) + (16 << 2), (R_PICTO_FOCUS_BORDER_BOTTOMLEFT_Y << 2) + (16 << 2),
+            G_TX_RENDERTILE, 0, 512, 1 << 10, 1 << 10);
+        gSPTextureRectangle(
+            OVERLAY_DISP++, R_PICTO_FOCUS_BORDER_BOTTOMRIGHT_X << 2, R_PICTO_FOCUS_BORDER_BOTTOMRIGHT_Y << 2,
+            (R_PICTO_FOCUS_BORDER_BOTTOMRIGHT_X << 2) + (16 << 2),
+            (R_PICTO_FOCUS_BORDER_BOTTOMRIGHT_Y << 2) + (16 << 2), G_TX_RENDERTILE, 512, 512, 1 << 10, 1 << 10);
 
         gDPLoadTextureBlock_4b(OVERLAY_DISP++, gPictoBoxFocusIconTex, G_IM_FMT_I, 32, 16, 0, G_TX_NOMIRROR | G_TX_WRAP,
                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
-        gSPTextureRectangle(OVERLAY_DISP++, YREG(40) << 2, YREG(41) << 2, (YREG(40) << 2) + 0x80,
-                            (YREG(41) << 2) + (16 << 2), G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+        gSPTextureRectangle(OVERLAY_DISP++, R_PICTO_FOCUS_ICON_X << 2, R_PICTO_FOCUS_ICON_Y << 2,
+                            (R_PICTO_FOCUS_ICON_X << 2) + 0x80, (R_PICTO_FOCUS_ICON_Y << 2) + (16 << 2),
+                            G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
 
         gDPLoadTextureBlock_4b(OVERLAY_DISP++, gPictoBoxFocusTextTex, G_IM_FMT_I, 32, 8, 0, G_TX_NOMIRROR | G_TX_WRAP,
                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
-        gSPTextureRectangle(OVERLAY_DISP++, YREG(42) << 2, YREG(43) << 2, (YREG(42) << 2) + 0x80,
-                            (YREG(43) << 2) + 0x20, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+        gSPTextureRectangle(OVERLAY_DISP++, R_PICTO_FOCUS_TEXT_X << 2, R_PICTO_FOCUS_TEXT_Y << 2,
+                            (R_PICTO_FOCUS_TEXT_X << 2) + 0x80, (R_PICTO_FOCUS_TEXT_Y << 2) + 0x20, G_TX_RENDERTILE, 0,
+                            0, 1 << 10, 1 << 10);
     }
 
     // Draw pictograph photo
@@ -6437,6 +6448,7 @@ void Interface_Draw(PlayState* play) {
             Interface_SetHudVisibility(HUD_VISIBILITY_ALL);
         } else {
             s16 pictoRectTop;
+            s16 pictoRectLeft;
 
             if (sPictographState == PICTOGRAPH_STATE_SETUP_PHOTO) {
                 sPictographState = PICTOGRAPH_STATE_PHOTO;
@@ -6457,16 +6469,17 @@ void Interface_Draw(PlayState* play) {
             gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEI_PRIM, G_CC_MODULATEI_PRIM);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 250, 160, 160, 255);
 
-            pictoRectTop = PICTO_POS_Y;
+            pictoRectTop = PICTO_TOPLEFT_Y;
             for (sp2CC = 0; sp2CC < (PICTO_RESOLUTION_Y / 8); sp2CC++, pictoRectTop += 8) {
+                pictoRectLeft = PICTO_TOPLEFT_X;
                 gDPLoadTextureBlock(OVERLAY_DISP++,
                                     (u8*)((play->pictoPhotoI8 != NULL) ? play->pictoPhotoI8 : D_801FBB90) +
                                         (0x500 * sp2CC),
                                     G_IM_FMT_I, G_IM_SIZ_8b, PICTO_RESOLUTION_X, 8, 0, G_TX_NOMIRROR | G_TX_WRAP,
                                     G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
-                gSPTextureRectangle(OVERLAY_DISP++, PICTO_POS_X << 2, pictoRectTop << 2,
-                                    (PICTO_POS_X + PICTO_RESOLUTION_X) << 2, (pictoRectTop << 2) + (8 << 2),
+                gSPTextureRectangle(OVERLAY_DISP++, pictoRectLeft << 2, pictoRectTop << 2,
+                                    (pictoRectLeft + PICTO_RESOLUTION_X) << 2, (pictoRectTop << 2) + (8 << 2),
                                     G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
             }
         }
@@ -6780,9 +6793,9 @@ void Interface_Update(PlayState* play) {
                 interfaceCtx->aButtonState = A_BTN_STATE_2;
 
                 if ((msgCtx->msgMode != 0) && (msgCtx->unk12006 == 0x26)) {
-                    XREG(31) = -14;
+                    R_A_BTN_Y_OFFSET = -14;
                 } else {
-                    XREG(31) = 0;
+                    R_A_BTN_Y_OFFSET = 0;
                 }
             }
             break;
