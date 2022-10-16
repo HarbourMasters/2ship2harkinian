@@ -2419,7 +2419,9 @@ u8 Item_Give(PlayState* play, u8 item) {
     }
 
     if (item == ITEM_SKULL_TOKEN) {
-        SET_QUEST_ITEM(item - ITEM_SKULL_TOKEN + QUEST_SKULL_TOKEN);
+        //! @bug: Sets QUEST_QUIVER instead of QUEST_SKULL_TOKEN
+        // Setting `QUEST_SKULL_TOKEN` will result in misplaced digits on the pause menu - Quest Status page.
+        SET_QUEST_ITEM(item - ITEM_SKULL_TOKEN + QUEST_QUIVER);
         Inventory_IncrementSkullTokenCount(play->sceneId);
         return ITEM_NONE;
 
@@ -2693,7 +2695,7 @@ u8 Item_Give(PlayState* play, u8 item) {
         return ITEM_NONE;
 
     } else if ((item >= ITEM_REMAINS_ODOLWA) && (item <= ITEM_REMAINS_TWINMOLD)) {
-        SET_QUEST_ITEM(item - ITEM_REMAINS_ODOLWA + QUEST_REMAINS_ODOWLA);
+        SET_QUEST_ITEM(item - ITEM_REMAINS_ODOLWA + QUEST_REMAINS_ODOLWA);
         return ITEM_NONE;
 
     } else if (item == ITEM_RECOVERY_HEART) {

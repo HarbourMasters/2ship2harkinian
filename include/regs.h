@@ -65,6 +65,9 @@
 #define R_PICTO_FOCUS_ICON_Y               YREG(41)
 #define R_PICTO_FOCUS_TEXT_X               YREG(42)
 #define R_PICTO_FOCUS_TEXT_Y               YREG(43)
+#define R_PAUSE_DBG_QUEST_CURSOR_ON        YREG(69)
+#define R_PAUSE_DBG_QUEST_CURSOR_X         YREG(70)
+#define R_PAUSE_DBG_QUEST_CURSOR_Y         YREG(71)
 
 #define R_MAGIC_FILL_COLOR(i)             ZREG(0 + i)
 #define R_C_BTN_COLOR(i)                  ZREG(39 + i)
