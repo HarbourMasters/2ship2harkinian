@@ -50,6 +50,12 @@
 #define R_UPDATE_RATE                     SREG(30)
 #define R_PAUSE_MENU_MODE                 SREG(94)
 
+#define R_PLAY_FILL_SCREEN_ON             MREG(64)
+#define R_PLAY_FILL_SCREEN_R              MREG(65)
+#define R_PLAY_FILL_SCREEN_G              MREG(66)
+#define R_PLAY_FILL_SCREEN_B              MREG(67)
+#define R_PLAY_FILL_SCREEN_ALPHA          MREG(68)
+
 #define R_PAUSE_WORLD_MAP_YAW              YREG(24)
 #define R_PAUSE_WORLD_MAP_Y_OFFSET         YREG(25)
 #define R_PAUSE_WORLD_MAP_DEPTH            YREG(26)
