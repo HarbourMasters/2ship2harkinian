@@ -1705,8 +1705,8 @@ Gfx* Gfx_DrawTexRectI8(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 textu
 Gfx* Gfx_DrawTexQuadIA8(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 textureHeight, u16 point);
 Gfx* Gfx_DrawTexQuad4b(Gfx* gfx, TexturePtr texture, s32 fmt, s16 textureWidth, s16 textureHeight, u16 point);
 
-void Interface_StartTimer(s16 timerId, s16 timeLimit);
-void Interface_StartPostmanTimer(s16 timeLimit, s16 bunnyHoodState);
+void Interface_StartTimer(s16 timerId, s16 seconds);
+void Interface_StartPostmanTimer(s16 seconds, s16 bunnyHoodState);
 void Interface_NewDay(PlayState* play, s32 day);
 void Interface_SetHudVisibility(u16 hudVisibility);
 void Interface_UpdateButtonsPart2(PlayState* play);

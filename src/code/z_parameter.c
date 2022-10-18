@@ -444,13 +444,27 @@ s16 sActionVtxHeights[] = {
 #define MINIGAME_PERFECT_VTX_WIDTH 32
 #define MINIGAME_PERFECT_VTX_HEIGHT 33
 
-// Both minigame-perfect vtx data indexed as the 8 letters of:
-// 'p', 'e', 'r', 'f', 'e', 'c', 't', '!'
-s16 sMinigamePerfectVtxPosX[] = {
-    -61, -45, 29, 104, -117, -42, 32, 55,
+// Used for MINIGAME_PERFECT_TYPE_1 and only part of MINIGAME_PERFECT_TYPE_3
+// Both MINIGAME_PERFECT_TYPE_2 and MINIGAME_PERFECT_TYPE_2 have (0, 0) as the center for all letters
+s16 sMinigamePerfectLetterEllipseCenterX[MINIGAME_PERFECT_NUM_LETTERS] = {
+    -61,  // P
+    -45,  // E
+    29,   // R
+    104,  // F
+    -117, // E
+    -42,  // C
+    32,   // T
+    55,   // !
 };
-s16 sMinigamePerfectVtxPosY[] = {
-    1, -70, -99, -70, 71, 101, 72, 1,
+s16 sMinigamePerfectLetterEllipseCenterY[MINIGAME_PERFECT_NUM_LETTERS] = {
+    1,   // P
+    -70, // E
+    -99, // R
+    -70, // F
+    71,  // E
+    101, // C
+    72,  // T
+    1,   // !
 };
 
 /**
@@ -494,10 +508,11 @@ void Interface_SetVertices(PlayState* play) {
     s16 i;
     s16 j;
     s16 k;
-    s16 letteroffset;
+    s16 shadowOffset;
 
     // 108 = 11 + (2 * 8 minigame perfect)) * 4 vertices per quad
-    play->interfaceCtx.actionVtx = GRAPH_ALLOC(play->state.gfxCtx, 108 * sizeof(Vtx));
+    play->interfaceCtx.actionVtx =
+        GRAPH_ALLOC(play->state.gfxCtx, (11 + (2 * MINIGAME_PERFECT_NUM_LETTERS)) * 4 * sizeof(Vtx));
 
     // Loop over all non-minigame perfect vertices
     for (k = 0, i = 0; i < 44; i += 4, k++) {
@@ -556,14 +571,14 @@ void Interface_SetVertices(PlayState* play) {
 
     // Loop over vertices for the minigame-perfect letters
     // Outer loop is to loop over 2 sets of letters: shadowed letters and colored letters
-    for (j = 0, letteroffset = 2; j < 2; j++, letteroffset -= 2) {
-        for (k = 0; k < 8; k++, i += 4) {
+    for (j = 0, shadowOffset = 2; j < 2; j++, shadowOffset -= 2) {
+        for (k = 0; k < MINIGAME_PERFECT_NUM_LETTERS; k++, i += 4) {
             if ((interfaceCtx->minigamePerfectType == MINIGAME_PERFECT_TYPE_1) ||
                 ((interfaceCtx->minigamePerfectType == MINIGAME_PERFECT_TYPE_3) &&
-                 (interfaceCtx->minigamePerfectState[0] == MINIGAME_PERFECT_STATE_6))) {
+                 (interfaceCtx->minigamePerfectState[0] == MINIGAME_PERFECT_STATE_EXIT))) {
                 // Left vertices x Pos
                 interfaceCtx->actionVtx[i].v.ob[0] = interfaceCtx->actionVtx[i + 2].v.ob[0] =
-                    -((sMinigamePerfectVtxPosX[k] - letteroffset) + 16);
+                    -((sMinigamePerfectLetterEllipseCenterX[k] - shadowOffset) + 16);
 
                 // Right vertices x Pos
                 interfaceCtx->actionVtx[i + 1].v.ob[0] = interfaceCtx->actionVtx[i + 3].v.ob[0] =
@@ -571,7 +586,7 @@ void Interface_SetVertices(PlayState* play) {
 
                 // Top vertices y Pos
                 interfaceCtx->actionVtx[i].v.ob[1] = interfaceCtx->actionVtx[i + 1].v.ob[1] =
-                    (sMinigamePerfectVtxPosY[k] - letteroffset) + 16;
+                    (sMinigamePerfectLetterEllipseCenterY[k] - shadowOffset) + 16;
 
                 // Bottom vertices y Pos
                 interfaceCtx->actionVtx[i + 2].v.ob[1] = interfaceCtx->actionVtx[i + 3].v.ob[1] =
@@ -581,14 +596,14 @@ void Interface_SetVertices(PlayState* play) {
                        (interfaceCtx->minigamePerfectType == MINIGAME_PERFECT_TYPE_3)) {
                 // Left vertices x Pos
                 interfaceCtx->actionVtx[i].v.ob[0] = interfaceCtx->actionVtx[i + 2].v.ob[0] =
-                    -(interfaceCtx->minigamePerfectVtxOffset[k] - letteroffset + 16);
+                    -(interfaceCtx->minigamePerfectLetterXOffset[k] - shadowOffset + 16);
 
                 // Right vertices x Pos
                 interfaceCtx->actionVtx[i + 1].v.ob[0] = interfaceCtx->actionVtx[i + 3].v.ob[0] =
                     interfaceCtx->actionVtx[i].v.ob[0] + MINIGAME_PERFECT_VTX_WIDTH;
 
                 // Top vertices y Pos
-                interfaceCtx->actionVtx[i].v.ob[1] = interfaceCtx->actionVtx[i + 1].v.ob[1] = 16 - letteroffset;
+                interfaceCtx->actionVtx[i].v.ob[1] = interfaceCtx->actionVtx[i + 1].v.ob[1] = 16 - shadowOffset;
 
                 // Bottom vertices y Pos
                 interfaceCtx->actionVtx[i + 2].v.ob[1] = interfaceCtx->actionVtx[i + 3].v.ob[1] =
@@ -596,14 +611,14 @@ void Interface_SetVertices(PlayState* play) {
 
             } else {
                 // Left vertices x Pos
-                interfaceCtx->actionVtx[i].v.ob[0] = interfaceCtx->actionVtx[i + 2].v.ob[0] = -(216 - letteroffset);
+                interfaceCtx->actionVtx[i].v.ob[0] = interfaceCtx->actionVtx[i + 2].v.ob[0] = -(216 - shadowOffset);
 
                 // Right vertices x Pos
                 interfaceCtx->actionVtx[i + 1].v.ob[0] = interfaceCtx->actionVtx[i + 3].v.ob[0] =
                     interfaceCtx->actionVtx[i].v.ob[0] + MINIGAME_PERFECT_VTX_WIDTH;
 
                 // Top vertices y Pos
-                interfaceCtx->actionVtx[i].v.ob[1] = interfaceCtx->actionVtx[i + 1].v.ob[1] = 24 - letteroffset;
+                interfaceCtx->actionVtx[i].v.ob[1] = interfaceCtx->actionVtx[i + 1].v.ob[1] = 24 - shadowOffset;
 
                 // Bottom vertices y Pos
                 interfaceCtx->actionVtx[i + 2].v.ob[1] = interfaceCtx->actionVtx[i + 3].v.ob[1] =
@@ -4914,22 +4929,29 @@ void Interface_SetMinigamePerfect(PlayState* play, s16 minigamePerfectType) {
     interfaceCtx->minigamePerfectLetterCount = 1;
     interfaceCtx->minigamePerfectTimer = 0;
 
-    for (i = 0; i < 8; i++) {
-        interfaceCtx->minigamePerfectLetterDirection[i] = 0;
-        interfaceCtx->minigamePerfectState[i] = interfaceCtx->minigamePerfectVtxOffset[i] = 0;
+    for (i = 0; i < MINIGAME_PERFECT_NUM_LETTERS; i++) {
+        interfaceCtx->minigamePerfectLetterEllipseAngle[i] = 0;
+        interfaceCtx->minigamePerfectState[i] = interfaceCtx->minigamePerfectLetterXOffset[i] = 0;
         if (interfaceCtx->minigamePerfectType == MINIGAME_PERFECT_TYPE_1) {
-            interfaceCtx->minigamePerfectLetterPosX[i] = 140.0f;
-            interfaceCtx->minigamePerfectLetterPosY[i] = 100.0f;
+            interfaceCtx->minigamePerfectLetterEllipseRadiusX[i] = 140.0f;
+            interfaceCtx->minigamePerfectLetterEllipseRadiusY[i] = 100.0f;
         } else {
-            interfaceCtx->minigamePerfectLetterPosY[i] = 200.0f;
-            interfaceCtx->minigamePerfectLetterPosX[i] = 200.0f;
+            interfaceCtx->minigamePerfectLetterEllipseRadiusY[i] = 200.0f;
+            interfaceCtx->minigamePerfectLetterEllipseRadiusX[i] = 200.0f;
         }
     }
     interfaceCtx->minigamePerfectState[0] = MINIGAME_PERFECT_STATE_INIT;
 }
 
-u16 D_801BFC50[] = {
-    0xC000, 0xE000, 0x0000, 0x2000, 0xA000, 0x8000, 0x6000, 0x4000,
+u16 sMinigamePerfectType1AngleOffScreenTargets[MINIGAME_PERFECT_NUM_LETTERS] = {
+    6 * MINIGAME_PERFECT_ANGLE_PER_LETTER, // P
+    7 * MINIGAME_PERFECT_ANGLE_PER_LETTER, // E
+    0 * MINIGAME_PERFECT_ANGLE_PER_LETTER, // R
+    1 * MINIGAME_PERFECT_ANGLE_PER_LETTER, // F
+    5 * MINIGAME_PERFECT_ANGLE_PER_LETTER, // E
+    4 * MINIGAME_PERFECT_ANGLE_PER_LETTER, // C
+    3 * MINIGAME_PERFECT_ANGLE_PER_LETTER, // T
+    2 * MINIGAME_PERFECT_ANGLE_PER_LETTER, // !
 };
 s16 sMinigamePerfectType1PrimColorTargets[2][3] = {
     { 255, 255, 255 },
@@ -4944,38 +4966,46 @@ void Interface_UpdateMinigamePerfectType1(PlayState* play) {
     s16 colorStepG;
     s16 colorStepB;
 
+    // Update letter positions
     for (count = 0, i = 0; i < interfaceCtx->minigamePerfectLetterCount; i++, count += 4) {
         if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_INIT) {
-            // Swirl
-            interfaceCtx->minigamePerfectLetterDirection[i] = D_801BFC50[i] + 0xA000;
-            interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_SWIRL_IN;
-        } else if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_SWIRL_IN) {
-            interfaceCtx->minigamePerfectLetterDirection[i] -= 0x800;
-            if (interfaceCtx->minigamePerfectLetterDirection[i] == D_801BFC50[i]) {
+            // Initialize letter positions along the parameteric ellipse curve
+            interfaceCtx->minigamePerfectLetterEllipseAngle[i] = sMinigamePerfectType1AngleOffScreenTargets[i] + 0xA000;
+            interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_ENTER;
+        } else if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_ENTER) {
+            // Swirl inwards along a swirlic parametric ellipse equation to the spelt-out word
+            interfaceCtx->minigamePerfectLetterEllipseAngle[i] -= 0x800;
+            if (interfaceCtx->minigamePerfectLetterEllipseAngle[i] == sMinigamePerfectType1AngleOffScreenTargets[i]) {
                 interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_STATIONARY;
             }
-        } else if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_SWIRL_OUT) {
-            interfaceCtx->minigamePerfectLetterDirection[i] -= 0x800;
-            if (interfaceCtx->minigamePerfectLetterDirection[i] == (u16)(D_801BFC50[i] - 0x8000)) {
+        } else if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_SPREAD) {
+            // Swirl outwards along a swirlic parametric ellipse equation offscreen
+            interfaceCtx->minigamePerfectLetterEllipseAngle[i] -= 0x800;
+            if (interfaceCtx->minigamePerfectLetterEllipseAngle[i] ==
+                (u16)(sMinigamePerfectType1AngleOffScreenTargets[i] - 0x8000)) {
                 interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_OFF;
             }
         }
     }
 
     // Initialize the next letter in the list
-    // TODO: if `minigamePerfectLetterCount == 8`, then isn't minigamePerfectState[] accessed OoB?
+    // if `minigamePerfectLetterCount == MINIGAME_PERFECT_NUM_LETTERS`,
+    // then minigamePerfectState[] is accessed
     if ((interfaceCtx->minigamePerfectState[interfaceCtx->minigamePerfectLetterCount] == MINIGAME_PERFECT_STATE_OFF) &&
-        (interfaceCtx->minigamePerfectLetterCount < 8)) {
+        (interfaceCtx->minigamePerfectLetterCount < MINIGAME_PERFECT_NUM_LETTERS)) {
         interfaceCtx->minigamePerfectState[interfaceCtx->minigamePerfectLetterCount] = MINIGAME_PERFECT_STATE_INIT;
-        interfaceCtx->minigamePerfectLetterPosX[interfaceCtx->minigamePerfectLetterCount] = 140.0f;
-        interfaceCtx->minigamePerfectLetterPosY[interfaceCtx->minigamePerfectLetterCount] = 100.0f;
-        interfaceCtx->minigamePerfectLetterDirection[interfaceCtx->minigamePerfectLetterCount] =
-            D_801BFC50[interfaceCtx->minigamePerfectLetterCount] + 0xA000;
+
+        interfaceCtx->minigamePerfectLetterEllipseRadiusX[interfaceCtx->minigamePerfectLetterCount] = 140.0f;
+        interfaceCtx->minigamePerfectLetterEllipseRadiusY[interfaceCtx->minigamePerfectLetterCount] = 100.0f;
+        interfaceCtx->minigamePerfectLetterEllipseAngle[interfaceCtx->minigamePerfectLetterCount] =
+            sMinigamePerfectType1AngleOffScreenTargets[interfaceCtx->minigamePerfectLetterCount] + 0xA000;
+
         interfaceCtx->minigamePerfectLetterCount++;
     }
 
-    if ((interfaceCtx->minigamePerfectLetterCount == 8) &&
-        (interfaceCtx->minigamePerfectState[7] == MINIGAME_PERFECT_STATE_STATIONARY)) {
+    // Update letter colors
+    if ((interfaceCtx->minigamePerfectLetterCount == MINIGAME_PERFECT_NUM_LETTERS) &&
+        (interfaceCtx->minigamePerfectState[MINIGAME_PERFECT_NUM_LETTERS - 1] == MINIGAME_PERFECT_STATE_STATIONARY)) {
 
         colorStepR = ABS_ALT(interfaceCtx->minigamePerfectPrimColor[0] -
                              sMinigamePerfectType1PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][0]) /
@@ -5016,30 +5046,48 @@ void Interface_UpdateMinigamePerfectType1(PlayState* play) {
             interfaceCtx->minigamePerfectTimer++;
 
             if (interfaceCtx->minigamePerfectTimer == 6) {
-                for (i = 0; i < 8; i++) {
-                    interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_SWIRL_OUT;
+                for (i = 0; i < MINIGAME_PERFECT_NUM_LETTERS; i++) {
+                    interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_SPREAD;
                 }
             }
         }
     }
 
-    for (count = 0, i = 0; i < 8; i++) {
+    for (count = 0, i = 0; i < MINIGAME_PERFECT_NUM_LETTERS; i++) {
         if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_OFF) {
             count++;
         }
     }
 
-    if (count == 8) {
+    if (count == MINIGAME_PERFECT_NUM_LETTERS) {
         interfaceCtx->isMinigamePerfect = false;
     }
 }
 
-s16 D_801BFC6C[] = {
-    78, 54, 29, 5, 0xFFEE, 0xFFD6, 0xFFBD, 0xFFAB,
+// Targets to offset each letter to properly spell "PERFECT!"
+s16 sMinigamePerfectType2LetterXOffsetSpellingTargets[MINIGAME_PERFECT_NUM_LETTERS] = {
+    78,  // P
+    54,  // E
+    29,  // R
+    5,   // F
+    -18, // E
+    -42, // C
+    -67, // T
+    -85, // !
 };
-s16 D_801BFC7C[] = {
-    180, 180, 180, 180, 0xFF4C, 0xFF4C, 0xFF4C, 0xFF4C,
+
+// Targets to offset each letter to sweep horizontally offscreen
+s16 sMinigamePerfectType2LetterXOffsetOffScreenTargets[MINIGAME_PERFECT_NUM_LETTERS] = {
+    180,  // P (offscreen left)
+    180,  // E (offscreen left)
+    180,  // R (offscreen left)
+    180,  // F (offscreen left)
+    -180, // E (offscreen right)
+    -180, // C (offscreen right)
+    -180, // T (offscreen right)
+    -180, // ! (offscreen right)
 };
+
 s16 sMinigamePerfectType2PrimColorTargets[2][3] = {
     { 255, 255, 255 },
     { 255, 165, 55 },
@@ -5048,30 +5096,38 @@ s16 sMinigamePerfectType2PrimColorTargets[2][3] = {
 void Interface_UpdateMinigamePerfectType2(PlayState* play) {
     s16 i;
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
-    s16 stepVar1;
-    s16 stepVar2;
-    s16 stepVar3;
-    s16 new_var;
+    s16 colorStepR;
+    s16 colorStepG;
+    s16 colorStepB;
+    s16 colorStepA;
     s16 j = 0; // unused incrementer
 
+    // Update letter positions
     for (i = 0; i < interfaceCtx->minigamePerfectLetterCount; i++, j += 4) {
         if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_INIT) {
-            interfaceCtx->minigamePerfectLetterDirection[i] = i << 0xD;
-            interfaceCtx->minigamePerfectLetterPosX[i] = 200.0f;
-            interfaceCtx->minigamePerfectLetterPosY[i] = 200.0f;
-            interfaceCtx->minigamePerfectVtxOffset[i] = 0;
-            interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_SWIRL_IN;
-        } else if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_SWIRL_IN) {
-            interfaceCtx->minigamePerfectLetterDirection[i] -= 0x800;
-            interfaceCtx->minigamePerfectLetterPosX[i] -= 8.0f;
-            interfaceCtx->minigamePerfectLetterPosY[i] -= 8.0f;
-            if (interfaceCtx->minigamePerfectLetterPosX[i] <= 0.0f) {
-                interfaceCtx->minigamePerfectLetterPosY[i] = 0.0f;
-                interfaceCtx->minigamePerfectLetterPosX[i] = 0.0f;
+            // Initialize letter positions along the parameteric ellipse curve
+            interfaceCtx->minigamePerfectLetterEllipseAngle[i] = i * (0x10000 / MINIGAME_PERFECT_NUM_LETTERS);
+            interfaceCtx->minigamePerfectLetterEllipseRadiusX[i] = 200.0f;
+            interfaceCtx->minigamePerfectLetterEllipseRadiusY[i] = 200.0f;
+
+            interfaceCtx->minigamePerfectLetterXOffset[i] = 0;
+            interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_ENTER;
+        } else if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_ENTER) {
+            // Swirl inwards to the center of the screen
+            interfaceCtx->minigamePerfectLetterEllipseAngle[i] -= 0x800;
+            interfaceCtx->minigamePerfectLetterEllipseRadiusX[i] -= 8.0f;
+            interfaceCtx->minigamePerfectLetterEllipseRadiusY[i] -= 8.0f;
+
+            if (interfaceCtx->minigamePerfectLetterEllipseRadiusX[i] <= 0.0f) {
+                // The letter has reached the center of the screen
+                interfaceCtx->minigamePerfectLetterEllipseRadiusY[i] = 0.0f;
+                interfaceCtx->minigamePerfectLetterEllipseRadiusX[i] = 0.0f;
                 interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_STATIONARY;
-                if (i == 7) {
+
+                if (i == (MINIGAME_PERFECT_NUM_LETTERS - 1)) {
+                    // The last letter has reached the center of the screen
                     interfaceCtx->minigamePerfectColorTimer = 5;
-                    interfaceCtx->minigamePerfectState[7] = MINIGAME_PERFECT_STATE_SWIRL_OUT;
+                    interfaceCtx->minigamePerfectState[7] = MINIGAME_PERFECT_STATE_SPREAD;
                     interfaceCtx->minigamePerfectState[6] = interfaceCtx->minigamePerfectState[7];
                     interfaceCtx->minigamePerfectState[5] = interfaceCtx->minigamePerfectState[7];
                     interfaceCtx->minigamePerfectState[4] = interfaceCtx->minigamePerfectState[7];
@@ -5081,43 +5137,46 @@ void Interface_UpdateMinigamePerfectType2(PlayState* play) {
                     interfaceCtx->minigamePerfectState[0] = interfaceCtx->minigamePerfectState[7];
                 }
             }
-        } else if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_SWIRL_OUT) {
-
-            stepVar1 = ABS_ALT(interfaceCtx->minigamePerfectVtxOffset[i] - D_801BFC6C[i]) /
-                       interfaceCtx->minigamePerfectColorTimer;
-            if (interfaceCtx->minigamePerfectVtxOffset[i] >= D_801BFC6C[i]) {
-                interfaceCtx->minigamePerfectVtxOffset[i] -= stepVar1;
+        } else if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_SPREAD) {
+            // Spread out the letters horizontally from the center to the spelt-out word
+            colorStepR = ABS_ALT(interfaceCtx->minigamePerfectLetterXOffset[i] -
+                                 sMinigamePerfectType2LetterXOffsetSpellingTargets[i]) /
+                         interfaceCtx->minigamePerfectColorTimer;
+            if (interfaceCtx->minigamePerfectLetterXOffset[i] >= sMinigamePerfectType2LetterXOffsetSpellingTargets[i]) {
+                interfaceCtx->minigamePerfectLetterXOffset[i] -= colorStepR;
             } else {
-                interfaceCtx->minigamePerfectVtxOffset[i] += stepVar1;
+                interfaceCtx->minigamePerfectLetterXOffset[i] += colorStepR;
             }
-        } else if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_6) {
-
-            stepVar1 = ABS_ALT(interfaceCtx->minigamePerfectVtxOffset[i] - D_801BFC7C[i]) /
-                       interfaceCtx->minigamePerfectColorTimer;
-            if (interfaceCtx->minigamePerfectVtxOffset[i] >= D_801BFC7C[i]) {
-                interfaceCtx->minigamePerfectVtxOffset[i] -= stepVar1;
+        } else if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_EXIT) {
+            // Spread out the letters horizontally from the spelt-out world to offscreen
+            colorStepR = ABS_ALT(interfaceCtx->minigamePerfectLetterXOffset[i] -
+                                 sMinigamePerfectType2LetterXOffsetOffScreenTargets[i]) /
+                         interfaceCtx->minigamePerfectColorTimer;
+            if (interfaceCtx->minigamePerfectLetterXOffset[i] >=
+                sMinigamePerfectType2LetterXOffsetOffScreenTargets[i]) {
+                interfaceCtx->minigamePerfectLetterXOffset[i] -= colorStepR;
             } else {
-                interfaceCtx->minigamePerfectVtxOffset[i] += stepVar1;
+                interfaceCtx->minigamePerfectLetterXOffset[i] += colorStepR;
             }
         }
     }
 
-    if ((interfaceCtx->minigamePerfectState[0] == MINIGAME_PERFECT_STATE_SWIRL_OUT) ||
-        (interfaceCtx->minigamePerfectState[0] == MINIGAME_PERFECT_STATE_6)) {
-        if (interfaceCtx->minigamePerfectState[0] == MINIGAME_PERFECT_STATE_6) {
-            new_var = interfaceCtx->minigamePerfectPrimColor[3] / interfaceCtx->minigamePerfectColorTimer;
-            interfaceCtx->minigamePerfectPrimColor[3] -= new_var;
+    if ((interfaceCtx->minigamePerfectState[0] == MINIGAME_PERFECT_STATE_SPREAD) ||
+        (interfaceCtx->minigamePerfectState[0] == MINIGAME_PERFECT_STATE_EXIT)) {
+        if (interfaceCtx->minigamePerfectState[0] == MINIGAME_PERFECT_STATE_EXIT) {
+            colorStepA = interfaceCtx->minigamePerfectPrimColor[3] / interfaceCtx->minigamePerfectColorTimer;
+            interfaceCtx->minigamePerfectPrimColor[3] -= colorStepA;
         }
         interfaceCtx->minigamePerfectColorTimer--;
         if (interfaceCtx->minigamePerfectColorTimer == 0) {
 
-            if (interfaceCtx->minigamePerfectState[0] == MINIGAME_PERFECT_STATE_SWIRL_OUT) {
-                for (i = 0; i < 8; i++) {
-                    interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_5;
+            if (interfaceCtx->minigamePerfectState[0] == MINIGAME_PERFECT_STATE_SPREAD) {
+                for (i = 0; i < MINIGAME_PERFECT_NUM_LETTERS; i++) {
+                    interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_DISPLAY;
                 }
                 interfaceCtx->minigamePerfectColorTimer = 20;
             } else {
-                for (i = 0; i < 8; i++) {
+                for (i = 0; i < MINIGAME_PERFECT_NUM_LETTERS; i++) {
                     interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_OFF;
                 }
                 interfaceCtx->isMinigamePerfect = false;
@@ -5125,47 +5184,50 @@ void Interface_UpdateMinigamePerfectType2(PlayState* play) {
         }
     }
 
+    // Initialize the next letter in the list
     if (interfaceCtx->minigamePerfectState[interfaceCtx->minigamePerfectLetterCount] == MINIGAME_PERFECT_STATE_OFF) {
-        if (interfaceCtx->minigamePerfectLetterCount < 8) {
+        if (interfaceCtx->minigamePerfectLetterCount < MINIGAME_PERFECT_NUM_LETTERS) {
             interfaceCtx->minigamePerfectState[interfaceCtx->minigamePerfectLetterCount] = MINIGAME_PERFECT_STATE_INIT;
             interfaceCtx->minigamePerfectLetterCount++;
         }
     }
-    if (interfaceCtx->minigamePerfectLetterCount == 8) {
-        if (interfaceCtx->minigamePerfectState[7] == MINIGAME_PERFECT_STATE_5) {
 
-            stepVar1 =
+    // Update letter colors
+    if (interfaceCtx->minigamePerfectLetterCount == MINIGAME_PERFECT_NUM_LETTERS) {
+        if (interfaceCtx->minigamePerfectState[MINIGAME_PERFECT_NUM_LETTERS - 1] == MINIGAME_PERFECT_STATE_DISPLAY) {
+
+            colorStepR =
                 ABS_ALT(interfaceCtx->minigamePerfectPrimColor[0] -
                         sMinigamePerfectType2PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][0]) /
                 interfaceCtx->minigamePerfectColorTimer;
-            stepVar2 =
+            colorStepG =
                 ABS_ALT(interfaceCtx->minigamePerfectPrimColor[1] -
                         sMinigamePerfectType2PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][1]) /
                 interfaceCtx->minigamePerfectColorTimer;
-            stepVar3 =
+            colorStepB =
                 ABS_ALT(interfaceCtx->minigamePerfectPrimColor[2] -
                         sMinigamePerfectType2PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][2]) /
                 interfaceCtx->minigamePerfectColorTimer;
 
             if (interfaceCtx->minigamePerfectPrimColor[0] >=
                 sMinigamePerfectType2PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][0]) {
-                interfaceCtx->minigamePerfectPrimColor[0] -= stepVar1;
+                interfaceCtx->minigamePerfectPrimColor[0] -= colorStepR;
             } else {
-                interfaceCtx->minigamePerfectPrimColor[0] += stepVar1;
+                interfaceCtx->minigamePerfectPrimColor[0] += colorStepR;
             }
 
             if (interfaceCtx->minigamePerfectPrimColor[1] >=
                 sMinigamePerfectType2PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][1]) {
-                interfaceCtx->minigamePerfectPrimColor[1] -= stepVar2;
+                interfaceCtx->minigamePerfectPrimColor[1] -= colorStepG;
             } else {
-                interfaceCtx->minigamePerfectPrimColor[1] += stepVar2;
+                interfaceCtx->minigamePerfectPrimColor[1] += colorStepG;
             }
 
             if (interfaceCtx->minigamePerfectPrimColor[2] >=
                 sMinigamePerfectType2PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][2]) {
-                interfaceCtx->minigamePerfectPrimColor[2] -= stepVar3;
+                interfaceCtx->minigamePerfectPrimColor[2] -= colorStepB;
             } else {
-                interfaceCtx->minigamePerfectPrimColor[2] += stepVar3;
+                interfaceCtx->minigamePerfectPrimColor[2] += colorStepB;
             }
 
             interfaceCtx->minigamePerfectColorTimer--;
@@ -5174,8 +5236,8 @@ void Interface_UpdateMinigamePerfectType2(PlayState* play) {
                 interfaceCtx->minigamePerfectColorTargetIndex ^= 1;
                 interfaceCtx->minigamePerfectTimer++;
                 if (interfaceCtx->minigamePerfectTimer == 6) {
-                    for (i = 0; i < 8; i++) {
-                        interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_6;
+                    for (i = 0; i < MINIGAME_PERFECT_NUM_LETTERS; i++) {
+                        interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_EXIT;
                     }
                     interfaceCtx->minigamePerfectColorTimer = 5;
                 }
@@ -5184,11 +5246,27 @@ void Interface_UpdateMinigamePerfectType2(PlayState* play) {
     }
 }
 
-s16 D_801BFC98[] = {
-    78, 54, 29, 5, 0xFFEE, 0xFFD6, 0xFFBD, 0xFFAB,
+// Targets to offset each letter to properly spell "PERFECT!"
+s16 sMinigamePerfectType3LetterXOffsetSpellingTargets[MINIGAME_PERFECT_NUM_LETTERS] = {
+    78,  // P
+    54,  // E
+    29,  // R
+    5,   // F
+    -18, // E
+    -42, // C
+    -67, // T
+    -85, // !
 };
-u16 D_801BFCA8[] = {
-    0xC000, 0xE000, 0x0000, 0x2000, 0xA000, 0x8000, 0x6000, 0x4000,
+// Targets to sweep each letter's angle along an parametric ellipse equation offscreen
+u16 sMinigamePerfectType3AngleOffScreenTargets[MINIGAME_PERFECT_NUM_LETTERS] = {
+    6 * MINIGAME_PERFECT_ANGLE_PER_LETTER, // P
+    7 * MINIGAME_PERFECT_ANGLE_PER_LETTER, // E
+    0 * MINIGAME_PERFECT_ANGLE_PER_LETTER, // R
+    1 * MINIGAME_PERFECT_ANGLE_PER_LETTER, // F
+    5 * MINIGAME_PERFECT_ANGLE_PER_LETTER, // E
+    4 * MINIGAME_PERFECT_ANGLE_PER_LETTER, // C
+    3 * MINIGAME_PERFECT_ANGLE_PER_LETTER, // T
+    2 * MINIGAME_PERFECT_ANGLE_PER_LETTER, // !
 };
 s16 sMinigamePerfectType3PrimColorTargets[2][3] = {
     { 255, 255, 255 },
@@ -5198,29 +5276,36 @@ s16 sMinigamePerfectType3PrimColorTargets[2][3] = {
 void Interface_UpdateMinigamePerfectType3(PlayState* play) {
     s16 i;
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
-    s16 stepVar1;
-    s16 stepVar2;
-    s16 stepVar3;
-    s16 stepVar4;
+    s16 colorStepR;
+    s16 colorStepG;
+    s16 colorStepB;
     s16 j = 0;
 
+    // Update letter positions
     for (i = 0; i < interfaceCtx->minigamePerfectLetterCount; i++, j += 4) {
         if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_INIT) {
-            interfaceCtx->minigamePerfectLetterDirection[i] = i << 0xD;
-            interfaceCtx->minigamePerfectLetterPosX[i] = 200.0f;
-            interfaceCtx->minigamePerfectLetterPosY[i] = 200.0f;
-            interfaceCtx->minigamePerfectVtxOffset[i] = 0;
-            interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_SWIRL_IN;
-        } else if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_SWIRL_IN) {
-            interfaceCtx->minigamePerfectLetterDirection[i] -= 0x800;
-            interfaceCtx->minigamePerfectLetterPosX[i] -= 8.0f;
-            interfaceCtx->minigamePerfectLetterPosY[i] -= 8.0f;
-            if (interfaceCtx->minigamePerfectLetterPosX[i] <= 0.0f) {
-                interfaceCtx->minigamePerfectLetterPosY[i] = 0.0f;
-                interfaceCtx->minigamePerfectLetterPosX[i] = 0.0f;
+            // Initialize letter positions along the parameteric ellipse curve
+            interfaceCtx->minigamePerfectLetterEllipseAngle[i] = i * (0x10000 / MINIGAME_PERFECT_NUM_LETTERS);
+            interfaceCtx->minigamePerfectLetterEllipseRadiusX[i] = 200.0f;
+            interfaceCtx->minigamePerfectLetterEllipseRadiusY[i] = 200.0f;
+
+            interfaceCtx->minigamePerfectLetterXOffset[i] = 0;
+            interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_ENTER;
+        } else if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_ENTER) {
+            // Swirl inwards along a swirlic parametric ellipse equation to the center of the screen
+            interfaceCtx->minigamePerfectLetterEllipseAngle[i] -= 0x800;
+            interfaceCtx->minigamePerfectLetterEllipseRadiusX[i] -= 8.0f;
+            interfaceCtx->minigamePerfectLetterEllipseRadiusY[i] -= 8.0f;
+
+            if (interfaceCtx->minigamePerfectLetterEllipseRadiusX[i] <= 0.0f) {
+                // The letter has reached the center of the screen
+                interfaceCtx->minigamePerfectLetterEllipseRadiusY[i] = 0.0f;
+                interfaceCtx->minigamePerfectLetterEllipseRadiusX[i] = 0.0f;
                 interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_STATIONARY;
-                if (i == 7) {
-                    interfaceCtx->minigamePerfectState[7] = MINIGAME_PERFECT_STATE_SWIRL_OUT;
+
+                if (i == (MINIGAME_PERFECT_NUM_LETTERS - 1)) {
+                    // The last letter has reached the center of the screen
+                    interfaceCtx->minigamePerfectState[7] = MINIGAME_PERFECT_STATE_SPREAD;
                     interfaceCtx->minigamePerfectColorTimer = 5;
                     interfaceCtx->minigamePerfectState[6] = interfaceCtx->minigamePerfectState[7];
                     interfaceCtx->minigamePerfectState[5] = interfaceCtx->minigamePerfectState[7];
@@ -5231,70 +5316,76 @@ void Interface_UpdateMinigamePerfectType3(PlayState* play) {
                     interfaceCtx->minigamePerfectState[0] = interfaceCtx->minigamePerfectState[7];
                 }
             }
-        } else if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_SWIRL_OUT) {
-            stepVar1 = ABS_ALT(interfaceCtx->minigamePerfectVtxOffset[i] - D_801BFC98[i]) /
-                       interfaceCtx->minigamePerfectColorTimer;
-            if (interfaceCtx->minigamePerfectVtxOffset[i] >= D_801BFC98[i]) {
-                interfaceCtx->minigamePerfectVtxOffset[i] -= stepVar1;
+        } else if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_SPREAD) {
+            // Spread out the letters horizontally from the center to the spelt-out word
+            colorStepR = ABS_ALT(interfaceCtx->minigamePerfectLetterXOffset[i] -
+                                 sMinigamePerfectType3LetterXOffsetSpellingTargets[i]) /
+                         interfaceCtx->minigamePerfectColorTimer;
+            if (interfaceCtx->minigamePerfectLetterXOffset[i] >= sMinigamePerfectType3LetterXOffsetSpellingTargets[i]) {
+                interfaceCtx->minigamePerfectLetterXOffset[i] -= colorStepR;
             } else {
-                interfaceCtx->minigamePerfectVtxOffset[i] += stepVar1;
+                interfaceCtx->minigamePerfectLetterXOffset[i] += colorStepR;
             }
-        } else if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_6) {
-            interfaceCtx->minigamePerfectLetterDirection[i] -= 0x800;
-            if (interfaceCtx->minigamePerfectLetterDirection[i] == (u16)(D_801BFCA8[i] - 0x8000)) {
+        } else if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_EXIT) {
+            // Swirl outwards along a swirlic parametric ellipse equation offscreen
+            interfaceCtx->minigamePerfectLetterEllipseAngle[i] -= 0x800;
+            if (interfaceCtx->minigamePerfectLetterEllipseAngle[i] ==
+                (u16)(sMinigamePerfectType3AngleOffScreenTargets[i] - 0x8000)) {
                 interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_OFF;
             }
         }
     }
 
-    if (interfaceCtx->minigamePerfectState[0] == MINIGAME_PERFECT_STATE_SWIRL_OUT) {
+    if (interfaceCtx->minigamePerfectState[0] == MINIGAME_PERFECT_STATE_SPREAD) {
         interfaceCtx->minigamePerfectColorTimer--;
         if (interfaceCtx->minigamePerfectColorTimer == 0) {
-            for (i = 0; i < 8; i++) {
-                interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_5;
+            for (i = 0; i < MINIGAME_PERFECT_NUM_LETTERS; i++) {
+                interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_DISPLAY;
             }
             interfaceCtx->minigamePerfectColorTimer = 20;
         }
     }
 
+    // Initialize the next letter in the list
     if ((interfaceCtx->minigamePerfectState[interfaceCtx->minigamePerfectLetterCount] == MINIGAME_PERFECT_STATE_OFF) &&
-        (interfaceCtx->minigamePerfectLetterCount < 8)) {
+        (interfaceCtx->minigamePerfectLetterCount < MINIGAME_PERFECT_NUM_LETTERS)) {
         interfaceCtx->minigamePerfectState[interfaceCtx->minigamePerfectLetterCount] = MINIGAME_PERFECT_STATE_INIT;
         interfaceCtx->minigamePerfectLetterCount++;
     }
 
-    if ((interfaceCtx->minigamePerfectLetterCount == 8) &&
-        (interfaceCtx->minigamePerfectState[7] == MINIGAME_PERFECT_STATE_5)) {
+    // Update letter colors
+    if ((interfaceCtx->minigamePerfectLetterCount == MINIGAME_PERFECT_NUM_LETTERS) &&
+        (interfaceCtx->minigamePerfectState[MINIGAME_PERFECT_NUM_LETTERS - 1] == MINIGAME_PERFECT_STATE_DISPLAY)) {
 
-        stepVar1 = ABS_ALT(interfaceCtx->minigamePerfectPrimColor[0] -
-                           sMinigamePerfectType3PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][0]) /
-                   interfaceCtx->minigamePerfectColorTimer;
-        stepVar2 = ABS_ALT(interfaceCtx->minigamePerfectPrimColor[1] -
-                           sMinigamePerfectType3PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][1]) /
-                   interfaceCtx->minigamePerfectColorTimer;
-        stepVar3 = ABS_ALT(interfaceCtx->minigamePerfectPrimColor[2] -
-                           sMinigamePerfectType3PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][2]) /
-                   interfaceCtx->minigamePerfectColorTimer;
+        colorStepR = ABS_ALT(interfaceCtx->minigamePerfectPrimColor[0] -
+                             sMinigamePerfectType3PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][0]) /
+                     interfaceCtx->minigamePerfectColorTimer;
+        colorStepG = ABS_ALT(interfaceCtx->minigamePerfectPrimColor[1] -
+                             sMinigamePerfectType3PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][1]) /
+                     interfaceCtx->minigamePerfectColorTimer;
+        colorStepB = ABS_ALT(interfaceCtx->minigamePerfectPrimColor[2] -
+                             sMinigamePerfectType3PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][2]) /
+                     interfaceCtx->minigamePerfectColorTimer;
 
         if (interfaceCtx->minigamePerfectPrimColor[0] >=
             sMinigamePerfectType3PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][0]) {
-            interfaceCtx->minigamePerfectPrimColor[0] -= stepVar1;
+            interfaceCtx->minigamePerfectPrimColor[0] -= colorStepR;
         } else {
-            interfaceCtx->minigamePerfectPrimColor[0] += stepVar1;
+            interfaceCtx->minigamePerfectPrimColor[0] += colorStepR;
         }
 
         if (interfaceCtx->minigamePerfectPrimColor[1] >=
             sMinigamePerfectType3PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][1]) {
-            interfaceCtx->minigamePerfectPrimColor[1] -= stepVar2;
+            interfaceCtx->minigamePerfectPrimColor[1] -= colorStepG;
         } else {
-            interfaceCtx->minigamePerfectPrimColor[1] += stepVar2;
+            interfaceCtx->minigamePerfectPrimColor[1] += colorStepG;
         }
 
         if (interfaceCtx->minigamePerfectPrimColor[2] >=
             sMinigamePerfectType3PrimColorTargets[interfaceCtx->minigamePerfectColorTargetIndex][2]) {
-            interfaceCtx->minigamePerfectPrimColor[2] -= stepVar3;
+            interfaceCtx->minigamePerfectPrimColor[2] -= colorStepB;
         } else {
-            interfaceCtx->minigamePerfectPrimColor[2] += stepVar3;
+            interfaceCtx->minigamePerfectPrimColor[2] += colorStepB;
         }
 
         interfaceCtx->minigamePerfectColorTimer--;
@@ -5303,11 +5394,11 @@ void Interface_UpdateMinigamePerfectType3(PlayState* play) {
             interfaceCtx->minigamePerfectColorTargetIndex ^= 1;
             interfaceCtx->minigamePerfectTimer++;
             if (interfaceCtx->minigamePerfectTimer == 6) {
-                for (i = 0; i < 8; i++) {
-                    interfaceCtx->minigamePerfectLetterPosX[i] = 140.0f;
-                    interfaceCtx->minigamePerfectLetterPosY[i] = 100.0f;
-                    interfaceCtx->minigamePerfectLetterDirection[i] = D_801BFCA8[i];
-                    interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_6;
+                for (i = 0; i < MINIGAME_PERFECT_NUM_LETTERS; i++) {
+                    interfaceCtx->minigamePerfectLetterEllipseRadiusX[i] = 140.0f;
+                    interfaceCtx->minigamePerfectLetterEllipseRadiusY[i] = 100.0f;
+                    interfaceCtx->minigamePerfectLetterEllipseAngle[i] = sMinigamePerfectType3AngleOffScreenTargets[i];
+                    interfaceCtx->minigamePerfectState[i] = MINIGAME_PERFECT_STATE_EXIT;
                 }
                 interfaceCtx->minigamePerfectColorTimer = 5;
             }
@@ -5315,22 +5406,23 @@ void Interface_UpdateMinigamePerfectType3(PlayState* play) {
     }
 
     j = 0;
-    for (i = 0; i < 8; i++) {
+    for (i = 0; i < MINIGAME_PERFECT_NUM_LETTERS; i++) {
         if (interfaceCtx->minigamePerfectState[i] == MINIGAME_PERFECT_STATE_OFF) {
             j++;
         }
     }
 
-    if (j == 8) {
+    if (j == MINIGAME_PERFECT_NUM_LETTERS) {
         interfaceCtx->isMinigamePerfect = false;
     }
 }
 
+TexturePtr sMinigamePerfectTextures[MINIGAME_PERFECT_NUM_LETTERS] = {
+    gMinigameLetterPTex, gMinigameLetterETex, gMinigameLetterRTex, gMinigameLetterFTex,
+    gMinigameLetterETex, gMinigameLetterCTex, gMinigameLetterTTex, gMinigameExclamationTex,
+};
+
 void Interface_DrawMinigamePerfect(PlayState* play) {
-    static TexturePtr sMinigamePerfectTextures[] = {
-        gMinigameLetterPTex, gMinigameLetterETex, gMinigameLetterRTex, gMinigameLetterFTex,
-        gMinigameLetterETex, gMinigameLetterCTex, gMinigameLetterTTex, gMinigameExclamationTex,
-    };
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
     f32 letterX;
     f32 letterY;
@@ -5345,12 +5437,14 @@ void Interface_DrawMinigamePerfect(PlayState* play) {
     gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0,
                       PRIMITIVE, 0);
 
-    for (vtxOffset = 0, i = 0; i < 8; vtxOffset += 4, i++) {
+    for (vtxOffset = 0, i = 0; i < MINIGAME_PERFECT_NUM_LETTERS; vtxOffset += 4, i++) {
         if (interfaceCtx->minigamePerfectState[i] != MINIGAME_PERFECT_STATE_OFF) {
-            letterX =
-                Math_SinS(interfaceCtx->minigamePerfectLetterDirection[i]) * interfaceCtx->minigamePerfectLetterPosX[i];
-            letterY =
-                Math_CosS(interfaceCtx->minigamePerfectLetterDirection[i]) * interfaceCtx->minigamePerfectLetterPosY[i];
+
+            // The positions follow the path of a parametric ellipse equation
+            letterX = Math_SinS(interfaceCtx->minigamePerfectLetterEllipseAngle[i]) *
+                      interfaceCtx->minigamePerfectLetterEllipseRadiusX[i];
+            letterY = Math_CosS(interfaceCtx->minigamePerfectLetterEllipseAngle[i]) *
+                      interfaceCtx->minigamePerfectLetterEllipseRadiusY[i];
 
             // Draw Minigame Perfect Shadows
             gDPPipeSync(OVERLAY_DISP++);

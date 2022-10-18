@@ -83,12 +83,15 @@ typedef enum {
 typedef enum {
     /* 0 */ MINIGAME_PERFECT_STATE_OFF,
     /* 1 */ MINIGAME_PERFECT_STATE_INIT,
-    /* 2 */ MINIGAME_PERFECT_STATE_SWIRL_IN,
-    /* 3 */ MINIGAME_PERFECT_STATE_STATIONARY,
-    /* 4 */ MINIGAME_PERFECT_STATE_SWIRL_OUT,
-    /* 5 */ MINIGAME_PERFECT_STATE_5,
-    /* 6 */ MINIGAME_PERFECT_STATE_6
+    /* 2 */ MINIGAME_PERFECT_STATE_ENTER,
+    /* 3 */ MINIGAME_PERFECT_STATE_STATIONARY, // Display for type 1
+    /* 4 */ MINIGAME_PERFECT_STATE_SPREAD, // Exit for type 1
+    /* 5 */ MINIGAME_PERFECT_STATE_DISPLAY,
+    /* 6 */ MINIGAME_PERFECT_STATE_EXIT
 } MinigamePerfectState;
+
+#define MINIGAME_PERFECT_NUM_LETTERS 8
+#define MINIGAME_PERFECT_ANGLE_PER_LETTER (0x10000 / MINIGAME_PERFECT_NUM_LETTERS)
 
 typedef enum {
     /* 0 */ STORY_DMA_IDLE,
@@ -176,11 +179,11 @@ typedef struct {
     /* 0x284 */ s16 minigameCountdownScale;
     /* 0x286 */ s16 isMinigamePerfect;
     /* 0x288 */ s16 minigamePerfectType;
-    /* 0x28A */ s16 minigamePerfectState[8];
-    /* 0x29A */ u16 minigamePerfectLetterDirection[8];
-    /* 0x2AA */ s16 minigamePerfectVtxOffset[8];
-    /* 0x2BC */ f32 minigamePerfectLetterPosX[8];
-    /* 0x2DC */ f32 minigamePerfectLetterPosY[8];
+    /* 0x28A */ s16 minigamePerfectState[MINIGAME_PERFECT_NUM_LETTERS];
+    /* 0x29A */ u16 minigamePerfectLetterEllipseAngle[MINIGAME_PERFECT_NUM_LETTERS];
+    /* 0x2AA */ s16 minigamePerfectLetterXOffset[MINIGAME_PERFECT_NUM_LETTERS];
+    /* 0x2BC */ f32 minigamePerfectLetterEllipseRadiusX[MINIGAME_PERFECT_NUM_LETTERS];
+    /* 0x2DC */ f32 minigamePerfectLetterEllipseRadiusY[MINIGAME_PERFECT_NUM_LETTERS];
     /* 0x2FC */ s16 minigamePerfectPrimColor[4];
     /* 0x304 */ s16 minigamePerfectLetterCount;
     /* 0x306 */ s16 minigamePerfectUnused;
