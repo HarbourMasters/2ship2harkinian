@@ -48,8 +48,7 @@
 
 #define R_ENABLE_ARENA_DBG                SREG(0) // Same as OoT
 #define R_UPDATE_RATE                     SREG(30)
-#define R_PAUSE_MENU_MODE                 SREG(94)
-
+#define R_PAUSE_BG_PRERENDER_STATE        SREG(94)
 #define R_PLAY_FILL_SCREEN_ON             MREG(64)
 #define R_PLAY_FILL_SCREEN_R              MREG(65)
 #define R_PLAY_FILL_SCREEN_G              MREG(66)
