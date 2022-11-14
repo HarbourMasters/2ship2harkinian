@@ -1750,7 +1750,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
     s16 i;
     s16 restoreHudVisibility = false;
 
-    if (gSaveContext.eventInf[4] & 2) {
+    if (CHECK_EVENTINF(EVENTINF_41)) {
         // Related to swamp boat (non-minigame)?
         for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
             if ((GET_CUR_FORM_BTN_ITEM(i) != ITEM_PICTO_BOX) || (msgCtx->msgMode != 0)) {
@@ -1777,7 +1777,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
             }
             gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_ENABLED;
         }
-    } else if (gSaveContext.save.weekEventReg[90] & 0x20) {
+    } else if (CHECK_WEEKEVENTREG(WEEKEVENTREG_90_20)) {
         // Fishermans's jumping minigame
         for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
             if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
@@ -1786,7 +1786,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
         }
 
         Interface_SetHudVisibility(HUD_VISIBILITY_B);
-    } else if (gSaveContext.save.weekEventReg[82] & 8) {
+    } else if (CHECK_WEEKEVENTREG(WEEKEVENTREG_82_08)) {
         // Swordsman's log minigame
         for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
             if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
@@ -1795,7 +1795,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
         }
 
         Interface_SetHudVisibility(HUD_VISIBILITY_A_B_HEARTS_MAGIC_MINIMAP);
-    } else if (gSaveContext.save.weekEventReg[84] & 0x20) {
+    } else if (CHECK_WEEKEVENTREG(WEEKEVENTREG_84_20)) {
         // Related to moon child
         if (player->currentMask == PLAYER_MASK_FIERCE_DEITY) {
             for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
@@ -1835,7 +1835,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
             }
             gSaveContext.buttonStatus[i] = BTN_DISABLED;
         }
-    } else if (gSaveContext.eventInf[3] & 0x10) {
+    } else if (CHECK_EVENTINF(EVENTINF_34)) {
         // Deku playground minigame
         if (player->stateFlags3 & PLAYER_STATE3_1000000) {
             if (gSaveContext.save.inventory.items[SLOT_NUT] == ITEM_NUT) {
@@ -2227,8 +2227,8 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
 
     if (gSaveContext.save.cutscene < 0xFFF0) {
         gSaveContext.hudVisibilityForceButtonAlphasByStatus = false;
-        if ((player->stateFlags1 & PLAYER_STATE1_800000) || (gSaveContext.save.weekEventReg[8] & 1) ||
-            (!(gSaveContext.eventInf[4] & 2) && (play->bButtonAmmoPlusOne >= 2))) {
+        if ((player->stateFlags1 & PLAYER_STATE1_800000) || CHECK_WEEKEVENTREG(WEEKEVENTREG_08_01) ||
+            (!(CHECK_EVENTINF(EVENTINF_41)) && (play->bButtonAmmoPlusOne >= 2))) {
             // Riding Epona OR Honey & Darling minigame OR Horseback balloon minigame OR related to swamp boat
             // (non-minigame?)
             if ((player->stateFlags1 & PLAYER_STATE1_800000) && (player->currentMask == PLAYER_MASK_BLAST) &&
@@ -2239,7 +2239,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
             }
 
             if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NONE) {
-                if ((player->transformation == PLAYER_FORM_DEKU) && (gSaveContext.save.weekEventReg[8] & 1)) {
+                if ((player->transformation == PLAYER_FORM_DEKU) && CHECK_WEEKEVENTREG(WEEKEVENTREG_08_01)) {
                     gSaveContext.hudVisibilityForceButtonAlphasByStatus = true;
                     if (play->sceneId == SCENE_BOWLING) {
                         if (gSaveContext.buttonStatus[EQUIP_SLOT_B] == BTN_DISABLED) {
@@ -2302,14 +2302,14 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                                (Cutscene_GetSceneLayer(play) != 0) && (play->transitionTrigger == TRANS_TRIGGER_OFF)) {
                         Interface_SetHudVisibility(HUD_VISIBILITY_A_B_MINIMAP);
                     } else if ((gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE) &&
-                               (gSaveContext.eventInf[3] & 0x20)) {
+                               (CHECK_EVENTINF(EVENTINF_35))) {
                         Interface_SetHudVisibility(HUD_VISIBILITY_B_MINIMAP);
-                    } else if (!(gSaveContext.save.weekEventReg[0x52] & 8) &&
+                    } else if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_82_08) &&
                                (gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE)) {
                         Interface_SetHudVisibility(HUD_VISIBILITY_B);
                     } else if (play->bButtonAmmoPlusOne >= 2) {
                         Interface_SetHudVisibility(HUD_VISIBILITY_B);
-                    } else if (gSaveContext.save.weekEventReg[8] & 1) {
+                    } else if (CHECK_WEEKEVENTREG(WEEKEVENTREG_08_01)) {
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
@@ -2366,7 +2366,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                     Interface_SetHudVisibility(HUD_VISIBILITY_B);
                 } else if (play->bButtonAmmoPlusOne >= 2) {
                     Interface_SetHudVisibility(HUD_VISIBILITY_B);
-                } else if (gSaveContext.save.weekEventReg[8] & 1) {
+                } else if (CHECK_WEEKEVENTREG(WEEKEVENTREG_08_01)) {
                     gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
                     gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
                     gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
@@ -2391,8 +2391,8 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                     restoreHudVisibility = true;
                     sPictographState = PICTOGRAPH_STATE_OFF;
                 } else if (CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, BTN_A) || (func_801A5100() == 1)) {
-                    if (!(gSaveContext.eventInf[4] & 2) ||
-                        ((gSaveContext.eventInf[4] & 2) && (ActorCutscene_GetCurrentIndex() == -1))) {
+                    if (!(CHECK_EVENTINF(EVENTINF_41)) ||
+                        ((CHECK_EVENTINF(EVENTINF_41)) && (ActorCutscene_GetCurrentIndex() == -1))) {
                         play_sound(NA_SE_SY_CAMERA_SHUTTER);
                         SREG(89) = 1;
                         play->haltAllActors = true;
@@ -3541,8 +3541,7 @@ s32 Magic_Consume(PlayState* play, s16 magicToConsume, s16 type) {
                 if (gSaveContext.magicState == MAGIC_STATE_CONSUME_LENS) {
                     play->actorCtx.lensActive = false;
                 }
-                if (CHECK_WEEKEVENTREG(WEEKEVENTREG_14_08)) {
-                    // Drank Chateau Romani
+                if (CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
                     magicToConsume = 0;
                 }
                 gSaveContext.magicToConsume = magicToConsume;
@@ -3561,8 +3560,7 @@ s32 Magic_Consume(PlayState* play, s16 magicToConsume, s16 type) {
                 if (gSaveContext.magicState == MAGIC_STATE_CONSUME_LENS) {
                     play->actorCtx.lensActive = false;
                 }
-                if (CHECK_WEEKEVENTREG(WEEKEVENTREG_14_08)) {
-                    // Drank Chateau Romani
+                if (CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
                     magicToConsume = 0;
                 }
                 gSaveContext.magicToConsume = magicToConsume;
@@ -3640,8 +3638,7 @@ s32 Magic_Consume(PlayState* play, s16 magicToConsume, s16 type) {
                 if (gSaveContext.magicState == MAGIC_STATE_CONSUME_LENS) {
                     play->actorCtx.lensActive = false;
                 }
-                if (CHECK_WEEKEVENTREG(WEEKEVENTREG_14_08)) {
-                    // Drank Chateau Romani
+                if (CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
                     magicToConsume = 0;
                 }
                 gSaveContext.save.playerData.magic -= magicToConsume;
@@ -3729,8 +3726,7 @@ void Magic_Update(PlayState* play) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
     s16 magicCapacityTarget;
 
-    if (CHECK_WEEKEVENTREG(WEEKEVENTREG_14_08)) {
-        // Drank Chateau Romani
+    if (CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
         Magic_FlashMeterBorder();
     }
 
@@ -3780,7 +3776,7 @@ void Magic_Update(PlayState* play) {
 
         case MAGIC_STATE_CONSUME:
             // Consume magic until target is reached or no more magic is available
-            if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_14_08)) {
+            if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
                 gSaveContext.save.playerData.magic =
                     ((void)0, gSaveContext.save.playerData.magic) - ((void)0, gSaveContext.magicToConsume);
                 if (gSaveContext.save.playerData.magic <= 0) {
@@ -3793,7 +3789,7 @@ void Magic_Update(PlayState* play) {
         case MAGIC_STATE_METER_FLASH_1:
         case MAGIC_STATE_METER_FLASH_2:
         case MAGIC_STATE_METER_FLASH_3:
-            if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_14_08)) {
+            if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
                 Magic_FlashMeterBorder();
             }
             break;
@@ -3827,19 +3823,19 @@ void Magic_Update(PlayState* play) {
 
                 interfaceCtx->magicConsumptionTimer--;
                 if (interfaceCtx->magicConsumptionTimer == 0) {
-                    if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_14_08)) {
+                    if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
                         gSaveContext.save.playerData.magic--;
                     }
                     interfaceCtx->magicConsumptionTimer = 80;
                 }
             }
-            if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_14_08)) {
+            if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
                 Magic_FlashMeterBorder();
             }
             break;
 
         case MAGIC_STATE_CONSUME_GORON_ZORA_SETUP:
-            if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_14_08)) {
+            if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
                 gSaveContext.save.playerData.magic -= 2;
             }
             if (gSaveContext.save.playerData.magic <= 0) {
@@ -3854,7 +3850,7 @@ void Magic_Update(PlayState* play) {
                 if (!Play_InCsMode(play)) {
                     interfaceCtx->magicConsumptionTimer--;
                     if (interfaceCtx->magicConsumptionTimer == 0) {
-                        if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_14_08)) {
+                        if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
                             gSaveContext.save.playerData.magic--;
                         }
                         if (gSaveContext.save.playerData.magic <= 0) {
@@ -3864,7 +3860,7 @@ void Magic_Update(PlayState* play) {
                     }
                 }
             }
-            if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_14_08)) {
+            if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
                 Magic_FlashMeterBorder();
             }
             break;
@@ -3876,7 +3872,7 @@ void Magic_Update(PlayState* play) {
                 if (!Play_InCsMode(play)) {
                     interfaceCtx->magicConsumptionTimer--;
                     if (interfaceCtx->magicConsumptionTimer == 0) {
-                        if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_14_08)) {
+                        if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
                             gSaveContext.save.playerData.magic--;
                         }
                         if (gSaveContext.save.playerData.magic <= 0) {
@@ -3886,7 +3882,7 @@ void Magic_Update(PlayState* play) {
                     }
                 }
             }
-            if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_14_08)) {
+            if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
                 Magic_FlashMeterBorder();
             }
             break;
@@ -3942,8 +3938,8 @@ void Magic_DrawMeter(PlayState* play) {
 
             // Fill the rest of the meter with the normal magic color
             gDPPipeSync(OVERLAY_DISP++);
-            if (CHECK_WEEKEVENTREG(WEEKEVENTREG_14_08)) {
-                // Blue magic (drank Chateau Romani)
+            if (CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
+                // Blue magic
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 200, interfaceCtx->magicAlpha);
             } else {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 200, 0, interfaceCtx->magicAlpha);
@@ -3955,8 +3951,8 @@ void Magic_DrawMeter(PlayState* play) {
                 (magicBarY + 10) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
         } else {
             // Fill the whole meter with the normal magic color
-            if (CHECK_WEEKEVENTREG(WEEKEVENTREG_14_08)) {
-                // Blue magic (drank Chateau Romani)
+            if (CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
+                // Blue magic
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 200, interfaceCtx->magicAlpha);
             } else {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 200, 0, interfaceCtx->magicAlpha);
@@ -4230,7 +4226,7 @@ void Interface_DrawBButtonIcons(PlayState* play) {
         if ((player->transformation == PLAYER_FORM_FIERCE_DEITY) || (player->transformation == PLAYER_FORM_HUMAN)) {
             if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NONE) {
                 Interface_DrawItemIconTexture(play, interfaceCtx->iconItemSegment, EQUIP_SLOT_B);
-                if ((player->stateFlags1 & PLAYER_STATE1_800000) || (gSaveContext.save.weekEventReg[8] & 1) ||
+                if ((player->stateFlags1 & PLAYER_STATE1_800000) || CHECK_WEEKEVENTREG(WEEKEVENTREG_08_01) ||
                     (play->bButtonAmmoPlusOne >= 2)) {
                     gDPPipeSync(OVERLAY_DISP++);
                     gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE,
@@ -4240,9 +4236,8 @@ void Interface_DrawBButtonIcons(PlayState* play) {
                         (play->sceneId != SCENE_BOWLING) &&
                         ((gSaveContext.minigameStatus != MINIGAME_STATUS_ACTIVE) ||
                          (gSaveContext.save.entrance != ENTRANCE(ROMANI_RANCH, 0))) &&
-                        ((gSaveContext.minigameStatus != MINIGAME_STATUS_ACTIVE) ||
-                         !(gSaveContext.eventInf[3] & 0x20)) &&
-                        (!(gSaveContext.save.weekEventReg[31] & 0x80) || (play->bButtonAmmoPlusOne != 100))) {
+                        ((gSaveContext.minigameStatus != MINIGAME_STATUS_ACTIVE) || !(CHECK_EVENTINF(EVENTINF_35))) &&
+                        (!CHECK_WEEKEVENTREG(WEEKEVENTREG_31_80) || (play->bButtonAmmoPlusOne != 100))) {
                         Interface_DrawAmmoCount(play, EQUIP_SLOT_B, interfaceCtx->bAlpha);
                     }
                 }
@@ -7328,8 +7323,8 @@ void Interface_Init(PlayState* play) {
     interfaceCtx->minigamePerfectPrimColor[1] = 165;
     interfaceCtx->minigamePerfectPrimColor[2] = 55;
 
-    if (gSaveContext.eventInf[3] & 0x10) {
-        gSaveContext.eventInf[3] &= (u8)~0x10;
+    if (CHECK_EVENTINF(EVENTINF_34)) {
+        CLEAR_EVENTINF(EVENTINF_34);
         gSaveContext.timerStates[TIMER_ID_MINIGAME_2] = TIMER_STATE_OFF;
     }
 
@@ -7356,15 +7351,15 @@ void Interface_Init(PlayState* play) {
         (play->sceneId != SCENE_LAST_GORON) && (play->sceneId != SCENE_LAST_ZORA) &&
         (play->sceneId != SCENE_LAST_LINK)) {
 
-        gSaveContext.eventInf[5] &= (u8)~0x8;
-        gSaveContext.eventInf[5] &= (u8)~0x10;
-        gSaveContext.eventInf[5] &= (u8)~0x20;
-        gSaveContext.eventInf[5] &= (u8)~0x40;
-        gSaveContext.eventInf[5] &= (u8)~0x80;
-        gSaveContext.eventInf[6] &= (u8)~0x1;
-        gSaveContext.eventInf[6] &= (u8)~0x2;
-        gSaveContext.eventInf[6] &= (u8)~0x4;
-        gSaveContext.eventInf[6] &= (u8)~0x8;
+        CLEAR_EVENTINF(EVENTINF_53);
+        CLEAR_EVENTINF(EVENTINF_54);
+        CLEAR_EVENTINF(EVENTINF_55);
+        CLEAR_EVENTINF(EVENTINF_56);
+        CLEAR_EVENTINF(EVENTINF_57);
+        CLEAR_EVENTINF(EVENTINF_60);
+        CLEAR_EVENTINF(EVENTINF_61);
+        CLEAR_EVENTINF(EVENTINF_62);
+        CLEAR_EVENTINF(EVENTINF_63);
     }
 
     sFinalHoursClockDigitsRed = sFinalHoursClockFrameEnvRed = sFinalHoursClockFrameEnvGreen =
