@@ -488,7 +488,8 @@ void EnWeatherTag_Update(Actor* thisx, PlayState* play) {
 
         gSaveContext.save.time = ((void)0, gSaveContext.save.time) + (u16)R_TIME_SPEED;
         if (R_TIME_SPEED != 0) {
-            gSaveContext.save.time = ((void)0, gSaveContext.save.time) + (u16)((void)0, gSaveContext.save.daySpeed);
+            gSaveContext.save.time =
+                ((void)0, gSaveContext.save.time) + (u16)((void)0, gSaveContext.save.timeSpeedOffset);
         }
     }
 }

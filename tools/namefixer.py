@@ -694,7 +694,7 @@ wordReplace = {
     "gSaveContext.equippedMask": "gSaveContext.save.equippedMask",
     "gSaveContext.entranceIndex": "gSaveContext.save.entrance",
     "gSaveContext.time": "gSaveContext.save.time",
-    "gSaveContext.unk_14": "gSaveContext.save.daySpeed",
+    "gSaveContext.unk_14": "gSaveContext.save.timeSpeedOffset",
     "gSaveContext.unk_FE6": "gSaveContext.save.bombersCaughtNum",
     "gSaveContext.unk_FE7": "gSaveContext.save.bombersCaughtOrder",
     "gSaveContext.linkAge": "gSaveContext.save.linkAge",

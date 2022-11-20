@@ -1154,7 +1154,7 @@ void DmStk_WaitForTelescope(DmStk* this, PlayState* play) {
         if (play->view.fovy < 25.0f) {
             if ((screenPos.x >= 70.0f) && (screenPos.x < (SCREEN_WIDTH - 70.0f)) && (screenPos.y >= 30.0f) &&
                 (screenPos.y < (SCREEN_HEIGHT - 30.0f))) {
-                func_800FE484();
+                Environment_StopTime();
                 this->actionFunc = DmStk_StartTelescopeCutscene;
             }
         }
@@ -1181,7 +1181,7 @@ void DmStk_StartTelescopeCutscene(DmStk* this, PlayState* play) {
 
     if (ActorCutscene_GetCanPlayNext(cutscene)) {
         ActorCutscene_Start(cutscene, &this->actor);
-        func_800FE498();
+        Environment_StartTime();
         this->actionFunc = DmStk_DoNothing;
     } else {
         ActorCutscene_SetIntentToPlay(cutscene);
@@ -1818,7 +1818,8 @@ void DmStk_Update(Actor* thisx, PlayState* play) {
             (play->csCtx.state == 0)) {
             gSaveContext.save.time = ((void)0, gSaveContext.save.time) + (u16)R_TIME_SPEED;
             if (R_TIME_SPEED != 0) {
-                gSaveContext.save.time = ((void)0, gSaveContext.save.time) + (u16)((void)0, gSaveContext.save.daySpeed);
+                gSaveContext.save.time =
+                    ((void)0, gSaveContext.save.time) + (u16)((void)0, gSaveContext.save.timeSpeedOffset);
             }
         }
     }

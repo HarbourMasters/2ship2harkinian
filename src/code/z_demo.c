@@ -329,7 +329,7 @@ void Cutscene_Command_Misc(PlayState* play, CutsceneContext* csCtx, CsCmdBase* c
                 if (R_TIME_SPEED != 0) {
                     gSaveContext.save.time = ((void)0, gSaveContext.save.time) + (u16)R_TIME_SPEED;
                     gSaveContext.save.time =
-                        ((void)0, gSaveContext.save.time) + (u16)((void)0, gSaveContext.save.daySpeed);
+                        ((void)0, gSaveContext.save.time) + (u16)((void)0, gSaveContext.save.timeSpeedOffset);
                 }
             }
             break;
