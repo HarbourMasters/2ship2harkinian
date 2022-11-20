@@ -478,7 +478,7 @@ void func_80C147B4(EnJgameTsn* this, PlayState* play) {
             case 0x10A0:
             case 0x10A1:
                 func_801477B4(play);
-                gSaveContext.minigameStatus = MINIGAME_STATUS_DONE;
+                gSaveContext.minigameStatus = MINIGAME_STATUS_END;
                 gSaveContext.timerStates[TIMER_ID_MINIGAME_2] = TIMER_STATE_STOP;
                 CLEAR_WEEKEVENTREG(WEEKEVENTREG_90_20);
                 func_80C144E4(this);

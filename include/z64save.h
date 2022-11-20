@@ -114,7 +114,7 @@ typedef enum {
 typedef enum {
     /* 0 */ MINIGAME_STATUS_INACTIVE,
     /* 1 */ MINIGAME_STATUS_ACTIVE,
-    /* 3 */ MINIGAME_STATUS_DONE = 3
+    /* 3 */ MINIGAME_STATUS_END = 3
 } MinigameStatus;
 
 typedef enum {

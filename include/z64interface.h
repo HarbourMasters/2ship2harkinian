@@ -78,7 +78,7 @@ typedef enum {
     /* 1 */ PERFECT_LETTERS_TYPE_1,
     /* 2 */ PERFECT_LETTERS_TYPE_2,
     /* 3 */ PERFECT_LETTERS_TYPE_3
-} MinigamePerfectType;
+} PerfectLettersType;
 
 typedef enum {
     /* 0 */ PERFECT_LETTERS_STATE_OFF,
@@ -88,7 +88,7 @@ typedef enum {
     /* 4 */ PERFECT_LETTERS_STATE_SPREAD, // Exit for type 1
     /* 5 */ PERFECT_LETTERS_STATE_DISPLAY,
     /* 6 */ PERFECT_LETTERS_STATE_EXIT
-} MinigamePerfectState;
+} PerfectLettersState;
 
 #define PERFECT_LETTERS_NUM_LETTERS 8
 #define PERFECT_LETTERS_ANGLE_PER_LETTER (0x10000 / PERFECT_LETTERS_NUM_LETTERS)

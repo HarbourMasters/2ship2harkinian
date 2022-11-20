@@ -304,7 +304,7 @@ void func_80B269A4(EnKendoJs* this, PlayState* play) {
 
         case 0x272D:
             func_801477B4(play);
-            gSaveContext.minigameStatus = MINIGAME_STATUS_DONE;
+            gSaveContext.minigameStatus = MINIGAME_STATUS_END;
             func_80B276C4(this);
             func_80B276D8(this, play);
             break;
@@ -334,7 +334,7 @@ void func_80B26AFC(EnKendoJs* this, PlayState* play) {
                 }
 
                 if ((this->unk_288 == 0x272E) || (this->unk_288 == 0x272F) || (this->unk_288 == 0x2730)) {
-                    gSaveContext.minigameStatus = MINIGAME_STATUS_DONE;
+                    gSaveContext.minigameStatus = MINIGAME_STATUS_END;
                 }
 
                 player->stateFlags1 &= ~PLAYER_STATE1_20;

@@ -334,7 +334,7 @@ void EnSyatekiMan_Swamp_HandleChoice(EnSyatekiMan* this, PlayState* play) {
                 Message_StartTextbox(play, 0xA31, &this->actor);
                 this->prevTextId = 0xA31;
                 if (this->shootingGameState == SG_GAME_STATE_ONE_MORE_GAME) {
-                    gSaveContext.minigameStatus = MINIGAME_STATUS_DONE;
+                    gSaveContext.minigameStatus = MINIGAME_STATUS_END;
                 }
 
                 this->shootingGameState = SG_GAME_STATE_NOT_PLAYING;
@@ -373,7 +373,7 @@ void EnSyatekiMan_Swamp_HandleChoice(EnSyatekiMan* this, PlayState* play) {
             }
 
             if (this->shootingGameState == SG_GAME_STATE_ONE_MORE_GAME) {
-                gSaveContext.minigameStatus = MINIGAME_STATUS_DONE;
+                gSaveContext.minigameStatus = MINIGAME_STATUS_END;
             }
 
             this->shootingGameState = SG_GAME_STATE_NOT_PLAYING;
@@ -414,7 +414,7 @@ void EnSyatekiMan_Swamp_HandleNormalMessage(EnSyatekiMan* this, PlayState* play)
                     CLEAR_WEEKEVENTREG(WEEKEVENTREG_63_01);
                     CLEAR_WEEKEVENTREG(WEEKEVENTREG_63_02);
                     this->actionFunc = EnSyatekiMan_Swamp_Idle;
-                    gSaveContext.minigameStatus = MINIGAME_STATUS_DONE;
+                    gSaveContext.minigameStatus = MINIGAME_STATUS_END;
                     this->shootingGameState = SG_GAME_STATE_NONE;
                 } else {
                     // Wanna play again?
@@ -434,7 +434,7 @@ void EnSyatekiMan_Swamp_HandleNormalMessage(EnSyatekiMan* this, PlayState* play)
                 play->msgCtx.msgMode = 0x43;
                 play->msgCtx.stateTimer = 4;
                 player->actor.freezeTimer = 0;
-                gSaveContext.minigameStatus = MINIGAME_STATUS_DONE;
+                gSaveContext.minigameStatus = MINIGAME_STATUS_END;
                 player->stateFlags1 |= PLAYER_STATE1_20;
                 this->actionFunc = EnSyatekiMan_Swamp_SetupGiveReward;
                 EnSyatekiMan_Swamp_SetupGiveReward(this, play);
@@ -641,7 +641,7 @@ void EnSyatekiMan_Town_HandleChoice(EnSyatekiMan* this, PlayState* play) {
 
                 if (this->shootingGameState == SG_GAME_STATE_ONE_MORE_GAME) {
                     player->stateFlags3 &= ~PLAYER_STATE3_400;
-                    gSaveContext.minigameStatus = MINIGAME_STATUS_DONE;
+                    gSaveContext.minigameStatus = MINIGAME_STATUS_END;
                 }
 
                 this->shootingGameState = SG_GAME_STATE_NOT_PLAYING;
@@ -677,7 +677,7 @@ void EnSyatekiMan_Town_HandleChoice(EnSyatekiMan* this, PlayState* play) {
 
             if (this->shootingGameState == SG_GAME_STATE_ONE_MORE_GAME) {
                 player->stateFlags3 &= ~PLAYER_STATE3_400;
-                gSaveContext.minigameStatus = MINIGAME_STATUS_DONE;
+                gSaveContext.minigameStatus = MINIGAME_STATUS_END;
             }
 
             this->shootingGameState = SG_GAME_STATE_NOT_PLAYING;
@@ -808,7 +808,7 @@ void EnSyatekiMan_Town_HandleNormalMessage(EnSyatekiMan* this, PlayState* play) 
                 play->msgCtx.msgMode = 0x43;
                 play->msgCtx.stateTimer = 4;
                 player->actor.freezeTimer = 0;
-                gSaveContext.minigameStatus = MINIGAME_STATUS_DONE;
+                gSaveContext.minigameStatus = MINIGAME_STATUS_END;
                 this->actionFunc = EnSyatekiMan_Town_SetupGiveReward;
                 EnSyatekiMan_Town_SetupGiveReward(this, play);
                 break;
@@ -1122,7 +1122,7 @@ void EnSyatekiMan_Swamp_EndGame(EnSyatekiMan* this, PlayState* play) {
                     CLEAR_WEEKEVENTREG(WEEKEVENTREG_63_01);
                     CLEAR_WEEKEVENTREG(WEEKEVENTREG_63_02);
                     this->shootingGameState = SG_GAME_STATE_NONE;
-                    gSaveContext.minigameStatus = MINIGAME_STATUS_DONE;
+                    gSaveContext.minigameStatus = MINIGAME_STATUS_END;
                     this->actionFunc = EnSyatekiMan_Swamp_Idle;
                     return;
                 }

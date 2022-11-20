@@ -7296,7 +7296,7 @@ void Interface_Init(PlayState* play) {
     LifeMeter_Init(play);
     Map_Init(play);
 
-    gSaveContext.minigameStatus = MINIGAME_STATUS_DONE;
+    gSaveContext.minigameStatus = MINIGAME_STATUS_END;
     interfaceCtx->perfectLettersPrimColor[0] = 255;
     interfaceCtx->perfectLettersPrimColor[1] = 165;
     interfaceCtx->perfectLettersPrimColor[2] = 55;
