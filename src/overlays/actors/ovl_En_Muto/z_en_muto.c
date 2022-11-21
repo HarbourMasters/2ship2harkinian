@@ -144,7 +144,7 @@ void EnMuto_Idle(EnMuto* this, PlayState* play) {
         }
     }
 
-    if (1) {} // Needed  match
+    if (1) {} // Needed to match
 
     if (!this->isInMayorsRoom && Player_GetMask(play) == PLAYER_MASK_KAFEIS_MASK) {
         this->actor.textId = 0x2363;

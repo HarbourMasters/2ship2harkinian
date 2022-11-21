@@ -849,6 +849,7 @@ void Interface_SetVertices(PlayState* play) {
 }
 
 s32 sPostmanTimerInputBtnAPressed = false;
+
 void Interface_PostmanTimerCallback(s32 arg0) {
     s32 btnAPressed;
 
@@ -894,8 +895,8 @@ void Interface_StartPostmanTimer(s16 seconds, s16 bunnyHoodState) {
     } else {
         gSaveContext.timerDirections[TIMER_ID_POSTMAN] = TIMER_COUNT_UP;
     }
-    gSaveContext.timerStates[TIMER_ID_POSTMAN] = TIMER_STATE_POSTMAN_START;
 
+    gSaveContext.timerStates[TIMER_ID_POSTMAN] = TIMER_STATE_POSTMAN_START;
     gSaveContext.timerStopTimes[TIMER_ID_POSTMAN] = 0;
     gSaveContext.timerPausedOsTimes[TIMER_ID_POSTMAN] = 0;
 }
@@ -2593,9 +2594,9 @@ u8 Item_Give(PlayState* play, u8 item) {
         return ITEM_NONE;
 
     } else if ((item == ITEM_HEART_PIECE_2) || (item == ITEM_HEART_PIECE)) {
-        gSaveContext.save.inventory.questItems += (1 << QUEST_HEART_PIECE_COUNT);
-        if ((gSaveContext.save.inventory.questItems & 0xF0000000) == (4 << QUEST_HEART_PIECE_COUNT)) {
-            gSaveContext.save.inventory.questItems ^= (4 << QUEST_HEART_PIECE_COUNT);
+        INCREMENT_QUEST_HEART_PIECE_COUNT;
+        if (EQ_MAX_QUEST_HEART_PIECE_COUNT) {
+            RESET_HEART_PIECE_COUNT;
             gSaveContext.save.playerData.healthCapacity += 0x10;
             gSaveContext.save.playerData.health += 0x10;
         }
@@ -3515,6 +3516,7 @@ void Magic_Reset(PlayState* play) {
 
 /**
  * Request to consume magic.
+ *
  * @param magicToConsume the positive-valued amount to decrease magic by
  * @param type how the magic is consumed.
  * @return false if the request failed
@@ -3538,8 +3540,7 @@ s32 Magic_Consume(PlayState* play, s16 magicToConsume, s16 type) {
     switch (type) {
         case MAGIC_CONSUME_NOW:
         case MAGIC_CONSUME_NOW_ALT:
-            // Consume magic immediately
-            // Ex. Deku Bubble
+            // Drain magic immediately e.g. Deku Bubble
             if ((gSaveContext.magicState == MAGIC_STATE_IDLE) ||
                 (gSaveContext.magicState == MAGIC_STATE_CONSUME_LENS)) {
                 if (gSaveContext.magicState == MAGIC_STATE_CONSUME_LENS) {
@@ -3592,8 +3593,7 @@ s32 Magic_Consume(PlayState* play, s16 magicToConsume, s16 type) {
 
         case MAGIC_CONSUME_WAIT_PREVIEW:
             // Sets consume target but waits to consume.
-            // Preview consumption with a yellow bar
-            // Ex. Spin Attack
+            // Preview consumption with a yellow bar. e.g. Spin Attack
             if ((gSaveContext.magicState == MAGIC_STATE_IDLE) ||
                 (gSaveContext.magicState == MAGIC_STATE_CONSUME_LENS)) {
                 if (gSaveContext.magicState == MAGIC_STATE_CONSUME_LENS) {
@@ -3608,7 +3608,7 @@ s32 Magic_Consume(PlayState* play, s16 magicToConsume, s16 type) {
             }
 
         case MAGIC_CONSUME_GORON_ZORA:
-            // Zora Shock, Goron Spike Roll
+            // Goron spiked rolling or Zora electric barrier
             if (gSaveContext.save.playerData.magic != 0) {
                 interfaceCtx->magicConsumptionTimer = 10;
                 gSaveContext.magicState = MAGIC_STATE_CONSUME_GORON_ZORA_SETUP;
@@ -3618,7 +3618,7 @@ s32 Magic_Consume(PlayState* play, s16 magicToConsume, s16 type) {
             }
 
         case MAGIC_CONSUME_GIANTS_MASK:
-            // Wearing Giants Mask
+            // Wearing Giant's Mask
             if (gSaveContext.magicState == MAGIC_STATE_IDLE) {
                 if (gSaveContext.save.playerData.magic != 0) {
                     interfaceCtx->magicConsumptionTimer = R_MAGIC_CONSUME_TIMER_GIANTS_MASK;
@@ -3635,7 +3635,6 @@ s32 Magic_Consume(PlayState* play, s16 magicToConsume, s16 type) {
             }
 
         case MAGIC_CONSUME_DEITY_BEAM:
-            // Using Fierce Deity Beam
             // Consumes magic immediately
             if ((gSaveContext.magicState == MAGIC_STATE_IDLE) ||
                 (gSaveContext.magicState == MAGIC_STATE_CONSUME_LENS)) {
@@ -3817,7 +3816,7 @@ void Magic_Update(PlayState* play) {
                      (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) != ITEM_LENS) &&
                      (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) != ITEM_LENS)) ||
                     !play->actorCtx.lensActive) {
-                    // Force lens off and set magic state to idle
+                    // Deactivate Lens of Truth and set magic state to idle
                     play->actorCtx.lensActive = false;
                     play_sound(NA_SE_SY_GLASSMODE_OFF);
                     gSaveContext.magicState = MAGIC_STATE_IDLE;
@@ -5694,7 +5693,7 @@ void Interface_DrawTimers(PlayState* play) {
 
         sTimerId = TIMER_ID_NONE;
 
-        // Process all active timers
+        // Update all timer states
         for (i = 0; i < TIMER_ID_MAX; i++) {
             if (gSaveContext.timerStates[i] == TIMER_STATE_OFF) {
                 continue;
@@ -5736,6 +5735,8 @@ void Interface_DrawTimers(PlayState* play) {
                 case TIMER_STATE_ALT_START:
                     sTimerStateTimer = 20;
                     if (interfaceCtx->minigameState != MINIGAME_STATE_NONE) {
+
+                        // Set the timer position
                         gSaveContext.timerX[sTimerId] = 26;
 
                         if (interfaceCtx->magicAlpha != 255) {
@@ -5757,7 +5758,7 @@ void Interface_DrawTimers(PlayState* play) {
                             }
 
                             gSaveContext.timerStartOsTimes[sTimerId] = osGetTime();
-                            gSaveContext.timerStopTimes[sTimerId] = 0;
+                            gSaveContext.timerStopTimes[sTimerId] = SECONDS_TO_TIMER(0);
                             gSaveContext.timerPausedOsTimes[sTimerId] = 0;
                         }
                     } else {
@@ -5806,7 +5807,7 @@ void Interface_DrawTimers(PlayState* play) {
 
                         gSaveContext.timerStates[sTimerId] = TIMER_STATE_COUNTING;
                         gSaveContext.timerStartOsTimes[sTimerId] = osGetTime();
-                        gSaveContext.timerStopTimes[sTimerId] = 0;
+                        gSaveContext.timerStopTimes[sTimerId] = SECONDS_TO_TIMER(0);
                         gSaveContext.timerPausedOsTimes[sTimerId] = 0;
                     }
                     // fallthrough
@@ -5903,18 +5904,21 @@ void Interface_DrawTimers(PlayState* play) {
             break;
         }
 
+        // Update timer counting
         if ((sTimerId != TIMER_ID_NONE) && gSaveContext.timerStates[sTimerId]) { // != TIMER_STATE_OFF
             if (gSaveContext.timerDirections[sTimerId] == TIMER_COUNT_DOWN) {
                 sTimerDigits[0] = sTimerDigits[1] = sTimerDigits[3] = sTimerDigits[4] = sTimerDigits[6] = 0;
 
-                // used to index the counter colon
+                // Used to index the counter colon
                 sTimerDigits[2] = sTimerDigits[5] = 10;
 
+                // Get the total amount of unpaused time since the start of the timer, centiseconds (1/100th sec).
                 if ((gSaveContext.timerStates[sTimerId] == TIMER_STATE_COUNTING) ||
                     (gSaveContext.timerStates[sTimerId] == TIMER_STATE_10) ||
                     (gSaveContext.timerStates[sTimerId] == TIMER_STATE_ALT_COUNTING) ||
                     (gSaveContext.timerStates[sTimerId] == TIMER_STATE_POSTMAN_COUNTING)) {
                     osTime = osGetTime();
+
                     osTime =
                         OSTIME_TO_TIMER(osTime - ((void)0, gSaveContext.timerPausedOsTimes[sTimerId]) -
                                         D_801BF930[sTimerId] - ((void)0, gSaveContext.timerStartOsTimes[sTimerId]));
@@ -5924,15 +5928,21 @@ void Interface_DrawTimers(PlayState* play) {
                     osTime = 0;
                 }
 
+                // Check how much unpaused time has passed
                 if (osTime == 0) {
+                    // No unpaused time has passed since the start of the timer.
                     gSaveContext.timerCurTimes[sTimerId] = gSaveContext.timerTimeLimits[sTimerId] - osTime;
                 } else if (osTime <= gSaveContext.timerTimeLimits[sTimerId]) {
+                    // Time has passed, but the time limit has not been exceeded
                     if (osTime >= gSaveContext.timerTimeLimits[sTimerId]) {
+                        // The time is exactly at the time limit. No time remaining.
                         gSaveContext.timerCurTimes[sTimerId] = SECONDS_TO_TIMER(0);
                     } else {
+                        // Update the time remaining
                         gSaveContext.timerCurTimes[sTimerId] = gSaveContext.timerTimeLimits[sTimerId] - osTime;
                     }
                 } else {
+                    // Time has passed, and the time limit has been exceeded.
                     gSaveContext.timerCurTimes[sTimerId] = SECONDS_TO_TIMER(0);
                     gSaveContext.timerStates[sTimerId] = TIMER_STATE_STOP;
                     if (sEnvTimerActive) {
@@ -5962,9 +5972,10 @@ void Interface_DrawTimers(PlayState* play) {
             } else { // TIMER_COUNT_UP
                 sTimerDigits[0] = sTimerDigits[1] = sTimerDigits[3] = sTimerDigits[4] = sTimerDigits[6] = 0;
 
-                // used to index the counter colon
+                // Used to index the counter colon
                 sTimerDigits[2] = sTimerDigits[5] = 10;
 
+                // Get the total amount of unpaused time since the start of the timer, centiseconds (1/100th sec).
                 if ((gSaveContext.timerStates[sTimerId] == TIMER_STATE_COUNTING) ||
                     (gSaveContext.timerStates[sTimerId] == TIMER_STATE_POSTMAN_COUNTING)) {
                     osTime = osGetTime();
@@ -5989,6 +6000,7 @@ void Interface_DrawTimers(PlayState* play) {
                     osTime = SECONDS_TO_TIMER(120);
                 }
 
+                // Update the time remaining with the total amount of time since the start of the timer,
                 gSaveContext.timerCurTimes[sTimerId] = osTime;
 
                 Interface_GetTimerDigits(osTime, sTimerDigits);
@@ -6011,6 +6023,7 @@ void Interface_DrawTimers(PlayState* play) {
                 }
             }
 
+            // Draw timer
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 255);
             gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 0);
@@ -6021,8 +6034,8 @@ void Interface_DrawTimers(PlayState* play) {
             gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0,
                               0, PRIMITIVE, 0);
 
-            // Set the timer color
             if (IS_POSTMAN_TIMER_DRAWN || (gSaveContext.timerStates[sTimerId] <= TIMER_STATE_12)) {
+                // Set the timer color
                 if (gSaveContext.timerStates[sTimerId]) { // != TIMER_STATE_OFF
                     if (sTimerId == TIMER_ID_2) {
                         if ((gSaveContext.timerCurTimes[sTimerId] == SECONDS_TO_TIMER(0)) ||
@@ -6130,18 +6143,26 @@ void Interface_UpdateBottleTimers(PlayState* play) {
         for (i = BOTTLE_FIRST; i < BOTTLE_MAX; i++) {
             if (gSaveContext.bottleTimerStates[i] == BOTTLE_TIMER_STATE_COUNTING) {
                 osTime = osGetTime();
+
+                // Get the total amount of unpaused time since the start of the timer, centiseconds (1/100th sec).
                 osTime = OSTIME_TO_TIMER_ALT(osTime - ((void)0, gSaveContext.bottleTimerPausedOsTimes[i]) -
                                              ((void)0, gSaveContext.bottleTimerStartOsTimes[i]));
+
                 if (osTime == 0) {
+                    // No unpaused time has passed since the start of the timer.
                     gSaveContext.bottleTimerCurTimes[i] = gSaveContext.bottleTimerTimeLimits[i] - osTime;
                 } else if (osTime <= gSaveContext.bottleTimerTimeLimits[i]) {
+                    // Time has passed, but the time limit has not been exceeded
                     if (osTime >= gSaveContext.bottleTimerTimeLimits[i]) {
-                        gSaveContext.bottleTimerCurTimes[i] = 0;
+                        // The time is exactly at the time limit. No time remaining.
+                        gSaveContext.bottleTimerCurTimes[i] = SECONDS_TO_TIMER(0);
                     } else {
+                        // Update the time remaining
                         gSaveContext.bottleTimerCurTimes[i] = gSaveContext.bottleTimerTimeLimits[i] - osTime;
                     }
                 } else {
-                    gSaveContext.bottleTimerCurTimes[i] = 0;
+                    // Time has passed, and the time limit has been exceeded.
+                    gSaveContext.bottleTimerCurTimes[i] = SECONDS_TO_TIMER(0);
 
                     if (gSaveContext.save.inventory.items[i + SLOT_BOTTLE_1] == ITEM_HOT_SPRING_WATER) {
                         Inventory_UpdateItem(play, i + SLOT_BOTTLE_1, ITEM_SPRING_WATER);
@@ -6306,9 +6327,6 @@ TexturePtr gStoryTLUTs[] = {
     gStoryMaskFestivalTLUT,
     gStoryGiantsLeavingTLUT,
 };
-
-// TODO: ucode.h? (see OoT)
-#define SP_UCODE_DATA_SIZE 0x800
 
 void Interface_Draw(PlayState* play) {
     s32 pad;
