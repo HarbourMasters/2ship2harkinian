@@ -48,7 +48,12 @@
 
 #define R_ENABLE_ARENA_DBG                SREG(0) // Same as OoT
 #define R_UPDATE_RATE                     SREG(30)
+#define R_FB_FILTER_TYPE                  SREG(80)
+#define R_FB_FILTER_PRIM_COLOR(c)         SREG(81 + c)
+#define R_FB_FILTER_A                     SREG(84)
+#define R_FB_FILTER_ENV_COLOR(c)          SREG(85 + c)
 #define R_PAUSE_BG_PRERENDER_STATE        SREG(94)
+
 #define R_PLAY_FILL_SCREEN_ON             MREG(64)
 #define R_PLAY_FILL_SCREEN_R              MREG(65)
 #define R_PLAY_FILL_SCREEN_G              MREG(66)
@@ -119,6 +124,7 @@
 #define R_B_LABEL_Y(i)                    WREG(43 + i)
 #define R_DGN_MINIMAP_X                   WREG(68)
 #define R_DGN_MINIMAP_Y                   WREG(69)
+
 #define R_MAP_INDEX                       VREG(11)
 #define R_MAP_TEX_INDEX_BASE              VREG(12)
 #define R_MAP_TEX_INDEX                   VREG(13)
@@ -131,10 +137,5 @@
 #define R_ITEM_AMMO_Y(i)                  VREG(68 + i)
 #define R_ITEM_ICON_WIDTH(i)              VREG(76 + i)
 #define R_ITEM_BTN_WIDTH(i)               VREG(80 + i)
-
-#define R_FB_FILTER_TYPE                  SREG(80)
-#define R_FB_FILTER_PRIM_COLOR(c)         SREG(81 + c)
-#define R_FB_FILTER_A                     SREG(84)
-#define R_FB_FILTER_ENV_COLOR(c)          SREG(85 + c)
 
 #endif

@@ -968,7 +968,7 @@ void func_80A40678(EnTest3* this, PlayState* play) {
 
     this->unk_D80 = ((this->unk_D88 == 20) || (this->unk_D88 == 10) || (this->unk_D88 == 9)) ? 3
                     : Play_InCsMode(play)                                                    ? 0
-                                          : REG(15) + ((void)0, gSaveContext.save.timeSpeedOffset);
+                                          : R_TIME_SPEED + ((void)0, gSaveContext.save.timeSpeedOffset);
 
     if (Schedule_RunScript(play, sScheduleScript, &scheduleOutput)) {
         if (this->unk_D88 != scheduleOutput.result) {
