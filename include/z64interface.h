@@ -123,9 +123,8 @@ typedef struct {
     /* 0x178 */ u8* iconItemSegment;
     /* 0x17C */ u8* mapSegment;
     /* 0x180 */ u8* unk_180; // unused segment?
-    /* 0x184 */ DmaRequest dmaRequest_184;
-    /* 0x1A4 */ DmaRequest dmaRequest_1A4;
-    /* 0x1C4 */ DmaRequest dmaRequest_1C4;
+    /* 0x184 */ DmaRequest dmaRequest;
+    /* 0x1A4 */ UNK_TYPE1 unk_1A4[0x40]; // likely 2 DmaRequest
     /* 0x1E4 */ OSMesgQueue loadQueue;
     /* 0x1FC */ OSMesg loadMsg;
     /* 0x200 */ Viewport viewport;

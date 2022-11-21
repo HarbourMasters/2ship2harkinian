@@ -3321,7 +3321,7 @@ void Interface_LoadAButtonDoActionLabel(InterfaceContext* interfaceCtx, u16 acti
 
     if (action != DO_ACTION_NONE) {
         osCreateMesgQueue(&interfaceCtx->loadQueue, &interfaceCtx->loadMsg, 1);
-        DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest_184,
+        DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest,
                                (u32)interfaceCtx->doActionSegment + (loadOffset * DO_ACTION_TEX_SIZE),
                                (u32)SEGMENT_ROM_START(do_action_static) + (action * DO_ACTION_TEX_SIZE),
                                DO_ACTION_TEX_SIZE, 0, &interfaceCtx->loadQueue, 0);
@@ -3360,7 +3360,7 @@ void Interface_SetBButtonDoAction(PlayState* play, s16 bButtonDoAction) {
             interfaceCtx->bButtonDoAction = bButtonDoAction;
             if (interfaceCtx->bButtonDoAction != DO_ACTION_NONE) {
                 osCreateMesgQueue(&interfaceCtx->loadQueue, &interfaceCtx->loadMsg, 1);
-                DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest_184, interfaceCtx->doActionSegment + 0x600,
+                DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest, interfaceCtx->doActionSegment + 0x600,
                                        (bButtonDoAction * 0x180) + SEGMENT_ROM_START(do_action_static), 0x180, 0,
                                        &interfaceCtx->loadQueue, NULL);
                 osRecvMesg(&interfaceCtx->loadQueue, NULL, OS_MESG_BLOCK);
@@ -3401,7 +3401,7 @@ void Interface_LoadBButtonDoActionLabel(PlayState* play, s16 bButtonDoAction) {
     interfaceCtx->unk_224 = bButtonDoAction;
 
     osCreateMesgQueue(&play->interfaceCtx.loadQueue, &play->interfaceCtx.loadMsg, 1);
-    DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest_184, interfaceCtx->doActionSegment + 0x480,
+    DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest, interfaceCtx->doActionSegment + 0x480,
                            (bButtonDoAction * 0x180) + SEGMENT_ROM_START(do_action_static), 0x180, 0,
                            &interfaceCtx->loadQueue, NULL);
     osRecvMesg(&interfaceCtx->loadQueue, NULL, OS_MESG_BLOCK);
@@ -6733,7 +6733,7 @@ void Interface_Draw(PlayState* play) {
     CLOSE_DISPS(play->state.gfxCtx);
 }
 
-void Interface_LoadStory(PlayState* play, s32 block) {
+void Interface_LoadStory(PlayState* play, s32 osMesgFlag) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
 
     switch (interfaceCtx->storyDmaStatus) {
@@ -6742,17 +6742,17 @@ void Interface_LoadStory(PlayState* play, s32 block) {
                 break;
             }
             osCreateMesgQueue(&interfaceCtx->storyMsgQueue, &interfaceCtx->storyMsgBuf, 1);
-            DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest_184, interfaceCtx->storySegment, interfaceCtx->storyAddr,
+            DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest, interfaceCtx->storySegment, interfaceCtx->storyAddr,
                                    interfaceCtx->storySize, 0, &interfaceCtx->storyMsgQueue, NULL);
             interfaceCtx->storyDmaStatus = STORY_DMA_LOADING;
             // fallthrough
         case STORY_DMA_LOADING:
-            if (osRecvMesg(&interfaceCtx->storyMsgQueue, NULL, block) == 0) {
+            if (osRecvMesg(&interfaceCtx->storyMsgQueue, NULL, osMesgFlag) == 0) {
                 interfaceCtx->storyDmaStatus = STORY_DMA_DONE;
             }
             break;
 
-        default:
+        default: // STORY_DMA_DONE
             break;
     }
 }
@@ -7347,15 +7347,15 @@ void Interface_Init(PlayState* play) {
         (play->sceneId != SCENE_LAST_GORON) && (play->sceneId != SCENE_LAST_ZORA) &&
         (play->sceneId != SCENE_LAST_LINK)) {
 
-        CLEAR_EVENTINF(EVENTINF_53);
-        CLEAR_EVENTINF(EVENTINF_54);
-        CLEAR_EVENTINF(EVENTINF_55);
-        CLEAR_EVENTINF(EVENTINF_56);
-        CLEAR_EVENTINF(EVENTINF_57);
-        CLEAR_EVENTINF(EVENTINF_60);
-        CLEAR_EVENTINF(EVENTINF_61);
-        CLEAR_EVENTINF(EVENTINF_62);
-        CLEAR_EVENTINF(EVENTINF_63);
+        CLEAR_EVENTINF(EVENTINF_53); // Goht intro cutscene watched
+        CLEAR_EVENTINF(EVENTINF_54); // Odolwa intro cutscene watched
+        CLEAR_EVENTINF(EVENTINF_55); // Twinmold intro cutscene watched?
+        CLEAR_EVENTINF(EVENTINF_56); // Gyorg intro cutscene watched
+        CLEAR_EVENTINF(EVENTINF_57); // Igos du Ikana intro cutscene watched?
+        CLEAR_EVENTINF(EVENTINF_60); // Wart intro cutscene watched
+        CLEAR_EVENTINF(EVENTINF_61); // Majoras intro cutscene watched
+        CLEAR_EVENTINF(EVENTINF_62); //
+        CLEAR_EVENTINF(EVENTINF_63); // Gomess intro cutscene watched
     }
 
     sFinalHoursClockDigitsRed = sFinalHoursClockFrameEnvRed = sFinalHoursClockFrameEnvGreen =
