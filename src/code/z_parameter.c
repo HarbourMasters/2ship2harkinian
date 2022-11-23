@@ -2386,7 +2386,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                 if (!(play->actorCtx.flags & ACTORCTX_FLAG_PICTOGRAPH_ON)) {
                     Play_CompressI8ToI5((play->pictoPhotoI8 != NULL) ? play->pictoPhotoI8 : D_801FBB90,
                                         (u8*)((void)0, gSaveContext.pictoPhotoI5),
-                                        PICTO_RESOLUTION_X * PICTO_RESOLUTION_Y);
+                                        PICTO_PHOTO_WIDTH * PICTO_PHOTO_HEIGHT);
                     interfaceCtx->unk_222 = interfaceCtx->unk_224 = 0;
                     restoreHudVisibility = true;
                     sPictographState = PICTOGRAPH_STATE_OFF;
@@ -2425,7 +2425,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                     if (sPictographPhotoBeingTaken) {
                         Play_CompressI8ToI5((play->pictoPhotoI8 != NULL) ? play->pictoPhotoI8 : D_801FBB90,
                                             (u8*)((void)0, gSaveContext.pictoPhotoI5),
-                                            PICTO_RESOLUTION_X * PICTO_RESOLUTION_Y);
+                                            PICTO_PHOTO_WIDTH * PICTO_PHOTO_HEIGHT);
                         Snap_RecordPictographedActors(play);
                     }
                     play->actorCtx.flags &= ~ACTORCTX_FLAG_PICTOGRAPH_ON;
@@ -2457,7 +2457,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
             } else {
                 Play_DecompressI5ToI8((u8*)((void)0, gSaveContext.pictoPhotoI5),
                                       (play->pictoPhotoI8 != NULL) ? play->pictoPhotoI8 : D_801FBB90,
-                                      PICTO_RESOLUTION_X * PICTO_RESOLUTION_Y);
+                                      PICTO_PHOTO_WIDTH * PICTO_PHOTO_HEIGHT);
                 play->haltAllActors = true;
                 sPictographState = PICTOGRAPH_STATE_SETUP_PHOTO;
             }
@@ -6676,7 +6676,7 @@ void Interface_Draw(PlayState* play) {
     if (sPictographState >= PICTOGRAPH_STATE_SETUP_PHOTO) {
         if (!(play->actorCtx.flags & ACTORCTX_FLAG_PICTOGRAPH_ON)) {
             Play_CompressI8ToI5((play->pictoPhotoI8 != NULL) ? play->pictoPhotoI8 : D_801FBB90,
-                                (u8*)gSaveContext.pictoPhotoI5, PICTO_RESOLUTION_X * PICTO_RESOLUTION_Y);
+                                (u8*)gSaveContext.pictoPhotoI5, PICTO_PHOTO_WIDTH * PICTO_PHOTO_HEIGHT);
 
             interfaceCtx->unk_222 = interfaceCtx->unk_224 = 0;
 
@@ -6706,17 +6706,18 @@ void Interface_Draw(PlayState* play) {
             gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEI_PRIM, G_CC_MODULATEI_PRIM);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 250, 160, 160, 255);
 
-            pictoRectTop = PICTO_TOPLEFT_Y;
-            for (sp2CC = 0; sp2CC < (PICTO_RESOLUTION_Y / 8); sp2CC++, pictoRectTop += 8) {
-                pictoRectLeft = PICTO_TOPLEFT_X;
+            // Picture is offset up by 33 pixels to give room for the message box at the bottom
+            pictoRectTop = PICTO_PHOTO_TOPLEFT_Y - 33;
+            for (sp2CC = 0; sp2CC < (PICTO_PHOTO_HEIGHT / 8); sp2CC++, pictoRectTop += 8) {
+                pictoRectLeft = PICTO_PHOTO_TOPLEFT_X;
                 gDPLoadTextureBlock(OVERLAY_DISP++,
                                     (u8*)((play->pictoPhotoI8 != NULL) ? play->pictoPhotoI8 : D_801FBB90) +
                                         (0x500 * sp2CC),
-                                    G_IM_FMT_I, G_IM_SIZ_8b, PICTO_RESOLUTION_X, 8, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                                    G_IM_FMT_I, G_IM_SIZ_8b, PICTO_PHOTO_WIDTH, 8, 0, G_TX_NOMIRROR | G_TX_WRAP,
                                     G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
                 gSPTextureRectangle(OVERLAY_DISP++, pictoRectLeft << 2, pictoRectTop << 2,
-                                    (pictoRectLeft + PICTO_RESOLUTION_X) << 2, (pictoRectTop << 2) + (8 << 2),
+                                    (pictoRectLeft + PICTO_PHOTO_WIDTH) << 2, (pictoRectTop << 2) + (8 << 2),
                                     G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
             }
         }
