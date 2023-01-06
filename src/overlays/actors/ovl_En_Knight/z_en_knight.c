@@ -463,7 +463,7 @@ void func_809B20F0(PlayState* play, Vec3f* arg1, Vec3f* arg2, Vec3f* arg3, f32 a
     s16 i;
     EnKnightEffect* eff;
 
-    for (eff = play->specialEffects, i = 0; i < 100; i++, eff++) {
+    for (eff = play->specialEffects, i = 0; i < ARRAY_COUNT(D_809BEFE8); i++, eff++) {
         if (eff->unk2A == 0) {
             eff->unk2A = 1;
             eff->unk0 = *arg1;
@@ -522,7 +522,7 @@ void EnKnight_Init(Actor* thisx, PlayState* play) {
     s32 temp_v0_2;
 
     this->actor.targetMode = 5;
-    this->actor.colChkInfo.mass = 0xFE;
+    this->actor.colChkInfo.mass = MASS_HEAVY;
     this->actor.colChkInfo.damageTable = &D_809BDB04;
     this->unk17C = 255.0f;
     this->unk146 = Rand_ZeroFloat(1000.0f);
@@ -566,7 +566,7 @@ void EnKnight_Init(Actor* thisx, PlayState* play) {
         } else {
             Collider_InitAndSetJntSph(play, &this->unk4D4, &this->actor, &D_809BDB9C, this->unk4F4);
             SkelAnime_InitFlex(play, &this->unk194, &D_060201A8, &D_060040E0, this->unk2C4, this->unk372, 0x1D);
-            this->actor.colChkInfo.health = 0xE - BREG(41);
+            this->actor.colChkInfo.health = 14 - BREG(41);
             Actor_SetScale(&this->actor, KREG(12) * 0.001f + 0.017f);
             this->unk290 = Rand_ZeroFloat(1.9999f);
         }
@@ -2507,7 +2507,7 @@ void func_809B8458(EnKnight* this, PlayState* play) {
             if ((this->unk684 >= 0xAA) && (this->unk684 < 0xBF)) {
                 this->unk430 = KREG(42) + 200.0f;
             }
-            if ((this->unk684 == 0x00000096) || (this->unk684 == 0x000000B4)) {
+            if ((this->unk684 == 150) || (this->unk684 == 180)) {
                 Actor_PlaySfxAtPos(&this->actor, this->unk6B4);
             }
 
@@ -2657,13 +2657,13 @@ void func_809B8458(EnKnight* this, PlayState* play) {
                 Animation_MorphToLoop(&D_809BEFD4->unk194, &D_0600CDE0, -5.0f);
                 Animation_MorphToLoop(&D_809BEFD8->unk194, &D_0600CDE0, -5.0f);
             }
-            if (this->unk684 == 0x00000028) {
+            if (this->unk684 == 40) {
                 Actor_PlaySfxAtPos(&this->actor, NA_SE_EN_BOSU_HEAD_MID);
             }
-            if (this->unk684 == 0x0000002D) {
+            if (this->unk684 == 45) {
                 Actor_PlaySfxAtPos(&D_809BEFD8->actor, NA_SE_EN_DEBU_LAUGH_K);
             }
-            if (this->unk684 == 0x00000032) {
+            if (this->unk684 == 50) {
                 Actor_PlaySfxAtPos(&D_809BEFD4->actor, NA_SE_EN_YASE_LAUGH_K);
             }
             Math_ApproachF(&this->unk68C.x, 1196.0f, 0.1f, this->unk6A4 * 143.0f);
@@ -2691,7 +2691,7 @@ void func_809B8458(EnKnight* this, PlayState* play) {
             Actor_PlaySfxAtPos(&D_809BEFD4->actor, NA_SE_EN_YASE_LAUGH_K);
             /* Fallthrough */
         case 8:
-            if (this->unk684 == 0x0000000F) {
+            if (this->unk684 == 15) {
                 this->unk68C.x = 1309.0f;
                 this->unk68C.y = 103.0f;
                 this->unk68C.z = 2930.0f;
@@ -2701,7 +2701,7 @@ void func_809B8458(EnKnight* this, PlayState* play) {
                 Actor_PlaySfxAtPos(&D_809BEFD8->actor, NA_SE_EN_DEBU_LAUGH_K);
                 Actor_PlaySfxAtPos(&D_809BEFD4->actor, NA_SE_EN_YASE_LAUGH_K);
             }
-            if (this->unk684 == 0x0000001E) {
+            if (this->unk684 == 30) {
                 this->unk68C.x = 1324.0f;
                 this->unk68C.y = 144.0f;
                 this->unk68C.z = 2864.0f;
@@ -2798,15 +2798,15 @@ void func_809B9A18(EnKnight* arg0, PlayState* arg1) {
 
             switch (arg0->actor.colChkInfo.damageEffect) {
                 case 3:
-                    arg0->unk2A1 = 0x0A;
-                    func_809B4E84(arg0, arg1, 0x0050);
+                    arg0->unk2A1 = 10;
+                    func_809B4E84(arg0, arg1, 0x50);
                     Actor_PlaySfxAtPos(&arg0->actor, NA_SE_EN_COMMON_FREEZE);
-                    arg0->unk156 = 0x000F;
+                    arg0->unk156 = 15;
                     break;
                 case 1:
-                    func_809B4E84(arg0, arg1, 0x0028);
+                    func_809B4E84(arg0, arg1, 0x28);
                     Actor_PlaySfxAtPos(&arg0->actor, NA_SE_EN_COMMON_FREEZE);
-                    arg0->unk156 = 0x000F;
+                    arg0->unk156 = 15;
                     break;
                 case 2:
                     arg0->unk2A1 = 1;
@@ -2815,13 +2815,13 @@ void func_809B9A18(EnKnight* arg0, PlayState* arg1) {
                     arg0->unk2A1 = 0x14;
                     break;
                 case 14:
-                    arg0->unk291 = 0x0A;
+                    arg0->unk291 = 10;
                     break;
                 case 10:
                     arg0->unk2A1 = 0x28;
-                    func_809B4E84(arg0, arg1, 0x0028);
+                    func_809B4E84(arg0, arg1, 0x28);
                     Actor_PlaySfxAtPos(&arg0->actor, NA_SE_EN_COMMON_FREEZE);
-                    arg0->unk156 = 0x000F;
+                    arg0->unk156 = 15;
                     break;
                 case 13:
                     if (arg0->actor.bgCheckFlags & 1) {
@@ -2847,8 +2847,8 @@ void func_809B9A18(EnKnight* arg0, PlayState* arg1) {
                     func_809B4F90(arg0, arg1);
                     Actor_PlaySfxAtPos(&arg0->actor, arg0->unk6BE);
                 }
-                arg0->unk156 = 0x000A;
-                arg0->unk158 = 0x000F;
+                arg0->unk156 = 10;
+                arg0->unk158 = 15;
             }
             arg0->unk192 = 0;
         }
@@ -3286,7 +3286,7 @@ void EnKnight_Update(Actor* thisx, PlayState* play) {
             Actor* var_v0;
 
             D_809BEFE4 = NULL;
-            for (var_v0 = play->actorCtx.actorLists[7].first; var_v0 != NULL; var_v0 = var_v0->next) {
+            for (var_v0 = play->actorCtx.actorLists[ACTORCAT_ITEMACTION].first; var_v0 != NULL; var_v0 = var_v0->next) {
                 if (var_v0->id == ACTOR_MIR_RAY3) {
                     D_809BEFE4 = (MirRay3*)var_v0;
                     break;
@@ -3294,7 +3294,7 @@ void EnKnight_Update(Actor* thisx, PlayState* play) {
             }
 
             this->unk_144 = gSaveContext.save.time;
-            Math_ApproachS(&this->unk428, 0, 2, 0x0200);
+            Math_ApproachS(&this->unk428, 0, 2, 0x200);
         } else if (D_809BEFD0->unk_154 == 0) {
             this->actor.hintId = 0x1D;
         } else {
@@ -3343,7 +3343,7 @@ void EnKnight_Update(Actor* thisx, PlayState* play) {
             Math_ApproachZeroF(&this->unk474, 1.0f, 0.2f);
 
             if ((this->actionFunc != func_809B52E8) && (this->actionFunc != func_809B5698)) {
-                Math_ApproachS(&this->actor.shape.rot.x, 0, 0x000A, 0x0200);
+                Math_ApproachS(&this->actor.shape.rot.x, 0, 10, 0x200);
             }
 
             this->actionFunc(this, play);
@@ -3383,7 +3383,7 @@ void EnKnight_Update(Actor* thisx, PlayState* play) {
         this->unk18A = 0;
 
         if (this->actionFunc != func_809B4308) {
-            Math_ApproachS(&this->actor.shape.rot.y, this->actor.world.rot.y, 3, 0x0A00);
+            Math_ApproachS(&this->actor.shape.rot.y, this->actor.world.rot.y, 3, 0xA00);
         }
 
         if (this->actionFunc != func_809B842C && this->actionFunc != func_809B5698 &&
@@ -3447,11 +3447,11 @@ void EnKnight_Update(Actor* thisx, PlayState* play) {
                 break;
             case 1:
                 this->unk2A0 = 0;
-                this->unk2A2 = 0x0050;
+                this->unk2A2 = 0x50;
                 this->unk2A1++;
                 this->unk29C = 1.0f;
                 this->unk294 = 0.0f;
-                Actor_SetColorFilter(&this->actor, 0x4000, 0x0078, 0, 0x003C);
+                Actor_SetColorFilter(&this->actor, 0x4000, 0x78, 0, 0x3C);
                 /* fallthrough */
             case 2:
                 if (this->unk2A2 == 0) {
@@ -3464,8 +3464,8 @@ void EnKnight_Update(Actor* thisx, PlayState* play) {
                 }
                 break;
             case 10:
-                this->unk2A0 = 0x0B;
-                this->unk2A2 = 0x0050;
+                this->unk2A0 = 11;
+                this->unk2A2 = 0x50;
                 this->unk2A1++;
                 this->unk29C = 1.0f;
                 this->unk294 = 0.0f;
@@ -3476,8 +3476,8 @@ void EnKnight_Update(Actor* thisx, PlayState* play) {
                     func_809B9E00(this, play);
                     this->unk2A1 = 0;
                 } else {
-                    if (this->unk2A2 == 0x0032) {
-                        this->unk2A0 = 0x0A;
+                    if (this->unk2A2 == 50) {
+                        this->unk2A0 = 10;
                     }
                     Math_ApproachF(&this->unk294, 0.5f, 1.0f, 0.08f);
                     Math_ApproachF(&this->unk298, 0.5f, 0.05f, 0.05f);
@@ -3485,7 +3485,7 @@ void EnKnight_Update(Actor* thisx, PlayState* play) {
                 break;
             case 20:
                 this->unk2A0 = 0x14;
-                this->unk2A2 = 0x0028;
+                this->unk2A2 = 0x28;
                 this->unk2A1++;
                 this->unk29C = 1.0f;
                 this->unk294 = 0.0f;
@@ -3502,8 +3502,8 @@ void EnKnight_Update(Actor* thisx, PlayState* play) {
                 }
                 break;
             case 30:
-                this->unk2A0 = 0x14;
-                this->unk2A2 = 0x000A;
+                this->unk2A0 = 20;
+                this->unk2A2 = 10;
                 this->unk2A1++;
                 this->unk29C = 0.5f;
                 /* fallthrough */
@@ -3519,8 +3519,8 @@ void EnKnight_Update(Actor* thisx, PlayState* play) {
                 }
                 break;
             case 40:
-                this->unk2A0 = 0x1E;
-                this->unk2A2 = 0x0032;
+                this->unk2A0 = 30;
+                this->unk2A2 = 50;
                 this->unk29C = 1.0f;
                 this->unk294 = (KREG(18) * 0.1f) + 0.5f;
                 this->unk2A1++;
@@ -3558,10 +3558,10 @@ void EnKnight_Update(Actor* thisx, PlayState* play) {
                 play->envCtx.unk_E0 = 2;
                 if (this->unk_154 == 1) {
                     play->envCtx.unk_C1 = 8;
-                    play->envCtx.unk_C2 = 0x0C;
+                    play->envCtx.unk_C2 = 12;
                 } else {
                     play->envCtx.unk_C1 = 0;
-                    play->envCtx.unk_C2 = 0x0A;
+                    play->envCtx.unk_C2 = 10;
                 }
                 var_v0_2 = gSaveContext.save.time;
                 if ((s32)var_v0_2 > 0x8000) {
@@ -3569,7 +3569,7 @@ void EnKnight_Update(Actor* thisx, PlayState* play) {
                 }
                 play->envCtx.lightBlend = var_v0_2 * 0.000030517578f;
             }
-            if ((this->unk6C4 == 0) && (this->unk162 == 0) && (Player_GetMask(play) == 0x0F) &&
+            if ((this->unk6C4 == 0) && (this->unk162 == 0) && (Player_GetMask(play) == 15) &&
                 ((this->actionFunc == func_809B6764) || (this->unk192 != 0)) &&
                 (this->actor.xzDistToPlayer < (KREG(82) + 130.0f)) && (func_809B316C(this, play) != 0)) {
                 this->unk6C4 = 1;
@@ -3892,7 +3892,7 @@ void func_809BD490(EnKnight* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
     s32 var_s4;
 
-    for (var_s4 = 0; var_s4 < 100; var_s4++, var_s0++) {
+    for (var_s4 = 0; var_s4 < ARRAY_COUNT(D_809BEFE8); var_s4++, var_s0++) {
         if (var_s0->unk2A != 0) {
             var_s0->unk0.x += var_s0->unkC.x;
             var_s0->unk0.y += var_s0->unkC.y;
@@ -3958,7 +3958,7 @@ void func_809BD858(EnKnight* this, PlayState* play) {
     gDPSetColorDither(POLY_XLU_DISP++, G_CD_BAYER);
     gDPSetAlphaDither(POLY_XLU_DISP++, G_AD_PATTERN);
 
-    for (i = 0; i < 100; i++, eff++) {
+    for (i = 0; i < ARRAY_COUNT(D_809BEFE8); i++, eff++) {
         if (eff->unk2A != 1) {
             continue;
         }
