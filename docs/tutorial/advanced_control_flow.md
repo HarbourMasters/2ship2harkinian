@@ -662,6 +662,7 @@ void func_809527F8(EnMs* this, PlayState* play) {
                 switch (play->msgCtx.choiceIndex) {
                     case 0:
                         func_801477B4(play);
+
                         if (gSaveContext.save.playerData.rupees < 0xA) {
                             play_sound(0x4806U);
                             func_80151938(play, 0x935U);
@@ -713,6 +714,7 @@ void func_809527F8(EnMs* this, PlayState* play) {
                 switch (play->msgCtx.choiceIndex) {
                     case 0:
                         func_801477B4(play);
+
                         if (gSaveContext.save.playerData.rupees < 0xA) {
                             play_sound(0x4806U);
                             func_80151938(play, 0x935U);

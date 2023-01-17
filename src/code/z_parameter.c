@@ -8,7 +8,6 @@
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "overlays/actors/ovl_En_Mm3/z_en_mm3.h"
 
-extern Gfx D_0E0002E0[];      // gScreenFillDL
 extern TexturePtr D_08095AC0; // gMagicArrowEquipEffectTex
 
 typedef enum {
@@ -934,7 +933,7 @@ void Interface_StartPostmanTimer(s16 seconds, s16 bunnyHoodState) {
     }
 
     gSaveContext.timerStates[TIMER_ID_POSTMAN] = TIMER_STATE_POSTMAN_START;
-    gSaveContext.timerStopTimes[TIMER_ID_POSTMAN] = 0;
+    gSaveContext.timerStopTimes[TIMER_ID_POSTMAN] = SECONDS_TO_TIMER(0);
     gSaveContext.timerPausedOsTimes[TIMER_ID_POSTMAN] = 0;
 }
 
@@ -3982,6 +3981,7 @@ void Magic_DrawMeter(PlayState* play) {
                 // Blue magic
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 200, interfaceCtx->magicAlpha);
             } else {
+                // Green magic (default)
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 200, 0, interfaceCtx->magicAlpha);
             }
 
@@ -3995,6 +3995,7 @@ void Magic_DrawMeter(PlayState* play) {
                 // Blue magic
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 200, interfaceCtx->magicAlpha);
             } else {
+                // Green magic (default)
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 200, 0, interfaceCtx->magicAlpha);
             }
 
@@ -5812,6 +5813,7 @@ void Interface_DrawTimers(PlayState* play) {
                     break;
 
                 case TIMER_STATE_MOVING_TIMER:
+                    // Move the timer from the center of the screen to the timer location where it will count.
                     if (sTimerId == TIMER_ID_MOON_CRASH) {
                         j = ((((void)0, gSaveContext.timerX[sTimerId]) - R_MOON_CRASH_TIMER_X) / sTimerStateTimer);
                         gSaveContext.timerX[sTimerId] = ((void)0, gSaveContext.timerX[sTimerId]) - j;
@@ -6340,11 +6342,13 @@ Color_RGB16 sRupeeCounterIconPrimColors[] = {
     { 170, 170, 255 },
     { 255, 105, 105 },
 };
+
 Color_RGB16 sRupeeCounterIconEnvColors[] = {
     { 0, 80, 0 },
     { 10, 10, 80 },
     { 40, 10, 0 },
 };
+
 TexturePtr sMinigameCountdownTextures[] = {
     gMinigameCountdown3Tex,
     gMinigameCountdown2Tex,
@@ -6426,12 +6430,12 @@ void Interface_Draw(PlayState* play) {
         func_8012C654(play->state.gfxCtx);
 
         // Draw Rupee Icon
-        gDPSetPrimColor(OVERLAY_DISP++, 0, 0, sRupeeCounterIconPrimColors[CUR_UPG_VALUE(4)].r,
-                        sRupeeCounterIconPrimColors[CUR_UPG_VALUE(4)].g,
-                        sRupeeCounterIconPrimColors[CUR_UPG_VALUE(4)].b, interfaceCtx->magicAlpha);
-        gDPSetEnvColor(OVERLAY_DISP++, sRupeeCounterIconEnvColors[CUR_UPG_VALUE(4)].r,
-                       sRupeeCounterIconEnvColors[CUR_UPG_VALUE(4)].g, sRupeeCounterIconEnvColors[CUR_UPG_VALUE(4)].b,
-                       255);
+        gDPSetPrimColor(OVERLAY_DISP++, 0, 0, sRupeeCounterIconPrimColors[CUR_UPG_VALUE(UPG_WALLET)].r,
+                        sRupeeCounterIconPrimColors[CUR_UPG_VALUE(UPG_WALLET)].g,
+                        sRupeeCounterIconPrimColors[CUR_UPG_VALUE(UPG_WALLET)].b, interfaceCtx->magicAlpha);
+        gDPSetEnvColor(OVERLAY_DISP++, sRupeeCounterIconEnvColors[CUR_UPG_VALUE(UPG_WALLET)].r,
+                       sRupeeCounterIconEnvColors[CUR_UPG_VALUE(UPG_WALLET)].g,
+                       sRupeeCounterIconEnvColors[CUR_UPG_VALUE(4)].b, 255);
         OVERLAY_DISP =
             Gfx_DrawTexRectIA8(OVERLAY_DISP, gRupeeCounterIconTex, 16, 16, 26, 206, 16, 16, 1 << 10, 1 << 10);
 
@@ -6771,7 +6775,7 @@ void Interface_Draw(PlayState* play) {
         gDPPipeSync(OVERLAY_DISP++);
         gSPDisplayList(OVERLAY_DISP++, sScreenFillSetupDL);
         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, interfaceCtx->screenFillAlpha);
-        gSPDisplayList(OVERLAY_DISP++, D_0E0002E0);
+        gSPDisplayList(OVERLAY_DISP++, D_0E000000.fillRect);
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -6956,7 +6960,7 @@ void Interface_Update(PlayState* play) {
 
     LifeMeter_UpdateSizeAndBeep(play);
 
-    // Update Env Timer Part 1
+    // Update environmental hazard (remnant of OoT)
     sEnvHazard = Player_GetEnvironmentalHazard(play);
     if (sEnvHazard == PLAYER_ENV_HAZARD_HOTROOM) {
         if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_TUNIC) == EQUIP_VALUE_TUNIC_GORON) {
@@ -7001,7 +7005,7 @@ void Interface_Update(PlayState* play) {
         }
     }
 
-    // Update minigame perfect
+    // Update perfect letters
     if ((play->pauseCtx.state == PAUSE_STATE_OFF) && (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE)) {
         if (interfaceCtx->perfectLettersOn) {
             if (interfaceCtx->perfectLettersType == PERFECT_LETTERS_TYPE_1) {
@@ -7018,10 +7022,10 @@ void Interface_Update(PlayState* play) {
     if ((play->pauseCtx.state == PAUSE_STATE_OFF) && (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE)) {
         if (interfaceCtx->minigameState) { // != MINIGAME_STATE_NONE
             switch (interfaceCtx->minigameState) {
-                case MINIGAME_STATE_COUNTDOWN_SETUP_3:  // minigame countdown 3
-                case MINIGAME_STATE_COUNTDOWN_SETUP_2:  // minigame countdown 2
-                case MINIGAME_STATE_COUNTDOWN_SETUP_1:  // minigame countdown 1
-                case MINIGAME_STATE_COUNTDOWN_SETUP_GO: // minigame countdown Go!
+                case MINIGAME_STATE_COUNTDOWN_SETUP_3:
+                case MINIGAME_STATE_COUNTDOWN_SETUP_2:
+                case MINIGAME_STATE_COUNTDOWN_SETUP_1:
+                case MINIGAME_STATE_COUNTDOWN_SETUP_GO:
                     interfaceCtx->minigameCountdownAlpha = 255;
                     interfaceCtx->minigameCountdownScale = 100;
                     interfaceCtx->minigameState++;
@@ -7122,7 +7126,7 @@ void Interface_Update(PlayState* play) {
             break;
     }
 
-    // Update Magic
+    // Update magic
     if (!(player->stateFlags1 & PLAYER_STATE1_200)) {
         if (R_MAGIC_DBG_SET_UPGRADE == MAGIC_DBG_SET_UPGRADE_DOUBLE_METER) {
             // Upgrade to double magic
@@ -7157,7 +7161,7 @@ void Interface_Update(PlayState* play) {
         Magic_UpdateAddRequest();
     }
 
-    // Update Env Timer Part 2
+    // Update environmental hazard timer
     if (gSaveContext.timerStates[TIMER_ID_ENV_HAZARD] == TIMER_STATE_OFF) {
         if ((sEnvHazard == PLAYER_ENV_HAZARD_HOTROOM) || (sEnvHazard == PLAYER_ENV_HAZARD_UNDERWATER_FREE)) {
             if (CUR_FORM != PLAYER_FORM_ZORA) {
@@ -7177,7 +7181,7 @@ void Interface_Update(PlayState* play) {
         gSaveContext.timerStates[TIMER_ID_ENV_HAZARD] = TIMER_STATE_OFF;
     }
 
-    // Update Minigame
+    // Update minigame
     if (gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE) {
         gSaveContext.minigameScore += interfaceCtx->minigamePoints;
         gSaveContext.minigameHiddenScore += interfaceCtx->minigameHiddenPoints;
