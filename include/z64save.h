@@ -61,6 +61,9 @@ typedef enum {
 #define MAGIC_DBG_SET_UPGRADE_NORMAL_METER -1
 #define MAGIC_DBG_SET_UPGRADE_DOUBLE_METER 1
 
+#define ENV_HAZARD_TEXT_TRIGGER_HOTROOM (1 << 0)
+#define ENV_HAZARD_TEXT_TRIGGER_UNDERWATER (1 << 1)
+
 #define SECONDS_TO_TIMER(seconds) ((seconds) * 100)
 
 #define OSTIME_TO_TIMER(osTime) ((osTime) * 64 / 3000 / 10000)
@@ -75,7 +78,7 @@ typedef enum {
     /*  2 */ TIMER_ID_2,
     /*  3 */ TIMER_ID_MOON_CRASH, // timer used for mooncrash on the clocktower roof
     /*  4 */ TIMER_ID_MINIGAME_2, // minigame timer
-    /*  5 */ TIMER_ID_ENV, // environmental timer (underwater or hot room)
+    /*  5 */ TIMER_ID_ENV_HAZARD, // environmental hazard timer (underwater or hot room)
     /*  6 */ TIMER_ID_GORON_RACE_UNUSED,
     /*  7 */ TIMER_ID_MAX,
     /* 99 */ TIMER_ID_NONE = 99,
@@ -95,7 +98,7 @@ typedef enum {
     /*  5 */ TIMER_STATE_STOP,
     /*  6 */ TIMER_STATE_6, // like `TIMER_STATE_STOP` but with extra minigame checks
     /*  7 */ TIMER_STATE_7, // stopped but still update `timerCurTimes`
-    /*  8 */ TIMER_STATE_ENV_START,
+    /*  8 */ TIMER_STATE_ENV_HAZARD_START,
     /*  9 */ TIMER_STATE_ALT_START,
     /* 10 */ TIMER_STATE_10, // precursor to `TIMER_STATE_ALT_COUNTING`
     /* 11 */ TIMER_STATE_ALT_COUNTING,
@@ -251,7 +254,7 @@ typedef struct SavePlayerData {
 } SavePlayerData; // size = 0x28
 
 typedef struct Save {
-    /* 0x0000 */ u32 entrance;                          // "scene_no"
+    /* 0x0000 */ s32 entrance;                          // "scene_no"
     /* 0x0004 */ u8 equippedMask;                       // "player_mask"
     /* 0x0005 */ u8 isFirstCycle;                       // "opening_flag"
     /* 0x0006 */ u8 unk_06;
@@ -333,7 +336,7 @@ typedef struct SaveContext {
     /* 0x3DBA */ u8 unk_3DBA;                           // "player_wipe_item"
     /* 0x3DBB */ u8 unk_3DBB;                           // "next_walk"
     /* 0x3DBC */ s16 dogParams;                         // "dog_flag"
-    /* 0x3DBE */ u8 textTriggerFlags;                   // "guide_status"
+    /* 0x3DBE */ u8 envHazardTextTriggerFlags;          // "guide_status"
     /* 0x3DBF */ u8 showTitleCard;                      // "name_display"
     /* 0x3DC0 */ s16 unk_3DC0;                          // "shield_magic_timer"
     /* 0x3DC2 */ u8 unk_3DC2;                           // "pad1"
@@ -622,7 +625,7 @@ typedef enum SunsSongState {
 
 #define WEEKEVENTREG_14_02 PACK_WEEKEVENTREG_FLAG(14, 0x02)
 #define WEEKEVENTREG_14_04 PACK_WEEKEVENTREG_FLAG(14, 0x04)
-#define WEEKEVENTREG_DRANK_CHATEUR_ROMANI PACK_WEEKEVENTREG_FLAG(14, 0x08)
+#define WEEKEVENTREG_DRANK_CHATEAU_ROMANI PACK_WEEKEVENTREG_FLAG(14, 0x08)
 #define WEEKEVENTREG_14_10 PACK_WEEKEVENTREG_FLAG(14, 0x10)
 #define WEEKEVENTREG_14_20 PACK_WEEKEVENTREG_FLAG(14, 0x20)
 #define WEEKEVENTREG_14_40 PACK_WEEKEVENTREG_FLAG(14, 0x40)

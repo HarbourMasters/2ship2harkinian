@@ -8,16 +8,15 @@
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "overlays/actors/ovl_En_Mm3/z_en_mm3.h"
 
-extern Gfx D_0E0001C8[];      // Display List
 extern Gfx D_0E0002E0[];      // gScreenFillDL
 extern TexturePtr D_08095AC0; // gMagicArrowEquipEffectTex
 
 typedef enum {
-    /* 0 */ PICTOGRAPH_STATE_OFF,         // Not using the pictograph
-    /* 1 */ PICTOGRAPH_STATE_LENS,        // Looking through the lens of the pictograph
-    /* 2 */ PICTOGRAPH_STATE_SETUP_PHOTO, // Looking at the photo currently taken
-    /* 3 */ PICTOGRAPH_STATE_PHOTO
-} PictographState;
+    /* 0 */ PICTO_BOX_STATE_OFF,         // Not using the pictograph
+    /* 1 */ PICTO_BOX_STATE_LENS,        // Looking through the lens of the pictograph
+    /* 2 */ PICTO_BOX_STATE_SETUP_PHOTO, // Looking at the photo currently taken
+    /* 3 */ PICTO_BOX_STATE_PHOTO
+} PictoBoxState;
 
 // TODO extract this information from the texture definitions themselves
 #define DO_ACTION_TEX_WIDTH 48
@@ -33,131 +32,169 @@ typedef struct {
 
 Input sPostmanTimerInput[4];
 
-// TODO: Better way to do this?
-#define SET_RESTRICTIONS(hGauge, bButton, aButton, tradeItems, unk_312, unk_313, unk_314, songOfSoaring, songOfStorms, \
-                         unk_317, pictoBox, all)                                                                       \
-    ((((hGauge)&3) << 6) | (((bButton)&3) << 4) | (((aButton)&3) << 2) | (((tradeItems)&3) << 0)),                     \
-        ((((unk_312)&3) << 6) | (((unk_313)&3) << 4) | (((unk_314)&3) << 2) | (((songOfSoaring)&3) << 0)),             \
-        ((((songOfStorms)&3) << 6) | (((unk_317)&3) << 4) | (((pictoBox)&3) << 2) | (((all)&3) << 0))
+#define RESTRICTIONS_TABLE_END 0xFF
+
+#define RESTRICTIONS_GET_BITS(flags, s) (((flags) & (3 << (s))) >> (s))
+
+// does nothing
+#define RESTRICTIONS_GET_HGAUGE(flags) RESTRICTIONS_GET_BITS((flags)->flags1, 6)
+// 0 = usable, !0 = unusable
+#define RESTRICTIONS_GET_B_BUTTON(flags) RESTRICTIONS_GET_BITS((flags)->flags1, 4)
+// does nothing
+#define RESTRICTIONS_GET_A_BUTTON(flags) RESTRICTIONS_GET_BITS((flags)->flags1, 2)
+// 0 = usable, !0 = unusable
+#define RESTRICTIONS_GET_TRADE_ITEMS(flags) RESTRICTIONS_GET_BITS((flags)->flags1, 0)
+// 0 = usable, !0 = unusable
+#define RESTRICTIONS_GET_SONG_OF_TIME(flags) RESTRICTIONS_GET_BITS((flags)->flags2, 6)
+// 0 = usable, !0 = unusable
+#define RESTRICTIONS_GET_SONG_OF_DOUBLE_TIME(flags) RESTRICTIONS_GET_BITS((flags)->flags2, 4)
+// 0 = usable, !0 = unusable
+#define RESTRICTIONS_GET_INV_SONG_OF_TIME(flags) RESTRICTIONS_GET_BITS((flags)->flags2, 2)
+// 0 = usable, !0 = unusable
+#define RESTRICTIONS_GET_SONG_OF_SOARING(flags) RESTRICTIONS_GET_BITS((flags)->flags2, 0)
+// 0 = usable, !0 = unusable
+#define RESTRICTIONS_GET_SONG_OF_STORMS(flags) RESTRICTIONS_GET_BITS((flags)->flags3, 6)
+// 0 = usable, !0 = unusable
+#define RESTRICTIONS_GET_MASKS(flags) RESTRICTIONS_GET_BITS((flags)->flags3, 4)
+// 0 = usable, !0 = unusable
+#define RESTRICTIONS_GET_PICTO_BOX(flags) RESTRICTIONS_GET_BITS((flags)->flags3, 2)
+// 0 = usable, !0 = unusable
+#define RESTRICTIONS_GET_ALL(flags) RESTRICTIONS_GET_BITS((flags)->flags3, 0)
+
+#define RESTRICTIONS_SET(hGauge, bButton, aButton, tradeItems, songOfTime, songOfDoubleTime, invSongOfTime, \
+                         songOfSoaring, songOfStorms, masks, pictoBox, all)                                 \
+    ((((hGauge)&3) << 6) | (((bButton)&3) << 4) | (((aButton)&3) << 2) | (((tradeItems)&3) << 0)),          \
+        ((((songOfTime)&3) << 6) | (((songOfDoubleTime)&3) << 4) | (((invSongOfTime)&3) << 2) |             \
+         (((songOfSoaring)&3) << 0)),                                                                       \
+        ((((songOfStorms)&3) << 6) | (((masks)&3) << 4) | (((pictoBox)&3) << 2) | (((all)&3) << 0))
+
+// Common patterns
+#define RESTRICTIONS_NONE RESTRICTIONS_SET(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+#define RESTRICTIONS_INDOORS RESTRICTIONS_SET(0, 1, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1)
+#define RESTRICTIONS_MOON RESTRICTIONS_SET(0, 0, 0, 0, 0, 3, 3, 3, 0, 0, 0, 0)
+#define RESTRICTIONS_NO_DOUBLE_TIME RESTRICTIONS_SET(0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0)
 
 RestrictionFlags sRestrictionFlags[] = {
-    { SCENE_20SICHITAI2, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_UNSET_1, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_UNSET_2, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_UNSET_3, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_UNSET_4, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_UNSET_5, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_UNSET_6, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_KAKUSIANA, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_SPOT00, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_UNSET_9, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_WITCH_SHOP, SET_RESTRICTIONS(0, 1, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
-    { SCENE_LAST_BS, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 3, 3, 0, 0, 0, 0) },
-    { SCENE_HAKASHITA, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_AYASHIISHOP, SET_RESTRICTIONS(0, 1, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
-    { SCENE_UNSET_E, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_UNSET_F, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_OMOYA, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 3, 0, 0, 0, 0) },
-    { SCENE_BOWLING, SET_RESTRICTIONS(0, 1, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
-    { SCENE_SONCHONOIE, SET_RESTRICTIONS(0, 1, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
-    { SCENE_IKANA, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_KAIZOKU, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_MILK_BAR, SET_RESTRICTIONS(0, 1, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
-    { SCENE_INISIE_N, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_TAKARAYA, SET_RESTRICTIONS(0, 1, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
-    { SCENE_INISIE_R, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_OKUJOU, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 0, 0) },
-    { SCENE_OPENINGDAN, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_MITURIN, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_13HUBUKINOMITI, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_CASTLE, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_DEKUTES, SET_RESTRICTIONS(0, 1, 0, 0, 0, 3, 0, 0, 0, 0, 0, 1) },
-    { SCENE_MITURIN_BS, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_SYATEKI_MIZU, SET_RESTRICTIONS(0, 1, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
-    { SCENE_HAKUGIN, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_ROMANYMAE, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_PIRATE, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_SYATEKI_MORI, SET_RESTRICTIONS(0, 1, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
-    { SCENE_SINKAI, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_YOUSEI_IZUMI, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_KINSTA1, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0) },
-    { SCENE_KINDAN2, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0) },
-    { SCENE_TENMON_DAI, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 3, 3, 0, 0, 0) },
-    { SCENE_LAST_DEKU, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 3, 3, 0, 0, 0, 0) },
-    { SCENE_22DEKUCITY, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_KAJIYA, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 0) },
-    { SCENE_00KEIKOKU, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_POSTHOUSE, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
-    { SCENE_LABO, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
-    { SCENE_DANPEI2TEST, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0) },
-    { SCENE_UNSET_31, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_16GORON_HOUSE, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_33ZORACITY, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0) },
-    { SCENE_8ITEMSHOP, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
-    { SCENE_F01, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_INISIE_BS, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_30GYOSON, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_31MISAKI, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_TAKARAKUJI, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
-    { SCENE_UNSET_3A, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_TORIDE, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_FISHERMAN, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
-    { SCENE_GORONSHOP, SET_RESTRICTIONS(0, 1, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
-    { SCENE_DEKU_KING, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 0) },
-    { SCENE_LAST_GORON, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 3, 3, 0, 0, 0, 0) },
-    { SCENE_24KEMONOMITI, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_F01_B, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0) },
-    { SCENE_F01C, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0) },
-    { SCENE_BOTI, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_HAKUGIN_BS, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_20SICHITAI, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_21MITURINMAE, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_LAST_ZORA, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 3, 3, 0, 0, 0, 0) },
-    { SCENE_11GORONNOSATO2, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_SEA, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_35TAKI, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_REDEAD, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_BANDROOM, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 0) },
-    { SCENE_11GORONNOSATO, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_GORON_HAKA, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_SECOM, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 3, 0, 3, 0, 0, 0) },
-    { SCENE_10YUKIYAMANOMURA, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_TOUGITES, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 0, 0) },
-    { SCENE_DANPEI, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0) },
-    { SCENE_IKANAMAE, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_DOUJOU, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
-    { SCENE_MUSICHOUSE, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 0) },
-    { SCENE_IKNINSIDE, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0) },
-    { SCENE_MAP_SHOP, SET_RESTRICTIONS(0, 1, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
-    { SCENE_F40, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_F41, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_10YUKIYAMANOMURA2, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_14YUKIDAMANOMITI, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_12HAKUGINMAE, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_17SETUGEN, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_17SETUGEN2, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_SEA_BS, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_RANDOM, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_YADOYA, SET_RESTRICTIONS(0, 1, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
-    { SCENE_KONPEKI_ENT, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_INSIDETOWER, SET_RESTRICTIONS(0, 0, 0, 0, 3, 3, 3, 3, 3, 0, 0, 0) },
-    { SCENE_26SARUNOMORI, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0) },
-    { SCENE_LOST_WOODS, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_LAST_LINK, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 3, 3, 0, 0, 0, 0) },
-    { SCENE_SOUGEN, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 3, 3, 0, 0, 0, 0) },
-    { SCENE_BOMYA, SET_RESTRICTIONS(0, 1, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
-    { SCENE_KYOJINNOMA, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_KOEPONARACE, SET_RESTRICTIONS(0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0) },
-    { SCENE_GORONRACE, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_TOWN, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_ICHIBA, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_BACKTOWN, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_CLOCKTOWER, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
-    { SCENE_ALLEY, SET_RESTRICTIONS(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0) },
+    { SCENE_20SICHITAI2, RESTRICTIONS_NONE },
+    { SCENE_UNSET_1, RESTRICTIONS_NONE },
+    { SCENE_UNSET_2, RESTRICTIONS_NONE },
+    { SCENE_UNSET_3, RESTRICTIONS_NONE },
+    { SCENE_UNSET_4, RESTRICTIONS_NONE },
+    { SCENE_UNSET_5, RESTRICTIONS_NONE },
+    { SCENE_UNSET_6, RESTRICTIONS_NONE },
+    { SCENE_KAKUSIANA, RESTRICTIONS_NONE },
+    { SCENE_SPOT00, RESTRICTIONS_NONE },
+    { SCENE_UNSET_9, RESTRICTIONS_NONE },
+    { SCENE_WITCH_SHOP, RESTRICTIONS_INDOORS },
+    { SCENE_LAST_BS, RESTRICTIONS_MOON },
+    { SCENE_HAKASHITA, RESTRICTIONS_NONE },
+    { SCENE_AYASHIISHOP, RESTRICTIONS_INDOORS },
+    { SCENE_UNSET_E, RESTRICTIONS_NONE },
+    { SCENE_UNSET_F, RESTRICTIONS_NONE },
+    { SCENE_OMOYA, RESTRICTIONS_SET(0, 0, 0, 0, 0, 3, 0, 3, 0, 0, 0, 0) },
+    { SCENE_BOWLING, RESTRICTIONS_INDOORS },
+    { SCENE_SONCHONOIE, RESTRICTIONS_INDOORS },
+    { SCENE_IKANA, RESTRICTIONS_NONE },
+    { SCENE_KAIZOKU, RESTRICTIONS_NONE },
+    { SCENE_MILK_BAR, RESTRICTIONS_INDOORS },
+    { SCENE_INISIE_N, RESTRICTIONS_NONE },
+    { SCENE_TAKARAYA, RESTRICTIONS_INDOORS },
+    { SCENE_INISIE_R, RESTRICTIONS_NONE },
+    { SCENE_OKUJOU, RESTRICTIONS_SET(0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 0, 0) },
+    { SCENE_OPENINGDAN, RESTRICTIONS_NONE },
+    { SCENE_MITURIN, RESTRICTIONS_NONE },
+    { SCENE_13HUBUKINOMITI, RESTRICTIONS_NONE },
+    { SCENE_CASTLE, RESTRICTIONS_NONE },
+    { SCENE_DEKUTES, RESTRICTIONS_SET(0, 1, 0, 0, 0, 3, 0, 0, 0, 0, 0, 1) },
+    { SCENE_MITURIN_BS, RESTRICTIONS_NONE },
+    { SCENE_SYATEKI_MIZU, RESTRICTIONS_INDOORS },
+    { SCENE_HAKUGIN, RESTRICTIONS_NONE },
+    { SCENE_ROMANYMAE, RESTRICTIONS_NONE },
+    { SCENE_PIRATE, RESTRICTIONS_NONE },
+    { SCENE_SYATEKI_MORI, RESTRICTIONS_INDOORS },
+    { SCENE_SINKAI, RESTRICTIONS_NONE },
+    { SCENE_YOUSEI_IZUMI, RESTRICTIONS_NONE },
+    { SCENE_KINSTA1, RESTRICTIONS_NO_DOUBLE_TIME },
+    { SCENE_KINDAN2, RESTRICTIONS_NO_DOUBLE_TIME },
+    { SCENE_TENMON_DAI, RESTRICTIONS_SET(0, 0, 0, 0, 0, 0, 0, 3, 3, 0, 0, 0) },
+    { SCENE_LAST_DEKU, RESTRICTIONS_MOON },
+    { SCENE_22DEKUCITY, RESTRICTIONS_NONE },
+    { SCENE_KAJIYA, RESTRICTIONS_SET(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 0) },
+    { SCENE_00KEIKOKU, RESTRICTIONS_NONE },
+    { SCENE_POSTHOUSE, RESTRICTIONS_SET(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
+    { SCENE_LABO, RESTRICTIONS_SET(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
+    { SCENE_DANPEI2TEST, RESTRICTIONS_NO_DOUBLE_TIME },
+    { SCENE_UNSET_31, RESTRICTIONS_NONE },
+    { SCENE_16GORON_HOUSE, RESTRICTIONS_NONE },
+    { SCENE_33ZORACITY, RESTRICTIONS_SET(0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0) },
+    { SCENE_8ITEMSHOP, RESTRICTIONS_SET(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
+    { SCENE_F01, RESTRICTIONS_NONE },
+    { SCENE_INISIE_BS, RESTRICTIONS_NONE },
+    { SCENE_30GYOSON, RESTRICTIONS_NONE },
+    { SCENE_31MISAKI, RESTRICTIONS_NONE },
+    { SCENE_TAKARAKUJI, RESTRICTIONS_SET(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
+    { SCENE_UNSET_3A, RESTRICTIONS_NONE },
+    { SCENE_TORIDE, RESTRICTIONS_NONE },
+    { SCENE_FISHERMAN, RESTRICTIONS_SET(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
+    { SCENE_GORONSHOP, RESTRICTIONS_INDOORS },
+    { SCENE_DEKU_KING, RESTRICTIONS_SET(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 0) },
+    { SCENE_LAST_GORON, RESTRICTIONS_MOON },
+    { SCENE_24KEMONOMITI, RESTRICTIONS_NONE },
+    { SCENE_F01_B, RESTRICTIONS_NO_DOUBLE_TIME },
+    { SCENE_F01C, RESTRICTIONS_NO_DOUBLE_TIME },
+    { SCENE_BOTI, RESTRICTIONS_NONE },
+    { SCENE_HAKUGIN_BS, RESTRICTIONS_NONE },
+    { SCENE_20SICHITAI, RESTRICTIONS_NONE },
+    { SCENE_21MITURINMAE, RESTRICTIONS_NONE },
+    { SCENE_LAST_ZORA, RESTRICTIONS_MOON },
+    { SCENE_11GORONNOSATO2, RESTRICTIONS_NONE },
+    { SCENE_SEA, RESTRICTIONS_NONE },
+    { SCENE_35TAKI, RESTRICTIONS_NONE },
+    { SCENE_REDEAD, RESTRICTIONS_NONE },
+    { SCENE_BANDROOM, RESTRICTIONS_SET(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 0) },
+    { SCENE_11GORONNOSATO, RESTRICTIONS_NONE },
+    { SCENE_GORON_HAKA, RESTRICTIONS_NONE },
+    { SCENE_SECOM, RESTRICTIONS_SET(0, 0, 0, 0, 0, 3, 3, 0, 3, 0, 0, 0) },
+    { SCENE_10YUKIYAMANOMURA, RESTRICTIONS_NONE },
+    { SCENE_TOUGITES, RESTRICTIONS_SET(0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 0, 0) },
+    { SCENE_DANPEI, RESTRICTIONS_NO_DOUBLE_TIME },
+    { SCENE_IKANAMAE, RESTRICTIONS_NONE },
+    { SCENE_DOUJOU, RESTRICTIONS_SET(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 1) },
+    { SCENE_MUSICHOUSE, RESTRICTIONS_SET(0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 0, 0) },
+    { SCENE_IKNINSIDE, RESTRICTIONS_SET(0, 0, 0, 0, 0, 3, 3, 3, 3, 0, 0, 0) },
+    { SCENE_MAP_SHOP, RESTRICTIONS_INDOORS },
+    { SCENE_F40, RESTRICTIONS_NONE },
+    { SCENE_F41, RESTRICTIONS_NONE },
+    { SCENE_10YUKIYAMANOMURA2, RESTRICTIONS_NONE },
+    { SCENE_14YUKIDAMANOMITI, RESTRICTIONS_NONE },
+    { SCENE_12HAKUGINMAE, RESTRICTIONS_NONE },
+    { SCENE_17SETUGEN, RESTRICTIONS_NONE },
+    { SCENE_17SETUGEN2, RESTRICTIONS_NONE },
+    { SCENE_SEA_BS, RESTRICTIONS_NONE },
+    { SCENE_RANDOM, RESTRICTIONS_NONE },
+    { SCENE_YADOYA, RESTRICTIONS_INDOORS },
+    { SCENE_KONPEKI_ENT, RESTRICTIONS_NONE },
+    { SCENE_INSIDETOWER, RESTRICTIONS_SET(0, 0, 0, 0, 3, 3, 3, 3, 3, 0, 0, 0) },
+    { SCENE_26SARUNOMORI, RESTRICTIONS_NO_DOUBLE_TIME },
+    { SCENE_LOST_WOODS, RESTRICTIONS_NONE },
+    { SCENE_LAST_LINK, RESTRICTIONS_MOON },
+    { SCENE_SOUGEN, RESTRICTIONS_MOON },
+    { SCENE_BOMYA, RESTRICTIONS_INDOORS },
+    { SCENE_KYOJINNOMA, RESTRICTIONS_NONE },
+    { SCENE_KOEPONARACE, RESTRICTIONS_NO_DOUBLE_TIME },
+    { SCENE_GORONRACE, RESTRICTIONS_NONE },
+    { SCENE_TOWN, RESTRICTIONS_NONE },
+    { SCENE_ICHIBA, RESTRICTIONS_NONE },
+    { SCENE_BACKTOWN, RESTRICTIONS_NONE },
+    { SCENE_CLOCKTOWER, RESTRICTIONS_NONE },
+    { SCENE_ALLEY, RESTRICTIONS_NONE },
+    // { RESTRICTIONS_TABLE_END, RESTRICTIONS_NONE }, // See note below
 };
+//! @note: in `Interface_SetSceneRestrictions`, `RESTRICTIONS_TABLE_END` act as a terminating value to
+// stop looping through the array. If a scene is missing, then this will cause issues.
 
-s16 sPictographState = PICTOGRAPH_STATE_OFF;
-s16 sPictographPhotoBeingTaken = false; // pictoBox related
+s16 sPictoState = PICTO_BOX_STATE_OFF;
+s16 sPictoPhotoBeingTaken = false;
 
 s16 sHBAScoreTier = 0; // Remnant of OoT, non-functional
 
@@ -194,7 +231,7 @@ s16 sExtraItemBases[] = {
     ITEM_NUT,     // ITEM_NUT_UPGRADE_30
 };
 
-s16 sEnvTimerType = PLAYER_ENV_TIMER_NONE;
+s16 sEnvHazard = PLAYER_ENV_HAZARD_NONE;
 s16 sEnvTimerActive = false;
 s16 sPostmanBunnyHoodState = POSTMAN_MINIGAME_BUNNY_HOOD_OFF;
 OSTime sTimerPausedOsTime = 0;
@@ -215,7 +252,7 @@ s16 D_801BF97C = 255;
 f32 D_801BF980 = 1.0f;
 s32 D_801BF984 = 0;
 
-Gfx gScreenFillSetupDL[] = {
+Gfx sScreenFillSetupDL[] = {
     gsDPPipeSync(),
     gsSPClearGeometryMode(G_ZBUFFER | G_SHADE | G_CULL_BOTH | G_FOG | G_LIGHTING | G_TEXTURE_GEN |
                           G_TEXTURE_GEN_LINEAR | G_LOD | G_SHADING_SMOOTH),
@@ -1771,7 +1808,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
             }
         }
 
-        if (sPictographState == PICTOGRAPH_STATE_OFF) {
+        if (sPictoState == PICTO_BOX_STATE_OFF) {
             if (gSaveContext.buttonStatus[EQUIP_SLOT_B] != BTN_DISABLED) {
                 restoreHudVisibility = true;
             }
@@ -1893,8 +1930,8 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
         // Nuts on B (as Deku Link)
         BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_FD;
         gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_DISABLED;
-    } else if ((Player_GetEnvTimerType(play) >= PLAYER_ENV_TIMER_UNDERWATER_FLOOR) &&
-               (Player_GetEnvTimerType(play) <= PLAYER_ENV_TIMER_UNDERWATER_FREE)) {
+    } else if ((Player_GetEnvironmentalHazard(play) >= PLAYER_ENV_HAZARD_UNDERWATER_FLOOR) &&
+               (Player_GetEnvironmentalHazard(play) <= PLAYER_ENV_HAZARD_UNDERWATER_FREE)) {
         // Swimming underwater
         if (CUR_FORM != PLAYER_FORM_ZORA) {
             if ((player->currentMask == PLAYER_MASK_BLAST) && (player->blastMaskTimer == 0)) {
@@ -1923,7 +1960,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
 
         for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
             if (GET_CUR_FORM_BTN_ITEM(i) != ITEM_MASK_ZORA) {
-                if (Player_GetEnvTimerType(play) == PLAYER_ENV_TIMER_UNDERWATER_FLOOR) {
+                if (Player_GetEnvironmentalHazard(play) == PLAYER_ENV_HAZARD_UNDERWATER_FLOOR) {
                     if (!((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_BOTTLE) &&
                           (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_OBABA_DRINK))) {
                         if (gSaveContext.buttonStatus[i] == BTN_ENABLED) {
@@ -2147,7 +2184,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                         }
                     }
 
-                    if (interfaceCtx->restrictions.unk_317 != 0) {
+                    if (interfaceCtx->restrictions.masks != 0) {
                         if ((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_MASK_DEKU) &&
                             (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_MASK_GIANT)) {
                             if (!gSaveContext.buttonStatus[i]) { // == BTN_ENABLED
@@ -2155,7 +2192,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                             }
                             gSaveContext.buttonStatus[i] = BTN_DISABLED;
                         }
-                    } else if (interfaceCtx->restrictions.unk_317 == 0) {
+                    } else if (interfaceCtx->restrictions.masks == 0) {
                         if ((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_MASK_DEKU) &&
                             (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_MASK_GIANT)) {
                             if (gSaveContext.buttonStatus[i] == BTN_DISABLED) {
@@ -2165,14 +2202,14 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                         }
                     }
 
-                    if (interfaceCtx->restrictions.pictographBox != 0) {
+                    if (interfaceCtx->restrictions.pictoBox != 0) {
                         if (GET_CUR_FORM_BTN_ITEM(i) == ITEM_PICTO_BOX) {
                             if (!gSaveContext.buttonStatus[i]) { // == BTN_ENABLED
                                 restoreHudVisibility = true;
                             }
                             gSaveContext.buttonStatus[i] = BTN_DISABLED;
                         }
-                    } else if (interfaceCtx->restrictions.pictographBox == 0) {
+                    } else if (interfaceCtx->restrictions.pictoBox == 0) {
                         if (GET_CUR_FORM_BTN_ITEM(i) == ITEM_PICTO_BOX) {
                             if (gSaveContext.buttonStatus[i] == BTN_DISABLED) {
                                 restoreHudVisibility = true;
@@ -2380,32 +2417,32 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                     Interface_SetHudVisibility(HUD_VISIBILITY_A_B_MINIMAP);
                 }
             }
-        } else if (sPictographState != PICTOGRAPH_STATE_OFF) {
+        } else if (sPictoState != PICTO_BOX_STATE_OFF) {
             // Related to pictograph
-            if (sPictographState == PICTOGRAPH_STATE_LENS) {
-                if (!(play->actorCtx.flags & ACTORCTX_FLAG_PICTOGRAPH_ON)) {
+            if (sPictoState == PICTO_BOX_STATE_LENS) {
+                if (!(play->actorCtx.flags & ACTORCTX_FLAG_PICTO_BOX_ON)) {
                     Play_CompressI8ToI5((play->pictoPhotoI8 != NULL) ? play->pictoPhotoI8 : D_801FBB90,
                                         (u8*)((void)0, gSaveContext.pictoPhotoI5),
                                         PICTO_PHOTO_WIDTH * PICTO_PHOTO_HEIGHT);
                     interfaceCtx->unk_222 = interfaceCtx->unk_224 = 0;
                     restoreHudVisibility = true;
-                    sPictographState = PICTOGRAPH_STATE_OFF;
+                    sPictoState = PICTO_BOX_STATE_OFF;
                 } else if (CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, BTN_B)) {
-                    play->actorCtx.flags &= ~ACTORCTX_FLAG_PICTOGRAPH_ON;
+                    play->actorCtx.flags &= ~ACTORCTX_FLAG_PICTO_BOX_ON;
                     interfaceCtx->unk_222 = interfaceCtx->unk_224 = 0;
                     restoreHudVisibility = true;
-                    sPictographState = PICTOGRAPH_STATE_OFF;
+                    sPictoState = PICTO_BOX_STATE_OFF;
                 } else if (CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, BTN_A) || (func_801A5100() == 1)) {
                     if (!(CHECK_EVENTINF(EVENTINF_41)) ||
                         ((CHECK_EVENTINF(EVENTINF_41)) && (ActorCutscene_GetCurrentIndex() == -1))) {
                         play_sound(NA_SE_SY_CAMERA_SHUTTER);
                         SREG(89) = 1;
                         play->haltAllActors = true;
-                        sPictographState = PICTOGRAPH_STATE_SETUP_PHOTO;
-                        sPictographPhotoBeingTaken = true;
+                        sPictoState = PICTO_BOX_STATE_SETUP_PHOTO;
+                        sPictoPhotoBeingTaken = true;
                     }
                 }
-            } else if ((sPictographState >= PICTOGRAPH_STATE_SETUP_PHOTO) && (Message_GetState(&play->msgCtx) == 4) &&
+            } else if ((sPictoState >= PICTO_BOX_STATE_SETUP_PHOTO) && (Message_GetState(&play->msgCtx) == 4) &&
                        Message_ShouldAdvance(play)) {
                 play->haltAllActors = false;
                 player->stateFlags1 &= ~PLAYER_STATE1_200;
@@ -2414,23 +2451,23 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                     func_8019F230();
                     Interface_LoadBButtonDoActionLabel(play, DO_ACTION_STOP);
                     Interface_SetHudVisibility(HUD_VISIBILITY_A_B);
-                    sPictographState = PICTOGRAPH_STATE_LENS;
+                    sPictoState = PICTO_BOX_STATE_LENS;
                     REMOVE_QUEST_ITEM(QUEST_PICTOGRAPH);
                 } else {
                     func_8019F208();
                     interfaceCtx->unk_222 = interfaceCtx->unk_224 = 0;
                     restoreHudVisibility = true;
                     Interface_SetHudVisibility(HUD_VISIBILITY_ALL);
-                    sPictographState = PICTOGRAPH_STATE_OFF;
-                    if (sPictographPhotoBeingTaken) {
+                    sPictoState = PICTO_BOX_STATE_OFF;
+                    if (sPictoPhotoBeingTaken) {
                         Play_CompressI8ToI5((play->pictoPhotoI8 != NULL) ? play->pictoPhotoI8 : D_801FBB90,
                                             (u8*)((void)0, gSaveContext.pictoPhotoI5),
                                             PICTO_PHOTO_WIDTH * PICTO_PHOTO_HEIGHT);
                         Snap_RecordPictographedActors(play);
                     }
-                    play->actorCtx.flags &= ~ACTORCTX_FLAG_PICTOGRAPH_ON;
+                    play->actorCtx.flags &= ~ACTORCTX_FLAG_PICTO_BOX_ON;
                     SET_QUEST_ITEM(QUEST_PICTOGRAPH);
-                    sPictographPhotoBeingTaken = false;
+                    sPictoPhotoBeingTaken = false;
                 }
             }
         } else if ((gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE) &&
@@ -2448,18 +2485,18 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
             Interface_SetHudVisibility(HUD_VISIBILITY_A_B_HEARTS_MAGIC_MINIMAP);
-        } else if (play->actorCtx.flags & ACTORCTX_FLAG_PICTOGRAPH_ON) {
+        } else if (play->actorCtx.flags & ACTORCTX_FLAG_PICTO_BOX_ON) {
             // Related to pictograph
             if (!CHECK_QUEST_ITEM(QUEST_PICTOGRAPH)) {
                 Interface_LoadBButtonDoActionLabel(play, DO_ACTION_STOP);
                 Interface_SetHudVisibility(HUD_VISIBILITY_A_B);
-                sPictographState = PICTOGRAPH_STATE_LENS;
+                sPictoState = PICTO_BOX_STATE_LENS;
             } else {
                 Play_DecompressI5ToI8((u8*)((void)0, gSaveContext.pictoPhotoI5),
                                       (play->pictoPhotoI8 != NULL) ? play->pictoPhotoI8 : D_801FBB90,
                                       PICTO_PHOTO_WIDTH * PICTO_PHOTO_HEIGHT);
                 play->haltAllActors = true;
-                sPictographState = PICTOGRAPH_STATE_SETUP_PHOTO;
+                sPictoState = PICTO_BOX_STATE_SETUP_PHOTO;
             }
         } else {
             // Continue processing the remaining cases
@@ -2482,23 +2519,23 @@ void Interface_SetSceneRestrictions(PlayState* play) {
 
     do {
         currentScene = (u8)play->sceneId;
-        if (sRestrictionFlags[i].scene == currentScene) {
-            interfaceCtx->restrictions.hGauge = (sRestrictionFlags[i].flags1 & 0xC0) >> 6;
-            interfaceCtx->restrictions.bButton = (sRestrictionFlags[i].flags1 & 0x30) >> 4;
-            interfaceCtx->restrictions.aButton = (sRestrictionFlags[i].flags1 & 0x0C) >> 2;
-            interfaceCtx->restrictions.tradeItems = (sRestrictionFlags[i].flags1 & 0x03) >> 0;
-            interfaceCtx->restrictions.unk_312 = (sRestrictionFlags[i].flags2 & 0xC0) >> 6;
-            interfaceCtx->restrictions.unk_313 = (sRestrictionFlags[i].flags2 & 0x30) >> 4;
-            interfaceCtx->restrictions.unk_314 = (sRestrictionFlags[i].flags2 & 0x0C) >> 2;
-            interfaceCtx->restrictions.songOfSoaring = (sRestrictionFlags[i].flags2 & 0x03) >> 0;
-            interfaceCtx->restrictions.songOfStorms = (sRestrictionFlags[i].flags3 & 0xC0) >> 6;
-            interfaceCtx->restrictions.unk_317 = (sRestrictionFlags[i].flags3 & 0x30) >> 4;
-            interfaceCtx->restrictions.pictographBox = (sRestrictionFlags[i].flags3 & 0x0C) >> 2;
-            interfaceCtx->restrictions.all = (sRestrictionFlags[i].flags3 & 0x03) >> 0;
+        if (currentScene == sRestrictionFlags[i].scene) {
+            interfaceCtx->restrictions.hGauge = RESTRICTIONS_GET_HGAUGE(&sRestrictionFlags[i]);
+            interfaceCtx->restrictions.bButton = RESTRICTIONS_GET_B_BUTTON(&sRestrictionFlags[i]);
+            interfaceCtx->restrictions.aButton = RESTRICTIONS_GET_A_BUTTON(&sRestrictionFlags[i]);
+            interfaceCtx->restrictions.tradeItems = RESTRICTIONS_GET_TRADE_ITEMS(&sRestrictionFlags[i]);
+            interfaceCtx->restrictions.songOfTime = RESTRICTIONS_GET_SONG_OF_TIME(&sRestrictionFlags[i]);
+            interfaceCtx->restrictions.songOfDoubleTime = RESTRICTIONS_GET_SONG_OF_DOUBLE_TIME(&sRestrictionFlags[i]);
+            interfaceCtx->restrictions.invSongOfTime = RESTRICTIONS_GET_INV_SONG_OF_TIME(&sRestrictionFlags[i]);
+            interfaceCtx->restrictions.songOfSoaring = RESTRICTIONS_GET_SONG_OF_SOARING(&sRestrictionFlags[i]);
+            interfaceCtx->restrictions.songOfStorms = RESTRICTIONS_GET_SONG_OF_STORMS(&sRestrictionFlags[i]);
+            interfaceCtx->restrictions.masks = RESTRICTIONS_GET_MASKS(&sRestrictionFlags[i]);
+            interfaceCtx->restrictions.pictoBox = RESTRICTIONS_GET_PICTO_BOX(&sRestrictionFlags[i]);
+            interfaceCtx->restrictions.all = RESTRICTIONS_GET_ALL(&sRestrictionFlags[i]);
             break;
         }
         i++;
-    } while (sRestrictionFlags[i].scene != 0xFF);
+    } while (sRestrictionFlags[i].scene != RESTRICTIONS_TABLE_END);
 }
 
 void Interface_Noop(void) {
@@ -2520,8 +2557,8 @@ void Interface_InitMinigame(PlayState* play) {
 void Interface_LoadItemIconImpl(PlayState* play, u8 btn) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
 
-    func_80178E3C(SEGMENT_ROM_START(icon_item_static_test), GET_CUR_FORM_BTN_ITEM(btn),
-                  &interfaceCtx->iconItemSegment[(u32)btn * 0x1000], 0x1000);
+    CmpDma_LoadFile(SEGMENT_ROM_START(icon_item_static_test), GET_CUR_FORM_BTN_ITEM(btn),
+                    &interfaceCtx->iconItemSegment[(u32)btn * 0x1000], 0x1000);
 }
 
 void Interface_LoadItemIcon(PlayState* play, u8 btn) {
@@ -2613,7 +2650,7 @@ u8 Item_Give(PlayState* play, u8 item) {
 
     } else if ((item >= ITEM_SWORD_KOKIRI) && (item <= ITEM_SWORD_GILDED)) {
         SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, item - ITEM_SWORD_KOKIRI + EQUIP_VALUE_SWORD_KOKIRI);
-        BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = item;
+        CUR_FORM_EQUIP(EQUIP_SLOT_B) = item;
         Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
         if (item == ITEM_SWORD_RAZOR) {
             gSaveContext.save.playerData.swordHealth = 100;
@@ -3207,12 +3244,12 @@ void Inventory_UpdateDeitySwordEquip(PlayState* play) {
         if ((((gSaveContext.save.playerForm > 0) && (gSaveContext.save.playerForm < 4))
                  ? 1
                  : gSaveContext.save.playerForm >> 1) == 0) {
-            BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_SWORD_DEITY;
-        } else if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_SWORD_DEITY) {
+            CUR_FORM_EQUIP(EQUIP_SLOT_B) = ITEM_SWORD_DEITY;
+        } else if (CUR_FORM_EQUIP(EQUIP_SLOT_B) == ITEM_SWORD_DEITY) {
             if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) == EQUIP_VALUE_SWORD_NONE) {
-                BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_NONE;
+                CUR_FORM_EQUIP(EQUIP_SLOT_B) = ITEM_NONE;
             } else {
-                BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) =
+                CUR_FORM_EQUIP(EQUIP_SLOT_B) =
                     GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI + ITEM_SWORD_KOKIRI;
             }
         }
@@ -3546,7 +3583,7 @@ s32 Magic_Consume(PlayState* play, s16 magicToConsume, s16 type) {
                 if (gSaveContext.magicState == MAGIC_STATE_CONSUME_LENS) {
                     play->actorCtx.lensActive = false;
                 }
-                if (CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
+                if (CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEAU_ROMANI)) {
                     magicToConsume = 0;
                 }
                 gSaveContext.magicToConsume = magicToConsume;
@@ -3565,7 +3602,7 @@ s32 Magic_Consume(PlayState* play, s16 magicToConsume, s16 type) {
                 if (gSaveContext.magicState == MAGIC_STATE_CONSUME_LENS) {
                     play->actorCtx.lensActive = false;
                 }
-                if (CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
+                if (CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEAU_ROMANI)) {
                     magicToConsume = 0;
                 }
                 gSaveContext.magicToConsume = magicToConsume;
@@ -3641,7 +3678,7 @@ s32 Magic_Consume(PlayState* play, s16 magicToConsume, s16 type) {
                 if (gSaveContext.magicState == MAGIC_STATE_CONSUME_LENS) {
                     play->actorCtx.lensActive = false;
                 }
-                if (CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
+                if (CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEAU_ROMANI)) {
                     magicToConsume = 0;
                 }
                 gSaveContext.save.playerData.magic -= magicToConsume;
@@ -3729,7 +3766,7 @@ void Magic_Update(PlayState* play) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
     s16 magicCapacityTarget;
 
-    if (CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
+    if (CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEAU_ROMANI)) {
         Magic_FlashMeterBorder();
     }
 
@@ -3779,7 +3816,7 @@ void Magic_Update(PlayState* play) {
 
         case MAGIC_STATE_CONSUME:
             // Consume magic until target is reached or no more magic is available
-            if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
+            if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEAU_ROMANI)) {
                 gSaveContext.save.playerData.magic =
                     ((void)0, gSaveContext.save.playerData.magic) - ((void)0, gSaveContext.magicToConsume);
                 if (gSaveContext.save.playerData.magic <= 0) {
@@ -3792,7 +3829,7 @@ void Magic_Update(PlayState* play) {
         case MAGIC_STATE_METER_FLASH_1:
         case MAGIC_STATE_METER_FLASH_2:
         case MAGIC_STATE_METER_FLASH_3:
-            if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
+            if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEAU_ROMANI)) {
                 Magic_FlashMeterBorder();
             }
             break;
@@ -3810,8 +3847,8 @@ void Magic_Update(PlayState* play) {
                 !Play_InCsMode(play)) {
 
                 if ((gSaveContext.save.playerData.magic == 0) ||
-                    ((Player_GetEnvTimerType(play) >= PLAYER_ENV_TIMER_UNDERWATER_FLOOR) &&
-                     (Player_GetEnvTimerType(play) <= PLAYER_ENV_TIMER_UNDERWATER_FREE)) ||
+                    ((Player_GetEnvironmentalHazard(play) >= PLAYER_ENV_HAZARD_UNDERWATER_FLOOR) &&
+                     (Player_GetEnvironmentalHazard(play) <= PLAYER_ENV_HAZARD_UNDERWATER_FREE)) ||
                     ((BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT) != ITEM_LENS) &&
                      (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) != ITEM_LENS) &&
                      (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) != ITEM_LENS)) ||
@@ -3826,19 +3863,19 @@ void Magic_Update(PlayState* play) {
 
                 interfaceCtx->magicConsumptionTimer--;
                 if (interfaceCtx->magicConsumptionTimer == 0) {
-                    if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
+                    if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEAU_ROMANI)) {
                         gSaveContext.save.playerData.magic--;
                     }
                     interfaceCtx->magicConsumptionTimer = 80;
                 }
             }
-            if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
+            if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEAU_ROMANI)) {
                 Magic_FlashMeterBorder();
             }
             break;
 
         case MAGIC_STATE_CONSUME_GORON_ZORA_SETUP:
-            if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
+            if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEAU_ROMANI)) {
                 gSaveContext.save.playerData.magic -= 2;
             }
             if (gSaveContext.save.playerData.magic <= 0) {
@@ -3853,7 +3890,7 @@ void Magic_Update(PlayState* play) {
                 if (!Play_InCsMode(play)) {
                     interfaceCtx->magicConsumptionTimer--;
                     if (interfaceCtx->magicConsumptionTimer == 0) {
-                        if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
+                        if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEAU_ROMANI)) {
                             gSaveContext.save.playerData.magic--;
                         }
                         if (gSaveContext.save.playerData.magic <= 0) {
@@ -3863,7 +3900,7 @@ void Magic_Update(PlayState* play) {
                     }
                 }
             }
-            if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
+            if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEAU_ROMANI)) {
                 Magic_FlashMeterBorder();
             }
             break;
@@ -3875,7 +3912,7 @@ void Magic_Update(PlayState* play) {
                 if (!Play_InCsMode(play)) {
                     interfaceCtx->magicConsumptionTimer--;
                     if (interfaceCtx->magicConsumptionTimer == 0) {
-                        if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
+                        if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEAU_ROMANI)) {
                             gSaveContext.save.playerData.magic--;
                         }
                         if (gSaveContext.save.playerData.magic <= 0) {
@@ -3885,7 +3922,7 @@ void Magic_Update(PlayState* play) {
                     }
                 }
             }
-            if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
+            if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEAU_ROMANI)) {
                 Magic_FlashMeterBorder();
             }
             break;
@@ -3941,7 +3978,7 @@ void Magic_DrawMeter(PlayState* play) {
 
             // Fill the rest of the meter with the normal magic color
             gDPPipeSync(OVERLAY_DISP++);
-            if (CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
+            if (CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEAU_ROMANI)) {
                 // Blue magic
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 200, interfaceCtx->magicAlpha);
             } else {
@@ -3954,7 +3991,7 @@ void Magic_DrawMeter(PlayState* play) {
                 (magicBarY + 10) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
         } else {
             // Fill the whole meter with the normal magic color
-            if (CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEUR_ROMANI)) {
+            if (CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEAU_ROMANI)) {
                 // Blue magic
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 200, interfaceCtx->magicAlpha);
             } else {
@@ -4060,7 +4097,7 @@ void Interface_DrawItemButtons(PlayState* play) {
 
     if (interfaceCtx->tatlCalling && (play->pauseCtx.state == PAUSE_STATE_OFF) &&
         (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE) && (play->csCtx.state == 0) &&
-        (sPictographState == PICTOGRAPH_STATE_OFF)) {
+        (sPictoState == PICTO_BOX_STATE_OFF)) {
         if (sCUpInvisible == 0) {
             // C-Up Button Texture, Color & Label (Tatl Text)
             gDPPipeSync(OVERLAY_DISP++);
@@ -5610,7 +5647,7 @@ void Interface_StartMoonCrash(PlayState* play) {
     play->nextEntrance = ENTRANCE(TERMINA_FIELD, 12);
     gSaveContext.nextCutsceneIndex = 0;
     play->transitionTrigger = TRANS_TRIGGER_START;
-    play->transitionType = TRANS_TYPE_03;
+    play->transitionType = TRANS_TYPE_FADE_WHITE;
 }
 
 void Interface_GetTimerDigits(u64 timer, s16* timerArr) {
@@ -5837,7 +5874,7 @@ void Interface_DrawTimers(PlayState* play) {
                     gSaveContext.timerStates[sTimerId] = TIMER_STATE_COUNTING;
                     break;
 
-                case TIMER_STATE_ENV_START:
+                case TIMER_STATE_ENV_HAZARD_START:
                     gSaveContext.timerCurTimes[sTimerId] = SECONDS_TO_TIMER(gSaveContext.save.playerData.health >> 1);
                     gSaveContext.timerDirections[sTimerId] = TIMER_COUNT_DOWN;
                     gSaveContext.timerTimeLimits[sTimerId] = gSaveContext.timerCurTimes[sTimerId];
@@ -6295,7 +6332,9 @@ void Interface_DrawMinigameIcons(PlayState* play) {
 }
 
 s16 sRupeeDigitsFirst[] = { 1, 0, 0, 0 };
+
 s16 sRupeeDigitsCount[] = { 2, 3, 3, 0 };
+
 Color_RGB16 sRupeeCounterIconPrimColors[] = {
     { 200, 255, 100 },
     { 170, 170, 255 },
@@ -6312,18 +6351,22 @@ TexturePtr sMinigameCountdownTextures[] = {
     gMinigameCountdown1Tex,
     gMinigameCountdownGoTex,
 };
+
 s16 sMinigameCountdownTexWidths[] = { 24, 24, 24, 40 };
+
 Color_RGB16 sMinigameCountdownPrimColors[] = {
     { 100, 255, 100 },
     { 255, 255, 60 },
     { 255, 100, 0 },
     { 120, 170, 255 },
 };
-TexturePtr gStoryTextures[] = {
+
+TexturePtr sStoryTextures[] = {
     gStoryMaskFestivalTex,
     gStoryGiantsLeavingTex,
 };
-TexturePtr gStoryTLUTs[] = {
+
+TexturePtr sStoryTLUTs[] = {
     gStoryMaskFestivalTLUT,
     gStoryGiantsLeavingTLUT,
 };
@@ -6364,7 +6407,7 @@ void Interface_Draw(PlayState* play) {
             // Load in Grandma's Story
             gSPLoadUcodeL(OVERLAY_DISP++, gspS2DEX2_fifo);
             gfx = OVERLAY_DISP;
-            func_80172758(&gfx, gStoryTextures[interfaceCtx->storyType], gStoryTLUTs[interfaceCtx->storyType],
+            func_80172758(&gfx, sStoryTextures[interfaceCtx->storyType], sStoryTLUTs[interfaceCtx->storyType],
                           SCREEN_WIDTH, SCREEN_HEIGHT, 2, 1, 0x8000, 0x100, 0.0f, 0.0f, 1.0f, 1.0f, 0);
             OVERLAY_DISP = gfx;
             gSPLoadUcode(OVERLAY_DISP++, SysUcode_GetUCode(), SysUcode_GetUCodeData());
@@ -6630,7 +6673,7 @@ void Interface_Draw(PlayState* play) {
     }
 
     // Draw pictograph focus icons
-    if (sPictographState == PICTOGRAPH_STATE_LENS) {
+    if (sPictoState == PICTO_BOX_STATE_LENS) {
 
         func_8012C654(play->state.gfxCtx);
 
@@ -6673,22 +6716,22 @@ void Interface_Draw(PlayState* play) {
     }
 
     // Draw pictograph photo
-    if (sPictographState >= PICTOGRAPH_STATE_SETUP_PHOTO) {
-        if (!(play->actorCtx.flags & ACTORCTX_FLAG_PICTOGRAPH_ON)) {
+    if (sPictoState >= PICTO_BOX_STATE_SETUP_PHOTO) {
+        if (!(play->actorCtx.flags & ACTORCTX_FLAG_PICTO_BOX_ON)) {
             Play_CompressI8ToI5((play->pictoPhotoI8 != NULL) ? play->pictoPhotoI8 : D_801FBB90,
                                 (u8*)gSaveContext.pictoPhotoI5, PICTO_PHOTO_WIDTH * PICTO_PHOTO_HEIGHT);
 
             interfaceCtx->unk_222 = interfaceCtx->unk_224 = 0;
 
-            sPictographState = PICTOGRAPH_STATE_OFF;
+            sPictoState = PICTO_BOX_STATE_OFF;
             gSaveContext.hudVisibility = HUD_VISIBILITY_IDLE;
             Interface_SetHudVisibility(HUD_VISIBILITY_ALL);
         } else {
             s16 pictoRectTop;
             s16 pictoRectLeft;
 
-            if (sPictographState == PICTOGRAPH_STATE_SETUP_PHOTO) {
-                sPictographState = PICTOGRAPH_STATE_PHOTO;
+            if (sPictoState == PICTO_BOX_STATE_SETUP_PHOTO) {
+                sPictoState = PICTO_BOX_STATE_PHOTO;
                 Message_StartTextbox(play, 0xF8, NULL);
                 Interface_SetHudVisibility(HUD_VISIBILITY_NONE);
                 player->stateFlags1 |= PLAYER_STATE1_200;
@@ -6726,7 +6769,7 @@ void Interface_Draw(PlayState* play) {
     // Draw over the entire screen (used in gameover)
     if (interfaceCtx->screenFillAlpha != 0) {
         gDPPipeSync(OVERLAY_DISP++);
-        gSPDisplayList(OVERLAY_DISP++, gScreenFillSetupDL);
+        gSPDisplayList(OVERLAY_DISP++, sScreenFillSetupDL);
         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, interfaceCtx->screenFillAlpha);
         gSPDisplayList(OVERLAY_DISP++, D_0E0002E0);
     }
@@ -6914,15 +6957,15 @@ void Interface_Update(PlayState* play) {
     LifeMeter_UpdateSizeAndBeep(play);
 
     // Update Env Timer Part 1
-    sEnvTimerType = Player_GetEnvTimerType(play);
-    if (sEnvTimerType == PLAYER_ENV_TIMER_HOTROOM) {
+    sEnvHazard = Player_GetEnvironmentalHazard(play);
+    if (sEnvHazard == PLAYER_ENV_HAZARD_HOTROOM) {
         if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_TUNIC) == EQUIP_VALUE_TUNIC_GORON) {
-            sEnvTimerType = PLAYER_ENV_TIMER_NONE;
+            sEnvHazard = PLAYER_ENV_HAZARD_NONE;
         }
-    } else if ((Player_GetEnvTimerType(play) >= PLAYER_ENV_TIMER_UNDERWATER_FLOOR) &&
-               (Player_GetEnvTimerType(play) <= PLAYER_ENV_TIMER_UNDERWATER_FREE)) {
+    } else if ((Player_GetEnvironmentalHazard(play) >= PLAYER_ENV_HAZARD_UNDERWATER_FLOOR) &&
+               (Player_GetEnvironmentalHazard(play) <= PLAYER_ENV_HAZARD_UNDERWATER_FREE)) {
         if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_TUNIC) == EQUIP_VALUE_TUNIC_ZORA) {
-            sEnvTimerType = PLAYER_ENV_TIMER_NONE;
+            sEnvHazard = PLAYER_ENV_HAZARD_NONE;
         }
     }
 
@@ -7115,23 +7158,23 @@ void Interface_Update(PlayState* play) {
     }
 
     // Update Env Timer Part 2
-    if (gSaveContext.timerStates[TIMER_ID_ENV] == TIMER_STATE_OFF) {
-        if ((sEnvTimerType == PLAYER_ENV_TIMER_HOTROOM) || (sEnvTimerType == PLAYER_ENV_TIMER_UNDERWATER_FREE)) {
+    if (gSaveContext.timerStates[TIMER_ID_ENV_HAZARD] == TIMER_STATE_OFF) {
+        if ((sEnvHazard == PLAYER_ENV_HAZARD_HOTROOM) || (sEnvHazard == PLAYER_ENV_HAZARD_UNDERWATER_FREE)) {
             if (CUR_FORM != PLAYER_FORM_ZORA) {
                 if (play->gameOverCtx.state == GAMEOVER_INACTIVE) {
                     if ((gSaveContext.save.playerData.health >> 1) != 0) {
-                        gSaveContext.timerStates[TIMER_ID_ENV] = TIMER_STATE_ENV_START;
-                        gSaveContext.timerX[TIMER_ID_ENV] = 115;
-                        gSaveContext.timerY[TIMER_ID_ENV] = 80;
+                        gSaveContext.timerStates[TIMER_ID_ENV_HAZARD] = TIMER_STATE_ENV_HAZARD_START;
+                        gSaveContext.timerX[TIMER_ID_ENV_HAZARD] = 115;
+                        gSaveContext.timerY[TIMER_ID_ENV_HAZARD] = 80;
                         sEnvTimerActive = true;
-                        gSaveContext.timerDirections[TIMER_ID_ENV] = TIMER_COUNT_DOWN;
+                        gSaveContext.timerDirections[TIMER_ID_ENV_HAZARD] = TIMER_COUNT_DOWN;
                     }
                 }
             }
         }
-    } else if (((sEnvTimerType == PLAYER_ENV_TIMER_NONE) || (sEnvTimerType == PLAYER_ENV_TIMER_SWIMMING)) &&
-               (gSaveContext.timerStates[TIMER_ID_ENV] <= TIMER_STATE_COUNTING)) {
-        gSaveContext.timerStates[TIMER_ID_ENV] = TIMER_STATE_OFF;
+    } else if (((sEnvHazard == PLAYER_ENV_HAZARD_NONE) || (sEnvHazard == PLAYER_ENV_HAZARD_SWIMMING)) &&
+               (gSaveContext.timerStates[TIMER_ID_ENV_HAZARD] <= TIMER_STATE_COUNTING)) {
+        gSaveContext.timerStates[TIMER_ID_ENV_HAZARD] = TIMER_STATE_OFF;
     }
 
     // Update Minigame
@@ -7284,22 +7327,21 @@ void Interface_Init(PlayState* play) {
 
     interfaceCtx->iconItemSegment = THA_AllocEndAlign16(&play->state.heap, 0x4000);
 
-    if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) < 0xF0) {
+    if (CUR_FORM_EQUIP(EQUIP_SLOT_B) < ITEM_F0) {
         Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
-    } else if ((BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NONE) &&
-               (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_FD)) {
+    } else if ((CUR_FORM_EQUIP(EQUIP_SLOT_B) != ITEM_NONE) && (CUR_FORM_EQUIP(EQUIP_SLOT_B) != ITEM_FD)) {
         Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
     }
 
-    if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT) < 0xF0) {
+    if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT) < ITEM_F0) {
         Interface_LoadItemIconImpl(play, EQUIP_SLOT_C_LEFT);
     }
 
-    if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) < 0xF0) {
+    if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) < ITEM_F0) {
         Interface_LoadItemIconImpl(play, EQUIP_SLOT_C_DOWN);
     }
 
-    if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) < 0xF0) {
+    if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) < ITEM_F0) {
         Interface_LoadItemIconImpl(play, EQUIP_SLOT_C_RIGHT);
     }
 
@@ -7338,8 +7380,8 @@ void Interface_Init(PlayState* play) {
         }
     }
 
-    sPictographState = PICTOGRAPH_STATE_OFF;
-    sPictographPhotoBeingTaken = false;
+    sPictoState = PICTO_BOX_STATE_OFF;
+    sPictoPhotoBeingTaken = false;
 
     if ((play->sceneId != SCENE_MITURIN_BS) && (play->sceneId != SCENE_HAKUGIN_BS) && (play->sceneId != SCENE_SEA_BS) &&
         (play->sceneId != SCENE_INISIE_BS) && (play->sceneId != SCENE_LAST_BS) && (play->sceneId != SCENE_MITURIN) &&
@@ -7350,9 +7392,9 @@ void Interface_Init(PlayState* play) {
 
         CLEAR_EVENTINF(EVENTINF_53); // Goht intro cutscene watched
         CLEAR_EVENTINF(EVENTINF_54); // Odolwa intro cutscene watched
-        CLEAR_EVENTINF(EVENTINF_55); // Twinmold intro cutscene watched?
+        CLEAR_EVENTINF(EVENTINF_55); // Twinmold intro cutscene watched
         CLEAR_EVENTINF(EVENTINF_56); // Gyorg intro cutscene watched
-        CLEAR_EVENTINF(EVENTINF_57); // Igos du Ikana intro cutscene watched?
+        CLEAR_EVENTINF(EVENTINF_57); // Igos du Ikana intro cutscene watched
         CLEAR_EVENTINF(EVENTINF_60); // Wart intro cutscene watched
         CLEAR_EVENTINF(EVENTINF_61); // Majoras intro cutscene watched
         CLEAR_EVENTINF(EVENTINF_62); //
