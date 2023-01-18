@@ -51,6 +51,7 @@
 #include "z64subs.h"
 #include "z64transition.h"
 #include "z64view.h"
+#include "z64keyframe.h"
 #include "regs.h"
 
 #define Z_THREAD_ID_IDLE     1

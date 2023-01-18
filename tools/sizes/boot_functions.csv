@@ -189,7 +189,7 @@ asm/non_matchings/boot/fp/func_80086CEC.s,func_80086CEC,0x80086CEC,0x3
 asm/non_matchings/boot/fp/func_80086CF8.s,func_80086CF8,0x80086CF8,0x4
 asm/non_matchings/boot/fp/func_80086D08.s,func_80086D08,0x80086D08,0x4
 asm/non_matchings/boot/fp/func_80086D18.s,func_80086D18,0x80086D18,0x3
-asm/non_matchings/boot/fp/func_80086D24.s,func_80086D24,0x80086D24,0x3
+asm/non_matchings/boot/fp/nearbyint.s,nearbyint,0x80086D24,0x3
 asm/non_matchings/boot/fp/func_80086D30.s,func_80086D30,0x80086D30,0x4
 asm/non_matchings/boot/fp/func_80086D40.s,func_80086D40,0x80086D40,0x4
 asm/non_matchings/boot/fp/func_80086D50.s,func_80086D50,0x80086D50,0x7
