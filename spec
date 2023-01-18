@@ -3444,7 +3444,6 @@ beginseg
     name "ovl_En_Wdhand"
     compress
     include "build/src/overlays/actors/ovl_En_Wdhand/z_en_wdhand.o"
-    include "build/data/ovl_En_Wdhand/ovl_En_Wdhand.data.o"
     include "build/data/ovl_En_Wdhand/ovl_En_Wdhand.reloc.o"
 endseg
 
