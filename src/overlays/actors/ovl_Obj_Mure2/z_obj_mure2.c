@@ -24,6 +24,7 @@ void func_8096147C(ObjMure2*);
 void func_809611BC(ObjMure2*, PlayState*);
 void func_809612BC(ObjMure2*);
 
+extern f32 D_80961590[];
 extern f32 D_8096159C[];
 
 #if 0
@@ -85,7 +86,14 @@ void func_809613E8(ObjMure2* this) {
     this->actionFunc = func_809613FC;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_Obj_Mure2/func_809613FC.s")
+void func_809613FC(ObjMure2* this, PlayState* play) {
+    if (Math3D_XZLengthSquared(this->actor.projectedPos.x, this->actor.projectedPos.z) <
+        D_80961590[this->actor.params & 3] * this->unk_17C) {
+        this->actor.flags |= 0x10;
+        func_8096104C(this, play);
+        func_8096147C(this);
+    }
+}
 
 void func_8096147C(ObjMure2* this) {
     this->actionFunc = func_80961490;
