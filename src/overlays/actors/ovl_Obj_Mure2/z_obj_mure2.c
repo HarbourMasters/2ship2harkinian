@@ -96,7 +96,23 @@ void func_809611BC(ObjMure2* arg0, PlayState* arg1) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_Obj_Mure2/func_809612BC.s")
+void func_809612BC(ObjMure2* arg0) {
+    s32 var_v0 = 0;
+    s16 var_v1 = D_809615A8[arg0->actor.params & 3];
+
+    if (var_v1 > 0) {
+        do {
+            if (arg0->unk_148[var_v0] != NULL) {
+                if (!(((s32)arg0->unk_178 >> var_v0) & 1) && (arg0->unk_148[var_v0]->update == NULL)) {
+                    arg0->unk_178 = arg0->unk_178 | (1 << var_v0);
+                    arg0->unk_148[var_v0] = NULL;
+                }
+            }
+
+            var_v1 = D_809615A8[arg0->actor.params & 3];
+        } while (++var_v0 < var_v1);
+    }
+}
 
 void ObjMure2_Init(Actor* thisx, PlayState* play) {
     ObjMure2* this = THIS;
