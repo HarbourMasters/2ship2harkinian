@@ -127,7 +127,7 @@ void func_809613B0(ObjMure2* this) {
     this->actionFunc = func_809613C4;
 }
 
-void func_809613C4(ObjMure2 *this, PlayState *play) {
+void func_809613C4(ObjMure2* this, PlayState* play) {
     func_809613E8(this);
 }
 
