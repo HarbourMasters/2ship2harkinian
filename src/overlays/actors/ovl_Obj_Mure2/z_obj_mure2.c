@@ -26,6 +26,7 @@ void func_809612BC(ObjMure2*);
 
 extern f32 D_80961590[];
 extern f32 D_8096159C[];
+extern s16 D_809615A8[];
 
 #if 0
 ActorInit Obj_Mure2_InitVars = {
@@ -71,7 +72,29 @@ void func_80961018(s16* arg0, ObjMure2* arg1) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_Obj_Mure2/func_8096104C.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_Obj_Mure2/func_809611BC.s")
+void func_809611BC(ObjMure2* arg0, PlayState* arg1) {
+    s16 var_v0 = D_809615A8[arg0->actor.params & 3];
+    s32 var_s2 = 0;
+
+    if (var_v0 > 0) {
+        do {
+            if (!((arg0->unk_178 >> var_s2) & 1)) {
+                if (arg0->unk_148[var_s2] != NULL) {
+                    if (Actor_HasParent(arg0->unk_148[var_s2], arg1) != 0) {
+                        arg0->unk_178 |= 1 << var_s2;
+                    } else {
+                        Actor_Kill(arg0->unk_148[var_s2]);
+                    }
+                    arg0->unk_148[var_s2] = NULL;
+                }
+            } else {
+                arg0->unk_148[var_s2] = NULL;
+            }
+
+            var_v0 = D_809615A8[arg0->actor.params & 3];
+        } while (++var_s2 < var_v0);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_Obj_Mure2/func_809612BC.s")
 
