@@ -80,4 +80,12 @@ void func_809613B0(ObjMure2* this) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_Obj_Mure2/func_80961490.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_Obj_Mure2/ObjMure2_Update.s")
+void ObjMure2_Update(Actor* thisx, PlayState* play) {
+    ObjMure2* this = THIS;
+    if (play->csCtx.state == 0) {
+        this->unk_17C = 1.0f;
+    } else {
+        this->unk_17C = 4.0f;
+    }
+    this->actionFunc(this, play);
+}
