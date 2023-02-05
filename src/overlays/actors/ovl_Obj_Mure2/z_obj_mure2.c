@@ -57,7 +57,17 @@ extern InitChainEntry D_809615F4[];
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_Obj_Mure2/func_80960F0C.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_Obj_Mure2/func_80961018.s")
+void func_80961018(s16* arg0, ObjMure2* arg1) {
+    s32 value = arg1->actor.params & 3;
+    s32 temp_a2 = (arg1->actor.params >> 8) & 0x1F;
+
+    if (value == 2) {
+        *arg0 = temp_a2 * 0x10;
+        return;
+    }
+
+    *arg0 = temp_a2 << 8;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_Obj_Mure2/func_8096104C.s")
 
