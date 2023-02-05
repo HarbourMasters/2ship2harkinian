@@ -57,7 +57,14 @@ extern InitChainEntry D_809615F4[];
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_Obj_Mure2/func_809612BC.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_Obj_Mure2/ObjMure2_Init.s")
+void ObjMure2_Init(Actor* thisx, PlayState* play) {
+    ObjMure2* this = THIS;
+    Actor_ProcessInitChain(&this->actor, D_809615F4);
+    if (play->csCtx.state != 0) {
+        this->actor.uncullZoneForward += 1200.0f;
+    }
+    func_809613B0(this);
+}
 
 void func_809613B0(ObjMure2* this) {
     this->actionFunc = func_809613C4;
