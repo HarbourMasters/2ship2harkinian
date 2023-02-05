@@ -17,9 +17,14 @@ void func_809613C4(ObjMure2* this, PlayState* play);
 void func_809613FC(ObjMure2* this, PlayState* play);
 void func_80961490(ObjMure2* this, PlayState* play);
 
-void func_809613B0(ObjMure2* this);
-void func_809613E8(ObjMure2* this);
-void func_8096147C(ObjMure2* this);
+void func_809613B0(ObjMure2*);
+void func_809613E8(ObjMure2*);
+void func_8096104C(ObjMure2*, PlayState*);
+void func_8096147C(ObjMure2*);
+void func_809611BC(ObjMure2*, PlayState*);
+void func_809612BC(ObjMure2*);
+
+extern f32 D_8096159C[];
 
 #if 0
 ActorInit Obj_Mure2_InitVars = {
@@ -86,7 +91,16 @@ void func_8096147C(ObjMure2* this) {
     this->actionFunc = func_80961490;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_Obj_Mure2/func_80961490.s")
+void func_80961490(ObjMure2* this, PlayState* play) {
+    func_809612BC(this);
+
+    if ((D_8096159C[this->actor.params & 3] * this->unk_17C) <=
+        Math3D_XZLengthSquared(this->actor.projectedPos.x, this->actor.projectedPos.z)) {
+        this->actor.flags &= ~0x10;
+        func_809611BC(this, play);
+        func_809613E8(this);
+    }
+}
 
 void ObjMure2_Update(Actor* thisx, PlayState* play) {
     ObjMure2* this = THIS;
