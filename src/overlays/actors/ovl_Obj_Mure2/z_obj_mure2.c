@@ -17,6 +17,8 @@ void func_809613C4(ObjMure2* this, PlayState* play);
 void func_809613FC(ObjMure2* this, PlayState* play);
 void func_80961490(ObjMure2* this, PlayState* play);
 
+void func_809613B0(ObjMure2* this);
+
 #if 0
 ActorInit Obj_Mure2_InitVars = {
     ACTOR_OBJ_MURE2,
@@ -57,7 +59,9 @@ extern InitChainEntry D_809615F4[];
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_Obj_Mure2/ObjMure2_Init.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_Obj_Mure2/func_809613B0.s")
+void func_809613B0(ObjMure2* this) {
+    this->actionFunc = func_809613C4;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_Obj_Mure2/func_809613C4.s")
 
