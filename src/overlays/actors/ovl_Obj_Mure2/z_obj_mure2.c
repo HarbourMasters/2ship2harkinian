@@ -19,6 +19,7 @@ void func_80961490(ObjMure2* this, PlayState* play);
 
 void func_809613B0(ObjMure2* this);
 void func_809613E8(ObjMure2* this);
+void func_8096147C(ObjMure2* this);
 
 #if 0
 ActorInit Obj_Mure2_InitVars = {
@@ -81,7 +82,9 @@ void func_809613E8(ObjMure2* this) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_Obj_Mure2/func_809613FC.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_Obj_Mure2/func_8096147C.s")
+void func_8096147C(ObjMure2* this) {
+    this->actionFunc = func_80961490;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_Obj_Mure2/func_80961490.s")
 
