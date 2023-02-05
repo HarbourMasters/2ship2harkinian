@@ -71,7 +71,9 @@ void func_809613B0(ObjMure2* this) {
     this->actionFunc = func_809613C4;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_Obj_Mure2/func_809613C4.s")
+void func_809613C4(ObjMure2 *this, PlayState *play) {
+    func_809613E8(this);
+}
 
 void func_809613E8(ObjMure2* this) {
     this->actionFunc = func_809613FC;
