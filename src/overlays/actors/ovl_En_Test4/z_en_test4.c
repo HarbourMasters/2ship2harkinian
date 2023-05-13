@@ -48,19 +48,19 @@ static s16 sNightMessages2[] = { 0x1BB4, 0x1BB5, 0x1BB6 };
 static s16 sDayMessages2[] = { 0x1BB2, 0x1BB2, 0x1BB3 };
 static u16 sDayNightTransitionTimes[] = { CLOCK_TIME(6, 0), CLOCK_TIME(18, 0) };
 
-static s16 sCutscenes[2];
-static s16 sCurrentCs;
+static s16 sCsIdList[2];
+static s16 sCurCsId;
 
 void func_80A41D70(EnTest4* this, PlayState* play) {
-    if (this->unk_144 != 0) {
+    if (this->csIdIndex != 0) {
         func_80151A68(play, sNightMessages1[CURRENT_DAY - 1]);
-    } else if ((sCutscenes[this->unk_144] < 0) || (play->actorCtx.flags & ACTORCTX_FLAG_1)) {
+    } else if ((sCsIdList[this->csIdIndex] < 0) || (play->actorCtx.flags & ACTORCTX_FLAG_1)) {
         if (play->actorCtx.flags & ACTORCTX_FLAG_1) {
             Sram_IncrementDay();
             gSaveContext.save.time = CLOCK_TIME(6, 0);
             func_80151A68(play, sDayMessages1[CURRENT_DAY - 1]);
         } else {
-            this->unk_144 = 0;
+            this->csIdIndex = 0;
             this->unk_146 = gSaveContext.save.time += CLOCK_TIME_MINUTE;
         }
 
@@ -72,22 +72,22 @@ void func_80A41D70(EnTest4* this, PlayState* play) {
     }
 
     if (gSaveContext.cutsceneTrigger == 0) {
-        if ((sCutscenes[this->unk_144] >= 0) && !(play->actorCtx.flags & ACTORCTX_FLAG_1)) {
+        if ((sCsIdList[this->csIdIndex] >= 0) && !(play->actorCtx.flags & ACTORCTX_FLAG_1)) {
             this->actionFunc = func_80A42F20;
-            sCurrentCs = sCutscenes[this->unk_144];
+            sCurCsId = sCsIdList[this->csIdIndex];
             this->transitionCsTimer = 0;
             SET_EVENTINF(EVENTINF_17);
-        } else if (this->unk_144 == 0) {
+        } else if (this->csIdIndex == 0) {
             play_sound(NA_SE_EV_CHICKEN_CRY_M);
         } else {
             func_8019F128(NA_SE_EV_DOG_CRY_EVENING);
         }
     } else {
         this->actionFunc = func_80A42AB8;
-        if (this->unk_144 == 0) {
-            this->unk_144 = 1;
+        if (this->csIdIndex == 0) {
+            this->csIdIndex = 1;
         } else {
-            this->unk_144 = 0;
+            this->csIdIndex = 0;
         }
 
         this->unk_146 = gSaveContext.save.time += CLOCK_TIME_MINUTE;
@@ -95,9 +95,9 @@ void func_80A41D70(EnTest4* this, PlayState* play) {
 }
 
 void func_80A41FA4(EnTest4* this, PlayState* play) {
-    if (this->unk_144 != 0) {
+    if (this->csIdIndex != 0) {
         func_80151A68(play, sNightMessages2[CURRENT_DAY - 1]);
-    } else if ((sCutscenes[this->unk_144] < 0) || (play->actorCtx.flags & ACTORCTX_FLAG_1)) {
+    } else if ((sCsIdList[this->csIdIndex] < 0) || (play->actorCtx.flags & ACTORCTX_FLAG_1)) {
         Sram_IncrementDay();
         gSaveContext.save.time = CLOCK_TIME(6, 0);
         Interface_NewDay(play, CURRENT_DAY);
@@ -109,22 +109,22 @@ void func_80A41FA4(EnTest4* this, PlayState* play) {
     }
 
     if (gSaveContext.cutsceneTrigger == 0) {
-        if ((sCutscenes[this->unk_144] >= 0) && !(play->actorCtx.flags & ACTORCTX_FLAG_1)) {
+        if ((sCsIdList[this->csIdIndex] >= 0) && !(play->actorCtx.flags & ACTORCTX_FLAG_1)) {
             this->actionFunc = func_80A42F20;
-            sCurrentCs = sCutscenes[this->unk_144];
+            sCurCsId = sCsIdList[this->csIdIndex];
             this->transitionCsTimer = 0;
             SET_EVENTINF(EVENTINF_17);
-        } else if (this->unk_144 == 0) {
+        } else if (this->csIdIndex == 0) {
             play_sound(NA_SE_EV_CHICKEN_CRY_M);
         } else {
             func_8019F128(NA_SE_EV_DOG_CRY_EVENING);
         }
     } else {
         this->actionFunc = func_80A42AB8;
-        if (this->unk_144 == 0) {
-            this->unk_144 = 1;
+        if (this->csIdIndex == 0) {
+            this->csIdIndex = 1;
         } else {
-            this->unk_144 = 0;
+            this->csIdIndex = 0;
         }
 
         this->unk_146 = gSaveContext.save.time += CLOCK_TIME_MINUTE;
@@ -283,7 +283,7 @@ void func_80A425E4(EnTest4* this, PlayState* play) {
             this->nextBellTime = CLOCK_TIME(17, 30);
         }
 
-        if ((sCutscenes[this->unk_144] < 0) || (play->actorCtx.flags & ACTORCTX_FLAG_1) || (CURRENT_DAY == 3) ||
+        if ((sCsIdList[this->csIdIndex] < 0) || (play->actorCtx.flags & ACTORCTX_FLAG_1) || (CURRENT_DAY == 3) ||
             (gSaveContext.save.time >= CLOCK_TIME(17, 0))) {
             gSaveContext.screenScale = 1000.0f;
         }
@@ -297,17 +297,17 @@ void EnTest4_Init(Actor* thisx, PlayState* play) {
     s32 dayTemp;
     EnTest4* this = THIS;
     Player* player = GET_PLAYER(play);
-    s8 temp_v0 = this->actor.cutscene;
+    s8 csId = this->actor.csId;
 
-    sCutscenes[0] = temp_v0;
-    if (temp_v0 >= 0) {
-        ActorCutscene* temp_v0_2 = ActorCutscene_GetCutscene(sCutscenes[0]);
+    sCsIdList[0] = csId;
+    if (csId >= 0) {
+        ActorCutscene* actorCutscene = CutsceneManager_GetCutsceneEntry(sCsIdList[0]);
 
         SET_EVENTINF(EVENTINF_52);
-        sCutscenes[1] = temp_v0_2->additionalCutscene;
+        sCsIdList[1] = actorCutscene->additionalCsId;
     } else {
         CLEAR_EVENTINF(EVENTINF_52);
-        sCutscenes[1] = sCutscenes[0];
+        sCsIdList[1] = sCsIdList[0];
     }
 
     if (sIsLoaded || (CHECK_EVENTINF(EVENTINF_27))) {
@@ -320,32 +320,32 @@ void EnTest4_Init(Actor* thisx, PlayState* play) {
         if (CURRENT_DAY == 0) {
             if (gSaveContext.save.time < CLOCK_TIME(6, 1)) {
                 gSaveContext.save.time = CLOCK_TIME(6, 0);
-                gSaveContext.gameMode = 0;
+                gSaveContext.gameMode = GAMEMODE_NORMAL;
                 STOP_GAMESTATE(&play->state);
                 SET_NEXT_GAMESTATE(&play->state, DayTelop_Init, sizeof(DayTelopState));
-                this->unk_144 = 1;
+                this->csIdIndex = 1;
                 gSaveContext.save.time = CLOCK_TIME(6, 0);
                 Actor_Kill(&this->actor);
             } else {
                 gSaveContext.save.day = 1;
                 dayTemp = gSaveContext.save.day;
                 gSaveContext.save.daysElapsed = dayTemp;
-                this->unk_144 = 1;
+                this->csIdIndex = 1;
                 this->unk_146 = gSaveContext.save.time;
                 this->actionFunc = func_80A42AB8;
             }
         } else if (gSaveContext.save.time == CLOCK_TIME(6, 0)) {
-            this->unk_144 = 0;
+            this->csIdIndex = 0;
             func_80A41D70(this, play);
-            if ((gSaveContext.cutsceneTrigger == 0) && (sCutscenes[this->unk_144] >= 0) &&
+            if ((gSaveContext.cutsceneTrigger == 0) && (sCsIdList[this->csIdIndex] >= 0) &&
                 !(play->actorCtx.flags & ACTORCTX_FLAG_1)) {
                 player->stateFlags1 |= PLAYER_STATE1_200;
             }
         } else {
             if ((gSaveContext.save.time > CLOCK_TIME(18, 0)) || (gSaveContext.save.time < CLOCK_TIME(6, 0))) {
-                this->unk_144 = 0;
+                this->csIdIndex = 0;
             } else {
-                this->unk_144 = 1;
+                this->csIdIndex = 1;
             }
             this->unk_146 = gSaveContext.save.time;
             this->actionFunc = func_80A42AB8;
@@ -359,7 +359,7 @@ void EnTest4_Init(Actor* thisx, PlayState* play) {
     }
 
     this->lastBellTime = gSaveContext.save.time;
-    if ((sCutscenes[this->unk_144] < 0) || (play->actorCtx.flags & ACTORCTX_FLAG_1)) {
+    if ((sCsIdList[this->csIdIndex] < 0) || (play->actorCtx.flags & ACTORCTX_FLAG_1)) {
         gSaveContext.screenScaleFlag = false;
         gSaveContext.screenScale = 1000.0f;
     }
@@ -372,9 +372,9 @@ void func_80A42AB8(EnTest4* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
 
     if ((play->transitionMode == TRANS_MODE_OFF) && !Play_InCsMode(play) && (play->numSetupActors <= 0) &&
-        (play->roomCtx.unk31 == 0) && !Play_IsDebugCamEnabled()) {
+        (play->roomCtx.status == 0) && !Play_IsDebugCamEnabled()) {
         s16 temp_a2;
-        u16 temp_a0 = sDayNightTransitionTimes[this->unk_144];
+        u16 temp_a0 = sDayNightTransitionTimes[this->csIdIndex];
         s16 temp_a3;
         s16 bellDiff;
         s16 new_var;
@@ -397,7 +397,7 @@ void func_80A42AB8(EnTest4* this, PlayState* play) {
                     Interface_StartMoonCrash(play);
                     Actor_Kill(&this->actor);
                     SET_EVENTINF(EVENTINF_17);
-                } else if (((sCutscenes[this->unk_144] < 0) || (play->actorCtx.flags & ACTORCTX_FLAG_1)) &&
+                } else if (((sCsIdList[this->csIdIndex] < 0) || (play->actorCtx.flags & ACTORCTX_FLAG_1)) &&
                            (CURRENT_DAY != 3)) {
                     func_80A41FA4(this, play);
                 } else {
@@ -423,14 +423,14 @@ void func_80A42AB8(EnTest4* this, PlayState* play) {
                 }
             }
 
-            if ((sCutscenes[this->unk_144] >= 0) && !(play->actorCtx.flags & ACTORCTX_FLAG_1)) {
+            if ((sCsIdList[this->csIdIndex] >= 0) && !(play->actorCtx.flags & ACTORCTX_FLAG_1)) {
                 player->stateFlags1 |= PLAYER_STATE1_200;
                 this->unk_146 = gSaveContext.save.time;
             } else {
-                if (this->unk_144 == 0) {
-                    this->unk_144 = 1;
+                if (this->csIdIndex == 0) {
+                    this->csIdIndex = 1;
                 } else {
-                    this->unk_144 = 0;
+                    this->csIdIndex = 0;
                 }
 
                 this->unk_146 = gSaveContext.save.time += CLOCK_TIME_MINUTE;
@@ -441,7 +441,7 @@ void func_80A42AB8(EnTest4* this, PlayState* play) {
 
             if (CURRENT_DAY == 3) {
                 if ((this->nextBellTime == CLOCK_TIME(0, 0)) &&
-                    ((gSaveContext.save.inventory.items[SLOT_OCARINA] == ITEM_NONE) ||
+                    ((gSaveContext.save.saveInfo.inventory.items[SLOT_OCARINA] == ITEM_NONE) ||
                      (play->sceneId == SCENE_CLOCKTOWER))) {
                     s32 playerParams;
                     u32 entrance = gSaveContext.save.entrance;
@@ -475,11 +475,11 @@ void func_80A42AB8(EnTest4* this, PlayState* play) {
 
 void func_80A42F20(EnTest4* this, PlayState* play) {
     if (!this->transitionCsTimer) {
-        if (sCurrentCs >= 0) {
-            if (ActorCutscene_GetCanPlayNext(sCurrentCs) == 0) {
-                ActorCutscene_SetIntentToPlay(sCurrentCs);
+        if (sCurCsId >= 0) {
+            if (!CutsceneManager_IsNext(sCurCsId)) {
+                CutsceneManager_Queue(sCurCsId);
             } else {
-                ActorCutscene_Start(sCurrentCs, &this->actor);
+                CutsceneManager_Start(sCurCsId, &this->actor);
                 this->transitionCsTimer = 1;
             }
         } else {
@@ -488,7 +488,7 @@ void func_80A42F20(EnTest4* this, PlayState* play) {
     } else if (this->transitionCsTimer < 60) {
         this->transitionCsTimer++;
         if (this->transitionCsTimer == 10) {
-            if (this->unk_144 == 0) {
+            if (this->csIdIndex == 0) {
                 play_sound(NA_SE_EV_CHICKEN_CRY_M);
             } else {
                 func_8019F128(NA_SE_EV_DOG_CRY_EVENING);
@@ -504,14 +504,14 @@ void func_80A42F20(EnTest4* this, PlayState* play) {
         }
     } else {
         this->actionFunc = func_80A42AB8;
-        if (this->unk_144 == 0) {
-            this->unk_144 = 1;
+        if (this->csIdIndex == 0) {
+            this->csIdIndex = 1;
         } else {
-            this->unk_144 = 0;
+            this->csIdIndex = 0;
         }
 
-        if (sCurrentCs >= 0) {
-            ActorCutscene_Stop(sCurrentCs);
+        if (sCurCsId >= 0) {
+            CutsceneManager_Stop(sCurCsId);
         }
 
         gSaveContext.hudVisibility = HUD_VISIBILITY_IDLE;
