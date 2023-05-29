@@ -55,7 +55,10 @@ typedef enum {
     /* 0x27 */ DO_ACTION_POUND,
     /* 0x28 */ DO_ACTION_HOOK,
     /* 0x29 */ DO_ACTION_SHOOT,
-    /* 0x2A */ DO_ACTION_MAX
+    /* 0x2A */ DO_ACTION_MAX,
+    /* 0x2A */ TATL_STATE_2A = DO_ACTION_MAX,
+    /* 0x2B */ TATL_STATE_2B,
+    /* 0x2C */ TATL_STATE_2C
 } DoAction;
 
 typedef enum {

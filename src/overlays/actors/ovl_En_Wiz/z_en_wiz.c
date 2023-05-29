@@ -8,8 +8,8 @@
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "overlays/actors/ovl_En_Wiz_Brock/z_en_wiz_brock.h"
 
-#define FLAGS                                                                                            \
-    (ACTOR_FLAG_1 | ACTOR_FLAG_4 | ACTOR_FLAG_10 | ACTOR_FLAG_20 | ACTOR_FLAG_1000 | ACTOR_FLAG_100000 | \
+#define FLAGS                                                                                                    \
+    (ACTOR_FLAG_1 | ACTOR_FLAG_4 | ACTOR_FLAG_10 | ACTOR_FLAG_20 | ACTOR_FLAG_IGNORE_QUAKE | ACTOR_FLAG_100000 | \
      ACTOR_FLAG_CANT_LOCK_ON | ACTOR_FLAG_80000000)
 
 #define THIS ((EnWiz*)thisx)
@@ -1451,8 +1451,8 @@ void EnWiz_Draw(Actor* thisx, PlayState* play) {
 
     OPEN_DISPS(play->state.gfxCtx);
 
-    func_8012C28C(play->state.gfxCtx);
-    func_8012C2DC(play->state.gfxCtx);
+    Gfx_SetupDL25_Opa(play->state.gfxCtx);
+    Gfx_SetupDL25_Xlu(play->state.gfxCtx);
 
     if ((this->action == EN_WIZ_ACTION_BURST_INTO_FLAMES) || (this->alpha != 255)) {
         Scene_SetRenderModeXlu(play, 1, 2);
@@ -1502,8 +1502,8 @@ void EnWiz_Draw(Actor* thisx, PlayState* play) {
         }
 
         for (i = 0; i < platformCount; i++) {
-            func_8012C28C(play->state.gfxCtx);
-            func_8012C2DC(play->state.gfxCtx);
+            Gfx_SetupDL25_Opa(play->state.gfxCtx);
+            Gfx_SetupDL25_Xlu(play->state.gfxCtx);
 
             if ((this->ghostPos[i].x != 0.0f) && (this->ghostPos[i].z != 0.0f)) {
                 Matrix_Translate(this->ghostPos[i].x, this->ghostPos[i].y + 10.0f, this->ghostPos[i].z, MTXMODE_NEW);
@@ -1529,8 +1529,8 @@ void EnWiz_Draw(Actor* thisx, PlayState* play) {
         Matrix_Pop();
     }
 
-    func_8012C2DC(play->state.gfxCtx);
-    func_8012C28C(play->state.gfxCtx);
+    Gfx_SetupDL25_Xlu(play->state.gfxCtx);
+    Gfx_SetupDL25_Opa(play->state.gfxCtx);
 
     // Draw the light emanating from the Wizrobe's platform
     if (this->fightState == EN_WIZ_FIGHT_STATE_FIRST_PHASE) {
