@@ -325,7 +325,8 @@ beginseg
     name "icon_item_vtx_static"
     compress
     romalign 0x1000
-    include "build/baserom/icon_item_vtx_static.o"
+    include "build/assets/interface/icon_item_vtx_static/icon_item_vtx_static.o"
+    number 11
 endseg
 
 beginseg
@@ -473,7 +474,6 @@ beginseg
     include "build/src/code/z_fireobj.o"
     include "build/src/code/z_game_dlftbls.o"
     include "build/src/code/z_horse.o"
-    include "build/data/code/z_horse.data.o"
     include "build/src/code/z_jpeg.o"
     include "build/src/code/z_kaleido_setup.o"
     include "build/src/code/z_kanfont.o"
@@ -522,8 +522,7 @@ beginseg
     include "build/src/code/z_rumble.o"
     include "build/src/code/z_view.o"
     include "build/src/code/z_vimode.o"
-    include "build/src/code/code_80140CE0.o"
-    include "build/data/code/code_80140CE0.data.o"
+    include "build/src/code/z_viscvg.o"
     include "build/src/code/code_80140E80.o"
     include "build/src/code/z_vismono.o"
     include "build/src/code/z_viszbuf.o"
@@ -573,7 +572,6 @@ beginseg
     include "build/data/code/speed_meter.bss.o"
     include "build/src/code/su_mtx.o"
     include "build/src/code/sys_cfb.o"
-    include "build/data/code/sys_cfb.bss.o"
     include "build/src/code/sys_cmpdma.o"
     include "build/src/code/sys_initial_check.o"
     include "build/src/code/sys_math.o"
@@ -589,7 +587,6 @@ beginseg
     include "build/src/code/c_keyframe.o"
     include "build/src/code/sys_slowly.o"
     include "build/src/code/sys_flashrom.o"
-    include "build/data/code/sys_flashrom.bss.o"
     include "build/asm/code/code_80185F90.text.o" // handwritten
     include "build/src/libultra/flash/osFlash.o"
     pad_text
@@ -692,8 +689,7 @@ beginseg
     include "build/src/overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_mask.o"
     include "build/src/overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_prompt.o"
     include "build/src/overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope_NES.o"
-    include "build/data/ovl_kaleido_scope/ovl_kaleido_scope.bss.o"
-    include "build/data/ovl_kaleido_scope/ovl_kaleido_scope.reloc.o"
+    include "build/src/overlays/kaleido_scope/ovl_kaleido_scope/ovl_kaleido_scope_reloc.o"
 endseg
 
 beginseg
@@ -1030,8 +1026,7 @@ beginseg
     name "ovl_Bg_Keikoku_Spr"
     compress
     include "build/src/overlays/actors/ovl_Bg_Keikoku_Spr/z_bg_keikoku_spr.o"
-    include "build/data/ovl_Bg_Keikoku_Spr/ovl_Bg_Keikoku_Spr.data.o"
-    include "build/data/ovl_Bg_Keikoku_Spr/ovl_Bg_Keikoku_Spr.reloc.o"
+    include "build/src/overlays/actors/ovl_Bg_Keikoku_Spr/ovl_Bg_Keikoku_Spr_reloc.o"
 endseg
 
 beginseg
@@ -1122,11 +1117,7 @@ beginseg
     name "ovl_Object_Kankyo"
     compress
     include "build/src/overlays/actors/ovl_Object_Kankyo/z_object_kankyo.o"
-#ifdef NON_MATCHING
     include "build/src/overlays/actors/ovl_Object_Kankyo/ovl_Object_Kankyo_reloc.o"
-#else
-    include "build/data/ovl_Object_Kankyo/ovl_Object_Kankyo.reloc.o"
-#endif
 endseg
 
 beginseg
@@ -1526,11 +1517,7 @@ beginseg
     name "ovl_En_Kanban"
     compress
     include "build/src/overlays/actors/ovl_En_Kanban/z_en_kanban.o"
-#ifdef NON_MATCHING
     include "build/src/overlays/actors/ovl_En_Kanban/ovl_En_Kanban_reloc.o"
-#else
-    include "build/data/ovl_En_Kanban/ovl_En_Kanban.reloc.o"
-#endif
 endseg
 
 beginseg
@@ -1650,9 +1637,7 @@ beginseg
     name "ovl_Bg_F40_Swlift"
     compress
     include "build/src/overlays/actors/ovl_Bg_F40_Swlift/z_bg_f40_swlift.o"
-    include "build/data/ovl_Bg_F40_Swlift/ovl_Bg_F40_Swlift.data.o"
-    include "build/data/ovl_Bg_F40_Swlift/ovl_Bg_F40_Swlift.bss.o"
-    include "build/data/ovl_Bg_F40_Swlift/ovl_Bg_F40_Swlift.reloc.o"
+    include "build/src/overlays/actors/ovl_Bg_F40_Swlift/ovl_Bg_F40_Swlift_reloc.o"
 endseg
 
 beginseg
@@ -2415,11 +2400,7 @@ beginseg
     name "ovl_En_Go"
     compress
     include "build/src/overlays/actors/ovl_En_Go/z_en_go.o"
-#ifdef NON_MATCHING
     include "build/src/overlays/actors/ovl_En_Go/ovl_En_Go_reloc.o"
-#else
-    include "build/data/ovl_En_Go/ovl_En_Go.reloc.o"
-#endif
 endseg
 
 beginseg
@@ -3198,8 +3179,7 @@ beginseg
     name "ovl_fbdemo_wipe3"
     compress
     include "build/src/overlays/fbdemos/ovl_fbdemo_wipe3/z_fbdemo_wipe3.o"
-    include "build/data/ovl_fbdemo_wipe3/ovl_fbdemo_wipe3.data.o"
-    include "build/data/ovl_fbdemo_wipe3/ovl_fbdemo_wipe3.reloc.o"
+    include "build/src/overlays/fbdemos/ovl_fbdemo_wipe3/ovl_fbdemo_wipe3_reloc.o"
 endseg
 
 beginseg
@@ -4856,8 +4836,7 @@ beginseg
     name "ovl_Demo_Moonend"
     compress
     include "build/src/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.o"
-    include "build/data/ovl_Demo_Moonend/ovl_Demo_Moonend.data.o"
-    include "build/data/ovl_Demo_Moonend/ovl_Demo_Moonend.reloc.o"
+    include "build/src/overlays/actors/ovl_Demo_Moonend/ovl_Demo_Moonend_reloc.o"
 endseg
 
 beginseg

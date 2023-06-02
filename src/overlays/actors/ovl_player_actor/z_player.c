@@ -4,7 +4,9 @@
  * Description: Player
  */
 
+#include "prevent_bss_reordering.h"
 #include "global.h"
+#include "z64horse.h"
 #include "z64quake.h"
 #include "z64rumble.h"
 #include "z64shrink_window.h"
@@ -3994,7 +3996,7 @@ s32 func_80830F9C(PlayState* play) {
 
 s32 func_80830FD4(PlayState* play) {
     return (play->bButtonAmmoPlusOne != 0) &&
-           (play->bButtonAmmoPlusOne < 0 ||
+           ((play->bButtonAmmoPlusOne < 0) ||
             CHECK_BTN_ANY(sPlayerControlInput->cur.button,
                           BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_CUP | BTN_B | BTN_A));
 }
@@ -5796,7 +5798,7 @@ s32 func_8083562C(PlayState* play, Player* this, CollisionPoly* poly, s32 bgId) 
                         if (D_801BDAA0) {
                             D_801BDAA0 = false;
                         } else {
-                            D_801BDA9C = true;
+                            gHorseIsMounted = true;
                         }
                     }
                 }
@@ -15791,7 +15793,7 @@ void func_808505D0(Player* this, PlayState* play) {
 
         this->stateFlags1 &= ~PLAYER_STATE1_800000;
         this->actor.parent = NULL;
-        D_801BDA9C = false;
+        gHorseIsMounted = false;
 
         if (CHECK_QUEST_ITEM(QUEST_SONG_EPONA) || (DREG(1) != 0)) {
             gSaveContext.save.saveInfo.horseData.sceneId = play->sceneId;

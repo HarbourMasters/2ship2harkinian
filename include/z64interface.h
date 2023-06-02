@@ -132,7 +132,7 @@ typedef struct {
     /* 0x1FC */ OSMesg loadMsg;
     /* 0x200 */ Viewport viewport;
     /* 0x210 */ s16 aButtonState;
-    /* 0x212 */ u16 aButtonHorseDoAction; // TODO: Confirm. Only seems to be used for Epona and "DO_ACTION_FASTER"
+    /* 0x212 */ u16 aButtonHorseDoAction; // TODO: Confirm. Only seems to be used for Epona and "DO_ACTION_FASTER". Also Kaleido?
     /* 0x214 */ u16 aButtonDoAction;
     /* 0x218 */ f32 aButtonRoll;
     /* 0x21C */ s16 bButtonDoActionActive;
