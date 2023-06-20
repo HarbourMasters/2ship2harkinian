@@ -2452,7 +2452,7 @@ void Interface_InitMinigame(PlayState* play) {
 void Interface_LoadItemIconImpl(PlayState* play, u8 btn) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
 
-    CmpDma_LoadFile(SEGMENT_ROM_START(icon_item_static_test), GET_CUR_FORM_BTN_ITEM(btn),
+    CmpDma_LoadFile(SEGMENT_ROM_START(icon_item_static_yar), GET_CUR_FORM_BTN_ITEM(btn),
                     &interfaceCtx->iconItemSegment[(u32)btn * 0x1000], 0x1000);
 }
 
@@ -6702,7 +6702,7 @@ void Interface_Update(PlayState* play) {
         case HUD_VISIBILITY_NONE:
         case HUD_VISIBILITY_NONE_ALT:
         case HUD_VISIBILITY_B:
-            dimmingAlpha = 255 - (gSaveContext.hudVisibilityTimer << 5);
+            dimmingAlpha = 255 - (gSaveContext.hudVisibilityTimer * 32);
             if (dimmingAlpha < 0) {
                 dimmingAlpha = 0;
             }
@@ -6733,7 +6733,7 @@ void Interface_Update(PlayState* play) {
         case HUD_VISIBILITY_B_MAGIC:
         case HUD_VISIBILITY_A_B:
         case HUD_VISIBILITY_A_B_HEARTS_MAGIC_MINIMAP:
-            dimmingAlpha = 255 - (gSaveContext.hudVisibilityTimer << 5);
+            dimmingAlpha = 255 - (gSaveContext.hudVisibilityTimer * 32);
             if (dimmingAlpha < 0) {
                 dimmingAlpha = 0;
             }
@@ -6746,7 +6746,7 @@ void Interface_Update(PlayState* play) {
             break;
 
         case HUD_VISIBILITY_ALL:
-            dimmingAlpha = 255 - (gSaveContext.hudVisibilityTimer << 5);
+            dimmingAlpha = 255 - (gSaveContext.hudVisibilityTimer * 32);
             if (dimmingAlpha < 0) {
                 dimmingAlpha = 0;
             }
