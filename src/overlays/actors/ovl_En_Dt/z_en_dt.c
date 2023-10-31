@@ -247,7 +247,60 @@ void func_80BEA088(EnDt* this, PlayState* play) {
     Actor_OfferTalk(&this->actor, play, 150.0f);
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Dt/func_80BEA254.s")
+void func_80BEA254(EnDt* this, PlayState* play) {
+    EnMuto* sp1C;
+    EnBaisen* sp18;
+    s16* var_v0;
+    s32 i;
+
+    if (!(gSaveContext.save.saveInfo.weekEventReg[0x3F] & 0x80)) {
+        if (this->unk_274 != NULL) {
+            if (this->unk_278 != NULL) {
+                sp1C = this->unk_274;
+                sp18 = this->unk_278;
+            }
+        }
+        if ((this->unk_274 != NULL) && (this->unk_278 != NULL)) {
+            sp1C->cutsceneState = 1;
+            sp18->unk2AC = 1;
+            if (Player_GetMask(play) == 0xA) {
+                sp1C->textIdIndex = 4;
+                sp18->textIdIndex = 6;
+                this->unk_280 = 5;
+                if (gSaveContext.save.saveInfo.weekEventReg[0x3C] & 8) {
+                    this->unk_280 = 4;
+                }
+                func_80BE9D9C(this);
+            }
+        }
+    }
+    this->unk_270 = 0;
+
+#if 0
+    for (i = 0; i < 24; i++) {
+        if ((play->msgCtx.currentTextId == D_80BEB268[i]) || (this->actor.textId == D_80BEB268[i])) {
+            this->unk_270 = 1;
+            this->unk_26E = i;
+        }
+    }
+#else
+    // clang-format off
+    var_v0 = D_80BEB268; i = 0; loop_11:
+    // clang-format on
+    if ((play->msgCtx.currentTextId == (*var_v0)) || (this->actor.textId == (*var_v0))) {
+        this->unk_270 = 1;
+        this->unk_26E = i;
+    } else {
+        i += 2;
+        var_v0 += 2;
+        if (i < 24) {
+            goto loop_11;
+        }
+    }
+#endif
+    this->unk_254 = 2;
+    this->actionFunc = func_80BEA394;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Dt/func_80BEA394.s")
 
