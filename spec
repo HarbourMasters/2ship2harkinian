@@ -1029,17 +1029,14 @@ beginseg
     name "ovl_En_Death"
     compress
     include "build/src/overlays/actors/ovl_En_Death/z_en_death.o"
-    include "build/data/ovl_En_Death/ovl_En_Death.data.o"
-    include "build/data/ovl_En_Death/ovl_En_Death.reloc.o"
+    include "build/src/overlays/actors/ovl_En_Death/ovl_En_Death_reloc.o"
 endseg
 
 beginseg
     name "ovl_En_Minideath"
     compress
     include "build/src/overlays/actors/ovl_En_Minideath/z_en_minideath.o"
-    include "build/data/ovl_En_Minideath/ovl_En_Minideath.data.o"
-    include "build/data/ovl_En_Minideath/ovl_En_Minideath.bss.o"
-    include "build/data/ovl_En_Minideath/ovl_En_Minideath.reloc.o"
+    include "build/src/overlays/actors/ovl_En_Minideath/ovl_En_Minideath_reloc.o"
 endseg
 
 beginseg
@@ -2176,9 +2173,7 @@ beginseg
     name "ovl_En_Knight"
     compress
     include "build/src/overlays/actors/ovl_En_Knight/z_en_knight.o"
-    include "build/data/ovl_En_Knight/ovl_En_Knight.data.o"
-    include "build/data/ovl_En_Knight/ovl_En_Knight.bss.o"
-    include "build/data/ovl_En_Knight/ovl_En_Knight.reloc.o"
+    include "build/src/overlays/actors/ovl_En_Knight/ovl_En_Knight_reloc.o"
 endseg
 
 beginseg
@@ -2325,8 +2320,6 @@ beginseg
     name "ovl_Boss_05"
     compress
     include "build/src/overlays/actors/ovl_Boss_05/z_boss_05.o"
-    include "build/data/ovl_Boss_05/ovl_Boss_05.data.o"
-    include "build/data/ovl_Boss_05/ovl_Boss_05.bss.o"
     include "build/data/ovl_Boss_05/ovl_Boss_05.reloc.o"
 endseg
 
@@ -3419,7 +3412,6 @@ beginseg
     name "ovl_En_Wdhand"
     compress
     include "build/src/overlays/actors/ovl_En_Wdhand/z_en_wdhand.o"
-    include "build/data/ovl_En_Wdhand/ovl_En_Wdhand.data.o"
     include "build/data/ovl_En_Wdhand/ovl_En_Wdhand.reloc.o"
 endseg
 
@@ -3505,8 +3497,7 @@ beginseg
     name "ovl_Boss_Hakugin"
     compress
     include "build/src/overlays/actors/ovl_Boss_Hakugin/z_boss_hakugin.o"
-    include "build/data/ovl_Boss_Hakugin/ovl_Boss_Hakugin.data.o"
-    include "build/data/ovl_Boss_Hakugin/ovl_Boss_Hakugin.reloc.o"
+    include "build/src/overlays/actors/ovl_Boss_Hakugin/ovl_Boss_Hakugin_reloc.o"
 endseg
 
 beginseg
