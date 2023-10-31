@@ -42,6 +42,7 @@ extern s16 D_80BEB268[];
 extern s16 D_80BEB26A[];
 extern s32 D_80BEB2C8[];
 extern u8 D_80BEB2E0[];
+extern s32 D_80BEB2E8[];
 extern s32 D_80BEB348[];
 extern s32 D_80BEB35C[];
 
@@ -132,7 +133,26 @@ void func_80BE9CE8(EnDt* this, s32 arg1) {
                      var_fv1);
 }
 
+// Regalloc
+// https://decomp.me/scratch/wKYaQ
+#ifdef NON_MATCHING
+void func_80BE9D9C(EnDt* this) {
+    s32 temp_v0;
+    s32* temp_v1;
+
+    temp_v0 = this->unk_280 * 4;
+    temp_v0++;
+    temp_v1 = &D_80BEB2E8[temp_v0];
+    func_80BE9CE8(this, *temp_v1);
+    temp_v0 = 1;
+    this->unk_24C = temp_v1[temp_v0];
+    temp_v1++;
+    temp_v1++;
+    this->unk_248 = *temp_v1;
+}
+#else
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Dt/func_80BE9D9C.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Dt/func_80BE9DF8.s")
 
