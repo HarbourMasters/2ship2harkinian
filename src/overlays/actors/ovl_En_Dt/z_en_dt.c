@@ -119,11 +119,9 @@ void func_80BE9C74(EnDt* this) {
 }
 
 void func_80BE9CE8(EnDt* this, s32 arg1) {
-    f32 var_fv1;
+    f32 var_fv1 = -4.0f;
 
     this->unk_246 = arg1;
-
-    var_fv1 = -4.0f;
 
     if ((this->unk_246 == 2) || (this->unk_246 == 5)) {
         var_fv1 = 0.0f;
