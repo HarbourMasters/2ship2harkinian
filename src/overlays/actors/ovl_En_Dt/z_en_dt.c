@@ -74,8 +74,8 @@ void EnDt_Init(Actor* thisx, PlayState* play) {
 
     this->actor.colChkInfo.mass = 0xFF;
     ActorShape_Init(&this->actor.shape, 0.0f, ActorShadow_DrawCircle, 19.0f);
-    SkelAnime_InitFlex(play, &this->skelanime, &object_dt_Skel_00B0CC, &object_dt_Anim_00112C, &this->unk_188,
-                       &this->unk_1E2, 0xF);
+    SkelAnime_InitFlex(play, &this->skelanime, &object_dt_Skel_00B0CC, &object_dt_Anim_00112C, this->unk_188,
+                       this->unk_1E2, 0xF);
     this->actor.targetMode = 6;
     this->unk_274 = 0;
     this->unk_278 = 0;
@@ -294,7 +294,7 @@ void func_80BEA8F0(EnDt* this, PlayState* play) {
 }
 
 void func_80BEAAF8(EnDt* this, PlayState* play) {
-    Actor_OfferGetItem(this, play, GI_HEART_PIECE, 300.0f, 300.0f);
+    Actor_OfferGetItem(&this->actor, play, GI_HEART_PIECE, 300.0f, 300.0f);
     this->unk_254 = 3;
     this->actionFunc = func_80BEAB44;
 }
@@ -342,7 +342,7 @@ void func_80BEAC84(EnDt* this, PlayState* play) {
 
 void func_80BEAD2C(EnDt* this, PlayState* play) {
     func_80BE9C74(this);
-    if (Actor_ProcessTalkRequest(&this->actor, play) != 0) {
+    if (Actor_ProcessTalkRequest(&this->actor, &play->state) != 0) {
         func_80BEADB8(this);
         return;
     }
