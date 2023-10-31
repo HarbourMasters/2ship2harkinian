@@ -4,6 +4,7 @@
 #include "assets/objects/gameplay_keep/gameplay_keep.h"
 #include "overlays/actors/ovl_En_Clear_Tag/z_en_clear_tag.h"
 #include "sys_cfb.h"
+#include "prevent_bss_reordering.h"
 
 #define FLAGS 0x00000010
 
