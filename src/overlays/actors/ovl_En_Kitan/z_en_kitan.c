@@ -95,9 +95,9 @@ void func_80C0923C(EnKitan* this, PlayState* play, s32 arg2) {
     pos.z = this->actor.world.pos.z;
 
     for (i = 0; i < arg2; i++) {
-        vel.x = randPlusMinusPoint5Scaled(10.0f);
+        vel.x = Rand_CenteredFloat(10.0f);
         vel.y = Rand_ZeroFloat(6.0f);
-        vel.z = randPlusMinusPoint5Scaled(10.0f);
+        vel.z = Rand_CenteredFloat(10.0f);
         accel.x = -vel.x * 0.05f;
         accel.y = 0.1f;
         accel.z = -vel.x * 0.05f;
@@ -160,7 +160,7 @@ void func_80C09518(EnKitan* this, PlayState* play) {
         this->actor.flags &= ~ACTOR_FLAG_10000;
         Animation_MorphToLoop(&this->skelAnime, &object_kitan_Anim_000CE8, -5.0f);
     } else {
-        func_800B8500(&this->actor, play, 1000.0f, 1000.0f, PLAYER_IA_MINUS1);
+        Actor_OfferTalkExchange(&this->actor, play, 1000.0f, 1000.0f, PLAYER_IA_MINUS1);
     }
 }
 
@@ -169,7 +169,7 @@ void func_80C095C8(EnKitan* this, PlayState* play) {
     if (Actor_TextboxIsClosing(&this->actor, play)) {
         this->actor.flags |= ACTOR_FLAG_10000;
         this->actionFunc = func_80C09518;
-        func_800B8500(&this->actor, play, 1000.0f, 1000.0f, PLAYER_IA_MINUS1);
+        Actor_OfferTalkExchange(&this->actor, play, 1000.0f, 1000.0f, PLAYER_IA_MINUS1);
     }
 }
 
@@ -199,7 +199,7 @@ void func_80C09708(EnKitan* this, PlayState* play) {
         case 4:
             if (Message_ShouldAdvance(play)) {
                 if (play->msgCtx.choiceIndex + 1 == play->msgCtx.unk1206C) {
-                    play_sound(NA_SE_SY_QUIZ_CORRECT);
+                    Audio_PlaySfx(NA_SE_SY_QUIZ_CORRECT);
                     this->timer++;
                     if (this->timer < 5) {
                         play->msgCtx.msgLength = 0;
@@ -210,7 +210,7 @@ void func_80C09708(EnKitan* this, PlayState* play) {
                     }
                     Animation_MorphToPlayOnce(&this->skelAnime, &object_kitan_Anim_00190C, -5.0f);
                 } else {
-                    play_sound(NA_SE_SY_QUIZ_INCORRECT);
+                    Audio_PlaySfx(NA_SE_SY_QUIZ_INCORRECT);
                     Animation_MorphToLoop(&this->skelAnime, &object_kitan_Anim_000CE8, -5.0f);
                     Message_ContinueTextbox(play, 0x04B3);
                     this->timer = 0;
@@ -271,7 +271,7 @@ void func_80C09990(EnKitan* this, PlayState* play) {
         func_80C0923C(this, play, 30);
         SoundSource_PlaySfxAtFixedWorldPos(play, &this->actor.world.pos, 30, NA_SE_EN_NPC_FADEAWAY);
     } else if (func_80C09390(this, play)) {
-        func_800B8614(&this->actor, play, 130.0f);
+        Actor_OfferTalk(&this->actor, play, 130.0f);
         this->timer--;
     }
 }
@@ -286,7 +286,7 @@ void func_80C09AA4(EnKitan* this, PlayState* play) {
     } else {
         Actor_SetScale(&this->actor, 0.015f);
         this->actionFunc = func_80C09990;
-        this->actor.flags |= ACTOR_FLAG_1;
+        this->actor.flags |= ACTOR_FLAG_TARGETABLE;
         this->timer = 600;
     }
 }
@@ -334,7 +334,7 @@ void EnKitan_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* ro
 void EnKitan_Draw(Actor* thisx, PlayState* play) {
     EnKitan* this = THIS;
 
-    func_8012C5B0(play->state.gfxCtx);
+    Gfx_SetupDL37_Opa(play->state.gfxCtx);
     SkelAnime_DrawFlexOpa(play, this->skelAnime.skeleton, this->skelAnime.jointTable, this->skelAnime.dListCount,
                           EnKitan_OverrideLimbDraw, EnKitan_PostLimbDraw, &this->actor);
 }
