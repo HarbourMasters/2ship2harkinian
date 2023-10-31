@@ -28,6 +28,7 @@ void func_80BEA088(EnDt* this, PlayState* play);
 void func_80BEA254(EnDt* this, PlayState* play);
 void func_80BEA394(EnDt* this, PlayState* play);
 void func_80BEA8F0(EnDt* this, PlayState* play);
+void func_80BEAAF8(EnDt* this, PlayState* play);
 void func_80BEAB44(EnDt* this, PlayState* play);
 void func_80BEABF8(EnDt* this, PlayState* play);
 void func_80BEAC84(EnDt* this, PlayState* play);
@@ -274,35 +275,157 @@ void func_80BEA254(EnDt* this, PlayState* play) {
             }
         }
     }
+
     this->unk_270 = 0;
 
-#if 0
-    for (i = 0; i < 24; i++) {
+    for (i = 0; i < 24; i += 2) {
         if ((play->msgCtx.currentTextId == D_80BEB268[i]) || (this->actor.textId == D_80BEB268[i])) {
             this->unk_270 = 1;
             this->unk_26E = i;
+            break;
         }
     }
-#else
-    // clang-format off
-    var_v0 = D_80BEB268; i = 0; loop_11:
-    // clang-format on
-    if ((play->msgCtx.currentTextId == (*var_v0)) || (this->actor.textId == (*var_v0))) {
-        this->unk_270 = 1;
-        this->unk_26E = i;
-    } else {
-        i += 2;
-        var_v0 += 2;
-        if (i < 24) {
-            goto loop_11;
-        }
-    }
-#endif
+
     this->unk_254 = 2;
     this->actionFunc = func_80BEA394;
 }
 
+#ifdef NON_MATCHING
+void func_80BEA394(EnDt* this, PlayState* play) {
+    EnMuto* mutoh = NULL;
+    EnBaisen* viscen = NULL;
+    s32 i;
+    volatile s32 j;
+    s16 subCamId;
+    i = D_80BEB26A[this->unk_26E];
+    goto label;
+label:
+
+    if (this->unk_270 == 1) {
+        if (CutsceneManager_GetCurrentCsId() == 0x7C) {
+            CutsceneManager_Stop(0x7C);
+            CutsceneManager_Queue(this->csIdList[i]);
+            return;
+        }
+        if (CutsceneManager_IsNext(this->csIdList[i]) == 0) {
+            CutsceneManager_Queue(this->csIdList[i]);
+            return;
+        }
+        CutsceneManager_StartWithPlayerCs(this->csIdList[i], this->targetActor);
+        Actor_ChangeFocus(&this->actor, play, this->targetActor);
+        this->unk_270 = 2;
+    }
+
+    if ((!(gSaveContext.save.saveInfo.weekEventReg[63] & 0x80)) &&
+        ((this->unk_274 != NULL) || (this->unk_278 != NULL))) {
+        mutoh = this->unk_274;
+        viscen = this->unk_278;
+    }
+
+    if (((this->unk_244 == 0) && (Message_GetState(&play->msgCtx) == 5)) && (Message_ShouldAdvance(play) != 0)) {
+        if (this->unk_256 == 21) {
+            func_800B7298(play, &this->actor, 6);
+            if (this->unk_270 == 2) {
+                CutsceneManager_Stop(this->csIdList[i]);
+                this->unk_270 = 0;
+            }
+            func_80BEAAF8(this, play);
+            return;
+        }
+
+        if (this->unk_256 == 20) {
+            Message_CloseTextbox(play);
+            play->nextEntrance = 0x10;
+            Scene_SetExitFade(play);
+            play->transitionTrigger = 0x14;
+            gSaveContext.save.saveInfo.weekEventReg[63] |= 0x80;
+            this->unk_290 = 1;
+            if (this->unk_270 == 2) {
+                CutsceneManager_Stop(this->csIdList[i]);
+                this->unk_270 = 0;
+            }
+        } else {
+            if ((((this->unk_256 == 8) || (this->unk_256 == 10)) || (this->unk_256 == 22)) || (this->unk_256 == 23)) {
+                gSaveContext.save.saveInfo.weekEventReg[60] |= 8;
+                Message_CloseTextbox(play);
+                if (!(gSaveContext.save.saveInfo.weekEventReg[63] & 0x80)) {
+                    if ((this->unk_274 != NULL) && (this->unk_278 != NULL)) {
+                        mutoh->cutsceneState = 2;
+                        viscen->unk2AC = 2;
+                        mutoh->targetActor = &this->unk_274->actor;
+                        viscen->unk2A4 = &this->unk_278->actor;
+                    }
+                    this->targetActor = &this->actor;
+                }
+                if (this->unk_270 == 2) {
+                    CutsceneManager_Stop(this->csIdList[i]);
+                    this->unk_270 = 0;
+                }
+                func_80BE9EF8(this, play);
+                return;
+            }
+
+            this->unk_256++;
+            if (this->unk_256 == 8) {
+                play->msgCtx.msgLength = 0;
+                func_80BE9DF8(this);
+                Actor_ChangeFocus(&this->actor, play, this->targetActor);
+                subCamId = CutsceneManager_GetCurrentSubCamId(this->csIdList[i]);
+                Camera_SetTargetActor(Play_GetCamera(play, subCamId), this->targetActor);
+                this->unk_244 = 2;
+                this->actionFunc = func_80BEA8F0;
+                return;
+            }
+
+            if (this->unk_256 == 12) {
+                if (gSaveContext.save.saveInfo.weekEventReg[60] & 8) {
+                    func_80BE9D9C(this);
+                    this->unk_244 = 25;
+                } else {
+                    func_80BE9CE8(this, 4);
+                    SkelAnime_Update(&this->skelanime);
+                }
+            }
+
+            if (this->unk_256 == 13) {
+                func_80BE9CE8(this, 4);
+                SkelAnime_Update(&this->skelanime);
+            }
+
+            func_80BE9DF8(this);
+            Actor_ChangeFocus(&this->actor, play, this->targetActor);
+            subCamId = CutsceneManager_GetCurrentSubCamId(this->csIdList[i]);
+            Camera_SetTargetActor(Play_GetCamera(play, subCamId), this->targetActor);
+
+            this->actor.textId = D_80BEB1D0[this->unk_256];
+
+            Message_CloseTextbox(play);
+            Message_StartTextbox(play, this->actor.textId, &this->actor);
+
+            for (i = 0; i < 24; i += 2) {
+                if ((play->msgCtx.currentTextId == D_80BEB268[i]) || (this->actor.textId == D_80BEB268[i])) {
+                    this->unk_26E = i;
+                    break;
+                }
+            }
+
+            i = D_80BEB26A[this->unk_26E];
+
+            if ((this->unk_270 == 2) && (i != j)) {
+                this->unk_270 = 1;
+                CutsceneManager_Stop(this->csIdList[j]);
+                CutsceneManager_Queue(this->csIdList[i]);
+            }
+
+            if (((this->unk_256 == 3) && (this->unk_274 != NULL)) && (this->unk_278 != NULL)) {
+                mutoh->targetActor = &this->actor;
+            }
+        }
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Dt/func_80BEA394.s")
+#endif
 
 void func_80BEA8F0(EnDt* this, PlayState* play) {
     f32 curFrame = this->skelanime.curFrame;
