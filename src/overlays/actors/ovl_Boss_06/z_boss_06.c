@@ -267,7 +267,7 @@ void func_809F24C8(Boss06* this, PlayState* play) {
                             this->subCamAt.z = 2860.0f;
 
                             if (this->unk_1CA == 75) {
-                                D_809F4970->unk_148 = 1;
+                                D_809F4970->unk148 = 1;
                             }
                             sp4E = 17;
                             break;
