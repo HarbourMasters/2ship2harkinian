@@ -133,26 +133,16 @@ void func_80BE9CE8(EnDt* this, s32 arg1) {
                      var_fv1);
 }
 
-// Regalloc
-// https://decomp.me/scratch/wKYaQ
-#ifdef NON_MATCHING
 void func_80BE9D9C(EnDt* this) {
-    s32 temp_v0;
-    s32* temp_v1;
+    s32 temp_v0 = this->unk_280 * 4;
 
-    temp_v0 = this->unk_280 * 4;
     temp_v0++;
-    temp_v1 = &D_80BEB2E8[temp_v0];
-    func_80BE9CE8(this, *temp_v1);
-    temp_v0 = 1;
-    this->unk_24C = temp_v1[temp_v0];
-    temp_v1++;
-    temp_v1++;
-    this->unk_248 = *temp_v1;
+    func_80BE9CE8(this, D_80BEB2E8[temp_v0]);
+    temp_v0++;
+    this->unk_24C = D_80BEB2E8[temp_v0];
+    temp_v0++;
+    this->unk_248 = D_80BEB2E8[temp_v0];
 }
-#else
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Dt/func_80BE9D9C.s")
-#endif
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Dt/func_80BE9DF8.s")
 
