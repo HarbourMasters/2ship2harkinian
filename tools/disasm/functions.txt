@@ -16199,7 +16199,7 @@
     0x80BEADB8:("func_80BEADB8",),
     0x80BEADD4:("func_80BEADD4",),
     0x80BEAE94:("EnDt_Update",),
-    0x80BEB06C:("func_80BEB06C",),
+    0x80BEB06C:("EnDt_OverrideLimbDraw",),
     0x80BEB0A8:("EnDt_Draw",),
     0x80BEB520:("EnCha_Init",),
     0x80BEB5B0:("EnCha_Destroy",),
