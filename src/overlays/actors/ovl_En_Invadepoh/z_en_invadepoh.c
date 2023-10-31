@@ -984,7 +984,7 @@ s32 EnInvadepoh_Romani_OpenDoor(EnInvadepoh* this, PlayState* play, f32 range, s
             if ((door->knobDoor.dyna.actor.room == this->actor.room) &&
                 (Math3D_Vec3fDistSq(&door->knobDoor.dyna.actor.world.pos, &this->actor.world.pos) < range)) {
 
-                door->unk_1A7 = doorTimer;
+                door->openTimer = doorTimer;
                 doorOpened = true;
                 break;
             }
