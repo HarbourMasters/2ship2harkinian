@@ -84,9 +84,6 @@
 #define VTX_T(x, y, z, s, t, cr, cg, cb, a) \
     { { x, y, z }, 0, { s, t }, { cr, cg, cb, a }, }
 
-#define SQ(x) ((x) * (x))
-#define ABS(x) ((x) >= 0 ? (x) : -(x))
-#define ABS_ALT(x) ((x) < 0 ? -(x) : (x))
 #define DECR(x) ((x) == 0 ? 0 : --(x))
 
 //! checks min first
