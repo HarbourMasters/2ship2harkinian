@@ -433,7 +433,7 @@ void func_80AF520C(EnWdhand* this, PlayState* play) {
 
     SkelAnime_Update(&this->unk144);
     this->unk1EC[0].z--;
-    player->unk_AE8 = 0;
+    player->av2.actionVar2 = 0;
 
     for (var_s1 = 0; var_s1 < 4; var_s1++) {
         if (this->unk1EC[0].z < 0x4C) {
@@ -488,7 +488,7 @@ void func_80AF520C(EnWdhand* this, PlayState* play) {
         Matrix_MultVecY(1000.0f, &player->actor.world.pos);
 
         if ((this->unk1EC[0].z == 4) && (&this->actor == player->actor.parent)) {
-            player->unk_AE8 = 100;
+            player->av2.actionVar2 = 100;
             player->actor.parent = NULL;
             Matrix_Transpose(&this->unk21C);
             player->actor.shape.rot.x = 0;
@@ -651,7 +651,7 @@ void func_80AF5E3C(EnWdhand* this, PlayState* play) {
         Actor_SetDropFlagJntSph(&this->actor, &this->unk274);
         Enemy_StartFinishingBlow(play, &this->actor);
         if ((player->stateFlags2 & 0x80) && (&this->actor == player->actor.parent)) {
-            player->unk_AE8 = 100;
+            player->av2.actionVar2 = 100;
             player->actor.parent = NULL;
             player->actor.shape.rot.x = 0;
             player->actor.shape.rot.z = 0;
@@ -701,7 +701,7 @@ void EnWdhand_Draw(Actor* thisx, PlayState* play) {
 
     dl = POLY_OPA_DISP;
 
-    gSPDisplayList(&dl[0], &gSetupDLs[25 * 6]);
+    gSPDisplayList(&dl[0], &gSetupDLs[25]); // same problem as ovl_En_Knight. TODO: This may be an issue
     gSPMatrix(&dl[1], Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gSPDisplayList(&dl[2], object_wdhand_DL_0014C0);
 
