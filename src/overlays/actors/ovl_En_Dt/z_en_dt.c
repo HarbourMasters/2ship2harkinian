@@ -42,6 +42,7 @@ extern s16 D_80BEB268[];
 extern s16 D_80BEB26A[];
 extern s32 D_80BEB2C8[];
 extern u8 D_80BEB2E0[];
+extern s32 D_80BEB2E8[];
 extern s32 D_80BEB348[];
 extern s32 D_80BEB35C[];
 
@@ -74,8 +75,8 @@ void EnDt_Init(Actor* thisx, PlayState* play) {
 
     this->actor.colChkInfo.mass = 0xFF;
     ActorShape_Init(&this->actor.shape, 0.0f, ActorShadow_DrawCircle, 19.0f);
-    SkelAnime_InitFlex(play, &this->skelanime, &object_dt_Skel_00B0CC, &object_dt_Anim_00112C, &this->unk_188,
-                       &this->unk_1E2, 0xF);
+    SkelAnime_InitFlex(play, &this->skelanime, &object_dt_Skel_00B0CC, &object_dt_Anim_00112C, this->unk_188,
+                       this->unk_1E2, 0xF);
     this->actor.targetMode = 6;
     this->unk_274 = 0;
     this->unk_278 = 0;
@@ -132,7 +133,16 @@ void func_80BE9CE8(EnDt* this, s32 arg1) {
                      var_fv1);
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Dt/func_80BE9D9C.s")
+void func_80BE9D9C(EnDt* this) {
+    s32 temp_v0 = this->unk_280 * 4;
+
+    temp_v0++;
+    func_80BE9CE8(this, D_80BEB2E8[temp_v0]);
+    temp_v0++;
+    this->unk_24C = D_80BEB2E8[temp_v0];
+    temp_v0++;
+    this->unk_248 = D_80BEB2E8[temp_v0];
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Dt/func_80BE9DF8.s")
 
@@ -237,7 +247,60 @@ void func_80BEA088(EnDt* this, PlayState* play) {
     Actor_OfferTalk(&this->actor, play, 150.0f);
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Dt/func_80BEA254.s")
+void func_80BEA254(EnDt* this, PlayState* play) {
+    EnMuto* sp1C;
+    EnBaisen* sp18;
+    s16* var_v0;
+    s32 i;
+
+    if (!(gSaveContext.save.saveInfo.weekEventReg[0x3F] & 0x80)) {
+        if (this->unk_274 != NULL) {
+            if (this->unk_278 != NULL) {
+                sp1C = this->unk_274;
+                sp18 = this->unk_278;
+            }
+        }
+        if ((this->unk_274 != NULL) && (this->unk_278 != NULL)) {
+            sp1C->cutsceneState = 1;
+            sp18->unk2AC = 1;
+            if (Player_GetMask(play) == 0xA) {
+                sp1C->textIdIndex = 4;
+                sp18->textIdIndex = 6;
+                this->unk_280 = 5;
+                if (gSaveContext.save.saveInfo.weekEventReg[0x3C] & 8) {
+                    this->unk_280 = 4;
+                }
+                func_80BE9D9C(this);
+            }
+        }
+    }
+    this->unk_270 = 0;
+
+#if 0
+    for (i = 0; i < 24; i++) {
+        if ((play->msgCtx.currentTextId == D_80BEB268[i]) || (this->actor.textId == D_80BEB268[i])) {
+            this->unk_270 = 1;
+            this->unk_26E = i;
+        }
+    }
+#else
+    // clang-format off
+    var_v0 = D_80BEB268; i = 0; loop_11:
+    // clang-format on
+    if ((play->msgCtx.currentTextId == (*var_v0)) || (this->actor.textId == (*var_v0))) {
+        this->unk_270 = 1;
+        this->unk_26E = i;
+    } else {
+        i += 2;
+        var_v0 += 2;
+        if (i < 24) {
+            goto loop_11;
+        }
+    }
+#endif
+    this->unk_254 = 2;
+    this->actionFunc = func_80BEA394;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Dt/func_80BEA394.s")
 
@@ -294,7 +357,7 @@ void func_80BEA8F0(EnDt* this, PlayState* play) {
 }
 
 void func_80BEAAF8(EnDt* this, PlayState* play) {
-    Actor_OfferGetItem(this, play, GI_HEART_PIECE, 300.0f, 300.0f);
+    Actor_OfferGetItem(&this->actor, play, GI_HEART_PIECE, 300.0f, 300.0f);
     this->unk_254 = 3;
     this->actionFunc = func_80BEAB44;
 }
@@ -342,7 +405,7 @@ void func_80BEAC84(EnDt* this, PlayState* play) {
 
 void func_80BEAD2C(EnDt* this, PlayState* play) {
     func_80BE9C74(this);
-    if (Actor_ProcessTalkRequest(&this->actor, play) != 0) {
+    if (Actor_ProcessTalkRequest(&this->actor, &play->state) != 0) {
         func_80BEADB8(this);
         return;
     }
@@ -372,7 +435,51 @@ void func_80BEADD4(EnDt* this, PlayState* play) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Dt/EnDt_Update.s")
+void EnDt_Update(Actor* thisx, PlayState* play) {
+    EnDt* this = THIS;
+    s32 pad;
+
+    SkelAnime_Update(&this->skelanime);
+    Actor_SetScale(&this->actor, 0.01f);
+
+    if ((this->unk_254 != 4) && (this->unk_254 != 5) && (gSaveContext.save.day == 3) &&
+        (gSaveContext.save.isNight != 0)) {
+        func_80BEAC84(this, play);
+    }
+
+    if (!(gSaveContext.save.saveInfo.weekEventReg[63] & 0x80) &&
+        ((gSaveContext.save.day != 3) || ((gSaveContext.save.day == 3) && (gSaveContext.save.isNight == 0)))) {
+        Audio_PlaySequenceAtPos(3, &gSfxDefaultPos, 49, 1000.0f);
+        Actor_PlaySfx(&this->actor, NA_SE_EV_CROWD - SFX_FLAG);
+    }
+
+    if (this->unk_24A != 0) {
+        this->unk_24A--;
+    }
+
+    if (this->unk_244 != 0) {
+        this->unk_244--;
+    }
+
+    if (this->unk_290 != 0) {
+        func_80BE9C74(this);
+    }
+
+    if ((this->unk_248 == 0) && (this->unk_24A == 0)) {
+        this->unk_24C++;
+        if (this->unk_24C >= 3) {
+            this->unk_24C = 0;
+            this->unk_24A = (s32)Rand_ZeroFloat(60.0f) + 20;
+        }
+    }
+    this->actionFunc(this, play);
+    this->actor.shape.rot.y = this->actor.world.rot.y;
+    Math_SmoothStepToS(&this->unk_284.y, this->unk_28A.y, 1, 3000, 0);
+    Actor_SetFocus(&this->actor, 60.0f);
+    Actor_MoveWithGravity(&this->actor);
+    Collider_UpdateCylinder(&this->actor, &this->collider);
+    CollisionCheck_SetOC(play, &play->colChkCtx, &this->collider);
+}
 
 s32 EnDt_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx) {
     EnDt* this = THIS;
