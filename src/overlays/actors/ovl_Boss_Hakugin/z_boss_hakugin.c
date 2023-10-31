@@ -1244,7 +1244,7 @@ void func_80B07EEC(BossHakugin* this, PlayState* play) {
     Play_SetCameraAtEye(play, this->unk_01AC, &sp20, &this->unk_038C);
     this->unk_037A.x = Math_Atan2S_XY(70.0f, -20.0f);
     this->unk_037A.y = player->actor.shape.rot.y + 0x8000;
-    func_800B7298(play, &this->actor, PLAYER_CSMODE_21);
+    func_800B7298(play, &this->actor, PLAYER_CSACTION_21);
     this->unk_019C = 0;
     this->actionFunc = func_80B08018;
 }
@@ -1388,7 +1388,7 @@ void func_80B08550(BossHakugin* this, PlayState* play) {
     player->actor.world.pos.z = -1560.0f;
     player->actor.shape.rot.y = this->actor.yawTowardsPlayer + 0x8000;
     player->currentYaw = player->actor.world.rot.y = player->actor.shape.rot.y;
-    func_800B7298(play, &this->actor, PLAYER_CSMODE_131);
+    func_800B7298(play, &this->actor, PLAYER_CSACTION_131);
     this->actionFunc = func_80B0863C;
 }
 
@@ -1460,7 +1460,7 @@ void func_80B08848(BossHakugin* this, PlayState* play) {
     Animation_Change(&this->skelAnime, &gGohtRunAnim, 1.5f, 0.0f, 0.0f, ANIMMODE_LOOP, -3.0f);
     this->unk_019C = 0;
     this->actor.speed = 5.0f;
-    func_800B7298(play, &this->actor, PLAYER_CSMODE_END);
+    func_800B7298(play, &this->actor, PLAYER_CSACTION_END);
     player->stateFlags1 |= PLAYER_STATE1_20;
     play->actorCtx.unk268 = true;
     this->actionFunc = func_80B08960;
@@ -1754,7 +1754,7 @@ void func_80B098BC(BossHakugin* this, PlayState* play) {
         }
     } else {
         if (Math_ScaledStepToS(&this->unk_01A6, -0x800, 0x1C0)) {
-            player->actionVar2 = 100;
+            player->av2.actionVar2 = 100;
             player->actor.parent = NULL;
             player->invincibilityTimer = 0;
             player->actor.shape.rot.x = 0;
@@ -1762,7 +1762,7 @@ void func_80B098BC(BossHakugin* this, PlayState* play) {
             player->actor.world.pos.y += 30.0f;
             this->unk_019C--;
         } else {
-            player->actionVar2 = 0;
+            player->av2.actionVar2 = 0;
             sp32 = -this->unk_0374.z + 0x1F40;
             player->actor.shape.rot.x = -this->unk_0374.z + 0x8FC0;
 
