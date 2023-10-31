@@ -582,7 +582,7 @@ void func_80B057A4(Vec3f* arg0, Vec3f* arg1, f32 arg2) {
     }
 
     if (!(arg2 < (M_PI / 180.0f))) {
-        Math3D_CrossProduct(arg0, arg1, &sp34);
+        Math3D_Vec3f_Cross(arg0, arg1, &sp34);
         if (func_80B0573C(&sp34)) {
             Matrix_RotateAxisF(arg2, &sp34, MTXMODE_NEW);
             Matrix_MultVec3f(arg0, &sp28);
@@ -2444,7 +2444,7 @@ void func_80B0B660(BossHakugin* this, PlayState* play) {
                     sp7C.x = spA0->normal.x * COLPOLY_NORMAL_FRAC;
                     sp7C.y = spA0->normal.y * COLPOLY_NORMAL_FRAC;
                     sp7C.z = spA0->normal.z * COLPOLY_NORMAL_FRAC;
-                    func_80179F64(&this->unk_37AC, &sp7C, &sp70);
+                    Math3D_Vec3fReflect(&this->unk_37AC, &sp7C, &sp70);
                     Math_Vec3f_Copy(&this->unk_37AC, &sp70);
                 }
             } else {

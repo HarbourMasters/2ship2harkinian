@@ -456,7 +456,7 @@ f32 EnInvadepoh_GetPathLength(EnInvadepoh* this) {
     for (curPathPoint++, i = 1; i < pointCount; curPathPoint++, i++) {
         Math_Vec3f_Copy(&prevPathVec, &curPathVec);
         Math_Vec3s_ToVec3f(&curPathVec, curPathPoint);
-        pathLength += Math3D_Distance(&prevPathVec, &curPathVec);
+        pathLength += Math3D_Vec3f_DistXYZ(&prevPathVec, &curPathVec);
     }
     return pathLength;
 }
@@ -503,7 +503,7 @@ s32 EnInvadepoh_Dog_IsOnPath(EnInvadepoh* thisx, f32 highValue, f32 lowValue) {
         return false;
     }
 
-    pathSegmentLength = Math3D_XZLength(pathSegmentX, pathSegmentZ);
+    pathSegmentLength = Math3D_Dist1D(pathSegmentX, pathSegmentZ);
     distAlongPath = (travelSegmentZ * pathUnitVecZ) + (travelSegmentX * pathUnitVecX);
     if ((distAlongPath < 0.0f) || (pathSegmentLength < distAlongPath)) {
         return false;
@@ -567,7 +567,7 @@ void EnInvadepoh_Invader_SetCheckpoints(EnInvadepoh* this) {
     for (i = 1; i < endPoint; i++, pathPoint++, checkpoints++) {
         Math_Vec3f_Copy(&prevPathPoint, &pathPointF);
         Math_Vec3s_ToVec3f(&pathPointF, pathPoint);
-        pathPointLength += Math3D_Distance(&prevPathPoint, &pathPointF);
+        pathPointLength += Math3D_Vec3f_DistXYZ(&prevPathPoint, &pathPointF);
         *checkpoints = pathPointLength * invPathLength;
         if (*checkpoints < 0.0f) {
             *checkpoints = 0.0f;
@@ -798,7 +798,7 @@ s32 EnInvadepoh_Dog_MoveAlongPath(EnInvadepoh* this, PlayState* play) {
     worldToCurrent.z = curPathPointZ - this->actor.world.pos.z;
 
     if (this->actor.speed > 0.0f) {
-        if (Math3D_AngleBetweenVectors(&currentToNext, &worldToNext, &angleToNext)) {
+        if (Math3D_CosOut(&currentToNext, &worldToNext, &angleToNext)) {
             reachedNext = true;
         } else if (angleToNext <= 0.0f) {
             reachedNext = true;
@@ -874,7 +874,7 @@ void EnInvadepoh_Alien_SetTexAnim(void) {
 s32 EnInvadepoh_StepTowardXZ(f32* pxValue, f32* pzValue, f32 xTarget, f32 zTarget, f32 speed) {
     f32 xDiff = xTarget - *pxValue;
     f32 zDiff = zTarget - *pzValue;
-    f32 distToTarget = Math3D_XZLength(xDiff, zDiff);
+    f32 distToTarget = Math3D_Dist1D(xDiff, zDiff);
 
     if (speed < distToTarget) {
         f32 progressStep = speed / distToTarget;
