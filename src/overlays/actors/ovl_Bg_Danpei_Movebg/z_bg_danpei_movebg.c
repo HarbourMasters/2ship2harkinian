@@ -67,7 +67,7 @@ s32 func_80AF6DE0(PlayState* this, ActorPathing* actorPathing) {
 void BgDanpeiMovebg_Init(Actor* thisx, PlayState* play) {
     BgDanpeiMovebg* this = THIS;
     DynaPolyActor_Init(&this->dyna, 1);
-    this->bankIdx = SubS_GetObjectIndex(D_80AF7530[BGDANPEIMOVEBG_GET_TYPE(thisx)], play);
+    this->bankIdx = SubS_GetObjectSlot(D_80AF7530[BGDANPEIMOVEBG_GET_TYPE(thisx)], play);
     if (this->bankIdx < 0) {
         Actor_Kill(&this->dyna.actor);
     }
@@ -77,8 +77,8 @@ void BgDanpeiMovebg_Init(Actor* thisx, PlayState* play) {
 void func_80AF6EA8(BgDanpeiMovebg* this, PlayState* play) {
     Actor* thisx = (Actor*)this;
     if (SubS_IsObjectLoaded(this->bankIdx, play)) {
-        gSegments[6] = VIRTUAL_TO_PHYSICAL(play->objectCtx.status[this->bankIdx].segment);
-        this->dyna.actor.objBankIndex = this->bankIdx;
+        gSegments[6] = OS_K0_TO_PHYSICAL(play->objectCtx.slots[this->bankIdx].segment);
+        this->dyna.actor.objectSlot = this->bankIdx;
         this->dyna.actor.draw = func_80AF74CC;
         Actor_ProcessInitChain(thisx, sInitChain);
         DynaPolyActor_LoadMesh(play, &this->dyna, D_80AF7538[BGDANPEIMOVEBG_GET_TYPE(thisx)]);
