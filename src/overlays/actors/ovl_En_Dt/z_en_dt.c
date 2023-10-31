@@ -382,7 +382,51 @@ void func_80BEADD4(EnDt* this, PlayState* play) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Dt/EnDt_Update.s")
+void EnDt_Update(Actor* thisx, PlayState* play) {
+    EnDt* this = THIS;
+    s32 pad;
+
+    SkelAnime_Update(&this->skelanime);
+    Actor_SetScale(&this->actor, 0.01f);
+
+    if ((this->unk_254 != 4) && (this->unk_254 != 5) && (gSaveContext.save.day == 3) &&
+        (gSaveContext.save.isNight != 0)) {
+        func_80BEAC84(this, play);
+    }
+
+    if (!(gSaveContext.save.saveInfo.weekEventReg[63] & 0x80) &&
+        ((gSaveContext.save.day != 3) || ((gSaveContext.save.day == 3) && (gSaveContext.save.isNight == 0)))) {
+        Audio_PlaySequenceAtPos(3, &gSfxDefaultPos, 49, 1000.0f);
+        Actor_PlaySfx(&this->actor, NA_SE_EV_CROWD - SFX_FLAG);
+    }
+
+    if (this->unk_24A != 0) {
+        this->unk_24A--;
+    }
+
+    if (this->unk_244 != 0) {
+        this->unk_244--;
+    }
+
+    if (this->unk_290 != 0) {
+        func_80BE9C74(this);
+    }
+
+    if ((this->unk_248 == 0) && (this->unk_24A == 0)) {
+        this->unk_24C++;
+        if (this->unk_24C >= 3) {
+            this->unk_24C = 0;
+            this->unk_24A = (s32)Rand_ZeroFloat(60.0f) + 20;
+        }
+    }
+    this->actionFunc(this, play);
+    this->actor.shape.rot.y = this->actor.world.rot.y;
+    Math_SmoothStepToS(&this->unk_284.y, this->unk_28A.y, 1, 3000, 0);
+    Actor_SetFocus(&this->actor, 60.0f);
+    Actor_MoveWithGravity(&this->actor);
+    Collider_UpdateCylinder(&this->actor, &this->collider);
+    CollisionCheck_SetOC(play, &play->colChkCtx, &this->collider);
+}
 
 s32 EnDt_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx) {
     EnDt* this = THIS;
