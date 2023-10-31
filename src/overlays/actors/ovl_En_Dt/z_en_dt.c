@@ -136,7 +136,19 @@ void func_80BE9CE8(EnDt* this, s32 arg1) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Dt/func_80BE9DF8.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Dt/func_80BE9E94.s")
+void func_80BE9E94(EnDt* this, PlayState* play) {
+    Actor* actor = play->actorCtx.actorLists[ACTORCAT_NPC].first;
+
+    while (actor != NULL) {
+        if (actor->id == ACTOR_EN_MUTO) {
+            this->unk_274 = (EnMuto*)actor;
+        } else if (actor->id == ACTOR_EN_BAISEN) {
+            this->unk_278 = (EnBaisen*)actor;
+        }
+        actor = actor->next;
+    }
+    func_80BE9EF8(this, play);
+}
 
 void func_80BE9EF8(EnDt* this, PlayState* play) {
     this->unk_256 = 0;
