@@ -27,6 +27,7 @@ void func_8086E948(EnOkuta* this, PlayState* play);
 void func_8086EAE0(EnOkuta* this, PlayState* play);
 void func_8086EC00(EnOkuta* this, PlayState* play);
 void func_8086EF14(EnOkuta* this, PlayState* play);
+void func_8086EF90(EnOkuta* this);
 void func_8086EFE8(EnOkuta* this, PlayState* play);
 void func_8086F434(EnOkuta* this, PlayState* play);
 void func_8086F4B0(EnOkuta* this, PlayState* play);
@@ -435,7 +436,17 @@ void func_8086EE8C(EnOkuta* this) {
     this->actionFunc = func_8086EF14;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086EF14.s")
+void func_8086EF14(EnOkuta* this, PlayState* play) {
+    if (SkelAnime_Update(&this->skelAnime) != 0) {
+        if (this->actor.colChkInfo.health == 0) {
+            func_8086EF90(this);
+        } else {
+            this->collider.base.acFlags |= 1;
+            func_8086E8E8(this);
+        }
+    }
+    Math_ApproachF(&this->actor.world.pos.y, this->actor.home.pos.y, 0.5f, 5.0f);
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086EF90.s")
 
