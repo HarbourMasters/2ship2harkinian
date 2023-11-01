@@ -158,7 +158,9 @@ void func_8086E214(Vec3f* pos, Vec3f* velocity, s16 scaleStep, PlayState* play) 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E214.s")
 #endif
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E27C.s")
+void func_8086E27C(EnOkuta* this, PlayState* play) {
+    EffectSsGSplash_Spawn(play, &this->actor.home.pos, NULL, NULL, 0, 1300);
+}
 
 void func_8086E2C0(EnOkuta* this, PlayState* play) {
     f32 temp_fv0;
