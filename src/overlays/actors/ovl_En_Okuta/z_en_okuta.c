@@ -138,7 +138,13 @@ void func_8086E0F0(EnOkuta* this, PlayState* arg1) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E168.s")
+void func_8086E168(EnOkuta* this, PlayState* play) {
+    s32 i;
+
+    for (i = 0; i < 10; i++) {
+        EffectSsBubble_Spawn(play, &this->actor.world.pos, -10.0f, 10.0f, 30.0f, 0.25f);
+    }
+}
 
 
 #if 0
