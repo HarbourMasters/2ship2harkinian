@@ -82,9 +82,9 @@ static ElevatorProps D_80B92960[] = {
     },
 };
 
-static s16 D_80B929D0[4] = { -0x5A, -0x5A, 0x5A, 0x5A };
+static s16 D_80B929D0[4] = { -90, -90, 90, 90 };
 
-static s16 D_80B929D8[4] = { -0x64, 0x5A, 0x5A, -0x64 };
+static s16 D_80B929D8[4] = { -100, 90, 90, -100 };
 
 static s8 D_80B929E0[3] = { 0, 2, 4 };
 
