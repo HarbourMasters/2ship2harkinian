@@ -526,7 +526,17 @@ void func_8086F2FC(EnOkuta* this, PlayState* play) {
     this->actionFunc = func_8086F4B0;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086F434.s")
+void func_8086F434(EnOkuta* this, PlayState* play) {
+
+    this->actor.colorFilterTimer = 0xA;
+    if (!this->actor.child || !this->actor.child->update) {
+        this->actor.flags |= 1;
+        if (Math_StepToF(&this->actor.world.pos.y, this->actor.home.pos.y, 10.0f) != 0) {
+            this->actor.flags &= ~0x10;
+            func_8086E8E8(this);
+        }
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086F4B0.s")
 
