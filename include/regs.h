@@ -136,7 +136,7 @@ extern RegEditor* gRegEditor;
 #define R_A_BTN_COLOR(i)                    XREG(22 + i)
 #define R_A_BTN_Y_OFFSET                    XREG(31)
 #define R_MAGIC_CONSUME_TIMER_GIANTS_MASK   XREG(41)
-#define R_THREE_DAY_CLOCK_Y_POS             XREG(43)
+#define R_THREE_DAY_CLOCK_Y_POS             XREG(43) // TODO: Test
 #define R_THREE_DAY_CLOCK_SUN_MOON_CUTOFF   XREG(44)
 #define R_THREE_DAY_CLOCK_HOUR_DIGIT_CUTOFF XREG(45)
 #define R_PAUSE_DBG_MAP_CLOUD_ON            XREG(50)

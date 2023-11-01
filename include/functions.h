@@ -817,7 +817,7 @@ void Player_UpdateBottleHeld(PlayState* play, Player* player, ItemId itemId, Pla
 void Player_Untarget(Player* player);
 void func_80123DC0(Player* player);
 void func_80123E90(PlayState* play, Actor* actor);
-s32 func_80123F2C(PlayState* play, s32 ammo);
+s32 Player_SetBButtonAmmo(PlayState* play, s32 ammo);
 s32 Player_IsBurningStickInRange(PlayState* play, Vec3f* pos, f32 xzRange, f32 yRange);
 u8 Player_GetStrength(void);
 s32 Player_GetMask(PlayState* play);

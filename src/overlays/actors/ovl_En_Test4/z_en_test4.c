@@ -21,16 +21,21 @@ void func_80A42AB8(EnTest4* this, PlayState* play);
 void func_80A42F20(EnTest4* this, PlayState* play);
 
 ActorInit En_Test4_InitVars = {
-    /**/ ACTOR_EN_TEST4,
-    /**/ ACTORCAT_SWITCH,
-    /**/ FLAGS,
-    /**/ GAMEPLAY_KEEP,
-    /**/ sizeof(EnTest4),
-    /**/ EnTest4_Init,
-    /**/ EnTest4_Destroy,
-    /**/ EnTest4_Update,
-    /**/ NULL,
+    ACTOR_EN_TEST4,
+    ACTORCAT_SWITCH,
+    FLAGS,
+    GAMEPLAY_KEEP,
+    sizeof(EnTest4),
+    (ActorFunc)EnTest4_Init,
+    (ActorFunc)EnTest4_Destroy,
+    (ActorFunc)EnTest4_Update,
+    (ActorFunc)NULL, // Interface_DrawClock
 };
+
+typedef enum {
+    /* 0 */ TIME_DAY,
+    /* 1 */ TIME_NIGHT,
+} NightFlag;
 
 static s32 sIsLoaded = false;
 // "Night of ..."
@@ -41,7 +46,7 @@ static s16 sDayMessages1[] = { 0x1BB2, 0x1BB2, 0x1BB3 };
 static s16 sNightMessages2[] = { 0x1BB4, 0x1BB5, 0x1BB6 };
 // "Dawn of ..." (Note: first two message are the same)
 static s16 sDayMessages2[] = { 0x1BB2, 0x1BB2, 0x1BB3 };
-static u16 D_80A43364[] = { CLOCK_TIME(6, 0), CLOCK_TIME(18, 0) };
+static u16 sDayNightTransitionTimes[] = { CLOCK_TIME(6, 0), CLOCK_TIME(18, 0) };
 
 static s16 sCsIdList[2];
 static s16 sCurCsId;
@@ -369,7 +374,7 @@ void func_80A42AB8(EnTest4* this, PlayState* play) {
     if ((play->transitionMode == TRANS_MODE_OFF) && !Play_InCsMode(play) && (play->numSetupActors <= 0) &&
         (play->roomCtx.status == 0) && !Play_IsDebugCamEnabled()) {
         s16 temp_a2;
-        u16 temp_a0 = D_80A43364[this->csIdIndex];
+        u16 temp_a0 = sDayNightTransitionTimes[this->csIdIndex];
         s16 temp_a3;
         s16 bellDiff;
         s16 new_var;

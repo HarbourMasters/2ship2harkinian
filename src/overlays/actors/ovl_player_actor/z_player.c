@@ -3797,7 +3797,7 @@ void Player_UpdateItems(Player* this, PlayState* play) {
     if ((this->actor.id == ACTOR_PLAYER) && !(this->stateFlags3 & PLAYER_STATE3_START_CHANGING_HELD_ITEM)) {
         if ((this->heldItemAction == this->itemAction) || (this->stateFlags1 & PLAYER_STATE1_400000)) {
             if ((gSaveContext.save.saveInfo.playerData.health != 0) && (play->csCtx.state == CS_STATE_IDLE)) {
-                if ((this->csAction == PLAYER_CSACTION_NONE) && (play->unk_1887C == 0) &&
+                if ((this->csAction == PLAYER_CSACTION_NONE) && (play->bButtonAmmoPlusOne == 0) &&
                     (play->activeCamId == CAM_ID_MAIN)) {
                     if (!func_8082DA90(play) && (gSaveContext.timerStates[TIMER_ID_MINIGAME_2] != TIMER_STATE_STOP)) {
                         Player_ProcessItemButtons(this, play);
@@ -3836,8 +3836,8 @@ s32 func_808305BC(PlayState* play, Player* this, ItemId* item, ArrowType* typePa
     if (gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE) {
         return play->interfaceCtx.minigameAmmo;
     }
-    if (play->unk_1887C != 0) {
-        return play->unk_1887C;
+    if (play->bButtonAmmoPlusOne != 0) {
+        return play->bButtonAmmoPlusOne;
     }
 
     return AMMO(*item);
@@ -3998,7 +3998,7 @@ s32 func_80830B88(PlayState* play, Player* this) {
         if (!(this->stateFlags1 & (PLAYER_STATE1_400000 | PLAYER_STATE1_800000 | PLAYER_STATE1_20000000))) {
             if (!(this->stateFlags1 & PLAYER_STATE1_8000000) || ((this->currentBoots >= PLAYER_BOOTS_ZORA_UNDERWATER) &&
                                                                  (this->actor.bgCheckFlags & BGCHECKFLAG_GROUND))) {
-                if ((play->unk_1887C == 0) && (this->heldItemAction == this->itemAction)) {
+                if ((play->bButtonAmmoPlusOne == 0) && (this->heldItemAction == this->itemAction)) {
                     if ((this->transformation == PLAYER_FORM_FIERCE_DEITY) ||
                         (!Player_IsGoronOrDeku(this) &&
                          ((((this->transformation == PLAYER_FORM_ZORA)) &&
@@ -4090,13 +4090,14 @@ s32 func_80830E30(Player* this, PlayState* play) {
 }
 
 s32 func_80830F9C(PlayState* play) {
-    return (play->unk_1887C > 0) && CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_B);
+    return (play->bButtonAmmoPlusOne > 0) && CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_B);
 }
 
 s32 func_80830FD4(PlayState* play) {
-    return (play->unk_1887C != 0) &&
-           ((play->unk_1887C < 0) || CHECK_BTN_ANY(sPlayerControlInput->cur.button,
-                                                   BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_CUP | BTN_B | BTN_A));
+    return (play->bButtonAmmoPlusOne != 0) &&
+           ((play->bButtonAmmoPlusOne < 0) ||
+            CHECK_BTN_ANY(sPlayerControlInput->cur.button,
+                          BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_CUP | BTN_B | BTN_A));
 }
 
 s32 func_80831010(Player* this, PlayState* play) {
@@ -4146,15 +4147,15 @@ s32 func_80831194(PlayState* play, Player* this) {
                         (play->sceneId != SCENE_SYATEKI_MORI)) {
                         play->interfaceCtx.minigameAmmo--;
                     }
-                } else if (play->unk_1887C != 0) {
-                    play->unk_1887C--;
+                } else if (play->bButtonAmmoPlusOne != 0) {
+                    play->bButtonAmmoPlusOne--;
                 } else {
                     Inventory_ChangeAmmo(item, -1);
                 }
             }
 
-            if (play->unk_1887C == 1) {
-                play->unk_1887C = -10;
+            if (play->bButtonAmmoPlusOne == 1) {
+                play->bButtonAmmoPlusOne = -10;
             }
 
             Player_RequestRumble(play, this, 150, 10, 150, SQ(0));
@@ -8007,7 +8008,7 @@ s32 Player_ActionChange_6(Player* this, PlayState* play) {
 
 s32 Player_ActionChange_11(Player* this, PlayState* play) {
     if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_R) && (this->unk_AA5 == PLAYER_UNKAA5_0) &&
-        (play->unk_1887C == 0)) {
+        (play->bButtonAmmoPlusOne == 0)) {
         if (Player_IsGoronOrDeku(this) ||
             ((((this->transformation == PLAYER_FORM_ZORA) && !(this->stateFlags1 & PLAYER_STATE1_2000000)) ||
               ((this->transformation == PLAYER_FORM_HUMAN) && (this->currentShield != PLAYER_SHIELD_NONE))) &&
@@ -10784,7 +10785,7 @@ void Player_Init(Actor* thisx, PlayState* play) {
         return;
     }
 
-    play->unk_1887C = 0;
+    play->bButtonAmmoPlusOne = 0;
     play->unk_1887D = 0;
     play->unk_1887E = 0;
     this->giObjectSegment = ZeldaArena_Malloc(0x2000);
@@ -10974,9 +10975,9 @@ void Player_SetDoAction(PlayState* play, Player* this) {
     }
 
     if (doActionB > -1) {
-        func_801155B4(play, doActionB);
-    } else if (play->interfaceCtx.unk_21C != 0) {
-        play->interfaceCtx.unk_21C = 0;
+        Interface_SetBButtonDoAction(play, doActionB);
+    } else if (play->interfaceCtx.bButtonDoActionActive) {
+        play->interfaceCtx.bButtonDoActionActive = false;
         play->interfaceCtx.bButtonDoAction = 0;
     }
 
@@ -11118,19 +11119,19 @@ void Player_SetDoAction(PlayState* play, Player* this) {
             this->putAwayCountdown--;
         }
 
-        func_8011552C(play, doActionA);
+        Interface_SetAButtonDoAction(play, doActionA);
 
         // Set Tatl state
         if (!Play_InCsMode(play) && (this->stateFlags2 & PLAYER_STATE2_200000) &&
             !(this->stateFlags3 & PLAYER_STATE3_100)) {
             if (this->lockOnActor != NULL) {
-                func_80115764(play, 0x2B);
+                Interface_SetTatlCall(play, TATL_STATE_2B);
             } else {
-                func_80115764(play, 0x2A);
+                Interface_SetTatlCall(play, TATL_STATE_2A);
             }
             CutsceneManager_Queue(CS_ID_GLOBAL_TALK);
         } else {
-            func_80115764(play, 0x2C);
+            Interface_SetTatlCall(play, TATL_STATE_2C);
         }
     }
 }
@@ -12806,7 +12807,7 @@ s32 func_80847190(PlayState* play, Player* this, s32 arg2) {
 
     this->unk_AA6 |= 2;
 
-    return func_80832754(this, (play->unk_1887C != 0) || func_800B7128(this) || func_8082EF20(this));
+    return func_80832754(this, (play->bButtonAmmoPlusOne != 0) || func_800B7128(this) || func_8082EF20(this));
 }
 
 void func_8084748C(Player* this, f32* speed, f32 speedTarget, s16 yawTarget) {
@@ -12886,10 +12887,10 @@ void func_808477D0(PlayState* play, Player* this, Input* input, f32 arg3) {
 }
 
 s32 func_80847880(PlayState* play, Player* this) {
-    if (play->unk_1887C != 0) {
+    if (play->bButtonAmmoPlusOne != 0) {
         if (play->sceneId == SCENE_20SICHITAI) {
             Player_SetAction(play, this, Player_Action_80, 0);
-            play->unk_1887C = 0;
+            play->bButtonAmmoPlusOne = 0;
             this->csAction = PLAYER_CSACTION_NONE;
             return true;
         }
@@ -13286,9 +13287,8 @@ s32 Player_UpperAction_1(Player* this, PlayState* play) {
 s32 Player_UpperAction_ChangeHeldItem(Player* this, PlayState* play) {
     if (PlayerAnimation_Update(play, &this->skelAnimeUpper) ||
         ((Player_ItemToItemAction(this, this->heldItemId) == this->heldItemAction) &&
-         (sPlayerUseHeldItem =
-              (sPlayerUseHeldItem || ((this->modelAnimType != PLAYER_ANIMTYPE_3) &&
-                                      (this->heldItemAction != PLAYER_IA_DEKU_STICK) && (play->unk_1887C == 0)))))) {
+         (sPlayerUseHeldItem = sPlayerUseHeldItem || ((this->modelAnimType != PLAYER_ANIMTYPE_3) &&
+                                      (this->heldItemAction != PLAYER_IA_DEKU_STICK) && (play->bButtonAmmoPlusOne == 0))))) {
         Player_SetUpperAction(play, this, sPlayerUpperActionUpdateFuncs[this->heldItemAction]);
         this->unk_ACC = 0;
         this->unk_AA4 = 0;
@@ -15258,11 +15258,11 @@ void Player_Action_35(Player* this, PlayState* play) {
                     func_801226E0(play, ((void)0, gSaveContext.respawn[RESPAWN_MODE_DOWN].data));
                 }
 
-                if (play->unk_1887C != 0) {
+                if (play->bButtonAmmoPlusOne != 0) {
                     play->func_18780(this, play);
                     Player_SetAction(play, this, Player_Action_80, 0);
-                    if (play->sceneId == SCENE_20SICHITAI) {
-                        play->unk_1887C = 0;
+                    if (play->sceneId == 0x45) {
+                        play->bButtonAmmoPlusOne = 0;
                     }
                 } else if (!Player_ActionChange_4(this, play)) {
                     func_8083B2E4(this, play);
@@ -17610,17 +17610,17 @@ void Player_Action_79(Player* this, PlayState* play) {
 }
 
 void Player_Action_80(Player* this, PlayState* play) {
-    if (play->unk_1887C < 0) {
-        play->unk_1887C = 0;
+    if (play->bButtonAmmoPlusOne < 0) {
+        play->bButtonAmmoPlusOne = 0;
         func_80839ED0(this, play);
     } else if (this->av1.actionVar1 == 0) {
         if ((play->sceneId != SCENE_20SICHITAI) && CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_B)) {
-            play->unk_1887C = 10;
+            play->bButtonAmmoPlusOne = 10;
             func_80847880(play, this);
             Player_SetAction(play, this, Player_Action_80, 1);
             this->av1.actionVar1 = 1;
         } else {
-            play->unk_1887C = 0;
+            play->bButtonAmmoPlusOne = 0;
             func_80847190(play, this, 0);
 
             if (play->actorCtx.flags & ACTORCTX_FLAG_PICTO_BOX_ON) {
@@ -17638,12 +17638,12 @@ void Player_Action_80(Player* this, PlayState* play) {
         }
     } else if (CHECK_BTN_ANY(sPlayerControlInput->press.button,
                              BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_CUP | BTN_R | BTN_A)) {
-        play->unk_1887C = -1;
+        play->bButtonAmmoPlusOne = -1;
         Player_Action_81(this, play);
         Player_SetAction(play, this, Player_Action_80, 0);
         this->av1.actionVar1 = 0;
     } else {
-        play->unk_1887C = 10;
+        play->bButtonAmmoPlusOne = 10;
         Player_Action_81(this, play);
     }
 }
@@ -17656,9 +17656,9 @@ void Player_Action_81(Player* this, PlayState* play) {
     this->upperLimbRot.y = func_80847190(play, this, 1) - this->actor.shape.rot.y;
     this->unk_AA6 |= 0x80;
 
-    if (play->unk_1887C < 0) {
-        play->unk_1887C++;
-        if (play->unk_1887C == 0) {
+    if (play->bButtonAmmoPlusOne < 0) {
+        play->bButtonAmmoPlusOne++;
+        if (play->bButtonAmmoPlusOne == 0) {
             func_80839ED0(this, play);
         }
     }

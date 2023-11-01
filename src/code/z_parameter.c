@@ -171,6 +171,7 @@ s16 D_801BF9BC[] = {
 s16 D_801BF9C4[] = { 0x9E, 0x9B };
 s16 D_801BF9C8[] = { 0x17, 0x16 };
 f32 D_801BF9CC[] = { -380.0f, -350.0f };
+
 s16 D_801BF9D4[] = {
     0xA7,  // EQUIP_SLOT_B
     0xE3,  // EQUIP_SLOT_C_LEFT
@@ -1317,7 +1318,7 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             if ((gSaveContext.buttonStatus[EQUIP_SLOT_B] == BTN_DISABLED) ||
-                (gSaveContext.bButtonStatus == ITEM_NONE)) {
+                (gSaveContext.bButtonStatus == BTN_DISABLED)) {
                 if (interfaceCtx->bAlpha != 70) {
                     interfaceCtx->bAlpha = 70;
                 }
@@ -2185,7 +2186,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
     if (gSaveContext.save.cutsceneIndex < 0xFFF0) {
         gSaveContext.hudVisibilityForceButtonAlphasByStatus = false;
         if ((player->stateFlags1 & PLAYER_STATE1_800000) || CHECK_WEEKEVENTREG(WEEKEVENTREG_08_01) ||
-            (!CHECK_EVENTINF(EVENTINF_41) && (play->unk_1887C >= 2))) {
+            (!(CHECK_EVENTINF(EVENTINF_41)) && (play->bButtonAmmoPlusOne >= 2))) {
             // Riding Epona OR Honey & Darling minigame OR Horseback balloon minigame OR related to swamp boat
             // (non-minigame?)
             if ((player->stateFlags1 & PLAYER_STATE1_800000) && (player->currentMask == PLAYER_MASK_BLAST) &&
@@ -2237,7 +2238,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                         } else {
                             BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOW;
 
-                            if (play->unk_1887C >= 2) {
+                            if (play->bButtonAmmoPlusOne >= 2) {
                                 Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
                             } else if (gSaveContext.save.saveInfo.inventory.items[SLOT_BOW] == ITEM_NONE) {
                                 BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_NONE;
@@ -2263,7 +2264,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                     } else if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_82_08) &&
                                (gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE)) {
                         Interface_SetHudVisibility(HUD_VISIBILITY_B);
-                    } else if (play->unk_1887C >= 2) {
+                    } else if (play->bButtonAmmoPlusOne >= 2) {
                         Interface_SetHudVisibility(HUD_VISIBILITY_B);
                     } else if (CHECK_WEEKEVENTREG(WEEKEVENTREG_08_01)) {
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
@@ -2294,7 +2295,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                     BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOW;
                 }
 
-                if (play->unk_1887C >= 2) {
+                if (play->bButtonAmmoPlusOne >= 2) {
                     Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
                 } else if (gSaveContext.save.saveInfo.inventory.items[SLOT_BOW] == ITEM_NONE) {
                     BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_NONE;
@@ -2320,7 +2321,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                     Interface_SetHudVisibility(HUD_VISIBILITY_A_B_MINIMAP);
                 } else if (gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE) {
                     Interface_SetHudVisibility(HUD_VISIBILITY_B);
-                } else if (play->unk_1887C >= 2) {
+                } else if (play->bButtonAmmoPlusOne >= 2) {
                     Interface_SetHudVisibility(HUD_VISIBILITY_B);
                 } else if (CHECK_WEEKEVENTREG(WEEKEVENTREG_08_01)) {
                     gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
@@ -2364,7 +2365,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                 Message_CloseTextbox(play);
                 if (play->msgCtx.choiceIndex != 0) {
                     Audio_PlaySfx_MessageCancel();
-                    func_80115844(play, DO_ACTION_STOP);
+                    Interface_LoadBButtonDoActionLabel(play, DO_ACTION_STOP);
                     Interface_SetHudVisibility(HUD_VISIBILITY_A_B);
                     sPictoState = PICTO_BOX_STATE_LENS;
                     REMOVE_QUEST_ITEM(QUEST_PICTOGRAPH);
@@ -2403,7 +2404,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
         } else if (play->actorCtx.flags & ACTORCTX_FLAG_PICTO_BOX_ON) {
             // Related to pictograph
             if (!CHECK_QUEST_ITEM(QUEST_PICTOGRAPH)) {
-                func_80115844(play, DO_ACTION_STOP);
+                Interface_LoadBButtonDoActionLabel(play, DO_ACTION_STOP);
                 Interface_SetHudVisibility(HUD_VISIBILITY_A_B);
                 sPictoState = PICTO_BOX_STATE_LENS;
             } else {
@@ -2469,9 +2470,16 @@ void Interface_InitMinigame(PlayState* play) {
     interfaceCtx->minigameAmmo = 20;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_LoadItemIconImpl.s")
+void Interface_LoadItemIconImpl(PlayState* play, u8 btn) {
+    InterfaceContext* interfaceCtx = &play->interfaceCtx;
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/Interface_LoadItemIcon.s")
+    CmpDma_LoadFile(SEGMENT_ROM_START(icon_item_static_yar), GET_CUR_FORM_BTN_ITEM(btn),
+                    &interfaceCtx->iconItemSegment[(u32)btn * 0x1000], 0x1000);
+}
+
+void Interface_LoadItemIcon(PlayState* play, u8 btn) {
+    Interface_LoadItemIconImpl(play, btn);
+}
 
 /**
  * @param play PlayState
@@ -3145,7 +3153,7 @@ void Inventory_UpdateDeitySwordEquip(PlayState* play) {
     u8 btn;
 
     if (CUR_FORM == PLAYER_FORM_FIERCE_DEITY) {
-        interfaceCtx->unk_21C = 0;
+        interfaceCtx->bButtonDoActionActive = false;
         interfaceCtx->bButtonDoAction = 0;
 
         // Is simply checking if (GET_PLAYER_FORM == PLAYER_FORM_FIERCE_DEITY)
@@ -3244,23 +3252,113 @@ void Inventory_UpdateItem(PlayState* play, s16 slot, s16 item) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_801153C8.s")
+void Interface_MemSetZeroed(u32* buf, s32 count) {
+    s32 i;
 
-TexturePtr sDoActionTextures[] = {
-    gDoActionAttackENGTex,
-    gDoActionCheckENGTex,
-};
+    for (i = 0; i != count; i++) {
+        buf[i] = 0;
+    }
+}
 
-void func_80115428(InterfaceContext* interfaceCtx, u16 doAction, s16 loadOffset);
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80115428.s")
+void Interface_LoadAButtonDoActionLabel(InterfaceContext* interfaceCtx, u16 action, s16 loadOffset) {
+    static TexturePtr sDoActionTextures[] = {
+        gDoActionAttackENGTex,
+        gDoActionCheckENGTex,
+    };
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_8011552C.s")
+    if (action >= DO_ACTION_MAX) {
+        action = DO_ACTION_NONE;
+    }
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_801155B4.s")
+    if (action != DO_ACTION_NONE) {
+        osCreateMesgQueue(&interfaceCtx->loadQueue, &interfaceCtx->loadMsg, 1);
+        DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest,
+                               (u32)interfaceCtx->doActionSegment + (loadOffset * DO_ACTION_TEX_SIZE),
+                               (u32)SEGMENT_ROM_START(do_action_static) + (action * DO_ACTION_TEX_SIZE),
+                               DO_ACTION_TEX_SIZE, 0, &interfaceCtx->loadQueue, 0);
+        osRecvMesg(&interfaceCtx->loadQueue, NULL, OS_MESG_BLOCK);
+    } else {
+        gSegments[0x09] = PHYSICAL_TO_VIRTUAL(interfaceCtx->doActionSegment);
+        Interface_MemSetZeroed(Lib_SegmentedToVirtual(sDoActionTextures[loadOffset]), 0x60);
+    }
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80115764.s")
+void Interface_SetAButtonDoAction(PlayState* play, u16 aButtonDoAction) {
+    InterfaceContext* interfaceCtx = &play->interfaceCtx;
+    PauseContext* pauseCtx = &play->pauseCtx;
 
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_parameter/func_80115844.s")
+    if (interfaceCtx->aButtonDoAction != aButtonDoAction) {
+        interfaceCtx->aButtonDoAction = aButtonDoAction;
+        interfaceCtx->aButtonState = A_BTN_STATE_1;
+        interfaceCtx->aButtonRoll = 0.0f;
+        Interface_LoadAButtonDoActionLabel(interfaceCtx, aButtonDoAction, 1);
+        if (pauseCtx->state != PAUSE_STATE_OFF) {
+            interfaceCtx->aButtonState = A_BTN_STATE_3;
+        }
+    }
+}
+
+void Interface_SetBButtonDoAction(PlayState* play, s16 bButtonDoAction) {
+    InterfaceContext* interfaceCtx = &play->interfaceCtx;
+
+    if (((BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) >= ITEM_SWORD_KOKIRI) &&
+         (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) <= ITEM_SWORD_GILDED)) ||
+        (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_NONE) ||
+        (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_DEKU_NUT)) {
+        if ((CUR_FORM == PLAYER_FORM_DEKU) && !gSaveContext.save.saveInfo.playerData.isMagicAcquired) {
+            interfaceCtx->bButtonDoAction = 0xFD;
+        } else {
+            interfaceCtx->bButtonDoAction = bButtonDoAction;
+            if (interfaceCtx->bButtonDoAction != DO_ACTION_NONE) {
+                osCreateMesgQueue(&interfaceCtx->loadQueue, &interfaceCtx->loadMsg, 1);
+                DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest, interfaceCtx->doActionSegment + 0x600,
+                                       (bButtonDoAction * 0x180) + SEGMENT_ROM_START(do_action_static), 0x180, 0,
+                                       &interfaceCtx->loadQueue, NULL);
+                osRecvMesg(&interfaceCtx->loadQueue, NULL, OS_MESG_BLOCK);
+            }
+
+            interfaceCtx->bButtonDoActionActive = true;
+        }
+    } else {
+        interfaceCtx->bButtonDoActionActive = false;
+        interfaceCtx->bButtonDoAction = 0;
+    }
+}
+
+void Interface_SetTatlCall(PlayState* play, u16 tatlCallState) {
+    InterfaceContext* interfaceCtx = &play->interfaceCtx;
+
+    if (((tatlCallState == TATL_STATE_2A) || (tatlCallState == TATL_STATE_2B)) && !interfaceCtx->tatlCalling &&
+        (play->csCtx.state == CS_STATE_IDLE)) {
+        if (tatlCallState == TATL_STATE_2B) {
+            Audio_PlaySfx(NA_SE_VO_NAVY_CALL);
+        }
+        if (tatlCallState == TATL_STATE_2A) {
+            Audio_PlaySfx_AtPosWithReverb(&gSfxDefaultPos, NA_SE_VO_NA_HELLO_2, 0x20);
+        }
+        interfaceCtx->tatlCalling = true;
+        sCUpInvisible = 0;
+        sCUpTimer = 10;
+    } else if (tatlCallState == TATL_STATE_2C) {
+        if (interfaceCtx->tatlCalling) {
+            interfaceCtx->tatlCalling = false;
+        }
+    }
+}
+
+void Interface_LoadBButtonDoActionLabel(PlayState* play, s16 bButtonDoAction) {
+    InterfaceContext* interfaceCtx = &play->interfaceCtx;
+
+    interfaceCtx->unk_224 = bButtonDoAction;
+
+    osCreateMesgQueue(&play->interfaceCtx.loadQueue, &play->interfaceCtx.loadMsg, 1);
+    DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest, interfaceCtx->doActionSegment + 0x480,
+                           (bButtonDoAction * 0x180) + SEGMENT_ROM_START(do_action_static), 0x180, 0,
+                           &interfaceCtx->loadQueue, NULL);
+    osRecvMesg(&interfaceCtx->loadQueue, NULL, OS_MESG_BLOCK);
+
+    interfaceCtx->unk_222 = 1;
+}
 
 /**
  * @return false if player is out of health
@@ -3701,8 +3799,8 @@ void Magic_Update(PlayState* play) {
             gSaveContext.magicState = MAGIC_STATE_CONSUME_GORON_ZORA;
             // fallthrough
         case MAGIC_STATE_CONSUME_GORON_ZORA:
-            if ((play->pauseCtx.state == PAUSE_STATE_OFF) && (play->pauseCtx.debugEditor == 0) &&
-                (msgCtx->msgMode == MSGMODE_NONE) && (play->gameOverCtx.state == GAMEOVER_INACTIVE) &&
+            if ((play->pauseCtx.state == PAUSE_STATE_OFF) && (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE) &&
+                (msgCtx->msgMode == 0) && (play->gameOverCtx.state == GAMEOVER_INACTIVE) &&
                 (play->transitionTrigger == TRANS_TRIGGER_OFF) && (play->transitionMode == TRANS_MODE_OFF)) {
                 if (!Play_InCsMode(play)) {
                     interfaceCtx->magicConsumptionTimer--;
@@ -4033,8 +4131,8 @@ void Interface_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
 
         if ((button == EQUIP_SLOT_B) && (gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE)) {
             ammo = play->interfaceCtx.minigameAmmo;
-        } else if ((button == EQUIP_SLOT_B) && (play->unk_1887C > 1)) {
-            ammo = play->unk_1887C - 1;
+        } else if ((button == EQUIP_SLOT_B) && (play->bButtonAmmoPlusOne > 1)) {
+            ammo = play->bButtonAmmoPlusOne - 1;
         } else if (((i == ITEM_BOW) && (AMMO(i) == CUR_CAPACITY(UPG_QUIVER))) ||
                    ((i == ITEM_BOMB) && (AMMO(i) == CUR_CAPACITY(UPG_BOMB_BAG))) ||
                    ((i == ITEM_DEKU_STICK) && (AMMO(i) == CUR_CAPACITY(UPG_DEKU_STICKS))) ||
@@ -4086,8 +4184,8 @@ void Interface_DrawBButtonIcons(PlayState* play) {
 
             Interface_DrawAmmoCount(play, EQUIP_SLOT_B, interfaceCtx->bAlpha);
         }
-    } else if ((!interfaceCtx->unk_21C && (interfaceCtx->unk_222 == 0)) ||
-               ((interfaceCtx->unk_21C &&
+    } else if ((!interfaceCtx->bButtonDoActionActive && (interfaceCtx->unk_222 == 0)) ||
+               ((interfaceCtx->bButtonDoActionActive &&
                  ((BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) < ITEM_SWORD_KOKIRI) ||
                   (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) > ITEM_SWORD_GILDED)) &&
                  BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NONE) &&
@@ -4096,7 +4194,7 @@ void Interface_DrawBButtonIcons(PlayState* play) {
             if (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) != ITEM_NONE) {
                 Interface_DrawItemIconTexture(play, interfaceCtx->iconItemSegment, EQUIP_SLOT_B);
                 if ((player->stateFlags1 & PLAYER_STATE1_800000) || CHECK_WEEKEVENTREG(WEEKEVENTREG_08_01) ||
-                    (play->unk_1887C >= 2)) {
+                    (play->bButtonAmmoPlusOne >= 2)) {
                     gDPPipeSync(OVERLAY_DISP++);
                     gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE,
                                       0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
@@ -4105,8 +4203,8 @@ void Interface_DrawBButtonIcons(PlayState* play) {
                         (play->sceneId != SCENE_BOWLING) &&
                         ((gSaveContext.minigameStatus != MINIGAME_STATUS_ACTIVE) ||
                          (gSaveContext.save.entrance != ENTRANCE(ROMANI_RANCH, 0))) &&
-                        ((gSaveContext.minigameStatus != MINIGAME_STATUS_ACTIVE) || !CHECK_EVENTINF(EVENTINF_35)) &&
-                        (!CHECK_WEEKEVENTREG(WEEKEVENTREG_31_80) || (play->unk_1887C != 100))) {
+                        ((gSaveContext.minigameStatus != MINIGAME_STATUS_ACTIVE) || !(CHECK_EVENTINF(EVENTINF_35))) &&
+                        (!CHECK_WEEKEVENTREG(WEEKEVENTREG_31_80) || (play->bButtonAmmoPlusOne != 100))) {
                         Interface_DrawAmmoCount(play, EQUIP_SLOT_B, interfaceCtx->bAlpha);
                     }
                 }
@@ -4263,9 +4361,9 @@ void Interface_DrawAButton(PlayState* play) {
     CLOSE_DISPS(play->state.gfxCtx);
 }
 
-static s16 sMagicArrowEffectsR[] = { 255, 100, 255 };
-static s16 sMagicArrowEffectsG[] = { 0, 100, 255 };
-static s16 sMagicArrowEffectsB[] = { 0, 255, 100 };
+static s16 sMagicArrowEffectsR[] = { 255, 100, 255 }; // magicArrowEffectsR
+static s16 sMagicArrowEffectsG[] = { 0, 100, 255 };   // magicArrowEffectsG
+static s16 sMagicArrowEffectsB[] = { 0, 255, 100 };   // magicArrowEffectsB
 
 void Interface_DrawPauseMenuEquippingIcons(PlayState* play) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
@@ -5571,9 +5669,9 @@ void Interface_DrawTimers(PlayState* play) {
                         if (interfaceCtx->magicAlpha != 255) {
                             gSaveContext.timerY[sTimerId] = 22;
                         } else if (gSaveContext.save.saveInfo.playerData.healthCapacity > 0xA0) {
-                            gSaveContext.timerY[sTimerId] = 54;
+                            gSaveContext.timerY[sTimerId] = 54; // two rows of hearts
                         } else {
-                            gSaveContext.timerY[sTimerId] = 46;
+                            gSaveContext.timerY[sTimerId] = 46; // one row of hearts
                         }
 
                         if ((interfaceCtx->minigameState == MINIGAME_STATE_COUNTDOWN_GO) ||
@@ -5629,9 +5727,9 @@ void Interface_DrawTimers(PlayState* play) {
                         } else {
                             gSaveContext.timerX[sTimerId] = 26;
                             if (gSaveContext.save.saveInfo.playerData.healthCapacity > 0xA0) {
-                                gSaveContext.timerY[sTimerId] = 54;
+                                gSaveContext.timerY[sTimerId] = 54; // two rows of hearts
                             } else {
-                                gSaveContext.timerY[sTimerId] = 46;
+                                gSaveContext.timerY[sTimerId] = 46; // one row of hearts
                             }
                         }
 
@@ -6025,7 +6123,7 @@ void Interface_DrawMinigameIcons(PlayState* play) {
 
     if ((play->pauseCtx.state == PAUSE_STATE_OFF) && (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE)) {
         // Carrots rendering if the action corresponds to riding a horse
-        if (interfaceCtx->unk_212 == DO_ACTION_FASTER) {
+        if (interfaceCtx->aButtonHorseDoAction == DO_ACTION_FASTER) {
             // Load Carrot Icon
             gDPLoadTextureBlock(OVERLAY_DISP++, gCarrotIconTex, G_IM_FMT_RGBA, G_IM_SIZ_32b, 16, 16, 0,
                                 G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
@@ -6229,7 +6327,7 @@ void Interface_Draw(PlayState* play) {
                         sRupeeCounterIconPrimColors[CUR_UPG_VALUE(UPG_WALLET)].b, interfaceCtx->magicAlpha);
         gDPSetEnvColor(OVERLAY_DISP++, sRupeeCounterIconEnvColors[CUR_UPG_VALUE(UPG_WALLET)].r,
                        sRupeeCounterIconEnvColors[CUR_UPG_VALUE(UPG_WALLET)].g,
-                       sRupeeCounterIconEnvColors[CUR_UPG_VALUE(UPG_WALLET)].b, 255);
+                       sRupeeCounterIconEnvColors[CUR_UPG_VALUE(4)].b, 255);
         OVERLAY_DISP =
             Gfx_DrawTexRectIA8(OVERLAY_DISP, gRupeeCounterIconTex, 16, 16, 26, 206, 16, 16, 1 << 10, 1 << 10);
 
@@ -6815,7 +6913,7 @@ void Interface_Update(PlayState* play) {
 
     // Update minigame State
     if ((play->pauseCtx.state == PAUSE_STATE_OFF) && (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE)) {
-        if ((u32)interfaceCtx->minigameState != MINIGAME_STATE_NONE) {
+        if (interfaceCtx->minigameState) { // != MINIGAME_STATE_NONE
             switch (interfaceCtx->minigameState) {
                 case MINIGAME_STATE_COUNTDOWN_SETUP_3:
                 case MINIGAME_STATE_COUNTDOWN_SETUP_2:
@@ -6885,12 +6983,12 @@ void Interface_Update(PlayState* play) {
             if (interfaceCtx->aButtonRoll >= 0.0f) {
                 interfaceCtx->aButtonRoll = 0.0f;
                 interfaceCtx->aButtonState = A_BTN_STATE_0;
-                interfaceCtx->unk_212 = interfaceCtx->aButtonDoAction;
-                aButtonDoAction = interfaceCtx->unk_212;
+                interfaceCtx->aButtonHorseDoAction = interfaceCtx->aButtonDoAction;
+                aButtonDoAction = interfaceCtx->aButtonHorseDoAction;
                 if ((aButtonDoAction == DO_ACTION_MAX) || (aButtonDoAction == DO_ACTION_MAX + 1)) {
                     aButtonDoAction = DO_ACTION_NONE;
                 }
-                func_80115428(&play->interfaceCtx, aButtonDoAction, 0);
+                Interface_LoadAButtonDoActionLabel(&play->interfaceCtx, aButtonDoAction, 0);
             }
             break;
 
@@ -6907,13 +7005,13 @@ void Interface_Update(PlayState* play) {
             if (interfaceCtx->aButtonRoll >= 0.0f) {
                 interfaceCtx->aButtonRoll = 0.0f;
                 interfaceCtx->aButtonState = A_BTN_STATE_0;
-                interfaceCtx->unk_212 = interfaceCtx->aButtonDoAction;
-                aButtonDoAction = interfaceCtx->unk_212;
+                interfaceCtx->aButtonHorseDoAction = interfaceCtx->aButtonDoAction;
+                aButtonDoAction = interfaceCtx->aButtonHorseDoAction;
                 if ((aButtonDoAction == DO_ACTION_MAX) || (aButtonDoAction == DO_ACTION_MAX + 1)) {
                     aButtonDoAction = DO_ACTION_NONE;
                 }
 
-                func_80115428(&play->interfaceCtx, aButtonDoAction, 0);
+                Interface_LoadAButtonDoActionLabel(&play->interfaceCtx, aButtonDoAction, 0);
             }
             break;
 

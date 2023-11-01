@@ -478,8 +478,8 @@ s32 Inventory_GetBtnBItem(PlayState* play) {
     } else if (gSaveContext.bButtonStatus == BTN_DISABLED) {
         return ITEM_NONE;
     } else if (CUR_FORM_EQUIP(EQUIP_SLOT_B) == ITEM_NONE) {
-        if (play->interfaceCtx.unk_21C != 0) {
-            if (play->interfaceCtx.bButtonDoAction != 0) {
+        if (play->interfaceCtx.bButtonDoActionActive) {
+            if (play->interfaceCtx.bButtonDoAction != DO_ACTION_ATTACK) {
                 return play->interfaceCtx.bButtonDoAction;
             }
         }

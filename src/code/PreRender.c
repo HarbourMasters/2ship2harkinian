@@ -104,8 +104,8 @@ void func_8016FF90(PreRender* this, Gfx** gfxp, void* buf, void* bufSave, s32 en
 
     gDPSetScissor(gfx++, G_SC_NON_INTERLACE, 0, 0, this->width, this->height);
 
-    Prerender_DrawBackground2D(&gfx, buf, 0, this->width, this->height, G_IM_FMT_RGBA, G_IM_SIZ_16b, G_TT_NONE, 0, 0.0f,
-                               0.0f, 1.0f, 1.0f, BG2D_FLAGS_1 | BG2D_FLAGS_2 | BG2D_FLAGS_LOAD_S2DEX2);
+    Prerender_DrawBackground2D(&gfx, buf, NULL, this->width, this->height, G_IM_FMT_RGBA, G_IM_SIZ_16b, G_TT_NONE, 0,
+                               0.0f, 0.0f, 1.0f, 1.0f, 0xB);
     gDPPipeSync(gfx++);
     gDPSetColorImage(gfx++, G_IM_FMT_RGBA, G_IM_SIZ_16b, this->width, this->fbuf);
 

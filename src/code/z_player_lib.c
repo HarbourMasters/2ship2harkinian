@@ -1362,8 +1362,8 @@ s32 func_80123F14(PlayState* play) {
     return player->stateFlags1 & PLAYER_STATE1_800000;
 }
 
-s32 func_80123F2C(PlayState* play, s32 ammo) {
-    play->unk_1887C = ammo + 1;
+s32 Player_SetBButtonAmmo(PlayState* play, s32 ammo) {
+    play->bButtonAmmoPlusOne = ammo + 1;
 
     return 1;
 }

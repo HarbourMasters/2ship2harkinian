@@ -721,10 +721,10 @@ void func_80C02704(EnBomjimb* this, PlayState* play) {
     }
 }
 
+u16 D_80C03230[] = {
+    0x0721, 0x0722, 0x0723, 0x0724, 0x072C,
+};
 void func_80C02740(EnBomjimb* this, PlayState* play) {
-    static u16 D_80C03230[] = {
-        0x0721, 0x0722, 0x0723, 0x0724, 0x072C,
-    };
     Player* player = GET_PLAYER(play);
 
     func_80C012E0(this);
