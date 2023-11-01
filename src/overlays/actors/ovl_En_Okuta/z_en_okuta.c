@@ -336,7 +336,27 @@ void func_8086E7A8(EnOkuta* this) {
     this->actionFunc = func_8086E7E8;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E7E8.s")
+void func_8086E7E8(EnOkuta* this, PlayState* play) {
+    f32 temp_fv0;
+
+    Math_ApproachF(&this->actor.world.pos.y, this->actor.home.pos.y, 0.5f, 30.0f);
+    if (SkelAnime_Update(&this->skelAnime) != 0) {
+        Actor_PlaySfx(&this->actor, 0x38C5);
+        func_8086E168(this, play);
+        func_8086E4FC(this);
+    } else {
+        temp_fv0 = this->skelAnime.curFrame;
+        if (temp_fv0 >= 4.0f) {
+            Actor_SetScale(&this->actor, (6.0f - temp_fv0) * 0.5f * 0.01f);
+        }
+    }
+    if (Animation_OnFrame(&this->skelAnime, 2.0f) != 0) {
+        Actor_PlaySfx(&this->actor, 0x38C4);
+    }
+    if (Animation_OnFrame(&this->skelAnime, 4.0f) != 0) {
+        func_8086E27C(this, play);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E8E8.s")
 
