@@ -504,7 +504,27 @@ void func_8086EFE8(EnOkuta* this, PlayState* play) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086F2FC.s")
+void func_8086F2FC(EnOkuta* this, PlayState* play) {
+
+    this->unk18E = 0xA;
+    Actor_SetColorFilter(&this->actor, 0x8000, 0x80FF, 0, 0xA);
+    this->actor.child = Actor_SpawnAsChild(&play->actorCtx, &this->actor, play, 0x143, this->actor.world.pos.x, this->actor.world.pos.y + (this->skelAnime.jointTable->y * this->actor.scale.y) + (25.0f * this->unk268), this->actor.world.pos.z, 0, this->actor.home.rot.y, 0, 3);
+    
+    if (this->actor.child != NULL) {
+        this->actor.flags &= ~1;
+        this->actor.flags |= 0x10;
+        this->actor.child->csId = this->actor.csId;
+        this->actionFunc = func_8086F434;
+        return;
+    }
+    func_8086E084(this);
+    if (!Actor_ApplyDamage(&this->actor)) {
+        Enemy_StartFinishingBlow(play, &this->actor);
+        this->collider.base.acFlags &= 0xFFFE;
+        this->unk18E = 3;
+    }
+    this->actionFunc = func_8086F4B0;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086F434.s")
 
