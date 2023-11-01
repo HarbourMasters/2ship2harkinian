@@ -24,6 +24,7 @@ void func_8086E7A8(EnOkuta* this);
 void func_8086E7E8(EnOkuta* this, PlayState* play);
 void func_8086E8E8(EnOkuta* this);
 void func_8086E948(EnOkuta* this, PlayState* play);
+void func_8086EAE0(EnOkuta* this, PlayState* play);
 void func_8086EC00(EnOkuta* this, PlayState* play);
 void func_8086EF14(EnOkuta* this, PlayState* play);
 void func_8086EFE8(EnOkuta* this, PlayState* play);
@@ -368,7 +369,38 @@ void func_8086E8E8(EnOkuta* this) {
     this->actionFunc = func_8086E948;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E948.s")
+void func_8086E948(EnOkuta* this, PlayState* play) {
+    s16 temp_v0;
+
+    if (this->actor.params == 0) {
+        this->actor.world.pos.y = this->actor.home.pos.y;
+    } else {
+        this->actor.world.pos.y = func_8086E378(this);
+    }
+    
+    SkelAnime_Update(&this->skelAnime);
+    
+    if (Animation_OnFrame(&this->skelAnime, 0.0f) != 0) {
+        if (this->unk18E != 0) {
+            this->unk18E--;
+        }
+    }
+    
+    if (Animation_OnFrame(&this->skelAnime, 0.5f) != 0) {
+        Actor_PlaySfx(&this->actor, 0x38C1);
+    }
+
+    if ((this->actor.xzDistToPlayer > 560.0f) || ((this->actor.xzDistToPlayer < 160.0f) && (this->actor.params == 0))) {
+        func_8086E7A8(this);
+        return;
+    }
+    
+    temp_v0 = Math_SmoothStepToS(&this->actor.shape.rot.y, this->actor.yawTowardsPlayer, 3, 0xE38, 0x38E);
+ 
+    if ((ABS_ALT(temp_v0) < 0x38E) && ((this->actor.params == 0 && (this->unk18E == 0) && (this->actor.playerHeightRel < 120.0f)) || ((this->actor.params == 1) && ((this->unk18E == 0) || (this->actor.xzDistToPlayer < 150.0f))))) {
+        func_8086EAE0(this, play);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086EAE0.s")
 
