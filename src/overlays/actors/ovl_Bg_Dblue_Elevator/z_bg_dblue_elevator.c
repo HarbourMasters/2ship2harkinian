@@ -235,4 +235,7 @@ void func_80B92660(BgDblueElevator* this, PlayState* play) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_Bg_Dblue_Elevator/BgDblueElevator_Update.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_Bg_Dblue_Elevator/BgDblueElevator_Draw.s")
+void BgDblueElevator_Draw(Actor* thisx, PlayState* play) {
+    BgDblueElevator* this = THIS;
+    Gfx_DrawDListOpa(play, &gGreatBayTempleObjectElevatorDL);
+}
