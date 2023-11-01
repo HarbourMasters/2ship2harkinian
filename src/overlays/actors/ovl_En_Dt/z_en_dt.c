@@ -154,44 +154,34 @@ void func_80BE9D9C(EnDt* this) {
     this->unk_248 = D_80BEB2E8[temp_v0];
 }
 
-// https://decomp.me/scratch/h4rII
-#ifdef NON_MATCHING
 void func_80BE9DF8(EnDt* this) {
-    EnBaisen* temp_v1;
     EnMuto* temp_v0;
-
-    temp_v0 = this->unk_274;
-
-    if (temp_v0 != NULL) {
-
+    EnBaisen* temp_v1;
+        
+    if (this->unk_274 != NULL && this->unk_278 != NULL) {
+        temp_v0 = this->unk_274;
         temp_v1 = this->unk_278;
+        switch (D_80BEB208[this->unk_256]) {
+            case 0:
+                temp_v0->targetActor = &this->unk_274->actor;
+                temp_v1->unk2A4 = &this->unk_274->actor;
+                this->targetActor = &this->unk_274->actor;
+                break;
 
-        if (temp_v1 != NULL) {
-            switch (D_80BEB208[this->unk_256]) {
-                case 0:
-                    temp_v0->targetActor = &temp_v0->actor;
-                    temp_v1->unk2A4 = &this->unk_274->actor;
-                    this->targetActor = &this->unk_274->actor;
-                    break;
+            case 1:
+                temp_v0->targetActor = &this->unk_278->actor;
+                temp_v1->unk2A4 = &this->unk_278->actor;
+                this->targetActor = &this->unk_278->actor;
+                break;
 
-                case 1:
-                    temp_v0->targetActor = &temp_v1->actor;
-                    temp_v1->unk2A4 = &this->unk_278->actor;
-                    this->targetActor = &this->unk_278->actor;
-                    break;
-
-                case 2:
-                    temp_v0->targetActor = &this->actor;
-                    temp_v1->unk2A4 = &this->actor;
-                    this->targetActor = &this->actor;
-                    break;
-            }
+            case 2:
+                temp_v0->targetActor = &this->actor;
+                temp_v1->unk2A4 = &this->actor;
+                this->targetActor = &this->actor;
+                break;
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Dt/func_80BE9DF8.s")
-#endif
 
 void func_80BE9E94(EnDt* this, PlayState* play) {
     Actor* actor = play->actorCtx.actorLists[ACTORCAT_NPC].first;
