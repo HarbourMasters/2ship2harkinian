@@ -68,7 +68,15 @@ static ColliderCylinderInit D_80BEB29C = {
     { 25, 70, 0, { 0, 0, 0 } },
 };
 
+u16 D_80BEB1D0[] = { 0x2ABD, 0x2ABE, 0x2ABF, 0x2AC0, 0x2ABE, 0x2AC1, 0x2AC2, 0x2AC3, 0x2AC4, 0x2ABB,
+                     0x2ABC, 0x2AC6, 0x2AC7, 0x2AC8, 0x2AC9, 0x2ACA, 0x2ACB, 0x2ACC, 0x2ACD, 0x2ACE,
+                     0x2ACF, 0x2AD0, 0x2AD1, 0x2AC5, 0x2AD3, 0x2AD4, 0x2AD2, 0x0000 }
+
+s32 D_80BEB208[] = { 1, 2, 0, 0, 2, 1, 2, 0, 2, 1, 0, 1, 2, 0, 2, 0, 1, 2, 1, 2, 0, 2, 2, 2 };
+
 #endif
+
+
 
 void EnDt_Init(Actor* thisx, PlayState* play) {
     EnDt* this = THIS;
