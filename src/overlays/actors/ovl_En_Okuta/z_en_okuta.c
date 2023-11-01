@@ -119,7 +119,15 @@ extern UNK_TYPE D_0600466C;
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/EnOkuta_Destroy.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E084.s")
+void func_8086E084(EnOkuta* this) {
+    this->unk18C = 0xA;
+    this->unk258 = 0.6f;
+    this->unk25C = 0.90000004f;
+    this->unk18E = 0x50;
+    this->collider.base.colType = 3;
+    this->unk254 = 1.0f;
+    Actor_SetColorFilter(&this->actor, COLORFILTER_COLORFLAG_RED, 255, COLORFILTER_BUFFLAG_OPA, 80);
+}
 
 void func_8086E0F0(EnOkuta* this, PlayState* arg1) {
     if (this->unk18C == 10) {

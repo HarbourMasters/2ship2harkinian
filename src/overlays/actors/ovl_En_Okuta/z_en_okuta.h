@@ -19,9 +19,11 @@ typedef struct EnOkuta {
     /* 0x1F2 */ Vec3s morphTable[16];
     /* 0x252 */ char pad252[2];
     /* 0x254 */ f32 unk254;
-    /* 0x258 */ char pad258[0x18];
+    /* 0x258 */ f32 unk258;
+    /* 0x25C */ f32 unk25C;
+    /* 0x260 */ char pad260[0x10];
     /* 0x270 */ Vec3f bodyPartsPos[0xA];
     /* 0x2E8 */ ColliderCylinder collider;
-} EnOkuta;  
+} EnOkuta;
 
 #endif // Z_EN_OKUTA_H
