@@ -37,18 +37,6 @@ void func_80BEADB8(EnDt* this);
 void func_80BEADD4(EnDt* this, PlayState* play);
 s32 EnDt_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx);
 
-extern ColliderCylinderInit D_80BEB29C;
-extern u16 D_80BEB1D0[];
-extern s32 D_80BEB208[];
-extern s16 D_80BEB268[];
-extern s16 D_80BEB26A[];
-extern s32 D_80BEB2C8[];
-extern u8 D_80BEB2E0[];
-extern s32 D_80BEB2E8[];
-extern s32 D_80BEB348[];
-extern s32 D_80BEB35C[];
-
-#if 0
 ActorInit En_Dt_InitVars = {
     /**/ ACTOR_EN_DT,
     /**/ ACTORCAT_NPC,
@@ -61,22 +49,46 @@ ActorInit En_Dt_InitVars = {
     /**/ EnDt_Draw,
 };
 
-// static ColliderCylinderInit sCylinderInit = {
-static ColliderCylinderInit D_80BEB29C = {
-    { COLTYPE_NONE, AT_NONE, AC_NONE, OC1_ON | OC1_TYPE_ALL, OC2_TYPE_2, COLSHAPE_CYLINDER, },
-    { ELEMTYPE_UNK0, { 0x00000000, 0x00, 0x00 }, { 0xF7CFFFFF, 0x00, 0x00 }, TOUCH_NONE | TOUCH_SFX_NORMAL, BUMP_NONE, OCELEM_ON, },
+static u16 D_80BEB1D0[] = { 0x2ABD, 0x2ABE, 0x2ABF, 0x2AC0, 0x2ABE, 0x2AC1, 0x2AC2, 0x2AC3, 0x2AC4, 0x2ABB,
+                            0x2ABC, 0x2AC6, 0x2AC7, 0x2AC8, 0x2AC9, 0x2ACA, 0x2ACB, 0x2ACC, 0x2ACD, 0x2ACE,
+                            0x2ACF, 0x2AD0, 0x2AD1, 0x2AC5, 0x2AD3, 0x2AD4, 0x2AD2, 0x0000 };
+
+static s32 D_80BEB208[] = { 1, 2, 0, 0, 2, 1, 2, 0, 2, 1, 0, 1, 2, 0, 2, 0, 1, 2, 1, 2, 0, 2, 2, 2 };
+
+static s16 D_80BEB268[] = {
+    0x2ABB, 0,      0x2ABD, 0,      0x2AC0, 1,      0x2AC1, 2,      0x2AC4, 3,      0x2AC6, 4,     0x2AC7,
+    5,      0x2AC8, 6,      0x2AC9, 7,      0x2ACC, 8,      0x2ACF, 9,      0x2AD0, 0xA,    0x309, 0x309,
+};
+
+static ColliderCylinderInit sCylinderInit = {
+    {
+        COLTYPE_NONE,
+        AT_NONE,
+        AC_NONE,
+        OC1_ON | OC1_TYPE_ALL,
+        OC2_TYPE_2,
+        COLSHAPE_CYLINDER,
+    },
+    {
+        ELEMTYPE_UNK0,
+        { 0x00000000, 0x00, 0x00 },
+        { 0xF7CFFFFF, 0x00, 0x00 },
+        TOUCH_NONE | TOUCH_SFX_NORMAL,
+        BUMP_NONE,
+        OCELEM_ON,
+    },
     { 25, 70, 0, { 0, 0, 0 } },
 };
 
-u16 D_80BEB1D0[] = { 0x2ABD, 0x2ABE, 0x2ABF, 0x2AC0, 0x2ABE, 0x2AC1, 0x2AC2, 0x2AC3, 0x2AC4, 0x2ABB,
-                     0x2ABC, 0x2AC6, 0x2AC7, 0x2AC8, 0x2AC9, 0x2ACA, 0x2ACB, 0x2ACC, 0x2ACD, 0x2ACE,
-                     0x2ACF, 0x2AD0, 0x2AD1, 0x2AC5, 0x2AD3, 0x2AD4, 0x2AD2, 0x0000 }
+static s32 D_80BEB2C8[6] = { 0x0600112C, 0x060005A4, 0x06000854, 0x06000DA8, 0x06000BE0, 0x0600B500 };
 
-s32 D_80BEB208[] = { 1, 2, 0, 0, 2, 1, 2, 0, 2, 1, 0, 1, 2, 0, 2, 0, 1, 2, 1, 2, 0, 2, 2, 2 };
+static u8 D_80BEB2E0[8] = { 0, 0, 2, 0, 0, 2, 0, 0 };
 
-#endif
+static s32 D_80BEB2E8[0x18] = { 0, 1, 3, 1, 0, 2, 3, 1, 0, 3, 3, 1, 0, 3, 0, 0, 0, 5, 0, 0, 0, 4, 0, 0 };
 
+static s32 D_80BEB348[5] = { 0x06007350, 0x06009590, 0x06009F90, 0x0600A790, 0x0600AB90 };
 
+static s32 D_80BEB35C[5] = { 0x06007750, 0x0600A390, 0x0600A490, 0, 0 };
 
 void EnDt_Init(Actor* thisx, PlayState* play) {
     EnDt* this = THIS;
@@ -91,7 +103,7 @@ void EnDt_Init(Actor* thisx, PlayState* play) {
     this->unk_274 = 0;
     this->unk_278 = 0;
 
-    Collider_InitAndSetCylinder(play, &this->collider, &this->actor, &D_80BEB29C);
+    Collider_InitAndSetCylinder(play, &this->collider, &this->actor, &sCylinderInit);
 
     if ((gSaveContext.save.day == 3) && (gSaveContext.save.isNight != 0)) {
         func_80BEAC84(this, play);
@@ -157,7 +169,7 @@ void func_80BE9D9C(EnDt* this) {
 void func_80BE9DF8(EnDt* this) {
     EnMuto* temp_v0;
     EnBaisen* temp_v1;
-        
+
     if (this->unk_274 != NULL && this->unk_278 != NULL) {
         temp_v0 = this->unk_274;
         temp_v1 = this->unk_278;
@@ -331,9 +343,9 @@ void func_80BEA394(EnDt* this, PlayState* play) {
     EnBaisen* viscen = NULL;
     s32 i;
     s32 j;
-    i = D_80BEB26A[this->unk_26E];
+    i = D_80BEB268[this->unk_26E + 1];
 
-    j = D_80BEB26A[this->unk_26E];
+    j = D_80BEB268[this->unk_26E + 1];
 
     if (this->unk_270 == 1) {
         if (CutsceneManager_GetCurrentCsId() == 0x7C) {
@@ -404,7 +416,8 @@ void func_80BEA394(EnDt* this, PlayState* play) {
                 play->msgCtx.msgLength = 0;
                 func_80BE9DF8(this);
                 Actor_ChangeFocus(&this->actor, play, this->targetActor);
-                Camera_SetTargetActor(Play_GetCamera(play, CutsceneManager_GetCurrentSubCamId(this->csIdList[i])), this->targetActor);
+                Camera_SetTargetActor(Play_GetCamera(play, CutsceneManager_GetCurrentSubCamId(this->csIdList[i])),
+                                      this->targetActor);
                 this->unk_244 = 2;
                 this->actionFunc = func_80BEA8F0;
                 return;
@@ -427,7 +440,8 @@ void func_80BEA394(EnDt* this, PlayState* play) {
 
             func_80BE9DF8(this);
             Actor_ChangeFocus(&this->actor, play, this->targetActor);
-            Camera_SetTargetActor(Play_GetCamera(play, CutsceneManager_GetCurrentSubCamId(this->csIdList[i])), this->targetActor);
+            Camera_SetTargetActor(Play_GetCamera(play, CutsceneManager_GetCurrentSubCamId(this->csIdList[i])),
+                                  this->targetActor);
 
             this->actor.textId = D_80BEB1D0[this->unk_256];
 
@@ -441,7 +455,7 @@ void func_80BEA394(EnDt* this, PlayState* play) {
                 }
             }
 
-            i = D_80BEB26A[this->unk_26E];
+            i = D_80BEB268[this->unk_26E + 1];
 
             if ((this->unk_270 == 2) && (i != j)) {
                 this->unk_270 = 1;
@@ -473,7 +487,7 @@ void func_80BEA8F0(EnDt* this, PlayState* play) {
             }
         }
     } else if (curFrame >= this->unk_250) {
-        j = D_80BEB26A[this->unk_26E];
+        j = D_80BEB268[this->unk_26E + 1];
 
         func_80BE9D9C(this);
         Message_CloseTextbox(play);
@@ -492,7 +506,7 @@ void func_80BEA8F0(EnDt* this, PlayState* play) {
             }
         }
 
-        i = D_80BEB26A[this->unk_26E];
+        i = D_80BEB268[this->unk_26E + 1];
 
         if ((this->unk_270 == 2) && (i != j)) {
             this->unk_270 = 1;
