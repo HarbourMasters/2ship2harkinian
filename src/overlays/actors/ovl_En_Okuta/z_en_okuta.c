@@ -175,7 +175,17 @@ void func_8086E2C0(EnOkuta* this, PlayState* play) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E378.s")
+f32 func_8086E378(EnOkuta* this) {
+    f32 temp_fa0;
+    f32 temp_fv1;
+
+    temp_fv1 = this->actor.world.pos.y + this->actor.playerHeightRel + 60.0f;
+    temp_fa0 = this->actor.home.pos.y;
+    if (temp_fa0 < temp_fv1) {
+        return temp_fa0;
+    }
+    return temp_fv1;
+}
 
 void func_8086E3B8(EnOkuta* this, PlayState* play) {
     Vec3f pos;
