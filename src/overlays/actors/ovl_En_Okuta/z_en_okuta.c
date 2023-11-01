@@ -358,7 +358,15 @@ void func_8086E7E8(EnOkuta* this, PlayState* play) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E8E8.s")
+void func_8086E8E8(EnOkuta* this) {
+    Animation_PlayLoop(&this->skelAnime, (AnimationHeader* ) &D_06003EE4);
+    if (this->actionFunc == func_8086EC00) {
+        this->unk18E = 8;
+    } else {
+        this->unk18E = 0;
+    }
+    this->actionFunc = func_8086E948;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E948.s")
 
