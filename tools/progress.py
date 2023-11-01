@@ -29,7 +29,9 @@ def GetFunctionsByPattern(pattern, files):
 
     for file in files:
         with open(file) as f:
-            functions += re.findall(pattern, f.read(), re.DOTALL)
+            str = re.findall(pattern, f.read(), re.DOTALL)
+            if "asm/non_matchings/boot/fault_drawer/sFaultDrawerFont.s" not in str:
+                functions += str
 
     return functions
 
