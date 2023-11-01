@@ -402,7 +402,27 @@ void func_8086E948(EnOkuta* this, PlayState* play) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086EAE0.s")
+void func_8086EAE0(EnOkuta* this, PlayState* play) {
+
+    Animation_PlayOnce(&this->skelAnime, (AnimationHeader* ) &D_0600044C);
+    if (this->actionFunc != func_8086EC00) {
+        if (this->actor.params == 0) {
+            this->unk18E = this->unk190;
+        } else {
+            this->unk18E = ((560.0f - this->actor.xzDistToPlayer) * 0.005f) + 1.0f;
+        }
+    }
+    if (this->actor.params == 0) {
+        this->unk260 = this->actor.playerHeightRel + 20.0f;
+        this->unk260 = CLAMP_MIN(this->unk260, 10.0f);
+        
+        if (this->unk260 > 50.0f) {
+            func_8086E27C(this, play);
+            Actor_PlaySfx(&this->actor, 0x38C2);
+        }
+    }
+    this->actionFunc = func_8086EC00;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086EC00.s")
 
