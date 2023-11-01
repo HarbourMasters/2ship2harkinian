@@ -448,7 +448,12 @@ void func_8086EF14(EnOkuta* this, PlayState* play) {
     Math_ApproachF(&this->actor.world.pos.y, this->actor.home.pos.y, 0.5f, 5.0f);
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086EF90.s")
+void func_8086EF90(EnOkuta* this) {
+    Animation_MorphToPlayOnce(&this->skelAnime, (AnimationHeader*)&D_06003958, -3.0f);
+    this->unk18E = 0;
+    this->actor.flags &= ~1;
+    this->actionFunc = func_8086EFE8;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086EFE8.s")
 
