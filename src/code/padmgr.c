@@ -35,6 +35,7 @@
 #include "PR/controller.h"
 #include "PR/os_motor.h"
 #include "fault.h"
+#include "z64voice.h"
 
 extern FaultMgr gFaultMgr;
 

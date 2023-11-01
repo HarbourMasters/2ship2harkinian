@@ -29,6 +29,32 @@ typedef struct {
     /* 0x14 */ u16 distance[5];   // Distance value
 } OSVoiceData; // size = 0x20
 
+#define VOICE_STATUS_READY 0 /* stop/end */
+#define VOICE_STATUS_START 1 /* Voice Undetected (no voice input) */
+#define VOICE_STATUS_CANCEL 3 /* Cancel (cancel extraneous noise) */
+#define VOICE_STATUS_BUSY 5 /* Detected/Detecting (voice being input, recognition processing under way) */
+#define VOICE_STATUS_END 7 /* End recognition processing (enable execution of Get Recognition Results command) */
+
+#define VOICE_WARN_TOO_SMALL 0x400 /* Voice level is too low (100 < Voice Level < 150) */
+#define VOICE_WARN_TOO_LARGE 0x800 /* Voice level is too high (Voice Level > 3500) */
+#define VOICE_WARN_NOT_FIT 0x4000 /* No words match recognition word (No. 1 Candidate Distance Value > 1600) */
+#define VOICE_WARN_TOO_NOISY 0x8000 /* Too much ambient noise (Relative Voice Level =< 400) */
+
+typedef struct {
+    /* 0x000 */ u16 words[20][15]; // 20 words, each with up to 15 syllables
+    /* 0x258 */ u8 numWords;
+} OSVoiceDictionary; // size = 0x25C
+
+typedef struct {
+    /* 0x00 */ OSVoiceDictionary* dict;
+    /* 0x04 */ s8 mode;
+    /* 0x08 */ OSVoiceData* data;
+    /* 0x0C */ u16 distance;
+    /* 0x0E */ u16 answerNum;
+    /* 0x10 */ u16 warning;
+    /* 0x12 */ u16 voiceLevel;
+    /* 0x14 */ u16 voiceRelLevel;
+} OSVoiceUnk; // size = 0x18
 
 s32 osVoiceInit(OSMesgQueue* mq, OSVoiceHandle* hd, int channel);
 s32 osVoiceSetWord(OSVoiceHandle* hd, u8* word);
