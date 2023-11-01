@@ -20,7 +20,9 @@ void EnOkuta_Draw(Actor* thisx, PlayState* play);
 void func_8086E52C(EnOkuta* this, PlayState* play);
 void func_8086E5E8(EnOkuta* this, PlayState* play);
 void func_8086E658(EnOkuta* this, PlayState* play);
+void func_8086E7A8(EnOkuta* this);
 void func_8086E7E8(EnOkuta* this, PlayState* play);
+void func_8086E8E8(EnOkuta* this);
 void func_8086E948(EnOkuta* this, PlayState* play);
 void func_8086EC00(EnOkuta* this, PlayState* play);
 void func_8086EF14(EnOkuta* this, PlayState* play);
@@ -319,17 +321,20 @@ void func_8086E658(EnOkuta* this, PlayState* play) {
         }
     }
     if (Animation_OnFrame(&this->skelAnime, 2.0f) != 0) {
-        Actor_PlaySfx(&this->actor, 0x38C2U);
+        Actor_PlaySfx(&this->actor, 0x38C2);
     }
     if (Animation_OnFrame(&this->skelAnime, 12.0f) != 0) {
-        Actor_PlaySfx(&this->actor, 0x38C3U);
+        Actor_PlaySfx(&this->actor, 0x38C3);
     }
     if ((Animation_OnFrame(&this->skelAnime, 3.0f) != 0) || (Animation_OnFrame(&this->skelAnime, 15.0f) != 0)) {
         func_8086E27C(this, play);
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E7A8.s")
+void func_8086E7A8(EnOkuta* this) {
+    Animation_PlayOnce(&this->skelAnime, (AnimationHeader* ) &D_06003B24);
+    this->actionFunc = func_8086E7E8;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E7E8.s")
 
