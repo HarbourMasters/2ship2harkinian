@@ -23,7 +23,7 @@ s32 func_80B922FC(BgDblueElevator* this, PlayState* play);
 void func_80B924DC(BgDblueElevator* this);
 void func_80B924F8(BgDblueElevator* this, PlayState* play);
 void func_80B9257C(BgDblueElevator* this);
-void func_80B925B8(BgDblueElevator* this);
+void func_80B925B8(BgDblueElevator* this, PlayState* play);
 void func_80B92644(BgDblueElevator* this);
 void func_80B92660(BgDblueElevator* this, PlayState* play);
 
@@ -154,7 +154,21 @@ void func_80B9257C(BgDblueElevator* this) {
     this->actionFunc = func_80B925B8;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_Bg_Dblue_Elevator/func_80B925B8.s")
+void func_80B925B8(BgDblueElevator* this, PlayState* play) {
+    s32 params = (this->dyna.actor.params >> 8) & 3;
+    Elevator* elevator = &D_80B92960[params];
+    s32 temp_v0 = elevator->actionFunc(this, play);
+
+    if ((temp_v0 == 0) || (temp_v0 == 3)) {
+        func_80B924DC(this);
+        return;
+    }
+
+    this->unk_16A -= 1;
+    if (this->unk_16A <= 0) {
+        func_80B92644(this);
+    }
+}
 
 void func_80B92644(BgDblueElevator* this) {
     this->unk_160 = 0.0f;
