@@ -233,7 +233,10 @@ void func_80B92660(BgDblueElevator* this, PlayState* play) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_Bg_Dblue_Elevator/BgDblueElevator_Update.s")
+void BgDblueElevator_Update(Actor* thisx, PlayState* play) {
+    BgDblueElevator* this = THIS;
+    this->actionFunc(this, play);
+}
 
 void BgDblueElevator_Draw(Actor* thisx, PlayState* play) {
     BgDblueElevator* this = THIS;
