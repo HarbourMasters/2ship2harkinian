@@ -549,7 +549,11 @@ void func_8086F4B0(EnOkuta* this, PlayState* play) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086F4F4.s")
+void func_8086F4F4(EnOkuta* this) {
+    Animation_Change(&this->skelAnime, (AnimationHeader* ) &D_06004204, 1.0f, 0.0f, Animation_GetLastFrame(&D_06004204) - 3.0f, 2, -3.0f);
+    this->unk18E = 0x14;
+    this->actionFunc = func_8086F57C;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086F57C.s")
 
