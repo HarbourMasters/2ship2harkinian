@@ -121,25 +121,87 @@ extern UNK_TYPE D_0600466C;
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E084.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E0F0.s")
+void func_8086E0F0(EnOkuta* this, PlayState* arg1) {
+    if (this->unk18C == 10) {
+        this->unk18C = 0;
+        this->unk254 = 0.0f;
+        Actor_SpawnIceEffects(arg1, &this->actor, this->bodyPartsPos, 0xA, 2, 0.3f, 0.2f);
+        this->collider.base.colType = 0;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E168.s")
 
+
+#if 0
+static Color_RGBA8 D_80870928 = {255, 255, 255, 255};
+static Color_RGBA8 D_8087092C = {255, 150, 150, 150};
+
+void func_8086E214(Vec3f* pos, Vec3f* velocity, s16 scaleStep, PlayState* play) {
+    func_800B0DE0(play, pos, velocity, &gZeroVec3f, &D_80870928, &D_8087092C, 400, scaleStep);
+}
+#else
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E214.s")
+#endif
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E27C.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E2C0.s")
+void func_8086E2C0(EnOkuta* this, PlayState* play) {
+    f32 temp_fv0;
+    Vec3f sp28;
+
+    temp_fv0 = this->actor.world.pos.y - this->actor.home.pos.y;
+    if ((((u32) play->gameplayFrames % 7) == 0) && (temp_fv0 < 50.0f) && (temp_fv0 >= -20.0f)) {
+        sp28.x = this->actor.world.pos.x;
+        sp28.y = this->actor.home.pos.y;
+        sp28.z = this->actor.world.pos.z;
+        EffectSsGRipple_Spawn(play, &sp28, 250, 650, 0);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E378.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E3B8.s")
+void func_8086E3B8(EnOkuta* this, PlayState* play) {
+    Vec3f pos;
+    Vec3f velocity;
+    f32 sp3C;
+    f32 sp38;
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E4FC.s")
+    sp3C = Math_SinS(this->actor.shape.rot.y);
+    sp38 = Math_CosS(this->actor.shape.rot.y);
+    pos.x = this->actor.world.pos.x + (25.0f * sp3C);
+    pos.y = this->actor.world.pos.y - 6.0f;
+    pos.z = this->actor.world.pos.z + (25.0f * sp38);
+    if (Actor_Spawn(&play->actorCtx, play, 8, pos.x, pos.y, pos.z, this->actor.shape.rot.x,
+                    this->actor.shape.rot.y, this->actor.shape.rot.z, this->actor.params + 0x10) != NULL) {
+        pos.x = this->actor.world.pos.x + (40.0f * sp3C);
+        pos.z = this->actor.world.pos.z + (40.0f * sp38);
+        pos.y = this->actor.world.pos.y;
+        velocity.x = 1.5f * sp3C;
+        velocity.y = 0.0f;
+        velocity.z = 1.5f * sp38;
+        func_8086E214(&pos, &velocity, 0x14, play);
+    }
+    Actor_PlaySfx(&this->actor, 0x387E);
+}
+
+void func_8086E4FC(EnOkuta* this) {
+    this->actor.draw = NULL;
+    this->actor.flags &= ~1;
+    this->actionFunc = func_8086E52C;
+    this->actor.world.pos.y = this->actor.home.pos.y;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E52C.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E5E8.s")
+void func_8086E5E8(EnOkuta* this, s32 arg1) {
+    this->actor.draw = EnOkuta_Draw;
+    this->actor.shape.rot.y = this->actor.yawTowardsPlayer;
+    this->actor.flags |= 1;
+    Animation_PlayOnce(&this->skelAnime, &D_0600466C);
+    func_8086E168(this, arg1);
+    this->actionFunc = func_8086E658;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E658.s")
 
