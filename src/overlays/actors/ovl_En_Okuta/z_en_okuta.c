@@ -191,11 +191,11 @@ void func_8086E084(EnOkuta* this) {
     Actor_SetColorFilter(&this->actor, COLORFILTER_COLORFLAG_RED, 255, COLORFILTER_BUFFLAG_OPA, 80);
 }
 
-void func_8086E0F0(EnOkuta* this, PlayState* arg1) {
+void func_8086E0F0(EnOkuta* this, PlayState* play) {
     if (this->unk18C == 10) {
         this->unk18C = 0;
         this->unk254 = 0.0f;
-        Actor_SpawnIceEffects(arg1, &this->actor, this->bodyPartsPos, 0xA, 2, 0.3f, 0.2f);
+        Actor_SpawnIceEffects(play, &this->actor, this->bodyPartsPos, 0xA, 2, 0.3f, 0.2f);
         this->collider.base.colType = 0;
     }
 }
@@ -538,7 +538,16 @@ void func_8086F434(EnOkuta* this, PlayState* play) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086F4B0.s")
+void func_8086F4B0(EnOkuta* this, PlayState* play) {
+
+    if (this->unk18E != 0) {
+        this->unk18E--;
+    }
+    if (this->unk18E == 0) {
+        func_8086E0F0(this, play);
+        func_8086EE8C(this);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086F4F4.s")
 
