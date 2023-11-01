@@ -1,7 +1,7 @@
 /*
  * File: z_bg_dblue_elevator.c
  * Overlay: ovl_Bg_Dblue_Elevator
- * Description: Great Bay Temple - ElevatorProps
+ * Description: Great Bay Temple - Elevator
  */
 
 #include "z_bg_dblue_elevator.h"
