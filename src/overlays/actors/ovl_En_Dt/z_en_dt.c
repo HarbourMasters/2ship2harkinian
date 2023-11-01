@@ -80,15 +80,17 @@ static ColliderCylinderInit sCylinderInit = {
     { 25, 70, 0, { 0, 0, 0 } },
 };
 
-static s32 D_80BEB2C8[6] = { 0x0600112C, 0x060005A4, 0x06000854, 0x06000DA8, 0x06000BE0, 0x0600B500 };
+static AnimationHeader* D_80BEB2C8[] = { &object_dt_Anim_00112C, &object_dt_Anim_0005A4, &object_dt_Anim_000854,
+                                         &object_dt_Anim_000DA8, &object_dt_Anim_000BE0, &object_dt_Anim_00B500 };
 
-static u8 D_80BEB2E0[8] = { 0, 0, 2, 0, 0, 2, 0, 0 };
+static u8 D_80BEB2E0[] = { 0, 0, 2, 0, 0, 2 };
 
-static s32 D_80BEB2E8[0x18] = { 0, 1, 3, 1, 0, 2, 3, 1, 0, 3, 3, 1, 0, 3, 0, 0, 0, 5, 0, 0, 0, 4, 0, 0 };
+static s32 D_80BEB2E8[] = { 0, 1, 3, 1, 0, 2, 3, 1, 0, 3, 3, 1, 0, 3, 0, 0, 0, 5, 0, 0, 0, 4, 0, 0 };
 
-static s32 D_80BEB348[5] = { 0x06007350, 0x06009590, 0x06009F90, 0x0600A790, 0x0600AB90 };
+static TexturePtr* D_80BEB348[] = { &gDotourEyeShockTex, &gDotourEyeOpenTex, &gDotourEyeClosedTex,
+                                    &gDotourEyeLookDownTex, &gDotourEyeSquintTex };
 
-static s32 D_80BEB35C[5] = { 0x06007750, 0x0600A390, 0x0600A490, 0, 0 };
+static TexturePtr* D_80BEB35C[] = { &gDotourEyebrowHighTex, &gDotourEyebrowMidTex, &gDotourEyebrowLowTex };
 
 void EnDt_Init(Actor* thisx, PlayState* play) {
     EnDt* this = THIS;
