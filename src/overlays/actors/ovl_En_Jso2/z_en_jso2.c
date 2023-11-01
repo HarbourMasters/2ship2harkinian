@@ -118,7 +118,11 @@ extern UNK_TYPE D_060081F4;
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A77880.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A778D8.s")
+void func_80A778D8(EnJso2* this) {
+    this->unk284 = 0;
+    this->unk36C = 2;
+    this->actionFunc = func_80A778F8;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A778F8.s")
 
