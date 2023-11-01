@@ -167,7 +167,7 @@ void func_8086E2C0(EnOkuta* this, PlayState* play) {
     Vec3f sp28;
 
     temp_fv0 = this->actor.world.pos.y - this->actor.home.pos.y;
-    if ((((u32) play->gameplayFrames % 7) == 0) && (temp_fv0 < 50.0f) && (temp_fv0 >= -20.0f)) {
+    if (((play->gameplayFrames % 7) == 0) && (temp_fv0 < 50.0f) && (temp_fv0 >= -20.0f)) {
         sp28.x = this->actor.world.pos.x;
         sp28.y = this->actor.home.pos.y;
         sp28.z = this->actor.world.pos.z;
