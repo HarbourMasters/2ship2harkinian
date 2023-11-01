@@ -28,6 +28,10 @@ void func_80B92644(BgDblueElevator* this);
 void func_80B92660(BgDblueElevator* this, PlayState* play);
 
 extern Elevator D_80B92960[];
+extern s16 D_80B929D0[];
+extern s16 D_80B929D8[];
+extern s8 D_80B929E0[];
+extern s8 D_80B929E4[];
 
 #if 0
 ActorInit Bg_Dblue_Elevator_InitVars = {
@@ -66,7 +70,70 @@ void func_80B91F20(BgDblueElevator* this, PlayState* play) {
                                             this->dyna.actor.world.pos.z, &this->unk_16C, &waterBox, &bgId);
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_Bg_Dblue_Elevator/func_80B91F74.s")
+void func_80B91F74(BgDblueElevator* this, PlayState* play) {
+    s32 i;
+    Vec3f spB0;
+    Vec3f spA4;
+    s32 j;
+    f32 temp1;
+    f32 temp2;
+    f32 temp_v0;
+    f32 temp_v1;
+    s32 pad;
+    f32 var_fs0;
+
+    Matrix_Push();
+    Matrix_RotateYS(this->dyna.actor.shape.rot.y, MTXMODE_NEW);
+
+    for (i = 0; i < 3; i++) {
+        temp_v0 = D_80B929D0[i];
+        temp_v1 = D_80B929D8[i];
+        temp1 = D_80B929D0[i + 1] - D_80B929D0[i];
+        temp2 = D_80B929D8[i + 1] - D_80B929D8[i];
+
+        for (j = 0; j < 7; j++) {
+            spB0.x = (j * temp1 * (1.0f / 7.0f)) + temp_v0;
+            spB0.y = this->unk_16C;
+            spB0.z = (j * temp2 * (1.0f / 7.0f)) + temp_v1;
+
+            spB0.x += (Rand_ZeroOne() - 0.5f) * 20.0f;
+            spB0.z += (Rand_ZeroOne() - 0.5f) * 20.0f;
+
+            Matrix_MultVec3f(&spB0, &spA4);
+            spA4.x += this->dyna.actor.world.pos.x;
+            spA4.z += this->dyna.actor.world.pos.z;
+            EffectSsGSplash_Spawn(play, &spA4, NULL, NULL, 0, (Rand_ZeroOne() * 400.0f) + 210.0f);
+        }
+    }
+
+    for (i = 0; i < 3; i++) {
+        spB0.x = ((Rand_ZeroOne() - 0.5f) * 60.0f) + this->dyna.actor.world.pos.x;
+        spB0.y = this->unk_16C;
+        spB0.z = ((Rand_ZeroOne() - 0.5f) * 60.0f) + this->dyna.actor.world.pos.z;
+        EffectSsGRipple_Spawn(play, &spB0, 1000, 3000, D_80B929E0[i]);
+    }
+
+    for (i = 0; i < 6; i++) {
+        var_fs0 = Rand_ZeroOne();
+        var_fs0 = 1.0f - (var_fs0 * var_fs0);
+        if ((s32)Rand_Next() > 0) {
+            var_fs0 = -var_fs0;
+        }
+        spB0.x = (var_fs0 * 100.0f) + this->dyna.actor.world.pos.x;
+        spB0.y = this->unk_16C;
+
+        var_fs0 = Rand_ZeroOne();
+        var_fs0 = 1.0f - (var_fs0 * var_fs0);
+
+        if ((s32)Rand_Next() > 0) {
+            var_fs0 = -var_fs0;
+        }
+        spB0.z = (var_fs0 * 100.0f) + this->dyna.actor.world.pos.z;
+        EffectSsGRipple_Spawn(play, &spB0, 400, 800, D_80B929E4[i]);
+    }
+
+    Matrix_Pop();
+}
 
 s32 func_80B922C0(BgDblueElevator* this, PlayState* play) {
     s32 params = this->dyna.actor.params & 0x7F;
@@ -254,5 +321,5 @@ void BgDblueElevator_Update(Actor* thisx, PlayState* play) {
 
 void BgDblueElevator_Draw(Actor* thisx, PlayState* play) {
     BgDblueElevator* this = THIS;
-    Gfx_DrawDListOpa(play, &gGreatBayTempleObjectElevatorDL);
+    Gfx_DrawDListOpa(play, gGreatBayTempleObjectElevatorDL);
 }
