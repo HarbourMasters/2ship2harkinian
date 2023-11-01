@@ -5,7 +5,7 @@
 
 struct BgDblueElevator;
 
-typedef s32 (*BgDblueElevatorActionFunc)(struct BgDblueElevator*, PlayState*);
+typedef void (*BgDblueElevatorActionFunc)(struct BgDblueElevator*, PlayState*);
 
 typedef struct BgDblueElevator {
     /* 0x000 */ DynaPolyActor dyna;
@@ -19,15 +19,17 @@ typedef struct BgDblueElevator {
     /* 0x16C */ f32 unk_16C;
 } BgDblueElevator; // size = 0x170
 
-typedef struct Elevator {
+typedef s32 (*BgDblueElevatorPropsFunc)(struct BgDblueElevator*, PlayState*);
+
+typedef struct ElevatorProps {
     /* 0x0 */ s32 unk_00;
-    /* 0x4 */ BgDblueElevatorActionFunc actionFunc;
-    /* 0x8 */ f32 unk_8;
+    /* 0x4 */ BgDblueElevatorPropsFunc actionFunc;
+    /* 0x8 */ f32 unk_08;
     /* 0xC */ s8 unk_0C;
     /* 0xD */ s8 unk_0D;
     /* 0x10 */ f32 unk_10;
     /* 0x14 */ f32 unk_14;
     /* 0x18 */ f32 unk_18;
-} Elevator; // size = 0x1C
+} ElevatorProps; // size = 0x1C
 
 #endif // Z_BG_DBLUE_ELEVATOR_H

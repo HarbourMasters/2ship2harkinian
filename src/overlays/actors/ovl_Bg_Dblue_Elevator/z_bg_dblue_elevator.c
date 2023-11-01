@@ -1,7 +1,7 @@
 /*
  * File: z_bg_dblue_elevator.c
  * Overlay: ovl_Bg_Dblue_Elevator
- * Description: Great Bay Temple - Elevator
+ * Description: Great Bay Temple - ElevatorProps
  */
 
 #include "z_bg_dblue_elevator.h"
@@ -27,13 +27,6 @@ void func_80B925B8(BgDblueElevator* this, PlayState* play);
 void func_80B92644(BgDblueElevator* this);
 void func_80B92660(BgDblueElevator* this, PlayState* play);
 
-extern Elevator D_80B92960[];
-extern s16 D_80B929D0[];
-extern s16 D_80B929D8[];
-extern s8 D_80B929E0[];
-extern s8 D_80B929E4[];
-
-#if 0
 ActorInit Bg_Dblue_Elevator_InitVars = {
     /**/ ACTOR_BG_DBLUE_ELEVATOR,
     /**/ ACTORCAT_BG,
@@ -46,20 +39,63 @@ ActorInit Bg_Dblue_Elevator_InitVars = {
     /**/ BgDblueElevator_Draw,
 };
 
-// static InitChainEntry sInitChain[] = {
-static InitChainEntry D_80B929EC[] = {
+static ElevatorProps D_80B92960[] = {
+    {
+        0,
+        ((s32(*)(BgDblueElevator*, PlayState*))func_80B922C0),
+        320.0f,
+        0x1E,
+        1,
+        1.0f,
+        0.1f,
+        6.0f,
+    },
+    {
+        1,
+        ((s32(*)(BgDblueElevator*, PlayState*))func_80B922C0),
+        195.0f,
+        0x1E,
+        1,
+        1.0f,
+        0.1f,
+        5.0f,
+    },
+    {
+        0,
+        ((s32(*)(BgDblueElevator*, PlayState*))func_80B922FC),
+        280.0f,
+        0x1E,
+        1,
+        1.0f,
+        0.1f,
+        6.0f,
+    },
+    {
+        0,
+        ((s32(*)(BgDblueElevator*, PlayState*))func_80B922FC),
+        280.0f,
+        0x1E,
+        -1,
+        1.0f,
+        0.1f,
+        6.0f,
+    },
+};
+
+static s16 D_80B929D0[4] = { -0x5A, -0x5A, 0x5A, 0x5A };
+
+static s16 D_80B929D8[4] = { -0x64, 0x5A, 0x5A, -0x64 };
+
+static s8 D_80B929E0[3] = { 0, 2, 4 };
+
+static s8 D_80B929E4[6] = { 0, 1, 2, 3, 4, 5 };
+
+static InitChainEntry sInitChain[] = {
     ICHAIN_F32(uncullZoneForward, 4000, ICHAIN_CONTINUE),
     ICHAIN_F32(uncullZoneScale, 250, ICHAIN_CONTINUE),
     ICHAIN_F32(uncullZoneDownward, 250, ICHAIN_CONTINUE),
     ICHAIN_VEC3F_DIV1000(scale, 100, ICHAIN_STOP),
 };
-
-#endif
-
-extern InitChainEntry D_80B929EC[];
-
-extern UNK_TYPE D_060002C8;
-extern UNK_TYPE D_060005C4;
 
 void func_80B91F20(BgDblueElevator* this, PlayState* play) {
     s32 pad;
@@ -163,10 +199,10 @@ void BgDblueElevator_Init(Actor* thisx, PlayState* play) {
     BgDblueElevator* this = THIS;
     s32 pad;
     s32 params = (this->dyna.actor.params >> 8) & 3;
-    Elevator* elevator = &D_80B92960[params];
+    ElevatorProps* elevator = &D_80B92960[params];
     s32 temp_v0;
 
-    Actor_ProcessInitChain(&this->dyna.actor, D_80B929EC);
+    Actor_ProcessInitChain(&this->dyna.actor, sInitChain);
     DynaPolyActor_Init(&this->dyna, 1);
     DynaPolyActor_LoadMesh(play, &this->dyna, &gGreatBayTempleObjectElevatorCol);
 
@@ -199,7 +235,7 @@ void func_80B924DC(BgDblueElevator* this) {
 
 void func_80B924F8(BgDblueElevator* this, PlayState* play) {
     s32 params = (this->dyna.actor.params >> 8) & 3;
-    Elevator* elevator = &D_80B92960[params];
+    ElevatorProps* elevator = &D_80B92960[params];
     s32 temp_v0 = elevator->actionFunc(this, play);
 
     if ((temp_v0 == 0) || (temp_v0 == 3)) {
@@ -215,7 +251,7 @@ void func_80B924F8(BgDblueElevator* this, PlayState* play) {
 
 void func_80B9257C(BgDblueElevator* this) {
     s32 params = (this->dyna.actor.params >> 8) & 3;
-    Elevator* elevator = &D_80B92960[params];
+    ElevatorProps* elevator = &D_80B92960[params];
 
     this->unk_16A = elevator->unk_0C;
     this->actionFunc = func_80B925B8;
@@ -223,7 +259,7 @@ void func_80B9257C(BgDblueElevator* this) {
 
 void func_80B925B8(BgDblueElevator* this, PlayState* play) {
     s32 params = (this->dyna.actor.params >> 8) & 3;
-    Elevator* elevator = &D_80B92960[params];
+    ElevatorProps* elevator = &D_80B92960[params];
     s32 temp_v0 = elevator->actionFunc(this, play);
 
     if ((temp_v0 == 0) || (temp_v0 == 3)) {
@@ -244,7 +280,7 @@ void func_80B92644(BgDblueElevator* this) {
 
 void func_80B92660(BgDblueElevator* this, PlayState* play) {
     s32 params = (this->dyna.actor.params >> 8) & 3;
-    Elevator* elevator = &D_80B92960[params];
+    ElevatorProps* elevator = &D_80B92960[params];
     s32 temp_v0 = elevator->actionFunc(this, play);
 
     s32 pad;
@@ -264,9 +300,9 @@ void func_80B92660(BgDblueElevator* this, PlayState* play) {
     }
 
     if (this->unk_168 > 0) {
-        var_fa0 = elevator->unk_8;
+        var_fa0 = elevator->unk_08;
     } else {
-        var_fa0 = -elevator->unk_8;
+        var_fa0 = -elevator->unk_08;
     }
 
     if (this->unk_160 <= 1.1f) {
