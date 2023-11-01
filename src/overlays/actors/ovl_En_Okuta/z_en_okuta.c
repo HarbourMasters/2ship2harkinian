@@ -426,7 +426,14 @@ void func_8086EAE0(EnOkuta* this, PlayState* play) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086EC00.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086EE8C.s")
+void func_8086EE8C(EnOkuta* this) {
+    Animation_MorphToPlayOnce(&this->skelAnime, (AnimationHeader*)&D_06004204, -5.0f);
+    Actor_SetColorFilter(&this->actor, 0x4000, 0xFF, 0, 0xB);
+    this->collider.base.acFlags &= 0xFFFE;
+    Actor_SetScale(&this->actor, 0.01f);
+    Actor_PlaySfx(&this->actor, 0x38C6U);
+    this->actionFunc = func_8086EF14;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086EF14.s")
 
