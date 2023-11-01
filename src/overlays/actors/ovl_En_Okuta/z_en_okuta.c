@@ -6,6 +6,8 @@
 
 #include "z_en_okuta.h"
 
+#include "objects/object_okuta/object_okuta.h"
+
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY)
 
 #define THIS ((EnOkuta*)thisx)
@@ -16,6 +18,7 @@ void EnOkuta_Update(Actor* thisx, PlayState* play);
 void EnOkuta_Draw(Actor* thisx, PlayState* play);
 
 void func_8086E52C(EnOkuta* this, PlayState* play);
+void func_8086E5E8(EnOkuta* this, PlayState* play);
 void func_8086E658(EnOkuta* this, PlayState* play);
 void func_8086E7E8(EnOkuta* this, PlayState* play);
 void func_8086E948(EnOkuta* this, PlayState* play);
@@ -26,6 +29,7 @@ void func_8086F434(EnOkuta* this, PlayState* play);
 void func_8086F4B0(EnOkuta* this, PlayState* play);
 void func_8086F57C(EnOkuta* this, PlayState* play);
 void func_8086F694(EnOkuta* this, PlayState* play);
+
 
 #if 0
 ActorInit En_Okuta_InitVars = {
@@ -113,9 +117,63 @@ extern UNK_TYPE D_06003958;
 extern UNK_TYPE D_06003B24;
 extern UNK_TYPE D_06003EE4;
 extern UNK_TYPE D_06004204;
-extern UNK_TYPE D_0600466C;
+extern AnimationHeader D_0600466C;
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/EnOkuta_Init.s")
+void func_8086E4FC(EnOkuta*);                     /* extern */
+void func_808700C0(Actor* this, PlayState* play); /* extern */
+
+extern SkeletonHeader D_060033D0;
+
+void EnOkuta_Init(Actor* thisx, PlayState* play2) {
+    EnOkuta* this = (EnOkuta*)thisx;
+    PlayState* play = play2;
+    WaterBox* sp3C;
+    f32 sp38;
+    s32 sp34;
+
+    Actor_ProcessInitChain(&this->actor, D_80870920);
+    this->unk190 = (this->actor.params >> 8) & 0xFF;
+    thisx->params &= 0xFF;
+    if ((this->actor.params == 0) || (this->actor.params == 1)) {
+        SkelAnime_Init(play, &this->skelAnime, &D_060033D0, &D_0600466C, this->jointTable, this->morphTable, 16);
+        Collider_InitAndSetCylinder(play, &this->collider, &this->actor, &D_808708CC);
+        CollisionCheck_SetInfo(&this->actor.colChkInfo, &D_80870900, &D_808708F8);
+        if ((this->unk190 == 0xFF) || (this->unk190 == 0)) {
+            this->unk190 = 1;
+        }
+        this->actor.floorHeight = BgCheck_EntityRaycastFloor5(&play->colCtx, &this->actor.floorPoly, &sp34,
+                                                              &this->actor, &this->actor.world.pos);
+        if ((!WaterBox_GetSurface1_2(play, &play->colCtx, this->actor.world.pos.x, this->actor.world.pos.z, &sp38,
+                                     &sp3C)) ||
+            (sp38 <= this->actor.floorHeight)) {
+            Actor_Kill(&this->actor);
+        } else {
+            this->actor.home.pos.y = sp38;
+        }
+        if (this->actor.params == 1) {
+            this->collider.base.colType = 0xC;
+            this->collider.base.acFlags |= 4;
+        }
+        this->actor.targetMode = 5;
+        func_8086E4FC(this);
+    } else {
+        ActorShape_Init(&this->actor.shape, 1100.0f, ActorShadow_DrawCircle, 18.0f);
+        this->actor.flags &= ~1;
+        this->actor.flags |= 0x10;
+        Collider_InitAndSetCylinder(play, &this->collider, &this->actor, &D_808708A0);
+        func_800BC154(play, &play->actorCtx, &this->actor, 6);
+        this->unk18E = 0x16;
+        this->actor.shape.rot.y = 0;
+        this->actor.world.rot.x = -this->actor.shape.rot.x;
+        this->actor.shape.rot.x = 0;
+        this->actionFunc = func_8086F694;
+        this->actor.update = func_808700C0;
+        this->actor.speed = 10.0f;
+    }
+}
+/* Warning: struct EnTorch2 is not defined (only forward-declared) */
+
+// #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/EnOkuta_Init.s")
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/EnOkuta_Destroy.s")
 
@@ -146,17 +204,15 @@ void func_8086E168(EnOkuta* this, PlayState* play) {
     }
 }
 
+// static Color_RGBA8 D_80870928 = {255, 255, 255, 255};
+// static Color_RGBA8 D_8087092C = {150, 150, 150, 255};
 
-#if 0
-static Color_RGBA8 D_80870928 = {255, 255, 255, 255};
-static Color_RGBA8 D_8087092C = {255, 150, 150, 150};
+extern Color_RGBA8 D_80870928;
+extern Color_RGBA8 D_8087092C;
 
 void func_8086E214(Vec3f* pos, Vec3f* velocity, s16 scaleStep, PlayState* play) {
     func_800B0DE0(play, pos, velocity, &gZeroVec3f, &D_80870928, &D_8087092C, 400, scaleStep);
 }
-#else
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E214.s")
-#endif
 
 void func_8086E27C(EnOkuta* this, PlayState* play) {
     EffectSsGSplash_Spawn(play, &this->actor.home.pos, NULL, NULL, 0, 1300);
@@ -198,8 +254,8 @@ void func_8086E3B8(EnOkuta* this, PlayState* play) {
     pos.x = this->actor.world.pos.x + (25.0f * sp3C);
     pos.y = this->actor.world.pos.y - 6.0f;
     pos.z = this->actor.world.pos.z + (25.0f * sp38);
-    if (Actor_Spawn(&play->actorCtx, play, 8, pos.x, pos.y, pos.z, this->actor.shape.rot.x,
-                    this->actor.shape.rot.y, this->actor.shape.rot.z, this->actor.params + 0x10) != NULL) {
+    if (Actor_Spawn(&play->actorCtx, play, 8, pos.x, pos.y, pos.z, this->actor.shape.rot.x, this->actor.shape.rot.y,
+                    this->actor.shape.rot.z, this->actor.params + 0x10) != NULL) {
         pos.x = this->actor.world.pos.x + (40.0f * sp3C);
         pos.z = this->actor.world.pos.z + (40.0f * sp38);
         pos.y = this->actor.world.pos.y;
@@ -218,14 +274,30 @@ void func_8086E4FC(EnOkuta* this) {
     this->actor.world.pos.y = this->actor.home.pos.y;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E52C.s")
+void func_8086E52C(EnOkuta* this, PlayState* play) {
+    s32 angle;
 
-void func_8086E5E8(EnOkuta* this, s32 arg1) {
+    this->actor.world.pos.y = this->actor.home.pos.y;
+
+    if ((this->actor.xzDistToPlayer < 480.0f) && (this->actor.xzDistToPlayer > 200.0f)) {
+        if (this->actor.params == 0) {
+            func_8086E5E8(this, play);
+            return;
+        }
+        angle = ABS_ALT((s16) (this->actor.yawTowardsPlayer - this->actor.world.rot.y));
+
+        if ((angle < 0x4000) && (play->bButtonAmmoPlusOne == 0)) {
+            func_8086E5E8(this, play);
+        }
+    }
+}
+
+void func_8086E5E8(EnOkuta* this, PlayState* play) {
     this->actor.draw = EnOkuta_Draw;
     this->actor.shape.rot.y = this->actor.yawTowardsPlayer;
     this->actor.flags |= 1;
     Animation_PlayOnce(&this->skelAnime, &D_0600466C);
-    func_8086E168(this, arg1);
+    func_8086E168(this, play);
     this->actionFunc = func_8086E658;
 }
 
