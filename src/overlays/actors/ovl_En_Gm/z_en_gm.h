@@ -7,7 +7,6 @@
 struct EnGm;
 
 typedef void (*EnGmActionFunc)(struct EnGm*, PlayState*);
-typedef s32 (*EnGmUnkFunc)(struct EnGm*, PlayState*);
 typedef void (*EnGmUnkFunc2)(struct EnGm*, PlayState*);
 
 #define ENGM_GET_PATH_INDEX(thisx) ((thisx)->params & 0xFF)
@@ -69,7 +68,7 @@ typedef struct EnGm {
     /* 0x3DE */ s16 unk_3DE;
     /* 0x3E0 */ s16 unk_3E0;
     /* 0x3E2 */ s16 unk_3E2;
-    /* 0x3E4 */ EnGmUnkFunc unk_3E4;
+    /* 0x3E4 */ MsgEventCallback unk_3E4;
     /* 0x3E8 */ s32 animIndex;
     /* 0x3EC */ UNK_TYPE1 unk3EC[0x4];
     /* 0x3F0 */ s32 prevTalkState;

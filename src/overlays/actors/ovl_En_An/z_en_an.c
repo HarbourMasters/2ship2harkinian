@@ -3217,7 +3217,7 @@ void EnAn_FollowSchedule(EnAn* this, PlayState* play) {
 }
 
 void EnAn_Talk(EnAn* this, PlayState* play) {
-    if (func_8010BF58(&this->actor, play, this->msgEventScript, this->msgEventFunc, &this->msgScriptResumePos)) {
+    if (MsgEvent_RunScript(&this->actor, play, this->msgEventScript, this->msgEventFunc, &this->msgScriptResumePos)) {
         // Message event script is done
 
         SubS_SetOfferMode(&this->stateFlags, SUBS_OFFER_MODE_ONSCREEN, SUBS_OFFER_MODE_MASK);

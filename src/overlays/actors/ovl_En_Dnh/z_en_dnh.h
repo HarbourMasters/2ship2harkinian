@@ -6,8 +6,9 @@
 
 struct EnDnh;
 
-typedef void (*EnDnhActionFunc)(struct EnDnh*, PlayState*);
 typedef s32 (*MsgEventFunc)(Actor*, PlayState*);
+
+typedef void (*EnDnhActionFunc)(struct EnDnh*, PlayState*);
 
 typedef struct EnDnh {
     /* 0x000 */ Actor actor;
