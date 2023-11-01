@@ -336,17 +336,14 @@ void func_80BEA254(EnDt* this, PlayState* play) {
     this->actionFunc = func_80BEA394;
 }
 
-// https://decomp.me/scratch/B065h
-#ifdef NON_MATCHING
 void func_80BEA394(EnDt* this, PlayState* play) {
     EnMuto* mutoh = NULL;
     EnBaisen* viscen = NULL;
     s32 i;
-    volatile s32 j;
-    s16 subCamId;
+    s32 j;
     i = D_80BEB26A[this->unk_26E];
-    goto label;
-label:
+
+    j = D_80BEB26A[this->unk_26E];
 
     if (this->unk_270 == 1) {
         if (CutsceneManager_GetCurrentCsId() == 0x7C) {
@@ -417,8 +414,7 @@ label:
                 play->msgCtx.msgLength = 0;
                 func_80BE9DF8(this);
                 Actor_ChangeFocus(&this->actor, play, this->targetActor);
-                subCamId = CutsceneManager_GetCurrentSubCamId(this->csIdList[i]);
-                Camera_SetTargetActor(Play_GetCamera(play, subCamId), this->targetActor);
+                Camera_SetTargetActor(Play_GetCamera(play, CutsceneManager_GetCurrentSubCamId(this->csIdList[i])), this->targetActor);
                 this->unk_244 = 2;
                 this->actionFunc = func_80BEA8F0;
                 return;
@@ -441,8 +437,7 @@ label:
 
             func_80BE9DF8(this);
             Actor_ChangeFocus(&this->actor, play, this->targetActor);
-            subCamId = CutsceneManager_GetCurrentSubCamId(this->csIdList[i]);
-            Camera_SetTargetActor(Play_GetCamera(play, subCamId), this->targetActor);
+            Camera_SetTargetActor(Play_GetCamera(play, CutsceneManager_GetCurrentSubCamId(this->csIdList[i])), this->targetActor);
 
             this->actor.textId = D_80BEB1D0[this->unk_256];
 
@@ -470,9 +465,6 @@ label:
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Dt/func_80BEA394.s")
-#endif
 
 void func_80BEA8F0(EnDt* this, PlayState* play) {
     f32 curFrame = this->skelanime.curFrame;
