@@ -125,7 +125,7 @@ void func_808700C0(Actor* this, PlayState* play); /* extern */
 extern SkeletonHeader D_060033D0;
 
 void EnOkuta_Init(Actor* thisx, PlayState* play2) {
-    EnOkuta* this = (EnOkuta*)thisx;
+    EnOkuta* this = THIS;
     PlayState* play = play2;
     WaterBox* sp3C;
     f32 sp38;
@@ -171,11 +171,11 @@ void EnOkuta_Init(Actor* thisx, PlayState* play2) {
         this->actor.speed = 10.0f;
     }
 }
-/* Warning: struct EnTorch2 is not defined (only forward-declared) */
 
-// #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/EnOkuta_Init.s")
-
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/EnOkuta_Destroy.s")
+void EnOkuta_Destroy(Actor* thisx, PlayState* play) {
+    EnOkuta* this = THIS;
+    Collider_DestroyCylinder(play, &this->collider);
+}
 
 void func_8086E084(EnOkuta* this) {
     this->unk18C = 0xA;
@@ -301,7 +301,33 @@ void func_8086E5E8(EnOkuta* this, PlayState* play) {
     this->actionFunc = func_8086E658;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E658.s")
+void func_8086E658(EnOkuta* this, PlayState* play) {
+    f32 temp_fv0;
+
+    if (SkelAnime_Update(&this->skelAnime) != 0) {
+        if ((this->actor.xzDistToPlayer < 160.0f) && (this->actor.params == 0)) {
+            func_8086E7A8(this);
+        } else {
+            func_8086E8E8(this);
+        }
+    } else {
+        temp_fv0 = this->skelAnime.curFrame;
+        if (temp_fv0 <= 4.0f) {
+            Actor_SetScale(&this->actor, temp_fv0 * 0.25f * 0.01f);
+        } else if (Animation_OnFrame(&this->skelAnime, 5.0f) != 0) {
+            Actor_SetScale(&this->actor, 0.01f);
+        }
+    }
+    if (Animation_OnFrame(&this->skelAnime, 2.0f) != 0) {
+        Actor_PlaySfx(&this->actor, 0x38C2U);
+    }
+    if (Animation_OnFrame(&this->skelAnime, 12.0f) != 0) {
+        Actor_PlaySfx(&this->actor, 0x38C3U);
+    }
+    if ((Animation_OnFrame(&this->skelAnime, 3.0f) != 0) || (Animation_OnFrame(&this->skelAnime, 15.0f) != 0)) {
+        func_8086E27C(this, play);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086E7A8.s")
 
