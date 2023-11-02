@@ -172,7 +172,7 @@ void EnOkuta_Init(Actor* thisx, PlayState* play2) {
             this->collider.base.colType = 0xC;
             this->collider.base.acFlags |= 4;
         }
-        
+
         this->actor.targetMode = 5;
         func_8086E4FC(this);
     } else {
@@ -893,6 +893,7 @@ s32 func_808704DC(PlayState* play, s32 arg1, Gfx** dList, Vec3f* pos, Vec3s* rot
     if (this->actionFunc == func_8086EFE8) {
         curFrame += this->unk18E;
     }
+
     if (arg1 == 0xE) {
         if ((this->headScale.x != 1.0f) || (this->headScale.y != 1.0f) || (this->headScale.z != 1.0f)) {
             Math_Vec3f_Copy(&scale, &this->headScale);
@@ -901,13 +902,39 @@ s32 func_808704DC(PlayState* play, s32 arg1, Gfx** dList, Vec3f* pos, Vec3s* rot
     } else if (arg1 == 0xF) {
         doScale = func_80870254(this, curFrame, &scale);
     }
+
     if (doScale) {
         Matrix_Scale(scale.x, scale.y, scale.z, MTXMODE_APPLY);
     }
     return 0;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_808705C8.s")
+extern s8 D_80870944[];
+// extern Vec3f D_80870954; ????
+extern Vec3f D_80870954[3];
+extern Vec3f* D_80870978;
+
+void func_808705C8(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Actor* thisx) {
+    s32 bodyPartIndex = D_80870944[limbIndex];
+    EnOkuta* this = THIS;
+    Vec3f* var_s0;
+    Vec3f* var_s1;
+    s32 i;
+
+    if (bodyPartIndex != BODYPART_NONE) {
+        if (bodyPartIndex == 5) {
+            Matrix_MultVecX(1500.0f, &this->bodyPartsPos[bodyPartIndex]);
+        } else if (bodyPartIndex == 6) {
+            Matrix_MultVecY(2800.0f, &this->bodyPartsPos[bodyPartIndex]);
+            bodyPartIndex++;
+            for (i = 0; i < ARRAY_COUNT(D_80870954); i++) {
+                Matrix_MultVec3f(&D_80870954[i], &this->bodyPartsPos[bodyPartIndex + i]);
+            }
+        } else {
+            Matrix_MultZero(&this->bodyPartsPos[bodyPartIndex]);
+        }
+    }
+}
 
 void EnOkuta_Draw(Actor* thisx, PlayState* play) {
     EnOkuta* this = THIS;
