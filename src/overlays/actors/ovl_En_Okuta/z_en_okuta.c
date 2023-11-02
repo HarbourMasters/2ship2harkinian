@@ -124,7 +124,7 @@ extern UNK_TYPE D_06004204;
 extern AnimationHeader D_0600466C;
 
 void func_8086E4FC(EnOkuta*);                     /* extern */
-void func_808700C0(Actor* this, PlayState* play); /* extern */
+void func_808700C0(Actor* thisx, PlayState* play); /* extern */
 
 extern SkeletonHeader D_060033D0;
 
@@ -682,9 +682,89 @@ void func_8086FCA4(EnOkuta* this, PlayState* play) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/EnOkuta_Update.s")
+extern s16 D_808708EE;
+extern s16 D_808708EC;
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_808700C0.s")
+void EnOkuta_Update(Actor* thisx, PlayState* play2) {
+    PlayState* play = play2;
+    EnOkuta* this = THIS;
+    s32 pad[2];
+
+    if (this->actor.params == 0) {
+        func_8086FCA4(this, play);
+    } else {
+        if ((this->collider.base.atFlags & 2) || (this->collider.base.acFlags & 2)) {
+            if (this->collider.base.atFlags & 2) {
+                func_800B8D98(play, &this->actor, 8.0f, this->actor.world.rot.y, 6.0f);
+            }
+            func_8086F4F4(this);
+        }
+    }
+    this->actionFunc(this, play);
+    if (this->actionFunc != func_8086F434) {
+        func_8086F8FC(this);
+        this->collider.dim.height = ((D_808708EE * this->headScale.y) - this->collider.dim.yShift) * this->actor.scale.y * 100.0f;
+        Collider_UpdateCylinder(&this->actor, &this->collider);
+        if ((this->actionFunc == func_8086E658) || (this->actionFunc == func_8086E7E8)) {
+            this->collider.dim.pos.y = this->actor.world.pos.y + (this->skelAnime.jointTable->y * this->actor.scale.y);
+            this->collider.dim.radius = D_808708EC * this->actor.scale.x * 100.0f;
+        }
+        if (this->actor.draw) {
+            if (this->actor.params == 1) {
+                CollisionCheck_SetAT(play, &play->colChkCtx, &this->collider.base);
+            }
+            if (this->collider.base.acFlags & 1) {
+                CollisionCheck_SetAC(play, &play->colChkCtx, &this->collider.base);
+            }
+            CollisionCheck_SetOC(play, &play->colChkCtx, &this->collider.base);
+            func_8086E2C0(this, play);
+        }
+        Actor_SetFocus(&this->actor, 15.0f);
+        if (this->unk254 > 0.0f) {
+            if (this->unk18C != 10) {
+                Math_StepToF(&this->unk254, 0.0f, 0.05f);
+                this->unk258 = (this->unk254 + 1.0f) * 0.3f;
+                this->unk258 = CLAMP_MAX(this->unk258, 0.6f);
+            } else if (Math_StepToF(&this->unk25C, 0.6f, 0.015000001f) == 0) {
+                Actor_PlaySfx_Flagged(&this->actor, 0x20B2);
+            }
+        }
+    }
+}
+
+void func_808700C0(Actor* thisx, PlayState* play) {
+    s32 pad;
+    EnOkuta* this = THIS;
+    Player* player = GET_PLAYER(play);
+    Vec3f sp38;
+    s32 sp34;
+
+    sp34 = false;
+    if (!(player->stateFlags1 & 0x300002C2)) {
+        this->actionFunc(this, play);
+        Actor_MoveWithoutGravity(&this->actor);
+        Math_Vec3f_Copy(&sp38, &this->actor.world.pos);
+        Actor_UpdateBgCheckInfo(play, &this->actor, 10.0f, 15.0f, 30.0f, 7);
+        if ((this->actor.bgCheckFlags & 8) && SurfaceType_IsIgnoredByProjectiles(&play->colCtx, this->actor.wallPoly, this->actor.wallBgId)) {
+            sp34 = true;
+            this->actor.bgCheckFlags &= 0xFFF7;
+        }
+        if ((this->actor.bgCheckFlags & 1) && SurfaceType_IsIgnoredByProjectiles(&play->colCtx, this->actor.floorPoly, this->actor.floorBgId)) {
+            sp34 = true;
+            this->actor.bgCheckFlags &= 0xFFFE;
+        }
+        if (sp34 && !(this->actor.bgCheckFlags & 9)) {
+            Math_Vec3f_Copy(&this->actor.world.pos, &sp38);
+        }
+        Collider_UpdateCylinder(&this->actor, &this->collider);
+        this->actor.flags |= 0x01000000;
+        CollisionCheck_SetAT(play, &play->colChkCtx, &this->collider.base);
+        CollisionCheck_SetAC(play, &play->colChkCtx, &this->collider.base);
+        CollisionCheck_SetOC(play, &play->colChkCtx, &this->collider.base);
+    }
+}
+
+
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_80870254.s")
 
