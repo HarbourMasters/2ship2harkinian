@@ -157,7 +157,7 @@ static s32 D_80870978[] = { 0, 0 };
 void EnOkuta_Init(Actor* thisx, PlayState* play2) {
     EnOkuta* this = THIS;
     PlayState* play = play2;
-    WaterBox* sp3C;
+    WaterBox* waterbox;
     f32 sp38;
     s32 sp34;
 
@@ -178,7 +178,7 @@ void EnOkuta_Init(Actor* thisx, PlayState* play2) {
         this->actor.floorHeight = BgCheck_EntityRaycastFloor5(&play->colCtx, &this->actor.floorPoly, &sp34,
                                                               &this->actor, &this->actor.world.pos);
         if ((!WaterBox_GetSurface1_2(play, &play->colCtx, this->actor.world.pos.x, this->actor.world.pos.z, &sp38,
-                                     &sp3C)) ||
+                                     &waterbox)) ||
             (sp38 <= this->actor.floorHeight)) {
             Actor_Kill(&this->actor);
         } else {
@@ -250,13 +250,13 @@ void func_8086E27C(EnOkuta* this, PlayState* play) {
 
 void func_8086E2C0(EnOkuta* this, PlayState* play) {
     f32 temp_fv0 = this->actor.world.pos.y - this->actor.home.pos.y;
-    Vec3f sp28;
+    Vec3f pos;
 
     if (((play->gameplayFrames % 7) == 0) && (temp_fv0 < 50.0f) && (temp_fv0 >= -20.0f)) {
-        sp28.x = this->actor.world.pos.x;
-        sp28.y = this->actor.home.pos.y;
-        sp28.z = this->actor.world.pos.z;
-        EffectSsGRipple_Spawn(play, &sp28, 250, 650, 0);
+        pos.x = this->actor.world.pos.x;
+        pos.y = this->actor.home.pos.y;
+        pos.z = this->actor.world.pos.z;
+        EffectSsGRipple_Spawn(play, &pos, 250, 650, 0);
     }
 }
 
@@ -291,7 +291,7 @@ void func_8086E3B8(EnOkuta* this, PlayState* play) {
         velocity.z = 1.5f * sp38;
         func_8086E214(&pos, &velocity, 0x14, play);
     }
-    Actor_PlaySfx(&this->actor, 0x387E);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_NUTS_THROW);
 }
 
 void func_8086E4FC(EnOkuta* this) {
@@ -347,11 +347,11 @@ void func_8086E658(EnOkuta* this, PlayState* play) {
     }
 
     if (Animation_OnFrame(&this->skelAnime, 2.0f) != 0) {
-        Actor_PlaySfx(&this->actor, 0x38C2);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_OCTAROCK_JUMP);
     }
 
     if (Animation_OnFrame(&this->skelAnime, 12.0f) != 0) {
-        Actor_PlaySfx(&this->actor, 0x38C3);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_DAIOCTA_LAND);
     }
 
     if ((Animation_OnFrame(&this->skelAnime, 3.0f) != 0) || (Animation_OnFrame(&this->skelAnime, 15.0f) != 0)) {
@@ -370,7 +370,7 @@ void func_8086E7E8(EnOkuta* this, PlayState* play) {
     Math_ApproachF(&this->actor.world.pos.y, this->actor.home.pos.y, 0.5f, 30.0f);
 
     if (SkelAnime_Update(&this->skelAnime) != 0) {
-        Actor_PlaySfx(&this->actor, 0x38C5);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_COMMON_WATER_MID);
         func_8086E168(this, play);
         func_8086E4FC(this);
     } else {
@@ -380,7 +380,7 @@ void func_8086E7E8(EnOkuta* this, PlayState* play) {
     }
 
     if (Animation_OnFrame(&this->skelAnime, 2.0f) != 0) {
-        Actor_PlaySfx(&this->actor, 0x38C4);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_DAIOCTA_SINK);
     }
 
     if (Animation_OnFrame(&this->skelAnime, 4.0f) != 0) {
@@ -416,7 +416,7 @@ void func_8086E948(EnOkuta* this, PlayState* play) {
     }
 
     if (Animation_OnFrame(&this->skelAnime, 0.5f) != 0) {
-        Actor_PlaySfx(&this->actor, 0x38C1);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_COMMON_WATER_SLW);
     }
 
     if ((this->actor.xzDistToPlayer > 560.0f) || ((this->actor.xzDistToPlayer < 160.0f) && (this->actor.params == 0))) {
@@ -450,7 +450,7 @@ void func_8086EAE0(EnOkuta* this, PlayState* play) {
 
         if (this->unk260 > 50.0f) {
             func_8086E27C(this, play);
-            Actor_PlaySfx(&this->actor, 0x38C2);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_OCTAROCK_JUMP);
         }
     }
     this->actionFunc = func_8086EC00;
@@ -486,7 +486,7 @@ void func_8086EC00(EnOkuta* this, PlayState* play) {
             }
             if ((this->unk260 > 50.0f) && Animation_OnFrame(&this->skelAnime, 13.0f)) {
                 func_8086E27C(this, play);
-                Actor_PlaySfx(&this->actor, 0x38C3);
+                Actor_PlaySfx(&this->actor, NA_SE_EN_DAIOCTA_LAND);
             }
         } else {
             // clang-format off
@@ -518,7 +518,7 @@ void func_8086EE8C(EnOkuta* this) {
     Actor_SetColorFilter(&this->actor, 0x4000, 0xFF, 0, 0xB);
     this->collider.base.acFlags &= 0xFFFE;
     Actor_SetScale(&this->actor, 0.01f);
-    Actor_PlaySfx(&this->actor, 0x38C6U);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_OCTAROCK_DEAD1);
     this->actionFunc = func_8086EF14;
 }
 
@@ -560,12 +560,12 @@ void func_8086EFE8(EnOkuta* this, PlayState* play) {
         velocity.y = -0.5f;
         velocity.z = 0.0f;
         func_8086E214(&pos, &velocity, -0x14, play);
-        Actor_PlaySfx(&this->actor, 0x38C7);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_OCTAROCK_DEAD2);
     }
 
     if (Animation_OnFrame(&this->skelAnime, 15.0f)) {
         func_8086E27C(this, play);
-        Actor_PlaySfx(&this->actor, 0x38C3);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_DAIOCTA_LAND);
     }
 
     if (this->unk18E < 3) {
@@ -823,7 +823,7 @@ void EnOkuta_Update(Actor* thisx, PlayState* play2) {
                 this->unk258 = (this->unk254 + 1.0f) * 0.3f;
                 this->unk258 = CLAMP_MAX(this->unk258, 0.6f);
             } else if (Math_StepToF(&this->unk25C, 0.6f, 0.015000001f) == 0) {
-                Actor_PlaySfx_Flagged(&this->actor, 0x20B2);
+                Actor_PlaySfx_Flagged(&this->actor, NA_SE_EV_ICE_FREEZE - SFX_FLAG);
             }
         }
     }
