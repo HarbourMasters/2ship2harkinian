@@ -328,6 +328,7 @@ void func_80A78C7C(EnJso2* this, PlayState* play) {
     f32 temp_fv1 = this->skelAnime.curFrame;
     s16 temp_v0_2;
     Vec3f sp2C;
+    s32 temp = 1;
 
     if ((this->unkF40.base.atFlags & AT_BOUNCED) || (this->unkFC0.base.atFlags & 4)) {
         this->unkF40.base.atFlags &= 0xFFF9;
@@ -335,7 +336,7 @@ void func_80A78C7C(EnJso2* this, PlayState* play) {
         Matrix_RotateYS(this->actor.yawTowardsPlayer, MTXMODE_NEW);
         Matrix_MultVecZ(-10.0f, &sp2C);
         Math_Vec3f_Copy(&this->unkE58, &sp2C);
-        this->unk368 = 1;
+        this->unk368 = temp;
         this->unk28A = 0;
         AudioSfx_SetChannelIO(&this->actor.projectedPos, 0x39BE, 0);
         func_80A79864(this);
@@ -347,7 +348,7 @@ void func_80A78C7C(EnJso2* this, PlayState* play) {
             this->actor.velocity.y = 13.0f;
         } else {
             AudioSfx_SetChannelIO(&this->actor.projectedPos, 0x39BE, 0);
-            this->unk368 = 1;
+            this->unk368 = temp;
             this->unk370 = 1;
             this->actor.speed = 0.0f;
             func_80A78E8C(this);
@@ -941,6 +942,129 @@ s32 func_80A7AA48(PlayState* play, s32 arg1, Gfx** dList, Vec3f* pos, Vec3s* rot
     return 0;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A7AA9C.s")
+// #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A7AA9C.s")
+
+extern Vec3f D_80A7B558;
+extern Vec3f D_80A7B564;
+extern Vec3f D_80A7B570;
+extern Vec3f D_80A7B57C;
+extern Vec3f D_80A7B588;
+extern Vec3f D_80A7B594;
+extern Vec3f D_80A7B5A0;
+extern Vec3f D_80A7B5AC;
+extern Vec3f D_80A7B5B8;
+extern Vec3f D_80A7B5C4;
+extern Vec3f D_80A7B5D0;
+extern Vec3f D_80A7B5DC;
+extern Vec3f D_80A7B6FC;
+extern Vec3f D_80A7B708;
+extern Vec3f D_80A7B714;
+extern Vec3f D_80A7B720;
+extern Vec3f D_80A7B72C;
+
+void func_80A7AA9C(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Actor* thisx) {
+    EnJso2* this = THIS;
+
+    Vec3f sp68;
+    Vec3f sp5C;
+    Vec3f sp50 = D_80A7B6FC;
+
+    if (limbIndex == 4) {
+        Matrix_Translate(0.0f, 0.0f, 0.0f, MTXMODE_APPLY);
+        Math_Vec3f_Copy(&this->unkFC0.dim.quad[3], &this->unkFC0.dim.quad[1]);
+        Math_Vec3f_Copy(&this->unkFC0.dim.quad[2], &this->unkFC0.dim.quad);
+        Matrix_MultVec3f(&D_80A7B720, &this->unkFC0.dim.quad[1]);
+        Matrix_MultVec3f(&D_80A7B72C, &this->unkFC0.dim.quad);
+        Collider_SetQuadVertices(&this->unkFC0, &this->unkFC0.dim.quad, &this->unkFC0.dim.quad[1],
+                                 &this->unkFC0.dim.quad[2], &this->unkFC0.dim.quad[3]);
+        Matrix_MultVec3f(&D_80A7B708, &sp68);
+        Matrix_MultVec3f(&D_80A7B714, &sp5C);
+
+        if ((this->unk284 == 7) || (this->unk284 == 9)) {
+            Matrix_MultVec3f(&D_80A7B5A0, &this->unk_E64[0]);
+            Matrix_MultVec3f(&D_80A7B5AC, &this->unk_E64[1]);
+            Matrix_MultVec3f(&D_80A7B5B8, &this->unk_E64[2]);
+        } else {
+            Matrix_MultVec3f(&D_80A7B558, &this->unk_E64[0]);
+            Matrix_MultVec3f(&D_80A7B564, &this->unk_E64[1]);
+            Matrix_MultVec3f(&D_80A7B570, &this->unk_E64[2]);
+        }
+
+        if (((this->unk284 == 7) || (this->unk284 == 8) || (this->unk284 == 6) || (this->unk284 == 0x10)) &&
+            ((u8)this->unk368 == 0)) {
+            EffectBlure_AddVertex(Effect_GetByIndex(this->unk384), &sp68, &sp5C);
+        } else if (this->unk368 == 1) {
+            EffectBlure_AddSpace(Effect_GetByIndex(this->unk384));
+        }
+    }
+
+    if (limbIndex == 6) {
+        Matrix_Translate(0.0f, 0.0f, 0.0f, MTXMODE_APPLY);
+        Math_Vec3f_Copy(&this->unkF40.dim.quad[3], &this->unkF40.dim.quad[1]);
+        Math_Vec3f_Copy(&this->unkF40.dim.quad[2], &this->unkF40.dim.quad);
+        Matrix_MultVec3f(&D_80A7B720, &this->unkF40.dim.quad[1]);
+        Matrix_MultVec3f(&D_80A7B72C, &this->unkF40.dim.quad);
+        Collider_SetQuadVertices(&this->unkF40, &this->unkF40.dim.quad, &this->unkF40.dim.quad[1],
+                                 &this->unkF40.dim.quad[2], &this->unkF40.dim.quad[3]);
+        Matrix_MultVec3f(&D_80A7B708, &sp68);
+        Matrix_MultVec3f(&D_80A7B714, &sp5C);
+
+        if ((this->unk284 == 7) || (this->unk284 == 9)) {
+            Matrix_MultVec3f(&D_80A7B5C4, &this->unk_E64[3]);
+            Matrix_MultVec3f(&D_80A7B5D0, &this->unk_E64[4]);
+            Matrix_MultVec3f(&D_80A7B5DC, &this->unk_E64[5]);
+        } else {
+            Matrix_MultVec3f(&D_80A7B57C, &this->unk_E64[3]);
+            Matrix_MultVec3f(&D_80A7B588, &this->unk_E64[4]);
+            Matrix_MultVec3f(&D_80A7B594, &this->unk_E64[5]);
+        }
+
+        if (((this->unk284 == 7) || (this->unk284 == 8) || (this->unk284 == 6) || (this->unk284 == 0x10)) &&
+            ((u8)this->unk368 == 0)) {
+            EffectBlure_AddVertex(Effect_GetByIndex(this->unk380), &sp68, &sp5C);
+        } else if ((u8)this->unk368 == 1) {
+            EffectBlure_AddSpace(Effect_GetByIndex(this->unk380));
+            this->unk368 = 0;
+        }
+    }
+
+    if (limbIndex == 0xA) {
+        sp50.x = 900.0f;
+        sp50.y = 50.0f;
+        sp50.z = -330.0f;
+        Matrix_MultVec3f(&sp50, &this->unk2C4);
+    }
+
+    if ((this->unk284 != 0xE) &&
+        ((limbIndex == 4) || (limbIndex == 6) || (limbIndex == 7) || (limbIndex == 8) || (limbIndex == 9) ||
+         (limbIndex == 0xA) || (limbIndex == 0xB) || (limbIndex == 0xC) || (limbIndex == (s32)0xE) ||
+         (limbIndex == 0x10) || (limbIndex == 0x11) || (limbIndex == 0x13))) {
+        Matrix_MultZero(&this->unk2D4[this->unk364]);
+        this->unk364 += 1;
+        if (this->unk364 >= 0xC) {
+            this->unk364 = 0;
+        }
+    }
+
+    if (limbIndex == 0xC) {
+        Matrix_Push();
+        Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
+        OPEN_DISPS(play->state.gfxCtx);
+        // temp_v0_5 = temp_s0->polyOpa.tha.head;
+        // temp_s0->polyOpa.tha.head = temp_v0_5 + 8;
+        // temp_v0_5->unk0 = 0xDA380003;
+        // sp44 = temp_v0_5;
+        // sp44->unk4 = Matrix_NewMtx(play->state.gfxCtx);
+        gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        // temp_v0_6 = temp_s0->polyOpa.tha.head;
+        // temp_s0->polyOpa.tha.head = temp_v0_6 + 8;
+        // temp_v0_6->unk4 = &D_06002ED8;
+        // temp_v0_6->unk0 = 0xDE000000;
+        if (1) {}
+        gSPDisplayList(POLY_OPA_DISP++, &D_06002ED8);
+        Matrix_Pop();
+        CLOSE_DISPS(play->state.gfxCtx);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/EnJso2_Draw.s")
