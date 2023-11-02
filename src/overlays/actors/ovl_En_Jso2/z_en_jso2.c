@@ -790,7 +790,7 @@ void func_80A7A124(EnJso2* this, PlayState* play) {
 
     if ((this->unk1040 == 0x15) && (this->unk374 <= curFrame)) {
         if (this->unk2D0 == NULL) {
-            this->unk2D0 = Actor_SpawnAsChild(&play->actorCtx, &this->actor, play, 0x1D9, this->unk2C4.x,
+            this->unk2D0 = Actor_SpawnAsChild(&play->actorCtx, &this->actor, play, ACTOR_EN_COL_MAN, this->unk2C4.x,
                                               this->unk2C4.y, this->unk2C4.z, 0, 0, 0, 4);
         } else if (this->unk104A >= 0xA) {
             if (this->unk2D0 != NULL) {
