@@ -649,13 +649,12 @@ void func_80A79B60(EnJso2* this) {
 
 void func_80A79BA0(EnJso2* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
-    f32 curframe;
+    f32 curframe = this->skelAnime.curFrame;
     Vec3f sp4C;
 
-    curframe = this->skelAnime.curFrame;
-    
     if ((this->unk1040 == 0x15) && (curframe >= this->unk374) && !this->unk2D0) {
-        this->unk2D0 = Actor_SpawnAsChild(&play->actorCtx, &this->actor, play, 0x1D9, this->unk2C4.x, this->unk2C4.y, this->unk2C4.z, 0, 0, 0, 3);
+        this->unk2D0 = Actor_SpawnAsChild(&play->actorCtx, &this->actor, play, ACTOR_EN_COL_MAN, this->unk2C4.x,
+                                          this->unk2C4.y, this->unk2C4.z, 0, 0, 0, 3);
     }
 
     if (this->unk2D0) {
@@ -663,6 +662,7 @@ void func_80A79BA0(EnJso2* this, PlayState* play) {
         this->unk2D0->world.pos.y = this->unk2C4.y;
         this->unk2D0->world.pos.z = this->unk2C4.z;
     }
+
     switch (this->unk1046) {
         case 0:
             if (!CutsceneManager_IsNext(this->actor.csId)) {
@@ -670,7 +670,8 @@ void func_80A79BA0(EnJso2* this, PlayState* play) {
             } else {
                 CutsceneManager_StartWithPlayerCs(this->actor.csId, &this->actor);
                 func_800B7298(play, &this->actor, 7);
-                this->actor.world.rot.y = this->actor.shape.rot.y = Math_Vec3f_Yaw(&this->actor.world.pos, &this->actor.home.pos);
+                this->actor.world.rot.y = this->actor.shape.rot.y =
+                    Math_Vec3f_Yaw(&this->actor.world.pos, &this->actor.home.pos);
                 Audio_SetMainBgmVolume(0, 0xA);
                 func_80A776E0(this, 0x13);
                 this->unk1048 = CutsceneManager_GetCurrentSubCamId(this->actor.csId);
@@ -680,12 +681,14 @@ void func_80A79BA0(EnJso2* this, PlayState* play) {
                 this->unk298 = 40.0f;
             }
             break;
+
         case 1:
-            if (curframe >= this->unk374 ) {
+            if (curframe >= this->unk374) {
                 func_80A776E0(this, 0x14);
                 this->unk1046++;
             }
             break;
+
         case 2:
             if (curframe >= this->unk374) {
                 this->actor.textId = 0x13AE;
@@ -693,6 +696,7 @@ void func_80A79BA0(EnJso2* this, PlayState* play) {
                 this->unk1046++;
             }
             break;
+
         case 3:
             if (func_80A77880(play) != 0) {
                 if (this->actor.textId == 0x13AE) {
@@ -711,22 +715,23 @@ void func_80A79BA0(EnJso2* this, PlayState* play) {
                     this->unk1046++;
                     break;
                 }
-                
+
                 Message_ContinueTextbox(play, this->actor.textId);
-                
             }
             break;
+
         case 4:
             Math_SmoothStepToS(&this->unk366, 0, 1, 0xF, 0x32);
             Math_ApproachZeroF(&this->actor.shape.shadowScale, 0.3f, 3.0f);
             if (this->unk1044 == 0) {
                 this->actor.textId = 0x13B1;
                 Message_StartTextbox(play, this->actor.textId, &this->actor);
-                Actor_PlaySfx(&this->actor, 0x3AC6);
+                Actor_PlaySfx(&this->actor, NA_SE_EN_ANSATSUSYA_LAUGH);
                 this->unk290 = 0x32;
                 this->unk1046++;
             }
             break;
+
         case 5:
             func_800B7298(play, &this->actor, 7);
             if (this->unk290 == 0) {
@@ -735,14 +740,16 @@ void func_80A79BA0(EnJso2* this, PlayState* play) {
                 Actor_Kill(&this->actor);
             }
             break;
+
         default:
             break;
     }
+
     if (this->unk1048 != 0) {
         player->actor.world.pos.x = (Math_SinS(this->actor.world.rot.y) * 170.0f) + this->actor.world.pos.x;
         player->actor.world.pos.z = (Math_CosS(this->actor.world.rot.y) * 170.0f) + this->actor.world.pos.z;
         player->actor.world.rot.y = player->actor.shape.rot.y = this->actor.world.rot.y + 0x8000;
-        
+
         Matrix_RotateYS((BREG(49) << 8) + this->actor.shape.rot.y + 0x1000, MTXMODE_NEW);
         Matrix_MultVecZ(BREG(48) + 230.0f, &sp4C);
         this->unk1078.x = this->actor.world.pos.x + sp4C.x;
