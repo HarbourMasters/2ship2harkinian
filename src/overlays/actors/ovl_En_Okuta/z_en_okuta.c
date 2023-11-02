@@ -555,7 +555,25 @@ void func_8086F4F4(EnOkuta* this) {
     this->actionFunc = func_8086F57C;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086F57C.s")
+void func_8086F57C(EnOkuta* this, PlayState* play) {
+
+    this->unk18E--;
+    Math_ScaledStepToS(&this->actor.shape.rot.x, 0, 0x400);
+    
+    if (SkelAnime_Update(&this->skelAnime)) {
+        Animation_Change(&this->skelAnime, (AnimationHeader* ) &D_06004204, 1.0f, 0.0f, Animation_GetLastFrame(&D_06004204) - 3.0f, 2, -3.0f);
+    }
+    
+    if (this->unk18E < 10) {
+        this->actor.shape.rot.y += (s16) (8192.0f * Math_SinF(this->unk18E * 0.15707964f));
+    } else {
+        this->actor.shape.rot.y += 0x2000;
+    }
+
+    if (this->unk18E == 0) {
+        func_8086E8E8(this);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086F694.s")
 
