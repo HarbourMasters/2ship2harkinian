@@ -110,7 +110,7 @@ static InitChainEntry D_80870920[] = {
     ICHAIN_F32(targetArrowOffset, 6500, ICHAIN_STOP),
 };
 
-#endif
+#else
 
 extern ColliderCylinderInit D_808708A0;
 extern ColliderCylinderInit D_808708CC;
@@ -145,6 +145,8 @@ extern Vec3f* D_80870978;
 
 extern s16 D_808708EE;
 extern s16 D_808708EC;
+
+#endif
 
 void EnOkuta_Init(Actor* thisx, PlayState* play2) {
     EnOkuta* this = THIS;
