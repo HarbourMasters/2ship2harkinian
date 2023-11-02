@@ -763,9 +763,41 @@ void func_808700C0(Actor* thisx, PlayState* play) {
     }
 }
 
+s32 func_80870254(EnOkuta* this, f32 curFrame, Vec3f* scale) {
 
-
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_80870254.s")
+    if (this->actionFunc == func_8086E948) {
+        scale->z = scale->y = 1.0f;
+        scale->x = (Math_SinF(0.19634955f * curFrame) * 0.4f) + 1.0f;
+    } else if (this->actionFunc == func_8086EC00) {
+        if (curFrame < 5.0f) {
+            scale->z = 1.0f;
+            scale->x = scale->y = (curFrame * 0.25f) + 1.0f;
+        } else if (curFrame < 7.0f) {
+            scale->z = (curFrame - 4.0f) * 0.5f + 1.0f;
+            scale->x = scale->y = 2.0f - (curFrame - 4.0f) * 0.5f;
+        } else {
+            scale->z = 2.0f - ((curFrame - 6.0f) * 0.0769f);
+            scale->x = scale->y = 1.0f;
+        }
+    } else if (this->actionFunc == func_8086EFE8) {
+        if ((curFrame >= 35.0f) || (curFrame < 25.0f)) {
+            return 0;
+        }
+        if (curFrame < 27.0f) {
+            scale->z = 1.0f;
+            scale->x = scale->y = ((curFrame - 24.0f) * 0.5f) + 1.0f;
+        } else if (curFrame < 30.0f) {
+            scale->z = (curFrame - 26.0f) * 0.333f + 1.0f;
+            scale->x = scale->y = 2.0f - (curFrame - 26.0f) * 0.333f;
+        } else {
+            scale->z = 2.0f - ((curFrame - 29.0f) * 0.2f);
+            scale->x = scale->y = 1.0f;
+        }
+    } else {
+        return false;
+    }
+    return true;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_808704DC.s")
 
