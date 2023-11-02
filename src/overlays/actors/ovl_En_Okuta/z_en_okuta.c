@@ -289,7 +289,7 @@ void func_8086E3B8(EnOkuta* this, PlayState* play) {
         velocity.x = 1.5f * sp3C;
         velocity.y = 0.0f;
         velocity.z = 1.5f * sp38;
-        func_8086E214(&pos, &velocity, 0x14, play);
+        func_8086E214(&pos, &velocity, 20, play);
     }
     Actor_PlaySfx(&this->actor, NA_SE_EN_NUTS_THROW);
 }
