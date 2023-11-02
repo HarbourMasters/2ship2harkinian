@@ -707,7 +707,86 @@ void func_80A7A2EC(EnJso2* this, PlayState* play) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A7A360.s")
+void func_80A7A360(EnJso2* this, PlayState* play) {
+    s32 var_a3 = false;
+    
+    if ((this->unk284 != 0xB) && (this->unk284 != 0xC) && (this->unk284 != 0xD) && (this->unk284 != 0xE) && this->unkEF4.base.acFlags & 2) {
+        this->unkEF4.base.acFlags &= 0xFFFD;
+        if ((this->actor.colChkInfo.damageEffect == 1) || (this->actor.colChkInfo.damageEffect == 5)) {
+            this->actor.world.rot.x = this->actor.shape.rot.x = 0;
+            if (((this->unk2A2 != 0xB) && (this->unk2A2 != 0xA)) || (this->unk2A0 == 0)) {
+                Actor_PlaySfx(&this->actor, 0x389E);
+                if (this->actor.colChkInfo.damageEffect == 5) {
+                    this->unk2A0 = 0x28;
+                    this->unk2A2 = 0x20;
+                }
+                Actor_SetColorFilter(&this->actor, 0, 0xFF, 0, 0x28);
+                func_80A79524(this);
+            }
+        } else {
+            switch (this->unk284) {
+                case 2:
+                case 3:
+                case 4:
+                    this->actor.speed = 0.0f;
+                    func_80A78A70(this);
+                    break;
+                case 7:
+                case 9:
+                case 10:
+                    switch (this->actor.colChkInfo.damageEffect) {
+                        case 15: 
+                            var_a3 = true;
+                            break;
+                        case 2:
+                            this->unk2A0 = 0x28;
+                            this->unk2A2 = 0;
+                            var_a3 = true;
+                            break;
+                        
+                        case 4:
+                            if (((this->unk2A2 != 0xB) && (this->unk2A2 != 0xA)) || (this->unk2A0 == 0)) {
+                                Actor_Spawn(&play->actorCtx, play, 0xA2, this->actor.focus.pos.x, this->actor.focus.pos.y, this->actor.focus.pos.z, 0, 0, 0, 4);
+                                this->unk2A0 = 0x14;
+                                this->unk2A2 = 0x14;
+                                var_a3 = true;
+                            }
+                            break;
+                        
+                        case 3:
+                            if (((this->unk2A2 != 0xB) && (this->unk2A2 != 0xA)) || (this->unk2A0 == 0)) {
+                                Actor_ApplyDamage(&this->actor);
+                                this->unk2A0 = 0x50;
+                                this->unk2A2 = 0xB;
+                                this->unk2A4 = 0.0f;
+                                this->unk2A8 = 1.5f;
+                            }
+                            if (this->actor.colChkInfo.health <= 0) {
+                                func_80A7998C(this, play);
+                            } else {
+                                func_80A79524(this);
+                            }
+                            break;
+                        
+                        
+                        default:
+                            break;
+                            
+                    }
+                default:
+                    break;
+            }
+            if (var_a3) {
+                Actor_ApplyDamage(&this->actor);
+                if (this->actor.colChkInfo.health > 0) {
+                    func_80A796BC(this, play);
+                } else {
+                    func_80A7998C(this, play);
+                }
+            }
+        }
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/EnJso2_Update.s")
 
