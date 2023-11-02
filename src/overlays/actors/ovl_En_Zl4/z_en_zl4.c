@@ -20,8 +20,9 @@ void func_809A1BB0(SkelAnime* skelAnime, AnimationInfo* animInfo, u16 animIndex)
 void func_809A1D0C(EnZl4* this, PlayState* play);
 void func_809A1DA4(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Actor* thisx);
 void func_809A1DBC(PlayState* play, s32 limbIndex, Actor* thisx);
+Gfx* func_809A1DD0(GraphicsContext* gfxCtx, u32 alpha);
+Gfx* func_809A1E28(GraphicsContext* gfxCtx, u32 alpha);
 
-#if 0
 ActorInit En_Zl4_InitVars = {
     /**/ ACTOR_EN_ZL4,
     /**/ ACTORCAT_ITEMACTION,
@@ -34,10 +35,9 @@ ActorInit En_Zl4_InitVars = {
     /**/ EnZl4_Draw,
 };
 
-#endif
+AnimationInfo D_809A1F80 = { (AnimationHeader*)0x0600CC94, 1.0f, 0.0f, -1.0f, 0, 0.0f };
 
-extern AnimationInfo D_809A1F80;
-extern Vec3f D_809A1F98;
+Vec3f D_809A1F98 = { 0.0f, 0.0f, 0.0f };
 
 void func_809A1BB0(SkelAnime* skelAnime, AnimationInfo* animInfo, u16 animIndex) {
     f32 endFrame;
@@ -91,13 +91,42 @@ void func_809A1DA4(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Acto
 void func_809A1DBC(PlayState* play, s32 limbIndex, Actor* thisx) {
 }
 
-s32 func_809A1DD0(GraphicsContext*, u32);
+Gfx* func_809A1DD0(GraphicsContext* gfxCtx, u32 alpha) {
+    Gfx* disp;
+    Gfx* disp2;
 
-s32 func_809A1E28(GraphicsContext*, u32);
+    OPEN_DISPS(gfxCtx);
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Zl4/func_809A1DD0.s")
+    disp = GRAPH_ALLOC(gfxCtx, 0x10);
+    disp2 = disp;
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Zl4/func_809A1E28.s")
+    gDPSetRenderMode(disp++, G_RM_FOG_SHADE_A, G_RM_AA_ZB_XLU_SURF2);
+
+    gDPSetEnvColor(disp++, 0, 0, 0, alpha);
+
+    gSPEndDisplayList(disp);
+
+    CLOSE_DISPS(gfxCtx);
+    return disp2;
+}
+
+Gfx* func_809A1E28(GraphicsContext* gfxCtx, u32 alpha) {
+    Gfx* disp;
+    Gfx* disp2;
+
+    OPEN_DISPS(gfxCtx);
+
+    disp = GRAPH_ALLOC(gfxCtx, 0x10);
+    disp2 = disp;
+
+    gDPSetEnvColor(disp++, 0, 0, 0, alpha);
+
+    gSPEndDisplayList(disp);
+
+    CLOSE_DISPS(gfxCtx);
+
+    return disp2;
+}
 
 void EnZl4_Draw(Actor* thisx, PlayState* play) {
     EnZl4* this = THIS;
