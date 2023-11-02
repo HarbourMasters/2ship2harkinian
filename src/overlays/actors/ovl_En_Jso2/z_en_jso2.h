@@ -26,7 +26,9 @@ typedef struct EnJso2 {
     /* 0x029C */ s32 unk29C;
     /* 0x02A0 */ s16 unk2A0;
     /* 0x02A2 */ s16 unk2A2;
-    /* 0x02A4 */ char unk_2A4[0x10];
+    /* 0x02A4 */ f32 unk2A4;
+    /* 0x02A8 */ f32 unk2A8;
+    /* 0x02AC */ char pad2AC[0x8];
     /* 0x02B4 */ s32 unk2B4;
     /* 0x02B6 */ char unk_2B8[0xC];
     /* 0x02C4 */ Vec3f unk2C4;
