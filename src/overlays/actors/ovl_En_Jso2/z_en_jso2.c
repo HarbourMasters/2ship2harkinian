@@ -423,7 +423,7 @@ void func_80A78C7C(EnJso2* this, PlayState* play) {
         temp_v0_2 = ABS_ALT((s16)(this->actor.yawTowardsPlayer - this->actor.shape.rot.y));
 
         if (((this->unk28A == 0) || (this->actor.xzDistToPlayer < 120.0f)) || (temp_v0_2 > 0x4300)) {
-            AudioSfx_SetChannelIO(&this->actor.projectedPos, 0x39BE, 0);
+            AudioSfx_SetChannelIO(&this->actor.projectedPos, NA_SE_EN_ANSATSUSYA_DASH_2, 0);
             Math_ApproachZeroF(&this->actor.speed, 0.3f, 3.0f);
             func_80A790E4(this, play);
         }
@@ -453,6 +453,7 @@ void func_80A78F04(EnJso2* this, PlayState* play) {
 
 void func_80A78F80(EnJso2* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
+
     Math_Vec3f_Copy(&this->actor.world.pos, &player->actor.world.pos);
     this->actor.world.pos.y += 300.0f + BREG(0x34);
     this->actor.velocity.y = 0.0f;
@@ -488,22 +489,24 @@ void func_80A790E4(EnJso2* this, PlayState* play) {
 
 void func_80A7919C(EnJso2* this, PlayState* play) {
     Vec3f sp44;
-    f32 sp40;
+    f32 sp40 = this->skelAnime.curFrame;
 
-    sp40 = this->skelAnime.curFrame;
     Math_ApproachZeroF(&this->actor.speed, 0.5f, 5.0f);
+
     if (!(play->gameplayFrames & 7)) {
         Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos, this->actor.shape.shadowScale, 1, 8.0f,
-                                 (s16)0x1F4, (s16)0xA, (u8)1);
+                                 500, 10, 1);
     }
-    if ((this->unkF40.base.atFlags & 2) || (this->unkFC0.base.atFlags & AT_HIT) != 0) {
+
+    if ((this->unkF40.base.atFlags & AT_HIT) || (this->unkFC0.base.atFlags & AT_HIT) != 0) {
         this->unk371 = 1;
-        this->unkF40.base.atFlags &= 0xFFFD;
-        this->unkFC0.base.atFlags &= 0xFFFD;
+        this->unkF40.base.atFlags &= ~(AT_HIT);
+        this->unkFC0.base.atFlags &= ~(AT_HIT);
     }
-    if ((((u8)this->unkF40.base.atFlags) & 4) || (((u8)this->unkFC0.base.atFlags) & 4)) {
-        this->unkF40.base.atFlags &= 0xFFF9;
-        this->unkFC0.base.atFlags &= 0xFFF9;
+
+    if ((((u8)this->unkF40.base.atFlags) & AT_BOUNCED) || (this->unkFC0.base.atFlags & 4)) {
+        this->unkF40.base.atFlags &= ~(AT_HIT | AT_BOUNCED);
+        this->unkFC0.base.atFlags &= ~(AT_HIT | AT_BOUNCED);
         Matrix_RotateYS(this->actor.yawTowardsPlayer, MTXMODE_NEW);
         Matrix_MultVecZ(-10.0f, &sp44);
         Math_Vec3f_Copy(&this->unkE58, &sp44);
@@ -517,7 +520,7 @@ void func_80A7919C(EnJso2* this, PlayState* play) {
 }
 
 void func_80A79300(EnJso2* this) {
-    func_80A776E0(this, 0xE);
+    func_80A776E0(this, 14);
     this->unk371 = 0;
     Actor_PlaySfx(&this->actor, NA_SE_IT_SWORD_SWING_HARD);
     this->unk368 = 0;
@@ -531,10 +534,11 @@ void func_80A79364(EnJso2* this, PlayState* play) {
     this->actor.shape.rot.y -= 0x1770;
     Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos, this->actor.shape.shadowScale, 1, 4.0f, 0x12C,
                              5, 1);
-    Math_SmoothStepToS(&this->actor.world.rot.y, this->actor.yawTowardsPlayer, 1, 0xFA0, 0x14);
+    Math_SmoothStepToS(&this->actor.world.rot.y, this->actor.yawTowardsPlayer, 1, 4000, 20);
 
-    if ((this->unk28E == 0) || ((this->unkF40.base.atFlags & 2) != 0) || (this->unkF40.base.atFlags & AT_BOUNCED) ||
-        ((this->unkFC0.base.atFlags & AT_HIT) != 0) || (this->unkFC0.base.atFlags & AT_BOUNCED)) {
+    if ((this->unk28E == 0) || ((this->unkF40.base.atFlags & AT_HIT) != 0) ||
+        (this->unkF40.base.atFlags & AT_BOUNCED) || ((this->unkFC0.base.atFlags & AT_HIT) != 0) ||
+        (this->unkFC0.base.atFlags & AT_BOUNCED)) {
         this->unkF40.base.atFlags &= ~(AT_BOUNCED | AT_HIT);
         this->unkFC0.base.atFlags &= ~(AT_BOUNCED | AT_HIT);
         func_80A79864(this);
