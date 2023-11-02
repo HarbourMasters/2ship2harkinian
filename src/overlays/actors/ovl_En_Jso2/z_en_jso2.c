@@ -998,12 +998,12 @@ void func_80A7A360(EnJso2* this, PlayState* play) {
 void EnJso2_Update(Actor* thisx, PlayState* play) {
     s32 pad;
     s32 i;
-    EnJso2* this = (EnJso2* ) thisx;
+    EnJso2* this = (EnJso2*)thisx;
 
     if (this->unk284 != 3) {
         SkelAnime_Update(&this->skelAnime);
     }
-    
+
     DECR(this->unk28A);
     DECR(this->unk28E);
     DECR(this->unk290);
@@ -1028,7 +1028,7 @@ void EnJso2_Update(Actor* thisx, PlayState* play) {
         if (this->unk_38C >= 0x14) {
             this->unk_38C = 0;
         }
-        
+
         if (this->unk_388 < 0x13) {
             this->unk_388++;
         }
@@ -1036,19 +1036,20 @@ void EnJso2_Update(Actor* thisx, PlayState* play) {
         Math_Vec3s_Copy(&this->unk_480[this->unk_38C], &this->actor.world.rot);
 
         this->unk_390[this->unk_38C].y += 40.0f;
-       
+
         for (i = 0; i < 20; i++) {
             this->unk_4F8[this->unk_38C][i] = this->jointTable[i];
         }
     } else if (this->unk284 != 0) {
         this->unk_388 = 0;
     }
-    if ((this->unk284 != 3) && (this->unk284 != 5) && (this->unk284 != 0xB) && (this->unk284 != 8) && (this->unk284 != 0xF) && (this->unk284 != 0xC)) {
+    if ((this->unk284 != 3) && (this->unk284 != 5) && (this->unk284 != 0xB) && (this->unk284 != 8) &&
+        (this->unk284 != 0xF) && (this->unk284 != 0xC)) {
         this->actor.shape.rot.y = this->actor.world.rot.y;
     }
-    
+
     this->actor.shape.rot.x = this->actor.world.rot.x;
-    
+
     Collider_UpdateCylinder(&this->actor, &this->unkEF4);
 
     if ((this->unk284 != 0) && (this->unk284 != 8) && (this->unk284 != 0xF)) {
@@ -1058,7 +1059,8 @@ void EnJso2_Update(Actor* thisx, PlayState* play) {
             CollisionCheck_SetAC(play, &play->colChkCtx, &this->unkEF4.base);
         }
     }
-    if (((this->unk284 == 7) || (this->unk284 == 0x10) || (this->unk284 == 6) || (this->unk284 == 8)) && (this->unk371 == 0) && (this->unk36C == 0)) {
+    if (((this->unk284 == 7) || (this->unk284 == 0x10) || (this->unk284 == 6) || (this->unk284 == 8)) &&
+        (this->unk371 == 0) && (this->unk36C == 0)) {
         CollisionCheck_SetAT(play, &play->colChkCtx, &this->unkF40.base);
         CollisionCheck_SetAT(play, &play->colChkCtx, &this->unkFC0.base);
     }
@@ -1239,7 +1241,7 @@ void EnJso2_Draw(Actor* thisx, PlayState* play2) {
             gDPSetPrimColor(POLY_XLU_DISP++, 0x80, 0x80, 0xFF, 0xFF, 0xAA, 0xFF);
             gDPSetEnvColor(POLY_XLU_DISP++, 255, 50, 0, 255);
             Matrix_Mult(&play->billboardMtxF, MTXMODE_APPLY);
-            gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), (0x00 | 0x02) | 0x00);
+            gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_XLU_DISP++, D_0407D590);
             Matrix_Pop();
         }
