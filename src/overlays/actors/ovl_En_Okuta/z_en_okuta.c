@@ -659,7 +659,28 @@ void func_8086F8FC(EnOkuta* this) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086FCA4.s")
+void func_8086FCA4(EnOkuta* this, PlayState* play) {
+
+    if ((this->collider.base.acFlags & 2) && ((this->collider.base.acFlags = (u8) (this->collider.base.acFlags & 0xFFFD), (this->unk18C != 0xA)) || !(this->collider.info.acHitInfo->toucher.dmgFlags & 0xDB0B3))) {
+        Actor_SetDropFlag(&this->actor, &this->collider.info);
+        func_8086E0F0(this, play);
+        if (this->actor.colChkInfo.damageEffect == 3) {
+            func_8086F2FC(this, play);
+        } else {
+            if (this->actor.colChkInfo.damageEffect == 4) {
+                this->unk254 = 4.0f;
+                this->unk258 = 0.6f;
+                this->unk18C = 0x14;
+                Actor_Spawn(&play->actorCtx, play, 0xA2, this->collider.info.bumper.hitPos.x, this->collider.info.bumper.hitPos.y, this->collider.info.bumper.hitPos.z, 0, 0, 0, 4);
+            }
+            
+            if (!Actor_ApplyDamage(&this->actor)) {
+                Enemy_StartFinishingBlow(play, &this->actor);
+            }
+            func_8086EE8C(this);
+        }
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/EnOkuta_Update.s")
 
