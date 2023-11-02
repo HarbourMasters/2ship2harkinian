@@ -764,7 +764,7 @@ void func_80A79BA0(EnJso2* this, PlayState* play) {
 
 void func_80A7A0D0(EnJso2* this) {
     this->unk1044 = 0;
-    Audio_SetMainBgmVolume(0, 0xA);
+    Audio_SetMainBgmVolume(0, 10);
     func_80A776E0(this, 19);
     this->unk284 = 0xE;
     this->actionFunc = func_80A7A124;
