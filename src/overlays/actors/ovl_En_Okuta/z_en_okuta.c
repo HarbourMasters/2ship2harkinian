@@ -153,9 +153,11 @@ void EnOkuta_Init(Actor* thisx, PlayState* play2) {
         SkelAnime_Init(play, &this->skelAnime, &D_060033D0, &D_0600466C, this->jointTable, this->morphTable, 16);
         Collider_InitAndSetCylinder(play, &this->collider, &this->actor, &D_808708CC);
         CollisionCheck_SetInfo(&this->actor.colChkInfo, &D_80870900, &D_808708F8);
+
         if ((this->unk190 == 0xFF) || (this->unk190 == 0)) {
             this->unk190 = 1;
         }
+
         this->actor.floorHeight = BgCheck_EntityRaycastFloor5(&play->colCtx, &this->actor.floorPoly, &sp34,
                                                               &this->actor, &this->actor.world.pos);
         if ((!WaterBox_GetSurface1_2(play, &play->colCtx, this->actor.world.pos.x, this->actor.world.pos.z, &sp38,
@@ -165,10 +167,12 @@ void EnOkuta_Init(Actor* thisx, PlayState* play2) {
         } else {
             this->actor.home.pos.y = sp38;
         }
+
         if (this->actor.params == 1) {
             this->collider.base.colType = 0xC;
             this->collider.base.acFlags |= 4;
         }
+        
         this->actor.targetMode = 5;
         func_8086E4FC(this);
     } else {
