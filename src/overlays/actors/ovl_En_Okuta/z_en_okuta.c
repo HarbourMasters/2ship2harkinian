@@ -594,10 +594,10 @@ void func_8086EFE8(EnOkuta* this, PlayState* play) {
 void func_8086F2FC(EnOkuta* this, PlayState* play) {
     this->unk18E = 0xA;
 
-    Actor_SetColorFilter(&this->actor, 0x8000, 0x80FF, 0, 0xA);
+    Actor_SetColorFilter(&this->actor, COLORFILTER_COLORFLAG_GRAY, 0x80FF, COLORFILTER_BUFFLAG_OPA, 0xA);
 
     this->actor.child = Actor_SpawnAsChild(
-        &play->actorCtx, &this->actor, play, 0x143, this->actor.world.pos.x,
+        &play->actorCtx, &this->actor, play, ACTOR_OBJ_ICEBLOCK, this->actor.world.pos.x,
         this->actor.world.pos.y + (this->skelAnime.jointTable->y * this->actor.scale.y) + (25.0f * this->headScale.y),
         this->actor.world.pos.z, 0, this->actor.home.rot.y, 0, 3);
 
@@ -758,7 +758,7 @@ void func_8086F8FC(EnOkuta* this) {
 
 void func_8086FCA4(EnOkuta* this, PlayState* play) {
     if ((this->collider.base.acFlags & 2) &&
-        ((this->collider.base.acFlags = (u8)(this->collider.base.acFlags & 0xFFFD), (this->unk18C != 0xA)) ||
+        ((this->collider.base.acFlags = (this->collider.base.acFlags & 0xFFFD), (this->unk18C != 0xA)) ||
          !(this->collider.info.acHitInfo->toucher.dmgFlags & 0xDB0B3))) {
         Actor_SetDropFlag(&this->actor, &this->collider.info);
         func_8086E0F0(this, play);
