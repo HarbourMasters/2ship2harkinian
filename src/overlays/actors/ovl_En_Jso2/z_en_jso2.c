@@ -212,17 +212,20 @@ void func_80A78868(EnJso2* this, PlayState* play) {
     sp44 = this->skelAnime.curFrame;
     player = GET_PLAYER(play);
     Actor_PlaySfx(&this->actor, 0x31BDU);
+
     if (sp44 < this->unk374) {
         SkelAnime_Update(&this->skelAnime);
     } else if (this->actor.bgCheckFlags & 1) {
         SkelAnime_Update(&this->skelAnime);
     }
+
     if (Animation_OnFrame(&this->skelAnime, 6.0f) != 0) {
         this->actor.velocity.y = 10.0f;
         if (!(play->gameplayFrames & 1)) {
             Actor_PlaySfx(&this->actor, 0x39C0U);
         }
     }
+
     if (Animation_OnFrame(sp28, 12.0f) != 0) {
         Actor_PlaySfx(&this->actor, 0x39C1U);
         this->actor.speed = 0.0f;
@@ -230,6 +233,7 @@ void func_80A78868(EnJso2* this, PlayState* play) {
             this->unk288 = -this->unk288;
         }
     }
+
     if (this->unk28E == 0) {
         this->actor.speed = 0.0f;
         func_80A78B04(this);
@@ -295,7 +299,47 @@ void func_80A78C08(EnJso2* this) {
     this->actionFunc = func_80A78C7C;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A78C7C.s")
+void func_80A78C7C(EnJso2* this, PlayState* play) {
+    f32 temp_fv1 = this->skelAnime.curFrame;
+    s16 temp_v0_2;
+    Vec3f sp2C;
+
+    if ((this->unkF40.base.atFlags & 4) || (this->unkFC0.base.atFlags & 4)) {
+        this->unkF40.base.atFlags &= 0xFFF9;
+        this->unkFC0.base.atFlags &= 0xFFF9;
+        Matrix_RotateYS(this->actor.yawTowardsPlayer, MTXMODE_NEW);
+        Matrix_MultVecZ(-10.0f, &sp2C);
+        Math_Vec3f_Copy(&this->unkE58, &sp2C);
+        this->unk368 = 1;
+        this->unk28A = 0;
+        AudioSfx_SetChannelIO(&this->actor.projectedPos, 0x39BE, 0);
+        func_80A79864(this);
+        return;
+    }
+
+    if ((this->actor.velocity.y < 0.0f) && (this->actor.bgCheckFlags & 1)) {
+        if (Rand_ZeroOne() < ((gRegEditor->data[0x976] * 0.1f) + 0.7f)) {
+            this->actor.velocity.y = 13.0f;
+        } else {
+            AudioSfx_SetChannelIO(&this->actor.projectedPos, 0x39BE, 0);
+            this->unk368 = 1;
+            this->unk370 = 1;
+            this->actor.speed = 0.0f;
+            func_80A78E8C(this);
+            return;
+        }
+    }
+
+    if (!(temp_fv1 < this->unk374)) {
+        temp_v0_2 = ABS_ALT((s16)(this->actor.yawTowardsPlayer - this->actor.shape.rot.y));
+
+        if (((this->unk28A == 0) || (this->actor.xzDistToPlayer < 120.0f)) || (temp_v0_2 > 0x4300)) {
+            AudioSfx_SetChannelIO(&this->actor.projectedPos, 0x39BE, 0);
+            Math_ApproachZeroF(&this->actor.speed, 0.3f, 3.0f);
+            func_80A790E4(this, play);
+        }
+    }
+}
 
 void func_80A78E8C(EnJso2* this) {
     func_80A776E0(this, 0);
