@@ -35,6 +35,8 @@ void func_8086F4B0(EnOkuta* this, PlayState* play);
 void func_8086F57C(EnOkuta* this, PlayState* play);
 void func_8086F694(EnOkuta* this, PlayState* play);
 void func_808700C0(Actor* thisx, PlayState* play);
+s32 func_808704DC(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, struct Actor* thisx);
+void func_808705C8(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Actor* thisx);
 
 #if 0
 ActorInit En_Okuta_InitVars = {
@@ -126,6 +128,17 @@ extern AnimationHeader D_0600466C;
 
 extern SkeletonHeader D_060033D0;
 
+extern Vec3f D_80870930;
+extern Gfx D_80870870[];
+extern Color_RGBA8 D_8087093C;
+extern Color_RGBA8 D_80870940;
+
+// static Color_RGBA8 D_80870928 = {255, 255, 255, 255};
+// static Color_RGBA8 D_8087092C = {150, 150, 150, 255};
+
+extern Color_RGBA8 D_80870928;
+extern Color_RGBA8 D_8087092C;
+
 void EnOkuta_Init(Actor* thisx, PlayState* play2) {
     EnOkuta* this = THIS;
     PlayState* play = play2;
@@ -205,12 +218,6 @@ void func_8086E168(EnOkuta* this, PlayState* play) {
         EffectSsBubble_Spawn(play, &this->actor.world.pos, -10.0f, 10.0f, 30.0f, 0.25f);
     }
 }
-
-// static Color_RGBA8 D_80870928 = {255, 255, 255, 255};
-// static Color_RGBA8 D_8087092C = {150, 150, 150, 255};
-
-extern Color_RGBA8 D_80870928;
-extern Color_RGBA8 D_8087092C;
 
 void func_8086E214(Vec3f* pos, Vec3f* velocity, s16 scaleStep, PlayState* play) {
     func_800B0DE0(play, pos, velocity, &gZeroVec3f, &D_80870928, &D_8087092C, 400, scaleStep);
@@ -412,7 +419,7 @@ void func_8086EAE0(EnOkuta* this, PlayState* play) {
             this->unk18E = ((560.0f - this->actor.xzDistToPlayer) * 0.005f) + 1.0f;
         }
     }
-    
+
     if (this->actor.params == 0) {
         this->unk260 = this->actor.playerHeightRel + 20.0f;
         this->unk260 = CLAMP_MIN(this->unk260, 10.0f);
@@ -510,10 +517,6 @@ void func_8086EF90(EnOkuta* this) {
     this->actionFunc = func_8086EFE8;
 }
 
-extern Vec3f D_80870930;
-extern Color_RGBA8 D_8087093C;
-extern Color_RGBA8 D_80870940;
-
 void func_8086EFE8(EnOkuta* this, PlayState* play) {
     Vec3f velocity;
     Vec3f pos;
@@ -566,7 +569,7 @@ void func_8086EFE8(EnOkuta* this, PlayState* play) {
 
 void func_8086F2FC(EnOkuta* this, PlayState* play) {
     this->unk18E = 0xA;
-    
+
     Actor_SetColorFilter(&this->actor, 0x8000, 0x80FF, 0, 0xA);
 
     this->actor.child = Actor_SpawnAsChild(
@@ -645,7 +648,7 @@ void func_8086F694(EnOkuta* this, PlayState* play) {
     Vec3f sp54;
     Player* player = GET_PLAYER(play);
     Vec3s sp48;
-    
+
     this->unk18E--;
 
     if (this->unk18E < 0) {
@@ -687,7 +690,7 @@ void func_8086F694(EnOkuta* this, PlayState* play) {
 
 void func_8086F8FC(EnOkuta* this) {
     f32 curFrame = this->skelAnime.curFrame;
-    
+
     if (this->actionFunc == func_8086E658) {
         if (curFrame < 8.0f) {
             this->headScale.x = this->headScale.y = this->headScale.z = 1.0f;
@@ -879,4 +882,36 @@ s32 func_80870254(EnOkuta* this, f32 curFrame, Vec3f* scale) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_808705C8.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/EnOkuta_Draw.s")
+void EnOkuta_Draw(Actor* thisx, PlayState* play) {
+    EnOkuta* this = THIS;
+    s32 pad;
+    Gfx* gfxPtr;
+
+    OPEN_DISPS(play->state.gfxCtx);
+
+    gfxPtr = POLY_OPA_DISP;
+
+    gSPDisplayList(&gfxPtr[0], gSetupDLs[SETUPDL_25]);
+
+    if (this->actor.params < 0x10) {
+        if (this->actor.params == 0) {
+            gSPSegment(&gfxPtr[1], 0x08, D_801AEFA0);
+        } else {
+            gSPSegment(&gfxPtr[1], 0x08, D_80870870);
+        }
+        POLY_OPA_DISP = &gfxPtr[2];
+        SkelAnime_DrawOpa(play, this->skelAnime.skeleton, this->skelAnime.jointTable, func_808704DC, func_808705C8,
+                          &this->actor);
+    } else {
+        Matrix_Mult(&play->billboardMtxF, MTXMODE_APPLY);
+        Matrix_RotateZS(this->actor.home.rot.z, MTXMODE_APPLY);
+        gSPMatrix(&gfxPtr[1], Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        gSPDisplayList(&gfxPtr[2], &D_06003250);
+        POLY_OPA_DISP = &gfxPtr[3];
+    }
+
+    CLOSE_DISPS(play->state.gfxCtx);
+
+    Actor_DrawDamageEffects(play, &this->actor, this->bodyPartsPos, 0xA, this->unk258 * this->actor.scale.y * 100.0f,
+                            this->unk25C, this->unk254, this->unk18C);
+}
