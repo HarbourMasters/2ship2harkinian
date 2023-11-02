@@ -1184,7 +1184,6 @@ void EnJso2_Draw(Actor* thisx, PlayState* play2) {
     EnJso2* this = THIS;
     PlayState* play = play2;
     s32 i;
-    s32 var_s1;
     s32 pad;
 
     OPEN_DISPS(play->state.gfxCtx);
@@ -1205,42 +1204,48 @@ void EnJso2_Draw(Actor* thisx, PlayState* play2) {
     }
 
     if (this->unk_388 > 0) {
-        var_s1 = this->unk_38C;
+        s32 index = this->unk_38C;
+
         for (i = 0; i < this->unk_388; i++) {
             if (D_80A7B738[i] == 0) {
                 continue;
             }
-            Matrix_Translate(this->unk_390[var_s1].x, this->unk_390[var_s1].y, this->unk_390[var_s1].z, MTXMODE_NEW);
+            Matrix_Translate(this->unk_390[index].x, this->unk_390[index].y, this->unk_390[index].z, MTXMODE_NEW);
             Matrix_Scale(this->unk378, this->unk378, this->unk378, MTXMODE_APPLY);
-            Matrix_RotateYS(this->unk_480[var_s1].y, MTXMODE_APPLY);
-            Matrix_RotateXS(this->unk_480[var_s1].x, MTXMODE_APPLY);
-            Matrix_RotateZS(this->unk_480[var_s1].z, MTXMODE_APPLY);
+            Matrix_RotateYS(this->unk_480[index].y, MTXMODE_APPLY);
+            Matrix_RotateXS(this->unk_480[index].x, MTXMODE_APPLY);
+            Matrix_RotateZS(this->unk_480[index].z, MTXMODE_APPLY);
             gDPPipeSync(POLY_XLU_DISP++);
             gDPSetEnvColor(POLY_XLU_DISP++, 0, 0, 0, D_80A7B738[i]);
             Scene_SetRenderModeXlu(play, 1, 2);
-            POLY_XLU_DISP = SkelAnime_DrawFlex(play, this->skelAnime.skeleton, this->unk_4F8[var_s1],
+            POLY_XLU_DISP = SkelAnime_DrawFlex(play, this->skelAnime.skeleton, this->unk_4F8[index],
                                                this->skelAnime.dListCount, NULL, NULL, &this->actor, POLY_XLU_DISP);
-            var_s1--;
-            if (var_s1 < 0) {
-                var_s1 = 19;
+            index--;
+            if (index < 0) {
+                index = 19;
             }
         }
     }
 
-    if (((this->unk284 < 0xF) && (this->unk36C == 0)) &&
-        (((this->unk2A2 != 0xB) && (this->unk2A2 != 0xA)) ||
-         (((this->unk2A2 == 0xB) || (this->unk2A2 == 0xA)) && (this->unk2A0 == 0)))) {
+    if (((this->unk284 < 15) && (this->unk36C == 0)) &&
+        (((this->unk2A2 != 11) && (this->unk2A2 != 10)) ||
+         (((this->unk2A2 == 11) || (this->unk2A2 == 10)) && (this->unk2A0 == 0)))) {
         for (i = 0; i < 6; i++) {
             Matrix_Push();
             Matrix_Translate(this->unk_E64[i].x, this->unk_E64[i].y, this->unk_E64[i].z, MTXMODE_NEW);
             Matrix_Scale(this->unk_EAC[i].x, this->unk_EAC[i].y, this->unk_EAC[i].z, MTXMODE_APPLY);
+
             gSPSegment(POLY_XLU_DISP++, 0x08,
-                       Gfx_TwoTexScroll(play->state.gfxCtx, 0, 0, 0, 0x20, 0x40, 1, 0,
+                       Gfx_TwoTexScroll(play->state.gfxCtx, 0, 0, 0, 32, 64, 1, 0,
                                         ((this->unk_38E * 10) - (play->state.frames * 20)) & 0x1FF, 32, 128));
             gDPPipeSync(POLY_XLU_DISP++);
-            gDPSetPrimColor(POLY_XLU_DISP++, 0x80, 0x80, 0xFF, 0xFF, 0xAA, 0xFF);
+
+            gDPSetPrimColor(POLY_XLU_DISP++, 0x80, 0x80, 255, 255, 170, 255);
+
             gDPSetEnvColor(POLY_XLU_DISP++, 255, 50, 0, 255);
+
             Matrix_Mult(&play->billboardMtxF, MTXMODE_APPLY);
+
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_XLU_DISP++, D_0407D590);
             Matrix_Pop();
