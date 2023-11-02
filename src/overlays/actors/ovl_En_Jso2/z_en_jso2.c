@@ -144,6 +144,24 @@ extern UNK_TYPE D_060081F4;
 extern AnimationHeader* D_80A7B684[];
 extern u8 D_80A7B6DC[];
 
+extern Vec3f D_80A7B558;
+extern Vec3f D_80A7B564;
+extern Vec3f D_80A7B570;
+extern Vec3f D_80A7B57C;
+extern Vec3f D_80A7B588;
+extern Vec3f D_80A7B594;
+extern Vec3f D_80A7B5A0;
+extern Vec3f D_80A7B5AC;
+extern Vec3f D_80A7B5B8;
+extern Vec3f D_80A7B5C4;
+extern Vec3f D_80A7B5D0;
+extern Vec3f D_80A7B5DC;
+extern Vec3f D_80A7B6FC;
+extern Vec3f D_80A7B708;
+extern Vec3f D_80A7B714;
+extern Vec3f D_80A7B720;
+extern Vec3f D_80A7B72C;
+
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/EnJso2_Init.s")
 
 void EnJso2_Destroy(Actor* thisx, PlayState* play) {
@@ -942,29 +960,8 @@ s32 func_80A7AA48(PlayState* play, s32 arg1, Gfx** dList, Vec3f* pos, Vec3s* rot
     return 0;
 }
 
-// #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A7AA9C.s")
-
-extern Vec3f D_80A7B558;
-extern Vec3f D_80A7B564;
-extern Vec3f D_80A7B570;
-extern Vec3f D_80A7B57C;
-extern Vec3f D_80A7B588;
-extern Vec3f D_80A7B594;
-extern Vec3f D_80A7B5A0;
-extern Vec3f D_80A7B5AC;
-extern Vec3f D_80A7B5B8;
-extern Vec3f D_80A7B5C4;
-extern Vec3f D_80A7B5D0;
-extern Vec3f D_80A7B5DC;
-extern Vec3f D_80A7B6FC;
-extern Vec3f D_80A7B708;
-extern Vec3f D_80A7B714;
-extern Vec3f D_80A7B720;
-extern Vec3f D_80A7B72C;
-
 void func_80A7AA9C(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Actor* thisx) {
     EnJso2* this = THIS;
-
     Vec3f sp68;
     Vec3f sp5C;
     Vec3f sp50 = D_80A7B6FC;
@@ -991,7 +988,7 @@ void func_80A7AA9C(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Acto
         }
 
         if (((this->unk284 == 7) || (this->unk284 == 8) || (this->unk284 == 6) || (this->unk284 == 0x10)) &&
-            ((u8)this->unk368 == 0)) {
+            (this->unk368 == 0)) {
             EffectBlure_AddVertex(Effect_GetByIndex(this->unk384), &sp68, &sp5C);
         } else if (this->unk368 == 1) {
             EffectBlure_AddSpace(Effect_GetByIndex(this->unk384));
@@ -1019,10 +1016,10 @@ void func_80A7AA9C(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Acto
             Matrix_MultVec3f(&D_80A7B594, &this->unk_E64[5]);
         }
 
-        if (((this->unk284 == 7) || (this->unk284 == 8) || (this->unk284 == 6) || (this->unk284 == 0x10)) &&
-            ((u8)this->unk368 == 0)) {
+        if (((this->unk284 == 7) || (this->unk284 == 8) || (this->unk284 == 6) || (this->unk284 == 16)) &&
+            (this->unk368 == 0)) {
             EffectBlure_AddVertex(Effect_GetByIndex(this->unk380), &sp68, &sp5C);
-        } else if ((u8)this->unk368 == 1) {
+        } else if (this->unk368 == 1) {
             EffectBlure_AddSpace(Effect_GetByIndex(this->unk380));
             this->unk368 = 0;
         }
@@ -1035,10 +1032,9 @@ void func_80A7AA9C(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Acto
         Matrix_MultVec3f(&sp50, &this->unk2C4);
     }
 
-    if ((this->unk284 != 0xE) &&
-        ((limbIndex == 4) || (limbIndex == 6) || (limbIndex == 7) || (limbIndex == 8) || (limbIndex == 9) ||
-         (limbIndex == 0xA) || (limbIndex == 0xB) || (limbIndex == 0xC) || (limbIndex == (s32)0xE) ||
-         (limbIndex == 0x10) || (limbIndex == 0x11) || (limbIndex == 0x13))) {
+    if ((this->unk284 != 0xE) && ((limbIndex == 4) || (limbIndex == 6) || (limbIndex == 7) || (limbIndex == 8) ||
+                                  (limbIndex == 9) || (limbIndex == 10) || (limbIndex == 11) || (limbIndex == 12) ||
+                                  (limbIndex == 14) || (limbIndex == 16) || (limbIndex == 17) || (limbIndex == 19))) {
         Matrix_MultZero(&this->unk2D4[this->unk364]);
         this->unk364 += 1;
         if (this->unk364 >= 0xC) {
@@ -1050,19 +1046,15 @@ void func_80A7AA9C(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Acto
         Matrix_Push();
         Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
         OPEN_DISPS(play->state.gfxCtx);
-        // temp_v0_5 = temp_s0->polyOpa.tha.head;
-        // temp_s0->polyOpa.tha.head = temp_v0_5 + 8;
-        // temp_v0_5->unk0 = 0xDA380003;
-        // sp44 = temp_v0_5;
-        // sp44->unk4 = Matrix_NewMtx(play->state.gfxCtx);
+
         gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-        // temp_v0_6 = temp_s0->polyOpa.tha.head;
-        // temp_s0->polyOpa.tha.head = temp_v0_6 + 8;
-        // temp_v0_6->unk4 = &D_06002ED8;
-        // temp_v0_6->unk0 = 0xDE000000;
+
+        //! FAKE:
         if (1) {}
+
         gSPDisplayList(POLY_OPA_DISP++, &D_06002ED8);
         Matrix_Pop();
+
         CLOSE_DISPS(play->state.gfxCtx);
     }
 }
