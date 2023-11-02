@@ -17,6 +17,7 @@ void EnOkuta_Destroy(Actor* thisx, PlayState* play);
 void EnOkuta_Update(Actor* thisx, PlayState* play);
 void EnOkuta_Draw(Actor* thisx, PlayState* play);
 
+void func_8086E4FC(EnOkuta* this);
 void func_8086E52C(EnOkuta* this, PlayState* play);
 void func_8086E5E8(EnOkuta* this, PlayState* play);
 void func_8086E658(EnOkuta* this, PlayState* play);
@@ -33,6 +34,7 @@ void func_8086F434(EnOkuta* this, PlayState* play);
 void func_8086F4B0(EnOkuta* this, PlayState* play);
 void func_8086F57C(EnOkuta* this, PlayState* play);
 void func_8086F694(EnOkuta* this, PlayState* play);
+void func_808700C0(Actor* thisx, PlayState* play);
 
 
 #if 0
@@ -122,9 +124,6 @@ extern UNK_TYPE D_06003B24;
 extern UNK_TYPE D_06003EE4;
 extern UNK_TYPE D_06004204;
 extern AnimationHeader D_0600466C;
-
-void func_8086E4FC(EnOkuta*);                     /* extern */
-void func_808700C0(Actor* thisx, PlayState* play); /* extern */
 
 extern SkeletonHeader D_060033D0;
 
