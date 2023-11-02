@@ -1025,7 +1025,7 @@ void func_80A7AA9C(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Acto
         }
     }
 
-    if (limbIndex == 0xA) {
+    if (limbIndex == 10) {
         sp50.x = 900.0f;
         sp50.y = 50.0f;
         sp50.z = -330.0f;
@@ -1035,14 +1035,15 @@ void func_80A7AA9C(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Acto
     if ((this->unk284 != 0xE) && ((limbIndex == 4) || (limbIndex == 6) || (limbIndex == 7) || (limbIndex == 8) ||
                                   (limbIndex == 9) || (limbIndex == 10) || (limbIndex == 11) || (limbIndex == 12) ||
                                   (limbIndex == 14) || (limbIndex == 16) || (limbIndex == 17) || (limbIndex == 19))) {
+
         Matrix_MultZero(&this->unk2D4[this->unk364]);
-        this->unk364 += 1;
-        if (this->unk364 >= 0xC) {
+
+        if (++this->unk364 >= 12) {
             this->unk364 = 0;
         }
     }
 
-    if (limbIndex == 0xC) {
+    if (limbIndex == 12) {
         Matrix_Push();
         Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
         OPEN_DISPS(play->state.gfxCtx);
