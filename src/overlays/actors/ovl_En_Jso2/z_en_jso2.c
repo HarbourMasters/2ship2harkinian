@@ -993,7 +993,74 @@ void func_80A7A360(EnJso2* this, PlayState* play) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/EnJso2_Update.s")
+void EnJso2_Update(Actor* thisx, PlayState* play) {
+    s32 pad;
+    s32 i;
+    EnJso2* this = (EnJso2* ) thisx;
+
+    if (this->unk284 != 3) {
+        SkelAnime_Update(&this->skelAnime);
+    }
+    
+    DECR(this->unk28A);
+    DECR(this->unk28E);
+    DECR(this->unk290);
+    DECR(this->unk1044);
+    DECR(this->unk2A0);
+
+    func_80A7A360(this, play);
+    Actor_SetScale(&this->actor, this->unk378);
+    this->actionFunc(this, play);
+    Actor_SetFocus(&this->actor, 80.0f);
+    Actor_MoveWithGravity(&this->actor);
+    if (this->actor.bgCheckFlags & 1) {
+        this->actor.world.pos.x += this->unkE58.x;
+        this->actor.world.pos.z += this->unkE58.z;
+        Math_ApproachZeroF(&this->unkE58.x, 1.0f, 2.0f);
+        Math_ApproachZeroF(&this->unkE58.z, 1.0f, 2.0f);
+    }
+    Actor_UpdateBgCheckInfo(play, &this->actor, 35.0f, 60.0f, 60.0f, 0x1D);
+
+    if ((this->unk284 == 5) || (this->unk284 == 6) || (this->unk284 == 0xF) || (this->unk284 == 0x10)) {
+        this->unk_38C++;
+        if (this->unk_38C >= 0x14) {
+            this->unk_38C = 0;
+        }
+        
+        if (this->unk_388 < 0x13) {
+            this->unk_388++;
+        }
+        Math_Vec3f_Copy(&this->unk_390[this->unk_38C], &this->actor.world.pos);
+        Math_Vec3s_Copy(&this->unk_480[this->unk_38C], &this->actor.world.rot);
+
+        this->unk_390[this->unk_38C].y += 40.0f;
+       
+        for (i = 0; i < 20; i++) {
+            this->unk_4F8[this->unk_38C][i] = this->jointTable[i];
+        }
+    } else if (this->unk284 != 0) {
+        this->unk_388 = 0;
+    }
+    if ((this->unk284 != 3) && (this->unk284 != 5) && (this->unk284 != 0xB) && (this->unk284 != 8) && (this->unk284 != 0xF) && (this->unk284 != 0xC)) {
+        this->actor.shape.rot.y = this->actor.world.rot.y;
+    }
+    
+    this->actor.shape.rot.x = this->actor.world.rot.x;
+    
+    Collider_UpdateCylinder(&this->actor, &this->unkEF4);
+
+    if ((this->unk284 != 0) && (this->unk284 != 8) && (this->unk284 != 0xF)) {
+        CollisionCheck_SetOC(play, &play->colChkCtx, &this->unkEF4.base);
+
+        if ((this->unk284 != 1) && (this->unk284 != 8)) {
+            CollisionCheck_SetAC(play, &play->colChkCtx, &this->unkEF4.base);
+        }
+    }
+    if (((this->unk284 == 7) || (this->unk284 == 0x10) || (this->unk284 == 6) || (this->unk284 == 8)) && (this->unk371 == 0) && (this->unk36C == 0)) {
+        CollisionCheck_SetAT(play, &play->colChkCtx, &this->unkF40.base);
+        CollisionCheck_SetAT(play, &play->colChkCtx, &this->unkFC0.base);
+    }
+}
 
 s32 func_80A7AA48(PlayState* play, s32 arg1, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx) {
     EnJso2* this = THIS;
