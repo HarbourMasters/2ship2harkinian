@@ -480,7 +480,7 @@ void func_80A794C8(EnJso2* this, PlayState* play) {
 void func_80A79524(EnJso2* this) {
     Vec3f vec;
 
-    AudioSfx_SetChannelIO(&this->actor.projectedPos, NA_SE_EN_ANSATSUSYA_DASH_2, 0U);
+    AudioSfx_SetChannelIO(&this->actor.projectedPos, NA_SE_EN_ANSATSUSYA_DASH_2, 0);
     func_80A776E0(this, 4);
 
     this->unk290 = 0x1E;
