@@ -226,7 +226,7 @@ void func_80A78868(EnJso2* this, PlayState* play) {
     }
 
     if (Animation_OnFrame(sp28, 12.0f) != 0) {
-        Actor_PlaySfx(&this->actor, 0x39C1U);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_ANSATSUSYA_SKIP);
         this->actor.speed = 0.0f;
         if (Rand_ZeroFloat(1.0f) < 0.5f) {
             this->unk288 = -this->unk288;
