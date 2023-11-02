@@ -254,7 +254,6 @@ MsgScript* func_8092C9BC(EnDns* this, PlayState* play) {
 
         case ENDNS_GET_7_3:
             return D_8092DCE0;
-    
 
         default:
             return NULL;

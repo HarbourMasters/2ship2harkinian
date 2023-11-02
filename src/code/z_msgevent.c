@@ -1,7 +1,7 @@
 #include "global.h"
 
 #define MSCRIPT_CONTINUE 0
-#define MSCRIPT_STOP     1
+#define MSCRIPT_STOP 1
 
 /**
  * Branch forward if the provided week_event_reg flag is set
@@ -319,7 +319,7 @@ s32 MsgEvent_Cmd12(Actor* actor, PlayState* play, u8** scriptPtr, MsgEventCallba
 
 /**
  * End script when textbox is done?
- * 
+ *
  * Command structure:
  *  0:(u8)  cmd
  * Command size: 1
@@ -458,7 +458,7 @@ s32 MsgEvent_Cmd21(Actor* actor, PlayState* play, u8** scriptPtr, MsgEventCallba
 
 /**
  * Unsets ACTOR_FLAG_10000 for the actor executing the script
- * 
+ *
  * Command structure:
  *  0:(u8)  cmd
  * Command size: 1
@@ -470,7 +470,7 @@ s32 MsgEvent_Cmd22(Actor* actor, PlayState* play, u8** scriptPtr, MsgEventCallba
 
 /**
  * Sets player focus & talk actor to the child of the actor executing the script
- * 
+ *
  * Command structure:
  *  0:(u8)  cmd
  * Command size: 1
@@ -498,7 +498,7 @@ s32 MsgEvent_Cmd24(Actor* actor, PlayState* play, u8** scriptPtr, MsgEventCallba
 
 /**
  * Unconditional branch by `skip`
- * 
+ *
  * Command structure:
  *  0:(u8)  cmd
  *  1:(s16) skip
@@ -514,7 +514,7 @@ s32 MsgEvent_Cmd25(Actor* actor, PlayState* play, u8** scriptPtr, MsgEventCallba
 
 /**
  * Branch forwards if the specified quest item is obtained
- * 
+ *
  * Command structure:
  *  0:(u8)  cmd
  *  1:(u16) questItem
@@ -848,7 +848,7 @@ s32 MsgEvent_Cmd40(Actor* actor, PlayState* play, u8** scriptPtr, MsgEventCallba
 
 /**
  * Skip forward if a powder keg is in inventory or if a powder keg actor exists
- * 
+ *
  * Command structure:
  *  0:(u8)  cmd
  *  1:(s16) skip
@@ -917,7 +917,7 @@ s32 MsgEvent_Cmd43(Actor* actor, PlayState* play, u8** scriptPtr, MsgEventCallba
 
 /**
  * Close the current textbox and set the player actor text id
- * 
+ *
  * Command structure:
  *  0:(u8)  cmd
  *  1:(u16) textId
@@ -950,7 +950,7 @@ s32 MsgEvent_Cmd45(Actor* actor, PlayState* play, u8** scriptPtr, MsgEventCallba
 }
 
 /**
- * 
+ *
  *
  * Command structure:
  *  0:(u8)  cmd

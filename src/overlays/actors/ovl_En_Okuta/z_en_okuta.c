@@ -12,9 +12,9 @@
 
 #define THIS ((EnOkuta*)thisx)
 
-void EnOkuta_Init(Actor* thisx, PlayState* play);
+void EnOkuta_Init(Actor* thisx, PlayState* play2);
 void EnOkuta_Destroy(Actor* thisx, PlayState* play);
-void EnOkuta_Update(Actor* thisx, PlayState* play);
+void EnOkuta_Update(Actor* thisx, PlayState* play2);
 void EnOkuta_Draw(Actor* thisx, PlayState* play);
 
 void func_8086E4FC(EnOkuta* this);
@@ -35,7 +35,7 @@ void func_8086F4B0(EnOkuta* this, PlayState* play);
 void func_8086F57C(EnOkuta* this, PlayState* play);
 void func_8086F694(EnOkuta* this, PlayState* play);
 void func_808700C0(Actor* thisx, PlayState* play);
-s32 func_808704DC(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, struct Actor* thisx);
+s32 func_808704DC(PlayState* play, s32 arg1, Gfx** dList, Vec3f* pos, Vec3s* rot, struct Actor* thisx);
 void func_808705C8(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Actor* thisx);
 
 static Gfx D_80870870[2] = { { { 0xFA000000, 0xC89BFF } }, { { 0xDF000000, 0 } } };

@@ -31,9 +31,9 @@ void func_809B3834(EnKnight* this, PlayState* play);
 void func_809B389C(EnKnight* this, PlayState* play);
 void func_809B3958(EnKnight* this, PlayState* play);
 void func_809B3B94(EnKnight* this, PlayState* play);
-void func_809B3DAC(EnKnight* this, PlayState* arg1);
+void func_809B3DAC(EnKnight* this, PlayState* play);
 void func_809B3E9C(EnKnight* this, PlayState* arg1);
-void func_809B3F0C(EnKnight* this, PlayState* arg1);
+void func_809B3F0C(EnKnight* this, PlayState* play);
 void func_809B40E8(EnKnight* this, PlayState* play);
 void func_809B41D8(EnKnight* this, PlayState* arg1);
 void func_809B41F8(EnKnight* this, PlayState* play);
@@ -3133,8 +3133,8 @@ void func_809BA978(EnKnight* this, PlayState* play) {
                 if (play->grabPlayer(play, player) != 0) {
                     Play_EnableMotionBlur(0x96);
                     player->actor.parent = &this->actor;
-                    AudioSfx_PlaySfx(NA_SE_VO_LI_DAMAGE_S, &player->actor.projectedPos, 4, &gSfxDefaultFreqAndVolScale, &gSfxDefaultFreqAndVolScale,
-                                         &gSfxDefaultReverb);
+                    AudioSfx_PlaySfx(NA_SE_VO_LI_DAMAGE_S, &player->actor.projectedPos, 4, &gSfxDefaultFreqAndVolScale,
+                                     &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
                     this->actor.flags &= ~1;
                     this->unk148 = 2;
                     this->unk14A[0] = 0x50;

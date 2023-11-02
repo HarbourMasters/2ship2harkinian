@@ -393,9 +393,10 @@ void func_808CAAC8(EnMinideath* this) {
 
 void func_808CAAEC(EnMinideath* this, PlayState* play) {
     Actor_WorldDistXYZToPoint(&this->actor, &this->actor.parent->focus.pos);
-    Math_ScaledStepToS(&this->actor.shape.rot.y, Actor_WorldYawTowardPoint(&this->actor, &this->actor.parent->focus.pos), 0x800);
-    Math_ScaledStepToS(&this->actor.shape.rot.x, Actor_WorldPitchTowardPoint(&this->actor, &this->actor.parent->focus.pos),
-                       0x800);
+    Math_ScaledStepToS(&this->actor.shape.rot.y,
+                       Actor_WorldYawTowardPoint(&this->actor, &this->actor.parent->focus.pos), 0x800);
+    Math_ScaledStepToS(&this->actor.shape.rot.x,
+                       Actor_WorldPitchTowardPoint(&this->actor, &this->actor.parent->focus.pos), 0x800);
     if (this->actor.params == MINIDEATH_ACTION_9) {
         this->collider.base.atFlags |= AT_ON;
         func_808CAF08(this);
@@ -473,9 +474,10 @@ void func_808CAE18(EnMinideath* this, PlayState* play) {
         phi_fa0 = 1.0f;
     }
     Math_StepToF(&this->actor.speed, 6.0f * phi_fa0, 0.5f);
-    Math_ScaledStepToS(&this->actor.shape.rot.y, Actor_WorldYawTowardPoint(&this->actor, &this->actor.parent->focus.pos), 0x800);
-    Math_ScaledStepToS(&this->actor.shape.rot.x, Actor_WorldPitchTowardPoint(&this->actor, &this->actor.parent->focus.pos),
-                       0x800);
+    Math_ScaledStepToS(&this->actor.shape.rot.y,
+                       Actor_WorldYawTowardPoint(&this->actor, &this->actor.parent->focus.pos), 0x800);
+    Math_ScaledStepToS(&this->actor.shape.rot.x,
+                       Actor_WorldPitchTowardPoint(&this->actor, &this->actor.parent->focus.pos), 0x800);
     if (temp_fv0 < 30.0f) {
         func_808CAF08(this);
     }
@@ -877,8 +879,7 @@ void EnMinideath_Update(Actor* thisx, PlayState* play) {
 
             if (D_808CC258 != 0) {
                 do {
-                    phi_s0_3 =
-                        (EnMinideath*)SubS_FindActor(play, &phi_s0_3->actor, ACTORCAT_ENEMY, ACTOR_EN_MINIDEATH);
+                    phi_s0_3 = (EnMinideath*)SubS_FindActor(play, &phi_s0_3->actor, ACTORCAT_ENEMY, ACTOR_EN_MINIDEATH);
                     if (phi_s0_3 != NULL) {
                         func_808CAC54(phi_s0_3);
                         phi_s0_3 = (EnMinideath*)phi_s0_3->actor.next;
@@ -895,8 +896,7 @@ void EnMinideath_Update(Actor* thisx, PlayState* play) {
                 D_808CC258 = 0;
             } else if (D_808CC254 >= 5) {
                 do {
-                    phi_s0_3 =
-                        (EnMinideath*)SubS_FindActor(play, &phi_s0_3->actor, ACTORCAT_ENEMY, ACTOR_EN_MINIDEATH);
+                    phi_s0_3 = (EnMinideath*)SubS_FindActor(play, &phi_s0_3->actor, ACTORCAT_ENEMY, ACTOR_EN_MINIDEATH);
                     if (phi_s0_3 != NULL) {
                         phi_s0_3->timer = 0;
                         phi_s0_3 = (EnMinideath*)phi_s0_3->actor.next;

@@ -47,39 +47,96 @@ ActorInit En_Wdhand_InitVars = {
 // static ColliderJntSphElementInit sJntSphElementsInit[7] = {
 static ColliderJntSphElementInit D_80AF63E0[7] = {
     {
-        { ELEMTYPE_UNK1, { 0xF7CFFFFF, 0x00, 0x00 }, { 0xF7CFFFFF, 0x00, 0x00 }, TOUCH_ON | TOUCH_SFX_NONE, BUMP_ON, OCELEM_ON, },
+        {
+            ELEMTYPE_UNK1,
+            { 0xF7CFFFFF, 0x00, 0x00 },
+            { 0xF7CFFFFF, 0x00, 0x00 },
+            TOUCH_ON | TOUCH_SFX_NONE,
+            BUMP_ON,
+            OCELEM_ON,
+        },
         { 50, { { 0, 575, 0 }, 10 }, 100 },
     },
     {
-        { ELEMTYPE_UNK1, { 0xF7CFFFFF, 0x00, 0x00 }, { 0xF7CFFFFF, 0x00, 0x00 }, TOUCH_ON | TOUCH_SFX_NONE, BUMP_ON, OCELEM_ON, },
+        {
+            ELEMTYPE_UNK1,
+            { 0xF7CFFFFF, 0x00, 0x00 },
+            { 0xF7CFFFFF, 0x00, 0x00 },
+            TOUCH_ON | TOUCH_SFX_NONE,
+            BUMP_ON,
+            OCELEM_ON,
+        },
         { 50, { { 0, 1725, 0 }, 10 }, 100 },
     },
     {
-        { ELEMTYPE_UNK1, { 0xF7CFFFFF, 0x00, 0x00 }, { 0xF7CFFFFF, 0x00, 0x00 }, TOUCH_ON | TOUCH_SFX_NONE, BUMP_ON, OCELEM_ON, },
+        {
+            ELEMTYPE_UNK1,
+            { 0xF7CFFFFF, 0x00, 0x00 },
+            { 0xF7CFFFFF, 0x00, 0x00 },
+            TOUCH_ON | TOUCH_SFX_NONE,
+            BUMP_ON,
+            OCELEM_ON,
+        },
         { 50, { { 0, 575, 0 }, 10 }, 100 },
     },
     {
-        { ELEMTYPE_UNK1, { 0xF7CFFFFF, 0x00, 0x00 }, { 0xF7CFFFFF, 0x00, 0x00 }, TOUCH_ON | TOUCH_SFX_NONE, BUMP_ON, OCELEM_ON, },
+        {
+            ELEMTYPE_UNK1,
+            { 0xF7CFFFFF, 0x00, 0x00 },
+            { 0xF7CFFFFF, 0x00, 0x00 },
+            TOUCH_ON | TOUCH_SFX_NONE,
+            BUMP_ON,
+            OCELEM_ON,
+        },
         { 50, { { 0, 1725, 0 }, 10 }, 100 },
     },
     {
-        { ELEMTYPE_UNK1, { 0xF7CFFFFF, 0x00, 0x00 }, { 0xF7CFFFFF, 0x00, 0x00 }, TOUCH_ON | TOUCH_SFX_NONE, BUMP_ON, OCELEM_ON, },
+        {
+            ELEMTYPE_UNK1,
+            { 0xF7CFFFFF, 0x00, 0x00 },
+            { 0xF7CFFFFF, 0x00, 0x00 },
+            TOUCH_ON | TOUCH_SFX_NONE,
+            BUMP_ON,
+            OCELEM_ON,
+        },
         { 50, { { 0, 575, 0 }, 10 }, 100 },
     },
     {
-        { ELEMTYPE_UNK1, { 0xF7CFFFFF, 0x00, 0x00 }, { 0xF7CFFFFF, 0x00, 0x00 }, TOUCH_ON | TOUCH_SFX_NONE, BUMP_ON, OCELEM_ON, },
+        {
+            ELEMTYPE_UNK1,
+            { 0xF7CFFFFF, 0x00, 0x00 },
+            { 0xF7CFFFFF, 0x00, 0x00 },
+            TOUCH_ON | TOUCH_SFX_NONE,
+            BUMP_ON,
+            OCELEM_ON,
+        },
         { 50, { { 0, 1725, 0 }, 10 }, 100 },
     },
     {
-        { ELEMTYPE_UNK1, { 0xF7CFFFFF, 0x00, 0x00 }, { 0xF7CFFFFF, 0x00, 0x00 }, TOUCH_ON | TOUCH_SFX_NONE, BUMP_ON, OCELEM_ON, },
+        {
+            ELEMTYPE_UNK1,
+            { 0xF7CFFFFF, 0x00, 0x00 },
+            { 0xF7CFFFFF, 0x00, 0x00 },
+            TOUCH_ON | TOUCH_SFX_NONE,
+            BUMP_ON,
+            OCELEM_ON,
+        },
         { 50, { { 0, 1000, 0 }, 15 }, 100 },
     },
 };
 
 // static ColliderJntSphInit sJntSphInit = {
 static ColliderJntSphInit D_80AF64DC = {
-    { COLTYPE_HIT0, AT_NONE | AT_TYPE_ENEMY, AC_ON | AC_TYPE_PLAYER, OC1_ON | OC1_TYPE_ALL, OC2_TYPE_1, COLSHAPE_JNTSPH, },
-    ARRAY_COUNT(D_80AF63E0), D_80AF63E0, // sJntSphElementsInit,
+    {
+        COLTYPE_HIT0,
+        AT_NONE | AT_TYPE_ENEMY,
+        AC_ON | AC_TYPE_PLAYER,
+        OC1_ON | OC1_TYPE_ALL,
+        OC2_TYPE_1,
+        COLSHAPE_JNTSPH,
+    },
+    ARRAY_COUNT(D_80AF63E0),
+    D_80AF63E0, // sJntSphElementsInit,
 };
 
 // sColChkInfoInit
@@ -129,7 +186,8 @@ void EnWdhand_Init(Actor* thisx, PlayState* play) {
     s32 i;
     Vec3f sp4C;
 
-    SkelAnime_InitFlex(play, &this->unk144, &object_wdhand_Skel_001E20, &object_wdhand_Anim_000854, this->unk188, this->unk1B8, 8);
+    SkelAnime_InitFlex(play, &this->unk144, &object_wdhand_Skel_001E20, &object_wdhand_Anim_000854, this->unk188,
+                       this->unk1B8, 8);
     CollisionCheck_SetInfo(&this->actor.colChkInfo, &D_80AF64F4, &D_80AF64EC);
     Matrix_Translate(this->actor.world.pos.x, this->actor.world.pos.y, this->actor.world.pos.z, MTXMODE_NEW);
     Matrix_RotateYS(this->actor.shape.rot.y, MTXMODE_APPLY);
@@ -171,7 +229,7 @@ void EnWdhand_Destroy(Actor* thisx, PlayState* play) {
     Collider_DestroyJntSph(play, &this->unk274);
 }
 
-void func_80AF4608(EnWdhand *this, Vec3f* dst) {
+void func_80AF4608(EnWdhand* this, Vec3f* dst) {
     s32 var_v0;
 
     var_v0 = this->actor.params & 0x7F;
@@ -206,7 +264,7 @@ void func_80AF46F0(EnWdhand* this, s32 arg1, s32 arg2, Vec3f* arg3) {
 
     Matrix_RotateZYX(this->unk1EC[arg1 + 1].x, this->unk1EC[arg1 + 1].y, 0, MTXMODE_APPLY);
     if (arg2 != 0) {
-        Matrix_RotateYS((s16) (this->unk1EC[arg1 + 1].y * -1), MTXMODE_APPLY);
+        Matrix_RotateYS((s16)(this->unk1EC[arg1 + 1].y * -1), MTXMODE_APPLY);
     }
     if (arg1 == 3) {
         if (this->unk20C > 1.0f) {
@@ -328,10 +386,12 @@ void func_80AF4C64(EnWdhand* this, PlayState* play) {
             s16 var_v1 = sp68 - this->unk1EC[1 + var_s1].y;
 
             if (ABS_ALT(var_v1) < 0x4000) {
-                var_s0 &= Math_ScaledStepToS(&this->unk1EC[1 + var_s1].x, sp6A, (s16)(s32)((var_s1 * 0.1f + 1.0f) * 1920.0f));
+                var_s0 &=
+                    Math_ScaledStepToS(&this->unk1EC[1 + var_s1].x, sp6A, (s16)(s32)((var_s1 * 0.1f + 1.0f) * 1920.0f));
                 var_s0 &= Math_ScaledStepToS(&this->unk1EC[1 + var_s1].y, sp68, 0x800);
             } else {
-                var_s0 &= Math_ScaledStepToS(&this->unk1EC[1 + var_s1].x, -sp6A, (s16)(s32)((var_s1 * 0.1f + 1.0f) * 1920.0f));
+                var_s0 &= Math_ScaledStepToS(&this->unk1EC[1 + var_s1].x, -sp6A,
+                                             (s16)(s32)((var_s1 * 0.1f + 1.0f) * 1920.0f));
                 var_s0 &= Math_ScaledStepToS(&this->unk1EC[1 + var_s1].y, sp68 + 0x8000, 0x800);
             }
         }
@@ -437,9 +497,12 @@ void func_80AF520C(EnWdhand* this, PlayState* play) {
 
     for (var_s1 = 0; var_s1 < 4; var_s1++) {
         if (this->unk1EC[0].z < 0x4C) {
-            this->unk1EC[1 + var_s1].x = (s16)(s32)(Math_SinF(this->unk1EC[var_s1].z * 0.3926991f) * this->unk1EC[1 + var_s1].z);
+            this->unk1EC[1 + var_s1].x =
+                (s16)(s32)(Math_SinF(this->unk1EC[var_s1].z * 0.3926991f) * this->unk1EC[1 + var_s1].z);
         } else {
-            Math_ScaledStepToS(&this->unk1EC[1 + var_s1].x, (s16)(s32)(Math_SinF(this->unk1EC[var_s1].z * 0.3926991f) * this->unk1EC[1 + var_s1].z), 0x400);
+            Math_ScaledStepToS(&this->unk1EC[1 + var_s1].x,
+                               (s16)(s32)(Math_SinF(this->unk1EC[var_s1].z * 0.3926991f) * this->unk1EC[1 + var_s1].z),
+                               0x400);
         }
         if (!(this->unk1EC[var_s1].z & 0xF)) {
             if (this->unk1EC[var_s1].z == 0x10) {
@@ -528,7 +591,7 @@ void func_80AF56A0(EnWdhand* this) {
         }
     }
 
-    this->unk1EC[0].y = (s16) ((s32) ((s32) (var_s0 + 1) / 2) % 4);
+    this->unk1EC[0].y = (s16)((s32)((s32)(var_s0 + 1) / 2) % 4);
     this->unk1EC[0].x = this->unk1EC[0].y - 1;
     Matrix_Put(&this->unk21C);
     Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
@@ -596,7 +659,9 @@ void func_80AF5820(EnWdhand* this, PlayState* play) {
     temp_s5 = this->unk1EC[0].x + 1;
     for (var_s2 = 0; var_s2 < temp_s5; var_s2++) {
         if (this->unk1EC[0].z > 0) {
-            Math_ScaledStepToS(&this->unk1EC[1 + var_s2].x, (s16)(s32)(Math_SinF(this->unk1EC[var_s2].z * 0.8975979f) * this->unk1EC[1 + var_s2].y), 0x200);
+            Math_ScaledStepToS(&this->unk1EC[1 + var_s2].x,
+                               (s16)(s32)(Math_SinF(this->unk1EC[var_s2].z * 0.8975979f) * this->unk1EC[1 + var_s2].y),
+                               0x200);
         } else if (Rand_ZeroOne() < 0.65f) {
             this->unk1EC[1 + var_s2].x = this->unk1EC[1 + var_s2].y + Math_SinF(this->unk1EC[var_s2].z * 0.8975979f);
         }
@@ -604,9 +669,9 @@ void func_80AF5820(EnWdhand* this, PlayState* play) {
             if (var_s2 != 0) {
                 this->unk1EC[1 + var_s2].x = this->unk1EC[var_s2].y + (s32)Rand_CenteredFloat(12288.0f);
             } else {
-                this->unk1EC[1].y += (s32) Rand_CenteredFloat(12288.0f);
+                this->unk1EC[1].y += (s32)Rand_CenteredFloat(12288.0f);
             }
-            this->unk1EC[1 + var_s2].y = Rand_S16Offset((s16) ((var_s2 << 8) + 0xC00), 0x800);
+            this->unk1EC[1 + var_s2].y = Rand_S16Offset((s16)((var_s2 << 8) + 0xC00), 0x800);
         }
     }
 
@@ -632,7 +697,8 @@ void func_80AF5820(EnWdhand* this, PlayState* play) {
 
     for (var_s0 = 0; var_s0 < 2; var_s0++) {
         D_80AF6514.y = Rand_ZeroOne() + 1.0f;
-        EffectSsDtBubble_SpawnColorProfile(play, &this->unk25C[var_s0], &D_80AF6514, &D_80AF6520, Rand_S16Offset(40, 40), 25, 2, 1);
+        EffectSsDtBubble_SpawnColorProfile(play, &this->unk25C[var_s0], &D_80AF6514, &D_80AF6520,
+                                           Rand_S16Offset(40, 40), 25, 2, 1);
     }
 }
 #else
@@ -755,7 +821,8 @@ void EnWdhand_Draw(Actor* thisx, PlayState* play) {
     func_80AF488C(&this->unk274.elements[6].dim.worldSphere.center, &sp90);
 
     POLY_OPA_DISP = dl;
-    SkelAnime_DrawFlexOpa(play, this->unk144.skeleton, this->unk144.jointTable, this->unk144.dListCount, NULL, NULL, &this->actor);
+    SkelAnime_DrawFlexOpa(play, this->unk144.skeleton, this->unk144.jointTable, this->unk144.dListCount, NULL, NULL,
+                          &this->actor);
 
     CLOSE_DISPS(play->state.gfxCtx);
 }

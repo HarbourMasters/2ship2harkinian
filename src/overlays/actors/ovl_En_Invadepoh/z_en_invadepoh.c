@@ -428,7 +428,8 @@ void EnInvadepoh_Romani_TurnToPath(EnInvadepoh* this, s16 scale, s16 step, s16 m
     if (this->currentPoint != this->endPoint) {
         Math_Vec3s_ToVec3f(&curPathPointF, curPathPoint);
         Math_Vec3s_ToVec3f(&nextPathPointF, nextPathPoint);
-        Math_SmoothStepToS(&this->actor.shape.rot.y, Math_Vec3f_Yaw(&curPathPointF, &nextPathPointF), scale, step, minStep);
+        Math_SmoothStepToS(&this->actor.shape.rot.y, Math_Vec3f_Yaw(&curPathPointF, &nextPathPointF), scale, step,
+                           minStep);
     }
 }
 
@@ -1124,8 +1125,8 @@ void EnInvadepoh_Interact_UpdateDelayedBranchedAnim(EnInvadePohFaceAnimInfo* fac
     } else if (faceInfo->delayTimer > 0) {
         faceInfo->delayTimer--;
     } else {
-        EnInvadepohFaceAnim* nextAnim = animSet[EnInvadepoh_Interact_GetNextAnim(
-            faceAnimLoopDelayed->loop.nextAnims, faceAnimLoopDelayed->loop.nextCount)];
+        EnInvadepohFaceAnim* nextAnim = animSet[EnInvadepoh_Interact_GetNextAnim(faceAnimLoopDelayed->loop.nextAnims,
+                                                                                 faceAnimLoopDelayed->loop.nextCount)];
 
         EnInvadepoh_Interact_SetNextAnim(faceInfo, nextAnim);
     }
@@ -1228,8 +1229,8 @@ void EnInvadepoh_Interact_UpdateAnimation(EnInvadePohFaceAnimInfo* faceInfo) {
     }
 }
 
-void EnInvadepoh_Interact_Init(EnInvadePohInteractInfo* interactInfo, EnInvadepohFaceAnim** eyeAnimSet,
-                               s32 curEyeAnim, EnInvadepohFaceAnim** mouthAnimSet, s32 curMouthAnim, Vec3s* headRotTarget,
+void EnInvadepoh_Interact_Init(EnInvadePohInteractInfo* interactInfo, EnInvadepohFaceAnim** eyeAnimSet, s32 curEyeAnim,
+                               EnInvadepohFaceAnim** mouthAnimSet, s32 curMouthAnim, Vec3s* headRotTarget,
                                s16 maxTurnRate, f32 scaledTurnRate, f32 torsoRotXModTarget, f32 torsoRotXModStep) {
     Math_Vec3s_Copy(&interactInfo->headRotTarget, headRotTarget);
     interactInfo->maxTurnRate = maxTurnRate;
@@ -2582,7 +2583,8 @@ void EnInvadepoh_ConfusedRomani_WaitForObject(Actor* thisx, PlayState* play2) {
         this->actor.textId = 0x3330; // ........
         SkelAnime_InitFlex(play, &this->skelAnime, &gRomaniSkel, &gRomaniIdleAnim, this->jointTable, this->morphTable,
                            ROMANI_LIMB_MAX);
-        EnInvadepoh_Interact_Init(&this->interactInfo, D_80B4EA90, 6, D_80B4EB00, 2, &gZeroVec3s, 100, 0.03f, 0.3f, 0.03f);
+        EnInvadepoh_Interact_Init(&this->interactInfo, D_80B4EA90, 6, D_80B4EB00, 2, &gZeroVec3s, 100, 0.03f, 0.3f,
+                                  0.03f);
         EnInvadepoh_ConfusedRomani_SetupPath(this, play);
         EnInvadepoh_SetPosToPathPoint(this, 0);
         func_800B4AEC(play, &this->actor, 50.0f);
@@ -2700,8 +2702,8 @@ void EnInvadepoh_LightBall_SpawnInvaders(EnInvadepoh* this, PlayState* play) {
         Math_StepToF(&this->actor.speed, 170.0f, 21.0f);
         this->actor.speed *= 0.98f;
     }
-    if (EnInvadepoh_StepTowardXZ(&this->actor.world.pos.x, &this->actor.world.pos.z, lightBallTargetPos.x, lightBallTargetPos.z,
-                                 this->actor.speed)) {
+    if (EnInvadepoh_StepTowardXZ(&this->actor.world.pos.x, &this->actor.world.pos.z, lightBallTargetPos.x,
+                                 lightBallTargetPos.z, this->actor.speed)) {
         this->actor.speed = 0.0f;
     }
     if (lightBallTargetPos.y < this->actor.world.pos.y) {
@@ -2735,7 +2737,8 @@ void EnInvadepoh_LightBall_AboveBarn(EnInvadepoh* this, PlayState* play) {
     lightBallTargetPos.x = this->actor.home.pos.x;
     lightBallTargetPos.y = this->actor.home.pos.y + 1500.0f;
     lightBallTargetPos.z = this->actor.home.pos.z;
-    Math_SmoothStepToS(&this->actor.world.rot.y, Math_Vec3f_Yaw(&this->actor.world.pos, &lightBallTargetPos), 0xA, 0xBB8, 0x64);
+    Math_SmoothStepToS(&this->actor.world.rot.y, Math_Vec3f_Yaw(&this->actor.world.pos, &lightBallTargetPos), 0xA,
+                       0xBB8, 0x64);
     if ((play->gameplayFrames % 0x40) < 14) {
         Math_StepToF(&this->actor.speed, 5.0f, 1.0f);
     } else {
@@ -2765,7 +2768,8 @@ void EnInvadepoh_LightBall_Circle(EnInvadepoh* this, PlayState* play) {
     lightBallTargetPos.x = this->actor.home.pos.x + sLightBallSpawnOffset.x;
     lightBallTargetPos.y = this->actor.home.pos.y + sLightBallSpawnOffset.y + 400.0f;
     lightBallTargetPos.z = this->actor.home.pos.z + sLightBallSpawnOffset.z;
-    Math_SmoothStepToS(&this->actor.world.rot.y, Math_Vec3f_Yaw(&this->actor.world.pos, &lightBallTargetPos), 4, 0x1F40, 0x64);
+    Math_SmoothStepToS(&this->actor.world.rot.y, Math_Vec3f_Yaw(&this->actor.world.pos, &lightBallTargetPos), 4, 0x1F40,
+                       0x64);
     Math_StepToF(&this->actor.speed, 70.0f, 3.0f);
     this->actor.gravity = (lightBallTargetPos.y < this->actor.world.pos.y) ? -2.0f : 2.0f;
     this->actor.velocity.y *= 0.97f;
@@ -2813,7 +2817,8 @@ void EnInvadepoh_LightBall_LeaveBarn(EnInvadepoh* this, PlayState* play) {
     lightBallTargetPos.x = this->actor.home.pos.x;
     lightBallTargetPos.y = this->actor.home.pos.y + 800.0f;
     lightBallTargetPos.z = this->actor.home.pos.z;
-    Math_SmoothStepToS(&this->actor.world.rot.y, Math_Vec3f_Yaw(&this->actor.world.pos, &lightBallTargetPos), 4, 0x1F40, 0x64);
+    Math_SmoothStepToS(&this->actor.world.rot.y, Math_Vec3f_Yaw(&this->actor.world.pos, &lightBallTargetPos), 4, 0x1F40,
+                       0x64);
     Math_StepToF(&this->actor.speed, 30.0f, 3.0f);
     this->actor.velocity.y *= 0.98f;
     this->actor.gravity = (lightBallTargetPos.y < this->actor.world.pos.y) ? -0.5f : 2.0f;
@@ -2865,7 +2870,7 @@ void EnInvadepoh_Night1Romani_Walk(EnInvadepoh* this, PlayState* play) {
         if (this->unk_378 == 0) {
             s32 trueTimeSpeed = Environment_GetTimeSpeed(play);
             s32 doorTimer = trueTimeSpeed;
-            
+
             if (trueTimeSpeed > 0) {
                 // This is really dividing by trueTimeSpeed, but matching requires writing like this
                 doorTimer = (R_TIME_SPEED * -16.0f / doorTimer) - 0.5f;
@@ -2929,7 +2934,8 @@ void EnInvadepoh_Night1Romani_WaitForObject(Actor* thisx, PlayState* play2) {
         EnInvadepoh_Romani_DesegmentTextures();
         SkelAnime_InitFlex(play, &this->skelAnime, &gRomaniSkel, &gRomaniWalkAnim, this->jointTable, this->morphTable,
                            ROMANI_LIMB_MAX);
-        EnInvadepoh_Interact_Init(&this->interactInfo, D_80B4EA90, 1, D_80B4EB00, 1, &gZeroVec3s, 0x64, 0.03f, 0.3f, 0.03f);
+        EnInvadepoh_Interact_Init(&this->interactInfo, D_80B4EA90, 1, D_80B4EB00, 1, &gZeroVec3s, 0x64, 0.03f, 0.3f,
+                                  0.03f);
         EnInvadepoh_Night1Romani_SetupPath(this, play);
         EnInvadepoh_Night1Romani_SetProgress(this);
         EnInvadepoh_Night1Romani_MoveAlongPathTimed(this, play);
@@ -3154,7 +3160,8 @@ void EnInvadepoh_BarnRomani_WaitForObject(Actor* thisx, PlayState* play2) {
         EnInvadepoh_Romani_DesegmentTextures();
         SkelAnime_InitFlex(play, &this->skelAnime, &gRomaniSkel, &gRomaniWalkAnim, this->jointTable, this->morphTable,
                            ROMANI_LIMB_MAX);
-        EnInvadepoh_Interact_Init(&this->interactInfo, D_80B4EA90, 1, D_80B4EB00, 1, &gZeroVec3s, 100, 0.03f, 0.3f, 0.03f);
+        EnInvadepoh_Interact_Init(&this->interactInfo, D_80B4EA90, 1, D_80B4EB00, 1, &gZeroVec3s, 100, 0.03f, 0.3f,
+                                  0.03f);
         EnInvadepoh_BarnRomani_SetupPath(this, play2);
         if ((currentTime < CLOCK_TIME(2, 15)) || (currentTime >= CLOCK_TIME(6, 00))) {
             this->currentPoint = 0;
@@ -3329,7 +3336,8 @@ void EnInvadepoh_RewardRomani_WaitForObject(Actor* thisx, PlayState* play2) {
         SkelAnime_InitFlex(play, &this->skelAnime, &gRomaniSkel, &gRomaniWalkAnim, this->jointTable, this->morphTable,
                            ROMANI_LIMB_MAX);
         Animation_MorphToLoop(&this->skelAnime, &gRomaniIdleAnim, 0.0f);
-        EnInvadepoh_Interact_Init(&this->interactInfo, D_80B4EA90, 1, D_80B4EB00, 3, &gZeroVec3s, 0x7D0, 0.08f, 0.3f, 0.03f);
+        EnInvadepoh_Interact_Init(&this->interactInfo, D_80B4EA90, 1, D_80B4EB00, 3, &gZeroVec3s, 0x7D0, 0.08f, 0.3f,
+                                  0.03f);
         interactInfo->scaledTurnRate = 0.08f;
         interactInfo->maxTurnRate = 0x7D0;
         func_800B4AEC(play, &this->actor, 50.0f);
@@ -3693,7 +3701,8 @@ void EnInvadepoh_Cremia_WaitForObject(Actor* thisx, PlayState* play2) {
         EnInvadepoh_Cremia_DesegmentTextures();
         SkelAnime_InitFlex(play, &this->skelAnime, &gCremiaSkel, &gCremiaWalkAnim, this->jointTable, this->morphTable,
                            CREMIA_LIMB_MAX);
-        EnInvadepoh_Interact_Init(&this->interactInfo, D_80B4EBDC, 1, D_80B4EC08, 0, &gZeroVec3s, 100, 0.03f, 0.3f, 0.03f);
+        EnInvadepoh_Interact_Init(&this->interactInfo, D_80B4EBDC, 1, D_80B4EC08, 0, &gZeroVec3s, 100, 0.03f, 0.3f,
+                                  0.03f);
         this->actor.textId = 0x33CD; // Good night... See you...tomorrow...OK?
         if (currentTime < CLOCK_TIME(20, 01) + 30) {
             this->unk_304 = -0x8000;
@@ -3890,7 +3899,8 @@ void EnInvadepoh_Night3Romani_WaitForObject(Actor* thisx, PlayState* play2) {
         EnInvadepoh_Romani_DesegmentTextures();
         SkelAnime_InitFlex(play, &this->skelAnime, &gRomaniSkel, &gRomaniWalkAnim, this->jointTable, this->morphTable,
                            ROMANI_LIMB_MAX);
-        EnInvadepoh_Interact_Init(&this->interactInfo, D_80B4EA90, 1, D_80B4EB00, 3, &gZeroVec3s, 100, 0.03f, 0.3f, 0.03f);
+        EnInvadepoh_Interact_Init(&this->interactInfo, D_80B4EA90, 1, D_80B4EB00, 3, &gZeroVec3s, 100, 0.03f, 0.3f,
+                                  0.03f);
         EnInvadepoh_Night3Romani_SetupPath(this, play);
         this->actor.world.rot.y = this->actor.shape.rot.y;
         EnInvadepoh_Night3Romani_SetProgress(this);
@@ -4118,8 +4128,9 @@ void EnInvadepoh_Event_DrawWarps(PlayState* play) {
             gDPPipeSync(POLY_XLU_DISP++);
             gDPSetPrimColor(POLY_XLU_DISP++, 0x80, 0x80, 255, 255, 170, warpEffect->alpha);
             gDPSetEnvColor(POLY_XLU_DISP++, 255, 50, 0, 0);
-            gSPSegment(POLY_XLU_DISP++, 0x8,
-                       Gfx_TwoTexScroll(play->state.gfxCtx, 0, warpScrollX1, 0, 0x20, 0x40, 1, 0, warpScrollY2, 0x20, 0x40));
+            gSPSegment(
+                POLY_XLU_DISP++, 0x8,
+                Gfx_TwoTexScroll(play->state.gfxCtx, 0, warpScrollX1, 0, 0x20, 0x40, 1, 0, warpScrollY2, 0x20, 0x40));
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_XLU_DISP++, gameplay_keep_DL_02E510);
         }

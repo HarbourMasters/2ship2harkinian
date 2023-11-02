@@ -4278,12 +4278,9 @@ void Boss07_Mask_Beam(Boss07* this, PlayState* play) {
                                     sBossRemains[sp178]->timer_18D6 = 60;
                                     Actor_PlaySfx(&this->actor, NA_SE_EN_FOLLOWERS_DEAD);
                                     for (pad = 0; pad < 20; pad++) {
-                                        spE0.x =
-                                            sBossRemains[sp178]->actor.world.pos.x + Rand_CenteredFloat(50.0f);
-                                        spE0.y =
-                                            sBossRemains[sp178]->actor.world.pos.y + Rand_CenteredFloat(50.0f);
-                                        spE0.z =
-                                            sBossRemains[sp178]->actor.world.pos.z + Rand_CenteredFloat(50.0f);
+                                        spE0.x = sBossRemains[sp178]->actor.world.pos.x + Rand_CenteredFloat(50.0f);
+                                        spE0.y = sBossRemains[sp178]->actor.world.pos.y + Rand_CenteredFloat(50.0f);
+                                        spE0.z = sBossRemains[sp178]->actor.world.pos.z + Rand_CenteredFloat(50.0f);
                                         spD4.x = Rand_CenteredFloat(20.0f);
                                         spD4.y = Rand_CenteredFloat(20.0f);
                                         spD4.z = Rand_CenteredFloat(20.0f);
@@ -5613,7 +5610,8 @@ void Boss07_Top_Ground(Boss07* this, PlayState* play) {
     f32 sp4C;
     f32 sp48;
 
-    Audio_PlaySfx_AtPosWithFreq(&this->actor.projectedPos, NA_SE_EN_LAST3_KOMA_OLD - SFX_FLAG, this->topSpinRate * 1.1111112f);
+    Audio_PlaySfx_AtPosWithFreq(&this->actor.projectedPos, NA_SE_EN_LAST3_KOMA_OLD - SFX_FLAG,
+                                this->topSpinRate * 1.1111112f);
     Actor_MoveWithGravity(&this->actor);
     this->actor.world.pos.x += this->xRecoil;
     this->actor.world.pos.z += this->zRecoil;

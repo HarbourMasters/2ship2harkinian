@@ -242,8 +242,8 @@ void EnDeath_Init(Actor* thisx, PlayState* play) {
     Actor_ProcessInitChain(&this->actor, D_808C9A60);
     ActorShape_Init(&this->actor.shape, 5500.0f, ActorShadow_DrawCircle, 80.0f);
 
-    SkelAnime_InitFlex(play2, &this->skelAnime, &gGomessSkel, &gGomessFloatAnim, this->jointTable,
-                       this->morphTable, GOMESS_LIMB_MAX);
+    SkelAnime_InitFlex(play2, &this->skelAnime, &gGomessSkel, &gGomessFloatAnim, this->jointTable, this->morphTable,
+                       GOMESS_LIMB_MAX);
 
     Collider_InitAndSetSphere(play2, &this->coreCollider, &this->actor, &D_808C98E0);
     Collider_InitAndSetCylinder(play2, &this->bodyCollider, &this->actor, &D_808C990C);
@@ -919,8 +919,8 @@ void EnDeath_DeathCutscenePart2(EnDeath* this, PlayState* play) {
         sin = Math_SinS(camYaw);
         cos = Math_CosS(camYaw);
         Matrix_Translate(this->actor.world.pos.x + (83.0f * sin) + (-38.0f * cos),
-                                 this->actor.world.pos.y + 53.0f + 15.0f * this->actionTimer,
-                                 this->actor.world.pos.z + (83.0f * cos) - (-38.0f * sin), MTXMODE_NEW);
+                         this->actor.world.pos.y + 53.0f + 15.0f * this->actionTimer,
+                         this->actor.world.pos.z + (83.0f * cos) - (-38.0f * sin), MTXMODE_NEW);
         Matrix_RotateYS(camYaw - 0x3300, MTXMODE_APPLY);
         Matrix_RotateXS(0x1100 - this->actionTimer * 0x1800, MTXMODE_APPLY);
         Matrix_RotateZS(-0xA00, MTXMODE_APPLY);
@@ -1047,8 +1047,8 @@ void EnDeath_DeathCutscenePart4(EnDeath* this, PlayState* play) {
                 sparkleVel.x = Rand_CenteredFloat(4.0f);
                 sparkleVel.z = Rand_CenteredFloat(4.0f);
                 sparkleVel.y = Rand_ZeroFloat(2.0f) + 3.0f;
-                EffectSsKirakira_SpawnSmall(play, &this->actor.world.pos, &sparkleVel, &sparkleAccel,
-                                            &sparklePrimColor, &sparkleEnvColor);
+                EffectSsKirakira_SpawnSmall(play, &this->actor.world.pos, &sparkleVel, &sparkleAccel, &sparklePrimColor,
+                                            &sparkleEnvColor);
             }
             Actor_PlaySfx(&this->actor, NA_SE_EN_DEATH_HEARTBREAK);
         }
@@ -1217,9 +1217,9 @@ void EnDeath_UpdateDamage(EnDeath* this, PlayState* play) {
                 this->dmgEffectAlpha = 3.0f;
                 this->dmgEffectScale = 0.8f;
                 this->dmgEffect = ACTOR_DRAW_DMGEFF_LIGHT_ORBS;
-                Actor_Spawn(&play->actorCtx, play, ACTOR_EN_CLEAR_TAG,
-                            this->coreCollider.info.bumper.hitPos.x, this->coreCollider.info.bumper.hitPos.y,
-                            this->coreCollider.info.bumper.hitPos.z, 0, 0, 0, 4);
+                Actor_Spawn(&play->actorCtx, play, ACTOR_EN_CLEAR_TAG, this->coreCollider.info.bumper.hitPos.x,
+                            this->coreCollider.info.bumper.hitPos.y, this->coreCollider.info.bumper.hitPos.z, 0, 0, 0,
+                            4);
             }
             if (play->envCtx.lightSettingOverride == 27) {
                 play->envCtx.lightSettingOverride = 26;
@@ -1272,8 +1272,8 @@ void EnDeath_Update(Actor* thisx, PlayState* play) {
     }
     Actor_MoveWithGravity(&this->actor);
 
-    Actor_UpdateBgCheckInfo(play, &this->actor, 40.0f, (this->actionFunc == EnDeath_SpinAttack) ? 50.0f : 100.0f,
-                            40.0f, 4 | 2 | 1);
+    Actor_UpdateBgCheckInfo(play, &this->actor, 40.0f, (this->actionFunc == EnDeath_SpinAttack) ? 50.0f : 100.0f, 40.0f,
+                            4 | 2 | 1);
 
     this->bodyCollider.dim.pos.x = this->actor.world.pos.x + Math_SinS(this->actor.shape.rot.y) * 3.0f;
     this->bodyCollider.dim.pos.z = this->actor.world.pos.z + Math_CosS(this->actor.shape.rot.y) * 3.0f;
@@ -1405,7 +1405,8 @@ void EnDeath_DrawBats(EnDeath* this, PlayState* play) {
     OPEN_DISPS(play->state.gfxCtx);
     dl = POLY_OPA_DISP;
 
-    gSPDisplayList(dl++, &gSetupDLs[0x19]); // incementing by 0x30 it seems. this is odd. The increment size may be wrong? TODO
+    gSPDisplayList(
+        dl++, &gSetupDLs[0x19]); // incementing by 0x30 it seems. this is odd. The increment size may be wrong? TODO
     gSPDisplayList(dl++, gGomessBatMaterialDL);
 
     cmf = Matrix_GetCurrent();
@@ -1442,8 +1443,7 @@ void EnDeath_DrawBats(EnDeath* this, PlayState* play) {
                     cmf->mf[3][1] = phi_s0->unk_4.y + sp9C.y;
                     cmf->mf[3][2] = phi_s0->unk_4.z + sp9C.z;
 
-                    gSPMatrix(dl++, Matrix_NewMtx(play->state.gfxCtx),
-                              G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                    gSPMatrix(dl++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                     gSPDisplayList(dl++, sMinideathDLs[phi_s0->animFrame]);
                 }
             }
@@ -1456,8 +1456,7 @@ void EnDeath_DrawBats(EnDeath* this, PlayState* play) {
                     cmf->mf[3][1] = phi_s0->unk_4.y + sp9C.y;
                     cmf->mf[3][2] = phi_s0->unk_4.z + sp9C.z;
 
-                    gSPMatrix(dl++, Matrix_NewMtx(play->state.gfxCtx),
-                              G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                    gSPMatrix(dl++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                     gSPDisplayList(dl++, sMinideathDLs[phi_s0->animFrame]);
                 }
             }
@@ -1536,8 +1535,7 @@ void EnDeath_DrawFlames(EnDeath* this, PlayState* play2) {
             cmf->mf[3][1] = phi_s1->y;
             cmf->mf[3][2] = phi_s1->z;
 
-            gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx),
-                      G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+            gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_XLU_DISP++, gEffFire1DL);
         }
         phi_s1++;
@@ -1600,8 +1598,7 @@ void EnDeath_DrawCore(EnDeath* this, PlayState* play) {
     CLOSE_DISPS(play->state.gfxCtx);
 }
 
-s32 EnDeath_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot,
-                             Actor* thisx) {
+s32 EnDeath_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx) {
     EnDeath* this = THIS;
     f32 temp_f12;
     s32 temp_v0;
@@ -1734,8 +1731,8 @@ void EnDeath_Draw(Actor* thisx, PlayState* play) {
     gDPSetEnvColor(POLY_OPA_DISP++, 30, 30, 0, 255);
 
     if (this->actionFunc != EnDeath_Dead && this->actionFunc != EnDeath_DeathCutscenePart4) {
-        SkelAnime_DrawFlexOpa(play, this->skelAnime.skeleton, this->skelAnime.jointTable,
-                              this->skelAnime.dListCount, EnDeath_OverrideLimbDraw, EnDeath_PostLimbDraw, &this->actor);
+        SkelAnime_DrawFlexOpa(play, this->skelAnime.skeleton, this->skelAnime.jointTable, this->skelAnime.dListCount,
+                              EnDeath_OverrideLimbDraw, EnDeath_PostLimbDraw, &this->actor);
     }
     if (this->actionFunc == EnDeath_DeathCutscenePart4) {
         EnDeath_DrawCore(this, play);

@@ -909,8 +909,10 @@ void EnTrt_BeginInteraction(EnTrt* this, PlayState* play) {
         this->animIndex = TRT_ANIM_HANDS_ON_COUNTER;
         switch (this->textId) {
             case 0x834:
-                if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_SAVED_KOUME) && !CHECK_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_RED_POTION_FOR_KOUME) &&
-                    !CHECK_WEEKEVENTREG(WEEKEVENTREG_TALKED_KOUME_INJURED) && !CHECK_WEEKEVENTREG(WEEKEVENTREG_TALKED_KOUME_KIOSK_EMPTY)) {
+                if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_SAVED_KOUME) &&
+                    !CHECK_WEEKEVENTREG(WEEKEVENTREG_RECEIVED_RED_POTION_FOR_KOUME) &&
+                    !CHECK_WEEKEVENTREG(WEEKEVENTREG_TALKED_KOUME_INJURED) &&
+                    !CHECK_WEEKEVENTREG(WEEKEVENTREG_TALKED_KOUME_KIOSK_EMPTY)) {
                     Interface_SetAButtonDoAction(play, DO_ACTION_DECIDE);
                     this->stickLeftPrompt.isEnabled = false;
                     this->stickRightPrompt.isEnabled = true;
