@@ -139,6 +139,13 @@ extern Color_RGBA8 D_80870940;
 extern Color_RGBA8 D_80870928;
 extern Color_RGBA8 D_8087092C;
 
+extern s8 D_80870944[];
+extern Vec3f D_80870954[3];
+extern Vec3f* D_80870978;
+
+extern s16 D_808708EE;
+extern s16 D_808708EC;
+
 void EnOkuta_Init(Actor* thisx, PlayState* play2) {
     EnOkuta* this = THIS;
     PlayState* play = play2;
@@ -149,6 +156,7 @@ void EnOkuta_Init(Actor* thisx, PlayState* play2) {
     Actor_ProcessInitChain(&this->actor, D_80870920);
     this->unk190 = (this->actor.params >> 8) & 0xFF;
     thisx->params &= 0xFF;
+
     if ((this->actor.params == 0) || (this->actor.params == 1)) {
         SkelAnime_Init(play, &this->skelAnime, &D_060033D0, &D_0600466C, this->jointTable, this->morphTable, 16);
         Collider_InitAndSetCylinder(play, &this->collider, &this->actor, &D_808708CC);
@@ -232,10 +240,9 @@ void func_8086E27C(EnOkuta* this, PlayState* play) {
 }
 
 void func_8086E2C0(EnOkuta* this, PlayState* play) {
-    f32 temp_fv0;
+    f32 temp_fv0 = this->actor.world.pos.y - this->actor.home.pos.y;
     Vec3f sp28;
 
-    temp_fv0 = this->actor.world.pos.y - this->actor.home.pos.y;
     if (((play->gameplayFrames % 7) == 0) && (temp_fv0 < 50.0f) && (temp_fv0 >= -20.0f)) {
         sp28.x = this->actor.world.pos.x;
         sp28.y = this->actor.home.pos.y;
@@ -245,28 +252,26 @@ void func_8086E2C0(EnOkuta* this, PlayState* play) {
 }
 
 f32 func_8086E378(EnOkuta* this) {
-    f32 temp_fa0;
-    f32 temp_fv1;
+    f32 temp_fv1 = this->actor.world.pos.y + this->actor.playerHeightRel + 60.0f;
+    f32 temp_fa0 = this->actor.home.pos.y;
 
-    temp_fv1 = this->actor.world.pos.y + this->actor.playerHeightRel + 60.0f;
-    temp_fa0 = this->actor.home.pos.y;
     if (temp_fa0 < temp_fv1) {
         return temp_fa0;
+    } else {
+        return temp_fv1;
     }
-    return temp_fv1;
 }
 
 void func_8086E3B8(EnOkuta* this, PlayState* play) {
     Vec3f pos;
     Vec3f velocity;
-    f32 sp3C;
-    f32 sp38;
+    f32 sp3C = Math_SinS(this->actor.shape.rot.y);
+    f32 sp38 = Math_CosS(this->actor.shape.rot.y);
 
-    sp3C = Math_SinS(this->actor.shape.rot.y);
-    sp38 = Math_CosS(this->actor.shape.rot.y);
     pos.x = this->actor.world.pos.x + (25.0f * sp3C);
     pos.y = this->actor.world.pos.y - 6.0f;
     pos.z = this->actor.world.pos.z + (25.0f * sp38);
+
     if (Actor_Spawn(&play->actorCtx, play, 8, pos.x, pos.y, pos.z, this->actor.shape.rot.x, this->actor.shape.rot.y,
                     this->actor.shape.rot.z, this->actor.params + 0x10) != NULL) {
         pos.x = this->actor.world.pos.x + (40.0f * sp3C);
@@ -297,6 +302,7 @@ void func_8086E52C(EnOkuta* this, PlayState* play) {
             func_8086E5E8(this, play);
             return;
         }
+
         angle = ABS_ALT((s16)(this->actor.yawTowardsPlayer - this->actor.world.rot.y));
 
         if ((angle < 0x4000) && (play->bButtonAmmoPlusOne == 0)) {
@@ -315,7 +321,7 @@ void func_8086E5E8(EnOkuta* this, PlayState* play) {
 }
 
 void func_8086E658(EnOkuta* this, PlayState* play) {
-    f32 temp_fv0;
+    s32 pad;
 
     if (SkelAnime_Update(&this->skelAnime) != 0) {
         if ((this->actor.xzDistToPlayer < 160.0f) && (this->actor.params == 0)) {
@@ -324,19 +330,21 @@ void func_8086E658(EnOkuta* this, PlayState* play) {
             func_8086E8E8(this);
         }
     } else {
-        temp_fv0 = this->skelAnime.curFrame;
-        if (temp_fv0 <= 4.0f) {
-            Actor_SetScale(&this->actor, temp_fv0 * 0.25f * 0.01f);
+        if (this->skelAnime.curFrame <= 4.0f) {
+            Actor_SetScale(&this->actor, this->skelAnime.curFrame * 0.25f * 0.01f);
         } else if (Animation_OnFrame(&this->skelAnime, 5.0f) != 0) {
             Actor_SetScale(&this->actor, 0.01f);
         }
     }
+
     if (Animation_OnFrame(&this->skelAnime, 2.0f) != 0) {
         Actor_PlaySfx(&this->actor, 0x38C2);
     }
+
     if (Animation_OnFrame(&this->skelAnime, 12.0f) != 0) {
         Actor_PlaySfx(&this->actor, 0x38C3);
     }
+
     if ((Animation_OnFrame(&this->skelAnime, 3.0f) != 0) || (Animation_OnFrame(&this->skelAnime, 15.0f) != 0)) {
         func_8086E27C(this, play);
     }
@@ -348,22 +356,24 @@ void func_8086E7A8(EnOkuta* this) {
 }
 
 void func_8086E7E8(EnOkuta* this, PlayState* play) {
-    f32 temp_fv0;
+    s32 pad;
 
     Math_ApproachF(&this->actor.world.pos.y, this->actor.home.pos.y, 0.5f, 30.0f);
+
     if (SkelAnime_Update(&this->skelAnime) != 0) {
         Actor_PlaySfx(&this->actor, 0x38C5);
         func_8086E168(this, play);
         func_8086E4FC(this);
     } else {
-        temp_fv0 = this->skelAnime.curFrame;
-        if (temp_fv0 >= 4.0f) {
-            Actor_SetScale(&this->actor, (6.0f - temp_fv0) * 0.5f * 0.01f);
+        if (this->skelAnime.curFrame >= 4.0f) {
+            Actor_SetScale(&this->actor, (6.0f - this->skelAnime.curFrame) * 0.5f * 0.01f);
         }
     }
+
     if (Animation_OnFrame(&this->skelAnime, 2.0f) != 0) {
         Actor_PlaySfx(&this->actor, 0x38C4);
     }
+
     if (Animation_OnFrame(&this->skelAnime, 4.0f) != 0) {
         func_8086E27C(this, play);
     }
@@ -416,6 +426,7 @@ void func_8086E948(EnOkuta* this, PlayState* play) {
 
 void func_8086EAE0(EnOkuta* this, PlayState* play) {
     Animation_PlayOnce(&this->skelAnime, (AnimationHeader*)&D_0600044C);
+
     if (this->actionFunc != func_8086EC00) {
         if (this->actor.params == 0) {
             this->unk18E = this->unk190;
@@ -623,7 +634,7 @@ void func_8086F4B0(EnOkuta* this, PlayState* play) {
 void func_8086F4F4(EnOkuta* this) {
     Animation_Change(&this->skelAnime, (AnimationHeader*)&D_06004204, 1.0f, 0.0f,
                      Animation_GetLastFrame(&D_06004204) - 3.0f, 2, -3.0f);
-    this->unk18E = 0x14;
+    this->unk18E = 20;
     this->actionFunc = func_8086F57C;
 }
 
@@ -657,9 +668,8 @@ void func_8086F694(EnOkuta* this, PlayState* play) {
 
     if (this->unk18E < 0) {
         this->actor.velocity.y -= 0.5f;
-        this->actor.world.rot.x = Math_Atan2S_XY(sqrtf((this->actor.velocity.x * this->actor.velocity.x) +
-                                                       (this->actor.velocity.z * this->actor.velocity.z)),
-                                                 this->actor.velocity.y);
+        this->actor.world.rot.x =
+            Math_Atan2S_XY(sqrtf(SQ(this->actor.velocity.x) + SQ(this->actor.velocity.z)), this->actor.velocity.y);
     }
 
     this->actor.home.rot.z += 0x1554;
@@ -761,9 +771,6 @@ void func_8086FCA4(EnOkuta* this, PlayState* play) {
         }
     }
 }
-
-extern s16 D_808708EE;
-extern s16 D_808708EC;
 
 void EnOkuta_Update(Actor* thisx, PlayState* play2) {
     PlayState* play = play2;
@@ -886,10 +893,10 @@ s32 func_808704DC(PlayState* play, s32 arg1, Gfx** dList, Vec3f* pos, Vec3s* rot
     EnOkuta* this = THIS;
     f32 curFrame;
     Vec3f scale;
-    s32 doScale;
+    s32 doScale = false;
 
-    doScale = false;
     curFrame = this->skelAnime.curFrame;
+
     if (this->actionFunc == func_8086EFE8) {
         curFrame += this->unk18E;
     }
@@ -906,17 +913,13 @@ s32 func_808704DC(PlayState* play, s32 arg1, Gfx** dList, Vec3f* pos, Vec3s* rot
     if (doScale) {
         Matrix_Scale(scale.x, scale.y, scale.z, MTXMODE_APPLY);
     }
+
     return 0;
 }
 
-extern s8 D_80870944[];
-// extern Vec3f D_80870954; ????
-extern Vec3f D_80870954[3];
-extern Vec3f* D_80870978;
-
 void func_808705C8(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Actor* thisx) {
-    s32 bodyPartIndex = D_80870944[limbIndex];
     EnOkuta* this = THIS;
+    s32 bodyPartIndex = D_80870944[limbIndex];
     Vec3f* var_s0;
     Vec3f* var_s1;
     s32 i;
