@@ -111,6 +111,8 @@ static ColliderQuadInit D_80A7B634 = {
     { { { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } } },
 };
 
+static s16 D_80A7B738[0x14] = { 0x80, 0, 0, 0, 0, 0x80, 0, 0, 0, 0, 0x80, 0, 0, 0, 0, 0x80, 0, 0, 0, 0 };
+
 #endif
 
 extern DamageTable D_80A7B4F0;
