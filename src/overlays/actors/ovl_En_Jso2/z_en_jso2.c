@@ -285,7 +285,7 @@ void func_80A787FC(EnJso2* this, PlayState* play) {
     this->unk288 = 0x258;
     this->unk284 = 3;
     this->unk370 = 0;
-    this->unkEF4.base.acFlags |= 4;
+    this->unkEF4.base.acFlags |= AC_HARD;
     this->actionFunc = func_80A78868;
 }
 
