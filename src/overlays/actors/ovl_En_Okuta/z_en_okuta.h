@@ -22,9 +22,7 @@ typedef struct EnOkuta {
     /* 0x258 */ f32 unk258;
     /* 0x25C */ f32 unk25C;
     /* 0x260 */ f32 unk260;
-    /* 0x264 */ char pad264[0x4];
-    /* 0x268 */ f32 unk268;
-    /* 0x26C */ char pad26C[0x4];
+    /* 0x264 */ Vec3f headScale;
     /* 0x270 */ Vec3f bodyPartsPos[0xA];
     /* 0x2E8 */ ColliderCylinder collider;
 } EnOkuta;

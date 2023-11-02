@@ -508,7 +508,7 @@ void func_8086F2FC(EnOkuta* this, PlayState* play) {
 
     this->unk18E = 0xA;
     Actor_SetColorFilter(&this->actor, 0x8000, 0x80FF, 0, 0xA);
-    this->actor.child = Actor_SpawnAsChild(&play->actorCtx, &this->actor, play, 0x143, this->actor.world.pos.x, this->actor.world.pos.y + (this->skelAnime.jointTable->y * this->actor.scale.y) + (25.0f * this->unk268), this->actor.world.pos.z, 0, this->actor.home.rot.y, 0, 3);
+    this->actor.child = Actor_SpawnAsChild(&play->actorCtx, &this->actor, play, 0x143, this->actor.world.pos.x, this->actor.world.pos.y + (this->skelAnime.jointTable->y * this->actor.scale.y) + (25.0f * this->headScale.y), this->actor.world.pos.z, 0, this->actor.home.rot.y, 0, 3);
     
     if (this->actor.child != NULL) {
         this->actor.flags &= ~1;
@@ -613,7 +613,51 @@ void func_8086F694(EnOkuta* this, PlayState* play) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086F8FC.s")
+void func_8086F8FC(EnOkuta* this) {
+    f32 curFrame;
+
+    curFrame = this->skelAnime.curFrame;
+    if (this->actionFunc == func_8086E658) {
+        if (curFrame < 8.0f) {
+            this->headScale.x = this->headScale.y = this->headScale.z = 1.0f;
+        } else if (curFrame < 10.0f) {
+            this->headScale.x = this->headScale.z = 1.0f;
+            this->headScale.y = (((curFrame - 7.0f) * 0.4f) + 1.0f);
+        } else if (curFrame < 14.0f) {
+            this->headScale.x = this->headScale.z = ((curFrame - 9.0f) * 0.075f) + 1.0f;
+            this->headScale.y = 1.8f - ((curFrame - 9.0f) * 0.25f);
+        } else {
+            this->headScale.x = this->headScale.z = 1.3f - ((curFrame - 13.0f) * 0.05f);
+            this->headScale.y = ((curFrame - 13.0f) * 0.0333f) + 0.8f;
+        }
+    } else if (this->actionFunc == func_8086E7E8) {
+        if (curFrame < 3.0f) {
+            this->headScale.y = 1.0f;
+        } else if (curFrame < 4.0f) {
+            this->headScale.y = (curFrame - 2.0f) + 1.0f;
+        } else {
+            this->headScale.y = 2.0f - ((curFrame - 3.0f) * 0.333f);
+        }
+        this->headScale.x = this->headScale.z = 1.0f;
+    } else if (this->actionFunc == func_8086EC00) {
+        if (curFrame < 5.0f) {
+            this->headScale.x = this->headScale.y = this->headScale.z = (curFrame * 0.125f) + 1.0f;
+        } else if (curFrame < 7.0f) {
+            this->headScale.x = this->headScale.y = this->headScale.z = 1.5f - ((curFrame - 4.0f) * 0.35f);
+        } else if (curFrame < 17.0f) {
+            this->headScale.x = this->headScale.z = ((curFrame - 6.0f) * 0.05f) + 0.8f;
+            this->headScale.y = 0.8f;
+        } else {
+            this->headScale.x = this->headScale.z = 1.3f - ((curFrame - 16.0f) * 0.1f);
+            this->headScale.y = ((curFrame - 16.0f) * 0.0666f) + 0.8f;
+        }
+    } else if (this->actionFunc == func_8086E948) {
+        this->headScale.x = this->headScale.z = 1.0f;
+        this->headScale.y = (Math_SinF(0.19634955f * curFrame) * 0.2f) + 1.0f;
+    } else {
+        this->headScale.x = this->headScale.y = this->headScale.z = 1.0f;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086FCA4.s")
 
