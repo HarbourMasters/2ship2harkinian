@@ -35,6 +35,18 @@ void func_80A79A84(EnJso2* this, PlayState* play);
 void func_80A79BA0(EnJso2* this, PlayState* play);
 void func_80A7A124(EnJso2* this, PlayState* play);
 void func_80A7A2EC(EnJso2* this, PlayState* play);
+void func_80A78868(EnJso2* this, PlayState* play);
+void func_80A776E0(EnJso2* this, s32 animIndex);
+void func_80A79300(EnJso2* this);
+void func_80A78C08(EnJso2* this);
+void func_80A78F80(EnJso2* this, PlayState* play);
+void func_80A790E4(EnJso2* this, PlayState* play);
+void func_80A79864(EnJso2* this);
+void func_80A79B60(EnJso2* this);
+void func_80A7A0D0(EnJso2* this);
+void func_80A79450(EnJso2* this);
+void func_80A78B04(EnJso2* this);
+void func_80A78E8C(EnJso2* this);
 
 #if 0
 // static DamageTable sDamageTable = {
@@ -107,16 +119,57 @@ extern ColliderQuadInit D_80A7B634;
 
 extern UNK_TYPE D_06002ED8;
 extern UNK_TYPE D_060081F4;
+extern AnimationHeader* D_80A7B684[];
+extern u8 D_80A7B6DC[];
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/EnJso2_Init.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/EnJso2_Destroy.s")
+void EnJso2_Destroy(Actor* thisx, PlayState* play) {
+    EnJso2* this = (EnJso2*)thisx;
+    Collider_DestroyCylinder(play, &this->unkEF4);
+    Collider_DestroyQuad(play, &this->unkF40);
+    Collider_DestroyQuad(play, &this->unkFC0);
+    Effect_Destroy(play, this->unk380);
+    Effect_Destroy(play, this->unk384);
+    Audio_SetMainBgmVolume(0x7FU, 0U);
+    Audio_RestorePrevBgm();
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A776E0.s")
+void func_80A776E0(EnJso2* this, s32 animIndex) {
+    f32 morphFrames;
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A77790.s")
+    this->unk374 = Animation_GetLastFrame(D_80A7B684[animIndex]);
+    this->unk1040 = animIndex;
+    morphFrames = 1.0f;
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A77880.s")
+    if (animIndex == 8) {
+        morphFrames = 2.0f;
+    }
+    Animation_Change(&this->skelAnime, D_80A7B684[animIndex], morphFrames, 0.0f, this->unk374, D_80A7B6DC[animIndex],
+                     -2.0f);
+}
+
+void func_80A77790(EnJso2* this, PlayState* play) {
+    if (this->unk1048 != 0) {
+        Math_ApproachF(&this->unk1054.x, this->unk1078.x, this->unk294, this->unk298);
+        Math_ApproachF(&this->unk1054.y, this->unk1078.y, this->unk294, this->unk298);
+        Math_ApproachF(&this->unk1054.z, this->unk1078.z, this->unk294, this->unk298);
+        Math_ApproachF(&this->unk1060.x, this->unk1084.x, this->unk294, this->unk298);
+        Math_ApproachF(&this->unk1060.y, this->unk1084.y, this->unk294, this->unk298);
+        Math_ApproachF(&this->unk1060.z, this->unk1084.z, this->unk294, this->unk298);
+        Math_ApproachF(&this->unk104C, this->unk1050, 0.3f, 10.0f);
+        Play_SetCameraAtEye(play, this->unk1048, &this->unk1060, &this->unk1054);
+        Play_SetCameraFov(play, this->unk1048, this->unk104C);
+    }
+}
+
+s32 func_80A77880(PlayState* play) {
+    if ((Message_GetState(&play->msgCtx) == 5) && (Message_ShouldAdvance(play) != 0)) {
+        Message_CloseTextbox(play);
+        return 1;
+    }
+    return 0;
+}
 
 void func_80A778D8(EnJso2* this) {
     this->unk284 = 0;
@@ -126,77 +179,482 @@ void func_80A778D8(EnJso2* this) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A778F8.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A78588.s")
+void func_80A78588(EnJso2* this) {
+    this->unk36C = 2;
+    this->unkEF4.base.acFlags |= 4;
+    this->actor.flags &= ~(ACTOR_FLAG_100000);
+    func_80A776E0(this, 0xD);
+    this->actionFunc = func_80A785E4;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A785E4.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A787FC.s")
+void func_80A787FC(EnJso2* this, PlayState* play) {
+    Actor* sp1C;
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A78868.s")
+    sp1C = play->actorCtx.actorLists[2].first;
+    func_80A776E0(this, 8);
+    this->unk286 = sp1C->shape.rot.y;
+    this->unk288 = 0x258;
+    this->unk284 = 3;
+    this->unk370 = 0;
+    this->unkEF4.base.acFlags |= 4;
+    this->actionFunc = func_80A78868;
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A78A70.s")
+void func_80A78868(EnJso2* this, PlayState* play) {
+    f32 sp44;
+    Player* player;
+    Vec3f sp34;
+    SkelAnime* sp28;
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A78ACC.s")
+    sp28 = &this->skelAnime;
+    sp44 = this->skelAnime.curFrame;
+    player = GET_PLAYER(play);
+    Actor_PlaySfx(&this->actor, 0x31BDU);
+    if (sp44 < this->unk374) {
+        SkelAnime_Update(&this->skelAnime);
+    } else if (this->actor.bgCheckFlags & 1) {
+        SkelAnime_Update(&this->skelAnime);
+    }
+    if (Animation_OnFrame(&this->skelAnime, 6.0f) != 0) {
+        this->actor.velocity.y = 10.0f;
+        if (!(play->gameplayFrames & 1)) {
+            Actor_PlaySfx(&this->actor, 0x39C0U);
+        }
+    }
+    if (Animation_OnFrame(sp28, 12.0f) != 0) {
+        Actor_PlaySfx(&this->actor, 0x39C1U);
+        this->actor.speed = 0.0f;
+        if (Rand_ZeroFloat(1.0f) < 0.5f) {
+            this->unk288 = -this->unk288;
+        }
+    }
+    if (this->unk28E == 0) {
+        this->actor.speed = 0.0f;
+        func_80A78B04(this);
+        return;
+    }
+    Math_SmoothStepToS(&this->actor.shape.rot.y, this->actor.yawTowardsPlayer, 0xA, 0xFA0, 0x14);
+    Math_ApproachF(&this->actor.speed, 5.0f, 0.3f, 2.0f);
+    this->unk286 += this->unk288;
+    sp34.x = (Math_SinS(this->unk286) * 200.0f) + player->actor.world.pos.x;
+    sp34.y = this->actor.world.pos.y;
+    sp34.z = (Math_CosS(this->unk286) * 200.0f) + player->actor.world.pos.z;
+    Math_SmoothStepToS(&this->actor.world.rot.y, Math_Vec3f_Yaw(&this->actor.world.pos, &sp34), 0xA, 0xFA0, (s16)0x14);
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A78B04.s")
+void func_80A78A70(EnJso2* this) {
+    func_80A776E0(this, 5);
+    this->actor.world.rot.y = this->actor.yawTowardsPlayer;
+    Actor_PlaySfx(&this->actor, NA_SE_IT_SHIELD_BOUND);
+    this->unkEF4.base.acFlags |= 4;
+    this->unk284 = 4;
+    this->actionFunc = func_80A78ACC;
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A78B70.s")
+void func_80A78ACC(EnJso2* this, PlayState* play) {
+    f32 temp = this->skelAnime.curFrame;
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A78C08.s")
+    if (temp >= this->unk374) {
+        func_80A787FC(this, play);
+    }
+}
+
+void func_80A78B04(EnJso2* this) {
+    func_80A776E0(this, 0);
+    this->actor.world.rot.y = -this->actor.yawTowardsPlayer;
+    this->unkEF4.base.acFlags |= 4;
+    this->unk284 = 5;
+    this->actionFunc = func_80A78B70;
+    this->actor.speed = 10.0f;
+    this->actor.velocity.y = 20.0f;
+}
+
+void func_80A78B70(EnJso2* this, PlayState* play) {
+    this->actor.world.rot.x += 0x1770;
+    Math_SmoothStepToS(&this->actor.shape.rot.y, this->actor.yawTowardsPlayer, 0xA, 0xFA0, (s16)0x14);
+    if (!(this->actor.velocity.y > 0.0f) && (this->actor.bgCheckFlags & 1)) {
+        this->actor.world.rot.x = 0;
+        this->actor.velocity.y = 0.0f;
+        this->actor.speed = 0.0f;
+        this->actor.shape.rot.y = this->actor.yawTowardsPlayer;
+        this->actor.world.rot.y = this->actor.yawTowardsPlayer;
+        func_80A78C08(this);
+    }
+}
+
+void func_80A78C08(EnJso2* this) {
+    this->unk28A = 0x28;
+    this->unkEF4.base.acFlags |= 4;
+    this->actor.speed = 15.0f;
+    this->actor.velocity.y = 13.0f;
+    Actor_PlaySfx(&this->actor, NA_SE_EN_ANSATSUSYA_ENTRY);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_ANSATSUSYA_DASH_2);
+    this->unk284 = 6;
+    this->actionFunc = func_80A78C7C;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A78C7C.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A78E8C.s")
+void func_80A78E8C(EnJso2* this) {
+    func_80A776E0(this, 0);
+    this->unk28A = 0x14;
+    this->actor.speed = 0.0f;
+    this->actor.gravity = 0.0f;
+    this->actor.velocity.y = 10.0f;
+    Actor_PlaySfx(&this->actor, NA_SE_EN_ANSATSUSYA_JUMP);
+    this->actor.flags |= ACTOR_FLAG_CANT_LOCK_ON;
+    this->unk284 = 0xF;
+    this->actionFunc = func_80A78F04;
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A78F04.s")
+void func_80A78F04(EnJso2* this, PlayState* play) {
+    this->actor.shape.rot.y -= 0x1D4C;
+    Math_ApproachZeroF(&this->unk378, 0.3f, 0.01f);
+    Math_ApproachZeroF(&this->actor.shape.shadowScale, 0.3f, 3.0f);
+    if (this->unk28A == 0) {
+        func_80A78F80(this, play);
+    }
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A78F80.s")
+void func_80A78F80(EnJso2* this, PlayState* play) {
+    Player* player = GET_PLAYER(play);
+    Math_Vec3f_Copy(&this->actor.world.pos, &player->actor.world.pos);
+    this->actor.world.pos.y += 300.0f + BREG(0x34);
+    this->actor.velocity.y = 0.0f;
+    this->actor.gravity = BREG(0x35) + -3.0f;
+    Actor_PlaySfx(&this->actor, NA_SE_EN_ANSATSUSYA_FALL);
+    this->unk284 = 0x10;
+    this->actionFunc = func_80A79038;
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A79038.s")
+void func_80A79038(EnJso2* this, PlayState* play) {
+    Math_ApproachF(&this->unk378, 0.042f, 0.3f, 0.03f);
+    Math_ApproachF(&this->actor.shape.shadowScale, 17.0f, 0.4f, 4.0f);
+    if (this->actor.bgCheckFlags & 1) {
+        this->unk370 = 0;
+        this->unk378 = 0.042f;
+        this->actor.shape.shadowScale = 17.0f;
+        this->actor.flags &= ~(ACTOR_FLAG_CANT_LOCK_ON);
+        func_80A790E4(this, play);
+    }
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A790E4.s")
+void func_80A790E4(EnJso2* this, PlayState* play) {
+    func_80A776E0(this, 1);
+    Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos, this->actor.shape.shadowScale, 1, 8.0f, 0x1F4,
+                             0xA, 1);
+    Math_ApproachZeroF(&this->actor.speed, 0.3f, 3.0f);
+    this->unk371 = 0;
+    Actor_PlaySfx(&this->actor, NA_SE_IT_SWORD_SWING_HARD);
+    this->unk284 = 7;
+    this->unkEF4.base.acFlags &= ~(AC_HARD);
+    this->actionFunc = func_80A7919C;
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A7919C.s")
+void func_80A7919C(EnJso2* this, PlayState* play) {
+    Vec3f sp44;
+    f32 sp40;
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A79300.s")
+    sp40 = this->skelAnime.curFrame;
+    Math_ApproachZeroF(&this->actor.speed, 0.5f, 5.0f);
+    if (!(play->gameplayFrames & 7)) {
+        Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos, this->actor.shape.shadowScale, 1, 8.0f,
+                                 (s16)0x1F4, (s16)0xA, (u8)1);
+    }
+    if ((this->unkF40.base.atFlags & 2) || (this->unkFC0.base.atFlags & 2) != 0) {
+        this->unk371 = 1;
+        this->unkF40.base.atFlags &= 0xFFFD;
+        this->unkFC0.base.atFlags &= 0xFFFD;
+    }
+    if ((((u8)this->unkF40.base.atFlags) & 4) || (((u8)this->unkFC0.base.atFlags) & 4)) {
+        this->unkF40.base.atFlags &= 0xFFF9;
+        this->unkFC0.base.atFlags &= 0xFFF9;
+        Matrix_RotateYS(this->actor.yawTowardsPlayer, MTXMODE_NEW);
+        Matrix_MultVecZ(-10.0f, &sp44);
+        Math_Vec3f_Copy(&this->unkE58, &sp44);
+        this->unk368 = 1;
+        func_80A79864(this);
+    } else if (this->unk374 <= sp40) {
+        this->unk368 = 1;
+        this->actor.speed = 0.0f;
+        func_80A79450(this);
+    }
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A79364.s")
+void func_80A79300(EnJso2* this) {
+    func_80A776E0(this, 0xE);
+    this->unk371 = 0;
+    Actor_PlaySfx(&this->actor, NA_SE_IT_SWORD_SWING_HARD);
+    this->unk368 = 0;
+    this->unk28E = 0xF;
+    this->unk284 = 8;
+    this->actionFunc = func_80A79364;
+    this->actor.speed = 12.0f;
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A79450.s")
+void func_80A79364(EnJso2* this, PlayState* play) {
+    this->actor.shape.rot.y -= 0x1770;
+    Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos, this->actor.shape.shadowScale, 1, 4.0f, 0x12C,
+                             5, 1);
+    Math_SmoothStepToS(&this->actor.world.rot.y, this->actor.yawTowardsPlayer, 1, 0xFA0, 0x14);
+    if ((this->unk28E == 0) || ((this->unkF40.base.atFlags & 2) != 0) || (this->unkF40.base.atFlags & 4) ||
+        ((this->unkFC0.base.atFlags & 2) != 0) || (this->unkFC0.base.atFlags & 4)) {
+        this->unkF40.base.atFlags &= ~(AT_BOUNCED | AT_HIT);
+        this->unkFC0.base.atFlags &= ~(AT_BOUNCED | AT_HIT);
+        func_80A79864(this);
+    }
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A794C8.s")
+void func_80A79450(EnJso2* this) {
+    if (this->unk371 != 0) {
+        func_80A776E0(this, 2);
+        this->unk290 = 0x14;
+    } else {
+        func_80A776E0(this, 0xC);
+        this->unk290 = 0x28;
+    }
+    this->unkEF4.base.acFlags &= ~(AC_HARD);
+    this->unk284 = 9;
+    this->actionFunc = func_80A794C8;
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A79524.s")
+void func_80A794C8(EnJso2* this, PlayState* play) {
+    if (this->unk290 == 0) {
+        this->unk28E = Rand_S16Offset(0x1E, 0x1E);
+        this->unk371 = 0;
+        this->unkEF4.base.acFlags |= 4;
+        func_80A787FC(this, play);
+    }
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A79600.s")
+void func_80A79524(EnJso2* this) {
+    Vec3f sp24;
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A796BC.s")
+    AudioSfx_SetChannelIO(&this->actor.projectedPos, NA_SE_EN_ANSATSUSYA_DASH_2, 0U);
+    func_80A776E0(this, 4);
+    this->unk290 = 0x1E;
+    this->unkEF4.base.acFlags &= ~(AC_HARD);
+    this->actor.speed = 0.0f;
+    Matrix_RotateYS(this->actor.yawTowardsPlayer, MTXMODE_NEW);
+    Matrix_MultVecZ(-10.0f, &sp24);
+    Math_Vec3f_Copy(&this->unkE58, &sp24);
+    if (((this->unk2A2 == 0xB) || (this->unk2A2 == 0xA)) && (this->unk2A0 == 0)) {
+        this->unk2A0 = 0;
+        this->unk2A2 = 0;
+    }
+    if ((this->unk2A2 != 0xB) && (this->unk2A2 != 0xA)) {
+        this->unk290 = 0x28;
+    }
+    this->unk284 = 0xA;
+    this->actionFunc = func_80A79600;
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A7980C.s")
+void func_80A79600(EnJso2* this, PlayState* play) {
+    if (this->unk2A2 == 0xB) {
+        if ((this->unk2A0 != 0) && (this->unk2A0 < 0x3C)) {
+            this->unk2A2 = 0xA;
+        }
+    }
+    if ((this->unk290 == 0) && (this->unk2A0 == 0)) {
+        if ((this->unk2A2 == 0xB) || (this->unk2A2 == 0xA)) {
+            Actor_SpawnIceEffects(play, &this->actor, &this->unk2D4, 0xC, 2, 0.7f, 0.4f);
+            this->unk2A0 = 0;
+            this->unk2A2 = 0;
+        }
+        func_80A79864(this);
+    }
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A79864.s")
+void func_80A796BC(EnJso2* this, PlayState* play) {
+    Vec3f sp34;
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A798C8.s")
+    AudioSfx_SetChannelIO(&this->actor.projectedPos, NA_SE_EN_ANSATSUSYA_DASH_2, 0);
+    func_80A776E0(this, 4);
+    this->unk371 = 0;
+    this->actor.velocity.y = 10.0f;
+    this->actor.speed = 0.0f;
+    Matrix_RotateYS(this->actor.yawTowardsPlayer, MTXMODE_NEW);
+    Matrix_MultVecZ(-20.0f, &sp34);
+    Math_Vec3f_Copy(&this->unkE58, &sp34);
+    if (((this->unk2A2 == 0xB) || (this->unk2A2 == 0xA)) && (this->unk2A0 != 0)) {
+        Actor_SpawnIceEffects(play, &this->actor, &this->unk2D4, 0xC, 2, 0.7f, 0.4f);
+        this->unk2A0 = 0;
+        this->unk2A2 = 0;
+    }
+    CollisionCheck_GreenBlood(play, NULL, &this->actor.focus.pos);
+    CollisionCheck_GreenBlood(play, NULL, &this->actor.focus.pos);
+    CollisionCheck_GreenBlood(play, NULL, &this->actor.focus.pos);
+    Actor_SetColorFilter(&this->actor, COLORFILTER_COLORFLAG_RED, 0xFFU, 0U, 8);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_ANSATSUSYA_DAMAGE);
+    this->unk284 = 0xB;
+    this->actionFunc = func_80A7980C;
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A7998C.s")
+void func_80A7980C(EnJso2* this, PlayState* play) {
+    if (!(this->actor.velocity.y > 0.0f) && (this->actor.colorFilterTimer == 0) && (this->actor.bgCheckFlags & 1)) {
+        func_80A79300(this);
+    }
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A79A84.s")
+void func_80A79864(EnJso2* this) {
+    func_80A776E0(this, 3);
+    this->actor.world.rot.y *= -1;
+    this->unk370 = 0;
+    this->unk284 = 0xC;
+    this->actionFunc = func_80A798C8;
+    this->actor.speed = 7.0f;
+    this->actor.velocity.y = 20.0f;
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A79B60.s")
+void func_80A798C8(EnJso2* this, PlayState* play) {
+    f32 sp2C = this->skelAnime.curFrame;
+
+    Math_SmoothStepToS(&this->actor.shape.rot.y, this->actor.yawTowardsPlayer, 0xA, 0xBB8, (s16)0x14);
+    if (this->actor.bgCheckFlags & 1) {
+        this->actor.speed = 0.0f;
+    }
+    if ((this->unk374 <= sp2C) && (this->actor.bgCheckFlags & 1)) {
+        this->actor.world.rot.x = 0;
+        this->actor.velocity.y = 0.0f;
+        this->actor.speed = 0.0f;
+        this->actor.world.rot.y = this->actor.shape.rot.y;
+        this->unk28E = Rand_S16Offset(0xA, 0xA);
+        func_80A787FC(this, play);
+    }
+}
+
+void func_80A7998C(EnJso2* this, PlayState* play) {
+    AudioSfx_SetChannelIO(&this->actor.projectedPos, NA_SE_EN_ANSATSUSYA_DASH_2, 0U);
+    func_80A776E0(this, 4);
+    if (((this->unk2A2 == 0xB) || (this->unk2A2 == 0xA)) && (this->unk2A0 == 0)) {
+        this->unk2A2 = 0;
+    }
+    this->actor.shape.rot.z = 0;
+    this->actor.flags |= ACTOR_FLAG_CANT_LOCK_ON;
+    this->actor.flags &= ~(ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY);
+    this->actor.speed = 0.0f;
+    this->unk368 = 1;
+    this->unk290 = 0x1E;
+    this->unk36C = 2;
+    this->actor.world.rot.z = this->actor.shape.rot.z;
+    this->actor.shape.rot.x = this->actor.shape.rot.z;
+    this->actor.world.rot.x = this->actor.shape.rot.z;
+    Enemy_StartFinishingBlow(play, &this->actor);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_ANSATSUSYA_DEAD);
+    Math_Vec3f_Copy(&this->unkE58, &gZeroVec3f);
+    this->unk284 = 0xD;
+    this->actionFunc = func_80A79A84;
+}
+
+void func_80A79A84(EnJso2* this, PlayState* play) {
+    Math_SmoothStepToS(&this->actor.world.rot.y, this->actor.yawTowardsPlayer, 0xA, 0xFA0, 0x14);
+
+    if ((this->unk2A2 == 0xB) || (this->unk2A2 == 0xA)) {
+        if (this->unk2A0 != 0) {
+            Actor_SpawnIceEffects(play, &this->actor, &this->unk2D4, 0xC, 2, 0.7f, 0.4f);
+            this->unk2A0 = 0;
+            this->unk2A2 = 0;
+        } else {
+            return;
+        }
+    }
+
+    if (this->unk290 == 0) {
+        this->unk1050 = 60.0f;
+        this->unk104C = 60.0f;
+        if (this->unk29C == 0) {
+            func_80A79B60(this);
+            return;
+        }
+        func_80A7A0D0(this);
+    }
+}
+
+void func_80A79B60(EnJso2* this) {
+    this->unk1046 = 0;
+    this->unk1044 = 0;
+    this->unk1048 = 0;
+    this->actor.flags |= ACTOR_FLAG_100000;
+    this->unk290 = 0x1E;
+    this->unk284 = 0xE;
+    this->actionFunc = func_80A79BA0;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A79BA0.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A7A0D0.s")
+void func_80A7A0D0(EnJso2* this) {
+    this->unk1044 = 0;
+    Audio_SetMainBgmVolume(0U, 0xAU);
+    func_80A776E0(this, 0x13);
+    this->unk284 = 0xE;
+    this->actionFunc = func_80A7A124;
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A7A124.s")
+void func_80A7A124(EnJso2* this, PlayState* play) {
+    f32 sp44;
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A7A2EC.s")
+    sp44 = this->skelAnime.curFrame;
+    Math_SmoothStepToS(&this->actor.shape.rot.y, this->actor.yawTowardsPlayer, 0xA, 0xFA0, (s16)0x14);
+    if ((this->unk1040 == 0x13) && (this->unk374 <= sp44)) {
+        this->unk104A = 0;
+        func_80A776E0(this, 0x14);
+    }
+    if ((this->unk1040 == 0x14) && (this->unk374 <= sp44)) {
+        this->unk104A += 1;
+        if (this->unk104A >= 2) {
+            this->unk104A = 0;
+            func_80A776E0(this, 0x15);
+        }
+    }
+    if ((this->unk1040 == 0x15) && (this->unk374 <= sp44)) {
+        if (this->unk2D0 == NULL) {
+            this->unk2D0 = Actor_SpawnAsChild(&play->actorCtx, &this->actor, play, 0x1D9, this->unk2C4.x,
+                                              this->unk2C4.y, this->unk2C4.z, 0, 0, 0, 4);
+        } else if (this->unk104A >= 0xA) {
+            if (this->unk2D0 != NULL) {
+                this->unk2D0->world.rot.z = 1;
+                this->unk2B4 = (s32)1;
+                this->actionFunc = func_80A7A2EC;
+                return;
+            }
+        } else {
+            this->unk104A++;
+        }
+    }
+
+    if (this->unk2D0 != NULL) {
+        this->unk2D0->world.pos.x = this->unk2C4.x;
+        this->unk2D0->world.pos.y = this->unk2C4.y;
+        this->unk2D0->world.pos.z = this->unk2C4.z;
+    }
+    CollisionCheck_SetOC(play, &play->colChkCtx, &this->unkEF4.base);
+}
+
+void func_80A7A2EC(EnJso2* this, PlayState* play) {
+    Math_SmoothStepToS(&this->unk366, 0, 1, 0xF, (s16)0x32);
+    Math_ApproachZeroF(&this->actor.shape.shadowScale, 0.3f, 3.0f);
+    if (this->unk366 < 2) {
+        Actor_Kill(&this->actor);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A7A360.s")
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/EnJso2_Update.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A7AA48.s")
+s32 func_80A7AA48(s32 arg0, s32 arg1, s32* arg2, s32 arg3, u8 arg4, EnJso2* thisx) {
+    if (thisx->unk36C == 2) {
+        if ((arg1 == 4) && (thisx->unk284 != 0xE)) {
+            *arg2 = 0;
+        }
+        if (arg1 == 6) {
+            *arg2 = 0;
+        }
+    }
+    return 0;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A7AA9C.s")
 
