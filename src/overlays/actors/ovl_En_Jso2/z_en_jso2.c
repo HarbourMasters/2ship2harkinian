@@ -48,6 +48,7 @@ void func_80A79450(EnJso2* this);
 void func_80A78B04(EnJso2* this);
 void func_80A78E8C(EnJso2* this);
 s32 func_80A7AA48(PlayState* play, s32 arg1, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx);
+void func_80A7AA9C(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Actor* thisx);
 
 #if 0
 // static DamageTable sDamageTable = {
