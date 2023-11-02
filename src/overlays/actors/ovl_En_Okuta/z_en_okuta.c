@@ -882,7 +882,30 @@ s32 func_80870254(EnOkuta* this, f32 curFrame, Vec3f* scale) {
     return true;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_808704DC.s")
+s32 func_808704DC(PlayState* play, s32 arg1, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx) {
+    EnOkuta* this = THIS;
+    f32 curFrame;
+    Vec3f scale;
+    s32 doScale;
+
+    doScale = false;
+    curFrame = this->skelAnime.curFrame;
+    if (this->actionFunc == func_8086EFE8) {
+        curFrame += this->unk18E;
+    }
+    if (arg1 == 0xE) {
+        if ((this->headScale.x != 1.0f) || (this->headScale.y != 1.0f) || (this->headScale.z != 1.0f)) {
+            Math_Vec3f_Copy(&scale, &this->headScale);
+            doScale = true;
+        }
+    } else if (arg1 == 0xF) {
+        doScale = func_80870254(this, curFrame, &scale);
+    }
+    if (doScale) {
+        Matrix_Scale(scale.x, scale.y, scale.z, MTXMODE_APPLY);
+    }
+    return 0;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_808705C8.s")
 
