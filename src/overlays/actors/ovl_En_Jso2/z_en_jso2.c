@@ -224,7 +224,7 @@ void func_80A778D8(EnJso2* this) {
 
 void func_80A78588(EnJso2* this) {
     this->unk36C = 2;
-    this->unkEF4.base.acFlags |= 4;
+    this->unkEF4.base.acFlags |= AC_HARD;
     this->actor.flags &= ~(ACTOR_FLAG_100000);
     func_80A776E0(this, 13);
     this->actionFunc = func_80A785E4;
@@ -340,7 +340,7 @@ void func_80A78A70(EnJso2* this) {
     func_80A776E0(this, 5);
     this->actor.world.rot.y = this->actor.yawTowardsPlayer;
     Actor_PlaySfx(&this->actor, NA_SE_IT_SHIELD_BOUND);
-    this->unkEF4.base.acFlags |= 4;
+    this->unkEF4.base.acFlags |= AC_HARD;
     this->unk284 = 4;
     this->actionFunc = func_80A78ACC;
 }
@@ -356,7 +356,7 @@ void func_80A78ACC(EnJso2* this, PlayState* play) {
 void func_80A78B04(EnJso2* this) {
     func_80A776E0(this, 0);
     this->actor.world.rot.y = -this->actor.yawTowardsPlayer;
-    this->unkEF4.base.acFlags |= 4;
+    this->unkEF4.base.acFlags |= AC_HARD;
     this->unk284 = 5;
     this->actionFunc = func_80A78B70;
     this->actor.speed = 10.0f;
@@ -378,7 +378,7 @@ void func_80A78B70(EnJso2* this, PlayState* play) {
 
 void func_80A78C08(EnJso2* this) {
     this->unk28A = 0x28;
-    this->unkEF4.base.acFlags |= 4;
+    this->unkEF4.base.acFlags |= AC_HARD;
     this->actor.speed = 15.0f;
     this->actor.velocity.y = 13.0f;
     Actor_PlaySfx(&this->actor, NA_SE_EN_ANSATSUSYA_ENTRY);
@@ -393,9 +393,9 @@ void func_80A78C7C(EnJso2* this, PlayState* play) {
     Vec3f sp2C;
     s32 temp = 1;
 
-    if ((this->unkF40.base.atFlags & AT_BOUNCED) || (this->unkFC0.base.atFlags & 4)) {
-        this->unkF40.base.atFlags &= 0xFFF9;
-        this->unkFC0.base.atFlags &= 0xFFF9;
+    if ((this->unkF40.base.atFlags & AT_BOUNCED) || (this->unkFC0.base.atFlags & AT_BOUNCED)) {
+        this->unkF40.base.atFlags &= ~(AT_HIT | AT_BOUNCED);
+        this->unkFC0.base.atFlags &= ~(AT_HIT | AT_BOUNCED);
         Matrix_RotateYS(this->actor.yawTowardsPlayer, MTXMODE_NEW);
         Matrix_MultVecZ(-10.0f, &sp2C);
         Math_Vec3f_Copy(&this->unkE58, &sp2C);
@@ -558,7 +558,7 @@ void func_80A794C8(EnJso2* this, PlayState* play) {
     if (this->unk290 == 0) {
         this->unk28E = Rand_S16Offset(30, 30);
         this->unk371 = 0;
-        this->unkEF4.base.acFlags |= 4;
+        this->unkEF4.base.acFlags |= AC_HARD;
         func_80A787FC(this, play);
     }
 }
