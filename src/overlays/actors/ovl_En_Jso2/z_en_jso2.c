@@ -47,6 +47,7 @@ void func_80A7A0D0(EnJso2* this);
 void func_80A79450(EnJso2* this);
 void func_80A78B04(EnJso2* this);
 void func_80A78E8C(EnJso2* this);
+s32 func_80A7AA48(PlayState* play, s32 arg1, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx);
 
 #if 0
 // static DamageTable sDamageTable = {
@@ -110,6 +111,24 @@ static ColliderQuadInit D_80A7B634 = {
     { ELEMTYPE_UNK0, { 0xF7CFFFFF, 0x09, 0x10 }, { 0x00000000, 0x00, 0x00 }, TOUCH_ON | TOUCH_SFX_NORMAL | TOUCH_UNK7, BUMP_NONE, OCELEM_NONE, },
     { { { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } } },
 };
+
+static Vec3f D_80A7B558 = { 800.0f, -20.0f, -50.0f };
+static Vec3f D_80A7B564 = { 500.0f, -20.0f, -70.0f };
+static Vec3f D_80A7B570 = { 300.0f, -20.0f, -90.0f };
+static Vec3f D_80A7B57C = { 800.0f, -20.0f, 50.0f };
+static Vec3f D_80A7B588 = { 500.0f, -20.0f, 70.0f };
+static Vec3f D_80A7B594 = { 300.0f, -20.0f, 90.0f };
+static Vec3f D_80A7B5A0 = { 600.0f, -100.0f, 100.0f };
+static Vec3f D_80A7B5AC = { 300.0f, -100.0f, 80.0f };
+static Vec3f D_80A7B5B8 = { 100.0f, -100.0f, 60.0f };
+static Vec3f D_80A7B5C4 = { 600.0f, -100.0f, -100.0f };
+static Vec3f D_80A7B5D0 = { 300.0f, -100.0f, -80.0f };
+static Vec3f D_80A7B5DC = { 100.0f, -100.0f, -60.0f };
+static ? D_80A7B6FC;
+static Vec3f D_80A7B708 = { 1600.0f, 0.0f, 0.0f };
+static Vec3f D_80A7B714 = { 0.0f, 0.0f, 0.0f };
+static Vec3f D_80A7B720 = { 1700.0f, 0.0f, 0.0f };
+static Vec3f D_80A7B72C = { 0.0f, 0.0f, 0.0f };
 
 static s16 D_80A7B738[0x14] = { 0x80, 0, 0, 0, 0, 0x80, 0, 0, 0, 0, 0x80, 0, 0, 0, 0, 0x80, 0, 0, 0, 0 };
 
@@ -907,13 +926,15 @@ void func_80A7A360(EnJso2* this, PlayState* play) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/EnJso2_Update.s")
 
-s32 func_80A7AA48(s32 arg0, s32 arg1, s32* arg2, s32 arg3, u8 arg4, EnJso2* thisx) {
-    if (thisx->unk36C == 2) {
-        if ((arg1 == 4) && (thisx->unk284 != 0xE)) {
-            *arg2 = 0;
+s32 func_80A7AA48(PlayState* play, s32 arg1, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx) {
+    EnJso2* this = THIS;
+
+    if (this->unk36C == 2) {
+        if ((arg1 == 4) && (this->unk284 != 0xE)) {
+            *dList = NULL;
         }
         if (arg1 == 6) {
-            *arg2 = 0;
+            *dList = NULL;
         }
     }
     return 0;
