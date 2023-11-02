@@ -504,7 +504,7 @@ void func_80A7919C(EnJso2* this, PlayState* play) {
         this->unkFC0.base.atFlags &= ~(AT_HIT);
     }
 
-    if ((((u8)this->unkF40.base.atFlags) & AT_BOUNCED) || (this->unkFC0.base.atFlags & 4)) {
+    if ((this->unkF40.base.atFlags & AT_BOUNCED) || (this->unkFC0.base.atFlags & 4)) {
         this->unkF40.base.atFlags &= ~(AT_HIT | AT_BOUNCED);
         this->unkFC0.base.atFlags &= ~(AT_HIT | AT_BOUNCED);
         Matrix_RotateYS(this->actor.yawTowardsPlayer, MTXMODE_NEW);
