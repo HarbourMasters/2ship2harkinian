@@ -559,7 +559,7 @@ void func_8086F57C(EnOkuta* this, PlayState* play) {
 
     this->unk18E--;
     Math_ScaledStepToS(&this->actor.shape.rot.x, 0, 0x400);
-    
+
     if (SkelAnime_Update(&this->skelAnime)) {
         Animation_Change(&this->skelAnime, (AnimationHeader* ) &D_06004204, 1.0f, 0.0f, Animation_GetLastFrame(&D_06004204) - 3.0f, 2, -3.0f);
     }
@@ -575,7 +575,43 @@ void func_8086F57C(EnOkuta* this, PlayState* play) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086F694.s")
+void func_8086F694(EnOkuta* this, PlayState* play) {
+    Vec3f sp54;
+    Player* player;
+    Vec3s sp48;
+
+    player = GET_PLAYER(play);
+    this->unk18E--;
+    if (this->unk18E < 0) {
+        this->actor.velocity.y -= 0.5f;
+        this->actor.world.rot.x = Math_Atan2S_XY(sqrtf((this->actor.velocity.x * this->actor.velocity.x) + (this->actor.velocity.z * this->actor.velocity.z)), this->actor.velocity.y);
+    }
+
+    this->actor.home.rot.z += 0x1554;
+    if ((this->actor.bgCheckFlags & 8) || (this->actor.bgCheckFlags & 1) || (this->actor.bgCheckFlags & 0x10) || (this->collider.base.atFlags & 2) || (this->collider.base.acFlags & 2) || (this->collider.base.ocFlags1 & 2) || (this->actor.floorHeight == -32000.0f)) {
+        if (player->currentShield == 1 && (this->collider.base.atFlags & 2) && (this->collider.base.atFlags & 0x10) && (this->collider.base.atFlags & 4)) {
+                    this->collider.base.atFlags &= 0xFFE9;
+                    this->collider.base.atFlags |= 8;
+                    this->collider.info.toucher.dmgFlags = 0x400000;
+                    this->collider.info.toucher.damage = 2;
+                    Matrix_MtxFToYXZRot(&player->shieldMf, &sp48, 0);
+                    this->actor.world.rot.y = sp48.y + 0x8000;
+                    this->unk18E = 22;
+        } else {
+            sp54.x = this->actor.world.pos.x;
+            sp54.y = this->actor.world.pos.y + 11.0f;
+            sp54.z = this->actor.world.pos.z;
+            EffectSsHahen_SpawnBurst(play, &sp54, 6.0f, 0, 1, 2, 15, 5, 10, (Gfx* ) &D_06003250);
+            SoundSource_PlaySfxAtFixedWorldPos(play, &this->actor.world.pos, 0x14, 0x38C0);
+            if ((this->collider.base.atFlags & 2) && (this->collider.base.atFlags & 0x10) && !(this->collider.base.atFlags & 4) && (this->actor.params == 0x11)) {
+                func_800B8D98(play, &this->actor, 8.0f, this->actor.world.rot.y, 6.0f);
+            }
+            Actor_Kill(&this->actor);
+        }
+    } else if (this->unk18E == -300) {
+        Actor_Kill(&this->actor);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Okuta/func_8086F8FC.s")
 
