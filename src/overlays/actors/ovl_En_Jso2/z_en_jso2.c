@@ -795,7 +795,7 @@ void func_80A7A124(EnJso2* this, PlayState* play) {
         } else if (this->unk104A >= 0xA) {
             if (this->unk2D0 != NULL) {
                 this->unk2D0->world.rot.z = 1;
-                this->unk2B4 = (s32)1;
+                this->unk2B4 = 1;
                 this->actionFunc = func_80A7A2EC;
                 return;
             }
