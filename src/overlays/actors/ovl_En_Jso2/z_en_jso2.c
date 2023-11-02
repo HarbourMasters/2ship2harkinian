@@ -162,6 +162,8 @@ extern Vec3f D_80A7B708;
 extern Vec3f D_80A7B714;
 extern Vec3f D_80A7B720;
 extern Vec3f D_80A7B72C;
+extern Gfx D_0407D590[];
+extern s16 D_80A7B738[20];
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/EnJso2_Init.s")
 
@@ -1109,4 +1111,86 @@ void func_80A7AA9C(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Acto
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/EnJso2_Draw.s")
+void EnJso2_Draw(Actor* thisx, PlayState* play2) {
+    EnJso2* this = THIS;
+    PlayState* play = play2;
+    s32 i;
+    s32 var_s1;
+    s32 pad;
+
+    OPEN_DISPS(play->state.gfxCtx);
+
+    Gfx_SetupDL25_Xlu(play->state.gfxCtx);
+    Gfx_SetupDL25_Opa(play->state.gfxCtx);
+
+    if ((this->unk2B4) == 0) {
+        Scene_SetRenderModeXlu(play, 0, 1);
+        SkelAnime_DrawFlexOpa(play, this->skelAnime.skeleton, this->skelAnime.jointTable, this->skelAnime.dListCount,
+                              func_80A7AA48, func_80A7AA9C, &this->actor);
+    } else {
+        gDPPipeSync(POLY_XLU_DISP++);
+        gDPSetEnvColor(POLY_XLU_DISP++, 0, 0, 0, this->unk366);
+        Scene_SetRenderModeXlu(play, 1, 2);
+        POLY_XLU_DISP = SkelAnime_DrawFlex(play, this->skelAnime.skeleton, this->skelAnime.jointTable,
+                                           this->skelAnime.dListCount, NULL, NULL, &this->actor, POLY_XLU_DISP);
+    }
+
+    if (this->unk_388 > 0) {
+        var_s1 = this->unk_38C;
+        for (i = 0; i < this->unk_388; i++) {
+            if (D_80A7B738[i] == 0) {
+                continue;
+            }
+            Matrix_Translate(this->unk_390[var_s1].x, this->unk_390[var_s1].y, this->unk_390[var_s1].z, MTXMODE_NEW);
+            Matrix_Scale(this->unk378, this->unk378, this->unk378, MTXMODE_APPLY);
+            Matrix_RotateYS(this->unk_480[var_s1].y, MTXMODE_APPLY);
+            Matrix_RotateXS(this->unk_480[var_s1].x, MTXMODE_APPLY);
+            Matrix_RotateZS(this->unk_480[var_s1].z, MTXMODE_APPLY);
+            gDPPipeSync(POLY_XLU_DISP++);
+            gDPSetEnvColor(POLY_XLU_DISP++, 0, 0, 0, D_80A7B738[i]);
+            Scene_SetRenderModeXlu(play, 1, 2);
+            POLY_XLU_DISP = SkelAnime_DrawFlex(play, this->skelAnime.skeleton, this->unk_4F8[var_s1],
+                                               this->skelAnime.dListCount, NULL, NULL, &this->actor, POLY_XLU_DISP);
+            var_s1--;
+            if (var_s1 < 0) {
+                var_s1 = 19;
+            }
+        }
+    }
+
+    if (((this->unk284 < 0xF) && (this->unk36C == 0)) &&
+        (((this->unk2A2 != 0xB) && (this->unk2A2 != 0xA)) ||
+         (((this->unk2A2 == 0xB) || (this->unk2A2 == 0xA)) && (this->unk2A0 == 0)))) {
+        for (i = 0; i < 6; i++) {
+            Matrix_Push();
+            Matrix_Translate(this->unk_E64[i].x, this->unk_E64[i].y, this->unk_E64[i].z, MTXMODE_NEW);
+            Matrix_Scale(this->unk_EAC[i].x, this->unk_EAC[i].y, this->unk_EAC[i].z, MTXMODE_APPLY);
+            gSPSegment(POLY_XLU_DISP++, 0x08,
+                       Gfx_TwoTexScroll(play->state.gfxCtx, 0, 0, 0, 0x20, 0x40, 1, 0,
+                                        ((this->unk_38E * 10) - (play->state.frames * 20)) & 0x1FF, 32, 128));
+            gDPPipeSync(POLY_XLU_DISP++);
+            gDPSetPrimColor(POLY_XLU_DISP++, 0x80, 0x80, 0xFF, 0xFF, 0xAA, 0xFF);
+            gDPSetEnvColor(POLY_XLU_DISP++, 255, 50, 0, 255);
+            Matrix_Mult(&play->billboardMtxF, MTXMODE_APPLY);
+            gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), (0x00 | 0x02) | 0x00);
+            gSPDisplayList(POLY_XLU_DISP++, D_0407D590);
+            Matrix_Pop();
+        }
+    }
+
+    if (this->unk2A0 != 0) {
+        f32 temp_fv1 = this->unk2A0 * 0.05f;
+
+        if ((this->unk2A2 == 0xB) || (this->unk2A2 == 0xA)) {
+            this->unk2A4 += 0.3f;
+            if (this->unk2A4 > 0.5f) {
+                this->unk2A4 = 0.5f;
+            }
+            Math_ApproachF(&this->unk2A8, this->unk2A4, 0.1f, 0.04f);
+        }
+        Actor_DrawDamageEffects(play, &this->actor, this->unk2D4, this->unk_2B0, this->unk2A4, this->unk2A8, temp_fv1,
+                                this->unk2A2);
+    }
+
+    CLOSE_DISPS(play->state.gfxCtx);
+}
