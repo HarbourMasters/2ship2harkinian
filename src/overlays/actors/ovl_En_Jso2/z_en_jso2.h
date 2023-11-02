@@ -10,7 +10,8 @@ typedef void (*EnJso2ActionFunc)(struct EnJso2*, PlayState*);
 typedef struct EnJso2 {
     /* 0x0000 */ Actor actor;
     /* 0x0144 */ SkelAnime skelAnime;
-    /* 0x0188 */ char unk_188[0xF0];
+    /* 0x0188 */ Vec3s jointTable[20];
+    /* 0x0200 */ Vec3s morphTable[20];
     /* 0x0278 */ EnJso2ActionFunc actionFunc;
     /* 0x027C */ char unk_27C[0x8];
     /* 0x0284 */ s16 unk284;
