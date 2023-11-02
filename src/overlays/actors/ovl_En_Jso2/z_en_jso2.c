@@ -143,8 +143,7 @@ extern ColliderQuadInit D_80A7B634;
 extern UNK_TYPE D_06002ED8;
 extern UNK_TYPE D_060081F4;
 extern AnimationHeader* D_80A7B684[];
-extern u8 D_80A7B6DC[];
-
+extern Vec3f D_80A7B510[6];
 extern Vec3f D_80A7B558;
 extern Vec3f D_80A7B564;
 extern Vec3f D_80A7B570;
@@ -157,6 +156,7 @@ extern Vec3f D_80A7B5B8;
 extern Vec3f D_80A7B5C4;
 extern Vec3f D_80A7B5D0;
 extern Vec3f D_80A7B5DC;
+extern u8 D_80A7B6DC[];
 extern Vec3f D_80A7B6FC;
 extern Vec3f D_80A7B708;
 extern Vec3f D_80A7B714;
@@ -173,7 +173,7 @@ void EnJso2_Destroy(Actor* thisx, PlayState* play) {
     Collider_DestroyQuad(play, &this->unkFC0);
     Effect_Destroy(play, this->unk380);
     Effect_Destroy(play, this->unk384);
-    Audio_SetMainBgmVolume(0x7FU, 0U);
+    Audio_SetMainBgmVolume(127, 0);
     Audio_RestorePrevBgm();
 }
 
@@ -230,38 +230,37 @@ void func_80A78588(EnJso2* this) {
     this->actionFunc = func_80A785E4;
 }
 
-extern Vec3f D_80A7B510[6];
-
 void func_80A785E4(EnJso2* this, PlayState* play) {
-    f32 curFrame;
+    f32 curFrame = this->skelAnime.curFrame;
     s32 i;
-    
-    curFrame = this->skelAnime.curFrame;
-    
+
     this->actor.world.rot.y = this->actor.shape.rot.y = this->actor.yawTowardsPlayer;
 
     switch (this->unk1046) {
         case 0:
-            Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos, this->actor.shape.shadowScale, 1, 8.0f, 0x1F4, 0xA, 1);
-            Audio_SetMainBgmVolume(0, 0xA);
-            Actor_PlaySfx(&this->actor, 0x3812);
+            Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos, this->actor.shape.shadowScale, 1, 8.0f,
+                                     0x1F4, 0xA, 1);
+            Audio_SetMainBgmVolume(0, 10);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_ANSATSUSYA_ENTRY);
             this->unk1046++;
             break;
+
         case 1:
             if (Animation_OnFrame(&this->skelAnime, 18.0f) != 0) {
-                Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos, this->actor.shape.shadowScale, 1, 8.0f, 0x1F4, 0xA, 1);
+                Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos, this->actor.shape.shadowScale, 1,
+                                         8.0f, 0x1F4, 0xA, 1);
             }
-            
+
             Math_ApproachF(&this->actor.shape.shadowScale, 17.0f, 0.4f, 4.0f);
-            
+
             if (Animation_OnFrame(&this->skelAnime, 45.0f)) {
-                Audio_SetMainBgmVolume(0x7F, 0);
-                Audio_PlayBgm_StorePrevBgm(0x38);
-                Actor_PlaySfx(&this->actor, 0x39C7);
-                Actor_PlaySfx(&this->actor, 0x2822);
+                Audio_SetMainBgmVolume(127, 0);
+                Audio_PlayBgm_StorePrevBgm(56);
+                Actor_PlaySfx(&this->actor, NA_SE_EN_ANSATSUSYA_SWORD);
+                Actor_PlaySfx(&this->actor, NA_SE_EV_FLAME_IGNITION);
                 this->unk36C = 0;
             }
-            
+
             if (this->unk36C == 0) {
                 for (i = 0; i < ARRAY_COUNT(D_80A7B510); i++) {
                     Math_ApproachF(&this->unk_EAC[i].x, D_80A7B510[i].x, 0.3f, 0.0005f);
@@ -269,12 +268,12 @@ void func_80A785E4(EnJso2* this, PlayState* play) {
                     this->unk_EAC[i].z = this->unk_EAC[i].x;
                 }
             }
+
             if (curFrame >= this->unk374) {
                 func_80A787FC(this, play);
             }
             break;
     }
-    
 }
 
 void func_80A787FC(EnJso2* this, PlayState* play) {
@@ -759,7 +758,7 @@ void func_80A79BA0(EnJso2* this, PlayState* play) {
                 func_800B7298(play, &this->actor, 7);
                 this->actor.world.rot.y = this->actor.shape.rot.y =
                     Math_Vec3f_Yaw(&this->actor.world.pos, &this->actor.home.pos);
-                Audio_SetMainBgmVolume(0, 0xA);
+                Audio_SetMainBgmVolume(0, 10);
                 func_80A776E0(this, 0x13);
                 this->unk1048 = CutsceneManager_GetCurrentSubCamId(this->actor.csId);
                 func_800B7298(play, &this->actor, 7);
