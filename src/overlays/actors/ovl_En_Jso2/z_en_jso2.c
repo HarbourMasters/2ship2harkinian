@@ -401,7 +401,7 @@ void func_80A78C7C(EnJso2* this, PlayState* play) {
         Math_Vec3f_Copy(&this->unkE58, &sp2C);
         this->unk368 = temp;
         this->unk28A = 0;
-        AudioSfx_SetChannelIO(&this->actor.projectedPos, 0x39BE, 0);
+        AudioSfx_SetChannelIO(&this->actor.projectedPos, NA_SE_EN_ANSATSUSYA_DASH_2, 0);
         func_80A79864(this);
         return;
     }
@@ -410,7 +410,7 @@ void func_80A78C7C(EnJso2* this, PlayState* play) {
         if (Rand_ZeroOne() < ((gRegEditor->data[0x976] * 0.1f) + 0.7f)) {
             this->actor.velocity.y = 13.0f;
         } else {
-            AudioSfx_SetChannelIO(&this->actor.projectedPos, 0x39BE, 0);
+            AudioSfx_SetChannelIO(&this->actor.projectedPos, NA_SE_EN_ANSATSUSYA_DASH_2, 0);
             this->unk368 = temp;
             this->unk370 = 1;
             this->actor.speed = 0.0f;
