@@ -187,7 +187,7 @@ void EnOkuta_Init(Actor* thisx, PlayState* play2) {
 
         if (this->actor.params == 1) {
             this->collider.base.colType = 0xC;
-            this->collider.base.acFlags |= 4;
+            this->collider.base.acFlags |= AC_HARD;
         }
 
         this->actor.targetMode = 5;
@@ -514,8 +514,8 @@ void func_8086EC00(EnOkuta* this, PlayState* play) {
 
 void func_8086EE8C(EnOkuta* this) {
     Animation_MorphToPlayOnce(&this->skelAnime, &gOctorokHitAnim, -5.0f);
-    Actor_SetColorFilter(&this->actor, 0x4000, 0xFF, 0, 0xB);
-    this->collider.base.acFlags &= 0xFFFE;
+    Actor_SetColorFilter(&this->actor, COLORFILTER_COLORFLAG_RED, 255, 0, 11);
+    this->collider.base.acFlags &= ~AC_ON;
     Actor_SetScale(&this->actor, 0.01f);
     Actor_PlaySfx(&this->actor, NA_SE_EN_OCTAROCK_DEAD1);
     this->actionFunc = func_8086EF14;
@@ -526,7 +526,7 @@ void func_8086EF14(EnOkuta* this, PlayState* play) {
         if (this->actor.colChkInfo.health == 0) {
             func_8086EF90(this);
         } else {
-            this->collider.base.acFlags |= 1;
+            this->collider.base.acFlags |= AC_ON;
             func_8086E8E8(this);
         }
     }
@@ -612,7 +612,7 @@ void func_8086F2FC(EnOkuta* this, PlayState* play) {
 
     if (!Actor_ApplyDamage(&this->actor)) {
         Enemy_StartFinishingBlow(play, &this->actor);
-        this->collider.base.acFlags &= 0xFFFE;
+        this->collider.base.acFlags &= ~AC_ON;
         this->unk_18E = 3;
     }
 
@@ -684,13 +684,14 @@ void func_8086F694(EnOkuta* this, PlayState* play) {
     }
 
     this->actor.home.rot.z += 0x1554;
+
     if ((this->actor.bgCheckFlags & 8) || (this->actor.bgCheckFlags & 1) || (this->actor.bgCheckFlags & 0x10) ||
-        (this->collider.base.atFlags & 2) || (this->collider.base.acFlags & 2) || (this->collider.base.ocFlags1 & 2) ||
-        (this->actor.floorHeight == -32000.0f)) {
-        if (player->currentShield == 1 && (this->collider.base.atFlags & 2) && (this->collider.base.atFlags & 0x10) &&
-            (this->collider.base.atFlags & 4)) {
+        (this->collider.base.atFlags & AT_HIT) || (this->collider.base.acFlags & AC_HIT) ||
+        (this->collider.base.ocFlags1 & 2) || (this->actor.floorHeight == -32000.0f)) {
+        if (player->currentShield == 1 && (this->collider.base.atFlags & AT_HIT) &&
+            (this->collider.base.atFlags & AT_TYPE_ENEMY) && (this->collider.base.atFlags & AT_BOUNCED)) {
             this->collider.base.atFlags &= 0xFFE9;
-            this->collider.base.atFlags |= 8;
+            this->collider.base.atFlags |= AT_TYPE_PLAYER;
             this->collider.info.toucher.dmgFlags = 0x400000;
             this->collider.info.toucher.damage = 2;
             Matrix_MtxFToYXZRot(&player->shieldMf, &sp48, 0);
@@ -702,8 +703,8 @@ void func_8086F694(EnOkuta* this, PlayState* play) {
             sp54.z = this->actor.world.pos.z;
             EffectSsHahen_SpawnBurst(play, &sp54, 6.0f, 0, 1, 2, 15, 5, 10, gOctorokProjectileDL);
             SoundSource_PlaySfxAtFixedWorldPos(play, &this->actor.world.pos, 0x14, 0x38C0);
-            if ((this->collider.base.atFlags & 2) && (this->collider.base.atFlags & 0x10) &&
-                !(this->collider.base.atFlags & 4) && (this->actor.params == 0x11)) {
+            if ((this->collider.base.atFlags & AT_HIT) && (this->collider.base.atFlags & AT_TYPE_ENEMY) &&
+                !(this->collider.base.atFlags & AT_BOUNCED) && (this->actor.params == 0x11)) {
                 func_800B8D98(play, &this->actor, 8.0f, this->actor.world.rot.y, 6.0f);
             }
             Actor_Kill(&this->actor);
@@ -759,8 +760,8 @@ void func_8086F8FC(EnOkuta* this) {
 }
 
 void func_8086FCA4(EnOkuta* this, PlayState* play) {
-    if ((this->collider.base.acFlags & 2) &&
-        ((this->collider.base.acFlags = (this->collider.base.acFlags & 0xFFFD), (this->unk_18C != 0xA)) ||
+    if ((this->collider.base.acFlags & AC_HIT) &&
+        ((this->collider.base.acFlags = (this->collider.base.acFlags & ~AC_HIT), (this->unk_18C != 0xA)) ||
          !(this->collider.info.acHitInfo->toucher.dmgFlags & 0xDB0B3))) {
         Actor_SetDropFlag(&this->actor, &this->collider.info);
         func_8086E0F0(this, play);
@@ -792,8 +793,8 @@ void EnOkuta_Update(Actor* thisx, PlayState* play2) {
     if (this->actor.params == 0) {
         func_8086FCA4(this, play);
     } else {
-        if ((this->collider.base.atFlags & 2) || (this->collider.base.acFlags & 2)) {
-            if (this->collider.base.atFlags & 2) {
+        if ((this->collider.base.atFlags & AT_HIT) || (this->collider.base.acFlags & AC_HIT)) {
+            if (this->collider.base.atFlags & AT_HIT) {
                 func_800B8D98(play, &this->actor, 8.0f, this->actor.world.rot.y, 6.0f);
             }
             func_8086F4F4(this);
@@ -817,7 +818,7 @@ void EnOkuta_Update(Actor* thisx, PlayState* play2) {
             if (this->actor.params == 1) {
                 CollisionCheck_SetAT(play, &play->colChkCtx, &this->collider.base);
             }
-            if (this->collider.base.acFlags & 1) {
+            if (this->collider.base.acFlags & AC_ON) {
                 CollisionCheck_SetAC(play, &play->colChkCtx, &this->collider.base);
             }
             CollisionCheck_SetOC(play, &play->colChkCtx, &this->collider.base);
