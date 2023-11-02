@@ -19,6 +19,7 @@ void EnJso2_Draw(Actor* thisx, PlayState* play);
 
 void func_80A778F8(EnJso2* this, PlayState* play);
 void func_80A785E4(EnJso2* this, PlayState* play);
+void func_80A787FC(EnJso2* this, PlayState* play);
 void func_80A78868(EnJso2* this, PlayState* play);
 void func_80A78ACC(EnJso2* this, PlayState* play);
 void func_80A78B70(EnJso2* this, PlayState* play);
@@ -229,7 +230,52 @@ void func_80A78588(EnJso2* this) {
     this->actionFunc = func_80A785E4;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A785E4.s")
+extern Vec3f D_80A7B510[6];
+
+void func_80A785E4(EnJso2* this, PlayState* play) {
+    f32 curFrame;
+    s32 i;
+    
+    curFrame = this->skelAnime.curFrame;
+    
+    this->actor.world.rot.y = this->actor.shape.rot.y = this->actor.yawTowardsPlayer;
+
+    switch (this->unk1046) {
+        case 0:
+            Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos, this->actor.shape.shadowScale, 1, 8.0f, 0x1F4, 0xA, 1);
+            Audio_SetMainBgmVolume(0, 0xA);
+            Actor_PlaySfx(&this->actor, 0x3812);
+            this->unk1046++;
+            break;
+        case 1:
+            if (Animation_OnFrame(&this->skelAnime, 18.0f) != 0) {
+                Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos, this->actor.shape.shadowScale, 1, 8.0f, 0x1F4, 0xA, 1);
+            }
+            
+            Math_ApproachF(&this->actor.shape.shadowScale, 17.0f, 0.4f, 4.0f);
+            
+            if (Animation_OnFrame(&this->skelAnime, 45.0f)) {
+                Audio_SetMainBgmVolume(0x7F, 0);
+                Audio_PlayBgm_StorePrevBgm(0x38);
+                Actor_PlaySfx(&this->actor, 0x39C7);
+                Actor_PlaySfx(&this->actor, 0x2822);
+                this->unk36C = 0;
+            }
+            
+            if (this->unk36C == 0) {
+                for (i = 0; i < ARRAY_COUNT(D_80A7B510); i++) {
+                    Math_ApproachF(&this->unk_EAC[i].x, D_80A7B510[i].x, 0.3f, 0.0005f);
+                    this->unk_EAC[i].y = this->unk_EAC[i].x;
+                    this->unk_EAC[i].z = this->unk_EAC[i].x;
+                }
+            }
+            if (curFrame >= this->unk374) {
+                func_80A787FC(this, play);
+            }
+            break;
+    }
+    
+}
 
 void func_80A787FC(EnJso2* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
