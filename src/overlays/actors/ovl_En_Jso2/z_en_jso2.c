@@ -35,6 +35,7 @@ void func_80A79A84(EnJso2* this, PlayState* play);
 void func_80A79BA0(EnJso2* this, PlayState* play);
 void func_80A7A124(EnJso2* this, PlayState* play);
 void func_80A7A2EC(EnJso2* this, PlayState* play);
+void func_80A78868(EnJso2* this, PlayState* play);
 
 #if 0
 // static DamageTable sDamageTable = {
@@ -107,12 +108,26 @@ extern ColliderQuadInit D_80A7B634;
 
 extern UNK_TYPE D_06002ED8;
 extern UNK_TYPE D_060081F4;
+extern AnimationHeader** D_80A7B684;
+extern u8* D_80A7B6DC;
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/EnJso2_Init.s")
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/EnJso2_Destroy.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A776E0.s")
+// #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A776E0.s")
+
+void func_80A776E0(EnJso2* this, s32 frame) {
+    f32 var_fv0;
+
+    this->unk374 = (f32)Animation_GetLastFrame(D_80A7B684[frame]);
+    var_fv0 = 1.0f;
+    this->unk1040 = frame;
+    if (frame == 8) {
+        var_fv0 = 2.0f;
+    }
+    Animation_Change(&this->skelAnime, D_80A7B684 + frame, var_fv0, 0.0f, this->unk374, (u8)frame, -2.0f);
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A77790.s")
 
@@ -130,13 +145,30 @@ void func_80A778D8(EnJso2* this) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A785E4.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A787FC.s")
+void func_80A787FC(EnJso2* this, PlayState* play) {
+    Actor* sp1C;
+
+    sp1C = play->actorCtx.actorLists[2].first;
+    func_80A776E0(this, 8);
+    this->unk286 = sp1C->shape.rot.y;
+    this->unk288 = 0x258;
+    this->unk284 = 3;
+    this->unk370 = 0;
+    this->unkF05 |= 4;
+    this->actionFunc = func_80A78868;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A78868.s")
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A78A70.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A78ACC.s")
+void func_80A78ACC(EnJso2* this, PlayState* play) {
+    f32 temp = this->unk15C;
+
+    if (temp >= this->unk374) {
+        func_80A787FC(this, play);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A78B04.s")
 
