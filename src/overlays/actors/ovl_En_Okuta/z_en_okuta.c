@@ -38,7 +38,8 @@ void func_808700C0(Actor* thisx, PlayState* play);
 s32 func_808704DC(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, struct Actor* thisx);
 void func_808705C8(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Actor* thisx);
 
-#if 0
+static Gfx D_80870870[2] = { { { 0xFA000000, 0xC89BFF } }, { { 0xDF000000, 0 } } };
+
 ActorInit En_Okuta_InitVars = {
     /**/ ACTOR_EN_OKUTA,
     /**/ ACTORCAT_ENEMY,
@@ -51,25 +52,49 @@ ActorInit En_Okuta_InitVars = {
     /**/ EnOkuta_Draw,
 };
 
-// static ColliderCylinderInit sCylinderInit = {
-static ColliderCylinderInit D_808708A0 = {
-    { COLTYPE_NONE, AT_ON | AT_TYPE_ENEMY, AC_ON | AC_TYPE_PLAYER, OC1_ON | OC1_TYPE_ALL, OC2_TYPE_2, COLSHAPE_CYLINDER, },
-    { ELEMTYPE_UNK4, { 0xF7CFFFFF, 0x00, 0x04 }, { 0xF7CFFFFF, 0x00, 0x00 }, TOUCH_ON | TOUCH_SFX_HARD, BUMP_ON, OCELEM_ON, },
+static ColliderCylinderInit sCylinderInit = {
+    {
+        COLTYPE_NONE,
+        AT_ON | AT_TYPE_ENEMY,
+        AC_ON | AC_TYPE_PLAYER,
+        OC1_ON | OC1_TYPE_ALL,
+        OC2_TYPE_2,
+        COLSHAPE_CYLINDER,
+    },
+    {
+        ELEMTYPE_UNK4,
+        { 0xF7CFFFFF, 0x00, 0x04 },
+        { 0xF7CFFFFF, 0x00, 0x00 },
+        TOUCH_ON | TOUCH_SFX_HARD,
+        BUMP_ON,
+        OCELEM_ON,
+    },
     { 13, 20, 0, { 0, 0, 0 } },
 };
 
-// static ColliderCylinderInit sCylinderInit = {
-static ColliderCylinderInit D_808708CC = {
-    { COLTYPE_HIT0, AT_ON | AT_TYPE_ENEMY, AC_ON | AC_TYPE_PLAYER, OC1_ON | OC1_TYPE_ALL, OC2_TYPE_1, COLSHAPE_CYLINDER, },
-    { ELEMTYPE_UNK1, { 0xF7CFFFFF, 0x00, 0x04 }, { 0xF7CFFFFF, 0x00, 0x00 }, TOUCH_ON | TOUCH_SFX_HARD, BUMP_ON, OCELEM_ON, },
+static ColliderCylinderInit sCylinderInit2 = {
+    {
+        COLTYPE_HIT0,
+        AT_ON | AT_TYPE_ENEMY,
+        AC_ON | AC_TYPE_PLAYER,
+        OC1_ON | OC1_TYPE_ALL,
+        OC2_TYPE_1,
+        COLSHAPE_CYLINDER,
+    },
+    {
+        ELEMTYPE_UNK1,
+        { 0xF7CFFFFF, 0x00, 0x04 },
+        { 0xF7CFFFFF, 0x00, 0x00 },
+        TOUCH_ON | TOUCH_SFX_HARD,
+        BUMP_ON,
+        OCELEM_ON,
+    },
     { 20, 40, -30, { 0, 0, 0 } },
 };
 
-// sColChkInfoInit
-static CollisionCheckInfoInit D_808708F8 = { 4, 15, 60, 100 };
+static CollisionCheckInfoInit sColChkInfoInit = { 4, 15, 60, 100 };
 
-// static DamageTable sDamageTable = {
-static DamageTable D_80870900 = {
+static DamageTable sDamageTable = {
     /* Deku Nut       */ DMG_ENTRY(0, 0x0),
     /* Deku Stick     */ DMG_ENTRY(1, 0x0),
     /* Horse trample  */ DMG_ENTRY(0, 0x0),
@@ -104,49 +129,39 @@ static DamageTable D_80870900 = {
     /* Powder Keg     */ DMG_ENTRY(1, 0x0),
 };
 
-// static InitChainEntry sInitChain[] = {
-static InitChainEntry D_80870920[] = {
+static InitChainEntry sInitChain[] = {
     ICHAIN_S8(hintId, TATL_HINT_ID_OCTOROK, ICHAIN_CONTINUE),
     ICHAIN_F32(targetArrowOffset, 6500, ICHAIN_STOP),
 };
 
-#else
+static Color_RGBA8 D_80870928 = { 255, 255, 255, 255 };
 
-extern ColliderCylinderInit D_808708A0;
-extern ColliderCylinderInit D_808708CC;
-extern CollisionCheckInfoInit D_808708F8;
-extern DamageTable D_80870900;
-extern InitChainEntry D_80870920[];
+static Color_RGBA8 D_8087092C = { 150, 150, 150, 255 };
+
+static Vec3f D_80870930 = { 0.0f, -0.5f, 0.0f };
+
+static Color_RGBA8 D_8087093C = { 255, 255, 255, 255 };
+
+static Color_RGBA8 D_80870940 = { 150, 150, 150, 0 };
+
+static s8 D_80870944[16] = { -1, 0, -1, -1, 1, -1, -1, 2, -1, -1, 3, -1, -1, 4, 6, 5 };
+
+static Vec3f D_80870954[3] = {
+    { 1500.0f, 1000.0f, 0.0f },
+    { -1500.0f, 1000.0f, 0.0f },
+    { 0.0f, 1500.0f, -2000.0f },
+};
+
+static s32 D_80870978[] = { 0, 0 };
 
 extern UNK_TYPE D_0600044C;
 extern UNK_TYPE D_06003250;
+extern SkeletonHeader D_060033D0;
 extern UNK_TYPE D_06003958;
 extern UNK_TYPE D_06003B24;
 extern UNK_TYPE D_06003EE4;
 extern UNK_TYPE D_06004204;
 extern AnimationHeader D_0600466C;
-
-extern SkeletonHeader D_060033D0;
-
-extern Vec3f D_80870930;
-extern Gfx D_80870870[];
-extern Color_RGBA8 D_8087093C;
-extern Color_RGBA8 D_80870940;
-
-// static Color_RGBA8 D_80870928 = {255, 255, 255, 255};
-// static Color_RGBA8 D_8087092C = {150, 150, 150, 255};
-
-extern Color_RGBA8 D_80870928;
-extern Color_RGBA8 D_8087092C;
-
-extern s8 D_80870944[];
-extern Vec3f D_80870954[3];
-extern Vec3f* D_80870978;
-
-extern s16 D_808708EE;
-extern s16 D_808708EC;
-
-#endif
 
 void EnOkuta_Init(Actor* thisx, PlayState* play2) {
     EnOkuta* this = THIS;
@@ -155,14 +170,14 @@ void EnOkuta_Init(Actor* thisx, PlayState* play2) {
     f32 sp38;
     s32 sp34;
 
-    Actor_ProcessInitChain(&this->actor, D_80870920);
+    Actor_ProcessInitChain(&this->actor, sInitChain);
     this->unk190 = (this->actor.params >> 8) & 0xFF;
     thisx->params &= 0xFF;
 
     if ((this->actor.params == 0) || (this->actor.params == 1)) {
         SkelAnime_Init(play, &this->skelAnime, &D_060033D0, &D_0600466C, this->jointTable, this->morphTable, 16);
-        Collider_InitAndSetCylinder(play, &this->collider, &this->actor, &D_808708CC);
-        CollisionCheck_SetInfo(&this->actor.colChkInfo, &D_80870900, &D_808708F8);
+        Collider_InitAndSetCylinder(play, &this->collider, &this->actor, &sCylinderInit2);
+        CollisionCheck_SetInfo(&this->actor.colChkInfo, &sDamageTable, &sColChkInfoInit);
 
         if ((this->unk190 == 0xFF) || (this->unk190 == 0)) {
             this->unk190 = 1;
@@ -189,7 +204,7 @@ void EnOkuta_Init(Actor* thisx, PlayState* play2) {
         ActorShape_Init(&this->actor.shape, 1100.0f, ActorShadow_DrawCircle, 18.0f);
         this->actor.flags &= ~1;
         this->actor.flags |= 0x10;
-        Collider_InitAndSetCylinder(play, &this->collider, &this->actor, &D_808708A0);
+        Collider_InitAndSetCylinder(play, &this->collider, &this->actor, &sCylinderInit);
         func_800BC154(play, &play->actorCtx, &this->actor, 6);
         this->unk18E = 0x16;
         this->actor.shape.rot.y = 0;
@@ -793,11 +808,11 @@ void EnOkuta_Update(Actor* thisx, PlayState* play2) {
     if (this->actionFunc != func_8086F434) {
         func_8086F8FC(this);
         this->collider.dim.height =
-            ((D_808708EE * this->headScale.y) - this->collider.dim.yShift) * this->actor.scale.y * 100.0f;
+            ((sCylinderInit2.dim.height * this->headScale.y) - this->collider.dim.yShift) * this->actor.scale.y * 100.0f;
         Collider_UpdateCylinder(&this->actor, &this->collider);
         if ((this->actionFunc == func_8086E658) || (this->actionFunc == func_8086E7E8)) {
             this->collider.dim.pos.y = this->actor.world.pos.y + (this->skelAnime.jointTable->y * this->actor.scale.y);
-            this->collider.dim.radius = D_808708EC * this->actor.scale.x * 100.0f;
+            this->collider.dim.radius = sCylinderInit2.dim.radius * this->actor.scale.x * 100.0f;
         }
         if (this->actor.draw) {
             if (this->actor.params == 1) {

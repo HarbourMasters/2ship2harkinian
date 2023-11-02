@@ -733,8 +733,7 @@ beginseg
     name "ovl_En_Okuta"
     compress
     include "build/src/overlays/actors/ovl_En_Okuta/z_en_okuta.o"
-    include "build/data/ovl_En_Okuta/ovl_En_Okuta.data.o"
-    include "build/data/ovl_En_Okuta/ovl_En_Okuta.reloc.o"
+    include "build/src/overlays/actors/ovl_En_Okuta/ovl_En_Okuta_reloc.o"
 endseg
 
 beginseg
