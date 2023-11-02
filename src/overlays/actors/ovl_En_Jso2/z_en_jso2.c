@@ -647,7 +647,113 @@ void func_80A79B60(EnJso2* this) {
     this->actionFunc = func_80A79BA0;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A79BA0.s")
+void func_80A79BA0(EnJso2* this, PlayState* play) {
+    Player* player = GET_PLAYER(play);
+    f32 curframe;
+    Vec3f sp4C;
+
+    curframe = this->skelAnime.curFrame;
+    
+    if ((this->unk1040 == 0x15) && (curframe >= this->unk374) && !this->unk2D0) {
+        this->unk2D0 = Actor_SpawnAsChild(&play->actorCtx, &this->actor, play, 0x1D9, this->unk2C4.x, this->unk2C4.y, this->unk2C4.z, 0, 0, 0, 3);
+    }
+
+    if (this->unk2D0) {
+        this->unk2D0->world.pos.x = this->unk2C4.x;
+        this->unk2D0->world.pos.y = this->unk2C4.y;
+        this->unk2D0->world.pos.z = this->unk2C4.z;
+    }
+    switch (this->unk1046) {
+        case 0:
+            if (!CutsceneManager_IsNext(this->actor.csId)) {
+                CutsceneManager_Queue(this->actor.csId);
+            } else {
+                CutsceneManager_StartWithPlayerCs(this->actor.csId, &this->actor);
+                func_800B7298(play, &this->actor, 7);
+                this->actor.world.rot.y = this->actor.shape.rot.y = Math_Vec3f_Yaw(&this->actor.world.pos, &this->actor.home.pos);
+                Audio_SetMainBgmVolume(0, 0xA);
+                func_80A776E0(this, 0x13);
+                this->unk1048 = CutsceneManager_GetCurrentSubCamId(this->actor.csId);
+                func_800B7298(play, &this->actor, 7);
+                this->unk294 = 0.4f;
+                this->unk1046++;
+                this->unk298 = 40.0f;
+            }
+            break;
+        case 1:
+            if (curframe >= this->unk374 ) {
+                func_80A776E0(this, 0x14);
+                this->unk1046++;
+            }
+            break;
+        case 2:
+            if (curframe >= this->unk374) {
+                this->actor.textId = 0x13AE;
+                Message_StartTextbox(play, this->actor.textId, &this->actor);
+                this->unk1046++;
+            }
+            break;
+        case 3:
+            if (func_80A77880(play) != 0) {
+                if (this->actor.textId == 0x13AE) {
+                    this->actor.textId = 0x13AF;
+                } else if (this->actor.textId == 0x13AF) {
+                    this->actor.textId = 0x13B0;
+                    func_80A776E0(this, 0x15);
+                } else if (this->actor.textId == 0x13B0) {
+                    play->msgCtx.msgLength = 0;
+                    if (this->unk2D0) {
+                        this->unk2D0->world.rot.z = 1;
+                        func_800B7298(play, &this->actor, 0x2F);
+                        this->unk2B4 = 1;
+                    }
+                    this->unk1044 = 0x1E;
+                    this->unk1046++;
+                    break;
+                }
+                
+                Message_ContinueTextbox(play, this->actor.textId);
+                
+            }
+            break;
+        case 4:
+            Math_SmoothStepToS(&this->unk366, 0, 1, 0xF, 0x32);
+            Math_ApproachZeroF(&this->actor.shape.shadowScale, 0.3f, 3.0f);
+            if (this->unk1044 == 0) {
+                this->actor.textId = 0x13B1;
+                Message_StartTextbox(play, this->actor.textId, &this->actor);
+                Actor_PlaySfx(&this->actor, 0x3AC6);
+                this->unk290 = 0x32;
+                this->unk1046++;
+            }
+            break;
+        case 5:
+            func_800B7298(play, &this->actor, 7);
+            if (this->unk290 == 0) {
+                CutsceneManager_Stop(this->actor.csId);
+                func_800B7298(play, &this->actor, 6);
+                Actor_Kill(&this->actor);
+            }
+            break;
+        default:
+            break;
+    }
+    if (this->unk1048 != 0) {
+        player->actor.world.pos.x = (Math_SinS(this->actor.world.rot.y) * 170.0f) + this->actor.world.pos.x;
+        player->actor.world.pos.z = (Math_CosS(this->actor.world.rot.y) * 170.0f) + this->actor.world.pos.z;
+        player->actor.world.rot.y = player->actor.shape.rot.y = this->actor.world.rot.y + 0x8000;
+        
+        Matrix_RotateYS((BREG(49) << 8) + this->actor.shape.rot.y + 0x1000, MTXMODE_NEW);
+        Matrix_MultVecZ(BREG(48) + 230.0f, &sp4C);
+        this->unk1078.x = this->actor.world.pos.x + sp4C.x;
+        this->unk1078.y = BREG(50) + -43.0f + this->actor.world.pos.y + 50.0f;
+        this->unk1078.z = this->actor.world.pos.z + sp4C.z;
+        this->unk1084.x = player->actor.world.pos.x + ((this->actor.world.pos.x - player->actor.world.pos.x) * 0.5f);
+        this->unk1084.y = BREG(51) + 6.0f + player->actor.world.pos.y + 5.0f;
+        this->unk1084.z = player->actor.world.pos.z + ((this->actor.world.pos.z - player->actor.world.pos.z) * 0.5f);
+    }
+    func_80A77790(this, play);
+}
 
 void func_80A7A0D0(EnJso2* this) {
     this->unk1044 = 0;
