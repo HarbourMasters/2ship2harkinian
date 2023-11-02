@@ -611,7 +611,7 @@ void func_80A79864(EnJso2* this) {
 void func_80A798C8(EnJso2* this, PlayState* play) {
     f32 curFrame = this->skelAnime.curFrame;
 
-    Math_SmoothStepToS(&this->actor.shape.rot.y, this->actor.yawTowardsPlayer, 0xA, 0xBB8, 0x14);
+    Math_SmoothStepToS(&this->actor.shape.rot.y, this->actor.yawTowardsPlayer, 10, 3000, 20);
 
     if (this->actor.bgCheckFlags & 1) {
         this->actor.speed = 0.0f;
@@ -628,7 +628,7 @@ void func_80A798C8(EnJso2* this, PlayState* play) {
 }
 
 void func_80A7998C(EnJso2* this, PlayState* play) {
-    AudioSfx_SetChannelIO(&this->actor.projectedPos, NA_SE_EN_ANSATSUSYA_DASH_2, 0U);
+    AudioSfx_SetChannelIO(&this->actor.projectedPos, NA_SE_EN_ANSATSUSYA_DASH_2, 0);
     func_80A776E0(this, 4);
 
     if (((this->unk2A2 == 0xB) || (this->unk2A2 == 0xA)) && (this->unk2A0 == 0)) {
