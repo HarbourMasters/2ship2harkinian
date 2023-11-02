@@ -154,15 +154,6 @@ static Vec3f D_80870954[3] = {
 
 static s32 D_80870978[] = { 0, 0 };
 
-extern UNK_TYPE D_0600044C;
-extern UNK_TYPE D_06003250;
-extern SkeletonHeader D_060033D0;
-extern UNK_TYPE D_06003958;
-extern UNK_TYPE D_06003B24;
-extern UNK_TYPE D_06003EE4;
-extern UNK_TYPE D_06004204;
-extern AnimationHeader D_0600466C;
-
 void EnOkuta_Init(Actor* thisx, PlayState* play2) {
     EnOkuta* this = THIS;
     PlayState* play = play2;
@@ -175,7 +166,8 @@ void EnOkuta_Init(Actor* thisx, PlayState* play2) {
     thisx->params &= 0xFF;
 
     if ((this->actor.params == 0) || (this->actor.params == 1)) {
-        SkelAnime_Init(play, &this->skelAnime, &D_060033D0, &D_0600466C, this->jointTable, this->morphTable, 16);
+        SkelAnime_Init(play, &this->skelAnime, &gOctorokSkel, &gOctorokAppearAnim, this->jointTable, this->morphTable,
+                       16);
         Collider_InitAndSetCylinder(play, &this->collider, &this->actor, &sCylinderInit2);
         CollisionCheck_SetInfo(&this->actor.colChkInfo, &sDamageTable, &sColChkInfoInit);
 
@@ -332,7 +324,7 @@ void func_8086E5E8(EnOkuta* this, PlayState* play) {
     this->actor.draw = EnOkuta_Draw;
     this->actor.shape.rot.y = this->actor.yawTowardsPlayer;
     this->actor.flags |= 1;
-    Animation_PlayOnce(&this->skelAnime, &D_0600466C);
+    Animation_PlayOnce(&this->skelAnime, &gOctorokAppearAnim);
     func_8086E168(this, play);
     this->actionFunc = func_8086E658;
 }
@@ -368,7 +360,7 @@ void func_8086E658(EnOkuta* this, PlayState* play) {
 }
 
 void func_8086E7A8(EnOkuta* this) {
-    Animation_PlayOnce(&this->skelAnime, (AnimationHeader*)&D_06003B24);
+    Animation_PlayOnce(&this->skelAnime, &gOctorokHideAnim);
     this->actionFunc = func_8086E7E8;
 }
 
@@ -397,7 +389,7 @@ void func_8086E7E8(EnOkuta* this, PlayState* play) {
 }
 
 void func_8086E8E8(EnOkuta* this) {
-    Animation_PlayLoop(&this->skelAnime, (AnimationHeader*)&D_06003EE4);
+    Animation_PlayLoop(&this->skelAnime, &gOctorokFloatAnim);
     if (this->actionFunc == func_8086EC00) {
         this->unk18E = 8;
     } else {
@@ -442,7 +434,7 @@ void func_8086E948(EnOkuta* this, PlayState* play) {
 }
 
 void func_8086EAE0(EnOkuta* this, PlayState* play) {
-    Animation_PlayOnce(&this->skelAnime, (AnimationHeader*)&D_0600044C);
+    Animation_PlayOnce(&this->skelAnime, &gOctorokShootAnim);
 
     if (this->actionFunc != func_8086EC00) {
         if (this->actor.params == 0) {
@@ -522,7 +514,7 @@ void func_8086EC00(EnOkuta* this, PlayState* play) {
 }
 
 void func_8086EE8C(EnOkuta* this) {
-    Animation_MorphToPlayOnce(&this->skelAnime, (AnimationHeader*)&D_06004204, -5.0f);
+    Animation_MorphToPlayOnce(&this->skelAnime, &gOctorokHitAnim, -5.0f);
     Actor_SetColorFilter(&this->actor, 0x4000, 0xFF, 0, 0xB);
     this->collider.base.acFlags &= 0xFFFE;
     Actor_SetScale(&this->actor, 0.01f);
@@ -543,7 +535,7 @@ void func_8086EF14(EnOkuta* this, PlayState* play) {
 }
 
 void func_8086EF90(EnOkuta* this) {
-    Animation_MorphToPlayOnce(&this->skelAnime, (AnimationHeader*)&D_06003958, -3.0f);
+    Animation_MorphToPlayOnce(&this->skelAnime, &gOctorokDieAnim, -3.0f);
     this->unk18E = 0;
     this->actor.flags &= ~1;
     this->actionFunc = func_8086EFE8;
@@ -649,8 +641,8 @@ void func_8086F4B0(EnOkuta* this, PlayState* play) {
 }
 
 void func_8086F4F4(EnOkuta* this) {
-    Animation_Change(&this->skelAnime, (AnimationHeader*)&D_06004204, 1.0f, 0.0f,
-                     Animation_GetLastFrame(&D_06004204) - 3.0f, 2, -3.0f);
+    Animation_Change(&this->skelAnime, &gOctorokHitAnim, 1.0f, 0.0f, Animation_GetLastFrame(&gOctorokHitAnim) - 3.0f, 2,
+                     -3.0f);
     this->unk18E = 20;
     this->actionFunc = func_8086F57C;
 }
@@ -661,8 +653,8 @@ void func_8086F57C(EnOkuta* this, PlayState* play) {
     Math_ScaledStepToS(&this->actor.shape.rot.x, 0, 0x400);
 
     if (SkelAnime_Update(&this->skelAnime)) {
-        Animation_Change(&this->skelAnime, (AnimationHeader*)&D_06004204, 1.0f, 0.0f,
-                         Animation_GetLastFrame(&D_06004204) - 3.0f, 2, -3.0f);
+        Animation_Change(&this->skelAnime, &gOctorokHitAnim, 1.0f, 0.0f,
+                         Animation_GetLastFrame(&gOctorokHitAnim) - 3.0f, 2, -3.0f);
     }
 
     if (this->unk18E < 10) {
@@ -706,7 +698,7 @@ void func_8086F694(EnOkuta* this, PlayState* play) {
             sp54.x = this->actor.world.pos.x;
             sp54.y = this->actor.world.pos.y + 11.0f;
             sp54.z = this->actor.world.pos.z;
-            EffectSsHahen_SpawnBurst(play, &sp54, 6.0f, 0, 1, 2, 15, 5, 10, (Gfx*)&D_06003250);
+            EffectSsHahen_SpawnBurst(play, &sp54, 6.0f, 0, 1, 2, 15, 5, 10, gOctorokProjectileDL);
             SoundSource_PlaySfxAtFixedWorldPos(play, &this->actor.world.pos, 0x14, 0x38C0);
             if ((this->collider.base.atFlags & 2) && (this->collider.base.atFlags & 0x10) &&
                 !(this->collider.base.atFlags & 4) && (this->actor.params == 0x11)) {
@@ -807,8 +799,8 @@ void EnOkuta_Update(Actor* thisx, PlayState* play2) {
     this->actionFunc(this, play);
     if (this->actionFunc != func_8086F434) {
         func_8086F8FC(this);
-        this->collider.dim.height =
-            ((sCylinderInit2.dim.height * this->headScale.y) - this->collider.dim.yShift) * this->actor.scale.y * 100.0f;
+        this->collider.dim.height = ((sCylinderInit2.dim.height * this->headScale.y) - this->collider.dim.yShift) *
+                                    this->actor.scale.y * 100.0f;
         Collider_UpdateCylinder(&this->actor, &this->collider);
         if ((this->actionFunc == func_8086E658) || (this->actionFunc == func_8086E7E8)) {
             this->collider.dim.pos.y = this->actor.world.pos.y + (this->skelAnime.jointTable->y * this->actor.scale.y);
@@ -980,7 +972,7 @@ void EnOkuta_Draw(Actor* thisx, PlayState* play) {
         Matrix_Mult(&play->billboardMtxF, MTXMODE_APPLY);
         Matrix_RotateZS(this->actor.home.rot.z, MTXMODE_APPLY);
         gSPMatrix(&gfxPtr[1], Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-        gSPDisplayList(&gfxPtr[2], &D_06003250);
+        gSPDisplayList(&gfxPtr[2], gOctorokProjectileDL);
         POLY_OPA_DISP = &gfxPtr[3];
     }
 
