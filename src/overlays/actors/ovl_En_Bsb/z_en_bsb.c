@@ -1017,14 +1017,14 @@ void func_80C0E480(EnBsb* this, PlayState* play) {
 void func_80C0E618(EnBsb* this, PlayState* play) {
     s32 var_s0 = 0;
     Vec3f sp48;
-    s32 var_s0_2;
+    s32 i;
 
-    if ((this->unk_02B4 != 0) && (this->unk_02B4 != 1) && (this->unk_02B4 != 9) && (this->unk_02B4 != 0xC) &&
-        (this->unk_02B4 != 0xD) && (this->unk_02B4 != 5) && ((this->unk_02B4 != 8) || (this->unk_02DC == 0))) {
+    if ((this->unk_02B4 != 0) && (this->unk_02B4 != 1) && (this->unk_02B4 != 9) && (this->unk_02B4 != 12) &&
+        (this->unk_02B4 != 13) && (this->unk_02B4 != 5) && ((this->unk_02B4 != 8) || (this->unk_02DC == 0))) {
         if (!(this->unk_0F34.base.atFlags & 4)) {
             if (this->unk_0F34.elements[1].info.toucherFlags & 2) {
                 this->unk_0F34.elements[1].info.toucherFlags &= 0xFFFD;
-                if ((this->unk_02B4 != 0xB) && (this->unk_02B4 != 7)) {
+                if ((this->unk_02B4 != 11) && (this->unk_02B4 != 7)) {
                     func_80C0D334(this);
                 }
             }
@@ -1044,7 +1044,7 @@ void func_80C0E618(EnBsb* this, PlayState* play) {
                 case 13:
                     if (this->unk_02DC == 0) {
                         this->unk_02DC = 1;
-                        Audio_PlayBgm_StorePrevBgm(0x38U);
+                        Audio_PlayBgm_StorePrevBgm(0x38);
                     }
                     var_s0 = 1;
                     break;
@@ -1052,7 +1052,7 @@ void func_80C0E618(EnBsb* this, PlayState* play) {
                 case 12:
                     if (this->unk_02DC == 0) {
                         this->unk_02DC = 1;
-                        Audio_PlayBgm_StorePrevBgm(0x38U);
+                        Audio_PlayBgm_StorePrevBgm(0x38);
                     }
                     break;
 
@@ -1069,7 +1069,7 @@ void func_80C0E618(EnBsb* this, PlayState* play) {
                     break;
 
                 case 3:
-                    if (((this->unk_0324 != 0xB) && (this->unk_0324 != 0xA)) || (this->unk_0322 == 0)) {
+                    if (((this->unk_0324 != 11) && (this->unk_0324 != 10)) || (this->unk_0322 == 0)) {
                         this->unk_0322 = 0x50;
                         this->unk_0324 = 0xB;
                         var_s0 = -1;
@@ -1089,9 +1089,10 @@ void func_80C0E618(EnBsb* this, PlayState* play) {
                 case 5:
                     this->unk_0322 = 0x28;
                     this->unk_0324 = 0x20;
+
                     if (this->unk_02DC == 0) {
                         this->unk_02DC = 1;
-                        Audio_PlayBgm_StorePrevBgm(0x38U);
+                        Audio_PlayBgm_StorePrevBgm(0x38);
                     } else {
                         func_80C0D214(this);
                     }
@@ -1105,7 +1106,7 @@ void func_80C0E618(EnBsb* this, PlayState* play) {
                 func_80C0C610(this);
             }
         } else if (var_s0 == 1) {
-            Actor_SetColorFilter(&this->actor, COLORFILTER_COLORFLAG_RED, 0xFFU, 0U, 8);
+            Actor_SetColorFilter(&this->actor, COLORFILTER_COLORFLAG_RED, 255, 0, 8);
             Actor_ApplyDamage(&this->actor);
             if (this->actor.colChkInfo.health <= 0) {
                 Enemy_StartFinishingBlow(play, &this->actor);
@@ -1115,11 +1116,11 @@ void func_80C0E618(EnBsb* this, PlayState* play) {
                 func_800BC154(play, &play->actorCtx, &this->actor, 4U);
                 func_80C0D3C0(this, play);
             } else {
-                for (var_s0_2 = 0; var_s0_2 < 0x7; var_s0_2++) {
-                    if (this->unk_0F34.elements[var_s0_2].info.bumperFlags & 2) {
-                        sp48.x = this->unk_0F34.elements[var_s0_2].info.bumper.hitPos.x;
-                        sp48.y = this->unk_0F34.elements[var_s0_2].info.bumper.hitPos.y;
-                        sp48.z = this->unk_0F34.elements[var_s0_2].info.bumper.hitPos.z;
+                for (i = 0; i < 0x7; i++) {
+                    if (this->unk_0F34.elements[i].info.bumperFlags & 2) {
+                        sp48.x = this->unk_0F34.elements[i].info.bumper.hitPos.x;
+                        sp48.y = this->unk_0F34.elements[i].info.bumper.hitPos.y;
+                        sp48.z = this->unk_0F34.elements[i].info.bumper.hitPos.z;
                         CollisionCheck_BlueBlood(play, NULL, &sp48);
                     }
                 }
