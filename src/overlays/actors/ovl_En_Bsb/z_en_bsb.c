@@ -36,6 +36,8 @@ void func_80C0DB18(EnBsb* this, PlayState* play);
 void func_80C0E1C0(EnBsb* this, PlayState* play);
 void func_80C0E480(EnBsb* this, PlayState* play);
 void func_80C0E4FC(EnBsb* this, PlayState* play);
+void func_80C0C86C(EnBsb* this);
+void func_80C0B290(EnBsb* this, s32 arg0);
 
 #if 0
 // static ColliderJntSphElementInit sJntSphElementsInit[7] = {
@@ -139,7 +141,17 @@ extern UNK_TYPE D_06004894;
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/EnBsb_Init.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/EnBsb_Destroy.s")
+void EnBsb_Destroy(Actor *thisx, PlayState *play) {
+    EnBsb* this = THIS;
+
+    if (this->unk2B0 == 0) {
+        Audio_RestorePrevBgm();
+        Collider_DestroyJntSph(play, &this->unkF34);
+    }
+    if (CutsceneManager_GetCurrentCsId() == this->unk2D2) {
+        CutsceneManager_Stop(this->unk2D2);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0B888.s")
 
@@ -159,11 +171,23 @@ extern UNK_TYPE D_06004894;
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0C238.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0C32C.s")
+void func_80C0C32C(EnBsb *arg0) {
+    arg0->unk2A4 = 0;
+    func_80C0B290(arg0, 1);
+    arg0->actionFunc = func_80C0C364;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0C364.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0C430.s")
+void func_80C0C430(EnBsb *this) {
+    this->unk2A4 = 0;
+    if (this->unk2D8 != 1) {
+        func_80C0B290(this, 1);
+    }
+    this->unk294 = 0x46;
+    this->unk2B4 = 2;
+    this->actionFunc = func_80C0C484;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0C484.s")
 
@@ -179,35 +203,74 @@ extern UNK_TYPE D_06004894;
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0CB3C.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0CCCC.s")
+void func_80C0CCCC(EnBsb *this) {
+    func_80C0B290(this, 0x17);
+    this->actionFunc = func_80C0CD04;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0CD04.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0CD90.s")
+void func_80C0CD90(EnBsb *this) {
+    this->unk2A4 = 0;
+    this->actor.speed = 0.0f;
+    Actor_PlaySfx(&this->actor, NA_SE_EN_KITA_ATTACK_W);
+    func_80C0B290(this, 5);
+    this->unk2B4 = 6;
+    this->actionFunc = func_80C0CDE4;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0CDE4.s")
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0CF4C.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0CFDC.s")
+void func_80C0CFDC(EnBsb *this, PlayState *play) {
+    if (this->unk294 == 0) {
+        func_80C0C86C(this);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0D00C.s")
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0D10C.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0D214.s")
+void func_80C0D214(EnBsb *this) {
+    this->unk294 = 0x28;
+    this->actor.speed = 0.0f;
+    Actor_SetColorFilter(&this->actor, 0U, 0x78U, 0U, 0x28);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_COMMON_FREEZE);
+    this->unk2B4 = 0xA;
+    this->actionFunc = func_80C0D27C;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0D27C.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0D334.s")
+void func_80C0D334(EnBsb *this) {
+    this->actor.speed = 0.0f;
+    Actor_PlaySfx(&this->actor, NA_SE_EN_KITA_LAUGH_K);
+    func_80C0B290(this, 6);
+    this->unk2B4 = 0xB;
+    this->actionFunc = func_80C0D384;
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0D384.s")
+void func_80C0D384(EnBsb *this, PlayState *play) {
+    f32 var_v0 = this->unk15C;
+
+    if (this->unk2C4 <= var_v0) {
+        func_80C0C86C(this);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0D3C0.s")
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0D51C.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0D964.s")
+void func_80C0D964(EnBsb* this, PlayState* play) {
+    this->unk2A4 = 0;
+    this->unk2A8 = 0;
+    this->actor.textId = 0x1535;
+    Message_StartTextbox(play, this->actor.textId, &this->actor);
+    this->actionFunc = func_80C0D9B4;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0D9B4.s")
 
@@ -215,13 +278,31 @@ extern UNK_TYPE D_06004894;
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0DB18.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0E178.s")
+void func_80C0E178(EnBsb* this) {
+    this->actor.flags |= 0x08000000;
+    this->unk2AE = 0;
+    this->unk2A4 = 0;
+    this->actor.flags &= ~1;
+    this->unk2B4 = 0xE;
+    this->actionFunc = func_80C0E1C0;
+    this->actor.speed = 0.0f;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0E1C0.s")
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0E3B8.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0E480.s")
+void func_80C0E480(EnBsb *this, PlayState *play) {
+    if (this->unk2C0 != 0.0f) {
+        if (this->unk2C0 <= this->actor.world.pos.y) {
+            this->unk2C0 = this->actor.world.pos.y - 40.0f;
+        }
+        this->unk294 = 2;
+        this->unk2CA = 0xFF;
+        this->actionFunc = func_80C0E4FC;
+        this->unk2C0 = this->actor.home.pos.y + (this->actor.world.pos.y - this->unk2C0);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0E4FC.s")
 
