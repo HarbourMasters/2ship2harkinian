@@ -38,6 +38,8 @@ void func_80C0E480(EnBsb* this, PlayState* play);
 void func_80C0E4FC(EnBsb* this, PlayState* play);
 void func_80C0C86C(EnBsb* this);
 void func_80C0B290(EnBsb* this, s32 arg0);
+void func_80C0B31C(PlayState* play, EnBsb* this, Vec3f* pos);
+void func_80C0F544(EnBsb* this, Vec3f* pos, Vec3f* unk2, Vec3f* unk3, f32 unk4, s32 unk5);
 
 #if 0
 // static ColliderJntSphElementInit sJntSphElementsInit[7] = {
@@ -131,6 +133,8 @@ ActorInit En_Bsb_InitVars = {
 extern ColliderJntSphElementInit D_80C0F8D4[7];
 extern ColliderJntSphInit D_80C0F9D0;
 extern DamageTable D_80C0F9E0;
+extern Vec3f D_80C0FAA0;
+extern Vec3f D_80C0FAAC;
 
 extern UNK_TYPE D_06000C50;
 extern UNK_TYPE D_06004894;
