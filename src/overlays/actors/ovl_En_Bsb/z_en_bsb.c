@@ -528,9 +528,10 @@ void func_80C0C6A8(EnBsb* this, PlayState* play) {
         if (this->unk2DC == 0) {
             func_80C0B290(this, 3);
             return;
+        } else {
+            func_80C0C86C(this);
+            return;
         }
-        func_80C0C86C(this);
-        return;
     }
 
     if (this->unk2D8 == 3) {
