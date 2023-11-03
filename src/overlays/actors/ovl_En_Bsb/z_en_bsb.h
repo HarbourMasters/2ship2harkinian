@@ -13,7 +13,9 @@ typedef struct EnBsb {
     /* 0x0188 */ Vec3s unk_188[21];
     /* 0x0188 */ Vec3s unk_206[21];
     /* 0x0284 */ EnBsbActionFunc actionFunc;
-    /* 0x0288 */ char unk_288[0xC];
+    /* 0x0288 */ char unk_288[0x8];
+    /* 0x0290 */ u8 unk_0290;
+    /* 0x0291 */ char pad_0291[0x3];
     /* 0x0294 */ s16 unk294;
     /* 0x0296 */ char unk_296[0xE];
     /* 0x02A4 */ s32 unk2A4;

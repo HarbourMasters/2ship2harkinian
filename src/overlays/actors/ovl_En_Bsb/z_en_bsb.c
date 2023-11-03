@@ -22,6 +22,7 @@ s32 func_80C0BC30(EnBsb* this);
 void func_80C0BE1C(EnBsb* this, PlayState* play);
 void func_80C0BF2C(EnBsb* this);
 void func_80C0BFE8(EnBsb* this, PlayState* play);
+void func_80C0C0F4(EnBsb* this, PlayState* play);
 void func_80C0C238(EnBsb* this, PlayState* play);
 void func_80C0C364(EnBsb* this, PlayState* play);
 void func_80C0C484(EnBsb* this, PlayState* play);
@@ -316,7 +317,26 @@ void func_80C0BF2C(EnBsb* this) {
     this->actionFunc = func_80C0BFE8;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0BFE8.s")
+void func_80C0BFE8(EnBsb* this, PlayState* play) {
+    Player* player = GET_PLAYER(play);
+    s16 temp_v0 = ABS_ALT((s16)(this->actor.yawTowardsPlayer - this->actor.shape.rot.y));
+
+    if ((temp_v0 < 0x4300) && !(this->actor.xzDistToPlayer > 300.0f)) {
+        if (player->stateFlags2 & 0x08000000) {
+            if (this->unk_0290 == 0) {
+                Audio_PlaySfx(0x4807U);
+                this->unk_0290 = 1;
+            }
+        } else {
+            this->unk_0290 = 0;
+        }
+        if ((play->msgCtx.ocarinaMode == 3) && (play->msgCtx.lastPlayedSong == 0)) {
+            play->msgCtx.ocarinaMode = 4;
+            func_800BC154(play, &play->actorCtx, &this->actor, 9U);
+            func_80C0C0F4(this, play);
+        }
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0C0F4.s")
 
