@@ -984,7 +984,150 @@ void func_80C0DA58(EnBsb* this) {
     this->actionFunc = func_80C0DB18;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0DB18.s")
+extern Vec3f D_80C0FAC8[2];
+
+void func_80C0DB18(EnBsb* this, PlayState* play) {
+    Vec3f sp64 = D_80C0FAC8[0];
+    f32 curFrame = this->skelAnime.curFrame;
+    s32 pad[3];
+    s16 sp52;
+    char pad2[2];
+
+    if (this->unk_02A4 == 0) {
+        if (CutsceneManager_IsNext(this->unk_02CC[3]) == 0) {
+            //! FAKE:
+            CutsceneManager_Queue(((0, this->unk_02CC))[3]);
+            return;
+        }
+        CutsceneManager_StartWithPlayerCs(this->unk_02CC[3], &this->actor);
+        func_80C0B290(this, 1);
+        func_800B7298(play, &this->actor, 7);
+        this->unk_111A = CutsceneManager_GetCurrentSubCamId(this->actor.csId);
+        this->unk_02A4 = 1;
+    }
+    
+    if (this->unk_02D8 == 1) {
+        func_80C0B970(this, play);
+    }
+    
+    this->unk_1128.x = -480.0f;
+    this->unk_1140.x = -480.0f;
+    this->unk_1128.y = 375.0f;
+    this->unk_1140.y = 375.0f;
+    this->unk_1128.z = -1630.0f;
+    this->unk_1140.z = -1630.0f;
+    this->unk_1134.x = -360.0f;
+    this->unk_114C.x = -360.0f;
+    this->unk_1134.y = 500.0f;
+    this->unk_114C.y = 500.0f;
+    this->unk_114C.z = -2250.0f;
+    this->unk_1134.z = -2250.0f;
+    
+    func_80C0BE1C(this, play);
+    
+    switch (this->unk_1118) {
+        case 0:
+            Math_SmoothStepToS(&this->actor.world.rot.y, Math_Vec3f_Yaw(&this->actor.world.pos, &sp64), 1, 0x7D0, 0);
+            Math_ApproachF(&this->actor.world.pos.x, sp64.x, 0.5f, fabsf(Math_SinS(this->actor.world.rot.y) * 3.2f));
+            Math_ApproachF(&this->actor.world.pos.z, sp64.z, 0.5f, fabsf(Math_CosS(this->actor.world.rot.y) * 3.2f));
+            if (sqrtf(SQ(this->actor.world.pos.x - sp64.x) + SQ(this->actor.world.pos.z - sp64.z)) < 3.0f) {
+                this->unk_028C = this->unk_0288->count - 1;
+                if (SubS_CopyPointFromPath(this->unk_0288, this->unk_028C, &this->unk_02EC) != 0) {
+                    this->unk_02EC.y = this->actor.world.pos.y;
+                    func_80C0B290(this, 3);
+                    this->unk_1118++;
+                }
+            }
+        default:
+            break;
+
+        case 1:
+            if ((Animation_OnFrame(&this->skelAnime, 7.0f) != 0) || (Animation_OnFrame(&this->skelAnime, 15.0f) != 0)) {
+                Actor_PlaySfx(&this->actor, 0x3AA3);
+            }
+            
+            Math_SmoothStepToS(
+                &this->actor.world.rot.y, Math_Vec3f_Yaw(&this->actor.world.pos, &this->unk_02EC), 1, 0x7D0, 0
+            );
+            
+            if (this->unk_02C4 <= curFrame) {
+                this->unk_111C++;
+                if (this->unk_111C >= 3) {
+                    func_80C0B290(this, 1);
+                    this->unk_111C = 0;
+                    this->unk_1118++;
+                }
+            }
+            break;
+
+        case 2:
+            sp52 = Math_Vec3f_Yaw(&this->actor.world.pos, &this->unk_1128);
+            Math_SmoothStepToS(&this->actor.world.rot.y, sp52, 1, 0x7D0, 0);
+
+            if (ABS_ALT((s16)(this->actor.world.rot.y - sp52)) < 0x100) {
+                Actor_PlaySfx(&this->actor, 0x3AA4);
+                func_80C0B290(this, 0x15);
+                this->unk_1118++;
+                Message_StartTextbox(play, 0x1541, &this->actor);
+            }
+            break;
+        
+        case 3:
+            if ((Message_GetState(&play->msgCtx) == 5) && Message_ShouldAdvance(play)) {
+                Message_CloseTextbox(play);
+                func_80C0B290(this, 1);
+                this->unk_1118++;
+            }
+            break;
+
+        case 4:
+            sp64.x = -100.0f;
+            sp52 = Math_Vec3f_Yaw(&this->actor.world.pos, &sp64);
+            Math_SmoothStepToS(&this->actor.world.rot.y, sp52, 1, 0x7D0, 0);
+
+            if (ABS_ALT((s16)(this->actor.world.rot.y - sp52)) < 0x100) {
+                Actor_PlaySfx(&this->actor, 0x386CU);
+                this->actor.velocity.y = 20.0f;
+                this->actor.speed = 3.0f;
+                func_80C0B290(this, 0xB);
+                this->unk_1118++;
+            }
+            break;
+
+        case 5:
+            if (this->actor.world.pos.y < (this->actor.home.pos.y + 30.0f)) {
+                Actor_SpawnFloorDustRing(
+                    play, &this->actor, &this->actor.world.pos, this->actor.shape.shadowScale - 20.0f, 0x14, 8.0f,
+                    0x3E8, 0x64, 1
+                );
+                this->actor.speed = 0.0f;
+                Actor_PlaySfx(&this->actor, 0x380DU);
+                Actor_RequestQuakeAndRumble(&this->actor, play, 4, 0xA);
+                this->unk_1118++;
+            }
+            break;
+
+        case 6:
+            this->actor.world.rot.y += 0x2000;
+            
+            if (!(play->gameplayFrames & 7)) {
+                Math_Vec3f_Copy(&sp64, &this->actor.world.pos);
+                sp64.x += Rand_CenteredFloat(40.0f);
+                sp64.z += Rand_CenteredFloat(40.0f);
+                Actor_SpawnFloorDustRing(
+                    play, &this->actor, &sp64, Rand_ZeroFloat(10.0f) + 5.0f, Rand_S16Offset(1, 3), 4.0f, 0x3E8, 0x64, 1
+                );
+            }
+            
+            Math_ApproachF(&this->actor.shape.yOffset, -7000.0f, 0.5f, 200.0f);
+            
+            if (this->actor.shape.yOffset < -6999.0f) {
+                CutsceneManager_Stop(this->unk_02CC[3]);
+                Actor_Kill(&this->actor);
+            }
+            break;
+    }
+}
 
 void func_80C0E178(EnBsb* this) {
     this->actor.flags |= 0x08000000;
@@ -1333,7 +1476,58 @@ void func_80C0F170(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Acto
     Collider_UpdateSpheres(limbIndex, &this->unk_0F34);
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/EnBsb_Draw.s")
+void EnBsb_Draw(Actor* thisx, PlayState* play) {
+    EnBsb* this = (EnBsb*)thisx;
+    s32 pad;
+
+    OPEN_DISPS(play->state.gfxCtx);
+
+    func_80C0F758(this, play);
+
+    if (this->unk_02CA == 255) {
+        Gfx_SetupDL25_Opa(play->state.gfxCtx);
+        Scene_SetRenderModeXlu(play, 0, 1);
+
+        gDPPipeSync(POLY_OPA_DISP++);
+        gDPSetEnvColor(POLY_OPA_DISP++, 255, 255, 255, this->unk_02CA);
+
+        SkelAnime_DrawOpa(
+            play, this->skelAnime.skeleton, this->skelAnime.jointTable, func_80C0EEA0, func_80C0F170, &this->actor
+        );
+
+        if (this->unk_0322 != 0) {
+            f32 sp3C = this->unk_0322 * 0.05f;
+
+            if ((this->unk_0324 == 11) || (this->unk_0324 == 10)) {
+                this->unk_0328 += 0.3f;
+                if (this->unk_0328 > 1.0f) {
+                    this->unk_0328 = 1.0f;
+                }
+                Math_ApproachF(&this->unk_032C, this->unk_0328, 0.1f, 0.04f);
+            } else {
+                this->unk_0328 = 0.8f;
+                this->unk_032C = 0.8f;
+            }
+
+            Actor_DrawDamageEffects(
+                play, &this->actor, this->unk_0330, 0x11, this->unk_0328, this->unk_032C, sp3C, this->unk_0324
+            );
+        }
+    } else {
+        Gfx_SetupDL25_Xlu(play->state.gfxCtx);
+        Scene_SetRenderModeXlu(play, 1, 2);
+
+        gDPPipeSync(POLY_XLU_DISP++);
+        gDPSetEnvColor(POLY_XLU_DISP++, 0xFF, 0xFF, 0xFF, this->unk_02CA);
+
+        POLY_XLU_DISP = SkelAnime_Draw(
+            play, this->skelAnime.skeleton, this->skelAnime.jointTable, func_80C0F078, NULL, &this->actor,
+            POLY_XLU_DISP++
+        );
+    }
+    CLOSE_DISPS(play->state.gfxCtx);
+}
+
 
 void func_80C0F544(EnBsb* this, Vec3f* pos, Vec3f* velocity, Vec3f* accel, f32 arg0, s16 arg1) {
     EnBsbUnkStruct* var_s0 = &this->unk_0444;
