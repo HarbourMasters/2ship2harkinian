@@ -1186,16 +1186,19 @@ void func_80C0E1C0(EnBsb* this, PlayState* play) {
 }
 
 void func_80C0E3B8(EnBsb* this) {
-
     this->actor.gravity = 0.0f;
     this->actor.speed = 0.0f;
     this->unk_02AE = 0;
     this->unk_02A4 = 0;
+
     Math_Vec3s_Copy(&this->unk_031C, &gZeroVec3s);
+
     this->actor.flags |= 0x08000000;
     this->actor.flags &= ~1;
+
     Animation_Change(&this->skelAnime, &D_06004894, 1.0f, D_80C0F8D0, Animation_GetLastFrame(&D_06004894), 2, 0.0f);
     SkelAnime_Update(&this->skelAnime);
+
     this->unk_02B4 = 0xF;
     this->actionFunc = func_80C0E480;
 }
