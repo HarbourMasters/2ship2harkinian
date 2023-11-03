@@ -1306,8 +1306,8 @@ void func_80C0E618(EnBsb* this, PlayState* play) {
                 case 4:
                     this->unk_0322 = 0x28;
                     this->unk_0324 = 0x14;
-                    Actor_Spawn(&play->actorCtx, play, 0xA2, this->actor.focus.pos.x, this->actor.focus.pos.y,
-                                this->actor.focus.pos.z, 0, 0, 0, 4);
+                    Actor_Spawn(&play->actorCtx, play, ACTOR_EN_CLEAR_TAG, this->actor.focus.pos.x,
+                                this->actor.focus.pos.y, this->actor.focus.pos.z, 0, 0, 0, 4);
                     var_s0 = -1;
                     break;
 
