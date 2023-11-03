@@ -513,7 +513,21 @@ void func_80C0D214(EnBsb* this) {
     this->actionFunc = func_80C0D27C;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0D27C.s")
+void func_80C0D27C(EnBsb *this, PlayState *play) {
+    if (this->unk_324 == 0xB) {
+        if ((this->unk_322 != 0) && (this->unk_322 < 0x3C)) {
+            this->unk_324 = 0xA;
+        }
+    }
+    if (((this->unk_324 == 0xB) || (this->unk_324 == 0xA)) && (this->unk_322 != 0)) {
+        Actor_SpawnIceEffects(play, &this->actor, &this->unk_330, 0x11, 2, this->unk_32C, 0.4f);
+        this->unk_322 = 0;
+        this->unk_324 = 0;
+    }
+    if (this->unk294 == 0) {
+        func_80C0C86C(this);
+    }
+}
 
 void func_80C0D334(EnBsb* this) {
     this->actor.speed = 0.0f;
