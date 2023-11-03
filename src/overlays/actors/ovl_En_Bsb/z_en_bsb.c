@@ -1146,7 +1146,7 @@ void func_80C0E1C0(EnBsb* this, PlayState* play) {
     if (this->unk_02D8 == 16) {
         if (Animation_OnFrame(&this->skelAnime, 30.0f) != 0) {
             Actor_PlaySfx(&this->actor, NA_SE_EN_KITA_SALUTE);
-        } else if ((curFrame < 30.0f) && (((play->csCtx.curFrame == 0x1D8)) || (play->csCtx.curFrame == 0x1E7))) {
+        } else if ((curFrame < 30.0f) && (((play->csCtx.curFrame == 472)) || (play->csCtx.curFrame == 487))) {
             Actor_PlaySfx(&this->actor, NA_SE_EN_KTIA_WALK);
         }
     }
@@ -1185,8 +1185,6 @@ void func_80C0E1C0(EnBsb* this, PlayState* play) {
     }
 }
 
-extern f32 D_80C0F8D0;
-
 void func_80C0E3B8(EnBsb* this) {
 
     this->actor.gravity = 0.0f;
@@ -1215,7 +1213,7 @@ void func_80C0E480(EnBsb* this, PlayState* play) {
 }
 
 void func_80C0E4FC(EnBsb* this, PlayState* play) {
-    
+
     if (this->unk_0294 != 0) {
         if (this->unk_0294 == 1) {
             this->actor.speed = 0.0f;
