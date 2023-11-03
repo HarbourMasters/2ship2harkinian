@@ -30,8 +30,10 @@ void func_80C0C484(EnBsb* this, PlayState* play);
 void func_80C0C6A8(EnBsb* this, PlayState* play);
 void func_80C0C86C(EnBsb* this);
 void func_80C0C8EC(EnBsb* this, PlayState* play);
+void func_80C0CA28(EnBsb* this, PlayState* play);
 void func_80C0CB3C(EnBsb* this, PlayState* play);
 void func_80C0CD04(EnBsb* this, PlayState* play);
+void func_80C0CD90(EnBsb* this);
 void func_80C0CDE4(EnBsb* this, PlayState* play);
 void func_80C0CFDC(EnBsb* this, PlayState* play);
 void func_80C0D10C(EnBsb* this, PlayState* play);
@@ -229,6 +231,7 @@ void EnBsb_Destroy(Actor* thisx, PlayState* play) {
     }
 }
 
+// https://decomp.me/scratch/8JkM1
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0B888.s")
 
 void func_80C0B970(EnBsb* this, PlayState* play) {
@@ -589,7 +592,26 @@ void func_80C0C86C(EnBsb* this) {
     this->actionFunc = func_80C0C8EC;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0C8EC.s")
+void func_80C0C8EC(EnBsb* this, PlayState* play) {
+    Player* player = GET_PLAYER(play);
+
+    if (func_80C0BC30(this) == 0) {
+        Math_SmoothStepToS(&this->actor.world.rot.y, this->actor.yawTowardsPlayer, 1, 0xBB8, 0);
+    }
+
+    if ((this->unk294 == 0) && (fabsf(player->actor.world.pos.y - this->actor.world.pos.y) >= 100.0f) &&
+        (this->actor.xzDistToPlayer < 500.0f)) {
+        func_80C0CA28(this, play);
+        return;
+    }
+
+    func_80C0BA58(this, play);
+
+    if ((this->unk294 == 0) && (Actor_IsFacingPlayer(&this->actor, 0x11C7) != 0) &&
+        (fabsf(this->actor.world.pos.y - player->actor.world.pos.y) < 20.0f) && (this->actor.xzDistToPlayer < 180.0f)) {
+        func_80C0CD90(this);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0CA28.s")
 
