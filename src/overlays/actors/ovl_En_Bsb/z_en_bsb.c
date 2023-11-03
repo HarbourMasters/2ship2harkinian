@@ -227,6 +227,7 @@ void func_80C0B970(EnBsb* this, PlayState* play) {
 
     if ((Animation_OnFrame(&this->skelAnime, 8.0f) != 0) || (Animation_OnFrame(&this->skelAnime, 14.0f) != 0)) {
         Actor_PlaySfx(&this->actor, NA_SE_EN_KTIA_WALK);
+
         var_a2 = (700.0f - this->actor.xzDistToPlayer) * 0.01f;
 
         if (var_a2 >= 5) {
@@ -238,11 +239,11 @@ void func_80C0B970(EnBsb* this, PlayState* play) {
         }
 
         if (Animation_OnFrame(&this->skelAnime, 8.0f) != 0) {
-            func_80C0B31C(play, this, (Vec3f*)&this->unk2E0[0x24]);
+            func_80C0B31C(play, this, &this->unk_0304);
             return;
         }
 
-        func_80C0B31C(play, this, (Vec3f*)&this->unk2E0[0x18]);
+        func_80C0B31C(play, this, &this->unk_02F8);
     }
 }
 

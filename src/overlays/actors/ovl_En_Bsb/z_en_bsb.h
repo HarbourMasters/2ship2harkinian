@@ -34,11 +34,34 @@ typedef struct EnBsb {
     /* 0x02CC */ s16 unk_2CC[5];
     /* 0x02D8 */ s32 unk2D8;
     /* 0x02DC */ s32 unk2DC;
-    /* 0x02E0 */ char unk2E0[0xC54];
+    /* 0x2E0 */ Vec3f unk_02E0;
+    /* 0x2EC */ Vec3f unk_02EC;
+    /* 0x2F8 */ Vec3f unk_02F8;
+    /* 0x304 */ Vec3f unk_0304;
+    /* 0x310 */ Vec3s unk_0310;
+    /* 0x316 */ Vec3s unk_0316;
+    /* 0x31C */ Vec3s unk_031C;
+    /* 0x322 */ s16 unk_0322;
+    /* 0x324 */ s16 unk_0324;
+    /* 0x326 */ char pad_326[0x2];
+    /* 0x328 */ f32 unk_0328;
+    /* 0x32C */ f32 unk_032C;
+    /* 0x330 */ Vec3f unk_0330[17];
+    /* 0x3FC */ s32 unk_03FC[17];
+    /* 0x440 */ s16 unk_0440;
+    /* 0x444 */ char pad_0444[0xAF0];
     /* 0x0F34 */ ColliderJntSph unk_F34;
-    /* 0x0F54 */ ColliderJntSphElement unk_F54;
-    /* 0x0F94 */ char unk_F94[0x186];
+    /* 0x0F54 */ ColliderJntSphElement unk_F54[7];
+    /* 0x1114 */ u32 unk_1114;
+    /* 0x1118 */ s16 unk_1118;
     /* 0x111A */ s16 unk_111A;
+    /* 0x111C */ s16 unk_111C;
+    /* 0x1120 */ f32 unk_1120;
+    /* 0x1124 */ f32 unk_1124;
+    /* 0x1128 */ Vec3f unk_1128;
+    /* 0x1134 */ Vec3f unk_1134;
+    /* 0x1140 */ Vec3f unk_1140;
+    /* 0x114C */ Vec3f unk_114C;
 } EnBsb; // size = 0x1158
 
 #endif // Z_EN_BSB_H
