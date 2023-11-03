@@ -691,6 +691,7 @@ void func_80C0CD90(EnBsb* this) {
     this->actionFunc = func_80C0CDE4;
 }
 
+// regalloc
 // https://decomp.me/scratch/vw91Q
 #ifdef NON_MATCHING
 void func_80C0CDE4(EnBsb* this, PlayState* play) {
@@ -778,7 +779,26 @@ void func_80C0D00C(EnBsb* this) {
     this->actionFunc = func_80C0D10C;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0D10C.s")
+void func_80C0D10C(EnBsb* this, PlayState* play) {
+    f32 curFrame = this->skelAnime.curFrame;
+
+    if (((this->unk_0324 == 0xB) || (this->unk_0324 == 0xA)) && (this->unk_0322 != 0)) {
+        Actor_SpawnIceEffects(play, &this->actor, this->unk_0330, 0x11, 2, this->unk_032C, 0.4f);
+        this->unk_0322 = 0;
+        this->unk_0324 = 0;
+    }
+
+    func_80C0B31C(play, this, &this->unk_0304);
+    func_80C0B31C(play, this, &this->unk_02F8);
+
+    if (this->unk2C4 <= curFrame) {
+        if ((this->actor.world.pos.z > -1300.0f) || ((s32)this->actor.colChkInfo.health < 0xA)) {
+            func_80C0CA28(this, play);
+            return;
+        }
+        func_80C0C86C(this);
+    }
+}
 
 void func_80C0D214(EnBsb* this) {
     this->unk294 = 0x28;
