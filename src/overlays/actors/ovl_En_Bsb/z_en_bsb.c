@@ -44,8 +44,9 @@ void func_80C0E480(EnBsb* this, PlayState* play);
 void func_80C0E4FC(EnBsb* this, PlayState* play);
 void func_80C0B290(EnBsb* this, s32 arg0);
 void func_80C0B31C(PlayState* play, EnBsb* this, Vec3f* pos);
-void func_80C0F544(EnBsb* this, Vec3f* pos, Vec3f* unk2, Vec3f* unk3, f32 unk4, s32 unk5);
 s32 func_80C0B888(EnBsb* this, PlayState* play);
+void func_80C0C32C(EnBsb* this);
+void func_80C0F544(EnBsb* this, Vec3f* pos, Vec3f* unk2, Vec3f* unk3, f32 unk4, s32 unk5);
 
 #if 0
 // static ColliderJntSphElementInit sJntSphElementsInit[7] = {
@@ -375,7 +376,30 @@ void func_80C0C0F4(EnBsb* this, PlayState* play) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0C238.s")
+void func_80C0C238(EnBsb* this, PlayState* play) {
+    func_80C0BC30(this);
+
+    if (this->unk2A4 == 0) {
+        if (CutsceneManager_IsNext(this->unk_2CC[0]) == 0) {
+            CutsceneManager_Queue(this->unk_2CC[0]);
+            return;
+        }
+        CutsceneManager_StartWithPlayerCs(this->unk_2CC[0], &this->actor);
+        this->actor.flags &= 0xF7FFFFFF;
+        Flags_SetSwitch(play, this->unk_2B8);
+        this->unk2A4 = 1;
+    }
+
+    if (this->unk2A4 == 1) {
+        if (!(play->gameplayFrames & 1)) {
+            func_80C0B31C(play, this, &this->actor.world.pos);
+        }
+        Math_ApproachF(&this->actor.shape.shadowScale, 25.0f, 1.0f, 2.5f);
+        if (this->unk2C4 <= this->skelAnime.curFrame) {
+            func_80C0C32C(this);
+        }
+    }
+}
 
 void func_80C0C32C(EnBsb* this) {
     this->unk2A4 = 0;
