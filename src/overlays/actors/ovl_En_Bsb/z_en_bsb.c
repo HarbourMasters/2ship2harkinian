@@ -439,7 +439,54 @@ void func_80C0C430(EnBsb* this) {
     this->actionFunc = func_80C0C484;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0C484.s")
+void func_80C0C484(EnBsb* this, PlayState* play) {
+    f32 sp34;
+    s16 var_a1;
+    s16 temp_v1;
+
+    func_80C0BC30(this);
+
+    if (func_80C0B888(this, play) != 0) {
+        this->actor.flags &= 0xFDFFFFFF;
+        func_80C0C86C(this);
+        return;
+    }
+
+    var_a1 = this->actor.yawTowardsPlayer;
+
+    if (this->unk294 == 1) {
+        this->actor.flags &= 0xFDFFFFFF;
+    }
+
+    if (this->unk_0288 != NULL) {
+        var_a1 = SubS_GetDistSqAndOrientPath(this->unk_0288, this->unk_028C, &this->actor.world.pos, &sp34);
+    }
+
+    Math_SmoothStepToS(&this->actor.world.rot.y, var_a1, 2, 0x2EE, 5);
+
+    temp_v1 = ABS_ALT((s16)(this->actor.world.rot.y - var_a1));
+
+    if (temp_v1 < 0x1000) {
+        this->unk_2BC = this->actor.world.rot.y;
+        this->actor.speed = 3.5f;
+        if (this->unk_2AF == 0) {
+            this->unk_2AF = 1;
+            Audio_PlayBgm_StorePrevBgm(3);
+        }
+    }
+
+    func_80C0B970(this, play);
+
+    if (sp34 < 25.0f) {
+        if (this->unk_0288 != NULL) {
+            this->unk_028C = this->unk_028C + 1;
+            if (this->unk_028C >= this->unk_0288->count) {
+                this->unk_028C = this->unk_028C - 1;
+                func_80C0DA58(this);
+            }
+        }
+    }
+}
 
 void func_80C0C610(EnBsb* this) {
     this->unk2A4 = 0;
@@ -450,7 +497,7 @@ void func_80C0C610(EnBsb* this) {
     if (this->unk2DC != 0) {
         this->unk294 = 0x28;
         Actor_PlaySfx(&this->actor, NA_SE_EN_COMMON_FREEZE);
-        Actor_SetColorFilter(&this->actor, 0U, 0xFFU, 0U, 0x28);
+        Actor_SetColorFilter(&this->actor, 0U, 0xFF, 0U, 0x28);
     }
     this->unk2B4 = 3;
     this->actionFunc = func_80C0C6A8;
