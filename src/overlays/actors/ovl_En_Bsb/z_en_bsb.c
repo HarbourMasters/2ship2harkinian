@@ -1131,48 +1131,55 @@ void func_80C0E618(EnBsb* this, PlayState* play) {
 }
 
 s32 func_80C0E9CC(EnBsb* this, PlayState* play) {
-    s32 sp24;
+    s32 cueChannel;
 
-    if (Cutscene_IsCueInChannel(play, 0x214U) != 0) {
-        sp24 = Cutscene_GetCueChannel(play, 0x214U);
-        if (this->unk_0296 != play->csCtx.actorCues[sp24]->id) {
-            if (this->unk_02B4 != 0xE) {
+    if (Cutscene_IsCueInChannel(play, CS_CMD_ACTOR_CUE_532) != 0) {
+        cueChannel = Cutscene_GetCueChannel(play, CS_CMD_ACTOR_CUE_532);
+        if (this->unk_0296 != play->csCtx.actorCues[cueChannel]->id) {
+            if (this->unk_02B4 != 14) {
                 func_80C0E178(this);
             }
-            switch (play->csCtx.actorCues[sp24]->id) {
+
+            switch (play->csCtx.actorCues[cueChannel]->id) {
                 case 1:
-                    func_80C0B290(this, 0xD);
+                    func_80C0B290(this, 13);
                     break;
+
                 case 2:
-                    if ((this->unk_02D8 != 0xE) && (this->unk_02D8 != 0xF)) {
-                        func_80C0B290(this, 0xE);
+                    if ((this->unk_02D8 != 14) && (this->unk_02D8 != 15)) {
+                        func_80C0B290(this, 14);
                     }
                     break;
+
                 case 3:
-                    if ((this->unk_02D8 != 0x10) && (this->unk_02D8 != 0x11)) {
-                        func_80C0B290(this, 0x10);
+                    if ((this->unk_02D8 != 16) && (this->unk_02D8 != 17)) {
+                        func_80C0B290(this, 16);
                     }
                     break;
+
                 case 4:
-                    if ((this->unk_02D8 != 0x12) && (this->unk_02D8 != 0x13)) {
-                        func_80C0B290(this, 0x12);
+                    if ((this->unk_02D8 != 18) && (this->unk_02D8 != 19)) {
+                        func_80C0B290(this, 18);
                     }
                     break;
+
                 case 5:
-                    gSaveContext.save.saveInfo.weekEventReg[0x17] |= 4;
-                    Actor_PlaySfx(&this->actor, 0x3AA9U);
+                    WEEKEVENTREG(23) |= 4;
+                    Actor_PlaySfx(&this->actor, NA_SE_EN_KITA_BREAK);
                     break;
+
                 case 6:
-                    Flags_SetSwitch(play, (s32)this->unk_02BA);
-                    Actor_PlaySfx(&this->actor, 0x4823U);
+                    Flags_SetSwitch(play, this->unk_02BA);
+                    Actor_PlaySfx(&this->actor, NA_SE_SY_PIECE_OF_HEART);
                     break;
             }
         }
-        this->unk_0296 = (s16)play->csCtx.actorCues[sp24]->id;
-        Cutscene_ActorTranslateAndYaw(&this->actor, play, sp24);
+        this->unk_0296 = play->csCtx.actorCues[cueChannel]->id;
+        Cutscene_ActorTranslateAndYaw(&this->actor, play, cueChannel);
         return 1;
+    } else {
+        return 0;
     }
-    return 0;
 }
 
 void EnBsb_Update(Actor* thisx, PlayState* play) {
