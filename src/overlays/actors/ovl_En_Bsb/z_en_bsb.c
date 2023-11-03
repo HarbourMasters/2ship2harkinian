@@ -147,6 +147,7 @@ ActorInit En_Bsb_InitVars = {
 #endif
 
 extern ColliderJntSphElementInit D_80C0F8D4[7];
+extern f32 D_80C0F8D0;
 extern ColliderJntSphInit D_80C0F9D0;
 extern DamageTable D_80C0F9E0;
 extern Vec3f D_80C0FAA0;
@@ -1134,7 +1135,52 @@ void func_80C0E178(EnBsb* this) {
     this->actor.speed = 0.0f;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0E1C0.s")
+void func_80C0E1C0(EnBsb* this, PlayState* play) {
+    EnBsb* temp_v0_2;
+    f32 curFrame = this->skelAnime.curFrame;
+    s32 i;
+
+    if (this->unk_02D8 == 16) {
+        if (Animation_OnFrame(&this->skelAnime, 30.0f) != 0) {
+            Actor_PlaySfx(&this->actor, NA_SE_EN_KITA_SALUTE);
+        } else if ((curFrame < 30.0f) && (((play->csCtx.curFrame == 0x1D8)) || (play->csCtx.curFrame == 0x1E7))) {
+            Actor_PlaySfx(&this->actor, NA_SE_EN_KTIA_WALK);
+        }
+    }
+
+    if ((this->unk_02D8 == 18) && (play->csCtx.curFrame == 897)) {
+        Actor_PlaySfx(&this->actor, 0x3AA1);
+    }
+
+    if (this->unk_02A4 == 0) {
+        if (gSaveContext.save.saveInfo.weekEventReg[0x17] & 4) {
+            //! FAKE:
+            if (&play->csCtx) {}
+
+            D_80C0F8D0 = this->skelAnime.curFrame;
+
+            for (i = 0; i < 17; i++) {
+                temp_v0_2 = Actor_Spawn(&play->actorCtx, play, 0x28F, this->actor.world.pos.x, this->actor.world.pos.y,
+                                        this->actor.world.pos.z, this->actor.shape.rot.x, this->actor.shape.rot.y,
+                                        this->actor.shape.rot.z, this->unk_03FC[i] + 0x8000);
+                if (temp_v0_2 != NULL) {
+                    temp_v0_2->unk_02C0 = this->unk_0330[i].y;
+                }
+            }
+
+            this->unk_02A4 = 1;
+            this->actor.draw = NULL;
+        }
+    }
+
+    if (play->csCtx.curFrame == 950) {
+        Actor_PlaySfx(&this->actor, NA_SE_EN_GOMA_DOWN);
+    }
+
+    if (func_80C0E9CC(this, play) == 0) {
+        Actor_Kill(&this->actor);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0E3B8.s")
 
