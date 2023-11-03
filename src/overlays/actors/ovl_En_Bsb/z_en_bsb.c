@@ -49,7 +49,6 @@ void func_80C0C32C(EnBsb* this);
 void func_80C0C430(EnBsb* this);
 void func_80C0F544(EnBsb* this, Vec3f* pos, Vec3f* unk2, Vec3f* unk3, f32 unk4, s32 unk5);
 
-
 #if 0
 // static ColliderJntSphElementInit sJntSphElementsInit[7] = {
 static ColliderJntSphElementInit D_80C0F8D4[7] = {
@@ -210,7 +209,7 @@ void EnBsb_Init(Actor* thisx, PlayState* play) {
 
     this->actor.targetMode = 0xA;
 
-    if (gSaveContext.save.saveInfo.weekEventReg[0x17] & 4) {
+    if (WEEKEVENTREG(0x17) & 4) {
         Actor_Kill(&this->actor);
         return;
     }
@@ -315,7 +314,7 @@ void func_80C0BF2C(EnBsb* this) {
     }
 
     this->actor.flags |= 0x08000000;
-    gSaveContext.save.saveInfo.weekEventReg[0x55] &= 0xBF;
+    WEEKEVENTREG(0x55) &= 0xBF;
     this->unk2B4 = 0;
     this->actionFunc = func_80C0BFE8;
 }
@@ -411,18 +410,23 @@ void func_80C0C32C(EnBsb* this) {
 
 void func_80C0C364(EnBsb* this, PlayState* play) {
     f32 sp2C;
-    s16 sp2A;
+    s16 sp2A = this->actor.yawTowardsPlayer;
     s32 var_v1;
 
-    sp2A = this->actor.yawTowardsPlayer;
     this->unk_0288 = SubS_GetPathByIndex(play, this->unk_2B6, 0x1F);
+
     func_80C0BC30(this);
+
     if (this->unk_0288 != NULL) {
         sp2A = SubS_GetDistSqAndOrientPath(this->unk_0288, this->unk_028C, &this->actor.world.pos, &sp2C);
     }
+
     this->actor.world.rot.y -= 0x2EE;
+
     var_v1 = ABS_ALT((s16)(this->actor.world.rot.y - sp2A));
+
     func_80C0B970(this, play);
+
     if (var_v1 < 0x1000) {
         this->unk_2BC = this->actor.world.rot.y;
         func_80C0C430(this);
@@ -491,14 +495,18 @@ void func_80C0C484(EnBsb* this, PlayState* play) {
 void func_80C0C610(EnBsb* this) {
     this->unk2A4 = 0;
     this->actor.speed = 0.0f;
+
     func_80C0B290(this, 2);
     Actor_PlaySfx(&this->actor, NA_SE_EN_KITA_DAMAGE);
+
     this->unk294 = 0;
+
     if (this->unk2DC != 0) {
         this->unk294 = 0x28;
         Actor_PlaySfx(&this->actor, NA_SE_EN_COMMON_FREEZE);
-        Actor_SetColorFilter(&this->actor, 0U, 0xFF, 0U, 0x28);
+        Actor_SetColorFilter(&this->actor, 0, 255, 0, 40);
     }
+
     this->unk2B4 = 3;
     this->actionFunc = func_80C0C6A8;
 }
@@ -580,7 +588,7 @@ void func_80C0D214(EnBsb* this) {
     this->actionFunc = func_80C0D27C;
 }
 
-void func_80C0D27C(EnBsb *this, PlayState *play) {
+void func_80C0D27C(EnBsb* this, PlayState* play) {
     if (this->unk_0324 == 0xB) {
         if ((this->unk_0322 != 0) && (this->unk_0322 < 0x3C)) {
             this->unk_0324 = 0xA;
