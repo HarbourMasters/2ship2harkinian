@@ -1213,7 +1213,6 @@ void func_80C0E480(EnBsb* this, PlayState* play) {
 }
 
 void func_80C0E4FC(EnBsb* this, PlayState* play) {
-
     if (this->unk_0294 != 0) {
         if (this->unk_0294 == 1) {
             this->actor.speed = 0.0f;
