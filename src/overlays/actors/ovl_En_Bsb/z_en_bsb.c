@@ -168,7 +168,50 @@ void func_80C0B290(EnBsb* this, s32 animIndex) {
                      D_80C0FA84[this->unk_02D8], -2.0f);
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0B31C.s")
+void func_80C0B31C(PlayState* play, EnBsb* this, Vec3f* pos) {
+    Vec3f spCC;
+    Vec3f spC0;
+    Vec3f spB4;
+    Vec3f spA8 = D_80C0FAA0;
+    Vec3f sp9C = D_80C0FAAC;
+
+    f32 temp_fa0;
+    f32 temp_fs0;
+    s32 i;
+    char pad[0x10];
+
+    temp_fa0 = (Rand_ZeroOne() - 0.5f) * 12.56f;
+    spCC.y = this->actor.floorHeight;
+    spCC.x = (Math_SinF(temp_fa0) * 5.0f) + pos->x;
+    spCC.z = (Math_CosF(temp_fa0) * 5.0f) + pos->z;
+    sp9C.x = Rand_CenteredFloat(1.0f) * 0.5f;
+    sp9C.z = Rand_CenteredFloat(1.0f) * 0.5f;
+    spA8.y += (Rand_ZeroOne() - 0.5f) * 15.0f;
+
+    EffectSsHahen_Spawn(play, &spCC, &spA8, &sp9C, 0, ((Rand_ZeroOne() * 5.0f) + 10.0f), -1, 0xA, NULL);
+    func_800BBFB0(play, &spCC, 20.0f, 1, 300, 10, 5);
+
+    if (this->unk_02AE == 0) {
+        this->unk_02AE = 1;
+
+        for (i = 0; i < 10; i++) {
+            if (!(i & 1)) {
+                Math_Vec3f_Copy(&spCC, &this->unk_0304);
+            } else {
+                Math_Vec3f_Copy(&spCC, &this->unk_02F8);
+            }
+            spCC.x += Rand_CenteredFloat(5.0f);
+            spCC.y += Rand_CenteredFloat(5.0f);
+            spCC.z += Rand_CenteredFloat(5.0f);
+            spC0.y = -1.0f;
+            spB4.x = (Rand_ZeroOne() - 0.5f) * 4.0f;
+            spB4.y = (Rand_ZeroOne() * 10.0f) + 4.0f;
+            spB4.z = (Rand_ZeroOne() - 0.5f) * 4.0f;
+            temp_fs0 = (Rand_CenteredFloat(1.0f) * 0.002f) + 0.005f;
+            func_80C0F544(this, &spCC, &spB4, &spC0, temp_fs0, (s32)Rand_ZeroFloat(10.0f) + 0x1E);
+        }
+    }
+}
 
 void EnBsb_Init(Actor* thisx, PlayState* play) {
     EnBsb* this = THIS;
@@ -865,7 +908,7 @@ void func_80C0D3C0(EnBsb* this, PlayState* play) {
     this->unk_1134.y = this->unk_114C.y = this->unk_02E0.y - 10.0f;
 
     this->unk_1134.z = this->unk_114C.z = Math_CosS(this->actor.yawTowardsPlayer) * 10.0f + this->unk_02E0.z;
-    
+
     this->unk_1124 = 60.0f;
     func_80C0B290(this, 2);
     this->unk_02B4 = 9;
@@ -942,7 +985,8 @@ void EnBsb_Update(Actor* thisx, PlayState* play) {
 
     DECR(this->unk_0322);
 
-    if ((this->unk_02B4 != 0) && (this->unk_02B4 != 0xA) && !(gSaveContext.save.saveInfo.weekEventReg[0x17] & 4) && (this->unk_02B0 == 0)) {
+    if ((this->unk_02B4 != 0) && (this->unk_02B4 != 0xA) && !(gSaveContext.save.saveInfo.weekEventReg[0x17] & 4) &&
+        (this->unk_02B0 == 0)) {
         SkelAnime_Update(&this->skelAnime);
     }
     this->actionFunc(this, play);
@@ -981,9 +1025,9 @@ void EnBsb_Update(Actor* thisx, PlayState* play) {
             if ((this->unk_02B4 != 9) && (this->unk_02B4 != 0xE) && (this->unk_02B4 != 0xF)) {
                 CollisionCheck_SetAC(play, &play->colChkCtx, &this->unk_0F34.base);
                 CollisionCheck_SetOC(play, &play->colChkCtx, &this->unk_0F34.base);
-                 if ((this->unk_02B4 == 6) || (this->unk_02B4 == 4)) {
+                if ((this->unk_02B4 == 6) || (this->unk_02B4 == 4)) {
                     CollisionCheck_SetAT(play, &play->colChkCtx, &this->unk_0F34.base);
-                 }
+                }
             }
         }
     }
