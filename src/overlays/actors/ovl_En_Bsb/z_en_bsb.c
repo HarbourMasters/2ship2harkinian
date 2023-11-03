@@ -1005,11 +1005,11 @@ void func_80C0DB18(EnBsb* this, PlayState* play) {
         this->unk_111A = CutsceneManager_GetCurrentSubCamId(this->actor.csId);
         this->unk_02A4 = 1;
     }
-    
+
     if (this->unk_02D8 == 1) {
         func_80C0B970(this, play);
     }
-    
+
     this->unk_1128.x = -480.0f;
     this->unk_1140.x = -480.0f;
     this->unk_1128.y = 375.0f;
@@ -1022,9 +1022,9 @@ void func_80C0DB18(EnBsb* this, PlayState* play) {
     this->unk_114C.y = 500.0f;
     this->unk_114C.z = -2250.0f;
     this->unk_1134.z = -2250.0f;
-    
+
     func_80C0BE1C(this, play);
-    
+
     switch (this->unk_1118) {
         case 0:
             Math_SmoothStepToS(&this->actor.world.rot.y, Math_Vec3f_Yaw(&this->actor.world.pos, &sp64), 1, 0x7D0, 0);
@@ -1038,18 +1038,16 @@ void func_80C0DB18(EnBsb* this, PlayState* play) {
                     this->unk_1118++;
                 }
             }
-        default:
             break;
 
         case 1:
             if ((Animation_OnFrame(&this->skelAnime, 7.0f) != 0) || (Animation_OnFrame(&this->skelAnime, 15.0f) != 0)) {
                 Actor_PlaySfx(&this->actor, 0x3AA3);
             }
-            
-            Math_SmoothStepToS(
-                &this->actor.world.rot.y, Math_Vec3f_Yaw(&this->actor.world.pos, &this->unk_02EC), 1, 0x7D0, 0
-            );
-            
+
+            Math_SmoothStepToS(&this->actor.world.rot.y, Math_Vec3f_Yaw(&this->actor.world.pos, &this->unk_02EC), 1,
+                               0x7D0, 0);
+
             if (this->unk_02C4 <= curFrame) {
                 this->unk_111C++;
                 if (this->unk_111C >= 3) {
@@ -1071,7 +1069,7 @@ void func_80C0DB18(EnBsb* this, PlayState* play) {
                 Message_StartTextbox(play, 0x1541, &this->actor);
             }
             break;
-        
+
         case 3:
             if ((Message_GetState(&play->msgCtx) == 5) && Message_ShouldAdvance(play)) {
                 Message_CloseTextbox(play);
@@ -1096,10 +1094,8 @@ void func_80C0DB18(EnBsb* this, PlayState* play) {
 
         case 5:
             if (this->actor.world.pos.y < (this->actor.home.pos.y + 30.0f)) {
-                Actor_SpawnFloorDustRing(
-                    play, &this->actor, &this->actor.world.pos, this->actor.shape.shadowScale - 20.0f, 0x14, 8.0f,
-                    0x3E8, 0x64, 1
-                );
+                Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos,
+                                         this->actor.shape.shadowScale - 20.0f, 0x14, 8.0f, 0x3E8, 0x64, 1);
                 this->actor.speed = 0.0f;
                 Actor_PlaySfx(&this->actor, 0x380DU);
                 Actor_RequestQuakeAndRumble(&this->actor, play, 4, 0xA);
@@ -1109,18 +1105,17 @@ void func_80C0DB18(EnBsb* this, PlayState* play) {
 
         case 6:
             this->actor.world.rot.y += 0x2000;
-            
+
             if (!(play->gameplayFrames & 7)) {
                 Math_Vec3f_Copy(&sp64, &this->actor.world.pos);
                 sp64.x += Rand_CenteredFloat(40.0f);
                 sp64.z += Rand_CenteredFloat(40.0f);
-                Actor_SpawnFloorDustRing(
-                    play, &this->actor, &sp64, Rand_ZeroFloat(10.0f) + 5.0f, Rand_S16Offset(1, 3), 4.0f, 0x3E8, 0x64, 1
-                );
+                Actor_SpawnFloorDustRing(play, &this->actor, &sp64, Rand_ZeroFloat(10.0f) + 5.0f, Rand_S16Offset(1, 3),
+                                         4.0f, 0x3E8, 0x64, 1);
             }
-            
+
             Math_ApproachF(&this->actor.shape.yOffset, -7000.0f, 0.5f, 200.0f);
-            
+
             if (this->actor.shape.yOffset < -6999.0f) {
                 CutsceneManager_Stop(this->unk_02CC[3]);
                 Actor_Kill(&this->actor);
@@ -1491,9 +1486,8 @@ void EnBsb_Draw(Actor* thisx, PlayState* play) {
         gDPPipeSync(POLY_OPA_DISP++);
         gDPSetEnvColor(POLY_OPA_DISP++, 255, 255, 255, this->unk_02CA);
 
-        SkelAnime_DrawOpa(
-            play, this->skelAnime.skeleton, this->skelAnime.jointTable, func_80C0EEA0, func_80C0F170, &this->actor
-        );
+        SkelAnime_DrawOpa(play, this->skelAnime.skeleton, this->skelAnime.jointTable, func_80C0EEA0, func_80C0F170,
+                          &this->actor);
 
         if (this->unk_0322 != 0) {
             f32 sp3C = this->unk_0322 * 0.05f;
@@ -1509,9 +1503,8 @@ void EnBsb_Draw(Actor* thisx, PlayState* play) {
                 this->unk_032C = 0.8f;
             }
 
-            Actor_DrawDamageEffects(
-                play, &this->actor, this->unk_0330, 0x11, this->unk_0328, this->unk_032C, sp3C, this->unk_0324
-            );
+            Actor_DrawDamageEffects(play, &this->actor, this->unk_0330, 0x11, this->unk_0328, this->unk_032C, sp3C,
+                                    this->unk_0324);
         }
     } else {
         Gfx_SetupDL25_Xlu(play->state.gfxCtx);
@@ -1520,14 +1513,11 @@ void EnBsb_Draw(Actor* thisx, PlayState* play) {
         gDPPipeSync(POLY_XLU_DISP++);
         gDPSetEnvColor(POLY_XLU_DISP++, 0xFF, 0xFF, 0xFF, this->unk_02CA);
 
-        POLY_XLU_DISP = SkelAnime_Draw(
-            play, this->skelAnime.skeleton, this->skelAnime.jointTable, func_80C0F078, NULL, &this->actor,
-            POLY_XLU_DISP++
-        );
+        POLY_XLU_DISP = SkelAnime_Draw(play, this->skelAnime.skeleton, this->skelAnime.jointTable, func_80C0F078, NULL,
+                                       &this->actor, POLY_XLU_DISP++);
     }
     CLOSE_DISPS(play->state.gfxCtx);
 }
-
 
 void func_80C0F544(EnBsb* this, Vec3f* pos, Vec3f* velocity, Vec3f* accel, f32 arg0, s16 arg1) {
     EnBsbUnkStruct* var_s0 = &this->unk_0444;
