@@ -19,6 +19,7 @@ void EnBsb_Draw(Actor* thisx, PlayState* play);
 
 void func_80C0B970(EnBsb* this, PlayState* play);
 s32 func_80C0BC30(EnBsb* this);
+void func_80C0BA58(EnBsb* this, PlayState* play);
 void func_80C0BE1C(EnBsb* this, PlayState* play);
 void func_80C0BF2C(EnBsb* this);
 void func_80C0BFE8(EnBsb* this, PlayState* play);
@@ -255,7 +256,35 @@ void func_80C0B970(EnBsb* this, PlayState* play) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0BA58.s")
+void func_80C0BA58(EnBsb* this, PlayState* play) {
+    s16 var_v1;
+
+    if ((Animation_OnFrame(&this->skelAnime, 2.0f) != 0) || (Animation_OnFrame(&this->skelAnime, 4.0f) != 0) ||
+        (Animation_OnFrame(&this->skelAnime, 6.0f) != 0) || (Animation_OnFrame(&this->skelAnime, 8.0f) != 0)) {
+        Actor_PlaySfx(&this->actor, NA_SE_EN_KTIA_WALK);
+        Actor_RequestQuake(play, gRegEditor->data[0x96A] + 1, gRegEditor->data[0x96B] + 2);
+        if ((Animation_OnFrame(&this->skelAnime, 4.0f) != 0) || (Animation_OnFrame(&this->skelAnime, 8.0f) != 0)) {
+            func_80C0B31C(play, this, &this->unk_0304);
+        } else {
+            func_80C0B31C(play, this, &this->unk_02F8);
+        }
+    }
+
+    if (this->actor.xzDistToPlayer < (gRegEditor->data[0x967] + 400.0f)) {
+        var_v1 = (gRegEditor->data[0x968] + 160.0f) - (this->actor.xzDistToPlayer * 0.3f);
+
+        if (var_v1 > 70) {
+            var_v1 = 70;
+        } else if (var_v1 < 0) {
+            var_v1 = 0;
+        }
+
+        if (Animation_OnFrame(&this->skelAnime, 1.0f) != 0) {
+            Rumble_Override(gRegEditor->data[0x96F], gRegEditor->data[0x96C] + var_v1, (gRegEditor->data[0x96D] + 0xF),
+                            gRegEditor->data[0x96E] + 70);
+        }
+    }
+}
 
 s32 func_80C0BC30(EnBsb* this) {
     if ((this->actor.world.pos.z < -2180.0f) && (this->actor.world.pos.z > -2470.0f) &&
