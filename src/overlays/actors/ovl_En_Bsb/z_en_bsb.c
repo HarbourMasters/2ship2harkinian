@@ -277,8 +277,27 @@ void EnBsb_Destroy(Actor* thisx, PlayState* play) {
     }
 }
 
-// https://decomp.me/scratch/8JkM1
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0B888.s")
+s32 func_80C0B888(EnBsb* this, PlayState* play) {
+    Player* player = GET_PLAYER(play);
+    s16 temp_v0;
+    s32 var_v0;
+    s32 var_v1;
+    s32 ret = 0;
+
+    if (this->unk_02DC == ret) {
+        temp_v0 = ABS_ALT((s16)(this->actor.yawTowardsPlayer - this->unk_02BC));
+        if (temp_v0 < (s16)(gRegEditor->data[0x961] + 0x4000) &&
+            (fabsf(this->actor.world.pos.y - player->actor.world.pos.y) < 20.0f) &&
+            (this->actor.xzDistToPlayer < 200.0f)) {
+            this->unk_02DC = 1;
+            Audio_PlayBgm_StorePrevBgm(0x38);
+            return 1;
+        }
+    } else {
+        return 1;
+    }
+    return ret;
+}
 
 void func_80C0B970(EnBsb* this, PlayState* play) {
     s16 var_a2;
@@ -1041,7 +1060,10 @@ s32 func_80C0F078(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s
         *dList = NULL;
     } else if (limbIndex != this->unk_02B0) {
         *dList = NULL;
-    } else if ((limbIndex == 2) || (limbIndex == 3) || (limbIndex == 4) || (limbIndex == 5) || (limbIndex == 6) || (limbIndex == 7) || (limbIndex == 8) || (limbIndex == 9) || (limbIndex == 0xA) || (limbIndex == 0xC) || (limbIndex == 0xD) || (limbIndex == 0xF) || (limbIndex == 0x10) || (limbIndex == 0x11) || (limbIndex == 0x12) || (limbIndex == 0x13) || (limbIndex == 0x14)) {
+    } else if ((limbIndex == 2) || (limbIndex == 3) || (limbIndex == 4) || (limbIndex == 5) || (limbIndex == 6) ||
+               (limbIndex == 7) || (limbIndex == 8) || (limbIndex == 9) || (limbIndex == 0xA) || (limbIndex == 0xC) ||
+               (limbIndex == 0xD) || (limbIndex == 0xF) || (limbIndex == 0x10) || (limbIndex == 0x11) ||
+               (limbIndex == 0x12) || (limbIndex == 0x13) || (limbIndex == 0x14)) {
         rot->x += this->unk_031C.x;
         rot->y += this->unk_031C.y;
         rot->z += this->unk_031C.z;
@@ -1061,7 +1083,10 @@ void func_80C0F170(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Acto
         if (limbIndex == 0x14) {
             Matrix_MultVec3f(&gZeroVec3f, &this->unk_02F8);
         }
-        if ((limbIndex == 2) || (limbIndex == 3) || (limbIndex == 4) || (limbIndex == 5) || (limbIndex == 6) || (limbIndex == 7) || (limbIndex == 8) || (limbIndex == 9) || (limbIndex == 0xA) || (limbIndex == 0xC) || (limbIndex == 0xD) || (limbIndex == 0xF) || (limbIndex == 0x10) || (limbIndex == 0x11) || (limbIndex == 0x12) || (limbIndex == 0x13) || (limbIndex == 0x14)) {
+        if ((limbIndex == 2) || (limbIndex == 3) || (limbIndex == 4) || (limbIndex == 5) || (limbIndex == 6) ||
+            (limbIndex == 7) || (limbIndex == 8) || (limbIndex == 9) || (limbIndex == 0xA) || (limbIndex == 0xC) ||
+            (limbIndex == 0xD) || (limbIndex == 0xF) || (limbIndex == 0x10) || (limbIndex == 0x11) ||
+            (limbIndex == 0x12) || (limbIndex == 0x13) || (limbIndex == 0x14)) {
             Matrix_MultZero(&this->unk_0330[this->unk_0440]);
             this->unk_03FC[this->unk_0440] = limbIndex;
 
