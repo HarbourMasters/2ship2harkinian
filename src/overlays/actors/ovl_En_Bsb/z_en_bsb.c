@@ -324,7 +324,7 @@ void func_80C0BFE8(EnBsb* this, PlayState* play) {
     if ((temp_v0 < 0x4300) && !(this->actor.xzDistToPlayer > 300.0f)) {
         if (player->stateFlags2 & 0x08000000) {
             if (this->unk_0290 == 0) {
-                Audio_PlaySfx(0x4807U);
+                Audio_PlaySfx(NA_SE_SY_TRE_BOX_APPEAR);
                 this->unk_0290 = 1;
             }
         } else {
@@ -338,7 +338,42 @@ void func_80C0BFE8(EnBsb* this, PlayState* play) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0C0F4.s")
+void func_80C0C0F4(EnBsb* this, PlayState* play) {
+    s32 i;
+
+    this->actor.flags |= 0x02000000;
+    this->unk2A4 = 0;
+    this->unk_F34.elements->dim.modelSphere.radius = 0x28;
+    this->unk_F34.elements->dim.modelSphere.center.x = 0x3E8;
+    this->unk_F34.elements->dim.modelSphere.center.y = 0x190;
+    this->unk_F34.base.colType = 0xA;
+
+    for (i = 0; i < 7; i++) {
+        this->unk_F34.elements[i].info.elemType = 0;
+    }
+
+    this->unk2AE = 0;
+
+    Actor_PlaySfx(&this->actor, NA_SE_EN_STALTU_UP);
+
+    func_80C0B290(this, 0);
+
+    if (CutsceneManager_IsNext(this->unk_2CC[0]) == 0) {
+        CutsceneManager_Queue(this->unk_2CC[0]);
+        this->unk2B4 = 1;
+        this->actionFunc = func_80C0C238;
+    } else {
+        CutsceneManager_StartWithPlayerCs(this->unk_2CC[0], &this->actor);
+
+        this->actor.flags &= 0xF7FFFFFF;
+
+        Flags_SetSwitch(play, this->unk_2B8);
+
+        this->unk2A4 = 1;
+        this->unk2B4 = 1;
+        this->actionFunc = func_80C0C238;
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0C238.s")
 
