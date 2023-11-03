@@ -931,7 +931,63 @@ void func_80C0E480(EnBsb* this, PlayState* play) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0E9CC.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/EnBsb_Update.s")
+void EnBsb_Update(Actor* thisx, PlayState* play) {
+    EnBsb* this = THIS;
+    s32 pad;
+    f32 curFrame;
+
+    DECR(this->unk_0292);
+
+    DECR(this->unk_0294);
+
+    DECR(this->unk_0322);
+
+    if ((this->unk_02B4 != 0) && (this->unk_02B4 != 0xA) && !(gSaveContext.save.saveInfo.weekEventReg[0x17] & 4) && (this->unk_02B0 == 0)) {
+        SkelAnime_Update(&this->skelAnime);
+    }
+    this->actionFunc(this, play);
+    Actor_MoveWithGravity(&this->actor);
+    if (this->unk_02B0 == 0) {
+        func_80C0E618(this, play);
+        if ((func_80C0E9CC(this, play) == 0) && (this->unk_02B4 != 0xE)) {
+            this->actor.shape.rot.y = this->actor.world.rot.y;
+            this->actor.focus.pos.x = Math_SinS(this->actor.world.rot.y) * 20.0f + this->unk_02E0.x;
+            this->actor.focus.pos.y = this->unk_02E0.y;
+            this->actor.focus.pos.z = (Math_CosS(this->actor.world.rot.y) * 20.0f) + this->unk_02E0.z;
+            Math_Vec3s_Copy(&this->actor.focus.rot, &this->actor.world.rot);
+            if (this->actor.bgCheckFlags & 1) {
+                if (this->actor.world.pos.z < -1300.0f) {
+                    this->actor.world.pos.z += this->unk_0298.z;
+                }
+                this->actor.world.pos.x += this->unk_0298.x;
+                Math_ApproachZeroF(&this->unk_0298.x, 1.0f, 2.0f);
+                Math_ApproachZeroF(&this->unk_0298.z, 1.0f, 2.0f);
+            }
+        } else {
+            curFrame = this->skelAnime.curFrame;
+            if ((this->unk_02D8 == 0xE) && (this->unk_02C4 <= curFrame)) {
+                func_80C0B290(this, 0xF);
+            }
+            if ((this->unk_02D8 == 0x10) && (this->unk_02C4 <= curFrame)) {
+                func_80C0B290(this, 0x11);
+            }
+            if ((this->unk_02D8 == 0x12) && (this->unk_02C4 <= curFrame)) {
+                func_80C0B290(this, 0x13);
+            }
+        }
+        Actor_UpdateBgCheckInfo(play, &this->actor, 30.0f, 60.0f, 40.0f, 0x1DU);
+        func_80C0F640(this, play);
+        if (func_80C0E9CC(this, play) == 0) {
+            if ((this->unk_02B4 != 9) && (this->unk_02B4 != 0xE) && (this->unk_02B4 != 0xF)) {
+                CollisionCheck_SetAC(play, &play->colChkCtx, &this->unk_0F34.base);
+                CollisionCheck_SetOC(play, &play->colChkCtx, &this->unk_0F34.base);
+                 if ((this->unk_02B4 == 6) || (this->unk_02B4 == 4)) {
+                    CollisionCheck_SetAT(play, &play->colChkCtx, &this->unk_0F34.base);
+                 }
+            }
+        }
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0EEA0.s")
 
