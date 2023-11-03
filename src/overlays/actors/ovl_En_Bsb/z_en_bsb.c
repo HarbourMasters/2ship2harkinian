@@ -43,6 +43,7 @@ void func_80C0D27C(EnBsb* this, PlayState* play);
 void func_80C0D384(EnBsb* this, PlayState* play);
 void func_80C0D51C(EnBsb* this, PlayState* play);
 void func_80C0D9B4(EnBsb* this, PlayState* play);
+void func_80C0DA58(EnBsb *this);
 void func_80C0DB18(EnBsb* this, PlayState* play);
 void func_80C0E1C0(EnBsb* this, PlayState* play);
 void func_80C0E480(EnBsb* this, PlayState* play);
@@ -957,7 +958,31 @@ void func_80C0D9B4(EnBsb* this, PlayState* play) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0DA58.s")
+void func_80C0DA58(EnBsb *this) {
+    
+    this->unk_1118 = (this->unk_111C = 0);
+    this->actor.speed = 0.0f;
+    this->unk_1120 = 0.0f;
+    this->unk_02A4 = 0;
+    this->unk_111A = 0;
+    this->unk_1140.x = -480.0f;
+    this->unk_1128.x = -480.0f;
+    this->unk_1140.y = 375.0f;
+    this->unk_1128.y = 375.0f;
+    this->unk_1140.z = -1630.0f;
+    this->unk_1128.z = -1630.0f;
+    // clang-format off
+    this->unk_114C.x = -360.0f; this->unk_1134.x = -360.0f; this->unk_1124 = 60.0f; if (1) { this->unk_1134.y = 500.0f;
+    // clang-format on
+        this->unk_114C.y = 500.0f;
+        this->unk_114C.z = -2250.0f;
+        this->unk_1134.z = -2250.0f;
+    }
+    this->unk_1118 = 0;
+    WEEKEVENTREG(85) |= 0x40;
+    this->unk_02B4 = 0xD;
+    this->actionFunc = func_80C0DB18;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0DB18.s")
 
@@ -1095,7 +1120,45 @@ void EnBsb_Update(Actor* thisx, PlayState* play) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0EEA0.s")
+s32 func_80C0EEA0(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx) {
+    EnBsb* this = THIS;
+
+    OPEN_DISPS(play->state.gfxCtx);
+
+    if (this->unk_02B0 == 0) {
+        if (limbIndex == 0xB) {
+            if (this->unk_02B4 == 0) {
+                *dList = NULL;
+            } else {
+                gDPSetEnvColor(POLY_OPA_DISP++, 0xFF, 0xFF, 0xFF, this->unk_02CA);
+            }
+        } else {
+            gDPSetEnvColor(POLY_OPA_DISP++, 0xFF, 0xFF, 0xFF, 0xFF);
+        }
+
+        if (limbIndex == 7) {
+            rot->x += this->unk_0310.x;
+            rot->y += this->unk_0310.y;
+            rot->z += this->unk_0310.z;
+        }
+
+        if (limbIndex == 4) {
+            rot->x += this->unk_0316.x;
+            rot->y += this->unk_0316.y;
+            rot->z += this->unk_0316.z;
+        }
+    } else if (limbIndex != this->unk_02B0) {
+        *dList = NULL;
+    } else if ((limbIndex == 2) || (limbIndex == 3) || (limbIndex == 4) || (limbIndex == 5) || (limbIndex == 6) || (limbIndex == 7) || (limbIndex == 8) || (limbIndex == 9) || (limbIndex == 0xA) || (limbIndex == 0xC) || (limbIndex == 0xD) || (limbIndex == 0xF) || (limbIndex == 0x10) || (limbIndex == 0x11) || (limbIndex == 0x12) || (limbIndex == 0x13) || (limbIndex == 0x14))
+    {
+        rot->x += this->unk_031C.x;
+        rot->y += this->unk_031C.y;
+        rot->z += this->unk_031C.z;
+    }
+    
+    CLOSE_DISPS(play->state.gfxCtx);
+    return 0;
+}
 
 s32 func_80C0F078(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx, Gfx** gfx) {
     EnBsb* this = THIS;
