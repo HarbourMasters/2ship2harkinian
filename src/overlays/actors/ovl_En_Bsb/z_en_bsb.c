@@ -991,7 +991,7 @@ void func_80C0E480(EnBsb* this, PlayState* play) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0E618.s")
 
-s32 func_80C0E9CC(EnBsb *this, PlayState *play) {
+s32 func_80C0E9CC(EnBsb* this, PlayState* play) {
     s32 sp24;
 
     if (Cutscene_IsCueInChannel(play, 0x214U) != 0) {
@@ -1001,35 +1001,35 @@ s32 func_80C0E9CC(EnBsb *this, PlayState *play) {
                 func_80C0E178(this);
             }
             switch (play->csCtx.actorCues[sp24]->id) {
-            case 1:
-                func_80C0B290(this, 0xD);
-                break;
-            case 2:
-                if ((this->unk_02D8 != 0xE) && (this->unk_02D8 != 0xF)) {
-                    func_80C0B290(this, 0xE);
-                }
-                break;
-            case 3:
-                if ((this->unk_02D8 != 0x10) && (this->unk_02D8 != 0x11)) {
-                    func_80C0B290(this, 0x10);
-                }
-                break;
-            case 4:
-                if ((this->unk_02D8 != 0x12) && (this->unk_02D8 != 0x13)) {
-                    func_80C0B290(this, 0x12);
-                }
-                break;
-            case 5:
-                gSaveContext.save.saveInfo.weekEventReg[0x17] |= 4;
-                Actor_PlaySfx(&this->actor, 0x3AA9U);
-                break;
-            case 6:
-                Flags_SetSwitch(play, (s32) this->unk_02BA);
-                Actor_PlaySfx(&this->actor, 0x4823U);
-                break;
+                case 1:
+                    func_80C0B290(this, 0xD);
+                    break;
+                case 2:
+                    if ((this->unk_02D8 != 0xE) && (this->unk_02D8 != 0xF)) {
+                        func_80C0B290(this, 0xE);
+                    }
+                    break;
+                case 3:
+                    if ((this->unk_02D8 != 0x10) && (this->unk_02D8 != 0x11)) {
+                        func_80C0B290(this, 0x10);
+                    }
+                    break;
+                case 4:
+                    if ((this->unk_02D8 != 0x12) && (this->unk_02D8 != 0x13)) {
+                        func_80C0B290(this, 0x12);
+                    }
+                    break;
+                case 5:
+                    gSaveContext.save.saveInfo.weekEventReg[0x17] |= 4;
+                    Actor_PlaySfx(&this->actor, 0x3AA9U);
+                    break;
+                case 6:
+                    Flags_SetSwitch(play, (s32)this->unk_02BA);
+                    Actor_PlaySfx(&this->actor, 0x4823U);
+                    break;
             }
         }
-        this->unk_0296 = (s16) play->csCtx.actorCues[sp24]->id;
+        this->unk_0296 = (s16)play->csCtx.actorCues[sp24]->id;
         Cutscene_ActorTranslateAndYaw(&this->actor, play, sp24);
         return 1;
     }
@@ -1147,17 +1147,18 @@ void func_80C0F170(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Acto
 void func_80C0F544(EnBsb* this, Vec3f* pos, Vec3f* velocity, Vec3f* accel, f32 arg0, s16 arg1) {
     EnBsbUnkStruct* var_s0 = &this->unk_0444;
     s16 i;
+
     for (i = 0; i < ARRAY_COUNT(this->unk_0444); i++, var_s0++) {
         if (var_s0->unk_00 == 0) {
-            var_s0->unk_00 = 1U;
+            var_s0->unk_00 = 1;
             var_s0->pos = *pos;
             var_s0->velocity = *velocity;
             var_s0->accel = *accel;
             var_s0->unk_30 = arg0;
             var_s0->unk_34 = arg1;
-            var_s0->unk_28.x = (s16) (s32) Rand_CenteredFloat(30000.0f);
-            var_s0->unk_28.y = (s16) (s32) Rand_CenteredFloat(30000.0f);
-            var_s0->unk_28.z = (s16) (s32) Rand_CenteredFloat(30000.0f);
+            var_s0->unk_28.x = Rand_CenteredFloat(30000.0f);
+            var_s0->unk_28.y = Rand_CenteredFloat(30000.0f);
+            var_s0->unk_28.z = Rand_CenteredFloat(30000.0f);
             return;
         }
     }
