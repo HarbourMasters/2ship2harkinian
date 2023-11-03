@@ -12,8 +12,8 @@ typedef struct EnBsbUnkStruct {
     /* 0x04 */ Vec3f pos;
     /* 0x10 */ Vec3f velocity;
     /* 0x1C */ Vec3f accel;
-    /* 0x28 */ Vec3s unk_28;
-    /* 0x30 */ f32 unk_30;
+    /* 0x28 */ Vec3s rot;
+    /* 0x30 */ f32 scale;
     /* 0x34 */ s16 unk_34;
 } EnBsbUnkStruct; // size = 0x38
 
