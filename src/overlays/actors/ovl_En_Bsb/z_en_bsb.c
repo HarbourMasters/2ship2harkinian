@@ -53,7 +53,7 @@ s32 func_80C0B888(EnBsb* this, PlayState* play);
 void func_80C0C32C(EnBsb* this);
 void func_80C0C430(EnBsb* this);
 void func_80C0D00C(EnBsb* this);
-void func_80C0F544(EnBsb* this, Vec3f* pos, Vec3f* unk_02, Vec3f* unk3, f32 unk4, s32 unk5);
+void func_80C0F544(EnBsb* this, Vec3f* pos, Vec3f* velocity, Vec3f* accel, f32 arg0, s16 arg1);
 
 #if 0
 // static ColliderJntSphElementInit sJntSphElementsInit[7] = {
@@ -1101,7 +1101,24 @@ void func_80C0F170(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Acto
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/EnBsb_Draw.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0F544.s")
+void func_80C0F544(EnBsb* this, Vec3f* pos, Vec3f* velocity, Vec3f* accel, f32 arg0, s16 arg1) {
+    EnBsbUnkStruct* var_s0 = &this->unk_0444;
+    s16 i;
+    for (i = 0; i < ARRAY_COUNT(this->unk_0444); i++, var_s0++) {
+        if (var_s0->unk_00 == 0) {
+            var_s0->unk_00 = 1U;
+            var_s0->pos = *pos;
+            var_s0->velocity = *velocity;
+            var_s0->accel = *accel;
+            var_s0->unk_30 = arg0;
+            var_s0->unk_34 = arg1;
+            var_s0->unk_28 = (s16) (s32) Rand_CenteredFloat(30000.0f);
+            var_s0->unk_2A = (s16) (s32) Rand_CenteredFloat(30000.0f);
+            var_s0->unk_2C = (s16) (s32) Rand_CenteredFloat(30000.0f);
+            return;
+        }
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0F640.s")
 

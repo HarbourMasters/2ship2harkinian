@@ -7,6 +7,21 @@ struct EnBsb;
 
 typedef void (*EnBsbActionFunc)(struct EnBsb*, PlayState*);
 
+typedef struct EnBsbUnkStruct {
+    /* 0x00 */ u8 unk_00;
+    /* 0x01 */ char unk_01[0x3]; 
+    /* 0x04 */ Vec3f pos;
+    /* 0x10 */ Vec3f velocity;
+    /* 0x1C */ Vec3f accel;
+    /* 0x28 */ s16 unk_28;
+    /* 0x2A */ s16 unk_2A;
+    /* 0x2C */ s16 unk_2C;
+    /* 0x2E */ char unk_2E[0x2];
+    /* 0x30 */ f32 unk_30;
+    /* 0x34 */ s16 unk_34;
+    /* 0x36 */ char unk_36[0x2];
+} EnBsbUnkStruct; // size = 0x38
+
 typedef struct EnBsb {
     /* 0x0000 */ Actor actor;
     /* 0x0144 */ SkelAnime skelAnime;
@@ -52,7 +67,7 @@ typedef struct EnBsb {
     /* 0x0330 */ Vec3f unk_0330[17];
     /* 0x03FC */ s32 unk_03FC[17];
     /* 0x0440 */ s16 unk_0440;
-    /* 0x0444 */ char pad_0444[0xAF0];
+    /* 0x0444 */ EnBsbUnkStruct unk_0444[0x32];
     /* 0x0F34 */ ColliderJntSph unk_0F34;
     /* 0x0F54 */ ColliderJntSphElement unk_0F54[7];
     /* 0x1114 */ u32 unk_1114;
