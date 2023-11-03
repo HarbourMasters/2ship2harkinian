@@ -763,7 +763,7 @@ void func_80C0CDE4(EnBsb* this, PlayState* play) {
     this->unk_0F34.base.atFlags & AT_BOUNCED
     || temp_v0->stateFlags1 & 0x400000
     && temp_fv0 <= 70.0f
-    && (temp_v1 = (temp_v0->actor.shape.rot.y - this->actor.shape.rot.y) + 0x8000, (temp_v1 < 0x2000) != 0) 
+    && (temp_v1 = (temp_v0->actor.shape.rot.y - this->actor.shape.rot.y) + 0x8000, (temp_v1 < 0x2000) != 0)
     && temp_v1 > -0x2000
     ) {
         this->unk_0F34.base.atFlags &= ~(AT_BOUNCED|AT_HIT);
@@ -1035,9 +1035,44 @@ void EnBsb_Update(Actor* thisx, PlayState* play) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0EEA0.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0F078.s")
+s32 func_80C0F078(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx, Gfx** gfx) {
+    EnBsb* this = THIS;
+    if (limbIndex != this->unk_02B0) {
+        *dList = NULL;
+    } else if (limbIndex != this->unk_02B0) {
+        *dList = NULL;
+    } else if ((limbIndex == 2) || (limbIndex == 3) || (limbIndex == 4) || (limbIndex == 5) || (limbIndex == 6) || (limbIndex == 7) || (limbIndex == 8) || (limbIndex == 9) || (limbIndex == 0xA) || (limbIndex == 0xC) || (limbIndex == 0xD) || (limbIndex == 0xF) || (limbIndex == 0x10) || (limbIndex == 0x11) || (limbIndex == 0x12) || (limbIndex == 0x13) || (limbIndex == 0x14)) {
+        rot->x += this->unk_031C.x;
+        rot->y += this->unk_031C.y;
+        rot->z += this->unk_031C.z;
+    }
+    return 0;
+}
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0F170.s")
+void func_80C0F170(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Actor* thisx) {
+    EnBsb* this = THIS;
+    if (this->unk_02B0 == 0) {
+        if (limbIndex == 0xA) {
+            Matrix_MultVec3f(&gZeroVec3f, &this->unk_02E0);
+        }
+        if (limbIndex == 0x11) {
+            Matrix_MultVec3f(&gZeroVec3f, &this->unk_0304);
+        }
+        if (limbIndex == 0x14) {
+            Matrix_MultVec3f(&gZeroVec3f, &this->unk_02F8);
+        }
+        if ((limbIndex == 2) || (limbIndex == 3) || (limbIndex == 4) || (limbIndex == 5) || (limbIndex == 6) || (limbIndex == 7) || (limbIndex == 8) || (limbIndex == 9) || (limbIndex == 0xA) || (limbIndex == 0xC) || (limbIndex == 0xD) || (limbIndex == 0xF) || (limbIndex == 0x10) || (limbIndex == 0x11) || (limbIndex == 0x12) || (limbIndex == 0x13) || (limbIndex == 0x14)) {
+            Matrix_MultZero(&this->unk_0330[this->unk_0440]);
+            this->unk_03FC[this->unk_0440] = limbIndex;
+
+            this->unk_0440++;
+            if (this->unk_0440 >= 0x11) {
+                this->unk_0440 = 0;
+            }
+        }
+    }
+    Collider_UpdateSpheres(limbIndex, &this->unk_0F34);
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/EnBsb_Draw.s")
 
