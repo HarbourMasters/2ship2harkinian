@@ -18,11 +18,13 @@ void EnBsb_Update(Actor* thisx, PlayState* play);
 void EnBsb_Draw(Actor* thisx, PlayState* play);
 
 void func_80C0B970(EnBsb* this, PlayState* play);
+s32 func_80C0BC30(EnBsb* this);
 void func_80C0BFE8(EnBsb* this, PlayState* play);
 void func_80C0C238(EnBsb* this, PlayState* play);
 void func_80C0C364(EnBsb* this, PlayState* play);
 void func_80C0C484(EnBsb* this, PlayState* play);
 void func_80C0C6A8(EnBsb* this, PlayState* play);
+void func_80C0C86C(EnBsb* this);
 void func_80C0C8EC(EnBsb* this, PlayState* play);
 void func_80C0CB3C(EnBsb* this, PlayState* play);
 void func_80C0CD04(EnBsb* this, PlayState* play);
@@ -37,7 +39,6 @@ void func_80C0DB18(EnBsb* this, PlayState* play);
 void func_80C0E1C0(EnBsb* this, PlayState* play);
 void func_80C0E480(EnBsb* this, PlayState* play);
 void func_80C0E4FC(EnBsb* this, PlayState* play);
-void func_80C0C86C(EnBsb* this);
 void func_80C0B290(EnBsb* this, s32 arg0);
 void func_80C0B31C(PlayState* play, EnBsb* this, Vec3f* pos);
 void func_80C0F544(EnBsb* this, Vec3f* pos, Vec3f* unk2, Vec3f* unk3, f32 unk4, s32 unk5);
@@ -137,6 +138,8 @@ extern ColliderJntSphInit D_80C0F9D0;
 extern DamageTable D_80C0F9E0;
 extern Vec3f D_80C0FAA0;
 extern Vec3f D_80C0FAAC;
+extern Vec3s D_80C0FAB8;
+extern Vec3s D_80C0FAC0;
 
 extern AnimationHeader D_06000C50[];
 extern UNK_TYPE D_06004894;
@@ -249,7 +252,32 @@ void func_80C0B970(EnBsb* this, PlayState* play) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0BA58.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0BC30.s")
+s32 func_80C0BC30(EnBsb* this) {
+    if ((this->actor.world.pos.z < -2180.0f) && (this->actor.world.pos.z > -2470.0f) &&
+        (fabsf(this->actor.world.pos.y - this->actor.home.pos.y) < 30.0f)) {
+        Vec3s sp38 = D_80C0FAB8;
+        Vec3s sp30 = D_80C0FAC0;
+
+        Math_SmoothStepToS(&this->unk_0316.x, sp38.x, 1, 0x7D0, 0);
+        Math_SmoothStepToS(&this->unk_0316.y, sp38.y, 1, 0x7D0, 0);
+        Math_SmoothStepToS(&this->unk_0316.z, sp38.z, 1, 0x7D0, 0);
+        Math_SmoothStepToS(&this->unk_0310.x, sp30.x, 1, 0x7D0, 0);
+        Math_SmoothStepToS(&this->unk_0310.y, sp30.y, 1, 0x7D0, 0);
+        Math_SmoothStepToS(&this->unk_0310.z, sp30.z, 1, 0x7D0, 0);
+        return true;
+    }
+
+    if (this->unk_0316.z != 0) {
+        Math_SmoothStepToS(&this->unk_0316.x, 0, 1, 0x7D0, 0);
+        Math_SmoothStepToS(&this->unk_0316.y, 0, 1, 0x7D0, 0);
+        Math_SmoothStepToS(&this->unk_0316.z, 0, 1, 0x7D0, 0);
+        Math_SmoothStepToS(&this->unk_0310.x, 0, 1, 0x7D0, 0);
+        Math_SmoothStepToS(&this->unk_0310.y, 0, 1, 0x7D0, 0);
+        Math_SmoothStepToS(&this->unk_0310.z, 0, 1, 0x7D0, 0);
+    }
+
+    return false;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0BE1C.s")
 
