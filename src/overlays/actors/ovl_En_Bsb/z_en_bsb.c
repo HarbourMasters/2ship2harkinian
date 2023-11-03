@@ -991,7 +991,50 @@ void func_80C0E480(EnBsb* this, PlayState* play) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0E618.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0E9CC.s")
+s32 func_80C0E9CC(EnBsb *this, PlayState *play) {
+    s32 sp24;
+
+    if (Cutscene_IsCueInChannel(play, 0x214U) != 0) {
+        sp24 = Cutscene_GetCueChannel(play, 0x214U);
+        if (this->unk_0296 != play->csCtx.actorCues[sp24]->id) {
+            if (this->unk_02B4 != 0xE) {
+                func_80C0E178(this);
+            }
+            switch (play->csCtx.actorCues[sp24]->id) {
+            case 1:
+                func_80C0B290(this, 0xD);
+                break;
+            case 2:
+                if ((this->unk_02D8 != 0xE) && (this->unk_02D8 != 0xF)) {
+                    func_80C0B290(this, 0xE);
+                }
+                break;
+            case 3:
+                if ((this->unk_02D8 != 0x10) && (this->unk_02D8 != 0x11)) {
+                    func_80C0B290(this, 0x10);
+                }
+                break;
+            case 4:
+                if ((this->unk_02D8 != 0x12) && (this->unk_02D8 != 0x13)) {
+                    func_80C0B290(this, 0x12);
+                }
+                break;
+            case 5:
+                gSaveContext.save.saveInfo.weekEventReg[0x17] |= 4;
+                Actor_PlaySfx(&this->actor, 0x3AA9U);
+                break;
+            case 6:
+                Flags_SetSwitch(play, (s32) this->unk_02BA);
+                Actor_PlaySfx(&this->actor, 0x4823U);
+                break;
+            }
+        }
+        this->unk_0296 = (s16) play->csCtx.actorCues[sp24]->id;
+        Cutscene_ActorTranslateAndYaw(&this->actor, play, sp24);
+        return 1;
+    }
+    return 0;
+}
 
 void EnBsb_Update(Actor* thisx, PlayState* play) {
     EnBsb* this = THIS;
