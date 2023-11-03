@@ -19,6 +19,7 @@ void EnBsb_Draw(Actor* thisx, PlayState* play);
 
 void func_80C0B970(EnBsb* this, PlayState* play);
 s32 func_80C0BC30(EnBsb* this);
+void func_80C0BE1C(EnBsb* this, PlayState* play);
 void func_80C0BFE8(EnBsb* this, PlayState* play);
 void func_80C0C238(EnBsb* this, PlayState* play);
 void func_80C0C364(EnBsb* this, PlayState* play);
@@ -279,7 +280,22 @@ s32 func_80C0BC30(EnBsb* this) {
     return false;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0BE1C.s")
+void func_80C0BE1C(EnBsb* this, PlayState* play) {
+    if (this->unk_111A != 0) {
+        Math_ApproachF(&this->unk_1128.x, this->unk_1140.x, 0.5f, 30.0f);
+        Math_ApproachF(&this->unk_1128.y, this->unk_1140.y, 0.5f, 30.0f);
+        Math_ApproachF(&this->unk_1128.z, this->unk_1140.z, 0.5f, 30.0f);
+        Math_ApproachF(&this->unk_1134.x, this->unk_114C.x, 0.5f, 30.0f);
+        Math_ApproachF(&this->unk_1134.y, this->unk_114C.y, 0.5f, 30.0f);
+        Math_ApproachF(&this->unk_1134.z, this->unk_114C.z, 0.5f, 30.0f);
+        Math_ApproachF(&this->unk_1120, this->unk_1124, 0.5f, 10.0f);
+
+        Play_SetCameraAtEye(play, this->unk_111A, &this->unk_1134, &this->unk_1128);
+        Play_SetCameraFov(play, this->unk_111A, this->unk_1120);
+
+        ShrinkWindow_Letterbox_SetSizeTarget(0x1B);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0BF2C.s")
 
