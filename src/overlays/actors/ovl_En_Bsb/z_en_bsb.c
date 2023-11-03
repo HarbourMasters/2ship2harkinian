@@ -54,8 +54,10 @@ s32 func_80C0B888(EnBsb* this, PlayState* play);
 void func_80C0C32C(EnBsb* this);
 void func_80C0C430(EnBsb* this);
 void func_80C0D00C(EnBsb* this);
-void func_80C0F544(EnBsb* this, Vec3f* pos, Vec3f* unk_02, Vec3f* unk3, f32 unk4, s16 unk5);
 void func_80C0E618(EnBsb* this, PlayState* play);
+void func_80C0F544(EnBsb* this, Vec3f* pos, Vec3f* unk_02, Vec3f* unk3, f32 unk4, s16 unk5);
+void func_80C0F640(EnBsb* this, PlayState* play);
+void func_80C0F758(EnBsb* this, PlayState* play);
 
 #if 0
 // static ColliderJntSphElementInit sJntSphElementsInit[7] = {
@@ -1575,16 +1577,70 @@ void func_80C0F544(EnBsb* this, Vec3f* pos, Vec3f* velocity, Vec3f* accel, f32 a
             var_s0->pos = *pos;
             var_s0->velocity = *velocity;
             var_s0->accel = *accel;
-            var_s0->unk_30 = arg0;
+            var_s0->scale = arg0;
             var_s0->unk_34 = arg1;
-            var_s0->unk_28.x = Rand_CenteredFloat(30000.0f);
-            var_s0->unk_28.y = Rand_CenteredFloat(30000.0f);
-            var_s0->unk_28.z = Rand_CenteredFloat(30000.0f);
+            var_s0->rot.x = Rand_CenteredFloat(30000.0f);
+            var_s0->rot.y = Rand_CenteredFloat(30000.0f);
+            var_s0->rot.z = Rand_CenteredFloat(30000.0f);
             return;
         }
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0F640.s")
+void func_80C0F640(EnBsb* this, PlayState* play) {
+    s32 i;
+    EnBsbUnkStruct* var_v0;
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0F758.s")
+    var_v0 = &this->unk_0444;
+    for (i = 0; i < ARRAY_COUNT(this->unk_0444); i++, var_v0++) {
+        if (var_v0->unk_00 != 0) {
+            var_v0->rot.x += 0x100;
+            var_v0->rot.z += 0x130;
+            var_v0->pos.x += var_v0->velocity.x;
+            var_v0->pos.y += var_v0->velocity.y;
+            var_v0->pos.z += var_v0->velocity.z;
+
+
+            var_v0->velocity.y += var_v0->accel.y;
+            
+            if (var_v0->unk_34 != 0) {
+                var_v0->unk_34--;
+            } else {
+                var_v0->unk_00 = 0;
+            }
+        }
+    }
+}
+
+extern Mtx D_0406AB30;
+
+void func_80C0F758(EnBsb* this, PlayState* play) {
+    GraphicsContext* gfxCtx = play->state.gfxCtx;
+    s32 i;
+    EnBsbUnkStruct* var_s0;
+
+    OPEN_DISPS(play->state.gfxCtx);
+    var_s0 = &this->unk_0444;
+    Gfx_SetupDL25_Opa(play->state.gfxCtx);
+    for (i = 0; i < ARRAY_COUNT(this->unk_0444); i++, var_s0++) {
+        if (var_s0->unk_00 != 0) {
+            Matrix_Push();
+            Matrix_Translate(var_s0->pos.x, var_s0->pos.y, var_s0->pos.z, MTXMODE_NEW);
+            Matrix_RotateXS(var_s0->rot.x, MTXMODE_APPLY);
+            Matrix_RotateYS(var_s0->rot.y, MTXMODE_APPLY);
+            Matrix_RotateZS(var_s0->rot.z, MTXMODE_APPLY);
+            Matrix_Scale(var_s0->scale, var_s0->scale, var_s0->scale, MTXMODE_APPLY);
+
+            gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+
+            gDPSetPrimColor(POLY_OPA_DISP++, 0, 0x80, 0xFF, 0xFF, 0xFF, 0xFF);
+
+            gDPSetEnvColor(POLY_OPA_DISP++, 0xFF, 0xFF, 0xFF, 0xFF);
+
+            gSPDisplayList(POLY_OPA_DISP++, &D_0406AB30);
+            
+            Matrix_Pop();
+        }
+    }
+    CLOSE_DISPS(play->state.gfxCtx);
+}
