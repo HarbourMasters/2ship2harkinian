@@ -1138,7 +1138,7 @@ void func_80C0E178(EnBsb* this) {
 }
 
 void func_80C0E1C0(EnBsb* this, PlayState* play) {
-    EnBsb* temp_v0_2;
+    EnBsb* newActor;
     f32 curFrame = this->skelAnime.curFrame;
     s32 i;
 
@@ -1151,22 +1151,22 @@ void func_80C0E1C0(EnBsb* this, PlayState* play) {
     }
 
     if ((this->unk_02D8 == 18) && (play->csCtx.curFrame == 897)) {
-        Actor_PlaySfx(&this->actor, 0x3AA1);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_KITA_SALUTE);
     }
 
     if (this->unk_02A4 == 0) {
-        if (gSaveContext.save.saveInfo.weekEventReg[0x17] & 4) {
+        if (WEEKEVENTREG(0x17) & 4) {
             //! FAKE:
-            if (&play->csCtx) {}
+            if (1) {}
 
             D_80C0F8D0 = this->skelAnime.curFrame;
 
             for (i = 0; i < 17; i++) {
-                temp_v0_2 = Actor_Spawn(&play->actorCtx, play, 0x28F, this->actor.world.pos.x, this->actor.world.pos.y,
-                                        this->actor.world.pos.z, this->actor.shape.rot.x, this->actor.shape.rot.y,
-                                        this->actor.shape.rot.z, this->unk_03FC[i] + 0x8000);
-                if (temp_v0_2 != NULL) {
-                    temp_v0_2->unk_02C0 = this->unk_0330[i].y;
+                newActor = Actor_Spawn(&play->actorCtx, play, ACTOR_EN_BSB, this->actor.world.pos.x,
+                                       this->actor.world.pos.y, this->actor.world.pos.z, this->actor.shape.rot.x,
+                                       this->actor.shape.rot.y, this->actor.shape.rot.z, this->unk_03FC[i] + 0x8000);
+                if (newActor != NULL) {
+                    newActor->unk_02C0 = this->unk_0330[i].y;
                 }
             }
 
@@ -1600,9 +1600,8 @@ void func_80C0F640(EnBsb* this, PlayState* play) {
             var_v0->pos.y += var_v0->velocity.y;
             var_v0->pos.z += var_v0->velocity.z;
 
-
             var_v0->velocity.y += var_v0->accel.y;
-            
+
             if (var_v0->unk_34 != 0) {
                 var_v0->unk_34--;
             } else {
@@ -1638,7 +1637,7 @@ void func_80C0F758(EnBsb* this, PlayState* play) {
             gDPSetEnvColor(POLY_OPA_DISP++, 0xFF, 0xFF, 0xFF, 0xFF);
 
             gSPDisplayList(POLY_OPA_DISP++, &D_0406AB30);
-            
+
             Matrix_Pop();
         }
     }
