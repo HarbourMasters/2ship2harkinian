@@ -54,6 +54,7 @@ s32 func_80C0B888(EnBsb* this, PlayState* play);
 void func_80C0C32C(EnBsb* this);
 void func_80C0C430(EnBsb* this);
 void func_80C0D00C(EnBsb* this);
+void func_80C0E3B8(EnBsb* this);
 void func_80C0E618(EnBsb* this, PlayState* play);
 void func_80C0F544(EnBsb* this, Vec3f* pos, Vec3f* unk_02, Vec3f* unk3, f32 unk4, s16 unk5);
 void func_80C0F640(EnBsb* this, PlayState* play);
@@ -228,8 +229,8 @@ void EnBsb_Init(Actor* thisx, PlayState* play) {
     this->actor.colChkInfo.mass = 0xFF;
 
     if (this->actor.params & 0x8000) {
-        SkelAnime_Init(play, &this->skelAnime, &D_0600C3E0, (AnimationHeader*)&D_06004894, &this->unk_0188,
-                       &this->unk_0206, 0x15);
+        SkelAnime_Init(play, &this->skelAnime, &D_0600C3E0, (AnimationHeader*)&D_06004894, this->unk_0188,
+                       this->unk_0206, 0x15);
         this->unk_02B0 = this->actor.params & 0xFF;
         func_80C0E3B8(this);
         return;
@@ -1184,7 +1185,22 @@ void func_80C0E1C0(EnBsb* this, PlayState* play) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0E3B8.s")
+extern f32 D_80C0F8D0;
+
+void func_80C0E3B8(EnBsb* this) {
+
+    this->actor.gravity = 0.0f;
+    this->actor.speed = 0.0f;
+    this->unk_02AE = 0;
+    this->unk_02A4 = 0;
+    Math_Vec3s_Copy(&this->unk_031C, &gZeroVec3s);
+    this->actor.flags |= 0x08000000;
+    this->actor.flags &= ~1;
+    Animation_Change(&this->skelAnime, &D_06004894, 1.0f, D_80C0F8D0, Animation_GetLastFrame(&D_06004894), 2, 0.0f);
+    SkelAnime_Update(&this->skelAnime);
+    this->unk_02B4 = 0xF;
+    this->actionFunc = func_80C0E480;
+}
 
 void func_80C0E480(EnBsb* this, PlayState* play) {
     if (this->unk_02C0 != 0.0f) {
@@ -1198,7 +1214,30 @@ void func_80C0E480(EnBsb* this, PlayState* play) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0E4FC.s")
+void func_80C0E4FC(EnBsb* this, PlayState* play) {
+    
+    if (this->unk_0294 != 0) {
+        if (this->unk_0294 == 1) {
+            this->actor.speed = 0.0f;
+            this->actor.velocity.y = 10.0f;
+        }
+    } else {
+        if (this->actor.velocity.y <= -11.0f) {
+            this->unk_02CA -= 0x30;
+            if (this->unk_02CA < 0) {
+                this->unk_02CA = 0;
+            }
+        }
+        Math_ApproachF(&this->actor.gravity, -3.0f, 0.5f, 0.5f);
+        Math_ApproachF(&this->actor.velocity.y, -10.0f, 0.5f, 0.5f);
+        this->unk_031C.x += 0x320;
+        this->unk_031C.y += 0x320;
+        this->unk_031C.z += 0x320;
+        if ((this->actor.gravity != 0.0f) && (this->actor.world.pos.y <= this->unk_02C0)) {
+            Actor_Kill(&this->actor);
+        }
+    }
+}
 
 void func_80C0E618(EnBsb* this, PlayState* play) {
     s32 var_s0 = 0;
