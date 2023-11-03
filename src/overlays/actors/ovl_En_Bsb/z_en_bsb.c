@@ -32,6 +32,7 @@ void func_80C0C86C(EnBsb* this);
 void func_80C0C8EC(EnBsb* this, PlayState* play);
 void func_80C0CA28(EnBsb* this, PlayState* play);
 void func_80C0CB3C(EnBsb* this, PlayState* play);
+void func_80C0CCCC(EnBsb* this);
 void func_80C0CD04(EnBsb* this, PlayState* play);
 void func_80C0CD90(EnBsb* this);
 void func_80C0CDE4(EnBsb* this, PlayState* play);
@@ -632,7 +633,34 @@ void func_80C0CA28(EnBsb* this, PlayState* play) {
     this->actionFunc = func_80C0CB3C;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0CB3C.s")
+void func_80C0CB3C(EnBsb* this, PlayState* play) {
+    Player* player = GET_PLAYER(play);
+
+    if (this->actor.velocity.y > 0.0f) {
+        Math_ApproachF(&this->actor.world.pos.x, player->actor.world.pos.x, 0.5f, 30.0f);
+        Math_ApproachF(&this->actor.world.pos.z, player->actor.world.pos.z, 0.5f, 30.0f);
+        return;
+    }
+
+    this->actor.gravity = -8.0f;
+
+    if (this->unk2D8 != 22) {
+        func_80C0B290(this, 22);
+    }
+
+    if ((fabsf(player->actor.world.pos.y - this->actor.world.pos.y) < 40.0f) && (this->actor.xzDistToPlayer < 70.0f) &&
+        (player->invincibilityTimer == 0)) {
+        func_800B8D50(play, &this->actor, 2.0f, this->actor.yawTowardsPlayer, 5.0f, 0x10U);
+    }
+
+    if (this->actor.bgCheckFlags & 1) {
+        Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos, this->actor.shape.shadowScale, 10, 8.0f,
+                                 2000, 100, 1);
+        Actor_RequestQuakeAndRumble(&this->actor, play, 10, 10);
+        Actor_PlaySfx(&this->actor, NA_SE_EN_EYEGOLE_ATTACK);
+        func_80C0CCCC(this);
+    }
+}
 
 void func_80C0CCCC(EnBsb* this) {
     func_80C0B290(this, 0x17);
