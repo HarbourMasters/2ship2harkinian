@@ -1292,7 +1292,7 @@ s32 func_80C0F078(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s
     } else if (limbIndex != this->unk_02B0) {
         *dList = NULL;
     } else if ((limbIndex == 2) || (limbIndex == 3) || (limbIndex == 4) || (limbIndex == 5) || (limbIndex == 6) ||
-               (limbIndex == 7) || (limbIndex == 8) || (limbIndex == 9) || (limbIndex == 0xA) || (limbIndex == 12) ||
+               (limbIndex == 7) || (limbIndex == 8) || (limbIndex == 9) || (limbIndex == 10) || (limbIndex == 12) ||
                (limbIndex == 13) || (limbIndex == 15) || (limbIndex == 16) || (limbIndex == 17) || (limbIndex == 18) ||
                (limbIndex == 19) || (limbIndex == 20)) {
         rot->x += this->unk_031C.x;
