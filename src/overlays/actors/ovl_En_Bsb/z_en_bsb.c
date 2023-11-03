@@ -17,6 +17,7 @@ void EnBsb_Destroy(Actor* thisx, PlayState* play);
 void EnBsb_Update(Actor* thisx, PlayState* play);
 void EnBsb_Draw(Actor* thisx, PlayState* play);
 
+void func_80C0B970(EnBsb* this, PlayState* play);
 void func_80C0BFE8(EnBsb* this, PlayState* play);
 void func_80C0C238(EnBsb* this, PlayState* play);
 void func_80C0C364(EnBsb* this, PlayState* play);
@@ -40,6 +41,7 @@ void func_80C0C86C(EnBsb* this);
 void func_80C0B290(EnBsb* this, s32 arg0);
 void func_80C0B31C(PlayState* play, EnBsb* this, Vec3f* pos);
 void func_80C0F544(EnBsb* this, Vec3f* pos, Vec3f* unk2, Vec3f* unk3, f32 unk4, s32 unk5);
+s32 func_80C0B888(EnBsb* this, PlayState* play);
 
 #if 0
 // static ColliderJntSphElementInit sJntSphElementsInit[7] = {
@@ -220,7 +222,29 @@ void EnBsb_Destroy(Actor* thisx, PlayState* play) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0B888.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0B970.s")
+void func_80C0B970(EnBsb* this, PlayState* play) {
+    s16 var_a2;
+
+    if ((Animation_OnFrame(&this->skelAnime, 8.0f) != 0) || (Animation_OnFrame(&this->skelAnime, 14.0f) != 0)) {
+        Actor_PlaySfx(&this->actor, NA_SE_EN_KTIA_WALK);
+        var_a2 = (700.0f - this->actor.xzDistToPlayer) * 0.01f;
+
+        if (var_a2 >= 5) {
+            var_a2 = 4;
+        }
+
+        if (var_a2 > 0) {
+            Actor_RequestQuakeAndRumble(&this->actor, play, var_a2, 2);
+        }
+
+        if (Animation_OnFrame(&this->skelAnime, 8.0f) != 0) {
+            func_80C0B31C(play, this, (Vec3f*)&this->unk2E0[0x24]);
+            return;
+        }
+
+        func_80C0B31C(play, this, (Vec3f*)&this->unk2E0[0x18]);
+    }
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0BA58.s")
 
