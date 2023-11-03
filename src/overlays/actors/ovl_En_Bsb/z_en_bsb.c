@@ -502,7 +502,7 @@ void func_80C0C610(EnBsb* this) {
     this->unk294 = 0;
 
     if (this->unk2DC != 0) {
-        this->unk294 = 0x28;
+        this->unk294 = 40;
         Actor_PlaySfx(&this->actor, NA_SE_EN_COMMON_FREEZE);
         Actor_SetColorFilter(&this->actor, 0, 255, 0, 40);
     }
@@ -511,7 +511,42 @@ void func_80C0C610(EnBsb* this) {
     this->actionFunc = func_80C0C6A8;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0C6A8.s")
+void func_80C0C6A8(EnBsb* this, PlayState* play) {
+    f32 sp34 = this->skelAnime.curFrame;
+
+    func_80C0B888(this, play);
+
+    if (((this->unk2DC == 0) ||
+         ((this->unk2DC != 0) && (this->unk2D8 == 2) && (this->unk2C4 <= sp34) && (this->unk294 == 0))) &&
+        ((this->unk_0324 == 0xB) || (this->unk_0324 == 0xA)) && (this->unk_0322 != 0)) {
+        Actor_SpawnIceEffects(play, &this->actor, this->unk_0330, 0x11, 2, this->unk_032C, 0.4f);
+        this->unk_0322 = 0;
+        this->unk_0324 = 0;
+    }
+
+    if ((this->unk2D8 == 2) && (this->unk2C4 <= sp34) && (this->unk294 == 0)) {
+        if (this->unk2DC == 0) {
+            func_80C0B290(this, 3);
+            return;
+        }
+        func_80C0C86C(this);
+        return;
+    }
+
+    if (this->unk2D8 == 3) {
+        Math_SmoothStepToS(&this->actor.world.rot.y, this->actor.yawTowardsPlayer, 1, 0x7D0, 0);
+        if ((Animation_OnFrame(&this->skelAnime, 7.0f) != 0) || (Animation_OnFrame(&this->skelAnime, 15.0f) != 0)) {
+            Actor_PlaySfx(&this->actor, NA_SE_EN_KTIA_PAUSE_K);
+        }
+
+        if (this->unk2C4 <= sp34) {
+            this->unk2A4++;
+            if (this->unk2A4 >= 2) {
+                func_80C0C430(this);
+            }
+        }
+    }
+}
 
 void func_80C0C86C(EnBsb* this) {
     this->unk2A4 = 0;
@@ -582,23 +617,25 @@ void func_80C0CFDC(EnBsb* this, PlayState* play) {
 void func_80C0D214(EnBsb* this) {
     this->unk294 = 0x28;
     this->actor.speed = 0.0f;
-    Actor_SetColorFilter(&this->actor, 0U, 0x78U, 0U, 0x28);
+    Actor_SetColorFilter(&this->actor, 0, 120, 0, 40);
     Actor_PlaySfx(&this->actor, NA_SE_EN_COMMON_FREEZE);
     this->unk2B4 = 0xA;
     this->actionFunc = func_80C0D27C;
 }
 
 void func_80C0D27C(EnBsb* this, PlayState* play) {
-    if (this->unk_0324 == 0xB) {
-        if ((this->unk_0322 != 0) && (this->unk_0322 < 0x3C)) {
-            this->unk_0324 = 0xA;
+    if (this->unk_0324 == 11) {
+        if ((this->unk_0322 != 0) && (this->unk_0322 < 60)) {
+            this->unk_0324 = 10;
         }
     }
+
     if (((this->unk_0324 == 0xB) || (this->unk_0324 == 0xA)) && (this->unk_0322 != 0)) {
         Actor_SpawnIceEffects(play, &this->actor, &this->unk_0330, 0x11, 2, this->unk_032C, 0.4f);
         this->unk_0322 = 0;
         this->unk_0324 = 0;
     }
+
     if (this->unk294 == 0) {
         func_80C0C86C(this);
     }
