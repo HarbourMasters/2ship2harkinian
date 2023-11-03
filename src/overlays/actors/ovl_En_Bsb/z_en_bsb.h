@@ -18,7 +18,8 @@ typedef struct EnBsb {
     /* 0x0290 */ u8 unk_0290;
     /* 0x0291 */ char pad_0291[0x3];
     /* 0x0294 */ s16 unk294;
-    /* 0x0296 */ char unk_296[0xE];
+    /* 0x0296 */ s16 unk_0296;
+    /* 0x0298 */ Vec3f unk_0298;
     /* 0x02A4 */ s32 unk2A4;
     /* 0x02A8 */ s32 unk2A8;
     /* 0x02AC */ char unk_2AC[0x2];

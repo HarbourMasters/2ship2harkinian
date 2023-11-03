@@ -52,6 +52,7 @@ void func_80C0B31C(PlayState* play, EnBsb* this, Vec3f* pos);
 s32 func_80C0B888(EnBsb* this, PlayState* play);
 void func_80C0C32C(EnBsb* this);
 void func_80C0C430(EnBsb* this);
+void func_80C0D00C(EnBsb* this);
 void func_80C0F544(EnBsb* this, Vec3f* pos, Vec3f* unk2, Vec3f* unk3, f32 unk4, s32 unk5);
 
 #if 0
@@ -690,7 +691,6 @@ void func_80C0CD90(EnBsb* this) {
     this->actionFunc = func_80C0CDE4;
 }
 
-//
 // https://decomp.me/scratch/vw91Q
 #ifdef NON_MATCHING
 void func_80C0CDE4(EnBsb* this, PlayState* play) {
@@ -724,7 +724,7 @@ void func_80C0CDE4(EnBsb* this, PlayState* play) {
     ) {
         this->unk_F34.base.atFlags &= ~(AT_BOUNCED|AT_HIT);
         EffectSsHitmark_SpawnFixedScale(play, 3, &sp34);
-        Actor_PlaySfx(&this->actor, 0x1806);
+        Actor_PlaySfx(&this->actor, NA_SE_IT_SHIELD_BOUND);
         func_80C0CF4C(this);
         return;
     }
@@ -754,7 +754,29 @@ void func_80C0CFDC(EnBsb* this, PlayState* play) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0D00C.s")
+void func_80C0D00C(EnBsb* this) {
+    Vec3f vec;
+
+    this->unk2A4 = 0;
+    this->actor.speed = 0.0f;
+
+    if (this->actor.world.pos.z < -1300.0f) {
+        Matrix_RotateYS(((s32)Rand_CenteredFloat(16384.0f) + this->actor.yawTowardsPlayer), MTXMODE_NEW);
+        Matrix_MultVecZ(-30.0f, &vec);
+    } else {
+        Matrix_RotateYS(this->actor.yawTowardsPlayer, MTXMODE_NEW);
+        Matrix_MultVecZ(-50.0f, &vec);
+        vec.z = 0.0f;
+    }
+
+    Math_Vec3f_Copy(&this->unk_0298, &vec);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_KITA_DAMAGE);
+    func_80C0B290(this, 7);
+
+    this->unk2AE = 1;
+    this->unk2B4 = 8;
+    this->actionFunc = func_80C0D10C;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0D10C.s")
 
