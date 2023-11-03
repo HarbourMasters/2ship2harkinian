@@ -46,7 +46,9 @@ void func_80C0B290(EnBsb* this, s32 arg0);
 void func_80C0B31C(PlayState* play, EnBsb* this, Vec3f* pos);
 s32 func_80C0B888(EnBsb* this, PlayState* play);
 void func_80C0C32C(EnBsb* this);
+void func_80C0C430(EnBsb* this);
 void func_80C0F544(EnBsb* this, Vec3f* pos, Vec3f* unk2, Vec3f* unk3, f32 unk4, s32 unk5);
+
 
 #if 0
 // static ColliderJntSphElementInit sJntSphElementsInit[7] = {
@@ -407,7 +409,25 @@ void func_80C0C32C(EnBsb* this) {
     this->actionFunc = func_80C0C364;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0C364.s")
+void func_80C0C364(EnBsb* this, PlayState* play) {
+    f32 sp2C;
+    s16 sp2A;
+    s32 var_v1;
+
+    sp2A = this->actor.yawTowardsPlayer;
+    this->unk_0288 = SubS_GetPathByIndex(play, this->unk_2B6, 0x1F);
+    func_80C0BC30(this);
+    if (this->unk_0288 != NULL) {
+        sp2A = SubS_GetDistSqAndOrientPath(this->unk_0288, this->unk_028C, &this->actor.world.pos, &sp2C);
+    }
+    this->actor.world.rot.y -= 0x2EE;
+    var_v1 = ABS_ALT((s16)(this->actor.world.rot.y - sp2A));
+    func_80C0B970(this, play);
+    if (var_v1 < 0x1000) {
+        this->unk_2BC = this->actor.world.rot.y;
+        func_80C0C430(this);
+    }
+}
 
 void func_80C0C430(EnBsb* this) {
     this->unk2A4 = 0;
@@ -560,7 +580,21 @@ void func_80C0D214(EnBsb* this) {
     this->actionFunc = func_80C0D27C;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0D27C.s")
+void func_80C0D27C(EnBsb *this, PlayState *play) {
+    if (this->unk_0324 == 0xB) {
+        if ((this->unk_0322 != 0) && (this->unk_0322 < 0x3C)) {
+            this->unk_0324 = 0xA;
+        }
+    }
+    if (((this->unk_0324 == 0xB) || (this->unk_0324 == 0xA)) && (this->unk_0322 != 0)) {
+        Actor_SpawnIceEffects(play, &this->actor, &this->unk_0330, 0x11, 2, this->unk_032C, 0.4f);
+        this->unk_0322 = 0;
+        this->unk_0324 = 0;
+    }
+    if (this->unk294 == 0) {
+        func_80C0C86C(this);
+    }
+}
 
 void func_80C0D334(EnBsb* this) {
     this->actor.speed = 0.0f;
