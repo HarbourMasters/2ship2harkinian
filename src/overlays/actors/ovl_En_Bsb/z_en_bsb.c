@@ -36,6 +36,7 @@ void func_80C0CCCC(EnBsb* this);
 void func_80C0CD04(EnBsb* this, PlayState* play);
 void func_80C0CD90(EnBsb* this);
 void func_80C0CDE4(EnBsb* this, PlayState* play);
+void func_80C0CF4C(EnBsb* this);
 void func_80C0CFDC(EnBsb* this, PlayState* play);
 void func_80C0D10C(EnBsb* this, PlayState* play);
 void func_80C0D27C(EnBsb* this, PlayState* play);
@@ -689,7 +690,53 @@ void func_80C0CD90(EnBsb* this) {
     this->actionFunc = func_80C0CDE4;
 }
 
+//
+// https://decomp.me/scratch/vw91Q
+#ifdef NON_MATCHING
+void func_80C0CDE4(EnBsb* this, PlayState* play) {
+    f32 sp3C;
+    f32 curFrame = this->skelAnime.curFrame;
+    Vec3f sp34;
+    Player* temp_v0 = GET_PLAYER(play);
+    f32 x;
+    f32 y;
+    f32 z;
+    f32 temp_fv0;
+    s16 temp_v1;
+
+    sp34.x = this->unk_F34.elements[1].info.bumper.hitPos.x;
+    sp34.y = this->unk_F34.elements[1].info.bumper.hitPos.y;
+    sp34.z = this->unk_F34.elements[1].info.bumper.hitPos.z;
+
+    x = sp34.x - temp_v0->actor.world.pos.x;
+    y = sp34.y - temp_v0->actor.world.pos.y;
+    z = sp34.z - temp_v0->actor.world.pos.z;
+
+    temp_fv0 = sqrtf((SQ(x) + SQ(y)) + SQ(z));
+
+    // clang-format off
+    if (
+    this->unk_F34.base.atFlags & AT_BOUNCED
+    || temp_v0->stateFlags1 & 0x400000
+    && temp_fv0 <= 70.0f
+    && (temp_v1 = (temp_v0->actor.shape.rot.y - this->actor.shape.rot.y) + 0x8000, (temp_v1 < 0x2000) != 0) 
+    && temp_v1 > -0x2000
+    ) {
+        this->unk_F34.base.atFlags &= ~(AT_BOUNCED|AT_HIT);
+        EffectSsHitmark_SpawnFixedScale(play, 3, &sp34);
+        Actor_PlaySfx(&this->actor, 0x1806);
+        func_80C0CF4C(this);
+        return;
+    }
+    // clang-format on
+
+    if (this->unk2C4 <= curFrame) {
+        func_80C0C86C(this);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0CDE4.s")
+#endif
 
 void func_80C0CF4C(EnBsb* this) {
     this->actor.speed = 0.0f;
