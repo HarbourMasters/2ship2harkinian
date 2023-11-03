@@ -20,6 +20,7 @@ void EnBsb_Draw(Actor* thisx, PlayState* play);
 void func_80C0B970(EnBsb* this, PlayState* play);
 s32 func_80C0BC30(EnBsb* this);
 void func_80C0BE1C(EnBsb* this, PlayState* play);
+void func_80C0BF2C(EnBsb* this);
 void func_80C0BFE8(EnBsb* this, PlayState* play);
 void func_80C0C238(EnBsb* this, PlayState* play);
 void func_80C0C364(EnBsb* this, PlayState* play);
@@ -297,7 +298,23 @@ void func_80C0BE1C(EnBsb* this, PlayState* play) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0BF2C.s")
+void func_80C0BF2C(EnBsb* this) {
+    s32 i;
+
+    this->unk_F34.elements->dim.modelSphere.radius = 0x6E;
+    this->unk_F34.elements->dim.modelSphere.center.x = 0x12C;
+    this->unk_F34.elements->dim.modelSphere.center.y = 0x190;
+    this->unk_F34.base.colType = 0xC;
+
+    for (i = 0; i < 7; i++) {
+        this->unk_F34.elements[i].info.elemType = 2;
+    }
+
+    this->actor.flags |= 0x08000000;
+    gSaveContext.save.saveInfo.weekEventReg[0x55] &= 0xBF;
+    this->unk2B4 = 0;
+    this->actionFunc = func_80C0BFE8;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0BFE8.s")
 
