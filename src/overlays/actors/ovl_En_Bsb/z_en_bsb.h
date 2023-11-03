@@ -35,8 +35,10 @@ typedef struct EnBsb {
     /* 0x02D8 */ s32 unk2D8;
     /* 0x02DC */ s32 unk2DC;
     /* 0x02E0 */ char unk2E0[0xC54];
-    /* 0x0F34 */ ColliderJntSph unkF34;
+    /* 0x0F34 */ ColliderJntSph unk_F34;
     /* 0x0F54 */ ColliderJntSphElement unk_F54;
+    /* 0x0F94 */ char unk_F94[0x186];
+    /* 0x111A */ s16 unk_111A;
 } EnBsb; // size = 0x1158
 
 #endif // Z_EN_BSB_H
