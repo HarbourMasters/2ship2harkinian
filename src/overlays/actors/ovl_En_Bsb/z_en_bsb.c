@@ -613,7 +613,24 @@ void func_80C0C8EC(EnBsb* this, PlayState* play) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0CA28.s")
+void func_80C0CA28(EnBsb* this, PlayState* play) {
+    this->unk2A4 = 0;
+    this->actor.speed = 0.0f;
+
+    Actor_PlaySfx(&this->actor, NA_SE_EN_KITA_ATTACK_W);
+
+    this->actor.velocity.y = 85.0f;
+    this->actor.gravity = -8.0f;
+
+    func_80C0B290(this, 11);
+    Actor_SpawnFloorDustRing(play, &this->actor, &this->unk_0304, 5.0f, 10, 8.0f, 1000, 100, 1);
+    Actor_SpawnFloorDustRing(play, &this->actor, &this->unk_02F8, 5.0f, 10, 8.0f, 1000, 100, 1);
+    Actor_PlaySfx(&this->actor, NA_SE_EN_TEKU_JUMP);
+
+    this->actor.flags |= 0x08000000;
+    this->unk2B4 = 5;
+    this->actionFunc = func_80C0CB3C;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0CB3C.s")
 
