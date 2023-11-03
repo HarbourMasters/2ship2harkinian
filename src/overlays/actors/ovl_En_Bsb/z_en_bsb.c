@@ -843,7 +843,35 @@ void func_80C0D384(EnBsb* this, PlayState* play) {
     }
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0D3C0.s")
+void func_80C0D3C0(EnBsb* this, PlayState* play) {
+    Player* player = GET_PLAYER(play);
+    void* sp2C;
+
+    Audio_RestorePrevBgm();
+    this->unk_02A4 = 0;
+    this->unk_02A8 = 0;
+    this->unk_02AC = 0x4000;
+    this->actor.speed = 0.0f;
+    player->actor.world.rot.y = player->actor.shape.rot.y = this->actor.yawTowardsPlayer + 0x8000;
+
+    this->unk_1128.x = this->unk_1140.x = (Math_SinS(this->actor.yawTowardsPlayer) * 300.0f) + this->unk_02E0.x;
+
+    this->unk_1128.y = this->unk_1140.y = this->unk_02E0.y - 30.0f;
+
+    this->unk_1128.z = this->unk_1140.z = (Math_CosS(this->actor.yawTowardsPlayer) * 300.0f) + this->unk_02E0.z;
+
+    this->unk_1134.x = this->unk_114C.x = (Math_SinS(this->actor.yawTowardsPlayer) * 10.0f) + this->unk_02E0.x;
+
+    this->unk_1134.y = this->unk_114C.y = this->unk_02E0.y - 10.0f;
+
+    this->unk_1134.z = this->unk_114C.z = Math_CosS(this->actor.yawTowardsPlayer) * 10.0f + this->unk_02E0.z;
+    
+    this->unk_1124 = 60.0f;
+    func_80C0B290(this, 2);
+    this->unk_02B4 = 9;
+    this->actionFunc = func_80C0D51C;
+    this->actor.velocity.y = 30.0f;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0D51C.s")
 
