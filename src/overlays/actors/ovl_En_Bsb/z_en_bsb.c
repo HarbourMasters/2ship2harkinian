@@ -132,13 +132,17 @@ extern ColliderJntSphElementInit D_80C0F8D4[7];
 extern ColliderJntSphInit D_80C0F9D0;
 extern DamageTable D_80C0F9E0;
 
-extern UNK_TYPE D_06000C50;
+extern AnimationHeader* D_06000C50[];
 extern UNK_TYPE D_06004894;
 
-extern AnimationHeader D_060086BC;
-extern SkeletonHeader D_0600C3E0;
+extern AnimationHeader* D_80C0FA20[];
+extern u8 D_80C0FA84[];
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0B290.s")
+void func_80C0B290(EnBsb *this, s32 animIndex) {
+    this->unk2D8 = animIndex;
+    this->unk2C4 = Animation_GetLastFrame(D_80C0FA20[animIndex]);
+    Animation_Change(&this->skelAnime, D_80C0FA20[this->unk2D8], 1.0f, 0.0f, this->unk2C4, D_80C0FA84[this->unk2D8], -2.0f);
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0B31C.s")
 
@@ -248,7 +252,16 @@ void func_80C0C430(EnBsb* this) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0C6A8.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0C86C.s")
+void func_80C0C86C(EnBsb *this) {
+    this->unk2A4 = 0;
+    this->unk2DC = 1;
+    this->actor.speed = 2.0f;
+    func_80C0B290(this, 4);
+    this->unk294 = Rand_S16Offset(0, 0x1E);
+    WEEKEVENTREG(0x55) |= 0x40;
+    this->unk2B4 = 4;
+    this->actionFunc = func_80C0C8EC;
+}
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0C8EC.s")
 
@@ -261,7 +274,18 @@ void func_80C0CCCC(EnBsb* this) {
     this->actionFunc = func_80C0CD04;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0CD04.s")
+void func_80C0CD04(EnBsb *this, PlayState *play) {
+    f32 var_0 = this->skelAnime.curFrame;
+
+    if ((this->unk2D8 == 0x18) && (var_0 >= this->unk2C4)) {
+        this->actor.flags &= 0xF7FFFFFF;
+        this->actor.gravity = -2.0f;
+        this->unk294 = 0xA;
+        func_80C0C86C(this);
+    } else if (this->unk2D8 == 0x17) {
+        func_80C0B290(this, 0x18);
+    }
+}
 
 void func_80C0CD90(EnBsb* this) {
     this->unk2A4 = 0;
@@ -274,7 +298,15 @@ void func_80C0CD90(EnBsb* this) {
 
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0CDE4.s")
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0CF4C.s")
+void func_80C0CF4C(EnBsb *this) {
+    this->actor.speed = 0.0f;
+    this->unk2A4 = 0;
+    Animation_Change(&this->skelAnime, D_06000C50, -1.0f, this->skelAnime.curFrame - 1.0f, 0.0f, 2, 0.0f);
+    this->unk294 = 0xA;
+    Actor_PlaySfx(this, NA_SE_EN_KTIA_PAUSE_K);
+    this->unk2B4 = 7;
+    this->actionFunc = func_80C0CFDC;
+}
 
 void func_80C0CFDC(EnBsb* this, PlayState* play) {
     if (this->unk294 == 0) {
@@ -305,7 +337,7 @@ void func_80C0D334(EnBsb* this) {
     this->actionFunc = func_80C0D384;
 }
 
-void func_80C0D384(EnBsb* this, PlayState* play) {
+void func_80C0D384(EnBsb *this, PlayState *play) {
     f32 var_v0 = this->skelAnime.curFrame;
 
     if (this->unk2C4 <= var_v0) {
