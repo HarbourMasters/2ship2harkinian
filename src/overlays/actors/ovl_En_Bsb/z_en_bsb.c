@@ -514,15 +514,15 @@ void func_80C0D214(EnBsb* this) {
 }
 
 void func_80C0D27C(EnBsb *this, PlayState *play) {
-    if (this->unk_324 == 0xB) {
-        if ((this->unk_322 != 0) && (this->unk_322 < 0x3C)) {
-            this->unk_324 = 0xA;
+    if (this->unk_0324 == 0xB) {
+        if ((this->unk_0322 != 0) && (this->unk_0322 < 0x3C)) {
+            this->unk_0324 = 0xA;
         }
     }
-    if (((this->unk_324 == 0xB) || (this->unk_324 == 0xA)) && (this->unk_322 != 0)) {
-        Actor_SpawnIceEffects(play, &this->actor, &this->unk_330, 0x11, 2, this->unk_32C, 0.4f);
-        this->unk_322 = 0;
-        this->unk_324 = 0;
+    if (((this->unk_0324 == 0xB) || (this->unk_0324 == 0xA)) && (this->unk_0322 != 0)) {
+        Actor_SpawnIceEffects(play, &this->actor, &this->unk_0330, 0x11, 2, this->unk_032C, 0.4f);
+        this->unk_0322 = 0;
+        this->unk_0324 = 0;
     }
     if (this->unk294 == 0) {
         func_80C0C86C(this);
