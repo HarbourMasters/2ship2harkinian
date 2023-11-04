@@ -62,7 +62,7 @@ typedef struct EnBsb {
     /* 0x0330 */ Vec3f unk_0330[17];
     /* 0x03FC */ s32 unk_03FC[17];
     /* 0x0440 */ s16 unk_0440;
-    /* 0x0444 */ EnBsbUnkStruct unk_0444[0x32];
+    /* 0x0444 */ EnBsbUnkStruct unk_0444[50];
     /* 0x0F34 */ ColliderJntSph unk_0F34;
     /* 0x0F54 */ ColliderJntSphElement unk_0F54[7];
     /* 0x1114 */ u32 unk_1114;
