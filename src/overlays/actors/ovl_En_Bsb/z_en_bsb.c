@@ -967,25 +967,22 @@ void func_80C0D384(EnBsb* this, PlayState* play) {
 
 void func_80C0D3C0(EnBsb* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
-    void* sp2C;
 
     Audio_RestorePrevBgm();
+
     this->unk_02A4 = 0;
     this->unk_02A8 = 0;
     this->unk_02AC = 0x4000;
     this->actor.speed = 0.0f;
+
     player->actor.world.rot.y = player->actor.shape.rot.y = this->actor.yawTowardsPlayer + 0x8000;
 
     this->unk_1128.x = this->unk_1140.x = (Math_SinS(this->actor.yawTowardsPlayer) * 300.0f) + this->unk_02E0.x;
-
     this->unk_1128.y = this->unk_1140.y = this->unk_02E0.y - 30.0f;
-
     this->unk_1128.z = this->unk_1140.z = (Math_CosS(this->actor.yawTowardsPlayer) * 300.0f) + this->unk_02E0.z;
 
     this->unk_1134.x = this->unk_114C.x = (Math_SinS(this->actor.yawTowardsPlayer) * 10.0f) + this->unk_02E0.x;
-
     this->unk_1134.y = this->unk_114C.y = this->unk_02E0.y - 10.0f;
-
     this->unk_1134.z = this->unk_114C.z = Math_CosS(this->actor.yawTowardsPlayer) * 10.0f + this->unk_02E0.z;
 
     this->unk_1124 = 60.0f;
@@ -1268,9 +1265,8 @@ void func_80C0E178(EnBsb* this) {
 }
 
 void func_80C0E1C0(EnBsb* this, PlayState* play) {
-    EnBsb* newActor;
-    f32 curFrame = this->skelAnime.curFrame;
     s32 i;
+    f32 curFrame = this->skelAnime.curFrame;
 
     if (this->unk_02D8 == 16) {
         if (Animation_OnFrame(&this->skelAnime, 30.0f) != 0) {
@@ -1286,6 +1282,7 @@ void func_80C0E1C0(EnBsb* this, PlayState* play) {
 
     if (this->unk_02A4 == 0) {
         if (WEEKEVENTREG(0x17) & 4) {
+            EnBsb* newActor;
             //! FAKE:
             if (1) {}
 
