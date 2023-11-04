@@ -944,19 +944,18 @@ void func_80C0D3C0(EnBsb* this, PlayState* play) {
 }
 
 void func_80C0D51C(EnBsb* this, PlayState* play) {
-    f32 curFrame;
+    f32 curFrame = this->skelAnime.curFrame;
     s32 var_v0;
     f32 newSinX;
     f32 newSinY;
     Player* player;
 
-    curFrame = this->skelAnime.curFrame;
-
-    if (((this->unk_0324 == 0xB) || (this->unk_0324 == 0xA)) && (this->unk_0322 != 0)) {
+    if (((this->unk_0324 == 11) || (this->unk_0324 == 10)) && (this->unk_0322 != 0)) {
         Actor_SpawnIceEffects(play, &this->actor, this->unk_0330, 0x11, 2, this->unk_032C, 0.4f);
         this->unk_0322 = 0;
         this->unk_0324 = 0;
     }
+
     if (this->unk_02A4 == 0) {
         if (CutsceneManager_IsNext(this->unk_02CC[1]) == 0) {
             CutsceneManager_Queue(this->unk_02CC[1]);
@@ -969,7 +968,7 @@ void func_80C0D51C(EnBsb* this, PlayState* play) {
     }
 
     if (this->unk_02A8 == 2) {
-        f32 blah;
+        s32 pad;
         newSinX = Math_SinS(this->actor.world.rot.y) * 380.f;
         newSinY = Math_CosS(this->actor.world.rot.y) * 380.f;
 
@@ -985,6 +984,7 @@ void func_80C0D51C(EnBsb* this, PlayState* play) {
         this->unk_114C.y = this->unk_02E0.y - 10.0f;
         this->unk_114C.z = (Math_CosS(this->actor.world.rot.y) * 10.0f) + this->unk_02E0.z;
     }
+
     if (this->unk_02A8 == 0) {
         this->actor.world.rot.y += this->unk_02AC;
         Math_SmoothStepToS(&this->unk_02AC, 0x1000, 1, 0x1F4, 0);
@@ -997,6 +997,7 @@ void func_80C0D51C(EnBsb* this, PlayState* play) {
         Math_SmoothStepToS(&this->actor.world.rot.y, this->actor.yawTowardsPlayer, 1, 0x3E8, 0);
         var_v0 = ABS_ALT((s16)(this->actor.yawTowardsPlayer - this->actor.world.rot.y));
     }
+
     if ((this->unk_02A8 != 0) && (var_v0 < 0x100) && (this->actor.world.pos.y < (this->actor.floorHeight + 30.0f))) {
         this->unk_02A8 = 2;
         if (this->unk_02D8 < 9) {
@@ -1005,9 +1006,9 @@ void func_80C0D51C(EnBsb* this, PlayState* play) {
             func_800B7298(play, &this->actor, 4);
             player->actor.velocity.y = 5.0f;
             Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos, this->actor.shape.shadowScale - 20.0f,
-                                     0x14, 8.0f, 0x3E8, 0x64, 1);
-            Actor_PlaySfx(&this->actor, 0x387BU);
-            Actor_RequestQuakeAndRumble(&this->actor, play, 4, 0xA);
+                                     0x14, 8.0f, 1000, 100, 1);
+            Actor_PlaySfx(&this->actor, NA_SE_EN_EYEGOLE_ATTACK);
+            Actor_RequestQuakeAndRumble(&this->actor, play, 4, 10);
         } else if ((this->unk_02D8 == 9) && (curFrame >= this->unk_02C4)) {
             func_80C0B290(this, 0xA);
             func_800B7298(play, &this->actor, 0x51);
