@@ -6,6 +6,7 @@
 
 #include "z_en_bsb.h"
 #include "objects/object_bsb/object_bsb.h"
+#include "objects/gameplay_keep/gameplay_keep.h"
 #include "z64rumble.h"
 #include "z64shrink_window.h"
 
@@ -63,47 +64,102 @@ void func_80C0F544(EnBsb* this, Vec3f* pos, Vec3f* unk_02, Vec3f* unk3, f32 unk4
 void func_80C0F640(EnBsb* this, PlayState* play);
 void func_80C0F758(EnBsb* this, PlayState* play);
 
-#if 0
-// static ColliderJntSphElementInit sJntSphElementsInit[7] = {
-static ColliderJntSphElementInit D_80C0F8D4[7] = {
+f32 D_80C0F8D0 = 0.0f;
+
+static ColliderJntSphElementInit sJntSphElementsInit[7] = {
     {
-        { ELEMTYPE_UNK0, { 0x00000000, 0x00, 0x00 }, { 0xF7CFFFFF, 0x00, 0x00 }, TOUCH_NONE | TOUCH_SFX_NORMAL, BUMP_ON, OCELEM_ON, },
+        {
+            ELEMTYPE_UNK0,
+            { 0x00000000, 0x00, 0x00 },
+            { 0xF7CFFFFF, 0x00, 0x00 },
+            TOUCH_NONE | TOUCH_SFX_NORMAL,
+            BUMP_ON,
+            OCELEM_ON,
+        },
         { 10, { { 1000, 400, 0 }, 40 }, 100 },
     },
     {
-        { ELEMTYPE_UNK0, { 0xF7CFFFFF, 0x04, 0x08 }, { 0x00000000, 0x00, 0x00 }, TOUCH_ON | TOUCH_SFX_NORMAL, BUMP_ON, OCELEM_ON, },
+        {
+            ELEMTYPE_UNK0,
+            { 0xF7CFFFFF, 0x04, 0x08 },
+            { 0x00000000, 0x00, 0x00 },
+            TOUCH_ON | TOUCH_SFX_NORMAL,
+            BUMP_ON,
+            OCELEM_ON,
+        },
         { 9, { { 0, 700, 200 }, 35 }, 100 },
     },
     {
-        { ELEMTYPE_UNK0, { 0x00000000, 0x00, 0x00 }, { 0xF7CFFFFF, 0x00, 0x00 }, TOUCH_NONE | TOUCH_SFX_NORMAL, BUMP_ON, OCELEM_ON, },
+        {
+            ELEMTYPE_UNK0,
+            { 0x00000000, 0x00, 0x00 },
+            { 0xF7CFFFFF, 0x00, 0x00 },
+            TOUCH_NONE | TOUCH_SFX_NORMAL,
+            BUMP_ON,
+            OCELEM_ON,
+        },
         { 6, { { 100, 600, 0 }, 35 }, 100 },
     },
     {
-        { ELEMTYPE_UNK0, { 0x00000000, 0x00, 0x00 }, { 0xF7CFFFFF, 0x00, 0x00 }, TOUCH_NONE | TOUCH_SFX_NORMAL, BUMP_ON, OCELEM_NONE, },
+        {
+            ELEMTYPE_UNK0,
+            { 0x00000000, 0x00, 0x00 },
+            { 0xF7CFFFFF, 0x00, 0x00 },
+            TOUCH_NONE | TOUCH_SFX_NORMAL,
+            BUMP_ON,
+            OCELEM_NONE,
+        },
         { 3, { { 400, 200, 0 }, 40 }, 100 },
     },
     {
-        { ELEMTYPE_UNK0, { 0x00000000, 0x00, 0x00 }, { 0xF7CFFFFF, 0x00, 0x00 }, TOUCH_NONE | TOUCH_SFX_NORMAL, BUMP_ON, OCELEM_ON, },
+        {
+            ELEMTYPE_UNK0,
+            { 0x00000000, 0x00, 0x00 },
+            { 0xF7CFFFFF, 0x00, 0x00 },
+            TOUCH_NONE | TOUCH_SFX_NORMAL,
+            BUMP_ON,
+            OCELEM_ON,
+        },
         { 13, { { 700, -100, 0 }, 35 }, 100 },
     },
     {
-        { ELEMTYPE_UNK0, { 0x00000000, 0x00, 0x00 }, { 0xF7CFFFFF, 0x00, 0x00 }, TOUCH_NONE | TOUCH_SFX_NORMAL, BUMP_ON, OCELEM_ON, },
+        {
+            ELEMTYPE_UNK0,
+            { 0x00000000, 0x00, 0x00 },
+            { 0xF7CFFFFF, 0x00, 0x00 },
+            TOUCH_NONE | TOUCH_SFX_NORMAL,
+            BUMP_ON,
+            OCELEM_ON,
+        },
         { 16, { { 200, 300, 0 }, 30 }, 100 },
     },
     {
-        { ELEMTYPE_UNK0, { 0x00000000, 0x00, 0x00 }, { 0xF7CFFFFF, 0x00, 0x00 }, TOUCH_NONE | TOUCH_SFX_NORMAL, BUMP_ON, OCELEM_ON, },
+        {
+            ELEMTYPE_UNK0,
+            { 0x00000000, 0x00, 0x00 },
+            { 0xF7CFFFFF, 0x00, 0x00 },
+            TOUCH_NONE | TOUCH_SFX_NORMAL,
+            BUMP_ON,
+            OCELEM_ON,
+        },
         { 19, { { 200, 300, 0 }, 30 }, 100 },
     },
 };
 
-// static ColliderJntSphInit sJntSphInit = {
-static ColliderJntSphInit D_80C0F9D0 = {
-    { COLTYPE_HIT6, AT_ON | AT_TYPE_ENEMY, AC_ON | AC_TYPE_PLAYER, OC1_ON | OC1_TYPE_PLAYER, OC2_TYPE_1, COLSHAPE_JNTSPH, },
-    ARRAY_COUNT(sJntSphElementsInit), D_80C0F8D4, // sJntSphElementsInit,
+static ColliderJntSphInit sJntSphInit = {
+    {
+        COLTYPE_HIT6,
+        AT_ON | AT_TYPE_ENEMY,
+        AC_ON | AC_TYPE_PLAYER,
+        OC1_ON | OC1_TYPE_PLAYER,
+        OC2_TYPE_1,
+        COLSHAPE_JNTSPH,
+    },
+    ARRAY_COUNT(sJntSphElementsInit),
+    sJntSphElementsInit,
 };
 
-// static DamageTable sDamageTable = {
-static DamageTable D_80C0F9E0 = {
+static DamageTable sDamageTable = {
     /* Deku Nut       */ DMG_ENTRY(0, 0x1),
     /* Deku Stick     */ DMG_ENTRY(1, 0xD),
     /* Horse trample  */ DMG_ENTRY(0, 0x0),
@@ -150,26 +206,31 @@ ActorInit En_Bsb_InitVars = {
     /**/ EnBsb_Draw,
 };
 
-#endif
+AnimationHeader* D_80C0FA20[0x19] = {
+    (AnimationHeader*)0x060086BC, (AnimationHeader*)0x0600CD88, (AnimationHeader*)0x06000400,
+    (AnimationHeader*)0x060065D8, (AnimationHeader*)0x06000FF0, (AnimationHeader*)0x06000C50,
+    (AnimationHeader*)0x06006C48, (AnimationHeader*)0x06001390, (AnimationHeader*)0x06002AF4,
+    (AnimationHeader*)0x06002590, (AnimationHeader*)0x06007120, (AnimationHeader*)0x060043A4,
+    (AnimationHeader*)0x06007B18, (AnimationHeader*)0x06001CD8, (AnimationHeader*)0x06003E1C,
+    (AnimationHeader*)0x06003238, (AnimationHeader*)0x0600606C, (AnimationHeader*)0x06005440,
+    (AnimationHeader*)0x06004E2C, (AnimationHeader*)0x06004894, (AnimationHeader*)0x06004208,
+    (AnimationHeader*)0x0600D3CC, (AnimationHeader*)0x06004510, (AnimationHeader*)0x06001F90,
+    (AnimationHeader*)0x0600C790,
+};
 
-extern ColliderJntSphElementInit D_80C0F8D4[7];
-extern f32 D_80C0F8D0;
-extern ColliderJntSphInit D_80C0F9D0;
-extern DamageTable D_80C0F9E0;
-extern Vec3f D_80C0FAA0;
-extern Vec3f D_80C0FAAC;
-extern Vec3s D_80C0FAB8;
-extern Vec3s D_80C0FAC0;
+u8 D_80C0FA84[0x1C] = {
+    2, 0, 2, 0, 0, 2, 0, 0, 2, 2, 0, 2, 0, 0, 2, 0, 2, 0, 2, 0, 0, 0, 2, 2, 2, 0, 0, 0,
+};
 
-extern AnimationHeader D_06000C50[];
-extern UNK_TYPE D_06004894;
-extern Mtx D_0406AB30;
+Vec3f D_80C0FAA0 = { 0.0f, 8.0f, 0.0f };
 
-extern AnimationHeader* D_80C0FA20[];
-extern u8 D_80C0FA84[];
+Vec3f D_80C0FAAC = { 0.0f, -1.5f, 0.0f };
 
-extern AnimationHeader D_060086BC;
-extern SkeletonHeader D_0600C3E0;
+Vec3s D_80C0FAB8 = { 0x2EE0, -0x2710, 0xB5C8 };
+
+Vec3s D_80C0FAC0 = { -0x2710, 0x2710, -0x2710 };
+
+Vec3f D_80C0FAC8[2] = { { -80.0f, 475.0f, -2330.0f }, { 0.0f, 0.0f, 0.0f } };
 
 void func_80C0B290(EnBsb* this, s32 animIndex) {
     this->unk_02D8 = animIndex;
@@ -233,17 +294,18 @@ void EnBsb_Init(Actor* thisx, PlayState* play) {
     this->actor.colChkInfo.mass = 0xFF;
 
     if (this->actor.params & 0x8000) {
-        SkelAnime_Init(play, &this->skelAnime, &D_0600C3E0, (AnimationHeader*)&D_06004894, this->unk_0188,
+        SkelAnime_Init(play, &this->skelAnime, &object_bsb_Skel_00C3E0, &object_bsb_Anim_004894, this->unk_0188,
                        this->unk_0206, 0x15);
         this->unk_02B0 = this->actor.params & 0xFF;
         func_80C0E3B8(this);
         return;
     }
 
-    this->actor.colChkInfo.damageTable = &D_80C0F9E0;
+    this->actor.colChkInfo.damageTable = &sDamageTable;
 
     ActorShape_Init(&this->actor.shape, 0.0f, ActorShadow_DrawCircle, 0.0f);
-    SkelAnime_Init(play, &this->skelAnime, &D_0600C3E0, &D_060086BC, this->unk_0188, this->unk_0206, 0x15);
+    SkelAnime_Init(play, &this->skelAnime, &object_bsb_Skel_00C3E0, &object_bsb_Anim_0086BC, this->unk_0188,
+                   this->unk_0206, 0x15);
 
     this->unk_02B6 = (this->actor.params >> 7) & 0x1F;
     this->unk_02B8 = this->actor.params & 0x7F;
@@ -252,7 +314,7 @@ void EnBsb_Init(Actor* thisx, PlayState* play) {
     this->actor.hintId = 0x21;
     this->actor.gravity = -2.0f;
 
-    Collider_InitAndSetJntSph(play, &this->unk_0F34, &this->actor, &D_80C0F9D0, this->unk_0F54);
+    Collider_InitAndSetJntSph(play, &this->unk_0F34, &this->actor, &sJntSphInit, this->unk_0F54);
 
     if (this->unk_02B6 == 0x1F) {
         Actor_Kill(&this->actor);
@@ -803,7 +865,7 @@ void func_80C0CDE4(EnBsb* this, PlayState* play) {
 void func_80C0CF4C(EnBsb* this) {
     this->actor.speed = 0.0f;
     this->unk_02A4 = 0;
-    Animation_Change(&this->skelAnime, &D_06000C50[0], -1.0f, this->skelAnime.curFrame - 1.0f, 0.0f, 2, 0.0f);
+    Animation_Change(&this->skelAnime, &object_bsb_Anim_000C50, -1.0f, this->skelAnime.curFrame - 1.0f, 0.0f, 2, 0.0f);
     this->unk_0294 = 0xA;
     Actor_PlaySfx(&this->actor, NA_SE_EN_KTIA_PAUSE_K);
     this->unk_02B4 = 7;
@@ -1032,7 +1094,7 @@ void func_80C0D9B4(EnBsb* this, PlayState* play) {
 }
 
 void func_80C0DA58(EnBsb* this) {
-    this->unk_1118 = (this->unk_111C = 0);
+    this->unk_1118 = this->unk_111C = 0;
     this->actor.speed = 0.0f;
     this->unk_1120 = 0.0f;
     this->unk_02A4 = 0;
@@ -1114,7 +1176,7 @@ void func_80C0DB18(EnBsb* this, PlayState* play) {
 
         case 1:
             if ((Animation_OnFrame(&this->skelAnime, 7.0f) != 0) || (Animation_OnFrame(&this->skelAnime, 15.0f) != 0)) {
-                Actor_PlaySfx(&this->actor, 0x3AA3);
+                Actor_PlaySfx(&this->actor, NA_SE_EN_KTIA_PAUSE_K);
             }
 
             Math_SmoothStepToS(&this->actor.world.rot.y, Math_Vec3f_Yaw(&this->actor.world.pos, &this->unk_02EC), 1,
@@ -1135,8 +1197,8 @@ void func_80C0DB18(EnBsb* this, PlayState* play) {
             Math_SmoothStepToS(&this->actor.world.rot.y, sp52, 1, 0x7D0, 0);
 
             if (ABS_ALT((s16)(this->actor.world.rot.y - sp52)) < 0x100) {
-                Actor_PlaySfx(&this->actor, 0x3AA4);
-                func_80C0B290(this, 0x15);
+                Actor_PlaySfx(&this->actor, NA_SE_EN_KITA_LAUGH_K);
+                func_80C0B290(this, 21);
                 this->unk_1118++;
                 Message_StartTextbox(play, 0x1541, &this->actor);
             }
@@ -1156,10 +1218,10 @@ void func_80C0DB18(EnBsb* this, PlayState* play) {
             Math_SmoothStepToS(&this->actor.world.rot.y, sp52, 1, 0x7D0, 0);
 
             if (ABS_ALT((s16)(this->actor.world.rot.y - sp52)) < 0x100) {
-                Actor_PlaySfx(&this->actor, 0x386CU);
+                Actor_PlaySfx(&this->actor, NA_SE_EN_TEKU_JUMP);
                 this->actor.velocity.y = 20.0f;
                 this->actor.speed = 3.0f;
-                func_80C0B290(this, 0xB);
+                func_80C0B290(this, 11);
                 this->unk_1118++;
             }
             break;
@@ -1167,10 +1229,10 @@ void func_80C0DB18(EnBsb* this, PlayState* play) {
         case 5:
             if (this->actor.world.pos.y < (this->actor.home.pos.y + 30.0f)) {
                 Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos,
-                                         this->actor.shape.shadowScale - 20.0f, 0x14, 8.0f, 0x3E8, 0x64, 1);
+                                         this->actor.shape.shadowScale - 20.0f, 0x14, 8.0f, 1000, 100, 1);
                 this->actor.speed = 0.0f;
-                Actor_PlaySfx(&this->actor, 0x380DU);
-                Actor_RequestQuakeAndRumble(&this->actor, play, 4, 0xA);
+                Actor_PlaySfx(&this->actor, NA_SE_EN_GOMA_DOWN);
+                Actor_RequestQuakeAndRumble(&this->actor, play, 4, 10);
                 this->unk_1118++;
             }
             break;
@@ -1265,8 +1327,8 @@ void func_80C0E3B8(EnBsb* this) {
     this->actor.flags |= 0x08000000;
     this->actor.flags &= ~1;
 
-    Animation_Change(&this->skelAnime, &object_bsb_Anim_004894, 1.0f, D_80C0F8D0, Animation_GetLastFrame(&D_06004894),
-                     2, 0.0f);
+    Animation_Change(&this->skelAnime, &object_bsb_Anim_004894, 1.0f, D_80C0F8D0,
+                     Animation_GetLastFrame(&object_bsb_Anim_004894), 2, 0.0f);
     SkelAnime_Update(&this->skelAnime);
 
     this->unk_02B4 = 0xF;
@@ -1743,7 +1805,7 @@ void func_80C0F758(EnBsb* this, PlayState* play) {
 
             gDPSetEnvColor(POLY_OPA_DISP++, 255, 255, 255, 255);
 
-            gSPDisplayList(POLY_OPA_DISP++, &D_0406AB30);
+            gSPDisplayList(POLY_OPA_DISP++, gameplay_keep_DL_06AB30);
 
             Matrix_Pop();
         }
