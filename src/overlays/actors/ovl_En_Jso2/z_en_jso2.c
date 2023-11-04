@@ -5,6 +5,8 @@
  */
 
 #include "z_en_jso2.h"
+#include "objects/object_jso/object_jso.h"
+#include "objects/gameplay_keep/gameplay_keep.h"
 
 #define FLAGS                                                                                            \
     (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_10 | ACTOR_FLAG_20 | ACTOR_FLAG_100000 | \
@@ -52,7 +54,6 @@ void func_80A7A2EC(EnJso2* this, PlayState* play);
 s32 func_80A7AA48(PlayState* play, s32 arg1, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx);
 void func_80A7AA9C(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Actor* thisx);
 
-#if 0
 // static DamageTable sDamageTable = {
 static DamageTable D_80A7B4F0 = {
     /* Deku Nut       */ DMG_ENTRY(0, 0x1),
@@ -89,30 +90,9 @@ static DamageTable D_80A7B4F0 = {
     /* Powder Keg     */ DMG_ENTRY(1, 0xF),
 };
 
-ActorInit En_Jso2_InitVars = {
-    /**/ ACTOR_EN_JSO2,
-    /**/ ACTORCAT_ENEMY,
-    /**/ FLAGS,
-    /**/ OBJECT_JSO,
-    /**/ sizeof(EnJso2),
-    /**/ EnJso2_Init,
-    /**/ EnJso2_Destroy,
-    /**/ EnJso2_Update,
-    /**/ EnJso2_Draw,
-};
-
-// static ColliderCylinderInit sCylinderInit = {
-static ColliderCylinderInit D_80A7B608 = {
-    { COLTYPE_NONE, AT_ON | AT_TYPE_ENEMY, AC_ON | AC_HARD | AC_TYPE_PLAYER, OC1_ON | OC1_TYPE_ALL, OC2_TYPE_1, COLSHAPE_CYLINDER, },
-    { ELEMTYPE_UNK0, { 0xF7CFFFFF, 0x08, 0x04 }, { 0xF7CFFFFF, 0x00, 0x00 }, TOUCH_ON | TOUCH_SFX_NORMAL, BUMP_ON, OCELEM_ON, },
-    { 22, 70, 0, { 0, 0, 0 } },
-};
-
-// static ColliderQuadInit sQuadInit = {
-static ColliderQuadInit D_80A7B634 = {
-    { COLTYPE_NONE, AT_ON | AT_TYPE_ENEMY, AC_NONE, OC1_NONE, OC2_NONE, COLSHAPE_QUAD, },
-    { ELEMTYPE_UNK0, { 0xF7CFFFFF, 0x09, 0x10 }, { 0x00000000, 0x00, 0x00 }, TOUCH_ON | TOUCH_SFX_NORMAL | TOUCH_UNK7, BUMP_NONE, OCELEM_NONE, },
-    { { { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } } },
+Vec3f D_80A7B510[] = {
+    { 0.003f, 0.003f, 0.003f }, { 0.002f, 0.002f, 0.002f }, { 0.001f, 0.001f, 0.001f },
+    { 0.003f, 0.003f, 0.003f }, { 0.002f, 0.002f, 0.002f }, { 0.001f, 0.001f, 0.001f },
 };
 
 static Vec3f D_80A7B558 = { 800.0f, -20.0f, -50.0f };
@@ -127,46 +107,87 @@ static Vec3f D_80A7B5B8 = { 100.0f, -100.0f, 60.0f };
 static Vec3f D_80A7B5C4 = { 600.0f, -100.0f, -100.0f };
 static Vec3f D_80A7B5D0 = { 300.0f, -100.0f, -80.0f };
 static Vec3f D_80A7B5DC = { 100.0f, -100.0f, -60.0f };
-static ? D_80A7B6FC;
+
+ActorInit En_Jso2_InitVars = {
+    /**/ ACTOR_EN_JSO2,
+    /**/ ACTORCAT_ENEMY,
+    /**/ FLAGS,
+    /**/ OBJECT_JSO,
+    /**/ sizeof(EnJso2),
+    /**/ EnJso2_Init,
+    /**/ EnJso2_Destroy,
+    /**/ EnJso2_Update,
+    /**/ EnJso2_Draw,
+};
+
+// static ColliderCylinderInit sCylinderInit = {
+static ColliderCylinderInit D_80A7B608 = {
+    {
+        COLTYPE_NONE,
+        AT_ON | AT_TYPE_ENEMY,
+        AC_ON | AC_HARD | AC_TYPE_PLAYER,
+        OC1_ON | OC1_TYPE_ALL,
+        OC2_TYPE_1,
+        COLSHAPE_CYLINDER,
+    },
+    {
+        ELEMTYPE_UNK0,
+        { 0xF7CFFFFF, 0x08, 0x04 },
+        { 0xF7CFFFFF, 0x00, 0x00 },
+        TOUCH_ON | TOUCH_SFX_NORMAL,
+        BUMP_ON,
+        OCELEM_ON,
+    },
+    { 22, 70, 0, { 0, 0, 0 } },
+};
+
+// static ColliderQuadInit sQuadInit = {
+static ColliderQuadInit D_80A7B634 = {
+    {
+        COLTYPE_NONE,
+        AT_ON | AT_TYPE_ENEMY,
+        AC_NONE,
+        OC1_NONE,
+        OC2_NONE,
+        COLSHAPE_QUAD,
+    },
+    {
+        ELEMTYPE_UNK0,
+        { 0xF7CFFFFF, 0x09, 0x10 },
+        { 0x00000000, 0x00, 0x00 },
+        TOUCH_ON | TOUCH_SFX_NORMAL | TOUCH_UNK7,
+        BUMP_NONE,
+        OCELEM_NONE,
+    },
+    { { { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f } } },
+};
+
+static AnimationHeader* D_80A7B684[0x16] = {
+    &gGaroDashAttackAnim,  &gGaroSlashStartAnim,
+    &gGaroSlashLoopAnim,   &gGaroJumpBackAnim,
+    &gGaroDamagedAnim,     &gGaroGuardAnim,
+    &gGaroAppearAnim,      &gGaroIdleAnim,
+    &gGaroBounceAnim,      &gGaroFallDownAnim,
+    &gGaroKnockedBackAnim, &gGaroCowerAnim,
+    &gGaroLookAroundAnim,  &gGaroAppearAndDrawSwordsAnim,
+    &gGaroSpinAttackAnim,  &gGaroLandAnim,
+    &gGaroJumpDownAnim,    &gGaroLaughAnim,
+    &gGaroDrawSwordsAnim,  &gGaroCollapseAnim,
+    &gGaroTrembleAnim,     &gGaroTakeOutBombAnim,
+};
+
+static u8 D_80A7B6DC[] = { 2, 2, 0, 2, 0, 2, 0, 0, 0, 2, 2, 0, 0, 2, 0, 2, 2, 0, 2, 2, 0, 2, 0, 0 };
+
+static Vec3s D_80A7B6F4 = { 350, -20, -3430 };
+
+static Vec3f D_80A7B6FC = { 0.0f, 0.0f, 0.0f };
+
 static Vec3f D_80A7B708 = { 1600.0f, 0.0f, 0.0f };
 static Vec3f D_80A7B714 = { 0.0f, 0.0f, 0.0f };
 static Vec3f D_80A7B720 = { 1700.0f, 0.0f, 0.0f };
 static Vec3f D_80A7B72C = { 0.0f, 0.0f, 0.0f };
 
-static s16 D_80A7B738[0x14] = { 0x80, 0, 0, 0, 0, 0x80, 0, 0, 0, 0, 0x80, 0, 0, 0, 0, 0x80, 0, 0, 0, 0 };
-
-#endif
-
-extern DamageTable D_80A7B4F0;
-extern ColliderCylinderInit D_80A7B608;
-extern ColliderQuadInit D_80A7B634;
-
-extern UNK_TYPE D_06002ED8;
-extern UNK_TYPE D_060081F4;
-extern AnimationHeader* D_80A7B684[];
-extern Vec3f D_80A7B510[6];
-extern Vec3f D_80A7B558;
-extern Vec3f D_80A7B564;
-extern Vec3f D_80A7B570;
-extern Vec3f D_80A7B57C;
-extern Vec3f D_80A7B588;
-extern Vec3f D_80A7B594;
-extern Vec3f D_80A7B5A0;
-extern Vec3f D_80A7B5AC;
-extern Vec3f D_80A7B5B8;
-extern Vec3f D_80A7B5C4;
-extern Vec3f D_80A7B5D0;
-extern Vec3f D_80A7B5DC;
-extern u8 D_80A7B6DC[];
-extern Vec3f D_80A7B6FC;
-extern Vec3f D_80A7B708;
-extern Vec3f D_80A7B714;
-extern Vec3f D_80A7B720;
-extern Vec3f D_80A7B72C;
-extern Gfx D_0407D590[];
-extern s16 D_80A7B738[20];
-
-extern FlexSkeletonHeader D_06003168;
+static s16 D_80A7B738[] = { 128, 0, 0, 0, 0, 128, 0, 0, 0, 0, 128, 0, 0, 0, 0, 128, 0, 0, 0, 0 };
 
 #ifdef NON_MATCHING
 void EnJso2_Init(Actor* thisx, PlayState* play) {
@@ -181,8 +202,8 @@ void EnJso2_Init(Actor* thisx, PlayState* play) {
     ActorShape_Init(&this->actor.shape, 0.0f, ActorShadow_DrawCircle, 0.0f);
     this->actor.colChkInfo.damageTable = &D_80A7B4F0;
     this->actor.shape.shadowScale = 0.0f;
-    SkelAnime_InitFlex(play, &this->skelAnime, &D_06003168, (AnimationHeader*)&D_060081F4, this->jointTable,
-                       this->morphTable, 20);
+    SkelAnime_InitFlex(play, &this->skelAnime, &gGaroMasterSkel, &gGaroAppearAnim, this->jointTable, this->morphTable,
+                       20);
     Collider_InitAndSetCylinder(play, &this->unkEF4, &this->actor, &D_80A7B608);
     Collider_InitAndSetQuad(play, &this->unkF40, &this->actor, &D_80A7B634);
     Collider_InitAndSetQuad(play, &this->unkFC0, &this->actor, &D_80A7B634);
@@ -1260,7 +1281,7 @@ void func_80A7AA9C(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Acto
         //! FAKE:
         if (1) {}
 
-        gSPDisplayList(POLY_OPA_DISP++, &D_06002ED8);
+        gSPDisplayList(POLY_OPA_DISP++, &gGaroMasterEyesDL);
         Matrix_Pop();
 
         CLOSE_DISPS(play->state.gfxCtx);
@@ -1334,7 +1355,7 @@ void EnJso2_Draw(Actor* thisx, PlayState* play2) {
             Matrix_Mult(&play->billboardMtxF, MTXMODE_APPLY);
 
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-            gSPDisplayList(POLY_XLU_DISP++, D_0407D590);
+            gSPDisplayList(POLY_XLU_DISP++, gEffFire1DL);
             Matrix_Pop();
         }
     }
