@@ -206,20 +206,18 @@ ActorInit En_Bsb_InitVars = {
     /**/ EnBsb_Draw,
 };
 
-AnimationHeader* D_80C0FA20[0x19] = {
-    (AnimationHeader*)0x060086BC, (AnimationHeader*)0x0600CD88, (AnimationHeader*)0x06000400,
-    (AnimationHeader*)0x060065D8, (AnimationHeader*)0x06000FF0, (AnimationHeader*)0x06000C50,
-    (AnimationHeader*)0x06006C48, (AnimationHeader*)0x06001390, (AnimationHeader*)0x06002AF4,
-    (AnimationHeader*)0x06002590, (AnimationHeader*)0x06007120, (AnimationHeader*)0x060043A4,
-    (AnimationHeader*)0x06007B18, (AnimationHeader*)0x06001CD8, (AnimationHeader*)0x06003E1C,
-    (AnimationHeader*)0x06003238, (AnimationHeader*)0x0600606C, (AnimationHeader*)0x06005440,
-    (AnimationHeader*)0x06004E2C, (AnimationHeader*)0x06004894, (AnimationHeader*)0x06004208,
-    (AnimationHeader*)0x0600D3CC, (AnimationHeader*)0x06004510, (AnimationHeader*)0x06001F90,
-    (AnimationHeader*)0x0600C790,
+AnimationHeader* D_80C0FA20[] = {
+    &object_bsb_Anim_0086BC, &object_bsb_Anim_00CD88, &object_bsb_Anim_000400, &object_bsb_Anim_0065D8,
+    &object_bsb_Anim_000FF0, &object_bsb_Anim_000C50, &object_bsb_Anim_006C48, &object_bsb_Anim_001390,
+    &object_bsb_Anim_002AF4, &object_bsb_Anim_002590, &object_bsb_Anim_007120, &object_bsb_Anim_0043A4,
+    &object_bsb_Anim_007B18, &object_bsb_Anim_001CD8, &object_bsb_Anim_003E1C, &object_bsb_Anim_003238,
+    &object_bsb_Anim_00606C, &object_bsb_Anim_005440, &object_bsb_Anim_004E2C, &object_bsb_Anim_004894,
+    &object_bsb_Anim_004208, &object_bsb_Anim_00D3CC, &object_bsb_Anim_004510, &object_bsb_Anim_001F90,
+    &object_bsb_Anim_00C790,
 };
 
-u8 D_80C0FA84[0x1C] = {
-    2, 0, 2, 0, 0, 2, 0, 0, 2, 2, 0, 2, 0, 0, 2, 0, 2, 0, 2, 0, 0, 0, 2, 2, 2, 0, 0, 0,
+u8 D_80C0FA84[] = {
+    2, 0, 2, 0, 0, 2, 0, 0, 2, 2, 0, 2, 0, 0, 2, 0, 2, 0, 2, 0, 0, 0, 2, 2, 2,
 };
 
 Vec3f D_80C0FAA0 = { 0.0f, 8.0f, 0.0f };
@@ -230,7 +228,7 @@ Vec3s D_80C0FAB8 = { 0x2EE0, -0x2710, 0xB5C8 };
 
 Vec3s D_80C0FAC0 = { -0x2710, 0x2710, -0x2710 };
 
-Vec3f D_80C0FAC8[2] = { { -80.0f, 475.0f, -2330.0f }, { 0.0f, 0.0f, 0.0f } };
+Vec3f D_80C0FAC8[] = { { -80.0f, 475.0f, -2330.0f }, { 0.0f, 0.0f, 0.0f } };
 
 void func_80C0B290(EnBsb* this, s32 animIndex) {
     this->unk_02D8 = animIndex;
