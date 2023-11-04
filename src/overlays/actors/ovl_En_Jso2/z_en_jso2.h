@@ -33,7 +33,7 @@ typedef struct EnJso2 {
     /* 0x02B0 */ s16 unk_2B0;
     /* 0x02B2 */ char pad_2B2[0x2];
     /* 0x02B4 */ s32 unk2B4;
-    /* 0x02B6 */ char unk_2B8[0xC];
+    /* 0x02B6 */ Vec3f unk_2B8;
     /* 0x02C4 */ Vec3f unk2C4;
     /* 0x02D0 */ Actor* unk2D0;
     /* 0x02D4 */ Vec3f unk2D4[12];
