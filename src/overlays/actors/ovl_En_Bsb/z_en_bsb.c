@@ -5,6 +5,7 @@
  */
 
 #include "z_en_bsb.h"
+#include "objects/object_bsb/object_bsb.h"
 #include "z64rumble.h"
 #include "z64shrink_window.h"
 
@@ -242,7 +243,7 @@ void EnBsb_Init(Actor* thisx, PlayState* play) {
     this->actor.colChkInfo.damageTable = &D_80C0F9E0;
 
     ActorShape_Init(&this->actor.shape, 0.0f, ActorShadow_DrawCircle, 0.0f);
-    SkelAnime_Init(play, &this->skelAnime, &D_0600C3E0, &D_060086BC, &this->unk_0188, &this->unk_0206, 0x15);
+    SkelAnime_Init(play, &this->skelAnime, &D_0600C3E0, &D_060086BC, this->unk_0188, this->unk_0206, 0x15);
 
     this->unk_02B6 = (this->actor.params >> 7) & 0x1F;
     this->unk_02B8 = this->actor.params & 0x7F;
@@ -251,7 +252,7 @@ void EnBsb_Init(Actor* thisx, PlayState* play) {
     this->actor.hintId = 0x21;
     this->actor.gravity = -2.0f;
 
-    Collider_InitAndSetJntSph(play, &this->unk_0F34, &this->actor, &D_80C0F9D0, &this->unk_0F54);
+    Collider_InitAndSetJntSph(play, &this->unk_0F34, &this->actor, &D_80C0F9D0, this->unk_0F54);
 
     if (this->unk_02B6 == 0x1F) {
         Actor_Kill(&this->actor);
@@ -784,9 +785,9 @@ void func_80C0CDE4(EnBsb* this, PlayState* play) {
     temp_fv0 = sqrtf((SQ(x) + SQ(y)) + SQ(z));
 
     if ((this->unk_0F34.base.atFlags & AT_BOUNCED) ||
-        (temp_v0->stateFlags1 & 0x400000) && (temp_fv0 <= 70.0f) &&
-            (temp_v1 = (temp_v0->actor.shape.rot.y - this->actor.shape.rot.y) + 0x8000, (temp_v1 < 0x2000)) &&
-            (temp_v1 > -0x2000)) {
+        ((temp_v0->stateFlags1 & 0x400000) && (temp_fv0 <= 70.0f) &&
+         (temp_v1 = (temp_v0->actor.shape.rot.y - this->actor.shape.rot.y) + 0x8000, (temp_v1 < 0x2000)) &&
+         (temp_v1 > -0x2000))) {
         this->unk_0F34.base.atFlags &= ~(AT_BOUNCED | AT_HIT);
         EffectSsHitmark_SpawnFixedScale(play, 3, &sp34);
         Actor_PlaySfx(&this->actor, NA_SE_IT_SHIELD_BOUND);
@@ -877,7 +878,7 @@ void func_80C0D27C(EnBsb* this, PlayState* play) {
     }
 
     if (((this->unk_0324 == 0xB) || (this->unk_0324 == 0xA)) && (this->unk_0322 != 0)) {
-        Actor_SpawnIceEffects(play, &this->actor, &this->unk_0330, 0x11, 2, this->unk_032C, 0.4f);
+        Actor_SpawnIceEffects(play, &this->actor, this->unk_0330, 0x11, 2, this->unk_032C, 0.4f);
         this->unk_0322 = 0;
         this->unk_0324 = 0;
     }
@@ -1067,7 +1068,7 @@ void func_80C0DB18(EnBsb* this, PlayState* play) {
     if (this->unk_02A4 == 0) {
         if (CutsceneManager_IsNext(this->unk_02CC[3]) == 0) {
             //! FAKE:
-            CutsceneManager_Queue(((0, this->unk_02CC))[3]);
+            CutsceneManager_Queue(((NULL, this->unk_02CC))[3]);
             return;
         }
         CutsceneManager_StartWithPlayerCs(this->unk_02CC[3], &this->actor);
@@ -1264,7 +1265,8 @@ void func_80C0E3B8(EnBsb* this) {
     this->actor.flags |= 0x08000000;
     this->actor.flags &= ~1;
 
-    Animation_Change(&this->skelAnime, &D_06004894, 1.0f, D_80C0F8D0, Animation_GetLastFrame(&D_06004894), 2, 0.0f);
+    Animation_Change(&this->skelAnime, &object_bsb_Anim_004894, 1.0f, D_80C0F8D0, Animation_GetLastFrame(&D_06004894),
+                     2, 0.0f);
     SkelAnime_Update(&this->skelAnime);
 
     this->unk_02B4 = 0xF;
