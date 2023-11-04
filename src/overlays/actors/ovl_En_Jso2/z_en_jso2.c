@@ -176,18 +176,21 @@ static AnimationHeader* D_80A7B684[0x16] = {
     &gGaroTrembleAnim,     &gGaroTakeOutBombAnim,
 };
 
-static u8 D_80A7B6DC[] = { 2, 2, 0, 2, 0, 2, 0, 0, 0, 2, 2, 0, 0, 2, 0, 2, 2, 0, 2, 2, 0, 2, 0, 0 };
+static u8 D_80A7B6DC[] = { 2, 2, 0, 2, 0, 2, 0, 0, 0, 2, 2, 0, 0, 2, 0, 2, 2, 0, 2, 2, 0, 2 };
 
 static Vec3s D_80A7B6F4 = { 350, -20, -3430 };
 
 static Vec3f D_80A7B6FC = { 0.0f, 0.0f, 0.0f };
 
 static Vec3f D_80A7B708 = { 1600.0f, 0.0f, 0.0f };
+
 static Vec3f D_80A7B714 = { 0.0f, 0.0f, 0.0f };
+
 static Vec3f D_80A7B720 = { 1700.0f, 0.0f, 0.0f };
+
 static Vec3f D_80A7B72C = { 0.0f, 0.0f, 0.0f };
 
-static s16 D_80A7B738[] = { 128, 0, 0, 0, 0, 128, 0, 0, 0, 0, 128, 0, 0, 0, 0, 128, 0, 0, 0, 0 };
+static s16 D_80A7B738[] = { 128, 0, 0, 0, 0, 128, 0, 0, 0, 0, 128, 0, 0, 0, 0, 128 };
 
 #ifdef NON_MATCHING
 void EnJso2_Init(Actor* thisx, PlayState* play) {
@@ -329,254 +332,299 @@ void func_80A778D8(EnJso2* this) {
     this->unk36C = 2;
     this->actionFunc = func_80A778F8;
 }
-//#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/func_80A778F8.s")
-extern Vec3s D_80A7B6F4;
-#if 1
-void func_80A778F8(EnJso2* this, PlayState* play) {
-    s32 i;
-    f32 curFrame;
-    Vec3f spawnPos;
-    Player* player;
-    
 
-    player = GET_PLAYER(play);
-    curFrame = this->skelAnime.curFrame;
+void func_80A778F8(EnJso2* this, PlayState* play) {
+    Player* player = GET_PLAYER(play);
+    f32 curFrame = this->skelAnime.curFrame;
+    Vec3f spawnPos;
+    s32 i;
+
     switch (this->unk1046) {
-    case 0:
-        if (this->actor.xzDistToPlayer < 400.0f) {
-            Audio_SetMainBgmVolume(0U, 0xAU);
-            this->unk1046 += 1;
-            this->actor.gravity = 0.0f;
-        }
-        break;
-    case 1:
-        if (CutsceneManager_IsNext((s16) this->actor.csId) == 0) {
-            CutsceneManager_Queue((s16) this->actor.csId);
-        } else {
-            f32 temp;
-            CutsceneManager_StartWithPlayerCs((s16) this->actor.csId, &this->actor);
-            this->unk1048 = CutsceneManager_GetCurrentSubCamId((s16) this->actor.csId);
-            this->unk294 = 0.4f;
-            this->unk298 = 40.0f;
-            player->actor.world.pos.x = 420.0f;
-            player->actor.world.pos.z = -3430.0f;
-            this->actor.draw = EnJso2_Draw;
-            func_80A776E0(this, 0x11);
-            spawnPos.x = D_80A7B6F4.x;
-            spawnPos.y = D_80A7B6F4.y;
-            spawnPos.z = D_80A7B6F4.z;
-            this->actor.world.rot.y = Math_Vec3f_Yaw(&this->actor.world.pos, &spawnPos);
-            this->unk1050 = 60.0f;
-            this->unk104C = 60.0f;
+        case 0:
+            if (this->actor.xzDistToPlayer < 400.0f) {
+                Audio_SetMainBgmVolume(0, 10);
+                this->unk1046++;
+                this->actor.gravity = 0.0f;
+            }
+            break;
+
+        case 1:
+            if (CutsceneManager_IsNext(this->actor.csId) == 0) {
+                CutsceneManager_Queue(this->actor.csId);
+            } else {
+                f32 temp;
+
+                CutsceneManager_StartWithPlayerCs(this->actor.csId, &this->actor);
+
+                this->unk1048 = CutsceneManager_GetCurrentSubCamId(this->actor.csId);
+                this->unk294 = 0.4f;
+                this->unk298 = 40.0f;
+
+                player->actor.world.pos.x = 420.0f;
+                player->actor.world.pos.z = -3430.0f;
+
+                this->actor.draw = EnJso2_Draw;
+
+                func_80A776E0(this, 17);
+
+                spawnPos.x = D_80A7B6F4.x;
+                spawnPos.y = D_80A7B6F4.y;
+                spawnPos.z = D_80A7B6F4.z;
+
+                this->actor.world.rot.y = Math_Vec3f_Yaw(&this->actor.world.pos, &spawnPos);
+
+                this->unk1050 = 60.0f;
+                this->unk104C = 60.0f;
+
+                this->actor.world.pos.x = -285.0f;
+                this->actor.world.pos.y = 535.0f;
+                this->actor.world.pos.z = -3425.0f;
+
+                this->unk1078.x = 82.0f;
+                this->unk1078.z = 780.0f;
+
+                temp = -586.0f;
+                this->unk1084.y = this->unk1078.y = temp + 500.0f;
+
+                Math_Vec3f_Copy(&spawnPos, &this->unk1078);
+
+                OLib_Vec3fAdd(&this->actor.world, &spawnPos, &this->unk1078, 1);
+
+                this->unk1084.x = this->actor.world.pos.x - 90.0f;
+                this->unk1084.z = this->actor.world.pos.z + 100.0f;
+
+                Math_Vec3f_Copy(&this->unk1054, &this->unk1078);
+                Math_Vec3f_Copy(&this->unk1060, &this->unk1084);
+
+                func_800B7298(play, &this->actor, 6);
+                func_80122744(play, &this->unk_27C, 1, &D_80A7B6F4);
+
+                this->unk1046++;
+                break;
+            }
+            break;
+        case 2:
             this->actor.world.pos.x = -285.0f;
             this->actor.world.pos.y = 535.0f;
             this->actor.world.pos.z = -3425.0f;
+
             this->unk1078.x = 82.0f;
-            this->unk1078.z = 780.0f;
-            temp = -586.0f;
-            this->unk1084.y = this->unk1078.y = temp + 500.0f;Math_Vec3f_Copy(&spawnPos, &this->unk1078);
+            this->unk1078.y = -516.0f;
+            this->unk1078.z = 800.0f;
+
+            Math_Vec3f_Copy(&spawnPos, &this->unk1078);
             OLib_Vec3fAdd(&this->actor.world, &spawnPos, &this->unk1078, 1);
+
             this->unk1084.x = this->actor.world.pos.x - 90.0f;
+            this->unk1084.y = this->actor.world.pos.y - 591.0f;
             this->unk1084.z = this->actor.world.pos.z + 100.0f;
+
             Math_Vec3f_Copy(&this->unk1054, &this->unk1078);
             Math_Vec3f_Copy(&this->unk1060, &this->unk1084);
-            func_800B7298(play, &this->actor, 6U);
-            func_80122744(play, &this->unk_27C, 1U, &D_80A7B6F4);
-            this->unk1046 += 1;
-            break;
-        }
-        break;
-    case 2:
-        this->actor.world.pos.x = -285.0f;
-        this->actor.world.pos.y = 535.0f;
-        this->actor.world.pos.z = -3425.0f;
-        this->unk1078.x = 82.0f;
-        this->unk1078.y = -516.0f;
-        this->unk1078.z = 800.0f;
-        Math_Vec3f_Copy(&spawnPos, &this->unk1078);
-        OLib_Vec3fAdd(&this->actor.world,  &spawnPos, &this->unk1078, 1);
-        this->unk1084.x = this->actor.world.pos.x - 90.0f;
-        this->unk1084.y = this->actor.world.pos.y - 591.0f;
-        this->unk1084.z = this->actor.world.pos.z + 100.0f;
-        Math_Vec3f_Copy(&this->unk1054, &this->unk1078);
-        Math_Vec3f_Copy(&this->unk1060, &this->unk1084);
-        if (func_80122760(play, &this->unk_27C, 60.0f) != 0) {
-            func_800B7298(play, NULL, 0x13U);
-            this->unk1044 = 0xA;
-            this->unk1046 += 1;
-        }
-        break;
-    case 3: {
-        Vec3f unk1078Copy;
-        s32 i = 0;
-        if (this->unk1044 == 1) {
-            for (i = 0; i < 2; i++) {
-                Math_Vec3f_Copy(&unk1078Copy, &this->actor.home.pos);
-                unk1078Copy.x += Rand_CenteredFloat(80.0f);
-                unk1078Copy.y = this->actor.world.pos.y + (i * 120.0f);
-                unk1078Copy.z += Rand_CenteredFloat(80.0f);
-                Actor_Spawn(&play->actorCtx, play, 0x1D9, unk1078Copy.x, unk1078Copy.y, unk1078Copy.z, 0, this->actor.world.rot.y, 0, 2);
+
+            if (func_80122760(play, &this->unk_27C, 60.0f) != 0) {
+                func_800B7298(play, NULL, 19);
+                this->unk1044 = 10;
+                this->unk1046++;
             }
-            this->unk1044 = 0x19;
-            this->unk1046 += 1;
-        }
-    }
-        break;
-    case 4:
-        if (this->unk1044 == 0) {
-            func_800B7298(play, NULL, 4U);
-            this->unk1044 = 0x14;
-            this->unk1046 += 1;
-        }
-        break;
-    case 5:
-        if (this->unk1044 == 0) {
-            this->unk1044 = 0x14;
-            this->unk1046++;
-        }
-        break;
-    case 6: 
-        this->unk1078.x = 82.0f;
-        this->unk1078.y = -533.0f;
-        this->unk1078.z = 800.0f;
-        Math_Vec3f_Copy(&spawnPos, &this->unk1078); // Try new variable and scoping
-        OLib_Vec3fAdd(&this->actor.world, &spawnPos, &this->unk1078, 1);
-        this->unk1084.x = this->actor.focus.pos.x - 80.0f;
-        this->unk1084.y = this->actor.focus.pos.y - 360.0f;
-        this->unk1084.z = this->actor.focus.pos.z + 100.0f;
-        if (this->unk1044 == 0) {
-            this->unk1044 = 5;
-            this->unk1046 += 1;
-        }
-        break;
-    case 7:
-        if (this->unk1044 == 0) {
-            Actor_PlaySfx(&this->actor, 0x3AC6U);
-            this->unk1044 = 0x2D;
-            this->unk1046 += 1;
-        }
-        break;
-    case 8:
-        if (this->unk1044 == 0) {
-            this->actor.speed = 3.0f;
-            this->actor.velocity.y = 10.0f;
-            this->actor.gravity = -1.0f;
-            func_80A776E0(this, 0x10);
-            this->unk294 = 0.4f;
-            this->unk298 = 40.0f;
-            Actor_PlaySfx(&this->actor, 0x38EEU);
-            Math_Vec3f_Copy(&this->unk_2B8, &this->unk1054);
-            this->unk1044 = 0x19;
-            this->unk1046 += 1;
-        }
-        break;
-    case 9:{
-        //s32 i2;
-        this->unk_38C += 1;
-        if (this->unk_38C >= 0x14) {
-            this->unk_38C = 0;
-        }
-        if (this->unk_388 < 0x13) {
-            this->unk_388++;
-        }
-        Math_Vec3f_Copy(&this->unk_390[this->unk_38C], &this->actor.world.pos);
-        Math_Vec3s_Copy(&this->unk_480[this->unk_38C], &this->actor.world.rot);
-        this->unk_390[this->unk_38C].y += 40.0f;
-        for (i = 0; i < 20; i++) {
-            this->unk_4F8[this->unk_38C][i] = this->jointTable[i];
-        }
-        Math_ApproachF(&this->actor.shape.shadowScale, 17.0f, 0.4f, 4.0f);
-        if (this->unk1044 == 0) {
-            this->unk1078.x = this->unk_2B8.x - 490.0f;
-            this->unk1078.y = this->unk_2B8.y;
-            this->unk1078.z = this->unk_2B8.z + 100.0f;
-        }
-        this->unk1084.x = this->actor.focus.pos.x - 80.0f;
-        this->unk1084.y = this->actor.focus.pos.y - 130.0f;
-        this->unk1084.z = this->actor.focus.pos.z;
-        if (this->actor.bgCheckFlags & 1) {
-            Actor_PlaySfx(&this->actor, 0x3AD9U);
-            this->actor.gravity = 0.0f;
-            this->actor.velocity.y = 0.0f;
-            this->actor.speed = 0.0f;
-            func_80A776E0(this, 0xF);
-            Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos, this->actor.shape.shadowScale, 0xA, 4.0f, (s16) 0x1F4, (s16) 0x32, (u8) 1);
-            this->unk1044 = 1;
-            Actor_PlaySfx(&this->actor, 0x387BU);
-            this->unk1046++;
-        }
-    }
-    break;
-    case 10: 
-        this->unk_38C++;
-        if (this->unk_38C >= 0x14) {
-            this->unk_38C = 0;
-        }
-        if (this->unk_388 < 0x13) {
-            this->unk_388++;
-        }
-        Math_Vec3f_Copy(&this->unk_390[this->unk_38C], &this->actor.world.pos);
-        Math_Vec3s_Copy(&this->unk_480[this->unk_38C], &this->actor.world.rot);
-        this->unk_390[this->unk_38C].y += 40.0f;
-        for (i = 0; i < 20; i++) {
-            this->unk_4F8[this->unk_38C][i] = this->jointTable[i];
-        }
-        if (this->unk1044 == 0) {
-            this->unk1078.x = this->unk_2B8.x - 518.0f;
-            this->unk1078.y = this->unk_2B8.y - 11.0f;
-            this->unk1078.z = this->unk_2B8.z + 100.0f;
-        }
-        this->unk1084.x = this->actor.focus.pos.x + 20.0f;
-        this->unk1084.y = this->actor.focus.pos.y - 50.0f;
-        this->unk1084.z = this->actor.focus.pos.z;
-        if (this->unk374 <= curFrame) {
-            this->unk_388 = 0;
-            this->unk_38C = 0;
-            this->unk1044 = 0x14;
-            func_80A776E0(this, 0x12);
-            this->unk1046++;
-        }
-        break;
-    case 11:
-        if (Animation_OnFrame(&this->skelAnime, 17.0f) != 0) {
-            Actor_PlaySfx(&this->actor, 0x39C7U);
-            Actor_PlaySfx(&this->actor, 0x2822U);
-            this->unk36C = 0;
-            Audio_SetMainBgmVolume(0x7FU, 0U);
-            Audio_PlayBgm_StorePrevBgm(0x38U);
-        }
-        if (this->unk1044 == 0) {
-            //s32 i;
-            this->unk1078.x = this->unk_2B8.x - 470.0f;
-            this->unk1078.y = this->unk_2B8.y - 10.0f;
-            this->unk1078.z = this->unk_2B8.z + 100.0f;
+            break;
+
+        case 3: {
+            Vec3f unk1078Copy;
+            s32 i;
+
+            if (this->unk1044 == 1) {
+                for (i = 0; i < 2; i++) {
+                    Math_Vec3f_Copy(&unk1078Copy, &this->actor.home.pos);
+                    unk1078Copy.x += Rand_CenteredFloat(80.0f);
+                    unk1078Copy.y = this->actor.world.pos.y + (i * 120.0f);
+                    unk1078Copy.z += Rand_CenteredFloat(80.0f);
+                    Actor_Spawn(&play->actorCtx, play, ACTOR_EN_COL_MAN, unk1078Copy.x, unk1078Copy.y, unk1078Copy.z, 0,
+                                this->actor.world.rot.y, 0, 2);
+                }
+                this->unk1044 = 25;
+                this->unk1046++;
+            }
+        } break;
+        case 4:
+            if (this->unk1044 == 0) {
+                func_800B7298(play, NULL, 4);
+                this->unk1044 = 20;
+                this->unk1046++;
+            }
+            break;
+        case 5:
+            if (this->unk1044 == 0) {
+                this->unk1044 = 20;
+                this->unk1046++;
+            }
+            break;
+        case 6:
+            this->unk1078.x = 82.0f;
+            this->unk1078.y = -533.0f;
+            this->unk1078.z = 800.0f;
+
+            Math_Vec3f_Copy(&spawnPos, &this->unk1078);
+            OLib_Vec3fAdd(&this->actor.world, &spawnPos, &this->unk1078, 1);
+
             this->unk1084.x = this->actor.focus.pos.x - 80.0f;
-            this->unk1084.y = this->actor.focus.pos.y - 30.0f;
+            this->unk1084.y = this->actor.focus.pos.y - 360.0f;
+            this->unk1084.z = this->actor.focus.pos.z + 100.0f;
+
+            if (this->unk1044 == 0) {
+                this->unk1044 = 5;
+                this->unk1046++;
+            }
+            break;
+
+        case 7:
+            if (this->unk1044 == 0) {
+                Actor_PlaySfx(&this->actor, NA_SE_EN_ANSATSUSYA_LAUGH);
+                this->unk1044 = 0x2D;
+                this->unk1046++;
+            }
+            break;
+
+        case 8:
+            if (this->unk1044 == 0) {
+                this->actor.speed = 3.0f;
+                this->actor.velocity.y = 10.0f;
+                this->actor.gravity = -1.0f;
+
+                func_80A776E0(this, 16);
+
+                this->unk294 = 0.4f;
+                this->unk298 = 40.0f;
+
+                Actor_PlaySfx(&this->actor, NA_SE_EN_PO_ROLL);
+                Math_Vec3f_Copy(&this->unk_2B8, &this->unk1054);
+
+                this->unk1044 = 25;
+                this->unk1046++;
+            }
+            break;
+
+        case 9: {
+            this->unk_38C++;
+
+            if (this->unk_38C >= 20) {
+                this->unk_38C = 0;
+            }
+            if (this->unk_388 < 19) {
+                this->unk_388++;
+            }
+
+            Math_Vec3f_Copy(&this->unk_390[this->unk_38C], &this->actor.world.pos);
+            Math_Vec3s_Copy(&this->unk_480[this->unk_38C], &this->actor.world.rot);
+
+            this->unk_390[this->unk_38C].y += 40.0f;
+
+            for (i = 0; i < 20; i++) {
+                this->unk_4F8[this->unk_38C][i] = this->jointTable[i];
+            }
+
+            Math_ApproachF(&this->actor.shape.shadowScale, 17.0f, 0.4f, 4.0f);
+
+            if (this->unk1044 == 0) {
+                this->unk1078.x = this->unk_2B8.x - 490.0f;
+                this->unk1078.y = this->unk_2B8.y;
+                this->unk1078.z = this->unk_2B8.z + 100.0f;
+            }
+
+            this->unk1084.x = this->actor.focus.pos.x - 80.0f;
+            this->unk1084.y = this->actor.focus.pos.y - 130.0f;
             this->unk1084.z = this->actor.focus.pos.z;
-            if (this->unk36C == 0) {
-                for (i = 0; i < ARRAY_COUNT(D_80A7B510); i++) {
-                    Math_ApproachF(&this->unk_EAC[i].x, D_80A7B510[i].x, 0.3f, 0.0005f);
-                    this->unk_EAC[i].y = this->unk_EAC[i].x;
-                    this->unk_EAC[i].z = this->unk_EAC[i].x;
+
+            if (this->actor.bgCheckFlags & 1) {
+                Actor_PlaySfx(&this->actor, NA_SE_EN_ANSATSUSYA_ONGND);
+                this->actor.gravity = 0.0f;
+                this->actor.velocity.y = 0.0f;
+                this->actor.speed = 0.0f;
+                func_80A776E0(this, 15);
+                Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos, this->actor.shape.shadowScale, 0xA,
+                                         4.0f, 500, 50, 1);
+                this->unk1044 = 1;
+                Actor_PlaySfx(&this->actor, NA_SE_EN_EYEGOLE_ATTACK);
+                this->unk1046++;
+            }
+        } break;
+
+        case 10:
+            this->unk_38C++;
+            if (this->unk_38C >= 0x14) {
+                this->unk_38C = 0;
+            }
+            if (this->unk_388 < 0x13) {
+                this->unk_388++;
+            }
+
+            Math_Vec3f_Copy(&this->unk_390[this->unk_38C], &this->actor.world.pos);
+            Math_Vec3s_Copy(&this->unk_480[this->unk_38C], &this->actor.world.rot);
+
+            this->unk_390[this->unk_38C].y += 40.0f;
+
+            for (i = 0; i < 20; i++) {
+                this->unk_4F8[this->unk_38C][i] = this->jointTable[i];
+            }
+
+            if (this->unk1044 == 0) {
+                this->unk1078.x = this->unk_2B8.x - 518.0f;
+                this->unk1078.y = this->unk_2B8.y - 11.0f;
+                this->unk1078.z = this->unk_2B8.z + 100.0f;
+            }
+
+            this->unk1084.x = this->actor.focus.pos.x + 20.0f;
+            this->unk1084.y = this->actor.focus.pos.y - 50.0f;
+            this->unk1084.z = this->actor.focus.pos.z;
+
+            if (this->unk374 <= curFrame) {
+                this->unk_388 = 0;
+                this->unk_38C = 0;
+                this->unk1044 = 0x14;
+                func_80A776E0(this, 0x12);
+                this->unk1046++;
+            }
+            break;
+
+        case 11:
+            if (Animation_OnFrame(&this->skelAnime, 17.0f) != 0) {
+                Actor_PlaySfx(&this->actor, NA_SE_EN_ANSATSUSYA_SWORD);
+                Actor_PlaySfx(&this->actor, NA_SE_EV_FLAME_IGNITION);
+                this->unk36C = 0;
+                Audio_SetMainBgmVolume(127, 0);
+                Audio_PlayBgm_StorePrevBgm(0x38);
+            }
+            if (this->unk1044 == 0) {
+                this->unk1078.x = this->unk_2B8.x - 470.0f;
+                this->unk1078.y = this->unk_2B8.y - 10.0f;
+                this->unk1078.z = this->unk_2B8.z + 100.0f;
+                this->unk1084.x = this->actor.focus.pos.x - 80.0f;
+                this->unk1084.y = this->actor.focus.pos.y - 30.0f;
+                this->unk1084.z = this->actor.focus.pos.z;
+
+                if (this->unk36C == 0) {
+                    for (i = 0; i < ARRAY_COUNT(D_80A7B510); i++) {
+                        Math_ApproachF(&this->unk_EAC[i].x, D_80A7B510[i].x, 0.3f, 0.0005f);
+                        this->unk_EAC[i].y = this->unk_EAC[i].x;
+                        this->unk_EAC[i].z = this->unk_EAC[i].x;
+                    }
                 }
             }
-        }
-        if (this->unk374 <= curFrame) {
-            CutsceneManager_Stop(this->actor.csId);
-            this->unk1048 = 0;
-            this->actor.flags &= ~ACTOR_FLAG_100000;
-            this->actor.gravity = -3.0f;
-            this->actor.flags &= ~ACTOR_FLAG_CANT_LOCK_ON;
-            this->actor.flags |= ACTOR_FLAG_TARGETABLE;
-            func_80A787FC(this, play);
-        }
-        break;
+
+            if (this->unk374 <= curFrame) {
+                CutsceneManager_Stop(this->actor.csId);
+                this->unk1048 = 0;
+                this->actor.flags &= ~ACTOR_FLAG_100000;
+                this->actor.gravity = -3.0f;
+                this->actor.flags &= ~ACTOR_FLAG_CANT_LOCK_ON;
+                this->actor.flags |= ACTOR_FLAG_TARGETABLE;
+                func_80A787FC(this, play);
+            }
+            break;
     }
     this->actor.shape.yOffset = 960.0f;
     func_80A77790(this, play);
 }
-#endif
-
 
 void func_80A78588(EnJso2* this) {
     this->unk36C = 2;
@@ -595,7 +643,7 @@ void func_80A785E4(EnJso2* this, PlayState* play) {
     switch (this->unk1046) {
         case 0:
             Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos, this->actor.shape.shadowScale, 1, 8.0f,
-                                     0x1F4, 0xA, 1);
+                                     500, 10, 1);
             Audio_SetMainBgmVolume(0, 10);
             Actor_PlaySfx(&this->actor, NA_SE_EN_ANSATSUSYA_ENTRY);
             this->unk1046++;
@@ -721,7 +769,7 @@ void func_80A78B04(EnJso2* this) {
 
 void func_80A78B70(EnJso2* this, PlayState* play) {
     this->actor.world.rot.x += 0x1770;
-    Math_SmoothStepToS(&this->actor.shape.rot.y, this->actor.yawTowardsPlayer, 0xA, 0xFA0, (s16)0x14);
+    Math_SmoothStepToS(&this->actor.shape.rot.y, this->actor.yawTowardsPlayer, 10, 4000, 20);
     if (!(this->actor.velocity.y > 0.0f) && (this->actor.bgCheckFlags & 1)) {
         this->actor.world.rot.x = 0;
         this->actor.velocity.y = 0.0f;
@@ -733,7 +781,7 @@ void func_80A78B70(EnJso2* this, PlayState* play) {
 }
 
 void func_80A78C08(EnJso2* this) {
-    this->unk28A = 0x28;
+    this->unk28A = 40;
     this->unkEF4.base.acFlags |= AC_HARD;
     this->actor.speed = 15.0f;
     this->actor.velocity.y = 13.0f;
@@ -788,7 +836,7 @@ void func_80A78C7C(EnJso2* this, PlayState* play) {
 
 void func_80A78E8C(EnJso2* this) {
     func_80A776E0(this, 0);
-    this->unk28A = 0x14;
+    this->unk28A = 20;
     this->actor.speed = 0.0f;
     this->actor.gravity = 0.0f;
     this->actor.velocity.y = 10.0f;
@@ -815,7 +863,7 @@ void func_80A78F80(EnJso2* this, PlayState* play) {
     this->actor.velocity.y = 0.0f;
     this->actor.gravity = BREG(0x35) + -3.0f;
     Actor_PlaySfx(&this->actor, NA_SE_EN_ANSATSUSYA_FALL);
-    this->unk284 = 0x10;
+    this->unk284 = 16;
     this->actionFunc = func_80A79038;
 }
 
@@ -1227,7 +1275,7 @@ void func_80A7A124(EnJso2* this, PlayState* play) {
     }
 
     if ((this->unk1040 == 0x14) && (this->unk374 <= curFrame)) {
-        this->unk104A += 1;
+        this->unk104A++;
         if (this->unk104A >= 2) {
             this->unk104A = 0;
             func_80A776E0(this, 0x15);
