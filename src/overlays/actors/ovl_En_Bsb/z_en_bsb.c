@@ -958,9 +958,9 @@ void func_80C0D334(EnBsb* this) {
 }
 
 void func_80C0D384(EnBsb* this, PlayState* play) {
-    f32 var_v0 = this->skelAnime.curFrame;
+    f32 curFrame = this->skelAnime.curFrame;
 
-    if (this->unk_02C4 <= var_v0) {
+    if (this->unk_02C4 <= curFrame) {
         func_80C0C86C(this);
     }
 }
