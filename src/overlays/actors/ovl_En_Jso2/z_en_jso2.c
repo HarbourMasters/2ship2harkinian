@@ -211,44 +211,44 @@ void EnJso2_Init(Actor* thisx, PlayState* play) {
     Collider_InitAndSetQuad(play, &this->unkF40, &this->actor, &D_80A7B634);
     Collider_InitAndSetQuad(play, &this->unkFC0, &this->actor, &D_80A7B634);
 
-    rightSwordBlureInit.p2EndColor[2] = rightSwordBlureInit.p1EndColor[0] = 0xFF; // 0x360 // t7
+    rightSwordBlureInit.p2EndColor[2] = rightSwordBlureInit.p1EndColor[0] = 0xFF;    // 0x360 // t7
 
-    rightSwordBlureInit.p2EndColor[0] = 0xFF; // 0x364 // t9
+    rightSwordBlureInit.p2EndColor[0] = 0xFF;                                        // 0x364 // t9
 
-    leftSwordBlureInit.p2EndColor[2] = leftSwordBlureInit.p1EndColor[0] = 0xFF; // 0x1c0 // t6 -> t7
+    leftSwordBlureInit.p2EndColor[2] = leftSwordBlureInit.p1EndColor[0] = 0xFF;      // 0x1c0 // t6 -> t7
 
-    leftSwordBlureInit.p2EndColor[0] = 0xFF; // 0x1c4 // t8
+    leftSwordBlureInit.p2EndColor[0] = 0xFF;                                         // 0x1c4 // t8
 
     rightSwordBlureInit.p2StartColor[3] = leftSwordBlureInit.p2StartColor[3] = 0x40; // 0x1bf // t9
 
-    leftSwordBlureInit.elemDuration = 8; // 0x1c8 // t6
+    leftSwordBlureInit.elemDuration = 8;                                             // 0x1c8 // t6
 
-    rightSwordBlureInit.p1StartColor[0] = 0xFF; // 0x358 // t0
+    rightSwordBlureInit.p1StartColor[0] = 0xFF;                                      // 0x358 // t0
 
-    leftSwordBlureInit.p1StartColor[0] = 0xFF; // 0x1b8
+    leftSwordBlureInit.p1StartColor[0] = 0xFF;                                       // 0x1b8
 
-    rightSwordBlureInit.p1StartColor[2] = rightSwordBlureInit.p1StartColor[1] = 0; // 0x359 // zero
+    rightSwordBlureInit.p1StartColor[2] = rightSwordBlureInit.p1StartColor[1] = 0;   // 0x359 // zero
 
-    rightSwordBlureInit.p1StartColor[3] = 0x80; // 0x35b // t3
+    rightSwordBlureInit.p1StartColor[3] = 0x80;                                      // 0x35b // t3
 
-    rightSwordBlureInit.p2StartColor[0] = 0xFF; // 0x35c // t4
+    rightSwordBlureInit.p2StartColor[0] = 0xFF;                                      // 0x35c // t4
 
     rightSwordBlureInit.p1EndColor[3] = leftSwordBlureInit.p1EndColor[3] = rightSwordBlureInit.p2EndColor[3] =
         leftSwordBlureInit.p2EndColor[3] = rightSwordBlureInit.p2EndColor[1] = leftSwordBlureInit.p2EndColor[1] =
             rightSwordBlureInit.p1EndColor[2] = leftSwordBlureInit.p1EndColor[2] = rightSwordBlureInit.p1EndColor[1] =
                 leftSwordBlureInit.p1EndColor[1] = rightSwordBlureInit.p2StartColor[2] =
-                    rightSwordBlureInit.p2StartColor[1] = 0; // 0x35d // zero
+                    rightSwordBlureInit.p2StartColor[1] = 0;      // 0x35d // zero
 
-    rightSwordBlureInit.elemDuration = 8; // 0x368 // t7
+    rightSwordBlureInit.elemDuration = 8;                         // 0x368 // t7
 
     rightSwordBlureInit.unkFlag = leftSwordBlureInit.unkFlag = 0; // 0x1cc // zero
 
-    leftSwordBlureInit.calcMode = 2;  // 0x1d0
-    rightSwordBlureInit.calcMode = 2; // 0x370
+    leftSwordBlureInit.calcMode = 2;                              // 0x1d0
+    rightSwordBlureInit.calcMode = 2;                             // 0x370
 
-    leftSwordBlureInit.p2StartColor[0] = 0xFF; // 0x1bc
+    leftSwordBlureInit.p2StartColor[0] = 0xFF;                    // 0x1bc
 
-    leftSwordBlureInit.p1StartColor[3] = 0x80; // 0x1bb
+    leftSwordBlureInit.p1StartColor[3] = 0x80;                    // 0x1bb
 
     leftSwordBlureInit.p2StartColor[2] = leftSwordBlureInit.p2StartColor[1] = leftSwordBlureInit.p1StartColor[2] =
         leftSwordBlureInit.p1StartColor[1] = 0; // 0x1b9 // zero
@@ -403,6 +403,7 @@ void func_80A778F8(EnJso2* this, PlayState* play) {
                 break;
             }
             break;
+
         case 2:
             this->actor.world.pos.x = -285.0f;
             this->actor.world.pos.y = 535.0f;
@@ -446,6 +447,7 @@ void func_80A778F8(EnJso2* this, PlayState* play) {
                 this->unk1046++;
             }
         } break;
+
         case 4:
             if (this->unk1044 == 0) {
                 func_800B7298(play, NULL, 4);
@@ -453,12 +455,14 @@ void func_80A778F8(EnJso2* this, PlayState* play) {
                 this->unk1046++;
             }
             break;
+
         case 5:
             if (this->unk1044 == 0) {
                 this->unk1044 = 20;
                 this->unk1046++;
             }
             break;
+
         case 6:
             this->unk1078.x = 82.0f;
             this->unk1078.y = -533.0f;
@@ -594,6 +598,7 @@ void func_80A778F8(EnJso2* this, PlayState* play) {
                 Audio_SetMainBgmVolume(127, 0);
                 Audio_PlayBgm_StorePrevBgm(0x38);
             }
+
             if (this->unk1044 == 0) {
                 this->unk1078.x = this->unk_2B8.x - 470.0f;
                 this->unk1078.y = this->unk_2B8.y - 10.0f;
@@ -652,7 +657,7 @@ void func_80A785E4(EnJso2* this, PlayState* play) {
         case 1:
             if (Animation_OnFrame(&this->skelAnime, 18.0f) != 0) {
                 Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos, this->actor.shape.shadowScale, 1,
-                                         8.0f, 0x1F4, 0xA, 1);
+                                         8.0f, 500, 10, 1);
             }
 
             Math_ApproachF(&this->actor.shape.shadowScale, 17.0f, 0.4f, 4.0f);
@@ -881,8 +886,8 @@ void func_80A79038(EnJso2* this, PlayState* play) {
 
 void func_80A790E4(EnJso2* this, PlayState* play) {
     func_80A776E0(this, 1);
-    Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos, this->actor.shape.shadowScale, 1, 8.0f, 0x1F4,
-                             0xA, 1);
+    Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos, this->actor.shape.shadowScale, 1, 8.0f, 500,
+                             10, 1);
     Math_ApproachZeroF(&this->actor.speed, 0.3f, 3.0f);
     this->unk371 = 0;
     Actor_PlaySfx(&this->actor, NA_SE_IT_SWORD_SWING_HARD);
@@ -897,7 +902,7 @@ void func_80A7919C(EnJso2* this, PlayState* play) {
 
     Math_ApproachZeroF(&this->actor.speed, 0.5f, 5.0f);
 
-    if (!(play->gameplayFrames & 7)) {
+    if (!(play->gameplayFrames % 8)) {
         Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos, this->actor.shape.shadowScale, 1, 8.0f,
                                  500, 10, 1);
     }
@@ -936,8 +941,8 @@ void func_80A79300(EnJso2* this) {
 
 void func_80A79364(EnJso2* this, PlayState* play) {
     this->actor.shape.rot.y -= 0x1770;
-    Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos, this->actor.shape.shadowScale, 1, 4.0f, 0x12C,
-                             5, 1);
+    Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos, this->actor.shape.shadowScale, 1, 4.0f, 300, 5,
+                             1);
     Math_SmoothStepToS(&this->actor.world.rot.y, this->actor.yawTowardsPlayer, 1, 4000, 20);
 
     if ((this->unk28E == 0) || ((this->unkF40.base.atFlags & AT_HIT) != 0) ||
@@ -1029,7 +1034,7 @@ void func_80A796BC(EnJso2* this, PlayState* play) {
     Matrix_MultVecZ(-20.0f, &vec);
     Math_Vec3f_Copy(&this->unkE58, &vec);
 
-    if (((this->unk2A2 == 0xB) || (this->unk2A2 == 0xA)) && (this->unk2A0 != 0)) {
+    if (((this->unk2A2 == 11) || (this->unk2A2 == 10)) && (this->unk2A0 != 0)) {
         Actor_SpawnIceEffects(play, &this->actor, this->unk2D4, 0xC, 2, 0.7f, 0.4f);
         this->unk2A0 = 0;
         this->unk2A2 = 0;
@@ -1108,7 +1113,7 @@ void func_80A7998C(EnJso2* this, PlayState* play) {
 }
 
 void func_80A79A84(EnJso2* this, PlayState* play) {
-    Math_SmoothStepToS(&this->actor.world.rot.y, this->actor.yawTowardsPlayer, 0xA, 0xFA0, 0x14);
+    Math_SmoothStepToS(&this->actor.world.rot.y, this->actor.yawTowardsPlayer, 10, 4000, 20);
 
     if ((this->unk2A2 == 0xB) || (this->unk2A2 == 0xA)) {
         if (this->unk2A0 != 0) {
@@ -1260,7 +1265,7 @@ void func_80A7A0D0(EnJso2* this) {
     this->unk1044 = 0;
     Audio_SetMainBgmVolume(0, 10);
     func_80A776E0(this, 19);
-    this->unk284 = 0xE;
+    this->unk284 = 14;
     this->actionFunc = func_80A7A124;
 }
 
@@ -1269,16 +1274,16 @@ void func_80A7A124(EnJso2* this, PlayState* play) {
 
     Math_SmoothStepToS(&this->actor.shape.rot.y, this->actor.yawTowardsPlayer, 0xA, 0xFA0, 0x14);
 
-    if ((this->unk1040 == 0x13) && (this->unk374 <= curFrame)) {
+    if ((this->unk1040 == 19) && (this->unk374 <= curFrame)) {
         this->unk104A = 0;
         func_80A776E0(this, 20);
     }
 
-    if ((this->unk1040 == 0x14) && (this->unk374 <= curFrame)) {
+    if ((this->unk1040 == 20) && (this->unk374 <= curFrame)) {
         this->unk104A++;
         if (this->unk104A >= 2) {
             this->unk104A = 0;
-            func_80A776E0(this, 0x15);
+            func_80A776E0(this, 21);
         }
     }
 
@@ -1286,7 +1291,7 @@ void func_80A7A124(EnJso2* this, PlayState* play) {
         if (this->unk2D0 == NULL) {
             this->unk2D0 = Actor_SpawnAsChild(&play->actorCtx, &this->actor, play, ACTOR_EN_COL_MAN, this->unk2C4.x,
                                               this->unk2C4.y, this->unk2C4.z, 0, 0, 0, 4);
-        } else if (this->unk104A >= 0xA) {
+        } else if (this->unk104A >= 10) {
             if (this->unk2D0 != NULL) {
                 this->unk2D0->world.rot.z = 1;
                 this->unk2B4 = 1;
@@ -1317,7 +1322,7 @@ void func_80A7A2EC(EnJso2* this, PlayState* play) {
 void func_80A7A360(EnJso2* this, PlayState* play) {
     s32 var_a3 = false;
 
-    if ((this->unk284 != 0xB) && (this->unk284 != 0xC) && (this->unk284 != 0xD) && (this->unk284 != 0xE) &&
+    if ((this->unk284 != 11) && (this->unk284 != 12) && (this->unk284 != 13) && (this->unk284 != 14) &&
         this->unkEF4.base.acFlags & AT_HIT) {
         this->unkEF4.base.acFlags &= ~(AT_HIT);
         if ((this->actor.colChkInfo.damageEffect == 1) || (this->actor.colChkInfo.damageEffect == 5)) {
@@ -1353,7 +1358,7 @@ void func_80A7A360(EnJso2* this, PlayState* play) {
                             break;
 
                         case 4:
-                            if (((this->unk2A2 != 0xB) && (this->unk2A2 != 0xA)) || (this->unk2A0 == 0)) {
+                            if (((this->unk2A2 != 11) && (this->unk2A2 != 10)) || (this->unk2A0 == 0)) {
                                 Actor_Spawn(&play->actorCtx, play, ACTOR_EN_CLEAR_TAG, this->actor.focus.pos.x,
                                             this->actor.focus.pos.y, this->actor.focus.pos.z, 0, 0, 0, 4);
                                 this->unk2A0 = 20;
@@ -1417,21 +1422,23 @@ void EnJso2_Update(Actor* thisx, PlayState* play) {
     this->actionFunc(this, play);
     Actor_SetFocus(&this->actor, 80.0f);
     Actor_MoveWithGravity(&this->actor);
+
     if (this->actor.bgCheckFlags & 1) {
         this->actor.world.pos.x += this->unkE58.x;
         this->actor.world.pos.z += this->unkE58.z;
         Math_ApproachZeroF(&this->unkE58.x, 1.0f, 2.0f);
         Math_ApproachZeroF(&this->unkE58.z, 1.0f, 2.0f);
     }
+
     Actor_UpdateBgCheckInfo(play, &this->actor, 35.0f, 60.0f, 60.0f, 0x1D);
 
-    if ((this->unk284 == 5) || (this->unk284 == 6) || (this->unk284 == 0xF) || (this->unk284 == 0x10)) {
+    if ((this->unk284 == 5) || (this->unk284 == 6) || (this->unk284 == 15) || (this->unk284 == 16)) {
         this->unk_38C++;
-        if (this->unk_38C >= 0x14) {
+        if (this->unk_38C >= 20) {
             this->unk_38C = 0;
         }
 
-        if (this->unk_388 < 0x13) {
+        if (this->unk_388 < 19) {
             this->unk_388++;
         }
         Math_Vec3f_Copy(&this->unk_390[this->unk_38C], &this->actor.world.pos);
@@ -1445,6 +1452,7 @@ void EnJso2_Update(Actor* thisx, PlayState* play) {
     } else if (this->unk284 != 0) {
         this->unk_388 = 0;
     }
+
     if ((this->unk284 != 3) && (this->unk284 != 5) && (this->unk284 != 0xB) && (this->unk284 != 8) &&
         (this->unk284 != 0xF) && (this->unk284 != 0xC)) {
         this->actor.shape.rot.y = this->actor.world.rot.y;
@@ -1461,7 +1469,7 @@ void EnJso2_Update(Actor* thisx, PlayState* play) {
             CollisionCheck_SetAC(play, &play->colChkCtx, &this->unkEF4.base);
         }
     }
-    if (((this->unk284 == 7) || (this->unk284 == 0x10) || (this->unk284 == 6) || (this->unk284 == 8)) &&
+    if (((this->unk284 == 7) || (this->unk284 == 16) || (this->unk284 == 6) || (this->unk284 == 8)) &&
         (this->unk371 == 0) && (this->unk36C == 0)) {
         CollisionCheck_SetAT(play, &play->colChkCtx, &this->unkF40.base);
         CollisionCheck_SetAT(play, &play->colChkCtx, &this->unkFC0.base);
@@ -1472,7 +1480,7 @@ s32 func_80A7AA48(PlayState* play, s32 arg1, Gfx** dList, Vec3f* pos, Vec3s* rot
     EnJso2* this = THIS;
 
     if (this->unk36C == 2) {
-        if ((arg1 == 4) && (this->unk284 != 0xE)) {
+        if ((arg1 == 4) && (this->unk284 != 14)) {
             *dList = NULL;
         }
         if (arg1 == 6) {
@@ -1509,7 +1517,7 @@ void func_80A7AA9C(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Acto
             Matrix_MultVec3f(&D_80A7B570, &this->unk_E64[2]);
         }
 
-        if (((this->unk284 == 7) || (this->unk284 == 8) || (this->unk284 == 6) || (this->unk284 == 0x10)) &&
+        if (((this->unk284 == 7) || (this->unk284 == 8) || (this->unk284 == 6) || (this->unk284 == 16)) &&
             (this->unk368 == 0)) {
             EffectBlure_AddVertex(Effect_GetByIndex(this->unk384), &sp68, &sp5C);
         } else if (this->unk368 == 1) {
@@ -1554,9 +1562,9 @@ void func_80A7AA9C(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Acto
         Matrix_MultVec3f(&sp50, &this->unk2C4);
     }
 
-    if ((this->unk284 != 0xE) && ((limbIndex == 4) || (limbIndex == 6) || (limbIndex == 7) || (limbIndex == 8) ||
-                                  (limbIndex == 9) || (limbIndex == 10) || (limbIndex == 11) || (limbIndex == 12) ||
-                                  (limbIndex == 14) || (limbIndex == 16) || (limbIndex == 17) || (limbIndex == 19))) {
+    if ((this->unk284 != 14) && ((limbIndex == 4) || (limbIndex == 6) || (limbIndex == 7) || (limbIndex == 8) ||
+                                 (limbIndex == 9) || (limbIndex == 10) || (limbIndex == 11) || (limbIndex == 12) ||
+                                 (limbIndex == 14) || (limbIndex == 16) || (limbIndex == 17) || (limbIndex == 19))) {
 
         Matrix_MultZero(&this->unk2D4[this->unk364]);
 
@@ -1568,6 +1576,7 @@ void func_80A7AA9C(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Acto
     if (limbIndex == 12) {
         Matrix_Push();
         Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
+
         OPEN_DISPS(play->state.gfxCtx);
 
         gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
