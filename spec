@@ -1538,7 +1538,7 @@ beginseg
     name "ovl_Obj_Mure2"
     compress
     include "build/src/overlays/actors/ovl_Obj_Mure2/z_obj_mure2.o"
-    include "build/data/ovl_Obj_Mure2/ovl_Obj_Mure2.reloc.o"
+    include "build/src/overlays/actors/ovl_Obj_Mure2/ovl_Obj_Mure2_reloc.o"
 endseg
 
 beginseg
@@ -2308,7 +2308,7 @@ beginseg
     name "ovl_Boss_05"
     compress
     include "build/src/overlays/actors/ovl_Boss_05/z_boss_05.o"
-    include "build/data/ovl_Boss_05/ovl_Boss_05.reloc.o"
+    include "build/src/overlays/actors/ovl_Boss_05/ovl_Boss_05_reloc.o"
 endseg
 
 beginseg
@@ -2326,7 +2326,7 @@ beginseg
     name "ovl_Boss_07"
     compress
     include "build/src/overlays/actors/ovl_Boss_07/z_boss_07.o"
-    include "build/data/ovl_Boss_07/ovl_Boss_07.reloc.o"
+    include "build/src/overlays/actors/ovl_Boss_07/ovl_Boss_07_reloc.o"
 endseg
 
 beginseg
@@ -2851,8 +2851,11 @@ beginseg
     name "ovl_En_Jso2"
     compress
     include "build/src/overlays/actors/ovl_En_Jso2/z_en_jso2.o"
-    //include "build/data/ovl_En_Jso2/ovl_En_Jso2.data.o"
+    #ifdef NON_MATCHING
+    include "build/src/overlays/actors/ovl_En_Jso2/ovl_En_Jso2_reloc.o"
+    #else
     include "build/data/ovl_En_Jso2/ovl_En_Jso2.reloc.o"
+    #endif
 endseg
 
 beginseg
@@ -3398,7 +3401,11 @@ beginseg
     name "ovl_En_Wdhand"
     compress
     include "build/src/overlays/actors/ovl_En_Wdhand/z_en_wdhand.o"
+    #ifdef NON_MATCHING
+    include "build/src/overlays/actors/ovl_En_Wdhand/ovl_En_Wdhand_reloc.o"
+    #else
     include "build/data/ovl_En_Wdhand/ovl_En_Wdhand.reloc.o"
+    #endif
 endseg
 
 beginseg
@@ -4714,8 +4721,7 @@ beginseg
     name "ovl_En_Bsb"
     compress
     include "build/src/overlays/actors/ovl_En_Bsb/z_en_bsb.o"
-    include "build/data/ovl_En_Bsb/ovl_En_Bsb.data.o"
-    include "build/data/ovl_En_Bsb/ovl_En_Bsb.reloc.o"
+    include "build/src/overlays/actors//ovl_En_Bsb/ovl_En_Bsb_reloc.o"
 endseg
 
 beginseg
