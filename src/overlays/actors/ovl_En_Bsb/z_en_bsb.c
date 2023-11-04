@@ -761,9 +761,6 @@ void func_80C0CD90(EnBsb* this) {
     this->actionFunc = func_80C0CDE4;
 }
 
-// regalloc
-// https://decomp.me/scratch/vw91Q
-#ifdef NON_MATCHING
 void func_80C0CDE4(EnBsb* this, PlayState* play) {
     f32 sp3C;
     f32 curFrame = this->skelAnime.curFrame;
@@ -790,7 +787,7 @@ void func_80C0CDE4(EnBsb* this, PlayState* play) {
     this->unk_0F34.base.atFlags & AT_BOUNCED
     || temp_v0->stateFlags1 & 0x400000
     && temp_fv0 <= 70.0f
-    && (temp_v1 = (temp_v0->actor.shape.rot.y - this->actor.shape.rot.y) + 0x8000, (temp_v1 < 0x2000) != 0)
+    && (temp_v1 = (temp_v0->actor.shape.rot.y - this->actor.shape.rot.y) + 0x8000, (temp_v1 < 0x2000))
     && temp_v1 > -0x2000
     ) {
         this->unk_0F34.base.atFlags &= ~(AT_BOUNCED|AT_HIT);
@@ -805,9 +802,6 @@ void func_80C0CDE4(EnBsb* this, PlayState* play) {
         func_80C0C86C(this);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0CDE4.s")
-#endif
 
 void func_80C0CF4C(EnBsb* this) {
     this->actor.speed = 0.0f;
