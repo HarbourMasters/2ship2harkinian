@@ -49,6 +49,7 @@ void func_80C0DB18(EnBsb* this, PlayState* play);
 void func_80C0E1C0(EnBsb* this, PlayState* play);
 void func_80C0E480(EnBsb* this, PlayState* play);
 void func_80C0E4FC(EnBsb* this, PlayState* play);
+s32 func_80C0E9CC(EnBsb* this, PlayState* play);
 void func_80C0B290(EnBsb* this, s32 arg0);
 void func_80C0B31C(PlayState* play, EnBsb* this, Vec3f* pos);
 s32 func_80C0B888(EnBsb* this, PlayState* play);
@@ -782,21 +783,16 @@ void func_80C0CDE4(EnBsb* this, PlayState* play) {
 
     temp_fv0 = sqrtf((SQ(x) + SQ(y)) + SQ(z));
 
-    // clang-format off
-    if (
-    this->unk_0F34.base.atFlags & AT_BOUNCED
-    || temp_v0->stateFlags1 & 0x400000
-    && temp_fv0 <= 70.0f
-    && (temp_v1 = (temp_v0->actor.shape.rot.y - this->actor.shape.rot.y) + 0x8000, (temp_v1 < 0x2000))
-    && temp_v1 > -0x2000
-    ) {
-        this->unk_0F34.base.atFlags &= ~(AT_BOUNCED|AT_HIT);
+    if ((this->unk_0F34.base.atFlags & AT_BOUNCED) ||
+        (temp_v0->stateFlags1 & 0x400000) && (temp_fv0 <= 70.0f) &&
+            (temp_v1 = (temp_v0->actor.shape.rot.y - this->actor.shape.rot.y) + 0x8000, (temp_v1 < 0x2000)) &&
+            (temp_v1 > -0x2000)) {
+        this->unk_0F34.base.atFlags &= ~(AT_BOUNCED | AT_HIT);
         EffectSsHitmark_SpawnFixedScale(play, 3, &sp34);
         Actor_PlaySfx(&this->actor, NA_SE_IT_SHIELD_BOUND);
         func_80C0CF4C(this);
         return;
     }
-    // clang-format on
 
     if (this->unk_02C4 <= curFrame) {
         func_80C0C86C(this);
@@ -1234,9 +1230,10 @@ void func_80C0E1C0(EnBsb* this, PlayState* play) {
             D_80C0F8D0 = this->skelAnime.curFrame;
 
             for (i = 0; i < 17; i++) {
-                newActor = Actor_Spawn(&play->actorCtx, play, ACTOR_EN_BSB, this->actor.world.pos.x,
-                                       this->actor.world.pos.y, this->actor.world.pos.z, this->actor.shape.rot.x,
-                                       this->actor.shape.rot.y, this->actor.shape.rot.z, this->unk_03FC[i] + 0x8000);
+                newActor =
+                    (EnBsb*)Actor_Spawn(&play->actorCtx, play, ACTOR_EN_BSB, this->actor.world.pos.x,
+                                        this->actor.world.pos.y, this->actor.world.pos.z, this->actor.shape.rot.x,
+                                        this->actor.shape.rot.y, this->actor.shape.rot.z, this->unk_03FC[i] + 0x8000);
                 if (newActor != NULL) {
                     newActor->unk_02C0 = this->unk_0330[i].y;
                 }
@@ -1678,7 +1675,7 @@ void EnBsb_Draw(Actor* thisx, PlayState* play) {
 }
 
 void func_80C0F544(EnBsb* this, Vec3f* pos, Vec3f* velocity, Vec3f* accel, f32 arg0, s16 arg1) {
-    EnBsbUnkStruct* var_s0 = &this->unk_0444;
+    EnBsbUnkStruct* var_s0 = this->unk_0444;
     s16 i;
 
     for (i = 0; i < ARRAY_COUNT(this->unk_0444); i++, var_s0++) {
@@ -1699,7 +1696,7 @@ void func_80C0F544(EnBsb* this, Vec3f* pos, Vec3f* velocity, Vec3f* accel, f32 a
 
 void func_80C0F640(EnBsb* this, PlayState* play) {
     s32 i;
-    EnBsbUnkStruct* var_v0 = &this->unk_0444;
+    EnBsbUnkStruct* var_v0 = this->unk_0444;
 
     for (i = 0; i < ARRAY_COUNT(this->unk_0444); i++, var_v0++) {
         if (var_v0->unk_00 != 0) {
@@ -1726,7 +1723,7 @@ void func_80C0F758(EnBsb* this, PlayState* play) {
     EnBsbUnkStruct* var_s0;
 
     OPEN_DISPS(play->state.gfxCtx);
-    var_s0 = &this->unk_0444;
+    var_s0 = this->unk_0444;
     Gfx_SetupDL25_Opa(play->state.gfxCtx);
 
     for (i = 0; i < ARRAY_COUNT(this->unk_0444); i++, var_s0++) {
