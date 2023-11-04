@@ -160,6 +160,7 @@ extern Vec3s D_80C0FAC0;
 
 extern AnimationHeader D_06000C50[];
 extern UNK_TYPE D_06004894;
+extern Mtx D_0406AB30;
 
 extern AnimationHeader* D_80C0FA20[];
 extern u8 D_80C0FA84[];
@@ -1628,9 +1629,8 @@ void func_80C0F544(EnBsb* this, Vec3f* pos, Vec3f* velocity, Vec3f* accel, f32 a
 
 void func_80C0F640(EnBsb* this, PlayState* play) {
     s32 i;
-    EnBsbUnkStruct* var_v0;
+    EnBsbUnkStruct* var_v0 = &this->unk_0444;
 
-    var_v0 = &this->unk_0444;
     for (i = 0; i < ARRAY_COUNT(this->unk_0444); i++, var_v0++) {
         if (var_v0->unk_00 != 0) {
             var_v0->rot.x += 0x100;
@@ -1650,8 +1650,6 @@ void func_80C0F640(EnBsb* this, PlayState* play) {
     }
 }
 
-extern Mtx D_0406AB30;
-
 void func_80C0F758(EnBsb* this, PlayState* play) {
     GraphicsContext* gfxCtx = play->state.gfxCtx;
     s32 i;
@@ -1660,6 +1658,7 @@ void func_80C0F758(EnBsb* this, PlayState* play) {
     OPEN_DISPS(play->state.gfxCtx);
     var_s0 = &this->unk_0444;
     Gfx_SetupDL25_Opa(play->state.gfxCtx);
+
     for (i = 0; i < ARRAY_COUNT(this->unk_0444); i++, var_s0++) {
         if (var_s0->unk_00 != 0) {
             Matrix_Push();
@@ -1671,9 +1670,9 @@ void func_80C0F758(EnBsb* this, PlayState* play) {
 
             gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
 
-            gDPSetPrimColor(POLY_OPA_DISP++, 0, 0x80, 0xFF, 0xFF, 0xFF, 0xFF);
+            gDPSetPrimColor(POLY_OPA_DISP++, 0, 0x80, 255, 255, 255, 255);
 
-            gDPSetEnvColor(POLY_OPA_DISP++, 0xFF, 0xFF, 0xFF, 0xFF);
+            gDPSetEnvColor(POLY_OPA_DISP++, 255, 255, 255, 255);
 
             gSPDisplayList(POLY_OPA_DISP++, &D_0406AB30);
 

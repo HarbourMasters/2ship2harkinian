@@ -17,37 +17,38 @@ void EnJso2_Destroy(Actor* thisx, PlayState* play);
 void EnJso2_Update(Actor* thisx, PlayState* play);
 void EnJso2_Draw(Actor* thisx, PlayState* play);
 
+void func_80A776E0(EnJso2* this, s32 animIndex);
+void func_80A778D8(EnJso2* this);
 void func_80A778F8(EnJso2* this, PlayState* play);
+void func_80A78588(EnJso2* this);
 void func_80A785E4(EnJso2* this, PlayState* play);
 void func_80A787FC(EnJso2* this, PlayState* play);
 void func_80A78868(EnJso2* this, PlayState* play);
 void func_80A78ACC(EnJso2* this, PlayState* play);
+void func_80A78B04(EnJso2* this);
 void func_80A78B70(EnJso2* this, PlayState* play);
+void func_80A78C08(EnJso2* this);
 void func_80A78C7C(EnJso2* this, PlayState* play);
+void func_80A78E8C(EnJso2* this);
 void func_80A78F04(EnJso2* this, PlayState* play);
+void func_80A78F80(EnJso2* this, PlayState* play);
 void func_80A79038(EnJso2* this, PlayState* play);
+void func_80A790E4(EnJso2* this, PlayState* play);
 void func_80A7919C(EnJso2* this, PlayState* play);
+void func_80A79300(EnJso2* this);
 void func_80A79364(EnJso2* this, PlayState* play);
+void func_80A79450(EnJso2* this);
 void func_80A794C8(EnJso2* this, PlayState* play);
 void func_80A79600(EnJso2* this, PlayState* play);
 void func_80A7980C(EnJso2* this, PlayState* play);
 void func_80A798C8(EnJso2* this, PlayState* play);
 void func_80A79A84(EnJso2* this, PlayState* play);
 void func_80A79BA0(EnJso2* this, PlayState* play);
-void func_80A7A124(EnJso2* this, PlayState* play);
-void func_80A7A2EC(EnJso2* this, PlayState* play);
-void func_80A78868(EnJso2* this, PlayState* play);
-void func_80A776E0(EnJso2* this, s32 animIndex);
-void func_80A79300(EnJso2* this);
-void func_80A78C08(EnJso2* this);
-void func_80A78F80(EnJso2* this, PlayState* play);
-void func_80A790E4(EnJso2* this, PlayState* play);
 void func_80A79864(EnJso2* this);
 void func_80A79B60(EnJso2* this);
 void func_80A7A0D0(EnJso2* this);
-void func_80A79450(EnJso2* this);
-void func_80A78B04(EnJso2* this);
-void func_80A78E8C(EnJso2* this);
+void func_80A7A124(EnJso2* this, PlayState* play);
+void func_80A7A2EC(EnJso2* this, PlayState* play);
 s32 func_80A7AA48(PlayState* play, s32 arg1, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx);
 void func_80A7AA9C(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Actor* thisx);
 
@@ -165,7 +166,93 @@ extern Vec3f D_80A7B72C;
 extern Gfx D_0407D590[];
 extern s16 D_80A7B738[20];
 
+extern FlexSkeletonHeader D_06003168;
+
+#ifdef NON_MATCHING
+void EnJso2_Init(Actor* thisx, PlayState* play) {
+    EnJso2* this = (EnJso2*)thisx;
+    EffectBlureInit1 rightSwordBlureInit;
+    EffectBlureInit1 leftSwordBlureInit;
+
+    this->actor.hintId = 0x18;
+    this->actor.targetMode = 5;
+    this->actor.colChkInfo.mass = 0x50;
+    this->actor.colChkInfo.health = 0xE;
+    ActorShape_Init(&this->actor.shape, 0.0f, ActorShadow_DrawCircle, 0.0f);
+    this->actor.colChkInfo.damageTable = &D_80A7B4F0;
+    this->actor.shape.shadowScale = 0.0f;
+    SkelAnime_InitFlex(play, &this->skelAnime, &D_06003168, (AnimationHeader*)&D_060081F4, this->jointTable,
+                       this->morphTable, 20);
+    Collider_InitAndSetCylinder(play, &this->unkEF4, &this->actor, &D_80A7B608);
+    Collider_InitAndSetQuad(play, &this->unkF40, &this->actor, &D_80A7B634);
+    Collider_InitAndSetQuad(play, &this->unkFC0, &this->actor, &D_80A7B634);
+
+    rightSwordBlureInit.p2EndColor[2] = rightSwordBlureInit.p1EndColor[0] = 0xFF;    // 0x360 // t7
+
+    rightSwordBlureInit.p2EndColor[0] = 0xFF;                                        // 0x364 // t9
+
+    leftSwordBlureInit.p2EndColor[2] = leftSwordBlureInit.p1EndColor[0] = 0xFF;      // 0x1c0 // t6 -> t7
+
+    leftSwordBlureInit.p2EndColor[0] = 0xFF;                                         // 0x1c4 // t8
+
+    rightSwordBlureInit.p2StartColor[3] = leftSwordBlureInit.p2StartColor[3] = 0x40; // 0x1bf // t9
+
+    leftSwordBlureInit.elemDuration = 8;                                             // 0x1c8 // t6
+
+    rightSwordBlureInit.p1StartColor[0] = 0xFF;                                      // 0x358 // t0
+
+    leftSwordBlureInit.p1StartColor[0] = 0xFF;                                       // 0x1b8
+
+    rightSwordBlureInit.p1StartColor[2] = rightSwordBlureInit.p1StartColor[1] = 0;   // 0x359 // zero
+
+    rightSwordBlureInit.p1StartColor[3] = 0x80;                                      // 0x35b // t3
+
+    rightSwordBlureInit.p2StartColor[0] = 0xFF;                                      // 0x35c // t4
+
+    rightSwordBlureInit.p1EndColor[3] = leftSwordBlureInit.p1EndColor[3] = rightSwordBlureInit.p2EndColor[3] =
+        leftSwordBlureInit.p2EndColor[3] = rightSwordBlureInit.p2EndColor[1] = leftSwordBlureInit.p2EndColor[1] =
+            rightSwordBlureInit.p1EndColor[2] = leftSwordBlureInit.p1EndColor[2] = rightSwordBlureInit.p1EndColor[1] =
+                leftSwordBlureInit.p1EndColor[1] = rightSwordBlureInit.p2StartColor[2] =
+                    rightSwordBlureInit.p2StartColor[1] = 0;      // 0x35d // zero
+
+    rightSwordBlureInit.elemDuration = 8;                         // 0x368 // t7
+
+    rightSwordBlureInit.unkFlag = leftSwordBlureInit.unkFlag = 0; // 0x1cc // zero
+
+    leftSwordBlureInit.calcMode = 2;                              // 0x1d0
+    rightSwordBlureInit.calcMode = 2;                             // 0x370
+
+    leftSwordBlureInit.p2StartColor[0] = 0xFF;                    // 0x1bc
+
+    leftSwordBlureInit.p1StartColor[3] = 0x80;                    // 0x1bb
+
+    leftSwordBlureInit.p2StartColor[2] = leftSwordBlureInit.p2StartColor[1] = leftSwordBlureInit.p1StartColor[2] =
+        leftSwordBlureInit.p1StartColor[1] = 0; // 0x1b9 // zero
+
+    Effect_Add(play, &this->unk380, 1, 0, 0, &rightSwordBlureInit);
+    Effect_Add(play, &this->unk384, 1, 0, 0, &leftSwordBlureInit);
+    this->unk378 = 0.042f;
+    this->unk29C = this->actor.params;
+    this->unk_38E = Rand_S16Offset(0, 7);
+    this->unk_2B0 = 0xC;
+    this->unk366 = 0xFF;
+    if (this->unk29C == 0) {
+        this->actor.draw = NULL;
+        this->actor.flags |= 0x08000000;
+        this->actor.flags &= ~1;
+        this->actor.shape.yOffset = 0.0f;
+        func_80A778D8(this);
+    } else {
+        this->actor.gravity = -3.0f;
+        this->actor.shape.rot.y = this->actor.yawTowardsPlayer;
+        this->actor.world.rot.y = this->actor.yawTowardsPlayer;
+        this->actor.shape.yOffset = 960.0f;
+        func_80A78588(this);
+    }
+}
+#else
 #pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/EnJso2_Init.s")
+#endif
 
 void EnJso2_Destroy(Actor* thisx, PlayState* play) {
     EnJso2* this = THIS;
@@ -583,29 +670,29 @@ void func_80A79524(EnJso2* this) {
     Matrix_MultVecZ(-10.0f, &vec);
     Math_Vec3f_Copy(&this->unkE58, &vec);
 
-    if (((this->unk2A2 == 0xB) || (this->unk2A2 == 0xA)) && (this->unk2A0 == 0)) {
+    if (((this->unk2A2 == 11) || (this->unk2A2 == 10)) && (this->unk2A0 == 0)) {
         this->unk2A0 = 0;
         this->unk2A2 = 0;
     }
 
-    if ((this->unk2A2 != 0xB) && (this->unk2A2 != 0xA)) {
+    if ((this->unk2A2 != 11) && (this->unk2A2 != 10)) {
         this->unk290 = 40;
     }
 
-    this->unk284 = 0xA;
+    this->unk284 = 10;
     this->actionFunc = func_80A79600;
 }
 
 void func_80A79600(EnJso2* this, PlayState* play) {
-    if (this->unk2A2 == 0xB) {
+    if (this->unk2A2 == 11) {
         if ((this->unk2A0 != 0) && (this->unk2A0 < 0x3C)) {
             this->unk2A2 = 0xA;
         }
     }
 
     if ((this->unk290 == 0) && (this->unk2A0 == 0)) {
-        if ((this->unk2A2 == 0xB) || (this->unk2A2 == 0xA)) {
-            Actor_SpawnIceEffects(play, &this->actor, &this->unk2D4, 0xC, 2, 0.7f, 0.4f);
+        if ((this->unk2A2 == 11) || (this->unk2A2 == 10)) {
+            Actor_SpawnIceEffects(play, &this->actor, this->unk2D4, 0xC, 2, 0.7f, 0.4f);
             this->unk2A0 = 0;
             this->unk2A2 = 0;
         }
@@ -628,7 +715,7 @@ void func_80A796BC(EnJso2* this, PlayState* play) {
     Math_Vec3f_Copy(&this->unkE58, &vec);
 
     if (((this->unk2A2 == 0xB) || (this->unk2A2 == 0xA)) && (this->unk2A0 != 0)) {
-        Actor_SpawnIceEffects(play, &this->actor, &this->unk2D4, 0xC, 2, 0.7f, 0.4f);
+        Actor_SpawnIceEffects(play, &this->actor, this->unk2D4, 0xC, 2, 0.7f, 0.4f);
         this->unk2A0 = 0;
         this->unk2A2 = 0;
     }
@@ -710,7 +797,7 @@ void func_80A79A84(EnJso2* this, PlayState* play) {
 
     if ((this->unk2A2 == 0xB) || (this->unk2A2 == 0xA)) {
         if (this->unk2A0 != 0) {
-            Actor_SpawnIceEffects(play, &this->actor, &this->unk2D4, 0xC, 2, 0.7f, 0.4f);
+            Actor_SpawnIceEffects(play, &this->actor, this->unk2D4, 0xC, 2, 0.7f, 0.4f);
             this->unk2A0 = 0;
             this->unk2A2 = 0;
         } else {
@@ -1089,10 +1176,10 @@ void func_80A7AA9C(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Acto
     if (limbIndex == 4) {
         Matrix_Translate(0.0f, 0.0f, 0.0f, MTXMODE_APPLY);
         Math_Vec3f_Copy(&this->unkFC0.dim.quad[3], &this->unkFC0.dim.quad[1]);
-        Math_Vec3f_Copy(&this->unkFC0.dim.quad[2], &this->unkFC0.dim.quad);
+        Math_Vec3f_Copy(&this->unkFC0.dim.quad[2], this->unkFC0.dim.quad);
         Matrix_MultVec3f(&D_80A7B720, &this->unkFC0.dim.quad[1]);
-        Matrix_MultVec3f(&D_80A7B72C, &this->unkFC0.dim.quad);
-        Collider_SetQuadVertices(&this->unkFC0, &this->unkFC0.dim.quad, &this->unkFC0.dim.quad[1],
+        Matrix_MultVec3f(&D_80A7B72C, this->unkFC0.dim.quad);
+        Collider_SetQuadVertices(&this->unkFC0, this->unkFC0.dim.quad, &this->unkFC0.dim.quad[1],
                                  &this->unkFC0.dim.quad[2], &this->unkFC0.dim.quad[3]);
         Matrix_MultVec3f(&D_80A7B708, &sp68);
         Matrix_MultVec3f(&D_80A7B714, &sp5C);
@@ -1118,10 +1205,10 @@ void func_80A7AA9C(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Acto
     if (limbIndex == 6) {
         Matrix_Translate(0.0f, 0.0f, 0.0f, MTXMODE_APPLY);
         Math_Vec3f_Copy(&this->unkF40.dim.quad[3], &this->unkF40.dim.quad[1]);
-        Math_Vec3f_Copy(&this->unkF40.dim.quad[2], &this->unkF40.dim.quad);
+        Math_Vec3f_Copy(&this->unkF40.dim.quad[2], this->unkF40.dim.quad);
         Matrix_MultVec3f(&D_80A7B720, &this->unkF40.dim.quad[1]);
-        Matrix_MultVec3f(&D_80A7B72C, &this->unkF40.dim.quad);
-        Collider_SetQuadVertices(&this->unkF40, &this->unkF40.dim.quad, &this->unkF40.dim.quad[1],
+        Matrix_MultVec3f(&D_80A7B72C, this->unkF40.dim.quad);
+        Collider_SetQuadVertices(&this->unkF40, this->unkF40.dim.quad, &this->unkF40.dim.quad[1],
                                  &this->unkF40.dim.quad[2], &this->unkF40.dim.quad[3]);
         Matrix_MultVec3f(&D_80A7B708, &sp68);
         Matrix_MultVec3f(&D_80A7B714, &sp5C);
