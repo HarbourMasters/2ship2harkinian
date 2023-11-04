@@ -1271,7 +1271,7 @@ void func_80C0E1C0(EnBsb* this, PlayState* play) {
     if (this->unk_02D8 == 16) {
         if (Animation_OnFrame(&this->skelAnime, 30.0f) != 0) {
             Actor_PlaySfx(&this->actor, NA_SE_EN_KITA_SALUTE);
-        } else if ((curFrame < 30.0f) && (((play->csCtx.curFrame == 472)) || (play->csCtx.curFrame == 487))) {
+        } else if ((curFrame < 30.0f) && ((play->csCtx.curFrame == 472) || (play->csCtx.curFrame == 487))) {
             Actor_PlaySfx(&this->actor, NA_SE_EN_KTIA_WALK);
         }
     }
