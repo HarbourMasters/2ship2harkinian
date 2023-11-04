@@ -42,6 +42,7 @@ void func_80C0D10C(EnBsb* this, PlayState* play);
 void func_80C0D27C(EnBsb* this, PlayState* play);
 void func_80C0D384(EnBsb* this, PlayState* play);
 void func_80C0D51C(EnBsb* this, PlayState* play);
+void func_80C0D964(EnBsb* this, PlayState* play);
 void func_80C0D9B4(EnBsb* this, PlayState* play);
 void func_80C0DA58(EnBsb* this);
 void func_80C0DB18(EnBsb* this, PlayState* play);
@@ -942,7 +943,81 @@ void func_80C0D3C0(EnBsb* this, PlayState* play) {
     this->actor.velocity.y = 30.0f;
 }
 
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Bsb/func_80C0D51C.s")
+void func_80C0D51C(EnBsb* this, PlayState* play) {
+    f32 curFrame;
+    s32 var_v0;
+    f32 newSinX;
+    f32 newSinY;
+    Player* player;
+
+    curFrame = this->skelAnime.curFrame;
+
+    if (((this->unk_0324 == 0xB) || (this->unk_0324 == 0xA)) && (this->unk_0322 != 0)) {
+        Actor_SpawnIceEffects(play, &this->actor, this->unk_0330, 0x11, 2, this->unk_032C, 0.4f);
+        this->unk_0322 = 0;
+        this->unk_0324 = 0;
+    }
+    if (this->unk_02A4 == 0) {
+        if (CutsceneManager_IsNext(this->unk_02CC[1]) == 0) {
+            CutsceneManager_Queue(this->unk_02CC[1]);
+            return;
+        }
+        CutsceneManager_StartWithPlayerCs(this->unk_02CC[1], &this->actor);
+        func_800B7298(play, &this->actor, 0x51);
+        this->unk_111A = CutsceneManager_GetCurrentSubCamId(this->actor.csId);
+        this->unk_02A4 = 1;
+    }
+
+    if (this->unk_02A8 == 2) {
+        f32 blah;
+        newSinX = Math_SinS(this->actor.world.rot.y) * 380.f;
+        newSinY = Math_CosS(this->actor.world.rot.y) * 380.f;
+
+        this->unk_1140.x = newSinX + this->unk_02E0.x;
+        this->unk_1140.y = this->unk_02E0.y + 30.0f;
+        this->unk_1140.z = newSinY + this->unk_02E0.z;
+
+        this->unk_114C.x = (Math_SinS(this->actor.world.rot.y) * 10.0f) + this->unk_02E0.x;
+        this->unk_114C.y = this->unk_02E0.y - 63.0f;
+        this->unk_114C.z = (Math_CosS(this->actor.world.rot.y) * 10.0f) + this->unk_02E0.z;
+    } else {
+        this->unk_114C.x = (Math_SinS(this->actor.world.rot.y) * 10.0f) + this->unk_02E0.x;
+        this->unk_114C.y = this->unk_02E0.y - 10.0f;
+        this->unk_114C.z = (Math_CosS(this->actor.world.rot.y) * 10.0f) + this->unk_02E0.z;
+    }
+    if (this->unk_02A8 == 0) {
+        this->actor.world.rot.y += this->unk_02AC;
+        Math_SmoothStepToS(&this->unk_02AC, 0x1000, 1, 0x1F4, 0);
+        var_v0 = ABS_ALT((s16)(this->actor.yawTowardsPlayer - this->actor.world.rot.y));
+
+        if ((this->actor.velocity.y < -5.0f) && (var_v0 < 0x1000)) {
+            this->unk_02A8 = 1;
+        }
+    } else {
+        Math_SmoothStepToS(&this->actor.world.rot.y, this->actor.yawTowardsPlayer, 1, 0x3E8, 0);
+        var_v0 = ABS_ALT((s16)(this->actor.yawTowardsPlayer - this->actor.world.rot.y));
+    }
+    if ((this->unk_02A8 != 0) && (var_v0 < 0x100) && (this->actor.world.pos.y < (this->actor.floorHeight + 30.0f))) {
+        this->unk_02A8 = 2;
+        if (this->unk_02D8 < 9) {
+            player = GET_PLAYER(play);
+            func_80C0B290(this, 9);
+            func_800B7298(play, &this->actor, 4);
+            player->actor.velocity.y = 5.0f;
+            Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos, this->actor.shape.shadowScale - 20.0f,
+                                     0x14, 8.0f, 0x3E8, 0x64, 1);
+            Actor_PlaySfx(&this->actor, 0x387BU);
+            Actor_RequestQuakeAndRumble(&this->actor, play, 4, 0xA);
+        } else if ((this->unk_02D8 == 9) && (curFrame >= this->unk_02C4)) {
+            func_80C0B290(this, 0xA);
+            func_800B7298(play, &this->actor, 0x51);
+        }
+    }
+    func_80C0BE1C(this, play);
+    if ((this->unk_02A4 != 0) && (this->unk_02A8 != 0) && (this->unk_02D8 == 0xA) && (curFrame >= this->unk_02C4)) {
+        func_80C0D964(this, play);
+    }
+}
 
 void func_80C0D964(EnBsb* this, PlayState* play) {
     this->unk_02A4 = 0;
