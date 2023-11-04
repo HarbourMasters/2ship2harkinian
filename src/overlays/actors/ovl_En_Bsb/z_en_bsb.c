@@ -52,7 +52,7 @@ void func_80C0E1C0(EnBsb* this, PlayState* play);
 void func_80C0E480(EnBsb* this, PlayState* play);
 void func_80C0E4FC(EnBsb* this, PlayState* play);
 s32 func_80C0E9CC(EnBsb* this, PlayState* play);
-void func_80C0B290(EnBsb* this, s32 arg0);
+void func_80C0B290(EnBsb* this, s32 animIndex);
 void func_80C0B31C(PlayState* play, EnBsb* this, Vec3f* pos);
 s32 func_80C0B888(EnBsb* this, PlayState* play);
 void func_80C0C32C(EnBsb* this);
@@ -60,7 +60,7 @@ void func_80C0C430(EnBsb* this);
 void func_80C0D00C(EnBsb* this);
 void func_80C0E3B8(EnBsb* this);
 void func_80C0E618(EnBsb* this, PlayState* play);
-void func_80C0F544(EnBsb* this, Vec3f* pos, Vec3f* unk_02, Vec3f* unk3, f32 unk4, s16 unk5);
+void func_80C0F544(EnBsb* this, Vec3f* pos, Vec3f* velocity, Vec3f* accel, f32 arg0, s16 arg1);
 void func_80C0F640(EnBsb* this, PlayState* play);
 void func_80C0F758(EnBsb* this, PlayState* play);
 

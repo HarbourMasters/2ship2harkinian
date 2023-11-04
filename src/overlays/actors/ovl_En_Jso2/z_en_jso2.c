@@ -17,7 +17,7 @@
 void EnJso2_Init(Actor* thisx, PlayState* play);
 void EnJso2_Destroy(Actor* thisx, PlayState* play);
 void EnJso2_Update(Actor* thisx, PlayState* play);
-void EnJso2_Draw(Actor* thisx, PlayState* play);
+void EnJso2_Draw(Actor* thisx, PlayState* play2);
 
 void func_80A776E0(EnJso2* this, s32 animIndex);
 void func_80A778D8(EnJso2* this);
@@ -211,44 +211,44 @@ void EnJso2_Init(Actor* thisx, PlayState* play) {
     Collider_InitAndSetQuad(play, &this->unkF40, &this->actor, &D_80A7B634);
     Collider_InitAndSetQuad(play, &this->unkFC0, &this->actor, &D_80A7B634);
 
-    rightSwordBlureInit.p2EndColor[2] = rightSwordBlureInit.p1EndColor[0] = 0xFF;    // 0x360 // t7
+    rightSwordBlureInit.p2EndColor[2] = rightSwordBlureInit.p1EndColor[0] = 0xFF; // 0x360 // t7
 
-    rightSwordBlureInit.p2EndColor[0] = 0xFF;                                        // 0x364 // t9
+    rightSwordBlureInit.p2EndColor[0] = 0xFF; // 0x364 // t9
 
-    leftSwordBlureInit.p2EndColor[2] = leftSwordBlureInit.p1EndColor[0] = 0xFF;      // 0x1c0 // t6 -> t7
+    leftSwordBlureInit.p2EndColor[2] = leftSwordBlureInit.p1EndColor[0] = 0xFF; // 0x1c0 // t6 -> t7
 
-    leftSwordBlureInit.p2EndColor[0] = 0xFF;                                         // 0x1c4 // t8
+    leftSwordBlureInit.p2EndColor[0] = 0xFF; // 0x1c4 // t8
 
     rightSwordBlureInit.p2StartColor[3] = leftSwordBlureInit.p2StartColor[3] = 0x40; // 0x1bf // t9
 
-    leftSwordBlureInit.elemDuration = 8;                                             // 0x1c8 // t6
+    leftSwordBlureInit.elemDuration = 8; // 0x1c8 // t6
 
-    rightSwordBlureInit.p1StartColor[0] = 0xFF;                                      // 0x358 // t0
+    rightSwordBlureInit.p1StartColor[0] = 0xFF; // 0x358 // t0
 
-    leftSwordBlureInit.p1StartColor[0] = 0xFF;                                       // 0x1b8
+    leftSwordBlureInit.p1StartColor[0] = 0xFF; // 0x1b8
 
-    rightSwordBlureInit.p1StartColor[2] = rightSwordBlureInit.p1StartColor[1] = 0;   // 0x359 // zero
+    rightSwordBlureInit.p1StartColor[2] = rightSwordBlureInit.p1StartColor[1] = 0; // 0x359 // zero
 
-    rightSwordBlureInit.p1StartColor[3] = 0x80;                                      // 0x35b // t3
+    rightSwordBlureInit.p1StartColor[3] = 0x80; // 0x35b // t3
 
-    rightSwordBlureInit.p2StartColor[0] = 0xFF;                                      // 0x35c // t4
+    rightSwordBlureInit.p2StartColor[0] = 0xFF; // 0x35c // t4
 
     rightSwordBlureInit.p1EndColor[3] = leftSwordBlureInit.p1EndColor[3] = rightSwordBlureInit.p2EndColor[3] =
         leftSwordBlureInit.p2EndColor[3] = rightSwordBlureInit.p2EndColor[1] = leftSwordBlureInit.p2EndColor[1] =
             rightSwordBlureInit.p1EndColor[2] = leftSwordBlureInit.p1EndColor[2] = rightSwordBlureInit.p1EndColor[1] =
                 leftSwordBlureInit.p1EndColor[1] = rightSwordBlureInit.p2StartColor[2] =
-                    rightSwordBlureInit.p2StartColor[1] = 0;      // 0x35d // zero
+                    rightSwordBlureInit.p2StartColor[1] = 0; // 0x35d // zero
 
-    rightSwordBlureInit.elemDuration = 8;                         // 0x368 // t7
+    rightSwordBlureInit.elemDuration = 8; // 0x368 // t7
 
     rightSwordBlureInit.unkFlag = leftSwordBlureInit.unkFlag = 0; // 0x1cc // zero
 
-    leftSwordBlureInit.calcMode = 2;                              // 0x1d0
-    rightSwordBlureInit.calcMode = 2;                             // 0x370
+    leftSwordBlureInit.calcMode = 2;  // 0x1d0
+    rightSwordBlureInit.calcMode = 2; // 0x370
 
-    leftSwordBlureInit.p2StartColor[0] = 0xFF;                    // 0x1bc
+    leftSwordBlureInit.p2StartColor[0] = 0xFF; // 0x1bc
 
-    leftSwordBlureInit.p1StartColor[3] = 0x80;                    // 0x1bb
+    leftSwordBlureInit.p1StartColor[3] = 0x80; // 0x1bb
 
     leftSwordBlureInit.p2StartColor[2] = leftSwordBlureInit.p2StartColor[1] = leftSwordBlureInit.p1StartColor[2] =
         leftSwordBlureInit.p1StartColor[1] = 0; // 0x1b9 // zero
