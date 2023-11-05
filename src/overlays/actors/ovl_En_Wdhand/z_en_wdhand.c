@@ -178,8 +178,6 @@ static DamageTable D_80AF64F4 = {
     /* Powder Keg     */ DMG_ENTRY(1, 0x0),
 };
 
-Vec3f D_80AF6514 = { 0.0f, 0.0f, 0.0f };
-Vec3f D_80AF6520 = { 0.0f, 0.05f, 0.0f };
 
 void EnWdhand_Init(Actor* thisx, PlayState* play) {
     EnWdhand* this = THIS;
@@ -609,79 +607,85 @@ void func_80AF56A0(EnWdhand* this) {
     this->actionFunc = func_80AF5820;
 }
 
-#ifdef NON_MATCHING
 void func_80AF5820(EnWdhand* this, PlayState* play) {
+    static Vec3f D_80AF6514 = { 0.0f, 0.0f, 0.0f };
+    static Vec3f D_80AF6520 = { 0.0f, 0.05f, 0.0f };
+    Vec3s* temp;
     Vec3f spA0;
     Vec3f sp94;
-    Vec3f sp70;
     s16 temp_s0_6;
-    s32 temp_s5;
     s32 var_s0;
     s32 var_s2;
-    Vec3s* temp;
+    s32 var_s3;
+    Vec3f* temp_s1;
+    s32 tmp;
+    Vec3f sp70;
 
     temp = &this->unk274.elements[6].dim.worldSphere.center;
+    temp_s1 = &this->unk25C[1];
 
-    spA0.x = (this->unk25C[1].x - temp->x) * 0.5f;
-    spA0.y = (this->unk25C[1].y - temp->y) * 0.5f;
-    spA0.z = (this->unk25C[1].z - temp->z) * 0.5f;
+    spA0.x = (temp_s1->x - temp->x) * 0.5f;
+    spA0.y = (temp_s1->y - temp->y) * 0.5f;
+    spA0.z = (temp_s1->z - temp->z) * 0.5f;
     Matrix_RotateXS(0x100, MTXMODE_NEW);
     Matrix_MultVec3f(&spA0, &sp94);
-    this->unk25C[1].x = spA0.x + sp94.x + temp->x;
-    this->unk25C[1].y = spA0.y + sp94.y + temp->y;
-    this->unk25C[1].z = spA0.z + sp94.z + temp->z;
+    temp_s1->x = spA0.x + sp94.x + temp->x;
+    temp_s1->y = spA0.y + sp94.y + temp->y;
+    temp_s1->z = spA0.z + sp94.z + temp->z;
     if (this->actor.velocity.y > -2.0f) {
         this->actor.velocity.y += -0.15f;
     }
-    Math_Vec3f_Sum(&this->unk25C[1], &this->actor.velocity, &this->unk25C[1]);
+    Math_Vec3f_Sum(temp_s1, &this->actor.velocity, temp_s1);
 
     this->actor.world.rot.x += 0x100;
 
     if (this->unk1EC[0].x >= 0 && func_80AF5650(this, this->unk1EC[0].x)) {
-        this->unk1EC[0].x -= 1;
+        this->unk1EC[0].x--;
     }
 
+    tmp = this->unk1EC[0].y;
     if (this->unk1EC[0].y < 3) {
         if (func_80AF5650(this, this->unk1EC[0].y)) {
-            this->unk1EC[0].y += 1;
+            this->unk1EC[0].y++;
         }
         Matrix_RotateZYX(this->actor.world.rot.x, this->actor.world.rot.z, 0, MTXMODE_NEW);
         Matrix_RotateYS(-this->actor.world.rot.z, MTXMODE_APPLY);
         Matrix_Mult(&this->unk21C, MTXMODE_APPLY);
-        func_80AF46F0(this, this->unk1EC[0].y, 0, &this->unk25C[1]);
-        Matrix_MultVecY(2.3f / this->unk210[this->unk1EC[0].y], &this->unk25C[1]);
+        func_80AF46F0(this, tmp, 0, temp_s1);
+        Matrix_MultVecY(2.3f / this->unk210[tmp], temp_s1);
     }
 
     this->unk1EC[0].z--;
 
-    temp_s5 = this->unk1EC[0].x + 1;
-    for (var_s2 = 0; var_s2 < temp_s5; var_s2++) {
+    tmp = this->unk1EC[0].x + 1;
+    var_s3 = this->unk1EC[0].z;
+    for (var_s2 = 0; var_s2 < tmp; var_s2++) {
         if (this->unk1EC[0].z > 0) {
-            Math_ScaledStepToS(&this->unk1EC[1 + var_s2].x,
-                               (s16)(s32)(Math_SinF(this->unk1EC[var_s2].z * 0.8975979f) * this->unk1EC[1 + var_s2].y),
-                               0x200);
+            Math_ScaledStepToS(&this->unk1EC[1 + var_s2].x, this->unk1EC[1 + var_s2].z * (Math_SinF(var_s3 * 0.8975979f)), 0x200);
         } else if (Rand_ZeroOne() < 0.65f) {
-            this->unk1EC[1 + var_s2].x = this->unk1EC[1 + var_s2].y + Math_SinF(this->unk1EC[var_s2].z * 0.8975979f);
+            this->unk1EC[1 + var_s2].x = this->unk1EC[1 + var_s2].z * Math_SinF(var_s3 * 0.8975979f);
         }
-        if ((this->unk1EC[var_s2].z % 7) == 0) {
+        if ((var_s3 % 7) == 0) {
             if (var_s2 != 0) {
-                this->unk1EC[1 + var_s2].x = this->unk1EC[var_s2].y + (s32)Rand_CenteredFloat(12288.0f);
+                this->unk1EC[1 + var_s2].y = this->unk1EC[var_s2].y + (s32)Rand_CenteredFloat(12288.0f);
             } else {
-                this->unk1EC[1].y += (s32)Rand_CenteredFloat(12288.0f);
+                this->unk1EC[1].y += (s16)Rand_CenteredFloat(12288.0f);
             }
-            this->unk1EC[1 + var_s2].y = Rand_S16Offset((s16)((var_s2 << 8) + 0xC00), 0x800);
+            this->unk1EC[1 + var_s2].z = Rand_S16Offset((s16) ((var_s2 * 0x100) + 0xC00), 0x800);
         }
+        var_s3 += 2;
     }
 
     if ((this->unk1EC[0].x < 0) && (this->unk1EC[0].y >= 3)) {
         if (Math_StepToF(&this->actor.scale.x, 0.0f, 0.001f) != 0) {
             for (var_s0 = 0; var_s0 < 2; var_s0++) {
                 for (var_s2 = 0; var_s2 < 5; var_s2++) {
+                    temp_s1 = &this->unk25C[var_s0];
                     D_80AF6514.y = Rand_ZeroOne() + 1.0f;
                     temp_s0_6 = Rand_S16Offset(0x28, 0x28);
-                    sp70.x = Rand_CenteredFloat(12.0f) + this->unk25C[var_s2].x;
-                    sp70.y = Rand_CenteredFloat(12.0f) + this->unk25C[var_s2].y;
-                    sp70.z = Rand_CenteredFloat(12.0f) + this->unk25C[var_s2].z;
+                    sp70.x = temp_s1->x + Rand_CenteredFloat(12.0f);
+                    sp70.y = temp_s1->y + Rand_CenteredFloat(12.0f);
+                    sp70.z = temp_s1->z + Rand_CenteredFloat(12.0f);
                     EffectSsDtBubble_SpawnColorProfile(play, &sp70, &D_80AF6514, &D_80AF6520, temp_s0_6, 25, 2, 1);
                 }
             }
@@ -693,15 +697,12 @@ void func_80AF5820(EnWdhand* this, PlayState* play) {
         }
     }
 
-    for (var_s0 = 0; var_s0 < 2; var_s0++) {
+    for (var_s2 = 0; var_s2 < 2; var_s2++) {
         D_80AF6514.y = Rand_ZeroOne() + 1.0f;
-        EffectSsDtBubble_SpawnColorProfile(play, &this->unk25C[var_s0], &D_80AF6514, &D_80AF6520,
-                                           Rand_S16Offset(40, 40), 25, 2, 1);
+        EffectSsDtBubble_SpawnColorProfile(play, &this->unk25C[var_s2], &D_80AF6514, &D_80AF6520, Rand_S16Offset(40, 40), 25, 2, 1);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Wdhand/func_80AF5820.s")
-#endif
+
 
 void func_80AF5E3C(EnWdhand* this, PlayState* play) {
 
