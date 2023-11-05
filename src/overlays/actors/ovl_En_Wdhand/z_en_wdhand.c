@@ -484,33 +484,34 @@ void func_80AF5130(EnWdhand* this, PlayState* play) {
     this->actionFunc = func_80AF520C;
 }
 
-#ifdef NON_MATCHING
 void func_80AF520C(EnWdhand* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
+    s32 var_s1;
+    s32 var_s2;
     Vec3f sp68;
     f32 var_fv1;
-    s32 var_s1;
-
+    
+    
     SkelAnime_Update(&this->unk144);
     this->unk1EC[0].z--;
     player->av2.actionVar2 = 0;
-
-    for (var_s1 = 0; var_s1 < 4; var_s1++) {
+    var_s2 = this->unk1EC[0].z;
+    for (var_s1 = 0; var_s1 < 4; var_s1++, var_s2+=2) {
         if (this->unk1EC[0].z < 0x4C) {
             this->unk1EC[1 + var_s1].x =
-                (s16)(s32)(Math_SinF(this->unk1EC[var_s1].z * 0.3926991f) * this->unk1EC[1 + var_s1].z);
+                (s16)(s32)(this->unk1EC[1 + var_s1].z * Math_SinF(var_s2 * 0.3926991f));
         } else {
             Math_ScaledStepToS(&this->unk1EC[1 + var_s1].x,
-                               (s16)(s32)(Math_SinF(this->unk1EC[var_s1].z * 0.3926991f) * this->unk1EC[1 + var_s1].z),
+                               (s16)(s32)(this->unk1EC[1 + var_s1].z * Math_SinF(var_s2 * 0.3926991f)),
                                0x400);
         }
-        if (!(this->unk1EC[var_s1].z & 0xF)) {
-            if (this->unk1EC[var_s1].z == 0x10) {
+        if (!(var_s2 & 0xF)) {
+            if (var_s2 == 0x10) {
                 this->unk1EC[1 + var_s1].y = 0;
             } else if (var_s1 != 0) {
                 this->unk1EC[1 + var_s1].y = this->unk1EC[var_s1].y + (s32)Rand_CenteredFloat(12288.0f);
             } else {
-                this->unk1EC[1].y += (s32)Rand_CenteredFloat(12288.0f);
+                this->unk1EC[1].y += (s16)Rand_CenteredFloat(12288.0f);
             }
             this->unk1EC[1 + var_s1].z = Rand_S16Offset(0x2000, 0x1000);
         }
@@ -566,9 +567,6 @@ void func_80AF520C(EnWdhand* this, PlayState* play) {
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Wdhand/func_80AF520C.s")
-#endif
 
 s32 func_80AF5650(EnWdhand* this, s32 arg1) {
     this->unk210[arg1] -= 0.1f;
