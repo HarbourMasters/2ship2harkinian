@@ -21,7 +21,7 @@ typedef struct EnBsb {
     /* 0x0000 */ Actor actor;
     /* 0x0144 */ SkelAnime skelAnime;
     /* 0x0188 */ Vec3s unk_0188[21];
-    /* 0x0188 */ Vec3s unk_0206[21];
+    /* 0x0206 */ Vec3s unk_0206[21];
     /* 0x0284 */ EnBsbActionFunc actionFunc;
     /* 0x0288 */ Path* unk_0288;
     /* 0x028C */ s32 unk_028C;
