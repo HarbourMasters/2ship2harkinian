@@ -178,7 +178,6 @@ static DamageTable D_80AF64F4 = {
     /* Powder Keg     */ DMG_ENTRY(1, 0x0),
 };
 
-
 void EnWdhand_Init(Actor* thisx, PlayState* play) {
     EnWdhand* this = THIS;
     s32 i;
@@ -488,20 +487,17 @@ void func_80AF520C(EnWdhand* this, PlayState* play) {
     s32 var_s2;
     Vec3f sp68;
     f32 var_fv1;
-    
-    
+
     SkelAnime_Update(&this->unk144);
     this->unk1EC[0].z--;
     player->av2.actionVar2 = 0;
     var_s2 = this->unk1EC[0].z;
-    for (var_s1 = 0; var_s1 < 4; var_s1++, var_s2+=2) {
+    for (var_s1 = 0; var_s1 < 4; var_s1++, var_s2 += 2) {
         if (this->unk1EC[0].z < 0x4C) {
-            this->unk1EC[1 + var_s1].x =
-                (s16)(s32)(this->unk1EC[1 + var_s1].z * Math_SinF(var_s2 * 0.3926991f));
+            this->unk1EC[1 + var_s1].x = (s16)(s32)(this->unk1EC[1 + var_s1].z * Math_SinF(var_s2 * 0.3926991f));
         } else {
             Math_ScaledStepToS(&this->unk1EC[1 + var_s1].x,
-                               (s16)(s32)(this->unk1EC[1 + var_s1].z * Math_SinF(var_s2 * 0.3926991f)),
-                               0x400);
+                               (s16)(s32)(this->unk1EC[1 + var_s1].z * Math_SinF(var_s2 * 0.3926991f)), 0x400);
         }
         if (!(var_s2 & 0xF)) {
             if (var_s2 == 0x10) {
@@ -661,7 +657,8 @@ void func_80AF5820(EnWdhand* this, PlayState* play) {
     var_s3 = this->unk1EC[0].z;
     for (var_s2 = 0; var_s2 < tmp; var_s2++) {
         if (this->unk1EC[0].z > 0) {
-            Math_ScaledStepToS(&this->unk1EC[1 + var_s2].x, this->unk1EC[1 + var_s2].z * (Math_SinF(var_s3 * 0.8975979f)), 0x200);
+            Math_ScaledStepToS(&this->unk1EC[1 + var_s2].x,
+                               this->unk1EC[1 + var_s2].z * (Math_SinF(var_s3 * 0.8975979f)), 0x200);
         } else if (Rand_ZeroOne() < 0.65f) {
             this->unk1EC[1 + var_s2].x = this->unk1EC[1 + var_s2].z * Math_SinF(var_s3 * 0.8975979f);
         }
@@ -671,7 +668,7 @@ void func_80AF5820(EnWdhand* this, PlayState* play) {
             } else {
                 this->unk1EC[1].y += (s16)Rand_CenteredFloat(12288.0f);
             }
-            this->unk1EC[1 + var_s2].z = Rand_S16Offset((s16) ((var_s2 * 0x100) + 0xC00), 0x800);
+            this->unk1EC[1 + var_s2].z = Rand_S16Offset((s16)((var_s2 * 0x100) + 0xC00), 0x800);
         }
         var_s3 += 2;
     }
@@ -699,10 +696,10 @@ void func_80AF5820(EnWdhand* this, PlayState* play) {
 
     for (var_s2 = 0; var_s2 < 2; var_s2++) {
         D_80AF6514.y = Rand_ZeroOne() + 1.0f;
-        EffectSsDtBubble_SpawnColorProfile(play, &this->unk25C[var_s2], &D_80AF6514, &D_80AF6520, Rand_S16Offset(40, 40), 25, 2, 1);
+        EffectSsDtBubble_SpawnColorProfile(play, &this->unk25C[var_s2], &D_80AF6514, &D_80AF6520,
+                                           Rand_S16Offset(40, 40), 25, 2, 1);
     }
 }
-
 
 void func_80AF5E3C(EnWdhand* this, PlayState* play) {
 
