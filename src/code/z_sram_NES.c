@@ -1374,18 +1374,18 @@ void func_80145698(SramContext* sramCtx) {
     }
 }
 
+// Verifies save and use backup if corrupted?
 void func_801457CC(GameState* gameState, SramContext* sramCtx) {
     FileSelectState* fileSelect = (FileSelectState*)gameState;
     u16 sp7A;
-    u16 oldCheckSum; // s2
+    u16 oldCheckSum;
     u16 sp76;
-    u16 sp64; // sp74?
+    u16 sp64;
     u16 phi_s2;
-    u16 phi_s7;
+    u16 pad;
     u16 sp6E;
-    u16 newCheckSum; // v0
-    u16 phi_a0;      // maskCount
-    u8 temp;
+    u16 newCheckSum;
+    u16 maskCount;
 
     if (gSaveContext.flashSaveAvailable) {
         D_801F6AF0 = gSaveContext.save.time;
@@ -1420,7 +1420,6 @@ void func_801457CC(GameState* gameState, SramContext* sramCtx) {
                     bzero(sramCtx->saveBuf, SAVE_BUFFER_SIZE);
                     Lib_MemCpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[sp64]);
                 } else {
-                    // phi_s2 = true;
                     Lib_MemCpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[sp64]);
 
                     // test checksum of main save
@@ -1488,12 +1487,13 @@ void func_801457CC(GameState* gameState, SramContext* sramCtx) {
                     fileSelect->rupees[sp76] = gSaveContext.save.saveInfo.playerData.rupees;
                     fileSelect->walletUpgrades[sp76] = CUR_UPG_VALUE(UPG_WALLET);
 
-                    for (sp7A = 0, phi_a0 = 0; sp7A < 24; sp7A++) {
-                        if (gSaveContext.save.saveInfo.inventory.items[sp7A + 24] != ITEM_NONE) {
-                            phi_a0++;
+                    for (sp7A = 0, maskCount = 0; sp7A < 24; sp7A++) {
+                        if (gSaveContext.save.saveInfo.inventory.items[sp7A + 24] == ITEM_NONE) {
+                            continue;
                         }
+                        maskCount++;
                     }
-                    fileSelect->maskCount[sp76] = phi_a0;
+                    fileSelect->maskCount[sp76] = maskCount;
                     fileSelect->heartPieceCount[sp76] = GET_QUEST_HEART_PIECE_COUNT;
                 }
 
@@ -1535,7 +1535,6 @@ void func_801457CC(GameState* gameState, SramContext* sramCtx) {
                         bzero(sramCtx->saveBuf, SAVE_BUFFER_SIZE);
                         Lib_MemCpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[sp64]);
                     } else {
-                        // phi_s2 = true;
                         Lib_MemCpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[sp64]);
                         phi_s2 = gSaveContext.save.saveInfo.checksum;
 
@@ -1590,8 +1589,6 @@ void func_801457CC(GameState* gameState, SramContext* sramCtx) {
                         for (sp7A = 0; sp7A < ARRAY_COUNT(gSaveContext.save.saveInfo.playerData.playerName); sp7A++) {
                             fileSelect->fileNames[sp76][sp7A] =
                                 (u32)gSaveContext.save.saveInfo.playerData.playerName[sp7A];
-                            //! FAKE:
-                            if (1) {}
                         }
 
                         fileSelect->healthCapacity[sp76] = gSaveContext.save.saveInfo.playerData.healthCapacity;
@@ -1604,12 +1601,13 @@ void func_801457CC(GameState* gameState, SramContext* sramCtx) {
                         fileSelect->rupees[sp76] = gSaveContext.save.saveInfo.playerData.rupees;
                         fileSelect->walletUpgrades[sp76] = CUR_UPG_VALUE(UPG_WALLET);
 
-                        for (sp7A = 0, phi_a0 = 0; sp7A < 24; sp7A++) {
-                            if (gSaveContext.save.saveInfo.inventory.items[sp7A + 24] != ITEM_NONE) {
-                                phi_a0++;
+                        for (sp7A = 0, maskCount = 0; sp7A < 24; sp7A++) {
+                            if (gSaveContext.save.saveInfo.inventory.items[sp7A + 24] == ITEM_NONE) {
+                                continue;
                             }
+                            maskCount++;
                         }
-                        fileSelect->maskCount[sp76] = phi_a0;
+                        fileSelect->maskCount[sp76] = maskCount;
                         fileSelect->heartPieceCount[sp76] = GET_QUEST_HEART_PIECE_COUNT;
                     }
 
