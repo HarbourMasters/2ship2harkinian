@@ -2041,7 +2041,7 @@ void FileSelect_ConfirmFile(GameState* thisx) {
             Audio_PlaySfx(NA_SE_SY_FSEL_DECIDE_L);
             this->selectMode = SM_FADE_OUT;
             Audio_MuteAllSeqExceptSystemAndOcarina(15);
-        } else {                // FS_BTN_CONFIRM_QUIT
+        } else { // FS_BTN_CONFIRM_QUIT
             Audio_PlaySfx(NA_SE_SY_FSEL_CLOSE);
             this->selectMode++; // SM_FADE_OUT_FILE_INFO
         }
