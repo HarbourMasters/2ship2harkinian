@@ -192,9 +192,8 @@ static Vec3f D_80A7B72C = { 0.0f, 0.0f, 0.0f };
 
 static s16 D_80A7B738[] = { 128, 0, 0, 0, 0, 128, 0, 0, 0, 0, 128, 0, 0, 0, 0, 128 };
 
-#ifdef NON_MATCHING
 void EnJso2_Init(Actor* thisx, PlayState* play) {
-    EnJso2* this = (EnJso2*)thisx;
+    EnJso2* this = THIS;
     EffectBlureInit1 rightSwordBlureInit;
     EffectBlureInit1 leftSwordBlureInit;
 
@@ -211,50 +210,34 @@ void EnJso2_Init(Actor* thisx, PlayState* play) {
     Collider_InitAndSetQuad(play, &this->unkF40, &this->actor, &D_80A7B634);
     Collider_InitAndSetQuad(play, &this->unkFC0, &this->actor, &D_80A7B634);
 
-    rightSwordBlureInit.p2EndColor[2] = rightSwordBlureInit.p1EndColor[0] = 0xFF; // 0x360 // t7
+    rightSwordBlureInit.p1StartColor[0] = leftSwordBlureInit.p1StartColor[0] = 0xFF;
+    rightSwordBlureInit.p1StartColor[1] = leftSwordBlureInit.p1StartColor[1] = 0;
+    rightSwordBlureInit.p1StartColor[2] = leftSwordBlureInit.p1StartColor[2] = 0;
+    rightSwordBlureInit.p1StartColor[3] = leftSwordBlureInit.p1StartColor[3] = 0x80;
+    
+    rightSwordBlureInit.p2StartColor[0] = leftSwordBlureInit.p2StartColor[0] = 0xFF;
+    rightSwordBlureInit.p2StartColor[1] = leftSwordBlureInit.p2StartColor[1] = 0;
+    rightSwordBlureInit.p2StartColor[2] = leftSwordBlureInit.p2StartColor[2] = 0;
+    
+    rightSwordBlureInit.p1EndColor[0] = leftSwordBlureInit.p1EndColor[0] = 0xFF;
+    rightSwordBlureInit.p1EndColor[1] = leftSwordBlureInit.p1EndColor[1] = 0;
+    rightSwordBlureInit.p1EndColor[2] = leftSwordBlureInit.p1EndColor[2] = 0;
+    
+    rightSwordBlureInit.p2EndColor[0] = leftSwordBlureInit.p2EndColor[0] = 0xFF;
+    rightSwordBlureInit.p2EndColor[1] = leftSwordBlureInit.p2EndColor[1] = 0;
+    rightSwordBlureInit.p2EndColor[2] = leftSwordBlureInit.p2EndColor[2] = 0xFF;
+    
+    rightSwordBlureInit.p2StartColor[3] = leftSwordBlureInit.p2StartColor[3] = 0x40;
+    rightSwordBlureInit.p1EndColor[3] = leftSwordBlureInit.p1EndColor[3] = rightSwordBlureInit.p2EndColor[3] = leftSwordBlureInit.p2EndColor[3] = 0;
+    
+    rightSwordBlureInit.elemDuration = leftSwordBlureInit.elemDuration = 8;
+    
+    rightSwordBlureInit.unkFlag = leftSwordBlureInit.unkFlag = 0;
+    
+    rightSwordBlureInit.calcMode = leftSwordBlureInit.calcMode = 2;
 
-    rightSwordBlureInit.p2EndColor[0] = 0xFF; // 0x364 // t9
-
-    leftSwordBlureInit.p2EndColor[2] = leftSwordBlureInit.p1EndColor[0] = 0xFF; // 0x1c0 // t6 -> t7
-
-    leftSwordBlureInit.p2EndColor[0] = 0xFF; // 0x1c4 // t8
-
-    rightSwordBlureInit.p2StartColor[3] = leftSwordBlureInit.p2StartColor[3] = 0x40; // 0x1bf // t9
-
-    leftSwordBlureInit.elemDuration = 8; // 0x1c8 // t6
-
-    rightSwordBlureInit.p1StartColor[0] = 0xFF; // 0x358 // t0
-
-    leftSwordBlureInit.p1StartColor[0] = 0xFF; // 0x1b8
-
-    rightSwordBlureInit.p1StartColor[2] = rightSwordBlureInit.p1StartColor[1] = 0; // 0x359 // zero
-
-    rightSwordBlureInit.p1StartColor[3] = 0x80; // 0x35b // t3
-
-    rightSwordBlureInit.p2StartColor[0] = 0xFF; // 0x35c // t4
-
-    rightSwordBlureInit.p1EndColor[3] = leftSwordBlureInit.p1EndColor[3] = rightSwordBlureInit.p2EndColor[3] =
-        leftSwordBlureInit.p2EndColor[3] = rightSwordBlureInit.p2EndColor[1] = leftSwordBlureInit.p2EndColor[1] =
-            rightSwordBlureInit.p1EndColor[2] = leftSwordBlureInit.p1EndColor[2] = rightSwordBlureInit.p1EndColor[1] =
-                leftSwordBlureInit.p1EndColor[1] = rightSwordBlureInit.p2StartColor[2] =
-                    rightSwordBlureInit.p2StartColor[1] = 0; // 0x35d // zero
-
-    rightSwordBlureInit.elemDuration = 8; // 0x368 // t7
-
-    rightSwordBlureInit.unkFlag = leftSwordBlureInit.unkFlag = 0; // 0x1cc // zero
-
-    leftSwordBlureInit.calcMode = 2;  // 0x1d0
-    rightSwordBlureInit.calcMode = 2; // 0x370
-
-    leftSwordBlureInit.p2StartColor[0] = 0xFF; // 0x1bc
-
-    leftSwordBlureInit.p1StartColor[3] = 0x80; // 0x1bb
-
-    leftSwordBlureInit.p2StartColor[2] = leftSwordBlureInit.p2StartColor[1] = leftSwordBlureInit.p1StartColor[2] =
-        leftSwordBlureInit.p1StartColor[1] = 0; // 0x1b9 // zero
-
-    Effect_Add(play, &this->unk380, 1, 0, 0, &rightSwordBlureInit);
-    Effect_Add(play, &this->unk384, 1, 0, 0, &leftSwordBlureInit);
+    Effect_Add(play, &this->unk_380, 1, 0, 0, &rightSwordBlureInit);
+    Effect_Add(play, &this->unk_384, 1, 0, 0, &leftSwordBlureInit);
     this->unk378 = 0.042f;
     this->unk29C = this->actor.params;
     this->unk_38E = Rand_S16Offset(0, 7);
@@ -274,9 +257,6 @@ void EnJso2_Init(Actor* thisx, PlayState* play) {
         func_80A78588(this);
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/non_matchings/overlays/ovl_En_Jso2/EnJso2_Init.s")
-#endif
 
 void EnJso2_Destroy(Actor* thisx, PlayState* play) {
     EnJso2* this = THIS;
@@ -284,8 +264,8 @@ void EnJso2_Destroy(Actor* thisx, PlayState* play) {
     Collider_DestroyCylinder(play, &this->unkEF4);
     Collider_DestroyQuad(play, &this->unkF40);
     Collider_DestroyQuad(play, &this->unkFC0);
-    Effect_Destroy(play, this->unk380);
-    Effect_Destroy(play, this->unk384);
+    Effect_Destroy(play, this->unk_380);
+    Effect_Destroy(play, this->unk_384);
     Audio_SetMainBgmVolume(127, 0);
     Audio_RestorePrevBgm();
 }
@@ -1519,9 +1499,9 @@ void func_80A7AA9C(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Acto
 
         if (((this->unk284 == 7) || (this->unk284 == 8) || (this->unk284 == 6) || (this->unk284 == 16)) &&
             (this->unk368 == 0)) {
-            EffectBlure_AddVertex(Effect_GetByIndex(this->unk384), &sp68, &sp5C);
+            EffectBlure_AddVertex(Effect_GetByIndex(this->unk_384), &sp68, &sp5C);
         } else if (this->unk368 == 1) {
-            EffectBlure_AddSpace(Effect_GetByIndex(this->unk384));
+            EffectBlure_AddSpace(Effect_GetByIndex(this->unk_384));
         }
     }
 
@@ -1548,9 +1528,9 @@ void func_80A7AA9C(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Acto
 
         if (((this->unk284 == 7) || (this->unk284 == 8) || (this->unk284 == 6) || (this->unk284 == 16)) &&
             (this->unk368 == 0)) {
-            EffectBlure_AddVertex(Effect_GetByIndex(this->unk380), &sp68, &sp5C);
+            EffectBlure_AddVertex(Effect_GetByIndex(this->unk_380), &sp68, &sp5C);
         } else if (this->unk368 == 1) {
-            EffectBlure_AddSpace(Effect_GetByIndex(this->unk380));
+            EffectBlure_AddSpace(Effect_GetByIndex(this->unk_380));
             this->unk368 = 0;
         }
     }

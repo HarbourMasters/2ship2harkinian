@@ -48,8 +48,8 @@ typedef struct EnJso2 {
     /* 0x0374 */ f32 unk374;
     /* 0x0378 */ f32 unk378;
     /* 0x037C */ char unk_37C[0x4];
-    /* 0x0380 */ s32 unk380;
-    /* 0x0384 */ s32 unk384;
+    /* 0x0380 */ s32 unk_380;
+    /* 0x0384 */ s32 unk_384;
     /* 0x0388 */ s32 unk_388;
     /* 0x38C */ s16 unk_38C;
     /* 0x38E */ s16 unk_38E;
