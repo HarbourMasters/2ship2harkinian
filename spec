@@ -646,11 +646,7 @@ beginseg
     include "build/src/overlays/gamestates/ovl_file_choose/z_file_copy_erase.o"
     include "build/src/overlays/gamestates/ovl_file_choose/z_file_nameset_NES.o"
     include "build/src/overlays/gamestates/ovl_file_choose/z_file_choose_NES.o"
-    #ifdef NON_MATCHING
-        include "build/src/overlays/gamestates/ovl_file_choose/ovl_file_choose_reloc.o"
-    #else
-        include "build/data/ovl_file_choose/ovl_file_choose.reloc.o"
-    #endif
+    include "build/src/overlays/gamestates/ovl_file_choose/ovl_file_choose_reloc.o"
 endseg
 
 beginseg
@@ -2315,11 +2311,7 @@ beginseg
     name "ovl_Boss_06"
     compress
     include "build/src/overlays/actors/ovl_Boss_06/z_boss_06.o"
-#ifdef NON_MATCHING
     include "build/src/overlays/actors/ovl_Boss_06/ovl_Boss_06_reloc.o"
-#else
-    include "build/data/ovl_Boss_06/ovl_Boss_06.reloc.o"
-#endif
 endseg
 
 beginseg
