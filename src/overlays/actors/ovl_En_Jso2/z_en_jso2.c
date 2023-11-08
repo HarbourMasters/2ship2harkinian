@@ -197,8 +197,8 @@ void EnJso2_Init(Actor* thisx, PlayState* play) {
     EffectBlureInit1 rightSwordBlureInit;
     EffectBlureInit1 leftSwordBlureInit;
 
-    this->actor.hintId = 0x18;
-    this->actor.targetMode = 5;
+    this->actor.hintId = TATL_HINT_ID_GARO_MASTER;
+    this->actor.targetMode = TARGET_MODE_5;
     this->actor.colChkInfo.mass = 0x50;
     this->actor.colChkInfo.health = 0xE;
     ActorShape_Init(&this->actor.shape, 0.0f, ActorShadow_DrawCircle, 0.0f);
@@ -210,39 +210,44 @@ void EnJso2_Init(Actor* thisx, PlayState* play) {
     Collider_InitAndSetQuad(play, &this->unkF40, &this->actor, &D_80A7B634);
     Collider_InitAndSetQuad(play, &this->unkFC0, &this->actor, &D_80A7B634);
 
-    rightSwordBlureInit.p1StartColor[0] = leftSwordBlureInit.p1StartColor[0] = 0xFF;
+    rightSwordBlureInit.p1StartColor[0] = leftSwordBlureInit.p1StartColor[0] = 255;
     rightSwordBlureInit.p1StartColor[1] = leftSwordBlureInit.p1StartColor[1] = 0;
     rightSwordBlureInit.p1StartColor[2] = leftSwordBlureInit.p1StartColor[2] = 0;
-    rightSwordBlureInit.p1StartColor[3] = leftSwordBlureInit.p1StartColor[3] = 0x80;
-    
-    rightSwordBlureInit.p2StartColor[0] = leftSwordBlureInit.p2StartColor[0] = 0xFF;
+    rightSwordBlureInit.p1StartColor[3] = leftSwordBlureInit.p1StartColor[3] = 128;
+
+    rightSwordBlureInit.p2StartColor[0] = leftSwordBlureInit.p2StartColor[0] = 255;
     rightSwordBlureInit.p2StartColor[1] = leftSwordBlureInit.p2StartColor[1] = 0;
     rightSwordBlureInit.p2StartColor[2] = leftSwordBlureInit.p2StartColor[2] = 0;
-    
-    rightSwordBlureInit.p1EndColor[0] = leftSwordBlureInit.p1EndColor[0] = 0xFF;
+
+    rightSwordBlureInit.p1EndColor[0] = leftSwordBlureInit.p1EndColor[0] = 255;
     rightSwordBlureInit.p1EndColor[1] = leftSwordBlureInit.p1EndColor[1] = 0;
     rightSwordBlureInit.p1EndColor[2] = leftSwordBlureInit.p1EndColor[2] = 0;
-    
-    rightSwordBlureInit.p2EndColor[0] = leftSwordBlureInit.p2EndColor[0] = 0xFF;
+
+    rightSwordBlureInit.p2EndColor[0] = leftSwordBlureInit.p2EndColor[0] = 255;
     rightSwordBlureInit.p2EndColor[1] = leftSwordBlureInit.p2EndColor[1] = 0;
-    rightSwordBlureInit.p2EndColor[2] = leftSwordBlureInit.p2EndColor[2] = 0xFF;
-    
-    rightSwordBlureInit.p2StartColor[3] = leftSwordBlureInit.p2StartColor[3] = 0x40;
-    rightSwordBlureInit.p1EndColor[3] = leftSwordBlureInit.p1EndColor[3] = rightSwordBlureInit.p2EndColor[3] = leftSwordBlureInit.p2EndColor[3] = 0;
-    
+    rightSwordBlureInit.p2EndColor[2] = leftSwordBlureInit.p2EndColor[2] = 255;
+
+    // clang-format off
+    rightSwordBlureInit.p2StartColor[3] = leftSwordBlureInit.p2StartColor[3] = 64;
+    rightSwordBlureInit.p1EndColor[3] = leftSwordBlureInit.p1EndColor[3] = 
+    rightSwordBlureInit.p2EndColor[3] = leftSwordBlureInit.p2EndColor[3] = 0;
+    // clang-format on
+
     rightSwordBlureInit.elemDuration = leftSwordBlureInit.elemDuration = 8;
-    
+
     rightSwordBlureInit.unkFlag = leftSwordBlureInit.unkFlag = 0;
-    
+
     rightSwordBlureInit.calcMode = leftSwordBlureInit.calcMode = 2;
 
     Effect_Add(play, &this->unk_380, 1, 0, 0, &rightSwordBlureInit);
     Effect_Add(play, &this->unk_384, 1, 0, 0, &leftSwordBlureInit);
+
     this->unk378 = 0.042f;
     this->unk29C = this->actor.params;
     this->unk_38E = Rand_S16Offset(0, 7);
     this->unk_2B0 = 0xC;
     this->unk366 = 0xFF;
+
     if (this->unk29C == 0) {
         this->actor.draw = NULL;
         this->actor.flags |= 0x08000000;

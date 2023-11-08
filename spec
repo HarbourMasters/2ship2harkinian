@@ -2843,11 +2843,7 @@ beginseg
     name "ovl_En_Jso2"
     compress
     include "build/src/overlays/actors/ovl_En_Jso2/z_en_jso2.o"
-    #ifdef NON_MATCHING
     include "build/src/overlays/actors/ovl_En_Jso2/ovl_En_Jso2_reloc.o"
-    #else
-    include "build/data/ovl_En_Jso2/ovl_En_Jso2.reloc.o"
-    #endif
 endseg
 
 beginseg
