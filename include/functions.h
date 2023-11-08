@@ -98,15 +98,6 @@ f64 func_80086D6C(f64 param_1);
 s32 func_80086D8C(f32 param_1);
 s32 func_80086DAC(f64 param_1);
 
-u32 Rand_Next(void);
-void Rand_Seed(u32 seed);
-f32 Rand_ZeroOne(void);
-f32 Rand_Centered(void);
-void Rand_Seed_Variable(u32* rndNum, u32 seed);
-u32 Rand_Next_Variable(u32* rndNum);
-f32 Rand_ZeroOne_Variable(u32* rndNum);
-f32 Rand_Centered_Variable(u32* rndNum);
-
 s32 PrintUtils_VPrintf(PrintCallback* pfn, const char* fmt, va_list args);
 s32 PrintUtils_Printf(PrintCallback* pfn, const char* fmt, ...);
 void Sleep_Cycles(OSTime time);
