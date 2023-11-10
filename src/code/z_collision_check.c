@@ -1250,12 +1250,13 @@ ColChkResetFunc sOCResetFuncs[] = {
     Collider_ResetQuadOC,   Collider_ResetSphereOC,
 };
 
-union TriNorm2 {
-    u8 raw[2][0x38]; // HAAAAAACK. IDO PLEASE FUCKING STOP ADDING +4. TRINORM IS 0x34 WHICH MEANS 0x34*2 IS 0x68 YOU DUMBASS
-    TriNorm norm1[2];
+struct TriNorm2 {
+    TriNorm norm1;
+    u8 pad[4];
+    TriNorm norm2;
 };
 
-union TriNorm2 D_801EE6C8;
+struct TriNorm2 D_801EE6C8;
 
 /**
  * Sets collider as an OC (object collider) for the current frame, allowing it to detect other OCs.
@@ -2667,11 +2668,11 @@ void CollisionCheck_AC_SphereVsQuad(PlayState* play, CollisionCheckContext* colC
         return;
     }
 
-    Math3D_TriNorm((void*)&D_801EE6C8.raw[0], &ac->dim.quad[2], &ac->dim.quad[3], &ac->dim.quad[1]);
-    Math3D_TriNorm((void*)&D_801EE6C8.raw[1], &ac->dim.quad[1], &ac->dim.quad[0], &ac->dim.quad[2]);
+    Math3D_TriNorm(&D_801EE6C8.norm1, &ac->dim.quad[2], &ac->dim.quad[3], &ac->dim.quad[1]);
+    Math3D_TriNorm(&D_801EE6C8.norm2, &ac->dim.quad[1], &ac->dim.quad[0], &ac->dim.quad[2]);
 
-    if (Math3D_TriVsSphIntersect(&at->dim.worldSphere, (void*)&D_801EE6C8.raw[0], &hitPos) != 0 ||
-        Math3D_TriVsSphIntersect(&at->dim.worldSphere, (void*)&D_801EE6C8.raw[1], &hitPos) != 0) {
+    if (Math3D_TriVsSphIntersect(&at->dim.worldSphere, &D_801EE6C8.norm1, &hitPos) != 0 ||
+        Math3D_TriVsSphIntersect(&at->dim.worldSphere, &D_801EE6C8.norm2, &hitPos) != 0) {
         Vec3f atPos;
         Vec3f acPos;
 
