@@ -1,4 +1,3 @@
-#include "prevent_bss_reordering.h"
 #include "global.h"
 #include "z64collision_check.h"
 
@@ -32,27 +31,7 @@ TriNorm D_801EE0E8[2];
 TriNorm D_801EE150;
 TriNorm D_801EE188;
 
-#ifndef NON_MATCHING
-Vec3f D_801EE1C0;
-Vec3f D_801EE1D0;
-Vec3f D_801EE1E0;
-Vec3f D_801EE1F0;
-EffectSparkInit D_801EE200;
-#endif
-
-TriNorm D_801EE6C8;
-TriNorm D_801EE700;
-
-#ifndef NON_MATCHING
-EffectSparkInit D_801EE738;
-EffectSparkInit D_801EEC00;
-EffectSparkInit D_801EF0C8;
-#endif
-
-TriNorm D_801EF590;
-TriNorm D_801EF5C8;
-TriNorm D_801EF600;
-TriNorm D_801EF638;
+#include "prevent_bss_reordering.h"
 
 /**
  * Gets the damage and effect that should be applied for the collision between
@@ -1271,6 +1250,13 @@ ColChkResetFunc sOCResetFuncs[] = {
     Collider_ResetQuadOC,   Collider_ResetSphereOC,
 };
 
+union TriNorm2 {
+    u8 raw[2][0x38]; // HAAAAAACK. IDO PLEASE FUCKING STOP ADDING +4. TRINORM IS 0x34 WHICH MEANS 0x34*2 IS 0x68 YOU DUMBASS
+    TriNorm norm1[2];
+};
+
+union TriNorm2 D_801EE6C8;
+
 /**
  * Sets collider as an OC (object collider) for the current frame, allowing it to detect other OCs.
  */
@@ -1391,15 +1377,13 @@ void CollisionCheck_NoBlood(PlayState* play, Collider* collider, Vec3f* v) {
  * Spawns blue blood drops.
  * Used by collider types HIT0 and HIT8.
  */
-#ifdef NON_MATCHING
-// needs in-function static bss
 void CollisionCheck_BlueBlood(PlayState* play, Collider* collider, Vec3f* v) {
     static EffectSparkInit D_801EEC00;
     s32 effectIndex;
 
     D_801EEC00.position.x = v->x;
-    D_801EEC00.position.x = v->y;
-    D_801EEC00.position.x = v->z;
+    D_801EEC00.position.y = v->y;
+    D_801EEC00.position.z = v->z;
     D_801EEC00.uDiv = 5;
     D_801EEC00.vDiv = 5;
     D_801EEC00.colorStart[0].r = 10;
@@ -1441,23 +1425,18 @@ void CollisionCheck_BlueBlood(PlayState* play, Collider* collider, Vec3f* v) {
 
     Effect_Add(play, &effectIndex, EFFECT_SPARK, 0, 1, &D_801EEC00);
 }
-#else
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_collision_check/CollisionCheck_BlueBlood.s")
-#endif
 
 /**
  * Spawns green blood drops.
  * Used by collider types HIT2 and HIT6. No actor has type HIT2.
  */
-#ifdef NON_MATCHING
-// needs in-function static bss
 void CollisionCheck_GreenBlood(PlayState* play, Collider* collider, Vec3f* v) {
     static EffectSparkInit D_801EF0C8;
     s32 effectIndex;
 
     D_801EF0C8.position.x = v->x;
-    D_801EF0C8.position.x = v->y;
-    D_801EF0C8.position.x = v->z;
+    D_801EF0C8.position.y = v->y;
+    D_801EF0C8.position.z = v->z;
     D_801EF0C8.uDiv = 5;
     D_801EF0C8.vDiv = 5;
     D_801EF0C8.colorStart[0].r = 10;
@@ -1498,9 +1477,10 @@ void CollisionCheck_GreenBlood(PlayState* play, Collider* collider, Vec3f* v) {
     D_801EF0C8.gravity = -1.0f;
     Effect_Add(play, &effectIndex, EFFECT_SPARK, 0, 1, &D_801EF0C8);
 }
-#else
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_collision_check/CollisionCheck_GreenBlood.s")
-#endif
+
+TriNorm D_801EF590;
+TriNorm D_801EF5C8;
+u8 pad4[4];
 
 /**
  * Spawns a burst of water.
@@ -1715,6 +1695,9 @@ void CollisionCheck_QuadAvgPoint(ColliderQuad* quad, Vec3f* avg) {
     avg->y = (quad->dim.quad[0].y + (quad->dim.quad[1].y + (quad->dim.quad[3].y + quad->dim.quad[2].y))) / 4.0f;
     avg->z = (quad->dim.quad[0].z + (quad->dim.quad[1].z + (quad->dim.quad[3].z + quad->dim.quad[2].z))) / 4.0f;
 }
+
+TriNorm D_801EF600;
+TriNorm D_801EF638;
 
 /**
  * AC overlap check. Calculates the center of each collider element and the point of contact.
@@ -2672,6 +2655,7 @@ void CollisionCheck_AC_SphereVsTris(PlayState* play, CollisionCheckContext* colC
  * AC overlap check. Calculates the center of each collider element and the point of contact.
  */
 void CollisionCheck_AC_SphereVsQuad(PlayState* play, CollisionCheckContext* colCtxt, Collider* colAT, Collider* colAC) {
+    
     ColliderSphere* at = (ColliderSphere*)colAT;
     Vec3f hitPos;
     ColliderQuad* ac = (ColliderQuad*)colAC;
@@ -2683,11 +2667,11 @@ void CollisionCheck_AC_SphereVsQuad(PlayState* play, CollisionCheckContext* colC
         return;
     }
 
-    Math3D_TriNorm(&D_801EE6C8, &ac->dim.quad[2], &ac->dim.quad[3], &ac->dim.quad[1]);
-    Math3D_TriNorm(&D_801EE700, &ac->dim.quad[1], &ac->dim.quad[0], &ac->dim.quad[2]);
+    Math3D_TriNorm((void*)&D_801EE6C8.raw[0], &ac->dim.quad[2], &ac->dim.quad[3], &ac->dim.quad[1]);
+    Math3D_TriNorm((void*)&D_801EE6C8.raw[1], &ac->dim.quad[1], &ac->dim.quad[0], &ac->dim.quad[2]);
 
-    if (Math3D_TriVsSphIntersect(&at->dim.worldSphere, &D_801EE6C8, &hitPos) != 0 ||
-        Math3D_TriVsSphIntersect(&at->dim.worldSphere, &D_801EE700, &hitPos) != 0) {
+    if (Math3D_TriVsSphIntersect(&at->dim.worldSphere, (void*)&D_801EE6C8.raw[0], &hitPos) != 0 ||
+        Math3D_TriVsSphIntersect(&at->dim.worldSphere, (void*)&D_801EE6C8.raw[1], &hitPos) != 0) {
         Vec3f atPos;
         Vec3f acPos;
 
@@ -3653,8 +3637,6 @@ void Collider_SetTrisDim(PlayState* play, ColliderTris* collider, s32 index, Col
 /**
  * Updates the world spheres for all of the collider's JntSph elements attached to the specified limb
  */
-#ifdef NON_MATCHING
-// needs in-function static bss
 void Collider_UpdateSpheres(s32 limb, ColliderJntSph* collider) {
     static Vec3f D_801EE1C0;
     static Vec3f D_801EE1D0;
@@ -3674,9 +3656,6 @@ void Collider_UpdateSpheres(s32 limb, ColliderJntSph* collider) {
         }
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_collision_check/Collider_UpdateSpheres.s")
-#endif
 
 /**
  * Updates the world spheres for the specified ColliderJntSph element
@@ -3697,8 +3676,6 @@ void Collider_UpdateSpheresElement(ColliderJntSph* collider, s32 index, Actor* a
 /**
  * Updates the world sphere for the ColliderSphere if it is attached to the specified limb
  */
-#ifdef NON_MATCHING
-// needs in-function static bss
 void Collider_UpdateSphere(s32 limb, ColliderSphere* collider) {
     static Vec3f D_801EE1E0;
     static Vec3f D_801EE1F0;
@@ -3714,23 +3691,18 @@ void Collider_UpdateSphere(s32 limb, ColliderSphere* collider) {
         collider->dim.worldSphere.radius = collider->dim.modelSphere.radius * collider->dim.scale;
     }
 }
-#else
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_collision_check/Collider_UpdateSphere.s")
-#endif
 
 /**
  * Spawns red blood droplets.
  * No actor has a collision type that spawns red blood.
  */
-#ifdef NON_MATCHING
-// needs in-function static bss
 void CollisionCheck_SpawnRedBlood(PlayState* play, Vec3f* v) {
     static EffectSparkInit D_801EE200;
     s32 effectIndex;
 
     D_801EE200.position.x = v->x;
-    D_801EE200.position.x = v->y;
-    D_801EE200.position.x = v->z;
+    D_801EE200.position.y = v->y;
+    D_801EE200.position.z = v->z;
     D_801EE200.uDiv = 5;
     D_801EE200.vDiv = 5;
     D_801EE200.colorStart[0].r = 128;
@@ -3772,23 +3744,18 @@ void CollisionCheck_SpawnRedBlood(PlayState* play, Vec3f* v) {
 
     Effect_Add(play, &effectIndex, EFFECT_SPARK, 0, 1, &D_801EE200);
 }
-#else
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_collision_check/CollisionCheck_SpawnRedBlood.s")
-#endif
 
 /**
  * Spawns water droplets.
  * No actor has a collision type that spawns water droplets.
  */
-#ifdef NON_MATCHING
-// needs in-function static bss
 void CollisionCheck_SpawnWaterDroplets(PlayState* play, Vec3f* v) {
     static EffectSparkInit D_801EE738;
     s32 effectIndex;
 
     D_801EE738.position.x = v->x;
-    D_801EE738.position.x = v->y;
-    D_801EE738.position.x = v->z;
+    D_801EE738.position.y = v->y;
+    D_801EE738.position.z = v->z;
     D_801EE738.uDiv = 5;
     D_801EE738.vDiv = 5;
     D_801EE738.colorStart[0].r = 255;
@@ -3830,9 +3797,6 @@ void CollisionCheck_SpawnWaterDroplets(PlayState* play, Vec3f* v) {
 
     Effect_Add(play, &effectIndex, EFFECT_SPARK, 0, 1, &D_801EE738);
 }
-#else
-#pragma GLOBAL_ASM("asm/non_matchings/code/z_collision_check/CollisionCheck_SpawnWaterDroplets.s")
-#endif
 
 /**
  * Spawns streaks of light from hits against solid objects
