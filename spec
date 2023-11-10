@@ -3389,11 +3389,7 @@ beginseg
     name "ovl_En_Wdhand"
     compress
     include "build/src/overlays/actors/ovl_En_Wdhand/z_en_wdhand.o"
-    #ifdef NON_MATCHING
     include "build/src/overlays/actors/ovl_En_Wdhand/ovl_En_Wdhand_reloc.o"
-    #else
-    include "build/data/ovl_En_Wdhand/ovl_En_Wdhand.reloc.o"
-    #endif
 endseg
 
 beginseg
