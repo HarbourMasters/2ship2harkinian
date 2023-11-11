@@ -54,6 +54,7 @@ jobs:
       run: bash -c "./tools/warnings_count/compare_warnings.sh compress"
 
   post-build:
+    needs: build
     runs-on: self-hosted
 
     steps:
