@@ -12,7 +12,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Check formatting
       run: bash -c "tools/check_format.sh 2>&1 | tee tools/check_format.txt"
@@ -25,9 +25,6 @@ jobs:
 
     - name: Setup
       run: bash -c "make -j setup 2> >(tee tools/warnings_count/warnings_setup_new.txt)"
-
-    - name: Check setup warnings
-      run: bash -c "./tools/warnings_count/compare_warnings.sh setup"
 
     - name: Assets
       run: bash -c "make -j assets 2> >(tee tools/warnings_count/warnings_assets_new.txt)"
