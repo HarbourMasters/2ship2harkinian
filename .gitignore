@@ -1,57 +1,47 @@
-# Cache files
-__pycache__/
-.pyc
-.DS_Store
 
-# Text editor remnants
-.vscode/
-.vs/
-.idea/
-CMakeLists.txt
-cmake-build-debug
-venv/
-tags
+mm/libultraship/extern/Debug/ImGui.lib
 
-# Project-specific ignores
-*.z64
-*.n64
-*.v64
-*.sra
-*.bin
-*.elf
-archive/
-build/
-baserom/
-decomp/
-asm/
-data/
-expected/
-nonmatchings/
+mm/libultraship/extern/Debug/StrHash64.lib
 
-# Tool artifacts
-tools/ido5.3_compiler/
-tools/ido7.1_compiler/
-tools/qemu-mips
-tools/ido_recomp/* binary
-ctx.c
-graphs/
-*.c.m2c
-tools/**/*dSYM/
-tools/decomp-permuter/
-tools/mips_to_c/
+mm/libultraship/extern/Debug/tinyxml2.lib
 
-# Assets
-*.png
-*.jpg
-!*_custom*
-.extracted-assets.json
+mm/libultraship/extern/ImGui.dir/Debug/ImGui.lib.recipe
 
-# Docs
-!docs/**/*.png
-docs/doxygen/
-!.vscode/extensions.json
+mm/libultraship/extern/ImGui.dir/Debug/ImGui.tlog/CL.command.1.tlog
 
-# Per-user configuration
-.python-version
-.make_options
-.*env
+mm/libultraship/extern/ImGui.dir/Debug/ImGui.tlog/CL.read.1.tlog
+
+mm/libultraship/extern/ImGui.dir/Debug/ImGui.tlog/CL.write.1.tlog
+
+mm/libultraship/extern/ImGui.dir/Debug/ImGui.tlog/CustomBuild.command.1.tlog
+
+mm/libultraship/extern/ImGui.dir/Debug/ImGui.tlog/CustomBuild.read.1.tlog
+
+mm/libultraship/extern/ImGui.dir/Debug/ImGui.tlog/CustomBuild.write.1.tlog
+
+mm/libultraship/extern/ImGui.dir/Debug/ImGui.tlog/ImGui.lastbuildstate
+
+mm/libultraship/extern/ImGui.dir/Debug/ImGui.tlog/Lib-link.read.1.tlog
+
+mm/libultraship/extern/StrHash64.dir/Debug/StrHash64.tlog/CL.command.1.tlog
+
+mm/libultraship/extern/StrHash64.dir/Debug/StrHash64.tlog/CL.read.1.tlog
+
+mm/libultraship/extern/StrHash64.dir/Debug/StrHash64.tlog/CL.write.1.tlog
+
+mm/libultraship/extern/StrHash64.dir/Debug/StrHash64.tlog/CustomBuild.command.1.tlog
+
+mm/libultraship/extern/StrHash64.dir/Debug/StrHash64.tlog/CustomBuild.read.1.tlog
+
+mm/libultraship/extern/StrHash64.dir/Debug/StrHash64.tlog/CustomBuild.write.1.tlog
+
+mm/libultraship/extern/StrHash64.dir/Debug/StrHash64.tlog/Lib-link.read.1.tlog
+
+mm/libultraship/extern/StrHash64.dir/Debug/StrHash64.tlog/Lib-link.write.1.tlog
+
+mm/libultraship/extern/StrHash64.dir/Debug/StrHash64.tlog/Lib.command.1.tlog
+/buildmm
+/Debug/libultraship.lib
+/Debug
+/build*
+/Release
