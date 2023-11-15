@@ -1,177 +1,99 @@
-cc: Warning: -mips3 should not be used for ucode 32-bit compiles
-cc: Warning: -mips3 should not be used for ucode 32-bit compiles
-[01m[Ksrc/audio/voice_internal.c:[m[K In function '[01m[Kfunc_801A5228[m[K':
-[01m[Ksrc/audio/voice_internal.c:88:51:[m[K [01;35m[Kwarning: [m[Kpassing argument 2 of '[01m[KosVoiceSetWord[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-   88 |         errorCode = osVoiceSetWord(&gVoiceHandle, [01;35m[K&dict->words[i][m[K);
-      |                                                   [01;35m[K^~~~~~~~~~~~~~~[m[K
-      |                                                   [01;35m[K|[m[K
-      |                                                   [01;35m[Ku16 (*)[15] {aka short unsigned int (*)[15]}[m[K
-In file included from [01m[Kinclude/PR/controller_voice.h:5[m[K,
-                 from [01m[Kinclude/ultra64.h:9[m[K,
-                 from [01m[Kinclude/z64.h:11[m[K,
-                 from [01m[Kinclude/global.h:4[m[K,
-                 from [01m[Ksrc/audio/voice_internal.c:1[m[K:
-[01m[Kinclude/PR/os_voice.h:60:43:[m[K [01;36m[Knote: [m[Kexpected '[01m[Ku8 *[m[K' {aka '[01m[Kunsigned char *[m[K'} but argument is of type '[01m[Ku16 (*)[15][m[K' {aka '[01m[Kshort unsigned int (*)[15][m[K'}
-   60 | s32 osVoiceSetWord(OSVoiceHandle* hd, [01;36m[Ku8* word[m[K);
-      |                                       [01;36m[K~~~~^~~~[m[K
-[01m[Ksrc/audio/voice_internal.c:92:27:[m[K [01;35m[Kwarning: [m[Kpassing argument 1 of '[01m[Kfunc_801A5A1C[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-   92 |             func_801A5A1C([01;35m[K&dict->words[i][m[K);
-      |                           [01;35m[K^~~~~~~~~~~~~~~[m[K
-      |                           [01;35m[K|[m[K
-      |                           [01;35m[Ku16 (*)[15] {aka short unsigned int (*)[15]}[m[K
-[01m[Ksrc/audio/voice_internal.c:5:23:[m[K [01;36m[Knote: [m[Kexpected '[01m[Ks8 *[m[K' {aka '[01m[Ksigned char *[m[K'} but argument is of type '[01m[Ku16 (*)[15][m[K' {aka '[01m[Kshort unsigned int (*)[15][m[K'}
-    5 | u8* func_801A5A1C([01;36m[Ks8* words[m[K);
-      |                   [01;36m[K~~~~^~~~~[m[K
-[01m[Ksrc/audio/voice_internal.c:[m[K In function '[01m[Kfunc_801A5A1C[m[K':
-[01m[Ksrc/audio/voice_internal.c:324:23:[m[K [01;35m[Kwarning: [m[Kimplicit declaration of function '[01m[Kstrlen[m[K' [[01;35m[K-Wimplicit-function-declaration[m[K]
-  324 |     u8 numSyllables = [01;35m[Kstrlen[m[K(words); // technically twice the num of syllables
-      |                       [01;35m[K^~~~~~[m[K
-[01m[Ksrc/audio/voice_internal.c:3:1:[m[K [01;36m[Knote: [m[K'[01m[Kstrlen[m[K' is defined in header '[01m[K<string.h>[m[K'; did you forget to '[01m[K#include <string.h>[m[K'?
-    2 | #include "z64voice.h"
-  +++ |+[32m[K#include <string.h>[m[K
-    3 | 
-[01m[Ksrc/audio/voice_internal.c:348:12:[m[K [01;35m[Kwarning: [m[Kpointer targets in returning '[01m[Kchar *[m[K' from a function with return type '[01m[Ku8 *[m[K' {aka '[01m[Kunsigned char *[m[K'} differ in signedness [[01;35m[K-Wpointer-sign[m[K]
-  348 |     return [01;35m[KD_801FD610[m[K;
-      |            [01;35m[K^~~~~~~~~~[m[K
-cfe: Warning 709: src/audio/voice_internal.c, line 88: Incompatible pointer type assignment
-         errorCode = osVoiceSetWord(&gVoiceHandle, &dict->words[i]);
- --------------------------------------------------^
+[01m[Ksrc/overlays/actors/ovl_En_An/z_en_an.c:[m[K In function '[01m[KEnAn_CheckTalk[m[K':
+[01m[Ksrc/overlays/actors/ovl_En_An/z_en_an.c:1755:30:[m[K [01;35m[Kwarning: [m[Kassignment to '[01m[KMsgScript *[m[K' {aka '[01m[Kunsigned char *[m[K'} from incompatible pointer type '[01m[Ks32 *[m[K' {aka '[01m[Kint *[m[K'} [[01;35m[K-Wincompatible-pointer-types[m[K]
+ 1755 |         this->msgEventScript [01;35m[K=[m[K EnAn_GetMsgEventScript(this, play);
+      |                              [01;35m[K^[m[K
+cfe: Warning 709: src/overlays/actors/ovl_En_An/z_en_an.c, line 1755: Incompatible pointer type assignment
+         this->msgEventScript = EnAn_GetMsgEventScript(this, play);
+ -----------------------------^
 The type pointed to by the left-hand side of simple assignment
 statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/audio/voice_internal.c, line 92: Incompatible pointer type assignment
-             func_801A5A1C(&dict->words[i]);
- --------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 835: src/audio/voice_internal.c, line 324: No prototype for the call to an anonymous function
-     u8 numSyllables = strlen(words);  
- ----------------------------^
-To achieve better type-checking, there should be a full prototype for
-the function being called.
-[01m[Ksrc/overlays/actors/ovl_Eff_Change/z_eff_change.c:[m[K In function '[01m[KEffChange_Init[m[K':
-[01m[Ksrc/overlays/actors/ovl_Eff_Change/z_eff_change.c:53:40:[m[K [01;35m[Kwarning: [m[Kpassing argument 2 of '[01m[Kfunc_80183430[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-   53 |     func_80183430(&this->skeletonInfo, [01;35m[Kgameplay_keep_Blob_02900C[m[K, gameplay_keep_Blob_0281DC, this->jointTable,
-      |                                        [01;35m[K^~~~~~~~~~~~~~~~~~~~~~~~~[m[K
-      |                                        [01;35m[K|[m[K
-      |                                        [01;35m[Ku8 * {aka unsigned char *}[m[K
-In file included from [01m[Kinclude/global.h:5[m[K,
-                 from [01m[Ksrc/overlays/actors/ovl_Eff_Change/z_eff_change.h:4[m[K,
-                 from [01m[Ksrc/overlays/actors/ovl_Eff_Change/z_eff_change.c:7[m[K:
-[01m[Kinclude/functions.h:1155:66:[m[K [01;36m[Knote: [m[Kexpected '[01m[KStruct_801BFA14_Arg1 *[m[K' but argument is of type '[01m[Ku8 *[m[K' {aka '[01m[Kunsigned char *[m[K'}
- 1155 | void func_80183430(SkeletonInfo* skeleton, [01;36m[KStruct_801BFA14_Arg1* arg1[m[K, SkeletonInfo_1C* arg2, Vec3s* frameData, s16* arg4, UnkKeyframeCallback* callbacks);
-      |                                            [01;36m[K~~~~~~~~~~~~~~~~~~~~~~^~~~[m[K
-[01m[Ksrc/overlays/actors/ovl_Eff_Change/z_eff_change.c:53:67:[m[K [01;35m[Kwarning: [m[Kpassing argument 3 of '[01m[Kfunc_80183430[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-   53 |     func_80183430(&this->skeletonInfo, gameplay_keep_Blob_02900C, [01;35m[Kgameplay_keep_Blob_0281DC[m[K, this->jointTable,
-      |                                                                   [01;35m[K^~~~~~~~~~~~~~~~~~~~~~~~~[m[K
-      |                                                                   [01;35m[K|[m[K
-      |                                                                   [01;35m[Ku8 * {aka unsigned char *}[m[K
-[01m[Kinclude/functions.h:1155:89:[m[K [01;36m[Knote: [m[Kexpected '[01m[KSkeletonInfo_1C *[m[K' but argument is of type '[01m[Ku8 *[m[K' {aka '[01m[Kunsigned char *[m[K'}
- 1155 | void func_80183430(SkeletonInfo* skeleton, Struct_801BFA14_Arg1* arg1, [01;36m[KSkeletonInfo_1C* arg2[m[K, Vec3s* frameData, s16* arg4, UnkKeyframeCallback* callbacks);
-      |                                                                        [01;36m[K~~~~~~~~~~~~~~~~~^~~~[m[K
-[01m[Ksrc/overlays/actors/ovl_Eff_Change/z_eff_change.c:54:23:[m[K [01;35m[Kwarning: [m[Kpassing argument 5 of '[01m[Kfunc_80183430[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-   54 |                   [01;35m[Kthis->morphTable[m[K, NULL);
-      |                   [01;35m[K~~~~^~~~~~~~~~~~[m[K
+[01m[Ksrc/overlays/actors/ovl_En_Test/z_en_test.c:[m[K In function '[01m[KEnTest_Init[m[K':
+[01m[Ksrc/overlays/actors/ovl_En_Test/z_en_test.c:190:23:[m[K [01;35m[Kwarning: [m[Kpassing argument 5 of '[01m[Kfunc_80183430[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
+  190 |                   [01;35m[Kthis->unk_1C0[m[K, NULL);
+      |                   [01;35m[K~~~~^~~~~~~~~[m[K
       |                       [01;35m[K|[m[K
-      |                       [01;35m[KVec3s *[m[K
-[01m[Kinclude/functions.h:1155:118:[m[K [01;36m[Knote: [m[Kexpected '[01m[Ks16 *[m[K' {aka '[01m[Kshort int *[m[K'} but argument is of type '[01m[KVec3s *[m[K'
- 1155 | void func_80183430(SkeletonInfo* skeleton, Struct_801BFA14_Arg1* arg1, SkeletonInfo_1C* arg2, Vec3s* frameData, [01;36m[Ks16* arg4[m[K, UnkKeyframeCallback* callbacks);
+      |                       [01;35m[KVec3s * {aka struct <anonymous> *}[m[K
+In file included from [01m[Kinclude/global.h:5[m[K,
+                 from [01m[Ksrc/overlays/actors/ovl_En_Test/z_en_test.h:4[m[K,
+                 from [01m[Ksrc/overlays/actors/ovl_En_Test/z_en_test.c:7[m[K:
+[01m[Kinclude/functions.h:1122:118:[m[K [01;36m[Knote: [m[Kexpected '[01m[Ks16 *[m[K' {aka '[01m[Kshort int *[m[K'} but argument is of type '[01m[KVec3s *[m[K' {aka '[01m[Kstruct <anonymous> *[m[K'}
+ 1122 | void func_80183430(SkeletonInfo* skeleton, Struct_801BFA14_Arg1* arg1, SkeletonInfo_1C* arg2, Vec3s* frameData, [01;36m[Ks16* arg4[m[K, UnkKeyframeCallback* callbacks);
       |                                                                                                                 [01;36m[K~~~~~^~~~[m[K
-[01m[Ksrc/overlays/actors/ovl_Eff_Change/z_eff_change.c:55:40:[m[K [01;35m[Kwarning: [m[Kpassing argument 2 of '[01m[Kfunc_801834A8[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-   55 |     func_801834A8(&this->skeletonInfo, [01;35m[Kgameplay_keep_Blob_0281DC[m[K);
-      |                                        [01;35m[K^~~~~~~~~~~~~~~~~~~~~~~~~[m[K
-      |                                        [01;35m[K|[m[K
-      |                                        [01;35m[Ku8 * {aka unsigned char *}[m[K
-[01m[Kinclude/functions.h:1157:61:[m[K [01;36m[Knote: [m[Kexpected '[01m[KSkeletonInfo_1C *[m[K' but argument is of type '[01m[Ku8 *[m[K' {aka '[01m[Kunsigned char *[m[K'}
- 1157 | void func_801834A8(SkeletonInfo* skeleton, [01;36m[KSkeletonInfo_1C* arg1[m[K);
-      |                                            [01;36m[K~~~~~~~~~~~~~~~~~^~~~[m[K
-cfe: Warning 709: src/overlays/actors/ovl_Eff_Change/z_eff_change.c, line 53: Incompatible pointer type assignment
-     func_80183430(&this->skeletonInfo, gameplay_keep_Blob_02900C, gameplay_keep_Blob_0281DC, this->jointTable,
- ---------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_Eff_Change/z_eff_change.c, line 53: Incompatible pointer type assignment
-     func_80183430(&this->skeletonInfo, gameplay_keep_Blob_02900C, gameplay_keep_Blob_0281DC, this->jointTable,
- ------------------------------------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_Eff_Change/z_eff_change.c, line 54: Incompatible pointer type assignment
-                   this->morphTable, (void*)0 );
+cfe: Warning 709: src/overlays/actors/ovl_En_Test/z_en_test.c, line 190: Incompatible pointer type assignment
+                   this->unk_1C0, (void*)0 );
  ----------------------^
 The type pointed to by the left-hand side of simple assignment
 statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_Eff_Change/z_eff_change.c, line 55: Incompatible pointer type assignment
-     func_801834A8(&this->skeletonInfo, gameplay_keep_Blob_0281DC);
- ---------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-[01m[Ksrc/overlays/actors/ovl_En_Jso2/z_en_jso2.c:[m[K In function '[01m[Kfunc_80A778F8[m[K':
-[01m[Ksrc/overlays/actors/ovl_En_Jso2/z_en_jso2.c:385:37:[m[K [01;35m[Kwarning: [m[Kpassing argument 2 of '[01m[Kfunc_80122744[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-  385 |                 func_80122744(play, [01;35m[K&this->unk_27C[m[K, 1, &D_80A7B6F4);
-      |                                     [01;35m[K^~~~~~~~~~~~~~[m[K
-      |                                     [01;35m[K|[m[K
-      |                                     [01;35m[Kchar (*)[8][m[K
+[01m[Ksrc/overlays/actors/ovl_Demo_Syoten/z_demo_syoten.c:[m[K In function '[01m[KDemoSyoten_Init[m[K':
+[01m[Ksrc/overlays/actors/ovl_Demo_Syoten/z_demo_syoten.c:77:31:[m[K [01;35m[Kwarning: [m[Kpassing argument 5 of '[01m[Kfunc_80183430[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
+   77 |                           [01;35m[Kthis->unk_2A6[m[K, NULL);
+      |                           [01;35m[K~~~~^~~~~~~~~[m[K
+      |                               [01;35m[K|[m[K
+      |                               [01;35m[KVec3s * {aka struct <anonymous> *}[m[K
 In file included from [01m[Kinclude/global.h:5[m[K,
-                 from [01m[Ksrc/overlays/actors/ovl_En_Jso2/z_en_jso2.h:4[m[K,
-                 from [01m[Ksrc/overlays/actors/ovl_En_Jso2/z_en_jso2.c:7[m[K:
-[01m[Kinclude/functions.h:807:58:[m[K [01;36m[Knote: [m[Kexpected '[01m[Kstruct_80122744_arg1 *[m[K' but argument is of type '[01m[Kchar (*)[8][m[K'
-  807 | s32 func_80122744(PlayState* play, [01;36m[Kstruct_80122744_arg1* arg1[m[K, u32 arg2, Vec3s* arg3);
-      |                                    [01;36m[K~~~~~~~~~~~~~~~~~~~~~~^~~~[m[K
-[01m[Ksrc/overlays/actors/ovl_En_Jso2/z_en_jso2.c:411:37:[m[K [01;35m[Kwarning: [m[Kpassing argument 2 of '[01m[Kfunc_80122760[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-  411 |             if (func_80122760(play, [01;35m[K&this->unk_27C[m[K, 60.0f) != 0) {
-      |                                     [01;35m[K^~~~~~~~~~~~~~[m[K
-      |                                     [01;35m[K|[m[K
-      |                                     [01;35m[Kchar (*)[8][m[K
-[01m[Kinclude/functions.h:808:58:[m[K [01;36m[Knote: [m[Kexpected '[01m[Kstruct_80122744_arg1 *[m[K' but argument is of type '[01m[Kchar (*)[8][m[K'
-  808 | s32 func_80122760(PlayState* play, [01;36m[Kstruct_80122744_arg1* arg1[m[K, f32 arg2);
-      |                                    [01;36m[K~~~~~~~~~~~~~~~~~~~~~~^~~~[m[K
-cfe: Warning 709: src/overlays/actors/ovl_En_Jso2/z_en_jso2.c, line 385: Incompatible pointer type assignment
-                 func_80122744(play, &this->unk_27C, 1, &D_80A7B6F4);
- ------------------------------------^
+                 from [01m[Ksrc/overlays/actors/ovl_Demo_Syoten/z_demo_syoten.h:4[m[K,
+                 from [01m[Ksrc/overlays/actors/ovl_Demo_Syoten/z_demo_syoten.c:7[m[K:
+[01m[Kinclude/functions.h:1122:118:[m[K [01;36m[Knote: [m[Kexpected '[01m[Ks16 *[m[K' {aka '[01m[Kshort int *[m[K'} but argument is of type '[01m[KVec3s *[m[K' {aka '[01m[Kstruct <anonymous> *[m[K'}
+ 1122 | void func_80183430(SkeletonInfo* skeleton, Struct_801BFA14_Arg1* arg1, SkeletonInfo_1C* arg2, Vec3s* frameData, [01;36m[Ks16* arg4[m[K, UnkKeyframeCallback* callbacks);
+      |                                                                                                                 [01;36m[K~~~~~^~~~[m[K
+cfe: Warning 709: src/overlays/actors/ovl_Demo_Syoten/z_demo_syoten.c, line 77: Incompatible pointer type assignment
+                           this->unk_2A6, (void*)0 );
+ ------------------------------^
 The type pointed to by the left-hand side of simple assignment
 statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_En_Jso2/z_en_jso2.c, line 411: Incompatible pointer type assignment
-             if (func_80122760(play, &this->unk_27C, 60.0f) != 0) {
- ------------------------------------^
+[01m[Ksrc/overlays/actors/ovl_En_Fall2/z_en_fall2.c:[m[K In function '[01m[KEnFall2_Init[m[K':
+[01m[Ksrc/overlays/actors/ovl_En_Fall2/z_en_fall2.c:38:124:[m[K [01;35m[Kwarning: [m[Kpassing argument 5 of '[01m[Kfunc_80183430[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
+   38 |     func_80183430(&this->skeletonInfo, (void*)object_fall2_Blob_008898, (void*)object_fall2_Blob_005EF4, this->unk174, [01;35m[Kthis->unk228[m[K,
+      |                                                                                                                        [01;35m[K~~~~^~~~~~~~[m[K
+      |                                                                                                                            [01;35m[K|[m[K
+      |                                                                                                                            [01;35m[KVec3s * {aka struct <anonymous> *}[m[K
+In file included from [01m[Kinclude/global.h:5[m[K,
+                 from [01m[Ksrc/overlays/actors/ovl_En_Fall2/z_en_fall2.h:4[m[K,
+                 from [01m[Ksrc/overlays/actors/ovl_En_Fall2/z_en_fall2.c:7[m[K:
+[01m[Kinclude/functions.h:1122:118:[m[K [01;36m[Knote: [m[Kexpected '[01m[Ks16 *[m[K' {aka '[01m[Kshort int *[m[K'} but argument is of type '[01m[KVec3s *[m[K' {aka '[01m[Kstruct <anonymous> *[m[K'}
+ 1122 | void func_80183430(SkeletonInfo* skeleton, Struct_801BFA14_Arg1* arg1, SkeletonInfo_1C* arg2, Vec3s* frameData, [01;36m[Ks16* arg4[m[K, UnkKeyframeCallback* callbacks);
+      |                                                                                                                 [01;36m[K~~~~~^~~~[m[K
+cfe: Warning 709: src/overlays/actors/ovl_En_Fall2/z_en_fall2.c, line 38: Incompatible pointer type assignment
+     func_80183430(&this->skeletonInfo, (void*)object_fall2_Blob_008898, (void*)object_fall2_Blob_005EF4, this->unk174, this->unk228,
+ ---------------------------------------------------------------------------------------------------------------------------^
 The type pointed to by the left-hand side of simple assignment
 statement is incompatible with the type pointed to by the right-hand side.
 [01m[Ksrc/overlays/actors/ovl_En_Bsb/z_en_bsb.c:[m[K In function '[01m[Kfunc_80C0DB18[m[K':
 [01m[Ksrc/overlays/actors/ovl_En_Bsb/z_en_bsb.c:1129:41:[m[K [01;35m[Kwarning: [m[Kleft-hand operand of comma expression has no effect [[01;35m[K-Wunused-value[m[K]
  1129 |             CutsceneManager_Queue(((NULL[01;35m[K,[m[K this->unk_02CC))[3]);
       |                                         [01;35m[K^[m[K
-cfe: Warning 624: src/overlays/actors/ovl_En_Test4/z_en_test4.c, line 37: Trailing comma in enumerator list
-       TIME_NIGHT,
- ----------------^
-The use of a trailing comma in an enumerator list is not standard C.  There
-may be portability problems.
-cfe: Warning 624: /home/louist103/mm-hm/src/overlays/actors/ovl_Boss_05/z_boss_05.h, line 16: Trailing comma in enumerator list
-       BIO_DEKU_BABA_TYPE_10 = 10,  
- --------------------------------^
-The use of a trailing comma in an enumerator list is not standard C.  There
-may be portability problems.
-[01m[Ksrc/overlays/actors/ovl_En_Gm/z_en_gm.c:[m[K In function '[01m[Kfunc_8094EE84[m[K':
-[01m[Ksrc/overlays/actors/ovl_En_Gm/z_en_gm.c:964:23:[m[K [01;35m[Kwarning: [m[Kassignment to '[01m[Ks32 *[m[K' {aka '[01m[Kint *[m[K'} from incompatible pointer type '[01m[KMsgScript *[m[K' {aka '[01m[Kunsigned char *[m[K'} [[01;35m[K-Wincompatible-pointer-types[m[K]
-  964 |         this->unk_264 [01;35m[K=[m[K func_8094EDBC(this, play);
-      |                       [01;35m[K^[m[K
-[01m[Ksrc/overlays/actors/ovl_En_Gm/z_en_gm.c:[m[K In function '[01m[Kfunc_80950DB8[m[K':
-[01m[Ksrc/overlays/actors/ovl_En_Gm/z_en_gm.c:1838:52:[m[K [01;35m[Kwarning: [m[Kpassing argument 3 of '[01m[KMsgEvent_RunScript[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
- 1838 |     if (MsgEvent_RunScript(&this->actor, play, [01;35m[Kthis->unk_264[m[K, this->unk_3E4, &this->unk_25C)) {
-      |                                                [01;35m[K~~~~^~~~~~~~~[m[K
-      |                                                    [01;35m[K|[m[K
-      |                                                    [01;35m[Ks32 * {aka int *}[m[K
+[01m[Ksrc/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c:[m[K In function '[01m[KDemoMoonend_Init[m[K':
+[01m[Ksrc/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c:50:27:[m[K [01;35m[Kwarning: [m[Kpassing argument 5 of '[01m[Kfunc_80183430[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
+   50 |                       [01;35m[Kthis->morphTable[m[K, NULL);
+      |                       [01;35m[K~~~~^~~~~~~~~~~~[m[K
+      |                           [01;35m[K|[m[K
+      |                           [01;35m[KVec3s * {aka struct <anonymous> *}[m[K
 In file included from [01m[Kinclude/global.h:5[m[K,
-                 from [01m[Ksrc/overlays/actors/ovl_En_Gm/z_en_gm.h:4[m[K,
-                 from [01m[Ksrc/overlays/actors/ovl_En_Gm/z_en_gm.c:7[m[K:
-[01m[Kinclude/functions.h:778:66:[m[K [01;36m[Knote: [m[Kexpected '[01m[KMsgScript *[m[K' {aka '[01m[Kunsigned char *[m[K'} but argument is of type '[01m[Ks32 *[m[K' {aka '[01m[Kint *[m[K'}
-  778 | s32 MsgEvent_RunScript(Actor* actor, PlayState* play, [01;36m[KMsgScript* script[m[K, MsgEventCallback callback, s32* pos);
-      |                                                       [01;36m[K~~~~~~~~~~~^~~~~~[m[K
-cfe: Warning 709: src/overlays/actors/ovl_En_Gm/z_en_gm.c, line 964: Incompatible pointer type assignment
-         this->unk_264 = func_8094EDBC(this, play);
- ----------------------^
+                 from [01m[Ksrc/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.h:4[m[K,
+                 from [01m[Ksrc/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c:7[m[K:
+[01m[Kinclude/functions.h:1122:118:[m[K [01;36m[Knote: [m[Kexpected '[01m[Ks16 *[m[K' {aka '[01m[Kshort int *[m[K'} but argument is of type '[01m[KVec3s *[m[K' {aka '[01m[Kstruct <anonymous> *[m[K'}
+ 1122 | void func_80183430(SkeletonInfo* skeleton, Struct_801BFA14_Arg1* arg1, SkeletonInfo_1C* arg2, Vec3s* frameData, [01;36m[Ks16* arg4[m[K, UnkKeyframeCallback* callbacks);
+      |                                                                                                                 [01;36m[K~~~~~^~~~[m[K
+[01m[Ksrc/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c:[m[K In function '[01m[KDemoMoonend_Draw[m[K':
+[01m[Ksrc/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c:203:70:[m[K [01;35m[Kwarning: [m[Kpassing argument 5 of '[01m[Kfunc_8018450C[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
+  203 |         func_8018450C(play, &this->skeletonInfo, mtx, func_80C17E70, [01;35m[Kfunc_80C17EE0[m[K, &this->actor);
+      |                                                                      [01;35m[K^~~~~~~~~~~~~[m[K
+      |                                                                      [01;35m[K|[m[K
+      |                                                                      [01;35m[Ks32 (*)(PlayState *, SkeletonInfo *, s32,  Gfx **, u8 *, void *, Vec3f *, Vec3s *, Vec3f *) {aka int (*)(struct PlayState *, struct SkeletonInfo *, int,  union <anonymous> **, unsigned char *, void *, struct <anonymous> *, struct <anonymous> *, struct <anonymous> *)}[m[K
+In file included from [01m[Kinclude/global.h:5[m[K,
+                 from [01m[Ksrc/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.h:4[m[K,
+                 from [01m[Ksrc/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c:7[m[K:
+[01m[Kinclude/functions.h:1139:143:[m[K [01;36m[Knote: [m[Kexpected '[01m[KPostKeyframeDrawScaled[m[K' {aka '[01m[Kvoid (*)(struct PlayState *, struct SkeletonInfo *, int,  union <anonymous> **, unsigned char *, void *, struct <anonymous> *, struct <anonymous> *, struct <anonymous> *)[m[K'} but argument is of type '[01m[Ks32 (*)(PlayState *, SkeletonInfo *, s32,  Gfx **, u8 *, void *, Vec3f *, Vec3s *, Vec3f *)[m[K' {aka '[01m[Kint (*)(struct PlayState *, struct SkeletonInfo *, int,  union <anonymous> **, unsigned char *, void *, struct <anonymous> *, struct <anonymous> *, struct <anonymous> *)[m[K'}
+ 1139 | void func_8018450C(PlayState* play, SkeletonInfo* skeleton, Mtx* mtx, OverrideKeyframeDrawScaled overrideKeyframeDraw, [01;36m[KPostKeyframeDrawScaled postKeyframeDraw[m[K, void* arg);
+      |                                                                                                                        [01;36m[K~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~[m[K
+cfe: Warning 709: src/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c, line 50: Incompatible pointer type assignment
+                       this->morphTable, (void*)0 );
+ --------------------------^
 The type pointed to by the left-hand side of simple assignment
 statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_En_Gm/z_en_gm.c, line 1838: Incompatible pointer type assignment
-     if (MsgEvent_RunScript(&this->actor, play, this->unk_264, this->unk_3E4, &this->unk_25C)) {
- ---------------------------------------------------^
+cfe: Warning 709: src/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c, line 203: Incompatible pointer type assignment
+         func_8018450C(play, &this->skeletonInfo, mtx, func_80C17E70, func_80C17EE0, &this->actor);
+ ---------------------------------------------------------------------^
 The type pointed to by the left-hand side of simple assignment
 statement is incompatible with the type pointed to by the right-hand side.
 [01m[Ksrc/overlays/actors/ovl_En_Test7/z_en_test7.c:[m[K In function '[01m[KEnTest7_Init[m[K':
@@ -183,41 +105,53 @@ statement is incompatible with the type pointed to by the right-hand side.
 In file included from [01m[Kinclude/global.h:5[m[K,
                  from [01m[Ksrc/overlays/actors/ovl_En_Test7/z_en_test7.h:4[m[K,
                  from [01m[Ksrc/overlays/actors/ovl_En_Test7/z_en_test7.c:8[m[K:
-[01m[Kinclude/functions.h:1155:66:[m[K [01;36m[Knote: [m[Kexpected '[01m[KStruct_801BFA14_Arg1 *[m[K' but argument is of type '[01m[Ku8 (*)[][m[K' {aka '[01m[Kunsigned char (*)[][m[K'}
- 1155 | void func_80183430(SkeletonInfo* skeleton, [01;36m[KStruct_801BFA14_Arg1* arg1[m[K, SkeletonInfo_1C* arg2, Vec3s* frameData, s16* arg4, UnkKeyframeCallback* callbacks);
+[01m[Kinclude/functions.h:1122:66:[m[K [01;36m[Knote: [m[Kexpected '[01m[KStruct_801BFA14_Arg1 *[m[K' {aka '[01m[Kstruct <anonymous> *[m[K'} but argument is of type '[01m[Ku8 (*)[][m[K' {aka '[01m[Kunsigned char (*)[][m[K'}
+ 1122 | void func_80183430(SkeletonInfo* skeleton, [01;36m[KStruct_801BFA14_Arg1* arg1[m[K, SkeletonInfo_1C* arg2, Vec3s* frameData, s16* arg4, UnkKeyframeCallback* callbacks);
       |                                            [01;36m[K~~~~~~~~~~~~~~~~~~~~~~^~~~[m[K
 [01m[Ksrc/overlays/actors/ovl_En_Test7/z_en_test7.c:400:64:[m[K [01;35m[Kwarning: [m[Kpassing argument 3 of '[01m[Kfunc_80183430[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
   400 |     func_80183430(&this->unk_18CC, &gameplay_keep_Blob_085640, [01;35m[K&gameplay_keep_Blob_083534[m[K, this->unk_18FC,
       |                                                                [01;35m[K^~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
       |                                                                [01;35m[K|[m[K
       |                                                                [01;35m[Ku8 (*)[] {aka unsigned char (*)[]}[m[K
-[01m[Kinclude/functions.h:1155:89:[m[K [01;36m[Knote: [m[Kexpected '[01m[KSkeletonInfo_1C *[m[K' but argument is of type '[01m[Ku8 (*)[][m[K' {aka '[01m[Kunsigned char (*)[][m[K'}
- 1155 | void func_80183430(SkeletonInfo* skeleton, Struct_801BFA14_Arg1* arg1, [01;36m[KSkeletonInfo_1C* arg2[m[K, Vec3s* frameData, s16* arg4, UnkKeyframeCallback* callbacks);
+In file included from [01m[Kinclude/global.h:5[m[K,
+                 from [01m[Ksrc/overlays/actors/ovl_En_Test7/z_en_test7.h:4[m[K,
+                 from [01m[Ksrc/overlays/actors/ovl_En_Test7/z_en_test7.c:8[m[K:
+[01m[Kinclude/functions.h:1122:89:[m[K [01;36m[Knote: [m[Kexpected '[01m[KSkeletonInfo_1C *[m[K' {aka '[01m[Kstruct <anonymous> *[m[K'} but argument is of type '[01m[Ku8 (*)[][m[K' {aka '[01m[Kunsigned char (*)[][m[K'}
+ 1122 | void func_80183430(SkeletonInfo* skeleton, Struct_801BFA14_Arg1* arg1, [01;36m[KSkeletonInfo_1C* arg2[m[K, Vec3s* frameData, s16* arg4, UnkKeyframeCallback* callbacks);
       |                                                                        [01;36m[K~~~~~~~~~~~~~~~~~^~~~[m[K
 [01m[Ksrc/overlays/actors/ovl_En_Test7/z_en_test7.c:401:23:[m[K [01;35m[Kwarning: [m[Kpassing argument 5 of '[01m[Kfunc_80183430[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
   401 |                   [01;35m[Kthis->unk_1BA8[m[K, NULL);
       |                   [01;35m[K~~~~^~~~~~~~~~[m[K
       |                       [01;35m[K|[m[K
-      |                       [01;35m[KVec3s *[m[K
-[01m[Kinclude/functions.h:1155:118:[m[K [01;36m[Knote: [m[Kexpected '[01m[Ks16 *[m[K' {aka '[01m[Kshort int *[m[K'} but argument is of type '[01m[KVec3s *[m[K'
- 1155 | void func_80183430(SkeletonInfo* skeleton, Struct_801BFA14_Arg1* arg1, SkeletonInfo_1C* arg2, Vec3s* frameData, [01;36m[Ks16* arg4[m[K, UnkKeyframeCallback* callbacks);
+      |                       [01;35m[KVec3s * {aka struct <anonymous> *}[m[K
+In file included from [01m[Kinclude/global.h:5[m[K,
+                 from [01m[Ksrc/overlays/actors/ovl_En_Test7/z_en_test7.h:4[m[K,
+                 from [01m[Ksrc/overlays/actors/ovl_En_Test7/z_en_test7.c:8[m[K:
+[01m[Kinclude/functions.h:1122:118:[m[K [01;36m[Knote: [m[Kexpected '[01m[Ks16 *[m[K' {aka '[01m[Kshort int *[m[K'} but argument is of type '[01m[KVec3s *[m[K' {aka '[01m[Kstruct <anonymous> *[m[K'}
+ 1122 | void func_80183430(SkeletonInfo* skeleton, Struct_801BFA14_Arg1* arg1, SkeletonInfo_1C* arg2, Vec3s* frameData, [01;36m[Ks16* arg4[m[K, UnkKeyframeCallback* callbacks);
       |                                                                                                                 [01;36m[K~~~~~^~~~[m[K
 [01m[Ksrc/overlays/actors/ovl_En_Test7/z_en_test7.c:402:36:[m[K [01;35m[Kwarning: [m[Kpassing argument 2 of '[01m[Kfunc_801834A8[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
   402 |     func_801834A8(&this->unk_18CC, [01;35m[K&gameplay_keep_Blob_083534[m[K);
       |                                    [01;35m[K^~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
       |                                    [01;35m[K|[m[K
       |                                    [01;35m[Ku8 (*)[] {aka unsigned char (*)[]}[m[K
-[01m[Kinclude/functions.h:1157:61:[m[K [01;36m[Knote: [m[Kexpected '[01m[KSkeletonInfo_1C *[m[K' but argument is of type '[01m[Ku8 (*)[][m[K' {aka '[01m[Kunsigned char (*)[][m[K'}
- 1157 | void func_801834A8(SkeletonInfo* skeleton, [01;36m[KSkeletonInfo_1C* arg1[m[K);
+In file included from [01m[Kinclude/global.h:5[m[K,
+                 from [01m[Ksrc/overlays/actors/ovl_En_Test7/z_en_test7.h:4[m[K,
+                 from [01m[Ksrc/overlays/actors/ovl_En_Test7/z_en_test7.c:8[m[K:
+[01m[Kinclude/functions.h:1124:61:[m[K [01;36m[Knote: [m[Kexpected '[01m[KSkeletonInfo_1C *[m[K' {aka '[01m[Kstruct <anonymous> *[m[K'} but argument is of type '[01m[Ku8 (*)[][m[K' {aka '[01m[Kunsigned char (*)[][m[K'}
+ 1124 | void func_801834A8(SkeletonInfo* skeleton, [01;36m[KSkeletonInfo_1C* arg1[m[K);
       |                                            [01;36m[K~~~~~~~~~~~~~~~~~^~~~[m[K
 [01m[Ksrc/overlays/actors/ovl_En_Test7/z_en_test7.c:[m[K In function '[01m[KEnTest7_Draw[m[K':
 [01m[Ksrc/overlays/actors/ovl_En_Test7/z_en_test7.c:969:55:[m[K [01;35m[Kwarning: [m[Kpassing argument 4 of '[01m[Kfunc_8018450C[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
   969 |             func_8018450C(play, &this->unk_18CC, mtx, [01;35m[Kfunc_80AF31D0[m[K, NULL, &this->actor);
       |                                                       [01;35m[K^~~~~~~~~~~~~[m[K
       |                                                       [01;35m[K|[m[K
-      |                                                       [01;35m[Ks32 (*)(PlayState *, SkeletonInfo *, s32,  Gfx **, u8 *, Actor *, Vec3f *, Vec3s *, Vec3f *) {aka int (*)(PlayState *, SkeletonInfo *, int,  Gfx **, unsigned char *, Actor *, Vec3f *, Vec3s *, Vec3f *)}[m[K
-[01m[Kinclude/functions.h:1172:98:[m[K [01;36m[Knote: [m[Kexpected '[01m[KOverrideKeyframeDrawScaled[m[K' {aka '[01m[Kint (*)(struct PlayState *, struct SkeletonInfo *, int,  Gfx **, unsigned char *, void *, Vec3f *, Vec3s *, Vec3f *)[m[K'} but argument is of type '[01m[Ks32 (*)(PlayState *, SkeletonInfo *, s32,  Gfx **, u8 *, Actor *, Vec3f *, Vec3s *, Vec3f *)[m[K' {aka '[01m[Kint (*)(PlayState *, SkeletonInfo *, int,  Gfx **, unsigned char *, Actor *, Vec3f *, Vec3s *, Vec3f *)[m[K'}
- 1172 | void func_8018450C(PlayState* play, SkeletonInfo* skeleton, Mtx* mtx, [01;36m[KOverrideKeyframeDrawScaled overrideKeyframeDraw[m[K, PostKeyframeDrawScaled postKeyframeDraw, void* arg);
+      |                                                       [01;35m[Ks32 (*)(PlayState *, SkeletonInfo *, s32,  Gfx **, u8 *, Actor *, Vec3f *, Vec3s *, Vec3f *) {aka int (*)(struct PlayState *, struct SkeletonInfo *, int,  union <anonymous> **, unsigned char *, struct Actor *, struct <anonymous> *, struct <anonymous> *, struct <anonymous> *)}[m[K
+In file included from [01m[Kinclude/global.h:5[m[K,
+                 from [01m[Ksrc/overlays/actors/ovl_En_Test7/z_en_test7.h:4[m[K,
+                 from [01m[Ksrc/overlays/actors/ovl_En_Test7/z_en_test7.c:8[m[K:
+[01m[Kinclude/functions.h:1139:98:[m[K [01;36m[Knote: [m[Kexpected '[01m[KOverrideKeyframeDrawScaled[m[K' {aka '[01m[Kint (*)(struct PlayState *, struct SkeletonInfo *, int,  union <anonymous> **, unsigned char *, void *, struct <anonymous> *, struct <anonymous> *, struct <anonymous> *)[m[K'} but argument is of type '[01m[Ks32 (*)(PlayState *, SkeletonInfo *, s32,  Gfx **, u8 *, Actor *, Vec3f *, Vec3s *, Vec3f *)[m[K' {aka '[01m[Kint (*)(struct PlayState *, struct SkeletonInfo *, int,  union <anonymous> **, unsigned char *, struct Actor *, struct <anonymous> *, struct <anonymous> *, struct <anonymous> *)[m[K'}
+ 1139 | void func_8018450C(PlayState* play, SkeletonInfo* skeleton, Mtx* mtx, [01;36m[KOverrideKeyframeDrawScaled overrideKeyframeDraw[m[K, PostKeyframeDrawScaled postKeyframeDraw, void* arg);
       |                                                                       [01;36m[K~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~[m[K
 cfe: Warning 709: src/overlays/actors/ovl_En_Test7/z_en_test7.c, line 400: Incompatible pointer type assignment
      func_80183430(&this->unk_18CC, &gameplay_keep_Blob_085640, &gameplay_keep_Blob_083534, this->unk_18FC,
@@ -244,650 +178,121 @@ cfe: Warning 709: src/overlays/actors/ovl_En_Test7/z_en_test7.c, line 969: Incom
  ------------------------------------------------------^
 The type pointed to by the left-hand side of simple assignment
 statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 624: /home/louist103/mm-hm/src/overlays/actors/ovl_En_Invadepoh/z_en_invadepoh.h, line 181: Trailing comma in enumerator list
-       ENINVADEPOH_ALIEN_ABDUCTOR,   
- --------------------------------^
-The use of a trailing comma in an enumerator list is not standard C.  There
-may be portability problems.
-[01m[Ksrc/overlays/actors/ovl_En_Test/z_en_test.c:[m[K In function '[01m[KEnTest_Init[m[K':
-[01m[Ksrc/overlays/actors/ovl_En_Test/z_en_test.c:189:40:[m[K [01;35m[Kwarning: [m[Kpassing argument 2 of '[01m[Kfunc_80183430[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-  189 |     func_80183430(&this->skeletonInfo, [01;35m[K&gameplay_keep_Blob_06EB70[m[K, &gameplay_keep_Blob_06BB0C, this->unk_178,
-      |                                        [01;35m[K^~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
+[01m[Ksrc/overlays/actors/ovl_Eff_Change/z_eff_change.c:[m[K In function '[01m[KEffChange_Init[m[K':
+[01m[Ksrc/overlays/actors/ovl_Eff_Change/z_eff_change.c:53:40:[m[K [01;35m[Kwarning: [m[Kpassing argument 2 of '[01m[Kfunc_80183430[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
+   53 |     func_80183430(&this->skeletonInfo, [01;35m[Kgameplay_keep_Blob_02900C[m[K, gameplay_keep_Blob_0281DC, this->jointTable,
+      |                                        [01;35m[K^~~~~~~~~~~~~~~~~~~~~~~~~[m[K
       |                                        [01;35m[K|[m[K
-      |                                        [01;35m[Ku8 (*)[] {aka unsigned char (*)[]}[m[K
+      |                                        [01;35m[Ku8 * {aka unsigned char *}[m[K
 In file included from [01m[Kinclude/global.h:5[m[K,
-                 from [01m[Ksrc/overlays/actors/ovl_En_Test/z_en_test.h:4[m[K,
-                 from [01m[Ksrc/overlays/actors/ovl_En_Test/z_en_test.c:7[m[K:
-[01m[Kinclude/functions.h:1155:66:[m[K [01;36m[Knote: [m[Kexpected '[01m[KStruct_801BFA14_Arg1 *[m[K' but argument is of type '[01m[Ku8 (*)[][m[K' {aka '[01m[Kunsigned char (*)[][m[K'}
- 1155 | void func_80183430(SkeletonInfo* skeleton, [01;36m[KStruct_801BFA14_Arg1* arg1[m[K, SkeletonInfo_1C* arg2, Vec3s* frameData, s16* arg4, UnkKeyframeCallback* callbacks);
+                 from [01m[Ksrc/overlays/actors/ovl_Eff_Change/z_eff_change.h:4[m[K,
+                 from [01m[Ksrc/overlays/actors/ovl_Eff_Change/z_eff_change.c:7[m[K:
+[01m[Kinclude/functions.h:1122:66:[m[K [01;36m[Knote: [m[Kexpected '[01m[KStruct_801BFA14_Arg1 *[m[K' {aka '[01m[Kstruct <anonymous> *[m[K'} but argument is of type '[01m[Ku8 *[m[K' {aka '[01m[Kunsigned char *[m[K'}
+ 1122 | void func_80183430(SkeletonInfo* skeleton, [01;36m[KStruct_801BFA14_Arg1* arg1[m[K, SkeletonInfo_1C* arg2, Vec3s* frameData, s16* arg4, UnkKeyframeCallback* callbacks);
       |                                            [01;36m[K~~~~~~~~~~~~~~~~~~~~~~^~~~[m[K
-[01m[Ksrc/overlays/actors/ovl_En_Test/z_en_test.c:189:68:[m[K [01;35m[Kwarning: [m[Kpassing argument 3 of '[01m[Kfunc_80183430[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-  189 |     func_80183430(&this->skeletonInfo, &gameplay_keep_Blob_06EB70, [01;35m[K&gameplay_keep_Blob_06BB0C[m[K, this->unk_178,
-      |                                                                    [01;35m[K^~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
-      |                                                                    [01;35m[K|[m[K
-      |                                                                    [01;35m[Ku8 (*)[] {aka unsigned char (*)[]}[m[K
-[01m[Kinclude/functions.h:1155:89:[m[K [01;36m[Knote: [m[Kexpected '[01m[KSkeletonInfo_1C *[m[K' but argument is of type '[01m[Ku8 (*)[][m[K' {aka '[01m[Kunsigned char (*)[][m[K'}
- 1155 | void func_80183430(SkeletonInfo* skeleton, Struct_801BFA14_Arg1* arg1, [01;36m[KSkeletonInfo_1C* arg2[m[K, Vec3s* frameData, s16* arg4, UnkKeyframeCallback* callbacks);
+[01m[Ksrc/overlays/actors/ovl_Eff_Change/z_eff_change.c:53:67:[m[K [01;35m[Kwarning: [m[Kpassing argument 3 of '[01m[Kfunc_80183430[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
+   53 |     func_80183430(&this->skeletonInfo, gameplay_keep_Blob_02900C, [01;35m[Kgameplay_keep_Blob_0281DC[m[K, this->jointTable,
+      |                                                                   [01;35m[K^~~~~~~~~~~~~~~~~~~~~~~~~[m[K
+      |                                                                   [01;35m[K|[m[K
+      |                                                                   [01;35m[Ku8 * {aka unsigned char *}[m[K
+In file included from [01m[Kinclude/global.h:5[m[K,
+                 from [01m[Ksrc/overlays/actors/ovl_Eff_Change/z_eff_change.h:4[m[K,
+                 from [01m[Ksrc/overlays/actors/ovl_Eff_Change/z_eff_change.c:7[m[K:
+[01m[Kinclude/functions.h:1122:89:[m[K [01;36m[Knote: [m[Kexpected '[01m[KSkeletonInfo_1C *[m[K' {aka '[01m[Kstruct <anonymous> *[m[K'} but argument is of type '[01m[Ku8 *[m[K' {aka '[01m[Kunsigned char *[m[K'}
+ 1122 | void func_80183430(SkeletonInfo* skeleton, Struct_801BFA14_Arg1* arg1, [01;36m[KSkeletonInfo_1C* arg2[m[K, Vec3s* frameData, s16* arg4, UnkKeyframeCallback* callbacks);
       |                                                                        [01;36m[K~~~~~~~~~~~~~~~~~^~~~[m[K
-[01m[Ksrc/overlays/actors/ovl_En_Test/z_en_test.c:190:23:[m[K [01;35m[Kwarning: [m[Kpassing argument 5 of '[01m[Kfunc_80183430[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-  190 |                   [01;35m[Kthis->unk_1C0[m[K, NULL);
-      |                   [01;35m[K~~~~^~~~~~~~~[m[K
+[01m[Ksrc/overlays/actors/ovl_Eff_Change/z_eff_change.c:54:23:[m[K [01;35m[Kwarning: [m[Kpassing argument 5 of '[01m[Kfunc_80183430[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
+   54 |                   [01;35m[Kthis->morphTable[m[K, NULL);
+      |                   [01;35m[K~~~~^~~~~~~~~~~~[m[K
       |                       [01;35m[K|[m[K
-      |                       [01;35m[KVec3s *[m[K
-[01m[Kinclude/functions.h:1155:118:[m[K [01;36m[Knote: [m[Kexpected '[01m[Ks16 *[m[K' {aka '[01m[Kshort int *[m[K'} but argument is of type '[01m[KVec3s *[m[K'
- 1155 | void func_80183430(SkeletonInfo* skeleton, Struct_801BFA14_Arg1* arg1, SkeletonInfo_1C* arg2, Vec3s* frameData, [01;36m[Ks16* arg4[m[K, UnkKeyframeCallback* callbacks);
+      |                       [01;35m[KVec3s * {aka struct <anonymous> *}[m[K
+In file included from [01m[Kinclude/global.h:5[m[K,
+                 from [01m[Ksrc/overlays/actors/ovl_Eff_Change/z_eff_change.h:4[m[K,
+                 from [01m[Ksrc/overlays/actors/ovl_Eff_Change/z_eff_change.c:7[m[K:
+[01m[Kinclude/functions.h:1122:118:[m[K [01;36m[Knote: [m[Kexpected '[01m[Ks16 *[m[K' {aka '[01m[Kshort int *[m[K'} but argument is of type '[01m[KVec3s *[m[K' {aka '[01m[Kstruct <anonymous> *[m[K'}
+ 1122 | void func_80183430(SkeletonInfo* skeleton, Struct_801BFA14_Arg1* arg1, SkeletonInfo_1C* arg2, Vec3s* frameData, [01;36m[Ks16* arg4[m[K, UnkKeyframeCallback* callbacks);
       |                                                                                                                 [01;36m[K~~~~~^~~~[m[K
-[01m[Ksrc/overlays/actors/ovl_En_Test/z_en_test.c:191:40:[m[K [01;35m[Kwarning: [m[Kpassing argument 2 of '[01m[Kfunc_801834A8[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-  191 |     func_801834A8(&this->skeletonInfo, [01;35m[K&gameplay_keep_Blob_06BB0C[m[K);
-      |                                        [01;35m[K^~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
+[01m[Ksrc/overlays/actors/ovl_Eff_Change/z_eff_change.c:55:40:[m[K [01;35m[Kwarning: [m[Kpassing argument 2 of '[01m[Kfunc_801834A8[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
+   55 |     func_801834A8(&this->skeletonInfo, [01;35m[Kgameplay_keep_Blob_0281DC[m[K);
+      |                                        [01;35m[K^~~~~~~~~~~~~~~~~~~~~~~~~[m[K
       |                                        [01;35m[K|[m[K
-      |                                        [01;35m[Ku8 (*)[] {aka unsigned char (*)[]}[m[K
-[01m[Kinclude/functions.h:1157:61:[m[K [01;36m[Knote: [m[Kexpected '[01m[KSkeletonInfo_1C *[m[K' but argument is of type '[01m[Ku8 (*)[][m[K' {aka '[01m[Kunsigned char (*)[][m[K'}
- 1157 | void func_801834A8(SkeletonInfo* skeleton, [01;36m[KSkeletonInfo_1C* arg1[m[K);
+      |                                        [01;35m[Ku8 * {aka unsigned char *}[m[K
+In file included from [01m[Kinclude/global.h:5[m[K,
+                 from [01m[Ksrc/overlays/actors/ovl_Eff_Change/z_eff_change.h:4[m[K,
+                 from [01m[Ksrc/overlays/actors/ovl_Eff_Change/z_eff_change.c:7[m[K:
+[01m[Kinclude/functions.h:1124:61:[m[K [01;36m[Knote: [m[Kexpected '[01m[KSkeletonInfo_1C *[m[K' {aka '[01m[Kstruct <anonymous> *[m[K'} but argument is of type '[01m[Ku8 *[m[K' {aka '[01m[Kunsigned char *[m[K'}
+ 1124 | void func_801834A8(SkeletonInfo* skeleton, [01;36m[KSkeletonInfo_1C* arg1[m[K);
       |                                            [01;36m[K~~~~~~~~~~~~~~~~~^~~~[m[K
-[01m[Ksrc/overlays/actors/ovl_En_Test/z_en_test.c:[m[K In function '[01m[KEnTest_Draw[m[K':
-[01m[Ksrc/overlays/actors/ovl_En_Test/z_en_test.c:271:55:[m[K [01;35m[Kwarning: [m[Kpassing argument 4 of '[01m[Kfunc_8018450C[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-  271 |         func_8018450C(play, &this->skeletonInfo, mtx, [01;35m[KEnTest_OverrideKeyframeDraw[m[K, NULL, thisx);
-      |                                                       [01;35m[K^~~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
-      |                                                       [01;35m[K|[m[K
-      |                                                       [01;35m[Ks32 (*)(PlayState *, SkeletonInfo *, s32,  Gfx **, u8 *, Actor *, Vec3f *, Vec3s *, Vec3f *) {aka int (*)(PlayState *, SkeletonInfo *, int,  Gfx **, unsigned char *, Actor *, Vec3f *, Vec3s *, Vec3f *)}[m[K
-[01m[Kinclude/functions.h:1172:98:[m[K [01;36m[Knote: [m[Kexpected '[01m[KOverrideKeyframeDrawScaled[m[K' {aka '[01m[Kint (*)(struct PlayState *, struct SkeletonInfo *, int,  Gfx **, unsigned char *, void *, Vec3f *, Vec3s *, Vec3f *)[m[K'} but argument is of type '[01m[Ks32 (*)(PlayState *, SkeletonInfo *, s32,  Gfx **, u8 *, Actor *, Vec3f *, Vec3s *, Vec3f *)[m[K' {aka '[01m[Kint (*)(PlayState *, SkeletonInfo *, int,  Gfx **, unsigned char *, Actor *, Vec3f *, Vec3s *, Vec3f *)[m[K'}
- 1172 | void func_8018450C(PlayState* play, SkeletonInfo* skeleton, Mtx* mtx, [01;36m[KOverrideKeyframeDrawScaled overrideKeyframeDraw[m[K, PostKeyframeDrawScaled postKeyframeDraw, void* arg);
-      |                                                                       [01;36m[K~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~[m[K
-cfe: Warning 709: src/overlays/actors/ovl_En_Test/z_en_test.c, line 189: Incompatible pointer type assignment
-     func_80183430(&this->skeletonInfo, &gameplay_keep_Blob_06EB70, &gameplay_keep_Blob_06BB0C, this->unk_178,
+cfe: Warning 709: src/overlays/actors/ovl_Eff_Change/z_eff_change.c, line 53: Incompatible pointer type assignment
+     func_80183430(&this->skeletonInfo, gameplay_keep_Blob_02900C, gameplay_keep_Blob_0281DC, this->jointTable,
  ---------------------------------------^
 The type pointed to by the left-hand side of simple assignment
 statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_En_Test/z_en_test.c, line 189: Incompatible pointer type assignment
-     func_80183430(&this->skeletonInfo, &gameplay_keep_Blob_06EB70, &gameplay_keep_Blob_06BB0C, this->unk_178,
- -------------------------------------------------------------------^
+cfe: Warning 709: src/overlays/actors/ovl_Eff_Change/z_eff_change.c, line 53: Incompatible pointer type assignment
+     func_80183430(&this->skeletonInfo, gameplay_keep_Blob_02900C, gameplay_keep_Blob_0281DC, this->jointTable,
+ ------------------------------------------------------------------^
 The type pointed to by the left-hand side of simple assignment
 statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_En_Test/z_en_test.c, line 190: Incompatible pointer type assignment
-                   this->unk_1C0, (void*)0 );
+cfe: Warning 709: src/overlays/actors/ovl_Eff_Change/z_eff_change.c, line 54: Incompatible pointer type assignment
+                   this->morphTable, (void*)0 );
  ----------------------^
 The type pointed to by the left-hand side of simple assignment
 statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_En_Test/z_en_test.c, line 191: Incompatible pointer type assignment
-     func_801834A8(&this->skeletonInfo, &gameplay_keep_Blob_06BB0C);
+cfe: Warning 709: src/overlays/actors/ovl_Eff_Change/z_eff_change.c, line 55: Incompatible pointer type assignment
+     func_801834A8(&this->skeletonInfo, gameplay_keep_Blob_0281DC);
  ---------------------------------------^
 The type pointed to by the left-hand side of simple assignment
 statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_En_Test/z_en_test.c, line 271: Incompatible pointer type assignment
-         func_8018450C(play, &this->skeletonInfo, mtx, EnTest_OverrideKeyframeDraw, (void*)0 , thisx);
- ------------------------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-[01m[Ksrc/overlays/actors/ovl_En_Fall2/z_en_fall2.c:[m[K In function '[01m[KEnFall2_Init[m[K':
-[01m[Ksrc/overlays/actors/ovl_En_Fall2/z_en_fall2.c:38:40:[m[K [01;35m[Kwarning: [m[Kpassing argument 2 of '[01m[Kfunc_80183430[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-   38 |     func_80183430(&this->skeletonInfo, [01;35m[Kobject_fall2_Blob_008898[m[K, object_fall2_Blob_005EF4, this->unk174, this->unk228,
-      |                                        [01;35m[K^~~~~~~~~~~~~~~~~~~~~~~~[m[K
-      |                                        [01;35m[K|[m[K
-      |                                        [01;35m[Ku8 * {aka unsigned char *}[m[K
-In file included from [01m[Kinclude/global.h:5[m[K,
-                 from [01m[Ksrc/overlays/actors/ovl_En_Fall2/z_en_fall2.h:4[m[K,
-                 from [01m[Ksrc/overlays/actors/ovl_En_Fall2/z_en_fall2.c:7[m[K:
-[01m[Kinclude/functions.h:1155:66:[m[K [01;36m[Knote: [m[Kexpected '[01m[KStruct_801BFA14_Arg1 *[m[K' but argument is of type '[01m[Ku8 *[m[K' {aka '[01m[Kunsigned char *[m[K'}
- 1155 | void func_80183430(SkeletonInfo* skeleton, [01;36m[KStruct_801BFA14_Arg1* arg1[m[K, SkeletonInfo_1C* arg2, Vec3s* frameData, s16* arg4, UnkKeyframeCallback* callbacks);
-      |                                            [01;36m[K~~~~~~~~~~~~~~~~~~~~~~^~~~[m[K
-[01m[Ksrc/overlays/actors/ovl_En_Fall2/z_en_fall2.c:38:66:[m[K [01;35m[Kwarning: [m[Kpassing argument 3 of '[01m[Kfunc_80183430[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-   38 |     func_80183430(&this->skeletonInfo, object_fall2_Blob_008898, [01;35m[Kobject_fall2_Blob_005EF4[m[K, this->unk174, this->unk228,
-      |                                                                  [01;35m[K^~~~~~~~~~~~~~~~~~~~~~~~[m[K
-      |                                                                  [01;35m[K|[m[K
-      |                                                                  [01;35m[Ku8 * {aka unsigned char *}[m[K
-[01m[Kinclude/functions.h:1155:89:[m[K [01;36m[Knote: [m[Kexpected '[01m[KSkeletonInfo_1C *[m[K' but argument is of type '[01m[Ku8 *[m[K' {aka '[01m[Kunsigned char *[m[K'}
- 1155 | void func_80183430(SkeletonInfo* skeleton, Struct_801BFA14_Arg1* arg1, [01;36m[KSkeletonInfo_1C* arg2[m[K, Vec3s* frameData, s16* arg4, UnkKeyframeCallback* callbacks);
-      |                                                                        [01;36m[K~~~~~~~~~~~~~~~~~^~~~[m[K
-[01m[Ksrc/overlays/actors/ovl_En_Fall2/z_en_fall2.c:38:110:[m[K [01;35m[Kwarning: [m[Kpassing argument 5 of '[01m[Kfunc_80183430[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-   38 |     func_80183430(&this->skeletonInfo, object_fall2_Blob_008898, object_fall2_Blob_005EF4, this->unk174, [01;35m[Kthis->unk228[m[K,
-      |                                                                                                          [01;35m[K~~~~^~~~~~~~[m[K
-      |                                                                                                              [01;35m[K|[m[K
-      |                                                                                                              [01;35m[KVec3s *[m[K
-[01m[Kinclude/functions.h:1155:118:[m[K [01;36m[Knote: [m[Kexpected '[01m[Ks16 *[m[K' {aka '[01m[Kshort int *[m[K'} but argument is of type '[01m[KVec3s *[m[K'
- 1155 | void func_80183430(SkeletonInfo* skeleton, Struct_801BFA14_Arg1* arg1, SkeletonInfo_1C* arg2, Vec3s* frameData, [01;36m[Ks16* arg4[m[K, UnkKeyframeCallback* callbacks);
-      |                                                                                                                 [01;36m[K~~~~~^~~~[m[K
-[01m[Ksrc/overlays/actors/ovl_En_Fall2/z_en_fall2.c:40:40:[m[K [01;35m[Kwarning: [m[Kpassing argument 2 of '[01m[Kfunc_801835EC[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-   40 |     func_801835EC(&this->skeletonInfo, [01;35m[Kobject_fall2_Blob_005EF4[m[K);
-      |                                        [01;35m[K^~~~~~~~~~~~~~~~~~~~~~~~[m[K
-      |                                        [01;35m[K|[m[K
-      |                                        [01;35m[Ku8 * {aka unsigned char *}[m[K
-[01m[Kinclude/functions.h:1160:61:[m[K [01;36m[Knote: [m[Kexpected '[01m[KSkeletonInfo_1C *[m[K' but argument is of type '[01m[Ku8 *[m[K' {aka '[01m[Kunsigned char *[m[K'}
- 1160 | void func_801835EC(SkeletonInfo* skeleton, [01;36m[KSkeletonInfo_1C* arg1[m[K);
-      |                                            [01;36m[K~~~~~~~~~~~~~~~~~^~~~[m[K
-cfe: Warning 709: src/overlays/actors/ovl_En_Fall2/z_en_fall2.c, line 38: Incompatible pointer type assignment
-     func_80183430(&this->skeletonInfo, object_fall2_Blob_008898, object_fall2_Blob_005EF4, this->unk174, this->unk228,
- ---------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_En_Fall2/z_en_fall2.c, line 38: Incompatible pointer type assignment
-     func_80183430(&this->skeletonInfo, object_fall2_Blob_008898, object_fall2_Blob_005EF4, this->unk174, this->unk228,
- -----------------------------------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_En_Fall2/z_en_fall2.c, line 38: Incompatible pointer type assignment
-     func_80183430(&this->skeletonInfo, object_fall2_Blob_008898, object_fall2_Blob_005EF4, this->unk174, this->unk228,
- -------------------------------------------------------------------------------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_En_Fall2/z_en_fall2.c, line 40: Incompatible pointer type assignment
-     func_801835EC(&this->skeletonInfo, object_fall2_Blob_005EF4);
- ---------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-[01m[Ksrc/overlays/actors/ovl_En_Dt/z_en_dt.c:90:37:[m[K [01;35m[Kwarning: [m[Kinitialization of '[01m[Kvoid **[m[K' from incompatible pointer type '[01m[Ku64 (*)[][m[K' {aka '[01m[Klong long unsigned int (*)[][m[K'} [[01;35m[K-Wincompatible-pointer-types[m[K]
-   90 | static TexturePtr* D_80BEB348[] = { [01;35m[K&[m[KgDotourEyeShockTex, &gDotourEyeOpenTex, &gDotourEyeClosedTex,
-      |                                     [01;35m[K^[m[K
-[01m[Ksrc/overlays/actors/ovl_En_Dt/z_en_dt.c:90:37:[m[K [01;36m[Knote: [m[K(near initialization for '[01m[KD_80BEB348[0][m[K')
-[01m[Ksrc/overlays/actors/ovl_En_Dt/z_en_dt.c:90:58:[m[K [01;35m[Kwarning: [m[Kinitialization of '[01m[Kvoid **[m[K' from incompatible pointer type '[01m[Ku64 (*)[][m[K' {aka '[01m[Klong long unsigned int (*)[][m[K'} [[01;35m[K-Wincompatible-pointer-types[m[K]
-   90 | static TexturePtr* D_80BEB348[] = { &gDotourEyeShockTex, [01;35m[K&[m[KgDotourEyeOpenTex, &gDotourEyeClosedTex,
-      |                                                          [01;35m[K^[m[K
-[01m[Ksrc/overlays/actors/ovl_En_Dt/z_en_dt.c:90:58:[m[K [01;36m[Knote: [m[K(near initialization for '[01m[KD_80BEB348[1][m[K')
-[01m[Ksrc/overlays/actors/ovl_En_Dt/z_en_dt.c:90:78:[m[K [01;35m[Kwarning: [m[Kinitialization of '[01m[Kvoid **[m[K' from incompatible pointer type '[01m[Ku64 (*)[][m[K' {aka '[01m[Klong long unsigned int (*)[][m[K'} [[01;35m[K-Wincompatible-pointer-types[m[K]
-   90 | static TexturePtr* D_80BEB348[] = { &gDotourEyeShockTex, &gDotourEyeOpenTex, [01;35m[K&[m[KgDotourEyeClosedTex,
-      |                                                                              [01;35m[K^[m[K
-[01m[Ksrc/overlays/actors/ovl_En_Dt/z_en_dt.c:90:78:[m[K [01;36m[Knote: [m[K(near initialization for '[01m[KD_80BEB348[2][m[K')
-[01m[Ksrc/overlays/actors/ovl_En_Dt/z_en_dt.c:91:37:[m[K [01;35m[Kwarning: [m[Kinitialization of '[01m[Kvoid **[m[K' from incompatible pointer type '[01m[Ku64 (*)[][m[K' {aka '[01m[Klong long unsigned int (*)[][m[K'} [[01;35m[K-Wincompatible-pointer-types[m[K]
-   91 |                                     [01;35m[K&[m[KgDotourEyeLookDownTex, &gDotourEyeSquintTex };
-      |                                     [01;35m[K^[m[K
-[01m[Ksrc/overlays/actors/ovl_En_Dt/z_en_dt.c:91:37:[m[K [01;36m[Knote: [m[K(near initialization for '[01m[KD_80BEB348[3][m[K')
-[01m[Ksrc/overlays/actors/ovl_En_Dt/z_en_dt.c:91:61:[m[K [01;35m[Kwarning: [m[Kinitialization of '[01m[Kvoid **[m[K' from incompatible pointer type '[01m[Ku64 (*)[][m[K' {aka '[01m[Klong long unsigned int (*)[][m[K'} [[01;35m[K-Wincompatible-pointer-types[m[K]
-   91 |                                     &gDotourEyeLookDownTex, [01;35m[K&[m[KgDotourEyeSquintTex };
-      |                                                             [01;35m[K^[m[K
-[01m[Ksrc/overlays/actors/ovl_En_Dt/z_en_dt.c:91:61:[m[K [01;36m[Knote: [m[K(near initialization for '[01m[KD_80BEB348[4][m[K')
-[01m[Ksrc/overlays/actors/ovl_En_Dt/z_en_dt.c:93:37:[m[K [01;35m[Kwarning: [m[Kinitialization of '[01m[Kvoid **[m[K' from incompatible pointer type '[01m[Ku64 (*)[][m[K' {aka '[01m[Klong long unsigned int (*)[][m[K'} [[01;35m[K-Wincompatible-pointer-types[m[K]
-   93 | static TexturePtr* D_80BEB35C[] = { [01;35m[K&[m[KgDotourEyebrowHighTex, &gDotourEyebrowMidTex, &gDotourEyebrowLowTex };
-      |                                     [01;35m[K^[m[K
-[01m[Ksrc/overlays/actors/ovl_En_Dt/z_en_dt.c:93:37:[m[K [01;36m[Knote: [m[K(near initialization for '[01m[KD_80BEB35C[0][m[K')
-[01m[Ksrc/overlays/actors/ovl_En_Dt/z_en_dt.c:93:61:[m[K [01;35m[Kwarning: [m[Kinitialization of '[01m[Kvoid **[m[K' from incompatible pointer type '[01m[Ku64 (*)[][m[K' {aka '[01m[Klong long unsigned int (*)[][m[K'} [[01;35m[K-Wincompatible-pointer-types[m[K]
-   93 | static TexturePtr* D_80BEB35C[] = { &gDotourEyebrowHighTex, [01;35m[K&[m[KgDotourEyebrowMidTex, &gDotourEyebrowLowTex };
-      |                                                             [01;35m[K^[m[K
-[01m[Ksrc/overlays/actors/ovl_En_Dt/z_en_dt.c:93:61:[m[K [01;36m[Knote: [m[K(near initialization for '[01m[KD_80BEB35C[1][m[K')
-[01m[Ksrc/overlays/actors/ovl_En_Dt/z_en_dt.c:93:84:[m[K [01;35m[Kwarning: [m[Kinitialization of '[01m[Kvoid **[m[K' from incompatible pointer type '[01m[Ku64 (*)[][m[K' {aka '[01m[Klong long unsigned int (*)[][m[K'} [[01;35m[K-Wincompatible-pointer-types[m[K]
-   93 | static TexturePtr* D_80BEB35C[] = { &gDotourEyebrowHighTex, &gDotourEyebrowMidTex, [01;35m[K&[m[KgDotourEyebrowLowTex };
-      |                                                                                    [01;35m[K^[m[K
-[01m[Ksrc/overlays/actors/ovl_En_Dt/z_en_dt.c:93:84:[m[K [01;36m[Knote: [m[K(near initialization for '[01m[KD_80BEB35C[2][m[K')
-[01m[Ksrc/overlays/actors/ovl_En_Dt/z_en_dt.c:[m[K In function '[01m[KEnDt_Update[m[K':
-[01m[Ksrc/overlays/actors/ovl_En_Dt/z_en_dt.c:649:50:[m[K [01;35m[Kwarning: [m[Kpassing argument 3 of '[01m[KCollisionCheck_SetOC[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-  649 |     CollisionCheck_SetOC(play, &play->colChkCtx, [01;35m[K&this->collider[m[K);
-      |                                                  [01;35m[K^~~~~~~~~~~~~~~[m[K
-      |                                                  [01;35m[K|[m[K
-      |                                                  [01;35m[KColliderCylinder *[m[K
-In file included from [01m[Kinclude/z64actor.h:9[m[K,
-                 from [01m[Kinclude/z64.h:31[m[K,
-                 from [01m[Kinclude/global.h:4[m[K,
-                 from [01m[Ksrc/overlays/actors/ovl_En_Dt/z_en_dt.h:4[m[K,
-                 from [01m[Ksrc/overlays/actors/ovl_En_Dt/z_en_dt.c:7[m[K:
-[01m[Kinclude/z64collision_check.h:576:92:[m[K [01;36m[Knote: [m[Kexpected '[01m[KCollider *[m[K' but argument is of type '[01m[KColliderCylinder *[m[K'
-  576 | s32 CollisionCheck_SetOC(struct PlayState* play, CollisionCheckContext* colCtxt, [01;36m[KCollider* collider[m[K);
-      |                                                                                  [01;36m[K~~~~~~~~~~^~~~~~~~[m[K
-cfe: Warning 709: src/overlays/actors/ovl_En_Dt/z_en_dt.c, line 90: Incompatible pointer type assignment
- static TexturePtr* D_80BEB348[] = { &gDotourEyeShockTex, &gDotourEyeOpenTex, &gDotourEyeClosedTex,
- ------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_En_Dt/z_en_dt.c, line 90: Incompatible pointer type assignment
- static TexturePtr* D_80BEB348[] = { &gDotourEyeShockTex, &gDotourEyeOpenTex, &gDotourEyeClosedTex,
- ---------------------------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_En_Dt/z_en_dt.c, line 90: Incompatible pointer type assignment
- static TexturePtr* D_80BEB348[] = { &gDotourEyeShockTex, &gDotourEyeOpenTex, &gDotourEyeClosedTex,
- -----------------------------------------------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_En_Dt/z_en_dt.c, line 91: Incompatible pointer type assignment
-                                     &gDotourEyeLookDownTex, &gDotourEyeSquintTex };
- ------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_En_Dt/z_en_dt.c, line 91: Incompatible pointer type assignment
-                                     &gDotourEyeLookDownTex, &gDotourEyeSquintTex };
- ------------------------------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_En_Dt/z_en_dt.c, line 93: Incompatible pointer type assignment
- static TexturePtr* D_80BEB35C[] = { &gDotourEyebrowHighTex, &gDotourEyebrowMidTex, &gDotourEyebrowLowTex };
- ------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_En_Dt/z_en_dt.c, line 93: Incompatible pointer type assignment
- static TexturePtr* D_80BEB35C[] = { &gDotourEyebrowHighTex, &gDotourEyebrowMidTex, &gDotourEyebrowLowTex };
- ------------------------------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_En_Dt/z_en_dt.c, line 93: Incompatible pointer type assignment
- static TexturePtr* D_80BEB35C[] = { &gDotourEyebrowHighTex, &gDotourEyebrowMidTex, &gDotourEyebrowLowTex };
- -----------------------------------------------------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_En_Dt/z_en_dt.c, line 649: Incompatible pointer type assignment
-     CollisionCheck_SetOC(play, &play->colChkCtx, &this->collider);
- -------------------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-[01m[Ksrc/overlays/actors/ovl_En_An/z_en_an.c:[m[K In function '[01m[KEnAn_Talk[m[K':
-[01m[Ksrc/overlays/actors/ovl_En_An/z_en_an.c:3220:52:[m[K [01;35m[Kwarning: [m[Kpassing argument 3 of '[01m[KMsgEvent_RunScript[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
- 3220 |     if (MsgEvent_RunScript(&this->actor, play, [01;35m[Kthis->msgEventScript[m[K, this->msgEventFunc, &this->msgScriptResumePos)) {
-      |                                                [01;35m[K~~~~^~~~~~~~~~~~~~~~[m[K
-      |                                                    [01;35m[K|[m[K
-      |                                                    [01;35m[Ks32 * {aka int *}[m[K
-In file included from [01m[Kinclude/global.h:5[m[K,
-                 from [01m[Ksrc/overlays/actors/ovl_En_An/z_en_an.h:4[m[K,
-                 from [01m[Ksrc/overlays/actors/ovl_En_An/z_en_an.c:7[m[K:
-[01m[Kinclude/functions.h:778:66:[m[K [01;36m[Knote: [m[Kexpected '[01m[KMsgScript *[m[K' {aka '[01m[Kunsigned char *[m[K'} but argument is of type '[01m[Ks32 *[m[K' {aka '[01m[Kint *[m[K'}
-  778 | s32 MsgEvent_RunScript(Actor* actor, PlayState* play, [01;36m[KMsgScript* script[m[K, MsgEventCallback callback, s32* pos);
-      |                                                       [01;36m[K~~~~~~~~~~~^~~~~~[m[K
-cfe: Warning 709: src/overlays/actors/ovl_En_An/z_en_an.c, line 3220: Incompatible pointer type assignment
-     if (MsgEvent_RunScript(&this->actor, play, this->msgEventScript, this->msgEventFunc, &this->msgScriptResumePos)) {
- ---------------------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-[01m[Ksrc/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c:[m[K In function '[01m[KDemoMoonend_Init[m[K':
-[01m[Ksrc/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c:49:44:[m[K [01;35m[Kwarning: [m[Kpassing argument 2 of '[01m[Kfunc_80183430[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-   49 |         func_80183430(&this->skeletonInfo, [01;35m[K&object_moonend_Blob_00B5A0[m[K, &object_moonend_Blob_001214, this->jointTable,
-      |                                            [01;35m[K^~~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
-      |                                            [01;35m[K|[m[K
-      |                                            [01;35m[Ku8 (*)[] {aka unsigned char (*)[]}[m[K
-In file included from [01m[Kinclude/global.h:5[m[K,
-                 from [01m[Ksrc/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.h:4[m[K,
-                 from [01m[Ksrc/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c:7[m[K:
-[01m[Kinclude/functions.h:1155:66:[m[K [01;36m[Knote: [m[Kexpected '[01m[KStruct_801BFA14_Arg1 *[m[K' but argument is of type '[01m[Ku8 (*)[][m[K' {aka '[01m[Kunsigned char (*)[][m[K'}
- 1155 | void func_80183430(SkeletonInfo* skeleton, [01;36m[KStruct_801BFA14_Arg1* arg1[m[K, SkeletonInfo_1C* arg2, Vec3s* frameData, s16* arg4, UnkKeyframeCallback* callbacks);
-      |                                            [01;36m[K~~~~~~~~~~~~~~~~~~~~~~^~~~[m[K
-[01m[Ksrc/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c:49:73:[m[K [01;35m[Kwarning: [m[Kpassing argument 3 of '[01m[Kfunc_80183430[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-   49 |         func_80183430(&this->skeletonInfo, &object_moonend_Blob_00B5A0, [01;35m[K&object_moonend_Blob_001214[m[K, this->jointTable,
-      |                                                                         [01;35m[K^~~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
-      |                                                                         [01;35m[K|[m[K
-      |                                                                         [01;35m[Ku8 (*)[] {aka unsigned char (*)[]}[m[K
-[01m[Kinclude/functions.h:1155:89:[m[K [01;36m[Knote: [m[Kexpected '[01m[KSkeletonInfo_1C *[m[K' but argument is of type '[01m[Ku8 (*)[][m[K' {aka '[01m[Kunsigned char (*)[][m[K'}
- 1155 | void func_80183430(SkeletonInfo* skeleton, Struct_801BFA14_Arg1* arg1, [01;36m[KSkeletonInfo_1C* arg2[m[K, Vec3s* frameData, s16* arg4, UnkKeyframeCallback* callbacks);
-      |                                                                        [01;36m[K~~~~~~~~~~~~~~~~~^~~~[m[K
-[01m[Ksrc/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c:50:27:[m[K [01;35m[Kwarning: [m[Kpassing argument 5 of '[01m[Kfunc_80183430[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-   50 |                       [01;35m[Kthis->morphTable[m[K, NULL);
-      |                       [01;35m[K~~~~^~~~~~~~~~~~[m[K
-      |                           [01;35m[K|[m[K
-      |                           [01;35m[KVec3s *[m[K
-[01m[Kinclude/functions.h:1155:118:[m[K [01;36m[Knote: [m[Kexpected '[01m[Ks16 *[m[K' {aka '[01m[Kshort int *[m[K'} but argument is of type '[01m[KVec3s *[m[K'
- 1155 | void func_80183430(SkeletonInfo* skeleton, Struct_801BFA14_Arg1* arg1, SkeletonInfo_1C* arg2, Vec3s* frameData, [01;36m[Ks16* arg4[m[K, UnkKeyframeCallback* callbacks);
-      |                                                                                                                 [01;36m[K~~~~~^~~~[m[K
-[01m[Ksrc/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c:51:44:[m[K [01;35m[Kwarning: [m[Kpassing argument 2 of '[01m[Kfunc_801834A8[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-   51 |         func_801834A8(&this->skeletonInfo, [01;35m[K&object_moonend_Blob_001214[m[K);
-      |                                            [01;35m[K^~~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
-      |                                            [01;35m[K|[m[K
-      |                                            [01;35m[Ku8 (*)[] {aka unsigned char (*)[]}[m[K
-[01m[Kinclude/functions.h:1157:61:[m[K [01;36m[Knote: [m[Kexpected '[01m[KSkeletonInfo_1C *[m[K' but argument is of type '[01m[Ku8 (*)[][m[K' {aka '[01m[Kunsigned char (*)[][m[K'}
- 1157 | void func_801834A8(SkeletonInfo* skeleton, [01;36m[KSkeletonInfo_1C* arg1[m[K);
-      |                                            [01;36m[K~~~~~~~~~~~~~~~~~^~~~[m[K
-[01m[Ksrc/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c:[m[K In function '[01m[Kfunc_80C17C48[m[K':
-[01m[Ksrc/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c:113:56:[m[K [01;35m[Kwarning: [m[Kpassing argument 2 of '[01m[Kfunc_801834A8[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-  113 |                     func_801834A8(&this->skeletonInfo, [01;35m[K&object_moonend_Blob_001214[m[K);
-      |                                                        [01;35m[K^~~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
-      |                                                        [01;35m[K|[m[K
-      |                                                        [01;35m[Ku8 (*)[] {aka unsigned char (*)[]}[m[K
-[01m[Kinclude/functions.h:1157:61:[m[K [01;36m[Knote: [m[Kexpected '[01m[KSkeletonInfo_1C *[m[K' but argument is of type '[01m[Ku8 (*)[][m[K' {aka '[01m[Kunsigned char (*)[][m[K'}
- 1157 | void func_801834A8(SkeletonInfo* skeleton, [01;36m[KSkeletonInfo_1C* arg1[m[K);
-      |                                            [01;36m[K~~~~~~~~~~~~~~~~~^~~~[m[K
-[01m[Ksrc/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c:119:56:[m[K [01;35m[Kwarning: [m[Kpassing argument 2 of '[01m[Kfunc_801834A8[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-  119 |                     func_801834A8(&this->skeletonInfo, [01;35m[K&object_moonend_Blob_001214[m[K);
-      |                                                        [01;35m[K^~~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
-      |                                                        [01;35m[K|[m[K
-      |                                                        [01;35m[Ku8 (*)[] {aka unsigned char (*)[]}[m[K
-[01m[Kinclude/functions.h:1157:61:[m[K [01;36m[Knote: [m[Kexpected '[01m[KSkeletonInfo_1C *[m[K' but argument is of type '[01m[Ku8 (*)[][m[K' {aka '[01m[Kunsigned char (*)[][m[K'}
- 1157 | void func_801834A8(SkeletonInfo* skeleton, [01;36m[KSkeletonInfo_1C* arg1[m[K);
-      |                                            [01;36m[K~~~~~~~~~~~~~~~~~^~~~[m[K
-[01m[Ksrc/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c:[m[K In function '[01m[KDemoMoonend_Draw[m[K':
-[01m[Ksrc/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c:203:55:[m[K [01;35m[Kwarning: [m[Kpassing argument 4 of '[01m[Kfunc_8018450C[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-  203 |         func_8018450C(play, &this->skeletonInfo, mtx, [01;35m[Kfunc_80C17E70[m[K, func_80C17EE0, &this->actor);
-      |                                                       [01;35m[K^~~~~~~~~~~~~[m[K
-      |                                                       [01;35m[K|[m[K
-      |                                                       [01;35m[Ks32 (*)(PlayState *, SkeletonInfo *, s32,  Gfx **, u8 *, Actor *, Vec3f *, Vec3s *, Vec3f *) {aka int (*)(PlayState *, SkeletonInfo *, int,  Gfx **, unsigned char *, Actor *, Vec3f *, Vec3s *, Vec3f *)}[m[K
-[01m[Kinclude/functions.h:1172:98:[m[K [01;36m[Knote: [m[Kexpected '[01m[KOverrideKeyframeDrawScaled[m[K' {aka '[01m[Kint (*)(struct PlayState *, struct SkeletonInfo *, int,  Gfx **, unsigned char *, void *, Vec3f *, Vec3s *, Vec3f *)[m[K'} but argument is of type '[01m[Ks32 (*)(PlayState *, SkeletonInfo *, s32,  Gfx **, u8 *, Actor *, Vec3f *, Vec3s *, Vec3f *)[m[K' {aka '[01m[Kint (*)(PlayState *, SkeletonInfo *, int,  Gfx **, unsigned char *, Actor *, Vec3f *, Vec3s *, Vec3f *)[m[K'}
- 1172 | void func_8018450C(PlayState* play, SkeletonInfo* skeleton, Mtx* mtx, [01;36m[KOverrideKeyframeDrawScaled overrideKeyframeDraw[m[K, PostKeyframeDrawScaled postKeyframeDraw, void* arg);
-      |                                                                       [01;36m[K~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~[m[K
-[01m[Ksrc/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c:203:70:[m[K [01;35m[Kwarning: [m[Kpassing argument 5 of '[01m[Kfunc_8018450C[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-  203 |         func_8018450C(play, &this->skeletonInfo, mtx, func_80C17E70, [01;35m[Kfunc_80C17EE0[m[K, &this->actor);
-      |                                                                      [01;35m[K^~~~~~~~~~~~~[m[K
-      |                                                                      [01;35m[K|[m[K
-      |                                                                      [01;35m[Ks32 (*)(PlayState *, SkeletonInfo *, s32,  Gfx **, u8 *, Actor *, Vec3f *, Vec3s *, Vec3f *) {aka int (*)(PlayState *, SkeletonInfo *, int,  Gfx **, unsigned char *, Actor *, Vec3f *, Vec3s *, Vec3f *)}[m[K
-[01m[Kinclude/functions.h:1172:143:[m[K [01;36m[Knote: [m[Kexpected '[01m[KPostKeyframeDrawScaled[m[K' {aka '[01m[Kvoid (*)(struct PlayState *, struct SkeletonInfo *, int,  Gfx **, unsigned char *, void *, Vec3f *, Vec3s *, Vec3f *)[m[K'} but argument is of type '[01m[Ks32 (*)(PlayState *, SkeletonInfo *, s32,  Gfx **, u8 *, Actor *, Vec3f *, Vec3s *, Vec3f *)[m[K' {aka '[01m[Kint (*)(PlayState *, SkeletonInfo *, int,  Gfx **, unsigned char *, Actor *, Vec3f *, Vec3s *, Vec3f *)[m[K'}
- 1172 | void func_8018450C(PlayState* play, SkeletonInfo* skeleton, Mtx* mtx, OverrideKeyframeDrawScaled overrideKeyframeDraw, [01;36m[KPostKeyframeDrawScaled postKeyframeDraw[m[K, void* arg);
-      |                                                                                                                        [01;36m[K~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~[m[K
-cfe: Warning 709: src/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c, line 49: Incompatible pointer type assignment
-         func_80183430(&this->skeletonInfo, &object_moonend_Blob_00B5A0, &object_moonend_Blob_001214, this->jointTable,
- -------------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c, line 49: Incompatible pointer type assignment
-         func_80183430(&this->skeletonInfo, &object_moonend_Blob_00B5A0, &object_moonend_Blob_001214, this->jointTable,
- ------------------------------------------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c, line 50: Incompatible pointer type assignment
-                       this->morphTable, (void*)0 );
- --------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c, line 51: Incompatible pointer type assignment
-         func_801834A8(&this->skeletonInfo, &object_moonend_Blob_001214);
- -------------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c, line 113: Incompatible pointer type assignment
-                     func_801834A8(&this->skeletonInfo, &object_moonend_Blob_001214);
- -------------------------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c, line 119: Incompatible pointer type assignment
-                     func_801834A8(&this->skeletonInfo, &object_moonend_Blob_001214);
- -------------------------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c, line 203: Incompatible pointer type assignment
-         func_8018450C(play, &this->skeletonInfo, mtx, func_80C17E70, func_80C17EE0, &this->actor);
- ------------------------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_Demo_Moonend/z_demo_moonend.c, line 203: Incompatible pointer type assignment
-         func_8018450C(play, &this->skeletonInfo, mtx, func_80C17E70, func_80C17EE0, &this->actor);
- ---------------------------------------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-[01m[Ksrc/overlays/actors/ovl_Demo_Syoten/z_demo_syoten.c:[m[K In function '[01m[KDemoSyoten_Init[m[K':
-[01m[Ksrc/overlays/actors/ovl_Demo_Syoten/z_demo_syoten.c:76:43:[m[K [01;35m[Kwarning: [m[Kpassing argument 2 of '[01m[Kfunc_80183430[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-   76 |             func_80183430(&this->unk_144, [01;35m[K&object_syoten_Blob_001328[m[K, &object_syoten_Blob_00023C, this->unk_174,
-      |                                           [01;35m[K^~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
-      |                                           [01;35m[K|[m[K
-      |                                           [01;35m[Ku8 (*)[] {aka unsigned char (*)[]}[m[K
-In file included from [01m[Kinclude/global.h:5[m[K,
-                 from [01m[Ksrc/overlays/actors/ovl_Demo_Syoten/z_demo_syoten.h:4[m[K,
-                 from [01m[Ksrc/overlays/actors/ovl_Demo_Syoten/z_demo_syoten.c:7[m[K:
-[01m[Kinclude/functions.h:1155:66:[m[K [01;36m[Knote: [m[Kexpected '[01m[KStruct_801BFA14_Arg1 *[m[K' but argument is of type '[01m[Ku8 (*)[][m[K' {aka '[01m[Kunsigned char (*)[][m[K'}
- 1155 | void func_80183430(SkeletonInfo* skeleton, [01;36m[KStruct_801BFA14_Arg1* arg1[m[K, SkeletonInfo_1C* arg2, Vec3s* frameData, s16* arg4, UnkKeyframeCallback* callbacks);
-      |                                            [01;36m[K~~~~~~~~~~~~~~~~~~~~~~^~~~[m[K
-[01m[Ksrc/overlays/actors/ovl_Demo_Syoten/z_demo_syoten.c:76:71:[m[K [01;35m[Kwarning: [m[Kpassing argument 3 of '[01m[Kfunc_80183430[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-   76 |             func_80183430(&this->unk_144, &object_syoten_Blob_001328, [01;35m[K&object_syoten_Blob_00023C[m[K, this->unk_174,
-      |                                                                       [01;35m[K^~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
-      |                                                                       [01;35m[K|[m[K
-      |                                                                       [01;35m[Ku8 (*)[] {aka unsigned char (*)[]}[m[K
-[01m[Kinclude/functions.h:1155:89:[m[K [01;36m[Knote: [m[Kexpected '[01m[KSkeletonInfo_1C *[m[K' but argument is of type '[01m[Ku8 (*)[][m[K' {aka '[01m[Kunsigned char (*)[][m[K'}
- 1155 | void func_80183430(SkeletonInfo* skeleton, Struct_801BFA14_Arg1* arg1, [01;36m[KSkeletonInfo_1C* arg2[m[K, Vec3s* frameData, s16* arg4, UnkKeyframeCallback* callbacks);
-      |                                                                        [01;36m[K~~~~~~~~~~~~~~~~~^~~~[m[K
-[01m[Ksrc/overlays/actors/ovl_Demo_Syoten/z_demo_syoten.c:77:31:[m[K [01;35m[Kwarning: [m[Kpassing argument 5 of '[01m[Kfunc_80183430[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-   77 |                           [01;35m[Kthis->unk_2A6[m[K, NULL);
-      |                           [01;35m[K~~~~^~~~~~~~~[m[K
-      |                               [01;35m[K|[m[K
-      |                               [01;35m[KVec3s *[m[K
-[01m[Kinclude/functions.h:1155:118:[m[K [01;36m[Knote: [m[Kexpected '[01m[Ks16 *[m[K' {aka '[01m[Kshort int *[m[K'} but argument is of type '[01m[KVec3s *[m[K'
- 1155 | void func_80183430(SkeletonInfo* skeleton, Struct_801BFA14_Arg1* arg1, SkeletonInfo_1C* arg2, Vec3s* frameData, [01;36m[Ks16* arg4[m[K, UnkKeyframeCallback* callbacks);
-      |                                                                                                                 [01;36m[K~~~~~^~~~[m[K
-[01m[Ksrc/overlays/actors/ovl_Demo_Syoten/z_demo_syoten.c:78:43:[m[K [01;35m[Kwarning: [m[Kpassing argument 2 of '[01m[Kfunc_801835EC[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
-   78 |             func_801835EC(&this->unk_144, [01;35m[K&object_syoten_Blob_00023C[m[K);
-      |                                           [01;35m[K^~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
-      |                                           [01;35m[K|[m[K
-      |                                           [01;35m[Ku8 (*)[] {aka unsigned char (*)[]}[m[K
-[01m[Kinclude/functions.h:1160:61:[m[K [01;36m[Knote: [m[Kexpected '[01m[KSkeletonInfo_1C *[m[K' but argument is of type '[01m[Ku8 (*)[][m[K' {aka '[01m[Kunsigned char (*)[][m[K'}
- 1160 | void func_801835EC(SkeletonInfo* skeleton, [01;36m[KSkeletonInfo_1C* arg1[m[K);
-      |                                            [01;36m[K~~~~~~~~~~~~~~~~~^~~~[m[K
-cfe: Warning 709: src/overlays/actors/ovl_Demo_Syoten/z_demo_syoten.c, line 76: Incompatible pointer type assignment
-             func_80183430(&this->unk_144, &object_syoten_Blob_001328, &object_syoten_Blob_00023C, this->unk_174,
- ------------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_Demo_Syoten/z_demo_syoten.c, line 76: Incompatible pointer type assignment
-             func_80183430(&this->unk_144, &object_syoten_Blob_001328, &object_syoten_Blob_00023C, this->unk_174,
- ----------------------------------------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_Demo_Syoten/z_demo_syoten.c, line 77: Incompatible pointer type assignment
-                           this->unk_2A6, (void*)0 );
- ------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_Demo_Syoten/z_demo_syoten.c, line 78: Incompatible pointer type assignment
-             func_801835EC(&this->unk_144, &object_syoten_Blob_00023C);
- ------------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-In file included from [01m[Kinclude/PR/mbi.h:61[m[K,
-                 from [01m[Kinclude/PR/gbi.h:1[m[K,
-                 from [01m[Kinclude/ultra64.h:5[m[K,
+cc: Warning: -mips3 should not be used for ucode 32-bit compiles
+cc: Warning: -mips3 should not be used for ucode 32-bit compiles
+[01m[Ksrc/audio/voice_internal.c:[m[K In function '[01m[Kfunc_801A5228[m[K':
+[01m[Ksrc/audio/voice_internal.c:89:51:[m[K [01;35m[Kwarning: [m[Kpassing argument 2 of '[01m[KosVoiceSetWord[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
+   89 |         errorCode = osVoiceSetWord(&gVoiceHandle, [01;35m[K&dict->words[i][m[K);
+      |                                                   [01;35m[K^~~~~~~~~~~~~~~[m[K
+      |                                                   [01;35m[K|[m[K
+      |                                                   [01;35m[Ku16 (*)[15] {aka short unsigned int (*)[15]}[m[K
+In file included from [01m[Kinclude/PR/controller_voice.h:5[m[K,
+                 from [01m[Kinclude/ultra64.h:9[m[K,
                  from [01m[Kinclude/z64.h:11[m[K,
                  from [01m[Kinclude/global.h:4[m[K,
-                 from [01m[Ksrc/overlays/actors/ovl_Boss_07/z_boss_07.h:4[m[K,
-                 from [01m[Ksrc/overlays/actors/ovl_Boss_07/z_boss_07.c:7[m[K:
-[01m[Kinclude/PR/gbi.h:3449:54:[m[K [01;35m[Kwarning: [m[Kcomparison between '[01m[Kenum MajorasIncarnationLimb[m[K' and '[01m[Kenum MajorasWrathLimb[m[K' [[01;35m[K-Wenum-compare[m[K]
- 3449 | #define MAX(a, b)                               ((a) [01;35m[K>[m[K (b) ? (a) : (b))
-      |                                                      [01;35m[K^[m[K
-[01m[Ksrc/overlays/actors/ovl_Boss_07/z_boss_07.h:14:28:[m[K [01;36m[Knote: [m[Kin expansion of macro '[01m[KMAX[m[K'
-   14 | #define MAJORAS_LIMB_COUNT [01;36m[KMAX[m[K(MAJORAS_MASK_LIMB_MAX, MAX(MAJORAS_INCARNATION_LIMB_MAX, MAJORAS_WRATH_LIMB_MAX))
-      |                            [01;36m[K^~~[m[K
-[01m[Ksrc/overlays/actors/ovl_Boss_07/z_boss_07.h:14:55:[m[K [01;36m[Knote: [m[Kin expansion of macro '[01m[KMAX[m[K'
-   14 | #define MAJORAS_LIMB_COUNT MAX(MAJORAS_MASK_LIMB_MAX, [01;36m[KMAX[m[K(MAJORAS_INCARNATION_LIMB_MAX, MAJORAS_WRATH_LIMB_MAX))
-      |                                                       [01;36m[K^~~[m[K
-[01m[Ksrc/overlays/actors/ovl_Boss_07/z_boss_07.h:82:35:[m[K [01;36m[Knote: [m[Kin expansion of macro '[01m[KMAJORAS_LIMB_COUNT[m[K'
-   82 |     /* 0x01DC */ Vec3s jointTable[[01;36m[KMAJORAS_LIMB_COUNT[m[K];
-      |                                   [01;36m[K^~~~~~~~~~~~~~~~~~[m[K
-[01m[Kinclude/PR/gbi.h:3449:54:[m[K [01;35m[Kwarning: [m[Kcomparison between '[01m[Kenum MajorasIncarnationLimb[m[K' and '[01m[Kenum MajorasWrathLimb[m[K' [[01;35m[K-Wenum-compare[m[K]
- 3449 | #define MAX(a, b)                               ((a) [01;35m[K>[m[K (b) ? (a) : (b))
-      |                                                      [01;35m[K^[m[K
-[01m[Ksrc/overlays/actors/ovl_Boss_07/z_boss_07.h:14:28:[m[K [01;36m[Knote: [m[Kin expansion of macro '[01m[KMAX[m[K'
-   14 | #define MAJORAS_LIMB_COUNT [01;36m[KMAX[m[K(MAJORAS_MASK_LIMB_MAX, MAX(MAJORAS_INCARNATION_LIMB_MAX, MAJORAS_WRATH_LIMB_MAX))
-      |                            [01;36m[K^~~[m[K
-[01m[Ksrc/overlays/actors/ovl_Boss_07/z_boss_07.h:14:55:[m[K [01;36m[Knote: [m[Kin expansion of macro '[01m[KMAX[m[K'
-   14 | #define MAJORAS_LIMB_COUNT MAX(MAJORAS_MASK_LIMB_MAX, [01;36m[KMAX[m[K(MAJORAS_INCARNATION_LIMB_MAX, MAJORAS_WRATH_LIMB_MAX))
-      |                                                       [01;36m[K^~~[m[K
-[01m[Ksrc/overlays/actors/ovl_Boss_07/z_boss_07.h:82:35:[m[K [01;36m[Knote: [m[Kin expansion of macro '[01m[KMAJORAS_LIMB_COUNT[m[K'
-   82 |     /* 0x01DC */ Vec3s jointTable[[01;36m[KMAJORAS_LIMB_COUNT[m[K];
-      |                                   [01;36m[K^~~~~~~~~~~~~~~~~~[m[K
-[01m[Kinclude/PR/gbi.h:3449:54:[m[K [01;35m[Kwarning: [m[Kcomparison between '[01m[Kenum MajorasIncarnationLimb[m[K' and '[01m[Kenum MajorasWrathLimb[m[K' [[01;35m[K-Wenum-compare[m[K]
- 3449 | #define MAX(a, b)                               ((a) [01;35m[K>[m[K (b) ? (a) : (b))
-      |                                                      [01;35m[K^[m[K
-[01m[Ksrc/overlays/actors/ovl_Boss_07/z_boss_07.h:14:28:[m[K [01;36m[Knote: [m[Kin expansion of macro '[01m[KMAX[m[K'
-   14 | #define MAJORAS_LIMB_COUNT [01;36m[KMAX[m[K(MAJORAS_MASK_LIMB_MAX, MAX(MAJORAS_INCARNATION_LIMB_MAX, MAJORAS_WRATH_LIMB_MAX))
-      |                            [01;36m[K^~~[m[K
-[01m[Ksrc/overlays/actors/ovl_Boss_07/z_boss_07.h:14:55:[m[K [01;36m[Knote: [m[Kin expansion of macro '[01m[KMAX[m[K'
-   14 | #define MAJORAS_LIMB_COUNT MAX(MAJORAS_MASK_LIMB_MAX, [01;36m[KMAX[m[K(MAJORAS_INCARNATION_LIMB_MAX, MAJORAS_WRATH_LIMB_MAX))
-      |                                                       [01;36m[K^~~[m[K
-[01m[Ksrc/overlays/actors/ovl_Boss_07/z_boss_07.h:83:35:[m[K [01;36m[Knote: [m[Kin expansion of macro '[01m[KMAJORAS_LIMB_COUNT[m[K'
-   83 |     /* 0x0284 */ Vec3s morphTable[[01;36m[KMAJORAS_LIMB_COUNT[m[K];
-      |                                   [01;36m[K^~~~~~~~~~~~~~~~~~[m[K
-[01m[Kinclude/PR/gbi.h:3449:54:[m[K [01;35m[Kwarning: [m[Kcomparison between '[01m[Kenum MajorasIncarnationLimb[m[K' and '[01m[Kenum MajorasWrathLimb[m[K' [[01;35m[K-Wenum-compare[m[K]
- 3449 | #define MAX(a, b)                               ((a) [01;35m[K>[m[K (b) ? (a) : (b))
-      |                                                      [01;35m[K^[m[K
-[01m[Ksrc/overlays/actors/ovl_Boss_07/z_boss_07.h:14:28:[m[K [01;36m[Knote: [m[Kin expansion of macro '[01m[KMAX[m[K'
-   14 | #define MAJORAS_LIMB_COUNT [01;36m[KMAX[m[K(MAJORAS_MASK_LIMB_MAX, MAX(MAJORAS_INCARNATION_LIMB_MAX, MAJORAS_WRATH_LIMB_MAX))
-      |                            [01;36m[K^~~[m[K
-[01m[Ksrc/overlays/actors/ovl_Boss_07/z_boss_07.h:14:55:[m[K [01;36m[Knote: [m[Kin expansion of macro '[01m[KMAX[m[K'
-   14 | #define MAJORAS_LIMB_COUNT MAX(MAJORAS_MASK_LIMB_MAX, [01;36m[KMAX[m[K(MAJORAS_INCARNATION_LIMB_MAX, MAJORAS_WRATH_LIMB_MAX))
-      |                                                       [01;36m[K^~~[m[K
-[01m[Ksrc/overlays/actors/ovl_Boss_07/z_boss_07.h:83:35:[m[K [01;36m[Knote: [m[Kin expansion of macro '[01m[KMAJORAS_LIMB_COUNT[m[K'
-   83 |     /* 0x0284 */ Vec3s morphTable[[01;36m[KMAJORAS_LIMB_COUNT[m[K];
-      |                                   [01;36m[K^~~~~~~~~~~~~~~~~~[m[K
-[01m[Ksrc/overlays/actors/ovl_Boss_07/z_boss_07.c:[m[K In function '[01m[KBoss07_Wrath_GrabPlayer[m[K':
-[01m[Ksrc/overlays/actors/ovl_Boss_07/z_boss_07.c:1626:71:[m[K [01;35m[Kwarning: [m[Kpassing argument 4 of '[01m[KActor_GetPlayerImpact[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
- 1626 |     if ((Actor_GetPlayerImpact(play, 1000.0f, &this->actor.world.pos, [01;35m[K&sp2C[m[K) >= 0.0f) && (sp2C == 1)) {
-      |                                                                       [01;35m[K^~~~~[m[K
-      |                                                                       [01;35m[K|[m[K
-      |                                                                       [01;35m[Ks32 * {aka int *}[m[K
-In file included from [01m[Kinclude/global.h:5[m[K:
-[01m[Kinclude/functions.h:303:85:[m[K [01;36m[Knote: [m[Kexpected '[01m[KPlayerImpactType *[m[K' but argument is of type '[01m[Ks32 *[m[K' {aka '[01m[Kint *[m[K'}
-  303 | f32 Actor_GetPlayerImpact(PlayState* play, f32 range, Vec3f* pos, [01;36m[KPlayerImpactType* type[m[K);
-      |                                                                   [01;36m[K~~~~~~~~~~~~~~~~~~^~~~[m[K
-[01m[Ksrc/overlays/actors/ovl_Boss_07/z_boss_07.c:[m[K In function '[01m[KBoss07_Wrath_ThrowPlayer[m[K':
-[01m[Ksrc/overlays/actors/ovl_Boss_07/z_boss_07.c:1663:75:[m[K [01;35m[Kwarning: [m[Kpassing argument 4 of '[01m[KActor_GetPlayerImpact[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
- 1663 |         if ((Actor_GetPlayerImpact(play, 1000.0f, &this->actor.world.pos, [01;35m[K&sp30[m[K) >= 0.0f) && (sp30 == 1)) {
-      |                                                                           [01;35m[K^~~~~[m[K
-      |                                                                           [01;35m[K|[m[K
-      |                                                                           [01;35m[Ks32 * {aka int *}[m[K
-[01m[Kinclude/functions.h:303:85:[m[K [01;36m[Knote: [m[Kexpected '[01m[KPlayerImpactType *[m[K' but argument is of type '[01m[Ks32 *[m[K' {aka '[01m[Kint *[m[K'}
-  303 | f32 Actor_GetPlayerImpact(PlayState* play, f32 range, Vec3f* pos, [01;36m[KPlayerImpactType* type[m[K);
-      |                                                                   [01;36m[K~~~~~~~~~~~~~~~~~~^~~~[m[K
-[01m[Ksrc/overlays/actors/ovl_Boss_07/z_boss_07.c:[m[K In function '[01m[KBoss07_Wrath_WhipCollisionCheck[m[K':
-[01m[Ksrc/overlays/actors/ovl_Boss_07/z_boss_07.c:1898:75:[m[K [01;35m[Kwarning: [m[Kpassing argument 4 of '[01m[KActor_GetPlayerImpact[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
- 1898 |         if ((Actor_GetPlayerImpact(play, 1000.0f, &this->actor.world.pos, [01;35m[K&sp98[m[K) >= 0.0f) && (sp98 != 1)) {
-      |                                                                           [01;35m[K^~~~~[m[K
-      |                                                                           [01;35m[K|[m[K
-      |                                                                           [01;35m[Ks32 * {aka int *}[m[K
-[01m[Kinclude/functions.h:303:85:[m[K [01;36m[Knote: [m[Kexpected '[01m[KPlayerImpactType *[m[K' but argument is of type '[01m[Ks32 *[m[K' {aka '[01m[Kint *[m[K'}
-  303 | f32 Actor_GetPlayerImpact(PlayState* play, f32 range, Vec3f* pos, [01;36m[KPlayerImpactType* type[m[K);
-      |                                                                   [01;36m[K~~~~~~~~~~~~~~~~~~^~~~[m[K
-[01m[Ksrc/overlays/actors/ovl_Boss_07/z_boss_07.c:[m[K In function '[01m[KBoss07_Incarnation_Run[m[K':
-[01m[Ksrc/overlays/actors/ovl_Boss_07/z_boss_07.c:3211:68:[m[K [01;35m[Kwarning: [m[Kpassing argument 4 of '[01m[KActor_GetPlayerImpact[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
- 3211 |     if ((Actor_GetPlayerImpact(play, 5.0f, &this->actor.world.pos, [01;35m[K&sp2C[m[K) >= 0.0f) && (sp2C == 0)) {
-      |                                                                    [01;35m[K^~~~~[m[K
-      |                                                                    [01;35m[K|[m[K
-      |                                                                    [01;35m[Ks32 * {aka int *}[m[K
-[01m[Kinclude/functions.h:303:85:[m[K [01;36m[Knote: [m[Kexpected '[01m[KPlayerImpactType *[m[K' but argument is of type '[01m[Ks32 *[m[K' {aka '[01m[Kint *[m[K'}
-  303 | f32 Actor_GetPlayerImpact(PlayState* play, f32 range, Vec3f* pos, [01;36m[KPlayerImpactType* type[m[K);
-      |                                                                   [01;36m[K~~~~~~~~~~~~~~~~~~^~~~[m[K
-[01m[Ksrc/overlays/actors/ovl_Boss_07/z_boss_07.c:[m[K In function '[01m[KBoss07_Top_CollisionCheck[m[K':
-[01m[Ksrc/overlays/actors/ovl_Boss_07/z_boss_07.c:5795:72:[m[K [01;35m[Kwarning: [m[Kpassing argument 4 of '[01m[KActor_GetPlayerImpact[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
- 5795 |         if ((Actor_GetPlayerImpact(play, 5.0f, &this->actor.world.pos, [01;35m[K&sp3C[m[K) >= 0.0f) && (sp3C == 0)) {
-      |                                                                        [01;35m[K^~~~~[m[K
-      |                                                                        [01;35m[K|[m[K
-      |                                                                        [01;35m[Ks32 * {aka int *}[m[K
-[01m[Kinclude/functions.h:303:85:[m[K [01;36m[Knote: [m[Kexpected '[01m[KPlayerImpactType *[m[K' but argument is of type '[01m[Ks32 *[m[K' {aka '[01m[Kint *[m[K'}
-  303 | f32 Actor_GetPlayerImpact(PlayState* play, f32 range, Vec3f* pos, [01;36m[KPlayerImpactType* type[m[K);
-      |                                                                   [01;36m[K~~~~~~~~~~~~~~~~~~^~~~[m[K
-cfe: Warning 624: /home/louist103/mm-hm/src/overlays/actors/ovl_Boss_07/z_boss_07.h, line 29: Trailing comma in enumerator list
-       MAJORAS_REMAINS = 200,
- ---------------------------^
-The use of a trailing comma in an enumerator list is not standard C.  There
-may be portability problems.
-cfe: Warning 624: src/overlays/actors/ovl_Boss_07/z_boss_07.c, line 51: Trailing comma in enumerator list
-       MAJORAS_WRATH_DMGEFF_F,
- ----------------------------^
-The use of a trailing comma in an enumerator list is not standard C.  There
-may be portability problems.
-cfe: Warning 624: src/overlays/actors/ovl_Boss_07/z_boss_07.c, line 64: Trailing comma in enumerator list
-       MAJORAS_INCARNATION_DMGEFF_F,
- ----------------------------------^
-The use of a trailing comma in an enumerator list is not standard C.  There
-may be portability problems.
-cfe: Warning 624: src/overlays/actors/ovl_Boss_07/z_boss_07.c, line 73: Trailing comma in enumerator list
-       MAJORAS_MASK_DMGEFF_F = 0xF,
- ---------------------------------^
-The use of a trailing comma in an enumerator list is not standard C.  There
-may be portability problems.
-cfe: Warning 624: src/overlays/actors/ovl_Boss_07/z_boss_07.c, line 86: Trailing comma in enumerator list
-       MAJORAS_REMAINS_DMGEFF_F,
- ------------------------------^
-The use of a trailing comma in an enumerator list is not standard C.  There
-may be portability problems.
-cfe: Warning 624: src/overlays/actors/ovl_Boss_07/z_boss_07.c, line 96: Trailing comma in enumerator list
-       MAJORAS_TOP_DMGEFF_F,
+                 from [01m[Ksrc/audio/voice_internal.c:1[m[K:
+[01m[Kinclude/PR/os_voice.h:60:43:[m[K [01;36m[Knote: [m[Kexpected '[01m[Ku8 *[m[K' {aka '[01m[Kunsigned char *[m[K'} but argument is of type '[01m[Ku16 (*)[15][m[K' {aka '[01m[Kshort unsigned int (*)[15][m[K'}
+   60 | s32 osVoiceSetWord(OSVoiceHandle* hd, [01;36m[Ku8* word[m[K);
+      |                                       [01;36m[K~~~~^~~~[m[K
+[01m[Ksrc/audio/voice_internal.c:93:27:[m[K [01;35m[Kwarning: [m[Kpassing argument 1 of '[01m[Kfunc_801A5A1C[m[K' from incompatible pointer type [[01;35m[K-Wincompatible-pointer-types[m[K]
+   93 |             func_801A5A1C([01;35m[K&dict->words[i][m[K);
+      |                           [01;35m[K^~~~~~~~~~~~~~~[m[K
+      |                           [01;35m[K|[m[K
+      |                           [01;35m[Ku16 (*)[15] {aka short unsigned int (*)[15]}[m[K
+[01m[Ksrc/audio/voice_internal.c:6:5:[m[K [01;36m[Knote: [m[Kexpected '[01m[Ks8 *[m[K' {aka '[01m[Ksigned char *[m[K'} but argument is of type '[01m[Ku16 (*)[15][m[K' {aka '[01m[Kshort unsigned int (*)[15][m[K'}
+    6 | u8* [01;36m[Kfunc_801A5A1C[m[K(s8* words);
+      |     [01;36m[K^~~~~~~~~~~~~[m[K
+[01m[Ksrc/audio/voice_internal.c:[m[K In function '[01m[Kfunc_801A5A1C[m[K':
+[01m[Ksrc/audio/voice_internal.c:325:30:[m[K [01;35m[Kwarning: [m[Kpointer targets in passing argument 1 of '[01m[Kstrlen[m[K' differ in signedness [[01;35m[K-Wpointer-sign[m[K]
+  325 |     u8 numSyllables = strlen([01;35m[Kwords[m[K); // technically twice the num of syllables
+      |                              [01;35m[K^~~~~[m[K
+      |                              [01;35m[K|[m[K
+      |                              [01;35m[Ks8 * {aka signed char *}[m[K
+In file included from [01m[Ksrc/audio/voice_internal.c:3[m[K:
+[01m[Kinclude/libc/string.h:8:27:[m[K [01;36m[Knote: [m[Kexpected '[01m[Kconst char *[m[K' but argument is of type '[01m[Ks8 *[m[K' {aka '[01m[Ksigned char *[m[K'}
+    8 | size_t strlen([01;36m[Kconst char* s[m[K);
+      |               [01;36m[K~~~~~~~~~~~~^[m[K
+[01m[Ksrc/audio/voice_internal.c:349:12:[m[K [01;35m[Kwarning: [m[Kpointer targets in returning '[01m[Kchar *[m[K' from a function with return type '[01m[Ku8 *[m[K' {aka '[01m[Kunsigned char *[m[K'} differ in signedness [[01;35m[K-Wpointer-sign[m[K]
+  349 |     return [01;35m[KD_801FD610[m[K;
+      |            [01;35m[K^~~~~~~~~~[m[K
+cfe: Warning 709: src/audio/voice_internal.c, line 89: Incompatible pointer type assignment
+         errorCode = osVoiceSetWord(&gVoiceHandle, &dict->words[i]);
+ --------------------------------------------------^
+The type pointed to by the left-hand side of simple assignment
+statement is incompatible with the type pointed to by the right-hand side.
+cfe: Warning 709: src/audio/voice_internal.c, line 93: Incompatible pointer type assignment
+             func_801A5A1C(&dict->words[i]);
  --------------------------^
-The use of a trailing comma in an enumerator list is not standard C.  There
-may be portability problems.
-cfe: Warning 624: src/overlays/actors/ovl_Boss_07/z_boss_07.c, line 121: Trailing comma in enumerator list
-       MAJORAS_WRATH_ATTACK_MAX,
- ------------------------------^
-The use of a trailing comma in an enumerator list is not standard C.  There
-may be portability problems.
-cfe: Warning 624: src/overlays/actors/ovl_Boss_07/z_boss_07.c, line 128: Trailing comma in enumerator list
-       MAJORAS_INCARNATION_STATE_MAX,
- -----------------------------------^
-The use of a trailing comma in an enumerator list is not standard C.  There
-may be portability problems.
-cfe: Warning 624: src/overlays/actors/ovl_Boss_07/z_boss_07.c, line 135: Trailing comma in enumerator list
-       MAJORAS_MASK_SPIN_STATE_MAX,
- ---------------------------------^
-The use of a trailing comma in an enumerator list is not standard C.  There
-may be portability problems.
-cfe: Warning 624: src/overlays/actors/ovl_Boss_07/z_boss_07.c, line 145: Trailing comma in enumerator list
-       MAJORAS_MASK_BEAM_STATE_MAX,
- ---------------------------------^
-The use of a trailing comma in an enumerator list is not standard C.  There
-may be portability problems.
-cfe: Warning 624: src/overlays/actors/ovl_Boss_07/z_boss_07.c, line 151: Trailing comma in enumerator list
-       MAJORAS_PROJECTILE_STATE_MAX,
- ----------------------------------^
-The use of a trailing comma in an enumerator list is not standard C.  There
-may be portability problems.
-cfe: Warning 624: src/overlays/actors/ovl_Boss_07/z_boss_07.c, line 160: Trailing comma in enumerator list
-       MAJORAS_REMAINS_ACTIVATE = 20,
- -----------------------------------^
-The use of a trailing comma in an enumerator list is not standard C.  There
-may be portability problems.
-cfe: Warning 624: src/overlays/actors/ovl_Boss_07/z_boss_07.c, line 167: Trailing comma in enumerator list
-       MAJORAS_REMAINS_CS_ATTACH,
- -------------------------------^
-The use of a trailing comma in an enumerator list is not standard C.  There
-may be portability problems.
-cfe: Warning 624: src/overlays/actors/ovl_Boss_07/z_boss_07.c, line 173: Trailing comma in enumerator list
-       MAJORAS_TOP_STATE_MAX,
- ---------------------------^
-The use of a trailing comma in an enumerator list is not standard C.  There
-may be portability problems.
-cfe: Warning 624: src/overlays/actors/ovl_Boss_07/z_boss_07.c, line 181: Trailing comma in enumerator list
-       MAJORAS_MASK_INTRO_STATE_4,
- --------------------------------^
-The use of a trailing comma in an enumerator list is not standard C.  There
-may be portability problems.
-cfe: Warning 624: src/overlays/actors/ovl_Boss_07/z_boss_07.c, line 189: Trailing comma in enumerator list
-       MAJORAS_MASK_DEATH_STATE_4,
- --------------------------------^
-The use of a trailing comma in an enumerator list is not standard C.  There
-may be portability problems.
-cfe: Warning 624: src/overlays/actors/ovl_Boss_07/z_boss_07.c, line 198: Trailing comma in enumerator list
-       MAJORAS_INCARNATION_INTRO_STATE_5,
- ---------------------------------------^
-The use of a trailing comma in an enumerator list is not standard C.  There
-may be portability problems.
-cfe: Warning 624: src/overlays/actors/ovl_Boss_07/z_boss_07.c, line 207: Trailing comma in enumerator list
-       MAJORAS_INCARNATION_DEATH_STATE_10 = 10,
- ---------------------------------------------^
-The use of a trailing comma in an enumerator list is not standard C.  There
-may be portability problems.
-cfe: Warning 624: src/overlays/actors/ovl_Boss_07/z_boss_07.c, line 212: Trailing comma in enumerator list
-       MAJORAS_WRATH_INTRO_STATE_1,
- ---------------------------------^
-The use of a trailing comma in an enumerator list is not standard C.  There
-may be portability problems.
-cfe: Warning 624: src/overlays/actors/ovl_Boss_07/z_boss_07.c, line 220: Trailing comma in enumerator list
-       MAJORAS_WRATH_DEATH_STATE_4,
- ---------------------------------^
-The use of a trailing comma in an enumerator list is not standard C.  There
-may be portability problems.
-cfe: Warning 624: src/overlays/actors/ovl_Boss_07/z_boss_07.c, line 233: Trailing comma in enumerator list
-       MAJORAS_DAMAGE_STATE_41,
+The type pointed to by the left-hand side of simple assignment
+statement is incompatible with the type pointed to by the right-hand side.
+cfe: Warning 709: src/audio/voice_internal.c, line 325: Incompatible pointer type assignment
+     u8 numSyllables = strlen(words);  
  -----------------------------^
-The use of a trailing comma in an enumerator list is not standard C.  There
-may be portability problems.
-cfe: Warning 624: src/overlays/actors/ovl_Boss_07/z_boss_07.c, line 243: Trailing comma in enumerator list
-       MAJORAS_STATIC_CS_STATE_6,
- -------------------------------^
-The use of a trailing comma in an enumerator list is not standard C.  There
-may be portability problems.
-cfe: Warning 709: src/overlays/actors/ovl_Boss_07/z_boss_07.c, line 1626: Incompatible pointer type assignment
-     if ((Actor_GetPlayerImpact(play, 1000.0f, &this->actor.world.pos, &sp2C) >= 0.0f) && (sp2C == 1)) {
- ----------------------------------------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_Boss_07/z_boss_07.c, line 1663: Incompatible pointer type assignment
-         if ((Actor_GetPlayerImpact(play, 1000.0f, &this->actor.world.pos, &sp30) >= 0.0f) && (sp30 == 1)) {
- --------------------------------------------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_Boss_07/z_boss_07.c, line 1898: Incompatible pointer type assignment
-         if ((Actor_GetPlayerImpact(play, 1000.0f, &this->actor.world.pos, &sp98) >= 0.0f) && (sp98 != 1)) {
- --------------------------------------------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 624: src/overlays/actors/ovl_Boss_07/z_boss_07.c, line 2522: Trailing comma in enumerator list
-     MAJORAS_WRATH_PART_MAX,
- --------------------------^
-The use of a trailing comma in an enumerator list is not standard C.  There
-may be portability problems.
-cfe: Warning 709: src/overlays/actors/ovl_Boss_07/z_boss_07.c, line 3211: Incompatible pointer type assignment
-     if ((Actor_GetPlayerImpact(play, 5.0f, &this->actor.world.pos, &sp2C) >= 0.0f) && (sp2C == 0)) {
- -------------------------------------------------------------------^
-The type pointed to by the left-hand side of simple assignment
-statement is incompatible with the type pointed to by the right-hand side.
-cfe: Warning 709: src/overlays/actors/ovl_Boss_07/z_boss_07.c, line 5795: Incompatible pointer type assignment
-         if ((Actor_GetPlayerImpact(play, 5.0f, &this->actor.world.pos, &sp3C) >= 0.0f) && (sp3C == 0)) {
- -----------------------------------------------------------------------^
 The type pointed to by the left-hand side of simple assignment
 statement is incompatible with the type pointed to by the right-hand side.
 cfe: Warning 835: src/code/speed_meter.c, line 225: No prototype for the call to ZeldaArena_IsInitialized
@@ -895,12 +300,32 @@ cfe: Warning 835: src/code/speed_meter.c, line 225: No prototype for the call to
  ------------------------------------^
 To achieve better type-checking, there should be a full prototype for
 the function being called.
-[01m[Ksrc/code/z_map_disp.c:[m[K In function '[01m[KMapDisp_AwaitGameplayDangeonKeep[m[K':
-[01m[Ksrc/code/z_map_disp.c:539:9:[m[K [01;35m[Kwarning: [m[Kthe comparison will always evaluate as '[01m[Ktrue[m[K' for the address of '[01m[KobjectCtx[m[K' will never be NULL [[01;35m[K-Waddress[m[K]
-  539 |     if ([01;35m[K&[m[Kplay->objectCtx) {}
-      |         [01;35m[K^[m[K
-In file included from [01m[Kinclude/global.h:4[m[K,
-                 from [01m[Ksrc/code/z_map_disp.c:1[m[K:
-[01m[Kinclude/z64.h:224:33:[m[K [01;36m[Knote: [m[K'[01m[KobjectCtx[m[K' declared here
-  224 |     /* 0x17D88 */ ObjectContext [01;36m[KobjectCtx[m[K;
-      |                                 [01;36m[K^~~~~~~~~[m[K
+[01m[Ksrc/code/z_map_disp.c:[m[K In function '[01m[KMapDisp_AllocDungeonMap[m[K':
+[01m[Ksrc/code/z_map_disp.c:1200:72:[m[K [01;35m[Kwarning: [m[Kassignment to '[01m[Kvoid *[m[K' from '[01m[Kint[m[K' makes pointer from integer without a cast [[01;35m[K-Wint-conversion[m[K]
+ 1200 |             sPauseDungeonMap.mapI_roomTextures[dungeonMapRoomIter + 1] [01;35m[K=[m[K
+      |                                                                        [01;35m[K^[m[K
+[01m[Ksrc/code/z_map_disp.c:1204:22:[m[K [01;35m[Kwarning: [m[Kassignment to '[01m[Kvoid *[m[K' from '[01m[Ks32[m[K' {aka '[01m[Kint[m[K'} makes pointer from integer without a cast [[01;35m[K-Wint-conversion[m[K]
+ 1204 |             heapNext [01;35m[K=[m[K (intptr_t)sPauseDungeonMap.mapI_roomTextures[dungeonMapRoomIter] +
+      |                      [01;35m[K^[m[K
+[01m[Ksrc/code/c_keyframe.c:[m[K In function '[01m[Kfunc_8018410C[m[K':
+[01m[Ksrc/code/c_keyframe.c:419:59:[m[K [01;35m[Kwarning: [m[Kpassing argument 3 of '[01m[K*(skeleton->unk_20 + (sizetype)((unsigned int)limb->unk_6 * 4))[m[K' makes pointer from integer without a cast [[01;35m[K-Wint-conversion[m[K]
+  419 |             skeleton->unk_20[limb->unk_6](play, skeleton, [01;35m[K*limbIndex[m[K, &newDList, &flags, arg) != 0) {
+      |                                                           [01;35m[K^~~~~~~~~~[m[K
+      |                                                           [01;35m[K|[m[K
+      |                                                           [01;35m[Ks32 {aka int}[m[K
+[01m[Ksrc/code/c_keyframe.c:419:59:[m[K [01;36m[Knote: [m[Kexpected '[01m[Ks32 *[m[K' {aka '[01m[Kint *[m[K'} but argument is of type '[01m[Ks32[m[K' {aka '[01m[Kint[m[K'}
+[01m[Ksrc/code/c_keyframe.c:[m[K In function '[01m[Kfunc_80184914[m[K':
+[01m[Ksrc/code/c_keyframe.c:544:22:[m[K [01;35m[Kwarning: [m[Kassignment to '[01m[KVec3s *[m[K' {aka '[01m[Kstruct <anonymous> *[m[K'} from '[01m[Ks32[m[K' {aka '[01m[Kint[m[K'} makes pointer from integer without a cast [[01;35m[K-Wint-conversion[m[K]
+  544 |     skeleton->unk_2C [01;35m[K=[m[K arg9;
+      |                      [01;35m[K^[m[K
+[01m[Ksrc/code/z_parameter.c:[m[K In function '[01m[KInterface_LoadAButtonDoActionLabel[m[K':
+[01m[Ksrc/code/z_parameter.c:3276:67:[m[K [01;35m[Kwarning: [m[Kpassing argument 2 of '[01m[KDmaMgr_SendRequestImpl[m[K' makes pointer from integer without a cast [[01;35m[K-Wint-conversion[m[K]
+ 3276 |                                [01;35m[K(u32)interfaceCtx->doActionSegment + (loadOffset * DO_ACTION_TEX_SIZE)[m[K,
+      |                                [01;35m[K~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[m[K
+      |                                                                   [01;35m[K|[m[K
+      |                                                                   [01;35m[Kunsigned int[m[K
+In file included from [01m[Kinclude/global.h:5[m[K,
+                 from [01m[Ksrc/code/z_parameter.c:1[m[K:
+[01m[Kinclude/functions.h:17:55:[m[K [01;36m[Knote: [m[Kexpected '[01m[Kvoid *[m[K' but argument is of type '[01m[Kunsigned int[m[K'
+   17 | s32 DmaMgr_SendRequestImpl(DmaRequest* request, [01;36m[Kvoid* vramStart[m[K, uintptr_t vromStart, size_t size, UNK_TYPE4 unused, OSMesgQueue* queue, void* msg);
+      |                                                 [01;36m[K~~~~~~^~~~~~~~~[m[K

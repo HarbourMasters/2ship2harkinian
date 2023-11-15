@@ -35,10 +35,10 @@ void EnFall2_Init(Actor* thisx, PlayState* play) {
 
     Actor_SetScale(&this->actor, 1.0f);
     this->actionFunc = EnFall2_DoNothing;
-    func_80183430(&this->skeletonInfo, object_fall2_Blob_008898, object_fall2_Blob_005EF4, this->unk174, this->unk228,
+    func_80183430(&this->skeletonInfo, (void*)object_fall2_Blob_008898, (void*)object_fall2_Blob_005EF4, this->unk174, this->unk228,
                   NULL);
-    func_801835EC(&this->skeletonInfo, object_fall2_Blob_005EF4);
-    this->unk2DC = Lib_SegmentedToVirtual(object_fall2_Matanimheader_008840);
+    func_801835EC(&this->skeletonInfo, (void*)object_fall2_Blob_005EF4);
+    this->unk2DC = Lib_SegmentedToVirtual((void*)object_fall2_Matanimheader_008840);
     Actor_SetScale(&this->actor, 0.02f);
     this->actionFunc = EnFall2_HandleCutscene;
     this->cueType = CS_CMD_ACTOR_CUE_561;
