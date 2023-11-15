@@ -152,7 +152,7 @@ static AnimationInfo sAnimationInfo[POE_COMPOSER_ANIM_MAX] = {
     /*  3 */ { &gPoeComposerRaiseArmsAnim, 1.0f, 0.0f, 0.0f, ANIMMODE_LOOP, -4.0f },
     /*  4 */ { &gPoeComposerArmsRaisedAnim, 1.0f, 0.0f, 0.0f, ANIMMODE_LOOP, -4.0f },
     /*  5 */ { &gPoeComposerLowerArmsAnim, 1.0f, 0.0f, 0.0f, ANIMMODE_LOOP, -4.0f },
-    /*  6 */ { &gPoeComposerLookingDownAnim, 1.0f, 0.0f, 0.0f, ANIMMODE_LOOP, -4.0f },
+    /*  6 */ { &gPoeComposerLookDownAnim, 1.0f, 0.0f, 0.0f, ANIMMODE_LOOP, -4.0f },
     /*  7 */ { &gPoeComposerBeginPlayAnim, 1.0f, 0.0f, 0.0f, ANIMMODE_LOOP, -4.0f },
     /*  8 */ { &gPoeComposerPlayAnim, 1.0f, 0.0f, 0.0f, ANIMMODE_LOOP, -4.0f },
     /*  9 */ { &gPoeComposerBeginRollAnim, 1.0f, 0.0f, 0.0f, ANIMMODE_LOOP, -4.0f },
@@ -311,7 +311,7 @@ void EnPoComposer_PlayCurse(EnPoComposer* this, PlayState* play) {
     }
 
     // Song check, check if player just played song of storms or song of healing
-    if (play->msgCtx.ocarinaMode == 3) {
+    if (play->msgCtx.ocarinaMode == OCARINA_MODE_EVENT) {
         switch (play->msgCtx.lastPlayedSong) {
             case OCARINA_SONG_STORMS:
                 this->sharpCsNum = SHARP_CS_SONG_STORMS;

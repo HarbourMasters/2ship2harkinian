@@ -410,7 +410,7 @@ void EnDeath_SetupIntroCutscenePart1(EnDeath* this, PlayState* play) {
 
     Play_SetCameraAtEye(play, this->camId, &at, &eye);
     Play_SetCameraFov(play, this->camId, 77.0f);
-    func_800B724C(play, &this->actor, 0x15);
+    Player_SetCsAction(play, &this->actor, 0x15);
 
     this->actionFunc = EnDeath_IntroCutscenePart1;
 }
@@ -423,7 +423,7 @@ void EnDeath_IntroCutscenePart1(EnDeath* this, PlayState* play) {
     player->actor.shape.rot.y = Actor_WorldYawTowardActor(&player->actor, &this->actor);
 
     if (this->actionTimer == 25) {
-        func_800B724C(play, &this->actor, 0x51);
+        Player_SetCsAction(play, &this->actor, 0x51);
     }
     if (this->actionTimer > 0) {
         this->actionTimer--;
@@ -459,9 +459,9 @@ void EnDeath_IntroCutscenePart2(EnDeath* this, PlayState* play) {
     Camera* camera = Play_GetCamera(play, this->camId);
 
     if (this->actionTimer == 42) {
-        func_800B724C(play, &this->actor, 4);
+        Player_SetCsAction(play, &this->actor, 4);
     } else if (this->actionTimer == 27) {
-        func_800B724C(play, &this->actor, 0x7B);
+        Player_SetCsAction(play, &this->actor, 0x7B);
     }
     if (this->actionTimer <= 0) {
         if (this->actor.world.pos.y < (this->actor.home.pos.y + 400.0f) - 225.0f) {
@@ -605,7 +605,7 @@ void EnDeath_IntroCutscenePart5(EnDeath* this, PlayState* play) {
     }
     if (SkelAnime_Update(&this->skelAnime)) {
         CutsceneManager_Stop(this->actor.csId);
-        func_800B724C(play, &this->actor, 6);
+        Player_SetCsAction(play, &this->actor, 6);
         this->actor.flags |= ACTOR_FLAG_TARGETABLE;
         this->coreCollider.base.acFlags |= AC_ON;
         EnDeath_SetupApproachPlayer(this);
@@ -829,7 +829,7 @@ void EnDeath_SetupDeathCutscenePart1(EnDeath* this, PlayState* play) {
     Play_SetCameraAtEye(play, this->camId, &at, &eye);
     this->camEyeSpeed = Math_Vec3f_DistXYZ(&eye, &this->camEyeTarget) * 0.05f;
     this->actor.shape.rot.y += 0x2000;
-    func_800B724C(play, &this->actor, 7);
+    Player_SetCsAction(play, &this->actor, 7);
     Actor_PlaySfx(&this->actor, NA_SE_EN_DEATH_DEAD);
     this->actionFunc = EnDeath_DeathCutscenePart1;
 }
@@ -1062,7 +1062,7 @@ void EnDeath_DeathCutscenePart4(EnDeath* this, PlayState* play) {
 
 void EnDeath_SetupDead(EnDeath* this, PlayState* play) {
     CutsceneManager_Stop(this->actor.csId);
-    func_800B724C(play, &this->actor, 6);
+    Player_SetCsAction(play, &this->actor, 6);
     Flags_SetClearTemp(play, play->roomCtx.curRoom.num);
     this->actionTimer = 255;
     play->envCtx.lightSettingOverride = 255;

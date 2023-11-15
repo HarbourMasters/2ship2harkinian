@@ -1,5 +1,6 @@
 #include "global.h"
 #include "z64voice.h"
+#include "libc/string.h"
 
 // internal voice functions
 u8* func_801A5A1C(s8* words);

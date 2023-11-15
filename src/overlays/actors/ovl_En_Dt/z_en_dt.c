@@ -87,10 +87,10 @@ static u8 D_80BEB2E0[] = { 0, 0, 2, 0, 0, 2 };
 
 static s32 D_80BEB2E8[] = { 0, 1, 3, 1, 0, 2, 3, 1, 0, 3, 3, 1, 0, 3, 0, 0, 0, 5, 0, 0, 0, 4, 0, 0 };
 
-static TexturePtr* D_80BEB348[] = { &gDotourEyeShockTex, &gDotourEyeOpenTex, &gDotourEyeClosedTex,
-                                    &gDotourEyeLookDownTex, &gDotourEyeSquintTex };
+static TexturePtr D_80BEB348[] = { gDotourEyeShockTex, gDotourEyeOpenTex, gDotourEyeClosedTex,
+                                    gDotourEyeLookDownTex, gDotourEyeSquintTex };
 
-static TexturePtr* D_80BEB35C[] = { &gDotourEyebrowHighTex, &gDotourEyebrowMidTex, &gDotourEyebrowLowTex };
+static TexturePtr D_80BEB35C[] = { &gDotourEyebrowHighTex, &gDotourEyebrowMidTex, &gDotourEyebrowLowTex };
 
 void EnDt_Init(Actor* thisx, PlayState* play) {
     EnDt* this = THIS;
@@ -221,7 +221,7 @@ void func_80BE9EF8(EnDt* this, PlayState* play) {
             func_80BE9D9C(this);
             this->actor.textId = D_80BEB1D0[this->unk_256];
             Message_StartTextbox(play, this->actor.textId, &this->actor);
-            func_800B7298(play, &this->actor, 7);
+            Player_SetCsActionWithHaltedActors(play, &this->actor, 7);
             this->unk_254 = 1;
             this->actionFunc = func_80BEA394;
         } else {
@@ -372,7 +372,7 @@ void func_80BEA394(EnDt* this, PlayState* play) {
 
     if (((this->unk_244 == 0) && (Message_GetState(&play->msgCtx) == 5)) && (Message_ShouldAdvance(play) != 0)) {
         if (this->unk_256 == 21) {
-            func_800B7298(play, &this->actor, 6);
+            Player_SetCsActionWithHaltedActors(play, &this->actor, 6);
             if (this->unk_270 == 2) {
                 CutsceneManager_Stop(this->csIdList[i]);
                 this->unk_270 = 0;
@@ -646,7 +646,7 @@ void EnDt_Update(Actor* thisx, PlayState* play) {
     Actor_SetFocus(&this->actor, 60.0f);
     Actor_MoveWithGravity(&this->actor);
     Collider_UpdateCylinder(&this->actor, &this->collider);
-    CollisionCheck_SetOC(play, &play->colChkCtx, &this->collider);
+    CollisionCheck_SetOC(play, &play->colChkCtx, &this->collider.base);
 }
 
 s32 EnDt_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx) {

@@ -2059,7 +2059,7 @@ void func_809B71DC(EnKnight* this, PlayState* play) {
                 break;
             }
             Cutscene_StartManual(play, &play->csCtx);
-            func_800B7298(play, &this->actor, 7);
+            Player_SetCsActionWithHaltedActors(play, &this->actor, 7);
             this->unk_68A = Play_CreateSubCamera(play);
             Play_ChangeCameraStatus(play, 0, 1);
             Play_ChangeCameraStatus(play, this->unk_68A, 7);
@@ -2128,7 +2128,7 @@ void func_809B71DC(EnKnight* this, PlayState* play) {
                 func_80169AFC(play, this->unk_68A, 0);
                 this->unk_68A = 0;
                 Cutscene_StopManual(play, &play->csCtx);
-                func_800B7298(play, &this->actor, 6);
+                Player_SetCsActionWithHaltedActors(play, &this->actor, 6);
                 D_809BDB00 = 1;
             }
             break;
@@ -2208,7 +2208,7 @@ void func_809B7950(EnKnight* this, PlayState* play) {
         case 0:
             if (CutsceneManager_GetCurrentCsId() == -1) {
                 Cutscene_StartManual(play, &play->csCtx);
-                func_800B7298(play, &this->actor, 7);
+                Player_SetCsActionWithHaltedActors(play, &this->actor, 7);
                 this->unk_68A = Play_CreateSubCamera(play);
                 Play_ChangeCameraStatus(play, 0, 1);
                 Play_ChangeCameraStatus(play, this->unk_68A, 7);
@@ -2336,7 +2336,7 @@ void func_809B7950(EnKnight* this, PlayState* play) {
                 Animation_MorphToLoop(&this->unk194, &D_0600A88C, 0.0f);
             }
             if (this->unk684 == (u32)(BREG(18) + 0xAA)) {
-                func_800B7298(play, &this->actor, 4);
+                Player_SetCsActionWithHaltedActors(play, &this->actor, 4);
             }
             if ((this->unk684 >= 0x9D) && (this->unk684 < 0xDD)) {
                 if (!(this->unk684 & 1)) {
@@ -2385,7 +2385,7 @@ void func_809B7950(EnKnight* this, PlayState* play) {
                 func_80169AFC(play, this->unk_68A, 0);
                 this->unk_68A = 0;
                 Cutscene_StopManual(play, &play->csCtx);
-                func_800B7298(play, &this->actor, 6);
+                Player_SetCsActionWithHaltedActors(play, &this->actor, 6);
                 D_809BDB00 = 5;
             }
             break;
@@ -2421,7 +2421,7 @@ void func_809B8458(EnKnight* this, PlayState* play) {
             }
 
             Cutscene_StartManual(play, &play->csCtx);
-            func_800B7298(play, &this->actor, 7);
+            Player_SetCsActionWithHaltedActors(play, &this->actor, 7);
             this->unk_68A = Play_CreateSubCamera(play);
             Play_ChangeCameraStatus(play, 0, 1);
             Play_ChangeCameraStatus(play, this->unk_68A, 7);
@@ -2454,7 +2454,7 @@ void func_809B8458(EnKnight* this, PlayState* play) {
             }
 
             if (this->unk684 == (u32)(BREG(22) + 0x1E)) {
-                func_800B7298(play, &this->actor, 0x15);
+                Player_SetCsActionWithHaltedActors(play, &this->actor, 0x15);
             }
 
             if (this->unk684 == (u32)(BREG(22) + 0x32)) {
@@ -2478,7 +2478,7 @@ void func_809B8458(EnKnight* this, PlayState* play) {
             this->unk_144 = 0x8000;
 
             if (this->unk684 == 10) {
-                func_800B7298(play, &this->actor, 4);
+                Player_SetCsActionWithHaltedActors(play, &this->actor, 4);
             }
 
             if (this->unk684 >= 10) {
@@ -2518,7 +2518,7 @@ void func_809B8458(EnKnight* this, PlayState* play) {
 
             this->unk688 = 3;
             this->unk684 = 0;
-            func_800B7298(play, &this->actor, 0x85);
+            Player_SetCsActionWithHaltedActors(play, &this->actor, 0x85);
             /* Fallthrough */
         case 3:
             Math_ApproachS(&this->unk6AC, 0x4000, 2, 0x1000);
@@ -2734,7 +2734,7 @@ void func_809B8458(EnKnight* this, PlayState* play) {
                 func_80169AFC(play, this->unk_68A, 0);
                 this->unk_68A = 0;
                 Cutscene_StopManual(play, &play->csCtx);
-                func_800B7298(play, &this->actor, 6);
+                Player_SetCsActionWithHaltedActors(play, &this->actor, 6);
                 D_809BDB00 = 1;
                 this->unk_153 = 2;
                 Message_CloseTextbox(play);

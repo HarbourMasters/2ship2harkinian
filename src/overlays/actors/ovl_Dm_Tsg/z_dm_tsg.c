@@ -34,9 +34,9 @@ void DmTsg_Init(Actor* thisx, PlayState* play) {
 
     if (gSaveContext.save.entrance == ENTRANCE(OPENING_DUNGEON, 0)) {
         Actor_SetScale(&this->actor, 0.1f);
-        for (i = 0; i < 100; i++) {
-            this->unk_78C[i] = (Rand_ZeroOne() * 65535.0f);
-            this->unk_856[i] = (s16)(Rand_ZeroOne() * 200.0f) + 100;
+        for (i = 0; i < DMTSG_UNK_SIZE; i++) {
+            this->unk_78C[i] = Rand_ZeroOne() * 0xFFFF;
+            this->unk_856[i] = TRUNCF_BINANG(Rand_ZeroOne() * 200.0f) + 100;
         }
     } else {
         Actor_Kill(&this->actor);
@@ -51,21 +51,21 @@ void DmTsg_Update(Actor* thisx, PlayState* play) {
     s32 cueChannel;
     s16 i;
 
-    for (i = 0; i < 100; i++) {
-        this->unk_5F8[i] = (Math_SinS((i & 0xF) * this->unk_854) * 60.0f) + 120.0f;
+    for (i = 0; i < DMTSG_UNK_SIZE; i++) {
+        this->unk_5F8[i] = (Math_SinS((i % 16U) * this->unk_854) * 60.0f) + 120.0f;
         this->unk_148[i].x = Math_CosS(this->unk_78C[i]) * this->unk_5F8[i];
         this->unk_148[i].y = this->unk_788 + (i * 16);
         this->unk_148[i].z = Math_SinS(this->unk_78C[i]) * this->unk_5F8[i];
         this->unk_78C[i] += this->unk_856[i];
     }
 
-    this->unk_91E = 0;
+    this->canDraw = false;
     this->unk_854 += 40;
 
     if (Cutscene_IsCueInChannel(play, CS_CMD_ACTOR_CUE_514)) {
         cueChannel = Cutscene_GetCueChannel(play, CS_CMD_ACTOR_CUE_514);
         if (play->csCtx.actorCues[cueChannel]->id != 1) {
-            this->unk_91E = 1;
+            this->canDraw = true;
         }
         Cutscene_ActorTranslateAndYaw(&this->actor, play, cueChannel);
     }
@@ -77,8 +77,8 @@ void DmTsg_Draw(Actor* thisx, PlayState* play2) {
     s32 i;
     u32 j;
 
-    if (this->unk_91E != 0) {
-        for (i = 0, j = 0; i < 100; i++) {
+    if (this->canDraw) {
+        for (i = 0, j = 0; i < DMTSG_UNK_SIZE; i++) {
             Matrix_Translate(this->unk_148[i].x + this->actor.world.pos.x, this->unk_148[i].y + this->actor.world.pos.y,
                              this->unk_148[i].z + this->actor.world.pos.z, MTXMODE_NEW);
             Matrix_Scale(0.3f, 0.3f, 0.3f, MTXMODE_APPLY);

@@ -186,9 +186,9 @@ void EnTest_Init(Actor* thisx, PlayState* play2) {
         this->surfaceMaterial = SurfaceType_GetMaterial(&play->colCtx, thisx->floorPoly, bgId);
     }
 
-    func_80183430(&this->skeletonInfo, &gameplay_keep_Blob_06EB70, &gameplay_keep_Blob_06BB0C, this->unk_178,
+    func_80183430(&this->skeletonInfo, (void*)gameplay_keep_Blob_06EB70, (void*)gameplay_keep_Blob_06BB0C, this->unk_178,
                   this->unk_1C0, NULL);
-    func_801834A8(&this->skeletonInfo, &gameplay_keep_Blob_06BB0C);
+    func_801834A8(&this->skeletonInfo, (void*)gameplay_keep_Blob_06BB0C);
     this->skeletonInfo.frameCtrl.unk_10 = 9.0f;
     func_80862B70(this->unk_20C);
 }
@@ -225,7 +225,7 @@ void EnTest_Update(Actor* thisx, PlayState* play) {
 }
 
 s32 EnTest_OverrideKeyframeDraw(PlayState* play, SkeletonInfo* skeletonInfo, s32 limbIndex, Gfx** dList, u8* flags,
-                                Actor* thisx, Vec3f* scale, Vec3s* rot, Vec3f* pos) {
+                                void* thisx, Vec3f* scale, Vec3s* rot, Vec3f* pos) {
     EnTest* this = THIS;
 
     OPEN_DISPS(play->state.gfxCtx);

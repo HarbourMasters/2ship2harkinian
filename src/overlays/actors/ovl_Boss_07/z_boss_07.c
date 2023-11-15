@@ -929,7 +929,7 @@ void Boss07_Wrath_Intro(Boss07* this, PlayState* play) {
                     func_80169AFC(play, this->subCamIndex, 0);
                     this->subCamIndex = SUB_CAM_ID_DONE;
                     Cutscene_StopManual(play, &play->csCtx);
-                    func_800B7298(play, &this->actor, 6);
+                    Player_SetCsActionWithHaltedActors(play, &this->actor, 6);
                     this->actor.flags |= ACTOR_FLAG_TARGETABLE;
                     Play_DisableMotionBlur();
                     if (sBossRemains[REMAINS_ODOLWA] != NULL) {
@@ -987,7 +987,7 @@ void Boss07_Wrath_Death(Boss07* this, PlayState* play) {
                 break;
             }
             Cutscene_StartManual(play, &play->csCtx);
-            func_800B7298(play, &this->actor, 1);
+            Player_SetCsActionWithHaltedActors(play, &this->actor, 1);
             this->subCamIndex = Play_CreateSubCamera(play);
             Play_ChangeCameraStatus(play, CAM_ID_MAIN, CAM_STATUS_WAIT);
             Play_ChangeCameraStatus(play, this->subCamIndex, CAM_STATUS_ACTIVE);
@@ -3072,7 +3072,7 @@ void Boss07_Incarnation_Intro(Boss07* this, PlayState* play) {
                 func_80169AFC(play, this->subCamIndex, 0);
                 this->subCamIndex = SUB_CAM_ID_DONE;
                 Cutscene_StopManual(play, &play->csCtx);
-                func_800B7298(play, &this->actor, 6);
+                Player_SetCsActionWithHaltedActors(play, &this->actor, 6);
                 this->actor.flags |= ACTOR_FLAG_TARGETABLE;
             }
             break;
@@ -3409,7 +3409,7 @@ void Boss07_Incarnation_Death(Boss07* this, PlayState* play) {
                 break;
             }
             Cutscene_StartManual(play, &play->csCtx);
-            func_800B7298(play, &this->actor, 7);
+            Player_SetCsActionWithHaltedActors(play, &this->actor, 7);
             this->subCamIndex = Play_CreateSubCamera(play);
             Play_ChangeCameraStatus(play, CAM_ID_MAIN, CAM_STATUS_WAIT);
             Play_ChangeCameraStatus(play, this->subCamIndex, CAM_STATUS_ACTIVE);
@@ -4389,7 +4389,7 @@ void Boss07_Mask_Intro(Boss07* this, PlayState* play) {
                 break;
             }
             Cutscene_StartManual(play, &play->csCtx);
-            func_800B7298(play, &this->actor, 7);
+            Player_SetCsActionWithHaltedActors(play, &this->actor, 7);
             this->subCamIndex = Play_CreateSubCamera(play);
             Play_ChangeCameraStatus(play, CAM_ID_MAIN, CAM_STATUS_WAIT);
             Play_ChangeCameraStatus(play, this->subCamIndex, CAM_STATUS_ACTIVE);
@@ -4402,7 +4402,7 @@ void Boss07_Mask_Intro(Boss07* this, PlayState* play) {
                 Math_ApproachF(&sMajoraStatic->introOrbScale, sREG(50) + 1.0f, 0.05f, sREG(51) + 0.05f);
             }
             if (this->timer_ABC8 == 35) {
-                func_800B7298(play, &this->actor, 0xF);
+                Player_SetCsActionWithHaltedActors(play, &this->actor, 0xF);
             }
             player->actor.world.pos.x = 0.0f;
             player->actor.world.pos.z = 700.0f;
@@ -4441,10 +4441,10 @@ void Boss07_Mask_Intro(Boss07* this, PlayState* play) {
                 sBossRemains[REMAINS_TWINMOLD]->actionState = MAJORAS_REMAINS_CS_FLY;
             }
             if (this->timer_ABC8 == 0) {
-                func_800B7298(play, &this->actor, 7);
+                Player_SetCsActionWithHaltedActors(play, &this->actor, 7);
             }
             if (this->timer_ABC8 == 120) {
-                func_800B7298(play, &this->actor, 0x15);
+                Player_SetCsActionWithHaltedActors(play, &this->actor, 0x15);
             }
             if (this->timer_ABC8 > 30) {
                 Math_ApproachF(&this->subCamAt.y, player->actor.world.pos.y + 24.0f + 20.0f, 0.05f,
@@ -4530,7 +4530,7 @@ void Boss07_Mask_Intro(Boss07* this, PlayState* play) {
                 this->subCamEye.y = this->actor.world.pos.y;
                 this->subCamEye.z = this->actor.world.pos.z + 400.0f;
                 player->actor.world.pos.z = 0.0f;
-                func_800B7298(play, &this->actor, 1);
+                Player_SetCsActionWithHaltedActors(play, &this->actor, 1);
                 this->motionBlurAlpha = KREG(74) + 200;
             }
             break;
@@ -4580,7 +4580,7 @@ void Boss07_Mask_Intro(Boss07* this, PlayState* play) {
                     func_80169AFC(play, this->subCamIndex, 0);
                     this->subCamIndex = SUB_CAM_ID_DONE;
                     Cutscene_StopManual(play, &play->csCtx);
-                    func_800B7298(play, &this->actor, 6);
+                    Player_SetCsActionWithHaltedActors(play, &this->actor, 6);
                     this->actor.flags |= ACTOR_FLAG_TARGETABLE;
                     gSaveContext.eventInf[6] |= 2;
                     Play_DisableMotionBlur();
@@ -4636,7 +4636,7 @@ void Boss07_Mask_Death(Boss07* this, PlayState* play) {
         case MAJORAS_MASK_DEATH_STATE_0:
             if (CutsceneManager_GetCurrentCsId() == -1) {
                 Cutscene_StartManual(play, &play->csCtx);
-                func_800B7298(play, &this->actor, 1);
+                Player_SetCsActionWithHaltedActors(play, &this->actor, 1);
                 this->subCamIndex = Play_CreateSubCamera(play);
                 Play_ChangeCameraStatus(play, CAM_ID_MAIN, CAM_STATUS_WAIT);
                 Play_ChangeCameraStatus(play, this->subCamIndex, CAM_STATUS_ACTIVE);
@@ -5886,7 +5886,7 @@ void Boss07_Static_Update(Actor* thisx, PlayState* play2) {
         case MAJORAS_STATIC_CS_STATE_1:
             if (CutsceneManager_GetCurrentCsId() == -1) {
                 Cutscene_StartManual(play, &play->csCtx);
-                func_800B7298(play, &this->actor, 7);
+                Player_SetCsActionWithHaltedActors(play, &this->actor, 7);
                 this->subCamIndex = Play_CreateSubCamera(play);
                 Play_ChangeCameraStatus(play, CAM_ID_MAIN, CAM_STATUS_WAIT);
                 Play_ChangeCameraStatus(play, this->subCamIndex, CAM_STATUS_ACTIVE);
@@ -5966,7 +5966,7 @@ void Boss07_Static_Update(Actor* thisx, PlayState* play2) {
                 func_80169AFC(play, this->subCamIndex, 0);
                 this->subCamIndex = SUB_CAM_ID_DONE;
                 Cutscene_StopManual(play, &play->csCtx);
-                func_800B7298(play, &this->actor, 6);
+                Player_SetCsActionWithHaltedActors(play, &this->actor, 6);
                 Play_DisableMotionBlur();
                 for (i = 0; i < ARRAY_COUNT(sBossRemains); i++) {
                     func_800BC154(play, &play->actorCtx, &sBossRemains[i]->actor, ACTORCAT_ENEMY);

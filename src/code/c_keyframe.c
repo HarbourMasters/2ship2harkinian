@@ -1,5 +1,5 @@
 #include "global.h"
-
+#include "fixed_point.h"
 #define FMOD(x, mod) ((x) - ((s32)((x) * (1.0f / (mod))) * (f32)(mod)))
 
 // cKF_FrameControl_zeroClera

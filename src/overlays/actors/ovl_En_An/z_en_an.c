@@ -23,7 +23,7 @@ void EnAn_Update(Actor* thisx, PlayState* play);
 void EnAn_Draw(Actor* thisx, PlayState* play);
 
 // Action funcs
-void EnAn_Initialize(EnAn* this, PlayState* play);
+void EnAn_FinishInit(EnAn* this, PlayState* play);
 void EnAn_FollowSchedule(EnAn* this, PlayState* play);
 void EnAn_Talk(EnAn* this, PlayState* play);
 
@@ -794,7 +794,7 @@ static ColliderCylinderInit sCylinderInit = {
 
 static CollisionCheckInfoInit2 sColChkInfoInit = { 0, 0, 0, 0, MASS_IMMOVABLE };
 
-s32 EnAn_InitializeObjectSlots(EnAn* this, PlayState* play) {
+s32 EnAn_InitObjectSlots(EnAn* this, PlayState* play) {
     s32 ret = false;
 
     if ((this->roomNum != play->roomCtx.curRoom.num) && (play->roomCtx.status == 0) && !this->slotsInitialized) {
@@ -863,7 +863,7 @@ Actor* func_80B53A7C(EnAn* this, PlayState* play, u8 actorCategory, s16 actorId)
         }
 
         if ((this != (EnAn*)foundActor) && (foundActor->update != NULL)) {
-            if (!(foundActor->params & ENAN_8000)) {
+            if (!ENAN_GET_8000(foundActor)) {
                 break;
             }
         }
@@ -998,7 +998,9 @@ static AnimationInfoS sAnimationInfo[ENAN_ANIM_MAX] = {
     { &gAnju3BroomIdleAnim, 1.0f, 0, -1, ANIMMODE_LOOP, 0 },  // ENAN_ANIM_BROOM_IDLE
     { &gAnju3BroomWalkAnim, 1.0f, 0, -1, ANIMMODE_LOOP, 0 },  // ENAN_ANIM_BROOM_WALK
     { &gAnju3BroomSweepAnim, 1.0f, 0, -1, ANIMMODE_LOOP, 0 }, // ENAN_ANIM_BROOM_SWEEP
-    //! @bug Uses symbol from OBJECT_AN2 instead of OBJECT_AN3
+    //! @bug Uses symbol from OBJECT_AN2 instead of OBJECT_AN3. Because of this entry being in the OBJECT_AN3 block,
+    //! then the actor will try to load this address from OBJECT_AN3, but this address is way outside said object,
+    //! producing an OoB read and reading garbage, possible from other object. This will likely produce a crash.
     { &gAnju2UmbrellaSitAnim, -1.0f, 0, -1, ANIMMODE_ONCE, 0 }, // ENAN_ANIM_24
 
     // ENAN_ANIMOBJ_AN4
@@ -1018,7 +1020,7 @@ static AnimationInfoS sAnimationInfo[ENAN_ANIM_MAX] = {
 s32 EnAn_UpdateSkelAnime(EnAn* this, PlayState* play) {
     s8 originalObjectSlot = this->actor.objectSlot;
     s8 otherObjectSlot = OBJECT_SLOT_NONE;
-    s32 ret = 0;
+    s32 ret = false;
 
     if ((this->animIndex >= ENAN_ANIMOBJ_AN4) && (this->an4ObjectSlot > OBJECT_SLOT_NONE)) {
         otherObjectSlot = this->an4ObjectSlot;
@@ -1105,7 +1107,7 @@ s32 EnAn_ChangeAnim(EnAn* this, PlayState* play, EnAnAnimation animIndex) {
 }
 
 void EnAn_UpdateCollider(EnAn* this, PlayState* play) {
-    f32 temp;
+    f32 height;
     s32 pad;
     Vec3f sp24;
 
@@ -1119,8 +1121,8 @@ void EnAn_UpdateCollider(EnAn* this, PlayState* play) {
         Collider_UpdateCylinder(&this->actor, &this->collider);
     }
 
-    temp = this->actor.focus.pos.y - this->actor.world.pos.y;
-    this->collider.dim.height = TRUNCF_BINANG(temp);
+    height = this->actor.focus.pos.y - this->actor.world.pos.y;
+    this->collider.dim.height = TRUNCF_BINANG(height);
     CollisionCheck_SetOC(play, &play->colChkCtx, &this->collider.base);
 }
 
@@ -1517,7 +1519,7 @@ s32 EnAn_MsgEvent_MidnightMeeting(Actor* thisx, PlayState* play) {
     EnAn* this = THIS;
 
     if (this->msgEventState == 0) {
-        func_800B7298(play, &this->actor, PLAYER_CSACTION_WAIT);
+        Player_SetCsActionWithHaltedActors(play, &this->actor, PLAYER_CSACTION_WAIT);
         play->nextEntrance = ENTRANCE(STOCK_POT_INN, 3);
         gSaveContext.nextCutsceneIndex = 0;
         play->transitionTrigger = TRANS_TRIGGER_START;
@@ -1526,7 +1528,7 @@ s32 EnAn_MsgEvent_MidnightMeeting(Actor* thisx, PlayState* play) {
         this->msgEventState++;
     }
 
-    return 0;
+    return false;
 }
 
 s32 EnAn_MsgEvent_Cooking(Actor* thisx, PlayState* play) {
@@ -1577,7 +1579,6 @@ s32 EnAn_MsgEvent_LaundryPool(Actor* thisx, PlayState* play) {
             }
             FALLTHROUGH;
         case 0x1:
-        label:
             this->stateFlags &= ~(ENAN_STATE_ENGAGED | ENAN_STATE_DRAW_KAFEIS_MASK);
             this->stateFlags |= ENAN_STATE_LOST_ATTENTION;
             EnAn_ChangeAnim(this, play, ENAN_ANIM_UMBRELLA_CRY);
@@ -1741,6 +1742,7 @@ s32* EnAn_GetMsgEventScript(EnAn* this, PlayState* play) {
     return NULL;
 }
 
+// TODO: consider renaming this (and similar functions of other schedule actors) to `TryTalking`
 s32 EnAn_CheckTalk(EnAn* this, PlayState* play) {
     s32 ret = false;
 
@@ -2033,11 +2035,11 @@ s32 EnAn_HandleDialogue(EnAn* this, PlayState* play) {
                 case 0x28A7: // Enjoy the carnival
                 case 0x28A8: // Did you have a reservation?
                 case 0x28AA: // One moment please
-                case 0x28AB: // I expected your arrival for afternon. Your room is on the second floor
-                case 0x28AC: // Have you been to the plaza yet? They are putting the carnival stuff
+                case 0x28AB: // I expected your arrival for afternoon. Your room is on the second floor
+                case 0x28AC: // Have you been to the plaza yet? They are putting up the carnival stuff
                 case 0x28AD: // Relax...
-                case 0x28AE: // oesn't exis
-                case 0x28B0: // It's hard to find one's way on the city goro
+                case 0x28AE: // doesn't exist
+                case 0x28B0: // It's hard to find one's way on the city, goro
                 case 0x28B2: // I should have a reservation-goro
                 case 0x28B3: // I do have your reservation. Your room is on the second floor
                 case 0x28B4: // The place is falling apart-goro
@@ -2245,6 +2247,7 @@ Actor* EnAn_FindLookAtActor(EnAn* this, PlayState* play) {
     return actor;
 }
 
+// Known uses: looks for En_Ig, En_Nb, En_Pm
 s32 func_80B55D98(EnAn* this, PlayState* play, ScheduleOutput* scheduleOutput, u8 actorCategory, s16 actorId) {
     u8 pathIndex = ENAN_GET_PATH_INDEX(&this->actor);
     Vec3s* points;
@@ -3162,7 +3165,7 @@ void EnAn_HandleSchedule(EnAn* this, PlayState* play) {
     Math_ApproachS(&this->actor.shape.rot.y, this->actor.world.rot.y, 3, 0x2AA8);
 }
 
-void EnAn_Initialize(EnAn* this, PlayState* play) {
+void EnAn_FinishInit(EnAn* this, PlayState* play) {
     ActorShape_Init(&this->actor.shape, 0.0f, NULL, 14.0f);
     SkelAnime_InitFlex(play, &this->skelAnime, &gAnju1Skel, NULL, this->jointTable, this->morphTable, ANJU1_LIMB_MAX);
 
@@ -3171,7 +3174,7 @@ void EnAn_Initialize(EnAn* this, PlayState* play) {
     Collider_InitAndSetCylinder(play, &this->collider, &this->actor, &sCylinderInit);
     CollisionCheck_SetInfo2(&this->actor.colChkInfo, DamageTable_Get(0x16), &sColChkInfoInit);
 
-    if (this->actor.params & ENAN_8000) {
+    if (ENAN_GET_8000(&this->actor)) {
         this->unk_3C0 = true;
     }
 
@@ -3189,7 +3192,7 @@ void EnAn_FollowSchedule(EnAn* this, PlayState* play) {
 
     this->timePathTimeSpeed = R_TIME_SPEED + ((void)0, gSaveContext.save.timeSpeedOffset);
 
-    if (!(this->actor.params & ENAN_8000) && !this->unk_3C0 &&
+    if (!ENAN_GET_8000(&this->actor) && !this->unk_3C0 &&
         CHECK_WEEKEVENTREG(WEEKEVENTREG_COUPLES_MASK_CUTSCENE_FINISHED)) {
         Actor_Kill(&this->actor);
         return;
@@ -3267,13 +3270,13 @@ void EnAn_HandleCouplesMaskCutscene(EnAn* this, PlayState* play) {
     s32 pad;
 
     //! FAKE
-    if (0) {}
+    if (1) {}
 
     if (Cutscene_IsCueInChannel(play, CS_CMD_ACTOR_CUE_557)) {
         s32 cueChannel = Cutscene_GetCueChannel(play, CS_CMD_ACTOR_CUE_557);
         u16 cueId = play->csCtx.actorCues[cueChannel]->id;
 
-        if (this->cueId != (cueId & 0xFF)) {
+        if (this->cueId != (u8)cueId) {
             this->cueId = cueId;
 
             if (this->cueId == 3) {
@@ -3316,6 +3319,8 @@ void EnAn_Init(Actor* thisx, PlayState* play) {
         return;
     }
 
+    // Check if there's an Anju actor with the ENAN_8000 flag, if there's one then give priority to that Anju and Kill
+    // all the others
     if (temp_v1 == 0) {
         if (func_80B53A7C(this, play, ACTORCAT_NPC, ACTOR_EN_AN) != NULL) {
             Actor_Kill(&this->actor);
@@ -3329,7 +3334,7 @@ void EnAn_Init(Actor* thisx, PlayState* play) {
         this->actor.room = -1;
     }
 
-    this->actionFunc = EnAn_Initialize;
+    this->actionFunc = EnAn_FinishInit;
 }
 
 void EnAn_Destroy(Actor* thisx, PlayState* play) {
@@ -3341,11 +3346,11 @@ void EnAn_Destroy(Actor* thisx, PlayState* play) {
 void EnAn_Update(Actor* thisx, PlayState* play) {
     EnAn* this = THIS;
 
-    if (EnAn_InitializeObjectSlots(this, play)) {
+    if (EnAn_InitObjectSlots(this, play)) {
         return;
     }
 
-    if ((this->actionFunc != EnAn_Initialize) && !EnAn_CheckTalk(this, play) &&
+    if ((this->actionFunc != EnAn_FinishInit) && !EnAn_CheckTalk(this, play) &&
         EnAn_IsCouplesMaskCsPlaying(this, play)) {
         EnAn_HandleCouplesMaskCutscene(this, play);
         EnAn_UpdateSkelAnime(this, play);
@@ -3428,7 +3433,6 @@ void EnAn_Draw(Actor* thisx, PlayState* play) {
             gAnju1MouthHappyTex,  // ENAN_MOUTH_HAPPY
             gAnju1MouthOpenTex,   // ENAN_MOUTH_OPEN
         };
-
         static TexturePtr sEyeTextures[ENAN_EYES_MAX] = {
             gAnju1EyeOpenTex,           // ENAN_EYES_OPEN
             gAnju1EyeHalfTex,           // ENAN_EYES_HALF1

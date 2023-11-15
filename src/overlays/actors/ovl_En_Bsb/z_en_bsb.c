@@ -1011,7 +1011,7 @@ void func_80C0D51C(EnBsb* this, PlayState* play) {
             return;
         }
         CutsceneManager_StartWithPlayerCs(this->unk_02CC[1], &this->actor);
-        func_800B7298(play, &this->actor, 0x51);
+        Player_SetCsActionWithHaltedActors(play, &this->actor, 0x51);
         this->unk_111A = CutsceneManager_GetCurrentSubCamId(this->actor.csId);
         this->unk_02A4 = 1;
     }
@@ -1052,7 +1052,7 @@ void func_80C0D51C(EnBsb* this, PlayState* play) {
         if (this->unk_02D8 < 9) {
             player = GET_PLAYER(play);
             func_80C0B290(this, 9);
-            func_800B7298(play, &this->actor, 4);
+            Player_SetCsActionWithHaltedActors(play, &this->actor, 4);
             player->actor.velocity.y = 5.0f;
             Actor_SpawnFloorDustRing(play, &this->actor, &this->actor.world.pos, this->actor.shape.shadowScale - 20.0f,
                                      0x14, 8.0f, 1000, 100, 1);
@@ -1060,7 +1060,7 @@ void func_80C0D51C(EnBsb* this, PlayState* play) {
             Actor_RequestQuakeAndRumble(&this->actor, play, 4, 10);
         } else if ((this->unk_02D8 == 9) && (curFrame >= this->unk_02C4)) {
             func_80C0B290(this, 0xA);
-            func_800B7298(play, &this->actor, 0x51);
+            Player_SetCsActionWithHaltedActors(play, &this->actor, 0x51);
         }
     }
     func_80C0BE1C(this, play);
@@ -1131,7 +1131,7 @@ void func_80C0DB18(EnBsb* this, PlayState* play) {
         }
         CutsceneManager_StartWithPlayerCs(this->unk_02CC[3], &this->actor);
         func_80C0B290(this, 1);
-        func_800B7298(play, &this->actor, 7);
+        Player_SetCsActionWithHaltedActors(play, &this->actor, 7);
         this->unk_111A = CutsceneManager_GetCurrentSubCamId(this->actor.csId);
         this->unk_02A4 = 1;
     }
