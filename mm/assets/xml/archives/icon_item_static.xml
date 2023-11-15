@@ -1,5 +1,5 @@
 <Root>
-    <File Name="icon_item_static_yar.unarchive" Segment="8">
+    <File Name="icon_item_static_yar" Segment="8">
         <!-- Item icons -->
         <Texture Name="gItemIconOcarinaOfTimeTex" OutName="ocarina_of_time_icon" Format="rgba32" Width="32" Height="32" Offset="0x0000"/>
         <Texture Name="gItemIconBowTex" OutName="bow_icon" Format="rgba32" Width="32" Height="32" Offset="0x1000"/>
