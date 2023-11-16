@@ -43,6 +43,7 @@ void VisMono_Destroy(VisMono* this) {
 }
 
 void VisMono_DesaturateTLUT(u16* tlut) {
+    #if 0
     s32 i;
 
     for (i = 0; i < 256; i++) {
@@ -61,6 +62,7 @@ void VisMono_DesaturateTLUT(u16* tlut) {
             (((i >> 3) & 0x1F) * VISMONO_FAC_RED + ((i << 2) & 0x1F) * VISMONO_FAC_GREEN) * 255 / VISMONO_FAC_NORM,
             (((i >> 6) & 0x1F) * VISMONO_FAC_GREEN + ((i >> 1) & 0x1F) * VISMONO_FAC_BLUE) * 255 / VISMONO_FAC_NORM);
     }
+    #endif
 }
 
 Gfx* VisMono_DesaturateDList(Gfx* gfx) {

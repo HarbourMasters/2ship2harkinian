@@ -14,7 +14,11 @@ STACK(sBootStack, 0x400);
 
 void bootproc(void) {
     StackCheck_Init(&sBootStackInfo, sBootStack, STACK_TOP(sBootStack), 0, -1, "boot");
+    #if 0
     osMemSize = osGetMemSize();
+    #else
+    osMemSize = 0x800000;
+    #endif
     CIC6105_Init();
     osInitialize();
     osUnmapTLBAll();

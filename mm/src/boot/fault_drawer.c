@@ -42,6 +42,7 @@ FaultDrawer* sFaultDrawerInstance = &sFaultDrawer;
 #define FAULT_DRAWER_CURSOR_X 22
 #define FAULT_DRAWER_CURSOR_Y 16
 
+#if 0
 FaultDrawer sFaultDrawerDefault = {
     FAULT_FB_ADDRESS,                          // frameBuffer
     SCREEN_WIDTH,                              // w
@@ -76,6 +77,7 @@ FaultDrawer sFaultDrawerDefault = {
     false, // osSyncPrintfEnabled
     NULL,  // inputCallback
 };
+#endif
 
 //! TODO: Needs to be extracted
 #pragma GLOBAL_ASM("asm/non_matchings/boot/fault_drawer/sFaultDrawerFont.s")
@@ -267,7 +269,10 @@ void* FaultDrawer_FormatStringFunc(void* arg, const char* str, size_t count) {
 const char D_80099080[] = "(null)";
 
 s32 FaultDrawer_VPrintf(const char* fmt, va_list ap) {
+    return 0;
+    #if 0
     return _Printf(FaultDrawer_FormatStringFunc, sFaultDrawerInstance, fmt, ap);
+    #endif
 }
 
 s32 FaultDrawer_Printf(const char* fmt, ...) {
@@ -304,7 +309,9 @@ void FaultDrawer_SetInputCallback(FaultDrawerCallback callback) {
 }
 
 void FaultDrawer_Init() {
+    #if 0
     sFaultDrawerInstance = &sFaultDrawer;
     bcopy(&sFaultDrawerDefault, sFaultDrawerInstance, sizeof(FaultDrawer));
     sFaultDrawerInstance->frameBuffer = (u16*)(PHYS_TO_K0(osMemSize) - SCREEN_HEIGHT * SCREEN_WIDTH * sizeof(u16));
+    #endif
 }

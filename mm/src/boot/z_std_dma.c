@@ -15,6 +15,11 @@ OSMesg sDmaMgrMsgs[32];
 OSThread sDmaMgrThread;
 STACK(sDmaMgrStack, 0x500);
 
+// BENTODO this is an ugly stub
+s32 osEPiStartDma(OSPiHandle* pihandle, OSIoMesg* mb, s32 direction) {
+    return -1;
+}
+
 s32 DmaMgr_DmaRomToRam(uintptr_t rom, void* ram, size_t size) {
     OSIoMesg ioMsg;
     OSMesgQueue queue;
@@ -66,6 +71,7 @@ s32 DmaMgr_DmaHandler(OSPiHandle* pihandle, OSIoMesg* mb, s32 direction) {
 }
 
 DmaEntry* DmaMgr_FindDmaEntry(uintptr_t vrom) {
+    #if 0
     DmaEntry* curr;
 
     for (curr = dmadata; curr->vromEnd != 0; curr++) {
@@ -78,7 +84,7 @@ DmaEntry* DmaMgr_FindDmaEntry(uintptr_t vrom) {
 
         return curr;
     }
-
+    #endif
     return NULL;
 }
 
@@ -101,11 +107,13 @@ u32 DmaMgr_TranslateVromToRom(uintptr_t vrom) {
 }
 
 s32 DmaMgr_FindDmaIndex(uintptr_t vrom) {
+    #if 0
     DmaEntry* entry = DmaMgr_FindDmaEntry(vrom);
 
     if (entry != NULL) {
         return entry - dmadata;
     }
+    #endif
 
     return -1;
 }
@@ -115,6 +123,7 @@ const char* func_800809F4(u32 a0) {
 }
 
 void DmaMgr_ProcessMsg(DmaRequest* req) {
+    #if 0
     uintptr_t vrom;
     void* ram;
     size_t size;
@@ -156,6 +165,7 @@ void DmaMgr_ProcessMsg(DmaRequest* req) {
     } else {
         Fault_AddHungupAndCrash("../z_std_dma.c", 558);
     }
+    #endif
 }
 
 void DmaMgr_ThreadEntry(void* a0) {
@@ -216,6 +226,7 @@ s32 DmaMgr_SendRequest0(void* vramStart, uintptr_t vromStart, size_t size) {
 }
 
 void DmaMgr_Start(void) {
+    #if 0
     DmaMgr_DmaRomToRam(SEGMENT_ROM_START(dmadata), dmadata, SEGMENT_ROM_SIZE(dmadata));
 
     {
@@ -236,6 +247,7 @@ void DmaMgr_Start(void) {
                    Z_PRIORITY_DMAMGR);
 
     osStartThread(&sDmaMgrThread);
+    #endif
 }
 
 void DmaMgr_Stop(void) {

@@ -1,7 +1,10 @@
 #include "global.h"
 
 s32 PrintUtils_VPrintf(PrintCallback* pfn, const char* fmt, va_list args) {
+    return 0;
+    #if 0
     return _Printf(*pfn, pfn, fmt, args);
+    #endif
 }
 
 s32 PrintUtils_Printf(PrintCallback* pfn, const char* fmt, ...) {

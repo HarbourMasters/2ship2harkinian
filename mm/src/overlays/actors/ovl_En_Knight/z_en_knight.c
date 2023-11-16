@@ -518,6 +518,7 @@ void func_809B22CC(EnKnight* this, PlayState* play, u8 arg2) {
 }
 
 void EnKnight_Init(Actor* thisx, PlayState* play) {
+    #if 0
     EnKnight* this = THIS;
     s32 pad;
     s32 temp_v0_2;
@@ -625,6 +626,7 @@ void EnKnight_Init(Actor* thisx, PlayState* play) {
         func_809B631C(this, play);
         play->envCtx.lightSettingOverride = 0;
     }
+    #endif
 }
 
 void EnKnight_Destroy(Actor* thisx, PlayState* play) {
@@ -735,6 +737,7 @@ s32 func_809B31E8(EnKnight* this, PlayState* play) {
 }
 
 void func_809B329C(EnKnight* this, PlayState* play, s32 arg2) {
+    #if 0
     Animation_MorphToLoop(&this->unk194, &D_06020950, -5.0f);
     this->actionFunc = func_809B331C;
     if (this == D_809BEFD0) {
@@ -746,6 +749,7 @@ void func_809B329C(EnKnight* this, PlayState* play, s32 arg2) {
     } else {
         this->unk14A[0] = 15;
     }
+    #endif
 }
 
 void func_809B331C(EnKnight* this, PlayState* play) {
@@ -758,9 +762,11 @@ void func_809B331C(EnKnight* this, PlayState* play) {
 }
 
 void func_809B3394(EnKnight* this, PlayState* play) {
+    #if 0
     Animation_MorphToPlayOnce(&this->unk194, &D_06011298, 0.0f);
     this->unk1D8 = Animation_GetLastFrame(&D_06011298);
     this->actionFunc = func_809B33F0;
+    #endif
 }
 
 void func_809B33F0(EnKnight* this, PlayState* play) {
@@ -798,9 +804,11 @@ void func_809B33F0(EnKnight* this, PlayState* play) {
 }
 
 void func_809B35BC(EnKnight* this, PlayState* play) {
+    #if 0
     Animation_MorphToPlayOnce(&this->unk194, &D_06022728, -5.0f);
     this->unk1D8 = Animation_GetLastFrame(&D_06022728);
     this->actionFunc = func_809B3618;
+    #endif
 }
 
 void func_809B3618(EnKnight* this, PlayState* play) {
@@ -839,6 +847,7 @@ void func_809B3618(EnKnight* this, PlayState* play) {
 }
 
 void func_809B37C8(EnKnight* this, PlayState* play) {
+    #if 0
     Animation_MorphToLoop(&this->unk194, &D_06022CAC, 0.0f);
     this->actionFunc = func_809B3834;
     if (this == D_809BEFD0) {
@@ -846,6 +855,7 @@ void func_809B37C8(EnKnight* this, PlayState* play) {
     } else {
         this->unk14A[0] = 15;
     }
+    #endif
 }
 
 void func_809B3834(EnKnight* this, PlayState* play) {
@@ -857,6 +867,7 @@ void func_809B3834(EnKnight* this, PlayState* play) {
 }
 
 void func_809B389C(EnKnight* this, PlayState* play) {
+    #if 0
     if (Rand_ZeroOne() < 0.5f) {
         Animation_MorphToPlayOnce(&this->unk194, &D_0600C384, -2.0f);
         this->unk1D8 = Animation_GetLastFrame(&D_0600C384);
@@ -866,6 +877,7 @@ void func_809B389C(EnKnight* this, PlayState* play) {
     }
     this->actionFunc = func_809B3958;
     this->unk14A[0] = 20;
+    #endif
 }
 
 void func_809B3958(EnKnight* this, PlayState* play) {
@@ -889,6 +901,7 @@ void func_809B3958(EnKnight* this, PlayState* play) {
 }
 
 void func_809B3A7C(EnKnight* this, PlayState* play) {
+    #if 0
     s32 i;
     Vec3f sp28;
 
@@ -908,9 +921,11 @@ void func_809B3A7C(EnKnight* this, PlayState* play) {
             func_809B22CC(this, play, 0);
         }
     }
+    #endif
 }
 
 void func_809B3B94(EnKnight* this, PlayState* play) {
+    #if 0
     if (this->unk14A[0] >= 2 && this->unk14A[0] < 6) {
         this->unk450 = 255.0f;
         this->unk454 = -19.0f;
@@ -936,9 +951,11 @@ void func_809B3B94(EnKnight* this, PlayState* play) {
         func_809B3E9C(this, play);
     }
     this->unk190 = 1;
+    #endif
 }
 
 void func_809B3CD0(EnKnight* this, PlayState* play) {
+    #if 0
     if (this == D_809BEFD0 && this->actor.xzDistToPlayer <= 120.0f && Rand_ZeroOne() < 0.1f) {
         func_809B59FC(this, play);
         return;
@@ -950,6 +967,7 @@ void func_809B3CD0(EnKnight* this, PlayState* play) {
         this->actionFunc = func_809B3DAC;
     }
     this->unk14A[0] = 5;
+    #endif
 }
 
 void func_809B3DAC(EnKnight* this, PlayState* play) {
@@ -970,9 +988,11 @@ void func_809B3DAC(EnKnight* this, PlayState* play) {
 }
 
 void func_809B3E9C(EnKnight* this, PlayState* play) {
+    #if 0
     Animation_MorphToLoop(&this->unk194, &D_060040E0, -5.0f);
     this->actionFunc = func_809B3F0C;
     this->unk14A[0] = Rand_ZeroFloat(50.0f) + 20.0f;
+    #endif
 }
 
 void func_809B3F0C(EnKnight* this, PlayState* play) {
@@ -997,6 +1017,7 @@ void func_809B3F0C(EnKnight* this, PlayState* play) {
 }
 
 void func_809B4024(EnKnight* this, PlayState* play, s16 arg2) {
+    #if 0
     this->actionFunc = func_809B40E8;
     Animation_MorphToPlayOnce(&this->unk194, &D_0600EF44, -2.0f);
     if (Rand_ZeroOne() < 0.5f) {
@@ -1008,6 +1029,7 @@ void func_809B4024(EnKnight* this, PlayState* play, s16 arg2) {
     }
     this->unk15C = (arg2 == 0x4000) ? 0 : 0x800;
     this->unk14A[0] = 0x14;
+    #endif
 }
 
 void func_809B40E8(EnKnight* this, PlayState* play) {
@@ -1056,12 +1078,15 @@ void func_809B41F8(EnKnight* this, PlayState* play) {
 }
 
 void func_809B42B8(EnKnight* this, PlayState* play) {
+    #if 0
     Animation_MorphToLoop(&this->unk194, &D_06004620, -5.0f);
     this->actionFunc = func_809B4308;
     this->actor.speed = 0.0f;
+    #endif
 }
 
 void func_809B4308(EnKnight* this, PlayState* play) {
+    #if 0
     f32 sp5C;
     f32 dx;
     f32 dz;
@@ -1155,9 +1180,11 @@ void func_809B4308(EnKnight* this, PlayState* play) {
         func_809B3E9C(this, play);
     }
     this->unk192 = 1;
+    #endif
 }
 
 void func_809B47EC(EnKnight* this, PlayState* play, u8 arg2) {
+    #if 0
     if (this->actionFunc != func_809B4880) {
         Animation_MorphToLoop(&this->unk194, &D_06003650, -5.0f);
         this->unk148 = 0;
@@ -1165,9 +1192,11 @@ void func_809B47EC(EnKnight* this, PlayState* play, u8 arg2) {
     }
     this->unk14A[0] = Rand_ZeroFloat(15.0f) + 10.0f;
     this->unk292 = arg2;
+    #endif
 }
 
 void func_809B4880(EnKnight* this, PlayState* play) {
+    #if 0
     f32 dx;
     f32 dz;
 
@@ -1237,13 +1266,16 @@ void func_809B4880(EnKnight* this, PlayState* play) {
     if (this->unk14A[0] == 0) {
         func_809B4024(this, play, 0x7000);
     }
+    #endif
 }
 
 void func_809B4BFC(EnKnight* this, PlayState* play) {
+    #if 0
     Animation_MorphToLoop(&this->unk194, &D_0600CDE0, -25.0f);
     Actor_PlaySfx(&this->actor, this->unk6B6);
     this->actionFunc = func_809B4C58;
     this->unk14A[0] = 35;
+    #endif
 }
 
 void func_809B4C58(EnKnight* this, PlayState* play) {
@@ -1304,6 +1336,7 @@ void func_809B4ED8(EnKnight* this, PlayState* play) {
 }
 
 void func_809B4F90(EnKnight* this, PlayState* arg1) {
+    #if 0
     Vec3f sp2C;
     s16 temp_v0;
 
@@ -1321,6 +1354,7 @@ void func_809B4F90(EnKnight* this, PlayState* arg1) {
     this->unk2A4 = sp2C.x;
     this->unk2A8 = sp2C.z;
     this->unk14A[0] = 10;
+    #endif
 }
 
 void func_809B5058(EnKnight* this, PlayState* play) {
@@ -1351,6 +1385,7 @@ void func_809B5058(EnKnight* this, PlayState* play) {
 }
 
 void func_809B51DC(EnKnight* this, PlayState* play) {
+    #if 0
     Vec3f sp2C;
     s16 temp_v0;
 
@@ -1370,6 +1405,7 @@ void func_809B51DC(EnKnight* this, PlayState* play) {
     this->unk14A[0] = 35;
     this->unk14A[1] = 150;
     this->actor.colChkInfo.damageTable = &D_809BDB24;
+    #endif
 }
 
 void func_809B52E8(EnKnight* this, PlayState* play) {
@@ -1509,6 +1545,7 @@ void func_809B58D4(EnKnight* this, PlayState* play) {
 }
 
 void func_809B592C(EnKnight* this, PlayState* play) {
+    #if 0
     s32 var_s0;
     Vec3f sp28;
 
@@ -1525,9 +1562,11 @@ void func_809B592C(EnKnight* this, PlayState* play) {
     Actor_PlaySfx(&this->actor, NA_SE_EN_TEKU_JUMP);
     this->unk148 = 0;
     this->unk156 = 0xA;
+    #endif
 }
 
 void func_809B59FC(EnKnight* this, PlayState* play) {
+    #if 0
     s32 var_s0;
     Vec3f sp28;
 
@@ -1544,6 +1583,7 @@ void func_809B59FC(EnKnight* this, PlayState* play) {
     Actor_PlaySfx(&this->actor, NA_SE_EN_MIBOSS_JUMP1);
     this->unk148 = 1;
     this->unk156 = 0x14;
+    #endif
 }
 
 void func_809B5B08(EnKnight* this, PlayState* play) {
@@ -1598,6 +1638,7 @@ void func_809B5D38(EnKnight* this, PlayState* play) {
 }
 
 void func_809B5D54(EnKnight* this, PlayState* play) {
+    #if 0
     this->unk_680 = 1;
     if (this->unk148 != 0) {
         SkelAnime_Update(&this->unk194);
@@ -1632,11 +1673,14 @@ void func_809B5D54(EnKnight* this, PlayState* play) {
     }
     this->unk18A = 0;
     this->unk184 = this->unk186 = this->unk188 = this->unk18A;
+    #endif
 }
 
 void func_809B5E90(EnKnight* this, PlayState* play) {
+    #if 0
     this->actionFunc = func_809B5ED0;
     Animation_MorphToLoop(&this->unk194, &D_060040E0, -5.0f);
+    #endif
 }
 
 void func_809B5ED0(EnKnight* this, PlayState* play) {
@@ -1663,13 +1707,16 @@ void func_809B5ED0(EnKnight* this, PlayState* play) {
 }
 
 void func_809B5FA8(EnKnight* this, PlayState* play) {
+    #if 0
     this->actionFunc = func_809B601C;
     Animation_MorphToLoop(&this->unk194, &D_060040E0, -5.0f);
     this->unk148 = 0;
     this->unk14A[0] = Rand_ZeroFloat(10.0f) + 65.0f;
+    #endif
 }
 
 void func_809B601C(EnKnight* this, PlayState* play) {
+    #if 0
     f32 dx;
     f32 dz;
     s16 temp_v1_2;
@@ -1742,9 +1789,11 @@ void func_809B601C(EnKnight* this, PlayState* play) {
             break;
     }
     Math_ApproachS(&this->actor.shape.rot.y, this->actor.world.rot.y, 5, 0x500);
+    #endif
 }
 
 void func_809B631C(EnKnight* this, PlayState* play) {
+    #if 0
     if (this == D_809BEFD0) {
         this->actionFunc = func_809B8458;
         Animation_MorphToLoop(&this->unk194, &D_060040E0, -5.0f);
@@ -1752,6 +1801,7 @@ void func_809B631C(EnKnight* this, PlayState* play) {
         this->actionFunc = func_809B842C;
     }
     this->actor.world.pos.y = 1000.0f;
+    #endif
 }
 
 void func_809B638C(EnKnight* this, PlayState* play, s16 arg2) {
@@ -1778,9 +1828,11 @@ void func_809B638C(EnKnight* this, PlayState* play, s16 arg2) {
 }
 
 void func_809B6528(EnKnight* this, PlayState* play) {
+    #if 0
     Animation_MorphToPlayOnce(&this->unk194, &D_0600A530, -5.0f);
     this->actionFunc = func_809B6764;
     this->unk148 = 0;
+    #endif
 }
 
 void func_809B6574(PlayState* play, u8 arg1) {
@@ -1805,6 +1857,7 @@ void func_809B6574(PlayState* play, u8 arg1) {
 }
 
 void func_809B6764(EnKnight* this, PlayState* play) {
+    #if 0
     s16 temp_v1;
     s16 sp54 = 0;
     Player* player = GET_PLAYER(play);
@@ -1913,12 +1966,15 @@ void func_809B6764(EnKnight* this, PlayState* play) {
         func_809B6574(play, 0xC);
         Actor_PlaySfx(&this->actor, NA_SE_EV_BLOCK_SHAKE);
     }
+    #endif
 }
 
 void func_809B6C04(EnKnight* this, PlayState* play) {
+    #if 0
     Animation_MorphToPlayOnce(&this->unk194, &D_06003008, -5.0f);
     this->actionFunc = func_809B6C54;
-    this->unk14A[0] = 0x32;
+    this-unk14A[0] = 0x32;
+    #endif
 }
 
 void func_809B6C54(EnKnight* this, PlayState* play) {
@@ -1938,11 +1994,13 @@ void func_809B6C54(EnKnight* this, PlayState* play) {
 }
 
 void func_809B6D38(EnKnight* this, PlayState* play) {
+    #if 0
     Animation_MorphToPlayOnce(&this->unk194, &D_060079D4, -10.0f);
     this->actionFunc = func_809B6D94;
     this->unk148 = 0;
     this->unk14A[0] = 0x3C;
     this->unk194.playSpeed = 0.0f;
+    #endif
 }
 
 void func_809B6D94(EnKnight* this, PlayState* play) {
@@ -1979,15 +2037,18 @@ void func_809B6D94(EnKnight* this, PlayState* play) {
 }
 
 void func_809B6EC8(EnKnight* this, PlayState* play) {
+    #if 0
     Animation_MorphToPlayOnce(&this->unk194, &D_06009538, -5.0f);
     this->unk1D8 = Animation_GetLastFrame(&D_06009538);
     this->actionFunc = func_809B6F40;
     this->unk148 = 0;
     this->unk14A[0] = KREG(57) + 0x96;
     this->unk160 = 0;
+    #endif
 }
 
 void func_809B6F40(EnKnight* this, PlayState* play) {
+    #if 0
     s16 temp_v0;
 
     SkelAnime_Update(&this->unk194);
@@ -2035,6 +2096,7 @@ void func_809B6F40(EnKnight* this, PlayState* play) {
     }
 
     this->unk192 = 1;
+    #endif
 }
 
 void func_809B7190(EnKnight* this, PlayState* play) {
@@ -2046,6 +2108,7 @@ void func_809B7190(EnKnight* this, PlayState* play) {
 }
 
 void func_809B71DC(EnKnight* this, PlayState* play) {
+    #if 0
     f32 temp_fa0;
     Camera* sp30;
     f32 temp_fv0;
@@ -2139,13 +2202,16 @@ void func_809B71DC(EnKnight* this, PlayState* play) {
         Play_SetCameraAtEye(play, this->unk_68A, &this->unk698, &this->unk68C);
         Play_SetCameraFov(play, this->unk_68A, this->unk6B0);
     }
+    #endif
 }
 
 void func_809B7708(EnKnight* this, PlayState* play) {
+    #if 0
     if (this->actionFunc != func_809B52E8 && this->actionFunc != func_809B5698 && this->actionFunc != func_809B58D4) {
         Animation_MorphToLoop(&this->unk194, &D_060040E0, -5.0f);
         this->actionFunc = func_809B7778;
     }
+    #endif
 }
 
 void func_809B7778(EnKnight* this, PlayState* play) {
@@ -2191,6 +2257,7 @@ void func_809B78A4(EnKnight* this, PlayState* play) {
 }
 
 void func_809B7950(EnKnight* this, PlayState* play) {
+    #if 0
     Vec3f sp44;
     Player* sp40 = GET_PLAYER(play);
     Camera* var_v1;
@@ -2396,6 +2463,7 @@ void func_809B7950(EnKnight* this, PlayState* play) {
         Play_SetCameraAtEye(play, this->unk_68A, &this->unk698, &this->unk68C);
         Play_SetCameraFov(play, this->unk_68A, this->unk6B0);
     }
+    #endif
 }
 
 void func_809B842C(EnKnight* this, PlayState* play) {
@@ -2403,6 +2471,7 @@ void func_809B842C(EnKnight* this, PlayState* play) {
 }
 
 void func_809B8458(EnKnight* this, PlayState* play) {
+    #if 0
     f32 sp64 = 0.0f;
     Player* sp60 = GET_PLAYER(play);
     Camera* temp_v0_2;
@@ -2766,6 +2835,7 @@ void func_809B8458(EnKnight* this, PlayState* play) {
     if ((this->unk430 >= 50.0f) && !(this->unk146 & 1) && (Rand_ZeroOne() < 0.5f)) {
         Actor_PlaySfx(&this->actor, NA_SE_EN_BOSU_TALK);
     }
+    #endif
 }
 
 void func_809B9A18(EnKnight* arg0, PlayState* arg1) {
@@ -2922,15 +2992,18 @@ void func_809B9F8C(EnKnight* this, PlayState* play) {
 }
 
 void func_809BA058(EnKnight* this, PlayState* play) {
+    #if 0
     Animation_MorphToPlayOnce(&this->unk194, &D_06003008, 0.0f);
     this->unk194.curFrame = 19.0f;
     this->actionFunc = func_809BA0CC;
     this->unk148 = 0;
     this->unk14A[1] = KREG(77) + 0xC8;
     this->actor.flags |= ACTOR_FLAG_TARGETABLE;
+    #endif
 }
 
 void func_809BA0CC(EnKnight* this, PlayState* play) {
+    #if 0
     f32 sp4C;
     f32 sp48;
     f32 sp44;
@@ -3045,6 +3118,7 @@ void func_809BA0CC(EnKnight* this, PlayState* play) {
             }
             break;
     }
+    #endif
 }
 
 void func_809BA940(EnKnight* this, PlayState* play) {
@@ -3582,6 +3656,7 @@ void EnKnight_Update(Actor* thisx, PlayState* play) {
 }
 
 void func_809BC2C4(EnKnight* this, PlayState* play) {
+    #if 0
     f32 var_fv0;
 
     OPEN_DISPS(play->state.gfxCtx);
@@ -3624,6 +3699,7 @@ void func_809BC2C4(EnKnight* this, PlayState* play) {
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
+    #endif
 }
 
 s32 func_809BC67C(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx) {
@@ -3645,6 +3721,7 @@ s32 func_809BC67C(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s
 }
 
 s32 func_809BC720(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx, Gfx** gfx) {
+    #if 0
     EnKnight* this = THIS;
 
     if (limbIndex == 0xF) {
@@ -3681,6 +3758,7 @@ s32 func_809BC720(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s
             *dList = D_06012400;
         }
     }
+    #endif
     return 0;
 }
 

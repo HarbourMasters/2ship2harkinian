@@ -36,6 +36,7 @@ void func_801A4EB0(void) {
 }
 
 void func_801A4EB8(void) {
+    #if 0
     u8* new_var;
     OSMesgQueue* serialEventQueue;
     s32 index;
@@ -65,10 +66,12 @@ void func_801A4EB8(void) {
         func_801A53E8(800, 2, VOICE_WARN_TOO_SMALL, 500, 2000);
         D_801D8E3C = 1;
     }
+    #endif
 }
 
 // Used externally in code_8019AF00
 void func_801A4FD8(void) {
+    #if 0
     s32 errorCode;
     OSMesgQueue* serialEventQueue;
 
@@ -88,6 +91,7 @@ void func_801A4FD8(void) {
         func_801A5080(VOICE_WORD_ID_HIYA);
         func_801A5080(VOICE_WORD_ID_CHEESE);
     }
+    #endif
 }
 
 void func_801A5080(u16 wordId) {

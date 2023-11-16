@@ -215,6 +215,8 @@ s32 func_801A54D0(u16 wordId) {
 }
 
 s32 func_801A5680(u16 wordId) {
+    return 0;
+    #if 0
     s32 errorCode;
     u8 phi_a3 = true;
     u8 numWords;
@@ -255,6 +257,7 @@ s32 func_801A5680(u16 wordId) {
     }
 
     return errorCode;
+    #endif
 }
 
 s32 func_801A5808(void) {

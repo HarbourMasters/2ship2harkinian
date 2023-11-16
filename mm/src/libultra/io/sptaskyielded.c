@@ -1,6 +1,8 @@
 #include "ultra64.h"
 
 OSYieldResult osSpTaskYielded(OSTask* task) {
+    return 0;
+    #if 0
     s32 status = __osSpGetStatus();
     OSYieldResult result;
 
@@ -14,4 +16,5 @@ OSYieldResult osSpTaskYielded(OSTask* task) {
         task->t.flags &= ~OS_TASK_DP_WAIT;
     }
     return result;
+    #endif
 }

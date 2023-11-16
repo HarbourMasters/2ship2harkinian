@@ -1578,7 +1578,9 @@ void Play_InitScene(PlayState* this, s32 spawn) {
     Scene_ResetTransitionActorList(&this->state, &this->transitionActors);
     Room_Init(this, &this->roomCtx);
     gSaveContext.worldMapArea = 0;
+    #if 0
     Scene_ExecuteCommands(this, this->sceneSegment);
+    #endif
     Play_InitEnvironment(this, this->skyboxId);
 }
 

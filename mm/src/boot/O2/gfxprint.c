@@ -24,10 +24,11 @@ void GfxPrint_Setup(GfxPrint* this) {
                         G_TD_CLAMP | G_TP_NONE | G_CYC_1CYCLE | G_PM_NPRIMITIVE,
                     G_AC_NONE | G_ZS_PRIM | G_RM_XLU_SURF | G_RM_XLU_SURF2);
     gDPSetCombineMode(this->dList++, G_CC_DECALRGBA, G_CC_DECALRGBA);
+#if 0
     gDPLoadTextureBlock_4b(this->dList++, sGfxPrintFontData, G_IM_FMT_CI, width, height, 0, G_TX_NOMIRROR | G_TX_WRAP,
                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
     gDPLoadTLUT(this->dList++, 64, 256, sGfxPrintFontTLUT);
-
+#endif
     for (i = 1; i < 4; i++) {
         gDPSetTile(this->dList++, G_IM_FMT_CI, G_IM_SIZ_4b, 1, 0, i * 2, i, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
                    G_TX_NOLOD, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOLOD);
@@ -35,12 +36,12 @@ void GfxPrint_Setup(GfxPrint* this) {
     }
 
     gDPSetColor(this->dList++, G_SETPRIMCOLOR, this->color.rgba);
-
+#if 0
     gDPLoadMultiTile_4b(this->dList++, sGfxPrintRainbowData, 0, 1, G_IM_FMT_CI, 2, 8, 0, 0, 1, 7, 4,
                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, 1, 3, G_TX_NOLOD, G_TX_NOLOD);
 
     gDPLoadTLUT(this->dList++, 16, 320, sGfxPrintRainbowTLUT);
-
+#endif
     for (i = 1; i < 4; i++) {
         gDPSetTile(this->dList++, G_IM_FMT_CI, G_IM_SIZ_4b, 1, 0, i * 2 + 1, 4, G_TX_NOMIRROR | G_TX_WRAP, 3,
                    G_TX_NOLOD, G_TX_NOMIRROR | G_TX_WRAP, 1, G_TX_NOLOD);

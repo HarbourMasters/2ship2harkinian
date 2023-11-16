@@ -206,6 +206,7 @@ extern OSViMode osViModeMpalLan1;
 extern OSViMode osViModeFpalLan1;
 
 void ViMode_Save(ViMode* viMode) {
+    #if 0
     R_VI_MODE_EDIT_STATE = viMode->editState;
     R_VI_MODE_EDIT_WIDTH = viMode->viWidth;
     R_VI_MODE_EDIT_HEIGHT = viMode->viHeight;
@@ -230,6 +231,7 @@ void ViMode_Save(ViMode* viMode) {
                 break;
         }
     }
+    #endif
 }
 
 void ViMode_Load(ViMode* viMode) {
@@ -393,12 +395,14 @@ void ViMode_Update(ViMode* viMode, Input* input) {
                          viMode->rightAdjust, viMode->upperAdjust, viMode->lowerAdjust);
         ViMode_ConfigureFeatures(viMode, viMode->viFeatures);
 
+        #if 0
         if (viMode->editState == VI_MODE_EDIT_STATE_3) {
             // Log comparison between the NTSC LAN1 mode and the custom mode
             ViMode_LogPrint(&osViModeNtscLan1);
             ViMode_LogPrint(&viMode->customViMode);
             viMode->editState = VI_MODE_EDIT_STATE_2;
         }
+        #endif
     }
 
     ViMode_Save(viMode);

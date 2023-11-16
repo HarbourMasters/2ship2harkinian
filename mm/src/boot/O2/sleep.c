@@ -1,6 +1,7 @@
 #include "global.h"
 
 void Sleep_Cycles(u64 time) {
+    #if 0
     OSMesgQueue mq;
     OSMesg msg[1];
     OSTimer timer;
@@ -8,6 +9,7 @@ void Sleep_Cycles(u64 time) {
     osCreateMesgQueue(&mq, msg, ARRAY_COUNT(msg));
     osSetTimer(&timer, time, 0, &mq, NULL);
     osRecvMesg(&mq, NULL, OS_MESG_BLOCK);
+    #endif
 }
 
 void Sleep_Nsec(u32 nsec) {

@@ -20,9 +20,11 @@ void AudioMgr_HandleRetrace(AudioMgr* audioMgr) {
         audioMgr->rspTask = NULL;
     }
 
+    #if 0
     while (!MQ_IS_EMPTY(&audioMgr->cmdQueue)) {
         osRecvMesg(&audioMgr->cmdQueue, NULL, OS_MESG_NOBLOCK);
     }
+    #endif
 
     if (audioMgr->rspTask != NULL) {
         audioMgr->audioTask.next = NULL;
@@ -45,9 +47,11 @@ void AudioMgr_HandleRetrace(AudioMgr* audioMgr) {
 
     if (audioMgr->rspTask != NULL) {
         while (true) {
+            #if 0
             osSetTimer(&timer, OS_USEC_TO_CYCLES(32000), 0, &audioMgr->cmdQueue, OS_MESG_32(timerMsgVal));
             osRecvMesg(&audioMgr->cmdQueue, (OSMesg*)&msg, OS_MESG_BLOCK);
             osStopTimer(&timer);
+            #endif
             if (msg == timerMsgVal) {
                 osSyncPrintf("AUDIO SP TIMEOUT %08x %08x\n", audioMgr->rspTask, audioMgr->rspTask->task);
                 if (sRetryCount >= 0) {
@@ -91,6 +95,7 @@ void AudioMgr_ThreadEntry(void* arg) {
         switch (*msg) {
             case OS_SC_RETRACE_MSG:
                 AudioMgr_HandleRetrace(audioMgr);
+                #if 0
                 while (!MQ_IS_EMPTY(&audioMgr->interruptQueue)) {
                     osRecvMesg(&audioMgr->interruptQueue, (OSMesg*)&msg, OS_MESG_BLOCK);
                     switch (*msg) {
@@ -106,6 +111,7 @@ void AudioMgr_ThreadEntry(void* arg) {
                             break;
                     }
                 }
+                #endif
                 break;
 
             case OS_SC_PRE_NMI_MSG:

@@ -513,6 +513,7 @@ void PadMgr_UpdateInputs(void) {
  * a VRU other than on the first VI retrace.
  */
 void PadMgr_InitVoice(void) {
+    #if 0
     s32 i;
     OSMesgQueue* serialEventQueue;
     s32 ret;
@@ -538,6 +539,7 @@ void PadMgr_InitVoice(void) {
     if (sVoiceInitStatus == VOICE_INIT_TRY) {
         sVoiceInitStatus = VOICE_INIT_FAILED;
     }
+    #endif
 }
 
 /**
@@ -648,6 +650,7 @@ void PadMgr_HandleRetrace(void) {
     }
 
     // Rumble Pak
+    #if 0
     if (gFaultMgr.msgId != 0) {
         // If fault is active, no rumble
         PadMgr_RumbleStop();
@@ -663,6 +666,7 @@ void PadMgr_HandleRetrace(void) {
         PadMgr_UpdateRumble();
         --sPadMgrInstance->rumbleOnTimer;
     }
+    #endif
 
     sPadMgrRetraceCount++;
 }
@@ -750,6 +754,7 @@ void PadMgr_ThreadEntry() {
     while (!exit) {
         // Process all messages currently in the queue, instead of only a single mssage.
         // Deduplicates the same message.
+        #if 0
         do {
             osRecvMesg(&sPadMgrInstance->interruptQueue, (OSMesg*)&interruptMsg, OS_MESG_BLOCK);
             switch (*interruptMsg) {
@@ -766,6 +771,7 @@ void PadMgr_ThreadEntry() {
                     break;
             }
         } while (!MQ_IS_EMPTY(&sPadMgrInstance->interruptQueue));
+        #endif
 
         // Act on received messages
         while (actionBits != 0) {
