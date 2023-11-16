@@ -1,6 +1,13 @@
 #include "libc/stdbool.h"
 #include "idle.h"
 
+extern OSViMode osViModeNtscHpf1;
+extern OSViMode osViModePalLan1;
+extern OSViMode osViModeNtscHpn1;
+extern OSViMode osViModeNtscLan1;
+extern OSViMode osViModeMpalLan1;
+extern OSViMode osViModeFpalLan1;
+
 void ViConfig_UpdateVi(u32 black) {
     if (black) {
         switch (osTvType) {

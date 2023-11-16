@@ -172,7 +172,7 @@ OSMesgQueue* PadMgr_VoiceAcquireSerialEventQueue(void) {
  * @see PadMgr_AcquireSerialEventQueue
  */
 void PadMgr_ReleaseSerialEventQueue(OSMesgQueue* serialEventQueue) {
-    osSendMesg(&sPadMgrInstance->serialLockQueue, (OSMesg)serialEventQueue, OS_MESG_BLOCK);
+    osSendMesg(&sPadMgrInstance->serialLockQueue, OS_MESG_PTR(serialEventQueue), OS_MESG_BLOCK);
 }
 
 /**
@@ -181,7 +181,7 @@ void PadMgr_ReleaseSerialEventQueue(OSMesgQueue* serialEventQueue) {
  * @see PadMgr_VoiceAcquireSerialEventQueue
  */
 void PadMgr_VoiceReleaseSerialEventQueue(OSMesgQueue* serialEventQueue) {
-    osSendMesg(&sPadMgrInstance->serialLockQueue, (OSMesg)serialEventQueue, OS_MESG_BLOCK);
+    osSendMesg(&sPadMgrInstance->serialLockQueue, OS_MESG_PTR(serialEventQueue), OS_MESG_BLOCK);
 }
 
 /**
@@ -201,7 +201,7 @@ void PadMgr_LockPadData(void) {
  * @see PadMgr_LockPadData
  */
 void PadMgr_UnlockPadData(void) {
-    osSendMesg(&sPadMgrInstance->lockQueue, NULL, OS_MESG_BLOCK);
+    osSendMesg(&sPadMgrInstance->lockQueue, OS_MESG_PTR(NULL), OS_MESG_BLOCK);
 }
 
 /**
@@ -353,18 +353,20 @@ void PadMgr_AdjustInput(Input* input) {
     f32 angle;
     s8 curX = input->cur.stick_x;
     s8 curY = input->cur.stick_y;
-
+// BENTODO    
+#if 0
     if (CHECK_BTN_ANY(input->press.button, BTN_RESET) || (input->press.stick_x == 0)) {
         input->press.stick_x = 61;
-        input->press.errno = -61;
+        input->press.err_no = -61;
         input->press.stick_y = 63;
-        input->rel.errno = -63;
+        input->rel.err_no = -63;
     }
+    #endif
     pressX = input->press.stick_x;
-    pressX2 = (s8)input->press.errno;
+    pressX2 = (s8)input->press.err_no;
     pressY = input->press.stick_y;
-    pressY2 = (s8)input->rel.errno;
-
+    pressY2 = (s8)input->rel.err_no;
+    #if 0
     if (CHECK_BTN_ANY(input->cur.button, BTN_RESET)) {
         minus = curX - 7;
         plus = curX + 7;
@@ -377,7 +379,7 @@ void PadMgr_AdjustInput(Input* input) {
         } else if (plus < 0) {
             if (pressX2 > plus + 3) {
                 pressX2 = plus + 3;
-                input->press.errno = plus + 3;
+                input->press.err_no = plus + 3;
             }
         }
 
@@ -392,11 +394,11 @@ void PadMgr_AdjustInput(Input* input) {
         } else if (plus < 0) {
             if (pressY2 > plus + 3) {
                 pressY2 = plus + 3;
-                input->rel.errno = plus + 3;
+                input->rel.err_no = plus + 3;
             }
         }
     }
-
+    #endif
     minus = curX - 7;
     plus = curX + 7;
 
@@ -449,7 +451,7 @@ void PadMgr_UpdateInputs(void) {
         input->prev = input->cur;
         isStandardController = sPadMgrInstance->ctrlrType[i] == PADMGR_CONT_NORMAL;
         if (isStandardController) {
-            switch (pad->errno) {
+            switch (pad->err_no) {
                 case 0:
                     // No error, copy inputs
                     input->cur = *pad;
@@ -465,7 +467,7 @@ void PadMgr_UpdateInputs(void) {
                     input->cur.button = 0;
                     input->cur.stick_x = 0;
                     input->cur.stick_y = 0;
-                    input->cur.errno = pad->errno;
+                    input->cur.err_no = pad->err_no;
                     if (sPadMgrInstance->ctrlrType[i] != PADMGR_CONT_NONE) {
                         // If we get no response, consider the controller disconnected
                         sPadMgrInstance->ctrlrType[i] = PADMGR_CONT_NONE;
@@ -483,7 +485,7 @@ void PadMgr_UpdateInputs(void) {
             input->cur.button = 0;
             input->cur.stick_x = 0;
             input->cur.stick_y = 0;
-            input->cur.errno = pad->errno;
+            input->cur.err_no = pad->err_no;
         }
 
         // If opposed directions on the D-Pad are pressed at the same time, mask both out
@@ -547,7 +549,7 @@ void PadMgr_UpdateConnections(void) {
     char msg[50];
 
     for (i = 0; i < MAXCONTROLLERS; i++) {
-        if (sPadMgrInstance->padStatus[i].errno == 0) {
+        if (sPadMgrInstance->padStatus[i].err_no == 0) {
             switch (sPadMgrInstance->padStatus[i].type & CONT_TYPE_MASK) {
                 case CONT_TYPE_NORMAL:
                     // Standard N64 Controller

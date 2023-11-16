@@ -38,7 +38,8 @@ void func_809F0A64(Boss05* this, PlayState* play);
 void func_809F0ABC(Boss05* this, PlayState* play);
 void func_809F0B0C(Boss05* this, PlayState* play);
 
-#include "overlays/ovl_Boss_05/ovl_Boss_05.c"
+#include "overlays/ovl_Boss_05/ovl_Boss_05.h"
+#include "objects/object_boss05/object_boss05.h"
 
 // static ColliderJntSphElementInit sJntSphElementsInit[2] = {
 ColliderJntSphElementInit D_809F1B2C[2] = {
@@ -226,19 +227,6 @@ ActorInit Boss_05_InitVars = {
     /**/ Boss05_Draw,
 };
 
-extern AnimationHeader D_060006A4;
-extern AnimationHeader D_06000A5C;
-extern AnimationHeader D_06000ABC;
-extern FlexSkeletonHeader D_060024E0;
-extern AnimationHeader D_06002F0C;
-extern AnimationHeader D_06003448;
-extern AnimatedMaterial D_06006240[];
-extern FlexSkeletonHeader D_06006378;
-extern AnimationHeader D_06006484;
-extern AnimationHeader D_06006E50;
-extern AnimationHeader D_06007488;
-extern AnimationHeader D_06007908;
-
 void func_809EE4E0(Boss05* this, PlayState* play) {
     Vec3f icePos;
     Vec3f iceVelocity;
@@ -295,11 +283,11 @@ void Boss05_Init(Actor* thisx, PlayState* play) {
         this->dyna.bgId = DynaPoly_SetBgActor(play, &play->colCtx.dyna, &this->dyna.actor, colHeader);
         func_809EEDD0(this, play);
 
-        SkelAnime_InitFlex(play, &this->skelAnime10, &D_060024E0, &D_06000ABC, this->jointTable10, this->morphTable10,
+        SkelAnime_InitFlex(play, &this->skelAnime10, &gBioDekuBabaLilyPadSkel, &gBioDekuBabaLilyPadIdleAnim, this->jointTable10, this->morphTable10,
                            10);
-        SkelAnime_InitFlex(play, &this->skelAnime20, &D_06006378, &D_06006484, this->jointTable20, this->morphTable20,
+        SkelAnime_InitFlex(play, &this->skelAnime20, &gBioDekuBabaHeadSkel, &gBioDekuBabaHeadChompAnim, this->jointTable20, this->morphTable20,
                            20);
-        this->lastAnimFrame = Animation_GetLastFrame(&D_06006484);
+        this->lastAnimFrame = Animation_GetLastFrame(&gBioDekuBabaHeadChompAnim);
 
         Collider_InitAndSetJntSph(play, &this->collider2, &this->dyna.actor, &D_809F1B74, this->colliderElements2);
         Collider_InitAndSetJntSph(play, &this->collider1, &this->dyna.actor, &D_809F1BA8, this->colliderElements1);
@@ -316,7 +304,7 @@ void Boss05_Init(Actor* thisx, PlayState* play) {
         CollisionHeader_GetVirtual(&sBioBabaLilypadCol, &colHeader);
         this->dyna.bgId = DynaPoly_SetBgActor(play, &play->colCtx.dyna, &this->dyna.actor, colHeader);
 
-        SkelAnime_InitFlex(play, &this->skelAnime10, &D_060024E0, &D_06000ABC, this->jointTable10, this->morphTable10,
+        SkelAnime_InitFlex(play, &this->skelAnime10, &gBioDekuBabaLilyPadSkel, &gBioDekuBabaLilyPadIdleAnim, this->jointTable10, this->morphTable10,
                            10);
         this->dyna.actor.flags &= ~ACTOR_FLAG_TARGETABLE;
         func_800BC154(play, &play->actorCtx, &this->dyna.actor, ACTORCAT_BG);
@@ -324,11 +312,11 @@ void Boss05_Init(Actor* thisx, PlayState* play) {
         this->actionFunc = func_809EFAB4;
         this->unk198 = 1.0f;
 
-        SkelAnime_InitFlex(play, &this->skelAnime10, &D_060024E0, &D_06000ABC, this->jointTable10, this->morphTable10,
+        SkelAnime_InitFlex(play, &this->skelAnime10, &gBioDekuBabaLilyPadSkel, &gBioDekuBabaLilyPadIdleAnim, this->jointTable10, this->morphTable10,
                            10);
-        SkelAnime_InitFlex(play, &this->skelAnime20, &D_06006378, &D_06006484, this->jointTable20, this->morphTable20,
+        SkelAnime_InitFlex(play, &this->skelAnime20, &gBioDekuBabaHeadSkel, &gBioDekuBabaHeadChompAnim, this->jointTable20, this->morphTable20,
                            20);
-        this->lastAnimFrame = Animation_GetLastFrame(&D_06006484);
+        this->lastAnimFrame = Animation_GetLastFrame(&gBioDekuBabaHeadChompAnim);
 
         Collider_InitAndSetJntSph(play, &this->collider2, &this->dyna.actor, &D_809F1B74, this->colliderElements2);
         Collider_InitAndSetJntSph(play, &this->collider1, &this->dyna.actor, &D_809F1BA8, this->colliderElements1);
@@ -339,7 +327,7 @@ void Boss05_Init(Actor* thisx, PlayState* play) {
         func_809F00CC(this, play);
         this->dyna.actor.colChkInfo.mass = 90;
 
-        SkelAnime_InitFlex(play, &this->skelAnime20, &D_06006378, &D_06006484, this->jointTable20, this->morphTable20,
+        SkelAnime_InitFlex(play, &this->skelAnime20, &gBioDekuBabaHeadSkel, &gBioDekuBabaHeadChompAnim, this->jointTable20, this->morphTable20,
                            20);
 
         Collider_InitAndSetJntSph(play, &this->collider1, &this->dyna.actor, &D_809F1BDC, this->colliderElements1);
@@ -348,7 +336,7 @@ void Boss05_Init(Actor* thisx, PlayState* play) {
         this->dyna.actor.colChkInfo.damageTable = &D_809F1C20;
         this->dyna.actor.flags |= ACTOR_FLAG_10 | ACTOR_FLAG_20;
     } else if (this->dyna.actor.params >= BIO_DEKU_BABA_TYPE_10) {
-        SkelAnime_InitFlex(play, &this->skelAnime20, &D_06006378, &D_06006484, this->jointTable20, this->morphTable20,
+        SkelAnime_InitFlex(play, &this->skelAnime20, &gBioDekuBabaHeadSkel, &gBioDekuBabaHeadChompAnim, this->jointTable20, this->morphTable20,
                            20);
 
         this->dyna.actor.gravity = 0.0f;
@@ -885,7 +873,7 @@ void func_809F0058(Boss05* this, PlayState* play) {
 
 void func_809F00CC(Boss05* this, PlayState* play) {
     this->actionFunc = func_809F010C;
-    Animation_MorphToPlayOnce(&this->skelAnime20, &D_06006E50, -5.0f);
+    Animation_MorphToPlayOnce(&this->skelAnime20, &gBioDekuBabaHeadTransformAnim, -5.0f);
 }
 
 void func_809F010C(Boss05* this, PlayState* play) {
@@ -902,7 +890,7 @@ void func_809F010C(Boss05* this, PlayState* play) {
 
 void func_809F01CC(Boss05* this, PlayState* play) {
     this->actionFunc = func_809F0244;
-    Animation_MorphToLoop(&this->skelAnime20, &D_06007488, -10.0f);
+    Animation_MorphToLoop(&this->skelAnime20, &gBioDekuBabaHeadIdleAnim, -10.0f);
     this->unk162[0] = (s32)(Rand_ZeroFloat(25.0f) + 25.0f);
     Actor_PlaySfx(&this->dyna.actor, NA_SE_EN_MIZUBABA1_MOUTH);
 }
@@ -922,7 +910,7 @@ void func_809F0244(Boss05* this, PlayState* play) {
 
 void func_809F02D0(Boss05* this, PlayState* play) {
     this->actionFunc = func_809F0374;
-    Animation_MorphToLoop(&this->skelAnime20, &D_06007908, 0.0f);
+    Animation_MorphToLoop(&this->skelAnime20, &gBioDekuBabaHeadWalkAnim, 0.0f);
     this->unk162[0] = (s32)(Rand_ZeroFloat(80.0f) + 60.0f);
     this->unk34C.x = Rand_CenteredFloat(400.0f) + this->dyna.actor.world.pos.x;
     this->unk34C.z = Rand_CenteredFloat(400.0f) + this->dyna.actor.world.pos.z;
@@ -950,7 +938,7 @@ void func_809F0374(Boss05* this, PlayState* play) {
 
 void func_809F0474(Boss05* this, PlayState* play) {
     this->actionFunc = func_809F04C0;
-    Animation_MorphToPlayOnce(&this->skelAnime20, &D_06003448, 0.0f);
+    Animation_MorphToPlayOnce(&this->skelAnime20, &gBioDekuBabaHeadSpotAnim, 0.0f);
     this->unk162[0] = 20;
 }
 
@@ -966,7 +954,7 @@ void func_809F04C0(Boss05* this, PlayState* play) {
 
 void func_809F0538(Boss05* this, PlayState* arg1) {
     this->actionFunc = func_809F0590;
-    Animation_MorphToLoop(&this->skelAnime20, &D_06000A5C, 0.0f);
+    Animation_MorphToLoop(&this->skelAnime20, &gBioDekuBabaHeadChargeAnim, 0.0f);
     this->unk162[0] = 60;
     this->unk358 = 0.0f;
 }
@@ -985,8 +973,8 @@ void func_809F0590(Boss05* this, PlayState* play) {
 
 void func_809F0650(Boss05* this, PlayState* arg1) {
     this->actionFunc = func_809F06B8;
-    Animation_MorphToPlayOnce(&this->skelAnime20, &D_060006A4, 0.0f);
-    this->lastAnimFrame = Animation_GetLastFrame(&D_060006A4);
+    Animation_MorphToPlayOnce(&this->skelAnime20, &gBioDekuBabaHeadAttackAnim, 0.0f);
+    this->lastAnimFrame = Animation_GetLastFrame(&gBioDekuBabaHeadAttackAnim);
     Actor_PlaySfx(&this->dyna.actor, NA_SE_EN_MIZUBABA2_ATTACK);
 }
 
@@ -999,8 +987,8 @@ void func_809F06B8(Boss05* this, PlayState* play) {
 
 void func_809F0708(Boss05* this, PlayState* play) {
     this->actionFunc = func_809F0780;
-    Animation_MorphToPlayOnce(&this->skelAnime20, &D_06002F0C, 0.0f);
-    this->lastAnimFrame = Animation_GetLastFrame(&D_060006A4);
+    Animation_MorphToPlayOnce(&this->skelAnime20, &gBioDekuBabaHeadDamagedAnim, 0.0f);
+    this->lastAnimFrame = Animation_GetLastFrame(&gBioDekuBabaHeadAttackAnim);
     Actor_SetColorFilter(&this->dyna.actor, 0x4000, 120, 0, 30);
 }
 
@@ -1402,7 +1390,7 @@ void Boss05_Draw(Actor* thisx, PlayState* play) {
         Matrix_RotateZS(this->unk330.z, MTXMODE_APPLY);
         Matrix_Scale(this->dyna.actor.scale.x, this->dyna.actor.scale.y, this->dyna.actor.scale.z, MTXMODE_APPLY);
 
-        AnimatedMat_Draw(play, Lib_SegmentedToVirtual(D_06006240));
+        AnimatedMat_Draw(play, Lib_SegmentedToVirtual(gBioDekuBabaHeadEyeFlashTexAnim));
 
         SkelAnime_DrawTransformFlexOpa(play, this->skelAnime20.skeleton, this->skelAnime20.jointTable,
                                        this->skelAnime20.dListCount, func_809F1284, func_809F12A0, func_809F135C,
@@ -1431,7 +1419,7 @@ void Boss05_Draw(Actor* thisx, PlayState* play) {
         Matrix_RotateZS(this->unk330.z, MTXMODE_APPLY);
         Matrix_Scale(this->dyna.actor.scale.x, this->dyna.actor.scale.y, this->dyna.actor.scale.z, MTXMODE_APPLY);
 
-        AnimatedMat_Draw(play, Lib_SegmentedToVirtual(D_06006240));
+        AnimatedMat_Draw(play, Lib_SegmentedToVirtual(gBioDekuBabaHeadEyeFlashTexAnim));
 
         SkelAnime_DrawTransformFlexOpa(play, this->skelAnime20.skeleton, this->skelAnime20.jointTable,
                                        this->skelAnime20.dListCount, func_809F1284, func_809F12A0, func_809F135C,
@@ -1441,7 +1429,7 @@ void Boss05_Draw(Actor* thisx, PlayState* play) {
                                 this->drawDmgEffScale, this->dmgEffFrozenSteamScale, this->drawDmgEffAlpha,
                                 this->drawDmgEffType);
     } else if (this->dyna.actor.params == BIO_DEKU_BABA_TYPE_4) {
-        AnimatedMat_Draw(play, Lib_SegmentedToVirtual(D_06006240));
+        AnimatedMat_Draw(play, Lib_SegmentedToVirtual(gBioDekuBabaHeadEyeFlashTexAnim));
 
         if ((this->unk16C % 2) != 0) {
             POLY_OPA_DISP = Gfx_SetFog(POLY_OPA_DISP, 255, 0, 0, 255, 900, 1099);
@@ -1455,7 +1443,7 @@ void Boss05_Draw(Actor* thisx, PlayState* play) {
                                 this->drawDmgEffScale, this->dmgEffFrozenSteamScale, this->drawDmgEffAlpha,
                                 this->drawDmgEffType);
     } else if (this->dyna.actor.params >= BIO_DEKU_BABA_TYPE_10) {
-        AnimatedMat_Draw(play, Lib_SegmentedToVirtual(D_06006240));
+        AnimatedMat_Draw(play, Lib_SegmentedToVirtual(gBioDekuBabaHeadEyeFlashTexAnim));
 
         SkelAnime_DrawFlexOpa(play, this->skelAnime20.skeleton, this->skelAnime20.jointTable,
                               this->skelAnime20.dListCount, func_809F14AC, func_809F1550, &this->dyna.actor);

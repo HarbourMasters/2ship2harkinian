@@ -330,7 +330,7 @@ void Scene_CommandMiniMap(PlayState* play, LUS::ISceneCommand* cmd) {
 
     MapDisp_Init(play);
 
-    func_8010549C(play, list->GetPointer());
+    MapDisp_InitMapData(play, list->GetPointer());
 }
 
 void Scene_Command1D(PlayState* play, LUS::ISceneCommand* cmd) {
@@ -340,7 +340,7 @@ void Scene_Command1D(PlayState* play, LUS::ISceneCommand* cmd) {
 void Scene_CommandMiniMapCompassInfo(PlayState* play, LUS::ISceneCommand* cmd) {
     LUS::SetMinimapChests* chests = (LUS::SetMinimapChests*)cmd;
 
-    func_8010565C(play, chests->chests.size(), chests->GetPointer());
+    MapDisp_InitChestData(play, chests->chests.size(), chests->GetPointer());
 }
 
 void (*sSceneCmdHandlersOTR[SCENE_CMD_MAX])(PlayState*, LUS::ISceneCommand*) = {

@@ -1,6 +1,10 @@
 #ifndef PR_OSINT_H
 #define PR_OSINT_H
 
+#include <libultraship/libultra/interrupt.h>
+
+#if 0
+
 #include "ultratypes.h"
 #include "os_message.h"
 #include "os.h"
@@ -50,4 +54,5 @@ extern u32 __osBaseCounter;
 extern u32 __osViIntrCount;
 extern u32 __osTimerCounter;
 
+#endif
 #endif

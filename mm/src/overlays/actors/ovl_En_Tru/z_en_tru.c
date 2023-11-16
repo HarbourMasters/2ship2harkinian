@@ -151,7 +151,7 @@ ActorInit En_Tru_InitVars = {
     /**/ EnTru_Draw,
 };
 
-#include "overlays/ovl_En_Tru/ovl_En_Tru.c"
+#include "overlays/ovl_En_Tru/ovl_En_Tru.h"
 
 static Vec3f D_80A8B250 = { 0.0f, 0.02f, 0.0f };
 

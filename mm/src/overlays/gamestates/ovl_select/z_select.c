@@ -983,22 +983,21 @@ void MapSelect_PrintCutsceneSetting(MapSelectState* this, GfxPrint* printer, u16
 
 void MapSelect_DrawMenu(MapSelectState* this) {
     GraphicsContext* gfxCtx = this->state.gfxCtx;
-    GfxPrint* printer;
+    GfxPrint printer;
 
     OPEN_DISPS(gfxCtx);
 
     Gfx_SetupDL28_Opa(gfxCtx);
 
-    printer = alloca(sizeof(GfxPrint));
-    GfxPrint_Init(printer);
-    GfxPrint_Open(printer, POLY_OPA_DISP);
+    GfxPrint_Init(&printer);
+    GfxPrint_Open(&printer, POLY_OPA_DISP);
 
-    MapSelect_PrintMenu(this, printer);
-    MapSelect_PrintAgeSetting(this, printer, GET_PLAYER_FORM);
-    MapSelect_PrintCutsceneSetting(this, printer, ((void)0, gSaveContext.save.cutsceneIndex));
+    MapSelect_PrintMenu(this, &printer);
+    MapSelect_PrintAgeSetting(this, &printer, GET_PLAYER_FORM);
+    MapSelect_PrintCutsceneSetting(this, &printer, ((void)0, gSaveContext.save.cutsceneIndex));
 
-    POLY_OPA_DISP = GfxPrint_Close(printer);
-    GfxPrint_Destroy(printer);
+    POLY_OPA_DISP = GfxPrint_Close(&printer);
+    GfxPrint_Destroy(&printer);
 
     CLOSE_DISPS(gfxCtx);
 }

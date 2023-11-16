@@ -59,7 +59,7 @@ static ColliderCylinderInit sCylinderInit = {
     { 12, 45, 0, { 0, 0, 0 } },
 };
 
-#include "assets/overlays/ovl_Obj_Jgame_Light/ovl_Obj_Jgame_Light.c"
+#include "assets/overlays/ovl_Obj_Jgame_Light/ovl_Obj_Jgame_Light.h"
 
 void ObjJgameLight_Init(Actor* thisx, PlayState* play) {
     ObjJgameLight* this = THIS;

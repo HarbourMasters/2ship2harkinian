@@ -2,9 +2,10 @@
 #define PR_OS_THREAD_H
 
 #include "ultratypes.h"
-
-#define OS_FLAG_CPU_BREAK   1
-#define OS_FLAG_FAULT       2
+#include <libultraship/libultra/thread.h>
+#if 0
+#define OS_FLAG_CPU_BREAK 1
+#define OS_FLAG_FAULT 2
 
 typedef s32 OSPri;
 typedef s32 OSId;
@@ -47,28 +48,27 @@ typedef struct OSThread {
     /* 0x20 */ __OSThreadContext context;
 } OSThread; // size = 0x1B0
 
-#define OS_STATE_STOPPED    (1 << 0)
-#define OS_STATE_RUNNABLE   (1 << 1)
-#define OS_STATE_RUNNING    (1 << 2)
-#define OS_STATE_WAITING    (1 << 3)
+#define OS_STATE_STOPPED (1 << 0)
+#define OS_STATE_RUNNABLE (1 << 1)
+#define OS_STATE_RUNNING (1 << 2)
+#define OS_STATE_WAITING (1 << 3)
 
-
-#define OS_PRIORITY_IDLE          0
-#define OS_PRIORITY_MAIN         10
-#define OS_PRIORITY_GRAPH        11
-#define OS_PRIORITY_AUDIOMGR     12
-#define OS_PRIORITY_PADMGR       14
-#define OS_PRIORITY_SCHED        15
-#define OS_PRIORITY_DMAMGR       16
-#define OS_PRIORITY_IRQMGR       17
-#define OS_PRIORITY_PIMGR        150
-#define OS_PRIORITY_FAULTCLIENT  126
-#define OS_PRIORITY_FAULT        127
-#define OS_PRIORITY_APPMAX       127
-#define OS_PRIORITY_RMONSPIN     200
-#define OS_PRIORITY_RMON         250
-#define OS_PRIORITY_VIMGR        254
-#define OS_PRIORITY_MAX          255
+#define OS_PRIORITY_IDLE 0
+#define OS_PRIORITY_MAIN 10
+#define OS_PRIORITY_GRAPH 11
+#define OS_PRIORITY_AUDIOMGR 12
+#define OS_PRIORITY_PADMGR 14
+#define OS_PRIORITY_SCHED 15
+#define OS_PRIORITY_DMAMGR 16
+#define OS_PRIORITY_IRQMGR 17
+#define OS_PRIORITY_PIMGR 150
+#define OS_PRIORITY_FAULTCLIENT 126
+#define OS_PRIORITY_FAULT 127
+#define OS_PRIORITY_APPMAX 127
+#define OS_PRIORITY_RMONSPIN 200
+#define OS_PRIORITY_RMON 250
+#define OS_PRIORITY_VIMGR 254
+#define OS_PRIORITY_MAX 255
 
 #define OS_PRIORITY_THREADTAIL -1
 
@@ -84,5 +84,5 @@ OSPri osGetThreadPri(OSThread* t);
 
 // internal
 OSThread* __osGetActiveQueue(void);
-
+#endif
 #endif

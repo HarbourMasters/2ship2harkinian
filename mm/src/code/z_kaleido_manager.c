@@ -2,11 +2,14 @@
 #include "fault.h"
 #include "loadfragment.h"
 
-#define KALEIDO_OVERLAY(name)                                                                        \
-    {                                                                                                \
-        NULL, SEGMENT_ROM_START(ovl_##name), SEGMENT_ROM_END(ovl_##name), SEGMENT_START(ovl_##name), \
-            SEGMENT_END(ovl_##name), 0, #name,                                                       \
-    }
+//#define KALEIDO_OVERLAY(name)                                                                        \
+//    {                                                                                                \
+//        NULL, SEGMENT_ROM_START(ovl_##name), SEGMENT_ROM_END(ovl_##name), SEGMENT_START(ovl_##name), \
+//            SEGMENT_END(ovl_##name), 0, #name,                                                       \
+//    }
+
+#define KALEIDO_OVERLAY(name) \
+    { NULL, 0, 0, 0, 0, 0, #name, }
 
 KaleidoMgrOverlay gKaleidoMgrOverlayTable[] = {
     KALEIDO_OVERLAY(kaleido_scope),
@@ -83,6 +86,8 @@ void KaleidoManager_Destroy() {
 }
 
 void* KaleidoManager_GetRamAddr(void* vram) {
+    return vram;
+    #if 0
     if (gKaleidoMgrCurOvl == NULL) {
         s32 pad[2];
         KaleidoMgrOverlay* ovl = &gKaleidoMgrOverlayTable[0];
@@ -102,4 +107,5 @@ void* KaleidoManager_GetRamAddr(void* vram) {
     }
 
     return (void*)((uintptr_t)vram + gKaleidoMgrCurOvl->offset);
+    #endif
 }

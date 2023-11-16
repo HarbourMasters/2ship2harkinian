@@ -6,6 +6,7 @@
 
 #include "z_obj_entotu.h"
 #include "objects/object_f53_obj/object_f53_obj.h"
+#include "BenPort.h"
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
@@ -17,18 +18,18 @@ void ObjEntotu_Update(Actor* thisx, PlayState* play);
 void ObjEntotu_Draw(Actor* thisx, PlayState* play);
 
 ActorInit Obj_Entotu_InitVars = {
-    /**/ ACTOR_OBJ_ENTOTU,
-    /**/ ACTORCAT_PROP,
-    /**/ FLAGS,
-    /**/ OBJECT_F53_OBJ,
-    /**/ sizeof(ObjEntotu),
-    /**/ ObjEntotu_Init,
-    /**/ ObjEntotu_Destroy,
-    /**/ ObjEntotu_Update,
-    /**/ ObjEntotu_Draw,
+    ACTOR_OBJ_ENTOTU,
+    ACTORCAT_PROP,
+    FLAGS,
+    OBJECT_F53_OBJ,
+    sizeof(ObjEntotu),
+    (ActorFunc)ObjEntotu_Init,
+    (ActorFunc)ObjEntotu_Destroy,
+    (ActorFunc)ObjEntotu_Update,
+    (ActorFunc)ObjEntotu_Draw,
 };
 
-#include "overlays/ovl_Obj_Entotu/ovl_Obj_Entotu.c"
+#include "overlays/ovl_Obj_Entotu/ovl_Obj_Entotu.h"
 
 s32 func_80A34700(s16 minutes) {
     s32 ret = 0;
@@ -112,6 +113,8 @@ void func_80A34A44(ObjEntotu* this, PlayState* play) {
     CLOSE_DISPS(play->state.gfxCtx);
 }
 
+static Vtx* ovl_Obj_Entotu_Vtx_000D10Data;
+
 void func_80A34B28(ObjEntotu* this, PlayState* play) {
     u8 sp57;
     u8 sp56;
@@ -124,8 +127,8 @@ void func_80A34B28(ObjEntotu* this, PlayState* play) {
 
     this->unk_1B8.x = CLAMP(this->unk_1B8.x, 0.0f, 1.0f);
 
-    for (i = 0; i < ARRAY_COUNT(ovl_Obj_Entotu_Vtx_000D10); i++) {
-        this->unk_148[i].v.cn[3] = ovl_Obj_Entotu_Vtx_000D10[i].v.cn[3] * this->unk_1B8.x;
+    for (i = 0; i < ARRAY_COUNT(this->unk_148); i++) {
+        this->unk_148[i].v.cn[3] = ovl_Obj_Entotu_Vtx_000D10Data[i].v.cn[3] * this->unk_1B8.x;
     }
 
     if (this->unk_1B8.x > 0.0f) {
@@ -151,7 +154,10 @@ void func_80A34B28(ObjEntotu* this, PlayState* play) {
 void ObjEntotu_Init(Actor* thisx, PlayState* play) {
     ObjEntotu* this = THIS;
 
-    Lib_MemCpy(this->unk_148, ovl_Obj_Entotu_Vtx_000D10, sizeof(ovl_Obj_Entotu_Vtx_000D10));
+    ovl_Obj_Entotu_Vtx_000D10Data = ResourceMgr_LoadVtxArrayByName(ovl_Obj_Entotu_Vtx_000D10);
+
+    Lib_MemCpy(this->unk_148, ovl_Obj_Entotu_Vtx_000D10Data,
+               ResourceMgr_GetArraySizeByName(ovl_Obj_Entotu_Vtx_000D10) * sizeof(Vtx));
     this->unk_1C6 = Rand_S16Offset(0, 59);
     this->unk_1C4 = 0;
 }

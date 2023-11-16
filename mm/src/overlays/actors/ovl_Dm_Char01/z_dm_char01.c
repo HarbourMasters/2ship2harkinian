@@ -8,6 +8,7 @@
 #include "z_dm_char01.h"
 #include "objects/object_mtoride/object_mtoride.h"
 #include "overlays/actors/ovl_Obj_Etcetera/z_obj_etcetera.h"
+#include "BenPort.h"
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_20 | ACTOR_FLAG_2000000)
 
@@ -34,18 +35,18 @@ s16 D_80AAAE22;
 s16 D_80AAAE24;
 s16 D_80AAAE26;
 
-#include "overlays/ovl_Dm_Char01/ovl_Dm_Char01.c"
+#include "overlays/ovl_Dm_Char01/ovl_Dm_Char01.h"
 
 ActorInit Dm_Char01_InitVars = {
-    /**/ ACTOR_DM_CHAR01,
-    /**/ ACTORCAT_ITEMACTION,
-    /**/ FLAGS,
-    /**/ OBJECT_MTORIDE,
-    /**/ sizeof(DmChar01),
-    /**/ DmChar01_Init,
-    /**/ DmChar01_Destroy,
-    /**/ DmChar01_Update,
-    /**/ DmChar01_Draw,
+    ACTOR_DM_CHAR01,
+    ACTORCAT_ITEMACTION,
+    FLAGS,
+    OBJECT_MTORIDE,
+    sizeof(DmChar01),
+    (ActorFunc)DmChar01_Init,
+    (ActorFunc)DmChar01_Destroy,
+    (ActorFunc)DmChar01_Update,
+    (ActorFunc)DmChar01_Draw,
 };
 
 static InitChainEntry sInitChain[] = {
@@ -53,10 +54,12 @@ static InitChainEntry sInitChain[] = {
 };
 
 s16 D_80AAAAB4 = false;
+Vtx* gWoodfallSceneryDynamicPoisonWaterVtxData;
 
 void DmChar01_Init(Actor* thisx, PlayState* play) {
     DmChar01* this = THIS;
     s32 i;
+    gWoodfallSceneryDynamicPoisonWaterVtxData = ResourceMgr_LoadVtxByName(gWoodfallSceneryDynamicPoisonWaterVtx);
 
     Actor_ProcessInitChain(&this->dyna.actor, sInitChain);
     Actor_SetScale(&this->dyna.actor, 1.0f);
@@ -81,7 +84,7 @@ void DmChar01_Init(Actor* thisx, PlayState* play) {
             this->unk_348 = 255.0f;
 
             for (i = 0; i < ARRAY_COUNT(this->unk_1AC); i++) {
-                this->unk_1AC[i] = gWoodfallSceneryDynamicPoisonWaterVtx[i].v.ob[1] * 409.6f;
+                this->unk_1AC[i] = gWoodfallSceneryDynamicPoisonWaterVtxData[i].v.ob[1] * 409.6f;
             }
 
             DynaPolyActor_Init(&this->dyna, 0);
@@ -254,9 +257,9 @@ void func_80AA892C(DmChar01* this, PlayState* play) {
         this->unk_34C = 0;
     }
 
-    for (i = 0; i < ARRAY_COUNT(gWoodfallSceneryDynamicPoisonWaterVtx); i++) {
-        s32 temp_s2 = sqrtf(SQ((f32)gWoodfallSceneryDynamicPoisonWaterVtx[i].v.ob[2]) +
-                            SQ((f32)gWoodfallSceneryDynamicPoisonWaterVtx[i].v.ob[0]));
+    for (i = 0; i < ARRAY_COUNT(gWoodfallSceneryDynamicPoisonWaterVtxData); i++) {
+        s32 temp_s2 = sqrtf(SQ((f32)gWoodfallSceneryDynamicPoisonWaterVtxData[i].v.ob[2]) +
+                            SQ((f32)gWoodfallSceneryDynamicPoisonWaterVtxData[i].v.ob[0]));
         f32 cos = Math_CosS((temp_s2 / 1892.0f) * 0x4000);
         f32 temp_f20 = (1.0f - (ABS_ALT(temp_s2 - D_80AAAE22) / 1892.0f)) * D_80AAAE20 * cos;
 
@@ -268,7 +271,7 @@ void func_80AA892C(DmChar01* this, PlayState* play) {
         temp_f20 += temp_f18;
 
         this->unk_1AC[i] += 1600;
-        gWoodfallSceneryDynamicPoisonWaterVtx[i].v.ob[1] = temp_f20;
+        gWoodfallSceneryDynamicPoisonWaterVtxData[i].v.ob[1] = temp_f20;
     }
 }
 
@@ -300,9 +303,9 @@ void func_80AA8C28(DmChar01* this, PlayState* play) {
             break;
     }
 
-    for (i = 0; i < ARRAY_COUNT(gWoodfallSceneryDynamicPoisonWaterVtx); i++) {
-        s32 temp_s2 = sqrtf(SQ((f32)gWoodfallSceneryDynamicPoisonWaterVtx[i].v.ob[2]) +
-                            SQ((f32)gWoodfallSceneryDynamicPoisonWaterVtx[i].v.ob[0]));
+    for (i = 0; i < ARRAY_COUNT(gWoodfallSceneryDynamicPoisonWaterVtxData); i++) {
+        s32 temp_s2 = sqrtf(SQ((f32)gWoodfallSceneryDynamicPoisonWaterVtxData[i].v.ob[2]) +
+                            SQ((f32)gWoodfallSceneryDynamicPoisonWaterVtxData[i].v.ob[0]));
         f32 cos = Math_CosS((temp_s2 / 1892.0f) * 0x4000);
         f32 temp_f20 = (1.0f - (ABS_ALT(temp_s2 - D_80AAAE22) / 1892.0f)) * D_80AAAE20 * cos;
 
@@ -314,7 +317,7 @@ void func_80AA8C28(DmChar01* this, PlayState* play) {
         temp_f20 += temp_f18;
 
         this->unk_1AC[i] += 1600;
-        gWoodfallSceneryDynamicPoisonWaterVtx[i].v.ob[1] = temp_f20;
+        gWoodfallSceneryDynamicPoisonWaterVtxData[i].v.ob[1] = temp_f20;
     }
 
     Math_SmoothStepToF(&this->unk_348, 0.0f, 0.02f, 0.6f, 0.4f);
@@ -431,7 +434,7 @@ void DmChar01_Draw(Actor* thisx, PlayState* play) {
                         gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
                         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0x96, 255, 255, 255, 255);
                         gSPSegment(POLY_OPA_DISP++, 0x0B,
-                                   Lib_SegmentedToVirtual(gWoodfallSceneryDynamicPoisonWaterVtx));
+                                   Lib_SegmentedToVirtual(gWoodfallSceneryDynamicPoisonWaterVtxData));
                         gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx),
                                   G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                         gSPDisplayList(POLY_OPA_DISP++, gWoodfallSceneryDynamicPoisonWaterDL);
@@ -443,7 +446,7 @@ void DmChar01_Draw(Actor* thisx, PlayState* play) {
                         gDPSetEnvColor(POLY_XLU_DISP++, 0, 0, 0, (u8)this->unk_348);
                         gDPSetPrimColor(POLY_XLU_DISP++, 0, 0x96, 255, 255, 255, (u8)this->unk_348);
                         gSPSegment(POLY_XLU_DISP++, 0x0B,
-                                   Lib_SegmentedToVirtual(gWoodfallSceneryDynamicPoisonWaterVtx));
+                                   Lib_SegmentedToVirtual(gWoodfallSceneryDynamicPoisonWaterVtxData));
                         gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx),
                                   G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                         gSPDisplayList(POLY_XLU_DISP++, gWoodfallSceneryDynamicPoisonWaterDL);

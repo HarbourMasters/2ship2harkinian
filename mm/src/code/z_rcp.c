@@ -1,6 +1,7 @@
 #include "global.h"
 #include "sys_cfb.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
+#include <libultraship/libultraship.h>
 
 Gfx gSetupDLs[SETUPDL_MAX][6] = {
     {
@@ -840,7 +841,7 @@ Gfx sFillSetupDL[] = {
                          G_TD_CLAMP | G_TP_PERSP | G_CYC_FILL | G_PM_NPRIMITIVE,
                      G_AC_NONE | G_ZS_PIXEL | G_RM_NOOP | G_RM_NOOP2),
     gsSPLoadGeometryMode(G_ZBUFFER | G_SHADE | G_CULL_BACK | G_LIGHTING | G_SHADING_SMOOTH),
-    gsSPDisplayList(D_0E000000.setScissor),
+    gsSPDisplayList(0x0E0001C8 | 1),
     gsDPSetBlendColor(0x00, 0x00, 0x00, 0x08),
     gsSPClipRatio(FRUSTRATIO_2),
     gsSPEndDisplayList(),

@@ -1,6 +1,9 @@
 #ifndef Z64_H
 #define Z64_H
-
+#ifdef __cplusplus
+extern "C" {
+#define this thisx
+#endif
 #include "libc/math.h"
 #include "libc/stdarg.h"
 #include "libc/stdbool.h"
@@ -69,6 +72,8 @@
 #include "z64keyframe.h"
 #include "regs.h"
 
+#define AUDIO_HEAP_SIZE 0x1380000
+#define SYSTEM_HEAP_SIZE (1024 * 1024 * 32)
 
 typedef struct PauseContext {
     /* 0x000 */ View view;
@@ -292,4 +297,17 @@ typedef enum {
     /* 3 */ PICTO_PHOTO_STATE_READY
 } PictoPhotoState;
 
+#define ROM_FILE(name) \
+    { 0, 0, #name }
+
+#define ROM_FILE_EMPTY \
+    { 0, 0, "" }
+
+#define ROM_FILE_UNSET \
+    { 0 }
+
+#ifdef __cplusplus
+}
+#undef this
+#endif
 #endif

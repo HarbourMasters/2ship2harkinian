@@ -70,7 +70,7 @@ Vec3f D_80947B10[] = {
 
 static s32 sPad = 0;
 
-#include "overlays/ovl_En_Sda/ovl_En_Sda.c"
+#include "overlays/ovl_En_Sda/ovl_En_Sda.h"
 
 void EnSda_Init(Actor* thisx, PlayState* play) {
 }

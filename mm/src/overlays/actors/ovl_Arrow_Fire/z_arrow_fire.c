@@ -19,7 +19,7 @@ void ArrowFire_Draw(Actor* thisx, PlayState* play);
 void FireArrow_ChargeAndWait(ArrowFire* this, PlayState* play);
 void FireArrow_Fly(ArrowFire* this, PlayState* play);
 
-#include "overlays/ovl_Arrow_Fire/ovl_Arrow_Fire.c"
+#include "overlays/ovl_Arrow_Fire/ovl_Arrow_Fire.h"
 
 ActorInit Arrow_Fire_InitVars = {
     /**/ ACTOR_ARROW_FIRE,
@@ -265,7 +265,8 @@ void ArrowFire_Draw(Actor* thisx, PlayState* play) {
             gDPSetAlphaDither(POLY_XLU_DISP++, G_AD_DISABLE);
             gDPSetColorDither(POLY_XLU_DISP++, G_CD_DISABLE);
 
-            gSPDisplayList(POLY_XLU_DISP++, D_0E000000.fillRect);
+            __gSPDisplayList(POLY_XLU_DISP++,
+                             0x0E000000 + ((uintptr_t)&D_0E000000.fillRect - (uintptr_t)&D_0E000000) + 1);
         }
         Gfx_SetupDL25_Xlu(play->state.gfxCtx);
 

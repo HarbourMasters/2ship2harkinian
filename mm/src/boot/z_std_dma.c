@@ -165,11 +165,11 @@ void DmaMgr_ThreadEntry(void* a0) {
     while (1) {
         osRecvMesg(&sDmaMgrMsgQueue, &msg, OS_MESG_BLOCK);
 
-        if (msg == NULL) {
+        if (msg.ptr == NULL) {
             break;
         }
 
-        req = (DmaRequest*)msg;
+        req = (DmaRequest*)msg.ptr;
 
         DmaMgr_ProcessMsg(req);
         if (req->notifyQueue) {
@@ -191,7 +191,7 @@ s32 DmaMgr_SendRequestImpl(DmaRequest* request, void* vramStart, uintptr_t vromS
     request->notifyQueue = queue;
     request->notifyMsg = msg;
 
-    osSendMesg(&sDmaMgrMsgQueue, request, OS_MESG_BLOCK);
+    osSendMesg(&sDmaMgrMsgQueue, OS_MESG_PTR(request), OS_MESG_BLOCK);
 
     return 0;
 }
@@ -204,7 +204,7 @@ s32 DmaMgr_SendRequest0(void* vramStart, uintptr_t vromStart, size_t size) {
 
     osCreateMesgQueue(&queue, msg, ARRAY_COUNT(msg));
 
-    ret = DmaMgr_SendRequestImpl(&req, vramStart, vromStart, size, 0, &queue, NULL);
+    ret = DmaMgr_SendRequestImpl(&req, vramStart, vromStart, size, 0, &queue, OS_MESG_PTR(NULL));
 
     if (ret == -1) {
         return ret;
@@ -239,5 +239,5 @@ void DmaMgr_Start(void) {
 }
 
 void DmaMgr_Stop(void) {
-    osSendMesg(&sDmaMgrMsgQueue, NULL, OS_MESG_BLOCK);
+    osSendMesg(&sDmaMgrMsgQueue, OS_MESG_PTR(NULL), OS_MESG_BLOCK);
 }

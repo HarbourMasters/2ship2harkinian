@@ -718,7 +718,7 @@ s32 EnBomBowlMan_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, V
     return false;
 }
 
-#include "overlays/ovl_En_Bom_Bowl_Man/ovl_En_Bom_Bowl_Man.c"
+#include "overlays/ovl_En_Bom_Bowl_Man/ovl_En_Bom_Bowl_Man.h"
 
 TexturePtr D_809C6200[] = {
     gEnBomBowlMan_D_809C61E0, gEnBomBowlMan_D_809C61F0, gEnBomBowlMan_D_809C61F0,

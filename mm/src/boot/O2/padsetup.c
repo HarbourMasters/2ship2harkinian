@@ -19,7 +19,7 @@ s32 PadSetup_Init(OSMesgQueue* mq, u8* outMask, OSContStatus* status) {
         *outMask = 0;
 
         for (i = 0; i < MAXCONTROLLERS; i++) {
-            switch (status[i].errno) {
+            switch (status[i].err_no) {
                 case 0:
                     if (status[i].type == CONT_TYPE_NORMAL) {
                         *outMask |= 1 << i;

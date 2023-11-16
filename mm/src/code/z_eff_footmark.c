@@ -3,7 +3,7 @@
 #include "macros.h"
 #include "functions.h"
 
-#include "assets/code/eff_footmark/eff_footmark.c"
+#include "assets/code/eff_footmark/eff_footmark.h"
 
 void EffFootmark_Init(PlayState* play) {
     EffFootmark* footmark;

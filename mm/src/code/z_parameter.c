@@ -918,8 +918,9 @@ void Interface_NewDay(PlayState* play, s32 day) {
     }
 
     // Loads day number from week_static for the three-day clock
-    DmaMgr_SendRequest0((void*)(play->interfaceCtx.doActionSegment + 0x780),
-                        SEGMENT_ROM_START_OFFSET(week_static, i * 0x510), 0x510);
+    // BENTODO
+    //DmaMgr_SendRequest0((void*)(play->interfaceCtx.doActionSegment + 0x780),
+    //                    SEGMENT_ROM_START_OFFSET(week_static, i * 0x510), 0x510);
 
     // i is used to store sceneId
     for (i = 0; i < ARRAY_COUNT(gSaveContext.save.saveInfo.permanentSceneFlags); i++) {
@@ -3311,9 +3312,10 @@ void Interface_SetBButtonDoAction(PlayState* play, s16 bButtonDoAction) {
             interfaceCtx->bButtonDoAction = bButtonDoAction;
             if (interfaceCtx->bButtonDoAction != DO_ACTION_NONE) {
                 osCreateMesgQueue(&interfaceCtx->loadQueue, &interfaceCtx->loadMsg, 1);
-                DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest, interfaceCtx->doActionSegment + 0x600,
-                                       (bButtonDoAction * 0x180) + SEGMENT_ROM_START(do_action_static), 0x180, 0,
-                                       &interfaceCtx->loadQueue, NULL);
+                // BENTODO
+                //DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest, interfaceCtx->doActionSegment + 0x600,
+                //                       (bButtonDoAction * 0x180) + SEGMENT_ROM_START(do_action_static), 0x180, 0,
+                 //                      &interfaceCtx->loadQueue, NULL);
                 osRecvMesg(&interfaceCtx->loadQueue, NULL, OS_MESG_BLOCK);
             }
 
@@ -3352,9 +3354,10 @@ void Interface_LoadBButtonDoActionLabel(PlayState* play, s16 bButtonDoAction) {
     interfaceCtx->unk_224 = bButtonDoAction;
 
     osCreateMesgQueue(&play->interfaceCtx.loadQueue, &play->interfaceCtx.loadMsg, 1);
-    DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest, interfaceCtx->doActionSegment + 0x480,
-                           (bButtonDoAction * 0x180) + SEGMENT_ROM_START(do_action_static), 0x180, 0,
-                           &interfaceCtx->loadQueue, NULL);
+    // BENTODO
+    //DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest, interfaceCtx->doActionSegment + 0x480,
+    //                       (bButtonDoAction * 0x180) + SEGMENT_ROM_START(do_action_static), 0x180, 0,
+    //                       &interfaceCtx->loadQueue, NULL);
     osRecvMesg(&interfaceCtx->loadQueue, NULL, OS_MESG_BLOCK);
 
     interfaceCtx->unk_222 = 1;
@@ -7221,9 +7224,10 @@ void Interface_Init(PlayState* play) {
     DmaMgr_SendRequest0(interfaceCtx->parameterSegment, SEGMENT_ROM_START(parameter_static), parameterStaticSize);
 
     interfaceCtx->doActionSegment = THA_AllocTailAlign16(&play->state.tha, 0xC90);
-    DmaMgr_SendRequest0(interfaceCtx->doActionSegment, SEGMENT_ROM_START(do_action_static), 0x300);
-    DmaMgr_SendRequest0(interfaceCtx->doActionSegment + 0x300, SEGMENT_ROM_START_OFFSET(do_action_static, 0x480),
-                        0x180);
+    // BENTODO
+    //DmaMgr_SendRequest0(interfaceCtx->doActionSegment, SEGMENT_ROM_START(do_action_static), 0x300);
+    //DmaMgr_SendRequest0(interfaceCtx->doActionSegment + 0x300, SEGMENT_ROM_START_OFFSET(do_action_static, 0x480),
+    //                    0x180);
 
     Interface_NewDay(play, CURRENT_DAY);
 

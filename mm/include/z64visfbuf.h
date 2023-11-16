@@ -1,6 +1,11 @@
 #ifndef Z64_VISFBUF_H
 #define Z64_VISFBUF_H
 
+#ifdef __cplusplus
+extern "C" {
+#define this thisx
+#endif
+
 #include "ultra64.h"
 #include "color.h"
 #include "PR/gs2dex.h"
@@ -27,12 +32,19 @@ typedef struct VisFbuf {
 void VisFbuf_Init(VisFbuf* this);
 void VisFbuf_Destroy(VisFbuf* this);
 void VisFbuf_DrawBgToColorImage(Gfx** gfxP, uObjBg* bg, void* img, s32 width, s32 height, VisFbufBgMode cycleMode);
-void VisFbuf_SetBg(Gfx** gfxP, void* source, void* img, s32 width, s32 height, f32 x, f32 y, f32 scaleX, f32 scaleY, VisFbufBgMode cycleMode);
+void VisFbuf_SetBg(Gfx** gfxP, void* source, void* img, s32 width, s32 height, f32 x, f32 y, f32 scaleX, f32 scaleY,
+                   VisFbufBgMode cycleMode);
 void VisFbuf_SetBgSimple(Gfx** gfxP, void* source, void* img, s32 width, s32 height, VisFbufBgMode cycleMode);
-void VisFbuf_SetBgGeneral(Gfx** gfxP, void* source, void* img, s32 width, s32 height, f32 x, f32 y, f32 scaleX, f32 scaleY, VisFbufBgMode cycleMode);
+void VisFbuf_SetBgGeneral(Gfx** gfxP, void* source, void* img, s32 width, s32 height, f32 x, f32 y, f32 scaleX,
+                          f32 scaleY, VisFbufBgMode cycleMode);
 void VisFbuf_ApplyEffects(VisFbuf* this, Gfx** gfxP, void* source, void* img, s32 width, s32 height);
 void VisFbuf_DrawGeneral(VisFbuf* this, Gfx** gfxP, void* source, void* img, s32 width, s32 height);
 void VisFbuf_DrawInterpolate(VisFbuf* this, Gfx** gfxP, void* img, s32 width, s32 height);
 void VisFbuf_Draw(VisFbuf* this, Gfx** gfxP, void* img);
+
+#ifdef __cplusplus
+}
+#undef this
+#endif
 
 #endif

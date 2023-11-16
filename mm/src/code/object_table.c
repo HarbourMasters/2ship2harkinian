@@ -11,9 +11,13 @@ s16 gPlayerFormObjectIds[PLAYER_FORM_MAX] = {
 ObjectId gObjectTableSize = OBJECT_ID_MAX;
 
 // Object Table definition
-#define DEFINE_OBJECT(name, _enumValue) { SEGMENT_ROM_START(name), SEGMENT_ROM_END(name) },
-#define DEFINE_OBJECT_UNSET(_enumValue) { 0, 0 },
-#define DEFINE_OBJECT_SIZE_ZERO(name, _enumValue) { SEGMENT_ROM_START(name), SEGMENT_ROM_START(name) },
+#define DEFINE_OBJECT(name, _1) { 0, 0, #name},
+#define DEFINE_OBJECT_NULL(name, _1) ROM_FILE(name),
+#define DEFINE_OBJECT_UNSET(_0) { 0, 0, "" },
+#define DEFINE_OBJECT_SIZE_ZERO DEFINE_OBJECT_UNSET
+//#define DEFINE_OBJECT(name, _enumValue) { SEGMENT_ROM_START(name), SEGMENT_ROM_END(name) },
+//#define DEFINE_OBJECT_UNSET(_enumValue) { 0, 0 },
+//#define DEFINE_OBJECT_SIZE_ZERO(name, _enumValue) { SEGMENT_ROM_START(name), SEGMENT_ROM_START(name) },
 
 RomFile gObjectTable[] = {
 #include "tables/object_table.h"

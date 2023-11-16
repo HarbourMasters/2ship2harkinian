@@ -5,6 +5,7 @@
  */
 
 #include "z_oceff_wipe5.h"
+#include "BenPort.h"
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_2000000)
 
@@ -16,15 +17,15 @@ void OceffWipe5_Update(Actor* thisx, PlayState* play);
 void OceffWipe5_Draw(Actor* thisx, PlayState* play);
 
 ActorInit Oceff_Wipe5_InitVars = {
-    /**/ ACTOR_OCEFF_WIPE5,
-    /**/ ACTORCAT_ITEMACTION,
-    /**/ FLAGS,
-    /**/ GAMEPLAY_KEEP,
-    /**/ sizeof(OceffWipe5),
-    /**/ OceffWipe5_Init,
-    /**/ OceffWipe5_Destroy,
-    /**/ OceffWipe5_Update,
-    /**/ OceffWipe5_Draw,
+    ACTOR_OCEFF_WIPE5,
+    ACTORCAT_ITEMACTION,
+    FLAGS,
+    GAMEPLAY_KEEP,
+    sizeof(OceffWipe5),
+    (ActorFunc)OceffWipe5_Init,
+    (ActorFunc)OceffWipe5_Destroy,
+    (ActorFunc)OceffWipe5_Update,
+    (ActorFunc)OceffWipe5_Draw,
 };
 
 UNK_TYPE4 D_80BC9260;
@@ -37,8 +38,11 @@ void OceffWipe5_Init(Actor* thisx, PlayState* play) {
     this->actor.world.pos = play->cameraPtrs[play->activeCamId]->eye;
 }
 
+static Vtx* gOceff5VtxData;
+
 void OceffWipe5_Destroy(Actor* thisx, PlayState* play) {
     OceffWipe5* this = THIS;
+    gOceff5VtxData = ResourceMgr_LoadArrayByName(gOceff5VtxData);
 
     Magic_Reset(play);
     play->msgCtx.ocarinaSongEffectActive = false;
@@ -55,7 +59,7 @@ void OceffWipe5_Update(Actor* thisx, PlayState* play) {
     }
 }
 
-#include "assets/overlays/ovl_Oceff_Wipe5/ovl_Oceff_Wipe5.c"
+#include "assets/overlays/ovl_Oceff_Wipe5/ovl_Oceff_Wipe5.h"
 
 static u8 sPrimColors[] = {
     255, 255, 200, 255, 255, 200, 200, 255, 255, 255, 255, 200, 255, 200, 255,
@@ -88,7 +92,7 @@ void OceffWipe5_Draw(Actor* thisx, PlayState* play) {
         colorIndex = 0;
     }
 
-    quakeOffset = Camera_GetQuakeOffset(activeCam);
+    Camera_GetQuakeOffset(&quakeOffset, activeCam);
 
     if (this->counter < 32) {
         z = Math_SinS(this->counter << 9) * phi_fv1;
@@ -101,8 +105,9 @@ void OceffWipe5_Draw(Actor* thisx, PlayState* play) {
     } else {
         alpha = 255;
     }
-    for (i = 1; i < ARRAY_COUNT(gOceff5Vtx); i += 2) {
-        gOceff5Vtx[i].v.cn[3] = alpha;
+    
+    for (i = 1; i < ResourceMgr_GetArraySizeByName(gOceff5Vtx); i += 2) {
+        gOceff5VtxData[i].v.cn[3] = alpha;
     }
 
     OPEN_DISPS(play->state.gfxCtx);

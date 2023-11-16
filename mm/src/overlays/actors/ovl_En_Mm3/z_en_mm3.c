@@ -74,7 +74,7 @@ static AnimationInfo sAnimationInfo[] = {
     { &object_mm_Anim_00DA50, 1.0f, 0.0f, 10.0f, ANIMMODE_ONCE, -10.0f },
 };
 
-#include "overlays/ovl_En_Mm3/ovl_En_Mm3.c"
+#include "overlays/ovl_En_Mm3/ovl_En_Mm3.h"
 
 Vec3f D_80A704F0 = { 0.0f, 0.0f, 0.0f };
 

@@ -57,7 +57,7 @@ void SysCfb_SetLoResMode(void) {
     gSysCfbHiResEnabled = false;
     gScreenWidth = gCfbWidth;
     gScreenHeight = gCfbHeight;
-    gActiveViMode = &osViModeNtscLan1;
+    //gActiveViMode = &osViModeNtscLan1;
 }
 
 void SysCfb_SetHiResMode(void) {
@@ -75,7 +75,7 @@ void SysCfb_SetHiResMode(void) {
     gScreenWidth = gCfbWidth;
     gScreenHeight = gCfbHeight;
     if ((gCfbWidth == SCREEN_WIDTH_HIRES) && (gCfbHeight == SCREEN_HEIGHT_HIRES)) {
-        gActiveViMode = &osViModeNtscHpf1;
+        //gActiveViMode = &osViModeNtscHpf1;
     } else {
         s32 rightAdjust;
         s32 lowerAdjust;

@@ -28,7 +28,7 @@ extern "C" void OTRPlay_InitScene(PlayState* play, s32 spawn) {
     play->numSetupActors = 0;
     Object_InitContext(&play->state, &play->objectCtx);
     LightContext_Init(play, &play->lightCtx);
-    Scene_ResetTransiActorList(&play->state, &play->transitionActors);
+    Scene_ResetTransitionActorList(&play->state, &play->transitionActors);
     Room_Init(play, &play->roomCtx);
     gSaveContext.worldMapArea = 0;
     OTRScene_ExecuteCommands(play, (LUS::Scene*)play->sceneSegment);
@@ -46,7 +46,7 @@ extern "C" void OTRPlay_SpawnScene(PlayState* play, s32 sceneId, s32 spawn) {
     std::string scenePath = StringHelper::Sprintf("scenes/nonmq/%s/%s", scene->segment.fileName, scene->segment.fileName);
     play->sceneSegment = OTRPlay_LoadFile(play, scenePath.c_str());
     scene->unk_D = 0;
-    gSegments[2] = (uintptr_t)VIRTUAL_TO_PHYSICAL(play->sceneSegment);
+    gSegments[2] = (uintptr_t)play->sceneSegment;
     OTRPlay_InitScene(play, spawn);
     Room_AllocateAndLoad(play, &play->roomCtx);
 }
@@ -57,7 +57,7 @@ extern "C" s32 OTRfunc_800973FC(PlayState* play, RoomContext* roomCtx) {
         if (1) {
             roomCtx->status = 0;
             roomCtx->curRoom.segment = roomCtx->activeRoomVram;
-            gSegments[3] = (uintptr_t)VIRTUAL_TO_PHYSICAL(roomCtx->activeRoomVram);
+            gSegments[3] = (uintptr_t)roomCtx->activeRoomVram;
 
             OTRScene_ExecuteCommands(play, (LUS::Scene*)roomCtx->curRoom.segment);
             func_80123140(play, GET_PLAYER(play));

@@ -20,7 +20,12 @@ typedef struct {
 } LightningBolt; // size = 0x20
 
 // Variables are put before most headers as a hacky way to bypass bss reordering
-struct LightningStrike;
+#include "z64environment.h"
+#include "global.h"
+#include "sys_cfb.h"
+#include "objects/gameplay_keep/gameplay_keep.h"
+#include "objects/gameplay_field_keep/gameplay_field_keep.h"
+#include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 
 u8 D_801F4E30;
 u8 D_801F4E31;
@@ -58,13 +63,6 @@ u8 sEnvIsTimeStopped;
 u8 D_801F4F33;
 u8 sGameOverLightsIntensity;
 Gfx* sSkyboxStarsDList;
-
-#include "z64environment.h"
-#include "global.h"
-#include "sys_cfb.h"
-#include "objects/gameplay_keep/gameplay_keep.h"
-#include "objects/gameplay_field_keep/gameplay_field_keep.h"
-#include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 
 // Data
 f32 sSandstormLerpScale = 0.0f;

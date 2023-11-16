@@ -5,6 +5,7 @@
  */
 
 #include "z_oceff_wipe7.h"
+#include "BenPort.h"
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_2000000)
 
@@ -16,23 +17,26 @@ void OceffWipe7_Update(Actor* thisx, PlayState* play);
 void OceffWipe7_Draw(Actor* thisx, PlayState* play);
 
 ActorInit Oceff_Wipe7_InitVars = {
-    /**/ ACTOR_OCEFF_WIPE7,
-    /**/ ACTORCAT_ITEMACTION,
-    /**/ FLAGS,
-    /**/ GAMEPLAY_KEEP,
-    /**/ sizeof(OceffWipe7),
-    /**/ OceffWipe7_Init,
-    /**/ OceffWipe7_Destroy,
-    /**/ OceffWipe7_Update,
-    /**/ OceffWipe7_Draw,
+    ACTOR_OCEFF_WIPE7,
+    ACTORCAT_ITEMACTION,
+    FLAGS,
+    GAMEPLAY_KEEP,
+    sizeof(OceffWipe7),
+    (ActorFunc)OceffWipe7_Init,
+    (ActorFunc)OceffWipe7_Destroy,
+    (ActorFunc)OceffWipe7_Update,
+    (ActorFunc)OceffWipe7_Draw,
 };
 
-#include "assets/overlays/ovl_Oceff_Wipe7/ovl_Oceff_Wipe7.c"
+#include "assets/overlays/ovl_Oceff_Wipe7/ovl_Oceff_Wipe7.h"
 
 s32 D_80BCEB10;
 
+static Vtx* sSongofHealingEffectFrustrumVtxData;
+
 void OceffWipe7_Init(Actor* thisx, PlayState* play) {
     OceffWipe7* this = THIS;
+    sSongofHealingEffectFrustrumVtxData = ResourceMgr_LoadVtxByName(sSongofHealingEffectFrustrumVtx);
 
     Actor_SetScale(&this->actor, 1.0f);
     this->counter = 0;
@@ -65,8 +69,10 @@ void OceffWipe7_Draw(Actor* thisx, PlayState* play) {
     s32 counter;
     Vec3f activeCamEye = GET_ACTIVE_CAM(play)->eye;
     s32 pad;
-    Vec3f quakeOffset = Camera_GetQuakeOffset(GET_ACTIVE_CAM(play));
+    Vec3f quakeOffset;
     s32 pad2;
+
+    Camera_GetQuakeOffset(&quakeOffset, GET_ACTIVE_CAM(play));
 
     if (this->counter < 32) {
         z = Math_SinS(this->counter * 0x200) * 1220.0f;
@@ -80,8 +86,8 @@ void OceffWipe7_Draw(Actor* thisx, PlayState* play) {
         alpha = 255;
     }
 
-    for (i = 1; i < ARRAY_COUNT(sSongofHealingEffectFrustrumVtx); i += 2) {
-        sSongofHealingEffectFrustrumVtx[i].v.cn[3] = alpha;
+    for (i = 1; i < ResourceMgr_GetArraySizeByName(sSongofHealingEffectFrustrumVtx); i += 2) {
+        sSongofHealingEffectFrustrumVtxData[i].v.cn[3] = alpha;
     }
 
     OPEN_DISPS(play->state.gfxCtx);

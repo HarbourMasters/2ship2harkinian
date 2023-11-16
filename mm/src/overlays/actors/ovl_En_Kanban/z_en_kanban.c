@@ -905,7 +905,7 @@ static Gfx* sDisplayLists[] = {
     gSignPostUpperModelDL,      gSignPostLowerModelDL,     gSignPostStandModelDL,
 };
 
-#include "z_en_kanban_gfx.c"
+#include "z_en_kanban_gfx.inc"
 
 static f32 sCutAngles[] = {
     /* CUT_POST   */ 0.50f * M_PI,
@@ -918,7 +918,7 @@ static f32 sCutAngles[] = {
     /*            */ 0.00f * M_PI,
 };
 
-#include "overlays/ovl_En_Kanban/ovl_En_Kanban.c"
+#include "overlays/ovl_En_Kanban/ovl_En_Kanban.h"
 
 void EnKanban_Draw(Actor* thisx, PlayState* play) {
     EnKanban* this = THIS;

@@ -4,7 +4,9 @@
 #include "ultratypes.h"
 #include "os_message.h"
 
+#include <libultraship/libultra/time.h>
 
+#if 0
 typedef u64 OSTime;
 
 typedef struct OSTimer_s {
@@ -18,8 +20,8 @@ typedef struct OSTimer_s {
 
 OSTime osGetTime(void);
 void osSetTime(OSTime ticks);
-s32 osSetTimer(OSTimer* t, OSTime countdown, OSTime interval, OSMesgQueue* mq, OSMesg msg);
+s32 osSetTimer(OSTimer* t, OSTime value, OSTime interval, OSMesgQueue* mq, OSMesg msg);
 s32 osStopTimer(OSTimer* t);
 
-
+#endif
 #endif

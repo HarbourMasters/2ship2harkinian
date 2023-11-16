@@ -1,6 +1,7 @@
 #ifndef PR_CONTROLLER_H
 #define PR_CONTROLLER_H
-
+#include <libultraship/libultra/controller.h>
+#if 0
 #include "ultratypes.h"
 #include "os_cont.h"
 #include "os_pfs.h"
@@ -12,7 +13,7 @@
 #define BLOCKSIZE 32
 #define PFS_ONE_PAGE 8
 
-#define PFS_PAGE_SIZE (BLOCKSIZE*PFS_ONE_PAGE)
+#define PFS_PAGE_SIZE (BLOCKSIZE * PFS_ONE_PAGE)
 
 #define CONT_CMD_REQUEST_STATUS 0
 #define CONT_CMD_READ_BUTTON 1
@@ -38,57 +39,57 @@
 #define CONT_CMD_WRITE_EEPROM_RX 1
 #define CONT_CMD_RESET_RX 3
 
-#define CONT_ERR_NO_CONTROLLER      PFS_ERR_NOPACK      /* 1 */
-#define CONT_ERR_CONTRFAIL          CONT_OVERRUN_ERROR  /* 4 */
-#define CONT_ERR_INVALID            PFS_ERR_INVALID     /* 5 */
-#define CONT_ERR_DEVICE             PFS_ERR_DEVICE      /* 11 */
-#define CONT_ERR_NOT_READY          12
-#define CONT_ERR_VOICE_MEMORY       13
-#define CONT_ERR_VOICE_WORD         14
-#define CONT_ERR_VOICE_NO_RESPONSE  15
+#define CONT_ERR_NO_CONTROLLER PFS_ERR_NOPACK /* 1 */
+#define CONT_ERR_CONTRFAIL CONT_OVERRUN_ERROR /* 4 */
+#define CONT_ERR_INVALID PFS_ERR_INVALID      /* 5 */
+#define CONT_ERR_DEVICE PFS_ERR_DEVICE        /* 11 */
+#define CONT_ERR_NOT_READY 12
+#define CONT_ERR_VOICE_MEMORY 13
+#define CONT_ERR_VOICE_WORD 14
+#define CONT_ERR_VOICE_NO_RESPONSE 15
 
 // Joybus commands
 #define CONT_CMD_REQUEST_STATUS 0
-#define CONT_CMD_READ_BUTTON    1
-#define CONT_CMD_READ_PAK       2
-#define CONT_CMD_WRITE_PAK      3
-#define CONT_CMD_READ_EEPROM    4
-#define CONT_CMD_WRITE_EEPROM   5
-#define CONT_CMD_READ36_VOICE   9
-#define CONT_CMD_WRITE20_VOICE  10
-#define CONT_CMD_READ2_VOICE    11
-#define CONT_CMD_WRITE4_VOICE   12
-#define CONT_CMD_SWRITE_VOICE   13
-#define CONT_CMD_CHANNEL_RESET  0xFD
-#define CONT_CMD_RESET          0xFF
+#define CONT_CMD_READ_BUTTON 1
+#define CONT_CMD_READ_PAK 2
+#define CONT_CMD_WRITE_PAK 3
+#define CONT_CMD_READ_EEPROM 4
+#define CONT_CMD_WRITE_EEPROM 5
+#define CONT_CMD_READ36_VOICE 9
+#define CONT_CMD_WRITE20_VOICE 10
+#define CONT_CMD_READ2_VOICE 11
+#define CONT_CMD_WRITE4_VOICE 12
+#define CONT_CMD_SWRITE_VOICE 13
+#define CONT_CMD_CHANNEL_RESET 0xFD
+#define CONT_CMD_RESET 0xFF
 
 // Bytes transmitted for each joybus command
 #define CONT_CMD_REQUEST_STATUS_TX 1
-#define CONT_CMD_READ_BUTTON_TX    1
-#define CONT_CMD_READ_PAK_TX       3
-#define CONT_CMD_WRITE_PAK_TX      35
-#define CONT_CMD_READ_EEPROM_TX    2
-#define CONT_CMD_WRITE_EEPROM_TX   10
-#define CONT_CMD_READ36_VOICE_TX   3
-#define CONT_CMD_WRITE20_VOICE_TX  23
-#define CONT_CMD_READ2_VOICE_TX    3
-#define CONT_CMD_WRITE4_VOICE_TX   7
-#define CONT_CMD_SWRITE_VOICE_TX   3
-#define CONT_CMD_RESET_TX          1
+#define CONT_CMD_READ_BUTTON_TX 1
+#define CONT_CMD_READ_PAK_TX 3
+#define CONT_CMD_WRITE_PAK_TX 35
+#define CONT_CMD_READ_EEPROM_TX 2
+#define CONT_CMD_WRITE_EEPROM_TX 10
+#define CONT_CMD_READ36_VOICE_TX 3
+#define CONT_CMD_WRITE20_VOICE_TX 23
+#define CONT_CMD_READ2_VOICE_TX 3
+#define CONT_CMD_WRITE4_VOICE_TX 7
+#define CONT_CMD_SWRITE_VOICE_TX 3
+#define CONT_CMD_RESET_TX 1
 
 // Bytes received for each joybus command
 #define CONT_CMD_REQUEST_STATUS_RX 3
-#define CONT_CMD_READ_BUTTON_RX    4
-#define CONT_CMD_READ_PAK_RX       33
-#define CONT_CMD_WRITE_PAK_RX      1
-#define CONT_CMD_READ_EEPROM_RX    8
-#define CONT_CMD_WRITE_EEPROM_RX   1
-#define CONT_CMD_READ36_VOICE_RX   37
-#define CONT_CMD_WRITE20_VOICE_RX  1
-#define CONT_CMD_READ2_VOICE_RX    3
-#define CONT_CMD_WRITE4_VOICE_RX   1
-#define CONT_CMD_SWRITE_VOICE_RX   1
-#define CONT_CMD_RESET_RX          3
+#define CONT_CMD_READ_BUTTON_RX 4
+#define CONT_CMD_READ_PAK_RX 33
+#define CONT_CMD_WRITE_PAK_RX 1
+#define CONT_CMD_READ_EEPROM_RX 8
+#define CONT_CMD_WRITE_EEPROM_RX 1
+#define CONT_CMD_READ36_VOICE_RX 37
+#define CONT_CMD_WRITE20_VOICE_RX 1
+#define CONT_CMD_READ2_VOICE_RX 3
+#define CONT_CMD_WRITE4_VOICE_RX 1
+#define CONT_CMD_SWRITE_VOICE_RX 1
+#define CONT_CMD_RESET_RX 3
 
 #define CONT_CMD_NOP 0xFF
 #define CONT_CMD_END 0xFE // Indicates end of a command
@@ -106,23 +107,23 @@
 #define PFS_ERR_NOPACK 1
 
 // Accessory detection
-#define CONT_ADDR_DETECT    0x8000
+#define CONT_ADDR_DETECT 0x8000
 // Rumble
-#define CONT_ADDR_RUMBLE    0xC000
+#define CONT_ADDR_RUMBLE 0xC000
 // Controller Pak
 // Transfer Pak
-#define CONT_ADDR_GB_POWER  0x8000 // Same as the detection address, but semantically different
-#define CONT_ADDR_GB_BANK   0xA000
+#define CONT_ADDR_GB_POWER 0x8000 // Same as the detection address, but semantically different
+#define CONT_ADDR_GB_BANK 0xA000
 #define CONT_ADDR_GB_STATUS 0xB000
 
 // Addresses sent to controller accessories are in blocks, not bytes
 #define CONT_BLOCKS(x) ((x) / BLOCKSIZE)
 
 // Block addresses of the above
-#define CONT_BLOCK_DETECT    CONT_BLOCKS(CONT_ADDR_DETECT)
-#define CONT_BLOCK_RUMBLE    CONT_BLOCKS(CONT_ADDR_RUMBLE)
-#define CONT_BLOCK_GB_POWER  CONT_BLOCKS(CONT_ADDR_GB_POWER)
-#define CONT_BLOCK_GB_BANK   CONT_BLOCKS(CONT_ADDR_GB_BANK)
+#define CONT_BLOCK_DETECT CONT_BLOCKS(CONT_ADDR_DETECT)
+#define CONT_BLOCK_RUMBLE CONT_BLOCKS(CONT_ADDR_RUMBLE)
+#define CONT_BLOCK_GB_POWER CONT_BLOCKS(CONT_ADDR_GB_POWER)
+#define CONT_BLOCK_GB_BANK CONT_BLOCKS(CONT_ADDR_GB_BANK)
 #define CONT_BLOCK_GB_STATUS CONT_BLOCKS(CONT_ADDR_GB_STATUS)
 
 
@@ -142,6 +143,8 @@ typedef struct {
     /* 0x7 */ s8 stick_y;
 } __OSContReadFormat;
 
+
+// Original name: __OSContRequesFormat
 typedef struct {
     /* 0x00 */ u8 align;
     /* 0x01 */ u8 txsize;
@@ -151,7 +154,7 @@ typedef struct {
     /* 0x05 */ u8 typel;
     /* 0x06 */ u8 status;
     /* 0x07 */ u8 align1;
-} __OSContRequesFormat; // size = 0x8
+} __OSContRequestHeader; // size = 0x8
 
 typedef struct {
     /* 0x00 */ u8 txsize;
@@ -203,5 +206,5 @@ extern u8 __osMaxControllers;
 extern OSMesgQueue __osEepromTimerQ;
 extern OSMesg __osEepromTimerMsg[];
 extern OSPifRam __osPfsPifRam;
-
+#endif
 #endif

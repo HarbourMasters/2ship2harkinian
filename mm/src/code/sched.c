@@ -97,7 +97,7 @@ void Sched_HandleAudioCancel(SchedContext* sched) {
         }
 
     send_mesg:
-        osSendMesg(&sched->interruptQ, (OSMesg)RSP_DONE_MSG, OS_MESG_NOBLOCK);
+        osSendMesg(&sched->interruptQ, OS_MESG_32(RSP_DONE_MSG), OS_MESG_NOBLOCK);
         return;
     }
 
@@ -131,6 +131,7 @@ void Sched_HandleAudioCancel(SchedContext* sched) {
  * an RDP_DONE_MSG back to itself.
  */
 void Sched_HandleGfxCancel(SchedContext* sched) {
+    #if 0
     s32 i;
 
     // GRAPH SP Cancel
@@ -160,7 +161,7 @@ void Sched_HandleGfxCancel(SchedContext* sched) {
         }
 
     send_mesg:
-        osSendMesg(&sched->interruptQ, (OSMesg)RSP_DONE_MSG, OS_MESG_NOBLOCK);
+        osSendMesg(&sched->interruptQ, OS_MESG_PTR(RSP_DONE_MSG), OS_MESG_NOBLOCK);
         goto halt_rdp;
     }
 
@@ -192,6 +193,7 @@ halt_rdp:
             osSendMesg(&sched->interruptQ, (OSMesg)RDP_DONE_MSG, OS_MESG_NOBLOCK);
         }
     }
+    #endif
 }
 
 /**
@@ -348,8 +350,8 @@ void Sched_RunTask(SchedContext* sched, OSScTask* spTask, OSScTask* dpTask) {
 
         if (spTask->list.t.type == M_AUDTASK) {
             // Set global pointers to audio task data for use in audio processing
-            gAudioSPDataPtr = spTask->list.t.dataPtr;
-            gAudioSPDataSize = spTask->list.t.dataSize;
+            gAudioSPDataPtr = spTask->list.t.data_ptr;
+            gAudioSPDataSize = spTask->list.t.data_size;
         }
 
         // Begin task execution
@@ -366,6 +368,7 @@ void Sched_RunTask(SchedContext* sched, OSScTask* spTask, OSScTask* dpTask) {
  * Enqueues any tasks that have been sent to the scheduler down the command queue.
  */
 void Sched_HandleEntry(SchedContext* sched) {
+    #if 0
     OSScTask* spTask = NULL;
     OSScTask* dpTask = NULL;
     OSMesg msg = NULL;
@@ -385,6 +388,7 @@ void Sched_HandleEntry(SchedContext* sched) {
     if (Sched_Schedule(sched, &spTask, &dpTask, state) != state) {
         Sched_RunTask(sched, spTask, dpTask);
     }
+    #endif
 }
 
 void Sched_HandleRetrace(SchedContext* sched) {
@@ -505,7 +509,7 @@ void Sched_HandleRDPDone(SchedContext* sched) {
  * been sent down the command queue.
  */
 void Sched_SendEntryMsg(SchedContext* sched) {
-    osSendMesg(&sched->interruptQ, (OSMesg)ENTRY_MSG, OS_MESG_BLOCK);
+    osSendMesg(&sched->interruptQ, OS_MESG_32(ENTRY_MSG), OS_MESG_BLOCK);
 }
 
 /**
@@ -513,7 +517,7 @@ void Sched_SendEntryMsg(SchedContext* sched) {
  * to stop the last dispatched audio task.
  */
 void Sched_SendAudioCancelMsg(SchedContext* sched) {
-    osSendMesg(&sched->interruptQ, (OSMesg)RDP_AUDIO_CANCEL_MSG, OS_MESG_BLOCK);
+    osSendMesg(&sched->interruptQ, OS_MESG_32(RDP_AUDIO_CANCEL_MSG), OS_MESG_BLOCK);
 }
 
 /**
@@ -521,7 +525,7 @@ void Sched_SendAudioCancelMsg(SchedContext* sched) {
  * to stop the last dispatched gfx task.
  */
 void Sched_SendGfxCancelMsg(SchedContext* sched) {
-    osSendMesg(&sched->interruptQ, (OSMesg)RSP_GFX_CANCEL_MSG, OS_MESG_BLOCK);
+    osSendMesg(&sched->interruptQ, OS_MESG_32(RSP_GFX_CANCEL_MSG), OS_MESG_BLOCK);
 }
 
 /**
@@ -541,7 +545,7 @@ void Sched_FaultClient(void* param1, void* param2) {
     spTask = sched->curRSPTask;
     if (spTask != NULL) {
         FaultDrawer_Printf("RSPTask %08x %08x %02x %02x\n%01x %08x %08x\n", spTask, spTask->next, spTask->state,
-                           spTask->flags, spTask->list.t.type, spTask->list.t.dataPtr, spTask->list.t.dataSize);
+                           spTask->flags, spTask->list.t.type, spTask->list.t.data_ptr, spTask->list.t.data_size);
     }
 
     dpTask = sched->curRDPTask;
@@ -614,8 +618,8 @@ void Sched_Init(SchedContext* sched, void* stack, OSPri pri, u8 viModeType, UNK_
 
     osCreateMesgQueue(&sched->interruptQ, sched->intBuf, ARRAY_COUNT(sched->intBuf));
     osCreateMesgQueue(&sched->cmdQ, sched->cmdMsgBuf, ARRAY_COUNT(sched->cmdMsgBuf));
-    osSetEventMesg(OS_EVENT_SP, &sched->interruptQ, (OSMesg)RSP_DONE_MSG);
-    osSetEventMesg(OS_EVENT_DP, &sched->interruptQ, (OSMesg)RDP_DONE_MSG);
+    osSetEventMesg(OS_EVENT_SP, &sched->interruptQ, OS_MESG_32(RSP_DONE_MSG));
+    osSetEventMesg(OS_EVENT_DP, &sched->interruptQ, OS_MESG_32(RDP_DONE_MSG));
     IrqMgr_AddClient(irqMgr, &sched->irqClient, &sched->interruptQ);
     Fault_AddClient(&sSchedFaultClient, Sched_FaultClient, sched, NULL);
     osCreateThread(&sched->thread, Z_THREAD_ID_SCHED, Sched_ThreadEntry, sched, stack, pri);

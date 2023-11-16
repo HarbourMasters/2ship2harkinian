@@ -1,6 +1,7 @@
 #ifndef PR_ABI_H
 #define PR_ABI_H
-
+#include <libultraship/libultra/abi.h>
+#if 0
 /* Audio commands: */
 /*
 #define A_SPNOOP 0
@@ -21,30 +22,30 @@
 #define A_SETLOOP 15
 */
 
-#define A_SPNOOP                0
-#define A_ADPCM                 1
-#define A_CLEARBUFF             2
-#define A_UNK3                  3
-#define A_ADDMIXER              4
-#define A_RESAMPLE              5
-#define A_RESAMPLE_ZOH          6
-#define A_FILTER                7
-#define A_SETBUFF               8
-#define A_DUPLICATE             9
-#define A_DMEMMOVE              10
-#define A_LOADADPCM             11
-#define A_MIXER                 12
-#define A_INTERLEAVE            13
-#define A_HILOGAIN              14
-#define A_SETLOOP               15
-#define A_INTERL                17
-#define A_ENVSETUP1             18
-#define A_ENVMIXER              19
-#define A_LOADBUFF              20
-#define A_SAVEBUFF              21
-#define A_ENVSETUP2             22
-#define A_S8DEC                 23
-#define A_UNK19                 25
+#define A_SPNOOP 0
+#define A_ADPCM 1
+#define A_CLEARBUFF 2
+#define A_UNK3 3
+#define A_ADDMIXER 4
+#define A_RESAMPLE 5
+#define A_RESAMPLE_ZOH 6
+#define A_FILTER 7
+#define A_SETBUFF 8
+#define A_DUPLICATE 9
+#define A_DMEMMOVE 10
+#define A_LOADADPCM 11
+#define A_MIXER 12
+#define A_INTERLEAVE 13
+#define A_HILOGAIN 14
+#define A_SETLOOP 15
+#define A_INTERL 17
+#define A_ENVSETUP1 18
+#define A_ENVMIXER 19
+#define A_LOADBUFF 20
+#define A_SAVEBUFF 21
+#define A_ENVSETUP2 22
+#define A_S8DEC 23
+#define A_UNK19 25
 #define ACMD_SIZE 32
 
 /*
@@ -281,56 +282,53 @@ typedef short ENVMIX_STATE[40];
  * Macros to assemble the audio command list
  */
 
-#define aADPCMdec(pkt, f, s)                                            \
-{                                                                       \
-        Acmd *_a = (Acmd *)pkt;                                         \
-                                                                        \
-        _a->words.w0 = _SHIFTL(A_ADPCM, 24, 8) | _SHIFTL(f, 16, 8);     \
-        _a->words.w1 = (unsigned int)(s);                               \
-}
+#define aADPCMdec(pkt, f, s)                                        \
+    {                                                               \
+        Acmd* _a = (Acmd*)pkt;                                      \
+                                                                    \
+        _a->words.w0 = _SHIFTL(A_ADPCM, 24, 8) | _SHIFTL(f, 16, 8); \
+        _a->words.w1 = (unsigned int)(s);                           \
+    }
 
-#define aPoleFilter(pkt, f, g, s)                                       \
-{                                                                       \
-        Acmd *_a = (Acmd *)pkt;                                         \
-                                                                        \
-        _a->words.w0 = (_SHIFTL(A_POLEF, 24, 8) | _SHIFTL(f, 16, 8) |   \
-                        _SHIFTL(g, 0, 16));                             \
-        _a->words.w1 = (unsigned int)(s);                               \
-}
+#define aPoleFilter(pkt, f, g, s)                                                         \
+    {                                                                                     \
+        Acmd* _a = (Acmd*)pkt;                                                            \
+                                                                                          \
+        _a->words.w0 = (_SHIFTL(A_POLEF, 24, 8) | _SHIFTL(f, 16, 8) | _SHIFTL(g, 0, 16)); \
+        _a->words.w1 = (unsigned int)(s);                                                 \
+    }
 
-#define aHiLoGain(pkt, gain, count, dmem, a4)                           \
-{                                                                       \
-        Acmd *_a = (Acmd *)pkt;                                         \
-                                                                        \
-        _a->words.w0 = (_SHIFTL(A_HILOGAIN, 24, 8) |                    \
-                _SHIFTL(gain, 16, 8) | _SHIFTL(count, 0, 16));          \
-        _a->words.w1 = _SHIFTL(dmem, 16, 16) | _SHIFTL(a4, 0, 16);      \
-}
+#define aHiLoGain(pkt, gain, count, dmem, a4)                                                       \
+    {                                                                                               \
+        Acmd* _a = (Acmd*)pkt;                                                                      \
+                                                                                                    \
+        _a->words.w0 = (_SHIFTL(A_HILOGAIN, 24, 8) | _SHIFTL(gain, 16, 8) | _SHIFTL(count, 0, 16)); \
+        _a->words.w1 = _SHIFTL(dmem, 16, 16) | _SHIFTL(a4, 0, 16);                                  \
+    }
 
-#define aUnkCmd3(pkt, a1, a2, a3)                                       \
-{                                                                       \
-        Acmd *_a = (Acmd *)pkt;                                         \
-                                                                        \
-        _a->words.w0 = _SHIFTL(A_UNK3, 24, 8) | _SHIFTL(a3, 0, 16);     \
-        _a->words.w1 = _SHIFTL(a1, 16, 16) | _SHIFTL(a2, 0, 16);        \
-}
+#define aUnkCmd3(pkt, a1, a2, a3)                                   \
+    {                                                               \
+        Acmd* _a = (Acmd*)pkt;                                      \
+                                                                    \
+        _a->words.w0 = _SHIFTL(A_UNK3, 24, 8) | _SHIFTL(a3, 0, 16); \
+        _a->words.w1 = _SHIFTL(a1, 16, 16) | _SHIFTL(a2, 0, 16);    \
+    }
 
-#define aUnkCmd19(pkt, a1, a2, a3, a4) \
-{                                                                       \
-        Acmd *_a = (Acmd *)pkt;                                         \
-                                                                        \
-        _a->words.w0 = (_SHIFTL(A_UNK19, 24, 8) | _SHIFTL(a1, 16, 8) |  \
-                _SHIFTL(a2, 0, 16));                                    \
-        _a->words.w1 = _SHIFTL(a3, 16, 16) | _SHIFTL(a4, 0, 16);        \
-}
+#define aUnkCmd19(pkt, a1, a2, a3, a4)                                                      \
+    {                                                                                       \
+        Acmd* _a = (Acmd*)pkt;                                                              \
+                                                                                            \
+        _a->words.w0 = (_SHIFTL(A_UNK19, 24, 8) | _SHIFTL(a1, 16, 8) | _SHIFTL(a2, 0, 16)); \
+        _a->words.w1 = _SHIFTL(a3, 16, 16) | _SHIFTL(a4, 0, 16);                            \
+    }
 
-#define aS8Dec(pkt, a1, a2)                                             \
-{                                                                       \
-        Acmd *_a = (Acmd *)pkt;                                         \
-                                                                        \
-        _a->words.w0 = _SHIFTL(A_S8DEC, 24, 8) | _SHIFTL(a1, 16, 8);    \
-        _a->words.w1 = (unsigned int)(a2);                              \
-}
+#define aS8Dec(pkt, a1, a2)                                          \
+    {                                                                \
+        Acmd* _a = (Acmd*)pkt;                                       \
+                                                                     \
+        _a->words.w0 = _SHIFTL(A_S8DEC, 24, 8) | _SHIFTL(a1, 16, 8); \
+        _a->words.w1 = (unsigned int)(a2);                           \
+    }
 
 /*
  * Clears DMEM by writing zeros.
@@ -347,34 +345,30 @@ typedef short ENVMIX_STATE[40];
         _a->words.w1 = (uintptr_t)(size);                                  \
     }
 
-#define aEnvMixer(pkt, dmemi, count, swapLR, x0, x1, x2, x3, m, bits)   \
-{                                                                       \
-        Acmd *_a = (Acmd *)pkt;                                         \
-                                                                        \
-        _a->words.w0 = (bits | _SHIFTL(dmemi >> 4, 16, 8) |             \
-                _SHIFTL(count, 8, 8) | _SHIFTL(swapLR, 4, 1) |          \
-                _SHIFTL(x0, 3, 1) | _SHIFTL(x1, 2, 1) |                 \
-                _SHIFTL(x2, 1, 1) | _SHIFTL(x3, 0, 1));                 \
-        _a->words.w1 = (unsigned int)(m);                               \
-}
+#define aEnvMixer(pkt, dmemi, count, swapLR, x0, x1, x2, x3, m, bits)                                      \
+    {                                                                                                      \
+        Acmd* _a = (Acmd*)pkt;                                                                             \
+                                                                                                           \
+        _a->words.w0 = (bits | _SHIFTL(dmemi >> 4, 16, 8) | _SHIFTL(count, 8, 8) | _SHIFTL(swapLR, 4, 1) | \
+                        _SHIFTL(x0, 3, 1) | _SHIFTL(x1, 2, 1) | _SHIFTL(x2, 1, 1) | _SHIFTL(x3, 0, 1));    \
+        _a->words.w1 = (unsigned int)(m);                                                                  \
+    }
 
-#define aInterleave(pkt, o, l, r, c)                                    \
-{                                                                       \
-        Acmd *_a = (Acmd *)pkt;                                         \
-                                                                        \
-        _a->words.w0 = (_SHIFTL(A_INTERLEAVE, 24, 8) |                  \
-                _SHIFTL(c >> 4, 16, 8) | _SHIFTL(o, 0, 16));            \
-        _a->words.w1 = _SHIFTL(l, 16, 16) | _SHIFTL(r, 0, 16);          \
-}
+#define aInterleave(pkt, o, l, r, c)                                                                \
+    {                                                                                               \
+        Acmd* _a = (Acmd*)pkt;                                                                      \
+                                                                                                    \
+        _a->words.w0 = (_SHIFTL(A_INTERLEAVE, 24, 8) | _SHIFTL(c >> 4, 16, 8) | _SHIFTL(o, 0, 16)); \
+        _a->words.w1 = _SHIFTL(l, 16, 16) | _SHIFTL(r, 0, 16);                                      \
+    }
 
-#define aInterl(pkt, dmemi, dmemo, count)                               \
-{                                                                       \
-        Acmd *_a = (Acmd*)pkt;                                          \
-                                                                        \
-        _a->words.w0 = (_SHIFTL(A_INTERL, 24, 8) |                      \
-                _SHIFTL(count, 0, 16));                                 \
-        _a->words.w1 = _SHIFTL(dmemi, 16, 16) | _SHIFTL(dmemo, 0, 16);  \
-}
+#define aInterl(pkt, dmemi, dmemo, count)                                  \
+    {                                                                      \
+        Acmd* _a = (Acmd*)pkt;                                             \
+                                                                           \
+        _a->words.w0 = (_SHIFTL(A_INTERL, 24, 8) | _SHIFTL(count, 0, 16)); \
+        _a->words.w1 = _SHIFTL(dmemi, 16, 16) | _SHIFTL(dmemo, 0, 16);     \
+    }
 
 /*
  * Loads a buffer to DMEM from any physical source address, KSEG0, or KSEG1
@@ -392,32 +386,29 @@ typedef short ENVMIX_STATE[40];
         _a->words.w1 = (uintptr_t)(addrSrc);                                                                  \
     }
 
-#define aMix(pkt, f, g, i, o)                                           \
-{                                                                       \
-        Acmd *_a = (Acmd *)pkt;                                         \
-                                                                        \
-        _a->words.w0 = (_SHIFTL(A_MIXER, 24, 8) | _SHIFTL(f, 16, 8) |   \
-                        _SHIFTL(g, 0, 16));                             \
-        _a->words.w1 = _SHIFTL(i, 16, 16) | _SHIFTL(o, 0, 16);          \
-}
+#define aMix(pkt, f, g, i, o)                                                             \
+    {                                                                                     \
+        Acmd* _a = (Acmd*)pkt;                                                            \
+                                                                                          \
+        _a->words.w0 = (_SHIFTL(A_MIXER, 24, 8) | _SHIFTL(f, 16, 8) | _SHIFTL(g, 0, 16)); \
+        _a->words.w1 = _SHIFTL(i, 16, 16) | _SHIFTL(o, 0, 16);                            \
+    }
 
-#define aPan(pkt, f, d, s)                                              \
-{                                                                       \
-        Acmd *_a = (Acmd *)pkt;                                         \
-                                                                        \
-        _a->words.w0 = (_SHIFTL(A_PAN, 24, 8) | _SHIFTL(f, 16, 8) |     \
-                        _SHIFTL(d, 0, 16));                             \
-        _a->words.w1 = (unsigned int)(s);                               \
-}
+#define aPan(pkt, f, d, s)                                                              \
+    {                                                                                   \
+        Acmd* _a = (Acmd*)pkt;                                                          \
+                                                                                        \
+        _a->words.w0 = (_SHIFTL(A_PAN, 24, 8) | _SHIFTL(f, 16, 8) | _SHIFTL(d, 0, 16)); \
+        _a->words.w1 = (unsigned int)(s);                                               \
+    }
 
-#define aResample(pkt, f, p, s)                                         \
-{                                                                       \
-        Acmd *_a = (Acmd *)pkt;                                         \
-                                                                        \
-        _a->words.w0 = (_SHIFTL(A_RESAMPLE, 24, 8) |                    \
-                _SHIFTL(f, 16, 8) | _SHIFTL(p, 0, 16));                 \
-        _a->words.w1 = (unsigned int)(s);                               \
-}
+#define aResample(pkt, f, p, s)                                                              \
+    {                                                                                        \
+        Acmd* _a = (Acmd*)pkt;                                                               \
+                                                                                             \
+        _a->words.w0 = (_SHIFTL(A_RESAMPLE, 24, 8) | _SHIFTL(f, 16, 8) | _SHIFTL(p, 0, 16)); \
+        _a->words.w1 = (unsigned int)(s);                                                    \
+    }
 
 /*
  * Stores a buffer from DMEM to any physical source address, KSEG0, or KSEG1
@@ -435,93 +426,85 @@ typedef short ENVMIX_STATE[40];
         _a->words.w1 = (uintptr_t)(addrDest);                                                                \
     }
 
-#define aSegment(pkt, s, b)                                             \
-{                                                                       \
-        Acmd *_a = (Acmd *)pkt;                                         \
-                                                                        \
-        _a->words.w0 = _SHIFTL(A_SEGMENT, 24, 8);                       \
-        _a->words.w1 = _SHIFTL(s, 24, 8) | _SHIFTL(b, 0, 24);           \
-}
+#define aSegment(pkt, s, b)                                   \
+    {                                                         \
+        Acmd* _a = (Acmd*)pkt;                                \
+                                                              \
+        _a->words.w0 = _SHIFTL(A_SEGMENT, 24, 8);             \
+        _a->words.w1 = _SHIFTL(s, 24, 8) | _SHIFTL(b, 0, 24); \
+    }
 
-#define aSetBuffer(pkt, f, i, o, c)                                     \
-{                                                                       \
-        Acmd *_a = (Acmd *)pkt;                                         \
-                                                                        \
-        _a->words.w0 = (_SHIFTL(A_SETBUFF, 24, 8) | _SHIFTL(f, 16, 8) | \
-                        _SHIFTL(i, 0, 16));                             \
-        _a->words.w1 = _SHIFTL(o, 16, 16) | _SHIFTL(c, 0, 16);          \
-}
+#define aSetBuffer(pkt, f, i, o, c)                                                         \
+    {                                                                                       \
+        Acmd* _a = (Acmd*)pkt;                                                              \
+                                                                                            \
+        _a->words.w0 = (_SHIFTL(A_SETBUFF, 24, 8) | _SHIFTL(f, 16, 8) | _SHIFTL(i, 0, 16)); \
+        _a->words.w1 = _SHIFTL(o, 16, 16) | _SHIFTL(c, 0, 16);                              \
+    }
 
-#define aSetVolume(pkt, f, v, t, r)                                     \
-{                                                                       \
-        Acmd *_a = (Acmd *)pkt;                                         \
-                                                                        \
-        _a->words.w0 = (_SHIFTL(A_SETVOL, 24, 8) | _SHIFTL(f, 16, 16) | \
-                        _SHIFTL(v, 0, 16));                             \
-        _a->words.w1 = _SHIFTL(r, 0, 16) | _SHIFTL(t, 16, 16);          \
-}
+#define aSetVolume(pkt, f, v, t, r)                                                         \
+    {                                                                                       \
+        Acmd* _a = (Acmd*)pkt;                                                              \
+                                                                                            \
+        _a->words.w0 = (_SHIFTL(A_SETVOL, 24, 8) | _SHIFTL(f, 16, 16) | _SHIFTL(v, 0, 16)); \
+        _a->words.w1 = _SHIFTL(r, 0, 16) | _SHIFTL(t, 16, 16);                              \
+    }
 
-#define aSetVolume32(pkt, f, v, tr)                                     \
-{                                                                       \
-        Acmd *_a = (Acmd *)pkt;                                         \
-                                                                        \
-        _a->words.w0 = (_SHIFTL(A_SETVOL, 24, 8) | _SHIFTL(f, 16, 16) | \
-                        _SHIFTL(v, 0, 16));                             \
-        _a->words.w1 = (unsigned int)(tr);                              \
-}
+#define aSetVolume32(pkt, f, v, tr)                                                         \
+    {                                                                                       \
+        Acmd* _a = (Acmd*)pkt;                                                              \
+                                                                                            \
+        _a->words.w0 = (_SHIFTL(A_SETVOL, 24, 8) | _SHIFTL(f, 16, 16) | _SHIFTL(v, 0, 16)); \
+        _a->words.w1 = (unsigned int)(tr);                                                  \
+    }
 
-#define aSetLoop(pkt, a)                                                \
-{                                                                       \
-        Acmd *_a = (Acmd *)pkt;                                         \
-                                                                        \
-        _a->words.w0 = _SHIFTL(A_SETLOOP, 24, 8);                       \
-        _a->words.w1 = (unsigned int)(a);                               \
-}
+#define aSetLoop(pkt, a)                          \
+    {                                             \
+        Acmd* _a = (Acmd*)pkt;                    \
+                                                  \
+        _a->words.w0 = _SHIFTL(A_SETLOOP, 24, 8); \
+        _a->words.w1 = (unsigned int)(a);         \
+    }
 
-#define aDMEMMove(pkt, i, o, c)                                         \
-{                                                                       \
-        Acmd *_a = (Acmd *)pkt;                                         \
-                                                                        \
-        _a->words.w0 = _SHIFTL(A_DMEMMOVE, 24, 8) | _SHIFTL(i, 0, 24);  \
-        _a->words.w1 = _SHIFTL(o, 16, 16) | _SHIFTL(c, 0, 16);          \
-}
+#define aDMEMMove(pkt, i, o, c)                                        \
+    {                                                                  \
+        Acmd* _a = (Acmd*)pkt;                                         \
+                                                                       \
+        _a->words.w0 = _SHIFTL(A_DMEMMOVE, 24, 8) | _SHIFTL(i, 0, 24); \
+        _a->words.w1 = _SHIFTL(o, 16, 16) | _SHIFTL(c, 0, 16);         \
+    }
 
 #define aLoadADPCM(pkt, c, d)                                           \
-{                                                                       \
-        Acmd *_a = (Acmd *)pkt;                                         \
+    {                                                                   \
+        Acmd* _a = (Acmd*)pkt;                                          \
                                                                         \
         _a->words.w0 = _SHIFTL(A_LOADADPCM, 24, 8) | _SHIFTL(c, 0, 24); \
         _a->words.w1 = (unsigned int)d;                                 \
-}
+    }
 
+#define aEnvSetup1(pkt, a, b, c, d)                                                           \
+    {                                                                                         \
+        Acmd* _a = (Acmd*)pkt;                                                                \
+                                                                                              \
+        _a->words.w0 = (_SHIFTL(A_ENVSETUP1, 24, 8) | _SHIFTL(a, 16, 8) | _SHIFTL(b, 0, 16)); \
+        _a->words.w1 = _SHIFTL(c, 16, 16) | _SHIFTL(d, 0, 16);                                \
+    }
 
+#define aEnvSetup2(pkt, volLeft, volRight)                                  \
+    {                                                                       \
+        Acmd* _a = (Acmd*)pkt;                                              \
+                                                                            \
+        _a->words.w0 = _SHIFTL(A_ENVSETUP2, 24, 8);                         \
+        _a->words.w1 = _SHIFTL(volLeft, 16, 16) | _SHIFTL(volRight, 0, 16); \
+    }
 
-#define aEnvSetup1(pkt, a, b, c, d)                                     \
-{                                                                       \
-        Acmd *_a = (Acmd *)pkt;                                         \
-                                                                        \
-        _a->words.w0 = (_SHIFTL(A_ENVSETUP1, 24, 8) |                   \
-                    _SHIFTL(a, 16, 8) | _SHIFTL(b, 0, 16));             \
-        _a->words.w1 = _SHIFTL(c, 16, 16) | _SHIFTL(d, 0, 16);          \
-}
-
-#define aEnvSetup2(pkt, volLeft, volRight)                              \
-{                                                                       \
-        Acmd *_a = (Acmd *)pkt;                                         \
-                                                                        \
-        _a->words.w0 = _SHIFTL(A_ENVSETUP2, 24, 8);                     \
-        _a->words.w1 = _SHIFTL(volLeft, 16, 16) |                       \
-                    _SHIFTL(volRight, 0, 16);                           \
-}
-
-#define aFilter(pkt, f, countOrBuf, addr)                               \
-{                                                                       \
-        Acmd *_a = (Acmd *)pkt;                                         \
-                                                                        \
-        _a->words.w0 = _SHIFTL(A_FILTER, 24, 8) | _SHIFTL(f, 16, 8) |   \
-                    _SHIFTL(countOrBuf, 0, 16);                         \
-        _a->words.w1 = (unsigned int)(addr);                            \
-}
+#define aFilter(pkt, f, countOrBuf, addr)                                                         \
+    {                                                                                             \
+        Acmd* _a = (Acmd*)pkt;                                                                    \
+                                                                                                  \
+        _a->words.w0 = _SHIFTL(A_FILTER, 24, 8) | _SHIFTL(f, 16, 8) | _SHIFTL(countOrBuf, 0, 16); \
+        _a->words.w1 = (unsigned int)(addr);                                                      \
+    }
 
 /*
  * Duplicates 128 bytes of data a specified number of times.
@@ -539,22 +522,22 @@ typedef short ENVMIX_STATE[40];
         _a->words.w1 = _SHIFTL(dmemDest, 16, 16) | _SHIFTL(0x80, 0, 16);                                    \
     }
 
-#define aAddMixer(pkt, count, dmemi, dmemo, a4)                         \
-{                                                                       \
-        Acmd *_a = (Acmd *)pkt;                                         \
-                                                                        \
-        _a->words.w0 = (_SHIFTL(A_ADDMIXER, 24, 8) |                    \
-                _SHIFTL(count >> 4, 16, 8) | _SHIFTL(a4, 0, 16));       \
-        _a->words.w1 = _SHIFTL(dmemi, 16, 16) | _SHIFTL(dmemo, 0, 16);  \
-}
+#define aAddMixer(pkt, count, dmemi, dmemo, a4)                                                        \
+    {                                                                                                  \
+        Acmd* _a = (Acmd*)pkt;                                                                         \
+                                                                                                       \
+        _a->words.w0 = (_SHIFTL(A_ADDMIXER, 24, 8) | _SHIFTL(count >> 4, 16, 8) | _SHIFTL(a4, 0, 16)); \
+        _a->words.w1 = _SHIFTL(dmemi, 16, 16) | _SHIFTL(dmemo, 0, 16);                                 \
+    }
 
-#define aResampleZoh(pkt, pitch, pitchAccu)                             \
-{                                                                       \
-        Acmd *_a = (Acmd *)pkt;                                         \
-                                                                        \
-        _a->words.w0 = (_SHIFTL(A_RESAMPLE_ZOH, 24, 8) |                \
-                _SHIFTL(pitch, 0, 16));                                 \
-        _a->words.w1 = _SHIFTL(pitchAccu, 0, 16);                       \
-}
+#define aResampleZoh(pkt, pitch, pitchAccu)                                      \
+    {                                                                            \
+        Acmd* _a = (Acmd*)pkt;                                                   \
+                                                                                 \
+        _a->words.w0 = (_SHIFTL(A_RESAMPLE_ZOH, 24, 8) | _SHIFTL(pitch, 0, 16)); \
+        _a->words.w1 = _SHIFTL(pitchAccu, 0, 16);                                \
+    }
 
 #endif /* ULTRA64_ABI_H */
+
+#endif

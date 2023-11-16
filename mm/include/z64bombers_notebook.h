@@ -1,6 +1,11 @@
 #ifndef Z64BOMBERS_NOTEBOOK_H
 #define Z64BOMBERS_NOTEBOOK_H
 
+#ifdef __cplusplus
+extern "C" {
+#define this thisx
+#endif
+
 #include "ultra64.h"
 #include "z64dma.h"
 
@@ -8,7 +13,7 @@ struct PlayState;
 
 #define DEFINE_PERSON(enum, _photo, _description, _metEnum, _metMessage, _metFlag) enum,
 typedef enum BombersNotebookPerson {
-    #include "tables/bombers_notebook/person_table.h"
+#include "tables/bombers_notebook/person_table.h"
     /* 0x14 */ BOMBERS_NOTEBOOK_PERSON_MAX
 } BombersNotebookPerson;
 
@@ -23,8 +28,8 @@ typedef enum BombersNotebookLoadState {
 #define DEFINE_PERSON(_enum, _photo, _description, metEnum, _metMessage, _metFlag) metEnum,
 #define DEFINE_EVENT(enum, _icon, _colorFlag, _description, _completedMessage, _completedFlag) enum,
 typedef enum BombersNotebookEvent {
-    #include "tables/bombers_notebook/person_table.h"
-    #include "tables/bombers_notebook/event_table.h"
+#include "tables/bombers_notebook/person_table.h"
+#include "tables/bombers_notebook/event_table.h"
     /* 0x37 */ BOMBERS_NOTEBOOK_EVENT_MAX
 } BombersNotebookEvent;
 
@@ -55,5 +60,10 @@ void BombersNotebook_Draw(BombersNotebook* this, struct GraphicsContext* gfxCtx)
 void BombersNotebook_Update(struct PlayState* play, BombersNotebook* this, Input* input);
 void BombersNotebook_Init(BombersNotebook* this);
 void BombersNotebook_Destroy(BombersNotebook* this);
+
+#ifdef __cplusplus
+}
+#undef this
+#endif
 
 #endif

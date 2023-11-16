@@ -1,4 +1,165 @@
 #include "global.h"
+#include "BenPort.h"
+#include "assets/interface/nes_font_static/nes_font_static.h"
+#include <string.h>
+static const char* fontTbl[] = {
+    gMsgChar20SpaceTex,
+    gMsgChar21ExclamationMarkTex,
+    gMsgChar22QuotationMarkTex,
+    gMsgChar23NumberSignTex,
+    gMsgChar24DollarSignTex,
+    gMsgChar25PercentSignTex,
+    gMsgChar26AmpersandTex,
+    gMsgChar27ApostropheTex,
+    gMsgChar28LeftParenthesesTex,
+    gMsgChar29RightParenthesesTex,
+    gMsgChar2AAsteriskTex,
+    gMsgChar2BPlusSignTex,
+    gMsgChar2CCommaTex,
+    gMsgChar2DHyphenMinusTex,
+    gMsgChar2EFullStopTex,
+    gMsgChar2FSolidusTex,
+    gMsgChar30Digit0Tex,
+    gMsgChar31Digit1Tex,
+    gMsgChar32Digit2Tex,
+    gMsgChar33Digit3Tex,
+    gMsgChar34Digit4Tex,
+    gMsgChar35Digit5Tex,
+    gMsgChar36Digit6Tex,
+    gMsgChar37Digit7Tex,
+    gMsgChar38Digit8Tex,
+    gMsgChar39Digit9Tex,
+    gMsgChar3AColonTex,
+    gMsgChar3BSemicolonTex,
+    gMsgChar3CLessThanSignTex,
+    gMsgChar3DEqualsSignTex,
+    gMsgChar3EGreaterThanSignTex,
+    gMsgChar3FQuestionMarkTex,
+    gMsgChar40CommercialAtTex,
+    gMsgChar41LatinCapitalLetterATex,
+    gMsgChar42LatinCapitalLetterBTex,
+    gMsgChar43LatinCapitalLetterCTex,
+    gMsgChar44LatinCapitalLetterDTex,
+    gMsgChar45LatinCapitalLetterETex,
+    gMsgChar46LatinCapitalLetterFTex,
+    gMsgChar47LatinCapitalLetterGTex,
+    gMsgChar48LatinCapitalLetterHTex,
+    gMsgChar49LatinCapitalLetterITex,
+    gMsgChar4ALatinCapitalLetterJTex,
+    gMsgChar4BLatinCapitalLetterKTex,
+    gMsgChar4CLatinCapitalLetterLTex,
+    gMsgChar4DLatinCapitalLetterMTex,
+    gMsgChar4ELatinCapitalLetterNTex,
+    gMsgChar4FLatinCapitalLetterOTex,
+    gMsgChar50LatinCapitalLetterPTex,
+    gMsgChar51LatinCapitalLetterQTex,
+    gMsgChar52LatinCapitalLetterRTex,
+    gMsgChar53LatinCapitalLetterSTex,
+    gMsgChar54LatinCapitalLetterTTex,
+    gMsgChar55LatinCapitalLetterUTex,
+    gMsgChar56LatinCapitalLetterVTex,
+    gMsgChar57LatinCapitalLetterWTex,
+    gMsgChar58LatinCapitalLetterXTex,
+    gMsgChar59LatinCapitalLetterYTex,
+    gMsgChar5ALatinCapitalLetterZTex,
+    gMsgChar5BLeftSquareBracketTex,
+    gMsgChar5CYenSignTex,
+    gMsgChar5DRightSquareBracketTex,
+    gMsgChar5ECircumflexAccentTex,
+    gMsgChar5FLowLineTex,
+    gMsgChar60GraveAccentTex,
+    gMsgChar61LatinSmallLetterATex,
+    gMsgChar62LatinSmallLetterBTex,
+    gMsgChar63LatinSmallLetterCTex,
+    gMsgChar64LatinSmallLetterDTex,
+    gMsgChar65LatinSmallLetterETex,
+    gMsgChar66LatinSmallLetterFTex,
+    gMsgChar67LatinSmallLetterGTex,
+    gMsgChar68LatinSmallLetterHTex,
+    gMsgChar69LatinSmallLetterITex,
+    gMsgChar6ALatinSmallLetterJTex,
+    gMsgChar6BLatinSmallLetterKTex,
+    gMsgChar6CLatinSmallLetterLTex,
+    gMsgChar6DLatinSmallLetterMTex,
+    gMsgChar6ELatinSmallLetterNTex,
+    gMsgChar6FLatinSmallLetterOTex,
+    gMsgChar70LatinSmallLetterPTex,
+    gMsgChar71LatinSmallLetterQTex,
+    gMsgChar72LatinSmallLetterRTex,
+    gMsgChar73LatinSmallLetterSTex,
+    gMsgChar74LatinSmallLetterTTex,
+    gMsgChar75LatinSmallLetterUTex,
+    gMsgChar76LatinSmallLetterVTex,
+    gMsgChar77LatinSmallLetterWTex,
+    gMsgChar78LatinSmallLetterXTex,
+    gMsgChar79LatinSmallLetterYTex,
+    gMsgChar7ALatinSmallLetterZTex,
+    gMsgChar7BLeftCurlyBracketTex,
+    gMsgChar7CVerticalLineTex,
+    gMsgChar7DRightCurlyBracketTex,
+    gMsgChar7ETildeTex,
+    gMsgChar7FMasculineOrdinalIndicatorTex,
+    gMsgChar80LatinCapitalLetterAWithGraveTex,
+    gMsgChar81LatinCapitalLetterAWithAcuteTex,
+    gMsgChar82LatinCapitalLetterAWithCircumflexTex,
+    gMsgChar83LatinCapitalLetterAWithDiaeresisTex,
+    gMsgChar84LatinCapitalLetterCWithCedillaTex,
+    gMsgChar85LatinCapitalLetterEWithGraveTex,
+    gMsgChar86LatinCapitalLetterEWithAcuteTex,
+    gMsgChar87LatinCapitalLetterEWithCircumflexTex,
+    gMsgChar88LatinCapitalLetterEWithDiaeresisTex,
+    gMsgChar89LatinCapitalLetterIWithGraveTex,
+    gMsgChar8ALatinCapitalLetterIWithAcuteTex,
+    gMsgChar8BLatinCapitalLetterIWithCircumflexTex,
+    gMsgChar8CLatinCapitalLetterIWithDiaeresisTex,
+    gMsgChar8DLatinCapitalLetterNWithTildeTex,
+    gMsgChar8ELatinCapitalLetterOWithGraveTex,
+    gMsgChar8FLatinCapitalLetterOWithAcuteTex,
+    gMsgChar90LatinCapitalLetterOWithCircumflexTex,
+    gMsgChar91LatinCapitalLetterOWithDiaeresisTex,
+    gMsgChar92LatinCapitalLetterUWithGraveTex,
+    gMsgChar93LatinCapitalLetterUWithAcuteTex,
+    gMsgChar94LatinCapitalLetterUWithCircumflexTex,
+    gMsgChar95LatinCapitalLetterUWithDiaeresisTex,
+    gMsgChar96GreekSmallLetterBetaTex,
+    gMsgChar97LatinSmallLetterAWithGraveTex,
+    gMsgChar98LatinSmallLetterAWithAcuteTex,
+    gMsgChar99LatinSmallLetterAWithCircumflexTex,
+    gMsgChar9ALatinSmallLetterAWithDiaeresisTex,
+    gMsgChar9BLatinSmallLetterCWithCedillaTex,
+    gMsgChar9CLatinSmallLetterEWithGraveTex,
+    gMsgChar9DLatinSmallLetterEWithAcuteTex,
+    gMsgChar9ELatinSmallLetterEWithCircumflexTex,
+    gMsgChar9FLatinSmallLetterEWithDiaeresisTex,
+    gMsgCharA0LatinSmallLetterIWithGraveTex,
+    gMsgCharA1LatinSmallLetterIWithAcuteTex,
+    gMsgCharA2LatinSmallLetterIWithCircumflexTex,
+    gMsgCharA3LatinSmallLetterIWithDiaeresisTex,
+    gMsgCharA4LatinSmallLetterNWithTildeTex,
+    gMsgCharA5LatinSmallLetterOWithGraveTex,
+    gMsgCharA6LatinSmallLetterOWithAcuteTex,
+    gMsgCharA7LatinSmallLetterOWithCircumflexTex,
+    gMsgCharA8LatinSmallLetterOWithDiaeresisTex,
+    gMsgCharA9LatinSmallLetterUWithGraveTex,
+    gMsgCharAALatinSmallLetterUWithAcuteTex,
+    gMsgCharABLatinSmallLetterUWithCircumflexTex,
+    gMsgCharACLatinSmallLetterUWithDiaeresisTex,
+    gMsgCharADInvertedExclamationMarkTex,
+    gMsgCharAEInvertedQuestionMarkTex,
+    gMsgCharAFFeminineOrdinalIndicatorTex,
+    gMsgCharB0ButtonATex,
+    gMsgCharB1ButtonBTex,
+    gMsgCharB2ButtonCTex,
+    gMsgCharB3ButtonLTex,
+    gMsgCharB4ButtonRTex,
+    gMsgCharB5ButtonZTex,
+    gMsgCharB6ButtonCUpTex,
+    gMsgCharB7ButtonCDownTex,
+    gMsgCharB8ButtonCLeftTex,
+    gMsgCharB9ButtonCRightTex,
+    gMsgCharBAZTargetSignTex,
+    gMsgCharBBControlStickTex,
+};
 
 // stubbed in NTSC-U
 void Font_LoadChar(PlayState* play, u16 codePointIndex, s32 offset) {
@@ -8,15 +169,23 @@ void Font_LoadCharNES(PlayState* play, u8 codePointIndex, s32 offset) {
     MessageContext* msgCtx = &play->msgCtx;
     Font* font = &msgCtx->font;
 
-    DmaMgr_SendRequest0(&font->charBuf[font->unk_11D88][offset],
-                        SEGMENT_ROM_START_OFFSET(nes_font_static, (codePointIndex - ' ') * FONT_CHAR_TEX_SIZE),
-                        FONT_CHAR_TEX_SIZE);
+    int fontIdx = codePointIndex - 0x20;
+
+    if (codePointIndex < 0x8B)
+        memcpy(&font->charBuf[font->unk_11D88][offset], fontTbl[fontIdx], strlen(fontTbl[fontIdx]) + 1);
+
+    // DmaMgr_SendRequest0(&font->charBuf[font->unk_11D88][offset],
+    //&((u8*)SEGMENT_ROM_START(nes_font_static))[(codePointIndex - ' ') * FONT_CHAR_TEX_SIZE],
+    // FONT_CHAR_TEX_SIZE);
 }
 
 void Font_LoadMessageBoxEndIcon(Font* font, u16 icon) {
-    DmaMgr_SendRequest0(&font->iconBuf,
-                        SEGMENT_ROM_START_OFFSET(message_static, 5 * 0x1000 + icon * FONT_CHAR_TEX_SIZE),
-                        FONT_CHAR_TEX_SIZE);
+    void* tex = ResourceMgr_LoadTexOrDListByName(gItemIcons[icon]);
+    memcpy(&font->iconBuf, tex, FONT_CHAR_TEX_SIZE);
+
+    // DmaMgr_SendRequest0(&font->iconBuf,
+    //&((u8*)SEGMENT_ROM_START(message_static))[5 * 0x1000 + icon * FONT_CHAR_TEX_SIZE],
+    // FONT_CHAR_TEX_SIZE);
 }
 
 static u8 sFontOrdering[] = {
@@ -33,13 +202,18 @@ void Font_LoadOrderedFont(Font* font) {
     u8* writeLocation;
 
     while (1) {
+        void* tex;
         writeLocation = &font->fontBuf[codePointIndex * FONT_CHAR_TEX_SIZE];
-        loadOffset = sFontOrdering[codePointIndex] * FONT_CHAR_TEX_SIZE;
+        loadOffset = sFontOrdering[codePointIndex]; //        *FONT_CHAR_TEX_SIZE;
         if (sFontOrdering[codePointIndex] == 0) {
             loadOffset = 0;
         }
 
-        DmaMgr_SendRequest0(writeLocation, SEGMENT_ROM_START(nes_font_static) + loadOffset, FONT_CHAR_TEX_SIZE);
+        tex = ResourceMgr_LoadTexOrDListByName(fontTbl[loadOffset]);
+        memcpy(writeLocation, tex, FONT_CHAR_TEX_SIZE);
+
+        // DmaMgr_SendRequest0(writeLocation, (uintptr_t)SEGMENT_ROM_START(nes_font_static) + loadOffset,
+        //                    FONT_CHAR_TEX_SIZE);
         if (sFontOrdering[codePointIndex] == 0x8C) {
             break;
         }

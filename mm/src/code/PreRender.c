@@ -16,6 +16,7 @@
 #include "slowly.h"
 #include "stack.h"
 #include "stackcheck.h"
+#include <stdlib.h>
 
 /**
  * Assigns the "save" values in PreRender
@@ -598,7 +599,7 @@ u32 PreRender_Get5bMedian9(u8* px1, u8* px2, u8* px3) {
 void PreRender_DivotFilter(PreRender* this) {
     u32 width = this->width;
     u32 height = this->height;
-    u8* buffer = alloca(width * 10);
+    u8* buffer = malloc(width * 10);
     u8* redRow[3];
     u8* greenRow[3];
     u8* blueRow[3];
@@ -684,6 +685,7 @@ void PreRender_DivotFilter(PreRender* this) {
         greenRow[1] = greenRow[2];
         blueRow[1] = blueRow[2];
     }
+    free(buffer);
 }
 
 /**

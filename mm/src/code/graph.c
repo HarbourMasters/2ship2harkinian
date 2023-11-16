@@ -2,6 +2,8 @@
 #include "regs.h"
 #include "functions.h"
 #include "fault.h"
+#include "BenPort.h"
+#include <libultraship/libultraship.h>
 
 // Variables are put before most headers as a hacky way to bypass bss reordering
 FaultAddrConvClient sGraphFaultAddrConvClient;
@@ -145,6 +147,7 @@ void Graph_TaskSet00(GraphicsContext* gfxCtx, GameState* gameState) {
     OSMesg msg;
     CfbInfo* cfb;
 
+    #if 0
 retry:
     osSetTimer(&timer, OS_USEC_TO_CYCLES(3 * 1000 * 1000), 0, &gfxCtx->queue, (OSMesg)666);
     osRecvMesg(&gfxCtx->queue, &msg, OS_MESG_BLOCK);
@@ -162,7 +165,7 @@ retry:
             Fault_AddHungupAndCrashImpl("RCP is HUNG UP!!", "Oh! MY GOD!!");
         }
     }
-
+    #endif
     gfxCtx->masterList = gGfxMasterDL;
     if (gfxCtx->callback != NULL) {
         gfxCtx->callback(gfxCtx, gfxCtx->callbackArg);
@@ -170,20 +173,20 @@ retry:
 
     task->type = M_GFXTASK;
     task->flags = OS_SC_DRAM_DLIST;
-    task->ucodeBoot = SysUcode_GetUCodeBoot();
-    task->ucodeBootSize = SysUcode_GetUCodeBootSize();
+    task->ucode_boot = SysUcode_GetUCodeBoot();
+    task->ucode_boot_size = SysUcode_GetUCodeBootSize();
     task->ucode = SysUcode_GetUCode();
-    task->ucodeData = SysUcode_GetUCodeData();
-    task->ucodeSize = SP_UCODE_SIZE;
-    task->ucodeDataSize = SP_UCODE_DATA_SIZE;
-    task->dramStack = (u64*)gGfxSPTaskStack;
-    task->dramStackSize = sizeof(gGfxSPTaskStack);
-    task->outputBuff = gGfxSPTaskOutputBufferPtr;
-    task->outputBuffSize = (void*)gGfxSPTaskOutputBufferEnd;
-    task->dataPtr = (u64*)gGfxMasterDL;
-    task->dataSize = 0;
-    task->yieldDataPtr = (u64*)gGfxSPTaskYieldBuffer;
-    task->yieldDataSize = sizeof(gGfxSPTaskYieldBuffer);
+    task->ucode_data = SysUcode_GetUCodeData();
+    task->ucode_size = SP_UCODE_SIZE;
+    task->ucode_data_size = SP_UCODE_DATA_SIZE;
+    task->dram_stack = (u64*)gGfxSPTaskStack;
+    task->dram_stack_size = sizeof(gGfxSPTaskStack);
+    task->output_buff = gGfxSPTaskOutputBufferPtr;
+    task->output_buff_size = (void*)gGfxSPTaskOutputBufferEnd;
+    task->data_ptr = (u64*)gGfxMasterDL;
+    task->data_size = 0;
+    task->yield_data_ptr = (u64*)gGfxSPTaskYieldBuffer;
+    task->yield_data_size = sizeof(gGfxSPTaskYieldBuffer);
 
     scTask->next = NULL;
     scTask->flags = OS_SC_RCP_MASK | OS_SC_SWAPBUFFER | OS_SC_LAST_TASK;
@@ -195,7 +198,7 @@ retry:
     }
 
     scTask->msgQ = &gfxCtx->queue;
-    scTask->msg = NULL;
+    scTask->msg.ptr = NULL;
 
     { s32 pad; }
 
@@ -224,16 +227,17 @@ retry:
     }
 
     gfxCtx->schedMsgQ = &gSchedContext.cmdQ;
-    osSendMesg(&gSchedContext.cmdQ, scTask, OS_MESG_BLOCK);
+    osSendMesg(&gSchedContext.cmdQ, OS_MESG_PTR(scTask), OS_MESG_BLOCK);
     Sched_SendEntryMsg(&gSchedContext);
 }
 
 void Graph_UpdateGame(GameState* gameState) {
     GameState_GetInput(gameState);
     GameState_IncrementFrameCount(gameState);
-    if (SREG(20) < 3) {
-        Audio_Update();
-    }
+    // BENTODO
+    //if (SREG(20) < 3) {
+    //    Audio_Update();
+    //}
 }
 
 /**
@@ -262,11 +266,11 @@ void Graph_ExecuteAndDraw(GraphicsContext* gfxCtx, GameState* gameState) {
         Gfx* gfx = gGfxMasterDL->taskStart;
 
         gSPSegment(gfx++, 0x0E, gGfxMasterDL);
-        gSPDisplayList(gfx++, &D_0E000000.disps[3]);
-        gSPDisplayList(gfx++, &D_0E000000.disps[0]);
-        gSPDisplayList(gfx++, &D_0E000000.disps[1]);
-        gSPDisplayList(gfx++, &D_0E000000.disps[2]);
-        gSPDisplayList(gfx++, &D_0E000000.debugDisp[0]);
+        __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[3] - (uintptr_t)&D_0E000000) + 1);
+        __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[0] - (uintptr_t)&D_0E000000) + 1);
+        __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[1] - (uintptr_t)&D_0E000000) + 1);
+        __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[2] - (uintptr_t)&D_0E000000) + 1);
+        __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.debugDisp[0] - (uintptr_t)&D_0E000000) + 1);
 
         gDPPipeSync(gfx++);
         gDPFullSync(gfx++);
@@ -332,7 +336,15 @@ void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
     Graph_ExecuteAndDraw(gfxCtx, gameState);
 }
 
-void Graph_ThreadEntry(void* arg) {
+static struct RunFrameContext {
+    GraphicsContext gfxCtx;
+    GameState* gameState;
+    GameStateOverlay* nextOvl;
+    GameStateOverlay* ovl;
+    int state;
+} runFrameContext;
+
+void RunFrame() {
     GraphicsContext gfxCtx;
     GameStateOverlay* nextOvl = &gGameStateOverlayTable[0];
     GameStateOverlay* ovl;
@@ -340,47 +352,50 @@ void Graph_ThreadEntry(void* arg) {
     u32 size;
     s32 pad[2];
 
-    gZBufferLoRes = SystemArena_Malloc(sizeof(*gZBufferLoRes) + sizeof(*gWorkBufferLoRes) + 64 - 1);
-    gZBufferLoRes = (void*)ALIGN64((u32)gZBufferLoRes);
+    switch (runFrameContext.state) {
+        case 0:
+            break;
+        case 1:
+            goto nextFrame;
+    }
 
-    gWorkBufferLoRes = (void*)((u8*)gZBufferLoRes + sizeof(*gZBufferLoRes));
+    runFrameContext.nextOvl = &gGameStateOverlayTable[0];
 
-    gGfxSPTaskOutputBufferHiRes = gGfxSPTaskOutputBufferLoRes =
-        SystemArena_Malloc(sizeof(*gGfxSPTaskOutputBufferLoRes));
+    Graph_Init(&runFrameContext.gfxCtx);
+    while (runFrameContext.nextOvl) {
+        runFrameContext.ovl = runFrameContext.nextOvl;
+        Overlay_LoadGameState(runFrameContext.ovl);
 
-    gGfxSPTaskOutputBufferEndLoRes = (u8*)gGfxSPTaskOutputBufferLoRes + sizeof(*gGfxSPTaskOutputBufferLoRes);
-    gGfxSPTaskOutputBufferEndHiRes = (u8*)gGfxSPTaskOutputBufferHiRes + sizeof(*gGfxSPTaskOutputBufferHiRes);
+        size = runFrameContext.ovl->instanceSize;
+        osSyncPrintf("クラスサイズ＝%dバイト\n", size); // "Class size = %d bytes"
 
-    SysCfb_Init();
-    Fault_SetFrameBuffer(gWorkBuffer, SCREEN_WIDTH, SCREEN_HEIGHT);
-    Graph_Init(&gfxCtx);
+        runFrameContext.gameState = SystemArena_Malloc(size);
 
-    while (nextOvl) {
-        ovl = nextOvl;
+        GameState_Init(runFrameContext.gameState, runFrameContext.ovl->init, &runFrameContext.gfxCtx);
 
-        Overlay_LoadGameState(ovl);
+        uint64_t freq = GetFrequency();
 
-        size = ovl->instanceSize;
+        while (GameState_IsRunning(runFrameContext.gameState)) {
 
-        func_800809F4(ovl->vromStart);
+            Graph_StartFrame();
 
-        gameState = SystemArena_Malloc(size);
+            PadMgr_ThreadEntry(&gPadMgr);
 
-        bzero(gameState, size);
-        GameState_Init(gameState, ovl->init, &gfxCtx);
+            Graph_Update(&runFrameContext.gfxCtx, runFrameContext.gameState);
 
-        while (GameState_IsRunning(gameState)) {
-            Graph_Update(&gfxCtx, gameState);
+            runFrameContext.state = 1;
+            return;
+        nextFrame:;
         }
 
-        nextOvl = Graph_GetNextGameState(gameState);
-
-        if (size) {}
-
-        GameState_Destroy(gameState);
-        SystemArena_Free(gameState);
-
-        Overlay_FreeGameState(ovl);
+        runFrameContext.nextOvl = Graph_GetNextGameState(runFrameContext.gameState);
+        GameState_Destroy(runFrameContext.gameState);
+        // System (runFrameContext.gameState);
+        Overlay_FreeGameState(runFrameContext.ovl);
     }
-    Graph_Destroy(&gfxCtx);
+    Graph_Destroy(&runFrameContext.gfxCtx);
+}
+
+void Graph_ThreadEntry(void* arg0) {
+    Graph_ProcessFrame(RunFrame);
 }

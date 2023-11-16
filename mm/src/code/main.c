@@ -11,7 +11,7 @@
 // Variables are put before most headers as a hacky way to bypass bss reordering
 OSMesgQueue sSerialEventQueue;
 OSMesg sSerialMsgBuf[1];
-u32 gSegments[NUM_SEGMENTS];
+uintptr_t gSegments[NUM_SEGMENTS];
 SchedContext gSchedContext;
 IrqMgrClient sIrqClient;
 OSMesgQueue sIrqMgrMsgQueue;
@@ -39,11 +39,19 @@ s32 gScreenWidth = SCREEN_WIDTH;
 s32 gScreenHeight = SCREEN_HEIGHT;
 size_t gSystemHeapSize = 0;
 
-void Main(void* arg) {
+void InitOTR();
+
+#ifdef __GNUC__
+#define SDL_main main
+#endif
+
+void SDL_main(int argc, char** argv /* void* arg*/) {
     intptr_t fb;
     intptr_t sysHeap;
     s32 exit;
     s16* msg;
+    InitOTR();
+    Heaps_Alloc();
 
     gScreenWidth = SCREEN_WIDTH;
     gScreenHeight = SCREEN_HEIGHT;
@@ -52,21 +60,22 @@ void Main(void* arg) {
     Fault_Init();
     Check_RegionIsSupported();
     Check_ExpansionPak();
-
-    sysHeap = (intptr_t)gSystemHeap;
-    fb = 0x80780000;
-    gSystemHeapSize = fb - sysHeap;
-    SystemHeap_Init((void*)sysHeap, gSystemHeapSize);
+    sysHeap = gSystemHeap;
+    // fb = 0x80780000;
+    // gSystemHeapSize = fb - sysHeap;
+    SystemHeap_Init(sysHeap, 0xFFFFFF);
 
     Regs_Init();
 
     R_ENABLE_ARENA_DBG = 0;
 
     osCreateMesgQueue(&sSerialEventQueue, sSerialMsgBuf, ARRAY_COUNT(sSerialMsgBuf));
-    osSetEventMesg(OS_EVENT_SI, &sSerialEventQueue, NULL);
+    osSetEventMesg(OS_EVENT_SI, &sSerialEventQueue, OS_MESG_PTR(NULL));
 
     osCreateMesgQueue(&sIrqMgrMsgQueue, sIrqMgrMsgBuf, ARRAY_COUNT(sIrqMgrMsgBuf));
+    PadMgr_Init(&sSerialEventQueue, &gIrqMgr, Z_THREAD_ID_PADMGR, Z_PRIORITY_PADMGR, STACK_TOP(sPadMgrStack));
 
+#if 0
     StackCheck_Init(&sSchedStackInfo, sSchedStack, STACK_TOP(sSchedStack), 0, 0x100, "sched");
     Sched_Init(&gSchedContext, STACK_TOP(sSchedStack), Z_PRIORITY_SCHED, gViConfigModeType, 1, &gIrqMgr);
 
@@ -79,13 +88,14 @@ void Main(void* arg) {
                   &gIrqMgr);
 
     StackCheck_Init(&sPadMgrStackInfo, sPadMgrStack, STACK_TOP(sPadMgrStack), 0, 0x100, "padmgr");
-    PadMgr_Init(&sSerialEventQueue, &gIrqMgr, Z_THREAD_ID_PADMGR, Z_PRIORITY_PADMGR, STACK_TOP(sPadMgrStack));
 
     AudioMgr_Unlock(&sAudioMgr);
-
     StackCheck_Init(&sGraphStackInfo, sGraphStack, STACK_TOP(sGraphStack), 0, 0x100, "graph");
-    osCreateThread(&gGraphThread, Z_THREAD_ID_GRAPH, Graph_ThreadEntry, arg, STACK_TOP(sGraphStack), Z_PRIORITY_GRAPH);
+    osCreateThread(&gGraphThread, Z_THREAD_ID_GRAPH, Graph_ThreadEntry, NULL, STACK_TOP(sGraphStack), Z_PRIORITY_GRAPH);
     osStartThread(&gGraphThread);
+#endif
+
+    Graph_ThreadEntry(0);
 
     exit = false;
 

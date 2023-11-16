@@ -1,6 +1,9 @@
 #ifndef PR_OS_PI_H
 #define PR_OS_PI_H
 
+#include <libultraship/libultra/pi.h>
+
+#if 0
 #include "ultratypes.h"
 #include "os_message.h"
 #include "libc/stddef.h"
@@ -70,37 +73,36 @@ typedef struct OSDevMgr {
     /* 0x18 */ s32 (*epiDmaCallback)(OSPiHandle*, s32, uintptr_t, void*, size_t);
 } OSDevMgr; // size = 0x1C
 
-
-
-#define OS_READ     0
-#define OS_WRITE    1
+#define OS_READ 0
+#define OS_WRITE 1
 
 /*
  * I/O message types
  */
-#define OS_MESG_TYPE_BASE        10
-#define OS_MESG_TYPE_LOOPBACK    (OS_MESG_TYPE_BASE+0)
-#define OS_MESG_TYPE_DMAREAD     (OS_MESG_TYPE_BASE+1)
-#define OS_MESG_TYPE_DMAWRITE    (OS_MESG_TYPE_BASE+2)
-#define OS_MESG_TYPE_VRETRACE    (OS_MESG_TYPE_BASE+3)
-#define OS_MESG_TYPE_COUNTER     (OS_MESG_TYPE_BASE+4)
-#define OS_MESG_TYPE_EDMAREAD    (OS_MESG_TYPE_BASE+5)
-#define OS_MESG_TYPE_EDMAWRITE   (OS_MESG_TYPE_BASE+6)
+#define OS_MESG_TYPE_BASE 10
+#define OS_MESG_TYPE_LOOPBACK (OS_MESG_TYPE_BASE + 0)
+#define OS_MESG_TYPE_DMAREAD (OS_MESG_TYPE_BASE + 1)
+#define OS_MESG_TYPE_DMAWRITE (OS_MESG_TYPE_BASE + 2)
+#define OS_MESG_TYPE_VRETRACE (OS_MESG_TYPE_BASE + 3)
+#define OS_MESG_TYPE_COUNTER (OS_MESG_TYPE_BASE + 4)
+#define OS_MESG_TYPE_EDMAREAD (OS_MESG_TYPE_BASE + 5)
+#define OS_MESG_TYPE_EDMAWRITE (OS_MESG_TYPE_BASE + 6)
 
 /*
  * I/O message priority
  */
-#define OS_MESG_PRI_NORMAL    0
-#define OS_MESG_PRI_HIGH      1
+#define OS_MESG_PRI_NORMAL 0
+#define OS_MESG_PRI_HIGH 1
 
 /*
  * PI/EPI
  */
-#define PI_DOMAIN1  0
-#define PI_DOMAIN2  1
+#define PI_DOMAIN1 0
+#define PI_DOMAIN2 1
 
 extern OSPiHandle* __osPiTable;
 
+#endif
 void osCreatePiManager(OSPri pri, OSMesgQueue* cmdQ, OSMesg* cmdBuf, s32 cmdMsgCnt);
 
 OSPiHandle* osCartRomInit(void);
@@ -109,5 +111,4 @@ s32 osEPiWriteIo(OSPiHandle* handle, uintptr_t devAddr, u32 data);
 s32 osEPiReadIo(OSPiHandle* handle, uintptr_t devAddr, u32* data);
 s32 osEPiStartDma(OSPiHandle* pihandle, OSIoMesg* mb, s32 direction);
 s32 osEPiLinkHandle(OSPiHandle* handle);
-
 #endif
