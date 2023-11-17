@@ -10,6 +10,9 @@
 #include "CIC6105.h"
 #include "overlays/gamestates/ovl_opening/z_opening.h"
 #include "misc/nintendo_rogo_static/nintendo_rogo_static.h"
+#include "overlays/gamestates/ovl_select/z_select.h"
+#include <stdlib.h>
+#include "BenPort.h"
 
 void ConsoleLogo_UpdateCounters(ConsoleLogoState* this) {
     if ((this->coverAlpha == 0) && (this->visibleDuration != 0)) {
@@ -76,6 +79,8 @@ void ConsoleLogo_Draw(GameState* thisx) {
     eye.x = -4949.148f;
     eye.y = 4002.5417f;
     eye.z = 1119.0837f;
+    void* shine = ResourceMgr_LoadTexOrDListByName(gNintendo64LogoTextShineTex);
+    char* logo = ResourceMgr_LoadTexOrDListByName(gNintendo64LogoTextTex);
 
     Hilite_DrawOpa(&object, &eye, &lightDir, this->state.gfxCtx);
 
@@ -99,13 +104,13 @@ void ConsoleLogo_Draw(GameState* thisx) {
                       COMBINED, ENVIRONMENT, COMBINED, 0, PRIMITIVE, 0);
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 170, 255, 255, 255);
     gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 255, 128);
-    gDPLoadMultiBlock(POLY_OPA_DISP++, gNintendo64LogoTextShineTex, 0x100, 1, G_IM_FMT_I, G_IM_SIZ_8b, 32, 32, 0,
-                      G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, 5, 5, 2, 11);
+    gDPLoadMultiBlock(POLY_OPA_DISP++, shine, 0x100, 1, G_IM_FMT_I, G_IM_SIZ_8b, 32, 32, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                      G_TX_NOMIRROR | G_TX_WRAP, 5, 5, 2, 11);
 
     for (idx = 0, y = 94; idx < 16; idx++, y += 2) {
-        gDPLoadTextureBlock(POLY_OPA_DISP++, &((u8*)gNintendo64LogoTextTex)[0x180 * idx], G_IM_FMT_I, G_IM_SIZ_8b, 192,
-                            2, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                            G_TX_NOLOD, G_TX_NOLOD);
+        gDPLoadTextureBlock(POLY_OPA_DISP++, &((u8*)logo)[0x180 * idx], G_IM_FMT_I, G_IM_SIZ_8b, 192, 2, 0,
+                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
+                            G_TX_NOLOD);
 
         gDPSetTileSize(POLY_OPA_DISP++, 1, this->uls, (this->ult & 0x7F) - idx * 4, 0, 0);
         gSPTextureRectangle(POLY_OPA_DISP++, 97 << 2, y << 2, (97 + 192) << 2, (y + 2) << 2, G_TX_RENDERTILE, 0, 0,
@@ -119,6 +124,9 @@ void ConsoleLogo_Draw(GameState* thisx) {
     CLOSE_DISPS(this->state.gfxCtx);
 }
 
+// hack for minibuild work
+void MapSelect_Init(GameState* thisx);
+void FileSelect_Init(GameState* thisx);
 void ConsoleLogo_Main(GameState* thisx) {
     ConsoleLogoState* this = (ConsoleLogoState*)thisx;
 
@@ -126,7 +134,7 @@ void ConsoleLogo_Main(GameState* thisx) {
 
     OPEN_DISPS(this->state.gfxCtx);
 
-    gSPSegment(POLY_OPA_DISP++, 0x01, this->staticSegment);
+    gSPSegment(OVERLAY_DISP++, 0x01, this->staticSegment);
 
     ConsoleLogo_UpdateCounters(this);
     ConsoleLogo_Draw(&this->state);
@@ -136,7 +144,8 @@ void ConsoleLogo_Main(GameState* thisx) {
         gSaveContext.gameMode = GAMEMODE_TITLE_SCREEN;
 
         STOP_GAMESTATE(&this->state);
-        SET_NEXT_GAMESTATE(&this->state, TitleSetup_Init, sizeof(TitleSetupState));
+        // hack
+        SET_NEXT_GAMESTATE(&this->state, MapSelect_Init, sizeof(MapSelectState));
     }
 
     CLOSE_DISPS(this->state.gfxCtx);

@@ -1,9 +1,8 @@
+#include "prevent_bss_reordering.h"
 #include "z64.h"
 #include "regs.h"
 #include "functions.h"
 #include "fault.h"
-#include "BenPort.h"
-#include <libultraship/libultraship.h>
 
 // Variables are put before most headers as a hacky way to bypass bss reordering
 FaultAddrConvClient sGraphFaultAddrConvClient;
@@ -26,6 +25,10 @@ OSTime sGraphPrevUpdateEndTime;
 #include "overlays/gamestates/ovl_title/z_title.h"
 #include "z_title_setup.h"
 
+void Graph_StartFrame();
+void Graph_ProcessGfxCommands(Gfx* commands);
+void Graph_ProcessFrame(void (*run_one_game_iter)(void));
+
 void Graph_FaultClient(void) {
     FaultDrawer_DrawText(30, 100, "ShowFrameBuffer PAGE 0/1");
     osViSwapBuffer(SysCfb_GetFramebuffer(0));
@@ -45,7 +48,7 @@ void Graph_SetNextGfxPool(GraphicsContext* gfxCtx) {
     GfxPool* pool = &gGfxPools[gfxCtx->gfxPoolIdx % 2];
 
     gGfxMasterDL = &pool->master;
-    gSegments[0x0E] = (uintptr_t)gGfxMasterDL;
+    gSegments[0x0E] = gGfxMasterDL;
 
     pool->headMagic = GFXPOOL_HEAD_MAGIC;
     pool->tailMagic = GFXPOOL_TAIL_MAGIC;
@@ -63,7 +66,7 @@ void Graph_SetNextGfxPool(GraphicsContext* gfxCtx) {
     gfxCtx->debugBuffer = pool->debugBuffer;
 
     gfxCtx->curFrameBuffer = SysCfb_GetFramebuffer(gfxCtx->framebufferIndex % 2);
-    gSegments[0x0F] = (uintptr_t)gfxCtx->curFrameBuffer;
+    gSegments[0x0F] = gfxCtx->curFrameBuffer;
 
     gfxCtx->zbuffer = SysCfb_GetZBuffer();
 
@@ -124,13 +127,13 @@ void Graph_Init(GraphicsContext* gfxCtx) {
     gfxCtx->xScale = gViConfigXScale;
     gfxCtx->yScale = gViConfigYScale;
     osCreateMesgQueue(&gfxCtx->queue, gfxCtx->msgBuff, ARRAY_COUNT(gfxCtx->msgBuff));
-    Fault_AddClient(&sGraphFaultClient, (void*)Graph_FaultClient, NULL, NULL);
-    Fault_AddAddrConvClient(&sGraphFaultAddrConvClient, Graph_FaultAddrConv, NULL);
+    // Fault_AddClient(&sGraphFaultClient, (void*)Graph_FaultClient, NULL, NULL);
+    // Fault_AddAddrConvClient(&sGraphFaultAddrConvClient, Graph_FaultAddrConv, NULL);
 }
 
 void Graph_Destroy(GraphicsContext* gfxCtx) {
-    Fault_RemoveClient(&sGraphFaultClient);
-    Fault_RemoveAddrConvClient(&sGraphFaultAddrConvClient);
+    // Fault_RemoveClient(&sGraphFaultClient);
+    // Fault_RemoveAddrConvClient(&sGraphFaultAddrConvClient);
 }
 
 /**
@@ -147,12 +150,11 @@ void Graph_TaskSet00(GraphicsContext* gfxCtx, GameState* gameState) {
     OSMesg msg;
     CfbInfo* cfb;
 
-    #if 0
 retry:
-    osSetTimer(&timer, OS_USEC_TO_CYCLES(3 * 1000 * 1000), 0, &gfxCtx->queue, (OSMesg)666);
-    osRecvMesg(&gfxCtx->queue, &msg, OS_MESG_BLOCK);
-    osStopTimer(&timer);
-
+// osSetTimer(&timer, OS_USEC_TO_CYCLES(3 * 1000 * 1000), 0, &gfxCtx->queue, (OSMesg)666);
+// osRecvMesg(&gfxCtx->queue, &msg, OS_MESG_BLOCK);
+// osStopTimer(&timer);
+#if 0
     if (msg == (OSMesg)666) {
         osSyncPrintf("GRAPH SP TIMEOUT\n");
         if (retryCount >= 0) {
@@ -162,10 +164,10 @@ retry:
         } else {
             // graph.c: No more! die!
             osSyncPrintf("graph.c:もうダメ！死ぬ！\n");
-            Fault_AddHungupAndCrashImpl("RCP is HUNG UP!!", "Oh! MY GOD!!");
+            //Fault_AddHungupAndCrashImpl("RCP is HUNG UP!!", "Oh! MY GOD!!");
         }
     }
-    #endif
+#endif
     gfxCtx->masterList = gGfxMasterDL;
     if (gfxCtx->callback != NULL) {
         gfxCtx->callback(gfxCtx, gfxCtx->callbackArg);
@@ -182,9 +184,12 @@ retry:
     task->dram_stack = (u64*)gGfxSPTaskStack;
     task->dram_stack_size = sizeof(gGfxSPTaskStack);
     task->output_buff = gGfxSPTaskOutputBufferPtr;
-    task->output_buff_size = (void*)gGfxSPTaskOutputBufferEnd;
+    task->output_buff_size = gGfxSPTaskOutputBufferEnd;
     task->data_ptr = (u64*)gGfxMasterDL;
-    task->data_size = 0;
+    OPEN_DISPS(gfxCtx);
+    task->data_size = (uintptr_t)WORK_DISP - (uintptr_t)gfxCtx->workBuffer;
+    CLOSE_DISPS(gfxCtx);
+
     task->yield_data_ptr = (u64*)gGfxSPTaskYieldBuffer;
     task->yield_data_size = sizeof(gGfxSPTaskYieldBuffer);
 
@@ -235,7 +240,7 @@ void Graph_UpdateGame(GameState* gameState) {
     GameState_GetInput(gameState);
     GameState_IncrementFrameCount(gameState);
     // BENTODO
-    //if (SREG(20) < 3) {
+    // if (SREG(20) < 3) {
     //    Audio_Update();
     //}
 }
@@ -265,13 +270,22 @@ void Graph_ExecuteAndDraw(GraphicsContext* gfxCtx, GameState* gameState) {
     {
         Gfx* gfx = gGfxMasterDL->taskStart;
 
-        gSPSegment(gfx++, 0x0E, gGfxMasterDL);
+        gSPSegment(gfx++, 0x0E, gGfxMasterDL->taskStart);
         __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[3] - (uintptr_t)&D_0E000000) + 1);
         __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[0] - (uintptr_t)&D_0E000000) + 1);
         __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[1] - (uintptr_t)&D_0E000000) + 1);
         __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[2] - (uintptr_t)&D_0E000000) + 1);
         __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.debugDisp[0] - (uintptr_t)&D_0E000000) + 1);
         gSPDisplayList(gfx++, gfxCtx->work.start);
+
+        gSPDisplayList(gfx++, gGfxPools[gfxCtx->gfxPoolIdx % 2].workBuffer);
+        gSPDisplayList(gfx++, gGfxPools[gfxCtx->gfxPoolIdx % 2].polyOpaBuffer);
+        gSPDisplayList(gfx++, gGfxPools[gfxCtx->gfxPoolIdx % 2].polyXluBuffer);
+        gSPDisplayList(gfx++, gGfxPools[gfxCtx->gfxPoolIdx % 2].overlayBuffer);
+
+        // BENTODO: CRASH!
+        // gSPDisplayList(gfx++, gGfxPools[gfxCtx->gfxPoolIdx % 2].debugBuffer);
+
         gDPPipeSync(gfx++);
         gDPFullSync(gfx++);
         gSPEndDisplayList(gfx++);
@@ -283,10 +297,10 @@ void Graph_ExecuteAndDraw(GraphicsContext* gfxCtx, GameState* gameState) {
         GfxPool* pool = &gGfxPools[gfxCtx->gfxPoolIdx % 2];
 
         if (pool->headMagic != GFXPOOL_HEAD_MAGIC) {
-            Fault_AddHungupAndCrash("../graph.c", 1054);
+            // Fault_AddHungupAndCrash("../graph.c", 1054);
         }
         if (pool->tailMagic != GFXPOOL_TAIL_MAGIC) {
-            Fault_AddHungupAndCrash("../graph.c", 1066);
+            // Fault_AddHungupAndCrash("../graph.c", 1066);
         }
     }
 
@@ -310,6 +324,8 @@ void Graph_ExecuteAndDraw(GraphicsContext* gfxCtx, GameState* gameState) {
         Graph_TaskSet00(gfxCtx, gameState);
         gfxCtx->gfxPoolIdx++;
         gfxCtx->framebufferIndex++;
+
+        Graph_ProcessGfxCommands(&gGfxMasterDL->taskStart[0]);
     }
 
     {
@@ -379,10 +395,15 @@ void RunFrame() {
 
             Graph_StartFrame();
 
-            //PadMgr_ThreadEntry(&gPadMgr);
+            PadMgr_ThreadEntry(&gPadMgr);
 
             Graph_Update(&runFrameContext.gfxCtx, runFrameContext.gameState);
-            Graph_ProcessGfxCommands(runFrameContext.gfxCtx.workBuffer);
+            // ticksB = GetPerfCounter();
+
+            // Graph_ProcessGfxCommands(runFrameContext.gfxCtx.workBuffer);
+            // Graph_ProcessGfxCommands(gGfxMasterDL->taskStart);
+            //  uint64_t diff = (ticksB - ticksA) / (freq / 1000);
+            //  printf("Frame simulated in %ims\n", diff);
             runFrameContext.state = 1;
             return;
         nextFrame:;

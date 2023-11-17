@@ -1,7 +1,6 @@
 #include "global.h"
 #include "sys_cfb.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
-#include <libultraship/libultraship.h>
 
 Gfx gSetupDLs[SETUPDL_MAX][6] = {
     {
@@ -841,6 +840,8 @@ Gfx sFillSetupDL[] = {
                          G_TD_CLAMP | G_TP_PERSP | G_CYC_FILL | G_PM_NPRIMITIVE,
                      G_AC_NONE | G_ZS_PIXEL | G_RM_NOOP | G_RM_NOOP2),
     gsSPLoadGeometryMode(G_ZBUFFER | G_SHADE | G_CULL_BACK | G_LIGHTING | G_SHADING_SMOOTH),
+    // BENTODO: CRASH
+    // gsSPDisplayList(D_0E000000.setScissor),
     gsSPDisplayList(0x0E0001C8 | 1),
     gsDPSetBlendColor(0x00, 0x00, 0x00, 0x08),
     gsSPClipRatio(FRUSTRATIO_2),
@@ -1450,8 +1451,8 @@ void func_8012CF0C(GraphicsContext* gfxCtx, s32 clearFb, s32 clearZb, u8 r, u8 g
     s32 i;
 
     gSegments[0x00] = 0;
-    gSegments[0x0F] = (uintptr_t)gfxCtx->curFrameBuffer;
-    gSegments[0x0E] = (uintptr_t)gGfxMasterDL;
+    gSegments[0x0F] = gfxCtx->curFrameBuffer;
+    gSegments[0x0E] = gGfxMasterDL;
 
     zbuffer = gfxCtx->zbuffer;
 
@@ -1459,8 +1460,10 @@ void func_8012CF0C(GraphicsContext* gfxCtx, s32 clearFb, s32 clearZb, u8 r, u8 g
 
     masterGfx = gGfxMasterDL->setupBuffers;
 
-    gSPDisplayList(&masterGfx[0], D_0E000000.syncSegments);
+    __gSPDisplayList(&masterGfx[0], 0x0E000000 + ((uintptr_t)&D_0E000000.syncSegments - (uintptr_t)&D_0E000000) + 1);
+
     gSPDisplayList(&masterGfx[1], sFillSetupDL);
+
     gDPSetColorImage(&masterGfx[2], G_IM_FMT_RGBA, G_IM_SIZ_16b, gCfbWidth, D_0F000000);
     if (zbuffer != NULL) {
         gDPSetDepthImage(&masterGfx[3], zbuffer);
@@ -1488,7 +1491,9 @@ void func_8012CF0C(GraphicsContext* gfxCtx, s32 clearFb, s32 clearZb, u8 r, u8 g
         gDPSetCycleType(&masterGfx[2], G_CYC_FILL);
         gDPSetRenderMode(&masterGfx[3], G_RM_NOOP, G_RM_NOOP2);
         gDPSetFillColor(&masterGfx[4], (GPACK_RGBA5551(255, 255, 240, 0) << 16) | GPACK_RGBA5551(255, 255, 240, 0));
-        gSPDisplayList(&masterGfx[5], D_0E000000.clearFillRect);
+
+        gSPDisplayList(&masterGfx[5], 0x0E000000 + ((uintptr_t)&D_0E000000.clearFillRect - (uintptr_t)&D_0E000000) + 1);
+
         gDPSetColorImage(&masterGfx[6], G_IM_FMT_RGBA, G_IM_SIZ_16b, gCfbWidth, D_0F000000);
         gSPEndDisplayList(&masterGfx[7]);
     }
@@ -1501,7 +1506,8 @@ void func_8012CF0C(GraphicsContext* gfxCtx, s32 clearFb, s32 clearZb, u8 r, u8 g
     gDPSetCycleType(&masterGfx[1], G_CYC_FILL);
     gDPSetRenderMode(&masterGfx[2], G_RM_NOOP, G_RM_NOOP2);
     gDPSetFillColor(&masterGfx[3], (GPACK_RGBA5551(r, g, b, 1) << 16) | GPACK_RGBA5551(r, g, b, 1));
-    gSPBranchList(&masterGfx[4], D_0E000000.clearFillRect);
+
+    gSPBranchList(&masterGfx[4], 0x0E000000 + ((uintptr_t)&D_0E000000.clearFillRect - (uintptr_t)&D_0E000000) + 1);
 
     // Fillrect used by the above buffer clearing routines
 
@@ -1540,10 +1546,12 @@ void func_8012CF0C(GraphicsContext* gfxCtx, s32 clearFb, s32 clearZb, u8 r, u8 g
     gSPDisplayList(DEBUG_DISP++, gGfxMasterDL->setupBuffers);
 
     if (clearZb) {
-        gSPDisplayList(POLY_OPA_DISP++, D_0E000000.clearZBuffer);
+        __gSPDisplayList(POLY_OPA_DISP++,
+                         0x0E000000 + ((uintptr_t)&D_0E000000.clearZBuffer - (uintptr_t)&D_0E000000) + 1);
     }
     if (clearFb) {
-        gSPDisplayList(POLY_OPA_DISP++, D_0E000000.clearFrameBuffer);
+        __gSPDisplayList(POLY_OPA_DISP++,
+                         0x0E000000 + ((uintptr_t)&D_0E000000.clearFrameBuffer - (uintptr_t)&D_0E000000) + 1);
     }
 
     CLOSE_DISPS(gfxCtx);
