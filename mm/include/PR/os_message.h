@@ -49,12 +49,12 @@ typedef struct OSMesgQueue {
 #define OS_MESG_NOBLOCK 0
 #define OS_MESG_BLOCK 1
 
+#endif
 #define MQ_GET_COUNT(mq) ((mq)->validCount)
 
 #define MQ_IS_EMPTY(mq) (MQ_GET_COUNT(mq) == 0)
 #define MQ_IS_FULL(mq) (MQ_GET_COUNT(mq) >= (mq)->msgCount)
 
-#endif
 void osCreateMesgQueue(OSMesgQueue* mq, OSMesg* msq, s32 count);
 s32 osSendMesg(OSMesgQueue* mq, OSMesg msg, s32 flags);
 s32 osJamMesg(OSMesgQueue* mq, OSMesg msg, s32 flag);

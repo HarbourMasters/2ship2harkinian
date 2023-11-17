@@ -8,8 +8,9 @@ void AudioMgr_NotifyTaskDone(AudioMgr* audioMgr) {
         osSendMesg(task->taskQueue, OS_MESG_PTR(NULL), OS_MESG_BLOCK);
     }
 }
-
+// BENTODO
 void AudioMgr_HandleRetrace(AudioMgr* audioMgr) {
+    #if 0
     static s32 sRetryCount = 10;
     AudioTask* rspTask;
     s32 timerMsgVal = 666;
@@ -67,6 +68,7 @@ void AudioMgr_HandleRetrace(AudioMgr* audioMgr) {
     }
 
     audioMgr->rspTask = rspTask;
+    #endif
 }
 
 void AudioMgr_HandlePreNMI(AudioMgr* audioMgr) {

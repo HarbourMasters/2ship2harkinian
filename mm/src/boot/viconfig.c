@@ -9,6 +9,7 @@ extern OSViMode osViModeMpalLan1;
 extern OSViMode osViModeFpalLan1;
 
 void ViConfig_UpdateVi(u32 black) {
+    #if 0
     if (black) {
         switch (osTvType) {
             case OS_TV_MPAL:
@@ -53,6 +54,7 @@ void ViConfig_UpdateVi(u32 black) {
     }
 
     gViConfigUseBlack = black;
+    #endif
 }
 
 void ViConfig_UpdateBlack(void) {

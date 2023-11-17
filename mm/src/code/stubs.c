@@ -1109,7 +1109,3 @@ void osSpTaskStartGo(OSTask* task) {
 }
 void osViExtendVStart(u32 arg0) {
 }
-
-void _dbg_hungup(const char* file, int line) {
-    assert(0);
-}

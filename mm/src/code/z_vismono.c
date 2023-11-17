@@ -41,6 +41,8 @@ void VisMono_Init(VisMono* this) {
 void VisMono_Destroy(VisMono* this) {
     SystemArena_Free(this->dList);
 }
+// BENTODO move to a header since it might be helpful other places.
+#define GPACK_IA16(i, a) (((i) << 8) | (a))
 
 void VisMono_DesaturateTLUT(u16* tlut) {
     s32 i;

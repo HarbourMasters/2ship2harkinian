@@ -271,7 +271,7 @@ void Graph_ExecuteAndDraw(GraphicsContext* gfxCtx, GameState* gameState) {
         __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[1] - (uintptr_t)&D_0E000000) + 1);
         __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[2] - (uintptr_t)&D_0E000000) + 1);
         __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.debugDisp[0] - (uintptr_t)&D_0E000000) + 1);
-
+        gSPDisplayList(gfx++, gfxCtx->work.start);
         gDPPipeSync(gfx++);
         gDPFullSync(gfx++);
         gSPEndDisplayList(gfx++);
@@ -379,10 +379,10 @@ void RunFrame() {
 
             Graph_StartFrame();
 
-            PadMgr_ThreadEntry(&gPadMgr);
+            //PadMgr_ThreadEntry(&gPadMgr);
 
             Graph_Update(&runFrameContext.gfxCtx, runFrameContext.gameState);
-
+            Graph_ProcessGfxCommands(runFrameContext.gfxCtx.workBuffer);
             runFrameContext.state = 1;
             return;
         nextFrame:;

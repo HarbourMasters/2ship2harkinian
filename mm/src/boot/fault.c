@@ -81,6 +81,7 @@ const char* sFpuExceptions[] = {
     "Unimplemented operation", "Invalid operation", "Division by zero", "Overflow", "Underflow", "Inexact operation",
 };
 #endif
+#include <assert.h>
 void Fault_SleepImpl(u32 duration) {
     //OSTime value = (duration * OS_CPU_COUNTER) / 1000ULL;
 
@@ -1167,7 +1168,7 @@ void Fault_HangupFaultClient(const char* exp1, const char* exp2) {
  * or both may be NULL.
  */
 void Fault_AddHungupAndCrashImpl(const char* exp1, const char* exp2) {
-    assert();
+    assert(0);
     //FaultClient client;
     //s32 pad;
     //

@@ -1562,7 +1562,11 @@ void Play_InitEnvironment(PlayState* this, s16 skyboxId) {
     Environment_Init(this, &this->envCtx, 0);
 }
 
+void OTRPlay_InitScene(PlayState* play, s32 spawn);
+
 void Play_InitScene(PlayState* this, s32 spawn) {
+    OTRPlay_InitScene(this, spawn);
+    #if 0
     this->curSpawn = spawn;
     this->linkActorEntry = NULL;
     this->actorCsCamList = NULL;
@@ -1580,9 +1584,14 @@ void Play_InitScene(PlayState* this, s32 spawn) {
     gSaveContext.worldMapArea = 0;
     Scene_ExecuteCommands(this, this->sceneSegment);
     Play_InitEnvironment(this, this->skyboxId);
+    #endif
 }
 
+void OTRPlay_SpawnScene(PlayState* play, s32 sceneId, s32 spawn);
+
 void Play_SpawnScene(PlayState* this, s32 sceneId, s32 spawn) {
+    OTRPlay_SpawnScene(this, sceneId, spawn);
+#if 0
     s32 pad;
     SceneTableEntry* scene = &gSceneTable[sceneId];
 
@@ -1592,9 +1601,10 @@ void Play_SpawnScene(PlayState* this, s32 sceneId, s32 spawn) {
     this->sceneConfig = scene->drawConfig;
     this->sceneSegment = Play_LoadFile(this, &scene->segment);
     scene->unk_D = 0;
-    gSegments[2] = OS_K0_TO_PHYSICAL(this->sceneSegment);
+    gSegments[2] = VIRTUAL_TO_PHYSICAL(this->sceneSegment);
     Play_InitScene(this, spawn);
     Room_AllocateAndLoad(this, &this->roomCtx);
+#endif
 }
 
 void Play_GetScreenPos(PlayState* this, Vec3f* worldPos, Vec3f* screenPos) {

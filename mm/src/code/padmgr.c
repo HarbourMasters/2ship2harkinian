@@ -513,6 +513,7 @@ void PadMgr_UpdateInputs(void) {
  * a VRU other than on the first VI retrace.
  */
 void PadMgr_InitVoice(void) {
+    #if 0
     s32 i;
     OSMesgQueue* serialEventQueue;
     s32 ret;
@@ -538,6 +539,7 @@ void PadMgr_InitVoice(void) {
     if (sVoiceInitStatus == VOICE_INIT_TRY) {
         sVoiceInitStatus = VOICE_INIT_FAILED;
     }
+    #endif
 }
 
 /**
@@ -595,6 +597,7 @@ void PadMgr_UpdateConnections(void) {
 }
 
 void PadMgr_HandleRetrace(void) {
+    #if 0
     OSMesgQueue* serialEventQueue = PadMgr_AcquireSerialEventQueue();
 
     // Begin reading controller data
@@ -665,6 +668,7 @@ void PadMgr_HandleRetrace(void) {
     }
 
     sPadMgrRetraceCount++;
+    #endif
 }
 
 void PadMgr_HandlePreNMI(void) {
@@ -736,6 +740,7 @@ void PadMgr_GetInput2(Input* inputs, s32 gameRequest) {
 }
 
 void PadMgr_ThreadEntry() {
+    #if 0
     s16* interruptMsg = NULL;
     s32 actionBits;
     s32 exit;
@@ -783,6 +788,7 @@ void PadMgr_ThreadEntry() {
     }
 
     IrqMgr_RemoveClient(sPadMgrInstance->irqMgr, &sPadMgrInstance->irqClient);
+    #endif
 }
 
 void PadMgr_Init(OSMesgQueue* siEvtQ, IrqMgr* irqMgr, OSId threadId, OSPri pri, void* stack) {

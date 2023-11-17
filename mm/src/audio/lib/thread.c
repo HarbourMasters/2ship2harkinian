@@ -20,6 +20,8 @@ AudioTask* AudioThread_Update(void) {
 }
 
 AudioTask* AudioThread_UpdateImpl(void) {
+    // BENTODO
+    #if 0
     static AudioTask* sWaitingAudioTask = NULL;
     u32 numSamplesRemainingInAi;
     s32 numAbiCmds;
@@ -194,6 +196,7 @@ AudioTask* AudioThread_UpdateImpl(void) {
         sWaitingAudioTask = gAudioCtx.curTask;
         return NULL;
     }
+    #endif
 }
 
 void AudioThread_ProcessGlobalCmd(AudioCmd* cmd) {
