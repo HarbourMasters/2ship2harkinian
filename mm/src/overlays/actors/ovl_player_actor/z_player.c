@@ -1780,6 +1780,8 @@ u16 D_8085C3EC[] = {
 };
 
 void func_8082E00C(Player* this) {
+    return;
+    // BENTODO
     s32 i;
     u16* sfxIdPtr = D_8085C3EC;
 
