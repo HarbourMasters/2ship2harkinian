@@ -247,14 +247,19 @@ extern Gfx gEmptyDL[];
 
 // __gfxCtx shouldn't be used directly.
 // Use the DISP macros defined above when writing to display buffers.
-#define OPEN_DISPS(gfxCtx)                  \
-    {                                       \
-        GraphicsContext* __gfxCtx = gfxCtx; \
-        s32 __dispPad
+#define OPEN_DISPS(gfxCtx)                                        \
+    {                                                             \
+        GraphicsContext* __gfxCtx = gfxCtx;                       \
+        gDPNoOpOpenDisp(gfxCtx->polyOpa.p++, __FILE__, __LINE__); \
+        gDPNoOpOpenDisp(gfxCtx->polyXlu.p++, __FILE__, __LINE__); \
+        gDPNoOpOpenDisp(gfxCtx->overlay.p++, __FILE__, __LINE__);
 
-#define CLOSE_DISPS(gfxCtx) \
-    (void)0;                \
-    }                       \
+#define CLOSE_DISPS(gfxCtx)                                    \
+    (void)0;                                                   \
+    gDPNoOpCloseDisp(gfxCtx->polyOpa.p++, __FILE__, __LINE__); \
+    gDPNoOpCloseDisp(gfxCtx->polyXlu.p++, __FILE__, __LINE__); \
+    gDPNoOpCloseDisp(gfxCtx->overlay.p++, __FILE__, __LINE__); \
+    }                                                          \
     (void)0
 
 #define GRAPH_ALLOC(gfxCtx, size) ((void*)((gfxCtx)->polyOpa.d = (Gfx*)((u8*)(gfxCtx)->polyOpa.d - ALIGN16(size))))

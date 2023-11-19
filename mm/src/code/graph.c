@@ -251,6 +251,10 @@ void Graph_UpdateGame(GameState* gameState) {
  */
 void Graph_ExecuteAndDraw(GraphicsContext* gfxCtx, GameState* gameState) {
     u32 problem;
+    if (GfxDebuggerIsDebugging()) {
+        Graph_ProcessGfxCommands(&gGfxMasterDL->taskStart[0]);
+        return;
+    }
 
     gameState->unk_A3 = 0;
     Graph_SetNextGfxPool(gfxCtx);
@@ -271,20 +275,18 @@ void Graph_ExecuteAndDraw(GraphicsContext* gfxCtx, GameState* gameState) {
         Gfx* gfx = gGfxMasterDL->taskStart;
 
         gSPSegment(gfx++, 0x0E, gGfxMasterDL->taskStart);
-        __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[3] - (uintptr_t)&D_0E000000) + 1);
-        __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[0] - (uintptr_t)&D_0E000000) + 1);
-        __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[1] - (uintptr_t)&D_0E000000) + 1);
-        __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[2] - (uintptr_t)&D_0E000000) + 1);
-        __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.debugDisp[0] - (uintptr_t)&D_0E000000) + 1);
-        gSPDisplayList(gfx++, gfxCtx->work.start);
+        // __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[3] - (uintptr_t)&D_0E000000) + 1);
+        // __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[0] - (uintptr_t)&D_0E000000) + 1);
+        // __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[1] - (uintptr_t)&D_0E000000) + 1);
+        // __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[2] - (uintptr_t)&D_0E000000) + 1);
+        // __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.debugDisp[0] - (uintptr_t)&D_0E000000) + 1);
+        // gSPDisplayList(gfx++, gfxCtx->work.start);
 
         gSPDisplayList(gfx++, gGfxPools[gfxCtx->gfxPoolIdx % 2].workBuffer);
         gSPDisplayList(gfx++, gGfxPools[gfxCtx->gfxPoolIdx % 2].polyOpaBuffer);
         gSPDisplayList(gfx++, gGfxPools[gfxCtx->gfxPoolIdx % 2].polyXluBuffer);
         gSPDisplayList(gfx++, gGfxPools[gfxCtx->gfxPoolIdx % 2].overlayBuffer);
-
-        // BENTODO: CRASH!
-        // gSPDisplayList(gfx++, gGfxPools[gfxCtx->gfxPoolIdx % 2].debugBuffer);
+        gSPDisplayList(gfx++, gGfxPools[gfxCtx->gfxPoolIdx % 2].debugBuffer);
 
         gDPPipeSync(gfx++);
         gDPFullSync(gfx++);
@@ -325,6 +327,9 @@ void Graph_ExecuteAndDraw(GraphicsContext* gfxCtx, GameState* gameState) {
         gfxCtx->gfxPoolIdx++;
         gfxCtx->framebufferIndex++;
 
+        if (GfxDebuggerIsDebuggingRequested()) {
+            GfxDebuggerDebugDisplayList(&gGfxMasterDL->taskStart[0]);
+        }
         Graph_ProcessGfxCommands(&gGfxMasterDL->taskStart[0]);
     }
 

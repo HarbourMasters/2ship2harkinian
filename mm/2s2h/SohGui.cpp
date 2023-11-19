@@ -110,6 +110,7 @@ namespace SohGui {
     std::shared_ptr<LUS::GuiWindow> mConsoleWindow;
     std::shared_ptr<LUS::GuiWindow> mStatsWindow;
     std::shared_ptr<LUS::GuiWindow> mInputEditorWindow;
+    std::shared_ptr<LUS::GuiWindow> mGfxDebuggerWindow;
 
     //std::shared_ptr<AudioEditor> mAudioEditorWindow;
     //std::shared_ptr<GameControlEditor::GameControlEditorWindow> mGameControlEditorWindow;
@@ -153,6 +154,11 @@ namespace SohGui {
         mInputEditorWindow = gui->GetGuiWindow("Input Editor");
         if (mInputEditorWindow == nullptr) {
             SPDLOG_ERROR("Could not find input editor window");
+        }
+
+        mGfxDebuggerWindow = gui->GetGuiWindow("GfxDebuggerWindow");
+        if (mGfxDebuggerWindow == nullptr) {
+            SPDLOG_ERROR("Could not find input GfxDebuggerWindow");
         }
 
         /*

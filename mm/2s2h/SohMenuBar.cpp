@@ -446,6 +446,7 @@ void DrawSettingsMenu() {
 
 extern std::shared_ptr<LUS::GuiWindow> mStatsWindow;
 extern std::shared_ptr<LUS::GuiWindow> mConsoleWindow;
+extern std::shared_ptr<LUS::GuiWindow> mGfxDebuggerWindow;
 // extern std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
 // extern std::shared_ptr<ColViewerWindow> mColViewerWindow;
 // extern std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
@@ -505,6 +506,16 @@ void DrawDeveloperToolsMenu() {
                 "Enables the console window, allowing you to input commands, type help for some examples");
         }
         UIWidgets::Spacer(0);
+        if (mGfxDebuggerWindow) {
+            if (ImGui::Button(GetWindowButtonText("Gfx Debugger", CVarGetInteger("gGfxDebuggerEnabled", 0)).c_str(),
+                              ImVec2(-1.0f, 0.0f))) {
+                mGfxDebuggerWindow->ToggleVisibility();
+            }
+            UIWidgets::Tooltip(
+                "Enables the Gfx Debugger window, allowing you to input commands, type help for some examples");
+        }
+        UIWidgets::Spacer(0);
+
         // if (mSaveEditorWindow) {
         //     if (ImGui::Button(GetWindowButtonText("Save Editor", CVarGetInteger("gSaveEditorEnabled", 0)).c_str(),
         //     ImVec2(-1.0f, 0.0f))) {
