@@ -1,3 +1,11 @@
+*.otr
+.vscode
+*.swp
+logs
+*.nix
+shipofharkinian.json
+.envrc
+imgui.ini
 
 mm/libultraship/extern/Debug/ImGui.lib
 
