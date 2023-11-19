@@ -19,7 +19,7 @@ s32 DmaMgr_FindDmaIndex(uintptr_t vrom);
 const char* func_800809F4(uintptr_t param_1);
 void DmaMgr_ProcessMsg(DmaRequest* req);
 void DmaMgr_ThreadEntry(void* arg);
-s32 DmaMgr_SendRequestImpl(DmaRequest* request, void* vramStart, uintptr_t vromStart, size_t size, UNK_TYPE4 unused, OSMesgQueue* queue, void* msg);
+s32 DmaMgr_SendRequestImpl(DmaRequest* request, void* vramStart, uintptr_t vromStart, size_t size, UNK_TYPE4 unused, OSMesgQueue* queue, OSMesg msg);
 s32 DmaMgr_SendRequest0(void* vramStart, uintptr_t vromStart, size_t size);
 void DmaMgr_Start(void);
 void DmaMgr_Stop(void);

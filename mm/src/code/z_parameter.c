@@ -3276,7 +3276,7 @@ void Interface_LoadAButtonDoActionLabel(InterfaceContext* interfaceCtx, u16 acti
         DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest,
                                (u32)interfaceCtx->doActionSegment + (loadOffset * DO_ACTION_TEX_SIZE),
                                (u32)SEGMENT_ROM_START(do_action_static) + (action * DO_ACTION_TEX_SIZE),
-                               DO_ACTION_TEX_SIZE, 0, &interfaceCtx->loadQueue, 0);
+                               DO_ACTION_TEX_SIZE, 0, &interfaceCtx->loadQueue, OS_MESG_PTR(NULL));
         osRecvMesg(&interfaceCtx->loadQueue, NULL, OS_MESG_BLOCK);
     } else {
         gSegments[0x09] = PHYSICAL_TO_VIRTUAL(interfaceCtx->doActionSegment);
@@ -6687,7 +6687,7 @@ void Interface_LoadStory(PlayState* play, s32 osMesgFlag) {
             }
             osCreateMesgQueue(&interfaceCtx->storyMsgQueue, &interfaceCtx->storyMsgBuf, 1);
             DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest, interfaceCtx->storySegment, interfaceCtx->storyAddr,
-                                   interfaceCtx->storySize, 0, &interfaceCtx->storyMsgQueue, NULL);
+                                   interfaceCtx->storySize, 0, &interfaceCtx->storyMsgQueue, OS_MESG_PTR(NULL));
             interfaceCtx->storyDmaStatus = STORY_DMA_LOADING;
             // fallthrough
         case STORY_DMA_LOADING:
