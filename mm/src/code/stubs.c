@@ -24,8 +24,6 @@ u16 gAudioSEFlagSwapSource[64];
 u16 gAudioSEFlagSwapTarget[64];
 u8 gAudioSEFlagSwapMode[64];
 
-OSPiHandle* gCartHandle;
-
 s32 osAppNMIBuffer[8];
 
 f32 qNaN0x10000 = 0x7F810000;
@@ -69,8 +67,6 @@ u8 D_80025D00[100];
 GfxMasterList D_0E000000;
 Mtx D_01000000;
 u16 D_0F000000[1];
-
-OSVoiceHandle gVoiceHandle;
 
 u64 gspS2DEX_fifoTextStart[1], gspS2DEX_fifoTextEnd[1];
 u64 gspS2DEX_fifoDataStart[1], gspS2DEX_fifoDataEnd[1];
