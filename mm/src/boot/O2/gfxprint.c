@@ -156,10 +156,11 @@ void GfxPrint_Setup(GfxPrint* this) {
 
     gDPSetColor(this->dList++, G_SETPRIMCOLOR, this->color.rgba);
 
-    gDPLoadMultiTile_4b(this->dList++, sGfxPrintRainbowData, 0, 1, G_IM_FMT_CI, 2, 8, 0, 0, 1, 7, 4,
-                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, 1, 3, G_TX_NOLOD, G_TX_NOLOD);
+    // BENTODO: CRASH
+    // gDPLoadMultiTile_4b(this->dList++, sGfxPrintRainbowData, 0, 1, G_IM_FMT_CI, 2, 8, 0, 0, 1, 7, 4,
+    //                     G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, 1, 3, G_TX_NOLOD, G_TX_NOLOD);
 
-    gDPLoadTLUT(this->dList++, 16, 320, sGfxPrintRainbowTLUT);
+    // gDPLoadTLUT(this->dList++, 16, 320, sGfxPrintRainbowTLUT);
 
     for (i = 1; i < 4; i++) {
         gDPSetTile(this->dList++, G_IM_FMT_CI, G_IM_SIZ_4b, 1, 0, i * 2 + 1, 4, G_TX_NOMIRROR | G_TX_WRAP, 3,
@@ -200,7 +201,8 @@ void GfxPrint_PrintCharImpl(GfxPrint* this, u8 c) {
         this->flags &= ~GFXP_FLAG_UPDATE;
 
         gDPPipeSync(this->dList++);
-        if (this->flags & GFXP_FLAG_RAINBOW) {
+        // BENTODO: CRASH HERE
+        if (this->flags & GFXP_FLAG_RAINBOW && false) {
             gDPSetTextureLUT(this->dList++, G_TT_RGBA16);
             gDPSetCycleType(this->dList++, G_CYC_2CYCLE);
             gDPSetRenderMode(this->dList++, G_RM_PASS, G_RM_XLU_SURF2);
@@ -263,12 +265,14 @@ void GfxPrint_PrintChar(GfxPrint* this, u8 c) {
                 this->flags &= ~GFXP_FLAG_HIRAGANA;
                 break;
             case GFXP_RAINBOW_ON_CHAR:
-                this->flags |= GFXP_FLAG_RAINBOW;
-                this->flags |= GFXP_FLAG_UPDATE;
+                // BENTODO: CRASH
+                // this->flags |= GFXP_FLAG_RAINBOW;
+                // this->flags |= GFXP_FLAG_UPDATE;
                 break;
             case GFXP_RAINBOW_OFF_CHAR:
-                this->flags &= ~GFXP_FLAG_RAINBOW;
-                this->flags |= GFXP_FLAG_UPDATE;
+                // BENTODO: CRASH
+                // this->flags &= ~GFXP_FLAG_RAINBOW;
+                // this->flags |= GFXP_FLAG_UPDATE;
                 break;
             case GFXP_UNUSED_CHAR:
             default:
