@@ -560,14 +560,14 @@ void Sched_FaultClient(void* param1, void* param2) {
  * threads or the OS.
  */
 void Sched_ThreadEntry(void* arg) {
-    s32 msg = 0;
+    OSMesg msg = OS_MESG_PTR(NULL);;
     SchedContext* sched = (SchedContext*)arg;
 
     while (true) {
-        osRecvMesg(&sched->interruptQ, (OSMesg*)&msg, OS_MESG_BLOCK);
+        osRecvMesg(&sched->interruptQ, &msg, OS_MESG_BLOCK);
 
         // Check if it's a message from another thread or the OS
-        switch (msg) {
+        switch ((s32)msg.data32) {
             case RDP_AUDIO_CANCEL_MSG:
                 Sched_HandleAudioCancel(sched);
                 continue;
@@ -588,9 +588,8 @@ void Sched_ThreadEntry(void* arg) {
                 Sched_HandleRDPDone(sched);
                 continue;
         }
-
         // Check if it's a message from the IrqMgr
-        switch (((OSScMsg*)msg)->type) {
+        switch (((OSScMsg*)msg.data32)->type) {
             case OS_SC_RETRACE_MSG:
                 Sched_HandleRetrace(sched);
                 continue;
