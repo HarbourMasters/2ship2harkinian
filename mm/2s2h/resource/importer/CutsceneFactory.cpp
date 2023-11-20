@@ -746,7 +746,7 @@ void LUS::CutsceneFactoryV0::ParseFileBinaryMM(std::shared_ptr<BinaryReader> rea
                 uint32_t size = reader->ReadUInt32();
                 cutscene->commands.push_back(size);
 
-                for (uint32_t i = 0; i < (size / 4); i++) {
+                for (uint32_t i = 0; i < size; i++) {
                     cutscene->commands.push_back(read_CMD_HH(reader));
                 }
                 break;
@@ -880,9 +880,6 @@ void LUS::CutsceneFactoryV0::ParseFileBinaryMM(std::shared_ptr<BinaryReader> rea
                     cutscene->commands.push_back(read_CMD_HH(reader));
                     cutscene->commands.push_back(read_CMD_HH(reader));
                     cutscene->commands.push_back(read_CMD_HH(reader));
-                    cutscene->commands.push_back(reader->ReadUInt32());
-                    cutscene->commands.push_back(reader->ReadUInt32());
-                    cutscene->commands.push_back(reader->ReadUInt32());
                     cutscene->commands.push_back(reader->ReadUInt32());
                     cutscene->commands.push_back(reader->ReadUInt32());
                     cutscene->commands.push_back(reader->ReadUInt32());
