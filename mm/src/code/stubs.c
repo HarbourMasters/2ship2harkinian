@@ -18,7 +18,7 @@ s32 osResetType;
 // unk_D_8016E750 D_8016E750[4];
 u8 gLetterTLUT[4][32];
 u8 gFontFF[999];
-//DmaEntry dmadata[0x60C];
+DmaEntry dmadata[1568];
 // u8 D_80133418;
 u16 gAudioSEFlagSwapSource[64];
 u16 gAudioSEFlagSwapTarget[64];
@@ -66,7 +66,7 @@ u8 D_80025D00[100];
 
 GfxMasterList D_0E000000;
 Mtx D_01000000;
-u16 D_0F000000[1];
+u16 D_0F000000[SCREEN_WIDTH * SCREEN_HEIGHT];
 
 u64 gspS2DEX_fifoTextStart[1], gspS2DEX_fifoTextEnd[1];
 u64 gspS2DEX_fifoDataStart[1], gspS2DEX_fifoDataEnd[1];

@@ -63,7 +63,7 @@ void SDL_main(int argc, char** argv /* void* arg*/) {
     sysHeap = gSystemHeap;
     // fb = 0x80780000;
     // gSystemHeapSize = fb - sysHeap;
-    SystemHeap_Init(sysHeap, 0xFFFFFF);
+    SystemHeap_Init(sysHeap, SYSTEM_HEAP_SIZE);
 
     Regs_Init();
 
