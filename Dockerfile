@@ -52,5 +52,5 @@ RUN touch /root/.Xauthority && \
     xauth add $MY_XAUTH_COOKIE
 
 
-RUN mkdir /soh
-WORKDIR /soh
+RUN mkdir /2ship
+WORKDIR /2ship
