@@ -22,14 +22,14 @@
         <Texture Name="gEmptyCRightArrowTex" OutName="empty_c_right_arrow" Format="ia8" Width="32" Height="32" Offset="0x1F60"/>
         <Texture Name="gTimerClockIconTex" OutName="timer_clock_icon" Format="ia8" Width="16" Height="16" Offset="0x2360"/>
         <Texture Name="gMapBossIconTex" OutName="map_boss_icon" Format="ia8" Width="8" Height="8" Offset="0x2460"/>
-        
+
         <Texture Name="gOcarinaATex" OutName="ocarina_a" Format="ia8" Width="16" Height="16" Offset="0x24A0"/>
         <Texture Name="gOcarinaCDownTex" OutName="ocarina_c_down" Format="ia8" Width="16" Height="16" Offset="0x25A0"/>
         <Texture Name="gOcarinaCRightTex" OutName="ocarina_c_right" Format="ia8" Width="16" Height="16" Offset="0x26A0"/>
         <Texture Name="gOcarinaCLeftTex" OutName="ocarina_c_left" Format="ia8" Width="16" Height="16" Offset="0x27A0"/>
         <Texture Name="gOcarinaCUpTex" OutName="ocarina_c_up" Format="ia8" Width="16" Height="16" Offset="0x28A0"/>
         <Texture Name="gOcarinaTrebleClefTex" OutName="ocarina_treble_clef" Format="i4" Width="16" Height="32" Offset="0x29A0"/>
-        
+
         <Texture Name="gSceneTitleCardGradientTex" OutName="scene_title_card_gradient" Format="i8" Width="64" Height="1" Offset="0x2AA0"/>
 
         <!-- All four versions of Tatl textures are identical -->
@@ -44,7 +44,7 @@
         <Texture Name="gMapDungeonEntranceIconTex" OutName="map_dungeon_entrance_icon" Format="rgba16" Width="8" Height="8" Offset="0x3EA0"/>
         <Texture Name="gMapChestIconTex" OutName="map_chest_icon" Format="rgba16" Width="8" Height="8" Offset="0x3F20"/>
         <Texture Name="gArcheryScoreIconTex" OutName="archery_score_icon" Format="rgba16" Width="24" Height="16" Offset="0x3FA0"/>
-        
+
         <!-- Looking through the lens of the pictograph box -->
         <Texture Name="gPictoBoxFocusIconTex" OutName="picto_box_focus_icon" Format="i4" Width="32" Height="16" Offset="0x42A0"/>
         <Texture Name="gPictoBoxFocusBorderTex" OutName="picto_box_focus_border" Format="ia4" Width="16" Height="16" Offset="0x43A0"/>
@@ -62,7 +62,7 @@
         <Texture Name="gCounterDigit9Tex" OutName="counter_digit_9" Format="i8" Width="8" Height="16" Offset="0x4920"/>
         <Texture Name="gCounterColonTex" OutName="counter_colon" Format="i8" Width="8" Height="16" Offset="0x49A0"/>
         <Texture Name="gStrayFairyMapCounterSlashTex" OutName="stray_fairy_map_counter_slash" Format="i8" Width="8" Height="16" Offset="0x4A20"/>
-            
+
         <Texture Name="gAmmoDigit0Tex" OutName="ammo_digit_0" Format="ia8" Width="8" Height="8" Offset="0x4AA0"/>
         <Texture Name="gAmmoDigit1Tex" OutName="ammo_digit_1" Format="ia8" Width="8" Height="8" Offset="0x4AE0"/>
         <Texture Name="gAmmoDigit2Tex" OutName="ammo_digit_2" Format="ia8" Width="8" Height="8" Offset="0x4B20"/>
@@ -74,10 +74,10 @@
         <Texture Name="gAmmoDigit8Tex" OutName="ammo_digit_8" Format="ia8" Width="8" Height="8" Offset="0x4CA0"/>
         <Texture Name="gAmmoDigit9Tex" OutName="ammo_digit_9" Format="ia8" Width="8" Height="8" Offset="0x4CE0"/>
         <Texture Name="gAmmoDigitHalfTex" OutName="ammo_digit_half" Format="ia8" Width="16" Height="8" Offset="0x4D20"/>
-            
+
         <Texture Name="gMagicMeterEndTex" OutName="magic_meter_end" Format="ia8" Width="8" Height="16" Offset="0x4DA0"/>
         <Texture Name="gMagicMeterMidTex" OutName="magic_meter_mid" Format="ia8" Width="24" Height="16" Offset="0x4E20"/>
-        <Texture Name="gMagicMeterFillTex" OutName="magic_meter_fill" Format="ia8" Width="8" Height="8" Offset="0x4FA0"/>
+        <Texture Name="gMagicMeterFillTex" OutName="magic_meter_fill" Format="i4" Width="16" Height="16" Offset="0x4FA0"/>
 
         <!-- The analog clock from day one until midnight of the final day -->
         <Texture Name="gThreeDayClockDiamondTex" OutName="three_day_clock_diamond" Format="ia8" Width="40" Height="32" Offset="0x4FE0"/>
@@ -114,7 +114,7 @@
         <Texture Name="gFinalHoursClockFrameTex" OutName="final_hours_clock_frame" Format="ia4" Width="80" Height="13" Offset="0x6B20"/>
 
         <Texture Name="gMinigameCountdownGoTex" OutName="minigame_countdown_go" Format="ia8" Width="40" Height="32" Offset="0x6D28"/>
-        <Texture Name="gMinigameCountdown1Tex" OutName="minigame_countdown_1" Format="ia8" Width="24" Height="32" Offset="0x7228"/> 
+        <Texture Name="gMinigameCountdown1Tex" OutName="minigame_countdown_1" Format="ia8" Width="24" Height="32" Offset="0x7228"/>
         <Texture Name="gMinigameCountdown2Tex" OutName="minigame_countdown_2" Format="ia8" Width="24" Height="32" Offset="0x7528"/>
         <Texture Name="gMinigameCountdown3Tex" OutName="minigame_countdown_3" Format="ia8" Width="24" Height="32" Offset="0x7828"/>
 
