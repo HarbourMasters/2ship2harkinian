@@ -929,7 +929,7 @@ void FileSelect_SetWindowContentVtx(GameState* thisx) {
 
             // x-coord (left)
             this->windowContentVtx[vtxId + 0].v.ob[0] = this->windowContentVtx[vtxId + 2].v.ob[0] =
-                D_80814280[*ptr] + posX;
+                D_80814280[spA4[i]] + posX;
             // x-coord (right)
             this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] =
                 this->windowContentVtx[vtxId + 0].v.ob[0] + D_80814628[i];
