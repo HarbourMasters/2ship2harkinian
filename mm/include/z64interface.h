@@ -126,12 +126,29 @@ typedef enum {
     /* 1 */ STORY_TYPE_GIANTS_LEAVING
 } StoryType;
 
+typedef enum {
+    /* 0 */ A_BUTTON_ACTION,
+    /* 1 */ B_BUTTON_ACTION,
+    /* 2 */ START_BUTTON_ACTION,
+    /* 3 */ CLOCK_TIMER
+} ActionBtn;
+
+typedef enum {
+    /* 0 */ ACTION_MAIN,
+    /* 1 */ ACTION_SUB
+} ActionType;
+
+typedef struct {
+    char* mainTex;
+    char* subTex;
+} ActionLabel;
+
 typedef struct {
     /* 0x000 */ View view;
     /* 0x168 */ Vtx* actionVtx;
     /* 0x16C */ Vtx* beatingHeartVtx;
     /* 0x170 */ u8* parameterSegment;
-    /* 0x174 */ u8* doActionSegment;
+    /* 0x174 */ ActionLabel* doActionSegment;
     /* 0x178 */ u8* iconItemSegment;
     /* 0x17C */ u8* mapSegment;
     /* 0x180 */ u8* unk_180; // unused segment?
