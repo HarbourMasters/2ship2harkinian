@@ -227,6 +227,8 @@ void Map_Init(PlayState* play) {
 }
 
 void Map_DrawMinimap(PlayState* play) {
+    // BENTODO: crash
+    return;
     MapDisp_DrawMinimap(play, sPlayerInitPosX, sPlayerInitPosZ, sPlayerInitDir);
 }
 

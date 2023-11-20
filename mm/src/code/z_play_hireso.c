@@ -1141,6 +1141,9 @@ void BombersNotebook_Update(PlayState* play, BombersNotebook* this, Input* input
     s32 stickAdjY = input->rel.stick_y;
     s32 cursorEntryScan;
 
+    // BENTODO
+    return;
+
     this->scheduleDmaSegmentStart = SEGMENT_ROM_START(schedule_dma_static_yar);
     this->scheduleDmaSegmentSize = SEGMENT_ROM_SIZE(schedule_dma_static_syms);
     this->scheduleSegmentStart = SEGMENT_ROM_START(schedule_static);

@@ -126,6 +126,8 @@ void func_80170200(PreRender* this, Gfx** gfxp, void* buf, void* bufSave) {
  * @param cvgDst    Buffer to store coverage into
  */
 void PreRender_CoverageRgba16ToI8(PreRender* this, Gfx** gfxp, void* img, void* cvgDst) {
+    // BENTODO:
+    return;
     Gfx* gfx = *gfxp;
     s32 rowsRemaining;
     s32 curRow;

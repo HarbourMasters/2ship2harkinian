@@ -20,7 +20,7 @@
 #include "objects/object_bdoor/object_bdoor.h"
 
 // bss
-//FaultClient sActorFaultClient; // 2 funcs
+// FaultClient sActorFaultClient; // 2 funcs
 
 CollisionPoly* D_801ED8B0; // 1 func
 s32 D_801ED8B4;            // 2 funcs
@@ -3479,16 +3479,18 @@ Actor* Actor_Delete(ActorContext* actorCtx, Actor* actor, PlayState* play) {
     if (actor == actorCtx->targetCtx.bgmEnemy) {
         actorCtx->targetCtx.bgmEnemy = NULL;
     }
-
-    AudioSfx_StopByPos(&actor->projectedPos);
+    // BENTODO
+//    AudioSfx_StopByPos(&actor->projectedPos);
     Actor_Destroy(actor, play);
 
     newHead = Actor_RemoveFromCategory(play, actorCtx, actor);
     ZeldaArena_Free(actor);
-
-    if (overlayEntry->vramStart != NULL) {
-        overlayEntry->numLoaded--;
-        Actor_FreeOverlay(overlayEntry);
+    // BENTODO shouldn't need this check
+    if (overlayEntry != NULL) {
+        if (overlayEntry->vramStart != NULL) {
+            overlayEntry->numLoaded--;
+            Actor_FreeOverlay(overlayEntry);
+        }
     }
 
     return newHead;
@@ -4645,6 +4647,9 @@ void Actor_UpdateFidgetTables(PlayState* play, s16* fidgetTableY, s16* fidgetTab
 void Actor_Noop(Actor* actor, PlayState* play) {
 }
 
+/**
+ * Draws a display list to the opaque display buffer
+ */
 void Gfx_DrawDListOpa(PlayState* play, Gfx* dlist) {
     Gfx* dl;
 

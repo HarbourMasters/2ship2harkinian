@@ -1224,14 +1224,15 @@ void Play_DrawMain(PlayState* this) {
                 SET_FULLSCREEN_VIEWPORT(&spA8);
 
                 View_ApplyTo(&spA8, &sp218);
-                this->transitionCtx.draw(&this->transitionCtx.instanceData, &sp218);
+                // BENTODO: incorrect render
+                // this->transitionCtx.draw(&this->transitionCtx.instanceData, &sp218);
             }
 
             TransitionFade_Draw(&this->unk_18E48, &sp218);
-
+            // BENTODO: fill framebuffer?
             if (gVisMonoColor.a != 0) {
                 sPlayVisMono.primColor.rgba = gVisMonoColor.rgba;
-                VisMono_Draw(&sPlayVisMono, &sp218);
+                // VisMono_Draw(&sPlayVisMono, &sp218);
             }
 
             gSPEndDisplayList(sp218++);
@@ -2354,7 +2355,8 @@ void Play_Init(GameState* thisx) {
     gSaveContext.seqId = this->sequenceCtx.seqId;
     gSaveContext.ambienceId = this->sequenceCtx.ambienceId;
     AnimationContext_Update(this, &this->animationCtx);
-    Cutscene_HandleEntranceTriggers(this);
+    // BENTODO: crash in Message_FindMessage
+    // Cutscene_HandleEntranceTriggers(this);
     gSaveContext.respawnFlag = 0;
     sBombersNotebookOpen = false;
     BombersNotebook_Init(&sBombersNotebook);
