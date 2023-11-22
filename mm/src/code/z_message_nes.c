@@ -25,11 +25,13 @@ void Message_FindMessageNES(PlayState* play, u16 textId) {
 
     while (msgEntry->textId != 0xFFFF) {
         if (msgEntry->textId == textId) {
+            font->messageStart = msgEntry;
             foundSegment = msgEntry->segment;
             msgEntry++;
             nextSegment = msgEntry->segment;
-            font->messageStart = foundSegment - segment;
-            font->messageEnd = nextSegment - foundSegment;
+            
+            //font->messageStart = foundSegment - segment;
+            //font->messageEnd = nextSegment - foundSegment;
             return;
         }
         msgEntry++;

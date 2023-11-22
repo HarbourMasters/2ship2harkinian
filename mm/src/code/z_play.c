@@ -2356,7 +2356,7 @@ void Play_Init(GameState* thisx) {
     gSaveContext.ambienceId = this->sequenceCtx.ambienceId;
     AnimationContext_Update(this, &this->animationCtx);
     // BENTODO: crash in Message_FindMessage
-    // Cutscene_HandleEntranceTriggers(this);
+    Cutscene_HandleEntranceTriggers(this);
     gSaveContext.respawnFlag = 0;
     sBombersNotebookOpen = false;
     BombersNotebook_Init(&sBombersNotebook);

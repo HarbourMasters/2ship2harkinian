@@ -5,6 +5,7 @@
 #include "message_data_static.h"
 #include "interface/parameter_static/parameter_static.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
+#include "BenPort.h"
 
 u8 D_801C6A70 = 0;
 s16 sOcarinaButtonIndexBufPos = 0;
@@ -1819,6 +1820,8 @@ s16 D_801CFF94[] = {
 void Message_LoadItemIcon(PlayState* play, u16 itemId, s16 arg2) {
     MessageContext* msgCtx = &play->msgCtx;
     u16* new_var2 = &itemId;
+    itemId = 0;
+    // BENTODO: Test
 
     if (itemId == ITEM_RECOVERY_HEART) {
         msgCtx->unk12010 = (msgCtx->unk11FF8 - D_801CFF88[gSaveContext.options.language]);
@@ -1836,37 +1839,40 @@ void Message_LoadItemIcon(PlayState* play, u16 itemId, s16 arg2) {
         msgCtx->unk12010 = (msgCtx->unk11FF8 - D_801CFF88[gSaveContext.options.language]);
         msgCtx->unk12012 = (arg2 + 0xA);
         msgCtx->unk12014 = 0x10;
-        CmpDma_LoadFile(SEGMENT_ROM_START(icon_item_static_yar), ITEM_SONG_SONATA, msgCtx->textboxSegment + 0x1000,
-                        0x180);
+        void* tex = ResourceMgr_LoadTexOrDListByName(gItemIcons[ITEM_SONG_SONATA]);
+        memcpy(msgCtx->textboxSegment + 0x1000, tex, 0x1000);
     } else if (itemId == ITEM_BOMBERS_NOTEBOOK) {
         msgCtx->unk12010 = (msgCtx->unk11FF8 - D_801CFF70[gSaveContext.options.language]);
         msgCtx->unk12012 = (arg2 + 6);
         msgCtx->unk12014 = 0x20;
-        CmpDma_LoadFile(SEGMENT_ROM_START(icon_item_static_yar), ITEM_SONG_SONATA, msgCtx->textboxSegment + 0x1000,
-                        0x1000);
+        void* tex = ResourceMgr_LoadTexOrDListByName(gItemIcons[ITEM_SONG_SONATA]);
+        memcpy(msgCtx->textboxSegment + 0x1000, tex, 0x1000);
     } else if (itemId <= ITEM_REMAINS_TWINMOLD) {
         msgCtx->unk12010 = (msgCtx->unk11FF8 - D_801CFF70[gSaveContext.options.language]);
         msgCtx->unk12012 = (arg2 + 6);
         msgCtx->unk12014 = 0x20;
-        CmpDma_LoadFile(SEGMENT_ROM_START(icon_item_static_yar), itemId, msgCtx->textboxSegment + 0x1000, 0x1000);
+        // BENTODO this wasn't done in the minibuild
+        void* tex = ResourceMgr_LoadTexOrDListByName(gItemIcons[itemId]);
+        memcpy(msgCtx->textboxSegment + 0x1000, tex, 0x1000);
+        //CmpDma_LoadFile(SEGMENT_ROM_START(icon_item_static_yar), itemId, msgCtx->textboxSegment + 0x1000, 0x1000);
     } else if (itemId == ITEM_CC) {
         msgCtx->unk12010 = (msgCtx->unk11FF8 - D_801CFF70[gSaveContext.options.language]);
         msgCtx->unk12012 = (arg2 + 8);
         msgCtx->unk12014 = 0x20;
-        CmpDma_LoadFile(SEGMENT_ROM_START(schedule_dma_static_yar), ITEM_POTION_BLUE, msgCtx->textboxSegment + 0x1000,
-                        0x400);
+        void* tex = ResourceMgr_LoadTexOrDListByName(gItemIcons[ITEM_POTION_BLUE]);
+        memcpy(msgCtx->textboxSegment + 0x1000, tex, 0x400);
     } else if (itemId >= ITEM_B8) {
         msgCtx->unk12010 = (msgCtx->unk11FF8 - D_801CFF70[gSaveContext.options.language]);
         msgCtx->unk12012 = (arg2 + 8);
         msgCtx->unk12014 = 0x20;
-        CmpDma_LoadFile(SEGMENT_ROM_START(schedule_dma_static_yar), (itemId - ITEM_B8), msgCtx->textboxSegment + 0x1000,
-                        0x800);
+        void* tex = ResourceMgr_LoadTexOrDListByName(gItemIcons[itemId - ITEM_B8]);
+        memcpy(msgCtx->textboxSegment + 0x1000, tex, 0x800);
     } else if (itemId >= ITEM_SKULL_TOKEN) {
         msgCtx->unk12010 = (msgCtx->unk11FF8 - D_801CFF7C[gSaveContext.options.language]);
         msgCtx->unk12012 = (arg2 + 0xA);
         msgCtx->unk12014 = 0x18;
-        CmpDma_LoadFile(SEGMENT_ROM_START(icon_item_24_static_yar), (itemId - ITEM_SKULL_TOKEN),
-                        msgCtx->textboxSegment + 0x1000, 0x900);
+        void* tex = ResourceMgr_LoadTexOrDListByName(gItemIcons[itemId - ITEM_SKULL_TOKEN]);
+        memcpy(msgCtx->textboxSegment + 0x1000, tex, 0x900);
     }
 
     if (play->pauseCtx.bombersNotebookOpen) {
@@ -2174,6 +2180,9 @@ void Message_Decode(PlayState* play) {
     s16 i;
     u16 curChar;
     u8 index2 = 0;
+
+    //BENTODO do this somewhere else
+    gSaveContext.options.language = LANGUAGE_ENG;
 
     msgCtx->textDelayTimer = 0;
     msgCtx->textDelay = msgCtx->textDelayTimer;
@@ -3092,6 +3101,9 @@ void Message_OpenText(PlayState* play, u16 textId) {
     Player* player = GET_PLAYER(play);
     f32 var_fv0;
 
+    // BENTODO do this somewhere else
+    gSaveContext.options.language = LANGUAGE_ENG;
+
     if (play->msgCtx.msgMode == MSGMODE_NONE) {
         gSaveContext.prevHudVisibility = gSaveContext.hudVisibility;
     }
@@ -3177,7 +3189,10 @@ void Message_OpenText(PlayState* play, u16 textId) {
         //                    font->messageEnd);
     } else {
         Message_FindMessageNES(play, textId);
-        msgCtx->msgLength = font->messageEnd;
+        MessageTableEntry* msgEntry = (MessageTableEntry*)font->messageStart;
+        msgCtx->msgLength = msgEntry->msgSize;
+        memcpy(&font->msgBuf, msgEntry->segment, msgEntry->msgSize);
+        //msgCtx->msgLength = font->messageEnd;
         //DmaMgr_SendRequest0(&font->msgBuf, SEGMENT_ROM_START(message_data_static) + font->messageStart,
         //                    font->messageEnd);
     }   //
@@ -3233,6 +3248,8 @@ void func_801514B0(PlayState* play, u16 arg1, u8 arg2) {
     Font* font = &msgCtx->font;
     Player* player = GET_PLAYER(play);
     f32 temp = 1024.0f;
+    // BENTODO do this somewhere else
+    gSaveContext.options.language = LANGUAGE_ENG;
 
     msgCtx->ocarinaAction = 0xFFFF;
 
@@ -3272,7 +3289,10 @@ void func_801514B0(PlayState* play, u16 arg1, u8 arg2) {
         //                    font->messageEnd);
     } else {
         Message_FindMessageNES(play, arg1);
-        msgCtx->msgLength = font->messageEnd;
+        MessageTableEntry* msgEntry = (MessageTableEntry*)font->messageStart;
+        msgCtx->msgLength = msgEntry->msgSize;
+        memcpy(&font->msgBuf, msgEntry->segment, msgEntry->msgSize);
+        //msgCtx->msgLength = font->messageEnd;
         // BENTODO
         //DmaMgr_SendRequest0(&font->msgBuf, SEGMENT_ROM_START(message_data_static) + font->messageStart,
         //                    font->messageEnd);
@@ -4159,6 +4179,8 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
     s32 j;
     s16 temp_v0_33;
     s16 temp;
+    // BENTODO
+    msgCtx->textIsCredits = false;
 
     gfx = *gfxP;
 
@@ -5994,8 +6016,9 @@ void Message_Update(PlayState* play) {
 }
 
 void Message_SetTables(PlayState* play) {
-    play->msgCtx.messageEntryTableNes = D_801C6B98;
-    play->msgCtx.messageTableStaff = D_801CFB08;
+    //play->msgCtx.messageEntryTableNes = D_801C6B98;
+    //play->msgCtx.messageTableStaff = D_801CFB08;
+    OTRMessage_Init(play);
 }
 
 void Message_Init(PlayState* play) {
