@@ -2,7 +2,7 @@
 #include "2s2h/resource/type/Cutscene.h"
 #include "spdlog/spdlog.h"
 // TODO headers
-//extern "C" {
+// extern "C" {
 //#include "z64cutscene.h"
 //}
 typedef enum {
@@ -244,20 +244,20 @@ typedef enum {
 } CutsceneCmd;
 
 namespace LUS {
-std::shared_ptr<IResource>
-CutsceneFactory::ReadResource(std::shared_ptr<ResourceInitData> initData, std::shared_ptr<BinaryReader> reader) {
+std::shared_ptr<IResource> CutsceneFactory::ReadResource(std::shared_ptr<ResourceInitData> initData,
+                                                         std::shared_ptr<BinaryReader> reader) {
     auto resource = std::make_shared<Cutscene>(initData);
     std::shared_ptr<ResourceVersionFactory> factory = nullptr;
 
     switch (resource->GetInitData()->ResourceVersion) {
-    case 0:
-	factory = std::make_shared<CutsceneFactoryV0>();
-	break;
+        case 0:
+            factory = std::make_shared<CutsceneFactoryV0>();
+            break;
     }
 
     if (factory == nullptr) {
         SPDLOG_ERROR("Failed to load Cutscene with version {}", resource->GetInitData()->ResourceVersion);
-	return nullptr;
+        return nullptr;
     }
 
     factory->ParseFileBinary(reader, resource);
@@ -321,8 +321,7 @@ static inline uint32_t read_CMD_HH(std::shared_ptr<BinaryReader> reader) {
 }
 
 void LUS::CutsceneFactoryV0::ParseFileBinary(std::shared_ptr<BinaryReader> reader,
-                                              std::shared_ptr<IResource> resource)
-{
+                                             std::shared_ptr<IResource> resource) {
     std::shared_ptr<Cutscene> cutscene = std::static_pointer_cast<Cutscene>(resource);
     ResourceVersionFactory::ParseFileBinary(reader, cutscene);
 
@@ -334,12 +333,13 @@ void LUS::CutsceneFactoryV0::ParseFileBinary(std::shared_ptr<BinaryReader> reade
 
     cutscene->endFrame = reader->ReadUInt32();
     cutscene->commands.push_back(cutscene->endFrame);
-        
+
     // BENTODO detect the game
     ParseFileBinaryMM(reader, cutscene);
 }
 
-void LUS::CutsceneFactoryV0::ParseFileBinaryOoT(std::shared_ptr<BinaryReader> reader, std::shared_ptr<Cutscene> cutscene) {
+void LUS::CutsceneFactoryV0::ParseFileBinaryOoT(std::shared_ptr<BinaryReader> reader,
+                                                std::shared_ptr<Cutscene> cutscene) {
     while (true) {
         uint32_t commandId = reader->ReadUInt32();
         cutscene->commands.push_back(commandId);
@@ -715,23 +715,22 @@ void LUS::CutsceneFactoryV0::ParseFileBinaryOoT(std::shared_ptr<BinaryReader> re
     }
 }
 
-void LUS::CutsceneFactoryV0::ParseFileBinaryMM(std::shared_ptr<BinaryReader> reader, std::shared_ptr<Cutscene> cutscene) {
+void LUS::CutsceneFactoryV0::ParseFileBinaryMM(std::shared_ptr<BinaryReader> reader,
+                                               std::shared_ptr<Cutscene> cutscene) {
     while (true) {
         uint32_t command = reader->ReadUInt32();
         cutscene->commands.push_back(command);
 
-        if (((command >= CS_CMD_ACTOR_CUE_100) &&
-             (command <= CS_CMD_ACTOR_CUE_149)) ||
+        if (((command >= CS_CMD_ACTOR_CUE_100) && (command <= CS_CMD_ACTOR_CUE_149)) ||
             (command == CS_CMD_ACTOR_CUE_201) ||
-            ((command >= CS_CMD_ACTOR_CUE_450) &&
-             (command <= CS_CMD_ACTOR_CUE_599))) {
+            ((command >= CS_CMD_ACTOR_CUE_450) && (command <= CS_CMD_ACTOR_CUE_599))) {
             goto actorCue;
         }
 
-        switch (command) { 
+        switch (command) {
             case CS_CMD_TEXT: {
                 uint32_t size = reader->ReadUInt32();
-                //uint8_t type = reader->ReadInt8();
+                // uint8_t type = reader->ReadInt8();
                 cutscene->commands.push_back(size);
                 // BENTODO do we need to read the type?
 
@@ -746,7 +745,7 @@ void LUS::CutsceneFactoryV0::ParseFileBinaryMM(std::shared_ptr<BinaryReader> rea
                 uint32_t size = reader->ReadUInt32();
                 cutscene->commands.push_back(size);
 
-                for (uint32_t i = 0; i < size; i++) {
+                for (uint32_t i = 0; i < (size / 4); i++) {
                     cutscene->commands.push_back(read_CMD_HH(reader));
                 }
                 break;
@@ -873,13 +872,16 @@ void LUS::CutsceneFactoryV0::ParseFileBinaryMM(std::shared_ptr<BinaryReader> rea
                 break;
             }
             case CS_CMD_PLAYER_CUE: {
-                actorCue:
+            actorCue:
                 uint32_t size = reader->ReadUInt32();
                 cutscene->commands.push_back(size);
                 for (uint32_t i = 0; i < size; i++) {
                     cutscene->commands.push_back(read_CMD_HH(reader));
                     cutscene->commands.push_back(read_CMD_HH(reader));
                     cutscene->commands.push_back(read_CMD_HH(reader));
+                    cutscene->commands.push_back(reader->ReadUInt32());
+                    cutscene->commands.push_back(reader->ReadUInt32());
+                    cutscene->commands.push_back(reader->ReadUInt32());
                     cutscene->commands.push_back(reader->ReadUInt32());
                     cutscene->commands.push_back(reader->ReadUInt32());
                     cutscene->commands.push_back(reader->ReadUInt32());

@@ -3,6 +3,7 @@
 #include "regs.h"
 #include "functions.h"
 #include "fault.h"
+#include "gfxdebuggerbridge.h"
 
 // Variables are put before most headers as a hacky way to bypass bss reordering
 FaultAddrConvClient sGraphFaultAddrConvClient;
@@ -275,12 +276,12 @@ void Graph_ExecuteAndDraw(GraphicsContext* gfxCtx, GameState* gameState) {
         Gfx* gfx = gGfxMasterDL->taskStart;
 
         gSPSegment(gfx++, 0x0E, gGfxMasterDL->taskStart);
-        // __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[3] - (uintptr_t)&D_0E000000) + 1);
-        // __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[0] - (uintptr_t)&D_0E000000) + 1);
-        // __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[1] - (uintptr_t)&D_0E000000) + 1);
-        // __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[2] - (uintptr_t)&D_0E000000) + 1);
-        // __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.debugDisp[0] - (uintptr_t)&D_0E000000) + 1);
-        // gSPDisplayList(gfx++, gfxCtx->work.start);
+         //__gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[3] - (uintptr_t)&D_0E000000) + 1);
+         //__gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[0] - (uintptr_t)&D_0E000000) + 1);
+         //__gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[1] - (uintptr_t)&D_0E000000) + 1);
+         //__gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[2] - (uintptr_t)&D_0E000000) + 1);
+         //__gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.debugDisp[0] - (uintptr_t)&D_0E000000) + 1);
+         gSPDisplayList(gfx++, gfxCtx->work.start);
 
         gSPDisplayList(gfx++, gGfxPools[gfxCtx->gfxPoolIdx % 2].workBuffer);
         gSPDisplayList(gfx++, gGfxPools[gfxCtx->gfxPoolIdx % 2].polyOpaBuffer);
