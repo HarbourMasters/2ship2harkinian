@@ -504,6 +504,8 @@ if(MSVC)
         target_compile_options(${PROJECT_NAME} PRIVATE
             $<$<CONFIG:Debug>:
                 /RTCs
+				/w
+				/Od
             >
             $<$<CONFIG:Release>:
                 /O2;
