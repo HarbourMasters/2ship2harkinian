@@ -12,6 +12,7 @@
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "overlays/actors/ovl_En_Mm3/z_en_mm3.h"
 #include "interface/week_static/week_static.h"
+#include "BenPort.h"
 
 #include <string.h>
 
@@ -2381,7 +2382,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                 Message_CloseTextbox(play);
                 if (play->msgCtx.choiceIndex != 0) {
                     Audio_PlaySfx_MessageCancel();
-                    Interface_LoadBButtonDoActionLabel(play, DO_ACTION_STOP);
+                    Interface_LoadButtonDoActionLabel(play, DO_ACTION_STOP, B_BUTTON_ACTION, ACTION_MAIN);
                     Interface_SetHudVisibility(HUD_VISIBILITY_A_B);
                     sPictoState = PICTO_BOX_STATE_LENS;
                     REMOVE_QUEST_ITEM(QUEST_PICTOGRAPH);
@@ -2420,7 +2421,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
         } else if (play->actorCtx.flags & ACTORCTX_FLAG_PICTO_BOX_ON) {
             // Related to pictograph
             if (!CHECK_QUEST_ITEM(QUEST_PICTOGRAPH)) {
-                Interface_LoadBButtonDoActionLabel(play, DO_ACTION_STOP);
+                Interface_LoadButtonDoActionLabel(play, DO_ACTION_STOP, B_BUTTON_ACTION, ACTION_MAIN);
                 Interface_SetHudVisibility(HUD_VISIBILITY_A_B);
                 sPictoState = PICTO_BOX_STATE_LENS;
             } else {
@@ -3319,7 +3320,7 @@ void Interface_SetAButtonDoAction(PlayState* play, u16 aButtonDoAction) {
         interfaceCtx->aButtonDoAction = aButtonDoAction;
         interfaceCtx->aButtonState = A_BTN_STATE_1;
         interfaceCtx->aButtonRoll = 0.0f;
-        Interface_LoadAButtonDoActionLabel(interfaceCtx, aButtonDoAction, 1);
+        Interface_LoadButtonDoActionLabel(play, aButtonDoAction, A_BUTTON_ACTION, ACTION_SUB);
         if (pauseCtx->state != PAUSE_STATE_OFF) {
             interfaceCtx->aButtonState = A_BTN_STATE_3;
         }
@@ -3338,12 +3339,7 @@ void Interface_SetBButtonDoAction(PlayState* play, s16 bButtonDoAction) {
         } else {
             interfaceCtx->bButtonDoAction = bButtonDoAction;
             if (interfaceCtx->bButtonDoAction != DO_ACTION_NONE) {
-                osCreateMesgQueue(&interfaceCtx->loadQueue, &interfaceCtx->loadMsg, 1);
-                // BENTODO
-                //DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest, interfaceCtx->doActionSegment + 0x600,
-                //                       (bButtonDoAction * 0x180) + SEGMENT_ROM_START(do_action_static), 0x180, 0,
-                 //                      &interfaceCtx->loadQueue, NULL);
-                osRecvMesg(&interfaceCtx->loadQueue, NULL, OS_MESG_BLOCK);
+                Interface_LoadButtonDoActionLabel(play, interfaceCtx->bButtonDoAction, B_BUTTON_ACTION, ACTION_SUB);
             }
 
             interfaceCtx->bButtonDoActionActive = true;
@@ -3375,19 +3371,30 @@ void Interface_SetTatlCall(PlayState* play, u16 tatlCallState) {
     }
 }
 
-void Interface_LoadBButtonDoActionLabel(PlayState* play, s16 bButtonDoAction) {
+void Interface_LoadButtonDoActionLabel(PlayState* play, s16 action, s16 button, s16 state) {
+    static void* sDoActionTextures[] = { gDoActionAttackENGTex, gDoActionCheckENGTex };
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
 
-    interfaceCtx->unk_224 = bButtonDoAction;
+    // OTRTODO: Validate btn states Eg. A_BTN_STATE_4
+    if (action >= DO_ACTION_MAX) {
+        action = DO_ACTION_NONE;
+    }
 
-    osCreateMesgQueue(&play->interfaceCtx.loadQueue, &play->interfaceCtx.loadMsg, 1);
-    // BENTODO
-    //DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest, interfaceCtx->doActionSegment + 0x480,
-    //                       (bButtonDoAction * 0x180) + SEGMENT_ROM_START(do_action_static), 0x180, 0,
-    //                       &interfaceCtx->loadQueue, NULL);
-    osRecvMesg(&interfaceCtx->loadQueue, NULL, OS_MESG_BLOCK);
+    if (button == 1) {
+        interfaceCtx->unk_224 = action;
+        interfaceCtx->unk_222 = 1;
+    }
 
-    interfaceCtx->unk_222 = 1;
+    char* path = action != DO_ACTION_NONE ? doActionTbl[action] : gEmptyTexture;
+
+    switch (state) {
+        case 0:
+            interfaceCtx->doActionSegment[button].mainTex = path;
+            break;
+        case 1:
+            interfaceCtx->doActionSegment[button].subTex = path;
+            break;
+    }
 }
 
 /**
@@ -4134,7 +4141,7 @@ s16 D_801BFB0C[] = { 0x23, 0x23, 0x33, 0x23 };
 void Interface_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
     u8 i;
     u16 ammo;
-
+    return; //BENTODO
     OPEN_DISPS(play->state.gfxCtx);
 
     i = ((void)0, GET_CUR_FORM_BTN_ITEM(button));
@@ -4212,8 +4219,8 @@ void Interface_DrawBButtonIcons(PlayState* play) {
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
                               PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
-
-            Interface_DrawAmmoCount(play, EQUIP_SLOT_B, interfaceCtx->bAlpha);
+            // BENTODO
+            //Interface_DrawAmmoCount(play, EQUIP_SLOT_B, interfaceCtx->bAlpha);
         }
     } else if ((!interfaceCtx->bButtonDoActionActive && (interfaceCtx->unk_222 == 0)) ||
                ((interfaceCtx->bButtonDoActionActive &&
@@ -4328,7 +4335,6 @@ void Interface_DrawCButtonIcons(PlayState* play) {
 
 void Interface_DrawAButton(PlayState* play) {
     // BENTODO: Something here crashes somtimes?
-    return;
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
     s16 aAlpha;
 

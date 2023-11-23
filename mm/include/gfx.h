@@ -235,6 +235,15 @@ Gfx* Gfx_PrimColor(GraphicsContext* gfxCtx, s32 lodfrac, s32 r, s32 g, s32 b, s3
 void func_8012CF0C(GraphicsContext* gfxCtx, s32 clearFb, s32 clearZb, u8 r, u8 g, u8 b);
 void func_8012D374(GraphicsContext* gfxCtx, u8 r, u8 g, u8 b);
 void func_8012D40C(f32* param_1, f32* param_2, s16* param_3);
+void gSPSegment(void* value, int segNum, uintptr_t target);
+void gSPSegmentLoadRes(void* value, int segNum, uintptr_t target);
+void gDPSetTextureImage(Gfx* pkt, u32 format, u32 size, u32 width, uintptr_t i);
+void gDPSetTextureImageFB(Gfx* pkt, u32 format, u32 size, u32 width, int fb);
+void gSPDisplayList(Gfx* pkt, Gfx* dl);
+void gSPDisplayListOffset(Gfx* pkt, Gfx* dl, int offset);
+void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0);
+void gSPInvalidateTexCache(Gfx* pkt, uintptr_t texAddr);
+
 
 extern Gfx gSetupDLs[SETUPDL_MAX][6];
 extern Gfx gEmptyDL[];

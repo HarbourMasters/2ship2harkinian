@@ -272,7 +272,7 @@ void Inventory_UpdateItem(struct PlayState* play, s16 slot, s16 item);
 void Interface_SetAButtonDoAction(struct PlayState* play, u16 aButtonDoAction);
 void Interface_SetBButtonDoAction(struct PlayState* play, s16 bButtonDoAction);
 void Interface_SetTatlCall(struct PlayState* play, u16 tatlCallState);
-void Interface_LoadBButtonDoActionLabel(struct PlayState* play, s16 bButtonDoAction);
+void Interface_LoadButtonDoActionLabel(struct PlayState* play, s16 doAction, s16 button, s16 state);
 s32 Health_ChangeBy(struct PlayState* play, s16 healthChange);
 void Health_GiveHearts(s16 hearts);
 void Rupees_ChangeBy(s16 rupeeChange);

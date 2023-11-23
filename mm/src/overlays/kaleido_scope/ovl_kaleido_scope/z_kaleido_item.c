@@ -306,10 +306,17 @@ void KaleidoScope_DrawItemSelect(PlayState* play) {
                         pauseCtx->itemVtx[j + 0].v.ob[1] - 32;
                 }
             }
-
+            int itemId = gSaveContext.save.saveInfo.inventory.items[i];
+            // BENTODO re add when the table is in C
+            if (CHECK_QUEST_ITEM(itemId) /*|| !gPlayerFormItemRestrictions[GET_PLAYER_FORM][(s32)itemId] */) {
+                gDPSetGrayscaleColor(POLY_OPA_DISP++, 109, 109, 109, 255);
+                gSPGrayscale(POLY_OPA_DISP++, true);
+            }
             gSPVertex(POLY_OPA_DISP++, &pauseCtx->itemVtx[j + 0], 4, 0);
-            KaleidoScope_DrawTexQuadRGBA32(
-                play->state.gfxCtx, gItemIcons[((void)0, gSaveContext.save.saveInfo.inventory.items[i])], 32, 32, 0);
+            KaleidoScope_DrawTexQuadRGBA32(play->state.gfxCtx, gItemIcons[itemId], 32, 32, 0);
+            gSPGrayscale(POLY_OPA_DISP++, false);
+            //KaleidoScope_DrawTexQuadRGBA32(
+            //    play->state.gfxCtx, gItemIcons[((void)0, gSaveContext.save.saveInfo.inventory.items[i])], 32, 32, 0);
         }
     }
 
