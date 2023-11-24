@@ -4141,7 +4141,7 @@ s16 D_801BFB0C[] = { 0x23, 0x23, 0x33, 0x23 };
 void Interface_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
     u8 i;
     u16 ammo;
-    return; //BENTODO
+    return; // BENTODO
     OPEN_DISPS(play->state.gfxCtx);
 
     i = ((void)0, GET_CUR_FORM_BTN_ITEM(button));
@@ -4220,7 +4220,7 @@ void Interface_DrawBButtonIcons(PlayState* play) {
             gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
                               PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
             // BENTODO
-            //Interface_DrawAmmoCount(play, EQUIP_SLOT_B, interfaceCtx->bAlpha);
+            // Interface_DrawAmmoCount(play, EQUIP_SLOT_B, interfaceCtx->bAlpha);
         }
     } else if ((!interfaceCtx->bButtonDoActionActive && (interfaceCtx->unk_222 == 0)) ||
                ((interfaceCtx->bButtonDoActionActive &&
@@ -4334,7 +4334,6 @@ void Interface_DrawCButtonIcons(PlayState* play) {
 }
 
 void Interface_DrawAButton(PlayState* play) {
-    // BENTODO: Something here crashes somtimes?
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
     s16 aAlpha;
 
