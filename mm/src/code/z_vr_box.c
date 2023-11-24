@@ -255,6 +255,17 @@ void Skybox_Setup(GameState* gameState, SkyboxContext* skyboxCtx, s16 skyboxId) 
             break;
 
         case SKYBOX_2:
+            // BENTODO: in the original code, this case does nothing
+            // however this causes skyboxCtx->staticSegments to be 0 which in turn causes
+            // the draw calls in func_80142440 to crash because of the texture address ends up being 0
+            // I'm not sure if this is a mm bug or a 2s2h bug
+            for (size_t i = 0; i < ARRAY_COUNTU(sD2FineStaticTex); i++) {
+                skyboxCtx->staticSegments[0][i] = sD2FineStaticTex[i];
+            }
+            for (size_t i = 0; i < ARRAY_COUNTU(sD2FineStaticTex); i++) {
+                skyboxCtx->staticSegments[1][i] = sD2CloudStaticTex[i];
+            }
+            skyboxCtx->paletteStaticSegment = gClearSkyboxTlue;
             break;
 
         default:
