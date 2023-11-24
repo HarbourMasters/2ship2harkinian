@@ -34,7 +34,8 @@ RUN apt-get install -y \
     lld \
     python3.10 \
     ninja-build \
-    lsb-release
+    lsb-release \
+    clang-format
 
 RUN git clone https://github.com/Perlmint/glew-cmake.git && \
     cmake -B glew-cmake/builddir -S glew-cmake -GNinja && \
