@@ -110,12 +110,12 @@ typedef struct GfxPool {
     /* 0x00000 */ u16 headMagic; // GFXPOOL_HEAD_MAGIC
     /* 0x00008 */ GfxMasterList master;
     /* 0x00308 */ Gfx polyXluBuffer[0x800];
-    /* 0x04308 */ Gfx overlayBuffer[0x400];
+    /* 0x04308 */ Gfx overlayBuffer[0x800]; // 0x400 -> 0x800 to avoid thga crashes
     /* 0x06308 */ Gfx workBuffer[0x40];
     /* 0x06508 */ Gfx debugBuffer[0x40];
     /* 0x06708 */ Gfx polyOpaBuffer[0x3380];
     /* 0x20308 */ u16 tailMagic; // GFXPOOL_TAIL_MAGIC
-} GfxPool; // size = 0x20310
+} GfxPool;                       // size = 0x20310
 
 typedef struct GraphicsContext {
     /* 0x000 */ Gfx* polyOpaBuffer; // Pointer to "Zelda 0"
@@ -228,8 +228,10 @@ Gfx* Gfx_BranchTexScroll(Gfx** gfxp, u32 x, u32 y, s32 width, s32 height);
 void func_8012CB04(Gfx** gfxp, u32 x, u32 y);
 Gfx* func_8012CB28(GraphicsContext* gfxCtx, u32 x, u32 y);
 Gfx* Gfx_TexScroll(GraphicsContext* gfxCtx, u32 x, u32 y, s32 width, s32 height);
-Gfx* Gfx_TwoTexScroll(GraphicsContext* gfxCtx, s32 tile1, u32 x1, u32 y1, s32 width1, s32 height1, s32 tile2, u32 x2, u32 y2, s32 width2, s32 height2);
-Gfx* Gfx_TwoTexScrollEnvColor(GraphicsContext* gfxCtx, s32 tile1, u32 x1, u32 y1, s32 width1, s32 height1, s32 tile2, u32 x2, u32 y2, s32 width2, s32 height2, s32 r, s32 g, s32 b, s32 a);
+Gfx* Gfx_TwoTexScroll(GraphicsContext* gfxCtx, s32 tile1, u32 x1, u32 y1, s32 width1, s32 height1, s32 tile2, u32 x2,
+                      u32 y2, s32 width2, s32 height2);
+Gfx* Gfx_TwoTexScrollEnvColor(GraphicsContext* gfxCtx, s32 tile1, u32 x1, u32 y1, s32 width1, s32 height1, s32 tile2,
+                              u32 x2, u32 y2, s32 width2, s32 height2, s32 r, s32 g, s32 b, s32 a);
 Gfx* Gfx_EnvColor(GraphicsContext* gfxCtx, s32 r, s32 g, s32 b, s32 a);
 Gfx* Gfx_PrimColor(GraphicsContext* gfxCtx, s32 lodfrac, s32 r, s32 g, s32 b, s32 a);
 void func_8012CF0C(GraphicsContext* gfxCtx, s32 clearFb, s32 clearZb, u8 r, u8 g, u8 b);
