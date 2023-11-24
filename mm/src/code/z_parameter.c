@@ -4138,10 +4138,15 @@ void Interface_DrawItemIconTexture(PlayState* play, TexturePtr texture, s16 butt
 s16 D_801BFB04[] = { 0xA2, 0xE4, 0xFA, 0x110 };
 s16 D_801BFB0C[] = { 0x23, 0x23, 0x33, 0x23 };
 
+// Not static so its visible in z_kaleido_item
+const char* gAmmoDigitTextures[10] = {
+    gAmmoDigit0Tex, gAmmoDigit1Tex, gAmmoDigit2Tex, gAmmoDigit3Tex, gAmmoDigit4Tex,
+    gAmmoDigit5Tex, gAmmoDigit6Tex, gAmmoDigit7Tex, gAmmoDigit8Tex, gAmmoDigit9Tex,
+};
+
 void Interface_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
     u8 i;
     u16 ammo;
-    return; // BENTODO
     OPEN_DISPS(play->state.gfxCtx);
 
     i = ((void)0, GET_CUR_FORM_BTN_ITEM(button));
@@ -4190,12 +4195,12 @@ void Interface_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
 
         // Draw upper digit (tens)
         if ((u32)i != 0) {
-            OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, ((u8*)gAmmoDigit0Tex + ((8 * 8) * i)), 8, 8,
+            OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[i], 8, 8,
                                               D_801BFB04[button], D_801BFB0C[button], 8, 8, 1 << 10, 1 << 10);
         }
 
         // Draw lower digit (ones)
-        OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, ((u8*)gAmmoDigit0Tex + ((8 * 8) * ammo)), 8, 8,
+        OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[i], 8, 8,
                                           D_801BFB04[button] + 6, D_801BFB0C[button], 8, 8, 1 << 10, 1 << 10);
     }
 

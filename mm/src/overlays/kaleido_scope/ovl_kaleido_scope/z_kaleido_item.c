@@ -175,6 +175,8 @@ s16 sAmmoRectHeight[] = {
     150, // SLOT_PICTOGRAPH_BOX
 };
 
+extern const char* gAmmoDigitTextures[10];
+
 void KaleidoScope_DrawAmmoCount(PauseContext* pauseCtx, GraphicsContext* gfxCtx, s16 item, u16 ammoIndex) {
     s16 ammoUpperDigit;
     s16 ammo;
@@ -224,13 +226,13 @@ void KaleidoScope_DrawAmmoCount(PauseContext* pauseCtx, GraphicsContext* gfxCtx,
     // Draw upper digit
     if (ammoUpperDigit != 0) {
         POLY_OPA_DISP =
-            Gfx_DrawTexRectIA8(POLY_OPA_DISP, ((u8*)gAmmoDigit0Tex + (8 * 8 * ammoUpperDigit)), 8, 8,
+            Gfx_DrawTexRectIA8(POLY_OPA_DISP,gAmmoDigitTextures[ammoUpperDigit], 8, 8,
                                sAmmoRectLeft[ammoIndex], sAmmoRectHeight[ammoIndex], 8, 8, 1 << 10, 1 << 10);
     }
 
     // Draw lower digit
     POLY_OPA_DISP =
-        Gfx_DrawTexRectIA8(POLY_OPA_DISP, ((u8*)gAmmoDigit0Tex + (8 * 8 * ammo)), 8, 8, sAmmoRectLeft[ammoIndex] + 6,
+        Gfx_DrawTexRectIA8(POLY_OPA_DISP, gAmmoDigitTextures[ammo], 8, 8, sAmmoRectLeft[ammoIndex] + 6,
                            sAmmoRectHeight[ammoIndex], 8, 8, 1 << 10, 1 << 10);
 
     CLOSE_DISPS(gfxCtx);
