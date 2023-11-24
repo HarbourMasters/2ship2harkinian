@@ -90,16 +90,14 @@ static Gfx* D_80942E0C[][3] = {
 static Color_RGBA8 D_80942E30[] = {
     { 190, 195, 200, 255 },
     { 170, 130, 90, 255 },
+    { 250, 250, 250, 255 },
 };
-
-static Color_RGBA8 D_80942E38 = { 250, 250, 250, 255 };
 
 static Color_RGBA8 D_80942E3C[] = {
     { 130, 135, 140, 255 },
     { 100, 60, 20, 255 },
+    { 180, 180, 180, 255 },
 };
-
-static Color_RGBA8 D_80942E44 = { 180, 180, 180, 255 };
 
 static Vec3f D_80942E48 = { 0.0f, 0.0f, 0.0f };
 static Vec3f D_80942E54 = { 0.0f, 0.3f, 0.0f };
@@ -910,7 +908,8 @@ void func_80940E38(EnGoroiwa* this, PlayState* play) {
                 sp48.y = this->actor.world.pos.y + 20.0f;
                 sp48.z = (Math_CosS(sp46) * sp54) + this->actor.world.pos.z;
 
-                func_800B0E48(play, &sp48, &D_80942E48, &D_80942E54, &D_80942E38, &D_80942E44,
+                func_800B0E48(play, &sp48, &D_80942E48, &D_80942E54, &D_80942E30[ENGOROIWA_C000_2],
+                              &D_80942E3C[ENGOROIWA_C000_2],
                               (Rand_ZeroOne() * 600.0f) + (600.0f * (this->actor.scale.x + 0.1f) * 0.5f),
                               (s32)(Rand_ZeroOne() * 50.0f) + 30);
             }
@@ -938,8 +937,8 @@ void func_80941060(EnGoroiwa* this, PlayState* play) {
         spAC.y = spA0.y * -0.06f;
         spAC.z = spA0.z * -0.06f;
 
-        func_800B0E48(play, &sp94, &spA0, &spAC, &D_80942E38, &D_80942E44, (s32)(Rand_ZeroOne() * 30.0f) + 15,
-                      (s32)(Rand_ZeroOne() * 40.0f) + 30);
+        func_800B0E48(play, &sp94, &spA0, &spAC, &D_80942E30[ENGOROIWA_C000_2], &D_80942E3C[ENGOROIWA_C000_2],
+                      (s32)(Rand_ZeroOne() * 30.0f) + 15, (s32)(Rand_ZeroOne() * 40.0f) + 30);
     }
 }
 
