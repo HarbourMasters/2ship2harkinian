@@ -43,9 +43,9 @@ void LUS::SetCsCameraFactoryV0::ParseFileBinary(std::shared_ptr<BinaryReader> re
         }
         data.actorCsCamFuncData = new z64Vec3s[data.count];
         for (size_t j = 0; j < data.count; j++) {
-            data.actorCsCamFuncData->x = reader->ReadInt16();
-            data.actorCsCamFuncData->y = reader->ReadInt16();
-            data.actorCsCamFuncData->z = reader->ReadInt16();
+            data.actorCsCamFuncData[j].x = reader->ReadInt16();
+            data.actorCsCamFuncData[j].y = reader->ReadInt16();
+            data.actorCsCamFuncData[j].z = reader->ReadInt16();
         }
         setCsCamera->csCamera.emplace_back(data);
     }

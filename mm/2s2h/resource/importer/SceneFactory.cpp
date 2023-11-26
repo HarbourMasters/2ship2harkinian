@@ -45,7 +45,7 @@ SceneFactory::ReadResource(std::shared_ptr<ResourceInitData> initData, std::shar
         SceneFactory::sceneCommandFactories[LUS::SceneCommandID::SetEchoSettings] = std::make_shared<SetEchoSettingsFactory>();
         SceneFactory::sceneCommandFactories[LUS::SceneCommandID::SetSoundSettings] = std::make_shared<SetSoundSettingsFactory>();
         SceneFactory::sceneCommandFactories[LUS::SceneCommandID::SetSkyboxSettings] = std::make_shared<SetSkyboxSettingsFactory>();
-        SceneFactory::sceneCommandFactories[LUS::SceneCommandID::SetRoomBehavior] = std::make_shared<SetRoomBehaviorFactory>();
+        SceneFactory::sceneCommandFactories[LUS::SceneCommandID::SetRoomBehavior] = std::make_shared<SetRoomBehaviorMMFactory>();
         SceneFactory::sceneCommandFactories[LUS::SceneCommandID::SetCsCamera] = std::make_shared<SetCsCameraFactory>();
         SceneFactory::sceneCommandFactories[LUS::SceneCommandID::SetCameraSettings] = std::make_shared<SetCameraSettingsFactory>();
         SceneFactory::sceneCommandFactories[LUS::SceneCommandID::SetRoomList] = std::make_shared<SetRoomListFactory>();

@@ -119,14 +119,20 @@ void Scene_CommandSpecialFiles(PlayState* play, LUS::ISceneCommand* cmd) {
 }
 
 void Scene_CommandRoomBehavior(PlayState* play, LUS::ISceneCommand* cmd) {
-    LUS::SetRoomBehavior* behavior = (LUS::SetRoomBehavior*)cmd;
+    LUS::SetRoomBehaviorMM* behavior = (LUS::SetRoomBehaviorMM*)cmd;
 
     play->roomCtx.curRoom.behaviorType1 = behavior->roomBehavior.gameplayFlags;
-    play->roomCtx.curRoom.behaviorType2 = behavior->roomBehavior.gameplayFlags2 & 0xFF;
-    play->roomCtx.curRoom.lensMode = (behavior->roomBehavior.gameplayFlags2 >> 8) & 1;
-    play->msgCtx.unk12044 = (behavior->roomBehavior.gameplayFlags2 >> 0xA) & 1;
-    play->roomCtx.curRoom.enablePosLights = (behavior->roomBehavior.gameplayFlags2 >> 0xB) & 1;
-    play->envCtx.stormState = (behavior->roomBehavior.gameplayFlags2 >> 0xC) & 1;
+    play->roomCtx.curRoom.behaviorType2 = behavior->roomBehavior.currRoomUnk2;
+    play->roomCtx.curRoom.lensMode = behavior->roomBehavior.currRoomUnk5;
+    play->msgCtx.unk12044 = behavior->roomBehavior.msgCtxUnk;
+    play->roomCtx.curRoom.enablePosLights = behavior->roomBehavior.enablePointLights;
+    play->envCtx.stormState = behavior->roomBehavior.kankyoContextUnkE2;
+    //play->roomCtx.curRoom.behaviorType1 = behavior->roomBehavior.gameplayFlags;
+    //play->roomCtx.curRoom.behaviorType2 = behavior->roomBehavior.gameplayFlags2 & 0xFF;
+    //play->roomCtx.curRoom.lensMode = (behavior->roomBehavior.gameplayFlags2 >> 8) & 1;
+    //play->msgCtx.unk12044 = (behavior->roomBehavior.gameplayFlags2 >> 0xA) & 1;
+    //play->roomCtx.curRoom.enablePosLights = (behavior->roomBehavior.gameplayFlags2 >> 0xB) & 1;
+    //play->envCtx.stormState = (behavior->roomBehavior.gameplayFlags2 >> 0xC) & 1;
 }
 
 void Scene_Command09(PlayState* play, LUS::ISceneCommand* cmd) {

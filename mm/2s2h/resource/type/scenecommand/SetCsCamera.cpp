@@ -4,7 +4,7 @@ namespace LUS {
 SetCsCamera::~SetCsCamera() {
     for (auto c : csCamera) {
         if (c.actorCsCamFuncData != nullptr) {
-            delete c.actorCsCamFuncData;
+            delete[] c.actorCsCamFuncData;
         }
     }
 }

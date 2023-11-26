@@ -31,9 +31,9 @@ void LUS::SetCameraSettingsFactoryV0::ParseFileBinary(std::shared_ptr<BinaryRead
     ResourceVersionFactory::ParseFileBinary(reader, setCameraSettings);
 
     ReadCommandId(setCameraSettings, reader);
-	
-    setCameraSettings->settings.cameraMovement = reader->ReadInt8();
-    setCameraSettings->settings.worldMapArea = reader->ReadInt32();
+	// BENTODO in MM this scene command is only used as a signal to have the scene system mark an area as visted. We should make a new command factory for this but this is fine for now.
+    //setCameraSettings->settings.cameraMovement = reader->ReadInt8();
+    //setCameraSettings->settings.worldMapArea = reader->ReadInt32();
 }
 
 } // namespace LUS
