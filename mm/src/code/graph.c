@@ -393,6 +393,7 @@ void RunFrame() {
 
         runFrameContext.gameState = SystemArena_Malloc(size);
 
+        bzero(runFrameContext.gameState, size); // fix
         GameState_Init(runFrameContext.gameState, runFrameContext.ovl->init, &runFrameContext.gfxCtx);
 
         uint64_t freq = GetFrequency();
