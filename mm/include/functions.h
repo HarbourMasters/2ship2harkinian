@@ -7,6 +7,7 @@ extern "C" {
 #endif
 
 #include "z64.h"
+#include "BenPort.h"
 
 void bootproc(void);
 void ViConfig_UpdateVi(u32 black);
@@ -39,10 +40,6 @@ void IrqMgr_HandlePRENMI500(IrqMgr* irqmgr);
 void IrqMgr_HandleRetrace(IrqMgr* irqmgr);
 void IrqMgr_ThreadEntry(IrqMgr* irqmgr);
 void IrqMgr_Init(IrqMgr* irqmgr, void* stack, OSPri pri, u8 retraceCount);
-
-void osSyncPrintfUnused(const char* fmt, ...);
-
-void rmonPrintf(const char* fmt, ...);
 
 void RcpUtils_PrintRegisterStatus(void);
 void RcpUtils_Reset(void);
@@ -1323,6 +1320,41 @@ u8 AudioSeq_UpdateAudioHeapReset(void);
 u8 AudioSeq_ResetReverb(void);
 void AudioSeq_ResetActiveSequences(void);
 void AudioSeq_ResetActiveSequencesAndVolume(void);
+
+// #region 2S2H [Port] Made Available via C++
+s32 osContInit(OSMesgQueue* mq, u8* controllerBits, OSContStatus* status);
+s32 osContStartReadData(OSMesgQueue* mesg);
+void osContGetReadData(OSContPad* pad);
+// #endregion
+// #region 2S2H [Port] Previously unavailable functions, made available for porting
+void PadMgr_ThreadEntry();
+void Heaps_Alloc(void);
+// #endregion
+// #region 2S2H [Port] Stubbed methods
+void osSetThreadPri(OSThread* thread, OSPri p);
+OSPri osGetThreadPri(OSThread* t);
+void osSyncPrintfUnused(const char* fmt, ...);
+void osSyncPrintf(const char* fmt, ...);
+void rmonPrintf(const char* fmt, ...);
+void osCreateThread(OSThread* thread, OSId id, void* entry, void* arg, void* sp, OSPri p);
+void osStartThread(OSThread* t);
+void osViSwapBuffer(void* frameBufPtr);
+void osViBlack(u8 active);
+void osDestroyThread(OSThread* t);
+void osViSetMode(OSViMode* modep);
+void osViSetSpecialFeatures(u32 func);
+s32 osContStartQuery(OSMesgQueue* mq);
+s32 osContSetCh(u8 ch);
+void osContGetQuery(OSContStatus* data);
+void osSpTaskLoad(OSTask* intp);
+void osSpTaskStartGo(OSTask* tp);
+void* osViGetCurrentFramebuffer(void);
+void* osViGetNextFramebuffer(void);
+OSYieldResult osSpTaskYielded(OSTask* task);
+void osSpTaskYield(void);
+void osViSetXScale(f32 value);
+void osViSetYScale(f32 value);
+// #endregion
 
 void Regs_InitData(PlayState* play);
 

@@ -35,6 +35,7 @@
 #include "PR/controller.h"
 #include "PR/os_motor.h"
 #include "fault.h"
+#include <stdio.h>
 
 //extern FaultMgr gFaultMgr;
 
