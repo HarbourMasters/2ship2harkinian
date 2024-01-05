@@ -1540,10 +1540,12 @@ void func_8012CF0C(GraphicsContext* gfxCtx, s32 clearFb, s32 clearZb, u8 r, u8 g
 
     OPEN_DISPS(gfxCtx);
 
-    gSPDisplayList(POLY_OPA_DISP++, gGfxMasterDL->setupBuffers);
-    gSPDisplayList(POLY_XLU_DISP++, gGfxMasterDL->setupBuffers);
-    gSPDisplayList(OVERLAY_DISP++, gGfxMasterDL->setupBuffers);
-    gSPDisplayList(DEBUG_DISP++, gGfxMasterDL->setupBuffers);
+    // #region 2S2H [Port] Crashes on MacOS
+    // gSPDisplayList(POLY_OPA_DISP++, gGfxMasterDL->setupBuffers);
+    // gSPDisplayList(POLY_XLU_DISP++, gGfxMasterDL->setupBuffers);
+    // gSPDisplayList(OVERLAY_DISP++, gGfxMasterDL->setupBuffers);
+    // gSPDisplayList(DEBUG_DISP++, gGfxMasterDL->setupBuffers);
+    // #endregion
 
     if (clearZb) {
         __gSPDisplayList(POLY_OPA_DISP++,

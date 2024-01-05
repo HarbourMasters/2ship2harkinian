@@ -51,6 +51,8 @@
 #include "main.h"
 #include "macros.h"
 #include "global.h"
+#include <stdio.h>
+
 #if 0
 FaultMgr* sFaultInstance;
 f32 sFaultTimeTotal; // read but not set anywhere

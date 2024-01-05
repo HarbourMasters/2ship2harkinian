@@ -25,7 +25,7 @@ extern s32 sIrqMgrRetraceCount;
 
 extern u8 sYaz0DataBuffer[0x400];
 extern u8* sYaz0CurDataEnd;
-extern u32 sYaz0CurRomStart;
+extern uintptr_t sYaz0CurRomStart;
 extern u32 sYaz0CurSize;
 extern u8* sYaz0MaxPtr;
 extern void* gYaz0DecompressDstEnd;
