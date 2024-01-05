@@ -126,12 +126,29 @@ typedef enum {
     /* 1 */ STORY_TYPE_GIANTS_LEAVING
 } StoryType;
 
+typedef enum {
+    /* 0 */ A_BUTTON_ACTION,
+    /* 1 */ B_BUTTON_ACTION,
+    /* 2 */ START_BUTTON_ACTION,
+    /* 3 */ CLOCK_TIMER
+} ActionBtn;
+
+typedef enum {
+    /* 0 */ ACTION_MAIN,
+    /* 1 */ ACTION_SUB
+} ActionType;
+
+typedef struct {
+    char* mainTex;
+    char* subTex;
+} ActionLabel;
+
 typedef struct {
     /* 0x000 */ View view;
     /* 0x168 */ Vtx* actionVtx;
     /* 0x16C */ Vtx* beatingHeartVtx;
     /* 0x170 */ u8* parameterSegment;
-    /* 0x174 */ u8* doActionSegment;
+    /* 0x174 */ ActionLabel* doActionSegment;
     /* 0x178 */ u8* iconItemSegment;
     /* 0x17C */ u8* mapSegment;
     /* 0x180 */ u8* unk_180; // unused segment?
@@ -255,7 +272,7 @@ void Inventory_UpdateItem(struct PlayState* play, s16 slot, s16 item);
 void Interface_SetAButtonDoAction(struct PlayState* play, u16 aButtonDoAction);
 void Interface_SetBButtonDoAction(struct PlayState* play, s16 bButtonDoAction);
 void Interface_SetTatlCall(struct PlayState* play, u16 tatlCallState);
-void Interface_LoadBButtonDoActionLabel(struct PlayState* play, s16 bButtonDoAction);
+void Interface_LoadButtonDoActionLabel(struct PlayState* play, s16 doAction, s16 button, s16 state);
 s32 Health_ChangeBy(struct PlayState* play, s16 healthChange);
 void Health_GiveHearts(s16 hearts);
 void Rupees_ChangeBy(s16 rupeeChange);

@@ -87,7 +87,7 @@ void Object_UpdateEntries(ObjectContext* objectCtx) {
                 } else {
                     osCreateMesgQueue(&entry->loadQueue, &entry->loadMsg, 1);
                     DmaMgr_SendRequestImpl(&entry->dmaReq, entry->segment, objectFile->vromStart, size, 0,
-                                           &entry->loadQueue, NULL);
+                                           &entry->loadQueue, OS_MESG_PTR(NULL));
                 }
             } else if (!osRecvMesg(&entry->loadQueue, NULL, OS_MESG_NOBLOCK)) {
                 entry->id = id;
@@ -100,7 +100,8 @@ void Object_UpdateEntries(ObjectContext* objectCtx) {
 
 s32 Object_GetSlot(ObjectContext* objectCtx, s16 objectId) {
     s32 i;
-
+    // BENTODO there has to be a cleaner fix.
+    return 1;
     for (i = 0; i < objectCtx->numEntries; i++) {
         if (ABS_ALT(objectCtx->slots[i].id) == objectId) {
             return i;
@@ -152,7 +153,7 @@ void* func_8012F73C(ObjectContext* objectCtx, s32 slot, s16 id) {
 
     return (void*)addr;
 }
-
+#if 0
 // SceneTableEntry Header Command 0x00: Spawn List
 void Scene_CommandSpawnList(PlayState* play, SceneCmd* cmd) {
     s32 loadedCount;
@@ -338,12 +339,12 @@ void Scene_CommandTransitionActorList(PlayState* play, SceneCmd* cmd) {
     play->transitionActors.list = Lib_SegmentedToVirtual(cmd->transitionActorList.segment);
     MapDisp_InitTransitionActorData(play, play->transitionActors.count, play->transitionActors.list);
 }
-
+#endif
 // Init function for the transition system.
 void Scene_ResetTransitionActorList(GameState* state, TransitionActorList* transitionActors) {
     transitionActors->count = 0;
 }
-
+#if 0
 // SceneTableEntry Header Command 0x0F: Environment Light Settings List
 void Scene_CommandEnvLightSettings(PlayState* play, SceneCmd* cmd) {
     play->envCtx.numLightSettings = cmd->lightSettingList.num;
@@ -541,14 +542,14 @@ void Scene_CommandSetRegionVisitedFlag(PlayState* play, SceneCmd* cmd) {
 void Scene_CommandAnimatedMaterials(PlayState* play, SceneCmd* cmd) {
     play->sceneMaterialAnims = Lib_SegmentedToVirtual(cmd->textureAnimations.segment);
 }
-
+#endif
 /**
  * Sets the exit fade from the next entrance index.
  */
 void Scene_SetExitFade(PlayState* play) {
     play->transitionType = Entrance_GetTransitionFlags(play->nextEntrance) & 0x7F;
 }
-
+#if 0
 void (*sSceneCmdHandlers[SCENE_CMD_MAX])(PlayState*, SceneCmd*) = {
     Scene_CommandSpawnList,            // SCENE_CMD_ID_SPAWN_LIST
     Scene_CommandActorList,            // SCENE_CMD_ID_ACTOR_LIST
@@ -582,7 +583,6 @@ void (*sSceneCmdHandlers[SCENE_CMD_MAX])(PlayState*, SceneCmd*) = {
     Scene_Command1D,                   // SCENE_CMD_ID_UNUSED_1D
     Scene_CommandMapDataChests,        // SCENE_CMD_ID_MAP_DATA_CHESTS
 };
-
 /**
  * Executes all of the commands in a scene or room header.
  */
@@ -605,7 +605,7 @@ s32 Scene_ExecuteCommands(PlayState* play, SceneCmd* sceneCmd) {
 
     return 0;
 }
-
+#endif
 /**
  * Creates an entrance from the scene, spawn, and layer.
  */

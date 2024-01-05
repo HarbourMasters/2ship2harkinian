@@ -1,6 +1,11 @@
 #ifndef Z64PLAYER_H
 #define Z64PLAYER_H
 
+#ifdef __cplusplus
+extern "C" {
+#define this thisx
+#endif
+
 #include "alignment.h"
 #include "PR/os.h"
 #include "z64actor.h"
@@ -1304,5 +1309,9 @@ typedef struct Player {
     /* 0xD6B */ u8 unk_D6B;
     /* 0xD6C */ Vec3f unk_D6C; // previous body part 0 position
 } Player; // size = 0xD78
+#ifdef __cplusplus
+}
+#undef this
+#endif
 
 #endif

@@ -19,7 +19,7 @@ void TransitionWipe3_SetColor(void* thisx, u32 color);
 void TransitionWipe3_SetEnvColor(void* thisx, u32 color);
 s32 TransitionWipe3_IsDone(void* thisx);
 
-#include "assets/overlays/ovl_fbdemo_wipe3/ovl_fbdemo_wipe3.c"
+#include "assets/overlays/ovl_fbdemo_wipe3/ovl_fbdemo_wipe3.h"
 
 TexturePtr sTransWipe3Textures[] = {
     fbdemo_tex_000520, fbdemo_tex_000920, fbdemo_tex_000D20, fbdemo_tex_001120,

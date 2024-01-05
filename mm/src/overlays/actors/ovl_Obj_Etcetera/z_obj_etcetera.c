@@ -21,15 +21,15 @@ void ObjEtcetera_DrawIdle(Actor* thisx, PlayState* play);
 void ObjEtcetera_DrawAnimated(Actor* thisx, PlayState* play);
 
 ActorInit Obj_Etcetera_InitVars = {
-    /**/ ACTOR_OBJ_ETCETERA,
-    /**/ ACTORCAT_BG,
-    /**/ FLAGS,
-    /**/ GAMEPLAY_KEEP,
-    /**/ sizeof(ObjEtcetera),
-    /**/ ObjEtcetera_Init,
-    /**/ ObjEtcetera_Destroy,
-    /**/ ObjEtcetera_Update,
-    /**/ NULL,
+    ACTOR_OBJ_ETCETERA,
+    ACTORCAT_BG,
+    FLAGS,
+    GAMEPLAY_KEEP,
+    sizeof(ObjEtcetera),
+    (ActorFunc)ObjEtcetera_Init,
+    (ActorFunc)ObjEtcetera_Destroy,
+    (ActorFunc)ObjEtcetera_Update,
+    (ActorFunc)NULL,
 };
 
 static ColliderCylinderInit sCylinderInit = {
@@ -280,8 +280,8 @@ void ObjEtcetera_Setup(ObjEtcetera* this, PlayState* play) {
             case DEKU_FLOWER_TYPE_GOLD:
             case DEKU_FLOWER_TYPE_GOLD_WITH_INITIAL_BOUNCE:
                 this->dList = gGoldDekuFlowerIdleDL;
-                SkelAnime_Init(play, &this->skelAnime, &gGoldDekuFlowerSkel.sh, &gDekuFlowerBounceAnim,
-                               this->jointTable, this->morphTable, GOLD_DEKU_FLOWER_LIMB_MAX);
+                SkelAnime_Init(play, &this->skelAnime, &gGoldDekuFlowerSkel, &gDekuFlowerBounceAnim, this->jointTable,
+                               this->morphTable, GOLD_DEKU_FLOWER_LIMB_MAX);
                 this->collider.dim.height = 20;
                 break;
 

@@ -55,7 +55,7 @@ s32 Camera_ChangeMode(Camera* camera, s16 mode);
 s16 Camera_ChangeSettingFlags(Camera* camera, s16 setting, s16 flags);
 s16 Camera_UnsetStateFlag(Camera* camera, s16 flags);
 
-#include "z_camera_data.inc.c"
+#include "z_camera_data.inc"
 
 PlayState* sCamPlayState;
 SwingAnimation D_801EDC30[4];

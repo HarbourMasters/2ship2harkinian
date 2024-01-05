@@ -483,7 +483,9 @@ void EnDg_TryPickUp(EnDg* this, PlayState* play) {
     if (Actor_HasParent(&this->actor, play)) {
         Actor_PlaySfx(&this->actor, NA_SE_EV_SMALL_DOG_BARK);
         this->grabState = DOG_GRAB_STATE_HELD;
-        sSelectedRacetrackDogInfo = sRacetrackDogInfo[this->index];
+        if (this->index < RACEDOG_COUNT) {
+            sSelectedRacetrackDogInfo = sRacetrackDogInfo[this->index];
+        }
         if (!sIsAnyDogHeld) {
             this->actor.flags |= ACTOR_FLAG_CANT_LOCK_ON;
             sIsAnyDogHeld = true;
@@ -1391,34 +1393,38 @@ void EnDg_Draw(Actor* thisx, PlayState* play) {
 
     gDPPipeSync(POLY_OPA_DISP++);
 
-    switch (sRacetrackDogInfo[this->index].color) {
-        case DOG_COLOR_BEIGE:
-            gDPSetEnvColor(POLY_OPA_DISP++, 255, 255, 200, 0);
-            break;
+    if (this->index < RACEDOG_COUNT) {
+        switch (sRacetrackDogInfo[this->index].color) {
+            case DOG_COLOR_BEIGE:
+                gDPSetEnvColor(POLY_OPA_DISP++, 255, 255, 200, 0);
+                break;
 
-        case DOG_COLOR_WHITE:
-            gDPSetEnvColor(POLY_OPA_DISP++, 255, 255, 255, 0);
-            break;
+            case DOG_COLOR_WHITE:
+                gDPSetEnvColor(POLY_OPA_DISP++, 255, 255, 255, 0);
+                break;
 
-        case DOG_COLOR_BLUE:
-            gDPSetEnvColor(POLY_OPA_DISP++, 79, 79, 143, 0);
-            break;
+            case DOG_COLOR_BLUE:
+                gDPSetEnvColor(POLY_OPA_DISP++, 79, 79, 143, 0);
+                break;
 
-        case DOG_COLOR_GOLD:
-            gDPSetEnvColor(POLY_OPA_DISP++, 255, 207, 47, 0);
-            break;
+            case DOG_COLOR_GOLD:
+                gDPSetEnvColor(POLY_OPA_DISP++, 255, 207, 47, 0);
+                break;
 
-        case DOG_COLOR_BROWN:
-            gDPSetEnvColor(POLY_OPA_DISP++, 143, 79, 47, 0);
-            break;
+            case DOG_COLOR_BROWN:
+                gDPSetEnvColor(POLY_OPA_DISP++, 143, 79, 47, 0);
+                break;
 
-        case DOG_COLOR_GRAY:
-            gDPSetEnvColor(POLY_OPA_DISP++, 143, 143, 143, 0);
-            break;
+            case DOG_COLOR_GRAY:
+                gDPSetEnvColor(POLY_OPA_DISP++, 143, 143, 143, 0);
+                break;
 
-        default:
-            gDPSetEnvColor(POLY_OPA_DISP++, 255, 255, 200, 0);
-            break;
+            default:
+                gDPSetEnvColor(POLY_OPA_DISP++, 255, 255, 200, 0);
+                break;
+        }
+    } else {
+        gDPSetEnvColor(POLY_OPA_DISP++, 255, 255, 200, 0);
     }
 
     Matrix_Translate(this->actor.world.pos.x, this->actor.world.pos.y, this->actor.world.pos.z, MTXMODE_NEW);

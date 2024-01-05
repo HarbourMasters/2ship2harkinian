@@ -929,7 +929,7 @@ void FileSelect_SetWindowContentVtx(GameState* thisx) {
 
             // x-coord (left)
             this->windowContentVtx[vtxId + 0].v.ob[0] = this->windowContentVtx[vtxId + 2].v.ob[0] =
-                D_80814280[*ptr] + posX;
+                D_80814280[spA4[i]] + posX;
             // x-coord (right)
             this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] =
                 this->windowContentVtx[vtxId + 0].v.ob[0] + D_80814628[i];
@@ -2404,7 +2404,7 @@ void FileSelect_Main(GameState* thisx) {
     gDPPipeSync(POLY_OPA_DISP++);
     gSPDisplayList(POLY_OPA_DISP++, sScreenFillSetupDL);
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 0, 0, 0, this->screenFillAlpha);
-    gSPDisplayList(POLY_OPA_DISP++, D_0E000000.fillRect);
+    gSPDisplayList(POLY_OPA_DISP++, 0x0E000000 + ((uintptr_t)&D_0E000000.fillRect - (uintptr_t)&D_0E000000) + 1);
 
     CLOSE_DISPS(this->state.gfxCtx);
 }

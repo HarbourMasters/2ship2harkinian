@@ -8,6 +8,7 @@
 #include "z64shrink_window.h"
 #include "overlays/actors/ovl_Mir_Ray3/z_mir_ray3.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
+#include "objects/object_knight/object_knight.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
@@ -399,65 +400,6 @@ EnKnight* D_809BEFE0;
 MirRay3* D_809BEFE4;
 EnKnightEffect D_809BEFE8[100];
 
-// object
-
-extern AnimationHeader D_060005A8;
-extern AnimationHeader D_060009E0;
-extern AnimationHeader D_06000D9C;
-extern AnimationHeader D_06001CDC;
-extern AnimationHeader D_06002174;
-extern AnimationHeader D_06003008;
-extern AnimationHeader D_060031F0;
-extern AnimationHeader D_06003650;
-extern AnimationHeader D_060040E0;
-extern AnimationHeader D_06004620;
-extern AnimationHeader D_06004974;
-extern AnimationHeader D_06005D30;
-extern AnimationHeader D_060079D4;
-extern AnimationHeader D_06008390;
-extern AnimationHeader D_06008524;
-extern AnimationHeader D_060089E4;
-extern AnimationHeader D_06008D80;
-extern AnimationHeader D_06009538;
-extern AnimationHeader D_06009D8C;
-extern AnimationHeader D_0600A530;
-extern AnimationHeader D_0600AFAC;
-extern AnimationHeader D_0600B5D4;
-extern AnimationHeader D_0600BCF4;
-extern AnimationHeader D_0600C384;
-extern AnimationHeader D_0600CDE0;
-extern AnimationHeader D_0600DDCC;
-extern AnimationHeader D_0600E15C;
-extern AnimationHeader D_0600E45C;
-extern AnimationHeader D_0600EA90;
-extern AnimationHeader D_0600EF44;
-extern AnimationHeader D_06010E98;
-extern AnimationHeader D_06011298;
-extern AnimationHeader D_06005E78;
-extern AnimationHeader D_06006754;
-extern AnimationHeader D_06006EF8;
-extern AnimationHeader D_0600A88C;
-extern AnimationHeader D_0600C7F0;
-extern AnimationHeader D_0600D870;
-extern AnimationHeader D_0600E7F4;
-extern AnimationHeader D_0600FC78;
-extern AnimationHeader D_0601024C;
-extern AnimationHeader D_0602105C;
-extern AnimationHeader D_06021B10;
-extern AnimationHeader D_06021E34;
-extern Gfx D_06013020[];
-extern Gfx D_06012DB0[];
-extern Gfx D_06012400[];
-extern AnimatedMaterial D_06018BC4;
-extern AnimationHeader D_06020950;
-extern AnimationHeader D_06022728;
-extern AnimationHeader D_06022CAC;
-extern FlexSkeletonHeader D_06020374;
-extern FlexSkeletonHeader D_060201A8;
-extern Gfx D_060188F8[];
-extern Gfx D_060189F0[];
-extern Gfx D_06018AF0[];
-
 extern Gfx D_08000000[];
 
 void func_809B20F0(PlayState* play, Vec3f* arg1, Vec3f* arg2, Vec3f* arg3, f32 arg4, f32 arg5, s16 arg6) {
@@ -531,7 +473,7 @@ void EnKnight_Init(Actor* thisx, PlayState* play) {
 
     if (this->actor.params == 0x64) {
         ActorShape_Init(&this->actor.shape, 0.0f, ActorShadow_DrawCircle, 12.0f);
-        SkelAnime_InitFlex(play, &this->unk194, &D_060201A8, &D_06003008, this->unk2C4, this->unk372, 29);
+        SkelAnime_InitFlex(play, &this->unk194, &object_knight_Skel_0201A8, &object_knight_Anim_003008, this->unk2C4, this->unk372, 29);
         Actor_SetScale(&this->actor, KREG(12) * 0.001f + 0.017f);
         func_809BA058(this, play);
         Collider_InitAndSetCylinder(play, &this->unk488, &this->actor, &D_809BDC38);
@@ -543,10 +485,10 @@ void EnKnight_Init(Actor* thisx, PlayState* play) {
         this->actor.flags &= ~1;
         if (1) {}
         if (this->actor.params == 0xC8) {
-            SkelAnime_InitFlex(play, &this->unk194, &D_06020374, &D_060040E0, this->unk2C4, this->unk372, 0x1D);
+            SkelAnime_InitFlex(play, &this->unk194, &object_knight_Skel_020374, &object_knight_Anim_0040E0, this->unk2C4, this->unk372, 0x1D);
             Actor_SetScale(&this->actor, KREG(13) * 0.001f + 0.013f);
         } else {
-            SkelAnime_InitFlex(play, &this->unk194, &D_060201A8, &D_060040E0, this->unk2C4, this->unk372, 0x1D);
+            SkelAnime_InitFlex(play, &this->unk194, &object_knight_Skel_0201A8, &object_knight_Anim_0040E0, this->unk2C4, this->unk372, 0x1D);
             Actor_SetScale(&this->actor, KREG(13) * 0.001f + 0.017f);
         }
         if (this->actor.params == 0xCA) {
@@ -561,12 +503,12 @@ void EnKnight_Init(Actor* thisx, PlayState* play) {
         Collider_InitAndSetJntSph(play, &this->unk594, &this->actor, &D_809BDC28, this->unk5B4);
         if (this->actor.params == 0x23) {
             Collider_InitAndSetJntSph(play, &this->unk4D4, &this->actor, &D_809BDB8C, this->unk4F4);
-            SkelAnime_InitFlex(play, &this->unk194, &D_06020374, &D_060040E0, this->unk2C4, this->unk372, 0x1D);
+            SkelAnime_InitFlex(play, &this->unk194, &object_knight_Skel_020374, &object_knight_Anim_0040E0, this->unk2C4, this->unk372, 0x1D);
             this->actor.colChkInfo.health = 6 - BREG(40);
             Actor_SetScale(&this->actor, KREG(13) * 0.001f + 0.013f);
         } else {
             Collider_InitAndSetJntSph(play, &this->unk4D4, &this->actor, &D_809BDB9C, this->unk4F4);
-            SkelAnime_InitFlex(play, &this->unk194, &D_060201A8, &D_060040E0, this->unk2C4, this->unk372, 0x1D);
+            SkelAnime_InitFlex(play, &this->unk194, &object_knight_Skel_0201A8, &object_knight_Anim_0040E0, this->unk2C4, this->unk372, 0x1D);
             this->actor.colChkInfo.health = 14 - BREG(41);
             Actor_SetScale(&this->actor, KREG(12) * 0.001f + 0.017f);
             this->unk290 = Rand_ZeroFloat(1.9999f);
@@ -735,7 +677,7 @@ s32 func_809B31E8(EnKnight* this, PlayState* play) {
 }
 
 void func_809B329C(EnKnight* this, PlayState* play, s32 arg2) {
-    Animation_MorphToLoop(&this->unk194, &D_06020950, -5.0f);
+    Animation_MorphToLoop(&this->unk194, &object_knight_Anim_020950, -5.0f);
     this->actionFunc = func_809B331C;
     if (this == D_809BEFD0) {
         if (arg2) {
@@ -758,8 +700,8 @@ void func_809B331C(EnKnight* this, PlayState* play) {
 }
 
 void func_809B3394(EnKnight* this, PlayState* play) {
-    Animation_MorphToPlayOnce(&this->unk194, &D_06011298, 0.0f);
-    this->unk1D8 = Animation_GetLastFrame(&D_06011298);
+    Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_011298, 0.0f);
+    this->unk1D8 = Animation_GetLastFrame(&object_knight_Anim_011298);
     this->actionFunc = func_809B33F0;
 }
 
@@ -798,8 +740,8 @@ void func_809B33F0(EnKnight* this, PlayState* play) {
 }
 
 void func_809B35BC(EnKnight* this, PlayState* play) {
-    Animation_MorphToPlayOnce(&this->unk194, &D_06022728, -5.0f);
-    this->unk1D8 = Animation_GetLastFrame(&D_06022728);
+    Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_022728, -5.0f);
+    this->unk1D8 = Animation_GetLastFrame(&object_knight_Anim_022728);
     this->actionFunc = func_809B3618;
 }
 
@@ -839,7 +781,7 @@ void func_809B3618(EnKnight* this, PlayState* play) {
 }
 
 void func_809B37C8(EnKnight* this, PlayState* play) {
-    Animation_MorphToLoop(&this->unk194, &D_06022CAC, 0.0f);
+    Animation_MorphToLoop(&this->unk194, &object_knight_Anim_022CAC, 0.0f);
     this->actionFunc = func_809B3834;
     if (this == D_809BEFD0) {
         this->unk14A[0] = 6;
@@ -858,11 +800,11 @@ void func_809B3834(EnKnight* this, PlayState* play) {
 
 void func_809B389C(EnKnight* this, PlayState* play) {
     if (Rand_ZeroOne() < 0.5f) {
-        Animation_MorphToPlayOnce(&this->unk194, &D_0600C384, -2.0f);
-        this->unk1D8 = Animation_GetLastFrame(&D_0600C384);
+        Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_00C384, -2.0f);
+        this->unk1D8 = Animation_GetLastFrame(&object_knight_Anim_00C384);
     } else {
-        Animation_MorphToPlayOnce(&this->unk194, &D_0600BCF4, -2.0f);
-        this->unk1D8 = Animation_GetLastFrame(&D_0600BCF4);
+        Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_00BCF4, -2.0f);
+        this->unk1D8 = Animation_GetLastFrame(&object_knight_Anim_00BCF4);
     }
     this->actionFunc = func_809B3958;
     this->unk14A[0] = 20;
@@ -893,8 +835,8 @@ void func_809B3A7C(EnKnight* this, PlayState* play) {
     Vec3f sp28;
 
     if (this->actor.xzDistToPlayer <= 200.0f) {
-        Animation_MorphToPlayOnce(&this->unk194, &D_0600AFAC, -3.0f);
-        this->unk1D8 = Animation_GetLastFrame(&D_0600AFAC);
+        Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_00AFAC, -3.0f);
+        this->unk1D8 = Animation_GetLastFrame(&object_knight_Anim_00AFAC);
         this->actionFunc = func_809B3B94;
         Matrix_RotateYS(this->unk172, MTXMODE_NEW);
         Matrix_MultVecZ(KREG(49) + 7.0f, &sp28);
@@ -922,7 +864,7 @@ void func_809B3B94(EnKnight* this, PlayState* play) {
     }
     SkelAnime_Update(&this->unk194);
     if (Animation_OnFrame(&this->unk194, this->unk1D8)) {
-        Animation_MorphToPlayOnce(&this->unk194, &D_0600B5D4, 0.0f);
+        Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_00B5D4, 0.0f);
         Actor_PlaySfx(&this->actor, this->unk6BC);
         this->unk1D8 = 1000.0f;
     }
@@ -945,8 +887,8 @@ void func_809B3CD0(EnKnight* this, PlayState* play) {
     }
     if (this->actionFunc != func_809B3DAC) {
         this->unk424 = this->actionFunc;
-        Animation_MorphToPlayOnce(&this->unk194, &D_060031F0, -2.0f);
-        this->unk1D8 = Animation_GetLastFrame(&D_060031F0);
+        Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_0031F0, -2.0f);
+        this->unk1D8 = Animation_GetLastFrame(&object_knight_Anim_0031F0);
         this->actionFunc = func_809B3DAC;
     }
     this->unk14A[0] = 5;
@@ -970,7 +912,7 @@ void func_809B3DAC(EnKnight* this, PlayState* play) {
 }
 
 void func_809B3E9C(EnKnight* this, PlayState* play) {
-    Animation_MorphToLoop(&this->unk194, &D_060040E0, -5.0f);
+    Animation_MorphToLoop(&this->unk194, &object_knight_Anim_0040E0, -5.0f);
     this->actionFunc = func_809B3F0C;
     this->unk14A[0] = Rand_ZeroFloat(50.0f) + 20.0f;
 }
@@ -998,7 +940,7 @@ void func_809B3F0C(EnKnight* this, PlayState* play) {
 
 void func_809B4024(EnKnight* this, PlayState* play, s16 arg2) {
     this->actionFunc = func_809B40E8;
-    Animation_MorphToPlayOnce(&this->unk194, &D_0600EF44, -2.0f);
+    Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_00EF44, -2.0f);
     if (Rand_ZeroOne() < 0.5f) {
         this->unk15A = this->actor.shape.rot.y + arg2;
         this->unk186 = 0x3800;
@@ -1056,7 +998,7 @@ void func_809B41F8(EnKnight* this, PlayState* play) {
 }
 
 void func_809B42B8(EnKnight* this, PlayState* play) {
-    Animation_MorphToLoop(&this->unk194, &D_06004620, -5.0f);
+    Animation_MorphToLoop(&this->unk194, &object_knight_Anim_004620, -5.0f);
     this->actionFunc = func_809B4308;
     this->actor.speed = 0.0f;
 }
@@ -1120,23 +1062,23 @@ void func_809B4308(EnKnight* this, PlayState* play) {
         func_809B22CC(this, play, 3);
     }
     if ((this->actor.speed > 3.0f) && (sp5C <= 3.0f)) {
-        Animation_MorphToLoop(&this->unk194, &D_06003650, -3.0f);
+        Animation_MorphToLoop(&this->unk194, &object_knight_Anim_003650, -3.0f);
         if (Rand_ZeroOne() < 0.25f) {
             func_809B3A7C(this, play);
         }
     }
     if (this->actionFunc == func_809B4308) {
         if ((this->actor.speed < 4.0f) && (sp5C >= 4.0f)) {
-            Animation_MorphToLoop(&this->unk194, &D_06004620, -5.0f);
+            Animation_MorphToLoop(&this->unk194, &object_knight_Anim_004620, -5.0f);
             if (Rand_ZeroOne() < 0.25f) {
                 func_809B3A7C(this, play);
             }
         }
         if ((this->actor.speed < 1.0f) && (sp5C >= 1.0f)) {
-            Animation_MorphToLoop(&this->unk194, &D_060040E0, -10.0f);
+            Animation_MorphToLoop(&this->unk194, &object_knight_Anim_0040E0, -10.0f);
         }
         if ((this->actor.speed >= 1.0f) && (sp5C < 1.0f)) {
-            Animation_MorphToLoop(&this->unk194, &D_06004620, -5.0f);
+            Animation_MorphToLoop(&this->unk194, &object_knight_Anim_004620, -5.0f);
         }
     }
     temp_v0 = sp34 - this->actor.shape.rot.y;
@@ -1159,7 +1101,7 @@ void func_809B4308(EnKnight* this, PlayState* play) {
 
 void func_809B47EC(EnKnight* this, PlayState* play, u8 arg2) {
     if (this->actionFunc != func_809B4880) {
-        Animation_MorphToLoop(&this->unk194, &D_06003650, -5.0f);
+        Animation_MorphToLoop(&this->unk194, &object_knight_Anim_003650, -5.0f);
         this->unk148 = 0;
         this->actionFunc = func_809B4880;
     }
@@ -1188,12 +1130,12 @@ void func_809B4880(EnKnight* this, PlayState* play) {
                 if (this->unk291 != 0) {
                     this->unk148 = 3;
                     this->unk2A1 = 30;
-                    Animation_MorphToLoop(&this->unk194, &D_0600E45C, -2.0f);
-                    this->unk1D8 = Animation_GetLastFrame(&D_0600E45C);
+                    Animation_MorphToLoop(&this->unk194, &object_knight_Anim_00E45C, -2.0f);
+                    this->unk1D8 = Animation_GetLastFrame(&object_knight_Anim_00E45C);
                     Actor_PlaySfx(&this->actor, NA_SE_EN_STAL_FREEZE_LIGHTS);
                 } else {
                     this->unk148 = 1;
-                    Animation_MorphToLoop(&this->unk194, &D_060040E0, -5.0f);
+                    Animation_MorphToLoop(&this->unk194, &object_knight_Anim_0040E0, -5.0f);
                     this->unk1D8 = 1000.0f;
                 }
             }
@@ -1201,14 +1143,14 @@ void func_809B4880(EnKnight* this, PlayState* play) {
         case 1:
             if (this->unk291 != 0) {
                 this->unk148 = 2;
-                Animation_MorphToPlayOnce(&this->unk194, &D_060031F0, -2.0f);
+                Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_0031F0, -2.0f);
                 Actor_PlaySfx(&this->actor, this->unk6B6);
             }
             goto block_24;
         case 2:
             if (this->unk291 == 0) {
                 this->unk148 = 1;
-                Animation_MorphToLoop(&this->unk194, &D_060040E0, -5.0f);
+                Animation_MorphToLoop(&this->unk194, &object_knight_Anim_0040E0, -5.0f);
             }
             if (this->unk291 >= 8) {
                 Math_ApproachF(&this->unk474, 1.0f, 1.0f, 0.5f);
@@ -1217,7 +1159,7 @@ void func_809B4880(EnKnight* this, PlayState* play) {
         case 3:
             if (Animation_OnFrame(&this->unk194, this->unk1D8)) {
                 this->unk148 = 2;
-                Animation_MorphToPlayOnce(&this->unk194, &D_060031F0, -2.0f);
+                Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_0031F0, -2.0f);
                 this->unk1D8 = 1000.0f;
             }
             goto block_24;
@@ -1240,7 +1182,7 @@ void func_809B4880(EnKnight* this, PlayState* play) {
 }
 
 void func_809B4BFC(EnKnight* this, PlayState* play) {
-    Animation_MorphToLoop(&this->unk194, &D_0600CDE0, -25.0f);
+    Animation_MorphToLoop(&this->unk194, &object_knight_Anim_00CDE0, -25.0f);
     Actor_PlaySfx(&this->actor, this->unk6B6);
     this->actionFunc = func_809B4C58;
     this->unk14A[0] = 35;
@@ -1310,10 +1252,10 @@ void func_809B4F90(EnKnight* this, PlayState* arg1) {
     this->actionFunc = func_809B5058;
     temp_v0 = this->unk172 - this->actor.shape.rot.y;
     if (ABS_ALT(temp_v0) < 0x4000) {
-        Animation_MorphToPlayOnce(&this->unk194, &D_06004974, 0.0f);
+        Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_004974, 0.0f);
         this->unk148 = 0;
     } else {
-        Animation_MorphToPlayOnce(&this->unk194, &D_06000D9C, 0.0f);
+        Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_000D9C, 0.0f);
         this->unk148 = 1;
     }
     Matrix_RotateYS(this->unk172, MTXMODE_NEW);
@@ -1357,10 +1299,10 @@ void func_809B51DC(EnKnight* this, PlayState* play) {
     this->actionFunc = func_809B52E8;
     temp_v0 = this->unk172 - this->actor.shape.rot.y;
     if (ABS_ALT(temp_v0) < 0x4000) {
-        Animation_MorphToPlayOnce(&this->unk194, &D_06001CDC, 0.0f);
+        Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_001CDC, 0.0f);
         this->unk1D8 = 1.0f;
     } else {
-        Animation_MorphToPlayOnce(&this->unk194, &D_06005D30, 0.0f);
+        Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_005D30, 0.0f);
         this->unk1D8 = -1.0f;
     }
     Matrix_RotateYS(this->unk172, MTXMODE_NEW);
@@ -1513,7 +1455,7 @@ void func_809B592C(EnKnight* this, PlayState* play) {
     Vec3f sp28;
 
     this->actionFunc = func_809B5B08;
-    Animation_MorphToPlayOnce(&this->unk194, &D_06002174, 0.0f);
+    Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_002174, 0.0f);
     Matrix_RotateYS(this->unk172, MTXMODE_NEW);
     Matrix_MultVecZ(-15.0f, &sp28);
     this->unk2A4 = sp28.x;
@@ -1532,7 +1474,7 @@ void func_809B59FC(EnKnight* this, PlayState* play) {
     Vec3f sp28;
 
     this->actionFunc = func_809B5B08;
-    Animation_MorphToPlayOnce(&this->unk194, &D_06002174, 0.0f);
+    Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_002174, 0.0f);
     Matrix_RotateYS(this->unk172, MTXMODE_NEW);
     Matrix_MultVecZ(KREG(90) + 14.0f, &sp28);
     this->unk2A4 = sp28.x;
@@ -1607,9 +1549,9 @@ void func_809B5D54(EnKnight* this, PlayState* play) {
             break;
         case 1:
             if (this->unk290 == 0) {
-                Animation_MorphToPlayOnce(&this->unk194, &D_060009E0, 0.0f);
+                Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_0009E0, 0.0f);
             } else {
-                Animation_MorphToPlayOnce(&this->unk194, &D_060005A8, 0.0f);
+                Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_0005A8, 0.0f);
             }
             Actor_PlaySfx(&this->actor, NA_SE_EN_BOSU_STAND);
             this->unk290 = 1 - this->unk290;
@@ -1636,7 +1578,7 @@ void func_809B5D54(EnKnight* this, PlayState* play) {
 
 void func_809B5E90(EnKnight* this, PlayState* play) {
     this->actionFunc = func_809B5ED0;
-    Animation_MorphToLoop(&this->unk194, &D_060040E0, -5.0f);
+    Animation_MorphToLoop(&this->unk194, &object_knight_Anim_0040E0, -5.0f);
 }
 
 void func_809B5ED0(EnKnight* this, PlayState* play) {
@@ -1664,7 +1606,7 @@ void func_809B5ED0(EnKnight* this, PlayState* play) {
 
 void func_809B5FA8(EnKnight* this, PlayState* play) {
     this->actionFunc = func_809B601C;
-    Animation_MorphToLoop(&this->unk194, &D_060040E0, -5.0f);
+    Animation_MorphToLoop(&this->unk194, &object_knight_Anim_0040E0, -5.0f);
     this->unk148 = 0;
     this->unk14A[0] = Rand_ZeroFloat(10.0f) + 65.0f;
 }
@@ -1704,7 +1646,7 @@ void func_809B601C(EnKnight* this, PlayState* play) {
             }
 
             if (this->unk14A[0] == 0 && func_801A46F8() == 1) {
-                Animation_MorphToLoop(&this->unk194, &D_0600DDCC, -3.0f);
+                Animation_MorphToLoop(&this->unk194, &object_knight_Anim_00DDCC, -3.0f);
                 this->unk148 = 1;
                 this->unk14A[0] = 0xC8;
             }
@@ -1747,7 +1689,7 @@ void func_809B601C(EnKnight* this, PlayState* play) {
 void func_809B631C(EnKnight* this, PlayState* play) {
     if (this == D_809BEFD0) {
         this->actionFunc = func_809B8458;
-        Animation_MorphToLoop(&this->unk194, &D_060040E0, -5.0f);
+        Animation_MorphToLoop(&this->unk194, &object_knight_Anim_0040E0, -5.0f);
     } else {
         this->actionFunc = func_809B842C;
     }
@@ -1778,7 +1720,7 @@ void func_809B638C(EnKnight* this, PlayState* play, s16 arg2) {
 }
 
 void func_809B6528(EnKnight* this, PlayState* play) {
-    Animation_MorphToPlayOnce(&this->unk194, &D_0600A530, -5.0f);
+    Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_00A530, -5.0f);
     this->actionFunc = func_809B6764;
     this->unk148 = 0;
 }
@@ -1835,8 +1777,8 @@ void func_809B6764(EnKnight* this, PlayState* play) {
             }
             if (player->unk_D57 == 4 && func_809B31E8(this, play) != 0) {
                 this->unk148 = 0xA;
-                Animation_MorphToPlayOnce(&this->unk194, &D_06008524, 0.0f);
-                this->unk1D8 = Animation_GetLastFrame(&D_06008524);
+                Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_008524, 0.0f);
+                this->unk1D8 = Animation_GetLastFrame(&object_knight_Anim_008524);
             }
             break;
         case 1:
@@ -1880,13 +1822,13 @@ void func_809B6764(EnKnight* this, PlayState* play) {
         case 10:
             if (Animation_OnFrame(&this->unk194, this->unk1D8) != 0) {
                 this->unk148 = 0xB;
-                Animation_MorphToPlayOnce(&this->unk194, &D_060089E4, 0.0f);
-                this->unk1D8 = Animation_GetLastFrame(&D_060089E4);
+                Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_0089E4, 0.0f);
+                this->unk1D8 = Animation_GetLastFrame(&object_knight_Anim_0089E4);
             }
             break;
         case 11:
             if (Animation_OnFrame(&this->unk194, this->unk1D8) != 0) {
-                Animation_MorphToPlayOnce(&this->unk194, &D_0600A530, -15.0f);
+                Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_00A530, -15.0f);
                 this->unk148 = 0;
             }
             break;
@@ -1916,7 +1858,7 @@ void func_809B6764(EnKnight* this, PlayState* play) {
 }
 
 void func_809B6C04(EnKnight* this, PlayState* play) {
-    Animation_MorphToPlayOnce(&this->unk194, &D_06003008, -5.0f);
+    Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_003008, -5.0f);
     this->actionFunc = func_809B6C54;
     this->unk14A[0] = 0x32;
 }
@@ -1938,7 +1880,7 @@ void func_809B6C54(EnKnight* this, PlayState* play) {
 }
 
 void func_809B6D38(EnKnight* this, PlayState* play) {
-    Animation_MorphToPlayOnce(&this->unk194, &D_060079D4, -10.0f);
+    Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_0079D4, -10.0f);
     this->actionFunc = func_809B6D94;
     this->unk148 = 0;
     this->unk14A[0] = 0x3C;
@@ -1979,8 +1921,8 @@ void func_809B6D94(EnKnight* this, PlayState* play) {
 }
 
 void func_809B6EC8(EnKnight* this, PlayState* play) {
-    Animation_MorphToPlayOnce(&this->unk194, &D_06009538, -5.0f);
-    this->unk1D8 = Animation_GetLastFrame(&D_06009538);
+    Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_009538, -5.0f);
+    this->unk1D8 = Animation_GetLastFrame(&object_knight_Anim_009538);
     this->actionFunc = func_809B6F40;
     this->unk148 = 0;
     this->unk14A[0] = KREG(57) + 0x96;
@@ -2009,7 +1951,7 @@ void func_809B6F40(EnKnight* this, PlayState* play) {
         case 0:
             if (Animation_OnFrame(&this->unk194, this->unk1D8) != 0) {
                 this->unk148 = 1;
-                Animation_MorphToLoop(&this->unk194, &D_06008D80, 0.0f);
+                Animation_MorphToLoop(&this->unk194, &object_knight_Anim_008D80, 0.0f);
             }
             func_809B638C(this, play, 0x1600);
             break;
@@ -2021,8 +1963,8 @@ void func_809B6F40(EnKnight* this, PlayState* play) {
             }
             if (this->unk14A[0] == 0) {
                 this->unk148 = 2;
-                Animation_MorphToPlayOnce(&this->unk194, &D_0600E15C, -5.0f);
-                this->unk1D8 = Animation_GetLastFrame(&D_0600E15C);
+                Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_00E15C, -5.0f);
+                this->unk1D8 = Animation_GetLastFrame(&object_knight_Anim_00E15C);
             }
             break;
         case 2:
@@ -2076,7 +2018,7 @@ void func_809B71DC(EnKnight* this, PlayState* play) {
             /* Fallthrough */
         case 1:
             if (this->unk684 == (u32)(sREG(64) + 0xD)) {
-                Animation_MorphToPlayOnce(&this->unk194, &D_06009D8C, sREG(65));
+                Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_009D8C, sREG(65));
                 Actor_PlaySfx(&this->actor, NA_SE_EN_BOSU_STAND);
             }
             if (this->unk684 != (u32)(sREG(66) + 0x17)) {
@@ -2088,7 +2030,7 @@ void func_809B71DC(EnKnight* this, PlayState* play) {
             this->unk698.x = 1354.0f;
             this->unk698.y = 83.0f;
             this->unk698.z = 2865.0f;
-            Animation_MorphToPlayOnce(&this->unk194, &D_06009D8C, 0.0f);
+            Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_009D8C, 0.0f);
             this->unk684 = 0;
             this->unk688 = 2;
             /* Fallthrough */
@@ -2108,7 +2050,7 @@ void func_809B71DC(EnKnight* this, PlayState* play) {
                 Math_ApproachF(&this->unk470, temp_fa0, 1.0f, 0.5f);
             }
             if (this->unk684 == (u32)(sREG(69) + 0x32)) {
-                Animation_MorphToPlayOnce(&this->unk194, &D_06008390, sREG(65) + -10.0f);
+                Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_008390, sREG(65) + -10.0f);
                 Actor_PlaySfx(&this->actor, NA_SE_EN_BOSU_ATTACK_K);
             }
             if (this->unk684 >= (u32)(sREG(69) + 0x32)) {
@@ -2143,7 +2085,7 @@ void func_809B71DC(EnKnight* this, PlayState* play) {
 
 void func_809B7708(EnKnight* this, PlayState* play) {
     if (this->actionFunc != func_809B52E8 && this->actionFunc != func_809B5698 && this->actionFunc != func_809B58D4) {
-        Animation_MorphToLoop(&this->unk194, &D_060040E0, -5.0f);
+        Animation_MorphToLoop(&this->unk194, &object_knight_Anim_0040E0, -5.0f);
         this->actionFunc = func_809B7778;
     }
 }
@@ -2217,9 +2159,9 @@ void func_809B7950(EnKnight* this, PlayState* play) {
                 this->unk688 = 1;
                 this->unk6B0 = 60.0f;
                 if (this->unk424 == func_809B6764) {
-                    Animation_MorphToPlayOnce(&this->unk194, &D_0600EA90, 0.0f);
+                    Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_00EA90, 0.0f);
                 } else {
-                    Animation_MorphToPlayOnce(&this->unk194, &D_0600E7F4, 0.0f);
+                    Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_00E7F4, 0.0f);
                 }
                 Actor_PlaySfx(&this->actor, NA_SE_EN_BOSU_STAND);
                 case 1:
@@ -2275,12 +2217,12 @@ void func_809B7950(EnKnight* this, PlayState* play) {
         case 3:
             if (this->unk684 == 7) {
                 if (this->unk424 == func_809B6764) {
-                    Animation_MorphToPlayOnce(&this->unk194, &D_06006EF8, 0.0f);
-                    this->unk1D8 = Animation_GetLastFrame(&D_06006EF8);
+                    Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_006EF8, 0.0f);
+                    this->unk1D8 = Animation_GetLastFrame(&object_knight_Anim_006EF8);
                     Actor_PlaySfx(&this->actor, NA_SE_EN_BOSU_STAND_RAPID);
                 } else {
-                    Animation_MorphToPlayOnce(&this->unk194, &D_06006754, 0.0f);
-                    this->unk1D8 = Animation_GetLastFrame(&D_06006754);
+                    Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_006754, 0.0f);
+                    this->unk1D8 = Animation_GetLastFrame(&object_knight_Anim_006754);
                 }
                 Message_StartTextbox(play, 0x153E, NULL);
             }
@@ -2299,7 +2241,7 @@ void func_809B7950(EnKnight* this, PlayState* play) {
             }
 
             if (Animation_OnFrame(&this->unk194, this->unk1D8) != 0) {
-                Animation_MorphToLoop(&this->unk194, &D_0600C7F0, 0.0f);
+                Animation_MorphToLoop(&this->unk194, &object_knight_Anim_00C7F0, 0.0f);
                 this->unk1D8 = 1000.0f;
                 Actor_PlaySfx(&this->actor, NA_SE_EN_BOSU_HAND);
             }
@@ -2307,7 +2249,7 @@ void func_809B7950(EnKnight* this, PlayState* play) {
             if (this->unk684 == (u32)(KREG(25) + 0x78)) {
                 this->unk688 = 4;
                 this->unk684 = 0;
-                Animation_MorphToPlayOnce(&this->unk194, &D_0600C7F0, 0.0f);
+                Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_00C7F0, 0.0f);
             }
             break;
         case 4:
@@ -2333,7 +2275,7 @@ void func_809B7950(EnKnight* this, PlayState* play) {
             }
             if (this->unk684 == (u32)(BREG(17) + 0xA0)) {
                 Message_StartTextbox(play, 0x1542, NULL);
-                Animation_MorphToLoop(&this->unk194, &D_0600A88C, 0.0f);
+                Animation_MorphToLoop(&this->unk194, &object_knight_Anim_00A88C, 0.0f);
             }
             if (this->unk684 == (u32)(BREG(18) + 0xAA)) {
                 Player_SetCsActionWithHaltedActors(play, &this->actor, 4);
@@ -2347,21 +2289,21 @@ void func_809B7950(EnKnight* this, PlayState* play) {
                 }
             }
             if (this->unk684 == (u32)(BREG(19) + 0xDC)) {
-                Animation_MorphToPlayOnce(&this->unk194, &D_06021E34, -3.0f);
+                Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_021E34, -3.0f);
             }
             if (this->unk684 == (u32)(BREG(20) + 0xE6)) {
                 Message_StartTextbox(play, 0x1540, NULL);
             }
             if (this->unk684 == (u32)(BREG(20) + 0xF0)) {
-                Animation_MorphToLoop(&this->unk194, &D_06005E78, 0.0f);
+                Animation_MorphToLoop(&this->unk194, &object_knight_Anim_005E78, 0.0f);
             }
 
             if (this->unk684 == (u32)(BREG(21) + 0x140)) {
                 if (this->unk424 == func_809B6764) {
-                    Animation_MorphToPlayOnce(&this->unk194, &D_0601024C, 0.0f);
+                    Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_01024C, 0.0f);
                     Actor_PlaySfx(&this->actor, NA_SE_EN_BOSU_SIT);
                 } else {
-                    Animation_MorphToPlayOnce(&this->unk194, &D_0602105C, 0.0f);
+                    Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_02105C, 0.0f);
                 }
                 Message_CloseTextbox(play);
             }
@@ -2527,8 +2469,8 @@ void func_809B8458(EnKnight* this, PlayState* play) {
             }
             this->unk688 = 4;
             this->unk684 = 0;
-            Animation_MorphToPlayOnce(&this->unk194, &D_06010E98, 0.0f);
-            this->unk1D8 = Animation_GetLastFrame(&D_06010E98);
+            Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_010E98, 0.0f);
+            this->unk1D8 = Animation_GetLastFrame(&object_knight_Anim_010E98);
             /* Fallthrough */
         case 4:
             this->unk6A4 = BREG(29) * 0.01f + 0.1f;
@@ -2549,7 +2491,7 @@ void func_809B8458(EnKnight* this, PlayState* play) {
 
             this->unk688 = 5;
             this->unk684 = 0;
-            Animation_MorphToLoop(&D_809BEFD8->unk194, &D_06021B10, 0.0f);
+            Animation_MorphToLoop(&D_809BEFD8->unk194, &object_knight_Anim_021B10, 0.0f);
             D_809BEFD8->actor.world.pos.x = BREG(30) + 1363.0f + 120.0f;
             Message_StartTextbox(play, 0x1533, NULL);
             this->unk6B0 = 30.0f;
@@ -2567,7 +2509,7 @@ void func_809B8458(EnKnight* this, PlayState* play) {
                 this->unk430 = KREG(42) + 200.0f;
             }
             if (Animation_OnFrame(&this->unk194, this->unk1D8)) {
-                Animation_MorphToLoop(&this->unk194, &D_0600FC78, 0.0f);
+                Animation_MorphToLoop(&this->unk194, &object_knight_Anim_00FC78, 0.0f);
                 this->unk1D8 = 1000.0f;
             }
             this->unk68C.x = 1349.0f;
@@ -2580,7 +2522,7 @@ void func_809B8458(EnKnight* this, PlayState* play) {
             D_809BEFD8->actor.world.pos.y = 45.0f;
             D_809BEFD8->actor.world.pos.z = BREG(31) + 2864.0f + 60.0f;
             if (this->unk684 == (u32)(BREG(35) + 0x2D)) {
-                Animation_MorphToPlayOnce(&D_809BEFD8->unk194, &D_0600D870, -10.0f);
+                Animation_MorphToPlayOnce(&D_809BEFD8->unk194, &object_knight_Anim_00D870, -10.0f);
                 Actor_PlaySfx(&D_809BEFD8->actor, NA_SE_EN_DEBU_PAUSE_K);
             }
             if (this->unk684 != (u32)(BREG(33) + 0x50)) {
@@ -2588,7 +2530,7 @@ void func_809B8458(EnKnight* this, PlayState* play) {
             }
             this->unk688 = 6;
             this->unk684 = 0;
-            Animation_MorphToLoop(&D_809BEFD4->unk194, &D_06021B10, 0.0f);
+            Animation_MorphToLoop(&D_809BEFD4->unk194, &object_knight_Anim_021B10, 0.0f);
             D_809BEFD4->actor.world.pos.x = BREG(30) + 1363.0f + 120.0f;
             D_809BEFD8->actor.world.pos.z = 3164.0f;
             Message_StartTextbox(play, 0x151B, NULL);
@@ -2612,7 +2554,7 @@ void func_809B8458(EnKnight* this, PlayState* play) {
             D_809BEFD4->actor.world.pos.y = 45.0f;
             D_809BEFD4->actor.world.pos.z = (BREG(31) + 2864.0f) - 60.0f;
             if (this->unk684 == (u32)(BREG(35) + 0x2D)) {
-                Animation_MorphToPlayOnce(&D_809BEFD4->unk194, &D_0600D870, -10.0f);
+                Animation_MorphToPlayOnce(&D_809BEFD4->unk194, &object_knight_Anim_00D870, -10.0f);
                 Actor_PlaySfx(&D_809BEFD4->actor, NA_SE_EN_YASE_PAUSE_K);
             }
             if (this->unk684 != (u32)(BREG(33) + 0x50)) {
@@ -2638,12 +2580,12 @@ void func_809B8458(EnKnight* this, PlayState* play) {
         case 7:
             if (this->unk684 >= (u32)(BREG(37) + 0x14)) {
                 if (this->unk684 == (u32)(BREG(37) + 0x14)) {
-                    Animation_MorphToPlayOnce(&this->unk194, &D_06009D8C, 0.0f);
-                    this->unk1D8 = Animation_GetLastFrame(&D_06009D8C);
+                    Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_009D8C, 0.0f);
+                    this->unk1D8 = Animation_GetLastFrame(&object_knight_Anim_009D8C);
                     Actor_PlaySfx(&this->actor, NA_SE_EN_BOSU_STAND);
                 }
                 if (Animation_OnFrame(&this->unk194, this->unk1D8) != 0) {
-                    Animation_MorphToLoop(&this->unk194, &D_06008390, 0.0f);
+                    Animation_MorphToLoop(&this->unk194, &object_knight_Anim_008390, 0.0f);
                     this->unk1D8 = 1000.0f;
                 }
             }
@@ -2655,8 +2597,8 @@ void func_809B8458(EnKnight* this, PlayState* play) {
                 Actor_PlaySfx(&this->actor, NA_SE_EN_BOSU_ATTACK);
             }
             if (this->unk684 == (u32)(BREG(44) + 0x28)) {
-                Animation_MorphToLoop(&D_809BEFD4->unk194, &D_0600CDE0, -5.0f);
-                Animation_MorphToLoop(&D_809BEFD8->unk194, &D_0600CDE0, -5.0f);
+                Animation_MorphToLoop(&D_809BEFD4->unk194, &object_knight_Anim_00CDE0, -5.0f);
+                Animation_MorphToLoop(&D_809BEFD8->unk194, &object_knight_Anim_00CDE0, -5.0f);
             }
             if (this->unk684 == 40) {
                 Actor_PlaySfx(&this->actor, NA_SE_EN_BOSU_HEAD_MID);
@@ -2922,7 +2864,7 @@ void func_809B9F8C(EnKnight* this, PlayState* play) {
 }
 
 void func_809BA058(EnKnight* this, PlayState* play) {
-    Animation_MorphToPlayOnce(&this->unk194, &D_06003008, 0.0f);
+    Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_003008, 0.0f);
     this->unk194.curFrame = 19.0f;
     this->actionFunc = func_809BA0CC;
     this->unk148 = 0;
@@ -2975,7 +2917,7 @@ void func_809BA0CC(EnKnight* this, PlayState* play) {
                 if (D_809BEFD0->actionFunc != func_809B52E8 && D_809BEFD0->actionFunc != func_809B5698) {
                     this->unk14A[1] = 0;
                     func_809B6D38(D_809BEFD0, play);
-                    Animation_MorphToPlayOnce(&this->unk194, &D_060079D4, -10.0f);
+                    Animation_MorphToPlayOnce(&this->unk194, &object_knight_Anim_0079D4, -10.0f);
                     this->unk152 = 0;
                     this->unk194.playSpeed = 0.0f;
                 } else {
@@ -3587,9 +3529,10 @@ void func_809BC2C4(EnKnight* this, PlayState* play) {
     OPEN_DISPS(play->state.gfxCtx);
 
     Gfx_SetupDL25_Xlu(play->state.gfxCtx);
-    AnimatedMat_Draw(play, Lib_SegmentedToVirtual(&D_06018BC4));
+    AnimatedMat_Draw(play, Lib_SegmentedToVirtual(&object_knight_Matanimheader_018BC4));
 
-    gSPDisplayList(POLY_XLU_DISP++, D_08000000);
+    // BENTODO, will this work on 64 bit.
+    gSPDisplayList(POLY_XLU_DISP++, 0x08000000 | 1);
 
     if (this == D_809BEFD0) {
         gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, (u8)(sREG(11) + 0xB4), 255, 255,
@@ -3612,14 +3555,14 @@ void func_809BC2C4(EnKnight* this, PlayState* play) {
 
     switch (this->unk44C) {
         case 0:
-            gSPDisplayList(POLY_XLU_DISP++, D_06018AF0);
+            gSPDisplayList(POLY_XLU_DISP++, object_knight_DL_018AF0);
             break;
         case 1:
-            gSPDisplayList(POLY_XLU_DISP++, D_060189F0);
+            gSPDisplayList(POLY_XLU_DISP++, object_knight_DL_0189F0);
             break;
         default:
         case 2:
-            gSPDisplayList(POLY_XLU_DISP++, D_060188F8);
+            gSPDisplayList(POLY_XLU_DISP++, object_knight_DL_0188F8);
             break;
     }
 
@@ -3674,11 +3617,11 @@ s32 func_809BC720(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s
         }
     } else if (this == D_809BEFD8) {
         if (limbIndex == 0xF) {
-            *dList = D_06013020;
+            *dList = object_knight_DL_013020;
         } else if (limbIndex == 0x12) {
-            *dList = D_06012DB0;
+            *dList = object_knight_DL_012DB0;
         } else if (limbIndex == 0x13) {
-            *dList = D_06012400;
+            *dList = object_knight_DL_012400;
         }
     }
     return 0;

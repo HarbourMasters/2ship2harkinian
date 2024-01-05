@@ -2,7 +2,7 @@
 #define LIBC_STDLIB_H
 
 #include "libc/stddef.h"
-
+#if 0
 typedef struct {
     /* 0x0 */ int quot;
     /* 0x4 */ int rem;
@@ -24,5 +24,5 @@ typedef long wchar_t;
 
 ldiv_t ldiv(long numer, long denom);
 lldiv_t lldiv(long long numer, long long denom);
-
+#endif
 #endif /* STDLIB_H */

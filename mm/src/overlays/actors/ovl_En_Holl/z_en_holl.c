@@ -69,7 +69,7 @@ ActorInit En_Holl_InitVars = {
     /**/ EnHoll_Draw,
 };
 
-#include "overlays/ovl_En_Holl/ovl_En_Holl.c"
+#include "overlays/ovl_En_Holl/ovl_En_Holl.h"
 
 static EnHoll* sInstancePlayingSound = NULL;
 

@@ -30,7 +30,7 @@ ActorInit En_Sth2_InitVars = {
     /**/ NULL,
 };
 
-#include "overlays/ovl_En_Sth2/ovl_En_Sth2.c"
+#include "overlays/ovl_En_Sth2/ovl_En_Sth2.h"
 
 void EnSth2_Init(Actor* thisx, PlayState* play) {
     EnSth2* this = THIS;

@@ -1,4 +1,5 @@
 <Root>
+    <ExternalFile XmlPath="archives/icon_item_static.xml" OutPath="assets/archives/icon_item_static"/>
     <File Name="icon_item_vtx_static" Segment="11">
         <DList Name="gItemNamePanelDL" Offset="0x0"/>
         <DList Name="gZButtonIconDL" Offset="0x90"/>

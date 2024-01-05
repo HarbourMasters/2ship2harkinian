@@ -25,7 +25,7 @@ f32 sNearestGrassGroupsDist[OBJ_GRASS_NEAREST_GROUP_MAX];
 ObjGrassElement* sNearestGrassElements[OBJ_GRASS_NEAREST_ELEM_MAX];
 f32 sNearestGrassElementsDistSq[OBJ_GRASS_NEAREST_ELEM_MAX];
 
-#include "overlays/ovl_Obj_Grass/ovl_Obj_Grass.c"
+#include "overlays/ovl_Obj_Grass/ovl_Obj_Grass.h"
 
 ActorInit Obj_Grass_InitVars = {
     /**/ ACTOR_OBJ_GRASS,

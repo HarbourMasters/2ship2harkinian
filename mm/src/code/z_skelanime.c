@@ -1,4 +1,7 @@
 #include "global.h"
+#include "BenPort.h"
+#include "string.h"
+#include "stdio.h"
 
 #define ANIM_INTERP 1
 
@@ -623,6 +626,8 @@ void SkelAnime_DrawTransformFlexOpa(PlayState* play, void** skeleton, Vec3s* joi
  * Indices above staticIndexMax are offsets to a frame data array indexed by the frame.
  */
 void SkelAnime_GetFrameData(AnimationHeader* animation, s32 frame, s32 limbCount, Vec3s* frameTable) {
+    if (ResourceMgr_OTRSigCheck(animation))
+        animation = ResourceMgr_LoadAnimByName(animation);
     AnimationHeader* animHeader = Lib_SegmentedToVirtual(animation);
     JointIndex* jointIndices = Lib_SegmentedToVirtual(animHeader->jointIndices);
     s16* frameData = Lib_SegmentedToVirtual(animHeader->frameData);
@@ -642,12 +647,16 @@ void SkelAnime_GetFrameData(AnimationHeader* animation, s32 frame, s32 limbCount
 }
 
 s16 Animation_GetLength(void* animation) {
+    if (ResourceMgr_OTRSigCheck(animation))
+        animation = ResourceMgr_LoadAnimByName(animation);
     AnimationHeaderCommon* common = Lib_SegmentedToVirtual(animation);
 
     return common->frameCount;
 }
 
 s16 Animation_GetLastFrame(void* animation) {
+    if (ResourceMgr_OTRSigCheck(animation))
+        animation = ResourceMgr_LoadAnimByName(animation);
     AnimationHeaderCommon* common = Lib_SegmentedToVirtual(animation);
 
     return (u16)common->frameCount - 1;
@@ -1006,14 +1015,23 @@ void AnimationContext_SetLoadFrame(PlayState* play, PlayerAnimationHeader* anima
     AnimationEntry* entry = AnimationContext_AddEntry(&play->animationCtx, ANIMATION_LINKANIMETION);
 
     if (entry != NULL) {
+        if (ResourceMgr_OTRSigCheck(animation) != 0)
+            animation = ResourceMgr_LoadAnimByName(animation);
         PlayerAnimationHeader* playerAnimHeader = Lib_SegmentedToVirtual(animation);
-        s32 pad;
+        Vec3s* ram = frameTable;
 
-        osCreateMesgQueue(&entry->data.load.msgQueue, entry->data.load.msg, ARRAY_COUNT(entry->data.load.msg));
-        DmaMgr_SendRequestImpl(
-            &entry->data.load.req, frameTable,
-            LINK_ANIMETION_OFFSET(playerAnimHeader->linkAnimSegment, (sizeof(Vec3s) * limbCount + sizeof(s16)) * frame),
-            sizeof(Vec3s) * limbCount + sizeof(s16), 0, &entry->data.load.msgQueue, NULL);
+        // osCreateMesgQueue(&entry->data.load.msgQueue, &entry->data.load.msg, 1);
+        //
+        // char animPath[2048];
+        //
+        // snprintf(animPath, sizeof(animPath), "misc/link_animetion/gPlayerAnimData_%06X",
+        //         (((uintptr_t)linkAnimHeader->segmentVoid - 0x07000000)));
+        //
+        // printf("Streaming %s, seg = %08X\n", animPath, linkAnimHeader->segment);
+
+        s16* animData = /* ResourceMgr_LoadPlayerAnimByName*/ (animation->segmentVoid);
+
+        memcpy(ram, (uintptr_t)animData + (((sizeof(Vec3s) * limbCount + 2) * frame)), sizeof(Vec3s) * limbCount + 2);
     }
 }
 
@@ -1095,7 +1113,7 @@ void AnimationContext_SetMoveActor(PlayState* play, Actor* actor, SkelAnime* ske
 void AnimationContext_LoadFrame(PlayState* play, AnimationEntryData* data) {
     AnimEntryLoadFrame* entry = &data->load;
 
-    osRecvMesg(&entry->msgQueue, NULL, OS_MESG_BLOCK);
+    //osRecvMesg(&entry->msgQueue, NULL, OS_MESG_BLOCK);
 }
 
 /**
@@ -1205,7 +1223,8 @@ void SkelAnime_InitPlayer(PlayState* play, SkelAnime* skelAnime, FlexSkeletonHea
     s32 headerJointCount;
     s32 limbCount;
     size_t allocSize;
-
+    if (ResourceMgr_OTRSigCheck(skeletonHeaderSeg) != 0)
+        skeletonHeaderSeg = ResourceMgr_LoadSkeletonByName(skeletonHeaderSeg, skelAnime);
     skeletonHeader = Lib_SegmentedToVirtual(skeletonHeaderSeg);
     headerJointCount = skeletonHeader->sh.limbCount;
     skelAnime->initFlags = flags;
@@ -1354,6 +1373,15 @@ void Animation_SetMorph(PlayState* play, SkelAnime* skelAnime, f32 morphFrames) 
  */
 void PlayerAnimation_Change(PlayState* play, SkelAnime* skelAnime, PlayerAnimationHeader* animation, f32 playSpeed,
                             f32 startFrame, f32 endFrame, u8 mode, f32 morphFrames) {
+    LinkAnimationHeader* ogAnim = animation;
+
+    if (ResourceMgr_OTRSigCheck(animation) != 0)
+        animation = ResourceMgr_LoadAnimByName(animation);
+
+    AnimationHeader* currentAnimation = (AnimationHeader*)skelAnime->animation;
+    if (ResourceMgr_OTRSigCheck(currentAnimation) != 0)
+        currentAnimation = ResourceMgr_LoadAnimByName(currentAnimation);
+
     skelAnime->mode = mode;
     if ((morphFrames != 0.0f) && ((animation != skelAnime->animation) || (startFrame != skelAnime->curFrame))) {
         if (morphFrames < 0) {
@@ -1373,6 +1401,7 @@ void PlayerAnimation_Change(PlayState* play, SkelAnime* skelAnime, PlayerAnimati
         skelAnime->morphWeight = 0.0f;
     }
 
+    skelAnime->animation = ogAnim;
     skelAnime->animation = animation;
     skelAnime->curFrame = 0.0f;
     skelAnime->startFrame = startFrame;
@@ -1533,8 +1562,10 @@ s32 PlayerAnimation_OnFrame(SkelAnime* skelAnime, f32 frame) {
 void SkelAnime_Init(PlayState* play, SkelAnime* skelAnime, SkeletonHeader* skeletonHeaderSeg,
                     AnimationHeader* animation, Vec3s* jointTable, Vec3s* morphTable, s32 limbCount) {
     SkeletonHeader* skeletonHeader;
+    if (ResourceMgr_OTRSigCheck(skeletonHeaderSeg))
+        skeletonHeaderSeg = ResourceMgr_LoadSkeletonByName(skeletonHeaderSeg, NULL);
 
-    skeletonHeader = Lib_SegmentedToVirtual(skeletonHeaderSeg);
+    skeletonHeader = skeletonHeaderSeg;
     skelAnime->limbCount = skeletonHeader->limbCount + 1;
     skelAnime->skeleton = Lib_SegmentedToVirtual(skeletonHeader->segment);
     if (jointTable == NULL) {
@@ -1556,8 +1587,9 @@ void SkelAnime_Init(PlayState* play, SkelAnime* skelAnime, SkeletonHeader* skele
 void SkelAnime_InitFlex(PlayState* play, SkelAnime* skelAnime, FlexSkeletonHeader* skeletonHeaderSeg,
                         AnimationHeader* animation, Vec3s* jointTable, Vec3s* morphTable, s32 limbCount) {
     FlexSkeletonHeader* skeletonHeader;
-
-    skeletonHeader = Lib_SegmentedToVirtual(skeletonHeaderSeg);
+    if (ResourceMgr_OTRSigCheck(skeletonHeaderSeg))
+        skeletonHeaderSeg = ResourceMgr_LoadSkeletonByName(skeletonHeaderSeg, NULL);
+    skeletonHeader = skeletonHeaderSeg;
     skelAnime->limbCount = skeletonHeader->sh.limbCount + 1;
     skelAnime->dListCount = skeletonHeader->dListCount;
     skelAnime->skeleton = Lib_SegmentedToVirtual(skeletonHeader->sh.segment);
@@ -1582,8 +1614,9 @@ void SkelAnime_InitFlex(PlayState* play, SkelAnime* skelAnime, FlexSkeletonHeade
 void SkelAnime_InitSkin(GameState* gameState, SkelAnime* skelAnime, SkeletonHeader* skeletonHeaderSeg,
                         AnimationHeader* animation) {
     SkeletonHeader* skeletonHeader;
-
-    skeletonHeader = Lib_SegmentedToVirtual(skeletonHeaderSeg);
+    if (ResourceMgr_OTRSigCheck(skeletonHeaderSeg))
+        skeletonHeaderSeg = ResourceMgr_LoadSkeletonByName(skeletonHeaderSeg, NULL);
+    skeletonHeader = skeletonHeaderSeg;
     skelAnime->limbCount = skeletonHeader->limbCount + 1;
     skelAnime->skeleton = Lib_SegmentedToVirtual(skeletonHeader->segment);
     skelAnime->jointTable = ZeldaArena_Malloc(sizeof(*skelAnime->jointTable) * skelAnime->limbCount);
@@ -1770,6 +1803,15 @@ s32 SkelAnime_Once(SkelAnime* skelAnime) {
  */
 void Animation_ChangeImpl(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
                           u8 mode, f32 morphFrames, s8 taper) {
+    LinkAnimationHeader* ogAnim = animation;
+
+    if (ResourceMgr_OTRSigCheck(animation) != 0)
+        animation = ResourceMgr_LoadAnimByName(animation);
+
+    AnimationHeader* currentAnimation = (AnimationHeader*)skelAnime->animation;
+    if (ResourceMgr_OTRSigCheck(currentAnimation) != 0)
+        currentAnimation = ResourceMgr_LoadAnimByName(currentAnimation);
+
     skelAnime->mode = mode;
     if ((morphFrames != 0.0f) && ((animation != skelAnime->animation) || (startFrame != skelAnime->curFrame))) {
         if (morphFrames < 0) {
@@ -1816,7 +1858,12 @@ void Animation_ChangeImpl(SkelAnime* skelAnime, AnimationHeader* animation, f32 
  */
 void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
                       u8 mode, f32 morphFrames) {
+    AnimationHeader* ogAnim = animation;
+
+    if (ResourceMgr_OTRSigCheck(animation) != 0)
+        animation = ResourceMgr_LoadAnimByName(animation);
     Animation_ChangeImpl(skelAnime, animation, playSpeed, startFrame, endFrame, mode, morphFrames, ANIMTAPER_NONE);
+    skelAnime->animation = ogAnim;
 }
 
 /**
@@ -1977,6 +2024,7 @@ void SkelAnime_Free(SkelAnime* skelAnime, PlayState* play) {
     if (skelAnime->morphTable != NULL) {
         ZeldaArena_Free(skelAnime->morphTable);
     }
+    ResourceMgr_UnregisterSkeleton(skelAnime);
 }
 
 /**

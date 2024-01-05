@@ -1,5 +1,5 @@
 <Root>
-    <File Name="schedule_dma_static_yar.unarchive" Segment="7">
+    <File Name="schedule_dma_static_yar" Segment="7">
         <Texture Name="gBombersNotebookPhotoAnjuTex" OutName="bombers_notebook_photo_anju" Format="rgba16" Width="32" Height="32" Offset="0x0" />
         <Texture Name="gBombersNotebookPhotoKafeiTex" OutName="bombers_notebook_photo_kafei" Format="rgba16" Width="32" Height="32" Offset="0x800" />
         <Texture Name="gBombersNotebookPhotoCuriosityShopManTex" OutName="bombers_notebook_photo_curiosity_shop_man" Format="rgba16" Width="32" Height="32" Offset="0x1000" />

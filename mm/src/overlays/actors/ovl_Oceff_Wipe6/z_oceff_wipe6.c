@@ -5,6 +5,7 @@
  */
 
 #include "z_oceff_wipe6.h"
+#include "BenPort.h"
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_2000000)
 
@@ -16,21 +17,24 @@ void OceffWipe6_Update(Actor* thisx, PlayState* play);
 void OceffWipe6_Draw(Actor* thisx, PlayState* play);
 
 ActorInit Oceff_Wipe6_InitVars = {
-    /**/ ACTOR_OCEFF_WIPE6,
-    /**/ ACTORCAT_ITEMACTION,
-    /**/ FLAGS,
-    /**/ GAMEPLAY_KEEP,
-    /**/ sizeof(OceffWipe6),
-    /**/ OceffWipe6_Init,
-    /**/ OceffWipe6_Destroy,
-    /**/ OceffWipe6_Update,
-    /**/ OceffWipe6_Draw,
+    ACTOR_OCEFF_WIPE6,
+    ACTORCAT_ITEMACTION,
+    FLAGS,
+    GAMEPLAY_KEEP,
+    sizeof(OceffWipe6),
+    (ActorFunc)OceffWipe6_Init,
+    (ActorFunc)OceffWipe6_Destroy,
+    (ActorFunc)OceffWipe6_Update,
+    (ActorFunc)OceffWipe6_Draw,
 };
 
-#include "overlays/ovl_Oceff_Wipe6/ovl_Oceff_Wipe6.c"
+#include "overlays/ovl_Oceff_Wipe6/ovl_Oceff_Wipe6.h"
+Vtx* gOceff6VtxData;
 
 void OceffWipe6_Init(Actor* thisx, PlayState* play) {
     OceffWipe6* this = THIS;
+
+    gOceff6VtxData = ResourceMgr_LoadArrayByName(gOceff6Vtx);
 
     Actor_SetScale(&this->actor, 1.0f);
     this->counter = 0;
@@ -59,10 +63,13 @@ void OceffWipe6_Draw(Actor* thisx, PlayState* play) {
     u8 alpha;
     s32 i;
     s32 counter;
-    Vec3f activeCamEye = GET_ACTIVE_CAM(play)->eye;
+    Vec3f activeCamEye;
     s32 pad;
-    Vec3f quakeOffset = Camera_GetQuakeOffset(GET_ACTIVE_CAM(play));
+    Vec3f quakeOffset;
     s32 pad2;
+
+    activeCamEye = GET_ACTIVE_CAM(play)->eye;
+    quakeOffset = Camera_GetQuakeOffset(GET_ACTIVE_CAM(play));
 
     if (this->counter < 32) {
         counter = this->counter;
@@ -77,8 +84,8 @@ void OceffWipe6_Draw(Actor* thisx, PlayState* play) {
         alpha = 255;
     }
 
-    for (i = 1; i < ARRAY_COUNT(gOceff6Vtx); i += 2) {
-        gOceff6Vtx[i].v.cn[3] = alpha;
+    for (i = 1; i < ResourceMgr_GetArraySizeByName(gOceff6Vtx); i += 2) {
+        gOceff6VtxData[i].v.cn[3] = alpha;
     }
 
     OPEN_DISPS(play->state.gfxCtx);

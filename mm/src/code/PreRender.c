@@ -16,6 +16,7 @@
 #include "slowly.h"
 #include "stack.h"
 #include "stackcheck.h"
+#include <stdlib.h>
 
 /**
  * Assigns the "save" values in PreRender
@@ -125,6 +126,8 @@ void func_80170200(PreRender* this, Gfx** gfxp, void* buf, void* bufSave) {
  * @param cvgDst    Buffer to store coverage into
  */
 void PreRender_CoverageRgba16ToI8(PreRender* this, Gfx** gfxp, void* img, void* cvgDst) {
+    // BENTODO:
+    return;
     Gfx* gfx = *gfxp;
     s32 rowsRemaining;
     s32 curRow;
@@ -598,7 +601,7 @@ u32 PreRender_Get5bMedian9(u8* px1, u8* px2, u8* px3) {
 void PreRender_DivotFilter(PreRender* this) {
     u32 width = this->width;
     u32 height = this->height;
-    u8* buffer = alloca(width * 10);
+    u8* buffer = malloc(width * 10);
     u8* redRow[3];
     u8* greenRow[3];
     u8* blueRow[3];
@@ -684,6 +687,7 @@ void PreRender_DivotFilter(PreRender* this) {
         greenRow[1] = greenRow[2];
         blueRow[1] = blueRow[2];
     }
+    free(buffer);
 }
 
 /**

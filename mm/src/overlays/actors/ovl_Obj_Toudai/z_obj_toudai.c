@@ -16,19 +16,23 @@ void ObjToudai_Destroy(Actor* thisx, PlayState* play);
 void ObjToudai_Update(Actor* thisx, PlayState* play);
 void ObjToudai_Draw(Actor* thisx, PlayState* play);
 
+#include "BenPort.h"
+
 ActorInit Obj_Toudai_InitVars = {
-    /**/ ACTOR_OBJ_TOUDAI,
-    /**/ ACTORCAT_PROP,
-    /**/ FLAGS,
-    /**/ OBJECT_F53_OBJ,
-    /**/ sizeof(ObjToudai),
-    /**/ ObjToudai_Init,
-    /**/ ObjToudai_Destroy,
-    /**/ ObjToudai_Update,
-    /**/ ObjToudai_Draw,
+    ACTOR_OBJ_TOUDAI,
+    ACTORCAT_PROP,
+    FLAGS,
+    OBJECT_F53_OBJ,
+    sizeof(ObjToudai),
+    (ActorFunc)ObjToudai_Init,
+    (ActorFunc)ObjToudai_Destroy,
+    (ActorFunc)ObjToudai_Update,
+    (ActorFunc)ObjToudai_Draw,
 };
 
-#include "assets/overlays/ovl_Obj_Toudai/ovl_Obj_Toudai.c"
+#include "assets/overlays/ovl_Obj_Toudai/ovl_Obj_Toudai.h"
+
+static Vtx* ovl_Obj_Toudai_Vtx_D_80A34590data;
 
 void func_80A33B00(ObjToudai* this, PlayState* play) {
     Matrix_Translate(this->actor.world.pos.x, this->actor.world.pos.y, this->actor.world.pos.z, MTXMODE_NEW);
@@ -56,8 +60,8 @@ void func_80A33BB4(ObjToudai* this, PlayState* play) {
 
     this->unk_228 = CLAMP(this->unk_228, 0.0f, 1.0f);
 
-    for (i = 0; i < ARRAY_COUNT(ovl_Obj_Toudai_Vtx_D_80A34590); i++) {
-        this->unk_148[i].v.cn[3] = ovl_Obj_Toudai_Vtx_D_80A34590[i].v.cn[3] * this->unk_228;
+    for (i = 0; i < ResourceMgr_GetArraySizeByName(ovl_Obj_Toudai_Vtx_D_80A34590); i++) {
+        this->unk_148[i].v.cn[3] = ovl_Obj_Toudai_Vtx_D_80A34590data[i].v.cn[3] * this->unk_228;
     }
 
     if (this->unk_228 > 0.0f) {
@@ -100,6 +104,7 @@ u8 func_80A342F4(s16 arg0) {
 
 void ObjToudai_Init(Actor* thisx, PlayState* play) {
     ObjToudai* this = THIS;
+    ovl_Obj_Toudai_Vtx_D_80A34590data = ResourceMgr_LoadVtxByName(ovl_Obj_Toudai_Vtx_D_80A34590data);
 
     Lib_MemCpy(this->unk_148, &ovl_Obj_Toudai_Vtx_D_80A34590, sizeof(ovl_Obj_Toudai_Vtx_D_80A34590));
 }

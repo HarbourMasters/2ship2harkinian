@@ -546,7 +546,12 @@ size_t Room_AllocateAndLoad(PlayState* play, RoomContext* roomCtx) {
     return maxRoomSize;
 }
 
+
+s32 OTRfunc_8009728C(PlayState* play, RoomContext* roomCtx, s32 roomNum);
+
 s32 Room_StartRoomTransition(PlayState* play, RoomContext* roomCtx, s32 index) {
+    return OTRfunc_8009728C(play, roomCtx, index);
+    #if 0
     if (roomCtx->status == 0) {
         size_t size;
 
@@ -568,9 +573,15 @@ s32 Room_StartRoomTransition(PlayState* play, RoomContext* roomCtx, s32 index) {
     }
 
     return 0;
+    #endif
 }
 
+void OTRPlay_InitScene(PlayState* play, s32 spawn);
+s32 OTRfunc_800973FC(PlayState* play, RoomContext* roomCtx);
+
 s32 Room_HandleLoadCallbacks(PlayState* play, RoomContext* roomCtx) {
+    return OTRfunc_800973FC(play, roomCtx);
+#if 0
     if (roomCtx->status == 1) {
         if (osRecvMesg(&roomCtx->loadQueue, NULL, OS_MESG_NOBLOCK) == 0) {
             roomCtx->status = 0;
@@ -595,6 +606,7 @@ s32 Room_HandleLoadCallbacks(PlayState* play, RoomContext* roomCtx) {
     }
 
     return 1;
+    #endif
 }
 
 RoomDrawHandler sRoomDrawHandlers[] = {

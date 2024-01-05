@@ -35,15 +35,15 @@ typedef u32 OSHWIntr;
 #define RCP_IMASKSHIFT  16
 
 
-OSIntMask osGetIntMask(void);
-OSIntMask osSetIntMask(OSIntMask im);
+//OSIntMask osGetIntMask(void);
+//OSIntMask osSetIntMask(OSIntMask im);
 
 
 // Internal
-void __osSetHWIntrRoutine(OSHWIntr interrupt, s32 (*handler)(void), void* stackEnd);
-void __osGetHWIntrRoutine(OSHWIntr interrupt, s32 (**handler)(void), void** stackEnd);
-void __osSetGlobalIntMask(OSHWIntr mask);
-void __osResetGlobalIntMask(OSHWIntr mask);
+//void __osSetHWIntrRoutine(OSHWIntr interrupt, s32 (*handler)(void), void* stackEnd);
+//void __osGetHWIntrRoutine(OSHWIntr interrupt, s32 (**handler)(void), void** stackEnd);
+//void __osSetGlobalIntMask(OSHWIntr mask);
+//void __osResetGlobalIntMask(OSHWIntr mask);
 
 
 #endif

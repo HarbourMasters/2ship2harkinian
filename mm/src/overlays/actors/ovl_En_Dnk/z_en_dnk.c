@@ -223,7 +223,7 @@ void func_80A51648(EnDnk* this, PlayState* play) {
                 break;
 
             case ENDNK_GET_3_1:
-                SkelAnime_Init(play, &this->skelAnime, &object_hintnuts_Skel_0023B8.sh, NULL, this->jointTable,
+                SkelAnime_Init(play, &this->skelAnime, &object_hintnuts_Skel_0023B8, NULL, this->jointTable,
                                this->morphTable, OBJECT_HINTNUTS_LIMB_MAX);
                 EnDnk_ChangeAnim(&this->skelAnime, ENDNK_ANIM_18);
                 break;

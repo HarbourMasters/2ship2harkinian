@@ -20,7 +20,7 @@
 #include "objects/object_bdoor/object_bdoor.h"
 
 // bss
-FaultClient sActorFaultClient; // 2 funcs
+// FaultClient sActorFaultClient; // 2 funcs
 
 CollisionPoly* D_801ED8B0; // 1 func
 s32 D_801ED8B4;            // 2 funcs
@@ -65,6 +65,7 @@ void Actor_AddToCategory(ActorContext* actorCtx, Actor* actor, u8 actorCategory)
 Actor* Actor_RemoveFromCategory(PlayState* play, ActorContext* actorCtx, Actor* actorToRemove);
 
 void Actor_PrintLists(ActorContext* actorCtx) {
+    #if 0
     ActorListEntry* actorList = &actorCtx->actorLists[0];
     Actor* actor;
     s32 i;
@@ -81,6 +82,7 @@ void Actor_PrintLists(ActorContext* actorCtx) {
             actor = actor->next;
         }
     }
+    #endif
 }
 
 void ActorShape_Init(ActorShape* actorShape, f32 yOffset, ActorShadowFunc shadowDraw, f32 shadowScale) {
@@ -2438,7 +2440,7 @@ void Actor_InitContext(PlayState* play, ActorContext* actorCtx, ActorEntry* acto
     Actor_SpawnEntry(actorCtx, actorEntry, play);
     Target_Init(&actorCtx->targetCtx, actorCtx->actorLists[ACTORCAT_PLAYER].first, play);
     Actor_InitHalfDaysBit(actorCtx);
-    Fault_AddClient(&sActorFaultClient, (void*)Actor_PrintLists, actorCtx, NULL);
+    //Fault_AddClient(&sActorFaultClient, (void*)Actor_PrintLists, actorCtx, NULL);
     Actor_SpawnHorse(play, (Player*)actorCtx->actorLists[ACTORCAT_PLAYER].first);
 }
 
@@ -3148,7 +3150,7 @@ void Actor_KillAllOnHalfDayChange(PlayState* play, ActorContext* actorCtx) {
 void Actor_CleanupContext(ActorContext* actorCtx, PlayState* play) {
     s32 i;
 
-    Fault_RemoveClient(&sActorFaultClient);
+    //Fault_RemoveClient(&sActorFaultClient);
 
     for (i = 0; i < ARRAY_COUNT(actorCtx->actorLists); i++) {
         if (i != ACTORCAT_PLAYER) {
@@ -3272,7 +3274,7 @@ ActorInit* Actor_LoadOverlay(ActorContext* actorCtx, s16 index) {
         if (overlayEntry->loadedRamAddr == NULL) {
             if (overlayEntry->allocType & ALLOCTYPE_ABSOLUTE) {
                 if (actorCtx->absoluteSpace == NULL) {
-                    actorCtx->absoluteSpace = ZeldaArena_MallocR(AM_FIELD_SIZE);
+                    actorCtx->absoluteSpace = ZeldaArena_MallocR(0xFFFFFF);
                 }
                 gActorOverlayTable[index].loadedRamAddr = actorCtx->absoluteSpace;
             } else if (overlayEntry->allocType & ALLOCTYPE_PERMANENT) {
@@ -3477,16 +3479,18 @@ Actor* Actor_Delete(ActorContext* actorCtx, Actor* actor, PlayState* play) {
     if (actor == actorCtx->targetCtx.bgmEnemy) {
         actorCtx->targetCtx.bgmEnemy = NULL;
     }
-
-    AudioSfx_StopByPos(&actor->projectedPos);
+    // BENTODO
+//    AudioSfx_StopByPos(&actor->projectedPos);
     Actor_Destroy(actor, play);
 
     newHead = Actor_RemoveFromCategory(play, actorCtx, actor);
     ZeldaArena_Free(actor);
-
-    if (overlayEntry->vramStart != NULL) {
-        overlayEntry->numLoaded--;
-        Actor_FreeOverlay(overlayEntry);
+    // BENTODO shouldn't need this check
+    if (overlayEntry != NULL) {
+        if (overlayEntry->vramStart != NULL) {
+            overlayEntry->numLoaded--;
+            Actor_FreeOverlay(overlayEntry);
+        }
     }
 
     return newHead;
@@ -4643,7 +4647,44 @@ void Actor_UpdateFidgetTables(PlayState* play, s16* fidgetTableY, s16* fidgetTab
 void Actor_Noop(Actor* actor, PlayState* play) {
 }
 
-#include "z_cheap_proc.c"
+/**
+ * Draws a display list to the opaque display buffer
+ */
+void Gfx_DrawDListOpa(PlayState* play, Gfx* dlist) {
+    Gfx* dl;
+
+    OPEN_DISPS(play->state.gfxCtx);
+
+    dl = POLY_OPA_DISP;
+
+    gSPDisplayList(&dl[0], gSetupDLs[SETUPDL_25]);
+    gSPMatrix(&dl[1], Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSPDisplayList(&dl[2], dlist);
+
+    POLY_OPA_DISP = &dl[3];
+
+    CLOSE_DISPS(play->state.gfxCtx);
+}
+
+/**
+ * Draws a display list to the translucent display buffer
+ */
+void Gfx_DrawDListXlu(PlayState* play, Gfx* dlist) {
+    Gfx* dl;
+
+    OPEN_DISPS(play->state.gfxCtx);
+
+    dl = POLY_XLU_DISP;
+
+    gSPDisplayList(&dl[0], gSetupDLs[SETUPDL_25]);
+    gSPMatrix(&dl[1], Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSPDisplayList(&dl[2], dlist);
+
+    POLY_XLU_DISP = &dl[3];
+
+    CLOSE_DISPS(play->state.gfxCtx);
+}
+
 
 /**
  * Finds the first actor instance of a specified Id and category within a given range from

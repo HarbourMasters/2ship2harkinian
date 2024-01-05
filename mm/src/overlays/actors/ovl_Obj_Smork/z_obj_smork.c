@@ -6,6 +6,7 @@
 
 #include "z_obj_smork.h"
 #include "objects/object_f53_obj/object_f53_obj.h"
+#include "BenPort.h"
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
@@ -17,18 +18,20 @@ void ObjSmork_Update(Actor* thisx, PlayState* play);
 void ObjSmork_Draw(Actor* thisx, PlayState* play);
 
 ActorInit Obj_Smork_InitVars = {
-    /**/ ACTOR_OBJ_SMORK,
-    /**/ ACTORCAT_PROP,
-    /**/ FLAGS,
-    /**/ OBJECT_F53_OBJ,
-    /**/ sizeof(ObjSmork),
-    /**/ ObjSmork_Init,
-    /**/ ObjSmork_Destroy,
-    /**/ ObjSmork_Update,
-    /**/ ObjSmork_Draw,
+    ACTOR_OBJ_SMORK,
+    ACTORCAT_PROP,
+    FLAGS,
+    OBJECT_F53_OBJ,
+    sizeof(ObjSmork),
+    (ActorFunc)ObjSmork_Init,
+    (ActorFunc)ObjSmork_Destroy,
+    (ActorFunc)ObjSmork_Update,
+    (ActorFunc)ObjSmork_Draw,
 };
 
-#include "overlays/ovl_Obj_Smork/ovl_Obj_Smork.c"
+#include "overlays/ovl_Obj_Smork/ovl_Obj_Smork.h"
+
+static Vtx* ovl_Obj_Smork_Vtx_000C10Data;
 
 u8 func_80A3D680(s16 arg0) {
     u8 ret = 0;
@@ -104,7 +107,7 @@ void func_80A3D9C4(ObjSmork* this, PlayState* play) {
     this->unk_1B8 = CLAMP(this->unk_1B8, 0.0f, 1.0f);
 
     for (i = 0; i < ARRAY_COUNT(this->unk_148); i++) {
-        this->unk_148[i].v.cn[3] = ovl_Obj_Smork_Vtx_000C10[i].v.cn[3] * this->unk_1B8;
+        this->unk_148[i].v.cn[3] = ovl_Obj_Smork_Vtx_000C10Data[i].v.cn[3] * this->unk_1B8;
     }
 
     if (this->unk_1B8 > 0.0f) {
@@ -129,8 +132,10 @@ void func_80A3D9C4(ObjSmork* this, PlayState* play) {
 
 void ObjSmork_Init(Actor* thisx, PlayState* play) {
     ObjSmork* this = THIS;
+    ovl_Obj_Smork_Vtx_000C10Data = ResourceMgr_LoadVtxArrayByName(ovl_Obj_Smork_Vtx_000C10);
 
-    Lib_MemCpy(this->unk_148, ovl_Obj_Smork_Vtx_000C10, sizeof(Vtx) * ARRAY_COUNT(ovl_Obj_Smork_Vtx_000C10));
+    Lib_MemCpy(this->unk_148, ovl_Obj_Smork_Vtx_000C10,
+               sizeof(Vtx) * ResourceMgr_GetArraySizeByName(ovl_Obj_Smork_Vtx_000C10));
     this->unk_1C6 = Rand_S16Offset(0, 59);
     this->unk_1C4 = 0;
 }

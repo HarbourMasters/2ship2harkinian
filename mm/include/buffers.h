@@ -9,8 +9,8 @@
 extern u8 gGfxSPTaskYieldBuffer[OS_YIELD_DATA_SIZE];
 extern STACK(gGfxSPTaskStack, 0x400);
 extern GfxPool gGfxPools[2];
-extern u8 gAudioHeap[0x138000];
-extern u8 gSystemHeap[];
+extern u8* gAudioHeap;
+extern u8* gSystemHeap;
 
 extern u8 gPictoPhotoI8[PICTO_PHOTO_SIZE];
 extern u8 D_80784600[0x56200];
