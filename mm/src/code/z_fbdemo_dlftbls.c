@@ -11,7 +11,7 @@
 
 #undef DEFINE_TRANSITION
 #undef DEFINE_TRANSITION_INTERNAL
-
+// BENTODO
 #define DEFINE_TRANSITION(_enumValue, structName, _instanceName, name) \
     {                                                                  \
         { 0, 0 },                                                      \

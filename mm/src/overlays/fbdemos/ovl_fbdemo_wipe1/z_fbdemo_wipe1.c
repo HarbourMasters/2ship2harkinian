@@ -19,7 +19,7 @@ void TransitionWipe1_SetColor(void* thisx, u32 color);
 void TransitionWipe1_SetEnvColor(void* thisx, u32 color);
 s32 TransitionWipe1_IsDone(void* thisx);
 
-#include "assets/overlays/ovl_fbdemo_wipe1/ovl_fbdemo_wipe1.c"
+#include "assets/overlays/ovl_fbdemo_wipe1/ovl_fbdemo_wipe1.h"
 
 TransitionInit TransitionWipe1_InitVars = {
     TransitionWipe1_Init,     TransitionWipe1_Destroy,     TransitionWipe1_Update,

@@ -19,9 +19,7 @@ void ArrowIce_Draw(Actor* thisx, PlayState* play);
 void ArrowIce_Charge(ArrowIce* this, PlayState* play);
 void ArrowIce_Fly(ArrowIce* this, PlayState* play);
 
-#include "overlays/ovl_Arrow_Ice/ovl_Arrow_Ice.c"
-
-static s32 sBssPad;
+#include "overlays/ovl_Arrow_Ice/ovl_Arrow_Ice.h"
 
 ActorInit Arrow_Ice_InitVars = {
     /**/ ACTOR_ARROW_ICE,
@@ -210,7 +208,8 @@ void ArrowIce_Draw(Actor* thisx, PlayState* play) {
                             (s32)(150.0f * this->blueingEffectMagnitude) & 0xFF);
             gDPSetAlphaDither(POLY_XLU_DISP++, G_AD_DISABLE);
             gDPSetColorDither(POLY_XLU_DISP++, G_CD_DISABLE);
-            gSPDisplayList(POLY_XLU_DISP++, D_0E000000.fillRect);
+            __gSPDisplayList(POLY_XLU_DISP++,
+                             0x0E000000 + ((uintptr_t)&D_0E000000.fillRect - (uintptr_t)&D_0E000000) + 1);
         }
 
         // Draw ice on the arrow

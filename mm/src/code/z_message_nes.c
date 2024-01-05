@@ -25,11 +25,13 @@ void Message_FindMessageNES(PlayState* play, u16 textId) {
 
     while (msgEntry->textId != 0xFFFF) {
         if (msgEntry->textId == textId) {
+            font->messageStart = msgEntry;
             foundSegment = msgEntry->segment;
             msgEntry++;
             nextSegment = msgEntry->segment;
-            font->messageStart = foundSegment - segment;
-            font->messageEnd = nextSegment - foundSegment;
+            
+            //font->messageStart = foundSegment - segment;
+            //font->messageEnd = nextSegment - foundSegment;
             return;
         }
         msgEntry++;
@@ -410,7 +412,7 @@ void Message_DrawTextNES(PlayState* play, Gfx** gfxP, u16 textDrawPos) {
     for (i = textDrawPos; i < msgCtx->textDrawPos; i++) {
         character = msgCtx->decodedBuffer.schar[i];
 
-        switch (character) {
+        switch ((u8)character) {
             case 0x0:
                 if (play->pauseCtx.bombersNotebookOpen || (msgCtx->textBoxType == TEXTBOX_TYPE_D)) {
                     msgCtx->textColorR = msgCtx->textColorG = msgCtx->textColorB = 0;
@@ -434,7 +436,7 @@ void Message_DrawTextNES(PlayState* play, Gfx** gfxP, u16 textDrawPos) {
             case 0x7:
             case 0x8:
                 if ((msgCtx->msgMode >= MSGMODE_NEW_CYCLE_0) && (msgCtx->msgMode <= MSGMODE_OWL_SAVE_2) &&
-                    (character == 0x2)) {
+                    ((u8)character == 0x2)) {
                     msgCtx->textDrawPos = msgCtx->decodedTextLen;
                     if (msgCtx->unk120D6) {
                         msgCtx->unk120D4 += 25;
@@ -448,40 +450,40 @@ void Message_DrawTextNES(PlayState* play, Gfx** gfxP, u16 textDrawPos) {
                         }
                     }
 
-                    if (D_801D07DC[(s16)(character - 1)].r + msgCtx->unk120D4 < 0) {
+                    if (D_801D07DC[(s16)((u8)character - 1)].r + msgCtx->unk120D4 < 0) {
                         msgCtx->textColorR = 0;
                     } else {
-                        msgCtx->textColorR = D_801D07DC[(s16)(character - 1)].r + msgCtx->unk120D4;
+                        msgCtx->textColorR = D_801D07DC[(s16)((u8)character - 1)].r + msgCtx->unk120D4;
                     }
 
-                    if (D_801D07DC[(s16)(character - 1)].g + msgCtx->unk120D4 >= 255) {
-                        msgCtx->textColorG = D_801D07DC[(s16)(character - 1)].g;
+                    if (D_801D07DC[(s16)((u8)character - 1)].g + msgCtx->unk120D4 >= 255) {
+                        msgCtx->textColorG = D_801D07DC[(s16)((u8)character - 1)].g;
                     } else {
-                        msgCtx->textColorG = D_801D07DC[(s16)(character - 1)].g + msgCtx->unk120D4;
+                        msgCtx->textColorG = D_801D07DC[(s16)((u8)character - 1)].g + msgCtx->unk120D4;
                     }
 
-                    if (D_801D07DC[(s16)(character - 1)].b + msgCtx->unk120D4 < 0) {
+                    if (D_801D07DC[(s16)((u8)character - 1)].b + msgCtx->unk120D4 < 0) {
                         msgCtx->textColorB = 0;
                     } else {
-                        msgCtx->textColorB = D_801D07DC[(s16)(character - 1)].b + msgCtx->unk120D4;
+                        msgCtx->textColorB = D_801D07DC[(s16)((u8)character - 1)].b + msgCtx->unk120D4;
                     }
 
                 } else if (play->pauseCtx.bombersNotebookOpen) {
-                    msgCtx->textColorR = D_801D089C[(s16)(character - 1)].r;
-                    msgCtx->textColorG = D_801D089C[(s16)(character - 1)].g;
-                    msgCtx->textColorB = D_801D089C[(s16)(character - 1)].b;
+                    msgCtx->textColorR = D_801D089C[(s16)((u8)character - 1)].r;
+                    msgCtx->textColorG = D_801D089C[(s16)((u8)character - 1)].g;
+                    msgCtx->textColorB = D_801D089C[(s16)((u8)character - 1)].b;
                 } else if (msgCtx->textBoxType == TEXTBOX_TYPE_1) {
-                    msgCtx->textColorR = D_801D07DC[(s16)(character - 1)].r;
-                    msgCtx->textColorG = D_801D07DC[(s16)(character - 1)].g;
-                    msgCtx->textColorB = D_801D07DC[(s16)(character - 1)].b;
+                    msgCtx->textColorR = D_801D07DC[(s16)((u8)character - 1)].r;
+                    msgCtx->textColorG = D_801D07DC[(s16)((u8)character - 1)].g;
+                    msgCtx->textColorB = D_801D07DC[(s16)((u8)character - 1)].b;
                 } else if (msgCtx->textBoxType == TEXTBOX_TYPE_D) {
-                    msgCtx->textColorR = D_801D086C[(s16)(character - 1)].r;
-                    msgCtx->textColorG = D_801D086C[(s16)(character - 1)].g;
-                    msgCtx->textColorB = D_801D086C[(s16)(character - 1)].b;
+                    msgCtx->textColorR = D_801D086C[(s16)((u8)character - 1)].r;
+                    msgCtx->textColorG = D_801D086C[(s16)((u8)character - 1)].g;
+                    msgCtx->textColorB = D_801D086C[(s16)((u8)character - 1)].b;
                 } else {
-                    msgCtx->textColorR = D_801D080C[(s16)(character - 1)].r;
-                    msgCtx->textColorG = D_801D080C[(s16)(character - 1)].g;
-                    msgCtx->textColorB = D_801D080C[(s16)(character - 1)].b;
+                    msgCtx->textColorR = D_801D080C[(s16)((u8)character - 1)].r;
+                    msgCtx->textColorG = D_801D080C[(s16)((u8)character - 1)].g;
+                    msgCtx->textColorB = D_801D080C[(s16)((u8)character - 1)].b;
                 }
 
                 if ((i + 1) == msgCtx->textDrawPos) {
@@ -634,7 +636,7 @@ void Message_DrawTextNES(PlayState* play, Gfx** gfxP, u16 textDrawPos) {
             case 0xA:
                 i++;
                 character = msgCtx->decodedBuffer.schar[i];
-                switch (character) {
+                switch ((u8)character) {
                     case 0x0:
                     case 0x1:
                     case 0x2:
@@ -642,7 +644,7 @@ void Message_DrawTextNES(PlayState* play, Gfx** gfxP, u16 textDrawPos) {
                     case 0x4:
                     case 0x5:
                     case 0x6:
-                        msgCtx->textDelay = character - 0x0;
+                        msgCtx->textDelay = (u8)character - 0x0;
                         if ((i + 1) == msgCtx->textDrawPos) {
                             msgCtx->textDrawPos++;
                         }
@@ -777,7 +779,7 @@ void Message_DrawTextNES(PlayState* play, Gfx** gfxP, u16 textDrawPos) {
                     msgCtx->msgMode = MSGMODE_TEXT_DONE;
                     if (msgCtx->textboxEndType == 0) {
                         Audio_PlaySfx(NA_SE_SY_MESSAGE_END);
-                        if (character == 0xBF) {
+                        if ((u8)character == 0xBF) {
                             Font_LoadMessageBoxEndIcon(font, 1);
                         } else {
                             Font_LoadMessageBoxEndIcon(font, 0);
@@ -843,13 +845,19 @@ void Message_DrawTextNES(PlayState* play, Gfx** gfxP, u16 textDrawPos) {
                 if ((msgCtx->msgMode == MSGMODE_TEXT_DISPLAYING) && ((i + 1) == msgCtx->textDrawPos)) {
                     Audio_PlaySfx(NA_SE_NONE);
                 }
-                if ((character >= 0xB0) && (character <= 0xBB)) {
+
+                 if (((u8)character >= 0xB0) && ((u8)character <= 0xBB)) {
+                } else {
+                    printf("Unhandled or default character: 0x%04X\n", character);
+                }
+
+                if (((u8)character >= 0xB0) && ((u8)character <= 0xBB)) {
                     sp12E = msgCtx->textColorR;
                     sp12C = msgCtx->textColorG;
                     sp12A = msgCtx->textColorB;
-                    msgCtx->textColorR = D_801D083C[(s16)D_801D08CC[character - 0xB0]].r;
-                    msgCtx->textColorG = D_801D083C[(s16)D_801D08CC[character - 0xB0]].g;
-                    msgCtx->textColorB = D_801D083C[(s16)D_801D08CC[character - 0xB0]].b;
+                    msgCtx->textColorR = D_801D083C[(s16)D_801D08CC[(u8)character - 0xB0]].r;
+                    msgCtx->textColorG = D_801D083C[(s16)D_801D08CC[(u8)character - 0xB0]].g;
+                    msgCtx->textColorB = D_801D083C[(s16)D_801D08CC[(u8)character - 0xB0]].b;
                     Message_DrawTextChar(play, &font->charBuf[font->unk_11D88][charTexIndex], &gfx);
                     msgCtx->textColorR = sp12E;
                     msgCtx->textColorG = sp12C;
@@ -899,7 +907,7 @@ void Message_DrawTextNES(PlayState* play, Gfx** gfxP, u16 textDrawPos) {
                              ((msgCtx->unk120C0 + 1) >= i))) {
                             msgCtx->textPosX += (s32)(16.0f * msgCtx->textCharScale);
                         } else {
-                            msgCtx->textPosX += (s32)(sNESFontWidths[character - ' '] * msgCtx->textCharScale);
+                            msgCtx->textPosX += (s32)(sNESFontWidths[(u8)character - ' '] * msgCtx->textCharScale);
                         }
                         break;
                 }
@@ -1084,9 +1092,10 @@ void Message_DecodeNES(PlayState* play) {
             }
             decodedBufPos--;
         } else if (curChar == 0xC1) {
-            DmaMgr_SendRequest0(msgCtx->textboxSegment + 0x1000, SEGMENT_ROM_START(message_texture_static), 0x900);
-            DmaMgr_SendRequest0(msgCtx->textboxSegment + 0x1900, SEGMENT_ROM_START(message_texture_static) + 0x900,
-                                0x900);
+            // BENTODO
+            //DmaMgr_SendRequest0(msgCtx->textboxSegment + 0x1000, SEGMENT_ROM_START(message_texture_static), 0x900);
+            //DmaMgr_SendRequest0(msgCtx->textboxSegment + 0x1900, SEGMENT_ROM_START(message_texture_static) + 0x900,
+            //                    0x900);
             numLines = 2;
             spC6 = 2;
             msgCtx->unk12012 = msgCtx->textboxY + 8;

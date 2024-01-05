@@ -1,7 +1,7 @@
 #include "global.h"
 #include "vt.h"
 
-#include "assets/code/eff_shield_particle/eff_shield_particle.c"
+#include "assets/code/eff_shield_particle/eff_shield_particle.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
 
 void EffectShieldParticle_Init(void* thisx, void* initParamsx) {

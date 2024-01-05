@@ -48,6 +48,8 @@ void ObjSound_Destroy(Actor* thisx, PlayState* play) {
 }
 
 void ObjSound_Update(Actor* thisx, PlayState* play) {
+    // BENTODO: stub audio code that crashes
+#if 0
     ObjSound* this = THIS;
 
     if (this->soundType == OBJ_SOUND_TYPE_SFX) {
@@ -65,6 +67,7 @@ void ObjSound_Update(Actor* thisx, PlayState* play) {
     } else {
         this->unk_144 = true;
     }
+#endif
 }
 
 void ObjSound_Draw(Actor* thisx, PlayState* play) {

@@ -7,6 +7,8 @@
 #include "z_dm_char00.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "objects/object_delf/object_delf.h"
+#include "z64animation.h"
+#include "BenPort.h"
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
@@ -678,7 +680,7 @@ void DmChar00_Init(Actor* thisx, PlayState* play) {
     this->unk_262 = DMCHAR00_GET_F800(thisx);
 
     ActorShape_Init(&thisx->shape, 0.0f, ActorShadow_DrawCircle, 24.0f);
-    SkelAnime_Init(play, &this->skelAnime, &gameplay_keep_Skel_02AF58.sh, &gameplay_keep_Anim_029140, this->jointTable,
+    SkelAnime_Init(play, &this->skelAnime, gameplay_keep_Skel_02AF58, &gameplay_keep_Anim_029140, this->jointTable,
                    this->morphTable, FAIRY_LIMB_MAX);
     ActorShape_Init(&thisx->shape, 0.0f, NULL, 15.0f);
     DmChar00_ChangeAnim(&this->skelAnime, &sAnimationInfo[DMCHAR00_ANIM_0], 0);

@@ -611,7 +611,7 @@ static Vec3f D_80872EEC = { -750.0f, 0.0f, 0.0f };
 static Vec3f D_80872EF8 = { -800.0f, 0.0f, 0.0f };
 static Vec3f D_80872F04 = { 0.0f, 0.0f, 0.0f };
 
-#include "overlays/ovl_En_Bom/ovl_En_Bom.c"
+#include "overlays/ovl_En_Bom/ovl_En_Bom.h"
 
 void EnBom_Draw(Actor* thisx, PlayState* play) {
     s32 pad;

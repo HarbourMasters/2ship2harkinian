@@ -1224,14 +1224,15 @@ void Play_DrawMain(PlayState* this) {
                 SET_FULLSCREEN_VIEWPORT(&spA8);
 
                 View_ApplyTo(&spA8, &sp218);
-                this->transitionCtx.draw(&this->transitionCtx.instanceData, &sp218);
+                // BENTODO: incorrect render
+                // this->transitionCtx.draw(&this->transitionCtx.instanceData, &sp218);
             }
 
             TransitionFade_Draw(&this->unk_18E48, &sp218);
-
+            // BENTODO: fill framebuffer?
             if (gVisMonoColor.a != 0) {
                 sPlayVisMono.primColor.rgba = gVisMonoColor.rgba;
-                VisMono_Draw(&sPlayVisMono, &sp218);
+                // VisMono_Draw(&sPlayVisMono, &sp218);
             }
 
             gSPEndDisplayList(sp218++);
@@ -1267,7 +1268,8 @@ void Play_DrawMain(PlayState* this) {
                     func_80170798(&this->pauseBgPreRender, &sp8C);
                 }
 
-                gSPDisplayList(sp8C++, D_0E000000.syncSegments);
+                __gSPDisplayList(sp8C++,
+                                 0x0E000000 + ((uintptr_t)&D_0E000000.syncSegments - (uintptr_t)&D_0E000000) + 1);
                 POLY_OPA_DISP = sp8C;
                 sp25B = true;
                 goto PostWorldDraw;
@@ -1562,7 +1564,11 @@ void Play_InitEnvironment(PlayState* this, s16 skyboxId) {
     Environment_Init(this, &this->envCtx, 0);
 }
 
+void OTRPlay_InitScene(PlayState* play, s32 spawn);
+
 void Play_InitScene(PlayState* this, s32 spawn) {
+    OTRPlay_InitScene(this, spawn);
+    #if 0
     this->curSpawn = spawn;
     this->linkActorEntry = NULL;
     this->actorCsCamList = NULL;
@@ -1580,9 +1586,14 @@ void Play_InitScene(PlayState* this, s32 spawn) {
     gSaveContext.worldMapArea = 0;
     Scene_ExecuteCommands(this, this->sceneSegment);
     Play_InitEnvironment(this, this->skyboxId);
+    #endif
 }
 
+void OTRPlay_SpawnScene(PlayState* play, s32 sceneId, s32 spawn);
+
 void Play_SpawnScene(PlayState* this, s32 sceneId, s32 spawn) {
+    OTRPlay_SpawnScene(this, sceneId, spawn);
+#if 0
     s32 pad;
     SceneTableEntry* scene = &gSceneTable[sceneId];
 
@@ -1592,9 +1603,10 @@ void Play_SpawnScene(PlayState* this, s32 sceneId, s32 spawn) {
     this->sceneConfig = scene->drawConfig;
     this->sceneSegment = Play_LoadFile(this, &scene->segment);
     scene->unk_D = 0;
-    gSegments[2] = OS_K0_TO_PHYSICAL(this->sceneSegment);
+    gSegments[2] = VIRTUAL_TO_PHYSICAL(this->sceneSegment);
     Play_InitScene(this, spawn);
     Room_AllocateAndLoad(this, &this->roomCtx);
+#endif
 }
 
 void Play_GetScreenPos(PlayState* this, Vec3f* worldPos, Vec3f* screenPos) {
@@ -2343,6 +2355,7 @@ void Play_Init(GameState* thisx) {
     gSaveContext.seqId = this->sequenceCtx.seqId;
     gSaveContext.ambienceId = this->sequenceCtx.ambienceId;
     AnimationContext_Update(this, &this->animationCtx);
+    // BENTODO: crash in Message_FindMessage
     Cutscene_HandleEntranceTriggers(this);
     gSaveContext.respawnFlag = 0;
     sBombersNotebookOpen = false;

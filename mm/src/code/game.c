@@ -228,12 +228,13 @@ void GameState_Init(GameState* gameState, GameStateFunc init, GraphicsContext* g
     SpeedMeter_Init(&sGameSpeedMeter);
     Rumble_Init();
 
-    osSendMesg(&gameState->gfxCtx->queue, NULL, OS_MESG_BLOCK);
+    osSendMesg(&gameState->gfxCtx->queue, OS_MESG_PTR(NULL), OS_MESG_BLOCK);
 }
 
 void GameState_Destroy(GameState* gameState) {
-    AudioMgr_StopAllSfxExceptSystem();
-    Audio_Update();
+    // BENTODO
+    //AudioMgr_StopAllSfxExceptSystem();
+    //Audio_Update();
     osRecvMesg(&gameState->gfxCtx->queue, NULL, OS_MESG_BLOCK);
 
     if (gameState->destroy != NULL) {

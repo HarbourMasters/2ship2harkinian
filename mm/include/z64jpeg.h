@@ -3,7 +3,7 @@
 
 #include "PR/ultratypes.h"
 #include "PR/os_message.h"
-#include "PR/sched.h"
+#include "PR/os_sched.h"
 
 typedef struct {
     /* 0x00 */ u16 table[8*8];

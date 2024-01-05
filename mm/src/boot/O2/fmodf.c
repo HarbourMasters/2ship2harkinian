@@ -1,5 +1,5 @@
 #include "global.h"
-
+#if 0
 f32 fmodf(f32 dividend, f32 divisor) {
     s32 quotient;
 
@@ -10,3 +10,4 @@ f32 fmodf(f32 dividend, f32 divisor) {
 
     return dividend - quotient * divisor;
 }
+#endif

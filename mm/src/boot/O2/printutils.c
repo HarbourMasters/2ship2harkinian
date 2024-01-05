@@ -1,4 +1,12 @@
 #include "global.h"
+#include "stdio.h"
+
+s32 _Printf(PrintCallback a, void* arg, const char* fmt, va_list ap) {
+    unsigned char buffer[4096];
+
+    vsnprintf(buffer, sizeof(buffer), fmt, ap);
+    a(arg, buffer, strlen(buffer));
+}
 
 s32 PrintUtils_VPrintf(PrintCallback* pfn, const char* fmt, va_list args) {
     return _Printf(*pfn, pfn, fmt, args);

@@ -43,7 +43,22 @@
 #include "global.h"
 
 /* data */
+#define qs1616(e) ((s32)((e)*0x00010000))
 
+#define IPART(x) ((qs1616(x) >> 16) & 0xFFFF)
+#define FPART(x) (qs1616(x) & 0xFFFF)
+
+#define gdSPDefMtx(xx, yx, zx, wx, xy, yy, zy, wy, xz, yz, zz, wz, xw, yw, zw, ww)                                 \
+    {                                                                                                              \
+        {                                                                                                          \
+            (IPART(xx) << 0x10) | IPART(xy), (IPART(xz) << 0x10) | IPART(xw), (IPART(yx) << 0x10) | IPART(yy),     \
+                (IPART(yz) << 0x10) | IPART(yw), (IPART(zx) << 0x10) | IPART(zy), (IPART(zz) << 0x10) | IPART(zw), \
+                (IPART(wx) << 0x10) | IPART(wy), (IPART(wz) << 0x10) | IPART(ww), (FPART(xx) << 0x10) | FPART(xy), \
+                (FPART(xz) << 0x10) | FPART(xw), (FPART(yx) << 0x10) | FPART(yy), (FPART(yz) << 0x10) | FPART(yw), \
+                (FPART(zx) << 0x10) | FPART(zy), (FPART(zz) << 0x10) | FPART(zw), (FPART(wx) << 0x10) | FPART(wy), \
+                (FPART(wz) << 0x10) | FPART(ww),                                                                   \
+        }                                                                                                          \
+    }
 // clang-format off
 Mtx gIdentityMtx = gdSPDefMtx(
     1.0f, 0.0f, 0.0f, 0.0f,
@@ -1154,75 +1169,7 @@ void Matrix_SetTranslateRotateYXZ(f32 x, f32 y, f32 z, Vec3s* rot) {
  * @remark original name: "_MtxF_to_Mtx"
  */
 Mtx* Matrix_MtxFToMtx(MtxF* src, Mtx* dest) {
-    s32 temp;
-    u16* intPart = (u16*)&dest->m[0][0];
-    u16* fracPart = (u16*)&dest->m[2][0];
-
-    // For some reason the first 9 elements use the intPart temp for the fractional part.
-    temp = src->xx * 0x10000;
-    intPart[0] = (temp >> 0x10);
-    intPart[16 + 0] = temp;
-
-    temp = src->yx * 0x10000;
-    intPart[1] = (temp >> 0x10);
-    intPart[16 + 1] = temp;
-
-    temp = src->zx * 0x10000;
-    intPart[2] = (temp >> 0x10);
-    intPart[16 + 2] = temp;
-
-    temp = src->wx * 0x10000;
-    intPart[3] = (temp >> 0x10);
-    intPart[16 + 3] = temp;
-
-    temp = src->xy * 0x10000;
-    intPart[4] = (temp >> 0x10);
-    intPart[16 + 4] = temp;
-
-    temp = src->yy * 0x10000;
-    intPart[5] = (temp >> 0x10);
-    intPart[16 + 5] = temp;
-
-    temp = src->zy * 0x10000;
-    intPart[6] = (temp >> 0x10);
-    intPart[16 + 6] = temp;
-
-    temp = src->wy * 0x10000;
-    intPart[7] = (temp >> 0x10);
-    intPart[16 + 7] = temp;
-
-    temp = src->xz * 0x10000;
-    intPart[8] = (temp >> 0x10);
-    intPart[16 + 8] = temp;
-
-    temp = src->yz * 0x10000;
-    intPart[9] = (temp >> 0x10);
-    fracPart[9] = temp;
-
-    temp = src->zz * 0x10000;
-    intPart[10] = (temp >> 0x10);
-    fracPart[10] = temp;
-
-    temp = src->wz * 0x10000;
-    intPart[11] = (temp >> 0x10);
-    fracPart[11] = temp;
-
-    temp = src->xw * 0x10000;
-    intPart[12] = (temp >> 0x10);
-    fracPart[12] = temp;
-
-    temp = src->yw * 0x10000;
-    intPart[13] = (temp >> 0x10);
-    fracPart[13] = temp;
-
-    temp = src->zw * 0x10000;
-    intPart[14] = (temp >> 0x10);
-    fracPart[14] = temp;
-
-    temp = src->ww * 0x10000;
-    intPart[15] = (temp >> 0x10);
-    fracPart[15] = temp;
-
+    guMtxF2L(src, dest);
     return dest;
 }
 
@@ -1422,50 +1369,38 @@ void Matrix_MultVec3fXZ(Vec3f* src, Vec3f* dest) {
  * @remark original name: "Matrix_copy_MtxF"
  */
 void Matrix_MtxFCopy(MtxF* dest, MtxF* src) {
-    f32 fv0;
-    f32 fv1;
-
-    // This ought to be a loop, but all attempts to match it as one have so far failed.
-    if (1) {
-        fv0 = src->mf[0][0];
-        fv1 = src->mf[0][1];
-        dest->mf[0][0] = fv0;
-        dest->mf[0][1] = fv1;
-        fv0 = src->mf[0][2];
-        fv1 = src->mf[0][3];
-        dest->mf[0][2] = fv0;
-        dest->mf[0][3] = fv1;
-    }
-    if (1) {
-        fv0 = src->mf[1][0];
-        fv1 = src->mf[1][1];
-        dest->mf[1][0] = fv0;
-        dest->mf[1][1] = fv1;
-        fv0 = src->mf[1][2];
-        fv1 = src->mf[1][3];
-        dest->mf[1][2] = fv0;
-        dest->mf[1][3] = fv1;
-    }
-    if (1) {
-        fv0 = src->mf[2][0];
-        fv1 = src->mf[2][1];
-        dest->mf[2][0] = fv0;
-        dest->mf[2][1] = fv1;
-        fv0 = src->mf[2][2];
-        fv1 = src->mf[2][3];
-        dest->mf[2][2] = fv0;
-        dest->mf[2][3] = fv1;
-    }
-    if (1) {
-        fv0 = src->mf[3][0];
-        fv1 = src->mf[3][1];
-        dest->mf[3][0] = fv0;
-        dest->mf[3][1] = fv1;
-        fv0 = src->mf[3][2];
-        fv1 = src->mf[3][3];
-        dest->mf[3][2] = fv0;
-        dest->mf[3][3] = fv1;
-    }
+    dest->xx = src->xx;
+    dest->yx = src->yx;
+    dest->zx = src->zx;
+    dest->wx = src->wx;
+    dest->xy = src->xy;
+    dest->yy = src->yy;
+    dest->zy = src->zy;
+    dest->wy = src->wy;
+    dest->xx = src->xx;
+    dest->yx = src->yx;
+    dest->zx = src->zx;
+    dest->wx = src->wx;
+    dest->xy = src->xy;
+    dest->yy = src->yy;
+    dest->zy = src->zy;
+    dest->wy = src->wy;
+    dest->xz = src->xz;
+    dest->yz = src->yz;
+    dest->zz = src->zz;
+    dest->wz = src->wz;
+    dest->xw = src->xw;
+    dest->yw = src->yw;
+    dest->zw = src->zw;
+    dest->ww = src->ww;
+    dest->xz = src->xz;
+    dest->yz = src->yz;
+    dest->zz = src->zz;
+    dest->wz = src->wz;
+    dest->xw = src->xw;
+    dest->yw = src->yw;
+    dest->zw = src->zw;
+    dest->ww = src->ww;
 }
 
 /**
@@ -1477,25 +1412,7 @@ void Matrix_MtxFCopy(MtxF* dest, MtxF* src) {
  * @remark original name: "Matrix_MtxtoMtxF"
  */
 void Matrix_MtxToMtxF(Mtx* src, MtxF* dest) {
-    u16* intPart = (u16*)&src->m[0][0];
-    u16* fracPart = (u16*)&src->m[2][0];
-
-    dest->xx = ((intPart[0] << 0x10) | fracPart[0]) * (1 / (f32)0x10000);
-    dest->yx = ((intPart[1] << 0x10) | fracPart[1]) * (1 / (f32)0x10000);
-    dest->zx = ((intPart[2] << 0x10) | fracPart[2]) * (1 / (f32)0x10000);
-    dest->wx = ((intPart[3] << 0x10) | fracPart[3]) * (1 / (f32)0x10000);
-    dest->xy = ((intPart[4] << 0x10) | fracPart[4]) * (1 / (f32)0x10000);
-    dest->yy = ((intPart[5] << 0x10) | fracPart[5]) * (1 / (f32)0x10000);
-    dest->zy = ((intPart[6] << 0x10) | fracPart[6]) * (1 / (f32)0x10000);
-    dest->wy = ((intPart[7] << 0x10) | fracPart[7]) * (1 / (f32)0x10000);
-    dest->xz = ((intPart[8] << 0x10) | fracPart[8]) * (1 / (f32)0x10000);
-    dest->yz = ((intPart[9] << 0x10) | fracPart[9]) * (1 / (f32)0x10000);
-    dest->zz = ((intPart[10] << 0x10) | fracPart[10]) * (1 / (f32)0x10000);
-    dest->wz = ((intPart[11] << 0x10) | fracPart[11]) * (1 / (f32)0x10000);
-    dest->xw = ((intPart[12] << 0x10) | fracPart[12]) * (1 / (f32)0x10000);
-    dest->yw = ((intPart[13] << 0x10) | fracPart[13]) * (1 / (f32)0x10000);
-    dest->zw = ((intPart[14] << 0x10) | fracPart[14]) * (1 / (f32)0x10000);
-    dest->ww = ((intPart[15] << 0x10) | fracPart[15]) * (1 / (f32)0x10000);
+    guMtxL2F(dest, src);
 }
 
 // Unused

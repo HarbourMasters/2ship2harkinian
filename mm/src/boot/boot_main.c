@@ -1,3 +1,4 @@
+#if 0
 #include "prevent_bss_reordering.h"
 #include "carthandle.h"
 #include "idle.h"
@@ -23,3 +24,4 @@ void bootproc(void) {
     osCreateThread(&sIdleThread, Z_THREAD_ID_IDLE, Idle_ThreadEntry, NULL, STACK_TOP(sIdleStack), Z_PRIORITY_IDLE);
     osStartThread(&sIdleThread);
 }
+#endif

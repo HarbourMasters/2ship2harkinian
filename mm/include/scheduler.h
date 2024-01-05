@@ -2,7 +2,7 @@
 #define SCHEDULER_H
 
 #include "PR/ultratypes.h"
-#include "PR/sched.h"
+#include "PR/os_sched.h"
 #include "PR/os_vi.h"
 #include "PR/sptask.h"
 #include "irqmgr.h"

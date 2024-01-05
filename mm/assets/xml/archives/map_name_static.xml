@@ -1,6 +1,6 @@
 <Root>
     <!-- Map Point Names. Must be ia4 128x16 and continguous with `ItemId` starting from `ITEM_MAP_POINT_GREAT_BAY` -->
-    <File Name="map_name_static.unarchive">
+    <File Name="map_name_static">
         <!-- First entries must be continguous with `RegionId` -->
         <Texture Name="gMapPointGreatBayENGTex" OutName="map_point_great_bay_eng" Format="ia4" Width="128" Height="16" Offset="0x0" />                <!-- ITEM_MAP_POINT_GREAT_BAY -->
         <Texture Name="gMapPointZoraHallENGTex" OutName="map_point_zora_hall_eng" Format="ia4" Width="128" Height="16" Offset="0x400" />              <!-- ITEM_MAP_POINT_ZORA_HALL -->

@@ -1,9 +1,17 @@
 #ifndef Z64BGCHECK_H
 #define Z64BGCHECK_H
 
+#ifdef __cplusplus
+#ifndef this
+#define this thisx
+#endif
+extern "C" {
+#endif
+#include "z64actor.h"
+
 struct PlayState;
-struct Actor;
-struct DynaPolyActor;
+//struct Actor;
+//struct DynaPolyActor;
 
 #define SS_NULL 0xFFFF
 
@@ -591,5 +599,11 @@ u32 WaterBox_GetLightSettingIndex(CollisionContext* colCtx, WaterBox* waterBox);
 s32 func_800CA6F0(struct PlayState* play, CollisionContext* colCtx, f32 x, f32 z, f32* ySurface, WaterBox** outWaterBox, s32* bgId);
 s32 func_800CA9D0(struct PlayState* play, CollisionContext* colCtx, f32 x, f32 z, f32* ySurface, WaterBox** outWaterBox);
 s32 func_800CAA14(CollisionPoly* polyA, CollisionPoly* polyB, Vec3f* pointA, Vec3f* pointB, Vec3f* closestPoint);
+
+#ifdef __cplusplus
+}
+#undef this
+#endif
+
 
 #endif

@@ -1,5 +1,5 @@
 <Root>
-    <File Name="icon_item_24_static_yar.unarchive" Segment="9">
+    <File Name="icon_item_24_static_yar" Segment="9">
         <Texture Name="gQuestIconGoldSkulltulaTex" OutName="gold_skulltula_icon" Format="rgba32" Width="24" Height="24" Offset="0x0" />
         <Texture Name="gQuestIconHeartContainerTex" OutName="heart_container_icon" Format="rgba32" Width="24" Height="24" Offset="0x900" />
         <Texture Name="gQuestIconPieceOfHeartTex" OutName="piece_of_heart_icon" Format="rgba32" Width="24" Height="24" Offset="0x1200" />

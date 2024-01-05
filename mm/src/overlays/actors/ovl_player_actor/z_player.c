@@ -1780,6 +1780,8 @@ u16 D_8085C3EC[] = {
 };
 
 void func_8082E00C(Player* this) {
+    return;
+    // BENTODO
     s32 i;
     u16* sfxIdPtr = D_8085C3EC;
 
@@ -7312,7 +7314,7 @@ void func_80838830(Player* this, s16 objectId) {
         osCreateMesgQueue(&this->giObjectLoadQueue, &this->giObjectLoadMsg, 1);
         DmaMgr_SendRequestImpl(&this->giObjectDmaRequest, this->giObjectSegment, gObjectTable[objectId].vromStart,
                                gObjectTable[objectId].vromEnd - gObjectTable[objectId].vromStart, 0,
-                               &this->giObjectLoadQueue, NULL);
+                               &this->giObjectLoadQueue, OS_MESG_PTR(NULL));
     }
 }
 
@@ -8196,7 +8198,8 @@ void func_8083A98C(Actor* thisx, PlayState* play2) {
 
         // Show controls overlay. SCENE_AYASHIISHOP does not have Zoom, so has a different one.
         if (this->av2.actionVar2 == 1) {
-            Message_StartTextbox(play, (play->sceneId == SCENE_AYASHIISHOP) ? 0x2A00 : 0x5E6, NULL);
+            // BENTODO: crash when going back from telescope in astral observatory
+            // Message_StartTextbox(play, (play->sceneId == SCENE_AYASHIISHOP) ? 0x2A00 : 0x5E6, NULL);
         }
     } else {
         sPlayerControlInput = play->state.input;
