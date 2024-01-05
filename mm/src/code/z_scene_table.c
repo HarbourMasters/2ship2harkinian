@@ -1,5 +1,6 @@
 #include "global.h"
 
+#if 0
 #define DEFINE_SCENE(name, _enumValue, textId, drawConfig, _restrictionFlags, _persistentCycleFlags) \
     DECLARE_ROM_SEGMENT(name)
 
@@ -9,9 +10,11 @@
 
 #undef DEFINE_SCENE
 #undef DEFINE_SCENE_UNSET
+#endif
+
 
 #define DEFINE_SCENE(name, _enumValue, textId, drawConfig, _restrictionFlags, _persistentCycleFlags) \
-    { { SEGMENT_ROM_START(name), SEGMENT_ROM_END(name) }, textId, 0, drawConfig, 0, 0 },
+    { { 0, 0, #name }, textId, 0, drawConfig, 0, 0 },
 
 #define DEFINE_SCENE_UNSET(_enumValue) { 0 },
 

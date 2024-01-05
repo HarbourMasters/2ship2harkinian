@@ -741,6 +741,8 @@ void AudioSfx_StopByPosAndBank(u8 bankId, Vec3f* pos) {
 }
 
 void AudioSfx_StopByPos(Vec3f* pos) {
+// BENTODO: infinite loop
+#if 0
     u8 bankId;
     SfxBankEntry entryToRemove;
 
@@ -750,6 +752,7 @@ void AudioSfx_StopByPos(Vec3f* pos) {
 
     entryToRemove.posX = &pos->x;
     AudioSfx_RemoveMatchingRequests(SFX_RM_REQ_BY_POS, &entryToRemove);
+#endif
 }
 
 void AudioSfx_StopByPosAndId(Vec3f* pos, u16 sfxId) {
@@ -814,6 +817,8 @@ void AudioSfx_StopByTokenAndId(u8 token, u16 sfxId) {
 }
 
 void AudioSfx_StopById(u32 sfxId) {
+    // BENTODO: infinite loop
+#if 0
     SfxBankEntry* entry;
     u8 entryIndex = gSfxBanks[SFX_BANK(sfxId)][0].next;
     u8 prevEntryIndex = 0;
@@ -837,6 +842,7 @@ void AudioSfx_StopById(u32 sfxId) {
 
     entryToRemove.sfxId = sfxId;
     AudioSfx_RemoveMatchingRequests(SFX_RM_REQ_BY_ID, &entryToRemove);
+#endif
 }
 
 void AudioSfx_ProcessRequests(void) {

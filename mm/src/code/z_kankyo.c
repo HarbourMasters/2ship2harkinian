@@ -20,7 +20,12 @@ typedef struct {
 } LightningBolt; // size = 0x20
 
 // Variables are put before most headers as a hacky way to bypass bss reordering
-struct LightningStrike;
+#include "z64environment.h"
+#include "global.h"
+#include "sys_cfb.h"
+#include "objects/gameplay_keep/gameplay_keep.h"
+#include "objects/gameplay_field_keep/gameplay_field_keep.h"
+#include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 
 u8 D_801F4E30;
 u8 D_801F4E31;
@@ -58,13 +63,6 @@ u8 sEnvIsTimeStopped;
 u8 D_801F4F33;
 u8 sGameOverLightsIntensity;
 Gfx* sSkyboxStarsDList;
-
-#include "z64environment.h"
-#include "global.h"
-#include "sys_cfb.h"
-#include "objects/gameplay_keep/gameplay_keep.h"
-#include "objects/gameplay_field_keep/gameplay_field_keep.h"
-#include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 
 // Data
 f32 sSandstormLerpScale = 0.0f;
@@ -1049,7 +1047,7 @@ void Environment_UpdateSkybox(u8 skyboxId, EnvironmentContext* envCtx, SkyboxCon
             size = sNormalSkyFiles[skybox1Index].file.vromEnd - sNormalSkyFiles[skybox1Index].file.vromStart;
             osCreateMesgQueue(&envCtx->loadQueue, envCtx->loadMsg, ARRAY_COUNT(envCtx->loadMsg));
             DmaMgr_SendRequestImpl(&envCtx->dmaRequest, skyboxCtx->staticSegments[0],
-                                   sNormalSkyFiles[skybox1Index].file.vromStart, size, 0, &envCtx->loadQueue, NULL);
+                                   sNormalSkyFiles[skybox1Index].file.vromStart, size, 0, &envCtx->loadQueue, OS_MESG_PTR(NULL));
             envCtx->skybox1Index = skybox1Index;
         }
 
@@ -1058,7 +1056,7 @@ void Environment_UpdateSkybox(u8 skyboxId, EnvironmentContext* envCtx, SkyboxCon
             size = sNormalSkyFiles[skybox2Index].file.vromEnd - sNormalSkyFiles[skybox2Index].file.vromStart;
             osCreateMesgQueue(&envCtx->loadQueue, envCtx->loadMsg, ARRAY_COUNT(envCtx->loadMsg));
             DmaMgr_SendRequestImpl(&envCtx->dmaRequest, skyboxCtx->staticSegments[1],
-                                   sNormalSkyFiles[skybox2Index].file.vromStart, size, 0, &envCtx->loadQueue, NULL);
+                                   sNormalSkyFiles[skybox2Index].file.vromStart, size, 0, &envCtx->loadQueue, OS_MESG_PTR(NULL));
             envCtx->skybox2Index = skybox2Index;
         }
 
@@ -2000,7 +1998,7 @@ void Environment_DrawLensFlare(PlayState* play, EnvironmentContext* envCtx, View
 
                 gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 255, (u8)(weight * 75.0f) + 180, (u8)(weight * 155.0f) + 100,
                                 (u8)envCtx->glareAlpha);
-                gSPDisplayList(POLY_XLU_DISP++, D_0E000000.clearFillRect);
+                gSPDisplayList(POLY_XLU_DISP++, 0x0E000000 + ((uintptr_t)&D_0E000000.clearFillRect - (uintptr_t)&D_0E000000) + 1);
             } else {
                 envCtx->glareAlpha = 0.0f;
             }
@@ -2182,7 +2180,7 @@ void Environment_DrawSkyboxFilters(PlayState* play) {
             gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, play->lightCtx.fogColor[0] + 16, play->lightCtx.fogColor[1] + 16,
                             play->lightCtx.fogColor[2] + 16, 255.0f * D_801F4E74);
         }
-        gSPDisplayList(POLY_OPA_DISP++, D_0E000000.clearFillRect);
+        gSPDisplayList(POLY_OPA_DISP++, 0x0E000000 + ((uintptr_t)&D_0E000000.clearFillRect - (uintptr_t)&D_0E000000) + 1);
 
         CLOSE_DISPS(play->state.gfxCtx);
     }
@@ -2193,7 +2191,7 @@ void Environment_DrawSkyboxFilters(PlayState* play) {
         Gfx_SetupDL57_Opa(play->state.gfxCtx);
         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, play->envCtx.skyboxFilterColor[0], play->envCtx.skyboxFilterColor[1],
                         play->envCtx.skyboxFilterColor[2], play->envCtx.skyboxFilterColor[3]);
-        gSPDisplayList(POLY_OPA_DISP++, D_0E000000.clearFillRect);
+        gSPDisplayList(POLY_OPA_DISP++, 0x0E000000 + ((uintptr_t)&D_0E000000.clearFillRect - (uintptr_t)&D_0E000000) + 1);
 
         CLOSE_DISPS(play->state.gfxCtx);
     }
@@ -2204,7 +2202,7 @@ void Environment_DrawLightningFlash(PlayState* play, u8 red, u8 green, u8 blue, 
 
     Gfx_SetupDL57_Opa(play->state.gfxCtx);
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, red, green, blue, alpha);
-    gSPDisplayList(POLY_OPA_DISP++, D_0E000000.clearFillRect);
+    gSPDisplayList(POLY_OPA_DISP++, 0x0E000000 + ((uintptr_t)&D_0E000000.clearFillRect - (uintptr_t)&D_0E000000) + 1);
 
     CLOSE_DISPS(play->state.gfxCtx);
 }
@@ -2658,7 +2656,9 @@ void Environment_FillScreen(GraphicsContext* gfxCtx, u8 red, u8 green, u8 blue, 
             gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, red, green, blue, alpha);
             gDPSetAlphaDither(POLY_OPA_DISP++, G_AD_DISABLE);
             gDPSetColorDither(POLY_OPA_DISP++, G_CD_DISABLE);
-            gSPDisplayList(POLY_OPA_DISP++, D_0E000000.clearFillRect);
+
+            __gSPDisplayList(POLY_OPA_DISP++,
+                             0x0E000000 + ((uintptr_t)&D_0E000000.clearFillRect - (uintptr_t)&D_0E000000) + 1);
         }
 
         if (drawFlags & FILL_SCREEN_XLU) {
@@ -2671,7 +2671,9 @@ void Environment_FillScreen(GraphicsContext* gfxCtx, u8 red, u8 green, u8 blue, 
 
             gDPSetAlphaDither(POLY_XLU_DISP++, G_AD_DISABLE);
             gDPSetColorDither(POLY_XLU_DISP++, G_CD_DISABLE);
-            gSPDisplayList(POLY_XLU_DISP++, D_0E000000.clearFillRect);
+
+            __gSPDisplayList(POLY_XLU_DISP++,
+                             0x0E000000 + ((uintptr_t)&D_0E000000.clearFillRect - (uintptr_t)&D_0E000000) + 1);
         }
 
         CLOSE_DISPS(gfxCtx);

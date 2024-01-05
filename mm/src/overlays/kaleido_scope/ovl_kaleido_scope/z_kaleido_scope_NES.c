@@ -13,7 +13,10 @@
 #include "interface/icon_item_gameover_static/icon_item_gameover_static.h"
 #include "interface/icon_item_jpn_static/icon_item_jpn_static.h"
 #include "interface/icon_item_vtx_static/icon_item_vtx_static.h"
-
+#include "BenPort.h"
+#include "gfxdebuggerbridge.h"
+#include "archives/item_name_static/item_name_static.h"
+#include "archives/map_name_static/map_name_static.h"
 // Page Textures (Background of Page):
 // Broken up into multiple textures.
 // Numbered by column/row.
@@ -246,7 +249,17 @@ u8 gAreaGsFlags[] = {
 s16 sGameOverRectPosY = 66;
 
 void Kaleido_LoadMapNameStatic(void* segment, u32 texIndex) {
-    CmpDma_LoadFile(SEGMENT_ROM_START(map_name_static), texIndex, segment, 0x400);
+    static const char* gMapNameStatics[] = {
+        gMapPointGreatBayENGTex,      gMapPointZoraHallENGTex,        gMapPointRomaniRanchENGTex,
+        gMapPointDekuPalaceENGTex,    gMapPointWoodfallENGTex,        gMapPointClockTownENGTex,
+        gMapPointSnowheadENGTex,      gMapPointIkanaGraveyardENGTex,  gMapPointIkanaCanyonENGTex,
+        gMapPointGoronVillageENGTex,  gMapPointStoneTowerENGTex,      gMapPointGreatBayCoastENGTex,
+        gMapPointSouthernSwampENGTex, gMapPointMountainVillageENGTex, gMapPointMilkRoadENGTex,
+        gMapPointZoraCapeENGTex,
+    };
+    void* tex = ResourceMgr_LoadTexOrDListByName(gMapNameStatics[texIndex]);
+    memcpy(segment, tex, 0x400);
+    //CmpDma_LoadFile(SEGMENT_ROM_START(map_name_static), texIndex, segment, 0x400);
 }
 
 //! note: nothing from `map_name_static` is of size `0xA00` in US 1.0
@@ -255,7 +268,131 @@ void Kaleido_LoadMapNameStaticLarge(void* segment, u32 texIndex) {
 }
 
 void Kaleido_LoadItemNameStatic(void* segment, u32 texIndex) {
-    CmpDma_LoadFile(SEGMENT_ROM_START(item_name_static), texIndex, segment, 0x400);
+    static const char* gItemNameStatics[] = {
+        gItemNameOcarinaOfTimeENGTex,
+        gItemNameHerosBowENGTex,
+        gItemNameFireArrowENGTex,
+        gItemNameIceArrowENGTex,
+        gItemNameLightArrowENGTex,
+        gItemNameFairyOcarinaJPNTex,
+        gItemNameBombENGTex,
+        gItemNameBombchuENGTex,
+        gItemNameDekuStickENGTex,
+        gItemNameDekuNutENGTex,
+        gItemNameMagicBeansENGTex,
+        gItemNameLongshotJPNTex,
+        gItemNamePowderKegENGTex,
+        gItemNamePictographBoxENGTex,
+        gItemNameLensOfTruthENGTex,
+        gItemNameHookshotENGTex,
+        gItemNameGreatFairysSwordENGTex,
+        gItemNameFairySlingshotJPNTex,
+        gItemNameEmptyBottleENGTex,
+        gItemNameRedPotionENGTex,
+        gItemNameGreenPotionENGTex,
+        gItemNameBluePotionENGTex,
+        gItemNameFairyENGTex,
+        gItemNameDekuPrincessENGTex,
+        gItemNameFullMilkENGTex,
+        gItemNameHalfMilkENGTex,
+        gItemNameFishENGTex,
+        gItemNameBugENGTex,
+        gItemNameBlueFireENGTex,
+        gItemNamePoeENGTex,
+        gItemNameBigPoeENGTex,
+        gItemNameSpringWaterENGTex,
+        gItemNameHotSpringWaterENGTex,
+        gItemNameZoraEggENGTex,
+        gItemNameGoldDustENGTex,
+        gItemNameMagicalMushroomENGTex,
+        gItemNameSeaHorseENGTex,
+        gItemNameChateauRomaniENGTex,
+        gItemNameHylianLoachJPNTex,
+        gItemNameObabasDrinkJPNTex,
+        gItemNameMoonsTearENGTex,
+        gItemNameLandTitleDeedENGTex,
+        gItemNameSwampTitleDeedENGTex,
+        gItemNameMountainTitleDeedENGTex,
+        gItemNameOceanTitleDeedENGTex,
+        gItemNameRoomKeyENGTex,
+        gItemNameSpecialDeliveryToMamaENGTex,
+        gItemNameLetterToKafeiENGTex,
+        gItemNamePendantOfMemoriesENGTex,
+        gItemNameMoonsStoneJPNTex,
+        gItemNameDekuMaskENGTex,
+        gItemNameGoronMaskENGTex,
+        gItemNameZoraMaskENGTex,
+        gItemNameFierceDeitysMaskENGTex,
+        gItemNameMaskOfTruthENGTex,
+        gItemNameKafeisMaskENGTex,
+        gItemNameAllNightMaskENGTex,
+        gItemNameBunnyHoodENGTex,
+        gItemNameKeatonMaskENGTex,
+        gItemNameGarosMaskENGTex,
+        gItemNameRomanisMaskENGTex,
+        gItemNameCircusLeadersMaskENGTex,
+        gItemNamePostmansHatENGTex,
+        gItemNameCouplesMaskENGTex,
+        gItemNameGreatFairysMaskENGTex,
+        gItemNameGibdoMaskENGTex,
+        gItemNameDonGerosMaskENGTex,
+        gItemNameKamarosMaskENGTex,
+        gItemNameCaptainsHatENGTex,
+        gItemNameStoneMaskENGTex,
+        gItemNameBremenMaskENGTex,
+        gItemNameBlastMaskENGTex,
+        gItemNameMaskOfScentsENGTex,
+        gItemNameGiantsMaskENGTex,
+        gItemNameWindMedallionJPNTex,
+        gItemNameFireMedallionJPNTex,
+        gItemNameIceMedallionJPNTex,
+        gItemNameKokiriSwordENGTex,
+        gItemNameRazorSwordENGTex,
+        gItemNameGildedSwordENGTex,
+        gItemNameBrokenGiantsKnifeJPNTex,
+        gItemNameHerosShieldENGTex,
+        gItemNameMirrorShieldENGTex,
+        gItemNameQuiver30ENGTex,
+        gItemNameQuiver40ENGTex,
+        gItemNameQuiver50ENGTex,
+        gItemNameBombBag20ENGTex,
+        gItemNameBombBag30ENGTex,
+        gItemNameBombBag40ENGTex,
+        gItemNameBigKey1JPNTex,
+        gItemNameBigKey2JPNTex,
+        gItemNameBigKey3JPNTex,
+        gItemNameBigKey4JPNTex,
+        gItemNameOdolwasRemainsENGTex,
+        gItemNameGohtsRemainsENGTex,
+        gItemNameGyorgsRemainsENGTex,
+        gItemNameTwinmoldsRemainsENGTex,
+        gItemNameSonataOfAwakeningENGTex,
+        gItemNameGoronLullabyENGTex,
+        gItemNameNewWaveBossaNovaENGTex,
+        gItemNameElegyOfEmptynessENGTex,
+        gItemNameOathToOrderENGTex,
+        gItemNameNocturneOfShadowJPNTex,
+        gItemNameSongOfTimeENGTex,
+        gItemNameSongOfHealingENGTex,
+        gItemNameEponasSongENGTex,
+        gItemNameSongOfSoaringENGTex,
+        gItemNameSongOfStormsENGTex,
+        gItemNameSunsSongJPNTex,
+        gItemNameBombersNotebookENGTex,
+        gItemNameGoldSkulltulaJPNTex,
+        gItemNamePieceOfHeartENGTex,
+        gItemNamePieceOfHeartJPNTex,
+        gItemNameSunsSong2JPNTex,
+        gItemNameSongOfTimeJPNTex,
+        gItemNameLullabyIntroENGTex,
+        gItemNameBigKeyENGTex,
+        gItemNameCompassENGTex,
+        gItemNameDungeonMapENGTex,
+        gItemNameStrayFairiesENGTex,
+    };
+    void* tex = ResourceMgr_LoadTexOrDListByName(gItemNameStatics[texIndex]);
+    memcpy(segment, tex, 0x400);
+    //CmpDma_LoadFile(SEGMENT_ROM_START(item_name_static), texIndex, segment, 0x400);
 }
 
 void KaleidoScope_MoveCursorToSpecialPos(PlayState* play, s16 cursorSpecialPos) {
@@ -969,7 +1106,8 @@ void KaleidoScope_DrawInfoPanel(PlayState* play) {
             } else {
                 gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, 255);
             }
-
+            // BENTODO is this the right way to do this?
+            gSPInvalidateTexCache(POLY_OPA_DISP++, pauseCtx->nameSegment);
             POLY_OPA_DISP = Gfx_DrawTexQuad4b(POLY_OPA_DISP, pauseCtx->nameSegment, G_IM_FMT_IA, 128, 16, 0);
         }
     } else if ((pauseCtx->mainState <= PAUSE_MAIN_STATE_SONG_PLAYBACK) ||
@@ -1006,7 +1144,8 @@ void KaleidoScope_DrawInfoPanel(PlayState* play) {
             gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, 255);
 
             //! @bug: Incorrect dimensions. Should be 64x16
-            POLY_OPA_DISP = Gfx_DrawTexQuad4b(POLY_OPA_DISP, gPauseToDecideENGTex, G_IM_FMT_IA, 48, 16, 4);
+            //! Fixed 11/23/23
+            POLY_OPA_DISP = Gfx_DrawTexQuad4b(POLY_OPA_DISP, gPauseToDecideENGTex, G_IM_FMT_IA, 64, 16, 4);
 
         } else if (pauseCtx->cursorSpecialPos != 0) {
             if ((pauseCtx->state == PAUSE_STATE_MAIN) && (pauseCtx->mainState == PAUSE_MAIN_STATE_IDLE)) {
@@ -1050,6 +1189,7 @@ void KaleidoScope_DrawInfoPanel(PlayState* play) {
 
             gDPPipeSync(POLY_OPA_DISP++);
             gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, 255);
+
 
             POLY_OPA_DISP = Gfx_DrawTexQuad4b(POLY_OPA_DISP, gPauseToEquipENGTex, G_IM_FMT_IA, 64, 16, 4);
         } else if ((pauseCtx->pageIndex == PAUSE_MAP) && sInDungeonScene) {
@@ -1124,7 +1264,7 @@ void KaleidoScope_UpdateNamePanel(PlayState* play) {
         pauseCtx->namedItem = pauseCtx->cursorItem[pauseCtx->pageIndex];
         namedItem = pauseCtx->namedItem;
 
-        osCreateMesgQueue(&pauseCtx->loadQueue, &pauseCtx->loadMsg, 1);
+        //osCreateMesgQueue(&pauseCtx->loadQueue, &pauseCtx->loadMsg, 1);
 
         if (pauseCtx->namedItem != PAUSE_ITEM_NONE) {
             if ((pauseCtx->pageIndex == PAUSE_MAP) && !sInDungeonScene) {
@@ -1410,7 +1550,7 @@ void KaleidoScope_UpdateOwlWarpNamePanel(PlayState* play) {
         pauseCtx->namedItem = pauseCtx->cursorItem[pauseCtx->pageIndex];
         texIndex = pauseCtx->namedItem;
 
-        osCreateMesgQueue(&pauseCtx->loadQueue, &pauseCtx->loadMsg, 1);
+        //osCreateMesgQueue(&pauseCtx->loadQueue, &pauseCtx->loadMsg, 1);
 
         if (pauseCtx->namedItem != PAUSE_ITEM_NONE) {
             if ((pauseCtx->pageIndex == PAUSE_MAP) && !sInDungeonScene) {
@@ -2793,7 +2933,7 @@ void KaleidoScope_UpdateOpening(PlayState* play) {
         pauseCtx->mainState = PAUSE_MAIN_STATE_IDLE;
         pauseCtx->state++; // PAUSE_STATE_MAIN
         pauseCtx->alpha = 255;
-        Interface_LoadBButtonDoActionLabel(play, DO_ACTION_RETURN);
+        Interface_LoadButtonDoActionLabel(play, DO_ACTION_RETURN, B_BUTTON_ACTION, ACTION_MAIN);
     } else if (pauseCtx->switchPageTimer == 64) {
         pauseCtx->pageIndex = sPageSwitchNextPageIndex[pauseCtx->nextPageMode];
         pauseCtx->nextPageMode = (pauseCtx->pageIndex * 2) + 1;
@@ -2867,7 +3007,9 @@ void KaleidoScope_Update(PlayState* play) {
 
             for (itemId = 0; itemId <= ITEM_BOW_FIRE; itemId++) {
                 if (!gPlayerFormItemRestrictions[GET_PLAYER_FORM][(s32)itemId]) {
-                    KaleidoScope_GrayOutTextureRGBA32(Lib_SegmentedToVirtual(gItemIcons[(s32)itemId]), 0x400);
+                    //void* tex = ResourceMgr_LoadTexOrDListByName(gItemIcons[(s32)itemId]);
+                    //KaleidoScope_GrayOutTextureRGBA32(tex, 0x400);
+                    //KaleidoScope_GrayOutTextureRGBA32(Lib_SegmentedToVirtual(gItemIcons[(s32)itemId]), 0x400);
                 }
             }
 
@@ -3603,7 +3745,7 @@ void KaleidoScope_Update(PlayState* play) {
             func_80143324(play, &play->skyboxCtx, play->skyboxId);
 
             if ((msgCtx->msgMode != 0) && (msgCtx->currentTextId == 0xFF)) {
-                Interface_LoadBButtonDoActionLabel(play, DO_ACTION_STOP);
+                Interface_LoadButtonDoActionLabel(play, DO_ACTION_STOP, B_BUTTON_ACTION, ACTION_MAIN);
                 Interface_SetAButtonDoAction(play, DO_ACTION_STOP);
                 Interface_SetHudVisibility(HUD_VISIBILITY_A_B_C);
             } else {

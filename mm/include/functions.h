@@ -1,6 +1,11 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 
+#ifdef __cplusplus
+extern "C" {
+#define this thisx
+#endif
+
 #include "z64.h"
 
 void bootproc(void);
@@ -14,7 +19,7 @@ s32 DmaMgr_FindDmaIndex(uintptr_t vrom);
 const char* func_800809F4(uintptr_t param_1);
 void DmaMgr_ProcessMsg(DmaRequest* req);
 void DmaMgr_ThreadEntry(void* arg);
-s32 DmaMgr_SendRequestImpl(DmaRequest* request, void* vramStart, uintptr_t vromStart, size_t size, UNK_TYPE4 unused, OSMesgQueue* queue, void* msg);
+s32 DmaMgr_SendRequestImpl(DmaRequest* request, void* vramStart, uintptr_t vromStart, size_t size, UNK_TYPE4 unused, OSMesgQueue* queue, OSMesg msg);
 s32 DmaMgr_SendRequest0(void* vramStart, uintptr_t vromStart, size_t size);
 void DmaMgr_Start(void);
 void DmaMgr_Stop(void);
@@ -607,12 +612,6 @@ s32 func_80105294(void);
 s16 func_80105318(void);
 // void func_80105328(void);
 // void func_8010534C(void);
-void func_8010549C(PlayState* play, void* segmentAddress);
-void func_8010565C(PlayState* play, u8 num, void* segmentAddress);
-void func_80105818(PlayState* play, u32 uParm2, TransitionActorEntry* puParm3);
-void func_80105A40(PlayState* play);
-void func_80105B34(PlayState* play);
-void func_80105C40(s16 arg0);
 // void func_80105FE0(void);
 // void func_80106408(void);
 // void func_80106450(void);
@@ -1326,5 +1325,10 @@ void AudioSeq_ResetActiveSequences(void);
 void AudioSeq_ResetActiveSequencesAndVolume(void);
 
 void Regs_InitData(PlayState* play);
+
+#ifdef __cplusplus
+}
+#undef this
+#endif
 
 #endif

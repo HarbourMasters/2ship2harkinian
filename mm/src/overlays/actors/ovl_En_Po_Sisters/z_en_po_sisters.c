@@ -427,7 +427,7 @@ void EnPoSisters_SetupSpinUp(EnPoSisters* this) {
 
     Animation_MorphToLoop(&this->skelAnime, &gPoeSistersAttackAnim, -5.0f);
     this->actor.speed = 0.0f;
-    this->spinupTimer = Animation_GetLastFrame(&gPoeSistersAttackAnim.common) * 3 + 3;
+    this->spinupTimer = Animation_GetLastFrame(&gPoeSistersAttackAnim) * 3 + 3;
     this->poSisterFlags &= ~POE_SISTERS_FLAG_UPDATE_SHAPE_ROT;
     this->actionFunc = EnPoSisters_SpinUp;
 }
@@ -590,7 +590,7 @@ void EnPoSisters_Flee(EnPoSisters* this, PlayState* play) {
 
 void EnPoSisters_SetupSpinToInvis(EnPoSisters* this) {
     Animation_Change(&this->skelAnime, &gPoeSistersAppearDisappearAnim, 1.5f, 0.0f,
-                     Animation_GetLastFrame(&gPoeSistersAppearDisappearAnim.common), ANIMMODE_ONCE, -3.0f);
+                     Animation_GetLastFrame(&gPoeSistersAppearDisappearAnim), ANIMMODE_ONCE, -3.0f);
     this->invisibleTimer = 100; // 5 seconds
     this->actor.speed = 0.0f;
     this->actor.world.rot.y = this->actor.shape.rot.y;
@@ -614,7 +614,7 @@ void EnPoSisters_SpinToInvis(EnPoSisters* this, PlayState* play) {
 
 void EnPoSisters_SetupSpinBackToVisible(EnPoSisters* this, PlayState* play) {
     Animation_Change(&this->skelAnime, &gPoeSistersAppearDisappearAnim, 1.5f, 0.0f,
-                     Animation_GetLastFrame(&gPoeSistersAppearDisappearAnim.common), ANIMMODE_ONCE, -3.0f);
+                     Animation_GetLastFrame(&gPoeSistersAppearDisappearAnim), ANIMMODE_ONCE, -3.0f);
     if (this->type == POE_SISTERS_TYPE_MEG) {
         this->megDistToPlayer = 110.0f;
         EnPoSisters_MatchPlayerXZ(this, play);

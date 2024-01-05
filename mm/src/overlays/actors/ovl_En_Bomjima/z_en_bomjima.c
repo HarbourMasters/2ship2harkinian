@@ -1144,7 +1144,7 @@ s32 EnBomjima_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3
     return false;
 }
 
-#include "overlays/ovl_En_Bomjima/ovl_En_Bomjima.c"
+#include "overlays/ovl_En_Bomjima/ovl_En_Bomjima.h"
 
 void EnBomjima_Draw(Actor* thisx, PlayState* play) {
     static Gfx* D_80C00B28[] = {

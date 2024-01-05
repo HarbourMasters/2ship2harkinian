@@ -35,9 +35,8 @@
 #include "PR/controller.h"
 #include "PR/os_motor.h"
 #include "fault.h"
-#include "z64voice.h"
 
-extern FaultMgr gFaultMgr;
+//extern FaultMgr gFaultMgr;
 
 #define PADMGR_RETRACE_MSG (1 << 0)
 #define PADMGR_PRE_NMI_MSG (1 << 1)
@@ -172,7 +171,7 @@ OSMesgQueue* PadMgr_VoiceAcquireSerialEventQueue(void) {
  * @see PadMgr_AcquireSerialEventQueue
  */
 void PadMgr_ReleaseSerialEventQueue(OSMesgQueue* serialEventQueue) {
-    osSendMesg(&sPadMgrInstance->serialLockQueue, (OSMesg)serialEventQueue, OS_MESG_BLOCK);
+    // osSendMesg(&sPadMgrInstance->serialLockQueue, (OSMesg)serialEventQueue, OS_MESG_BLOCK);
 }
 
 /**
@@ -181,7 +180,7 @@ void PadMgr_ReleaseSerialEventQueue(OSMesgQueue* serialEventQueue) {
  * @see PadMgr_VoiceAcquireSerialEventQueue
  */
 void PadMgr_VoiceReleaseSerialEventQueue(OSMesgQueue* serialEventQueue) {
-    osSendMesg(&sPadMgrInstance->serialLockQueue, (OSMesg)serialEventQueue, OS_MESG_BLOCK);
+    // osSendMesg(&sPadMgrInstance->serialLockQueue, (OSMesg)serialEventQueue, OS_MESG_BLOCK);
 }
 
 /**
@@ -191,7 +190,7 @@ void PadMgr_VoiceReleaseSerialEventQueue(OSMesgQueue* serialEventQueue) {
  * @see PadMgr_UnlockPadData
  */
 void PadMgr_LockPadData(void) {
-    osRecvMesg(&sPadMgrInstance->lockQueue, NULL, OS_MESG_BLOCK);
+    // osRecvMesg(&sPadMgrInstance->lockQueue, NULL, OS_MESG_BLOCK);
 }
 
 /**
@@ -201,7 +200,7 @@ void PadMgr_LockPadData(void) {
  * @see PadMgr_LockPadData
  */
 void PadMgr_UnlockPadData(void) {
-    osSendMesg(&sPadMgrInstance->lockQueue, NULL, OS_MESG_BLOCK);
+    // osSendMesg(&sPadMgrInstance->lockQueue, NULL, OS_MESG_BLOCK);
 }
 
 /**
@@ -275,7 +274,7 @@ void PadMgr_UpdateRumble(void) {
                 // No controller pak
             } else {
                 // Unrecognized return code
-                Fault_AddHungupAndCrash("../padmgr.c", 594);
+                // Fault_AddHungupAndCrash("../padmgr.c", 594);
             }
         }
     }
@@ -354,18 +353,19 @@ void PadMgr_AdjustInput(Input* input) {
     s8 curX = input->cur.stick_x;
     s8 curY = input->cur.stick_y;
 
-    if (CHECK_BTN_ANY(input->press.button, BTN_RESET) || (input->press.stick_x == 0)) {
-        input->press.stick_x = 61;
-        input->press.errno = -61;
-        input->press.stick_y = 63;
-        input->rel.errno = -63;
-    }
+    // BENTODO
+    // if (CHECK_BTN_ANY(input->press.button, BTN_RESET) || (input->press.stick_x == 0)) {
+    //    input->press.stick_x = 61;
+    //    input->press.err_no = -61;
+    //    input->press.stick_y = 63;
+    //    input->rel.err_no = -63;
+    //}
     pressX = input->press.stick_x;
-    pressX2 = (s8)input->press.errno;
+    pressX2 = (s8)input->press.err_no;
     pressY = input->press.stick_y;
-    pressY2 = (s8)input->rel.errno;
+    pressY2 = (s8)input->rel.err_no;
 
-    if (CHECK_BTN_ANY(input->cur.button, BTN_RESET)) {
+    /* if (CHECK_BTN_ANY(input->cur.button, BTN_RESET)) {
         minus = curX - 7;
         plus = curX + 7;
 
@@ -377,7 +377,7 @@ void PadMgr_AdjustInput(Input* input) {
         } else if (plus < 0) {
             if (pressX2 > plus + 3) {
                 pressX2 = plus + 3;
-                input->press.errno = plus + 3;
+                input->press.err_no = plus + 3;
             }
         }
 
@@ -392,10 +392,10 @@ void PadMgr_AdjustInput(Input* input) {
         } else if (plus < 0) {
             if (pressY2 > plus + 3) {
                 pressY2 = plus + 3;
-                input->rel.errno = plus + 3;
+                input->rel.err_no = plus + 3;
             }
         }
-    }
+    }*/
 
     minus = curX - 7;
     plus = curX + 7;
@@ -449,7 +449,7 @@ void PadMgr_UpdateInputs(void) {
         input->prev = input->cur;
         isStandardController = sPadMgrInstance->ctrlrType[i] == PADMGR_CONT_NORMAL;
         if (isStandardController) {
-            switch (pad->errno) {
+            switch (pad->err_no) {
                 case 0:
                     // No error, copy inputs
                     input->cur = *pad;
@@ -465,7 +465,7 @@ void PadMgr_UpdateInputs(void) {
                     input->cur.button = 0;
                     input->cur.stick_x = 0;
                     input->cur.stick_y = 0;
-                    input->cur.errno = pad->errno;
+                    input->cur.err_no = pad->err_no;
                     if (sPadMgrInstance->ctrlrType[i] != PADMGR_CONT_NONE) {
                         // If we get no response, consider the controller disconnected
                         sPadMgrInstance->ctrlrType[i] = PADMGR_CONT_NONE;
@@ -476,14 +476,14 @@ void PadMgr_UpdateInputs(void) {
 
                 default:
                     // Unknown error response
-                    Fault_AddHungupAndCrash("../padmgr.c", 1098);
+                    // Fault_AddHungupAndCrash("../padmgr.c", 1098);
                     break;
             }
         } else {
             input->cur.button = 0;
             input->cur.stick_x = 0;
             input->cur.stick_y = 0;
-            input->cur.errno = pad->errno;
+            input->cur.err_no = pad->err_no;
         }
 
         // If opposed directions on the D-Pad are pressed at the same time, mask both out
@@ -511,6 +511,7 @@ void PadMgr_UpdateInputs(void) {
  * a VRU other than on the first VI retrace.
  */
 void PadMgr_InitVoice(void) {
+#if 0
     s32 i;
     OSMesgQueue* serialEventQueue;
     s32 ret;
@@ -536,6 +537,7 @@ void PadMgr_InitVoice(void) {
     if (sVoiceInitStatus == VOICE_INIT_TRY) {
         sVoiceInitStatus = VOICE_INIT_FAILED;
     }
+#endif
 }
 
 /**
@@ -544,12 +546,15 @@ void PadMgr_InitVoice(void) {
 void PadMgr_UpdateConnections(void) {
     s32 ctrlrMask = 0;
     s32 i;
-    char msg[50];
+    char msg[2048];
 
     for (i = 0; i < MAXCONTROLLERS; i++) {
-        if (sPadMgrInstance->padStatus[i].errno == 0) {
+        goto TriggerKenix;
+        if (sPadMgrInstance->padStatus[i].err_no == 0) {
             switch (sPadMgrInstance->padStatus[i].type & CONT_TYPE_MASK) {
                 case CONT_TYPE_NORMAL:
+                // BENTODO: :goron:
+                TriggerKenix:
                     // Standard N64 Controller
                     ctrlrMask |= (1 << i);
                     if (sPadMgrInstance->ctrlrType[i] == PADMGR_CONT_NONE) {
@@ -604,7 +609,7 @@ void PadMgr_HandleRetrace(void) {
     }
 
     // Wait for controller data
-    osRecvMesg(serialEventQueue, NULL, OS_MESG_BLOCK);
+    // osRecvMesg(serialEventQueue, NULL, OS_MESG_BLOCK);
     osContGetReadData(sPadMgrInstance->pads);
 
     // Clear all but controller 1
@@ -617,7 +622,7 @@ void PadMgr_HandleRetrace(void) {
 
     // Query controller statuses
     osContStartQuery(serialEventQueue);
-    osRecvMesg(serialEventQueue, NULL, OS_MESG_BLOCK);
+    // osRecvMesg(serialEventQueue, NULL, OS_MESG_BLOCK);
     osContGetQuery(sPadMgrInstance->padStatus);
 
     // Lock serial message queue
@@ -646,7 +651,7 @@ void PadMgr_HandleRetrace(void) {
     }
 
     // Rumble Pak
-    if (gFaultMgr.msgId != 0) {
+    if (/*gFaultMgr.msgId != 0*/ 0) {
         // If fault is active, no rumble
         PadMgr_RumbleStop();
     } else if (sPadMgrInstance->rumbleOffTimer > 0) {
@@ -734,6 +739,7 @@ void PadMgr_GetInput2(Input* inputs, s32 gameRequest) {
 }
 
 void PadMgr_ThreadEntry() {
+#if 1
     s16* interruptMsg = NULL;
     s32 actionBits;
     s32 exit;
@@ -745,6 +751,7 @@ void PadMgr_ThreadEntry() {
     actionBits = 0;
     exit = false;
 
+    /*
     while (!exit) {
         // Process all messages currently in the queue, instead of only a single mssage.
         // Deduplicates the same message.
@@ -764,23 +771,27 @@ void PadMgr_ThreadEntry() {
                     break;
             }
         } while (!MQ_IS_EMPTY(&sPadMgrInstance->interruptQueue));
+        */
 
-        // Act on received messages
-        while (actionBits != 0) {
-            if (actionBits & PADMGR_NMI_MSG) {
-                actionBits &= ~PADMGR_NMI_MSG;
-                exit = true;
-            } else if (actionBits & PADMGR_PRE_NMI_MSG) {
-                actionBits &= ~PADMGR_PRE_NMI_MSG;
-                PadMgr_HandlePreNMI();
-            } else if (actionBits & PADMGR_RETRACE_MSG) {
-                actionBits &= ~PADMGR_RETRACE_MSG;
-                PadMgr_HandleRetrace();
-            }
+    PadMgr_HandleRetrace();
+
+    // Act on received messages
+    while (actionBits != 0) {
+        if (actionBits & PADMGR_NMI_MSG) {
+            actionBits &= ~PADMGR_NMI_MSG;
+            exit = true;
+        } else if (actionBits & PADMGR_PRE_NMI_MSG) {
+            actionBits &= ~PADMGR_PRE_NMI_MSG;
+            PadMgr_HandlePreNMI();
+        } else if (actionBits & PADMGR_RETRACE_MSG) {
+            actionBits &= ~PADMGR_RETRACE_MSG;
+            PadMgr_HandleRetrace();
         }
     }
+//}
 
-    IrqMgr_RemoveClient(sPadMgrInstance->irqMgr, &sPadMgrInstance->irqClient);
+// IrqMgr_RemoveClient(sPadMgrInstance->irqMgr, &sPadMgrInstance->irqClient);
+#endif
 }
 
 void PadMgr_Init(OSMesgQueue* siEvtQ, IrqMgr* irqMgr, OSId threadId, OSPri pri, void* stack) {
@@ -797,6 +808,6 @@ void PadMgr_Init(OSMesgQueue* siEvtQ, IrqMgr* irqMgr, OSId threadId, OSPri pri, 
     osContSetCh(sPadMgrInstance->nControllers);
     PadMgr_ReleaseSerialEventQueue(siEvtQ);
 
-    osCreateThread(&sPadMgrInstance->thread, threadId, PadMgr_ThreadEntry, sPadMgrInstance, stack, pri);
-    osStartThread(&sPadMgrInstance->thread);
+    // osCreateThread(&sPadMgrInstance->thread, threadId, PadMgr_ThreadEntry, sPadMgrInstance, stack, pri);
+    // osStartThread(&sPadMgrInstance->thread);
 }

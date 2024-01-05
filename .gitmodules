@@ -1,0 +1,9 @@
+[submodule "libultraship"]
+	path = libultraship
+	url = git@github.com:louist103/libultraship.git
+[submodule "OTRExporter"]
+	path = OTRExporter
+	url = git@github.com:louist103/OTRExporter.git
+[submodule "ZAPDTR"]
+	path = ZAPDTR
+	url = git@github.com:louist103/ZAPDTR.git

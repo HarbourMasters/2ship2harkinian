@@ -19,7 +19,7 @@ void ArrowLight_Draw(Actor* thisx, PlayState* play);
 void ArrowLight_Charge(ArrowLight* this, PlayState* play);
 void ArrowLight_Fly(ArrowLight* this, PlayState* play);
 
-#include "overlays/ovl_Arrow_Light/ovl_Arrow_Light.c"
+#include "overlays/ovl_Arrow_Light/ovl_Arrow_Light.h"
 
 ActorInit Arrow_Light_InitVars = {
     /**/ ACTOR_ARROW_LIGHT,
@@ -36,8 +36,6 @@ ActorInit Arrow_Light_InitVars = {
 static InitChainEntry sInitChain[] = {
     ICHAIN_F32(uncullZoneForward, 2000, ICHAIN_STOP),
 };
-
-static s32 sBssPad;
 
 void ArrowLight_SetupAction(ArrowLight* this, ArrowLightActionFunc actionFunc) {
     this->actionFunc = actionFunc;
@@ -202,7 +200,8 @@ void ArrowLight_Draw(Actor* thisx, PlayState* play) {
                             (s32)(150.0f * this->screenFillIntensity) & 0xFF);
             gDPSetAlphaDither(POLY_XLU_DISP++, G_AD_DISABLE);
             gDPSetColorDither(POLY_XLU_DISP++, G_CD_DISABLE);
-            gSPDisplayList(POLY_XLU_DISP++, D_0E000000.fillRect);
+            __gSPDisplayList(POLY_XLU_DISP++,
+                             0x0E000000 + ((uintptr_t)&D_0E000000.fillRect - (uintptr_t)&D_0E000000) + 1);
         }
 
         Gfx_SetupDL25_Xlu(play->state.gfxCtx);

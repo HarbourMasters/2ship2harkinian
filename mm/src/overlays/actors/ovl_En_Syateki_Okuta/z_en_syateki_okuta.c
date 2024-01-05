@@ -79,7 +79,7 @@ static AnimationInfo sAnimationInfo[] = {
     { &gOctorokHitAnim, 1.0f, 0.0f, 0.0f, ANIMMODE_ONCE, -1.0f },    // SG_OCTO_ANIM_HIT
 };
 
-#include "assets/overlays/ovl_En_Syateki_Okuta/ovl_En_Syateki_Okuta.c"
+#include "assets/overlays/ovl_En_Syateki_Okuta/ovl_En_Syateki_Okuta.h"
 
 static InitChainEntry sInitChain[] = {
     ICHAIN_S8(hintId, TATL_HINT_ID_OCTOROK, ICHAIN_CONTINUE),

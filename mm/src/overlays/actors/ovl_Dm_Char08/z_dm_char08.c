@@ -6,6 +6,7 @@
 
 #include "z_dm_char08.h"
 #include "objects/object_kamejima/object_kamejima.h"
+#include "BenPort.h"
 
 #define FLAGS (ACTOR_FLAG_2000000)
 
@@ -37,18 +38,18 @@ typedef enum {
 } TurtleEyeMode;
 
 ActorInit Dm_Char08_InitVars = {
-    /**/ ACTOR_DM_CHAR08,
-    /**/ ACTORCAT_BG,
-    /**/ FLAGS,
-    /**/ OBJECT_KAMEJIMA,
-    /**/ sizeof(DmChar08),
-    /**/ DmChar08_Init,
-    /**/ DmChar08_Destroy,
-    /**/ DmChar08_Update,
-    /**/ DmChar08_Draw,
+    ACTOR_DM_CHAR08,
+    ACTORCAT_BG,
+    FLAGS,
+    OBJECT_KAMEJIMA,
+    sizeof(DmChar08),
+    (ActorFunc)DmChar08_Init,
+    (ActorFunc)DmChar08_Destroy,
+    (ActorFunc)DmChar08_Update,
+    (ActorFunc)DmChar08_Draw,
 };
 
-#include "overlays/ovl_Dm_Char08/ovl_Dm_Char08.c"
+#include "overlays/ovl_Dm_Char08/ovl_Dm_Char08.h"
 
 typedef enum {
     /*  0 */ TURTLE_ANIM_IDLE,
@@ -77,6 +78,10 @@ static InitChainEntry sInitChain[] = {
     ICHAIN_F32(uncullZoneScale, 4000, ICHAIN_CONTINUE),
     ICHAIN_F32(uncullZoneDownward, 4000, ICHAIN_STOP),
 };
+
+static CollisionHeader* sTurtleGreatBayTempleColData;
+static Vec3s* sTurtleGreatBayTempleColVerticesData;
+static Vec3s* sTurtleGreatBayTempleColVertices2Data;
 
 void DmChar08_UpdateEyes(DmChar08* this) {
     switch (this->eyeMode) {
@@ -145,6 +150,9 @@ void DmChar08_ChangeAnim(SkelAnime* skelAnime, AnimationInfo* animInfo, u16 anim
 void DmChar08_Init(Actor* thisx, PlayState* play2) {
     PlayState* play = play2;
     DmChar08* this = THIS;
+    sTurtleGreatBayTempleColData = ResourceMgr_LoadColByName(sTurtleGreatBayTempleCol);
+    sTurtleGreatBayTempleColVerticesData = ResourceMgr_LoadArrayByNameAsVec3s(sTurtleGreatBayTempleColVertices);
+    sTurtleGreatBayTempleColVertices2Data = ResourceMgr_LoadArrayByNameAsVec3s(sTurtleGreatBayTempleColVertices2);
 
     thisx->targetMode = TARGET_MODE_5;
     this->eyeMode = TURTLE_EYEMODE_CLOSED;
@@ -173,7 +181,7 @@ void DmChar08_Init(Actor* thisx, PlayState* play2) {
         this->dynapolyInitialized = true;
     } else if (play->sceneId == SCENE_SEA) {
         DynaPolyActor_Init(&this->dyna, DYNA_TRANSFORM_POS | DYNA_TRANSFORM_ROT_Y);
-        DynaPolyActor_LoadMesh(play, &this->dyna, &sTurtleGreatBayTempleCol);
+        DynaPolyActor_LoadMesh(play, &this->dyna, sTurtleGreatBayTempleColData);
         this->dynapolyInitialized = true;
     }
 
@@ -973,18 +981,18 @@ void DmChar08_UpdateCollision(DmChar08* this, PlayState* play) {
             phi_f12 = 29.0f;
         }
 
-        sTurtleGreatBayTempleCol.polyList = sTurtleGreatBayTempleColPolygons;
+        sTurtleGreatBayTempleColData->polyList = sTurtleGreatBayTempleColPolygons;
 
-        for (i = 0; i < ARRAY_COUNT(sTurtleGreatBayTempleColVertices); i++) {
-            sTurtleGreatBayTempleColVertices[i].x = sTurtleGreatBayTempleColVertices2[i].x;
+        for (i = 0; i < ResourceMgr_GetArraySizeByName(sTurtleGreatBayTempleColVertices); i++) {
+            sTurtleGreatBayTempleColVerticesData[i].x = sTurtleGreatBayTempleColVertices2Data[i].x;
         }
 
-        sTurtleGreatBayTempleColVertices[0].y = (100.0f * phi_f2) + 900.0f;
-        sTurtleGreatBayTempleColVertices[1].y = (100.0f * phi_f2) + 900.0f;
-        sTurtleGreatBayTempleColVertices[2].y = (500.0f * phi_f2) + -200.0f;
-        sTurtleGreatBayTempleColVertices[3].y = (900.0f * phi_f2) + -800.0f;
-        sTurtleGreatBayTempleColVertices[5].y = 0x4B0;
-        sTurtleGreatBayTempleColVertices[9].y = 0x6A4;
+        sTurtleGreatBayTempleColVerticesData[0].y = (100.0f * phi_f2) + 900.0f;
+        sTurtleGreatBayTempleColVerticesData[1].y = (100.0f * phi_f2) + 900.0f;
+        sTurtleGreatBayTempleColVerticesData[2].y = (500.0f * phi_f2) + -200.0f;
+        sTurtleGreatBayTempleColVerticesData[3].y = (900.0f * phi_f2) + -800.0f;
+        sTurtleGreatBayTempleColVerticesData[5].y = 0x4B0;
+        sTurtleGreatBayTempleColVerticesData[9].y = 0x6A4;
     } else {
         phi_f0 = this->skelAnime.curFrame + 26.0f;
         if (phi_f0 > 29.0f) {
@@ -998,18 +1006,18 @@ void DmChar08_UpdateCollision(DmChar08* this, PlayState* play) {
             phi_f2 = (29.0f - phi_f0) / 10.0f;
         }
 
-        sTurtleGreatBayTempleCol.polyList = sTurtleGreatBayTempleColPolygons2;
+        sTurtleGreatBayTempleColData->polyList = sTurtleGreatBayTempleColPolygons2;
 
-        for (i = 0; i < ARRAY_COUNT(sTurtleGreatBayTempleColVertices); i++) {
-            sTurtleGreatBayTempleColVertices[i].x = -sTurtleGreatBayTempleColVertices2[i].x;
+        for (i = 0; i < ResourceMgr_GetArraySizeByName(sTurtleGreatBayTempleColVertices); i++) {
+            sTurtleGreatBayTempleColVerticesData[i].x = -sTurtleGreatBayTempleColVertices2Data[i].x;
         }
 
-        sTurtleGreatBayTempleColVertices[0].y = (500.0f * phi_f2) + 720.0f;
-        sTurtleGreatBayTempleColVertices[1].y = (660.0f * phi_f2) + 420.0f;
-        sTurtleGreatBayTempleColVertices[2].y = (1130.0f * phi_f2) + -430.0f;
-        sTurtleGreatBayTempleColVertices[3].y = (1430.0f * phi_f2) + -1060.0f;
-        sTurtleGreatBayTempleColVertices[5].y = 0x4B0;
-        sTurtleGreatBayTempleColVertices[9].y = 0x6A4;
+        sTurtleGreatBayTempleColVerticesData[0].y = (500.0f * phi_f2) + 720.0f;
+        sTurtleGreatBayTempleColVerticesData[1].y = (660.0f * phi_f2) + 420.0f;
+        sTurtleGreatBayTempleColVerticesData[2].y = (1130.0f * phi_f2) + -430.0f;
+        sTurtleGreatBayTempleColVerticesData[3].y = (1430.0f * phi_f2) + -1060.0f;
+        sTurtleGreatBayTempleColVerticesData[5].y = 0x4B0;
+        sTurtleGreatBayTempleColVerticesData[9].y = 0x6A4;
     }
     DynaPoly_InvalidateLookup(play, &play->colCtx.dyna);
 }

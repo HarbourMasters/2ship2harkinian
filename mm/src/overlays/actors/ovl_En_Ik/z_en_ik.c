@@ -461,7 +461,7 @@ void EnIk_SetupVerticalAttack(EnIk* this) {
         playbackSpeed = 1.2f;
     }
     Animation_Change(&this->skelAnime, &gIronKnuckleVerticalAttackAnim, playbackSpeed, 0.0f,
-                     Animation_GetLastFrame(&gIronKnuckleVerticalAttackAnim.common), ANIMMODE_ONCE_INTERP, -4.0f);
+                     Animation_GetLastFrame(&gIronKnuckleVerticalAttackAnim), ANIMMODE_ONCE_INTERP, -4.0f);
     this->timer = 0;
     this->blurEffectSpawnLock = -1;
     this->actionFunc = EnIk_VerticalAttack;
@@ -519,7 +519,7 @@ void EnIk_TakeOutAxe(EnIk* this, PlayState* play) {
         } else {
             Animation_Change(
                 &this->skelAnime, &gIronKnuckleRecoverVerticalAttackAnim, (this->drawArmorFlags) ? 1.5f : 1.0f, 0.0f,
-                Animation_GetLastFrame(&gIronKnuckleRecoverVerticalAttackAnim.common), ANIMMODE_ONCE_INTERP, 0.0f);
+                Animation_GetLastFrame(&gIronKnuckleRecoverVerticalAttackAnim), ANIMMODE_ONCE_INTERP, 0.0f);
         }
     }
 }
@@ -527,7 +527,7 @@ void EnIk_TakeOutAxe(EnIk* this, PlayState* play) {
 void EnIk_SetupHorizontalDoubleAttack(EnIk* this) {
     this->actor.speed = 0.0f;
     Animation_Change(&this->skelAnime, &gIronKnuckleHorizontalAttackAnim, (this->drawArmorFlags) ? 1.3f : 1.0f, 0.0f,
-                     Animation_GetLastFrame(&gIronKnuckleHorizontalAttackAnim.common), ANIMMODE_ONCE_INTERP,
+                     Animation_GetLastFrame(&gIronKnuckleHorizontalAttackAnim), ANIMMODE_ONCE_INTERP,
                      (this->drawArmorFlags) ? 4.0f : 10.0f);
     this->timer = 0;
     this->blurEffectSpawnLock = -1;
@@ -575,7 +575,7 @@ void EnIk_SetupSingleHorizontalAttack(EnIk* this) {
         playSpeed = 1.0f;
     }
     Animation_Change(&this->skelAnime, &gIronKnuckleHorizontalAttackAnim, playSpeed, 12.0f,
-                     Animation_GetLastFrame(&gIronKnuckleHorizontalAttackAnim.common), ANIMMODE_ONCE_INTERP, 5.0f);
+                     Animation_GetLastFrame(&gIronKnuckleHorizontalAttackAnim), ANIMMODE_ONCE_INTERP, 5.0f);
     this->timer = 0;
     this->blurEffectSpawnLock = -1;
     this->actionFunc = EnIk_SingleHorizontalAttack;

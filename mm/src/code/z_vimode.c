@@ -13,6 +13,25 @@ typedef struct {
     /* 0x18 */ u32 vBurst;
 } ViModeStruct; // size = 0x1C
 
+#define BURST(hsync_width, color_width, vsync_width, color_start)                                      \
+    (((u32)(hsync_width)&0xFF) | (((u32)(color_width)&0xFF) << 8) | (((u32)(vsync_width)&0xF) << 16) | \
+     (((u32)(color_start)&0xFFFF) << 20))
+#define WIDTH(v) (v)
+#define VSYNC(v) (v)
+#define HSYNC(duration, leap) (((u32)(leap) << 16) | ((u32)(duration)&0xFFFF))
+#define LEAP(upper, lower) (((u32)(upper) << 16) | ((u32)(lower)&0xFFFF))
+#define START(start, end) (((u32)(start) << 16) | ((u32)(end)&0xFFFF))
+
+#define FTOFIX(val, i, f) ((u32)((val) * (f32)(1 << (f))) & ((1 << ((i) + (f))) - 1))
+
+#define F210(val) FTOFIX(val, 2, 10)
+#define SCALE(scaleup, off) (F210((1.0f / (f32)(scaleup))) | (F210((f32)(off)) << 16))
+
+#define VCURRENT(v) v
+#define ORIGIN(v) v
+#define VINTR(v) v
+#define HSTART START
+s32 osTvType = OS_TV_NTSC;
 void ViMode_LogPrint(OSViMode* osViMode) {
 }
 
@@ -179,7 +198,15 @@ void ViMode_Configure(OSViMode* viMode, s32 type, s32 tvType, s32 loRes, s32 ant
     viMode->fldRegs[1].vIntr = 2;
 }
 
+extern OSViMode osViModeNtscHpf1;
+extern OSViMode osViModePalLan1;
+extern OSViMode osViModeNtscHpn1;
+extern OSViMode osViModeNtscLan1;
+extern OSViMode osViModeMpalLan1;
+extern OSViMode osViModeFpalLan1;
+
 void ViMode_Save(ViMode* viMode) {
+    #if 0
     R_VI_MODE_EDIT_STATE = viMode->editState;
     R_VI_MODE_EDIT_WIDTH = viMode->viWidth;
     R_VI_MODE_EDIT_HEIGHT = viMode->viHeight;
@@ -204,6 +231,7 @@ void ViMode_Save(ViMode* viMode) {
                 break;
         }
     }
+    #endif
 }
 
 void ViMode_Load(ViMode* viMode) {
@@ -243,6 +271,7 @@ void ViMode_Destroy(ViMode* viMode) {
 }
 
 void ViMode_ConfigureFeatures(ViMode* viMode, s32 viFeatures) {
+    #if 0
     u32 ctrl = viMode->customViMode.comRegs.ctrl;
 
     if (viFeatures & OS_VI_GAMMA_ON) {
@@ -264,6 +293,7 @@ void ViMode_ConfigureFeatures(ViMode* viMode, s32 viFeatures) {
         ctrl &= ~OS_VI_DIVOT;
     }
     viMode->customViMode.comRegs.ctrl = ctrl;
+    #endif
 }
 
 /**
@@ -271,6 +301,7 @@ void ViMode_ConfigureFeatures(ViMode* viMode, s32 viFeatures) {
  * (through R_VI_MODE_EDIT_* entries)
  */
 void ViMode_Update(ViMode* viMode, Input* input) {
+    #if 0
     ViMode_Load(viMode);
 
     if ((viMode->editState == VI_MODE_EDIT_STATE_ACTIVE) || (viMode->editState == VI_MODE_EDIT_STATE_2) ||
@@ -376,4 +407,5 @@ void ViMode_Update(ViMode* viMode, Input* input) {
     }
 
     ViMode_Save(viMode);
+    #endif
 }

@@ -96,7 +96,7 @@ TexturePtr sOcarinaBtnWallTextures[] = {
     gOcarinaATex, gOcarinaCDownTex, gOcarinaCRightTex, gOcarinaCLeftTex, gOcarinaCUpTex,
 };
 
-#include "overlays/ovl_En_Gakufu/ovl_En_Gakufu.c"
+#include "overlays/ovl_En_Gakufu/ovl_En_Gakufu.h"
 
 void EnGakufu_ProcessNotes(EnGakufu* this) {
     OcarinaStaff* playbackStaff;

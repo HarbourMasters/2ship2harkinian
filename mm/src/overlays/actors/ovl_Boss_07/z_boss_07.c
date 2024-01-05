@@ -1867,7 +1867,7 @@ void Boss07_Wrath_Damaged(Boss07* this, PlayState* play) {
 
 void Boss07_Wrath_WhipCollisionCheck(Vec3f* whipPos, f32 tension, Boss07* this, PlayState* play) {
     s32 i;
-    PlayerImpactType  sp98 = -1;
+    PlayerImpactType sp98 = -1;
     Player* player = GET_PLAYER(play);
     f32 dx;
     f32 dy;
@@ -2624,9 +2624,8 @@ void Boss07_Wrath_TransformLimbDraw(PlayState* play, s32 limbIndex, Actor* thisx
 
 void Boss07_Wrath_DrawShocks(Boss07* this, PlayState* play) {
     s32 i;
-    GraphicsContext* gfxCtx;
 
-    OPEN_DISPS(gfxCtx = play->state.gfxCtx);
+    OPEN_DISPS(play->state.gfxCtx);
     if ((this->unk_32C > 0.0f) || (this->unk_330 > 0.0f)) {
         Gfx_SetupDL25_Xlu(play->state.gfxCtx);
         gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 255, 255, 255, 255);
@@ -2640,7 +2639,8 @@ void Boss07_Wrath_DrawShocks(Boss07* this, PlayState* play) {
                 Matrix_ReplaceRotation(&play->billboardMtxF);
                 Matrix_Scale(this->unk_32C, this->unk_32C, this->unk_32C, MTXMODE_APPLY);
                 Matrix_RotateZF(Rand_ZeroFloat(2.0f * M_PI), MTXMODE_APPLY);
-                gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx),
+                          G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                 gSPDisplayList(POLY_XLU_DISP++, gLightOrbModelDL);
             }
             for (i = this->whipShockIndexHigh; i >= this->whipShockIndexLow; i--) {
@@ -2648,7 +2648,8 @@ void Boss07_Wrath_DrawShocks(Boss07* this, PlayState* play) {
                 Matrix_ReplaceRotation(&play->billboardMtxF);
                 Matrix_Scale(1.5f, 1.5f, 1.5f, MTXMODE_APPLY);
                 Matrix_RotateZF(Rand_ZeroFloat(2.0f * M_PI), MTXMODE_APPLY);
-                gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx),
+                          G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                 gSPDisplayList(POLY_XLU_DISP++, gLightOrbModelDL);
             }
         }
@@ -2661,22 +2662,22 @@ void Boss07_Wrath_DrawShocks(Boss07* this, PlayState* play) {
                 Matrix_Scale(this->unk_330, this->unk_330, this->unk_330, MTXMODE_APPLY);
                 Matrix_RotateXFApply(Rand_ZeroFloat(2.0f * M_PI));
                 Matrix_RotateZF(Rand_ZeroFloat(2.0f * M_PI), MTXMODE_APPLY);
-                gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx),
+                          G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                 gSPDisplayList(POLY_XLU_DISP++, gLightOrbModelDL);
             }
         }
     }
-    CLOSE_DISPS(gfxCtx);
+    CLOSE_DISPS(play->state.gfxCtx);
 }
 
 void Boss07_Wrath_DrawDeathLights(Boss07* this, PlayState* play, Vec3f* pos) {
     s32 i;
     f32 temp_f12_2;
     f32 temp_f20;
-    GraphicsContext* gfxCtx;
     s16* temp;
 
-    OPEN_DISPS(gfxCtx = play->state.gfxCtx);
+    OPEN_DISPS(play->state.gfxCtx);
 
     if (this->deathOrbScale > 0.0f) {
         Boss07_InitRand(1, 0x71B8, 0x263A);
@@ -2694,7 +2695,8 @@ void Boss07_Wrath_DrawDeathLights(Boss07* this, PlayState* play, Vec3f* pos) {
             Matrix_RotateZF(Boss07_RandZeroOne() * M_PI * 2.0f, MTXMODE_APPLY);
             if (this->deathLightScale[i] > 0.0f) {
                 Matrix_Scale(this->deathLightScale[i], 1.0f, 12.0f, MTXMODE_APPLY);
-                gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx),
+                          G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                 gSPDisplayList(POLY_XLU_DISP++, gMajorasWrathDeathLightModelDL);
             }
         }
@@ -2711,17 +2713,16 @@ void Boss07_Wrath_DrawDeathLights(Boss07* this, PlayState* play, Vec3f* pos) {
         gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gSPDisplayList(POLY_XLU_DISP++, gLightOrbModelDL);
     }
-    CLOSE_DISPS(gfxCtx);
+    CLOSE_DISPS(play->state.gfxCtx);
 }
 
 void Boss07_Static_DrawLight(Boss07* this, PlayState* play) {
     s32 pad;
-    GraphicsContext* gfxCtx;
     f32 sp54;
     f32 sp50;
     Player* player;
 
-    OPEN_DISPS(gfxCtx = play->state.gfxCtx);
+    OPEN_DISPS(play->state.gfxCtx);
     player = GET_PLAYER(play);
 
     if (this->introOrbScale > 0.0f) {
@@ -2747,10 +2748,10 @@ void Boss07_Static_DrawLight(Boss07* this, PlayState* play) {
 
         Matrix_Scale(this->introOrbScale, this->introOrbScale, this->introOrbScale, MTXMODE_APPLY);
         Matrix_RotateZS(play->gameplayFrames * 0x40, MTXMODE_APPLY);
-        gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gSPDisplayList(POLY_XLU_DISP++, gLightOrbModelDL);
     }
-    CLOSE_DISPS(gfxCtx);
+    CLOSE_DISPS(play->state.gfxCtx);
 }
 
 void Boss07_Wrath_Draw(Actor* thisx, PlayState* play2) {

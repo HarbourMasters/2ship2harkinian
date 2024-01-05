@@ -2,6 +2,12 @@
 #include "prevent_bss_reordering2.h"
 #include "PR/ultratypes.h"
 
+#include "z64quake.h"
+#include "z64rumble.h"
+#include "z64shrink_window.h"
+#include "overlays/gamestates/ovl_daytelop/z_daytelop.h"
+#include "overlays/actors/ovl_En_Elf/z_en_elf.h"
+
 s16 sCutsceneQuakeIndex;
 struct CutsceneCamera sCutsceneCameraInfo;
 u16 sCueTypeList[10];
@@ -9,12 +15,6 @@ u8 D_801F4DDC;
 static s16 sBssPad;
 u8 gDisablePlayerCsActionStartPos;
 s16 gDungeonBossWarpSceneId;
-
-#include "z64quake.h"
-#include "z64rumble.h"
-#include "z64shrink_window.h"
-#include "overlays/gamestates/ovl_daytelop/z_daytelop.h"
-#include "overlays/actors/ovl_En_Elf/z_en_elf.h"
 
 void CutsceneHandler_DoNothing(PlayState* play, CutsceneContext* csCtx);
 void CutsceneHandler_StartManual(PlayState* play, CutsceneContext* csCtx);

@@ -1,6 +1,9 @@
 #ifndef PR_ULTRATYPES_H
 #define PR_ULTRATYPES_H
 
+#include <libultraship/libultra/types.h>
+
+#if 0
 typedef signed char            s8;
 typedef unsigned char          u8;
 typedef signed short int       s16;
@@ -27,7 +30,7 @@ typedef u32 size_t;
 #ifndef NULL
 #define NULL (void*)0
 #endif
-
+#endif
 // TODO: move this somewhere else
 typedef void* TexturePtr;
 

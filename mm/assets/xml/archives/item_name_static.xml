@@ -1,6 +1,6 @@
 <Root>
     <!-- Item Names. Must be ia4 128x16 and ordered following `ItemId` -->
-    <File Name="item_name_static.unarchive">
+    <File Name="item_name_static">
         <!-- Main items -->
         <Texture Name="gItemNameOcarinaOfTimeENGTex" OutName="item_name_ocarina_of_time_eng" Format="ia4" Width="128" Height="16" Offset="0x0" /> <!-- ITEM_OCARINA_OF_TIME -->
         <Texture Name="gItemNameHerosBowENGTex" OutName="item_name_heros_bow_eng" Format="ia4" Width="128" Height="16" Offset="0x400" /> <!-- ITEM_BOW -->

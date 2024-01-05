@@ -17,6 +17,7 @@ struct PlayState;
 typedef struct {
     /* 0x0 */ uintptr_t vromStart;
     /* 0x4 */ uintptr_t vromEnd;
+    char* fileName;
 } RomFile; // size = 0x8
 
 #define ROOM_DRAW_OPA (1 << 0)

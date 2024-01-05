@@ -2,7 +2,7 @@
 #define Z64MATH_H
 
 #include "PR/ultratypes.h"
-
+#include <math.h>
 #define VEC_SET(V,X,Y,Z) V.x=X;V.y=Y;V.z=Z
 
 typedef struct {
@@ -119,6 +119,7 @@ typedef enum {
     /* 2 */ OLIB_DIFF // Sub `a` and `b` to dest
 } OlibVec3fDiff;
 
+#if 0
 typedef float MtxF_t[4][4];
 typedef union {
     MtxF_t mf;
@@ -129,7 +130,7 @@ typedef union {
               xw, yw, zw, ww;
     };
 } MtxF; // size = 0x40
-
+#endif
 #define LERPIMP(v0, v1, t) ((v0) + (((v1) - (v0)) * (t)))
 #define LERPIMP_ALT(v0, v1, t) (((v1) - (v0)) * (t) + (v0))
 #define S16_LERP(v0, v1, t) ((s16)(((v1) - (v0)) * (t)) + (v0))

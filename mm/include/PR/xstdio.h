@@ -1,6 +1,7 @@
 #ifndef PR_XSTDIO_H
 #define PR_XSTDIO_H
-
+#include <libultraship/libultra/printf.h>
+#if 0
 #include "ultratypes.h"
 #include "libc/stdarg.h"
 
@@ -35,4 +36,5 @@ s32 _Printf(PrintCallback pfn, void* arg, const char* fmt, va_list ap);
 void _Litob(_Pft* args, u8 type);
 void _Ldtob(_Pft* args, u8 type);
 
+#endif
 #endif

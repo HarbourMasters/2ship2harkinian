@@ -1,4 +1,5 @@
 #include "global.h"
+#include <libultraship/libultraship.h>
 
 void* Lib_MemCpy(void* dest, void* src, size_t size) {
     bcopy(src, dest, size);
@@ -698,8 +699,12 @@ f32 Math_Vec3f_StepTo(Vec3f* start, Vec3f* target, f32 speed) {
 void Lib_Nop801004FC(void) {
 }
 
+int ResourceMgr_OTRSigCheck(char* imgData);
 void* Lib_SegmentedToVirtual(void* ptr) {
-    return SEGMENTED_TO_K0(ptr);
+    if (ResourceMgr_OTRSigCheck(ptr)) {
+        return ResourceGetDataByName(ptr); // SEGMENTED_TO_VIRTUAL(ptr);
+    }
+    return ptr;
 }
 
 void* Lib_SegmentedToVirtualNull(void* ptr) {

@@ -1,5 +1,6 @@
 #include "prevent_bss_reordering.h"
 #include "global.h"
+#include "BenPort.h"
 
 s32 sMatAnimStep;
 u32 sMatAnimFlags;
@@ -393,6 +394,8 @@ void AnimatedMat_DrawMain(PlayState* play, AnimatedMaterial* matAnim, f32 alphaR
     };
     s32 segmentAbs;
     s32 segment;
+    if (ResourceMgr_OTRSigCheck(matAnim) != 0)
+        matAnim = ResourceMgr_LoadAnimByName(matAnim);
 
     sMatAnimAlphaRatio = alphaRatio;
     sMatAnimStep = step;

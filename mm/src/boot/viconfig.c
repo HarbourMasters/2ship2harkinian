@@ -1,7 +1,15 @@
 #include "libc/stdbool.h"
 #include "idle.h"
 
+extern OSViMode osViModeNtscHpf1;
+extern OSViMode osViModePalLan1;
+extern OSViMode osViModeNtscHpn1;
+extern OSViMode osViModeNtscLan1;
+extern OSViMode osViModeMpalLan1;
+extern OSViMode osViModeFpalLan1;
+
 void ViConfig_UpdateVi(u32 black) {
+    #if 0
     if (black) {
         switch (osTvType) {
             case OS_TV_MPAL:
@@ -46,6 +54,7 @@ void ViConfig_UpdateVi(u32 black) {
     }
 
     gViConfigUseBlack = black;
+    #endif
 }
 
 void ViConfig_UpdateBlack(void) {

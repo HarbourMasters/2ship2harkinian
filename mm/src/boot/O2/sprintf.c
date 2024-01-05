@@ -1,7 +1,9 @@
 #include "ultra64.h"
 #include "libc/stdlib.h"
 #include "libc/string.h"
+#include <stdio.h>
 
+#if 0
 void* proutSprintf(void* dst, const char* fmt, size_t size) {
     return (void*)((uintptr_t)memcpy(dst, fmt, size) + size);
 }
@@ -28,3 +30,4 @@ int sprintf(char* dst, const char* fmt, ...) {
 
     return ans;
 }
+#endif

@@ -108,7 +108,7 @@ static TexturePtr sWaterSplashTextures[] = {
     NULL,
 };
 
-#include "overlays/ovl_En_Clear_Tag/ovl_En_Clear_Tag.c"
+#include "overlays/ovl_En_Clear_Tag/ovl_En_Clear_Tag.h"
 
 /**
  * Creates a debris effect.
