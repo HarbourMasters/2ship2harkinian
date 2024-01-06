@@ -1,4 +1,5 @@
 #include "padutils.h"
+#include <strings.h>
 #include <ultratypes.h>
 
 void PadUtils_Init(Input* input) {

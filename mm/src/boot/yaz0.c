@@ -1,5 +1,6 @@
 #include "global.h"
 #include "fault.h"
+#include <stdio.h>
 
 u8 sYaz0DataBuffer[0x400] ALIGNED(16);
 u8* sYaz0CurDataEnd;

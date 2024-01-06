@@ -2,6 +2,7 @@
 #include <string.h>
 #include "z64.h"
 #include <assert.h>
+#include "BenPort.h"
 //#include <math.h>
 
 #define SCREEN_WIDTH 320
@@ -383,7 +384,7 @@ int bcmp(void* __s1, void* __s2, int __n) {
 }
 #endif
 int ResourceMgr_OTRSigCheck(char* imgData);
-char* ResourceMgr_LoadTexOrDListByName(char* data);
+char* ResourceMgr_LoadTexOrDListByName(const char* data);
 
 void gSPSegment(void* value, int segNum, uintptr_t target) {
     char* imgData = (char*)target;
@@ -560,9 +561,9 @@ s32 osAiSetFrequency(u32 frequency) {
 }
 s32 osContStartQuery(OSMesgQueue* mq) {
 }
-void osCreateThread(void* a, u32 b, void* c, void* d) {
+void osCreateThread(OSThread* thread, OSId id, void* entry, void* arg, void* sp, OSPri p) {
 }
-void osGetThreadPri(void* a) {
+OSPri osGetThreadPri(OSThread* t) {
 }
 void osContGetQuery(OSContStatus* data) {
 }
@@ -599,7 +600,7 @@ void osViSetXScale(f32 value) {
 }
 void osSpTaskYield(void) {
 }
-u32* osViGetCurrentFramebuffer(void) {
+void* osViGetCurrentFramebuffer(void) {
 }
 OSPiHandle* osFlashInit(void) {
 }
