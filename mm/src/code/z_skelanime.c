@@ -1401,8 +1401,8 @@ void PlayerAnimation_Change(PlayState* play, SkelAnime* skelAnime, PlayerAnimati
         skelAnime->morphWeight = 0.0f;
     }
 
+    // We need to restore the original animation because player does `this->skelAnime == &anim` type checks.
     skelAnime->animation = ogAnim;
-    skelAnime->animation = animation;
     skelAnime->curFrame = 0.0f;
     skelAnime->startFrame = startFrame;
     skelAnime->curFrame = startFrame;
