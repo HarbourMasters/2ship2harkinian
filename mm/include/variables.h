@@ -1758,5 +1758,9 @@ extern GfxMasterList D_0E000000;
 extern Mtx D_01000000;
 extern u16 D_0F000000[];
 
+// #region 2S2H [General]
+extern PlayState* gPlayState;
+// #endregion
+
 
 #endif

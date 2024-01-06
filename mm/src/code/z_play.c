@@ -38,6 +38,10 @@ u8 sMotionBlurStatus;
 s32 gDbgCamEnabled = false;
 u8 D_801D0D54 = false;
 
+// #region 2S2H [General] Making gPlayState available
+PlayState* gPlayState;
+// #endregion
+
 typedef enum {
     /* 0 */ MOTION_BLUR_OFF,
     /* 1 */ MOTION_BLUR_SETUP,
@@ -429,6 +433,9 @@ void Play_Destroy(GameState* thisx) {
     KaleidoScopeCall_Destroy(this);
     KaleidoManager_Destroy();
     ZeldaArena_Cleanup();
+    // #region 2S2H [General] Making gPlayState available
+    gPlayState = NULL;
+    // #endregion
 }
 
 #define PLAY_COMPRESS_BITS 5
@@ -2090,6 +2097,9 @@ void Play_FillScreen(GameState* thisx, s16 fillScreenOn, u8 red, u8 green, u8 bl
 
 void Play_Init(GameState* thisx) {
     PlayState* this = (PlayState*)thisx;
+    // #region 2S2H [General] Making gPlayState available
+    gPlayState = this;
+    // #endregion
     GraphicsContext* gfxCtx = this->state.gfxCtx;
     s32 pad;
     uintptr_t zAlloc;
