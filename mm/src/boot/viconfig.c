@@ -1,5 +1,6 @@
 #include "libc/stdbool.h"
 #include "idle.h"
+#include "functions.h"
 
 extern OSViMode osViModeNtscHpf1;
 extern OSViMode osViModePalLan1;

@@ -119,7 +119,7 @@ s32 DmaMgr_FindDmaIndex(uintptr_t vrom) {
     #endif
 }
 
-const char* func_800809F4(u32 a0) {
+const char* func_800809F4(uintptr_t a0) {
     return "??";
 }
 
