@@ -308,17 +308,21 @@ void KaleidoScope_DrawItemSelect(PlayState* play) {
                         pauseCtx->itemVtx[j + 0].v.ob[1] - 32;
                 }
             }
-            int itemId = gSaveContext.save.saveInfo.inventory.items[i];
-            // BENTODO re add when the table is in C
-            if (CHECK_QUEST_ITEM(itemId) /*|| !gPlayerFormItemRestrictions[GET_PLAYER_FORM][(s32)itemId] */) {
+            // #region 2S2H [Port] Originally this was done in KaleidoScope_Update, but now we are using gSPGrayscale on the fly
+            // It reads odd here to assign a u8 to a u16, then cast it to s32 for gPlayerFormItemRestrictions
+            // but this matches the behavior of the original code
+            u16 itemId = gSaveContext.save.saveInfo.inventory.items[i];
+            if (!gPlayerFormItemRestrictions[GET_PLAYER_FORM][(s32)itemId]) {
                 gDPSetGrayscaleColor(POLY_OPA_DISP++, 109, 109, 109, 255);
                 gSPGrayscale(POLY_OPA_DISP++, true);
             }
             gSPVertex(POLY_OPA_DISP++, &pauseCtx->itemVtx[j + 0], 4, 0);
-            KaleidoScope_DrawTexQuadRGBA32(play->state.gfxCtx, gItemIcons[itemId], 32, 32, 0);
-            gSPGrayscale(POLY_OPA_DISP++, false);
-            //KaleidoScope_DrawTexQuadRGBA32(
-            //    play->state.gfxCtx, gItemIcons[((void)0, gSaveContext.save.saveInfo.inventory.items[i])], 32, 32, 0);
+            KaleidoScope_DrawTexQuadRGBA32(
+                play->state.gfxCtx, gItemIcons[((void)0, gSaveContext.save.saveInfo.inventory.items[i])], 32, 32, 0);
+            if (!gPlayerFormItemRestrictions[GET_PLAYER_FORM][(s32)itemId]) {
+                gSPGrayscale(POLY_OPA_DISP++, false);
+            }
+            // #endregion
         }
     }
 
