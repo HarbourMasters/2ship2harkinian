@@ -840,9 +840,7 @@ Gfx sFillSetupDL[] = {
                          G_TD_CLAMP | G_TP_PERSP | G_CYC_FILL | G_PM_NPRIMITIVE,
                      G_AC_NONE | G_ZS_PIXEL | G_RM_NOOP | G_RM_NOOP2),
     gsSPLoadGeometryMode(G_ZBUFFER | G_SHADE | G_CULL_BACK | G_LIGHTING | G_SHADING_SMOOTH),
-    // BENTODO: CRASH
-    // gsSPDisplayList(D_0E000000.setScissor),
-    gsSPDisplayList(0x0E0001C8 | 1),
+    gsSPDisplayList(D_0E000000_TO_SEGMENTED(setScissor)),
     gsDPSetBlendColor(0x00, 0x00, 0x00, 0x08),
     gsSPClipRatio(FRUSTRATIO_2),
     gsSPEndDisplayList(),
@@ -1451,8 +1449,8 @@ void func_8012CF0C(GraphicsContext* gfxCtx, s32 clearFb, s32 clearZb, u8 r, u8 g
     s32 i;
 
     gSegments[0x00] = 0;
-    gSegments[0x0F] = gfxCtx->curFrameBuffer;
-    gSegments[0x0E] = gGfxMasterDL;
+    gSegments[0x0F] = (uintptr_t)gfxCtx->curFrameBuffer;
+    gSegments[0x0E] = (uintptr_t)gGfxMasterDL;
 
     zbuffer = gfxCtx->zbuffer;
 
@@ -1540,12 +1538,10 @@ void func_8012CF0C(GraphicsContext* gfxCtx, s32 clearFb, s32 clearZb, u8 r, u8 g
 
     OPEN_DISPS(gfxCtx);
 
-    // #region 2S2H [Port] Crashes on MacOS
     gSPDisplayList(POLY_OPA_DISP++, gGfxMasterDL->setupBuffers);
     gSPDisplayList(POLY_XLU_DISP++, gGfxMasterDL->setupBuffers);
     gSPDisplayList(OVERLAY_DISP++, gGfxMasterDL->setupBuffers);
     gSPDisplayList(DEBUG_DISP++, gGfxMasterDL->setupBuffers);
-    // #endregion
 
     if (clearZb) {
         __gSPDisplayList(POLY_OPA_DISP++,
