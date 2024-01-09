@@ -2933,7 +2933,7 @@ void KaleidoScope_UpdateOpening(PlayState* play) {
         pauseCtx->mainState = PAUSE_MAIN_STATE_IDLE;
         pauseCtx->state++; // PAUSE_STATE_MAIN
         pauseCtx->alpha = 255;
-        Interface_LoadButtonDoActionLabel(play, DO_ACTION_RETURN, B_BUTTON_ACTION, ACTION_MAIN);
+        Interface_LoadBButtonDoActionLabel(play, DO_ACTION_RETURN);
     } else if (pauseCtx->switchPageTimer == 64) {
         pauseCtx->pageIndex = sPageSwitchNextPageIndex[pauseCtx->nextPageMode];
         pauseCtx->nextPageMode = (pauseCtx->pageIndex * 2) + 1;
@@ -3745,7 +3745,7 @@ void KaleidoScope_Update(PlayState* play) {
             func_80143324(play, &play->skyboxCtx, play->skyboxId);
 
             if ((msgCtx->msgMode != 0) && (msgCtx->currentTextId == 0xFF)) {
-                Interface_LoadButtonDoActionLabel(play, DO_ACTION_STOP, B_BUTTON_ACTION, ACTION_MAIN);
+                Interface_LoadBButtonDoActionLabel(play, DO_ACTION_STOP);
                 Interface_SetAButtonDoAction(play, DO_ACTION_STOP);
                 Interface_SetHudVisibility(HUD_VISIBILITY_A_B_C);
             } else {

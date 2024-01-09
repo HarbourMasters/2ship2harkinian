@@ -10,7 +10,8 @@ typedef enum {
     /*  1 */ EQUIP_SLOT_C_LEFT,
     /*  2 */ EQUIP_SLOT_C_DOWN,
     /*  3 */ EQUIP_SLOT_C_RIGHT,
-    /*  4 */ EQUIP_SLOT_A
+    /*  4 */ EQUIP_SLOT_A,
+    /*  5 */ EQUIP_SLOT_MAX
 } EquipSlot;
 
 typedef enum {
@@ -127,16 +128,12 @@ typedef enum {
 } StoryType;
 
 typedef enum {
-    /* 0 */ A_BUTTON_ACTION,
-    /* 1 */ B_BUTTON_ACTION,
-    /* 2 */ START_BUTTON_ACTION,
-    /* 3 */ CLOCK_TIMER
-} ActionBtn;
-
-typedef enum {
-    /* 0 */ ACTION_MAIN,
-    /* 1 */ ACTION_SUB
-} ActionType;
+    /* 0 */ DO_ACTION_SEG_A,
+    /* 1 */ DO_ACTION_SEG_B,
+    /* 2 */ DO_ACTION_SEG_START,
+    /* 3 */ DO_ACTION_SEG_CLOCK,
+    /* 4 */ DO_ACTION_SEG_MAX
+} DoActionSegmentIndex;
 
 typedef struct {
     char* mainTex;
@@ -149,7 +146,7 @@ typedef struct {
     /* 0x16C */ Vtx* beatingHeartVtx;
     /* 0x170 */ u8* parameterSegment;
     /* 0x174 */ ActionLabel* doActionSegment;
-    /* 0x178 */ u8* iconItemSegment;
+    /* 0x178 */ char** iconItemSegment;
     /* 0x17C */ u8* mapSegment;
     /* 0x180 */ u8* unk_180; // unused segment?
     /* 0x184 */ DmaRequest dmaRequest;
@@ -272,7 +269,7 @@ void Inventory_UpdateItem(struct PlayState* play, s16 slot, s16 item);
 void Interface_SetAButtonDoAction(struct PlayState* play, u16 aButtonDoAction);
 void Interface_SetBButtonDoAction(struct PlayState* play, s16 bButtonDoAction);
 void Interface_SetTatlCall(struct PlayState* play, u16 tatlCallState);
-void Interface_LoadButtonDoActionLabel(struct PlayState* play, s16 doAction, s16 button, s16 state);
+void Interface_LoadBButtonDoActionLabel(struct PlayState* play, s16 bButtonDoAction);
 s32 Health_ChangeBy(struct PlayState* play, s16 healthChange);
 void Health_GiveHearts(s16 hearts);
 void Rupees_ChangeBy(s16 rupeeChange);
