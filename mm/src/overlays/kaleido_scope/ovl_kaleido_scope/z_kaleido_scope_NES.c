@@ -3007,9 +3007,8 @@ void KaleidoScope_Update(PlayState* play) {
 
             for (itemId = 0; itemId <= ITEM_BOW_FIRE; itemId++) {
                 if (!gPlayerFormItemRestrictions[GET_PLAYER_FORM][(s32)itemId]) {
-                    //void* tex = ResourceMgr_LoadTexOrDListByName(gItemIcons[(s32)itemId]);
-                    //KaleidoScope_GrayOutTextureRGBA32(tex, 0x400);
-                    //KaleidoScope_GrayOutTextureRGBA32(Lib_SegmentedToVirtual(gItemIcons[(s32)itemId]), 0x400);
+                    // 2S2H [Port] This is now handled by gSPGrayscale in KaleidoScope_DrawItemSelect
+                    // KaleidoScope_GrayOutTextureRGBA32(Lib_SegmentedToVirtual(gItemIcons[(s32)itemId]), 0x400);
                 }
             }
 
