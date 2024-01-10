@@ -1,9 +1,8 @@
 #include "padutils.h"
-#include <strings.h>
 #include <ultratypes.h>
 
 void PadUtils_Init(Input* input) {
-    bzero(input, sizeof(Input));
+    memset(input, 0, sizeof(Input));
 }
 
 void func_80085150(void) {
