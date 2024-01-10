@@ -275,19 +275,12 @@ void Graph_ExecuteAndDraw(GraphicsContext* gfxCtx, GameState* gameState) {
     {
         Gfx* gfx = gGfxMasterDL->taskStart;
 
-        gSPSegment(gfx++, 0x0E, gGfxMasterDL->taskStart);
-         //__gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[3] - (uintptr_t)&D_0E000000) + 1);
-         //__gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[0] - (uintptr_t)&D_0E000000) + 1);
-         //__gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[1] - (uintptr_t)&D_0E000000) + 1);
-         //__gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.disps[2] - (uintptr_t)&D_0E000000) + 1);
-         //__gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.debugDisp[0] - (uintptr_t)&D_0E000000) + 1);
-         gSPDisplayList(gfx++, gfxCtx->work.start);
-
-        gSPDisplayList(gfx++, gGfxPools[gfxCtx->gfxPoolIdx % 2].workBuffer);
-        gSPDisplayList(gfx++, gGfxPools[gfxCtx->gfxPoolIdx % 2].polyOpaBuffer);
-        gSPDisplayList(gfx++, gGfxPools[gfxCtx->gfxPoolIdx % 2].polyXluBuffer);
-        gSPDisplayList(gfx++, gGfxPools[gfxCtx->gfxPoolIdx % 2].overlayBuffer);
-        gSPDisplayList(gfx++, gGfxPools[gfxCtx->gfxPoolIdx % 2].debugBuffer);
+        gSPSegment(gfx++, 0x0E, gGfxMasterDL);
+        __gSPDisplayList(gfx++, D_0E000000_TO_SEGMENTED(disps[3])); // Work buffer
+        __gSPDisplayList(gfx++, D_0E000000_TO_SEGMENTED(disps[0])); // OPA buffer
+        __gSPDisplayList(gfx++, D_0E000000_TO_SEGMENTED(disps[1])); // XLU buffer
+        __gSPDisplayList(gfx++, D_0E000000_TO_SEGMENTED(disps[2])); // Overlay buffer
+        __gSPDisplayList(gfx++, D_0E000000_TO_SEGMENTED(debugDisp[0])); // Debug buffer
 
         gDPPipeSync(gfx++);
         gDPFullSync(gfx++);

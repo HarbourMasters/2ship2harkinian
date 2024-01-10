@@ -1084,7 +1084,7 @@ void BombersNotebook_Draw(BombersNotebook* this, GraphicsContext* gfxCtx) {
 
         gDPPipeSync(gfx++);
 
-        __gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.setScissor - (uintptr_t)&D_0E000000) + 1);
+        __gSPDisplayList(gfx++, D_0E000000_TO_SEGMENTED(setScissor));
 
         BombersNotebook_DrawTimeOfDay(&gfx);
 
