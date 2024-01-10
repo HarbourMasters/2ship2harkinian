@@ -16,7 +16,6 @@ size_t SetCutscenes::GetPointerSize() {
 }
 
 CutsceneScriptEntry* SetCutscenesMM::GetPointer() {
-   // return nullptr; // BENTODO
     if (entries.size() == 0) {
         return nullptr;
     }
@@ -24,8 +23,6 @@ CutsceneScriptEntry* SetCutscenesMM::GetPointer() {
 }
 
 size_t SetCutscenesMM::GetPointerSize() {
-    //return 0;
-    // BENTODO
     if (entries.size() == 0) {
         return 0;
     }
