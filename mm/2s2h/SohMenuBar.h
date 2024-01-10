@@ -3,6 +3,7 @@
 //#include <libultraship/libultraship.h>
 #include "window/gui/GuiMenuBar.h"
 #include "window/gui/GuiElement.h"
+#include "DeveloperTools/SaveEditor.h"
 
 namespace SohGui {
 class SohMenuBar : public LUS::GuiMenuBar {

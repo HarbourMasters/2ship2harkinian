@@ -135,6 +135,13 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set_source_files_properties(2s2h/BenPort.cpp PROPERTIES COMPILE_FLAGS "/utf-8")
 endif()
 
+# 2s2h/DeveloperTools {{{
+file(GLOB_RECURSE soh__DeveloperTools RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+   "2s2h/DeveloperTools/*.h"
+   "2s2h/DeveloperTools/*.cpp"
+)
+# }}}
+
 # soh/config {{{
 #file(GLOB_RECURSE soh__config RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
 #    "soh/config/*.h"
@@ -260,6 +267,7 @@ set(ALL_FILES
     ${Header_Files__include}
     ${soh__}
 	${libultra_headers}
+    ${soh__DeveloperTools}
 #    ${soh__config}
 #    ${soh__Enhancements}
     ${soh__Extractor}
