@@ -2657,7 +2657,7 @@ void Environment_FillScreen(GraphicsContext* gfxCtx, u8 red, u8 green, u8 blue, 
             gDPSetAlphaDither(POLY_OPA_DISP++, G_AD_DISABLE);
             gDPSetColorDither(POLY_OPA_DISP++, G_CD_DISABLE);
 
-            __gSPDisplayList(POLY_OPA_DISP++, D_0E000000_TO_SEGMENTED(clearFillRect));
+            gSPDisplayList(POLY_OPA_DISP++, D_0E000000_TO_SEGMENTED(clearFillRect));
         }
 
         if (drawFlags & FILL_SCREEN_XLU) {
@@ -2671,7 +2671,7 @@ void Environment_FillScreen(GraphicsContext* gfxCtx, u8 red, u8 green, u8 blue, 
             gDPSetAlphaDither(POLY_XLU_DISP++, G_AD_DISABLE);
             gDPSetColorDither(POLY_XLU_DISP++, G_CD_DISABLE);
 
-            __gSPDisplayList(POLY_XLU_DISP++, D_0E000000_TO_SEGMENTED(clearFillRect));
+            gSPDisplayList(POLY_XLU_DISP++, D_0E000000_TO_SEGMENTED(clearFillRect));
         }
 
         CLOSE_DISPS(gfxCtx);

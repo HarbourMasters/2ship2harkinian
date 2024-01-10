@@ -33,7 +33,7 @@ void VisZbuf_Draw(VisZbuf* this, Gfx** gfxP, void* zbuffer) {
 
     gDPPipeSync(gfx++);
     if (this->setScissor == true) {
-        __gSPDisplayList(gfx++, D_0E000000_TO_SEGMENTED(setScissor));
+        gSPDisplayList(gfx++, D_0E000000_TO_SEGMENTED(setScissor));
     }
 
     gDPSetOtherMode(gfx++,

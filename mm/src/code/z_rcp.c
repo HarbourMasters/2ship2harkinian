@@ -1458,7 +1458,7 @@ void func_8012CF0C(GraphicsContext* gfxCtx, s32 clearFb, s32 clearZb, u8 r, u8 g
 
     masterGfx = gGfxMasterDL->setupBuffers;
 
-    __gSPDisplayList(&masterGfx[0], D_0E000000_TO_SEGMENTED(syncSegments));
+    gSPDisplayList(&masterGfx[0], D_0E000000_TO_SEGMENTED(syncSegments));
 
     gSPDisplayList(&masterGfx[1], sFillSetupDL);
 
@@ -1544,10 +1544,10 @@ void func_8012CF0C(GraphicsContext* gfxCtx, s32 clearFb, s32 clearZb, u8 r, u8 g
     gSPDisplayList(DEBUG_DISP++, gGfxMasterDL->setupBuffers);
 
     if (clearZb) {
-        __gSPDisplayList(POLY_OPA_DISP++, D_0E000000_TO_SEGMENTED(clearZBuffer));
+        gSPDisplayList(POLY_OPA_DISP++, D_0E000000_TO_SEGMENTED(clearZBuffer));
     }
     if (clearFb) {
-        __gSPDisplayList(POLY_OPA_DISP++, D_0E000000_TO_SEGMENTED(clearFrameBuffer));
+        gSPDisplayList(POLY_OPA_DISP++, D_0E000000_TO_SEGMENTED(clearFrameBuffer));
     }
 
     CLOSE_DISPS(gfxCtx);

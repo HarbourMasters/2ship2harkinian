@@ -59,7 +59,7 @@ void VisCvg_Draw(VisCvg* this, Gfx** gfxp) {
     gDPSetPrimDepth(gfx++, -1, -1);
 
     if (this->setScissor == true) {
-        __gSPDisplayList(gfx++, D_0E000000_TO_SEGMENTED(setScissor));
+        gSPDisplayList(gfx++, D_0E000000_TO_SEGMENTED(setScissor));
     }
 
     switch (this->type) {

@@ -276,11 +276,11 @@ void Graph_ExecuteAndDraw(GraphicsContext* gfxCtx, GameState* gameState) {
         Gfx* gfx = gGfxMasterDL->taskStart;
 
         gSPSegment(gfx++, 0x0E, gGfxMasterDL);
-        __gSPDisplayList(gfx++, D_0E000000_TO_SEGMENTED(disps[3])); // Work buffer
-        __gSPDisplayList(gfx++, D_0E000000_TO_SEGMENTED(disps[0])); // OPA buffer
-        __gSPDisplayList(gfx++, D_0E000000_TO_SEGMENTED(disps[1])); // XLU buffer
-        __gSPDisplayList(gfx++, D_0E000000_TO_SEGMENTED(disps[2])); // Overlay buffer
-        __gSPDisplayList(gfx++, D_0E000000_TO_SEGMENTED(debugDisp[0])); // Debug buffer
+        gSPDisplayList(gfx++, D_0E000000_TO_SEGMENTED(disps[3])); // Work buffer
+        gSPDisplayList(gfx++, D_0E000000_TO_SEGMENTED(disps[0])); // OPA buffer
+        gSPDisplayList(gfx++, D_0E000000_TO_SEGMENTED(disps[1])); // XLU buffer
+        gSPDisplayList(gfx++, D_0E000000_TO_SEGMENTED(disps[2])); // Overlay buffer
+        gSPDisplayList(gfx++, D_0E000000_TO_SEGMENTED(debugDisp[0])); // Debug buffer
 
         gDPPipeSync(gfx++);
         gDPFullSync(gfx++);

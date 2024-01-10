@@ -1275,7 +1275,7 @@ void Play_DrawMain(PlayState* this) {
                     func_80170798(&this->pauseBgPreRender, &sp8C);
                 }
 
-                __gSPDisplayList(sp8C++, D_0E000000_TO_SEGMENTED(syncSegments));
+                gSPDisplayList(sp8C++, D_0E000000_TO_SEGMENTED(syncSegments));
                 POLY_OPA_DISP = sp8C;
                 sp25B = true;
                 goto PostWorldDraw;
