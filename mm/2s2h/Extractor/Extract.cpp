@@ -57,10 +57,11 @@ static constexpr uint32_t OOT_PAL_GC_DBG2 = 0x87121EFE; // 03-13-2002 build
 static constexpr uint32_t OOT_PAL_GC_MQ_DBG = 0x917D18F6;
 static constexpr uint32_t OOT_PAL_10 = 0xB044B569;
 static constexpr uint32_t OOT_PAL_11 = 0xB2055FBD;
+
 static constexpr uint32_t MM_US_10 = 0x5354631C;
 
 static const std::unordered_map<uint32_t, const char*> verMap = { 
-    { MM_US_10, "U.S 1.0" },
+    { MM_US_10, "US 1.0" },
     //{ OOT_PAL_GC, "PAL Gamecube" },
     //{ OOT_PAL_MQ, "PAL MQ" },
     //{ OOT_PAL_GC_DBG1, "PAL Debug 1" },
@@ -72,7 +73,7 @@ static const std::unordered_map<uint32_t, const char*> verMap = {
 
 // TODO only check the first 54MB of the rom.
 static constexpr std::array<const uint32_t, 10> goodCrcs = {
-    
+    0x96F49400, // MM US 1.0 32MB
     //0xfa8c0555, // MQ DBG 64MB (Original overdump)
     //0x8652ac4c, // MQ DBG 64MB
     //0x5B8A1EB7, // MQ DBG 64MB (Empty overdump)
@@ -538,8 +539,8 @@ bool Extractor::CallZapd(std::string installPath, std::string exportdir) {
     char xmlPath[1024];
     char confPath[1024];
     std::array<const char*, argc> argv;
-    const char* version = GetZapdVerStr();
-    const char* otrFile = IsMasterQuest() ? "oot-mq.otr" : "oot.otr";
+    // const char* version = GetZapdVerStr();
+    const char* otrFile = "mm.otr";
 
     std::string romPath = std::filesystem::absolute(mCurrentRomPath).string();
     installPath = std::filesystem::absolute(installPath).string();
@@ -556,8 +557,8 @@ bool Extractor::CallZapd(std::string installPath, std::string exportdir) {
 
     std::filesystem::current_path(tempdir);
 
-    snprintf(xmlPath, 1024, "assets/extractor/xmls/%s", version);
-    snprintf(confPath, 1024, "assets/extractor/Config_%s.xml", version);
+    snprintf(xmlPath, 1024, "assets/extractor/xmls");
+    snprintf(confPath, 1024, "assets/extractor/Config.xml");
 
     argv[0] = "ZAPD";
     argv[1] = "ed";
@@ -600,4 +601,3 @@ bool Extractor::CallZapd(std::string installPath, std::string exportdir) {
 
     return 0;
 }
-
