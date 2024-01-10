@@ -1,6 +1,7 @@
 #include "global.h"
 #include "message_data_static.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
+#include "assets/interface/message_texture_static/message_texture_static.h"
 #include <stdio.h>
 
 f32 sNESFontWidths[160] = {
@@ -26,13 +27,17 @@ void Message_FindMessageNES(PlayState* play, u16 textId) {
 
     while (msgEntry->textId != 0xFFFF) {
         if (msgEntry->textId == textId) {
+            // #region 2SH2 [Port] Just assign the msgEntry, we don't need to change the messageStart and messageEnd
             font->messageStart = msgEntry;
+            return;
+            // #endregion
+
             foundSegment = msgEntry->segment;
             msgEntry++;
             nextSegment = msgEntry->segment;
             
-            //font->messageStart = foundSegment - segment;
-            //font->messageEnd = nextSegment - foundSegment;
+            font->messageStart = foundSegment - segment;
+            font->messageEnd = nextSegment - foundSegment;
             return;
         }
         msgEntry++;
@@ -42,8 +47,11 @@ void Message_FindMessageNES(PlayState* play, u16 textId) {
     foundSegment = msgEntry->segment;
     msgEntry++;
     nextSegment = msgEntry->segment;
-    font->messageStart = foundSegment - segment;
-    font->messageEnd = nextSegment - foundSegment;
+    // #region 2S2H [Port] This seems to be a fallback if the message isn't found it just 
+    // returns the first message, we still don't need to change the messageStart and messageEnd
+    // font->messageStart = foundSegment - segment;
+    // font->messageEnd = nextSegment - foundSegment;
+    // #endregion
 }
 
 void Message_LoadCharNES(PlayState* play, u8 codePointIndex, s32* offset, f32* arg3, s16 decodedBufPos) {
@@ -663,13 +671,13 @@ void Message_DrawTextNES(PlayState* play, Gfx** gfxP, u16 textDrawPos) {
                 gDPPipeSync(gfx++);
                 gDPSetCombineMode(gfx++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
                 gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, msgCtx->textColorAlpha);
-                gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment + 0x1000, G_IM_FMT_I, 96, 48, 0,
+                gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment[TEXTBOX_SEG_BG_1], G_IM_FMT_I, 96, 48, 0,
                                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                        G_TX_NOLOD, G_TX_NOLOD);
                 gSPTextureRectangle(gfx++, msgCtx->textPosX << 2, (msgCtx->unk12012 + 1) << 2,
                                     (msgCtx->textPosX + 0x60) << 2, (msgCtx->unk12012 + 0x31) << 2, G_TX_RENDERTILE, 0,
                                     0, 1 << 10, 1 << 10);
-                gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment + 0x1900, G_IM_FMT_I, 96, 48, 0,
+                gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment[TEXTBOX_SEG_BG_2], G_IM_FMT_I, 96, 48, 0,
                                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                        G_TX_NOLOD, G_TX_NOLOD);
                 gSPTextureRectangle(gfx++, (msgCtx->textPosX + 0x60) << 2, (msgCtx->unk12012 + 1) << 2,
@@ -678,12 +686,12 @@ void Message_DrawTextNES(PlayState* play, Gfx** gfxP, u16 textDrawPos) {
 
                 gDPPipeSync(gfx++);
                 gDPSetPrimColor(gfx++, 0, 0, 255, 60, 0, msgCtx->textColorAlpha);
-                gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment + 0x1000, G_IM_FMT_I, 96, 48, 0,
+                gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment[TEXTBOX_SEG_BG_1], G_IM_FMT_I, 96, 48, 0,
                                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                        G_TX_NOLOD, G_TX_NOLOD);
                 gSPTextureRectangle(gfx++, msgCtx->textPosX << 2, msgCtx->unk12012 << 2, (msgCtx->textPosX + 0x60) << 2,
                                     (msgCtx->unk12012 + 0x30) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
-                gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment + 0x1900, G_IM_FMT_I, 96, 48, 0,
+                gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment[TEXTBOX_SEG_BG_2], G_IM_FMT_I, 96, 48, 0,
                                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                        G_TX_NOLOD, G_TX_NOLOD);
                 gSPTextureRectangle(gfx++, (msgCtx->textPosX + 0x60) << 2, msgCtx->unk12012 << 2,
@@ -845,11 +853,6 @@ void Message_DrawTextNES(PlayState* play, Gfx** gfxP, u16 textDrawPos) {
                 }
                 if ((msgCtx->msgMode == MSGMODE_TEXT_DISPLAYING) && ((i + 1) == msgCtx->textDrawPos)) {
                     Audio_PlaySfx(NA_SE_NONE);
-                }
-
-                 if (((u8)character >= 0xB0) && ((u8)character <= 0xBB)) {
-                } else {
-                    printf("Unhandled or default character: 0x%04X\n", character);
                 }
 
                 if (((u8)character >= 0xB0) && ((u8)character <= 0xBB)) {
@@ -1093,10 +1096,13 @@ void Message_DecodeNES(PlayState* play) {
             }
             decodedBufPos--;
         } else if (curChar == 0xC1) {
-            // BENTODO
+            // #region 2S2H [Port]
             //DmaMgr_SendRequest0(msgCtx->textboxSegment + 0x1000, SEGMENT_ROM_START(message_texture_static), 0x900);
             //DmaMgr_SendRequest0(msgCtx->textboxSegment + 0x1900, SEGMENT_ROM_START(message_texture_static) + 0x900,
             //                    0x900);
+            msgCtx->textboxSegment[TEXTBOX_SEG_BG_1] = gMessageXLeftTex;
+            msgCtx->textboxSegment[TEXTBOX_SEG_BG_2] = gMessageXRightTex;
+            // #endregion
             numLines = 2;
             spC6 = 2;
             msgCtx->unk12012 = msgCtx->textboxY + 8;
