@@ -1,5 +1,6 @@
 #include "padutils.h"
 #include <ultratypes.h>
+#include <string.h>
 
 void PadUtils_Init(Input* input) {
     memset(input, 0, sizeof(Input));
