@@ -78,6 +78,14 @@ void Object_UpdateEntries(ObjectContext* objectCtx) {
         if (entry->id < 0) {
             s32 id = -entry->id;
 
+            // #region 2S2H [Port] We don't care to load the object from DMA, consider it already loaded
+            // There is a weird case handled below that accounts for RomFiles with a size of 0, but according
+            // to object_table.h there is only one instance of this, along with a bunch of placeholder entries
+            // so we _should_ be fine. Famous last words.
+            entry->id = id;
+            continue;
+            // #endregion
+
             if (entry->dmaReq.vromAddr == 0) {
                 objectFile = &gObjectTable[id];
                 size = objectFile->vromEnd - objectFile->vromStart;
@@ -100,8 +108,7 @@ void Object_UpdateEntries(ObjectContext* objectCtx) {
 
 s32 Object_GetSlot(ObjectContext* objectCtx, s16 objectId) {
     s32 i;
-    // BENTODO there has to be a cleaner fix.
-    return 1;
+
     for (i = 0; i < objectCtx->numEntries; i++) {
         if (ABS_ALT(objectCtx->slots[i].id) == objectId) {
             return i;
