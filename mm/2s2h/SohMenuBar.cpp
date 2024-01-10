@@ -447,7 +447,7 @@ void DrawSettingsMenu() {
 extern std::shared_ptr<LUS::GuiWindow> mStatsWindow;
 extern std::shared_ptr<LUS::GuiWindow> mConsoleWindow;
 extern std::shared_ptr<LUS::GuiWindow> mGfxDebuggerWindow;
-// extern std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
+extern std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
 // extern std::shared_ptr<ColViewerWindow> mColViewerWindow;
 // extern std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 // extern std::shared_ptr<DLViewerWindow> mDLViewerWindow;
@@ -516,12 +516,11 @@ void DrawDeveloperToolsMenu() {
         }
         UIWidgets::Spacer(0);
 
-        // if (mSaveEditorWindow) {
-        //     if (ImGui::Button(GetWindowButtonText("Save Editor", CVarGetInteger("gSaveEditorEnabled", 0)).c_str(),
-        //     ImVec2(-1.0f, 0.0f))) {
-        //         //mSaveEditorWindow->ToggleVisibility();
-        //     }
-        // }
+        if (mSaveEditorWindow) {
+            if (ImGui::Button(GetWindowButtonText("Save Editor", CVarGetInteger("gSaveEditorEnabled", 0)).c_str(), ImVec2(-1.0f, 0.0f))) {
+                mSaveEditorWindow->ToggleVisibility();
+            }
+        }
         // UIWidgets::Spacer(0);
         // if (mColViewerWindow) {
         //     if (ImGui::Button(GetWindowButtonText("Collision Viewer", CVarGetInteger("gCollisionViewerEnabled",

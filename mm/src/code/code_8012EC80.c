@@ -232,7 +232,7 @@ TexturePtr gItemIcons[] = {
 };
 
 // Used to map item IDs to inventory slots
-u8 gItemSlots[] = {
+u8 gItemSlots[77] = {
     SLOT_OCARINA,            // ITEM_OCARINA_OF_TIME
     SLOT_BOW,                // ITEM_BOW
     SLOT_ARROW_FIRE,         // ITEM_ARROW_FIRE

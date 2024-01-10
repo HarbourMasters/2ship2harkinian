@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include "SohMenuBar.h"
+#include "DeveloperTools/SaveEditor.h"
 //#include "Enhancements/audio/AudioEditor.h"
 //#include "Enhancements/controls/GameControlEditor.h"
 //#include "Enhancements/cosmetics/CosmeticsEditor.h"

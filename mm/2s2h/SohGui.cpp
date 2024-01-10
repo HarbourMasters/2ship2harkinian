@@ -117,7 +117,7 @@ namespace SohGui {
     //std::shared_ptr<CosmeticsEditorWindow> mCosmeticsEditorWindow;
     //std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
     //std::shared_ptr<ColViewerWindow> mColViewerWindow;
-    //std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
+    std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
     //std::shared_ptr<DLViewerWindow> mDLViewerWindow;
     //std::shared_ptr<GameplayStatsWindow> mGameplayStatsWindow;
     //std::shared_ptr<CheckTracker::CheckTrackerSettingsWindow> mCheckTrackerSettingsWindow;
@@ -161,6 +161,9 @@ namespace SohGui {
             SPDLOG_ERROR("Could not find input GfxDebuggerWindow");
         }
 
+        mSaveEditorWindow = std::make_shared<SaveEditorWindow>("gSaveEditorEnabled", "Save Editor");
+        gui->AddGuiWindow(mSaveEditorWindow);
+
         /*
         mAudioEditorWindow = std::make_shared<AudioEditor>("gAudioEditor.WindowOpen", "Audio Editor");
         gui->AddGuiWindow(mAudioEditorWindow);
@@ -172,8 +175,6 @@ namespace SohGui {
         gui->AddGuiWindow(mActorViewerWindow);
         mColViewerWindow = std::make_shared<ColViewerWindow>("gCollisionViewerEnabled", "Collision Viewer");
         gui->AddGuiWindow(mColViewerWindow);
-        mSaveEditorWindow = std::make_shared<SaveEditorWindow>("gSaveEditorEnabled", "Save Editor");
-        gui->AddGuiWindow(mSaveEditorWindow);
         mDLViewerWindow = std::make_shared<DLViewerWindow>("gDLViewerEnabled", "Display List Viewer");
         gui->AddGuiWindow(mDLViewerWindow);
         mGameplayStatsWindow = std::make_shared<GameplayStatsWindow>("gGameplayStatsEnabled", "Gameplay Stats");
@@ -202,7 +203,7 @@ namespace SohGui {
         //mCheckTrackerSettingsWindow = nullptr;
         //mGameplayStatsWindow = nullptr;
         //mDLViewerWindow = nullptr;
-        //mSaveEditorWindow = nullptr;
+        mSaveEditorWindow = nullptr;
         //mColViewerWindow = nullptr;
         //mActorViewerWindow = nullptr;
         //mCosmeticsEditorWindow = nullptr;
