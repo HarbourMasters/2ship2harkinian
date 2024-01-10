@@ -201,13 +201,16 @@ void func_801229FC(Player* player) {
     if (player->maskObjectLoadState == 1) {
         s16 objectId = sMaskObjectIds[(u8)player->maskId - 1];
 
-        osCreateMesgQueue(&player->maskObjectLoadQueue, &player->maskObjectLoadMsg, 1);
-        DmaMgr_SendRequestImpl(&player->maskDmaRequest, player->maskObjectSegment, gObjectTable[objectId].vromStart,
-                               gObjectTable[objectId].vromEnd - gObjectTable[objectId].vromStart, 0,
-                               &player->maskObjectLoadQueue, OS_MESG_PTR(NULL));
+        // #region 2S2H [Port] Consider the masks already loaded
+        // osCreateMesgQueue(&player->maskObjectLoadQueue, &player->maskObjectLoadMsg, 1);
+        // DmaMgr_SendRequestImpl(&player->maskDmaRequest, player->maskObjectSegment, gObjectTable[objectId].vromStart,
+        //                        gObjectTable[objectId].vromEnd - gObjectTable[objectId].vromStart, 0,
+        //                        &player->maskObjectLoadQueue, OS_MESG_PTR(NULL));
         player->maskObjectLoadState++;
     } else if (player->maskObjectLoadState == 2) {
-        if (osRecvMesg(&player->maskObjectLoadQueue, NULL, OS_MESG_NOBLOCK) == 0) {
+        // if (osRecvMesg(&player->maskObjectLoadQueue, NULL, OS_MESG_NOBLOCK) == 0) {
+        if (true) {
+        // #endregion
             player->maskObjectLoadState = 0;
 
             if (player->currentMask == PLAYER_MASK_GREAT_FAIRY) {
@@ -2514,7 +2517,7 @@ u8 D_801C0B1C[] = {
     PLAYER_BODYPART_RIGHT_HAND,
 };
 
-Gfx* D_801C0B20[] = {
+const char* D_801C0B20[] = {
     object_mask_truth_DL_0001A0,    // PLAYER_MASK_TRUTH
     gKafeisMaskDL,                  // PLAYER_MASK_KAFEIS_MASK
     object_mask_yofukasi_DL_000490, // PLAYER_MASK_ALL_NIGHT
