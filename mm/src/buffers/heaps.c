@@ -1,7 +1,9 @@
 #include "buffers.h"
 #include <assert.h>
 #include <stdlib.h>
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif
 
 
 u8* gAudioHeap;
