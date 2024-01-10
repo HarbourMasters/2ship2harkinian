@@ -151,7 +151,7 @@ void Scene_CommandObjectList(PlayState* play, LUS::ISceneCommand* cmd) {
     s16* entry = (s16*)objList->GetRawPointer();
 
     for (unsigned int i = 0; i < objList->objects.size(); i++) {
-        bool alreadyIncluded = true;
+        bool alreadyIncluded = false;
 
         for (unsigned int j = 0; j < play->objectCtx.numEntries; j++) {
             if (play->objectCtx.slots[j].id == objList->objects[i]) {
