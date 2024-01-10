@@ -745,9 +745,34 @@ void LUS::CutsceneFactoryV0::ParseFileBinaryMM(std::shared_ptr<BinaryReader> rea
                 uint32_t size = reader->ReadUInt32();
                 cutscene->commands.push_back(size);
 
-                for (uint32_t i = 0; i < (size / 4); i++) {
+                while (1) {
+                    // We need to store the first half of the header to get the number of entries.
+                    uint32_t header1 = read_CMD_HH(reader);
+                    
+                    uint32_t numEntries = header1 & 0xFFFF;
+
+                    cutscene->commands.push_back(header1);
+                    if (numEntries == 0xFFFF) {
+                        break; //Last command is HH(0xFFFF, 0004) which was already read in and pushed into the vector
+                    }
                     cutscene->commands.push_back(read_CMD_HH(reader));
+
+                    for (size_t j = 0; j < numEntries * 2; j++) {
+                        cutscene->commands.push_back(read_CMD_BBH(reader));
+                        cutscene->commands.push_back(read_CMD_HH(reader));
+                        cutscene->commands.push_back(read_CMD_HH(reader));
+                    }
+
+                    for (size_t j = 0; j < numEntries; j++) {
+                        cutscene->commands.push_back(read_CMD_HH(reader));
+                        cutscene->commands.push_back(read_CMD_HH(reader));
+                    }
                 }
+
+                //for (uint32_t i = 0; i < (size / 4); i++) {
+                    
+                    //cutscene->commands.push_back(read_CMD_HH(reader));
+                //}
                 break;
             }
             case CS_CMD_MISC: {
