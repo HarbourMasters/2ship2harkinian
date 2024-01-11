@@ -4,6 +4,7 @@
 #include "functions.h"
 #include "fault.h"
 #include "gfxdebuggerbridge.h"
+#include "libultraship/libultraship.h"
 
 // Variables are put before most headers as a hacky way to bypass bss reordering
 FaultAddrConvClient sGraphFaultAddrConvClient;
@@ -349,6 +350,15 @@ void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
 
     Graph_UpdateGame(gameState);
     Graph_ExecuteAndDraw(gfxCtx, gameState);
+
+    if (CVarGetInteger("gDebugEnabled", 0)) {
+        if (CHECK_BTN_ALL(gameState->input[0].press.button, BTN_Z) &&
+            CHECK_BTN_ALL(gameState->input[0].cur.button, BTN_L | BTN_R)) {
+            STOP_GAMESTATE(gameState);
+            gSaveContext.gameMode = GAMEMODE_NORMAL;
+            SET_NEXT_GAMESTATE(gameState, MapSelect_Init, sizeof(MapSelectState));
+        }
+    }
 }
 
 static struct RunFrameContext {

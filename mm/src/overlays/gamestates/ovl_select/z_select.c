@@ -23,16 +23,16 @@ void MapSelect_LoadFileSelect(MapSelectState* this) {
 }
 
 void MapSelect_LoadGame(MapSelectState* this, u32 entrance, s32 spawn) {
-    //if (gSaveContext.fileNum == 0xFF) {
+    if (gSaveContext.fileNum == 0xFF) {
         Sram_InitDebugSave();
-    //}
+    }
 
     gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_ENABLED;
     gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_ENABLED;
     gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_ENABLED;
     gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_ENABLED;
     gSaveContext.buttonStatus[EQUIP_SLOT_A] = BTN_ENABLED;
-    gSaveContext.hudVisibilityForceButtonAlphasByStatus = true;
+    gSaveContext.hudVisibilityForceButtonAlphasByStatus = false;
     gSaveContext.nextHudVisibility = HUD_VISIBILITY_IDLE;
     gSaveContext.hudVisibility = HUD_VISIBILITY_IDLE;
     gSaveContext.hudVisibilityTimer = 0;
