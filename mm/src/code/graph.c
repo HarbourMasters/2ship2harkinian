@@ -357,6 +357,9 @@ void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
             CHECK_BTN_ALL(gameState->input[0].cur.button, BTN_L | BTN_R)) {
             STOP_GAMESTATE(gameState);
             gSaveContext.gameMode = GAMEMODE_NORMAL;
+            gSaveContext.nextDayTime = NEXT_TIME_NONE;
+            gSaveContext.nextTransitionType = TRANS_NEXT_TYPE_DEFAULT;
+            gSaveContext.prevHudVisibility = HUD_VISIBILITY_ALL;
             SET_NEXT_GAMESTATE(gameState, MapSelect_Init, sizeof(MapSelectState));
         }
     }
