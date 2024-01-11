@@ -488,6 +488,9 @@ void AudioLoad_AsyncLoadFont(s32 fontId, s32 arg1, s32 retData, OSMesgQueue* ret
 }
 
 u8* AudioLoad_GetFontsForSequence(s32 seqId, u32* outNumFonts) {
+    // BENTODO
+    *outNumFonts = 0;
+    return NULL;
     s32 index = ((u16*)gAudioCtx.sequenceFontTable)[seqId];
 
     *outNumFonts = gAudioCtx.sequenceFontTable[index++];
