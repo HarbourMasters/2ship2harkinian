@@ -5651,8 +5651,11 @@ void Audio_PlayFanfare(u16 seqId) {
     u32 outNumFonts;
     u8* prevFontId = AudioThread_GetFontsForSequence(prevSeqId & 0xFF, &outNumFonts);
     u8* fontId = AudioThread_GetFontsForSequence(seqId & 0xFF, &outNumFonts);
-
-    if ((prevSeqId == NA_BGM_DISABLED) || (*prevFontId == *fontId)) {
+    // BENTODO
+    // #region 2S2H [Audio] TODO: Fixes fanfare crash, should/can be removed after audio is done
+    // if ((prevSeqId == NA_BGM_DISABLED) || (*prevFontId == *fontId)) {
+    if ((prevSeqId == NA_BGM_DISABLED) || (prevFontId != NULL && fontId != NULL && *prevFontId == *fontId)) {
+    // #endregion
         sFanfareState = 1;
     } else {
         sFanfareState = 5;
