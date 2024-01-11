@@ -1,7 +1,10 @@
 #include "global.h"
 #include "BenPort.h"
 #include "assets/interface/nes_font_static/nes_font_static.h"
+#include "assets/interface/message_static/message_static.h"
 #include <string.h>
+
+// #region 2S2H [Port] Asset tables we can pull from instead of from ROM
 static const char* fontTbl[] = {
     gMsgChar20SpaceTex,
     gMsgChar21ExclamationMarkTex,
@@ -161,6 +164,13 @@ static const char* fontTbl[] = {
     gMsgCharBBControlStickTex,
 };
 
+const char* gMessageBoxEndIcons[] = {
+    gMessageContinueTriangleTex,
+    gMessageEndSquareTex,
+    gMessageArrowTex,
+};
+// #endregion
+
 // stubbed in NTSC-U
 void Font_LoadChar(PlayState* play, u16 codePointIndex, s32 offset) {
 }
@@ -180,12 +190,12 @@ void Font_LoadCharNES(PlayState* play, u8 codePointIndex, s32 offset) {
 }
 
 void Font_LoadMessageBoxEndIcon(Font* font, u16 icon) {
-    void* tex = ResourceMgr_LoadTexOrDListByName(gItemIcons[icon]);
-    memcpy(&font->iconBuf, tex, FONT_CHAR_TEX_SIZE);
-
+    // #region 2S2H [Port]
     // DmaMgr_SendRequest0(&font->iconBuf,
-    //&((u8*)SEGMENT_ROM_START(message_static))[5 * 0x1000 + icon * FONT_CHAR_TEX_SIZE],
-    // FONT_CHAR_TEX_SIZE);
+    //                     SEGMENT_ROM_START_OFFSET(message_static, 5 * 0x1000 + icon * FONT_CHAR_TEX_SIZE),
+    //                     FONT_CHAR_TEX_SIZE);
+    memcpy(&font->iconBuf, gMessageBoxEndIcons[icon], strlen(gMessageBoxEndIcons[icon]) + 1);
+    // #endregion
 }
 
 static u8 sFontOrdering[] = {
@@ -202,18 +212,17 @@ void Font_LoadOrderedFont(Font* font) {
     u8* writeLocation;
 
     while (1) {
-        void* tex;
         writeLocation = &font->fontBuf[codePointIndex * FONT_CHAR_TEX_SIZE];
-        loadOffset = sFontOrdering[codePointIndex]; //        *FONT_CHAR_TEX_SIZE;
+        // #region 2S2H [Port]
+        loadOffset = sFontOrdering[codePointIndex]; // * FONT_CHAR_TEX_SIZE;
         if (sFontOrdering[codePointIndex] == 0) {
             loadOffset = 0;
         }
 
-        tex = ResourceMgr_LoadTexOrDListByName(fontTbl[loadOffset]);
-        memcpy(writeLocation, tex, FONT_CHAR_TEX_SIZE);
+        // DmaMgr_SendRequest0(writeLocation, (uintptr_t)SEGMENT_ROM_START(nes_font_static) + loadOffset, FONT_CHAR_TEX_SIZE);
+        memcpy(writeLocation, fontTbl[loadOffset], strlen(fontTbl[loadOffset]) + 1);
+        // #endregion
 
-        // DmaMgr_SendRequest0(writeLocation, (uintptr_t)SEGMENT_ROM_START(nes_font_static) + loadOffset,
-        //                    FONT_CHAR_TEX_SIZE);
         if (sFontOrdering[codePointIndex] == 0x8C) {
             break;
         }

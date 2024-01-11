@@ -1,5 +1,6 @@
 #include "global.h"
 #include "message_data_static.h"
+#include "assets/interface/message_texture_static/message_texture_static.h"
 
 void Message_FindCreditsMessage(PlayState* play, u16 textId) {
     MessageContext* msgCtx = &play->msgCtx;
@@ -188,14 +189,14 @@ void Message_DrawTextCredits(PlayState* play, Gfx** gfxP) {
                 gDPSetCombineMode(gfx++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
                 gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, msgCtx->textColorAlpha);
 
-                gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment + 0x1000, G_IM_FMT_I, 96, 48, 0,
+                gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment[TEXTBOX_SEG_BG_1], G_IM_FMT_I, 96, 48, 0,
                                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                        G_TX_NOLOD, G_TX_NOLOD);
                 gSPTextureRectangle(gfx++, (msgCtx->textPosX + 1) << 2, (msgCtx->unk12012 + 1) << 2,
                                     (msgCtx->textPosX + 0x61) << 2, (msgCtx->unk12012 + 0x31) << 2, G_TX_RENDERTILE, 0,
                                     0, 1 << 10, 1 << 10);
 
-                gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment + 0x1900, G_IM_FMT_I, 96, 48, 0,
+                gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment[TEXTBOX_SEG_BG_2], G_IM_FMT_I, 96, 48, 0,
                                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                        G_TX_NOLOD, G_TX_NOLOD);
                 gSPTextureRectangle(gfx++, (msgCtx->textPosX + 0x61) << 2, (msgCtx->unk12012 + 1) << 2,
@@ -204,12 +205,12 @@ void Message_DrawTextCredits(PlayState* play, Gfx** gfxP) {
 
                 gDPPipeSync(gfx++);
                 gDPSetPrimColor(gfx++, 0, 0, 255, 60, 0, msgCtx->textColorAlpha);
-                gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment + 0x1000, G_IM_FMT_I, 96, 48, 0,
+                gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment[TEXTBOX_SEG_BG_1], G_IM_FMT_I, 96, 48, 0,
                                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                        G_TX_NOLOD, G_TX_NOLOD);
                 gSPTextureRectangle(gfx++, msgCtx->textPosX << 2, msgCtx->unk12012 << 2, (msgCtx->textPosX + 0x60) << 2,
                                     (msgCtx->unk12012 + 0x30) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
-                gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment + 0x1900, G_IM_FMT_I, 96, 48, 0,
+                gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment[TEXTBOX_SEG_BG_2], G_IM_FMT_I, 96, 48, 0,
                                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                        G_TX_NOLOD, G_TX_NOLOD);
                 gSPTextureRectangle(gfx++, (msgCtx->textPosX + 0x60) << 2, msgCtx->unk12012 << 2,
@@ -627,10 +628,14 @@ void Message_DecodeCredits(PlayState* play) {
                 msgCtx->decodedBuffer.schar[++decodedBufPos] = font->msgBuf.schar[msgCtx->msgBufPos + 1];
                 Message_LoadItemIcon(play, font->msgBuf.schar[msgCtx->msgBufPos + 1], msgCtx->textboxY + 10);
             } else if (curChar == 0x15) {
-                DmaMgr_SendRequest0(msgCtx->textboxSegment + 0x1000,
-                                    (uintptr_t)SEGMENT_ROM_START(message_texture_static) + 0x900, 0x900);
-                DmaMgr_SendRequest0(msgCtx->textboxSegment + 0x1900,
-                                    (uintptr_t)SEGMENT_ROM_START(message_texture_static) + 0x900, 0x900);
+                // #region 2S2H [Port]
+                // DmaMgr_SendRequest0(msgCtx->textboxSegment + 0x1000,
+                //                     (uintptr_t)SEGMENT_ROM_START(message_texture_static) + 0x900, 0x900);
+                // DmaMgr_SendRequest0(msgCtx->textboxSegment + 0x1900,
+                //                     (uintptr_t)SEGMENT_ROM_START(message_texture_static) + 0x900, 0x900);
+                msgCtx->textboxSegment[TEXTBOX_SEG_BG_1] = gMessageXLeftTex;
+                msgCtx->textboxSegment[TEXTBOX_SEG_BG_2] = gMessageXRightTex;
+                // #endregion
                 msgCtx->msgBufPos += 3;
                 msgCtx->unk12012 = msgCtx->textboxY + 8;
                 numLines = 2;

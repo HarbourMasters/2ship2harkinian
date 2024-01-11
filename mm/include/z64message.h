@@ -204,10 +204,18 @@ typedef struct {
     /* 0x11D88 */ u8 unk_11D88; // current Char Buffer ?
 } Font; // size = 0x11D90
 
+typedef enum {
+    /* 0 */ TEXTBOX_SEG_ICON,
+    /* 1 */ TEXTBOX_SEG_TYPE,
+    /* 1 */ TEXTBOX_SEG_BG_1,
+    /* 1 */ TEXTBOX_SEG_BG_2,
+    /* 4 */ TEXTBOX_SEG_MAX
+} TextboxSegmentIndex;
+
 typedef struct MessageContext {
     /* 0x00000 */ View view;
     /* 0x00168 */ Font font;
-    /* 0x11EF8 */ u8* textboxSegment;
+    /* 0x11EF8 */ char** textboxSegment;
     /* 0x11EFC */ UNK_TYPE1 unk11EFC[0x4];
     /* 0x11F00 */ struct OcarinaStaff* ocarinaStaff;
     /* 0x11F04 */ u16 currentTextId;
