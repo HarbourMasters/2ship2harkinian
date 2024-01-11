@@ -4527,6 +4527,7 @@ void Interface_DrawClock(PlayState* play) {
         gThreeDayClockHour12Tex, gThreeDayClockHour1Tex, gThreeDayClockHour2Tex,  gThreeDayClockHour3Tex,
         gThreeDayClockHour4Tex,  gThreeDayClockHour5Tex, gThreeDayClockHour6Tex,  gThreeDayClockHour7Tex,
         gThreeDayClockHour8Tex,  gThreeDayClockHour9Tex, gThreeDayClockHour10Tex, gThreeDayClockHour11Tex,
+        gEmptyTexture, // 2S2H [Port] To account for the vanilla bug detailed later on in this function
     };
     static s16 sClockInvDiamondPrimRed = 0;
     static s16 sClockInvDiamondPrimGreen = 155;
@@ -4643,7 +4644,9 @@ void Interface_DrawClock(PlayState* play) {
             //!      resulting in this reading into the next texture. This results in a white
             //!      dot in the bottom center of the clock. For the three-day clock, this is
             //!      covered by the diamond. However, it can be seen by the final-hours clock.
-            OVERLAY_DISP = Gfx_DrawTexRect4b(OVERLAY_DISP, gThreeDayClockBorderTex, 4, 64, 50, 96, 168, 128, 50, 1, 6,
+            // 2S2H [Port] We are opting to fix this here because our garbage data will not
+            // be consistent with the garbage rendered on hardware, and potentially dangerous.
+            OVERLAY_DISP = Gfx_DrawTexRect4b(OVERLAY_DISP, gThreeDayClockBorderTex, 4, 64, /*50*/ 48, 96, 168, 128, 50, 1, 6,
                                              0, 1 << 10, 1 << 10);
 
             if (((CURRENT_DAY >= 4) ||
@@ -4809,6 +4812,16 @@ void Interface_DrawClock(PlayState* play) {
 
             // determines the current hour
             for (sp1C6 = 0; sp1C6 <= 24; sp1C6++) {
+                //! @bug In the original game, this loop iterates over an array of clock hour
+                // values to determine what the current hour is which is used to index into a
+                // texture pointer array. When the loop reaches the last value, the clock is
+                // actually equal to this value for a frame or two before it rolls over.
+                // Because this check is < and not <=, it will actually iterate past it by one
+                // due to the for loop terminating. This results in 25, which is OOB for the
+                // sThreeDayClockHourTextures[] read later. On console, this results in the hour
+                // disappearing for a frame or two between 11 changing to 12.
+                // 2S2H [Port] We are opting to fix this by adding a blank texture to the end of
+                // the sThreeDayClockHourTextures array, instead of letting it read OOB
                 if (((void)0, gSaveContext.save.time) < sThreeDayClockHours[sp1C6 + 1]) {
                     break;
                 }
