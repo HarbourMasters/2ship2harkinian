@@ -484,6 +484,29 @@ void DrawDeveloperToolsMenu() {
         UIWidgets::PaddedEnhancementCheckbox("Debug Warp Screen Translation", "gDebugWarpScreenTranslation", true,
                                              false, false, "", UIWidgets::CheckboxGraphics::Cross, true);
         UIWidgets::Tooltip("Translate the Debug Warp Screen based on the game language");
+        if (gPlayState != NULL) {
+            UIWidgets::PaddedSeparator();
+            ImGui::Checkbox("Frame Advance##frameAdvance", (bool*)&gPlayState->frameAdvCtx.enabled);
+            UIWidgets::Tooltip("This allows you to advance through the game one frame at a time on command. "
+                               "To advance a frame, hold Z and tap R on the second controller. Holding Z "
+                               "and R will advance a frame every half second. You can also use the buttons below.");
+            if (gPlayState->frameAdvCtx.enabled) {
+                ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(12.0f, 6.0f));
+                ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0,0));
+                ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.0f);
+                ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.22f, 0.38f, 0.56f, 1.0f));
+                if (ImGui::Button("Advance 1", ImVec2(90.0f, 0.0f))) {
+                    CVarSetInteger("gDeveloperTools.FrameAdvanceTick", 1);
+                }
+                ImGui::SameLine();
+                ImGui::Button("Advance (Hold)");
+                if (ImGui::IsItemActive()) {
+                    CVarSetInteger("gDeveloperTools.FrameAdvanceTick", 1);
+                }
+                ImGui::PopStyleVar(3);
+                ImGui::PopStyleColor(1);
+            }
+        }
         UIWidgets::PaddedSeparator();
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(12.0f, 6.0f));
         ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0, 0));

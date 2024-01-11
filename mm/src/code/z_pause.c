@@ -23,6 +23,7 @@
 #include "libc/stdbool.h"
 #include "padutils.h"
 #include "macros.h"
+#include "libultraship/libultraship.h"
 
 void FrameAdvance_Init(FrameAdvanceContext* frameAdvCtx) {
     frameAdvCtx->timer = 0;
@@ -33,9 +34,17 @@ void FrameAdvance_Init(FrameAdvanceContext* frameAdvCtx) {
  * Returns true when frame advance is not active (game will run normally)
  */
 s32 FrameAdvance_Update(FrameAdvanceContext* frameAdvCtx, Input* input) {
-    if (!frameAdvCtx->enabled || (CHECK_BTN_ALL(input->cur.button, BTN_Z) &&
+    if (CVarGetInteger("gDebugEnabled", 0)) {
+        if (CHECK_BTN_ALL(input->cur.button, BTN_R) && CHECK_BTN_ALL(input->press.button, BTN_DDOWN)) {
+            frameAdvCtx->enabled = !frameAdvCtx->enabled;
+        }
+    }
+
+    if (!frameAdvCtx->enabled || CVarGetInteger("gDeveloperTools.FrameAdvanceTick", 0) ||
+                                 (CHECK_BTN_ALL(input->cur.button, BTN_Z) &&
                                   (CHECK_BTN_ALL(input->press.button, BTN_R) ||
                                    (CHECK_BTN_ALL(input->cur.button, BTN_R) && (++frameAdvCtx->timer >= 9))))) {
+        CVarClear("gDeveloperTools.FrameAdvanceTick");
         frameAdvCtx->timer = 0;
         return true;
     }
