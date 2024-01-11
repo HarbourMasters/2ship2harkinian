@@ -1407,9 +1407,11 @@
         <!-- Sun Textures. These should be 64x64, but they get broken into pieces in gSunDL, and ZAPD cannot currently handle that. -->
         <!-- #region 2S2H [Port] Treat these properly as 64x64 on extraction-->
         <Texture Name="gSun1Tex" OutName="sun_1" Format="i4" Width="64" Height="64" Offset="0x79B10" />
+        <!-- <Texture Name="gSun1Tex" OutName="sun_1" Format="i4" Width="64" Height="31" Offset="0x79B10" /> -->
         <!-- <Texture Name="gSun2Tex" OutName="sun_2" Format="i4" Width="64" Height="16" Offset="0x79EF0" /> -->
         <!-- <Texture Name="gSun3Tex" OutName="sun_3" Format="i4" Width="64" Height="17" Offset="0x7A0F0" /> -->
         <Texture Name="gSunEvening1Tex" OutName="sun_evening_1" Format="i4" Width="64" Height="64" Offset="0x7A310" />
+        <!-- <Texture Name="gSunEvening1Tex" OutName="sun_evening_1" Format="i4" Width="64" Height="31" Offset="0x7A310" /> -->
         <!-- <Texture Name="gSunEvening2Tex" OutName="sun_evening_2" Format="i4" Width="64" Height="16" Offset="0x7A6F0" /> -->
         <!-- <Texture Name="gSunEvening3Tex" OutName="sun_evening_3" Format="i4" Width="64" Height="17" Offset="0x7A8F0" /> -->
 
