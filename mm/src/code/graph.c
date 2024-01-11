@@ -386,7 +386,7 @@ void RunFrame() {
     }
 
     runFrameContext.nextOvl = &gGameStateOverlayTable[0];
-
+    SysCfb_Init();
     Graph_Init(&runFrameContext.gfxCtx);
     while (runFrameContext.nextOvl) {
         runFrameContext.ovl = runFrameContext.nextOvl;

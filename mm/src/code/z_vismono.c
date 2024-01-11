@@ -68,7 +68,7 @@ void VisMono_DesaturateTLUT(u16* tlut) {
 Gfx* VisMono_DesaturateDList(Gfx* gfx) {
     s32 y;
     s32 height = VISMONO_CFBFRAG_HEIGHT;
-    u16* cfbFrag = D_0F000000;
+    u16* cfbFrag = D_0F000000_TO_SEGMENTED;
 
     gDPPipeSync(gfx++);
     // `G_TT_IA16`: use color-indexed images, and IA16 palettes
