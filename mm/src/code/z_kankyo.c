@@ -1998,7 +1998,7 @@ void Environment_DrawLensFlare(PlayState* play, EnvironmentContext* envCtx, View
 
                 gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 255, (u8)(weight * 75.0f) + 180, (u8)(weight * 155.0f) + 100,
                                 (u8)envCtx->glareAlpha);
-                gSPDisplayList(POLY_XLU_DISP++, 0x0E000000 + ((uintptr_t)&D_0E000000.clearFillRect - (uintptr_t)&D_0E000000) + 1);
+                gSPDisplayList(POLY_XLU_DISP++, D_0E000000_TO_SEGMENTED(clearFillRect));
             } else {
                 envCtx->glareAlpha = 0.0f;
             }
@@ -2180,7 +2180,7 @@ void Environment_DrawSkyboxFilters(PlayState* play) {
             gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, play->lightCtx.fogColor[0] + 16, play->lightCtx.fogColor[1] + 16,
                             play->lightCtx.fogColor[2] + 16, 255.0f * D_801F4E74);
         }
-        gSPDisplayList(POLY_OPA_DISP++, 0x0E000000 + ((uintptr_t)&D_0E000000.clearFillRect - (uintptr_t)&D_0E000000) + 1);
+        gSPDisplayList(POLY_OPA_DISP++, D_0E000000_TO_SEGMENTED(clearFillRect));
 
         CLOSE_DISPS(play->state.gfxCtx);
     }
@@ -2191,7 +2191,7 @@ void Environment_DrawSkyboxFilters(PlayState* play) {
         Gfx_SetupDL57_Opa(play->state.gfxCtx);
         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, play->envCtx.skyboxFilterColor[0], play->envCtx.skyboxFilterColor[1],
                         play->envCtx.skyboxFilterColor[2], play->envCtx.skyboxFilterColor[3]);
-        gSPDisplayList(POLY_OPA_DISP++, 0x0E000000 + ((uintptr_t)&D_0E000000.clearFillRect - (uintptr_t)&D_0E000000) + 1);
+        gSPDisplayList(POLY_OPA_DISP++, D_0E000000_TO_SEGMENTED(clearFillRect));
 
         CLOSE_DISPS(play->state.gfxCtx);
     }
@@ -2202,7 +2202,7 @@ void Environment_DrawLightningFlash(PlayState* play, u8 red, u8 green, u8 blue, 
 
     Gfx_SetupDL57_Opa(play->state.gfxCtx);
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, red, green, blue, alpha);
-    gSPDisplayList(POLY_OPA_DISP++, 0x0E000000 + ((uintptr_t)&D_0E000000.clearFillRect - (uintptr_t)&D_0E000000) + 1);
+    gSPDisplayList(POLY_OPA_DISP++, D_0E000000_TO_SEGMENTED(clearFillRect));
 
     CLOSE_DISPS(play->state.gfxCtx);
 }
@@ -2657,8 +2657,7 @@ void Environment_FillScreen(GraphicsContext* gfxCtx, u8 red, u8 green, u8 blue, 
             gDPSetAlphaDither(POLY_OPA_DISP++, G_AD_DISABLE);
             gDPSetColorDither(POLY_OPA_DISP++, G_CD_DISABLE);
 
-            __gSPDisplayList(POLY_OPA_DISP++,
-                             0x0E000000 + ((uintptr_t)&D_0E000000.clearFillRect - (uintptr_t)&D_0E000000) + 1);
+            gSPDisplayList(POLY_OPA_DISP++, D_0E000000_TO_SEGMENTED(clearFillRect));
         }
 
         if (drawFlags & FILL_SCREEN_XLU) {
@@ -2672,8 +2671,7 @@ void Environment_FillScreen(GraphicsContext* gfxCtx, u8 red, u8 green, u8 blue, 
             gDPSetAlphaDither(POLY_XLU_DISP++, G_AD_DISABLE);
             gDPSetColorDither(POLY_XLU_DISP++, G_CD_DISABLE);
 
-            __gSPDisplayList(POLY_XLU_DISP++,
-                             0x0E000000 + ((uintptr_t)&D_0E000000.clearFillRect - (uintptr_t)&D_0E000000) + 1);
+            gSPDisplayList(POLY_XLU_DISP++, D_0E000000_TO_SEGMENTED(clearFillRect));
         }
 
         CLOSE_DISPS(gfxCtx);

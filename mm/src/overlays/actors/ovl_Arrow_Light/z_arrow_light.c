@@ -200,8 +200,7 @@ void ArrowLight_Draw(Actor* thisx, PlayState* play) {
                             (s32)(150.0f * this->screenFillIntensity) & 0xFF);
             gDPSetAlphaDither(POLY_XLU_DISP++, G_AD_DISABLE);
             gDPSetColorDither(POLY_XLU_DISP++, G_CD_DISABLE);
-            __gSPDisplayList(POLY_XLU_DISP++,
-                             0x0E000000 + ((uintptr_t)&D_0E000000.fillRect - (uintptr_t)&D_0E000000) + 1);
+            gSPDisplayList(POLY_XLU_DISP++, D_0E000000_TO_SEGMENTED(fillRect));
         }
 
         Gfx_SetupDL25_Xlu(play->state.gfxCtx);

@@ -2404,7 +2404,7 @@ void FileSelect_Main(GameState* thisx) {
     gDPPipeSync(POLY_OPA_DISP++);
     gSPDisplayList(POLY_OPA_DISP++, sScreenFillSetupDL);
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 0, 0, 0, this->screenFillAlpha);
-    gSPDisplayList(POLY_OPA_DISP++, 0x0E000000 + ((uintptr_t)&D_0E000000.fillRect - (uintptr_t)&D_0E000000) + 1);
+    gSPDisplayList(POLY_OPA_DISP++, D_0E000000_TO_SEGMENTED(fillRect));
 
     CLOSE_DISPS(this->state.gfxCtx);
 }
