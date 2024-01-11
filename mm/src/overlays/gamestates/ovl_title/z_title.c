@@ -179,8 +179,8 @@ void ConsoleLogo_Init(GameState* thisx) {
     this->state.destroy = ConsoleLogo_Destroy;
     this->exit = false;
 
-    // #region 2S2H [Debug] Not really sure what sort of debug functionality this is supposed to
-    // provide, but it conflicts with us wanting to load the debug file on the map select at boot.
+    // #region 2S2H [Debug] This value is set to indicate no controllers are connected, not only
+    // do we not need this, but it conflicts with us wanting to load the debug file on the map select at boot.
     // if (!(PadMgr_GetValidControllersMask() & 1)) {
     //     gSaveContext.fileNum = 0xFEDC;
     // } else {
