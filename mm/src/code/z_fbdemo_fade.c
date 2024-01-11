@@ -116,7 +116,7 @@ void TransitionFade_Draw(void* thisx, Gfx** gfxP) {
         gfx = *gfxP;
         gSPDisplayList(gfx++, sTransFadeSetupDL);
         gDPSetPrimColor(gfx++, 0, 0, color->r, color->g, color->b, color->a);
-        gSPDisplayList(gfx++, 0x0E000000 + ((uintptr_t)&D_0E000000.fillRect - (uintptr_t)&D_0E000000) + 1);
+        gSPDisplayList(gfx++, D_0E000000_TO_SEGMENTED(fillRect));
         *gfxP = gfx;
     }
 }

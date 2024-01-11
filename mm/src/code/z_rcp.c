@@ -1458,7 +1458,7 @@ void func_8012CF0C(GraphicsContext* gfxCtx, s32 clearFb, s32 clearZb, u8 r, u8 g
 
     masterGfx = gGfxMasterDL->setupBuffers;
 
-    __gSPDisplayList(&masterGfx[0], 0x0E000000 + ((uintptr_t)&D_0E000000.syncSegments - (uintptr_t)&D_0E000000) + 1);
+    gSPDisplayList(&masterGfx[0], D_0E000000_TO_SEGMENTED(syncSegments));
 
     gSPDisplayList(&masterGfx[1], sFillSetupDL);
 
@@ -1490,7 +1490,7 @@ void func_8012CF0C(GraphicsContext* gfxCtx, s32 clearFb, s32 clearZb, u8 r, u8 g
         gDPSetRenderMode(&masterGfx[3], G_RM_NOOP, G_RM_NOOP2);
         gDPSetFillColor(&masterGfx[4], (GPACK_RGBA5551(255, 255, 240, 0) << 16) | GPACK_RGBA5551(255, 255, 240, 0));
 
-        gSPDisplayList(&masterGfx[5], 0x0E000000 + ((uintptr_t)&D_0E000000.clearFillRect - (uintptr_t)&D_0E000000) + 1);
+        gSPDisplayList(&masterGfx[5], D_0E000000_TO_SEGMENTED(clearFillRect));
 
         gDPSetColorImage(&masterGfx[6], G_IM_FMT_RGBA, G_IM_SIZ_16b, gCfbWidth, D_0F000000);
         gSPEndDisplayList(&masterGfx[7]);
@@ -1505,7 +1505,7 @@ void func_8012CF0C(GraphicsContext* gfxCtx, s32 clearFb, s32 clearZb, u8 r, u8 g
     gDPSetRenderMode(&masterGfx[2], G_RM_NOOP, G_RM_NOOP2);
     gDPSetFillColor(&masterGfx[3], (GPACK_RGBA5551(r, g, b, 1) << 16) | GPACK_RGBA5551(r, g, b, 1));
 
-    gSPBranchList(&masterGfx[4], 0x0E000000 + ((uintptr_t)&D_0E000000.clearFillRect - (uintptr_t)&D_0E000000) + 1);
+    gSPBranchList(&masterGfx[4], D_0E000000_TO_SEGMENTED(clearFillRect));
 
     // Fillrect used by the above buffer clearing routines
 
@@ -1544,12 +1544,10 @@ void func_8012CF0C(GraphicsContext* gfxCtx, s32 clearFb, s32 clearZb, u8 r, u8 g
     gSPDisplayList(DEBUG_DISP++, gGfxMasterDL->setupBuffers);
 
     if (clearZb) {
-        __gSPDisplayList(POLY_OPA_DISP++,
-                         0x0E000000 + ((uintptr_t)&D_0E000000.clearZBuffer - (uintptr_t)&D_0E000000) + 1);
+        gSPDisplayList(POLY_OPA_DISP++, D_0E000000_TO_SEGMENTED(clearZBuffer));
     }
     if (clearFb) {
-        __gSPDisplayList(POLY_OPA_DISP++,
-                         0x0E000000 + ((uintptr_t)&D_0E000000.clearFrameBuffer - (uintptr_t)&D_0E000000) + 1);
+        gSPDisplayList(POLY_OPA_DISP++, D_0E000000_TO_SEGMENTED(clearFrameBuffer));
     }
 
     CLOSE_DISPS(gfxCtx);
