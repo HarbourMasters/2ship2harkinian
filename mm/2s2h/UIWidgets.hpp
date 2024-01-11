@@ -12,6 +12,7 @@
 #include <vector>
 #include <span>
 #include <stdint.h>
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include <ImGui/imgui.h>
 #include <libultraship/libultraship.h>
 
