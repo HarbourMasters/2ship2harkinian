@@ -52,6 +52,8 @@ CrowdControl* CrowdControl::Instance;
 #include <libultraship/libultraship.h>
 #include <SohGui.hpp>
 
+#include "Enhancements/controls/SohInputEditorWindow.h"
+
 // Resource Types/Factories
 #include "2s2h/resource/type/Animation.h"
 #include "2s2h/resource/type/AudioSample.h"
@@ -121,6 +123,7 @@ OTRGlobals::OTRGlobals() {
                                                  OOT_PAL_GC,     OOT_PAL_GC_DBG1,   OOT_PAL_GC_DBG2 };
     // tell LUS to reserve 3 SoH specific threads (Game, Audio, Save)
     context = LUS::Context::CreateInstance("2 Ship 2 Harkinian", appShortName, "shipofharkinian.json", OTRFiles, {}, 3);
+    //context = LUS::Context::CreateUninitializedInstance("Ship of Harkinian", appShortName, "shipofharkinian.json");
     context->GetResourceManager()->GetResourceLoader()->RegisterResourceFactory(
         LUS::ResourceType::SOH_Animation, "Animation", std::make_shared<LUS::AnimationFactory>());
     context->GetResourceManager()->GetResourceLoader()->RegisterResourceFactory(
@@ -1279,15 +1282,24 @@ Color_RGB8 GetColorForControllerLED() {
 }
 
 extern "C" void OTRControllerCallback(uint8_t rumble) {
-    auto physicalDevice = LUS::Context::GetInstance()->GetControlDeck()->GetDeviceFromPortIndex(0);
+    // We call this every tick, SDL accounts for this use and prevents driver spam
+    // https://github.com/libsdl-org/SDL/blob/f17058b562c8a1090c0c996b42982721ace90903/src/joystick/SDL_joystick.c#L1114-L1144
+    LUS::Context::GetInstance()->GetControlDeck()->GetControllerByPort(0)->GetLED()->SetLEDColor(
+        GetColorForControllerLED());
 
-    if (physicalDevice->CanSetLed()) {
-        // We call this every tick, SDL accounts for this use and prevents driver spam
-        // https://github.com/libsdl-org/SDL/blob/f17058b562c8a1090c0c996b42982721ace90903/src/joystick/SDL_joystick.c#L1114-L1144
-        physicalDevice->SetLedColor(0, GetColorForControllerLED());
+    static std::shared_ptr<SohInputEditorWindow> controllerConfigWindow = nullptr;
+    if (controllerConfigWindow == nullptr) {
+        controllerConfigWindow = std::dynamic_pointer_cast<SohInputEditorWindow>(
+            LUS::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Input Editor"));
+    } else if (controllerConfigWindow->TestingRumble()) {
+        return;
     }
 
-    physicalDevice->SetRumble(0, rumble);
+    if (rumble) {
+        LUS::Context::GetInstance()->GetControlDeck()->GetControllerByPort(0)->GetRumble()->StartRumble();
+    } else {
+        LUS::Context::GetInstance()->GetControlDeck()->GetControllerByPort(0)->GetRumble()->StopRumble();
+    }
 }
 
 extern "C" float OTRGetAspectRatio() {
@@ -1326,12 +1338,12 @@ extern "C" void AudioPlayer_Play(const uint8_t* buf, uint32_t len) {
 }
 
 extern "C" int Controller_ShouldRumble(size_t slot) {
-    auto controlDeck = LUS::Context::GetInstance()->GetControlDeck();
-
-    if (slot < controlDeck->GetNumConnectedPorts()) {
-        auto physicalDevice = controlDeck->GetDeviceFromPortIndex(slot);
-
-        if (physicalDevice->GetProfile(slot)->UseRumble && physicalDevice->CanRumble()) {
+    for (auto [id, mapping] : LUS::Context::GetInstance()
+                                  ->GetControlDeck()
+                                  ->GetControllerByPort(static_cast<uint8_t>(slot))
+                                  ->GetRumble()
+                                  ->GetAllRumbleMappings()) {
+        if (mapping->PhysicalDeviceIsConnected()) {
             return 1;
         }
     }

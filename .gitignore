@@ -54,3 +54,4 @@ mm/libultraship/extern/StrHash64.dir/Debug/StrHash64.tlog/Lib.command.1.tlog
 /build*
 /Release
 .vs/*
+/x64

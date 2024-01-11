@@ -150,14 +150,14 @@ file(GLOB_RECURSE soh__DeveloperTools RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
 # }}}
 
 # soh/enhancements {{{
-#file(GLOB_RECURSE soh__Enhancements RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
-#    "soh/Enhancements/*.c"
-#    "soh/Enhancements/*.cpp"
-#    "soh/Enhancements/*.h"
-#    "soh/Enhancements/*.hpp"
-#    "soh/Enhancements/*_extern.inc"
-#    "soh/Enhancements/*.mm"
-#)
+file(GLOB_RECURSE soh__Enhancements RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+    "2s2h/Enhancements/*.c"
+    "2s2h/Enhancements/*.cpp"
+    "2s2h/Enhancements/*.h"
+    "2s2h/Enhancements/*.hpp"
+    "2s2h/Enhancements/*_extern.inc"
+    "2s2h/Enhancements/*.mm"
+)
 
 #list(REMOVE_ITEM soh__Enhancements "soh/Enhancements/gamecommand.h")
 #list(FILTER soh__Enhancements EXCLUDE REGEX "soh/Enhancements/gfx.*")
@@ -180,7 +180,7 @@ file(GLOB_RECURSE soh__DeveloperTools RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
 
 #source_group("soh\\Enhancements" REGULAR_EXPRESSION "soh/Enhancements/*")
 #source_group("soh\\Enhancements\\audio" REGULAR_EXPRESSION "soh/Enhancements/audio/*")
-#source_group("soh\\Enhancements\\controls" REGULAR_EXPRESSION "soh/Enhancements/controls/*")
+source_group("2s2h\\Enhancements\\controls" REGULAR_EXPRESSION "2s2h/Enhancements/controls/*")
 #source_group("soh\\Enhancements\\cosmetics" REGULAR_EXPRESSION "soh/Enhancements/cosmetics/*")
 #source_group("soh\\Enhancements\\crowd-control" REGULAR_EXPRESSION "soh/Enhancements/crowd-control/*")
 #source_group("soh\\Enhancements\\custom-message" REGULAR_EXPRESSION "soh/Enhancements/custom-message/*")
@@ -269,7 +269,7 @@ set(ALL_FILES
 	${libultra_headers}
     ${soh__DeveloperTools}
 #    ${soh__config}
-#    ${soh__Enhancements}
+    ${soh__Enhancements}
     ${soh__Extractor}
     ${soh__Resource}
     ${src__}
@@ -426,9 +426,9 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 			"$<$<CONFIG:Release>:"
 				"NDEBUG"
 			">"
-            "$<$<BOOL:${BUILD_CROWD_CONTROL}>:ENABLE_CROWD_CONTROL>"
+#            "$<$<BOOL:${BUILD_CROWD_CONTROL}>:ENABLE_CROWD_CONTROL>"
 			"INCLUDE_GAME_PRINTF;"
-            "ENABLE_CROWD_CONTROL;"
+ #           "ENABLE_CROWD_CONTROL;"
 			"UNICODE;"
 			"_UNICODE"
 			STORMLIB_NO_AUTO_LINK
@@ -475,7 +475,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU|Clang|AppleClang")
 		"$<$<CONFIG:Release>:"
 			"NDEBUG"
 		">"
-        "$<$<BOOL:${BUILD_CROWD_CONTROL}>:ENABLE_CROWD_CONTROL>"
+#        "$<$<BOOL:${BUILD_CROWD_CONTROL}>:ENABLE_CROWD_CONTROL>"
 		"SPDLOG_ACTIVE_LEVEL=0;"
 		"_CONSOLE;"
 		"_CRT_SECURE_NO_WARNINGS;"
@@ -713,7 +713,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 			"glu32;"
 			"SDL2::SDL2;"
 			"SDL2::SDL2main;"
-            "$<$<BOOL:${BUILD_CROWD_CONTROL}>:SDL2_net::SDL2_net-static>"
+ #           "$<$<BOOL:${BUILD_CROWD_CONTROL}>:SDL2_net::SDL2_net-static>"
 			"glfw;"
 			"winmm;"
 			"imm32;"
@@ -766,7 +766,7 @@ else()
         "ZAPDUtils;"
 		"ZAPDLib;"
 		SDL2::SDL2
-        "$<$<BOOL:${BUILD_CROWD_CONTROL}>:SDL2_net::SDL2_net>"
+ #       "$<$<BOOL:${BUILD_CROWD_CONTROL}>:SDL2_net::SDL2_net>"
 		${CMAKE_DL_LIBS}
 		Threads::Threads
 	)
