@@ -6,6 +6,65 @@
 #include "interface/parameter_static/parameter_static.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "BenPort.h"
+#include <libultraship/libultraship.h>
+#include "assets/archives/schedule_dma_static/schedule_dma_static_yar.h"
+#include "assets/archives/icon_item_24_static/icon_item_24_static_yar.h"
+#include "assets/interface/message_static/message_static.h"
+#include "assets/interface/message_texture_static/message_texture_static.h"
+
+// #region 2S2H [Port] Asset tables we can pull from instead of from ROM
+#define dgEmptyTexture "__OTR__textures/virtual/gEmptyTexture"
+static const ALIGN_ASSET(2) char gEmptyTexture[] = dgEmptyTexture;
+
+const char* gBombersNotebookPhotos[] = {
+    gBombersNotebookPhotoAnjuTex,
+    gBombersNotebookPhotoKafeiTex,
+    gBombersNotebookPhotoCuriosityShopManTex,
+    gBombersNotebookPhotoBombShopLadyTex,
+    gBombersNotebookPhotoRomaniTex,
+    gBombersNotebookPhotoCremiaTex,
+    gBombersNotebookPhotoMayorDotourTex,
+    gBombersNotebookPhotoMadameAromaTex,
+    gBombersNotebookPhotoTotoTex,
+    gBombersNotebookPhotoGormanTex,
+    gBombersNotebookPhotoPostmanTex,
+    gBombersNotebookPhotoRosaSistersTex,
+    gBombersNotebookPhotoToiletHandTex,
+    gBombersNotebookPhotoAnjusGrandmotherTex,
+    gBombersNotebookPhotoKamaroTex,
+    gBombersNotebookPhotoGrogTex,
+    gBombersNotebookPhotoGormanBrothersTex,
+    gBombersNotebookPhotoShiroTex,
+    gBombersNotebookPhotoGuruGuruTex,
+    gBombersNotebookPhotoBombersTex,
+    gBombersNotebookPhotoMadameAromaBrightTex,
+};
+
+const char* gQuestIcons[] = {
+    gQuestIconGoldSkulltulaTex,
+    gQuestIconHeartContainerTex,
+    gQuestIconPieceOfHeartTex,
+    gQuestIconPieceOfHeart2Tex,
+    gQuestIconHeartContainer2Tex,
+    gQuestIconHeartContainer3Tex,
+    gQuestIconBossKeyTex,
+    gQuestIconCompassTex,
+    gQuestIconDungeonMapTex,
+    gQuestIconGoldSkulltula2Tex,
+    gQuestIconSmallMagicJarTex,
+    gQuestIconSmallKeyTex,
+    gQuestIconBigMagicJarTex,
+    gQuestIconLinkHumanFaceTex,
+};
+
+const char* gMessageBackgrounds[] = {
+    gMessageDefaultBackgroundTex,
+    gMessageSignBackgroundTex,
+    gMessageNoteStaffBackgroundTex,
+    gMessageFadingBackgroundTex,
+    gMessageNotebookBackgroundTex,
+};
+// #endregion
 
 u8 D_801C6A70 = 0;
 s16 sOcarinaButtonIndexBufPos = 0;
@@ -929,7 +988,7 @@ void Message_DrawItemIcon(PlayState* play, Gfx** gfxP) {
     } else if ((msgCtx->itemId >= ITEM_SONG_SONATA) && (msgCtx->itemId <= ITEM_SONG_SUN)) {
         index = msgCtx->itemId - ITEM_SONG_SONATA;
         gDPSetPrimColor(gfx++, 0, 0, D_801CFE04[index], D_801CFE1C[index], D_801CFE34[index], msgCtx->textColorAlpha);
-        gDPLoadTextureBlock(gfx++, msgCtx->textboxSegment + 0x1000, G_IM_FMT_IA, G_IM_SIZ_8b, 16, 24, 0,
+        gDPLoadTextureBlock(gfx++, msgCtx->textboxSegment[TEXTBOX_SEG_ICON], G_IM_FMT_IA, G_IM_SIZ_8b, 16, 24, 0,
                             G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                             G_TX_NOLOD);
         msgCtx->unk12016 = 0x18;
@@ -937,20 +996,20 @@ void Message_DrawItemIcon(PlayState* play, Gfx** gfxP) {
         gDPPipeSync(gfx++);
         gDPSetPrimColor(gfx++, 0, 0, 255, 255, 0, msgCtx->textColorAlpha);
         gDPSetEnvColor(gfx++, 0, 0, 0, 255);
-        gDPLoadTextureBlock(gfx++, msgCtx->textboxSegment + 0x1000, G_IM_FMT_IA, G_IM_SIZ_8b, 32, 32, 0,
+        gDPLoadTextureBlock(gfx++, msgCtx->textboxSegment[TEXTBOX_SEG_ICON], G_IM_FMT_IA, G_IM_SIZ_8b, 32, 32, 0,
                             G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                             G_TX_NOLOD);
     } else if (msgCtx->itemId >= ITEM_B8) {
-        gDPLoadTextureBlock(gfx++, msgCtx->textboxSegment + 0x1000, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0,
+        gDPLoadTextureBlock(gfx++, msgCtx->textboxSegment[TEXTBOX_SEG_ICON], G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0,
                             G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                             G_TX_NOLOD);
     } else if (msgCtx->itemId >= ITEM_SKULL_TOKEN) {
-        gDPLoadTextureBlock(gfx++, msgCtx->textboxSegment + 0x1000, G_IM_FMT_RGBA, G_IM_SIZ_32b, 24, 24, 0,
+        gDPLoadTextureBlock(gfx++, msgCtx->textboxSegment[TEXTBOX_SEG_ICON], G_IM_FMT_RGBA, G_IM_SIZ_32b, 24, 24, 0,
                             G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                             G_TX_NOLOD);
     } else {
         msgCtx->unk12016 = msgCtx->unk12014;
-        gDPLoadTextureBlock(gfx++, msgCtx->textboxSegment + 0x1000, G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 32, 0,
+        gDPLoadTextureBlock(gfx++, msgCtx->textboxSegment[TEXTBOX_SEG_ICON], G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 32, 0,
                             G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                             G_TX_NOLOD);
     }
@@ -1305,13 +1364,13 @@ void Message_DrawTextDefault(PlayState* play, Gfx** gfxP) {
                 gDPPipeSync(gfx++);
                 gDPSetCombineMode(gfx++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
                 gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, msgCtx->textColorAlpha);
-                gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment + 0x1000, G_IM_FMT_I, 96, 48, 0,
+                gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment[TEXTBOX_SEG_BG_1], G_IM_FMT_I, 96, 48, 0,
                                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                        G_TX_NOLOD, G_TX_NOLOD);
                 gSPTextureRectangle(gfx++, msgCtx->textPosX << 2, (msgCtx->unk12012 + 1) << 2,
                                     (msgCtx->textPosX + 96) << 2, (msgCtx->unk12012 + 49) << 2, G_TX_RENDERTILE, 0, 0,
                                     1 << 10, 1 << 10);
-                gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment + 0x1900, G_IM_FMT_I, 96, 48, 0,
+                gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment[TEXTBOX_SEG_BG_2], G_IM_FMT_I, 96, 48, 0,
                                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                        G_TX_NOLOD, G_TX_NOLOD);
                 gSPTextureRectangle(gfx++, (msgCtx->textPosX + 96) << 2, (msgCtx->unk12012 + 1) << 2,
@@ -1320,12 +1379,12 @@ void Message_DrawTextDefault(PlayState* play, Gfx** gfxP) {
 
                 gDPPipeSync(gfx++);
                 gDPSetPrimColor(gfx++, 0, 0, 255, 60, 0, msgCtx->textColorAlpha);
-                gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment + 0x1000, G_IM_FMT_I, 96, 48, 0,
+                gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment[TEXTBOX_SEG_BG_1], G_IM_FMT_I, 96, 48, 0,
                                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                        G_TX_NOLOD, G_TX_NOLOD);
                 gSPTextureRectangle(gfx++, msgCtx->textPosX << 2, msgCtx->unk12012 << 2, (msgCtx->textPosX + 96) << 2,
                                     (msgCtx->unk12012 + 48) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
-                gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment + 0x1900, G_IM_FMT_I, 96, 48, 0,
+                gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment[TEXTBOX_SEG_BG_2], G_IM_FMT_I, 96, 48, 0,
                                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                        G_TX_NOLOD, G_TX_NOLOD);
                 gSPTextureRectangle(gfx++, (msgCtx->textPosX + 96) << 2, msgCtx->unk12012 << 2,
@@ -1820,8 +1879,6 @@ s16 D_801CFF94[] = {
 void Message_LoadItemIcon(PlayState* play, u16 itemId, s16 arg2) {
     MessageContext* msgCtx = &play->msgCtx;
     u16* new_var2 = &itemId;
-    itemId = 0;
-    // BENTODO: Test
 
     if (itemId == ITEM_RECOVERY_HEART) {
         msgCtx->unk12010 = (msgCtx->unk11FF8 - D_801CFF88[gSaveContext.options.language]);
@@ -1839,40 +1896,45 @@ void Message_LoadItemIcon(PlayState* play, u16 itemId, s16 arg2) {
         msgCtx->unk12010 = (msgCtx->unk11FF8 - D_801CFF88[gSaveContext.options.language]);
         msgCtx->unk12012 = (arg2 + 0xA);
         msgCtx->unk12014 = 0x10;
-        void* tex = ResourceMgr_LoadTexOrDListByName(gItemIcons[ITEM_SONG_SONATA]);
-        memcpy(msgCtx->textboxSegment + 0x1000, tex, 0x1000);
+        // #region 2S2H [Port]
+        // CmpDma_LoadFile(SEGMENT_ROM_START(icon_item_static_yar), ITEM_SONG_SONATA, msgCtx->textboxSegment + 0x1000,
+        //                 0x180);
+        msgCtx->textboxSegment[TEXTBOX_SEG_ICON] = gItemIcons[ITEM_SONG_SONATA];
     } else if (itemId == ITEM_BOMBERS_NOTEBOOK) {
         msgCtx->unk12010 = (msgCtx->unk11FF8 - D_801CFF70[gSaveContext.options.language]);
         msgCtx->unk12012 = (arg2 + 6);
         msgCtx->unk12014 = 0x20;
-        void* tex = ResourceMgr_LoadTexOrDListByName(gItemIcons[ITEM_SONG_SONATA]);
-        memcpy(msgCtx->textboxSegment + 0x1000, tex, 0x1000);
+        // CmpDma_LoadFile(SEGMENT_ROM_START(icon_item_static_yar), ITEM_SONG_SONATA, msgCtx->textboxSegment + 0x1000,
+        //                 0x1000);
+        msgCtx->textboxSegment[TEXTBOX_SEG_ICON] = gItemIcons[ITEM_SONG_SONATA];
     } else if (itemId <= ITEM_REMAINS_TWINMOLD) {
         msgCtx->unk12010 = (msgCtx->unk11FF8 - D_801CFF70[gSaveContext.options.language]);
         msgCtx->unk12012 = (arg2 + 6);
         msgCtx->unk12014 = 0x20;
-        // BENTODO this wasn't done in the minibuild
-        void* tex = ResourceMgr_LoadTexOrDListByName(gItemIcons[itemId]);
-        memcpy(msgCtx->textboxSegment + 0x1000, tex, 0x1000);
-        //CmpDma_LoadFile(SEGMENT_ROM_START(icon_item_static_yar), itemId, msgCtx->textboxSegment + 0x1000, 0x1000);
+        // CmpDma_LoadFile(SEGMENT_ROM_START(icon_item_static_yar), itemId, msgCtx->textboxSegment + 0x1000, 0x1000);
+        msgCtx->textboxSegment[TEXTBOX_SEG_ICON] = gItemIcons[itemId];
     } else if (itemId == ITEM_CC) {
         msgCtx->unk12010 = (msgCtx->unk11FF8 - D_801CFF70[gSaveContext.options.language]);
         msgCtx->unk12012 = (arg2 + 8);
         msgCtx->unk12014 = 0x20;
-        void* tex = ResourceMgr_LoadTexOrDListByName(gItemIcons[ITEM_POTION_BLUE]);
-        memcpy(msgCtx->textboxSegment + 0x1000, tex, 0x400);
+        // CmpDma_LoadFile(SEGMENT_ROM_START(schedule_dma_static_yar), ITEM_POTION_BLUE, msgCtx->textboxSegment + 0x1000,
+        //                 0x400);
+        msgCtx->textboxSegment[TEXTBOX_SEG_ICON] = gBombersNotebookPhotos[ITEM_POTION_BLUE];
     } else if (itemId >= ITEM_B8) {
         msgCtx->unk12010 = (msgCtx->unk11FF8 - D_801CFF70[gSaveContext.options.language]);
         msgCtx->unk12012 = (arg2 + 8);
         msgCtx->unk12014 = 0x20;
-        void* tex = ResourceMgr_LoadTexOrDListByName(gItemIcons[itemId - ITEM_B8]);
-        memcpy(msgCtx->textboxSegment + 0x1000, tex, 0x800);
+        // CmpDma_LoadFile(SEGMENT_ROM_START(schedule_dma_static_yar), (itemId - ITEM_B8), msgCtx->textboxSegment + 0x1000,
+        //                 0x800);
+        msgCtx->textboxSegment[TEXTBOX_SEG_ICON] = gBombersNotebookPhotos[itemId - ITEM_B8];
     } else if (itemId >= ITEM_SKULL_TOKEN) {
         msgCtx->unk12010 = (msgCtx->unk11FF8 - D_801CFF7C[gSaveContext.options.language]);
         msgCtx->unk12012 = (arg2 + 0xA);
         msgCtx->unk12014 = 0x18;
-        void* tex = ResourceMgr_LoadTexOrDListByName(gItemIcons[itemId - ITEM_SKULL_TOKEN]);
-        memcpy(msgCtx->textboxSegment + 0x1000, tex, 0x900);
+        // CmpDma_LoadFile(SEGMENT_ROM_START(icon_item_24_static_yar), (itemId - ITEM_SKULL_TOKEN),
+        //                 msgCtx->textboxSegment + 0x1000, 0x900);
+        msgCtx->textboxSegment[TEXTBOX_SEG_ICON] = gQuestIcons[itemId - ITEM_SKULL_TOKEN];
+        // #endregion
     }
 
     if (play->pauseCtx.bombersNotebookOpen) {
@@ -1964,7 +2026,7 @@ void Message_SetupLoadItemIcon(PlayState* play) {
 
     font = &msgCtx->font;
     if (msgCtx->msgBufPos == 0) {
-        if (font->msgBuf.schar[msgCtx->msgBufPos + 2] != 0xFE) {
+        if (((u8)font->msgBuf.schar[msgCtx->msgBufPos + 2]) != 0xFE) {
             msgCtx->unk11F18 = 0;
             if ((msgCtx->currentTextId == 0x176F) || (msgCtx->currentTextId == 0x1770) ||
                 (msgCtx->currentTextId == 0x1771)) {
@@ -1972,7 +2034,7 @@ void Message_SetupLoadItemIcon(PlayState* play) {
                 msgCtx->msgBufPos += 2;
             } else {
                 msgCtx->msgBufPos += 2;
-                if ((font->msgBuf.schar[msgCtx->msgBufPos] < 0xC8) || (font->msgBuf.schar[msgCtx->msgBufPos] >= 0xD8)) {
+                if ((((u8)font->msgBuf.schar[msgCtx->msgBufPos]) < 0xC8) || (((u8)font->msgBuf.schar[msgCtx->msgBufPos]) >= 0xD8)) {
                     msgCtx->itemId = D_801CFF94[(u8)font->msgBuf.schar[msgCtx->msgBufPos]];
                 } else {
                     msgCtx->itemId = 0xFE;
@@ -1980,7 +2042,7 @@ void Message_SetupLoadItemIcon(PlayState* play) {
             }
         } else {
             msgCtx->msgBufPos += 2;
-            msgCtx->itemId = font->msgBuf.schar[msgCtx->msgBufPos];
+            msgCtx->itemId = (u8)font->msgBuf.schar[msgCtx->msgBufPos];
         }
         msgCtx->nextTextId = font->msgBuf.schar[++msgCtx->msgBufPos] << 8;
         msgCtx->nextTextId |= font->msgBuf.schar[++msgCtx->msgBufPos];
@@ -2279,10 +2341,13 @@ void Message_Decode(PlayState* play) {
                 decodedBufPos += playerNameLen - 1;
                 spC0 += playerNameLen * (16.0f * msgCtx->textCharScale);
             } else if (curChar == 0x201) {
-                // BENTODO
+                // #region 2S2H [Port]
                 //DmaMgr_SendRequest0(msgCtx->textboxSegment + 0x1000, SEGMENT_ROM_START(message_texture_static), 0x900);
                 //DmaMgr_SendRequest0(msgCtx->textboxSegment + 0x1900, SEGMENT_ROM_START(message_texture_static) + 0x900,
                  //                   0x900);
+                msgCtx->textboxSegment[TEXTBOX_SEG_BG_1] = gMessageXLeftTex;
+                msgCtx->textboxSegment[TEXTBOX_SEG_BG_2] = gMessageXRightTex;
+                // #endregion
                 numLines = 2;
                 spD2 = 2;
                 msgCtx->unk12012 = msgCtx->textboxY + 8;
@@ -3048,9 +3113,11 @@ void func_80150A84(PlayState* play) {
     s32 textBoxType = msgCtx->textBoxType;
 
     if (D_801CFC78[textBoxType] != 14) {
-        // BENTODO
+        // #region 2S2H [Port]
         //DmaMgr_SendRequest0(msgCtx->textboxSegment,
         //                    SEGMENT_ROM_START(message_static) + D_801CFC78[textBoxType] * 0x1000, 0x1000);
+        msgCtx->textboxSegment[TEXTBOX_SEG_TYPE] = gMessageBackgrounds[D_801CFC78[textBoxType]];
+        // #endregion
 
         if (!play->pauseCtx.bombersNotebookOpen) {
             if ((textBoxType == TEXTBOX_TYPE_0) || (textBoxType == TEXTBOX_TYPE_6) || (textBoxType == TEXTBOX_TYPE_A) ||
@@ -3309,8 +3376,10 @@ void func_801514B0(PlayState* play, u16 arg1, u8 arg2) {
     msgCtx->textBoxPos = arg2;
     msgCtx->unk11F0C = msgCtx->unk11F08 & 0xF;
     msgCtx->textUnskippable = true;
-    // BENTODO
+    // #region 2S2H [Port]
     //DmaMgr_SendRequest0(msgCtx->textboxSegment, SEGMENT_ROM_START(message_static) + (D_801CFC78[0] << 12), 0x1000);
+    msgCtx->textboxSegment[TEXTBOX_SEG_TYPE] = gMessageBackgrounds[D_801CFC78[0]];
+    // #endregion
     msgCtx->textboxColorRed = 0;
     msgCtx->textboxColorGreen = 0;
     msgCtx->textboxColorBlue = 0;
@@ -3715,7 +3784,7 @@ void Message_DrawTextBox(PlayState* play, Gfx** gfxP) {
     if (((u32)msgCtx->textBoxType == TEXTBOX_TYPE_0) || (msgCtx->textBoxType == TEXTBOX_TYPE_2) ||
         (msgCtx->textBoxType == TEXTBOX_TYPE_6) || (msgCtx->textBoxType == TEXTBOX_TYPE_8) ||
         (msgCtx->textBoxType == TEXTBOX_TYPE_9) || (msgCtx->textBoxType == TEXTBOX_TYPE_A)) {
-        gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment, G_IM_FMT_I, 128, 64, 0, G_TX_MIRROR | G_TX_WRAP,
+        gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment[TEXTBOX_SEG_TYPE], G_IM_FMT_I, 128, 64, 0, G_TX_MIRROR | G_TX_WRAP,
                                G_TX_NOMIRROR | G_TX_WRAP, 7, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
     } else {
         gDPPipeSync(gfx++);
@@ -3727,7 +3796,7 @@ void Message_DrawTextBox(PlayState* play, Gfx** gfxP) {
         } else {
             gDPSetEnvColor(gfx++, 50, 20, 0, 255);
         }
-        gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment, G_IM_FMT_IA, 128, 64, 0, G_TX_MIRROR | G_TX_WRAP,
+        gDPLoadTextureBlock_4b(gfx++, msgCtx->textboxSegment[TEXTBOX_SEG_TYPE], G_IM_FMT_IA, 128, 64, 0, G_TX_MIRROR | G_TX_WRAP,
                                G_TX_MIRROR | G_TX_WRAP, 7, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
     }
 
@@ -4185,7 +4254,7 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
     gfx = *gfxP;
 
     gSPSegment(gfx++, 0x02, play->interfaceCtx.parameterSegment);
-    gSPSegment(gfx++, 0x07, msgCtx->textboxSegment);
+    gSPSegment(gfx++, 0x07, msgCtx->textboxSegment[TEXTBOX_SEG_TYPE]);
 
     if (msgCtx->msgLength != 0) {
         if (!msgCtx->textIsCredits) {
@@ -6039,7 +6108,12 @@ void Message_Init(PlayState* play) {
 
     View_Init(&msgCtx->view, play->state.gfxCtx);
 
-    msgCtx->textboxSegment = THA_AllocTailAlign16(&play->state.tha, 0x13C00);
+    // #region 2S2H [Port]
+    msgCtx->textboxSegment = THA_AllocTailAlign16(&play->state.tha, sizeof(char*) * TEXTBOX_SEG_MAX);
+    for (size_t id = 0; id < TEXTBOX_SEG_MAX; id++) {
+        msgCtx->textboxSegment[id] = gEmptyTexture;
+    }
+    // #endregion
 
     font = &play->msgCtx.font;
     Font_LoadOrderedFont(&play->msgCtx.font);
