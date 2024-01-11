@@ -59,7 +59,6 @@ void MapSelect_LoadGame(MapSelectState* this, u32 entrance, s32 spawn) {
     gSaveContext.respawn[RESPAWN_MODE_DEKU].entrance = 0xFF;
     gSaveContext.respawn[RESPAWN_MODE_HUMAN].entrance = 0xFF;
     gWeatherMode = WEATHER_MODE_CLEAR;
-    gSaveContext.gameMode = GAMEMODE_NORMAL;
 
     STOP_GAMESTATE(&this->state);
     SET_NEXT_GAMESTATE(&this->state, Play_Init, sizeof(PlayState));
