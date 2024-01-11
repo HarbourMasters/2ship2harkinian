@@ -13,6 +13,7 @@
 #include "overlays/gamestates/ovl_select/z_select.h"
 #include <stdlib.h>
 #include "BenPort.h"
+#include "libultraship/libultraship.h"
 
 void ConsoleLogo_UpdateCounters(ConsoleLogoState* this) {
     if ((this->coverAlpha == 0) && (this->visibleDuration != 0)) {
@@ -124,9 +125,6 @@ void ConsoleLogo_Draw(GameState* thisx) {
     CLOSE_DISPS(this->state.gfxCtx);
 }
 
-// hack for minibuild work
-void MapSelect_Init(GameState* thisx);
-void FileSelect_Init(GameState* thisx);
 void ConsoleLogo_Main(GameState* thisx) {
     ConsoleLogoState* this = (ConsoleLogoState*)thisx;
 
@@ -134,7 +132,7 @@ void ConsoleLogo_Main(GameState* thisx) {
 
     OPEN_DISPS(this->state.gfxCtx);
 
-    gSPSegment(OVERLAY_DISP++, 0x01, this->staticSegment);
+    gSPSegment(POLY_OPA_DISP++, 0x01, this->staticSegment);
 
     ConsoleLogo_UpdateCounters(this);
     ConsoleLogo_Draw(&this->state);
@@ -144,8 +142,14 @@ void ConsoleLogo_Main(GameState* thisx) {
         gSaveContext.gameMode = GAMEMODE_TITLE_SCREEN;
 
         STOP_GAMESTATE(&this->state);
-        // hack
-        SET_NEXT_GAMESTATE(&this->state, MapSelect_Init, sizeof(MapSelectState));
+        // #region 2S2H [Debug] Eventually we'll get rid of this
+        if (CVarGetInteger("gDebugEnabled", 0)) {
+            gSaveContext.gameMode = GAMEMODE_NORMAL;
+            SET_NEXT_GAMESTATE(&this->state, MapSelect_Init, sizeof(MapSelectState));
+        // #endregion
+        } else {
+            SET_NEXT_GAMESTATE(&this->state, TitleSetup_Init, sizeof(TitleSetupState));
+        }
     }
 
     CLOSE_DISPS(this->state.gfxCtx);
@@ -175,11 +179,14 @@ void ConsoleLogo_Init(GameState* thisx) {
     this->state.destroy = ConsoleLogo_Destroy;
     this->exit = false;
 
-    if (!(PadMgr_GetValidControllersMask() & 1)) {
-        gSaveContext.fileNum = 0xFEDC;
-    } else {
-        gSaveContext.fileNum = 0xFF;
-    }
+    // #region 2S2H [Debug] This value is set to indicate no controllers are connected, not only
+    // do we not need this, but it conflicts with us wanting to load the debug file on the map select at boot.
+    // if (!(PadMgr_GetValidControllersMask() & 1)) {
+    //     gSaveContext.fileNum = 0xFEDC;
+    // } else {
+    gSaveContext.fileNum = 0xFF;
+    // }
+    // #endregion
 
     gSaveContext.flashSaveAvailable = true;
     Sram_Alloc(thisx, &this->sramCtx);
