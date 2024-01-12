@@ -1111,9 +1111,9 @@ void BombersNotebook_LoadFiles(BombersNotebook* this, s32 flag) {
             this->loadState = BOMBERS_NOTEBOOK_LOAD_STATE_STARTED;
             // fallthrough
         case BOMBERS_NOTEBOOK_LOAD_STATE_STARTED:
-            if (osRecvMesg(&this->loadQueue, NULL, flag) == 0) {
+            //if (osRecvMesg(&this->loadQueue, NULL, flag) == 0) {
                 this->loadState = BOMBERS_NOTEBOOK_LOAD_STATE_DONE;
-            }
+            //}
             break;
 
         default:
@@ -1141,8 +1141,6 @@ void BombersNotebook_Update(PlayState* play, BombersNotebook* this, Input* input
     s32 stickAdjY = input->rel.stick_y;
     s32 cursorEntryScan;
 
-    // BENTODO
-    return;
 
     this->scheduleDmaSegmentStart = SEGMENT_ROM_START(schedule_dma_static_yar);
     this->scheduleDmaSegmentSize = SEGMENT_ROM_SIZE(schedule_dma_static_syms);
