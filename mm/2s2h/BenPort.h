@@ -108,6 +108,7 @@ uint64_t GetFrequency();
 uint32_t OTRGetCurrentWidth(void);
 uint32_t OTRGetCurrentHeight(void);
 float OTRGetAspectRatio(void);
+int32_t OTRConvertHUDXToScreenX(int32_t v);
 float OTRGetDimensionFromLeftEdge(float v);
 float OTRGetDimensionFromRightEdge(float v);
 int16_t OTRGetRectDimensionFromLeftEdge(float v);
