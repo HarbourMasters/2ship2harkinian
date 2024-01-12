@@ -1208,14 +1208,14 @@ void EnSlime_Draw(Actor* thisx, PlayState* play) {
         // Ice block is not active
         Scene_SetRenderModeXlu(play, 0, 1);
 
-        gSPSegment(POLY_OPA_DISP++, 9, (u32)sEyeTextures[this->eyeTexIndex]);
+        gSPSegment(POLY_OPA_DISP++, 9, (uintptr_t)sEyeTextures[this->eyeTexIndex]);
         gDPSetEnvColor(POLY_OPA_DISP++, 0, 30, 70, 255);
         gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gSPDisplayList(POLY_OPA_DISP++, gChuchuEyesDL);
 
     } else {
         Scene_SetRenderModeXlu(play, 1, 2);
-        gSPSegment(POLY_XLU_DISP++, 9, (u32)sEyeTextures[this->eyeTexIndex]);
+        gSPSegment(POLY_XLU_DISP++, 9, (uintptr_t)sEyeTextures[this->eyeTexIndex]);
         gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gSPDisplayList(POLY_XLU_DISP++, gChuchuEyesDL);
     }
@@ -1241,7 +1241,7 @@ void EnSlime_Draw(Actor* thisx, PlayState* play) {
                          this->actor.world.pos.z, MTXMODE_NEW);
         Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY);
 
-        gSPSegment(POLY_OPA_DISP++, 8, (u32)this->itemDropTex);
+        gSPSegment(POLY_OPA_DISP++, 8, (uintptr_t)this->itemDropTex);
         gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gSPDisplayList(POLY_OPA_DISP++, gItemDropDL);
     }
