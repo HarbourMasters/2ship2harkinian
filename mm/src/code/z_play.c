@@ -1231,15 +1231,13 @@ void Play_DrawMain(PlayState* this) {
                 SET_FULLSCREEN_VIEWPORT(&spA8);
 
                 View_ApplyTo(&spA8, &sp218);
-                // BENTODO: incorrect render
-                // this->transitionCtx.draw(&this->transitionCtx.instanceData, &sp218);
+                this->transitionCtx.draw(&this->transitionCtx.instanceData, &sp218);
             }
 
             TransitionFade_Draw(&this->unk_18E48, &sp218);
-            // BENTODO: fill framebuffer?
             if (gVisMonoColor.a != 0) {
                 sPlayVisMono.primColor.rgba = gVisMonoColor.rgba;
-                // VisMono_Draw(&sPlayVisMono, &sp218);
+                VisMono_Draw(&sPlayVisMono, &sp218);
             }
 
             gSPEndDisplayList(sp218++);

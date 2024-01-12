@@ -20,14 +20,14 @@ extern void* gWorkBuffer;
 extern u64* gGfxSPTaskOutputBufferPtr;
 extern void* gGfxSPTaskOutputBufferEnd;
 
-extern u16 (*gZBufferLoRes)[SCREEN_WIDTH * SCREEN_HEIGHT];
-extern u16 (*gWorkBufferLoRes)[SCREEN_WIDTH * SCREEN_HEIGHT];
-extern u64 (*gGfxSPTaskOutputBufferLoRes)[0x3000];
+extern u16* gZBufferLoRes[SCREEN_WIDTH * SCREEN_HEIGHT];
+extern u16* gWorkBufferLoRes[SCREEN_WIDTH * SCREEN_HEIGHT];
+extern u64* gGfxSPTaskOutputBufferLoRes[0x3000];
 extern void* gGfxSPTaskOutputBufferEndLoRes;
 
-extern u16 (*gZBufferHiRes)[HIRES_BUFFER_WIDTH * HIRES_BUFFER_HEIGHT];
-extern u16 (*gWorkBufferHiRes)[HIRES_BUFFER_WIDTH * HIRES_BUFFER_HEIGHT];
-extern u64 (*gGfxSPTaskOutputBufferHiRes)[0x3000];
+extern u16* gZBufferHiRes[HIRES_BUFFER_WIDTH * HIRES_BUFFER_HEIGHT];
+extern u16* gWorkBufferHiRes[HIRES_BUFFER_WIDTH * HIRES_BUFFER_HEIGHT];
+extern u64* gGfxSPTaskOutputBufferHiRes[0x3000];
 extern void* gGfxSPTaskOutputBufferEndHiRes;
 extern s16 gCfbWidth;
 extern s16 gCfbHeight;

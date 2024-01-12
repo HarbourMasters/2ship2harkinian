@@ -53,7 +53,7 @@ void VisFbuf_DrawBgToColorImage(Gfx** gfxP, uObjBg* bg, void* img, s32 width, s3
 
     gDPPipeSync(gfx++);
     // Reset the color image and scissor to frame's defaults
-    gDPSetColorImage(gfx++, G_IM_FMT_RGBA, G_IM_SIZ_16b, gCfbWidth, D_0F000000);
+    gDPSetColorImage(gfx++, G_IM_FMT_RGBA, G_IM_SIZ_16b, gCfbWidth, D_0F000000_TO_SEGMENTED);
     gSPDisplayList(gfx++, D_0E000000_TO_SEGMENTED(setScissor));
 
     *gfxP = gfx;
@@ -312,11 +312,11 @@ void VisFbuf_Draw(VisFbuf* this, Gfx** gfxP, void* img) {
 
     switch (this->mode) {
         case VIS_FBUF_MODE_GENERAL:
-            VisFbuf_DrawGeneral(this, &gfx, D_0F000000, img, gScreenWidth, gScreenHeight);
+            VisFbuf_DrawGeneral(this, &gfx, D_0F000000_TO_SEGMENTED, img, gScreenWidth, gScreenHeight);
             break;
 
         case VIS_FBUF_MODE_INTERPOLATE:
-            VisFbuf_DrawInterpolate(this, &gfx, D_0F000000, gScreenWidth, gScreenHeight);
+            VisFbuf_DrawInterpolate(this, &gfx, D_0F000000_TO_SEGMENTED, gScreenWidth, gScreenHeight);
             break;
 
         default:

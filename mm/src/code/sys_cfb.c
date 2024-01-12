@@ -14,16 +14,16 @@ void* gGfxSPTaskOutputBufferEnd;
 
 void* sCfbLoRes1;
 void* sCfbLoRes0;
-u16 (*gZBufferLoRes)[SCREEN_WIDTH * SCREEN_HEIGHT];
-u16 (*gWorkBufferLoRes)[SCREEN_WIDTH * SCREEN_HEIGHT];
-u64 (*gGfxSPTaskOutputBufferLoRes)[0x3000];
+u16* gZBufferLoRes[SCREEN_WIDTH * SCREEN_HEIGHT];
+u16* gWorkBufferLoRes[SCREEN_WIDTH * SCREEN_HEIGHT];
+u64* gGfxSPTaskOutputBufferLoRes[0x3000];
 void* gGfxSPTaskOutputBufferEndLoRes;
 
 void* sCfbHiRes1;
 void* sCfbHiRes0;
-u16 (*gZBufferHiRes)[HIRES_BUFFER_WIDTH * HIRES_BUFFER_HEIGHT];
-u16 (*gWorkBufferHiRes)[HIRES_BUFFER_WIDTH * HIRES_BUFFER_HEIGHT];
-u64 (*gGfxSPTaskOutputBufferHiRes)[0x3000];
+u16* gZBufferHiRes[HIRES_BUFFER_WIDTH * HIRES_BUFFER_HEIGHT];
+u16* gWorkBufferHiRes[HIRES_BUFFER_WIDTH * HIRES_BUFFER_HEIGHT];
+u64* gGfxSPTaskOutputBufferHiRes[0x3000];
 void* gGfxSPTaskOutputBufferEndHiRes;
 
 s16 gCfbWidth;
@@ -46,9 +46,9 @@ extern u16 gFramebufferHiRes1[HIRES_BUFFER_WIDTH][HIRES_BUFFER_HEIGHT];
 void SysCfb_SetLoResMode(void) {
     gFramebuffers[1] = sCfbLoRes1;
     gFramebuffers[0] = sCfbLoRes0;
-    gZBufferPtr = *gZBufferLoRes;
+    gZBufferPtr = gZBufferLoRes;
     gWorkBuffer = gWorkBufferLoRes;
-    gGfxSPTaskOutputBufferPtr = *gGfxSPTaskOutputBufferLoRes;
+    gGfxSPTaskOutputBufferPtr = gGfxSPTaskOutputBufferLoRes;
     gGfxSPTaskOutputBufferEnd = gGfxSPTaskOutputBufferEndLoRes;
     gCfbWidth = SCREEN_WIDTH;
     gCfbHeight = SCREEN_HEIGHT;
@@ -63,9 +63,9 @@ void SysCfb_SetLoResMode(void) {
 void SysCfb_SetHiResMode(void) {
     gFramebuffers[1] = sCfbHiRes1;
     gFramebuffers[0] = sCfbHiRes0;
-    gZBufferPtr = *gZBufferHiRes;
+    gZBufferPtr = gZBufferHiRes;
     gWorkBuffer = gWorkBufferHiRes;
-    gGfxSPTaskOutputBufferPtr = *gGfxSPTaskOutputBufferHiRes;
+    gGfxSPTaskOutputBufferPtr = gGfxSPTaskOutputBufferHiRes;
     gGfxSPTaskOutputBufferEnd = gGfxSPTaskOutputBufferEndHiRes;
     if (1) {}
     gCfbWidth = HIRES_BUFFER_WIDTH;
@@ -75,7 +75,7 @@ void SysCfb_SetHiResMode(void) {
     gScreenWidth = gCfbWidth;
     gScreenHeight = gCfbHeight;
     if ((gCfbWidth == SCREEN_WIDTH_HIRES) && (gCfbHeight == SCREEN_HEIGHT_HIRES)) {
-        //gActiveViMode = &osViModeNtscHpf1;
+        // gActiveViMode = &osViModeNtscHpf1;
     } else {
         s32 rightAdjust;
         s32 lowerAdjust;
