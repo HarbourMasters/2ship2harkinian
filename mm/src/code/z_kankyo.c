@@ -1947,7 +1947,7 @@ void Environment_DrawLensFlare(PlayState* play, EnvironmentContext* envCtx, View
                                   TEXEL0, 0, PRIMITIVE, 0);
                 gDPSetAlphaDither(POLY_XLU_DISP++, G_AD_DISABLE);
                 gDPSetColorDither(POLY_XLU_DISP++, G_CD_DISABLE);
-                gSPMatrix(POLY_XLU_DISP++, &D_01000000, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_MODELVIEW);
+                gSPMatrix(POLY_XLU_DISP++, D_01000000_TO_SEGMENTED, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_MODELVIEW);
 
                 switch (sLensFlareTypes[i]) {
                     case LENS_FLARE_CIRCLE0:
@@ -2080,7 +2080,7 @@ void Environment_DrawRainImpl(PlayState* play, View* view, GraphicsContext* gfxC
     for (i = 0; i < precip; i++) {
         Matrix_Translate(((Rand_ZeroOne() - 0.7f) * 100.0f) + spF0, ((Rand_ZeroOne() - 0.7f) * 100.0f) + spEC,
                          ((Rand_ZeroOne() - 0.7f) * 100.0f) + spE8, MTXMODE_NEW);
-        gSPMatrix(POLY_XLU_DISP++, &D_01000000, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_MODELVIEW);
+        gSPMatrix(POLY_XLU_DISP++, D_01000000_TO_SEGMENTED, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_MODELVIEW);
         Matrix_RotateYS(yaw + (s16)(i << 5), MTXMODE_APPLY);
         Matrix_RotateXS(pitch + (s16)(i << 5), MTXMODE_APPLY);
         Matrix_Scale(0.3f, 1.0f, 0.3f, MTXMODE_APPLY);
@@ -2377,7 +2377,7 @@ void Environment_DrawLightning(PlayState* play, s32 unused) {
             gSPSegment(POLY_XLU_DISP++, 0x08,
                        Lib_SegmentedToVirtual(sLightningTextures[sLightningBolts[i].textureIndex]));
             Gfx_SetupDL61_Xlu(play->state.gfxCtx);
-            gSPMatrix(POLY_XLU_DISP++, &D_01000000, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_MODELVIEW);
+            gSPMatrix(POLY_XLU_DISP++, D_01000000_TO_SEGMENTED, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_XLU_DISP++, gEffLightningDL);
         }
     }
