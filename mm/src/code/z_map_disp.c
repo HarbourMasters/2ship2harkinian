@@ -2,43 +2,45 @@
 #include "gfx.h"
 #include "assets/interface/icon_item_dungeon_static/icon_item_dungeon_static.h"
 #include "assets/interface/parameter_static/parameter_static.h"
+#include "assets/archives/map_i_static/map_i_static.h"
+#include "assets/archives/map_grand_static/map_grand_static.h"
 #include "overlays/actors/ovl_En_Door/z_en_door.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 
 void MapDisp_DestroyMapI(PlayState* play);
 void MapDisp_InitMapI(PlayState* play);
 
-static s32 sLoadTextureBlock_siz[4] = {
+static const s32 sLoadTextureBlock_siz[4] = {
     G_IM_SIZ_4b,
     G_IM_SIZ_8b,
     G_IM_SIZ_16b,
     G_IM_SIZ_32b,
 };
-static s32 sLoadTextureBlock_siz_LOAD_BLOCK[4] = {
+static const s32 sLoadTextureBlock_siz_LOAD_BLOCK[4] = {
     G_IM_SIZ_4b_LOAD_BLOCK,
     G_IM_SIZ_8b_LOAD_BLOCK,
     G_IM_SIZ_16b_LOAD_BLOCK,
     G_IM_SIZ_32b_LOAD_BLOCK,
 };
-static u32 sLoadTextureBlock_siz_INCR[4] = {
+static const u32 sLoadTextureBlock_siz_INCR[4] = {
     G_IM_SIZ_4b_INCR,
     G_IM_SIZ_8b_INCR,
     G_IM_SIZ_16b_INCR,
     G_IM_SIZ_32b_INCR,
 };
-static s32 sLoadTextureBlock_siz_SHIFT[4] = {
+static const s32 sLoadTextureBlock_siz_SHIFT[4] = {
     G_IM_SIZ_4b_SHIFT,
     G_IM_SIZ_8b_SHIFT,
     G_IM_SIZ_16b_SHIFT,
     G_IM_SIZ_32b_SHIFT,
 };
-static u32 sLoadTextureBlock_siz_BYTES[4] = {
+static const u32 sLoadTextureBlock_siz_BYTES[4] = {
     G_IM_SIZ_4b_BYTES,
     G_IM_SIZ_8b_BYTES,
     G_IM_SIZ_16b_BYTES,
     G_IM_SIZ_32b_BYTES,
 };
-static u32 sLoadTextureBlock_siz_LINE_BYTES[4] = {
+static const u32 sLoadTextureBlock_siz_LINE_BYTES[4] = {
     G_IM_SIZ_4b_LINE_BYTES,
     G_IM_SIZ_8b_LINE_BYTES,
     G_IM_SIZ_16b_LINE_BYTES,
@@ -61,9 +63,9 @@ static u32 sLoadTextureBlock_siz_LINE_BYTES[4] = {
                        ((height)-1) << G_TEXTURE_IMAGE_FRAC);                                                          \
     })
 
-static UNK_TYPE4 D_801BEB30[2] = { 0, 0 };
+//static const UNK_TYPE4 D_801BEB30[2] = { 0, 0 };
 
-static u64 sWhiteSquareTex[] = {
+static const u64 sWhiteSquareTex[] = {
     0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF,
     0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF,
     0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF,
@@ -76,13 +78,18 @@ static MapDisp sMapDisp = {
 
 MapDataRoom sMapDataRooms[ROOM_MAX];
 MapDataChest sMapDataChests[32];
+
 static MapDataScene sMapDataScene = {
     sMapDataRooms,
     80,
 };
+
 static s32 sSceneNumRooms = 0; // current scene's no. of rooms
+
 static s32 sNumChests = 0;     // MinimapChest count
+
 static TransitionActorList sTransitionActorList = { 0, NULL };
+
 static Color_RGBA8 sMinimapActorCategoryColors[12] = {
     { 255, 255, 255, 255 }, { 255, 255, 255, 255 }, { 0, 255, 0, 255 },     { 255, 255, 255, 255 },
     { 255, 255, 255, 255 }, { 255, 0, 0, 255 },     { 255, 255, 255, 255 }, { 255, 255, 255, 255 },
@@ -92,9 +99,66 @@ static Color_RGBA8 sMinimapActorCategoryColors[12] = {
 TransitionActorEntry sTransitionActors[ROOM_TRANSITION_MAX];
 PauseDungeonMap sPauseDungeonMap;
 
+static const char* sMapTextures[] = {
+    map_i_static_Blob_000000, map_i_static_Blob_000FF0, map_i_static_Blob_001FE0, map_i_static_Blob_002FD0,
+    map_i_static_Blob_003FC0, map_i_static_Blob_004FB0, map_i_static_Blob_005180, map_i_static_Blob_005330,
+    map_i_static_Blob_005510, map_i_static_Blob_005610, map_i_static_Blob_005670, map_i_static_Blob_005820,
+    map_i_static_Blob_005890, map_i_static_Blob_0059C0, map_i_static_Blob_005B60, map_i_static_Blob_005C60,
+    map_i_static_Blob_005E10, map_i_static_Blob_005F30, map_i_static_Blob_006050, map_i_static_Blob_0062B0,
+    map_i_static_Blob_006400, map_i_static_Blob_006620, map_i_static_Blob_006920, map_i_static_Blob_006A30,
+    map_i_static_Blob_006B40, map_i_static_Blob_006C90, map_i_static_Blob_006DB0, map_i_static_Blob_006E70,
+    map_i_static_Blob_006F40, map_i_static_Blob_007170, map_i_static_Blob_007210, map_i_static_Blob_0073D0,
+    map_i_static_Blob_0074D0, map_i_static_Blob_007650, map_i_static_Blob_0077A0, map_i_static_Blob_007850,
+    map_i_static_Blob_0078A0, map_i_static_Blob_0078E0, map_i_static_Blob_007A50, map_i_static_Blob_007AD0,
+    map_i_static_Blob_007B60, map_i_static_Blob_007C20, map_i_static_Blob_007CA0, map_i_static_Blob_007D90,
+    map_i_static_Blob_007EA0, map_i_static_Blob_007FA0, map_i_static_Blob_007FF0, map_i_static_Blob_008080,
+    map_i_static_Blob_008190, map_i_static_Blob_0081F0, map_i_static_Blob_008300, map_i_static_Blob_008360,
+    map_i_static_Blob_0083F0, map_i_static_Blob_008500, map_i_static_Blob_0085F0, map_i_static_Blob_008680,
+    map_i_static_Blob_008700, map_i_static_Blob_0087F0,
+};
+
+static const char* sMapGrandTextures[] = {
+    map_grand_static_Blob_000000, map_grand_static_Blob_000FF0, map_grand_static_Blob_001FE0,
+    map_grand_static_Blob_002FD0, map_grand_static_Blob_003FC0, map_grand_static_Blob_004FB0,
+    map_grand_static_Blob_005AF0, map_grand_static_Blob_006AE0, map_grand_static_Blob_007AD0,
+    map_grand_static_Blob_008AC0, map_grand_static_Blob_009AB0, map_grand_static_Blob_009ED0,
+    map_grand_static_Blob_00AEC0, map_grand_static_Blob_00B310, map_grand_static_Blob_00BAB0,
+    map_grand_static_Blob_00CAA0, map_grand_static_Blob_00DA90, map_grand_static_Blob_00EA80,
+    map_grand_static_Blob_00F200, map_grand_static_Blob_00FA00, map_grand_static_Blob_010250,
+    map_grand_static_Blob_010760, map_grand_static_Blob_010E70, map_grand_static_Blob_011950,
+    map_grand_static_Blob_011FB0, map_grand_static_Blob_012C10, map_grand_static_Blob_013A20,
+    map_grand_static_Blob_013E00, map_grand_static_Blob_0143A0, map_grand_static_Blob_014BC0,
+    map_grand_static_Blob_015000, map_grand_static_Blob_015590, map_grand_static_Blob_015B30,
+    map_grand_static_Blob_0162D0, map_grand_static_Blob_016A70, map_grand_static_Blob_017860,
+    map_grand_static_Blob_0180B0, map_grand_static_Blob_018A70, map_grand_static_Blob_0192F0,
+    map_grand_static_Blob_019950, map_grand_static_Blob_019CB0, map_grand_static_Blob_019F10,
+    map_grand_static_Blob_01A870, map_grand_static_Blob_01ABC0, map_grand_static_Blob_01B570,
+    map_grand_static_Blob_01BEF0, map_grand_static_Blob_01CEE0, map_grand_static_Blob_01DA00,
+    map_grand_static_Blob_01E7A0, map_grand_static_Blob_01EFC0, map_grand_static_Blob_01F3A0,
+    map_grand_static_Blob_01FD20, map_grand_static_Blob_020680, map_grand_static_Blob_020DE0,
+    map_grand_static_Blob_021740, map_grand_static_Blob_021910, map_grand_static_Blob_021F40,
+    map_grand_static_Blob_0225C0, map_grand_static_Blob_022D90, map_grand_static_Blob_023600,
+    map_grand_static_Blob_024460, map_grand_static_Blob_024B70, map_grand_static_Blob_025190,
+    map_grand_static_Blob_0257B0, map_grand_static_Blob_025E30, map_grand_static_Blob_026450,
+    map_grand_static_Blob_026660, map_grand_static_Blob_026B10, map_grand_static_Blob_027190,
+    map_grand_static_Blob_0274E0, map_grand_static_Blob_027B40, map_grand_static_Blob_027E90,
+    map_grand_static_Blob_028390, map_grand_static_Blob_028A30, map_grand_static_Blob_029010,
+    map_grand_static_Blob_029690, map_grand_static_Blob_029B10, map_grand_static_Blob_02A5F0,
+    map_grand_static_Blob_02A8C0, map_grand_static_Blob_02B450, map_grand_static_Blob_02C1F0,
+    map_grand_static_Blob_02CAB0, map_grand_static_Blob_02D4E0, map_grand_static_Blob_02D610,
+    map_grand_static_Blob_02E240, map_grand_static_Blob_02EAE0, map_grand_static_Blob_02FA30,
+    map_grand_static_Blob_0303E0, map_grand_static_Blob_030B90, map_grand_static_Blob_0314F0,
+    map_grand_static_Blob_031C30, map_grand_static_Blob_032630, map_grand_static_Blob_032C70,
+    map_grand_static_Blob_0336A0, map_grand_static_Blob_033A70, map_grand_static_Blob_034770,
+    map_grand_static_Blob_034BB0, map_grand_static_Blob_034F50,
+};
+
 void MapDisp_GetMapITexture(void* dst, s32 mapCompactId) {
-    if (MapDisp_GetSizeOfMapITex(mapCompactId) != 0) {
-        CmpDma_LoadFile(SEGMENT_ROM_START(map_i_static), mapCompactId, dst, MapDisp_GetSizeOfMapITex(mapCompactId));
+    size_t mapSize = MapDisp_GetSizeOfMapITex(mapCompactId) != 0;
+
+    if (mapSize != 0) {
+        dst = ResourceMgr_LoadTexOrDListByName(sMapTextures[mapCompactId]);
+        //CmpDma_LoadFile(SEGMENT_ROM_START(map_i_static), mapCompactId, dst, MapDisp_GetSizeOfMapITex(mapCompactId));
     }
 }
 
@@ -971,9 +1035,11 @@ void MapDisp_SwapRooms(s16 nextRoom) {
                         sMapDisp.minimapCurTex = sMapDisp.texBuff0;
                     }
                     if (MapData_GetSizeOfMapGrandTex(nextMapDataRoom->mapId) != 0) {
-                        CmpDma_LoadFile(SEGMENT_ROM_START(map_grand_static),
-                                        MAPDATA_GET_MAP_GRAND_ID_FROM_MAP_ID(nextMapDataRoom->mapId),
-                                        sMapDisp.minimapCurTex, MapData_GetSizeOfMapGrandTex(nextMapDataRoom->mapId));
+                        sMapDisp.minimapCurTex = ResourceMgr_LoadTexOrDListByName(
+                            sMapGrandTextures[MAPDATA_GET_MAP_GRAND_ID_FROM_MAP_ID(nextMapDataRoom->mapId)]);
+                        //CmpDma_LoadFile(SEGMENT_ROM_START(map_grand_static),
+                        //                MAPDATA_GET_MAP_GRAND_ID_FROM_MAP_ID(nextMapDataRoom->mapId),
+                        //                sMapDisp.minimapCurTex, MapData_GetSizeOfMapGrandTex(nextMapDataRoom->mapId));
                     }
                     break;
 
