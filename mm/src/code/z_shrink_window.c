@@ -85,15 +85,17 @@ void ShrinkWindow_Draw(GraphicsContext* gfxCtx) {
         gDPSetCycleType(gfx++, G_CYC_FILL);
         gDPSetRenderMode(gfx++, G_RM_NOOP, G_RM_NOOP2);
         gDPSetFillColor(gfx++, (GPACK_RGBA5551(0, 0, 0, 1) << 16) | GPACK_RGBA5551(0, 0, 0, 1));
-        gDPFillRectangle(gfx++, 0, 0, gScreenWidth - 1, letterboxSize - 1);
-        gDPFillRectangle(gfx++, 0, gScreenHeight - letterboxSize, gScreenWidth - 1, gScreenHeight - 1);
+        // #region 2S2H [Cosmetic] Account for different aspect ratios than 4:3
+        gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), 0, OTRGetRectDimensionFromRightEdge(gScreenWidth - 1), letterboxSize - 1);
+        gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), gScreenHeight - letterboxSize, OTRGetRectDimensionFromRightEdge(gScreenWidth - 1), gScreenHeight - 1);
 
         gDPPipeSync(gfx++);
         gDPSetCycleType(gfx++, G_CYC_1CYCLE);
         gDPSetRenderMode(gfx++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
         gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, 0);
-        gDPFillRectangle(gfx++, 0, letterboxSize, gScreenWidth, letterboxSize + 1);
-        gDPFillRectangle(gfx++, 0, gScreenHeight - letterboxSize - 1, gScreenWidth, gScreenHeight - letterboxSize);
+        gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), letterboxSize, OTRGetRectDimensionFromRightEdge(gScreenWidth), letterboxSize + 1);
+        gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), gScreenHeight - letterboxSize - 1, OTRGetRectDimensionFromRightEdge(gScreenWidth), gScreenHeight - letterboxSize);
+        // #endregion
 
         gDPPipeSync(gfx++);
         OVERLAY_DISP = gfx++;
@@ -111,16 +113,18 @@ void ShrinkWindow_Draw(GraphicsContext* gfxCtx) {
         gDPSetRenderMode(gfx++, G_RM_NOOP, G_RM_NOOP2);
         gDPSetFillColor(gfx++, (GPACK_RGBA5551(0, 0, 0, 1) << 16) | GPACK_RGBA5551(0, 0, 0, 1));
 
-        gDPFillRectangle(gfx++, 0, 0, pillarboxSize - 1, gScreenHeight - 1);
-        gDPFillRectangle(gfx++, gScreenWidth - pillarboxSize, 0, gScreenWidth - 1, gScreenHeight - 1);
+        // #region 2S2H [Cosmetic] Account for different aspect ratios than 4:3
+        gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), 0, OTRGetRectDimensionFromRightEdge(pillarboxSize - 1), gScreenHeight - 1);
+        gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(gScreenWidth - pillarboxSize), 0, OTRGetRectDimensionFromRightEdge(gScreenWidth - 1), gScreenHeight - 1);
 
         gDPPipeSync(gfx++);
         gDPSetCycleType(gfx++, G_CYC_1CYCLE);
         gDPSetRenderMode(gfx++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
         gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, 0);
 
-        gDPFillRectangle(gfx++, pillarboxSize, 0, pillarboxSize + 2, gScreenHeight);
-        gDPFillRectangle(gfx++, gScreenWidth - pillarboxSize - 2, 0, gScreenWidth - pillarboxSize, gScreenHeight);
+        gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(pillarboxSize), 0, pillarboxSize + 2, gScreenHeight);
+        gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(gScreenWidth - pillarboxSize - 2), 0, OTRGetRectDimensionFromRightEdge(gScreenWidth - pillarboxSize), gScreenHeight);
+        // #endregion
 
         gDPPipeSync(gfx++);
         OVERLAY_DISP = gfx++;
