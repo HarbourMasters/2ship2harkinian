@@ -181,8 +181,9 @@ void Font_LoadCharNES(PlayState* play, u8 codePointIndex, s32 offset) {
 
     int fontIdx = codePointIndex - 0x20;
 
-    if (codePointIndex < 0x8B)
+    if (fontIdx >= 0 && fontIdx < ARRAY_COUNT(fontTbl)) {
         memcpy(&font->charBuf[font->unk_11D88][offset], fontTbl[fontIdx], strlen(fontTbl[fontIdx]) + 1);
+    }
 
     // DmaMgr_SendRequest0(&font->charBuf[font->unk_11D88][offset],
     //&((u8*)SEGMENT_ROM_START(nes_font_static))[(codePointIndex - ' ') * FONT_CHAR_TEX_SIZE],
