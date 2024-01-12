@@ -4170,8 +4170,12 @@ void Message_DrawSceneTitleCard(PlayState* play, Gfx** gfxP) {
     gDPSetEnvColor(gfx++, 140, 40, 160, 255);
     gDPLoadTextureBlock(gfx++, gSceneTitleCardGradientTex, G_IM_FMT_I, G_IM_SIZ_8b, 64, 1, 0, G_TX_NOMIRROR | G_TX_WRAP,
                         G_TX_NOMIRROR | G_TX_WRAP, 6, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
-    gSPTextureRectangle(gfx++, 0, XREG(77) << 2, 320 << 2, (XREG(77) + XREG(76)) << 2, G_TX_RENDERTILE, 0, 0, 204,
-                        1 << 10);
+    // #region 2S2H [Cosmetic] Account for different aspect ratios than 4:3 for title card
+    // gSPTextureRectangle(gfx++, 0, XREG(77) << 2, 320 << 2, (XREG(77) + XREG(76)) << 2, G_TX_RENDERTILE, 0, 0, 204,
+    //                     1 << 10);
+    f32 tileOffset = 204.0f / ((320.0f + (OTRGetDimensionFromRightEdge(0) * 2.0f)) / 320.0f);
+    gSPWideTextureRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0) << 2, XREG(77) << 2, OTRGetRectDimensionFromRightEdge(320) << 2, (XREG(77) + XREG(76)) << 2, G_TX_RENDERTILE, 8, 0, (u32)tileOffset - 1, 1 << 10);
+    // #endregion
     gDPPipeSync(gfx++);
     gDPSetCombineLERP(gfx++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0);
     gDPSetEnvColor(gfx++, 0, 0, 0, 255);
