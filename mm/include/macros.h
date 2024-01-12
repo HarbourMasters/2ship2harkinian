@@ -107,6 +107,7 @@
     (void)0
 
 // #region 2S2H [Port]
+#define D_01000000_TO_SEGMENTED (0x01000000 | 1)
 // Compute 0x0E segment value as compile time constant for 32bit and 64bit
 #define D_0E000000_TO_SEGMENTED(member) ((0x0E000000 + offsetof(GfxMasterList, member)) | 1)
 #define D_0F000000_TO_SEGMENTED (0x0F000000 | 1)
