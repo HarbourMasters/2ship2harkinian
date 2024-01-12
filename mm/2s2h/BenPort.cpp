@@ -1325,6 +1325,40 @@ extern "C" int16_t OTRGetRectDimensionFromRightEdge(float v) {
     return ((int)ceilf(OTRGetDimensionFromRightEdge(v)));
 }
 
+// Takes a HUD coordinate(320x240) and converts it to the game window pixel coordinates (any size, any aspect ratio)
+// Though the HUD uses a 320x240 coordinates system, the size of the HUD box is scaled up to match the window height
+// If the game window is 4:3, this will return the same value.
+
+/*
+Example, if the game window is 16:9 at twice the resolution of the HUD:
+Calling with X (0,0) will return 8
+Calling with Y (1,1) will return 10
+
+. . . x _ _ _ _ _ _ _ . . .
+. . . _ y _ _ _ _ _ _ . . .
+. . . _ _ _ HUD _ _ _ . . .
+. . . _ _ _ _ _ _ _ _ . . .
+. . . _ _ _ _ _ _ _ _ . . .
+*/
+extern "C" int32_t OTRConvertHUDXToScreenX(int32_t v) {
+    float gameAspectRatio = gfx_current_dimensions.aspect_ratio;
+    int32_t gameHeight = gfx_current_dimensions.height;
+    int32_t gameWidth = gfx_current_dimensions.width;
+    float hudAspectRatio = 4.0f / 3.0f;
+    int32_t hudHeight = gameHeight;
+    int32_t hudWidth = hudHeight * hudAspectRatio;
+
+    float hudScreenRatio = (hudWidth / 320.0f);
+    float hudCoord = v * hudScreenRatio;
+    float gameOffset = (gameWidth - hudWidth) / 2;
+    float gameCoord = hudCoord + gameOffset;
+    float gameScreenRatio = (320.0f / gameWidth);
+    float screenScaledCoord = gameCoord * gameScreenRatio;
+    int32_t screenScaledCoordInt = screenScaledCoord;
+
+    return screenScaledCoordInt;
+}
+
 extern "C" int AudioPlayer_Buffered(void) {
     return AudioPlayerBuffered();
 }

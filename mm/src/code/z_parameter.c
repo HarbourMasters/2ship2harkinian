@@ -15,6 +15,7 @@
 #include "interface/week_static/week_static.h"
 #include "BenPort.h"
 #include <string.h>
+#include "libultraship/libultraship.h"
 
 // #region 2S2H [Port] Asset tables we can pull from instead of from ROM
 #define dgEmptyTexture "__OTR__textures/virtual/gEmptyTexture"
@@ -4018,8 +4019,8 @@ void Interface_SetPerspectiveView(PlayState* play, s32 topY, s32 bottomY, s32 le
 
     interfaceCtx->viewport.topY = topY;
     interfaceCtx->viewport.bottomY = bottomY;
-    interfaceCtx->viewport.leftX = leftX;
-    interfaceCtx->viewport.rightX = rightX;
+    interfaceCtx->viewport.leftX = OTRConvertHUDXToScreenX(leftX);
+    interfaceCtx->viewport.rightX = OTRConvertHUDXToScreenX(rightX);
     View_SetViewport(&interfaceCtx->view, &interfaceCtx->viewport);
 
     View_SetPerspective(&interfaceCtx->view, 60.0f, 10.0f, 60.0f);
