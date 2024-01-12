@@ -115,7 +115,22 @@ void Scene_CommandEntranceList(PlayState* play, LUS::ISceneCommand* cmd) {
 
 void Scene_CommandSpecialFiles(PlayState* play, LUS::ISceneCommand* cmd) {
     printf("Un-implemented command %02X\n", cmd->cmdId);
-    // Unused according to z_scene.c
+    LUS::SetSpecialObjects* specialObjList = (LUS::SetSpecialObjects*)cmd;
+    // static RomFile naviQuestHintFiles[2] = {
+    //     { SEGMENT_ROM_START(elf_message_field), SEGMENT_ROM_END(elf_message_field) },
+    //     { SEGMENT_ROM_START(elf_message_ydan), SEGMENT_ROM_END(elf_message_ydan) },
+    // };
+
+    if (specialObjList->specialObjects.globalObject != 0) {
+        play->objectCtx.subKeepSlot = Object_SpawnPersistent(&play->objectCtx, specialObjList->specialObjects.globalObject);
+        // ZRET TODO: Segment number enum?
+        // gSegments[0x05] = OS_K0_TO_PHYSICAL(play->objectCtx.slots[play->objectCtx.subKeepSlot].segment);
+    }
+
+    // BENTODO: Figure out if the following section is needed for something
+    // if (specialObjList->specialObjects.elfMessage != NAVI_QUEST_HINTS_NONE) {
+    //     play->naviQuestHints = Play_LoadFile(play, &naviQuestHintFiles[specialObjList->specialObjects.elfMessage - 1]);
+    // }
 }
 
 void Scene_CommandRoomBehavior(PlayState* play, LUS::ISceneCommand* cmd) {
@@ -147,24 +162,80 @@ void Scene_CommandMesh(PlayState* play, LUS::ISceneCommand* cmd) {
 
 void Scene_CommandObjectList(PlayState* play, LUS::ISceneCommand* cmd) {
     LUS::SetObjectList* objList = (LUS::SetObjectList*)cmd;
+    s32 i;
+    s32 j;
+    s32 k;
 
-    s16* entry = (s16*)objList->GetRawPointer();
+    // #Region 2S2H [Port] Cleaner version of decomps loops for nicer presentation
 
-    for (unsigned int i = 0; i < objList->objects.size(); i++) {
-        bool alreadyIncluded = false;
-
-        for (unsigned int j = 0; j < play->objectCtx.numEntries; j++) {
-            if (play->objectCtx.slots[j].id == objList->objects[i]) {
-                alreadyIncluded = true;
-                break;
+    // Loop until a mismatch in the object lists
+    // Then clear all object ids past that in the context object list and kill actors for those objects
+    for (i = play->objectCtx.numPersistentEntries, k = 0; i < play->objectCtx.numEntries; i++, k++) {
+        if (play->objectCtx.slots[i].id != objList->objects[k]) {
+            for (j = i; j < play->objectCtx.numEntries; j++) {
+                play->objectCtx.slots[j].id = 0;
             }
-        }
-
-        if (!alreadyIncluded) {
-            play->objectCtx.slots[play->objectCtx.numEntries++].id = objList->objects[i];
             Actor_KillAllWithMissingObject(play, &play->actorCtx);
+            break;
         }
     }
+
+    // Continuing from the last index, add the remaining object ids from the command object list
+    for (; k < objList->objects.size(); k++) {
+        play->objectCtx.slots[play->objectCtx.numEntries++].id = -objList->objects[k];
+    }
+
+    // Original Compatible Code Commented
+
+    // s32 i;
+    // s32 j;
+    // s32 k;
+    // ObjectEntry* firstObject;
+    // ObjectEntry* entry;
+    // ObjectEntry* invalidatedEntry;
+    // s16* objectEntry;
+    // void* nextPtr;
+    
+    // s16* objectEntry = (s16*)objList->GetRawPointer();
+    // k = 0;
+    // i = play->objectCtx.numPersistentEntries;
+    // entry = &play->objectCtx.slots[i];
+    // firstObject = &play->objectCtx.slots[0];
+
+    // while (i < play->objectCtx.numEntries) {
+    //     if (entry->id != *objectEntry) {
+    //         invalidatedEntry = &play->objectCtx.slots[i];
+
+    //         for (j = i; j < play->objectCtx.numEntries; j++) {
+    //             invalidatedEntry->id = 0;
+    //             invalidatedEntry++;
+    //         }
+
+    //         play->objectCtx.numEntries = i;
+    //         Actor_KillAllWithMissingObject(play, &play->actorCtx);
+
+    //         continue;
+    //     }
+
+    //     i++;
+    //     k++;
+    //     objectEntry++;
+    //     entry++;
+    // }
+
+    // while (k < objList->objects.size()) {
+    //     nextPtr = func_8012F73C(&play->objectCtx, i, *objectEntry);
+
+    //     if (i < ARRAY_COUNT(play->objectCtx.slots) - 1) {
+    //         firstObject[i + 1].segment = nextPtr;
+    //     }
+
+    //     i++;
+    //     k++;
+    //     objectEntry++;
+    // }
+
+    // play->objectCtx.numEntries = i;
 }
 
 void Scene_CommandLightList(PlayState* play, LUS::ISceneCommand* cmd) {
