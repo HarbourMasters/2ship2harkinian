@@ -50,7 +50,7 @@ CrowdControl* CrowdControl::Instance;
 #endif
 
 #include <libultraship/libultraship.h>
-#include <SohGui.hpp>
+#include <BenGui.hpp>
 
 #include "Enhancements/controls/SohInputEditorWindow.h"
 
@@ -299,7 +299,7 @@ extern "C" void InitOTR() {
 #endif
 
     OTRGlobals::Instance = new OTRGlobals();
-    SohGui::SetupGuiElements();
+    BenGui::SetupGuiElements();
 
     clearMtx = (uintptr_t)&gMtxClear;
     //OTRMessage_Init();
@@ -340,7 +340,7 @@ extern "C" void DeinitOTR() {
 
     // Destroying gui here because we have shared ptrs to LUS objects which output to SPDLOG which is destroyed before
     // these shared ptrs.
-    //SohGui::Destroy();
+    //BenGui::Destroy();
 
     OTRGlobals::Instance->context = nullptr;
 }

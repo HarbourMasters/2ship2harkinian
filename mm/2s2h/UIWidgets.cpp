@@ -10,6 +10,8 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <ImGui/imgui_internal.h>
 #include <libultraship/libultraship.h>
+#include <string>
+#include <unordered_map>
 
 #include <libultraship/libultra/types.h>
 //#include "soh/Enhancements/cosmetics/CosmeticsEditor.h"
@@ -733,6 +735,7 @@ namespace UIWidgets {
     bool BeginMenu(const char* label, const ImVec4& color) {
         bool dirty = false;
         PushStyleMenu(color);
+        ImGui::SetNextWindowSizeConstraints(ImVec2(200.0f, 0.0f), ImVec2(FLT_MAX, FLT_MAX));
         if (ImGui::BeginMenu(label)) {
             dirty = true;
         }
@@ -904,89 +907,6 @@ namespace UIWidgets {
     void PopStyleCombobox() {
         ImGui::PopStyleVar(4);
         ImGui::PopStyleColor(9);
-    }
-
-    bool Combobox(const char* label, uint8_t* value, std::span<const char*, std::dynamic_extent> comboArray, const ComboboxOptions& options) {
-        bool dirty = false;
-        float startX = ImGui::GetCursorPosX();
-        std::string invisibleLabelStr = "##" + std::string(label);
-        const char* invisibleLabel = invisibleLabelStr.c_str();
-        ImGui::PushID(label);
-        ImGui::BeginGroup();
-        ImGui::BeginDisabled(options.disabled);
-        PushStyleCombobox(options.color);
-        if (options.alignment == ComponentAlignment::Left) {
-            if (options.labelPosition == LabelPosition::Above) {
-                ImGui::Text(label);
-                ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-            } else if (options.labelPosition == LabelPosition::Near) {
-                ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(label).x - ImGui::GetStyle().ItemSpacing.x * 2);
-            } else if (options.labelPosition == LabelPosition::Far || options.labelPosition == LabelPosition::None) {
-                ImGui::SetNextItemWidth(ImGui::CalcTextSize(comboArray[*value]).x + ImGui::GetStyle().FramePadding.x * 4 + ImGui::GetStyle().ItemSpacing.x);
-            }
-        } else if (options.alignment == ComponentAlignment::Right) {
-            if (options.labelPosition == LabelPosition::Above) {
-                ImGui::NewLine();
-                ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(label).x);
-                ImGui::Text(label);
-                ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-            } else if (options.labelPosition == LabelPosition::Near) {
-                ImGui::SameLine(ImGui::CalcTextSize(label).x + ImGui::GetStyle().ItemSpacing.x * 2);
-                ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-            } else if (options.labelPosition == LabelPosition::Far || options.labelPosition == LabelPosition::None) {
-                float width = ImGui::CalcTextSize(comboArray[*value]).x + ImGui::GetStyle().FramePadding.x * 4;
-                ImGui::SameLine(ImGui::GetContentRegionAvail().x - width);
-                ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
-            }
-        }
-        if (ImGui::BeginCombo(invisibleLabel, comboArray[*value], options.flags)) {
-            ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(10.0f, 10.0f));
-            for (uint8_t i = 0; i < comboArray.size(); i++) {
-                if (strlen(comboArray[i]) > 1) {
-                    if (ImGui::Selectable(comboArray[i], i == *value)) {
-                        *value = i;
-                        dirty = true;
-                    }
-                }
-            }
-            ImGui::PopStyleVar();
-            ImGui::EndCombo();
-        }
-        if (options.alignment == ComponentAlignment::Left) {
-            if (options.labelPosition == LabelPosition::Near) {
-                ImGui::SameLine();
-                ImGui::Text(label);
-            } else if (options.labelPosition == LabelPosition::Far) {
-                ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(label).x);
-                ImGui::Text(label);
-            }
-        } else if (options.alignment == ComponentAlignment::Right) {
-            if (options.labelPosition == LabelPosition::Near || options.labelPosition == LabelPosition::Far) {
-                ImGui::SameLine(startX);
-                ImGui::Text(label);
-            }
-        }
-        PopStyleCombobox();
-        ImGui::EndDisabled();
-        ImGui::EndGroup();
-        if (options.disabled && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && strcmp(options.disabledTooltip, "") != 0) {
-            ImGui::SetTooltip("%s", WrappedText(options.disabledTooltip));
-        } else if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && strcmp(options.tooltip, "") != 0) {
-            ImGui::SetTooltip("%s", WrappedText(options.tooltip));
-        }
-        ImGui::PopID();
-        return dirty;
-    }
-
-    bool CVarCombobox(const char* label, const char* cvarName, std::span<const char*, std::dynamic_extent> comboArray, const ComboboxOptions& options) {
-        bool dirty = false;
-        uint8_t value = (uint8_t)CVarGetInteger(cvarName, options.defaultIndex);
-        if (Combobox(label, &value, comboArray, options)) {
-            CVarSetInteger(cvarName, value);
-            LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
-            dirty = true;
-        }
-        return dirty;
     }
 
     void PushStyleSlider(const ImVec4& color) {
