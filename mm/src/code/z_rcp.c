@@ -1512,9 +1512,11 @@ void func_8012CF0C(GraphicsContext* gfxCtx, s32 clearFb, s32 clearZb, u8 r, u8 g
     masterGfx = gGfxMasterDL->clearFillRect;
 
     // #region 2S2H [Cosmetic] Account for different aspect ratios than 4:3
-    gDPFillWideRectangle(&masterGfx[0], OTRGetRectDimensionFromLeftEdge(0), 0, OTRGetRectDimensionFromRightEdge(gCfbWidth - 1), gCfbHeight - 1);
-    gDPPipeSync(&masterGfx[1]);
-    gSPEndDisplayList(&masterGfx[2]);
+    // WideRectangle consumes two instructions and requires ++ for the macro to work
+    Gfx* tmpGfx = masterGfx;
+    gDPFillWideRectangle(tmpGfx++, OTRGetRectDimensionFromLeftEdge(0), 0, OTRGetRectDimensionFromRightEdge(gCfbWidth - 1), gCfbHeight - 1);
+    gDPPipeSync(&masterGfx[2]);
+    gSPEndDisplayList(&masterGfx[3]);
     // #endregion
 
     // General Fillrect?
@@ -1522,9 +1524,11 @@ void func_8012CF0C(GraphicsContext* gfxCtx, s32 clearFb, s32 clearZb, u8 r, u8 g
     masterGfx = gGfxMasterDL->fillRect;
 
     // #region 2S2H [Cosmetic] Account for different aspect ratios than 4:3
-    gDPFillWideRectangle(&masterGfx[0], OTRGetRectDimensionFromLeftEdge(0), 0, OTRGetRectDimensionFromRightEdge(gCfbWidth), gCfbHeight);
-    gDPPipeSync(&masterGfx[1]);
-    gSPEndDisplayList(&masterGfx[2]);
+    // WideRectangle consumes two instructions and requires ++ for the macro to work
+    tmpGfx = masterGfx;
+    gDPFillWideRectangle(tmpGfx++, OTRGetRectDimensionFromLeftEdge(0), 0, OTRGetRectDimensionFromRightEdge(gCfbWidth), gCfbHeight);
+    gDPPipeSync(&masterGfx[2]);
+    gSPEndDisplayList(&masterGfx[3]);
     // #endregion
 
     // Sync SP Segments with current CPU Segments
