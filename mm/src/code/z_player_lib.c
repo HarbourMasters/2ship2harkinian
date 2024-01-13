@@ -1631,22 +1631,85 @@ Gfx gCullFrontDList[] = {
     gsSPEndDisplayList(),
 };
 
-TexturePtr sPlayerEyesTextures[PLAYER_EYES_MAX] = {
-    gLinkHumanEyesOpenTex,        // PLAYER_EYES_OPEN
-    gLinkHumanEyesHalfTex,        // PLAYER_EYES_HALF
-    gLinkHumanEyesClosedTex,      // PLAYER_EYES_CLOSED
-    gLinkHumanEyesRollRightTex,   // PLAYER_EYES_ROLL_RIGHT
-    gLinkHumanEyesRollLeftTex,    // PLAYER_EYES_ROLL_LEFT
-    gLinkHumanEyesRollUpTex,      // PLAYER_EYES_ROLL_UP
-    gLinkHumanEyesRollDownTex,    // PLAYER_EYES_ROLL_DOWN
-    object_link_child_Tex_003800, // PLAYER_EYES_7
+TexturePtr sPlayerEyesTextures[PLAYER_FORM_MAX][PLAYER_EYES_MAX] = {
+    {
+        // It doesn't seem to matter since it always has the same eyes
+        gLinkFierceDeityEyesTex,
+        gLinkFierceDeityEyesTex,
+        gLinkFierceDeityEyesTex,
+        gLinkFierceDeityEyesTex,
+        gLinkFierceDeityEyesTex,
+        gLinkFierceDeityEyesTex,
+        gLinkFierceDeityEyesTex,
+    },
+    {
+        gLinkGoronEyesOpenTex,
+        gLinkGoronEyesHalfTex,
+        gLinkGoronEyesClosedTex,
+        gLinkGoronEyesSurprisedTex,
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+    },
+    {
+        gLinkZoraEyesOpenTex,
+        gLinkZoraEyesHalfTex,
+        gLinkZoraEyesClosedTex,
+        gLinkZoraEyesRollRightTex,
+        gLinkZoraEyesRollLeftTex,
+        gLinkZoraEyesRollUpTex,
+        gLinkZoraEyesRollDownTex,
+        object_link_zora_Tex_003800,
+    },
+    {
+        object_link_nuts_Tex_0048B0,
+        object_link_nuts_Tex_0048B0,
+        object_link_nuts_Tex_0048B0,
+        object_link_nuts_Tex_0048B0,
+        object_link_nuts_Tex_0048B0,
+        object_link_nuts_Tex_0048B0,
+        object_link_nuts_Tex_0048B0,
+        object_link_nuts_Tex_0048B0,
+    },
+    {
+        gLinkHumanEyesOpenTex,        // PLAYER_EYES_OPEN
+        gLinkHumanEyesHalfTex,        // PLAYER_EYES_HALF
+        gLinkHumanEyesClosedTex,      // PLAYER_EYES_CLOSED
+        gLinkHumanEyesRollRightTex,   // PLAYER_EYES_ROLL_RIGHT
+        gLinkHumanEyesRollLeftTex,    // PLAYER_EYES_ROLL_LEFT
+        gLinkHumanEyesRollUpTex,      // PLAYER_EYES_ROLL_UP
+        gLinkHumanEyesRollDownTex,    // PLAYER_EYES_ROLL_DOWN
+        object_link_child_Tex_003800, // PLAYER_EYES_7
+    },
 };
 
-TexturePtr sPlayerMouthTextures[PLAYER_MOUTH_MAX] = {
-    gLinkHumanMouthClosedTex, // PLAYER_MOUTH_CLOSED
-    gLinkHumanMouthTeethTex,  // PLAYER_MOUTH_TEETH
-    gLinkHumanMouthAngryTex,  // PLAYER_MOUTH_ANGRY
-    gLinkHumanMouthHappyTex,  // PLAYER_MOUTH_HAPPY
+TexturePtr sPlayerMouthTextures[PLAYER_FORM_MAX][PLAYER_MOUTH_MAX] = {
+    {
+        gLinkFierceDeityMouthTex,
+        gLinkFierceDeityMouthTex,
+        gLinkFierceDeityMouthTex,
+        gLinkFierceDeityMouthTex,
+    },
+    {
+        NULL,
+        NULL,
+        NULL,
+        NULL,
+    },
+    {
+        gLinkZoraMouthClosedTex,
+        object_link_zora_Tex_004400,
+        gLinkZoraMouthAngryTex,
+        gLinkZoraMouthHappyTex,
+    },
+    { NULL, NULL, NULL, NULL },
+    {
+        gLinkHumanMouthClosedTex, // PLAYER_MOUTH_CLOSED
+        gLinkHumanMouthTeethTex,  // PLAYER_MOUTH_TEETH
+        gLinkHumanMouthAngryTex,  // PLAYER_MOUTH_ANGRY
+        gLinkHumanMouthHappyTex,  // PLAYER_MOUTH_HAPPY
+    },
 };
 
 typedef struct PlayerFaceIndices {
@@ -1698,13 +1761,13 @@ void Player_DrawImpl(PlayState* play, void** skeleton, Vec3s* jointTable, s32 dL
         }
     }
 
-    gSPSegment(&gfx[0], 0x08, Lib_SegmentedToVirtual(sPlayerEyesTextures[eyeIndex]));
+    gSPSegment(&gfx[0], 0x08, Lib_SegmentedToVirtual(sPlayerEyesTextures[playerForm][eyeIndex]));
 
     if (mouthIndex < 0) {
         mouthIndex = sPlayerFaces[face].mouthIndex;
     }
 
-    gSPSegment(&gfx[1], 0x09, Lib_SegmentedToVirtual(sPlayerMouthTextures[mouthIndex]));
+    gSPSegment(&gfx[1], 0x09, Lib_SegmentedToVirtual(sPlayerMouthTextures[playerForm][mouthIndex]));
 
     POLY_OPA_DISP = &gfx[2];
 
