@@ -1763,7 +1763,29 @@ void Environment_DrawSun(PlayState* play) {
             Matrix_Scale(sSunScale, sSunScale, sSunScale, MTXMODE_APPLY);
             gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_LOAD);
             Gfx_SetupDL54_Opa(play->state.gfxCtx);
-            gSPDisplayList(POLY_OPA_DISP++, gSunDL);
+
+            // #region 2S2H [Port] The sun texture was originally broken up into 3 pieces, but this causes
+            // issues with extraction, so we've combined them into a single 64x64 texture, and this requires
+            // that we render it ourself instead of using gSunDL.
+            // gSPDisplayList(POLY_OPA_DISP++, gSunDL);
+            static Vtx vertices[] = {
+                VTX(-31, -31, 0, 0, 0, 255, 255, 255, 255),
+                VTX(32, -31, 0, 2016, 0, 255, 255, 255, 255),
+                VTX(-31, 32, 0, 0, 2016, 255, 255, 255, 255),
+                VTX(32, 32, 0, 2016, 2016, 255, 255, 255, 255),
+            };
+
+            gSPMatrix(POLY_OPA_DISP++, D_01000000_TO_SEGMENTED, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_MODELVIEW);
+            gDPPipeSync(POLY_OPA_DISP++);
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gSun1Tex, G_IM_FMT_I, 64, 64, 0, G_TX_NOMIRROR | G_TX_CLAMP,
+                                G_TX_NOMIRROR | G_TX_CLAMP,
+                                6, 6, G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadMultiBlock_4b(POLY_OPA_DISP++, gSunEvening1Tex, 0x0100, 1, G_IM_FMT_I, 64, 64, 0,
+                                G_TX_NOMIRROR | G_TX_CLAMP,
+                                G_TX_NOMIRROR | G_TX_CLAMP, 6, 6, G_TX_NOLOD, G_TX_NOLOD);
+            gSPVertex(POLY_OPA_DISP++, vertices, 4, 0);
+            gSP2Triangles(POLY_OPA_DISP++, 0, 1, 2, 0, 2, 1, 3, 0);
+            // #endregion
         }
 
         CLOSE_DISPS(play->state.gfxCtx);
