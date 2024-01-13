@@ -21,9 +21,9 @@
 #define dgEmptyTexture "__OTR__textures/virtual/gEmptyTexture"
 static const ALIGN_ASSET(2) char gEmptyTexture[] = dgEmptyTexture;
 
-static const char* sCounterDigits[] = {
-    gCounterDigit0Tex, gCounterDigit1Tex, gCounterDigit2Tex, gCounterDigit3Tex, gCounterDigit4Tex, 
-    gCounterDigit5Tex, gCounterDigit6Tex, gCounterDigit7Tex, gCounterDigit8Tex, gCounterDigit9Tex,
+static const char* sCounterTextures[] = {
+    gCounterDigit0Tex, gCounterDigit1Tex, gCounterDigit2Tex, gCounterDigit3Tex, gCounterDigit4Tex, gCounterDigit5Tex,
+    gCounterDigit6Tex, gCounterDigit7Tex, gCounterDigit8Tex, gCounterDigit9Tex, gCounterColonTex,
 };
 
 static const char* sDoWeekTable[] = {
@@ -6096,7 +6096,7 @@ void Interface_DrawTimers(PlayState* play) {
                         // draw sTimerDigits[3] (10s of seconds) to sTimerDigits[6] (100s of milliseconds)
                         for (j = 0; j < 4; j++) {
                             OVERLAY_DISP = Gfx_DrawTexRectI8(
-                                OVERLAY_DISP, sCounterDigits[sTimerDigits[j + 3]], 8, 0x10,
+                                OVERLAY_DISP, sCounterTextures[sTimerDigits[j + 3]], 8, 0x10,
                                 ((void)0, gSaveContext.timerX[sTimerId]) + sTimerDigitsOffsetX[j],
                                 ((void)0, gSaveContext.timerY[sTimerId]), sTimerDigitsWidth[j], 0xFA, 0x370, 0x370);
                         }
@@ -6104,7 +6104,7 @@ void Interface_DrawTimers(PlayState* play) {
                         // draw sTimerDigits[3] (10s of seconds) to sTimerDigits[7] (10s of milliseconds)
                         for (j = 0; j < 5; j++) {
                             OVERLAY_DISP = Gfx_DrawTexRectI8(
-                                OVERLAY_DISP, sCounterDigits[sTimerDigits[j + 3]], 8, 0x10,
+                                OVERLAY_DISP, sCounterTextures[sTimerDigits[j + 3]], 8, 0x10,
                                 ((void)0, gSaveContext.timerX[sTimerId]) + sTimerDigitsOffsetX[j],
                                 ((void)0, gSaveContext.timerY[sTimerId]), sTimerDigitsWidth[j], 0xFA, 0x370, 0x370);
                         }
@@ -6113,7 +6113,7 @@ void Interface_DrawTimers(PlayState* play) {
                     // draw sTimerDigits[3] (6s of minutes) to sTimerDigits[7] (10s of milliseconds)
                     for (j = 0; j < 8; j++) {
                         OVERLAY_DISP = Gfx_DrawTexRectI8(
-                            OVERLAY_DISP, sCounterDigits[sTimerDigits[j]], 8, 0x10,
+                            OVERLAY_DISP, sCounterTextures[sTimerDigits[j]], 8, 0x10,
                             ((void)0, gSaveContext.timerX[sTimerId]) + sTimerDigitsOffsetX[j],
                             ((void)0, gSaveContext.timerY[sTimerId]), sTimerDigitsWidth[j], 0xFA, 0x370, 0x370);
                     }
@@ -6297,7 +6297,7 @@ void Interface_DrawMinigameIcons(PlayState* play) {
 
             for (i = 0, numDigitsDrawn = 0; i < 4; i++) {
                 if ((sMinigameScoreDigits[i] != 0) || (numDigitsDrawn != 0) || (i >= 3)) {
-                    OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sCounterDigits[sMinigameScoreDigits[i]], 8, 0x10,
+                    OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sCounterTextures[sMinigameScoreDigits[i]], 8, 0x10,
                                                      rectX, rectY - 2, 9, 0xFA, 0x370, 0x370);
                     rectX += 9;
                     numDigitsDrawn++;
@@ -6452,7 +6452,7 @@ void Interface_Draw(PlayState* play) {
                         gDPPipeSync(OVERLAY_DISP++);
                         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, interfaceCtx->magicAlpha);
 
-                        OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sCounterDigits[counterDigits[2]], 8, 16, 43, 191,
+                        OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sCounterTextures[counterDigits[2]], 8, 16, 43, 191,
                                                          8, 16, 1 << 10, 1 << 10);
 
                         gDPPipeSync(OVERLAY_DISP++);
@@ -6466,7 +6466,7 @@ void Interface_Draw(PlayState* play) {
                     gDPPipeSync(OVERLAY_DISP++);
                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, interfaceCtx->magicAlpha);
 
-                    OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sCounterDigits[counterDigits[3]], 8, 16, sp2CA + 1,
+                    OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sCounterTextures[counterDigits[3]], 8, 16, sp2CA + 1,
                                                      191, 8, 16, 1 << 10, 1 << 10);
 
                     gDPPipeSync(OVERLAY_DISP++);
@@ -6507,7 +6507,7 @@ void Interface_Draw(PlayState* play) {
                     gDPPipeSync(OVERLAY_DISP++);
                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, interfaceCtx->magicAlpha);
 
-                    OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sCounterDigits[counterDigits[2]], 8, 16, 43, 191, 8,
+                    OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sCounterTextures[counterDigits[2]], 8, 16, 43, 191, 8,
                                                      16, 1 << 10, 1 << 10);
 
                     gDPPipeSync(OVERLAY_DISP++);
@@ -6520,7 +6520,7 @@ void Interface_Draw(PlayState* play) {
                 gDPPipeSync(OVERLAY_DISP++);
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, interfaceCtx->magicAlpha);
 
-                OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sCounterDigits[counterDigits[3]], 8, 16, sp2CA + 1, 191,
+                OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sCounterTextures[counterDigits[3]], 8, 16, sp2CA + 1, 191,
                                                  8, 16, 1 << 10, 1 << 10);
 
                 gDPPipeSync(OVERLAY_DISP++);
@@ -6567,7 +6567,7 @@ void Interface_Draw(PlayState* play) {
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, magicAlpha);
 
-            OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sCounterDigits[counterDigits[sp2CC]], 8, 16, sp2CA + 1, 207,
+            OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sCounterTextures[counterDigits[sp2CC]], 8, 16, sp2CA + 1, 207,
                                              8, 16, 1 << 10, 1 << 10);
 
             gDPPipeSync(OVERLAY_DISP++);
