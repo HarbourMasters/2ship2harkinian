@@ -12,6 +12,7 @@
 #include "z64quake.h"
 #include "z64rumble.h"
 
+#include "code/fbdemo_circle/fbdemo_circle.h"
 #include "overlays/actors/ovl_En_Horse/z_en_horse.h"
 #include "overlays/actors/ovl_En_Part/z_en_part.h"
 #include "overlays/actors/ovl_En_Box/z_en_box.h"
