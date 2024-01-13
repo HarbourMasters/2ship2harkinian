@@ -507,6 +507,8 @@ void DrawDeveloperToolsMenu() {
                 ImGui::PopStyleColor(1);
             }
         }
+        UIWidgets::PaddedEnhancementCheckbox("Moon Jump on L", "gDeveloperTools.MoonJumpOnL", true, false);
+        UIWidgets::Tooltip("Holding L makes you float into the air");
         UIWidgets::PaddedSeparator();
         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(12.0f, 6.0f));
         ImGui::PushStyleVar(ImGuiStyleVar_ButtonTextAlign, ImVec2(0, 0));
