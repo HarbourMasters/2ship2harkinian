@@ -2744,6 +2744,8 @@ void AudioOcarina_SetOcarinaDisableTimer(u8 unused, u8 timer) {
 }
 
 void AudioOcarina_SetInstrument(u8 ocarinaInstrumentId) {
+    // BENTODO: Crashes on kaleido when moving back and forth between songs
+    return;
     if ((sOcarinaInstrumentId != ocarinaInstrumentId) || (ocarinaInstrumentId == OCARINA_INSTRUMENT_DEFAULT)) {
         SEQCMD_SET_CHANNEL_IO(SEQ_PLAYER_SFX, SFX_CHANNEL_OCARINA, 1, ocarinaInstrumentId);
         sOcarinaInstrumentId = ocarinaInstrumentId;
