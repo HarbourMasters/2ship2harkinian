@@ -98,8 +98,10 @@ typedef struct {
     /* 0x1C8 */ Gfx setScissor[2];
     /* 0x1D8 */ Gfx unk_1D8[25]; // unused
     /* 0x2A0 */ Gfx disps[5];
-    /* 0x2C8 */ Gfx clearFillRect[3]; // fillrect for clearing buffers
-    /* 0x2E0 */ Gfx fillRect[3];      // fillrect for general purpose
+    // #region 2S2H [Cosmetic] clearFillRect and fillRect increased to 4 instructions to account for gDPFillWideRectangle
+    /* 0x2C8 */ Gfx clearFillRect[4]; // fillrect for clearing buffers
+    /* 0x2E0 */ Gfx fillRect[4];      // fillrect for general purpose
+    // #endregion
     /* 0x2F8 */ Gfx debugDisp[1];
 } GfxMasterList; // size = 0x300
 
