@@ -1,5 +1,6 @@
 #include "global.h"
 #include "audiomgr.h"
+#include <string.h>
 
 void AudioMgr_NotifyTaskDone(AudioMgr* audioMgr) {
     AudioTask* task = audioMgr->rspTask;
@@ -128,7 +129,7 @@ void AudioMgr_Unlock(AudioMgr* audioMgr) {
 }
 
 void AudioMgr_Init(AudioMgr* audioMgr, void* stack, OSPri pri, OSId id, SchedContext* sched, IrqMgr* irqMgr) {
-    bzero(audioMgr, sizeof(AudioMgr));
+    memset(audioMgr, 0, sizeof(AudioMgr));
 
     audioMgr->sched = sched;
     audioMgr->irqMgr = irqMgr;

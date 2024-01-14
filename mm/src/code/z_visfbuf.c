@@ -13,12 +13,13 @@
 #include "global.h"
 #include "z64visfbuf.h"
 #include "sys_cfb.h"
+#include <string.h>
 
 #define SCALE_MIN 0.032f
 #define SCALE_MAX 1.0f //!< also unchanged scale
 
 void VisFbuf_Init(VisFbuf* this) {
-    bzero(this, sizeof(VisFbuf));
+    memset(this, 0, sizeof(VisFbuf));
 }
 
 void VisFbuf_Destroy(VisFbuf* this) {

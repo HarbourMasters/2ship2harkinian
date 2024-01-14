@@ -8,6 +8,7 @@
 #include "z_en_kusa2.h"
 #include "objects/gameplay_field_keep/gameplay_field_keep.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
+#include <string.h>
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_800000)
 
@@ -672,7 +673,7 @@ void func_80A5C918(EnKusa2UnkBssStruct* arg0, EnKusa2UnkBssSubStruct2* arg1) {
 }
 
 void func_80A5CAD4(EnKusa2UnkBssStruct* arg0) {
-    bzero(arg0, sizeof(EnKusa2UnkBssStruct));
+    memset(arg0, 0, sizeof(EnKusa2UnkBssStruct));
 }
 
 void func_80A5CAF4(EnKusa2UnkBssStruct* arg0) {

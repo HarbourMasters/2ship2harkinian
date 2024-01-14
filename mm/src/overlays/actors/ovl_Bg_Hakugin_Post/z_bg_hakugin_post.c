@@ -9,6 +9,7 @@
 #include "z64quake.h"
 #include "z64rumble.h"
 #include "objects/object_hakugin_obj/object_hakugin_obj.h"
+#include <string.h>
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
@@ -90,11 +91,11 @@ static InitChainEntry sInitChain[] = {
 };
 
 void func_80A9ACD0(BgHakuginPostUnkStruct* arg0) {
-    bzero(arg0, sizeof(BgHakuginPostUnkStruct));
+    memset(arg0, 0, sizeof(BgHakuginPostUnkStruct));
 }
 
 void func_80A9ACF0(void) {
-    bzero(&D_80A9DDC0, sizeof(BgHakuginPostColliders));
+    memset(&D_80A9DDC0, 0, sizeof(BgHakuginPostColliders));
 }
 
 void func_80A9AD18(BgHakuginPost* this, PlayState* play, BgHakuginPostUnkStruct* unkStruct) {
@@ -146,7 +147,7 @@ void func_80A9AFB4(BgHakuginPost* this, PlayState* play, BgHakuginPostUnkStruct*
             if ((unkStruct->unk_0000[i].unk_34 == 0) ||
                 (this->dyna.actor.world.pos.y < unkStruct->unk_0000[i].unk_08.y)) {
                 for (j = 10; j >= i; j--) {
-                    bcopy(&unkStruct->unk_0000[j], &unkStruct->unk_0000[j + 1], 0x38);
+                    memcpy(&unkStruct->unk_0000[j + 1], &unkStruct->unk_0000[j], 0x38);
                 }
                 break;
             }

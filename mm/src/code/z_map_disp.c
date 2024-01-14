@@ -154,7 +154,7 @@ static const char* sMapGrandTextures[] = {
 };
 
 void MapDisp_GetMapITexture(void* dst, s32 mapCompactId) {
-    size_t mapSize = MapDisp_GetSizeOfMapITex(mapCompactId) != 0;
+    s32 mapSize = MapDisp_GetSizeOfMapITex(mapCompactId);
 
     if (mapSize != 0) {
         dst = ResourceMgr_LoadTexOrDListByName(sMapTextures[mapCompactId]);

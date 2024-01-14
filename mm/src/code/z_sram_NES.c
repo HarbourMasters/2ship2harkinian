@@ -2,6 +2,7 @@
 #include "z64horse.h"
 #include "overlays/gamestates/ovl_file_choose/z_file_select.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
+#include <string.h>
 
 void Sram_SyncWriteToFlash(SramContext* sramCtx, s32 curPage, s32 numPages);
 void func_80147314(SramContext* sramCtx, s32 fileNum);
@@ -689,7 +690,7 @@ void Sram_ResetSave(void) {
     gSaveContext.save.hasTatl = false;
     gSaveContext.save.isOwlSave = false;
 
-    bzero(&gSaveContext.save.saveInfo, sizeof(SaveInfo));
+    memset(&gSaveContext.save.saveInfo, 0, sizeof(SaveInfo));
 }
 
 /**
@@ -924,10 +925,10 @@ void Sram_InitNewSave(void) {
     gSaveContext.save.time = CLOCK_TIME(6, 0) - 1;
     Sram_ResetSave();
 
-    Lib_MemCpy(&gSaveContext.save.saveInfo.playerData, &sSaveDefaultPlayerData, sizeof(SavePlayerData));
-    Lib_MemCpy(&gSaveContext.save.saveInfo.equips, &sSaveDefaultItemEquips, sizeof(ItemEquips));
-    Lib_MemCpy(&gSaveContext.save.saveInfo.inventory, &sSaveDefaultInventory, sizeof(Inventory));
-    Lib_MemCpy(&gSaveContext.save.saveInfo.checksum, &sSaveDefaultChecksum,
+    memcpy(&gSaveContext.save.saveInfo.playerData, &sSaveDefaultPlayerData, sizeof(SavePlayerData));
+    memcpy(&gSaveContext.save.saveInfo.equips, &sSaveDefaultItemEquips, sizeof(ItemEquips));
+    memcpy(&gSaveContext.save.saveInfo.inventory, &sSaveDefaultInventory, sizeof(Inventory));
+    memcpy(&gSaveContext.save.saveInfo.checksum, &sSaveDefaultChecksum,
                sizeof(gSaveContext.save.saveInfo.checksum));
 
     gSaveContext.save.saveInfo.horseData.sceneId = SCENE_F01;
@@ -1129,10 +1130,10 @@ u8 D_801C6A50[PLAYER_FORM_MAX] = {
 void Sram_InitDebugSave(void) {
     Sram_ResetSave();
 
-    Lib_MemCpy(&gSaveContext.save.saveInfo.playerData, &sSaveDebugPlayerData, sizeof(SavePlayerData));
-    Lib_MemCpy(&gSaveContext.save.saveInfo.equips, &sSaveDebugItemEquips, sizeof(ItemEquips));
-    Lib_MemCpy(&gSaveContext.save.saveInfo.inventory, &sSaveDebugInventory, sizeof(Inventory));
-    Lib_MemCpy(&gSaveContext.save.saveInfo.checksum, &sSaveDebugChecksum, sizeof(gSaveContext.save.saveInfo.checksum));
+    memcpy(&gSaveContext.save.saveInfo.playerData, &sSaveDebugPlayerData, sizeof(SavePlayerData));
+    memcpy(&gSaveContext.save.saveInfo.equips, &sSaveDebugItemEquips, sizeof(ItemEquips));
+    memcpy(&gSaveContext.save.saveInfo.inventory, &sSaveDebugInventory, sizeof(Inventory));
+    memcpy(&gSaveContext.save.saveInfo.checksum, &sSaveDebugChecksum, sizeof(gSaveContext.save.saveInfo.checksum));
 
     if (GET_PLAYER_FORM != PLAYER_FORM_HUMAN) {
         BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) = D_801C6A48[GET_PLAYER_FORM];
@@ -1165,18 +1166,18 @@ void Sram_ResetSaveFromMoonCrash(SramContext* sramCtx) {
     s32 i;
     s32 cutsceneIndex = gSaveContext.save.cutsceneIndex;
 
-    bzero(sramCtx->saveBuf, SAVE_BUFFER_SIZE);
+    memset(sramCtx->saveBuf, 0, SAVE_BUFFER_SIZE);
 
     if (SysFlashrom_ReadData(sramCtx->saveBuf, gFlashSaveStartPages[gSaveContext.fileNum * 2],
                              gFlashSaveNumPages[gSaveContext.fileNum * 2]) != 0) {
         SysFlashrom_ReadData(sramCtx->saveBuf, gFlashSaveStartPages[gSaveContext.fileNum * 2 + 1],
                              gFlashSaveNumPages[gSaveContext.fileNum * 2 + 1]);
     }
-    Lib_MemCpy(&gSaveContext.save, sramCtx->saveBuf, sizeof(Save));
+    memcpy(&gSaveContext.save, sramCtx->saveBuf, sizeof(Save));
     if (CHECK_NEWF(gSaveContext.save.saveInfo.playerData.newf)) {
         SysFlashrom_ReadData(sramCtx->saveBuf, gFlashSaveStartPages[gSaveContext.fileNum * 2 + 1],
                              gFlashSaveNumPages[gSaveContext.fileNum * 2 + 1]);
-        Lib_MemCpy(&gSaveContext, sramCtx->saveBuf, sizeof(Save));
+        memcpy(&gSaveContext, sramCtx->saveBuf, sizeof(Save));
     }
     gSaveContext.save.cutsceneIndex = cutsceneIndex;
 
@@ -1224,7 +1225,7 @@ void Sram_OpenSave(FileSelectState* fileSelect, SramContext* sramCtx) {
     s32 fileNum;
 
     if (gSaveContext.flashSaveAvailable) {
-        bzero(sramCtx->saveBuf, SAVE_BUFFER_SIZE);
+        memset(sramCtx->saveBuf, 0, SAVE_BUFFER_SIZE);
 
         if (gSaveContext.fileNum == 0xFF) {
             SysFlashrom_ReadData(sramCtx->saveBuf, gFlashSaveStartPages[0], gFlashSaveNumPages[0]);
@@ -1246,11 +1247,11 @@ void Sram_OpenSave(FileSelectState* fileSelect, SramContext* sramCtx) {
             }
         }
 
-        Lib_MemCpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[phi_t1]);
+        memcpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[phi_t1]);
 
         if (CHECK_NEWF(gSaveContext.save.saveInfo.playerData.newf)) {
             SysFlashrom_ReadData(sramCtx->saveBuf, gFlashSaveStartPages[phi_t1 + 1], gFlashSaveNumPages[phi_t1 + 1]);
-            Lib_MemCpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[phi_t1]);
+            memcpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[phi_t1]);
         }
     }
 
@@ -1306,7 +1307,7 @@ void Sram_OpenSave(FileSelectState* fileSelect, SramContext* sramCtx) {
         }
 
         if (gSaveContext.save.saveInfo.scarecrowSpawnSongSet) {
-            Lib_MemCpy(gScarecrowSpawnSongPtr, gSaveContext.save.saveInfo.scarecrowSpawnSong,
+            memcpy(gScarecrowSpawnSongPtr, gSaveContext.save.saveInfo.scarecrowSpawnSong,
                        sizeof(gSaveContext.save.saveInfo.scarecrowSpawnSong));
 
             for (i = 0; i != ARRAY_COUNT(gSaveContext.save.saveInfo.scarecrowSpawnSong); i++) {}
@@ -1333,7 +1334,7 @@ void func_8014546C(SramContext* sramCtx) {
         gSaveContext.save.saveInfo.checksum = 0;
         gSaveContext.save.saveInfo.checksum = Sram_CalcChecksum(&gSaveContext, offsetof(SaveContext, fileNum));
 
-        Lib_MemCpy(sramCtx->saveBuf, &gSaveContext, offsetof(SaveContext, fileNum));
+        memcpy(sramCtx->saveBuf, &gSaveContext, offsetof(SaveContext, fileNum));
     } else {
         for (i = 0; i < ARRAY_COUNT(gSaveContext.cycleSceneFlags); i++) {
             gSaveContext.save.saveInfo.permanentSceneFlags[i].chest = gSaveContext.cycleSceneFlags[i].chest;
@@ -1347,8 +1348,8 @@ void func_8014546C(SramContext* sramCtx) {
         gSaveContext.save.saveInfo.checksum = Sram_CalcChecksum(&gSaveContext.save, sizeof(Save));
 
         if (gSaveContext.flashSaveAvailable) {
-            Lib_MemCpy(sramCtx->saveBuf, &gSaveContext, sizeof(Save));
-            Lib_MemCpy(&sramCtx->saveBuf[0x2000], &gSaveContext.save, sizeof(Save));
+            memcpy(sramCtx->saveBuf, &gSaveContext, sizeof(Save));
+            memcpy(&sramCtx->saveBuf[0x2000], &gSaveContext.save, sizeof(Save));
         }
     }
 }
@@ -1370,8 +1371,8 @@ void func_80145698(SramContext* sramCtx) {
     gSaveContext.save.saveInfo.checksum = 0;
     gSaveContext.save.saveInfo.checksum = Sram_CalcChecksum(&gSaveContext.save, sizeof(Save));
     if (gSaveContext.flashSaveAvailable) {
-        Lib_MemCpy(sramCtx->saveBuf, &gSaveContext, sizeof(Save));
-        Lib_MemCpy(&sramCtx->saveBuf[0x2000], &gSaveContext.save, sizeof(Save));
+        memcpy(sramCtx->saveBuf, &gSaveContext, sizeof(Save));
+        memcpy(&sramCtx->saveBuf[0x2000], &gSaveContext.save, sizeof(Save));
     }
 }
 
@@ -1394,7 +1395,7 @@ void func_801457CC(GameState* gameState, SramContext* sramCtx) {
         sp64 = 0;
 
         for (sp76 = 0; sp76 < 5; sp76++, sp64 += 2) {
-            bzero(sramCtx->saveBuf, SAVE_BUFFER_SIZE);
+            memset(sramCtx->saveBuf, 0, SAVE_BUFFER_SIZE);
 
             phi_s2 = false;
             sp6E = 0;
@@ -1418,10 +1419,10 @@ void func_801457CC(GameState* gameState, SramContext* sramCtx) {
                 fileSelect->isOwlSave[sp76] = 0;
                 if (phi_s2) {
                     // both main save and backup save failed
-                    bzero(sramCtx->saveBuf, SAVE_BUFFER_SIZE);
-                    Lib_MemCpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[sp64]);
+                    memset(sramCtx->saveBuf, 0, SAVE_BUFFER_SIZE);
+                    memcpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[sp64]);
                 } else {
-                    Lib_MemCpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[sp64]);
+                    memcpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[sp64]);
 
                     // test checksum of main save
                     phi_s2 = gSaveContext.save.saveInfo.checksum;
@@ -1447,7 +1448,7 @@ void func_801457CC(GameState* gameState, SramContext* sramCtx) {
                             phi_s2 = true;
                         }
 
-                        Lib_MemCpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[sp64]);
+                        memcpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[sp64]);
 
                         // test checksum of backup save
                         oldCheckSum = gSaveContext.save.saveInfo.checksum;
@@ -1456,8 +1457,8 @@ void func_801457CC(GameState* gameState, SramContext* sramCtx) {
                         if (phi_s2 || CHECK_NEWF(gSaveContext.save.saveInfo.playerData.newf) ||
                             (oldCheckSum != Sram_CalcChecksum(&gSaveContext, gFlashSaveSizes[sp64]))) {
                             // backup save didn't work
-                            bzero(sramCtx->saveBuf, SAVE_BUFFER_SIZE);
-                            Lib_MemCpy(&gSaveContext.save, sramCtx->saveBuf, sizeof(Save));
+                            memset(sramCtx->saveBuf, 0, SAVE_BUFFER_SIZE);
+                            memcpy(&gSaveContext.save, sramCtx->saveBuf, sizeof(Save));
                             sp6E = 999;
                         }
                     }
@@ -1500,7 +1501,7 @@ void func_801457CC(GameState* gameState, SramContext* sramCtx) {
 
                 if (sp6E == 1) {
                     // backup save
-                    Lib_MemCpy(&sramCtx->saveBuf[0x2000], &gSaveContext.save, sizeof(Save));
+                    memcpy(&sramCtx->saveBuf[0x2000], &gSaveContext.save, sizeof(Save));
                     Sram_SyncWriteToFlash(sramCtx, gFlashSaveStartPages[sp64], gFlashSpecialSaveNumPages[sp64]);
                 } else if (!sp6E) {
                     // main save
@@ -1510,7 +1511,7 @@ void func_801457CC(GameState* gameState, SramContext* sramCtx) {
                                              gFlashSaveNumPages[sp64 + 1]) != 0) {
                         phi_s2 = 1;
                     } else {
-                        Lib_MemCpy(&gSaveContext.save, sramCtx->saveBuf, sizeof(Save));
+                        memcpy(&gSaveContext.save, sramCtx->saveBuf, sizeof(Save));
                         phi_s2 = gSaveContext.save.saveInfo.checksum;
                         gSaveContext.save.saveInfo.checksum = 0;
                         sp7A = Sram_CalcChecksum(&gSaveContext.save, sizeof(Save));
@@ -1519,8 +1520,8 @@ void func_801457CC(GameState* gameState, SramContext* sramCtx) {
                     if (CHECK_NEWF(gSaveContext.save.saveInfo.playerData.newf) || (sp7A != phi_s2) ||
                         (oldCheckSum != phi_s2)) {
                         SysFlashrom_ReadData(sramCtx->saveBuf, gFlashSaveStartPages[sp64], gFlashSaveNumPages[sp64]);
-                        Lib_MemCpy(&gSaveContext.save, sramCtx->saveBuf, sizeof(Save));
-                        Lib_MemCpy(&sramCtx->saveBuf[0x2000], &gSaveContext.save, sizeof(Save));
+                        memcpy(&gSaveContext.save, sramCtx->saveBuf, sizeof(Save));
+                        memcpy(&sramCtx->saveBuf[0x2000], &gSaveContext.save, sizeof(Save));
                         Sram_SyncWriteToFlash(sramCtx, gFlashSaveStartPages[sp64], gFlashSpecialSaveNumPages[sp64]);
                     }
                 }
@@ -1533,10 +1534,10 @@ void func_801457CC(GameState* gameState, SramContext* sramCtx) {
                 if (!CHECK_NEWF(fileSelect->newf[sp76 - 2])) {
                     if (phi_s2) {
                         // both main save and backup save failed
-                        bzero(sramCtx->saveBuf, SAVE_BUFFER_SIZE);
-                        Lib_MemCpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[sp64]);
+                        memset(sramCtx->saveBuf, 0, SAVE_BUFFER_SIZE);
+                        memcpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[sp64]);
                     } else {
-                        Lib_MemCpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[sp64]);
+                        memcpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[sp64]);
                         phi_s2 = gSaveContext.save.saveInfo.checksum;
 
                         // test checksum of main save
@@ -1561,7 +1562,7 @@ void func_801457CC(GameState* gameState, SramContext* sramCtx) {
                                 phi_s2 = true;
                             }
 
-                            Lib_MemCpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[sp64]);
+                            memcpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[sp64]);
 
                             // test checksum of backup save
                             oldCheckSum = gSaveContext.save.saveInfo.checksum;
@@ -1569,8 +1570,8 @@ void func_801457CC(GameState* gameState, SramContext* sramCtx) {
 
                             if (phi_s2 || CHECK_NEWF(gSaveContext.save.saveInfo.playerData.newf) ||
                                 (oldCheckSum != Sram_CalcChecksum(&gSaveContext, gFlashSaveSizes[sp64]))) {
-                                bzero(sramCtx->saveBuf, SAVE_BUFFER_SIZE);
-                                Lib_MemCpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[sp64]);
+                                memset(sramCtx->saveBuf, 0, SAVE_BUFFER_SIZE);
+                                memcpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[sp64]);
                                 sp6E = 999;
                             }
                         }
@@ -1624,7 +1625,7 @@ void func_801457CC(GameState* gameState, SramContext* sramCtx) {
                                                  gFlashSaveNumPages[sp64 + 1]) != 0) {
                             phi_s2 = 1;
                         } else {
-                            Lib_MemCpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[sp64]);
+                            memcpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[sp64]);
                             phi_s2 = gSaveContext.save.saveInfo.checksum;
                             gSaveContext.save.saveInfo.checksum = 0;
                             sp7A = Sram_CalcChecksum(&gSaveContext, gFlashSaveSizes[sp64]);
@@ -1634,15 +1635,15 @@ void func_801457CC(GameState* gameState, SramContext* sramCtx) {
                             (oldCheckSum != phi_s2)) {
                             SysFlashrom_ReadData(sramCtx->saveBuf, gFlashSaveStartPages[sp64],
                                                  gFlashSaveNumPages[sp64]);
-                            Lib_MemCpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[sp64]);
+                            memcpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[sp64]);
                             Sram_SyncWriteToFlash(sramCtx, gFlashSaveStartPages[sp64], gFlashSaveNumPages[sp64]);
                             Sram_SyncWriteToFlash(sramCtx, gFlashSaveStartPages[sp64 + 1],
                                                   gFlashSaveNumPages[sp64 + 1]);
                         }
                     }
                 } else {
-                    bzero(sramCtx->saveBuf, SAVE_BUFFER_SIZE);
-                    Lib_MemCpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[sp64]);
+                    memset(sramCtx->saveBuf, 0, SAVE_BUFFER_SIZE);
+                    memcpy(&gSaveContext, sramCtx->saveBuf, gFlashSaveSizes[sp64]);
                     Sram_SyncWriteToFlash(sramCtx, gFlashSaveStartPages[sp64], gFlashSaveNumPages[sp64]);
                     Sram_SyncWriteToFlash(sramCtx, gFlashSaveStartPages[sp64 + 1], gFlashSaveNumPages[sp64 + 1]);
                 }
@@ -1654,7 +1655,7 @@ void func_801457CC(GameState* gameState, SramContext* sramCtx) {
                     gSaveContext.options.languageSetting = 0;
                     gSaveContext.options.zTargetSetting = 0;
                 } else {
-                    Lib_MemCpy(&gSaveContext.options, sramCtx->saveBuf, sizeof(SaveOptions));
+                    memcpy(&gSaveContext.options, sramCtx->saveBuf, sizeof(SaveOptions));
                     if (gSaveContext.options.optionId != 0xA51D) {
                         gSaveContext.options.optionId = 0xA51D;
                         gSaveContext.options.language = LANGUAGE_ENG;
@@ -1683,8 +1684,8 @@ void Sram_EraseSave(FileSelectState* fileSelect2, SramContext* sramCtx, s32 file
             func_80147314(sramCtx, fileNum);
             fileSelect->isOwlSave[fileNum + 2] = false;
         }
-        bzero(sramCtx->saveBuf, SAVE_BUFFER_SIZE);
-        Lib_MemCpy(&gSaveContext, sramCtx->saveBuf, sizeof(Save));
+        memset(sramCtx->saveBuf, 0, SAVE_BUFFER_SIZE);
+        memcpy(&gSaveContext, sramCtx->saveBuf, sizeof(Save));
     }
 
     gSaveContext.save.time = D_801F6AF0;
@@ -1730,7 +1731,7 @@ void Sram_CopySave(FileSelectState* fileSelect2, SramContext* sramCtx) {
         }
 
         // clear buffer
-        bzero(sramCtx->saveBuf, SAVE_BUFFER_SIZE);
+        memset(sramCtx->saveBuf, 0, SAVE_BUFFER_SIZE);
         // read to buffer
         if (SysFlashrom_ReadData(&sramCtx->saveBuf[0], gFlashSaveStartPages[fileSelect->selectedFileIndex * 2],
                                  gFlashSaveNumPages[fileSelect->selectedFileIndex * 2])) {}
@@ -1739,7 +1740,7 @@ void Sram_CopySave(FileSelectState* fileSelect2, SramContext* sramCtx) {
                                  gFlashSaveNumPages[fileSelect->selectedFileIndex * 2 + 1])) {}
 
         // copy buffer to save context
-        Lib_MemCpy(&gSaveContext.save, sramCtx->saveBuf, sizeof(Save));
+        memcpy(&gSaveContext.save, sramCtx->saveBuf, sizeof(Save));
 
         fileSelect->threeDayResetCount[fileSelect->copyDestFileIndex] =
             gSaveContext.save.saveInfo.playerData.threeDayResetCount;
@@ -1800,8 +1801,8 @@ void Sram_InitSave(FileSelectState* fileSelect2, SramContext* sramCtx) {
 
         gSaveContext.save.saveInfo.checksum = Sram_CalcChecksum(&gSaveContext.save, sizeof(Save));
 
-        Lib_MemCpy(sramCtx->saveBuf, &gSaveContext.save, sizeof(Save));
-        Lib_MemCpy(&sramCtx->saveBuf[0x2000], &gSaveContext.save, sizeof(Save));
+        memcpy(sramCtx->saveBuf, &gSaveContext.save, sizeof(Save));
+        memcpy(&sramCtx->saveBuf[0x2000], &gSaveContext.save, sizeof(Save));
 
         for (i = 0; i < ARRAY_COUNT(gSaveContext.save.saveInfo.playerData.newf); i++) {
             fileSelect->newf[fileSelect->buttonIndex][i] = gSaveContext.save.saveInfo.playerData.newf[i];
@@ -1844,7 +1845,7 @@ void Sram_InitSave(FileSelectState* fileSelect2, SramContext* sramCtx) {
 void Sram_WriteSaveOptionsToBuffer(SramContext* sramCtx) {
     if (gSaveContext.flashSaveAvailable) {
         gSaveContext.options.language = LANGUAGE_ENG;
-        Lib_MemCpy(sramCtx->saveBuf, &gSaveContext.options, sizeof(SaveOptions));
+        memcpy(sramCtx->saveBuf, &gSaveContext.options, sizeof(SaveOptions));
     }
 }
 
@@ -1972,12 +1973,12 @@ void Sram_UpdateWriteToFlashOwlSave(SramContext* sramCtx) {
     } else if (OSTIME_TO_TIMER(osGetTime() - sramCtx->startWriteOsTime) >= SECONDS_TO_TIMER(2)) {
         // Finished status is hardcoded to 2 seconds instead of when the task finishes
         sramCtx->status = 0;
-        bzero(sramCtx->saveBuf, SAVE_BUFFER_SIZE);
+        memset(sramCtx->saveBuf, 0, SAVE_BUFFER_SIZE);
         gSaveContext.save.isOwlSave = false;
         gSaveContext.save.saveInfo.checksum = 0;
         // flash read to buffer then copy to save context
         SysFlashrom_ReadData(sramCtx->saveBuf, sramCtx->curPage, sramCtx->numPages);
-        Lib_MemCpy(&gSaveContext, sramCtx->saveBuf, offsetof(SaveContext, fileNum));
+        memcpy(&gSaveContext, sramCtx->saveBuf, offsetof(SaveContext, fileNum));
     }
 }
 
@@ -1996,7 +1997,7 @@ void func_80147314(SramContext* sramCtx, s32 fileNum) {
     gSaveContext.save.saveInfo.checksum = 0;
     gSaveContext.save.saveInfo.checksum = Sram_CalcChecksum(&gSaveContext, offsetof(SaveContext, fileNum));
 
-    Lib_MemCpy(sramCtx->saveBuf, &gSaveContext, offsetof(SaveContext, fileNum));
+    memcpy(sramCtx->saveBuf, &gSaveContext, offsetof(SaveContext, fileNum));
     Sram_SyncWriteToFlash(sramCtx, gFlashOwlSaveStartPages[fileNum * 2], gFlashOwlSaveNumPages[fileNum * 2]);
     //! Note: should be `gFlashOwlSaveNumPages[fileNum * 2 + 1]`?
     Sram_SyncWriteToFlash(sramCtx, gFlashOwlSaveStartPages[fileNum * 2 + 1], gFlashOwlSaveNumPages[fileNum * 2]);
@@ -2016,7 +2017,7 @@ void func_80147414(SramContext* sramCtx, s32 fileNum, s32 arg2) {
     s32 pad;
 
     // Clear save buffer
-    bzero(sramCtx->saveBuf, SAVE_BUFFER_SIZE);
+    memset(sramCtx->saveBuf, 0, SAVE_BUFFER_SIZE);
 
     // Read save file
     if (SysFlashrom_ReadData(sramCtx->saveBuf, gFlashOwlSaveStartPages[fileNum * 2],
@@ -2027,7 +2028,7 @@ void func_80147414(SramContext* sramCtx, s32 fileNum, s32 arg2) {
     }
 
     // Copy buffer to save context
-    Lib_MemCpy(&gSaveContext, sramCtx->saveBuf, offsetof(SaveContext, fileNum));
+    memcpy(&gSaveContext, sramCtx->saveBuf, offsetof(SaveContext, fileNum));
 
     Sram_SyncWriteToFlash(sramCtx, gFlashOwlSaveStartPages[arg2 * 2], gFlashOwlSaveNumPages[arg2 * 2]);
     Sram_SyncWriteToFlash(sramCtx, gFlashOwlSaveStartPages[arg2 * 2 + 1], gFlashOwlSaveNumPages[arg2 * 2]);

@@ -7290,7 +7290,7 @@ void Interface_Init(PlayState* play) {
     size_t parameterStaticSize;
     s32 i;
 
-    bzero(interfaceCtx, sizeof(InterfaceContext));
+    memset(interfaceCtx, 0, sizeof(InterfaceContext));
 
     gSaveContext.sunsSongState = SUNSSONG_INACTIVE;
     gSaveContext.nextHudVisibility = HUD_VISIBILITY_IDLE;

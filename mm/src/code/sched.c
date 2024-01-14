@@ -18,6 +18,7 @@ u32 gAudioSPDataSize;
 #include "stackcheck.h"
 #include "z64speed_meter.h"
 #include "z64thread.h"
+#include <string.h>
 
 #define RSP_DONE_MSG 667
 #define RDP_DONE_MSG 668
@@ -611,7 +612,7 @@ void Sched_ThreadEntry(void* arg) {
  * Directs the OS to send SP and DP OS messages to interruptQ when the RSP or RDP signal task completion.
  */
 void Sched_Init(SchedContext* sched, void* stack, OSPri pri, u8 viModeType, UNK_TYPE arg4, IrqMgr* irqMgr) {
-    bzero(sched, sizeof(SchedContext));
+    memset(sched, 0, sizeof(SchedContext));
 
     sched->shouldUpdateVi = true;
 

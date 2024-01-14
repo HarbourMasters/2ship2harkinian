@@ -177,7 +177,7 @@ s32 SysFlashrom_WriteData(void* addr, u32 pageNum, u32 pageCount) {
         ret = SysFlashrom_AttemptWrite(addr, pageNum, pageCount);
     } else {
         SysFlashrom_ReadData(data, pageNum, pageCount);
-        if (bcmp(data, addr, size) == 0) {
+        if (memcmp(data, addr, size) == 0) {
             ret = 0;
         } else {
             // Will always erase the sector even if it wouldn't normally need to.
@@ -188,7 +188,7 @@ s32 SysFlashrom_WriteData(void* addr, u32 pageNum, u32 pageCount) {
             }
             if (ret == 0) {
                 SysFlashrom_ReadData(data, pageNum, pageCount);
-                if (bcmp(data, addr, size) == 0) {
+                if (memcmp(data, addr, size) == 0) {
                     ret = 0;
                 } else {
                     ret = -1;

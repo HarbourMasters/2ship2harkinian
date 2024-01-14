@@ -7,6 +7,7 @@
 #include "z64shrink_window.h"
 #include "overlays/gamestates/ovl_daytelop/z_daytelop.h"
 #include "overlays/actors/ovl_En_Elf/z_en_elf.h"
+#include <string.h>
 
 s16 sCutsceneQuakeIndex;
 struct CutsceneCamera sCutsceneCameraInfo;
@@ -915,7 +916,7 @@ void CutsceneCmd_Transition(PlayState* play, CutsceneContext* csCtx, CsCmdTransi
 s32 CutsceneCmd_UpdateCamSpline(PlayState* play, u8* script) {
     s32 cmdBytes = 0;
 
-    bcopy(script, &cmdBytes, sizeof(cmdBytes));
+    memcpy(&cmdBytes, script, sizeof(cmdBytes));
     script += sizeof(cmdBytes);
 
     if (!Play_IsDebugCamEnabled()) {
@@ -1119,7 +1120,7 @@ void Cutscene_SetActorCue(CutsceneContext* csCtx, u8** script, s16 cueChannel) {
     s32 i;
     s32 numCues;
 
-    bcopy(*script, &numCues, sizeof(numCues));
+    memcpy(&numCues, *script, sizeof(numCues));
     *script += sizeof(numCues);
 
     for (i = 0; i < numCues; i++) {
@@ -1171,10 +1172,10 @@ void Cutscene_ProcessScript(PlayState* play, CutsceneContext* csCtx, u8* script)
     void* cmd;
 
     // Read the command list count and the ending frame for this cutscene
-    bcopy(script, &totalEntries, sizeof(totalEntries));
+    memcpy(&totalEntries, script, sizeof(totalEntries));
     script += sizeof(totalEntries);
 
-    bcopy(script, &csFrameCount, sizeof(csFrameCount));
+    memcpy(&csFrameCount, script, sizeof(csFrameCount));
     script += sizeof(csFrameCount);
 
     if ((csCtx->curFrame > (u16)csFrameCount) && (play->transitionTrigger != TRANS_TRIGGER_START) &&
@@ -1186,7 +1187,7 @@ void Cutscene_ProcessScript(PlayState* play, CutsceneContext* csCtx, u8* script)
     // Loop over every command list
     for (i = 0; i < totalEntries; i++) {
         // Read the command type of the current command list.
-        bcopy(script, &cmdType, sizeof(cmdType));
+        memcpy(&cmdType, script, sizeof(cmdType));
         script += sizeof(cmdType);
 
         if (cmdType == CS_CAM_STOP) {
@@ -1214,7 +1215,7 @@ void Cutscene_ProcessScript(PlayState* play, CutsceneContext* csCtx, u8* script)
 
         switch (cmdType) {
             case CS_CMD_MISC:
-                bcopy(script, &cmdEntries, sizeof(cmdEntries));
+                memcpy(&cmdEntries, script, sizeof(cmdEntries));
                 script += sizeof(cmdEntries);
 
                 for (j = 0; j < cmdEntries; j++) {
@@ -1224,7 +1225,7 @@ void Cutscene_ProcessScript(PlayState* play, CutsceneContext* csCtx, u8* script)
                 break;
 
             case CS_CMD_LIGHT_SETTING:
-                bcopy(script, &cmdEntries, sizeof(cmdEntries));
+                memcpy(&cmdEntries, script, sizeof(cmdEntries));
                 script += sizeof(cmdEntries);
 
                 for (j = 0; j < cmdEntries; j++) {
@@ -1234,7 +1235,7 @@ void Cutscene_ProcessScript(PlayState* play, CutsceneContext* csCtx, u8* script)
                 break;
 
             case CS_CMD_START_SEQ:
-                bcopy(script, &cmdEntries, sizeof(cmdEntries));
+                memcpy(&cmdEntries, script, sizeof(cmdEntries));
                 script += sizeof(cmdEntries);
 
                 for (j = 0; j < cmdEntries; j++) {
@@ -1244,7 +1245,7 @@ void Cutscene_ProcessScript(PlayState* play, CutsceneContext* csCtx, u8* script)
                 break;
 
             case CS_CMD_STOP_SEQ:
-                bcopy(script, &cmdEntries, sizeof(cmdEntries));
+                memcpy(&cmdEntries, script, sizeof(cmdEntries));
                 script += sizeof(cmdEntries);
 
                 for (j = 0; j < cmdEntries; j++) {
@@ -1254,7 +1255,7 @@ void Cutscene_ProcessScript(PlayState* play, CutsceneContext* csCtx, u8* script)
                 break;
 
             case CS_CMD_FADE_OUT_SEQ:
-                bcopy(script, &cmdEntries, sizeof(cmdEntries));
+                memcpy(&cmdEntries, script, sizeof(cmdEntries));
                 script += sizeof(cmdEntries);
 
                 for (j = 0; j < cmdEntries; j++) {
@@ -1264,7 +1265,7 @@ void Cutscene_ProcessScript(PlayState* play, CutsceneContext* csCtx, u8* script)
                 break;
 
             case CS_CMD_START_AMBIENCE:
-                bcopy(script, &cmdEntries, sizeof(cmdEntries));
+                memcpy(&cmdEntries, script, sizeof(cmdEntries));
                 script += sizeof(cmdEntries);
 
                 for (j = 0; j < cmdEntries; j++) {
@@ -1274,7 +1275,7 @@ void Cutscene_ProcessScript(PlayState* play, CutsceneContext* csCtx, u8* script)
                 break;
 
             case CS_CMD_FADE_OUT_AMBIENCE:
-                bcopy(script, &cmdEntries, sizeof(cmdEntries));
+                memcpy(&cmdEntries, script, sizeof(cmdEntries));
                 script += sizeof(cmdEntries);
 
                 for (j = 0; j < cmdEntries; j++) {
@@ -1284,7 +1285,7 @@ void Cutscene_ProcessScript(PlayState* play, CutsceneContext* csCtx, u8* script)
                 break;
 
             case CS_CMD_SFX_REVERB_INDEX_2:
-                bcopy(script, &cmdEntries, sizeof(cmdEntries));
+                memcpy(&cmdEntries, script, sizeof(cmdEntries));
                 script += sizeof(cmdEntries);
 
                 for (j = 0; j < cmdEntries; j++) {
@@ -1294,7 +1295,7 @@ void Cutscene_ProcessScript(PlayState* play, CutsceneContext* csCtx, u8* script)
                 break;
 
             case CS_CMD_SFX_REVERB_INDEX_1:
-                bcopy(script, &cmdEntries, sizeof(cmdEntries));
+                memcpy(&cmdEntries, script, sizeof(cmdEntries));
                 script += sizeof(cmdEntries);
 
                 for (j = 0; j < cmdEntries; j++) {
@@ -1304,7 +1305,7 @@ void Cutscene_ProcessScript(PlayState* play, CutsceneContext* csCtx, u8* script)
                 break;
 
             case CS_CMD_MODIFY_SEQ:
-                bcopy(script, &cmdEntries, sizeof(cmdEntries));
+                memcpy(&cmdEntries, script, sizeof(cmdEntries));
                 script += sizeof(cmdEntries);
 
                 for (j = 0; j < cmdEntries; j++) {
@@ -1314,7 +1315,7 @@ void Cutscene_ProcessScript(PlayState* play, CutsceneContext* csCtx, u8* script)
                 break;
 
             case CS_CMD_RUMBLE:
-                bcopy(script, &cmdEntries, sizeof(cmdEntries));
+                memcpy(&cmdEntries, script, sizeof(cmdEntries));
                 script += sizeof(cmdEntries);
 
                 for (j = 0; j < cmdEntries; j++) {
@@ -1324,7 +1325,7 @@ void Cutscene_ProcessScript(PlayState* play, CutsceneContext* csCtx, u8* script)
                 break;
 
             case CS_CMD_TRANSITION_GENERAL:
-                bcopy(script, &cmdEntries, sizeof(cmdEntries));
+                memcpy(&cmdEntries, script, sizeof(cmdEntries));
                 script += sizeof(cmdEntries);
 
                 for (j = 0; j < cmdEntries; j++) {
@@ -1334,7 +1335,7 @@ void Cutscene_ProcessScript(PlayState* play, CutsceneContext* csCtx, u8* script)
                 break;
 
             case CS_CMD_TIME:
-                bcopy(script, &cmdEntries, sizeof(cmdEntries));
+                memcpy(&cmdEntries, script, sizeof(cmdEntries));
                 script += sizeof(cmdEntries);
 
                 for (j = 0; j < cmdEntries; j++) {
@@ -1344,7 +1345,7 @@ void Cutscene_ProcessScript(PlayState* play, CutsceneContext* csCtx, u8* script)
                 break;
 
             case CS_CMD_PLAYER_CUE:
-                bcopy(script, &cmdEntries, sizeof(cmdEntries));
+                memcpy(&cmdEntries, script, sizeof(cmdEntries));
                 script += sizeof(cmdEntries);
 
                 for (j = 0; j < cmdEntries; j++) {
@@ -1363,7 +1364,7 @@ void Cutscene_ProcessScript(PlayState* play, CutsceneContext* csCtx, u8* script)
                 break;
 
             case CS_CMD_DESTINATION:
-                bcopy(script, &cmdEntries, sizeof(cmdEntries));
+                memcpy(&cmdEntries, script, sizeof(cmdEntries));
                 script += sizeof(cmdEntries);
 
                 for (j = 0; j < cmdEntries; j++) {
@@ -1373,7 +1374,7 @@ void Cutscene_ProcessScript(PlayState* play, CutsceneContext* csCtx, u8* script)
                 break;
 
             case CS_CMD_CHOOSE_CREDITS_SCENES:
-                bcopy(script, &cmdEntries, sizeof(cmdEntries));
+                memcpy(&cmdEntries, script, sizeof(cmdEntries));
                 script += sizeof(cmdEntries);
 
                 for (j = 0; j < cmdEntries; j++) {
@@ -1383,7 +1384,7 @@ void Cutscene_ProcessScript(PlayState* play, CutsceneContext* csCtx, u8* script)
                 break;
 
             case CS_CMD_TEXT:
-                bcopy(script, &cmdEntries, sizeof(cmdEntries));
+                memcpy(&cmdEntries, script, sizeof(cmdEntries));
                 script += sizeof(cmdEntries);
 
                 for (j = 0; j < cmdEntries; j++) {
@@ -1397,7 +1398,7 @@ void Cutscene_ProcessScript(PlayState* play, CutsceneContext* csCtx, u8* script)
                 break;
 
             case CS_CMD_TRANSITION:
-                bcopy(script, &cmdEntries, sizeof(cmdEntries));
+                memcpy(&cmdEntries, script, sizeof(cmdEntries));
                 script += sizeof(cmdEntries);
 
                 for (j = 0; j < cmdEntries; j++) {
@@ -1407,7 +1408,7 @@ void Cutscene_ProcessScript(PlayState* play, CutsceneContext* csCtx, u8* script)
                 break;
 
             case CS_CMD_MOTION_BLUR:
-                bcopy(script, &cmdEntries, sizeof(cmdEntries));
+                memcpy(&cmdEntries, script, sizeof(cmdEntries));
                 script += sizeof(cmdEntries);
 
                 for (j = 0; j < cmdEntries; j++) {
@@ -1417,7 +1418,7 @@ void Cutscene_ProcessScript(PlayState* play, CutsceneContext* csCtx, u8* script)
                 break;
 
             case CS_CMD_GIVE_TATL:
-                bcopy(script, &cmdEntries, sizeof(cmdEntries));
+                memcpy(&cmdEntries, script, sizeof(cmdEntries));
                 script += sizeof(cmdEntries);
 
                 for (j = 0; j < cmdEntries; j++) {
@@ -1430,7 +1431,7 @@ void Cutscene_ProcessScript(PlayState* play, CutsceneContext* csCtx, u8* script)
                 break;
 
             default:
-                bcopy(script, &cmdEntries, sizeof(cmdEntries));
+                memcpy(&cmdEntries, script, sizeof(cmdEntries));
                 script += sizeof(cmdEntries);
 
                 for (j = 0; j < cmdEntries; j++) {

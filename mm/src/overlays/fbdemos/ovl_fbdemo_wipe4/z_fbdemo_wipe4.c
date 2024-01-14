@@ -10,6 +10,7 @@
 #include "global.h"
 #include "z_fbdemo_wipe4.h"
 #include "sys_cfb.h"
+#include <string.h>
 
 #define THIS ((TransitionWipe4*)thisx)
 
@@ -74,7 +75,7 @@ void TransitionWipe4_Start(void* thisx) {
 void* TransitionWipe4_Init(void* thisx) {
     TransitionWipe4* this = (TransitionWipe4*)thisx;
 
-    bzero(this, sizeof(TransitionWipe4));
+    memset(this, 0, sizeof(TransitionWipe4));
 
     return this;
 }

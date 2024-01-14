@@ -164,18 +164,6 @@ void osUnmapTLBAll(void) {
 
 }
 
-#ifndef __GNUC__
-void bzero(void* src, int length) {
-    memset(src, 0, length);
-}
-
-void bcopy(void* __src, void* __dest, int __n) {
-    memcpy(__dest, __src, __n);
-}
-int bcmp(void* __s1, void* __s2, int __n) {
-    return memcmp(__s1, __s2, __n);
-}
-#endif
 int ResourceMgr_OTRSigCheck(char* imgData);
 char* ResourceMgr_LoadTexOrDListByName(const char* data);
 

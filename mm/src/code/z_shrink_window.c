@@ -6,6 +6,7 @@
 #include "prevent_bss_reordering.h"
 #include "global.h"
 #include "z64shrink_window.h"
+#include <string.h>
 
 typedef struct {
     /* 0x0 */ s8 letterboxTarget;
@@ -51,7 +52,7 @@ s32 ShrinkWindow_Pillarbox_GetSize(void) {
 
 void ShrinkWindow_Init(void) {
     sShrinkWindowPtr = &sShrinkWindow;
-    bzero(sShrinkWindowPtr, sizeof(sShrinkWindow));
+    memset(sShrinkWindowPtr, 0, sizeof(sShrinkWindow));
 }
 
 void ShrinkWindow_Destroy(void) {

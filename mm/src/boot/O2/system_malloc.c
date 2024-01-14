@@ -1,5 +1,6 @@
 #include "global.h"
 #include "os_malloc.h"
+#include <string.h>
 
 Arena gSystemArena;
 
@@ -25,7 +26,7 @@ void* SystemArena_Calloc(u32 elements, size_t size) {
 
     ptr = __osMalloc(&gSystemArena, totalSize);
     if (ptr != NULL) {
-        bzero(ptr, totalSize);
+        memset(ptr, 0, totalSize);
     }
     return ptr;
 }

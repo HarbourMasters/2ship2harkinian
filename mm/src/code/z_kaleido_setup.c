@@ -3,6 +3,7 @@
 #include "z64shrink_window.h"
 #include "z64view.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
+#include <string.h>
 
 s16 sKaleidoSetupRightPageIndex[] = {
     PAUSE_MAP,   // PAUSE_ITEM
@@ -129,7 +130,7 @@ void KaleidoSetup_Init(PlayState* play) {
     PauseContext* pauseCtx = &play->pauseCtx;
     s32 pad[2];
 
-    bzero(pauseCtx, sizeof(PauseContext));
+    memset(pauseCtx, 0, sizeof(PauseContext));
 
     pauseCtx->pageIndex = PAUSE_ITEM;
 

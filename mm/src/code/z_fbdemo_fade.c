@@ -1,4 +1,5 @@
 #include "global.h"
+#include <string.h>
 
 #define THIS ((TransitionFade*)thisx)
 
@@ -55,7 +56,7 @@ void TransitionFade_Start(void* thisx) {
 void* TransitionFade_Init(void* thisx) {
     TransitionFade* this = THIS;
 
-    bzero(this, sizeof(TransitionFade));
+    memset(this, 0, sizeof(TransitionFade));
     return this;
 }
 

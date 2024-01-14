@@ -1,7 +1,7 @@
 #include "global.h"
 #include "BenPort.h"
-#include "string.h"
-#include "stdio.h"
+#include <string.h>
+#include <stdio.h>
 
 #define ANIM_INTERP 1
 
@@ -2031,5 +2031,5 @@ void SkelAnime_Free(SkelAnime* skelAnime, PlayState* play) {
  * Copies the src frame table to the dst frame table.
  */
 void SkelAnime_CopyFrameTable(SkelAnime* skelAnime, Vec3s* dst, Vec3s* src) {
-    bcopy(src, dst, sizeof(Vec3s) * skelAnime->limbCount);
+    memcpy(dst, src, sizeof(Vec3s) * skelAnime->limbCount);
 }

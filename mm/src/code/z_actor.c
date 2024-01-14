@@ -20,6 +20,8 @@
 #include "objects/gameplay_dangeon_keep/gameplay_dangeon_keep.h"
 #include "objects/object_bdoor/object_bdoor.h"
 
+#include <string.h>
+
 // bss
 // FaultClient sActorFaultClient; // 2 funcs
 
@@ -2412,7 +2414,7 @@ void Actor_InitContext(PlayState* play, ActorContext* actorCtx, ActorEntry* acto
     SET_WEEKEVENTREG(WEEKEVENTREG_92_80);
     cycleFlags = &gSaveContext.cycleSceneFlags[Play_GetOriginalSceneId(play->sceneId)];
 
-    bzero(actorCtx, sizeof(ActorContext));
+    memset(actorCtx, 0, sizeof(ActorContext));
     ActorOverlayTable_Init();
     Matrix_MtxFCopy(&play->billboardMtxF, &gIdentityMtxF);
     Matrix_MtxFCopy(&play->viewProjectionMtxF, &gIdentityMtxF);
@@ -3339,7 +3341,7 @@ Actor* Actor_SpawnAsChildAndCutscene(ActorContext* actorCtx, PlayState* play, s1
         overlayEntry->numLoaded++;
     }
 
-    bzero(actor, actorInit->instanceSize);
+    memset(actor, 0, actorInit->instanceSize);
     actor->overlayEntry = overlayEntry;
     actor->id = actorInit->id;
     actor->flags = actorInit->flags;
