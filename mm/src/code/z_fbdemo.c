@@ -11,6 +11,7 @@
  */
 #include "global.h"
 #include "system_malloc.h"
+#include <string.h>
 
 Gfx sTransTileSetupDL[] = {
     gsDPPipeSync(),
@@ -123,7 +124,7 @@ void TransitionTile_Destroy(TransitionTile* this) {
 TransitionTile* TransitionTile_Init(TransitionTile* this, s32 cols, s32 rows) {
     s32 gridSize;
 
-    bzero(this, sizeof(TransitionTile));
+    memset(this, 0, sizeof(TransitionTile));
     this->frame = 0;
     this->cols = cols;
     this->rows = rows;

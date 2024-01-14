@@ -1,12 +1,12 @@
-#pragma once
+#ifndef BenMenuBar_h
+#define BenMenuBar_h
 
-//#include <libultraship/libultraship.h>
 #include "window/gui/GuiMenuBar.h"
 #include "window/gui/GuiElement.h"
 #include "DeveloperTools/SaveEditor.h"
 
-namespace SohGui {
-class SohMenuBar : public LUS::GuiMenuBar {
+namespace BenGui {
+class BenMenuBar : public LUS::GuiMenuBar {
   public:
     using LUS::GuiMenuBar::GuiMenuBar;
   protected:
@@ -14,4 +14,6 @@ class SohMenuBar : public LUS::GuiMenuBar {
     void InitElement() override {};
     void UpdateElement() override {};
 };
-} // namespace SohGui
+} // namespace BenGui
+
+#endif // BenMenuBar_h

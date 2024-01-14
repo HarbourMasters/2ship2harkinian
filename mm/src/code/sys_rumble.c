@@ -5,6 +5,7 @@
 
 #include "global.h"
 #include "z64rumble.h"
+#include <string.h>
 
 // sRumbleWasEnabledOnLastTick/sWillDisableRumble? Probably name it after updateEnabled
 u8 D_801D1E70 = true;
@@ -151,7 +152,7 @@ void RumbleManager_Update(RumbleManager* rumbleMgr) {
 }
 
 void RumbleManager_Init(RumbleManager* rumbleMgr) {
-    bzero(rumbleMgr, sizeof(RumbleManager));
+    memset(rumbleMgr, 0, sizeof(RumbleManager));
     rumbleMgr->state = RUMBLEMANAGER_STATE_INITIAL;
     rumbleMgr->updateEnabled = true;
 }

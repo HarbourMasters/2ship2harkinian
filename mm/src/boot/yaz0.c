@@ -1,6 +1,7 @@
 #include "global.h"
 #include "fault.h"
 #include <stdio.h>
+#include <string.h>
 
 u8 sYaz0DataBuffer[0x400] ALIGNED(16);
 u8* sYaz0CurDataEnd;
@@ -35,7 +36,7 @@ void* Yaz0_NextDMA(void* curSrcPos) {
 
     dst = (restSize & 7) ? (sYaz0DataBuffer - (restSize & 7)) + 8 : sYaz0DataBuffer;
 
-    bcopy(curSrcPos, dst, restSize);
+    memcpy(dst, curSrcPos, restSize);
     dmaSize = ((u32)sYaz0CurDataEnd - (u32)dst) - restSize;
     if (sYaz0CurSize < dmaSize) {
         dmaSize = sYaz0CurSize;

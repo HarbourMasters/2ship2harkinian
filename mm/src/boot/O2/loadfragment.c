@@ -13,6 +13,7 @@
 #include "global.h"
 #include "system_malloc.h"
 #include "loadfragment.h"
+#include <string.h>
 
 s32 gLoadLogSeverity = 2;
 
@@ -165,7 +166,7 @@ size_t Fragment_Load(uintptr_t vromStart, uintptr_t vromEnd, void* vramStart, vo
 
     if (ovlRelocs->bssSize != 0) {
         if (gLoadLogSeverity >= 3) {}
-        bzero((void*)end, ovlRelocs->bssSize);
+        memset((void*)end, 0, ovlRelocs->bssSize);
     }
 
     osWritebackDCache(allocatedRamAddr, allocatedBytes);
@@ -220,7 +221,7 @@ void* Fragment_AllocateAndLoad(uintptr_t vromStart, uintptr_t vromEnd, void* vra
 
     if (ovlRelocs->bssSize != 0) {
         if (gLoadLogSeverity >= 3) {}
-        bzero((void*)end, ovlRelocs->bssSize);
+        memset((void*)end, 0, ovlRelocs->bssSize);
     }
 
     osInvalICache(allocatedRamAddr, allocatedBytes);

@@ -34,6 +34,7 @@ u8 sMotionBlurStatus;
 #include "overlays/gamestates/ovl_file_choose/z_file_select.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "debug.h"
+#include <string.h>
 
 s32 gDbgCamEnabled = false;
 u8 D_801D0D54 = false;
@@ -275,7 +276,7 @@ void Play_SetupTransition(PlayState* this, s32 transitionType) {
     TransitionContext* transitionCtx = &this->transitionCtx;
     s32 fbdemoType;
 
-    bzero(transitionCtx, sizeof(TransitionContext));
+    memset(transitionCtx, 0, sizeof(TransitionContext));
 
     fbdemoType = -1;
     if (transitionType & TRANS_TYPE_WIPE3) {

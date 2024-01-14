@@ -1,5 +1,7 @@
 #include "global.h"
 #include "sys_cfb.h"
+#include "code/fbdemo_circle/fbdemo_circle.h"
+#include <string.h>
 
 typedef enum {
     /* 0 */ TRANS_CIRCLE_DIR_IN,
@@ -42,7 +44,7 @@ void TransitionCircle_Start(void* thisx) {
 void* TransitionCircle_Init(void* thisx) {
     TransitionCircle* this = (TransitionCircle*)thisx;
 
-    bzero(this, sizeof(TransitionCircle));
+    memset(this, 0, sizeof(TransitionCircle));
     this->maskType = 1;
     this->texture = gCircleTex;
     this->masks = 6;
@@ -115,8 +117,19 @@ void TransitionCircle_LoadAndSetTexture(Gfx** gfxp, TexturePtr texture, s32 fmt,
         dtdy = ((SCREEN_HEIGHT - (2.0f * t)) / gScreenHeight) * (1 << 10);
     }
 
-    gSPTextureRectangle(gfx++, 0, 0, xh << 2, yh << 2, G_TX_RENDERTILE, (s32)(s * (1 << 5)), (s32)(t * (1 << 5)), dsdx,
-                        dtdy);
+    // #region 2S2H [Cosmetic] Adjust circle overlay to support widescreen
+    // The first wide rectangle instruction renders the tile information on the extra space on the left edge
+    // The second instruction renders the original overlay in the center and has it extend to the right edge
+    // gSPTextureRectangle(gfx++, 0, 0, xh << 2, yh << 2, G_TX_RENDERTILE, (s32)(s * (1 << 5)), (s32)(t * (1 << 5)), dsdx,
+    //                     dtdy);
+    s32 x = OTRGetRectDimensionFromLeftEdge(0) << 2;
+    if (x < 0) {
+        // Only render if the screen is wider then original
+        gSPWideTextureRectangle(gfx++, x, 0, 0, yh << 2, G_TX_RENDERTILE, 0, 0, 0, 0);
+    }
+    gSPWideTextureRectangle(gfx++, 0, 0, OTRGetRectDimensionFromRightEdge(xh) << 2, yh << 2, G_TX_RENDERTILE,
+                            (s32)(s * (1 << 5)), (s32)(t * (1 << 5)), dsdx, dtdy);
+    // #endregion
     gDPPipeSync(gfx++);
 
     *gfxp = gfx;

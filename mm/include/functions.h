@@ -8,6 +8,7 @@ extern "C" {
 
 #include "z64.h"
 #include "BenPort.h"
+#include "libultraship/luslog.h"
 
 void bootproc(void);
 void ViConfig_UpdateVi(u32 black);
@@ -525,8 +526,6 @@ void Font_LoadCharNES(PlayState* play, u8 codePointIndex, s32 offset);
 void Font_LoadMessageBoxEndIcon(Font* font, u16 icon);
 void Font_LoadOrderedFont(Font* font);
 
-void* Lib_MemCpy(void* dest, void* src, size_t size);
-void* Lib_MemSet(void* buffer, s32 value, size_t size);
 void Lib_GetControlStickData(f32* outMagnitude, s16* outAngle, Input* input);
 void Actor_ProcessInitChain(Actor* actor, InitChainEntry* ichain);
 void Color_RGBA8_Copy(Color_RGBA8* dst, Color_RGBA8* src);

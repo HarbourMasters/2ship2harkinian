@@ -5,11 +5,12 @@
 #include "libc/stdbool.h"
 #include "z64environment.h"
 #include "z64transition.h"
+#include <string.h>
 
 SaveContext gSaveContext ALIGNED(16);
 
 void SaveContext_Init(void) {
-    bzero(&gSaveContext, sizeof(SaveContext));
+    memset(&gSaveContext, 0, sizeof(SaveContext));
 
     gSaveContext.save.playerForm = 0;
     gSaveContext.seqId = (u8)NA_BGM_DISABLED;

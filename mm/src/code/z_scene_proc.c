@@ -1,6 +1,7 @@
 #include "prevent_bss_reordering.h"
 #include "global.h"
 #include "BenPort.h"
+#include <string.h>
 
 s32 sMatAnimStep;
 u32 sMatAnimFlags;
@@ -732,7 +733,7 @@ void Scene_DrawConfigGreatBayTemple(PlayState* play) {
     for (gfx = gfxHead, i = 0; i < 9; i++, gfx += 2) {
         lodFrac = 0;
 
-        bcopy(greatBayTempleColorSetDL, gfx, sizeof(greatBayTempleColorSetDL));
+        memcpy(gfx, greatBayTempleColorSetDL, sizeof(greatBayTempleColorSetDL));
 
         switch (i) {
             case 0:

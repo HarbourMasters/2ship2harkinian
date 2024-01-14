@@ -5,6 +5,7 @@
 #include "fault.h"
 #include "gfxdebuggerbridge.h"
 #include "libultraship/libultraship.h"
+#include <string.h>
 
 // Variables are put before most headers as a hacky way to bypass bss reordering
 FaultAddrConvClient sGraphFaultAddrConvClient;
@@ -121,7 +122,7 @@ uintptr_t Graph_FaultAddrConv(uintptr_t address, void* param) {
 }
 
 void Graph_Init(GraphicsContext* gfxCtx) {
-    bzero(gfxCtx, sizeof(GraphicsContext));
+    memset(gfxCtx, 0, sizeof(GraphicsContext));
     gfxCtx->gfxPoolIdx = 0;
     gfxCtx->framebufferIndex = 0;
     gfxCtx->viMode = NULL;
@@ -400,7 +401,7 @@ void RunFrame() {
 
         runFrameContext.gameState = SystemArena_Malloc(size);
 
-        bzero(runFrameContext.gameState, size); // fix
+        memset(runFrameContext.gameState, 0, size); // fix
         GameState_Init(runFrameContext.gameState, runFrameContext.ovl->init, &runFrameContext.gfxCtx);
 
         uint64_t freq = GetFrequency();

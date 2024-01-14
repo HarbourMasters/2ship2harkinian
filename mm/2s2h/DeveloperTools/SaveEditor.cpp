@@ -9,6 +9,7 @@ extern SaveContext gSaveContext;
 extern TexturePtr gItemIcons[131];
 extern u8 gItemSlots[77];
 void Interface_LoadItemIconImpl(PlayState* play, u8 btn);
+extern RegEditor* gRegEditor;
 }
 
 bool safeMode = true;
@@ -21,6 +22,8 @@ const uint16_t HEART_COUNT_MIN = 3;
 const uint16_t HEART_COUNT_MAX = 20;
 const int16_t S16_ZERO = 0;
 const int8_t S8_ZERO = 0;
+const u8 REG_PAGES_MAX = REG_PAGES;
+const u8 REG_GROUPS_MAX = REG_GROUPS - 1;
 const char* MAGIC_LEVEL_NAMES[3] = { "No Magic", "Single Magic", "Double Magic" };
 const int8_t MAGIC_LEVEL_MAX = 2;
 
@@ -423,6 +426,63 @@ void DrawItemsAndMasksTab() {
     ImGui::PopStyleVar(2);
 }
 
+const char* regGroupNames[] = {
+    "REG  (0)",
+    "SREG (1)",
+    "OREG (2)",
+    "PREG (3)",
+    "QREG (4)",
+    "MREG (5)",
+    "YREG (6)",
+    "DREG (7)",
+    "UREG (8)",
+    "IREG (9)",
+    "ZREG (10)",
+    "CREG (11)",
+    "NREG (12)",
+    "KREG (13)",
+    "XREG (14)",
+    "cREG (15)",
+    "sREG (16)",
+    "iREG (17)",
+    "WREG (18)",
+    "AREG (19)",
+    "VREG (20)",
+    "HREG (21)",
+    "GREG (22)",
+    "mREG (23)",
+    "nREG (24)",
+    "BREG (25)",
+    "dREG (26)",
+    "kREG (27)",
+    "bREG (28)",
+};
+
+void DrawRegEditorTab() {
+    UIWidgets::PushStyleSlider();
+    ImGui::SliderScalar("Reg Group", ImGuiDataType_U8, &gRegEditor->regGroup, &S8_ZERO, &REG_GROUPS_MAX, regGroupNames[gRegEditor->regGroup]);
+    ImGui::SliderScalar("Reg Page", ImGuiDataType_U8, &gRegEditor->regPage, &S8_ZERO, &REG_PAGES_MAX, "%d");
+
+    for (int i = 0; i < REG_PER_PAGE; i++) {
+        ImGui::PushID(i);
+        ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.5f - 4.0f);
+        ImGui::BeginGroup();
+        ImGui::Text("%02X (%d)", i + gRegEditor->regPage * REG_PER_PAGE, i + gRegEditor->regPage * REG_PER_PAGE);
+        ImGui::SameLine();
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, UIWidgets::Colors::Gray);
+        ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.0f, 8.0f));
+        ImGui::InputScalar("##regInput", ImGuiDataType_S16, &gRegEditor->data[i + gRegEditor->regPage * REG_PER_PAGE + gRegEditor->regGroup * REG_PER_PAGE * REG_PAGES], NULL, NULL, "%d");
+        ImGui::PopStyleVar(2);
+        ImGui::PopStyleColor(1);
+        ImGui::EndGroup();
+        ImGui::PopItemWidth();
+        ImGui::PopID();
+    }
+
+    UIWidgets::PopStyleSlider();
+}
+
 void SaveEditorWindow::DrawElement() {
     ImGui::SetNextWindowSize(ImVec2(480,600), ImGuiCond_FirstUseEver);
     if (!ImGui::Begin("Save Editor", &mIsVisible, ImGuiWindowFlags_NoFocusOnAppearing)) {
@@ -438,6 +498,11 @@ void SaveEditorWindow::DrawElement() {
 
         if (ImGui::BeginTabItem("Items & Masks")) {
             DrawItemsAndMasksTab();
+            ImGui::EndTabItem();
+        }
+
+        if (ImGui::BeginTabItem("Reg Editor")) {
+            DrawRegEditorTab();
             ImGui::EndTabItem();
         }
 

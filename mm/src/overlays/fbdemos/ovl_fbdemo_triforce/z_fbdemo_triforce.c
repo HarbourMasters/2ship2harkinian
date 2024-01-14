@@ -7,6 +7,7 @@
 #include "global.h"
 #include "z_fbdemo_triforce.h"
 #include "assets/overlays/ovl_fbdemo_triforce/ovl_fbdemo_triforce.h"
+#include <string.h>
 
 void* TransitionTriforce_Init(void* thisx);
 void TransitionTriforce_Destroy(void* thisx);
@@ -41,7 +42,7 @@ void TransitionTriforce_Start(void* thisx) {
 void* TransitionTriforce_Init(void* thisx) {
     TransitionTriforce* this = (TransitionTriforce*)thisx;
 
-    bzero(this, sizeof(TransitionTriforce));
+    memset(this, 0, sizeof(TransitionTriforce));
     guOrtho(&this->projection, -SCREEN_WIDTH / 2, SCREEN_WIDTH / 2, -SCREEN_HEIGHT / 2, SCREEN_HEIGHT / 2, -1000.0f,
             1000.0f, 1.0f);
     this->transPos = 1.0f;

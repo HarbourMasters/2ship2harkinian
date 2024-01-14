@@ -8,6 +8,7 @@
 #include "PR/gs2dex.h"
 #include "sys_cfb.h"
 #include "z_fbdemo_wipe5.h"
+#include <string.h>
 
 #define THIS ((TransitionWipe5*)thisx)
 
@@ -58,7 +59,7 @@ void TransitionWipe5_Start(void* thisx) {
 void* TransitionWipe5_Init(void* thisx) {
     TransitionWipe5* this = THIS;
 
-    bzero(this, sizeof(TransitionWipe5));
+    memset(this, 0, sizeof(TransitionWipe5));
     return this;
 }
 
