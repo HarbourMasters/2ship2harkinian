@@ -87,25 +87,25 @@ extern std::shared_ptr<LUS::GuiWindow> mInputEditorWindow;
 void DrawSettingsMenu() {
     if (UIWidgets::BeginMenu("Settings")) {
         if (UIWidgets::BeginMenu("Audio")) {
-            UIWidgets::CVarSliderFloat("Master Volume: %.0f %%", "gSettings.Audio.MasterVolume", 0.0f, 1.0f, 1.0f, { .isPercentage = true, .showButtons = false, .format = "" });
+            UIWidgets::CVarSliderFloat("Master Volume: %.0f %%", "gSettings.Audio.MasterVolume", 0.0f, 1.0f, 1.0f, { .showButtons = false, .format = "", .isPercentage = true });
 
-            if (UIWidgets::CVarSliderFloat("Main Music Volume: %.0f %%", "gSettings.Audio.MainMusicVolume", 0.0f, 1.0f, 1.0f, { .isPercentage = true, .showButtons = false, .format = "" })) {
+            if (UIWidgets::CVarSliderFloat("Main Music Volume: %.0f %%", "gSettings.Audio.MainMusicVolume", 0.0f, 1.0f, 1.0f, { .showButtons = false, .format = "", .isPercentage = true })) {
                 // Audio_SetGameVolume(SEQ_BGM_MAIN, CVarGetFloat("gSettings.Audio.MainMusicVolume", 1.0f));
             }
-            if (UIWidgets::CVarSliderFloat("Sub Music Volume: %.0f %%", "gSettings.Audio.SubMusicVolume", 0.0f, 1.0f, 1.0f, { .isPercentage = true, .showButtons = false, .format = "" })) {
+            if (UIWidgets::CVarSliderFloat("Sub Music Volume: %.0f %%", "gSettings.Audio.SubMusicVolume", 0.0f, 1.0f, 1.0f, { .showButtons = false, .format = "", .isPercentage = true })) {
                 // Audio_SetGameVolume(SEQ_BGM_SUB, CVarGetFloat("gSettings.Audio.SubMusicVolume", 1.0f));
             }
-            if (UIWidgets::CVarSliderFloat("Sound Effects Volume: %.0f %%", "gSettings.Audio.SoundEffectsVolume", 0.0f, 1.0f, 1.0f, { .isPercentage = true, .showButtons = false, .format = "" })) {
+            if (UIWidgets::CVarSliderFloat("Sound Effects Volume: %.0f %%", "gSettings.Audio.SoundEffectsVolume", 0.0f, 1.0f, 1.0f, { .showButtons = false, .format = "", .isPercentage = true })) {
                 // Audio_SetGameVolume(SEQ_SFX, CVarGetFloat("gSettings.Audio.SoundEffectsVolume", 1.0f));
             }
-            if (UIWidgets::CVarSliderFloat("Fanfare Volume: %.0f %%", "gSettings.Audio.FanfareVolume", 0.0f, 1.0f, 1.0f, { .isPercentage = true, .showButtons = false, .format = "" })) {
+            if (UIWidgets::CVarSliderFloat("Fanfare Volume: %.0f %%", "gSettings.Audio.FanfareVolume", 0.0f, 1.0f, 1.0f, { .showButtons = false, .format = "", .isPercentage = true })) {
                 // Audio_SetGameVolume(SEQ_FANFARE, CVarGetFloat("gSettings.Audio.FanfareVolume", 1.0f));
             }
 
             auto currentAudioBackend = LUS::Context::GetInstance()->GetAudio()->GetAudioBackend();
             if (UIWidgets::Combobox("Audio API", &currentAudioBackend, audioBackendsMap, {
-                .disabled = LUS::Context::GetInstance()->GetAudio()->GetAvailableAudioBackends()->size() <= 1,
                 .tooltip = "Sets the audio API used by the game. Requires a relaunch to take effect.",
+                .disabled = LUS::Context::GetInstance()->GetAudio()->GetAvailableAudioBackends()->size() <= 1,
                 .disabledTooltip = "Only one audio API is available on this platform."
             })) {
                 LUS::Context::GetInstance()->GetAudio()->SetAudioBackend(currentAudioBackend);
@@ -131,9 +131,9 @@ void DrawSettingsMenu() {
             .tooltip = "Shows currently pressed inputs on the bottom right of the screen"
         });
         UIWidgets::CVarSliderFloat("Input Scale: %.1f", "gInputScale", 1.0f, 3.0f, 1.0f, { 
+            .tooltip = "Sets the on screen size of the displayed inputs from the Show Inputs setting",
             .showButtons = false, 
-            .format = "",
-            .tooltip = "Sets the on screen size of the displayed inputs from the Show Inputs setting"
+            .format = ""
         });
         UIWidgets::CVarSliderInt("Simulated Input Lag: %d frames", "gSimulatedInputLag", 0, 6, 0, {
             .tooltip = "Buffers your inputs to be executed a specified amount of frames later"
@@ -232,8 +232,8 @@ void DrawSettingsMenu() {
         }
 
         if (UIWidgets::Combobox("Renderer API (Needs reload)", &configWindowBackend, availableWindowBackendsMap, {
-            .disabled = LUS::Context::GetInstance()->GetWindow()->GetAvailableWindowBackends()->size() <= 1,
             .tooltip = "Sets the renderer API used by the game. Requires a relaunch to take effect.",
+            .disabled = LUS::Context::GetInstance()->GetWindow()->GetAvailableWindowBackends()->size() <= 1,
             .disabledTooltip = "Only one renderer API is available on this platform."
         })) {
             LUS::Context::GetInstance()->GetConfig()->SetInt("Window.Backend.Id", static_cast<int32_t>(configWindowBackend));
