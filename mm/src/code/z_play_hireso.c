@@ -3,6 +3,7 @@
 #include "z64bombers_notebook.h"
 #include "interface/schedule_static/schedule_static.h"
 #include "archives/schedule_dma_static/schedule_dma_static_yar.h"
+#include <string.h>
 
 #define BOMBERS_NOTEBOOK_ENTRY_SIZE 3
 #define BOMBERS_NOTEBOOK_ENTRY_MAX 10
@@ -1327,7 +1328,7 @@ void BombersNotebook_Update(PlayState* play, BombersNotebook* this, Input* input
 }
 
 void BombersNotebook_Init(BombersNotebook* this) {
-    bzero(this, sizeof(BombersNotebook));
+    memset(this, 0, sizeof(BombersNotebook));
 }
 
 void BombersNotebook_Destroy(BombersNotebook* this) {

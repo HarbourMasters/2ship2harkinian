@@ -36,7 +36,7 @@
 #include "PR/os_motor.h"
 #include "fault.h"
 #include <stdio.h>
-
+#include <string.h>
 //extern FaultMgr gFaultMgr;
 
 #define PADMGR_RETRACE_MSG (1 << 0)
@@ -614,11 +614,11 @@ void PadMgr_HandleRetrace(void) {
     osContGetReadData(sPadMgrInstance->pads);
 
     // Clear all but controller 1
-    bzero(&sPadMgrInstance->pads[1], sizeof(*sPadMgrInstance->pads) * (MAXCONTROLLERS - 1));
+    memset(&sPadMgrInstance->pads[1], 0, sizeof(*sPadMgrInstance->pads) * (MAXCONTROLLERS - 1));
 
     // If in PreNMI, clear all controllers
     if (sPadMgrInstance->isResetting) {
-        bzero(sPadMgrInstance->pads, sizeof(sPadMgrInstance->pads));
+        memset(sPadMgrInstance->pads, 0, sizeof(sPadMgrInstance->pads));
     }
 
     // Query controller statuses
@@ -796,7 +796,7 @@ void PadMgr_ThreadEntry() {
 }
 
 void PadMgr_Init(OSMesgQueue* siEvtQ, IrqMgr* irqMgr, OSId threadId, OSPri pri, void* stack) {
-    bzero(sPadMgrInstance, sizeof(PadMgr));
+    memset(sPadMgrInstance, 0, sizeof(PadMgr));
     sPadMgrInstance->irqMgr = irqMgr;
 
     // These are unique access tokens, there should only ever be room for one OSMesg in these queues

@@ -10,6 +10,7 @@
 #include "z64quake.h"
 #include "z64rumble.h"
 #include "z64shrink_window.h"
+#include <string.h>
 
 #include "overlays/actors/ovl_Arms_Hook/z_arms_hook.h"
 #include "overlays/actors/ovl_Door_Spiral/z_door_spiral.h"
@@ -12423,7 +12424,7 @@ void Player_Update(Actor* thisx, PlayState* play) {
     } else if ((this->csAction == PLAYER_CSACTION_5) ||
                (this->stateFlags1 & (PLAYER_STATE1_20 | PLAYER_STATE1_20000000)) || (this != GET_PLAYER(play)) ||
                func_8082DA90(play) || (gSaveContext.save.saveInfo.playerData.health == 0)) {
-        bzero(&input, sizeof(Input));
+        memset(&input, 0, sizeof(Input));
         this->fallStartHeight = this->actor.world.pos.y;
     } else {
         input = *CONTROLLER1(&play->state);
@@ -12435,7 +12436,7 @@ void Player_Update(Actor* thisx, PlayState* play) {
 
     Player_UpdateCommon(this, play, &input);
     play->actorCtx.unk268 = 0;
-    bzero(&play->actorCtx.unk_26C, sizeof(Input));
+    memset(&play->actorCtx.unk_26C, 0, sizeof(Input));
 
     MREG(52) = this->actor.world.pos.x;
     MREG(53) = this->actor.world.pos.y;

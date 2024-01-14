@@ -6,6 +6,7 @@
 #include "global.h"
 #include "z64vismono.h"
 #include "system_malloc.h"
+#include <string.h>
 
 // Height of the fragments the color frame buffer (CFB) is split into.
 // It is the maximum amount of lines such that all rgba16 SCREEN_WIDTH-long lines fit into
@@ -25,7 +26,7 @@
 #define VISMONO_FAC_NORM (0x1F * VISMONO_FAC_RED + 0x1F * VISMONO_FAC_GREEN + 0x1F * VISMONO_FAC_BLUE)
 
 void VisMono_Init(VisMono* this) {
-    bzero(this, sizeof(VisMono));
+    memset(this, 0, sizeof(VisMono));
     this->unk_00 = 0;
     this->setScissor = false;
     this->primColor.r = 255;

@@ -13,6 +13,7 @@
 #include "global.h"
 #include "stackcheck.h"
 #include "z64thread.h"
+#include <string.h>
 
 void Slowly_Main(SlowlyMgr* slowly) {
     slowly->status |= SLOWLY_STATUS_STARTED;
@@ -44,7 +45,7 @@ void Slowly_ThreadEntry(void* arg) {
 }
 
 void Slowly_Init(SlowlyMgr* slowly, void* stack, SlowlyCallbackTwo callback, void* arg0, void* arg1) {
-    bzero(slowly, sizeof(SlowlyMgr));
+    memset(slowly, 0, sizeof(SlowlyMgr));
 
     slowly->argCount = 2;
     slowly->status = 0;

@@ -1,5 +1,6 @@
 #include "global.h"
 #include "os_malloc.h"
+#include <string.h>
 
 Arena sZeldaArena;
 
@@ -30,7 +31,7 @@ void* ZeldaArena_Calloc(u32 num, size_t size) {
 
     ret = __osMalloc(&sZeldaArena, n);
     if (ret != NULL) {
-        bzero(ret, n);
+        memset(ret, 0, n);
     }
 
     return ret;

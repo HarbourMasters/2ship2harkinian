@@ -3,6 +3,7 @@
 #include "libc/stdint.h"
 #include "macros.h"
 #include "functions.h"
+#include <string.h>
 
 #define FILL_ALLOCBLOCK (1 << 0)
 #define FILL_FREEBLOCK (1 << 1)
@@ -57,7 +58,7 @@ ArenaNode* ArenaImpl_GetLastBlock(Arena* arena) {
  * @param size   The size of the heap.
  */
 void __osMallocInit(Arena* arena, void* heap, size_t size) {
-    bzero(arena, sizeof(Arena));
+    memset(arena, 0, sizeof(Arena));
 
     ArenaImpl_LockInit(arena);
 
@@ -112,7 +113,7 @@ void __osMallocAddHeap(Arena* arena, void* heap, size_t size) {
  * @param arena  The Arena to clear.
  */
 void __osMallocCleanup(Arena* arena) {
-    bzero(arena, sizeof(Arena));
+    memset(arena, 0, sizeof(Arena));
 }
 
 /**
@@ -377,7 +378,7 @@ void* __osRealloc(Arena* arena, void* ptr, size_t newSize) {
                 // Create a new pointer and manually copy the data from the old pointer to the new one
                 newPtr = __osMalloc(arena, newSize);
                 if (newPtr != NULL) {
-                    bcopy(newPtr, ptr, node->size);
+                    memcpy(ptr, newPtr, node->size);
                     __osFree(arena, ptr);
                 }
                 ptr = newPtr;

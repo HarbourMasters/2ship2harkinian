@@ -12,7 +12,7 @@
 
 #include "global.h"
 #include "buffers.h"
-
+#include <string.h>
 /**
  * SoundFont Notes:
  *
@@ -788,7 +788,7 @@ void* AudioLoad_SyncLoad(s32 tableType, u32 id, s32* didAllocate) {
                 size -= 0x10;
             }
 
-            bcopy(romAddr, ramAddr, size);
+            memcpy(ramAddr, romAddr, size);
         } else if (medium2 == mediumUnk) {
             AudioLoad_SyncDmaUnkMedium(romAddr, ramAddr, size, (s16)table->unkMediumParam);
         } else {
@@ -1746,7 +1746,7 @@ void AudioLoad_AsyncDmaRamUnloaded(AudioAsyncLoad* asyncLoad, size_t size) {
     size = ALIGN16(size);
     Audio_InvalDCache(asyncLoad->curRamAddr, size);
     osCreateMesgQueue(&asyncLoad->msgQueue, &asyncLoad->msg, 1);
-    bcopy(asyncLoad->curDevAddr, asyncLoad->curRamAddr, size);
+    memcpy(asyncLoad->curRamAddr, asyncLoad->curDevAddr, size);
     osSendMesg(&asyncLoad->msgQueue, OS_MESG_PTR(NULL), OS_MESG_NOBLOCK);
 }
 

@@ -17,6 +17,7 @@
 #include "stack.h"
 #include "stackcheck.h"
 #include <stdlib.h>
+#include <string.h>
 
 /**
  * Assigns the "save" values in PreRender
@@ -34,7 +35,7 @@ void PreRender_SetValuesSave(PreRender* this, u32 width, u32 height, void* fbuf,
 }
 
 void PreRender_Init(PreRender* this) {
-    bzero(this, sizeof(PreRender));
+    memset(this, 0, sizeof(PreRender));
     ListAlloc_Init(&this->alloc);
 }
 

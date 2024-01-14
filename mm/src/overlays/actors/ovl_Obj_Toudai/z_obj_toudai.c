@@ -6,6 +6,7 @@
 
 #include "z_obj_toudai.h"
 #include "objects/object_f53_obj/object_f53_obj.h"
+#include <string.h>
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
@@ -106,7 +107,7 @@ void ObjToudai_Init(Actor* thisx, PlayState* play) {
     ObjToudai* this = THIS;
     ovl_Obj_Toudai_Vtx_D_80A34590data = ResourceMgr_LoadVtxByName(ovl_Obj_Toudai_Vtx_D_80A34590data);
 
-    Lib_MemCpy(this->unk_148, &ovl_Obj_Toudai_Vtx_D_80A34590, sizeof(ovl_Obj_Toudai_Vtx_D_80A34590));
+    memcpy(this->unk_148, &ovl_Obj_Toudai_Vtx_D_80A34590, sizeof(ovl_Obj_Toudai_Vtx_D_80A34590));
 }
 
 void ObjToudai_Destroy(Actor* thisx, PlayState* play) {

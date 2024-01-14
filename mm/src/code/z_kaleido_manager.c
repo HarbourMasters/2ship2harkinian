@@ -1,6 +1,7 @@
 #include "global.h"
 #include "fault.h"
 #include "loadfragment.h"
+#include <string.h>
 
 //#define KALEIDO_OVERLAY(name)                                                                        \
 //    {                                                                                                \
@@ -51,7 +52,7 @@ void KaleidoManager_LoadOvl(KaleidoMgrOverlay* ovl) {
 void KaleidoManager_ClearOvl(KaleidoMgrOverlay* ovl) {
     if (ovl->loadedRamAddr != NULL) {
         ovl->offset = 0;
-        bzero(ovl->loadedRamAddr, (uintptr_t)ovl->vramEnd - (uintptr_t)ovl->vramStart);
+        memset(ovl->loadedRamAddr, 0, (uintptr_t)ovl->vramEnd - (uintptr_t)ovl->vramStart);
         ovl->loadedRamAddr = NULL;
         gKaleidoMgrCurOvl = NULL;
     }

@@ -13,6 +13,7 @@
 #include "tha.h"
 #include "alignment.h"
 #include "functions.h"
+#include <string.h>
 
 void* THA_GetHead(TwoHeadArena* tha) {
     return tha->head;
@@ -122,7 +123,7 @@ void THA_Reset(TwoHeadArena* tha) {
  * Creates a new Two Head Arena at `start` with available size `size`
  */
 void THA_Init(TwoHeadArena* tha, void* start, size_t size) {
-    bzero(tha, sizeof(TwoHeadArena));
+    memset(tha, 0, sizeof(TwoHeadArena));
     tha->start = start;
     tha->size = size;
     THA_Reset(tha);
@@ -132,5 +133,5 @@ void THA_Init(TwoHeadArena* tha, void* start, size_t size) {
  * Destroys the Two Head Arena, no further allocations are possible
  */
 void THA_Destroy(TwoHeadArena* tha) {
-    bzero(tha, sizeof(TwoHeadArena));
+    memset(tha, 0, sizeof(TwoHeadArena));
 }

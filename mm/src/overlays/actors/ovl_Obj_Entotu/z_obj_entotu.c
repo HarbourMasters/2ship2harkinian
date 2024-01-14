@@ -7,6 +7,7 @@
 #include "z_obj_entotu.h"
 #include "objects/object_f53_obj/object_f53_obj.h"
 #include "BenPort.h"
+#include <string.h>
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
@@ -156,7 +157,7 @@ void ObjEntotu_Init(Actor* thisx, PlayState* play) {
 
     ovl_Obj_Entotu_Vtx_000D10Data = ResourceMgr_LoadVtxArrayByName(ovl_Obj_Entotu_Vtx_000D10);
 
-    Lib_MemCpy(this->unk_148, ovl_Obj_Entotu_Vtx_000D10Data,
+    memcpy(this->unk_148, ovl_Obj_Entotu_Vtx_000D10Data,
                ResourceMgr_GetArraySizeByName(ovl_Obj_Entotu_Vtx_000D10) * sizeof(Vtx));
     this->unk_1C6 = Rand_S16Offset(0, 59);
     this->unk_1C4 = 0;

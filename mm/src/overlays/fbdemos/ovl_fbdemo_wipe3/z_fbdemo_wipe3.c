@@ -6,6 +6,7 @@
 
 #include "global.h"
 #include "z_fbdemo_wipe3.h"
+#include <string.h>
 
 #define THIS ((TransitionWipe3*)thisx)
 
@@ -84,7 +85,7 @@ void TransitionWipe3_Start(void* thisx) {
 void* TransitionWipe3_Init(void* thisx) {
     TransitionWipe3* this = THIS;
 
-    bzero(this, sizeof(TransitionWipe3));
+    memset(this, 0, sizeof(TransitionWipe3));
     return this;
 }
 

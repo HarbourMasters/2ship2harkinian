@@ -1,6 +1,7 @@
 #include "global.h"
 #include "sys_cfb.h"
 #include "code/fbdemo_circle/fbdemo_circle.h"
+#include <string.h>
 
 typedef enum {
     /* 0 */ TRANS_CIRCLE_DIR_IN,
@@ -43,7 +44,7 @@ void TransitionCircle_Start(void* thisx) {
 void* TransitionCircle_Init(void* thisx) {
     TransitionCircle* this = (TransitionCircle*)thisx;
 
-    bzero(this, sizeof(TransitionCircle));
+    memset(this, 0, sizeof(TransitionCircle));
     this->maskType = 1;
     this->texture = gCircleTex;
     this->masks = 6;

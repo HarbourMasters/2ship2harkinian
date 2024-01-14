@@ -11,6 +11,7 @@
 #include "assets/archives/icon_item_24_static/icon_item_24_static_yar.h"
 #include "assets/interface/message_static/message_static.h"
 #include "assets/interface/message_texture_static/message_texture_static.h"
+#include <string.h>
 
 // #region 2S2H [Port] Asset tables we can pull from instead of from ROM
 #define dgEmptyTexture "__OTR__textures/virtual/gEmptyTexture"
@@ -4935,7 +4936,7 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
                     gSaveContext.save.saveInfo.scarecrowSpawnSongSet = true;
                     msgCtx->msgMode = MSGMODE_SCARECROW_SPAWN_RECORDING_DONE;
                     Audio_PlaySfx(NA_SE_SY_TRE_BOX_APPEAR);
-                    Lib_MemCpy(gSaveContext.save.saveInfo.scarecrowSpawnSong, gScarecrowSpawnSongPtr,
+                    memcpy(gSaveContext.save.saveInfo.scarecrowSpawnSong, gScarecrowSpawnSongPtr,
                                sizeof(gSaveContext.save.saveInfo.scarecrowSpawnSong));
                     for (i = 0; i < ARRAY_COUNT(gSaveContext.save.saveInfo.scarecrowSpawnSong); i++) {
                         // osSyncPrintf("%d, ", gSaveContext.scarecrowSpawnSong[i]);
