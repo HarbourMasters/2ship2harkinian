@@ -124,7 +124,7 @@ source_group("include" FILES ${Header_Files__include})
 # }}}
 
 # m (root)
-file(GLOB soh__ RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "2s2h/*.c" "2s2h/*.cpp" "2s2h/*.h")
+file(GLOB soh__ RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "2s2h/*.c" "2s2h/*.cpp" "2s2h/*.h" "2s2h/*.hpp")
 source_group("2s2h" FILES ${soh__})
 
 file(GLOB_RECURSE libultra_headers RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}

@@ -300,7 +300,7 @@ u8 gAmmoItems[ITEM_NUM_SLOTS] = {
 };
 
 // Stores flash start page number
-s32 gFlashSaveStartPages[] = {
+s32 gFlashSaveStartPages[10] = {
     0,     // File 1 New Cycle Save
     0x40,  // File 1 New Cycle Save Backup
     0x80,  // File 2 New Cycle Save
@@ -667,6 +667,10 @@ void Sram_IncrementDay(void) {
 }
 
 u16 Sram_CalcChecksum(void* data, size_t count) {
+    // #region 2S2H [Port] I'm not really sure what this is doing or how to port it, for now always return the same
+    return 1;
+    // #endregion
+
     u8* dataPtr = data;
     u16 chkSum = 0;
 

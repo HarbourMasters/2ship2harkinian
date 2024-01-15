@@ -7,6 +7,7 @@
 #include "z64thread.h"
 #include "sys_flashrom.h"
 #include "PR/os_internal_flash.h"
+#include "BenPort.h"
 
 OSMesgQueue sFlashromMesgQueue;
 OSMesg sFlashromMesg[1];
@@ -78,6 +79,10 @@ s32 SysFlashrom_InitFlash(void) {
 }
 
 s32 SysFlashrom_ReadData(void* addr, u32 pageNum, u32 pageCount) {
+    // #region 2S2H [Port] Redirect to our own read function
+    return BenSysFlashrom_ReadData(addr, pageNum, pageCount);
+    // #endregion
+
     OSIoMesg msg;
 
     if (!SysFlashrom_IsInit()) {
@@ -201,25 +206,27 @@ s32 SysFlashrom_WriteData(void* addr, u32 pageNum, u32 pageCount) {
 }
 
 void SysFlashrom_ThreadEntry(void* arg) {
-    #if 0
     FlashromRequest* req = (FlashromRequest*)arg;
 
     switch (req->requestType) {
         case FLASHROM_REQUEST_WRITE:
             req->response = SysFlashrom_WriteData(req->addr, req->pageNum, req->pageCount);
-            osSendMesg(&req->messageQueue, (OSMesg)req->response, OS_MESG_BLOCK);
+            osSendMesg(&req->messageQueue, OS_MESG_32(req->response), OS_MESG_BLOCK);
             break;
 
         case FLASHROM_REQUEST_READ:
             req->response = SysFlashrom_ReadData(req->addr, req->pageNum, req->pageCount);
-            osSendMesg(&req->messageQueue, (OSMesg)req->response, OS_MESG_BLOCK);
+            osSendMesg(&req->messageQueue, OS_MESG_32(req->response), OS_MESG_BLOCK);
             break;
     }
-    #endif
 }
 
 void SysFlashrom_WriteDataAsync(u8* addr, u32 pageNum, u32 pageCount) {
-    #if 0
+    // #region 2S2H [Port] Redirect to our own write function
+    BenSysFlashrom_WriteData(addr, pageNum, pageCount);
+    return;
+    // #endregion
+
     FlashromRequest* req = &sFlashromRequest;
     if (SysFlashrom_IsInit()) {
         req->requestType = FLASHROM_REQUEST_WRITE;
@@ -233,28 +240,34 @@ void SysFlashrom_WriteDataAsync(u8* addr, u32 pageNum, u32 pageCount) {
                        STACK_TOP(sSysFlashromStack), Z_PRIORITY_FLASHROM);
         osStartThread(&sSysFlashromThread);
     }
-    #endif
 }
 
 s32 SysFlashrom_IsBusy(void) {
-    return 0;
-    //OSMesgQueue* queue = &sFlashromRequest.messageQueue;
-    //
-    //if (!SysFlashrom_IsInit()) {
-    //    return -1;
-    //}
-    //return MQ_IS_FULL(queue);
+    // #region 2S2H [Port] This is only checked in 3 places in which we always want to tell it we've "started working"
+    // Eventually we should probably have this call into BenPort and check if a save is in progress
+    return 1;
+    // #endregion
+
+    OSMesgQueue* queue = &sFlashromRequest.messageQueue;
+
+    if (!SysFlashrom_IsInit()) {
+        return -1;
+    }
+    return MQ_IS_FULL(queue);
 }
 
 s32 SysFlashrom_AwaitResult(void) {
+    // #region 2S2H [Port] Currently all of our save writes/reads are synchronous, so we don't need to wait for anything
     return 0;
-    //if (!SysFlashrom_IsInit()) {
-    //    return -1;
-    //}
-    //osRecvMesg(&sFlashromRequest.messageQueue, NULL, OS_MESG_BLOCK);
-    //osDestroyThread(&sSysFlashromThread);
-    //StackCheck_Cleanup(&sSysFlashromStackInfo);
-    //return sFlashromRequest.response;
+    // #endregion
+
+    if (!SysFlashrom_IsInit()) {
+        return -1;
+    }
+    osRecvMesg(&sFlashromRequest.messageQueue, NULL, OS_MESG_BLOCK);
+    osDestroyThread(&sSysFlashromThread);
+    StackCheck_Cleanup(&sSysFlashromStackInfo);
+    return sFlashromRequest.response;
 }
 
 void SysFlashrom_WriteDataSync(void* addr, u32 pageNum, u32 pageCount) {

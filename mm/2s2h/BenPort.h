@@ -125,6 +125,8 @@ void Overlay_DisplayText_Seconds(int seconds, const char* text);
 
 void Gfx_RegisterBlendedTexture(const char* name, u8* mask, u8* replacement);
 void CheckTracker_OnMessageClose();
+void BenSysFlashrom_WriteData(u8* addr, u32 pageNum, u32 pageCount);
+s32 BenSysFlashrom_ReadData(void* addr, u32 pageNum, u32 pageCount);
 
 int32_t GetGIID(uint32_t itemID);
 #endif
