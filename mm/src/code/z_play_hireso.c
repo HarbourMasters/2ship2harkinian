@@ -841,8 +841,11 @@ void BombersNotebook_DrawTimeOfDay(Gfx** gfxP) {
     gDPSetPrimColor(gfx++, 0, 0, 242, 0, 14, 255);
     gDPLoadTextureBlock(gfx++, gBombersNotebookLineTex, G_IM_FMT_I, G_IM_SIZ_8b, 8, 1, 0, G_TX_MIRROR | G_TX_WRAP,
                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
-    BombersNotebook_DrawScisTexRect(&gfx, lineRectLeft * 4, 74 * 4, (lineRectLeft + 32) * 4, 490 * 4, 0, 0, 0, 1 << 10,
+    // #region 2S2H [Cosmetic] For some reason, the original code was drawing the line with a width of 32, which was causing the texture to tile
+    // 12 is close enough when eyeballing it, but we may want to revisit to fix the issue with tiling not account for resolution differences
+    BombersNotebook_DrawScisTexRect(&gfx, lineRectLeft * 4, 74 * 4, (lineRectLeft + 12) * 4, 490 * 4, 0, 0, 0, 1 << 10,
                                     1 << 10);
+    // #endregion
 
     gDPPipeSync(gfx++);
     gDPSetCombineLERP(gfx++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE,
@@ -1069,9 +1072,10 @@ void BombersNotebook_Draw(BombersNotebook* this, GraphicsContext* gfxCtx) {
         gDPSetEnvColor(gfx++, 100, 100, 100, 255);
         gDPLoadTextureBlock(gfx++, gBombersNotebookBackgroundTex, G_IM_FMT_I, G_IM_SIZ_8b, 32, 32, 0,
                             G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, 5, 5, G_TX_NOLOD, G_TX_NOLOD);
-
-        BombersNotebook_DrawScisTexRect(&gfx, 0 * 4, 0 * 4, SCREEN_WIDTH_HIRES * 4, SCREEN_HEIGHT_HIRES * 4, 0, 0, 0,
-                                        0x200, 0x200);
+        // #region 2S2H [Cosmetic] The original code was using BombersNotebook_DrawScisTexRect, and oddly tiled over _most_ of the
+        // background unevenly We're just going to draw it ourselves and tile it across the whole viewport
+        gSPWideTextureRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0) * 8, 0 * 4, OTRGetRectDimensionFromRightEdge(SCREEN_WIDTH) * 8, SCREEN_HEIGHT_HIRES * 4, 0, 0, 0, 0x200, 0x200);
+        // #endregion
 
         gDPPipeSync(gfx++);
         gDPSetCombineMode(gfx++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
@@ -1080,7 +1084,7 @@ void BombersNotebook_Draw(BombersNotebook* this, GraphicsContext* gfxCtx) {
         BombersNotebook_DrawHeaders(&gfx);
         BombersNotebook_DrawColumns(&gfx);
 
-        gDPSetScissor(gfx++, G_SC_NON_INTERLACE, 0, 86, 600, 450);
+        gDPSetScissor(gfx++, G_SC_NON_INTERLACE, OTRGetRectDimensionFromLeftEdge(0), 86, OTRGetRectDimensionFromRightEdge(600), 450);
         BombersNotebook_DrawRows(this, &gfx);
 
         gDPPipeSync(gfx++);

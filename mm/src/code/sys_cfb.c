@@ -2,6 +2,7 @@
 #include "regs.h"
 #include "functions.h"
 #include "macros.h"
+#include "libultraship/libultraship.h"
 
 // Variables are put before most headers as a hacky way to bypass bss reordering
 OSViMode sNotebookViMode; // placeholder name
@@ -44,6 +45,8 @@ extern u16 gFramebufferHiRes0[HIRES_BUFFER_WIDTH][HIRES_BUFFER_HEIGHT];
 extern u16 gFramebufferHiRes1[HIRES_BUFFER_WIDTH][HIRES_BUFFER_HEIGHT];
 
 void SysCfb_SetLoResMode(void) {
+    CVarSetInteger("gScreenWidth", SCREEN_WIDTH);
+    CVarSetInteger("gScreenHeight", SCREEN_HEIGHT);
     gFramebuffers[1] = sCfbLoRes1;
     gFramebuffers[0] = sCfbLoRes0;
     gZBufferPtr = gZBufferLoRes;
@@ -61,6 +64,8 @@ void SysCfb_SetLoResMode(void) {
 }
 
 void SysCfb_SetHiResMode(void) {
+    CVarSetInteger("gScreenWidth", SCREEN_WIDTH_HIRES);
+    CVarSetInteger("gScreenHeight", SCREEN_HEIGHT_HIRES);
     gFramebuffers[1] = sCfbHiRes1;
     gFramebuffers[0] = sCfbHiRes0;
     gZBufferPtr = gZBufferHiRes;
