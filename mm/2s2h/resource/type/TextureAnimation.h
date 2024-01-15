@@ -100,5 +100,6 @@ class TextureAnimation : public Resource<AnimatedMaterial> {
     size_t GetPointerSize();
 
     std::vector<AnimatedMaterial> anims;
+    std::vector<std::string> textureCycleTextures;
 };
 } // namespace LUS
