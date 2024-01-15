@@ -72,6 +72,8 @@
     (flag & 0x1) ? 0 : \
     0)
 
+#define CB(x) ((x) * (x) * (x))
+
 /**
  * `x` vertex x
  * `y` vertex y

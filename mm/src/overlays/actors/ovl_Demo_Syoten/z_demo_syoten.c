@@ -73,9 +73,10 @@ void DemoSyoten_Init(Actor* thisx, PlayState* play) {
 
     switch (DEMOSYOTEN_GET_F(&this->actor)) {
         case DEMOSYOTEN_F_0:
-            func_80183430(&this->unk_144, (void*)object_syoten_Blob_001328, (void*)object_syoten_Blob_00023C, this->unk_174,
+            Keyframe_InitFlex(&this->unk_144, (void*)object_syoten_Blob_001328, (void*)object_syoten_Blob_00023C,
+                              this->unk_174,
                           this->unk_2A6, NULL);
-            func_801835EC(&this->unk_144, (void*)object_syoten_Blob_00023C);
+            Keyframe_FlexPlayLoop(&this->unk_144, (void*)object_syoten_Blob_00023C);
             this->actor.draw = NULL;
             this->actionFunc = func_80C16A74;
             this->actor.child =
@@ -131,7 +132,7 @@ void DemoSyoten_Destroy(Actor* thisx, PlayState* play) {
     DemoSyoten* this = THIS;
 
     if (DEMOSYOTEN_GET_F(&this->actor) == DEMOSYOTEN_F_0) {
-        func_8018349C(&this->unk_144);
+        Keyframe_DestroyFlex(&this->unk_144);
     }
 }
 
@@ -221,7 +222,7 @@ void func_80C16A64(DemoSyoten* this, PlayState* play) {
 void func_80C16A74(DemoSyoten* this, PlayState* play) {
     u16 cueId;
 
-    func_80183DE0(&this->unk_144);
+    Keyframe_UpdateFlex(&this->unk_144);
     if (Cutscene_IsCueInChannel(play, this->cueType)) {
         if ((play->csCtx.curFrame >= 160) && (play->csCtx.curFrame < 322)) {
             Actor_PlaySfx_Flagged(&this->actor, NA_SE_EV_IKANA_SOUL_LV - SFX_FLAG);
@@ -484,12 +485,12 @@ void func_80C173B4(Actor* thisx, PlayState* play) {
 
     AnimatedMat_DrawXlu(play, Lib_SegmentedToVirtual(&object_syoten_Matanimheader_001298));
 
-    mtx = GRAPH_ALLOC(play->state.gfxCtx, this->unk_144.unk_18->unk_1 * sizeof(Mtx));
+    mtx = GRAPH_ALLOC(play->state.gfxCtx, this->unk_144.skeleton->dListCount * sizeof(Mtx));
 
     if (mtx != NULL) {
         Gfx_SetupDL25_Xlu(play->state.gfxCtx);
         Matrix_Mult(&play->billboardMtxF, MTXMODE_APPLY);
-        func_8018450C(play, &this->unk_144, mtx, (void*)func_80C170F8, 0, &this->actor);
+        Keyframe_DrawFlex(play, &this->unk_144, mtx, (void*)func_80C170F8, 0, &this->actor);
     }
 }
 

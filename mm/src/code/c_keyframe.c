@@ -1,382 +1,427 @@
 #include "global.h"
-#include "fixed_point.h"
+
 #define FMOD(x, mod) ((x) - ((s32)((x) * (1.0f / (mod))) * (f32)(mod)))
 
 // cKF_FrameControl_zeroClera
-void func_801830A0(FrameControl* frameCtrl) {
-    frameCtrl->unk_8 = 0.0f;
-    frameCtrl->unk_10 = 0.0f;
-    frameCtrl->unk_C = 0.0f;
-    frameCtrl->unk_4 = 0.0f;
-    frameCtrl->unk_0 = 0.0f;
-    frameCtrl->unk_14 = false;
+void FrameCtrl_Reset(FrameControl* frameCtrl) {
+    frameCtrl->duration = 0.0f;
+    frameCtrl->curTime = 0.0f;
+    frameCtrl->speed = 0.0f;
+    frameCtrl->end = 0.0f;
+    frameCtrl->start = 0.0f;
+    frameCtrl->animMode = KEYFRAME_ANIM_ONCE;
 }
 
 // cKF_FrameControl_ct
-void func_801830C8(FrameControl* frameCtrl) {
-    func_801830A0(frameCtrl);
+void FrameCtrl_Init(FrameControl* frameCtrl) {
+    FrameCtrl_Reset(frameCtrl);
 }
 
 // cKF_FrameControl_setFrame
-void func_801830E8(FrameControl* frameCtrl, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5, s32 arg6) {
-    frameCtrl->unk_0 = arg1;
-    frameCtrl->unk_4 = (arg2 < 1.0f) ? arg3 : arg2;
-    frameCtrl->unk_8 = arg3;
-    frameCtrl->unk_C = arg5;
-    frameCtrl->unk_10 = arg4;
-    frameCtrl->unk_14 = arg6;
+void FrameCtrl_SetProperties(FrameControl* frameCtrl, f32 startTime, f32 endTime, f32 duration, f32 t, f32 speed,
+                             s32 animMode) {
+    frameCtrl->start = startTime;
+    frameCtrl->end = (endTime < 1.0f) ? duration : endTime;
+    frameCtrl->duration = duration;
+    frameCtrl->speed = speed;
+    frameCtrl->curTime = t;
+    frameCtrl->animMode = animMode;
 }
 
-s32 func_80183148(FrameControl* frameCtrl, f32 arg1, f32* out) {
-    f32 temp_f0;
-    f32 temp_f14;
-    f32 phi_f2;
+// cKF_FrameControl_passCheck
+s32 FrameCtrl_PassCheck(FrameControl* frameCtrl, f32 t, f32* remainingTime) {
+    f32 curTime;
+    f32 speed;
 
-    *out = 0.0f;
-    temp_f0 = frameCtrl->unk_10;
+    *remainingTime = 0.0f;
+    curTime = frameCtrl->curTime;
 
-    if (arg1 == temp_f0) {
+    if (t == curTime) {
         return false;
     }
 
-    phi_f2 = (frameCtrl->unk_0 < frameCtrl->unk_4) ? frameCtrl->unk_C : -frameCtrl->unk_C;
-    temp_f14 = phi_f2 * 1.5f;
+    speed = ((frameCtrl->start < frameCtrl->end) ? frameCtrl->speed : -frameCtrl->speed) * 1.5f;
 
-    if ((temp_f14 >= 0.0f && temp_f0 < arg1 && arg1 <= temp_f0 + temp_f14) ||
-        (temp_f14 < 0.0f && arg1 < temp_f0 && temp_f0 + temp_f14 <= arg1)) {
+    if (((speed >= 0.0f) && (curTime < t) && (t <= curTime + speed)) ||
+        ((speed < 0.0f) && (t < curTime) && (curTime + speed <= t))) {
 
-        *out = temp_f0 + temp_f14 - arg1;
+        *remainingTime = curTime + speed - t;
         return true;
     }
     return false;
 }
 
-s32 func_80183224(FrameControl* frameCtrl) {
-    f32 sp1C;
+// cKF_FrameControl_stop_proc
+s32 FrameCtrl_UpdateOnce(FrameControl* frameCtrl) {
+    f32 remainingTime;
 
-    if (frameCtrl->unk_10 == frameCtrl->unk_4) {
-        return 1;
+    if (frameCtrl->curTime == frameCtrl->end) {
+        return KEYFRAME_DONE_ONCE;
     }
-    if (func_80183148(frameCtrl, frameCtrl->unk_4, &sp1C)) {
-        frameCtrl->unk_10 = frameCtrl->unk_4;
-        return 1;
+    if (FrameCtrl_PassCheck(frameCtrl, frameCtrl->end, &remainingTime)) {
+        frameCtrl->curTime = frameCtrl->end;
+        return KEYFRAME_DONE_ONCE;
     }
-    if (func_80183148(frameCtrl, frameCtrl->unk_0, &sp1C)) {
-        frameCtrl->unk_10 = frameCtrl->unk_4;
-        return 1;
+    if (FrameCtrl_PassCheck(frameCtrl, frameCtrl->start, &remainingTime)) {
+        frameCtrl->curTime = frameCtrl->end;
+        return KEYFRAME_DONE_ONCE;
     }
-    return 0;
+    return KEYFRAME_NOT_DONE;
 }
 
-s32 func_801832B0(FrameControl* frameCtrl) {
-    f32 sp1C;
+// cKF_FrameControl_repeat_proc
+s32 FrameCtrl_UpdateLoop(FrameControl* frameCtrl) {
+    f32 remainingTime;
 
-    if (func_80183148(frameCtrl, frameCtrl->unk_4, &sp1C)) {
-        frameCtrl->unk_10 = frameCtrl->unk_0 + sp1C;
-        return 2;
+    if (FrameCtrl_PassCheck(frameCtrl, frameCtrl->end, &remainingTime)) {
+        frameCtrl->curTime = frameCtrl->start + remainingTime;
+        return KEYFRAME_DONE_LOOP;
     }
-    if (func_80183148(frameCtrl, frameCtrl->unk_0, &sp1C)) {
-        frameCtrl->unk_10 = frameCtrl->unk_4 + sp1C;
-        return 2;
+    if (FrameCtrl_PassCheck(frameCtrl, frameCtrl->start, &remainingTime)) {
+        frameCtrl->curTime = frameCtrl->end + remainingTime;
+        return KEYFRAME_DONE_LOOP;
     }
-    return 0;
+    return KEYFRAME_NOT_DONE;
 }
 
-s32 func_8018332C(FrameControl* frameCtrl) {
-    s32 phi_v0;
-    f32 phi_f0;
+// cKF_FrameControl_play
+s32 FrameCtrl_Update(FrameControl* frameCtrl) {
+    s32 result;
+    f32 speed;
 
-    if (!frameCtrl->unk_14) {
-        phi_v0 = func_80183224(frameCtrl);
+    if (frameCtrl->animMode == KEYFRAME_ANIM_ONCE) {
+        result = FrameCtrl_UpdateOnce(frameCtrl);
     } else {
-        phi_v0 = func_801832B0(frameCtrl);
+        result = FrameCtrl_UpdateLoop(frameCtrl);
     }
-    if (phi_v0 == 0) {
-        phi_f0 = (frameCtrl->unk_0 < frameCtrl->unk_4) ? frameCtrl->unk_C : -frameCtrl->unk_C;
-        frameCtrl->unk_10 = frameCtrl->unk_10 + phi_f0 * 1.5f;
+
+    if (result == KEYFRAME_NOT_DONE) {
+        speed = (frameCtrl->start < frameCtrl->end) ? frameCtrl->speed : -frameCtrl->speed;
+        frameCtrl->curTime = frameCtrl->curTime + speed * 1.5f;
     }
-    if (frameCtrl->unk_10 < 1.0f) {
-        frameCtrl->unk_10 = (frameCtrl->unk_10 - 1.0f) + frameCtrl->unk_8;
-    } else if (frameCtrl->unk_8 < frameCtrl->unk_10) {
-        frameCtrl->unk_10 = (frameCtrl->unk_10 - frameCtrl->unk_8) + 1.0f;
+
+    if (frameCtrl->curTime < 1.0f) {
+        frameCtrl->curTime = (frameCtrl->curTime - 1.0f) + frameCtrl->duration;
+    } else if (frameCtrl->duration < frameCtrl->curTime) {
+        frameCtrl->curTime = (frameCtrl->curTime - frameCtrl->duration) + 1.0f;
     }
-    return phi_v0;
+
+    return result;
 }
 
 // cKF_SkeletonInfo_R_zeroClear
-void func_8018340C(SkeletonInfo* skeleton) {
-    skeleton->unk_18 = NULL;
-    skeleton->unk_1C = NULL;
-    skeleton->frameData = NULL;
-    skeleton->unk_20 = NULL;
-    skeleton->unk_2C = NULL;
-    skeleton->unk_24 = 0.0f;
+void Keyframe_ResetFlex(KFSkelAnimeFlex* kfSkelAnime) {
+    kfSkelAnime->skeleton = NULL;
+    kfSkelAnime->animation = NULL;
+    kfSkelAnime->jointTable = NULL;
+    kfSkelAnime->callbacks = NULL;
+    kfSkelAnime->morphTable = NULL;
+    kfSkelAnime->morphFrames = 0.0f;
 }
 
 // cKF_SkeletonInfo_R_ct
-void func_80183430(SkeletonInfo* skeleton, Struct_801BFA14_Arg1* arg1, SkeletonInfo_1C* arg2, Vec3s* frameData,
-                   s16* arg4, UnkKeyframeCallback* callbacks) {
-    func_8018340C(skeleton);
-    func_801830C8(&skeleton->frameCtrl);
-    skeleton->unk_18 = (Struct_801BFA14_Arg1*)Lib_SegmentedToVirtual(arg1);
-    skeleton->unk_1C = (SkeletonInfo_1C*)Lib_SegmentedToVirtual(arg2);
-    skeleton->frameData = frameData;
-    skeleton->unk_2C = arg4;
-    skeleton->unk_20 = callbacks;
+void Keyframe_InitFlex(KFSkelAnimeFlex* kfSkelAnime, KeyFrameSkeleton* skeleton, KeyFrameAnimation* animation,
+                       Vec3s* jointTable, Vec3s* morphTable, UnkKeyframeCallback* callbacks) {
+    Keyframe_ResetFlex(kfSkelAnime);
+    FrameCtrl_Init(&kfSkelAnime->frameCtrl);
+    kfSkelAnime->skeleton = (KeyFrameSkeleton*)Lib_SegmentedToVirtual(skeleton);
+    kfSkelAnime->animation = (KeyFrameAnimation*)Lib_SegmentedToVirtual(animation);
+    kfSkelAnime->jointTable = jointTable;
+    kfSkelAnime->morphTable = morphTable;
+    kfSkelAnime->callbacks = callbacks;
 }
 
 // cKF_SkeletonInfo_R_dt
-void func_8018349C(SkeletonInfo* skeleton) {
+void Keyframe_DestroyFlex(KFSkelAnimeFlex* kfSkelAnime) {
 }
 
-void func_8018373C(SkeletonInfo* skeleton, Struct_801BFA14_Arg1* arg1, SkeletonInfo_1C* arg2, f32 arg3, f32 arg4,
-                   f32 arg5, f32 arg6, f32 arg7, s32 arg8);
+void Keyframe_FlexChangeAnim(KFSkelAnimeFlex* kfSkelAnime, KeyFrameSkeleton* skeleton, KeyFrameAnimation* animation,
+                             f32 startTime, f32 endTime, f32 t, f32 speed, f32 morphFrames, s32 animMode);
 
-void func_801834A8(SkeletonInfo* skeleton, SkeletonInfo_1C* arg1) {
-    func_8018373C(skeleton, skeleton->unk_18, arg1, 1.0f, ((SkeletonInfo_1C*)Lib_SegmentedToVirtual(arg1))->unk_12,
-                  1.0f, 1.0f, 0.0f, false);
+void Keyframe_FlexPlayOnce(KFSkelAnimeFlex* kfSkelAnime, KeyFrameAnimation* animation) {
+    Keyframe_FlexChangeAnim(kfSkelAnime, kfSkelAnime->skeleton, animation, 1.0f,
+                            ((KeyFrameAnimation*)Lib_SegmentedToVirtual(animation))->duration, 1.0f, 1.0f, 0.0f,
+                            KEYFRAME_ANIM_ONCE);
 }
 
-void func_80183510(SkeletonInfo* skeleton, SkeletonInfo_1C* arg1, f32 arg2) {
-    func_8018373C(skeleton, skeleton->unk_18, arg1, 1.0f, ((SkeletonInfo_1C*)Lib_SegmentedToVirtual(arg1))->unk_12,
-                  1.0f, arg2, 0.0f, false);
+void Keyframe_FlexPlayOnceWithSpeed(KFSkelAnimeFlex* kfSkelAnime, KeyFrameAnimation* animation, f32 speed) {
+    Keyframe_FlexChangeAnim(kfSkelAnime, kfSkelAnime->skeleton, animation, 1.0f,
+                            ((KeyFrameAnimation*)Lib_SegmentedToVirtual(animation))->duration, 1.0f, speed, 0.0f,
+                            KEYFRAME_ANIM_ONCE);
 }
 
-void func_80183580(SkeletonInfo* skeleton, SkeletonInfo_1C* arg1, f32 arg2) {
-    func_8018373C(skeleton, skeleton->unk_18, arg1, 1.0f, ((SkeletonInfo_1C*)Lib_SegmentedToVirtual(arg1))->unk_12,
-                  1.0f, 1.0f, arg2, false);
+void Keyframe_FlexPlayOnceWithMorph(KFSkelAnimeFlex* kfSkelAnime, KeyFrameAnimation* animation, f32 morphFrames) {
+    Keyframe_FlexChangeAnim(kfSkelAnime, kfSkelAnime->skeleton, animation, 1.0f,
+                            ((KeyFrameAnimation*)Lib_SegmentedToVirtual(animation))->duration, 1.0f, 1.0f, morphFrames,
+                            KEYFRAME_ANIM_ONCE);
 }
 
-void func_801835EC(SkeletonInfo* skeleton, SkeletonInfo_1C* arg1) {
-    func_8018373C(skeleton, skeleton->unk_18, arg1, 1.0f, ((SkeletonInfo_1C*)Lib_SegmentedToVirtual(arg1))->unk_12,
-                  1.0f, 1.0f, 0.0f, true);
+void Keyframe_FlexPlayLoop(KFSkelAnimeFlex* kfSkelAnime, KeyFrameAnimation* animation) {
+    Keyframe_FlexChangeAnim(kfSkelAnime, kfSkelAnime->skeleton, animation, 1.0f,
+                            ((KeyFrameAnimation*)Lib_SegmentedToVirtual(animation))->duration, 1.0f, 1.0f, 0.0f,
+                            KEYFRAME_ANIM_LOOP);
 }
 
-void func_80183658(SkeletonInfo* skeleton, SkeletonInfo_1C* arg1, f32 arg2) {
-    func_8018373C(skeleton, skeleton->unk_18, arg1, 1.0f, ((SkeletonInfo_1C*)Lib_SegmentedToVirtual(arg1))->unk_12,
-                  1.0f, arg2, 0.0f, true);
+void Keyframe_FlexPlayLoopWithSpeed(KFSkelAnimeFlex* kfSkelAnime, KeyFrameAnimation* animation, f32 speed) {
+    Keyframe_FlexChangeAnim(kfSkelAnime, kfSkelAnime->skeleton, animation, 1.0f,
+                            ((KeyFrameAnimation*)Lib_SegmentedToVirtual(animation))->duration, 1.0f, speed, 0.0f,
+                            KEYFRAME_ANIM_LOOP);
 }
 
-void func_801836CC(SkeletonInfo* skeleton, SkeletonInfo_1C* arg1, f32 arg2) {
-    func_8018373C(skeleton, skeleton->unk_18, arg1, 1.0f, ((SkeletonInfo_1C*)Lib_SegmentedToVirtual(arg1))->unk_12,
-                  1.0f, 1.0f, arg2, true);
+void Keyframe_FlexPlayLoopWithMorph(KFSkelAnimeFlex* kfSkelAnime, KeyFrameAnimation* animation, f32 morphFrames) {
+    Keyframe_FlexChangeAnim(kfSkelAnime, kfSkelAnime->skeleton, animation, 1.0f,
+                            ((KeyFrameAnimation*)Lib_SegmentedToVirtual(animation))->duration, 1.0f, 1.0f, morphFrames,
+                            KEYFRAME_ANIM_LOOP);
 }
 
-void func_8018373C(SkeletonInfo* skeleton, Struct_801BFA14_Arg1* arg1, SkeletonInfo_1C* arg2, f32 arg3, f32 arg4,
-                   f32 arg5, f32 arg6, f32 arg7, s32 arg8) {
-    skeleton->unk_24 = arg7;
+void Keyframe_FlexChangeAnim(KFSkelAnimeFlex* kfSkelAnime, KeyFrameSkeleton* skeleton, KeyFrameAnimation* animation,
+                             f32 startTime, f32 endTime, f32 t, f32 speed, f32 morphFrames, s32 animMode) {
+    kfSkelAnime->morphFrames = morphFrames;
 
-    if (skeleton->unk_18 != arg1) {
-        skeleton->unk_18 = (Struct_801BFA14_Arg1*)Lib_SegmentedToVirtual(arg1);
+    if (kfSkelAnime->skeleton != skeleton) {
+        kfSkelAnime->skeleton = (KeyFrameSkeleton*)Lib_SegmentedToVirtual(skeleton);
     }
-    skeleton->unk_1C = (SkeletonInfo_1C*)Lib_SegmentedToVirtual(arg2);
+    kfSkelAnime->animation = (KeyFrameAnimation*)Lib_SegmentedToVirtual(animation);
 
-    func_801830E8(&skeleton->frameCtrl, arg3, arg4, skeleton->unk_1C->unk_12, arg5, arg6, arg8);
+    FrameCtrl_SetProperties(&kfSkelAnime->frameCtrl, startTime, endTime, kfSkelAnime->animation->duration, t, speed,
+                            animMode);
 }
 
-void func_801837CC(SkeletonInfo* skeleton, SkeletonInfo_1C* arg1) {
-    skeleton->unk_1C = (SkeletonInfo_1C*)Lib_SegmentedToVirtual(arg1);
-    skeleton->frameCtrl.unk_8 = skeleton->unk_1C->unk_12;
+void Keyframe_FlexChangeAnimQuick(KFSkelAnimeFlex* kfSkelAnime, KeyFrameAnimation* animation) {
+    kfSkelAnime->animation = (KeyFrameAnimation*)Lib_SegmentedToVirtual(animation);
+    kfSkelAnime->frameCtrl.duration = kfSkelAnime->animation->duration;
 }
-
-#define CB(x) ((x) * (x) * (x))
 
 // cKF_HermitCalc
 // hermite interpolation
-f32 func_80183808(f32 t, f32 arg1, f32 arg2, f32 arg3, f32 arg4, f32 arg5) {
+f32 Keyframe_Interpolate(f32 t, f32 delta, f32 x0, f32 x1, f32 v0, f32 v1) {
     f32 p = 3.0f * SQ(t) - 2.0f * CB(t);
 
-    return (1.0f - p) * arg2 + p * arg3 + ((CB(t) - 2.0f * SQ(t) + t) * arg4 + (CB(t) - SQ(t)) * arg5) * arg1;
+    return (1.0f - p) * x0 + p * x1 + ((CB(t) - 2.0f * SQ(t) + t) * v0 + (CB(t) - SQ(t)) * v1) * delta;
 }
 
 // cKF_KeyCalc
-s16 func_80183880(s16 arg0, s16 arg1, Vec3s* arg2, f32 arg3) {
-    Vec3s* temp_a3 = &arg2[arg0];
-    Vec3s* temp_v1 = &temp_a3[arg1];
-    f32 temp_f2;
-    s16 phi_v0;
-    s16 phi_v1;
+s16 Keyframe_KeyCalc(s16 kfStart, s16 kfNum, KeyFrame* keyFrames, f32 t) {
+    KeyFrame* keyFrames2 = &keyFrames[kfStart];
+    f32 delta;
+    s16 kf2;
+    s16 kf1;
 
-    if (arg3 <= temp_a3->x) {
-        return temp_a3->y;
+    if (t <= keyFrames2->frame) {
+        return keyFrames2->value;
     }
-    if (temp_a3[arg1 - 1].x <= arg3) {
-        return temp_a3[arg1 - 1].y;
+    if (keyFrames2[kfNum - 1].frame <= t) {
+        return keyFrames2[kfNum - 1].value;
     }
 
-    for (phi_v0 = 1, phi_v1 = 0; true; phi_v0++, phi_v1++) {
-        if (arg3 < temp_a3[phi_v0].x) {
-            temp_f2 = temp_a3[phi_v0].x - temp_a3[phi_v1].x;
+    for (kf2 = 1, kf1 = 0; true; kf2++, kf1++) {
+        if (t < keyFrames2[kf2].frame) {
+            delta = keyFrames2[kf2].frame - keyFrames2[kf1].frame;
 
-            if (!IS_ZERO(temp_f2)) {
-                return nearbyint(func_80183808((arg3 - temp_a3[phi_v1].x) / temp_f2, temp_f2 * (1.0f / 30),
-                                               temp_a3[phi_v1].y, temp_a3[phi_v0].y, temp_a3[phi_v1].z,
-                                               temp_a3[phi_v0].z));
+            if (!IS_ZERO(delta)) {
+                return nearbyint(Keyframe_Interpolate((t - keyFrames2[kf1].frame) / delta, delta * (1.0f / 30),
+                                                      keyFrames2[kf1].value, keyFrames2[kf2].value,
+                                                      keyFrames2[kf1].velocity, keyFrames2[kf2].velocity));
+            } else {
+                return keyFrames2[kf1].value;
             }
-            return temp_a3[phi_v1].y;
         }
     }
 }
 
-// cKF_SkeletonInfo_subRotInterpolation
-void func_80183A3C(f32 t, s16* out, s16 rot1, s16 rot2) {
+/**
+ * Morph interpolator for rotation
+ */
+void Keyframe_RotationInterpolate(f32 t, s16* out, s16 rot1, s16 rot2) {
     u16 urot1 = rot1;
     s32 pad;
     u16 urot2 = rot2;
-    f32 f1 = rot1;
-    f32 signedDiff = rot2 - f1;
-    f32 f2 = urot1;
-    f32 unsignedDiff = urot2 - f2;
+    f32 rot1f = rot1;
+    f32 signedDiff = rot2 - rot1f;
+    f32 urot1f = urot1;
+    f32 unsignedDiff = urot2 - urot1f;
 
     if (fabsf(signedDiff) < fabsf(unsignedDiff)) {
-        *out = f1 + signedDiff * t;
+        *out = rot1f + signedDiff * t;
     } else {
-        *out = f2 + unsignedDiff * t;
+        *out = urot1f + unsignedDiff * t;
     }
 }
 
-// lerp
-// cKF_SkeletonInfo_morphST
-void func_80183B08(s16 arg0[3], s16 arg1[3], f32 t) {
+/**
+ * Morph interpolator for translation and scale
+ */
+void Keyframe_MorphInterpolate(s16* jointData, s16* morphData, f32 t) {
     s32 i;
 
     for (i = 0; i < 3; i++) {
-        if (*arg0 != *arg1) {
-            f32 f1 = *arg0;
-            f32 f2 = *arg1;
-            *arg0 = f1 + (f2 - f1) * t;
+        if (*jointData != *morphData) {
+            f32 f1 = *jointData;
+            f32 f2 = *morphData;
+            *jointData = f1 + (f2 - f1) * t;
         }
-        arg0++;
-        arg1++;
+        jointData++;
+        morphData++;
     }
 }
 
-void func_80183B68(SkeletonInfo* skeleton) {
-    Vec3s* frameData = skeleton->frameData;
-    Vec3s* phi_s1 = (Vec3s*)skeleton->unk_2C;
-    f32 t = 1.0f / fabsf(skeleton->unk_24);
-    s32 i;
+void Keyframe_UpdateFlexLimbs(KFSkelAnimeFlex* kfSkelAnime) {
+    Vec3s* jointTable = kfSkelAnime->jointTable;
+    Vec3s* morphTable = kfSkelAnime->morphTable;
+    f32 t = 1.0f / fabsf(kfSkelAnime->morphFrames);
+    s32 limbIndex;
 
-    for (i = 0; i < skeleton->unk_18->limbCount; i++) {
-        Vec3s temp_a2;
-        Vec3s temp_a3;
+    for (limbIndex = 0; limbIndex < kfSkelAnime->skeleton->limbCount; limbIndex++) {
+        Vec3s frameRot;
+        Vec3s morphRot;
 
-        func_80183B08((s16*)frameData, (s16*)phi_s1, t);
+        // Interpolate scale
+        Keyframe_MorphInterpolate((s16*)jointTable, (s16*)morphTable, t);
+        jointTable++;
+        morphTable++;
 
-        frameData++;
-        phi_s1++;
+        // Read rotation
+        frameRot.x = jointTable->x;
+        frameRot.y = jointTable->y;
+        frameRot.z = jointTable->z;
 
-        temp_a2.x = frameData->x;
-        temp_a2.y = frameData->y;
-        temp_a2.z = frameData->z;
+        morphRot.x = morphTable->x;
+        morphRot.y = morphTable->y;
+        morphRot.z = morphTable->z;
 
-        temp_a3.x = phi_s1->x;
-        temp_a3.y = phi_s1->y;
-        temp_a3.z = phi_s1->z;
+        // Interpolate rotation
+        if (frameRot.x != morphRot.x || frameRot.y != morphRot.y || frameRot.z != morphRot.z) {
+            Vec3s frameRotInv;
+            f32 norm1;
+            f32 norm2;
 
-        if (temp_a2.x != temp_a3.x || temp_a2.y != temp_a3.y || temp_a2.z != temp_a3.z) {
-            Vec3s temp_a0;
-            f32 v1;
-            f32 v2;
+            frameRotInv.x = 0x7FFF + frameRot.x;
+            frameRotInv.y = 0x7FFF - frameRot.y;
+            frameRotInv.z = 0x7FFF + frameRot.z;
 
-            temp_a0.x = 0x7FFF + temp_a2.x;
-            temp_a0.y = 0x7FFF - temp_a2.y;
-            temp_a0.z = 0x7FFF + temp_a2.z;
+            // Compute L1 norms
+            norm1 = fabsf((f32)morphRot.x - frameRot.x) + fabsf((f32)morphRot.y - frameRot.y) +
+                    fabsf((f32)morphRot.z - frameRot.z);
+            norm2 = fabsf((f32)morphRot.x - frameRotInv.x) + fabsf((f32)morphRot.y - frameRotInv.y) +
+                    fabsf((f32)morphRot.z - frameRotInv.z);
 
-            v1 = fabsf((f32)temp_a3.x - temp_a2.x) + fabsf((f32)temp_a3.y - temp_a2.y) +
-                 fabsf((f32)temp_a3.z - temp_a2.z);
-            v2 = fabsf((f32)temp_a3.x - temp_a0.x) + fabsf((f32)temp_a3.y - temp_a0.y) +
-                 fabsf((f32)temp_a3.z - temp_a0.z);
-
-            if (v1 < v2) {
-                func_80183A3C(t, &frameData->x, temp_a2.x, temp_a3.x);
-                func_80183A3C(t, &frameData->y, temp_a2.y, temp_a3.y);
-                func_80183A3C(t, &frameData->z, temp_a2.z, temp_a3.z);
+            if (norm1 < norm2) {
+                // frameRot is closer to morphRot than frameRotInv, interpolate between these two
+                Keyframe_RotationInterpolate(t, &jointTable->x, frameRot.x, morphRot.x);
+                Keyframe_RotationInterpolate(t, &jointTable->y, frameRot.y, morphRot.y);
+                Keyframe_RotationInterpolate(t, &jointTable->z, frameRot.z, morphRot.z);
             } else {
-                func_80183A3C(t, &frameData->x, temp_a0.x, temp_a3.x);
-                func_80183A3C(t, &frameData->y, temp_a0.y, temp_a3.y);
-                func_80183A3C(t, &frameData->z, temp_a0.z, temp_a3.z);
+                // frameRotInv is closer to morphRot than frameRot, interpolate between these two
+                Keyframe_RotationInterpolate(t, &jointTable->x, frameRotInv.x, morphRot.x);
+                Keyframe_RotationInterpolate(t, &jointTable->y, frameRotInv.y, morphRot.y);
+                Keyframe_RotationInterpolate(t, &jointTable->z, frameRotInv.z, morphRot.z);
             }
         }
-        phi_s1++;
-        frameData++;
-        func_80183B08((s16*)frameData, (s16*)phi_s1, t);
-        frameData++;
-        phi_s1++;
+        morphTable++;
+        jointTable++;
+
+        // Interpolate translation
+        Keyframe_MorphInterpolate((s16*)jointTable, (s16*)morphTable, t);
+        jointTable++;
+        morphTable++;
     }
 }
 
-s32 func_80183DE0(SkeletonInfo* skeleton) {
-    s32 sp9C;
-    s32 pad[7];
-    s16* sp7C;
-    Vec3s* sp78;
-    s16* sp74;
-    s32 pad1[3];
-    u16* phi_v1;
-    s32 phi_s1;
-    s16* phi_s2;
-    u32 phi_s3;
-    s32 phi_s4 = 0;
-    s32 phi_s5 = 0;
-    s32 phi_s6 = 0;
-    s32 phi_s7;
+s32 Keyframe_UpdateFlex(KFSkelAnimeFlex* kfSkelAnime) {
+    s32 limbIndex;
+    s32 pad[2];
+    u16* bitFlags;
+    s16* outputValues;
+    s32 kfn = 0;
+    s32 presetIndex = 0;
+    s32 kfStart = 0;
+    s16* presetValues;
+    KeyFrame* keyFrames;
+    s16* kfNums;
+    u32 bit;
+    s32 i;
+    s32 j;
 
-    if (skeleton->unk_24 != 0.0f) {
-        phi_s2 = skeleton->unk_2C;
+    if (kfSkelAnime->morphFrames != 0.0f) {
+        outputValues = (s16*)kfSkelAnime->morphTable;
     } else {
-        phi_s2 = (s16*)skeleton->frameData;
+        outputValues = (s16*)kfSkelAnime->jointTable;
     }
 
-    sp7C = (s16*)Lib_SegmentedToVirtual(skeleton->unk_1C->unk_C);
-    sp74 = (s16*)Lib_SegmentedToVirtual(skeleton->unk_1C->unk_8);
-    sp78 = (Vec3s*)Lib_SegmentedToVirtual(skeleton->unk_1C->unk_4);
-    phi_v1 = (u16*)Lib_SegmentedToVirtual(skeleton->unk_1C->unk_0);
+    // Array of preset values to pull from
+    presetValues = (s16*)Lib_SegmentedToVirtual(kfSkelAnime->animation->presetValues);
 
-    for (sp9C = 0; sp9C < skeleton->unk_18->limbCount; sp9C++, phi_v1++) {
-        for (phi_s3 = 256, phi_s7 = 0; phi_s7 < 3; phi_s7++) {
-            for (phi_s1 = 0; phi_s1 < 3; phi_s1++, phi_s2++) {
-                if (*phi_v1 & phi_s3) {
-                    *phi_s2 = func_80183880(phi_s6, sp74[phi_s4], sp78, skeleton->frameCtrl.unk_10);
-                    phi_s6 += sp74[phi_s4];
-                    phi_s4++;
+    // Array of number of keyframes belonging to each limb
+    kfNums = (s16*)Lib_SegmentedToVirtual(kfSkelAnime->animation->kfNums);
+
+    // Array of keyframes, ordered by frame number
+    keyFrames = (KeyFrame*)Lib_SegmentedToVirtual(kfSkelAnime->animation->keyFrames);
+
+    // Array of flags for each limb.
+    // Each limb takes up 16 bits, the 9 least significant bits are used to indicate whether to interpolate with
+    // keyframes (if the bit is set) otherwise to pull a preset value (if the bit is not set)
+    //  [8] : Scale x
+    //  [7] : Scale y
+    //  [6] : Scale z
+    //  [5] : Rotate x
+    //  [4] : Rotate y
+    //  [3] : Rotate z
+    //  [2] : Translate x
+    //  [1] : Translate y
+    //  [0] : Translate z
+    bitFlags = (u16*)Lib_SegmentedToVirtual(kfSkelAnime->animation->bitFlagsFlex);
+
+    // For each limb
+    for (limbIndex = 0; limbIndex < kfSkelAnime->skeleton->limbCount; limbIndex++) {
+        bit = 1 << (3 * 3 - 1);
+
+        // 3 iter (scale, rotate, translate)
+        for (i = 0; i < 3; i++) {
+            // 3 iter (x, y, z ?)
+            for (j = 0; j < 3; j++, outputValues++) {
+                if (bitFlags[limbIndex] & bit) {
+                    // If the bit is set, interpolate with keyframes
+                    *outputValues = Keyframe_KeyCalc(kfStart, kfNums[kfn], keyFrames, kfSkelAnime->frameCtrl.curTime);
+                    kfStart += kfNums[kfn];
+                    kfn++;
                 } else {
-                    *phi_s2 = sp7C[phi_s5];
-                    phi_s5++;
+                    // If the bit is not set, pull from preset values
+                    *outputValues = presetValues[presetIndex];
+                    presetIndex++;
                 }
-                phi_s3 >>= 1;
-                if (phi_s7 == 1) {
-                    *phi_s2 = FMOD(*phi_s2 * 0.1f, 360) * 182.04445f;
+
+                bit >>= 1;
+
+                if (i == 1) {
+                    *outputValues = FMOD(*outputValues * 0.1f, 360) * 182.04445f;
                 }
             }
         }
     }
 
-    if (IS_ZERO(skeleton->unk_24)) {
-        return func_8018332C(&skeleton->frameCtrl);
-    } else if (skeleton->unk_24 > 0.0f) {
-        func_80183B68(skeleton);
-        skeleton->unk_24 -= 1.0f;
-        if (skeleton->unk_24 <= 0.0f) {
-            skeleton->unk_24 = 0.0f;
+    if (IS_ZERO(kfSkelAnime->morphFrames)) {
+        return FrameCtrl_Update(&kfSkelAnime->frameCtrl);
+    } else if (kfSkelAnime->morphFrames > 0.0f) {
+        Keyframe_UpdateFlexLimbs(kfSkelAnime);
+        kfSkelAnime->morphFrames -= 1.0f;
+        if (kfSkelAnime->morphFrames <= 0.0f) {
+            kfSkelAnime->morphFrames = 0.0f;
         }
-        return 0;
+        return KEYFRAME_NOT_DONE;
     } else {
-        func_80183B68(skeleton);
-        skeleton->unk_24 += 1.0f;
-        if (skeleton->unk_24 >= 0.0f) {
-            skeleton->unk_24 = 0.0f;
+        Keyframe_UpdateFlexLimbs(kfSkelAnime);
+        kfSkelAnime->morphFrames += 1.0f;
+        if (kfSkelAnime->morphFrames >= 0.0f) {
+            kfSkelAnime->morphFrames = 0.0f;
         }
-        return func_8018332C(&skeleton->frameCtrl);
+        return FrameCtrl_Update(&kfSkelAnime->frameCtrl);
     }
 }
 
-// cKF_Si3_draw_SV_R_child
-void func_8018410C(PlayState* play, SkeletonInfo* skeleton, s32* limbIndex,
-                   OverrideKeyframeDrawScaled overrideKeyframeDraw, PostKeyframeDrawScaled postKeyframeDraw, void* arg,
-                   Mtx** mtx) {
-    Struct_801BFA14_Arg1_Field4_2* limb =
-        (Struct_801BFA14_Arg1_Field4_2*)Lib_SegmentedToVirtual(skeleton->unk_18->unk_4_2);
+void Keyframe_DrawFlexLimb(PlayState* play, KFSkelAnimeFlex* kfSkelAnime, s32* limbIndex,
+                           OverrideKeyframeDrawScaled overrideKeyframeDraw, PostKeyframeDrawScaled postKeyframeDraw,
+                           void* arg, Mtx** mtxStack) {
+    KeyFrameFlexLimb* limb = (KeyFrameFlexLimb*)Lib_SegmentedToVirtual(kfSkelAnime->skeleton->limbsFlex);
     s32 i;
     Gfx* newDList;
     Gfx* limbDList;
@@ -384,28 +429,28 @@ void func_8018410C(PlayState* play, SkeletonInfo* skeleton, s32* limbIndex,
     Vec3f scale;
     Vec3s rot;
     Vec3f pos;
-    Vec3s* frameData;
+    Vec3s* jointData;
 
     OPEN_DISPS(play->state.gfxCtx);
 
     limb += *limbIndex;
-    frameData = &skeleton->frameData[*limbIndex * 3];
+    jointData = &kfSkelAnime->jointTable[*limbIndex * 3];
 
-    scale.x = frameData->x * 0.01f;
-    scale.y = frameData->y * 0.01f;
-    scale.z = frameData->z * 0.01f;
+    scale.x = jointData->x * 0.01f;
+    scale.y = jointData->y * 0.01f;
+    scale.z = jointData->z * 0.01f;
 
-    frameData++;
+    jointData++;
 
-    rot.x = frameData->x;
-    rot.y = frameData->y;
-    rot.z = frameData->z;
+    rot.x = jointData->x;
+    rot.y = jointData->y;
+    rot.z = jointData->z;
 
-    frameData++;
+    jointData++;
 
-    pos.x = frameData->x;
-    pos.y = frameData->y;
-    pos.z = frameData->z;
+    pos.x = jointData->x;
+    pos.y = jointData->y;
+    pos.z = jointData->z;
 
     Matrix_Push();
 
@@ -414,9 +459,10 @@ void func_8018410C(PlayState* play, SkeletonInfo* skeleton, s32* limbIndex,
 
     if (overrideKeyframeDraw == NULL ||
         (overrideKeyframeDraw != NULL &&
-         overrideKeyframeDraw(play, skeleton, *limbIndex, &newDList, &flags, arg, &scale, &rot, &pos) != 0)) {
-        if ((skeleton->unk_20 == NULL) || (limb->unk_6 == 0xFF) || (skeleton->unk_20[limb->unk_6] == NULL) ||
-            skeleton->unk_20[limb->unk_6](play, skeleton, *limbIndex, &newDList, &flags, arg) != 0) {
+         overrideKeyframeDraw(play, kfSkelAnime, *limbIndex, &newDList, &flags, arg, &scale, &rot, &pos) != 0)) {
+        if ((kfSkelAnime->callbacks == NULL) || (limb->callbackIndex == KF_CALLBACK_INDEX_NONE) ||
+            (kfSkelAnime->callbacks[limb->callbackIndex] == NULL) ||
+            kfSkelAnime->callbacks[limb->callbackIndex](play, kfSkelAnime, *limbIndex, &newDList, &flags, arg) != 0) {
 
             Matrix_TranslateRotateZYX(&pos, &rot);
 
@@ -425,334 +471,360 @@ void func_8018410C(PlayState* play, SkeletonInfo* skeleton, s32* limbIndex,
             }
 
             if (newDList != NULL) {
-                Matrix_ToMtx(*mtx);
+                Matrix_ToMtx(*mtxStack);
 
-                if (flags & KEYFRAME_XLU) {
-                    gSPMatrix(POLY_XLU_DISP++, *mtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                if (flags & KEYFRAME_DRAW_XLU) {
+                    gSPMatrix(POLY_XLU_DISP++, *mtxStack, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                     gSPDisplayList(POLY_XLU_DISP++, newDList);
                 } else {
-                    gSPMatrix(POLY_OPA_DISP++, *mtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                    gSPMatrix(POLY_OPA_DISP++, *mtxStack, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                     gSPDisplayList(POLY_OPA_DISP++, newDList);
                 }
 
-                (*mtx)++;
+                (*mtxStack)++;
             } else if (limbDList != NULL) {
-                gSPMatrix(POLY_OPA_DISP++, *mtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-                Matrix_ToMtx(*mtx);
+                gSPMatrix(POLY_OPA_DISP++, *mtxStack, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                Matrix_ToMtx(*mtxStack);
 
-                (*mtx)++;
+                (*mtxStack)++;
             }
         }
     }
 
     if (postKeyframeDraw != NULL) {
-        postKeyframeDraw(play, skeleton, *limbIndex, &newDList, &flags, arg, &scale, &rot, &pos);
+        postKeyframeDraw(play, kfSkelAnime, *limbIndex, &newDList, &flags, arg, &scale, &rot, &pos);
     }
 
     (*limbIndex)++;
 
-    for (i = 0; i < limb->unk_4; i++) {
-        func_8018410C(play, skeleton, limbIndex, overrideKeyframeDraw, postKeyframeDraw, arg, mtx);
+    for (i = 0; i < limb->numChildren; i++) {
+        Keyframe_DrawFlexLimb(play, kfSkelAnime, limbIndex, overrideKeyframeDraw, postKeyframeDraw, arg, mtxStack);
     }
 
     Matrix_Pop();
     CLOSE_DISPS(play->state.gfxCtx);
 }
 
-// cKF_Si3_draw_R_SV
-void func_8018450C(PlayState* play, SkeletonInfo* skeleton, Mtx* mtx, OverrideKeyframeDrawScaled overrideKeyframeDraw,
-                   PostKeyframeDrawScaled postKeyframeDraw, void* arg) {
+void Keyframe_DrawFlex(PlayState* play, KFSkelAnimeFlex* kfSkelAnime, Mtx* mtxStack,
+                       OverrideKeyframeDrawScaled overrideKeyframeDraw, PostKeyframeDrawScaled postKeyframeDraw,
+                       void* arg) {
     s32 limbIndex;
 
-    if (mtx == NULL) {
+    if (mtxStack == NULL) {
         return;
     }
 
     OPEN_DISPS(play->state.gfxCtx);
 
-    gSPSegment(POLY_OPA_DISP++, 0x0D, mtx);
-    gSPSegment(POLY_XLU_DISP++, 0x0D, mtx);
+    gSPSegment(POLY_OPA_DISP++, 0x0D, mtxStack);
+    gSPSegment(POLY_XLU_DISP++, 0x0D, mtxStack);
 
     limbIndex = 0;
-    func_8018410C(play, skeleton, &limbIndex, overrideKeyframeDraw, postKeyframeDraw, arg, &mtx);
+    Keyframe_DrawFlexLimb(play, kfSkelAnime, &limbIndex, overrideKeyframeDraw, postKeyframeDraw, arg, &mtxStack);
 
     CLOSE_DISPS(play->state.gfxCtx);
 }
 
-void func_801845A4(SkeletonInfo2* skeleton) {
-    skeleton->unk_18 = 0;
-    skeleton->unk_1C = 0;
-    skeleton->frameData = NULL;
-    skeleton->unk_28 = 0;
-    skeleton->unk_2C = 0;
-    skeleton->unk_20 = 0.0f;
+void Keyframe_ResetStandard(KFSkelAnime* kfSkelAnime) {
+    kfSkelAnime->skeleton = NULL;
+    kfSkelAnime->animation = NULL;
+    kfSkelAnime->jointTable = NULL;
+    kfSkelAnime->morphTable = NULL;
+    kfSkelAnime->rotOffsetsTable = NULL;
+    kfSkelAnime->morphFrames = 0.0f;
 }
 
-void func_801845C8(SkeletonInfo2* skeleton, Struct_801BFA14_Arg1* arg1, SkeletonInfo_1C* arg2, Vec3s* frameData,
-                   s16* arg4) {
-    func_801845A4(skeleton);
-    func_801830C8(&skeleton->frameCtrl);
-    skeleton->unk_18 = (Struct_801BFA14_Arg1*)Lib_SegmentedToVirtual(arg1);
-    skeleton->unk_1C = (SkeletonInfo_1C*)Lib_SegmentedToVirtual(arg2);
-    skeleton->frameData = frameData;
-    skeleton->unk_28 = arg4;
+void Keyframe_InitStandard(KFSkelAnime* kfSkelAnime, KeyFrameSkeleton* skeleton, KeyFrameAnimation* animation,
+                           Vec3s* jointTable, Vec3s* morphTable) {
+    Keyframe_ResetStandard(kfSkelAnime);
+    FrameCtrl_Init(&kfSkelAnime->frameCtrl);
+    kfSkelAnime->skeleton = (KeyFrameSkeleton*)Lib_SegmentedToVirtual(skeleton);
+    kfSkelAnime->animation = (KeyFrameAnimation*)Lib_SegmentedToVirtual(animation);
+    kfSkelAnime->jointTable = jointTable;
+    kfSkelAnime->morphTable = morphTable;
 }
 
-void func_8018462C(SkeletonInfo2* skeleton) {
+void Keyframe_DestroyStandard(KFSkelAnime* kfSkelAnime) {
 }
 
-void func_80184914(SkeletonInfo2* skeleton, Struct_801BFA14_Arg1* arg1, SkeletonInfo_1C* arg2, f32 arg3, f32 arg4,
-                   f32 arg5, f32 arg6, f32 arg7, s32 arg8, s32 arg9);
+void Keyframe_StandardChangeAnim(KFSkelAnime* kfSkelAnime, KeyFrameSkeleton* skeleton, KeyFrameAnimation* animation,
+                                 f32 startTime, f32 endTime, f32 t, f32 speed, f32 morphFrames, s32 animMode,
+                                 Vec3s* rotOffsetsTable);
 
-void func_80184638(SkeletonInfo2* skeleton, SkeletonInfo_1C* arg1, s32 arg2) {
-    func_80184914(skeleton, skeleton->unk_18, arg1, 1.0f, ((SkeletonInfo_1C*)Lib_SegmentedToVirtual(arg1))->unk_12,
-                  1.0f, 1.0f, 0.0f, false, arg2);
+void Keyframe_StandardPlayOnce(KFSkelAnime* kfSkelAnime, KeyFrameAnimation* animation, Vec3s* rotOffsetsTable) {
+    Keyframe_StandardChangeAnim(kfSkelAnime, kfSkelAnime->skeleton, animation, 1.0f,
+                                ((KeyFrameAnimation*)Lib_SegmentedToVirtual(animation))->duration, 1.0f, 1.0f, 0.0f,
+                                KEYFRAME_ANIM_ONCE, rotOffsetsTable);
 }
 
-void func_801846AC(SkeletonInfo2* skeleton, SkeletonInfo_1C* arg1, s32 arg2, f32 arg3) {
-    func_80184914(skeleton, skeleton->unk_18, arg1, 1.0f, ((SkeletonInfo_1C*)Lib_SegmentedToVirtual(arg1))->unk_12,
-                  1.0f, arg3, 0.0f, false, arg2);
+void Keyframe_StandardPlayOnceWithSpeed(KFSkelAnime* kfSkelAnime, KeyFrameAnimation* animation, Vec3s* rotOffsetsTable,
+                                        f32 speed) {
+    Keyframe_StandardChangeAnim(kfSkelAnime, kfSkelAnime->skeleton, animation, 1.0f,
+                                ((KeyFrameAnimation*)Lib_SegmentedToVirtual(animation))->duration, 1.0f, speed, 0.0f,
+                                KEYFRAME_ANIM_ONCE, rotOffsetsTable);
 }
 
-void func_80184728(SkeletonInfo2* skeleton, SkeletonInfo_1C* arg1, s32 arg2, f32 arg3) {
-    func_80184914(skeleton, skeleton->unk_18, arg1, 1.0f, ((SkeletonInfo_1C*)Lib_SegmentedToVirtual(arg1))->unk_12,
-                  1.0f, 1.0f, arg3, false, arg2);
+void Keyframe_StandardPlayOnceWithMorph(KFSkelAnime* kfSkelAnime, KeyFrameAnimation* animation, Vec3s* rotOffsetsTable,
+                                        f32 morphFrames) {
+    Keyframe_StandardChangeAnim(kfSkelAnime, kfSkelAnime->skeleton, animation, 1.0f,
+                                ((KeyFrameAnimation*)Lib_SegmentedToVirtual(animation))->duration, 1.0f, 1.0f,
+                                morphFrames, KEYFRAME_ANIM_ONCE, rotOffsetsTable);
 }
 
-void func_801847A0(SkeletonInfo2* skeleton, SkeletonInfo_1C* arg1, s32 arg2) {
-    func_80184914(skeleton, skeleton->unk_18, arg1, 1.0f, ((SkeletonInfo_1C*)Lib_SegmentedToVirtual(arg1))->unk_12,
-                  1.0f, 1.0f, 0.0f, true, arg2);
+void Keyframe_StandardPlayLoop(KFSkelAnime* kfSkelAnime, KeyFrameAnimation* animation, Vec3s* rotOffsetsTable) {
+    Keyframe_StandardChangeAnim(kfSkelAnime, kfSkelAnime->skeleton, animation, 1.0f,
+                                ((KeyFrameAnimation*)Lib_SegmentedToVirtual(animation))->duration, 1.0f, 1.0f, 0.0f,
+                                KEYFRAME_ANIM_LOOP, rotOffsetsTable);
 }
 
-void func_80184818(SkeletonInfo2* skeleton, SkeletonInfo_1C* arg1, s32 arg2, f32 arg3) {
-    func_80184914(skeleton, skeleton->unk_18, arg1, 1.0f, ((SkeletonInfo_1C*)Lib_SegmentedToVirtual(arg1))->unk_12,
-                  1.0f, arg3, 0.0f, true, arg2);
+void Keyframe_StandardPlayLoopWithSpeed(KFSkelAnime* kfSkelAnime, KeyFrameAnimation* animation, Vec3s* rotOffsetsTable,
+                                        f32 speed) {
+    Keyframe_StandardChangeAnim(kfSkelAnime, kfSkelAnime->skeleton, animation, 1.0f,
+                                ((KeyFrameAnimation*)Lib_SegmentedToVirtual(animation))->duration, 1.0f, speed, 0.0f,
+                                KEYFRAME_ANIM_LOOP, rotOffsetsTable);
 }
 
-void func_80184898(SkeletonInfo2* skeleton, SkeletonInfo_1C* arg1, s32 arg2, f32 arg3) {
-    func_80184914(skeleton, skeleton->unk_18, arg1, 1.0f, ((SkeletonInfo_1C*)Lib_SegmentedToVirtual(arg1))->unk_12,
-                  1.0f, 1.0f, arg3, true, arg2);
+void Keyframe_StandardPlayLoopWithMorph(KFSkelAnime* kfSkelAnime, KeyFrameAnimation* animation, Vec3s* rotOffsetsTable,
+                                        f32 morphFrames) {
+    Keyframe_StandardChangeAnim(kfSkelAnime, kfSkelAnime->skeleton, animation, 1.0f,
+                                ((KeyFrameAnimation*)Lib_SegmentedToVirtual(animation))->duration, 1.0f, 1.0f,
+                                morphFrames, KEYFRAME_ANIM_LOOP, rotOffsetsTable);
 }
 
-void func_80184914(SkeletonInfo2* skeleton, Struct_801BFA14_Arg1* arg1, SkeletonInfo_1C* arg2, f32 arg3, f32 arg4,
-                   f32 arg5, f32 arg6, f32 arg7, s32 arg8, s32 arg9) {
-    skeleton->unk_20 = arg7;
-    skeleton->unk_18 = (Struct_801BFA14_Arg1*)Lib_SegmentedToVirtual(arg1);
-    skeleton->unk_1C = (SkeletonInfo_1C*)Lib_SegmentedToVirtual(arg2);
+void Keyframe_StandardChangeAnim(KFSkelAnime* kfSkelAnime, KeyFrameSkeleton* skeleton, KeyFrameAnimation* animation,
+                                 f32 startTime, f32 endTime, f32 t, f32 speed, f32 morphFrames, s32 animMode,
+                                 Vec3s* rotOffsetsTable) {
+    kfSkelAnime->morphFrames = morphFrames;
+    kfSkelAnime->skeleton = (KeyFrameSkeleton*)Lib_SegmentedToVirtual(skeleton);
+    kfSkelAnime->animation = (KeyFrameAnimation*)Lib_SegmentedToVirtual(animation);
 
-    func_801830E8(&skeleton->frameCtrl, arg3, arg4, skeleton->unk_1C->unk_12, arg5, arg6, arg8);
-    skeleton->unk_2C = arg9;
+    FrameCtrl_SetProperties(&kfSkelAnime->frameCtrl, startTime, endTime, kfSkelAnime->animation->duration, t, speed,
+                            animMode);
+    kfSkelAnime->rotOffsetsTable = rotOffsetsTable;
 }
 
-void func_801849A0(SkeletonInfo2* skeleton, SkeletonInfo_1C* arg1) {
-    skeleton->unk_1C = Lib_SegmentedToVirtual(arg1);
-    skeleton->frameCtrl.unk_8 = skeleton->unk_1C->unk_12;
+void Keyframe_StandardChangeAnimQuick(KFSkelAnime* kfSkelAnime, KeyFrameAnimation* animation) {
+    kfSkelAnime->animation = Lib_SegmentedToVirtual(animation);
+    kfSkelAnime->frameCtrl.duration = kfSkelAnime->animation->duration;
 }
 
-void func_801849DC(SkeletonInfo2* skeleton) {
-    Vec3s* frameData = skeleton->frameData;
-    Vec3s* phi_s7 = (Vec3s*)skeleton->unk_28;
-    f32 t = 1.0f / fabsf(skeleton->unk_20);
-    s32 i;
+void Keyframe_UpdateStandardLimbs(KFSkelAnime* kfSkelAnime) {
+    Vec3s* jointTable = kfSkelAnime->jointTable;
+    Vec3s* morphTable = kfSkelAnime->morphTable;
+    f32 t = 1.0f / fabsf(kfSkelAnime->morphFrames);
+    s32 limbIndex;
 
-    func_80183B08((s16*)frameData, (s16*)phi_s7, t);
+    Keyframe_MorphInterpolate((s16*)jointTable, (s16*)morphTable, t);
 
-    frameData++;
-    phi_s7++;
+    // Skip translation
+    jointTable++;
+    morphTable++;
 
-    for (i = 0; i < skeleton->unk_18->limbCount; i++) {
-        Vec3s temp_a2;
-        Vec3s temp_a3;
+    // Interpolate rotation
+    for (limbIndex = 0; limbIndex < kfSkelAnime->skeleton->limbCount; limbIndex++) {
+        Vec3s frameRot;
+        Vec3s morphRot;
 
-        temp_a2.x = frameData->x;
-        temp_a2.y = frameData->y;
-        temp_a2.z = frameData->z;
+        frameRot.x = jointTable->x;
+        frameRot.y = jointTable->y;
+        frameRot.z = jointTable->z;
 
-        temp_a3.x = phi_s7->x;
-        temp_a3.y = phi_s7->y;
-        temp_a3.z = phi_s7->z;
+        morphRot.x = morphTable->x;
+        morphRot.y = morphTable->y;
+        morphRot.z = morphTable->z;
 
-        if (temp_a2.x != temp_a3.x || temp_a2.y != temp_a3.y || temp_a2.z != temp_a3.z) {
-            Vec3s temp_a0;
-            f32 v1;
-            f32 v2;
+        if (frameRot.x != morphRot.x || frameRot.y != morphRot.y || frameRot.z != morphRot.z) {
+            Vec3s frameRotInv;
+            f32 norm1;
+            f32 norm2;
 
-            temp_a0.x = temp_a2.x + 0x7FFF;
-            temp_a0.y = 0x7FFF - temp_a2.y;
-            temp_a0.z = temp_a2.z + 0x7FFF;
+            frameRotInv.x = 0x7FFF + frameRot.x;
+            frameRotInv.y = 0x7FFF - frameRot.y;
+            frameRotInv.z = 0x7FFF + frameRot.z;
 
-            v1 = fabsf((f32)temp_a3.x - temp_a2.x) + fabsf((f32)temp_a3.y - temp_a2.y) +
-                 fabsf((f32)temp_a3.z - temp_a2.z);
-            v2 = fabsf((f32)temp_a3.x - temp_a0.x) + fabsf((f32)temp_a3.y - temp_a0.y) +
-                 fabsf((f32)temp_a3.z - temp_a0.z);
+            norm1 = fabsf((f32)morphRot.x - frameRot.x) + fabsf((f32)morphRot.y - frameRot.y) +
+                    fabsf((f32)morphRot.z - frameRot.z);
+            norm2 = fabsf((f32)morphRot.x - frameRotInv.x) + fabsf((f32)morphRot.y - frameRotInv.y) +
+                    fabsf((f32)morphRot.z - frameRotInv.z);
 
-            if (v1 < v2) {
-                func_80183A3C(t, &frameData->x, temp_a2.x, temp_a3.x);
-                func_80183A3C(t, &frameData->y, temp_a2.y, temp_a3.y);
-                func_80183A3C(t, &frameData->z, temp_a2.z, temp_a3.z);
+            if (norm1 < norm2) {
+                Keyframe_RotationInterpolate(t, &jointTable->x, frameRot.x, morphRot.x);
+                Keyframe_RotationInterpolate(t, &jointTable->y, frameRot.y, morphRot.y);
+                Keyframe_RotationInterpolate(t, &jointTable->z, frameRot.z, morphRot.z);
             } else {
-                func_80183A3C(t, &frameData->x, temp_a0.x, temp_a3.x);
-                func_80183A3C(t, &frameData->y, temp_a0.y, temp_a3.y);
-                func_80183A3C(t, &frameData->z, temp_a0.z, temp_a3.z);
+                Keyframe_RotationInterpolate(t, &jointTable->x, frameRotInv.x, morphRot.x);
+                Keyframe_RotationInterpolate(t, &jointTable->y, frameRotInv.y, morphRot.y);
+                Keyframe_RotationInterpolate(t, &jointTable->z, frameRotInv.z, morphRot.z);
             }
         }
-        phi_s7++;
-        frameData++;
+        morphTable++;
+        jointTable++;
     }
 }
 
-s32 func_80184C48(SkeletonInfo2* skeleton) {
-    s32 sp84;
-    u32 phi_s2;
-    u8* phi_t0;
-    s32 phi_s3;
-    s32 phi_s4 = 0;
-    s32 phi_s5 = 0;
-    s32 phi_s6 = 0;
-    s16* sp68;
-    Vec3s* sp64;
-    s16* sp60;
-    s16* phi_s1;
+s32 Keyframe_UpdateStandard(KFSkelAnime* kfSkelAnime) {
+    s32 limbIndex;
+    u32 bit;
+    u8* bitFlags;
+    s32 i;
+    s32 kfn = 0;
+    s32 presetIndex = 0;
+    s32 kfStart = 0;
+    s16* presetValues;
+    KeyFrame* keyFrames;
+    s16* kfNums;
+    s16* outputValues;
 
-    if (skeleton->unk_20 != 0.0f) {
-        phi_s1 = skeleton->unk_28;
+    if (kfSkelAnime->morphFrames != 0.0f) {
+        outputValues = (s16*)kfSkelAnime->morphTable;
     } else {
-        phi_s1 = (s16*)skeleton->frameData;
+        outputValues = (s16*)kfSkelAnime->jointTable;
     }
 
-    sp68 = (s16*)Lib_SegmentedToVirtual(skeleton->unk_1C->unk_C);
-    sp60 = (s16*)Lib_SegmentedToVirtual(skeleton->unk_1C->unk_8);
-    sp64 = (Vec3s*)Lib_SegmentedToVirtual(skeleton->unk_1C->unk_4);
-    phi_t0 = (u8*)Lib_SegmentedToVirtual(skeleton->unk_1C->unk_0);
+    presetValues = (s16*)Lib_SegmentedToVirtual(kfSkelAnime->animation->presetValues);
+    kfNums = (s16*)Lib_SegmentedToVirtual(kfSkelAnime->animation->kfNums);
+    keyFrames = (KeyFrame*)Lib_SegmentedToVirtual(kfSkelAnime->animation->keyFrames);
+    bitFlags = (u8*)Lib_SegmentedToVirtual(kfSkelAnime->animation->bitFlags);
 
-    for (phi_s2 = 32, phi_s3 = 0; phi_s3 < 3; phi_s3++, phi_s2 >>= 1) {
-        if (phi_t0[0] & phi_s2) {
-            *phi_s1 = func_80183880(phi_s6, sp60[phi_s4], sp64, skeleton->frameCtrl.unk_10);
-            phi_s6 += sp60[phi_s4++];
+    // Translation
+    bit = 1 << (3 * 2 - 1);
+
+    for (i = 0; i < 3; i++, bit >>= 1) { // xyz
+        if (*bitFlags & bit) {
+            *outputValues = Keyframe_KeyCalc(kfStart, kfNums[kfn], keyFrames, kfSkelAnime->frameCtrl.curTime);
+            kfStart += kfNums[kfn++];
         } else {
-            *phi_s1 = sp68[phi_s5++];
+            *outputValues = presetValues[presetIndex++];
         }
-        phi_s1++;
+        outputValues++;
     }
 
-    for (sp84 = 0; sp84 < skeleton->unk_18->limbCount; sp84++) {
-        for (phi_s2 = 4, phi_s3 = 0; phi_s3 < 3; phi_s3++) {
+    // Rotation only
+    for (limbIndex = 0; limbIndex < kfSkelAnime->skeleton->limbCount; limbIndex++) {
+        bit = 1 << (3 - 1);
+
+        for (i = 0; i < 3; i++) { // xyz
             s32 pad;
 
-            if (phi_t0[sp84] & phi_s2) {
-                *phi_s1 = func_80183880(phi_s6, sp60[phi_s4], sp64, skeleton->frameCtrl.unk_10);
-                phi_s6 += sp60[phi_s4++];
+            if (bitFlags[limbIndex] & bit) {
+                *outputValues = Keyframe_KeyCalc(kfStart, kfNums[kfn], keyFrames, kfSkelAnime->frameCtrl.curTime);
+                kfStart += kfNums[kfn++];
             } else {
-                *phi_s1 = sp68[phi_s5++];
+                *outputValues = presetValues[presetIndex++];
             }
-            *phi_s1 = FMOD(*phi_s1 * 0.1f, 360) * 182.04445f;
-            phi_s2 >>= 1;
-            phi_s1++;
+            *outputValues = FMOD(*outputValues * 0.1f, 360) * 182.04445f;
+            bit >>= 1;
+            outputValues++;
         }
     }
 
-    if (skeleton->unk_2C != NULL) {
-        Vec3s* phi_v0;
+    if (kfSkelAnime->rotOffsetsTable != NULL) {
+        Vec3s* table;
 
-        if (skeleton->unk_20 != 0.0f) {
-            phi_v0 = (Vec3s*)skeleton->unk_28;
+        if (kfSkelAnime->morphFrames != 0.0f) {
+            table = kfSkelAnime->morphTable;
         } else {
-            phi_v0 = skeleton->frameData;
+            table = kfSkelAnime->jointTable;
         }
 
-        phi_v0++;
-        for (sp84 = 0; sp84 < skeleton->unk_18->limbCount; sp84++, phi_v0++) {
-            phi_v0->x = phi_v0->x + skeleton->unk_2C[sp84].x;
-            phi_v0->y = phi_v0->y + skeleton->unk_2C[sp84].y;
-            phi_v0->z = phi_v0->z + skeleton->unk_2C[sp84].z;
+        table++; // Skip translation?
+
+        // Add all offsets to rotations
+        for (limbIndex = 0; limbIndex < kfSkelAnime->skeleton->limbCount; limbIndex++, table++) {
+            table->x = table->x + kfSkelAnime->rotOffsetsTable[limbIndex].x;
+            table->y = table->y + kfSkelAnime->rotOffsetsTable[limbIndex].y;
+            table->z = table->z + kfSkelAnime->rotOffsetsTable[limbIndex].z;
         }
     }
 
-    if (IS_ZERO(skeleton->unk_20)) {
-        return func_8018332C(&skeleton->frameCtrl);
+    if (IS_ZERO(kfSkelAnime->morphFrames)) {
+        return FrameCtrl_Update(&kfSkelAnime->frameCtrl);
     }
-    if (skeleton->unk_20 > 0.0f) {
-        func_801849DC(skeleton);
-        skeleton->unk_20 -= 1.0f;
-        if (skeleton->unk_20 <= 0.0f) {
-            skeleton->unk_20 = 0.0f;
+    if (kfSkelAnime->morphFrames > 0.0f) {
+        Keyframe_UpdateStandardLimbs(kfSkelAnime);
+        kfSkelAnime->morphFrames -= 1.0f;
+        if (kfSkelAnime->morphFrames <= 0.0f) {
+            kfSkelAnime->morphFrames = 0.0f;
         }
-        return 0;
+        return KEYFRAME_NOT_DONE;
     }
-    func_801849DC(skeleton);
-    skeleton->unk_20 += 1.0f;
-    if (skeleton->unk_20 >= 0.0f) {
-        skeleton->unk_20 = 0.0f;
+    Keyframe_UpdateStandardLimbs(kfSkelAnime);
+    kfSkelAnime->morphFrames += 1.0f;
+    if (kfSkelAnime->morphFrames >= 0.0f) {
+        kfSkelAnime->morphFrames = 0.0f;
     }
-    return func_8018332C(&skeleton->frameCtrl);
+    return FrameCtrl_Update(&kfSkelAnime->frameCtrl);
 }
 
-void func_801850A0(PlayState* play, SkeletonInfo2* skeleton, s32* limbIndex, OverrideKeyframeDraw overrideKeyframeDraw,
-                   PostKeyframeDraw postKeyframeDraw, void* arg, Mtx** mtx) {
-    Struct_801BFA14_Arg1_Field4* jointData =
-        *limbIndex + (Struct_801BFA14_Arg1_Field4*)Lib_SegmentedToVirtual(skeleton->unk_18->unk_4);
+void Keyframe_DrawStandardLimb(PlayState* play, KFSkelAnime* kfSkelAnime, s32* limbIndex,
+                               OverrideKeyframeDraw overrideKeyframeDraw, PostKeyframeDraw postKeyframeDraw, void* arg,
+                               Mtx** mtxStack) {
+    KeyFrameStandardLimb* limb =
+        *limbIndex + (KeyFrameStandardLimb*)Lib_SegmentedToVirtual(kfSkelAnime->skeleton->limbsStandard);
     s32 i;
     Gfx* newDList;
     Gfx* limbDList;
     u8 flags;
     Vec3s rot;
-    Vec3s* frameData = &skeleton->frameData[*limbIndex];
+    Vec3s* jointData = &kfSkelAnime->jointTable[*limbIndex];
     Vec3f pos;
 
     if (*limbIndex != 0) {
-        pos.x = jointData->root.x;
-        pos.y = jointData->root.y;
-        pos.z = jointData->root.z;
+        pos.x = limb->translation.x;
+        pos.y = limb->translation.y;
+        pos.z = limb->translation.z;
     } else {
-        pos.x = frameData->x;
-        pos.y = frameData->y;
-        pos.z = frameData->z;
+        pos.x = jointData->x;
+        pos.y = jointData->y;
+        pos.z = jointData->z;
     }
 
-    frameData++;
+    jointData++;
 
-    rot.x = frameData->x;
-    rot.y = frameData->y;
-    rot.z = frameData->z;
+    rot.x = jointData->x;
+    rot.y = jointData->y;
+    rot.z = jointData->z;
 
     OPEN_DISPS(play->state.gfxCtx);
 
     Matrix_Push();
 
-    newDList = limbDList = jointData->dList;
-    flags = jointData->flags;
+    newDList = limbDList = limb->dList;
+    flags = limb->flags;
 
     if (overrideKeyframeDraw == NULL ||
         (overrideKeyframeDraw != NULL &&
-         overrideKeyframeDraw(play, skeleton, *limbIndex, &newDList, &flags, arg, &rot, &pos) != 0)) {
-        Matrix_TranslateRotateZYX(&pos, &rot);
-        if (newDList != NULL) {
-            Matrix_ToMtx(*mtx);
+         overrideKeyframeDraw(play, kfSkelAnime, *limbIndex, &newDList, &flags, arg, &rot, &pos) != 0)) {
 
-            if (flags & KEYFRAME_XLU) {
-                gSPMatrix(POLY_XLU_DISP++, *mtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        Matrix_TranslateRotateZYX(&pos, &rot);
+
+        if (newDList != NULL) {
+            Matrix_ToMtx(*mtxStack);
+
+            if (flags & KEYFRAME_DRAW_XLU) {
+                gSPMatrix(POLY_XLU_DISP++, *mtxStack, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                 gSPDisplayList(POLY_XLU_DISP++, newDList);
             } else {
-                gSPMatrix(POLY_OPA_DISP++, *mtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                gSPMatrix(POLY_OPA_DISP++, *mtxStack, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                 gSPDisplayList(POLY_OPA_DISP++, newDList);
             }
-            (*mtx)++;
+            (*mtxStack)++;
         } else if (limbDList != NULL) {
-            Matrix_ToMtx(*mtx);
+            Matrix_ToMtx(*mtxStack);
 
-            gSPMatrix(POLY_OPA_DISP++, *mtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-            (*mtx)++;
+            gSPMatrix(POLY_OPA_DISP++, *mtxStack, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+            (*mtxStack)++;
         }
     }
 
     if (postKeyframeDraw != NULL) {
-        postKeyframeDraw(play, skeleton, *limbIndex, &newDList, &flags, arg, &rot, &pos);
+        postKeyframeDraw(play, kfSkelAnime, *limbIndex, &newDList, &flags, arg, &rot, &pos);
     }
 
     (*limbIndex)++;
 
-    for (i = 0; i < jointData->unk_4; i++) {
-        func_801850A0(play, skeleton, limbIndex, overrideKeyframeDraw, postKeyframeDraw, arg, mtx);
+    for (i = 0; i < limb->numChildren; i++) {
+        Keyframe_DrawStandardLimb(play, kfSkelAnime, limbIndex, overrideKeyframeDraw, postKeyframeDraw, arg, mtxStack);
     }
 
     Matrix_Pop();
@@ -760,69 +832,71 @@ void func_801850A0(PlayState* play, SkeletonInfo2* skeleton, s32* limbIndex, Ove
     CLOSE_DISPS(play->state.gfxCtx);
 }
 
-void func_801853C8(PlayState* play, SkeletonInfo2* skeleton, Mtx* mtx, OverrideKeyframeDraw overrideKeyframeDraw,
-                   PostKeyframeDraw postKeyframeDraw, void* arg) {
+void Keyframe_DrawStandard(PlayState* play, KFSkelAnime* kfSkelAnime, Mtx* mtxStack,
+                           OverrideKeyframeDraw overrideKeyframeDraw, PostKeyframeDraw postKeyframeDraw, void* arg) {
     s32 limbIndex;
 
-    if (mtx == NULL) {
+    if (mtxStack == NULL) {
         return;
     }
 
     OPEN_DISPS(play->state.gfxCtx);
 
-    gSPSegment(POLY_OPA_DISP++, 0x0D, mtx);
-    gSPSegment(POLY_XLU_DISP++, 0x0D, mtx);
+    gSPSegment(POLY_OPA_DISP++, 0x0D, mtxStack);
+    gSPSegment(POLY_XLU_DISP++, 0x0D, mtxStack);
 
     limbIndex = 0;
-    func_801850A0(play, skeleton, &limbIndex, overrideKeyframeDraw, postKeyframeDraw, arg, &mtx);
+    Keyframe_DrawStandardLimb(play, kfSkelAnime, &limbIndex, overrideKeyframeDraw, postKeyframeDraw, arg, &mtxStack);
 
     CLOSE_DISPS(play->state.gfxCtx);
 }
 
-void func_80185460(SkeletonInfo2* arg0, s32 arg1, s16* arg2) {
-    s16* temp_fp;
-    s32 sp78;
-    s32 var_s3 = 0;
-    s32 var_s4 = 0;
-    s32 var_s5 = 0;
-    s32 var_s1;
-    u16* var_v1;
-    s16* var_s6 = arg2;
-    s16* sp5C;
-    Vec3s* sp58;
-    s32 sp44;
+void Keyframe_FlexGetScales(KFSkelAnime* kfSkelAnime, s32 targetLimbIndex, s16* scalesOut) {
+    s16* kfNums;
+    s32 i;
+    s32 kfn = 0;
+    s32 presetIndex = 0;
+    s32 kfStart = 0;
+    s32 j;
+    u16* bitFlags;
+    s16* scales = scalesOut;
+    s16* presetValues;
+    KeyFrame* keyFrames;
+    s32 limbIndex;
 
-    sp5C = (s16*)Lib_SegmentedToVirtual(arg0->unk_1C->unk_C);
-    temp_fp = (s16*)Lib_SegmentedToVirtual(arg0->unk_1C->unk_8);
-    sp58 = (Vec3s*)Lib_SegmentedToVirtual(arg0->unk_1C->unk_4);
-    var_v1 = (u16*)Lib_SegmentedToVirtual(arg0->unk_1C->unk_0);
+    presetValues = (s16*)Lib_SegmentedToVirtual(kfSkelAnime->animation->presetValues);
+    kfNums = (s16*)Lib_SegmentedToVirtual(kfSkelAnime->animation->kfNums);
+    keyFrames = (KeyFrame*)Lib_SegmentedToVirtual(kfSkelAnime->animation->keyFrames);
+    bitFlags = (u16*)Lib_SegmentedToVirtual(kfSkelAnime->animation->bitFlagsFlex);
 
-    for (sp44 = 0; sp44 < arg0->unk_18->limbCount; sp44++) {
-        u32 var_s2 = 256;
+    for (limbIndex = 0; limbIndex < kfSkelAnime->skeleton->limbCount; limbIndex++) {
+        u32 bit = 1 << (3 * 3 - 1);
 
-        for (sp78 = 0; sp78 < 3; sp78++) {
-            if ((sp44 == arg1) && (sp78 == 0)) {
-                for (var_s1 = 0; var_s1 < 3; var_s1++) {
-                    if (var_v1[sp44] & var_s2) {
-                        *var_s6 = func_80183880(var_s5, temp_fp[var_s3], sp58, arg0->frameCtrl.unk_10);
-                        var_s5 += temp_fp[var_s3];
-                        var_s3++;
+        for (i = 0; i < 3; i++) {
+            if ((limbIndex == targetLimbIndex) && (i == 0)) {
+                // Is the target limb and is scale data
+                for (j = 0; j < 3; j++) {
+                    if (bitFlags[limbIndex] & bit) {
+                        *scales = Keyframe_KeyCalc(kfStart, kfNums[kfn], keyFrames, kfSkelAnime->frameCtrl.curTime);
+                        kfStart += kfNums[kfn];
+                        kfn++;
                     } else {
-                        *var_s6 = sp5C[var_s4];
-                        var_s4++;
+                        *scales = presetValues[presetIndex];
+                        presetIndex++;
                     }
-                    var_s2 >>= 1;
-                    var_s6++;
+                    bit >>= 1;
+                    scales++;
                 }
             } else {
-                for (var_s1 = 0; var_s1 < 3; var_s1++) {
-                    if (var_v1[sp44] & var_s2) {
-                        var_s5 += temp_fp[var_s3];
-                        var_s3++;
+                // Not the target limb, step over values
+                for (j = 0; j < 3; j++) {
+                    if (bitFlags[limbIndex] & bit) {
+                        kfStart += kfNums[kfn];
+                        kfn++;
                     } else {
-                        var_s4++;
+                        presetIndex++;
                     }
-                    var_s2 >>= 1;
+                    bit >>= 1;
                 }
             }
         }

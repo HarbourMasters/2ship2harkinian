@@ -10,7 +10,7 @@ typedef void (*EnFall2ActionFunc)(struct EnFall2*, PlayState*);
 
 typedef struct EnFall2 {
     /* 0x000 */ Actor actor;
-    /* 0x144 */ SkeletonInfo skeletonInfo;
+    /* 0x144 */ KFSkelAnimeFlex skeletonInfo;
     /* 0x174 */ Vec3s unk174[30];
     /* 0x228 */ Vec3s unk228[30];
     /* 0x2DC */ AnimatedMaterial* unk2DC;
