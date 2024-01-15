@@ -973,7 +973,9 @@ void Message_DecodeNES(PlayState* play) {
     u32 timeToMoonCrash;
     s16 i;
     s16 numLines;
-    s16 digits[4];
+    //! @bug OoB read & write for i == 4, digits array is only 4 elements
+    // 2S2H [Port] We opted to fix this 4 -> 5
+    s16 digits[5];
     s16 spC6 = 0;
     u16 sfxHi;
     f32 var_fs0;
