@@ -77,54 +77,14 @@
  */
 void Mtx_SetTranslateScaleMtx(Mtx* mtx, f32 scaleX, f32 scaleY, f32 scaleZ, f32 translateX, f32 translateY,
                               f32 translateZ) {
-    Mtx* m = mtx;
-    s32 fixedPoint;
-
-    m->m[0][1] = 0;                                      // [i02, i03] == [0, 0]
-    m->m[2][1] = 0;                                      // [f02, f03] == [0, 0]
-    m->m[0][3] = 0;                                      // [i12, i13] == [0, 0]
-    m->m[2][3] = 0;                                      // [f22, f23] == [0, 0]
-    m->m[1][0] = 0;                                      // [i20, i21] == [0, 0]
-                                                         //
-    fixedPoint = scaleX * 0x10000;                       //
-    m->m[0][0] = fixedPoint;                             // [i00, i01] == [scaleX.i, scaleX.f]; i01 is now "dirty"
-    m->intPart[0][1] = 0;                                // Clean i01 by zeroing it: [i00, i01] == [scaleX.i, 0]
-    m->m[2][0] = (u32)fixedPoint << 16;                  // [f00, f01] == [scaleX.f, 0]
-                                                         //
-    fixedPoint = scaleY * 0x10000;                       //
-    m->m[0][2] = (u32)fixedPoint >> 16;                  // [i10, i11] == [0, scaleY.i]
-    m->m[2][2] = fixedPoint & 0xFFFF;                    // [f10, f11] == [0, scaleY.f]
-                                                         //
-    fixedPoint = scaleZ * 0x10000;                       //
-    m->m[1][1] = fixedPoint;                             // [i22, i23] == [scaleZ.i, scaleZ.f]
-    m->intPart[2][3] = 0;                                // [i22, i23] == [scaleZ.i, 0]
-    m->m[3][1] = (u32)fixedPoint << 16;                  // [f22, f23] == [scaleZ.f, 0]
-                                                         //
-    m->m[3][0] = 0;                                      // [f20, f21] == [0, 0]
-                                                         //
-    fixedPoint = translateX * 0x10000;                   //
-    m->intPart[3][0] = ((u32)fixedPoint >> 16) & 0xFFFF; // [i30, i31] == [translateX.i, ?]
-    m->fracPart[3][0] = fixedPoint & 0xFFFF;             // [f30, f31] == [translateX.f, ?]
-                                                         //
-    fixedPoint = translateY * 0x10000;                   //
-    m->intPart[3][1] = ((u32)fixedPoint >> 16) & 0xFFFF; // [i30, i31] == [translateX.i, translateY.i]
-    m->fracPart[3][1] = fixedPoint & 0xFFFF;             // [f30, f31] == [translateX.f, translateY.f]
-                                                         //
-    fixedPoint = translateZ * 0x10000;                   //
-    m->intPart[3][2] = ((u32)fixedPoint >> 16) & 0xFFFF; // [i30, i31] == [translateZ.i, ?]
-    m->intPart[3][3] = 1;                                // [i32, i33] == [translateZ.i, 1]
-    m->m[3][3] = (u32)fixedPoint << 16;                  // [f32, f33] == [translateZ.f, 0]
-
-    // So we end up with
-    // [scaleX.i, 0], [0, 0],
-    // [0, scaleY.i], [0, 0],
-    // [0, 0], [scaleZ.i, 0],
-    // [translateX.i, translateY.i], [translateZ.i, 1]
-    //
-    // [scaleX.f, 0], [0, 0],
-    // [0, scaleY.f], [0, 0],
-    // [0, 0], [scaleZ.f, 0]
-    // [translateX.f, translateY.f], [translateZ.f, 0]
+    // #region 2S2H [Port] For compatibility with modern systems this has been changed to use guMtxF2L
+    MtxF mtxf = { {
+        { scaleX, 0, 0, 0 },
+        { 0, scaleY, 0, 0 },
+        { 0, 0, scaleZ, 0 },
+        { translateX, translateY, translateZ, 1 }
+    } };
+    guMtxF2L(&mtxf, mtx);
 }
 
 // Unused
