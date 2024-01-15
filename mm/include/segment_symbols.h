@@ -26,14 +26,14 @@
 #define SEGMENT_END(segment) 0
 //(_ ## segment ## SegmentEnd)
 
-#define SEGMENT_SIZE(segment) (uintptr_t) NULL
+#define SEGMENT_SIZE(segment) (uintptr_t) 0
 //((uintptr_t)SEGMENT_END(segment) - (uintptr_t)SEGMENT_START(segment))
 
 #define SEGMENT_ROM_START(segment) NULL
 //(_ ## segment ## SegmentRomStart)
 #define SEGMENT_ROM_END(segment) NULL
 //(_ ## segment ## SegmentRomEnd)
-#define SEGMENT_ROM_SIZE(segment) NULL
+#define SEGMENT_ROM_SIZE(segment) 0
 //((uintptr_t)SEGMENT_ROM_END(segment) - (uintptr_t)SEGMENT_ROM_START(segment))
 
 #define SEGMENT_BSS_START(segment) 0

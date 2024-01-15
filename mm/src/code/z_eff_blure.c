@@ -1,5 +1,6 @@
 #include "global.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
+#include "2s2h/Enhancements/interpolation/frame_interpolation.h"
 
 void EffectBlure_AddVertex(EffectBlure* this, Vec3f* p1, Vec3f* p2) {
     EffectBlureElement* elem;
@@ -918,6 +919,7 @@ void EffectBlure_Draw(void* thisx, GraphicsContext* gfxCtx) {
     s32 j;
     s32 phi_t2;
 
+    FrameInterpolation_RecordOpenChild(this, 0);
     OPEN_DISPS(gfxCtx);
 
     gSPMatrix(POLY_XLU_DISP++, &gIdentityMtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
@@ -1027,4 +1029,5 @@ void EffectBlure_Draw(void* thisx, GraphicsContext* gfxCtx) {
     }
 
     CLOSE_DISPS(gfxCtx);
+    FrameInterpolation_RecordCloseChild();
 }

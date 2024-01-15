@@ -297,15 +297,15 @@ typedef enum {
     /* 3 */ PICTO_PHOTO_STATE_READY
 } PictoPhotoState;
 
-#define ROM_FILE(name) \
-    { 0, 0, #name }
-
-#define ROM_FILE_EMPTY \
-    { 0, 0, "" }
-
-#define ROM_FILE_UNSET \
-    { 0 }
-
+//#define ROM_FILE(name) \
+//    { 0, 0, #name }
+//
+//#define ROM_FILE_EMPTY \
+//    { 0, 0, "" }
+//
+//#define ROM_FILE_UNSET \
+//    { 0 }
+//
 #ifdef __cplusplus
 }
 #undef this

@@ -17,6 +17,8 @@
 #include "gfxdebuggerbridge.h"
 #include "archives/item_name_static/item_name_static.h"
 #include "archives/map_name_static/map_name_static.h"
+#include "2s2h/Enhancements/interpolation/frame_interpolation.h"
+
 // Page Textures (Background of Page):
 // Broken up into multiple textures.
 // Numbered by column/row.
@@ -584,6 +586,7 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
     s16 stepG;
     s16 stepB;
 
+    FrameInterpolation_RecordOpenChild(NULL, pauseCtx->state + pauseCtx->pageIndex * 100);
     OPEN_DISPS(gfxCtx);
 
     if (!IS_PAUSE_STATE_GAMEOVER) {
@@ -868,6 +871,7 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
     }
 
     CLOSE_DISPS(gfxCtx);
+    FrameInterpolation_RecordCloseChild();
 }
 
 TexturePtr D_8082B998[] = {
