@@ -36,7 +36,7 @@ void LUS::TextureAnimationFactoryV0::ParseFileBinary(std::shared_ptr<BinaryReade
     for (size_t i = 0; i < numEntries; i++) {
         AnimatedMaterial anim;
         anim.segment = reader->ReadInt8();
-        anim.type = reader->ReadInt8();
+        anim.type = reader->ReadInt16();
 
         switch ((TextureAnimationParamsType)anim.type) {
             case TextureAnimationParamsType::SingleScroll: {
@@ -103,8 +103,11 @@ void LUS::TextureAnimationFactoryV0::ParseFileBinary(std::shared_ptr<BinaryReade
                 e->textureList = new void*[e->keyFrameLength];
                 e->textureIndexList = new uint8_t[e->keyFrameLength];
 
+                tAnim->textureCycleTextures.reserve(e->keyFrameLength);
+
                 for (size_t i = 0; i < e->keyFrameLength; i++) {
-                    e->textureList[i] = ResourceGetDataByName(reader->ReadString().c_str());
+                    tAnim->textureCycleTextures.emplace_back("__OTR__" + reader->ReadString());
+                    e->textureList[i] = (Gfx*)tAnim->textureCycleTextures[i].c_str();
                 }
                 for (size_t i = 0; i < e->keyFrameLength; i++) {
                     e->textureIndexList[i] = reader->ReadUByte();
