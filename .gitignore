@@ -4,6 +4,7 @@
 logs
 *.nix
 shipofharkinian.json
+*.sav
 .envrc
 imgui.ini
 

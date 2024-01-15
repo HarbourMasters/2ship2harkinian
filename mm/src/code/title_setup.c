@@ -49,8 +49,7 @@ void Setup_SetRegs(void) {
 
 void Setup_InitImpl(SetupState* this) {
     SysFlashrom_InitFlash();
-    // BENTODO: this doesn't crash but was stubbed in minibuild? probably just for debug purposes
-    // SaveContext_Init();
+    SaveContext_Init();
     Setup_SetRegs();
 
     STOP_GAMESTATE(&this->state);
