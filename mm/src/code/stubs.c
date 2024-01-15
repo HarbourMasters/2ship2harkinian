@@ -386,6 +386,9 @@ void* osViGetCurrentFramebuffer(void) {
 OSPiHandle* osFlashInit(void) {
 }
 void osFlashReadId(u32* t, u32* v) {
+    // We're faking these so the flashrom system will continue to work
+    *t = 0x11118001; // FLASH_TYPE_MAGIC
+    *v = 0x00C20000; // FLASH_VERSION_MX_PROTO_A
 }
 s32 osFlashSectorErase(u32 page) {
 }

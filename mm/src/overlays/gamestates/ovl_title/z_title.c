@@ -145,9 +145,6 @@ void ConsoleLogo_Main(GameState* thisx) {
         // #region 2S2H [Debug] Eventually we'll get rid of this
         if (CVarGetInteger("gDebugEnabled", 0)) {
             gSaveContext.gameMode = GAMEMODE_NORMAL;
-            gSaveContext.nextDayTime = NEXT_TIME_NONE;
-            gSaveContext.nextTransitionType = TRANS_NEXT_TYPE_DEFAULT;
-            gSaveContext.prevHudVisibility = HUD_VISIBILITY_ALL;
             SET_NEXT_GAMESTATE(&this->state, MapSelect_Init, sizeof(MapSelectState));
         // #endregion
         } else {

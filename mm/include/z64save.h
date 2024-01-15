@@ -1685,7 +1685,7 @@ void Sram_UpdateWriteToFlashOwlSave(SramContext* sramCtx);
 
 extern u32 gSramSlotOffsets[];
 extern u8 gAmmoItems[];
-extern s32 gFlashSaveStartPages[];
+extern s32 gFlashSaveStartPages[10];
 extern s32 gFlashSaveNumPages[];
 extern s32 gFlashSpecialSaveNumPages[];
 extern s32 gFlashOwlSaveStartPages[];
