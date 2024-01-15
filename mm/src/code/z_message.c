@@ -8,6 +8,8 @@
 #include "BenPort.h"
 #include <libultraship/libultraship.h>
 #include "assets/archives/schedule_dma_static/schedule_dma_static_yar.h"
+#include "assets/interface/schedule_static/schedule_static.h"
+#include "assets/archives/icon_item_static/icon_item_static_yar.h"
 #include "assets/archives/icon_item_24_static/icon_item_24_static_yar.h"
 #include "assets/interface/message_static/message_static.h"
 #include "assets/interface/message_texture_static/message_texture_static.h"
@@ -39,6 +41,9 @@ const char* gBombersNotebookPhotos[] = {
     gBombersNotebookPhotoGuruGuruTex,
     gBombersNotebookPhotoBombersTex,
     gBombersNotebookPhotoMadameAromaBrightTex,
+    gBombersNotebookEntryIconExclamationPointTex,
+    gBombersNotebookEntryIconMaskTex,
+    gBombersNotebookEntryIconRibbonTex,
 };
 
 const char* gQuestIcons[] = {
@@ -64,6 +69,113 @@ const char* gMessageBackgrounds[] = {
     gMessageNoteStaffBackgroundTex,
     gMessageFadingBackgroundTex,
     gMessageNotebookBackgroundTex,
+};
+
+// This looks very similar to gItemIcons, but it's not the same! Make sure you're using the
+// right array of icon textures! This one is for messages, the other is for the z_parameter/kaleido
+const char* gStaticItemIcons[] = {
+    gItemIconOcarinaOfTimeTex,
+    gItemIconBowTex,
+    gItemIconFireArrowTex,
+    gItemIconIceArrowTex,
+    gItemIconLightArrowTex,
+    gItemIconFairyOcarinaTex,
+    gItemIconBombTex,
+    gItemIconBombchuTex,
+    gItemIconDekuStickTex,
+    gItemIconDekuNutTex,
+    gItemIconMagicBeansTex,
+    gItemIconSlingshotTex,
+    gItemIconPowderKegTex,
+    gItemIconPictographBoxTex,
+    gItemIconLensofTruthTex,
+    gItemIconHookshotTex,
+    gItemIconGreatFairysSwordTex,
+    gItemIconLongshotTex,
+    gItemIconEmptyBottleTex,
+    gItemIconRedPotionTex,
+    gItemIconGreenPotionTex,
+    gItemIconBluePotionTex,
+    gItemIconBottledFairyTex,
+    gItemIconBottledDekuPrincessTex,
+    gItemIconBottledFullMilkTex,
+    gItemIconBottledHalfMilkTex,
+    gItemIconBottledFishTex,
+    gItemIconBottledBugTex,
+    gItemIconBottledBlueFireTex,
+    gItemIconBottledPoeTex,
+    gItemIconBottledBigPoeTex,
+    gItemIconSpringWaterTex,
+    gItemIconHotSpringWaterTex,
+    gItemIconBottledZoraEggTex,
+    gItemIconBottledGoldDustTex,
+    gItemIconBottledMushroomTex,
+    gItemIconBottledSeahorseTex,
+    gItemIconChateauRomaniTex,
+    gItemIconBottledHylianLoachTex,
+    gItemIconEmptyBottle2Tex,
+    gItemIconLandDeedTex,
+    gItemIconMoonsTearTex,
+    gItemIconSwampDeedTex,
+    gItemIconMountainDeedTex,
+    gItemIconOceanDeedTex,
+    gItemIconRoomKeyTex,
+    gItemIconLetterToMamaTex,
+    gItemIconLetterToKafeiTex,
+    gItemIconPendantOfMemoriesTex,
+    gItemIconTingleMapTex,
+    gItemIconDekuMaskTex,
+    gItemIconGoronMaskTex,
+    gItemIconZoraMaskTex,
+    gItemIconFierceDeityMaskTex,
+    gItemIconMaskOfTruthTex,
+    gItemIconKafeisMaskTex,
+    gItemIconAllNightMaskTex,
+    gItemIconBunnyHoodTex,
+    gItemIconKeatonMaskTex,
+    gItemIconGaroMaskTex,
+    gItemIconRomaniMaskTex,
+    gItemIconCircusLeaderMaskTex,
+    gItemIconPostmansHatTex,
+    gItemIconCouplesMaskTex,
+    gItemIconGreatFairyMaskTex,
+    gItemIconGibdoMaskTex,
+    gItemIconDonGeroMaskTex,
+    gItemIconKamaroMaskTex,
+    gItemIconCaptainsHatTex,
+    gItemIconStoneMaskTex,
+    gItemIconBremenMaskTex,
+    gItemIconBlastMaskTex,
+    gItemIconMaskOfScentsTex,
+    gItemIconGiantsMaskTex,
+    gItemIconBowFireTex,
+    gItemIconBowIceTex,
+    gItemIconBowLightTex,
+    gItemIconKokiriSwordTex,
+    gItemIconRazorSwordTex,
+    gItemIconGildedSwordTex,
+    gItemIconFierceDeitySwordTex,
+    gItemIconHerosShieldTex,
+    gItemIconMirrorShieldTex,
+    gItemIconQuiver30Tex,
+    gItemIconQuiver40Tex,
+    gItemIconQuiver50Tex,
+    gItemIconBombBag20Tex,
+    gItemIconBombBag30Tex,
+    gItemIconBombBag40Tex,
+    gItemIconDefaultWalletTex,
+    gItemIconAdultsWalletTex,
+    gItemIconGiantsWalletTex,
+    gItemIconFishingRodTex,
+    gItemIconOdolwasRemainsTex,
+    gItemIconGohtsRemainsTex,
+    gItemIconGyorgsRemainsTex,
+    gItemIconTwinmoldsRemainsTex,
+    gItemIconBombersNotebookTex,
+    gItemIconSongNoteTex,
+    gItemIconHeartPiece1Tex,
+    gItemIconHeartPiece2Tex,
+    gItemIconHeartPiece3Tex,
 };
 // #endregion
 
@@ -1900,20 +2012,20 @@ void Message_LoadItemIcon(PlayState* play, u16 itemId, s16 arg2) {
         // #region 2S2H [Port]
         // CmpDma_LoadFile(SEGMENT_ROM_START(icon_item_static_yar), ITEM_SONG_SONATA, msgCtx->textboxSegment + 0x1000,
         //                 0x180);
-        msgCtx->textboxSegment[TEXTBOX_SEG_ICON] = gItemIcons[ITEM_SONG_SONATA];
+        msgCtx->textboxSegment[TEXTBOX_SEG_ICON] = gStaticItemIcons[ITEM_SONG_SONATA];
     } else if (itemId == ITEM_BOMBERS_NOTEBOOK) {
         msgCtx->unk12010 = (msgCtx->unk11FF8 - D_801CFF70[gSaveContext.options.language]);
         msgCtx->unk12012 = (arg2 + 6);
         msgCtx->unk12014 = 0x20;
         // CmpDma_LoadFile(SEGMENT_ROM_START(icon_item_static_yar), ITEM_SONG_SONATA, msgCtx->textboxSegment + 0x1000,
         //                 0x1000);
-        msgCtx->textboxSegment[TEXTBOX_SEG_ICON] = gItemIcons[ITEM_SONG_SONATA];
+        msgCtx->textboxSegment[TEXTBOX_SEG_ICON] = gStaticItemIcons[ITEM_SONG_SONATA];
     } else if (itemId <= ITEM_REMAINS_TWINMOLD) {
         msgCtx->unk12010 = (msgCtx->unk11FF8 - D_801CFF70[gSaveContext.options.language]);
         msgCtx->unk12012 = (arg2 + 6);
         msgCtx->unk12014 = 0x20;
         // CmpDma_LoadFile(SEGMENT_ROM_START(icon_item_static_yar), itemId, msgCtx->textboxSegment + 0x1000, 0x1000);
-        msgCtx->textboxSegment[TEXTBOX_SEG_ICON] = gItemIcons[itemId];
+        msgCtx->textboxSegment[TEXTBOX_SEG_ICON] = gStaticItemIcons[itemId];
     } else if (itemId == ITEM_CC) {
         msgCtx->unk12010 = (msgCtx->unk11FF8 - D_801CFF70[gSaveContext.options.language]);
         msgCtx->unk12012 = (arg2 + 8);
