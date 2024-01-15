@@ -349,7 +349,7 @@ void Skybox_Init(GameState* gameState, SkyboxContext* skyboxCtx, s16 skyboxId) {
     Skybox_Setup(gameState, skyboxCtx, skyboxId);
 
     if (skyboxId != SKYBOX_NONE) {
-        skyboxCtx->dListBuf = THA_AllocTailAlign16(&gameState->tha, 0x3840);
+        skyboxCtx->dListBuf = THA_AllocTailAlign16(&gameState->tha, 12 * 150 * sizeof(Gfx));
 
         if (skyboxId == SKYBOX_CUTSCENE_MAP) {
             // Allocate enough space for the vertices for a 6 sided skybox (cube)
