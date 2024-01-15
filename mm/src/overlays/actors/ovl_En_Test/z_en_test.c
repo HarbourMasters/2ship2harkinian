@@ -186,26 +186,27 @@ void EnTest_Init(Actor* thisx, PlayState* play2) {
         this->surfaceMaterial = SurfaceType_GetMaterial(&play->colCtx, thisx->floorPoly, bgId);
     }
 
-    func_80183430(&this->skeletonInfo, (void*)gameplay_keep_Blob_06EB70, (void*)gameplay_keep_Blob_06BB0C, this->unk_178,
+    Keyframe_InitFlex(&this->skeletonInfo, (void*)gameplay_keep_Blob_06EB70, (void*)gameplay_keep_Blob_06BB0C,
+                      this->unk_178,
                   this->unk_1C0, NULL);
-    func_801834A8(&this->skeletonInfo, (void*)gameplay_keep_Blob_06BB0C);
-    this->skeletonInfo.frameCtrl.unk_10 = 9.0f;
+    Keyframe_FlexPlayOnce(&this->skeletonInfo, (void*)gameplay_keep_Blob_06BB0C);
+    this->skeletonInfo.frameCtrl.curTime = 9.0f;
     func_80862B70(this->unk_20C);
 }
 
 void EnTest_Destroy(Actor* thisx, PlayState* play) {
     EnTest* this = THIS;
 
-    func_8018349C(&this->skeletonInfo);
+    Keyframe_DestroyFlex(&this->skeletonInfo);
 }
 
 void EnTest_Update(Actor* thisx, PlayState* play) {
     EnTest* this = THIS;
     s32 i;
 
-    this->unk_208 = this->skeletonInfo.frameCtrl.unk_10;
+    this->unk_208 = this->skeletonInfo.frameCtrl.curTime;
 
-    if (func_80183DE0(&this->skeletonInfo) && (this->actor.parent == NULL) && (this->actor.params != -1)) {
+    if (Keyframe_UpdateFlex(&this->skeletonInfo) && (this->actor.parent == NULL) && (this->actor.params != -1)) {
         this->unk_209++;
         if (this->unk_209 > 20) {
             Actor_Kill(&this->actor);
@@ -224,7 +225,7 @@ void EnTest_Update(Actor* thisx, PlayState* play) {
     func_80862EDC(this->unk_20C);
 }
 
-s32 EnTest_OverrideKeyframeDraw(PlayState* play, SkeletonInfo* skeletonInfo, s32 limbIndex, Gfx** dList, u8* flags,
+s32 EnTest_OverrideKeyframeDraw(PlayState* play, KFSkelAnimeFlex* skeletonInfo, s32 limbIndex, Gfx** dList, u8* flags,
                                 void* thisx, Vec3f* scale, Vec3s* rot, Vec3f* pos) {
     EnTest* this = THIS;
 
@@ -264,11 +265,11 @@ void EnTest_Draw(Actor* thisx, PlayState* play) {
         AnimatedMat_DrawStep(play, Lib_SegmentedToVirtual(gameplay_keep_Matanimheader_06B6A0), sp2C);
     }
 
-    mtx = GRAPH_ALLOC(play->state.gfxCtx, this->skeletonInfo.unk_18->unk_1 * sizeof(Mtx));
+    mtx = GRAPH_ALLOC(play->state.gfxCtx, this->skeletonInfo.skeleton->dListCount * sizeof(Mtx));
 
     if (mtx != NULL) {
         Gfx_SetupDL25_Xlu(play->state.gfxCtx);
-        func_8018450C(play, &this->skeletonInfo, mtx, EnTest_OverrideKeyframeDraw, NULL, thisx);
+        Keyframe_DrawFlex(play, &this->skeletonInfo, mtx, EnTest_OverrideKeyframeDraw, NULL, thisx);
         func_80863048(play, this->unk_20C);
     }
 }

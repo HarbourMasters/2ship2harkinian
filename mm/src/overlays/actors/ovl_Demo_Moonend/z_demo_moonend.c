@@ -46,14 +46,15 @@ void DemoMoonend_Init(Actor* thisx, PlayState* play) {
         this->actionFunc = func_80C17B60;
     } else {
         Actor_SetScale(&this->actor, 0.095f);
-        func_80183430(&this->skeletonInfo, (void*)object_moonend_Blob_00B5A0, (void*)object_moonend_Blob_001214, this->jointTable,
+        Keyframe_InitFlex(&this->skeletonInfo, (void*)object_moonend_Blob_00B5A0, (void*)object_moonend_Blob_001214,
+                          this->jointTable,
                       this->morphTable, NULL);
-        func_801834A8(&this->skeletonInfo, (void*)object_moonend_Blob_001214);
+        Keyframe_FlexPlayOnce(&this->skeletonInfo, (void*)object_moonend_Blob_001214);
         this->cueType = CS_CMD_ACTOR_CUE_560;
         this->actionFunc = func_80C17C48;
         this->actor.home.rot.z = 0;
         this->actor.draw = NULL;
-        this->skeletonInfo.frameCtrl.unk_C = 2.0f / 3.0f;
+        this->skeletonInfo.frameCtrl.speed = 2.0f / 3.0f;
     }
 }
 
@@ -61,7 +62,7 @@ void DemoMoonend_Destroy(Actor* thisx, PlayState* play) {
     DemoMoonend* this = THIS;
 
     if (DEMOMOONEND_GET_PARAM_F(thisx) != 1) {
-        func_8018349C(&this->skeletonInfo);
+        Keyframe_DestroyFlex(&this->skeletonInfo);
     }
 }
 
@@ -97,7 +98,7 @@ void func_80C17B60(DemoMoonend* this, PlayState* play) {
 }
 
 void func_80C17C48(DemoMoonend* this, PlayState* play) {
-    if (func_80183DE0(&this->skeletonInfo)) {
+    if (Keyframe_UpdateFlex(&this->skeletonInfo)) {
         this->actor.home.rot.z = 0;
     }
     if (Cutscene_IsCueInChannel(play, this->cueType)) {
@@ -110,14 +111,14 @@ void func_80C17C48(DemoMoonend* this, PlayState* play) {
             switch (this->cueId) {
                 case 1:
                     this->actor.draw = DemoMoonend_Draw;
-                    func_801834A8(&this->skeletonInfo, (void*)object_moonend_Blob_001214);
-                    this->skeletonInfo.frameCtrl.unk_C = 0.0f;
+                    Keyframe_FlexPlayOnce(&this->skeletonInfo, (void*)object_moonend_Blob_001214);
+                    this->skeletonInfo.frameCtrl.speed = 0.0f;
                     break;
 
                 case 2:
                     this->actor.draw = DemoMoonend_Draw;
-                    func_801834A8(&this->skeletonInfo, (void*)object_moonend_Blob_001214);
-                    this->skeletonInfo.frameCtrl.unk_C = 2.0f / 3.0f;
+                    Keyframe_FlexPlayOnce(&this->skeletonInfo, (void*)object_moonend_Blob_001214);
+                    this->skeletonInfo.frameCtrl.speed = 2.0f / 3.0f;
                     Actor_PlaySfx(&this->actor, NA_SE_EV_MOON_EXPLOSION);
                     this->actor.home.rot.z = 1;
                     break;
@@ -166,7 +167,7 @@ void DemoMoonend_Update(Actor* thisx, PlayState* play) {
     this->actionFunc(this, play);
 }
 
-s32 func_80C17E70(PlayState* play, SkeletonInfo* skeletonInfo, s32 limbIndex, Gfx** dList, u8* flags, void* thisx,
+s32 func_80C17E70(PlayState* play, KFSkelAnimeFlex* skeletonInfo, s32 limbIndex, Gfx** dList, u8* flags, void* thisx,
                   Vec3f* scale, Vec3s* rot, Vec3f* pos) {
     DemoMoonend* this = THIS;
 
@@ -178,7 +179,7 @@ s32 func_80C17E70(PlayState* play, SkeletonInfo* skeletonInfo, s32 limbIndex, Gf
     return true;
 }
 
-s32 func_80C17EE0(PlayState* play, SkeletonInfo* skeleton, s32 limbIndex, Gfx** dList, u8* flags, void* thisx,
+s32 func_80C17EE0(PlayState* play, KFSkelAnimeFlex* skeleton, s32 limbIndex, Gfx** dList, u8* flags, void* thisx,
                   Vec3f* scale, Vec3s* rot, Vec3f* pos) {
     DemoMoonend* this = THIS;
 
@@ -195,12 +196,12 @@ void DemoMoonend_Draw(Actor* thisx, PlayState* play) {
 
     AnimatedMat_Draw(play, (AnimatedMaterial*)Lib_SegmentedToVirtual(object_moonend_Matanimheader_00B540));
 
-    mtx = GRAPH_ALLOC(play->state.gfxCtx, this->skeletonInfo.unk_18->unk_1 * sizeof(Mtx));
+    mtx = GRAPH_ALLOC(play->state.gfxCtx, this->skeletonInfo.skeleton->dListCount * sizeof(Mtx));
 
     if (mtx != NULL) {
         Gfx_SetupDL25_Xlu(play->state.gfxCtx);
         Gfx_SetupDL25_Opa(play->state.gfxCtx);
-        func_8018450C(play, &this->skeletonInfo, mtx, func_80C17E70, func_80C17EE0, &this->actor);
+        Keyframe_DrawFlex(play, &this->skeletonInfo, mtx, func_80C17E70, func_80C17EE0, &this->actor);
     }
 }
 

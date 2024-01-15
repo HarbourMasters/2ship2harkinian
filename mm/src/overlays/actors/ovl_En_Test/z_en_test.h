@@ -18,7 +18,7 @@ typedef struct {
 
 typedef struct EnTest {
     /* 0x000 */ Actor actor;
-    /* 0x144 */ SkeletonInfo skeletonInfo;
+    /* 0x144 */ KFSkelAnimeFlex skeletonInfo;
     /* 0x174 */ s32 unk_174;
     /* 0x178 */ Vec3s unk_178[12];
     /* 0x1C0 */ Vec3s unk_1C0[12];
