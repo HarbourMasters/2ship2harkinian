@@ -35,9 +35,10 @@ void EnFall2_Init(Actor* thisx, PlayState* play) {
 
     Actor_SetScale(&this->actor, 1.0f);
     this->actionFunc = EnFall2_DoNothing;
-    func_80183430(&this->skeletonInfo, (void*)object_fall2_Blob_008898, (void*)object_fall2_Blob_005EF4, this->unk174, this->unk228,
+    Keyframe_InitFlex(&this->skeletonInfo, (void*)object_fall2_Blob_008898, (void*)object_fall2_Blob_005EF4,
+                      this->unk174, this->unk228,
                   NULL);
-    func_801835EC(&this->skeletonInfo, (void*)object_fall2_Blob_005EF4);
+    Keyframe_FlexPlayLoop(&this->skeletonInfo, (void*)object_fall2_Blob_005EF4);
     this->unk2DC = Lib_SegmentedToVirtual((void*)object_fall2_Matanimheader_008840);
     Actor_SetScale(&this->actor, 0.02f);
     this->actionFunc = EnFall2_HandleCutscene;
@@ -48,7 +49,7 @@ void EnFall2_Init(Actor* thisx, PlayState* play) {
 void EnFall2_Destroy(Actor* thisx, PlayState* play) {
     EnFall2* this = THIS;
 
-    func_8018349C(&this->skeletonInfo);
+    Keyframe_DestroyFlex(&this->skeletonInfo);
 }
 
 static u8 sAlphaTableIndices[] = {
@@ -125,7 +126,7 @@ void func_80C1B8F0(EnFall2* this) {
 }
 
 void EnFall2_HandleCutscene(EnFall2* this, PlayState* play) {
-    func_80183DE0(&this->skeletonInfo);
+    Keyframe_UpdateFlex(&this->skeletonInfo);
     if (Cutscene_IsCueInChannel(play, this->cueType)) {
         Cutscene_ActorTranslateAndYaw(&this->actor, play, Cutscene_GetCueChannel(play, this->cueType));
         if (this->cueId != play->csCtx.actorCues[Cutscene_GetCueChannel(play, this->cueType)]->id) {
@@ -157,12 +158,12 @@ void EnFall2_Draw(Actor* thisx, PlayState* play) {
         Gfx_SetupDL25_Xlu(play->state.gfxCtx);
         AnimatedMat_DrawXlu(play, Lib_SegmentedToVirtual(object_fall2_Matanimheader_008840));
 
-        mtx = GRAPH_ALLOC(play->state.gfxCtx, this->skeletonInfo.unk_18->unk_1 * sizeof(Mtx));
+        mtx = GRAPH_ALLOC(play->state.gfxCtx, this->skeletonInfo.skeleton->dListCount * sizeof(Mtx));
 
         if (mtx != NULL) {
             Gfx_SetupDL25_Xlu(play->state.gfxCtx);
             Matrix_RotateYS((s16)(Camera_GetCamDirYaw(GET_ACTIVE_CAM(play)) + 0x8000), MTXMODE_APPLY);
-            func_8018450C(play, &this->skeletonInfo, mtx, NULL, NULL, &this->actor);
+            Keyframe_DrawFlex(play, &this->skeletonInfo, mtx, NULL, NULL, &this->actor);
         }
     }
 }

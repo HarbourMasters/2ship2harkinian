@@ -397,9 +397,9 @@ void EnTest7_Init(Actor* thisx, PlayState* play2) {
     this->unk_1E90 = player->actor.scale.x;
     this->unk_1E94 = player->actor.scale.z;
 
-    func_80183430(&this->unk_18CC, &gameplay_keep_Blob_085640, &gameplay_keep_Blob_083534, this->unk_18FC,
+    Keyframe_InitFlex(&this->unk_18CC, &gameplay_keep_Blob_085640, &gameplay_keep_Blob_083534, this->unk_18FC,
                   this->unk_1BA8, NULL);
-    func_801834A8(&this->unk_18CC, &gameplay_keep_Blob_083534);
+    Keyframe_FlexPlayOnce(&this->unk_18CC, &gameplay_keep_Blob_083534);
     func_80AF0838(this->unk_15C);
     func_80AF1730(&this->unk_148);
 
@@ -495,20 +495,20 @@ void func_80AF1B68(EnTest7* this, PlayState* play) {
 void func_80AF1CA0(EnTest7* this, PlayState* play) {
     Vec3f sp34;
 
-    if (func_80183DE0(&this->unk_18CC)) {
+    if (Keyframe_UpdateFlex(&this->unk_18CC)) {
         func_80AF082C(this, func_80AF1E44);
     }
 
-    if (this->unk_18CC.frameCtrl.unk_10 > 60.0f) {
+    if (this->unk_18CC.frameCtrl.curTime > 60.0f) {
         func_80AF1B68(this, play);
     }
 
-    if ((this->unk_18CC.frameCtrl.unk_10 > 20.0f) && !(this->unk_144 & 0x40)) {
+    if ((this->unk_18CC.frameCtrl.curTime > 20.0f) && !(this->unk_144 & 0x40)) {
         this->unk_144 |= 0x40;
         Audio_PlaySfx_AtPos(&this->actor.projectedPos, NA_SE_PL_WARP_WING_CLOSE);
     }
 
-    if (this->unk_18CC.frameCtrl.unk_10 > 42.0f) {
+    if (this->unk_18CC.frameCtrl.curTime > 42.0f) {
         if (!(this->unk_144 & 0x80)) {
             this->unk_144 |= 0x80;
             Audio_PlaySfx_AtPos(&this->actor.projectedPos, NA_SE_PL_WARP_WING_ROLL);
@@ -945,7 +945,7 @@ void EnTest7_Update(Actor* thisx, PlayState* play) {
     func_80AF118C(play, this->unk_15C, this, (this->unk_144 & 8) != 0, (this->unk_144 & 0x10) != 0);
 }
 
-s32 func_80AF31D0(PlayState* play, SkeletonInfo* skeletonInfo, s32 limbIndex, Gfx** dList, u8* flags, Actor* thisx,
+s32 func_80AF31D0(PlayState* play, KFSkelAnimeFlex* skeletonInfo, s32 limbIndex, Gfx** dList, u8* flags, Actor* thisx,
                   Vec3f* scale, Vec3s* rot, Vec3f* pos) {
     EnTest7* this = THIS;
     Vec3f sp18;
@@ -963,10 +963,10 @@ void EnTest7_Draw(Actor* thisx, PlayState* play) {
     s32 sp40;
 
     if (this->unk_144 & 1) {
-        Mtx* mtx = GRAPH_ALLOC(play->state.gfxCtx, this->unk_18CC.unk_18->unk_1 * sizeof(Mtx));
+        Mtx* mtx = GRAPH_ALLOC(play->state.gfxCtx, this->unk_18CC.skeleton->dListCount * sizeof(Mtx));
 
         if (mtx != NULL) {
-            func_8018450C(play, &this->unk_18CC, mtx, func_80AF31D0, NULL, &this->actor);
+            Keyframe_DrawFlex(play, &this->unk_18CC, mtx, func_80AF31D0, NULL, &this->actor);
         } else {
             return;
         }
