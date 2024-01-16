@@ -1529,7 +1529,7 @@ void SohInputEditorWindow::DrawLinkTab() {
 }
 
 void SohInputEditorWindow::DrawIvanTab() {
-    if (CVarGetInteger("gDebugEnabled", 0)) {
+    if (CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
         DrawDebugPortTab(1, "Ivan (P2)");
         return;
     }
@@ -1936,7 +1936,7 @@ void SohInputEditorWindow::DrawElement() {
     ImGui::BeginTabBar("##ControllerConfigPortTabs");
     DrawLinkTab();
     DrawIvanTab();
-    if (CVarGetInteger("gDebugEnabled", 0)) {
+    if (CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
         DrawDebugPortTab(2);
         DrawDebugPortTab(3);
     }
