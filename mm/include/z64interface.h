@@ -23,7 +23,8 @@ typedef enum {
 } AButtonState;
 
 typedef enum {
-    /* 0x00 */ DO_ACTION_ATTACK,
+    /*   -1 */ DO_ACTION_UNDEFINED = -1,
+    /* 0x00 */ DO_ACTION_ATTACK = 0,
     /* 0x01 */ DO_ACTION_CHECK,
     /* 0x02 */ DO_ACTION_ENTER,
     /* 0x03 */ DO_ACTION_RETURN,
