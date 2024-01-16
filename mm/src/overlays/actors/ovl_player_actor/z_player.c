@@ -45,8 +45,6 @@
 #include "objects/object_link_nuts/object_link_nuts.h"
 #include "objects/object_link_child/object_link_child.h"
 
-#include "libultraship/libultraship.h"
-
 #define THIS ((Player*)thisx)
 
 void Player_Init(Actor* thisx, PlayState* play);
@@ -3728,9 +3726,7 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
 
                 if (bomb != NULL) {
                     bomb->timer = 0;
-                    if (!CVarGetInteger("gRemoveBlastMaskCooldown", 0)) {
-                        this->blastMaskTimer = 310;
-                    }
+                    this->blastMaskTimer = 310;
                 }
             }
         } else if (item == ITEM_F1) {

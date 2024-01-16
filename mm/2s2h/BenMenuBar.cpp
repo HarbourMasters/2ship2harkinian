@@ -268,17 +268,17 @@ void DrawSettingsMenu() {
 
 void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
-        if (UIWidgets::BeginMenu("Masks")) {
-            UIWidgets::CVarCheckbox("Remove Blast Mask Cooldown", "gRemoveBlastMaskCooldown", {
-                .tooltip = "Removes the cooldown after using Blast Mask."
-            });
-
-            ImGui::EndMenu();
-        }
 
         ImGui::EndMenu();
     }
     
+}
+
+void DrawCheatsMenu() {
+    if (UIWidgets::BeginMenu("Cheats")) {
+
+        ImGui::EndMenu();
+    }
 }
 
 extern std::shared_ptr<LUS::GuiWindow> mStatsWindow;
@@ -352,6 +352,10 @@ void BenMenuBar::DrawElement() {
         ImGui::SetCursorPosY(0.0f);
 
         DrawEnhancementsMenu();
+
+        ImGui::SetCursorPosY(0.0f);
+
+        DrawCheatsMenu();
 
         ImGui::SetCursorPosY(0.0f);
 
