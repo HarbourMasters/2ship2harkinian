@@ -143,7 +143,7 @@ void ConsoleLogo_Main(GameState* thisx) {
 
         STOP_GAMESTATE(&this->state);
         // #region 2S2H [Debug] Eventually we'll get rid of this
-        if (CVarGetInteger("gDebugEnabled", 0)) {
+        if (CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
             gSaveContext.gameMode = GAMEMODE_NORMAL;
             SET_NEXT_GAMESTATE(&this->state, MapSelect_Init, sizeof(MapSelectState));
         // #endregion

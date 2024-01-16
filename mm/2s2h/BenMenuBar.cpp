@@ -276,6 +276,13 @@ void DrawEnhancementsMenu() {
 
 void DrawCheatsMenu() {
     if (UIWidgets::BeginMenu("Cheats")) {
+        UIWidgets::CVarCheckbox("Infinite Health", "gCheats.InfiniteHealth");
+        UIWidgets::CVarCheckbox("Infinite Magic", "gCheats.InfiniteMagic");
+        UIWidgets::CVarCheckbox("Infinite Rupees", "gCheats.InfiniteRupees");
+        UIWidgets::CVarCheckbox("Infinite Consumables", "gCheats.InfiniteConsumables");
+        UIWidgets::CVarCheckbox("Moon Jump on L", "gCheats.MoonJumpOnL", {
+            .tooltip = "Holding L makes you float into the air."
+        });
 
         ImGui::EndMenu();
     }
@@ -288,14 +295,11 @@ extern std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
 
 void DrawDeveloperToolsMenu() {
     if (UIWidgets::BeginMenu("Developer Tools", UIWidgets::Colors::Yellow)) {
-        UIWidgets::CVarCheckbox("OoT Debug Mode", "gDebugEnabled", {
+        UIWidgets::CVarCheckbox("OoT Debug Mode", "gDeveloperTools.DebugEnabled", {
             .tooltip = "Enables Debug Mode, allowing you to select maps with L + R + Z, noclip with L + D-pad "
             "Right, and open the debug menu with L on the pause screen"
         });
-        UIWidgets::CVarCheckbox("No Clip", "gDeveloperTools.NoClip");
-        UIWidgets::CVarCheckbox("Moon Jump on L", "gDeveloperTools.MoonJumpOnL", {
-            .tooltip = "Holding L makes you float into the air"
-        });
+        
         if (gPlayState != NULL) {
             UIWidgets::PaddedSeparator();
             UIWidgets::Checkbox("Frame Advance", (bool*)&gPlayState->frameAdvCtx.enabled, {
