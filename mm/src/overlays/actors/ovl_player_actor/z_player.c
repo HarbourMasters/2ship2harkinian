@@ -20576,7 +20576,7 @@ void Player_TalkWithPlayer(PlayState* play, Actor* actor) {
                                   : &gPlayerAnim_link_normal_talk_free);
             }
 
-            if (player->skelAnime.animation == &gPlayerAnim_link_normal_backspace) {
+            if (strcmp(player->skelAnime.animation, gPlayerAnim_link_normal_backspace) == 0) {
                 func_8082E920(play, player, ANIM_FLAG_1 | ANIM_FLAG_8 | ANIM_FLAG_NOMOVE);
             }
             func_8082DAD4(player);

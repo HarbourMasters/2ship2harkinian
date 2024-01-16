@@ -2164,8 +2164,8 @@ s32 Player_OverrideLimbDrawGameplayCommon(PlayState* play, s32 limbIndex, Gfx** 
             if (player->transformation == PLAYER_FORM_DEKU) {
                 EnArrow* bubble = NULL;
 
-                if (((player->skelAnime.animation == &gPlayerAnim_pn_drinkend)) ||
-                    (player->skelAnimeUpper.animation == &gPlayerAnim_pn_tamahaki) ||
+                if (((strcmp(player->skelAnime.animation, gPlayerAnim_pn_drinkend) == 0)) ||
+                    (strcmp(player->skelAnimeUpper.animation, gPlayerAnim_pn_tamahaki) == 0) ||
                     ((player->stateFlags3 & PLAYER_STATE3_40) && ((bubble = (EnArrow*)player->heldActor) != NULL))) {
                     Matrix_TranslateRotateZYX(pos, rot);
                     func_80125340();
@@ -2178,7 +2178,7 @@ s32 Player_OverrideLimbDrawGameplayCommon(PlayState* play, s32 limbIndex, Gfx** 
                         player->unk_AF0[0].y = 1.0f - (bubble->bubble.unk_144 * 0.01f);
                         player->unk_AF0[0].z = 1.0f - (bubble->bubble.unk_144 * 0.04f);
                         rot->z = bubble->bubble.unk_144 * 320.0f;
-                    } else if (player->skelAnime.animation == &gPlayerAnim_pn_drinkend) {
+                    } else if (strcmp(player->skelAnime.animation, gPlayerAnim_pn_drinkend) == 0) {
                         func_80124618(D_801C03E0, player->skelAnime.curFrame, player->unk_AF0);
                     } else {
                         func_80124618(D_801C03C0, player->skelAnimeUpper.curFrame, player->unk_AF0);
@@ -2188,9 +2188,9 @@ s32 Player_OverrideLimbDrawGameplayCommon(PlayState* play, s32 limbIndex, Gfx** 
                 }
             }
         } else if (limbIndex == PLAYER_LIMB_TORSO) {
-            if ((player->skelAnime.animation == &gPlayerAnim_pg_gakkistart) ||
-                (player->skelAnime.animation == &gPlayerAnim_pg_wait) ||
-                (player->skelAnime.animation == &gPlayerAnim_pg_punchC) ||
+            if ((strcmp(player->skelAnime.animation, gPlayerAnim_pg_gakkistart) == 0) ||
+                (strcmp(player->skelAnime.animation, gPlayerAnim_pg_wait) == 0) ||
+                (strcmp(player->skelAnime.animation, gPlayerAnim_pg_punchC) == 0) ||
                 (player->transformation == PLAYER_FORM_ZORA)) {
                 Matrix_TranslateRotateZYX(pos, rot);
                 if (player->transformation == PLAYER_FORM_GORON) {
@@ -2199,13 +2199,13 @@ s32 Player_OverrideLimbDrawGameplayCommon(PlayState* play, s32 limbIndex, Gfx** 
 
                 func_80125318(pos, rot);
                 if ((player->transformation != PLAYER_FORM_ZORA) ||
-                    (player->skelAnime.animation == &gPlayerAnim_pz_wait)) {
+                    (strcmp(player->skelAnime.animation, gPlayerAnim_pz_wait) == 0)) {
                     struct_80124618* phi_a0 =
-                        (player->skelAnime.animation == &gPlayerAnim_pz_wait)
+                        (strcmp(player->skelAnime.animation, gPlayerAnim_pz_wait) == 0)
                             ? D_801C0608
-                            : ((player->skelAnime.animation == &gPlayerAnim_pg_wait)
+                            : ((strcmp(player->skelAnime.animation, gPlayerAnim_pg_wait) == 0)
                                    ? D_801C0628
-                                   : ((player->skelAnime.animation == &gPlayerAnim_pg_punchC) ? D_801C07C0
+                                   : ((strcmp(player->skelAnime.animation, gPlayerAnim_pg_punchC) == 0) ? D_801C07C0
                                                                                               : D_801C0460));
 
                     func_80124618(phi_a0, player->skelAnime.curFrame, player->unk_AF0);
@@ -2298,7 +2298,7 @@ s32 Player_OverrideLimbDrawGameplayDefault(PlayState* play, s32 limbIndex, Gfx**
             *dList = leftHandDLists[sPlayerLod];
 
             if (player->transformation == PLAYER_FORM_GORON) {
-                if (player->skelAnime.animation == &gPlayerAnim_pg_punchA) {
+                if (strcmp(player->skelAnime.animation, gPlayerAnim_pg_punchA) == 0) {
                     func_80125CE0(player, D_801C0750, pos, rot);
                 }
             } else if (player->transformation == PLAYER_FORM_ZORA) {
@@ -2306,10 +2306,10 @@ s32 Player_OverrideLimbDrawGameplayDefault(PlayState* play, s32 limbIndex, Gfx**
                     func_801242B4(player)) {
                     *dList = gLinkZoraLeftHandOpenDL;
                 } else {
-                    s32 phi_a1 = (player->skelAnime.animation == &gPlayerAnim_pz_gakkistart) &&
+                    s32 phi_a1 = (strcmp(player->skelAnime.animation, gPlayerAnim_pz_gakkistart) == 0) &&
                                  (player->skelAnime.curFrame >= 6.0f);
 
-                    if (phi_a1 || (player->skelAnime.animation == &gPlayerAnim_pz_gakkiplay)) {
+                    if (phi_a1 || (strcmp(player->skelAnime.animation, gPlayerAnim_pz_gakkiplay) == 0)) {
                         *dList = object_link_zora_DL_00E2A0;
                         func_80125CE0(player, phi_a1 ? D_801C0538 : D_801C0560, pos, rot);
                     }
@@ -2348,7 +2348,7 @@ s32 Player_OverrideLimbDrawGameplayDefault(PlayState* play, s32 limbIndex, Gfx**
                 }
 
                 *dList = rightHandDLists[sPlayerLod];
-                if (player->skelAnime.animation == &gPlayerAnim_pg_punchB) {
+                if (strcmp(player->skelAnime.animation, gPlayerAnim_pg_punchB) == 0) {
                     func_80125CE0(player, D_801C0784, pos, rot);
                 }
             }
@@ -2759,17 +2759,17 @@ void func_80126BD0(PlayState* play, Player* player, s32 arg2) {
 
         if ((player->skelAnime.animation != &gPlayerAnim_pz_gakkiplay) &&
             (player->skelAnime.animation != &gPlayerAnim_pz_fishswim)) {
-            if (player->skelAnime.animation == &gPlayerAnim_pz_gakkistart) {
+            if (strcmp(player->skelAnime.animation, gPlayerAnim_pz_gakkistart) == 0) {
                 func_80124618(D_801C0580, player->skelAnime.curFrame, player->unk_AF0);
-            } else if (player->skelAnime.animation == &gPlayerAnim_pz_waterroll) {
+            } else if (strcmp(player->skelAnime.animation, gPlayerAnim_pz_waterroll) == 0) {
                 func_80124618(D_801C05A8, player->skelAnime.curFrame, player->unk_AF0);
-            } else if (player->skelAnime.animation == &gPlayerAnim_pz_swimtowait) {
+            } else if (strcmp(player->skelAnime.animation, gPlayerAnim_pz_swimtowait) == 0) {
                 func_80124618(D_801C05D8, player->skelAnime.curFrame, player->unk_AF0);
-            } else if (player->skelAnime.animation == &gPlayerAnim_pz_bladeon) {
+            } else if (strcmp(player->skelAnime.animation, gPlayerAnim_pz_bladeon) == 0) {
                 func_80124618(D_801C07F0, player->skelAnime.curFrame, player->unk_AF0);
-            } else if (player->skelAnime.animation == &gPlayerAnim_pz_jumpAT) {
+            } else if (strcmp(player->skelAnime.animation, gPlayerAnim_pz_jumpAT) == 0) {
                 func_80124618(D_801C0820, player->skelAnime.curFrame, player->unk_AF0);
-            } else if (player->skelAnime.animation == &gPlayerAnim_pz_jumpATend) {
+            } else if (strcmp(player->skelAnime.animation, gPlayerAnim_pz_jumpATend) == 0) {
                 func_80124618(D_801C0838, player->skelAnime.curFrame, player->unk_AF0);
             } else if (player->heldItemAction == PLAYER_IA_ZORA_FINS) {
                 player->unk_AF0[0].x = 1.0f;
@@ -2797,15 +2797,15 @@ void func_80126BD0(PlayState* play, Player* player, s32 arg2) {
             Matrix_Pop();
         }
 
-        if (player->skelAnime.animation == &gPlayerAnim_pz_waterroll) {
+        if (strcmp(player->skelAnime.animation, gPlayerAnim_pz_waterroll) == 0) {
             func_80124618(D_801C05C8, player->skelAnime.curFrame, player->unk_AF0);
             D_801C05F0[0].unk_2.x = 50;
             D_801C05F0[0].unk_2.y = 50;
             D_801C05F0[0].unk_2.z = 50;
             D_801C05F0[1].unk_2 = D_801C05F0[0].unk_2;
-        } else if (player->skelAnime.animation == &gPlayerAnim_pz_swimtowait) {
+        } else if (strcmp(player->skelAnime.animation, gPlayerAnim_pz_swimtowait) == 0) {
             func_80124618(D_801C05F0, player->skelAnime.curFrame, player->unk_AF0);
-        } else if (player->skelAnime.animation == &gPlayerAnim_pz_fishswim) {
+        } else if (strcmp(player->skelAnime.animation, gPlayerAnim_pz_fishswim) == 0) {
             player->unk_AF0[0].x = (ABS_ALT(player->unk_B8A) * 0.00003f) + 0.5f;
             player->unk_AF0[0].y = player->unk_AF0[0].x;
             player->unk_AF0[0].z = player->unk_AF0[0].x;
@@ -2843,19 +2843,19 @@ void func_80126BD0(PlayState* play, Player* player, s32 arg2) {
 
 s32 func_801271B0(PlayState* play, Player* player, s32 arg2) {
     if (player->transformation == PLAYER_FORM_DEKU) {
-        if (((player->skelAnime.animation == &gPlayerAnim_pn_kakku)) ||
-            (player->skelAnime.animation == &gPlayerAnim_pn_kakkufinish) ||
-            (player->skelAnime.animation == &gPlayerAnim_pn_rakkafinish) ||
-            (player->skelAnime.animation == &gPlayerAnim_pn_batabata)) {
+        if ((strcmp(player->skelAnime.animation, gPlayerAnim_pn_kakku) == 0) ||
+            (strcmp(player->skelAnime.animation, gPlayerAnim_pn_kakkufinish) == 0) ||
+            (strcmp(player->skelAnime.animation, gPlayerAnim_pn_rakkafinish) == 0) ||
+            (strcmp(player->skelAnime.animation, gPlayerAnim_pn_batabata) == 0)) {
             struct_80124618** sp3C = D_801C0AF4;
 
             OPEN_DISPS(play->state.gfxCtx);
 
-            if (player->skelAnime.animation == &gPlayerAnim_pn_kakkufinish) {
+            if (strcmp(player->skelAnime.animation, gPlayerAnim_pn_kakkufinish) == 0) {
                 sp3C = D_801C0AFC;
-            } else if (player->skelAnime.animation == &gPlayerAnim_pn_batabata) {
+            } else if (strcmp(player->skelAnime.animation, gPlayerAnim_pn_batabata) == 0) {
                 sp3C = D_801C0B0C;
-            } else if (player->skelAnime.animation == &gPlayerAnim_pn_rakkafinish) {
+            } else if (strcmp(player->skelAnime.animation, gPlayerAnim_pn_rakkafinish) == 0) {
                 sp3C = D_801C0B04;
             }
 
@@ -3332,11 +3332,11 @@ void Player_DrawGreatFairysMask(PlayState* play, Player* player) {
 }
 
 s32 func_80128640(PlayState* play, Player* player, Gfx* dlist) {
-    s32 temp_v1 = player->skelAnime.animation == &gPlayerAnim_cl_maskoff;
+    s32 temp_v1 = strcmp(player->skelAnime.animation, gPlayerAnim_cl_maskoff) == 0;
     f32 temp_f0;
 
     if (temp_v1 ||
-        ((player->currentMask != PLAYER_MASK_NONE) && (player->skelAnime.animation == &gPlayerAnim_cl_setmask) &&
+        ((player->currentMask != PLAYER_MASK_NONE) && (strcmp(player->skelAnime.animation, gPlayerAnim_cl_setmask) == 0) &&
          (temp_f0 = player->skelAnime.curFrame - 8.0f, (temp_f0 >= 0.0f)) && (temp_f0 < 4.0f)) ||
         (player->stateFlags2 & PLAYER_STATE2_1000000)) {
         s32 mask;
@@ -3450,7 +3450,7 @@ void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList1, G
         Math_Vec3f_Copy(&player->leftHandWorld.pos, sPlayerCurBodyPartPos);
 
         if ((*dList1 != NULL) && !func_801271B0(play, player, 0) && !func_80128640(play, player, *dList1) &&
-            (player->skelAnime.animation == &gPlayerAnim_pg_punchA)) {
+            (strcmp(player->skelAnime.animation, gPlayerAnim_pg_punchA) == 0)) {
             func_80127488(play, player, D_801C0778[(s32)player->skelAnime.curFrame]);
         }
 
@@ -3551,7 +3551,7 @@ void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList1, G
                 Matrix_Pop();
 
                 CLOSE_DISPS(play->state.gfxCtx);
-            } else if (player->skelAnime.animation == &gPlayerAnim_pg_punchB) {
+            } else if (strcmp(player->skelAnime.animation, gPlayerAnim_pg_punchB) == 0) {
                 func_80127488(play, player, D_801C07AC[(s32)player->skelAnime.curFrame]);
             } else {
                 func_801271B0(play, player, 1);
@@ -3621,10 +3621,10 @@ void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList1, G
         func_80126BD0(play, player, 1);
     } else if (limbIndex == PLAYER_LIMB_TORSO) {
         if (player->transformation == PLAYER_FORM_GORON) {
-            s32 temp_a0 = player->skelAnime.animation == &gPlayerAnim_pg_gakkistart;
-            s32 temp_v1_3 = player->skelAnime.animation == &gPlayerAnim_pg_gakkiwait;
+            s32 temp_a0 = strcmp(player->skelAnime.animation, gPlayerAnim_pg_gakkistart) == 0;
+            s32 temp_v1_3 = strcmp(player->skelAnime.animation, gPlayerAnim_pg_gakkiwait) == 0;
 
-            if ((temp_a0 || temp_v1_3 || (player->skelAnime.animation == &gPlayerAnim_pg_gakkiplay))) {
+            if ((temp_a0 || temp_v1_3 || (strcmp(player->skelAnime.animation, gPlayerAnim_pg_gakkiplay) == 0))) {
                 static Gfx* D_801C0DF0[] = {
                     object_link_goron_DL_010590, object_link_goron_DL_010368, object_link_goron_DL_010140,
                     object_link_goron_DL_00FF18, object_link_goron_DL_00FCF0,
@@ -3716,9 +3716,9 @@ void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList1, G
 
                     Matrix_Pop();
 
-                    if (((player->skelAnime.animation == &gPlayerAnim_cl_setmask) &&
+                    if (((strcmp(player->skelAnime.animation, gPlayerAnim_cl_setmask) == 0) &&
                          (player->skelAnime.curFrame >= 51.0f)) ||
-                        (player->skelAnime.animation == &gPlayerAnim_cl_setmaskend)) {
+                        (strcmp(player->skelAnime.animation, gPlayerAnim_cl_setmaskend) == 0)) {
                         maskMinusOne += 4;
                     }
                 }
@@ -3728,7 +3728,7 @@ void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList1, G
                 CLOSE_DISPS(play->state.gfxCtx);
             }
         } else if (player->transformation == PLAYER_FORM_DEKU) {
-            if (player->skelAnime.animation == &gPlayerAnim_pn_gurd) {
+            if (strcmp(player->skelAnime.animation, gPlayerAnim_pn_gurd) == 0) {
                 OPEN_DISPS(play->state.gfxCtx);
 
                 func_80124618(D_801C0410, player->skelAnime.curFrame, player->unk_AF0);
@@ -3744,10 +3744,10 @@ void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList1, G
 
                 CLOSE_DISPS(play->state.gfxCtx);
             } else {
-                s32 temp_v1_5 = player->skelAnime.animation == &gPlayerAnim_pn_gakkistart;
+                s32 temp_v1_5 = strcmp(player->skelAnime.animation, gPlayerAnim_pn_gakkistart) == 0;
 
-                if (temp_v1_5 || (player->skelAnime.animation == &gPlayerAnim_pn_gakkiplay) ||
-                    (player->skelAnime.animation == &gPlayerAnim_dl_kokeru)) {
+                if (temp_v1_5 || (strcmp(player->skelAnime.animation, gPlayerAnim_pn_gakkiplay) == 0) ||
+                    (strcmp(player->skelAnime.animation, gPlayerAnim_dl_kokeru) == 0)) {
                     static Gfx* D_801C0E2C[] = {
                         object_link_nuts_DL_007A28, object_link_nuts_DL_0077D0, object_link_nuts_DL_007548,
                         object_link_nuts_DL_007900, object_link_nuts_DL_0076A0,
@@ -3856,8 +3856,8 @@ void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList1, G
 
                 Matrix_MultVec3f(&sPlayerFocusHeadLimbModelPos, &player->actor.focus.pos);
                 Matrix_MultVec3f(&D_801C0E94, sPlayerCurBodyPartPos);
-                if ((player->skelAnime.animation == &gPlayerAnim_pn_drinkend) ||
-                    (player->skelAnimeUpper.animation == &gPlayerAnim_pn_tamahaki) ||
+                if ((strcmp(player->skelAnime.animation, gPlayerAnim_pn_drinkend) == 0) ||
+                    (strcmp(player->skelAnimeUpper.animation, gPlayerAnim_pn_tamahaki) == 0) ||
                     ((player->stateFlags3 & PLAYER_STATE3_40) && ((spA8 = player->heldActor) != NULL))) {
                     if (spA8 != NULL) {
                         static Vec3f D_801C0EA0 = { 1300.0f, -400.0f, 0.0f };
