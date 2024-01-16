@@ -353,7 +353,7 @@ void DrawSlot(InventorySlot slot) {
             Inventory_DeleteItem(gSaveContext.save.saveInfo.inventory.items[selectedInventorySlot], selectedInventorySlot);
             ImGui::CloseCurrentPopup();
         }
-        UIWidgets::SetLastItemHoverText("None");
+        UIWidgets::Tooltip("None");
 
         size_t availableItems = safeMode ? safeItemsForInventorySlot[selectedInventorySlot].size() : ITEM_FISHING_ROD;
         for (int32_t pickerIndex = 0; pickerIndex < availableItems; pickerIndex++) {
