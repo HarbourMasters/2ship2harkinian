@@ -23,7 +23,7 @@ typedef enum {
 } AButtonState;
 
 typedef enum {
-    /*   -1 */ DO_ACTION_UNDEFINED = -1,
+    /*   -1 */ DO_ACTION_UNDEFINED = -1, // #Region [2s2h] DO_ACTION_UNDEFINED added so comparisons between the enum type and -1 would work on all systems
     /* 0x00 */ DO_ACTION_ATTACK = 0,
     /* 0x01 */ DO_ACTION_CHECK,
     /* 0x02 */ DO_ACTION_ENTER,
