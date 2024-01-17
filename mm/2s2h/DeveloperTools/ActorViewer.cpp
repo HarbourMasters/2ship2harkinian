@@ -18,7 +18,6 @@ typedef enum Method {
     LIST,
     TARGET,
     HOLD,
-    INTERACT,
 } Method;
 
 std::array<const char*, 12> acMapping = { 
@@ -616,23 +615,6 @@ std::unordered_map<s16, std::string> actorDescriptions = {
     { ACTOR_EN_RSN, "Bomb Shop Man (credits)" },
 };
 
-void PopulateActorDropdown(int i, std::vector<Actor*>& data) {
-    if (data.size() != 0) {
-        data.clear();
-    }
-    if (gPlayState != nullptr) {
-        ActorListEntry currentList = gPlayState->actorCtx.actorLists[i];
-        Actor* currentActor = currentList.first;
-        if (currentActor != nullptr) {
-            while (currentActor != nullptr) {
-                data.push_back(currentActor);
-                currentActor = currentActor->next;
-            }
-        }
-
-    }
-}
-
 std::string GetActorDescription(u16 actorNum) {
     return actorDescriptions.contains(actorNum) ? actorDescriptions[actorNum] : "???";
 }
@@ -654,8 +636,23 @@ std::vector<Actor*> GetCurrentSceneActors() {
 
 }
 
-void ResetDropdowns() {
-    
+static bool needs_reset = false;
+
+static Actor* display{};
+static Actor* fetch;
+static ActorInfo newActor;
+static std::vector<Actor*> list;
+
+static s16 lastSceneId = 0;
+static s16 newActorId = 0;
+static u8 category = 0;
+static s8 method = -1;
+static std::string filler = "Please select";
+
+void ResetVariables() {
+    display = fetch = {};
+    newActor = {};
+    filler = "Please select";
 }
 
 void ActorViewerWindow::DrawElement() {
@@ -664,32 +661,17 @@ void ActorViewerWindow::DrawElement() {
         ImGui::End();
         return;
     }
-    static bool needs_reset = false;
-
-    static Actor* display{};
-    static Actor* empty{};
-    static Actor* fetch;
-    static ActorInfo newActor;
-    static std::vector<Actor*> list;
-
-    static s16 lastSceneId = 0;
-    static s16 newActorId = 0;
-    static u8 category = 0;
-    static s8 method = -1;
-
-    static std::string filler = "Please select";
-
-
 
     if (gPlayState != nullptr) {
         needs_reset = lastSceneId != gPlayState->sceneId;
         if (needs_reset) {
-            ResetDropdowns();
+            ResetVariables();
+            lastSceneId = gPlayState->sceneId;
+            needs_reset = false;
         }
 
         if (ImGui::BeginCombo("Actor", filler.c_str())) {
             if (gPlayState != nullptr && lastSceneId != gPlayState->sceneId) {
-                //PopulateActorDropdown(category, list);
                 list = GetCurrentSceneActors();
                 lastSceneId = gPlayState->sceneId;
             }
@@ -704,7 +686,7 @@ void ActorViewerWindow::DrawElement() {
                     } else {
                         count++;
                     }
-                    label += std::to_string(count) + ": " + GetActorDescription(list[i]->id);
+                    label += " " + std::to_string(count) + ": " + GetActorDescription(list[i]->id);
                     if (ImGui::Selectable(label.c_str())) {
                         method = LIST;
                         display = list[i];
@@ -720,8 +702,7 @@ void ActorViewerWindow::DrawElement() {
         if (ImGui::TreeNode("Selected Actor")) {
             if (display != nullptr) {
                 ImGui::BeginGroup();
-                ImGui::Text("Name: %s", display->overlayEntry->name);
-                ImGui::Text("ID: %03x", display->id);
+                ImGui::Text("ID: %d", display->id);
                 ImGui::Text("Description: %s", GetActorDescription(display->id).c_str());
                 ImGui::Text("Category: %s", acMapping[display->category]);
                 ImGui::Text("Params: %d", &display->params);
@@ -750,10 +731,13 @@ void ActorViewerWindow::DrawElement() {
                 ImGui::EndGroup();
 
                 ImGui::PopItemWidth();
+                ImGui::PushItemWidth(ImGui::GetFontSize() * 5);
 
-                if (display->category == ACTORCAT_BOSS || display->category == ACTORCAT_ENEMY) {
+                if ((display->category == ACTORCAT_BOSS || display->category == ACTORCAT_ENEMY) &&
+                    display->colChkInfo.health > 0) {
                     ImGui::InputScalar("Enemy Health", ImGuiDataType_U8, &display->colChkInfo.health);
                 }
+                ImGui::PopItemWidth();
 
                 ImGui::BeginGroup();
                 ImGui::Text("Flags");
@@ -799,7 +783,8 @@ void ActorViewerWindow::DrawElement() {
             }
 
             
-            if (UIWidgets::Button("Kill", {.color = UIWidgets::Colors::Red}) && display != nullptr) {
+            if (UIWidgets::Button("Kill", {.color = UIWidgets::Colors::Red}) && display != nullptr &&
+                display->id != ACTOR_PLAYER) {
                 Actor_Kill(display);
             }
             ImGui::TreePop();
@@ -808,10 +793,11 @@ void ActorViewerWindow::DrawElement() {
 
         if (ImGui::TreeNode("New...")) {
             ImGui::PushItemWidth(ImGui::GetFontSize() * 10);
+            ImU16 one = 1;
 
             ImGui::Text("%s", GetActorDescription(newActor.id).c_str());
-            ImGui::InputScalar("ID", ImGuiDataType_S16, &newActor.id);
-            ImGui::InputScalar("Params", ImGuiDataType_S16, &newActor.params);
+            ImGui::InputScalar("ID", ImGuiDataType_S16, &newActor.id, &one);
+            ImGui::InputScalar("Params", ImGuiDataType_S16, &newActor.params, &one);
 
             ImGui::BeginGroup();
             ImGui::Text("New Actor Position");
@@ -842,15 +828,15 @@ void ActorViewerWindow::DrawElement() {
                     newActor.pos.z, newActor.rot.x, newActor.rot.y, newActor.rot.z, newActor.params);
             }
 
-            // if (UIWidgets::Button("Spawn", {.color = UIWidgets::Colors::Green})) {
-            //     Actor* parent = display;
-            //     if (parent != nullptr) {
-            //         Actor_SpawnAsChild(&gPlayState->actorCtx, parent, gPlayState, newActor.id, newActor.pos.x,
-            //             newActor.pos.y, newActor.pos.z, newActor.rot.x, newActor.rot.y, newActor.rot.z, newActor.params);
-            //     } else {
-            //         Audio_PlaySfx(NA_SE_SY_ERROR);
-            //     }
-            // }
+            if (UIWidgets::Button("Spawn as Child", {.color = UIWidgets::Colors::Green})) {
+                Actor* parent = display;
+                if (parent != nullptr) {
+                    Actor_SpawnAsChild(&gPlayState->actorCtx, parent, gPlayState, newActor.id, newActor.pos.x,
+                        newActor.pos.y, newActor.pos.z, newActor.rot.x, newActor.rot.y, newActor.rot.z, newActor.params);
+                } else {
+                    Audio_PlaySfx(NA_SE_SY_ERROR);
+                }
+            }
 
             if (UIWidgets::Button("Reset")) {
                 newActor = {};
