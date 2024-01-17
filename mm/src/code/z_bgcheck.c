@@ -4,6 +4,7 @@
 #include "fixed_point.h"
 #include "vt.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
+#include "libultraship/libultraship.h"
 #include <stdio.h>
 
 #define DYNA_RAYCAST_FLOORS 1
@@ -1911,6 +1912,10 @@ s32 BgCheck_CheckWallImpl(CollisionContext* colCtx, u16 xpFlags, Vec3f* posResul
     dx = posNext->x - posPrev->x;
     dy = posNext->y - posPrev->y;
     dz = posNext->z - posPrev->z;
+
+    if (CVarGetInteger("gDeveloperTools.NoClip", 0) && actor != NULL && actor->id == ACTOR_PLAYER) {
+        return false;
+    }
 
     // if there's movement on the xz plane, and argA flag is 0,
     if (((dx != 0.0f) || (dz != 0.0f)) && !(argA & 1)) {
