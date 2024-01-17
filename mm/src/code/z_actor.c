@@ -2832,7 +2832,8 @@ void Actor_DrawLensActors(PlayState* play, s32 numLensActors, Actor** lensActors
 
     // Remnant of debug
     dbgVar1 = true;
-    dbgVar2 = true;
+    // BENTODO: Disabling the framebufer effects temporarily for lens actors until we can restore framebuffer effects for real
+    dbgVar2 = false;
 
     if (dbgVar1) {
         dbgVar1 = (numLensActors > 0);

@@ -114,7 +114,6 @@ void Scene_CommandEntranceList(PlayState* play, LUS::ISceneCommand* cmd) {
 }
 
 void Scene_CommandSpecialFiles(PlayState* play, LUS::ISceneCommand* cmd) {
-    printf("Un-implemented command %02X\n", cmd->cmdId);
     LUS::SetSpecialObjects* specialObjList = (LUS::SetSpecialObjects*)cmd;
     // static RomFile naviQuestHintFiles[2] = {
     //     { SEGMENT_ROM_START(elf_message_field), SEGMENT_ROM_END(elf_message_field) },
@@ -350,6 +349,7 @@ void Scene_CommandCutsceneScriptList(PlayState* play, LUS::ISceneCommand* cmd) {
 
 }
 
+static bool shouldEndSceneCommands = false;
 void Scene_CommandAltHeaderList(PlayState* play, LUS::ISceneCommand* cmd) {
     LUS::SetAlternateHeaders* headers = (LUS::SetAlternateHeaders*)cmd;
 
@@ -359,7 +359,10 @@ void Scene_CommandAltHeaderList(PlayState* play, LUS::ISceneCommand* cmd) {
 
         if (desiredHeader != nullptr) {
             OTRScene_ExecuteCommands(play, desiredHeader);
-            // z_scene does (cmd + 1)->base.code = 0x14;
+            // 2S2H [Port] The original source would grab the next command after the alternate header list
+            // and change the command id to SCENE_CMD_ID_END. We can't modify LUS resources, so we'll just
+            // set a flag to end the scene commands
+            shouldEndSceneCommands = true;
         }
     }
 }
@@ -455,27 +458,27 @@ void (*sSceneCmdHandlersOTR[SCENE_CMD_MAX])(PlayState*, LUS::ISceneCommand*) = {
 };
 
 s32 OTRScene_ExecuteCommands(PlayState* play, LUS::Scene* scene) {
-    LUS::SceneCommandID cmdCode;
+    LUS::SceneCommandID cmdId;
+    shouldEndSceneCommands = false;
 
     for (int i = 0; i < scene->commands.size(); i++) {
         auto sceneCmd = scene->commands[i];
+        cmdId = sceneCmd->cmdId;
 
-        if (sceneCmd == nullptr) // UH OH
-            continue;
-
-        cmdCode = sceneCmd->cmdId;
-        // osSyncPrintf("*** Scene_Word = { code=%d, data1=%02x, data2=%04x } ***\n", cmdCode, sceneCmd->base.data1, sceneCmd->base.data2);
-        //SPDLOG_TRACE("CMD {:X}", cmdCode);
-        if ((int)cmdCode == SCENE_CMD_ID_END) {
+        // 2S2H [Port] This opcode is not in the original game. Its a special command for OTRs, for supporting multiple games
+        if (cmdId == LUS::SceneCommandID::SetCutscenesMM) {
+            cmdId = LUS::SceneCommandID::SetCutscenes;
+        }
+        
+        // 2S2H [Port] shouldEndSceneCommands is set when an alternate header list is found
+        if (cmdId == LUS::SceneCommandID::EndMarker || shouldEndSceneCommands) {
+            shouldEndSceneCommands = false;
             break;
-        } else if (cmdCode == LUS::SceneCommandID::SetCutscenesMM)
-            cmdCode = LUS::SceneCommandID::SetCutscenes;
+        }
 
-        //if ((int)cmdCode <= 0x19) 
-            sSceneCmdHandlersOTR[(int)cmdCode](play, sceneCmd.get());
-
-
-        // sceneCmd++;
+        if (cmdId < LUS::SceneCommandID::SetCutscenesMM) {
+            sSceneCmdHandlersOTR[(int)cmdId](play, sceneCmd.get());
+        }
     }
     return 0;
 }

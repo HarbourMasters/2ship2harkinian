@@ -114,151 +114,168 @@ void DrawSettingsMenu() {
             ImGui::EndMenu();
         }
 
+        if (UIWidgets::BeginMenu("Graphics")) {
+            /* // #region 2S2H [Todo] None of this works yet
+    #ifndef __APPLE__
+            if (UIWidgets::EnhancementSliderFloat("Internal Resolution: %d %%", "##IMul", "gInternalResolution",
+    0.5f, 2.0f,
+                                                  "", 1.0f, true)) {
+                LUS::Context::GetInstance()->GetWindow()->SetResolutionMultiplier(CVarGetFloat("gInternalResolution",
+    1));
+            };
+            UIWidgets::Tooltip("Multiplies your output resolution by the value inputted, as a more intensive but
+    effective " "form of anti-aliasing"); #endif #ifndef __WIIU__ if (UIWidgets::PaddedEnhancementSliderInt("MSAA: %d",
+    "##IMSAA", "gMSAAValue", 1, 8, "", 1, true, true, false)) {
+                LUS::Context::GetInstance()->GetWindow()->SetMsaaLevel(CVarGetInteger("gMSAAValue", 1));
+            };
+            UIWidgets::Tooltip("Activates multi-sample anti-aliasing when above 1x up to 8x for 8 samples for every
+    pixel"); #endif
+
+            { // FPS Slider
+                const int minFps = 20;
+                static int maxFps;
+                if (LUS::Context::GetInstance()->GetWindow()->GetWindowBackend() == LUS::WindowBackend::DX11) {
+                    maxFps = 360;
+                } else {
+                    maxFps = LUS::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
+                }
+                // int currentFps = fmax(fmin(OTRGlobals::Instance->GetInterpolationFPS(), maxFps), minFps);
+                int currentFps = 20;
+                bool matchingRefreshRate =
+                    CVarGetInteger("gMatchRefreshRate", 0) &&
+                    LUS::Context::GetInstance()->GetWindow()->GetWindowBackend() != LUS::WindowBackend::DX11;
+                UIWidgets::PaddedEnhancementSliderInt((currentFps == 20) ? "FPS: Original (20)" : "FPS: %d",
+                                                      "##FPSInterpolation", "gInterpolationFPS", minFps, maxFps, "", 20,
+                                                      true, true, false, matchingRefreshRate);
+                if (LUS::Context::GetInstance()->GetWindow()->GetWindowBackend() == LUS::WindowBackend::DX11) {
+                    UIWidgets::Tooltip(
+                        "Uses Matrix Interpolation to create extra frames, resulting in smoother graphics. This is
+    purely " "visual and does not impact game logic, execution of glitches etc.\n\n" "A higher target FPS than your
+    monitor's refresh rate will waste resources, and might give a worse " "result."); } else { UIWidgets::Tooltip( "Uses
+    Matrix Interpolation to create extra frames, resulting in smoother graphics. This is purely " "visual and does not
+    impact game logic, execution of glitches etc.");
+                }
+            } // END FPS Slider
+
+            if (LUS::Context::GetInstance()->GetWindow()->GetWindowBackend() == LUS::WindowBackend::DX11) {
+                UIWidgets::Spacer(0);
+                if (ImGui::Button("Match Refresh Rate")) {
+                    int hz = LUS::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
+                    if (hz >= 20 && hz <= 360) {
+                        CVarSetInteger("gInterpolationFPS", hz);
+                        LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+                    }
+                }
+            } else {
+                UIWidgets::PaddedEnhancementCheckbox("Match Refresh Rate", "gMatchRefreshRate", true, false);
+            }
+            UIWidgets::Tooltip("Matches interpolation value to the current game's window refresh rate");
+
+            if (LUS::Context::GetInstance()->GetWindow()->GetWindowBackend() == LUS::WindowBackend::DX11) {
+                UIWidgets::PaddedEnhancementSliderInt(
+                    CVarGetInteger("gExtraLatencyThreshold", 80) == 0 ? "Jitter fix: Off" : "Jitter fix: >= %d FPS",
+                    "##ExtraLatencyThreshold", "gExtraLatencyThreshold", 0, 360, "", 80, true, true, false);
+                UIWidgets::Tooltip("When Interpolation FPS setting is at least this threshold, add one frame of input
+    lag "
+                                   "(e.g. 16.6 ms for 60 FPS) in order to avoid jitter. This setting allows the CPU to "
+                                   "work on one frame while GPU works on the previous frame.\nThis setting should be
+    used " "when your computer is too slow to do CPU + GPU work in time.");
+            }
+
+            UIWidgets::PaddedSeparator(true, true, 3.0f, 3.0f);
+            // #endregion */
+
+            LUS::WindowBackend runningWindowBackend = LUS::Context::GetInstance()->GetWindow()->GetWindowBackend();
+            LUS::WindowBackend configWindowBackend;
+            int32_t configWindowBackendId = LUS::Context::GetInstance()->GetConfig()->GetInt("Window.Backend.Id", -1);
+            if (configWindowBackendId != -1 &&
+                configWindowBackendId < static_cast<int>(LUS::WindowBackend::BACKEND_COUNT)) {
+                configWindowBackend = static_cast<LUS::WindowBackend>(configWindowBackendId);
+            } else {
+                configWindowBackend = runningWindowBackend;
+            }
+
+            auto availableWindowBackends = LUS::Context::GetInstance()->GetWindow()->GetAvailableWindowBackends();
+            std::unordered_map<LUS::WindowBackend, const char*> availableWindowBackendsMap;
+            for (auto& backend : *availableWindowBackends) {
+                availableWindowBackendsMap[backend] = windowBackendsMap[backend];
+            }
+
+            if (UIWidgets::Combobox(
+                    "Renderer API (Needs reload)", &configWindowBackend, availableWindowBackendsMap,
+                    { .tooltip = "Sets the renderer API used by the game. Requires a relaunch to take effect.",
+                      .disabled = LUS::Context::GetInstance()->GetWindow()->GetAvailableWindowBackends()->size() <= 1,
+                      .disabledTooltip = "Only one renderer API is available on this platform." })) {
+                LUS::Context::GetInstance()->GetConfig()->SetInt("Window.Backend.Id",
+                                                                 static_cast<int32_t>(configWindowBackend));
+                LUS::Context::GetInstance()->GetConfig()->SetString("Window.Backend.Name",
+                                                                    windowBackendsMap.at(configWindowBackend));
+                LUS::Context::GetInstance()->GetConfig()->Save();
+            }
+
+            if (LUS::Context::GetInstance()->GetWindow()->CanDisableVerticalSync()) {
+                UIWidgets::CVarCheckbox("Enable Vsync", "gVsyncEnabled");
+            }
+
+            if (LUS::Context::GetInstance()->GetWindow()->SupportsWindowedFullscreen()) {
+                UIWidgets::CVarCheckbox("Windowed fullscreen", "gSdlWindowedFullscreen");
+            }
+
+            if (LUS::Context::GetInstance()->GetWindow()->GetGui()->SupportsViewports()) {
+                UIWidgets::CVarCheckbox(
+                    "Allow multi-windows", "gEnableMultiViewports",
+                    { .tooltip = "Allows multiple windows to be opened at once. Requires a reload to take effect." });
+            }
+
+            UIWidgets::CVarCombobox("Texture Filter (Needs reload)", "gTextureFilter", textureFilteringMap);
+
+            // Currently this only has "Overlays Text Font", it doesn't use our new UIWidgets so it stands out
+            // LUS::Context::GetInstance()->GetWindow()->GetGui()->GetGameOverlay()->DrawSettings();
+
+            ImGui::EndMenu();
+        }
+
         if (UIWidgets::BeginMenu("Controller")) {
             if (mInputEditorWindow) {
                 UIWidgets::WindowButton("Controller Mapping", "gWindows.InputEditor", mInputEditorWindow);
             }
+
+        #ifndef __SWITCH__
+            UIWidgets::CVarCheckbox("Menubar Controller Navigation", "gControlNav", {
+                .tooltip = "Allows controller navigation of the SOH menu bar (Settings, Enhancements,...)\nCAUTION: "
+                "This will disable game inputs while the menubar is visible.\n\nD-pad to move between "
+                "items, A to select, and X to grab focus on the menu bar"
+            });
+        #endif
+            UIWidgets::CVarCheckbox("Show Inputs", "gInputEnabled", {
+                .tooltip = "Shows currently pressed inputs on the bottom right of the screen"
+            });
+            UIWidgets::CVarSliderFloat("Input Scale: %.1f", "gInputScale", 1.0f, 3.0f, 1.0f, { 
+                .tooltip = "Sets the on screen size of the displayed inputs from the Show Inputs setting",
+                .showButtons = false, 
+                .format = ""
+            });
+            UIWidgets::CVarSliderInt("Simulated Input Lag: %d frames", "gSimulatedInputLag", 0, 6, 0, {
+                .tooltip = "Buffers your inputs to be executed a specified amount of frames later"
+            });
+
             ImGui::EndMenu();
         }
-#ifndef __SWITCH__
-        UIWidgets::CVarCheckbox("Menubar Controller Navigation", "gControlNav", {
-            .tooltip = "Allows controller navigation of the SOH menu bar (Settings, Enhancements,...)\nCAUTION: "
-            "This will disable game inputs while the menubar is visible.\n\nD-pad to move between "
-            "items, A to select, and X to grab focus on the menu bar"
-        });
-#endif
-        UIWidgets::CVarCheckbox("Show Inputs", "gInputEnabled", {
-            .tooltip = "Shows currently pressed inputs on the bottom right of the screen"
-        });
-        UIWidgets::CVarSliderFloat("Input Scale: %.1f", "gInputScale", 1.0f, 3.0f, 1.0f, { 
-            .tooltip = "Sets the on screen size of the displayed inputs from the Show Inputs setting",
-            .showButtons = false, 
-            .format = ""
-        });
-        UIWidgets::CVarSliderInt("Simulated Input Lag: %d frames", "gSimulatedInputLag", 0, 6, 0, {
-            .tooltip = "Buffers your inputs to be executed a specified amount of frames later"
-        });
 
         ImGui::EndMenu();
     }
+}
 
-    if (UIWidgets::BeginMenu("Graphics")) {
-        /* // #region 2S2H [Todo] None of this works yet
-#ifndef __APPLE__
-        if (UIWidgets::EnhancementSliderFloat("Internal Resolution: %d %%", "##IMul", "gInternalResolution", 0.5f, 2.0f,
-                                              "", 1.0f, true)) {
-            LUS::Context::GetInstance()->GetWindow()->SetResolutionMultiplier(CVarGetFloat("gInternalResolution", 1));
-        };
-        UIWidgets::Tooltip("Multiplies your output resolution by the value inputted, as a more intensive but effective "
-                           "form of anti-aliasing");
-#endif
-#ifndef __WIIU__
-        if (UIWidgets::PaddedEnhancementSliderInt("MSAA: %d", "##IMSAA", "gMSAAValue", 1, 8, "", 1, true, true,
-                                                  false)) {
-            LUS::Context::GetInstance()->GetWindow()->SetMsaaLevel(CVarGetInteger("gMSAAValue", 1));
-        };
-        UIWidgets::Tooltip("Activates multi-sample anti-aliasing when above 1x up to 8x for 8 samples for every pixel");
-#endif
+void DrawEnhancementsMenu() {
+    if (UIWidgets::BeginMenu("Enhancements")) {
 
-        { // FPS Slider
-            const int minFps = 20;
-            static int maxFps;
-            if (LUS::Context::GetInstance()->GetWindow()->GetWindowBackend() == LUS::WindowBackend::DX11) {
-                maxFps = 360;
-            } else {
-                maxFps = LUS::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
-            }
-            // int currentFps = fmax(fmin(OTRGlobals::Instance->GetInterpolationFPS(), maxFps), minFps);
-            int currentFps = 20;
-            bool matchingRefreshRate =
-                CVarGetInteger("gMatchRefreshRate", 0) &&
-                LUS::Context::GetInstance()->GetWindow()->GetWindowBackend() != LUS::WindowBackend::DX11;
-            UIWidgets::PaddedEnhancementSliderInt((currentFps == 20) ? "FPS: Original (20)" : "FPS: %d",
-                                                  "##FPSInterpolation", "gInterpolationFPS", minFps, maxFps, "", 20,
-                                                  true, true, false, matchingRefreshRate);
-            if (LUS::Context::GetInstance()->GetWindow()->GetWindowBackend() == LUS::WindowBackend::DX11) {
-                UIWidgets::Tooltip(
-                    "Uses Matrix Interpolation to create extra frames, resulting in smoother graphics. This is purely "
-                    "visual and does not impact game logic, execution of glitches etc.\n\n"
-                    "A higher target FPS than your monitor's refresh rate will waste resources, and might give a worse "
-                    "result.");
-            } else {
-                UIWidgets::Tooltip(
-                    "Uses Matrix Interpolation to create extra frames, resulting in smoother graphics. This is purely "
-                    "visual and does not impact game logic, execution of glitches etc.");
-            }
-        } // END FPS Slider
+        ImGui::EndMenu();
+    }
+    
+}
 
-        if (LUS::Context::GetInstance()->GetWindow()->GetWindowBackend() == LUS::WindowBackend::DX11) {
-            UIWidgets::Spacer(0);
-            if (ImGui::Button("Match Refresh Rate")) {
-                int hz = LUS::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
-                if (hz >= 20 && hz <= 360) {
-                    CVarSetInteger("gInterpolationFPS", hz);
-                    LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
-                }
-            }
-        } else {
-            UIWidgets::PaddedEnhancementCheckbox("Match Refresh Rate", "gMatchRefreshRate", true, false);
-        }
-        UIWidgets::Tooltip("Matches interpolation value to the current game's window refresh rate");
-
-        if (LUS::Context::GetInstance()->GetWindow()->GetWindowBackend() == LUS::WindowBackend::DX11) {
-            UIWidgets::PaddedEnhancementSliderInt(
-                CVarGetInteger("gExtraLatencyThreshold", 80) == 0 ? "Jitter fix: Off" : "Jitter fix: >= %d FPS",
-                "##ExtraLatencyThreshold", "gExtraLatencyThreshold", 0, 360, "", 80, true, true, false);
-            UIWidgets::Tooltip("When Interpolation FPS setting is at least this threshold, add one frame of input lag "
-                               "(e.g. 16.6 ms for 60 FPS) in order to avoid jitter. This setting allows the CPU to "
-                               "work on one frame while GPU works on the previous frame.\nThis setting should be used "
-                               "when your computer is too slow to do CPU + GPU work in time.");
-        }
-
-        UIWidgets::PaddedSeparator(true, true, 3.0f, 3.0f);
-        // #endregion */
-
-        LUS::WindowBackend runningWindowBackend = LUS::Context::GetInstance()->GetWindow()->GetWindowBackend();
-        LUS::WindowBackend configWindowBackend;
-        int32_t configWindowBackendId = LUS::Context::GetInstance()->GetConfig()->GetInt("Window.Backend.Id", -1);
-        if (configWindowBackendId != -1 && configWindowBackendId < static_cast<int>(LUS::WindowBackend::BACKEND_COUNT)) {
-            configWindowBackend = static_cast<LUS::WindowBackend>(configWindowBackendId);
-        } else {
-            configWindowBackend = runningWindowBackend;
-        }
-
-        auto availableWindowBackends = LUS::Context::GetInstance()->GetWindow()->GetAvailableWindowBackends();
-        std::unordered_map<LUS::WindowBackend, const char*> availableWindowBackendsMap;
-        for (auto& backend : *availableWindowBackends) {
-            availableWindowBackendsMap[backend] = windowBackendsMap[backend];
-        }
-
-        if (UIWidgets::Combobox("Renderer API (Needs reload)", &configWindowBackend, availableWindowBackendsMap, {
-            .tooltip = "Sets the renderer API used by the game. Requires a relaunch to take effect.",
-            .disabled = LUS::Context::GetInstance()->GetWindow()->GetAvailableWindowBackends()->size() <= 1,
-            .disabledTooltip = "Only one renderer API is available on this platform."
-        })) {
-            LUS::Context::GetInstance()->GetConfig()->SetInt("Window.Backend.Id", static_cast<int32_t>(configWindowBackend));
-            LUS::Context::GetInstance()->GetConfig()->SetString("Window.Backend.Name", windowBackendsMap.at(configWindowBackend));
-            LUS::Context::GetInstance()->GetConfig()->Save();
-        }
-
-        if (LUS::Context::GetInstance()->GetWindow()->CanDisableVerticalSync()) {
-            UIWidgets::CVarCheckbox("Enable Vsync", "gVsyncEnabled");
-        }
-
-        if (LUS::Context::GetInstance()->GetWindow()->SupportsWindowedFullscreen()) {
-            UIWidgets::CVarCheckbox("Windowed fullscreen", "gSdlWindowedFullscreen");
-        }
-
-        if (LUS::Context::GetInstance()->GetWindow()->GetGui()->SupportsViewports()) {
-            UIWidgets::CVarCheckbox("Allow multi-windows", "gEnableMultiViewports", {
-                .tooltip = "Allows multiple windows to be opened at once. Requires a reload to take effect."
-            });
-        }
-
-        UIWidgets::CVarCombobox("Texture Filter (Needs reload)", "gTextureFilter", textureFilteringMap);
-
-        // Currently this only has "Overlays Text Font", it doesn't use our new UIWidgets so it stands out
-        // LUS::Context::GetInstance()->GetWindow()->GetGui()->GetGameOverlay()->DrawSettings();
+void DrawCheatsMenu() {
+    if (UIWidgets::BeginMenu("Cheats")) {
 
         ImGui::EndMenu();
     }
@@ -277,8 +294,11 @@ void DrawDeveloperToolsMenu() {
             "Right, and open the debug menu with L on the pause screen"
         });
         UIWidgets::CVarCheckbox("No Clip", "gDeveloperTools.NoClip");
+        UIWidgets::CVarCheckbox("Moon Jump on L", "gDeveloperTools.MoonJumpOnL", {
+            .tooltip = "Holding L makes you float into the air"
+        });
         if (gPlayState != NULL) {
-            UIWidgets::PaddedSeparator();
+            ImGui::Separator();
             UIWidgets::Checkbox("Frame Advance", (bool*)&gPlayState->frameAdvCtx.enabled, {
                 .tooltip = "This allows you to advance through the game one frame at a time on command. "
                 "To advance a frame, hold Z and tap R on the second controller. Holding Z "
@@ -295,7 +315,7 @@ void DrawDeveloperToolsMenu() {
                 }
             }
         }
-        UIWidgets::PaddedSeparator();
+        ImGui::Separator();
         if (mStatsWindow) {
             UIWidgets::WindowButton("Stats", "gWindows.Stats", mStatsWindow, {
                 .tooltip = "Shows the stats window, with your FPS and frametimes, and the OS you're playing on"
@@ -337,6 +357,14 @@ void BenMenuBar::DrawElement() {
         ImGui::SetCursorPosY(0.0f);
 
         DrawSettingsMenu();
+
+        ImGui::SetCursorPosY(0.0f);
+
+        DrawEnhancementsMenu();
+
+        ImGui::SetCursorPosY(0.0f);
+
+        DrawCheatsMenu();
 
         ImGui::SetCursorPosY(0.0f);
 

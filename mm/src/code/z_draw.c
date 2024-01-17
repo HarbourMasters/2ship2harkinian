@@ -249,8 +249,8 @@ static DrawItemTableEntry sDrawItemTable[] = {
     // GID_MASK_BLAST, OBJECT_GI_MASK21
     { GetItem_DrawOpa0Xlu1, { gGiBlastMaskEmptyDL, gGiBlastMaskDL } },
     // GID_FAIRY, OBJECT_GI_BOTTLE_04
-    { GetItem_DrawFairyContainer, // BENTODO
-      { gGiFairyBottleEmptyDL, gGiFairyBottleGlassCorkDL, gGiFairyBottleContentsDL, NULL } },
+    { GetItem_DrawFairyContainer,
+      { gGiFairyBottleEmptyDL, gGiFairyBottleGlassCorkDL, gGiFairyBottleContentsDL, &gGiFairyBottleBillboardRotMtx } },
     // GID_MASK_SCENTS, OBJECT_GI_MASK22
     { GetItem_DrawOpa01, { gGiMaskOfScentsFaceDL, gGiMaskOfScentsTeethDL } },
     // GID_MASK_CAPTAIN, OBJECT_GI_MASK18
@@ -332,8 +332,7 @@ static DrawItemTableEntry sDrawItemTable[] = {
     // GID_HYLIAN_LOACH, OBJECT_GI_LOACH
     { GetItem_DrawOpa0Xlu1, { gGiHylianLoachEmptyDL, gGiHylianLoachDL } },
     // GID_SEAHORSE_CAUGHT, OBJECT_GI_SEAHORSE
-        // BENTODO
-    { GetItem_DrawSeahorse, { gGiSeahorseEmptyDL, gGiSeahorseBodyDL, gGiSeahorseGlowDL, NULL } },
+    { GetItem_DrawSeahorse, { gGiSeahorseEmptyDL, gGiSeahorseBodyDL, gGiSeahorseGlowDL, &gGiSeahorseBillboardRotMtx } },
     // GID_REMAINS_GOHT, OBJECT_BSMASK
     { GetItem_DrawRemains, { gRemainsGohtDL, gRemainsGohtDL } },
     // GID_REMAINS_GYORG, OBJECT_BSMASK
