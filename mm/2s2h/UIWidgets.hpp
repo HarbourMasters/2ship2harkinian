@@ -33,6 +33,10 @@ namespace UIWidgets {
     char* WrappedText(const std::string& text, unsigned int charactersPerLine = 60);
     void Tooltip(const char* text);
 
+    void DrawFlagArray32(const std::string& name, uint32_t& flags);
+    void DrawFlagArray16(const std::string& name, uint16_t& flags);
+    void DrawFlagArray8(const std::string& name, uint8_t& flags);
+
     namespace Colors {
         const ImVec4 White = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);
         const ImVec4 Gray = ImVec4(0.4f, 0.4f, 0.4f, 1.0f);
