@@ -297,7 +297,7 @@ void DrawDeveloperToolsMenu() {
             .tooltip = "Holding L makes you float into the air"
         });
         if (gPlayState != NULL) {
-            UIWidgets::PaddedSeparator();
+            ImGui::Separator();
             UIWidgets::Checkbox("Frame Advance", (bool*)&gPlayState->frameAdvCtx.enabled, {
                 .tooltip = "This allows you to advance through the game one frame at a time on command. "
                 "To advance a frame, hold Z and tap R on the second controller. Holding Z "
@@ -314,7 +314,7 @@ void DrawDeveloperToolsMenu() {
                 }
             }
         }
-        UIWidgets::PaddedSeparator();
+        ImGui::Separator();
         if (mStatsWindow) {
             UIWidgets::WindowButton("Stats", "gWindows.Stats", mStatsWindow, {
                 .tooltip = "Shows the stats window, with your FPS and frametimes, and the OS you're playing on"
