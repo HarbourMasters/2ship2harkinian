@@ -618,7 +618,9 @@ namespace UIWidgets {
             ImGui::PushID(flagIndex);
             uint32_t bitMask = 1 << flagIndex;
             bool flag = (flags & bitMask) != 0;
-            if (ImGui::Checkbox("##check", &flag)) {
+            std::string label = std::to_string(flagIndex);
+            if (UIWidgets::Checkbox(label.c_str(), &flag, {.tooltip = label.c_str(), 
+            .labelPosition = LabelPosition::None })) {
                 if (flag) {
                     flags |= bitMask;
                 } else {
@@ -639,7 +641,9 @@ namespace UIWidgets {
             ImGui::PushID(flagIndex);
             uint16_t bitMask = 1 << flagIndex;
             bool flag = (flags & bitMask) != 0;
-            if (ImGui::Checkbox("##check", &flag)) {
+            std::string label = std::to_string(flagIndex);
+            if (UIWidgets::Checkbox(label.c_str(), &flag, {.tooltip = label.c_str(), 
+            .labelPosition = LabelPosition::None })) {
                 if (flag) {
                     flags |= bitMask;
                 } else {
@@ -660,7 +664,9 @@ namespace UIWidgets {
             ImGui::PushID(flagIndex);
             uint8_t bitMask = 1 << flagIndex;
             bool flag = (flags & bitMask) != 0;
-            if (ImGui::Checkbox("##check", &flag)) {
+            std::string label = std::to_string(flagIndex);
+            if (UIWidgets::Checkbox(label.c_str(), &flag, {.tooltip = label.c_str(), 
+            .labelPosition = LabelPosition::None })) {
                 if (flag) {
                     flags |= bitMask;
                 } else {

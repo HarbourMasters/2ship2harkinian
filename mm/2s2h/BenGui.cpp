@@ -18,7 +18,6 @@
 
 #include "include/global.h"
 #include "include/z64audio.h"
-#include "libultraship/libultraship.h"
 
 bool ShouldClearTextureCacheAtEndOfFrame = false;
 
@@ -33,6 +32,7 @@ namespace BenGui {
     std::shared_ptr<LUS::GuiWindow> mGfxDebuggerWindow;
 
     std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
+    std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 
     void SetupGuiElements() {
         auto gui = LUS::Context::GetInstance()->GetWindow()->GetGui();
@@ -75,6 +75,9 @@ namespace BenGui {
 
         mSaveEditorWindow = std::make_shared<SaveEditorWindow>("gSaveEditorEnabled", "Save Editor");
         gui->AddGuiWindow(mSaveEditorWindow);
+
+        mActorViewerWindow = std::make_shared<ActorViewerWindow>("gActorViewerEnabled", "Actor Viewer");
+        gui->AddGuiWindow(mActorViewerWindow);
     }
 
     void Destroy() {
