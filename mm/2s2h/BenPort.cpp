@@ -55,6 +55,8 @@ CrowdControl* CrowdControl::Instance;
 #include "BenJsonConversions.hpp"
 
 #include "Enhancements/controls/SohInputEditorWindow.h"
+#include "Enhancements/GameInteractor/GameInteractor.h"
+#include "Enhancements/mods.h"
 
 // Resource Types/Factories
 #include "2s2h/resource/type/Animation.h"
@@ -86,6 +88,7 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/resource/importer/TextureAnimationFactory.h"
 
 OTRGlobals* OTRGlobals::Instance;
+GameInteractor* GameInteractor::Instance;
 
 extern "C" char** cameraStrings;
 std::vector<std::shared_ptr<std::string>> cameraStdStrings;
@@ -301,7 +304,9 @@ extern "C" void InitOTR() {
 #endif
 
     OTRGlobals::Instance = new OTRGlobals();
+    GameInteractor::Instance = new GameInteractor();
     BenGui::SetupGuiElements();
+    InitMods();
 
     clearMtx = (uintptr_t)&gMtxClear;
     //OTRMessage_Init();

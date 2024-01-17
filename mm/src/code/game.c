@@ -13,6 +13,8 @@
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "debug.h"
 
+#include "Enhancements/GameInteractor/GameInteractorHooks.h"
+
 s32 gFramerateDivisor = 1;
 f32 gFramerateDivisorF = 1.0f;
 f32 gFramerateDivisorHalf = 1.0f / 2.0f;
@@ -148,10 +150,15 @@ void GameState_Update(GameState* gameState) {
 
     gameState->main(gameState);
 
+    GameInteractor_ExecuteOnGameStateMainFinish();
+
     if (R_PAUSE_BG_PRERENDER_STATE != PAUSE_BG_PRERENDER_PROCESS) {
         GameState_Draw(gameState, gfxCtx);
+        GameInteractor_ExecuteOnGameStateDrawFinish();
         GameState_DrawEnd(gfxCtx);
     }
+
+    GameInteractor_ExecuteOnGameStateUpdate();
 }
 
 void GameState_IncrementFrameCount(GameState* gameState) {
