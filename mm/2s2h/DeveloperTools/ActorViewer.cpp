@@ -723,11 +723,11 @@ void ActorViewerWindow::DrawElement() {
                 ImGui::BeginGroup();
                 s16 rot[3] = {display->world.rot.x, display->world.rot.y, display->world.rot.z};
                 ImGui::Text("Actor Rotation");
-                ImGui::InputScalar("x", ImGuiDataType_S16, &display->world.rot.x);
+                ImGui::InputScalar("rx", ImGuiDataType_S16, &display->world.rot.x);
                 ImGui::SameLine();
-                ImGui::InputScalar("y", ImGuiDataType_S16, &display->world.rot.y);
+                ImGui::InputScalar("ry", ImGuiDataType_S16, &display->world.rot.y);
                 ImGui::SameLine();
-                ImGui::InputScalar("z", ImGuiDataType_S16, &display->world.rot.z);
+                ImGui::InputScalar("rz", ImGuiDataType_S16, &display->world.rot.z);
                 ImGui::EndGroup();
 
                 ImGui::PopItemWidth();
@@ -810,11 +810,11 @@ void ActorViewerWindow::DrawElement() {
 
             ImGui::BeginGroup();
             ImGui::Text("New Actor Rotation");
-            ImGui::InputScalar("rotX", ImGuiDataType_S16, &newActor.rot.x);
+            ImGui::InputScalar("rX", ImGuiDataType_S16, &newActor.rot.x);
             ImGui::SameLine();
-            ImGui::InputScalar("rotY", ImGuiDataType_S16, &newActor.rot.y);
+            ImGui::InputScalar("rY", ImGuiDataType_S16, &newActor.rot.y);
             ImGui::SameLine();
-            ImGui::InputScalar("rotZ", ImGuiDataType_S16, &newActor.rot.z);
+            ImGui::InputScalar("rZ", ImGuiDataType_S16, &newActor.rot.z);
             ImGui::EndGroup();
 
             if (UIWidgets::Button("Fetch from Link")) {
