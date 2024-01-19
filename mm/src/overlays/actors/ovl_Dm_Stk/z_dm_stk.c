@@ -2105,7 +2105,7 @@ void DmStk_Draw(Actor* thisx, PlayState* play) {
         if (this->alpha < 255) {
             Gfx_SetupDL25_Xlu(play->state.gfxCtx);
             Scene_SetRenderModeXlu(play, 1, 2);
-
+            // BENTODO
             // #region 2S2H [TODO] This should be XLU, but it crashes because for some reason the limbs are attempting to
             // render before the DrawFlex matrix is added to the segment (or something, not really certain)
             gDPPipeSync(POLY_OPA_DISP++);
