@@ -730,9 +730,7 @@ void LUS::CutsceneFactoryV0::ParseFileBinaryMM(std::shared_ptr<BinaryReader> rea
         switch (command) {
             case CS_CMD_TEXT: {
                 uint32_t size = reader->ReadUInt32();
-                // uint8_t type = reader->ReadInt8();
                 cutscene->commands.push_back(size);
-                // BENTODO do we need to read the type?
 
                 for (uint32_t i = 0; i < size; i++) {
                     cutscene->commands.push_back(read_CMD_HH(reader));
@@ -775,92 +773,26 @@ void LUS::CutsceneFactoryV0::ParseFileBinaryMM(std::shared_ptr<BinaryReader> rea
                 //}
                 break;
             }
-            case CS_CMD_MISC: {
-                uint32_t size = reader->ReadUInt32();
-                cutscene->commands.push_back(size);
-
-                for (uint32_t i = 0; i < size; i++) {
-                    cutscene->commands.push_back(read_CMD_HH(reader));
-                    cutscene->commands.push_back(read_CMD_HH(reader));
-                }
-                break;
-            }
-            case CS_CMD_LIGHT_SETTING: {
-                uint32_t size = reader->ReadUInt32();
-                cutscene->commands.push_back(size);
-
-                for (uint32_t i = 0; i < size; i++) {
-                    cutscene->commands.push_back(read_CMD_BBH(reader));
-                    cutscene->commands.push_back(read_CMD_HH(reader));
-                }
-                break;
-            }
-            case CS_CMD_TRANSITION: {
-                uint32_t size = reader->ReadUInt32();
-                cutscene->commands.push_back(size);
-
-                for (uint32_t i = 0; i < size; i++) {
-                    cutscene->commands.push_back(read_CMD_HH(reader));
-                    cutscene->commands.push_back(read_CMD_HH(reader));
-                }
-                break;
-            }
-            case CS_CMD_MOTION_BLUR: {
-                uint32_t size = reader->ReadUInt32();
-                cutscene->commands.push_back(size);
-
-                for (uint32_t i = 0; i < size; i++) {
-                    cutscene->commands.push_back(read_CMD_HH(reader));
-                    cutscene->commands.push_back(read_CMD_HH(reader));
-                }
-                break;
-            }
-            case CS_CMD_GIVE_TATL: {
-                uint32_t size = reader->ReadUInt32();
-                cutscene->commands.push_back(size);
-
-                for (uint32_t i = 0; i < size; i++) {
-                    cutscene->commands.push_back(read_CMD_HH(reader));
-                    cutscene->commands.push_back(read_CMD_HH(reader));
-                }
-                break;
-            }
+            case CS_CMD_MISC:
+            case CS_CMD_LIGHT_SETTING:
+            case CS_CMD_TRANSITION:
+            case CS_CMD_MOTION_BLUR:
+            case CS_CMD_GIVE_TATL:
             case CS_CMD_START_SEQ:
-            case CS_CMD_STOP_SEQ: {
-                uint32_t size = reader->ReadUInt32();
-                cutscene->commands.push_back(size);
-
-                for (uint32_t i = 0; i < size; i++) {
-                    cutscene->commands.push_back(read_CMD_BBH(reader));
-                    cutscene->commands.push_back(read_CMD_HH(reader));
-                }
-                break;
-            }
+            case CS_CMD_STOP_SEQ:
             case CS_CMD_SFX_REVERB_INDEX_2:
             case CS_CMD_SFX_REVERB_INDEX_1:
             case CS_CMD_MODIFY_SEQ:
-
             case CS_CMD_START_AMBIENCE:
             case CS_CMD_FADE_OUT_AMBIENCE:
             case CS_CMD_DESTINATION:
             case CS_CMD_CHOOSE_CREDITS_SCENES:
-
-            case CS_CMD_UNK_DATA_FA:
-            case CS_CMD_UNK_DATA_FE:
-            case CS_CMD_UNK_DATA_FF:
-            case CS_CMD_UNK_DATA_100:
-            case CS_CMD_UNK_DATA_101:
-            case CS_CMD_UNK_DATA_102:
-            case CS_CMD_UNK_DATA_103:
-            case CS_CMD_UNK_DATA_104:
-            case CS_CMD_UNK_DATA_105:
-            case CS_CMD_UNK_DATA_108:
-            case CS_CMD_UNK_DATA_109: {
+            default: {
                 uint32_t size = reader->ReadUInt32();
                 cutscene->commands.push_back(size);
 
                 for (uint32_t i = 0; i < size; i++) {
-                    cutscene->commands.push_back(read_CMD_BBH(reader));
+                    cutscene->commands.push_back(read_CMD_HH(reader));
                     cutscene->commands.push_back(read_CMD_HH(reader));
                 }
                 break;
@@ -883,6 +815,7 @@ void LUS::CutsceneFactoryV0::ParseFileBinaryMM(std::shared_ptr<BinaryReader> rea
                 for (uint32_t i = 0; i < size; i++) {
                     cutscene->commands.push_back(read_CMD_HH(reader));
                     cutscene->commands.push_back(read_CMD_HH(reader));
+                    cutscene->commands.push_back(reader->ReadUInt32());
                 }
                 break;
             }
@@ -893,6 +826,7 @@ void LUS::CutsceneFactoryV0::ParseFileBinaryMM(std::shared_ptr<BinaryReader> rea
                 for (uint32_t i = 0; i < size; i++) {
                     cutscene->commands.push_back(read_CMD_HH(reader));
                     cutscene->commands.push_back(read_CMD_HBB(reader));
+                    cutscene->commands.push_back(reader->ReadUInt32());
                 }
                 break;
             }
@@ -931,10 +865,6 @@ void LUS::CutsceneFactoryV0::ParseFileBinaryMM(std::shared_ptr<BinaryReader> rea
                 cutscene->commands.push_back(reader->ReadUInt32());
                 return;
             }
-            default:
-                SPDLOG_TRACE("CutsceneV0: Unknown command {}\n", command);
-                // error?
-                break;
         }
     }
 }
