@@ -671,7 +671,7 @@ void ActorViewerWindow::DrawElement() {
         }
 
         if (ImGui::BeginCombo("Actor", filler.c_str())) {
-            if (gPlayState != nullptr && lastSceneId != gPlayState->sceneId) {
+            if (gPlayState != nullptr) {
                 list = GetCurrentSceneActors();
                 lastSceneId = gPlayState->sceneId;
             }
@@ -711,7 +711,6 @@ void ActorViewerWindow::DrawElement() {
                 ImGui::PushItemWidth(ImGui::GetFontSize() * 10);
 
                 ImGui::BeginGroup();
-                f32 pos[3] = {display->world.pos.x, display->world.pos.y, display->world.pos.z};
                 ImGui::Text("Actor Position");
                 ImGui::InputScalar("x", ImGuiDataType_Float, &display->world.pos.x);
                 ImGui::SameLine();
@@ -721,7 +720,6 @@ void ActorViewerWindow::DrawElement() {
                 ImGui::EndGroup();
 
                 ImGui::BeginGroup();
-                s16 rot[3] = {display->world.rot.x, display->world.rot.y, display->world.rot.z};
                 ImGui::Text("Actor Rotation");
                 ImGui::InputScalar("rx", ImGuiDataType_S16, &display->world.rot.x);
                 ImGui::SameLine();
@@ -769,6 +767,8 @@ void ActorViewerWindow::DrawElement() {
                     category = fetch->category;
                     list = GetCurrentSceneActors();
                     method = TARGET;
+                } else {
+                    display = {};
                 }
             }
             if (UIWidgets::Button("Fetch: Held", {.tooltip = "Grabs actor Link is currently holding."})) {
@@ -779,6 +779,8 @@ void ActorViewerWindow::DrawElement() {
                     category = fetch->category;
                     list = GetCurrentSceneActors();
                     method = HOLD;
+                } else {
+                    display = {};
                 }
             }
 
@@ -816,6 +818,8 @@ void ActorViewerWindow::DrawElement() {
             ImGui::SameLine();
             ImGui::InputScalar("rZ", ImGuiDataType_S16, &newActor.rot.z);
             ImGui::EndGroup();
+
+            UIWidgets::CVarCheckbox("Remove Obj Dep?", "gObjDep", { .tooltip = "Allows actors to spawn where/when they normally wouldn't."});
 
             if (UIWidgets::Button("Fetch from Link")) {
                 Player* player = GET_PLAYER(gPlayState);
