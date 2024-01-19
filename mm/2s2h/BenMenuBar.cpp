@@ -283,6 +283,7 @@ void DrawCheatsMenu() {
         UIWidgets::CVarCheckbox("Moon Jump on L", "gCheats.MoonJumpOnL", {
             .tooltip = "Holding L makes you float into the air."
         });
+        UIWidgets::CVarCheckbox("No Clip", "gCheats.NoClip");
 
         ImGui::EndMenu();
     }
