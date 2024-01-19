@@ -1,0 +1,87 @@
+name: generate-builds
+on:
+  push:
+  pull_request:
+
+jobs:
+  # build-windows:
+  #   runs-on: self-hosted
+  #   steps:
+  #   - name: Install dependencies
+  #     if: ${{ !vars.WINDOWS_RUNNER }}
+  #     run: |
+  #       choco install ninja
+  #       Remove-Item -Path "C:\ProgramData\Chocolatey\bin\ccache.exe" -Force -ErrorAction SilentlyContinue
+  #   - uses: actions/checkout@v3
+  #     with:
+  #       submodules: true
+  #   # - name: ccache
+  #   #   uses: hendrikmuhs/ccache-action@v1.2
+  #   #   with:
+  #   #     key: ${{ runner.os }}-ccache
+  #   - name: vcpkg
+  #     uses: johnwason/vcpkg-action@v5
+  #     with:
+  #       pkgs: zlib bzip2 libpng sdl2 sdl2-net glew glfw3
+  #       token: ${{ github.token }}
+  #       triplet: 'x64-windows-release'
+  #   - name: Configure Developer Command Prompt
+  #     uses: ilammy/msvc-dev-cmd@v1
+  #   - name: Build SoH
+  #     env: 
+  #       VCPKG_ROOT: ${{github.workspace}}/vcpkg
+  #     run: |
+  #       set $env:PATH="$env:USERPROFILE/.cargo/bin;$env:PATH"
+  #       cmake -S . -B build-windows -G Ninja -DCMAKE_MAKE_PROGRAM=ninja -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DBUILD_REMOTE_CONTROL=1
+  #       cmake --build build-windows --config Release --target ExtractAssets --parallel 10
+  #       cmake --build build-windows --config Release --target ExtractAssetHeaders --parallel 10
+  #       cmake --build build-windows --config Release --parallel 10
+
+  #       mkdir soh-windows
+  #       mv ./x64/Release/soh.exe ./soh-windows/soh.exe
+  #       mkdir soh-windows/debug
+  #       mkdir soh-windows/mods
+  #       New-Item soh-windows/mods/custom_otr_files_go_here.txt -type file
+  #       mv ./x64/Release/soh.pdb ./soh-windows/debug/soh.pdb
+  #       mv ./README.md ./soh-windows/readme.txt
+  #       mv ./build-windows/gamecontrollerdb.txt ./soh-windows/gamecontrollerdb.txt
+  #       mv ./x64/Release/assets ./soh-windows
+  #   - name: Upload build
+  #     uses: actions/upload-artifact@v3
+  #     with:
+  #       name: soh-windows
+  #       path: soh-windows
+  build-windows:
+    runs-on: self-hosted
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+    - name: Extract Assets
+      env: 
+        VCPKG_ROOT: ${{github.workspace}}/vcpkg
+      run: |
+        choco install ninja
+        set $env:PATH="$env:USERPROFILE/.cargo/bin;$env:PATH"
+        C:\CMake\bin\cmake.exe -S . -B build-windows -G Ninja -DCMAKE_MAKE_PROGRAM=ninja -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DBUILD_REMOTE_CONTROL=1
+        C:\CMake\bin\cmake.exe --build build-windows --config Release --target ExtractAssets --parallel 10
+        C:\CMake\bin\cmake.exe --build build-windows --config Release --target ExtractAssetHeaders --parallel 10
+        C:\CMake\bin\cmake.exe --build build-windows --config Release --parallel 10
+        
+    # - name: Build SoH
+    #   env: 
+    #     VCPKG_ROOT: ${{github.workspace}}/vcpkg
+    #   run: |
+    #     set $env:PATH="$env:USERPROFILE/.cargo/bin;$env:PATH"
+    #     C:\CMake\bin\cmake.exe --build build-windows --config Release --parallel 10
+
+    #     mkdir soh-windows
+    #     mv ./x64/Release/soh.exe ./soh-windows/soh.exe
+    #     mkdir soh-windows/debug
+    #     mkdir soh-windows/mods
+    #     New-Item soh-windows/mods/custom_otr_files_go_here.txt -type file
+    #     mv ./x64/Release/soh.pdb ./soh-windows/debug/soh.pdb
+    #     mv ./README.md ./soh-windows/readme.txt
+    #     mv ./build-windows/gamecontrollerdb.txt ./soh-windows/gamecontrollerdb.txt
+    #     mv ./x64/Release/assets ./soh-windows
+
