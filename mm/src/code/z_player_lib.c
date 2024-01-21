@@ -2757,8 +2757,8 @@ void func_80126BD0(PlayState* play, Player* player, s32 arg2) {
 
         OPEN_DISPS(play->state.gfxCtx);
 
-        if ((player->skelAnime.animation != &gPlayerAnim_pz_gakkiplay) &&
-            (player->skelAnime.animation != &gPlayerAnim_pz_fishswim)) {
+        if ((strcmp(player->skelAnime.animation, gPlayerAnim_pz_gakkiplay) != 0) &&
+            (strcmp(player->skelAnime.animation, gPlayerAnim_pz_fishswim) != 0)) {
             if (strcmp(player->skelAnime.animation, gPlayerAnim_pz_gakkistart) == 0) {
                 func_80124618(D_801C0580, player->skelAnime.curFrame, player->unk_AF0);
             } else if (strcmp(player->skelAnime.animation, gPlayerAnim_pz_waterroll) == 0) {
@@ -3678,7 +3678,7 @@ void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList1, G
         //! FAKE
         if (((*dList1 != NULL) && ((((void)0, player->currentMask)) != (((void)0, PLAYER_MASK_NONE)))) &&
             (((player->transformation == PLAYER_FORM_HUMAN) &&
-              ((player->skelAnime.animation != &gPlayerAnim_cl_setmask) || (player->skelAnime.curFrame >= 12.0f))) ||
+              ((strcmp(player->skelAnime.animation, gPlayerAnim_cl_setmask) != 0) || (player->skelAnime.curFrame >= 12.0f))) ||
              ((((player->transformation != PLAYER_FORM_HUMAN) && (player->currentMask >= PLAYER_MASK_FIERCE_DEITY)) &&
                ((player->transformation + PLAYER_MASK_FIERCE_DEITY) != player->currentMask)) &&
               (player->skelAnime.curFrame >= 10.0f)))) {
