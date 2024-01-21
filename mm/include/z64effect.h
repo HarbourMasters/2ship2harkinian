@@ -274,6 +274,7 @@ typedef struct EffectSs {
     /* 0x5C */ s16 life; // -1 means this entry is free
     /* 0x5E */ u8 priority; // Lower number mean higher priority
     /* 0x5F */ u8 type;
+    u32 epoch;
 } EffectSs; // size = 0x60
 
 typedef struct {

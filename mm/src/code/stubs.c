@@ -3,6 +3,7 @@
 #include "z64.h"
 #include <assert.h>
 #include "BenPort.h"
+#include "2s2h/Enhancements/interpolation/frame_interpolation.h"
 //#include <math.h>
 
 #define SCREEN_WIDTH 320
@@ -713,7 +714,10 @@ void guOrthoF(float m[4][4], float l, float r, float b, float t, float n, float 
 void guOrtho(Mtx* m, float l, float r, float b, float t, float n, float f, float scale) {
     float mf[4][4];
     guOrthoF(mf, l, r, b, t, n, f, scale);
-    guMtxF2L(mf, m);
+    FrameInterpolation_RecordOpenChild("ortho", 0);
+    Matrix_MtxFToMtx((MtxF*)mf, m);
+    FrameInterpolation_RecordCloseChild();
+    //guMtxF2L(mf, m);
 }
 
 #define GU_PI 3.1415926
@@ -823,7 +827,8 @@ void guLookAt(Mtx* m, f32 xEye, f32 yEye, f32 zEye, f32 xAt, f32 yAt, f32 zAt, f
 
     guLookAtF(mf, xEye, yEye, zEye, xAt, yAt, zAt, xUp, yUp, zUp);
 
-    guMtxF2L(mf, m);
+    Matrix_MtxFToMtx((MtxF*)mf, m);
+    //guMtxF2L(mf, m);
 }
 void guRotateF(float m[4][4], float a, float x, float y, float z) {
     static float D_80097F90 = M_PI / 180.0f;

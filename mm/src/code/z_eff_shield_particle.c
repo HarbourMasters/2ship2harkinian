@@ -3,6 +3,7 @@
 
 #include "assets/code/eff_shield_particle/eff_shield_particle.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
+#include "2s2h/Enhancements/interpolation/frame_interpolation.h"
 
 void EffectShieldParticle_Init(void* thisx, void* initParamsx) {
     EffectShieldParticle* this = (EffectShieldParticle*)thisx;
@@ -146,6 +147,8 @@ void EffectShieldParticle_Draw(void* thisx, GraphicsContext* gfxCtx) {
     Color_RGBA8 primColor;
     Color_RGBA8 envColor;
 
+    FrameInterpolation_RecordOpenChild(this, 0);
+    
     OPEN_DISPS(gfxCtx);
 
     if (this != NULL) {
@@ -205,4 +208,5 @@ void EffectShieldParticle_Draw(void* thisx, GraphicsContext* gfxCtx) {
     }
 
     CLOSE_DISPS(gfxCtx);
+    FrameInterpolation_RecordCloseChild();
 }
