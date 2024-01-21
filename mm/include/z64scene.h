@@ -620,7 +620,7 @@ typedef enum {
     /* 6 */ TINGLE_MAP_MAX
 } TingleMapId;
 
-#define DEFINE_SCENE(_name, enumValue, _textId, _drawConfig, _restrictionFlags, _persistentCycleFlags) enumValue,
+#define DEFINE_SCENE(_name, enumValue, _textId, _drawConfig, _restrictionFlags, _persistentCycleFlags, _entranceSceneId, _humanName) enumValue,
 #define DEFINE_SCENE_UNSET(enumValue) enumValue,
 
 typedef enum SceneId {
