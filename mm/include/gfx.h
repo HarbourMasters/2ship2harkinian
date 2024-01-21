@@ -111,11 +111,14 @@ typedef struct {
 typedef struct GfxPool {
     /* 0x00000 */ u16 headMagic; // GFXPOOL_HEAD_MAGIC
     /* 0x00008 */ GfxMasterList master;
-    /* 0x00308 */ Gfx polyXluBuffer[0x800];
-    /* 0x04308 */ Gfx overlayBuffer[0x800]; // 0x400 -> 0x800 to avoid thga crashes
-    /* 0x06308 */ Gfx workBuffer[0x40];
-    /* 0x06508 */ Gfx debugBuffer[0x40];
-    /* 0x06708 */ Gfx polyOpaBuffer[0x3380];
+    // #region 2S2H [Port] Doubled the size of the dlist buffers to account for additional instructions,
+    // and the fact that DLists that reference OTR resources are effectively doubled in size.
+    /* 0x00308 */ Gfx polyXluBuffer[0x1000];
+    /* 0x04308 */ Gfx overlayBuffer[0x800];
+    /* 0x06308 */ Gfx workBuffer[0x80];
+    /* 0x06508 */ Gfx debugBuffer[0x80];
+    /* 0x06708 */ Gfx polyOpaBuffer[0x6700];
+    // #endregion
     /* 0x20308 */ u16 tailMagic; // GFXPOOL_TAIL_MAGIC
 } GfxPool;                       // size = 0x20310
 
