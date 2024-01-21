@@ -43,7 +43,7 @@
 #include "Extractor/Extract.h"
 // OTRTODO
 //#include <functions.h>
-#include "2s2h/enhancements/interpolation/frame_interpolation.h"
+#include "2s2h/Enhancements/interpolation/frame_interpolation.h"
 
 #ifdef ENABLE_CROWD_CONTROL
 #include "Enhancements/crowd-control/CrowdControl.h"

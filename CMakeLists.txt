@@ -104,7 +104,7 @@ add_subdirectory(mm)
 
 set_property(TARGET mm PROPERTY APPIMAGE_DESKTOP_FILE_TERMINAL YES)
 set_property(TARGET mm PROPERTY APPIMAGE_DESKTOP_FILE "${CMAKE_SOURCE_DIR}/scripts/linux/appimage/soh.desktop")
-set_property(TARGET mm PROPERTY APPIMAGE_ICON_FILE "${CMAKE_BINARY_DIR}/sohIcon.png")
+set_property(TARGET mm PROPERTY APPIMAGE_ICON_FILE "${CMAKE_BINARY_DIR}/2s2hIcon.png")
 
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
 install(PROGRAMS "${CMAKE_BINARY_DIR}/linux/appimage/soh.sh" DESTINATION . COMPONENT appimage)
@@ -167,7 +167,7 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
     find_package(ImageMagick COMPONENTS convert)
     if (ImageMagick_FOUND)
         execute_process (
-            COMMAND ${ImageMagick_convert_EXECUTABLE} mm/macosx/sohIcon.png -resize 512x512 ${CMAKE_BINARY_DIR}/sohIcon.png
+            COMMAND ${ImageMagick_convert_EXECUTABLE} mm/macosx/2s2hIcon.png -resize 512x512 ${CMAKE_BINARY_DIR}/2s2hIcon.png
             OUTPUT_VARIABLE outVar
         )
     endif()
