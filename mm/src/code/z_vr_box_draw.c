@@ -1,4 +1,5 @@
 #include "global.h"
+#include "2s2h/Enhancements/interpolation/frame_interpolation.h"
 
 Mtx* sSkyboxDrawMatrix;
 
@@ -22,6 +23,7 @@ void Skybox_SetColors(SkyboxContext* skyboxCtx, u8 primR, u8 primG, u8 primB, u8
 
 void Skybox_Draw(SkyboxContext* skyboxCtx, GraphicsContext* gfxCtx, s16 skyboxId, s16 blend, f32 x, f32 y, f32 z) {
     OPEN_DISPS(gfxCtx);
+    FrameInterpolation_RecordOpenChild(NULL, FrameInterpolation_GetCameraEpoch());
 
     Gfx_SetupDL40_Opa(gfxCtx);
 
@@ -60,6 +62,7 @@ void Skybox_Draw(SkyboxContext* skyboxCtx, GraphicsContext* gfxCtx, s16 skyboxId
 
     gDPPipeSync(POLY_OPA_DISP++);
 
+    FrameInterpolation_RecordCloseChild();
     CLOSE_DISPS(gfxCtx);
 }
 

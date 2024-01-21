@@ -138,6 +138,7 @@ endif()
 # 2s2h/DeveloperTools {{{
 file(GLOB_RECURSE soh__DeveloperTools RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
    "2s2h/DeveloperTools/*.h"
+   "2s2h/DeveloperTools/*.c"
    "2s2h/DeveloperTools/*.cpp"
 )
 # }}}
@@ -181,6 +182,7 @@ file(GLOB_RECURSE soh__Enhancements RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
 #source_group("soh\\Enhancements" REGULAR_EXPRESSION "soh/Enhancements/*")
 #source_group("soh\\Enhancements\\audio" REGULAR_EXPRESSION "soh/Enhancements/audio/*")
 source_group("2s2h\\Enhancements\\controls" REGULAR_EXPRESSION "2s2h/Enhancements/controls/*")
+source_group("2s2h\\Enhancements\\interpolation" REGULAR_EXPRESSION "2s2h/Enhancements/interpolation/*")
 #source_group("soh\\Enhancements\\cosmetics" REGULAR_EXPRESSION "soh/Enhancements/cosmetics/*")
 #source_group("soh\\Enhancements\\crowd-control" REGULAR_EXPRESSION "soh/Enhancements/crowd-control/*")
 #source_group("soh\\Enhancements\\custom-message" REGULAR_EXPRESSION "soh/Enhancements/custom-message/*")

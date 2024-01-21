@@ -10955,7 +10955,7 @@ void Player_SetDoAction(PlayState* play, Player* this) {
         return;
     }
 
-    doActionB = -1;
+    doActionB = DO_ACTION_UNDEFINED;
     sp38 = func_801242B4(this) || (Player_Action_28 == this->actionFunc);
 
     // Set B do action
@@ -10986,7 +10986,7 @@ void Player_SetDoAction(PlayState* play, Player* this) {
         }
     }
 
-    if (doActionB > -1) {
+    if (doActionB > DO_ACTION_UNDEFINED) {
         Interface_SetBButtonDoAction(play, doActionB);
     } else if (play->interfaceCtx.bButtonDoActionActive) {
         play->interfaceCtx.bButtonDoActionActive = false;

@@ -1,0 +1,272 @@
+name: generate-builds
+on:
+  push:
+  pull_request:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  generate-soh-otr-and-headers:
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y $(cat .github/workflows/apt-deps.txt)
+    - name: ccache
+      uses: hendrikmuhs/ccache-action@v1.2.11
+      with:
+        key: ${{ runner.os }}-ccache-${{ github.ref }}-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-ccache-${{ github.ref }}
+          ${{ runner.os }}-ccache-
+    - name: Cache build folders
+      uses: actions/cache@v4
+      with:
+        key: ${{ runner.os }}-build-${{ github.ref }}-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ github.ref }}
+          ${{ runner.os }}-build-
+        path: |
+          build-cmake
+          SDL2-2.26.1
+    - name: Install latest SDL
+      run: |
+        export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+        if [ ! -d "SDL2-2.26.1" ]; then
+          wget https://www.libsdl.org/release/SDL2-2.26.1.tar.gz
+          tar -xzf SDL2-2.26.1.tar.gz
+        fi
+        cd SDL2-2.26.1
+        ./configure
+        make -j
+        sudo make install
+        sudo cp -av /usr/local/lib/libSDL* /lib/x86_64-linux-gnu/
+    - name: Download Rom
+      run: |
+        url="${{ secrets.BASEROM }}"
+        outputPath="${{ github.workspace }}/OTRExporter/baserom.z64"
+        wget "$url" -O "$outputPath"
+    - name: Generate soh.otr
+      run: |
+        export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+        cmake --no-warn-unused-cli -H. -Bbuild-cmake -GNinja -DCMAKE_BUILD_TYPE:STRING=Release
+        cmake --build build-cmake --config Release --target GenerateSohOtr -j
+    - uses: actions/upload-artifact@v4
+      with:
+        name: soh.otr
+        path: soh.otr
+        retention-days: 1
+    - name: Generate headers
+      run: |
+        export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+        cmake --no-warn-unused-cli -H. -Bbuild-cmake -GNinja -DCMAKE_BUILD_TYPE:STRING=Release
+        cmake --build build-cmake --config Release --target ExtractAssetHeaders -j
+
+        find mm/assets/**/* -type f -exec touch -d "$(cat headers_updated_at.txt)" {} \;
+    - uses: actions/upload-artifact@v4
+      with:
+        name: headers
+        path: mm/assets
+        retention-days: 1
+  build-linux:
+    needs: generate-soh-otr-and-headers
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+        # - os: ubuntu-20.04
+          # gcc: 10
+          # archive-suffix: compatibility
+        - os: ubuntu-22.04
+          gcc: 12
+          archive-suffix: performance
+    runs-on: ${{ (matrix.os == 'ubuntu-20.04' && ((vars.LINUX_COMPATIBILITY_RUNNER && fromJSON(vars.LINUX_COMPATIBILITY_RUNNER)) || matrix.os)) || (matrix.os == 'ubuntu-22.04' && ((vars.LINUX_PERFORMANCE_RUNNER && fromJSON(vars.LINUX_PERFORMANCE_RUNNER)) || matrix.os)) }}
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y $(cat .github/workflows/apt-deps.txt)
+    - name: ccache
+      uses: hendrikmuhs/ccache-action@v1.2.11
+      with:
+        key: ${{ matrix.os }}-ccache-${{ github.ref }}-${{ github.sha }}
+        restore-keys: |
+          ${{ matrix.os }}-ccache-${{ github.ref }}
+          ${{ matrix.os }}-ccache-
+    - name: Cache build folders
+      uses: actions/cache@v4
+      with:
+        key: ${{ matrix.os }}-build-${{ github.ref }}-${{ github.sha }}
+        restore-keys: |
+          ${{ matrix.os }}-build-${{ github.ref }}
+          ${{ matrix.os }}-build-
+        path: |
+          build-cmake
+          SDL2-2.26.1
+    - name: Install latest SDL
+      run: |
+        export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+        if [ ! -d "SDL2-2.26.1" ]; then
+          wget https://www.libsdl.org/release/SDL2-2.26.1.tar.gz
+          tar -xzf SDL2-2.26.1.tar.gz
+        fi
+        cd SDL2-2.26.1
+        ./configure
+        make -j
+        sudo make install
+        sudo cp -av /usr/local/lib/libSDL* /lib/x86_64-linux-gnu/
+    - name: Download soh.otr
+      uses: actions/download-artifact@v4
+      with:
+        name: soh.otr
+    - name: Download Headers
+      uses: actions/download-artifact@v4
+      with:
+        name: headers
+        path: mm/assets
+    - name: Build 2Ship
+      run: |
+        export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+        cmake --no-warn-unused-cli -H. -Bbuild-cmake -GNinja -DCMAKE_BUILD_TYPE:STRING=Release
+        cmake --build build-cmake --config Release -j
+        # Not building releases/artifacts for now
+        # (cd build-cmake && cpack -G External)
+
+        # mv README.md readme.txt
+        # mv build-cmake/*.appimage 2ship.appimage
+      env:
+        CC: gcc-${{ matrix.gcc }}
+        CXX: g++-${{ matrix.gcc }}
+    # - name: Upload build
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: 2ship-linux-${{ matrix.archive-suffix }}
+    #     path: |
+    #       # 2ship.appimage
+    #       readme.txt
+  # build-windows:
+  #   needs: generate-soh-otr-and-headers
+  #   runs-on: windows-latest
+  #   steps:
+  #   - name: Install dependencies
+  #     run: |
+  #       choco install ninja
+  #   - uses: actions/checkout@v3
+  #     with:
+  #       submodules: true
+  #   - name: ccache
+  #     uses: hendrikmuhs/ccache-action@v1.2.11
+  #     with:
+  #       key: ${{ runner.os }}-ccache-${{ github.ref }}-${{ github.sha }}
+  #       restore-keys: |
+  #         ${{ runner.os }}-ccache-${{ github.ref }}
+  #         ${{ runner.os }}-ccache-
+  #   - name: Cache build folder
+  #     uses: actions/cache@v4
+  #     with:
+  #       key: ${{ runner.os }}-build-${{ github.ref }}-${{ github.sha }}
+  #       restore-keys: |
+  #         ${{ runner.os }}-build-${{ github.ref }}
+  #         ${{ runner.os }}-build-
+  #       path: |
+  #         build-windows
+  #         vcpkg
+  #   - name: Configure Developer Command Prompt
+  #     uses: ilammy/msvc-dev-cmd@v1
+  #   - name: Download soh.otr
+  #     uses: actions/download-artifact@v4
+  #     with:
+  #       name: soh.otr
+  #   - name: Download Headers
+  #     uses: actions/download-artifact@v4
+  #     with:
+  #       name: headers
+  #       path: mm/assets
+  #   - name: Build 2Ship
+  #     env:
+  #       VCPKG_ROOT: ${{github.workspace}}/vcpkg
+  #     run: |
+  #       set $env:PATH="$env:USERPROFILE/.cargo/bin;$env:PATH"
+  #       cmake -S . -B build-windows -G Ninja -DCMAKE_MAKE_PROGRAM=ninja -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+  #       cmake --build build-windows --config Release --parallel 10
+
+  #       mkdir 2ship-windows
+  #       mv ./x64/Release/mm.exe ./2ship-windows/2ship.exe
+  #       mkdir 2ship-windows/debug
+  #       mkdir 2ship-windows/mods
+  #       New-Item 2ship-windows/mods/custom_otr_files_go_here.txt -type file
+  #       # mv ./x64/Release/2ship.pdb ./2ship-windows/debug/2ship.pdb
+  #       mv ./README.md ./2ship-windows/readme.txt
+  #       mv ./build-windows/gamecontrollerdb.txt ./2ship-windows/gamecontrollerdb.txt
+  #       mv ./x64/Release/assets ./2ship-windows
+  #       mv ./soh.otr ./2ship-windows/soh.otr
+  #   - name: Upload build
+  #     uses: actions/upload-artifact@v4
+  #     with:
+  #       name: 2ship-windows
+  #       path: 2ship-windows
+  build-windows-self-hosted:
+    needs: generate-soh-otr-and-headers
+    runs-on: self-hosted
+    steps:
+    - name: Install dependencies
+      run: |
+        choco install ninja -y
+        choco install gzip -y
+        Add-Content $env:GITHUB_PATH $env:ChocolateyInstall
+    - uses: actions/checkout@v3
+      with:
+        submodules: true
+    - name: Cache build folder
+      uses: actions/cache@v4
+      with:
+        save-always: true
+        key: ${{ runner.os }}-self-build-${{ github.ref }}-${{ github.sha }}
+        restore-keys: |
+          ${{ runner.os }}-self-build-${{ github.ref }}
+          ${{ runner.os }}-self-build-
+        path: |
+          build-windows
+          vcpkg
+    - name: Configure Developer Command Prompt
+      uses: ilammy/msvc-dev-cmd@v1
+    - name: Download soh.otr
+      uses: actions/download-artifact@v4
+      with:
+        name: soh.otr
+    - name: Download Headers
+      uses: actions/download-artifact@v4
+      with:
+        name: headers
+        path: mm/assets
+    - name: Build 2Ship
+      env: 
+        VCPKG_ROOT: ${{github.workspace}}/vcpkg
+      run: |
+        set $env:PATH="$env:USERPROFILE/.cargo/bin;$env:PATH"
+        cmake -S . -B build-windows -G Ninja -DCMAKE_MAKE_PROGRAM=ninja -DCMAKE_BUILD_TYPE:STRING=Release
+        cmake --build build-windows --config Release --parallel 10
+
+        # Not building releases/artifacts for now
+        # mkdir 2ship-windows
+        # mv ./x64/Release/mm.exe ./2ship-windows/2ship.exe
+        # mkdir 2ship-windows/debug
+        # mkdir 2ship-windows/mods
+        # New-Item 2ship-windows/mods/custom_otr_files_go_here.txt -type file
+        # mv ./x64/Release/2ship.pdb ./2ship-windows/debug/2ship.pdb
+        # mv ./README.md ./2ship-windows/readme.txt
+        # mv ./build-windows/gamecontrollerdb.txt ./2ship-windows/gamecontrollerdb.txt
+        # mv ./x64/Release/assets ./2ship-windows
+        # mv ./soh.otr ./2ship-windows/soh.otr
+    # - name: Upload build
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: 2ship-windows
+    #     path: 2ship-windows

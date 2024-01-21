@@ -7,6 +7,7 @@
 #include "z_demo_kankyo.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "objects/object_bubble/object_bubble.h"
+#include "2s2h/Enhancements/interpolation/frame_interpolation.h"
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
@@ -512,6 +513,7 @@ void DemoKakyo_DrawLostWoodsSparkle(Actor* thisx, PlayState* play2) {
         gSPDisplayList(POLY_XLU_DISP++, gSunSparkleMaterialDL);
 
         for (i = 0; i < play->envCtx.precipitation[PRECIP_SNOW_MAX]; i++) {
+            FrameInterpolation_RecordOpenChild(this, i);
             worldPos.x = this->effects[i].posBase.x + this->effects[i].posOffset.x;
             worldPos.y = this->effects[i].posBase.y + this->effects[i].posOffset.y;
             worldPos.z = this->effects[i].posBase.z + this->effects[i].posOffset.z;
@@ -578,6 +580,7 @@ void DemoKakyo_DrawLostWoodsSparkle(Actor* thisx, PlayState* play2) {
                           G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                 gSPDisplayList(POLY_XLU_DISP++, gSunSparkleModelDL);
             }
+            FrameInterpolation_RecordCloseChild();
         }
 
         CLOSE_DISPS(play->state.gfxCtx);
@@ -602,6 +605,7 @@ void DemoKankyo_DrawMoonAndGiant(Actor* thisx, PlayState* play2) {
         Gfx_SetupDL25_Xlu(gfxCtx);
 
         for (i = 0; i < play->envCtx.precipitation[PRECIP_SNOW_MAX]; i++) {
+            FrameInterpolation_RecordOpenChild(this, i);
             worldPos.x = this->effects[i].posBase.x + this->effects[i].posOffset.x;
             worldPos.y = this->effects[i].posBase.y + this->effects[i].posOffset.y;
             worldPos.z = this->effects[i].posBase.z + this->effects[i].posOffset.z;
@@ -656,6 +660,7 @@ void DemoKankyo_DrawMoonAndGiant(Actor* thisx, PlayState* play2) {
                     gSPDisplayList(POLY_XLU_DISP++, gLightOrbModelDL);
                 }
             }
+            FrameInterpolation_RecordCloseChild();
         }
 
         CLOSE_DISPS(gfxCtx);

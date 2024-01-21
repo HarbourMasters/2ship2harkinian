@@ -62,6 +62,7 @@ SwingAnimation D_801EDC30[4];
 Vec3f D_801EDDD0;
 Vec3f D_801EDDE0;
 Vec3f D_801EDDF0;
+#include "2s2h/Enhancements/interpolation/frame_interpolation.h"
 
 // Camera will reload its paramData. Usually that means setting the read-only data from what is stored in
 // CameraModeValue arrays. Although sometimes some read-write data is reset as well
@@ -6870,7 +6871,7 @@ s32 Camera_Special9(Camera* camera) {
             if (doorParams->timer1 > 0) {
                 break;
             }
-
+            FrameInterpolation_DontInterpolateCamera();
             camera->animState++;
 
             // Setup for the camera moving behind the door
