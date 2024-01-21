@@ -113,7 +113,7 @@
 // Compute 0x0E segment value as compile time constant for 32bit and 64bit
 #define D_0E000000_TO_SEGMENTED(member) ((0x0E000000 + offsetof(GfxMasterList, member)) | 1)
 #define D_0F000000_TO_SEGMENTED (0x0F000000 | 1)
-// Used to compare animations. The statically linked global animations can end up with different pointer addresses if they get set from one file and then compared against in another
+// Used to compare animations. The statically linked global animations can end up with different pointer addresses if an animation gets set from one file and then compared against the static animation in another
 #define BEN_ANIM_EQUAL(anim1, anim2) ((anim1 == NULL) ? ((anim2 == NULL) ? true : false) : ((anim2 == NULL) ? false : strcmp(anim1, anim2) == 0))
 // #endregion
 
