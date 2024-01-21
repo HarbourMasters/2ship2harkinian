@@ -1,6 +1,7 @@
 #include "global.h"
 #include "z64shrink_window.h"
 #include "z64view.h"
+#include "2s2h/Enhancements/interpolation/frame_interpolation.h"
 
 s32 View_ApplyPerspective(View* view);
 s32 View_ApplyOrtho(View* view);
@@ -309,6 +310,10 @@ void View_Apply(View* view, s32 mask) {
     }
 }
 
+static float sqr(float a) {
+    return a * a;
+}
+
 s32 View_ApplyPerspective(View* view) {
     f32 aspect;
     s32 width;
@@ -359,10 +364,78 @@ s32 View_ApplyPerspective(View* view) {
     guLookAt(viewing, view->eye.x, view->eye.y, view->eye.z, view->at.x, view->at.y, view->at.z, view->up.x, view->up.y,
              view->up.z);
 
-    view->viewing = *viewing;
+    // Some heuristics to identify instant camera movements and skip interpolation in that case
 
+    static View old_view;
+
+    float dirx = view->eye.x - view->at.x;
+    float diry = view->eye.y - view->at.y;
+    float dirz = view->eye.z - view->at.z;
+    float dir_dist = sqrtf(sqr(dirx) + sqr(diry) + sqr(dirz));
+    dirx /= dir_dist;
+    diry /= dir_dist;
+    dirz /= dir_dist;
+
+    float odirx = old_view.eye.x - old_view.at.x;
+    float odiry = old_view.eye.y - old_view.at.y;
+    float odirz = old_view.eye.z - old_view.at.z;
+    float odir_dist = sqrtf(sqr(odirx) + sqr(odiry) + sqr(odirz));
+    odirx /= odir_dist;
+    odiry /= odir_dist;
+    odirz /= odir_dist;
+
+    float eye_dist = sqrtf(sqr(view->eye.x - old_view.eye.x) + sqr(view->eye.y - old_view.eye.y) +
+                           sqr(view->eye.z - old_view.eye.z));
+    float look_dist = sqrtf(sqr(view->at.x - old_view.at.x) + sqr(view->at.y - old_view.at.y) +
+                            sqr(view->at.z - old_view.at.z));
+    float up_dist =
+        sqrtf(sqr(view->up.x - old_view.up.x) + sqr(view->up.y - old_view.up.y) + sqr(view->up.z - old_view.up.z));
+    float d_dist = sqrtf(sqr(dirx - odirx) + sqr(diry - odiry) + sqr(dirz - odirz));
+
+    bool dont_interpolate = false;
+
+    if (up_dist < 0.01 && d_dist < 0.01) {
+        if (eye_dist + look_dist > 300) {
+            dont_interpolate = true;
+        }
+    } else {
+        if (eye_dist >= 400) {
+            dont_interpolate = true;
+        }
+        if (look_dist >= 100) {
+            dont_interpolate = true;
+        }
+        if (up_dist >= 1.50f) {
+            dont_interpolate = true;
+        }
+        if (d_dist >= 1.414f && look_dist >= 15) {
+            dont_interpolate = true;
+        }
+        if (d_dist >= 1.414f && up_dist >= 0.31f && look_dist >= 1 && eye_dist >= 300) {
+            dont_interpolate = true;
+        }
+        if (d_dist >= 0.5f && up_dist >= 0.31f && look_dist >= 3 && eye_dist >= 170) {
+            dont_interpolate = true;
+        }
+        if (look_dist >= 52 && eye_dist >= 52) {
+            dont_interpolate = true;
+        }
+        if (look_dist >= 30 && eye_dist >= 90) {
+            dont_interpolate = true;
+        }
+    }
+
+    if (dont_interpolate) {
+        FrameInterpolation_DontInterpolateCamera();
+    }
+
+    FrameInterpolation_RecordOpenChild(NULL, FrameInterpolation_GetCameraEpoch());
+
+    view->viewing = *viewing;
+    old_view = *view;
     gSPMatrix(POLY_OPA_DISP++, viewing, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_PROJECTION);
     gSPMatrix(POLY_XLU_DISP++, viewing, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_PROJECTION);
+    FrameInterpolation_RecordCloseChild();
 
     CLOSE_DISPS(gfxCtx);
 

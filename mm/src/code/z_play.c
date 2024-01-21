@@ -34,6 +34,7 @@ u8 sMotionBlurStatus;
 #include "overlays/gamestates/ovl_file_choose/z_file_select.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "debug.h"
+#include "2s2h/Enhancements/interpolation/frame_interpolation.h"
 #include <string.h>
 
 s32 gDbgCamEnabled = false;
@@ -1509,7 +1510,9 @@ void Play_Main(GameState* thisx) {
         if (1) {
             *CONTROLLER1(&this->state) = D_801F6C18;
         }
+        FrameInterpolation_StartRecord();
         Play_Draw(this);
+        FrameInterpolation_StopRecord();
         *CONTROLLER1(&this->state) = input;
     }
 

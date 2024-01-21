@@ -10,6 +10,7 @@
 #include "z_obj_grass.h"
 #include "overlays/actors/ovl_Obj_Grass_Carry/z_obj_grass_carry.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
+#include "2s2h/Enhancements/interpolation/frame_interpolation.h"
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
@@ -466,6 +467,8 @@ void ObjGrass_DrawOpa(Actor* thisx, PlayState* play2) {
             for (j = 0; j < grassGroup->count; j++) {
                 grassElem = &grassGroup->elements[j];
 
+                FrameInterpolation_RecordOpenChild(this, i + j);
+
                 if ((grassElem->flags & OBJ_GRASS_ELEM_DRAW) && (grassElem->alpha == 255)) {
                     rot.y = grassElem->rotY;
                     Matrix_SetTranslateRotateYXZ(grassElem->pos.x, grassElem->pos.y, grassElem->pos.z, &rot);
@@ -478,6 +481,8 @@ void ObjGrass_DrawOpa(Actor* thisx, PlayState* play2) {
                               G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                     gSPDisplayList(POLY_OPA_DISP++, gObjGrass_D_809AAAE0);
                 }
+
+                FrameInterpolation_RecordCloseChild();
             }
         }
     }
@@ -506,6 +511,8 @@ void ObjGrass_DrawXlu(Actor* thisx, PlayState* play) {
             for (j = 0; j < grassGroup->count; j++) {
                 grassElem = &grassGroup->elements[j];
 
+                FrameInterpolation_RecordOpenChild(this, i + j);
+
                 if ((grassElem->flags & OBJ_GRASS_ELEM_DRAW) && (grassElem->alpha > 0) && (grassElem->alpha < 255)) {
                     rot.y = grassElem->rotY;
                     Matrix_SetTranslateRotateYXZ(grassElem->pos.x, grassElem->pos.y, grassElem->pos.z, &rot);
@@ -516,6 +523,8 @@ void ObjGrass_DrawXlu(Actor* thisx, PlayState* play) {
                     gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 255, 255, 255, grassElem->alpha);
                     gSPDisplayList(POLY_XLU_DISP++, gObjGrass_D_809AAAE0);
                 }
+
+                FrameInterpolation_RecordCloseChild();
             }
         }
     }

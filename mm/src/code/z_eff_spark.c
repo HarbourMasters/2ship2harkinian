@@ -1,5 +1,6 @@
 #include "global.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
+#include "2s2h/Enhancements/interpolation/frame_interpolation.h"
 
 void EffectSpark_Init(void* thisx, void* initParamsx) {
     EffectSpark* this = (EffectSpark*)thisx;
@@ -143,6 +144,7 @@ void EffectSpark_Draw(void* thisx, GraphicsContext* gfxCtx) {
     u8 sp1C4;
     f32 ratio;
 
+    FrameInterpolation_RecordOpenChild(this, 0);
     OPEN_DISPS(gfxCtx);
 
     if (this != NULL) {
@@ -263,4 +265,5 @@ void EffectSpark_Draw(void* thisx, GraphicsContext* gfxCtx) {
 
 end:
     CLOSE_DISPS(gfxCtx);
+    FrameInterpolation_RecordCloseChild();
 }

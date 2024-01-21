@@ -41,6 +41,7 @@
 
 #include "prevent_bss_reordering.h"
 #include "global.h"
+#include "2s2h/Enhancements/interpolation/frame_interpolation.h"
 
 /* data */
 #define qs1616(e) ((s32)((e)*0x00010000))
@@ -102,6 +103,7 @@ void Matrix_Init(GameState* gameState) {
 void Matrix_Push(void) {
     MtxF* prev = sCurrentMatrix;
 
+    FrameInterpolation_RecordMatrixPush();
     sCurrentMatrix++;
     Matrix_MtxFCopy(sCurrentMatrix, prev);
 }
@@ -112,6 +114,7 @@ void Matrix_Push(void) {
  * @remark original name: "Matrix_pull"
  */
 void Matrix_Pop(void) {
+    FrameInterpolation_RecordMatrixPop();
     sCurrentMatrix--;
 }
 
@@ -134,6 +137,7 @@ void Matrix_Get(MtxF* dest) {
  * @remark original name: "Matrix_put"
  */
 void Matrix_Put(MtxF* src) {
+    FrameInterpolation_RecordMatrixPut(src);
     Matrix_MtxFCopy(sCurrentMatrix, src);
 }
 
@@ -161,6 +165,7 @@ MtxF* Matrix_GetCurrent(void) {
  * @remark original name: "Matrix_mult"
  */
 void Matrix_Mult(MtxF* mf, MatrixMode mode) {
+    FrameInterpolation_RecordMatrixMult(mf, mode);
     MtxF* cmf = Matrix_GetCurrent();
 
     if (mode == MTXMODE_APPLY) {
@@ -194,6 +199,7 @@ void Matrix_Mult(MtxF* mf, MatrixMode mode) {
  * @remark original name: "Matrix_translate"
  */
 void Matrix_Translate(f32 x, f32 y, f32 z, MatrixMode mode) {
+    FrameInterpolation_RecordMatrixTranslate(x, y, z, mode);
     MtxF* cmf = sCurrentMatrix;
     f32 tempX;
     f32 tempY;
@@ -240,6 +246,7 @@ void Matrix_Translate(f32 x, f32 y, f32 z, MatrixMode mode) {
  * @remark original name: "Matrix_scale"
  */
 void Matrix_Scale(f32 x, f32 y, f32 z, MatrixMode mode) {
+    FrameInterpolation_RecordMatrixScale(x, y, z, mode);
     MtxF* cmf = sCurrentMatrix;
 
     if (mode == MTXMODE_APPLY) {
@@ -376,6 +383,7 @@ void Matrix_RotateXS(s16 x, MatrixMode mode) {
  * @remark original name may have been "Matrix_RotateX", but clashed with the previous function.
  */
 void Matrix_RotateXF(f32 x, MatrixMode mode) {
+    FrameInterpolation_RecordMatrixRotate1Coord(0, x, mode);
     MtxF* cmf;
     f32 sin;
     f32 cos;
@@ -643,6 +651,7 @@ void Matrix_RotateYS(s16 y, MatrixMode mode) {
  * @remark original name may have been "Matrix_RotateY", but clashed with the previous function.
  */
 void Matrix_RotateYF(f32 y, MatrixMode mode) {
+    FrameInterpolation_RecordMatrixRotate1Coord(1, y, mode);
     MtxF* cmf;
     f32 sin;
     f32 cos;
@@ -825,6 +834,7 @@ void Matrix_RotateZS(s16 z, MatrixMode mode) {
  * @remark original name may have been "Matrix_RotateZ", but clashed with the previous function.
  */
 void Matrix_RotateZF(f32 z, MatrixMode mode) {
+    FrameInterpolation_RecordMatrixRotate1Coord(2, z, mode);
     MtxF* cmf;
     f32 sin;
     f32 cos;
@@ -906,6 +916,7 @@ void Matrix_RotateZF(f32 z, MatrixMode mode) {
  * @remark original name: "Matrix_RotateXYZ", changed to reflect rotation order.
  */
 void Matrix_RotateZYX(s16 x, s16 y, s16 z, MatrixMode mode) {
+    FrameInterpolation_RecordMatrixRotateZYX(x, y, z, mode);
     MtxF* cmf = sCurrentMatrix;
     f32 temp1;
     f32 temp2;
@@ -1005,6 +1016,7 @@ void Matrix_RotateZYX(s16 x, s16 y, s16 z, MatrixMode mode) {
  * @remark original name appears to be "Matrix_softcv3_mult"
  */
 void Matrix_TranslateRotateZYX(Vec3f* translation, Vec3s* rot) {
+    FrameInterpolation_RecordMatrixTranslateRotateZYX(translation, rot);
     MtxF* cmf = sCurrentMatrix;
     f32 sin = Math_SinS(rot->z);
     f32 cos = Math_CosS(rot->z);
@@ -1156,6 +1168,7 @@ void Matrix_SetTranslateRotateYXZ(f32 x, f32 y, f32 z, Vec3s* rot) {
     } else {
         cmf->yx = 0.0f;
     }
+    FrameInterpolation_RecordMatrixSetTranslateRotateYXZ(x, y, z, rot);
 }
 
 /**
@@ -1169,6 +1182,7 @@ void Matrix_SetTranslateRotateYXZ(f32 x, f32 y, f32 z, Vec3s* rot) {
  * @remark original name: "_MtxF_to_Mtx"
  */
 Mtx* Matrix_MtxFToMtx(MtxF* src, Mtx* dest) {
+    FrameInterpolation_RecordMatrixMtxFToMtx(src, dest);
     // #Region 2S2H [Port] For compatibility with modern systems this has been changed to use guMtxF2L
     guMtxF2L(src, dest);
     return dest;
@@ -1186,7 +1200,10 @@ Mtx* Matrix_MtxFToMtx(MtxF* src, Mtx* dest) {
  * @remark original name: "_Matrix_to_Mtx"
  */
 Mtx* Matrix_ToMtx(Mtx* dest) {
-    return Matrix_MtxFToMtx(sCurrentMatrix, dest);
+    FrameInterpolation_RecordMatrixToMtx(dest, __FILE__, __LINE__);
+    guMtxF2L(sCurrentMatrix, dest);
+    return dest;
+    //return Matrix_MtxFToMtx(sCurrentMatrix, dest);
 }
 
 /**
@@ -1480,6 +1497,7 @@ void Matrix_Transpose(MtxF* mf) {
  * @param[in] mf matrix whose linear part will replace the normalised part of A.
  */
 void Matrix_ReplaceRotation(MtxF* mf) {
+    FrameInterpolation_RecordMatrixReplaceRotation(mf);
     MtxF* cmf = sCurrentMatrix;
     f32 acc;
     f32 component;
@@ -1667,6 +1685,7 @@ void Matrix_MtxFToZYXRot(MtxF* src, Vec3s* dest, s32 nonUniformScale) {
  * @remark original name may have been "Matrix_RotateVector", but clashed with the next function.
  */
 void Matrix_RotateAxisF(f32 angle, Vec3f* axis, MatrixMode mode) {
+    FrameInterpolation_RecordMatrixRotateAxis(angle, axis, mode);
     MtxF* cmf;
     f32 sin;
     f32 cos;

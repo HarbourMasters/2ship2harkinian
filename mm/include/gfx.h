@@ -265,6 +265,8 @@ extern Gfx gEmptyDL[];
 // Use the DISP macros defined above when writing to display buffers.
 #define OPEN_DISPS(gfxCtx)                                        \
     {                                                             \
+        void FrameInterpolation_RecordOpenChild(const void* a, int b); \
+        FrameInterpolation_RecordOpenChild(__FILE__, __LINE__); \
         GraphicsContext* __gfxCtx = gfxCtx;                       \
         gDPNoOpOpenDisp(gfxCtx->polyOpa.p++, __FILE__, __LINE__); \
         gDPNoOpOpenDisp(gfxCtx->polyXlu.p++, __FILE__, __LINE__); \
@@ -272,6 +274,8 @@ extern Gfx gEmptyDL[];
 
 #define CLOSE_DISPS(gfxCtx)                                    \
     (void)0;                                                   \
+    void FrameInterpolation_RecordCloseChild(void);                     \
+    FrameInterpolation_RecordCloseChild();                       \
     gDPNoOpCloseDisp(gfxCtx->polyOpa.p++, __FILE__, __LINE__); \
     gDPNoOpCloseDisp(gfxCtx->polyXlu.p++, __FILE__, __LINE__); \
     gDPNoOpCloseDisp(gfxCtx->overlay.p++, __FILE__, __LINE__); \
