@@ -645,8 +645,11 @@ void EffectBlure_DrawSmooth(EffectBlure* this2, GraphicsContext* gfxCtx) {
     MtxF sp9C;
     MtxF sp5C;
     Mtx* mtx;
+    static s32 interpolationEpoch = 0;
+    interpolationEpoch++;
 
     OPEN_DISPS(gfxCtx);
+    FrameInterpolation_RecordOpenChild(this, interpolationEpoch);
 
     if (this->numElements < 2) {
         return;
@@ -688,6 +691,7 @@ void EffectBlure_DrawSmooth(EffectBlure* this2, GraphicsContext* gfxCtx) {
         }
     }
 
+    FrameInterpolation_RecordCloseChild();
     CLOSE_DISPS(gfxCtx);
 }
 
