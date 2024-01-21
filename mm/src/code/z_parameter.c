@@ -6382,6 +6382,20 @@ void Interface_Draw(PlayState* play) {
         // Draw Grandma's Story
         if (interfaceCtx->storyDmaStatus == STORY_DMA_DONE) {
             gSPSegment(OVERLAY_DISP++, 0x07, interfaceCtx->storySegment);
+
+            // #region 2S2H [Cosmetic] Account for different aspect ratios than 4:3
+            // When larger we want to render an additional black rectangle behind the 2d image
+            // to simulate black bars on the side that cover up the world
+            s16 newX = OTRGetRectDimensionFromLeftEdge(0);
+            if (newX < 0) {
+                gDPSetRenderMode(OVERLAY_DISP++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+                gDPSetCombineMode(OVERLAY_DISP++, G_CC_PRIMITIVE, G_CC_PRIMITIVE);
+                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, 255);
+                gDPFillWideRectangle(OVERLAY_DISP++, newX, 0, OTRGetRectDimensionFromRightEdge(SCREEN_WIDTH),
+                                     SCREEN_HEIGHT);
+            }
+            // #endregion
+
             Gfx_SetupDL39_Opa(play->state.gfxCtx);
 
             gDPSetTextureFilter(POLY_OPA_DISP++, G_TF_POINT);
@@ -6403,8 +6417,8 @@ void Interface_Draw(PlayState* play) {
             gDPSetCombineMode(OVERLAY_DISP++, G_CC_PRIMITIVE, G_CC_PRIMITIVE);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, R_STORY_FILL_SCREEN_ALPHA);
             // #region 2S2H [Cosmetic] Account for different aspect ratios than 4:3
-            gDPFillWideRectangle(OVERLAY_DISP++, OTRGetRectDimensionFromLeftEdge(0), 0,
-                                 OTRGetRectDimensionFromRightEdge(SCREEN_WIDTH), SCREEN_HEIGHT);
+            gDPFillWideRectangle(OVERLAY_DISP++, newX, 0, OTRGetRectDimensionFromRightEdge(SCREEN_WIDTH),
+                                 SCREEN_HEIGHT);
         }
 
         LifeMeter_Draw(play);
