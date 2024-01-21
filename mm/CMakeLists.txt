@@ -138,6 +138,7 @@ endif()
 # 2s2h/DeveloperTools {{{
 file(GLOB_RECURSE soh__DeveloperTools RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
    "2s2h/DeveloperTools/*.h"
+   "2s2h/DeveloperTools/*.c"
    "2s2h/DeveloperTools/*.cpp"
 )
 # }}}

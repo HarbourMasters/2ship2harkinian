@@ -293,6 +293,7 @@ void DrawDeveloperToolsMenu() {
             "Right, and open the debug menu with L on the pause screen"
         });
         UIWidgets::CVarCheckbox("No Clip", "gDeveloperTools.NoClip");
+        UIWidgets::CVarCheckbox("Better Map Select", "gDeveloperTools.BetterMapSelect.Enabled");
         UIWidgets::CVarCheckbox("Moon Jump on L", "gDeveloperTools.MoonJumpOnL", {
             .tooltip = "Holding L makes you float into the air"
         });
