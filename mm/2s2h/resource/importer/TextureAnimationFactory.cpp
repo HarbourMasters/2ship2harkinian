@@ -100,12 +100,13 @@ void LUS::TextureAnimationFactoryV0::ParseFileBinary(std::shared_ptr<BinaryReade
                 auto* e = new AnimatedMatTexCycleParams;
 
                 e->keyFrameLength = reader->ReadUInt16();
-                e->textureList = new void*[e->keyFrameLength];
+                uint32_t textureListSize = reader->ReadUInt32();
+                e->textureList = new void*[textureListSize];
                 e->textureIndexList = new uint8_t[e->keyFrameLength];
 
-                tAnim->textureCycleTextures.reserve(e->keyFrameLength);
+                tAnim->textureCycleTextures.reserve(textureListSize);
 
-                for (size_t i = 0; i < e->keyFrameLength; i++) {
+                for (size_t i = 0; i < textureListSize; i++) {
                     tAnim->textureCycleTextures.emplace_back("__OTR__" + reader->ReadString());
                     e->textureList[i] = (Gfx*)tAnim->textureCycleTextures[i].c_str();
                 }
