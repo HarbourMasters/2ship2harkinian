@@ -49,7 +49,7 @@ jobs:
       run: |
         url="${{ secrets.BASEROM }}"
         outputPath="${{ github.workspace }}/OTRExporter/baserom.z64"
-        wget "$url" -O "$outputPath"
+        wget "$url" -q -O "$outputPath"
     - name: Generate soh.otr
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
@@ -65,8 +65,6 @@ jobs:
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
         cmake --no-warn-unused-cli -H. -Bbuild-cmake -GNinja -DCMAKE_BUILD_TYPE:STRING=Release
         cmake --build build-cmake --config Release --target ExtractAssetHeaders -j
-
-        find mm/assets/**/* -type f -exec touch -d "$(cat headers_updated_at.txt)" {} \;
     - uses: actions/upload-artifact@v4
       with:
         name: headers
@@ -213,7 +211,6 @@ jobs:
   #       name: 2ship-windows
   #       path: 2ship-windows
   build-windows-self-hosted:
-    needs: generate-soh-otr-and-headers
     runs-on: self-hosted
     steps:
     - name: Install dependencies
@@ -237,21 +234,15 @@ jobs:
           vcpkg
     - name: Configure Developer Command Prompt
       uses: ilammy/msvc-dev-cmd@v1
-    - name: Download soh.otr
-      uses: actions/download-artifact@v4
-      with:
-        name: soh.otr
-    - name: Download Headers
-      uses: actions/download-artifact@v4
-      with:
-        name: headers
-        path: mm/assets
+    - name: Copy Rom
+      run: Copy-Item -Path C:\baserom_mm.z64 -Destination ${{github.workspace}}/OTRExporter/baserom.z64
     - name: Build 2Ship
       env: 
         VCPKG_ROOT: ${{github.workspace}}/vcpkg
       run: |
         set $env:PATH="$env:USERPROFILE/.cargo/bin;$env:PATH"
         cmake -S . -B build-windows -G Ninja -DCMAKE_MAKE_PROGRAM=ninja -DCMAKE_BUILD_TYPE:STRING=Release
+        cmake --build build-windows --config Release --target ExtractAssetHeaders --parallel 10
         cmake --build build-windows --config Release --parallel 10
 
         # Not building releases/artifacts for now
