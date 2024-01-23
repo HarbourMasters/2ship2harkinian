@@ -1543,6 +1543,7 @@ void Player_UpdateBunnyEars(Player* player) {
     Vec3s force;
     s16 angle;
 
+    FrameInterpolation_RecordActorPosRotMatrix();
     sBunnyEarKinematics.angVel.x -= sBunnyEarKinematics.angVel.x >> 3;
     sBunnyEarKinematics.angVel.y -= sBunnyEarKinematics.angVel.y >> 3;
     sBunnyEarKinematics.angVel.x += -sBunnyEarKinematics.rot.x >> 2;
