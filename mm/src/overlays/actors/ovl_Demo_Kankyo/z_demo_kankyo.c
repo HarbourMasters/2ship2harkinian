@@ -17,6 +17,7 @@ void DemoKankyo_Init(Actor* thisx, PlayState* play);
 void DemoKankyo_Destroy(Actor* thisx, PlayState* play);
 void DemoKankyo_Update(Actor* thisx, PlayState* play);
 void DemoKankyo_Draw(Actor* thisx, PlayState* play);
+void DemoKankyo_Reset(void);
 
 void DemoKakyo_MoonSparklesActionFunc(DemoKankyo* this, PlayState* play);
 
@@ -33,6 +34,7 @@ ActorInit Demo_Kankyo_InitVars = {
     /**/ DemoKankyo_Destroy,
     /**/ DemoKankyo_Update,
     /**/ DemoKankyo_Draw,
+    /**/ DemoKankyo_Reset,
 };
 
 static s32 sObjectBubbleId = OBJECT_BUBBLE | 0x10000;
@@ -680,4 +682,9 @@ void DemoKankyo_Draw(Actor* thisx, PlayState* play) {
             DemoKankyo_DrawMoonAndGiant(&this->actor, play);
             break;
     }
+}
+
+void DemoKankyo_Reset(void) {
+    sLostWoodsSparklesMutex = false;
+    sLostWoodsSkyFishParticleNum = 0;
 }
