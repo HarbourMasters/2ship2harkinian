@@ -3254,6 +3254,14 @@ Actor* Actor_RemoveFromCategory(PlayState* play, ActorContext* actorCtx, Actor* 
 
 void Actor_FreeOverlay(ActorOverlay* entry) {
     if (entry->numLoaded == 0) {
+        // #region 2S2H [Port] Added reset function is called when loaded count is 0
+        // to clean up static variables
+        if (entry->initInfo->reset != NULL) {
+            entry->initInfo->reset();
+        }
+        // #endregion
+
+        // 2S2H [Port] ramAddr will always be NULL for the port, so this block will never run
         void* ramAddr = entry->loadedRamAddr;
 
         if (ramAddr != NULL) {
@@ -3282,6 +3290,7 @@ ActorInit* Actor_LoadOverlay(ActorContext* actorCtx, s16 index) {
 
     overlaySize = (uintptr_t)overlayEntry->vramEnd - (uintptr_t)overlayEntry->vramStart;
 
+    // 2S2H [Port] vramStart will always be NULL in the port, so the else block is never run
     if (overlayEntry->vramStart == NULL) {
         actorInit = overlayEntry->initInfo;
     } else {
@@ -3348,7 +3357,12 @@ Actor* Actor_SpawnAsChildAndCutscene(ActorContext* actorCtx, PlayState* play, s1
     }
 
     overlayEntry = &gActorOverlayTable[index];
-    if (overlayEntry->vramStart != NULL) {
+    // #region 2S2H [Port] Our actors are always loaded and have no vramStart
+    // but we want to simulate them being unloaded to execute our actor reset funcs
+    // for static variable cleanup
+    // if (overlayEntry->vramStart != NULL) {
+    if (true) {
+    // #endregion
         overlayEntry->numLoaded++;
     }
 
@@ -3499,12 +3513,15 @@ Actor* Actor_Delete(ActorContext* actorCtx, Actor* actor, PlayState* play) {
 
     newHead = Actor_RemoveFromCategory(play, actorCtx, actor);
     ZeldaArena_Free(actor);
-    // BENTODO shouldn't need this check
-    if (overlayEntry != NULL) {
-        if (overlayEntry->vramStart != NULL) {
-            overlayEntry->numLoaded--;
-            Actor_FreeOverlay(overlayEntry);
-        }
+
+    // #region 2S2H [Port] Our actors are always loaded and have no vramStart
+    // but we want to simulate them being unloaded to execute our actor reset funcs
+    // for static variable cleanup
+    // if (overlayEntry->vramStart != NULL) {
+    if (true) {
+    // #endregion
+        overlayEntry->numLoaded--;
+        Actor_FreeOverlay(overlayEntry);
     }
 
     return newHead;
