@@ -127,7 +127,7 @@ Input sPostmanTimerInput[MAXCONTROLLERS];
 #define RESTRICTIONS_MOON RESTRICTIONS_SET(0, 0, 0, 0, 0, 3, 3, 3, 0, 0, 0, 0)
 #define RESTRICTIONS_NO_DOUBLE_TIME RESTRICTIONS_SET(0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0)
 
-#define DEFINE_SCENE(_name, enumValue, _textId, _drawConfig, restrictionFlags, _persistentCycleFlags) \
+#define DEFINE_SCENE(_name, enumValue, _textId, _drawConfig, restrictionFlags, _persistentCycleFlags, _entranceSceneId, _humanName) \
     { enumValue, restrictionFlags },
 
 #define DEFINE_SCENE_UNSET(enumValue) { enumValue, RESTRICTIONS_NONE },
@@ -6382,6 +6382,20 @@ void Interface_Draw(PlayState* play) {
         // Draw Grandma's Story
         if (interfaceCtx->storyDmaStatus == STORY_DMA_DONE) {
             gSPSegment(OVERLAY_DISP++, 0x07, interfaceCtx->storySegment);
+
+            // #region 2S2H [Cosmetic] Account for different aspect ratios than 4:3
+            // When larger we want to render an additional black rectangle behind the 2d image
+            // to simulate black bars on the side that cover up the world
+            s16 newX = OTRGetRectDimensionFromLeftEdge(0);
+            if (newX < 0) {
+                gDPSetRenderMode(OVERLAY_DISP++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+                gDPSetCombineMode(OVERLAY_DISP++, G_CC_PRIMITIVE, G_CC_PRIMITIVE);
+                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, 255);
+                gDPFillWideRectangle(OVERLAY_DISP++, newX, 0, OTRGetRectDimensionFromRightEdge(SCREEN_WIDTH),
+                                     SCREEN_HEIGHT);
+            }
+            // #endregion
+
             Gfx_SetupDL39_Opa(play->state.gfxCtx);
 
             gDPSetTextureFilter(POLY_OPA_DISP++, G_TF_POINT);
@@ -6391,8 +6405,8 @@ void Interface_Draw(PlayState* play) {
             gSPLoadUcodeL(OVERLAY_DISP++, gspS2DEX2_fifo);
             gfx = OVERLAY_DISP;
             Prerender_DrawBackground2D(&gfx, sStoryTextures[interfaceCtx->storyType],
-                                       sStoryTLUTs[interfaceCtx->storyType], SCREEN_WIDTH, SCREEN_HEIGHT, 2, 1, 0x8000,
-                                       0x100, 0.0f, 0.0f, 1.0f, 1.0f, 0);
+                                       sStoryTLUTs[interfaceCtx->storyType], SCREEN_WIDTH, SCREEN_HEIGHT, G_IM_FMT_CI,
+                                       G_IM_SIZ_8b, 0x8000, 0x100, 0.0f, 0.0f, 1.0f, 1.0f, 0);
             OVERLAY_DISP = gfx;
             gSPLoadUcode(OVERLAY_DISP++, SysUcode_GetUCode(), SysUcode_GetUCodeData());
 
@@ -6402,7 +6416,9 @@ void Interface_Draw(PlayState* play) {
             gDPSetRenderMode(OVERLAY_DISP++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
             gDPSetCombineMode(OVERLAY_DISP++, G_CC_PRIMITIVE, G_CC_PRIMITIVE);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, R_STORY_FILL_SCREEN_ALPHA);
-            gDPFillRectangle(OVERLAY_DISP++, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+            // #region 2S2H [Cosmetic] Account for different aspect ratios than 4:3
+            gDPFillWideRectangle(OVERLAY_DISP++, newX, 0, OTRGetRectDimensionFromRightEdge(SCREEN_WIDTH),
+                                 SCREEN_HEIGHT);
         }
 
         LifeMeter_Draw(play);
@@ -6767,13 +6783,16 @@ void Interface_LoadStory(PlayState* play, s32 osMesgFlag) {
             if (interfaceCtx->storySegment == NULL) {
                 break;
             }
-            osCreateMesgQueue(&interfaceCtx->storyMsgQueue, &interfaceCtx->storyMsgBuf, 1);
-            DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest, interfaceCtx->storySegment, interfaceCtx->storyAddr,
-                                   interfaceCtx->storySize, 0, &interfaceCtx->storyMsgQueue, OS_MESG_PTR(NULL));
+            // #region 2S2H [Port] Consider the story already loaded
+            // osCreateMesgQueue(&interfaceCtx->storyMsgQueue, &interfaceCtx->storyMsgBuf, 1);
+            // DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest, interfaceCtx->storySegment, interfaceCtx->storyAddr,
+            //                        interfaceCtx->storySize, 0, &interfaceCtx->storyMsgQueue, OS_MESG_PTR(NULL));
             interfaceCtx->storyDmaStatus = STORY_DMA_LOADING;
             // fallthrough
         case STORY_DMA_LOADING:
-            if (osRecvMesg(&interfaceCtx->storyMsgQueue, NULL, osMesgFlag) == 0) {
+            // if (osRecvMesg(&interfaceCtx->storyMsgQueue, NULL, osMesgFlag) == 0) {
+            if (true) {
+            // #endregion
                 interfaceCtx->storyDmaStatus = STORY_DMA_DONE;
             }
             break;

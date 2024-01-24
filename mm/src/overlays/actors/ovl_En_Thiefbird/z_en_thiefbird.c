@@ -8,6 +8,7 @@
 #include "z_en_thiefbird.h"
 #include "overlays/actors/ovl_En_Clear_Tag/z_en_clear_tag.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
+#include "2s2h/Enhancements/interpolation/frame_interpolation.h"
 
 #define FLAGS \
     (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_200 | ACTOR_FLAG_IGNORE_QUAKE | ACTOR_FLAG_80000000)
@@ -1155,6 +1156,7 @@ void func_80C13354(EnThiefbird* this, PlayState* play2) {
 
     for (i = 0; i < ARRAY_COUNT(this->unk_3F0); i++, ptr++) {
         if (ptr->unk_22 != 0) {
+            FrameInterpolation_RecordOpenChild(ptr, i);
             Matrix_Translate(ptr->unk_00.x, ptr->unk_00.y, ptr->unk_00.z, MTXMODE_NEW);
             Matrix_ReplaceRotation(&play->billboardMtxF);
             Matrix_RotateYS(ptr->unk_1E, MTXMODE_APPLY);
@@ -1165,6 +1167,7 @@ void func_80C13354(EnThiefbird* this, PlayState* play2) {
             gSPMatrix(&gfx[0], Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(&gfx[1], gTakkuriFeatherModelDL);
             gfx = &gfx[2];
+            FrameInterpolation_RecordCloseChild();
         }
     }
     POLY_OPA_DISP = gfx;

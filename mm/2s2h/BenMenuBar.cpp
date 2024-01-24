@@ -1,4 +1,5 @@
 #include "BenMenuBar.h"
+#include "BenPort.h"
 #include "ImGui/imgui.h"
 #include "public/bridge/consolevariablebridge.h"
 #include <libultraship/libultraship.h>
@@ -115,50 +116,44 @@ void DrawSettingsMenu() {
         }
 
         if (UIWidgets::BeginMenu("Graphics")) {
-            /* // #region 2S2H [Todo] None of this works yet
+            
     #ifndef __APPLE__
-            if (UIWidgets::EnhancementSliderFloat("Internal Resolution: %d %%", "##IMul", "gInternalResolution",
-    0.5f, 2.0f,
-                                                  "", 1.0f, true)) {
-                LUS::Context::GetInstance()->GetWindow()->SetResolutionMultiplier(CVarGetFloat("gInternalResolution",
-    1));
+            if (UIWidgets::CVarSliderFloat("Internal Resolution: %d %%", "gInternalResolution", 0.5f, 2.0f, 1.0f)) {
+                LUS::Context::GetInstance()->GetWindow()->SetResolutionMultiplier(CVarGetFloat("gInternalResolution", 1));
             };
-            UIWidgets::Tooltip("Multiplies your output resolution by the value inputted, as a more intensive but
-    effective " "form of anti-aliasing"); #endif #ifndef __WIIU__ if (UIWidgets::PaddedEnhancementSliderInt("MSAA: %d",
-    "##IMSAA", "gMSAAValue", 1, 8, "", 1, true, true, false)) {
+            UIWidgets::Tooltip("Multiplies your output resolution by the value inputted, as a more intensive but effective " "form of anti-aliasing");
+#endif 
+#ifndef __WIIU__ 
+            if (UIWidgets::CVarSliderInt("MSAA: %d","gMSAAValue", 1, 8, 1)) {
                 LUS::Context::GetInstance()->GetWindow()->SetMsaaLevel(CVarGetInteger("gMSAAValue", 1));
             };
-            UIWidgets::Tooltip("Activates multi-sample anti-aliasing when above 1x up to 8x for 8 samples for every
-    pixel"); #endif
+            UIWidgets::Tooltip("Activates multi-sample anti-aliasing when above 1x up to 8x for 8 samples for every pixel");
+#endif
 
             { // FPS Slider
-                const int minFps = 20;
-                static int maxFps;
+                constexpr unsigned int minFps = 20;
+                static unsigned int maxFps;
                 if (LUS::Context::GetInstance()->GetWindow()->GetWindowBackend() == LUS::WindowBackend::DX11) {
                     maxFps = 360;
                 } else {
                     maxFps = LUS::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
                 }
-                // int currentFps = fmax(fmin(OTRGlobals::Instance->GetInterpolationFPS(), maxFps), minFps);
-                int currentFps = 20;
+                unsigned int currentFps = std::max(std::min(OTRGlobals::Instance->GetInterpolationFPS(), maxFps), minFps);
                 bool matchingRefreshRate =
                     CVarGetInteger("gMatchRefreshRate", 0) &&
                     LUS::Context::GetInstance()->GetWindow()->GetWindowBackend() != LUS::WindowBackend::DX11;
-                UIWidgets::PaddedEnhancementSliderInt((currentFps == 20) ? "FPS: Original (20)" : "FPS: %d",
-                                                      "##FPSInterpolation", "gInterpolationFPS", minFps, maxFps, "", 20,
-                                                      true, true, false, matchingRefreshRate);
+                UIWidgets::CVarSliderInt((currentFps == 20) ? "FPS: Original (20)" : "FPS: %d", "gInterpolationFPS",
+                                         minFps, maxFps, 20, {.disabled = matchingRefreshRate} );
                 if (LUS::Context::GetInstance()->GetWindow()->GetWindowBackend() == LUS::WindowBackend::DX11) {
                     UIWidgets::Tooltip(
-                        "Uses Matrix Interpolation to create extra frames, resulting in smoother graphics. This is
-    purely " "visual and does not impact game logic, execution of glitches etc.\n\n" "A higher target FPS than your
-    monitor's refresh rate will waste resources, and might give a worse " "result."); } else { UIWidgets::Tooltip( "Uses
-    Matrix Interpolation to create extra frames, resulting in smoother graphics. This is purely " "visual and does not
-    impact game logic, execution of glitches etc.");
+                        "Uses Matrix Interpolation to create extra frames, resulting in smoother graphics. This is purely visual and does not impact game logic, execution of glitches etc.\n\n A higher target FPS than your monitor's refresh rate will waste resources, and might give a worse result."); 
+                } else { 
+                    UIWidgets::Tooltip( "Uses Matrix Interpolation to create extra frames, resulting in smoother graphics. This is purely visual and does not impact game logic, execution of glitches etc.");
                 }
             } // END FPS Slider
 
             if (LUS::Context::GetInstance()->GetWindow()->GetWindowBackend() == LUS::WindowBackend::DX11) {
-                UIWidgets::Spacer(0);
+                //UIWidgets::Spacer(0);
                 if (ImGui::Button("Match Refresh Rate")) {
                     int hz = LUS::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
                     if (hz >= 20 && hz <= 360) {
@@ -167,22 +162,17 @@ void DrawSettingsMenu() {
                     }
                 }
             } else {
-                UIWidgets::PaddedEnhancementCheckbox("Match Refresh Rate", "gMatchRefreshRate", true, false);
+                UIWidgets::CVarCheckbox("Match Refresh Rate", "gMatchRefreshRate");
             }
             UIWidgets::Tooltip("Matches interpolation value to the current game's window refresh rate");
 
             if (LUS::Context::GetInstance()->GetWindow()->GetWindowBackend() == LUS::WindowBackend::DX11) {
-                UIWidgets::PaddedEnhancementSliderInt(
-                    CVarGetInteger("gExtraLatencyThreshold", 80) == 0 ? "Jitter fix: Off" : "Jitter fix: >= %d FPS",
-                    "##ExtraLatencyThreshold", "gExtraLatencyThreshold", 0, 360, "", 80, true, true, false);
-                UIWidgets::Tooltip("When Interpolation FPS setting is at least this threshold, add one frame of input
-    lag "
-                                   "(e.g. 16.6 ms for 60 FPS) in order to avoid jitter. This setting allows the CPU to "
-                                   "work on one frame while GPU works on the previous frame.\nThis setting should be
-    used " "when your computer is too slow to do CPU + GPU work in time.");
+                UIWidgets::CVarSliderInt(CVarGetInteger("gExtraLatencyThreshold", 80) == 0 ? "Jitter fix: Off" : "Jitter fix: >= %d FPS",
+                    "gExtraLatencyThreshold", 0, 360, 80);
+                UIWidgets::Tooltip("When Interpolation FPS setting is at least this threshold, add one frame of input lag (e.g. 16.6 ms for 60 FPS) in order to avoid jitter. This setting allows the CPU to work on one frame while GPU works on the previous frame.\nThis setting should be used when your computer is too slow to do CPU + GPU work in time.");
             }
 
-            UIWidgets::PaddedSeparator(true, true, 3.0f, 3.0f);
+            //UIWidgets::PaddedSeparator(true, true, 3.0f, 3.0f);
             // #endregion */
 
             LUS::WindowBackend runningWindowBackend = LUS::Context::GetInstance()->GetWindow()->GetWindowBackend();
@@ -234,7 +224,8 @@ void DrawSettingsMenu() {
 
             ImGui::EndMenu();
         }
-
+    // #region 2S2H [Todo] None of this works yet
+        /*
         if (UIWidgets::BeginMenu("Controller")) {
             if (mInputEditorWindow) {
                 UIWidgets::WindowButton("Controller Mapping", "gWindows.InputEditor", mInputEditorWindow);
@@ -261,7 +252,8 @@ void DrawSettingsMenu() {
 
             ImGui::EndMenu();
         }
-
+        ImGui::EndMenu();
+        */
         ImGui::EndMenu();
     }
 }
@@ -300,6 +292,8 @@ void DrawDeveloperToolsMenu() {
             .tooltip = "Enables Debug Mode, allowing you to select maps with L + R + Z, noclip with L + D-pad "
             "Right, and open the debug menu with L on the pause screen"
         });
+        
+        UIWidgets::CVarCheckbox("Better Map Select", "gDeveloperTools.BetterMapSelect.Enabled");
         
         if (gPlayState != NULL) {
             ImGui::Separator();

@@ -2,6 +2,7 @@
 #include "sys_cfb.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include <string.h>
+#include "2s2h/Enhancements/interpolation/frame_interpolation.h"
 
 LightsBuffer sLightsBuffer;
 
@@ -428,6 +429,7 @@ void Lights_DrawGlow(PlayState* play) {
                 if (params->drawGlow) {
                     f32 scale = SQ((f32)params->radius) * 2e-6f;
 
+                    FrameInterpolation_RecordOpenChild(light, 0);
                     gDPSetPrimColor(dl++, 0, 0, params->color[0], params->color[1], params->color[2], 50);
 
                     Matrix_Translate(params->x, params->y, params->z, MTXMODE_NEW);
@@ -436,6 +438,7 @@ void Lights_DrawGlow(PlayState* play) {
                     gSPMatrix(dl++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
 
                     gSPDisplayList(dl++, gameplay_keep_DL_029CF0);
+                    FrameInterpolation_RecordCloseChild();
                 }
             }
 
