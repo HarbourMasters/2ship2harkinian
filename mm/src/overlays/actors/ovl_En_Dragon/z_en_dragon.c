@@ -15,6 +15,7 @@ void EnDragon_Init(Actor* thisx, PlayState* play);
 void EnDragon_Destroy(Actor* thisx, PlayState* play);
 void EnDragon_Update(Actor* thisx, PlayState* play);
 void EnDragon_Draw(Actor* thisx, PlayState* play);
+void EnDragon_Reset(void);
 
 void EnDragon_SetupRetreatOrIdle(EnDragon* this);
 void EnDragon_RetreatOrIdle(EnDragon* this, PlayState* play);
@@ -54,6 +55,7 @@ ActorInit En_Dragon_InitVars = {
     /**/ EnDragon_Destroy,
     /**/ EnDragon_Update,
     /**/ EnDragon_Draw,
+    /**/ EnDragon_Reset,
 };
 
 typedef enum {
@@ -847,4 +849,8 @@ void EnDragon_Draw(Actor* thisx, PlayState* play) {
     Gfx_SetupDL25_Xlu(play->state.gfxCtx);
     SkelAnime_DrawFlexOpa(play, this->skelAnime.skeleton, this->skelAnime.jointTable, this->skelAnime.dListCount,
                           EnDragon_OverrideLimbDraw, EnDragon_PostLimbDraw, &this->actor);
+}
+
+void EnDragon_Reset(void) {
+    sNumPythonsDead = 0;
 }
