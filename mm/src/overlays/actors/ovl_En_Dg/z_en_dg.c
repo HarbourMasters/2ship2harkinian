@@ -15,6 +15,7 @@ void EnDg_Init(Actor* thisx, PlayState* play);
 void EnDg_Destroy(Actor* thisx, PlayState* play);
 void EnDg_Update(Actor* thisx, PlayState* play);
 void EnDg_Draw(Actor* thisx, PlayState* play);
+void EnDg_Reset(void);
 
 void EnDg_IdleMove(EnDg* this, PlayState* play);
 void EnDg_IdleBark(EnDg* this, PlayState* play);
@@ -47,6 +48,7 @@ ActorInit En_Dg_InitVars = {
     /**/ EnDg_Destroy,
     /**/ EnDg_Update,
     /**/ EnDg_Draw,
+    /**/ EnDg_Reset,
 };
 
 #define DOG_FLAG_NONE 0
@@ -1436,4 +1438,9 @@ void EnDg_Draw(Actor* thisx, PlayState* play) {
                           EnDg_OverrideLimbDraw, EnDg_PostLimbDraw, &this->actor);
 
     CLOSE_DISPS(play->state.gfxCtx);
+}
+
+void EnDg_Reset(void) {
+    sIsAnyDogHeld = false;
+    sBremenMaskFollowerIndex = ENDG_INDEX_NO_BREMEN_MASK_FOLLOWER;
 }
