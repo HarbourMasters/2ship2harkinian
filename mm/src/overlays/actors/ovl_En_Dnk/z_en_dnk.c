@@ -13,6 +13,7 @@
 void EnDnk_Init(Actor* thisx, PlayState* play);
 void EnDnk_Destroy(Actor* thisx, PlayState* play);
 void EnDnk_Update(Actor* thisx, PlayState* play);
+void EnDnk_Reset(void);
 
 void EnDnk_HandleCutscene(EnDnk* this, PlayState* play);
 void EnDnk_DoNothing(EnDnk* this, PlayState* play);
@@ -31,6 +32,7 @@ ActorInit En_Dnk_InitVars = {
     /**/ EnDnk_Destroy,
     /**/ EnDnk_Update,
     /**/ NULL,
+    /**/ EnDnk_Reset,
 };
 
 static ColliderCylinderInit sCylinderInit = {
@@ -499,4 +501,8 @@ void func_80A52134(EnDnk* this, PlayState* play) {
         (gSaveContext.sceneLayer == 2)) {
         func_80A52074(this, play);
     }
+}
+
+void EnDnk_Reset(void) {
+    D_80A521A0 = 0;
 }
