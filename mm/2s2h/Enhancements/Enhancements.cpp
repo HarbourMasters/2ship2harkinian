@@ -35,9 +35,9 @@ void RegisterInfiniteCheats() {
         if (CVarGetInteger("gCheats.InfiniteMagic", 0)) {
             uint8_t magicLevel = gSaveContext.save.saveInfo.playerData.magicLevel;
             if (magicLevel == 1) {
-                gSaveContext.save.saveInfo.playerData.magic = 48;
+                gSaveContext.save.saveInfo.playerData.magic = MAGIC_NORMAL_METER;
             } else if (magicLevel == 2) {
-                gSaveContext.save.saveInfo.playerData.magic = 96;
+                gSaveContext.save.saveInfo.playerData.magic = MAGIC_DOUBLE_METER;
             }
         }
 
