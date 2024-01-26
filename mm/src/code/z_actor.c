@@ -21,7 +21,7 @@
 #include "objects/object_bdoor/object_bdoor.h"
 
 #include <string.h>
-#include "2s2h/Enhancements/interpolation/frame_interpolation.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 // bss
 // FaultClient sActorFaultClient; // 2 funcs

@@ -43,7 +43,7 @@
 #include "Extractor/Extract.h"
 // OTRTODO
 //#include <functions.h>
-#include "2s2h/Enhancements/interpolation/frame_interpolation.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 #ifdef ENABLE_CROWD_CONTROL
 #include "Enhancements/crowd-control/CrowdControl.h"
@@ -51,12 +51,12 @@ CrowdControl* CrowdControl::Instance;
 #endif
 
 #include <libultraship/libultraship.h>
-#include <BenGui.hpp>
+#include <BenGui/BenGui.hpp>
 #include "BenJsonConversions.hpp"
 
-#include "Enhancements/controls/SohInputEditorWindow.h"
+#include "BenGui/SohInputEditorWindow.h"
 #include "Enhancements/GameInteractor/GameInteractor.h"
-#include "Enhancements/mods.h"
+#include "Enhancements/Enhancements.h"
 
 // Resource Types/Factories
 #include "2s2h/resource/type/Animation.h"
@@ -306,7 +306,7 @@ extern "C" void InitOTR() {
     OTRGlobals::Instance = new OTRGlobals();
     GameInteractor::Instance = new GameInteractor();
     BenGui::SetupGuiElements();
-    InitMods();
+    InitEnhancements();
 
     clearMtx = (uintptr_t)&gMtxClear;
     //OTRMessage_Init();

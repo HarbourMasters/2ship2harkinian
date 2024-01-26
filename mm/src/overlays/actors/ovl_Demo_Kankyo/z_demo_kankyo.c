@@ -7,7 +7,7 @@
 #include "z_demo_kankyo.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "objects/object_bubble/object_bubble.h"
-#include "2s2h/Enhancements/interpolation/frame_interpolation.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_20)
 

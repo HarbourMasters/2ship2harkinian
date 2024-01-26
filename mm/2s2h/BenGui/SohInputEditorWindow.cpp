@@ -1,7 +1,7 @@
 #include "SohInputEditorWindow.h"
 #include <Utils/StringHelper.h>
 #include "2s2h/BenPort.h"
-#include "../../UIWidgets.hpp"
+#include "UIWidgets.hpp"
 #include "z64.h"
 #ifndef __WIIU__
 #include "controller/controldevice/controller/mapping/sdl/SDLAxisDirectionToButtonMapping.h"

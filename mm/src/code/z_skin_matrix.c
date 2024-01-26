@@ -1,5 +1,5 @@
 #include "global.h"
-#include "2s2h/Enhancements/interpolation/frame_interpolation.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 MtxF sMtxFClear = { {
     { 1.0f, 0.0f, 0.0f, 0.0f },

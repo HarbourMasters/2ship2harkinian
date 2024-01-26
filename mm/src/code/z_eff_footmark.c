@@ -2,7 +2,7 @@
 #include "z64.h"
 #include "macros.h"
 #include "functions.h"
-#include "2s2h/Enhancements/interpolation/frame_interpolation.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 #include "assets/code/eff_footmark/eff_footmark.h"
 
