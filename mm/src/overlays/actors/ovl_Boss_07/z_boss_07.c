@@ -250,6 +250,7 @@ void Boss07_Mask_ClearBeam(Boss07* this);
 
 void Boss07_Init(Actor* thisx, PlayState* play2);
 void Boss07_Destroy(Actor* thisx, PlayState* play2);
+void Boss07_Reset(void);
 
 void Boss07_Wrath_Update(Actor* thisx, PlayState* play2);
 void Boss07_Static_Update(Actor* thisx, PlayState* play2);
@@ -382,6 +383,7 @@ ActorInit Boss_07_InitVars = {
     (ActorFunc)Boss07_Destroy,
     (ActorFunc)Boss07_Wrath_Update,
     (ActorFunc)Boss07_Wrath_Draw,
+    /**/ Boss07_Reset,
 };
 
 #include "z_boss_07_colchk.inc"
@@ -6061,4 +6063,27 @@ void Boss07_Static_DrawEffects(PlayState* play) {
         }
     }
     CLOSE_DISPS(gfxCtx);
+}
+
+void Boss07_Reset(void) {
+    sHeartbeatTimer = 0;
+    sWhipSegCount = 0;
+    sMajorasWrath = NULL;
+    sMajoraStatic = NULL;
+    sMajorasMask = NULL;
+
+    for (int i = 0; i < REMAINS_COUNT; i++) {
+        sBossRemains[i] = NULL;
+    }
+
+    sKillProjectiles = 0;
+    sMusicStartTimer = 0;
+
+    for (int i = 0; i < EFFECT_COUNT; i++) {
+        sEffects[i].type = MAJORAS_EFFECT_NONE;
+    }
+
+    sSeed0 = 0;
+    sSeed1 = 0;
+    sSeed2 = 0;
 }
