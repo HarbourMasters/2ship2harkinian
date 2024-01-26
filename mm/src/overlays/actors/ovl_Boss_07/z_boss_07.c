@@ -11,6 +11,8 @@
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "objects/object_boss07/object_boss07.h"
 #include "overlays/actors/ovl_En_Clear_Tag/z_en_clear_tag.h"
+#include "BenPort.h"
+#include "2s2h/Enhancements/interpolation/frame_interpolation.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
@@ -2223,16 +2225,18 @@ void Boss07_Wrath_Update(Actor* thisx, PlayState* play2) {
         Boss07_Wrath_SetupDeath(this, play);
     }
     if (this->bodyDecayRate != 0) {
-        u16* sp74 = SEGMENTED_TO_K0(gMajorasWrathEarTex);
-        u16* sp70 = SEGMENTED_TO_K0(gMajoraStripesTex);
-        u16* sp6C = SEGMENTED_TO_K0(gMajorasWrathMouthTex);
-        u16* sp68 = SEGMENTED_TO_K0(gMajoraBloodshotEyeTex);
-        u16* sp64 = SEGMENTED_TO_K0(gMajorasWrathEyeTex);
-        u16* sp60 = SEGMENTED_TO_K0(gMajorasMaskWithNormalEyesTex);
-        u16* sp5C = SEGMENTED_TO_K0(gMajoraVeinsTex);
-        u16* sp58 = SEGMENTED_TO_K0(gMajoraHandTex);
-        u16* sp54 = SEGMENTED_TO_K0(gMajoraBodyTex);
-
+        // #region 2S2H these textures are modified.They need to be loaded first because not using the resource manager
+        // will cause the file path strings to be modified instead of the texture.
+        u16* sp74 = ResourceMgr_LoadTexOrDListByName(gMajorasWrathEarTex);
+        u16* sp70 = ResourceMgr_LoadTexOrDListByName(gMajoraStripesTex);
+        u16* sp6C = ResourceMgr_LoadTexOrDListByName(gMajorasWrathMouthTex);
+        u16* sp68 = ResourceMgr_LoadTexOrDListByName(gMajoraBloodshotEyeTex);
+        u16* sp64 = ResourceMgr_LoadTexOrDListByName(gMajorasWrathEyeTex);
+        u16* sp60 = ResourceMgr_LoadTexOrDListByName(gMajorasMaskWithNormalEyesTex);
+        u16* sp5C = ResourceMgr_LoadTexOrDListByName(gMajoraVeinsTex);
+        u16* sp58 = ResourceMgr_LoadTexOrDListByName(gMajoraHandTex);
+        u16* sp54 = ResourceMgr_LoadTexOrDListByName(gMajoraBodyTex);
+        // #endregion
         for (i = 0; i < this->bodyDecayRate; i++) {
             s32 sp50;
             s32 sp4C;
@@ -6047,6 +6051,7 @@ void Boss07_Static_DrawEffects(PlayState* play) {
     Gfx_SetupDL25_Xlu(play->state.gfxCtx);
     for (i = 0; i < ARRAY_COUNT(sEffects); i++, effect++) {
         if (effect->type > MAJORAS_EFFECT_NONE) {
+            FrameInterpolation_RecordOpenChild(effect, i);
             gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 200, 20, 0, effect->alpha);
             gDPPipeSync(POLY_XLU_DISP++);
             gDPSetEnvColor(POLY_XLU_DISP++, 255, 215, 255, 128);
@@ -6058,6 +6063,7 @@ void Boss07_Static_DrawEffects(PlayState* play) {
             Matrix_Scale(effect->scale, effect->scale, 1.0f, MTXMODE_APPLY);
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_XLU_DISP++, gMajorasMaskFireDL);
+            FrameInterpolation_RecordCloseChild();
         }
     }
     CLOSE_DISPS(gfxCtx);
