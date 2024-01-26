@@ -1,4 +1,4 @@
-#include "mods.h"
+#include "Enhancements.h"
 #include <libultraship/bridge.h>
 #include "GameInteractor/GameInteractor.h"
 
@@ -24,6 +24,6 @@ void RegisterMoonJumpOnL() {
     });
 }
 
-void InitMods() {
+void InitEnhancements() {
     RegisterMoonJumpOnL();
 }

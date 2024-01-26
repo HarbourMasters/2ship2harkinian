@@ -1,5 +1,5 @@
 #include "SaveEditor.h"
-#include "2s2h/UIWidgets.hpp"
+#include "2s2h/BenGui/UIWidgets.hpp"
 
 extern "C" {
 #include <z64.h>

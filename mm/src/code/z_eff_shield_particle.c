@@ -3,7 +3,7 @@
 
 #include "assets/code/eff_shield_particle/eff_shield_particle.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
-#include "2s2h/Enhancements/interpolation/frame_interpolation.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 void EffectShieldParticle_Init(void* thisx, void* initParamsx) {
     EffectShieldParticle* this = (EffectShieldParticle*)thisx;

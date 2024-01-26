@@ -3,7 +3,7 @@
 #include "z64.h"
 #include <assert.h>
 #include "BenPort.h"
-#include "2s2h/Enhancements/interpolation/frame_interpolation.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 //#include <math.h>
 
 #define SCREEN_WIDTH 320
