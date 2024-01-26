@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <math.h>
 
-#include "frame_interpolation.h"
+#include "FrameInterpolation.h"
 #include "2s2h/BenPort.h"
 
 /*
