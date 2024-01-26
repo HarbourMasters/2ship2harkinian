@@ -1,7 +1,7 @@
 #include "global.h"
 #include "z64shrink_window.h"
 #include "z64view.h"
-#include "2s2h/Enhancements/interpolation/frame_interpolation.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 s32 View_ApplyPerspective(View* view);
 s32 View_ApplyOrtho(View* view);

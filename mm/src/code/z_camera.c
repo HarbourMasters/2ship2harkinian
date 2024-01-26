@@ -62,7 +62,7 @@ SwingAnimation D_801EDC30[4];
 Vec3f D_801EDDD0;
 Vec3f D_801EDDE0;
 Vec3f D_801EDDF0;
-#include "2s2h/Enhancements/interpolation/frame_interpolation.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 // Camera will reload its paramData. Usually that means setting the read-only data from what is stored in
 // CameraModeValue arrays. Although sometimes some read-write data is reset as well

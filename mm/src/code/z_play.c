@@ -34,7 +34,7 @@ u8 sMotionBlurStatus;
 #include "overlays/gamestates/ovl_file_choose/z_file_select.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "debug.h"
-#include "2s2h/Enhancements/interpolation/frame_interpolation.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include <string.h>
 
 s32 gDbgCamEnabled = false;

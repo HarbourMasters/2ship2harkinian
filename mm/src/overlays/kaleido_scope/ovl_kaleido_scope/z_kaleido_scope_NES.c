@@ -17,7 +17,7 @@
 #include "gfxdebuggerbridge.h"
 #include "archives/item_name_static/item_name_static.h"
 #include "archives/map_name_static/map_name_static.h"
-#include "2s2h/Enhancements/interpolation/frame_interpolation.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 // Page Textures (Background of Page):
 // Broken up into multiple textures.

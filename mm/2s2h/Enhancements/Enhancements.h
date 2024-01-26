@@ -2,7 +2,7 @@
 extern "C" {
 #endif
 
-void InitMods();
+void InitEnhancements();
 
 #ifdef __cplusplus
 }
