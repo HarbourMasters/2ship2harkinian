@@ -20,6 +20,7 @@ void Boss02_Init(Actor* thisx, PlayState* play);
 void Boss02_Destroy(Actor* thisx, PlayState* play);
 void Boss02_Twinmold_Update(Actor* thisx, PlayState* play);
 void Boss02_Twinmold_Draw(Actor* thisx, PlayState* play2);
+void Boss02_Reset(void);
 
 void func_809DAA74(Boss02* this, PlayState* play);
 void func_809DAA98(Boss02* this, PlayState* play);
@@ -153,6 +154,7 @@ ActorInit Boss_02_InitVars = {
     /**/ Boss02_Destroy,
     /**/ Boss02_Twinmold_Update,
     /**/ Boss02_Twinmold_Draw,
+    /**/ Boss02_Reset,
 };
 
 /**
@@ -2325,5 +2327,20 @@ void func_809DEAC4(Boss02* this, PlayState* play) {
         this->subCamUp.z = this->subCamUp.x = 0.0f;
         this->subCamUp.y = 1.0f;
         ShrinkWindow_Letterbox_SetSizeTarget(27);
+    }
+}
+
+void Boss02_Reset(void) {
+    sCanSkipMaskOnCs = false;
+    sCanSkipMaskOffCs = false;
+    sIsInGiantMode = false;
+    sRedTwinmold = NULL;
+    sBlueTwinmold = NULL;
+    sTwinmoldStatic = NULL;
+    sTwinmoldMusicStartTimer = 0;
+    sBlueWarp = NULL;
+
+    for (int i = 0; i < TWINMOLD_EFFECT_COUNT; i++) {
+        sTwinmoldEffects[i].type = TWINMOLD_EFFECT_NONE;
     }
 }
