@@ -165,7 +165,7 @@ void Scene_CommandObjectList(PlayState* play, LUS::ISceneCommand* cmd) {
     s32 j;
     s32 k;
 
-    // #Region 2S2H [Port] Cleaner version of decomps loops for nicer presentation
+    // #region 2S2H [Port] Cleaner version of decomps loops for nicer presentation
 
     // Loop until a mismatch in the object lists
     // Then clear all object ids past that in the context object list and kill actors for those objects
@@ -183,6 +183,8 @@ void Scene_CommandObjectList(PlayState* play, LUS::ISceneCommand* cmd) {
     for (; k < objList->objects.size(); k++) {
         play->objectCtx.slots[play->objectCtx.numEntries++].id = -objList->objects[k];
     }
+
+    // #endregion
 
     // Original Compatible Code Commented
 

@@ -9,6 +9,7 @@
  *    - Argument 4: Restriction flags. See `RESTRICTIONS_SET` on z_parameter.c
  *    - Argument 5: Persistent cycle flag set: bitwise flags which won't be turned off on a cycle reset (will persist between cycles)
  *    - Argument 6: EntranceSceneId
+ * 2S2H The following columns were added to the scene table:
  *    - Argument 7: Human readable name
  *
  * DEFINE_SCENE_UNSET is needed to define empty entries from the original game

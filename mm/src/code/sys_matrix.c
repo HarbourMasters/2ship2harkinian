@@ -1183,7 +1183,7 @@ void Matrix_SetTranslateRotateYXZ(f32 x, f32 y, f32 z, Vec3s* rot) {
  */
 Mtx* Matrix_MtxFToMtx(MtxF* src, Mtx* dest) {
     FrameInterpolation_RecordMatrixMtxFToMtx(src, dest);
-    // #Region 2S2H [Port] For compatibility with modern systems this has been changed to use guMtxF2L
+    // 2S2H [Port] For compatibility with modern systems this has been changed to use guMtxF2L
     guMtxF2L(src, dest);
     return dest;
 }

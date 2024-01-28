@@ -12,6 +12,7 @@ void MapSelect_LoadFileSelect(MapSelectState* mapSelectState) {
     SET_NEXT_GAMESTATE(&mapSelectState->state, FileSelect_Init, sizeof(FileSelectState));
 }
 
+// 2S2H Added columns to scene table: humanName
 #define DEFINE_SCENE(_name, _enumValue, _textId, _drawConfig, _restrictionFlags, _persistentCycleFlags, entranceSceneId, humanName) \
     { humanName, MapSelect_LoadGame, ENTRANCE(entranceSceneId, 0) },
 #define DEFINE_SCENE_UNSET(_enumValue)
@@ -25,6 +26,7 @@ static SceneSelectEntry sBetterScenes[] = {
 #undef DEFINE_SCENE
 #undef DEFINE_SCENE_UNSET
 
+// 2S2H Added columns to scene table: humanName
 #define DEFINE_SCENE(_name, enumValue, _textId, _drawConfig, _restrictionFlags, _persistentCycleFlags, entranceSceneId, humanName) \
     { enumValue },
 #define DEFINE_SCENE_UNSET(_enumValue)
