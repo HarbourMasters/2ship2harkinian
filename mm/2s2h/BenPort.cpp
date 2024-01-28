@@ -54,7 +54,6 @@ CrowdControl* CrowdControl::Instance;
 #include <BenGui/BenGui.hpp>
 #include "BenJsonConversions.hpp"
 
-#include "BenGui/SohInputEditorWindow.h"
 #include "Enhancements/GameInteractor/GameInteractor.h"
 #include "Enhancements/Enhancements.h"
 
@@ -160,6 +159,8 @@ OTRGlobals::OTRGlobals() {
         LUS::ResourceType::SOH_Background, "Background", std::make_shared<LUS::BackgroundFactory>());
     context->GetResourceManager()->GetResourceLoader()->RegisterResourceFactory(
         LUS::ResourceType::TSH_TexAnim, "TextureAnimation", std::make_shared<LUS::TextureAnimationFactory>());
+
+    context->GetControlDeck()->SetSinglePlayerMappingMode(true);
 
     //gSaveStateMgr = std::make_shared<SaveStateMgr>();
     //gRandomizer = std::make_shared<Randomizer>();
@@ -1330,12 +1331,16 @@ extern "C" void OTRControllerCallback(uint8_t rumble) {
     LUS::Context::GetInstance()->GetControlDeck()->GetControllerByPort(0)->GetLED()->SetLEDColor(
         GetColorForControllerLED());
 
-    static std::shared_ptr<SohInputEditorWindow> controllerConfigWindow = nullptr;
+    static std::shared_ptr<LUS::InputEditorWindow> controllerConfigWindow = nullptr;
     if (controllerConfigWindow == nullptr) {
-        controllerConfigWindow = std::dynamic_pointer_cast<SohInputEditorWindow>(
+        controllerConfigWindow = std::dynamic_pointer_cast<LUS::InputEditorWindow>(
             LUS::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Input Editor"));
-    } else if (controllerConfigWindow->TestingRumble()) {
-        return;
+    // TODO: Add SoH Controller Config window rumble testing to upstream LUS config window
+    //       note: the current implementation may not be desired in LUS, as "true" rumble support
+    //             using osMotor calls is planned: https://github.com/Kenix3/libultraship/issues/9
+    //
+    // } else if (controllerConfigWindow->TestingRumble()) {
+    //     return;
     }
 
     if (rumble) {

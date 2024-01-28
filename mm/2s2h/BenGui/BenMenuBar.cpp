@@ -226,11 +226,11 @@ void DrawSettingsMenu() {
         }
     // #region 2S2H [Todo] None of this works yet
         /*
-        if (UIWidgets::BeginMenu("Controller")) {
+        if (UIWidgets::BeginMenu("Controller")) { */
             if (mInputEditorWindow) {
                 UIWidgets::WindowButton("Controller Mapping", "gWindows.InputEditor", mInputEditorWindow);
             }
-
+        /*
         #ifndef __SWITCH__
             UIWidgets::CVarCheckbox("Menubar Controller Navigation", "gControlNav", {
                 .tooltip = "Allows controller navigation of the SOH menu bar (Settings, Enhancements,...)\nCAUTION: "
