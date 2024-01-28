@@ -34,7 +34,7 @@ void FrameAdvance_Init(FrameAdvanceContext* frameAdvCtx) {
  * Returns true when frame advance is not active (game will run normally)
  */
 s32 FrameAdvance_Update(FrameAdvanceContext* frameAdvCtx, Input* input) {
-    if (CVarGetInteger("gDebugEnabled", 0)) {
+    if (CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
         if (CHECK_BTN_ALL(input->cur.button, BTN_R) && CHECK_BTN_ALL(input->press.button, BTN_DDOWN)) {
             frameAdvCtx->enabled = !frameAdvCtx->enabled;
         }
