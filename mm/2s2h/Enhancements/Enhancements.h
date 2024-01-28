@@ -3,6 +3,7 @@ extern "C" {
 #endif
 
 void InitEnhancements();
+void RegisterMoonJumpOnL();
 
 #ifdef __cplusplus
 }

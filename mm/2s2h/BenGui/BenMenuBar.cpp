@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <string>
 #include "z64.h"
+#include "2s2h/Enhancements/Enhancements.h"
 
 extern bool ShouldClearTextureCacheAtEndOfFrame;
 
@@ -226,11 +227,11 @@ void DrawSettingsMenu() {
         }
     // #region 2S2H [Todo] None of this works yet
         /*
-        if (UIWidgets::BeginMenu("Controller")) {
+        if (UIWidgets::BeginMenu("Controller")) { */
             if (mInputEditorWindow) {
                 UIWidgets::WindowButton("Controller Mapping", "gWindows.InputEditor", mInputEditorWindow);
             }
-
+        /*
         #ifndef __SWITCH__
             UIWidgets::CVarCheckbox("Menubar Controller Navigation", "gControlNav", {
                 .tooltip = "Allows controller navigation of the SOH menu bar (Settings, Enhancements,...)\nCAUTION: "
@@ -272,9 +273,11 @@ void DrawCheatsMenu() {
         UIWidgets::CVarCheckbox("Infinite Magic", "gCheats.InfiniteMagic");
         UIWidgets::CVarCheckbox("Infinite Rupees", "gCheats.InfiniteRupees");
         UIWidgets::CVarCheckbox("Infinite Consumables", "gCheats.InfiniteConsumables");
-        UIWidgets::CVarCheckbox("Moon Jump on L", "gCheats.MoonJumpOnL", {
-            .tooltip = "Holding L makes you float into the air."
-        });
+        if (UIWidgets::CVarCheckbox("Moon Jump on L", "gCheats.MoonJumpOnL", {
+            .tooltip = "Holding L makes you float into the air"
+        })) {
+            RegisterMoonJumpOnL();
+        }
         UIWidgets::CVarCheckbox("No Clip", "gCheats.NoClip");
 
         ImGui::EndMenu();

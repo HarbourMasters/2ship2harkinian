@@ -63,11 +63,6 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O2 -DNDEBUG")
 set(CMAKE_OBJCXX_FLAGS_RELEASE "-O2 -DNDEBUG")
 endif()
 
-if (NOT CMAKE_SYSTEM_NAME MATCHES "Darwin")
-set(CMAKE_CXX_FLAGS_DEBUG "-fuse-ld=lld")
-set(CMAKE_LINKER_FLAGS_DEBUG "-fuse-ld=lld")
-endif()
-
 if(NOT CMAKE_BUILD_TYPE )
     set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Choose the type of build." FORCE)
 endif()
