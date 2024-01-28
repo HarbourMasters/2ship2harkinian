@@ -292,8 +292,7 @@ extern std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
 void DrawDeveloperToolsMenu() {
     if (UIWidgets::BeginMenu("Developer Tools", UIWidgets::Colors::Yellow)) {
         UIWidgets::CVarCheckbox("Debug Mode", "gDeveloperTools.DebugEnabled", {
-            .tooltip = "Enables Debug Mode, allowing you to select maps with L + R + Z, noclip with L + D-pad "
-            "Right, and open the debug menu with L on the pause screen"
+            .tooltip = "Enables Debug Mode, allowing you to select maps with L + R + Z."
         });
         
         UIWidgets::CVarCheckbox("Better Map Select", "gDeveloperTools.BetterMapSelect.Enabled");
