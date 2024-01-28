@@ -3,8 +3,9 @@
 #include "fault.h"
 
 // Init Vars declarations (also used in the table below)
-#define DEFINE_ACTOR(name, _enumValue, _allocType, _debugName) extern ActorInit name##_InitVars;
-#define DEFINE_ACTOR_INTERNAL(name, _enumValue, _allocType, _debugName) extern ActorInit name##_InitVars;
+// 2S2H Added columns to actor table: _humanName
+#define DEFINE_ACTOR(name, _enumValue, _allocType, _debugName, _humanName) extern ActorInit name##_InitVars;
+#define DEFINE_ACTOR_INTERNAL(name, _enumValue, _allocType, _debugName, _humanName) extern ActorInit name##_InitVars;
 #define DEFINE_ACTOR_UNSET(_enumValue)
 
 #include "tables/actor_table.h"
@@ -25,11 +26,12 @@
 //      allocType,                                              \
 //      0 },
 
-#define DEFINE_ACTOR_INTERNAL(name, _enumValue, allocType, _debugName) \
+// 2S2H Added columns to actor table: _humanName
+#define DEFINE_ACTOR_INTERNAL(name, _enumValue, allocType, _debugName, _humanName) \
     { 0, 0, NULL, NULL, NULL, &name##_InitVars, NULL, allocType, 0 },
 
-#define DEFINE_ACTOR(name, _enumValue, allocType, _debugName) \
-    DEFINE_ACTOR_INTERNAL(name, _enumValue, allocType, _debugName)
+#define DEFINE_ACTOR(name, _enumValue, allocType, _debugName, _humanName) \
+    DEFINE_ACTOR_INTERNAL(name, _enumValue, allocType, _debugName, _humanName)
 
 #define DEFINE_ACTOR_UNSET(_enumValue) { 0 },
 
