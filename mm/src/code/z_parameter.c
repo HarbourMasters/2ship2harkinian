@@ -127,6 +127,7 @@ Input sPostmanTimerInput[MAXCONTROLLERS];
 #define RESTRICTIONS_MOON RESTRICTIONS_SET(0, 0, 0, 0, 0, 3, 3, 3, 0, 0, 0, 0)
 #define RESTRICTIONS_NO_DOUBLE_TIME RESTRICTIONS_SET(0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0)
 
+// 2S2H Added columns to scene table: humanName
 #define DEFINE_SCENE(_name, enumValue, _textId, _drawConfig, restrictionFlags, _persistentCycleFlags, _entranceSceneId, _humanName) \
     { enumValue, restrictionFlags },
 

@@ -507,8 +507,8 @@ void SkinMatrix_Vec3sToVec3f(Vec3s* src, Vec3f* dest) {
 }
 
 void SkinMatrix_MtxFToMtx(MtxF* src, Mtx* dest) {
-    // #Region 2S2H [Port] For compatibility with modern systems this has been changed to use guMtxF2L
     FrameInterpolation_RecordSkinMatrixMtxFToMtx(src, dest);
+    // 2S2H [Port] For compatibility with modern systems this has been changed to use guMtxF2L
     guMtxF2L(src, dest);
 }
 
