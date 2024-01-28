@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <string>
 #include "z64.h"
+#include "2s2h/Enhancements/Enhancements.h"
 
 extern bool ShouldClearTextureCacheAtEndOfFrame;
 
@@ -286,9 +287,11 @@ void DrawDeveloperToolsMenu() {
         });
         UIWidgets::CVarCheckbox("No Clip", "gDeveloperTools.NoClip");
         UIWidgets::CVarCheckbox("Better Map Select", "gDeveloperTools.BetterMapSelect.Enabled");
-        UIWidgets::CVarCheckbox("Moon Jump on L", "gDeveloperTools.MoonJumpOnL", {
+        if (UIWidgets::CVarCheckbox("Moon Jump on L", "gDeveloperTools.MoonJumpOnL", {
             .tooltip = "Holding L makes you float into the air"
-        });
+        })) {
+            RegisterMoonJumpOnL();
+        }
         if (gPlayState != NULL) {
             ImGui::Separator();
             UIWidgets::Checkbox("Frame Advance", (bool*)&gPlayState->frameAdvCtx.enabled, {
