@@ -90,8 +90,9 @@ DECLARE_BSS_SEGMENT(code)
 DECLARE_OVERLAY_SEGMENT(kaleido_scope)
 DECLARE_OVERLAY_SEGMENT(player_actor)
 
-#define DEFINE_ACTOR(name, _enumValue, _allocType, _debugName) DECLARE_OVERLAY_SEGMENT(name)
-#define DEFINE_ACTOR_INTERNAL(_name, _enumValue, _allocType, _debugName)
+// 2S2H Added columns to actor table: _humanName
+#define DEFINE_ACTOR(name, _enumValue, _allocType, _debugName, _humanName) DECLARE_OVERLAY_SEGMENT(name)
+#define DEFINE_ACTOR_INTERNAL(_name, _enumValue, _allocType, _debugName, _humanName)
 #define DEFINE_ACTOR_UNSET(_enumValue)
 
 #include "tables/actor_table.h"

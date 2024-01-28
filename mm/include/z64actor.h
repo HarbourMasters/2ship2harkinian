@@ -450,8 +450,9 @@ typedef enum {
     /* 32 */ ACTOR_DRAW_DMGEFF_ELECTRIC_SPARKS_LARGE
 } ActorDrawDamageEffectType;
 
-#define DEFINE_ACTOR(_name, enumValue, _allocType, _debugName) enumValue,
-#define DEFINE_ACTOR_INTERNAL(_name, enumValue, _allocType, _debugName) enumValue,
+// 2S2H Added columns to actor table: _humanName
+#define DEFINE_ACTOR(_name, enumValue, _allocType, _debugName, _humanName) enumValue,
+#define DEFINE_ACTOR_INTERNAL(_name, enumValue, _allocType, _debugName, _humanName) enumValue,
 #define DEFINE_ACTOR_UNSET(enumValue) enumValue,
 
 typedef enum ActorId {
