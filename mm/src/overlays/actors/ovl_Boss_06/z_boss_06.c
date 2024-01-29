@@ -21,6 +21,7 @@ void Boss06_Init(Actor* thisx, PlayState* play);
 void Boss06_Destroy(Actor* thisx, PlayState* play);
 void Boss06_Update(Actor* thisx, PlayState* play);
 void Boss06_Draw(Actor* thisx, PlayState* play2);
+void Boss06_Reset(void);
 
 void func_809F24A8(Boss06* this);
 void func_809F24C8(Boss06* this, PlayState* play);
@@ -82,6 +83,7 @@ ActorInit Boss_06_InitVars = {
     /**/ Boss06_Destroy,
     /**/ Boss06_Update,
     /**/ Boss06_Draw,
+    /**/ Boss06_Reset,
 };
 
 static ColliderCylinderInit sCylinderInit = {
@@ -654,4 +656,11 @@ void Boss06_Draw(Actor* thisx, PlayState* play2) {
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
+}
+
+void Boss06_Reset(void) {
+    D_809F4970 = NULL;
+    D_809F4974 = 0;
+    D_809F4978 = 0;
+    D_809F497C = 0;
 }

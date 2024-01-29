@@ -17,6 +17,7 @@ void EnFish2_Init(Actor* thisx, PlayState* play);
 void EnFish2_Destroy(Actor* thisx, PlayState* play);
 void EnFish2_Update(Actor* thisx, PlayState* play2);
 void EnFish2_Draw(Actor* thisx, PlayState* play);
+void EnFish2_Reset(void);
 
 void func_80B28B5C(EnFish2* this);
 void func_80B28C14(EnFish2* this, PlayState* play);
@@ -58,6 +59,7 @@ ActorInit En_Fish2_InitVars = {
     /**/ EnFish2_Destroy,
     /**/ EnFish2_Update,
     /**/ EnFish2_Draw,
+    /**/ EnFish2_Reset,
 };
 
 static ColliderJntSphElementInit sJntSphElementsInit[2] = {
@@ -1194,4 +1196,13 @@ void func_80B2B180(EnFish2* this, PlayState* play) {
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
+}
+
+void EnFish2_Reset(void) {
+    D_80B2B2E0 = 0;
+    D_80B2B2E4 = 0;
+    D_80B2B2E8 = false;
+    D_80B2B2EC = 0;
+    D_80B2B2F0 = 0;
+    D_80B2B2F4 = NULL;
 }

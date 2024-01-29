@@ -16,6 +16,7 @@ void BgIkanaDharma_Init(Actor* thisx, PlayState* play2);
 void BgIkanaDharma_Destroy(Actor* thisx, PlayState* play);
 void BgIkanaDharma_Update(Actor* thisx, PlayState* play);
 void BgIkanaDharma_Draw(Actor* thisx, PlayState* play);
+void BgIkanaDharma_Reset(void);
 
 void BgIkanaDharma_SetupWaitForHit(BgIkanaDharma* this);
 void BgIkanaDharma_WaitForHit(BgIkanaDharma* this, PlayState* play);
@@ -34,6 +35,7 @@ ActorInit Bg_Ikana_Dharma_InitVars = {
     /**/ BgIkanaDharma_Destroy,
     /**/ BgIkanaDharma_Update,
     /**/ BgIkanaDharma_Draw,
+    /**/ BgIkanaDharma_Reset,
 };
 
 static ColliderCylinderInit sCylinderInit = {
@@ -261,4 +263,8 @@ void BgIkanaDharma_Draw(Actor* thisx, PlayState* play) {
     BgIkanaDharma* this = THIS;
 
     Gfx_DrawDListOpa(play, gStoneTowerTemplePunchablePillarDL);
+}
+
+void BgIkanaDharma_Reset(void) {
+    sFirstHitBgIkanaDharma = NULL;
 }

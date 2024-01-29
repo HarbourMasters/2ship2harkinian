@@ -22,6 +22,7 @@
 void BgSinkaiKabe_Init(Actor* thisx, PlayState* play);
 void BgSinkaiKabe_Destroy(Actor* thisx, PlayState* play);
 void BgSinkaiKabe_Update(Actor* thisx, PlayState* play);
+void BgSinkaiKabe_Reset(void);
 
 void BgSinkaiKabe_WaitForPlayer(BgSinkaiKabe* this, PlayState* play);
 
@@ -35,6 +36,7 @@ ActorInit Bg_Sinkai_Kabe_InitVars = {
     /**/ BgSinkaiKabe_Destroy,
     /**/ BgSinkaiKabe_Update,
     /**/ NULL,
+    /**/ BgSinkaiKabe_Reset,
 };
 
 static s32 sCurrentPythonIndex = 0;
@@ -149,4 +151,8 @@ void BgSinkaiKabe_Update(Actor* thisx, PlayState* play) {
     BgSinkaiKabe* this = THIS;
 
     this->actionFunc(this, play);
+}
+
+void BgSinkaiKabe_Reset(void) {
+    sCurrentPythonIndex = 0;
 }

@@ -16,6 +16,7 @@ void EnSyatekiDekunuts_Init(Actor* thisx, PlayState* play2);
 void EnSyatekiDekunuts_Destroy(Actor* thisx, PlayState* play);
 void EnSyatekiDekunuts_Update(Actor* thisx, PlayState* play);
 void EnSyatekiDekunuts_Draw(Actor* thisx, PlayState* play);
+void EnSyatekiDekunuts_Reset(void);
 
 void EnSyatekiDekunuts_SetupWaitForSignal(EnSyatekiDekunuts* this);
 void EnSyatekiDekunuts_WaitForSignal(EnSyatekiDekunuts* this, PlayState* play);
@@ -49,6 +50,7 @@ ActorInit En_Syateki_Dekunuts_InitVars = {
     /**/ EnSyatekiDekunuts_Destroy,
     /**/ EnSyatekiDekunuts_Update,
     /**/ EnSyatekiDekunuts_Draw,
+    /**/ EnSyatekiDekunuts_Reset,
 };
 
 static ColliderCylinderInit sCylinderInit = {
@@ -99,8 +101,13 @@ static InitChainEntry sInitChain[] = {
     ICHAIN_F32(targetArrowOffset, 2600, ICHAIN_STOP),
 };
 
+// #region 2S2H [Port]
+// Moved static vars out of function scope so they can be cleared in actor reset
+static s32 sDrawFlowers = true; // This makes it so only one EnSyatekiDekunuts draws all the flowers.
+
 void EnSyatekiDekunuts_Init(Actor* thisx, PlayState* play2) {
-    static s32 sDrawFlowers = true; // This makes it so only one EnSyatekiDekunuts draws all the flowers.
+    // static s32 sDrawFlowers = true; // This makes it so only one EnSyatekiDekunuts draws all the flowers.
+    // #endregion
     EnSyatekiDekunuts* this = THIS;
     PlayState* play = play2;
     s32 pathType;
@@ -484,4 +491,8 @@ void EnSyatekiDekunuts_Draw(Actor* thisx, PlayState* play) {
             CLOSE_DISPS(play->state.gfxCtx);
         }
     }
+}
+
+void EnSyatekiDekunuts_Reset(void) {
+    sDrawFlowers = true;
 }
