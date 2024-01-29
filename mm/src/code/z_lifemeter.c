@@ -2,6 +2,7 @@
 #include "global.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "interface/parameter_static/parameter_static.h"
+#include "BenGui/HudEditor.h"
 
 s16 sHeartsPrimColors[3][3] = { { 255, 70, 50 }, { 255, 190, 0 }, { 100, 100, 255 } };
 s16 sHeartsEnvColors[3][3] = { { 50, 40, 60 }, { 255, 0, 0 }, { 0, 0, 255 } };
@@ -358,9 +359,35 @@ void LifeMeter_Draw(PlayState* play) {
             temp_f4 *= 1 << 10;
             halfTexSize = 8.0f;
             halfTexSize *= 0.68f;
-            gSPTextureRectangle(OVERLAY_DISP++, (s32)((posX - halfTexSize) * 4), (s32)((posY - halfTexSize) * 4),
-                                (s32)((posX + halfTexSize) * 4), (s32)((posY + halfTexSize) * 4), G_TX_RENDERTILE, 0, 0,
-                                (s32)temp_f4, (s32)temp_f4);
+
+            // #region 2S2H [Cosmetic] Hud Editor
+            HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_HEARTS);
+            if (HudEditor_ShouldOverrideDraw()) {
+                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+                    hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+                } else {
+                    // All of this information was derived from the original call to gSPTextureRectangle below
+                    s16 rectLeft = posX - halfTexSize;
+                    s16 rectTop = posY - halfTexSize;
+                    s16 rectWidth = halfTexSize * 2;
+                    s16 rectHeight = halfTexSize * 2;
+                    s16 dsdx = 752;
+                    s16 dtdy = 752;
+
+                    HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+
+                    hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+
+                    gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2,
+                                    (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
+                                    G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+                }
+            // #endregion
+            } else {
+                gSPTextureRectangle(OVERLAY_DISP++, (s32)((posX - halfTexSize) * 4), (s32)((posY - halfTexSize) * 4),
+                                    (s32)((posX + halfTexSize) * 4), (s32)((posY + halfTexSize) * 4), G_TX_RENDERTILE, 0, 0,
+                                    (s32)temp_f4, (s32)temp_f4);
+            }
         } else {
             Mtx* mtx;
 
@@ -382,8 +409,37 @@ void LifeMeter_Draw(PlayState* play) {
                 }
             }
             mtx = GRAPH_ALLOC(gfxCtx, sizeof(Mtx));
-            Mtx_SetTranslateScaleMtx(mtx, 1.0f - (0.32f * lifesize), 1.0f - (0.32f * lifesize),
-                                     1.0f - (0.32f * lifesize), -130.0f + offsetX, 94.5f - offsetY, 0.0f);
+            // #region 2S2H [Cosmetic] Hud Editor
+            HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_HEARTS);
+            if (HudEditor_ShouldOverrideDraw()) {
+                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+                    hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+                    Mtx_SetTranslateScaleMtx(mtx, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+                } else {
+                    // All of this information was derived from the original call to gSPTextureRectangle below
+                    s16 offsetFromBaseX = (-130.0f + offsetX) - hudEditorElements[hudEditorActiveElement].defaultX;
+                    s16 offsetFromBaseY = -(94.5f - offsetY) - hudEditorElements[hudEditorActiveElement].defaultY;
+                    // TODO: These scale offsets don't seem to be working correctly
+                    s16 rectLeft = CVarGetInteger(hudEditorElements[hudEditorActiveElement].xCvar, hudEditorElements[hudEditorActiveElement].defaultX) + (offsetFromBaseX / CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f));
+                    s16 rectTop = CVarGetInteger(hudEditorElements[hudEditorActiveElement].yCvar, hudEditorElements[hudEditorActiveElement].defaultY) + (offsetFromBaseY / CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f));
+                    float size = 1.0f - (0.32f * lifesize);
+
+                    size *= CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f);
+
+                    if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT) {
+                        rectLeft = OTRGetRectDimensionFromLeftEdge(rectLeft);
+                    } else if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_MOVABLE_RIGHT) {
+                        rectLeft = OTRGetRectDimensionFromRightEdge(rectLeft);
+                    }
+
+                    hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+                    Mtx_SetTranslateScaleMtx(mtx, size, size, size, rectLeft, -rectTop, 0.0f);
+                }
+            // #endregion
+            } else {
+                Mtx_SetTranslateScaleMtx(mtx, 1.0f - (0.32f * lifesize), 1.0f - (0.32f * lifesize),
+                                         1.0f - (0.32f * lifesize), -130.0f + offsetX, 94.5f - offsetY, 0.0f);
+            }
             gSPMatrix(OVERLAY_DISP++, mtx, G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPVertex(OVERLAY_DISP++, beatingHeartVtx, 4, 0);
             gSP1Quadrangle(OVERLAY_DISP++, 0, 2, 3, 1, 0);
