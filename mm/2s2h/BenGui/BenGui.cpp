@@ -7,6 +7,7 @@
 #include <libultraship/libultraship.h>
 #include <Fast3D/gfx_pc.h>
 #include "UIWidgets.hpp"
+#include "HudEditor.h"
 
 #ifdef __APPLE__
 #include "graphic/Fast3D/gfx_metal.h"
@@ -33,6 +34,7 @@ namespace BenGui {
     std::shared_ptr<LUS::GuiWindow> mGfxDebuggerWindow;
 
     std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
+    std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 
     void SetupGuiElements() {
         auto gui = LUS::Context::GetInstance()->GetWindow()->GetGui();
@@ -73,12 +75,16 @@ namespace BenGui {
             SPDLOG_ERROR("Could not find input GfxDebuggerWindow");
         }
 
-        mSaveEditorWindow = std::make_shared<SaveEditorWindow>("gSaveEditorEnabled", "Save Editor");
+        mSaveEditorWindow = std::make_shared<SaveEditorWindow>("gWindows.SaveEditor", "Save Editor");
         gui->AddGuiWindow(mSaveEditorWindow);
+
+        mHudEditorWindow = std::make_shared<HudEditorWindow>("gWindows.HudEditor", "Hud Editor");
+        gui->AddGuiWindow(mHudEditorWindow);
     }
 
     void Destroy() {
         mSaveEditorWindow = nullptr;
+        mHudEditorWindow = nullptr;
         mStatsWindow = nullptr;
         mConsoleWindow = nullptr;
         mBenMenuBar = nullptr;

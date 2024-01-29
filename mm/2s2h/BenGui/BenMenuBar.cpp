@@ -8,6 +8,7 @@
 #include <string>
 #include "z64.h"
 #include "2s2h/Enhancements/Enhancements.h"
+#include "HudEditor.h"
 
 extern bool ShouldClearTextureCacheAtEndOfFrame;
 
@@ -259,8 +260,16 @@ void DrawSettingsMenu() {
     }
 }
 
+extern std::shared_ptr<HudEditorWindow> mHudEditorWindow;
+
 void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
+
+        if (mHudEditorWindow) {
+            UIWidgets::WindowButton("Hud Editor", "gWindows.HudEditor", mHudEditorWindow, {
+                .tooltip = "Enables the Hud Editor window, allowing you to edit your hud"
+            });
+        }
 
         ImGui::EndMenu();
     }
