@@ -18,6 +18,7 @@ void EnKusa2_Init(Actor* thisx, PlayState* play);
 void EnKusa2_Destroy(Actor* thisx, PlayState* play);
 void EnKusa2_Update(Actor* thisx, PlayState* play);
 void EnKusa2_Draw(Actor* thisx, PlayState* play);
+void EnKusa2_Reset(void);
 
 void func_80A5C70C(EnKusa2UnkBssSubStruct* arg0);
 void func_80A5CF44(EnKusa2* this);
@@ -65,6 +66,7 @@ ActorInit En_Kusa2_InitVars = {
     /**/ EnKusa2_Destroy,
     /**/ EnKusa2_Update,
     /**/ EnKusa2_Draw,
+    /**/ EnKusa2_Reset,
 };
 
 static ColliderCylinderInit sCylinderInit = {
@@ -1386,4 +1388,9 @@ void func_80A5EA48(Actor* thisx, PlayState* play) {
     } else {
         func_80A5E80C(play, this->unk_1CF);
     }
+}
+
+void EnKusa2_Reset(void) {
+    D_80A5EAEC = 1;
+    D_80A5EAF0 = 0;
 }

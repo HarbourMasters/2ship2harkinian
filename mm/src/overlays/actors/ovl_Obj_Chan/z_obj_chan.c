@@ -24,6 +24,7 @@ void ObjChan_Init(Actor* thisx, PlayState* play);
 void ObjChan_Destroy(Actor* thisx, PlayState* play);
 void ObjChan_Update(Actor* thisx, PlayState* play);
 void ObjChan_Draw(Actor* thisx, PlayState* play);
+void ObjChan_Reset(void);
 
 void ObjChan_ChandelierAction(ObjChan* this, PlayState* play);
 void ObjChan_PotAction(ObjChan* this, PlayState* play);
@@ -38,6 +39,7 @@ ActorInit Obj_Chan_InitVars = {
     /**/ ObjChan_Destroy,
     /**/ ObjChan_Update,
     /**/ ObjChan_Draw,
+    /**/ ObjChan_Reset,
 };
 
 static ColliderCylinderInit sObjChanCylinderInit = {
@@ -441,4 +443,8 @@ void ObjChan_DrawFire(ObjChan* this, PlayState* play) {
     POLY_XLU_DISP = &dl[5];
 
     CLOSE_DISPS(play->state.gfxCtx);
+}
+
+void ObjChan_Reset(void) {
+    sObjChanLoaded = false;
 }

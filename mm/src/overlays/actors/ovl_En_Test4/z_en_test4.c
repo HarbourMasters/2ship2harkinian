@@ -16,6 +16,7 @@
 void EnTest4_Init(Actor* thisx, PlayState* play);
 void EnTest4_Destroy(Actor* thisx, PlayState* play);
 void EnTest4_Update(Actor* thisx, PlayState* play);
+void EnTest4_Reset(void);
 
 void func_80A42AB8(EnTest4* this, PlayState* play);
 void func_80A42F20(EnTest4* this, PlayState* play);
@@ -30,6 +31,7 @@ ActorInit En_Test4_InitVars = {
     (ActorFunc)EnTest4_Destroy,
     (ActorFunc)EnTest4_Update,
     (ActorFunc)NULL, // Interface_DrawClock
+    /**/ EnTest4_Reset,
 };
 
 typedef enum {
@@ -585,4 +587,8 @@ void EnTest4_Update(Actor* thisx, PlayState* play) {
         }
         EnTest4_SetSkyboxNumStars(this, play);
     }
+}
+
+void EnTest4_Reset(void) {
+    sIsLoaded = false;
 }

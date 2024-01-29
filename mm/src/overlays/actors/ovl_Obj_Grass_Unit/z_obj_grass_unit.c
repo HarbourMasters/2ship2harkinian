@@ -20,6 +20,7 @@
 #define THIS ((ObjGrassUnit*)thisx)
 
 void ObjGrassUnit_Init(Actor* this, PlayState* play2);
+void ObjGrassUnit_Reset(void);
 
 ActorInit Obj_Grass_Unit_InitVars = {
     /**/ ACTOR_OBJ_GRASS_UNIT,
@@ -31,6 +32,7 @@ ActorInit Obj_Grass_Unit_InitVars = {
     /**/ Actor_Noop,
     /**/ Actor_Noop,
     /**/ NULL,
+    /**/ ObjGrassUnit_Reset,
 };
 
 // Neat circular pattern with a single bush in the center
@@ -171,4 +173,11 @@ void ObjGrassUnit_Init(Actor* this, PlayState* play2) {
         grassGroup->homePos.z = this->home.pos.z;
     }
     Actor_Kill(this);
+}
+
+void ObjGrassUnit_Reset(void) {
+    sGrassManager = NULL;
+    sGrassCarry0 = NULL;
+    sGrassCarry1 = NULL;
+    sInitialized = false;
 }

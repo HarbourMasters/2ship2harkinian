@@ -16,6 +16,7 @@ void Boss04_Init(Actor* thisx, PlayState* play2);
 void Boss04_Destroy(Actor* thisx, PlayState* play);
 void Boss04_Update(Actor* thisx, PlayState* play2);
 void Boss04_Draw(Actor* thisx, PlayState* play);
+void Boss04_Reset(void);
 
 void func_809EC544(Boss04* this);
 void func_809EC568(Boss04* this, PlayState* play);
@@ -73,6 +74,7 @@ ActorInit Boss_04_InitVars = {
     /**/ Boss04_Destroy,
     /**/ Boss04_Update,
     /**/ Boss04_Draw,
+    /**/ Boss04_Reset,
 };
 
 static ColliderJntSphElementInit sJntSphElementsInit1[1] = {
@@ -848,4 +850,8 @@ void Boss04_Draw(Actor* thisx, PlayState* play) {
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
+}
+
+void Boss04_Reset(void) {
+    D_809EE4D0 = 0;
 }

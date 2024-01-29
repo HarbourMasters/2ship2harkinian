@@ -14,6 +14,7 @@ void EnTwig_Init(Actor* thisx, PlayState* play2);
 void EnTwig_Destroy(Actor* thisx, PlayState* play2);
 void EnTwig_Update(Actor* thisx, PlayState* play2);
 void EnTwig_Draw(Actor* thisx, PlayState* play);
+void EnTwig_Reset(void);
 
 void func_80AC0A54(EnTwig* this, PlayState* play);
 void func_80AC0A6C(EnTwig* this, PlayState* play);
@@ -34,6 +35,7 @@ ActorInit En_Twig_InitVars = {
     /**/ EnTwig_Destroy,
     /**/ EnTwig_Update,
     /**/ EnTwig_Draw,
+    /**/ EnTwig_Reset,
 };
 
 s32 sCurrentRing;
@@ -245,4 +247,8 @@ void EnTwig_Draw(Actor* thisx, PlayState* play) {
             Gfx_DrawDListOpa(play, object_twig_DL_0014C8);
             break;
     }
+}
+
+void EnTwig_Reset(void) {
+    sRingsHaveSpawned = false;
 }

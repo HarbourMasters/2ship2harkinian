@@ -15,6 +15,7 @@ void BgCraceMovebg_Init(Actor* thisx, PlayState* play);
 void BgCraceMovebg_Destroy(Actor* thisx, PlayState* play);
 void BgCraceMovebg_Update(Actor* thisx, PlayState* play);
 void BgCraceMovebg_Draw(Actor* thisx, PlayState* play);
+void BgCraceMovebg_Reset(void);
 
 s32 BgCraceMovebg_GetRaceStatus(PlayState* play);
 void BgCraceMovebg_OpeningDoor_SetupIdle(BgCraceMovebg* this, PlayState* play);
@@ -51,6 +52,7 @@ ActorInit Bg_Crace_Movebg_InitVars = {
     /**/ BgCraceMovebg_Destroy,
     /**/ BgCraceMovebg_Update,
     /**/ BgCraceMovebg_Draw,
+    /**/ BgCraceMovebg_Reset,
 };
 
 static u8 sHasInitializedIsLoaded = 0;
@@ -352,4 +354,9 @@ void BgCraceMovebg_ClosingDoor_DoNothing(BgCraceMovebg* this, PlayState* play) {
 
 void BgCraceMovebg_Draw(Actor* thisx, PlayState* play) {
     Gfx_DrawDListOpa(play, gDekuShrineSlidingDoorDL);
+}
+
+void BgCraceMovebg_Reset(void) {
+    sHasInitializedIsLoaded = false;
+    sLoadedDoorCount = 0;
 }

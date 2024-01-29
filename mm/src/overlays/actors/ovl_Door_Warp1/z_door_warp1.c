@@ -16,6 +16,7 @@ void DoorWarp1_Init(Actor* thisx, PlayState* play);
 void DoorWarp1_Destroy(Actor* thisx, PlayState* play);
 void DoorWarp1_Update(Actor* thisx, PlayState* play);
 void DoorWarp1_Draw(Actor* thisx, PlayState* play);
+void DoorWarp1_Reset(void);
 
 void DoorWarp1_SetupAction(DoorWarp1* this, DoorWarp1ActionFunc actionFunc);
 void func_808B8924(DoorWarp1* this, PlayState* play);
@@ -60,6 +61,7 @@ ActorInit Door_Warp1_InitVars = {
     /**/ DoorWarp1_Destroy,
     /**/ DoorWarp1_Update,
     /**/ DoorWarp1_Draw,
+    /**/ DoorWarp1_Reset,
 };
 
 static InitChainEntry sInitChain[] = {
@@ -1153,4 +1155,9 @@ void func_808BB8D4(DoorWarp1* this, PlayState* play, s32 arg2) {
         }
         EffectSsKirakira_SpawnDispersed(play, &pos, &sVelocity, &sAccel, &primColor, &envColor, scale, life);
     }
+}
+
+void DoorWarp1_Reset(void) {
+    D_808BC000 = 0;
+    D_808BC004 = 0;
 }
