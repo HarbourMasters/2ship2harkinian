@@ -85,6 +85,7 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/resource/importer/TextMMFactory.h"
 #include "2s2h/resource/importer/BackgroundFactory.h"
 #include "2s2h/resource/importer/TextureAnimationFactory.h"
+#include "2s2h/resource/importer/KeyFrameFactory.h"
 
 OTRGlobals* OTRGlobals::Instance;
 GameInteractor* GameInteractor::Instance;
@@ -159,6 +160,10 @@ OTRGlobals::OTRGlobals() {
         LUS::ResourceType::SOH_Background, "Background", std::make_shared<LUS::BackgroundFactory>());
     context->GetResourceManager()->GetResourceLoader()->RegisterResourceFactory(
         LUS::ResourceType::TSH_TexAnim, "TextureAnimation", std::make_shared<LUS::TextureAnimationFactory>());
+    context->GetResourceManager()->GetResourceLoader()->RegisterResourceFactory(
+        LUS::ResourceType::TSH_CKeyFrameAnim, "KeyFrameAnim", std::make_shared<LUS::KeyFrameAnimFactory>());
+    context->GetResourceManager()->GetResourceLoader()->RegisterResourceFactory(
+        LUS::ResourceType::TSH_CKeyFrameSkel, "KeyFrameSkel", std::make_shared<LUS::KeyFrameSkelFactory>());
 
     context->GetControlDeck()->SetSinglePlayerMappingMode(true);
 
@@ -997,6 +1002,15 @@ extern "C" CollisionHeader* ResourceMgr_LoadColByName(const char* path) {
 extern "C" Vtx* ResourceMgr_LoadVtxByName(char* path) {
     return (Vtx*)ResourceGetDataByName(path);
 }
+
+extern "C" KeyFrameSkeleton* ResourceMgr_LoadKeyFrameSkelByName(const char* path) {
+    return (KeyFrameSkeleton*)ResourceGetDataByName(path);
+}
+
+extern "C" KeyFrameAnimation* ResourceMgr_LoadKeyFrameAnimByName(const char* path) {
+    return (KeyFrameAnimation*)ResourceGetDataByName(path);
+}
+
 
 //extern "C" SequenceData ResourceMgr_LoadSeqByName(const char* path) {
 //    SequenceData* sequence = (SequenceData*)ResourceGetDataByName(path);

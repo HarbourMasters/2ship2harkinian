@@ -5,6 +5,7 @@
  */
 
 #include "z_en_fall2.h"
+#include "objects/object_fall2/object_fall2.h"
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
@@ -35,10 +36,10 @@ void EnFall2_Init(Actor* thisx, PlayState* play) {
 
     Actor_SetScale(&this->actor, 1.0f);
     this->actionFunc = EnFall2_DoNothing;
-    Keyframe_InitFlex(&this->skeletonInfo, (void*)object_fall2_Blob_008898, (void*)object_fall2_Blob_005EF4,
+    Keyframe_InitFlex(&this->skeletonInfo, gFall2KFSkel_8898, gFall2FKAnim_5EF4,
                       this->unk174, this->unk228,
                   NULL);
-    Keyframe_FlexPlayLoop(&this->skeletonInfo, (void*)object_fall2_Blob_005EF4);
+    Keyframe_FlexPlayLoop(&this->skeletonInfo, (void*)gFall2FKAnim_5EF4);
     this->unk2DC = Lib_SegmentedToVirtual((void*)object_fall2_Matanimheader_008840);
     Actor_SetScale(&this->actor, 0.02f);
     this->actionFunc = EnFall2_HandleCutscene;
