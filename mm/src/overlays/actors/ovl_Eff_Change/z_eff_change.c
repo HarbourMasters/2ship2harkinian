@@ -5,6 +5,7 @@
  */
 
 #include "z_eff_change.h"
+#include "objects/gameplay_keep/gameplay_keep.h"
 
 #define FLAGS (ACTOR_FLAG_10)
 
@@ -50,9 +51,9 @@ void EffChange_Init(Actor* thisx, PlayState* play) {
     EffChange_SetColors(this, EFFCHANGE_GET_COLORS(thisx));
     Actor_SetScale(&this->actor, 0.075f);
     this->primColors[3] = 0;
-    Keyframe_InitFlex(&this->skeletonInfo, gameplay_keep_Blob_02900C, gameplay_keep_Blob_0281DC, this->jointTable,
+    Keyframe_InitFlex(&this->skeletonInfo, gGameplayKeepKFSkel_2900C, gGameplayKeepKFAnim_281DC, this->jointTable,
                   this->morphTable, NULL);
-    Keyframe_FlexPlayOnce(&this->skeletonInfo, gameplay_keep_Blob_0281DC);
+    Keyframe_FlexPlayOnce(&this->skeletonInfo, gGameplayKeepKFAnim_281DC);
     this->step = 0;
     this->actor.shape.rot.y = 0;
     this->skeletonInfo.frameCtrl.speed = (2.0f / 3.0f);

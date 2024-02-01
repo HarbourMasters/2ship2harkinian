@@ -186,17 +186,17 @@ void EnTest_Init(Actor* thisx, PlayState* play2) {
         this->surfaceMaterial = SurfaceType_GetMaterial(&play->colCtx, thisx->floorPoly, bgId);
     }
 
-    Keyframe_InitFlex(&this->skeletonInfo, (void*)gameplay_keep_Blob_06EB70, (void*)gameplay_keep_Blob_06BB0C,
+    Keyframe_InitFlex(&this->skeletonInfo, gGameplayKeepKFSkel_6EB70, gGameplayKeepKFAnim_6BB0C,
                       this->unk_178,
                   this->unk_1C0, NULL);
-    Keyframe_FlexPlayOnce(&this->skeletonInfo, (void*)gameplay_keep_Blob_06BB0C);
+    Keyframe_FlexPlayOnce(&this->skeletonInfo, gGameplayKeepKFAnim_6BB0C);
     this->skeletonInfo.frameCtrl.curTime = 9.0f;
     func_80862B70(this->unk_20C);
 }
 
 void EnTest_Destroy(Actor* thisx, PlayState* play) {
     EnTest* this = THIS;
-
+    
     Keyframe_DestroyFlex(&this->skeletonInfo);
 }
 

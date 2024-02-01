@@ -93,6 +93,9 @@ char* ResourceMgr_LoadVtxArrayByName(const char* path);
 size_t ResourceMgr_GetVtxArraySizeByName(const char* path);
 Vtx* ResourceMgr_LoadVtxByName(char* path);
 
+KeyFrameSkeleton* ResourceMgr_LoadKeyFrameSkelByName(const char* path);
+KeyFrameAnimation* ResourceMgr_LoadKeyFrameAnimByName(const char* path);
+
 void Ctx_ReadSaveFile(uintptr_t addr, void* dramAddr, size_t size);
 void Ctx_WriteSaveFile(uintptr_t addr, void* dramAddr, size_t size);
 

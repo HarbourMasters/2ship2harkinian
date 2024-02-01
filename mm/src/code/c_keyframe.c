@@ -1,4 +1,5 @@
 #include "global.h"
+#include "BenPort.h"
 
 #define FMOD(x, mod) ((x) - ((s32)((x) * (1.0f / (mod))) * (f32)(mod)))
 
@@ -124,8 +125,18 @@ void Keyframe_InitFlex(KFSkelAnimeFlex* kfSkelAnime, KeyFrameSkeleton* skeleton,
                        Vec3s* jointTable, Vec3s* morphTable, UnkKeyframeCallback* callbacks) {
     Keyframe_ResetFlex(kfSkelAnime);
     FrameCtrl_Init(&kfSkelAnime->frameCtrl);
-    kfSkelAnime->skeleton = (KeyFrameSkeleton*)Lib_SegmentedToVirtual(skeleton);
-    kfSkelAnime->animation = (KeyFrameAnimation*)Lib_SegmentedToVirtual(animation);
+    KeyFrameSkeleton* skel = skeleton;
+    KeyFrameAnimation* anim = animation;
+
+    if (ResourceMgr_OTRSigCheck(skel)) {
+        skel = (KeyFrameSkeleton*)ResourceMgr_LoadKeyFrameSkelByName(skeleton);
+    }
+    if (ResourceMgr_OTRSigCheck(anim)) {
+        anim = (KeyFrameSkeleton*)ResourceMgr_LoadKeyFrameSkelByName(animation);
+    }
+    
+    kfSkelAnime->skeleton = skel;
+    kfSkelAnime->animation = anim;
     kfSkelAnime->jointTable = jointTable;
     kfSkelAnime->morphTable = morphTable;
     kfSkelAnime->callbacks = callbacks;
@@ -178,17 +189,29 @@ void Keyframe_FlexChangeAnim(KFSkelAnimeFlex* kfSkelAnime, KeyFrameSkeleton* ske
                              f32 startTime, f32 endTime, f32 t, f32 speed, f32 morphFrames, s32 animMode) {
     kfSkelAnime->morphFrames = morphFrames;
 
-    if (kfSkelAnime->skeleton != skeleton) {
-        kfSkelAnime->skeleton = (KeyFrameSkeleton*)Lib_SegmentedToVirtual(skeleton);
+    if (ResourceMgr_OTRSigCheck(skeleton)) {
+        skeleton = ResourceMgr_LoadKeyFrameSkelByName(skeleton);
     }
-    kfSkelAnime->animation = (KeyFrameAnimation*)Lib_SegmentedToVirtual(animation);
+
+    if (kfSkelAnime->skeleton != skeleton) {
+        kfSkelAnime->skeleton = skeleton;
+    }
+
+    if (ResourceMgr_OTRSigCheck(animation)) {
+        animation = ResourceMgr_LoadKeyFrameAnimByName(animation);
+    }
+    kfSkelAnime->animation = animation;
 
     FrameCtrl_SetProperties(&kfSkelAnime->frameCtrl, startTime, endTime, kfSkelAnime->animation->duration, t, speed,
                             animMode);
 }
 
 void Keyframe_FlexChangeAnimQuick(KFSkelAnimeFlex* kfSkelAnime, KeyFrameAnimation* animation) {
-    kfSkelAnime->animation = (KeyFrameAnimation*)Lib_SegmentedToVirtual(animation);
+    if (ResourceMgr_OTRSigCheck(animation)) {
+        animation = ResourceMgr_LoadKeyFrameAnimByName(animation);
+    }
+
+    kfSkelAnime->animation = animation;
     kfSkelAnime->frameCtrl.duration = kfSkelAnime->animation->duration;
 }
 
@@ -538,8 +561,17 @@ void Keyframe_InitStandard(KFSkelAnime* kfSkelAnime, KeyFrameSkeleton* skeleton,
                            Vec3s* jointTable, Vec3s* morphTable) {
     Keyframe_ResetStandard(kfSkelAnime);
     FrameCtrl_Init(&kfSkelAnime->frameCtrl);
-    kfSkelAnime->skeleton = (KeyFrameSkeleton*)Lib_SegmentedToVirtual(skeleton);
-    kfSkelAnime->animation = (KeyFrameAnimation*)Lib_SegmentedToVirtual(animation);
+
+    if (ResourceMgr_OTRSigCheck(animation)) {
+        animation = ResourceMgr_LoadKeyFrameAnimByName(animation);
+    }
+
+    if (ResourceMgr_OTRSigCheck(skeleton)) {
+        skeleton = ResourceMgr_LoadKeyFrameSkelByName(skeleton);
+    }
+
+    kfSkelAnime->skeleton = skeleton;
+    kfSkelAnime->animation = animation;
     kfSkelAnime->jointTable = jointTable;
     kfSkelAnime->morphTable = morphTable;
 }
@@ -595,8 +627,17 @@ void Keyframe_StandardChangeAnim(KFSkelAnime* kfSkelAnime, KeyFrameSkeleton* ske
                                  f32 startTime, f32 endTime, f32 t, f32 speed, f32 morphFrames, s32 animMode,
                                  Vec3s* rotOffsetsTable) {
     kfSkelAnime->morphFrames = morphFrames;
-    kfSkelAnime->skeleton = (KeyFrameSkeleton*)Lib_SegmentedToVirtual(skeleton);
-    kfSkelAnime->animation = (KeyFrameAnimation*)Lib_SegmentedToVirtual(animation);
+
+    if (ResourceMgr_OTRSigCheck(animation)) {
+        animation = ResourceMgr_LoadKeyFrameAnimByName(animation);
+    }
+
+    if (ResourceMgr_OTRSigCheck(skeleton)) {
+        skeleton = ResourceMgr_LoadKeyFrameSkelByName(skeleton);
+    }
+
+    kfSkelAnime->skeleton = skeleton;
+    kfSkelAnime->animation = animation;
 
     FrameCtrl_SetProperties(&kfSkelAnime->frameCtrl, startTime, endTime, kfSkelAnime->animation->duration, t, speed,
                             animMode);
@@ -604,7 +645,11 @@ void Keyframe_StandardChangeAnim(KFSkelAnime* kfSkelAnime, KeyFrameSkeleton* ske
 }
 
 void Keyframe_StandardChangeAnimQuick(KFSkelAnime* kfSkelAnime, KeyFrameAnimation* animation) {
-    kfSkelAnime->animation = Lib_SegmentedToVirtual(animation);
+    if (ResourceMgr_OTRSigCheck(animation)) {
+        animation = ResourceMgr_LoadKeyFrameAnimByName(animation);
+    }
+    
+    kfSkelAnime->animation = animation;
     kfSkelAnime->frameCtrl.duration = kfSkelAnime->animation->duration;
 }
 
