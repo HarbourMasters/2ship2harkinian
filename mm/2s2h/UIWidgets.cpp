@@ -97,6 +97,75 @@ namespace UIWidgets {
             ImGui::SetTooltip("%s", WrappedText(text));
         }
     }
+  
+    void DrawFlagArray32(const std::string& name, uint32_t& flags) {
+        ImGui::PushID(name.c_str());
+        for (int32_t flagIndex = 0; flagIndex < 32; flagIndex++) {
+            if ((flagIndex % 8) != 0) {
+                ImGui::SameLine();
+            }
+            ImGui::PushID(flagIndex);
+            uint32_t bitMask = 1 << flagIndex;
+            bool flag = (flags & bitMask) != 0;
+            std::string label = std::to_string(flagIndex);
+            if (UIWidgets::Checkbox(label.c_str(), &flag, {.tooltip = label.c_str(), 
+            .labelPosition = LabelPosition::None })) {
+                if (flag) {
+                    flags |= bitMask;
+                } else {
+                    flags &= ~bitMask;
+                }
+            }
+            ImGui::PopID();
+        }
+        ImGui::PopID();
+    }
+
+    void DrawFlagArray16(const std::string& name, uint16_t& flags) {
+        ImGui::PushID(name.c_str());
+        for (int16_t flagIndex = 0; flagIndex < 16; flagIndex++) {
+            if ((flagIndex % 8) != 0) {
+                ImGui::SameLine();
+            }
+            ImGui::PushID(flagIndex);
+            uint16_t bitMask = 1 << flagIndex;
+            bool flag = (flags & bitMask) != 0;
+            std::string label = std::to_string(flagIndex);
+            if (UIWidgets::Checkbox(label.c_str(), &flag, {.tooltip = label.c_str(), 
+            .labelPosition = LabelPosition::None })) {
+                if (flag) {
+                    flags |= bitMask;
+                } else {
+                    flags &= ~bitMask;
+                }
+            }
+            ImGui::PopID();
+        }
+        ImGui::PopID();
+    }
+
+    void DrawFlagArray8(const std::string& name, uint8_t& flags) {
+        ImGui::PushID(name.c_str());
+        for (int8_t flagIndex = 0; flagIndex < 8; flagIndex++) {
+            if ((flagIndex % 8) != 0) {
+                ImGui::SameLine();
+            }
+            ImGui::PushID(flagIndex);
+            uint8_t bitMask = 1 << flagIndex;
+            bool flag = (flags & bitMask) != 0;
+            std::string label = std::to_string(flagIndex);
+            if (UIWidgets::Checkbox(label.c_str(), &flag, {.tooltip = label.c_str(), 
+            .labelPosition = LabelPosition::None })) {
+                if (flag) {
+                    flags |= bitMask;
+                } else {
+                    flags &= ~bitMask;
+                }
+            }
+            ImGui::PopID();
+        }
+        ImGui::PopID();
+    }
 
     void Spacer(float height) {
         ImGui::Dummy(ImVec2(0.0f, height));
