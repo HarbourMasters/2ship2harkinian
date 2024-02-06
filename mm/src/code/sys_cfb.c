@@ -121,6 +121,9 @@ void* SysCfb_GetWorkBuffer(void) {
 }
 
 u16 SysCfb_GetZBufferPixel(s32 x, s32 y) {
+    // 2S2H [Port] Get the zbuffer pixel value from the renderer directly
+    return OTRGetPixelDepth(x, y);
+#if 0
     u16* zBuff = SysCfb_GetZBuffer();
     u16 val;
 
@@ -130,8 +133,12 @@ u16 SysCfb_GetZBufferPixel(s32 x, s32 y) {
         val = 0;
     }
     return val;
+#endif
 }
 
 s32 SysCfb_GetZBufferInt(s32 x, s32 y) {
-    return Environment_ZBufValToFixedPoint(SysCfb_GetZBufferPixel(x, y) << 2) >> 3;
+    // 2S2H [Port] The value from the renderer does not need to be converted to a fixed point
+    // Simply shifting is all we need to get the proper value
+    return SysCfb_GetZBufferPixel(x, y) >> 1;
+    // return Environment_ZBufValToFixedPoint(SysCfb_GetZBufferPixel(x, y) << 2) >> 3;
 }
