@@ -135,8 +135,8 @@ void ObjSmork_Init(Actor* thisx, PlayState* play) {
     ObjSmork* this = THIS;
     ovl_Obj_Smork_Vtx_000C10Data = ResourceMgr_LoadVtxArrayByName(ovl_Obj_Smork_Vtx_000C10);
 
-    memcpy(this->unk_148, ovl_Obj_Smork_Vtx_000C10,
-               sizeof(Vtx) * ResourceMgr_GetArraySizeByName(ovl_Obj_Smork_Vtx_000C10));
+    memcpy(this->unk_148, ovl_Obj_Smork_Vtx_000C10Data,
+           sizeof(Vtx) * ResourceMgr_GetVtxArraySizeByName(ovl_Obj_Smork_Vtx_000C10));
     this->unk_1C6 = Rand_S16Offset(0, 59);
     this->unk_1C4 = 0;
 }

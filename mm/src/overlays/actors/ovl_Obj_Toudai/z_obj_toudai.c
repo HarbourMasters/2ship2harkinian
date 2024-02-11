@@ -61,7 +61,7 @@ void func_80A33BB4(ObjToudai* this, PlayState* play) {
 
     this->unk_228 = CLAMP(this->unk_228, 0.0f, 1.0f);
 
-    for (i = 0; i < ResourceMgr_GetArraySizeByName(ovl_Obj_Toudai_Vtx_D_80A34590); i++) {
+    for (i = 0; i < ARRAY_COUNT(this->unk_148); i++) {
         this->unk_148[i].v.cn[3] = ovl_Obj_Toudai_Vtx_D_80A34590data[i].v.cn[3] * this->unk_228;
     }
 
@@ -105,9 +105,10 @@ u8 func_80A342F4(s16 arg0) {
 
 void ObjToudai_Init(Actor* thisx, PlayState* play) {
     ObjToudai* this = THIS;
-    ovl_Obj_Toudai_Vtx_D_80A34590data = ResourceMgr_LoadVtxByName(ovl_Obj_Toudai_Vtx_D_80A34590data);
+    ovl_Obj_Toudai_Vtx_D_80A34590data = ResourceMgr_LoadVtxByName(ovl_Obj_Toudai_Vtx_D_80A34590);
 
-    memcpy(this->unk_148, &ovl_Obj_Toudai_Vtx_D_80A34590, sizeof(ovl_Obj_Toudai_Vtx_D_80A34590));
+    memcpy(this->unk_148, ovl_Obj_Toudai_Vtx_D_80A34590data,
+           sizeof(Vtx) * ResourceMgr_GetVtxArraySizeByName(ovl_Obj_Toudai_Vtx_D_80A34590));
 }
 
 void ObjToudai_Destroy(Actor* thisx, PlayState* play) {

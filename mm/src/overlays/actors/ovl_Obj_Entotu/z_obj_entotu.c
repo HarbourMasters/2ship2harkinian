@@ -158,7 +158,7 @@ void ObjEntotu_Init(Actor* thisx, PlayState* play) {
     ovl_Obj_Entotu_Vtx_000D10Data = ResourceMgr_LoadVtxArrayByName(ovl_Obj_Entotu_Vtx_000D10);
 
     memcpy(this->unk_148, ovl_Obj_Entotu_Vtx_000D10Data,
-               ResourceMgr_GetArraySizeByName(ovl_Obj_Entotu_Vtx_000D10) * sizeof(Vtx));
+           sizeof(Vtx) * ResourceMgr_GetVtxArraySizeByName(ovl_Obj_Entotu_Vtx_000D10));
     this->unk_1C6 = Rand_S16Offset(0, 59);
     this->unk_1C4 = 0;
 }
