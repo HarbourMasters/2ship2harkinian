@@ -490,6 +490,10 @@ void Environment_JumpForwardInTime(void);
 void Environment_GraphCallback(GraphicsContext* gfxCtx, void* arg) {
     PlayState* play = (PlayState*)arg;
 
+    // 2S2H [Port] Batch all the coordinates that need their depth checked by calling prepare
+    OTRGetPixelDepthPrepare(sSunDepthTestX, sSunDepthTestY);
+    Lights_GlowCheckPrepare(play);
+
     sSunScreenDepth = SysCfb_GetZBufferPixel(sSunDepthTestX, sSunDepthTestY);
     Lights_GlowCheck(play);
 }

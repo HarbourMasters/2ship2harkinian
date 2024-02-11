@@ -1323,6 +1323,9 @@ void osContGetReadData(OSContPad* pad);
 void PadMgr_ThreadEntry();
 void Heaps_Alloc(void);
 // #endregion
+// #region 2S2H [Port] New methods added for porting
+void Lights_GlowCheckPrepare(PlayState* play);
+// #endregion
 // #region 2S2H [Port] Stubbed methods
 void osSetThreadPri(OSThread* thread, OSPri p);
 OSPri osGetThreadPri(OSThread* t);

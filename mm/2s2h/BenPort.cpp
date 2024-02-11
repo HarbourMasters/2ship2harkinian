@@ -610,12 +610,17 @@ extern "C" void Graph_ProcessGfxCommands(Gfx* commands) {
 
 float divisor_num = 0.0f;
 
+// Batch a coordinate to have its depth read later by OTRGetPixelDepth
 extern "C" void OTRGetPixelDepthPrepare(float x, float y) {
-    OTRGlobals::Instance->context->GetWindow()->GetPixelDepthPrepare(x, y);
+    // Invert the Y value to match the origin values used in the renderer
+    float adjustedY = SCREEN_HEIGHT - y;
+    OTRGlobals::Instance->context->GetWindow()->GetPixelDepthPrepare(x, adjustedY);
 }
 
 extern "C" uint16_t OTRGetPixelDepth(float x, float y) {
-    return OTRGlobals::Instance->context->GetWindow()->GetPixelDepth(x, y);
+    // Invert the Y value to match the origin values used in the renderer
+    float adjustedY = SCREEN_HEIGHT - y;
+    return OTRGlobals::Instance->context->GetWindow()->GetPixelDepth(x, adjustedY);
 }
 
 extern "C" uint32_t ResourceMgr_GetNumGameVersions() {
