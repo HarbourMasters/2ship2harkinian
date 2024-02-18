@@ -320,11 +320,13 @@ void KaleidoScope_DrawInventoryEditorText(Gfx** gfxp) {
     *gfxp = GfxPrint_Close(&printer);
     GfxPrint_Destroy(&printer);
 }
+// 2S2H [Port] (and in the function) don't do pointer math and access the list of digits directly.
+extern const char* sCounterTextures[];
 
 void KaleidoScope_DrawDigit(PlayState* play, s32 digit, s32 rectLeft, s32 rectTop) {
     OPEN_DISPS(play->state.gfxCtx);
 
-    gDPLoadTextureBlock(POLY_OPA_DISP++, ((u8*)gCounterDigit0Tex + (8 * 16 * digit)), G_IM_FMT_I, G_IM_SIZ_8b, 8, 16, 0,
+    gDPLoadTextureBlock(POLY_OPA_DISP++, sCounterTextures[digit], G_IM_FMT_I, G_IM_SIZ_8b, 8, 16, 0,
                         G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                         G_TX_NOLOD);
     gSPTextureRectangle(POLY_OPA_DISP++, rectLeft << 2, rectTop << 2, (rectLeft + 8) << 2, (rectTop + 16) << 2,

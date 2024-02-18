@@ -13,6 +13,9 @@
 
 #include "BenPort.h"
 
+// 2S2H [Port] (and line 26) don't do pointer math and access the list of digits directly.
+extern const char* sCounterTextures[];
+
 void KaleidoScope_DrawDungeonStrayFairyCount(PlayState* play) {
     s16 counterDigits[2];
     s16 rectLeft;
@@ -30,7 +33,7 @@ void KaleidoScope_DrawDungeonStrayFairyCount(PlayState* play) {
         gDPPipeSync(POLY_OPA_DISP++);
         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 0, 0, 0, 255);
 
-        POLY_OPA_DISP = Gfx_DrawTexRectI8(POLY_OPA_DISP, (u8*)gCounterDigit0Tex + (8 * 16 * counterDigits[digitIndex]),
+        POLY_OPA_DISP = Gfx_DrawTexRectI8(POLY_OPA_DISP, sCounterTextures[counterDigits[digitIndex]],
                                           8, 16, rectLeft + 1, 146, 8, 16, 1 << 10, 1 << 10);
 
         gDPPipeSync(POLY_OPA_DISP++);
@@ -63,7 +66,7 @@ void KaleidoScope_DrawDungeonStrayFairyCount(PlayState* play) {
         gDPPipeSync(POLY_OPA_DISP++);
         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 0, 0, 0, 255);
 
-        POLY_OPA_DISP = Gfx_DrawTexRectI8(POLY_OPA_DISP, (u8*)gCounterDigit0Tex + (8 * 16 * counterDigits[digitIndex]),
+        POLY_OPA_DISP = Gfx_DrawTexRectI8(POLY_OPA_DISP, sCounterTextures[counterDigits[digitIndex]],
                                           8, 16, rectLeft + 1, 146, 8, 16, 1 << 10, 1 << 10);
 
         gDPPipeSync(POLY_OPA_DISP++);

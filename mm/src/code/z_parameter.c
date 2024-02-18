@@ -22,7 +22,8 @@
 #define dgEmptyTexture "__OTR__textures/virtual/gEmptyTexture"
 static const ALIGN_ASSET(2) char gEmptyTexture[] = dgEmptyTexture;
 
-static const char* sCounterTextures[] = {
+// 2S2H [Port] This was originally static but needs to be global so it can be accessed in z_kaleido_collect, z_kaleido_debug, and z_kaleido_draw.
+const char* sCounterTextures[] = {
     gCounterDigit0Tex, gCounterDigit1Tex, gCounterDigit2Tex, gCounterDigit3Tex, gCounterDigit4Tex, gCounterDigit5Tex,
     gCounterDigit6Tex, gCounterDigit7Tex, gCounterDigit8Tex, gCounterDigit9Tex, gCounterColonTex,
 };
