@@ -153,11 +153,11 @@ static const char* sMapGrandTextures[] = {
     map_grand_static_Blob_034BB0, map_grand_static_Blob_034F50,
 };
 
-void MapDisp_GetMapITexture(void* dst, s32 mapCompactId) {
+void MapDisp_GetMapITexture(void** dst, s32 mapCompactId) {
     s32 mapSize = MapDisp_GetSizeOfMapITex(mapCompactId);
 
     if (mapSize != 0) {
-        dst = ResourceMgr_LoadTexOrDListByName(sMapTextures[mapCompactId]);
+        *dst = ResourceMgr_LoadTexOrDListByName(sMapTextures[mapCompactId]);
         //CmpDma_LoadFile(SEGMENT_ROM_START(map_i_static), mapCompactId, dst, MapDisp_GetSizeOfMapITex(mapCompactId));
     }
 }
@@ -1261,7 +1261,9 @@ void* MapDisp_AllocDungeonMap(PlayState* play, void* heap) {
     for (dungeonMapRoomIter = 0; dungeonMapRoomIter < sPauseDungeonMap.textureCount; dungeonMapRoomIter++) {
         s32 mapCompactId = sPauseDungeonMap.mapI_mapCompactId[dungeonMapRoomIter];
 
-        MapDisp_GetMapITexture(sPauseDungeonMap.mapI_roomTextures[dungeonMapRoomIter], mapCompactId);
+        // 2S2H [Port] directly set the pointer to the texture instead of using memcpy
+        // BENTODO, can we avoid using any game made heap since the textures are loaded as a resource?
+        MapDisp_GetMapITexture(&sPauseDungeonMap.mapI_roomTextures[dungeonMapRoomIter], mapCompactId);
         if (dungeonMapRoomIter + 1 < sPauseDungeonMap.textureCount) {
             sPauseDungeonMap.mapI_roomTextures[dungeonMapRoomIter + 1] =
                 ALIGN16((intptr_t)sPauseDungeonMap.mapI_roomTextures[dungeonMapRoomIter] +
