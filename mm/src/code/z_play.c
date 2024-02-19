@@ -35,6 +35,7 @@ u8 sMotionBlurStatus;
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "debug.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "2s2h/framebuffer_effects.h"
 #include <string.h>
 
 s32 gDbgCamEnabled = false;
@@ -55,6 +56,12 @@ void Play_DrawMotionBlur(PlayState* this) {
     s32 alpha;
     Gfx* gfx;
     Gfx* gfxHead;
+
+    // 2S2H [Port] Frame buffer effects for motion blur
+    // Track render size when blur is active and that a copy was performed
+    static u32 lastBlurWidth;
+    static u32 lastBlurHeight;
+    static u8 hasCopiedForFrame;
 
     if (R_MOTION_BLUR_PRIORITY_ENABLED) {
         alpha = R_MOTION_BLUR_PRIORITY_ALPHA;
@@ -84,13 +91,25 @@ void Play_DrawMotionBlur(PlayState* this) {
         this->pauseBgPreRender.fbuf = gfxCtx->curFrameBuffer;
         this->pauseBgPreRender.fbufSave = this->unk_18E64;
 
-        if (sMotionBlurStatus == MOTION_BLUR_PROCESS) {
-            func_80170AE0(&this->pauseBgPreRender, &gfx, alpha);
-        } else {
-            sMotionBlurStatus = MOTION_BLUR_PROCESS;
+        // 2S2H [Port] When the render size changes, we need to skip the blur for one frame to
+        // avoid rendering and copying a blank framebuffer
+        if (sMotionBlurStatus == MOTION_BLUR_PROCESS &&
+            (lastBlurWidth != OTRGetGameRenderWidth() || lastBlurHeight != OTRGetGameRenderHeight())) {
+            sMotionBlurStatus = MOTION_BLUR_SETUP;
         }
 
-        PreRender_SaveFramebuffer(&this->pauseBgPreRender, &gfx);
+        if (sMotionBlurStatus == MOTION_BLUR_PROCESS) {
+            FB_DrawFromFramebuffer(&gfx, gBlurFrameBuffer, alpha);
+        } else {
+            sMotionBlurStatus = MOTION_BLUR_PROCESS;
+            lastBlurWidth = OTRGetGameRenderWidth();
+            lastBlurHeight = OTRGetGameRenderHeight();
+        }
+
+        hasCopiedForFrame = false;
+
+        // 2S2H [Port] Copy framebuffer only once per game frame to exclude motion blur from interpolation
+        FB_CopyToFramebuffer(&gfx, 0, gBlurFrameBuffer, true, &hasCopiedForFrame);
 
         gSPEndDisplayList(gfx++);
 
