@@ -35,6 +35,7 @@ namespace BenGui {
 
     std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
     std::shared_ptr<HudEditorWindow> mHudEditorWindow;
+    std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 
     void SetupGuiElements() {
         auto gui = LUS::Context::GetInstance()->GetWindow()->GetGui();
@@ -80,11 +81,15 @@ namespace BenGui {
 
         mHudEditorWindow = std::make_shared<HudEditorWindow>("gWindows.HudEditor", "Hud Editor");
         gui->AddGuiWindow(mHudEditorWindow);
+
+        mActorViewerWindow = std::make_shared<ActorViewerWindow>("gWindows.ActorViewer", "Actor Viewer");
+        gui->AddGuiWindow(mActorViewerWindow);
     }
 
     void Destroy() {
         mSaveEditorWindow = nullptr;
         mHudEditorWindow = nullptr;
+        mActorViewerWindow = nullptr;
         mStatsWindow = nullptr;
         mConsoleWindow = nullptr;
         mBenMenuBar = nullptr;

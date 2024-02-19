@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include "BenMenuBar.h"
 #include "DeveloperTools/SaveEditor.h"
+#include "DeveloperTools/ActorViewer.h"
 
 namespace BenGui {
     void SetupHooks();

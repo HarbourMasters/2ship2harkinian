@@ -297,6 +297,7 @@ extern std::shared_ptr<LUS::GuiWindow> mStatsWindow;
 extern std::shared_ptr<LUS::GuiWindow> mConsoleWindow;
 extern std::shared_ptr<LUS::GuiWindow> mGfxDebuggerWindow;
 extern std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
+extern std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 
 void DrawDeveloperToolsMenu() {
     if (UIWidgets::BeginMenu("Developer Tools", UIWidgets::Colors::Yellow)) {
@@ -343,6 +344,11 @@ void DrawDeveloperToolsMenu() {
         if (mSaveEditorWindow) {
             UIWidgets::WindowButton("Save Editor", "gWindows.SaveEditor", mSaveEditorWindow, {
                 .tooltip = "Enables the Save Editor window, allowing you to edit your save file"
+            });
+        }
+        if (mActorViewerWindow) {
+            UIWidgets::WindowButton("Actor Viewer", "gWindows.ActorViewer", mActorViewerWindow, {
+                .tooltip = "Enables the Actor Viewer window, allowing you to view actors in the world."
             });
         }
         ImGui::EndMenu();

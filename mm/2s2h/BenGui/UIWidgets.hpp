@@ -409,6 +409,9 @@ namespace UIWidgets {
     bool CVarSliderInt(const char* label, const char* cvarName, int32_t min, int32_t max, const int32_t defaultValue, const IntSliderOptions& options = {});
     bool SliderFloat(const char* label, float* value, float min, float max, const FloatSliderOptions& options = {});
     bool CVarSliderFloat(const char* label, const char* cvarName, float min, float max, const float defaultValue, const FloatSliderOptions& options = {});
+    void DrawFlagArray32(const std::string& name, uint32_t& flags);
+    void DrawFlagArray16(const std::string& name, uint16_t& flags);
+    void DrawFlagArray8(const std::string& name, uint8_t& flags);
 }
 
 #endif /* UIWidgets_hpp */
