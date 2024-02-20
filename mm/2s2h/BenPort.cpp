@@ -591,6 +591,12 @@ extern "C" void Graph_ProcessGfxCommands(Gfx* commands) {
     OTRGlobals::Instance->context->GetWindow()->SetMaximumFrameLatency(threshold > 0 && target_fps >= threshold ? 2
                                                                                                                 : 1);
 
+    // When the gfx debugger is active, only run with the final mtx
+    if (GfxDebuggerIsDebugging()) {
+        mtx_replacements.clear();
+        mtx_replacements.emplace_back();
+    }
+
     RunCommands(commands, mtx_replacements);
 
     last_fps = fps;
