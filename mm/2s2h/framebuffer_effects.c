@@ -1,7 +1,7 @@
 #include "framebuffer_effects.h"
 #include "global.h"
 
-int gfx_create_framebuffer(uint32_t width, uint32_t height, int upscale, int autoresize);
+int gfx_create_framebuffer(uint32_t width, uint32_t height);
 
 s32 gPauseFrameBuffer = -1;
 s32 gBlurFrameBuffer = -1;
@@ -9,15 +9,15 @@ s32 gShrinkFrameBuffer = -1;
 
 void FB_CreateFramebuffers(void) {
     if (gPauseFrameBuffer == -1) {
-        gPauseFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT, false, true);
+        gPauseFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT);
     }
 
     if (gBlurFrameBuffer == -1) {
-        gBlurFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT, false, true);
+        gBlurFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT);
     }
 
     if (gShrinkFrameBuffer == -1) {
-        gShrinkFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT, false, true);
+        gShrinkFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT);
     }
 }
 
@@ -49,7 +49,7 @@ void FB_CopyToFramebuffer(Gfx** gfxp, s32 fb_src, s32 fb_dest, u8 oncePerFrame, 
 
     gDPSetScissor(gfx++, G_SC_NON_INTERLACE, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
-    gDPCopyFB(gfx++, fb_dest, fb_src, -1, -1, true, oncePerFrame, hasCopied);
+    gDPCopyFB(gfx++, fb_dest, fb_src, oncePerFrame, hasCopied);
 
     *gfxp = gfx;
 }
