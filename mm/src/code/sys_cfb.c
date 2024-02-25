@@ -2,6 +2,7 @@
 #include "regs.h"
 #include "functions.h"
 #include "macros.h"
+#include "2s2h/framebuffer_effects.h"
 
 // Variables are put before most headers as a hacky way to bypass bss reordering
 OSViMode sNotebookViMode; // placeholder name
@@ -97,6 +98,9 @@ void SysCfb_Init(void) {
     sCfbHiRes1 = gFramebufferHiRes1;
     sCfbHiRes0 = gFramebufferHiRes0;
     SysCfb_SetLoResMode();
+
+    // 2S2H [Port] Create the framebuffers to be used by the adjusted framebuffer effects
+    FB_CreateFramebuffers();
 }
 
 // Unused
