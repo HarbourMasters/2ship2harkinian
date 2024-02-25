@@ -56,6 +56,7 @@ CrowdControl* CrowdControl::Instance;
 
 #include "Enhancements/GameInteractor/GameInteractor.h"
 #include "Enhancements/Enhancements.h"
+#include "2s2h/Enhancements/GfxPatcher/AuthenticGfxPatches.h"
 
 // Resource Types/Factories
 #include "2s2h/resource/type/Animation.h"
@@ -313,6 +314,7 @@ extern "C" void InitOTR() {
     GameInteractor::Instance = new GameInteractor();
     BenGui::SetupGuiElements();
     InitEnhancements();
+    GfxPatcher_ApplyNecessaryAuthenticPatches();
 
     clearMtx = (uintptr_t)&gMtxClear;
     //OTRMessage_Init();
@@ -920,6 +922,11 @@ extern "C" void ResourceMgr_PatchGfxByName(const char* path, const char* patchNa
     // index /= 2;
     // }
 
+    // Do not patch custom assets as they most likely do not have the same instructions as authentic assets
+    if (res->GetInitData()->IsCustom) {
+        return;
+    }
+
     Gfx* gfx = (Gfx*)&res->Instructions[index];
 
     if (!originalGfx.contains(path) || !originalGfx[path].contains(patchName)) {
@@ -933,6 +940,11 @@ extern "C" void ResourceMgr_PatchGfxCopyCommandByName(const char* path, const ch
                                                       int sourceIndex) {
     auto res = std::static_pointer_cast<LUS::DisplayList>(
         LUS::Context::GetInstance()->GetResourceManager()->LoadResource(path));
+
+    // Do not patch custom assets as they most likely do not have the same instructions as authentic assets
+    if (res->GetInitData()->IsCustom) {
+        return;
+    }
 
     Gfx* destinationGfx = (Gfx*)&res->Instructions[destinationIndex];
     Gfx sourceGfx = res->Instructions[sourceIndex];
