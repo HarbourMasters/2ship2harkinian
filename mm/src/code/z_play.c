@@ -35,6 +35,7 @@ u8 sMotionBlurStatus;
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "debug.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "2s2h/framebuffer_effects.h"
 #include <string.h>
 
 s32 gDbgCamEnabled = false;
@@ -55,6 +56,12 @@ void Play_DrawMotionBlur(PlayState* this) {
     s32 alpha;
     Gfx* gfx;
     Gfx* gfxHead;
+
+    // 2S2H [Port] Frame buffer effects for motion blur
+    // Track render size when blur is active and that a copy was performed
+    static u32 lastBlurWidth;
+    static u32 lastBlurHeight;
+    static u8 hasCopiedForFrame;
 
     if (R_MOTION_BLUR_PRIORITY_ENABLED) {
         alpha = R_MOTION_BLUR_PRIORITY_ALPHA;
@@ -84,13 +91,25 @@ void Play_DrawMotionBlur(PlayState* this) {
         this->pauseBgPreRender.fbuf = gfxCtx->curFrameBuffer;
         this->pauseBgPreRender.fbufSave = this->unk_18E64;
 
-        if (sMotionBlurStatus == MOTION_BLUR_PROCESS) {
-            func_80170AE0(&this->pauseBgPreRender, &gfx, alpha);
-        } else {
-            sMotionBlurStatus = MOTION_BLUR_PROCESS;
+        // 2S2H [Port] When the render size changes, we need to skip the blur for one frame to
+        // avoid rendering and copying a blank framebuffer
+        if (sMotionBlurStatus == MOTION_BLUR_PROCESS &&
+            (lastBlurWidth != OTRGetGameRenderWidth() || lastBlurHeight != OTRGetGameRenderHeight())) {
+            sMotionBlurStatus = MOTION_BLUR_SETUP;
         }
 
-        PreRender_SaveFramebuffer(&this->pauseBgPreRender, &gfx);
+        if (sMotionBlurStatus == MOTION_BLUR_PROCESS) {
+            FB_DrawFromFramebuffer(&gfx, gBlurFrameBuffer, alpha);
+        } else {
+            sMotionBlurStatus = MOTION_BLUR_PROCESS;
+            lastBlurWidth = OTRGetGameRenderWidth();
+            lastBlurHeight = OTRGetGameRenderHeight();
+        }
+
+        hasCopiedForFrame = false;
+
+        // 2S2H [Port] Copy framebuffer only once per game frame to exclude motion blur from interpolation
+        FB_CopyToFramebuffer(&gfx, 0, gBlurFrameBuffer, true, &hasCopiedForFrame);
 
         gSPEndDisplayList(gfx++);
 
@@ -1141,6 +1160,25 @@ void Play_DrawMain(PlayState* this) {
     u8 sp25B = false;
     f32 zFar;
 
+    // #region 2S2H [Port] Frame buffer effects for pause menu
+    // Track render size when paused and that a copy was performed
+    static u32 lastPauseWidth;
+    static u32 lastPauseHeight;
+    static u8 hasCapturedPauseBuffer;
+    u8 recapturePauseBuffer = false;
+
+    // If the size has changed or dropped frames leading to the buffer not being copied,
+    // set the prerender state back to setup to copy a new frame.
+    // This requires not rendering kaleido during this copy to avoid kaleido being copied
+    if ((R_PAUSE_BG_PRERENDER_STATE == PAUSE_BG_PRERENDER_PROCESS ||
+         R_PAUSE_BG_PRERENDER_STATE == PAUSE_BG_PRERENDER_READY) &&
+        (lastPauseWidth != OTRGetGameRenderWidth() || lastPauseHeight != OTRGetGameRenderHeight() ||
+         !hasCapturedPauseBuffer)) {
+        R_PAUSE_BG_PRERENDER_STATE = PAUSE_BG_PRERENDER_SETUP;
+        recapturePauseBuffer = true;
+    }
+    // #endregion
+
     if (R_PAUSE_BG_PRERENDER_STATE >= PAUSE_BG_PRERENDER_UNK4) {
         PreRender_ApplyFiltersSlowlyDestroy(&this->pauseBgPreRender);
         R_PAUSE_BG_PRERENDER_STATE = PAUSE_BG_PRERENDER_OFF;
@@ -1265,15 +1303,16 @@ void Play_DrawMain(PlayState* this) {
             }
             R_PAUSE_BG_PRERENDER_STATE = PAUSE_BG_PRERENDER_READY;
             SREG(33) |= 1;
+
+            // 2S2H [Port] Jump to the pause render flow to avoid flashing a blank screen
+            // since previous framebuffers aren't retained like hardware does
+            goto PauseRenderDraw;
         } else {
+        PauseRenderDraw:
             if (R_PAUSE_BG_PRERENDER_STATE == PAUSE_BG_PRERENDER_READY) {
                 Gfx* sp8C = POLY_OPA_DISP;
 
-                if (this->pauseBgPreRender.filterState == PRERENDER_FILTER_STATE_DONE) {
-                    PreRender_RestoreFramebuffer(&this->pauseBgPreRender, &sp8C);
-                } else {
-                    func_80170798(&this->pauseBgPreRender, &sp8C);
-                }
+                FB_DrawFromFramebuffer(&sp8C, gPauseFrameBuffer, 255);
 
                 gSPDisplayList(sp8C++, D_0E000000_TO_SEGMENTED(syncSegments));
                 POLY_OPA_DISP = sp8C;
@@ -1407,18 +1446,25 @@ void Play_DrawMain(PlayState* this) {
                     this->pauseBgPreRender.cvgSave = NULL;
                 }
 
-                PreRender_SaveFramebuffer(&this->pauseBgPreRender, &sp74);
+                lastPauseWidth = OTRGetGameRenderWidth();
+                lastPauseHeight = OTRGetGameRenderHeight();
+                hasCapturedPauseBuffer = false;
 
-                if (this->pauseBgPreRender.cvgSave != NULL) {
-                    PreRender_DrawCoverage(&this->pauseBgPreRender, &sp74);
-                }
+                FB_CopyToFramebuffer(&sp74, 0, gPauseFrameBuffer, false, &hasCapturedPauseBuffer);
 
                 gSPEndDisplayList(sp74++);
                 Graph_BranchDlist(sp70, sp74);
                 POLY_OPA_DISP = sp74;
                 this->unk_18B49 = 2;
                 SREG(33) |= 1;
-                goto SkipPostWorldDraw;
+
+                // 2S2H [Port] Set the state back to ready after the recapture is done
+                if (recapturePauseBuffer) {
+                    R_PAUSE_BG_PRERENDER_STATE = PAUSE_BG_PRERENDER_READY;
+                }
+
+                // 2S2H [Port] Continue to render the post world to avoid flashing the HUD
+                // goto SkipPostWorldDraw;
             }
 
         PostWorldDraw:

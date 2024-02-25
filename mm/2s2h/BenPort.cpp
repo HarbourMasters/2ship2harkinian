@@ -497,7 +497,7 @@ extern "C" void Graph_StartFrame() {
 
 void RunCommands(Gfx* Commands, const std::vector<std::unordered_map<Mtx*, MtxF>>& mtx_replacements) {
     for (const auto& m : mtx_replacements) {
-    gfx_run(Commands, m);
+        gfx_run(Commands, m);
         gfx_end_frame();
     }
 }
@@ -1293,10 +1293,12 @@ extern "C" void OTRGfxPrint(const char* str, void* printer, void (*printImpl)(vo
     }
 }
 
+// Gets the width of the main ImGui window
 extern "C" uint32_t OTRGetCurrentWidth() {
     return OTRGlobals::Instance->context->GetWindow()->GetWidth();
 }
 
+// Gets the height of the main ImGui window
 extern "C" uint32_t OTRGetCurrentHeight() {
     return OTRGlobals::Instance->context->GetWindow()->GetHeight();
 }
@@ -1385,6 +1387,16 @@ extern "C" float OTRGetDimensionFromLeftEdge(float v) {
 
 extern "C" float OTRGetDimensionFromRightEdge(float v) {
     return (SCREEN_WIDTH / 2 + SCREEN_HEIGHT / 2 * OTRGetAspectRatio() - (SCREEN_WIDTH - v));
+}
+
+// Gets the width of the current render target area
+extern "C" uint32_t OTRGetGameRenderWidth() {
+    return gfx_current_dimensions.width;
+}
+
+// Gets the height of the current render target area
+extern "C" uint32_t OTRGetGameRenderHeight() {
+    return gfx_current_dimensions.height;
 }
 
 f32 floorf(f32 x);
