@@ -435,3 +435,46 @@ void RunFrame() {
 void Graph_ThreadEntry(void* arg0) {
     Graph_ProcessFrame(RunFrame);
 }
+
+// #region 2S2H [Debugging] Debugging methods for viewing file/line info in the renderer.
+// Particularly useful with the Gfx Debugger window
+// Modeled after OOT-debug decomp
+void Graph_OpenDisps(Gfx** dispRefs, Gfx* dispVals, GraphicsContext* gfxCtx, const char* file, s32 line) {
+    // Copy pointers and values for restoration in CloseDisps
+    dispRefs[0] = gfxCtx->polyOpa.p;
+    dispVals[0] = gfxCtx->polyOpa.p[0];
+    dispRefs[1] = gfxCtx->polyXlu.p;
+    dispVals[1] = gfxCtx->polyXlu.p[0];
+    dispRefs[2] = gfxCtx->overlay.p;
+    dispVals[2] = gfxCtx->overlay.p[0];
+
+    gDPNoOpOpenDisp(gfxCtx->polyOpa.p++, file, line);
+    gDPNoOpOpenDisp(gfxCtx->polyXlu.p++, file, line);
+    gDPNoOpOpenDisp(gfxCtx->overlay.p++, file, line);
+}
+
+void Graph_CloseDisps(Gfx** dispRefs, Gfx* dispVals, GraphicsContext* gfxCtx, const char* file, s32 line) {
+    // If no instructions were added for a buffer since the OpenDisp,
+    // restore the buffer pointer and original value (essentially removing the noop open)
+    if (dispRefs[0] + 1 == gfxCtx->polyOpa.p) {
+        gfxCtx->polyOpa.p = dispRefs[0];
+        gfxCtx->polyOpa.p[0] = dispVals[0];
+    } else {
+        gDPNoOpCloseDisp(gfxCtx->polyOpa.p++, file, line);
+    }
+
+    if (dispRefs[1] + 1 == gfxCtx->polyXlu.p) {
+        gfxCtx->polyXlu.p = dispRefs[1];
+        gfxCtx->polyXlu.p[0] = dispVals[1];
+    } else {
+        gDPNoOpCloseDisp(gfxCtx->polyXlu.p++, file, line);
+    }
+
+    if (dispRefs[2] + 1 == gfxCtx->overlay.p) {
+        gfxCtx->overlay.p = dispRefs[2];
+        gfxCtx->overlay.p[0] = dispVals[2];
+    } else {
+        gDPNoOpCloseDisp(gfxCtx->overlay.p++, file, line);
+    }
+}
+// #endregion

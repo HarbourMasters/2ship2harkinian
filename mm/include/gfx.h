@@ -263,23 +263,22 @@ extern Gfx gEmptyDL[];
 
 // __gfxCtx shouldn't be used directly.
 // Use the DISP macros defined above when writing to display buffers.
-#define OPEN_DISPS(gfxCtx)                                        \
-    {                                                             \
-        void FrameInterpolation_RecordOpenChild(const void* a, int b); \
-        FrameInterpolation_RecordOpenChild(__FILE__, __LINE__); \
-        GraphicsContext* __gfxCtx = gfxCtx;                       \
-        gDPNoOpOpenDisp(gfxCtx->polyOpa.p++, __FILE__, __LINE__); \
-        gDPNoOpOpenDisp(gfxCtx->polyXlu.p++, __FILE__, __LINE__); \
-        gDPNoOpOpenDisp(gfxCtx->overlay.p++, __FILE__, __LINE__);
+// 2S2H [Port] Augmented to provide debug information and support interpolation
+#define OPEN_DISPS(gfxCtx)                                                  \
+    {                                                                       \
+        void FrameInterpolation_RecordOpenChild(const void* a, int b);      \
+        FrameInterpolation_RecordOpenChild(__FILE__, __LINE__);             \
+        GraphicsContext* __gfxCtx = gfxCtx;                                 \
+        Gfx* __dispRefs[3];                                                 \
+        Gfx __dispVals[3];                                                  \
+        Graph_OpenDisps(__dispRefs, __dispVals, gfxCtx, __FILE__, __LINE__)
 
-#define CLOSE_DISPS(gfxCtx)                                    \
-    (void)0;                                                   \
-    void FrameInterpolation_RecordCloseChild(void);                     \
-    FrameInterpolation_RecordCloseChild();                       \
-    gDPNoOpCloseDisp(gfxCtx->polyOpa.p++, __FILE__, __LINE__); \
-    gDPNoOpCloseDisp(gfxCtx->polyXlu.p++, __FILE__, __LINE__); \
-    gDPNoOpCloseDisp(gfxCtx->overlay.p++, __FILE__, __LINE__); \
-    }                                                          \
+#define CLOSE_DISPS(gfxCtx)                                               \
+    (void)0;                                                              \
+    void FrameInterpolation_RecordCloseChild(void);                       \
+    FrameInterpolation_RecordCloseChild();                                \
+    Graph_CloseDisps(__dispRefs, __dispVals, gfxCtx, __FILE__, __LINE__); \
+    }                                                                     \
     (void)0
 
 #define GRAPH_ALLOC(gfxCtx, size) ((void*)((gfxCtx)->polyOpa.d = (Gfx*)((u8*)(gfxCtx)->polyOpa.d - ALIGN16(size))))
