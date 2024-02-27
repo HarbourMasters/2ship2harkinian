@@ -2105,16 +2105,12 @@ void DmStk_Draw(Actor* thisx, PlayState* play) {
         if (this->alpha < 255) {
             Gfx_SetupDL25_Xlu(play->state.gfxCtx);
             Scene_SetRenderModeXlu(play, 1, 2);
-            // BENTODO
-            // #region 2S2H [TODO] This should be XLU, but it crashes because for some reason the limbs are attempting to
-            // render before the DrawFlex matrix is added to the segment (or something, not really certain)
-            gDPPipeSync(POLY_OPA_DISP++);
-            gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, this->alpha);
+            gDPPipeSync(POLY_XLU_DISP++);
+            gDPSetEnvColor(POLY_XLU_DISP++, 0, 0, 0, this->alpha);
 
-            POLY_OPA_DISP =
+            POLY_XLU_DISP =
                 SkelAnime_DrawFlex(play, this->skelAnime.skeleton, this->skelAnime.jointTable,
-                                   this->skelAnime.dListCount, NULL, DmStk_PostLimbDraw2, &this->actor, POLY_OPA_DISP);
-            // #endregion
+                                   this->skelAnime.dListCount, NULL, DmStk_PostLimbDraw2, &this->actor, POLY_XLU_DISP);
         } else {
             Scene_SetRenderModeXlu(play, 0, 1);
 
