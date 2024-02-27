@@ -5,7 +5,9 @@ int gfx_create_framebuffer(uint32_t width, uint32_t height);
 
 s32 gPauseFrameBuffer = -1;
 s32 gBlurFrameBuffer = -1;
-s32 gShrinkFrameBuffer = -1;
+// A framebuffer that should only be used for drawing in the same frame that it is copied too
+// i.e. the VisMono and VisFbuf effects
+s32 gReusableFrameBuffer = -1;
 
 void FB_CreateFramebuffers(void) {
     if (gPauseFrameBuffer == -1) {
@@ -16,8 +18,8 @@ void FB_CreateFramebuffers(void) {
         gBlurFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT);
     }
 
-    if (gShrinkFrameBuffer == -1) {
-        gShrinkFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT);
+    if (gReusableFrameBuffer == -1) {
+        gReusableFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT);
     }
 }
 

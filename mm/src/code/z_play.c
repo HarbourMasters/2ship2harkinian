@@ -1276,8 +1276,13 @@ void Play_DrawMain(PlayState* this) {
 
             TransitionFade_Draw(&this->unk_18E48, &sp218);
             if (gVisMonoColor.a != 0) {
-                sPlayVisMono.primColor.rgba = gVisMonoColor.rgba;
-                VisMono_Draw(&sPlayVisMono, &sp218);
+                // 2S2H [Port] Implement VisMono by performing a framebuffer copy and redraw with an active
+                // grayscale command to set the mono color
+                FB_CopyToFramebuffer(&sp218, 0, gReusableFrameBuffer, false, NULL);
+                gDPSetGrayscaleColor(sp218++, gVisMonoColor.r, gVisMonoColor.g, gVisMonoColor.b, gVisMonoColor.a);
+                gSPGrayscale(sp218++, true);
+                FB_DrawFromFramebuffer(&sp218, gReusableFrameBuffer, 255);
+                gSPGrayscale(sp218++, false);
             }
 
             gSPEndDisplayList(sp218++);
