@@ -97,7 +97,8 @@ Gfx* func_809A1DD0(GraphicsContext* gfxCtx, u32 alpha) {
 
     OPEN_DISPS(gfxCtx);
 
-    disp = GRAPH_ALLOC(gfxCtx, 0x10);
+    // 2S2H [Port] Fixing allocation size
+    disp = GRAPH_ALLOC(gfxCtx, 3 * sizeof(Gfx)); //! @bug this does not allocate enough for 3 Gfx commands;
     disp2 = disp;
 
     gDPSetRenderMode(disp++, G_RM_FOG_SHADE_A, G_RM_AA_ZB_XLU_SURF2);
@@ -116,7 +117,7 @@ Gfx* func_809A1E28(GraphicsContext* gfxCtx, u32 alpha) {
 
     OPEN_DISPS(gfxCtx);
 
-    disp = GRAPH_ALLOC(gfxCtx, 0x10);
+    disp = GRAPH_ALLOC(gfxCtx, 2 * sizeof(Gfx));
     disp2 = disp;
 
     gDPSetEnvColor(disp++, 0, 0, 0, alpha);
