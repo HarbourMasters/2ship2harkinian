@@ -1580,7 +1580,7 @@ extern "C" void BenSysFlashrom_WriteData(u8* saveBuffer, u32 pageNum, u32 pageCo
         case FLASH_SLOT_FILE_1_OWL_SAVE:
         case FLASH_SLOT_FILE_2_OWL_SAVE: {
             SaveContext saveContext;
-            memcpy(&saveContext, saveBuffer, sizeof(SaveContext));
+            memcpy(&saveContext, saveBuffer, offsetof(SaveContext, fileNum));
 
             std::string fileName = "save_" + std::to_string(flashSlotFile) + ".sav";
             if (isBackup) fileName += ".bak";
@@ -1652,7 +1652,7 @@ extern "C" s32 BenSysFlashrom_ReadData(void* saveBuffer, u32 pageNum, u32 pageCo
 
             SaveContext saveContext = j;
 
-            memcpy(saveBuffer, &saveContext, sizeof(SaveContext));
+            memcpy(saveBuffer, &saveContext, offsetof(SaveContext, fileNum));
             return result;
         }
         case FLASH_SLOT_FILE_SRAM_HEADER:
