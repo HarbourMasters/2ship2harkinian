@@ -3359,7 +3359,9 @@ void Message_OpenText(PlayState* play, u16 textId) {
     // BENTODO all of these
     if (msgCtx->textIsCredits) {
         Message_FindCreditsMessage(play, textId);
-        msgCtx->msgLength = font->messageEnd;
+        MessageTableEntry* msgEntry = (MessageTableEntry*)font->messageStart;
+        msgCtx->msgLength = msgEntry->msgSize;
+        memcpy(&font->msgBuf, msgEntry->segment, msgEntry->msgSize);
         //DmaMgr_SendRequest0(&font->msgBuf, SEGMENT_ROM_START(staff_message_data_static) + font->messageStart,
         //                    font->messageEnd);
     } else if (gSaveContext.options.language == LANGUAGE_JPN) {
@@ -3375,7 +3377,7 @@ void Message_OpenText(PlayState* play, u16 textId) {
         //msgCtx->msgLength = font->messageEnd;
         //DmaMgr_SendRequest0(&font->msgBuf, SEGMENT_ROM_START(message_data_static) + font->messageStart,
         //                    font->messageEnd);
-    }   //
+    }
 
     msgCtx->choiceNum = 0;
     msgCtx->textUnskippable = false;
@@ -4365,8 +4367,6 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
     s32 j;
     s16 temp_v0_33;
     s16 temp;
-    // BENTODO
-    msgCtx->textIsCredits = false;
 
     gfx = *gfxP;
 
