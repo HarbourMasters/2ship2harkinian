@@ -12,8 +12,8 @@
 #undef DEFINE_SCENE_UNSET
 #endif
 
-// 2S2H Added columns to scene table: humanName
-#define DEFINE_SCENE(name, _enumValue, textId, drawConfig, _restrictionFlags, _persistentCycleFlags, _entranceSceneId, _humanName) \
+// 2S2H Added columns to scene table: entranceSceneId, betterMapSelectIndex, humanName
+#define DEFINE_SCENE(name, _enumValue, textId, drawConfig, _restrictionFlags, _persistentCycleFlags, _entranceSceneId, _betterMapSelectIndex, _humanName) \
     { { 0, 0, #name }, textId, 0, drawConfig, 0, 0 },
 
 #define DEFINE_SCENE_UNSET(_enumValue) { 0 },
