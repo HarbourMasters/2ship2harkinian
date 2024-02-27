@@ -170,7 +170,7 @@ void VisFbuf_ApplyEffects(VisFbuf* this, Gfx** gfxP, void* source, void* img, s3
                     G_AD_PATTERN | G_CD_MAGICSQ | G_CK_NONE | G_TC_CONV | G_TF_POINT | G_TT_NONE | G_TL_TILE |
                         G_TD_CLAMP | G_TP_NONE | G_CYC_COPY | G_PM_NPRIMITIVE,
                     G_AC_NONE | G_ZS_PIXEL | G_RM_NOOP | G_RM_NOOP2);
-    FB_CopyToFramebuffer(&gfx, 0, gShrinkFrameBuffer, false, NULL);
+    FB_CopyToFramebuffer(&gfx, 0, gReusableFrameBuffer, false, NULL);
 
     gDPPipeSync(gfx++);
     // fill framebuffer with primColor
@@ -224,7 +224,7 @@ void VisFbuf_ApplyEffects(VisFbuf* this, Gfx** gfxP, void* source, void* img, s3
 
         // 2S2H [Port][Widescreen]
         // Draw shrunk window using an adjusted horizontal scale accounting for different aspect ratios
-        FB_DrawFromFramebufferScaled(&gfx, gShrinkFrameBuffer, 255,
+        FB_DrawFromFramebufferScaled(&gfx, gReusableFrameBuffer, 255,
                                      (1.0f - scale) * (OTRGetAspectRatio() / ((float)SCREEN_WIDTH / SCREEN_HEIGHT)),
                                      (1.0f - scale));
     }
