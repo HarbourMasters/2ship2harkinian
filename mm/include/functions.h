@@ -1324,6 +1324,8 @@ void PadMgr_ThreadEntry();
 void Heaps_Alloc(void);
 // #endregion
 // #region 2S2H [Port] New methods added for porting
+void Graph_OpenDisps(Gfx** dispRefs, Gfx* dispVals, GraphicsContext* gfxCtx, const char* file, s32 line);
+void Graph_CloseDisps(Gfx** dispRefs, Gfx* dispVals, GraphicsContext* gfxCtx, const char* file, s32 line);
 void Lights_GlowCheckPrepare(PlayState* play);
 // #endregion
 // #region 2S2H [Port] Stubbed methods
