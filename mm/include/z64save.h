@@ -32,7 +32,7 @@ typedef enum RespawnMode {
     /* 8 */ RESPAWN_MODE_MAX
 } RespawnMode;
 
-#define SAVE_BUFFER_SIZE 0x8000 // 2S2H [Port] Double the original size of 0x4000 for 64 bit support
+#define SAVE_BUFFER_SIZE 0x4000
 
 typedef enum {
     /* 0  */ MAGIC_STATE_IDLE, // Regular gameplay
