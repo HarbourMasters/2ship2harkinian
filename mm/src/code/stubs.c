@@ -55,7 +55,7 @@ u64 aspMainDataStart[100];
 u64 aspMainDataEnd[100];
 
 u8 sNumSeqRequests[5];
-u32 sAudioSeqCmds[0xB0];
+u32 sAudioSeqCmds[0x100];
 ActiveSequence gActiveSeqs[5];
 u8 sResetAudioHeapTimer;
 u16 sResetAudioHeapFadeReverbVolume;
