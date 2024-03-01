@@ -27,6 +27,7 @@ extern "C" {
 #include "2s2h/resource/type/scenecommand/SetMesh.h"
 #include "2s2h/resource/type/scenecommand/SetObjectList.h"
 #include "2s2h/resource/type/scenecommand/SetLightList.h"
+#include "2s2h/resource/type/scenecommand/SetLightingSettings.h"
 #include "2s2h/resource/type/scenecommand/SetPathways.h"
 #include "2s2h/resource/type/scenecommand/SetTransitionActorList.h"
 #include "2s2h/resource/type/scenecommand/SetSkyboxSettings.h"
@@ -261,7 +262,10 @@ void Scene_CommandTransiActorList(PlayState* play, LUS::ISceneCommand* cmd) {
 }
 
 void Scene_CommandEnvLightSettings(PlayState* play, LUS::ISceneCommand* cmd) {
-    play->envCtx.lightSettingsList = (EnvLightSettings*)cmd->GetRawPointer();
+    LUS::SetLightingSettings* lightSettings = (LUS::SetLightingSettings*)cmd;
+
+    play->envCtx.numLightSettings = lightSettings->settings.size();
+    play->envCtx.lightSettingsList = (EnvLightSettings*)lightSettings->GetRawPointer();
 }
 
 void Scene_CommandTimeSettings(PlayState* play, LUS::ISceneCommand* cmd) {
