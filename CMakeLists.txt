@@ -19,6 +19,9 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows|Linux")
     endif()
 endif()
 
+# Enable the Gfx debugger in LUS to use libgfxd from ZAPDTR
+set(GFX_DEBUG_DISASSEMBLER ON)
+
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 include(CMake/automate-vcpkg.cmake)
 
