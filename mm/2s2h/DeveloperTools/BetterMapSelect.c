@@ -7,31 +7,45 @@
 
 extern SceneSelectEntry sScenes[143];
 
-void MapSelect_LoadFileSelect(MapSelectState* mapSelectState) {
+void BetterMapSelect_LoadGame(MapSelectState* mapSelectState, u32 entrance, s32 spawn) {
+    CVarSetInteger("gDeveloperTools.BetterMapSelect.CurrentScene", mapSelectState->currentScene);
+    CVarSetInteger("gDeveloperTools.BetterMapSelect.TopDisplayedScene", mapSelectState->topDisplayedScene);
+    CVarSetInteger("gDeveloperTools.BetterMapSelect.PageDownIndex", mapSelectState->pageDownIndex);
+    CVarSave();
+    MapSelect_LoadGame(mapSelectState, entrance, spawn);
+}
+
+void BetterMapSelect_LoadFileSelect(MapSelectState* mapSelectState) {
     STOP_GAMESTATE(&mapSelectState->state);
     SET_NEXT_GAMESTATE(&mapSelectState->state, FileSelect_Init, sizeof(FileSelectState));
 }
 
-// 2S2H Added columns to scene table: humanName
-#define DEFINE_SCENE(_name, _enumValue, _textId, _drawConfig, _restrictionFlags, _persistentCycleFlags, entranceSceneId, humanName) \
-    { humanName, MapSelect_LoadGame, ENTRANCE(entranceSceneId, 0) },
+// 2S2H Added columns to scene table: entranceSceneId, betterMapSelectIndex, humanName
+#define DEFINE_SCENE(_name, _enumValue, _textId, _drawConfig, _restrictionFlags, _persistentCycleFlags, entranceSceneId, _betterMapSelectIndex, humanName) \
+    { humanName, BetterMapSelect_LoadGame, ENTRANCE(entranceSceneId, 0) },
 #define DEFINE_SCENE_UNSET(_enumValue)
 
-static SceneSelectEntry sBetterScenes[] = {
+static SceneSelectEntry sBetterScenes[104] = {
     #include "tables/scene_table.h"
-    { "File Select", MapSelect_LoadFileSelect, 0 },
+    { "File Select", BetterMapSelect_LoadFileSelect, 0 },
     { "Title Screen", MapSelect_LoadConsoleLogo, 0 },
 };
 
 #undef DEFINE_SCENE
 #undef DEFINE_SCENE_UNSET
 
-// 2S2H Added columns to scene table: humanName
-#define DEFINE_SCENE(_name, enumValue, _textId, _drawConfig, _restrictionFlags, _persistentCycleFlags, entranceSceneId, humanName) \
-    { enumValue },
+// 2S2H Added columns to scene table: entranceSceneId, betterMapSelectIndex, humanName
+#define DEFINE_SCENE(_name, _enumValue, _textId, _drawConfig, _restrictionFlags, _persistentCycleFlags, entranceSceneId, betterMapSelectIndex, humanName) \
+    { humanName, ENTRANCE(entranceSceneId, 0), betterMapSelectIndex },
 #define DEFINE_SCENE_UNSET(_enumValue)
 
-static uint32_t sBetterScenesEnums[] = {
+typedef struct {
+    char* name;
+    s32 entrance;
+    s32 index;
+} BetterMapSelectInfoEntry;
+
+static BetterMapSelectInfoEntry sBetterMapSelectInfo[102] = {
     #include "tables/scene_table.h"
 };
 
@@ -39,10 +53,20 @@ static uint32_t sBetterScenesEnums[] = {
 #undef DEFINE_SCENE_UNSET
 
 static bool isBetterMapSelect = false;
+static bool isInitialized = false;
 
 void BetterMapSelect_Init(MapSelectState* mapSelectState) {
     isBetterMapSelect = CVarGetInteger("gDeveloperTools.BetterMapSelect.Enabled", 0);
     if (CVarGetInteger("gDeveloperTools.BetterMapSelect.Enabled", 0)) {
+        if (!isInitialized) {
+            s32 i;
+            for (i = 0; i < ARRAY_COUNT(sBetterMapSelectInfo); i++) {
+                sBetterScenes[sBetterMapSelectInfo[i].index].name = sBetterMapSelectInfo[i].name;
+                sBetterScenes[sBetterMapSelectInfo[i].index].entrance = sBetterMapSelectInfo[i].entrance;
+            }
+            isInitialized = true;
+        }
+
         mapSelectState->scenes = sBetterScenes;
         mapSelectState->count = ARRAY_COUNT(sBetterScenes);
         mapSelectState->currentScene = CVarGetInteger("gDeveloperTools.BetterMapSelect.CurrentScene", 0);
@@ -60,14 +84,6 @@ void BetterMapSelect_Init(MapSelectState* mapSelectState) {
 void BetterMapSelect_Update(MapSelectState* mapSelectState) {
     if (isBetterMapSelect != CVarGetInteger("gDeveloperTools.BetterMapSelect.Enabled", 0)) {
         BetterMapSelect_Init(mapSelectState);
-    }
-
-    if (CVarGetInteger("gDeveloperTools.BetterMapSelect.Enabled", 0)) {
-        if (mapSelectState->currentScene != CVarGetInteger("gDeveloperTools.BetterMapSelect.CurrentScene", 0)) {
-            CVarSetInteger("gDeveloperTools.BetterMapSelect.CurrentScene", mapSelectState->currentScene);
-            CVarSetInteger("gDeveloperTools.BetterMapSelect.TopDisplayedScene", mapSelectState->topDisplayedScene);
-            CVarSetInteger("gDeveloperTools.BetterMapSelect.PageDownIndex", mapSelectState->pageDownIndex);
-        }
     }
 }
 
@@ -104,11 +120,7 @@ void BetterMapSelect_PrintMenu(MapSelectState* mapSelectState, GfxPrint* printer
         }
         
         sceneName = sBetterScenes[sceneIndex].name;
-        if (sceneIndex >= ARRAY_COUNT(sBetterScenesEnums)) {
-            GfxPrint_Printf(printer, "    %s", sceneName);
-        } else {
-            GfxPrint_Printf(printer, "%3d %s", sBetterScenesEnums[sceneIndex], sceneName);
-        }
+        GfxPrint_Printf(printer, "%3d %s", sceneIndex, sceneName);
     };
 
     // Entrance
