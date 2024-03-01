@@ -5,6 +5,7 @@
  */
 
 #include "z_en_ja.h"
+#include "Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY | ACTOR_FLAG_10)
 
@@ -813,6 +814,7 @@ void func_80BC33C0(EnJaStruct* ptr, PlayState* play) {
     if (((ptr->unk_0E < 0) || (ptr->unk_0E >= 19)) && ((ptr->unk_0E < 83) || (ptr->unk_0E >= 103))) {
         OPEN_DISPS(play->state.gfxCtx);
 
+        FrameInterpolation_RecordOpenChild(ptr, ptr->unk_0C);
         Matrix_Translate(ptr->unk_00.x, ptr->unk_00.y, ptr->unk_00.z, MTXMODE_NEW);
         Matrix_Mult(&play->billboardMtxF, MTXMODE_APPLY);
         Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
@@ -841,6 +843,7 @@ void func_80BC33C0(EnJaStruct* ptr, PlayState* play) {
 
         gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gSPDisplayList(POLY_OPA_DISP++, object_boj_DL_00BCC8);
+        FrameInterpolation_RecordCloseChild();
 
         CLOSE_DISPS(play->state.gfxCtx);
     }
