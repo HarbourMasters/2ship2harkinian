@@ -22,8 +22,8 @@ typedef struct PersistentCycleSceneFlags {
 #define PERSISTENT_CYCLE_FLAGS_SET(switch0, switch1, chest, collectible) { switch0, switch1, chest, collectible },
 #define PERSISTENT_CYCLE_FLAGS_NONE PERSISTENT_CYCLE_FLAGS_SET(0, 0, 0, 0)
 
-// 2S2H Added columns to scene table: humanName
-#define DEFINE_SCENE(_name, _enumValue, _textId, _drawConfig, _restrictionFlags, persistentCycleFlags, _entranceSceneId, _humanName) \
+// 2S2H Added columns to scene table: entranceSceneId, betterMapSelectIndex, humanName
+#define DEFINE_SCENE(_name, _enumValue, _textId, _drawConfig, _restrictionFlags, persistentCycleFlags, _entranceSceneId, _betterMapSelectIndex, _humanName) \
     persistentCycleFlags
 #define DEFINE_SCENE_UNSET(_enumValue) PERSISTENT_CYCLE_FLAGS_NONE
 
