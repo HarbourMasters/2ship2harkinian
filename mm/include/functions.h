@@ -9,6 +9,7 @@ extern "C" {
 #include "z64.h"
 #include "BenPort.h"
 #include "libultraship/luslog.h"
+#include "consolevariablebridge.h"
 
 void bootproc(void);
 void ViConfig_UpdateVi(u32 black);

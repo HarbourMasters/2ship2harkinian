@@ -265,6 +265,10 @@ extern std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
 
+        UIWidgets::CVarCheckbox("Fast Text", "gEnhancements.TimeSavers.FastText", {
+            .tooltip = "Speeds up text rendering, and enables holding of B progress to next message"
+        });
+
         if (mHudEditorWindow) {
             UIWidgets::WindowButton("Hud Editor", "gWindows.HudEditor", mHudEditorWindow, {
                 .tooltip = "Enables the Hud Editor window, allowing you to edit your hud"
