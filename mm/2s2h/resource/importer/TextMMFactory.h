@@ -1,10 +1,22 @@
 #pragma once
 
 #include "Resource.h"
-#include "ResourceFactory.h"
+#include "ResourceFactoryBinary.h"
+#include "ResourceFactoryXML.h"
 
-namespace LUS {
-class TextMMFactory : public ResourceFactory
+namespace SOH {
+class ResourceFactoryBinaryTextMMV0 : public LUS::ResourceFactoryBinary {
+  public:
+    std::shared_ptr<LUS::IResource> ReadResource(std::shared_ptr<LUS::File> file) override;
+};
+
+class ResourceFactoryXMLTextMMV0 : public LUS::ResourceFactoryXML {
+  public:
+    std::shared_ptr<LUS::IResource> ReadResource(std::shared_ptr<LUS::File> file) override;
+};
+
+#if 0
+class TextMMFactory : public LUS::ResourceFactoryBinary
 {
   public:
     std::shared_ptr<IResource>
@@ -12,12 +24,6 @@ class TextMMFactory : public ResourceFactory
     std::shared_ptr<IResource>
     ReadResourceXML(std::shared_ptr<ResourceInitData> initData, tinyxml2::XMLElement *reader) override;
 };
-
-class TextMMFactoryV0 : public ResourceVersionFactory
-{
-  public:
-    void ParseFileBinary(std::shared_ptr<BinaryReader> reader, std::shared_ptr<IResource> resource) override;
-    void ParseFileXML(tinyxml2::XMLElement* reader, std::shared_ptr<IResource> resource) override;
-};
+#endif
 }; // namespace LUS
 

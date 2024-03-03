@@ -4,7 +4,7 @@
 #include "SceneCommand.h"
 #include <libultraship/libultra/types.h>
 
-namespace LUS {
+namespace SOH {
 typedef struct {
     /* 0x0 */ int8_t segment;
     /* 0x2 */ int16_t type;
@@ -20,4 +20,4 @@ class SetAnimatedMaterialList : public SceneCommand<AnimatedMaterialData> {
 
     AnimatedMaterialData* mat;
 };
-}; // namespace LUS
+}; // namespace SOH

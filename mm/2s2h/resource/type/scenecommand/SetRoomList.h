@@ -2,7 +2,6 @@
 
 #include <cstdint>
 #include <vector>
-#include <memory>
 #include <string>
 #include "Resource.h"
 #include "SceneCommand.h"
@@ -10,13 +9,7 @@
 #include <libultraship/libultra/types.h>
 #include <spdlog/spdlog.h>
 
-namespace LUS {
-// typedef struct {
-//     /* 0x00 */ uintptr_t vromStart;
-//     /* 0x04 */ uintptr_t vromEnd;
-//     char* fileName;
-// } RomFile; // size = 0x8
-
+namespace SOH {
 class SetRoomList : public SceneCommand<RomFile> {
   public:
     using SceneCommand::SceneCommand;
@@ -28,8 +21,5 @@ class SetRoomList : public SceneCommand<RomFile> {
 
     std::vector<std::string> fileNames;
     std::vector<RomFile> rooms;
-    ~SetRoomList() {
-        SPDLOG_TRACE("ROOM LIST DTOR");
-    }
 };
-}; // namespace LUS
+}; // namespace SOH

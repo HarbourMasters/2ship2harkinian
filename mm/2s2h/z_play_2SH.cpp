@@ -13,7 +13,7 @@ LUS::IResource* OTRPlay_LoadFile(PlayState* play, const char* fileName) {
     return res.get();
 }
 
-s32 OTRScene_ExecuteCommands(PlayState* play, LUS::Scene* scene);
+s32 OTRScene_ExecuteCommands(PlayState* play, SOH::Scene* scene);
 
 extern "C" void OTRPlay_InitScene(PlayState* play, s32 spawn) {
     play->curSpawn = spawn;
@@ -31,7 +31,7 @@ extern "C" void OTRPlay_InitScene(PlayState* play, s32 spawn) {
     Scene_ResetTransitionActorList(&play->state, &play->transitionActors);
     Room_Init(play, &play->roomCtx);
     gSaveContext.worldMapArea = 0;
-    OTRScene_ExecuteCommands(play, (LUS::Scene*)play->sceneSegment);
+    OTRScene_ExecuteCommands(play, (SOH::Scene*)play->sceneSegment);
     Play_InitEnvironment(play, play->skyboxId);
 }
 
@@ -59,7 +59,7 @@ extern "C" s32 OTRfunc_800973FC(PlayState* play, RoomContext* roomCtx) {
             roomCtx->curRoom.segment = roomCtx->activeRoomVram;
             gSegments[3] = (uintptr_t)roomCtx->activeRoomVram;
 
-            OTRScene_ExecuteCommands(play, (LUS::Scene*)roomCtx->curRoom.segment);
+            OTRScene_ExecuteCommands(play, (SOH::Scene*)roomCtx->curRoom.segment);
             func_80123140(play, GET_PLAYER(play));
             Actor_SpawnTransitionActors(play, &play->actorCtx);
             if (((play->sceneId != SCENE_IKANA) || (roomCtx->curRoom.num != 1)) && (play->sceneId != SCENE_IKNINSIDE)) {

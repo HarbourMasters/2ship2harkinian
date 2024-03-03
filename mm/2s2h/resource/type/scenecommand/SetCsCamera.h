@@ -2,16 +2,11 @@
 
 #include <cstdint>
 #include <vector>
-#include <memory>
 #include "Resource.h"
 #include "SceneCommand.h"
 #include <libultraship/libultra/types.h>
 
-namespace LUS {
-typedef struct {
-
-} CsCamera;
-
+namespace SOH {
 typedef struct {
     /* 0x0 */ s16 x;
     /* 0x2 */ s16 y;
@@ -34,4 +29,4 @@ class SetCsCamera : public SceneCommand<ActorCsCamInfoData> {
 
     std::vector<ActorCsCamInfoData> csCamera;
 };
-}; // namespace LUS
+}; // namespace SOH

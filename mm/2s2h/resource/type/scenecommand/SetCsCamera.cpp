@@ -1,6 +1,6 @@
 #include "SetCsCamera.h"
 
-namespace LUS {
+namespace SOH {
 SetCsCamera::~SetCsCamera() {
     for (auto c : csCamera) {
         if (c.actorCsCamFuncData != nullptr) {
@@ -15,4 +15,4 @@ ActorCsCamInfoData* SetCsCamera::GetPointer() {
 size_t SetCsCamera::GetPointerSize() {
     return sizeof(ActorCsCamInfoData);
 }
-} // namespace LUS
+} // namespace SOH
