@@ -1,6 +1,6 @@
 <Root>
     <!-- Shooting Gallery Octorok assets -->
-    <File Name="ovl_En_Syateki_Okuta" BaseAddress="0x80A35FF0" RangeStart="0x1640" RangeEnd="0x1B98">
+    <File Name="ovl_En_Syateki_Okuta" BaseAddress="0x80A17EE0" RangeStart="0x1640" RangeEnd="0x1B98">
         <!-- DisplayList that turns certain Octoroks blue -->
         <DList Name="gShootingGalleryOctorokBlueMaterialDL" Offset="0x1640"/>
 

@@ -1,5 +1,5 @@
 <Root>
-    <File Name="ovl_En_Sth" BaseAddress="0x80B66D30" RangeStart="0x1890" RangeEnd="0x646C">
+    <File Name="ovl_En_Sth" BaseAddress="0x80B482F0" RangeStart="0x1890" RangeEnd="0x646C">
         <DList Name="gEnSthHeadDL" Offset="0x34A0"/>
         <DList Name="gEnSthExtraHairDL" Offset="0x37C0"/>
 

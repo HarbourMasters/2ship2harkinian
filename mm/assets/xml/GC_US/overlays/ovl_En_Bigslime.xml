@@ -1,5 +1,5 @@
 <Root>
-    <File Name="ovl_En_Bigslime" BaseAddress="0x808E4FC0" RangeStart="0x8680" RangeEnd="0xAF00">
+    <File Name="ovl_En_Bigslime" BaseAddress="0x808E1A60" RangeStart="0x8680" RangeEnd="0xAF00">
         <Array Name="sBigslimeStaticVtx" Count="162" Offset="0x8680">
             <Vtx/>
         </Array>

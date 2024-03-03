@@ -1,5 +1,5 @@
 <Root>
-    <File Name="ovl_fbdemo_wipe3" BaseAddress="0x80AC6740" RangeStart="0x520" RangeEnd="0x1C10">
+    <File Name="ovl_fbdemo_wipe3" BaseAddress="0x80AA7D00" RangeStart="0x520" RangeEnd="0x1C10">
         <Texture Name="fbdemo_tex_000520" OutName="tex_000520" Format="i8" Width="16" Height="64" Offset="0x520"/>
         <Texture Name="fbdemo_tex_000920" OutName="tex_000920" Format="i8" Width="16" Height="64" Offset="0x920"/>
         <Texture Name="fbdemo_tex_000D20" OutName="tex_000D20" Format="i8" Width="16" Height="64" Offset="0xD20"/>

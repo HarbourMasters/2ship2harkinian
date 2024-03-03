@@ -59,9 +59,11 @@ static constexpr uint32_t OOT_PAL_10 = 0xB044B569;
 static constexpr uint32_t OOT_PAL_11 = 0xB2055FBD;
 
 static constexpr uint32_t MM_US_10 = 0x5354631C;
+static constexpr uint32_t MM_US_GC = 0xB443EB08;
 
 static const std::unordered_map<uint32_t, const char*> verMap = { 
     { MM_US_10, "US 1.0" },
+    { MM_US_GC, "US GC"},
     //{ OOT_PAL_GC, "PAL Gamecube" },
     //{ OOT_PAL_MQ, "PAL MQ" },
     //{ OOT_PAL_GC_DBG1, "PAL Debug 1" },
@@ -74,6 +76,7 @@ static const std::unordered_map<uint32_t, const char*> verMap = {
 // TODO only check the first 54MB of the rom.
 static constexpr std::array<const uint32_t, 10> goodCrcs = {
     0x96F49400, // MM US 1.0 32MB
+    0xBB434787, // MM GC
     //0xfa8c0555, // MQ DBG 64MB (Original overdump)
     //0x8652ac4c, // MQ DBG 64MB
     //0x5B8A1EB7, // MQ DBG 64MB (Empty overdump)
@@ -505,6 +508,10 @@ const char* Extractor::GetZapdVerStr() const {
             return "N64_PAL_10";
         case OOT_PAL_11:
             return "N64_PAL_11";
+        case MM_US_10:
+            return "N64_US";
+        case MM_US_GC:
+            return "GC_US";
         default:
             // We should never be in a state where this path happens.
             UNREACHABLE;
@@ -539,7 +546,7 @@ bool Extractor::CallZapd(std::string installPath, std::string exportdir) {
     char xmlPath[1024];
     char confPath[1024];
     std::array<const char*, argc> argv;
-    // const char* version = GetZapdVerStr();
+    const char* version = GetZapdVerStr();
     const char* otrFile = "mm.otr";
 
     std::string romPath = std::filesystem::absolute(mCurrentRomPath).string();
@@ -557,8 +564,8 @@ bool Extractor::CallZapd(std::string installPath, std::string exportdir) {
 
     std::filesystem::current_path(tempdir);
 
-    snprintf(xmlPath, 1024, "assets/extractor/xmls");
-    snprintf(confPath, 1024, "assets/extractor/Config.xml");
+    snprintf(xmlPath, 1024, "assets/extractor/xmls/%s", version);
+    snprintf(confPath, 1024, "assets/extractor/Config_%s.xml", version);
 
     argv[0] = "ZAPD";
     argv[1] = "ed";

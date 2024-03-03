@@ -60,12 +60,13 @@
         <Collision Name="gWoodfallSceneryTempleRampAndPlatformCol" Offset="0xFE5C" />
 
         <!-- The collision for Woodfall Temple and an empty texture animation that was seemingly intended to be used with the temple. -->
-        <TextureAnimation Name="gWoodfallSceneryTempleTexAnim" Offset="0xFE90" />
-        <Collision Name="gWoodfallSceneryTempleCol" Offset="0x10C3C" />
+        <!-- texture animation doesnt exist? (or fe88) -->
+        <TextureAnimation Name="gWoodfallSceneryTempleTexAnim" Offset="0xFE88" />
+        <Collision Name="gWoodfallSceneryTempleCol" Offset="0x10C24" />
 
         <!-- Assets for the purified water in Woodfall, as well as the floor visible beneath the water. -->
-        <DList Name="gWoodfallSceneryPurifiedWaterDL" Offset="0x10EF0" /> <!-- Original name is "z2_21_water_modelT" -->
-        <DList Name="gWoodfallSceneryFloorDL" Offset="0x10FD8" /> <!-- Original name is "z2_21_water_model" -->
-        <TextureAnimation Name="gWoodfallSceneryPurifiedWaterTexAnim" Offset="0x110B8" />
+        <DList Name="gWoodfallSceneryPurifiedWaterDL" Offset="0x10ED0" /> <!-- Original name is "z2_21_water_modelT" -->
+        <DList Name="gWoodfallSceneryFloorDL" Offset="0x10FB8" /> <!-- Original name is "z2_21_water_model" -->
+        <TextureAnimation Name="gWoodfallSceneryPurifiedWaterTexAnim" Offset="0x11098" />
     </File>
 </Root>

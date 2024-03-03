@@ -1,5 +1,5 @@
 <Root>
-    <File Name="ovl_Oceff_Wipe6" BaseAddress="0x80BCA5A0" RangeStart="0x330" RangeEnd="0x5B8">
+    <File Name="ovl_Oceff_Wipe6" BaseAddress="0x80BABBD0" RangeStart="0x330" RangeEnd="0x5B8">
         <TextureAnimation Name="ovl_Oceff_Wipe6_Matanimheader_000338" Offset="0x338" />
         <Array Name="gOceff6Vtx" Count="22" Offset="0x340">
             <Vtx/>
