@@ -4,3 +4,6 @@
 *.cfg
 *.vtx.inc
 *.dlist.inc
+
+# Unignore our custom assets
+!custom/**/*
