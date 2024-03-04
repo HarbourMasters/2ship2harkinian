@@ -106,5 +106,6 @@ std::shared_ptr<LUS::IResource> ResourceFactoryBinaryTextureAnimationV0::ReadRes
         tAnim->anims.emplace_back(anim);
     }
 
+    return tAnim;
 }
 } // namespace LUS

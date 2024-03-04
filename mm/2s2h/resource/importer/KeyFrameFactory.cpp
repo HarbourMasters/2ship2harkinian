@@ -56,7 +56,7 @@ std::shared_ptr<LUS::IResource> ResourceFactoryBinaryKeyFrameSkel::ReadResource(
 }
 
 std::shared_ptr<LUS::IResource> ResourceFactoryBinaryKeyFrameAnim::ReadResource(std::shared_ptr<LUS::File> file) {
-    if (FileHasValidFormatAndReader(file)) {
+    if (!FileHasValidFormatAndReader(file)) {
         return nullptr;
     }
 
@@ -105,5 +105,7 @@ std::shared_ptr<LUS::IResource> ResourceFactoryBinaryKeyFrameAnim::ReadResource(
     anim->animData.unk_10[0] = reader->ReadUByte();
 
     anim->animData.duration = reader->ReadUInt16();
+
+    return anim;
 }
 } // namespace SOH

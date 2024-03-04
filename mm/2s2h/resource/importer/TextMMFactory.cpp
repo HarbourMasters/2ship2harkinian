@@ -36,10 +36,10 @@ std::shared_ptr<LUS::IResource> ResourceFactoryXMLTextMMV0::ReadResource(std::sh
         return nullptr;
     }
 
-    auto txt = std::make_shared<TextMM>(file->InitData);
+    auto text = std::make_shared<TextMM>(file->InitData);
     auto reader = std::get<std::shared_ptr<tinyxml2::XMLDocument>>(file->Reader)->FirstChildElement();
 
-     auto child = reader->FirstChildElement();
+    auto child = reader->FirstChildElement();
 
     while (child != nullptr) {
         std::string childName = child->Name();
@@ -55,11 +55,13 @@ std::shared_ptr<LUS::IResource> ResourceFactoryXMLTextMMV0::ReadResource(std::sh
             entry.msg = child->Attribute("Message");
             entry.msg += "\x2";
 
-            txt->messages.push_back(entry);
+            text->messages.push_back(entry);
             int bp = 0;
         }
 
         child = child->NextSiblingElement();
     }
+
+    return text;
 }
 } // namespace LUS

@@ -468,6 +468,8 @@ std::shared_ptr<LUS::IResource> ResourceFactoryBinaryCutsceneV0::ReadResource(st
             }
         }
     }
+
+    return cutscene;
 }
 
 #if 0
