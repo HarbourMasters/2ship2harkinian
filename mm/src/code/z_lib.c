@@ -1,5 +1,4 @@
 #include "global.h"
-#include <libultraship/libultraship.h>
 
 f32 Math_CosS(s16 angle) {
     return coss(angle) * SHT_MINV;

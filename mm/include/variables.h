@@ -5,6 +5,11 @@
 #include "segment_symbols.h"
 #include "macros.h"
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 // pre-boot variables
 extern u16 gFramebuffer1[SCREEN_HEIGHT][SCREEN_WIDTH]; // at 0x80000500
 extern u8 D_80025D00[];
@@ -1762,5 +1767,8 @@ extern u16 D_0F000000[];
 extern PlayState* gPlayState;
 // #endregion
 
+#ifdef __cplusplus
+};
+#endif
 
 #endif

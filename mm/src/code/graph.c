@@ -3,8 +3,7 @@
 #include "regs.h"
 #include "functions.h"
 #include "fault.h"
-#include "gfxdebuggerbridge.h"
-#include "libultraship/libultraship.h"
+#include "libultraship/bridge.h"
 #include <string.h>
 
 // Variables are put before most headers as a hacky way to bypass bss reordering
