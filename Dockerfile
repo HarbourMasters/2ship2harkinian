@@ -48,6 +48,10 @@ RUN git clone https://github.com/libsdl-org/SDL_net.git -b SDL2 && \
     cmake --build SDL_net/build --config Release --parallel && \
     cmake --install SDL_net/build --config Release
 
+RUN git clone https://github.com/libsdl-org/SDL.git -b SDL2 && \
+    cmake -B SDL/build -S SDL -DCMAKE_BUILD_TYPE=Release && \
+    cmake --build SDL/build --config Release --parallel && \
+    cmake --install SDL/build --config Release
 
 RUN touch /root/.Xauthority && \
     xauth add $MY_XAUTH_COOKIE

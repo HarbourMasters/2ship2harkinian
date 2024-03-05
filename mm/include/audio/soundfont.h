@@ -96,6 +96,7 @@ typedef struct SoundFont {
     /* 0x08 */ Instrument** instruments;
     /* 0x0C */ Drum** drums;
     /* 0x10 */ SoundEffect* soundEffects;
+    s32 fntIndex;
 } SoundFont; // size = 0x14
 
 #endif

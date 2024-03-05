@@ -11,7 +11,7 @@ void AudioMgr_NotifyTaskDone(AudioMgr* audioMgr) {
 }
 // BENTODO
 void AudioMgr_HandleRetrace(AudioMgr* audioMgr) {
-    #if 0
+#if 0
     static s32 sRetryCount = 10;
     AudioTask* rspTask;
     s32 timerMsgVal = 666;
@@ -69,7 +69,7 @@ void AudioMgr_HandleRetrace(AudioMgr* audioMgr) {
     }
 
     audioMgr->rspTask = rspTask;
-    #endif
+#endif
 }
 
 void AudioMgr_HandlePreNMI(AudioMgr* audioMgr) {
@@ -139,6 +139,16 @@ void AudioMgr_Init(AudioMgr* audioMgr, void* stack, OSPri pri, OSId id, SchedCon
     osCreateMesgQueue(&audioMgr->interruptQueue, audioMgr->interruptMsgBuf, ARRAY_COUNT(audioMgr->interruptMsgBuf));
     osCreateMesgQueue(&audioMgr->lockQueue, audioMgr->lockMsgBuf, ARRAY_COUNT(audioMgr->lockMsgBuf));
 
-    osCreateThread(&audioMgr->thread, id, AudioMgr_ThreadEntry, audioMgr, stack, pri);
-    osStartThread(&audioMgr->thread);
+    Audio_Init();
+    AudioLoad_SetDmaHandler(DmaMgr_DmaHandler);
+    Audio_InitSound();
+    osSendMesg(&audioMgr->lockQueue, OS_MESG_PTR(NULL), OS_MESG_BLOCK);
+
+    // Audio_SetGameVolume(SEQ_PLAYER_BGM_MAIN, CVarGetFloat("gMainMusicVolume", 1.0f));
+    // Audio_SetGameVolume(SEQ_PLAYER_BGM_SUB, CVarGetFloat("gSubMusicVolume", 1.0f));
+    // Audio_SetGameVolume(SEQ_PLAYER_FANFARE, CVarGetFloat("gFanfareVolume", 1.0f));
+    // Audio_SetGameVolume(SEQ_PLAYER_SFX, CVarGetFloat("gSFXMusicVolume", 1.0f));
+
+    // osCreateThread(&audioMgr->thread, id, AudioMgr_ThreadEntry, audioMgr, stack, pri);
+    // osStartThread(&audioMgr->thread);
 }

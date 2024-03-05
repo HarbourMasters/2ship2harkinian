@@ -118,24 +118,28 @@ void AudioSeq_ProcessSeqCmd(u32 cmd) {
                 if (seqArgs < 0x80) {
                     AudioSeq_StartSequence(seqPlayerIndex, seqId, seqArgs, fadeTimer);
                 } else {
+                    break;
                     // Store the cmd to be called again once the fonts are loaded
                     // but changes the command so that next time, the (seqArgs < 0x80) case is taken
                     gActiveSeqs[seqPlayerIndex].startAsyncSeqCmd =
                         (cmd & ~(SEQ_FLAG_ASYNC | SEQCMD_ASYNC_ACTIVE)) + SEQCMD_ASYNC_ACTIVE;
                     gActiveSeqs[seqPlayerIndex].isWaitingForFonts = true;
-                    gActiveSeqs[seqPlayerIndex].fontId = *AudioThread_GetFontsForSequence(seqId, &outNumFonts);
+                    u8* fontBuff[16];
+                    u8* prevFontBuff[16];
+                    u8* font = AudioThread_GetFontsForSequence(seqId, &outNumFonts, fontBuff);
+                    gActiveSeqs[seqPlayerIndex].fontId = *font;
                     AudioSeq_StopSequence(seqPlayerIndex, 1);
 
                     if (gActiveSeqs[seqPlayerIndex].prevSeqId != NA_BGM_DISABLED) {
-                        if (*AudioThread_GetFontsForSequence(seqId, &outNumFonts) !=
-                            *AudioThread_GetFontsForSequence(gActiveSeqs[seqPlayerIndex].prevSeqId & 0xFF,
-                                                             &outNumFonts)) {
+                        if (*AudioThread_GetFontsForSequence(seqId, &outNumFonts, fontBuff) !=
+                            *AudioThread_GetFontsForSequence(gActiveSeqs[seqPlayerIndex].prevSeqId & 0xFF, &outNumFonts,
+                                                             prevFontBuff)) {
                             // Discard Seq Fonts
                             AUDIOCMD_GLOBAL_DISCARD_SEQ_FONTS((s32)seqId);
                         }
                     }
 
-                    AUDIOCMD_GLOBAL_ASYNC_LOAD_FONT(*AudioThread_GetFontsForSequence(seqId, &outNumFonts),
+                    AUDIOCMD_GLOBAL_ASYNC_LOAD_FONT(*AudioThread_GetFontsForSequence(seqId, &outNumFonts, fontBuff),
                                                     (u8)((seqPlayerIndex + 1) & 0xFF));
                 }
             }

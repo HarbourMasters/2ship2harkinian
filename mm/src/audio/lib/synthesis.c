@@ -1,4 +1,5 @@
 #include "global.h"
+#include "2s2h/mixer.h"
 
 // DMEM Addresses for the RSP
 #define DMEM_TEMP 0x3B0
@@ -371,9 +372,9 @@ void AudioSynth_Noop13(void) {
 }
 
 void AudioSynth_InterL(Acmd* cmd, s32 dmemIn, s32 dmemOut, s32 numSamples) {
-    // aInterl(cmd, dmemIn, dmemOut, numSamples);
-    cmd->words.w0 = _SHIFTL(A_INTERL, 24, 8) | _SHIFTL(numSamples, 0, 16);
-    cmd->words.w1 = _SHIFTL(dmemIn, 16, 16) | _SHIFTL(dmemOut, 0, 16);
+    aInterl(cmd, dmemIn, dmemOut, numSamples);
+    // cmd->words.w0 = _SHIFTL(A_INTERL, 24, 8) | _SHIFTL(numSamples, 0, 16);
+    // cmd->words.w1 = _SHIFTL(dmemIn, 16, 16) | _SHIFTL(dmemOut, 0, 16);
 }
 
 void AudioSynth_EnvSetup1(Acmd* cmd, s32 reverbVol, s32 rampReverb, s32 rampLeft, s32 rampRight) {
@@ -392,9 +393,9 @@ void AudioSynth_SaveBuffer(Acmd* cmd, s32 dmemSrc, s32 size, void* addrDest) {
 }
 
 void AudioSynth_EnvSetup2(Acmd* cmd, s32 volLeft, s32 volRight) {
-    // aEnvSetup2(cmd, volLeft, volRight);
-    cmd->words.w0 = _SHIFTL(A_ENVSETUP2, 24, 8);
-    cmd->words.w1 = _SHIFTL(volLeft, 16, 16) | _SHIFTL(volRight, 0, 16);
+    aEnvSetup2(cmd, volLeft, volRight);
+    // cmd->words.w0 = _SHIFTL(A_ENVSETUP2, 24, 8);
+    // cmd->words.w1 = _SHIFTL(volLeft, 16, 16) | _SHIFTL(volRight, 0, 16);
 }
 
 void AudioSynth_Noop15(void) {
@@ -411,15 +412,16 @@ void AudioSynth_S8Dec(Acmd* cmd, s32 flags, s16* state) {
 }
 
 void AudioSynth_HiLoGain(Acmd* cmd, s32 gain, s32 dmemIn, s32 dmemOut, s32 size) {
-    // aHiLoGain(cmd, gain, size, dmemIn, dmemOut);
-    cmd->words.w0 = _SHIFTL(A_HILOGAIN, 24, 8) | _SHIFTL(gain, 16, 8) | _SHIFTL(size, 0, 16);
-    cmd->words.w1 = _SHIFTL(dmemIn, 16, 16) | _SHIFTL(dmemOut, 0, 16);
+    aHiLoGain(cmd, gain, size, dmemIn, dmemOut);
+    // cmd->words.w0 = _SHIFTL(A_HILOGAIN, 24, 8) | _SHIFTL(gain, 16, 8) | _SHIFTL(size, 0, 16);
+    // cmd->words.w1 = _SHIFTL(dmemIn, 16, 16) | _SHIFTL(dmemOut, 0, 16);
 }
 
 // Remnant of OoT
 void AudioSynth_UnkCmd19(Acmd* cmd, s32 dmem1, s32 dmem2, s32 size, s32 arg4) {
-    cmd->words.w0 = _SHIFTL(A_SPNOOP, 24, 8) | _SHIFTL(arg4, 16, 8) | _SHIFTL(size, 0, 16);
-    cmd->words.w1 = _SHIFTL(dmem1, 16, 16) | _SHIFTL(dmem2, 0, 16);
+    aUnkCmd19(cmd, dmem1, dmem2, size, arg4);
+    // cmd->words.w0 = _SHIFTL(A_SPNOOP, 24, 8) | _SHIFTL(arg4, 16, 8) | _SHIFTL(size, 0, 16);
+    // cmd->words.w1 = _SHIFTL(dmem1, 16, 16) | _SHIFTL(dmem2, 0, 16);
 }
 
 void AudioSynth_Noop18(void) {
@@ -1691,7 +1693,8 @@ Acmd* AudioSynth_ApplyHaasEffect(Acmd* cmd, NoteSampleState* sampleState, NoteSy
                     ALIGN16(haasEffectDelaySize));
     }
 
-    aAddMixer(cmd++, ALIGN64(size), DMEM_HAAS_TEMP, dmemDest, 0x7FFF);
+    aAddMixer(cmd++, ALIGN64(size), DMEM_HAAS_TEMP, dmemDest);
+    // aAddMixer(cmd++, ALIGN64(size), DMEM_HAAS_TEMP, dmemDest, 0x7FFF);
 
     return cmd;
 }

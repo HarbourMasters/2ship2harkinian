@@ -5,6 +5,7 @@
  */
 #include "global.h"
 #include "audio/effects.h"
+#include "audio/load.h"
 
 AudioTask* AudioThread_UpdateImpl(void);
 void AudioThread_SetFadeOutTimer(s32 seqPlayerIndex, s32 fadeTimer);
@@ -14,14 +15,62 @@ void AudioThread_ProcessSeqPlayerCmd(SequencePlayer* seqPlayer, AudioCmd* cmd);
 void AudioThread_ProcessChannelCmd(SequenceChannel* channel, AudioCmd* cmd);
 s32 AudioThread_GetSamplePos(s32 seqPlayerIndex, s32 channelIndex, s32 layerIndex, s32* loopEnd, s32* samplePosInt);
 s32 AudioThread_CountAndReleaseNotes(s32 flags);
+s32 AudioThread_ScheduleProcessCmds(void);
 
 AudioTask* AudioThread_Update(void) {
     return AudioThread_UpdateImpl();
 }
 
+void AudioMgr_CreateNextAudioBuffer(s16* samples, u32 num_samples) {
+    // static size_t off = 0;
+    // f32 sample_rate = 44100;
+    // f32 note_freq = 440; // A4
+    // size_t note_period_in_samples = sample_rate / note_freq;
+    // for (size_t i = 0; i < num_samples; i++)
+    // {
+    //     bool hi = off >= (note_period_in_samples / 2);
+    //     s16 value = hi ? INT16_MAX / 2 : INT16_MIN / 2;
+    //     *samples++ = value; // left
+    //     *samples++ = value; // right
+    //     off = (off + 1) % note_period_in_samples;
+    // }
+    // return;
+
+    OSMesg sp4C;
+
+    gAudioCtx.totalTaskCount++;
+
+    AudioLoad_DecreaseSampleDmaTtls();
+    AudioLoad_ProcessLoads(gAudioCtx.resetStatus);
+    AudioLoad_ProcessScriptLoads();
+
+    if (gAudioCtx.resetStatus != 0) {
+        if (AudioHeap_ResetStep() == 0) {
+            if (gAudioCtx.resetStatus == 0) {
+                osSendMesg8(gAudioCtx.audioResetQueueP, gAudioCtx.specId, OS_MESG_NOBLOCK);
+            }
+        }
+    }
+
+    int j = 0;
+    if (gAudioCtx.resetStatus == 0) {
+        // msg = 0000RREE R = read pos, E = End Pos
+        while (osRecvMesg(gAudioCtx.threadCmdProcQueueP, &sp4C, OS_MESG_NOBLOCK) != -1) {
+            AudioThread_ProcessCmds(sp4C.data32);
+            j++;
+        }
+        if ((j == 0) && (gAudioCtx.threadCmdQueueFinished)) {
+            AudioThread_ScheduleProcessCmds();
+        }
+    }
+    s32 writtenCmds;
+    AudioSynth_Update(gAudioCtx.curAbiCmdBuf, &writtenCmds, samples, num_samples);
+    gAudioCtx.audioRandom = (gAudioCtx.audioRandom + gAudioCtx.totalTaskCount) * osGetCount();
+}
+
 AudioTask* AudioThread_UpdateImpl(void) {
-    // BENTODO
-    #if 0
+// BENTODO
+#if 0
     static AudioTask* sWaitingAudioTask = NULL;
     u32 numSamplesRemainingInAi;
     s32 numAbiCmds;
@@ -196,7 +245,7 @@ AudioTask* AudioThread_UpdateImpl(void) {
         sWaitingAudioTask = gAudioCtx.curTask;
         return NULL;
     }
-    #endif
+#endif
 }
 
 void AudioThread_ProcessGlobalCmd(AudioCmd* cmd) {
@@ -391,11 +440,13 @@ void AudioThread_InitMesgQueuesInternal(void) {
     osCreateMesgQueue(gAudioCtx.audioResetQueueP, gAudioCtx.audioResetMesgs, ARRAY_COUNT(gAudioCtx.audioResetMesgs));
 }
 
-void AudioThread_QueueCmd(u32 opArgs, void** data) {
-    AudioCmd* cmd = &gAudioCtx.threadCmdBuf[gAudioCtx.threadCmdWritePos & 0xFF];
+const char* cmd_op_to_str(u8 op);
 
-    cmd->opArgs = opArgs;
-    cmd->data = *data;
+void AudioThread_QueueCmd(AudioCmd cmdData) {
+    AudioCmd* cmd = &gAudioCtx.threadCmdBuf[gAudioCtx.threadCmdWritePos & 0xFF];
+    *cmd = cmdData;
+
+    LUSLOG_ERROR("Queueing Command: %s", cmd_op_to_str(cmd->op));
 
     gAudioCtx.threadCmdWritePos++;
 
@@ -404,24 +455,44 @@ void AudioThread_QueueCmd(u32 opArgs, void** data) {
     }
 }
 
+void AudioThread_QueueCmdPtr(u32 opArgs, void* data) {
+    AudioCmd cmd = {
+        .opArgs = opArgs,
+        .asPtr = data,
+    };
+    AudioThread_QueueCmd(cmd);
+}
+
 void AudioThread_QueueCmdF32(u32 opArgs, f32 data) {
-    AudioThread_QueueCmd(opArgs, (void**)&data);
+    AudioCmd cmd = {
+        .opArgs = opArgs,
+        .asFloat = data,
+    };
+    AudioThread_QueueCmd(cmd);
 }
 
 void AudioThread_QueueCmdS32(u32 opArgs, s32 data) {
-    AudioThread_QueueCmd(opArgs, (void**)&data);
+    AudioCmd cmd = {
+        .opArgs = opArgs,
+        .asInt = data,
+    };
+    AudioThread_QueueCmd(cmd);
 }
 
 void AudioThread_QueueCmdS8(u32 opArgs, s8 data) {
-    u32 uData = data << 0x18;
-
-    AudioThread_QueueCmd(opArgs, (void**)&uData);
+    AudioCmd cmd = {
+        .opArgs = opArgs,
+        .asSbyte = data,
+    };
+    AudioThread_QueueCmd(cmd);
 }
 
 void AudioThread_QueueCmdU16(u32 opArgs, u16 data) {
-    u32 uData = data << 0x10;
-
-    AudioThread_QueueCmd(opArgs, (void**)&uData);
+    AudioCmd cmd = {
+        .opArgs = opArgs,
+        .asUShort = data,
+    };
+    AudioThread_QueueCmd(cmd);
 }
 
 s32 AudioThread_ScheduleProcessCmds(void) {
@@ -489,6 +560,72 @@ void AudioThread_ProcessCmd(AudioCmd* cmd) {
     }
 }
 
+const char* cmd_op_to_str(u8 op) {
+#define CASE(x) \
+    case x:     \
+        return #x
+    switch (op) {
+        CASE(AUDIOCMD_OP_NOOP);
+        CASE(AUDIOCMD_OP_CHANNEL_SET_VOL_SCALE);
+        CASE(AUDIOCMD_OP_CHANNEL_SET_VOL);
+        CASE(AUDIOCMD_OP_CHANNEL_SET_PAN);
+        CASE(AUDIOCMD_OP_CHANNEL_SET_FREQ_SCALE);
+        CASE(AUDIOCMD_OP_CHANNEL_SET_REVERB_VOLUME);
+        CASE(AUDIOCMD_OP_CHANNEL_SET_IO);
+        CASE(AUDIOCMD_OP_CHANNEL_SET_PAN_WEIGHT);
+        CASE(AUDIOCMD_OP_CHANNEL_SET_MUTE);
+        CASE(AUDIOCMD_OP_CHANNEL_SET_MUTE_FLAGS);
+        CASE(AUDIOCMD_OP_CHANNEL_SET_VIBRATO_DEPTH);
+        CASE(AUDIOCMD_OP_CHANNEL_SET_VIBRATO_RATE);
+        CASE(AUDIOCMD_OP_CHANNEL_SET_COMB_FILTER_SIZE);
+        CASE(AUDIOCMD_OP_CHANNEL_SET_COMB_FILTER_GAIN);
+        CASE(AUDIOCMD_OP_CHANNEL_SET_STEREO);
+        CASE(AUDIOCMD_OP_CHANNEL_SET_SET_START_POS);
+        CASE(AUDIOCMD_OP_CHANNEL_SET_SFX_STATE);
+        CASE(AUDIOCMD_OP_CHANNEL_SET_REVERB_INDEX);
+        CASE(AUDIOCMD_OP_CHANNEL_SET_SURROUND_EFFECT_INDEX);
+        CASE(AUDIOCMD_OP_CHANNEL_SET_FILTER);
+        CASE(AUDIOCMD_OP_CHANNEL_SET_GAIN);
+        CASE(AUDIOCMD_OP_SEQPLAYER_FADE_VOLUME_SCALE);
+        CASE(AUDIOCMD_OP_SEQPLAYER_SET_IO);
+        CASE(AUDIOCMD_OP_SEQPLAYER_SET_TEMPO);
+        CASE(AUDIOCMD_OP_SEQPLAYER_SET_TRANSPOSITION);
+        CASE(AUDIOCMD_OP_SEQPLAYER_CHANGE_TEMPO);
+        CASE(AUDIOCMD_OP_SEQPLAYER_FADE_TO_SET_VOLUME);
+        CASE(AUDIOCMD_OP_SEQPLAYER_FADE_TO_SCALED_VOLUME);
+        CASE(AUDIOCMD_OP_SEQPLAYER_RESET_VOLUME);
+        CASE(AUDIOCMD_OP_SEQPLAYER_SET_BEND);
+        CASE(AUDIOCMD_OP_SEQPLAYER_CHANGE_TEMPO_TICKS);
+        CASE(AUDIOCMD_OP_GLOBAL_SYNC_LOAD_SEQ_PARTS);
+        CASE(AUDIOCMD_OP_GLOBAL_INIT_SEQPLAYER);
+        CASE(AUDIOCMD_OP_GLOBAL_DISABLE_SEQPLAYER);
+        CASE(AUDIOCMD_OP_GLOBAL_INIT_SEQPLAYER_SKIP_TICKS);
+        CASE(AUDIOCMD_OP_GLOBAL_SET_CHANNEL_MASK);
+        CASE(AUDIOCMD_OP_GLOBAL_SET_DRUM_FONT);
+        CASE(AUDIOCMD_OP_GLOBAL_SET_SFX_FONT);
+        CASE(AUDIOCMD_OP_GLOBAL_SET_INSTRUMENT_FONT);
+        CASE(AUDIOCMD_OP_GLOBAL_POP_PERSISTENT_CACHE);
+        CASE(AUDIOCMD_OP_GLOBAL_SET_CUSTOM_FUNCTION);
+        CASE(AUDIOCMD_OP_GLOBAL_E5);
+        CASE(AUDIOCMD_OP_GLOBAL_SET_REVERB_DATA);
+        CASE(AUDIOCMD_OP_GLOBAL_SET_SOUND_MODE);
+        CASE(AUDIOCMD_OP_GLOBAL_MUTE);
+        CASE(AUDIOCMD_OP_GLOBAL_UNMUTE);
+        CASE(AUDIOCMD_OP_GLOBAL_SYNC_LOAD_INSTRUMENT);
+        CASE(AUDIOCMD_OP_GLOBAL_ASYNC_LOAD_SAMPLE_BANK);
+        CASE(AUDIOCMD_OP_GLOBAL_ASYNC_LOAD_FONT);
+        CASE(AUDIOCMD_OP_GLOBAL_DISCARD_SEQ_FONTS);
+        CASE(AUDIOCMD_OP_GLOBAL_STOP_AUDIOCMDS);
+        CASE(AUDIOCMD_OP_GLOBAL_RESET_AUDIO_HEAP);
+        CASE(AUDIOCMD_OP_GLOBAL_NOOP_1);
+        CASE(AUDIOCMD_OP_GLOBAL_SET_CUSTOM_UPDATE_FUNCTION);
+        CASE(AUDIOCMD_OP_GLOBAL_ASYNC_LOAD_SEQ);
+        CASE(AUDIOCMD_OP_GLOBAL_NOOP_2);
+        CASE(AUDIOCMD_OP_GLOBAL_DISABLE_ALL_SEQPLAYERS);
+    }
+#undef CASE
+}
+
 void AudioThread_ProcessCmds(u32 msg) {
     static u8 sCurCmdRdPos = 0;
     AudioCmd* cmd;
@@ -506,6 +643,7 @@ void AudioThread_ProcessCmds(u32 msg) {
         }
 
         cmd = &gAudioCtx.threadCmdBuf[sCurCmdRdPos++ & 0xFF];
+        LUSLOG_CRITICAL("Process Command: %s", cmd_op_to_str(cmd->op));
         if (cmd->op == AUDIOCMD_OP_GLOBAL_STOP_AUDIOCMDS) {
             gAudioCtx.threadCmdQueueFinished = true;
             break;
@@ -528,8 +666,8 @@ u32 AudioThread_GetExternalLoadQueueMsg(u32* retMsg) {
     return msg >> 0x18;
 }
 
-u8* AudioThread_GetFontsForSequence(s32 seqId, u32* outNumFonts) {
-    return AudioLoad_GetFontsForSequence(seqId, outNumFonts);
+u8* AudioThread_GetFontsForSequence(s32 seqId, u32* outNumFonts, u8* buff) {
+    return AudioLoad_GetFontsForSequence(seqId, outNumFonts, buff);
 }
 
 void AudioThread_GetSampleBankIdsOfFont(s32 fontId, u32* sampleBankId1, u32* sampleBankId2) {
@@ -539,11 +677,11 @@ void AudioThread_GetSampleBankIdsOfFont(s32 fontId, u32* sampleBankId1, u32* sam
 
 s32 func_80193C5C(void) {
     s32 pad;
-    s32 specId;
+    OSMesg specId;
 
-    if (osRecvMesg(gAudioCtx.audioResetQueueP, (OSMesg*)&specId, OS_MESG_NOBLOCK) == -1) {
+    if (osRecvMesg(gAudioCtx.audioResetQueueP, &specId, OS_MESG_NOBLOCK) == -1) {
         return 0;
-    } else if (gAudioCtx.specId != specId) {
+    } else if (gAudioCtx.specId != specId.data8) {
         return -1;
     } else {
         return 1;

@@ -581,12 +581,19 @@ typedef struct {
 
 typedef struct {
     union {
-    /* 0x0 */ u32 opArgs;
+        u32 opArgs;
         struct {
-            /* 0x0 */ u8 op;
-            /* 0x1 */ u8 arg0;
-            /* 0x2 */ u8 arg1;
-            /* 0x3 */ u8 arg2;
+#ifdef IS_BIGENDIAN
+            u8 op;
+            u8 arg0;
+            u8 arg1;
+            u8 arg2;
+#else
+            u8 arg2;
+            u8 arg1;
+            u8 arg0;
+            u8 op;
+#endif
         };
     };
     union {
@@ -599,7 +606,7 @@ typedef struct {
         /* 0x4 */ u32 asUInt;
         /* 0x4 */ void* asPtr;
     };
-} AudioCmd; // size = 0x8
+} AudioCmd;
 
 typedef struct {
     /* 0x00 */ OSTask task;
@@ -706,7 +713,7 @@ typedef struct {
     /* 0x435C */ AudioCommonPoolSplit temporaryCommonPoolSplit; // splits temporary common pool into caches for sequences, soundFonts, sample banks
     /* 0x4368 */ u8 sampleFontLoadStatus[0x30];
     /* 0x4398 */ u8 fontLoadStatus[0x30];
-    /* 0x43C8 */ u8 seqLoadStatus[0x80];
+    /* 0x43C8 */ u8* seqLoadStatus;
     /* 0x4448 */ volatile u8 resetStatus;
     /* 0x4449 */ u8 specId;
     /* 0x444C */ s32 audioResetFadeOutFramesLeft;
@@ -936,5 +943,15 @@ typedef void* (*AudioCustomReverbFunction)(Sample*, s32, s8, s32);
 typedef Acmd* (*AudioCustomSynthFunction)(Acmd*, s32, s32);
 
 extern OSVoiceHandle gVoiceHandle;
+
+typedef struct {
+    char* seqData;
+    int32_t seqDataSize;
+    uint16_t seqNumber;
+    uint8_t medium;
+    uint8_t cachePolicy;
+    int32_t numFonts;
+    uint8_t fonts[16];
+} SequenceData;
 
 #endif

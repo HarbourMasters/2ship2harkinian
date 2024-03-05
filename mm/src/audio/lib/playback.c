@@ -5,6 +5,10 @@ void AudioPlayback_NoteSetResamplingRate(NoteSampleState* sampleState, f32 resam
 void AudioPlayback_AudioListPushFront(AudioListItem* list, AudioListItem* item);
 void AudioPlayback_NoteInitForLayer(Note* note, SequenceLayer* layer);
 
+SoundFont* ResourceMgr_LoadAudioSoundFont(const char* path);
+
+extern char* gFontToResource[256];
+
 void AudioPlayback_InitSampleState(Note* note, NoteSampleState* sampleState, NoteSubAttributes* subAttrs) {
     f32 volLeft;
     f32 volRight;
@@ -104,8 +108,9 @@ void AudioPlayback_InitSampleState(Note* note, NoteSampleState* sampleState, Not
     vel = 0.0f > vel ? 0.0f : vel;
     vel = 1.0f < vel ? 1.0f : vel;
 
-    sampleState->targetVolLeft = (s32)((vel * volLeft) * (0x1000 - 0.001f));
-    sampleState->targetVolRight = (s32)((vel * volRight) * (0x1000 - 0.001f));
+    float master_vol = CVarGetFloat("gGameMasterVolume", 1.0f);
+    sampleState->targetVolLeft = (s32)((vel * volLeft) * (0x1000 - 0.001f)) * master_vol;
+    sampleState->targetVolRight = (s32)((vel * volRight) * (0x1000 - 0.001f)) * master_vol;
 
     sampleState->gain = subAttrs->gain;
     sampleState->filter = subAttrs->filter;
@@ -355,12 +360,14 @@ Instrument* AudioPlayback_GetInstrumentInner(s32 fontId, s32 instId) {
         return NULL;
     }
 
-    if (instId >= gAudioCtx.soundFontList[fontId].numInstruments) {
-        gAudioCtx.audioErrorFlags = AUDIO_ERROR(fontId, instId, AUDIO_ERROR_INVALID_INST_ID);
-        return NULL;
-    }
+    int instCnt = 0;
+    SoundFont* sf = ResourceMgr_LoadAudioSoundFont(gFontToResource[fontId]);
 
-    inst = gAudioCtx.soundFontList[fontId].instruments[instId];
+    if (instId >= sf->numInstruments)
+        return NULL;
+
+    inst = sf->instruments[instId];
+
     if (inst == NULL) {
         gAudioCtx.audioErrorFlags = AUDIO_ERROR(fontId, instId, AUDIO_ERROR_NO_INST);
         return inst;
@@ -381,14 +388,10 @@ Drum* AudioPlayback_GetDrum(s32 fontId, s32 drumId) {
         return NULL;
     }
 
-    if (drumId >= gAudioCtx.soundFontList[fontId].numDrums) {
-        gAudioCtx.audioErrorFlags = AUDIO_ERROR(fontId, drumId, AUDIO_ERROR_INVALID_DRUM_SFX_ID);
-        return NULL;
+    SoundFont* sf = ResourceMgr_LoadAudioSoundFont(gFontToResource[fontId]);
+    if (drumId < sf->numDrums) {
+        drum = sf->drums[drumId];
     }
-    if ((u32)gAudioCtx.soundFontList[fontId].drums < AUDIO_RELOCATED_ADDRESS_START) {
-        return NULL;
-    }
-    drum = gAudioCtx.soundFontList[fontId].drums[drumId];
 
     if (drum == NULL) {
         gAudioCtx.audioErrorFlags = AUDIO_ERROR(fontId, drumId, AUDIO_ERROR_NO_DRUM_SFX);
@@ -409,22 +412,16 @@ SoundEffect* AudioPlayback_GetSoundEffect(s32 fontId, s32 sfxId) {
         return NULL;
     }
 
-    if (sfxId >= gAudioCtx.soundFontList[fontId].numSfx) {
-        gAudioCtx.audioErrorFlags = AUDIO_ERROR(fontId, sfxId, AUDIO_ERROR_INVALID_DRUM_SFX_ID);
-        return NULL;
+    SoundFont* sf = ResourceMgr_LoadAudioSoundFont(gFontToResource[fontId]);
+    if (sfxId < sf->numSfx) {
+        soundEffect = &sf->soundEffects[sfxId];
     }
-
-    if ((u32)gAudioCtx.soundFontList[fontId].soundEffects < AUDIO_RELOCATED_ADDRESS_START) {
-        return NULL;
-    }
-
-    soundEffect = &gAudioCtx.soundFontList[fontId].soundEffects[sfxId];
 
     if (soundEffect == NULL) {
         gAudioCtx.audioErrorFlags = AUDIO_ERROR(fontId, sfxId, AUDIO_ERROR_NO_DRUM_SFX);
     }
 
-    if (soundEffect->tunedSample.sample == NULL) {
+    if (soundEffect != NULL && soundEffect->tunedSample.sample == NULL) {
         return NULL;
     }
 
