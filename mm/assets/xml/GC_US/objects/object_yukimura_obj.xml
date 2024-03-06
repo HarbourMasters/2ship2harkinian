@@ -1,4 +1,7 @@
 ﻿<Root>
+    <!-- Dependencies -->
+    <ExternalFile XmlPath="code/actor.xml" OutPath="assets/code/actor/"/>
+
     <File Name="object_yukimura_obj" Segment="6">
         <DList Name="object_yukimura_obj_DL_000640" Offset="0x640" />
         <DList Name="object_yukimura_obj_DL_000758" Offset="0x758" />

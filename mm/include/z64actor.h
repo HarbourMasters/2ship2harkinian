@@ -8,6 +8,7 @@
 #include "z64animation.h"
 #include "z64collision_check.h"
 #include "unk.h"
+#include "code/actor/actor.h"
 
 // This value is hardcoded to be the size of ovl_Arrow_Fire which currently is the biggest actor that uses the AM_FIELD.
 #define AM_FIELD_SIZE SEGMENT_SIZE(ovl_Arrow_Fire)
@@ -706,8 +707,8 @@ typedef struct BlinkInfo {
 
 extern TargetRangeParams gTargetRanges[TARGET_MODE_MAX];
 extern s16 D_801AED48[8];
-extern Gfx D_801AEF88[];
-extern Gfx D_801AEFA0[];
+// extern Gfx D_801AEF88[];
+// extern Gfx D_801AEFA0[];
 
 extern Actor* D_801ED920;
 
