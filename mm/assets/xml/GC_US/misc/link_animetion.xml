@@ -192,7 +192,7 @@
         <PlayerAnimationData Name="gPlayerAnim_link_bow_bow_wait_Data" FrameCount="66" Offset="0xB8ED0"/>
         <PlayerAnimationData Name="gPlayerAnim_link_anchor_Lnormal_kiru_finsh_endR_Data" FrameCount="11" Offset="0xBB160"/>
         <PlayerAnimationData Name="gPlayerAnimData_0BB1F0" FrameCount="30" Offset="0xBB730"/>
-        <PlayerAnimationData Name="gPlayerAnim_link_normal_250jump_start_Data" FrameCount="10" Offset="0xBC1B0"/>
+        <PlayerAnimationData Name="gPlayerAnim_link_normal_250jump_start_Data" FrameCount="10" Offset="0xBC6F0"/>
         <PlayerAnimationData Name="gPlayerAnim_link_swimer_swim_Data" FrameCount="29" Offset="0xBCC30"/>
         <PlayerAnimationData Name="gPlayerAnim_link_normal_hip_down_long_Data" FrameCount="28" Offset="0xBDB60"/>
         <PlayerAnimationData Name="gPlayerAnim_link_fighter_side_walkR_long_Data" FrameCount="16" Offset="0xBEA10"/>
