@@ -10,7 +10,12 @@ std::shared_ptr<LUS::IResource> SetAnimatedMaterialListFactory::ReadResource(std
     auto setAnimatedMat = std::make_shared<SetAnimatedMaterialList>(initData);
     
     ReadCommandId(setAnimatedMat, reader);
-    AnimatedMaterialData* res = (AnimatedMaterialData*)ResourceGetDataByName(reader->ReadString().c_str());
+
+    std::string str = reader->ReadString();
+    const auto data = std::static_pointer_cast<TextureAnimation>(
+        LUS::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(str.c_str()));
+
+    AnimatedMaterial* res = data->GetPointer();
     setAnimatedMat->mat = res;
     
     return setAnimatedMat;

@@ -2,12 +2,12 @@
 
 namespace SOH {
 
-AnimatedMaterialData* SetAnimatedMaterialList::GetPointer() {
+AnimatedMaterial* SetAnimatedMaterialList::GetPointer() {
     return mat;
 }
 
 size_t SetAnimatedMaterialList::GetPointerSize() {
-    return sizeof(AnimatedMaterialData);
+    return sizeof(AnimatedMaterial);
 }
 
 } // namespace SOH

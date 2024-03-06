@@ -19,7 +19,8 @@ std::shared_ptr<LUS::IResource> SetCutsceneFactoryMM::ReadResource(std::shared_p
         entry.exit = reader->ReadUInt16();
         entry.entrance = reader->ReadUByte();
         entry.flag = reader->ReadUByte();
-        entry.data = ResourceGetDataByName(path.c_str());
+        entry.data = std::static_pointer_cast<Cutscene>(
+            LUS::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(path.c_str()))->GetPointer();
         setCutscenes->entries.emplace_back(entry);
     }
 

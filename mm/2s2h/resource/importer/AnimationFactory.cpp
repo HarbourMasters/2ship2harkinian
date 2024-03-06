@@ -82,8 +82,9 @@ ResourceFactoryBinaryAnimationV0::ReadResource(std::shared_ptr<LUS::File> file) 
 
         // Read the segment pointer (always 32 bit, doesn't adjust for system pointer size)
         std::string path = reader->ReadString();
+        const auto animData = std::static_pointer_cast<Animation>(LUS::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(path.c_str()));
 
-        animation->animationData.linkAnimationHeader.segment = ResourceGetDataByName(path.c_str());
+        animation->animationData.linkAnimationHeader.segment = animData->GetPointer();
     } else if (animType == AnimationType::Legacy) {
         SPDLOG_DEBUG("BEYTAH ANIMATION?!");
     }
