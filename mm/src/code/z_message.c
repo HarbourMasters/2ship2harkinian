@@ -13,6 +13,7 @@
 #include "assets/interface/message_static/message_static.h"
 #include "assets/interface/message_texture_static/message_texture_static.h"
 #include <string.h>
+#include <GameVersions.h>
 
 #include "2s2h_assets.h"
 
@@ -2349,8 +2350,12 @@ void Message_Decode(PlayState* play) {
     u16 curChar;
     u8 index2 = 0;
 
-    // BENTODO do this somewhere else
-    gSaveContext.options.language = LANGUAGE_ENG;
+    //BENTODO do this somewhere else
+    if (ResourceMgr_GetGameVersion(0) == MM_NTSC_JP_GC) {
+        gSaveContext.options.language = LANGUAGE_JPN;
+    } else {
+        gSaveContext.options.language = LANGUAGE_ENG;
+    }
 
     msgCtx->textDelayTimer = 0;
     msgCtx->textDelay = msgCtx->textDelayTimer;
