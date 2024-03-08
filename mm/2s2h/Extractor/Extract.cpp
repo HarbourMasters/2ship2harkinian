@@ -61,9 +61,12 @@ static constexpr uint32_t OOT_PAL_11 = 0xB2055FBD;
 
 static constexpr uint32_t MM_US_10 = 0x5354631C;
 static constexpr uint32_t MM_US_GC = 0xB443EB08;
+static constexpr uint32_t MM_JP_GC = 0x8473D0C1;
 
-static const std::unordered_map<uint32_t, const char*> verMap = {
-    { MM_US_10, "US 1.0" }, { MM_US_GC, "US GC" },
+static const std::unordered_map<uint32_t, const char*> verMap = { 
+    { MM_US_10, "US 1.0" },
+    { MM_US_GC, "US GC" },
+    { MM_JP_GC, "JP GC" },
     //{ OOT_PAL_GC, "PAL Gamecube" },
     //{ OOT_PAL_MQ, "PAL MQ" },
     //{ OOT_PAL_GC_DBG1, "PAL Debug 1" },
@@ -76,17 +79,18 @@ static const std::unordered_map<uint32_t, const char*> verMap = {
 // TODO only check the first 54MB of the rom.
 static constexpr std::array<const uint32_t, 10> goodCrcs = {
     0x96F49400, // MM US 1.0 32MB
-    0xBB434787, // MM GC
-    // 0xfa8c0555, // MQ DBG 64MB (Original overdump)
-    // 0x8652ac4c, // MQ DBG 64MB
-    // 0x5B8A1EB7, // MQ DBG 64MB (Empty overdump)
-    // 0x1f731ffe, // MQ DBG 54MB
-    // 0x044b3982, // NMQ DBG 54MB
-    // 0xEB15D7B9, // NMQ DBG 64MB
-    // 0xDA8E61BF, // GC PAL
-    // 0x7A2FAE68, // GC MQ PAL
-    // 0xFD9913B1, // N64 PAL 1.0
-    // 0xE033FBBA, // N64 PAL 1.1
+    0xBB434787, // MM US GC
+    0x2BD099FA, // MM JP GC
+    //0xfa8c0555, // MQ DBG 64MB (Original overdump)
+    //0x8652ac4c, // MQ DBG 64MB
+    //0x5B8A1EB7, // MQ DBG 64MB (Empty overdump)
+    //0x1f731ffe, // MQ DBG 54MB
+    //0x044b3982, // NMQ DBG 54MB
+    //0xEB15D7B9, // NMQ DBG 64MB
+    //0xDA8E61BF, // GC PAL
+    //0x7A2FAE68, // GC MQ PAL
+    //0xFD9913B1, // N64 PAL 1.0
+    //0xE033FBBA, // N64 PAL 1.1
 };
 
 enum class ButtonId : int {
@@ -512,6 +516,8 @@ const char* Extractor::GetZapdVerStr() const {
             return "N64_US";
         case MM_US_GC:
             return "GC_US";
+        case MM_JP_GC:
+            return "GC_JP";
         default:
             // We should never be in a state where this path happens.
             UNREACHABLE;
