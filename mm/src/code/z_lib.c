@@ -1,5 +1,5 @@
 #include "global.h"
-#include "libultraship/bridge.h"
+#include <libultraship/bridge.h>
 
 f32 Math_CosS(s16 angle) {
     return coss(angle) * SHT_MINV;
