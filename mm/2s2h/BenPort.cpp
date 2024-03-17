@@ -1549,7 +1549,8 @@ extern "C" void BenSysFlashrom_WriteData(u8* saveBuffer, u32 pageNum, u32 pageCo
         }
     }
 
-    if (flashSlotFile == FLASH_SLOT_FILE_UNAVAILABLE) {
+    // Exclude debug file from saving
+    if (flashSlotFile == FLASH_SLOT_FILE_UNAVAILABLE || gSaveContext.fileNum == 255) {
         return;
     }
 
