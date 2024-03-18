@@ -191,7 +191,7 @@ void SpeedMeter_DrawAllocEntry(SpeedMeterAllocEntry* this, GraphicsContext* gfxC
                             G_TD_CLAMP | G_TP_NONE | G_CYC_FILL | G_PM_NPRIMITIVE,
                         G_AC_NONE | G_ZS_PIXEL | G_RM_NOOP | G_RM_NOOP2);
 
-        usedOff = ((this->lrx - this->ulx) * this->val) / this->maxVal + this->ulx;
+        usedOff = ((s64)(this->lrx - this->ulx) * this->val) / this->maxVal + this->ulx;
         gDrawRect(gfx++, this->backColor, usedOff, this->uly, this->lrx, this->lry);
         gDrawRect(gfx++, this->foreColor, this->ulx, this->uly, usedOff, this->lry);
 
