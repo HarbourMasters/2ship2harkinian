@@ -45,8 +45,7 @@
 
         <Texture Name="gFileSelDecideCancelENGTex" OutName="decide_cancel_eng" Format="ia8" Width="144" Height="16" Offset="0xA630"/>
         <Texture Name="gFileSelDecideSaveENGTex" OutName="decide_save_eng" Format="ia8" Width="152" Height="16" Offset="0xAF30"/>
-        <!-- Might not be the right thing -->
-        <Texture Name="gFileSelPleaseWaitJPTex" OutName="please_wait_jp" Format="ia8" Width="48" Height="16" Offset="0xB8B0"/>
+        <Texture Name="gFileSelPleaseWaitENGTex" OutName="please_wait_eng" Format="ia8" Width="48" Height="16" Offset="0xB8B0"/>
 
         <Texture Name="gFileSelWindow00Tex" OutName="window_00" Format="ia16" Width="64" Height="32" Offset="0xBBB0"/>
         <Texture Name="gFileSelWindow01Tex" OutName="window_01" Format="ia16" Width="64" Height="32" Offset="0xCBB0"/>
@@ -77,9 +76,13 @@
 
         <Texture Name="gFileSelYesButtonENGTex" OutName="yes_button_eng" Format="ia16" Width="64" Height="16" Offset="0x207B0"/>
         <Texture Name="gFileSelEraseButtonENGTex" OutName="erase_button_eng" Format="ia16" Width="64" Height="16" Offset="0x20FB0"/>
-<!-- 0x217B0 | ia16, 28x16 -->
-<!-- 0x21B30 | ia16, 44x16 -->
-<!-- 0x220B0 | ia16, 44x16 -->
+
+        <!-- #Region JP Exclusive -->
+        <Texture Name="gFileSelLatinCharButtonTex" OutName="latin_char_button" Format="ia16" Width="28" Height="16" Offset="0x217B0"/>
+        <Texture Name="gFileSelHiraganaCharButtonTex" OutName="hiragana_char_button" Format="ia16" Width="44" Height="16" Offset="0x21B30"/>
+        <Texture Name="gFileSelKatakanaCharButtonTex" OutName="katakana_char_button" Format="ia16" Width="44" Height="16" Offset="0x220B0"/>
+        <!-- #Region End -->
+
         <Texture Name="gFileSelENDButtonENGTex" OutName="end_button_eng" Format="ia16" Width="44" Height="16" Offset="0x22630"/>
         <Texture Name="gFileSelBackspaceButtonTex" OutName="backspace_button" Format="ia16" Width="28" Height="16" Offset="0x22BB0"/>
 

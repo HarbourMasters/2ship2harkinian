@@ -21,7 +21,11 @@ void BetterMapSelect_LoadFileSelect(MapSelectState* mapSelectState) {
     CVarSetInteger("gDeveloperTools.BetterMapSelect.PageDownIndex", mapSelectState->pageDownIndex);
     CVarSave();
     STOP_GAMESTATE(&mapSelectState->state);
-    SET_NEXT_GAMESTATE(&mapSelectState->state, FileSelect_Init, sizeof(FileSelectState));
+    if (ResourceMgr_GetGameVersion(0) == MM_NTSC_JP_GC) {
+        SET_NEXT_GAMESTATE(&mapSelectState->state, FileSelect_JP_Init, sizeof(FileSelectState));
+    } else {
+        SET_NEXT_GAMESTATE(&mapSelectState->state, FileSelect_Init, sizeof(FileSelectState));
+    }
 }
 
 // 2S2H Added columns to scene table: entranceSceneId, betterMapSelectIndex, humanName

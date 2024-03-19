@@ -15,3 +15,5 @@
 /* 0x04 */ DEFINE_GAMESTATE(TitleSetup, GAMESTATE_TITLE_SETUP, opening)
 /* 0x05 */ DEFINE_GAMESTATE(FileSelect, GAMESTATE_FILE_SELECT, file_choose)
 /* 0x06 */ DEFINE_GAMESTATE(DayTelop, GAMESTATE_DAYTELOP, daytelop)
+// Region [2S2H]
+/* 0x05 */ DEFINE_GAMESTATE(FileSelect_JP, GAMESTATE_FILE_SELECT_JP, file_choose)

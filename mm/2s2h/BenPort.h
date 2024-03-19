@@ -54,6 +54,7 @@ void DeinitOTR(void);
 void VanillaItemTable_Init();
 void OTRAudio_Init();
 void OTRMessage_Init();
+void OTRJPFontMessage_Init();
 void InitAudio();
 void Graph_StartFrame();
 void Graph_ProcessGfxCommands(Gfx* commands);

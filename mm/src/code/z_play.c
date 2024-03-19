@@ -41,6 +41,7 @@ u8 sMotionBlurStatus;
 #include "2s2h/DeveloperTools/CollisionViewer.h"
 #include "2s2h/framebuffer_effects.h"
 #include <string.h>
+#include <GameVersions.h>
 
 s32 gDbgCamEnabled = false;
 u8 D_801D0D54 = false;
@@ -758,7 +759,11 @@ void Play_UpdateTransition(PlayState* this) {
                         }
                     } else { // GAMEMODE_FILE_SELECT
                         STOP_GAMESTATE(&this->state);
-                        SET_NEXT_GAMESTATE(&this->state, FileSelect_Init, sizeof(FileSelectState));
+                        if (ResourceMgr_GetGameVersion(0) == MM_NTSC_JP_GC) {
+                            SET_NEXT_GAMESTATE(&this->state, FileSelect_JP_Init, sizeof(FileSelectState));
+                        } else {
+                            SET_NEXT_GAMESTATE(&this->state, FileSelect_Init, sizeof(FileSelectState));
+                        }
                     }
                 } else {
                     if (this->transitionCtx.transitionType == TRANS_TYPE_CIRCLE) {
