@@ -52,6 +52,9 @@ PlayState* gPlayState;
 
 // Track when the notebook is closed so we can refresh our framebuffer captures
 u8 sJustClosedBomberNotebook = false;
+// #region 2S2H [JP] Making sJPMessageEntryTablePtr available
+MessageTableEntry* sJPMessageEntryTablePtr = NULL;
+// #endregion
 
 typedef enum {
     /* 0 */ MOTION_BLUR_OFF,
@@ -759,7 +762,7 @@ void Play_UpdateTransition(PlayState* this) {
                         }
                     } else { // GAMEMODE_FILE_SELECT
                         STOP_GAMESTATE(&this->state);
-                        if (ResourceMgr_GetGameVersion(0) == MM_NTSC_JP_GC) {
+                        if (ResourceMgr_GetGameDefaultLanguage(0) == LANGUAGE_JPN) {
                             SET_NEXT_GAMESTATE(&this->state, FileSelect_JP_Init, sizeof(FileSelectState));
                         } else {
                             SET_NEXT_GAMESTATE(&this->state, FileSelect_Init, sizeof(FileSelectState));

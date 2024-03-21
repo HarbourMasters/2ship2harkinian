@@ -2147,7 +2147,7 @@ void FileSelect_JP_Init(GameState* thisx) {
     size_t size;
 
     // #Region [2S2H] JP Support
-    if (ResourceMgr_GetGameVersion(0) == MM_NTSC_JP_GC) {
+    if (ResourceMgr_GetGameDefaultLanguage(0) == LANGUAGE_JPN) {
         gSaveContext.options.language = LANGUAGE_JPN;
     } else {
         // todo: error

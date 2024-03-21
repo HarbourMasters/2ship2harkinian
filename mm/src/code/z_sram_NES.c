@@ -1711,7 +1711,7 @@ void func_801457CC(GameState* gameState, SramContext* sramCtx) {
             } else {
                 if (phi_s2) {
                     gSaveContext.options.optionId = 0xA51D;
-                    gSaveContext.options.language = LANGUAGE_ENG;
+                    gSaveContext.options.language = ResourceMgr_GetGameDefaultLanguage(0);
                     gSaveContext.options.audioSetting = SAVE_AUDIO_STEREO;
                     gSaveContext.options.languageSetting = 0;
                     gSaveContext.options.zTargetSetting = 0;
@@ -1719,7 +1719,7 @@ void func_801457CC(GameState* gameState, SramContext* sramCtx) {
                     memcpy(&gSaveContext.options, sramCtx->saveBuf, sizeof(SaveOptions));
                     if (gSaveContext.options.optionId != 0xA51D) {
                         gSaveContext.options.optionId = 0xA51D;
-                        gSaveContext.options.language = LANGUAGE_ENG;
+                        gSaveContext.options.language = ResourceMgr_GetGameDefaultLanguage(0);
                         gSaveContext.options.audioSetting = SAVE_AUDIO_STEREO;
                         gSaveContext.options.languageSetting = 0;
                         gSaveContext.options.zTargetSetting = 0;
@@ -1733,7 +1733,7 @@ void func_801457CC(GameState* gameState, SramContext* sramCtx) {
         gSaveContext.flashSaveAvailable = D_801F6AF2;
     }
 
-    gSaveContext.options.language = LANGUAGE_ENG;
+    gSaveContext.options.language = ResourceMgr_GetGameDefaultLanguage(0);
 }
 
 void Sram_EraseSave(FileSelectState* fileSelect2, SramContext* sramCtx, s32 fileNum) {
@@ -1907,7 +1907,7 @@ void Sram_InitSave(FileSelectState* fileSelect2, SramContext* sramCtx) {
  */
 void Sram_WriteSaveOptionsToBuffer(SramContext* sramCtx) {
     if (gSaveContext.flashSaveAvailable) {
-        gSaveContext.options.language = LANGUAGE_ENG;
+        gSaveContext.options.language = ResourceMgr_GetGameDefaultLanguage(0);
         memcpy(sramCtx->saveBuf, &gSaveContext.options, sizeof(SaveOptions));
     }
 }

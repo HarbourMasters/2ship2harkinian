@@ -198,7 +198,7 @@ typedef struct FileSelectState {
     /* 0x243F0 */ Vtx* keyboard2Vtx;
     /* 0x243F4 */ u8 newf[4][6];
     /* 0x2440C */ u16 threeDayResetCount[4];
-    /* 0x24414 */ char fileNames[4][8];
+    /* 0x24414 */ unsigned char fileNames[4][8];
     /* 0x24434 */ s16 healthCapacity[4];
     /* 0x2443C */ s16 health[4];
     /* 0x24444 */ u32 questItems[4];
@@ -370,7 +370,7 @@ typedef struct FileSelect_JPState {
     /* 0x243F0 */ Vtx* keyboard2Vtx;
     /* 0x243F4 */ u8 newf[4][6];
     /* 0x2440C */ u16 threeDayResetCount[4];
-    /* 0x24414 */ char fileNames[4][8];
+    /* 0x24414 */ unsigned char fileNames[4][8];
     /* 0x24434 */ s16 healthCapacity[4];
     /* 0x2443C */ s16 health[4];
     /* 0x24444 */ u32 questItems[4];

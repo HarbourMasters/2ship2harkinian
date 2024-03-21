@@ -166,7 +166,11 @@ void EnMag_Init(Actor* thisx, PlayState* play) {
         gSaveContext.transWipeSpeed = 255;
     }
 
-    Font_LoadOrderedFont(&this->font);
+    if (ResourceMgr_GetGameDefaultLanguage(0) == LANGUAGE_JPN) {
+        Font_LoadOrderedFont_JP(&this->font);
+    } else {
+        Font_LoadOrderedFont(&this->font);
+    }
 
     this->unk11F58 = 0;
     this->unk11F5A = 0;
@@ -1293,8 +1297,8 @@ void EnMag_Draw(Actor* thisx, PlayState* play) {
     gfx = Graph_GfxPlusOne(gfxRef);
     gSPDisplayList(OVERLAY_DISP++, gfx);
 
-    uint32_t version = ResourceMgr_GetGameVersion(0);
-    if (version == MM_NTSC_JP_GC) {
+    if (ResourceMgr_GetGameVersion(0) == MM_NTSC_JP_GC) {
+        // May need a different function for N64 JP but can use GetDefaultLanguage if it ends up the same
         func_80951820_cj0(thisx, play, &gfx);
     } else { // Default: US 1.0 & US GC
         EnMag_DrawInner(thisx, play, &gfx);
