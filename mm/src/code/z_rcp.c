@@ -1514,7 +1514,7 @@ void func_8012CF0C(GraphicsContext* gfxCtx, s32 clearFb, s32 clearZb, u8 r, u8 g
     // #region 2S2H [Cosmetic] Account for different aspect ratios than 4:3
     // WideRectangle consumes two instructions and requires ++ for the macro to work
     Gfx* tmpGfx = masterGfx;
-    gDPFillWideRectangle(tmpGfx++, OTRGetRectDimensionFromLeftEdge(0), 0, OTRGetRectDimensionFromRightEdge(gCfbWidth - 1), gCfbHeight - 1);
+    gDPFillWideRectangle(tmpGfx++, OTRGetRectDimensionFromLeftEdge(0), 0, OTRGetRectDimensionFromRightEdge(gCfbWidth), gCfbHeight - 1);
     gDPPipeSync(&masterGfx[2]);
     gSPEndDisplayList(&masterGfx[3]);
     // #endregion
