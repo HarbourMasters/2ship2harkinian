@@ -3,7 +3,6 @@
 #include "2s2h/resource/type/Scene.h"
 #include <Utils/StringHelper.h>
 #include "global.h"
-#include "vt.h"
 #include "2s2h/resource/type/TextMM.h"
 #include <message_data_static.h>
 #include <resource/type/Text.h>
