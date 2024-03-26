@@ -13,7 +13,6 @@
 #include "overlays/gamestates/ovl_select/z_select.h"
 #include <stdlib.h>
 #include "BenPort.h"
-#include "libultraship/libultraship.h"
 
 void ConsoleLogo_UpdateCounters(ConsoleLogoState* this) {
     if ((this->coverAlpha == 0) && (this->visibleDuration != 0)) {

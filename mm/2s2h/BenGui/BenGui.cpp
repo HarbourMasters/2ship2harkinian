@@ -19,7 +19,6 @@
 
 #include "include/global.h"
 #include "include/z64audio.h"
-#include "libultraship/libultraship.h"
 
 bool ShouldClearTextureCacheAtEndOfFrame = false;
 

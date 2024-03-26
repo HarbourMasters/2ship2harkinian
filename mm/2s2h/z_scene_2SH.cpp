@@ -1,10 +1,6 @@
 ﻿#include "BenPort.h"
-extern "C" {
-#include "z64.h"
-#include "vt.h"
-#include "global.h"
-}
 #include <libultraship/libultraship.h>
+#include "global.h"
 #include <Blob.h>
 #include <memory>
 #include <cassert>

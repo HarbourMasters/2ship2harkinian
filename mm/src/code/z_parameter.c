@@ -15,7 +15,6 @@
 #include "interface/week_static/week_static.h"
 #include "BenPort.h"
 #include <string.h>
-#include "libultraship/libultraship.h"
 #include "BenGui/HudEditor.h"
 
 // #region 2S2H [Port] Asset tables we can pull from instead of from ROM
