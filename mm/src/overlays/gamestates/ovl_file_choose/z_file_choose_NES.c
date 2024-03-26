@@ -2383,11 +2383,9 @@ void FileSelect_Main(GameState* thisx) {
     gFileSelectUpdateFuncs[this->menuMode](&this->state);
     FileSelect_UpdateAndDrawSkybox(this);
 
-    // #Region 2S2H
     FrameInterpolation_StartRecord();
     gFileSelectDrawFuncs[this->menuMode](&this->state);
     FrameInterpolation_StopRecord();
-    // #End Region
 
     Gfx_SetupDL39_Opa(this->state.gfxCtx);
 
