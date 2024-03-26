@@ -17,6 +17,7 @@ void EnTk_Init(Actor* thisx, PlayState* play);
 void EnTk_Destroy(Actor* thisx, PlayState* play);
 void EnTk_Update(Actor* thisx, PlayState* play);
 void EnTk_Draw(Actor* thisx, PlayState* play);
+void EnTk_Reset(void);
 
 void func_80AECA3C(EnTk* this, PlayState* play);
 void func_80AECA90(EnTk* this, PlayState* play);
@@ -79,6 +80,7 @@ ActorInit En_Tk_InitVars = {
     /**/ EnTk_Destroy,
     /**/ EnTk_Update,
     /**/ EnTk_Draw,
+    /**/ EnTk_Reset,
 };
 
 static ColliderCylinderInit sCylinderInit = {
@@ -1393,4 +1395,8 @@ void EnTk_Draw(Actor* thisx, PlayState* play) {
                           EnTk_OverrideLimbDraw, EnTk_PostLimbDraw, &this->actor);
 
     CLOSE_DISPS(play->state.gfxCtx);
+}
+
+void EnTk_Reset(void) {
+    D_80AF0050 = 0;
 }

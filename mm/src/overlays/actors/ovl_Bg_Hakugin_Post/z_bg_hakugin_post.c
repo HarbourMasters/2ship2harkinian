@@ -18,6 +18,7 @@
 void BgHakuginPost_Init(Actor* thisx, PlayState* play);
 void BgHakuginPost_Destroy(Actor* thisx, PlayState* play);
 void BgHakuginPost_Update(Actor* thisx, PlayState* play);
+void BgHakuginPost_Reset(void);
 
 void func_80A9CA94(BgHakuginPost* this);
 void func_80A9CAA8(BgHakuginPost* this, PlayState* play);
@@ -50,6 +51,7 @@ ActorInit Bg_Hakugin_Post_InitVars = {
     /**/ BgHakuginPost_Destroy,
     /**/ BgHakuginPost_Update,
     /**/ NULL,
+    /**/ BgHakuginPost_Reset,
 };
 
 typedef struct {
@@ -147,7 +149,7 @@ void func_80A9AFB4(BgHakuginPost* this, PlayState* play, BgHakuginPostUnkStruct*
             if ((unkStruct->unk_0000[i].unk_34 == 0) ||
                 (this->dyna.actor.world.pos.y < unkStruct->unk_0000[i].unk_08.y)) {
                 for (j = 10; j >= i; j--) {
-                    memcpy(&unkStruct->unk_0000[j + 1], &unkStruct->unk_0000[j], 0x38);
+                    memcpy(&unkStruct->unk_0000[j + 1], &unkStruct->unk_0000[j], sizeof(BgHakuginPostUnkStruct1));
                 }
                 break;
             }
@@ -688,8 +690,13 @@ void func_80A9C854(BgHakuginPost* this, PlayState* play) {
     }
 }
 
+// #region 2S2H [Port]
+// Moved static vars out of function scope so they can be cleared in actor reset
+static s32 D_80A9D8FC = 1;
+
 void BgHakuginPost_Init(Actor* thisx, PlayState* play) {
-    static s32 D_80A9D8FC = 1;
+    // static s32 D_80A9D8FC = 1;
+    // #endregion
     BgHakuginPost* this = THIS;
 
     if (D_80A9D8FC != 0) {
@@ -1047,4 +1054,8 @@ void func_80A9D61C(Actor* thisx, PlayState* play) {
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
+}
+
+void BgHakuginPost_Reset(void) {
+    D_80A9D8FC = 1;
 }

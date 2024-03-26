@@ -2,6 +2,7 @@
 #include "sys_cfb.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include <string.h>
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 LightsBuffer sLightsBuffer;
 
@@ -371,6 +372,35 @@ Lights* Lights_New(GraphicsContext* gfxCtx, u8 ambientR, u8 ambientG, u8 ambient
     return lights;
 }
 
+// 2S2H [Port] Similar to Lights_GlowCheck, but only submits the coordinates to the depth prepare
+// for batching and then will be read after when Lights_GlowCheck is called
+void Lights_GlowCheckPrepare(PlayState* play) {
+    LightNode* light = play->lightCtx.listHead;
+
+    while (light != NULL) {
+        LightPoint* params = &light->info->params.point;
+
+        if (light->info->type == LIGHT_POINT_GLOW) {
+            Vec3f worldPos;
+            Vec3f projectedPos;
+            f32 invW;
+
+            worldPos.x = params->x;
+            worldPos.y = params->y;
+            worldPos.z = params->z;
+            Actor_GetProjectedPos(play, &worldPos, &projectedPos, &invW);
+
+            if ((projectedPos.z > 1) && (fabsf(projectedPos.x * invW) < 1) && (fabsf(projectedPos.y * invW) < 1)) {
+                s32 screenPosX = PROJECTED_TO_SCREEN_X(projectedPos, invW);
+                s32 screenPosY = PROJECTED_TO_SCREEN_Y(projectedPos, invW);
+                OTRGetPixelDepthPrepare(screenPosX, screenPosY);
+            }
+        }
+
+        light = light->next;
+    }
+}
+
 void Lights_GlowCheck(PlayState* play) {
     LightNode* light = play->lightCtx.listHead;
 
@@ -428,6 +458,7 @@ void Lights_DrawGlow(PlayState* play) {
                 if (params->drawGlow) {
                     f32 scale = SQ((f32)params->radius) * 2e-6f;
 
+                    FrameInterpolation_RecordOpenChild(light, 0);
                     gDPSetPrimColor(dl++, 0, 0, params->color[0], params->color[1], params->color[2], 50);
 
                     Matrix_Translate(params->x, params->y, params->z, MTXMODE_NEW);
@@ -436,6 +467,7 @@ void Lights_DrawGlow(PlayState* play) {
                     gSPMatrix(dl++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
 
                     gSPDisplayList(dl++, gameplay_keep_DL_029CF0);
+                    FrameInterpolation_RecordCloseChild();
                 }
             }
 

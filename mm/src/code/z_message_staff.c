@@ -12,12 +12,9 @@ void Message_FindCreditsMessage(PlayState* play, u16 textId) {
 
     while (msgEntry->textId != 0xFFFF) {
         if (msgEntry->textId == textId) {
-            foundSegment = msgEntry->segment;
+            // 2SH2 [Port] Just assign the msgEntry, we don't need to change the messageStart and messageEnd
+            font->messageStart = msgEntry;
             font->charBuf[font->unk_11D88][0] = msgEntry->typePos;
-            msgEntry++;
-            nextSegment = msgEntry->segment;
-            font->messageStart = foundSegment - segment;
-            font->messageEnd = nextSegment - foundSegment;
             break;
         }
         msgEntry++;

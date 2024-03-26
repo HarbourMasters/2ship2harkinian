@@ -21,6 +21,7 @@
 #include "objects/object_bdoor/object_bdoor.h"
 
 #include <string.h>
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 // bss
 // FaultClient sActorFaultClient; // 2 funcs
@@ -527,6 +528,8 @@ void Target_Draw(TargetContext* targetCtx, PlayState* play) {
         s32 index;
         f32 lockOnScaleX;
 
+        FrameInterpolation_RecordOpenChild(actor, 0);
+
         if (targetCtx->rotZTick != 0) {
             totalEntries = 1;
         } else {
@@ -603,11 +606,14 @@ void Target_Draw(TargetContext* targetCtx, PlayState* play) {
                 }
             }
         }
+        FrameInterpolation_RecordCloseChild();
     }
 
     actor = targetCtx->arrowPointedActor;
     if ((actor != NULL) && !(actor->flags & ACTOR_FLAG_CANT_LOCK_ON)) {
         TatlColor* color = &sTatlColorList[actor->category];
+        FrameInterpolation_RecordOpenChild(actor, 0);
+
 
         POLY_XLU_DISP = Gfx_SetupDL(POLY_XLU_DISP, SETUPDL_7);
 
@@ -619,6 +625,7 @@ void Target_Draw(TargetContext* targetCtx, PlayState* play) {
         gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, color->inner.r, color->inner.g, color->inner.b, 255);
         gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD);
         gSPDisplayList(POLY_XLU_DISP++, gZTargetArrowDL);
+        FrameInterpolation_RecordCloseChild();
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -2699,6 +2706,7 @@ void Actor_UpdateAll(PlayState* play, ActorContext* actorCtx) {
 void Actor_Draw(PlayState* play, Actor* actor) {
     Lights* light;
 
+    FrameInterpolation_RecordOpenChild(actor, 0);
     OPEN_DISPS(play->state.gfxCtx);
 
     light = LightContext_NewLights(&play->lightCtx, play->state.gfxCtx);
@@ -2710,6 +2718,7 @@ void Actor_Draw(PlayState* play, Actor* actor) {
                    (actor->flags & (ACTOR_FLAG_10000000 | ACTOR_FLAG_400000)) ? NULL : &actor->world.pos, play);
     Lights_Draw(light, play->state.gfxCtx);
 
+    FrameInterpolation_RecordActorPosRotMatrix();
     if (actor->flags & ACTOR_FLAG_IGNORE_QUAKE) {
         Matrix_SetTranslateRotateYXZ(actor->world.pos.x + play->mainCamera.quakeOffset.x,
                                      actor->world.pos.y +
@@ -2766,6 +2775,7 @@ void Actor_Draw(PlayState* play, Actor* actor) {
     actor->isDrawn = true;
 
     CLOSE_DISPS(play->state.gfxCtx);
+    FrameInterpolation_RecordCloseChild();
 }
 
 void Actor_UpdateFlaggedAudio(Actor* actor) {
@@ -3244,6 +3254,14 @@ Actor* Actor_RemoveFromCategory(PlayState* play, ActorContext* actorCtx, Actor* 
 
 void Actor_FreeOverlay(ActorOverlay* entry) {
     if (entry->numLoaded == 0) {
+        // #region 2S2H [Port] Added reset function is called when loaded count is 0
+        // to clean up static variables
+        if (entry->initInfo->reset != NULL) {
+            entry->initInfo->reset();
+        }
+        // #endregion
+
+        // 2S2H [Port] ramAddr will always be NULL for the port, so this block will never run
         void* ramAddr = entry->loadedRamAddr;
 
         if (ramAddr != NULL) {
@@ -3272,6 +3290,7 @@ ActorInit* Actor_LoadOverlay(ActorContext* actorCtx, s16 index) {
 
     overlaySize = (uintptr_t)overlayEntry->vramEnd - (uintptr_t)overlayEntry->vramStart;
 
+    // 2S2H [Port] vramStart will always be NULL in the port, so the else block is never run
     if (overlayEntry->vramStart == NULL) {
         actorInit = overlayEntry->initInfo;
     } else {
@@ -3338,7 +3357,12 @@ Actor* Actor_SpawnAsChildAndCutscene(ActorContext* actorCtx, PlayState* play, s1
     }
 
     overlayEntry = &gActorOverlayTable[index];
-    if (overlayEntry->vramStart != NULL) {
+    // #region 2S2H [Port] Our actors are always loaded and have no vramStart
+    // but we want to simulate them being unloaded to execute our actor reset funcs
+    // for static variable cleanup
+    // if (overlayEntry->vramStart != NULL) {
+    if (true) {
+    // #endregion
         overlayEntry->numLoaded++;
     }
 
@@ -3489,12 +3513,15 @@ Actor* Actor_Delete(ActorContext* actorCtx, Actor* actor, PlayState* play) {
 
     newHead = Actor_RemoveFromCategory(play, actorCtx, actor);
     ZeldaArena_Free(actor);
-    // BENTODO shouldn't need this check
-    if (overlayEntry != NULL) {
-        if (overlayEntry->vramStart != NULL) {
-            overlayEntry->numLoaded--;
-            Actor_FreeOverlay(overlayEntry);
-        }
+
+    // #region 2S2H [Port] Our actors are always loaded and have no vramStart
+    // but we want to simulate them being unloaded to execute our actor reset funcs
+    // for static variable cleanup
+    // if (overlayEntry->vramStart != NULL) {
+    if (true) {
+    // #endregion
+        overlayEntry->numLoaded--;
+        Actor_FreeOverlay(overlayEntry);
     }
 
     return newHead;

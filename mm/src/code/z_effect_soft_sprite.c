@@ -1,7 +1,8 @@
 #include "global.h"
 #include "loadfragment.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
-EffectSsInfo sEffectSsInfo = { NULL, 0, 0 };
+EffectSsInfo sEffectSsInfo = { 0 };
 
 void EffectSS_Init(PlayState* play, s32 numEntries) {
     u32 i;
@@ -202,6 +203,7 @@ void EffectSs_Spawn(PlayState* play, s32 type, s32 priority, void* initData) {
 
         sEffectSsInfo.data_table[index].type = type;
         sEffectSsInfo.data_table[index].priority = priority;
+        sEffectSsInfo.data_table[index].epoch++;
 
         if (initInfo->init(play, index, &sEffectSsInfo.data_table[index], initData) == 0) {
             EffectSS_ResetEntry(&sEffectSsInfo.data_table[index]);
@@ -247,7 +249,9 @@ void EffectSS_DrawParticle(PlayState* play, s32 index) {
     EffectSs* entry = &sEffectSsInfo.data_table[index];
 
     if (entry->draw != NULL) {
+        FrameInterpolation_RecordOpenChild(entry, entry->epoch);
         entry->draw(play, index, entry);
+        FrameInterpolation_RecordCloseChild();
     }
 }
 

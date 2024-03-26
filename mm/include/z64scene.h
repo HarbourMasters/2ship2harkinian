@@ -620,7 +620,8 @@ typedef enum {
     /* 6 */ TINGLE_MAP_MAX
 } TingleMapId;
 
-#define DEFINE_SCENE(_name, enumValue, _textId, _drawConfig, _restrictionFlags, _persistentCycleFlags) enumValue,
+// 2S2H Added columns to scene table: entranceSceneId, betterMapSelectIndex, humanName
+#define DEFINE_SCENE(_name, enumValue, _textId, _drawConfig, _restrictionFlags, _persistentCycleFlags, _entranceSceneId, _betterMapSelectIndex, _humanName) enumValue,
 #define DEFINE_SCENE_UNSET(enumValue) enumValue,
 
 typedef enum SceneId {

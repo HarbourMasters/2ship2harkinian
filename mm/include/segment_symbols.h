@@ -26,14 +26,14 @@
 #define SEGMENT_END(segment) 0
 //(_ ## segment ## SegmentEnd)
 
-#define SEGMENT_SIZE(segment) (uintptr_t) NULL
+#define SEGMENT_SIZE(segment) (uintptr_t) 0
 //((uintptr_t)SEGMENT_END(segment) - (uintptr_t)SEGMENT_START(segment))
 
 #define SEGMENT_ROM_START(segment) NULL
 //(_ ## segment ## SegmentRomStart)
 #define SEGMENT_ROM_END(segment) NULL
 //(_ ## segment ## SegmentRomEnd)
-#define SEGMENT_ROM_SIZE(segment) NULL
+#define SEGMENT_ROM_SIZE(segment) 0
 //((uintptr_t)SEGMENT_ROM_END(segment) - (uintptr_t)SEGMENT_ROM_START(segment))
 
 #define SEGMENT_BSS_START(segment) 0
@@ -90,8 +90,9 @@ DECLARE_BSS_SEGMENT(code)
 DECLARE_OVERLAY_SEGMENT(kaleido_scope)
 DECLARE_OVERLAY_SEGMENT(player_actor)
 
-#define DEFINE_ACTOR(name, _enumValue, _allocType, _debugName) DECLARE_OVERLAY_SEGMENT(name)
-#define DEFINE_ACTOR_INTERNAL(_name, _enumValue, _allocType, _debugName)
+// 2S2H Added columns to actor table: _humanName
+#define DEFINE_ACTOR(name, _enumValue, _allocType, _debugName, _humanName) DECLARE_OVERLAY_SEGMENT(name)
+#define DEFINE_ACTOR_INTERNAL(_name, _enumValue, _allocType, _debugName, _humanName)
 #define DEFINE_ACTOR_UNSET(_enumValue)
 
 #include "tables/actor_table.h"

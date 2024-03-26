@@ -10,6 +10,8 @@
 #include "overlays/actors/ovl_En_Knight/z_en_knight.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "objects/object_knight/object_knight.h"
+#include "BenPort.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
@@ -19,6 +21,7 @@ void Boss06_Init(Actor* thisx, PlayState* play);
 void Boss06_Destroy(Actor* thisx, PlayState* play);
 void Boss06_Update(Actor* thisx, PlayState* play);
 void Boss06_Draw(Actor* thisx, PlayState* play2);
+void Boss06_Reset(void);
 
 void func_809F24A8(Boss06* this);
 void func_809F24C8(Boss06* this, PlayState* play);
@@ -80,6 +83,7 @@ ActorInit Boss_06_InitVars = {
     /**/ Boss06_Destroy,
     /**/ Boss06_Update,
     /**/ Boss06_Draw,
+    /**/ Boss06_Reset,
 };
 
 static ColliderCylinderInit sCylinderInit = {
@@ -147,7 +151,7 @@ void Boss06_Init(Actor* thisx, PlayState* play) {
     this->actor.shape.rot.y = -0x8000;
     Collider_InitAndSetCylinder(play, &this->collider, &this->actor, &sCylinderInit);
 
-    temp_v0 = SEGMENTED_TO_K0(&object_knight_Tex_019490);
+    temp_v0 = ResourceMgr_LoadTexOrDListByName(&object_knight_Tex_019490);
     for (i = 0; i < ARRAY_COUNT(this->unk_200); i++) {
         this->unk_200[i] = temp_v0[i];
     }
@@ -525,8 +529,9 @@ void Boss06_Draw(Actor* thisx, PlayState* play2) {
     if (this->unk_144 & 2) {
         temp_s0 = Math_SinS(D_809F4970->unk_144) * 1000.0f;
         temp_f10 = (Math_CosS(D_809F4970->unk_144) * -2000.0f) - 2000.0f;
-        temp_v0_2 = SEGMENTED_TO_K0(&object_knight_Vtx_018BD0);
-
+        // #region 2S2H fix a crash caused by modifying what would be a string. Load the verticies here so the correct thing is modified.
+        temp_v0_2 = ResourceMgr_LoadVtxByName(object_knight_Vtx_018BD0);
+        // #endregion
         temp_v0_2[0].v.ob[1] = (s16)this->unk_1A0 + 0xE92;
         temp_v0_2[3].v.ob[1] = (s16)this->unk_1A0 + 0xE92;
         temp_v0_2[4].v.ob[1] = (s16)this->unk_1A0 + 0xE92;
@@ -603,6 +608,7 @@ void Boss06_Draw(Actor* thisx, PlayState* play2) {
 
             for (i = 0; i < ARRAY_COUNT(D_809F4370); i++) {
                 if ((fabsf(D_809F4370[i].x - 32.0f) < 30.0f) && (fabsf(D_809F4370[i].y - 32.0f) < 30.0f)) {
+                    FrameInterpolation_RecordOpenChild(this, i);
                     Matrix_Push();
 
                     gSPSegment(POLY_XLU_DISP++, 0x08,
@@ -624,6 +630,7 @@ void Boss06_Draw(Actor* thisx, PlayState* play2) {
                     gSPDisplayList(POLY_XLU_DISP++, gEffFire1DL);
 
                     Matrix_Pop();
+                    FrameInterpolation_RecordCloseChild();
                 }
             }
         } else {
@@ -649,4 +656,11 @@ void Boss06_Draw(Actor* thisx, PlayState* play2) {
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
+}
+
+void Boss06_Reset(void) {
+    D_809F4970 = NULL;
+    D_809F4974 = 0;
+    D_809F4978 = 0;
+    D_809F497C = 0;
 }

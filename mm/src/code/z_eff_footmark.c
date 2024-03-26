@@ -2,6 +2,7 @@
 #include "z64.h"
 #include "macros.h"
 #include "functions.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 #include "assets/code/eff_footmark/eff_footmark.h"
 
@@ -111,6 +112,8 @@ void EffFootmark_Draw(PlayState* play) {
 
     for (footmark = play->footprintInfo, i = 0; i < ARRAY_COUNT(play->footprintInfo); i++, footmark++) {
         if (footmark->actor != NULL) {
+            FrameInterpolation_RecordOpenChild(footmark, i);
+
             Matrix_Put(&footmark->mf);
             Matrix_Scale(footmark->size * (1.0f / 0x100) * 0.7f, 1, footmark->size * (1.0f / 0x100), MTXMODE_APPLY);
 
@@ -120,6 +123,8 @@ void EffFootmark_Draw(PlayState* play) {
                             footmark->alpha >> 8);
 
             gSPDisplayList(gfxCtx->polyXlu.p++, gEffFootprintModelDL);
+
+            FrameInterpolation_RecordCloseChild();
         }
     }
 }

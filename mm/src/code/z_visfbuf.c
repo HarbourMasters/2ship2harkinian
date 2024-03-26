@@ -14,6 +14,7 @@
 #include "z64visfbuf.h"
 #include "sys_cfb.h"
 #include <string.h>
+#include "2s2h/framebuffer_effects.h"
 
 #define SCALE_MIN 0.032f
 #define SCALE_MAX 1.0f //!< also unchanged scale
@@ -169,7 +170,7 @@ void VisFbuf_ApplyEffects(VisFbuf* this, Gfx** gfxP, void* source, void* img, s3
                     G_AD_PATTERN | G_CD_MAGICSQ | G_CK_NONE | G_TC_CONV | G_TF_POINT | G_TT_NONE | G_TL_TILE |
                         G_TD_CLAMP | G_TP_NONE | G_CYC_COPY | G_PM_NPRIMITIVE,
                     G_AC_NONE | G_ZS_PIXEL | G_RM_NOOP | G_RM_NOOP2);
-    VisFbuf_SetBgSimple(&gfx, source, img, width, height, VIS_FBUF_BG_CYC_COPY);
+    FB_CopyToFramebuffer(&gfx, 0, gReusableFrameBuffer, false, NULL);
 
     gDPPipeSync(gfx++);
     // fill framebuffer with primColor
@@ -185,7 +186,7 @@ void VisFbuf_ApplyEffects(VisFbuf* this, Gfx** gfxP, void* source, void* img, s3
     //! @bug VisFbuf_SetBgSimple() sets the current color image back to the frame's default framebuffer at the end,
     //! so this will always fill in the default framebuffer, whatever are used as `source` and `img`. This does not
     //! arise in-game since this function is always used with `source = D_0F000000`.
-    gDPFillRectangle(gfx++, 0, 0, width - 1, height - 1);
+    gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), 0, OTRGetRectDimensionFromRightEdge(width - 1), height - 1);
 
     gDPPipeSync(gfx++);
     // Set lod and primColor from struct, perform interpolation, draw image with scaling (this is the most general
@@ -221,8 +222,11 @@ void VisFbuf_ApplyEffects(VisFbuf* this, Gfx** gfxP, void* source, void* img, s3
     {
         f32 scale = CLAMP_ALT(this->scale, SCALE_MIN, SCALE_MAX);
 
-        VisFbuf_SetBgGeneral(&gfx, img, source, width, height, width * 0.5f * (1.0f - scale),
-                             height * 0.5f * (1.0f - scale), scale, scale, VIS_FBUF_BG_CYC_1CYC);
+        // 2S2H [Port][Widescreen]
+        // Draw shrunk window using an adjusted horizontal scale accounting for different aspect ratios
+        FB_DrawFromFramebufferScaled(&gfx, gReusableFrameBuffer, 255,
+                                     (1.0f - scale) * (OTRGetAspectRatio() / ((float)SCREEN_WIDTH / SCREEN_HEIGHT)),
+                                     (1.0f - scale));
     }
 
     gDPPipeSync(gfx++);

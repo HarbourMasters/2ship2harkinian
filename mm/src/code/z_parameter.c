@@ -16,12 +16,14 @@
 #include "BenPort.h"
 #include <string.h>
 #include "libultraship/libultraship.h"
+#include "BenGui/HudEditor.h"
 
 // #region 2S2H [Port] Asset tables we can pull from instead of from ROM
 #define dgEmptyTexture "__OTR__textures/virtual/gEmptyTexture"
 static const ALIGN_ASSET(2) char gEmptyTexture[] = dgEmptyTexture;
 
-static const char* sCounterTextures[] = {
+// 2S2H [Port] This was originally static but needs to be global so it can be accessed in z_kaleido_collect, z_kaleido_debug, and z_kaleido_draw.
+const char* sCounterTextures[] = {
     gCounterDigit0Tex, gCounterDigit1Tex, gCounterDigit2Tex, gCounterDigit3Tex, gCounterDigit4Tex, gCounterDigit5Tex,
     gCounterDigit6Tex, gCounterDigit7Tex, gCounterDigit8Tex, gCounterDigit9Tex, gCounterColonTex,
 };
@@ -127,7 +129,8 @@ Input sPostmanTimerInput[MAXCONTROLLERS];
 #define RESTRICTIONS_MOON RESTRICTIONS_SET(0, 0, 0, 0, 0, 3, 3, 3, 0, 0, 0, 0)
 #define RESTRICTIONS_NO_DOUBLE_TIME RESTRICTIONS_SET(0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0)
 
-#define DEFINE_SCENE(_name, enumValue, _textId, _drawConfig, restrictionFlags, _persistentCycleFlags) \
+// 2S2H Added columns to scene table: entranceSceneId, betterMapSelectIndex, humanName
+#define DEFINE_SCENE(_name, enumValue, _textId, _drawConfig, restrictionFlags, _persistentCycleFlags, _entranceSceneId, _betterMapSelectIndex, _humanName) \
     { enumValue, restrictionFlags },
 
 #define DEFINE_SCENE_UNSET(enumValue) { enumValue, RESTRICTIONS_NONE },
@@ -298,7 +301,21 @@ Gfx* Gfx_DrawTexRectIA8(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 text
                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                         G_TX_NOLOD);
 
-    gSPTextureRectangle(gfx++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
+    // #region 2S2H [Cosmetic] Hud Editor
+    if (HudEditor_ShouldOverrideDraw()) {
+        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+            hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+            return gfx;
+        }
+
+        HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+
+        hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+    }
+    // #endregion
+
+    // 2S2H [Cosmetic] Changed to Wide variant to support widescreen
+    gSPWideTextureRectangle(gfx++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
                         G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
 
     return gfx;
@@ -339,13 +356,27 @@ Gfx* Gfx_DrawTexRectIA8_DropShadow(Gfx* gfx, TexturePtr texture, s16 textureWidt
                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                         G_TX_NOLOD);
 
-    gSPTextureRectangle(gfx++, (rectLeft + 2) * 4, (rectTop + 2) * 4, (rectLeft + rectWidth + 2) * 4,
+    // #region 2S2H [Cosmetic] Hud Editor
+    if (HudEditor_ShouldOverrideDraw()) {
+        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+            hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+            return gfx;
+        }
+
+        HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+
+        hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+    }
+    // #endregion
+
+    // 2S2H [Cosmetic] Changed to Wide variant to support widescreen
+    gSPWideTextureRectangle(gfx++, (rectLeft + 2) * 4, (rectTop + 2) * 4, (rectLeft + rectWidth + 2) * 4,
                         (rectTop + rectHeight + 2) * 4, G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
 
     gDPPipeSync(gfx++);
     gDPSetPrimColor(gfx++, 0, 0, r, g, b, a);
-
-    gSPTextureRectangle(gfx++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4, (rectTop + rectHeight) * 4,
+    // 2S2H [Cosmetic] Changed to Wide variant to support widescreen
+    gSPWideTextureRectangle(gfx++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4, (rectTop + rectHeight) * 4,
                         G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
 
     return gfx;
@@ -375,15 +406,29 @@ Gfx* Gfx_DrawRect_DropShadow(Gfx* gfx, s16 rectLeft, s16 rectTop, s16 rectWidth,
         dropShadowAlpha = 100;
     }
 
+    // #region 2S2H [Cosmetic] Hud Editor
+    if (HudEditor_ShouldOverrideDraw()) {
+        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+            hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+            return gfx;
+        }
+
+        HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+
+        hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+    }
+    // #endregion
+
     gDPPipeSync(gfx++);
     gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, dropShadowAlpha);
-    gSPTextureRectangle(gfx++, (rectLeft + 2) * 4, (rectTop + 2) * 4, (rectLeft + rectWidth + 2) * 4,
+    // 2S2H [Cosmetic] Changed to Wide variant to support widescreen
+    gSPWideTextureRectangle(gfx++, (rectLeft + 2) * 4, (rectTop + 2) * 4, (rectLeft + rectWidth + 2) * 4,
                         (rectTop + rectHeight + 2) * 4, G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
 
     gDPPipeSync(gfx++);
     gDPSetPrimColor(gfx++, 0, 0, r, g, b, a);
-
-    gSPTextureRectangle(gfx++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4, (rectTop + rectHeight) * 4,
+    // 2S2H [Cosmetic] Changed to Wide variant to support widescreen
+    gSPWideTextureRectangle(gfx++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4, (rectTop + rectHeight) * 4,
                         G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
 
     return gfx;
@@ -425,13 +470,28 @@ Gfx* Gfx_DrawTexRectIA8_DropShadowOffset(Gfx* gfx, TexturePtr texture, s16 textu
     gDPLoadTextureBlock(gfx++, texture, G_IM_FMT_IA, G_IM_SIZ_8b, textureWidth, textureHeight, 0,
                         G_TX_MIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, masks, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
-    gSPTextureRectangle(gfx++, (rectLeft + 2) * 4, (rectTop + 2) * 4, (rectLeft + rectWidth + 2) * 4,
+    // #region 2S2H [Cosmetic] Hud Editor
+    if (HudEditor_ShouldOverrideDraw()) {
+        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+            hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+            return gfx;
+        }
+
+        HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+
+        hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+    }
+    // #endregion
+
+    // 2S2H [Cosmetic] Changed to Wide variant to support widescreen
+    gSPWideTextureRectangle(gfx++, (rectLeft + 2) * 4, (rectTop + 2) * 4, (rectLeft + rectWidth + 2) * 4,
                         (rectTop + rectHeight + 2) * 4, G_TX_RENDERTILE, rects, 0, dsdx, dtdy);
 
     gDPPipeSync(gfx++);
     gDPSetPrimColor(gfx++, 0, 0, r, g, b, a);
 
-    gSPTextureRectangle(gfx++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4, (rectTop + rectHeight) * 4,
+    // 2S2H [Cosmetic] Changed to Wide variant to support widescreen
+    gSPWideTextureRectangle(gfx++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4, (rectTop + rectHeight) * 4,
                         G_TX_RENDERTILE, rects, 0, dsdx, dtdy);
 
     return gfx;
@@ -458,7 +518,21 @@ Gfx* Gfx_DrawTexRectI8(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 textu
                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                         G_TX_NOLOD);
 
-    gSPTextureRectangle(gfx++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
+    // #region 2S2H [Cosmetic] Hud Editor
+    if (HudEditor_ShouldOverrideDraw()) {
+        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+            hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+            return gfx;
+        }
+
+        HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+
+        hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+    }
+    // #endregion
+
+    // 2S2H [Cosmetic] Changed to Wide variant to support widescreen
+    gSPWideTextureRectangle(gfx++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
                         G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
 
     return gfx;
@@ -3941,13 +4015,16 @@ void Magic_DrawMeter(PlayState* play) {
 
         gDPSetEnvColor(OVERLAY_DISP++, 100, 50, 50, 255);
 
+        HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_MAGIC_METER);
         OVERLAY_DISP = Gfx_DrawTexRectIA8_DropShadow(
             OVERLAY_DISP, gMagicMeterEndTex, 8, 16, 18, magicBarY, 8, 16, 1 << 10, 1 << 10, sMagicMeterOutlinePrimRed,
             sMagicMeterOutlinePrimGreen, sMagicMeterOutlinePrimBlue, interfaceCtx->magicAlpha);
+        HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_MAGIC_METER);
         OVERLAY_DISP = Gfx_DrawTexRectIA8_DropShadow(OVERLAY_DISP, gMagicMeterMidTex, 24, 16, 26, magicBarY,
                                                      ((void)0, gSaveContext.magicCapacity), 16, 1 << 10, 1 << 10,
                                                      sMagicMeterOutlinePrimRed, sMagicMeterOutlinePrimGreen,
                                                      sMagicMeterOutlinePrimBlue, interfaceCtx->magicAlpha);
+        HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_MAGIC_METER);
         OVERLAY_DISP = Gfx_DrawTexRectIA8_DropShadowOffset(
             OVERLAY_DISP, gMagicMeterEndTex, 8, 16, ((void)0, gSaveContext.magicCapacity) + 26, magicBarY, 8, 16,
             1 << 10, 1 << 10, sMagicMeterOutlinePrimRed, sMagicMeterOutlinePrimGreen, sMagicMeterOutlinePrimBlue,
@@ -3994,9 +4071,35 @@ void Magic_DrawMeter(PlayState* play) {
 
             gDPLoadTextureBlock_4b(OVERLAY_DISP++, gMagicMeterFillTex, G_IM_FMT_I, 16, 16, 0, G_TX_NOMIRROR | G_TX_WRAP,
                                    G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
-            gSPTextureRectangle(OVERLAY_DISP++, 104, (magicBarY + 3) << 2,
-                                (((void)0, gSaveContext.save.saveInfo.playerData.magic) + 26) << 2,
-                                (magicBarY + 10) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+
+            // #region 2S2H [Cosmetic] Hud Editor
+            HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_MAGIC_METER);
+            if (HudEditor_ShouldOverrideDraw()) {
+                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+                    hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+                } else {
+                    // All of this information was derived from the original call to gSPTextureRectangle below
+                    s16 rectLeft = 26;
+                    s16 rectTop = magicBarY + 3;
+                    s16 rectWidth = gSaveContext.save.saveInfo.playerData.magic;
+                    s16 rectHeight = 7;
+                    s16 dsdx = 512;
+                    s16 dtdy = 512;
+
+                    HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+
+                    hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+
+                    gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2,
+                                    (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
+                                    G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+                }
+            // #endregion
+            } else {
+                gSPTextureRectangle(OVERLAY_DISP++, 104, (magicBarY + 3) << 2,
+                                    (((void)0, gSaveContext.save.saveInfo.playerData.magic) + 26) << 2,
+                                    (magicBarY + 10) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+            }
         }
     }
 
@@ -4019,8 +4122,37 @@ void Interface_SetPerspectiveView(PlayState* play, s32 topY, s32 bottomY, s32 le
 
     interfaceCtx->viewport.topY = topY;
     interfaceCtx->viewport.bottomY = bottomY;
+    // 2S2H [Cosmetic] These are originally relative to screen size, but by default we want them to instead be relative to the 4:3 HUD size, to match the rest of the HUD
     interfaceCtx->viewport.leftX = OTRConvertHUDXToScreenX(leftX);
     interfaceCtx->viewport.rightX = OTRConvertHUDXToScreenX(rightX);
+
+    // #region 2S2H [Cosmetic] Hud Editor
+    HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_A);
+    if (HudEditor_ShouldOverrideDraw()) {
+        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+            interfaceCtx->viewport.leftX = 0;
+            interfaceCtx->viewport.rightX = 0;
+            hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+        } else {
+            // All of this information was derived from the original call to gSPTextureRectangle below
+            s16 rectLeft = leftX;
+            s16 rectTop = topY;
+            s16 rectWidth = rightX - leftX;
+            s16 rectHeight = bottomY - topY;
+            s16 dsdx = 512;
+            s16 dtdy = 512;
+
+            HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+            hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+
+            interfaceCtx->viewport.leftX = OTRConvertHUDXToScreenX(rectLeft);
+            interfaceCtx->viewport.rightX = OTRConvertHUDXToScreenX(rectLeft + rectWidth);
+            interfaceCtx->viewport.topY = rectTop;
+            interfaceCtx->viewport.bottomY = rectTop + rectHeight;
+        }
+    }
+    // #endregion
+
     View_SetViewport(&interfaceCtx->view, &interfaceCtx->viewport);
 
     View_SetPerspective(&interfaceCtx->view, 60.0f, 10.0f, 60.0f);
@@ -4059,6 +4191,7 @@ void Interface_DrawItemButtons(PlayState* play) {
     gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
 
     // B Button Color & Texture
+    HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_B);
     OVERLAY_DISP = Gfx_DrawTexRectIA8_DropShadow(
         OVERLAY_DISP, gButtonBackgroundTex, 0x20, 0x20, D_801BF9D4[EQUIP_SLOT_B], D_801BF9DC[EQUIP_SLOT_B],
         D_801BFAF4[EQUIP_SLOT_B], D_801BFAF4[EQUIP_SLOT_B], D_801BF9E4[EQUIP_SLOT_B] * 2, D_801BF9E4[EQUIP_SLOT_B] * 2,
@@ -4066,16 +4199,19 @@ void Interface_DrawItemButtons(PlayState* play) {
     gDPPipeSync(OVERLAY_DISP++);
 
     // C-Left Button Color & Texture
+    HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_LEFT);
     OVERLAY_DISP = Gfx_DrawRect_DropShadow(OVERLAY_DISP, D_801BF9D4[EQUIP_SLOT_C_LEFT], D_801BF9DC[EQUIP_SLOT_C_LEFT],
                                            D_801BFAF4[EQUIP_SLOT_C_LEFT], D_801BFAF4[EQUIP_SLOT_C_LEFT],
                                            D_801BF9E4[EQUIP_SLOT_C_LEFT] * 2, D_801BF9E4[EQUIP_SLOT_C_LEFT] * 2, 255,
                                            240, 0, interfaceCtx->cLeftAlpha);
     // C-Down Button Color & Texture
+    HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_DOWN);
     OVERLAY_DISP = Gfx_DrawRect_DropShadow(OVERLAY_DISP, D_801BF9D4[EQUIP_SLOT_C_DOWN], D_801BF9DC[EQUIP_SLOT_C_DOWN],
                                            D_801BFAF4[EQUIP_SLOT_C_DOWN], D_801BFAF4[EQUIP_SLOT_C_DOWN],
                                            D_801BF9E4[EQUIP_SLOT_C_DOWN] * 2, D_801BF9E4[EQUIP_SLOT_C_DOWN] * 2, 255,
                                            240, 0, interfaceCtx->cDownAlpha);
     // C-Right Button Color & Texture
+    HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_RIGHT);
     OVERLAY_DISP = Gfx_DrawRect_DropShadow(OVERLAY_DISP, D_801BF9D4[EQUIP_SLOT_C_RIGHT], D_801BF9DC[EQUIP_SLOT_C_RIGHT],
                                            D_801BFAF4[EQUIP_SLOT_C_RIGHT], D_801BFAF4[EQUIP_SLOT_C_RIGHT],
                                            D_801BF9E4[EQUIP_SLOT_C_RIGHT] * 2, D_801BF9E4[EQUIP_SLOT_C_RIGHT] * 2, 255,
@@ -4083,6 +4219,7 @@ void Interface_DrawItemButtons(PlayState* play) {
 
     if (!IS_PAUSE_STATE_GAMEOVER) {
         if ((play->pauseCtx.state != PAUSE_STATE_OFF) || (play->pauseCtx.debugEditor != DEBUG_EDITOR_NONE)) {
+            HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_START);
             OVERLAY_DISP = Gfx_DrawRect_DropShadow(OVERLAY_DISP, 0x88, 0x11, 0x16, 0x16, 0x5B6, 0x5B6, 0xFF, 0x82, 0x3C,
                                                    interfaceCtx->startAlpha);
             // Start Button Texture, Color & Label
@@ -4094,7 +4231,32 @@ void Interface_DrawItemButtons(PlayState* play) {
             gDPLoadTextureBlock_4b(OVERLAY_DISP++, interfaceCtx->doActionSegment[DO_ACTION_SEG_START].mainTex,
                                    G_IM_FMT_IA, DO_ACTION_TEX_WIDTH, DO_ACTION_TEX_HEIGHT, 0, G_TX_NOMIRROR | G_TX_WRAP,
                                    G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
-            gSPTextureRectangle(OVERLAY_DISP++, 0x01F8, 0x0054, 0x02D4, 0x009C, G_TX_RENDERTILE, 0, 0, 0x04A6, 0x04A6);
+            // #region 2S2H [Cosmetic] Hud Editor
+            HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_START);
+            if (HudEditor_ShouldOverrideDraw()) {
+                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+                    hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+                } else {
+                    // All of this information was derived from the original call to gSPTextureRectangle below
+                    s16 rectLeft = 0x01F8 >> 2;
+                    s16 rectTop = 0x0054 >> 2;
+                    s16 rectWidth = (0x02D4 >> 2) - rectLeft;
+                    s16 rectHeight = (0x009C >> 2) - rectTop;
+                    s16 dsdx = 0x04A6 >> 1;
+                    s16 dtdy = 0x04A6 >> 1;
+
+                    HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+
+                    hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+
+                    gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2,
+                                    (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
+                                    G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+                }
+            // #endregion
+            } else {
+                gSPTextureRectangle(OVERLAY_DISP++, 0x01F8, 0x0054, 0x02D4, 0x009C, G_TX_RENDERTILE, 0, 0, 0x04A6, 0x04A6);
+            }
         }
     }
 
@@ -4116,6 +4278,7 @@ void Interface_DrawItemButtons(PlayState* play) {
                 temp = interfaceCtx->aAlpha;
             }
 
+            HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_UP);
             OVERLAY_DISP =
                 Gfx_DrawRect_DropShadow(OVERLAY_DISP, 0xFE, 0x10, 0x10, 0x10, 0x800, 0x800, 0xFF, 0xF0, 0, temp);
 
@@ -4150,6 +4313,7 @@ void Interface_DrawItemButtons(PlayState* play) {
             } else { // EQUIP_SLOT_C_RIGHT
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 240, 0, interfaceCtx->cRightAlpha);
             }
+            HudEditor_SetActiveElement(temp);
             OVERLAY_DISP =
                 Gfx_DrawTexRectIA8(OVERLAY_DISP, emptyCButtonArrows[temp - 1], 0x20, 0x20, D_801BF9D4[temp], D_801BF9DC[temp],
                                    D_801BFAF4[temp], D_801BFAF4[temp], D_801BF9E4[temp] * 2, D_801BF9E4[temp] * 2);
@@ -4167,9 +4331,34 @@ void Interface_DrawItemIconTexture(PlayState* play, TexturePtr texture, s16 butt
     gDPLoadTextureBlock(OVERLAY_DISP++, texture, G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 32, 0, G_TX_NOMIRROR | G_TX_WRAP,
                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
-    gSPTextureRectangle(OVERLAY_DISP++, D_801BF9D4[button] << 2, D_801BF9DC[button] << 2,
-                        (D_801BF9D4[button] + D_801BFAFC[button]) << 2, (D_801BF9DC[button] + D_801BFAFC[button]) << 2,
-                        G_TX_RENDERTILE, 0, 0, D_801BF9BC[button] << 1, D_801BF9BC[button] << 1);
+    // #region 2S2H [Cosmetic] Hud Editor
+    HudEditor_SetActiveElement(button);
+    if (HudEditor_ShouldOverrideDraw()) {
+        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+            hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+        } else {
+            // All of this information was derived from the original call to gSPTextureRectangle below
+            s16 rectLeft = D_801BF9D4[button];
+            s16 rectTop = D_801BF9DC[button];
+            s16 rectWidth = D_801BFAFC[button];
+            s16 rectHeight = D_801BFAFC[button];
+            s16 dsdx = D_801BF9BC[button];
+            s16 dtdy = D_801BF9BC[button];
+
+            HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+
+            hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+
+            gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2,
+                            (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
+                            G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+        }
+    // #endregion
+    } else {
+        gSPTextureRectangle(OVERLAY_DISP++, D_801BF9D4[button] << 2, D_801BF9DC[button] << 2,
+                            (D_801BF9D4[button] + D_801BFAFC[button]) << 2, (D_801BF9DC[button] + D_801BFAFC[button]) << 2,
+                            G_TX_RENDERTILE, 0, 0, D_801BF9BC[button] << 1, D_801BF9BC[button] << 1);
+    }
 
     CLOSE_DISPS(play->state.gfxCtx);
 }
@@ -4228,11 +4417,13 @@ void Interface_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
 
         // Draw upper digit (tens)
         if ((u32)i != 0) {
+            HudEditor_SetActiveElement(button);
             OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[i], 8, 8,
                                               D_801BFB04[button], D_801BFB0C[button], 8, 8, 1 << 10, 1 << 10);
         }
 
         // Draw lower digit (ones)
+        HudEditor_SetActiveElement(button);
         OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[ammo], 8, 8,
                                           D_801BFB04[button] + 6, D_801BFB0C[button], 8, 8, 1 << 10, 1 << 10);
     }
@@ -4296,10 +4487,35 @@ void Interface_DrawBButtonIcons(PlayState* play) {
 
         D_801BF9B0 = 1024.0f / (D_801BF9B4[gSaveContext.options.language] / 100.0f);
 
-        gSPTextureRectangle(
-            OVERLAY_DISP++, (D_801BF9C4[gSaveContext.options.language] * 4),
-            (D_801BF9C8[gSaveContext.options.language] * 4), ((D_801BF9C4[gSaveContext.options.language] + 0x30) << 2),
-            ((D_801BF9C8[gSaveContext.options.language] + 0x10) << 2), G_TX_RENDERTILE, 0, 0, D_801BF9B0, D_801BF9B0);
+        // #region 2S2H [Cosmetic] Hud Editor
+        HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_B);
+        if (HudEditor_ShouldOverrideDraw()) {
+            if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+                hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+            } else {
+                // All of this information was derived from the original call to gSPTextureRectangle below
+                s16 rectLeft = D_801BF9C4[gSaveContext.options.language];
+                s16 rectTop = D_801BF9C8[gSaveContext.options.language];
+                s16 rectWidth = 0x30;
+                s16 rectHeight = 0x10;
+                s16 dsdx = D_801BF9B0 >> 1;
+                s16 dtdy = D_801BF9B0 >> 1;
+
+                HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+
+                hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+
+                gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2,
+                                (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
+                                G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+            }
+        // #endregion
+        } else {
+            gSPTextureRectangle(
+                OVERLAY_DISP++, (D_801BF9C4[gSaveContext.options.language] * 4),
+                (D_801BF9C8[gSaveContext.options.language] * 4), ((D_801BF9C4[gSaveContext.options.language] + 0x30) << 2),
+                ((D_801BF9C8[gSaveContext.options.language] + 0x10) << 2), G_TX_RENDERTILE, 0, 0, D_801BF9B0, D_801BF9B0);
+        }
     } else if (interfaceCtx->bButtonDoAction != DO_ACTION_NONE) {
         gDPPipeSync(OVERLAY_DISP++);
         gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
@@ -4311,10 +4527,35 @@ void Interface_DrawBButtonIcons(PlayState* play) {
 
         D_801BF9B0 = 1024.0f / (D_801BF9B4[gSaveContext.options.language] / 100.0f);
 
-        gSPTextureRectangle(
-            OVERLAY_DISP++, (D_801BF9C4[gSaveContext.options.language] * 4),
-            (D_801BF9C8[gSaveContext.options.language] * 4), ((D_801BF9C4[gSaveContext.options.language] + 0x30) << 2),
-            ((D_801BF9C8[gSaveContext.options.language] + 0x10) << 2), G_TX_RENDERTILE, 0, 0, D_801BF9B0, D_801BF9B0);
+        // #region 2S2H [Cosmetic] Hud Editor
+        HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_B);
+        if (HudEditor_ShouldOverrideDraw()) {
+            if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+                hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+            } else {
+                // All of this information was derived from the original call to gSPTextureRectangle below
+                s16 rectLeft = D_801BF9C4[gSaveContext.options.language];
+                s16 rectTop = D_801BF9C8[gSaveContext.options.language];
+                s16 rectWidth = 0x30;
+                s16 rectHeight = 0x10;
+                s16 dsdx = D_801BF9B0 >> 1;
+                s16 dtdy = D_801BF9B0 >> 1;
+
+                HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+
+                hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+
+                gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2,
+                                (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
+                                G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+            }
+        // #endregion
+        } else {
+            gSPTextureRectangle(
+                OVERLAY_DISP++, (D_801BF9C4[gSaveContext.options.language] * 4),
+                (D_801BF9C8[gSaveContext.options.language] * 4), ((D_801BF9C4[gSaveContext.options.language] + 0x30) << 2),
+                ((D_801BF9C8[gSaveContext.options.language] + 0x10) << 2), G_TX_RENDERTILE, 0, 0, D_801BF9B0, D_801BF9B0);
+        }
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -6382,6 +6623,20 @@ void Interface_Draw(PlayState* play) {
         // Draw Grandma's Story
         if (interfaceCtx->storyDmaStatus == STORY_DMA_DONE) {
             gSPSegment(OVERLAY_DISP++, 0x07, interfaceCtx->storySegment);
+
+            // #region 2S2H [Cosmetic] Account for different aspect ratios than 4:3
+            // When larger we want to render an additional black rectangle behind the 2d image
+            // to simulate black bars on the side that cover up the world
+            s16 newX = OTRGetRectDimensionFromLeftEdge(0);
+            if (newX < 0) {
+                gDPSetRenderMode(OVERLAY_DISP++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+                gDPSetCombineMode(OVERLAY_DISP++, G_CC_PRIMITIVE, G_CC_PRIMITIVE);
+                gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, 255);
+                gDPFillWideRectangle(OVERLAY_DISP++, newX, 0, OTRGetRectDimensionFromRightEdge(SCREEN_WIDTH),
+                                     SCREEN_HEIGHT);
+            }
+            // #endregion
+
             Gfx_SetupDL39_Opa(play->state.gfxCtx);
 
             gDPSetTextureFilter(POLY_OPA_DISP++, G_TF_POINT);
@@ -6391,8 +6646,8 @@ void Interface_Draw(PlayState* play) {
             gSPLoadUcodeL(OVERLAY_DISP++, gspS2DEX2_fifo);
             gfx = OVERLAY_DISP;
             Prerender_DrawBackground2D(&gfx, sStoryTextures[interfaceCtx->storyType],
-                                       sStoryTLUTs[interfaceCtx->storyType], SCREEN_WIDTH, SCREEN_HEIGHT, 2, 1, 0x8000,
-                                       0x100, 0.0f, 0.0f, 1.0f, 1.0f, 0);
+                                       sStoryTLUTs[interfaceCtx->storyType], SCREEN_WIDTH, SCREEN_HEIGHT, G_IM_FMT_CI,
+                                       G_IM_SIZ_8b, 0x8000, 0x100, 0.0f, 0.0f, 1.0f, 1.0f, 0);
             OVERLAY_DISP = gfx;
             gSPLoadUcode(OVERLAY_DISP++, SysUcode_GetUCode(), SysUcode_GetUCodeData());
 
@@ -6402,7 +6657,9 @@ void Interface_Draw(PlayState* play) {
             gDPSetRenderMode(OVERLAY_DISP++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
             gDPSetCombineMode(OVERLAY_DISP++, G_CC_PRIMITIVE, G_CC_PRIMITIVE);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, R_STORY_FILL_SCREEN_ALPHA);
-            gDPFillRectangle(OVERLAY_DISP++, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+            // #region 2S2H [Cosmetic] Account for different aspect ratios than 4:3
+            gDPFillWideRectangle(OVERLAY_DISP++, newX, 0, OTRGetRectDimensionFromRightEdge(SCREEN_WIDTH),
+                                 SCREEN_HEIGHT);
         }
 
         LifeMeter_Draw(play);
@@ -6416,6 +6673,7 @@ void Interface_Draw(PlayState* play) {
         gDPSetEnvColor(OVERLAY_DISP++, sRupeeCounterIconEnvColors[CUR_UPG_VALUE(UPG_WALLET)].r,
                        sRupeeCounterIconEnvColors[CUR_UPG_VALUE(UPG_WALLET)].g,
                        sRupeeCounterIconEnvColors[CUR_UPG_VALUE(4)].b, 255);
+        HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_RUPEE_COUNTER);
         OVERLAY_DISP =
             Gfx_DrawTexRectIA8(OVERLAY_DISP, gRupeeCounterIconTex, 16, 16, 26, 206, 16, 16, 1 << 10, 1 << 10);
 
@@ -6567,6 +6825,7 @@ void Interface_Draw(PlayState* play) {
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, magicAlpha);
 
+            HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_RUPEE_COUNTER);
             OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sCounterTextures[counterDigits[sp2CC]], 8, 16, sp2CA + 1, 207,
                                              8, 16, 1 << 10, 1 << 10);
 
@@ -6580,8 +6839,33 @@ void Interface_Draw(PlayState* play) {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 100, 100, 100, interfaceCtx->magicAlpha);
             }
 
-            gSPTextureRectangle(OVERLAY_DISP++, sp2CA * 4, 824, (sp2CA * 4) + 0x20, 888, G_TX_RENDERTILE, 0, 0, 1 << 10,
-                                1 << 10);
+            // #region 2S2H [Cosmetic] Hud Editor
+            HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_RUPEE_COUNTER);
+            if (HudEditor_ShouldOverrideDraw()) {
+                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+                    hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+                } else {
+                    // All of this information was derived from the original call to gSPTextureRectangle below
+                    s16 rectLeft = sp2CA;
+                    s16 rectTop = 824 / 4;
+                    s16 rectWidth = 0x20 / 4;
+                    s16 rectHeight = (888 / 4) - rectTop;
+                    s16 dsdx = 512;
+                    s16 dtdy = 512;
+
+                    HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+
+                    hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+
+                    gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2,
+                                    (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
+                                    G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+                }
+            // #endregion
+            } else {
+                gSPTextureRectangle(OVERLAY_DISP++, sp2CA * 4, 824, (sp2CA * 4) + 0x20, 888, G_TX_RENDERTILE, 0, 0, 1 << 10,
+                                    1 << 10);
+            }
         }
 
         Magic_DrawMeter(play);
@@ -6767,13 +7051,16 @@ void Interface_LoadStory(PlayState* play, s32 osMesgFlag) {
             if (interfaceCtx->storySegment == NULL) {
                 break;
             }
-            osCreateMesgQueue(&interfaceCtx->storyMsgQueue, &interfaceCtx->storyMsgBuf, 1);
-            DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest, interfaceCtx->storySegment, interfaceCtx->storyAddr,
-                                   interfaceCtx->storySize, 0, &interfaceCtx->storyMsgQueue, OS_MESG_PTR(NULL));
+            // #region 2S2H [Port] Consider the story already loaded
+            // osCreateMesgQueue(&interfaceCtx->storyMsgQueue, &interfaceCtx->storyMsgBuf, 1);
+            // DmaMgr_SendRequestImpl(&interfaceCtx->dmaRequest, interfaceCtx->storySegment, interfaceCtx->storyAddr,
+            //                        interfaceCtx->storySize, 0, &interfaceCtx->storyMsgQueue, OS_MESG_PTR(NULL));
             interfaceCtx->storyDmaStatus = STORY_DMA_LOADING;
             // fallthrough
         case STORY_DMA_LOADING:
-            if (osRecvMesg(&interfaceCtx->storyMsgQueue, NULL, osMesgFlag) == 0) {
+            // if (osRecvMesg(&interfaceCtx->storyMsgQueue, NULL, osMesgFlag) == 0) {
+            if (true) {
+            // #endregion
                 interfaceCtx->storyDmaStatus = STORY_DMA_DONE;
             }
             break;

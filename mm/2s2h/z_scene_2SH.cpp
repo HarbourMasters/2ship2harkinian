@@ -27,6 +27,7 @@ extern "C" {
 #include "2s2h/resource/type/scenecommand/SetMesh.h"
 #include "2s2h/resource/type/scenecommand/SetObjectList.h"
 #include "2s2h/resource/type/scenecommand/SetLightList.h"
+#include "2s2h/resource/type/scenecommand/SetLightingSettings.h"
 #include "2s2h/resource/type/scenecommand/SetPathways.h"
 #include "2s2h/resource/type/scenecommand/SetTransitionActorList.h"
 #include "2s2h/resource/type/scenecommand/SetSkyboxSettings.h"
@@ -165,12 +166,12 @@ void Scene_CommandObjectList(PlayState* play, LUS::ISceneCommand* cmd) {
     s32 j;
     s32 k;
 
-    // #Region 2S2H [Port] Cleaner version of decomps loops for nicer presentation
+    // #region 2S2H [Port] Cleaner version of decomps loops for nicer presentation
 
     // Loop until a mismatch in the object lists
     // Then clear all object ids past that in the context object list and kill actors for those objects
     for (i = play->objectCtx.numPersistentEntries, k = 0; i < play->objectCtx.numEntries; i++, k++) {
-        if (play->objectCtx.slots[i].id != objList->objects[k]) {
+        if (k >= objList->objects.size() || play->objectCtx.slots[i].id != objList->objects[k]) {
             for (j = i; j < play->objectCtx.numEntries; j++) {
                 play->objectCtx.slots[j].id = 0;
             }
@@ -183,6 +184,8 @@ void Scene_CommandObjectList(PlayState* play, LUS::ISceneCommand* cmd) {
     for (; k < objList->objects.size(); k++) {
         play->objectCtx.slots[play->objectCtx.numEntries++].id = -objList->objects[k];
     }
+
+    // #endregion
 
     // Original Compatible Code Commented
 
@@ -259,7 +262,10 @@ void Scene_CommandTransiActorList(PlayState* play, LUS::ISceneCommand* cmd) {
 }
 
 void Scene_CommandEnvLightSettings(PlayState* play, LUS::ISceneCommand* cmd) {
-    play->envCtx.lightSettingsList = (EnvLightSettings*)cmd->GetRawPointer();
+    LUS::SetLightingSettings* lightSettings = (LUS::SetLightingSettings*)cmd;
+
+    play->envCtx.numLightSettings = lightSettings->settings.size();
+    play->envCtx.lightSettingsList = (EnvLightSettings*)lightSettings->GetRawPointer();
 }
 
 void Scene_CommandTimeSettings(PlayState* play, LUS::ISceneCommand* cmd) {

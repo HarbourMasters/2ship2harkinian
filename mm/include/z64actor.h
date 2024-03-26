@@ -27,6 +27,10 @@ typedef void (*ActorFunc)(struct Actor* this, struct PlayState* play);
 typedef u16 (*NpcGetTextIdFunc)(struct PlayState*, struct Actor*);
 typedef s16 (*NpcUpdateTalkStateFunc)(struct PlayState*, struct Actor*);
 
+// #region 2S2H [Port] Reset func used for cleaning up static variables
+typedef void (*ActorResetFunc)(void);
+// #endregion
+
 typedef struct PosRot {
     /* 0x00 */ Vec3f pos;
     /* 0x0C */ Vec3s rot;
@@ -47,6 +51,9 @@ typedef struct ActorInit {
     /* 0x14 */ ActorFunc destroy;
     /* 0x18 */ ActorFunc update;
     /* 0x1C */ ActorFunc draw;
+    // #region 2S2H [Port]
+    /*      */ ActorResetFunc reset;
+    // #endregion
 } ActorInit; // size = 0x20
 
 typedef enum AllocType {
@@ -450,8 +457,9 @@ typedef enum {
     /* 32 */ ACTOR_DRAW_DMGEFF_ELECTRIC_SPARKS_LARGE
 } ActorDrawDamageEffectType;
 
-#define DEFINE_ACTOR(_name, enumValue, _allocType, _debugName) enumValue,
-#define DEFINE_ACTOR_INTERNAL(_name, enumValue, _allocType, _debugName) enumValue,
+// 2S2H Added columns to actor table: _humanName
+#define DEFINE_ACTOR(_name, enumValue, _allocType, _debugName, _humanName) enumValue,
+#define DEFINE_ACTOR_INTERNAL(_name, enumValue, _allocType, _debugName, _humanName) enumValue,
 #define DEFINE_ACTOR_UNSET(enumValue) enumValue,
 
 typedef enum ActorId {

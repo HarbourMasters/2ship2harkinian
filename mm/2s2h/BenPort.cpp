@@ -43,7 +43,7 @@
 #include "Extractor/Extract.h"
 // OTRTODO
 //#include <functions.h>
-
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 #ifdef ENABLE_CROWD_CONTROL
 #include "Enhancements/crowd-control/CrowdControl.h"
@@ -51,12 +51,12 @@ CrowdControl* CrowdControl::Instance;
 #endif
 
 #include <libultraship/libultraship.h>
-#include <BenGui.hpp>
+#include <BenGui/BenGui.hpp>
 #include "BenJsonConversions.hpp"
 
-#include "Enhancements/controls/SohInputEditorWindow.h"
 #include "Enhancements/GameInteractor/GameInteractor.h"
-#include "Enhancements/mods.h"
+#include "Enhancements/Enhancements.h"
+#include "2s2h/Enhancements/GfxPatcher/AuthenticGfxPatches.h"
 
 // Resource Types/Factories
 #include "2s2h/resource/type/Animation.h"
@@ -86,6 +86,7 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/resource/importer/TextMMFactory.h"
 #include "2s2h/resource/importer/BackgroundFactory.h"
 #include "2s2h/resource/importer/TextureAnimationFactory.h"
+#include "2s2h/resource/importer/KeyFrameFactory.h"
 
 OTRGlobals* OTRGlobals::Instance;
 GameInteractor* GameInteractor::Instance;
@@ -160,6 +161,12 @@ OTRGlobals::OTRGlobals() {
         LUS::ResourceType::SOH_Background, "Background", std::make_shared<LUS::BackgroundFactory>());
     context->GetResourceManager()->GetResourceLoader()->RegisterResourceFactory(
         LUS::ResourceType::TSH_TexAnim, "TextureAnimation", std::make_shared<LUS::TextureAnimationFactory>());
+    context->GetResourceManager()->GetResourceLoader()->RegisterResourceFactory(
+        LUS::ResourceType::TSH_CKeyFrameAnim, "KeyFrameAnim", std::make_shared<LUS::KeyFrameAnimFactory>());
+    context->GetResourceManager()->GetResourceLoader()->RegisterResourceFactory(
+        LUS::ResourceType::TSH_CKeyFrameSkel, "KeyFrameSkel", std::make_shared<LUS::KeyFrameSkelFactory>());
+
+    context->GetControlDeck()->SetSinglePlayerMappingMode(true);
 
     //gSaveStateMgr = std::make_shared<SaveStateMgr>();
     //gRandomizer = std::make_shared<Randomizer>();
@@ -384,7 +391,8 @@ extern "C" void InitOTR() {
     OTRGlobals::Instance = new OTRGlobals();
     GameInteractor::Instance = new GameInteractor();
     BenGui::SetupGuiElements();
-    InitMods();
+    InitEnhancements();
+    GfxPatcher_ApplyNecessaryAuthenticPatches();
 
     clearMtx = (uintptr_t)&gMtxClear;
     //OTRMessage_Init();
@@ -569,10 +577,10 @@ extern "C" void Graph_StartFrame() {
 }
 
 void RunCommands(Gfx* Commands, const std::vector<std::unordered_map<Mtx*, MtxF>>& mtx_replacements) {
-    //for (const auto& m : mtx_replacements) {
-    gfx_run(Commands, {});
+    for (const auto& m : mtx_replacements) {
+        gfx_run(Commands, m);
         gfx_end_frame();
-   // }
+    }
 }
 
 // C->C++ Bridge
@@ -584,8 +592,7 @@ extern "C" void Graph_ProcessGfxCommands(Gfx* commands) {
 
     audio.cv_to_thread.notify_one();
     std::vector<std::unordered_map<Mtx*, MtxF>> mtx_replacements;
-    int target_fps = 20;
-    //OTRGlobals::Instance->GetInterpolationFPS();
+    int target_fps = CVarGetInteger("gInterpolationFPS", 20);
     static int last_fps;
     static int last_update_rate;
     static int time;
@@ -601,31 +608,35 @@ extern "C" void Graph_ProcessGfxCommands(Gfx* commands) {
     }
 
     // time_base = fps * original_fps (one second)
-   // int next_original_frame = fps;
+    int next_original_frame = fps;
 
-    //while (time + original_fps <= next_original_frame) {
-    //    time += original_fps;
-    //    if (time != next_original_frame) {
-    //        mtx_replacements.push_back(FrameInterpolation_Interpolate((float)time / next_original_frame));
-    //    } else {
-    //        mtx_replacements.emplace_back();
-    //    }
-    //}
+    while (time + original_fps <= next_original_frame) {
+        time += original_fps;
+        if (time != next_original_frame) {
+            mtx_replacements.push_back(FrameInterpolation_Interpolate((float)time / next_original_frame));
+        } else {
+            mtx_replacements.emplace_back();
+        }
+    }
 
-    //time -= fps;
+    time -= fps;
 
-     OTRGlobals::Instance->context->GetWindow()->SetTargetFps(original_fps);
-    // OTRGlobals::Instance->context->GetWindow()->SetTargetFps(20);
-    //OTRGlobals::Instance->context->GetWindow()->SetTargetFps(60);
+    OTRGlobals::Instance->context->GetWindow()->SetTargetFps(fps);
 
-    //int threshold = CVarGetInteger("gExtraLatencyThreshold", 80);
-    //OTRGlobals::Instance->context->GetWindow()->SetMaximumFrameLatency(threshold > 0 && target_fps >= threshold ? 2
-                                                                                                                //: 1);
+    int threshold = CVarGetInteger("gExtraLatencyThreshold", 80);
+    OTRGlobals::Instance->context->GetWindow()->SetMaximumFrameLatency(threshold > 0 && target_fps >= threshold ? 2
+                                                                                                                : 1);
+
+    // When the gfx debugger is active, only run with the final mtx
+    if (GfxDebuggerIsDebugging()) {
+        mtx_replacements.clear();
+        mtx_replacements.emplace_back();
+    }
 
     RunCommands(commands, mtx_replacements);
 
-    //last_fps = fps;
-    //last_update_rate = R_UPDATE_RATE;
+    last_fps = fps;
+    last_update_rate = R_UPDATE_RATE;
 
     {
        std::unique_lock<std::mutex> Lock(audio.mutex);
@@ -641,18 +652,23 @@ extern "C" void Graph_ProcessGfxCommands(Gfx* commands) {
     //}
 
     // OTRTODO: FIGURE OUT END FRAME POINT
-    /* if (OTRGlobals::Instance->context->lastScancode != -1)
-         OTRGlobals::Instance->context->lastScancode = -1;*/
+    /* if (OTRGlobals::Instance->context->GetWindow()->lastScancode != -1)
+         OTRGlobals::Instance->context->GetWindow()->lastScancode = -1;*/
 }
 
 float divisor_num = 0.0f;
 
+// Batch a coordinate to have its depth read later by OTRGetPixelDepth
 extern "C" void OTRGetPixelDepthPrepare(float x, float y) {
-    OTRGlobals::Instance->context->GetWindow()->GetPixelDepthPrepare(x, y);
+    // Invert the Y value to match the origin values used in the renderer
+    float adjustedY = SCREEN_HEIGHT - y;
+    OTRGlobals::Instance->context->GetWindow()->GetPixelDepthPrepare(x, adjustedY);
 }
 
 extern "C" uint16_t OTRGetPixelDepth(float x, float y) {
-    return OTRGlobals::Instance->context->GetWindow()->GetPixelDepth(x, y);
+    // Invert the Y value to match the origin values used in the renderer
+    float adjustedY = SCREEN_HEIGHT - y;
+    return OTRGlobals::Instance->context->GetWindow()->GetPixelDepth(x, adjustedY);
 }
 
 extern "C" uint32_t ResourceMgr_GetNumGameVersions() {
@@ -946,6 +962,11 @@ extern "C" void ResourceMgr_PatchGfxByName(const char* path, const char* patchNa
     // index /= 2;
     // }
 
+    // Do not patch custom assets as they most likely do not have the same instructions as authentic assets
+    if (res->GetInitData()->IsCustom) {
+        return;
+    }
+
     Gfx* gfx = (Gfx*)&res->Instructions[index];
 
     if (!originalGfx.contains(path) || !originalGfx[path].contains(patchName)) {
@@ -959,6 +980,11 @@ extern "C" void ResourceMgr_PatchGfxCopyCommandByName(const char* path, const ch
                                                       int sourceIndex) {
     auto res = std::static_pointer_cast<LUS::DisplayList>(
         LUS::Context::GetInstance()->GetResourceManager()->LoadResource(path));
+
+    // Do not patch custom assets as they most likely do not have the same instructions as authentic assets
+    if (res->GetInitData()->IsCustom) {
+        return;
+    }
 
     Gfx* destinationGfx = (Gfx*)&res->Instructions[destinationIndex];
     Gfx sourceGfx = res->Instructions[sourceIndex];
@@ -1044,7 +1070,13 @@ extern "C" SequenceData ResourceMgr_LoadSeqByName(const char* path) {
    SequenceData* sequence = (SequenceData*)ResourceGetDataByName(path);
    return *sequence;
 }
-//
+extern "C" KeyFrameSkeleton* ResourceMgr_LoadKeyFrameSkelByName(const char* path) {
+    return (KeyFrameSkeleton*)ResourceGetDataByName(path);
+}
+
+extern "C" KeyFrameAnimation* ResourceMgr_LoadKeyFrameAnimByName(const char* path) {
+    return (KeyFrameAnimation*)ResourceGetDataByName(path);
+}
 //std::map<std::string, SoundFontSample*> cachedCustomSFs;
 #if 0
 extern "C" SoundFontSample* ReadCustomSample(const char* path) {
@@ -1310,10 +1342,12 @@ extern "C" void OTRGfxPrint(const char* str, void* printer, void (*printImpl)(vo
     }
 }
 
+// Gets the width of the main ImGui window
 extern "C" uint32_t OTRGetCurrentWidth() {
     return OTRGlobals::Instance->context->GetWindow()->GetWidth();
 }
 
+// Gets the height of the main ImGui window
 extern "C" uint32_t OTRGetCurrentHeight() {
     return OTRGlobals::Instance->context->GetWindow()->GetHeight();
 }
@@ -1373,12 +1407,16 @@ extern "C" void OTRControllerCallback(uint8_t rumble) {
     LUS::Context::GetInstance()->GetControlDeck()->GetControllerByPort(0)->GetLED()->SetLEDColor(
         GetColorForControllerLED());
 
-    static std::shared_ptr<SohInputEditorWindow> controllerConfigWindow = nullptr;
+    static std::shared_ptr<LUS::InputEditorWindow> controllerConfigWindow = nullptr;
     if (controllerConfigWindow == nullptr) {
-        controllerConfigWindow = std::dynamic_pointer_cast<SohInputEditorWindow>(
+        controllerConfigWindow = std::dynamic_pointer_cast<LUS::InputEditorWindow>(
             LUS::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Input Editor"));
-    } else if (controllerConfigWindow->TestingRumble()) {
-        return;
+    // TODO: Add SoH Controller Config window rumble testing to upstream LUS config window
+    //       note: the current implementation may not be desired in LUS, as "true" rumble support
+    //             using osMotor calls is planned: https://github.com/Kenix3/libultraship/issues/9
+    //
+    // } else if (controllerConfigWindow->TestingRumble()) {
+    //     return;
     }
 
     if (rumble) {
@@ -1398,6 +1436,16 @@ extern "C" float OTRGetDimensionFromLeftEdge(float v) {
 
 extern "C" float OTRGetDimensionFromRightEdge(float v) {
     return (SCREEN_WIDTH / 2 + SCREEN_HEIGHT / 2 * OTRGetAspectRatio() - (SCREEN_WIDTH - v));
+}
+
+// Gets the width of the current render target area
+extern "C" uint32_t OTRGetGameRenderWidth() {
+    return gfx_current_dimensions.width;
+}
+
+// Gets the height of the current render target area
+extern "C" uint32_t OTRGetGameRenderHeight() {
+    return gfx_current_dimensions.height;
 }
 
 f32 floorf(f32 x);
@@ -1569,7 +1617,7 @@ extern "C" void BenSysFlashrom_WriteData(u8* saveBuffer, u32 pageNum, u32 pageCo
         case FLASH_SLOT_FILE_1_OWL_SAVE:
         case FLASH_SLOT_FILE_2_OWL_SAVE: {
             SaveContext saveContext;
-            memcpy(&saveContext, saveBuffer, sizeof(SaveContext));
+            memcpy(&saveContext, saveBuffer, offsetof(SaveContext, fileNum));
 
             std::string fileName = "save_" + std::to_string(flashSlotFile) + ".sav";
             if (isBackup) fileName += ".bak";
@@ -1641,7 +1689,7 @@ extern "C" s32 BenSysFlashrom_ReadData(void* saveBuffer, u32 pageNum, u32 pageCo
 
             SaveContext saveContext = j;
 
-            memcpy(saveBuffer, &saveContext, sizeof(SaveContext));
+            memcpy(saveBuffer, &saveContext, offsetof(SaveContext, fileNum));
             return result;
         }
         case FLASH_SLOT_FILE_SRAM_HEADER:

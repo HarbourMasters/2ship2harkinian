@@ -93,7 +93,8 @@ void DmSa_TransformLimbDraw(PlayState* play, s32 limbIndex, Actor* thisx) {
 }
 
 Gfx* func_80A2EB58(GraphicsContext* gfxCtx, u32 alpha) {
-    Gfx* gfxHead = GRAPH_ALLOC(gfxCtx, 2 * sizeof(Gfx)); //! @bug this does not allocate enough for 3 Gfx commands;
+    // 2S2H [Port] Fixing allocation size
+    Gfx* gfxHead = GRAPH_ALLOC(gfxCtx, 3 * sizeof(Gfx)); //! @bug this does not allocate enough for 3 Gfx commands;
     Gfx* gfx = gfxHead;
 
     gDPSetRenderMode(gfx++, G_RM_FOG_SHADE_A, G_RM_AA_ZB_XLU_SURF2);

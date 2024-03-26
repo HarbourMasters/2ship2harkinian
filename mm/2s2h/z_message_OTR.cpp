@@ -8,18 +8,6 @@
 #include <message_data_static.h>
 #include <resource/type/Text.h>
 
-// BENTODO: This needs to be cleaned up. It can probably be implemented better.
-struct MessageStruct
-{
-    uint8_t textboxType;
-    uint8_t textboxYPos;
-    uint8_t icon;
-    uint16_t nextMessageID;
-    uint16_t firstItemCost;
-    uint16_t secondItemCost;
-    uint16_t alwaysFFFF;
-};
-
 //extern "C" MessageTableEntry* sNesMessageEntryTablePtr;
 //extern "C" MessageTableEntry* sStaffMessageEntryTablePtr;
 
@@ -39,18 +27,22 @@ MessageTableEntry* OTRMessage_LoadTable(const char* filePath, bool isNES) {
         table[i].typePos = (file->messages[i].textboxType << 4) | file->messages[i].textboxYPos;
         table[i].segment = (const char*)malloc(file->messages[i].msg.size() + 11);
 
-        MessageStruct* msgStruct = (MessageStruct*)table[i].segment;
-        msgStruct->textboxType = file->messages[i].textboxType;
-        msgStruct->textboxYPos = file->messages[i].textboxYPos;
-        msgStruct->icon = file->messages[i].icon;
-        msgStruct->nextMessageID = file->messages[i].nextMessageID;
-        msgStruct->firstItemCost = file->messages[i].firstItemCost;
-        msgStruct->secondItemCost = file->messages[i].secondItemCost;
-        msgStruct->alwaysFFFF = 0xFFFF;
+        auto segment = (char*)table[i].segment;
+
+        segment[0] = file->messages[i].textboxType;
+        segment[1] = file->messages[i].textboxYPos;
+        segment[2] = file->messages[i].icon;
+        segment[3] = (file->messages[i].nextMessageID & 0xFF00) >> 8;
+        segment[4] = (file->messages[i].nextMessageID & 0x00FF);
+        segment[5] = (file->messages[i].firstItemCost & 0xFF00) >> 8;
+        segment[6] = (file->messages[i].firstItemCost & 0x00FF);
+        segment[7] = (file->messages[i].secondItemCost & 0xFF00) >> 8;
+        segment[8] = (file->messages[i].secondItemCost & 0x00FF);
+        segment[9] = 0xFF;
+        segment[10] = 0xFF;
 
         memcpy((void*)(&table[i].segment[11]), file->messages[i].msg.c_str(), file->messages[i].msg.size());
 
-        //table[i].segment = file->messages[i].msg.c_str();
         table[i].msgSize = file->messages[i].msg.size() + 11;
 
         //if (isNES && file->messages[i].id == 0xFFFC)

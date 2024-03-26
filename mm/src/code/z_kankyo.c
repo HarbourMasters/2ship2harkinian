@@ -490,6 +490,10 @@ void Environment_JumpForwardInTime(void);
 void Environment_GraphCallback(GraphicsContext* gfxCtx, void* arg) {
     PlayState* play = (PlayState*)arg;
 
+    // 2S2H [Port] Batch all the coordinates that need their depth checked by calling prepare
+    OTRGetPixelDepthPrepare(sSunDepthTestX, sSunDepthTestY);
+    Lights_GlowCheckPrepare(play);
+
     sSunScreenDepth = SysCfb_GetZBufferPixel(sSunDepthTestX, sSunDepthTestY);
     Lights_GlowCheck(play);
 }
@@ -3120,12 +3124,15 @@ void Environment_SetupSkyboxStars(PlayState* play) {
 
 void Environment_DrawSkyboxStar(Gfx** gfxp, f32 x, f32 y, s32 width, s32 height) {
     Gfx* gfx = *gfxp;
-    u32 xl = x * 4.0f;
+    // #region 2S2H [Cosmetic] Account for different aspect ratios than 4:3
+    // left x coordinate turned into signed value to be used with wide texture rectangle
+    s32 xl = x * 4.0f;
     u32 yl = y * 4.0f;
     u32 xd = width;
     u32 yd = height;
 
-    gSPTextureRectangle(gfx++, xl, yl, xl + xd, yl + yd, 0, 0, 0, 0, 0);
+    gSPWideTextureRectangle(gfx++, xl, yl, xl + xd, yl + yd, 0, 0, 0, 0, 0);
+    // #endregion
 
     *gfxp = gfx;
 }
@@ -3270,7 +3277,16 @@ void Environment_DrawSkyboxStarsImpl(PlayState* play, Gfx** gfxP) {
                        invScale;
             }
 
-            if ((scale >= 1.0f) && (imgX > -1.0f) && (imgX < 1.0f) && (imgY > -1.0f) && (imgY < 1.0f)) {
+            // #region 2S2H [Cosmetic] Account for different aspect ratios than 4:3
+            // An adjusted bounds is calculated based on the new screen width to allow more stars to be rendered
+            f32 adjustedXBounds = 1.0f;
+            if (OTRGetRectDimensionFromRightEdge(SCREEN_WIDTH) > SCREEN_WIDTH) {
+                adjustedXBounds =
+                    (f32)(OTRGetRectDimensionFromRightEdge(SCREEN_WIDTH) - (SCREEN_WIDTH / 2)) / (SCREEN_WIDTH / 2);
+            }
+
+            if ((scale >= 1.0f) && (imgX > -adjustedXBounds) && (imgX < adjustedXBounds) && (imgY > -1.0f) && (imgY < 1.0f)) {
+            // #endregion
                 imgX = (imgX * (SCREEN_WIDTH / 2)) + (SCREEN_WIDTH / 2);
                 imgY = (imgY * -(SCREEN_HEIGHT / 2)) + (SCREEN_HEIGHT / 2);
 

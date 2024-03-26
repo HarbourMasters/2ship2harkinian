@@ -8,7 +8,6 @@
 #include "BenPort.h"
 #include <libultraship/libultraship.h>
 #include "assets/archives/schedule_dma_static/schedule_dma_static_yar.h"
-#include "assets/interface/schedule_static/schedule_static.h"
 #include "assets/archives/icon_item_static/icon_item_static_yar.h"
 #include "assets/archives/icon_item_24_static/icon_item_24_static_yar.h"
 #include "assets/interface/message_static/message_static.h"
@@ -41,7 +40,7 @@ const char* gBombersNotebookPhotos[] = {
     gBombersNotebookPhotoGuruGuruTex,
     gBombersNotebookPhotoBombersTex,
     gBombersNotebookPhotoMadameAromaBrightTex,
-    gBombersNotebookEntryIconExclamationPointTex,
+    gBombersNotebookEntryIconExclamationPointLargeTex,
     gBombersNotebookEntryIconMaskTex,
     gBombersNotebookEntryIconRibbonTex,
 };
@@ -114,8 +113,8 @@ const char* gStaticItemIcons[] = {
     gItemIconChateauRomaniTex,
     gItemIconBottledHylianLoachTex,
     gItemIconEmptyBottle2Tex,
-    gItemIconLandDeedTex,
     gItemIconMoonsTearTex,
+    gItemIconLandDeedTex,
     gItemIconSwampDeedTex,
     gItemIconMountainDeedTex,
     gItemIconOceanDeedTex,
@@ -2160,13 +2159,13 @@ void Message_SetupLoadItemIcon(PlayState* play) {
         msgCtx->nextTextId = font->msgBuf.schar[++msgCtx->msgBufPos] << 8;
         msgCtx->nextTextId |= font->msgBuf.schar[++msgCtx->msgBufPos];
 
-        msgCtx->unk1206C = font->msgBuf.schar[++msgCtx->msgBufPos] << 8;
+        msgCtx->unk1206C = (u8)(font->msgBuf.schar[++msgCtx->msgBufPos] << 8);
         msgCtx->unk1206C |= font->msgBuf.schar[++msgCtx->msgBufPos];
 
-        msgCtx->unk12070 = font->msgBuf.schar[++msgCtx->msgBufPos] << 8;
+        msgCtx->unk12070 = (u8)(font->msgBuf.schar[++msgCtx->msgBufPos] << 8);
         msgCtx->unk12070 |= font->msgBuf.schar[++msgCtx->msgBufPos];
 
-        msgCtx->unk12074 = font->msgBuf.schar[++msgCtx->msgBufPos] << 8;
+        msgCtx->unk12074 = (u8)(font->msgBuf.schar[++msgCtx->msgBufPos] << 8);
         msgCtx->unk12074 |= font->msgBuf.schar[++msgCtx->msgBufPos];
 
         msgCtx->msgBufPos++;
@@ -3359,7 +3358,9 @@ void Message_OpenText(PlayState* play, u16 textId) {
     // BENTODO all of these
     if (msgCtx->textIsCredits) {
         Message_FindCreditsMessage(play, textId);
-        msgCtx->msgLength = font->messageEnd;
+        MessageTableEntry* msgEntry = (MessageTableEntry*)font->messageStart;
+        msgCtx->msgLength = msgEntry->msgSize;
+        memcpy(&font->msgBuf, msgEntry->segment, msgEntry->msgSize);
         //DmaMgr_SendRequest0(&font->msgBuf, SEGMENT_ROM_START(staff_message_data_static) + font->messageStart,
         //                    font->messageEnd);
     } else if (gSaveContext.options.language == LANGUAGE_JPN) {
@@ -3375,7 +3376,7 @@ void Message_OpenText(PlayState* play, u16 textId) {
         //msgCtx->msgLength = font->messageEnd;
         //DmaMgr_SendRequest0(&font->msgBuf, SEGMENT_ROM_START(message_data_static) + font->messageStart,
         //                    font->messageEnd);
-    }   //
+    }
 
     msgCtx->choiceNum = 0;
     msgCtx->textUnskippable = false;
@@ -4365,8 +4366,6 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
     s32 j;
     s16 temp_v0_33;
     s16 temp;
-    // BENTODO
-    msgCtx->textIsCredits = false;
 
     gfx = *gfxP;
 

@@ -16,6 +16,7 @@ void BgF40Switch_Init(Actor* thisx, PlayState* play);
 void BgF40Switch_Destroy(Actor* thisx, PlayState* play);
 void BgF40Switch_Update(Actor* thisx, PlayState* play);
 void BgF40Switch_Draw(Actor* thisx, PlayState* play);
+void BgF40Switch_Reset(void);
 
 void BgF40Switch_CheckAll(BgF40Switch* this, PlayState* play);
 void BgF40Switch_Unpress(BgF40Switch* this, PlayState* play);
@@ -34,6 +35,7 @@ ActorInit Bg_F40_Switch_InitVars = {
     /**/ BgF40Switch_Destroy,
     /**/ BgF40Switch_Update,
     /**/ BgF40Switch_Draw,
+    /**/ BgF40Switch_Reset,
 };
 
 s32 sBgF40SwitchGlobalsInitialized = false;
@@ -191,4 +193,8 @@ void BgF40Switch_Draw(Actor* thisx, PlayState* play) {
 
     Gfx_DrawDListOpa(play, gStoneTowerFloorSwitchDL);
     Gfx_DrawDListOpa(play, gStoneTowerFloorSwitchOutlineDL);
+}
+
+void BgF40Switch_Reset(void) {
+    sBgF40SwitchGlobalsInitialized = false;
 }

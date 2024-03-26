@@ -20,6 +20,7 @@ void EnRacedog_Init(Actor* thisx, PlayState* play);
 void EnRacedog_Destroy(Actor* thisx, PlayState* play);
 void EnRacedog_Update(Actor* thisx, PlayState* play);
 void EnRacedog_Draw(Actor* thisx, PlayState* play);
+void EnRacedog_Reset(void);
 
 void EnRacedog_RaceStart(EnRacedog* this, PlayState* play);
 void EnRacedog_Race(EnRacedog* this, PlayState* play);
@@ -830,4 +831,11 @@ void EnRacedog_Draw(Actor* thisx, PlayState* play) {
                           EnRacedog_OverrideLimbDraw, EnRacedog_PostLimbDraw, &this->actor);
 
     CLOSE_DISPS(play->state.gfxCtx);
+}
+
+void EnRacedog_Reset(void) {
+    sNumberOfDogsFinished = 0;
+    sFirstPlaceIndex = -1;
+    sSprintTimer = 0;
+    sFurthestPoint = -1;
 }

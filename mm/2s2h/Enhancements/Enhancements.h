@@ -2,7 +2,8 @@
 extern "C" {
 #endif
 
-void InitMods();
+void InitEnhancements();
+void RegisterMoonJumpOnL();
 
 #ifdef __cplusplus
 }

@@ -2,6 +2,7 @@
 #include "regs.h"
 #include "functions.h"
 #include "macros.h"
+#include "2s2h/framebuffer_effects.h"
 
 // Variables are put before most headers as a hacky way to bypass bss reordering
 OSViMode sNotebookViMode; // placeholder name
@@ -97,6 +98,9 @@ void SysCfb_Init(void) {
     sCfbHiRes1 = gFramebufferHiRes1;
     sCfbHiRes0 = gFramebufferHiRes0;
     SysCfb_SetLoResMode();
+
+    // 2S2H [Port] Create the framebuffers to be used by the adjusted framebuffer effects
+    FB_CreateFramebuffers();
 }
 
 // Unused
@@ -121,6 +125,9 @@ void* SysCfb_GetWorkBuffer(void) {
 }
 
 u16 SysCfb_GetZBufferPixel(s32 x, s32 y) {
+    // 2S2H [Port] Get the zbuffer pixel value from the renderer directly
+    return OTRGetPixelDepth(x, y);
+#if 0
     u16* zBuff = SysCfb_GetZBuffer();
     u16 val;
 
@@ -130,8 +137,12 @@ u16 SysCfb_GetZBufferPixel(s32 x, s32 y) {
         val = 0;
     }
     return val;
+#endif
 }
 
 s32 SysCfb_GetZBufferInt(s32 x, s32 y) {
-    return Environment_ZBufValToFixedPoint(SysCfb_GetZBufferPixel(x, y) << 2) >> 3;
+    // 2S2H [Port] The value from the renderer does not need to be converted to a fixed point
+    // Simply shifting is all we need to get the proper value
+    return SysCfb_GetZBufferPixel(x, y) >> 1;
+    // return Environment_ZBufValToFixedPoint(SysCfb_GetZBufferPixel(x, y) << 2) >> 3;
 }

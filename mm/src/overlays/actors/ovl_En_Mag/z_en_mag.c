@@ -556,7 +556,9 @@ void EnMag_DrawImageRGBA32(Gfx** gfxp, s16 centerX, s16 centerY, TexturePtr sour
 
     Gfx_SetupDL56_Ptr(&gfx);
 
-    curTexture = (uintptr_t)source;
+    // #region 2S2H [Port] Originally this was just a pointer to the texture, now it's the OTR path so we need to grab it's actual address
+    curTexture = ResourceMgr_LoadTexOrDListByName(source);
+    // #endregion
     rectLeft = centerX - (width / 2);
     rectTop = centerY - (height / 2);
     textureHeight = TMEM_SIZE / (width << 2);

@@ -49,6 +49,7 @@ void Boss01_Init(Actor* thisx, PlayState* play);
 void Boss01_Destroy(Actor* thisx, PlayState* play);
 void Boss01_Update(Actor* thisx, PlayState* play2);
 void Boss01_Draw(Actor* thisx, PlayState* play);
+void Boss01_Reset(void);
 
 void Boss01_SetupIntroCutscene(Boss01* this, PlayState* play);
 void Boss01_IntroCutscene(Boss01* this, PlayState* play);
@@ -646,6 +647,7 @@ ActorInit Boss_01_InitVars = {
     /**/ Boss01_Destroy,
     /**/ Boss01_Update,
     /**/ Boss01_Draw,
+    /**/ Boss01_Reset,
 };
 
 static Color_RGBA8 sDustPrimColor = { 60, 50, 20, 255 };
@@ -3587,4 +3589,15 @@ void Boss01_DrawEffects(PlayState* play) {
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
+}
+
+void Boss01_Reset(void) {
+    sOdolwaBugCount = 0;
+    sOdolwa = NULL;
+    sMothSwarm = NULL;
+    sOdolwaMusicStartTimer = 0;
+
+    for (int i = 0; i < ODOLWA_EFFECT_COUNT; i++) {
+        sOdolwaEffects[i].type = ODOLWA_EFFECT_NONE;
+    }
 }

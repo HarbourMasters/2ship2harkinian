@@ -1913,7 +1913,7 @@ s32 BgCheck_CheckWallImpl(CollisionContext* colCtx, u16 xpFlags, Vec3f* posResul
     dy = posNext->y - posPrev->y;
     dz = posNext->z - posPrev->z;
 
-    if (CVarGetInteger("gDeveloperTools.NoClip", 0) && actor != NULL && actor->id == ACTOR_PLAYER) {
+    if (CVarGetInteger("gCheats.NoClip", 0) && actor != NULL && actor->id == ACTOR_PLAYER) {
         return false;
     }
 

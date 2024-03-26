@@ -38,5 +38,7 @@ typedef struct MapSelectState {
 
 void MapSelect_Init(GameState* thisx);
 void MapSelect_Destroy(GameState* thisx);
+void MapSelect_LoadGame(MapSelectState* thisx, u32 entrance, s32 spawn);
+void MapSelect_LoadConsoleLogo(MapSelectState* thisx);
 
 #endif

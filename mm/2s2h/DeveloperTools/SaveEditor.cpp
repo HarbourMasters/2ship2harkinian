@@ -1,5 +1,5 @@
 #include "SaveEditor.h"
-#include "2s2h/UIWidgets.hpp"
+#include "2s2h/BenGui/UIWidgets.hpp"
 
 extern "C" {
 #include <z64.h>
@@ -28,7 +28,7 @@ const char* MAGIC_LEVEL_NAMES[3] = { "No Magic", "Single Magic", "Double Magic" 
 const int8_t MAGIC_LEVEL_MAX = 2;
 
 InventorySlot selectedInventorySlot = SLOT_NONE;
-std::vector<ItemId> safeItemsForInventorySlot[SLOT_MASK_FIERCE_DEITY] = {};
+std::vector<ItemId> safeItemsForInventorySlot[SLOT_MASK_FIERCE_DEITY + 1] = {};
 
 void initSafeItemsForInventorySlot() {
     for (int i = 0; i < sizeof(gItemSlots); i++) {
@@ -127,7 +127,7 @@ void DrawGeneralTab() {
     ImGui::PushStyleColor(ImGuiCol_FrameBg, UIWidgets::Colors::Gray);
     ImGui::PushStyleVar(ImGuiStyleVar_FrameRounding, 3.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10.0f, 8.0f));
-    char playerNameBuf[9];
+    static char playerNameBuf[9];
     ImGui::InputText("##playerNameInput", getPlayerName(playerNameBuf), 9, ImGuiInputTextFlags_CallbackAlways | ImGuiInputTextFlags_AutoSelectAll, setPlayerName);
     ImGui::PopStyleVar(2);
     ImGui::PopStyleColor(1);

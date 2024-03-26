@@ -15,6 +15,7 @@ void BgIcefloe_Init(Actor* thisx, PlayState* play);
 void BgIcefloe_Destroy(Actor* thisx, PlayState* play);
 void BgIcefloe_Update(Actor* thisx, PlayState* play);
 void BgIcefloe_Draw(Actor* thisx, PlayState* play);
+void BgIcefloe_Reset(void);
 
 void func_80AC4A80(BgIcefloe* this, PlayState* play);
 void BgIcefloe_Grow(BgIcefloe* this, PlayState* play);
@@ -33,6 +34,7 @@ ActorInit Bg_Icefloe_InitVars = {
     /**/ BgIcefloe_Destroy,
     /**/ BgIcefloe_Update,
     /**/ BgIcefloe_Draw,
+    /**/ BgIcefloe_Reset,
 };
 static BgIcefloe* sSpawnedInstances[] = { NULL, NULL, NULL };
 
@@ -174,4 +176,12 @@ void BgIcefloe_Draw(Actor* thisx, PlayState* play) {
     BgIcefloe* this = THIS;
 
     Gfx_DrawDListOpa(play, gIcefloeIcePlatformDL);
+}
+
+void BgIcefloe_Reset(void) {
+    numberSpawned = 0;
+
+    for (int i = 0; i < ARRAY_COUNT(sSpawnedInstances); i++) {
+        sSpawnedInstances[i] = NULL;
+    }
 }

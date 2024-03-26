@@ -15,6 +15,7 @@ void EnLookNuts_Init(Actor* thisx, PlayState* play);
 void EnLookNuts_Destroy(Actor* thisx, PlayState* play);
 void EnLookNuts_Update(Actor* thisx, PlayState* play);
 void EnLookNuts_Draw(Actor* thisx, PlayState* play);
+void EnLookNuts_Reset(void);
 
 void EnLookNuts_SetupPatrol(EnLookNuts* this);
 void EnLookNuts_Patrol(EnLookNuts* this, PlayState* play);
@@ -34,6 +35,7 @@ ActorInit En_Look_Nuts_InitVars = {
     /**/ EnLookNuts_Destroy,
     /**/ EnLookNuts_Update,
     /**/ EnLookNuts_Draw,
+    /**/ EnLookNuts_Reset,
 };
 
 static ColliderCylinderInit sCylinderInit = {
@@ -403,4 +405,8 @@ void EnLookNuts_Draw(Actor* thisx, PlayState* play) {
     SkelAnime_DrawOpa(play, this->skelAnime.skeleton, this->skelAnime.jointTable, NULL, NULL, &this->actor);
 
     CLOSE_DISPS(play->state.gfxCtx);
+}
+
+void EnLookNuts_Reset(void) {
+    D_80A6862C = 0;
 }

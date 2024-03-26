@@ -15,6 +15,7 @@ void EnLiftNuts_Init(Actor* thisx, PlayState* play);
 void EnLiftNuts_Destroy(Actor* thisx, PlayState* play);
 void EnLiftNuts_Update(Actor* thisx, PlayState* play);
 void EnLiftNuts_Draw(Actor* thisx, PlayState* play);
+void EnLiftNuts_Reset(void);
 
 void EnLiftNuts_HandleConversation5(EnLiftNuts* this, PlayState* play);
 
@@ -59,6 +60,7 @@ ActorInit En_Lift_Nuts_InitVars = {
     /**/ EnLiftNuts_Destroy,
     /**/ EnLiftNuts_Update,
     /**/ EnLiftNuts_Draw,
+    /**/ EnLiftNuts_Reset,
 };
 
 typedef enum {
@@ -133,9 +135,18 @@ static ColliderCylinderInit sCylinderInit = {
 
 static CollisionCheckInfoInit2 sColChkInfoInit = { 0, 0, 0, 0, MASS_IMMOVABLE };
 
+// #region 2S2H [Port]
+// Moved static vars out of function scope so they can be cleared in actor reset
+static s16 sMinigameScore = 0;
+static s32 sAddedSharedMemory = false;
+static s16 sFreedSharedMemory = false;
+static s32 sIsAutotalkOn = false;
+// #endregion
+
 void EnLiftNuts_AddSharedMemoryEntry(EnLiftNuts* this, PlayState* play) {
-    static s16 sMinigameScore = 0;
-    static s32 sAddedSharedMemory = false;
+    // 2S2H [Port] Moved to file level scope
+    // static s16 sMinigameScore = 0;
+    // static s32 sAddedSharedMemory = false;
 
     if (!sAddedSharedMemory) {
         Actor_AddSharedMemoryEntry(play, ACTOR_EN_GAMELUPY, &sMinigameScore, sizeof(s16));
@@ -145,7 +156,8 @@ void EnLiftNuts_AddSharedMemoryEntry(EnLiftNuts* this, PlayState* play) {
 }
 
 void EnLiftNuts_FreeSharedMemoryEntry(EnLiftNuts* this, PlayState* play) {
-    static s16 sFreedSharedMemory = false;
+    // 2S2H [Port] Moved to file level scope
+    // static s16 sFreedSharedMemory = false;
 
     if (!sFreedSharedMemory) {
         Actor_FreeSharedMemoryEntry(play, ACTOR_EN_GAMELUPY);
@@ -160,7 +172,8 @@ typedef enum {
 } EnLiftNutsAutotalkMode;
 
 s32 EnLiftNuts_Autotalk(EnLiftNuts* this, EnLiftNutsAutotalkMode mode) {
-    static s32 sIsAutotalkOn = false;
+    // 2S2H [Port] Moved to file level scope
+    // static s32 sIsAutotalkOn = false;
 
     switch (mode) {
         case ENLIFTNUTS_AUTOTALK_MODE_CHECK_OFF:
@@ -1108,4 +1121,11 @@ void EnLiftNuts_Draw(Actor* thisx, PlayState* play) {
     Gfx_SetupDL25_Opa(play->state.gfxCtx);
     SkelAnime_DrawFlexOpa(play, this->skelAnime.skeleton, this->skelAnime.jointTable, this->skelAnime.dListCount,
                           EnLiftNuts_OverrideLimbDraw, EnLiftNuts_PostLimbDraw, thisx);
+}
+
+void EnLiftNuts_Reset(void) {
+    sMinigameScore = 0;
+    sAddedSharedMemory = false;
+    sFreedSharedMemory = false;
+    sIsAutotalkOn = false;
 }

@@ -153,11 +153,13 @@ static const char* sMapGrandTextures[] = {
     map_grand_static_Blob_034BB0, map_grand_static_Blob_034F50,
 };
 
+// BENTODO, can we just set dest insetead of doing a memcpy?
 void MapDisp_GetMapITexture(void* dst, s32 mapCompactId) {
     s32 mapSize = MapDisp_GetSizeOfMapITex(mapCompactId);
 
     if (mapSize != 0) {
-        dst = ResourceMgr_LoadTexOrDListByName(sMapTextures[mapCompactId]);
+        void* data = ResourceMgr_LoadTexOrDListByName(sMapTextures[mapCompactId]);
+        memcpy(dst, data, mapSize);
         //CmpDma_LoadFile(SEGMENT_ROM_START(map_i_static), mapCompactId, dst, MapDisp_GetSizeOfMapITex(mapCompactId));
     }
 }
@@ -1261,6 +1263,7 @@ void* MapDisp_AllocDungeonMap(PlayState* play, void* heap) {
     for (dungeonMapRoomIter = 0; dungeonMapRoomIter < sPauseDungeonMap.textureCount; dungeonMapRoomIter++) {
         s32 mapCompactId = sPauseDungeonMap.mapI_mapCompactId[dungeonMapRoomIter];
 
+        // 2S2H [Port] directly set the pointer to the texture instead of using memcpy
         MapDisp_GetMapITexture(sPauseDungeonMap.mapI_roomTextures[dungeonMapRoomIter], mapCompactId);
         if (dungeonMapRoomIter + 1 < sPauseDungeonMap.textureCount) {
             sPauseDungeonMap.mapI_roomTextures[dungeonMapRoomIter + 1] =

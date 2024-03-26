@@ -6,6 +6,7 @@
 
 #include "z_object_kankyo.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_20 | ACTOR_FLAG_2000000)
 
@@ -539,8 +540,9 @@ void func_808DD3C8(Actor* thisx, PlayState* play2) {
         worldPos.x = this->unk_14C[i].unk_00 + this->unk_14C[i].unk_0C;
         worldPos.y = this->unk_14C[i].unk_04 + this->unk_14C[i].unk_10;
         worldPos.z = this->unk_14C[i].unk_08 + this->unk_14C[i].unk_14;
-
+        FrameInterpolation_RecordOpenChild(this, i);
         Play_GetScreenPos(play, &worldPos, &screenPos);
+
 
         if ((screenPos.x >= 0.0f) && (screenPos.x < SCREEN_WIDTH) && (screenPos.y >= 0.0f) &&
             (screenPos.y < SCREEN_HEIGHT)) {
@@ -572,6 +574,7 @@ void func_808DD3C8(Actor* thisx, PlayState* play2) {
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_XLU_DISP++, gEffDustDL);
         }
+        FrameInterpolation_RecordCloseChild();
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -613,7 +616,7 @@ void func_808DD970(Actor* thisx, PlayState* play2) {
         worldPos.x = this->unk_14C[i].unk_00 + this->unk_14C[i].unk_0C;
         worldPos.y = this->unk_14C[i].unk_04 + this->unk_14C[i].unk_10;
         worldPos.z = this->unk_14C[i].unk_08 + this->unk_14C[i].unk_14;
-
+        FrameInterpolation_RecordOpenChild(this, i);
         Play_GetScreenPos(play, &worldPos, &screenPos);
 
         if ((screenPos.x >= 0.0f) && (screenPos.x < SCREEN_WIDTH) && (screenPos.y >= 0.0f) &&
@@ -639,6 +642,7 @@ void func_808DD970(Actor* thisx, PlayState* play2) {
             gSPSetGeometryMode(POLY_XLU_DISP++, G_FOG);
             gSPDisplayList(POLY_XLU_DISP++, gEffDustDL);
         }
+        FrameInterpolation_RecordCloseChild();
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -673,6 +677,7 @@ void func_808DDE9C(Actor* thisx, PlayState* play2) {
         temp_f22 = this->unk_14C[0].unk_04 + ((Rand_ZeroOne() - 0.7f) * this->unk_144);
         temp_f2 = this->unk_14C[0].unk_08 + ((Rand_ZeroOne() - 0.7f) * this->unk_144);
 
+        FrameInterpolation_RecordOpenChild(this, i);
         if (!((temp_f20 < -252.0f) && (temp_f20 > -500.0f) && (temp_f2 > 3820.0f) && (temp_f2 < 4150.0f))) {
             Matrix_Translate(temp_f20, temp_f22, temp_f2, MTXMODE_NEW);
 
@@ -690,11 +695,13 @@ void func_808DDE9C(Actor* thisx, PlayState* play2) {
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_XLU_DISP++, gFallingRainDropDL);
         }
+        FrameInterpolation_RecordCloseChild();
     }
 
     phi_s5 = false;
     if (player->actor.floorHeight < play->view.eye.y) {
         for (i = 0; i < end; i++) {
+            FrameInterpolation_RecordOpenChild(this, i + end);
             if (!phi_s5) {
                 Gfx_SetupDL25_Xlu(play->state.gfxCtx);
 
@@ -716,6 +723,7 @@ void func_808DDE9C(Actor* thisx, PlayState* play2) {
                           G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                 gSPDisplayList(POLY_XLU_DISP++, gEffShockwaveDL);
             }
+            FrameInterpolation_RecordCloseChild();
         }
     }
 

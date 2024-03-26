@@ -2646,3 +2646,14 @@ void Boss03_SeaweedDraw(Actor* thisx, PlayState* play) {
 }
 
 /* End of Seaweed section */
+
+void Boss03_Reset(void) {
+    D_809E9840 = 0;
+    D_809E9841 = 0;
+    D_809E9842 = 0;
+    sGyorgBossInstance = NULL;
+
+    for (int i = 0; i < GYORG_EFFECT_COUNT; i++) {
+        sGyorgEffects[i].type = GYORG_EFFECT_NONE;
+    }
+}

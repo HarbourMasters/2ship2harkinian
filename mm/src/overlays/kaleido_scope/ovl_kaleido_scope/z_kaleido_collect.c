@@ -60,6 +60,9 @@ s16 sQuestRemainsEnvBlue[] = {
     150, // Unused
 };
 
+// 2S2H [Port] (and in the function) don't do pointer math and access the list of digits directly.
+extern const char* sCounterTextures[];
+
 void KaleidoScope_DrawQuestStatus(PlayState* play) {
     static s16 sQuestRemainsColorTimer = 20;
     static s16 sQuestRemainsColorTimerIndex = 0;
@@ -536,7 +539,8 @@ void KaleidoScope_DrawQuestStatus(PlayState* play) {
             isDigitDrawn = false;
             for (j = 0; j < 3; j++, i += 4) {
                 if ((j >= 2) || (skullTokenDigits[j] != 0) || isDigitDrawn) {
-                    gDPLoadTextureBlock(POLY_OPA_DISP++, ((u8*)gCounterDigit0Tex + (8 * 16 * skullTokenDigits[j])),
+                    // 2S2H [Port] Don't do pointer math and access the texture directly.
+                    gDPLoadTextureBlock(POLY_OPA_DISP++, sCounterTextures[skullTokenDigits[j]],
                                         G_IM_FMT_I, G_IM_SIZ_8b, 8, 16, 0, G_TX_NOMIRROR | G_TX_WRAP,
                                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 

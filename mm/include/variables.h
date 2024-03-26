@@ -1742,7 +1742,7 @@ extern u8 sVoiceMaskPattern[];
 extern ActiveSfx gActiveSfx[7][3];
 extern SeqRequest sSeqRequests[][5];
 extern u8 sNumSeqRequests[5];
-extern u32 sAudioSeqCmds[0xB0];
+extern u32 sAudioSeqCmds[0x100];
 extern ActiveSequence gActiveSeqs[];
 extern u8 sResetAudioHeapTimer;
 extern u16 sResetAudioHeapFadeReverbVolume;
