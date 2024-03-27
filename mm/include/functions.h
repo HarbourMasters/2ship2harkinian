@@ -9,6 +9,7 @@ extern "C" {
 #include "z64.h"
 #include "BenPort.h"
 #include "libultraship/luslog.h"
+
 #include <public/bridge/consolevariablebridge.h>
 
 void bootproc(void);
