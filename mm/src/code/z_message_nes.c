@@ -920,13 +920,16 @@ void Message_DrawTextNES(PlayState* play, Gfx** gfxP, u16 textDrawPos) {
     }
 
     if (msgCtx->textDelayTimer == 0) {
-        msgCtx->textDrawPos = i + 1;
+        msgCtx->textDrawPos = i + (CVarGetInteger("gEnhancements.TimeSavers.FastText", 0) ? 10 : 1);
         msgCtx->textDelayTimer = 0;
         if (msgCtx->msgMode == MSGMODE_9) {
             msgCtx->msgMode = MSGMODE_TEXT_DISPLAYING;
         }
     } else {
         msgCtx->textDelayTimer--;
+        if (CVarGetInteger("gEnhancements.TimeSavers.FastText", 0)) {
+            msgCtx->textDelayTimer = 0;
+        }
     }
 
     *gfxP = gfx;
