@@ -6,7 +6,7 @@
 #include "Resource.h"
 #include <libultraship/libultra/types.h>
 
-namespace LUS {
+namespace SOH {
 
 enum class SceneCommandID : uint8_t {
     SetStartPositionList = 0x00,
@@ -48,10 +48,10 @@ enum class SceneCommandID : uint8_t {
     Error = 0xFF
 };
 
-class ISceneCommand : public IResource {
+class ISceneCommand : public LUS::IResource {
 public:
     using IResource::IResource;
-    ISceneCommand() : IResource(std::shared_ptr<ResourceInitData>()) {}
+    ISceneCommand() : IResource(std::shared_ptr<LUS::ResourceInitData>()) {}
     SceneCommandID cmdId;
 };
 
@@ -64,4 +64,4 @@ template <class T> class SceneCommand : public ISceneCommand {
     }
 };
 
-}; // namespace LUS
+}; // namespace SOH

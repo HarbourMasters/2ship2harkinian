@@ -2,7 +2,7 @@
 #include "Resource.h"
 #include "SceneCommand.h"
 
-namespace LUS {
+namespace SOH {
 typedef struct {
     int16_t unk_0;
     int16_t unk_2;

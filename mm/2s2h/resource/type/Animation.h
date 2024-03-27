@@ -3,7 +3,7 @@
 #include "Resource.h"
 #include <libultraship/libultra/types.h>
 
-namespace LUS {
+namespace SOH {
   enum class AnimationType {
       Normal = 0,
       Link = 1,
@@ -63,11 +63,12 @@ namespace LUS {
     TransformUpdateIndex transformUpdateIndex;
   };
 
-  class Animation : public Resource<AnimationData> {
+  class Animation : public LUS::Resource<AnimationData> {
     public:
       using Resource::Resource;
 
-      Animation() : Resource(std::shared_ptr<ResourceInitData>()) {}
+      Animation() : Resource(std::shared_ptr<LUS::ResourceInitData>()) {
+      }
 
       AnimationData* GetPointer();
       size_t GetPointerSize();
@@ -84,4 +85,4 @@ namespace LUS {
       std::vector<TransformData> transformDataArr;
       std::vector<int16_t> copyValuesArr;
   };
-}; // namespace LUS
+}; // namespace SOH

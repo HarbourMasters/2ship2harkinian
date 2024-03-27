@@ -2,14 +2,11 @@
 
 #include <cstdint>
 #include <vector>
-#include <memory>
-#include <string>
 #include "Resource.h"
 #include "SceneCommand.h"
-// #include <libultraship/libultra/types.h>
 #include "z64math.h"
 
-namespace LUS {
+namespace SOH {
 typedef struct {
     /* 0x00 */ s16   id;
     /* 0x02 */ Vec3s pos;
@@ -27,4 +24,4 @@ class SetActorList : public SceneCommand<ActorEntry> {
     uint32_t numActors;
     std::vector<ActorEntry> actorList;
 };
-}; // namespace LUS
+}; // namespace SOH

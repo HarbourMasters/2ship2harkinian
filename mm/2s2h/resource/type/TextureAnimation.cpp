@@ -1,6 +1,6 @@
 #include "TextureAnimation.h"
 
-namespace LUS {
+namespace SOH {
 TextureAnimation::~TextureAnimation() {
     for (auto& a : anims) {
         switch ((TextureAnimationParamsType)a.type) {
@@ -33,4 +33,4 @@ AnimatedMaterial* TextureAnimation::GetPointer() {
 size_t TextureAnimation::GetPointerSize() {
     return anims.size() * sizeof(AnimatedMaterial);
 }
-} // namespace LUS
+} // namespace SOH

@@ -1,8 +1,8 @@
 #include "KeyFrame.h"
 
-namespace LUS {
+namespace SOH {
 
-LUS::KeyFrameSkel::~KeyFrameSkel() { 
+KeyFrameSkel::~KeyFrameSkel() { 
     delete[] skelData.limbsFlex;
 }
 
@@ -15,14 +15,14 @@ size_t KeyFrameSkel::GetPointerSize() {
 }
 
 
-LUS::KeyFrameAnim::~KeyFrameAnim() {
+KeyFrameAnim::~KeyFrameAnim() {
     delete[] animData.bitFlags;
     delete[] animData.keyFrames;
     delete[] animData.kfNums;
     delete[] animData.presetValues;
 }
 
-KeyFrameAnimationData* LUS::KeyFrameAnim::GetPointer() {
+KeyFrameAnimationData* KeyFrameAnim::GetPointer() {
     return &animData;
 }
 

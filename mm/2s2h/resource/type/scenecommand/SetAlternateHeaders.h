@@ -2,8 +2,6 @@
 
 #include <cstdint>
 #include <vector>
-#include <memory>
-#include <string>
 #include "Resource.h"
 #include "SceneCommand.h"
 #include "2s2h/resource/type/Scene.h"
@@ -11,8 +9,7 @@
 #include <libultraship/libultra/types.h>
 
 
-namespace LUS {
-
+namespace SOH {
 class SetAlternateHeaders : public SceneCommand<void> {
   public:
     using SceneCommand::SceneCommand;
@@ -23,4 +20,4 @@ class SetAlternateHeaders : public SceneCommand<void> {
     uint32_t numHeaders;
     std::vector<std::shared_ptr<Scene>> headers;
 };
-}; // namespace LUS
+}; // namespace SOH

@@ -1,6 +1,6 @@
 #include "TextMM.h"
 
-namespace LUS {
+namespace SOH {
 MessageEntryMM* TextMM::GetPointer() {
     return messages.data();
 }
@@ -8,4 +8,4 @@ MessageEntryMM* TextMM::GetPointer() {
 size_t TextMM::GetPointerSize() {
 	return messages.size() * sizeof(MessageEntryMM);
 }
-} // namespace LUS
+} // namespace SOH
