@@ -5,9 +5,9 @@
 #include <Vertex.h>
 extern "C" {
 #include "global.h"
-#include "vt.h"
-#include <z64scene.h>
+extern uintptr_t gSegments[NUM_SEGMENTS];
 }
+
 LUS::IResource* OTRPlay_LoadFile(PlayState* play, const char* fileName) {
     auto res = LUS::Context::GetInstance()->GetResourceManager()->LoadResource(fileName);
     return res.get();

@@ -12,6 +12,7 @@
 #include "z64view.h"
 #include "interface/parameter_static/parameter_static.h"
 #include "misc/title_static/title_static.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include <string.h>
 
 s32 D_808144F10 = 100;
@@ -1846,6 +1847,8 @@ void FileSelect_ConfigModeDraw(GameState* thisx) {
     FileSelect_SetWindowVtx(&this->state);
     FileSelect_SetWindowContentVtx(&this->state);
 
+    FrameInterpolation_RecordOpenChild(this, this->configMode);
+
     if ((this->configMode != CM_NAME_ENTRY) && (this->configMode != CM_START_NAME_ENTRY)) {
         gDPPipeSync(POLY_OPA_DISP++);
         gDPSetCombineMode(POLY_OPA_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
@@ -1936,6 +1939,8 @@ void FileSelect_ConfigModeDraw(GameState* thisx) {
     gDPPipeSync(POLY_OPA_DISP++);
 
     FileSelect_SetView(this, 0.0f, 0.0f, 64.0f);
+
+    FrameInterpolation_RecordCloseChild();
 
     CLOSE_DISPS(this->state.gfxCtx);
 }
@@ -2377,7 +2382,10 @@ void FileSelect_Main(GameState* thisx) {
     FileSelect_PulsateCursor(&this->state);
     gFileSelectUpdateFuncs[this->menuMode](&this->state);
     FileSelect_UpdateAndDrawSkybox(this);
+
+    FrameInterpolation_StartRecord();
     gFileSelectDrawFuncs[this->menuMode](&this->state);
+    FrameInterpolation_StopRecord();
 
     Gfx_SetupDL39_Opa(this->state.gfxCtx);
 

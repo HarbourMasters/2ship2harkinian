@@ -1,5 +1,4 @@
 #include "global.h"
-#include <libultraship/bridge.h>
 
 /**
  * Spawn an object file of a specified ID that will persist through room changes.
