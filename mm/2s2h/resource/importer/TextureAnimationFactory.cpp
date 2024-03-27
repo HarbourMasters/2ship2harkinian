@@ -52,8 +52,8 @@ std::shared_ptr<LUS::IResource> ResourceFactoryBinaryTextureAnimationV0::ReadRes
 
                 size_t keyFrameSize = reader->ReadUInt16();
                 if (keyFrameSize != 0) {
-                    e->keyFrames = new uint16_t[frames];
-                    for (size_t i = 0; i < frames; i++) {
+                    e->keyFrames = new uint16_t[keyFrameSize];
+                    for (size_t i = 0; i < keyFrameSize; i++) {
                         e->keyFrames[i] = reader->ReadUInt16();
                     }
                 } else {
