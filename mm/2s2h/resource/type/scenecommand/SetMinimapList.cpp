@@ -1,13 +1,13 @@
 #include "SetMinimapList.h"
 
-namespace LUS {
+namespace SOH {
 
-MinimapListData* LUS::SetMinimapList::GetPointer() {
+MinimapListData* SetMinimapList::GetPointer() {
     return &list;
 }
 
-size_t LUS::SetMinimapList::GetPointerSize() {
+size_t SetMinimapList::GetPointerSize() {
     return sizeof(list);
 }
 
-} // namespace LUS
+} // namespace SOH

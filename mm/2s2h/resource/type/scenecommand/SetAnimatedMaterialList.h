@@ -3,21 +3,22 @@
 #include "Resource.h"
 #include "SceneCommand.h"
 #include <libultraship/libultra/types.h>
+#include "2s2h/resource/type/TextureAnimation.h"
 
-namespace LUS {
+namespace SOH {
 typedef struct {
     /* 0x0 */ int8_t segment;
     /* 0x2 */ int16_t type;
     /* 0x4 */ void* params;
 } AnimatedMaterialData; // size = 0x8
 
-class SetAnimatedMaterialList : public SceneCommand<AnimatedMaterialData> {
+class SetAnimatedMaterialList : public SceneCommand<AnimatedMaterial> {
   public:
     using SceneCommand::SceneCommand;
 
-    AnimatedMaterialData* GetPointer();
+    AnimatedMaterial* GetPointer();
     size_t GetPointerSize();
 
-    AnimatedMaterialData* mat;
+    AnimatedMaterial* mat;
 };
-}; // namespace LUS
+}; // namespace SOH

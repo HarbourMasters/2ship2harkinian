@@ -132,7 +132,7 @@ void Keyframe_InitFlex(KFSkelAnimeFlex* kfSkelAnime, KeyFrameSkeleton* skeleton,
         skel = (KeyFrameSkeleton*)ResourceMgr_LoadKeyFrameSkelByName(skeleton);
     }
     if (ResourceMgr_OTRSigCheck(anim)) {
-        anim = (KeyFrameSkeleton*)ResourceMgr_LoadKeyFrameSkelByName(animation);
+        anim = (KeyFrameAnimation*)ResourceMgr_LoadKeyFrameAnimByName(animation);
     }
     
     kfSkelAnime->skeleton = skel;

@@ -30,7 +30,6 @@ static const std::unordered_map<int32_t, const char*> textureFilteringMap = {
 
 static const std::unordered_map<LUS::AudioBackend, const char*> audioBackendsMap = {
     { LUS::AudioBackend::WASAPI, "Windows Audio Session API" },
-    { LUS::AudioBackend::PULSE, "PulseAudio" },
     { LUS::AudioBackend::SDL, "SDL" },
 };
 
