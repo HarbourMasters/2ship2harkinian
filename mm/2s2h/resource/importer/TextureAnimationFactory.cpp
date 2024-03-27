@@ -50,31 +50,43 @@ std::shared_ptr<LUS::IResource> ResourceFactoryBinaryTextureAnimationV0::ReadRes
                 e->keyFrameLength = reader->ReadUInt16();
                 e->keyFrameCount = reader->ReadUInt16();
 
-                size_t frames = reader->ReadUInt32();
-
-                e->keyFrames = new uint16_t[frames];
-                for (size_t i = 0; i < frames; i++) {
-                    e->keyFrames[i] = reader->ReadUInt16();
+                size_t keyFrameSize = reader->ReadUInt16();
+                if (keyFrameSize != 0) {
+                    e->keyFrames = new uint16_t[keyFrameSize];
+                    for (size_t i = 0; i < keyFrameSize; i++) {
+                        e->keyFrames[i] = reader->ReadUInt16();
+                    }
+                } else {
+                    e->keyFrames = nullptr;
                 }
-                size_t primColorSize = reader->ReadUInt32();
-                e->primColors = new F3DPrimColor[primColorSize];
 
-                for (size_t i = 0; i < primColorSize; i++) {
-                    e->primColors[i].r = reader->ReadUByte();
-                    e->primColors[i].g = reader->ReadUByte();
-                    e->primColors[i].b = reader->ReadUByte();
-                    e->primColors[i].a = reader->ReadUByte();
-                    e->primColors[i].lodFrac = reader->ReadUByte();
+                size_t primColorSize = reader->ReadUInt16();
+                if (primColorSize != 0) {
+                    e->primColors = new F3DPrimColor[primColorSize];
+                    for (size_t i = 0; i < primColorSize; i++) {
+                        e->primColors[i].r = reader->ReadUByte();
+                        e->primColors[i].g = reader->ReadUByte();
+                        e->primColors[i].b = reader->ReadUByte();
+                        e->primColors[i].a = reader->ReadUByte();
+                        e->primColors[i].lodFrac = reader->ReadUByte();
+                    }
+                } else {
+                    e->primColors = nullptr;
                 }
 
                 size_t envColorSize = reader->ReadUInt16();
-                e->envColors = new F3DEnvColor[envColorSize];
-                for (size_t i = 0; i < envColorSize; i++) {
-                    e->envColors[i].r = reader->ReadUByte();
-                    e->envColors[i].g = reader->ReadUByte();
-                    e->envColors[i].b = reader->ReadUByte();
-                    e->envColors[i].a = reader->ReadUByte();
+                if (envColorSize != 0) {
+                    e->envColors = new F3DEnvColor[envColorSize];
+                    for (size_t i = 0; i < envColorSize; i++) {
+                        e->envColors[i].r = reader->ReadUByte();
+                        e->envColors[i].g = reader->ReadUByte();
+                        e->envColors[i].b = reader->ReadUByte();
+                        e->envColors[i].a = reader->ReadUByte();
+                    }
+                } else {
+                    e->envColors = nullptr;
                 }
+
                 anim.params = e;
                 break;
             }
