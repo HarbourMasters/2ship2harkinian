@@ -5,7 +5,7 @@
 #include "Resource.h"
 #include <libultraship/libultra/types.h>
 
-namespace LUS {
+namespace SOH {
 // TODO: we've moved away from using classes for this stuff
 
 class MessageEntryMM {
@@ -22,11 +22,11 @@ class MessageEntryMM {
     std::string msg;
 };
 
-class TextMM : public Resource<MessageEntryMM> {
+class TextMM : public LUS::Resource<MessageEntryMM> {
 public:
   using Resource::Resource;
 
-    TextMM() : Resource(std::shared_ptr<ResourceInitData>()) {
+    TextMM() : Resource(std::shared_ptr<LUS::ResourceInitData>()) {
   }
 
     MessageEntryMM* GetPointer();
@@ -34,4 +34,4 @@ public:
 
     std::vector<MessageEntryMM> messages;
 };
-}; // namespace LUS
+}; // namespace SOH

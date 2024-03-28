@@ -243,36 +243,16 @@ typedef enum {
     /*    -1 */ CS_CAM_STOP // OoT Remnant
 } CutsceneCmd;
 
-namespace LUS {
-std::shared_ptr<IResource> CutsceneFactory::ReadResource(std::shared_ptr<ResourceInitData> initData,
-                                                         std::shared_ptr<BinaryReader> reader) {
-    auto resource = std::make_shared<Cutscene>(initData);
-    std::shared_ptr<ResourceVersionFactory> factory = nullptr;
+namespace SOH {
 
-    switch (resource->GetInitData()->ResourceVersion) {
-        case 0:
-            factory = std::make_shared<CutsceneFactoryV0>();
-            break;
-    }
-
-    if (factory == nullptr) {
-        SPDLOG_ERROR("Failed to load Cutscene with version {}", resource->GetInitData()->ResourceVersion);
-        return nullptr;
-    }
-
-    factory->ParseFileBinary(reader, resource);
-
-    return resource;
-}
-
-static inline uint32_t read_CMD_BBBB(std::shared_ptr<BinaryReader> reader) {
+static inline uint32_t read_CMD_BBBB(std::shared_ptr<LUS::BinaryReader> reader) {
     uint32_t v;
     reader->Read((char*)&v, sizeof(uint32_t));
 
     return v;
 }
 
-static inline uint32_t read_CMD_BBH(std::shared_ptr<BinaryReader> reader) {
+static inline uint32_t read_CMD_BBH(std::shared_ptr<LUS::BinaryReader> reader) {
     uint32_t v;
     reader->Read((char*)&v, sizeof(uint32_t));
 
@@ -287,7 +267,7 @@ static inline uint32_t read_CMD_BBH(std::shared_ptr<BinaryReader> reader) {
     return v;
 }
 
-static inline uint32_t read_CMD_HBB(std::shared_ptr<BinaryReader> reader) {
+static inline uint32_t read_CMD_HBB(std::shared_ptr<LUS::BinaryReader> reader) {
     uint32_t v;
     reader->Read((char*)&v, sizeof(uint32_t));
 
@@ -302,7 +282,7 @@ static inline uint32_t read_CMD_HBB(std::shared_ptr<BinaryReader> reader) {
     return v;
 }
 
-static inline uint32_t read_CMD_HH(std::shared_ptr<BinaryReader> reader) {
+static inline uint32_t read_CMD_HH(std::shared_ptr<LUS::BinaryReader> reader) {
     uint32_t v;
     reader->Read((char*)&v, sizeof(uint32_t));
 
@@ -320,10 +300,13 @@ static inline uint32_t read_CMD_HH(std::shared_ptr<BinaryReader> reader) {
     return v;
 }
 
-void LUS::CutsceneFactoryV0::ParseFileBinary(std::shared_ptr<BinaryReader> reader,
-                                             std::shared_ptr<IResource> resource) {
-    std::shared_ptr<Cutscene> cutscene = std::static_pointer_cast<Cutscene>(resource);
-    ResourceVersionFactory::ParseFileBinary(reader, cutscene);
+std::shared_ptr<LUS::IResource> ResourceFactoryBinaryCutsceneV0::ReadResource(std::shared_ptr<LUS::File> file) {
+    if (!FileHasValidFormatAndReader(file)) {
+        return nullptr;
+    }
+
+    auto cutscene = std::make_shared<Cutscene>(file->InitData);
+    auto reader = std::get<std::shared_ptr<LUS::BinaryReader>>(file->Reader);
 
     uint32_t numEntries = reader->ReadUInt32();
     cutscene->commands.reserve(numEntries);
@@ -335,9 +318,161 @@ void LUS::CutsceneFactoryV0::ParseFileBinary(std::shared_ptr<BinaryReader> reade
     cutscene->commands.push_back(cutscene->endFrame);
 
     // BENTODO detect the game
-    ParseFileBinaryMM(reader, cutscene);
+    while (true) {
+        uint32_t command = reader->ReadUInt32();
+        cutscene->commands.push_back(command);
+
+        if (((command >= CS_CMD_ACTOR_CUE_100) && (command <= CS_CMD_ACTOR_CUE_149)) ||
+            (command == CS_CMD_ACTOR_CUE_201) ||
+            ((command >= CS_CMD_ACTOR_CUE_450) && (command <= CS_CMD_ACTOR_CUE_599))) {
+            goto actorCue;
+        }
+
+        switch (command) {
+            case CS_CMD_TEXT: {
+                uint32_t size = reader->ReadUInt32();
+                cutscene->commands.push_back(size);
+
+                for (uint32_t i = 0; i < size; i++) {
+                    cutscene->commands.push_back(read_CMD_HH(reader));
+                    cutscene->commands.push_back(read_CMD_HH(reader));
+                    cutscene->commands.push_back(read_CMD_HH(reader));
+                }
+                break;
+            }
+            case CS_CMD_CAMERA_SPLINE: {
+                uint32_t size = reader->ReadUInt32();
+                cutscene->commands.push_back(size);
+
+                while (1) {
+                    // We need to store the first half of the header to get the number of entries.
+                    uint32_t header1 = read_CMD_HH(reader);
+
+                    uint32_t numEntries = header1 & 0xFFFF;
+
+                    cutscene->commands.push_back(header1);
+                    if (numEntries == 0xFFFF) {
+                        break; // Last command is HH(0xFFFF, 0004) which was already read in and pushed into the vector
+                    }
+                    cutscene->commands.push_back(read_CMD_HH(reader));
+
+                    for (size_t j = 0; j < numEntries * 2; j++) {
+                        cutscene->commands.push_back(read_CMD_BBH(reader));
+                        cutscene->commands.push_back(read_CMD_HH(reader));
+                        cutscene->commands.push_back(read_CMD_HH(reader));
+                    }
+
+                    for (size_t j = 0; j < numEntries; j++) {
+                        cutscene->commands.push_back(read_CMD_HH(reader));
+                        cutscene->commands.push_back(read_CMD_HH(reader));
+                    }
+                }
+
+                // for (uint32_t i = 0; i < (size / 4); i++) {
+
+                // cutscene->commands.push_back(read_CMD_HH(reader));
+                //}
+                break;
+            }
+            case CS_CMD_MISC:
+            case CS_CMD_LIGHT_SETTING:
+            case CS_CMD_TRANSITION:
+            case CS_CMD_MOTION_BLUR:
+            case CS_CMD_GIVE_TATL:
+            case CS_CMD_START_SEQ:
+            case CS_CMD_STOP_SEQ:
+            case CS_CMD_SFX_REVERB_INDEX_2:
+            case CS_CMD_SFX_REVERB_INDEX_1:
+            case CS_CMD_MODIFY_SEQ:
+            case CS_CMD_START_AMBIENCE:
+            case CS_CMD_FADE_OUT_AMBIENCE:
+            case CS_CMD_DESTINATION:
+            case CS_CMD_CHOOSE_CREDITS_SCENES:
+            default: {
+                uint32_t size = reader->ReadUInt32();
+                cutscene->commands.push_back(size);
+
+                for (uint32_t i = 0; i < size; i++) {
+                    cutscene->commands.push_back(read_CMD_HH(reader));
+                    cutscene->commands.push_back(read_CMD_HH(reader));
+                }
+                break;
+            }
+            case CS_CMD_TRANSITION_GENERAL: {
+                uint32_t size = reader->ReadUInt32();
+                cutscene->commands.push_back(size);
+
+                for (uint32_t i = 0; i < size; i++) {
+                    cutscene->commands.push_back(read_CMD_HH(reader));
+                    cutscene->commands.push_back(read_CMD_HBB(reader));
+                    cutscene->commands.push_back(read_CMD_BBBB(reader));
+                }
+                break;
+            }
+            case CS_CMD_FADE_OUT_SEQ: {
+                uint32_t size = reader->ReadUInt32();
+                cutscene->commands.push_back(size);
+
+                for (uint32_t i = 0; i < size; i++) {
+                    cutscene->commands.push_back(read_CMD_HH(reader));
+                    cutscene->commands.push_back(read_CMD_HH(reader));
+                    cutscene->commands.push_back(reader->ReadUInt32());
+                }
+                break;
+            }
+            case CS_CMD_TIME: {
+                uint32_t size = reader->ReadUInt32();
+                cutscene->commands.push_back(size);
+
+                for (uint32_t i = 0; i < size; i++) {
+                    cutscene->commands.push_back(read_CMD_HH(reader));
+                    cutscene->commands.push_back(read_CMD_HBB(reader));
+                    cutscene->commands.push_back(reader->ReadUInt32());
+                }
+                break;
+            }
+            case CS_CMD_PLAYER_CUE: {
+            actorCue:
+                uint32_t size = reader->ReadUInt32();
+                cutscene->commands.push_back(size);
+                for (uint32_t i = 0; i < size; i++) {
+                    cutscene->commands.push_back(read_CMD_HH(reader));
+                    cutscene->commands.push_back(read_CMD_HH(reader));
+                    cutscene->commands.push_back(read_CMD_HH(reader));
+                    cutscene->commands.push_back(reader->ReadUInt32());
+                    cutscene->commands.push_back(reader->ReadUInt32());
+                    cutscene->commands.push_back(reader->ReadUInt32());
+                    cutscene->commands.push_back(reader->ReadUInt32());
+                    cutscene->commands.push_back(reader->ReadUInt32());
+                    cutscene->commands.push_back(reader->ReadUInt32());
+                    cutscene->commands.push_back(reader->ReadUInt32());
+                    cutscene->commands.push_back(reader->ReadUInt32());
+                    cutscene->commands.push_back(reader->ReadUInt32());
+                }
+                break;
+            }
+            case CS_CMD_RUMBLE: {
+                uint32_t size = reader->ReadUInt32();
+                cutscene->commands.push_back(size);
+
+                for (uint32_t i = 0; i < size; i++) {
+                    cutscene->commands.push_back(read_CMD_HH(reader));
+                    cutscene->commands.push_back(read_CMD_HBB(reader));
+                    cutscene->commands.push_back(read_CMD_BBBB(reader));
+                }
+                break;
+            }
+            case 0xFFFFFFFF: {
+                cutscene->commands.push_back(reader->ReadUInt32());
+                return cutscene;
+            }
+        }
+    }
+
+    return cutscene;
 }
 
+#if 0
 void LUS::CutsceneFactoryV0::ParseFileBinaryOoT(std::shared_ptr<BinaryReader> reader,
                                                 std::shared_ptr<Cutscene> cutscene) {
     while (true) {
@@ -714,159 +849,5 @@ void LUS::CutsceneFactoryV0::ParseFileBinaryOoT(std::shared_ptr<BinaryReader> re
         }
     }
 }
-
-void LUS::CutsceneFactoryV0::ParseFileBinaryMM(std::shared_ptr<BinaryReader> reader,
-                                               std::shared_ptr<Cutscene> cutscene) {
-    while (true) {
-        uint32_t command = reader->ReadUInt32();
-        cutscene->commands.push_back(command);
-
-        if (((command >= CS_CMD_ACTOR_CUE_100) && (command <= CS_CMD_ACTOR_CUE_149)) ||
-            (command == CS_CMD_ACTOR_CUE_201) ||
-            ((command >= CS_CMD_ACTOR_CUE_450) && (command <= CS_CMD_ACTOR_CUE_599))) {
-            goto actorCue;
-        }
-
-        switch (command) {
-            case CS_CMD_TEXT: {
-                uint32_t size = reader->ReadUInt32();
-                cutscene->commands.push_back(size);
-
-                for (uint32_t i = 0; i < size; i++) {
-                    cutscene->commands.push_back(read_CMD_HH(reader));
-                    cutscene->commands.push_back(read_CMD_HH(reader));
-                    cutscene->commands.push_back(read_CMD_HH(reader));
-                }
-                break;
-            }
-            case CS_CMD_CAMERA_SPLINE: {
-                uint32_t size = reader->ReadUInt32();
-                cutscene->commands.push_back(size);
-
-                while (1) {
-                    // We need to store the first half of the header to get the number of entries.
-                    uint32_t header1 = read_CMD_HH(reader);
-                    
-                    uint32_t numEntries = header1 & 0xFFFF;
-
-                    cutscene->commands.push_back(header1);
-                    if (numEntries == 0xFFFF) {
-                        break; //Last command is HH(0xFFFF, 0004) which was already read in and pushed into the vector
-                    }
-                    cutscene->commands.push_back(read_CMD_HH(reader));
-
-                    for (size_t j = 0; j < numEntries * 2; j++) {
-                        cutscene->commands.push_back(read_CMD_BBH(reader));
-                        cutscene->commands.push_back(read_CMD_HH(reader));
-                        cutscene->commands.push_back(read_CMD_HH(reader));
-                    }
-
-                    for (size_t j = 0; j < numEntries; j++) {
-                        cutscene->commands.push_back(read_CMD_HH(reader));
-                        cutscene->commands.push_back(read_CMD_HH(reader));
-                    }
-                }
-
-                //for (uint32_t i = 0; i < (size / 4); i++) {
-                    
-                    //cutscene->commands.push_back(read_CMD_HH(reader));
-                //}
-                break;
-            }
-            case CS_CMD_MISC:
-            case CS_CMD_LIGHT_SETTING:
-            case CS_CMD_TRANSITION:
-            case CS_CMD_MOTION_BLUR:
-            case CS_CMD_GIVE_TATL:
-            case CS_CMD_START_SEQ:
-            case CS_CMD_STOP_SEQ:
-            case CS_CMD_SFX_REVERB_INDEX_2:
-            case CS_CMD_SFX_REVERB_INDEX_1:
-            case CS_CMD_MODIFY_SEQ:
-            case CS_CMD_START_AMBIENCE:
-            case CS_CMD_FADE_OUT_AMBIENCE:
-            case CS_CMD_DESTINATION:
-            case CS_CMD_CHOOSE_CREDITS_SCENES:
-            default: {
-                uint32_t size = reader->ReadUInt32();
-                cutscene->commands.push_back(size);
-
-                for (uint32_t i = 0; i < size; i++) {
-                    cutscene->commands.push_back(read_CMD_HH(reader));
-                    cutscene->commands.push_back(read_CMD_HH(reader));
-                }
-                break;
-            }
-            case CS_CMD_TRANSITION_GENERAL: {
-                uint32_t size = reader->ReadUInt32();
-                cutscene->commands.push_back(size);
-
-                for (uint32_t i = 0; i < size; i++) {
-                    cutscene->commands.push_back(read_CMD_HH(reader));
-                    cutscene->commands.push_back(read_CMD_HBB(reader));
-                    cutscene->commands.push_back(read_CMD_BBBB(reader));
-                }
-                break;
-            }
-            case CS_CMD_FADE_OUT_SEQ: {
-                uint32_t size = reader->ReadUInt32();
-                cutscene->commands.push_back(size);
-
-                for (uint32_t i = 0; i < size; i++) {
-                    cutscene->commands.push_back(read_CMD_HH(reader));
-                    cutscene->commands.push_back(read_CMD_HH(reader));
-                    cutscene->commands.push_back(reader->ReadUInt32());
-                }
-                break;
-            }
-            case CS_CMD_TIME: {
-                uint32_t size = reader->ReadUInt32();
-                cutscene->commands.push_back(size);
-
-                for (uint32_t i = 0; i < size; i++) {
-                    cutscene->commands.push_back(read_CMD_HH(reader));
-                    cutscene->commands.push_back(read_CMD_HBB(reader));
-                    cutscene->commands.push_back(reader->ReadUInt32());
-                }
-                break;
-            }
-            case CS_CMD_PLAYER_CUE: {
-            actorCue:
-                uint32_t size = reader->ReadUInt32();
-                cutscene->commands.push_back(size);
-                for (uint32_t i = 0; i < size; i++) {
-                    cutscene->commands.push_back(read_CMD_HH(reader));
-                    cutscene->commands.push_back(read_CMD_HH(reader));
-                    cutscene->commands.push_back(read_CMD_HH(reader));
-                    cutscene->commands.push_back(reader->ReadUInt32());
-                    cutscene->commands.push_back(reader->ReadUInt32());
-                    cutscene->commands.push_back(reader->ReadUInt32());
-                    cutscene->commands.push_back(reader->ReadUInt32());
-                    cutscene->commands.push_back(reader->ReadUInt32());
-                    cutscene->commands.push_back(reader->ReadUInt32());
-                    cutscene->commands.push_back(reader->ReadUInt32());
-                    cutscene->commands.push_back(reader->ReadUInt32());
-                    cutscene->commands.push_back(reader->ReadUInt32());
-                }
-                break;
-            }
-            case CS_CMD_RUMBLE: {
-                uint32_t size = reader->ReadUInt32();
-                cutscene->commands.push_back(size);
-
-                for (uint32_t i = 0; i < size; i++) {
-                    cutscene->commands.push_back(read_CMD_HH(reader));
-                    cutscene->commands.push_back(read_CMD_HBB(reader));
-                    cutscene->commands.push_back(read_CMD_BBBB(reader));
-                }
-                break;
-            }
-            case 0xFFFFFFFF: {
-                cutscene->commands.push_back(reader->ReadUInt32());
-                return;
-            }
-        }
-    }
-}
-
+#endif
 } // namespace LUS

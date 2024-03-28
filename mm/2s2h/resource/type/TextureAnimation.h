@@ -1,7 +1,7 @@
 #pragma once
 #include "Resource.h"
 
-namespace LUS {
+namespace SOH {
 enum class TextureAnimationParamsType {
     /* 0 */ SingleScroll,
     /* 1 */ DualScroll,
@@ -88,12 +88,12 @@ typedef struct {
     /* 0x4 */ void* params;
 } AnimatedMaterial; // size = 0x8
 
-class TextureAnimation : public Resource<AnimatedMaterial> {
+class TextureAnimation : public LUS::Resource<AnimatedMaterial> {
   public:
     using Resource::Resource;
     ~TextureAnimation();
 
-    TextureAnimation() : Resource(std::shared_ptr<ResourceInitData>()) {
+    TextureAnimation() : Resource(std::shared_ptr<LUS::ResourceInitData>()) {
     }
 
     AnimatedMaterial* GetPointer();
@@ -102,4 +102,4 @@ class TextureAnimation : public Resource<AnimatedMaterial> {
     std::vector<AnimatedMaterial> anims;
     std::vector<std::string> textureCycleTextures;
 };
-} // namespace LUS
+} // namespace SOH

@@ -30,7 +30,6 @@ static const std::unordered_map<int32_t, const char*> textureFilteringMap = {
 
 static const std::unordered_map<LUS::AudioBackend, const char*> audioBackendsMap = {
     { LUS::AudioBackend::WASAPI, "Windows Audio Session API" },
-    { LUS::AudioBackend::PULSE, "PulseAudio" },
     { LUS::AudioBackend::SDL, "SDL" },
 };
 
@@ -264,6 +263,10 @@ extern std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 
 void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
+
+        UIWidgets::CVarCheckbox("Fast Text", "gEnhancements.TimeSavers.FastText", {
+            .tooltip = "Speeds up text rendering, and enables holding of B progress to next message"
+        });
 
         if (mHudEditorWindow) {
             UIWidgets::WindowButton("Hud Editor", "gWindows.HudEditor", mHudEditorWindow, {

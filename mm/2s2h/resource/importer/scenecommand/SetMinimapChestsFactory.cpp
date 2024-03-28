@@ -2,33 +2,11 @@
 #include "2s2h/resource/type/scenecommand/SetMinimapChests.h"
 #include "spdlog/spdlog.h"
 
-namespace LUS {
+namespace SOH {
 
-std::shared_ptr<IResource> SetMinimapChestsFactory::ReadResource(std::shared_ptr<ResourceInitData> initData,
-                                                                      std::shared_ptr<BinaryReader> reader) {
-    auto resource = std::make_shared<SetMinimapChests>(initData);
-    std::shared_ptr<ResourceVersionFactory> factory = nullptr;
-
-    switch (resource->GetInitData()->ResourceVersion) {
-        case 0:
-            factory = std::make_shared<SetMinimapChestsFactoryV0>();
-            break;
-    }
-
-    if (factory == nullptr) {
-        SPDLOG_ERROR("Failed to load SetMinimapChestsFactory with version {}", resource->GetInitData()->ResourceVersion);
-        return nullptr;
-    }
-
-    factory->ParseFileBinary(reader, resource);
-
-    return resource;
-}
-
-void SetMinimapChestsFactoryV0::ParseFileBinary(std::shared_ptr<BinaryReader> reader,
-                                                     std::shared_ptr<IResource> resource) {
-    std::shared_ptr<SetMinimapChests> chests = std::static_pointer_cast<SetMinimapChests>(resource);
-    ResourceVersionFactory::ParseFileBinary(reader, chests);
+std::shared_ptr<LUS::IResource> SetMinimapChestsFactory::ReadResource(std::shared_ptr<LUS::ResourceInitData> initData,
+                                                                      std::shared_ptr<LUS::BinaryReader> reader) {
+    auto chests = std::make_shared<SetMinimapChests>(initData);
 
     ReadCommandId(chests, reader);
 
@@ -45,6 +23,7 @@ void SetMinimapChestsFactoryV0::ParseFileBinary(std::shared_ptr<BinaryReader> re
         d.unk_8 = reader->ReadUInt16();
         chests->chests.emplace_back(d);
     }
-}
 
+    return chests;
+}
 } // namespace LUS

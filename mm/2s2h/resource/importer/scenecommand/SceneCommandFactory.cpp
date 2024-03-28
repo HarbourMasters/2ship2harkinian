@@ -2,8 +2,9 @@
 #include "2s2h/resource/type/scenecommand/SceneCommand.h"
 #include "spdlog/spdlog.h"
 
-namespace LUS {
-void SceneCommandVersionFactory::ReadCommandId(std::shared_ptr<ISceneCommand> command, std::shared_ptr<BinaryReader> reader) {
+namespace SOH {
+void SceneCommandFactoryBinaryV0::ReadCommandId(std::shared_ptr<SOH::ISceneCommand> command,
+                                                std::shared_ptr<LUS::BinaryReader> reader) {
     command->cmdId = (SceneCommandID)reader->ReadInt32();
 }
 }

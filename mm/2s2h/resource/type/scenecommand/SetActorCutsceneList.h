@@ -3,7 +3,7 @@
 #include "Resource.h"
 #include "SceneCommand.h"
 
-namespace LUS {
+namespace SOH {
 typedef struct CutsceneEntry {
     int16_t priority;
     int16_t length;
@@ -24,7 +24,6 @@ class SetActorCutsceneList : public SceneCommand<CutsceneEntry> {
       CutsceneEntry* GetPointer();
       size_t GetPointerSize();
 
-      uint32_t numEntries;
       std::vector<CutsceneEntry> entries;
 };
 

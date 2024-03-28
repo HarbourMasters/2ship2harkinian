@@ -4,38 +4,18 @@
 #include "spdlog/spdlog.h"
 #include "../ZAPDTR/ZAPD/ZCKeyFrame.h"
 
-namespace LUS {
-
-
-
-std::shared_ptr<IResource> KeyFrameSkelFactory::ReadResource(std::shared_ptr<ResourceInitData> initData,
-                                                         std::shared_ptr<BinaryReader> reader) {
-    auto resource = std::make_shared<KeyFrameSkel>(initData);
-    std::shared_ptr<ResourceVersionFactory> factory = nullptr;
-
-    switch (resource->GetInitData()->ResourceVersion) { 
-        case 0:
-            factory = std::make_shared<KeyFrameSkelFactoryV0>();
-            break;
+namespace SOH {
+std::shared_ptr<LUS::IResource> ResourceFactoryBinaryKeyFrameSkel::ReadResource(std::shared_ptr<LUS::File> file) {
+    if (!FileHasValidFormatAndReader(file)) {
+        return nullptr;
     }
 
-    if (factory == nullptr) {
-        SPDLOG_ERROR("Failed to load Key Frame skel with version {}", resource->GetInitData()->ResourceVersion);
-    }
+    auto skel = std::make_shared<KeyFrameSkel>(file->InitData);
+    auto reader = std::get<std::shared_ptr<LUS::BinaryReader>>(file->Reader);
 
-    factory->ParseFileBinary(reader, resource);
-
-    return resource;
-}
-
-void KeyFrameSkelFactoryV0::ParseFileBinary(std::shared_ptr<BinaryReader> reader, std::shared_ptr<IResource> resource) {
-    std::shared_ptr<KeyFrameSkel> skel = std::static_pointer_cast<KeyFrameSkel>(resource);
-    ZKeyframeSkelType skelType;
-
-    ResourceVersionFactory::ParseFileBinary(reader, skel);
     skel->skelData.limbCount = reader->ReadUByte();
     skel->skelData.dListCount = reader->ReadUByte();
-    skelType = (ZKeyframeSkelType)reader->ReadUByte();
+    ZKeyframeSkelType skelType = (ZKeyframeSkelType)reader->ReadUByte();
     uint8_t numLimbs = reader->ReadUByte();
 
     if (skelType == ZKeyframeSkelType::Normal) {
@@ -69,39 +49,22 @@ void KeyFrameSkelFactoryV0::ParseFileBinary(std::shared_ptr<BinaryReader> reader
             limbs[i].flags = reader->ReadUByte();
             limbs[i].callbackIndex = reader->ReadUByte();
         }
-        skel->skelData.limbsFlex = limbs;   
+        skel->skelData.limbsFlex = limbs;
     }
+
+    return skel;
 }
 
-std::shared_ptr<IResource> KeyFrameAnimFactory::ReadResource(std::shared_ptr<ResourceInitData> initData,
-                                                             std::shared_ptr<BinaryReader> reader) {
-    auto resource = std::make_shared<KeyFrameAnim>(initData);
-    std::shared_ptr<ResourceVersionFactory> factory = nullptr;
-
-    switch (resource->GetInitData()->ResourceVersion) {
-        case 0:
-            factory = std::make_shared<KeyFrameAnimFactoryV0>();
-            break;
+std::shared_ptr<LUS::IResource> ResourceFactoryBinaryKeyFrameAnim::ReadResource(std::shared_ptr<LUS::File> file) {
+    if (!FileHasValidFormatAndReader(file)) {
+        return nullptr;
     }
 
-    if (factory == nullptr) {
-        SPDLOG_ERROR("Failed to load Key Frame skel with version {}", resource->GetInitData()->ResourceVersion);
-    }
+    auto anim = std::make_shared<KeyFrameAnim>(file->InitData);
+    auto reader = std::get<std::shared_ptr<LUS::BinaryReader>>(file->Reader);
 
-    factory->ParseFileBinary(reader, resource);
-
-    return resource;
-}
-
-void KeyFrameAnimFactoryV0::ParseFileBinary(std::shared_ptr<BinaryReader> reader, std::shared_ptr<IResource> resource) {
-    std::shared_ptr<KeyFrameAnim> anim = std::static_pointer_cast<KeyFrameAnim>(resource);
-    ZKeyframeSkelType skelType;
-
-    ResourceVersionFactory::ParseFileBinary(reader, anim);
-
-    skelType = (ZKeyframeSkelType)reader->ReadUByte();
-    
-    uint32_t numBitFlags = reader->ReadUInt32();
+    const ZKeyframeSkelType skelType = (ZKeyframeSkelType)reader->ReadUByte();
+    const uint32_t numBitFlags = reader->ReadUInt32();
 
     if (skelType == ZKeyframeSkelType::Normal) {
         anim->animData.bitFlags = new u8[numBitFlags];
@@ -142,6 +105,7 @@ void KeyFrameAnimFactoryV0::ParseFileBinary(std::shared_ptr<BinaryReader> reader
     anim->animData.unk_10[0] = reader->ReadUByte();
 
     anim->animData.duration = reader->ReadUInt16();
-}
 
-} // namespace LUS
+    return anim;
+}
+} // namespace SOH

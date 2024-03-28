@@ -1,5 +1,5 @@
 #include "global.h"
-#include <libultraship/libultraship.h>
+#include <libultraship/bridge.h>
 
 f32 Math_CosS(s16 angle) {
     return coss(angle) * SHT_MINV;
@@ -676,7 +676,6 @@ f32 Math_Vec3f_StepTo(Vec3f* start, Vec3f* target, f32 speed) {
 void Lib_Nop801004FC(void) {
 }
 
-int ResourceMgr_OTRSigCheck(char* imgData);
 void* Lib_SegmentedToVirtual(void* ptr) {
     if (ResourceMgr_OTRSigCheck(ptr)) {
         return ResourceGetDataByName(ptr); // SEGMENTED_TO_VIRTUAL(ptr);

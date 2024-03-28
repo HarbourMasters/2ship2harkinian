@@ -4,8 +4,7 @@
 #include "SceneCommand.h"
 #include <libultraship/libultra/types.h>
 
-
-namespace LUS {
+namespace SOH {
 typedef struct {
     /* 0x00 */ u16 mapId;
     /* 0x02 */ s16 unk2;
