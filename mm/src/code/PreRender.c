@@ -18,6 +18,7 @@
 #include "stackcheck.h"
 #include <stdlib.h>
 #include <string.h>
+#include "public/bridge/gfxbridge.h"
 
 /**
  * Assigns the "save" values in PreRender
@@ -791,7 +792,7 @@ void Prerender_DrawBackground2DImpl(PreRenderBackground2DParams* bg2D, Gfx** gfx
     bg->b.imageFlip = 0;
 
     if (loadS2DEX2) {
-        gSPLoadUcodeL(gfx++, gspS2DEX2_fifo);
+        gSPLoadUcodeL(gfx++, ucode_s2dex);
     }
 
     if ((bg2D->fmt == G_IM_FMT_CI) && (bg2D->tlut != NULL)) {
@@ -836,7 +837,7 @@ void Prerender_DrawBackground2DImpl(PreRenderBackground2DParams* bg2D, Gfx** gfx
     gDPPipeSync(gfx++);
 
     if (loadS2DEX2) {
-        gSPLoadUcode(gfx++, SysUcode_GetUCode(), SysUcode_GetUCodeData());
+        gSPLoadUcode(gfx++, SysUcode_GetUCode());
     }
 
     *gfxp = gfx;
