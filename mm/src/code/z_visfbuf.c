@@ -172,7 +172,7 @@ void VisFbuf_ApplyEffects(VisFbuf* this, Gfx** gfxP, void* source, void* img, s3
                         G_TD_CLAMP | G_TP_NONE | G_CYC_COPY | G_PM_NPRIMITIVE,
                     G_AC_NONE | G_ZS_PIXEL | G_RM_NOOP | G_RM_NOOP2);
 
-    // The function FB_CopyToFramebuffer uses f3dex2 opcodes. We need to load f3dex2, call the function, and then reload s2dex.
+    // The function FB_CopyToFramebuffer uses f3dex2 opcodes, clear and set geometry ode. We need to load f3dex2, call the function, and then reload s2dex.
     gSPLoadUcode(gfx++, ucode_f3dex2);
     FB_CopyToFramebuffer(&gfx, 0, gReusableFrameBuffer, false, NULL);
     gSPLoadUcode(gfx++, ucode_s2dex);
