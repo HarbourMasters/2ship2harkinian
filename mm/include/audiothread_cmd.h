@@ -493,7 +493,7 @@ typedef enum {
  * @param functionPtr
  */
 #define AUDIOCMD_GLOBAL_SET_CUSTOM_FUNCTION(functionType, functionPtr) \
-    AudioThread_QueueCmdPtr(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_SET_CUSTOM_FUNCTION, 0, 0, functionType), (s32)functionPtr)
+    AudioThread_QueueCmdPtr(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_SET_CUSTOM_FUNCTION, 0, 0, functionType), functionPtr)
 
 /**
  * Do something related to the unloaded-type audio data in the heap.
@@ -514,7 +514,7 @@ typedef enum {
  * @param data
  */
 #define AUDIOCMD_GLOBAL_SET_REVERB_DATA(reverbIndex, dataType, data) \
-    AudioThread_QueueCmdS32(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_SET_REVERB_DATA, dataType, reverbIndex, 0), (s32)data)
+    AudioThread_QueueCmdPtr(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_SET_REVERB_DATA, dataType, reverbIndex, 0), (uintptr_t)data)
 
 /**
  * Change the sound mode of audio

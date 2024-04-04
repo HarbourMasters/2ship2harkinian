@@ -7,8 +7,8 @@
 
 namespace LUS {
     typedef struct {
-        /* 0x00 */ uintptr_t start;
-        /* 0x04 */ uintptr_t end;
+        /* 0x00 */ u32 start;
+        /* 0x04 */ u32 end;
         /* 0x08 */ u32 count;
         /* 0x0C */ char unk_0C[0x4];
         /* 0x10 */ s16 state[16]; // only exists if count != 0. 8-byte aligned

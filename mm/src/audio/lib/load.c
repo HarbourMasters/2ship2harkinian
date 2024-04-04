@@ -13,6 +13,8 @@
 #include "global.h"
 #include "buffers.h"
 #include <string.h>
+#include <stdlib.h>
+
 /**
  * SoundFont Notes:
  *
@@ -104,6 +106,7 @@ s32 gAudioCtxInitalized = false;
 
 char** gSequenceToResource;
 size_t gSequenceToResourceSize;
+u8 seqCachePolicyMap[MAX_AUTHENTIC_SEQID];
 char* gFontToResource[256];
 
 void AudioLoad_DecreaseSampleDmaTtls(void) {
@@ -579,11 +582,7 @@ s32 AudioLoad_SyncInitSeqPlayer(s32 playerIndex, s32 seqId, s32 arg2) {
     }
 
     gAudioCtx.seqPlayers[playerIndex].skipTicks = 0;
-    AudioLoad_SyncInitSeqPlayerInternal(playerIndex, seqId, arg2);
-    // Intentionally missing return. Returning the result of the above function
-    // call matches but is UB because it too is missing a return, and using the
-    // result of a non-void function that has failed to return a value is UB.
-    // The callers of this function do not use the return value, so it's fine.
+    return AudioLoad_SyncInitSeqPlayerInternal(playerIndex, seqId, arg2);
 }
 
 s32 AudioLoad_SyncInitSeqPlayerSkipTicks(s32 playerIndex, s32 seqId, s32 skipTicks) {
@@ -592,29 +591,32 @@ s32 AudioLoad_SyncInitSeqPlayerSkipTicks(s32 playerIndex, s32 seqId, s32 skipTic
     }
 
     gAudioCtx.seqPlayers[playerIndex].skipTicks = skipTicks;
-    AudioLoad_SyncInitSeqPlayerInternal(playerIndex, seqId, 0);
-    // Missing return, see above.
+    return AudioLoad_SyncInitSeqPlayerInternal(playerIndex, seqId, 0);
 }
 
 s32 AudioLoad_SyncInitSeqPlayerInternal(s32 playerIndex, s32 seqId, s32 arg2) {
+    if (seqId == 0x39) {
+        int bp = 0;
+    }
+
     SequencePlayer* seqPlayer = &gAudioCtx.seqPlayers[playerIndex];
     u8* seqData;
     s32 index;
     s32 numFonts;
     s32 fontId;
-
-    // if (seqId >= gAudioCtx.numSequences) {
-    //     return 0;
-    // }
+    s8 authCachePolicy = -1; // since 0 is a valid cache policy value
 
     AudioScript_SequencePlayerDisable(seqPlayer);
 
     fontId = 0xFF;
-    index = ((u16*)gAudioCtx.sequenceFontTable)[seqId];
-    numFonts = gAudioCtx.sequenceFontTable[index++];
-
+    if (gAudioCtx.seqReplaced[playerIndex]) {
+        authCachePolicy = seqCachePolicyMap[seqId];
+        seqId = gAudioCtx.seqToPlay[playerIndex];
+    }
     SequenceData seqData2 = ResourceMgr_LoadSeqByName(gSequenceToResource[seqId]);
-    // TODO: seqReplaced
+    if (authCachePolicy != -1) {
+        seqData2.cachePolicy = authCachePolicy;
+    }
 
     for (int i = 0; i < seqData2.numFonts; i++) {
         fontId = seqData2.fonts[i];
@@ -642,6 +644,7 @@ s32 AudioLoad_SyncInitSeqPlayerInternal(s32 playerIndex, s32 seqId, s32 arg2) {
     seqPlayer->delay = 0;
     seqPlayer->finished = false;
     seqPlayer->playerIndex = playerIndex;
+    return 1;
     //! @bug missing return (but the return value is not used so it's not UB)
 }
 
@@ -833,7 +836,13 @@ void* AudioLoad_SyncLoad(s32 tableType, u32 id, s32* didAllocate) {
         } else if (medium2 == mediumUnk) {
             AudioLoad_SyncDmaUnkMedium(romAddr, ramAddr, size, (s16)table->unkMediumParam);
         } else {
-            // AudioLoad_SyncDma(romAddr, ramAddr, size, medium);
+            if (tableType == SEQUENCE_TABLE && seqData != NULL) {
+                AudioLoad_SyncDma(seqData, ramAddr, size, medium);
+            } else if (tableType == FONT_TABLE) {
+                AudioLoad_SyncDma(fnt, ramAddr, size, medium);
+            } else {
+                // AudioLoad_SyncDma(romAddr, ret, size, medium);
+            }
         }
 
         loadStatus = (cachePolicy == CACHE_LOAD_PERMANENT) ? LOAD_STATUS_PERMANENT : LOAD_STATUS_COMPLETE;
@@ -883,7 +892,6 @@ void* AudioLoad_SearchCaches(s32 tableType, s32 id) {
 }
 
 AudioTable* AudioLoad_GetLoadTable(s32 tableType) {
-    *(int*)0 = 0;
     AudioTable* table;
 
     switch (tableType) {
@@ -985,7 +993,7 @@ void AudioLoad_RelocateFont(s32 fontId, SoundFontData* mem, SampleBankRelocInfo*
 void AudioLoad_SyncDma(uintptr_t devAddr, u8* ramAddr, size_t size, s32 medium) {
     OSMesgQueue* msgQueue = &gAudioCtx.syncDmaQueue;
     OSIoMesg* ioMesg = &gAudioCtx.syncDmaIoMesg;
-    size = ALIGN16(size);
+    //size = ALIGN16(size);
 
     Audio_InvalDCache(ramAddr, size);
 
@@ -1281,13 +1289,14 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
     int seqListSize = 0;
     char** seqList = ResourceMgr_ListFiles("audio/sequences*", &seqListSize);
     gSequenceToResourceSize = seqListSize;
-    gSequenceToResource = malloc(gSequenceToResourceSize * sizeof(char*));
-    gAudioCtx.seqLoadStatus = malloc(gSequenceToResourceSize * sizeof(char*));
+    gSequenceToResource = malloc(gSequenceToResourceSize * sizeof(*gSequenceToResource));
+    gAudioCtx.seqLoadStatus = malloc(gSequenceToResourceSize * sizeof(*gAudioCtx.seqLoadStatus));
 
     for (size_t i = 0; i < seqListSize; i++) {
         SequenceData sDat = ResourceMgr_LoadSeqByName(seqList[i]);
-        gSequenceToResource[sDat.seqNumber] = strdup(seqList[i]);
-        // seqCachePolicyMap[sDat.seqNumber] = sDat.cachePolicy;
+        char* seqName = strdup(seqList[i]);
+        gSequenceToResource[sDat.seqNumber] = seqName;
+        seqCachePolicyMap[sDat.seqNumber] = sDat.cachePolicy;
     }
 
     free(seqList);

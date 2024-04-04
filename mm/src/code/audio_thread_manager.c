@@ -9,9 +9,9 @@ void AudioMgr_NotifyTaskDone(AudioMgr* audioMgr) {
         osSendMesg(task->taskQueue, OS_MESG_PTR(NULL), OS_MESG_BLOCK);
     }
 }
-// BENTODO
+
 void AudioMgr_HandleRetrace(AudioMgr* audioMgr) {
-#if 0
+    return;
     static s32 sRetryCount = 10;
     AudioTask* rspTask;
     s32 timerMsgVal = 666;
@@ -45,31 +45,9 @@ void AudioMgr_HandleRetrace(AudioMgr* audioMgr) {
         rspTask = AudioThread_Update();
     }
 
-    if (audioMgr->rspTask != NULL) {
-        while (true) {
-            osSetTimer(&timer, OS_USEC_TO_CYCLES(32000), 0, &audioMgr->cmdQueue, OS_MESG_32(timerMsgVal));
-            osRecvMesg(&audioMgr->cmdQueue, (OSMesg*)&msg, OS_MESG_BLOCK);
-            osStopTimer(&timer);
-            if (msg == timerMsgVal) {
-                osSyncPrintf("AUDIO SP TIMEOUT %08x %08x\n", audioMgr->rspTask, audioMgr->rspTask->task);
-                if (sRetryCount >= 0) {
-                    sRetryCount--;
-                    Sched_SendAudioCancelMsg(audioMgr->sched);
-                } else {
-                    osSyncPrintf("audioMgr.c:もうダメ！死ぬ！\n");
-                    osDestroyThread(NULL);
-                    break;
-                }
-            } else {
-                break;
-            }
-        }
-
-        AudioMgr_NotifyTaskDone(audioMgr);
-    }
+    AudioMgr_NotifyTaskDone(audioMgr);
 
     audioMgr->rspTask = rspTask;
-#endif
 }
 
 void AudioMgr_HandlePreNMI(AudioMgr* audioMgr) {

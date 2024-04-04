@@ -1534,7 +1534,7 @@ void AudioHeap_DiscardSampleBanks(void) {
     }
 }
 
-void AudioHeap_SetReverbData(s32 reverbIndex, u32 dataType, s32 data, s32 isFirstInit) {
+void AudioHeap_SetReverbData(s32 reverbIndex, u32 dataType, uintptr_t data, s32 isFirstInit) {
     s32 delayNumSamples;
     SynthesisReverb* reverb = &gAudioCtx.synthesisReverbs[reverbIndex];
 

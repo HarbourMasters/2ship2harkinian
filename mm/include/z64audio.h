@@ -604,7 +604,7 @@ typedef struct {
         /* 0x4 */ s8 asSbyte;
         /* 0x4 */ u8 asUbyte;
         /* 0x4 */ u32 asUInt;
-        /* 0x4 */ void* asPtr;
+        /* 0x4 */ uintptr_t asPtr;
     };
 } AudioCmd;
 
@@ -742,6 +742,8 @@ typedef struct {
     /* 0x79E4 */ OSMesg threadCmdProcMsgBuf[4];
     /* 0x79F4 */ AudioCmd threadCmdBuf[0x100]; // Audio commands used to transfer audio requests from the graph thread to the audio thread
     /* 0x81F4 */ UNK_TYPE1 unk_81F4[4];
+    u16 seqToPlay[4];
+    u8 seqReplaced[4];
 } AudioContext; // size = 0x81F8
 
 typedef struct {
@@ -930,6 +932,8 @@ typedef struct {
 
 // Apply a low-pass filter with a lowPassCutoff of 4
 #define SFX_FLAG2_APPLY_LOWPASS_FILTER (1 << 7)
+
+#define MAX_AUTHENTIC_SEQID 128
 
 typedef struct {
     /* 0x0 */ u8 importance;

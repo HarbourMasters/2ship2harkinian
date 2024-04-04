@@ -1,4 +1,5 @@
 #include "global.h"
+#include "endianness.h"
 
 s16 gLowPassFilterData[16 * 8] ALIGNED(16) = {
     /* 0x0 */ 0,     0,     0,    32767, 0,    0,     0,     0,    // Identity filter (delta function)
@@ -851,10 +852,10 @@ u8 gDefaultShortNoteGateTimeTable[] = {
 };
 
 EnvelopePoint gDefaultEnvelope[] = {
-    { 1, 32000 },
-    { 1000, 32000 },
-    { ADSR_HANG, 0 },
-    { ADSR_DISABLE, 0 },
+    { BE16SWAP_CONST(1), BE16SWAP_CONST(32000) },
+    { BE16SWAP_CONST(1000), BE16SWAP_CONST(32000) },
+    { BE16SWAP_CONST(ADSR_HANG), BE16SWAP_CONST(0) },
+    { BE16SWAP_CONST(ADSR_DISABLE), BE16SWAP_CONST(0) },
 };
 
 NoteSampleState gZeroedSampleState = { 0 };
