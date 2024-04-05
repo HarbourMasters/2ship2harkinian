@@ -115,10 +115,9 @@ void AudioSeq_ProcessSeqCmd(u32 cmd) {
             // `fadeTimer` continues to be scaled in `AudioSeq_StartSequence`
             fadeTimer = (cmd & 0xFF0000) >> 13;
             if (!gActiveSeqs[seqPlayerIndex].isWaitingForFonts && !sStartSeqDisabled) {
-                if (seqArgs < 0x80) {
+                if (seqArgs < 0x80 || 1) {
                     AudioSeq_StartSequence(seqPlayerIndex, seqId, seqArgs, fadeTimer);
                 } else {
-                    break;
                     // Store the cmd to be called again once the fonts are loaded
                     // but changes the command so that next time, the (seqArgs < 0x80) case is taken
                     gActiveSeqs[seqPlayerIndex].startAsyncSeqCmd =
