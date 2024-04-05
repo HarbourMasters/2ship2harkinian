@@ -2744,8 +2744,6 @@ void AudioOcarina_SetOcarinaDisableTimer(u8 unused, u8 timer) {
 }
 
 void AudioOcarina_SetInstrument(u8 ocarinaInstrumentId) {
-    // BENTODO: Crashes on kaleido when moving back and forth between songs
-    return;
     if ((sOcarinaInstrumentId != ocarinaInstrumentId) || (ocarinaInstrumentId == OCARINA_INSTRUMENT_DEFAULT)) {
         SEQCMD_SET_CHANNEL_IO(SEQ_PLAYER_SFX, SFX_CHANNEL_OCARINA, 1, ocarinaInstrumentId);
         sOcarinaInstrumentId = ocarinaInstrumentId;
@@ -4933,10 +4931,11 @@ void Audio_SetSequenceProperties(u8 seqPlayerIndex, Vec3f* projectedPos, s16 fla
     if (flags & 8) {
         // Uses new filter gBandPassFilterData
         AUDIOCMD_CHANNEL_SET_FILTER(seqPlayerIndex, AUDIOCMD_ALL_CHANNELS, 0x54,
-                                    ((u32)&sSequenceFilter[0] & ~0xF) + 0x10);
+                                    ((uintptr_t)&sSequenceFilter[0] & ~0xF) + 0x10);
     } else {
         // Identity Filter
-        AUDIOCMD_CHANNEL_SET_FILTER(seqPlayerIndex, AUDIOCMD_ALL_CHANNELS, 0, ((u32)&sSequenceFilter[0] & ~0xF) + 0x10);
+        AUDIOCMD_CHANNEL_SET_FILTER(seqPlayerIndex, AUDIOCMD_ALL_CHANNELS, 0,
+                                    ((uintptr_t)&sSequenceFilter[0] & ~0xF) + 0x10);
     }
 
     if (flags & 0x10) {
