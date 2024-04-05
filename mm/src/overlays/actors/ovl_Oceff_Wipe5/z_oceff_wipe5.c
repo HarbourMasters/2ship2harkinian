@@ -30,6 +30,7 @@ ActorInit Oceff_Wipe5_InitVars = {
 };
 
 UNK_TYPE4 D_80BC9260;
+static Vtx* gOceff5VtxData;
 
 void OceffWipe5_Init(Actor* thisx, PlayState* play) {
     OceffWipe5* this = THIS;
@@ -40,8 +41,6 @@ void OceffWipe5_Init(Actor* thisx, PlayState* play) {
     this->counter = 0;
     this->actor.world.pos = play->cameraPtrs[play->activeCamId]->eye;
 }
-
-static Vtx* gOceff5VtxData;
 
 void OceffWipe5_Destroy(Actor* thisx, PlayState* play) {
     OceffWipe5* this = THIS;
