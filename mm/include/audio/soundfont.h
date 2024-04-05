@@ -45,8 +45,8 @@ typedef enum SampleMedium {
 typedef struct Sample {
     union {
         struct {
-        /* 0x0 */ u32 unk_0 : 1;
-        /* 0x0 */ u32 codec : 3; // The state of compression or decompression, See `SampleCodec`
+        ///* 0x0 */ u32 unk_0 : 1;
+        /* 0x0 */ u32 codec : 4; // The state of compression or decompression, See `SampleCodec`
         /* 0x0 */ u32 medium : 2; // Medium where sample is currently stored. See `SampleMedium`
         /* 0x0 */ u32 unk_bit26 : 1;
         /* 0x0 */ u32 isRelocated : 1; // Has the sample header been relocated (offsets to pointers)
