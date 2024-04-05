@@ -864,7 +864,7 @@ u8 AudioSeq_ResetReverb(void) {
                 if (fadeReverb & 1) {
                     AUDIOCMD_GLOBAL_SET_REVERB_DATA(
                         reverbIndex, REVERB_DATA_TYPE_SETTINGS,
-                        (s32)(gReverbSettingsTable[(u8)(sResetAudioHeapSeqCmd & 0xFF)] + reverbIndex));
+                        (uintptr_t)(gReverbSettingsTable[(u8)(sResetAudioHeapSeqCmd & 0xFF)] + reverbIndex));
                     AudioThread_ScheduleProcessCmds();
                 }
                 reverbIndex++;
