@@ -267,6 +267,9 @@ void DrawEnhancementsMenu() {
         UIWidgets::CVarCheckbox("Fast Text", "gEnhancements.TimeSavers.FastText", {
             .tooltip = "Speeds up text rendering, and enables holding of B progress to next message"
         });
+        UIWidgets::CVarCheckbox("Authentic logo", "gEnhancements.General.AuthenticLogo", {
+            .tooltip = "Hide the game version and build details and display the authentic model and texture on the boot logo start screen"
+        });
 
         if (mHudEditorWindow) {
             UIWidgets::WindowButton("Hud Editor", "gWindows.HudEditor", mHudEditorWindow, {
