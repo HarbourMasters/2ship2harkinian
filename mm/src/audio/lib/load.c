@@ -595,10 +595,6 @@ s32 AudioLoad_SyncInitSeqPlayerSkipTicks(s32 playerIndex, s32 seqId, s32 skipTic
 }
 
 s32 AudioLoad_SyncInitSeqPlayerInternal(s32 playerIndex, s32 seqId, s32 arg2) {
-    if (seqId == 0x39) {
-        int bp = 0;
-    }
-
     SequencePlayer* seqPlayer = &gAudioCtx.seqPlayers[playerIndex];
     u8* seqData;
     s32 index;

@@ -1906,9 +1906,6 @@ void AudioScript_SequencePlayerProcessSequence(SequencePlayer* seqPlayer) {
         seqPlayer->recalculateVolume = true;
 
         while (true) {
-            if (seqPlayer->seqId == 0x39) {
-                int bp = 0;
-            }
             cmd = AudioScript_ScriptReadU8(seqScript);
 
             // 0xF2 and above are "flow control" commands, including termination.
