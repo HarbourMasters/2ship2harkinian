@@ -9,6 +9,7 @@
 #include "sys_cfb.h"
 #include "z_fbdemo_wipe5.h"
 #include <string.h>
+#include "public/bridge/gfxbridge.h"
 
 #define THIS ((TransitionWipe5*)thisx)
 
@@ -89,7 +90,7 @@ void TransitionWipe5_Draw(void* thisx, Gfx** gfxP) {
     s32 alpha = (1.0f - this->unk_0C) * 255.0f;
 
     gDPPipeSync(gfx++);
-    gSPLoadUcodeL(gfx++, gspS2DEX2_fifo);
+    gSPLoadUcodeL(gfx++, ucode_s2dex);
     if (this->unk_10 == 0) {
         gDPSetOtherMode(gfx++,
                         G_AD_PATTERN | G_CD_MAGICSQ | G_CK_NONE | G_TC_CONV | G_TF_POINT | G_TT_NONE | G_TL_TILE |
@@ -114,7 +115,7 @@ void TransitionWipe5_Draw(void* thisx, Gfx** gfxP) {
         VisFbuf_SetBgSimple(&gfx, workBuffer, D_0F000000_TO_SEGMENTED, width, height, VIS_FBUF_BG_CYC_1CYC);
     }
     gDPPipeSync(gfx++);
-    gSPLoadUcode(gfx++, SysUcode_GetUCode(), SysUcode_GetUCodeData());
+    gSPLoadUcode(gfx++, SysUcode_GetUCode());
     *gfxP = gfx;
 }
 
