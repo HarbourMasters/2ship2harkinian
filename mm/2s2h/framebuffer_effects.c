@@ -28,6 +28,7 @@ void FB_CreateFramebuffers(void) {
  * Setting oncePerFrame ensures that the copy will only happen once every game frame. This
  * is important for effects that could be affected by increased frame interpolation (like motion blur).
  * A pointer to a boolean is passed to the render for the render to set once the copy has been performed.
+ * This function uses opcodes from f3dex2 but may be called when s2dex is loaded, such as during shrink window. Make sure f3dex2 is loaded before this function is called.
  */
 void FB_CopyToFramebuffer(Gfx** gfxp, s32 fb_src, s32 fb_dest, u8 oncePerFrame, u8* hasCopied) {
     Gfx* gfx = *gfxp;
@@ -89,7 +90,8 @@ void FB_DrawFromFramebuffer(Gfx** gfxp, s32 fb, u8 alpha) {
 }
 
 /**
- * Similar to FB_DrawFromFramebuffer, but scales the image relative to the center of the screen
+ * Similar to FB_DrawFromFramebuffer, but scales the image relative to the center of the screen.
+ * This function uses opcodes from f3dex2 but may be called when s2dex is loaded, such as during shrink window. Make sure f3dex2 is loaded before this function is called.
  */
 void FB_DrawFromFramebufferScaled(Gfx** gfxp, s32 fb, u8 alpha, float scaleX, float scaleY) {
     Gfx* gfx = *gfxp;
