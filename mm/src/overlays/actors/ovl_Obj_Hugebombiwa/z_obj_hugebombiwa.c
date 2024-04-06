@@ -8,6 +8,7 @@
 #include "z64quake.h"
 #include "z64rumble.h"
 #include "objects/object_bombiwa/object_bombiwa.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 #define FLAGS (ACTOR_FLAG_10)
 
@@ -63,8 +64,8 @@ static ColliderCylinderInit sCylinderInit = {
 static Vec3f D_80A55D2C = { 0.0f, 0.3f, 0.0f };
 
 void func_80A53BE0(PlayState* play, Vec3f* arg1) {
-    Vec3f spBC;
-    Vec3f spB0;
+    Vec3f pos;
+    Vec3f velocity;
     s32 i;
     s32 gravity;
     s16 phi_v0;
@@ -72,17 +73,17 @@ void func_80A53BE0(PlayState* play, Vec3f* arg1) {
     s16 phi_v1;
 
     for (i = 0, gravity = -300; i < 16; i++, gravity -= 30) {
-        spBC.x = (Rand_ZeroOne() - 0.5f) * 260.0f;
-        spBC.y = i * (40.0f / 3);
-        spBC.z = (Rand_ZeroOne() - 0.5f) * 260.0f;
+        pos.x = (Rand_ZeroOne() - 0.5f) * 260.0f;
+        pos.y = i * (40.0f / 3);
+        pos.z = (Rand_ZeroOne() - 0.5f) * 260.0f;
 
-        spB0.x = ((Rand_ZeroOne() - 0.5f) * 5.7f) + (spBC.x * 0.035f);
-        spB0.y = (Rand_ZeroOne() * 16.0f) + 5.0f + ((16 - i) * 0.25f);
-        spB0.z = ((Rand_ZeroOne() - 0.5f) * 5.7f) + (spBC.z * 0.035f);
+        velocity.x = ((Rand_ZeroOne() - 0.5f) * 5.7f) + (pos.x * 0.035f);
+        velocity.y = (Rand_ZeroOne() * 16.0f) + 5.0f + ((16 - i) * 0.25f);
+        velocity.z = ((Rand_ZeroOne() - 0.5f) * 5.7f) + (pos.z * 0.035f);
 
-        spBC.x += arg1->x;
-        spBC.y += arg1->y;
-        spBC.z += arg1->z;
+        pos.x += arg1->x;
+        pos.y += arg1->y;
+        pos.z += arg1->z;
 
         if (i >= 14) {
             phi_v0 = 37;
@@ -107,7 +108,7 @@ void func_80A53BE0(PlayState* play, Vec3f* arg1) {
             if (1) {}
         }
 
-        EffectSsKakera_Spawn(play, &spBC, &spB0, &spBC, gravity, phi_v0, 15, 0, 0, phi_v1, 1, 0, life, -1,
+        EffectSsKakera_Spawn(play, &pos, &velocity, &pos, gravity, phi_v0, 15, 0, 0, phi_v1, 1, 0, life, -1,
                              OBJECT_BOMBIWA, object_bombiwa_DL_001990);
     }
 }
@@ -708,6 +709,7 @@ void func_80A55B34(Actor* thisx, PlayState* play) {
         if (ptr->unk_24 != 0) {
             continue;
         }
+        FrameInterpolation_RecordOpenChild(this, i);
 
         Matrix_SetTranslateRotateYXZ(ptr->unk_0C.x, ptr->unk_0C.y + (325.0f * ptr->unk_00.y), ptr->unk_0C.z,
                                      &ptr->unk_1C);
@@ -716,6 +718,7 @@ void func_80A55B34(Actor* thisx, PlayState* play) {
 
         gSPMatrix(gfx++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gSPDisplayList(gfx++, object_bombiwa_DL_0009E0);
+        FrameInterpolation_RecordCloseChild();
     }
 
     POLY_OPA_DISP = gfx;
