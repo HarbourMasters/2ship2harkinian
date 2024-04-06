@@ -6,6 +6,7 @@
 
 #include "z_en_hanabi.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
@@ -154,7 +155,7 @@ void func_80B22FA8(EnHanabiStruct* arg0, PlayState* play2) {
         if (arg0->unk_00 != 1) {
             continue;
         }
-
+        FrameInterpolation_RecordOpenChild(arg0, i);
         Matrix_Translate(arg0->unk_08.x, arg0->unk_08.y, arg0->unk_08.z, MTXMODE_NEW);
         Matrix_ReplaceRotation(&play->billboardMtxF);
         if (arg0->unk_01 < 40) {
@@ -184,6 +185,7 @@ void func_80B22FA8(EnHanabiStruct* arg0, PlayState* play2) {
         }
 
         gSPDisplayList(POLY_XLU_DISP++, gSunSparkleModelDL);
+        FrameInterpolation_RecordCloseChild();
     }
 
     CLOSE_DISPS(gfxCtx);
