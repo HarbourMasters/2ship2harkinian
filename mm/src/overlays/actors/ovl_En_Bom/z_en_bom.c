@@ -787,7 +787,7 @@ void func_808726DC(PlayState* play, Vec3f* arg1, Vec3f* arg2, Vec3f* arg3, s32 a
     Math_Vec3f_Copy(arg1, &fuseSegmentPtr->pos);
 }
 
-void EnBom_DrawKeg(PlayState* play, s32 arg1) {
+void EnBom_DrawKeg(PlayState* play, s32 timer) {
     s32 temp_s5;
     s32 i;
     PowderKegFuseSegment* fuseSegmentPtr = &sPowderKegFuseSegments[0];
@@ -802,9 +802,9 @@ void EnBom_DrawKeg(PlayState* play, s32 arg1) {
     gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
     gSPDisplayList(POLY_OPA_DISP++, gPowderKegFuseMaterialDL);
 
-    temp_s5 = (arg1 / 240) + 1;
+    temp_s5 = (timer / 240) + 1;
     fuseSegmentPtr2 = &sPowderKegFuseSegments[1];
-
+    // Bentodo the fuse is not visible enough to see if this is broken. Verify once the long timer crash is fixed.
     for (i = 1; i < temp_s5; i++, fuseSegmentPtr2++) {
         Matrix_Translate(fuseSegmentPtr2->pos.x, fuseSegmentPtr2->pos.y, fuseSegmentPtr2->pos.z, MTXMODE_NEW);
         Matrix_RotateZYX(fuseSegmentPtr2->rotX, fuseSegmentPtr2->rotY, 0, MTXMODE_APPLY);
