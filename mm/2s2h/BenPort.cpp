@@ -57,6 +57,7 @@ CrowdControl* CrowdControl::Instance;
 #include "Enhancements/GameInteractor/GameInteractor.h"
 #include "Enhancements/Enhancements.h"
 #include "2s2h/Enhancements/GfxPatcher/AuthenticGfxPatches.h"
+#include "2s2h/DeveloperTools/DebugConsole.h"
 
 // Resource Types/Factories
 #include "2s2h/resource//type/2shResourceType.h"
@@ -316,6 +317,7 @@ extern "C" void InitOTR() {
     BenGui::SetupGuiElements();
     InitEnhancements();
     GfxPatcher_ApplyNecessaryAuthenticPatches();
+    DebugConsole_Init();
 
     clearMtx = (uintptr_t)&gMtxClear;
     //OTRMessage_Init();
