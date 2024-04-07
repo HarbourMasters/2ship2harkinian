@@ -41,8 +41,34 @@ static std::unordered_map<LUS::WindowBackend, const char*> windowBackendsMap = {
 };
 
 namespace BenGui {
+
+void DrawMenuBarIcon() {
+    static bool gameIconLoaded = false;
+    if (!gameIconLoaded) {
+        LUS::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage("Game_Icon", "textures/icons/g2ShipIcon.png");
+        gameIconLoaded = true;
+    }
+
+    if (LUS::Context::GetInstance()->GetWindow()->GetGui()->HasTextureByName("Game_Icon")) {
+#ifdef __SWITCH__
+        ImVec2 iconSize = ImVec2(20.0f, 20.0f);
+        float posScale = 1.0f;
+#elif defined(__WIIU__)
+        ImVec2 iconSize = ImVec2(16.0f * 2, 16.0f * 2);
+        float posScale = 2.0f;
+#else
+        ImVec2 iconSize = ImVec2(16.0f, 16.0f);
+        float posScale = 1.0f;
+#endif
+        ImGui::SetCursorPos(ImVec2(5, 5) * posScale);
+        ImGui::Image(LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName("Game_Icon"), iconSize);
+        ImGui::SameLine();
+        ImGui::SetCursorPos(ImVec2(25, 0) * posScale);
+    }
+}
+
 void DrawBenMenu() {
-    if (UIWidgets::BeginMenu("Game")) {
+    if (UIWidgets::BeginMenu("2Ship")) {
         if (UIWidgets::MenuItem("Hide Menu Bar",
 #if !defined(__SWITCH__) && !defined(__WIIU__)
             "F1"
@@ -363,6 +389,8 @@ void DrawDeveloperToolsMenu() {
 
 void BenMenuBar::DrawElement() {
     if (ImGui::BeginMenuBar()) {
+        DrawMenuBarIcon();
+
         static ImVec2 sWindowPadding(8.0f, 8.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, sWindowPadding);
 
@@ -393,4 +421,4 @@ void BenMenuBar::DrawElement() {
     }
 }
 }
- // namespace BenGui 
+// namespace BenGui
