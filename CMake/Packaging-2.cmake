@@ -1,6 +1,6 @@
 set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)
 set(CPACK_COMPONENT_INCLUDE_TOPLEVEL_DIRECTORY 0)
-set(CPACK_COMPONENTS_ALL "ship" "extractor" "appimage")
+set(CPACK_COMPONENTS_ALL "2s2h" "extractor" "appimage")
 
 if (NOT CPACK_GENERATOR STREQUAL "External")
   list(REMOVE_ITEM CPACK_COMPONENTS_ALL "appimage")
@@ -21,10 +21,9 @@ set(CPACK_PACKAGING_INSTALL_PREFIX "/usr/bin")
 endif()
 
 if (CPACK_GENERATOR MATCHES "Bundle")
-    set(CPACK_BUNDLE_NAME "soh")
+    set(CPACK_BUNDLE_NAME "2s2h")
     set(CPACK_BUNDLE_PLIST "macosx/Info.plist")
-    set(CPACK_BUNDLE_ICON "macosx/soh.icns")
-    set(CPACK_BUNDLE_STARTUP_COMMAND "../soh/macosx/soh-macos.sh")
+    set(CPACK_BUNDLE_ICON "macosx/2s2h.icns")
+    set(CPACK_BUNDLE_STARTUP_COMMAND "macosx/2s2h-macos.sh")
     set(CPACK_BUNDLE_APPLE_CERT_APP "-")
 endif()
-

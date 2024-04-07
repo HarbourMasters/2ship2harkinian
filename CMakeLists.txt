@@ -171,24 +171,24 @@ if(CMAKE_SYSTEM_NAME MATCHES "Linux")
     endif()
 endif()
 
-#if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
-#add_custom_target(CreateOSXIcons
-#    COMMAND mkdir -p ${CMAKE_BINARY_DIR}/macosx/soh.iconset
-#    COMMAND sips -z 16 16     soh/macosx/sohIcon.png --out ${CMAKE_BINARY_DIR}/macosx/soh.iconset/icon_16x16.png
-#    COMMAND sips -z 32 32     soh/macosx/sohIcon.png --out ${CMAKE_BINARY_DIR}/macosx/soh.iconset/icon_16x16@2x.png
-#    COMMAND sips -z 32 32     soh/macosx/sohIcon.png --out ${CMAKE_BINARY_DIR}/macosx/soh.iconset/icon_32x32.png
-#    COMMAND sips -z 64 64     soh/macosx/sohIcon.png --out ${CMAKE_BINARY_DIR}/macosx/soh.iconset/icon_32x32@2x.png
-#    COMMAND sips -z 128 128   soh/macosx/sohIcon.png --out ${CMAKE_BINARY_DIR}/macosx/soh.iconset/icon_128x128.png
-#    COMMAND sips -z 256 256   soh/macosx/sohIcon.png --out ${CMAKE_BINARY_DIR}/macosx/soh.iconset/icon_128x128@2x.png
-#    COMMAND sips -z 256 256   soh/macosx/sohIcon.png --out ${CMAKE_BINARY_DIR}/macosx/soh.iconset/icon_256x256.png
-#    COMMAND sips -z 512 512   soh/macosx/sohIcon.png --out ${CMAKE_BINARY_DIR}/macosx/soh.iconset/icon_256x256@2x.png
-#    COMMAND sips -z 512 512   soh/macosx/sohIcon.png --out ${CMAKE_BINARY_DIR}/macosx/soh.iconset/icon_512x512.png
-#    COMMAND cp                soh/macosx/sohIcon.png ${CMAKE_BINARY_DIR}/macosx/soh.iconset/icon_512x512@2x.png
-#    COMMAND iconutil -c icns -o ${CMAKE_BINARY_DIR}/macosx/soh.icns ${CMAKE_BINARY_DIR}/macosx/soh.iconset
-#    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-#    COMMENT "Creating OSX icons ..."
-#    )
-#add_dependencies(soh CreateOSXIcons)
+if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
+add_custom_target(CreateOSXIcons
+   COMMAND mkdir -p ${CMAKE_BINARY_DIR}/macosx/2s2h.iconset
+   COMMAND sips -z 16 16     mm/macosx/2s2hIcon.png --out ${CMAKE_BINARY_DIR}/macosx/2s2h.iconset/icon_16x16.png
+   COMMAND sips -z 32 32     mm/macosx/2s2hIcon.png --out ${CMAKE_BINARY_DIR}/macosx/2s2h.iconset/icon_16x16@2x.png
+   COMMAND sips -z 32 32     mm/macosx/2s2hIcon.png --out ${CMAKE_BINARY_DIR}/macosx/2s2h.iconset/icon_32x32.png
+   COMMAND sips -z 64 64     mm/macosx/2s2hIcon.png --out ${CMAKE_BINARY_DIR}/macosx/2s2h.iconset/icon_32x32@2x.png
+   COMMAND sips -z 128 128   mm/macosx/2s2hIcon.png --out ${CMAKE_BINARY_DIR}/macosx/2s2h.iconset/icon_128x128.png
+   COMMAND sips -z 256 256   mm/macosx/2s2hIcon.png --out ${CMAKE_BINARY_DIR}/macosx/2s2h.iconset/icon_128x128@2x.png
+   COMMAND sips -z 256 256   mm/macosx/2s2hIcon.png --out ${CMAKE_BINARY_DIR}/macosx/2s2h.iconset/icon_256x256.png
+   COMMAND sips -z 512 512   mm/macosx/2s2hIcon.png --out ${CMAKE_BINARY_DIR}/macosx/2s2h.iconset/icon_256x256@2x.png
+   COMMAND sips -z 512 512   mm/macosx/2s2hIcon.png --out ${CMAKE_BINARY_DIR}/macosx/2s2h.iconset/icon_512x512.png
+   COMMAND cp                mm/macosx/2s2hIcon.png ${CMAKE_BINARY_DIR}/macosx/2s2h.iconset/icon_512x512@2x.png
+   COMMAND iconutil -c icns -o ${CMAKE_BINARY_DIR}/macosx/2s2h.icns ${CMAKE_BINARY_DIR}/macosx/2s2h.iconset
+   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+   COMMENT "Creating OSX icons ..."
+   )
+add_dependencies(mm CreateOSXIcons)
 
 install(TARGETS ZAPD DESTINATION ${CMAKE_BINARY_DIR}/assets/extractor)
 
@@ -201,22 +201,22 @@ install(FILES "${CMAKE_SOURCE_DIR}/OTRExporter/CFG/ActorList_MM.txt" DESTINATION
 install(FILES "${CMAKE_SOURCE_DIR}/OTRExporter/CFG/ObjectList_MM.txt" DESTINATION ./assets/extractor/symbols)
 install(FILES "${CMAKE_SOURCE_DIR}/OTRExporter/CFG/SymbolMap_MM.txt" DESTINATION ./assets/extractor/symbols)
 
-install(DIRECTORY ${CMAKE_BINARY_DIR}/assets
-        DESTINATION .
-        PATTERN ZAPD.out
-        PERMISSIONS ${PROGRAM_PERMISSIONS_EXECUTE}
-        )
+# install(DIRECTORY ${CMAKE_BINARY_DIR}/assets
+#         DESTINATION .
+#         PATTERN ZAPD.out
+#         PERMISSIONS ${PROGRAM_PERMISSIONS_EXECUTE}
+#         )
 
-#install(CODE "
-#    include(BundleUtilities)
-#    fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/soh-macos\" \"\" \"${dirs}\")
-#    ")
+install(CODE "
+   include(BundleUtilities)
+   fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/2s2h-macos\" \"\" \"${dirs}\")
+   ")
 
-#endif()
+endif()
 
-#if(CMAKE_SYSTEM_NAME MATCHES "Windows|NintendoSwitch|CafeOS")
-#install(FILES ${CMAKE_SOURCE_DIR}/README.md DESTINATION . COMPONENT 2s2h RENAME readme.txt )
-#endif()
+if(CMAKE_SYSTEM_NAME MATCHES "Windows|NintendoSwitch|CafeOS")
+install(FILES ${CMAKE_SOURCE_DIR}/README.md DESTINATION . COMPONENT 2s2h RENAME readme.txt )
+endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
     set(CPACK_GENERATOR "External")
@@ -226,5 +226,5 @@ elseif(CMAKE_SYSTEM_NAME MATCHES "Darwin")
     set(CPACK_GENERATOR "Bundle")
 endif()
 
-#set(CPACK_PROJECT_CONFIG_FILE ${CMAKE_SOURCE_DIR}/CMake/Packaging-2.cmake)
-#include(CMake/Packaging.cmake)
+set(CPACK_PROJECT_CONFIG_FILE ${CMAKE_SOURCE_DIR}/CMake/Packaging-2.cmake)
+include(CMake/Packaging.cmake)
