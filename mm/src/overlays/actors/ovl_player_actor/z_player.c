@@ -12381,6 +12381,78 @@ void Player_UpdateCommon(Player* this, PlayState* play, Input* input) {
 
 Vec3f D_8085D41C = { 0.0f, 0.0f, -30.0f };
 
+static bool sNoclipEnabled;
+
+s32 Player_UpdateNoclip(Player* this, PlayState* play) {
+    sPlayerControlInput = &play->state.input[0];
+
+    if ((CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_L | BTN_R | BTN_A) &&
+         CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_B)) ||
+        (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_L) && CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_DRIGHT))) {
+
+        sNoclipEnabled ^= 1;
+
+        if (sNoclipEnabled) {
+            Camera_ChangeMode(Play_GetCamera(play, CAM_ID_MAIN), CAM_MODE_ZORAFINZ);
+        }
+    }
+
+    if (sNoclipEnabled) {
+        f32 speed;
+
+        if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_R)) {
+            speed = 100.0f;
+        } else {
+            speed = 20.0f;
+        }
+
+        //DebugCamera_ScreenText(3, 2, "DEBUG MODE");
+
+        if (!CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_L)) {
+            if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B)) {
+                this->actor.world.pos.y += speed;
+            } else if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_A)) {
+                this->actor.world.pos.y -= speed;
+            }
+
+            if (CHECK_BTN_ANY(sPlayerControlInput->cur.button, BTN_DUP | BTN_DLEFT | BTN_DDOWN | BTN_DRIGHT)) {
+                s16 angle;
+                s16 temp;
+
+                angle = temp = Camera_GetInputDirYaw(GET_ACTIVE_CAM(play));
+
+                if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_DDOWN)) {
+                    angle = temp + 0x8000;
+                } else if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_DLEFT)) {
+                    angle = temp + 0x4000;
+                } else if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_DRIGHT)) {
+                    angle = temp - 0x4000;
+                }
+
+                this->actor.world.pos.x += speed * Math_SinS(angle);
+                this->actor.world.pos.z += speed * Math_CosS(angle);
+            }
+        }
+
+        Player_StopHorizontalMovement(this);
+
+        this->actor.gravity = 0.0f;
+        this->actor.velocity.x = this->actor.velocity.y = this->actor.velocity.z = 0.0f;
+
+        //if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_L) && CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_DLEFT)) {
+        //    Flags_SetTempClear(play, play->roomCtx.curRoom.num);
+        //}
+
+        Math_Vec3f_Copy(&this->actor.home.pos, &this->actor.world.pos);
+
+        return false;
+    }
+
+    return true;
+}
+
+
+
 void Player_Update(Actor* thisx, PlayState* play) {
     static Vec3f sDogSpawnPos;
     Player* this = (Player*)thisx;
@@ -12389,8 +12461,15 @@ void Player_Update(Actor* thisx, PlayState* play) {
     Input input;
     s32 pad2;
 
-    this->stateFlags3 &= ~PLAYER_STATE3_10;
 
+    // 2S2H [port] bring over SoH's noclip
+    //Could be an if else. I think this looks nicer.
+    if (!Player_UpdateNoclip(this, play)) {
+        goto skipUpdate;
+    }
+
+    this->stateFlags3 &= ~PLAYER_STATE3_10;
+    
     // This block is a leftover dog-following mechanic from OoT
     if (gSaveContext.dogParams < 0) {
         if (Object_GetSlot(&play->objectCtx, OBJECT_DOG) < 0) {
@@ -12435,6 +12514,7 @@ void Player_Update(Actor* thisx, PlayState* play) {
     }
 
     Player_UpdateCommon(this, play, &input);
+    skipUpdate:
     play->actorCtx.unk268 = 0;
     memset(&play->actorCtx.unk_26C, 0, sizeof(Input));
 
