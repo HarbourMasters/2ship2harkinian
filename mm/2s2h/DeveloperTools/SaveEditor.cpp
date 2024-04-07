@@ -418,7 +418,7 @@ void DrawItemsAndMasksTab() {
         }
     }
     UIWidgets::Checkbox("Safe Mode", &safeMode);
-    static char text[4];
+    char text[4];
     snprintf(text, sizeof(text), "%d", gSaveContext.save.saveInfo.playerData.rupees);
 
     // Make the input box slightly larger than 3 digits
