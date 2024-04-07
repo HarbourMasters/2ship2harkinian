@@ -167,7 +167,7 @@ static bool GiveItemHandler(std::shared_ptr<LUS::Console> Console, const std::ve
     try {
         getItemId = (GetItemId)std::stoi(args[1]);
     } catch (std::invalid_argument const& ex) {
-        ERROR_MESSAGE("[SOH] Item ID must be an integer.");
+        ERROR_MESSAGE("[2S2H] Item ID must be an integer.");
         return 1;
     }
 
