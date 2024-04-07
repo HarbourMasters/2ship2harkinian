@@ -13,19 +13,19 @@ extern RegEditor* gRegEditor;
 }
 
 bool safeMode = true;
-const float INV_GRID_WIDTH = 46.0f;
-const float INV_GRID_HEIGHT = 58.0f;
-const float INV_GRID_ICON_SIZE = 40.0f;
-const float INV_GRID_PADDING = 10.0f;
-const float INV_GRID_TOP_MARGIN = 20.0f;
-const uint16_t HEART_COUNT_MIN = 3;
-const uint16_t HEART_COUNT_MAX = 20;
-const int16_t S16_ZERO = 0;
-const int8_t S8_ZERO = 0;
-const u8 REG_PAGES_MAX = REG_PAGES;
-const u8 REG_GROUPS_MAX = REG_GROUPS - 1;
+constexpr float INV_GRID_WIDTH = 46.0f;
+constexpr float INV_GRID_HEIGHT = 58.0f;
+constexpr float INV_GRID_ICON_SIZE = 40.0f;
+constexpr float INV_GRID_PADDING = 10.0f;
+constexpr float INV_GRID_TOP_MARGIN = 20.0f;
+constexpr uint16_t HEART_COUNT_MIN = 3;
+constexpr uint16_t HEART_COUNT_MAX = 20;
+constexpr int16_t S16_ZERO = 0;
+constexpr int8_t S8_ZERO = 0;
+constexpr u8 REG_PAGES_MAX = REG_PAGES;
+constexpr u8 REG_GROUPS_MAX = REG_GROUPS - 1;
 const char* MAGIC_LEVEL_NAMES[3] = { "No Magic", "Single Magic", "Double Magic" };
-const int8_t MAGIC_LEVEL_MAX = 2;
+constexpr int8_t MAGIC_LEVEL_MAX = 2;
 
 InventorySlot selectedInventorySlot = SLOT_NONE;
 std::vector<ItemId> safeItemsForInventorySlot[SLOT_MASK_FIERCE_DEITY + 1] = {};
@@ -281,7 +281,7 @@ void DrawEquipItemMenu(InventorySlot slot) {
 
 void NextItemInSlot(InventorySlot slot) {
     ItemId currentItemId = static_cast<ItemId>(gSaveContext.save.saveInfo.inventory.items[slot]);
-    int currentItemIndex = find(safeItemsForInventorySlot[slot].begin(), safeItemsForInventorySlot[slot].end(), currentItemId) - safeItemsForInventorySlot[slot].begin();
+    size_t currentItemIndex = find(safeItemsForInventorySlot[slot].begin(), safeItemsForInventorySlot[slot].end(), currentItemId) - safeItemsForInventorySlot[slot].begin();
 
     if (currentItemId == ITEM_NONE) {
         gSaveContext.save.saveInfo.inventory.items[slot] = safeItemsForInventorySlot[slot][0];
@@ -418,6 +418,16 @@ void DrawItemsAndMasksTab() {
         }
     }
     UIWidgets::Checkbox("Safe Mode", &safeMode);
+    static char text[4];
+    snprintf(text, sizeof(text), "%d", gSaveContext.save.saveInfo.playerData.rupees);
+
+    // Make the input box slightly larger than 3 digits
+    ImGui::SetNextItemWidth(ImGui::CalcTextSize("      ").x);
+    ImGui::InputText("Rupees", text, sizeof(text),
+                     ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_CharsNoBlank |
+                         ImGuiInputTextFlags_AutoSelectAll);
+    gSaveContext.save.saveInfo.playerData.rupees = atoi(text);
+    
     // Expose inputs to edit raw number values of equips
     // ImGui::Text("Equips");
     // ImGui::Text("C-Buttons");
