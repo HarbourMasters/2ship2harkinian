@@ -58,3 +58,4 @@ mm/libultraship/extern/StrHash64.dir/Debug/StrHash64.tlog/Lib.command.1.tlog
 /x64
 
 /mm/src/boot/build.c
+/mm/windows/properties.h
