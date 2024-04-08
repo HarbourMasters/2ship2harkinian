@@ -106,7 +106,7 @@ set(PROJECT_NAME mm)
 # Sources
 ################################################################################
 configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/src/boot/build.c.in ${CMAKE_CURRENT_SOURCE_DIR}/src/boot/build.c @ONLY)
-#configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/src/boot/properties.h.in ${CMAKE_CURRENT_SOURCE_DIR}/properties.h @ONLY)
+configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/windows/properties.h.in ${CMAKE_CURRENT_SOURCE_DIR}/windows/properties.h @ONLY)
 
 #set(Header_Files "resource.h")
 source_group("headers" FILES ${Header_Files})
@@ -237,8 +237,10 @@ source_group("2s2h\\resource\\importer\\scenecommand" REGULAR_EXPRESSION "2s2h/r
 # src (decomp) {{{
 file(GLOB_RECURSE src__ RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "src/*.c" "src/*.h")
 
-#list(APPEND src__ ${CMAKE_CURRENT_SOURCE_DIR}/properties.h)
-#list(APPEND src__ ${CMAKE_CURRENT_SOURCE_DIR}/Resource.rc)
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    list(APPEND src__ ${CMAKE_CURRENT_SOURCE_DIR}/windows/Resource.rc)
+endif()
+
 list(FILTER src__ EXCLUDE REGEX "src/dmadata/*")
 list(FILTER src__ EXCLUDE REGEX "src/elf_message/*")
 list(FILTER src__ EXCLUDE REGEX "src/libultra/io/*")
@@ -785,6 +787,7 @@ execute_process(COMMAND ${CURL} -sSfL https://raw.githubusercontent.com/gabomdq/
 
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Darwin")
 configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/macosx/Info.plist.in ${CMAKE_BINARY_DIR}/macosx/Info.plist @ONLY)
+configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/macosx/2s2h-macos.sh.in ${CMAKE_BINARY_DIR}/macosx/2s2h-macos.sh @ONLY)
 INSTALL(FILES ${CMAKE_BINARY_DIR}/gamecontrollerdb.txt DESTINATION ../MacOS COMPONENT 2s2h)
 INSTALL(FILES ${CMAKE_BINARY_DIR}/mm/soh.otr DESTINATION ../Resources COMPONENT 2s2h)
 elseif(NOT "${CMAKE_SYSTEM_NAME}" MATCHES "NintendoSwitch|CafeOS")

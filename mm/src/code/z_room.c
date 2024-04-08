@@ -2,6 +2,9 @@
 #include "PR/gs2dex.h"
 #include "debug.h"
 
+#include "public/bridge/gfxbridge.h"
+
+
 void Room_Noop(PlayState* play, Room* room, Input* input, s32 arg3) {
 }
 
@@ -325,7 +328,7 @@ void Room_DrawImageSingle(PlayState* play, Room* room, u32 flags) {
         }
 
         if (drawBackground) {
-            gSPLoadUcodeL(POLY_OPA_DISP++, gspS2DEX2_fifo);
+            gSPLoadUcodeL(POLY_OPA_DISP++, ucode_s2dex);
 
             gfx = POLY_OPA_DISP;
 
@@ -343,7 +346,7 @@ void Room_DrawImageSingle(PlayState* play, Room* room, u32 flags) {
 
             POLY_OPA_DISP = gfx;
 
-            gSPLoadUcode(POLY_OPA_DISP++, SysUcode_GetUCode(), SysUcode_GetUCodeData());
+            gSPLoadUcode(POLY_OPA_DISP++, SysUcode_GetUCode());
         }
     }
 
@@ -424,7 +427,7 @@ void Room_DrawImageMulti(PlayState* play, Room* room, u32 flags) {
         }
 
         if (drawBackground) {
-            gSPLoadUcodeL(POLY_OPA_DISP++, gspS2DEX2_fifo);
+            gSPLoadUcodeL(POLY_OPA_DISP++, ucode_s2dex);
 
             gfx = POLY_OPA_DISP;
 
@@ -442,7 +445,7 @@ void Room_DrawImageMulti(PlayState* play, Room* room, u32 flags) {
 
             POLY_OPA_DISP = gfx;
 
-            gSPLoadUcode(POLY_OPA_DISP++, SysUcode_GetUCode(), SysUcode_GetUCodeData());
+            gSPLoadUcode(POLY_OPA_DISP++, SysUcode_GetUCode());
         }
     }
 

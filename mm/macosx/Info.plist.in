@@ -13,7 +13,7 @@
     <key>CFBundleIconFile</key>
     <string>2s2h.icns</string>
     <key>CFBundleIdentifier</key>
-    <string>com.2ship2harkinian.2Ship2Harkinian</string>
+    <string>com.2ship2harkinian.2s2h</string>
     <key>CFBundleDocumentTypes</key>
     <array>
     </array>

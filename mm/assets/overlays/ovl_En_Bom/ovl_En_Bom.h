@@ -3,6 +3,9 @@
 
 #include "align_asset_macro.h"
 
+#define dgPowderKegFuseVtx "__OTR__overlays/ovl_En_Bom/gPowderKegFuseVtx"
+static const ALIGN_ASSET(2) char gPowderKegFuseVtx[] = dgPowderKegFuseVtx;
+
 #define dgPowderKegFuseTex "__OTR__overlays/ovl_En_Bom/gPowderKegFuseTex"
 static const ALIGN_ASSET(2) char gPowderKegFuseTex[] = dgPowderKegFuseTex;
 
