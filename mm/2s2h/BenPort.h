@@ -10,6 +10,9 @@
 #define GAME_PLATFORM_N64 0
 #define GAME_PLATFORM_GC 1
 
+#define MM_NTSC_US_10 0x5354631C
+#define MM_NTSC_US_GC 0xB443EB08
+
 #ifdef __cplusplus
 #include <Context.h>
 
