@@ -6689,6 +6689,8 @@ void Interface_Draw(PlayState* play) {
                     gDPPipeSync(OVERLAY_DISP++);
                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 200, 230, 255, interfaceCtx->magicAlpha);
                     gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 20, 255);
+
+                    HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_KEY_COUNTER);
                     OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gSmallKeyCounterIconTex, 16, 16, 26, 190, 16, 16,
                                                       1 << 10, 1 << 10);
 
@@ -6725,13 +6727,41 @@ void Interface_Draw(PlayState* play) {
                     gDPPipeSync(OVERLAY_DISP++);
                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, interfaceCtx->magicAlpha);
 
+                    HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_KEY_COUNTER);
                     OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sCounterTextures[counterDigits[3]], 8, 16, sp2CA + 1,
                                                      191, 8, 16, 1 << 10, 1 << 10);
 
                     gDPPipeSync(OVERLAY_DISP++);
                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->magicAlpha);
-                    gSPTextureRectangle(OVERLAY_DISP++, sp2CA * 4, 760, (sp2CA * 4) + 0x20, 824, G_TX_RENDERTILE, 0, 0,
-                                        1 << 10, 1 << 10);
+
+                    // #region 2S2H [Cosmetic] Hud Editor
+                    HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_KEY_COUNTER);
+                    if (HudEditor_ShouldOverrideDraw()) {
+                        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar,
+                                           HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+                            hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+                        } else {
+                            // All of this information was derived from the original call to gSPTextureRectangle below
+                            s16 rectLeft = sp2CA;
+                            s16 rectTop = 760 / 4;
+                            s16 rectWidth = 0x20 / 4;
+                            s16 rectHeight = (824 / 4) - rectTop;
+                            s16 dsdx = 512;
+                            s16 dtdy = 512;
+
+                            HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+
+                            hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+
+                            gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2,
+                                                    (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
+                                                    G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+                        }
+                        // #endregion
+                    } else {
+                        gSPTextureRectangle(OVERLAY_DISP++, sp2CA * 4, 760, (sp2CA * 4) + 0x20, 824, G_TX_RENDERTILE, 0,
+                                            0, 1 << 10, 1 << 10);
+                    }
                 }
                 break;
 
@@ -6742,9 +6772,12 @@ void Interface_Draw(PlayState* play) {
                 gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->magicAlpha);
                 gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 255);
+
+                HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_SKULLTULA_COUNTER);
                 gDPLoadTextureBlock(OVERLAY_DISP++, gGoldSkulltulaCounterIconTex, G_IM_FMT_RGBA, G_IM_SIZ_32b, 24, 24, // 2S2H [Port] This last 24 was 18 in the minibuild, not sure why
                                     0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                     G_TX_NOLOD, G_TX_NOLOD);
+                
                 gSPTextureRectangle(OVERLAY_DISP++, 80, 748, 176, 820, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
 
                 // Gold Skulluta Counter
@@ -6779,13 +6812,41 @@ void Interface_Draw(PlayState* play) {
                 gDPPipeSync(OVERLAY_DISP++);
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, interfaceCtx->magicAlpha);
 
+                HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_SKULLTULA_COUNTER);
                 OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sCounterTextures[counterDigits[3]], 8, 16, sp2CA + 1, 191,
                                                  8, 16, 1 << 10, 1 << 10);
 
                 gDPPipeSync(OVERLAY_DISP++);
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->magicAlpha);
-                gSPTextureRectangle(OVERLAY_DISP++, sp2CA * 4, 760, (sp2CA * 4) + 0x20, 824, G_TX_RENDERTILE, 0, 0,
-                                    1 << 10, 1 << 10);
+
+                // #region 2S2H [Cosmetic] Hud Editor
+                    HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_SKULLTULA_COUNTER);
+                    if (HudEditor_ShouldOverrideDraw()) {
+                        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar,
+                                           HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+                            hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+                        } else {
+                            // All of this information was derived from the original call to gSPTextureRectangle below
+                            s16 rectLeft = sp2CA;
+                            s16 rectTop = 760 / 4;
+                            s16 rectWidth = 0x20 / 4;
+                            s16 rectHeight = (824 / 4) - rectTop;
+                            s16 dsdx = 512;
+                            s16 dtdy = 512;
+
+                            HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+
+                            hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+
+                            gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2,
+                                                    (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
+                                                    G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+                        }
+                        // #endregion
+                    } else {
+                        gSPTextureRectangle(OVERLAY_DISP++, sp2CA * 4, 760, (sp2CA * 4) + 0x20, 824, G_TX_RENDERTILE, 0,
+                                            0, 1 << 10, 1 << 10);
+                    }
                 break;
 
             default:
