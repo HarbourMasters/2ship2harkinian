@@ -19,7 +19,6 @@ HudEditorElement hudEditorElements[HUD_EDITOR_ELEMENT_MAX] = {
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_RUPEE_COUNTER,     "Rupees",         "Rupees",     26,  206, 200, 255, 100, 255),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_KEY_COUNTER,       "Keys",           "Keys",       26,  190, 255, 255, 255, 255),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_SKULLTULA_COUNTER, "Skulltulas",     "Skulltulas", 26,  206, 255, 255, 255, 255),
-    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_MINIMAP,           "Minimap",        "Minimap",    26,  206, 200, 255, 100, 255),
 };
 
 extern "C" bool HudEditor_ShouldOverrideDraw() {
@@ -99,7 +98,6 @@ void HudEditorWindow::DrawElement() {
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_RUPEE_COUNTER].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT);
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_KEY_COUNTER].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT);
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_SKULLTULA_COUNTER].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT);
-                CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_MINIMAP].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_RIGHT);
                 break;
             }
         }
