@@ -2,32 +2,10 @@
 #include "2s2h/resource/type/scenecommand/SetMinimapList.h"
 #include "spdlog/spdlog.h"
 
-namespace LUS {
-std::shared_ptr<IResource> SetMinimapListFactory::ReadResource(std::shared_ptr<ResourceInitData> initData,
-                                                               std::shared_ptr<BinaryReader> reader) {
-    auto resource = std::make_shared<SetMinimapList>(initData);
-    std::shared_ptr<ResourceVersionFactory> factory = nullptr;
-
-    switch (resource->GetInitData()->ResourceVersion) {
-        case 0:
-            factory = std::make_shared<SetMinimapListFactoryV0>();
-            break;
-    }
-
-    if (factory == nullptr) {
-        SPDLOG_ERROR("Failed to load SetMinimapListFactory with version {}", resource->GetInitData()->ResourceVersion);
-        return nullptr;
-    }
-
-    factory->ParseFileBinary(reader, resource);
-
-    return resource;
-}
-void SetMinimapListFactoryV0::ParseFileBinary(std::shared_ptr<BinaryReader> reader,
-                                              std::shared_ptr<IResource> resource) {
-    std::shared_ptr<SetMinimapList> mapList = std::static_pointer_cast<SetMinimapList>(resource);
-
-    ResourceVersionFactory::ParseFileBinary(reader, mapList);
+namespace SOH {
+std::shared_ptr<LUS::IResource> SetMinimapListFactory::ReadResource(std::shared_ptr<LUS::ResourceInitData> initData,
+                                                               std::shared_ptr<LUS::BinaryReader> reader) {
+    auto mapList = std::make_shared<SetMinimapList>(initData);
 
     ReadCommandId(mapList, reader);
 
@@ -46,5 +24,8 @@ void SetMinimapListFactoryV0::ParseFileBinary(std::shared_ptr<BinaryReader> read
         mapList->entries.emplace_back(data);
     }
     mapList->list.entry = mapList->entries.data();
+
+    return mapList;
+
 }
 } // namespace LUS

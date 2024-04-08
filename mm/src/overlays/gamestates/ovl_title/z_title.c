@@ -10,10 +10,56 @@
 #include "CIC6105.h"
 #include "overlays/gamestates/ovl_opening/z_opening.h"
 #include "misc/nintendo_rogo_static/nintendo_rogo_static.h"
+
 #include "overlays/gamestates/ovl_select/z_select.h"
-#include <stdlib.h>
+#include "build.h"
 #include "BenPort.h"
-#include "libultraship/libultraship.h"
+#include <GameVersions.h>
+#include <stdlib.h>
+
+#define dgShipLogoDL "__OTR__misc/nintendo_rogo_static/gShipLogoDL"
+static const ALIGN_ASSET(2) char gShipLogoDL[] = dgShipLogoDL;
+
+#define dgLUSLogoTextTex "__OTR__misc/nintendo_rogo_static/gLUSLogoTextTex"
+static const ALIGN_ASSET(2) char gLUSLogoTextTex[] = dgLUSLogoTextTex;
+
+const char* GetGameVersionString() {
+    uint32_t gameVersion = ResourceMgr_GetGameVersion(0);
+    switch (gameVersion) {
+        // BENTODO: Use enums from LUS once added and add rest of version names
+        case 0x5354631C:
+        case 0xDA6983E7:
+            return "MM-US 1.0";
+        default:
+            return "UNKNOWN";
+    }
+}
+
+void ConsoleLogo_PrintBuildInfo(ConsoleLogoState* this) {
+    GraphicsContext* gfxCtx = this->state.gfxCtx;
+    GfxPrint printer;
+
+    OPEN_DISPS(gfxCtx);
+
+    Gfx_SetupDL28_Opa(gfxCtx);
+
+    GfxPrint_Init(&printer);
+    GfxPrint_Open(&printer, POLY_OPA_DISP);
+    GfxPrint_SetColor(&printer, 131, 154, 255, 255);
+
+    GfxPrint_SetPos(&printer, 1, 25);
+    GfxPrint_Printf(&printer, "%s", gBuildVersion);
+    GfxPrint_SetPos(&printer, 1, 26);
+    GfxPrint_Printf(&printer, "%s", gBuildDate);
+
+    GfxPrint_SetPos(&printer, 29, 26);
+    GfxPrint_Printf(&printer, "%s", GetGameVersionString());
+
+    POLY_OPA_DISP = GfxPrint_Close(&printer);
+    GfxPrint_Destroy(&printer);
+
+    CLOSE_DISPS(gfxCtx);
+}
 
 void ConsoleLogo_UpdateCounters(ConsoleLogoState* this) {
     if ((this->coverAlpha == 0) && (this->visibleDuration != 0)) {
@@ -67,6 +113,14 @@ void ConsoleLogo_Draw(GameState* thisx) {
     Vec3f eye;
     s32 pad[2];
 
+    char* logoDL = gNintendo64LogoNDL;
+    char* logoText = gNintendo64LogoTextTex;
+
+    if (!CVarGetInteger("gEnhancements.General.AuthenticLogo", 0)) {
+        logoDL = gShipLogoDL;
+        logoText = gLUSLogoTextTex;
+    }
+
     OPEN_DISPS(this->state.gfxCtx);
 
     lightDir.x = 69.0f;
@@ -80,8 +134,6 @@ void ConsoleLogo_Draw(GameState* thisx) {
     eye.x = -4949.148f;
     eye.y = 4002.5417f;
     eye.z = 1119.0837f;
-    void* shine = ResourceMgr_LoadTexOrDListByName(gNintendo64LogoTextShineTex);
-    char* logo = ResourceMgr_LoadTexOrDListByName(gNintendo64LogoTextTex);
 
     Hilite_DrawOpa(&object, &eye, &lightDir, this->state.gfxCtx);
 
@@ -94,7 +146,7 @@ void ConsoleLogo_Draw(GameState* thisx) {
     Matrix_RotateZYX(0, sTitleRotation, 0, MTXMODE_APPLY);
 
     gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(this->state.gfxCtx), G_MTX_LOAD);
-    gSPDisplayList(POLY_OPA_DISP++, gNintendo64LogoNDL);
+    gSPDisplayList(POLY_OPA_DISP++, logoDL);
 
     Gfx_SetupDL39_Opa(this->state.gfxCtx);
 
@@ -105,17 +157,25 @@ void ConsoleLogo_Draw(GameState* thisx) {
                       COMBINED, ENVIRONMENT, COMBINED, 0, PRIMITIVE, 0);
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 170, 255, 255, 255);
     gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 255, 128);
-    gDPLoadMultiBlock(POLY_OPA_DISP++, shine, 0x100, 1, G_IM_FMT_I, G_IM_SIZ_8b, 32, 32, 0, G_TX_NOMIRROR | G_TX_WRAP,
-                      G_TX_NOMIRROR | G_TX_WRAP, 5, 5, 2, 11);
+    gDPLoadMultiBlock(POLY_OPA_DISP++, gNintendo64LogoTextShineTex, 0x100, 1, G_IM_FMT_I, G_IM_SIZ_8b, 32, 32, 0,
+                      G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, 5, 5, 2, 11);
 
     for (idx = 0, y = 94; idx < 16; idx++, y += 2) {
-        gDPLoadTextureBlock(POLY_OPA_DISP++, &((u8*)logo)[0x180 * idx], G_IM_FMT_I, G_IM_SIZ_8b, 192, 2, 0,
-                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
-                            G_TX_NOLOD);
+        // #region 2S2H [Port] Use LoadMultiTile so we can pass the resource path and control which bytes are loaded
+        gDPLoadMultiTile(POLY_OPA_DISP++, logoText, 0, G_TX_RENDERTILE, G_IM_FMT_I, G_IM_SIZ_8b, 192, 32,
+                         0, idx * 2, 192 - 1, (idx + 1) * 2 - 1, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
+                         G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gDPSetTileSize(POLY_OPA_DISP++, 0, 0, 0, (192 - 1) << G_TEXTURE_IMAGE_FRAC,
+                       (2 - 1) << G_TEXTURE_IMAGE_FRAC);
+        // #endregion
 
         gDPSetTileSize(POLY_OPA_DISP++, 1, this->uls, (this->ult & 0x7F) - idx * 4, 0, 0);
         gSPTextureRectangle(POLY_OPA_DISP++, 97 << 2, y << 2, (97 + 192) << 2, (y + 2) << 2, G_TX_RENDERTILE, 0, 0,
                             1 << 10, 1 << 10);
+    }
+
+    if (!CVarGetInteger("gEnhancements.General.AuthenticLogo", 0)) {
+        ConsoleLogo_PrintBuildInfo(this);
     }
 
     Environment_FillScreen(this->state.gfxCtx, 0, 0, 0, this->coverAlpha, FILL_SCREEN_XLU);

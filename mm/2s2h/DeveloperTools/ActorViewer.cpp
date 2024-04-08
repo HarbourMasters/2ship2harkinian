@@ -1,11 +1,6 @@
 #include "ActorViewer.h"
 #include "2s2h/BenGui/UIWidgets.hpp"
-
-extern "C" {
-    #include "global.h"
-    extern PlayState* gPlayState;
-
-}
+#include "global.h"
 
 typedef struct ActorInfo {
     u16 id;

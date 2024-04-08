@@ -10,6 +10,8 @@ extern "C" {
 #include "BenPort.h"
 #include "libultraship/luslog.h"
 
+#include <public/bridge/consolevariablebridge.h>
+
 void bootproc(void);
 void ViConfig_UpdateVi(u32 black);
 void ViConfig_UpdateBlack(void);
@@ -1102,7 +1104,8 @@ void Check_RegionIsSupported(void);
 
 u64* SysUcode_GetUCodeBoot(void);
 size_t SysUcode_GetUCodeBootSize(void);
-u64* SysUcode_GetUCode(void);
+// BENTODO move this into its own header so we don't have so much header bloat with lus bridge
+uint32_t SysUcode_GetUCode(void);
 u64* SysUcode_GetUCodeData(void);
 
 void func_80183070(void);

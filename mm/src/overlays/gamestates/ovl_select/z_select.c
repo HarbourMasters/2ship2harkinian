@@ -9,7 +9,7 @@
 #include "z64view.h"
 #include "libc/alloca.h"
 #include "overlays/gamestates/ovl_title/z_title.h"
-#include "libultraship/libultraship.h"
+#include <libultraship/bridge.h>
 #include "2s2h/DeveloperTools/BetterMapSelect.h"
 
 void MapSelect_LoadConsoleLogo(MapSelectState* this) {

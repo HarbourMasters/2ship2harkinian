@@ -3,7 +3,7 @@
 #include "Resource.h"
 #include <libultraship/libultra/types.h>
 
-namespace LUS {
+namespace SOH {
 
 typedef struct Vec3s {
     s16 x;
@@ -56,11 +56,11 @@ typedef struct {
     /* 0x12 */ s16 duration;
 } KeyFrameAnimationData; // Size = 0x14
 
-class KeyFrameSkel : public Resource<KeyFrameSkeletonData> {
+class KeyFrameSkel : public LUS::Resource<KeyFrameSkeletonData> {
   public:
     using Resource::Resource;
 
-    KeyFrameSkel() : Resource(std::shared_ptr<ResourceInitData>()) {
+    KeyFrameSkel() : Resource(std::shared_ptr<LUS::ResourceInitData>()) {
     }
     ~KeyFrameSkel();
 
@@ -70,11 +70,11 @@ class KeyFrameSkel : public Resource<KeyFrameSkeletonData> {
     KeyFrameSkeletonData skelData;
 };
 
-class KeyFrameAnim : public Resource<KeyFrameAnimationData> {
+class KeyFrameAnim : public LUS::Resource<KeyFrameAnimationData> {
   public:
     using Resource::Resource;
 
-    KeyFrameAnim() : Resource(std::shared_ptr<ResourceInitData>()) {
+    KeyFrameAnim() : Resource(std::shared_ptr<LUS::ResourceInitData>()) {
     }
     ~KeyFrameAnim();
 
@@ -84,4 +84,4 @@ class KeyFrameAnim : public Resource<KeyFrameAnimationData> {
     KeyFrameAnimationData animData;
 };
 
-} // namespace LUS
+} // namespace SOH

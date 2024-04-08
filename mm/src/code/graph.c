@@ -3,8 +3,7 @@
 #include "regs.h"
 #include "functions.h"
 #include "fault.h"
-#include "gfxdebuggerbridge.h"
-#include "libultraship/libultraship.h"
+#include <libultraship/bridge.h>
 #include <string.h>
 
 // Variables are put before most headers as a hacky way to bypass bss reordering
@@ -181,7 +180,7 @@ retry:
     task->ucode_boot = SysUcode_GetUCodeBoot();
     task->ucode_boot_size = SysUcode_GetUCodeBootSize();
     task->ucode = SysUcode_GetUCode();
-    task->ucode_data = SysUcode_GetUCodeData();
+    //task->ucode_data = SysUcode_GetUCodeData();
     task->ucode_size = SP_UCODE_SIZE;
     task->ucode_data_size = SP_UCODE_DATA_SIZE;
     task->dram_stack = (u64*)gGfxSPTaskStack;

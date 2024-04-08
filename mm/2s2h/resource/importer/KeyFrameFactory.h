@@ -1,29 +1,17 @@
 #pragma once
 
 #include "Resource.h"
-#include "ResourceFactory.h"
+#include "ResourceFactoryBinary.h"
 
-namespace LUS {
-class KeyFrameSkelFactory : public ResourceFactory {
+namespace SOH {
+class ResourceFactoryBinaryKeyFrameSkel : public LUS::ResourceFactoryBinary {
   public:
-    std::shared_ptr<IResource> ReadResource(std::shared_ptr<ResourceInitData> initData,
-                                            std::shared_ptr<BinaryReader> reader) override;
+    std::shared_ptr<LUS::IResource> ReadResource(std::shared_ptr<LUS::File> file) override;
 };
 
-class KeyFrameSkelFactoryV0 : public ResourceVersionFactory {
+class ResourceFactoryBinaryKeyFrameAnim : public LUS::ResourceFactoryBinary {
   public:
-    void ParseFileBinary(std::shared_ptr<BinaryReader> reader, std::shared_ptr<IResource> resource) override;
-};
-
-class KeyFrameAnimFactory : public ResourceFactory {
-  public:
-    std::shared_ptr<IResource> ReadResource(std::shared_ptr<ResourceInitData> initData,
-                                            std::shared_ptr<BinaryReader> reader) override;
-};
-
-class KeyFrameAnimFactoryV0 : public ResourceVersionFactory {
-  public:
-    void ParseFileBinary(std::shared_ptr<BinaryReader> reader, std::shared_ptr<IResource> resource) override;
+    std::shared_ptr<LUS::IResource> ReadResource(std::shared_ptr<LUS::File> file) override;
 };
 
 };

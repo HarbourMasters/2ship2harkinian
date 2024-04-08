@@ -2,14 +2,11 @@
 
 #include <cstdint>
 #include <vector>
-#include <memory>
-#include <string>
 #include "Resource.h"
 #include "SceneCommand.h"
 #include "2s2h/resource/type/scenecommand/SetActorList.h"
-// #include <libultraship/libultra/types.h>
 
-namespace LUS {
+namespace SOH {
 // typedef struct {
 //     /* 0x00 */ s16   id;
 //     /* 0x02 */ Vec3s pos;
@@ -27,4 +24,4 @@ class SetStartPositionList : public SceneCommand<ActorEntry> {
     uint32_t numStartPositions;
     std::vector<ActorEntry> startPositions;
 };
-}; // namespace LUS
+}; // namespace SOH

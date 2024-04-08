@@ -15,7 +15,6 @@
 #include "interface/week_static/week_static.h"
 #include "BenPort.h"
 #include <string.h>
-#include "libultraship/libultraship.h"
 #include "BenGui/HudEditor.h"
 
 // #region 2S2H [Port] Asset tables we can pull from instead of from ROM
@@ -5049,8 +5048,9 @@ void Interface_DrawClock(PlayState* play) {
              * Section: Cuts off Three-Day Clock's Sun and Moon when they dip below the clock
              */
             gDPPipeSync(OVERLAY_DISP++);
-            gDPSetScissorFrac(OVERLAY_DISP++, G_SC_NON_INTERLACE, 400, 620, 880,
-                              R_THREE_DAY_CLOCK_SUN_MOON_CUTOFF * 4.0f);
+            // 2S2H [Cosmetic] Adjust the x values so the scissor stays the same size regardless of widescreen
+            gDPSetScissor(OVERLAY_DISP++, G_SC_NON_INTERLACE, OTRConvertHUDXToScreenX(400 / 4), 620 / 4,
+                          OTRConvertHUDXToScreenX(880 / 4), R_THREE_DAY_CLOCK_SUN_MOON_CUTOFF);
 
             // determines the current hour
             for (sp1C6 = 0; sp1C6 <= 24; sp1C6++) {
@@ -5109,8 +5109,9 @@ void Interface_DrawClock(PlayState* play) {
              * Section: Cuts off Three-Day Clock's Hour Digits when they dip below the clock
              */
             gDPPipeSync(OVERLAY_DISP++);
-            gDPSetScissorFrac(OVERLAY_DISP++, G_SC_NON_INTERLACE, 400, 620, 880,
-                              R_THREE_DAY_CLOCK_HOUR_DIGIT_CUTOFF * 4.0f);
+            // 2S2H [Cosmetic] Adjust the x values so the scissor stays the same size regardless of widescreen
+            gDPSetScissor(OVERLAY_DISP++, G_SC_NON_INTERLACE, OTRConvertHUDXToScreenX(400 / 4), (620 / 4),
+                          OTRConvertHUDXToScreenX(880 / 4), R_THREE_DAY_CLOCK_SUN_MOON_CUTOFF);
 
             /**
              * Section: Draws Three-Day Clock's Hour Digit Above the Sun
@@ -6643,13 +6644,13 @@ void Interface_Draw(PlayState* play) {
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, pauseCtx->alpha);
 
             // Load in Grandma's Story
-            gSPLoadUcodeL(OVERLAY_DISP++, gspS2DEX2_fifo);
+            gSPLoadUcodeL(OVERLAY_DISP++, ucode_s2dex);
             gfx = OVERLAY_DISP;
             Prerender_DrawBackground2D(&gfx, sStoryTextures[interfaceCtx->storyType],
                                        sStoryTLUTs[interfaceCtx->storyType], SCREEN_WIDTH, SCREEN_HEIGHT, G_IM_FMT_CI,
                                        G_IM_SIZ_8b, 0x8000, 0x100, 0.0f, 0.0f, 1.0f, 1.0f, 0);
             OVERLAY_DISP = gfx;
-            gSPLoadUcode(OVERLAY_DISP++, SysUcode_GetUCode(), SysUcode_GetUCodeData());
+            gSPLoadUcode(OVERLAY_DISP++, SysUcode_GetUCode());
 
             gDPPipeSync(OVERLAY_DISP++);
 

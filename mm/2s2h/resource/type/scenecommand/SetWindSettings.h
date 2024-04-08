@@ -7,7 +7,7 @@
 #include "SceneCommand.h"
 #include <libultraship/libultra/types.h>
 
-namespace LUS {
+namespace SOH {
 typedef struct {
   int8_t windWest;
   int8_t windVertical;
@@ -24,4 +24,4 @@ class SetWindSettings : public SceneCommand<WindSettings> {
 
     WindSettings settings;
 };
-}; // namespace LUS
+}; // namespace SOH

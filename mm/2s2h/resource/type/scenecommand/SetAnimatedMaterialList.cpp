@@ -1,13 +1,13 @@
 #include "SetAnimatedMaterialList.h"
 
-namespace LUS {
+namespace SOH {
 
-AnimatedMaterialData* LUS::SetAnimatedMaterialList::GetPointer() {
+AnimatedMaterial* SetAnimatedMaterialList::GetPointer() {
     return mat;
 }
 
-size_t LUS::SetAnimatedMaterialList::GetPointerSize() {
-    return sizeof(AnimatedMaterialData);
+size_t SetAnimatedMaterialList::GetPointerSize() {
+    return sizeof(AnimatedMaterial);
 }
 
-} // namespace LUS
+} // namespace SOH
