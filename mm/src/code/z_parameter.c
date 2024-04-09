@@ -4289,8 +4289,33 @@ void Interface_DrawItemButtons(PlayState* play) {
             gDPLoadTextureBlock_4b(OVERLAY_DISP++, cUpLabelTextures[gSaveContext.options.language], G_IM_FMT_IA, 32, 12,
                                    0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                    G_TX_NOLOD, G_TX_NOLOD);
-            gSPTextureRectangle(OVERLAY_DISP++, 0x03DC, 0x0048, 0x045C, 0x0078, G_TX_RENDERTILE, 0, 0, 1 << 10,
-                                1 << 10);
+
+            // #region 2S2H [Cosmetic] Hud Editor
+            HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_UP);
+            if (HudEditor_ShouldOverrideDraw()) {
+                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+                    hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+                } else {
+                    // All of this information was derived from the original call to gSPTextureRectangle below
+                    s16 rectLeft = 0x03DC / 4;
+                    s16 rectTop = 0x0048 / 4;
+                    s16 rectWidth = 0x045C / 4;
+                    s16 rectHeight = (0x0078 / 4) - rectTop;
+                    s16 dsdx = 512;
+                    s16 dtdy = 512;
+
+                    HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+
+                    hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+
+                    gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2,
+                                            (rectTop + rectHeight) << 2, G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+                }
+            } else {
+                // #endregion
+                gSPTextureRectangle(OVERLAY_DISP++, 0x03DC, 0x0048, 0x045C, 0x0078, G_TX_RENDERTILE, 0, 0, 1 << 10,
+                                    1 << 10);
+            }
         }
 
         sCUpTimer--;
