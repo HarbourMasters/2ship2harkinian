@@ -18,7 +18,7 @@ HudEditorElement hudEditorElements[HUD_EDITOR_ELEMENT_MAX] = {
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_HEARTS,            "Hearts",         "Hearts",     30,  26,  255, 70,  50,  255),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_RUPEE_COUNTER,     "Rupees",         "Rupees",     26,  206, 200, 255, 100, 255),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_KEY_COUNTER,       "Keys",           "Keys",       26,  190, 255, 255, 255, 255),
-    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_SKULLTULA_COUNTER, "Skulltulas",     "Skulltulas", 26,  206, 255, 255, 255, 255),
+    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_SKULLTULA_COUNTER, "Skulltulas",     "Skulltulas", 26,  190, 255, 255, 255, 255),
 };
 
 extern "C" bool HudEditor_ShouldOverrideDraw() {
