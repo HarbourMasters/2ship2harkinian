@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "mixer.h"
 
@@ -101,7 +102,13 @@ void aClearBufferImpl(uint16_t addr, int nbytes) {
 }
 
 void aLoadBufferImpl(const void *source_addr, uint16_t dest_addr, uint16_t nbytes) {
+#if __SANITIZE_ADDRESS__
+    for (size_t i = 0; i < ROUND_DOWN_16(nbytes); i++) {
+        BUF_U8(dest_addr)[i] = ((const unsigned char*)source_addr)[i];
+    }
+#else
     memcpy(BUF_U8(dest_addr), source_addr, ROUND_DOWN_16(nbytes));
+#endif
 }
 
 void aSaveBufferImpl(uint16_t source_addr, int16_t *dest_addr, uint16_t nbytes) {

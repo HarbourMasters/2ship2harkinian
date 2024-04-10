@@ -643,7 +643,7 @@ void AudioThread_ProcessCmds(u32 msg) {
         }
 
         cmd = &gAudioCtx.threadCmdBuf[sCurCmdRdPos++ & 0xFF];
-        LUSLOG_CRITICAL("Process Command: %s", cmd_op_to_str(cmd->op));
+        LUSLOG_TRACE("Process Command: %s", cmd_op_to_str(cmd->op));
         if (cmd->op == AUDIOCMD_OP_GLOBAL_STOP_AUDIOCMDS) {
             gAudioCtx.threadCmdQueueFinished = true;
             break;

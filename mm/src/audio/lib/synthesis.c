@@ -1173,10 +1173,8 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
                         return cmd;
                     } else {
                         // This medium is not in ram, so dma the requested sample into ram
-                        samplesToLoadAddr =
-                            AudioLoad_DmaSampleData((uintptr_t)sampleAddr + zeroOffset + sampleAddrOffset,
-                                                    ALIGN16((numFramesToDecode * frameSize) + SAMPLES_PER_FRAME), flags,
-                                                    &synthState->sampleDmaIndex, sample->medium);
+                        // BEN: Assume all samples are in RAM... because they are.
+                        samplesToLoadAddr = sampleAddr + (zeroOffset + sampleAddrOffset);
                     }
 
                     if (samplesToLoadAddr == NULL) {
