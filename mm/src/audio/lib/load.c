@@ -935,7 +935,7 @@ void AudioLoad_RelocateFont(s32 fontId, SoundFontData* mem, SampleBankRelocInfo*
 
     void** ptrs = (void**)mem;
 
-#define BASE_OFFSET(x) (void*)((u32)(x) + (u32)(mem))
+#define BASE_OFFSET(x) (void*)((uintptr_t)(x) + (uintptr_t)(mem))
 
     reloc2 = ptrs[0];
     if ((numDrums != 0)) {

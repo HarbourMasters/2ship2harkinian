@@ -617,7 +617,7 @@ Acmd* AudioSynth_LoadSubReverbSamples(Acmd* cmd, s32 numSamplesPerUpdate, Synthe
 
 Acmd* AudioSynth_SaveResampledReverbSamplesImpl(Acmd* cmd, u16 dmem, u16 size, uintptr_t startAddr) {
     s32 startAddrAlignDropped;
-    u32 endAddr;
+    uintptr_t endAddr;
     s32 endAddrAlignDropped;
 
     endAddr = startAddr + size;
