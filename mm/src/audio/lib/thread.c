@@ -446,7 +446,7 @@ void AudioThread_QueueCmd(AudioCmd cmdData) {
     AudioCmd* cmd = &gAudioCtx.threadCmdBuf[gAudioCtx.threadCmdWritePos & 0xFF];
     *cmd = cmdData;
 
-    LUSLOG_ERROR("Queueing Command: %s", cmd_op_to_str(cmd->op));
+    LUSLOG_TRACE("Queueing Command: %s", cmd_op_to_str(cmd->op));
 
     gAudioCtx.threadCmdWritePos++;
 
