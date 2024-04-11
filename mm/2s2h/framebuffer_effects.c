@@ -1,7 +1,7 @@
 #include "framebuffer_effects.h"
 #include "global.h"
 
-int gfx_create_framebuffer(uint32_t width, uint32_t height);
+int gfx_create_framebuffer(uint32_t width, uint32_t height, uint32_t native_width, uint32_t native_height);
 
 s32 gPauseFrameBuffer = -1;
 s32 gBlurFrameBuffer = -1;
@@ -11,15 +11,15 @@ s32 gReusableFrameBuffer = -1;
 
 void FB_CreateFramebuffers(void) {
     if (gPauseFrameBuffer == -1) {
-        gPauseFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT);
+        gPauseFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT);
     }
 
     if (gBlurFrameBuffer == -1) {
-        gBlurFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT);
+        gBlurFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT);
     }
 
     if (gReusableFrameBuffer == -1) {
-        gReusableFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT);
+        gReusableFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT);
     }
 }
 
