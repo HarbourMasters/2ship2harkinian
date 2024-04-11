@@ -184,7 +184,11 @@ void AudioPlayback_ProcessNotes(void) {
         sampleState = &gAudioCtx.sampleStateList[gAudioCtx.sampleStateOffset + i];
         playbackState = &note->playbackState;
         if (playbackState->parentLayer != NO_LAYER) {
-            if ((u32)playbackState->parentLayer < 0x7FFFFFFF) {
+
+			// OTRTODO: This skips playback if the pointer is below where memory on the N64 normally would be.
+			// This does not translate well to modern platforms and how they map memory. 
+			// Considering that this check is not present in OoT/SoH, we may be able to remove this altogether.
+            if ((uintptr_t)playbackState->parentLayer < 0x7FFFFFFF) {
                 continue;
             }
 
