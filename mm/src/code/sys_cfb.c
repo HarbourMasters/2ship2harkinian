@@ -3,6 +3,7 @@
 #include "functions.h"
 #include "macros.h"
 #include "2s2h/framebuffer_effects.h"
+#include <libultraship/bridge.h>
 
 // Variables are put before most headers as a hacky way to bypass bss reordering
 OSViMode sNotebookViMode; // placeholder name
@@ -59,6 +60,9 @@ void SysCfb_SetLoResMode(void) {
     gScreenWidth = gCfbWidth;
     gScreenHeight = gCfbHeight;
     //gActiveViMode = &osViModeNtscLan1;
+
+    // 2S2H [Port] Inform LUS on resolution changes
+    GfxSetNativeDimensions((uint32_t)gScreenWidth, (uint32_t)gScreenHeight);
 }
 
 void SysCfb_SetHiResMode(void) {
@@ -90,6 +94,9 @@ void SysCfb_SetHiResMode(void) {
         gActiveViMode = &sNotebookViMode;
     }
     gSysCfbHiResEnabled = true;
+
+    // 2S2H [Port] Inform LUS on resolution changes
+    GfxSetNativeDimensions((uint32_t)gScreenWidth, (uint32_t)gScreenHeight);
 }
 
 void SysCfb_Init(void) {

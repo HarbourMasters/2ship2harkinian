@@ -45,6 +45,9 @@ u8 D_801D0D54 = false;
 PlayState* gPlayState;
 // #endregion
 
+// Track when the notebook is closed so we can refresh our framebuffer captures
+u8 sJustClosedBomberNotebook = false;
+
 typedef enum {
     /* 0 */ MOTION_BLUR_OFF,
     /* 1 */ MOTION_BLUR_SETUP,
@@ -94,7 +97,8 @@ void Play_DrawMotionBlur(PlayState* this) {
         // 2S2H [Port] When the render size changes, we need to skip the blur for one frame to
         // avoid rendering and copying a blank framebuffer
         if (sMotionBlurStatus == MOTION_BLUR_PROCESS &&
-            (lastBlurWidth != OTRGetGameRenderWidth() || lastBlurHeight != OTRGetGameRenderHeight())) {
+            (lastBlurWidth != OTRGetGameRenderWidth() || lastBlurHeight != OTRGetGameRenderHeight() ||
+             sJustClosedBomberNotebook)) {
             sMotionBlurStatus = MOTION_BLUR_SETUP;
         }
 
@@ -405,6 +409,8 @@ void Play_Destroy(GameState* thisx) {
         gfxCtx->yScale = gViConfigYScale;
         gfxCtx->updateViMode = true;
         sBombersNotebookOpen = false;
+
+        sJustClosedBomberNotebook = false;
     }
 
     BombersNotebook_Destroy(&sBombersNotebook);
@@ -1091,6 +1097,8 @@ void Play_Update(PlayState* this) {
             sBombersNotebookOpen = true;
             sBombersNotebook.loadState = BOMBERS_NOTEBOOK_LOAD_STATE_NONE;
         }
+
+        sJustClosedBomberNotebook = false;
     } else if (CHECK_BTN_ALL(CONTROLLER1(&this->state)->press.button, BTN_L) ||
                CHECK_BTN_ALL(CONTROLLER1(&this->state)->press.button, BTN_B) ||
                CHECK_BTN_ALL(CONTROLLER1(&this->state)->press.button, BTN_START) || (gIrqMgrResetStatus != 0)) {
@@ -1102,6 +1110,8 @@ void Play_Update(PlayState* this) {
         this->msgCtx.currentTextId = 0;
         this->msgCtx.stateTimer = 0;
         Audio_PlaySfx(NA_SE_SY_CANCEL);
+
+        sJustClosedBomberNotebook = true;
     }
     if (sBombersNotebookOpen) {
         BombersNotebook_Update(this, &sBombersNotebook, this->state.input);
@@ -1173,7 +1183,7 @@ void Play_DrawMain(PlayState* this) {
     if ((R_PAUSE_BG_PRERENDER_STATE == PAUSE_BG_PRERENDER_PROCESS ||
          R_PAUSE_BG_PRERENDER_STATE == PAUSE_BG_PRERENDER_READY) &&
         (lastPauseWidth != OTRGetGameRenderWidth() || lastPauseHeight != OTRGetGameRenderHeight() ||
-         !hasCapturedPauseBuffer)) {
+         !hasCapturedPauseBuffer || sJustClosedBomberNotebook)) {
         R_PAUSE_BG_PRERENDER_STATE = PAUSE_BG_PRERENDER_SETUP;
         recapturePauseBuffer = true;
     }
@@ -2422,4 +2432,6 @@ void Play_Init(GameState* thisx) {
     gSaveContext.respawnFlag = 0;
     sBombersNotebookOpen = false;
     BombersNotebook_Init(&sBombersNotebook);
+
+    sJustClosedBomberNotebook = false;
 }

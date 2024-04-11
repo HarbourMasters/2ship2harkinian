@@ -497,6 +497,11 @@ void BombersNotebook_DrawEntries(Gfx** gfxP, s32 row, u32 rectTop) {
                     yOffset -= 6;
                 }
             }
+
+            // 2S2H [Port] We need to set the render mode to XLU_SURF for alpha logic to be used in Fast3D
+            // If Fast3D changes how it decides alpha in the future, we may be able to remove this line
+            gDPSetRenderMode(gfx++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+
             gDPLoadTextureBlock(gfx++, sBombersNotebookEventIconTextures[eventIcon], G_IM_FMT_IA, G_IM_SIZ_8b,
                                 sBombersNotebookEventIconWidths[eventIcon], sBombersNotebookEventIconHeights[eventIcon],
                                 0, G_TX_MIRROR | G_TX_WRAP, G_TX_MIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
@@ -841,7 +846,11 @@ void BombersNotebook_DrawTimeOfDay(Gfx** gfxP) {
     gDPSetPrimColor(gfx++, 0, 0, 242, 0, 14, 255);
     gDPLoadTextureBlock(gfx++, gBombersNotebookLineTex, G_IM_FMT_I, G_IM_SIZ_8b, 8, 1, 0, G_TX_MIRROR | G_TX_WRAP,
                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
-    BombersNotebook_DrawScisTexRect(&gfx, lineRectLeft * 4, 74 * 4, (lineRectLeft + 32) * 4, 490 * 4, 0, 0, 0, 1 << 10,
+
+    // 2S2H [Cosmetic] The vertical red line texture is only 8 pixels wide, but the rectangle draw 32 pixels wide.
+    // Because the texture is mirrored and wrap along the S axis, this caused there to be 3 lines
+    // Setting it to 8 replicates the effect from console
+    BombersNotebook_DrawScisTexRect(&gfx, lineRectLeft * 4, 74 * 4, (lineRectLeft + 8) * 4, 490 * 4, 0, 0, 0, 1 << 10,
                                     1 << 10);
 
     gDPPipeSync(gfx++);
@@ -1070,8 +1079,10 @@ void BombersNotebook_Draw(BombersNotebook* this, GraphicsContext* gfxCtx) {
         gDPLoadTextureBlock(gfx++, gBombersNotebookBackgroundTex, G_IM_FMT_I, G_IM_SIZ_8b, 32, 32, 0,
                             G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, 5, 5, G_TX_NOLOD, G_TX_NOLOD);
 
-        BombersNotebook_DrawScisTexRect(&gfx, 0 * 4, 0 * 4, SCREEN_WIDTH_HIRES * 4, SCREEN_HEIGHT_HIRES * 4, 0, 0, 0,
-                                        0x200, 0x200);
+        // 2S2H [Cosmetic][Widescreen] Extend the background tiling for widescreens
+        gSPWideTextureRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0) * 4, 0 * 4,
+                                OTRGetRectDimensionFromRightEdge(SCREEN_WIDTH_HIRES) * 4, SCREEN_HEIGHT_HIRES * 4, 0, 0,
+                                0, 0x200, 0x200);
 
         gDPPipeSync(gfx++);
         gDPSetCombineMode(gfx++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);

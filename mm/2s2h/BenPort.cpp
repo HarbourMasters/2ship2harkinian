@@ -1397,11 +1397,12 @@ extern "C" float OTRGetAspectRatio() {
 }
 
 extern "C" float OTRGetDimensionFromLeftEdge(float v) {
-    return (SCREEN_WIDTH / 2 - SCREEN_HEIGHT / 2 * OTRGetAspectRatio() + (v));
+    return (gfx_native_dimensions.width / 2 - gfx_native_dimensions.height / 2 * OTRGetAspectRatio() + (v));
 }
 
 extern "C" float OTRGetDimensionFromRightEdge(float v) {
-    return (SCREEN_WIDTH / 2 + SCREEN_HEIGHT / 2 * OTRGetAspectRatio() - (SCREEN_WIDTH - v));
+    return (gfx_native_dimensions.width / 2 + gfx_native_dimensions.height / 2 * OTRGetAspectRatio() -
+            (gfx_native_dimensions.width - v));
 }
 
 // Gets the width of the current render target area
