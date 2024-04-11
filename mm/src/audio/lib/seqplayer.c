@@ -30,7 +30,7 @@ s32 AudioScript_SeqLayerProcessScriptStep3(SequenceLayer* layer, s32 cmd);
 u8 AudioScript_GetInstrument(SequenceChannel* channel, u8 instId, Instrument** instOut, AdsrSettings* adsr);
 
 SequenceData ResourceMgr_LoadSeqByName(const char* path);
-char** gSequenceToResource;
+extern char** gSequenceToResource;
 
 /**
  * sSeqInstructionArgsTable is a table for each sequence instruction
