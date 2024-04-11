@@ -5,13 +5,13 @@
 
 s32 osAiSetNextBuffer(void* buf, u32 size) {
     static u8 D_801D6010 = false;
-    u32 bufAdjusted = (u32)buf;
+    uintptr_t bufAdjusted = (uintptr_t)buf;
     s32 status;
 
     if (D_801D6010) {
-        bufAdjusted = (u32)buf - 0x2000;
+        bufAdjusted = (uintptr_t)buf - 0x2000;
     }
-    if ((((u32)buf + size) & 0x1FFF) == 0) {
+    if ((((uintptr_t)buf + size) & 0x1FFF) == 0) {
         D_801D6010 = true;
     } else {
         D_801D6010 = false;
