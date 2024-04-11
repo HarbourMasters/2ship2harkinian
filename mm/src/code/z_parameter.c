@@ -2480,7 +2480,7 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                     if (!CHECK_EVENTINF(EVENTINF_41) ||
                         (CHECK_EVENTINF(EVENTINF_41) && (CutsceneManager_GetCurrentCsId() == CS_ID_NONE))) {
                         Audio_PlaySfx(NA_SE_SY_CAMERA_SHUTTER);
-                        SREG(89) = 1;
+                        R_PICTO_PHOTO_STATE = PICTO_PHOTO_STATE_SETUP;
                         play->haltAllActors = true;
                         sPictoState = PICTO_BOX_STATE_SETUP_PHOTO;
                         sPictoPhotoBeingTaken = true;
@@ -7128,6 +7128,10 @@ void Interface_Draw(PlayState* play) {
             pictoRectTop = PICTO_PHOTO_TOPLEFT_Y - 33;
             for (sp2CC = 0; sp2CC < (PICTO_PHOTO_HEIGHT / 8); sp2CC++, pictoRectTop += 8) {
                 pictoRectLeft = PICTO_PHOTO_TOPLEFT_X;
+                // 2S2H [Port] Invalidate each section. This could probably be optimized to only be done once each pic
+                gSPInvalidateTexCache(OVERLAY_DISP++,
+                                      (u8*)((play->pictoPhotoI8 != NULL) ? play->pictoPhotoI8 : gWorkBuffer) +
+                                          (0x500 * sp2CC));
                 gDPLoadTextureBlock(OVERLAY_DISP++,
                                     (u8*)((play->pictoPhotoI8 != NULL) ? play->pictoPhotoI8 : gWorkBuffer) +
                                         (0x500 * sp2CC),
