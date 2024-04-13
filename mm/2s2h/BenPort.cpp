@@ -358,7 +358,7 @@ extern "C" void DeinitOTR() {
 
     // Destroying gui here because we have shared ptrs to LUS objects which output to SPDLOG which is destroyed before
     // these shared ptrs.
-    //BenGui::Destroy();
+    BenGui::Destroy();
 
     OTRGlobals::Instance->context = nullptr;
 }
