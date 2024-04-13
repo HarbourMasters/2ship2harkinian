@@ -1,4 +1,4 @@
-﻿#include "BenPort.h"
+#include "BenPort.h"
 #include <iostream>
 #include <algorithm>
 #include <filesystem>
@@ -430,6 +430,7 @@ extern "C" void SaveManager_ThreadPoolWait() {
 
 extern "C" void DeinitOTR() {
     SaveManager_ThreadPoolWait();
+    OTRAudio_Exit();
 #ifdef ENABLE_CROWD_CONTROL
     CrowdControl::Instance->Disable();
     CrowdControl::Instance->Shutdown();
