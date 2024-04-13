@@ -6,6 +6,7 @@
 extern s32 gPauseFrameBuffer;
 extern s32 gBlurFrameBuffer;
 extern s32 gReusableFrameBuffer;
+extern s32 gPictoBoxFrameBuffer;
 
 void FB_CreateFramebuffers(void);
 void FB_CopyToFramebuffer(Gfx** gfxp, s32 fb_src, s32 fb_dest, u8 oncePerFrame, u8* hasCopied);
