@@ -248,7 +248,7 @@ typedef enum {
  * @param sfxState
  */
 #define AUDIOCMD_CHANNEL_SET_SFX_STATE(seqPlayerIndex, channelIndex, sfxState) \
-    AudioThread_QueueCmdS32(AUDIO_MK_CMD(AUDIOCMD_OP_CHANNEL_SET_SFX_STATE, seqPlayerIndex, channelIndex, 0), (s32)sfxState)
+    AudioThread_QueueCmdPtr(AUDIO_MK_CMD(AUDIOCMD_OP_CHANNEL_SET_SFX_STATE, seqPlayerIndex, channelIndex, 0), (void*)sfxState)
 
 /**
  * Set the reverb index.
@@ -282,7 +282,7 @@ typedef enum {
  * @param filter
  */
 #define AUDIOCMD_CHANNEL_SET_FILTER(seqPlayerIndex, channelIndex, filterCutoff, filter)                               \
-    AudioThread_QueueCmdS32(AUDIO_MK_CMD(AUDIOCMD_OP_CHANNEL_SET_FILTER, seqPlayerIndex, channelIndex, filterCutoff), \
+    AudioThread_QueueCmdPtr(AUDIO_MK_CMD(AUDIOCMD_OP_CHANNEL_SET_FILTER, seqPlayerIndex, channelIndex, filterCutoff), \
                             filter)
 
 /**
@@ -456,7 +456,7 @@ typedef enum {
  * @param drumPtr (s32) the ptr to the `Drum` struct
  */
 #define AUDIOCMD_GLOBAL_SET_DRUM_FONT(fontId, drumId, drumPtr) \
-    AudioThread_QueueCmdS32(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_SET_DRUM_FONT, 0, fontId, drumId), drumPtr)
+    AudioThread_QueueCmdPtr(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_SET_DRUM_FONT, 0, fontId, drumId), drumPtr)
 
 /**
  * Set a soundeffect ptr within a soundfont
@@ -466,7 +466,7 @@ typedef enum {
  * @param soundEffectPtr (s32) the ptr to the `SoundEffect` struct
  */
 #define AUDIOCMD_GLOBAL_SET_SFX_FONT(fontId, soundEffectId, soundEffectPtr) \
-    AudioThread_QueueCmdS32(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_SET_SFX_FONT, 0, fontId, soundEffectId), soundEffectPtr)
+    AudioThread_QueueCmdPtr(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_SET_SFX_FONT, 0, fontId, soundEffectId), soundEffectPtr)
 
 /**
  * Set an instrument ptr within a soundfont
@@ -476,7 +476,7 @@ typedef enum {
  * @param instPtr (s32) the ptr to the `Instrument` struct
  */
 #define AUDIOCMD_GLOBAL_SET_INSTRUMENT_FONT(fontId, instId, instPtr) \
-    AudioThread_QueueCmdS32(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_SET_INSTRUMENT_FONT, 0, fontId, instId), instPtr)
+    AudioThread_QueueCmdPtr(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_SET_INSTRUMENT_FONT, 0, fontId, instId), instPtr)
 
 /**
  * Pop the persistent cache of the specified table
@@ -493,7 +493,7 @@ typedef enum {
  * @param functionPtr
  */
 #define AUDIOCMD_GLOBAL_SET_CUSTOM_FUNCTION(functionType, functionPtr) \
-    AudioThread_QueueCmdS32(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_SET_CUSTOM_FUNCTION, 0, 0, functionType), (s32)functionPtr)
+    AudioThread_QueueCmdPtr(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_SET_CUSTOM_FUNCTION, 0, 0, functionType), functionPtr)
 
 /**
  * Do something related to the unloaded-type audio data in the heap.
@@ -514,7 +514,7 @@ typedef enum {
  * @param data
  */
 #define AUDIOCMD_GLOBAL_SET_REVERB_DATA(reverbIndex, dataType, data) \
-    AudioThread_QueueCmdS32(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_SET_REVERB_DATA, dataType, reverbIndex, 0), (s32)data)
+    AudioThread_QueueCmdPtr(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_SET_REVERB_DATA, dataType, reverbIndex, 0), (uintptr_t)data)
 
 /**
  * Change the sound mode of audio
@@ -608,7 +608,7 @@ typedef enum {
  * @param functionPtr (s32) address of the function to run once every audio frame
  */
 #define AUDIOCMD_GLOBAL_SET_CUSTOM_UPDATE_FUNCTION(functionPtr) \
-    AudioThread_QueueCmdS32(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_SET_CUSTOM_UPDATE_FUNCTION, 0, 0, 0), functionPtr)
+    AudioThread_QueueCmdPtr(AUDIO_MK_CMD(AUDIOCMD_OP_GLOBAL_SET_CUSTOM_UPDATE_FUNCTION, 0, 0, 0), functionPtr)
 
 /**
  * Asynchronously load a sequence

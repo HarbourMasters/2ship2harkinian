@@ -13,6 +13,8 @@
  *   - All three sets share a common pool of control flow instructions (>= 0xF2).
  *     Otherwise, each set of instructions has its own command interpreter
  */
+
+#include "endianness.h"
 #include "global.h"
 
 #define PROCESS_SCRIPT_END -1
@@ -26,6 +28,9 @@ s32 AudioScript_SeqLayerProcessScriptStep2(SequenceLayer* layer);
 s32 AudioScript_SeqLayerProcessScriptStep4(SequenceLayer* layer, s32 cmd);
 s32 AudioScript_SeqLayerProcessScriptStep3(SequenceLayer* layer, s32 cmd);
 u8 AudioScript_GetInstrument(SequenceChannel* channel, u8 instId, Instrument** instOut, AdsrSettings* adsr);
+
+SequenceData ResourceMgr_LoadSeqByName(const char* path);
+extern char** gSequenceToResource;
 
 /**
  * sSeqInstructionArgsTable is a table for each sequence instruction
@@ -1414,9 +1419,19 @@ void AudioScript_SequenceChannelProcessScript(SequenceChannel* channel) {
                     cmd = (u8)cmdArgs[0];
 
                     if (seqPlayer->defaultFont != 0xFF) {
-                        cmdArgU16 = ((u16*)gAudioCtx.sequenceFontTable)[seqPlayer->seqId];
-                        lowBits = gAudioCtx.sequenceFontTable[cmdArgU16];
-                        cmd = gAudioCtx.sequenceFontTable[cmdArgU16 + lowBits - cmd];
+                        if (gAudioCtx.seqReplaced[seqPlayer->playerIndex]) {
+                                seqPlayer->seqId = gAudioCtx.seqToPlay[seqPlayer->playerIndex];
+                            gAudioCtx.seqReplaced[seqPlayer->playerIndex] = 0;
+                        }
+                        u16 seqId = seqPlayer->seqId; // AudioEditor_GetReplacementSeq(seqPlayer->seqId);
+                        SequenceData sDat = ResourceMgr_LoadSeqByName(gSequenceToResource[seqId]);
+
+                        // The game apparantely would sometimes do negative array lookups, the result of which would get
+                        // rejected by AudioHeap_SearchCaches, never changing the actual fontid.
+                        if (cmd > sDat.numFonts)
+                            break;
+
+                        cmd = sDat.fonts[(sDat.numFonts - cmd - 1)];
                     }
 
                     if (AudioHeap_SearchCaches(FONT_TABLE, CACHE_EITHER, cmd)) {
@@ -1597,7 +1612,7 @@ void AudioScript_SequenceChannelProcessScript(SequenceChannel* channel) {
 
                 case 0xB2: // channel: dynread sequence large
                     cmdArgU16 = (u16)cmdArgs[0];
-                    channel->unk_22 = *(u16*)(seqPlayer->seqData + (u32)(cmdArgU16 + scriptState->value * 2));
+                    channel->unk_22 = BE16SWAP(*(u16*)(seqPlayer->seqData + (u32)(cmdArgU16 + scriptState->value * 2)));
                     break;
 
                 case 0xB4: // channel: set dyntable large
@@ -1605,7 +1620,7 @@ void AudioScript_SequenceChannelProcessScript(SequenceChannel* channel) {
                     break;
 
                 case 0xB5: // channel: read dyntable large
-                    channel->unk_22 = ((u16*)(channel->dynTable))[scriptState->value];
+                    channel->unk_22 = BE16SWAP(((u16*)(channel->dynTable))[scriptState->value]);
                     break;
 
                 case 0xB6: // channel: read dyntable

@@ -35,7 +35,7 @@ typedef struct {
     /* 0x04 */ uintptr_t romAddr;
     /* 0x08 */ char pad[0x8];
     /* 0x10 */ AudioTableEntry entries[1]; // (dynamic size)
-} AudioTable; // size >= 0x20
+} AudioTable;                              // size >= 0x20
 
 typedef enum {
     /* 0 */ LOAD_STATUS_NOT_LOADED,
@@ -88,7 +88,8 @@ typedef struct {
     /* 0x10 */ u8* ramAddr;
     /* 0x14 */ s32 status;
     /* 0x18 */ size_t bytesRemaining;
-    /* 0x1C */ s8* isDone; // TODO: rename in OoT and sync up here. This is an external status while (s32 status) is an internal status
+    /* 0x1C */ s8* isDone; // TODO: rename in OoT and sync up here. This is an external status while (s32 status) is an
+                           // internal status
     /* 0x20 */ struct Sample sample;
     /* 0x30 */ OSMesgQueue msgqueue;
     /* 0x48 */ OSMesg msg;
@@ -103,7 +104,7 @@ typedef struct {
     /* 0xC */ u8 unused;
     /* 0xD */ u8 reuseIndex; // position in sSampleDmaReuseQueue1/2, if ttl == 0
     /* 0xE */ u8 ttl;        // Time To Live: duration after which the DMA can be discarded
-} SampleDma; // size = 0x10
+} SampleDma;                 // size = 0x10
 
 typedef struct {
     /* 0x00 */ u32 endAndMediumKey;
@@ -125,7 +126,7 @@ s32 AudioLoad_SyncLoadInstrument(s32 fontId, s32 instId, s32 drumId);
 void AudioLoad_AsyncLoadSeq(s32 seqId, s32 arg1, s32 retData, OSMesgQueue* retQueue);
 void AudioLoad_AsyncLoadSampleBank(s32 sampleBankId, s32 arg1, s32 retData, OSMesgQueue* retQueue);
 void AudioLoad_AsyncLoadFont(s32 fontId, s32 arg1, s32 retData, OSMesgQueue* retQueue);
-u8* AudioLoad_GetFontsForSequence(s32 seqId, u32* outNumFonts);
+u8* AudioLoad_GetFontsForSequence(s32 seqId, u32* outNumFonts, u8* buff);
 void AudioLoad_DiscardSeqFonts(s32 seqId);
 void func_8018FA60(u32 tableType, u32 id, s32 type, s32 data);
 s32 AudioLoad_SyncInitSeqPlayer(s32 playerIndex, s32 seqId, s32 arg2);

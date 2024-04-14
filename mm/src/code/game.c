@@ -240,8 +240,8 @@ void GameState_Init(GameState* gameState, GameStateFunc init, GraphicsContext* g
 
 void GameState_Destroy(GameState* gameState) {
     // BENTODO
-    //AudioMgr_StopAllSfxExceptSystem();
-    //Audio_Update();
+    AudioMgr_StopAllSfxExceptSystem();
+    Audio_Update();
     osRecvMesg(&gameState->gfxCtx->queue, NULL, OS_MESG_BLOCK);
 
     if (gameState->destroy != NULL) {

@@ -40,10 +40,10 @@ ActiveSequence gActiveSeqs[5];
 AudioContext gAudioCtx;
 s32 D_801FD120;
 
-u8 gSoundFontTable[5];
-u8 gSequenceFontTable[5];
-u8 gSequenceTable[5];
-u8 gSampleBankTable[5];
+// u8 gSoundFontTable[5];
+// u8 gSequenceFontTable[5];
+// u8 gSequenceTable[5];
+// u8 gSampleBankTable[5];
 
 AudioCustomUpdateFunction gAudioCustomUpdateFunction;
 AudioCustomSeqFunction gAudioCustomSeqFunction;
@@ -170,9 +170,9 @@ char* ResourceMgr_LoadTexOrDListByName(const char* data);
 
 void gSPSegment(void* value, int segNum, uintptr_t target) {
     char* imgData = (char*)target;
-    
+
     int res = ResourceMgr_OTRSigCheck(imgData);
-    
+
     // OTRTODO: Disabled for now to fix an issue with HD Textures.
     // With HD textures, we need to pass the path to F3D, not the raw texture data.
     // Otherwise the needed metadata is not available for proper rendering...
@@ -181,23 +181,23 @@ void gSPSegment(void* value, int segNum, uintptr_t target) {
     // That should not affect HD textures.
     if (res) {
         uintptr_t desiredTarget = (uintptr_t)ResourceMgr_LoadIfDListByName(imgData);
-    
+
         if (desiredTarget != NULL)
             target = desiredTarget;
     }
-    
+
     __gSPSegment(value, segNum, target);
 }
 
 void gSPSegmentLoadRes(void* value, int segNum, uintptr_t target) {
     char* imgData = (char*)target;
-    
+
     int res = ResourceMgr_OTRSigCheck(imgData);
-    
+
     if (res) {
         target = (uintptr_t)ResourceMgr_LoadTexOrDListByName(imgData);
     }
-    
+
     __gSPSegment(value, segNum, target);
 }
 
@@ -211,42 +211,42 @@ void gDPSetTextureImageFB(Gfx* pkt, u32 format, u32 size, u32 width, int fb) {
 
 void gSPDisplayList(Gfx* pkt, Gfx* dl) {
     char* imgData = (char*)dl;
-    
+
     if (ResourceMgr_OTRSigCheck(imgData) == 1) {
-    
+
         // ResourceMgr_PushCurrentDirectory(imgData);
         // gsSPPushCD(pkt++, imgData);
         dl = ResourceMgr_LoadGfxByName(imgData);
     }
-    
+
     __gSPDisplayList(pkt, dl);
 }
 
 void gSPDisplayListOffset(Gfx* pkt, Gfx* dl, int offset) {
     char* imgData = (char*)dl;
-    
+
     if (ResourceMgr_OTRSigCheck(imgData) == 1)
         dl = ResourceMgr_LoadGfxByName(imgData);
-    
+
     __gSPDisplayList(pkt, dl + offset);
 }
 
 void gSPVertex(Gfx* pkt, uintptr_t v, int n, int v0) {
     if (ResourceMgr_OTRSigCheck((char*)v) == 1)
         v = (uintptr_t)ResourceMgr_LoadVtxByName((char*)v);
-    
+
     __gSPVertex(pkt, v, n, v0);
 }
 
 void gSPInvalidateTexCache(Gfx* pkt, uintptr_t texAddr) {
     char* imgData = (char*)texAddr;
-    
+
     if (texAddr != 0 && ResourceMgr_OTRSigCheck(imgData)) {
         // Temporary solution to the mq/nonmq issue, this will be
         // handled better with LUS 1.0
         texAddr = (uintptr_t)ResourceMgr_LoadTexOrDListByName(imgData);
     }
-    
+
     __gSPInvalidateTexCache(pkt, texAddr);
 }
 void func_801A1290(void) {
@@ -758,7 +758,7 @@ void guPerspectiveF(f32 mf[4][4], u16* perspNorm, f32 fovy, f32 aspect, f32 near
 
 void guPerspective(Mtx* m, u16* perspNorm, float fovy, float aspect, float near, float far, float scale) {
     float mf[4][4];
-    
+
     guPerspectiveF(mf, perspNorm, fovy, aspect, near, far, scale);
     Matrix_MtxFToMtx((MtxF*)mf, m);
     //guPerspectiveF(mf, perspNorm, fovy, aspect, near, far, scale);
