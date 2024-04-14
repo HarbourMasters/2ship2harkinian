@@ -76,9 +76,9 @@ execute_process(
     ${LINUXDEPLOY_EXECUTABLE}
     --appimage-extract-and-run
     --appdir=${CPACK_TEMPORARY_DIRECTORY}
-    --executable=$<TARGET_FILE:soh>
-    $<$<BOOL:$<TARGET_PROPERTY:soh,APPIMAGE_DESKTOP_FILE>>:--desktop-file=$<TARGET_PROPERTY:soh,APPIMAGE_DESKTOP_FILE>>
-    $<$<BOOL:$<TARGET_PROPERTY:soh,APPIMAGE_ICON_FILE>>:--icon-file=$<TARGET_PROPERTY:soh,APPIMAGE_ICON_FILE>>
+    --executable=$<TARGET_FILE:mm>
+    $<$<BOOL:$<TARGET_PROPERTY:mm,APPIMAGE_DESKTOP_FILE>>:--desktop-file=$<TARGET_PROPERTY:mm,APPIMAGE_DESKTOP_FILE>>
+    $<$<BOOL:$<TARGET_PROPERTY:mm,APPIMAGE_ICON_FILE>>:--icon-file=$<TARGET_PROPERTY:mm,APPIMAGE_ICON_FILE>>
     --output=appimage
     # --verbosity=2
 )
@@ -87,4 +87,3 @@ execute_process(
 endif()
 
 include(CPack)
-

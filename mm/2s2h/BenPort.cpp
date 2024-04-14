@@ -57,6 +57,7 @@ CrowdControl* CrowdControl::Instance;
 #include "Enhancements/GameInteractor/GameInteractor.h"
 #include "Enhancements/Enhancements.h"
 #include "2s2h/Enhancements/GfxPatcher/AuthenticGfxPatches.h"
+#include "2s2h/DeveloperTools/DebugConsole.h"
 
 // Resource Types/Factories
 #include "2s2h/resource//type/2shResourceType.h"
@@ -316,6 +317,7 @@ extern "C" void InitOTR() {
     BenGui::SetupGuiElements();
     InitEnhancements();
     GfxPatcher_ApplyNecessaryAuthenticPatches();
+    DebugConsole_Init();
 
     clearMtx = (uintptr_t)&gMtxClear;
     //OTRMessage_Init();
@@ -356,7 +358,7 @@ extern "C" void DeinitOTR() {
 
     // Destroying gui here because we have shared ptrs to LUS objects which output to SPDLOG which is destroyed before
     // these shared ptrs.
-    //BenGui::Destroy();
+    BenGui::Destroy();
 
     OTRGlobals::Instance->context = nullptr;
 }
@@ -1395,11 +1397,12 @@ extern "C" float OTRGetAspectRatio() {
 }
 
 extern "C" float OTRGetDimensionFromLeftEdge(float v) {
-    return (SCREEN_WIDTH / 2 - SCREEN_HEIGHT / 2 * OTRGetAspectRatio() + (v));
+    return (gfx_native_dimensions.width / 2 - gfx_native_dimensions.height / 2 * OTRGetAspectRatio() + (v));
 }
 
 extern "C" float OTRGetDimensionFromRightEdge(float v) {
-    return (SCREEN_WIDTH / 2 + SCREEN_HEIGHT / 2 * OTRGetAspectRatio() - (SCREEN_WIDTH - v));
+    return (gfx_native_dimensions.width / 2 + gfx_native_dimensions.height / 2 * OTRGetAspectRatio() -
+            (gfx_native_dimensions.width - v));
 }
 
 // Gets the width of the current render target area
