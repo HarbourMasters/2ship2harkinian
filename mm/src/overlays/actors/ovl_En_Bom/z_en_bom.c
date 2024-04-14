@@ -805,6 +805,7 @@ void EnBom_DrawKeg(PlayState* play, s32 timer) {
     Matrix_Scale(0.01f, 0.01f, 0.01f, MTXMODE_APPLY);
 
     gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+
     // 2S2H [Port] This was originally a static DL in the OTR file. The normal texture is too small to be rendered by Fast3D
     // and causes a crash.
     // This adds a custom texture in the OTR file and changes the DList to use the new size. At some point this should be 
@@ -823,7 +824,7 @@ void EnBom_DrawKeg(PlayState* play, s32 timer) {
     
     temp_s5 = (timer / 240) + 1;
     fuseSegmentPtr2 = &sPowderKegFuseSegments[1];
-
+    // Bentodo the fuse is not visible enough to see if this is broken. Verify once the long timer crash is fixed.
     for (i = 1; i < temp_s5; i++, fuseSegmentPtr2++) {
         Matrix_Translate(fuseSegmentPtr2->pos.x, fuseSegmentPtr2->pos.y, fuseSegmentPtr2->pos.z, MTXMODE_NEW);
         Matrix_RotateZYX(fuseSegmentPtr2->rotX, fuseSegmentPtr2->rotY, 0, MTXMODE_APPLY);
