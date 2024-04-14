@@ -3507,8 +3507,8 @@ Actor* Actor_Delete(ActorContext* actorCtx, Actor* actor, PlayState* play) {
     if (actor == actorCtx->targetCtx.bgmEnemy) {
         actorCtx->targetCtx.bgmEnemy = NULL;
     }
-    // BENTODO
-//    AudioSfx_StopByPos(&actor->projectedPos);
+
+    AudioSfx_StopByPos(&actor->projectedPos);
     Actor_Destroy(actor, play);
 
     newHead = Actor_RemoveFromCategory(play, actorCtx, actor);
