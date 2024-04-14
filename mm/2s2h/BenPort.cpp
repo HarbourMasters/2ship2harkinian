@@ -1,4 +1,4 @@
-﻿#include "BenPort.h"
+#include "BenPort.h"
 #include <iostream>
 #include <algorithm>
 #include <filesystem>
@@ -267,6 +267,84 @@ extern "C" int AudioPlayer_GetDesiredBuffered(void);
 extern "C" void ResourceMgr_LoadDirectory(const char* resName);
 std::unordered_map<std::string, ExtensionEntry> ExtensionCache;
 
+static struct {
+    std::thread thread;
+    std::condition_variable cv_to_thread, cv_from_thread;
+    std::mutex mutex;
+    bool running;
+    bool processing;
+} audio;
+
+
+void OTRAudio_Thread() {
+    while (audio.running) {
+        {
+            std::unique_lock<std::mutex> Lock(audio.mutex);
+            while (!audio.processing && audio.running) {
+                audio.cv_to_thread.wait(Lock);
+            }
+
+            if (!audio.running) {
+                break;
+            }
+        }
+        std::unique_lock<std::mutex> Lock(audio.mutex);
+        //AudioMgr_ThreadEntry(&gAudioMgr);
+        // 528 and 544 relate to 60 fps at 32 kHz 32000/60 = 533.333..
+        // in an ideal world, one third of the calls should use num_samples=544 and two thirds num_samples=528
+        //#define SAMPLES_HIGH 560
+        //#define SAMPLES_LOW 528
+        // PAL values
+        //#define SAMPLES_HIGH 656
+        //#define SAMPLES_LOW 624
+
+        // 44KHZ values
+        #define SAMPLES_HIGH 752
+        #define SAMPLES_LOW 720
+
+        #define AUDIO_FRAMES_PER_UPDATE (R_UPDATE_RATE > 0 ? R_UPDATE_RATE : 1 )
+        #define NUM_AUDIO_CHANNELS 2
+
+        int samples_left = AudioPlayer_Buffered();
+        u32 num_audio_samples = samples_left < AudioPlayer_GetDesiredBuffered() ? SAMPLES_HIGH : SAMPLES_LOW;
+
+        // 3 is the maximum authentic frame divisor.
+        s16 audio_buffer[SAMPLES_HIGH * NUM_AUDIO_CHANNELS * 3];
+        for (int i = 0; i < AUDIO_FRAMES_PER_UPDATE; i++) {
+            AudioMgr_CreateNextAudioBuffer(audio_buffer + i * (num_audio_samples * NUM_AUDIO_CHANNELS), num_audio_samples);
+        }
+
+        AudioPlayer_Play((u8*)audio_buffer, num_audio_samples * (sizeof(int16_t) * NUM_AUDIO_CHANNELS * AUDIO_FRAMES_PER_UPDATE));
+
+        audio.processing = false;
+        audio.cv_from_thread.notify_one();
+    }
+}
+
+// C->C++ Bridge
+extern "C" void OTRAudio_Init()
+{
+    // Precache all our samples, sequences, etc...
+    ResourceMgr_LoadDirectory("audio");
+
+    if (!audio.running) {
+        audio.running = true;
+        audio.thread = std::thread(OTRAudio_Thread);
+    }
+}
+
+extern "C" void OTRAudio_Exit() {
+    // Tell the audio thread to stop
+    {
+        std::unique_lock<std::mutex> Lock(audio.mutex);
+        audio.running = false;
+    }
+    audio.cv_to_thread.notify_all();
+
+    // Wait until the audio thread quit
+    audio.thread.join();
+}
+
 extern "C" void OTRExtScanner() {
     auto lst = *LUS::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->ListFiles("*").get();
 
@@ -321,6 +399,7 @@ extern "C" void InitOTR() {
 
     clearMtx = (uintptr_t)&gMtxClear;
     //OTRMessage_Init();
+    OTRAudio_Init();
     //OTRExtScanner();
     time_t now = time(NULL);
     tm* tm_now = localtime(&now);
@@ -351,6 +430,7 @@ extern "C" void SaveManager_ThreadPoolWait() {
 
 extern "C" void DeinitOTR() {
     SaveManager_ThreadPoolWait();
+    OTRAudio_Exit();
 #ifdef ENABLE_CROWD_CONTROL
     CrowdControl::Instance->Disable();
     CrowdControl::Instance->Shutdown();
@@ -509,57 +589,12 @@ void RunCommands(Gfx* Commands, const std::vector<std::unordered_map<Mtx*, MtxF>
 
 // C->C++ Bridge
 extern "C" void Graph_ProcessGfxCommands(Gfx* commands) {
-    #if 0
-    if (!audio.initialized) {
-        audio.initialized = true;
-        std::thread([]() {
-            for (;;) {
-                {
-                    std::unique_lock<std::mutex> Lock(audio.mutex);
-                    while (!audio.processing) {
-                        audio.cv_to_thread.wait(Lock);
-                    }
-                }
-                std::unique_lock<std::mutex> Lock(audio.mutex);
-// AudioMgr_ThreadEntry(&gAudioMgr);
-// 528 and 544 relate to 60 fps at 32 kHz 32000/60 = 533.333..
-// in an ideal world, one third of the calls should use num_samples=544 and two thirds num_samples=528
-#define SAMPLES_HIGH 560
-#define SAMPLES_LOW 528
-// PAL values
-//#define SAMPLES_HIGH 656
-//#define SAMPLES_LOW 624
-#define AUDIO_FRAMES_PER_UPDATE (R_UPDATE_RATE > 0 ? R_UPDATE_RATE : 1)
-#define NUM_AUDIO_CHANNELS 2
-                int samples_left = AudioPlayer_Buffered();
-                u32 num_audio_samples = samples_left < AudioPlayer_GetDesiredBuffered() ? SAMPLES_HIGH : SAMPLES_LOW;
-                // printf("Audio samples: %d %u\n", samples_left, num_audio_samples);
-
-                // 3 is the maximum authentic frame divisor.
-                s16 audio_buffer[SAMPLES_HIGH * NUM_AUDIO_CHANNELS * 3];
-                for (int i = 0; i < AUDIO_FRAMES_PER_UPDATE; i++) {
-                    AudioMgr_CreateNextAudioBuffer(audio_buffer + i * (num_audio_samples * NUM_AUDIO_CHANNELS),
-                                                   num_audio_samples);
-                }
-                // for (uint32_t i = 0; i < 2 * num_audio_samples; i++) {
-                //    audio_buffer[i] = Rand_Next() & 0xFF;
-                //}
-                // printf("Audio samples before submitting: %d\n", audio_api->buffered());
-                AudioPlayer_Play((u8*)audio_buffer,
-                                 num_audio_samples * (sizeof(int16_t) * NUM_AUDIO_CHANNELS * AUDIO_FRAMES_PER_UPDATE));
-
-                audio.processing = false;
-                audio.cv_from_thread.notify_one();
-            }
-        }).detach();
-    }
     {
         std::unique_lock<std::mutex> Lock(audio.mutex);
         audio.processing = true;
     }
-    audio.cv_to_thread.notify_one();
-    #endif
 
+    audio.cv_to_thread.notify_one();
     std::vector<std::unordered_map<Mtx*, MtxF>> mtx_replacements;
     int target_fps = CVarGetInteger("gInterpolationFPS", 20);
     static int last_fps;
@@ -607,11 +642,17 @@ extern "C" void Graph_ProcessGfxCommands(Gfx* commands) {
     last_fps = fps;
     last_update_rate = R_UPDATE_RATE;
 
-    //{
-    //    std::unique_lock<std::mutex> Lock(audio.mutex);
-    //    while (audio.processing) {
-    //        audio.cv_from_thread.wait(Lock);
-    //    }
+    {
+       std::unique_lock<std::mutex> Lock(audio.mutex);
+       while (audio.processing) {
+           audio.cv_from_thread.wait(Lock);
+       }
+    }
+    //
+    //if (ShouldClearTextureCacheAtEndOfFrame) {
+    //    gfx_texture_cache_clear();
+    //    LUS::SkeletonPatcher::UpdateSkeletons();
+    //    ShouldClearTextureCacheAtEndOfFrame = false;
     //}
 
     // OTRTODO: FIGURE OUT END FRAME POINT
@@ -1029,6 +1070,10 @@ extern "C" Vtx* ResourceMgr_LoadVtxByName(char* path) {
     return (Vtx*)ResourceGetDataByName(path);
 }
 
+extern "C" SequenceData ResourceMgr_LoadSeqByName(const char* path) {
+   SequenceData* sequence = (SequenceData*)ResourceGetDataByName(path);
+   return *sequence;
+}
 extern "C" KeyFrameSkeleton* ResourceMgr_LoadKeyFrameSkelByName(const char* path) {
     return (KeyFrameSkeleton*)ResourceGetDataByName(path);
 }
@@ -1036,13 +1081,6 @@ extern "C" KeyFrameSkeleton* ResourceMgr_LoadKeyFrameSkelByName(const char* path
 extern "C" KeyFrameAnimation* ResourceMgr_LoadKeyFrameAnimByName(const char* path) {
     return (KeyFrameAnimation*)ResourceGetDataByName(path);
 }
-
-
-//extern "C" SequenceData ResourceMgr_LoadSeqByName(const char* path) {
-//    SequenceData* sequence = (SequenceData*)ResourceGetDataByName(path);
-//    return *sequence;
-//}
-//
 //std::map<std::string, SoundFontSample*> cachedCustomSFs;
 #if 0
 extern "C" SoundFontSample* ReadCustomSample(const char* path) {
@@ -1104,11 +1142,11 @@ extern "C" SoundFontSample* ReadCustomSample(const char* path) {
 extern "C" SoundFontSample* ResourceMgr_LoadAudioSample(const char* path) {
     return (SoundFontSample*)ResourceGetDataByName(path);
 }
+#endif
 
 extern "C" SoundFont* ResourceMgr_LoadAudioSoundFont(const char* path) {
     return (SoundFont*)ResourceGetDataByName(path);
 }
-#endif
 extern "C" int ResourceMgr_OTRSigCheck(char* imgData) {
     uintptr_t i = (uintptr_t)(imgData);
 
@@ -1570,7 +1608,7 @@ extern "C" void BenSysFlashrom_WriteData(u8* saveBuffer, u32 pageNum, u32 pageCo
 
             std::string fileName = "save_" + std::to_string(flashSlotFile) + ".sav";
             if (isBackup) fileName += ".bak";
-        
+
             if (IS_VALID_FILE(save)) {
                 WriteSaveFile(fileName, save);
             } else {

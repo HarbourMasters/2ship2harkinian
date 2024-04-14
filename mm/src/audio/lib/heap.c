@@ -13,6 +13,8 @@ void AudioHeap_ApplySampleBankCacheInternal(s32 apply, s32 sampleBankId);
 void AudioHeap_DiscardSampleBanks(void);
 void AudioHeap_InitReverb(s32 reverbIndex, ReverbSettings* settings, s32 isFirstInit);
 
+extern size_t gSequenceToResourceSize;
+
 #define gTatumsPerBeat (gAudioTatumInit[1])
 
 /**
@@ -66,7 +68,7 @@ void AudioHeap_ResetLoadStatus(void) {
         }
     }
 
-    for (i = 0; i < ARRAY_COUNT(gAudioCtx.seqLoadStatus); i++) {
+    for (i = 0; i < gSequenceToResourceSize; i++) {
         if (gAudioCtx.seqLoadStatus[i] != LOAD_STATUS_PERMANENT) {
             gAudioCtx.seqLoadStatus[i] = LOAD_STATUS_NOT_LOADED;
         }
@@ -123,6 +125,7 @@ void AudioHeap_DiscardSequence(s32 seqId) {
  * Perform a writeback from the L1 data cache to the ram.
  */
 void* AudioHeap_WritebackDCache(void* addr, size_t size) {
+    return addr;
     Audio_WritebackDCache(addr, size);
     if (addr) {}
 
@@ -1110,9 +1113,9 @@ void* AudioHeap_AllocPermanent(s32 tableType, s32 id, size_t size) {
     gAudioCtx.permanentEntries[index].size = size;
     //! @bug UB: missing return. "addr" is in v0 at this point, but doing an
     // explicit return uses an additional register.
-#ifdef AVOID_UB
+    // #ifdef AVOID_UB
     return addr;
-#endif
+    // #endif
 }
 
 void* AudioHeap_AllocSampleCache(size_t size, s32 sampleBankId, void* sampleAddr, s8 medium, s32 cache) {
@@ -1359,6 +1362,8 @@ void AudioHeap_DiscardSampleCacheForFont(SampleCacheEntry* entry, s32 sampleBank
 }
 
 void AudioHeap_DiscardSampleCaches(void) {
+    return;
+
     s32 numFonts;
     s32 sampleBankId1;
     s32 sampleBankId2;
@@ -1529,7 +1534,7 @@ void AudioHeap_DiscardSampleBanks(void) {
     }
 }
 
-void AudioHeap_SetReverbData(s32 reverbIndex, u32 dataType, s32 data, s32 isFirstInit) {
+void AudioHeap_SetReverbData(s32 reverbIndex, u32 dataType, uintptr_t data, s32 isFirstInit) {
     s32 delayNumSamples;
     SynthesisReverb* reverb = &gAudioCtx.synthesisReverbs[reverbIndex];
 

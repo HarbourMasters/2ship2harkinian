@@ -1674,7 +1674,7 @@ u8 sCustomSequenceScript[400] = {
     /* 40 */ 0x80, // testlayer 0
 
     // (no end or loop; channel script seems to run into the note layers?)
-    
+
     // .layer layer0
     /* 41 */ 0xF3, -4, // rbeqz chan_loop
 
@@ -1683,8 +1683,8 @@ u8 sCustomSequenceScript[400] = {
 
     // .layer layer2?
     /* 44 */ 0xC2, -5, // transpose -5
-    /* 46 */ 0xC0, 0, // ldelay 0 
-    /* 48 */ 0xC1, 87, // shortvel 87 
+    /* 46 */ 0xC0, 0, // ldelay 0
+    /* 48 */ 0xC1, 87, // shortvel 87
     /* 50 */ 0xC9, 0, // shortgate 0
     /* 52 */ 0, // empty until the end
 };
@@ -2744,8 +2744,6 @@ void AudioOcarina_SetOcarinaDisableTimer(u8 unused, u8 timer) {
 }
 
 void AudioOcarina_SetInstrument(u8 ocarinaInstrumentId) {
-    // BENTODO: Crashes on kaleido when moving back and forth between songs
-    return;
     if ((sOcarinaInstrumentId != ocarinaInstrumentId) || (ocarinaInstrumentId == OCARINA_INSTRUMENT_DEFAULT)) {
         SEQCMD_SET_CHANNEL_IO(SEQ_PLAYER_SFX, SFX_CHANNEL_OCARINA, 1, ocarinaInstrumentId);
         sOcarinaInstrumentId = ocarinaInstrumentId;
@@ -4933,10 +4931,11 @@ void Audio_SetSequenceProperties(u8 seqPlayerIndex, Vec3f* projectedPos, s16 fla
     if (flags & 8) {
         // Uses new filter gBandPassFilterData
         AUDIOCMD_CHANNEL_SET_FILTER(seqPlayerIndex, AUDIOCMD_ALL_CHANNELS, 0x54,
-                                    ((u32)&sSequenceFilter[0] & ~0xF) + 0x10);
+                                    ((uintptr_t)&sSequenceFilter[0] & ~0xF) + 0x10);
     } else {
         // Identity Filter
-        AUDIOCMD_CHANNEL_SET_FILTER(seqPlayerIndex, AUDIOCMD_ALL_CHANNELS, 0, ((u32)&sSequenceFilter[0] & ~0xF) + 0x10);
+        AUDIOCMD_CHANNEL_SET_FILTER(seqPlayerIndex, AUDIOCMD_ALL_CHANNELS, 0,
+                                    ((uintptr_t)&sSequenceFilter[0] & ~0xF) + 0x10);
     }
 
     if (flags & 0x10) {
@@ -5649,15 +5648,17 @@ void Audio_MuteBgmPlayersForFanfare(void) {
  * Sets up seqId to play on seqPlayerIndex 1
  */
 void Audio_PlayFanfare(u16 seqId) {
+    u8 prevFontBuff[16];
+    u8 fontBuff[16];
     u16 prevSeqId = AudioSeq_GetActiveSeqId(SEQ_PLAYER_FANFARE);
     u32 outNumFonts;
-    u8* prevFontId = AudioThread_GetFontsForSequence(prevSeqId & 0xFF, &outNumFonts);
-    u8* fontId = AudioThread_GetFontsForSequence(seqId & 0xFF, &outNumFonts);
+    u8* prevFontId = AudioThread_GetFontsForSequence(prevSeqId & 0xFF, &outNumFonts, prevFontBuff);
+    u8* fontId = AudioThread_GetFontsForSequence(seqId & 0xFF, &outNumFonts, fontBuff);
     // BENTODO
     // #region 2S2H [Audio] TODO: Fixes fanfare crash, should/can be removed after audio is done
     // if ((prevSeqId == NA_BGM_DISABLED) || (*prevFontId == *fontId)) {
     if ((prevSeqId == NA_BGM_DISABLED) || (prevFontId != NULL && fontId != NULL && *prevFontId == *fontId)) {
-    // #endregion
+        // #endregion
         sFanfareState = 1;
     } else {
         sFanfareState = 5;

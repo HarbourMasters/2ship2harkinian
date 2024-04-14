@@ -1,4 +1,6 @@
 #include "global.h"
+#include "resourcebridge.h"
+#include "2s2h/mixer.h"
 
 // DMEM Addresses for the RSP
 #define DMEM_TEMP 0x3B0
@@ -353,9 +355,9 @@ void AudioSynth_Noop9(void) {
 }
 
 void AudioSynth_DMemMove(Acmd* cmd, s32 dmemIn, s32 dmemOut, size_t size) {
-    // aDMEMMove(cmd, dmemIn, dmemOut, size);
-    cmd->words.w0 = _SHIFTL(A_DMEMMOVE, 24, 8) | _SHIFTL(dmemIn, 0, 24);
-    cmd->words.w1 = _SHIFTL(dmemOut, 16, 16) | _SHIFTL(size, 0, 16);
+    aDMEMMove(cmd, dmemIn, dmemOut, size);
+    //cmd->words.w0 = _SHIFTL(A_DMEMMOVE, 24, 8) | _SHIFTL(dmemIn, 0, 24);
+    //cmd->words.w1 = _SHIFTL(dmemOut, 16, 16) | _SHIFTL(size, 0, 16);
 }
 
 void AudioSynth_Noop10(void) {
@@ -371,9 +373,9 @@ void AudioSynth_Noop13(void) {
 }
 
 void AudioSynth_InterL(Acmd* cmd, s32 dmemIn, s32 dmemOut, s32 numSamples) {
-    // aInterl(cmd, dmemIn, dmemOut, numSamples);
-    cmd->words.w0 = _SHIFTL(A_INTERL, 24, 8) | _SHIFTL(numSamples, 0, 16);
-    cmd->words.w1 = _SHIFTL(dmemIn, 16, 16) | _SHIFTL(dmemOut, 0, 16);
+    aInterl(cmd, dmemIn, dmemOut, numSamples);
+    // cmd->words.w0 = _SHIFTL(A_INTERL, 24, 8) | _SHIFTL(numSamples, 0, 16);
+    // cmd->words.w1 = _SHIFTL(dmemIn, 16, 16) | _SHIFTL(dmemOut, 0, 16);
 }
 
 void AudioSynth_EnvSetup1(Acmd* cmd, s32 reverbVol, s32 rampReverb, s32 rampLeft, s32 rampRight) {
@@ -392,9 +394,9 @@ void AudioSynth_SaveBuffer(Acmd* cmd, s32 dmemSrc, s32 size, void* addrDest) {
 }
 
 void AudioSynth_EnvSetup2(Acmd* cmd, s32 volLeft, s32 volRight) {
-    // aEnvSetup2(cmd, volLeft, volRight);
-    cmd->words.w0 = _SHIFTL(A_ENVSETUP2, 24, 8);
-    cmd->words.w1 = _SHIFTL(volLeft, 16, 16) | _SHIFTL(volRight, 0, 16);
+    aEnvSetup2(cmd, volLeft, volRight);
+    // cmd->words.w0 = _SHIFTL(A_ENVSETUP2, 24, 8);
+    // cmd->words.w1 = _SHIFTL(volLeft, 16, 16) | _SHIFTL(volRight, 0, 16);
 }
 
 void AudioSynth_Noop15(void) {
@@ -411,15 +413,16 @@ void AudioSynth_S8Dec(Acmd* cmd, s32 flags, s16* state) {
 }
 
 void AudioSynth_HiLoGain(Acmd* cmd, s32 gain, s32 dmemIn, s32 dmemOut, s32 size) {
-    // aHiLoGain(cmd, gain, size, dmemIn, dmemOut);
-    cmd->words.w0 = _SHIFTL(A_HILOGAIN, 24, 8) | _SHIFTL(gain, 16, 8) | _SHIFTL(size, 0, 16);
-    cmd->words.w1 = _SHIFTL(dmemIn, 16, 16) | _SHIFTL(dmemOut, 0, 16);
+    aHiLoGain(cmd, gain, size, dmemIn, dmemOut);
+    // cmd->words.w0 = _SHIFTL(A_HILOGAIN, 24, 8) | _SHIFTL(gain, 16, 8) | _SHIFTL(size, 0, 16);
+    // cmd->words.w1 = _SHIFTL(dmemIn, 16, 16) | _SHIFTL(dmemOut, 0, 16);
 }
 
 // Remnant of OoT
 void AudioSynth_UnkCmd19(Acmd* cmd, s32 dmem1, s32 dmem2, s32 size, s32 arg4) {
-    cmd->words.w0 = _SHIFTL(A_SPNOOP, 24, 8) | _SHIFTL(arg4, 16, 8) | _SHIFTL(size, 0, 16);
-    cmd->words.w1 = _SHIFTL(dmem1, 16, 16) | _SHIFTL(dmem2, 0, 16);
+    aUnkCmd19(cmd, dmem1, dmem2, size, arg4);
+    // cmd->words.w0 = _SHIFTL(A_SPNOOP, 24, 8) | _SHIFTL(arg4, 16, 8) | _SHIFTL(size, 0, 16);
+    // cmd->words.w1 = _SHIFTL(dmem1, 16, 16) | _SHIFTL(dmem2, 0, 16);
 }
 
 void AudioSynth_Noop18(void) {
@@ -614,7 +617,7 @@ Acmd* AudioSynth_LoadSubReverbSamples(Acmd* cmd, s32 numSamplesPerUpdate, Synthe
 
 Acmd* AudioSynth_SaveResampledReverbSamplesImpl(Acmd* cmd, u16 dmem, u16 size, uintptr_t startAddr) {
     s32 startAddrAlignDropped;
-    u32 endAddr;
+    uintptr_t endAddr;
     s32 endAddrAlignDropped;
 
     endAddr = startAddr + size;
@@ -1028,6 +1031,7 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
                     }
 
                     numEntries = SAMPLES_PER_FRAME * sample->book->order * sample->book->numPredictors;
+                    //ResourceCheckSample(sample->sampleAddr, sample->book->codeBook);
                     aLoadADPCM(cmd++, numEntries, gAudioCtx.adpcmCodeBook);
                 }
             }
@@ -1169,10 +1173,8 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
                         return cmd;
                     } else {
                         // This medium is not in ram, so dma the requested sample into ram
-                        samplesToLoadAddr =
-                            AudioLoad_DmaSampleData((uintptr_t)(sampleAddr + (zeroOffset + sampleAddrOffset)),
-                                                    ALIGN16((numFramesToDecode * frameSize) + SAMPLES_PER_FRAME), flags,
-                                                    &synthState->sampleDmaIndex, sample->medium);
+                        // BEN: Assume all samples are in RAM... because they are.
+                        samplesToLoadAddr = sampleAddr + (zeroOffset + sampleAddrOffset);
                     }
 
                     if (samplesToLoadAddr == NULL) {
@@ -1182,9 +1184,16 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
 
                     // Move the raw sample chunk from ram to the rsp
                     // DMEM at the addresses before DMEM_COMPRESSED_ADPCM_DATA
-                    sampleDataChunkAlignPad = (u32)samplesToLoadAddr & 0xF;
+                    sampleDataChunkAlignPad = (uintptr_t)samplesToLoadAddr & 0xF;
                     sampleDataChunkSize = ALIGN16((numFramesToDecode * frameSize) + SAMPLES_PER_FRAME);
                     sampleDataDmemAddr = DMEM_COMPRESSED_ADPCM_DATA - sampleDataChunkSize;
+
+                    // BEN: This will crash the asan. We can just ignore alignment since we don't have those strictures.
+                    //if (sampleDataChunkSize + sampleAddrOffset > sample->size) {
+                    //    sampleDataChunkSize = sample->size - sampleAddrOffset;
+                    //    sampleDataDmemAddr = DMEM_COMPRESSED_ADPCM_DATA - sampleDataChunkSize;
+                    //}
+
                     aLoadBuffer(cmd++, samplesToLoadAddr - sampleDataChunkAlignPad, sampleDataDmemAddr,
                                 sampleDataChunkSize);
                 } else {
@@ -1691,7 +1700,8 @@ Acmd* AudioSynth_ApplyHaasEffect(Acmd* cmd, NoteSampleState* sampleState, NoteSy
                     ALIGN16(haasEffectDelaySize));
     }
 
-    aAddMixer(cmd++, ALIGN64(size), DMEM_HAAS_TEMP, dmemDest, 0x7FFF);
+    aAddMixer(cmd++, ALIGN64(size), DMEM_HAAS_TEMP, dmemDest);
+    // aAddMixer(cmd++, ALIGN64(size), DMEM_HAAS_TEMP, dmemDest, 0x7FFF);
 
     return cmd;
 }

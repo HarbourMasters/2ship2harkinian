@@ -11,6 +11,7 @@
  */
 #include "global.h"
 #include "audio/effects.h"
+#include "endianness.h"
 
 void AudioScript_SequenceChannelProcessSound(SequenceChannel* channel, s32 recalculateVolume, s32 applyBend) {
     f32 channelVolume;
@@ -273,7 +274,7 @@ f32 AudioEffects_UpdateAdsr(AdsrState* adsr) {
             // fallthrough
         retry:
         case ADSR_STATUS_LOOP:
-            adsr->delay = adsr->envelope[adsr->envelopeIndex].delay;
+            adsr->delay = (s16)BE16SWAP(adsr->envelope[adsr->envelopeIndex].delay);
             switch (adsr->delay) {
                 case ADSR_DISABLE:
                     adsr->action.s.status = ADSR_STATUS_DISABLED;
@@ -284,7 +285,7 @@ f32 AudioEffects_UpdateAdsr(AdsrState* adsr) {
                     break;
 
                 case ADSR_GOTO:
-                    adsr->envelopeIndex = adsr->envelope[adsr->envelopeIndex].arg;
+                    adsr->envelopeIndex = (s16)BE16SWAP(adsr->envelope[adsr->envelopeIndex].arg);
                     goto retry;
 
                 case ADSR_RESTART:
@@ -296,7 +297,8 @@ f32 AudioEffects_UpdateAdsr(AdsrState* adsr) {
                     if (adsr->delay == 0) {
                         adsr->delay = 1;
                     }
-                    adsr->target = adsr->envelope[adsr->envelopeIndex].arg / 32767.0f;
+
+                    adsr->target = (s16)BE16SWAP(adsr->envelope[adsr->envelopeIndex].arg) / 32767.0f;
                     adsr->target = SQ(adsr->target);
                     adsr->velocity = (adsr->target - adsr->current) / adsr->delay;
                     adsr->action.s.status = ADSR_STATUS_FADE;

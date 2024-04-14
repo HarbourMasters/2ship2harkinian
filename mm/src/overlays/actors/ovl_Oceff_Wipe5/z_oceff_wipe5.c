@@ -5,6 +5,7 @@
  */
 
 #include "z_oceff_wipe5.h"
+#include "assets/overlays/ovl_Oceff_Wipe5/ovl_Oceff_Wipe5.h"
 #include "BenPort.h"
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_2000000)
@@ -29,20 +30,21 @@ ActorInit Oceff_Wipe5_InitVars = {
 };
 
 UNK_TYPE4 D_80BC9260;
+static Vtx* gOceff5VtxData;
 
 void OceffWipe5_Init(Actor* thisx, PlayState* play) {
     OceffWipe5* this = THIS;
+
+    gOceff5VtxData = ResourceMgr_LoadArrayByName(gOceff5Vtx);
 
     Actor_SetScale(&this->actor, 1.0f);
     this->counter = 0;
     this->actor.world.pos = play->cameraPtrs[play->activeCamId]->eye;
 }
 
-static Vtx* gOceff5VtxData;
-
 void OceffWipe5_Destroy(Actor* thisx, PlayState* play) {
     OceffWipe5* this = THIS;
-    gOceff5VtxData = ResourceMgr_LoadArrayByName(gOceff5VtxData);
+    gOceff5VtxData = ResourceMgr_LoadArrayByName(gOceff5Vtx);
 
     Magic_Reset(play);
     play->msgCtx.ocarinaSongEffectActive = false;
@@ -59,7 +61,6 @@ void OceffWipe5_Update(Actor* thisx, PlayState* play) {
     }
 }
 
-#include "assets/overlays/ovl_Oceff_Wipe5/ovl_Oceff_Wipe5.h"
 
 static u8 sPrimColors[] = {
     255, 255, 200, 255, 255, 200, 200, 255, 255, 255, 255, 200, 255, 200, 255,
