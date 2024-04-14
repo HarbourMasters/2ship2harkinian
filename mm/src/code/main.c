@@ -121,4 +121,6 @@ void SDL_main(int argc, char** argv /* void* arg*/) {
 
     IrqMgr_RemoveClient(&gIrqMgr, &sIrqClient);
     osDestroyThread(&gGraphThread);
+
+    DeinitOTR();
 }

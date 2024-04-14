@@ -15,6 +15,7 @@ void EnGuardNuts_Init(Actor* thisx, PlayState* play);
 void EnGuardNuts_Destroy(Actor* thisx, PlayState* play);
 void EnGuardNuts_Update(Actor* thisx, PlayState* play);
 void EnGuardNuts_Draw(Actor* thisx, PlayState* play);
+void EnGuardNuts_Reset(void);
 
 void EnGuardNuts_ChangeAnim(EnGuardNuts* this, s32 animIndex);
 void EnGuardNuts_SetupWait(EnGuardNuts* this);
@@ -35,6 +36,7 @@ ActorInit En_Guard_Nuts_InitVars = {
     /**/ EnGuardNuts_Destroy,
     /**/ EnGuardNuts_Update,
     /**/ EnGuardNuts_Draw,
+    /**/ EnGuardNuts_Reset,
 };
 
 static ColliderCylinderInit sCylinderInit = {
@@ -57,13 +59,13 @@ static ColliderCylinderInit sCylinderInit = {
     { 50, 50, 0, { 0, 0, 0 } },
 };
 
-s32 sGuardCount = 0;
+static s32 sGuardCount = 0;
 
-s32 D_80ABBE20 = 0;
+static s32 D_80ABBE20 = 0;
 
 static u16 sTextIds[] = { 0x0824, 0x0825, 0x0826, 0x082D, 0x0827, 0x0828, 0x0829, 0x082A, 0x082B, 0x082C };
 
-s16 D_80ABBE38[] = { 0x0000, 0x0000, 0x0002, 0x0001, 0x0000, 0x0000, 0x0002, 0x0000, 0x0000, 0x0002 };
+static s16 D_80ABBE38[] = { 0x0000, 0x0000, 0x0002, 0x0001, 0x0000, 0x0000, 0x0002, 0x0000, 0x0000, 0x0002 };
 
 typedef enum {
     /* -1 */ GUARD_NUTS_ANIM_NONE = -1,
@@ -392,4 +394,9 @@ void EnGuardNuts_Draw(Actor* thisx, PlayState* play) {
     gSPDisplayList(POLY_OPA_DISP++, gDekuPalaceGuardFlowerDL);
 
     CLOSE_DISPS(play->state.gfxCtx);
+}
+
+void EnGuardNuts_Reset(void) {
+    sGuardCount = 0;
+    D_80ABBE20 = 0;
 }
