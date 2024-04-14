@@ -20733,6 +20733,14 @@ s32 func_8085B930(PlayState* play, PlayerAnimationHeader* talkAnim, AnimationMod
         return false;
     }
 
+    // 2S2H [Port] We are setting the result of func_8082ED20 to talkAnim ahead of time
+    // so that Animation_GetLastframe returns a real value
+    if (talkAnim == NULL) {
+        talkAnim = func_8082ED20(player);
+    }
+
+    //! @bug When func_8082ED20 is used to get a wait animation, NULL is still passed to Animation_GetLastFrame,
+    // causing it to read the frame count from address 0x80000000 which returns 15385
     PlayerAnimation_Change(play, &player->skelAnime, (talkAnim == NULL) ? func_8082ED20(player) : talkAnim, 2.0f / 3.0f,
                            0.0f, Animation_GetLastFrame(talkAnim), animMode, -6.0f);
     return true;
