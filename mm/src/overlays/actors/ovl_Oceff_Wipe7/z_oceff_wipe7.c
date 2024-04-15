@@ -86,7 +86,7 @@ void OceffWipe7_Draw(Actor* thisx, PlayState* play) {
         alpha = 255;
     }
 
-    for (i = 1; i < ResourceMgr_GetArraySizeByName(sSongofHealingEffectFrustrumVtx); i += 2) {
+    for (i = 1; i < ResourceMgr_GetVtxArraySizeByName(sSongofHealingEffectFrustrumVtx); i += 2) {
         sSongofHealingEffectFrustrumVtxData[i].v.cn[3] = alpha;
     }
 

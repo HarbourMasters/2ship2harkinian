@@ -70,7 +70,7 @@ void OceffWipe3_Draw(Actor* thisx, PlayState* play) {
 
     quakeOffset = Camera_GetQuakeOffset(GET_ACTIVE_CAM(play));
 
-    vtxPtr = sSariaSongFrustumVtx;
+    vtxPtr = ResourceMgr_LoadVtxByName(sSariaSongFrustumVtx);
 
     if (this->counter < 32) {
         z = Math_SinS(this->counter * 512) * 1220.0f;
