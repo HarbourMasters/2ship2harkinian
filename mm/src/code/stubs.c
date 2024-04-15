@@ -340,6 +340,7 @@ u32 __osProbeTLB(void* param_1) {
 void func_801A31EC(u16 seqId, s8 arg1, u8 arg2) {
 }
 s32 osAiSetFrequency(u32 frequency) {
+    return 1;
 }
 s32 osContStartQuery(OSMesgQueue* mq) {
 }
