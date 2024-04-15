@@ -12,15 +12,10 @@
 
 extern bool ShouldClearTextureCacheAtEndOfFrame;
 
-extern "C" PlayState* gPlayState;
-
-enum SeqPlayers {
-    /* 0 */ SEQ_BGM_MAIN,
-    /* 1 */ SEQ_FANFARE,
-    /* 2 */ SEQ_SFX,
-    /* 3 */ SEQ_BGM_SUB,
-    /* 4 */ SEQ_MAX
-};
+extern "C" {
+#include "functions.h"
+PlayState* gPlayState;
+}
 
 static const std::unordered_map<int32_t, const char*> textureFilteringMap = {
     { FILTER_THREE_POINT, "Three-Point" },
@@ -118,16 +113,19 @@ void DrawSettingsMenu() {
             UIWidgets::CVarSliderFloat("Master Volume: %.0f %%", "gSettings.Audio.MasterVolume", 0.0f, 1.0f, 1.0f, { .showButtons = false, .format = "", .isPercentage = true });
 
             if (UIWidgets::CVarSliderFloat("Main Music Volume: %.0f %%", "gSettings.Audio.MainMusicVolume", 0.0f, 1.0f, 1.0f, { .showButtons = false, .format = "", .isPercentage = true })) {
-                // Audio_SetGameVolume(SEQ_BGM_MAIN, CVarGetFloat("gSettings.Audio.MainMusicVolume", 1.0f));
+                AudioSeq_SetPortVolumeScale(SEQ_PLAYER_BGM_MAIN, CVarGetFloat("gSettings.Audio.MainMusicVolume", 1.0f));
             }
             if (UIWidgets::CVarSliderFloat("Sub Music Volume: %.0f %%", "gSettings.Audio.SubMusicVolume", 0.0f, 1.0f, 1.0f, { .showButtons = false, .format = "", .isPercentage = true })) {
-                // Audio_SetGameVolume(SEQ_BGM_SUB, CVarGetFloat("gSettings.Audio.SubMusicVolume", 1.0f));
+                AudioSeq_SetPortVolumeScale(SEQ_PLAYER_BGM_SUB, CVarGetFloat("gSettings.Audio.SubMusicVolume", 1.0f));
             }
             if (UIWidgets::CVarSliderFloat("Sound Effects Volume: %.0f %%", "gSettings.Audio.SoundEffectsVolume", 0.0f, 1.0f, 1.0f, { .showButtons = false, .format = "", .isPercentage = true })) {
-                // Audio_SetGameVolume(SEQ_SFX, CVarGetFloat("gSettings.Audio.SoundEffectsVolume", 1.0f));
+                AudioSeq_SetPortVolumeScale(SEQ_PLAYER_SFX, CVarGetFloat("gSettings.Audio.SoundEffectsVolume", 1.0f));
             }
             if (UIWidgets::CVarSliderFloat("Fanfare Volume: %.0f %%", "gSettings.Audio.FanfareVolume", 0.0f, 1.0f, 1.0f, { .showButtons = false, .format = "", .isPercentage = true })) {
-                // Audio_SetGameVolume(SEQ_FANFARE, CVarGetFloat("gSettings.Audio.FanfareVolume", 1.0f));
+                AudioSeq_SetPortVolumeScale(SEQ_PLAYER_FANFARE, CVarGetFloat("gSettings.Audio.FanfareVolume", 1.0f));
+            }
+            if (UIWidgets::CVarSliderFloat("Ambience Volume: %.0f %%", "gSettings.Audio.AmbienceVolume", 0.0f, 1.0f, 1.0f, { .showButtons = false, .format = "", .isPercentage = true })) {
+                AudioSeq_SetPortVolumeScale(SEQ_PLAYER_AMBIENCE, CVarGetFloat("gSettings.Audio.AmbienceVolume", 1.0f));
             }
 
             auto currentAudioBackend = LUS::Context::GetInstance()->GetAudio()->GetAudioBackend();

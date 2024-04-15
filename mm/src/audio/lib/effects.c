@@ -19,7 +19,9 @@ void AudioScript_SequenceChannelProcessSound(SequenceChannel* channel, s32 recal
     s32 i;
 
     if (channel->changes.s.volume || recalculateVolume) {
-        channelVolume = channel->volume * channel->volumeScale * channel->seqPlayer->appliedFadeVolume;
+        // 2S2H [Port][Audio] Scale volume by our sequence player volume sliders
+        channelVolume = channel->volume * channel->volumeScale * channel->seqPlayer->appliedFadeVolume *
+                        channel->seqPlayer->portVolumeScale;
         if (channel->seqPlayer->muted && (channel->muteFlags & MUTE_FLAGS_SOFTEN)) {
             channelVolume = channelVolume * channel->seqPlayer->muteVolumeScale;
         }
