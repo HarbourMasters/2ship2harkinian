@@ -6,15 +6,15 @@
 #include "UIWidgets.hpp"
 #include <unordered_map>
 #include <string>
-#include "z64.h"
 #include "2s2h/Enhancements/Enhancements.h"
 #include "HudEditor.h"
 
 extern bool ShouldClearTextureCacheAtEndOfFrame;
 
 extern "C" {
+#include "z64.h"
 #include "functions.h"
-PlayState* gPlayState;
+extern PlayState* gPlayState;
 }
 
 static const std::unordered_map<int32_t, const char*> textureFilteringMap = {
