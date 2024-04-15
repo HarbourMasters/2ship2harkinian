@@ -29,12 +29,13 @@ ActorInit Oceff_Wipe6_InitVars = {
 };
 
 #include "overlays/ovl_Oceff_Wipe6/ovl_Oceff_Wipe6.h"
-Vtx* gOceff6VtxData;
+
+static Vtx* gOceff6VtxData;
 
 void OceffWipe6_Init(Actor* thisx, PlayState* play) {
     OceffWipe6* this = THIS;
 
-    gOceff6VtxData = ResourceMgr_LoadArrayByName(gOceff6Vtx);
+    gOceff6VtxData = ResourceMgr_LoadVtxByName(gOceff6Vtx);
 
     Actor_SetScale(&this->actor, 1.0f);
     this->counter = 0;
@@ -84,7 +85,7 @@ void OceffWipe6_Draw(Actor* thisx, PlayState* play) {
         alpha = 255;
     }
 
-    for (i = 1; i < ResourceMgr_GetArraySizeByName(gOceff6Vtx); i += 2) {
+    for (i = 1; i < ResourceMgr_GetVtxArraySizeByName(gOceff6Vtx); i += 2) {
         gOceff6VtxData[i].v.cn[3] = alpha;
     }
 
