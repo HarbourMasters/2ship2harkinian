@@ -35,7 +35,7 @@ static Vtx* gOceff5VtxData;
 void OceffWipe5_Init(Actor* thisx, PlayState* play) {
     OceffWipe5* this = THIS;
 
-    gOceff5VtxData = ResourceMgr_LoadArrayByName(gOceff5Vtx);
+    gOceff5VtxData = ResourceMgr_LoadVtxByName(gOceff5Vtx);
 
     Actor_SetScale(&this->actor, 1.0f);
     this->counter = 0;
@@ -44,7 +44,6 @@ void OceffWipe5_Init(Actor* thisx, PlayState* play) {
 
 void OceffWipe5_Destroy(Actor* thisx, PlayState* play) {
     OceffWipe5* this = THIS;
-    gOceff5VtxData = ResourceMgr_LoadArrayByName(gOceff5Vtx);
 
     Magic_Reset(play);
     play->msgCtx.ocarinaSongEffectActive = false;
@@ -107,7 +106,7 @@ void OceffWipe5_Draw(Actor* thisx, PlayState* play) {
         alpha = 255;
     }
 
-    for (i = 1; i < ResourceMgr_GetArraySizeByName(gOceff5Vtx); i += 2) {
+    for (i = 1; i < ResourceMgr_GetVtxArraySizeByName(gOceff5Vtx); i += 2) {
         gOceff5VtxData[i].v.cn[3] = alpha;
     }
 

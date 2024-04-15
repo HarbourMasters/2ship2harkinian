@@ -75,7 +75,8 @@ void OceffWipe4_Draw(Actor* thisx, PlayState* play) {
         z = 1220.0f;
     }
 
-    vtxPtr = sScarecrowSongFrustumVtx;
+    vtxPtr = ResourceMgr_LoadVtxByName(sScarecrowSongFrustumVtx);
+
     if (this->counter >= 30) {
         alpha = 12 * (50 - this->counter);
     } else {
