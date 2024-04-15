@@ -4039,9 +4039,35 @@ void Magic_DrawMeter(PlayState* play) {
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 250, 250, 0, interfaceCtx->magicAlpha);
             gDPLoadTextureBlock_4b(OVERLAY_DISP++, gMagicMeterFillTex, G_IM_FMT_I, 16, 16, 0, G_TX_NOMIRROR | G_TX_WRAP,
                                    G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
-            gSPTextureRectangle(OVERLAY_DISP++, 104, (magicBarY + 3) << 2,
-                                (((void)0, gSaveContext.save.saveInfo.playerData.magic) + 26) << 2,
-                                (magicBarY + 10) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+
+            // #region 2S2H [Cosmetic] Hud Editor
+            HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_MAGIC_METER);
+            if (HudEditor_ShouldOverrideDraw()) {
+                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+                    hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+                } else {
+                    // All of this information was derived from the original call to gSPTextureRectangle below
+                    s16 rectLeft = 104 >> 2;
+                    s16 rectTop = magicBarY + 3;
+                    s16 rectWidth = gSaveContext.save.saveInfo.playerData.magic;
+                    s16 rectHeight = 7;
+                    s16 dsdx = 512;
+                    s16 dtdy = 512;
+
+                    HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+
+                    hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+
+                    gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2,
+                                    (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
+                                    G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+                }
+            } else {
+            // #endregion
+                gSPTextureRectangle(OVERLAY_DISP++, 104, (magicBarY + 3) << 2,
+                                    (((void)0, gSaveContext.save.saveInfo.playerData.magic) + 26) << 2,
+                                    (magicBarY + 10) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+            }
 
             // Fill the rest of the meter with the normal magic color
             gDPPipeSync(OVERLAY_DISP++);
@@ -4053,11 +4079,36 @@ void Magic_DrawMeter(PlayState* play) {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 200, 0, interfaceCtx->magicAlpha);
             }
 
-            gSPTextureRectangle(
-                OVERLAY_DISP++, 104, (magicBarY + 3) << 2,
-                ((((void)0, gSaveContext.save.saveInfo.playerData.magic) - ((void)0, gSaveContext.magicToConsume)) + 26)
-                    << 2,
-                (magicBarY + 10) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+            // #region 2S2H [Cosmetic] Hud Editor
+            HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_MAGIC_METER);
+            if (HudEditor_ShouldOverrideDraw()) {
+                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+                    hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+                } else {
+                    // All of this information was derived from the original call to gSPTextureRectangle below
+                    s16 rectLeft = 104 >> 2;
+                    s16 rectTop = magicBarY + 3;
+                    s16 rectWidth = gSaveContext.save.saveInfo.playerData.magic - gSaveContext.magicToConsume;
+                    s16 rectHeight = 7;
+                    s16 dsdx = 512;
+                    s16 dtdy = 512;
+
+                    HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+
+                    hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+
+                    gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2,
+                                    (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
+                                    G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+                }
+            } else {
+            // #endregion
+                gSPTextureRectangle(
+                    OVERLAY_DISP++, 104, (magicBarY + 3) << 2,
+                    ((((void)0, gSaveContext.save.saveInfo.playerData.magic) - ((void)0, gSaveContext.magicToConsume)) + 26)
+                        << 2,
+                    (magicBarY + 10) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+            }
         } else {
             // Fill the whole meter with the normal magic color
             if (CHECK_WEEKEVENTREG(WEEKEVENTREG_DRANK_CHATEAU_ROMANI)) {
