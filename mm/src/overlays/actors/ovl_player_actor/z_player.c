@@ -3724,7 +3724,9 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
 
                 if (bomb != NULL) {
                     bomb->timer = 0;
-                    this->blastMaskTimer = 310;
+                    if (!CVarGetInteger("gEnhancements.Masks.NoBlastMaskCooldown", 0)) {
+                        this->blastMaskTimer = 310;
+                    }
                 }
             }
         } else if (item == ITEM_F1) {

@@ -302,6 +302,7 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Giant's Mask Anywhere", "gEnhancements.Masks.GiantsAnywhere", {
                 .tooltip = "Allow using Giant's mask outside of Twinmold's boss room."
             });
+            UIWidgets::CVarCheckbox("No Blast Mask Cooldown", "gEnhancements.Masks.NoBlastMaskCooldown", {});
 
             ImGui::EndMenu();
         }
