@@ -2180,7 +2180,8 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                     }
                 } else if (GET_CUR_FORM_BTN_ITEM(i) == ITEM_MASK_GIANT) {
                     // Giant's Mask is equipped
-                    if (play->sceneId != SCENE_INISIE_BS) {
+                    if (play->sceneId != SCENE_INISIE_BS &&
+                        !CVarGetInteger("gEnhancements.Masks.GiantsAnywhere", 0)) {
                         if (gSaveContext.buttonStatus[i] != BTN_DISABLED) {
                             gSaveContext.buttonStatus[i] = BTN_DISABLED;
                             restoreHudVisibility = true;
@@ -2193,7 +2194,8 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                     // Fierce Deity's Mask is equipped
                     if ((play->sceneId != SCENE_MITURIN_BS) && (play->sceneId != SCENE_HAKUGIN_BS) &&
                         (play->sceneId != SCENE_SEA_BS) && (play->sceneId != SCENE_INISIE_BS) &&
-                        (play->sceneId != SCENE_LAST_BS)) {
+                        (play->sceneId != SCENE_LAST_BS) &&
+                        !CVarGetInteger("gEnhancements.Masks.FierceDeitysAnywhere", 0)) {
                         if (gSaveContext.buttonStatus[i] != BTN_DISABLED) {
                             gSaveContext.buttonStatus[i] = BTN_DISABLED;
                             restoreHudVisibility = true;
