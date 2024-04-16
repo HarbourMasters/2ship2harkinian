@@ -12,6 +12,10 @@
 #include "overlays/actors/ovl_En_Aob_01/z_en_aob_01.h"
 #include "overlays/actors/ovl_En_Dg/z_en_dg.h"
 
+#include "2s2h/Enhancements/Enhancements.h"
+
+#include <z64save.h>
+
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_80000000)
 
 #define THIS ((EnRacedog*)thisx)
@@ -511,9 +515,14 @@ void EnRacedog_UpdateSpeed(EnRacedog* this) {
 
     Math_ApproachF(&this->actor.speed, this->targetSpeed, 0.5f, 3.0f);
 
+    uint8_t guaranteedWinCvar = CVarGetInteger("gEnhancements.Minigames.AlwaysWinDoggyRacetrack", 0);
+    uint8_t guaranteedWin =
+        guaranteedWinCvar == ALWAYS_WIN_DOGGY_RACE_ALWAYS || 
+        (guaranteedWinCvar == ALWAYS_WIN_DOGGY_RACE_MASKOFTRUTH && (INV_CONTENT(ITEM_MASK_TRUTH) == ITEM_MASK_TRUTH));
+
     // The dog that the player has selected has a slightly higher max speed than the other dogs.
     if (this->index == this->selectedDogIndex) {
-        if (this->actor.speed > 7.5f) {
+        if (this->actor.speed > 7.5f || guaranteedWin) {
             this->actor.speed = 7.5f;
         }
     } else {
