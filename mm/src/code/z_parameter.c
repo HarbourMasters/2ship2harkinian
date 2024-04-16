@@ -4837,7 +4837,7 @@ void Interface_DrawClock(PlayState* play) {
         CLOCK_TIME(10, 0), CLOCK_TIME(11, 0), CLOCK_TIME(12, 0), CLOCK_TIME(13, 0), CLOCK_TIME(14, 0),
         CLOCK_TIME(15, 0), CLOCK_TIME(16, 0), CLOCK_TIME(17, 0), CLOCK_TIME(18, 0), CLOCK_TIME(19, 0),
         CLOCK_TIME(20, 0), CLOCK_TIME(21, 0), CLOCK_TIME(22, 0), CLOCK_TIME(23, 0), CLOCK_TIME(24, 0) - 1,
-        CLOCK_TIME(0, 0), // 2S2H [Port] This was removed in the minibuild, not sure why
+        CLOCK_TIME(0, 0),
     };
     static TexturePtr sThreeDayClockHourTextures[] = {
         gThreeDayClockHour12Tex, gThreeDayClockHour1Tex, gThreeDayClockHour2Tex,  gThreeDayClockHour3Tex,
@@ -4846,7 +4846,7 @@ void Interface_DrawClock(PlayState* play) {
         gThreeDayClockHour12Tex, gThreeDayClockHour1Tex, gThreeDayClockHour2Tex,  gThreeDayClockHour3Tex,
         gThreeDayClockHour4Tex,  gThreeDayClockHour5Tex, gThreeDayClockHour6Tex,  gThreeDayClockHour7Tex,
         gThreeDayClockHour8Tex,  gThreeDayClockHour9Tex, gThreeDayClockHour10Tex, gThreeDayClockHour11Tex,
-        gEmptyTexture, // 2S2H [Port] To account for the vanilla bug detailed later on in this function
+        gEmptyTexture, gEmptyTexture, // 2S2H [Port] To account for the vanilla bug detailed later on in this function
     };
     static s16 sClockInvDiamondPrimRed = 0;
     static s16 sClockInvDiamondPrimGreen = 155;
@@ -5140,7 +5140,7 @@ void Interface_DrawClock(PlayState* play) {
                 // due to the for loop terminating. This results in 25, which is OOB for the
                 // sThreeDayClockHourTextures[] read later. On console, this results in the hour
                 // disappearing for a frame or two between 11 changing to 12.
-                // 2S2H [Port] We are opting to fix this by adding a blank texture to the end of
+                // 2S2H [Port] We are opting to fix this by adding two blank textures to the end of
                 // the sThreeDayClockHourTextures array, instead of letting it read OOB
                 if (((void)0, gSaveContext.save.time) < sThreeDayClockHours[sp1C6 + 1]) {
                     break;

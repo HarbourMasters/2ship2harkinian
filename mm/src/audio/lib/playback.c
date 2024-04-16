@@ -108,7 +108,7 @@ void AudioPlayback_InitSampleState(Note* note, NoteSampleState* sampleState, Not
     vel = 0.0f > vel ? 0.0f : vel;
     vel = 1.0f < vel ? 1.0f : vel;
 
-    float master_vol = CVarGetFloat("gGameMasterVolume", 1.0f);
+    float master_vol = CVarGetFloat("gSettings.Audio.MasterVolume", 1.0f);
     sampleState->targetVolLeft = (s32)((vel * volLeft) * (0x1000 - 0.001f)) * master_vol;
     sampleState->targetVolRight = (s32)((vel * volRight) * (0x1000 - 0.001f)) * master_vol;
 

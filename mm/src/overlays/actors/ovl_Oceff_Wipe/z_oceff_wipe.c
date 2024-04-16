@@ -93,10 +93,11 @@ void OceffWipe_Draw(Actor* thisx, PlayState* play) {
         alphaTable[2] = 255;
     }
 
+    // 2S2H [Port] Originally this was just a pointer to the vertices, now it's the OTR path so we need to grab it's actual address
+    // and move out of loop as we don't need to load the resource each iteration
+    vtxPtr = ResourceMgr_LoadVtxByName(sSongOfTimeFrustumVtx);
+
     for (i = 0; i < 20; i++) {
-        // #region 2S2H [Port] Originally this was just a pointer to the vertices, now it's the OTR path so we need to grab it's actual address
-        vtxPtr = ResourceMgr_LoadVtxByName(sSongOfTimeFrustumVtx);
-        // #endregion
         vtxPtr[i * 2 + 0].v.cn[3] = alphaTable[(sAlphaIndices[i] & 0xF0) >> 4];
         vtxPtr[i * 2 + 1].v.cn[3] = alphaTable[sAlphaIndices[i] & 0xF];
     }
