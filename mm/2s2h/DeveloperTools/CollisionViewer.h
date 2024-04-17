@@ -14,7 +14,7 @@ typedef enum {
 } ColViewerRenderSetting;
 
 #ifdef __cplusplus
-class ColViewerWindow : public LUS::GuiWindow {
+class CollisionViewerWindow : public LUS::GuiWindow {
   public:
     using GuiWindow::GuiWindow;
 

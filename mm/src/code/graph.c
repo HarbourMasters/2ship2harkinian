@@ -5,7 +5,7 @@
 #include "fault.h"
 #include <libultraship/bridge.h>
 #include <string.h>
-#include "2s2h/Enhancements/CollisionViewer/colViewer.h"
+#include "2s2h/DeveloperTools/CollisionViewer.h"
 
 // Variables are put before most headers as a hacky way to bypass bss reordering
 FaultAddrConvClient sGraphFaultAddrConvClient;

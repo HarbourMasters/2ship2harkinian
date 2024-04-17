@@ -328,7 +328,7 @@ extern std::shared_ptr<LUS::GuiWindow> mConsoleWindow;
 extern std::shared_ptr<LUS::GuiWindow> mGfxDebuggerWindow;
 extern std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
 extern std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
-extern std::shared_ptr<LUS::GuiWindow> mColViewerWindow;
+extern std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
 
 void DrawDeveloperToolsMenu() {
     if (UIWidgets::BeginMenu("Developer Tools", UIWidgets::Colors::Yellow)) {
@@ -357,8 +357,8 @@ void DrawDeveloperToolsMenu() {
             }
         }
         ImGui::Separator();
-        if (mColViewerWindow) {
-            UIWidgets::WindowButton("Collision Viewer", "gCollisionViewerEnabled", mColViewerWindow,
+        if (mCollisionViewerWindow) {
+            UIWidgets::WindowButton("Collision Viewer", "gCollisionViewerEnabled", mCollisionViewerWindow,
                 { .tooltip = "Draws collision to the screen" });
         }
         if (mStatsWindow) {

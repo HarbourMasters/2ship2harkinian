@@ -1,6 +1,6 @@
-#include "colViewer.h"
-#include "../FrameInterpolation/FrameInterpolation.h"
-#include "../../BenGui/UIWidgets.hpp"
+#include "CollisionViewer.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "2s2h/BenGui/UIWidgets.hpp"
 
 #include <vector>
 #include <string>
@@ -358,7 +358,7 @@ static std::vector<Gfx> sphereGfx;
 static std::vector<Vtx> sphereVtx;
 
 // Draws the ImGui window for the collision viewer
-void ColViewerWindow::DrawElement() {
+void CollisionViewerWindow::DrawElement() {
     ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
     if (!ImGui::Begin("Collision Viewer", &mIsVisible, ImGuiWindowFlags_NoFocusOnAppearing)) {
         ImGui::End();
@@ -589,7 +589,7 @@ void CreateSphereData() {
     sphereGfx.push_back(gsSPEndDisplayList());
 }
 
-void ColViewerWindow::InitElement() {
+void CollisionViewerWindow::InitElement() {
     CreateCylinderData();
     CreateSphereData();
 }
