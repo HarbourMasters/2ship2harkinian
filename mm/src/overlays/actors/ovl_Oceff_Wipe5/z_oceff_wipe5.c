@@ -87,8 +87,6 @@ void OceffWipe5_Draw(Actor* thisx, PlayState* play) {
     if (x < 0) {
         // Only render if the screen is wider then original
         phi_fv1 = 1220.0f / (OTRGetAspectRatio() * 0.85f); // Widescreen value
-    } else {
-        phi_fv1 = 1220.0f; // Vanilla value
     }
     // #endregion
 
