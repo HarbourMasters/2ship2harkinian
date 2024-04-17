@@ -5,7 +5,6 @@
 #include "fault.h"
 #include <libultraship/bridge.h>
 #include <string.h>
-#include "2s2h/DeveloperTools/CollisionViewer.h"
 
 // Variables are put before most headers as a hacky way to bypass bss reordering
 FaultAddrConvClient sGraphFaultAddrConvClient;
@@ -263,7 +262,6 @@ void Graph_ExecuteAndDraw(GraphicsContext* gfxCtx, GameState* gameState) {
     Graph_SetNextGfxPool(gfxCtx);
 
     GameState_Update(gameState);
-    DrawCollisionViewer();
 
     OPEN_DISPS(gfxCtx);
 
