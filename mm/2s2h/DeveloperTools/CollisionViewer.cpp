@@ -19,10 +19,6 @@ extern PlayState* gPlayState;
 
 extern "C" WallType SurfaceType_GetWallType(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId);
 
-Mtx gMtxClear = {
-    65536, 0, 1, 0, 0, 65536, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
-};
-
 enum class ColRenderSetting { Disabled, Solid, Transparent };
 
 static const char* ColRenderSettingNames[] = {
@@ -460,7 +456,7 @@ void DrawSceneCollision() {
 
     std::vector<Gfx>& dl = (showSceneColSetting == ColRenderSetting::Transparent) ? xluDl : opaDl;
     InitGfx(dl, showSceneColSetting);
-    dl.push_back(gsSPMatrix(&gMtxClear, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH));
+    dl.push_back(gsSPMatrix(&gIdentityMtx, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH));
 
     DrawDynapoly(dl, gPlayState->colCtx.colHeader, BGCHECK_SCENE);
 }
@@ -474,7 +470,7 @@ void DrawBgActorCollision() {
 
     std::vector<Gfx>& dl = (showBgActorSetting == ColRenderSetting::Transparent) ? xluDl : opaDl;
     InitGfx(dl, showBgActorSetting);
-    dl.push_back(gsSPMatrix(&gMtxClear, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH));
+    dl.push_back(gsSPMatrix(&gIdentityMtx, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH));
 
     for (int32_t bgIndex = 0; bgIndex < BG_ACTOR_MAX; bgIndex++) {
         if (gPlayState->colCtx.dyna.bgActorFlags[bgIndex] & 1) {
@@ -602,7 +598,7 @@ void DrawColCheckCollision() {
 
     std::vector<Gfx>& dl = (showColCheckSetting == ColRenderSetting::Transparent) ? xluDl : opaDl;
     InitGfx(dl, showColCheckSetting);
-    dl.push_back(gsSPMatrix(&gMtxClear, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH));
+    dl.push_back(gsSPMatrix(&gIdentityMtx, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH));
 
     CollisionCheckContext& col = gPlayState->colChkCtx;
 
@@ -650,7 +646,7 @@ void DrawWaterboxList() {
 
     std::vector<Gfx>& dl = (showWaterboxSetting == ColRenderSetting::Transparent) ? xluDl : opaDl;
     InitGfx(dl, showWaterboxSetting);
-    dl.push_back(gsSPMatrix(&gMtxClear, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH));
+    dl.push_back(gsSPMatrix(&gIdentityMtx, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH));
 
     dl.push_back(gsDPSetPrimColor(0, 0, waterboxCollisionColor.r, waterboxCollisionColor.g, waterboxCollisionColor.b, 255));
 
