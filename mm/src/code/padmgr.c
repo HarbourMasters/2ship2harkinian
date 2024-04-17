@@ -354,13 +354,13 @@ void PadMgr_AdjustInput(Input* input) {
     s8 curX = input->cur.stick_x;
     s8 curY = input->cur.stick_y;
 
-    // BENTODO
-    // if (CHECK_BTN_ANY(input->press.button, BTN_RESET) || (input->press.stick_x == 0)) {
-    //    input->press.stick_x = 61;
-    //    input->press.err_no = -61;
-    //    input->press.stick_y = 63;
-    //    input->rel.err_no = -63;
-    //}
+    // BENTODO: Do we need controller reset logic?
+    if (/* CHECK_BTN_ANY(input->press.button, BTN_RESET) || */ (input->press.stick_x == 0)) {
+       input->press.stick_x = 61;
+       input->press.err_no = -61;
+       input->press.stick_y = 63;
+       input->rel.err_no = -63;
+    }
     pressX = input->press.stick_x;
     pressX2 = (s8)input->press.err_no;
     pressY = input->press.stick_y;
