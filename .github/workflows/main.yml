@@ -6,123 +6,18 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  generate-soh-otr-and-headers:
-    runs-on: ubuntu-22.04
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        submodules: true
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y $(cat .github/workflows/apt-deps.txt)
-    - name: ccache
-      uses: hendrikmuhs/ccache-action@v1.2.11
-      with:
-        key: ${{ runner.os }}-ccache-${{ github.ref }}-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-ccache-${{ github.ref }}
-          ${{ runner.os }}-ccache-
-    - name: Cache build folders
-      uses: actions/cache@v4
-      with:
-        key: ${{ runner.os }}-build-${{ github.ref }}-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-build-${{ github.ref }}
-          ${{ runner.os }}-build-
-        path: |
-          build-cmake
-          SDL2-2.26.1
-    - name: Install latest SDL
-      run: |
-        export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-        if [ ! -d "SDL2-2.26.1" ]; then
-          wget https://www.libsdl.org/release/SDL2-2.26.1.tar.gz
-          tar -xzf SDL2-2.26.1.tar.gz
-        fi
-        cd SDL2-2.26.1
-        ./configure
-        make -j
-        sudo make install
-        sudo cp -av /usr/local/lib/libSDL* /lib/x86_64-linux-gnu/
-    - name: Install latest libzip
-      if: ${{ (matrix.os == 'ubuntu-20.04' && !vars.LINUX_COMPATIBILITY_RUNNER) }}
-      run: |
-        sudo apt-get remove libzip-dev zipcmp zipmerge ziptool
-        export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-        if [ ! -d "libzip-1.10.1" ]; then
-          wget https://libzip.org/download/libzip-1.10.1.tar.gz
-          tar -xzvf libzip-1.10.1.tar.gz
-        fi
-        cd libzip-1.10.1
-        mkdir build
-        cd build
-        cmake ..
-        make
-        sudo make install
-    - name: Download Rom
-      run: |
-        url="${{ secrets.BASEROM }}"
-        outputPath="${{ github.workspace }}/OTRExporter/baserom.z64"
-        wget "$url" -q -O "$outputPath"
-    - name: Generate soh.otr
-      run: |
-        export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-        cmake --no-warn-unused-cli -H. -Bbuild-cmake -GNinja -DCMAKE_BUILD_TYPE:STRING=Release
-        cmake --build build-cmake --config Release --target GenerateSohOtr -j
-    - uses: actions/upload-artifact@v4
-      with:
-        name: soh.otr
-        path: soh.otr
-        retention-days: 1
-    - name: Generate headers
-      run: |
-        export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-        cmake --no-warn-unused-cli -H. -Bbuild-cmake -GNinja -DCMAKE_BUILD_TYPE:STRING=Release
-        cmake --build build-cmake --config Release --target ExtractAssetHeaders -j
-    - uses: actions/upload-artifact@v4
-      with:
-        name: headers
-        path: mm/assets
-        retention-days: 1
   build-linux:
-    needs: generate-soh-otr-and-headers
     strategy:
       fail-fast: true
-      matrix:
-        include:
-        # - os: ubuntu-20.04
-          # gcc: 10
-          # archive-suffix: compatibility
-        - os: ubuntu-22.04
-          gcc: 12
-          archive-suffix: performance
-    runs-on: ${{ (matrix.os == 'ubuntu-20.04' && ((vars.LINUX_COMPATIBILITY_RUNNER && fromJSON(vars.LINUX_COMPATIBILITY_RUNNER)) || matrix.os)) || (matrix.os == 'ubuntu-22.04' && ((vars.LINUX_PERFORMANCE_RUNNER && fromJSON(vars.LINUX_PERFORMANCE_RUNNER)) || matrix.os)) }}
+    runs-on: [self-hosted, Linux]
     steps:
     - uses: actions/checkout@v3
       with:
         submodules: true
     - name: Install dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install -y $(cat .github/workflows/apt-deps.txt)
-    - name: ccache
-      uses: hendrikmuhs/ccache-action@v1.2.11
-      with:
-        key: ${{ matrix.os }}-ccache-${{ github.ref }}-${{ github.sha }}
-        restore-keys: |
-          ${{ matrix.os }}-ccache-${{ github.ref }}
-          ${{ matrix.os }}-ccache-
-    - name: Cache build folders
-      uses: actions/cache@v4
-      with:
-        key: ${{ matrix.os }}-build-${{ github.ref }}-${{ github.sha }}
-        restore-keys: |
-          ${{ matrix.os }}-build-${{ github.ref }}
-          ${{ matrix.os }}-build-
-        path: |
-          build-cmake
-          SDL2-2.26.1
+        sudo apt update
+        sudo apt install -y $(cat .github/workflows/apt-deps.txt)
     - name: Install latest SDL
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
@@ -135,15 +30,6 @@ jobs:
         make -j
         sudo make install
         sudo cp -av /usr/local/lib/libSDL* /lib/x86_64-linux-gnu/
-    - name: Download soh.otr
-      uses: actions/download-artifact@v4
-      with:
-        name: soh.otr
-    - name: Download Headers
-      uses: actions/download-artifact@v4
-      with:
-        name: headers
-        path: mm/assets
     - name: Build 2Ship
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
@@ -155,8 +41,8 @@ jobs:
         # mv README.md readme.txt
         # mv build-cmake/*.appimage 2ship.appimage
       env:
-        CC: gcc-${{ matrix.gcc }}
-        CXX: g++-${{ matrix.gcc }}
+        CC: gcc
+        CXX: g++
     # - name: Upload build
     #   uses: actions/upload-artifact@v3
     #   with:
