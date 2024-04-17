@@ -11,6 +11,7 @@ extern PlayState* gPlayState;
 }
 
 static uint32_t moonJumpOnLGameStateUpdateHookId = 0;
+static uint32_t sunsSongGameStateUpdateHookId = 0;
 void RegisterMoonJumpOnL() {
     if (moonJumpOnLGameStateUpdateHookId) {
         GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnGameStateUpdate>(moonJumpOnLGameStateUpdateHookId);
@@ -63,7 +64,20 @@ void RegisterInfiniteCheats() {
     });
 }
 
+void RegisterSunsSong() {
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameStateUpdate>([]() {
+        if (!gPlayState) return;
+
+        if (CVarGetInteger("gEnhancements.Songs.ReenableSunsSong", 0)) {
+            SET_QUEST_ITEM(QUEST_SONG_SUN);
+        } else {
+            REMOVE_QUEST_ITEM(QUEST_SONG_SUN);
+        }
+    });
+}
+
 void InitEnhancements() {
     RegisterMoonJumpOnL();
     RegisterInfiniteCheats();
+    RegisterSunsSong();
 }

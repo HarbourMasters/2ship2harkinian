@@ -304,6 +304,14 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
+        if (UIWidgets::BeginMenu("Songs")) {
+            UIWidgets::CVarCheckbox("Re-enable Sun's Song", "gEnhancements.Songs.ReenableSunsSong", {
+                .tooltip = "Re-enables the partially implemented Sun's Song. RIGHT-DOWN-UP-RIGHT-DOWN-UP to play it. Might require reloading the current area to work."
+            });
+
+            ImGui::EndMenu();
+        }
+
         if (UIWidgets::BeginMenu("Minigames")) {
             UIWidgets::CVarCombobox("Always Win Doggy Racetrack", "gEnhancements.Minigames.AlwaysWinDoggyRacetrack", alwaysWinDograceOptions);
             ImGui::EndMenu();
