@@ -8,6 +8,8 @@
 #include <Fast3D/gfx_pc.h>
 #include "UIWidgets.hpp"
 #include "HudEditor.h"
+#include "../Enhancements/CollisionViewer/colViewer.h"
+
 
 #ifdef __APPLE__
 #include "graphic/Fast3D/gfx_metal.h"
@@ -31,6 +33,7 @@ namespace BenGui {
     std::shared_ptr<LUS::GuiWindow> mStatsWindow;
     std::shared_ptr<LUS::GuiWindow> mInputEditorWindow;
     std::shared_ptr<LUS::GuiWindow> mGfxDebuggerWindow;
+    std::shared_ptr<LUS::GuiWindow> mColViewerWindow;
 
     std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
     std::shared_ptr<HudEditorWindow> mHudEditorWindow;
@@ -83,6 +86,9 @@ namespace BenGui {
 
         mActorViewerWindow = std::make_shared<ActorViewerWindow>("gWindows.ActorViewer", "Actor Viewer");
         gui->AddGuiWindow(mActorViewerWindow);
+
+        mColViewerWindow = std::make_shared<ColViewerWindow>("gCollisionViewerEnabled", "Collision Viewer");
+        gui->AddGuiWindow(mColViewerWindow);
     }
 
     void Destroy() {
@@ -91,6 +97,7 @@ namespace BenGui {
         mConsoleWindow = nullptr;
         mInputEditorWindow = nullptr;
         mGfxDebuggerWindow = nullptr;
+        mColViewerWindow = nullptr;
 
         mSaveEditorWindow = nullptr;
         mHudEditorWindow = nullptr;

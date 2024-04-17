@@ -328,6 +328,7 @@ extern std::shared_ptr<LUS::GuiWindow> mConsoleWindow;
 extern std::shared_ptr<LUS::GuiWindow> mGfxDebuggerWindow;
 extern std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
 extern std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
+extern std::shared_ptr<LUS::GuiWindow> mColViewerWindow;
 
 void DrawDeveloperToolsMenu() {
     if (UIWidgets::BeginMenu("Developer Tools", UIWidgets::Colors::Yellow)) {
@@ -356,6 +357,10 @@ void DrawDeveloperToolsMenu() {
             }
         }
         ImGui::Separator();
+        if (mColViewerWindow) {
+            UIWidgets::WindowButton("Collision Viewer", "gCollisionViewerEnabled", mColViewerWindow,
+                { .tooltip = "Draws collision to the screen" });
+        }
         if (mStatsWindow) {
             UIWidgets::WindowButton("Stats", "gWindows.Stats", mStatsWindow, {
                 .tooltip = "Shows the stats window, with your FPS and frametimes, and the OS you're playing on"
