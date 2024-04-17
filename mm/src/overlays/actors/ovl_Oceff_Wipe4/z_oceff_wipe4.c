@@ -81,7 +81,7 @@ void OceffWipe4_Draw(Actor* thisx, PlayState* play) {
     if (this->counter < 16) {
         z = Math_SinS(this->counter * 0x400) * effectDistance;
     } else {
-        z = 1220.0f;
+        z = effectDistance;
     }
 
     vtxPtr = ResourceMgr_LoadVtxByName(sScarecrowSongFrustumVtx);

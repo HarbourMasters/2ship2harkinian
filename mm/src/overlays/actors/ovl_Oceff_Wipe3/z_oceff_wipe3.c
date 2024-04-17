@@ -84,7 +84,7 @@ void OceffWipe3_Draw(Actor* thisx, PlayState* play) {
     if (this->counter < 32) {
         z = Math_SinS(this->counter * 512) * effectDistance;
     } else {
-        z = 1220.0f;
+        z = effectDistance;
     }
 
     if (this->counter >= 80) {
