@@ -72,8 +72,19 @@ void OceffWipe3_Draw(Actor* thisx, PlayState* play) {
 
     vtxPtr = ResourceMgr_LoadVtxByName(sSariaSongFrustumVtx);
 
+    // #region 2S2H [Widescreen] Ocarina Effects
+    f32 effectDistance;
+    s32 x = OTRGetRectDimensionFromLeftEdge(0) << 2;
+    if (x < 0) {
+        // Only render if the screen is wider then original
+        effectDistance = 1220.0f / (OTRGetAspectRatio() * 0.85f); // Widescreen value
+    } else {
+        effectDistance = 1220.0f; // Vanilla value
+    }
+    // #endregion
+
     if (this->counter < 32) {
-        z = Math_SinS(this->counter * 512) * 1220.0f;
+        z = Math_SinS(this->counter * 512) * effectDistance;
     } else {
         z = 1220.0f;
     }
