@@ -263,7 +263,7 @@ void Graph_ExecuteAndDraw(GraphicsContext* gfxCtx, GameState* gameState) {
     Graph_SetNextGfxPool(gfxCtx);
 
     GameState_Update(gameState);
-    DrawColViewer();
+    DrawCollisionViewer();
 
     OPEN_DISPS(gfxCtx);
 

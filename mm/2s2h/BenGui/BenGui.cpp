@@ -85,7 +85,7 @@ namespace BenGui {
         mActorViewerWindow = std::make_shared<ActorViewerWindow>("gWindows.ActorViewer", "Actor Viewer");
         gui->AddGuiWindow(mActorViewerWindow);
 
-        mCollisionViewerWindow = std::make_shared<CollisionViewerWindow>("gCollisionViewerEnabled", "Collision Viewer");
+        mCollisionViewerWindow = std::make_shared<CollisionViewerWindow>("gWindows.CollisionViewer", "Collision Viewer");
         gui->AddGuiWindow(mCollisionViewerWindow);
     }
 

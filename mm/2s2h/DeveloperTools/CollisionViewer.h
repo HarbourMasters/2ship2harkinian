@@ -5,13 +5,7 @@
 #ifdef __cplusplus
 extern "C"
 #endif
-void DrawColViewer();
-
-typedef enum {
-  COLVIEW_DISABLED,
-  COLVIEW_SOLID,
-  COLVIEW_TRANSPARENT
-} ColViewerRenderSetting;
+void DrawCollisionViewer();
 
 #ifdef __cplusplus
 class CollisionViewerWindow : public LUS::GuiWindow {

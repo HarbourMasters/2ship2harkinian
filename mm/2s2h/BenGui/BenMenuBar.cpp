@@ -358,7 +358,7 @@ void DrawDeveloperToolsMenu() {
         }
         ImGui::Separator();
         if (mCollisionViewerWindow) {
-            UIWidgets::WindowButton("Collision Viewer", "gCollisionViewerEnabled", mCollisionViewerWindow,
+            UIWidgets::WindowButton("Collision Viewer", "gWindows.CollisionViewer", mCollisionViewerWindow,
                 { .tooltip = "Draws collision to the screen" });
         }
         if (mStatsWindow) {

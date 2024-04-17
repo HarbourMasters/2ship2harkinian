@@ -23,306 +23,6 @@ Mtx gMtxClear = {
     65536, 0, 1, 0, 0, 65536, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0,
 };
 
-
-
-
-char* WrappedText(const char* text, unsigned int charactersPerLine = 60) {
-    std::string newText(text);
-    const size_t tipLength = newText.length();
-    int lastSpace = -1;
-    int currentLineLength = 0;
-    for (unsigned int currentCharacter = 0; currentCharacter < tipLength; currentCharacter++) {
-        if (newText[currentCharacter] == '\n') {
-            currentLineLength = 0;
-            lastSpace = -1;
-            continue;
-        } else if (newText[currentCharacter] == ' ') {
-            lastSpace = currentCharacter;
-        }
-
-        if ((currentLineLength >= charactersPerLine) && (lastSpace >= 0)) {
-            newText[lastSpace] = '\n';
-            currentLineLength = currentCharacter - lastSpace - 1;
-            lastSpace = -1;
-        }
-        currentLineLength++;
-    }
-
-    return strdup(newText.c_str());
-}
-
-char* WrappedText(const std::string& text, unsigned int charactersPerLine = 60) {
-    return WrappedText(text.c_str(), charactersPerLine);
-}
-
-void InsertHelpHoverText(const std::string& text) {
-    ImGui::SameLine();
-    ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "?");
-    if (ImGui::IsItemHovered()) {
-        ImGui::BeginTooltip();
-        ImGui::Text("%s", WrappedText(text, 60));
-        ImGui::EndTooltip();
-    }
-}
-
-void InsertHelpHoverText(const char* text) {
-    ImGui::SameLine();
-    ImGui::TextColored(ImVec4(0.7f, 0.7f, 0.7f, 1.0f), "?");
-    if (ImGui::IsItemHovered()) {
-        ImGui::BeginTooltip();
-        ImGui::Text("%s", WrappedText(text, 60));
-        ImGui::EndTooltip();
-    }
-}
-
-bool EnhancementCombobox(const char* cvarName, std::span<const char*, std::dynamic_extent> comboArray,
-                     uint8_t defaultIndex, bool disabled, const char* disabledTooltipText, uint8_t disabledValue) {
-    bool changed = false;
-    if (defaultIndex <= 0) {
-        defaultIndex = 0;
-    }
-
-    if (disabled) {
-        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
-    }
-
-    uint8_t selected = CVarGetInteger(cvarName, defaultIndex);
-    std::string comboName = std::string("##") + std::string(cvarName);
-    if (ImGui::BeginCombo(comboName.c_str(), comboArray[selected])) {
-        for (uint8_t i = 0; i < comboArray.size(); i++) {
-            if (strlen(comboArray[i]) > 0) {
-                if (ImGui::Selectable(comboArray[i], i == selected)) {
-                    CVarSetInteger(cvarName, i);
-                    selected = i;
-                    changed = true;
-                    LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
-                }
-            }
-        }
-        ImGui::EndCombo();
-    }
-
-    if (disabled) {
-        ImGui::PopStyleVar(1);
-        if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && strcmp(disabledTooltipText, "") != 0) {
-            ImGui::SetTooltip("%s", disabledTooltipText);
-        }
-        ImGui::PopItemFlag();
-
-        if (disabledValue >= 0 && selected != disabledValue) {
-            CVarSetInteger(cvarName, disabledValue);
-            changed = true;
-            LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
-        }
-    }
-
-    return changed;
-}
-
-void LoadPickersColors(ImVec4& ColorArray, const char* cvarname, const ImVec4& default_colors, bool has_alpha) {
-    Color_RGBA8 defaultColors;
-    defaultColors.r = default_colors.x;
-    defaultColors.g = default_colors.y;
-    defaultColors.b = default_colors.z;
-    defaultColors.a = default_colors.w;
-
-    Color_RGBA8 cvarColor = CVarGetColor(cvarname, defaultColors);
-
-    ColorArray.x = cvarColor.r / 255.0;
-    ColorArray.y = cvarColor.g / 255.0;
-    ColorArray.z = cvarColor.b / 255.0;
-    ColorArray.w = cvarColor.a / 255.0;
-}
-
-void Tooltip(const char* text) {
-    if (ImGui::IsItemHovered()) {
-        ImGui::SetTooltip("%s", WrappedText(text));
-    }
-}
-
-bool DrawResetColorButton(const char* cvarName, ImVec4* colors, ImVec4 defaultcolors, bool has_alpha) {
-    bool changed = false;
-    std::string Cvar_RBM = std::string(cvarName) + "RBM";
-    std::string MakeInvisible = "Reset##" + std::string(cvarName) + "Reset";
-    if (ImGui::Button(MakeInvisible.c_str())) {
-        colors->x = defaultcolors.x;
-        colors->y = defaultcolors.y;
-        colors->z = defaultcolors.z;
-        colors->w = has_alpha ? defaultcolors.w : 255.0f;
-
-        Color_RGBA8 colorsRGBA;
-        colorsRGBA.r = defaultcolors.x;
-        colorsRGBA.g = defaultcolors.y;
-        colorsRGBA.b = defaultcolors.z;
-        colorsRGBA.a = has_alpha ? defaultcolors.w : 255.0f;
-
-        CVarSetColor(cvarName, colorsRGBA);
-        CVarSetInteger(Cvar_RBM.c_str(), 0); // On click disable rainbow mode.
-        LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
-        changed = true;
-    }
-    Tooltip("Revert colors to the game's original colors (GameCube version)\nOverwrites previously chosen color");
-    return changed;
-}
-
-ImVec4 GetRandomValue(int MaximumPossible) {
-    ImVec4 NewColor;
-    unsigned long range = 255 - 0;
-#if !defined(__SWITCH__) && !defined(__WIIU__)
-    std::random_device rd;
-    std::mt19937 rng(rd());
-#else
-    size_t seed = std::hash<std::string>{}(std::to_string(rand()));
-    std::mt19937_64 rng(seed);
-#endif
-    std::uniform_int_distribution<int> dist(0, 255 - 1);
-
-    NewColor.x = (float)(dist(rng)) / 255;
-    NewColor.y = (float)(dist(rng)) / 255;
-    NewColor.z = (float)(dist(rng)) / 255;
-    return NewColor;
-}
-
-bool DrawRandomizeColorButton(const char* cvarName, ImVec4* colors) {
-    bool changed = false;
-    Color_RGBA8 NewColors = { 0, 0, 0, 255 };
-    std::string Cvar_RBM = std::string(cvarName) + "RBM";
-    std::string FullName = "Random##" + std::string(cvarName) + "Random";
-    if (ImGui::Button(FullName.c_str())) {
-#if defined(__SWITCH__) || defined(__WIIU__)
-        srand(time(NULL));
-#endif
-        ImVec4 color = GetRandomValue(255);
-        colors->x = color.x;
-        colors->y = color.y;
-        colors->z = color.z;
-        NewColors.r = fmin(fmax(colors->x * 255, 0), 255);
-        NewColors.g = fmin(fmax(colors->y * 255, 0), 255);
-        NewColors.b = fmin(fmax(colors->z * 255, 0), 255);
-        CVarSetColor(cvarName, NewColors);
-        CVarSetInteger(Cvar_RBM.c_str(), 0); // On click disable rainbow mode.
-        LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
-        changed = true;
-    }
-    Tooltip("Chooses a random color\nOverwrites previously chosen color");
-    return changed;
-}
-
-bool LabeledRightAlignedEnhancementCombobox(const char* label, const char* cvarName,
-                                            std::span<const char*, std::dynamic_extent> comboArray,
-                                            uint8_t defaultIndex, bool disabled = false,
-                                            const char* disabledTooltipText = "", uint8_t disabledValue = -1) {
-    ImGui::Text("%s", label);
-    s32 currentValue = CVarGetInteger(cvarName, defaultIndex);
-
-#ifdef __WIIU__
-    ImGui::SameLine(ImGui::GetContentRegionAvail().x - (ImGui::CalcTextSize(comboArray[currentValue]).x + 40.0f));
-    ImGui::PushItemWidth(ImGui::CalcTextSize(comboArray[currentValue]).x + 60.0f);
-#else
-    ImGui::SameLine(ImGui::GetContentRegionAvail().x - (ImGui::CalcTextSize(comboArray[currentValue]).x + 20.0f));
-    ImGui::PushItemWidth(ImGui::CalcTextSize(comboArray[currentValue]).x + 30.0f);
-#endif
-
-    bool changed =
-        EnhancementCombobox(cvarName, comboArray, defaultIndex, disabled, disabledTooltipText, disabledValue);
-
-    ImGui::PopItemWidth();
-    return changed;
-}
-
-void RainbowColor(const char* cvarName, ImVec4* colors) {
-    std::string Cvar_RBM = std::string(cvarName) + "RBM";
-    std::string MakeInvisible = "Rainbow##" + std::string(cvarName) + "Rainbow";
-
-    UIWidgets::CVarCheckbox(MakeInvisible.c_str(), Cvar_RBM.c_str());
-    Tooltip("Cycles through colors on a timer\nOverwrites previously chosen color");
-}
-
-void DrawLockColorCheckbox(const char* cvarName) {
-    std::string Cvar_Lock = std::string(cvarName) + "Lock";
-    s32 lock = CVarGetInteger(Cvar_Lock.c_str(), 0);
-    std::string FullName = "Lock##" + Cvar_Lock;
-    UIWidgets::CVarCheckbox(FullName.c_str(), Cvar_Lock.c_str());
-    Tooltip("Prevents this color from being changed upon selecting \"Randomize all\"");
-}
-
-bool EnhancementColor(const char* text, const char* cvarName, ImVec4 ColorRGBA, ImVec4 default_colors,
-                  bool allow_rainbow = true, bool has_alpha = false, bool TitleSameLine = false) {
-    bool changed = false;
-    LoadPickersColors(ColorRGBA, cvarName, default_colors, has_alpha);
-
-    ImGuiColorEditFlags flags = ImGuiColorEditFlags_None;
-
-    if (!TitleSameLine) {
-        ImGui::Text("%s", text);
-        flags = ImGuiColorEditFlags_NoLabel;
-    }
-
-    ImGui::PushID(cvarName);
-
-    if (!has_alpha) {
-        if (ImGui::ColorEdit3(text, (float*)&ColorRGBA, flags)) {
-            Color_RGBA8 colors;
-            colors.r = ColorRGBA.x * 255.0;
-            colors.g = ColorRGBA.y * 255.0;
-            colors.b = ColorRGBA.z * 255.0;
-            colors.a = 255.0;
-
-            CVarSetColor(cvarName, colors);
-            LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
-            changed = true;
-        }
-    } else {
-        flags |= ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_AlphaPreview;
-        if (ImGui::ColorEdit4(text, (float*)&ColorRGBA, flags)) {
-            Color_RGBA8 colors;
-            colors.r = ColorRGBA.x * 255.0;
-            colors.g = ColorRGBA.y * 255.0;
-            colors.b = ColorRGBA.z * 255.0;
-            colors.a = ColorRGBA.w * 255.0;
-
-            CVarSetColor(cvarName, colors);
-            LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
-            changed = true;
-        }
-    }
-
-    ImGui::PopID();
-
-    // ImGui::SameLine(); // Removing that one to gain some width spacing on the HUD editor
-    ImGui::PushItemWidth(-FLT_MIN);
-    if (DrawResetColorButton(cvarName, &ColorRGBA, default_colors, has_alpha)) {
-        changed = true;
-    }
-    ImGui::SameLine();
-    if (DrawRandomizeColorButton(cvarName, &ColorRGBA)) {
-        changed = true;
-    }
-    if (allow_rainbow) {
-        if (ImGui::GetContentRegionAvail().x > 185) {
-            ImGui::SameLine();
-        }
-        RainbowColor(cvarName, &ColorRGBA);
-    }
-    DrawLockColorCheckbox(cvarName);
-    ImGui::NewLine();
-    ImGui::PopItemWidth();
-
-    return changed;
-}
-
-
-
-
-
-
-
-
-
-
-
-
 enum class ColRenderSetting { Disabled, Solid, Transparent };
 
 static const char* ColRenderSettingNames[] = {
@@ -330,20 +30,6 @@ static const char* ColRenderSettingNames[] = {
     "Solid",
     "Transparent",
 };
-
-ImVec4 scene_col;
-ImVec4 hookshot_col;
-ImVec4 entrance_col;
-ImVec4 specialSurface_col;
-ImVec4 interactable_col;
-ImVec4 slope_col;
-ImVec4 void_col;
-
-ImVec4 oc_col;
-ImVec4 ac_col;
-ImVec4 at_col;
-
-ImVec4 waterbox_col;
 
 static std::vector<Gfx> opaDl;
 static std::vector<Gfx> xluDl;
@@ -359,48 +45,71 @@ static std::vector<Vtx> sphereVtx;
 
 // Draws the ImGui window for the collision viewer
 void CollisionViewerWindow::DrawElement() {
-    ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(390, 475), ImGuiCond_FirstUseEver);
     if (!ImGui::Begin("Collision Viewer", &mIsVisible, ImGuiWindowFlags_NoFocusOnAppearing)) {
         ImGui::End();
         return;
     }
-    UIWidgets::CVarCheckbox("Enabled", "gColViewerEnabled");
 
-    LabeledRightAlignedEnhancementCombobox("Scene", "gColViewerScene", ColRenderSettingNames, COLVIEW_DISABLED);
-    LabeledRightAlignedEnhancementCombobox("Bg Actors", "gColViewerBgActors", ColRenderSettingNames, COLVIEW_DISABLED);
-    LabeledRightAlignedEnhancementCombobox("Col Check", "gColViewerColCheck", ColRenderSettingNames, COLVIEW_DISABLED);
-    LabeledRightAlignedEnhancementCombobox("Waterbox", "gColViewerWaterbox", ColRenderSettingNames, COLVIEW_DISABLED);
+    UIWidgets::CVarCheckbox("Enabled", "gCollisionViewer.Enabled");
 
-    UIWidgets::CVarCheckbox("Apply as decal", "gColViewerDecal");
-    InsertHelpHoverText("Applies the collision as a decal display. This can be useful if there is z-fighting occuring "
-                        "with the scene geometry, but can cause other artifacts.");
-    UIWidgets::CVarCheckbox("Shaded", "gColViewerShaded");
-    InsertHelpHoverText("Applies the scene's shading to the collision display.");
+    ImGui::SameLine();
 
-    // This has to be duplicated in both code paths due to the nature of ImGui::IsItemHovered()
-    const std::string colorHelpText = "View and change the colors used for collision display.";
-    if (ImGui::TreeNode("Colors")) {
-        InsertHelpHoverText(colorHelpText);
+    ImGui::BeginDisabled(CVarGetInteger("gCollisionViewer.Enabled", 0) == 0);
 
-        EnhancementColor("Normal", "gColViewerColorNormal", scene_col, ImVec4(255, 255, 255, 255), false);
-        EnhancementColor("Hookshot", "gColViewerColorHookshot", hookshot_col, ImVec4(128, 128, 255, 255),
-                                   false);
-        EnhancementColor("Entrance", "gColViewerColorEntrance", entrance_col, ImVec4(0, 255, 0, 255), false);
-        EnhancementColor("Special Surface (Grass/Sand/Etc)", "gColViewerColorSpecialSurface",
-                                   specialSurface_col, ImVec4(192, 255, 192, 255), false);
-        EnhancementColor("Interactable (Vines/Crawlspace/Etc)", "gColViewerColorInteractable",
-                                   interactable_col, ImVec4(192, 0, 192, 255), false);
-        EnhancementColor("Slope", "gColViewerColorSlope", slope_col, ImVec4(255, 255, 128, 255), false);
-        EnhancementColor("Void", "gColViewerColorVoid", void_col, ImVec4(255, 0, 0, 255), false);
-        EnhancementColor("OC", "gColViewerColorOC", oc_col, ImVec4(255, 255, 255, 255), false);
-        EnhancementColor("AC", "gColViewerColorAC", ac_col, ImVec4(0, 0, 255, 255), false);
-        EnhancementColor("AT", "gColViewerColorAT", at_col, ImVec4(255, 0, 0, 255), false);
-        EnhancementColor("Waterbox", "gColViewerColorWaterbox", waterbox_col, ImVec4(0, 0, 255, 255), false);
+    UIWidgets::CVarCheckbox("Apply Shading", "gCollisionViewer.ApplyShading");
 
-        ImGui::TreePop();
-    } else {
-        InsertHelpHoverText(colorHelpText);
+    ImGui::SameLine();
+
+    if (UIWidgets::Button("Reset Colors")) {
+        CVarClear("gCollisionViewer.SceneCollisionColor");
+        CVarClear("gCollisionViewer.VoidCollisionColor");
+        CVarClear("gCollisionViewer.EntranceCollisionColor");
+        CVarClear("gCollisionViewer.SlopeCollisionColor");
+        CVarClear("gCollisionViewer.HookshotCollisionColor");
+        CVarClear("gCollisionViewer.WaterboxCollisionColor");
+        CVarClear("gCollisionViewer.OCollisionColor");
+        CVarClear("gCollisionViewer.ACollisionColor");
+        CVarClear("gCollisionViewer.ATCollisionColor");
+        CVarClear("gCollisionViewer.SpecialSurfaceColor");
+        CVarClear("gCollisionViewer.InteractableColor");
+        LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
     }
+
+    ImGui::SeparatorText("Collision Types");
+
+    UIWidgets::CVarCombobox("Scene", "gCollisionViewer.SceneCollisionMode", ColRenderSettingNames, { .color = UIWidgets::Colors::Gray });
+    UIWidgets::CVarCombobox("BG Actors", "gCollisionViewer.BGActorsCollisionMode", ColRenderSettingNames, { .color = UIWidgets::Colors::Gray });
+    UIWidgets::CVarCombobox("Col Check", "gCollisionViewer.ColCheckCollisionMode", ColRenderSettingNames, { .color = UIWidgets::Colors::Gray });
+    UIWidgets::CVarCombobox("Waterbox", "gCollisionViewer.WaterboxCollisionMode", ColRenderSettingNames, { .color = UIWidgets::Colors::Gray });
+
+    ImGui::SeparatorText("Colors");
+
+    if (ImGui::BeginTable("table table", 3, ImGuiTableFlags_NoBordersInBody)) {
+        ImGui::TableNextColumn();
+        UIWidgets::CVarColorPicker("Normal", "gCollisionViewer.SceneCollisionColor", { 255, 255, 255, 255 });
+        ImGui::TableNextColumn();
+        UIWidgets::CVarColorPicker("Void", "gCollisionViewer.VoidCollisionColor", { 255, 0, 0, 255 });
+        ImGui::TableNextColumn();
+        UIWidgets::CVarColorPicker("Entrance", "gCollisionViewer.EntranceCollisionColor", { 0, 255, 0, 255 });
+        ImGui::TableNextColumn();
+        UIWidgets::CVarColorPicker("Slope", "gCollisionViewer.SlopeCollisionColor", { 255, 255, 128, 255 });
+        ImGui::TableNextColumn();
+        UIWidgets::CVarColorPicker("Hookshotable", "gCollisionViewer.HookshotCollisionColor", { 128, 128, 255, 255 });
+        ImGui::TableNextColumn();
+        UIWidgets::CVarColorPicker("Waterbox", "gCollisionViewer.WaterboxCollisionColor", { 0, 0, 255, 255 });
+        ImGui::TableNextColumn();
+        UIWidgets::CVarColorPicker("OC", "gCollisionViewer.OCollisionColor", { 255, 255, 255, 255 });
+        ImGui::TableNextColumn();
+        UIWidgets::CVarColorPicker("AC", "gCollisionViewer.ACollisionColor", { 0, 0, 255, 255 });
+        ImGui::TableNextColumn();
+        UIWidgets::CVarColorPicker("AT", "gCollisionViewer.ATCollisionColor", { 255, 0, 0, 255 });
+        ImGui::EndTable();
+    }
+    UIWidgets::CVarColorPicker("Special Surface (Grass/Sand/Etc)", "gCollisionViewer.SpecialSurfaceColor", { 192, 255, 192, 255 });
+    UIWidgets::CVarColorPicker("Interactable (Vines/Crawlspace/Etc)", "gCollisionViewer.InteractableColor", { 192, 0, 192, 255 });
+
+    ImGui::EndDisabled();
 
     ImGui::End();
 }
@@ -615,7 +324,8 @@ void InitGfx(std::vector<Gfx>& gfx, ColRenderSetting setting) {
         alpha = 0xFF;
     }
 
-    if (CVarGetInteger("gColViewerDecal", 0) != 0) {
+    // Default decal mode to on, users can override it manually but there's not really a use case for the other modes
+    if (CVarGetInteger("gCollisionViewer.DecalMode", 1)) {
         rm |= ZMODE_DEC;
     } else if (setting == ColRenderSetting::Transparent) {
         rm |= ZMODE_XLU;
@@ -627,7 +337,7 @@ void InitGfx(std::vector<Gfx>& gfx, ColRenderSetting setting) {
     gfx.push_back(gsDPSetCycleType(G_CYC_1CYCLE));
     gfx.push_back(gsDPSetRenderMode(rm | blc1, rm | blc2));
 
-    if (CVarGetInteger("gColViewerShaded", 0) != 0) {
+    if (CVarGetInteger("gCollisionViewer.ApplyShading", 0) != 0) {
         gfx.push_back(gsDPSetCombineMode(G_CC_MODULATERGB_PRIM_ENVA, G_CC_MODULATERGB_PRIM_ENVA));
         gfx.push_back(gsSPLoadGeometryMode(G_CULL_BACK | G_ZBUFFER | G_LIGHTING));
     } else {
@@ -640,9 +350,16 @@ void InitGfx(std::vector<Gfx>& gfx, ColRenderSetting setting) {
 
 // Draws a dynapoly structure (scenes or Bg Actors)
 void DrawDynapoly(std::vector<Gfx>& dl, CollisionHeader* col, int32_t bgId) {
-    uint32_t colorR = CVarGetInteger("gColViewerColorNormalR", 255);
-    uint32_t colorG = CVarGetInteger("gColViewerColorNormalG", 255);
-    uint32_t colorB = CVarGetInteger("gColViewerColorNormalB", 255);
+    Color_RGBA8 sceneCollisionColor = CVarGetColor("gCollisionViewer.SceneCollisionColor", { 255, 255, 255, 255 });
+    Color_RGBA8 voidCollisionColor = CVarGetColor("gCollisionViewer.VoidCollisionColor", { 255, 0, 0, 255 });
+    Color_RGBA8 entranceCollisionColor = CVarGetColor("gCollisionViewer.EntranceCollisionColor", { 0, 255, 0, 255 });
+    Color_RGBA8 slopeCollisionColor = CVarGetColor("gCollisionViewer.SlopeCollisionColor", { 255, 255, 128, 255 });
+    Color_RGBA8 hookshotCollisionColor = CVarGetColor("gCollisionViewer.HookshotCollisionColor", { 128, 128, 255, 255 });
+    Color_RGBA8 specialSurfaceColor = CVarGetColor("gCollisionViewer.SpecialSurfaceColor", { 192, 255, 192, 255 });
+    Color_RGBA8 interactableColor = CVarGetColor("gCollisionViewer.InteractableColor", { 192, 0, 192, 255 });
+    uint32_t colorR = sceneCollisionColor.r;
+    uint32_t colorG = sceneCollisionColor.g;
+    uint32_t colorB = sceneCollisionColor.b;
     uint32_t colorA = 255;
 
     uint32_t lastColorR = colorR;
@@ -659,35 +376,35 @@ void DrawDynapoly(std::vector<Gfx>& dl, CollisionHeader* col, int32_t bgId) {
         CollisionPoly* poly = &col->polyList[i];
 
         if (SurfaceType_IsHookshotSurface(&gPlayState->colCtx, poly, bgId)) {
-            colorR = CVarGetInteger("gColViewerColorHookshotR", 128);
-            colorG = CVarGetInteger("gColViewerColorHookshotG", 128);
-            colorB = CVarGetInteger("gColViewerColorHookshotB", 255);
+            colorR = hookshotCollisionColor.r;
+            colorG = hookshotCollisionColor.g;
+            colorB = hookshotCollisionColor.b;
         } else if (SurfaceType_GetWallType(&gPlayState->colCtx, poly, bgId) > 0x01) {
-            colorR = CVarGetInteger("gColViewerColorInteractableR", 192);
-            colorG = CVarGetInteger("gColViewerColorInteractableG", 0);
-            colorB = CVarGetInteger("gColViewerColorInteractableB", 192);
+            colorR = interactableColor.r;
+            colorG = interactableColor.g;
+            colorB = interactableColor.b;
         } else if (SurfaceType_GetFloorProperty(&gPlayState->colCtx, poly, bgId) == 0x0C) {
-            colorR = CVarGetInteger("gColViewerColorVoidR", 255);
-            colorG = CVarGetInteger("gColViewerColorVoidG", 0);
-            colorB = CVarGetInteger("gColViewerColorVoidB", 0);
+            colorR = voidCollisionColor.r;
+            colorG = voidCollisionColor.g;
+            colorB = voidCollisionColor.b;
         } else if (SurfaceType_GetSceneExitIndex(&gPlayState->colCtx, poly, bgId) ||
                    SurfaceType_GetFloorProperty(&gPlayState->colCtx, poly, bgId) == 0x05) {
-            colorR = CVarGetInteger("gColViewerColorEntranceR", 0);
-            colorG = CVarGetInteger("gColViewerColorEntranceG", 255);
-            colorB = CVarGetInteger("gColViewerColorEntranceB", 0);
+            colorR = entranceCollisionColor.r;
+            colorG = entranceCollisionColor.g;
+            colorB = entranceCollisionColor.b;
         } else if (SurfaceType_GetFloorType(&gPlayState->colCtx, poly, bgId) != 0 ||
                    SurfaceType_IsWallDamage(&gPlayState->colCtx, poly, bgId)) {
-            colorR = CVarGetInteger("gColViewerColorSpecialSurfaceR", 192);
-            colorG = CVarGetInteger("gColViewerColorSpecialSurfaceG", 255);
-            colorB = CVarGetInteger("gColViewerColorSpecialSurfaceB", 192);
+            colorR = specialSurfaceColor.r;
+            colorG = specialSurfaceColor.g;
+            colorB = specialSurfaceColor.b;
         } else if (SurfaceType_GetFloorEffect(&gPlayState->colCtx, poly, bgId) == 0x01) {
-            colorR = CVarGetInteger("gColViewerColorSlopeR", 255);
-            colorG = CVarGetInteger("gColViewerColorSlopeG", 255);
-            colorB = CVarGetInteger("gColViewerColorSlopeB", 128);
+            colorR = slopeCollisionColor.r;
+            colorG = slopeCollisionColor.g;
+            colorB = slopeCollisionColor.b;
         } else {
-            colorR = CVarGetInteger("gColViewerColorNormalR", 255);
-            colorG = CVarGetInteger("gColViewerColorNormalG", 255);
-            colorB = CVarGetInteger("gColViewerColorNormalB", 255);
+            colorR = sceneCollisionColor.r;
+            colorG = sceneCollisionColor.g;
+            colorB = sceneCollisionColor.b;
         }
 
         if (colorR != lastColorR || colorG != lastColorG || colorB != lastColorB) {
@@ -735,9 +452,9 @@ void DrawDynapoly(std::vector<Gfx>& dl, CollisionHeader* col, int32_t bgId) {
 
 // Draws the scene
 void DrawSceneCollision() {
-    ColRenderSetting showSceneColSetting = (ColRenderSetting)CVarGetInteger("gColViewerScene", COLVIEW_DISABLED);
+    ColRenderSetting showSceneColSetting = (ColRenderSetting)CVarGetInteger("gCollisionViewer.SceneCollisionMode", (uint32_t)ColRenderSetting::Disabled);
 
-    if (showSceneColSetting == ColRenderSetting::Disabled || !CVarGetInteger("gColViewerEnabled", 0)) {
+    if (showSceneColSetting == ColRenderSetting::Disabled) {
         return;
     }
 
@@ -750,8 +467,8 @@ void DrawSceneCollision() {
 
 // Draws all Bg Actors
 void DrawBgActorCollision() {
-    ColRenderSetting showBgActorSetting = (ColRenderSetting)CVarGetInteger("gColViewerBgActors", COLVIEW_DISABLED);
-    if (showBgActorSetting == ColRenderSetting::Disabled || !CVarGetInteger("gColViewerEnabled", 0)) {
+    ColRenderSetting showBgActorSetting = (ColRenderSetting)CVarGetInteger("gCollisionViewer.BGActorsCollisionMode", (uint32_t)ColRenderSetting::Disabled);
+    if (showBgActorSetting == ColRenderSetting::Disabled) {
         return;
     }
 
@@ -875,8 +592,11 @@ void DrawColCheckList(std::vector<Gfx>& dl, Collider** objects, int32_t count) {
 
 // Draws all Col Check objects
 void DrawColCheckCollision() {
-    ColRenderSetting showColCheckSetting = (ColRenderSetting)CVarGetInteger("gColViewerColCheck", COLVIEW_DISABLED);
-    if (showColCheckSetting == ColRenderSetting::Disabled || !CVarGetInteger("gColViewerEnabled", 0)) {
+    Color_RGBA8 oCollisionColor = CVarGetColor("gCollisionViewer.OCollisionColor", { 255, 255, 255, 255 });
+    Color_RGBA8 aCollisionColor = CVarGetColor("gCollisionViewer.ACollisionColor", { 0, 0, 255, 255 });
+    Color_RGBA8 aTCollisionColor = CVarGetColor("gCollisionViewer.ATCollisionColor", { 255, 0, 0, 255 });
+    ColRenderSetting showColCheckSetting = (ColRenderSetting)CVarGetInteger("gCollisionViewer.ColCheckCollisionMode", (uint32_t)ColRenderSetting::Disabled);
+    if (showColCheckSetting == ColRenderSetting::Disabled) {
         return;
     }
 
@@ -886,14 +606,11 @@ void DrawColCheckCollision() {
 
     CollisionCheckContext& col = gPlayState->colChkCtx;
 
-    dl.push_back(gsDPSetPrimColor(0, 0, CVarGetInteger("gColViewerColorOCR", 255), CVarGetInteger("gColViewerColorOCG", 255),
-                                  CVarGetInteger("gColViewerColorOCB", 255), 255));
+    dl.push_back(gsDPSetPrimColor(0, 0, oCollisionColor.r, oCollisionColor.g, oCollisionColor.b, 255));
     DrawColCheckList(dl, col.colOC, col.colOCCount);
-    dl.push_back(gsDPSetPrimColor(0, 0, CVarGetInteger("gColViewerColorACR", 0), CVarGetInteger("gColViewerColorACG", 0),
-                                  CVarGetInteger("gColViewerColorACB", 255), 255));
+    dl.push_back(gsDPSetPrimColor(0, 0, aCollisionColor.r, aCollisionColor.g, aCollisionColor.b, 255));
     DrawColCheckList(dl, col.colAC, col.colACCount);
-    dl.push_back(gsDPSetPrimColor(0, 0, CVarGetInteger("gColViewerColorATR", 255), CVarGetInteger("gColViewerColorATG", 0),
-                                  CVarGetInteger("gColViewerColorATB", 0), 255));
+    dl.push_back(gsDPSetPrimColor(0, 0, aTCollisionColor.r, aTCollisionColor.g, aTCollisionColor.b, 255));
 
     DrawColCheckList(dl, col.colAT, col.colATCount);
 }
@@ -925,8 +642,9 @@ void DrawWaterbox(std::vector<Gfx>& dl, WaterBox* water, float water_max_depth =
 
 // Draws all waterboxes
 void DrawWaterboxList() {
-    ColRenderSetting showWaterboxSetting = (ColRenderSetting)CVarGetInteger("gColViewerWaterbox", COLVIEW_DISABLED);
-    if (showWaterboxSetting == ColRenderSetting::Disabled || !CVarGetInteger("gColViewerEnabled", 0)) {
+    Color_RGBA8 waterboxCollisionColor = CVarGetColor("gCollisionViewer.WaterboxCollisionColor", { 0, 0, 255, 255 });
+    ColRenderSetting showWaterboxSetting = (ColRenderSetting)CVarGetInteger("gCollisionViewer.WaterboxCollisionMode", (uint32_t)ColRenderSetting::Disabled);
+    if (showWaterboxSetting == ColRenderSetting::Disabled) {
         return;
     }
 
@@ -934,9 +652,7 @@ void DrawWaterboxList() {
     InitGfx(dl, showWaterboxSetting);
     dl.push_back(gsSPMatrix(&gMtxClear, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH));
 
-    dl.push_back(gsDPSetPrimColor(0, 0, CVarGetInteger("gColViewerColorWaterboxR", 0),
-                                  CVarGetInteger("gColViewerColorWaterboxG", 0),
-                                  CVarGetInteger("gColViewerColorWaterboxB", 255), 255));
+    dl.push_back(gsDPSetPrimColor(0, 0, waterboxCollisionColor.r, waterboxCollisionColor.g, waterboxCollisionColor.b, 255));
 
     CollisionHeader* col = gPlayState->colCtx.colHeader;
     for (int32_t waterboxIndex = 0; waterboxIndex < col->numWaterBoxes; waterboxIndex++) {
@@ -954,8 +670,8 @@ template <typename T> size_t ResetVector(T& vec) {
     return vec.capacity();
 }
 
-extern "C" void DrawColViewer() {
-    if (gPlayState == nullptr) {
+extern "C" void DrawCollisionViewer() {
+    if (gPlayState == nullptr || !CVarGetInteger("gCollisionViewer.Enabled", 0)) {
         return;
     }
 
