@@ -5230,7 +5230,6 @@ s16 sDpadItemIconDD[] = {
     1024, // EQUIP_SLOT_D_DOWN
     1024, // EQUIP_SLOT_D_UP
 };
-// DPAD TODO: Figure out values
 s16 sDpadItemIconLeft[] = {
     295,  // EQUIP_SLOT_D_RIGHT
     263,  // EQUIP_SLOT_D_LEFT
