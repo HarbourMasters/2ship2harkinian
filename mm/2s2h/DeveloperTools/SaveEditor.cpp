@@ -149,7 +149,7 @@ void DrawGeneralTab() {
     std::string minutes = (curMinutes < 10 ? "0" : "") + std::to_string(curMinutes);
     std::string hours = "";
     std::string ampm = "";
-    // 2S2HTODO: Switch to CVar if we ever add 24 hour mode display
+    // BENTODO: Switch to CVar if we ever add 24 hour mode display
     if (false) {
         if (curHours < 10) {
             hours += "0";
