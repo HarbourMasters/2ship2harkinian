@@ -1328,6 +1328,8 @@ void PadMgr_ThreadEntry();
 void Heaps_Alloc(void);
 // #endregion
 // #region 2S2H [Port] New methods added for porting
+void AudioSeq_SetPortVolumeScale(u8 seqPlayerIndex, f32 volume);
+float AudioSeq_GetPortVolumeScale(u8 seqPlayerIndex);
 void Graph_OpenDisps(Gfx** dispRefs, Gfx* dispVals, GraphicsContext* gfxCtx, const char* file, s32 line);
 void Graph_CloseDisps(Gfx** dispRefs, Gfx* dispVals, GraphicsContext* gfxCtx, const char* file, s32 line);
 void Lights_GlowCheckPrepare(PlayState* play);

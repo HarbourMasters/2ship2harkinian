@@ -176,9 +176,11 @@ void Scene_CommandObjectList(PlayState* play, SOH::ISceneCommand* cmd) {
     }
 
     // Continuing from the last index, add the remaining object ids from the command object list
-    for (; k < objList->objects.size(); k++) {
-        play->objectCtx.slots[play->objectCtx.numEntries++].id = -objList->objects[k];
+    for (; k < objList->objects.size(); i++, k++) {
+        play->objectCtx.slots[i].id = -objList->objects[k];
     }
+
+    play->objectCtx.numEntries = i;
 
     // #endregion
 

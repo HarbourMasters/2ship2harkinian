@@ -394,6 +394,24 @@ namespace UIWidgets {
         return dirty;
     }
 
+    bool CVarColorPicker(const char* label, const char* cvarName, Color_RGBA8 defaultColor) {
+        Color_RGBA8 color = CVarGetColor(cvarName, defaultColor);
+        ImVec4 colorVec = ImVec4(color.r / 255.0f, color.g / 255.0f, color.b / 255.0f, color.a / 255.0f);
+        bool changed = false;
+        PushStyleCombobox(Colors::Gray);
+        if (ImGui::ColorEdit3(label, (float*)&colorVec, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoBorder)) {
+            color.r = (uint8_t)(colorVec.x * 255.0f);
+            color.g = (uint8_t)(colorVec.y * 255.0f);
+            color.b = (uint8_t)(colorVec.z * 255.0f);
+            color.a = (uint8_t)(colorVec.w * 255.0f);
+            CVarSetColor(cvarName, color);
+            LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+            changed = true;
+        }
+        PopStyleCombobox();
+        return changed;
+    }
+
     void DrawFlagArray32(const std::string& name, uint32_t& flags) {
         ImGui::PushID(name.c_str());
         for (int32_t flagIndex = 0; flagIndex < 32; flagIndex++) {

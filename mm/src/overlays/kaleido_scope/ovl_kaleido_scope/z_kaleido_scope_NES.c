@@ -1544,7 +1544,7 @@ void KaleidoScope_DrawOwlWarpInfoPanel(PlayState* play) {
         } else {
             gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, 255);
         }
-
+        gSPInvalidateTexCache(POLY_OPA_DISP++, pauseCtx->nameSegment);
         POLY_OPA_DISP = Gfx_DrawTexQuad4b(POLY_OPA_DISP, pauseCtx->nameSegment, G_IM_FMT_IA, 128, 16, 0);
     }
 

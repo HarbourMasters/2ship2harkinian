@@ -6,21 +6,16 @@
 #include "UIWidgets.hpp"
 #include <unordered_map>
 #include <string>
-#include "z64.h"
 #include "2s2h/Enhancements/Enhancements.h"
 #include "HudEditor.h"
 
 extern bool ShouldClearTextureCacheAtEndOfFrame;
 
-extern "C" PlayState* gPlayState;
-
-enum SeqPlayers {
-    /* 0 */ SEQ_BGM_MAIN,
-    /* 1 */ SEQ_FANFARE,
-    /* 2 */ SEQ_SFX,
-    /* 3 */ SEQ_BGM_SUB,
-    /* 4 */ SEQ_MAX
-};
+extern "C" {
+#include "z64.h"
+#include "functions.h"
+extern PlayState* gPlayState;
+}
 
 static const std::unordered_map<int32_t, const char*> textureFilteringMap = {
     { FILTER_THREE_POINT, "Three-Point" },
@@ -118,16 +113,19 @@ void DrawSettingsMenu() {
             UIWidgets::CVarSliderFloat("Master Volume: %.0f %%", "gSettings.Audio.MasterVolume", 0.0f, 1.0f, 1.0f, { .showButtons = false, .format = "", .isPercentage = true });
 
             if (UIWidgets::CVarSliderFloat("Main Music Volume: %.0f %%", "gSettings.Audio.MainMusicVolume", 0.0f, 1.0f, 1.0f, { .showButtons = false, .format = "", .isPercentage = true })) {
-                // Audio_SetGameVolume(SEQ_BGM_MAIN, CVarGetFloat("gSettings.Audio.MainMusicVolume", 1.0f));
+                AudioSeq_SetPortVolumeScale(SEQ_PLAYER_BGM_MAIN, CVarGetFloat("gSettings.Audio.MainMusicVolume", 1.0f));
             }
             if (UIWidgets::CVarSliderFloat("Sub Music Volume: %.0f %%", "gSettings.Audio.SubMusicVolume", 0.0f, 1.0f, 1.0f, { .showButtons = false, .format = "", .isPercentage = true })) {
-                // Audio_SetGameVolume(SEQ_BGM_SUB, CVarGetFloat("gSettings.Audio.SubMusicVolume", 1.0f));
+                AudioSeq_SetPortVolumeScale(SEQ_PLAYER_BGM_SUB, CVarGetFloat("gSettings.Audio.SubMusicVolume", 1.0f));
             }
             if (UIWidgets::CVarSliderFloat("Sound Effects Volume: %.0f %%", "gSettings.Audio.SoundEffectsVolume", 0.0f, 1.0f, 1.0f, { .showButtons = false, .format = "", .isPercentage = true })) {
-                // Audio_SetGameVolume(SEQ_SFX, CVarGetFloat("gSettings.Audio.SoundEffectsVolume", 1.0f));
+                AudioSeq_SetPortVolumeScale(SEQ_PLAYER_SFX, CVarGetFloat("gSettings.Audio.SoundEffectsVolume", 1.0f));
             }
             if (UIWidgets::CVarSliderFloat("Fanfare Volume: %.0f %%", "gSettings.Audio.FanfareVolume", 0.0f, 1.0f, 1.0f, { .showButtons = false, .format = "", .isPercentage = true })) {
-                // Audio_SetGameVolume(SEQ_FANFARE, CVarGetFloat("gSettings.Audio.FanfareVolume", 1.0f));
+                AudioSeq_SetPortVolumeScale(SEQ_PLAYER_FANFARE, CVarGetFloat("gSettings.Audio.FanfareVolume", 1.0f));
+            }
+            if (UIWidgets::CVarSliderFloat("Ambience Volume: %.0f %%", "gSettings.Audio.AmbienceVolume", 0.0f, 1.0f, 1.0f, { .showButtons = false, .format = "", .isPercentage = true })) {
+                AudioSeq_SetPortVolumeScale(SEQ_PLAYER_AMBIENCE, CVarGetFloat("gSettings.Audio.AmbienceVolume", 1.0f));
             }
 
             auto currentAudioBackend = LUS::Context::GetInstance()->GetAudio()->GetAudioBackend();
@@ -330,6 +328,7 @@ extern std::shared_ptr<LUS::GuiWindow> mConsoleWindow;
 extern std::shared_ptr<LUS::GuiWindow> mGfxDebuggerWindow;
 extern std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
 extern std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
+extern std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
 
 void DrawDeveloperToolsMenu() {
     if (UIWidgets::BeginMenu("Developer Tools", UIWidgets::Colors::Yellow)) {
@@ -358,6 +357,10 @@ void DrawDeveloperToolsMenu() {
             }
         }
         ImGui::Separator();
+        if (mCollisionViewerWindow) {
+            UIWidgets::WindowButton("Collision Viewer", "gWindows.CollisionViewer", mCollisionViewerWindow,
+                { .tooltip = "Draws collision to the screen" });
+        }
         if (mStatsWindow) {
             UIWidgets::WindowButton("Stats", "gWindows.Stats", mStatsWindow, {
                 .tooltip = "Shows the stats window, with your FPS and frametimes, and the OS you're playing on"

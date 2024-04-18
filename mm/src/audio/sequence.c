@@ -927,3 +927,18 @@ void AudioSeq_ResetActiveSequencesAndVolume(void) {
     }
     AudioSeq_ResetActiveSequences();
 }
+
+// #region 2S2H [Port][Audio] Setter/Getter funcs for controlling the port volume sliders for each sequence player
+void AudioSeq_SetPortVolumeScale(u8 seqPlayerIndex, f32 volume) {
+    if (seqPlayerIndex >= SEQ_PLAYER_MAX) {
+        return;
+    }
+
+    gAudioCtx.seqPlayers[seqPlayerIndex].portVolumeScale = volume;
+    gAudioCtx.seqPlayers[seqPlayerIndex].recalculateVolume = true;
+}
+
+float AudioSeq_GetPortVolumeScale(u8 seqPlayerIndex) {
+    return gAudioCtx.seqPlayers[seqPlayerIndex].portVolumeScale;
+}
+// #endregion
