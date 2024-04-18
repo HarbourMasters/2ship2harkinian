@@ -5,6 +5,7 @@
 #include "BenMenuBar.h"
 #include "DeveloperTools/SaveEditor.h"
 #include "DeveloperTools/ActorViewer.h"
+#include "DeveloperTools/CollisionViewer.h"
 
 namespace BenGui {
     void SetupHooks();
