@@ -74,10 +74,19 @@ void OceffWipe7_Draw(Actor* thisx, PlayState* play) {
 
     quakeOffset = Camera_GetQuakeOffset(GET_ACTIVE_CAM(play));
 
+    // #region 2S2H [Widescreen] Ocarina Effects
+    f32 effectDistance = 1220.0f; // Vanilla value
+    s32 x = OTRGetRectDimensionFromLeftEdge(0) << 2;
+    if (x < 0) {
+        // Only render if the screen is wider then original
+        effectDistance = 1220.0f / (OTRGetAspectRatio() * 0.85f); // Widescreen value
+    }
+    // #endregion
+
     if (this->counter < 32) {
-        z = Math_SinS(this->counter * 0x200) * 1220.0f;
+        z = Math_SinS(this->counter * 0x200) * effectDistance;
     } else {
-        z = 1220.0f;
+        z = effectDistance;
     }
 
     if (this->counter >= 80) {
