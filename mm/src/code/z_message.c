@@ -55,8 +55,8 @@ const char* gQuestIcons[] = {
     gQuestIconCompassTex,
     gQuestIconDungeonMapTex,
     gQuestIconGoldSkulltula2Tex,
-    gQuestIconSmallMagicJarTex,
     gQuestIconSmallKeyTex,
+    gQuestIconSmallMagicJarTex,
     gQuestIconBigMagicJarTex,
     gQuestIconLinkHumanFaceTex,
 };
