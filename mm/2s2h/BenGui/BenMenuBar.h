@@ -5,6 +5,7 @@
 #include "window/gui/GuiElement.h"
 #include "DeveloperTools/SaveEditor.h"
 #include "DeveloperTools/ActorViewer.h"
+#include "DeveloperTools/CollisionViewer.h"
 
 namespace BenGui {
 class BenMenuBar : public LUS::GuiMenuBar {
