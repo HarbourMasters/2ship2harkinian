@@ -4,11 +4,13 @@
 extern "C" {
 #include <z64.h>
 #include <z64save.h>
+#include <macros.h>
 extern PlayState* gPlayState;
 extern SaveContext gSaveContext;
 extern TexturePtr gItemIcons[131];
 extern u8 gItemSlots[77];
 void Interface_LoadItemIconImpl(PlayState* play, u8 btn);
+void Interface_NewDay(PlayState* play, s32 day);
 extern RegEditor* gRegEditor;
 }
 
@@ -122,6 +124,7 @@ void DrawGeneralTab() {
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f, 8.0f));
     ImGui::BeginChild("generalTab", ImVec2(0, 0), true);
     ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x * 0.5f - 4.0f);
+
     ImGui::BeginGroup();
     ImGui::Text("Player Name");
     ImGui::PushStyleColor(ImGuiCol_FrameBg, UIWidgets::Colors::Gray);
@@ -132,6 +135,7 @@ void DrawGeneralTab() {
     ImGui::PopStyleVar(2);
     ImGui::PopStyleColor(1);
     ImGui::EndGroup();
+
     ImGui::SameLine();
     ImGui::SetCursorPosY(0.0f);
     ImGui::BeginGroup();
@@ -139,9 +143,27 @@ void DrawGeneralTab() {
     UIWidgets::PushStyleSlider();
     static u16 minTime = 0;
     static u16 maxTime = 0xFFFF;
-    ImGui::SliderScalar("##timeInput", ImGuiDataType_U16, &gSaveContext.save.time, &minTime, &maxTime, "%x");
+    // Get current time and format as digital string
+    u16 curMinutes = (s32)TIME_TO_MINUTES_F(gSaveContext.save.time) % 60;
+    u16 curHours = (s32)TIME_TO_MINUTES_F(gSaveContext.save.time) / 60;
+    std::string minutes = (curMinutes < 10 ? "0" : "") + std::to_string(curMinutes);
+    std::string hours = "";
+    std::string ampm = "";
+    // BENTODO: Switch to CVar if we ever add 24 hour mode display
+    if (false) {
+        if (curHours < 10) {
+            hours += "0";
+        }
+    } else {
+        ampm = curHours >= 12 ? " pm" : " am";
+        curHours = curHours % 12 ? curHours % 12 : 12;
+    }
+    hours += std::to_string(curHours);
+    std::string timeString = hours + ":" + minutes + ampm + " (0x%x)";
+    ImGui::SliderScalar("##timeInput", ImGuiDataType_U16, &gSaveContext.save.time, &minTime, &maxTime, timeString.c_str());
     UIWidgets::PopStyleSlider();
     ImGui::EndGroup();
+
     ImGui::BeginGroup();
     if (UIWidgets::Button("Max Health", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
         gSaveContext.save.saveInfo.playerData.doubleDefense = 1;
@@ -173,7 +195,49 @@ void DrawGeneralTab() {
     ImGui::SliderScalar("##healthSlider", ImGuiDataType_S16, &gSaveContext.save.saveInfo.playerData.health, &S16_ZERO, &gSaveContext.save.saveInfo.playerData.healthCapacity, "Health: %d");
     UIWidgets::PopStyleSlider();
     ImGui::EndGroup();
+
+    // Time skip buttons
     ImGui::SameLine();
+    ImGui::BeginGroup();
+    static const std::array<std::pair<int8_t, const char*>, 4> timeSkipAmounts = {
+        { { -60, "-1hr" }, { -15, "-15m" }, { 15, "+15m" }, { 60, "+1hr" } }
+    };
+    for (size_t i = 0; i < timeSkipAmounts.size(); i++) {
+        const auto& skip = timeSkipAmounts.at(i);
+        if (UIWidgets::Button(skip.second, { .color = UIWidgets::Colors::Indigo, .size = UIWidgets::Sizes::Inline })) {
+            gSaveContext.save.time += CLOCK_TIME(0, skip.first);
+        }
+        if (i < timeSkipAmounts.size() - 1) {
+            ImGui::SameLine();
+        }
+    }
+    // Day slider
+    UIWidgets::PushStyleSlider();
+    static s32 minDay = 1;
+    static s32 maxDay = 3;
+    if (ImGui::SliderScalar("##dayInput", ImGuiDataType_S32, &gSaveContext.save.day, &minDay, &maxDay, "Day: %d")) {
+        gSaveContext.save.eventDayCount = CURRENT_DAY;
+        // Reset the time to the start of day/night
+        if (gSaveContext.save.time < CLOCK_TIME(6, 0) || gSaveContext.save.time > CLOCK_TIME(18, 0)) {
+            gSaveContext.save.time = CLOCK_TIME(18, 1);
+        } else {
+            gSaveContext.save.time = CLOCK_TIME(6, 1);
+        }
+        if (gPlayState != nullptr) {
+            Interface_NewDay(gPlayState, CURRENT_DAY);
+            // Inverting setup actors forces actors to kill/respawn for new day
+            gPlayState->numSetupActors = -gPlayState->numSetupActors;
+        }
+    }
+    // Time speed slider
+    // Values are added to R_TIME_SPEED which is generally 3 in normal play state
+    static s32 minSpeed = -3; // Time frozen
+    static s32 maxSpeed = 7;
+    std::string timeSpeedString = "Time Speed: " + std::to_string(gSaveContext.save.timeSpeedOffset + 3);
+    ImGui::SliderScalar("##timeSpeedInput", ImGuiDataType_S32, &gSaveContext.save.timeSpeedOffset, &minSpeed, &maxSpeed, timeSpeedString.c_str());
+    UIWidgets::PopStyleSlider();
+    ImGui::EndGroup();
+
     ImGui::BeginGroup();
     if (UIWidgets::Button("Max Magic", { .color = UIWidgets::Colors::Green, .size = UIWidgets::Sizes::Inline })) {
         gSaveContext.magicCapacity = gSaveContext.save.saveInfo.playerData.magic = MAGIC_DOUBLE_METER;
@@ -383,8 +447,10 @@ void DrawSlot(InventorySlot slot) {
 void DrawItemsAndMasksTab() {
     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 3.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f, 8.0f));
+    // Group left side in a child for a scroll bar
+    ImGui::BeginChild("leftSide##items", ImVec2(0, 0), ImGuiChildFlags_AutoResizeX);
     ImGui::BeginGroup();
-    ImGui::BeginChild("itemsBox", ImVec2(INV_GRID_WIDTH * 6 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 4 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), true);
+    ImGui::BeginChild("itemsBox", ImVec2(INV_GRID_WIDTH * 6 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 4 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
     ImGui::Text("Items");
     for (uint32_t i = SLOT_OCARINA; i <= SLOT_BOTTLE_6; i++) {
         InventorySlot slot = static_cast<InventorySlot>(i);
@@ -392,7 +458,7 @@ void DrawItemsAndMasksTab() {
         DrawSlot(slot);
     }
     ImGui::EndChild();
-    ImGui::BeginChild("masksBox", ImVec2(INV_GRID_WIDTH * 6 + INV_GRID_PADDING * 2, 0), true);
+    ImGui::BeginChild("masksBox", ImVec2(INV_GRID_WIDTH * 6 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 4 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
     ImGui::Text("Masks");
     for (uint32_t i = SLOT_MASK_POSTMAN; i <= SLOT_MASK_FIERCE_DEITY; i++) {
         InventorySlot slot = static_cast<InventorySlot>(i);
@@ -401,6 +467,8 @@ void DrawItemsAndMasksTab() {
     }
     ImGui::EndChild();
     ImGui::EndGroup();
+    ImGui::EndChild();
+
     ImGui::SameLine();
     ImGui::BeginChild("equipsBox", ImVec2(0, 0), true);
     if (UIWidgets::Button("Give All##items")) {
@@ -472,6 +540,9 @@ void DrawRegEditorTab() {
     UIWidgets::PushStyleSlider();
     ImGui::SliderScalar("Reg Group", ImGuiDataType_U8, &gRegEditor->regGroup, &S8_ZERO, &REG_GROUPS_MAX, regGroupNames[gRegEditor->regGroup]);
     ImGui::SliderScalar("Reg Page", ImGuiDataType_U8, &gRegEditor->regPage, &S8_ZERO, &REG_PAGES_MAX, "%d");
+    UIWidgets::PopStyleSlider();
+
+    ImGui::BeginChild("regSliders", ImVec2(0, 0), ImGuiChildFlags_Border);
 
     for (int i = 0; i < REG_PER_PAGE; i++) {
         ImGui::PushID(i);
@@ -490,7 +561,7 @@ void DrawRegEditorTab() {
         ImGui::PopID();
     }
 
-    UIWidgets::PopStyleSlider();
+    ImGui::EndChild();
 }
 
 void SaveEditorWindow::DrawElement() {
