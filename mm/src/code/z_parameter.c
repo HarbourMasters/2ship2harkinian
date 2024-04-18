@@ -5244,13 +5244,6 @@ s16 sDpadItemIconTop[] = {
     47, // EQUIP_SLOT_D_UP
 };
 
-static HudEditorElementID sDpadHudIds[] = {
-    HUD_EDITOR_ELEMENT_D_RIGHT,
-    HUD_EDITOR_ELEMENT_D_LEFT,
-    HUD_EDITOR_ELEMENT_D_DOWN,
-    HUD_EDITOR_ELEMENT_D_UP
-};
-
 void Interface_Dpad_DrawItemIconTexture(PlayState* play, TexturePtr texture, s16 button) {
     static s16 sDpadItemIconWidth[] = { 16, 16, 16, 16 };
 
