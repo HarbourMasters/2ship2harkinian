@@ -77,10 +77,21 @@ void OceffWipe_Draw(Actor* thisx, PlayState* play) {
 
     OPEN_DISPS(play->state.gfxCtx);
 
-    if (this->counter < 32) {
-        z = Math_SinS(this->counter << 9) * 1360.0f;
+    // #region 2S2H [Widescreen] Ocarina Effects
+    f32 effectDistance;
+    s32 x = OTRGetRectDimensionFromLeftEdge(0) << 2;
+    if (x < 0) {
+        // Only render if the screen is wider then original
+        effectDistance = 1360.0f / (OTRGetAspectRatio() * 0.85f); // Widescreen value
     } else {
-        z = 1360.0f;
+        effectDistance = 1360.0f; // Vanilla value
+    }
+    // #endregion
+
+    if (this->counter < 32) {
+        z = Math_SinS(this->counter << 9) * effectDistance;
+    } else {
+        z = effectDistance;
     }
 
     if (this->counter >= 80) {

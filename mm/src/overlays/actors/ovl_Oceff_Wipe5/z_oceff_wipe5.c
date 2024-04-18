@@ -82,10 +82,25 @@ void OceffWipe5_Draw(Actor* thisx, PlayState* play) {
     s32 colorIndex = OCEFF_WIPE5_GET_SONG_TYPE(thisx) * 3;
     f32 phi_fv1 = 1220.0f;
 
+    // #region 2S2H [Widescreen] Ocarina Effects
+    s32 x = OTRGetRectDimensionFromLeftEdge(0) << 2;
+    if (x < 0) {
+        // Only render if the screen is wider then original
+        phi_fv1 = 1220.0f / (OTRGetAspectRatio() * 0.85f); // Widescreen value
+    }
+    // #endregion
+
     if ((((OCEFF_WIPE5_GET_SONG_TYPE(thisx) == 2) && (play->sceneId == SCENE_LABO)) &&
          ((play->csCtx.scriptIndex == 0) || (play->csCtx.scriptIndex == 1))) &&
         (play->csCtx.state != CS_STATE_IDLE)) {
-        phi_fv1 = 1150.0f;
+        // #region 2S2H [Widescreen] Ocarina Effects
+        if (x < 0) {
+            // Only render if the screen is wider then original
+            phi_fv1 = 1150.0f / (OTRGetAspectRatio() * 0.85f); // Widescreen value
+        } else {
+            phi_fv1 = 1150.0f; // Vanilla value
+        }
+        // #endregion
     }
 
     if (colorIndex >= 13) {
