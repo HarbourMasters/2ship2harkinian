@@ -483,6 +483,13 @@ void KaleidoScope_HandlePageToggles(PlayState* play, Input* input) {
     PauseContext* pauseCtx = &play->pauseCtx;
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
 
+    // 2S2H [Debug] Restoring input check for debug inventory editor based on OOT debug
+    if (CVarGetInteger("gDeveloperTools.DebugEnabled", 0) && (pauseCtx->debugEditor == DEBUG_EDITOR_NONE) &&
+        CHECK_BTN_ALL(input->press.button, BTN_L)) {
+        pauseCtx->debugEditor = DEBUG_EDITOR_INVENTORY_INIT;
+        return;
+    }
+
     //! FAKE
     if (1) {}
 
@@ -1537,7 +1544,7 @@ void KaleidoScope_DrawOwlWarpInfoPanel(PlayState* play) {
         } else {
             gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, 255);
         }
-
+        gSPInvalidateTexCache(POLY_OPA_DISP++, pauseCtx->nameSegment);
         POLY_OPA_DISP = Gfx_DrawTexQuad4b(POLY_OPA_DISP, pauseCtx->nameSegment, G_IM_FMT_IA, 128, 16, 0);
     }
 

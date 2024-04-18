@@ -115,7 +115,11 @@ void AudioSeq_ProcessSeqCmd(u32 cmd) {
             // `fadeTimer` continues to be scaled in `AudioSeq_StartSequence`
             fadeTimer = (cmd & 0xFF0000) >> 13;
             if (!gActiveSeqs[seqPlayerIndex].isWaitingForFonts && !sStartSeqDisabled) {
-                if (seqArgs < 0x80) {
+                // BEN: The code block to later load a sequence doesn't exist in OOT.
+                // BEN: The thing preventing this code block from running is actually the fact that we killed the audio tables.
+                // BEN: This delayed loading method actually utilizes some functions that OOT is no longer utilizing.
+                // BEN: The short of it ends up being the short circuit here is fine since it works and the stuff is loaded anyway.
+                if (seqArgs < 0x80 || 1) {
                     AudioSeq_StartSequence(seqPlayerIndex, seqId, seqArgs, fadeTimer);
                 } else {
                     // Store the cmd to be called again once the fonts are loaded
@@ -123,19 +127,22 @@ void AudioSeq_ProcessSeqCmd(u32 cmd) {
                     gActiveSeqs[seqPlayerIndex].startAsyncSeqCmd =
                         (cmd & ~(SEQ_FLAG_ASYNC | SEQCMD_ASYNC_ACTIVE)) + SEQCMD_ASYNC_ACTIVE;
                     gActiveSeqs[seqPlayerIndex].isWaitingForFonts = true;
-                    gActiveSeqs[seqPlayerIndex].fontId = *AudioThread_GetFontsForSequence(seqId, &outNumFonts);
+                    u8* fontBuff[16];
+                    u8* prevFontBuff[16];
+                    u8* font = AudioThread_GetFontsForSequence(seqId, &outNumFonts, fontBuff);
+                    gActiveSeqs[seqPlayerIndex].fontId = *font;
                     AudioSeq_StopSequence(seqPlayerIndex, 1);
 
                     if (gActiveSeqs[seqPlayerIndex].prevSeqId != NA_BGM_DISABLED) {
-                        if (*AudioThread_GetFontsForSequence(seqId, &outNumFonts) !=
-                            *AudioThread_GetFontsForSequence(gActiveSeqs[seqPlayerIndex].prevSeqId & 0xFF,
-                                                             &outNumFonts)) {
+                        if (*AudioThread_GetFontsForSequence(seqId, &outNumFonts, fontBuff) !=
+                            *AudioThread_GetFontsForSequence(gActiveSeqs[seqPlayerIndex].prevSeqId & 0xFF, &outNumFonts,
+                                                             prevFontBuff)) {
                             // Discard Seq Fonts
                             AUDIOCMD_GLOBAL_DISCARD_SEQ_FONTS((s32)seqId);
                         }
                     }
 
-                    AUDIOCMD_GLOBAL_ASYNC_LOAD_FONT(*AudioThread_GetFontsForSequence(seqId, &outNumFonts),
+                    AUDIOCMD_GLOBAL_ASYNC_LOAD_FONT(*AudioThread_GetFontsForSequence(seqId, &outNumFonts, fontBuff),
                                                     (u8)((seqPlayerIndex + 1) & 0xFF));
                 }
             }
@@ -861,7 +868,7 @@ u8 AudioSeq_ResetReverb(void) {
                 if (fadeReverb & 1) {
                     AUDIOCMD_GLOBAL_SET_REVERB_DATA(
                         reverbIndex, REVERB_DATA_TYPE_SETTINGS,
-                        (s32)(gReverbSettingsTable[(u8)(sResetAudioHeapSeqCmd & 0xFF)] + reverbIndex));
+                        (uintptr_t)(gReverbSettingsTable[(u8)(sResetAudioHeapSeqCmd & 0xFF)] + reverbIndex));
                     AudioThread_ScheduleProcessCmds();
                 }
                 reverbIndex++;
@@ -920,3 +927,18 @@ void AudioSeq_ResetActiveSequencesAndVolume(void) {
     }
     AudioSeq_ResetActiveSequences();
 }
+
+// #region 2S2H [Port][Audio] Setter/Getter funcs for controlling the port volume sliders for each sequence player
+void AudioSeq_SetPortVolumeScale(u8 seqPlayerIndex, f32 volume) {
+    if (seqPlayerIndex >= SEQ_PLAYER_MAX) {
+        return;
+    }
+
+    gAudioCtx.seqPlayers[seqPlayerIndex].portVolumeScale = volume;
+    gAudioCtx.seqPlayers[seqPlayerIndex].recalculateVolume = true;
+}
+
+float AudioSeq_GetPortVolumeScale(u8 seqPlayerIndex) {
+    return gAudioCtx.seqPlayers[seqPlayerIndex].portVolumeScale;
+}
+// #endregion

@@ -1161,9 +1161,10 @@ void AudioThread_QueueCmdF32(u32 opArgs, f32 data);
 void AudioThread_QueueCmdS32(u32 opArgs, s32 data);
 void AudioThread_QueueCmdS8(u32 opArgs, s8 data);
 void AudioThread_QueueCmdU16(u32 opArgs, u16 data);
+void AudioThread_QueueCmdPtr(u32 opArgs, void* data);
 s32 AudioThread_ScheduleProcessCmds(void);
 u32 AudioThread_GetExternalLoadQueueMsg(u32* retMsg);
-u8* AudioThread_GetFontsForSequence(s32 seqId, u32* outNumFonts);
+u8* AudioThread_GetFontsForSequence(s32 seqId, u32* outNumFonts, u8* buff);
 s32 func_80193C5C(void);
 s32 AudioThread_ResetAudioHeap(s32 specId);
 void AudioThread_PreNMIInternal(void);
@@ -1327,6 +1328,8 @@ void PadMgr_ThreadEntry();
 void Heaps_Alloc(void);
 // #endregion
 // #region 2S2H [Port] New methods added for porting
+void AudioSeq_SetPortVolumeScale(u8 seqPlayerIndex, f32 volume);
+float AudioSeq_GetPortVolumeScale(u8 seqPlayerIndex);
 void Graph_OpenDisps(Gfx** dispRefs, Gfx* dispVals, GraphicsContext* gfxCtx, const char* file, s32 line);
 void Graph_CloseDisps(Gfx** dispRefs, Gfx* dispVals, GraphicsContext* gfxCtx, const char* file, s32 line);
 void Lights_GlowCheckPrepare(PlayState* play);

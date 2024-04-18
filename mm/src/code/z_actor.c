@@ -3507,8 +3507,8 @@ Actor* Actor_Delete(ActorContext* actorCtx, Actor* actor, PlayState* play) {
     if (actor == actorCtx->targetCtx.bgmEnemy) {
         actorCtx->targetCtx.bgmEnemy = NULL;
     }
-    // BENTODO
-//    AudioSfx_StopByPos(&actor->projectedPos);
+
+    AudioSfx_StopByPos(&actor->projectedPos);
     Actor_Destroy(actor, play);
 
     newHead = Actor_RemoveFromCategory(play, actorCtx, actor);
@@ -4905,6 +4905,7 @@ void Actor_DrawDamageEffects(PlayState* play, Actor* actor, Vec3f bodyPartsPos[]
         Vec3f* bodyPartsPosStart = bodyPartsPos;
         u32 gameplayFrames = play->gameplayFrames;
         f32 effectAlphaScaled;
+        static int effectEpoch = 0;
 
         currentMatrix = Matrix_GetCurrent();
 
@@ -4944,6 +4945,8 @@ void Actor_DrawDamageEffects(PlayState* play, Actor* actor, Vec3f bodyPartsPos[]
 
                 // Apply and draw ice over each body part of frozen actor
                 for (bodyPartIndex = 0; bodyPartIndex < bodyPartsCount; bodyPartIndex++, bodyPartsPos++) {
+                    // BENTODO is using bodyPartsPos OK here? should actor be used instead?
+                    FrameInterpolation_RecordOpenChild(bodyPartsPos, effectEpoch++);
                     alpha = bodyPartIndex & 3;
                     alpha = effectAlphaScaled - (30.0f * alpha);
                     if (effectAlphaScaled < (30.0f * (bodyPartIndex & 3))) {
@@ -4970,6 +4973,7 @@ void Actor_DrawDamageEffects(PlayState* play, Actor* actor, Vec3f bodyPartsPos[]
                               G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
 
                     gSPDisplayList(POLY_XLU_DISP++, gEffIceFragment2ModelDL);
+                    FrameInterpolation_RecordCloseChild();
                 }
 
                 bodyPartsPos = bodyPartsPosStart; // reset bodyPartsPos
@@ -4989,6 +4993,7 @@ void Actor_DrawDamageEffects(PlayState* play, Actor* actor, Vec3f bodyPartsPos[]
 
                 // Apply and draw steam over each body part of frozen actor
                 for (bodyPartIndex = 0; bodyPartIndex < bodyPartsCount; bodyPartIndex++, bodyPartsPos++) {
+                    FrameInterpolation_RecordOpenChild(bodyPartsPos, effectEpoch++);
                     twoTexScrollParam = ((bodyPartIndex * 3) + gameplayFrames);
                     gSPSegment(POLY_XLU_DISP++, 0x08,
                                Gfx_TwoTexScroll(play->state.gfxCtx, 0, twoTexScrollParam * 3, twoTexScrollParam * -12,
@@ -5002,6 +5007,7 @@ void Actor_DrawDamageEffects(PlayState* play, Actor* actor, Vec3f bodyPartsPos[]
                               G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
 
                     gSPDisplayList(POLY_XLU_DISP++, gFrozenSteamModelDL);
+                    FrameInterpolation_RecordCloseChild();
                 }
                 break;
 
@@ -5023,6 +5029,7 @@ void Actor_DrawDamageEffects(PlayState* play, Actor* actor, Vec3f bodyPartsPos[]
 
                 // Apply and draw fire on every body part
                 for (bodyPartIndex = 0; bodyPartIndex < bodyPartsCount; bodyPartIndex++, bodyPartsPos++) {
+                    FrameInterpolation_RecordOpenChild(bodyPartsPos, effectEpoch++);
                     alpha = bodyPartIndex & 3;
                     alpha = effectAlphaScaled - 30.0f * alpha;
                     if (effectAlphaScaled < 30.0f * (bodyPartIndex & 3)) {
@@ -5050,6 +5057,7 @@ void Actor_DrawDamageEffects(PlayState* play, Actor* actor, Vec3f bodyPartsPos[]
                               G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
 
                     gSPDisplayList(POLY_XLU_DISP++, gEffFire1DL);
+                    FrameInterpolation_RecordCloseChild();
                 }
                 break;
 
@@ -5083,6 +5091,7 @@ void Actor_DrawDamageEffects(PlayState* play, Actor* actor, Vec3f bodyPartsPos[]
 
                 // Apply and draw a light orb over each body part of frozen actor
                 for (bodyPartIndex = 0; bodyPartIndex < bodyPartsCount; bodyPartIndex++, bodyPartsPos++) {
+                    FrameInterpolation_RecordOpenChild(bodyPartsPos, effectEpoch++);
                     Matrix_RotateZF(Rand_CenteredFloat(2 * M_PI), MTXMODE_APPLY);
                     currentMatrix->mf[3][0] = bodyPartsPos->x;
                     currentMatrix->mf[3][1] = bodyPartsPos->y;
@@ -5092,6 +5101,7 @@ void Actor_DrawDamageEffects(PlayState* play, Actor* actor, Vec3f bodyPartsPos[]
                               G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
 
                     gSPDisplayList(POLY_XLU_DISP++, gLightOrbModelDL);
+                    FrameInterpolation_RecordCloseChild();
                 }
                 break;
 
@@ -5121,6 +5131,7 @@ void Actor_DrawDamageEffects(PlayState* play, Actor* actor, Vec3f bodyPartsPos[]
 
                 // Every body part draws two electric sparks at random orientations
                 for (bodyPartIndex = 0; bodyPartIndex < bodyPartsCount; bodyPartIndex++, bodyPartsPos++) {
+                    FrameInterpolation_RecordOpenChild(bodyPartsPos, effectEpoch++);
                     // first electric spark
                     Matrix_RotateXFApply(Rand_ZeroFloat(2 * M_PI));
                     Matrix_RotateZF(Rand_ZeroFloat(2 * M_PI), MTXMODE_APPLY);
@@ -5144,11 +5155,12 @@ void Actor_DrawDamageEffects(PlayState* play, Actor* actor, Vec3f bodyPartsPos[]
                               G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
 
                     gSPDisplayList(POLY_XLU_DISP++, gElectricSparkModelDL);
+                    FrameInterpolation_RecordCloseChild();
                 }
 
                 break;
         }
-
+        effectEpoch = 0;
         CLOSE_DISPS(play->state.gfxCtx);
     }
 }

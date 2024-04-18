@@ -7,16 +7,18 @@ extern "C" int16_t OTRGetRectDimensionFromRightEdge(float v);
 HudEditorElementID hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
 
 HudEditorElement hudEditorElements[HUD_EDITOR_ELEMENT_MAX] = {
-    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_B,             "B Button",       "B",      167, 17,  100, 255, 120, 255),
-    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_C_LEFT,        "C-Left Button",  "CLeft",  227, 18,  255, 240, 0,   255),
-    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_C_DOWN,        "C-Down Button",  "CDown",  249, 34,  255, 240, 0,   255),
-    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_C_RIGHT,       "C-Right Button", "CRight", 271, 18,  255, 240, 0,   255),
-    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_A,             "A Button",       "A",      191, 18,  100, 200, 255, 255),
-    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_C_UP,          "C-Up Button",    "CUp",    254, 16,  255, 240, 0,   255),
-    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_START,         "Start Button",   "Start",  136, 17,  255, 130, 60,  255),
-    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_MAGIC_METER,   "Magic",          "Magic",  18,  34,  0,   200, 0,   255),
-    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_HEARTS,        "Hearts",         "Hearts", 30,  26,  255, 70,  50,  255),
-    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_RUPEE_COUNTER, "Rupees",         "Rupees", 26,  206, 200, 255, 100, 255),
+    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_B,                 "B Button",       "B",          167, 17,  100, 255, 120, 255),
+    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_C_LEFT,            "C-Left Button",  "CLeft",      227, 18,  255, 240, 0,   255),
+    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_C_DOWN,            "C-Down Button",  "CDown",      249, 34,  255, 240, 0,   255),
+    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_C_RIGHT,           "C-Right Button", "CRight",     271, 18,  255, 240, 0,   255),
+    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_A,                 "A Button",       "A",          191, 18,  100, 200, 255, 255),
+    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_C_UP,              "C-Up Button",    "CUp",        254, 16,  255, 240, 0,   255),
+    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_START,             "Start Button",   "Start",      136, 17,  255, 130, 60,  255),
+    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_MAGIC_METER,       "Magic",          "Magic",      18,  34,  0,   200, 0,   255),
+    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_HEARTS,            "Hearts",         "Hearts",     30,  26,  255, 70,  50,  255),
+    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_RUPEE_COUNTER,     "Rupees",         "Rupees",     26,  206, 200, 255, 100, 255),
+    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_KEY_COUNTER,       "Keys",           "Keys",       26,  190, 255, 255, 255, 255),
+    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_SKULLTULA_COUNTER, "Skulltulas",     "Skulltulas", 26,  190, 255, 255, 255, 255),
 };
 
 extern "C" bool HudEditor_ShouldOverrideDraw() {
@@ -94,6 +96,8 @@ void HudEditorWindow::DrawElement() {
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_MAGIC_METER].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT);
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_HEARTS].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT);
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_RUPEE_COUNTER].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT);
+                CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_KEY_COUNTER].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT);
+                CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_SKULLTULA_COUNTER].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT);
                 break;
             }
         }

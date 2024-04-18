@@ -75,6 +75,8 @@ void SDL_main(int argc, char** argv /* void* arg*/) {
     osCreateMesgQueue(&sIrqMgrMsgQueue, sIrqMgrMsgBuf, ARRAY_COUNT(sIrqMgrMsgBuf));
     PadMgr_Init(&sSerialEventQueue, &gIrqMgr, Z_THREAD_ID_PADMGR, Z_PRIORITY_PADMGR, STACK_TOP(sPadMgrStack));
 
+    AudioMgr_Init(&sAudioMgr, STACK_TOP(sAudioStack), Z_PRIORITY_AUDIOMGR, Z_THREAD_ID_AUDIOMGR, &gSchedContext,
+                  &gIrqMgr);
 #if 0
     StackCheck_Init(&sSchedStackInfo, sSchedStack, STACK_TOP(sSchedStack), 0, 0x100, "sched");
     Sched_Init(&gSchedContext, STACK_TOP(sSchedStack), Z_PRIORITY_SCHED, gViConfigModeType, 1, &gIrqMgr);
@@ -119,4 +121,6 @@ void SDL_main(int argc, char** argv /* void* arg*/) {
 
     IrqMgr_RemoveClient(&gIrqMgr, &sIrqClient);
     osDestroyThread(&gGraphThread);
+
+    DeinitOTR();
 }

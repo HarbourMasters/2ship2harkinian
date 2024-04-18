@@ -86,11 +86,14 @@ namespace BenGui {
     }
 
     void Destroy() {
+        mBenMenuBar = nullptr;
+        mStatsWindow = nullptr;
+        mConsoleWindow = nullptr;
+        mInputEditorWindow = nullptr;
+        mGfxDebuggerWindow = nullptr;
+
         mSaveEditorWindow = nullptr;
         mHudEditorWindow = nullptr;
         mActorViewerWindow = nullptr;
-        mStatsWindow = nullptr;
-        mConsoleWindow = nullptr;
-        mBenMenuBar = nullptr;
     }
 }

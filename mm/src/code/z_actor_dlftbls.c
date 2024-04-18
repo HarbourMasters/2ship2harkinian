@@ -62,7 +62,7 @@ void ActorOverlayTable_FaultClient(void* arg0, void* arg1) {
         overlaySize = (uintptr_t)overlayEntry->vramEnd - (uintptr_t)overlayEntry->vramStart;
         if (overlayEntry->loadedRamAddr != NULL) {
             FaultDrawer_Printf("%3d %08x-%08x %3d %s\n", actorId, overlayEntry->loadedRamAddr,
-                               (u32)overlayEntry->loadedRamAddr + overlaySize, overlayEntry->numLoaded, "");
+                               (uintptr_t)overlayEntry->loadedRamAddr + overlaySize, overlayEntry->numLoaded, "");
         }
     }
 }

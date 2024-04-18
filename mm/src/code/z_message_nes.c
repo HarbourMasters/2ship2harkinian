@@ -579,7 +579,7 @@ void Message_DrawTextNES(PlayState* play, Gfx** gfxP, u16 textDrawPos) {
             case 0x1B: // MESSAGE_BOX_BREAK_DELAYED
                 if (msgCtx->msgMode == MSGMODE_TEXT_DISPLAYING) {
                     stateTimerHi = msgCtx->decodedBuffer.schar[++i] << 8;
-                    stateTimerHi |= msgCtx->decodedBuffer.schar[++i];
+                    stateTimerHi += msgCtx->decodedBuffer.schar[++i];
                     msgCtx->stateTimer = stateTimerHi;
                     msgCtx->msgMode = MSGMODE_TEXT_DELAYED_BREAK;
                 }
@@ -595,7 +595,7 @@ void Message_DrawTextNES(PlayState* play, Gfx** gfxP, u16 textDrawPos) {
                         msgCtx->textboxEndType = 0x50;
                     }
                     stateTimerHi = msgCtx->decodedBuffer.schar[++i] << 8;
-                    stateTimerHi |= msgCtx->decodedBuffer.schar[++i];
+                    stateTimerHi += msgCtx->decodedBuffer.schar[++i];
                     msgCtx->stateTimer = stateTimerHi;
                     Font_LoadMessageBoxEndIcon(font, 1);
                     if (play->csCtx.state == CS_STATE_IDLE) {
@@ -610,7 +610,7 @@ void Message_DrawTextNES(PlayState* play, Gfx** gfxP, u16 textDrawPos) {
                     msgCtx->msgMode = MSGMODE_TEXT_DONE;
                     msgCtx->textboxEndType = 0x52;
                     stateTimerHi = msgCtx->decodedBuffer.schar[++i] << 8;
-                    stateTimerHi |= msgCtx->decodedBuffer.schar[++i];
+                    stateTimerHi += msgCtx->decodedBuffer.schar[++i];
                     msgCtx->stateTimer = stateTimerHi;
                     Font_LoadMessageBoxEndIcon(font, 1);
                     if (play->csCtx.state == CS_STATE_IDLE) {
@@ -623,7 +623,7 @@ void Message_DrawTextNES(PlayState* play, Gfx** gfxP, u16 textDrawPos) {
             case 0x1E: // MESSAGE_SFX
                 if (((i + 1) == msgCtx->textDrawPos) && (msgCtx->msgMode == MSGMODE_TEXT_DISPLAYING)) {
                     stateTimerHi = msgCtx->decodedBuffer.schar[i + 1] << 8;
-                    stateTimerHi |= msgCtx->decodedBuffer.schar[i + 2];
+                    stateTimerHi += (uint8_t)msgCtx->decodedBuffer.schar[i + 2];
                     Audio_PlaySfx(stateTimerHi);
                 }
                 if ((i + 1) == msgCtx->textDrawPos) {
@@ -636,7 +636,7 @@ void Message_DrawTextNES(PlayState* play, Gfx** gfxP, u16 textDrawPos) {
                 if (((i + 1) == msgCtx->textDrawPos) && (msgCtx->msgMode == MSGMODE_TEXT_DISPLAYING)) {
                     msgCtx->msgMode = MSGMODE_9;
                     stateTimerHi = msgCtx->decodedBuffer.schar[i + 1] << 8;
-                    stateTimerHi |= msgCtx->decodedBuffer.schar[i + 2];
+                    stateTimerHi += msgCtx->decodedBuffer.schar[i + 2];
                     msgCtx->textDelayTimer = stateTimerHi;
                 }
                 i += 2;
@@ -1878,7 +1878,7 @@ void Message_DecodeNES(PlayState* play) {
                 (msgCtx->textBoxType == TEXTBOX_TYPE_8) || (msgCtx->textBoxType == TEXTBOX_TYPE_9) ||
                 (msgCtx->textBoxType == TEXTBOX_TYPE_B) || (msgCtx->unk11F0C == 3)) {
                 sfxHi = msgCtx->decodedBuffer.schar[decodedBufPos - 1] << 8;
-                sfxHi |= msgCtx->decodedBuffer.schar[decodedBufPos];
+                sfxHi += (uint8_t)msgCtx->decodedBuffer.schar[decodedBufPos];
                 Audio_PlaySfx(sfxHi);
             }
         } else if (curChar == 0x1F) {

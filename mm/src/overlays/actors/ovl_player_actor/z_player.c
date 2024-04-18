@@ -1781,8 +1781,6 @@ u16 D_8085C3EC[] = {
 };
 
 void func_8082E00C(Player* this) {
-    return;
-    // BENTODO
     s32 i;
     u16* sfxIdPtr = D_8085C3EC;
 
@@ -8201,8 +8199,7 @@ void func_8083A98C(Actor* thisx, PlayState* play2) {
 
         // Show controls overlay. SCENE_AYASHIISHOP does not have Zoom, so has a different one.
         if (this->av2.actionVar2 == 1) {
-            // BENTODO: crash when going back from telescope in astral observatory
-            // Message_StartTextbox(play, (play->sceneId == SCENE_AYASHIISHOP) ? 0x2A00 : 0x5E6, NULL);
+            Message_StartTextbox(play, (play->sceneId == SCENE_AYASHIISHOP) ? 0x2A00 : 0x5E6, NULL);
         }
     } else {
         sPlayerControlInput = play->state.input;
@@ -20733,6 +20730,14 @@ s32 func_8085B930(PlayState* play, PlayerAnimationHeader* talkAnim, AnimationMod
         return false;
     }
 
+    // 2S2H [Port] We are setting the result of func_8082ED20 to talkAnim ahead of time
+    // so that Animation_GetLastframe returns a real value
+    if (talkAnim == NULL) {
+        talkAnim = func_8082ED20(player);
+    }
+
+    //! @bug When func_8082ED20 is used to get a wait animation, NULL is still passed to Animation_GetLastFrame,
+    // causing it to read the frame count from address 0x80000000 which returns 15385
     PlayerAnimation_Change(play, &player->skelAnime, (talkAnim == NULL) ? func_8082ED20(player) : talkAnim, 2.0f / 3.0f,
                            0.0f, Animation_GetLastFrame(talkAnim), animMode, -6.0f);
     return true;

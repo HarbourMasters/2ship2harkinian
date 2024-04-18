@@ -253,6 +253,8 @@ typedef struct SequencePlayer {
     /* 0x0E0 */ u32 scriptCounter;
     /* 0x0E4 */ UNK_TYPE1 unk_E4[0x74]; // unused struct members for sequence/sound font dma management, according to sm64 decomp
     /* 0x158 */ s8 seqScriptIO[8];
+    // #region 2S2H [Port][Audio]
+    /*       */ f32 portVolumeScale; // volume from the sliders in the menubar
 } SequencePlayer; // size = 0x160
 
 typedef union {
@@ -581,12 +583,19 @@ typedef struct {
 
 typedef struct {
     union {
-    /* 0x0 */ u32 opArgs;
+        u32 opArgs;
         struct {
-            /* 0x0 */ u8 op;
-            /* 0x1 */ u8 arg0;
-            /* 0x2 */ u8 arg1;
-            /* 0x3 */ u8 arg2;
+#ifdef IS_BIGENDIAN
+            u8 op;
+            u8 arg0;
+            u8 arg1;
+            u8 arg2;
+#else
+            u8 arg2;
+            u8 arg1;
+            u8 arg0;
+            u8 op;
+#endif
         };
     };
     union {
@@ -597,9 +606,9 @@ typedef struct {
         /* 0x4 */ s8 asSbyte;
         /* 0x4 */ u8 asUbyte;
         /* 0x4 */ u32 asUInt;
-        /* 0x4 */ void* asPtr;
+        /* 0x4 */ uintptr_t asPtr;
     };
-} AudioCmd; // size = 0x8
+} AudioCmd;
 
 typedef struct {
     /* 0x00 */ OSTask task;
@@ -706,7 +715,7 @@ typedef struct {
     /* 0x435C */ AudioCommonPoolSplit temporaryCommonPoolSplit; // splits temporary common pool into caches for sequences, soundFonts, sample banks
     /* 0x4368 */ u8 sampleFontLoadStatus[0x30];
     /* 0x4398 */ u8 fontLoadStatus[0x30];
-    /* 0x43C8 */ u8 seqLoadStatus[0x80];
+    /* 0x43C8 */ u8* seqLoadStatus;
     /* 0x4448 */ volatile u8 resetStatus;
     /* 0x4449 */ u8 specId;
     /* 0x444C */ s32 audioResetFadeOutFramesLeft;
@@ -735,6 +744,8 @@ typedef struct {
     /* 0x79E4 */ OSMesg threadCmdProcMsgBuf[4];
     /* 0x79F4 */ AudioCmd threadCmdBuf[0x100]; // Audio commands used to transfer audio requests from the graph thread to the audio thread
     /* 0x81F4 */ UNK_TYPE1 unk_81F4[4];
+    u16 seqToPlay[4];
+    u8 seqReplaced[4];
 } AudioContext; // size = 0x81F8
 
 typedef struct {
@@ -924,6 +935,8 @@ typedef struct {
 // Apply a low-pass filter with a lowPassCutoff of 4
 #define SFX_FLAG2_APPLY_LOWPASS_FILTER (1 << 7)
 
+#define MAX_AUTHENTIC_SEQID 128
+
 typedef struct {
     /* 0x0 */ u8 importance;
     /* 0x1 */ u8 flags;
@@ -936,5 +949,15 @@ typedef void* (*AudioCustomReverbFunction)(Sample*, s32, s8, s32);
 typedef Acmd* (*AudioCustomSynthFunction)(Acmd*, s32, s32);
 
 extern OSVoiceHandle gVoiceHandle;
+
+typedef struct {
+    char* seqData;
+    int32_t seqDataSize;
+    uint16_t seqNumber;
+    uint8_t medium;
+    uint8_t cachePolicy;
+    int32_t numFonts;
+    uint8_t fonts[16];
+} SequenceData;
 
 #endif

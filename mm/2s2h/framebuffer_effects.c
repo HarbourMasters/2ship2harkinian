@@ -1,7 +1,8 @@
 #include "framebuffer_effects.h"
 #include "global.h"
 
-int gfx_create_framebuffer(uint32_t width, uint32_t height);
+int gfx_create_framebuffer(uint32_t width, uint32_t height, uint32_t native_width, uint32_t native_height,
+                           uint8_t resize);
 
 s32 gPauseFrameBuffer = -1;
 s32 gBlurFrameBuffer = -1;
@@ -9,17 +10,24 @@ s32 gBlurFrameBuffer = -1;
 // i.e. the VisMono and VisFbuf effects
 s32 gReusableFrameBuffer = -1;
 
+// Picto box buffer is unscaled at 320x240
+s32 gPictoBoxFrameBuffer = -1;
+
 void FB_CreateFramebuffers(void) {
     if (gPauseFrameBuffer == -1) {
-        gPauseFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT);
+        gPauseFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT, true);
     }
 
     if (gBlurFrameBuffer == -1) {
-        gBlurFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT);
+        gBlurFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT, true);
     }
 
     if (gReusableFrameBuffer == -1) {
-        gReusableFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT);
+        gReusableFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT, true);
+    }
+
+    if (gPictoBoxFrameBuffer == -1) {
+        gPictoBoxFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT, false);
     }
 }
 
