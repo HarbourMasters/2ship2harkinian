@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <string>
 #include "2s2h/Enhancements/Enhancements.h"
+#include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "HudEditor.h"
 
 extern bool ShouldClearTextureCacheAtEndOfFrame;
@@ -294,6 +295,8 @@ void DrawEnhancementsMenu() {
         UIWidgets::CVarCheckbox("Authentic logo", "gEnhancements.General.AuthenticLogo", {
             .tooltip = "Hide the game version and build details and display the authentic model and texture on the boot logo start screen"
         });
+        UIWidgets::CVarCheckbox("Skip Entrance Cutscenes", "gEnhancements.TimeSavers.SkipEntranceCutscenes");
+        UIWidgets::CVarCheckbox("Hide Title Cards", "gEnhancements.TimeSavers.HideTitleCards");
 
         if (mHudEditorWindow) {
             UIWidgets::WindowButton("Hud Editor", "gWindows.HudEditor", mHudEditorWindow, {
@@ -337,6 +340,15 @@ void DrawDeveloperToolsMenu() {
         });
         
         UIWidgets::CVarCheckbox("Better Map Select", "gDeveloperTools.BetterMapSelect.Enabled");
+        if (UIWidgets::CVarCheckbox("Prevent Actor Update", "gDeveloperTools.PreventActorUpdate")) {
+            RegisterPreventActorUpdateHooks();
+        }
+        if (UIWidgets::CVarCheckbox("Prevent Actor Draw", "gDeveloperTools.PreventActorDraw")) {
+            RegisterPreventActorDrawHooks();
+        }
+        if (UIWidgets::CVarCheckbox("Prevent Actor Init", "gDeveloperTools.PreventActorInit")) {
+            RegisterPreventActorInitHooks();
+        }
         
         if (gPlayState != NULL) {
             ImGui::Separator();

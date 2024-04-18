@@ -1,6 +1,7 @@
 #include "ActorViewer.h"
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "global.h"
+#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 
 typedef struct ActorInfo {
     u16 id;
@@ -76,11 +77,17 @@ static s16 newActorId = 0;
 static u8 category = 0;
 static s8 method = -1;
 static std::string filler = "Please select";
+static HOOK_ID preventActorDrawHookId = 0;
+static HOOK_ID preventActorUpdateHookId = 0;
 
 void ResetVariables() {
     display = fetch = {};
     newActor = {};
     filler = "Please select";
+    GameInteractor::Instance->UnregisterGameHookForPtr<GameInteractor::ShouldActorDraw>(preventActorDrawHookId);
+    GameInteractor::Instance->UnregisterGameHookForPtr<GameInteractor::ShouldActorUpdate>(preventActorUpdateHookId);
+    preventActorDrawHookId = 0;
+    preventActorUpdateHookId = 0;
 }
 
 void ActorViewerWindow::DrawElement() {
@@ -120,6 +127,10 @@ void ActorViewerWindow::DrawElement() {
                         display = list[i];
                         newActorId = i;
                         filler = label;
+                        GameInteractor::Instance->UnregisterGameHookForPtr<GameInteractor::ShouldActorDraw>(preventActorDrawHookId);
+                        GameInteractor::Instance->UnregisterGameHookForPtr<GameInteractor::ShouldActorUpdate>(preventActorUpdateHookId);
+                        preventActorDrawHookId = 0;
+                        preventActorUpdateHookId = 0;
                         break;
                     }
                 }
@@ -134,6 +145,34 @@ void ActorViewerWindow::DrawElement() {
                 ImGui::Text("Description: %s", GetActorDescription(display->id).c_str());
                 ImGui::Text("Category: %s", acMapping[display->category]);
                 ImGui::Text("Params: %hd", display->params);
+                ImGui::EndGroup();
+
+                ImGui::BeginGroup();
+                if (preventActorDrawHookId) {
+                    if (ImGui::Button("Continue Drawing", ImVec2(ImGui::GetFontSize() * 10, 0))) {
+                        GameInteractor::Instance->UnregisterGameHookForPtr<GameInteractor::ShouldActorDraw>(preventActorDrawHookId);
+                        preventActorDrawHookId = 0;
+                    }
+                } else {
+                    if (ImGui::Button("Stop Drawing", ImVec2(ImGui::GetFontSize() * 10, 0))) {
+                        preventActorDrawHookId = GameInteractor::Instance->RegisterGameHookForPtr<GameInteractor::ShouldActorDraw>((uintptr_t)display, [](Actor* _, bool* result) {
+                            *result = false;
+                        });
+                    }
+                }
+                ImGui::SameLine();
+                if (preventActorUpdateHookId) {
+                    if (ImGui::Button("Continue Updating", ImVec2(ImGui::GetFontSize() * 10, 0))) {
+                        GameInteractor::Instance->UnregisterGameHookForPtr<GameInteractor::ShouldActorUpdate>(preventActorUpdateHookId);
+                        preventActorUpdateHookId = 0;
+                    }
+                } else {
+                    if (ImGui::Button("Stop Updating", ImVec2(ImGui::GetFontSize() * 10, 0))) {
+                        preventActorUpdateHookId = GameInteractor::Instance->RegisterGameHookForPtr<GameInteractor::ShouldActorUpdate>((uintptr_t)display, [](Actor* _, bool* result) {
+                            *result = false;
+                        });
+                    }
+                }
                 ImGui::EndGroup();
 
                 ImGui::PushItemWidth(ImGui::GetFontSize() * 10);
