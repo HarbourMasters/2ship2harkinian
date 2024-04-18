@@ -5251,7 +5251,6 @@ void Interface_Dpad_DrawItemIconTexture(PlayState* play, TexturePtr texture, s16
     gDPLoadTextureBlock(OVERLAY_DISP++, texture, G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 32, 0, G_TX_NOMIRROR | G_TX_WRAP,
                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
-    // HudEditor_SetActiveElement(sDpadHudIds[button]);
     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_D_PAD);
     if (HudEditor_ShouldOverrideDraw()) {
         if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
@@ -5342,14 +5341,12 @@ void Interface_Dpad_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
 
         // Draw upper digit (tens)
         if ((u32)i != 0) {
-            // HudEditor_SetActiveElement(sDpadHudIds[button]);
             HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_D_PAD);
             OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[i], 8, 8,
                                               sDpadItemAmmoX[button], sDpadItemAmmoY[button], 8, 8, 1 << 10, 1 << 10);
         }
 
         // Draw lower digit (ones)
-        // HudEditor_SetActiveElement(sDpadHudIds[button]);
         HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_D_PAD);
         OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[ammo], 8, 8,
                                           sDpadItemAmmoX[button] + 6, sDpadItemAmmoY[button], 8, 8, 1 << 10, 1 << 10);
