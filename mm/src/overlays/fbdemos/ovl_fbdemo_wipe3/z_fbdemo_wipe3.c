@@ -125,6 +125,14 @@ void TransitionWipe3_Draw(void* thisx, Gfx** gfxP) {
     f32 scale = 14.8f;
     Gfx* texScroll;
 
+    // #region 2S2H [Widescreen] Ocarina Effects
+    s32 x = OTRGetRectDimensionFromLeftEdge(0) << 2;
+    if (x < 0) {
+        // Only render if the screen is wider then original
+        scale = 14.8f * (OTRGetAspectRatio() * 0.94f); // Widescreen value
+    }
+    // #endregion
+
     THIS->frame ^= 1;
     gDPPipeSync(gfx++);
     texScroll = Gfx_BranchTexScroll(&gfx, THIS->scrollX, THIS->scrollY, 16, 64);
