@@ -410,6 +410,12 @@ void KaleidoScope_MoveCursorToSpecialPos(PlayState* play, s16 cursorSpecialPos) 
     gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
     gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
     gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
+    // #region 2S2H [Dpad]
+    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+    // #endregion
     gSaveContext.buttonStatus[EQUIP_SLOT_A] = BTN_DISABLED;
 
     gSaveContext.hudVisibility = HUD_VISIBILITY_IDLE;
@@ -430,6 +436,12 @@ void KaleidoScope_MoveCursorFromSpecialPos(PlayState* play) {
     gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
     gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
     gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
+    // #region 2S2H [Dpad]
+    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
+    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
+    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
+    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
+    // #endregion
     gSaveContext.buttonStatus[EQUIP_SLOT_A] = BTN_ENABLED;
 
     gSaveContext.hudVisibility = HUD_VISIBILITY_IDLE;
@@ -470,6 +482,12 @@ void KaleidoScope_SwitchPage(PauseContext* pauseCtx, u8 direction) {
     gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
     gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
     gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
+    // #region 2S2H [Dpad]
+    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+    // #endregion
     gSaveContext.buttonStatus[EQUIP_SLOT_A] = BTN_DISABLED;
 
     gSaveContext.hudVisibility = HUD_VISIBILITY_IDLE;
@@ -2113,7 +2131,12 @@ void KaleidoScope_SetVertices(PlayState* play, GraphicsContext* gfxCtx) {
         pauseCtx->itemPageVtx = GRAPH_ALLOC(gfxCtx, ((PAGE_BG_QUADS + VTX_PAGE_ITEM_QUADS) * 4) * sizeof(Vtx));
         KaleidoScope_SetPageVertices(play, pauseCtx->itemPageVtx, VTX_PAGE_ITEM, VTX_PAGE_ITEM_QUADS);
 
-        pauseCtx->itemVtx = GRAPH_ALLOC(gfxCtx, (QUAD_ITEM_MAX * 4) * sizeof(Vtx));
+        // #region 2S2H [Dpad] Increase size of allocation when you have dpad items
+        // DPAD TODO: CVar? If so, connect to others which depend on this!
+        u32 quadItemMax = QUAD_ITEM_MAX;
+        quadItemMax += EQUIP_SLOT_D_MAX;
+        pauseCtx->itemVtx = GRAPH_ALLOC(gfxCtx, (quadItemMax * 4) * sizeof(Vtx));
+        // #endregion
 
         // QUAD_ITEM_GRID_FIRST..QUAD_ITEM_GRID_LAST
 
@@ -2209,6 +2232,60 @@ void KaleidoScope_SetVertices(PlayState* play, GraphicsContext* gfxCtx) {
                     pauseCtx->itemVtx[i + 0].v.ob[1] - ITEM_GRID_SELECTED_QUAD_HEIGHT;
             }
         }
+        // #region 2S2H [Dpad]
+        // DPAD TODO: CVar?
+        for (j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++, i += 4) {
+            if (DPAD_GET_CUR_FORM_BTN_SLOT(j) != ITEM_NONE) {
+                k = DPAD_GET_CUR_FORM_BTN_SLOT(j) * 4;
+
+                pauseCtx->itemVtx[i + 0].v.ob[0] = pauseCtx->itemVtx[i + 2].v.ob[0] =
+                    pauseCtx->itemVtx[k].v.ob[0] + ITEM_GRID_SELECTED_QUAD_MARGIN;
+
+                pauseCtx->itemVtx[i + 1].v.ob[0] = pauseCtx->itemVtx[i + 3].v.ob[0] =
+                    pauseCtx->itemVtx[i + 0].v.ob[0] + ITEM_GRID_SELECTED_QUAD_WIDTH;
+
+                pauseCtx->itemVtx[i + 0].v.ob[1] = pauseCtx->itemVtx[i + 1].v.ob[1] =
+                    pauseCtx->itemVtx[k].v.ob[1] - ITEM_GRID_SELECTED_QUAD_MARGIN;
+
+                pauseCtx->itemVtx[i + 2].v.ob[1] = pauseCtx->itemVtx[i + 3].v.ob[1] =
+                    pauseCtx->itemVtx[i + 0].v.ob[1] - ITEM_GRID_SELECTED_QUAD_WIDTH;
+
+                pauseCtx->itemVtx[i + 0].v.ob[2] = pauseCtx->itemVtx[i + 1].v.ob[2] = pauseCtx->itemVtx[i + 2].v.ob[2] =
+                    pauseCtx->itemVtx[i + 3].v.ob[2] = 0;
+
+                pauseCtx->itemVtx[i + 0].v.flag = pauseCtx->itemVtx[i + 1].v.flag = pauseCtx->itemVtx[i + 2].v.flag =
+                    pauseCtx->itemVtx[i + 3].v.flag = 0;
+
+                pauseCtx->itemVtx[i + 0].v.tc[0] = pauseCtx->itemVtx[i + 0].v.tc[1] = pauseCtx->itemVtx[i + 1].v.tc[1] =
+                    pauseCtx->itemVtx[i + 2].v.tc[0] = 0;
+
+                pauseCtx->itemVtx[i + 1].v.tc[0] = pauseCtx->itemVtx[i + 2].v.tc[1] = pauseCtx->itemVtx[i + 3].v.tc[0] =
+                    pauseCtx->itemVtx[i + 3].v.tc[1] = ITEM_GRID_SELECTED_QUAD_TEX_SIZE * (1 << 5);
+
+                pauseCtx->itemVtx[i + 0].v.cn[0] = pauseCtx->itemVtx[i + 1].v.cn[0] = pauseCtx->itemVtx[i + 2].v.cn[0] =
+                    pauseCtx->itemVtx[i + 3].v.cn[0] = pauseCtx->itemVtx[i + 0].v.cn[1] =
+                        pauseCtx->itemVtx[i + 1].v.cn[1] = pauseCtx->itemVtx[i + 2].v.cn[1] =
+                            pauseCtx->itemVtx[i + 3].v.cn[1] = pauseCtx->itemVtx[i + 0].v.cn[2] =
+                                pauseCtx->itemVtx[i + 1].v.cn[2] = pauseCtx->itemVtx[i + 2].v.cn[2] =
+                                    pauseCtx->itemVtx[i + 3].v.cn[2] = 255;
+
+                pauseCtx->itemVtx[i + 0].v.cn[3] = pauseCtx->itemVtx[i + 1].v.cn[3] = pauseCtx->itemVtx[i + 2].v.cn[3] =
+                    pauseCtx->itemVtx[i + 3].v.cn[3] = pauseCtx->alpha;
+            } else {
+                // No item equipped on the C button, put the quad out of view
+
+                pauseCtx->itemVtx[i + 2].v.ob[0] = -300;
+                pauseCtx->itemVtx[i + 0].v.ob[0] = pauseCtx->itemVtx[i + 2].v.ob[0];
+
+                pauseCtx->itemVtx[i + 1].v.ob[0] = pauseCtx->itemVtx[i + 3].v.ob[0] =
+                    pauseCtx->itemVtx[i + 0].v.ob[0] + ITEM_GRID_SELECTED_QUAD_WIDTH;
+
+                pauseCtx->itemVtx[i + 0].v.ob[1] = pauseCtx->itemVtx[i + 1].v.ob[1] = 300;
+                pauseCtx->itemVtx[i + 2].v.ob[1] = pauseCtx->itemVtx[i + 3].v.ob[1] =
+                    pauseCtx->itemVtx[i + 0].v.ob[1] - ITEM_GRID_SELECTED_QUAD_HEIGHT;
+            }
+        }
+        // #endregion
     }
 
     if (pauseCtx->pageIndex != PAUSE_MASK) {
@@ -2326,7 +2403,12 @@ void KaleidoScope_SetVertices(PlayState* play, GraphicsContext* gfxCtx) {
         pauseCtx->maskPageVtx = GRAPH_ALLOC(gfxCtx, ((PAGE_BG_QUADS + VTX_PAGE_MASK_QUADS) * 4) * sizeof(Vtx));
         KaleidoScope_SetPageVertices(play, pauseCtx->maskPageVtx, VTX_PAGE_MASK, VTX_PAGE_MASK_QUADS);
 
-        pauseCtx->maskVtx = GRAPH_ALLOC(gfxCtx, (QUAD_MASK_MAX * 4) * sizeof(Vtx));
+        // #region 2S2H [Dpad] Increase size of allocation when you have dpad items
+        // DPAD TODO: CVar? If so, connect to others which depend on this!
+        u32 quadMaskMax = QUAD_MASK_MAX;
+        quadMaskMax += EQUIP_SLOT_D_MAX;
+        pauseCtx->maskVtx = GRAPH_ALLOC(gfxCtx, (quadMaskMax * 4) * sizeof(Vtx));
+        // #endregion
 
         // Loop over grid rows
         for (k = 0, i = 0, vtx_y = (MASK_GRID_ROWS * MASK_GRID_CELL_HEIGHT) / 2 - 6; k < MASK_GRID_ROWS;
@@ -2418,6 +2500,58 @@ void KaleidoScope_SetVertices(PlayState* play, GraphicsContext* gfxCtx) {
                     pauseCtx->maskVtx[i + 0].v.ob[1] - MASK_GRID_SELECTED_QUAD_HEIGHT;
             }
         }
+        // #region 2S2H [Dpad]
+        // DPAD TODO: CVar?
+        for (j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++, i += 4) {
+            if (DPAD_GET_CUR_FORM_BTN_SLOT(j) != ITEM_NONE) {
+                k = (DPAD_GET_CUR_FORM_BTN_SLOT(j) - ITEM_NUM_SLOTS) * 4;
+
+                pauseCtx->maskVtx[i + 0].v.ob[0] = pauseCtx->maskVtx[i + 2].v.ob[0] =
+                    pauseCtx->maskVtx[k].v.ob[0] + MASK_GRID_SELECTED_QUAD_MARGIN;
+
+                pauseCtx->maskVtx[i + 1].v.ob[0] = pauseCtx->maskVtx[i + 3].v.ob[0] =
+                    pauseCtx->maskVtx[i + 0].v.ob[0] + MASK_GRID_SELECTED_QUAD_WIDTH;
+
+                pauseCtx->maskVtx[i + 0].v.ob[1] = pauseCtx->maskVtx[i + 1].v.ob[1] =
+                    pauseCtx->maskVtx[k].v.ob[1] - MASK_GRID_SELECTED_QUAD_MARGIN;
+
+                pauseCtx->maskVtx[i + 2].v.ob[1] = pauseCtx->maskVtx[i + 3].v.ob[1] =
+                    pauseCtx->maskVtx[i + 0].v.ob[1] - MASK_GRID_SELECTED_QUAD_HEIGHT;
+
+                pauseCtx->maskVtx[i + 0].v.ob[2] = pauseCtx->maskVtx[i + 1].v.ob[2] = pauseCtx->maskVtx[i + 2].v.ob[2] =
+                    pauseCtx->maskVtx[i + 3].v.ob[2] = 0;
+
+                pauseCtx->maskVtx[i + 0].v.flag = pauseCtx->maskVtx[i + 1].v.flag = pauseCtx->maskVtx[i + 2].v.flag =
+                    pauseCtx->maskVtx[i + 3].v.flag = 0;
+
+                pauseCtx->maskVtx[i + 0].v.tc[0] = pauseCtx->maskVtx[i + 0].v.tc[1] = pauseCtx->maskVtx[i + 1].v.tc[1] =
+                    pauseCtx->maskVtx[i + 2].v.tc[0] = 0;
+
+                pauseCtx->maskVtx[i + 1].v.tc[0] = pauseCtx->maskVtx[i + 2].v.tc[1] = pauseCtx->maskVtx[i + 3].v.tc[0] =
+                    pauseCtx->maskVtx[i + 3].v.tc[1] = MASK_GRID_SELECTED_QUAD_TEX_SIZE * (1 << 5);
+
+                pauseCtx->maskVtx[i + 0].v.cn[0] = pauseCtx->maskVtx[i + 1].v.cn[0] = pauseCtx->maskVtx[i + 2].v.cn[0] =
+                    pauseCtx->maskVtx[i + 3].v.cn[0] = pauseCtx->maskVtx[i + 0].v.cn[1] =
+                        pauseCtx->maskVtx[i + 1].v.cn[1] = pauseCtx->maskVtx[i + 2].v.cn[1] =
+                            pauseCtx->maskVtx[i + 3].v.cn[1] = pauseCtx->maskVtx[i + 0].v.cn[2] =
+                                pauseCtx->maskVtx[i + 1].v.cn[2] = pauseCtx->maskVtx[i + 2].v.cn[2] =
+                                    pauseCtx->maskVtx[i + 3].v.cn[2] = 255;
+
+                pauseCtx->maskVtx[i + 0].v.cn[3] = pauseCtx->maskVtx[i + 1].v.cn[3] = pauseCtx->maskVtx[i + 2].v.cn[3] =
+                    pauseCtx->maskVtx[i + 3].v.cn[3] = pauseCtx->alpha;
+            } else {
+                pauseCtx->maskVtx[i + 2].v.ob[0] = -300;
+                pauseCtx->maskVtx[i + 0].v.ob[0] = pauseCtx->maskVtx[i + 2].v.ob[0];
+
+                pauseCtx->maskVtx[i + 1].v.ob[0] = pauseCtx->maskVtx[i + 3].v.ob[0] =
+                    pauseCtx->maskVtx[i + 0].v.ob[0] + MASK_GRID_SELECTED_QUAD_WIDTH;
+
+                pauseCtx->maskVtx[i + 0].v.ob[1] = pauseCtx->maskVtx[i + 1].v.ob[1] = 300;
+                pauseCtx->maskVtx[i + 2].v.ob[1] = pauseCtx->maskVtx[i + 3].v.ob[1] =
+                    pauseCtx->maskVtx[i + 0].v.ob[1] - MASK_GRID_SELECTED_QUAD_HEIGHT;
+            }
+        }
+        // #endregion
     }
 
     pauseCtx->cursorVtx = GRAPH_ALLOC(play->state.gfxCtx, (PAUSE_QUAD_CURSOR_MAX * 4) * sizeof(Vtx));
@@ -2931,12 +3065,24 @@ void KaleidoScope_UpdateOpening(PlayState* play) {
             gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
+            // #region 2S2H [Dpad]
+            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
+            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
+            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
+            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
+            // #endregion
             gSaveContext.buttonStatus[EQUIP_SLOT_A] = BTN_ENABLED;
         } else {
             gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_ENABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
+            // #region 2S2H [Dpad]
+            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+            // #endregion
             gSaveContext.buttonStatus[EQUIP_SLOT_A] = BTN_DISABLED;
         }
 
@@ -2995,6 +3141,7 @@ void KaleidoScope_Update(PlayState* play) {
             sUnpausedHudVisibility = gSaveContext.hudVisibility;
             sPauseMenuVerticalOffset = -6240.0f;
 
+            // DPAD TODO: Implement UnpausedButtonStatus
             sUnpausedButtonStatus[EQUIP_SLOT_B] = gSaveContext.buttonStatus[EQUIP_SLOT_B];
             sUnpausedButtonStatus[EQUIP_SLOT_C_LEFT] = gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT];
             sUnpausedButtonStatus[EQUIP_SLOT_C_DOWN] = gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN];
@@ -3298,6 +3445,16 @@ void KaleidoScope_Update(PlayState* play) {
                             gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] =
                             gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
+                        // #region 2S2H [Dpad]
+                        gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] =
+                            gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][0];
+                        gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] =
+                            gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
+                        gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] =
+                            gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
+                        gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] =
+                            gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
+                        // #endregion
                         if ((pauseCtx->cursorSpecialPos == PAUSE_CURSOR_PAGE_LEFT) ||
                             (pauseCtx->cursorSpecialPos == PAUSE_CURSOR_PAGE_RIGHT)) {
                             KaleidoScope_MoveCursorToSpecialPos(play, pauseCtx->cursorSpecialPos);

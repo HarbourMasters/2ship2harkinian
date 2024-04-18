@@ -551,6 +551,15 @@ void Sram_SaveEndOfCycle(PlayState* play) {
                         Interface_LoadItemIconImpl(play, j);
                     }
                 }
+                // #region 2S2H [Dpad]
+                // DPAD TODO: Figure out if CVar is needed here
+                for (s32 k = EQUIP_SLOT_D_RIGHT; k <= EQUIP_SLOT_D_UP; k++) {
+                    if (DPAD_GET_CUR_FORM_BTN_ITEM(k) == gSaveContext.save.saveInfo.inventory.items[i]) {
+                        DPAD_SET_CUR_FORM_BTN_ITEM(k, ITEM_BOTTLE);
+                        Interface_Dpad_LoadItemIconImpl(play, k);
+                    }
+                }                
+                // #endregion
                 gSaveContext.save.saveInfo.inventory.items[i] = ITEM_BOTTLE;
             }
         }
@@ -619,6 +628,15 @@ void Sram_SaveEndOfCycle(PlayState* play) {
             Interface_LoadItemIconImpl(play, j);
         }
     }
+    // #region 2S2H [Dpad]
+    // DPAD TODO: Figure out if CVar is needed here
+    for (s32 k = EQUIP_SLOT_D_RIGHT; k <= EQUIP_SLOT_D_UP; k++) {
+        if ((DPAD_GET_CUR_FORM_BTN_ITEM(k) >= ITEM_MOONS_TEAR) && (DPAD_GET_CUR_FORM_BTN_ITEM(k) <= ITEM_PENDANT_OF_MEMORIES)) {
+            DPAD_SET_CUR_FORM_BTN_ITEM(k, ITEM_NONE);
+            Interface_Dpad_LoadItemIconImpl(play, k);
+        }
+    }                
+    // #endregion
 
     gSaveContext.save.saveInfo.skullTokenCount &= ~0xFFFF0000;
     gSaveContext.save.saveInfo.skullTokenCount &= ~0x0000FFFF;
@@ -808,6 +826,23 @@ ItemEquips sSaveDefaultItemEquips = {
     0x11,
 };
 
+// #region 2S2H
+ItemEquips sSaveDefaultDpadItemEquips = {
+    {
+        { ITEM_NONE, ITEM_NONE, ITEM_NONE, ITEM_NONE },
+        { ITEM_NONE, ITEM_NONE, ITEM_NONE, ITEM_NONE },
+        { ITEM_NONE, ITEM_NONE, ITEM_NONE, ITEM_NONE },
+        { ITEM_NONE, ITEM_NONE, ITEM_NONE, ITEM_NONE },
+    },
+    {
+        { SLOT_NONE, SLOT_NONE, SLOT_NONE, SLOT_NONE },
+        { SLOT_NONE, SLOT_NONE, SLOT_NONE, SLOT_NONE },
+        { SLOT_NONE, SLOT_NONE, SLOT_NONE, SLOT_NONE },
+        { SLOT_NONE, SLOT_NONE, SLOT_NONE, SLOT_NONE },
+    },
+};
+// #endregion
+
 Inventory sSaveDefaultInventory = {
     // items
     {
@@ -932,6 +967,9 @@ void Sram_InitNewSave(void) {
 
     memcpy(&gSaveContext.save.saveInfo.playerData, &sSaveDefaultPlayerData, sizeof(SavePlayerData));
     memcpy(&gSaveContext.save.saveInfo.equips, &sSaveDefaultItemEquips, sizeof(ItemEquips));
+    // #region 2S2H [Dpad]
+    memcpy(&gSaveContext.save.additionalSaveInfo.dpadEquips, &sSaveDefaultDpadItemEquips, sizeof(DpadSaveInfo));
+    // #endregion
     memcpy(&gSaveContext.save.saveInfo.inventory, &sSaveDefaultInventory, sizeof(Inventory));
     memcpy(&gSaveContext.save.saveInfo.checksum, &sSaveDefaultChecksum,
                sizeof(gSaveContext.save.saveInfo.checksum));
@@ -1137,6 +1175,9 @@ void Sram_InitDebugSave(void) {
 
     memcpy(&gSaveContext.save.saveInfo.playerData, &sSaveDebugPlayerData, sizeof(SavePlayerData));
     memcpy(&gSaveContext.save.saveInfo.equips, &sSaveDebugItemEquips, sizeof(ItemEquips));
+    // #region 2S2H [Dpad]
+    memcpy(&gSaveContext.save.additionalSaveInfo.dpadEquips, &sSaveDefaultDpadItemEquips, sizeof(DpadSaveInfo));
+    // #endregion
     memcpy(&gSaveContext.save.saveInfo.inventory, &sSaveDebugInventory, sizeof(Inventory));
     memcpy(&gSaveContext.save.saveInfo.checksum, &sSaveDebugChecksum, sizeof(gSaveContext.save.saveInfo.checksum));
 

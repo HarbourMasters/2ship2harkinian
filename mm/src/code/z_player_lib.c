@@ -574,6 +574,16 @@ s32 func_801235DC(PlayState* play, f32 arg1, s16 arg2) {
     return false;
 }
 
+// #region 2S2H [Dpad]
+ItemId Player_GetItemOnDpadButton(PlayState* play, Player* player, DpadEquipSlot slot) {
+    if (slot >= EQUIP_SLOT_D_MAX) {
+        return ITEM_NONE;
+    }
+
+    return DPAD_BTN_ITEM(slot);
+}
+// #endregion
+
 ItemId Player_GetItemOnButton(PlayState* play, Player* player, EquipSlot slot) {
     if (slot >= EQUIP_SLOT_A) {
         return ITEM_NONE;
@@ -613,6 +623,15 @@ ItemId Player_GetItemOnButton(PlayState* play, Player* player, EquipSlot slot) {
 
     return C_BTN_ITEM(EQUIP_SLOT_C_RIGHT);
 }
+
+// #region 2S2H [Dpad]
+u16 sDItemButtons[] = {
+    BTN_DRIGHT,
+    BTN_DLEFT,
+    BTN_DDOWN,
+    BTN_DUP,
+};
+// #endregion
 
 u16 sCItemButtons[] = {
     BTN_CLEFT,
@@ -657,6 +676,30 @@ PlayerItemAction func_80123810(PlayState* play) {
             }
         }
     }
+    // #region 2S2H [Dpad]
+    if (CVarGetInteger("gDpadEquips", 0)) {
+        for (i = 0; i < ARRAY_COUNT(sDItemButtons); i++) {
+            if (CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, sDItemButtons[i])) {
+                i++;
+                itemId = Player_GetItemOnDpadButton(play, player, i);
+
+                play->interfaceCtx.unk_222 = 0;
+                play->interfaceCtx.unk_224 = 0;
+                Interface_SetHudVisibility(play->msgCtx.hudVisibility);
+
+                if ((itemId >= ITEM_FD) || ((itemAction = play->unk_18794(play, player, itemId)) <= PLAYER_IA_MINUS1)) {
+                    Audio_PlaySfx(NA_SE_SY_ERROR);
+                    return PLAYER_IA_MINUS1;
+                } else {
+                    s32 pad;
+
+                    player->heldItemButton = DPAD_TO_HELD_ITEM(i);
+                    return itemAction;
+                }
+            }
+        }
+    }
+    // #endregion
 
     return PLAYER_IA_NONE;
 }
@@ -1316,7 +1359,18 @@ void Player_SetEquipmentData(PlayState* play, Player* player) {
 }
 
 void Player_UpdateBottleHeld(PlayState* play, Player* player, ItemId itemId, PlayerItemAction itemAction) {
-    Inventory_UpdateBottleItem(play, itemId, player->heldItemButton);
+    // #region 2S2H [Dpad]
+    // DPAD TODO: Check this is safe!!
+    if (CVarGetInteger("gDpadEquips", 0)) {
+        if (IS_HELD_DPAD(player->heldItemButton)) {
+            Inventory_UpdateDpadBottleItem(play, itemId, HELD_ITEM_TO_DPAD(player->heldItemButton));
+        } else {
+            Inventory_UpdateBottleItem(play, itemId, player->heldItemButton);
+        }
+    } else {
+        Inventory_UpdateBottleItem(play, itemId, player->heldItemButton);
+    }
+    // #endregion
 
     if (itemId != ITEM_BOTTLE) {
         player->heldItemId = itemId;

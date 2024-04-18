@@ -962,7 +962,18 @@ void EnFsn_DeterminePrice(EnFsn* this, PlayState* play) {
         itemAction = func_80123810(play);
 
         if (itemAction > PLAYER_IA_NONE) {
-            buttonItem = GET_CUR_FORM_BTN_ITEM(player->heldItemButton);
+            // #region 2S2H [Dpad]
+            // DPAD TODO: Check this is safe!!
+            if (CVarGetInteger("gDpadEquips", 0)) {
+                if (IS_HELD_DPAD(player->heldItemButton)) {
+                    buttonItem = DPAD_GET_CUR_FORM_BTN_ITEM(HELD_ITEM_TO_DPAD(player->heldItemButton));
+                } else {
+                    buttonItem = GET_CUR_FORM_BTN_ITEM(player->heldItemButton);
+                }
+            } else {
+                buttonItem = GET_CUR_FORM_BTN_ITEM(player->heldItemButton);
+            }
+            // #endregion
             this->price = (buttonItem < ITEM_MOONS_TEAR) ? gItemPrices[buttonItem] : 0;
             if (this->price > 0) {
                 player->actor.textId = 0x29EF;

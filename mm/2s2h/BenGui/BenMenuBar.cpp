@@ -304,6 +304,10 @@ void DrawEnhancementsMenu() {
             });
         }
 
+        UIWidgets::CVarCheckbox("Dpad Equips", "gDpadEquips", {
+            .tooltip = "Allows you to equip items to your d-pad"
+        });
+
         ImGui::EndMenu();
     }
     

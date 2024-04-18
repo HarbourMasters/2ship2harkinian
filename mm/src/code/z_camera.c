@@ -4479,6 +4479,13 @@ s32 Camera_KeepOn3(Camera* camera) {
             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CDOWN) ||
             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CLEFT) ||
             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CRIGHT) ||
+            // #region 2S2H [Dpad]
+            CVarGetInteger("gDpadEquips", 0) &&
+            (CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_DRIGHT) ||
+            CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_DLEFT) ||
+            CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_DDOWN) ||
+            CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_DUP)) ||
+            // #endregion
             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_Z) ||
             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_L) ||
             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_R)) {
@@ -5540,6 +5547,13 @@ s32 Camera_Unique0(Camera* camera) {
                             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CDOWN) ||
                             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CLEFT) ||
                             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CRIGHT) ||
+                            // #region 2S2H [Dpad]
+                            CVarGetInteger("gDpadEquips", 0) &&
+                            (CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_DRIGHT) ||
+                            CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_DLEFT) ||
+                            CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_DDOWN) ||
+                            CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_DUP)) ||
+                            // #endregion
                             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_Z) ||
                             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_L) ||
                             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_R) ||
@@ -5564,6 +5578,13 @@ s32 Camera_Unique0(Camera* camera) {
                         CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CDOWN) ||
                         CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CLEFT) ||
                         CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CRIGHT) ||
+                        // #region 2S2H [Dpad]
+                        CVarGetInteger("gDpadEquips", 0) &&
+                        (CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_DRIGHT) ||
+                        CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_DLEFT) ||
+                        CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_DDOWN) ||
+                        CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_DUP)) ||
+                        // #endregion
                         CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_Z) ||
                         CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_L) ||
                         CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_R) ||
@@ -6051,6 +6072,13 @@ s32 Camera_Demo2(Camera* camera) {
                    CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CDOWN) ||
                    CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CLEFT) ||
                    CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CRIGHT) ||
+                    // #region 2S2H [Dpad]
+                    CVarGetInteger("gDpadEquips", 0) &&
+                    (CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_DRIGHT) ||
+                    CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_DLEFT) ||
+                    CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_DDOWN) ||
+                    CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_DUP)) ||
+                    // #endregion
                    CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_Z) ||
                    CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_L) ||
                    CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_R)) &&
@@ -6787,6 +6815,13 @@ s32 Camera_Special8(Camera* camera) {
             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CDOWN) ||
             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CLEFT) ||
             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CRIGHT) ||
+            // #region 2S2H [Dpad]
+            CVarGetInteger("gDpadEquips", 0) &&
+            (CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_DRIGHT) ||
+            CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_DLEFT) ||
+            CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_DDOWN) ||
+            CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_DUP)) ||
+            // #endregion
             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_Z) ||
             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_L) ||
             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_R) ||
@@ -6954,6 +6989,13 @@ s32 Camera_Special9(Camera* camera) {
                 CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CDOWN) ||
                 CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CLEFT) ||
                 CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CRIGHT) ||
+                // #region 2S2H [Dpad]
+                CVarGetInteger("gDpadEquips", 0) &&
+                (CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_DRIGHT) ||
+                CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_DLEFT) ||
+                CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_DDOWN) ||
+                CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_DUP)) ||
+                // #endregion
                 CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_Z) ||
                 CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_L) ||
                 CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_R) ||

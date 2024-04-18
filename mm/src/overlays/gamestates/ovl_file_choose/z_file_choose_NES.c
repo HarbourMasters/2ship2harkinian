@@ -2200,6 +2200,12 @@ void FileSelect_LoadGame(GameState* thisx) {
     gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_ENABLED;
     gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_ENABLED;
     gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_ENABLED;
+    // #region 2S2H
+    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_ENABLED;
+    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_ENABLED;
+    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_ENABLED;
+    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] = BTN_ENABLED;
+    // #endregion
     gSaveContext.buttonStatus[EQUIP_SLOT_A] = BTN_ENABLED;
 
     gSaveContext.hudVisibilityForceButtonAlphasByStatus = false;
@@ -2508,6 +2514,12 @@ void FileSelect_InitContext(GameState* thisx) {
     gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_ENABLED;
     gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_ENABLED;
     gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_ENABLED;
+    // #region 2S2H
+    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_ENABLED;
+    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_ENABLED;
+    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_ENABLED;
+    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] = BTN_ENABLED;
+    // #endregion
     gSaveContext.buttonStatus[EQUIP_SLOT_A] = BTN_ENABLED;
 }
 

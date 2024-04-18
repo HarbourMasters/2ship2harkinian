@@ -322,23 +322,26 @@ void DrawEquipItemMenu(InventorySlot slot) {
             gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][EQUIP_SLOT_C_RIGHT] = slot;
             Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_C_RIGHT);
         }
-        // Todo: DPAD equips support
-        // if (ImGui::MenuItem("D-Up")) {
-        //     gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][4] = currentItemId;
-        //     gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][3] = slot;
-        // }
-        // if (ImGui::MenuItem("D-Down")) {
-        //     gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][5] = currentItemId;
-        //     gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][4] = slot;
-        // }
-        // if (ImGui::MenuItem("D-Left")) {
-        //     gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][6] = currentItemId;
-        //     gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][5] = slot;
-        // }
-        // if (ImGui::MenuItem("D-Right")) {
-        //     gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][7] = currentItemId;
-        //     gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][6] = slot;
-        // }
+        if (ImGui::MenuItem("D-Up")) {
+            gSaveContext.save.additionalSaveInfo.dpadEquips.dpadItems[CUR_FORM][EQUIP_SLOT_D_RIGHT] = currentItemId;
+            gSaveContext.save.additionalSaveInfo.dpadEquips.dpadSlots[CUR_FORM][EQUIP_SLOT_D_RIGHT] = slot;
+            Interface_Dpad_LoadItemIconImpl(gPlayState, EQUIP_SLOT_D_RIGHT);
+        }
+        if (ImGui::MenuItem("D-Down")) {
+            gSaveContext.save.additionalSaveInfo.dpadEquips.dpadItems[CUR_FORM][EQUIP_SLOT_D_LEFT] = currentItemId;
+            gSaveContext.save.additionalSaveInfo.dpadEquips.dpadSlots[CUR_FORM][EQUIP_SLOT_D_LEFT] = slot;
+            Interface_Dpad_LoadItemIconImpl(gPlayState, EQUIP_SLOT_D_LEFT);
+        }
+        if (ImGui::MenuItem("D-Left")) {
+            gSaveContext.save.additionalSaveInfo.dpadEquips.dpadItems[CUR_FORM][EQUIP_SLOT_D_DOWN] = currentItemId;
+            gSaveContext.save.additionalSaveInfo.dpadEquips.dpadSlots[CUR_FORM][EQUIP_SLOT_D_DOWN] = slot;
+            Interface_Dpad_LoadItemIconImpl(gPlayState, EQUIP_SLOT_D_DOWN);
+        }
+        if (ImGui::MenuItem("D-Right")) {
+            gSaveContext.save.additionalSaveInfo.dpadEquips.dpadItems[CUR_FORM][EQUIP_SLOT_D_UP] = currentItemId;
+            gSaveContext.save.additionalSaveInfo.dpadEquips.dpadSlots[CUR_FORM][EQUIP_SLOT_D_UP] = slot;
+            Interface_Dpad_LoadItemIconImpl(gPlayState, EQUIP_SLOT_D_UP);
+        }
         ImGui::EndMenu();
     }
 }

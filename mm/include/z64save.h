@@ -317,6 +317,17 @@ typedef struct SaveInfo {
     /* 0xFE6 */ u16 checksum;                          // "check_sum"
 } SaveInfo; // size = 0xFE8
 
+// #region 2S2H
+typedef struct DpadSaveInfo {
+    u8 dpadItems[4][4];
+    u8 dpadSlots[4][4];
+} DpadSaveInfo;
+
+typedef struct AdditionalSaveInfo {
+    DpadSaveInfo dpadEquips;
+} AdditionalSaveInfo;
+// #endregion
+
 typedef struct Save {
     /* 0x00 */ s32 entrance;                            // "scene_no"
     /* 0x04 */ u8 equippedMask;                         // "player_mask"
@@ -335,7 +346,18 @@ typedef struct Save {
     /* 0x22 */ u8 hasTatl;                              // "bell_flag"
     /* 0x23 */ u8 isOwlSave;
     /* 0x24 */ SaveInfo saveInfo;
+    /* 2S2H */ AdditionalSaveInfo additionalSaveInfo;
 } Save; // size = 0x100C
+
+// #region 2S2H
+typedef struct DpadSaveContext {
+    u8 status[4];
+} DpadSaveContext;
+
+typedef struct AdditionalSaveContext {
+    DpadSaveContext dpad;
+} AdditionalSaveContext;
+// #endregion
 
 typedef struct SaveContext {
     /* 0x0000 */ Save save;
@@ -420,6 +442,7 @@ typedef struct SaveContext {
     /* 0x3F68 */ CycleSceneFlags cycleSceneFlags[120];  // Scene flags that are temporarily stored over the duration of a single 3-day cycle
     /* 0x48C8 */ u16 dungeonIndex;                      // "scene_id_mix"
     /* 0x48CA */ u8 masksGivenOnMoon[27];               // bit-packed, masks given away on the Moon. "mask_mask_bit"
+    /*  2S2H  */ AdditionalSaveContext additionalSave; 
 } SaveContext; // size = 0x48C8
 
 typedef enum ButtonStatus {
@@ -527,6 +550,36 @@ typedef enum {
         C_SLOT_EQUIP(0, (btn)) = (item);        \
     }                                           \
     (void)0
+
+// #region 2S2H [DPad]
+#define DPAD_TO_HELD_ITEM(btn) (btn + EQUIP_SLOT_MAX) 
+#define HELD_ITEM_TO_DPAD(heldBtn) (heldBtn - EQUIP_SLOT_MAX)
+#define IS_HELD_DPAD(heldBtn) ((heldBtn >= DPAD_TO_HELD_ITEM(EQUIP_SLOT_D_RIGHT)) && (heldBtn <= DPAD_TO_HELD_ITEM(EQUIP_SLOT_D_UP)))
+
+#define DPAD_BUTTON(btn) (btn) // Translates between equip slot enum and button, in case we change how enum works
+
+#define DPAD_BUTTON_ITEM_EQUIP(form, btn) (gSaveContext.save.additionalSaveInfo.dpadEquips.dpadItems[form][DPAD_BUTTON(btn)])
+#define DPAD_CUR_FORM_EQUIP(btn) BUTTON_ITEM_EQUIP(CUR_FORM, DPAD_BUTTON(btn)) // Unused
+
+#define DPAD_SLOT_EQUIP(form, btn) (gSaveContext.save.additionalSaveInfo.dpadEquips.dpadSlots[form][DPAD_BUTTON(btn)])
+
+#define DPAD_GET_CUR_FORM_BTN_ITEM(btn) (DPAD_BUTTON_ITEM_EQUIP(0, DPAD_BUTTON(btn)))
+#define DPAD_GET_CUR_FORM_BTN_SLOT(btn) (DPAD_SLOT_EQUIP(0, DPAD_BUTTON(btn)))
+
+#define DPAD_BTN_ITEM(btn)                                                         \
+    ((gSaveContext.additionalSave.dpad.status[(DPAD_BUTTON(btn))] != BTN_DISABLED) \
+         ? DPAD_BUTTON_ITEM_EQUIP(0, (DPAD_BUTTON(btn)))                           \
+         : ((gSaveContext.hudVisibility == HUD_VISIBILITY_A_B_C) ? DPAD_BUTTON_ITEM_EQUIP(0, (DPAD_BUTTON(btn))) : ITEM_NONE))
+
+#define DPAD_SET_CUR_FORM_BTN_ITEM(btn, item)                          \
+        DPAD_BUTTON_ITEM_EQUIP(0, (DPAD_BUTTON(btn))) = (item);        \
+        (void)0
+
+#define DPAD_SET_CUR_FORM_BTN_SLOT(btn, item)                     \
+        DPAD_SLOT_EQUIP(0, (DPAD_BUTTON(btn))) = (item);          \
+        (void)0
+
+// #endregion
 
 #define STOLEN_ITEM_NONE (0)
 
