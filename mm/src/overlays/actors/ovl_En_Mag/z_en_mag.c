@@ -534,7 +534,7 @@ void EnMag_DrawEffectTextures(Gfx** gfxp, TexturePtr maskTex, TexturePtr effectT
 // 2S2H [HD Textures] The original function used pointer math and tiling to draw the full texture, this breaks support
 // for HD textures, additionally `source` is now an OTR path, not a pointer to the raw texture. This is our own version
 // that just hands off the OTR path and let the GBI handle the rest.
-void BenEnMag_DrawImageRGBA32HDSupport(Gfx** gfxp, s16 centerX, s16 centerY, TexturePtr source, u32 width, u32 height) {
+void EnMag_DrawImageRGBA32HDSupport(Gfx** gfxp, s16 centerX, s16 centerY, TexturePtr source, u32 width, u32 height) {
     Gfx* gfx = *gfxp;
     u32 rectLeft = centerX - (width / 2);
     u32 rectTop = centerY - (height / 2);
@@ -568,7 +568,7 @@ void BenEnMag_DrawImageRGBA32HDSupport(Gfx** gfxp, s16 centerX, s16 centerY, Tex
  */
 void EnMag_DrawImageRGBA32(Gfx** gfxp, s16 centerX, s16 centerY, TexturePtr source, u32 width, u32 height) {
     // 2S2H [HD Textures]
-    return BenEnMag_DrawImageRGBA32HDSupport(gfxp, centerX, centerY, source, width, height);
+    return EnMag_DrawImageRGBA32HDSupport(gfxp, centerX, centerY, source, width, height);
 
     Gfx* gfx = *gfxp;
     uintptr_t curTexture;
