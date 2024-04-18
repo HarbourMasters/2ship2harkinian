@@ -2923,8 +2923,26 @@ void Environment_DrawSandstorm(PlayState* play, u8 sandstormState) {
                    Gfx_TwoTexScroll(play->state.gfxCtx, G_TX_RENDERTILE, (u32)sp96 % 4096, 0, 512, 32, 1,
                                     (u32)sp94 % 4096, 4095 - ((u32)sp92 % 4096), 256, 64));
         gDPSetTextureLUT(POLY_XLU_DISP++, G_TT_NONE);
-        gSPDisplayList(POLY_XLU_DISP++, gFieldSandstormDL);
-
+        // #region 2S2H [Widescreen] Widescreen Sandstorm
+        //gSPDisplayList(POLY_XLU_DISP++, gFieldSandstormDL); // Original Dlist call
+        gDPPipeSync(POLY_XLU_DISP++);
+        gDPSetTextureLUT(POLY_XLU_DISP++, G_TT_NONE);
+        gDPSetRenderMode(POLY_XLU_DISP++, G_RM_PASS, G_RM_CLD_SURF2);
+        gDPSetCombineLERP(POLY_XLU_DISP++, TEXEL1, TEXEL0, PRIM_LOD_FRAC, TEXEL0, TEXEL1, TEXEL0, ENVIRONMENT, TEXEL0,
+                          PRIMITIVE,
+                          ENVIRONMENT, COMBINED, ENVIRONMENT, COMBINED, 0, PRIMITIVE, 0);
+        gSPClearGeometryMode(POLY_XLU_DISP++, G_CULL_BACK | G_FOG | G_LIGHTING | G_TEXTURE_GEN | G_TEXTURE_GEN_LINEAR);
+        gDPLoadTextureBlock(POLY_XLU_DISP++, gFieldSandstorm1Tex, G_IM_FMT_I, G_IM_SIZ_8b, 64, 32, 0,
+                            G_TX_NOMIRROR | G_TX_WRAP,
+                            G_TX_NOMIRROR | G_TX_WRAP, 6, 5, 1, G_TX_NOLOD);
+        gDPLoadMultiBlock(POLY_XLU_DISP++, gFieldSandstorm2Tex, 0x0100, 1, G_IM_FMT_IA, G_IM_SIZ_8b, 64, 32, 0,
+                          G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, 6, 5, 2, 1);
+        gSPDisplayList(POLY_XLU_DISP++, 0x08000000 | 1);
+        gSPWideTextureRectangle(POLY_XLU_DISP++, OTRGetRectDimensionFromLeftEdge(0) << 2, 0,
+                                OTRGetRectDimensionFromRightEdge(SCREEN_WIDTH) << 2, SCREEN_HEIGHT << 2,
+                                G_TX_RENDERTILE, 0, 0, 0x008C, -0x008C);
+        // #endregion
+        
         CLOSE_DISPS(play->state.gfxCtx);
     }
 
