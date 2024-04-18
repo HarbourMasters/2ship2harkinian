@@ -58,6 +58,7 @@ CrowdControl* CrowdControl::Instance;
 #include "Enhancements/Enhancements.h"
 #include "2s2h/Enhancements/GfxPatcher/AuthenticGfxPatches.h"
 #include "2s2h/DeveloperTools/DebugConsole.h"
+#include "2s2h/DeveloperTools/DeveloperTools.h"
 
 // Resource Types/Factories
 #include "2s2h/resource//type/2shResourceType.h"
@@ -394,6 +395,7 @@ extern "C" void InitOTR() {
     GameInteractor::Instance = new GameInteractor();
     BenGui::SetupGuiElements();
     InitEnhancements();
+    InitDeveloperTools();
     GfxPatcher_ApplyNecessaryAuthenticPatches();
     DebugConsole_Init();
 
