@@ -217,6 +217,8 @@ bool GameInteractor_ShouldActorDraw(Actor* actor);
 void GameInteractor_ExecuteOnActorDraw(Actor* actor);
 
 bool GameInteractor_Should(GIVanillaBehavior flag, bool result, void* optionalArg);
+#define REGISTER_VB_SHOULD(flag, body) \
+    GameInteractor::Instance->RegisterGameHookForID<GameInteractor::ShouldVanillaBehavior>(flag, [](GIVanillaBehavior _, bool* should, void* opt) body)
 
 #ifdef __cplusplus
 }

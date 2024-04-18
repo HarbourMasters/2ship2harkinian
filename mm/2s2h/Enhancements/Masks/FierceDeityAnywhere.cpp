@@ -2,7 +2,7 @@
 #include "Enhancements/GameInteractor/GameInteractor.h"
 
 void RegisterFierceDeityAnywhere() {
-    GameInteractor::Instance->RegisterGameHookForID<GameInteractor::ShouldVanillaBehavior>(GI_VB_DISABLE_FD_MASK, [](GIVanillaBehavior _, bool* should, void* __) {
+    REGISTER_VB_SHOULD(GI_VB_DISABLE_FD_MASK, {
         if (CVarGetInteger("gEnhancements.Masks.FierceDeitysAnywhere", 0)) {
             *should = false;
         }
