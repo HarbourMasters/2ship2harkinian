@@ -214,7 +214,8 @@ typedef struct Inventory {
     /* 0x5A */ s8 dungeonKeys[9];                       // "key_register"
     /* 0x63 */ s8 defenseHearts;
     /* 0x64 */ s8 strayFairies[10];                     // "orange_fairy"
-    /* 0x6E */ char dekuPlaygroundPlayerName[3][8];     // "degnuts_memory_name" Stores playerName (8 char) over (3 days) when getting a new high score
+    // 2S2H [Port] Switch type from char to u8 to avoid dealing with non-terminated strings
+    /* 0x6E */ u8 dekuPlaygroundPlayerName[3][8];       // "degnuts_memory_name" Stores playerName (8 char) over (3 days) when getting a new high score
 } Inventory; // size = 0x88
 
 typedef struct HorseData {
@@ -262,9 +263,11 @@ typedef struct SaveOptions {
 } SaveOptions; // size = 0x6
 
 typedef struct SavePlayerData {
-    /* 0x00 */ char newf[6];                          // "newf"               Will always be "ZELDA3 for a valid save
+    // 2S2H [Port] Switch type from char to u8 to avoid dealing with non-terminated strings
+    /* 0x00 */ u8 newf[6];                            // "newf"               Will always be "ZELDA3 for a valid save
     /* 0x06 */ u16 threeDayResetCount;                // "savect"
-    /* 0x08 */ char playerName[8];                    // "player_name"
+    // 2S2H [Port] Switch type from char to u8 to avoid dealing with non-terminated strings
+    /* 0x08 */ u8 playerName[8];                      // "player_name"
     /* 0x10 */ s16 healthCapacity;                    // "max_life"
     /* 0x12 */ s16 health;                            // "now_life"
     /* 0x14 */ s8 magicLevel; // 0 for no magic/new load, 1 for magic, 2 for double magic "magic_max"
