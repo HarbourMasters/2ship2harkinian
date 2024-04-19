@@ -3767,8 +3767,9 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
         item = Player_GetItemOnButton(play, this, i);
 
         // #region 2S2H [Dpad]
+        // DPAD TODO: FIX INPUTS!!
         if (CVarGetInteger("gDpadEquips", 0)) {
-            if (item >= ITEM_FD) {
+            if (i >= EQUIP_SLOT_A) {
                 DpadEquipSlot j = func_Dpad_8082FDC4();
                 ItemId dpadItem = Player_GetItemOnDpadButton(play, this, j);
                 if (dpadItem < item) {

@@ -556,6 +556,8 @@ typedef enum {
 #define HELD_ITEM_TO_DPAD(heldBtn) (heldBtn - EQUIP_SLOT_MAX)
 #define IS_HELD_DPAD(heldBtn) ((heldBtn >= DPAD_TO_HELD_ITEM(EQUIP_SLOT_D_RIGHT)) && (heldBtn <= DPAD_TO_HELD_ITEM(EQUIP_SLOT_D_UP)))
 
+#define BTN_DPAD_EQUIP (CVarGetInteger("gDpadEquips", 0) ? (BTN_DRIGHT | BTN_DLEFT | BTN_DDOWN | BTN_DUP) : 0)
+
 #define DPAD_BUTTON(btn) (btn) // Translates between equip slot enum and button, in case we change how enum works
 
 #define DPAD_BUTTON_ITEM_EQUIP(form, btn) (gSaveContext.save.additionalSaveInfo.dpadEquips.dpadItems[form][DPAD_BUTTON(btn)])
