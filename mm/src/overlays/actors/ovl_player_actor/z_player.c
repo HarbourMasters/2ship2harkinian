@@ -3716,7 +3716,7 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
             if (CVarGetInteger("gDpadEquips", 0)) {
                 DpadEquipSlot dpadBtn = func_Dpad_8082FD0C(this, maskItemAction);
 
-                if (dpadBtn <= EQUIP_SLOT_NONE) {
+                if (dpadBtn <= EQUIP_SLOT_D_NONE) {
                     s32 maskIdMinusOne =
                         GET_MASK_FROM_IA(Player_ItemToItemAction(this, GET_CUR_FORM_BTN_ITEM(this->unk_154))) - 1;
 
@@ -3740,20 +3740,17 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
     if (((this->actor.id == ACTOR_PLAYER) && (this->itemAction >= PLAYER_IA_FISHING_ROD)) &&
         !(((Player_GetHeldBButtonSword(this) == PLAYER_B_SWORD_NONE) || (gSaveContext.jinxTimer == 0)) &&
           (Player_ItemIsInUse(this, (IREG(1) != 0) ? ITEM_FISHING_ROD : Inventory_GetBtnBItem(play)) ||
+    // #region 2S2H [Dpad]
+          (CVarGetInteger("gDpadEquips", 0) &&
+          (Player_ItemIsInUse(this, DPAD_BTN_ITEM(EQUIP_SLOT_D_RIGHT)) ||
+           Player_ItemIsInUse(this, DPAD_BTN_ITEM(EQUIP_SLOT_D_LEFT)) ||
+           Player_ItemIsInUse(this, DPAD_BTN_ITEM(EQUIP_SLOT_D_DOWN)) ||
+           Player_ItemIsInUse(this, DPAD_BTN_ITEM(EQUIP_SLOT_D_UP)))) ||
+    // #end region
            Player_ItemIsInUse(this, C_BTN_ITEM(EQUIP_SLOT_C_LEFT)) ||
            Player_ItemIsInUse(this, C_BTN_ITEM(EQUIP_SLOT_C_DOWN)) ||
            Player_ItemIsInUse(this, C_BTN_ITEM(EQUIP_SLOT_C_RIGHT))))) {
         Player_UseItem(play, this, ITEM_NONE);
-    // #region 2S2H [Dpad]
-    } else if (CVarGetInteger("gDpadEquips", 0) && 
-        ((this->actor.id == ACTOR_PLAYER) && (this->itemAction >= PLAYER_IA_FISHING_ROD)) &&
-            !(((Player_GetHeldBButtonSword(this) == PLAYER_B_SWORD_NONE) || (gSaveContext.jinxTimer == 0)) &&
-            (Player_ItemIsInUse(this, DPAD_BTN_ITEM(EQUIP_SLOT_D_RIGHT)) ||
-            Player_ItemIsInUse(this, DPAD_BTN_ITEM(EQUIP_SLOT_D_LEFT)) ||
-            Player_ItemIsInUse(this, DPAD_BTN_ITEM(EQUIP_SLOT_D_DOWN)) ||
-            Player_ItemIsInUse(this, DPAD_BTN_ITEM(EQUIP_SLOT_D_UP))))) {
-        Player_UseItem(play, this, ITEM_NONE);
-    // #end region
     } else {
         s32 pad;
         ItemId item;
@@ -3767,7 +3764,6 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
         item = Player_GetItemOnButton(play, this, i);
 
         // #region 2S2H [Dpad]
-        // DPAD TODO: FIX INPUTS!!
         if (CVarGetInteger("gDpadEquips", 0)) {
             if (i >= EQUIP_SLOT_A) {
                 DpadEquipSlot j = func_Dpad_8082FDC4();
