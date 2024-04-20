@@ -213,7 +213,6 @@ void KaleidoScope_DrawMaskSelect(PlayState* play) {
         }
     }
     // #region 2S2H [Dpad]
-    // DPAD TODO: Check this works!!
     // DPAD TODO: Figure out if this needs a CVar
     for (i = EQUIP_SLOT_D_RIGHT; i <= EQUIP_SLOT_D_UP; i++, j += 4) {
         if (DPAD_GET_CUR_FORM_BTN_ITEM(i) != ITEM_NONE) {

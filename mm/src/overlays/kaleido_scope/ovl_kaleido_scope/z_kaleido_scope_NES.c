@@ -1280,6 +1280,9 @@ void KaleidoScope_DrawInfoPanel(PlayState* play) {
 }
 
 u8 sUnpausedButtonStatus[5];
+// #region 2S2H [Dpad]
+u8 sUnpausedDpadStatus[4];
+// #endregion
 f32 sCursorCirclesX[4];
 f32 sCursorCirclesY[4];
 
@@ -3141,12 +3144,17 @@ void KaleidoScope_Update(PlayState* play) {
             sUnpausedHudVisibility = gSaveContext.hudVisibility;
             sPauseMenuVerticalOffset = -6240.0f;
 
-            // DPAD TODO: Implement UnpausedButtonStatus
             sUnpausedButtonStatus[EQUIP_SLOT_B] = gSaveContext.buttonStatus[EQUIP_SLOT_B];
             sUnpausedButtonStatus[EQUIP_SLOT_C_LEFT] = gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT];
             sUnpausedButtonStatus[EQUIP_SLOT_C_DOWN] = gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN];
             sUnpausedButtonStatus[EQUIP_SLOT_C_RIGHT] = gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT];
             sUnpausedButtonStatus[EQUIP_SLOT_A] = gSaveContext.buttonStatus[EQUIP_SLOT_A];
+            // #region 2S2H [Dpad]
+            sUnpausedDpadStatus[EQUIP_SLOT_D_RIGHT] = gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT];
+            sUnpausedDpadStatus[EQUIP_SLOT_D_LEFT] = gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT];
+            sUnpausedDpadStatus[EQUIP_SLOT_D_DOWN] = gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN];
+            sUnpausedDpadStatus[EQUIP_SLOT_D_UP] = gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP];
+            // #endregion
 
             pauseCtx->cursorXIndex[PAUSE_MAP] = 0;
             pauseCtx->cursorSlot[PAUSE_MAP] = R_PLAYER_FLOOR_REVERSE_INDEX + DUNGEON_FLOOR_INDEX_4;
@@ -3734,6 +3742,12 @@ void KaleidoScope_Update(PlayState* play) {
             sUnpausedButtonStatus[EQUIP_SLOT_C_DOWN] = gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN];
             sUnpausedButtonStatus[EQUIP_SLOT_C_RIGHT] = gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT];
             sUnpausedButtonStatus[EQUIP_SLOT_A] = gSaveContext.buttonStatus[EQUIP_SLOT_A];
+            // #region 2S2H [Dpad]
+            sUnpausedDpadStatus[EQUIP_SLOT_D_RIGHT] = gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT];
+            sUnpausedDpadStatus[EQUIP_SLOT_D_LEFT] = gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT];
+            sUnpausedDpadStatus[EQUIP_SLOT_D_DOWN] = gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN];
+            sUnpausedDpadStatus[EQUIP_SLOT_D_UP] = gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP];
+            // #endregion
 
             pauseCtx->cursorXIndex[PAUSE_MAP] = 0;
             pauseCtx->cursorSlot[PAUSE_MAP] = R_PLAYER_FLOOR_REVERSE_INDEX + DUNGEON_FLOOR_INDEX_4;
@@ -3904,6 +3918,12 @@ void KaleidoScope_Update(PlayState* play) {
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = sUnpausedButtonStatus[EQUIP_SLOT_C_DOWN];
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = sUnpausedButtonStatus[EQUIP_SLOT_C_RIGHT];
             gSaveContext.buttonStatus[EQUIP_SLOT_A] = sUnpausedButtonStatus[EQUIP_SLOT_A];
+            // #region 2S2H [Dpad]
+            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] = sUnpausedDpadStatus[EQUIP_SLOT_D_RIGHT];
+            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] = sUnpausedDpadStatus[EQUIP_SLOT_D_LEFT];
+            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] = sUnpausedDpadStatus[EQUIP_SLOT_D_DOWN];
+            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] = sUnpausedDpadStatus[EQUIP_SLOT_D_UP];
+            // #endregion
 
             Interface_UpdateButtonsPart2(play);
             gSaveContext.hudVisibility = HUD_VISIBILITY_IDLE;

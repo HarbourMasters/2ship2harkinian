@@ -17456,7 +17456,6 @@ void Player_Action_68(Player* this, PlayState* play) {
                     }
                 }
                 // #region 2S2H [Dpad]
-                // DPAD TODO: Check call to Player_GetItemOnButton with value greater than EQUIP_SLOT_MAX is allowed
                 else if (CVarGetInteger("gDpadEquips", 0)) {
                     if (Player_GetItemOnDpadButton(play, this, HELD_ITEM_TO_DPAD(this->heldItemButton)) == ITEM_BOTTLE) {
                         Actor* interactRangeActor = this->interactRangeActor;
