@@ -5,7 +5,7 @@
 
 void RegisterInfiniteCheats() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameStateUpdate>([]() {
-        if (!gPlayState) return;
+        if (gPlayState == nullptr) return;
 
         if (CVarGetInteger("gCheats.InfiniteHealth", 0)) {
             gSaveContext.save.saveInfo.playerData.health = gSaveContext.save.saveInfo.playerData.healthCapacity;

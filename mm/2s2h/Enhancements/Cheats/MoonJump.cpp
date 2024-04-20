@@ -12,7 +12,7 @@ void RegisterMoonJumpOnL() {
 
     if (CVarGetInteger("gCheats.MoonJumpOnL", 0)) {
         moonJumpOnLGameStateUpdateHookId = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameStateUpdate>([]() {
-            if (!gPlayState) return;
+            if (gPlayState == nullptr) return;
 
             Player* player = GET_PLAYER(gPlayState);
 
