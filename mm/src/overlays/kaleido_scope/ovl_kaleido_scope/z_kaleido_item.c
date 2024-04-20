@@ -887,7 +887,7 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
                     BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT);
-                    C_SLOT_EQUIP(0, EQUIP_SLOT_C_LEFT) = DPAD_SLOT_EQUIP(0, EQUIP_SLOT_C_DOWN);
+                    C_SLOT_EQUIP(0, EQUIP_SLOT_C_LEFT) = DPAD_SLOT_EQUIP(0, EQUIP_SLOT_D_RIGHT);
                     Interface_LoadItemIcon(play, EQUIP_SLOT_C_LEFT);
                 }
             } else {
@@ -1020,7 +1020,7 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
 
         // Equip item on DRight
         DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) = pauseCtx->equipTargetItem;
-        C_SLOT_EQUIP(0, EQUIP_SLOT_D_RIGHT) = pauseCtx->equipTargetSlot;
+        DPAD_SLOT_EQUIP(0, EQUIP_SLOT_D_RIGHT) = pauseCtx->equipTargetSlot;
         Interface_Dpad_LoadItemIconImpl(play, EQUIP_SLOT_D_RIGHT);
     } else if (pauseCtx->equipTargetCBtn == PAUSE_EQUIP_D_LEFT) {
         // Swap if item is already equipped on other Item Buttons.
@@ -1034,7 +1034,7 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
                     BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT);
-                    C_SLOT_EQUIP(0, EQUIP_SLOT_C_LEFT) = DPAD_SLOT_EQUIP(0, EQUIP_SLOT_C_DOWN);
+                    C_SLOT_EQUIP(0, EQUIP_SLOT_C_LEFT) = DPAD_SLOT_EQUIP(0, EQUIP_SLOT_D_LEFT);
                     Interface_LoadItemIcon(play, EQUIP_SLOT_C_LEFT);
                 }
             } else {
@@ -1167,7 +1167,7 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
 
         // Equip item on DLeft
         DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) = pauseCtx->equipTargetItem;
-        C_SLOT_EQUIP(0, EQUIP_SLOT_D_LEFT) = pauseCtx->equipTargetSlot;
+        DPAD_SLOT_EQUIP(0, EQUIP_SLOT_D_LEFT) = pauseCtx->equipTargetSlot;
         Interface_Dpad_LoadItemIconImpl(play, EQUIP_SLOT_D_LEFT);
     } else if (pauseCtx->equipTargetCBtn == PAUSE_EQUIP_D_DOWN) {
         // Swap if item is already equipped on other Item Buttons.
@@ -1181,7 +1181,7 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
                     BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN);
-                    C_SLOT_EQUIP(0, EQUIP_SLOT_C_LEFT) = DPAD_SLOT_EQUIP(0, EQUIP_SLOT_C_DOWN);
+                    C_SLOT_EQUIP(0, EQUIP_SLOT_C_LEFT) = DPAD_SLOT_EQUIP(0, EQUIP_SLOT_D_DOWN);
                     Interface_LoadItemIcon(play, EQUIP_SLOT_C_LEFT);
                 }
             } else {
@@ -1314,7 +1314,7 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
 
         // Equip item on DDown
         DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) = pauseCtx->equipTargetItem;
-        C_SLOT_EQUIP(0, EQUIP_SLOT_D_DOWN) = pauseCtx->equipTargetSlot;
+        DPAD_SLOT_EQUIP(0, EQUIP_SLOT_D_DOWN) = pauseCtx->equipTargetSlot;
         Interface_Dpad_LoadItemIconImpl(play, EQUIP_SLOT_D_DOWN);
     } else if (pauseCtx->equipTargetCBtn == PAUSE_EQUIP_D_UP) {
         // Swap if item is already equipped on other Item Buttons.
@@ -1328,7 +1328,7 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
                     BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP);
-                    C_SLOT_EQUIP(0, EQUIP_SLOT_C_LEFT) = DPAD_SLOT_EQUIP(0, EQUIP_SLOT_C_DOWN);
+                    C_SLOT_EQUIP(0, EQUIP_SLOT_C_LEFT) = DPAD_SLOT_EQUIP(0, EQUIP_SLOT_D_UP);
                     Interface_LoadItemIcon(play, EQUIP_SLOT_C_LEFT);
                 }
             } else {
@@ -1461,7 +1461,7 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
 
         // Equip item on DUp
         DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) = pauseCtx->equipTargetItem;
-        C_SLOT_EQUIP(0, EQUIP_SLOT_D_UP) = pauseCtx->equipTargetSlot;
+        DPAD_SLOT_EQUIP(0, EQUIP_SLOT_D_UP) = pauseCtx->equipTargetSlot;
         Interface_Dpad_LoadItemIconImpl(play, EQUIP_SLOT_D_UP);
     }
 }
