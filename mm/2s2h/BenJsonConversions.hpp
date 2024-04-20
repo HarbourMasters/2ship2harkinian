@@ -17,15 +17,18 @@ void to_json(json& j, const ItemEquips& itemEquips) {
 void from_json(const json& j, ItemEquips& itemEquips) {
     j.at("equipment").get_to(itemEquips.equipment);
     // buttonItems and cButtonSlots are arrays of arrays, so we need to manually parse them
-    for (int x = 0; x < 4; x++) {
-        for (int y = 0; y < 4; y++) {
-            itemEquips.buttonItems[x][y] = j.at("buttonItems")[x][y].get<u8>();
-            itemEquips.cButtonSlots[x][y] = j.at("cButtonSlots")[x][y].get<u8>();
-        }
+    for (int i = 0; i < ARRAY_COUNT(itemEquips.buttonItems); i++) {
+        j.at("buttonItems").at(i).get_to(itemEquips.buttonItems[i]);
+        j.at("cButtonSlots").at(i).get_to(itemEquips.cButtonSlots[i]);
     }
 }
 
 void to_json(json& j, const Inventory& inventory) {
+    // Setup and copy u8 arrays to avoid json treating char[] as strings
+    // These char[] are not null-terminated, so saving as strings causes overflow/corruption
+    uint8_t dekuPlaygroundPlayerName[3][8];
+    memcpy(dekuPlaygroundPlayerName, inventory.dekuPlaygroundPlayerName, sizeof(dekuPlaygroundPlayerName));
+
     j = json{
         { "items", inventory.items },
         { "ammo", inventory.ammo },
@@ -35,7 +38,7 @@ void to_json(json& j, const Inventory& inventory) {
         { "dungeonKeys", inventory.dungeonKeys },
         { "defenseHearts", inventory.defenseHearts },
         { "strayFairies", inventory.strayFairies },
-        { "dekuPlaygroundPlayerName", inventory.dekuPlaygroundPlayerName },
+        { "dekuPlaygroundPlayerName", dekuPlaygroundPlayerName },
     };
 }
 
@@ -48,12 +51,9 @@ void from_json(const json& j, Inventory& inventory) {
     j.at("dungeonKeys").get_to(inventory.dungeonKeys);
     j.at("defenseHearts").get_to(inventory.defenseHearts);
     j.at("strayFairies").get_to(inventory.strayFairies);
-    // dekuPlaygroundPlayerName is an array of char arrays, so we need to manually parse it
-    for (int i = 0; i < 3; i++) {
-        std::string name = j.at("dekuPlaygroundPlayerName")[i].get<std::string>();
-        for (int j = 0; j < 8; j++) {
-            inventory.dekuPlaygroundPlayerName[i][j] = name[j];
-        }
+    // dekuPlaygroundPlayerName is an array of arrays, so we need to manually parse it
+    for (int i = 0; i < ARRAY_COUNT(inventory.dekuPlaygroundPlayerName); i++) {
+        j.at("dekuPlaygroundPlayerName").at(i).get_to(inventory.dekuPlaygroundPlayerName[i]);
     }
 }
 
@@ -80,10 +80,17 @@ void from_json(const json& j, PermanentSceneFlags& permanentSceneFlags) {
 }
 
 void to_json(json& j, const SavePlayerData& savePlayerData) {
+    // Setup and copy u8 arrays to avoid json treating char[] as strings
+    // These char[] are not null-terminated, so saving as strings causes overflow/corruption
+    u8 newf[6];
+    u8 playerName[8];
+    memcpy(newf, savePlayerData.newf, sizeof(newf));
+    memcpy(playerName, savePlayerData.playerName, sizeof(playerName));
+
     j = json{
-        { "newf", savePlayerData.newf },
+        { "newf", newf },
         { "threeDayResetCount", savePlayerData.threeDayResetCount },
-        { "playerName", savePlayerData.playerName },
+        { "playerName", playerName },
         { "healthCapacity", savePlayerData.healthCapacity },
         { "health", savePlayerData.health },
         { "magicLevel", savePlayerData.magicLevel },
@@ -103,16 +110,9 @@ void to_json(json& j, const SavePlayerData& savePlayerData) {
 }
 
 void from_json(const json& j, SavePlayerData& savePlayerData) {
-    // newf is an array of chars, so we need to manually parse it
-    std::string newf = j.at("newf").get<std::string>();
-    for (int i = 0; i < 6; i++) {
-        savePlayerData.newf[i] = newf[i];
-    }
+    j.at("newf").get_to(savePlayerData.newf);
     j.at("threeDayResetCount").get_to(savePlayerData.threeDayResetCount);
-    std::string playerName = j.at("playerName").get<std::string>();
-    for (int i = 0; i < 8; i++) {
-        savePlayerData.playerName[i] = playerName[i];
-    }
+    j.at("playerName").get_to(savePlayerData.playerName);
     j.at("healthCapacity").get_to(savePlayerData.healthCapacity);
     j.at("health").get_to(savePlayerData.health);
     j.at("magicLevel").get_to(savePlayerData.magicLevel);
@@ -224,10 +224,8 @@ void from_json(const json& j, SaveInfo& saveInfo) {
     j.at("bombersCaughtNum").get_to(saveInfo.bombersCaughtNum);
     j.at("bombersCaughtOrder").get_to(saveInfo.bombersCaughtOrder);
     // lotteryCodes is an array of arrays, so we need to manually parse it
-    for (int x = 0; x < 3; x++) {
-        for (int y = 0; y < 3; y++) {
-            saveInfo.lotteryCodes[x][y] = j.at("lotteryCodes")[x][y].get<s8>();
-        }
+    for (int i = 0; i < ARRAY_COUNT(saveInfo.lotteryCodes); i++) {
+        j.at("lotteryCodes").at(i).get_to(saveInfo.lotteryCodes[i]);
     }
     j.at("spiderHouseMaskOrder").get_to(saveInfo.spiderHouseMaskOrder);
     j.at("bomberCode").get_to(saveInfo.bomberCode);
