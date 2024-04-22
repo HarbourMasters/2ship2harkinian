@@ -557,6 +557,11 @@ typedef enum {
 #define IS_HELD_DPAD(heldBtn) ((heldBtn >= DPAD_TO_HELD_ITEM(EQUIP_SLOT_D_RIGHT)) && (heldBtn <= DPAD_TO_HELD_ITEM(EQUIP_SLOT_D_UP)))
 
 #define BTN_DPAD_EQUIP (CVarGetInteger("gDpadEquips", 0) ? (BTN_DRIGHT | BTN_DLEFT | BTN_DDOWN | BTN_DUP) : 0)
+#define CHECK_BTN_DPAD(input) (CVarGetInteger("gDpadEquips", 0) && \
+                              (CHECK_BTN_ALL(input, BTN_DRIGHT) || \
+                               CHECK_BTN_ALL(input, BTN_DLEFT)  || \
+                               CHECK_BTN_ALL(input, BTN_DDOWN)  || \
+                               CHECK_BTN_ALL(input, BTN_DUP)))
 
 #define DPAD_BUTTON(btn) (btn) // Translates between equip slot enum and button, in case we change how enum works
 
