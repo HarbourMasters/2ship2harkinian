@@ -13,6 +13,7 @@ typedef enum {
     // Vanilla condition: gSaveContext.showTitleCard
     GI_VB_SHOW_TITLE_CARD,
     GI_VB_PLAY_ENTRANCE_CS,
+    GI_VB_DISABLE_FD_MASK
 } GIVanillaBehavior;
 
 #ifdef __cplusplus
@@ -216,6 +217,8 @@ bool GameInteractor_ShouldActorDraw(Actor* actor);
 void GameInteractor_ExecuteOnActorDraw(Actor* actor);
 
 bool GameInteractor_Should(GIVanillaBehavior flag, bool result, void* optionalArg);
+#define REGISTER_VB_SHOULD(flag, body) \
+    GameInteractor::Instance->RegisterGameHookForID<GameInteractor::ShouldVanillaBehavior>(flag, [](GIVanillaBehavior _, bool* should, void* opt) body)
 
 #ifdef __cplusplus
 }

@@ -33,11 +33,11 @@ static const ALIGN_ASSET(2) char gQuestIconDungeonMapTex[] = dgQuestIconDungeonM
 #define dgQuestIconGoldSkulltula2Tex "__OTR__icon_item_24_static_yar/gQuestIconGoldSkulltula2Tex"
 static const ALIGN_ASSET(2) char gQuestIconGoldSkulltula2Tex[] = dgQuestIconGoldSkulltula2Tex;
 
-#define dgQuestIconSmallMagicJarTex "__OTR__icon_item_24_static_yar/gQuestIconSmallMagicJarTex"
-static const ALIGN_ASSET(2) char gQuestIconSmallMagicJarTex[] = dgQuestIconSmallMagicJarTex;
-
 #define dgQuestIconSmallKeyTex "__OTR__icon_item_24_static_yar/gQuestIconSmallKeyTex"
 static const ALIGN_ASSET(2) char gQuestIconSmallKeyTex[] = dgQuestIconSmallKeyTex;
+
+#define dgQuestIconSmallMagicJarTex "__OTR__icon_item_24_static_yar/gQuestIconSmallMagicJarTex"
+static const ALIGN_ASSET(2) char gQuestIconSmallMagicJarTex[] = dgQuestIconSmallMagicJarTex;
 
 #define dgQuestIconBigMagicJarTex "__OTR__icon_item_24_static_yar/gQuestIconBigMagicJarTex"
 static const ALIGN_ASSET(2) char gQuestIconBigMagicJarTex[] = dgQuestIconBigMagicJarTex;

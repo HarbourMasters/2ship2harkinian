@@ -214,6 +214,7 @@ typedef struct Inventory {
     /* 0x5A */ s8 dungeonKeys[9];                       // "key_register"
     /* 0x63 */ s8 defenseHearts;
     /* 0x64 */ s8 strayFairies[10];                     // "orange_fairy"
+    // 2S2H [Comment] These char[] are not null-terminated, they will not work correctly in string functions
     /* 0x6E */ char dekuPlaygroundPlayerName[3][8];     // "degnuts_memory_name" Stores playerName (8 char) over (3 days) when getting a new high score
 } Inventory; // size = 0x88
 
@@ -262,6 +263,7 @@ typedef struct SaveOptions {
 } SaveOptions; // size = 0x6
 
 typedef struct SavePlayerData {
+    // 2S2H [Comment] These char[] are not null-terminated, they will not work correctly in string functions
     /* 0x00 */ char newf[6];                          // "newf"               Will always be "ZELDA3 for a valid save
     /* 0x06 */ u16 threeDayResetCount;                // "savect"
     /* 0x08 */ char playerName[8];                    // "player_name"
