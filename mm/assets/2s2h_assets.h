@@ -55,3 +55,6 @@ static const ALIGN_ASSET(2) char gThreeDayClockHour23Tex[] = dgThreeDayClockHour
 
 #define dgThreeDayClockHour24Tex "__OTR__textures/parameter_static/gThreeDayClockHour24Tex"
 static const ALIGN_ASSET(2) char gThreeDayClockHour24Tex[] = dgThreeDayClockHour24Tex;
+
+#define dgEmptyTexture "__OTR__textures/virtual/gEmptyTexture"
+static const ALIGN_ASSET(2) char gEmptyTexture[] = dgEmptyTexture;
