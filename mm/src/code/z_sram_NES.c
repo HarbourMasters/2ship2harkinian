@@ -503,7 +503,7 @@ void Sram_SaveEndOfCycle(PlayState* play) {
     CLEAR_EVENTINF(EVENTINF_THREEDAYRESET_LOST_STICK_AMMO);
     CLEAR_EVENTINF(EVENTINF_THREEDAYRESET_LOST_ARROW_AMMO);
 
-    if (!CVarGetInteger("gEnhancements.Cycle.DoNotResetRupee", 0)) {
+    if (!CVarGetInteger("gEnhancements.Cycle.DoNotResetRupees", 0)) {
         if (gSaveContext.save.saveInfo.playerData.rupees != 0) {
             SET_EVENTINF(EVENTINF_THREEDAYRESET_LOST_RUPEES);
         }
@@ -651,7 +651,7 @@ void Sram_SaveEndOfCycle(PlayState* play) {
         gSaveContext.save.saveInfo.inventory.strayFairies[i] = 0;
     }
 
-    if (!CVarGetInteger("gEnhancements.Cycle.DoNotResetRupee", 0)) {
+    if (!CVarGetInteger("gEnhancements.Cycle.DoNotResetRupees", 0)) {
         gSaveContext.save.saveInfo.playerData.rupees = 0;
     } else {
         return;
