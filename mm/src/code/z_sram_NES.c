@@ -503,67 +503,78 @@ void Sram_SaveEndOfCycle(PlayState* play) {
     CLEAR_EVENTINF(EVENTINF_THREEDAYRESET_LOST_STICK_AMMO);
     CLEAR_EVENTINF(EVENTINF_THREEDAYRESET_LOST_ARROW_AMMO);
 
-    if (gSaveContext.save.saveInfo.playerData.rupees != 0) {
-        SET_EVENTINF(EVENTINF_THREEDAYRESET_LOST_RUPEES);
-    }
-
-    if (INV_CONTENT(ITEM_BOMB) == ITEM_BOMB) {
-        item = INV_CONTENT(ITEM_BOMB);
-        if (AMMO(item) != 0) {
-            SET_EVENTINF(EVENTINF_THREEDAYRESET_LOST_BOMB_AMMO);
+    if (!CVarGetInteger("gEnhancements.Cycle.DoNotResetRupee", 0)) {
+        if (gSaveContext.save.saveInfo.playerData.rupees != 0) {
+            SET_EVENTINF(EVENTINF_THREEDAYRESET_LOST_RUPEES);
         }
     }
-    if (INV_CONTENT(ITEM_DEKU_NUT) == ITEM_DEKU_NUT) {
-        item = INV_CONTENT(ITEM_DEKU_NUT);
-        if (AMMO(item) != 0) {
-            SET_EVENTINF(EVENTINF_THREEDAYRESET_LOST_NUT_AMMO);
-        }
-    }
-    if (INV_CONTENT(ITEM_DEKU_STICK) == ITEM_DEKU_STICK) {
-        item = INV_CONTENT(ITEM_DEKU_STICK);
-        if (AMMO(item) != 0) {
-            SET_EVENTINF(EVENTINF_THREEDAYRESET_LOST_STICK_AMMO);
-        }
-    }
-    if (INV_CONTENT(ITEM_BOW) == ITEM_BOW) {
-        item = INV_CONTENT(ITEM_BOW);
-        if (AMMO(item) != 0) {
-            SET_EVENTINF(EVENTINF_THREEDAYRESET_LOST_ARROW_AMMO);
-        }
-    }
-
-    for (i = 0; i < ITEM_NUM_SLOTS; i++) {
-        if (gAmmoItems[i] != ITEM_NONE) {
-            if ((gSaveContext.save.saveInfo.inventory.items[i] != ITEM_NONE) && (i != SLOT_PICTOGRAPH_BOX)) {
-                item = gSaveContext.save.saveInfo.inventory.items[i];
-                AMMO(item) = 0;
+    if (!CVarGetInteger("gEnhancements.Cycle.DoNotResetConsumable", 0)) {
+        if (INV_CONTENT(ITEM_BOMB) == ITEM_BOMB) {
+            item = INV_CONTENT(ITEM_BOMB);
+            if (AMMO(item) != 0) {
+                SET_EVENTINF(EVENTINF_THREEDAYRESET_LOST_BOMB_AMMO);
             }
         }
-    }
+        if (INV_CONTENT(ITEM_DEKU_NUT) == ITEM_DEKU_NUT) {
+            item = INV_CONTENT(ITEM_DEKU_NUT);
+            if (AMMO(item) != 0) {
+                SET_EVENTINF(EVENTINF_THREEDAYRESET_LOST_NUT_AMMO);
+            }
+        }
+        if (INV_CONTENT(ITEM_DEKU_STICK) == ITEM_DEKU_STICK) {
+            item = INV_CONTENT(ITEM_DEKU_STICK);
+            if (AMMO(item) != 0) {
+                SET_EVENTINF(EVENTINF_THREEDAYRESET_LOST_STICK_AMMO);
+            }
+        }
+        if (INV_CONTENT(ITEM_BOW) == ITEM_BOW) {
+            item = INV_CONTENT(ITEM_BOW);
+            if (AMMO(item) != 0) {
+                SET_EVENTINF(EVENTINF_THREEDAYRESET_LOST_ARROW_AMMO);
+            }
+        }
 
-    for (i = SLOT_BOTTLE_1; i <= SLOT_BOTTLE_6; i++) {
-        // Check for all bottled items
-        if (gSaveContext.save.saveInfo.inventory.items[i] >= ITEM_POTION_RED) {
-            if (gSaveContext.save.saveInfo.inventory.items[i] <= ITEM_OBABA_DRINK) {
-                for (j = EQUIP_SLOT_C_LEFT; j <= EQUIP_SLOT_C_RIGHT; j++) {
-                    if (GET_CUR_FORM_BTN_ITEM(j) == gSaveContext.save.saveInfo.inventory.items[i]) {
-                        SET_CUR_FORM_BTN_ITEM(j, ITEM_BOTTLE);
-                        Interface_LoadItemIconImpl(play, j);
-                    }
+        for (i = 0; i < ITEM_NUM_SLOTS; i++) {
+            if (gAmmoItems[i] != ITEM_NONE) {
+                if ((gSaveContext.save.saveInfo.inventory.items[i] != ITEM_NONE) && (i != SLOT_PICTOGRAPH_BOX)) {
+                    item = gSaveContext.save.saveInfo.inventory.items[i];
+                    AMMO(item) = 0;
                 }
-                gSaveContext.save.saveInfo.inventory.items[i] = ITEM_BOTTLE;
             }
         }
     }
 
-    REMOVE_QUEST_ITEM(QUEST_PICTOGRAPH);
-
-    if (gSaveContext.save.saveInfo.playerData.health < 0x30) {
-        gSaveContext.save.saveInfo.playerData.health = 0x30;
+    if (!CVarGetInteger("gEnhancements.Cycle.DoNotResetBottleContent", 0)) {
+        for (i = SLOT_BOTTLE_1; i <= SLOT_BOTTLE_6; i++) {
+            // Check for all bottled items
+            if (gSaveContext.save.saveInfo.inventory.items[i] >= ITEM_POTION_RED) {
+                if (gSaveContext.save.saveInfo.inventory.items[i] <= ITEM_OBABA_DRINK) {
+                    for (j = EQUIP_SLOT_C_LEFT; j <= EQUIP_SLOT_C_RIGHT; j++) {
+                        if (GET_CUR_FORM_BTN_ITEM(j) == gSaveContext.save.saveInfo.inventory.items[i]) {
+                            SET_CUR_FORM_BTN_ITEM(j, ITEM_BOTTLE);
+                            Interface_LoadItemIconImpl(play, j);
+                        }
+                    }
+                    gSaveContext.save.saveInfo.inventory.items[i] = ITEM_BOTTLE;
+                }
+            }
+        }
     }
 
-    if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) <= EQUIP_VALUE_SWORD_RAZOR) {
-        SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_KOKIRI);
+    if (!CVarGetInteger("gEnhancements.Cycle.DoNotResetPictobox", 0)) {
+        REMOVE_QUEST_ITEM(QUEST_PICTOGRAPH);
+
+        if (gSaveContext.save.saveInfo.playerData.health < 0x30) {
+            gSaveContext.save.saveInfo.playerData.health = 0x30;
+        }
+    }
+
+    if (!CVarGetInteger("gEnhancements.Cycle.DoNotResetRazorSword", 0)) {
+        if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) <= EQUIP_VALUE_SWORD_RAZOR) {
+            SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_KOKIRI);
+        } else {
+            return; 
+        }
 
         if (CUR_FORM == 0) {
             if ((STOLEN_ITEM_1 >= ITEM_SWORD_GILDED) || (STOLEN_ITEM_2 >= ITEM_SWORD_GILDED)) {
@@ -640,7 +651,12 @@ void Sram_SaveEndOfCycle(PlayState* play) {
         gSaveContext.save.saveInfo.inventory.strayFairies[i] = 0;
     }
 
-    gSaveContext.save.saveInfo.playerData.rupees = 0;
+    if (!CVarGetInteger("gEnhancements.Cycle.DoNotResetRupee", 0)) {
+        gSaveContext.save.saveInfo.playerData.rupees = 0;
+    } else {
+        return;
+    }
+
     gSaveContext.save.saveInfo.scarecrowSpawnSongSet = false;
     gSaveContext.powderKegTimer = 0;
     gSaveContext.unk_1014 = 0;
