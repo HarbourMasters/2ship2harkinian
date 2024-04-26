@@ -18,6 +18,14 @@ void GameInteractor_ExecuteOnGameStateUpdate() {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnGameStateUpdate>();
 }
 
+void GameInteractor_ExecuteBeforeEndOfCycleSave() {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::BeforeEndOfCycleSave>();
+}
+
+void GameInteractor_ExecuteAfterEndOfCycleSave() {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::AfterEndOfCycleSave>();
+}
+
 bool GameInteractor_ShouldActorInit(Actor* actor) {
     bool result = true;
     GameInteractor::Instance->ExecuteHooks<GameInteractor::ShouldActorInit>(actor, &result);

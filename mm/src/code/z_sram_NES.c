@@ -4,6 +4,8 @@
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include <string.h>
 
+#include "Enhancements/GameInteractor/GameInteractor.h"
+
 void Sram_SyncWriteToFlash(SramContext* sramCtx, s32 curPage, s32 numPages);
 void func_80147314(SramContext* sramCtx, s32 fileNum);
 void func_80147414(SramContext* sramCtx, s32 fileNum, s32 arg2);
@@ -426,6 +428,7 @@ void Sram_ClearFlagsAtDawnOfTheFirstDay(void) {
  * Used by Song of Time (when clicking "Yes") and (indirectly) by the "Dawn of the New Day" cutscene
  */
 void Sram_SaveEndOfCycle(PlayState* play) {
+    GameInteractor_ExecuteBeforeEndOfCycleSave();
     s16 sceneId;
     s32 j;
     s32 i;
@@ -503,93 +506,84 @@ void Sram_SaveEndOfCycle(PlayState* play) {
     CLEAR_EVENTINF(EVENTINF_THREEDAYRESET_LOST_STICK_AMMO);
     CLEAR_EVENTINF(EVENTINF_THREEDAYRESET_LOST_ARROW_AMMO);
 
-    if (!CVarGetInteger("gEnhancements.Cycle.DoNotResetRupees", 0)) {
-        if (gSaveContext.save.saveInfo.playerData.rupees != 0) {
-            SET_EVENTINF(EVENTINF_THREEDAYRESET_LOST_RUPEES);
+    if (gSaveContext.save.saveInfo.playerData.rupees != 0) {
+        SET_EVENTINF(EVENTINF_THREEDAYRESET_LOST_RUPEES);
+    }
+
+    if (INV_CONTENT(ITEM_BOMB) == ITEM_BOMB) {
+        item = INV_CONTENT(ITEM_BOMB);
+        if (AMMO(item) != 0) {
+            SET_EVENTINF(EVENTINF_THREEDAYRESET_LOST_BOMB_AMMO);
         }
     }
-    if (!CVarGetInteger("gEnhancements.Cycle.DoNotResetConsumable", 0)) {
-        if (INV_CONTENT(ITEM_BOMB) == ITEM_BOMB) {
-            item = INV_CONTENT(ITEM_BOMB);
-            if (AMMO(item) != 0) {
-                SET_EVENTINF(EVENTINF_THREEDAYRESET_LOST_BOMB_AMMO);
-            }
+    if (INV_CONTENT(ITEM_DEKU_NUT) == ITEM_DEKU_NUT) {
+        item = INV_CONTENT(ITEM_DEKU_NUT);
+        if (AMMO(item) != 0) {
+            SET_EVENTINF(EVENTINF_THREEDAYRESET_LOST_NUT_AMMO);
         }
-        if (INV_CONTENT(ITEM_DEKU_NUT) == ITEM_DEKU_NUT) {
-            item = INV_CONTENT(ITEM_DEKU_NUT);
-            if (AMMO(item) != 0) {
-                SET_EVENTINF(EVENTINF_THREEDAYRESET_LOST_NUT_AMMO);
-            }
+    }
+    if (INV_CONTENT(ITEM_DEKU_STICK) == ITEM_DEKU_STICK) {
+        item = INV_CONTENT(ITEM_DEKU_STICK);
+        if (AMMO(item) != 0) {
+            SET_EVENTINF(EVENTINF_THREEDAYRESET_LOST_STICK_AMMO);
         }
-        if (INV_CONTENT(ITEM_DEKU_STICK) == ITEM_DEKU_STICK) {
-            item = INV_CONTENT(ITEM_DEKU_STICK);
-            if (AMMO(item) != 0) {
-                SET_EVENTINF(EVENTINF_THREEDAYRESET_LOST_STICK_AMMO);
-            }
+    }
+    if (INV_CONTENT(ITEM_BOW) == ITEM_BOW) {
+        item = INV_CONTENT(ITEM_BOW);
+        if (AMMO(item) != 0) {
+            SET_EVENTINF(EVENTINF_THREEDAYRESET_LOST_ARROW_AMMO);
         }
-        if (INV_CONTENT(ITEM_BOW) == ITEM_BOW) {
-            item = INV_CONTENT(ITEM_BOW);
-            if (AMMO(item) != 0) {
-                SET_EVENTINF(EVENTINF_THREEDAYRESET_LOST_ARROW_AMMO);
-            }
-        }
+    }
 
-        for (i = 0; i < ITEM_NUM_SLOTS; i++) {
-            if (gAmmoItems[i] != ITEM_NONE) {
-                if ((gSaveContext.save.saveInfo.inventory.items[i] != ITEM_NONE) && (i != SLOT_PICTOGRAPH_BOX)) {
-                    item = gSaveContext.save.saveInfo.inventory.items[i];
-                    AMMO(item) = 0;
-                }
+    for (i = 0; i < ITEM_NUM_SLOTS; i++) {
+        if (gAmmoItems[i] != ITEM_NONE) {
+            if ((gSaveContext.save.saveInfo.inventory.items[i] != ITEM_NONE) && (i != SLOT_PICTOGRAPH_BOX)) {
+                item = gSaveContext.save.saveInfo.inventory.items[i];
+                AMMO(item) = 0;
             }
         }
     }
 
-    if (!CVarGetInteger("gEnhancements.Cycle.DoNotResetBottleContent", 0)) {
-        for (i = SLOT_BOTTLE_1; i <= SLOT_BOTTLE_6; i++) {
-            // Check for all bottled items
-            if (gSaveContext.save.saveInfo.inventory.items[i] >= ITEM_POTION_RED) {
-                if (gSaveContext.save.saveInfo.inventory.items[i] <= ITEM_OBABA_DRINK) {
-                    for (j = EQUIP_SLOT_C_LEFT; j <= EQUIP_SLOT_C_RIGHT; j++) {
-                        if (GET_CUR_FORM_BTN_ITEM(j) == gSaveContext.save.saveInfo.inventory.items[i]) {
-                            SET_CUR_FORM_BTN_ITEM(j, ITEM_BOTTLE);
-                            Interface_LoadItemIconImpl(play, j);
-                        }
+    for (i = SLOT_BOTTLE_1; i <= SLOT_BOTTLE_6; i++) {
+        // Check for all bottled items
+        if (gSaveContext.save.saveInfo.inventory.items[i] >= ITEM_POTION_RED) {
+            if (gSaveContext.save.saveInfo.inventory.items[i] <= ITEM_OBABA_DRINK) {
+                for (j = EQUIP_SLOT_C_LEFT; j <= EQUIP_SLOT_C_RIGHT; j++) {
+                    if (GET_CUR_FORM_BTN_ITEM(j) == gSaveContext.save.saveInfo.inventory.items[i]) {
+                        SET_CUR_FORM_BTN_ITEM(j, ITEM_BOTTLE);
+                        Interface_LoadItemIconImpl(play, j);
                     }
-                    gSaveContext.save.saveInfo.inventory.items[i] = ITEM_BOTTLE;
                 }
+                gSaveContext.save.saveInfo.inventory.items[i] = ITEM_BOTTLE;
             }
         }
     }
 
-    if (!CVarGetInteger("gEnhancements.Cycle.DoNotResetPictobox", 0)) {
-        REMOVE_QUEST_ITEM(QUEST_PICTOGRAPH);
+    REMOVE_QUEST_ITEM(QUEST_PICTOGRAPH);
 
-        if (gSaveContext.save.saveInfo.playerData.health < 0x30) {
-            gSaveContext.save.saveInfo.playerData.health = 0x30;
-        }
+    if (gSaveContext.save.saveInfo.playerData.health < 0x30) {
+        gSaveContext.save.saveInfo.playerData.health = 0x30;
     }
 
-    if (!CVarGetInteger("gEnhancements.Cycle.DoNotResetRazorSword", 0)) {
-        if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) <= EQUIP_VALUE_SWORD_RAZOR) {
-            SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_KOKIRI);
-        } else {
-            return; 
-        }
+    if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) <= EQUIP_VALUE_SWORD_RAZOR) {
+        SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_KOKIRI);
+    } else {
+        return; 
+    }
 
-        if (CUR_FORM == 0) {
-            if ((STOLEN_ITEM_1 >= ITEM_SWORD_GILDED) || (STOLEN_ITEM_2 >= ITEM_SWORD_GILDED)) {
-                CUR_FORM_EQUIP(EQUIP_SLOT_B) = ITEM_SWORD_GILDED;
-                SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_GILDED);
-            } else {
-                CUR_FORM_EQUIP(EQUIP_SLOT_B) = ITEM_SWORD_KOKIRI;
-            }
+    if (CUR_FORM == 0) {
+        if ((STOLEN_ITEM_1 >= ITEM_SWORD_GILDED) || (STOLEN_ITEM_2 >= ITEM_SWORD_GILDED)) {
+            CUR_FORM_EQUIP(EQUIP_SLOT_B) = ITEM_SWORD_GILDED;
+            SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_GILDED);
         } else {
-            if ((STOLEN_ITEM_1 >= ITEM_SWORD_GILDED) || (STOLEN_ITEM_2 >= ITEM_SWORD_GILDED)) {
-                BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_GILDED;
-                SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_GILDED);
-            } else {
-                BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_KOKIRI;
-            }
+            CUR_FORM_EQUIP(EQUIP_SLOT_B) = ITEM_SWORD_KOKIRI;
+        }
+    } else {
+        if ((STOLEN_ITEM_1 >= ITEM_SWORD_GILDED) || (STOLEN_ITEM_2 >= ITEM_SWORD_GILDED)) {
+            BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_GILDED;
+            SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_GILDED);
+        } else {
+            BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_KOKIRI;
         }
     }
 
@@ -651,11 +645,7 @@ void Sram_SaveEndOfCycle(PlayState* play) {
         gSaveContext.save.saveInfo.inventory.strayFairies[i] = 0;
     }
 
-    if (!CVarGetInteger("gEnhancements.Cycle.DoNotResetRupees", 0)) {
-        gSaveContext.save.saveInfo.playerData.rupees = 0;
-    } else {
-        return;
-    }
+    gSaveContext.save.saveInfo.playerData.rupees = 0;
 
     gSaveContext.save.saveInfo.scarecrowSpawnSongSet = false;
     gSaveContext.powderKegTimer = 0;
@@ -664,6 +654,7 @@ void Sram_SaveEndOfCycle(PlayState* play) {
     gSaveContext.rupeeAccumulator = 0;
 
     Horse_ResetHorseData(play);
+    GameInteractor_ExecuteAfterEndOfCycleSave();
 }
 
 void Sram_IncrementDay(void) {

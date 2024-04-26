@@ -191,6 +191,8 @@ public:
     DEFINE_HOOK(OnGameStateMainFinish, ());
     DEFINE_HOOK(OnGameStateDrawFinish, ());
     DEFINE_HOOK(OnGameStateUpdate, ());
+    DEFINE_HOOK(BeforeEndOfCycleSave, ());
+    DEFINE_HOOK(AfterEndOfCycleSave, ());
 
     DEFINE_HOOK(ShouldActorInit, (Actor* actor, bool* should));
     DEFINE_HOOK(OnActorInit, (Actor* actor));
@@ -208,6 +210,8 @@ extern "C" {
 void GameInteractor_ExecuteOnGameStateMainFinish();
 void GameInteractor_ExecuteOnGameStateDrawFinish();
 void GameInteractor_ExecuteOnGameStateUpdate();
+void GameInteractor_ExecuteBeforeEndOfCycleSave();
+void GameInteractor_ExecuteAfterEndOfCycleSave();
 
 bool GameInteractor_ShouldActorInit(Actor* actor);
 void GameInteractor_ExecuteOnActorInit(Actor* actor);

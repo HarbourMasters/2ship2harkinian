@@ -293,7 +293,7 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Do no reset Bottle content", "gEnhancements.Cycle.DoNotResetBottleContent", {
                 .tooltip = "Playing the Song Of Time will not reset the bottles' content."
             });
-            UIWidgets::CVarCheckbox("Do no reset Consumable", "gEnhancements.Cycle.DoNotResetConsumable", {
+            UIWidgets::CVarCheckbox("Do no reset Consumables", "gEnhancements.Cycle.DoNotResetConsumables", {
                 .tooltip = "Playing the Song Of Time will not reset the consumables."
             });
             UIWidgets::CVarCheckbox("Do no reset Pictobox", "gEnhancements.Cycle.DoNotResetPictobox", {
