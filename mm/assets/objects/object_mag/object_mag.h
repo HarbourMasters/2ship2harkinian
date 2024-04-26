@@ -12,6 +12,9 @@ static const ALIGN_ASSET(2) char gTitleScreenMajorasMaskSubtitleTex[] = dgTitleS
 #define dgTitleScreenMajorasMaskSubtitleMaskTex "__OTR__objects/object_mag/gTitleScreenMajorasMaskSubtitleMaskTex"
 static const ALIGN_ASSET(2) char gTitleScreenMajorasMaskSubtitleMaskTex[] = dgTitleScreenMajorasMaskSubtitleMaskTex;
 
+#define dgTitleScreenMajorasMaskSecondSubtitleJPNTex "__OTR__objects/object_mag/gTitleScreenMajorasMaskSecondSubtitleJPNTex"
+static const ALIGN_ASSET(2) char gTitleScreenMajorasMaskSecondSubtitleJPNTex[] = dgTitleScreenMajorasMaskSecondSubtitleJPNTex;
+
 #define dgTitleScreenTheLegendOfTextTex "__OTR__objects/object_mag/gTitleScreenTheLegendOfTextTex"
 static const ALIGN_ASSET(2) char gTitleScreenTheLegendOfTextTex[] = dgTitleScreenTheLegendOfTextTex;
 

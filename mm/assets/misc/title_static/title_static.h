@@ -171,6 +171,15 @@ static const ALIGN_ASSET(2) char gFileSelYesButtonENGTex[] = dgFileSelYesButtonE
 #define dgFileSelEraseButtonENGTex "__OTR__misc/title_static/gFileSelEraseButtonENGTex"
 static const ALIGN_ASSET(2) char gFileSelEraseButtonENGTex[] = dgFileSelEraseButtonENGTex;
 
+#define dgFileSelHiraganaCharButtonTex "__OTR__misc/title_static/gFileSelHiraganaCharButtonTex"
+static const ALIGN_ASSET(2) char gFileSelHiraganaCharButtonTex[] = dgFileSelHiraganaCharButtonTex;
+
+#define dgFileSelKatakanaCharButtonTex "__OTR__misc/title_static/gFileSelKatakanaCharButtonTex"
+static const ALIGN_ASSET(2) char gFileSelKatakanaCharButtonTex[] = dgFileSelKatakanaCharButtonTex;
+
+#define dgFileSelLatinCharButtonTex "__OTR__misc/title_static/gFileSelLatinCharButtonTex"
+static const ALIGN_ASSET(2) char gFileSelLatinCharButtonTex[] = dgFileSelLatinCharButtonTex;
+
 #define dgFileSelENDButtonENGTex "__OTR__misc/title_static/gFileSelENDButtonENGTex"
 static const ALIGN_ASSET(2) char gFileSelENDButtonENGTex[] = dgFileSelENDButtonENGTex;
 
