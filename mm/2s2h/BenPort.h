@@ -11,6 +11,7 @@
 
 #define MM_NTSC_US_10 0x5354631C
 #define MM_NTSC_US_GC 0xB443EB08
+#define MM_NTSC_JP_GC 0x8473D0C1
 
 #ifdef __cplusplus
 #include <Context.h>
