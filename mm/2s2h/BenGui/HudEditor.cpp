@@ -1,5 +1,6 @@
 
 #include "HudEditor.h"
+#include "macros.h"
 
 extern "C" int16_t OTRGetRectDimensionFromLeftEdge(float v);
 extern "C" int16_t OTRGetRectDimensionFromRightEdge(float v);
@@ -27,6 +28,33 @@ extern "C" bool HudEditor_ShouldOverrideDraw() {
 
 extern "C" void HudEditor_SetActiveElement(HudEditorElementID id) {
     hudEditorActiveElement = id;
+}
+
+extern "C" void HudEditor_ModifyKaleidoEquipAnimValues(s16* ulx, s16* uly, s16* shrinkRate) {
+    *ulx = CVarGetInteger(hudEditorElements[hudEditorActiveElement].xCvar,
+                          hudEditorElements[hudEditorActiveElement].defaultX);
+    *uly = CVarGetInteger(hudEditorElements[hudEditorActiveElement].yCvar,
+                          hudEditorElements[hudEditorActiveElement].defaultY);
+
+    if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT) {
+        *ulx = OTRGetRectDimensionFromLeftEdge(*ulx);
+    } else if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_MOVABLE_RIGHT) {
+        *ulx = OTRGetRectDimensionFromRightEdge(*ulx);
+    }
+
+    // Adjust the values to match the default matrix (origin 0,0 at center of screen, +y going up)
+    *ulx -= SCREEN_WIDTH / 2;
+    // *uly = SCREEN_HEIGHT - *uly;
+    *uly = (SCREEN_HEIGHT / 2) - *uly;
+
+    // Scale by 10 for kaleido animation logic
+    *ulx *= 10;
+    *uly *= 10;
+
+    float scale = CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f);
+    // 320 is the vanilla start size, and 280 is the vanilla end size
+    // So we apply the scale to 280 and subtract to get the shrink rate
+    *shrinkRate = 320 - (s16)(280 * scale);
 }
 
 extern "C" void HudEditor_ModifyDrawValues(s16* rectLeft, s16* rectTop, s16* rectWidth, s16* rectHeight, s16* dsdx, s16* dtdy) {

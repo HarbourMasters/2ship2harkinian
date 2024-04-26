@@ -7,6 +7,8 @@
 #include "z_kaleido_scope.h"
 #include "interface/parameter_static/parameter_static.h"
 
+#include "BenGui/HudEditor.h"
+
 s16 sEquipState = EQUIP_STATE_MAGIC_ARROW_GROW_ORB;
 
 // Timer to hold magic arrow icon over magic arrow slot before moving when equipping.
@@ -749,13 +751,42 @@ void KaleidoScope_UpdateItemEquip(PlayState* play) {
         return;
     }
 
+    // #region 2S2H [Cosmetic] Track the C button position vanilla values or HUD editor adjusted values
+    s16 cButtonPosX = sCButtonPosX[pauseCtx->equipTargetCBtn];
+    s16 cButtonPosY = sCButtonPosY[pauseCtx->equipTargetCBtn];
+
+    // BENTODO: Handle when DPad hud elements are added
+    HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_LEFT + pauseCtx->equipTargetCBtn);
+
+    if (sEquipState == EQUIP_STATE_MOVE_TO_C_BTN && HudEditor_ShouldOverrideDraw()) {
+        s16 equipAnimShrinkRate = 40;
+        HudEditor_ModifyKaleidoEquipAnimValues(&cButtonPosX, &cButtonPosY, &equipAnimShrinkRate);
+
+        // Override the anim shrink rate at the beginning (when its value is 320)
+        if (pauseCtx->equipAnimScale == 320) {
+            pauseCtx->equipAnimShrinkRate = equipAnimShrinkRate;
+        }
+
+        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) ==
+            HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+            pauseCtx->equipAnimScale = 0;
+            pauseCtx->equipAnimShrinkRate = 0;
+        }
+    }
+    // #endregion
+
     if (sEquipState == EQUIP_STATE_MAGIC_ARROW_MOVE_TO_BOW_SLOT) {
         bowItemVtx = &pauseCtx->itemVtx[SLOT_BOW * 4];
         offsetX = ABS_ALT(pauseCtx->equipAnimX - bowItemVtx->v.ob[0] * 10) / sEquipAnimTimer;
         offsetY = ABS_ALT(pauseCtx->equipAnimY - bowItemVtx->v.ob[1] * 10) / sEquipAnimTimer;
     } else {
-        offsetX = ABS_ALT(pauseCtx->equipAnimX - sCButtonPosX[pauseCtx->equipTargetCBtn]) / sEquipAnimTimer;
-        offsetY = ABS_ALT(pauseCtx->equipAnimY - sCButtonPosY[pauseCtx->equipTargetCBtn]) / sEquipAnimTimer;
+        if (HudEditor_ShouldOverrideDraw()) {
+            offsetX = ABS_ALT(pauseCtx->equipAnimX - cButtonPosX) / sEquipAnimTimer;
+            offsetY = ABS_ALT(pauseCtx->equipAnimY - cButtonPosY) / sEquipAnimTimer;
+        } else {
+            offsetX = ABS_ALT(pauseCtx->equipAnimX - sCButtonPosX[pauseCtx->equipTargetCBtn]) / sEquipAnimTimer;
+            offsetY = ABS_ALT(pauseCtx->equipAnimY - sCButtonPosY[pauseCtx->equipTargetCBtn]) / sEquipAnimTimer;
+        }
     }
 
     if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipAnimAlpha < 254)) {
@@ -787,16 +818,30 @@ void KaleidoScope_UpdateItemEquip(PlayState* play) {
             }
         } else {
             // target is the c button
-            if (pauseCtx->equipAnimX >= sCButtonPosX[pauseCtx->equipTargetCBtn]) {
-                pauseCtx->equipAnimX -= offsetX;
-            } else {
-                pauseCtx->equipAnimX += offsetX;
-            }
+            if (HudEditor_ShouldOverrideDraw()) {
+                if (pauseCtx->equipAnimX >= cButtonPosX) {
+                    pauseCtx->equipAnimX -= offsetX;
+                } else {
+                    pauseCtx->equipAnimX += offsetX;
+                }
 
-            if (pauseCtx->equipAnimY >= sCButtonPosY[pauseCtx->equipTargetCBtn]) {
-                pauseCtx->equipAnimY -= offsetY;
+                if (pauseCtx->equipAnimY >= cButtonPosY) {
+                    pauseCtx->equipAnimY -= offsetY;
+                } else {
+                    pauseCtx->equipAnimY += offsetY;
+                }
             } else {
-                pauseCtx->equipAnimY += offsetY;
+                if (pauseCtx->equipAnimX >= sCButtonPosX[pauseCtx->equipTargetCBtn]) {
+                    pauseCtx->equipAnimX -= offsetX;
+                } else {
+                    pauseCtx->equipAnimX += offsetX;
+                }
+
+                if (pauseCtx->equipAnimY >= sCButtonPosY[pauseCtx->equipTargetCBtn]) {
+                    pauseCtx->equipAnimY -= offsetY;
+                } else {
+                    pauseCtx->equipAnimY += offsetY;
+                }
             }
         }
 
@@ -1005,6 +1050,8 @@ void KaleidoScope_UpdateItemEquip(PlayState* play) {
             pauseCtx->equipAnimScale = 320;
             pauseCtx->equipAnimShrinkRate = 40;
         }
+
+        HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_NONE);
     } else {
         sEquipMagicArrowSlotHoldTimer--;
         if (sEquipMagicArrowSlotHoldTimer == 0) {
