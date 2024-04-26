@@ -4558,6 +4558,7 @@ void Npc_TrackPoint(Actor* actor, NpcInteractInfo* interactInfo, s16 presetIndex
                              rotLimits.rotateYaw);
 }
 
+// #region 2S2H - These DisplayLists are now extracted
 // Gfx D_801AEF88[] = {
 //     gsDPSetRenderMode(AA_EN | Z_CMP | Z_UPD | IM_RD | CLR_ON_CVG | CVG_DST_WRAP | ZMODE_XLU | FORCE_BL |
 //                           G_RM_FOG_SHADE_A,
@@ -4570,6 +4571,7 @@ void Npc_TrackPoint(Actor* actor, NpcInteractInfo* interactInfo, s16 presetIndex
 // Gfx D_801AEFA0[] = {
 //     gsSPEndDisplayList(),
 // };
+// #endregion
 
 Gfx* func_800BD9A0(GraphicsContext* gfxCtx) {
     Gfx* gfxHead = GRAPH_ALLOC(gfxCtx, 2 * sizeof(Gfx));
