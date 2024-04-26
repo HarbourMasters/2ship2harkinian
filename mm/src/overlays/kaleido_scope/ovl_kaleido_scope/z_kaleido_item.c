@@ -780,13 +780,9 @@ void KaleidoScope_UpdateItemEquip(PlayState* play) {
         offsetX = ABS_ALT(pauseCtx->equipAnimX - bowItemVtx->v.ob[0] * 10) / sEquipAnimTimer;
         offsetY = ABS_ALT(pauseCtx->equipAnimY - bowItemVtx->v.ob[1] * 10) / sEquipAnimTimer;
     } else {
-        if (HudEditor_ShouldOverrideDraw()) {
-            offsetX = ABS_ALT(pauseCtx->equipAnimX - cButtonPosX) / sEquipAnimTimer;
-            offsetY = ABS_ALT(pauseCtx->equipAnimY - cButtonPosY) / sEquipAnimTimer;
-        } else {
-            offsetX = ABS_ALT(pauseCtx->equipAnimX - sCButtonPosX[pauseCtx->equipTargetCBtn]) / sEquipAnimTimer;
-            offsetY = ABS_ALT(pauseCtx->equipAnimY - sCButtonPosY[pauseCtx->equipTargetCBtn]) / sEquipAnimTimer;
-        }
+        // 2S2H [Cosmetic] Use position vars from above
+        offsetX = ABS_ALT(pauseCtx->equipAnimX - cButtonPosX) / sEquipAnimTimer;
+        offsetY = ABS_ALT(pauseCtx->equipAnimY - cButtonPosY) / sEquipAnimTimer;
     }
 
     if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipAnimAlpha < 254)) {
@@ -818,30 +814,17 @@ void KaleidoScope_UpdateItemEquip(PlayState* play) {
             }
         } else {
             // target is the c button
-            if (HudEditor_ShouldOverrideDraw()) {
-                if (pauseCtx->equipAnimX >= cButtonPosX) {
-                    pauseCtx->equipAnimX -= offsetX;
-                } else {
-                    pauseCtx->equipAnimX += offsetX;
-                }
-
-                if (pauseCtx->equipAnimY >= cButtonPosY) {
-                    pauseCtx->equipAnimY -= offsetY;
-                } else {
-                    pauseCtx->equipAnimY += offsetY;
-                }
+            // 2S2H [Cosmetic] Use position vars from above
+            if (pauseCtx->equipAnimX >= cButtonPosX) {
+                pauseCtx->equipAnimX -= offsetX;
             } else {
-                if (pauseCtx->equipAnimX >= sCButtonPosX[pauseCtx->equipTargetCBtn]) {
-                    pauseCtx->equipAnimX -= offsetX;
-                } else {
-                    pauseCtx->equipAnimX += offsetX;
-                }
+                pauseCtx->equipAnimX += offsetX;
+            }
 
-                if (pauseCtx->equipAnimY >= sCButtonPosY[pauseCtx->equipTargetCBtn]) {
-                    pauseCtx->equipAnimY -= offsetY;
-                } else {
-                    pauseCtx->equipAnimY += offsetY;
-                }
+            if (pauseCtx->equipAnimY >= cButtonPosY) {
+                pauseCtx->equipAnimY -= offsetY;
+            } else {
+                pauseCtx->equipAnimY += offsetY;
             }
         }
 
@@ -1050,8 +1033,6 @@ void KaleidoScope_UpdateItemEquip(PlayState* play) {
             pauseCtx->equipAnimScale = 320;
             pauseCtx->equipAnimShrinkRate = 40;
         }
-
-        HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_NONE);
     } else {
         sEquipMagicArrowSlotHoldTimer--;
         if (sEquipMagicArrowSlotHoldTimer == 0) {
