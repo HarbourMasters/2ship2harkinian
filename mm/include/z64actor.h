@@ -24,7 +24,7 @@ struct CollisionPoly;
 struct EnBox;
 struct EnTorch2;
 
-typedef void (*ActorFunc)(struct Actor* this, struct PlayState* play);
+typedef void (*ActorFunc)(struct Actor*, struct PlayState* play); // 2S2H [Port] Removed reserved `this` keyword to fix compilation error 
 typedef u16 (*NpcGetTextIdFunc)(struct PlayState*, struct Actor*);
 typedef s16 (*NpcUpdateTalkStateFunc)(struct PlayState*, struct Actor*);
 

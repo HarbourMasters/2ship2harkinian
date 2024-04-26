@@ -58,6 +58,7 @@ CrowdControl* CrowdControl::Instance;
 #include "Enhancements/Enhancements.h"
 #include "2s2h/Enhancements/GfxPatcher/AuthenticGfxPatches.h"
 #include "2s2h/DeveloperTools/DebugConsole.h"
+#include "2s2h/DeveloperTools/DeveloperTools.h"
 
 // Resource Types/Factories
 #include "2s2h/resource//type/2shResourceType.h"
@@ -394,6 +395,7 @@ extern "C" void InitOTR() {
     GameInteractor::Instance = new GameInteractor();
     BenGui::SetupGuiElements();
     InitEnhancements();
+    InitDeveloperTools();
     GfxPatcher_ApplyNecessaryAuthenticPatches();
     DebugConsole_Init();
 
@@ -1589,18 +1591,17 @@ extern "C" void BenSysFlashrom_WriteData(u8* saveBuffer, u32 pageNum, u32 pageCo
     FlashSlotFile flashSlotFile = FLASH_SLOT_FILE_UNAVAILABLE;
     bool isBackup = false;
     for (u32 i = 0; i < ARRAY_COUNT(gFlashSaveStartPages) - 1; i++) {
-        if (pageNum == gFlashSaveStartPages[i]) {
+        // Verify that the requested pages align with expected values
+        if (pageNum == (u32)gFlashSaveStartPages[i] &&
+            (pageCount == (u32)gFlashSaveNumPages[i] || pageCount == (u32)gFlashSpecialSaveNumPages[i])) {
             flashSlotFile = static_cast<FlashSlotFile>(i);
             break;
         }
     }
 
-    // Exclude debug file from saving
-    if (flashSlotFile == FLASH_SLOT_FILE_UNAVAILABLE || gSaveContext.fileNum == 255) {
-        return;
-    }
-
     switch (flashSlotFile) {
+        case FLASH_SLOT_FILE_UNAVAILABLE:
+            return;
         case FLASH_SLOT_FILE_1_NEW_CYCLE_BACKUP:
         case FLASH_SLOT_FILE_2_NEW_CYCLE_BACKUP:
             isBackup = true;
@@ -1655,17 +1656,17 @@ extern "C" s32 BenSysFlashrom_ReadData(void* saveBuffer, u32 pageNum, u32 pageCo
     FlashSlotFile flashSlotFile = FLASH_SLOT_FILE_UNAVAILABLE;
     bool isBackup = false;
     for (u32 i = 0; i < ARRAY_COUNT(gFlashSaveStartPages) - 1; i++) {
-        if (pageNum == gFlashSaveStartPages[i]) {
+        // Verify that the requested pages align with expected values
+        if (pageNum == (u32)gFlashSaveStartPages[i] &&
+            (pageCount == (u32)gFlashSaveNumPages[i] || pageCount == (u32)gFlashSpecialSaveNumPages[i])) {
             flashSlotFile = static_cast<FlashSlotFile>(i);
             break;
         }
     }
 
-    if (flashSlotFile == FLASH_SLOT_FILE_UNAVAILABLE) {
-        return -1;
-    }
-
     switch (flashSlotFile) {
+        case FLASH_SLOT_FILE_UNAVAILABLE:
+            return -1;
         case FLASH_SLOT_FILE_1_NEW_CYCLE_BACKUP:
         case FLASH_SLOT_FILE_2_NEW_CYCLE_BACKUP:
             isBackup = true;
@@ -1714,7 +1715,6 @@ extern "C" s32 BenSysFlashrom_ReadData(void* saveBuffer, u32 pageNum, u32 pageCo
 
             memcpy(saveBuffer, &saveOptions, sizeof(SaveOptions));
             return 0;
-            break;
         }
     }
 }

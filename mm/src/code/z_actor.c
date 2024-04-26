@@ -22,6 +22,7 @@
 
 #include <string.h>
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 
 // bss
 // FaultClient sActorFaultClient; // 2 funcs
@@ -1135,8 +1136,15 @@ void Actor_Init(Actor* actor, PlayState* play) {
     ActorShape_Init(&actor->shape, 0.0f, NULL, 0.0f);
     if (Object_IsLoaded(&play->objectCtx, actor->objectSlot)) {
         Actor_SetObjectDependency(play, actor);
-        actor->init(actor, play);
-        actor->init = NULL;
+
+        if (GameInteractor_ShouldActorInit(actor)) {
+            actor->init(actor, play);
+            actor->init = NULL;
+            GameInteractor_ExecuteOnActorInit(actor);
+        } else {
+            actor->init = NULL;
+            Actor_Kill(actor);
+        }
     }
 }
 
@@ -2518,8 +2526,15 @@ Actor* Actor_UpdateActor(UpdateActor_Params* params) {
     if (actor->init != NULL) {
         if (Object_IsLoaded(&play->objectCtx, actor->objectSlot)) {
             Actor_SetObjectDependency(play, actor);
-            actor->init(actor, play);
-            actor->init = NULL;
+
+            if (GameInteractor_ShouldActorInit(actor)) {
+                actor->init(actor, play);
+                actor->init = NULL;
+                GameInteractor_ExecuteOnActorInit(actor);
+            } else {
+                actor->init = NULL;
+                Actor_Kill(actor);
+            }
         }
         nextActor = actor->next;
     } else if (actor->update == NULL) {
@@ -2565,7 +2580,10 @@ Actor* Actor_UpdateActor(UpdateActor_Params* params) {
                     actor->colorFilterTimer--;
                 }
 
-                actor->update(actor, play);
+                if (GameInteractor_ShouldActorUpdate(actor)) {
+                    actor->update(actor, play);
+                    GameInteractor_ExecuteOnActorUpdate(actor);
+                }
                 DynaPoly_UnsetAllInteractFlags(play, &play->colCtx.dyna, actor);
             }
 
@@ -2759,7 +2777,10 @@ void Actor_Draw(PlayState* play, Actor* actor) {
         }
     }
 
-    actor->draw(actor, play);
+    if (GameInteractor_ShouldActorDraw(actor)) {
+        actor->draw(actor, play);
+        GameInteractor_ExecuteOnActorDraw(actor);
+    }
 
     if (actor->colorFilterTimer != 0) {
         if (actor->colorFilterParams & COLORFILTER_BUFFLAG_XLU) {

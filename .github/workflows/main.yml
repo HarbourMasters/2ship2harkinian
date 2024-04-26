@@ -112,7 +112,7 @@ jobs:
   #       name: 2ship-windows
   #       path: 2ship-windows
   build-windows-self-hosted:
-    runs-on: self-hosted
+    runs-on: [self-hosted, Windows]
     steps:
     - name: Install dependencies
       run: |

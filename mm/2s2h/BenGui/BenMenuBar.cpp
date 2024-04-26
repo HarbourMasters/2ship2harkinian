@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <string>
 #include "2s2h/Enhancements/Enhancements.h"
+#include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "HudEditor.h"
 
 extern bool ShouldClearTextureCacheAtEndOfFrame;
@@ -287,13 +288,24 @@ extern std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 
 void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
+        
+        if (UIWidgets::BeginMenu("Masks")) {
+            UIWidgets::CVarCheckbox("Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere", {
+                .tooltip = "Allow using Fierce Deity's mask outside of boss rooms."
+            });
 
+            ImGui::EndMenu();
+        }
+        
         UIWidgets::CVarCheckbox("Fast Text", "gEnhancements.TimeSavers.FastText", {
             .tooltip = "Speeds up text rendering, and enables holding of B progress to next message"
         });
         UIWidgets::CVarCheckbox("Authentic logo", "gEnhancements.General.AuthenticLogo", {
             .tooltip = "Hide the game version and build details and display the authentic model and texture on the boot logo start screen"
         });
+        UIWidgets::CVarCheckbox("Skip Entrance Cutscenes", "gEnhancements.TimeSavers.SkipEntranceCutscenes");
+        UIWidgets::CVarCheckbox("Hide Title Cards", "gEnhancements.TimeSavers.HideTitleCards");
+        UIWidgets::CVarCheckbox("24 Hours Clock", "gEnhancements.General.24HoursClock");
 
         if (mHudEditorWindow) {
             UIWidgets::WindowButton("Hud Editor", "gWindows.HudEditor", mHudEditorWindow, {
@@ -337,6 +349,15 @@ void DrawDeveloperToolsMenu() {
         });
         
         UIWidgets::CVarCheckbox("Better Map Select", "gDeveloperTools.BetterMapSelect.Enabled");
+        if (UIWidgets::CVarCheckbox("Prevent Actor Update", "gDeveloperTools.PreventActorUpdate")) {
+            RegisterPreventActorUpdateHooks();
+        }
+        if (UIWidgets::CVarCheckbox("Prevent Actor Draw", "gDeveloperTools.PreventActorDraw")) {
+            RegisterPreventActorDrawHooks();
+        }
+        if (UIWidgets::CVarCheckbox("Prevent Actor Init", "gDeveloperTools.PreventActorInit")) {
+            RegisterPreventActorInitHooks();
+        }
         
         if (gPlayState != NULL) {
             ImGui::Separator();

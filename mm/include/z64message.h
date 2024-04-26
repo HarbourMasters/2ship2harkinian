@@ -195,7 +195,7 @@ typedef struct {
         u64 force_structure_alignment_font;
     };
     /* 0x11880 */ union {
-        char schar[1280]; // msgBuf
+        unsigned char schar[1280]; // msgBuf
         u16 wchar[640];   // msgBufWide
         u64 force_structure_alignment_msg;
     } msgBuf;
