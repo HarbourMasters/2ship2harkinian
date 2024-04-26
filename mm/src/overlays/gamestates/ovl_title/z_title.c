@@ -14,7 +14,6 @@
 #include "overlays/gamestates/ovl_select/z_select.h"
 #include "build.h"
 #include "BenPort.h"
-#include <GameVersions.h>
 #include <stdlib.h>
 
 #define dgShipLogoDL "__OTR__misc/nintendo_rogo_static/gShipLogoDL"
