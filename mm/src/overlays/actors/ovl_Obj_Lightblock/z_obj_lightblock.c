@@ -7,6 +7,7 @@
 #include "z_obj_lightblock.h"
 #include "overlays/actors/ovl_Demo_Effect/z_demo_effect.h"
 #include "objects/object_lightblock/object_lightblock.h"
+#include "code/actor/actor.h"
 
 #define FLAGS 0x00000000
 
@@ -74,8 +75,8 @@ static InitChainEntry sInitChain[] = {
     ICHAIN_F32(uncullZoneDownward, 500, ICHAIN_STOP),
 };
 
-extern Gfx D_801AEF88[];
-extern Gfx D_801AEFA0[];
+// extern Gfx D_801AEF88[];
+// extern Gfx D_801AEFA0[];
 
 void ObjLightblock_SpawnEffect(ObjLightblock* this, PlayState* play) {
     LightblockTypeVars* typeVars = &sLightblockTypeVars[LIGHTBLOCK_TYPE(&this->dyna.actor)];
