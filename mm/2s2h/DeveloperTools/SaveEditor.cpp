@@ -5,6 +5,8 @@ extern "C" {
 #include <z64.h>
 #include <z64save.h>
 #include <macros.h>
+#include <variables.h>
+#include <functions.h>
 extern PlayState* gPlayState;
 extern SaveContext gSaveContext;
 extern TexturePtr gItemIcons[131];
@@ -24,10 +26,13 @@ constexpr uint16_t HEART_COUNT_MIN = 3;
 constexpr uint16_t HEART_COUNT_MAX = 20;
 constexpr int16_t S16_ZERO = 0;
 constexpr int8_t S8_ZERO = 0;
+constexpr u8 U8_ZERO = 0;
 constexpr u8 REG_PAGES_MAX = REG_PAGES;
 constexpr u8 REG_GROUPS_MAX = REG_GROUPS - 1;
 const char* MAGIC_LEVEL_NAMES[3] = { "No Magic", "Single Magic", "Double Magic" };
 constexpr int8_t MAGIC_LEVEL_MAX = 2;
+const char* WALLET_LEVEL_NAMES[3] = { "Child Wallet", "Adult Wallet", "Giant Wallet" };
+constexpr u8 WALLET_LEVEL_MAX = 2;
 
 InventorySlot selectedInventorySlot = SLOT_NONE;
 std::vector<ItemId> safeItemsForInventorySlot[SLOT_MASK_FIERCE_DEITY + 1] = {};
@@ -239,7 +244,7 @@ void DrawGeneralTab() {
     ImGui::EndGroup();
 
     ImGui::BeginGroup();
-    if (UIWidgets::Button("Max Magic", { .color = UIWidgets::Colors::Green, .size = UIWidgets::Sizes::Inline })) {
+    if (UIWidgets::Button("Max Magic", { .color = UIWidgets::Colors::DarkGreen, .size = UIWidgets::Sizes::Inline })) {
         gSaveContext.magicCapacity = gSaveContext.save.saveInfo.playerData.magic = MAGIC_DOUBLE_METER;
         gSaveContext.save.saveInfo.playerData.magicLevel = 2;
         gSaveContext.save.saveInfo.playerData.isMagicAcquired = true;
@@ -274,6 +279,44 @@ void DrawGeneralTab() {
     ImGui::SliderScalar("##magicSlider", ImGuiDataType_S8, &gSaveContext.save.saveInfo.playerData.magic, &S8_ZERO, &gSaveContext.magicCapacity, "Magic: %d");
     UIWidgets::PopStyleSlider();
     ImGui::EndGroup();
+
+    ImGui::SameLine();
+
+    ImGui::BeginGroup();
+    if (UIWidgets::Button("Max Rupees", { .color = UIWidgets::Colors::Green, .size = UIWidgets::Sizes::Inline })) {
+        Inventory_ChangeUpgrade(UPG_WALLET, 2);
+        gSaveContext.save.saveInfo.playerData.rupees = CUR_CAPACITY(UPG_WALLET);
+    }
+    ImGui::SameLine();
+    if (UIWidgets::Button("Reset##resetRupeesButton", { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
+        gSaveContext.save.saveInfo.playerData.rupees = 0;
+        Inventory_ChangeUpgrade(UPG_WALLET, 0);
+    }
+    UIWidgets::PushStyleSlider(UIWidgets::Colors::Green);
+    u8 currentWalletLevel = CUR_UPG_VALUE(UPG_WALLET);
+    if (ImGui::SliderScalar("##walletLevelSlider", ImGuiDataType_U8, &currentWalletLevel, &U8_ZERO, &WALLET_LEVEL_MAX, WALLET_LEVEL_NAMES[currentWalletLevel])) {
+        Inventory_ChangeUpgrade(UPG_WALLET, currentWalletLevel);
+        gSaveContext.save.saveInfo.playerData.rupees = MIN(gSaveContext.save.saveInfo.playerData.rupees, CUR_CAPACITY(UPG_WALLET));
+    }
+    s16 walletCapacity = CUR_CAPACITY(UPG_WALLET);
+    ImGui::SliderScalar("##rupeesSlider", ImGuiDataType_S16, &gSaveContext.save.saveInfo.playerData.rupees, &S16_ZERO, &walletCapacity, "Rupees: %d");
+    UIWidgets::PopStyleSlider();
+    ImGui::EndGroup();
+
+    ImGui::BeginGroup();
+    ImGui::Text("Bombers Code: %d %d %d %d %d",
+        gSaveContext.save.saveInfo.bomberCode[0],
+        gSaveContext.save.saveInfo.bomberCode[1],
+        gSaveContext.save.saveInfo.bomberCode[2],
+        gSaveContext.save.saveInfo.bomberCode[3],
+        gSaveContext.save.saveInfo.bomberCode[4]
+    );
+
+    ImGui::Text("Banked Rupees: %d", HS_GET_BANK_RUPEES());
+    UIWidgets::Checkbox("Snowhead Cleared", (bool*)&gSaveContext.save.snowheadCleared, { .color = UIWidgets::Colors::Gray });
+    UIWidgets::Checkbox("Has Tatl", (bool*)&gSaveContext.save.hasTatl, { .color = UIWidgets::Colors::Gray });
+    ImGui::EndGroup();
+
     ImGui::PopItemWidth();
     ImGui::EndChild();
     ImGui::PopStyleVar(2);
@@ -349,6 +392,35 @@ void NextItemInSlot(InventorySlot slot) {
 
     if (currentItemId == ITEM_NONE) {
         gSaveContext.save.saveInfo.inventory.items[slot] = safeItemsForInventorySlot[slot][0];
+
+        if (gSaveContext.save.saveInfo.inventory.items[slot] == ITEM_BOW) {
+            Inventory_ChangeUpgrade(UPG_QUIVER, 1);
+            AMMO(ITEM_BOW) = CUR_CAPACITY(UPG_QUIVER);
+        } else if (gSaveContext.save.saveInfo.inventory.items[slot] == ITEM_BOMB || gSaveContext.save.saveInfo.inventory.items[slot] == ITEM_BOMBCHU) {
+            if (CUR_UPG_VALUE(UPG_BOMB_BAG) == 0) {
+                Inventory_ChangeUpgrade(UPG_BOMB_BAG, 1);
+            }
+            AMMO(gSaveContext.save.saveInfo.inventory.items[slot]) = CUR_CAPACITY(UPG_BOMB_BAG);
+        }
+    } else if (currentItemId == ITEM_BOW) {
+        if (CUR_UPG_VALUE(UPG_QUIVER) < 3) {
+            Inventory_ChangeUpgrade(UPG_QUIVER, CUR_UPG_VALUE(UPG_QUIVER) + 1);
+            AMMO(ITEM_BOW) = CUR_CAPACITY(UPG_QUIVER);
+        } else {
+            Inventory_DeleteItem(gSaveContext.save.saveInfo.inventory.items[slot], slot);
+            Inventory_ChangeUpgrade(UPG_QUIVER, 0);
+            AMMO(ITEM_BOW) = 0;
+        }
+    } else if (currentItemId == ITEM_BOMB || currentItemId == ITEM_BOMBCHU) {
+        if (CUR_UPG_VALUE(UPG_BOMB_BAG) < 3) {
+            Inventory_ChangeUpgrade(UPG_BOMB_BAG, CUR_UPG_VALUE(UPG_BOMB_BAG) + 1);
+            AMMO(ITEM_BOMB) = AMMO(ITEM_BOMBCHU) = CUR_CAPACITY(UPG_BOMB_BAG);
+        } else {
+            Inventory_DeleteItem(ITEM_BOMB, SLOT_BOMB);
+            Inventory_DeleteItem(ITEM_BOMBCHU, SLOT_BOMBCHU);
+            Inventory_ChangeUpgrade(UPG_BOMB_BAG, 0);
+            AMMO(ITEM_BOMB) = AMMO(ITEM_BOMBCHU) = 0;
+        }
     } else if (currentItemIndex < safeItemsForInventorySlot[slot].size() - 1) {
         Inventory_ReplaceItem(gPlayState, currentItemId, safeItemsForInventorySlot[slot][currentItemIndex + 1]);
     } else {
@@ -479,22 +551,24 @@ void DrawItemsAndMasksTab() {
                 gSaveContext.save.saveInfo.inventory.items[i] = safeItemsForInventorySlot[i].back();
             }
         }
+        Inventory_ChangeUpgrade(UPG_BOMB_BAG, 3);
+        Inventory_ChangeUpgrade(UPG_QUIVER, 3);
+        AMMO(ITEM_BOW) = CUR_CAPACITY(UPG_QUIVER);
+        AMMO(ITEM_BOMB) = AMMO(ITEM_BOMBCHU) = CUR_CAPACITY(UPG_BOMB_BAG);
+        AMMO(ITEM_DEKU_STICK) = CUR_CAPACITY(UPG_DEKU_STICKS);
+        AMMO(ITEM_DEKU_NUT) = CUR_CAPACITY(UPG_DEKU_NUTS);
+        AMMO(ITEM_MAGIC_BEANS) = 20;
+        AMMO(ITEM_POWDER_KEG) = 1;
     }
     if (UIWidgets::Button("Reset##items")) {
         for (int32_t i = 0; i <= SLOT_MASK_FIERCE_DEITY; i++) {
             Inventory_DeleteItem(gSaveContext.save.saveInfo.inventory.items[i], i);
         }
+        AMMO(ITEM_BOW) = AMMO(ITEM_BOMB) = AMMO(ITEM_BOMBCHU) = AMMO(ITEM_DEKU_STICK) = AMMO(ITEM_DEKU_NUT) = AMMO(ITEM_MAGIC_BEANS) = AMMO(ITEM_POWDER_KEG) = 0;
+        Inventory_ChangeUpgrade(UPG_BOMB_BAG, 0);
+        Inventory_ChangeUpgrade(UPG_QUIVER, 0);
     }
     UIWidgets::Checkbox("Safe Mode", &safeMode);
-    char text[4];
-    snprintf(text, sizeof(text), "%d", gSaveContext.save.saveInfo.playerData.rupees);
-
-    // Make the input box slightly larger than 3 digits
-    ImGui::SetNextItemWidth(ImGui::CalcTextSize("      ").x);
-    ImGui::InputText("Rupees", text, sizeof(text),
-                     ImGuiInputTextFlags_CharsDecimal | ImGuiInputTextFlags_CharsNoBlank |
-                         ImGuiInputTextFlags_AutoSelectAll);
-    gSaveContext.save.saveInfo.playerData.rupees = atoi(text);
     
     // Expose inputs to edit raw number values of equips
     // ImGui::Text("Equips");
