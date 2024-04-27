@@ -8,8 +8,6 @@ extern "C" {
 
 void RegisterEndOfCycleSaveHooks() {
     static u8 tempConsumable;
-    static u8 tempPictobox0;
-    static u8 tempPictobox1;
     static u8 tempRazorSword;
     static u8 tempRupees;
     static u8 tempItem;
@@ -58,11 +56,6 @@ void RegisterEndOfCycleSaveHooks() {
             for (int i = SLOT_BOTTLE_1; i <= SLOT_BOTTLE_6; i++) {
                 tempBottle[i - SLOT_BOTTLE_1] = gSaveContext.save.saveInfo.inventory.items[i];
             }
-        }
-
-        if (CVarGetInteger("gEnhancements.Cycle.DoNotResetPictobox", 0) && CHECK_QUEST_ITEM(QUEST_PICTOGRAPH)) {
-            tempPictobox0 = gSaveContext.save.saveInfo.pictoFlags0;
-            tempPictobox1 = gSaveContext.save.saveInfo.pictoFlags1;
         }
 
         if (CVarGetInteger("gEnhancements.Cycle.DoNotResetRazorSword", 0) &&
@@ -116,12 +109,6 @@ void RegisterEndOfCycleSaveHooks() {
                 }
                 gSaveContext.save.saveInfo.inventory.items[i] = tempBottle[i - SLOT_BOTTLE_1];
             }
-        }
-        
-        if (CVarGetInteger("gEnhancements.Cycle.DoNotResetPictobox", 0)) {
-            SET_QUEST_ITEM(QUEST_PICTOGRAPH);
-            gSaveContext.save.saveInfo.pictoFlags0 = tempPictobox0;
-            gSaveContext.save.saveInfo.pictoFlags1 = tempPictobox1;
         }
 
         if (CVarGetInteger("gEnhancements.Cycle.DoNotResetRazorSword", 0) && tempRazorSword) {
