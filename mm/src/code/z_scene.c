@@ -83,26 +83,9 @@ void Object_UpdateEntries(ObjectContext* objectCtx) {
             // to object_table.h there is only one instance of this, along with a bunch of placeholder entries
             // so we _should_ be fine. Famous last words.
             entry->id = id;
-            continue;
-            // #endregion
-
-            if (entry->dmaReq.vromAddr == 0) {
-                objectFile = &gObjectTable[id];
-                size = objectFile->vromEnd - objectFile->vromStart;
-
-                if (size == 0) {
-                    entry->id = 0;
-                } else {
-                    osCreateMesgQueue(&entry->loadQueue, &entry->loadMsg, 1);
-                    DmaMgr_SendRequestImpl(&entry->dmaReq, entry->segment, objectFile->vromStart, size, 0,
-                                           &entry->loadQueue, OS_MESG_PTR(NULL));
-                }
-            } else if (!osRecvMesg(&entry->loadQueue, NULL, OS_MESG_NOBLOCK)) {
-                entry->id = id;
-            }
         }
-
         entry++;
+
     }
 }
 
