@@ -306,6 +306,7 @@ void DrawEnhancementsMenu() {
         UIWidgets::CVarCheckbox("Skip Entrance Cutscenes", "gEnhancements.TimeSavers.SkipEntranceCutscenes");
         UIWidgets::CVarCheckbox("Hide Title Cards", "gEnhancements.TimeSavers.HideTitleCards");
         UIWidgets::CVarCheckbox("24 Hours Clock", "gEnhancements.General.24HoursClock");
+        UIWidgets::CVarCheckbox("Simplier Clock", "gEnhancements.General.SimplierClock");
 
         if (mHudEditorWindow) {
             UIWidgets::WindowButton("Hud Editor", "gWindows.HudEditor", mHudEditorWindow, {
