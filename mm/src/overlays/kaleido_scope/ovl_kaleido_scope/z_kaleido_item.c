@@ -773,6 +773,8 @@ void KaleidoScope_UpdateItemEquip(PlayState* play) {
             pauseCtx->equipAnimShrinkRate = 0;
         }
     }
+
+    HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_NONE);
     // #endregion
 
     if (sEquipState == EQUIP_STATE_MAGIC_ARROW_MOVE_TO_BOW_SLOT) {
