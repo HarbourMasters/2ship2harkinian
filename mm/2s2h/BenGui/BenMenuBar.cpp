@@ -293,6 +293,7 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere", {
                 .tooltip = "Allow using Fierce Deity's mask outside of boss rooms."
             });
+            UIWidgets::CVarCheckbox("No Blast Mask Cooldown", "gEnhancements.Masks.NoBlastMaskCooldown", {});
 
             ImGui::EndMenu();
         }

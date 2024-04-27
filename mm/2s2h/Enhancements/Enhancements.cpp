@@ -7,7 +7,8 @@ void InitEnhancements() {
 
     // Masks
     RegisterFierceDeityAnywhere();
-    
+    RegisterNoBlastMaskCooldown();
+
     // Time Savers
     RegisterTimeSaversHooks();
 }

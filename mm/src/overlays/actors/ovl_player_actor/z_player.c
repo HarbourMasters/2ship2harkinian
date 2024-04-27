@@ -45,6 +45,8 @@
 #include "objects/object_link_nuts/object_link_nuts.h"
 #include "objects/object_link_child/object_link_child.h"
 
+#include "Enhancements/GameInteractor/GameInteractor.h"
+
 #define THIS ((Player*)thisx)
 
 void Player_Init(Actor* thisx, PlayState* play);
@@ -3721,10 +3723,11 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
                 EnBom* bomb = (EnBom*)Actor_Spawn(&play->actorCtx, play, ACTOR_EN_BOM, this->actor.focus.pos.x,
                                                   this->actor.focus.pos.y, this->actor.focus.pos.z,
                                                   BOMB_EXPLOSIVE_TYPE_BOMB, 0, 0, BOMB_TYPE_BODY);
-
                 if (bomb != NULL) {
                     bomb->timer = 0;
-                    this->blastMaskTimer = 310;
+                    if (GameInteractor_Should(GI_VB_BLAST_MASK_COOLDOWN, true, NULL)) {
+                        this->blastMaskTimer = 310;
+                    }
                 }
             }
         } else if (item == ITEM_F1) {
