@@ -14,7 +14,7 @@ typedef enum {
     GI_VB_SHOW_TITLE_CARD,
     GI_VB_PLAY_ENTRANCE_CS,
     GI_VB_DISABLE_FD_MASK,
-    GI_VB_BLAST_MASK_COOLDOWN
+    GI_VB_SET_BLAST_MASK_COOLDOWN_TIMER
 } GIVanillaBehavior;
 
 #ifdef __cplusplus
