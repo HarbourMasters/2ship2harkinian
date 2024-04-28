@@ -4810,16 +4810,16 @@ void Interface_DrawPauseMenuEquippingIcons(PlayState* play) {
                     pauseCtx->cursorVtx[16].v.ob[0] - temp;
                 pauseCtx->cursorVtx[17].v.ob[0] = pauseCtx->cursorVtx[19].v.ob[0] =
                     pauseCtx->cursorVtx[16].v.ob[0] + temp * 2 + 32;
-                pauseCtx->cursorVtx[16].v.ob[1] = pauseCtx->cursorVtx[17].v.ob[1] =
-                    pauseCtx->cursorVtx[16].v.ob[1] + temp;
-                pauseCtx->cursorVtx[18].v.ob[1] = pauseCtx->cursorVtx[19].v.ob[1] =
-                    pauseCtx->cursorVtx[16].v.ob[1] - temp * 2 - 32;
+                    pauseCtx->cursorVtx[16].v.ob[1] = pauseCtx->cursorVtx[17].v.ob[1] =
+                        pauseCtx->cursorVtx[16].v.ob[1] + temp;
+                    pauseCtx->cursorVtx[18].v.ob[1] = pauseCtx->cursorVtx[19].v.ob[1] =
+                        pauseCtx->cursorVtx[16].v.ob[1] - temp * 2 - 32;
             }
 
             gSPVertex(OVERLAY_DISP++, &pauseCtx->cursorVtx[16], 4, 0);
             gDPLoadTextureBlock(OVERLAY_DISP++, gMagicArrowEquipEffectTex, G_IM_FMT_IA, G_IM_SIZ_8b, 32, 32, 0,
-                               G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                               G_TX_NOLOD, G_TX_NOLOD);
+                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                G_TX_NOLOD, G_TX_NOLOD);
         }
 
         gSP1Quadrangle(OVERLAY_DISP++, 0, 2, 3, 1, 0);
@@ -4852,16 +4852,16 @@ void Interface_DrawClock(PlayState* play) {
         gThreeDayClockHour8Tex,  gThreeDayClockHour9Tex, gThreeDayClockHour10Tex, gThreeDayClockHour11Tex,
         gEmptyTexture, gEmptyTexture, // 2S2H [Port] To account for the vanilla bug detailed later on in this function
     };
-        // 2S2H Region [Enhancements] 24 Hours Clock
-        static TexturePtr sThreeDayClockHourTwentyHourHoursTextures[] = {
-        gThreeDayClockHour24Tex, gThreeDayClockHour1Tex, gThreeDayClockHour2Tex,  gThreeDayClockHour3Tex,
-        gThreeDayClockHour4Tex,  gThreeDayClockHour5Tex, gThreeDayClockHour6Tex,  gThreeDayClockHour7Tex,
-        gThreeDayClockHour8Tex,  gThreeDayClockHour9Tex, gThreeDayClockHour10Tex, gThreeDayClockHour11Tex,
-        gThreeDayClockHour12Tex, gThreeDayClockHour13Tex, gThreeDayClockHour14Tex,  gThreeDayClockHour15Tex,
-        gThreeDayClockHour16Tex,  gThreeDayClockHour17Tex, gThreeDayClockHour18Tex,  gThreeDayClockHour19Tex,
-        gThreeDayClockHour20Tex,  gThreeDayClockHour21Tex, gThreeDayClockHour22Tex, gThreeDayClockHour23Tex,
-        gEmptyTexture, gEmptyTexture, // 2S2H [Port] To account for the vanilla bug detailed later on in this function
-        // #endregison
+    // 2S2H Region [Enhancements] 24 Hours Clock
+    static TexturePtr sThreeDayClockHourTwentyHourHoursTextures[] = {
+    gThreeDayClockHour24Tex, gThreeDayClockHour1Tex, gThreeDayClockHour2Tex,  gThreeDayClockHour3Tex,
+    gThreeDayClockHour4Tex,  gThreeDayClockHour5Tex, gThreeDayClockHour6Tex,  gThreeDayClockHour7Tex,
+    gThreeDayClockHour8Tex,  gThreeDayClockHour9Tex, gThreeDayClockHour10Tex, gThreeDayClockHour11Tex,
+    gThreeDayClockHour12Tex, gThreeDayClockHour13Tex, gThreeDayClockHour14Tex,  gThreeDayClockHour15Tex,
+    gThreeDayClockHour16Tex,  gThreeDayClockHour17Tex, gThreeDayClockHour18Tex,  gThreeDayClockHour19Tex,
+    gThreeDayClockHour20Tex,  gThreeDayClockHour21Tex, gThreeDayClockHour22Tex, gThreeDayClockHour23Tex,
+    gEmptyTexture, gEmptyTexture, // 2S2H [Port] To account for the vanilla bug detailed later on in this function
+    // #endregison
     };
     static s16 sClockInvDiamondPrimRed = 0;
     static s16 sClockInvDiamondPrimGreen = 155;
@@ -4908,8 +4908,13 @@ void Interface_DrawClock(PlayState* play) {
     s16 finalHoursClockSlots[8];
     s16 index;
 
+    if (CVarGetInteger("gEnhancements.General.ClockType", 0) == 2) {
+        return;
+    }
+
     OPEN_DISPS(play->state.gfxCtx);
-    if (!CVarGetInteger("gEnhancements.General.SimplierClock", 0)) {
+    
+    if (CVarGetInteger("gEnhancements.General.ClockType", 0) == 0) {
         if ((R_TIME_SPEED != 0) &&
             ((msgCtx->msgMode == MSGMODE_NONE) || ((play->actorCtx.flags & ACTORCTX_FLAG_1) && !Play_InCsMode(play)) ||
              (msgCtx->msgMode == MSGMODE_NONE) ||
@@ -5411,7 +5416,7 @@ void Interface_DrawClock(PlayState* play) {
                 }
             }
         }
-    } else {
+    } else if (CVarGetInteger("gEnhancements.General.ClockType", 0) == 1) {
         if ((R_TIME_SPEED != 0) &&
             ((msgCtx->msgMode == MSGMODE_NONE) || ((play->actorCtx.flags & ACTORCTX_FLAG_1) && !Play_InCsMode(play)) ||
              (msgCtx->msgMode == MSGMODE_NONE) ||
@@ -5420,30 +5425,25 @@ void Interface_DrawClock(PlayState* play) {
             !FrameAdvance_IsEnabled(&play->state) && !Environment_IsTimeStopped() && (gSaveContext.save.day <= 3)) {
             if ((play->pauseCtx.state == PAUSE_STATE_OFF) && (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE)) {
                 Gfx_SetupDL39_Overlay(play->state.gfxCtx);
+
                 u16 curMinutes = (s32)TIME_TO_MINUTES_F(gSaveContext.save.time) % 60;
                 u16 curHours = (s32)TIME_TO_MINUTES_F(gSaveContext.save.time) / 60;
+
+                u16 timeUntilMoonCrash = (s32)TIME_UNTIL_MOON_CRASH;
+                u16 timeInMinutes = (s32)TIME_TO_MINUTES_F(timeUntilMoonCrash) % 60;
+                u16 timeInHours = (s32)TIME_TO_MINUTES_F(timeUntilMoonCrash) / 60;
+
+                char formattedTime[10];
+                char formattedCrashTime[10];
+
                 GfxPrint printer;
                 GfxPrint_Init(&printer);
                 GfxPrint_Open(&printer, OVERLAY_DISP);
-                // GfxPrint_SetPos(&printer, 0, 7);
                 GfxPrint_SetPos(&printer, 14, 26);
                 if (gSaveContext.save.timeSpeedOffset == -2) {
                     GfxPrint_SetColor(&printer, 0, 204, 255, 255);
                 } else {
                     GfxPrint_SetColor(&printer, 255, 255, 255, 255);
-                }
-
-                char formattedTime[10];
-
-                // Format hours and minutes with leading zeros if necessary
-                if (curHours < 10 && curMinutes < 10) {
-                    sprintf(formattedTime, "0%d:0%d", curHours, curMinutes);
-                } else if (curHours < 10) {
-                    sprintf(formattedTime, "0%d:%d", curHours, curMinutes);
-                } else if (curMinutes < 10) {
-                    sprintf(formattedTime, "%d:0%d", curHours, curMinutes);
-                } else {
-                    sprintf(formattedTime, "%d:%d", curHours, curMinutes);
                 }
 
                 if (CVarGetInteger("gEnhancements.General.24HoursClock", 0)) {
@@ -5461,10 +5461,24 @@ void Interface_DrawClock(PlayState* play) {
                     }
                     sprintf(formattedTime, "%d:%02d %s", curHours, curMinutes, amPm);
                 }
-                GfxPrint_Printf(&printer, "Day %d: %s", gSaveContext.save.day, formattedTime);
 
-                // GfxPrint_Printf(&printer, "Day %d: %d:%d", gSaveContext.save.day, curHours, curMinutes);
-                //  GfxPrint_Printf(&printer, "DAY %d: %d", gSaveContext.save.day, gSaveContext.save.time);
+                GfxPrint_Printf(&printer, "Day %d: %s", gSaveContext.save.day, formattedTime);
+                if (CVarGetInteger("gEnhancements.General.24HoursClock", 0)) {
+                    GfxPrint_SetPos(&printer, 13, 27);
+                }
+                else {
+                    GfxPrint_SetPos(&printer, 14, 27);
+                }
+
+                // Crash Countdown
+                if ((CURRENT_DAY >= 4) ||
+                    ((CURRENT_DAY == 3) && (((void)0, gSaveContext.save.time) >= (CLOCK_TIME(0, 0) + 5)) &&
+                     (((void)0, gSaveContext.save.time) < CLOCK_TIME(6, 0)))) {
+                    GfxPrint_SetColor(&printer, 255, 0, 0, 255);
+                    sprintf(formattedCrashTime, "%02d:%02d", timeInHours, timeInMinutes);
+                    GfxPrint_Printf(&printer, "Crash in %s", formattedCrashTime);
+                }
+
                 OVERLAY_DISP = GfxPrint_Close(&printer);
                 GfxPrint_Destroy(&printer);
             }

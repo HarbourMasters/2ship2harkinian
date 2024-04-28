@@ -36,6 +36,8 @@ static std::unordered_map<LUS::WindowBackend, const char*> windowBackendsMap = {
     { LUS::WindowBackend::GX2, "GX2" }
 };
 
+static const char* clockTypeMap[3] = { "Original", "Text only", "Hidden" };
+
 namespace BenGui {
 
 void DrawMenuBarIcon() {
@@ -297,6 +299,13 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
         
+        if (UIWidgets::BeginMenu("Clock")) {
+            UIWidgets::CVarCombobox("Clock Type", "gEnhancements.General.ClockType", clockTypeMap);
+            UIWidgets::CVarCheckbox("24 Hours Clock", "gEnhancements.General.24HoursClock");
+
+            ImGui::EndMenu();
+        }
+
         UIWidgets::CVarCheckbox("Fast Text", "gEnhancements.TimeSavers.FastText", {
             .tooltip = "Speeds up text rendering, and enables holding of B progress to next message"
         });
@@ -305,8 +314,6 @@ void DrawEnhancementsMenu() {
         });
         UIWidgets::CVarCheckbox("Skip Entrance Cutscenes", "gEnhancements.TimeSavers.SkipEntranceCutscenes");
         UIWidgets::CVarCheckbox("Hide Title Cards", "gEnhancements.TimeSavers.HideTitleCards");
-        UIWidgets::CVarCheckbox("24 Hours Clock", "gEnhancements.General.24HoursClock");
-        UIWidgets::CVarCheckbox("Simplier Clock", "gEnhancements.General.SimplierClock");
 
         if (mHudEditorWindow) {
             UIWidgets::WindowButton("Hud Editor", "gWindows.HudEditor", mHudEditorWindow, {
