@@ -4853,7 +4853,7 @@ void Interface_DrawClock(PlayState* play) {
         gEmptyTexture, gEmptyTexture, // 2S2H [Port] To account for the vanilla bug detailed later on in this function
     };
         // 2S2H Region [Enhancements] 24 Hours Clock
-        static TexturePtr sThreeDayClockHourTwentyHourHoursTextures[] = {
+        static TexturePtr sThreeDayClockHourTwentyHoursTextures[] = {
         gThreeDayClockHour24Tex, gThreeDayClockHour1Tex, gThreeDayClockHour2Tex,  gThreeDayClockHour3Tex,
         gThreeDayClockHour4Tex,  gThreeDayClockHour5Tex, gThreeDayClockHour6Tex,  gThreeDayClockHour7Tex,
         gThreeDayClockHour8Tex,  gThreeDayClockHour9Tex, gThreeDayClockHour10Tex, gThreeDayClockHour11Tex,
@@ -5228,7 +5228,7 @@ void Interface_DrawClock(PlayState* play) {
             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[24], 8, 0);
 
             OVERLAY_DISP = CVarGetInteger("gEnhancements.General.24HoursClock", 0) ? 
-              Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTwentyHourHoursTextures[sp1C6], 4, 16, 11, 0) : 
+              Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTwentyHoursTextures[sp1C6], 4, 16, 11, 0) : 
               Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTextures[sp1C6], 4, 16, 11, 0);
 
             // Colours the Three-Day Clocks's Hour Digit Above the Sun
@@ -5254,7 +5254,7 @@ void Interface_DrawClock(PlayState* play) {
             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[32], 8, 0);
 
             OVERLAY_DISP = CVarGetInteger("gEnhancements.General.24HoursClock", 0) ? 
-              Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTwentyHourHoursTextures[sp1C6], 4, 16, 11, 0) : 
+              Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTwentyHoursTextures[sp1C6], 4, 16, 11, 0) : 
               Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTextures[sp1C6], 4, 16, 11, 0);
 
 
