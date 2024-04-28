@@ -6,6 +6,30 @@
 
 using json = nlohmann::json;
 
+void to_json(json& j, const DpadSaveInfo& dpadEquips) {
+    j = json{
+        { "buttonItems", dpadEquips.dpadItems },
+        { "cButtonSlots", dpadEquips.dpadSlots },
+    };
+}
+
+void from_json(const json& j, DpadSaveInfo& dpadEquips) {
+    for (int i = 0; i < ARRAY_COUNT(dpadEquips.dpadItems); i++) {
+        j.at("buttonItems").at(i).get_to(dpadEquips.dpadItems[i]);
+        j.at("cButtonSlots").at(i).get_to(dpadEquips.dpadSlots[i]);
+    }
+}
+
+void to_json(json& j, const AdditionalSaveInfo& additionalSaveInfo) {
+    j = json {
+        { "dpadEquips", additionalSaveInfo.dpadEquips },
+    };
+}
+
+void from_json(const json& j, AdditionalSaveInfo& additionalSaveInfo) {
+    j.at("dpadEquips").get_to(additionalSaveInfo.dpadEquips);
+}
+
 void to_json(json& j, const ItemEquips& itemEquips) {
     j = json{
         { "buttonItems", itemEquips.buttonItems },
@@ -252,6 +276,7 @@ void to_json(json& j, const Save& save) {
         { "hasTatl", save.hasTatl },
         { "isOwlSave", save.isOwlSave },
         { "saveInfo", save.saveInfo },
+        { "additionalSaveInfo", save.additionalSaveInfo },
     };
 }
 
@@ -273,6 +298,27 @@ void from_json(const json& j, Save& save) {
     j.at("hasTatl").get_to(save.hasTatl);
     j.at("isOwlSave").get_to(save.isOwlSave);
     j.at("saveInfo").get_to(save.saveInfo);
+    j.at("additionalSaveInfo").get_to(save.additionalSaveInfo);
+}
+
+void to_json(json& j, const DpadSaveContext& dpad) {
+    j = json {
+        { "status", dpad.status },
+    };
+}
+
+void from_json(const json& j, DpadSaveContext& dpad) {
+    j.at("status").get_to(dpad.status);
+}
+
+void to_json(json& j, const AdditionalSaveContext& additionalSave) {
+    j = json {
+        { "dpad", additionalSave.dpad },
+    };
+}
+
+void from_json(const json& j, AdditionalSaveContext& additionalSave) {
+    j.at("dpad").get_to(additionalSave.dpad);
 }
 
 void to_json(json& j, const SaveContext& saveContext) {
@@ -289,6 +335,7 @@ void to_json(json& j, const SaveContext& saveContext) {
         { "bottleTimerCurTimes", saveContext.bottleTimerCurTimes },
         { "bottleTimerPausedOsTimes", saveContext.bottleTimerPausedOsTimes },
         { "pictoPhotoI5", saveContext.pictoPhotoI5 },
+        { "additionalSaveContext", saveContext.additionalSave },
     };
 }
 
@@ -305,6 +352,7 @@ void from_json(const json& j, SaveContext& saveContext) {
     j.at("bottleTimerCurTimes").get_to(saveContext.bottleTimerCurTimes);
     j.at("bottleTimerPausedOsTimes").get_to(saveContext.bottleTimerPausedOsTimes);
     j.at("pictoPhotoI5").get_to(saveContext.pictoPhotoI5);
+    j.at("additionalSaveContext").get_to(saveContext.additionalSave);
 }
 
 void to_json(json& j, const SaveOptions& saveOptions) {
