@@ -10,6 +10,24 @@ extern "C" {
 #endif
 
 typedef enum {
+    FLAG_NONE,
+    FLAG_WEEK_EVENT_REG,
+    FLAG_EVENT_INF,
+    FLAG_SCENES_VISIBLE,
+    FLAG_OWL_ACTIVATION,
+    FLAG_PERM_SCENE_CHEST,
+    FLAG_PERM_SCENE_SWITCH,
+    FLAG_PERM_SCENE_CLEARED_ROOM,
+    FLAG_PERM_SCENE_COLLECTIBLE,
+    FLAG_PERM_SCENE_UNK_14,
+    FLAG_PERM_SCENE_ROOMS,
+    FLAG_CYCL_SCENE_CHEST,
+    FLAG_CYCL_SCENE_SWITCH,
+    FLAG_CYCL_SCENE_CLEARED_ROOM,
+    FLAG_CYCL_SCENE_COLLECTIBLE,
+} FlagType;
+
+typedef enum {
     // Vanilla condition: gSaveContext.showTitleCard
     GI_VB_SHOW_TITLE_CARD,
     GI_VB_PLAY_ENTRANCE_CS,
@@ -192,12 +210,26 @@ public:
     DEFINE_HOOK(OnGameStateDrawFinish, ());
     DEFINE_HOOK(OnGameStateUpdate, ());
 
+    DEFINE_HOOK(OnSceneInit, (s8 sceneId, s8 spawnNum));
+    DEFINE_HOOK(OnRoomInit, (s8 sceneId, s8 roomNum));
+
     DEFINE_HOOK(ShouldActorInit, (Actor* actor, bool* should));
     DEFINE_HOOK(OnActorInit, (Actor* actor));
     DEFINE_HOOK(ShouldActorUpdate, (Actor* actor, bool* should));
     DEFINE_HOOK(OnActorUpdate, (Actor* actor));
     DEFINE_HOOK(ShouldActorDraw, (Actor* actor, bool* should));
     DEFINE_HOOK(OnActorDraw, (Actor* actor));
+    DEFINE_HOOK(OnActorKill, (Actor* actor));
+
+    DEFINE_HOOK(OnSceneFlagSet, (s16 sceneId, FlagType flagType, u32 flag));
+    DEFINE_HOOK(OnSceneFlagUnset, (s16 sceneId, FlagType flagType, u32 flag));
+    DEFINE_HOOK(OnFlagSet, (FlagType flagType, u32 flag));
+    DEFINE_HOOK(OnFlagUnset, (FlagType flagType, u32 flag));
+
+    DEFINE_HOOK(OnOpenText, (u16 textId));
+
+    DEFINE_HOOK(ShouldItemGive, (u8 item, bool* should));
+    DEFINE_HOOK(OnItemGive, (u8 item));
 
     DEFINE_HOOK(ShouldVanillaBehavior, (GIVanillaBehavior flag, bool* should, void* optionalArg));
 };
@@ -209,12 +241,26 @@ void GameInteractor_ExecuteOnGameStateMainFinish();
 void GameInteractor_ExecuteOnGameStateDrawFinish();
 void GameInteractor_ExecuteOnGameStateUpdate();
 
+void GameInteractor_ExecuteOnSceneInit(s16 sceneId, s8 spawnNum);
+void GameInteractor_ExecuteOnRoomInit(s16 sceneId, s8 roomNum);
+
 bool GameInteractor_ShouldActorInit(Actor* actor);
 void GameInteractor_ExecuteOnActorInit(Actor* actor);
 bool GameInteractor_ShouldActorUpdate(Actor* actor);
 void GameInteractor_ExecuteOnActorUpdate(Actor* actor);
 bool GameInteractor_ShouldActorDraw(Actor* actor);
 void GameInteractor_ExecuteOnActorDraw(Actor* actor);
+void GameInteractor_ExecuteOnActorKill(Actor* actor);
+
+void GameInteractor_ExecuteOnSceneFlagSet(s16 sceneId, FlagType flagType, u32 flag);
+void GameInteractor_ExecuteOnSceneFlagUnset(s16 sceneId, FlagType flagType, u32 flag);
+void GameInteractor_ExecuteOnFlagSet(FlagType flagType, u32 flag);
+void GameInteractor_ExecuteOnFlagUnset(FlagType flagType, u32 flag);
+
+void GameInteractor_ExecuteOnOpenText(u16 textId);
+
+bool GameInteractor_ShouldItemGive(u8 item);
+void GameInteractor_ExecuteOnItemGive(u8 item);
 
 bool GameInteractor_Should(GIVanillaBehavior flag, bool result, void* optionalArg);
 #define REGISTER_VB_SHOULD(flag, body) \
