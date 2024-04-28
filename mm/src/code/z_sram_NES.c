@@ -827,7 +827,7 @@ ItemEquips sSaveDefaultItemEquips = {
 };
 
 // #region 2S2H
-ItemEquips sSaveDefaultDpadItemEquips = {
+DpadSaveInfo sSaveDefaultDpadItemEquips = {
     {
         { ITEM_NONE, ITEM_NONE, ITEM_NONE, ITEM_NONE },
         { ITEM_NONE, ITEM_NONE, ITEM_NONE, ITEM_NONE },
