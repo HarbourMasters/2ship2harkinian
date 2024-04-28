@@ -1,18 +1,18 @@
-#include <libultraship/bridge.h>
+#include <libultraship/libultraship.h>
 #include "Enhancements/GameInteractor/GameInteractor.h"
-
 
 extern "C" {
 #include <z64.h>
 #include <macros.h>
+#include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 
-extern PlayState* play;
-extern InterfaceContext* interfaceCtx = &play->interfaceCtx;
-extern GraphicsContext* gfxCtx = &play->state.gfxCtx;
-extern MessageContext* msgCtx = &play->msgCtx;
+extern PlayState* gPlayState;
+extern GfxPrint* printer;
 extern u32 timeUntilMoonCrash;
 extern f32 timeInMinutes;
 extern f32 timeInSeconds;
+s32 FrameAdvance_IsEnabled;
+
 }
 
 void RegisterTextBasedClock() {
@@ -25,16 +25,16 @@ void RegisterTextBasedClock() {
 
         if (CVarGetInteger("gEnhancements.General.ClockType", 0) == 1) {
             *should = true;
-            OPEN_DISPS(play->state.gfxCtx);
+            OPEN_DISPS(gPlayState->state.gfxCtx);
             if ((R_TIME_SPEED != 0) &&
-                ((msgCtx->msgMode == MSGMODE_NONE) ||
-                 ((play->actorCtx.flags & ACTORCTX_FLAG_1) && !Play_InCsMode(play)) ||
-                 (msgCtx->msgMode == MSGMODE_NONE) ||
-                 ((msgCtx->currentTextId >= 0x100) && (msgCtx->currentTextId <= 0x200)) ||
+                ((gPlayState->msgCtx->msgMode == MSGMODE_NONE) ||
+                 ((gPlayState->actorCtx.flags & ACTORCTX_FLAG_1) && !Play_InCsMode(gPlayState)) ||
+                 (gPlayState->msgCtx->msgMode == MSGMODE_NONE) ||
+                 ((gPlayState->msgCtx->currentTextId >= 0x100) && (gPlayState->msgCtx->currentTextId <= 0x200)) ||
                  (gSaveContext.gameMode == GAMEMODE_END_CREDITS)) &&
-                !FrameAdvance_IsEnabled(&play->state) && !Environment_IsTimeStopped() && (gSaveContext.save.day <= 3)) {
-                if ((play->pauseCtx.state == PAUSE_STATE_OFF) && (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE)) {
-                    Gfx_SetupDL39_Overlay(play->state.gfxCtx);
+                !FrameAdvance_IsEnabled(&gPlayState->state) && !Environment_IsTimeStopped() && (gSaveContext.save.day <= 3)) {
+                if ((gPlayState->pauseCtx.state == PAUSE_STATE_OFF) && (gPlayState->pauseCtx.debugEditor == DEBUG_EDITOR_NONE)) {
+                    Gfx_SetupDL39_Overlay(gPlayState->state.gfxCtx);
 
                     u16 curMinutes = (s32)TIME_TO_MINUTES_F(gSaveContext.save.time) % 60;
                     u16 curHours = (s32)TIME_TO_MINUTES_F(gSaveContext.save.time) / 60;
@@ -92,7 +92,7 @@ void RegisterTextBasedClock() {
                     GfxPrint_Destroy(&printer);
                 }
             }
-            CLOSE_DISPS(play->state.gfxCtx);
+            CLOSE_DISPS(gPlayState->state.gfxCtx);
         }
     });
 }
