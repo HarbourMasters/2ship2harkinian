@@ -3701,27 +3701,28 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
             PlayerItemAction maskItemAction = GET_IA_FROM_MASK(this->currentMask);
             // #region 2S2H [Dpad] - Changed from EquipSlot to s32 to allow for higher ranges
             s32 btn = func_8082FD0C(this, maskItemAction);
+
+            if (CVarGetInteger("gDpadEquips", 0)) {
+                DpadEquipSlot dpadBtn = func_Dpad_8082FD0C(this, maskItemAction);
+                
+                if (dpadBtn > EQUIP_SLOT_D_NONE) {
+                    btn = DPAD_TO_HELD_ITEM(dpadBtn);
+                }
+            }
             // #endregion
 
             if (btn <= EQUIP_SLOT_NONE) {
-                // #region 2S2H [Dpad]
+                // #region 2S2H [Dpad] - need to convert between helditem value to actual item
                 ItemId maskItem;
                 if (this->unk_154 >= EQUIP_SLOT_MAX) {
                     maskItem = DPAD_GET_CUR_FORM_BTN_ITEM(HELD_ITEM_TO_DPAD(this->unk_154));
                 } else {
                     maskItem = GET_CUR_FORM_BTN_ITEM(this->unk_154);
                 }
-                if (CVarGetInteger("gDpadEquips", 0)) {
-                    DpadEquipSlot dpadBtn = func_Dpad_8082FD0C(this, maskItemAction);
-                    
-                    if (dpadBtn > EQUIP_SLOT_D_NONE) {
-                        btn = DPAD_TO_HELD_ITEM(dpadBtn);
-                        goto dpadSkipMask;
-                    }
-                }
 
                 s32 maskIdMinusOne =
                     GET_MASK_FROM_IA(Player_ItemToItemAction(this, maskItem)) - 1;
+                // #endregion
 
                 if ((maskIdMinusOne < PLAYER_MASK_TRUTH - 1) || (maskIdMinusOne >= PLAYER_MASK_MAX - 1)) {
                     maskIdMinusOne = this->currentMask - 1;
@@ -3729,9 +3730,6 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
                 Player_UseItem(play, this, Player_MaskIdToItemId(maskIdMinusOne));
                 return;
             }
-
-            dpadSkipMask:
-            // #endregion
 
             if ((this->currentMask == PLAYER_MASK_GIANT) && (gSaveContext.save.saveInfo.playerData.magic == 0)) {
                 func_80838A20(play, this);
