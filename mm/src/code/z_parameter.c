@@ -4852,16 +4852,16 @@ void Interface_DrawClock(PlayState* play) {
         gThreeDayClockHour8Tex,  gThreeDayClockHour9Tex, gThreeDayClockHour10Tex, gThreeDayClockHour11Tex,
         gEmptyTexture, gEmptyTexture, // 2S2H [Port] To account for the vanilla bug detailed later on in this function
     };
-    // 2S2H Region [Enhancements] 24 Hours Clock
-    static TexturePtr sThreeDayClockHourTwentyHourHoursTextures[] = {
-    gThreeDayClockHour24Tex, gThreeDayClockHour1Tex, gThreeDayClockHour2Tex,  gThreeDayClockHour3Tex,
-    gThreeDayClockHour4Tex,  gThreeDayClockHour5Tex, gThreeDayClockHour6Tex,  gThreeDayClockHour7Tex,
-    gThreeDayClockHour8Tex,  gThreeDayClockHour9Tex, gThreeDayClockHour10Tex, gThreeDayClockHour11Tex,
-    gThreeDayClockHour12Tex, gThreeDayClockHour13Tex, gThreeDayClockHour14Tex,  gThreeDayClockHour15Tex,
-    gThreeDayClockHour16Tex,  gThreeDayClockHour17Tex, gThreeDayClockHour18Tex,  gThreeDayClockHour19Tex,
-    gThreeDayClockHour20Tex,  gThreeDayClockHour21Tex, gThreeDayClockHour22Tex, gThreeDayClockHour23Tex,
-    gEmptyTexture, gEmptyTexture, // 2S2H [Port] To account for the vanilla bug detailed later on in this function
-    // #endregison
+        // 2S2H Region [Enhancements] 24 Hours Clock
+        static TexturePtr sThreeDayClockHourTwentyHourHoursTextures[] = {
+        gThreeDayClockHour24Tex, gThreeDayClockHour1Tex, gThreeDayClockHour2Tex,  gThreeDayClockHour3Tex,
+        gThreeDayClockHour4Tex,  gThreeDayClockHour5Tex, gThreeDayClockHour6Tex,  gThreeDayClockHour7Tex,
+        gThreeDayClockHour8Tex,  gThreeDayClockHour9Tex, gThreeDayClockHour10Tex, gThreeDayClockHour11Tex,
+        gThreeDayClockHour12Tex, gThreeDayClockHour13Tex, gThreeDayClockHour14Tex,  gThreeDayClockHour15Tex,
+        gThreeDayClockHour16Tex,  gThreeDayClockHour17Tex, gThreeDayClockHour18Tex,  gThreeDayClockHour19Tex,
+        gThreeDayClockHour20Tex,  gThreeDayClockHour21Tex, gThreeDayClockHour22Tex, gThreeDayClockHour23Tex,
+        gEmptyTexture, gEmptyTexture, // 2S2H [Port] To account for the vanilla bug detailed later on in this function
+        // #endregison
     };
     static s16 sClockInvDiamondPrimRed = 0;
     static s16 sClockInvDiamondPrimGreen = 155;
@@ -4890,7 +4890,6 @@ void Interface_DrawClock(PlayState* play) {
         127, 136, 144, 151, 160, 168, 175, 184,
     };
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
-    GraphicsContext* gfxCtx = &play->state.gfxCtx;
     MessageContext* msgCtx = &play->msgCtx;
     s16 sp1E6;
     f32 temp_f14;
@@ -4908,20 +4907,16 @@ void Interface_DrawClock(PlayState* play) {
     s16 finalHoursClockSlots[8];
     s16 index;
 
-    if (GameInteractor_Should(GI_VB_PREVENT_CLOCK_DISPLAY, false, NULL))
-        return;
-
     OPEN_DISPS(play->state.gfxCtx);
-    
+
     if ((R_TIME_SPEED != 0) &&
         ((msgCtx->msgMode == MSGMODE_NONE) || ((play->actorCtx.flags & ACTORCTX_FLAG_1) && !Play_InCsMode(play)) ||
-            (msgCtx->msgMode == MSGMODE_NONE) ||
-            ((msgCtx->currentTextId >= 0x100) && (msgCtx->currentTextId <= 0x200)) ||
-            (gSaveContext.gameMode == GAMEMODE_END_CREDITS)) &&
+         (msgCtx->msgMode == MSGMODE_NONE) || ((msgCtx->currentTextId >= 0x100) && (msgCtx->currentTextId <= 0x200)) ||
+         (gSaveContext.gameMode == GAMEMODE_END_CREDITS)) &&
         !FrameAdvance_IsEnabled(&play->state) && !Environment_IsTimeStopped() && (gSaveContext.save.day <= 3)) {
         /**
-            * Section: Changes Clock's transparancy depending if Player is moving or not and possibly other things
-            */
+         * Section: Changes Clock's transparancy depending if Player is moving or not and possibly other things
+         */
         if (gSaveContext.hudVisibility == HUD_VISIBILITY_ALL) {
             if (func_801234D4(play)) {
                 sThreeDayClockAlpha = 80;
@@ -4960,24 +4955,24 @@ void Interface_DrawClock(PlayState* play) {
             Gfx_SetupDL39_Overlay(play->state.gfxCtx);
 
             /**
-                * Section: Draw Clock's Hour Lines
-                */
+             * Section: Draw Clock's Hour Lines
+             */
             gDPSetAlphaCompare(OVERLAY_DISP++, G_AC_THRESHOLD);
             gDPSetRenderMode(OVERLAY_DISP++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 130, 130, 130, sThreeDayClockAlpha);
-            gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE,
-                                TEXEL0, 0, PRIMITIVE, 0);
+            gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0,
+                              0, PRIMITIVE, 0);
 
-            OVERLAY_DISP = Gfx_DrawTexRect4b(OVERLAY_DISP, gThreeDayClockHourLinesTex, 4, 64, 35, 96, 180, 128, 35,
-                                                1, 6, 0, 1 << 10, 1 << 10);
+            OVERLAY_DISP = Gfx_DrawTexRect4b(OVERLAY_DISP, gThreeDayClockHourLinesTex, 4, 64, 35, 96, 180, 128, 35, 1,
+                                             6, 0, 1 << 10, 1 << 10);
 
             /**
-                * Section: Draw Clock's Border
-                */
+             * Section: Draw Clock's Border
+             */
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, sThreeDayClockAlpha);
-            gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE,
-                                TEXEL0, 0, PRIMITIVE, 0);
+            gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0,
+                              0, PRIMITIVE, 0);
 
             //! @bug A texture height of 50 is given below. The texture is only 48 units height
             //!      resulting in this reading into the next texture. This results in a white
@@ -4985,26 +4980,26 @@ void Interface_DrawClock(PlayState* play) {
             //!      covered by the diamond. However, it can be seen by the final-hours clock.
             // 2S2H [Port] We are opting to fix this here because our garbage data will not
             // be consistent with the garbage rendered on hardware, and potentially dangerous.
-            OVERLAY_DISP = Gfx_DrawTexRect4b(OVERLAY_DISP, gThreeDayClockBorderTex, 4, 64, /*50*/ 48, 96, 168, 128,
-                                                50, 1, 6, 0, 1 << 10, 1 << 10);
+            OVERLAY_DISP = Gfx_DrawTexRect4b(OVERLAY_DISP, gThreeDayClockBorderTex, 4, 64, /*50*/ 48, 96, 168, 128, 50, 1, 6,
+                                             0, 1 << 10, 1 << 10);
 
             if (((CURRENT_DAY >= 4) ||
-                    ((CURRENT_DAY == 3) && (((void)0, gSaveContext.save.time) >= (CLOCK_TIME(0, 0) + 5)) &&
-                    (((void)0, gSaveContext.save.time) < CLOCK_TIME(6, 0))))) {
+                 ((CURRENT_DAY == 3) && (((void)0, gSaveContext.save.time) >= (CLOCK_TIME(0, 0) + 5)) &&
+                  (((void)0, gSaveContext.save.time) < CLOCK_TIME(6, 0))))) {
                 Gfx_SetupDL42_Overlay(play->state.gfxCtx);
                 gSPMatrix(OVERLAY_DISP++, &gIdentityMtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             } else {
                 /**
-                    * Section: Draw Three-Day Clock's Diamond
-                    */
+                 * Section: Draw Three-Day Clock's Diamond
+                 */
                 gDPPipeSync(OVERLAY_DISP++);
 
                 // Time is slowed down to half speed with inverted song of time
                 if (gSaveContext.save.timeSpeedOffset == -2) {
                     // Clock diamond is blue and flashes white
-                    colorStep = ABS_ALT(sClockInvDiamondPrimRed -
-                                        sClockInvDiamondPrimRedTargets[sClockInvDiamondTargetIndex]) /
-                                sClockInvDiamondTimer;
+                    colorStep =
+                        ABS_ALT(sClockInvDiamondPrimRed - sClockInvDiamondPrimRedTargets[sClockInvDiamondTargetIndex]) /
+                        sClockInvDiamondTimer;
                     if (sClockInvDiamondPrimRed >= sClockInvDiamondPrimRedTargets[sClockInvDiamondTargetIndex]) {
                         sClockInvDiamondPrimRed -= colorStep;
                     } else {
@@ -5014,8 +5009,7 @@ void Interface_DrawClock(PlayState* play) {
                     colorStep = ABS_ALT(sClockInvDiamondPrimGreen -
                                         sClockInvDiamondPrimGreenTargets[sClockInvDiamondTargetIndex]) /
                                 sClockInvDiamondTimer;
-                    if (sClockInvDiamondPrimGreen >=
-                        sClockInvDiamondPrimGreenTargets[sClockInvDiamondTargetIndex]) {
+                    if (sClockInvDiamondPrimGreen >= sClockInvDiamondPrimGreenTargets[sClockInvDiamondTargetIndex]) {
                         sClockInvDiamondPrimGreen -= colorStep;
                     } else {
                         sClockInvDiamondPrimGreen += colorStep;
@@ -5030,9 +5024,9 @@ void Interface_DrawClock(PlayState* play) {
                         sClockInvDiamondPrimBlue += colorStep;
                     }
 
-                    colorStep = ABS_ALT(sClockInvDiamondEnvRed -
-                                        sClockInvDiamondEnvRedTargets[sClockInvDiamondTargetIndex]) /
-                                sClockInvDiamondTimer;
+                    colorStep =
+                        ABS_ALT(sClockInvDiamondEnvRed - sClockInvDiamondEnvRedTargets[sClockInvDiamondTargetIndex]) /
+                        sClockInvDiamondTimer;
                     if (sClockInvDiamondEnvRed >= sClockInvDiamondEnvRedTargets[sClockInvDiamondTargetIndex]) {
                         sClockInvDiamondEnvRed -= colorStep;
                     } else {
@@ -5048,9 +5042,9 @@ void Interface_DrawClock(PlayState* play) {
                         sClockInvDiamondEnvGreen += colorStep;
                     }
 
-                    colorStep = ABS_ALT(sClockInvDiamondEnvBlue -
-                                        sClockInvDiamondEnvBlueTargets[sClockInvDiamondTargetIndex]) /
-                                sClockInvDiamondTimer;
+                    colorStep =
+                        ABS_ALT(sClockInvDiamondEnvBlue - sClockInvDiamondEnvBlueTargets[sClockInvDiamondTargetIndex]) /
+                        sClockInvDiamondTimer;
                     if (sClockInvDiamondEnvBlue >= sClockInvDiamondEnvBlueTargets[sClockInvDiamondTargetIndex]) {
                         sClockInvDiamondEnvBlue -= colorStep;
                     } else {
@@ -5070,13 +5064,12 @@ void Interface_DrawClock(PlayState* play) {
                         sClockInvDiamondTargetIndex ^= 1;
                     }
 
-                    gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0,
-                                        PRIMITIVE, 0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0,
-                                        PRIMITIVE, 0);
+                    gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE,
+                                      0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, sClockInvDiamondPrimRed, sClockInvDiamondPrimGreen, 255,
                                     sThreeDayClockAlpha);
                     gDPSetEnvColor(OVERLAY_DISP++, sClockInvDiamondEnvRed, sClockInvDiamondEnvGreen,
-                                    sClockInvDiamondEnvBlue, 0);
+                                   sClockInvDiamondEnvBlue, 0);
                 } else {
                     // Clock diamond is green for regular timeSpeedOffset
                     gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
@@ -5084,21 +5077,20 @@ void Interface_DrawClock(PlayState* play) {
                 }
 
                 OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gThreeDayClockDiamondTex, 40, 32, 140, 190, 40, 32,
-                                                    1 << 10, 1 << 10);
+                                                  1 << 10, 1 << 10);
 
                 /**
-                    * Section: Draw Three-Day Clock's Day-Number over Diamond
-                    */
+                 * Section: Draw Three-Day Clock's Day-Number over Diamond
+                 */
                 gDPPipeSync(OVERLAY_DISP++);
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 155, sThreeDayClockAlpha);
 
-                OVERLAY_DISP =
-                    Gfx_DrawTexRectIA8(OVERLAY_DISP, interfaceCtx->doActionSegment[DO_ACTION_SEG_CLOCK].mainTex, 48,
-                                        27, 137, 192, 48, 27, 1 << 10, 1 << 10);
+                OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, interfaceCtx->doActionSegment[DO_ACTION_SEG_CLOCK].mainTex, 48,
+                                                  27, 137, 192, 48, 27, 1 << 10, 1 << 10);
 
                 /**
-                    * Section: Draw Three-Day Clock's Star (for the Minute Tracker)
-                    */
+                 * Section: Draw Three-Day Clock's Star (for the Minute Tracker)
+                 */
                 gDPPipeSync(OVERLAY_DISP++);
 
                 if (D_801BF974 != 0) {
@@ -5137,21 +5129,21 @@ void Interface_DrawClock(PlayState* play) {
                 Matrix_RotateZF(-(timeInSeconds * 0.0175f) / 10.0f, MTXMODE_APPLY);
 
                 gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx),
-                            G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+                          G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                 gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[12], 4, 0);
                 gDPLoadTextureBlock_4b(OVERLAY_DISP++, gThreeDayClockStarMinuteTex, G_IM_FMT_I, 16, 16, 0,
-                                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
-                                        G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                                       G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                       G_TX_NOLOD, G_TX_NOLOD);
                 gSP1Quadrangle(OVERLAY_DISP++, 0, 2, 3, 1, 0);
             }
 
             /**
-                * Section: Cuts off Three-Day Clock's Sun and Moon when they dip below the clock
-                */
+             * Section: Cuts off Three-Day Clock's Sun and Moon when they dip below the clock
+             */
             gDPPipeSync(OVERLAY_DISP++);
             // 2S2H [Cosmetic] Adjust the x values so the scissor stays the same size regardless of widescreen
             gDPSetScissor(OVERLAY_DISP++, G_SC_NON_INTERLACE, OTRConvertHUDXToScreenX(400 / 4), 620 / 4,
-                            OTRConvertHUDXToScreenX(880 / 4), R_THREE_DAY_CLOCK_SUN_MOON_CUTOFF);
+                          OTRConvertHUDXToScreenX(880 / 4), R_THREE_DAY_CLOCK_SUN_MOON_CUTOFF);
 
             // determines the current hour
             for (sp1C6 = 0; sp1C6 <= 24; sp1C6++) {
@@ -5171,8 +5163,8 @@ void Interface_DrawClock(PlayState* play) {
             }
 
             /**
-                * Section: Draw Three-Day Clock's Sun (for the Day-Time Hours Tracker)
-                */
+             * Section: Draw Three-Day Clock's Sun (for the Day-Time Hours Tracker)
+             */
             time = gSaveContext.save.time;
             sp1D8 = Math_SinS(time) * -40.0f;
             temp_f14 = Math_CosS(time) * -34.0f;
@@ -5184,15 +5176,14 @@ void Interface_DrawClock(PlayState* play) {
             Matrix_Translate(sp1D8, temp_f14, 0.0f, MTXMODE_NEW);
             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
 
-            gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx),
-                        G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+            gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[16], 4, 0);
 
             OVERLAY_DISP = Gfx_DrawTexQuadIA8(OVERLAY_DISP, gThreeDayClockSunHourTex, 24, 24, 0);
 
             /**
-                * Section: Draw Three-Day Clock's Moon (for the Night-Time Hours Tracker)
-                */
+             * Section: Draw Three-Day Clock's Moon (for the Night-Time Hours Tracker)
+             */
             sp1D8 = Math_SinS(time) * 40.0f;
             temp_f14 = Math_CosS(time) * 34.0f;
 
@@ -5202,43 +5193,40 @@ void Interface_DrawClock(PlayState* play) {
 
             Matrix_Translate(sp1D8, temp_f14, 0.0f, MTXMODE_NEW);
             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
-            gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx),
-                        G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+            gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[20], 4, 0);
 
             OVERLAY_DISP = Gfx_DrawTexQuadIA8(OVERLAY_DISP, gThreeDayClockMoonHourTex, 24, 24, 0);
 
             /**
-                * Section: Cuts off Three-Day Clock's Hour Digits when they dip below the clock
-                */
+             * Section: Cuts off Three-Day Clock's Hour Digits when they dip below the clock
+             */
             gDPPipeSync(OVERLAY_DISP++);
             // 2S2H [Cosmetic] Adjust the x values so the scissor stays the same size regardless of widescreen
             gDPSetScissor(OVERLAY_DISP++, G_SC_NON_INTERLACE, OTRConvertHUDXToScreenX(400 / 4), (620 / 4),
-                            OTRConvertHUDXToScreenX(880 / 4), R_THREE_DAY_CLOCK_SUN_MOON_CUTOFF);
+                          OTRConvertHUDXToScreenX(880 / 4), R_THREE_DAY_CLOCK_SUN_MOON_CUTOFF);
 
             /**
-                * Section: Draws Three-Day Clock's Hour Digit Above the Sun
-                */
+             * Section: Draws Three-Day Clock's Hour Digit Above the Sun
+             */
             sp1CC = gSaveContext.save.time * 0.000096131f; // (2.0f * 3.15f / 0x10000)
 
             // Rotates Three-Day Clock's Hour Digit To Above the Sun
             Matrix_Translate(0.0f, R_THREE_DAY_CLOCK_Y_POS / 10.0f, 0.0f, MTXMODE_NEW);
             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
             Matrix_RotateZF(-(sp1CC - 3.15f), MTXMODE_APPLY);
-            gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx),
-                        G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+            gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
 
             // Draws Three-Day Clock's Hour Digit Above the Sun
             gDPPipeSync(OVERLAY_DISP++);
-            gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE,
-                                TEXEL0, 0, PRIMITIVE, 0);
+            gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0,
+                              0, PRIMITIVE, 0);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, sThreeDayClockAlpha);
             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[24], 8, 0);
 
-            OVERLAY_DISP = CVarGetInteger("gEnhancements.General.24HoursClock", 0)
-                                ? Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTwentyHourHoursTextures[sp1C6],
-                                                    4, 16, 11, 0)
-                                : Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTextures[sp1C6], 4, 16, 11, 0);
+            OVERLAY_DISP = CVarGetInteger("gEnhancements.General.24HoursClock", 0) ? 
+              Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTwentyHourHoursTextures[sp1C6], 4, 16, 11, 0) : 
+              Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTextures[sp1C6], 4, 16, 11, 0);
 
             // Colours the Three-Day Clocks's Hour Digit Above the Sun
             gDPPipeSync(OVERLAY_DISP++);
@@ -5246,27 +5234,26 @@ void Interface_DrawClock(PlayState* play) {
             gSP1Quadrangle(OVERLAY_DISP++, 4, 6, 7, 5, 0);
 
             /**
-                * Section: Draws Three-Day Clock's Hour Digit Above the Moon
-                */
+             * Section: Draws Three-Day Clock's Hour Digit Above the Moon
+             */
 
             // Rotates Three-Day Clock's Hour Digit To Above the Moon
             Matrix_Translate(0.0f, R_THREE_DAY_CLOCK_Y_POS / 10.0f, 0.0f, MTXMODE_NEW);
             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
             Matrix_RotateZF(-sp1CC, MTXMODE_APPLY);
-            gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx),
-                        G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+            gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
 
             // Draws Three-Day Clock's Hour Digit Above the Moon
             gDPPipeSync(OVERLAY_DISP++);
-            gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE,
-                                TEXEL0, 0, PRIMITIVE, 0);
+            gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0,
+                              0, PRIMITIVE, 0);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, sThreeDayClockAlpha);
             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[32], 8, 0);
 
-            OVERLAY_DISP = CVarGetInteger("gEnhancements.General.24HoursClock", 0)
-                                ? Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTwentyHourHoursTextures[sp1C6],
-                                                    4, 16, 11, 0)
-                                : Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTextures[sp1C6], 4, 16, 11, 0);
+            OVERLAY_DISP = CVarGetInteger("gEnhancements.General.24HoursClock", 0) ? 
+              Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTwentyHourHoursTextures[sp1C6], 4, 16, 11, 0) : 
+              Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTextures[sp1C6], 4, 16, 11, 0);
+
 
             // Colours the Three-Day Clocks's Hour Digit Above the Moon
             gDPPipeSync(OVERLAY_DISP++);
@@ -5278,7 +5265,7 @@ void Interface_DrawClock(PlayState* play) {
             // Final Hours
             if ((CURRENT_DAY >= 4) ||
                 ((CURRENT_DAY == 3) && (((void)0, gSaveContext.save.time) >= (CLOCK_TIME(0, 0) + 5)) &&
-                    (((void)0, gSaveContext.save.time) < CLOCK_TIME(6, 0)))) {
+                 (((void)0, gSaveContext.save.time) < CLOCK_TIME(6, 0)))) {
                 if (((void)0, gSaveContext.save.time) >= CLOCK_TIME(5, 0)) {
                     // The Final Hours clock will flash red
 
@@ -5325,8 +5312,7 @@ void Interface_DrawClock(PlayState* play) {
                     sFinalHoursClockColorTimer--;
 
                     if (sFinalHoursClockColorTimer == 0) {
-                        sFinalHoursClockDigitsRed =
-                            sFinalHoursClockDigitsRedTargets[sFinalHoursClockColorTargetIndex];
+                        sFinalHoursClockDigitsRed = sFinalHoursClockDigitsRedTargets[sFinalHoursClockColorTargetIndex];
                         sFinalHoursClockFrameEnvRed =
                             sFinalHoursClockFrameEnvRedTargets[sFinalHoursClockColorTargetIndex];
                         sFinalHoursClockFrameEnvGreen =
@@ -5346,19 +5332,19 @@ void Interface_DrawClock(PlayState* play) {
                 Gfx_SetupDL39_Overlay(play->state.gfxCtx);
 
                 /**
-                    * Section: Draws Final-Hours Clock's Frame
-                    */
+                 * Section: Draws Final-Hours Clock's Frame
+                 */
                 gSPMatrix(OVERLAY_DISP++, &gIdentityMtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                 gDPSetAlphaCompare(OVERLAY_DISP++, G_AC_THRESHOLD);
                 gDPSetRenderMode(OVERLAY_DISP++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-                gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE,
-                                    0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+                gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
+                                  PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 195, sp1E6);
                 gDPSetEnvColor(OVERLAY_DISP++, sFinalHoursClockFrameEnvRed, sFinalHoursClockFrameEnvGreen,
-                                sFinalHoursClockFrameEnvBlue, 0);
+                               sFinalHoursClockFrameEnvBlue, 0);
 
-                OVERLAY_DISP = Gfx_DrawTexRect4b(OVERLAY_DISP, gFinalHoursClockFrameTex, 3, 80, 13, 119, 202, 80,
-                                                    13, 0, 0, 0, 1 << 10, 1 << 10);
+                OVERLAY_DISP = Gfx_DrawTexRect4b(OVERLAY_DISP, gFinalHoursClockFrameTex, 3, 80, 13, 119, 202, 80, 13, 0,
+                                                 0, 0, 1 << 10, 1 << 10);
 
                 timeUntilMoonCrash = TIME_UNTIL_MOON_CRASH;
                 timeInMinutes = TIME_TO_MINUTES_F(timeUntilMoonCrash);
@@ -5387,7 +5373,7 @@ void Interface_DrawClock(PlayState* play) {
                 finalHoursClockSlots[6] = 0;
                 finalHoursClockSlots[7] =
                     timeUntilMoonCrash - (u32)((finalHoursClockSlots[2] * ((f32)0x10000 / 24)) +
-                                                (finalHoursClockSlots[5] * ((f32)0x10000 / (24 * 60))));
+                                               (finalHoursClockSlots[5] * ((f32)0x10000 / (24 * 60))));
 
                 while (finalHoursClockSlots[7] >= 10) {
                     finalHoursClockSlots[6]++;
@@ -5398,8 +5384,8 @@ void Interface_DrawClock(PlayState* play) {
                 finalHoursClockSlots[2] = finalHoursClockSlots[5] = 10;
 
                 /**
-                    * Section: Draws Final-Hours Clock's Digits
-                    */
+                 * Section: Draws Final-Hours Clock's Digits
+                 */
                 gDPPipeSync(OVERLAY_DISP++);
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, sFinalHoursClockDigitsRed, 0, 0, sp1E6);
                 gDPSetEnvColor(OVERLAY_DISP++, sFinalHoursClockDigitsRed, 0, 0, 0);
@@ -5409,11 +5395,12 @@ void Interface_DrawClock(PlayState* play) {
 
                     OVERLAY_DISP =
                         Gfx_DrawTexRectI8(OVERLAY_DISP, sFinalHoursDigitTextures[finalHoursClockSlots[sp1C6]], 8, 8,
-                                            index, 205, 8, 8, 1 << 10, 1 << 10);
+                                          index, 205, 8, 8, 1 << 10, 1 << 10);
                 }
             }
         }
     }
+
     CLOSE_DISPS(play->state.gfxCtx);
 }
 
