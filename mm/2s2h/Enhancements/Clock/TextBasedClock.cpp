@@ -33,6 +33,7 @@ void RegisterTextBasedClock() {
                  ((gPlayState->msgCtx.currentTextId >= 0x100) && (gPlayState->msgCtx.currentTextId <= 0x200)) ||
                  (gSaveContext.gameMode == GAMEMODE_END_CREDITS)) &&
                 !FrameAdvance_IsEnabled(&gPlayState->state) && !Environment_IsTimeStopped() && (gSaveContext.save.day <= 3)) {
+
                 if ((gPlayState->pauseCtx.state == PAUSE_STATE_OFF) && (gPlayState->pauseCtx.debugEditor == DEBUG_EDITOR_NONE)) {
                     Gfx_SetupDL39_Overlay(gPlayState->state.gfxCtx);
 
