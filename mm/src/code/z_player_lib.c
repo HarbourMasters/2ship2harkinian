@@ -680,7 +680,6 @@ PlayerItemAction func_80123810(PlayState* play) {
     if (CVarGetInteger("gDpadEquips", 0)) {
         for (i = 0; i < ARRAY_COUNT(sDItemButtons); i++) {
             if (CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, sDItemButtons[i])) {
-                i++;
                 itemId = Player_GetItemOnDpadButton(play, player, i);
 
                 play->interfaceCtx.unk_222 = 0;

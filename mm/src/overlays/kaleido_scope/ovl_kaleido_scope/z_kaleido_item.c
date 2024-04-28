@@ -784,15 +784,13 @@ void KaleidoScope_UpdateItemCursor(PlayState* play) {
 s16 sCButtonPosX[] = { 
     660, 900, 1140,
     // #region 2S2H [Dpad]
-    // DPAD TODO: Figure out values for this
-    86, 134, 110, 110
+    1340, 860, 1100, 1100
     // #endregion
 };
 s16 sCButtonPosY[] = { 
     1100, 920, 1100,
     // #region 2S2H [Dpad]
-    // DPAD TODO: Figure out values for this
-    62, 62, 76, 44
+    620, 620, 440, 760
     // #endregion
 };
 

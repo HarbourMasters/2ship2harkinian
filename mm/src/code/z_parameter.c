@@ -4154,14 +4154,15 @@ s32 Inventory_ConsumeFairy(PlayState* play) {
                 }
             }
             // #region 2S2H [Dpad]
-            // DPAD TODO: Figure out if CVar needs to be here
-            for (u8 dpadBtn = EQUIP_SLOT_C_LEFT; dpadBtn <= EQUIP_SLOT_C_RIGHT; dpadBtn++) {
-                if (DPAD_GET_CUR_FORM_BTN_ITEM(dpadBtn) == ITEM_FAIRY) {
-                    DPAD_SET_CUR_FORM_BTN_ITEM(dpadBtn, ITEM_BOTTLE);
-                    Interface_Dpad_LoadItemIconImpl(play, dpadBtn);
-                    bottleSlot = DPAD_GET_CUR_FORM_BTN_SLOT(dpadBtn);
-                    i = 0;
-                    break;
+            if (CVarGetInteger("gDpadEquips", 0)) {
+                for (u8 dpadBtn = EQUIP_SLOT_C_LEFT; dpadBtn <= EQUIP_SLOT_C_RIGHT; dpadBtn++) {
+                    if (DPAD_GET_CUR_FORM_BTN_ITEM(dpadBtn) == ITEM_FAIRY) {
+                        DPAD_SET_CUR_FORM_BTN_ITEM(dpadBtn, ITEM_BOTTLE);
+                        Interface_Dpad_LoadItemIconImpl(play, dpadBtn);
+                        bottleSlot = DPAD_GET_CUR_FORM_BTN_SLOT(dpadBtn);
+                        i = 0;
+                        break;
+                    }
                 }
             }
             // #endregion
@@ -4188,7 +4189,6 @@ void Inventory_UpdateItem(PlayState* play, s16 slot, s16 item) {
         }
     }
     // #region 2S2H [Dpad]
-    // DPAD TODO: Check if this needs CVar
     for (s16 dpadBtn = EQUIP_SLOT_D_RIGHT; dpadBtn <= EQUIP_SLOT_D_UP; dpadBtn++) {
         if (DPAD_GET_CUR_FORM_BTN_SLOT(dpadBtn) == slot) {
             DPAD_SET_CUR_FORM_BTN_ITEM(dpadBtn, item);
