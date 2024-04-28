@@ -1,0 +1,98 @@
+#include <libultraship/bridge.h>
+#include "Enhancements/GameInteractor/GameInteractor.h"
+
+
+extern "C" {
+#include <z64.h>
+#include <macros.h>
+
+extern PlayState* play;
+extern InterfaceContext* interfaceCtx = &play->interfaceCtx;
+extern GraphicsContext* gfxCtx = &play->state.gfxCtx;
+extern MessageContext* msgCtx = &play->msgCtx;
+extern u32 timeUntilMoonCrash;
+extern f32 timeInMinutes;
+extern f32 timeInSeconds;
+}
+
+void RegisterTextBasedClock() {
+    REGISTER_VB_SHOULD(GI_VB_PREVENT_CLOCK_DISPLAY, {
+
+        if (CVarGetInteger("gEnhancements.General.ClockType", 0) == 2) {
+            *should = true;
+            return;
+        }
+
+        if (CVarGetInteger("gEnhancements.General.ClockType", 0) == 1) {
+            *should = true;
+            OPEN_DISPS(play->state.gfxCtx);
+            if ((R_TIME_SPEED != 0) &&
+                ((msgCtx->msgMode == MSGMODE_NONE) ||
+                 ((play->actorCtx.flags & ACTORCTX_FLAG_1) && !Play_InCsMode(play)) ||
+                 (msgCtx->msgMode == MSGMODE_NONE) ||
+                 ((msgCtx->currentTextId >= 0x100) && (msgCtx->currentTextId <= 0x200)) ||
+                 (gSaveContext.gameMode == GAMEMODE_END_CREDITS)) &&
+                !FrameAdvance_IsEnabled(&play->state) && !Environment_IsTimeStopped() && (gSaveContext.save.day <= 3)) {
+                if ((play->pauseCtx.state == PAUSE_STATE_OFF) && (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE)) {
+                    Gfx_SetupDL39_Overlay(play->state.gfxCtx);
+
+                    u16 curMinutes = (s32)TIME_TO_MINUTES_F(gSaveContext.save.time) % 60;
+                    u16 curHours = (s32)TIME_TO_MINUTES_F(gSaveContext.save.time) / 60;
+
+                    u16 timeUntilMoonCrash = (s32)TIME_UNTIL_MOON_CRASH;
+                    u16 timeInMinutes = (s32)TIME_TO_MINUTES_F(timeUntilMoonCrash) % 60;
+                    u16 timeInHours = (s32)TIME_TO_MINUTES_F(timeUntilMoonCrash) / 60;
+
+                    char formattedTime[10];
+                    char formattedCrashTime[10];
+
+                    GfxPrint printer;
+                    GfxPrint_Init(&printer);
+                    GfxPrint_Open(&printer, OVERLAY_DISP);
+                    GfxPrint_SetPos(&printer, 14, 26);
+                    if (gSaveContext.save.timeSpeedOffset == -2) {
+                        GfxPrint_SetColor(&printer, 0, 204, 255, 255);
+                    } else {
+                        GfxPrint_SetColor(&printer, 255, 255, 255, 255);
+                    }
+
+                    if (CVarGetInteger("gEnhancements.General.24HoursClock", 0)) {
+                        sprintf(formattedTime, "%02d:%02d", curHours, curMinutes);
+                    } else { // Format hours and minutes for 12-hour AM/PM clock
+                        char amPm[3] = "AM";
+                        if (curHours >= 12) {
+                            strcpy(amPm, "PM");
+                            if (curHours > 12) {
+                                curHours -= 12;
+                            }
+                        }
+                        if (curHours == 0) {
+                            curHours = 12;
+                        }
+                        sprintf(formattedTime, "%d:%02d %s", curHours, curMinutes, amPm);
+                    }
+
+                    GfxPrint_Printf(&printer, "Day %d: %s", gSaveContext.save.day, formattedTime);
+                    if (CVarGetInteger("gEnhancements.General.24HoursClock", 0)) {
+                        GfxPrint_SetPos(&printer, 13, 27);
+                    } else {
+                        GfxPrint_SetPos(&printer, 14, 27);
+                    }
+
+                    // Crash Countdown
+                    if ((CURRENT_DAY >= 4) ||
+                        ((CURRENT_DAY == 3) && (((void)0, gSaveContext.save.time) >= (CLOCK_TIME(0, 0) + 5)) &&
+                         (((void)0, gSaveContext.save.time) < CLOCK_TIME(6, 0)))) {
+                        GfxPrint_SetColor(&printer, 255, 0, 0, 255);
+                        sprintf(formattedCrashTime, "%02d:%02d", timeInHours, timeInMinutes);
+                        GfxPrint_Printf(&printer, "Crash in %s", formattedCrashTime);
+                    }
+
+                    OVERLAY_DISP = GfxPrint_Close(&printer);
+                    GfxPrint_Destroy(&printer);
+                }
+            }
+            CLOSE_DISPS(play->state.gfxCtx);
+        }
+    });
+}

@@ -5,6 +5,9 @@ void InitEnhancements() {
     RegisterInfiniteCheats();
     RegisterMoonJumpOnL();
 
+    // Clock
+    RegisterTextBasedClock();
+
     // Masks
     RegisterFierceDeityAnywhere();
     
