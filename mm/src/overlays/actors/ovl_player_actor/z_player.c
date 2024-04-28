@@ -3703,10 +3703,12 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
             s32 btn = func_8082FD0C(this, maskItemAction);
 
             if (CVarGetInteger("gDpadEquips", 0)) {
-                DpadEquipSlot dpadBtn = func_Dpad_8082FD0C(this, maskItemAction);
-                
-                if (dpadBtn > EQUIP_SLOT_D_NONE) {
-                    btn = DPAD_TO_HELD_ITEM(dpadBtn);
+                if (btn <= EQUIP_SLOT_NONE) {
+                    DpadEquipSlot dpadBtn = func_Dpad_8082FD0C(this, maskItemAction);
+                    
+                    if (dpadBtn > EQUIP_SLOT_D_NONE) {
+                        btn = DPAD_TO_HELD_ITEM(dpadBtn);
+                    }
                 }
             }
             // #endregion
