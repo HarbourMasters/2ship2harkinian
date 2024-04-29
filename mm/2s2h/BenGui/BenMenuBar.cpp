@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <string>
 #include "2s2h/Enhancements/Enhancements.h"
+#include "2s2h/Enhancements/Graphics/MotionBlur.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "HudEditor.h"
 
@@ -294,6 +295,11 @@ void DrawEnhancementsMenu() {
                 .tooltip = "Allow using Fierce Deity's mask outside of boss rooms."
             });
 
+            ImGui::EndMenu();
+        }
+
+        if (UIWidgets::BeginMenu("Graphics")) {
+            MotionBlur_RenderMenuOptions();
             ImGui::EndMenu();
         }
         
