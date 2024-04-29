@@ -33,6 +33,34 @@ typedef enum FlashSlotFile {
 
 const std::filesystem::path savesFolderPath(Ship::Context::GetPathRelativeToAppDirectory("Save"));
 
+// Migrations
+// The idea here is that we can read in any version of the save as generic JSON, then apply migrations
+// to the JSON to ensure it's in the correct shape for the current to_json/from_json helpers to convert
+// it to the current struct that the game uses.
+//
+// To add a new migration:
+// - Increment CURRENT_SAVE_VERSION
+// - Create the migration file in the Migrations folder with the name `{CURRENT_SAVE_VERSION}.cpp`
+// - Add the migration function definition below and add it to the `migrations` map with the key being the previous version
+const uint32_t CURRENT_SAVE_VERSION = 1;
+
+void SaveManager_Migration_1(nlohmann::json& j);
+
+std::map<uint32_t, std::function<void(nlohmann::json&)>> migrations = {
+    { 0, SaveManager_Migration_1 },
+};
+
+void SaveManager_MigrateSave(nlohmann::json& j) {
+    int version = j.value("version", 0);
+    while (version != CURRENT_SAVE_VERSION) {
+        if (migrations.contains(version)) {
+            auto migration = migrations[version];
+            migration(j);
+        }
+        version = j["version"] = version + 1;
+    }
+}
+
 void SaveManager_WriteSaveFile(std::filesystem::path fileName, nlohmann::json j) {
     const std::filesystem::path filePath = savesFolderPath / fileName;
 
@@ -94,7 +122,12 @@ extern "C" void SaveManager_SysFlashrom_WriteData(u8* saveBuffer, u32 pageNum, u
             if (isBackup) fileName += ".bak";
 
             if (IS_VALID_FILE(save)) {
-                SaveManager_WriteSaveFile(fileName, save);
+                nlohmann::json j;
+
+                j["save"] = save;
+                j["version"] = CURRENT_SAVE_VERSION;
+
+                SaveManager_WriteSaveFile(fileName, j);
             } else {
                 SaveManager_DeleteSaveFile(fileName);
             }
@@ -113,7 +146,11 @@ extern "C" void SaveManager_SysFlashrom_WriteData(u8* saveBuffer, u32 pageNum, u
             if (isBackup) fileName += ".bak";
 
             if (IS_VALID_FILE(saveContext.save)) {
-                SaveManager_WriteSaveFile(fileName, saveContext);
+                nlohmann::json j = saveContext;
+
+                j["version"] = CURRENT_SAVE_VERSION;
+
+                SaveManager_WriteSaveFile(fileName, j);
             } else {
                 SaveManager_DeleteSaveFile(fileName);
             }
@@ -159,7 +196,9 @@ extern "C" s32 SaveManager_SysFlashrom_ReadData(void* saveBuffer, u32 pageNum, u
             int result = SaveManager_ReadSaveFile(fileName, j);
             if (result != 0) return result;
 
-            Save save = j;
+            SaveManager_MigrateSave(j);
+
+            Save save = j["save"];
 
             memcpy(saveBuffer, &save, sizeof(Save));
             return result;
@@ -176,6 +215,8 @@ extern "C" s32 SaveManager_SysFlashrom_ReadData(void* saveBuffer, u32 pageNum, u
             nlohmann::json j;
             int result = SaveManager_ReadSaveFile(fileName, j);
             if (result != 0) return result;
+
+            SaveManager_MigrateSave(j);
 
             SaveContext saveContext = j;
 
