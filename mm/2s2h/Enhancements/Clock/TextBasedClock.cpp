@@ -9,9 +9,6 @@ extern "C" {
 
 extern PlayState* gPlayState;
 extern GfxPrint* printer;
-extern u32 timeUntilMoonCrash;
-extern f32 timeInMinutes;
-extern f32 timeInSeconds;
 
 }
 
