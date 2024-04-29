@@ -31,7 +31,8 @@ typedef enum {
     // Vanilla condition: gSaveContext.showTitleCard
     GI_VB_SHOW_TITLE_CARD,
     GI_VB_PLAY_ENTRANCE_CS,
-    GI_VB_DISABLE_FD_MASK
+    GI_VB_DISABLE_FD_MASK,
+    GI_VB_LOWER_RAZOR_SWORD_DURABILITY
 } GIVanillaBehavior;
 
 #ifdef __cplusplus

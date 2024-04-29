@@ -45,6 +45,8 @@
 #include "objects/object_link_nuts/object_link_nuts.h"
 #include "objects/object_link_child/object_link_child.h"
 
+#include "Enhancements/GameInteractor/GameInteractor.h"
+
 #define THIS ((Player*)thisx)
 
 void Player_Init(Actor* thisx, PlayState* play);
@@ -10027,7 +10029,9 @@ s32 func_8083FF30(PlayState* play, Player* this) {
 s32 func_8083FFEC(PlayState* play, Player* this) {
     if (this->heldItemAction == PLAYER_IA_SWORD_RAZOR) {
         if (gSaveContext.save.saveInfo.playerData.swordHealth > 0) {
-            gSaveContext.save.saveInfo.playerData.swordHealth--;
+            if (GameInteractor_Should(GI_VB_LOWER_RAZOR_SWORD_DURABILITY, true, NULL)) {
+                gSaveContext.save.saveInfo.playerData.swordHealth--;
+            }
             if (gSaveContext.save.saveInfo.playerData.swordHealth <= 0) {
                 Item_Give(play, ITEM_SWORD_KOKIRI);
                 Player_UseItem(play, this, ITEM_SWORD_KOKIRI);

@@ -3,6 +3,7 @@
 
 #include "Cheats/MoonJump.h"
 #include "Cheats/Infinite.h"
+#include "Cheats/UnbreakableRazorSword.h"
 #include "Masks/FierceDeityAnywhere.h"
 #include "TimeSavers/TimeSavers.h"
 
