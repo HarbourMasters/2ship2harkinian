@@ -7,6 +7,9 @@ void InitEnhancements() {
 
     // Masks
     RegisterFierceDeityAnywhere();
+
+    // Songs
+    RegisterEnableSunsSong();
     
     // Time Savers
     RegisterTimeSaversHooks();

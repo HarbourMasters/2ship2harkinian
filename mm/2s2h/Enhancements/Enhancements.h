@@ -4,6 +4,7 @@
 #include "Cheats/MoonJump.h"
 #include "Cheats/Infinite.h"
 #include "Masks/FierceDeityAnywhere.h"
+#include "Songs/EnableSunsSong.h"
 #include "TimeSavers/TimeSavers.h"
 
 #ifdef __cplusplus
