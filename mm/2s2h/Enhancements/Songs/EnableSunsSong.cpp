@@ -2,17 +2,14 @@
 #include "Enhancements/GameInteractor/GameInteractor.h"
 
 extern "C" {
-    #include <z64save.h>
-    extern SaveContext gSaveContext;
-    extern u32 gBitFlags[32];
+    #include <z64ocarina.h>
 }
 
 void RegisterEnableSunsSong() {
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneInit>([](s8 sceneId, s8 spawnNum) {
-        if (CVarGetInteger("gEnhancements.Songs.EnableSunsSong", 0)) {
-            SET_QUEST_ITEM(QUEST_SONG_SUN);
-        } else {
-            REMOVE_QUEST_ITEM(QUEST_SONG_SUN);
+    REGISTER_VB_SHOULD(GI_VB_SONG_AVAILABLE_TO_PLAY, {
+        // If the enhancement is on, and the currently played song is Sun's Song, set it to be available to be played.
+        if (CVarGetInteger("gEnhancements.Songs.EnableSunsSong", 0) && (uint8_t)opt == OCARINA_SONG_SUNS) {
+            *should = true;
         }
     });
 }
