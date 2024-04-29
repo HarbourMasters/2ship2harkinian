@@ -8,6 +8,8 @@ void InitEnhancements() {
     // Masks
     RegisterFierceDeityAnywhere();
     
-    // Time Savers
-    RegisterTimeSaversHooks();
+    // Cutscenes
+    RegisterSkipEntranceCutscenes();
+    RegisterHideTitleCards();
+
 }
