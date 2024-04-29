@@ -36,6 +36,12 @@ static std::unordered_map<LUS::WindowBackend, const char*> windowBackendsMap = {
     { LUS::WindowBackend::GX2, "GX2" }
 };
 
+static const std::unordered_map<int32_t, const char*> alwaysWinDoggyraceOptions = {
+    { ALWAYS_WIN_DOGGY_RACE_OFF, "Off" },
+    { ALWAYS_WIN_DOGGY_RACE_MASKOFTRUTH, "When owning Mask of Truth" },
+    { ALWAYS_WIN_DOGGY_RACE_ALWAYS, "Always" },
+};
+
 namespace BenGui {
 
 void DrawMenuBarIcon() {
@@ -293,6 +299,12 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere", {
                 .tooltip = "Allow using Fierce Deity's mask outside of boss rooms."
             });
+
+            ImGui::EndMenu();
+        }
+
+        if (UIWidgets::BeginMenu("Minigames")) {
+            UIWidgets::CVarCombobox("Always Win Doggy Race", "gEnhancements.Minigames.AlwaysWinDoggyRace", alwaysWinDoggyraceOptions);
 
             ImGui::EndMenu();
         }

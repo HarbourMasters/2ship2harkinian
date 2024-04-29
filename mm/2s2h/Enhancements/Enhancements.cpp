@@ -7,6 +7,9 @@ void InitEnhancements() {
 
     // Masks
     RegisterFierceDeityAnywhere();
+
+    // Minigames
+    RegisterAlwaysWinDoggyRace();
     
     // Time Savers
     RegisterTimeSaversHooks();
