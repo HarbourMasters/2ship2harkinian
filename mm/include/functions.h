@@ -1333,6 +1333,10 @@ float AudioSeq_GetPortVolumeScale(u8 seqPlayerIndex);
 void Graph_OpenDisps(Gfx** dispRefs, Gfx* dispVals, GraphicsContext* gfxCtx, const char* file, s32 line);
 void Graph_CloseDisps(Gfx** dispRefs, Gfx* dispVals, GraphicsContext* gfxCtx, const char* file, s32 line);
 void Lights_GlowCheckPrepare(PlayState* play);
+void Flags_SetWeekEventReg(s32 flag);
+void Flags_ClearWeekEventReg(s32 flag);
+void Flags_SetEventInf(s32 flag);
+void Flags_ClearEventInf(s32 flag);
 // #endregion
 // #region 2S2H [Port] Stubbed methods
 void osSetThreadPri(OSThread* thread, OSPri p);

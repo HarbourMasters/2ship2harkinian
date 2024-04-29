@@ -1965,7 +1965,8 @@ s32 func_80AF9E7C(EnPm* this, PlayState* play) {
 
     if ((this->unk_356 & 0x10) && (this->unk_258 == 90)) {
         //! @bug Uses SET_WEEKEVENTREG instead of CHECK_WEEKEVENTREG
-        if (!SET_WEEKEVENTREG(WEEKEVENTREG_89_40)) {
+        // 2S2H [Port] We opted to fix this, doesn't have any effect on the outcome
+        if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_89_40)) {
             SET_WEEKEVENTREG(WEEKEVENTREG_89_40);
         }
     }

@@ -6,6 +6,7 @@
 #include <cassert>
 #include <Utils/StringHelper.h>
 #include <DisplayList.h>
+#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 #include "2s2h/resource/type/Scene.h"
 #include "2s2h/resource/type/CollisionHeader.h"
 #include "2s2h/resource/type/Cutscene.h"
@@ -518,7 +519,7 @@ extern "C" s32 OTRfunc_8009728C(PlayState* play, RoomContext* roomCtx, s32 roomN
 
         roomCtx->activeMemPage ^= 1;
 
-        //SPDLOG_INFO("Room Init - curRoom.num: {0:#x}", roomCtx->curRoom.num);
+        GameInteractor_ExecuteOnRoomInit(play->sceneId, roomCtx->curRoom.num);
 
         return 1;
     }
