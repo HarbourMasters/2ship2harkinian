@@ -32,7 +32,7 @@ typedef enum {
     GI_VB_SHOW_TITLE_CARD,
     GI_VB_PLAY_ENTRANCE_CS,
     GI_VB_DISABLE_FD_MASK,
-    GI_VB_PREVENT_CLOCK_DISPLAY
+    GI_VB_PREVENT_CLOCK_DISPLAY,
 } GIVanillaBehavior;
 
 #ifdef __cplusplus
