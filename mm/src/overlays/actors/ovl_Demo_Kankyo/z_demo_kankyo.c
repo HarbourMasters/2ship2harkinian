@@ -522,8 +522,17 @@ void DemoKakyo_DrawLostWoodsSparkle(Actor* thisx, PlayState* play2) {
 
             Play_GetScreenPos(play, &worldPos, &screenPos);
 
+            // #region 2S2H [Cosmetic] Increase particle render area for widescreen
+            f32 xMin = 0.0f;
+            f32 xMax = SCREEN_WIDTH;
+            if (OTRGetAspectRatio() > 4.0f / 3.0f) {
+                xMin = OTRGetDimensionFromLeftEdge(xMin);
+                xMax = OTRGetDimensionFromRightEdge(xMax);
+            }
+            // #pragma endregion
+
             // checking if particle is on screen
-            if ((screenPos.x >= 0.0f) && (screenPos.x < SCREEN_WIDTH) && (screenPos.y >= 0.0f) &&
+            if ((screenPos.x >= xMin) && (screenPos.x < xMax) && (screenPos.y >= 0.0f) &&
                 (screenPos.y < SCREEN_HEIGHT)) {
                 Matrix_Translate(worldPos.x, worldPos.y, worldPos.z, MTXMODE_NEW);
                 scaleAlpha = this->effects[i].alpha / 50.0f;
@@ -614,8 +623,17 @@ void DemoKankyo_DrawMoonAndGiant(Actor* thisx, PlayState* play2) {
 
             Play_GetScreenPos(play, &worldPos, &screenPos);
 
+            // #region 2S2H [Cosmetic] Increase effect render area for widescreen
+            f32 xMin = 0.0f;
+            f32 xMax = SCREEN_WIDTH;
+            if (OTRGetAspectRatio() > 4.0f / 3.0f) {
+                xMin = OTRGetDimensionFromLeftEdge(xMin);
+                xMax = OTRGetDimensionFromRightEdge(xMax);
+            }
+            // #pragma endregion
+
             // checking if effect is on screen
-            if ((screenPos.x >= 0.0f) && (screenPos.x < SCREEN_WIDTH) && (screenPos.y >= 0.0f) &&
+            if ((screenPos.x >= xMin) && (screenPos.x < xMax) && (screenPos.y >= 0.0f) &&
                 (screenPos.y < SCREEN_HEIGHT)) {
                 Matrix_Translate(worldPos.x, worldPos.y, worldPos.z, MTXMODE_NEW);
                 alphaScale = this->effects[i].alpha / 50.0f;
