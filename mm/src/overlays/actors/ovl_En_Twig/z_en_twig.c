@@ -251,4 +251,9 @@ void EnTwig_Draw(Actor* thisx, PlayState* play) {
 
 void EnTwig_Reset(void) {
     sRingsHaveSpawned = false;
+    sCurrentRing = 0;
+
+    for (size_t i = 0; i < ARRAY_COUNT(sRingNotCollected); i++) {
+        sRingNotCollected[i] = false;
+    }
 }
