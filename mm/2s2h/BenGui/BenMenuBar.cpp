@@ -301,7 +301,7 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Enable Sun's Song", "gEnhancements.Songs.EnableSunsSong", {
                 .tooltip = "Enables the partially implemented Sun's Song. RIGHT-DOWN-UP-RIGHT-DOWN-UP to play it. "
                            "This song will make time move very fast until either Link moves to a different scene, "
-                           "or when the time switches to a new time period. Changes to this enhancement come into effect after switching to a new scene."
+                           "or when the time switches to a new time period."
             });
 
             ImGui::EndMenu();
