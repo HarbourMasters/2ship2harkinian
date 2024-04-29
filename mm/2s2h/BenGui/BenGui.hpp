@@ -6,6 +6,7 @@
 #include "DeveloperTools/SaveEditor.h"
 #include "DeveloperTools/ActorViewer.h"
 #include "DeveloperTools/CollisionViewer.h"
+#include "DeveloperTools/EventLog.h"
 
 namespace BenGui {
     void SetupHooks();

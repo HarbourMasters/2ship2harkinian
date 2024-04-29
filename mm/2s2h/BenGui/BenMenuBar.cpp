@@ -349,6 +349,7 @@ extern std::shared_ptr<LUS::GuiWindow> mGfxDebuggerWindow;
 extern std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
 extern std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 extern std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
+extern std::shared_ptr<EventLogWindow> mEventLogWindow;
 
 void DrawDeveloperToolsMenu() {
     if (UIWidgets::BeginMenu("Developer Tools", UIWidgets::Colors::Yellow)) {
@@ -414,6 +415,9 @@ void DrawDeveloperToolsMenu() {
             UIWidgets::WindowButton("Actor Viewer", "gWindows.ActorViewer", mActorViewerWindow, {
                 .tooltip = "Enables the Actor Viewer window, allowing you to view actors in the world."
             });
+        }
+        if (mEventLogWindow) {
+            UIWidgets::WindowButton("Event Log", "gWindows.EventLog", mEventLogWindow);
         }
         ImGui::EndMenu();
     }
