@@ -8,15 +8,15 @@ using json = nlohmann::json;
 
 void to_json(json& j, const DpadSaveInfo& dpadEquips) {
     j = json{
-        { "buttonItems", dpadEquips.dpadItems },
-        { "cButtonSlots", dpadEquips.dpadSlots },
+        { "dpadItems", dpadEquips.dpadItems },
+        { "dpadSlots", dpadEquips.dpadSlots },
     };
 }
 
 void from_json(const json& j, DpadSaveInfo& dpadEquips) {
     for (int i = 0; i < ARRAY_COUNT(dpadEquips.dpadItems); i++) {
-        j.at("buttonItems").at(i).get_to(dpadEquips.dpadItems[i]);
-        j.at("cButtonSlots").at(i).get_to(dpadEquips.dpadSlots[i]);
+        j.at("dpadItems").at(i).get_to(dpadEquips.dpadItems[i]);
+        j.at("dpadSlots").at(i).get_to(dpadEquips.dpadSlots[i]);
     }
 }
 
