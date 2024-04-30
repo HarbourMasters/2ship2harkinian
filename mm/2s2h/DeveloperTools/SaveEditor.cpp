@@ -1,5 +1,6 @@
 #include "SaveEditor.h"
 #include "2s2h/BenGui/UIWidgets.hpp"
+#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 
 extern "C" {
 #include <z64.h>
@@ -610,6 +611,18 @@ const char* regGroupNames[] = {
     "bREG (28)",
 };
 
+// 2S2H Added columns to scene table: entranceSceneId, betterMapSelectIndex, humanName
+#define DEFINE_SCENE(_name, enumValue, _textId, _drawConfig, _restrictionFlags, _persistentCycleFlags, _entranceSceneId, _betterMapSelectIndex, humanName) \
+    { enumValue, humanName },
+#define DEFINE_SCENE_UNSET(_enumValue)
+
+std::unordered_map<s16, const char*> sceneList = {
+#include "tables/scene_table.h"    
+};
+
+#undef DEFINE_SCENE
+#undef DEFINE_SCENE_UNSET
+
 void DrawRegEditorTab() {
     UIWidgets::PushStyleSlider();
     ImGui::SliderScalar("Reg Group", ImGuiDataType_U8, &gRegEditor->regGroup, &S8_ZERO, &REG_GROUPS_MAX, regGroupNames[gRegEditor->regGroup]);
@@ -636,6 +649,216 @@ void DrawRegEditorTab() {
     }
 
     ImGui::EndChild();
+}
+
+const char* flagEditorSections[] = {
+    "currentSceneFlags",
+    "weekEventReg",
+    "eventInf",
+    "scenesVisible",
+    "owlActivation",
+    "permanentSceneFlags",
+    "cycleSceneFlags",
+};
+
+void DrawFlagsTab() {
+    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 3.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f, 8.0f));
+    ImGui::BeginChild("flagsBox", ImVec2(0, 0), true);
+    static int selectedFlagSection = 0;
+    UIWidgets::Combobox("Flag Type", &selectedFlagSection, flagEditorSections, {
+        .alignment = UIWidgets::ComponentAlignment::Left,
+        .labelPosition = UIWidgets::LabelPosition::None,
+    });
+
+    static int16_t selectedScene = 0;
+    if (selectedFlagSection == 5 || selectedFlagSection == 6) {
+        ImGui::SameLine();
+        UIWidgets::Combobox("Scene", &selectedScene, sceneList, {
+            .alignment = UIWidgets::ComponentAlignment::Left,
+            .labelPosition = UIWidgets::LabelPosition::None,
+        });
+        if (gPlayState != NULL) {
+            ImGui::SameLine();
+            if (UIWidgets::Button("Current", {
+                .color = UIWidgets::Colors::Gray,
+                .size = UIWidgets::Sizes::Inline,
+            })) {
+                selectedScene = gPlayState->sceneId;
+            }
+        }
+    }
+
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(1.0f, 1.0f));
+    switch (selectedFlagSection) {
+        case 0:
+            if (gPlayState == NULL) {
+                ImGui::Text("Play state is NULL, cannot display scene flags");
+                break;
+            }
+
+            ImGui::BeginGroup();
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("switches[0]");
+            UIWidgets::DrawFlagArray32("##", gPlayState->actorCtx.sceneFlags.switches[0]);
+            ImGui::EndGroup();
+            ImGui::SameLine(0, 10.0f);
+            ImGui::BeginGroup();
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("switches[1]");
+            UIWidgets::DrawFlagArray32("##", gPlayState->actorCtx.sceneFlags.switches[1]);
+            ImGui::EndGroup();
+            ImGui::BeginGroup();
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("switches[2] (temporary)");
+            UIWidgets::DrawFlagArray32("##", gPlayState->actorCtx.sceneFlags.switches[2]);
+            ImGui::EndGroup();
+            ImGui::SameLine(0, 10.0f);
+            ImGui::BeginGroup();
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("switches[3] (temporary)");
+            UIWidgets::DrawFlagArray32("##", gPlayState->actorCtx.sceneFlags.switches[3]);
+            ImGui::EndGroup();
+            ImGui::BeginGroup();
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("chest");
+            UIWidgets::DrawFlagArray32("##", gPlayState->actorCtx.sceneFlags.chest);
+            ImGui::EndGroup();
+            ImGui::SameLine(0, 10.0f);
+            ImGui::BeginGroup();
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("clearedRoom");
+            UIWidgets::DrawFlagArray32("##", gPlayState->actorCtx.sceneFlags.clearedRoom);
+            ImGui::EndGroup();
+            ImGui::BeginGroup();
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("clearedRoomTemp");
+            UIWidgets::DrawFlagArray32("##", gPlayState->actorCtx.sceneFlags.clearedRoomTemp);
+            ImGui::EndGroup();
+            ImGui::SameLine(0, 10.0f);
+            ImGui::BeginGroup();
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("collectible[0]");
+            UIWidgets::DrawFlagArray32("##", gPlayState->actorCtx.sceneFlags.collectible[0]);
+            ImGui::EndGroup();
+            ImGui::BeginGroup();
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("collectible[1]");
+            UIWidgets::DrawFlagArray32("##", gPlayState->actorCtx.sceneFlags.collectible[1]);
+            ImGui::EndGroup();
+            ImGui::SameLine(0, 10.0f);
+            ImGui::BeginGroup();
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("collectible[2]");
+            UIWidgets::DrawFlagArray32("##", gPlayState->actorCtx.sceneFlags.collectible[2]);
+            ImGui::EndGroup();
+            ImGui::BeginGroup();
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("collectible[3]");
+            UIWidgets::DrawFlagArray32("##", gPlayState->actorCtx.sceneFlags.collectible[3]);
+            ImGui::EndGroup();
+            break;
+        case 1:
+            for (int i = 0; i < 100; i++) {
+                ImGui::PushID(i);
+                ImGui::Text("%02d", i);
+                ImGui::SameLine();
+                UIWidgets::DrawFlagArray8("##", gSaveContext.save.saveInfo.weekEventReg[i]);
+                ImGui::PopID();
+            }
+            break;
+        case 2:
+            for (int i = 0; i < 8; i++) {
+                ImGui::PushID(i);
+                ImGui::Text("%02d", i);
+                ImGui::SameLine();
+                UIWidgets::DrawFlagArray8("##", gSaveContext.eventInf[i]);
+                ImGui::PopID();
+            }
+            break;
+        case 3:
+            for (int i = 0; i < 7; i++) {
+                ImGui::PushID(i);
+                UIWidgets::DrawFlagArray32("##", gSaveContext.save.saveInfo.scenesVisible[i]);
+                ImGui::PopID();
+            }
+            break;
+        case 4:
+            UIWidgets::DrawFlagArray16("##", gSaveContext.save.saveInfo.playerData.owlActivationFlags);
+            break;
+        case 5:
+            ImGui::BeginGroup();
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("chest");
+            UIWidgets::DrawFlagArray32("##", gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].chest);
+            ImGui::EndGroup();
+            ImGui::SameLine(0, 10.0f);
+            ImGui::BeginGroup();
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("switch0");
+            UIWidgets::DrawFlagArray32("##", gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].switch0);
+            ImGui::EndGroup();
+            ImGui::BeginGroup();
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("collectible");
+            UIWidgets::DrawFlagArray32("##", gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].collectible);
+            ImGui::EndGroup();
+            ImGui::SameLine(0, 10.0f);
+            ImGui::BeginGroup();
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("switch1");
+            UIWidgets::DrawFlagArray32("##", gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].switch1);
+            ImGui::EndGroup();
+            ImGui::BeginGroup();
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("clearedRoom");
+            UIWidgets::DrawFlagArray32("##", gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].clearedRoom);
+            ImGui::EndGroup();
+            ImGui::SameLine(0, 10.0f);
+            ImGui::BeginGroup();
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("unk_14");
+            UIWidgets::DrawFlagArray32("##", gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].unk_14);
+            ImGui::EndGroup();
+            ImGui::BeginGroup();
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("rooms");
+            UIWidgets::DrawFlagArray32("##", gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].rooms);
+            ImGui::EndGroup();
+            break;
+        case 6:
+            ImGui::BeginGroup();
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("chest");
+            UIWidgets::DrawFlagArray32("##", gSaveContext.cycleSceneFlags[selectedScene].chest);
+            ImGui::EndGroup();
+            ImGui::SameLine(0, 10.0f);
+            ImGui::BeginGroup();
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("switch0");
+            UIWidgets::DrawFlagArray32("##", gSaveContext.cycleSceneFlags[selectedScene].switch0);
+            ImGui::EndGroup();
+            ImGui::BeginGroup();
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("collectible");
+            UIWidgets::DrawFlagArray32("##", gSaveContext.cycleSceneFlags[selectedScene].collectible);
+            ImGui::EndGroup();
+            ImGui::SameLine(0, 10.0f);
+            ImGui::BeginGroup();
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("switch1");
+            UIWidgets::DrawFlagArray32("##", gSaveContext.cycleSceneFlags[selectedScene].switch1);
+            ImGui::EndGroup();
+            ImGui::BeginGroup();
+            ImGui::AlignTextToFramePadding();
+            ImGui::Text("clearedRoom");
+            UIWidgets::DrawFlagArray32("##", gSaveContext.cycleSceneFlags[selectedScene].clearedRoom);
+            ImGui::EndGroup();
+            break;
+    }
+    ImGui::PopStyleVar();
+    ImGui::EndChild();
+    ImGui::PopStyleVar(2);
 }
 
 void SaveEditorWindow::DrawElement() {
@@ -671,10 +894,10 @@ void SaveEditorWindow::DrawElement() {
         //     ImGui::EndTabItem();
         // }
 
-        // if (ImGui::BeginTabItem("Flags")) {
-        //     DrawFlagsTab();
-        //     ImGui::EndTabItem();
-        // }
+        if (ImGui::BeginTabItem("Flags")) {
+            DrawFlagsTab();
+            ImGui::EndTabItem();
+        }
 
         // if (ImGui::BeginTabItem("Player")) {
         //     DrawPlayerTab();
