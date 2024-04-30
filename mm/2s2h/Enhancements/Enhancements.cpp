@@ -7,6 +7,9 @@ void InitEnhancements() {
 
     // Masks
     RegisterFierceDeityAnywhere();
+
+    // Restorations
+    RegisterPowerCrouchStab();
     
     // Time Savers
     RegisterTimeSaversHooks();
