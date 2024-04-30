@@ -895,6 +895,64 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
         }
     }
 
+
+    if (pauseCtx->state == 7) {
+        Gfx_SetupDL42_Opa(gfxCtx);
+        KaleidoScope_UpdatePrompt(play);
+
+        gDPSetCombineMode(POLY_OPA_DISP++, G_CC_MODULATEIA, G_CC_MODULATEIA);
+
+        if (!pauseCtx->pageIndex) {
+            pauseCtx->itemPageRoll = pauseCtx->roll + 314.0f;
+
+            Matrix_Translate(0.0f, (f32)WREG(2) / 100.0f, -pauseCtx->unk_20C / 10.0f, MTXMODE_NEW);
+            Matrix_Scale(0.78f, 0.78f, 0.78f, MTXMODE_APPLY);
+            Matrix_RotateXF(-pauseCtx->roll / 100.0f, MTXMODE_APPLY);
+        } else if (pauseCtx->pageIndex == PAUSE_MAP) {
+            pauseCtx->mapPageRoll = pauseCtx->roll + 314.0f;
+
+            Matrix_Translate(pauseCtx->unk_20C / 10.0f, (f32)WREG(2) / 100.0f, 0.0f, MTXMODE_NEW);
+            Matrix_Scale(0.78f, 0.78f, 0.78f, MTXMODE_APPLY);
+            Matrix_RotateZF(-pauseCtx->roll / 100.0f, MTXMODE_APPLY);
+            Matrix_RotateYF(-1.57f, MTXMODE_APPLY);
+        } else if (pauseCtx->pageIndex == PAUSE_QUEST) {
+            pauseCtx->questPageRoll = pauseCtx->roll + 314.0f;
+
+            Matrix_Translate(0.0f, (f32)WREG(2) / 100.0f, pauseCtx->unk_20C / 10.0f, MTXMODE_NEW);
+            Matrix_Scale(0.78f, 0.78f, 0.78f, MTXMODE_APPLY);
+            Matrix_RotateXF(pauseCtx->roll / 100.0f, MTXMODE_APPLY);
+            Matrix_RotateYF(3.14f, MTXMODE_APPLY);
+        } else {
+            pauseCtx->maskPageRoll = pauseCtx->roll + 314.0f;
+
+            Matrix_Translate(-pauseCtx->unk_20C / 10.0f, (f32)WREG(2) / 100.0f, 0.0f, MTXMODE_NEW);
+            Matrix_Scale(0.78f, 0.78f, 0.78f, MTXMODE_APPLY);
+            Matrix_RotateZF(pauseCtx->roll / 100.0f, MTXMODE_APPLY);
+            Matrix_RotateYF(1.57f, MTXMODE_APPLY);
+        }
+
+        gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gfxCtx),
+                  G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+
+        static void* sSaveTexs[] = {
+            gPauseSave00Tex,    gPauseSave01Tex, gPauseSave02Tex, gPauseSave03Tex, gPauseSave04Tex,
+            gPauseSave10JPNTex, gPauseSave11Tex, gPauseSave12Tex, gPauseSave13Tex, gPauseSave14Tex,
+            gPauseSave20Tex,    gPauseSave21Tex, gPauseSave22Tex, gPauseSave23Tex, gPauseSave24Tex,
+        };
+
+        POLY_OPA_DISP = KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->promptPageVtx, sSaveTexs);
+        gSPVertex(POLY_OPA_DISP++, &pauseCtx->promptPageVtx[60], 32, 0);
+
+        gDPPipeSync(POLY_OPA_DISP++);
+        gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
+                          PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+
+        if ((pauseCtx->state != 0x10) && (pauseCtx->state != 0x11)) {
+            gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 0, pauseCtx->alpha);
+            gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 0);
+        }
+    }
+
     CLOSE_DISPS(gfxCtx);
     FrameInterpolation_RecordCloseChild();
 }
@@ -3247,8 +3305,12 @@ void KaleidoScope_Update(PlayState* play) {
                     if (!pauseCtx->itemDescriptionOn &&
                         (CHECK_BTN_ALL(input->press.button, BTN_START) || CHECK_BTN_ALL(input->press.button, BTN_B))) {
                         Interface_SetAButtonDoAction(play, DO_ACTION_NONE);
-                        pauseCtx->state = PAUSE_STATE_UNPAUSE_SETUP;
-                        sPauseMenuVerticalOffset = -6240.0f;
+                        if (CHECK_BTN_ALL(input->press.button, BTN_B)) {
+                            pauseCtx->state = PAUSE_STATE_SAVEPROMPT;
+                        } else {
+                            pauseCtx->state = PAUSE_STATE_UNPAUSE_SETUP;
+                            sPauseMenuVerticalOffset = -6240.0f;
+                        }
                         Audio_PlaySfx_PauseMenuOpenOrClose(SFX_PAUSE_MENU_CLOSE);
                     }
                     break;
@@ -3281,10 +3343,14 @@ void KaleidoScope_Update(PlayState* play) {
                         // Abort having the player play the song and close the pause menu
                         AudioOcarina_SetInstrument(OCARINA_INSTRUMENT_OFF);
                         Interface_SetAButtonDoAction(play, DO_ACTION_NONE);
-                        pauseCtx->state = PAUSE_STATE_UNPAUSE_SETUP;
-                        sPauseMenuVerticalOffset = -6240.0f;
+                        if (CHECK_BTN_ALL(input->press.button, BTN_B)) {
+                            pauseCtx->state = PAUSE_STATE_SAVEPROMPT;
+                        } else {
+                            pauseCtx->state = PAUSE_STATE_UNPAUSE_SETUP;
+                            sPauseMenuVerticalOffset = -6240.0f;
+                            pauseCtx->mainState = PAUSE_MAIN_STATE_IDLE;
+                        }
                         Audio_PlaySfx_PauseMenuOpenOrClose(SFX_PAUSE_MENU_CLOSE);
-                        pauseCtx->mainState = PAUSE_MAIN_STATE_IDLE;
                     } else if (pauseCtx->ocarinaStaff->state == pauseCtx->ocarinaSongIndex) {
                         // The player successfully played the song
                         Audio_PlaySfx(NA_SE_SY_TRE_BOX_APPEAR);
@@ -3317,10 +3383,14 @@ void KaleidoScope_Update(PlayState* play) {
                     if (CHECK_BTN_ALL(input->press.button, BTN_START) || CHECK_BTN_ALL(input->press.button, BTN_B)) {
                         AudioOcarina_SetInstrument(OCARINA_INSTRUMENT_OFF);
                         Interface_SetAButtonDoAction(play, DO_ACTION_NONE);
-                        pauseCtx->state = PAUSE_STATE_UNPAUSE_SETUP;
-                        sPauseMenuVerticalOffset = -6240.0f;
+                        if (CHECK_BTN_ALL(input->press.button, BTN_B)) {
+                            pauseCtx->state = PAUSE_STATE_SAVEPROMPT;
+                        } else {
+                            pauseCtx->state = PAUSE_STATE_UNPAUSE_SETUP;
+                            sPauseMenuVerticalOffset = -6240.0f;
+                            pauseCtx->mainState = PAUSE_MAIN_STATE_IDLE;
+                        }
                         Audio_PlaySfx_PauseMenuOpenOrClose(SFX_PAUSE_MENU_CLOSE);
-                        pauseCtx->mainState = PAUSE_MAIN_STATE_IDLE;
                     }
                     break;
 
@@ -3362,15 +3432,17 @@ void KaleidoScope_Update(PlayState* play) {
                             pauseCtx->savePromptState = PAUSE_SAVEPROMPT_STATE_RETURN_TO_MENU;
                         } else {
                             Audio_PlaySfx(NA_SE_SY_PIECE_OF_HEART);
+                            gSaveContext.save.isOwlSave = true;
+                            gSaveContext.save.owlSaveLocation = gSaveContext.save.entrance;
                             Play_SaveCycleSceneFlags(&play->state);
                             gSaveContext.save.saveInfo.playerData.savedSceneId = play->sceneId;
                             func_8014546C(sramCtx);
                             if (!gSaveContext.flashSaveAvailable) {
                                 pauseCtx->savePromptState = PAUSE_SAVEPROMPT_STATE_5;
                             } else {
-                                Sram_SetFlashPagesDefault(sramCtx, gFlashSaveStartPages[gSaveContext.fileNum],
-                                                          gFlashSaveNumPages[gSaveContext.fileNum]);
-                                Sram_StartWriteToFlashDefault(sramCtx);
+                                Sram_SetFlashPagesOwlSave(sramCtx, gFlashOwlSaveStartPages[gSaveContext.fileNum * 2],
+                                          gFlashOwlSaveNumPages[gSaveContext.fileNum * 2]);
+                                Sram_StartWriteToFlashOwlSave(sramCtx);
                                 pauseCtx->savePromptState = PAUSE_SAVEPROMPT_STATE_4;
                             }
                             sDelayTimer = 90;
