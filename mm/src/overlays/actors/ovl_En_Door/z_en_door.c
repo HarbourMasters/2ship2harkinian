@@ -27,6 +27,7 @@ void EnDoor_Init(Actor* thisx, PlayState* play2);
 void EnDoor_Destroy(Actor* thisx, PlayState* play);
 void EnDoor_Update(Actor* thisx, PlayState* play);
 void EnDoor_Draw(Actor* thisx, PlayState* play);
+void EnDoor_Reset(void);
 
 void func_80866B20(EnDoor*, PlayState*);
 void func_8086704C(EnDoor*, PlayState*);
@@ -286,6 +287,7 @@ ActorInit En_Door_InitVars = {
     /**/ EnDoor_Destroy,
     /**/ EnDoor_Update,
     /**/ EnDoor_Draw,
+    /**/ EnDoor_Reset,
 };
 
 typedef struct {
@@ -497,8 +499,10 @@ void func_80866A5C(EnDoor* this, PlayState* play) {
     }
 }
 
+// 2S2H [Port] Moved static vars out of function scope so they can be cleared in actor reset
+static s32 D_80867BC0;
+
 void func_80866B20(EnDoor* this, PlayState* play) {
-    static s32 D_80867BC0;
     Player* player = GET_PLAYER(play);
 
     if (Actor_ProcessTalkRequest(&this->knobDoor.dyna.actor, &play->state) &&
@@ -712,4 +716,8 @@ void EnDoor_Draw(Actor* thisx, PlayState* play) {
 
         CLOSE_DISPS(play->state.gfxCtx);
     }
+}
+
+void EnDoor_Reset(void) {
+    D_80867BC0 = false;
 }
