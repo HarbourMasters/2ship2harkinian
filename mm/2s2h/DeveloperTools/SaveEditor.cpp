@@ -313,7 +313,27 @@ void DrawGeneralTab() {
     );
 
     ImGui::Text("Banked Rupees: %d", HS_GET_BANK_RUPEES());
-    UIWidgets::Checkbox("Snowhead Cleared", (bool*)&gSaveContext.save.snowheadCleared, { .color = UIWidgets::Colors::Gray });
+
+    // Temple clears
+    static const std::array<std::pair<int32_t, const char*>, 4> templeClears = { {
+        { WEEKEVENTREG_CLEARED_WOODFALL_TEMPLE, "Woodfall Cleared" },
+        { WEEKEVENTREG_CLEARED_SNOWHEAD_TEMPLE, "Snowhead Cleared" },
+        { WEEKEVENTREG_CLEARED_GREAT_BAY_TEMPLE, "Great Bay Cleared" },
+        { WEEKEVENTREG_CLEARED_STONE_TOWER_TEMPLE, "Stone Tower Cleared" },
+    } };
+
+    for (size_t i = 0; i < templeClears.size(); i++) {
+        const auto& temple = templeClears.at(i);
+        bool cleared = CHECK_WEEKEVENTREG(temple.first);
+        if (UIWidgets::Checkbox(temple.second, &cleared, { .color = UIWidgets::Colors::Gray })) {
+            if (cleared) {
+                SET_WEEKEVENTREG(temple.first);
+            } else {
+                CLEAR_WEEKEVENTREG(temple.first);
+            }
+        }
+    }
+
     UIWidgets::Checkbox("Has Tatl", (bool*)&gSaveContext.save.hasTatl, { .color = UIWidgets::Colors::Gray });
     ImGui::EndGroup();
 
