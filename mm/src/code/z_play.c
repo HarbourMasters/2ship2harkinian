@@ -3,7 +3,6 @@
 #include "functions.h"
 #include "z64vismono.h"
 #include "z64visfbuf.h"
-#include <time.h>
 
 // Variables are put before most headers as a hacky way to bypass bss reordering
 s16 sTransitionFillTimer;
@@ -156,18 +155,6 @@ void Play_EnableMotionBlur(u32 alpha) {
 
 void Play_DisableMotionBlur(void) {
     R_MOTION_BLUR_ENABLED = false;
-}
-
-time_t Gameplay_GetRealTime() {
-    time_t t1, t2;
-    struct tm* tms;
-    time(&t1);
-    tms = localtime(&t1);
-    tms->tm_hour = 0;
-    tms->tm_min = 0;
-    tms->tm_sec = 0;
-    t2 = mktime(tms);
-    return t1 - t2;
 }
 
 // How much each color component contributes to the intensity image.
@@ -1614,18 +1601,6 @@ void Play_Main(GameState* thisx) {
 
     CutsceneManager_Update();
     CutsceneManager_ClearWaiting();
-
-    if (CVarGetInteger("gTimeSync", 0)) {
-        const int maxRealDaySeconds = 86400;
-        const int maxInGameDayTicks = 65536;
-
-        int secs = (int)Gameplay_GetRealTime();
-        float percent = (float)secs / (float)maxRealDaySeconds;
-
-        int newIngameTime = maxInGameDayTicks * percent;
-
-        gSaveContext.save.time = newIngameTime;
-    }
 }
 
 s32 Play_InCsMode(PlayState* this) {

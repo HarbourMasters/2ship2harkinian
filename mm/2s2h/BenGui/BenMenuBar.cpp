@@ -531,8 +531,10 @@ void DrawCheatsMenu() {
         }
         UIWidgets::CVarCheckbox("No Clip", "gCheats.NoClip");
 
-        UIWidgets::CVarCheckbox("Sync Time with Real Time", "gTimeSync",
-                                { .tooltip = "This syncs the ingame time with the real world time." });
+        if (UIWidgets::CVarCheckbox("Sync Time with Real Time", "gCheats.RealTimeSync",
+                                    { .tooltip = "This syncs the ingame time with the real world time." })) {
+            RegisterRealTimeSync();
+        }
 
         ImGui::EndMenu();
     }
