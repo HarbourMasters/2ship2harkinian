@@ -322,8 +322,7 @@ void DrawGeneralTab() {
         { WEEKEVENTREG_CLEARED_STONE_TOWER_TEMPLE, "Stone Tower Cleared" },
     } };
 
-    for (size_t i = 0; i < templeClears.size(); i++) {
-        const auto& temple = templeClears.at(i);
+    for (const auto& temple : templeClears) {
         bool cleared = CHECK_WEEKEVENTREG(temple.first);
         if (UIWidgets::Checkbox(temple.second, &cleared, { .color = UIWidgets::Colors::Gray })) {
             if (cleared) {
