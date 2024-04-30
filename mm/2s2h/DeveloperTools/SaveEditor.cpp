@@ -700,62 +700,150 @@ void DrawFlagsTab() {
             ImGui::BeginGroup();
             ImGui::AlignTextToFramePadding();
             ImGui::Text("switches[0]");
-            UIWidgets::DrawFlagArray32("##", gPlayState->actorCtx.sceneFlags.switches[0]);
+            ImGui::SameLine(110);
+            if (UIWidgets::Button("All##switches0", { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
+                gPlayState->actorCtx.sceneFlags.switches[0] = UINT32_MAX;
+            }
+            ImGui::SameLine();
+            if (UIWidgets::Button("Clear##switches0", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+                gPlayState->actorCtx.sceneFlags.switches[0] = 0;
+            }
+            UIWidgets::DrawFlagArray32("##switches0", gPlayState->actorCtx.sceneFlags.switches[0]);
             ImGui::EndGroup();
             ImGui::SameLine(0, 10.0f);
             ImGui::BeginGroup();
             ImGui::AlignTextToFramePadding();
             ImGui::Text("switches[1]");
-            UIWidgets::DrawFlagArray32("##", gPlayState->actorCtx.sceneFlags.switches[1]);
+            ImGui::SameLine(110);
+            if (UIWidgets::Button("All##switches1", { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
+                gPlayState->actorCtx.sceneFlags.switches[1] = UINT32_MAX;
+            }
+            ImGui::SameLine();
+            if (UIWidgets::Button("Clear##switches1", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+                gPlayState->actorCtx.sceneFlags.switches[1] = 0;
+            }
+            UIWidgets::DrawFlagArray32("##switches1", gPlayState->actorCtx.sceneFlags.switches[1]);
             ImGui::EndGroup();
             ImGui::BeginGroup();
             ImGui::AlignTextToFramePadding();
-            ImGui::Text("switches[2] (temporary)");
-            UIWidgets::DrawFlagArray32("##", gPlayState->actorCtx.sceneFlags.switches[2]);
+            ImGui::Text("switches[2]");
+            ImGui::SameLine(110);
+            if (UIWidgets::Button("All##switches2", { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
+                gPlayState->actorCtx.sceneFlags.switches[2] = UINT32_MAX;
+            }
+            ImGui::SameLine();
+            if (UIWidgets::Button("Clear##switches2", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+                gPlayState->actorCtx.sceneFlags.switches[2] = 0;
+            }
+            UIWidgets::DrawFlagArray32("##switches2", gPlayState->actorCtx.sceneFlags.switches[2]);
             ImGui::EndGroup();
             ImGui::SameLine(0, 10.0f);
             ImGui::BeginGroup();
             ImGui::AlignTextToFramePadding();
-            ImGui::Text("switches[3] (temporary)");
-            UIWidgets::DrawFlagArray32("##", gPlayState->actorCtx.sceneFlags.switches[3]);
+            ImGui::Text("switches[3]");
+            ImGui::SameLine(110);
+            if (UIWidgets::Button("All##switches3", { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
+                gPlayState->actorCtx.sceneFlags.switches[3] = UINT32_MAX;
+            }
+            ImGui::SameLine();
+            if (UIWidgets::Button("Clear##switches3", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+                gPlayState->actorCtx.sceneFlags.switches[3] = 0;
+            }
+            UIWidgets::DrawFlagArray32("##switches3", gPlayState->actorCtx.sceneFlags.switches[3]);
             ImGui::EndGroup();
             ImGui::BeginGroup();
             ImGui::AlignTextToFramePadding();
             ImGui::Text("chest");
-            UIWidgets::DrawFlagArray32("##", gPlayState->actorCtx.sceneFlags.chest);
+            ImGui::SameLine(110);
+            if (UIWidgets::Button("All##chest", { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
+                gPlayState->actorCtx.sceneFlags.chest = UINT32_MAX;
+            }
+            ImGui::SameLine();
+            if (UIWidgets::Button("Clear##chest", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+                gPlayState->actorCtx.sceneFlags.chest = 0;
+            }
+            UIWidgets::DrawFlagArray32("##chest", gPlayState->actorCtx.sceneFlags.chest);
             ImGui::EndGroup();
             ImGui::SameLine(0, 10.0f);
             ImGui::BeginGroup();
             ImGui::AlignTextToFramePadding();
             ImGui::Text("clearedRoom");
-            UIWidgets::DrawFlagArray32("##", gPlayState->actorCtx.sceneFlags.clearedRoom);
+            ImGui::SameLine(110);
+            if (UIWidgets::Button("All##clearedRoom", { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
+                gPlayState->actorCtx.sceneFlags.clearedRoom = UINT32_MAX;
+            }
+            ImGui::SameLine();
+            if (UIWidgets::Button("Clear##clearedRoom", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+                gPlayState->actorCtx.sceneFlags.clearedRoom = 0;
+            }
+            UIWidgets::DrawFlagArray32("##clearedRoom", gPlayState->actorCtx.sceneFlags.clearedRoom);
             ImGui::EndGroup();
             ImGui::BeginGroup();
             ImGui::AlignTextToFramePadding();
             ImGui::Text("clearedRoomTemp");
-            UIWidgets::DrawFlagArray32("##", gPlayState->actorCtx.sceneFlags.clearedRoomTemp);
+            ImGui::SameLine(110);
+            if (UIWidgets::Button("All##clearedRoomTemp", { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
+                gPlayState->actorCtx.sceneFlags.clearedRoomTemp = UINT32_MAX;
+            }
+            ImGui::SameLine();
+            if (UIWidgets::Button("Clear##clearedRoomTemp", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+                gPlayState->actorCtx.sceneFlags.clearedRoomTemp = 0;
+            }
+            UIWidgets::DrawFlagArray32("##clearedRoomTemp", gPlayState->actorCtx.sceneFlags.clearedRoomTemp);
             ImGui::EndGroup();
             ImGui::SameLine(0, 10.0f);
             ImGui::BeginGroup();
             ImGui::AlignTextToFramePadding();
             ImGui::Text("collectible[0]");
-            UIWidgets::DrawFlagArray32("##", gPlayState->actorCtx.sceneFlags.collectible[0]);
+            ImGui::SameLine(110);
+            if (UIWidgets::Button("All##collectible0", { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
+                gPlayState->actorCtx.sceneFlags.collectible[0] = UINT32_MAX;
+            }
+            ImGui::SameLine();
+            if (UIWidgets::Button("Clear##collectible0", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+                gPlayState->actorCtx.sceneFlags.collectible[0] = 0;
+            }
+            UIWidgets::DrawFlagArray32("##collectible0", gPlayState->actorCtx.sceneFlags.collectible[0]);
             ImGui::EndGroup();
             ImGui::BeginGroup();
             ImGui::AlignTextToFramePadding();
             ImGui::Text("collectible[1]");
-            UIWidgets::DrawFlagArray32("##", gPlayState->actorCtx.sceneFlags.collectible[1]);
+            ImGui::SameLine(110);
+            if (UIWidgets::Button("All##collectible1", { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
+                gPlayState->actorCtx.sceneFlags.collectible[1] = UINT32_MAX;
+            }
+            ImGui::SameLine();
+            if (UIWidgets::Button("Clear##collectible1", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+                gPlayState->actorCtx.sceneFlags.collectible[1] = 0;
+            }
+            UIWidgets::DrawFlagArray32("##collectible1", gPlayState->actorCtx.sceneFlags.collectible[1]);
             ImGui::EndGroup();
             ImGui::SameLine(0, 10.0f);
             ImGui::BeginGroup();
             ImGui::AlignTextToFramePadding();
             ImGui::Text("collectible[2]");
-            UIWidgets::DrawFlagArray32("##", gPlayState->actorCtx.sceneFlags.collectible[2]);
+            ImGui::SameLine(110);
+            if (UIWidgets::Button("All##collectible2", { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
+                gPlayState->actorCtx.sceneFlags.collectible[2] = UINT32_MAX;
+            }
+            ImGui::SameLine();
+            if (UIWidgets::Button("Clear##collectible2", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+                gPlayState->actorCtx.sceneFlags.collectible[2] = 0;
+            }
+            UIWidgets::DrawFlagArray32("##collectible2", gPlayState->actorCtx.sceneFlags.collectible[2]);
             ImGui::EndGroup();
             ImGui::BeginGroup();
             ImGui::AlignTextToFramePadding();
             ImGui::Text("collectible[3]");
-            UIWidgets::DrawFlagArray32("##", gPlayState->actorCtx.sceneFlags.collectible[3]);
+            ImGui::SameLine(110);
+            if (UIWidgets::Button("All##collectible3", { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
+                gPlayState->actorCtx.sceneFlags.collectible[3] = UINT32_MAX;
+            }
+            ImGui::SameLine();
+            if (UIWidgets::Button("Clear##collectible3", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+                gPlayState->actorCtx.sceneFlags.collectible[3] = 0;
+            }
+            UIWidgets::DrawFlagArray32("##collectible3", gPlayState->actorCtx.sceneFlags.collectible[3]);
             ImGui::EndGroup();
             break;
         case 1:
@@ -777,6 +865,17 @@ void DrawFlagsTab() {
             }
             break;
         case 3:
+            if (UIWidgets::Button("All##scenesVisible", { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
+                for (int i = 0; i < 7; i++) {
+                   gSaveContext.save.saveInfo.scenesVisible[i] = UINT32_MAX;
+                }
+            }
+            ImGui::SameLine();
+            if (UIWidgets::Button("Clear##scenesVisible", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+                for (int i = 0; i < 7; i++) {
+                   gSaveContext.save.saveInfo.scenesVisible[i] = 0;
+                }
+            }
             for (int i = 0; i < 7; i++) {
                 ImGui::PushID(i);
                 UIWidgets::DrawFlagArray32("##", gSaveContext.save.saveInfo.scenesVisible[i]);
@@ -784,75 +883,178 @@ void DrawFlagsTab() {
             }
             break;
         case 4:
-            UIWidgets::DrawFlagArray16("##", gSaveContext.save.saveInfo.playerData.owlActivationFlags);
+            if (UIWidgets::Button("All##scenesVisible", { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
+                gSaveContext.save.saveInfo.playerData.owlActivationFlags = UINT16_MAX;
+            }
+            ImGui::SameLine();
+            if (UIWidgets::Button("Clear##scenesVisible", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+                gSaveContext.save.saveInfo.playerData.owlActivationFlags = 0;
+            }
+            UIWidgets::DrawFlagArray16("##scenesVisible", gSaveContext.save.saveInfo.playerData.owlActivationFlags);
             break;
         case 5:
             ImGui::BeginGroup();
             ImGui::AlignTextToFramePadding();
             ImGui::Text("chest");
-            UIWidgets::DrawFlagArray32("##", gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].chest);
+            ImGui::SameLine(110);
+            if (UIWidgets::Button("All##chest", { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
+                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].chest = UINT32_MAX;
+            }
+            ImGui::SameLine();
+            if (UIWidgets::Button("Clear##chest", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].chest = 0;
+            }
+            UIWidgets::DrawFlagArray32("##chest", gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].chest);
             ImGui::EndGroup();
             ImGui::SameLine(0, 10.0f);
             ImGui::BeginGroup();
             ImGui::AlignTextToFramePadding();
             ImGui::Text("switch0");
-            UIWidgets::DrawFlagArray32("##", gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].switch0);
+            ImGui::SameLine(110);
+            if (UIWidgets::Button("All##switch0", { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
+                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].switch0 = UINT32_MAX;
+            }
+            ImGui::SameLine();
+            if (UIWidgets::Button("Clear##switch0", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].switch0 = 0;
+            }
+            UIWidgets::DrawFlagArray32("##switch0", gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].switch0);
             ImGui::EndGroup();
             ImGui::BeginGroup();
             ImGui::AlignTextToFramePadding();
             ImGui::Text("collectible");
-            UIWidgets::DrawFlagArray32("##", gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].collectible);
+            ImGui::SameLine(110);
+            if (UIWidgets::Button("All##collectible", { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
+                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].collectible = UINT32_MAX;
+            }
+            ImGui::SameLine();
+            if (UIWidgets::Button("Clear##collectible", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].collectible = 0;
+            }
+            UIWidgets::DrawFlagArray32("##collectible", gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].collectible);
             ImGui::EndGroup();
             ImGui::SameLine(0, 10.0f);
             ImGui::BeginGroup();
             ImGui::AlignTextToFramePadding();
             ImGui::Text("switch1");
-            UIWidgets::DrawFlagArray32("##", gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].switch1);
+            ImGui::SameLine(110);
+            if (UIWidgets::Button("All##switch1", { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
+                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].switch1 = UINT32_MAX;
+            }
+            ImGui::SameLine();
+            if (UIWidgets::Button("Clear##switch1", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].switch1 = 0;
+            }
+            UIWidgets::DrawFlagArray32("##switch1", gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].switch1);
             ImGui::EndGroup();
             ImGui::BeginGroup();
             ImGui::AlignTextToFramePadding();
             ImGui::Text("clearedRoom");
-            UIWidgets::DrawFlagArray32("##", gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].clearedRoom);
+            ImGui::SameLine(110);
+            if (UIWidgets::Button("All##clearedRoom", { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
+                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].clearedRoom = UINT32_MAX;
+            }
+            ImGui::SameLine();
+            if (UIWidgets::Button("Clear##clearedRoom", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].clearedRoom = 0;
+            }
+            UIWidgets::DrawFlagArray32("##clearedRoom", gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].clearedRoom);
             ImGui::EndGroup();
             ImGui::SameLine(0, 10.0f);
             ImGui::BeginGroup();
             ImGui::AlignTextToFramePadding();
             ImGui::Text("unk_14");
-            UIWidgets::DrawFlagArray32("##", gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].unk_14);
+            ImGui::SameLine(110);
+            if (UIWidgets::Button("All##unk_14", { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
+                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].unk_14 = UINT32_MAX;
+            }
+            ImGui::SameLine();
+            if (UIWidgets::Button("Clear##unk_14", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].unk_14 = 0;
+            }
+            UIWidgets::DrawFlagArray32("##unk_14", gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].unk_14);
             ImGui::EndGroup();
             ImGui::BeginGroup();
             ImGui::AlignTextToFramePadding();
             ImGui::Text("rooms");
-            UIWidgets::DrawFlagArray32("##", gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].rooms);
+            ImGui::SameLine(110);
+            if (UIWidgets::Button("All##rooms", { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
+                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].rooms = UINT32_MAX;
+            }
+            ImGui::SameLine();
+            if (UIWidgets::Button("Clear##rooms", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].rooms = 0;
+            }
+            UIWidgets::DrawFlagArray32("##rooms", gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].rooms);
             ImGui::EndGroup();
             break;
         case 6:
             ImGui::BeginGroup();
             ImGui::AlignTextToFramePadding();
             ImGui::Text("chest");
-            UIWidgets::DrawFlagArray32("##", gSaveContext.cycleSceneFlags[selectedScene].chest);
+            ImGui::SameLine(110);
+            if (UIWidgets::Button("All##chest", { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
+                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].chest = UINT32_MAX;
+            }
+            ImGui::SameLine();
+            if (UIWidgets::Button("Clear##chest", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].chest = 0;
+            }
+            UIWidgets::DrawFlagArray32("##chest", gSaveContext.cycleSceneFlags[selectedScene].chest);
             ImGui::EndGroup();
             ImGui::SameLine(0, 10.0f);
             ImGui::BeginGroup();
             ImGui::AlignTextToFramePadding();
             ImGui::Text("switch0");
-            UIWidgets::DrawFlagArray32("##", gSaveContext.cycleSceneFlags[selectedScene].switch0);
+            ImGui::SameLine(110);
+            if (UIWidgets::Button("All##switch0", { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
+                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].switch0 = UINT32_MAX;
+            }
+            ImGui::SameLine();
+            if (UIWidgets::Button("Clear##switch0", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].switch0 = 0;
+            }
+            UIWidgets::DrawFlagArray32("##switch0", gSaveContext.cycleSceneFlags[selectedScene].switch0);
             ImGui::EndGroup();
             ImGui::BeginGroup();
             ImGui::AlignTextToFramePadding();
             ImGui::Text("collectible");
-            UIWidgets::DrawFlagArray32("##", gSaveContext.cycleSceneFlags[selectedScene].collectible);
+            ImGui::SameLine(110);
+            if (UIWidgets::Button("All##collectible", { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
+                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].collectible = UINT32_MAX;
+            }
+            ImGui::SameLine();
+            if (UIWidgets::Button("Clear##collectible", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].collectible = 0;
+            }
+            UIWidgets::DrawFlagArray32("##collectible", gSaveContext.cycleSceneFlags[selectedScene].collectible);
             ImGui::EndGroup();
             ImGui::SameLine(0, 10.0f);
             ImGui::BeginGroup();
             ImGui::AlignTextToFramePadding();
             ImGui::Text("switch1");
-            UIWidgets::DrawFlagArray32("##", gSaveContext.cycleSceneFlags[selectedScene].switch1);
+            ImGui::SameLine(110);
+            if (UIWidgets::Button("All##switch1", { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
+                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].switch1 = UINT32_MAX;
+            }
+            ImGui::SameLine();
+            if (UIWidgets::Button("Clear##switch1", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].switch1 = 0;
+            }
+            UIWidgets::DrawFlagArray32("##switch1", gSaveContext.cycleSceneFlags[selectedScene].switch1);
             ImGui::EndGroup();
             ImGui::BeginGroup();
             ImGui::AlignTextToFramePadding();
             ImGui::Text("clearedRoom");
-            UIWidgets::DrawFlagArray32("##", gSaveContext.cycleSceneFlags[selectedScene].clearedRoom);
+            ImGui::SameLine(110);
+            if (UIWidgets::Button("All##clearedRoom", { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
+                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].clearedRoom = UINT32_MAX;
+            }
+            ImGui::SameLine();
+            if (UIWidgets::Button("Clear##clearedRoom", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].clearedRoom = 0;
+            }
+            UIWidgets::DrawFlagArray32("##clearedRoom", gSaveContext.cycleSceneFlags[selectedScene].clearedRoom);
             ImGui::EndGroup();
             break;
     }
