@@ -895,44 +895,44 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
         }
     }
 
-
-    if (pauseCtx->state == 7) {
-        Gfx_SetupDL42_Opa(gfxCtx);
+    Gfx_SetupDL42_Opa(gfxCtx);
+    if ((pauseCtx->state == 7) || (((s32) pauseCtx->state >= 8) && ((s32) pauseCtx->state < 0x13))) {
         KaleidoScope_UpdatePrompt(play);
+        gDPPipeSync(POLY_OPA_DISP++);
+        gDPSetCombineLERP(POLY_OPA_DISP++, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, SHADE, 0, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, SHADE, 0);
+        gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 180, 180, 120, 255);
 
-        gDPSetCombineMode(POLY_OPA_DISP++, G_CC_MODULATEIA, G_CC_MODULATEIA);
-
-        if (!pauseCtx->pageIndex) {
-            pauseCtx->itemPageRoll = pauseCtx->roll + 314.0f;
-
-            Matrix_Translate(0.0f, (f32)WREG(2) / 100.0f, -pauseCtx->unk_20C / 10.0f, MTXMODE_NEW);
-            Matrix_Scale(0.78f, 0.78f, 0.78f, MTXMODE_APPLY);
-            Matrix_RotateXF(-pauseCtx->roll / 100.0f, MTXMODE_APPLY);
-        } else if (pauseCtx->pageIndex == PAUSE_MAP) {
-            pauseCtx->mapPageRoll = pauseCtx->roll + 314.0f;
-
-            Matrix_Translate(pauseCtx->unk_20C / 10.0f, (f32)WREG(2) / 100.0f, 0.0f, MTXMODE_NEW);
-            Matrix_Scale(0.78f, 0.78f, 0.78f, MTXMODE_APPLY);
-            Matrix_RotateZF(-pauseCtx->roll / 100.0f, MTXMODE_APPLY);
-            Matrix_RotateYF(-1.57f, MTXMODE_APPLY);
-        } else if (pauseCtx->pageIndex == PAUSE_QUEST) {
-            pauseCtx->questPageRoll = pauseCtx->roll + 314.0f;
-
-            Matrix_Translate(0.0f, (f32)WREG(2) / 100.0f, pauseCtx->unk_20C / 10.0f, MTXMODE_NEW);
-            Matrix_Scale(0.78f, 0.78f, 0.78f, MTXMODE_APPLY);
-            Matrix_RotateXF(pauseCtx->roll / 100.0f, MTXMODE_APPLY);
-            Matrix_RotateYF(3.14f, MTXMODE_APPLY);
-        } else {
-            pauseCtx->maskPageRoll = pauseCtx->roll + 314.0f;
-
-            Matrix_Translate(-pauseCtx->unk_20C / 10.0f, (f32)WREG(2) / 100.0f, 0.0f, MTXMODE_NEW);
-            Matrix_Scale(0.78f, 0.78f, 0.78f, MTXMODE_APPLY);
-            Matrix_RotateZF(pauseCtx->roll / 100.0f, MTXMODE_APPLY);
-            Matrix_RotateYF(1.57f, MTXMODE_APPLY);
+        switch (pauseCtx->pageIndex) {
+            case PAUSE_ITEM:
+                pauseCtx->itemPageRoll = pauseCtx->roll + 314.0f;
+                Matrix_RotateYF(0.0f, MTXMODE_NEW);
+                Matrix_Translate(0, sPauseMenuVerticalOffset / 100.0f, -93.0f, MTXMODE_APPLY);
+                Matrix_Scale(0.78f, 0.78f, 0.78f, 1);
+                Matrix_RotateXFApply(-pauseCtx->roll / 100.0f);
+                break;
+            case PAUSE_MAP:
+                pauseCtx->mapPageRoll = pauseCtx->roll + 314.0f;
+                Matrix_RotateYF(-1.57f, MTXMODE_NEW);
+                Matrix_Translate(0, sPauseMenuVerticalOffset / 100.0f, -93.0f, MTXMODE_APPLY);
+                Matrix_Scale(0.78f, 0.78f, 0.78f, 1);
+                Matrix_RotateXFApply(-pauseCtx->roll / 100.0f);
+                break;
+            case PAUSE_QUEST:
+                pauseCtx->questPageRoll = pauseCtx->roll + 314.0f;
+                Matrix_RotateYF(-3.14f, MTXMODE_NEW);
+                Matrix_Translate(0, sPauseMenuVerticalOffset / 100.0f, -93.0f, MTXMODE_APPLY);
+                Matrix_Scale(0.78f, 0.78f, 0.78f, 1);
+                Matrix_RotateXFApply(-pauseCtx->roll / 100.0f);
+                break;
+            case PAUSE_MASK:
+                pauseCtx->maskPageRoll = pauseCtx->roll + 314.0f;
+                Matrix_RotateYF(1.57f, MTXMODE_NEW);
+                Matrix_Translate(0, sPauseMenuVerticalOffset / 100.0f, -93.0f, MTXMODE_APPLY);
+                Matrix_Scale(0.78f, 0.78f, 0.78f, 1);
+                Matrix_RotateXFApply(-pauseCtx->roll / 100.0f);
+                break;
         }
-
-        gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gfxCtx),
-                  G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
 
         static void* sSaveTexs[] = {
             gPauseSave00Tex,    gPauseSave01Tex, gPauseSave02Tex, gPauseSave03Tex, gPauseSave04Tex,
@@ -940,14 +940,58 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
             gPauseSave20Tex,    gPauseSave21Tex, gPauseSave22Tex, gPauseSave23Tex, gPauseSave24Tex,
         };
 
-        POLY_OPA_DISP = KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->promptPageVtx, sSaveTexs);
+        if ((pauseCtx->state >= 8) && (pauseCtx->state < 0x13)) {
+            POLY_OPA_DISP = KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->promptPageVtx, sSaveTexs);
+        } else {
+            POLY_OPA_DISP = KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->promptPageVtx, sSaveTexs);
+        }
+
         gSPVertex(POLY_OPA_DISP++, &pauseCtx->promptPageVtx[60], 32, 0);
 
-        gDPPipeSync(POLY_OPA_DISP++);
-        gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
-                          PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+        // if (((pauseCtx->state == 7) && ((pauseCtx->savePromptState < 5) || (pauseCtx->savePromptState == 6))) || (pauseCtx->state == 0xE)) {
+        //     gDPPipeSync(POLY_OPA_DISP++);
+        //     gDPSetCombineMode(POLY_OPA_DISP++, G_CC_MODULATEIA, G_CC_MODULATEIA);
+        //     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, pauseCtx->alpha);
+        //     POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gPauseSavePromptJPNTex, 0x98, 0x10, 0);
+        //     gDPPipeSync(POLY_OPA_DISP++);
+        //     gDPSetCombineLERP(POLY_OPA_DISP++, 1, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, 1, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0);
+        //     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 100, 100, 255, pauseCtx->promptAlpha);
+        //     if (pauseCtx->promptChoice == 0) {
+        //         gSPDisplayList(POLY_OPA_DISP++, gPromptCursorLeftDL);
+        //     } else {
+        //         gSPDisplayList(POLY_OPA_DISP++, gPromptCursorRightDL);
+        //     }
+        //     gDPPipeSync(POLY_OPA_DISP++);
+        //     gDPSetCombineMode(POLY_OPA_DISP++, G_CC_MODULATEIA, G_CC_MODULATEIA);
+        //     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, pauseCtx->alpha);
+        //     POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gPauseYesJPNTex, 0x30, 0x10, 0xC);
 
-        if ((pauseCtx->state != 0x10) && (pauseCtx->state != 0x11)) {
+        //     POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gPauseNoJPNTex, 0x30, 0x10, 0x10);
+
+        // } else if (((pauseCtx->state == 7) && (pauseCtx->savePromptState >= 5)) || (pauseCtx->state == 0x10)) {
+        //     POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gPauseSaveConfirmationJPNTex, 0x98, 0x10, 0);
+        // } else if ((pauseCtx->state == 0x11) || (pauseCtx->state == 0x12)) {
+        //     POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gContinuePlayingJPNTex, 0x98, 0x10, 0);
+        //     gDPPipeSync(POLY_OPA_DISP++);
+        //     gDPSetCombineLERP(POLY_OPA_DISP++, 1, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, 1, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0);
+        //     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 100, 100, 255, pauseCtx->promptAlpha);
+        //     if (pauseCtx->promptChoice == 0) {
+        //         gSPDisplayList(POLY_OPA_DISP++, gPromptCursorLeftDL);
+        //     } else {
+        //         gSPDisplayList(POLY_OPA_DISP++, gPromptCursorRightDL);
+        //     }
+        //     gDPPipeSync(POLY_OPA_DISP++);
+        //     gDPSetCombineMode(POLY_OPA_DISP++, G_CC_MODULATEIA, G_CC_MODULATEIA);
+        //     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, pauseCtx->alpha);
+        //     POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gPauseYesJPNTex, 0x30, 0x10, 0xC);
+
+        //     POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gPauseNoJPNTex, 0x30, 0x10, 0x10);
+        // }
+
+        gDPPipeSync(POLY_OPA_DISP++);
+        gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+
+        if ((pauseCtx->state != 0x11) && (pauseCtx->state != 0x12)) {
             gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 0, pauseCtx->alpha);
             gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 0);
         }
