@@ -19,7 +19,8 @@ std::shared_ptr<LUS::IResource> ResourceFactoryBinaryTextMMV0::ReadResource(std:
         entry.id = reader->ReadUInt16();
         entry.textboxType = reader->ReadUByte();
         entry.textboxYPos = reader->ReadUByte();
-        entry.icon = reader->ReadUByte();
+        // BENTODO: the new ZAPD reads and exports this as an int16 for JP but nothing currently uses that and the game expects an int8. Use this for now.
+        entry.icon = (int8_t)reader->ReadUInt16();
         entry.nextMessageID = reader->ReadUInt16();
         entry.firstItemCost = reader->ReadUInt16();
         entry.secondItemCost = reader->ReadUInt16();

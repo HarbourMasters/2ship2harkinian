@@ -115,6 +115,8 @@ void SpeedMeter_DrawTimeEntries(SpeedMeter* this, GraphicsContext* gfxCtx) {
 
     /*! @bug if gIrqMgrRetraceTime is 0, CLOSE_DISPS will never be reached */
     if (gIrqMgrRetraceTime == 0) {
+        // 2S2H [Port] We need our close disps helpers called to prevent interpolation crashes
+        CLOSE_DISPS_PORT_HELPERS(gfxCtx);
         return;
     }
 

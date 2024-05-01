@@ -72,7 +72,12 @@ std::shared_ptr<LUS::IResource> ResourceFactoryBinaryAudioSoundFontV2::ReadResou
         }
 
         audioSoundFont->drums.push_back(drum);
-        audioSoundFont->drumAddresses.push_back(&audioSoundFont->drums.back());
+        // BENTODO clean this up in V3.
+        if (drum.sound.sample == nullptr) {
+            audioSoundFont->drumAddresses.push_back(nullptr);
+        } else {
+            audioSoundFont->drumAddresses.push_back(&audioSoundFont->drums.back());
+        }
     }
     audioSoundFont->soundFont.drums = audioSoundFont->drumAddresses.data();
 
