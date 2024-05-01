@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <string>
 #include "2s2h/Enhancements/Enhancements.h"
+#include "2s2h/Enhancements/Graphics/MotionBlur.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "HudEditor.h"
 
@@ -290,6 +291,7 @@ void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
 
         if (UIWidgets::BeginMenu("Graphics")) {
+            MotionBlur_RenderMenuOptions();
             UIWidgets::CVarCheckbox("Authentic logo", "gEnhancements.Graphics.AuthenticLogo", {
                 .tooltip = "Hide the game version and build details and display the authentic model and texture on the boot logo start screen"
             });
