@@ -33,9 +33,12 @@ const char* MAGIC_LEVEL_NAMES[3] = { "No Magic", "Single Magic", "Double Magic" 
 constexpr int8_t MAGIC_LEVEL_MAX = 2;
 const char* WALLET_LEVEL_NAMES[3] = { "Child Wallet", "Adult Wallet", "Giant Wallet" };
 constexpr u8 WALLET_LEVEL_MAX = 2;
+ImVec4 colorTint;
+const char* songTooltip;
 
 InventorySlot selectedInventorySlot = SLOT_NONE;
-std::vector<ItemId> safeItemsForInventorySlot[SLOT_MASK_FIERCE_DEITY + 1] = {};
+std::vector<ItemId> safeItemsForInventorySlot[SLOT_MASK_FIERCE_DEITY + 1] = {}; //add ForQuestSlot using heart container +1
+std::vector<ItemId> safeItemsForQuestSlot[ITEM_HEART_CONTAINER + 1] = {};
 
 void initSafeItemsForInventorySlot() {
     for (int i = 0; i < sizeof(gItemSlots); i++) {
@@ -68,6 +71,30 @@ void initSafeItemsForInventorySlot() {
                 break;
             default:
                 safeItemsForInventorySlot[slot].push_back(static_cast<ItemId>(i));
+                break;
+        }
+    }
+}
+
+void initSafeItemsForQuestSlot() {
+    for (int i = 0; i < sizeof(gItemSlots); i++) {
+        QuestItem slot = static_cast<QuestItem>(gItemSlots[i]);
+        switch (slot) {
+            case QUEST_SWORD:
+                if (i == ITEM_SWORD_KOKIRI) {
+                    safeItemsForQuestSlot[ITEM_SWORD_KOKIRI].push_back(static_cast<ItemId>(i));
+                    safeItemsForQuestSlot[ITEM_SWORD_RAZOR].push_back(static_cast<ItemId>(i));
+                    safeItemsForQuestSlot[ITEM_SWORD_GILDED].push_back(static_cast<ItemId>(i));
+                }
+                break;
+            case QUEST_SHIELD:
+                if (i != ITEM_SHIELD_HERO) { // No slingshot in trade items
+                    safeItemsForQuestSlot[ITEM_SHIELD_HERO].push_back(static_cast<ItemId>(i));
+                    safeItemsForQuestSlot[ITEM_SHIELD_MIRROR].push_back(static_cast<ItemId>(i));
+                }
+                break;
+            default:
+                safeItemsForQuestSlot[slot].push_back(static_cast<ItemId>(i));
                 break;
         }
     }
@@ -386,7 +413,7 @@ void DrawEquipItemMenu(InventorySlot slot) {
     }
 }
 
-void NextItemInSlot(InventorySlot slot) {
+void NextItemInSlot(InventorySlot slot) { //what is the next thing in that slot?
     ItemId currentItemId = static_cast<ItemId>(gSaveContext.save.saveInfo.inventory.items[slot]);
     size_t currentItemIndex = find(safeItemsForInventorySlot[slot].begin(), safeItemsForInventorySlot[slot].end(), currentItemId) - safeItemsForInventorySlot[slot].begin();
 
@@ -429,13 +456,13 @@ void NextItemInSlot(InventorySlot slot) {
 }
 
 void DrawSlot(InventorySlot slot) {
-    int x = slot % 6;
+    int x = slot % 6; //figures out where in the grid the item is
     int y = ((int)floor(slot / 6) % 4);
     ItemId currentItemId = static_cast<ItemId>(gSaveContext.save.saveInfo.inventory.items[slot]);
 
     ImGui::PushID(slot);
 
-    if (
+    if ( // dont need, no ammo
         currentItemId != ITEM_NONE &&
         currentItemId <= ITEM_BOW_LIGHT && // gItemSlots only has entries till 77 (ITEM_BOW_LIGHT)
         gItemSlots[currentItemId] <= SLOT_BOTTLE_6 && // There is only ammo data for the first page
@@ -446,9 +473,9 @@ void DrawSlot(InventorySlot slot) {
         DrawAmmoInput(slot);
     }
 
-    ImGui::SetCursorPos(ImVec2(x * INV_GRID_WIDTH + INV_GRID_PADDING, y * INV_GRID_HEIGHT + INV_GRID_TOP_MARGIN + INV_GRID_PADDING));
+    ImGui::SetCursorPos(ImVec2(x * INV_GRID_WIDTH + INV_GRID_PADDING, y * INV_GRID_HEIGHT + INV_GRID_TOP_MARGIN + INV_GRID_PADDING)); //based on x/y do math to determine where you start
 
-    // isEquipped border
+    // isEquipped border // dont need this
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 1.0f, 1.0f, 0.2f));
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 1.0f, 1.0f, 0.1f));
@@ -462,13 +489,13 @@ void DrawSlot(InventorySlot slot) {
         ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
     }
     ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 2.0f);
-
-    ImTextureID textureId = LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[safeItemsForInventorySlot[slot][0]]);
+    //safe mode needed for sword and shield, grabs shield icon (if you have mirror, override texture with mirror if equipped, if not og id)
+    ImTextureID textureId = LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[safeItemsForInventorySlot[slot][0]]); //grab textureid based on slot (what is the first item in this slot?)
 
     if (currentItemId != ITEM_NONE) {
-        textureId = LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[currentItemId]);
+        textureId = LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[currentItemId]); //if current id is not none, override ID
     }
-
+    //click button goto NextItemInSlot
     if (ImGui::ImageButton(textureId, ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, currentItemId == ITEM_NONE ? 0.4f : 1.0f))) {
         if (safeMode && safeItemsForInventorySlot[slot].size() < 2) {
             NextItemInSlot(slot);
@@ -578,6 +605,165 @@ void DrawItemsAndMasksTab() {
     ImGui::PopStyleVar(2);
 }
 
+void SongInfo(int32_t itemID) {
+    switch (itemID) {
+        case QUEST_SONG_SONATA:
+            colorTint = ImVec4(0.588f, 1.0f, 0.392f, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Sonata of Awakening";
+            break;
+        case QUEST_SONG_LULLABY:
+            colorTint = ImVec4(1.0f, 0.313f, 0.156f, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Goron Lullaby";
+            break;
+        case QUEST_SONG_BOSSA_NOVA:
+            colorTint = ImVec4(0.392f, 0.588f, 1.0f, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "New Wave Bossa Nova";
+            break;
+        case QUEST_SONG_ELEGY:
+            colorTint = ImVec4(1.0f, 0.627f, 0.0f, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Elegy of Emptiness";
+            break;
+        case QUEST_SONG_OATH:
+            colorTint = ImVec4(1.0f, 0.392f, 1.0f, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Oath to Order";
+            break;
+        case QUEST_SONG_TIME:
+            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Song of Time";
+            break;
+        case QUEST_SONG_HEALING:
+            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Song of Healing";
+            break;
+        case QUEST_SONG_EPONA:
+            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Eponas Song";
+            break;
+        case QUEST_SONG_SOARING:
+            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Song of Soaring";
+            break;
+        case QUEST_SONG_STORMS:
+            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Song of Storms";
+            break;
+        default:
+            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = " ";
+            break;
+    }
+}
+
+std::map<QuestItem, ItemId>questToItemMap = { // change to objects and add color/tooltip for songs
+    { QUEST_REMAINS_ODOLWA,     ITEM_REMAINS_ODOLWA },
+    { QUEST_REMAINS_GOHT,       ITEM_REMAINS_GOHT },
+    { QUEST_REMAINS_GYORG,      ITEM_REMAINS_GYORG },
+    { QUEST_REMAINS_TWINMOLD,   ITEM_REMAINS_TWINMOLD },
+    { QUEST_SONG_SONATA,        ITEM_SONG_SONATA },
+    { QUEST_SONG_LULLABY,       ITEM_SONG_LULLABY },
+    { QUEST_SONG_BOSSA_NOVA,    ITEM_SONG_NOVA },
+    { QUEST_SONG_ELEGY,         ITEM_SONG_ELEGY },
+    { QUEST_SONG_OATH,          ITEM_SONG_OATH },
+    { QUEST_SONG_SARIA,         ITEM_SONG_SARIA },
+    { QUEST_SONG_TIME,          ITEM_SONG_TIME },
+    { QUEST_SONG_HEALING,       ITEM_SONG_HEALING },
+    { QUEST_SONG_EPONA,         ITEM_SONG_EPONA },
+    { QUEST_SONG_SOARING,       ITEM_SONG_SOARING },
+    { QUEST_SONG_STORMS,        ITEM_SONG_STORMS },
+    { QUEST_SONG_SUN,           ITEM_SONG_SUN }
+};
+
+void NextQuestInSlot(QuestItem slot) {
+    if (CHECK_QUEST_ITEM(slot)) {
+        REMOVE_QUEST_ITEM(slot);
+    } else {
+        SET_QUEST_ITEM(slot);
+    }
+    
+    /*ItemId currentItemId = static_cast<ItemId>(gSaveContext.save.saveInfo.inventory.questItems = (GET_SAVE_INVENTORY_QUEST_ITEMS | gBitFlags[slot]));
+    size_t currentItemIndex = find(safeItemsForQuestSlot[slot].begin(), safeItemsForQuestSlot[slot].end(), currentItemId) - safeItemsForQuestSlot[slot].begin();
+
+    if (currentItemId == ITEM_NONE) {
+        gSaveContext.save.saveInfo.inventory.questItems = (GET_SAVE_INVENTORY_QUEST_ITEMS | gBitFlags[slot]);
+    } else if (currentItemIndex < safeItemsForQuestSlot[slot].size() - 1) {
+        SET_QUEST_ITEM(slot);
+    } else {
+        REMOVE_QUEST_ITEM(slot);
+    }*/
+}
+
+void DrawQuestSlot(QuestItem slot) {
+    int x = slot % 6;
+    int y = ((int)floor(slot / 6) % 4);
+    //ItemId currentItemId = static_cast<ItemId>(gSaveContext.save.saveInfo.inventory.questItems = (GET_SAVE_INVENTORY_QUEST_ITEMS | gBitFlags[slot]));
+
+    ImGui::PushID(slot);
+    
+    ImGui::SetCursorPos(ImVec2(x * INV_GRID_WIDTH + INV_GRID_PADDING, y * INV_GRID_HEIGHT + INV_GRID_TOP_MARGIN + INV_GRID_PADDING)); //based on x/y do math to determine where you start
+   
+    ImTextureID textureId = LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[questToItemMap[slot]]);
+
+    //textureId = LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[slot]);
+    //click button goto NextItemInSlot
+    if (ImGui::ImageButton(std::to_string(slot).c_str(), textureId, ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, CHECK_QUEST_ITEM(slot) ? 1.0f : 0.4f))) {
+        NextQuestInSlot(slot);
+    }
+
+    ImGui::PopID();
+}
+
+void DrawSong(QuestItem slot) {
+    SongInfo(slot);
+    if (ImGui::ImageButton(std::to_string(slot).c_str(), LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[questToItemMap[(QuestItem)slot]]),
+        ImVec2(INV_GRID_ICON_SIZE / 1.5f, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), colorTint)) {
+        NextQuestInSlot(slot);
+    }
+    if (ImGui::IsItemHovered()) {
+        ImGui::BeginTooltip();
+        ImGui::Text(songTooltip);
+        ImGui::EndTooltip();
+    }
+    if (slot != QUEST_SONG_SUN) {
+        ImGui::SameLine();
+    }
+}
+
+void DrawQuestStatusTab() {
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 3.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f, 8.0f));
+    ImGui::BeginChild("remainsBox", ImVec2(INV_GRID_WIDTH * 4 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 0.75 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+    ImGui::Text("Boss Remains");
+    for (int32_t i = QUEST_REMAINS_ODOLWA; i <= QUEST_REMAINS_TWINMOLD; i++) {
+        QuestItem slot = static_cast<QuestItem>(i);
+
+        DrawQuestSlot(slot);
+    }
+    ImGui::EndChild();
+    ImGui::BeginChild("songBox", ImVec2(INV_GRID_WIDTH * 5.25 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1.55 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+    ImGui::Text("Songs");
+    for (int32_t i = QUEST_SONG_TIME; i <= QUEST_SONG_SUN; i++) {
+        DrawSong((QuestItem)i);
+    }
+    for (int32_t i = QUEST_SONG_SONATA; i <= QUEST_SONG_SARIA; i++) {
+        DrawSong((QuestItem)i);
+    }
+    ImGui::EndChild();
+    /*ImGui::BeginChild("equipBox", ImVec2(INV_GRID_WIDTH * 2 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1.5 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+    ImGui::Text("Equipment");
+    for (int32_t i = ITEM_SWORD_KOKIRI; i <= ITEM_SHIELD_HERO; i++) {
+        if (i != ITEM_SWORD_RAZOR && i != ITEM_SWORD_GILDED && i != ITEM_SWORD_DEITY) {
+            ImGui::ImageButton(LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[i]),
+                ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
+            ImGui::SameLine();
+        }
+    }
+    ImGui::EndChild();
+    */
+    ImGui::PopStyleVar(2);
+    ImGui::PopStyleColor(1);
+}
+
 const char* regGroupNames[] = {
     "REG  (0)",
     "SREG (1)",
@@ -656,6 +842,11 @@ void SaveEditorWindow::DrawElement() {
             ImGui::EndTabItem();
         }
 
+        if (ImGui::BeginTabItem("Quest Status")) {
+            DrawQuestStatusTab();
+            ImGui::EndTabItem();
+        }
+
         if (ImGui::BeginTabItem("Reg Editor")) {
             DrawRegEditorTab();
             ImGui::EndTabItem();
@@ -665,12 +856,7 @@ void SaveEditorWindow::DrawElement() {
         //     DrawEquipmentTab();
         //     ImGui::EndTabItem();
         // }
-
-        // if (ImGui::BeginTabItem("Quest Status")) {
-        //     DrawQuestStatusTab();
-        //     ImGui::EndTabItem();
-        // }
-
+                
         // if (ImGui::BeginTabItem("Flags")) {
         //     DrawFlagsTab();
         //     ImGui::EndTabItem();
@@ -689,6 +875,7 @@ void SaveEditorWindow::DrawElement() {
 
 void SaveEditorWindow::InitElement() {
     initSafeItemsForInventorySlot();
+    initSafeItemsForQuestSlot();
 
     for (TexturePtr entry : gItemIcons) {
         const char* path = static_cast<const char*>(entry);
