@@ -302,7 +302,15 @@ void DrawEnhancementsMenu() {
             MotionBlur_RenderMenuOptions();
             ImGui::EndMenu();
         }
-        
+
+        if (UIWidgets::BeginMenu("Fixes")) {
+            UIWidgets::CVarCheckbox("Fix Ammo Count Color", "gFixes.FixAmmoCountEnvColor", {
+                .tooltip = "Fixes a missing gDPSetEnvColor, which causes the ammo count to be the wrong color prior to obtaining magic or other conditions."
+            });
+
+            ImGui::EndMenu();
+        }
+
         UIWidgets::CVarCheckbox("Fast Text", "gEnhancements.TimeSavers.FastText", {
             .tooltip = "Speeds up text rendering, and enables holding of B progress to next message"
         });
