@@ -297,7 +297,7 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Do no reset Consumables", "gEnhancements.Cycle.DoNotResetConsumables", {
                 .tooltip = "Playing the Song Of Time will not reset the consumables."
             });
-            UIWidgets::CVarCheckbox("Do no reset RazerSword", "gEnhancements.Cycle.DoNotResetRazorSword", {
+            UIWidgets::CVarCheckbox("Do no reset Razor Sword", "gEnhancements.Cycle.DoNotResetRazorSword", {
                 .tooltip = "Playing the Song Of Time will not reset the Sword back to Kokiri Sword."
             });
             UIWidgets::CVarCheckbox("Do no reset Rupees", "gEnhancements.Cycle.DoNotResetRupees", {
