@@ -1202,8 +1202,8 @@ void EnTest3_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList1, Gfx** dL
 
         if ((*dList1 != NULL) && this->player.currentMask && !(this->player.stateFlags2 & PLAYER_STATE2_1000000)) {
             // this->player.currentMask != PLAYER_MASK_NONE
-            if ((this->player.skelAnime.animation != &gPlayerAnim_cl_maskoff) &&
-                ((this->player.skelAnime.animation != &gPlayerAnim_cl_setmask) ||
+            if ((!BEN_ANIM_EQUAL(this->player.skelAnime.animation, gPlayerAnim_cl_maskoff)) &&
+                ((!BEN_ANIM_EQUAL(this->player.skelAnime.animation, gPlayerAnim_cl_setmask)) ||
                  (this->player.skelAnime.curFrame >= 12.0f))) {
                 if (func_80127438(play, &this->player, this->player.currentMask)) {
                     OPEN_DISPS(play->state.gfxCtx);
