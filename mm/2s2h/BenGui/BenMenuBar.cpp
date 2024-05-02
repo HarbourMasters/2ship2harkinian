@@ -349,6 +349,16 @@ extern std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 extern std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
 extern std::shared_ptr<EventLogWindow> mEventLogWindow;
 
+const char* logLevels[] = {
+    "trace",
+    "debug",
+    "info",
+    "warn",
+    "error",
+    "critical",
+    "off",
+};
+
 void DrawDeveloperToolsMenu() {
     if (UIWidgets::BeginMenu("Developer Tools", UIWidgets::Colors::Yellow)) {
         UIWidgets::CVarCheckbox("Debug Mode", "gDeveloperTools.DebugEnabled", {
@@ -364,6 +374,12 @@ void DrawDeveloperToolsMenu() {
         }
         if (UIWidgets::CVarCheckbox("Prevent Actor Init", "gDeveloperTools.PreventActorInit")) {
             RegisterPreventActorInitHooks();
+        }
+        if (UIWidgets::CVarCombobox("Log Level", "gDeveloperTools.LogLevel", logLevels, {
+            .tooltip = "The log level determines which messages are printed to the console. This does not affect the log file output",
+            .defaultIndex = 1,
+        })) {
+            LUS::Context::GetInstance()->GetLogger()->set_level((spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
         }
         
         if (gPlayState != NULL) {

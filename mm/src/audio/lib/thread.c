@@ -270,8 +270,6 @@ void AudioThread_QueueCmd(AudioCmd cmdData) {
     AudioCmd* cmd = &gAudioCtx.threadCmdBuf[gAudioCtx.threadCmdWritePos & 0xFF];
     *cmd = cmdData;
 
-    LUSLOG_TRACE("Queueing Command: %s", cmd_op_to_str(cmd->op));
-
     gAudioCtx.threadCmdWritePos++;
 
     if (gAudioCtx.threadCmdWritePos == gAudioCtx.threadCmdReadPos) {
@@ -467,7 +465,7 @@ void AudioThread_ProcessCmds(u32 msg) {
         }
 
         cmd = &gAudioCtx.threadCmdBuf[sCurCmdRdPos++ & 0xFF];
-        LUSLOG_TRACE("Process Command: %s", cmd_op_to_str(cmd->op));
+
         if (cmd->op == AUDIOCMD_OP_GLOBAL_STOP_AUDIOCMDS) {
             gAudioCtx.threadCmdQueueFinished = true;
             break;
