@@ -366,6 +366,18 @@ void DrawEnhancementsMenu() {
             
             ImGui::EndMenu();
         }
+
+        if (UIWidgets::BeginMenu("Kaleido")) {
+            UIWidgets::CVarCheckbox("Pause Menu Save", "gEnhancements.Kaleido.PauseSave", {
+                .tooltip = "Re-introduce the pause menu save system."
+            });
+
+            UIWidgets::CVarCheckbox("Game Over Screen", "gEnhancements.Kaleido.GameOver", {
+                .tooltip = "Re-introduce the continue screen on game over."
+            });
+
+            ImGui::EndMenu();
+        }
         
         if (UIWidgets::BeginMenu("Masks")) {
             UIWidgets::CVarCheckbox("Fast Transformation", "gEnhancements.Masks.FastTransformation");
