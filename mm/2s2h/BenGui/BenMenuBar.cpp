@@ -10,6 +10,7 @@
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/Enhancements/Graphics/MotionBlur.h"
 #include "2s2h/Enhancements/Graphics/PlayAsKafei.h"
+#include "2s2h/Enhancements/Modes/TimeMovesWhenYouMove.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "2s2h/DeveloperTools/WarpPoint.h"
 #include "HudEditor.h"
@@ -475,6 +476,10 @@ void DrawEnhancementsMenu() {
                                         { .tooltip = "Requires scene reload to take effect." })) {
                 UpdatePlayAsKafeiSkeletons();
             }
+            if (UIWidgets::CVarCheckbox("Time Moves When You Move", "gModes.TimeMovesWhenYouMove")) {
+                RegisterTimeMovesWhenYouMove();
+            }
+
             ImGui::EndMenu();
         }
         if (UIWidgets::BeginMenu("Player Movement")) {
