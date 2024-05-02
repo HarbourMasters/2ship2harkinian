@@ -51,7 +51,7 @@ void RegisterEndOfCycleSaveHooks() {
         }
         
         if (CVarGetInteger("gEnhancements.Cycle.DoNotResetBottleContent", 0)) {
-            for (int i = ITEM_POTION_RED; i <= ITEM_OBABA_DRINK; i++) {
+            for (int i = SLOT_BOTTLE_1; i <= SLOT_BOTTLE_6; i++) {
                 for (int j = EQUIP_SLOT_C_LEFT; j <= EQUIP_SLOT_C_RIGHT; j++) {
                     if (GET_CUR_FORM_BTN_ITEM(j) == ITEM_BOTTLE) {
                         SET_CUR_FORM_BTN_ITEM(j, saveInfoCopy.inventory.items[i]);
