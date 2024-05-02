@@ -9,6 +9,7 @@
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/Enhancements/Graphics/MotionBlur.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
+#include "2s2h/DeveloperTools/WarpPoint.h"
 #include "HudEditor.h"
 
 extern bool ShouldClearTextureCacheAtEndOfFrame;
@@ -408,6 +409,7 @@ void DrawDeveloperToolsMenu() {
                 }
             }
         }
+        RenderWarpPointSection();
         ImGui::Separator();
         if (mCollisionViewerWindow) {
             UIWidgets::WindowButton("Collision Viewer", "gWindows.CollisionViewer", mCollisionViewerWindow,
