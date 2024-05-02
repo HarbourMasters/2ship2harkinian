@@ -2,8 +2,9 @@
 #include "Enhancements/GameInteractor/GameInteractor.h"
 
 extern "C" {
-#include <overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h>
 #include <variables.h>
+#include <overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h>
+
 }
 
 SaveInfo saveInfoCopy;
