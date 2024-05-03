@@ -2871,6 +2871,8 @@ void func_80126BD0(PlayState* play, Player* player, s32 arg2) {
             D_801C05F0[1].unk_2 = D_801C05F0[0].unk_2;
         } else {
             //! @bug Skips CLOSE_DISPS
+            // 2S2H [Port] We need our close disps helpers called to prevent interpolation crashes
+            CLOSE_DISPS_PORT_HELPERS(play->state.gfxCtx);
             return;
         }
 

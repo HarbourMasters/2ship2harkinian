@@ -6,6 +6,7 @@
 #include "interface/parameter_static/parameter_static.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "BenPort.h"
+#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 #include "assets/archives/schedule_dma_static/schedule_dma_static_yar.h"
 #include "assets/archives/icon_item_static/icon_item_static_yar.h"
 #include "assets/archives/icon_item_24_static/icon_item_24_static_yar.h"
@@ -3291,6 +3292,8 @@ void Message_OpenText(PlayState* play, u16 textId) {
     Font* font = &msgCtx->font;
     Player* player = GET_PLAYER(play);
     f32 var_fv0;
+
+    GameInteractor_ExecuteOnOpenText(textId);
 
     // BENTODO do this somewhere else
     gSaveContext.options.language = LANGUAGE_ENG;

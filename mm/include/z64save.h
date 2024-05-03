@@ -1562,8 +1562,10 @@ typedef enum {
 
 #define CHECK_WEEKEVENTREG(flag) (WEEKEVENTREG((flag) >> 8) & ((flag) & 0xFF))
 #define CHECK_WEEKEVENTREG_ALT(flag) (GET_WEEKEVENTREG((flag) >> 8) & ((flag) & 0xFF))
-#define SET_WEEKEVENTREG(flag) (WEEKEVENTREG((flag) >> 8) = GET_WEEKEVENTREG((flag) >> 8) | ((flag) & 0xFF))
-#define CLEAR_WEEKEVENTREG(flag) (WEEKEVENTREG((flag) >> 8) = GET_WEEKEVENTREG((flag) >> 8) & (u8)~((flag) & 0xFF))
+// #region 2S2H Originally these flags were all set with macros, for the port we want them to be in functions so we can hook into them
+#define SET_WEEKEVENTREG(flag) (Flags_SetWeekEventReg(flag))
+#define CLEAR_WEEKEVENTREG(flag) (Flags_ClearWeekEventReg(flag))
+// #endregion
 
 typedef enum {
     /* 0 */ WEEKEVENTREG_HORSE_RACE_STATE_END,
@@ -1677,9 +1679,11 @@ typedef enum {
 // EVENTINF_75 to EVENTINF_77
 
 #define CHECK_EVENTINF(flag) (gSaveContext.eventInf[(flag) >> 4] & (1 << ((flag) & 0xF)))
-#define SET_EVENTINF(flag) (gSaveContext.eventInf[(flag) >> 4] |= (1 << ((flag) & 0xF)))
-#define CLEAR_EVENTINF(flag) (gSaveContext.eventInf[(flag) >> 4] &= (u8)~(1 << ((flag) & 0xF)))
-#define CLEAR_EVENTINF_ALT(flag) (gSaveContext.eventInf[(flag) >> 4] &= ~(1 << ((flag) & 0xF)))
+// #region 2S2H Originally these flags were all set with macros, for the port we want them to be in functions so we can hook into them
+#define SET_EVENTINF(flag) (Flags_SetEventInf(flag))
+#define CLEAR_EVENTINF(flag) (Flags_ClearEventInf(flag))
+#define CLEAR_EVENTINF_ALT(flag) (Flags_ClearEventInf(flag))
+// #endregion
 
 typedef enum {
     /* 0 */ EVENTINF_DOG_RACE_STATE_NOT_STARTED,
