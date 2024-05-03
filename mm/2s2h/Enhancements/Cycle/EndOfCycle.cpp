@@ -60,6 +60,23 @@ void RegisterEndOfCycleSaveHooks() {
                 }
                 gSaveContext.save.saveInfo.inventory.items[i] = saveInfoCopy.inventory.items[i];
             }
+
+            int stolenBottles = ((gSaveContext.save.saveInfo.stolenItems & 0xFF000000) >> 0x18) == ITEM_BOTTLE;
+            if (((gSaveContext.save.saveInfo.stolenItems & 0x00FF0000) >> 0x10) == ITEM_BOTTLE) {
+                stolenBottles++;
+            }
+
+            int slot = SLOT(ITEM_BOTTLE);
+            for (int i = BOTTLE_FIRST; i < BOTTLE_MAX; i++) {
+                if (gSaveContext.save.saveInfo.inventory.items[slot + i] == ITEM_NONE) {
+                    gSaveContext.save.saveInfo.inventory.items[slot + i] = ITEM_BOTTLE;
+                    stolenBottles--;
+
+                    if (stolenBottles <= 0) {
+                        break;
+                    }
+                }
+            }
         }
 
         if (CVarGetInteger("gEnhancements.Cycle.DoNotResetRazorSword", 0) &&
