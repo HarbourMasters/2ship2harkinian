@@ -11,6 +11,12 @@ typedef struct Vec3s {
     s16 z;
 } Vec3s;
 
+enum class KeyframeSkelType {
+	Normal,
+	Flex,
+	Error,
+};
+
 // Keyframe limb?
 typedef struct {
     /* 0x00 */ void* dList;
