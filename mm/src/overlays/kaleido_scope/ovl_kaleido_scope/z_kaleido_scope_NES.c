@@ -411,10 +411,10 @@ void KaleidoScope_MoveCursorToSpecialPos(PlayState* play, s16 cursorSpecialPos) 
     gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
     gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
     // #region 2S2H [Dpad]
-    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
-    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
-    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
-    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
     // #endregion
     gSaveContext.buttonStatus[EQUIP_SLOT_A] = BTN_DISABLED;
 
@@ -437,10 +437,10 @@ void KaleidoScope_MoveCursorFromSpecialPos(PlayState* play) {
     gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
     gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
     // #region 2S2H [Dpad]
-    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
-    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
-    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
-    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
+    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
+    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
+    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
+    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
     // #endregion
     gSaveContext.buttonStatus[EQUIP_SLOT_A] = BTN_ENABLED;
 
@@ -483,10 +483,10 @@ void KaleidoScope_SwitchPage(PauseContext* pauseCtx, u8 direction) {
     gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
     gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
     // #region 2S2H [Dpad]
-    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
-    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
-    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
-    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
     // #endregion
     gSaveContext.buttonStatus[EQUIP_SLOT_A] = BTN_DISABLED;
 
@@ -2135,7 +2135,6 @@ void KaleidoScope_SetVertices(PlayState* play, GraphicsContext* gfxCtx) {
         KaleidoScope_SetPageVertices(play, pauseCtx->itemPageVtx, VTX_PAGE_ITEM, VTX_PAGE_ITEM_QUADS);
 
         // #region 2S2H [Dpad] Increase size of allocation when you have dpad items
-        // DPAD TODO: CVar? If so, connect to others which depend on this!
         u32 quadItemMax = QUAD_ITEM_MAX;
         quadItemMax += EQUIP_SLOT_D_MAX;
         pauseCtx->itemVtx = GRAPH_ALLOC(gfxCtx, (quadItemMax * 4) * sizeof(Vtx));
@@ -2236,7 +2235,6 @@ void KaleidoScope_SetVertices(PlayState* play, GraphicsContext* gfxCtx) {
             }
         }
         // #region 2S2H [Dpad]
-        // DPAD TODO: CVar?
         for (j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++, i += 4) {
             if (DPAD_GET_CUR_FORM_BTN_SLOT(j) != ITEM_NONE) {
                 k = DPAD_GET_CUR_FORM_BTN_SLOT(j) * 4;
@@ -2407,7 +2405,6 @@ void KaleidoScope_SetVertices(PlayState* play, GraphicsContext* gfxCtx) {
         KaleidoScope_SetPageVertices(play, pauseCtx->maskPageVtx, VTX_PAGE_MASK, VTX_PAGE_MASK_QUADS);
 
         // #region 2S2H [Dpad] Increase size of allocation when you have dpad items
-        // DPAD TODO: CVar? If so, connect to others which depend on this!
         u32 quadMaskMax = QUAD_MASK_MAX;
         quadMaskMax += EQUIP_SLOT_D_MAX;
         pauseCtx->maskVtx = GRAPH_ALLOC(gfxCtx, (quadMaskMax * 4) * sizeof(Vtx));
@@ -2504,7 +2501,6 @@ void KaleidoScope_SetVertices(PlayState* play, GraphicsContext* gfxCtx) {
             }
         }
         // #region 2S2H [Dpad]
-        // DPAD TODO: CVar?
         for (j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++, i += 4) {
             if (DPAD_GET_CUR_FORM_BTN_SLOT(j) != ITEM_NONE) {
                 k = (DPAD_GET_CUR_FORM_BTN_SLOT(j) - ITEM_NUM_SLOTS) * 4;
@@ -3069,10 +3065,10 @@ void KaleidoScope_UpdateOpening(PlayState* play) {
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
             // #region 2S2H [Dpad]
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
             // #endregion
             gSaveContext.buttonStatus[EQUIP_SLOT_A] = BTN_ENABLED;
         } else {
@@ -3081,10 +3077,10 @@ void KaleidoScope_UpdateOpening(PlayState* play) {
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
             // #region 2S2H [Dpad]
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
             // #endregion
             gSaveContext.buttonStatus[EQUIP_SLOT_A] = BTN_DISABLED;
         }
@@ -3150,10 +3146,10 @@ void KaleidoScope_Update(PlayState* play) {
             sUnpausedButtonStatus[EQUIP_SLOT_C_RIGHT] = gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT];
             sUnpausedButtonStatus[EQUIP_SLOT_A] = gSaveContext.buttonStatus[EQUIP_SLOT_A];
             // #region 2S2H [Dpad]
-            sUnpausedDpadStatus[EQUIP_SLOT_D_RIGHT] = gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT];
-            sUnpausedDpadStatus[EQUIP_SLOT_D_LEFT] = gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT];
-            sUnpausedDpadStatus[EQUIP_SLOT_D_DOWN] = gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN];
-            sUnpausedDpadStatus[EQUIP_SLOT_D_UP] = gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP];
+            sUnpausedDpadStatus[EQUIP_SLOT_D_RIGHT] = gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT];
+            sUnpausedDpadStatus[EQUIP_SLOT_D_LEFT] = gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT];
+            sUnpausedDpadStatus[EQUIP_SLOT_D_DOWN] = gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN];
+            sUnpausedDpadStatus[EQUIP_SLOT_D_UP] = gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP];
             // #endregion
 
             pauseCtx->cursorXIndex[PAUSE_MAP] = 0;
@@ -3454,13 +3450,13 @@ void KaleidoScope_Update(PlayState* play) {
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] =
                             gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
                         // #region 2S2H [Dpad]
-                        gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] =
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] =
                             gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][0];
-                        gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] =
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] =
                             gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
-                        gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] =
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] =
                             gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
-                        gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] =
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] =
                             gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
                         // #endregion
                         if ((pauseCtx->cursorSpecialPos == PAUSE_CURSOR_PAGE_LEFT) ||
@@ -3743,10 +3739,10 @@ void KaleidoScope_Update(PlayState* play) {
             sUnpausedButtonStatus[EQUIP_SLOT_C_RIGHT] = gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT];
             sUnpausedButtonStatus[EQUIP_SLOT_A] = gSaveContext.buttonStatus[EQUIP_SLOT_A];
             // #region 2S2H [Dpad]
-            sUnpausedDpadStatus[EQUIP_SLOT_D_RIGHT] = gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT];
-            sUnpausedDpadStatus[EQUIP_SLOT_D_LEFT] = gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT];
-            sUnpausedDpadStatus[EQUIP_SLOT_D_DOWN] = gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN];
-            sUnpausedDpadStatus[EQUIP_SLOT_D_UP] = gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP];
+            sUnpausedDpadStatus[EQUIP_SLOT_D_RIGHT] = gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT];
+            sUnpausedDpadStatus[EQUIP_SLOT_D_LEFT] = gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT];
+            sUnpausedDpadStatus[EQUIP_SLOT_D_DOWN] = gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN];
+            sUnpausedDpadStatus[EQUIP_SLOT_D_UP] = gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP];
             // #endregion
 
             pauseCtx->cursorXIndex[PAUSE_MAP] = 0;
@@ -3919,10 +3915,10 @@ void KaleidoScope_Update(PlayState* play) {
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = sUnpausedButtonStatus[EQUIP_SLOT_C_RIGHT];
             gSaveContext.buttonStatus[EQUIP_SLOT_A] = sUnpausedButtonStatus[EQUIP_SLOT_A];
             // #region 2S2H [Dpad]
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] = sUnpausedDpadStatus[EQUIP_SLOT_D_RIGHT];
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] = sUnpausedDpadStatus[EQUIP_SLOT_D_LEFT];
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] = sUnpausedDpadStatus[EQUIP_SLOT_D_DOWN];
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] = sUnpausedDpadStatus[EQUIP_SLOT_D_UP];
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = sUnpausedDpadStatus[EQUIP_SLOT_D_RIGHT];
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = sUnpausedDpadStatus[EQUIP_SLOT_D_LEFT];
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = sUnpausedDpadStatus[EQUIP_SLOT_D_DOWN];
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = sUnpausedDpadStatus[EQUIP_SLOT_D_UP];
             // #endregion
 
             Interface_UpdateButtonsPart2(play);

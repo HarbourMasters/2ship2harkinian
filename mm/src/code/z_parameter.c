@@ -1158,43 +1158,43 @@ void Interface_UpdateButtonAlphasByStatus(PlayState* play, s16 risingAlpha) {
     }
 
     // #region 2S2H [Dpad]
-    if (gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] == BTN_DISABLED) {
-        if (interfaceCtx->additionalInterface.dpad.dRightAlpha != 70) {
-            interfaceCtx->additionalInterface.dpad.dRightAlpha = 70;
+    if (gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] == BTN_DISABLED) {
+        if (interfaceCtx->shipInterface.dpad.dRightAlpha != 70) {
+            interfaceCtx->shipInterface.dpad.dRightAlpha = 70;
         }
     } else {
-        if (interfaceCtx->additionalInterface.dpad.dRightAlpha != 255) {
-            interfaceCtx->additionalInterface.dpad.dRightAlpha = risingAlpha;
+        if (interfaceCtx->shipInterface.dpad.dRightAlpha != 255) {
+            interfaceCtx->shipInterface.dpad.dRightAlpha = risingAlpha;
         }
     }
 
-    if (gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] == BTN_DISABLED) {
-        if (interfaceCtx->additionalInterface.dpad.dLeftAlpha != 70) {
-            interfaceCtx->additionalInterface.dpad.dLeftAlpha = 70;
+    if (gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] == BTN_DISABLED) {
+        if (interfaceCtx->shipInterface.dpad.dLeftAlpha != 70) {
+            interfaceCtx->shipInterface.dpad.dLeftAlpha = 70;
         }
     } else {
-        if (interfaceCtx->additionalInterface.dpad.dLeftAlpha != 255) {
-            interfaceCtx->additionalInterface.dpad.dLeftAlpha = risingAlpha;
+        if (interfaceCtx->shipInterface.dpad.dLeftAlpha != 255) {
+            interfaceCtx->shipInterface.dpad.dLeftAlpha = risingAlpha;
         }
     }
 
-    if (gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] == BTN_DISABLED) {
-        if (interfaceCtx->additionalInterface.dpad.dDownAlpha != 70) {
-            interfaceCtx->additionalInterface.dpad.dDownAlpha = 70;
+    if (gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] == BTN_DISABLED) {
+        if (interfaceCtx->shipInterface.dpad.dDownAlpha != 70) {
+            interfaceCtx->shipInterface.dpad.dDownAlpha = 70;
         }
     } else {
-        if (interfaceCtx->additionalInterface.dpad.dDownAlpha != 255) {
-            interfaceCtx->additionalInterface.dpad.dDownAlpha = risingAlpha;
+        if (interfaceCtx->shipInterface.dpad.dDownAlpha != 255) {
+            interfaceCtx->shipInterface.dpad.dDownAlpha = risingAlpha;
         }
     }
 
-    if (gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] == BTN_DISABLED) {
-        if (interfaceCtx->additionalInterface.dpad.dUpAlpha != 70) {
-            interfaceCtx->additionalInterface.dpad.dUpAlpha = 70;
+    if (gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] == BTN_DISABLED) {
+        if (interfaceCtx->shipInterface.dpad.dUpAlpha != 70) {
+            interfaceCtx->shipInterface.dpad.dUpAlpha = 70;
         }
     } else {
-        if (interfaceCtx->additionalInterface.dpad.dUpAlpha != 255) {
-            interfaceCtx->additionalInterface.dpad.dUpAlpha = risingAlpha;
+        if (interfaceCtx->shipInterface.dpad.dUpAlpha != 255) {
+            interfaceCtx->shipInterface.dpad.dUpAlpha = risingAlpha;
         }
     }
     // #endregion
@@ -1244,20 +1244,20 @@ void Interface_UpdateButtonAlphas(PlayState* play, s16 dimmingAlpha, s16 risingA
     }
 
     // #region 2S2H [Dpad]
-    if ((interfaceCtx->additionalInterface.dpad.dRightAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dRightAlpha > dimmingAlpha)) {
-        interfaceCtx->additionalInterface.dpad.dRightAlpha = dimmingAlpha;
+    if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+        interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
     }
 
-    if ((interfaceCtx->additionalInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dLeftAlpha > dimmingAlpha)) {
-        interfaceCtx->additionalInterface.dpad.dLeftAlpha = dimmingAlpha;
+    if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+        interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
     }
 
-    if ((interfaceCtx->additionalInterface.dpad.dDownAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dDownAlpha > dimmingAlpha)) {
-        interfaceCtx->additionalInterface.dpad.dDownAlpha = dimmingAlpha;
+    if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+        interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
     }
 
-    if ((interfaceCtx->additionalInterface.dpad.dUpAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dUpAlpha > dimmingAlpha)) {
-        interfaceCtx->additionalInterface.dpad.dUpAlpha = dimmingAlpha;
+    if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+        interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
     }
     // #endregion
 }
@@ -1297,20 +1297,20 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             // #region 2S2H [Dpad]
-            if ((interfaceCtx->additionalInterface.dpad.dRightAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dRightAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dRightAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dLeftAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dLeftAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dDownAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dDownAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dDownAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dUpAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dUpAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dUpAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
             }
             // #endregion
 
@@ -1373,20 +1373,20 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             // #region 2S2H [Dpad]
-            if ((interfaceCtx->additionalInterface.dpad.dRightAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dRightAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dRightAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dLeftAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dLeftAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dDownAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dDownAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dDownAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dUpAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dUpAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dUpAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
             }
             // #endregion
 
@@ -1497,20 +1497,20 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             // #region 2S2H [Dpad]
-            if ((interfaceCtx->additionalInterface.dpad.dRightAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dRightAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dRightAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dLeftAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dLeftAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dDownAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dDownAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dDownAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dUpAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dUpAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dUpAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
             }
             // #endregion
 
@@ -1546,20 +1546,20 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             // #region 2S2H [Dpad]
-            if ((interfaceCtx->additionalInterface.dpad.dRightAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dRightAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dRightAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dLeftAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dLeftAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dDownAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dDownAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dDownAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dUpAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dUpAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dUpAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
             }
             // #endregion
 
@@ -1603,20 +1603,20 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             // #region 2S2H [Dpad]
-            if ((interfaceCtx->additionalInterface.dpad.dRightAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dRightAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dRightAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dLeftAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dLeftAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dDownAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dDownAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dDownAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dUpAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dUpAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dUpAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
             }
             // #endregion
 
@@ -1667,20 +1667,20 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             // #region 2S2H [Dpad]
-            if ((interfaceCtx->additionalInterface.dpad.dRightAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dRightAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dRightAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dLeftAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dLeftAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dDownAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dDownAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dDownAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dUpAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dUpAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dUpAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
             }
             // #endregion
 
@@ -1742,20 +1742,20 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             // #region 2S2H [Dpad]
-            if (interfaceCtx->additionalInterface.dpad.dRightAlpha != 255) {
-                interfaceCtx->additionalInterface.dpad.dRightAlpha = risingAlpha;
+            if (interfaceCtx->shipInterface.dpad.dRightAlpha != 255) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = risingAlpha;
             }
 
-            if (interfaceCtx->additionalInterface.dpad.dLeftAlpha != 255) {
-                interfaceCtx->additionalInterface.dpad.dLeftAlpha = risingAlpha;
+            if (interfaceCtx->shipInterface.dpad.dLeftAlpha != 255) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = risingAlpha;
             }
 
-            if (interfaceCtx->additionalInterface.dpad.dDownAlpha != 255) {
-                interfaceCtx->additionalInterface.dpad.dDownAlpha = risingAlpha;
+            if (interfaceCtx->shipInterface.dpad.dDownAlpha != 255) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = risingAlpha;
             }
 
-            if (interfaceCtx->additionalInterface.dpad.dUpAlpha != 255) {
-                interfaceCtx->additionalInterface.dpad.dUpAlpha = risingAlpha;
+            if (interfaceCtx->shipInterface.dpad.dUpAlpha != 255) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = risingAlpha;
             }
             // #endregion
 
@@ -1795,20 +1795,20 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             // #region 2S2H [Dpad]
-            if (interfaceCtx->additionalInterface.dpad.dRightAlpha != 255) {
-                interfaceCtx->additionalInterface.dpad.dRightAlpha = risingAlpha;
+            if (interfaceCtx->shipInterface.dpad.dRightAlpha != 255) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = risingAlpha;
             }
 
-            if (interfaceCtx->additionalInterface.dpad.dLeftAlpha != 255) {
-                interfaceCtx->additionalInterface.dpad.dLeftAlpha = risingAlpha;
+            if (interfaceCtx->shipInterface.dpad.dLeftAlpha != 255) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = risingAlpha;
             }
 
-            if (interfaceCtx->additionalInterface.dpad.dDownAlpha != 255) {
-                interfaceCtx->additionalInterface.dpad.dDownAlpha = risingAlpha;
+            if (interfaceCtx->shipInterface.dpad.dDownAlpha != 255) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = risingAlpha;
             }
 
-            if (interfaceCtx->additionalInterface.dpad.dUpAlpha != 255) {
-                interfaceCtx->additionalInterface.dpad.dUpAlpha = risingAlpha;
+            if (interfaceCtx->shipInterface.dpad.dUpAlpha != 255) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = risingAlpha;
             }
             // #endregion
 
@@ -1856,20 +1856,20 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             // #region 2S2H [Dpad]
-            if (interfaceCtx->additionalInterface.dpad.dRightAlpha != 255) {
-                interfaceCtx->additionalInterface.dpad.dRightAlpha = risingAlpha;
+            if (interfaceCtx->shipInterface.dpad.dRightAlpha != 255) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = risingAlpha;
             }
 
-            if (interfaceCtx->additionalInterface.dpad.dLeftAlpha != 255) {
-                interfaceCtx->additionalInterface.dpad.dLeftAlpha = risingAlpha;
+            if (interfaceCtx->shipInterface.dpad.dLeftAlpha != 255) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = risingAlpha;
             }
 
-            if (interfaceCtx->additionalInterface.dpad.dDownAlpha != 255) {
-                interfaceCtx->additionalInterface.dpad.dDownAlpha = risingAlpha;
+            if (interfaceCtx->shipInterface.dpad.dDownAlpha != 255) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = risingAlpha;
             }
 
-            if (interfaceCtx->additionalInterface.dpad.dUpAlpha != 255) {
-                interfaceCtx->additionalInterface.dpad.dUpAlpha = risingAlpha;
+            if (interfaceCtx->shipInterface.dpad.dUpAlpha != 255) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = risingAlpha;
             }
             // #endregion
 
@@ -1893,20 +1893,20 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             // #region 2S2H [Dpad]
-            if ((interfaceCtx->additionalInterface.dpad.dRightAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dRightAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dRightAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dLeftAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dLeftAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dDownAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dDownAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dDownAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dUpAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dUpAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dUpAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
             }
             // #endregion
 
@@ -1950,20 +1950,20 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             // #region 2S2H [Dpad]
-            if ((interfaceCtx->additionalInterface.dpad.dRightAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dRightAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dRightAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dLeftAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dLeftAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dDownAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dDownAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dDownAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dUpAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dUpAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dUpAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
             }
             // #endregion
 
@@ -1999,20 +1999,20 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             // #region 2S2H [Dpad]
-            if ((interfaceCtx->additionalInterface.dpad.dRightAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dRightAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dRightAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dLeftAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dLeftAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dDownAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dDownAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dDownAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dUpAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dUpAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dUpAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
             }
             // #endregion
 
@@ -2052,20 +2052,20 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             // #region 2S2H [Dpad]
-            if ((interfaceCtx->additionalInterface.dpad.dRightAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dRightAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dRightAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dLeftAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dLeftAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dDownAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dDownAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dDownAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dUpAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dUpAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dUpAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
             }
             // #endregion
 
@@ -2109,20 +2109,20 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             // #region 2S2H [Dpad]
-            if ((interfaceCtx->additionalInterface.dpad.dRightAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dRightAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dRightAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dLeftAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dLeftAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dDownAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dDownAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dDownAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dUpAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dUpAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dUpAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
             }
             // #endregion
 
@@ -2154,20 +2154,20 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             // #region 2S2H [Dpad]
-            if ((interfaceCtx->additionalInterface.dpad.dRightAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dRightAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dRightAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dLeftAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dLeftAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dDownAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dDownAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dDownAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->additionalInterface.dpad.dUpAlpha != 0) && (interfaceCtx->additionalInterface.dpad.dUpAlpha > dimmingAlpha)) {
-                interfaceCtx->additionalInterface.dpad.dUpAlpha = dimmingAlpha;
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
             }
             // #endregion
 
@@ -2228,15 +2228,15 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
         // #region 2S2H [Dpad]
         for (s16 j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++) {
             if ((DPAD_GET_CUR_FORM_BTN_ITEM(j) != ITEM_PICTOGRAPH_BOX) || (msgCtx->msgMode != MSGMODE_NONE)) {
-                if (gSaveContext.additionalSave.dpad.status[j] == BTN_ENABLED) {
+                if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_ENABLED) {
                     restoreHudVisibility = true;
                 }
-                gSaveContext.additionalSave.dpad.status[j] = BTN_DISABLED;
+                gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
             } else {
-                if (gSaveContext.additionalSave.dpad.status[j] == BTN_DISABLED) {
+                if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_DISABLED) {
                     restoreHudVisibility = true;
                 }
-                gSaveContext.additionalSave.dpad.status[j] = BTN_ENABLED;
+                gSaveContext.shipSaveContext.dpad.status[j] = BTN_ENABLED;
             }
         }
         // #endregion
@@ -2291,13 +2291,13 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
             for (s16 j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++) {
                 if ((DPAD_GET_CUR_FORM_BTN_ITEM(j) == ITEM_MASK_FIERCE_DEITY) ||
                     ((DPAD_GET_CUR_FORM_BTN_ITEM(j) >= ITEM_BOTTLE) && (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_OBABA_DRINK))) {
-                    if (gSaveContext.additionalSave.dpad.status[j] == BTN_DISABLED) {
+                    if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_DISABLED) {
                         restoreHudVisibility = true;
-                        gSaveContext.additionalSave.dpad.status[j] = BTN_ENABLED;
+                        gSaveContext.shipSaveContext.dpad.status[j] = BTN_ENABLED;
                     }
                 } else {
-                    if (gSaveContext.additionalSave.dpad.status[j] != BTN_DISABLED) {
-                        gSaveContext.additionalSave.dpad.status[j] = BTN_DISABLED;
+                    if (gSaveContext.shipSaveContext.dpad.status[j] != BTN_DISABLED) {
+                        gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
                         restoreHudVisibility = true;
                     }
                 }
@@ -2320,15 +2320,15 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
             // #region 2S2H [Dpad]
             for (s16 j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++) {
                 if ((DPAD_GET_CUR_FORM_BTN_ITEM(j) >= ITEM_MASK_DEKU) && (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_MASK_ZORA)) {
-                    if (gSaveContext.additionalSave.dpad.status[j] != BTN_DISABLED) {
+                    if (gSaveContext.shipSaveContext.dpad.status[j] != BTN_DISABLED) {
                         restoreHudVisibility = true;
                     }
-                    gSaveContext.additionalSave.dpad.status[j] = BTN_DISABLED;
+                    gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
                 } else {
-                    if (gSaveContext.additionalSave.dpad.status[j] == BTN_DISABLED) {
+                    if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_DISABLED) {
                         restoreHudVisibility = true;
                     }
-                    gSaveContext.additionalSave.dpad.status[j] = BTN_ENABLED;
+                    gSaveContext.shipSaveContext.dpad.status[j] = BTN_ENABLED;
                 }
             }
             // #endregion
@@ -2343,10 +2343,10 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
         }
         // #region 2S2H [Dpad]
         for (s16 j = EQUIP_SLOT_C_LEFT; j <= EQUIP_SLOT_C_RIGHT; j++) {
-            if (gSaveContext.additionalSave.dpad.status[j] == BTN_ENABLED) {
+            if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_ENABLED) {
                 restoreHudVisibility = true;
             }
-            gSaveContext.additionalSave.dpad.status[j] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
         }
         // #endregion
     } else if (CHECK_EVENTINF(EVENTINF_34)) {
@@ -2374,10 +2374,10 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
 
             // #region 2S2H [Dpad]
             for (s16 j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++) {
-                if (gSaveContext.additionalSave.dpad.status[j] == BTN_ENABLED) {
+                if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_ENABLED) {
                     restoreHudVisibility = true;
                 }
-                gSaveContext.additionalSave.dpad.status[j] = BTN_DISABLED;
+                gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
             }
             // #endregion
         }
@@ -2406,10 +2406,10 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
             // #region 2S2H [Dpad]
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
             // #endregion
         }
     } else if (!gSaveContext.save.saveInfo.playerData.isMagicAcquired && (CUR_FORM == PLAYER_FORM_DEKU) &&
@@ -2477,24 +2477,24 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                 if (Player_GetEnvironmentalHazard(play) == PLAYER_ENV_HAZARD_UNDERWATER_FLOOR) {
                     if (!((DPAD_GET_CUR_FORM_BTN_ITEM(j) >= ITEM_BOTTLE) &&
                           (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_OBABA_DRINK))) {
-                        if (gSaveContext.additionalSave.dpad.status[j] == BTN_ENABLED) {
+                        if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_ENABLED) {
                             restoreHudVisibility = true;
                         }
-                        gSaveContext.additionalSave.dpad.status[j] = BTN_DISABLED;
+                        gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
                     } else {
-                        if (gSaveContext.additionalSave.dpad.status[j] == BTN_DISABLED) {
+                        if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_DISABLED) {
                             restoreHudVisibility = true;
                         }
-                        gSaveContext.additionalSave.dpad.status[j] = BTN_ENABLED;
+                        gSaveContext.shipSaveContext.dpad.status[j] = BTN_ENABLED;
                     }
                 } else {
-                    if (gSaveContext.additionalSave.dpad.status[j] == BTN_ENABLED) {
+                    if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_ENABLED) {
                         restoreHudVisibility = true;
                     }
-                    gSaveContext.additionalSave.dpad.status[j] = BTN_DISABLED;
+                    gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
                 }
-            } else if (gSaveContext.additionalSave.dpad.status[j] == BTN_DISABLED) {
-                gSaveContext.additionalSave.dpad.status[j] = BTN_ENABLED;
+            } else if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_DISABLED) {
+                gSaveContext.shipSaveContext.dpad.status[j] = BTN_ENABLED;
                 restoreHudVisibility = true;
             }
         }
@@ -2527,15 +2527,15 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
         // #region 2S2H [Dpad]
         for (s16 j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++) {
             if (DPAD_GET_CUR_FORM_BTN_ITEM(j) != ITEM_LENS_OF_TRUTH) {
-                if (gSaveContext.additionalSave.dpad.status[j] == BTN_ENABLED) {
+                if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_ENABLED) {
                     restoreHudVisibility = true;
                 }
-                gSaveContext.additionalSave.dpad.status[j] = BTN_DISABLED;
+                gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
             } else {
-                if (gSaveContext.additionalSave.dpad.status[j] == BTN_DISABLED) {
+                if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_DISABLED) {
                     restoreHudVisibility = true;
                 }
-                gSaveContext.additionalSave.dpad.status[j] = BTN_ENABLED;
+                gSaveContext.shipSaveContext.dpad.status[j] = BTN_ENABLED;
             }
         }
         // #endregion
@@ -2552,10 +2552,10 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
             // #region 2S2H [Dpad]
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
             // #endregion
             restoreHudVisibility = true;
             Interface_SetHudVisibility(HUD_VISIBILITY_ALL);
@@ -2796,50 +2796,50 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                 // Individual D button
                 if (!gPlayerFormItemRestrictions[GET_PLAYER_FORM][DPAD_GET_CUR_FORM_BTN_ITEM(j)]) {
                     // Item not usable in current playerForm
-                    if (gSaveContext.additionalSave.dpad.status[j] != BTN_DISABLED) {
-                        gSaveContext.additionalSave.dpad.status[j] = BTN_DISABLED;
+                    if (gSaveContext.shipSaveContext.dpad.status[j] != BTN_DISABLED) {
+                        gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
                         restoreHudVisibility = true;
                     }
                 } else if (player->actor.id != ACTOR_PLAYER) {
                     // Currently not playing as the main player
-                    if (gSaveContext.additionalSave.dpad.status[j] != BTN_DISABLED) {
-                        gSaveContext.additionalSave.dpad.status[j] = BTN_DISABLED;
+                    if (gSaveContext.shipSaveContext.dpad.status[j] != BTN_DISABLED) {
+                        gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
                         restoreHudVisibility = true;
                     }
                 } else if (player->currentMask == PLAYER_MASK_GIANT) {
                     // Currently wearing Giant's Mask
                     if (DPAD_GET_CUR_FORM_BTN_ITEM(j) != ITEM_MASK_GIANT) {
-                        if (gSaveContext.additionalSave.dpad.status[j] != BTN_DISABLED) {
-                            gSaveContext.additionalSave.dpad.status[j] = BTN_DISABLED;
+                        if (gSaveContext.shipSaveContext.dpad.status[j] != BTN_DISABLED) {
+                            gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
                             restoreHudVisibility = true;
                         }
-                    } else if (gSaveContext.additionalSave.dpad.status[j] == BTN_DISABLED) {
+                    } else if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_DISABLED) {
                         restoreHudVisibility = true;
-                        gSaveContext.additionalSave.dpad.status[j] = BTN_ENABLED;
+                        gSaveContext.shipSaveContext.dpad.status[j] = BTN_ENABLED;
                     }
                 } else if (DPAD_GET_CUR_FORM_BTN_ITEM(j) == ITEM_MASK_GIANT) {
                     // Giant's Mask is equipped
                     if (play->sceneId != SCENE_INISIE_BS) {
-                        if (gSaveContext.additionalSave.dpad.status[j] != BTN_DISABLED) {
-                            gSaveContext.additionalSave.dpad.status[j] = BTN_DISABLED;
+                        if (gSaveContext.shipSaveContext.dpad.status[j] != BTN_DISABLED) {
+                            gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
                             restoreHudVisibility = true;
                         }
-                    } else if (gSaveContext.additionalSave.dpad.status[j] == BTN_DISABLED) {
+                    } else if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_DISABLED) {
                         restoreHudVisibility = true;
-                        gSaveContext.additionalSave.dpad.status[j] = BTN_ENABLED;
+                        gSaveContext.shipSaveContext.dpad.status[j] = BTN_ENABLED;
                     }
                 } else if (DPAD_GET_CUR_FORM_BTN_ITEM(j) == ITEM_MASK_FIERCE_DEITY) {
                     // Fierce Deity's Mask is equipped
                     if ((play->sceneId != SCENE_MITURIN_BS) && (play->sceneId != SCENE_HAKUGIN_BS) &&
                         (play->sceneId != SCENE_SEA_BS) && (play->sceneId != SCENE_INISIE_BS) &&
                         (play->sceneId != SCENE_LAST_BS)) {
-                        if (gSaveContext.additionalSave.dpad.status[j] != BTN_DISABLED) {
-                            gSaveContext.additionalSave.dpad.status[j] = BTN_DISABLED;
+                        if (gSaveContext.shipSaveContext.dpad.status[j] != BTN_DISABLED) {
+                            gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
                             restoreHudVisibility = true;
                         }
-                    } else if (gSaveContext.additionalSave.dpad.status[j] == BTN_DISABLED) {
+                    } else if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_DISABLED) {
                         restoreHudVisibility = true;
-                        gSaveContext.additionalSave.dpad.status[j] = BTN_ENABLED;
+                        gSaveContext.shipSaveContext.dpad.status[j] = BTN_ENABLED;
                     }
                 } else {
                     // End of special item cases. Apply restrictions to buttons
@@ -2849,10 +2849,10 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                             ((DPAD_GET_CUR_FORM_BTN_ITEM(j) >= ITEM_BOTTLE) &&
                              (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_OBABA_DRINK)) ||
                             (DPAD_GET_CUR_FORM_BTN_ITEM(j) == ITEM_OCARINA_OF_TIME)) {
-                            if (gSaveContext.additionalSave.dpad.status[j] == BTN_ENABLED) {
+                            if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_ENABLED) {
                                 restoreHudVisibility = true;
                             }
-                            gSaveContext.additionalSave.dpad.status[j] = BTN_DISABLED;
+                            gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
                         }
                     } else if (interfaceCtx->restrictions.tradeItems == 0) {
                         if (((DPAD_GET_CUR_FORM_BTN_ITEM(j) >= ITEM_MOONS_TEAR) &&
@@ -2860,44 +2860,44 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                             ((DPAD_GET_CUR_FORM_BTN_ITEM(j) >= ITEM_BOTTLE) &&
                              (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_OBABA_DRINK)) ||
                             (DPAD_GET_CUR_FORM_BTN_ITEM(j) == ITEM_OCARINA_OF_TIME)) {
-                            if (gSaveContext.additionalSave.dpad.status[j] == BTN_DISABLED) {
+                            if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_DISABLED) {
                                 restoreHudVisibility = true;
                             }
-                            gSaveContext.additionalSave.dpad.status[j] = BTN_ENABLED;
+                            gSaveContext.shipSaveContext.dpad.status[j] = BTN_ENABLED;
                         }
                     }
 
                     if (interfaceCtx->restrictions.masks != 0) {
                         if ((DPAD_GET_CUR_FORM_BTN_ITEM(j) >= ITEM_MASK_DEKU) &&
                             (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_MASK_GIANT)) {
-                            if (!gSaveContext.additionalSave.dpad.status[j]) { // == BTN_ENABLED
+                            if (!gSaveContext.shipSaveContext.dpad.status[j]) { // == BTN_ENABLED
                                 restoreHudVisibility = true;
                             }
-                            gSaveContext.additionalSave.dpad.status[j] = BTN_DISABLED;
+                            gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
                         }
                     } else if (interfaceCtx->restrictions.masks == 0) {
                         if ((DPAD_GET_CUR_FORM_BTN_ITEM(j) >= ITEM_MASK_DEKU) &&
                             (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_MASK_GIANT)) {
-                            if (gSaveContext.additionalSave.dpad.status[j] == BTN_DISABLED) {
+                            if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_DISABLED) {
                                 restoreHudVisibility = true;
                             }
-                            gSaveContext.additionalSave.dpad.status[j] = BTN_ENABLED;
+                            gSaveContext.shipSaveContext.dpad.status[j] = BTN_ENABLED;
                         }
                     }
 
                     if (interfaceCtx->restrictions.pictoBox != 0) {
                         if (DPAD_GET_CUR_FORM_BTN_ITEM(j) == ITEM_PICTOGRAPH_BOX) {
-                            if (!gSaveContext.additionalSave.dpad.status[j]) { // == BTN_ENABLED
+                            if (!gSaveContext.shipSaveContext.dpad.status[j]) { // == BTN_ENABLED
                                 restoreHudVisibility = true;
                             }
-                            gSaveContext.additionalSave.dpad.status[j] = BTN_DISABLED;
+                            gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
                         }
                     } else if (interfaceCtx->restrictions.pictoBox == 0) {
                         if (DPAD_GET_CUR_FORM_BTN_ITEM(j) == ITEM_PICTOGRAPH_BOX) {
-                            if (gSaveContext.additionalSave.dpad.status[j] == BTN_DISABLED) {
+                            if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_DISABLED) {
                                 restoreHudVisibility = true;
                             }
-                            gSaveContext.additionalSave.dpad.status[j] = BTN_ENABLED;
+                            gSaveContext.shipSaveContext.dpad.status[j] = BTN_ENABLED;
                         }
                     }
 
@@ -2911,9 +2911,9 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                               (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_MASK_GIANT)) &&
                             (DPAD_GET_CUR_FORM_BTN_ITEM(j) != ITEM_PICTOGRAPH_BOX)) {
 
-                            if ((gSaveContext.additionalSave.dpad.status[j] == BTN_ENABLED)) {
+                            if ((gSaveContext.shipSaveContext.dpad.status[j] == BTN_ENABLED)) {
                                 restoreHudVisibility = true;
-                                gSaveContext.additionalSave.dpad.status[j] = BTN_DISABLED;
+                                gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
                             }
                         }
                     } else if (interfaceCtx->restrictions.all == 0) {
@@ -2926,9 +2926,9 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                               (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_MASK_GIANT)) &&
                             (DPAD_GET_CUR_FORM_BTN_ITEM(j) != ITEM_PICTOGRAPH_BOX)) {
 
-                            if ((gSaveContext.additionalSave.dpad.status[j] == BTN_DISABLED)) {
+                            if ((gSaveContext.shipSaveContext.dpad.status[j] == BTN_DISABLED)) {
                                 restoreHudVisibility = true;
-                                gSaveContext.additionalSave.dpad.status[j] = BTN_ENABLED;
+                                gSaveContext.shipSaveContext.dpad.status[j] = BTN_ENABLED;
                             }
                         }
                     }
@@ -2974,10 +2974,10 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
                             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
                             // #region 2S2H [Dpad]
-                            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
-                            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
-                            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
-                            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+                            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+                            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+                            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+                            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
                             // #endregion
                         }
                     } else if (gSaveContext.buttonStatus[EQUIP_SLOT_B] == BTN_DISABLED) {
@@ -2986,10 +2986,10 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_ENABLED;
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_ENABLED;
                         // #region 2S2H [Dpad]
-                        gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_ENABLED;
-                        gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_ENABLED;
-                        gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_ENABLED;
-                        gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] = BTN_ENABLED;
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_ENABLED;
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_ENABLED;
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_ENABLED;
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_ENABLED;
                         // #endregion
                     }
 
@@ -3004,10 +3004,10 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_ENABLED;
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_ENABLED;
                         // #region 2S2H [Dpad]
-                        gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_ENABLED;
-                        gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_ENABLED;
-                        gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_ENABLED;
-                        gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] = BTN_ENABLED;
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_ENABLED;
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_ENABLED;
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_ENABLED;
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_ENABLED;
                         // #endregion
                         if (play->sceneId == SCENE_BOWLING) {
                             if (CURRENT_DAY == 1) {
@@ -3022,10 +3022,10 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
                             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
                             // #region 2S2H [Dpad]
-                            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
-                            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
-                            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
-                            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+                            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+                            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+                            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+                            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
                             // #endregion
                         } else {
                             BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOW;
@@ -3042,10 +3042,10 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
                             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
                             // #region 2S2H [Dpad]
-                            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
-                            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
-                            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
-                            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+                            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+                            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+                            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+                            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
                             // #endregion
                             Interface_SetHudVisibility(HUD_VISIBILITY_A_HEARTS_MAGIC_MINIMAP_WITH_OVERWRITE);
                         }
@@ -3069,10 +3069,10 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
                         // #region 2S2H [Dpad]
-                        gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
-                        gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
-                        gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
-                        gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
                         // #endregion
                         Interface_SetHudVisibility(HUD_VISIBILITY_A_B_MINIMAP);
                     } else if (player->stateFlags1 & PLAYER_STATE1_800000) {
@@ -3096,10 +3096,10 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                     gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
                     gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
                     // #region 2S2H [Dpad]
-                    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
-                    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
-                    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
-                    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+                    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+                    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+                    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+                    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
                     // #endregion
                 } else {
                     BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOW;
@@ -3122,10 +3122,10 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                 gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
                 gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
                 // #region 2S2H [Dpad]
-                gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
-                gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
-                gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
-                gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+                gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+                gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+                gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+                gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
                 // #endregion
                 Interface_SetHudVisibility(HUD_VISIBILITY_A_HEARTS_MAGIC_MINIMAP_WITH_OVERWRITE);
 
@@ -3144,10 +3144,10 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                     gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
                     gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
                     // #region 2S2H [Dpad]
-                    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
-                    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
-                    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
-                    gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+                    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+                    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+                    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+                    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
                     // #endregion
                     Interface_SetHudVisibility(HUD_VISIBILITY_A_B_MINIMAP);
                 } else if (player->stateFlags1 & PLAYER_STATE1_800000) {
@@ -3216,10 +3216,10 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
             // #region 2S2H [Dpad]
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
             // #endregion
             Interface_SetHudVisibility(HUD_VISIBILITY_A_B_MINIMAP);
         } else if ((gSaveContext.save.entrance == ENTRANCE(GORON_RACETRACK, 1)) &&
@@ -3229,10 +3229,10 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
             // #region 2S2H [Dpad]
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
-            gSaveContext.additionalSave.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
             // #endregion
             Interface_SetHudVisibility(HUD_VISIBILITY_A_B_HEARTS_MAGIC_MINIMAP);
         } else if (play->actorCtx.flags & ACTORCTX_FLAG_PICTO_BOX_ON) {
@@ -4056,7 +4056,6 @@ s32 Inventory_ReplaceItem(PlayState* play, u8 oldItem, u8 newItem) {
                 }
             }
             // #region 2S2H [Dpad]
-            // DPAD TODO: Figure out if CVar needs to be here
             for (u8 j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++) {
                 if (DPAD_GET_CUR_FORM_BTN_ITEM(j) == oldItem) {
                     DPAD_SET_CUR_FORM_BTN_ITEM(j, newItem);
@@ -4129,7 +4128,7 @@ void Inventory_UpdateDpadBottleItem(PlayState* play, u8 item, u8 btn) {
     Interface_Dpad_LoadItemIconImpl(play, btn);
 
     play->pauseCtx.cursorItem[PAUSE_ITEM] = item;
-    gSaveContext.additionalSave.dpad.status[btn] = BTN_ENABLED;
+    gSaveContext.shipSaveContext.dpad.status[btn] = BTN_ENABLED;
 
     if (item == ITEM_HOT_SPRING_WATER) {
         Interface_StartBottleTimer(60, DPAD_GET_CUR_FORM_BTN_SLOT(btn) - SLOT_BOTTLE_1);
@@ -4168,7 +4167,7 @@ s32 Inventory_ConsumeFairy(PlayState* play) {
                 }
             }
             // #region 2S2H [Dpad]
-            if (CVarGetInteger("gDpadEquips", 0)) {
+            if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
                 for (u8 dpadBtn = EQUIP_SLOT_C_LEFT; dpadBtn <= EQUIP_SLOT_C_RIGHT; dpadBtn++) {
                     if (DPAD_GET_CUR_FORM_BTN_ITEM(dpadBtn) == ITEM_FAIRY) {
                         DPAD_SET_CUR_FORM_BTN_ITEM(dpadBtn, ITEM_BOTTLE);
@@ -4746,7 +4745,7 @@ void Magic_Update(PlayState* play) {
                      (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) != ITEM_LENS_OF_TRUTH) &&
                      (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) != ITEM_LENS_OF_TRUTH) &&
                     //  #region 2S2H [Dpad]
-                     (!CVarGetInteger("gDpadEquips", 0) || 
+                     (!CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0) || 
                       (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) != ITEM_LENS_OF_TRUTH) &&
                       (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) != ITEM_LENS_OF_TRUTH) &&
                       (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) != ITEM_LENS_OF_TRUTH) &&
@@ -5077,9 +5076,9 @@ void Interface_DrawItemButtons(PlayState* play) {
     gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
 
     // #region 2S2H [Dpad]
-    if (CVarGetInteger("gDpadEquips", 0)) {
-        s16 dpadAlpha = MAX(MAX(MAX(interfaceCtx->additionalInterface.dpad.dRightAlpha, interfaceCtx->additionalInterface.dpad.dLeftAlpha), interfaceCtx->additionalInterface.dpad.dDownAlpha),
-                    interfaceCtx->additionalInterface.dpad.dUpAlpha);
+    if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+        s16 dpadAlpha = MAX(MAX(MAX(interfaceCtx->shipInterface.dpad.dRightAlpha, interfaceCtx->shipInterface.dpad.dLeftAlpha), interfaceCtx->shipInterface.dpad.dDownAlpha),
+                    interfaceCtx->shipInterface.dpad.dUpAlpha);
         HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_D_PAD);
         OVERLAY_DISP = Gfx_DrawTexRectIA16_DropShadow(OVERLAY_DISP, gDPadTex, 32, 32, 271, 55, 32, 32, 1024, 1024, 255, 255, 255, dpadAlpha);
         gDPPipeSync(OVERLAY_DISP++);
@@ -5675,7 +5674,7 @@ void Interface_DrawCButtonIcons(PlayState* play) {
 
 void Interface_DrawDButtonIcons(PlayState* play) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
-    DpadInterface* dpadInterfaceCtx = &play->interfaceCtx.additionalInterface.dpad;
+    DpadInterface* dpadInterfaceCtx = &play->interfaceCtx.shipInterface.dpad;
 
     OPEN_DISPS(play->state.gfxCtx);
 
@@ -8109,7 +8108,7 @@ void Interface_Draw(PlayState* play) {
         Interface_DrawCButtonIcons(play);
 
         // #region 2S2H [Dpad]
-        if (CVarGetInteger("gDpadEquips", 0)) {
+        if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
             Interface_DrawDButtonIcons(play);
         }
         // #endregion
@@ -8867,8 +8866,7 @@ void Interface_Init(PlayState* play) {
     }
 
     // #region 2S2H [Dpad]
-    // DPAD TODO: Figure Out if CVar check is needed
-    if (CVarGetInteger("gDpadEquips", 0)) {
+    if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
         if (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) < ITEM_F0) {
             Interface_Dpad_LoadItemIconImpl(play, EQUIP_SLOT_D_RIGHT);
         }

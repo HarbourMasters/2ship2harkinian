@@ -1565,13 +1565,8 @@ void Message_DecodeNES(PlayState* play) {
         } else if (curChar == 0xDE) {
             digits[0] = digits[1] = digits[2] = 0;
             // #region 2S2H [Dpad]
-            // DPAD TODO: Check this is safe!!
-            if (CVarGetInteger("gDpadEquips", 0)) {
-                if (IS_HELD_DPAD(player->heldItemButton)) {
-                    digits[3] = gItemPrices[DPAD_GET_CUR_FORM_BTN_ITEM(HELD_ITEM_TO_DPAD(player->heldItemButton))];
-                } else {
-                    digits[3] = gItemPrices[GET_CUR_FORM_BTN_ITEM(player->heldItemButton)];
-                }
+            if (IS_HELD_DPAD(player->heldItemButton)) {
+                digits[3] = gItemPrices[DPAD_GET_CUR_FORM_BTN_ITEM(HELD_ITEM_TO_DPAD(player->heldItemButton))];
             } else {
                 digits[3] = gItemPrices[GET_CUR_FORM_BTN_ITEM(player->heldItemButton)];
             }

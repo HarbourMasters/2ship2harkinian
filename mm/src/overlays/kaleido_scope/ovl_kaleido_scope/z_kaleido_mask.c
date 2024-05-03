@@ -213,12 +213,13 @@ void KaleidoScope_DrawMaskSelect(PlayState* play) {
         }
     }
     // #region 2S2H [Dpad]
-    // DPAD TODO: Figure out if this needs a CVar
-    for (i = EQUIP_SLOT_D_RIGHT; i <= EQUIP_SLOT_D_UP; i++, j += 4) {
-        if (DPAD_GET_CUR_FORM_BTN_ITEM(i) != ITEM_NONE) {
-            if (DPAD_GET_CUR_FORM_BTN_SLOT(i) >= ITEM_NUM_SLOTS) {
-                gSPVertex(POLY_OPA_DISP++, &pauseCtx->maskVtx[j], 4, 0);
-                POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gEquippedItemOutlineTex, 32, 32, 0);
+    if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+        for (i = EQUIP_SLOT_D_RIGHT; i <= EQUIP_SLOT_D_UP; i++, j += 4) {
+            if (DPAD_GET_CUR_FORM_BTN_ITEM(i) != ITEM_NONE) {
+                if (DPAD_GET_CUR_FORM_BTN_SLOT(i) >= ITEM_NUM_SLOTS) {
+                    gSPVertex(POLY_OPA_DISP++, &pauseCtx->maskVtx[j], 4, 0);
+                    POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gEquippedItemOutlineTex, 32, 32, 0);
+                }
             }
         }
     }
@@ -631,7 +632,7 @@ void KaleidoScope_UpdateMaskCursor(PlayState* play) {
                         pauseCtx->equipTargetCBtn = PAUSE_EQUIP_C_RIGHT;
                     }
                     // #region 2S2H [Dpad]
-                    else if (CVarGetInteger("gDpadEquips", 0)) {
+                    else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
                         if (CHECK_BTN_ALL(input->press.button, BTN_DRIGHT)) {
                             pauseCtx->equipTargetCBtn = PAUSE_EQUIP_D_RIGHT;
                         } else if (CHECK_BTN_ALL(input->press.button, BTN_DLEFT)) {
@@ -1110,7 +1111,7 @@ void KaleidoScope_UpdateMaskEquip(PlayState* play) {
                     }
                 }
                 // #region 2S2H [Dpad]
-                else if (CVarGetInteger("gDpadEquips", 0)) {
+                else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
                     KaleidoScope_SwapDpadMaskToCMask(play, EQUIP_SLOT_C_LEFT);
                 }
                 // #endregion
@@ -1141,7 +1142,7 @@ void KaleidoScope_UpdateMaskEquip(PlayState* play) {
                     }
                 }
                 // #region 2S2H [Dpad]
-                else if (CVarGetInteger("gDpadEquips", 0)) {
+                else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
                     KaleidoScope_SwapDpadMaskToCMask(play, EQUIP_SLOT_C_DOWN);
                 }
                 // #endregion
@@ -1172,7 +1173,7 @@ void KaleidoScope_UpdateMaskEquip(PlayState* play) {
                     }
                 }
                 // #region 2S2H [Dpad]
-                else if (CVarGetInteger("gDpadEquips", 0)) {
+                else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
                     KaleidoScope_SwapDpadMaskToCMask(play, EQUIP_SLOT_C_RIGHT);
                 }
                 // #endregion
@@ -1183,7 +1184,7 @@ void KaleidoScope_UpdateMaskEquip(PlayState* play) {
                 Interface_LoadItemIconImpl(play, EQUIP_SLOT_C_RIGHT);
             }
             // #region 2S2H [Dpad] 
-            else if (CVarGetInteger("gDpadEquips", 0)) {
+            else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
                 KaleidoScope_UpdateDpadMaskEquip(play);
             }
             // #endregion

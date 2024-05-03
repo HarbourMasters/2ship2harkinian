@@ -677,7 +677,7 @@ PlayerItemAction func_80123810(PlayState* play) {
         }
     }
     // #region 2S2H [Dpad]
-    if (CVarGetInteger("gDpadEquips", 0)) {
+    if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
         for (i = 0; i < ARRAY_COUNT(sDItemButtons); i++) {
             if (CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, sDItemButtons[i])) {
                 itemId = Player_GetItemOnDpadButton(play, player, i);
@@ -1359,13 +1359,8 @@ void Player_SetEquipmentData(PlayState* play, Player* player) {
 
 void Player_UpdateBottleHeld(PlayState* play, Player* player, ItemId itemId, PlayerItemAction itemAction) {
     // #region 2S2H [Dpad]
-    // DPAD TODO: Check this is safe!!
-    if (CVarGetInteger("gDpadEquips", 0)) {
-        if (IS_HELD_DPAD(player->heldItemButton)) {
-            Inventory_UpdateDpadBottleItem(play, itemId, HELD_ITEM_TO_DPAD(player->heldItemButton));
-        } else {
-            Inventory_UpdateBottleItem(play, itemId, player->heldItemButton);
-        }
+    if (IS_HELD_DPAD(player->heldItemButton)) {
+        Inventory_UpdateDpadBottleItem(play, itemId, HELD_ITEM_TO_DPAD(player->heldItemButton));
     } else {
         Inventory_UpdateBottleItem(play, itemId, player->heldItemButton);
     }

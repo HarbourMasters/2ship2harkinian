@@ -269,12 +269,13 @@ void KaleidoScope_DrawItemSelect(PlayState* play) {
         }
     }
     // #region 2S2H [Dpad]
-    // DPAD TODO: Figure out if this needs a CVar
-    for (i = EQUIP_SLOT_D_RIGHT; i <= EQUIP_SLOT_D_UP; i++, j += 4) {
-        if (DPAD_GET_CUR_FORM_BTN_ITEM(i) != ITEM_NONE) {
-            if (DPAD_GET_CUR_FORM_BTN_SLOT(i) < ITEM_NUM_SLOTS) {
-                gSPVertex(POLY_OPA_DISP++, &pauseCtx->itemVtx[j], 4, 0);
-                POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gEquippedItemOutlineTex, 32, 32, 0);
+    if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+        for (i = EQUIP_SLOT_D_RIGHT; i <= EQUIP_SLOT_D_UP; i++, j += 4) {
+            if (DPAD_GET_CUR_FORM_BTN_ITEM(i) != ITEM_NONE) {
+                if (DPAD_GET_CUR_FORM_BTN_SLOT(i) < ITEM_NUM_SLOTS) {
+                    gSPVertex(POLY_OPA_DISP++, &pauseCtx->itemVtx[j], 4, 0);
+                    POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gEquippedItemOutlineTex, 32, 32, 0);
+                }
             }
         }
     }
@@ -645,7 +646,7 @@ void KaleidoScope_UpdateItemCursor(PlayState* play) {
                             }
                         }
                         // #region 2S2H [Dpad]
-                        else if (CVarGetInteger("gDpadEquips", 0)) {
+                        else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
                             if (CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, BTN_DRIGHT)) {
                                 if (sPlayerFormItems[GET_PLAYER_FORM] == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT)) {
                                     Audio_PlaySfx(NA_SE_SY_ERROR);
@@ -695,7 +696,7 @@ void KaleidoScope_UpdateItemCursor(PlayState* play) {
                         pauseCtx->equipTargetCBtn = PAUSE_EQUIP_C_RIGHT;
                     }
                     // #region 2S2H [Dpad]
-                    else if (CVarGetInteger("gDpadEquips", 0)) {
+                    else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
                         if (CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, BTN_DRIGHT)) {
                             if ((Player_GetCurMaskItemId(play) != ITEM_NONE) &&
                                 (Player_GetCurMaskItemId(play) == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT))) {
@@ -1596,7 +1597,7 @@ void KaleidoScope_UpdateItemEquip(PlayState* play) {
                     }
                 }
                 // #region 2S2H [Dpad]
-                else if (CVarGetInteger("gDpadEquips", 0)) {
+                else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
                     KaleidoScope_SwapDpadItemToCItem(play, EQUIP_SLOT_C_LEFT);
                 }
                 // #endregion
@@ -1623,7 +1624,7 @@ void KaleidoScope_UpdateItemEquip(PlayState* play) {
                     }
                     // #region 2S2H [Dpad]
                     // Note Only C-Left has the swap of 'slot equips' here
-                    else if (CVarGetInteger("gDpadEquips", 0)) {
+                    else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
                         if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) >= ITEM_BOW_FIRE) &&
                                 (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) <= ITEM_BOW_LIGHT)) {
                             DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) = BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT);
@@ -1691,7 +1692,7 @@ void KaleidoScope_UpdateItemEquip(PlayState* play) {
                     }
                 }
                 // #region 2S2H [Dpad]
-                else if (CVarGetInteger("gDpadEquips", 0)) {
+                else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
                     KaleidoScope_SwapDpadItemToCItem(play, EQUIP_SLOT_C_DOWN);
                 }
                 // #endregion
@@ -1716,7 +1717,7 @@ void KaleidoScope_UpdateItemEquip(PlayState* play) {
                     }
                     // #region 2S2H [Dpad]
                     // Note Only C-Left has the swap of 'slot equips' here
-                    else if (CVarGetInteger("gDpadEquips", 0)) {
+                    else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
                         if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) >= ITEM_BOW_FIRE) &&
                                 (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) <= ITEM_BOW_LIGHT)) {
                             DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) = BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN);
@@ -1780,7 +1781,7 @@ void KaleidoScope_UpdateItemEquip(PlayState* play) {
                     }
                 }
                 // #region 2S2H [Dpad]
-                else if (CVarGetInteger("gDpadEquips", 0)) {
+                else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
                     KaleidoScope_SwapDpadItemToCItem(play, EQUIP_SLOT_C_RIGHT);
                 }
                 // #endregion
@@ -1805,7 +1806,7 @@ void KaleidoScope_UpdateItemEquip(PlayState* play) {
                     }
                     // #region 2S2H [Dpad]
                     // Note Only C-Left has the swap of 'slot equips' here
-                    else if (CVarGetInteger("gDpadEquips", 0)) {
+                    else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
                         if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) >= ITEM_BOW_FIRE) &&
                                 (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) <= ITEM_BOW_LIGHT)) {
                             DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) = BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT);
@@ -1833,7 +1834,7 @@ void KaleidoScope_UpdateItemEquip(PlayState* play) {
                 Interface_LoadItemIconImpl(play, EQUIP_SLOT_C_RIGHT);
             }
             // #region 2S2H [Dpad]
-            else if (CVarGetInteger("gDpadEquips", 0)) {
+            else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
                 KaleidoScope_UpdateDpadItemEquip(play);
             }
             // #endregion

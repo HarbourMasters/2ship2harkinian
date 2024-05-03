@@ -963,13 +963,8 @@ void EnFsn_DeterminePrice(EnFsn* this, PlayState* play) {
 
         if (itemAction > PLAYER_IA_NONE) {
             // #region 2S2H [Dpad]
-            // DPAD TODO: Check this is safe!!
-            if (CVarGetInteger("gDpadEquips", 0)) {
-                if (IS_HELD_DPAD(player->heldItemButton)) {
-                    buttonItem = DPAD_GET_CUR_FORM_BTN_ITEM(HELD_ITEM_TO_DPAD(player->heldItemButton));
-                } else {
-                    buttonItem = GET_CUR_FORM_BTN_ITEM(player->heldItemButton);
-                }
+            if (IS_HELD_DPAD(player->heldItemButton)) {
+                buttonItem = DPAD_GET_CUR_FORM_BTN_ITEM(HELD_ITEM_TO_DPAD(player->heldItemButton));
             } else {
                 buttonItem = GET_CUR_FORM_BTN_ITEM(player->heldItemButton);
             }

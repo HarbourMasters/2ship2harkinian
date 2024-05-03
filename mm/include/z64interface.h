@@ -162,7 +162,7 @@ typedef struct {
 
 typedef struct {
     DpadInterface dpad;
-} AdditionalInterfaceContext;
+} ShipInterfaceContext;
 // #endregion
 
 typedef struct {
@@ -262,7 +262,7 @@ typedef struct {
     /* 0x33C */ u8* storySegment;
     /* 0x340 */ uintptr_t storyAddr;
     /* 0x344 */ size_t storySize;
-    /* 2S2H  */ AdditionalInterfaceContext additionalInterface;
+    /* 2S2H  */ ShipInterfaceContext shipInterface;
 } InterfaceContext; // size = 0x348
 
 Gfx* Gfx_DrawTexRectRGBA16(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 textureHeight, s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy);

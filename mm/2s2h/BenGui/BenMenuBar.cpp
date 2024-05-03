@@ -337,6 +337,14 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
+        if (UIWidgets::BeginMenu("Dpad")) {
+            UIWidgets::CVarCheckbox("Dpad Equips", "gEnhancements.Dpad.DpadEquips", {
+                .tooltip = "Allows you to equip items to your d-pad"
+            });
+
+            ImGui::EndMenu();
+        }
+
         UIWidgets::CVarCheckbox("Fast Text", "gEnhancements.TimeSavers.FastText", {
             .tooltip = "Speeds up text rendering, and enables holding of B progress to next message"
         });
@@ -352,10 +360,6 @@ void DrawEnhancementsMenu() {
                 .tooltip = "Enables the Hud Editor window, allowing you to edit your hud"
             });
         }
-
-        UIWidgets::CVarCheckbox("Dpad Equips", "gDpadEquips", {
-            .tooltip = "Allows you to equip items to your d-pad"
-        });
 
         ImGui::EndMenu();
     }
