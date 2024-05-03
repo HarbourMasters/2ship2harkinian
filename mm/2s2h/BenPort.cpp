@@ -1509,6 +1509,28 @@ extern "C" int32_t OTRConvertHUDXToScreenX(int32_t v) {
     return screenScaledCoordInt;
 }
 
+extern "C" void Gfx_RegisterBlendedTexture(const char* name, u8* mask, u8* replacement) {
+    gfx_register_blended_texture(name, mask, replacement);
+}
+
+extern "C" void Gfx_UnregisterBlendedTexture(const char* name) {
+    gfx_unregister_blended_texture(name);
+}
+
+extern "C" void Gfx_TextureCacheDelete(const uint8_t* texAddr) {
+    char* imgName = (char*)texAddr;
+
+    if (texAddr == nullptr) {
+        return;
+    }
+
+    if (ResourceMgr_OTRSigCheck(imgName)) {
+        texAddr = (const uint8_t*)GetResourceDataByNameHandlingMQ(imgName);
+    }
+
+    gfx_texture_cache_delete(texAddr);
+}
+
 extern "C" int AudioPlayer_Buffered(void) {
     return AudioPlayerBuffered();
 }
