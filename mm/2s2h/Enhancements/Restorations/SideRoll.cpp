@@ -1,4 +1,3 @@
-
 #include <libultraship/bridge.h>
 #include "Enhancements/GameInteractor/GameInteractor.h"
 
