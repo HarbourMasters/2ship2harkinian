@@ -291,6 +291,23 @@ extern std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
         
+        if (UIWidgets::BeginMenu("Cycle")) {
+            UIWidgets::CVarCheckbox("Do no reset Bottle content", "gEnhancements.Cycle.DoNotResetBottleContent", {
+                .tooltip = "Playing the Song Of Time will not reset the bottles' content."
+            });
+            UIWidgets::CVarCheckbox("Do no reset Consumables", "gEnhancements.Cycle.DoNotResetConsumables", {
+                .tooltip = "Playing the Song Of Time will not reset the consumables."
+            });
+            UIWidgets::CVarCheckbox("Do no reset Razor Sword", "gEnhancements.Cycle.DoNotResetRazorSword", {
+                .tooltip = "Playing the Song Of Time will not reset the Sword back to Kokiri Sword."
+            });
+            UIWidgets::CVarCheckbox("Do no reset Rupees", "gEnhancements.Cycle.DoNotResetRupees", {
+                .tooltip = "Playing the Song Of Time will not reset the your rupees."
+            });
+            
+            ImGui::EndMenu();
+        }
+
         if (UIWidgets::BeginMenu("Masks")) {
             UIWidgets::CVarCheckbox("Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere", {
                 .tooltip = "Allow using Fierce Deity's mask outside of boss rooms."
