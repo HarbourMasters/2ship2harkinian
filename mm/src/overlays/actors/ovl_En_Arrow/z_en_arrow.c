@@ -680,8 +680,9 @@ void EnArrow_Draw(Actor* thisx, PlayState* play) {
             FB_WriteFramebufferSliceToCPU(&gfx, play->state.gfxCtx->curFrameBuffer, true);
             POLY_XLU_DISP = gfx;
             // Only a portion of the buffer is used as a texture, so we need to invalidate by the same offset
-            // Offset derived from (ult * width + uls) * 2 => (104 * 320 + 144) * 2
-            gSPInvalidateTexCache(POLY_XLU_DISP++, (uintptr_t)(play->state.gfxCtx->curFrameBuffer) + 66848);
+            // Offset derived from ((ult * width + uls) * 2), with values taken from the DL directly
+            gSPInvalidateTexCache(POLY_XLU_DISP++,
+                                  (uintptr_t)(play->state.gfxCtx->curFrameBuffer) + ((104 * 320 + 144) * 2));
             // #endregion
 
             gSPDisplayList(POLY_XLU_DISP++, gameplay_keep_DL_06F380);
@@ -704,8 +705,9 @@ void EnArrow_Draw(Actor* thisx, PlayState* play) {
             FB_WriteFramebufferSliceToCPU(&gfx, play->state.gfxCtx->curFrameBuffer, true);
             POLY_OPA_DISP = gfx;
             // Only a portion of the buffer is used as a texture, so we need to invalidate by the same offset
-            // Offset derived from (ult * width + uls) * 2 => (104 * 320 + 144) * 2
-            gSPInvalidateTexCache(POLY_OPA_DISP++, (uintptr_t)(play->state.gfxCtx->curFrameBuffer) + 66848);
+            // Offset derived from ((ult * width + uls) * 2), with values taken from the DL directly
+            gSPInvalidateTexCache(POLY_OPA_DISP++,
+                                  (uintptr_t)(play->state.gfxCtx->curFrameBuffer) + ((104 * 320 + 144) * 2));
             // #endregion
 
             gSPDisplayList(POLY_OPA_DISP++, gameplay_keep_DL_06F380);
