@@ -456,7 +456,7 @@ void NextItemInSlot(InventorySlot slot) { //what is the next thing in that slot?
 }
 
 void DrawSlot(InventorySlot slot) {
-    int x = slot % 6; //figures out where in the grid the item is
+    int x = slot % 6;
     int y = ((int)floor(slot / 6) % 4);
     ItemId currentItemId = static_cast<ItemId>(gSaveContext.save.saveInfo.inventory.items[slot]);
 
@@ -473,9 +473,8 @@ void DrawSlot(InventorySlot slot) {
         DrawAmmoInput(slot);
     }
 
-    ImGui::SetCursorPos(ImVec2(x * INV_GRID_WIDTH + INV_GRID_PADDING, y * INV_GRID_HEIGHT + INV_GRID_TOP_MARGIN + INV_GRID_PADDING)); //based on x/y do math to determine where you start
+    ImGui::SetCursorPos(ImVec2(x * INV_GRID_WIDTH + INV_GRID_PADDING, y * INV_GRID_HEIGHT + INV_GRID_TOP_MARGIN + INV_GRID_PADDING));
 
-    // isEquipped border // dont need this
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 1.0f, 1.0f, 0.2f));
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 1.0f, 1.0f, 0.1f));
@@ -489,13 +488,13 @@ void DrawSlot(InventorySlot slot) {
         ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
     }
     ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 2.0f);
-    //safe mode needed for sword and shield, grabs shield icon (if you have mirror, override texture with mirror if equipped, if not og id)
-    ImTextureID textureId = LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[safeItemsForInventorySlot[slot][0]]); //grab textureid based on slot (what is the first item in this slot?)
+
+    ImTextureID textureId = LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[safeItemsForInventorySlot[slot][0]]);
 
     if (currentItemId != ITEM_NONE) {
-        textureId = LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[currentItemId]); //if current id is not none, override ID
+        textureId = LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[currentItemId]);
     }
-    //click button goto NextItemInSlot
+
     if (ImGui::ImageButton(textureId, ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, currentItemId == ITEM_NONE ? 0.4f : 1.0f))) {
         if (safeMode && safeItemsForInventorySlot[slot].size() < 2) {
             NextItemInSlot(slot);
@@ -654,7 +653,7 @@ void SongInfo(int32_t itemID) {
     }
 }
 
-std::map<QuestItem, ItemId>questToItemMap = { // change to objects and add color/tooltip for songs
+std::map<QuestItem, ItemId>questToItemMap = {
     { QUEST_REMAINS_ODOLWA,     ITEM_REMAINS_ODOLWA },
     { QUEST_REMAINS_GOHT,       ITEM_REMAINS_GOHT },
     { QUEST_REMAINS_GYORG,      ITEM_REMAINS_GYORG },
@@ -674,41 +673,51 @@ std::map<QuestItem, ItemId>questToItemMap = { // change to objects and add color
 };
 
 void NextQuestInSlot(QuestItem slot) {
-    if (CHECK_QUEST_ITEM(slot)) {
-        REMOVE_QUEST_ITEM(slot);
-    } else {
-        SET_QUEST_ITEM(slot);
+    if (!gPlayState) {
+        return;
     }
-    
-    /*ItemId currentItemId = static_cast<ItemId>(gSaveContext.save.saveInfo.inventory.questItems = (GET_SAVE_INVENTORY_QUEST_ITEMS | gBitFlags[slot]));
-    size_t currentItemIndex = find(safeItemsForQuestSlot[slot].begin(), safeItemsForQuestSlot[slot].end(), currentItemId) - safeItemsForQuestSlot[slot].begin();
-
-    if (currentItemId == ITEM_NONE) {
-        gSaveContext.save.saveInfo.inventory.questItems = (GET_SAVE_INVENTORY_QUEST_ITEMS | gBitFlags[slot]);
-    } else if (currentItemIndex < safeItemsForQuestSlot[slot].size() - 1) {
-        SET_QUEST_ITEM(slot);
-    } else {
-        REMOVE_QUEST_ITEM(slot);
-    }*/
+    Player* player = GET_PLAYER(gPlayState);
+    if (slot != QUEST_SHIELD && slot != QUEST_SWORD) {
+        if (CHECK_QUEST_ITEM(slot)) {
+            REMOVE_QUEST_ITEM(slot);
+        } else {
+            SET_QUEST_ITEM(slot);
+        }
+    } else if (slot == QUEST_SWORD) {
+        uint32_t currentSword = GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD);
+        if (currentSword >= EQUIP_VALUE_SWORD_GILDED) {
+            SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_KOKIRI);
+        } else {
+            SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, currentSword + 1);
+        }
+        CUR_FORM_EQUIP(EQUIP_SLOT_B) = GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) + ITEM_BOW_LIGHT;
+        if (currentSword == EQUIP_VALUE_SWORD_RAZOR) {
+            gSaveContext.save.saveInfo.playerData.swordHealth = 100;
+        }
+        Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_B);
+    } else if (slot == QUEST_SHIELD) {
+        uint32_t currentShield = GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD);
+        if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD) == 1) {
+            SET_EQUIP_VALUE(EQUIP_TYPE_SHIELD, EQUIP_VALUE_SHIELD_MIRROR);
+        } else {
+            SET_EQUIP_VALUE(EQUIP_TYPE_SHIELD, EQUIP_VALUE_SHIELD_HERO);
+        }
+        Player_SetEquipmentData(gPlayState, player);
+    }
 }
 
 void DrawQuestSlot(QuestItem slot) {
     int x = slot % 6;
     int y = ((int)floor(slot / 6) % 4);
-    //ItemId currentItemId = static_cast<ItemId>(gSaveContext.save.saveInfo.inventory.questItems = (GET_SAVE_INVENTORY_QUEST_ITEMS | gBitFlags[slot]));
-
     ImGui::PushID(slot);
     
-    ImGui::SetCursorPos(ImVec2(x * INV_GRID_WIDTH + INV_GRID_PADDING, y * INV_GRID_HEIGHT + INV_GRID_TOP_MARGIN + INV_GRID_PADDING)); //based on x/y do math to determine where you start
-   
-    ImTextureID textureId = LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[questToItemMap[slot]]);
+    ImGui::SetCursorPos(ImVec2(x * INV_GRID_WIDTH + INV_GRID_PADDING, y * INV_GRID_HEIGHT + INV_GRID_TOP_MARGIN + INV_GRID_PADDING));
 
-    //textureId = LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[slot]);
-    //click button goto NextItemInSlot
+    ImTextureID textureId = LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[questToItemMap[slot]]);
     if (ImGui::ImageButton(std::to_string(slot).c_str(), textureId, ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, CHECK_QUEST_ITEM(slot) ? 1.0f : 0.4f))) {
         NextQuestInSlot(slot);
     }
-
+   
     ImGui::PopID();
 }
 
@@ -732,15 +741,15 @@ void DrawQuestStatusTab() {
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 3.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f, 8.0f));
-    ImGui::BeginChild("remainsBox", ImVec2(INV_GRID_WIDTH * 4 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 0.75 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+    ImGui::BeginChild("remainsBox", ImVec2(INV_GRID_WIDTH * 4 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
     ImGui::Text("Boss Remains");
     for (int32_t i = QUEST_REMAINS_ODOLWA; i <= QUEST_REMAINS_TWINMOLD; i++) {
         QuestItem slot = static_cast<QuestItem>(i);
-
+    
         DrawQuestSlot(slot);
     }
     ImGui::EndChild();
-    ImGui::BeginChild("songBox", ImVec2(INV_GRID_WIDTH * 5.25 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1.55 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+    ImGui::BeginChild("songBox", ImVec2(INV_GRID_WIDTH * 6 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 2 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
     ImGui::Text("Songs");
     for (int32_t i = QUEST_SONG_TIME; i <= QUEST_SONG_SUN; i++) {
         DrawSong((QuestItem)i);
@@ -749,17 +758,27 @@ void DrawQuestStatusTab() {
         DrawSong((QuestItem)i);
     }
     ImGui::EndChild();
-    /*ImGui::BeginChild("equipBox", ImVec2(INV_GRID_WIDTH * 2 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1.5 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+    ImGui::BeginChild("equipBox", ImVec2(INV_GRID_WIDTH * 2 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
     ImGui::Text("Equipment");
-    for (int32_t i = ITEM_SWORD_KOKIRI; i <= ITEM_SHIELD_HERO; i++) {
-        if (i != ITEM_SWORD_RAZOR && i != ITEM_SWORD_GILDED && i != ITEM_SWORD_DEITY) {
-            ImGui::ImageButton(LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[i]),
-                ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), 0, ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
-            ImGui::SameLine();
+    
+    ImTextureID swordTextureId = LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) + ITEM_BOW_LIGHT]);
+    if (ImGui::ImageButton(std::to_string(ITEM_SWORD_KOKIRI).c_str(), swordTextureId, ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
+        NextQuestInSlot(QUEST_SWORD);
+    }
+    ImGui::SameLine();
+    if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD) == EQUIP_VALUE_SHIELD_HERO) {
+        ImTextureID shieldTextureId = LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[ITEM_SHIELD_HERO]);
+        if (ImGui::ImageButton(std::to_string(ITEM_SHIELD_HERO).c_str(), shieldTextureId, ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
+            NextQuestInSlot(QUEST_SHIELD);
+        }
+    } else {
+        ImTextureID shieldTextureId = LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[ITEM_SHIELD_MIRROR]);
+        if (ImGui::ImageButton(std::to_string(ITEM_SHIELD_MIRROR).c_str(), shieldTextureId, ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
+            NextQuestInSlot(QUEST_SHIELD);
         }
     }
+
     ImGui::EndChild();
-    */
     ImGui::PopStyleVar(2);
     ImGui::PopStyleColor(1);
 }
