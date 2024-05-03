@@ -20,11 +20,7 @@
 #include <time.h>
 #endif
 #include <Array.h>
-#include <stb/stb_image.h>
-#define DRMP3_IMPLEMENTATION
-#include <dr_libs/mp3.h>
-#define DRWAV_IMPLEMENTATION
-#include <dr_libs/wav.h>
+#include <stb_image.h>
 #include <AudioPlayer.h>
 #include "variables.h"
 #include "z64.h"
