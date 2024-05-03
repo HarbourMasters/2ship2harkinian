@@ -29,7 +29,7 @@
 #include "variables.h"
 #include "z64.h"
 #include "macros.h"
-#include <Utils/StringHelper.h>
+#include <utils/StringHelper.h>
 #include <nlohmann/json.hpp>
 
 #include <Fast3D/gfx_pc.h>

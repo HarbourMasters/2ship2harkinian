@@ -1,7 +1,7 @@
 #include "BenPort.h"
 #include <libultraship/libultraship.h>
 #include "2s2h/resource/type/Scene.h"
-#include <Utils/StringHelper.h>
+#include <utils/StringHelper.h>
 #include <Vertex.h>
 extern "C" {
 #include "global.h"

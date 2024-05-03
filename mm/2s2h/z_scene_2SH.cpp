@@ -4,7 +4,7 @@
 #include <Blob.h>
 #include <memory>
 #include <cassert>
-#include <Utils/StringHelper.h>
+#include <utils/StringHelper.h>
 #include <DisplayList.h>
 #include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 #include "2s2h/resource/type/Scene.h"
