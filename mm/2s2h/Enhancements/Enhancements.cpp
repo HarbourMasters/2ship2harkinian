@@ -5,6 +5,9 @@ void InitEnhancements() {
     RegisterInfiniteCheats();
     RegisterMoonJumpOnL();
 
+    // Cycle
+    RegisterEndOfCycleSaveHooks();
+
     // Masks
     RegisterFierceDeityAnywhere();
 

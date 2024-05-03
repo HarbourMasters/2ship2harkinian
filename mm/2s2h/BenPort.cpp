@@ -130,7 +130,18 @@ OTRGlobals::OTRGlobals() {
                                                  OOT_PAL_GC,     OOT_PAL_GC_DBG1,   OOT_PAL_GC_DBG2 };
     // tell LUS to reserve 3 SoH specific threads (Game, Audio, Save)
     context = LUS::Context::CreateInstance("2 Ship 2 Harkinian", appShortName, "shipofharkinian.json", OTRFiles, {}, 3);
+
+    // Override LUS defaults
+    LUS::Context::GetInstance()->GetLogger()->set_level((spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
+    LUS::Context::GetInstance()->GetLogger()->set_pattern("[%H:%M:%S.%e] [%s:%#] [%l] %v");
+
     //context = LUS::Context::CreateUninitializedInstance("Ship of Harkinian", appShortName, "shipofharkinian.json");
+
+    auto overlay = context->GetInstance()->GetWindow()->GetGui()->GetGameOverlay();
+    overlay->LoadFont("Press Start 2P", "fonts/PressStart2P-Regular.ttf", 12.0f);
+    overlay->LoadFont("Fipps", "fonts/Fipps-Regular.otf", 32.0f);
+    overlay->SetCurrentFont(CVarGetString(CVAR_GAME_OVERLAY_FONT, "Press Start 2P"));
+
     auto loader = context->GetResourceManager()->GetResourceLoader();
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryAnimationV0>(), RESOURCE_FORMAT_BINARY,
                                     "Animation", static_cast<uint32_t>(SOH::ResourceType::SOH_Animation), 0);
@@ -1502,6 +1513,28 @@ extern "C" int32_t OTRConvertHUDXToScreenX(int32_t v) {
     int32_t screenScaledCoordInt = screenScaledCoord;
 
     return screenScaledCoordInt;
+}
+
+extern "C" void Gfx_RegisterBlendedTexture(const char* name, u8* mask, u8* replacement) {
+    gfx_register_blended_texture(name, mask, replacement);
+}
+
+extern "C" void Gfx_UnregisterBlendedTexture(const char* name) {
+    gfx_unregister_blended_texture(name);
+}
+
+extern "C" void Gfx_TextureCacheDelete(const uint8_t* texAddr) {
+    char* imgName = (char*)texAddr;
+
+    if (texAddr == nullptr) {
+        return;
+    }
+
+    if (ResourceMgr_OTRSigCheck(imgName)) {
+        texAddr = (const uint8_t*)GetResourceDataByNameHandlingMQ(imgName);
+    }
+
+    gfx_texture_cache_delete(texAddr);
 }
 
 extern "C" int AudioPlayer_Buffered(void) {

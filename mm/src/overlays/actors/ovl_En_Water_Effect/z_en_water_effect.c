@@ -16,6 +16,7 @@
 #include "overlays/actors/ovl_Bg_Ikana_Rotaryroom/z_bg_ikana_rotaryroom.h"
 #include "objects/object_water_effect/object_water_effect.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
@@ -45,6 +46,7 @@ ActorInit En_Water_Effect_InitVars = {
 
 static Vec3f D_80A5AFB0 = { 0.0f, 0.0f, 0.0f };
 static Vec3f D_80A5AFBC = { 0.0f, -1.0f, 0.0f };
+static uint32_t epoch = 0;
 
 void func_80A587A0(EnWaterEffect* this, Vec3f* arg1, u8 arg2) {
     s16 i;
@@ -294,6 +296,7 @@ void EnWaterEffect_Draw(Actor* thisx, PlayState* play2) {
 
     for (i = 0; i < ARRAY_COUNT(this->unk_144) / 2; i++, ptr++) {
         if ((ptr->unk_00 == 1) || (ptr->unk_00 == 2)) {
+            FrameInterpolation_RecordOpenChild(ptr, epoch++);
             if (!phi_s4) {
                 POLY_XLU_DISP = Gfx_SetupDL(POLY_XLU_DISP, SETUPDL_0);
 
@@ -318,6 +321,7 @@ void EnWaterEffect_Draw(Actor* thisx, PlayState* play2) {
 
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_XLU_DISP++, object_water_effect_DL_0042B0);
+            FrameInterpolation_RecordCloseChild();
         }
     }
 
@@ -326,6 +330,7 @@ void EnWaterEffect_Draw(Actor* thisx, PlayState* play2) {
 
     for (i = 0; i < ARRAY_COUNT(this->unk_144) / 2; i++, ptr++) {
         if (ptr->unk_00 == 3) {
+            FrameInterpolation_RecordOpenChild(ptr, i);
             if (!phi_s4) {
                 Gfx_SetupDL44_Xlu(gfxCtx);
 
@@ -344,6 +349,7 @@ void EnWaterEffect_Draw(Actor* thisx, PlayState* play2) {
 
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_XLU_DISP++, object_water_effect_DL_0042F8);
+            FrameInterpolation_RecordCloseChild();
         }
     }
 
@@ -530,6 +536,7 @@ void func_80A5A184(Actor* thisx, PlayState* play2) {
 
     for (i = 0; i < ARRAY_COUNT(this->unk_144); i++, ptr++) {
         if (ptr->unk_00 == 4) {
+            FrameInterpolation_RecordOpenChild(ptr, epoch++);
             if (!flag) {
                 gSPDisplayList(POLY_XLU_DISP++, object_water_effect_DL_004340);
                 gDPSetEnvColor(POLY_XLU_DISP++, 255, 10, 0, 0);
@@ -568,6 +575,7 @@ void func_80A5A184(Actor* thisx, PlayState* play2) {
                           G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                 gSPDisplayList(POLY_OPA_DISP++, gameplay_keep_DL_06AB30);
             }
+            FrameInterpolation_RecordCloseChild();
         }
     }
 
@@ -689,6 +697,7 @@ void func_80A5A6B8(Actor* thisx, PlayState* play2) {
 
         for (i = 0; i < ARRAY_COUNT(this->unk_144) / 2; i++, ptr++) {
             if (ptr->unk_00 == 3) {
+                FrameInterpolation_RecordOpenChild(ptr, epoch++);
                 if (!phi_s4) {
                     Gfx_SetupDL44_Xlu(play->state.gfxCtx);
 
@@ -708,6 +717,7 @@ void func_80A5A6B8(Actor* thisx, PlayState* play2) {
                 gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx),
                           G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                 gSPDisplayList(POLY_XLU_DISP++, object_water_effect_DL_0042F8);
+                FrameInterpolation_RecordCloseChild();
             }
         }
     }

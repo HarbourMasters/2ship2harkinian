@@ -38,6 +38,7 @@ void EnTest3_Init(Actor* thisx, PlayState* play2);
 void EnTest3_Destroy(Actor* thisx, PlayState* play2);
 void EnTest3_Update(Actor* thisx, PlayState* play2);
 void EnTest3_Draw(Actor* thisx, PlayState* play2);
+void EnTest3_Reset(void);
 
 // Functions used in D_80A4169C and D_80A416C0. Purpose unclear, but related to Schedule
 s32 func_80A3E870(EnTest3* this, PlayState* play);
@@ -178,6 +179,7 @@ ActorInit En_Test3_InitVars = {
     /**/ EnTest3_Destroy,
     /**/ EnTest3_Update,
     /**/ NULL,
+    /**/ EnTest3_Reset,
 };
 
 static struct_80A4168C D_80A4168C[] = {
@@ -1200,8 +1202,8 @@ void EnTest3_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList1, Gfx** dL
 
         if ((*dList1 != NULL) && this->player.currentMask && !(this->player.stateFlags2 & PLAYER_STATE2_1000000)) {
             // this->player.currentMask != PLAYER_MASK_NONE
-            if ((this->player.skelAnime.animation != &gPlayerAnim_cl_maskoff) &&
-                ((this->player.skelAnime.animation != &gPlayerAnim_cl_setmask) ||
+            if ((!BEN_ANIM_EQUAL(this->player.skelAnime.animation, gPlayerAnim_cl_maskoff)) &&
+                ((!BEN_ANIM_EQUAL(this->player.skelAnime.animation, gPlayerAnim_cl_setmask)) ||
                  (this->player.skelAnime.curFrame >= 12.0f))) {
                 if (func_80127438(play, &this->player, this->player.currentMask)) {
                     OPEN_DISPS(play->state.gfxCtx);
@@ -1309,4 +1311,13 @@ void EnTest3_Draw(Actor* thisx, PlayState* play2) {
         Player_DrawGetItem(play, &this->player);
     }
     CLOSE_DISPS(play->state.gfxCtx);
+}
+
+void EnTest3_Reset(void) {
+    D_80A41D20 = 0;
+    D_80A41D24 = 0;
+    D_80A41D5C = 0;
+    D_80A41D60 = 0;
+    D_80A41D64 = 0;
+    D_80A41D68 = 0;
 }
