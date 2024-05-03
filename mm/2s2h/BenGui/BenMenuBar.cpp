@@ -292,16 +292,16 @@ void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
         
         if (UIWidgets::BeginMenu("Cycle")) {
-            UIWidgets::CVarCheckbox("Do no reset Bottle content", "gEnhancements.Cycle.DoNotResetBottleContent", {
+            UIWidgets::CVarCheckbox("Do not reset Bottle content", "gEnhancements.Cycle.DoNotResetBottleContent", {
                 .tooltip = "Playing the Song Of Time will not reset the bottles' content."
             });
-            UIWidgets::CVarCheckbox("Do no reset Consumables", "gEnhancements.Cycle.DoNotResetConsumables", {
+            UIWidgets::CVarCheckbox("Do not reset Consumables", "gEnhancements.Cycle.DoNotResetConsumables", {
                 .tooltip = "Playing the Song Of Time will not reset the consumables."
             });
-            UIWidgets::CVarCheckbox("Do no reset Razor Sword", "gEnhancements.Cycle.DoNotResetRazorSword", {
+            UIWidgets::CVarCheckbox("Do not reset Razor Sword", "gEnhancements.Cycle.DoNotResetRazorSword", {
                 .tooltip = "Playing the Song Of Time will not reset the Sword back to Kokiri Sword."
             });
-            UIWidgets::CVarCheckbox("Do no reset Rupees", "gEnhancements.Cycle.DoNotResetRupees", {
+            UIWidgets::CVarCheckbox("Do not reset Rupees", "gEnhancements.Cycle.DoNotResetRupees", {
                 .tooltip = "Playing the Song Of Time will not reset the your rupees."
             });
             
