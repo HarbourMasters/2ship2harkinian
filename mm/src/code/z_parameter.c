@@ -4121,7 +4121,7 @@ s32 Inventory_HasItemInBottle(u8 item) {
 }
 
 // #region 2S2H [Dpad]
-void Inventory_UpdateDpadBottleItem(PlayState* play, u8 item, u8 btn) {
+void Inventory_Dpad_UpdateBottleItem(PlayState* play, u8 item, u8 btn) {
     gSaveContext.save.saveInfo.inventory.items[DPAD_GET_CUR_FORM_BTN_SLOT(btn)] = item;
     DPAD_SET_CUR_FORM_BTN_ITEM(btn, item);
 

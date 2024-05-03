@@ -294,7 +294,7 @@ void Inventory_UpdateDeitySwordEquip(struct PlayState* play) ;
 s32 Inventory_HasEmptyBottle(void);
 s32 Inventory_HasItemInBottle(u8 item);
 // #region 2S2H [Dpad]
-void Inventory_UpdateDpadBottleItem(struct PlayState* play, u8 item, u8 btn);
+void Inventory_Dpad_UpdateBottleItem(struct PlayState* play, u8 item, u8 btn);
 // #endregion
 void Inventory_UpdateBottleItem(struct PlayState* play, u8 item, u8 btn);
 s32 Inventory_ConsumeFairy(struct PlayState* play);
