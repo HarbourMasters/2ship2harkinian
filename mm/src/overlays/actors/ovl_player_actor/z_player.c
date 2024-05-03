@@ -45,6 +45,8 @@
 #include "objects/object_link_nuts/object_link_nuts.h"
 #include "objects/object_link_child/object_link_child.h"
 
+#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
+
 #define THIS ((Player*)thisx)
 
 void Player_Init(Actor* thisx, PlayState* play);
@@ -6615,8 +6617,10 @@ void func_80836AD8(PlayState* play, Player* this) {
 }
 
 void func_80836B3C(PlayState* play, Player* this, f32 arg2) {
-    this->currentYaw = this->actor.shape.rot.y;
-    this->actor.world.rot.y = this->actor.shape.rot.y;
+    if (GameInteractor_Should(GI_VB_PATCH_SIDEROLL, true, NULL)) {
+        this->currentYaw = this->actor.shape.rot.y;
+        this->actor.world.rot.y = this->actor.shape.rot.y;
+    }
 
     if (this->transformation == PLAYER_FORM_GORON) {
         func_80836AD8(play, this);

@@ -316,6 +316,14 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
+        if (UIWidgets::BeginMenu("Restorations")) {
+            UIWidgets::CVarCheckbox("Side Rolls", "gEnhancements.Restorations.SideRoll", {
+                .tooltip = "Restores side rolling from OOT."
+            });
+
+            ImGui::EndMenu();
+        }
+
         if (UIWidgets::BeginMenu("Graphics")) {
             MotionBlur_RenderMenuOptions();
             ImGui::EndMenu();
