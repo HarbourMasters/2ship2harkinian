@@ -1,7 +1,7 @@
 #include "BenPort.h"
 #include <libultraship/libultraship.h>
 #include "2s2h/resource/type/Scene.h"
-#include <Utils/StringHelper.h>
+#include <utils/StringHelper.h>
 #include "global.h"
 #include "2s2h/resource/type/TextMM.h"
 #include <message_data_static.h>
@@ -10,7 +10,7 @@
 //extern "C" MessageTableEntry* sStaffMessageEntryTablePtr;
 
 MessageTableEntry* OTRMessage_LoadTable(const char* filePath, bool isNES) {
-    auto file = std::static_pointer_cast<SOH::TextMM>(LUS::Context::GetInstance()->GetResourceManager()->LoadResource(filePath));
+    auto file = std::static_pointer_cast<SOH::TextMM>(Ship::Context::GetInstance()->GetResourceManager()->LoadResource(filePath));
 
     if (file == nullptr)
         return nullptr;
@@ -61,7 +61,7 @@ extern "C" void OTRMessage_Init(PlayState* play) {
 
     //if (play->msgCtx.messageTableStaff == NULL) {
         auto file2 =
-            std::static_pointer_cast<SOH::TextMM>(LUS::Context::GetInstance()->GetResourceManager()->LoadResource(
+            std::static_pointer_cast<SOH::TextMM>(Ship::Context::GetInstance()->GetResourceManager()->LoadResource(
                 "text/staff_message_data_static/staff_message_data_static"));
         // OTRTODO: Should not be malloc'ing here. It's fine for now since we check that the message table is already null.
         play->msgCtx.messageTableStaff = (MessageTableEntry*)malloc(sizeof(MessageTableEntry) * file2->messages.size());
