@@ -102,19 +102,19 @@ Color_RGB8 zoraColor = { 0x00, 0xEC, 0x64 };
 
 OTRGlobals::OTRGlobals() {
     std::vector<std::string> OTRFiles;
-    //std::string mqPath = LUS::Context::LocateFileAcrossAppDirs("oot-mq.otr", appShortName);
+    //std::string mqPath = Ship::Context::LocateFileAcrossAppDirs("oot-mq.otr", appShortName);
     //if (std::filesystem::exists(mqPath)) {
     //    OTRFiles.push_back(mqPath);
     //}
-    std::string ootPath = LUS::Context::LocateFileAcrossAppDirs("mm.otr", appShortName);
+    std::string ootPath = Ship::Context::LocateFileAcrossAppDirs("mm.otr", appShortName);
     if (std::filesystem::exists(ootPath)) {
         OTRFiles.push_back(ootPath);
     }
-    std::string sohOtrPath = LUS::Context::GetPathRelativeToAppBundle("soh.otr");
+    std::string sohOtrPath = Ship::Context::GetPathRelativeToAppBundle("soh.otr");
     if (std::filesystem::exists(sohOtrPath)) {
         OTRFiles.push_back(sohOtrPath);
     }
-    std::string patchesPath = LUS::Context::LocateFileAcrossAppDirs("mods", appShortName);
+    std::string patchesPath = Ship::Context::LocateFileAcrossAppDirs("mods", appShortName);
     if (patchesPath.length() > 0 && std::filesystem::exists(patchesPath)) {
         if (std::filesystem::is_directory(patchesPath)) {
             for (const auto& p : std::filesystem::recursive_directory_iterator(patchesPath)) {
@@ -129,18 +129,18 @@ OTRGlobals::OTRGlobals() {
                                                  OOT_PAL_11,     OOT_NTSC_JP_GC_CE, OOT_NTSC_JP_GC, OOT_NTSC_US_GC,
                                                  OOT_PAL_GC,     OOT_PAL_GC_DBG1,   OOT_PAL_GC_DBG2 };
     // tell LUS to reserve 3 SoH specific threads (Game, Audio, Save)
-    context = LUS::Context::CreateInstance("2 Ship 2 Harkinian", appShortName, "shipofharkinian.json", OTRFiles, {}, 3);
+    context = Ship::Context::CreateInstance("2 Ship 2 Harkinian", appShortName, "shipofharkinian.json", OTRFiles, {}, 3);
 
     // Override LUS defaults
-    LUS::Context::GetInstance()->GetLogger()->set_level((spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
-    LUS::Context::GetInstance()->GetLogger()->set_pattern("[%H:%M:%S.%e] [%s:%#] [%l] %v");
+    Ship::Context::GetInstance()->GetLogger()->set_level((spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
+    Ship::Context::GetInstance()->GetLogger()->set_pattern("[%H:%M:%S.%e] [%s:%#] [%l] %v");
 
-    //context = LUS::Context::CreateUninitializedInstance("Ship of Harkinian", appShortName, "shipofharkinian.json");
+    //context = Ship::Context::CreateUninitializedInstance("Ship of Harkinian", appShortName, "shipofharkinian.json");
 
     auto overlay = context->GetInstance()->GetWindow()->GetGui()->GetGameOverlay();
     overlay->LoadFont("Press Start 2P", "fonts/PressStart2P-Regular.ttf", 12.0f);
     overlay->LoadFont("Fipps", "fonts/Fipps-Regular.otf", 32.0f);
-    overlay->SetCurrentFont(CVarGetString(CVAR_GAME_OVERLAY_FONT, "Press Start 2P"));
+    overlay->SetCurrentFont(CVarGetString("gOverlayFont", "Press Start 2P"));
 
     auto loader = context->GetResourceManager()->GetResourceLoader();
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryAnimationV0>(), RESOURCE_FORMAT_BINARY,
@@ -204,7 +204,7 @@ OTRGlobals::OTRGlobals() {
 #if defined(__SWITCH__)
             SPDLOG_ERROR("Invalid OTR File!");
 #elif defined(__WIIU__)
-            LUS::WiiU::ThrowInvalidOTR();
+            Ship::WiiU::ThrowInvalidOTR();
 #else
             SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Invalid OTR File",
                                      "Attempted to load an invalid OTR file. Try regenerating.", nullptr);
@@ -251,15 +251,15 @@ bool OTRGlobals::HasOriginal() {
 }
 
 uint32_t OTRGlobals::GetInterpolationFPS() {
-    if (LUS::Context::GetInstance()->GetWindow()->GetWindowBackend() == LUS::WindowBackend::DX11) {
+    if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::DX11) {
         return CVarGetInteger("gInterpolationFPS", 20);
     }
 
     if (CVarGetInteger("gMatchRefreshRate", 0)) {
-        return LUS::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
+        return Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
     }
 
-    return std::min<uint32_t>(LUS::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate(),
+    return std::min<uint32_t>(Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate(),
                               CVarGetInteger("gInterpolationFPS", 20));
 }
 
@@ -358,7 +358,7 @@ extern "C" void OTRAudio_Exit() {
 }
 
 extern "C" void OTRExtScanner() {
-    auto lst = *LUS::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->ListFiles("*").get();
+    auto lst = *Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->ListFiles("*").get();
 
     for (auto& rPath : lst) {
         std::vector<std::string> raw = StringHelper::Split(rPath, ".");
@@ -372,8 +372,8 @@ extern "C" void OTRExtScanner() {
 
 extern "C" void InitOTR() {
 #if not defined(__SWITCH__) && not defined(__WIIU__)
-    if (!std::filesystem::exists(LUS::Context::LocateFileAcrossAppDirs("mm.otr", appShortName))) {
-        std::string installPath = LUS::Context::GetAppBundlePath();
+    if (!std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.otr", appShortName))) {
+        std::string installPath = Ship::Context::GetAppBundlePath();
         if (!std::filesystem::exists(installPath + "/assets/extractor")) {
             Extractor::ShowErrorBox(
                 "Extractor assets not found",
@@ -388,7 +388,7 @@ extern "C" void InitOTR() {
                 Extractor::ShowErrorBox("Error", "An error occured, no OTR file was generated. Exiting...");
                 exit(1);
             }
-            extract.CallZapd(installPath, LUS::Context::GetAppDirectoryPath(appShortName));
+            extract.CallZapd(installPath, Ship::Context::GetAppDirectoryPath(appShortName));
             generatedOtrIsMQ = extract.IsMasterQuest();
         } else {
             exit(1);
@@ -397,9 +397,9 @@ extern "C" void InitOTR() {
 #endif
 
 #ifdef __SWITCH__
-    LUS::Switch::Init(LUS::PreInitPhase);
+    Ship::Switch::Init(Ship::PreInitPhase);
 #elif defined(__WIIU__)
-    LUS::WiiU::Init("soh");
+    Ship::WiiU::Init("soh");
 #endif
 
     OTRGlobals::Instance = new OTRGlobals();
@@ -433,7 +433,7 @@ extern "C" void InitOTR() {
     }
 #endif
 
-    std::shared_ptr<LUS::Config> conf = OTRGlobals::Instance->context->GetConfig();
+    std::shared_ptr<Ship::Config> conf = OTRGlobals::Instance->context->GetConfig();
 
 }
 
@@ -504,7 +504,7 @@ extern bool ShouldClearTextureCacheAtEndOfFrame;
 
 extern "C" void Graph_StartFrame() {
 #ifndef __WIIU__
-    using LUS::KbScancode;
+    using Ship::KbScancode;
     int32_t dwScancode = OTRGlobals::Instance->context->GetWindow()->GetLastScancode();
     OTRGlobals::Instance->context->GetWindow()->SetLastScancode(-1);
 
@@ -512,7 +512,7 @@ extern "C" void Graph_StartFrame() {
         #if 0
         case KbScancode::LUS_KB_F5: {
             if (CVarGetInteger("gSaveStatesEnabled", 0) == 0) {
-                LUS::Context::GetInstance()->GetWindow()->GetGui()->GetGameOverlay()->TextDrawNotification(
+                Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGameOverlay()->TextDrawNotification(
                     6.0f, true, "Save states not enabled. Check Cheats Menu.");
                 return;
             }
@@ -533,7 +533,7 @@ extern "C" void Graph_StartFrame() {
         }
         case KbScancode::LUS_KB_F6: {
             if (CVarGetInteger("gSaveStatesEnabled", 0) == 0) {
-                LUS::Context::GetInstance()->GetWindow()->GetGui()->GetGameOverlay()->TextDrawNotification(
+                Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGameOverlay()->TextDrawNotification(
                     6.0f, true, "Save states not enabled. Check Cheats Menu.");
                 return;
             }
@@ -548,7 +548,7 @@ extern "C" void Graph_StartFrame() {
         }
         case KbScancode::LUS_KB_F7: {
             if (CVarGetInteger("gSaveStatesEnabled", 0) == 0) {
-                LUS::Context::GetInstance()->GetWindow()->GetGui()->GetGameOverlay()->TextDrawNotification(
+                Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGameOverlay()->TextDrawNotification(
                     6.0f, true, "Save states not enabled. Check Cheats Menu.");
                 return;
             }
@@ -664,7 +664,7 @@ extern "C" void Graph_ProcessGfxCommands(Gfx* commands) {
     //
     //if (ShouldClearTextureCacheAtEndOfFrame) {
     //    gfx_texture_cache_clear();
-    //    LUS::SkeletonPatcher::UpdateSkeletons();
+    //    Ship::SkeletonPatcher::UpdateSkeletons();
     //    ShouldClearTextureCacheAtEndOfFrame = false;
     //}
 
@@ -689,15 +689,15 @@ extern "C" uint16_t OTRGetPixelDepth(float x, float y) {
 }
 
 extern "C" uint32_t ResourceMgr_GetNumGameVersions() {
-    return LUS::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->GetGameVersions().size();
+    return Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->GetGameVersions().size();
 }
 
 extern "C" uint32_t ResourceMgr_GetGameVersion(int index) {
-    return LUS::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->GetGameVersions()[index];
+    return Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->GetGameVersions()[index];
 }
 
 extern "C" uint32_t ResourceMgr_GetGamePlatform(int index) {
-    uint32_t version = LUS::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->GetGameVersions()[index];
+    uint32_t version = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->GetGameVersions()[index];
 
     switch (version) {
         case OOT_NTSC_US_10:
@@ -722,7 +722,7 @@ extern "C" uint32_t ResourceMgr_GetGamePlatform(int index) {
 }
 
 extern "C" uint32_t ResourceMgr_GetGameRegion(int index) {
-    uint32_t version = LUS::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->GetGameVersions()[index];
+    uint32_t version = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->GetGameVersions()[index];
 
     switch (version) {
         case OOT_NTSC_US_10:
@@ -794,16 +794,16 @@ extern "C" uint32_t ResourceMgr_IsGameMasterQuest() {
 }
 
 extern "C" void ResourceMgr_LoadDirectory(const char* resName) {
-    LUS::Context::GetInstance()->GetResourceManager()->LoadDirectory(resName);
+    Ship::Context::GetInstance()->GetResourceManager()->LoadDirectory(resName);
 }
 extern "C" void ResourceMgr_DirtyDirectory(const char* resName) {
-    LUS::Context::GetInstance()->GetResourceManager()->DirtyDirectory(resName);
+    Ship::Context::GetInstance()->GetResourceManager()->DirtyDirectory(resName);
 }
 
 // OTRTODO: There is probably a more elegant way to go about this...
 // Kenix: This is definitely leaking memory when it's called.
 extern "C" char** ResourceMgr_ListFiles(const char* searchMask, int* resultSize) {
-    auto lst = LUS::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->ListFiles(searchMask);
+    auto lst = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->ListFiles(searchMask);
     char** result = (char**)malloc(lst->size() * sizeof(char*));
 
     for (size_t i = 0; i < lst->size(); i++) {
@@ -827,10 +827,10 @@ extern "C" uint8_t ResourceMgr_FileExists(const char* filePath) {
 }
 
 extern "C" void ResourceMgr_LoadFile(const char* resName) {
-    LUS::Context::GetInstance()->GetResourceManager()->LoadResource(resName);
+    Ship::Context::GetInstance()->GetResourceManager()->LoadResource(resName);
 }
 
-std::shared_ptr<LUS::IResource> GetResourceByNameHandlingMQ(const char* path) {
+std::shared_ptr<Ship::IResource> GetResourceByNameHandlingMQ(const char* path) {
     std::string Path = path;
     if (ResourceMgr_IsGameMasterQuest()) {
         size_t pos = 0;
@@ -838,7 +838,7 @@ std::shared_ptr<LUS::IResource> GetResourceByNameHandlingMQ(const char* path) {
             Path.replace(pos, 7, "/mq/");
         }
     }
-    return LUS::Context::GetInstance()->GetResourceManager()->LoadResource(Path.c_str());
+    return Ship::Context::GetInstance()->GetResourceManager()->LoadResource(Path.c_str());
 }
 
 extern "C" char* GetResourceDataByNameHandlingMQ(const char* path) {
@@ -962,7 +962,7 @@ std::unordered_map<std::string, std::unordered_map<std::string, GfxPatch>> origi
 // using OTRs instead (When that is available). Index can be found using the commented out section below.
 extern "C" void ResourceMgr_PatchGfxByName(const char* path, const char* patchName, int index, Gfx instruction) {
     auto res = std::static_pointer_cast<LUS::DisplayList>(
-        LUS::Context::GetInstance()->GetResourceManager()->LoadResource(path));
+        Ship::Context::GetInstance()->GetResourceManager()->LoadResource(path));
 
     // Leaving this here for people attempting to find the correct Dlist index to patch
     /*if (strcmp("__OTR__objects/object_gi_longsword/gGiBiggoronSwordDL", path) == 0) {
@@ -1000,7 +1000,7 @@ extern "C" void ResourceMgr_PatchGfxByName(const char* path, const char* patchNa
 extern "C" void ResourceMgr_PatchGfxCopyCommandByName(const char* path, const char* patchName, int destinationIndex,
                                                       int sourceIndex) {
     auto res = std::static_pointer_cast<LUS::DisplayList>(
-        LUS::Context::GetInstance()->GetResourceManager()->LoadResource(path));
+        Ship::Context::GetInstance()->GetResourceManager()->LoadResource(path));
 
     // Do not patch custom assets as they most likely do not have the same instructions as authentic assets
     if (res->GetInitData()->IsCustom) {
@@ -1020,7 +1020,7 @@ extern "C" void ResourceMgr_PatchGfxCopyCommandByName(const char* path, const ch
 extern "C" void ResourceMgr_UnpatchGfxByName(const char* path, const char* patchName) {
     if (originalGfx.contains(path) && originalGfx[path].contains(patchName)) {
         auto res = std::static_pointer_cast<LUS::DisplayList>(
-            LUS::Context::GetInstance()->GetResourceManager()->LoadResource(path));
+            Ship::Context::GetInstance()->GetResourceManager()->LoadResource(path));
 
         Gfx* gfx = (Gfx*)&res->Instructions[originalGfx[path][patchName].index];
         *gfx = originalGfx[path][patchName].instruction;
@@ -1108,7 +1108,7 @@ extern "C" SoundFontSample* ReadCustomSample(const char* path) {
 
         ExtensionEntry entry = ExtensionCache[path];
 
-        auto sampleRaw = LUS::Context::GetInstance()->GetResourceManager()->LoadFile(entry.path);
+        auto sampleRaw = Ship::Context::GetInstance()->GetResourceManager()->LoadFile(entry.path);
         uint32_t* strem = (uint32_t*)sampleRaw->Buffer.get();
         uint8_t* strem2 = (uint8_t*)strem;
 
@@ -1196,7 +1196,7 @@ extern "C" SkeletonHeader* ResourceMgr_LoadSkeletonByName(const char* path, Skel
     bool isAlt = CVarGetInteger("gAltAssets", 0);
 
     if (isAlt) {
-        pathStr = LUS::IResource::gAltAssetPrefix + pathStr;
+        pathStr = Ship::IResource::gAltAssetPrefix + pathStr;
     }
 
     SkeletonHeader* skelHeader = (SkeletonHeader*)ResourceGetDataByName(pathStr.c_str());
@@ -1210,7 +1210,7 @@ extern "C" SkeletonHeader* ResourceMgr_LoadSkeletonByName(const char* path, Skel
     // Therefore we can take this oppurtunity to take note of the Skeleton that is created...
     if (skelAnime != nullptr) {
         auto stringPath = std::string(path);
-        //LUS::SkeletonPatcher::RegisterSkeleton(stringPath, skelAnime);
+        //Ship::SkeletonPatcher::RegisterSkeleton(stringPath, skelAnime);
     }
 
     return skelHeader;
@@ -1230,9 +1230,9 @@ extern "C" s32* ResourceMgr_LoadCSByName(const char* path) {
     return (s32*)GetResourceDataByNameHandlingMQ(path);
 }
 
-std::filesystem::path GetSaveFile(std::shared_ptr<LUS::Config> Conf) {
+std::filesystem::path GetSaveFile(std::shared_ptr<Ship::Config> Conf) {
     const std::string fileName =
-        Conf->GetString("Game.SaveName", LUS::Context::GetPathRelativeToAppDirectory("oot_save.sav"));
+        Conf->GetString("Game.SaveName", Ship::Context::GetPathRelativeToAppDirectory("oot_save.sav"));
     std::filesystem::path saveFile = std::filesystem::absolute(fileName);
 
     if (!exists(saveFile.parent_path())) {
@@ -1243,13 +1243,13 @@ std::filesystem::path GetSaveFile(std::shared_ptr<LUS::Config> Conf) {
 }
 
 std::filesystem::path GetSaveFile() {
-    const std::shared_ptr<LUS::Config> pConf = OTRGlobals::Instance->context->GetConfig();
+    const std::shared_ptr<Ship::Config> pConf = OTRGlobals::Instance->context->GetConfig();
 
     return GetSaveFile(pConf);
 }
 
 void OTRGlobals::CheckSaveFile(size_t sramSize) const {
-    const std::shared_ptr<LUS::Config> pConf = Instance->context->GetConfig();
+    const std::shared_ptr<Ship::Config> pConf = Instance->context->GetConfig();
 
     std::filesystem::path savePath = GetSaveFile(pConf);
     std::fstream saveFile(savePath, std::fstream::in | std::fstream::out | std::fstream::binary);
@@ -1425,13 +1425,13 @@ Color_RGB8 GetColorForControllerLED() {
 extern "C" void OTRControllerCallback(uint8_t rumble) {
     // We call this every tick, SDL accounts for this use and prevents driver spam
     // https://github.com/libsdl-org/SDL/blob/f17058b562c8a1090c0c996b42982721ace90903/src/joystick/SDL_joystick.c#L1114-L1144
-    LUS::Context::GetInstance()->GetControlDeck()->GetControllerByPort(0)->GetLED()->SetLEDColor(
+    Ship::Context::GetInstance()->GetControlDeck()->GetControllerByPort(0)->GetLED()->SetLEDColor(
         GetColorForControllerLED());
 
-    static std::shared_ptr<LUS::InputEditorWindow> controllerConfigWindow = nullptr;
+    static std::shared_ptr<Ship::InputEditorWindow> controllerConfigWindow = nullptr;
     if (controllerConfigWindow == nullptr) {
-        controllerConfigWindow = std::dynamic_pointer_cast<LUS::InputEditorWindow>(
-            LUS::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Input Editor"));
+        controllerConfigWindow = std::dynamic_pointer_cast<Ship::InputEditorWindow>(
+            Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Input Editor"));
     // TODO: Add SoH Controller Config window rumble testing to upstream LUS config window
     //       note: the current implementation may not be desired in LUS, as "true" rumble support
     //             using osMotor calls is planned: https://github.com/Kenix3/libultraship/issues/9
@@ -1441,9 +1441,9 @@ extern "C" void OTRControllerCallback(uint8_t rumble) {
     }
 
     if (rumble) {
-        LUS::Context::GetInstance()->GetControlDeck()->GetControllerByPort(0)->GetRumble()->StartRumble();
+        Ship::Context::GetInstance()->GetControlDeck()->GetControllerByPort(0)->GetRumble()->StartRumble();
     } else {
-        LUS::Context::GetInstance()->GetControlDeck()->GetControllerByPort(0)->GetRumble()->StopRumble();
+        Ship::Context::GetInstance()->GetControlDeck()->GetControllerByPort(0)->GetRumble()->StopRumble();
     }
 }
 
@@ -1550,7 +1550,7 @@ extern "C" void AudioPlayer_Play(const uint8_t* buf, uint32_t len) {
 }
 
 extern "C" int Controller_ShouldRumble(size_t slot) {
-    for (auto [id, mapping] : LUS::Context::GetInstance()
+    for (auto [id, mapping] : Ship::Context::GetInstance()
                                   ->GetControlDeck()
                                   ->GetControllerByPort(static_cast<uint8_t>(slot))
                                   ->GetRumble()
@@ -1585,7 +1585,7 @@ typedef enum FlashSlotFile {
      (GET_NEWF(save, 2) == 'L') && (GET_NEWF(save, 3) == 'D') && \
      (GET_NEWF(save, 4) == 'A') && (GET_NEWF(save, 5) == '3'))
 
-const std::filesystem::path savesFolderPath(LUS::Context::GetPathRelativeToAppDirectory("Save"));
+const std::filesystem::path savesFolderPath(Ship::Context::GetPathRelativeToAppDirectory("Save"));
 
 void WriteSaveFile(std::filesystem::path fileName, nlohmann::json j) {
     const std::filesystem::path filePath = savesFolderPath / fileName;

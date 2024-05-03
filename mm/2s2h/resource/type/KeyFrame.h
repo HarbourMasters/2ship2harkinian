@@ -56,11 +56,11 @@ typedef struct {
     /* 0x12 */ s16 duration;
 } KeyFrameAnimationData; // Size = 0x14
 
-class KeyFrameSkel : public LUS::Resource<KeyFrameSkeletonData> {
+class KeyFrameSkel : public Ship::Resource<KeyFrameSkeletonData> {
   public:
     using Resource::Resource;
 
-    KeyFrameSkel() : Resource(std::shared_ptr<LUS::ResourceInitData>()) {
+    KeyFrameSkel() : Resource(std::shared_ptr<Ship::ResourceInitData>()) {
     }
     ~KeyFrameSkel();
 
@@ -70,11 +70,11 @@ class KeyFrameSkel : public LUS::Resource<KeyFrameSkeletonData> {
     KeyFrameSkeletonData skelData;
 };
 
-class KeyFrameAnim : public LUS::Resource<KeyFrameAnimationData> {
+class KeyFrameAnim : public Ship::Resource<KeyFrameAnimationData> {
   public:
     using Resource::Resource;
 
-    KeyFrameAnim() : Resource(std::shared_ptr<LUS::ResourceInitData>()) {
+    KeyFrameAnim() : Resource(std::shared_ptr<Ship::ResourceInitData>()) {
     }
     ~KeyFrameAnim();
 

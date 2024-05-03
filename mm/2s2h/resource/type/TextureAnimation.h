@@ -88,12 +88,12 @@ typedef struct {
     /* 0x4 */ void* params;
 } AnimatedMaterial; // size = 0x8
 
-class TextureAnimation : public LUS::Resource<AnimatedMaterial> {
+class TextureAnimation : public Ship::Resource<AnimatedMaterial> {
   public:
     using Resource::Resource;
     ~TextureAnimation();
 
-    TextureAnimation() : Resource(std::shared_ptr<LUS::ResourceInitData>()) {
+    TextureAnimation() : Resource(std::shared_ptr<Ship::ResourceInitData>()) {
     }
 
     AnimatedMaterial* GetPointer();

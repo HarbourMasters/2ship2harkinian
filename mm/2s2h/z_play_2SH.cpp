@@ -8,8 +8,8 @@ extern "C" {
 extern uintptr_t gSegments[NUM_SEGMENTS];
 }
 
-LUS::IResource* OTRPlay_LoadFile(PlayState* play, const char* fileName) {
-    auto res = LUS::Context::GetInstance()->GetResourceManager()->LoadResource(fileName);
+Ship::IResource* OTRPlay_LoadFile(PlayState* play, const char* fileName) {
+    auto res = Ship::Context::GetInstance()->GetResourceManager()->LoadResource(fileName);
     return res.get();
 }
 
