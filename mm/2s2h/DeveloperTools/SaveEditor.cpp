@@ -758,6 +758,38 @@ void DrawQuestStatusTab() {
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 3.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f, 8.0f));
+
+    if (UIWidgets::Button("Give All##items", { .color = UIWidgets::Colors::Green, .size = UIWidgets::Sizes::Inline })) {
+        for (int32_t i = QUEST_REMAINS_ODOLWA; i <= QUEST_BOMBERS_NOTEBOOK; i++) {
+            if (i != QUEST_SHIELD && i != QUEST_SWORD) {
+                SET_QUEST_ITEM(i);
+            }
+        }
+        SET_EQUIP_VALUE(EQUIP_TYPE_SHIELD, EQUIP_VALUE_SHIELD_MIRROR);
+        SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_GILDED);
+        if (gPlayState) {
+            Player_SetEquipmentData(gPlayState, GET_PLAYER(gPlayState));
+            Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_B);
+        }
+        CUR_FORM_EQUIP(EQUIP_SLOT_B) = GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) + ITEM_BOW_LIGHT;
+    }
+    ImGui::SameLine();
+    if (UIWidgets::Button("Reset##items", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+        for (int32_t i = QUEST_REMAINS_ODOLWA; i <= QUEST_BOMBERS_NOTEBOOK; i++) {
+            if (i != QUEST_SHIELD && i != QUEST_SWORD) {
+                REMOVE_QUEST_ITEM(i);
+            }
+        }
+        REMOVE_QUEST_ITEM(QUEST_SONG_LULLABY_INTRO);
+        SET_EQUIP_VALUE(EQUIP_TYPE_SHIELD, EQUIP_VALUE_SHIELD_HERO);
+        SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_KOKIRI);
+        if (gPlayState) {
+            Player_SetEquipmentData(gPlayState, GET_PLAYER(gPlayState));
+            Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_B);
+        }
+        CUR_FORM_EQUIP(EQUIP_SLOT_B) = GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) + ITEM_BOW_LIGHT;
+    }
+
     ImGui::BeginChild("remainsBox", ImVec2(INV_GRID_WIDTH * 4 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
     ImGui::Text("Boss Remains");
     for (int32_t i = QUEST_REMAINS_ODOLWA; i <= QUEST_REMAINS_TWINMOLD; i++) {
