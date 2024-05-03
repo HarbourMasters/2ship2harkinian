@@ -10,6 +10,9 @@ void InitEnhancements() {
 
     // Masks
     RegisterFierceDeityAnywhere();
+
+    // Restorations
+    RegisterSideRoll();
     
     // Time Savers
     RegisterTimeSaversHooks();

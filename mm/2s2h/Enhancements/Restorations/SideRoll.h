@@ -1,0 +1,6 @@
+#ifndef RESTORATIONS_SIDEROLL_H
+#define RESTORATIONS_SIDEROLL_H
+
+void RegisterSideRoll();
+
+#endif // RESTORATIONS_SIDEROLL_H
