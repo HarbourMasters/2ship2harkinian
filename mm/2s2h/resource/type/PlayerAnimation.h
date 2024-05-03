@@ -6,11 +6,11 @@
 
 namespace SOH {
 
-class PlayerAnimation : public LUS::Resource<int16_t> {
+class PlayerAnimation : public Ship::Resource<int16_t> {
   public:
     using Resource::Resource;
 
-    PlayerAnimation() : Resource(std::shared_ptr<LUS::ResourceInitData>()) {}
+    PlayerAnimation() : Resource(std::shared_ptr<Ship::ResourceInitData>()) {}
 
     int16_t* GetPointer();
     size_t GetPointerSize();

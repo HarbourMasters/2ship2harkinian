@@ -2,7 +2,7 @@
 
 #include <libultraship/libultraship.h>
 
-class EventLogWindow : public LUS::GuiWindow {
+class EventLogWindow : public Ship::GuiWindow {
     public:
         using GuiWindow::GuiWindow;
 

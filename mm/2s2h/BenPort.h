@@ -25,7 +25,7 @@ class OTRGlobals {
   public:
     static OTRGlobals* Instance;
 
-    std::shared_ptr<LUS::Context> context;
+    std::shared_ptr<Ship::Context> context;
 
     OTRGlobals();
     ~OTRGlobals();
