@@ -41,7 +41,7 @@ ActorInit En_Mt_tag_InitVars = {
 };
 
 static s32 sStartingCheckpointPerSceneExitIndex[] = {
-    0, 0, 0, 0, 1, 9, 12, 16, 19, 22, 26, 29, 30, 32, 34, 36, 39, 42, 45,
+    0, 0, 0, 0, 1, 9, 12, 16, 19, 22, 26, 29, 30, 32, 34, 36, 39, 42, 45, 45,
 };
 
 // The Y-positions here are never used by any part of this actor.
