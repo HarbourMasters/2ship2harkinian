@@ -40,6 +40,7 @@ ActorInit En_Mt_tag_InitVars = {
     /**/ NULL,
 };
 
+// 2S2H [Port] - Add extra checkpoint for scene exit "18 + 1" to avoid UB in the checkpointIterator loop
 static s32 sStartingCheckpointPerSceneExitIndex[] = {
     0, 0, 0, 0, 1, 9, 12, 16, 19, 22, 26, 29, 30, 32, 34, 36, 39, 42, 45, 45,
 };
