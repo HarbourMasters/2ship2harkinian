@@ -611,8 +611,8 @@ void SongInfo(int32_t itemID) {
             songTooltip = "Sonata of Awakening";
             break;
         case QUEST_SONG_LULLABY:
-            colorTint = ImVec4(1.0f, 0.313f, 0.156f, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
-            songTooltip = "Goron Lullaby";
+            colorTint = ImVec4(1.0f, 0.313f, 0.156f, (CHECK_QUEST_ITEM(itemID) || CHECK_QUEST_ITEM(QUEST_SONG_LULLABY_INTRO)) ? 1.0f : 0.4f);
+            songTooltip = (!CHECK_QUEST_ITEM(itemID) && CHECK_QUEST_ITEM(QUEST_SONG_LULLABY_INTRO)) ? "Goron Lullaby Intro" : "Goron Lullaby";
             break;
         case QUEST_SONG_BOSSA_NOVA:
             colorTint = ImVec4(0.392f, 0.588f, 1.0f, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
@@ -646,6 +646,14 @@ void SongInfo(int32_t itemID) {
             colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
             songTooltip = "Song of Storms";
             break;
+        case QUEST_SONG_SARIA:
+            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Saria's Song (Unused?)";
+            break;
+        case QUEST_SONG_SUN:
+            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Sun's Song (Not Obtainable)";
+            break;
         default:
             colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
             songTooltip = " ";
@@ -677,11 +685,14 @@ void NextQuestInSlot(QuestItem slot) {
         return;
     }
     Player* player = GET_PLAYER(gPlayState);
-    if (slot != QUEST_SHIELD && slot != QUEST_SWORD) {
-        if (CHECK_QUEST_ITEM(slot)) {
-            REMOVE_QUEST_ITEM(slot);
+    if (slot == QUEST_SONG_LULLABY || slot == QUEST_SONG_LULLABY_INTRO) {
+        if (CHECK_QUEST_ITEM(QUEST_SONG_LULLABY)) {
+            REMOVE_QUEST_ITEM(QUEST_SONG_LULLABY);
+            REMOVE_QUEST_ITEM(QUEST_SONG_LULLABY_INTRO);
+        } else if (CHECK_QUEST_ITEM(QUEST_SONG_LULLABY_INTRO)) {
+            SET_QUEST_ITEM(QUEST_SONG_LULLABY);
         } else {
-            SET_QUEST_ITEM(slot);
+            SET_QUEST_ITEM(QUEST_SONG_LULLABY_INTRO);
         }
     } else if (slot == QUEST_SWORD) {
         uint32_t currentSword = GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD);
@@ -703,6 +714,12 @@ void NextQuestInSlot(QuestItem slot) {
             SET_EQUIP_VALUE(EQUIP_TYPE_SHIELD, EQUIP_VALUE_SHIELD_HERO);
         }
         Player_SetEquipmentData(gPlayState, player);
+    } else {
+        if (CHECK_QUEST_ITEM(slot)) {
+            REMOVE_QUEST_ITEM(slot);
+        } else {
+            SET_QUEST_ITEM(slot);
+        }
     }
 }
 
@@ -749,7 +766,7 @@ void DrawQuestStatusTab() {
         DrawQuestSlot(slot);
     }
     ImGui::EndChild();
-    ImGui::BeginChild("songBox", ImVec2(INV_GRID_WIDTH * 6 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 2 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+    ImGui::BeginChild("songBox", ImVec2((INV_GRID_WIDTH / 1.1f) * 6 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 2.15f + INV_GRID_PADDING * 1 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
     ImGui::Text("Songs");
     for (int32_t i = QUEST_SONG_TIME; i <= QUEST_SONG_SUN; i++) {
         DrawSong((QuestItem)i);
@@ -777,7 +794,29 @@ void DrawQuestStatusTab() {
             NextQuestInSlot(QUEST_SHIELD);
         }
     }
-
+    ImGui::EndChild();
+    ImGui::SameLine();
+    ImGui::BeginChild("notebookBox", ImVec2(INV_GRID_WIDTH * 1 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+    ImGui::Text("Bombers");
+    ImTextureID textureId = LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[ITEM_BOMBERS_NOTEBOOK]);
+    if (ImGui::ImageButton(std::to_string(ITEM_BOMBERS_NOTEBOOK).c_str(), textureId, ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, CHECK_QUEST_ITEM(QUEST_BOMBERS_NOTEBOOK) ? 1.0f : 0.4f))) {
+        NextQuestInSlot(QUEST_BOMBERS_NOTEBOOK);
+    }
+    ImGui::EndChild();
+    ImGui::BeginChild("heartshapedBox", ImVec2(INV_GRID_WIDTH * 2 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 2 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+    ImGui::Text("Heart Pieces");
+    int32_t pohCount = (gSaveContext.save.saveInfo.inventory.questItems & 0xF0000000) >> 28;
+    UIWidgets::PushStyleCombobox(UIWidgets::Colors::Red);
+    if (ImGui::BeginCombo("##PoHcount", std::to_string(pohCount).c_str())) {
+        for (int32_t i = 0; i < 4; i++) {
+            if (ImGui::Selectable(std::to_string(i).c_str(), pohCount == i)) {
+                gSaveContext.save.saveInfo.inventory.questItems &= ~0xF0000000;
+                gSaveContext.save.saveInfo.inventory.questItems |= (i << 28);
+            }
+        }
+        ImGui::EndCombo();
+    }
+    UIWidgets::PopStyleCombobox();
     ImGui::EndChild();
     ImGui::PopStyleVar(2);
     ImGui::PopStyleColor(1);
