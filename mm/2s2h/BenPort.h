@@ -10,6 +10,9 @@
 #define GAME_PLATFORM_N64 0
 #define GAME_PLATFORM_GC 1
 
+#define MM_NTSC_US_10 0x5354631C
+#define MM_NTSC_US_GC 0xB443EB08
+
 #ifdef __cplusplus
 #include <Context.h>
 
@@ -22,7 +25,7 @@ class OTRGlobals {
   public:
     static OTRGlobals* Instance;
 
-    std::shared_ptr<LUS::Context> context;
+    std::shared_ptr<Ship::Context> context;
 
     OTRGlobals();
     ~OTRGlobals();
@@ -129,6 +132,8 @@ void Overlay_DisplayText(float duration, const char* text);
 void Overlay_DisplayText_Seconds(int seconds, const char* text);
 
 void Gfx_RegisterBlendedTexture(const char* name, u8* mask, u8* replacement);
+void Gfx_UnregisterBlendedTexture(const char* name);
+void Gfx_TextureCacheDelete(const uint8_t* texAddr);
 void CheckTracker_OnMessageClose();
 void BenSysFlashrom_WriteData(u8* addr, u32 pageNum, u32 pageCount);
 s32 BenSysFlashrom_ReadData(void* addr, u32 pageNum, u32 pageCount);

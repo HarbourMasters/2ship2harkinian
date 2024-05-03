@@ -754,7 +754,11 @@ s32 Flags_GetSwitch(PlayState* play, s32 flag) {
  */
 void Flags_SetSwitch(PlayState* play, s32 flag) {
     if ((flag > SWITCH_FLAG_NONE) && (flag < 0x80)) {
+        u8 previouslyOff = !Flags_GetSwitch(play, flag);
         play->actorCtx.sceneFlags.switches[(flag & ~0x1F) >> 5] |= 1 << (flag & 0x1F);
+        if (previouslyOff) {
+            GameInteractor_ExecuteOnSceneFlagSet(play->sceneId, FLAG_CYCL_SCENE_SWITCH, flag);
+        }
     }
 }
 
@@ -763,7 +767,11 @@ void Flags_SetSwitch(PlayState* play, s32 flag) {
  */
 void Flags_UnsetSwitch(PlayState* play, s32 flag) {
     if ((flag > SWITCH_FLAG_NONE) && (flag < 0x80)) {
+        u8 previouslyOn = Flags_GetSwitch(play, flag);
         play->actorCtx.sceneFlags.switches[(flag & ~0x1F) >> 5] &= ~(1 << (flag & 0x1F));
+        if (previouslyOn) {
+            GameInteractor_ExecuteOnSceneFlagUnset(play->sceneId, FLAG_CYCL_SCENE_SWITCH, flag);
+        }
     }
 }
 
@@ -778,7 +786,11 @@ s32 Flags_GetTreasure(PlayState* play, s32 flag) {
  * Sets a current scene chest flag.
  */
 void Flags_SetTreasure(PlayState* play, s32 flag) {
+    u8 previouslyOff = !Flags_GetTreasure(play, flag);
     play->actorCtx.sceneFlags.chest |= (1 << flag);
+    if (previouslyOff) {
+        GameInteractor_ExecuteOnSceneFlagSet(play->sceneId, FLAG_CYCL_SCENE_CHEST, flag);
+    }
 }
 
 /**
@@ -806,14 +818,22 @@ s32 Flags_GetClear(PlayState* play, s32 roomNumber) {
  * Sets a current scene clear flag.
  */
 void Flags_SetClear(PlayState* play, s32 roomNumber) {
+    u8 previouslyOff = !Flags_GetClear(play, roomNumber);
     play->actorCtx.sceneFlags.clearedRoom |= (1 << roomNumber);
+    if (previouslyOff) {
+        GameInteractor_ExecuteOnSceneFlagSet(play->sceneId, FLAG_CYCL_SCENE_CLEARED_ROOM, roomNumber);
+    }
 }
 
 /**
  * Unsets a current scene clear flag.
  */
 void Flags_UnsetClear(PlayState* play, s32 roomNumber) {
+    u8 previouslyOn = Flags_GetClear(play, roomNumber);
     play->actorCtx.sceneFlags.clearedRoom &= ~(1 << roomNumber);
+    if (previouslyOn) {
+        GameInteractor_ExecuteOnSceneFlagUnset(play->sceneId, FLAG_CYCL_SCENE_CLEARED_ROOM, roomNumber);
+    }
 }
 
 /**
@@ -852,9 +872,47 @@ s32 Flags_GetCollectible(PlayState* play, s32 flag) {
  */
 void Flags_SetCollectible(PlayState* play, s32 flag) {
     if ((flag > 0) && (flag < 0x80)) {
+        u8 previouslyOff = !Flags_GetCollectible(play, flag);
         play->actorCtx.sceneFlags.collectible[(flag & ~0x1F) >> 5] |= 1 << (flag & 0x1F);
+        if (previouslyOff) {
+            GameInteractor_ExecuteOnSceneFlagSet(play->sceneId, FLAG_CYCL_SCENE_COLLECTIBLE, flag);
+        }
     }
 }
+
+// #region 2S2H Originally these flags were all set with macros, for the port we want them to be in functions so we can hook into them
+void Flags_SetWeekEventReg(s32 flag) {
+    u8 previouslyOff = !CHECK_WEEKEVENTREG(flag);
+    WEEKEVENTREG((flag) >> 8) = GET_WEEKEVENTREG((flag) >> 8) | ((flag) & 0xFF);
+    if (previouslyOff) {
+        GameInteractor_ExecuteOnFlagSet(FLAG_WEEK_EVENT_REG, flag);
+    }
+}
+
+void Flags_ClearWeekEventReg(s32 flag) {
+    u8 previouslyOn = CHECK_WEEKEVENTREG(flag);
+    WEEKEVENTREG((flag) >> 8) = GET_WEEKEVENTREG((flag) >> 8) & (u8)~((flag) & 0xFF);
+    if (previouslyOn) {
+        GameInteractor_ExecuteOnFlagUnset(FLAG_WEEK_EVENT_REG, flag);
+    }
+}
+
+void Flags_SetEventInf(s32 flag) {
+    u8 previouslyOff = !CHECK_EVENTINF(flag);
+    gSaveContext.eventInf[(flag) >> 4] |= (1 << ((flag) & 0xF));
+    if (previouslyOff) {
+        GameInteractor_ExecuteOnFlagSet(FLAG_EVENT_INF, flag);
+    }
+}
+
+void Flags_ClearEventInf(s32 flag) {
+    u8 previouslyOn = CHECK_EVENTINF(flag);
+    gSaveContext.eventInf[(flag) >> 4] &= (u8)~(1 << ((flag) & 0xF));
+    if (previouslyOn) {
+        GameInteractor_ExecuteOnFlagUnset(FLAG_EVENT_INF, flag);
+    }
+}
+// #endregion
 
 /* End of Flags section */
 
@@ -1077,6 +1135,7 @@ void* Actor_FindSharedMemoryEntry(PlayState* play, s16 id) {
 }
 
 void Actor_Kill(Actor* actor) {
+    GameInteractor_ExecuteOnActorKill(actor);
     actor->draw = NULL;
     actor->update = NULL;
     actor->flags &= ~ACTOR_FLAG_TARGETABLE;
@@ -4579,18 +4638,20 @@ void Npc_TrackPoint(Actor* actor, NpcInteractInfo* interactInfo, s16 presetIndex
                              rotLimits.rotateYaw);
 }
 
-Gfx D_801AEF88[] = {
-    gsDPSetRenderMode(AA_EN | Z_CMP | Z_UPD | IM_RD | CLR_ON_CVG | CVG_DST_WRAP | ZMODE_XLU | FORCE_BL |
-                          G_RM_FOG_SHADE_A,
-                      AA_EN | Z_CMP | Z_UPD | IM_RD | CLR_ON_CVG | CVG_DST_WRAP | ZMODE_XLU | FORCE_BL |
-                          GBL_c2(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)),
-    gsDPSetAlphaCompare(G_AC_THRESHOLD),
-    gsSPEndDisplayList(),
-};
+// #region 2S2H - These DisplayLists are now extracted
+// Gfx D_801AEF88[] = {
+//     gsDPSetRenderMode(AA_EN | Z_CMP | Z_UPD | IM_RD | CLR_ON_CVG | CVG_DST_WRAP | ZMODE_XLU | FORCE_BL |
+//                           G_RM_FOG_SHADE_A,
+//                       AA_EN | Z_CMP | Z_UPD | IM_RD | CLR_ON_CVG | CVG_DST_WRAP | ZMODE_XLU | FORCE_BL |
+//                           GBL_c2(G_BL_CLR_IN, G_BL_A_IN, G_BL_CLR_MEM, G_BL_1MA)),
+//     gsDPSetAlphaCompare(G_AC_THRESHOLD),
+//     gsSPEndDisplayList(),
+// };
 
-Gfx D_801AEFA0[] = {
-    gsSPEndDisplayList(),
-};
+// Gfx D_801AEFA0[] = {
+//     gsSPEndDisplayList(),
+// };
+// #endregion
 
 Gfx* func_800BD9A0(GraphicsContext* gfxCtx) {
     Gfx* gfxHead = GRAPH_ALLOC(gfxCtx, 2 * sizeof(Gfx));

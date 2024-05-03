@@ -6,11 +6,12 @@
 #include "DeveloperTools/SaveEditor.h"
 #include "DeveloperTools/ActorViewer.h"
 #include "DeveloperTools/CollisionViewer.h"
+#include "DeveloperTools/EventLog.h"
 
 namespace BenGui {
-class BenMenuBar : public LUS::GuiMenuBar {
+class BenMenuBar : public Ship::GuiMenuBar {
   public:
-    using LUS::GuiMenuBar::GuiMenuBar;
+    using Ship::GuiMenuBar::GuiMenuBar;
   protected:
     void DrawElement() override;
     void InitElement() override {};

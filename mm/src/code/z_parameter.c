@@ -2658,7 +2658,8 @@ s16 sArrowRefillCounts[] = { 10, 30, 40, 50 };
 s16 sBombchuRefillCounts[] = { 20, 10, 1, 5 };
 s16 sRupeeRefillCounts[] = { 1, 5, 10, 20, 50, 100, 200 };
 
-u8 Item_Give(PlayState* play, u8 item) {
+// 2S2H [Enhancements] This was originally Item_Give, we wrapped it for hooking purposes
+u8 Item_GiveImpl(PlayState* play, u8 item) {
     Player* player = GET_PLAYER(play);
     u8 i;
     u8 temp;
@@ -3082,6 +3083,19 @@ u8 Item_Give(PlayState* play, u8 item) {
     INV_CONTENT(item) = item;
     return temp;
 }
+
+// #region 2S2H [Enhancements] This is our wrapper around the original Item_Give function for hooking purposes
+u8 Item_Give(PlayState* play, u8 item) {
+    if (!GameInteractor_ShouldItemGive(item)) {
+        return ITEM_NONE;
+    }
+
+    u8 result = Item_GiveImpl(play, item);
+    GameInteractor_ExecuteOnItemGive(item);
+
+    return result;
+}
+// #endregion
 
 u8 Item_CheckObtainabilityImpl(u8 item) {
     s16 i;
@@ -4473,6 +4487,14 @@ void Interface_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
         }
 
         gDPPipeSync(OVERLAY_DISP++);
+        // @bug Missing a gDPSetEnvColor here, which means the ammo count will be drawn with the last env color set.
+        // Once you have the magic meter, this becomes a non issue, as the magic meter will set the color to black,
+        // but prior to that, when certain conditions are met, the color will have last been set by the wallet icon
+        // causing the ammo count to be drawn incorrectly. This is most obvious when you get deku nuts early on, and
+        // the ammo count is drawn with a shade of green.
+        if (CVarGetInteger("gFixes.FixAmmoCountEnvColor", 0)) {
+            gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 255);
+        }
 
         if ((button == EQUIP_SLOT_B) && (gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE)) {
             ammo = play->interfaceCtx.minigameAmmo;

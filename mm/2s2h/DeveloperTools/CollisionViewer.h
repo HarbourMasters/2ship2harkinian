@@ -11,7 +11,7 @@ void DrawCollisionViewer();
 #ifdef __cplusplus
 }
 
-class CollisionViewerWindow : public LUS::GuiWindow {
+class CollisionViewerWindow : public Ship::GuiWindow {
   public:
     using GuiWindow::GuiWindow;
 

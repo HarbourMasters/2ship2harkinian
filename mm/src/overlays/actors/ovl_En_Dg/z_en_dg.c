@@ -1443,4 +1443,5 @@ void EnDg_Draw(Actor* thisx, PlayState* play) {
 void EnDg_Reset(void) {
     sIsAnyDogHeld = false;
     sBremenMaskFollowerIndex = ENDG_INDEX_NO_BREMEN_MASK_FOLLOWER;
+    sSelectedRacetrackDogInfo.index = -1;
 }

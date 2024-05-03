@@ -35,6 +35,9 @@ s32 Object_SpawnPersistent(ObjectContext* objectCtx, s16 id) {
     return objectCtx->numEntries - 1;
 }
 
+// 2S2H [Port] Track when objects are first loaded for a scene
+static u8 sObjectFirstUpdateSkippedForScene = false;
+
 void Object_InitContext(GameState* gameState, ObjectContext* objectCtx) {
     PlayState* play = (PlayState*)gameState;
     s32 pad;
@@ -66,6 +69,8 @@ void Object_InitContext(GameState* gameState, ObjectContext* objectCtx) {
     objectCtx->mainKeepSlot = Object_SpawnPersistent(objectCtx, GAMEPLAY_KEEP);
 
     gSegments[4] = OS_K0_TO_PHYSICAL(objectCtx->slots[objectCtx->mainKeepSlot].segment);
+
+    sObjectFirstUpdateSkippedForScene = false;
 }
 
 void Object_UpdateEntries(ObjectContext* objectCtx) {
@@ -74,32 +79,22 @@ void Object_UpdateEntries(ObjectContext* objectCtx) {
     RomFile* objectFile;
     size_t size;
 
+    // 2S2H [Port] Skip the first object load after scene init so that actors have their init delayed by one frame
+    // This seems to mostly if not nearly resolve actors that depend on console DMA requests ending later
+    if (!sObjectFirstUpdateSkippedForScene) {
+        sObjectFirstUpdateSkippedForScene = true;
+        return;
+    }
+
     for (i = 0; i < objectCtx->numEntries; i++) {
         if (entry->id < 0) {
             s32 id = -entry->id;
 
-            // #region 2S2H [Port] We don't care to load the object from DMA, consider it already loaded
+            // 2S2H [Port] We don't care to load the object from DMA, consider it already loaded
             // There is a weird case handled below that accounts for RomFiles with a size of 0, but according
             // to object_table.h there is only one instance of this, along with a bunch of placeholder entries
             // so we _should_ be fine. Famous last words.
             entry->id = id;
-            continue;
-            // #endregion
-
-            if (entry->dmaReq.vromAddr == 0) {
-                objectFile = &gObjectTable[id];
-                size = objectFile->vromEnd - objectFile->vromStart;
-
-                if (size == 0) {
-                    entry->id = 0;
-                } else {
-                    osCreateMesgQueue(&entry->loadQueue, &entry->loadMsg, 1);
-                    DmaMgr_SendRequestImpl(&entry->dmaReq, entry->segment, objectFile->vromStart, size, 0,
-                                           &entry->loadQueue, OS_MESG_PTR(NULL));
-                }
-            } else if (!osRecvMesg(&entry->loadQueue, NULL, OS_MESG_NOBLOCK)) {
-                entry->id = id;
-            }
         }
 
         entry++;

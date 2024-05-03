@@ -22,11 +22,11 @@ class MessageEntryMM {
     std::string msg;
 };
 
-class TextMM : public LUS::Resource<MessageEntryMM> {
+class TextMM : public Ship::Resource<MessageEntryMM> {
 public:
   using Resource::Resource;
 
-    TextMM() : Resource(std::shared_ptr<LUS::ResourceInitData>()) {
+    TextMM() : Resource(std::shared_ptr<Ship::ResourceInitData>()) {
   }
 
     MessageEntryMM* GetPointer();
