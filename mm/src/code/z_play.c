@@ -1504,7 +1504,7 @@ void Play_DrawMain(PlayState* this) {
 
                     // Read the picto box framebuffer back as a rgba16 buffer
                     gDPReadFB(sp74++, gPictoBoxFrameBuffer, this->pauseBgPreRender.fbufSave, 0, 0, SCREEN_WIDTH,
-                              SCREEN_HEIGHT);
+                              SCREEN_HEIGHT, false);
 
                     gsSPResetFB(sp74++);
                     // #endregion
