@@ -716,13 +716,13 @@ void NextQuestInSlot(QuestItem slot) {
         }
     } else if (slot == QUEST_SWORD) {
         uint32_t currentSword = GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD);
-        if (currentSword >= EQUIP_VALUE_SWORD_GILDED) {
+        if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) >= EQUIP_VALUE_SWORD_GILDED) {
             SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_KOKIRI);
         } else {
-            SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, currentSword + 1);
+            SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, currentSword++);
         }
-        CUR_FORM_EQUIP(EQUIP_SLOT_B) = GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) + ITEM_BOW_LIGHT;
-        if (currentSword == EQUIP_VALUE_SWORD_RAZOR) {
+        BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_KOKIRI + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI;
+        if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) == EQUIP_VALUE_SWORD_RAZOR) {
             gSaveContext.save.saveInfo.playerData.swordHealth = 100;
         }
         Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_B);
@@ -778,6 +778,7 @@ void DrawQuestStatusTab() {
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 3.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f, 8.0f));
+    ImGui::BeginChild("questTab", ImVec2(0, 0), true);
 
     if (UIWidgets::Button("Give All##items", { .color = UIWidgets::Colors::Green, .size = UIWidgets::Sizes::Inline })) {
         for (int32_t i = QUEST_REMAINS_ODOLWA; i <= QUEST_BOMBERS_NOTEBOOK; i++) {
@@ -791,7 +792,7 @@ void DrawQuestStatusTab() {
             Player_SetEquipmentData(gPlayState, GET_PLAYER(gPlayState));
             Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_B);
         }
-        CUR_FORM_EQUIP(EQUIP_SLOT_B) = GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) + ITEM_BOW_LIGHT;
+        BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_KOKIRI + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI;
     }
     ImGui::SameLine();
     if (UIWidgets::Button("Reset##items", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
@@ -807,7 +808,7 @@ void DrawQuestStatusTab() {
             Player_SetEquipmentData(gPlayState, GET_PLAYER(gPlayState));
             Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_B);
         }
-        CUR_FORM_EQUIP(EQUIP_SLOT_B) = GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) + ITEM_BOW_LIGHT;
+        BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_KOKIRI + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI;
     }
 
     ImGui::BeginChild("remainsBox", ImVec2(INV_GRID_WIDTH * 4 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
@@ -830,7 +831,7 @@ void DrawQuestStatusTab() {
     ImGui::BeginChild("equipBox", ImVec2(INV_GRID_WIDTH * 2 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
     ImGui::Text("Equipment");
     
-    ImTextureID swordTextureId = LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) + ITEM_BOW_LIGHT]);
+    ImTextureID swordTextureId = LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[ITEM_SWORD_KOKIRI + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI]);
     if (ImGui::ImageButton(std::to_string(ITEM_SWORD_KOKIRI).c_str(), swordTextureId, ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
         NextQuestInSlot(QUEST_SWORD);
     }
@@ -869,6 +870,8 @@ void DrawQuestStatusTab() {
         ImGui::EndCombo();
     }
     UIWidgets::PopStyleCombobox();
+    ImGui::EndChild();
+
     ImGui::EndChild();
     ImGui::PopStyleVar(2);
     ImGui::PopStyleColor(1);
