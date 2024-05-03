@@ -1,6 +1,6 @@
 #include "UIWidgets.hpp"
 #define IMGUI_DEFINE_MATH_OPERATORS
-#include <ImGui/imgui_internal.h>
+#include <imgui_internal.h>
 #include <libultraship/libultraship.h>
 #include <string>
 #include <unordered_map>
