@@ -7,7 +7,9 @@
 #include <unordered_map>
 #include <string>
 #include "2s2h/Enhancements/Enhancements.h"
+#include "2s2h/Enhancements/Graphics/MotionBlur.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
+#include "2s2h/DeveloperTools/WarpPoint.h"
 #include "HudEditor.h"
 
 extern bool ShouldClearTextureCacheAtEndOfFrame;
@@ -289,6 +291,23 @@ extern std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
         
+        if (UIWidgets::BeginMenu("Cycle")) {
+            UIWidgets::CVarCheckbox("Do no reset Bottle content", "gEnhancements.Cycle.DoNotResetBottleContent", {
+                .tooltip = "Playing the Song Of Time will not reset the bottles' content."
+            });
+            UIWidgets::CVarCheckbox("Do no reset Consumables", "gEnhancements.Cycle.DoNotResetConsumables", {
+                .tooltip = "Playing the Song Of Time will not reset the consumables."
+            });
+            UIWidgets::CVarCheckbox("Do no reset Razor Sword", "gEnhancements.Cycle.DoNotResetRazorSword", {
+                .tooltip = "Playing the Song Of Time will not reset the Sword back to Kokiri Sword."
+            });
+            UIWidgets::CVarCheckbox("Do no reset Rupees", "gEnhancements.Cycle.DoNotResetRupees", {
+                .tooltip = "Playing the Song Of Time will not reset the your rupees."
+            });
+            
+            ImGui::EndMenu();
+        }
+
         if (UIWidgets::BeginMenu("Masks")) {
             UIWidgets::CVarCheckbox("Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere", {
                 .tooltip = "Allow using Fierce Deity's mask outside of boss rooms."
@@ -296,7 +315,20 @@ void DrawEnhancementsMenu() {
 
             ImGui::EndMenu();
         }
-        
+
+        if (UIWidgets::BeginMenu("Graphics")) {
+            MotionBlur_RenderMenuOptions();
+            ImGui::EndMenu();
+        }
+
+        if (UIWidgets::BeginMenu("Fixes")) {
+            UIWidgets::CVarCheckbox("Fix Ammo Count Color", "gFixes.FixAmmoCountEnvColor", {
+                .tooltip = "Fixes a missing gDPSetEnvColor, which causes the ammo count to be the wrong color prior to obtaining magic or other conditions."
+            });
+
+            ImGui::EndMenu();
+        }
+
         UIWidgets::CVarCheckbox("Fast Text", "gEnhancements.TimeSavers.FastText", {
             .tooltip = "Speeds up text rendering, and enables holding of B progress to next message"
         });
@@ -341,6 +373,17 @@ extern std::shared_ptr<LUS::GuiWindow> mGfxDebuggerWindow;
 extern std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
 extern std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 extern std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
+extern std::shared_ptr<EventLogWindow> mEventLogWindow;
+
+const char* logLevels[] = {
+    "trace",
+    "debug",
+    "info",
+    "warn",
+    "error",
+    "critical",
+    "off",
+};
 
 void DrawDeveloperToolsMenu() {
     if (UIWidgets::BeginMenu("Developer Tools", UIWidgets::Colors::Yellow)) {
@@ -357,6 +400,12 @@ void DrawDeveloperToolsMenu() {
         }
         if (UIWidgets::CVarCheckbox("Prevent Actor Init", "gDeveloperTools.PreventActorInit")) {
             RegisterPreventActorInitHooks();
+        }
+        if (UIWidgets::CVarCombobox("Log Level", "gDeveloperTools.LogLevel", logLevels, {
+            .tooltip = "The log level determines which messages are printed to the console. This does not affect the log file output",
+            .defaultIndex = 1,
+        })) {
+            LUS::Context::GetInstance()->GetLogger()->set_level((spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
         }
         
         if (gPlayState != NULL) {
@@ -377,6 +426,7 @@ void DrawDeveloperToolsMenu() {
                 }
             }
         }
+        RenderWarpPointSection();
         ImGui::Separator();
         if (mCollisionViewerWindow) {
             UIWidgets::WindowButton("Collision Viewer", "gWindows.CollisionViewer", mCollisionViewerWindow,
@@ -406,6 +456,9 @@ void DrawDeveloperToolsMenu() {
             UIWidgets::WindowButton("Actor Viewer", "gWindows.ActorViewer", mActorViewerWindow, {
                 .tooltip = "Enables the Actor Viewer window, allowing you to view actors in the world."
             });
+        }
+        if (mEventLogWindow) {
+            UIWidgets::WindowButton("Event Log", "gWindows.EventLog", mEventLogWindow);
         }
         ImGui::EndMenu();
     }

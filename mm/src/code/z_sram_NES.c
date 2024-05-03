@@ -4,6 +4,8 @@
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include <string.h>
 
+#include "Enhancements/GameInteractor/GameInteractor.h"
+
 void Sram_SyncWriteToFlash(SramContext* sramCtx, s32 curPage, s32 numPages);
 void func_80147314(SramContext* sramCtx, s32 fileNum);
 void func_80147414(SramContext* sramCtx, s32 fileNum, s32 arg2);
@@ -426,6 +428,7 @@ void Sram_ClearFlagsAtDawnOfTheFirstDay(void) {
  * Used by Song of Time (when clicking "Yes") and (indirectly) by the "Dawn of the New Day" cutscene
  */
 void Sram_SaveEndOfCycle(PlayState* play) {
+    GameInteractor_ExecuteBeforeEndOfCycleSave();
     s16 sceneId;
     s32 j;
     s32 i;
@@ -648,6 +651,7 @@ void Sram_SaveEndOfCycle(PlayState* play) {
     gSaveContext.rupeeAccumulator = 0;
 
     Horse_ResetHorseData(play);
+    GameInteractor_ExecuteAfterEndOfCycleSave();
 }
 
 void Sram_IncrementDay(void) {
