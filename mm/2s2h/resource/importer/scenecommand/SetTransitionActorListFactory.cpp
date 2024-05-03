@@ -3,8 +3,8 @@
 #include "spdlog/spdlog.h"
 
 namespace SOH {
-std::shared_ptr<LUS::IResource> SetTransitionActorListFactory::ReadResource(std::shared_ptr<LUS::ResourceInitData> initData,
-                                                                      std::shared_ptr<LUS::BinaryReader> reader) {
+std::shared_ptr<Ship::IResource> SetTransitionActorListFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData,
+                                                                      std::shared_ptr<Ship::BinaryReader> reader) {
     auto setTransitionActorList = std::make_shared<SetTransitionActorList>(initData);
     
     ReadCommandId(setTransitionActorList, reader);

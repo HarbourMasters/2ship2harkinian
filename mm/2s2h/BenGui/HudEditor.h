@@ -7,7 +7,7 @@
 #include "UIWidgets.hpp"
 #include <unordered_map>
 
-class HudEditorWindow : public LUS::GuiWindow {
+class HudEditorWindow : public Ship::GuiWindow {
     public:
         using GuiWindow::GuiWindow;
 
