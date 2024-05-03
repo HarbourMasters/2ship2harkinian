@@ -439,6 +439,14 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
+        if (UIWidgets::BeginMenu("Restorations")) {
+            UIWidgets::CVarCheckbox("Constant Distance Backflips and Sidehops", "gEnhancements.Restorations.ConstantFlipsHops", {
+                .tooltip = "Backflips and Sidehops travel a constant distance as they did in OOT."
+            });
+
+            ImGui::EndMenu();
+        }
+
         if (UIWidgets::BeginMenu("Graphics")) {
             ImGui::SeparatorText("Clock");
             UIWidgets::CVarCombobox("Clock Type", "gEnhancements.Graphics.ClockType", clockTypeOptions);

@@ -14873,7 +14873,9 @@ void Player_Action_25(Player* this, PlayState* play) {
                 Math_StepToF(&this->unk_B10[1], 0.0f, this->unk_B10[0]);
             }
         } else {
-            func_8083CBC4(this, speedTarget, yawTarget, 1.0f, 0.05f, 0.1f, 0xC8);
+            if (GameInteractor_Should(GI_VB_FLIP_HOP_VARIABLE, true, NULL)) {
+                func_8083CBC4(this, speedTarget, yawTarget, 1.0f, 0.05f, 0.1f, 0xC8);
+            }
         }
 
         Player_UpdateUpperBody(this, play);

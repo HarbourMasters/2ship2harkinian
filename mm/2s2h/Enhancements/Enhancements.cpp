@@ -19,25 +19,10 @@ void InitEnhancements() {
     // Masks
     RegisterFastTransformation();
     RegisterFierceDeityAnywhere();
-    RegisterNoBlastMaskCooldown();
-
-    // Minigames
-    RegisterAlwaysWinDoggyRace();
-
-    // Songs
-    RegisterEnableSunsSong();
 
     // Restorations
-    RegisterPowerCrouchStab();
-    RegisterSideRoll();
-    RegisterTatlISG();
-
-    // Cutscenes
-    RegisterCutscenes();
-
-    // Modes
-    RegisterPlayAsKafei();
-
-    // Player Movement
-    RegisterClimbSpeed();
+    RegisterVariableFlipHop();
+    
+    // Time Savers
+    RegisterTimeSaversHooks();
 }

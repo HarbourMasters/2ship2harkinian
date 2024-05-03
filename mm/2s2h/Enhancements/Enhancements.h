@@ -9,27 +9,8 @@
 #include "Cheats/UnbreakableRazorSword.h"
 #include "Cycle/EndOfCycle.h"
 #include "Masks/FierceDeityAnywhere.h"
-#include "Masks/NoBlastMaskCooldown.h"
-#include "Masks/FastTransformation.h"
-#include "Minigames/AlwaysWinDoggyRace.h"
-#include "Cutscenes/Cutscenes.h"
-#include "Restorations/PowerCrouchStab.h"
-#include "Restorations/SideRoll.h"
-#include "Restorations/TatlISG.h"
-#include "Graphics/PlayAsKafei.h"
-#include "PlayerMovement/ClimbSpeed.h"
-#include "Songs/EnableSunsSong.h"
-
-enum AlwaysWinDoggyRaceOptions {
-    ALWAYS_WIN_DOGGY_RACE_OFF,
-    ALWAYS_WIN_DOGGY_RACE_MASKOFTRUTH,
-    ALWAYS_WIN_DOGGY_RACE_ALWAYS,
-};
-
-enum ClockTypeOptions {
-    CLOCK_TYPE_ORIGINAL,
-    CLOCK_TYPE_TEXT_BASED,
-};
+#include "Restorations/FlipHopVariable.h"
+#include "TimeSavers/TimeSavers.h"
 
 #ifdef __cplusplus
 extern "C" {
