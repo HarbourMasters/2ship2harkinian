@@ -457,7 +457,7 @@ void DrawSlot(InventorySlot slot) {
 
     ImGui::PushID(slot);
 
-    if ( // dont need, no ammo
+    if (
         currentItemId != ITEM_NONE &&
         currentItemId <= ITEM_BOW_LIGHT && // gItemSlots only has entries till 77 (ITEM_BOW_LIGHT)
         gItemSlots[currentItemId] <= SLOT_BOTTLE_6 && // There is only ammo data for the first page
