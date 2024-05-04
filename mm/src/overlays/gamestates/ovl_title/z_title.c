@@ -115,7 +115,7 @@ void ConsoleLogo_Draw(GameState* thisx) {
     char* logoDL = gNintendo64LogoNDL;
     char* logoText = gNintendo64LogoTextTex;
 
-    if (!CVarGetInteger("gEnhancements.General.AuthenticLogo", 0)) {
+    if (!CVarGetInteger("gEnhancements.Graphics.AuthenticLogo", 0)) {
         logoDL = gShipLogoDL;
         logoText = gLUSLogoTextTex;
     }
@@ -173,7 +173,7 @@ void ConsoleLogo_Draw(GameState* thisx) {
                             1 << 10, 1 << 10);
     }
 
-    if (!CVarGetInteger("gEnhancements.General.AuthenticLogo", 0)) {
+    if (!CVarGetInteger("gEnhancements.Graphics.AuthenticLogo", 0)) {
         ConsoleLogo_PrintBuildInfo(this);
     }
 

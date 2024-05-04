@@ -290,6 +290,17 @@ extern std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 
 void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
+
+        if (UIWidgets::BeginMenu("Graphics")) {
+            MotionBlur_RenderMenuOptions();
+            ImGui::SeparatorText("Other");
+            UIWidgets::CVarCheckbox("Authentic logo", "gEnhancements.Graphics.AuthenticLogo", {
+                .tooltip = "Hide the game version and build details and display the authentic model and texture on the boot logo start screen"
+            });
+            UIWidgets::CVarCheckbox("24 Hours Clock", "gEnhancements.Graphics.24HoursClock");
+
+            ImGui::EndMenu();
+        }
         
         if (UIWidgets::BeginMenu("Cycle")) {
             UIWidgets::CVarCheckbox("Do not reset Bottle content", "gEnhancements.Cycle.DoNotResetBottleContent", {
@@ -317,16 +328,18 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
-        if (UIWidgets::BeginMenu("Restorations")) {
-            UIWidgets::CVarCheckbox("Side Rolls", "gEnhancements.Restorations.SideRoll", {
-                .tooltip = "Restores side rolling from OOT."
-            });
+        if (UIWidgets::BeginMenu("Cutscenes")) {
+            UIWidgets::CVarCheckbox("Skip Entrance Cutscenes", "gEnhancements.Cutscenes.SkipEntranceCutscenes");
+            UIWidgets::CVarCheckbox("Hide Title Cards", "gEnhancements.Cutscenes.HideTitleCards");
 
             ImGui::EndMenu();
         }
 
-        if (UIWidgets::BeginMenu("Graphics")) {
-            MotionBlur_RenderMenuOptions();
+        if (UIWidgets::BeginMenu("Dialogue")) {
+            UIWidgets::CVarCheckbox("Fast Text", "gEnhancements.Dialogue.FastText", {
+                .tooltip = "Speeds up text rendering, and enables holding of B progress to next message"
+            });
+            
             ImGui::EndMenu();
         }
 
@@ -338,15 +351,13 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
-        UIWidgets::CVarCheckbox("Fast Text", "gEnhancements.TimeSavers.FastText", {
-            .tooltip = "Speeds up text rendering, and enables holding of B progress to next message"
-        });
-        UIWidgets::CVarCheckbox("Authentic logo", "gEnhancements.General.AuthenticLogo", {
-            .tooltip = "Hide the game version and build details and display the authentic model and texture on the boot logo start screen"
-        });
-        UIWidgets::CVarCheckbox("Skip Entrance Cutscenes", "gEnhancements.TimeSavers.SkipEntranceCutscenes");
-        UIWidgets::CVarCheckbox("Hide Title Cards", "gEnhancements.TimeSavers.HideTitleCards");
-        UIWidgets::CVarCheckbox("24 Hours Clock", "gEnhancements.General.24HoursClock");
+        if (UIWidgets::BeginMenu("Restorations")) {
+            UIWidgets::CVarCheckbox("Side Rolls", "gEnhancements.Restorations.SideRoll", {
+                .tooltip = "Restores side rolling from OOT."
+            });
+
+            ImGui::EndMenu();
+        }
 
         if (mHudEditorWindow) {
             UIWidgets::WindowButton("Hud Editor", "gWindows.HudEditor", mHudEditorWindow, {

@@ -15,6 +15,8 @@ void InitEnhancements() {
     // Restorations
     RegisterSideRoll();
     
-    // Time Savers
-    RegisterTimeSaversHooks();
+    // Cutscenes
+    RegisterSkipEntranceCutscenes();
+    RegisterHideTitleCards();
+
 }

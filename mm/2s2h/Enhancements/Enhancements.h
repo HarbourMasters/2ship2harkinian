@@ -5,9 +5,10 @@
 #include "Cheats/Infinite.h"
 #include "Cycle/EndOfCycle.h"
 #include "Masks/FierceDeityAnywhere.h"
-#include "Restorations/SideRoll.h"
 #include "Masks/FastTransformation.h"
-#include "TimeSavers/TimeSavers.h"
+#include "Cutscenes/SkipEntranceCutscenes.h"
+#include "Cutscenes/HideTitleCards.h"
+#include "Restorations/SideRoll.h"
 
 #ifdef __cplusplus
 extern "C" {
