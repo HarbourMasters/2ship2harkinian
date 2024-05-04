@@ -319,7 +319,7 @@ s32 Message_ShouldAdvance(PlayState* play) {
         }
         return CHECK_BTN_ALL(controller->press.button, BTN_A) || CHECK_BTN_ALL(controller->press.button, BTN_B) ||
                // 2S2H [Enhancement] When fast text is on, we want to check if B is held instead of only if it was just pressed
-               (CVarGetInteger("gEnhancements.TimeSavers.FastText", 0) && CHECK_BTN_ALL(controller->cur.button, BTN_B)) ||
+               (CVarGetInteger("gEnhancements.Dialogue.FastText", 0) && CHECK_BTN_ALL(controller->cur.button, BTN_B)) ||
                CHECK_BTN_ALL(controller->press.button, BTN_CUP);
     }
 }
@@ -333,7 +333,7 @@ s32 Message_ShouldAdvanceSilent(PlayState* play) {
     } else {
         return CHECK_BTN_ALL(controller->press.button, BTN_A) || CHECK_BTN_ALL(controller->press.button, BTN_B) ||
                // 2S2H [Enhancement] When fast text is on, we want to check if B is held instead of only if it was just pressed
-               (CVarGetInteger("gEnhancements.TimeSavers.FastText", 0) && CHECK_BTN_ALL(controller->cur.button, BTN_B)) ||
+               (CVarGetInteger("gEnhancements.Dialogue.FastText", 0) && CHECK_BTN_ALL(controller->cur.button, BTN_B)) ||
                CHECK_BTN_ALL(controller->press.button, BTN_CUP);
     }
 }
@@ -5640,7 +5640,7 @@ void Message_Update(PlayState* play) {
                 if ((
                     CHECK_BTN_ALL(input->press.button, BTN_B) ||
                     // 2S2H [Enhancement] When fast text is on, we want to check if B is held instead of only if it was just pressed
-                    (CVarGetInteger("gEnhancements.TimeSavers.FastText", 0) && CHECK_BTN_ALL(input->cur.button, BTN_B))
+                    (CVarGetInteger("gEnhancements.Dialogue.FastText", 0) && CHECK_BTN_ALL(input->cur.button, BTN_B))
                 ) && !msgCtx->textUnskippable) {
                     msgCtx->textboxSkipped = true;
                     msgCtx->textDrawPos = msgCtx->decodedTextLen;

@@ -9,11 +9,17 @@ void InitEnhancements() {
     RegisterEndOfCycleSaveHooks();
 
     // Masks
+    RegisterFastTransformation();
     RegisterFierceDeityAnywhere();
 
     // Songs
     RegisterEnableSunsSong();
     
-    // Time Savers
-    RegisterTimeSaversHooks();
+    // Restorations
+    RegisterSideRoll();
+    
+    // Cutscenes
+    RegisterSkipEntranceCutscenes();
+    RegisterHideTitleCards();
+
 }

@@ -33,6 +33,8 @@ typedef enum {
     GI_VB_PLAY_ENTRANCE_CS,
     GI_VB_DISABLE_FD_MASK,
     GI_VB_SONG_AVAILABLE_TO_PLAY,
+    GI_VB_PATCH_SIDEROLL,
+    GI_VB_PREVENT_MASK_TRANSFORMATION_CS,
 } GIVanillaBehavior;
 
 #ifdef __cplusplus
