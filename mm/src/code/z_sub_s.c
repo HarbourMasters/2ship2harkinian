@@ -536,9 +536,14 @@ s32 SubS_ChangeAnimationByInfoS(SkelAnime* skelAnime, AnimationInfoS* animationI
     s32 startFrame;
 
     animationInfo += animIndex;
+    AnimationHeader* anim = animationInfo->animation;
+
+	 if (ResourceMgr_OTRSigCheck(anim))
+        anim = ResourceMgr_LoadAnimByName(anim);
+
     endFrame = animationInfo->frameCount;
     if (animationInfo->frameCount < 0) {
-        endFrame = Animation_GetLastFrame(&animationInfo->animation->common);
+        endFrame = Animation_GetLastFrame(&anim->common);
     }
     startFrame = animationInfo->startFrame;
     if (startFrame >= endFrame || startFrame < 0) {
@@ -547,7 +552,7 @@ s32 SubS_ChangeAnimationByInfoS(SkelAnime* skelAnime, AnimationInfoS* animationI
     if (animationInfo->playSpeed < 0.0f) {
         SWAP(s32, endFrame, startFrame);
     }
-    Animation_Change(skelAnime, animationInfo->animation, animationInfo->playSpeed, startFrame, endFrame,
+    Animation_Change(skelAnime, anim, animationInfo->playSpeed, startFrame, endFrame,
                      animationInfo->mode, animationInfo->morphFrames);
     return true;
 }
@@ -1383,6 +1388,11 @@ void SubS_ChangeAnimationBySpeedInfo(SkelAnime* skelAnime, AnimationSpeedInfo* a
     f32 endFrame;
     f32 morphFrames;
 
+	AnimationHeader* anim = animation->animation;
+
+    if (ResourceMgr_OTRSigCheck(anim))
+        anim = ResourceMgr_LoadAnimByName(anim);
+
     if ((*curAnimIndex < 0) || (nextAnimIndex == *curAnimIndex)) {
         morphFrames = 0.0f;
         if (*curAnimIndex < 0) {
@@ -1395,12 +1405,12 @@ void SubS_ChangeAnimationBySpeedInfo(SkelAnime* skelAnime, AnimationSpeedInfo* a
         }
     }
     if (animation->playSpeed >= 0.0f) {
-        endFrame = Animation_GetLastFrame(&animation->animation->common);
+        endFrame = Animation_GetLastFrame(&anim->common);
     } else {
-        startFrame = Animation_GetLastFrame(&animation->animation->common);
+        startFrame = Animation_GetLastFrame(&anim->common);
         endFrame = 0.0f;
     }
-    Animation_Change(skelAnime, animation->animation, animation->playSpeed, startFrame, endFrame, animation->mode,
+    Animation_Change(skelAnime, anim, animation->playSpeed, startFrame, endFrame, animation->mode,
                      morphFrames);
     *curAnimIndex = nextAnimIndex;
 }

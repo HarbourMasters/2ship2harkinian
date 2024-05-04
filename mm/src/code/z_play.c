@@ -36,6 +36,7 @@ u8 sMotionBlurStatus;
 #include "debug.h"
 #include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "2s2h/Enhancements/Graphics/MotionBlur.h"
 #include "2s2h/DeveloperTools/CollisionViewer.h"
 #include "2s2h/framebuffer_effects.h"
 #include <string.h>
@@ -84,6 +85,8 @@ void Play_DrawMotionBlur(PlayState* this) {
         alpha = 0;
         sMotionBlurStatus = MOTION_BLUR_OFF;
     }
+
+    MotionBlur_Override(&sMotionBlurStatus, &alpha);
 
     if (sMotionBlurStatus != MOTION_BLUR_OFF) {
         OPEN_DISPS(gfxCtx);
@@ -1501,7 +1504,7 @@ void Play_DrawMain(PlayState* this) {
 
                     // Read the picto box framebuffer back as a rgba16 buffer
                     gDPReadFB(sp74++, gPictoBoxFrameBuffer, this->pauseBgPreRender.fbufSave, 0, 0, SCREEN_WIDTH,
-                              SCREEN_HEIGHT);
+                              SCREEN_HEIGHT, false);
 
                     gsSPResetFB(sp74++);
                     // #endregion
