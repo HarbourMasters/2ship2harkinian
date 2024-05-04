@@ -38,7 +38,7 @@ ImVec4 colorTint;
 const char* songTooltip;
 
 InventorySlot selectedInventorySlot = SLOT_NONE;
-std::vector<ItemId> safeItemsForInventorySlot[SLOT_MASK_FIERCE_DEITY + 1] = {}; //add ForQuestSlot using heart container +1
+std::vector<ItemId> safeItemsForInventorySlot[SLOT_MASK_FIERCE_DEITY + 1] = {};
 
 void initSafeItemsForInventorySlot() {
     for (int i = 0; i < sizeof(gItemSlots); i++) {
@@ -457,7 +457,7 @@ void DrawSlot(InventorySlot slot) {
 
     ImGui::PushID(slot);
 
-    if ( // dont need, no ammo
+    if (
         currentItemId != ITEM_NONE &&
         currentItemId <= ITEM_BOW_LIGHT && // gItemSlots only has entries till 77 (ITEM_BOW_LIGHT)
         gItemSlots[currentItemId] <= SLOT_BOTTLE_6 && // There is only ammo data for the first page
