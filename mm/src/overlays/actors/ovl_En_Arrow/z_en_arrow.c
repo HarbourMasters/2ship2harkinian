@@ -8,6 +8,8 @@
 #include "overlays/effects/ovl_Effect_Ss_Sbn/z_eff_ss_sbn.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
 
+#include "2s2h/framebuffer_effects.h"
+
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
 #define THIS ((EnArrow*)thisx)
@@ -672,6 +674,17 @@ void EnArrow_Draw(Actor* thisx, PlayState* play) {
         if (this->actor.speed == 0.0f) {
             func_800B8118(&this->actor, play, 0);
 
+            // #region 2S2H [Port] Capture framebuffer to current frame, byteswaped, so that it will
+            // be read from seg 0x0F in gameplay_keep_DL_06F380
+            Gfx* gfx = POLY_XLU_DISP;
+            FB_WriteFramebufferSliceToCPU(&gfx, play->state.gfxCtx->curFrameBuffer, true);
+            POLY_XLU_DISP = gfx;
+            // Only a portion of the buffer is used as a texture, so we need to invalidate by the same offset
+            // Offset derived from ((ult * width + uls) * 2), with values taken from the DL directly
+            gSPInvalidateTexCache(POLY_XLU_DISP++,
+                                  (uintptr_t)(play->state.gfxCtx->curFrameBuffer) + ((104 * 320 + 144) * 2));
+            // #endregion
+
             gSPDisplayList(POLY_XLU_DISP++, gameplay_keep_DL_06F380);
             gDPSetRenderMode(POLY_XLU_DISP++, G_RM_FOG_SHADE_A, G_RM_AA_ZB_XLU_SURF2);
             gDPSetCombineLERP(POLY_XLU_DISP++, TEXEL1, 0, PRIM_LOD_FRAC, TEXEL0, TEXEL1, TEXEL0, PRIM_LOD_FRAC, TEXEL0,
@@ -685,6 +698,17 @@ void EnArrow_Draw(Actor* thisx, PlayState* play) {
             gSPDisplayList(POLY_XLU_DISP++, gameplay_keep_DL_06F9F0);
         } else {
             func_800B8050(&this->actor, play, 0);
+
+            // #region 2S2H [Port] Capture framebuffer to current frame, byteswaped, so that it will
+            // be read from seg 0x0F in gameplay_keep_DL_06F380
+            Gfx* gfx = POLY_OPA_DISP;
+            FB_WriteFramebufferSliceToCPU(&gfx, play->state.gfxCtx->curFrameBuffer, true);
+            POLY_OPA_DISP = gfx;
+            // Only a portion of the buffer is used as a texture, so we need to invalidate by the same offset
+            // Offset derived from ((ult * width + uls) * 2), with values taken from the DL directly
+            gSPInvalidateTexCache(POLY_OPA_DISP++,
+                                  (uintptr_t)(play->state.gfxCtx->curFrameBuffer) + ((104 * 320 + 144) * 2));
+            // #endregion
 
             gSPDisplayList(POLY_OPA_DISP++, gameplay_keep_DL_06F380);
             gDPSetCombineLERP(POLY_OPA_DISP++, TEXEL1, 0, PRIM_LOD_FRAC, TEXEL0, TEXEL1, TEXEL0, PRIM_LOD_FRAC, TEXEL0,
