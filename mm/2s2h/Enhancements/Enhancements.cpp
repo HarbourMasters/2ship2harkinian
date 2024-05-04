@@ -9,6 +9,7 @@ void InitEnhancements() {
     RegisterEndOfCycleSaveHooks();
 
     // Masks
+    RegisterFastTransformation();
     RegisterFierceDeityAnywhere();
 
     // Restorations
