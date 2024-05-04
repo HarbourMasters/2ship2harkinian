@@ -34,6 +34,7 @@ typedef enum {
     GI_VB_DISABLE_FD_MASK,
     GI_VB_PATCH_SIDEROLL,
     GI_VB_PREVENT_MASK_TRANSFORMATION_CS,
+    GI_VB_PREVENT_CLOCK_DISPLAY,
 } GIVanillaBehavior;
 
 #ifdef __cplusplus

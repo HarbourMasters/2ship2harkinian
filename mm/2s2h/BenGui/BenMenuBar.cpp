@@ -38,6 +38,8 @@ static std::unordered_map<Ship::WindowBackend, const char*> windowBackendsMap = 
     { Ship::WindowBackend::GX2, "GX2" }
 };
 
+static const char* clockTypeMap[3] = { "Original", "Text only", "Hidden" };
+
 namespace BenGui {
 
 void DrawMenuBarIcon() {
@@ -293,11 +295,14 @@ void DrawEnhancementsMenu() {
 
         if (UIWidgets::BeginMenu("Graphics")) {
             MotionBlur_RenderMenuOptions();
-            ImGui::SeparatorText("Other");
+          ImGui::SeparatorText("Clock");
+          UIWidgets::CVarCombobox("Clock Type", "gEnhancements.Graphics.ClockType", clockTypeMap);
+          UIWidgets::CVarCheckbox("24 Hours Clock", "gEnhancements.Graphics.24HoursClock");
+          ImGui::SeparatorText("Other");
             UIWidgets::CVarCheckbox("Authentic logo", "gEnhancements.Graphics.AuthenticLogo", {
                 .tooltip = "Hide the game version and build details and display the authentic model and texture on the boot logo start screen"
             });
-            UIWidgets::CVarCheckbox("24 Hours Clock", "gEnhancements.Graphics.24HoursClock");
+            
 
             ImGui::EndMenu();
         }
