@@ -15,14 +15,13 @@ extern GfxPrint* printer;
 void RegisterTextBasedClock() {
     REGISTER_VB_SHOULD(GI_VB_PREVENT_CLOCK_DISPLAY, {
 
-        if (CVarGetInteger("gEnhancements.General.ClockType", 0) == 2) {
+        if (CVarGetInteger("gEnhancements.Graphics.ClockType", 0) == 2) {
             *should = true;
             return;
         }
 
-        if (CVarGetInteger("gEnhancements.General.ClockType", 0) == 1) {
+        if (CVarGetInteger("gEnhancements.Graphics.ClockType", 0) == 1) {
             *should = true;
-            OPEN_DISPS(gPlayState->state.gfxCtx);
             if ((R_TIME_SPEED != 0) &&
                 ((gPlayState->msgCtx.msgMode == MSGMODE_NONE) ||
                  ((gPlayState->actorCtx.flags & ACTORCTX_FLAG_1) && !Play_InCsMode(gPlayState)) ||
@@ -30,7 +29,7 @@ void RegisterTextBasedClock() {
                  ((gPlayState->msgCtx.currentTextId >= 0x100) && (gPlayState->msgCtx.currentTextId <= 0x200)) ||
                  (gSaveContext.gameMode == GAMEMODE_END_CREDITS)) &&
                 !FrameAdvance_IsEnabled(&gPlayState->state) && !Environment_IsTimeStopped() && (gSaveContext.save.day <= 3)) {
-
+                OPEN_DISPS(gPlayState->state.gfxCtx);
                 if ((gPlayState->pauseCtx.state == PAUSE_STATE_OFF) && (gPlayState->pauseCtx.debugEditor == DEBUG_EDITOR_NONE)) {
                     Gfx_SetupDL39_Overlay(gPlayState->state.gfxCtx);
 
@@ -54,7 +53,7 @@ void RegisterTextBasedClock() {
                         GfxPrint_SetColor(&printer, 255, 255, 255, 255);
                     }
 
-                    if (CVarGetInteger("gEnhancements.General.24HoursClock", 0)) {
+                    if (CVarGetInteger("gEnhancements.Graphics.24HoursClock", 0)) {
                         sprintf(formattedTime, "%02d:%02d", curHours, curMinutes);
                     } else { // Format hours and minutes for 12-hour AM/PM clock
                         char amPm[3] = "AM";
@@ -71,7 +70,7 @@ void RegisterTextBasedClock() {
                     }
 
                     GfxPrint_Printf(&printer, "Day %d: %s", gSaveContext.save.day, formattedTime);
-                    if (CVarGetInteger("gEnhancements.General.24HoursClock", 0)) {
+                    if (CVarGetInteger("gEnhancements.Graphics.24HoursClock", 0)) {
                         GfxPrint_SetPos(&printer, 13, 27);
                     } else {
                         GfxPrint_SetPos(&printer, 14, 27);
@@ -89,8 +88,8 @@ void RegisterTextBasedClock() {
                     OVERLAY_DISP = GfxPrint_Close(&printer);
                     GfxPrint_Destroy(&printer);
                 }
+                CLOSE_DISPS(gPlayState->state.gfxCtx);
             }
-            CLOSE_DISPS(gPlayState->state.gfxCtx);
         }
     });
 }

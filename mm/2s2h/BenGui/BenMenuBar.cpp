@@ -294,11 +294,11 @@ void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
 
         if (UIWidgets::BeginMenu("Graphics")) {
+            ImGui::SeparatorText("Clock");
+            UIWidgets::CVarCombobox("Clock Type", "gEnhancements.Graphics.ClockType", clockTypeMap);
+            UIWidgets::CVarCheckbox("24 Hours Clock", "gEnhancements.Graphics.24HoursClock");
             MotionBlur_RenderMenuOptions();
-          ImGui::SeparatorText("Clock");
-          UIWidgets::CVarCombobox("Clock Type", "gEnhancements.Graphics.ClockType", clockTypeMap);
-          UIWidgets::CVarCheckbox("24 Hours Clock", "gEnhancements.Graphics.24HoursClock");
-          ImGui::SeparatorText("Other");
+            ImGui::SeparatorText("Other");
             UIWidgets::CVarCheckbox("Authentic logo", "gEnhancements.Graphics.AuthenticLogo", {
                 .tooltip = "Hide the game version and build details and display the authentic model and texture on the boot logo start screen"
             });
