@@ -4,8 +4,8 @@
 #include "spdlog/spdlog.h"
 
 namespace SOH {
-std::shared_ptr<LUS::IResource> SetCutsceneFactoryMM::ReadResource(std::shared_ptr<LUS::ResourceInitData> initData,
-                                                             std::shared_ptr<LUS::BinaryReader> reader) {
+std::shared_ptr<Ship::IResource> SetCutsceneFactoryMM::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData,
+                                                             std::shared_ptr<Ship::BinaryReader> reader) {
     auto setCutscenes = std::make_shared<SetCutscenesMM>(initData);
 
     ReadCommandId(setCutscenes, reader);
@@ -20,7 +20,7 @@ std::shared_ptr<LUS::IResource> SetCutsceneFactoryMM::ReadResource(std::shared_p
         entry.entrance = reader->ReadUByte();
         entry.flag = reader->ReadUByte();
         entry.data = std::static_pointer_cast<Cutscene>(
-            LUS::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(path.c_str()))->GetPointer();
+            Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(path.c_str()))->GetPointer();
         setCutscenes->entries.emplace_back(entry);
     }
 

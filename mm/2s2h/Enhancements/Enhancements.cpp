@@ -5,9 +5,18 @@ void InitEnhancements() {
     RegisterInfiniteCheats();
     RegisterMoonJumpOnL();
 
+    // Cycle
+    RegisterEndOfCycleSaveHooks();
+
     // Masks
+    RegisterFastTransformation();
     RegisterFierceDeityAnywhere();
+
+    // Restorations
+    RegisterSideRoll();
     
-    // Time Savers
-    RegisterTimeSaversHooks();
+    // Cutscenes
+    RegisterSkipEntranceCutscenes();
+    RegisterHideTitleCards();
+
 }

@@ -33,6 +33,8 @@ typedef enum {
     GI_VB_PLAY_ENTRANCE_CS,
     GI_VB_DISABLE_FD_MASK,
     GI_VB_LOWER_RAZOR_SWORD_DURABILITY,
+    GI_VB_PATCH_SIDEROLL,
+    GI_VB_PREVENT_MASK_TRANSFORMATION_CS,
 } GIVanillaBehavior;
 
 #ifdef __cplusplus
@@ -210,6 +212,8 @@ public:
     DEFINE_HOOK(OnGameStateMainFinish, ());
     DEFINE_HOOK(OnGameStateDrawFinish, ());
     DEFINE_HOOK(OnGameStateUpdate, ());
+    DEFINE_HOOK(BeforeEndOfCycleSave, ());
+    DEFINE_HOOK(AfterEndOfCycleSave, ());
 
     DEFINE_HOOK(OnSceneInit, (s8 sceneId, s8 spawnNum));
     DEFINE_HOOK(OnRoomInit, (s8 sceneId, s8 roomNum));
@@ -241,6 +245,8 @@ extern "C" {
 void GameInteractor_ExecuteOnGameStateMainFinish();
 void GameInteractor_ExecuteOnGameStateDrawFinish();
 void GameInteractor_ExecuteOnGameStateUpdate();
+void GameInteractor_ExecuteBeforeEndOfCycleSave();
+void GameInteractor_ExecuteAfterEndOfCycleSave();
 
 void GameInteractor_ExecuteOnSceneInit(s16 sceneId, s8 spawnNum);
 void GameInteractor_ExecuteOnRoomInit(s16 sceneId, s8 roomNum);

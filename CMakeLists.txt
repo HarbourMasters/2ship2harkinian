@@ -33,7 +33,7 @@ elseif ("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
 	set(VCPKG_TARGET_TRIPLET x64-windows-static)
 endif()
 vcpkg_bootstrap()
-vcpkg_install_packages(zlib bzip2 libpng sdl2 sdl2-net glew glfw3 libzip)
+vcpkg_install_packages(zlib bzip2 libzip libpng sdl2 sdl2-net glew glfw3 nlohmann-json tinyxml2 spdlog)
 endif()
 
 ################################################################################

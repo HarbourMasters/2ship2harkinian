@@ -314,7 +314,7 @@ void EnBigslime_Init(Actor* thisx, PlayState* play2) {
     EnBigslime* this = THIS;
     s32 i;
 
-    sBigslimeStaticVtxData = ResourceMgr_LoadVtxByName(sBigslimeStaticVtxData);
+    sBigslimeStaticVtxData = ResourceMgr_LoadVtxByName(sBigslimeStaticVtx);
     sBigslimeDynamicVtxData[0] = ResourceMgr_LoadVtxByName(sBigslimeDynamicState0Vtx);
     sBigslimeDynamicVtxData[1] = ResourceMgr_LoadVtxByName(sBigslimeDynamicState1Vtx);
     sBigslimeTargetVtxData = ResourceMgr_LoadVtxByName(sBigslimeTargetVtx);
