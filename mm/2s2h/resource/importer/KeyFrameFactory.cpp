@@ -2,28 +2,27 @@
 #include "2s2h/resource/type/KeyFrame.h"
 #include <libultraship/libultraship.h>
 #include "spdlog/spdlog.h"
-#include "../ZAPDTR/ZAPD/ZCKeyFrame.h"
 
 namespace SOH {
-std::shared_ptr<LUS::IResource> ResourceFactoryBinaryKeyFrameSkel::ReadResource(std::shared_ptr<LUS::File> file) {
+std::shared_ptr<Ship::IResource> ResourceFactoryBinaryKeyFrameSkel::ReadResource(std::shared_ptr<Ship::File> file) {
     if (!FileHasValidFormatAndReader(file)) {
         return nullptr;
     }
 
     auto skel = std::make_shared<KeyFrameSkel>(file->InitData);
-    auto reader = std::get<std::shared_ptr<LUS::BinaryReader>>(file->Reader);
+    auto reader = std::get<std::shared_ptr<Ship::BinaryReader>>(file->Reader);
 
     skel->skelData.limbCount = reader->ReadUByte();
     skel->skelData.dListCount = reader->ReadUByte();
-    ZKeyframeSkelType skelType = (ZKeyframeSkelType)reader->ReadUByte();
+    KeyframeSkelType skelType = (KeyframeSkelType)reader->ReadUByte();
     uint8_t numLimbs = reader->ReadUByte();
 
-    if (skelType == ZKeyframeSkelType::Normal) {
+    if (skelType == KeyframeSkelType::Normal) {
         KeyFrameStandardLimb* limbs = new KeyFrameStandardLimb[numLimbs];
 
         for (uint32_t i = 0; i < numLimbs; i++) {
             std::string dlStr = reader->ReadString();
-            auto dl = LUS::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(dlStr.c_str());
+            auto dl = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(dlStr.c_str());
             limbs[i].dList = nullptr;
             if (dl != nullptr) {
                 limbs[i].dList = dl->GetRawPointer();
@@ -40,7 +39,7 @@ std::shared_ptr<LUS::IResource> ResourceFactoryBinaryKeyFrameSkel::ReadResource(
 
         for (uint32_t i = 0; i < numLimbs; i++) {
             std::string dlStr = reader->ReadString();
-            auto dl = LUS::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(dlStr.c_str());
+            auto dl = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(dlStr.c_str());
             limbs[i].dList = nullptr;
             if (dl != nullptr) {
                 limbs[i].dList = dl->GetRawPointer();
@@ -55,18 +54,18 @@ std::shared_ptr<LUS::IResource> ResourceFactoryBinaryKeyFrameSkel::ReadResource(
     return skel;
 }
 
-std::shared_ptr<LUS::IResource> ResourceFactoryBinaryKeyFrameAnim::ReadResource(std::shared_ptr<LUS::File> file) {
+std::shared_ptr<Ship::IResource> ResourceFactoryBinaryKeyFrameAnim::ReadResource(std::shared_ptr<Ship::File> file) {
     if (!FileHasValidFormatAndReader(file)) {
         return nullptr;
     }
 
     auto anim = std::make_shared<KeyFrameAnim>(file->InitData);
-    auto reader = std::get<std::shared_ptr<LUS::BinaryReader>>(file->Reader);
+    auto reader = std::get<std::shared_ptr<Ship::BinaryReader>>(file->Reader);
 
-    const ZKeyframeSkelType skelType = (ZKeyframeSkelType)reader->ReadUByte();
+    const KeyframeSkelType skelType = (KeyframeSkelType)reader->ReadUByte();
     const uint32_t numBitFlags = reader->ReadUInt32();
 
-    if (skelType == ZKeyframeSkelType::Normal) {
+    if (skelType == KeyframeSkelType::Normal) {
         anim->animData.bitFlags = new u8[numBitFlags];
         for (uint32_t i = 0; i < numBitFlags; i++) {
             anim->animData.bitFlags[i] = reader->ReadUByte();

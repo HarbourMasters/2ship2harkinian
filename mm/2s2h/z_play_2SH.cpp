@@ -1,15 +1,15 @@
 #include "BenPort.h"
 #include <libultraship/libultraship.h>
 #include "2s2h/resource/type/Scene.h"
-#include <Utils/StringHelper.h>
+#include <utils/StringHelper.h>
 #include <Vertex.h>
 extern "C" {
 #include "global.h"
 extern uintptr_t gSegments[NUM_SEGMENTS];
 }
 
-LUS::IResource* OTRPlay_LoadFile(PlayState* play, const char* fileName) {
-    auto res = LUS::Context::GetInstance()->GetResourceManager()->LoadResource(fileName);
+Ship::IResource* OTRPlay_LoadFile(PlayState* play, const char* fileName) {
+    auto res = Ship::Context::GetInstance()->GetResourceManager()->LoadResource(fileName);
     return res.get();
 }
 
