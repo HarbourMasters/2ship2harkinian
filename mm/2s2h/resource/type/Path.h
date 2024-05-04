@@ -14,11 +14,11 @@ typedef struct {
     /* 0x4 */ Vec3s* points;   // Segment Address to the array of points
 } PathDataMM; // size = 0x8
 
-class PathMM : public LUS::Resource<PathDataMM> {
+class PathMM : public Ship::Resource<PathDataMM> {
   public:
     using Resource::Resource;
 
-    PathMM() : Resource(std::shared_ptr<LUS::ResourceInitData>()) {
+    PathMM() : Resource(std::shared_ptr<Ship::ResourceInitData>()) {
     }
 
     PathDataMM* GetPointer();

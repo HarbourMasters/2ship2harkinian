@@ -5,18 +5,18 @@
 #include "ResourceFactoryXML.h"
 
 namespace SOH {
-class ResourceFactoryBinaryTextMMV0 : public LUS::ResourceFactoryBinary {
+class ResourceFactoryBinaryTextMMV0 : public Ship::ResourceFactoryBinary {
   public:
-    std::shared_ptr<LUS::IResource> ReadResource(std::shared_ptr<LUS::File> file) override;
+    std::shared_ptr<Ship::IResource> ReadResource(std::shared_ptr<Ship::File> file) override;
 };
 
-class ResourceFactoryXMLTextMMV0 : public LUS::ResourceFactoryXML {
+class ResourceFactoryXMLTextMMV0 : public Ship::ResourceFactoryXML {
   public:
-    std::shared_ptr<LUS::IResource> ReadResource(std::shared_ptr<LUS::File> file) override;
+    std::shared_ptr<Ship::IResource> ReadResource(std::shared_ptr<Ship::File> file) override;
 };
 
 #if 0
-class TextMMFactory : public LUS::ResourceFactoryBinary
+class TextMMFactory : public Ship::ResourceFactoryBinary
 {
   public:
     std::shared_ptr<IResource>
@@ -26,4 +26,3 @@ class TextMMFactory : public LUS::ResourceFactoryBinary
 };
 #endif
 }; // namespace LUS
-

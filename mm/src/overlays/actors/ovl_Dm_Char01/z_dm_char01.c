@@ -257,7 +257,7 @@ void func_80AA892C(DmChar01* this, PlayState* play) {
         this->unk_34C = 0;
     }
 
-    for (i = 0; i < ARRAY_COUNT(gWoodfallSceneryDynamicPoisonWaterVtxData); i++) {
+    for (i = 0; i < ResourceMgr_GetVtxArraySizeByName(gWoodfallSceneryDynamicPoisonWaterVtx); i++) {
         s32 temp_s2 = sqrtf(SQ((f32)gWoodfallSceneryDynamicPoisonWaterVtxData[i].v.ob[2]) +
                             SQ((f32)gWoodfallSceneryDynamicPoisonWaterVtxData[i].v.ob[0]));
         f32 cos = Math_CosS((temp_s2 / 1892.0f) * 0x4000);
@@ -303,7 +303,7 @@ void func_80AA8C28(DmChar01* this, PlayState* play) {
             break;
     }
 
-    for (i = 0; i < ARRAY_COUNT(gWoodfallSceneryDynamicPoisonWaterVtxData); i++) {
+    for (i = 0; i < ResourceMgr_GetVtxArraySizeByName(gWoodfallSceneryDynamicPoisonWaterVtx); i++) {
         s32 temp_s2 = sqrtf(SQ((f32)gWoodfallSceneryDynamicPoisonWaterVtxData[i].v.ob[2]) +
                             SQ((f32)gWoodfallSceneryDynamicPoisonWaterVtxData[i].v.ob[0]));
         f32 cos = Math_CosS((temp_s2 / 1892.0f) * 0x4000);

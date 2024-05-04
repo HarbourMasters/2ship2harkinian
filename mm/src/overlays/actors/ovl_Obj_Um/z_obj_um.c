@@ -1965,6 +1965,8 @@ void ObjUm_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot,
                 }
             } else {
                 //! @bug skips CLOSE_DISPS
+                // 2S2H [Port] We need our close disps helpers called to prevent interpolation crashes
+                CLOSE_DISPS_PORT_HELPERS(gfxCtx);
                 return;
             }
         }

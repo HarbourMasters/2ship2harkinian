@@ -1,9 +1,9 @@
 #include "BenGui.hpp"
 
 #include <spdlog/spdlog.h>
-#include <ImGui/imgui.h>
+#include <imgui.h>
 #define IMGUI_DEFINE_MATH_OPERATORS
-#include <ImGui/imgui_internal.h>
+#include <imgui_internal.h>
 #include <libultraship/libultraship.h>
 #include <Fast3D/gfx_pc.h>
 #include "UIWidgets.hpp"
@@ -27,18 +27,19 @@ namespace BenGui {
 
     std::shared_ptr<BenMenuBar> mBenMenuBar;
 
-    std::shared_ptr<LUS::GuiWindow> mConsoleWindow;
-    std::shared_ptr<LUS::GuiWindow> mStatsWindow;
-    std::shared_ptr<LUS::GuiWindow> mInputEditorWindow;
-    std::shared_ptr<LUS::GuiWindow> mGfxDebuggerWindow;
+    std::shared_ptr<Ship::GuiWindow> mConsoleWindow;
+    std::shared_ptr<Ship::GuiWindow> mStatsWindow;
+    std::shared_ptr<Ship::GuiWindow> mInputEditorWindow;
+    std::shared_ptr<Ship::GuiWindow> mGfxDebuggerWindow;
 
     std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
     std::shared_ptr<HudEditorWindow> mHudEditorWindow;
     std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
     std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
+    std::shared_ptr<EventLogWindow> mEventLogWindow;
 
     void SetupGuiElements() {
-        auto gui = LUS::Context::GetInstance()->GetWindow()->GetGui();
+        auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
 
         auto& style = ImGui::GetStyle();
         style.FramePadding = ImVec2(4.0f, 6.0f);
@@ -46,7 +47,7 @@ namespace BenGui {
         style.Colors[ImGuiCol_MenuBarBg] = UIWidgets::Colors::DarkGray;
 
         mBenMenuBar = std::make_shared<BenMenuBar>("gOpenMenuBar", CVarGetInteger("gOpenMenuBar", 0));
-        gui->SetMenuBar(std::reinterpret_pointer_cast<LUS::GuiMenuBar>(mBenMenuBar));
+        gui->SetMenuBar(std::reinterpret_pointer_cast<Ship::GuiMenuBar>(mBenMenuBar));
 
         if (gui->GetMenuBar() && !gui->GetMenuBar()->IsVisible()) {
 #if defined(__SWITCH__) || defined(__WIIU__)
@@ -87,6 +88,9 @@ namespace BenGui {
 
         mCollisionViewerWindow = std::make_shared<CollisionViewerWindow>("gWindows.CollisionViewer", "Collision Viewer");
         gui->AddGuiWindow(mCollisionViewerWindow);
+
+         mEventLogWindow = std::make_shared<EventLogWindow>("gWindows.EventLog", "Event Log");
+        gui->AddGuiWindow(mEventLogWindow);
     }
 
     void Destroy() {
@@ -96,6 +100,7 @@ namespace BenGui {
         mInputEditorWindow = nullptr;
         mGfxDebuggerWindow = nullptr;
         mCollisionViewerWindow = nullptr;
+        mEventLogWindow = nullptr;
 
         mSaveEditorWindow = nullptr;
         mHudEditorWindow = nullptr;

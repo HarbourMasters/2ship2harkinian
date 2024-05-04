@@ -4,8 +4,9 @@
 #include <Blob.h>
 #include <memory>
 #include <cassert>
-#include <Utils/StringHelper.h>
+#include <utils/StringHelper.h>
 #include <DisplayList.h>
+#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 #include "2s2h/resource/type/Scene.h"
 #include "2s2h/resource/type/CollisionHeader.h"
 #include "2s2h/resource/type/Cutscene.h"
@@ -487,7 +488,7 @@ s32 OTRScene_ExecuteCommands(PlayState* play, SOH::Scene* scene) {
 }
 
 
-std::shared_ptr<LUS::IResource> GetResourceByNameHandlingMQ(const char* path);
+std::shared_ptr<Ship::IResource> GetResourceByNameHandlingMQ(const char* path);
 
 extern "C" s32 OTRfunc_8009728C(PlayState* play, RoomContext* roomCtx, s32 roomNum) {
     
@@ -518,7 +519,7 @@ extern "C" s32 OTRfunc_8009728C(PlayState* play, RoomContext* roomCtx, s32 roomN
 
         roomCtx->activeMemPage ^= 1;
 
-        //SPDLOG_INFO("Room Init - curRoom.num: {0:#x}", roomCtx->curRoom.num);
+        GameInteractor_ExecuteOnRoomInit(play->sceneId, roomCtx->curRoom.num);
 
         return 1;
     }
