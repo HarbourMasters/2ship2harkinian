@@ -38,7 +38,7 @@ ImVec4 colorTint;
 const char* songTooltip;
 
 InventorySlot selectedInventorySlot = SLOT_NONE;
-std::vector<ItemId> safeItemsForInventorySlot[SLOT_MASK_FIERCE_DEITY + 1] = {}; //add ForQuestSlot using heart container +1
+std::vector<ItemId> safeItemsForInventorySlot[SLOT_MASK_FIERCE_DEITY + 1] = {};
 
 void initSafeItemsForInventorySlot() {
     for (int i = 0; i < sizeof(gItemSlots); i++) {
