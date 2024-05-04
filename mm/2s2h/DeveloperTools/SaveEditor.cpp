@@ -39,7 +39,6 @@ const char* songTooltip;
 
 InventorySlot selectedInventorySlot = SLOT_NONE;
 std::vector<ItemId> safeItemsForInventorySlot[SLOT_MASK_FIERCE_DEITY + 1] = {}; //add ForQuestSlot using heart container +1
-std::vector<ItemId> safeItemsForQuestSlot[ITEM_HEART_CONTAINER + 1] = {};
 
 void initSafeItemsForInventorySlot() {
     for (int i = 0; i < sizeof(gItemSlots); i++) {
@@ -72,30 +71,6 @@ void initSafeItemsForInventorySlot() {
                 break;
             default:
                 safeItemsForInventorySlot[slot].push_back(static_cast<ItemId>(i));
-                break;
-        }
-    }
-}
-
-void initSafeItemsForQuestSlot() {
-    for (int i = 0; i < sizeof(gItemSlots); i++) {
-        QuestItem slot = static_cast<QuestItem>(gItemSlots[i]);
-        switch (slot) {
-            case QUEST_SWORD:
-                if (i == ITEM_SWORD_KOKIRI) {
-                    safeItemsForQuestSlot[ITEM_SWORD_KOKIRI].push_back(static_cast<ItemId>(i));
-                    safeItemsForQuestSlot[ITEM_SWORD_RAZOR].push_back(static_cast<ItemId>(i));
-                    safeItemsForQuestSlot[ITEM_SWORD_GILDED].push_back(static_cast<ItemId>(i));
-                }
-                break;
-            case QUEST_SHIELD:
-                if (i != ITEM_SHIELD_HERO) { // No slingshot in trade items
-                    safeItemsForQuestSlot[ITEM_SHIELD_HERO].push_back(static_cast<ItemId>(i));
-                    safeItemsForQuestSlot[ITEM_SHIELD_MIRROR].push_back(static_cast<ItemId>(i));
-                }
-                break;
-            default:
-                safeItemsForQuestSlot[slot].push_back(static_cast<ItemId>(i));
                 break;
         }
     }
@@ -719,7 +694,7 @@ void NextQuestInSlot(QuestItem slot) {
         if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) >= EQUIP_VALUE_SWORD_GILDED) {
             SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_KOKIRI);
         } else {
-            SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, currentSword++);
+            SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, currentSword + 1);
         }
         BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_KOKIRI + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI;
         if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) == EQUIP_VALUE_SWORD_RAZOR) {
@@ -787,12 +762,14 @@ void DrawQuestStatusTab() {
             }
         }
         SET_EQUIP_VALUE(EQUIP_TYPE_SHIELD, EQUIP_VALUE_SHIELD_MIRROR);
-        SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_GILDED);
-        if (gPlayState) {
-            Player_SetEquipmentData(gPlayState, GET_PLAYER(gPlayState));
-            Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_B);
+        if (GET_PLAYER_FORM != PLAYER_FORM_FIERCE_DEITY) {
+            SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_GILDED);
+            if (gPlayState) {
+                Player_SetEquipmentData(gPlayState, GET_PLAYER(gPlayState));
+                BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_KOKIRI + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI;
+                Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_B);
+            }
         }
-        BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_KOKIRI + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI;
     }
     ImGui::SameLine();
     if (UIWidgets::Button("Reset##items", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
@@ -803,12 +780,15 @@ void DrawQuestStatusTab() {
         }
         REMOVE_QUEST_ITEM(QUEST_SONG_LULLABY_INTRO);
         SET_EQUIP_VALUE(EQUIP_TYPE_SHIELD, EQUIP_VALUE_SHIELD_HERO);
-        SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_KOKIRI);
-        if (gPlayState) {
-            Player_SetEquipmentData(gPlayState, GET_PLAYER(gPlayState));
-            Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_B);
+        if (GET_PLAYER_FORM != PLAYER_FORM_FIERCE_DEITY) {
+            SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_KOKIRI);
+            if (gPlayState) {
+                Player_SetEquipmentData(gPlayState, GET_PLAYER(gPlayState));
+                BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_KOKIRI + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI;
+                Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_B);
+            }
         }
-        BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_KOKIRI + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI;
+        
     }
 
     ImGui::BeginChild("remainsBox", ImVec2(INV_GRID_WIDTH * 4 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
@@ -828,12 +808,16 @@ void DrawQuestStatusTab() {
         DrawSong((QuestItem)i);
     }
     ImGui::EndChild();
-    ImGui::BeginChild("equipBox", ImVec2(INV_GRID_WIDTH * 2 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+    ImGui::BeginChild("equipBox", ImVec2(INV_GRID_WIDTH * 2.2 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
     ImGui::Text("Equipment");
-    
-    ImTextureID swordTextureId = LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[ITEM_SWORD_KOKIRI + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI]);
-    if (ImGui::ImageButton(std::to_string(ITEM_SWORD_KOKIRI).c_str(), swordTextureId, ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
-        NextQuestInSlot(QUEST_SWORD);
+    if (GET_PLAYER_FORM == PLAYER_FORM_FIERCE_DEITY) {
+        ImTextureID swordTextureId = LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[ITEM_SWORD_DEITY]);
+        ImGui::ImageButton(std::to_string(ITEM_SWORD_DEITY).c_str(), swordTextureId, ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
+    } else {
+        ImTextureID swordTextureId = LUS::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[ITEM_SWORD_KOKIRI + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI]);
+        if (ImGui::ImageButton(std::to_string(ITEM_SWORD_KOKIRI).c_str(), swordTextureId, ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
+            NextQuestInSlot(QUEST_SWORD);
+        }
     }
     ImGui::SameLine();
     if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD) == EQUIP_VALUE_SHIELD_HERO) {
@@ -1412,7 +1396,6 @@ void SaveEditorWindow::DrawElement() {
 
 void SaveEditorWindow::InitElement() {
     initSafeItemsForInventorySlot();
-    initSafeItemsForQuestSlot();
 
     for (TexturePtr entry : gItemIcons) {
         const char* path = static_cast<const char*>(entry);
