@@ -2,7 +2,7 @@
 
 #include <libultraship/libultraship.h>
 
-class SaveEditorWindow : public LUS::GuiWindow {
+class SaveEditorWindow : public Ship::GuiWindow {
     public:
         using GuiWindow::GuiWindow;
 

@@ -6,7 +6,7 @@
 #include <span>
 #include <stdint.h>
 #define IMGUI_DEFINE_MATH_OPERATORS
-#include <ImGui/imgui.h>
+#include <imgui.h>
 #include <libultraship/libultraship.h>
 #include <unordered_map>
 
@@ -83,7 +83,7 @@ namespace UIWidgets {
     void PushStyleButton(const ImVec4& color = Colors::Gray);
     void PopStyleButton();
     bool Button(const char* label, const ButtonOptions& options = {});
-    bool WindowButton(const char* label, const char* cvarName, std::shared_ptr<LUS::GuiWindow> windowPtr, const ButtonOptions& options = {});
+    bool WindowButton(const char* label, const char* cvarName, std::shared_ptr<Ship::GuiWindow> windowPtr, const ButtonOptions& options = {});
 
     struct CheckboxOptions {
         const ImVec4 color = Colors::Indigo;
@@ -346,7 +346,7 @@ namespace UIWidgets {
         int32_t value = CVarGetInteger(cvarName, options.defaultIndex);
         if (Combobox<T>(label, &value, comboMap, options)) {
             CVarSetInteger(cvarName, value);
-            LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
             dirty = true;
         }
         return dirty;
@@ -358,7 +358,7 @@ namespace UIWidgets {
         int32_t value = CVarGetInteger(cvarName, options.defaultIndex);
         if (Combobox<T>(label, &value, comboVector, options)) {
             CVarSetInteger(cvarName, value);
-            LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
             dirty = true;
         }
         return dirty;
@@ -370,7 +370,7 @@ namespace UIWidgets {
         int32_t value = CVarGetInteger(cvarName, options.defaultIndex);
         if (Combobox<T>(label, &value, comboArray, options)) {
             CVarSetInteger(cvarName, value);
-            LUS::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
             dirty = true;
         }
         return dirty;

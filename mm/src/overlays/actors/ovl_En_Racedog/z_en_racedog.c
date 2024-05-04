@@ -83,6 +83,7 @@ ActorInit En_Racedog_InitVars = {
     /**/ EnRacedog_Destroy,
     /**/ EnRacedog_Update,
     /**/ EnRacedog_Draw,
+    /**/ EnRacedog_Reset,
 };
 
 static s16 sNumberOfDogsFinished = 0;

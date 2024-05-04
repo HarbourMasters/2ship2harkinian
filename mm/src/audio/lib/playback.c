@@ -381,7 +381,7 @@ Instrument* AudioPlayback_GetInstrumentInner(s32 fontId, s32 instId) {
 }
 
 Drum* AudioPlayback_GetDrum(s32 fontId, s32 drumId) {
-    Drum* drum;
+    Drum* drum = NULL;
 
     if (fontId == 0xFF) {
         return NULL;

@@ -18,6 +18,14 @@ void GameInteractor_ExecuteOnGameStateUpdate() {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnGameStateUpdate>();
 }
 
+void GameInteractor_ExecuteBeforeEndOfCycleSave() {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::BeforeEndOfCycleSave>();
+}
+
+void GameInteractor_ExecuteAfterEndOfCycleSave() {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::AfterEndOfCycleSave>();
+}
+
 void GameInteractor_ExecuteOnSceneInit(s16 sceneId, s8 spawnNum) {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnSceneInit>(sceneId, spawnNum);
     GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnSceneInit>(sceneId, sceneId, spawnNum);

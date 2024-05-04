@@ -3,13 +3,13 @@
 #include "spdlog/spdlog.h"
 
 namespace SOH {
-std::shared_ptr<LUS::IResource> ResourceFactoryBinaryTextMMV0::ReadResource(std::shared_ptr<LUS::File> file) {
+std::shared_ptr<Ship::IResource> ResourceFactoryBinaryTextMMV0::ReadResource(std::shared_ptr<Ship::File> file) {
     if (!FileHasValidFormatAndReader(file)) {
         return nullptr;
     }
 
     auto text = std::make_shared<TextMM>(file->InitData);
-    auto reader = std::get<std::shared_ptr<LUS::BinaryReader>>(file->Reader);
+    auto reader = std::get<std::shared_ptr<Ship::BinaryReader>>(file->Reader);
 
     const uint32_t msgCount = reader->ReadUInt32();
     text->messages.reserve(msgCount);
@@ -19,7 +19,8 @@ std::shared_ptr<LUS::IResource> ResourceFactoryBinaryTextMMV0::ReadResource(std:
         entry.id = reader->ReadUInt16();
         entry.textboxType = reader->ReadUByte();
         entry.textboxYPos = reader->ReadUByte();
-        entry.icon = reader->ReadUByte();
+        // BENTODO: the new ZAPD reads and exports this as an int16 for JP but nothing currently uses that and the game expects an int8. Use this for now.
+        entry.icon = (int8_t)reader->ReadUInt16();
         entry.nextMessageID = reader->ReadUInt16();
         entry.firstItemCost = reader->ReadUInt16();
         entry.secondItemCost = reader->ReadUInt16();
@@ -31,7 +32,7 @@ std::shared_ptr<LUS::IResource> ResourceFactoryBinaryTextMMV0::ReadResource(std:
     return text;
 }
 
-std::shared_ptr<LUS::IResource> ResourceFactoryXMLTextMMV0::ReadResource(std::shared_ptr<LUS::File> file) {
+std::shared_ptr<Ship::IResource> ResourceFactoryXMLTextMMV0::ReadResource(std::shared_ptr<Ship::File> file) {
     if (!FileHasValidFormatAndReader(file)) {
         return nullptr;
     }
