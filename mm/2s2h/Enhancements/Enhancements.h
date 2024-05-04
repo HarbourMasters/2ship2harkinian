@@ -6,6 +6,7 @@
 #include "Cycle/EndOfCycle.h"
 #include "Masks/FierceDeityAnywhere.h"
 #include "Restorations/SideRoll.h"
+#include "Masks/FastTransformation.h"
 #include "TimeSavers/TimeSavers.h"
 
 #ifdef __cplusplus
