@@ -4,16 +4,14 @@
 extern "C" {
 #include <variables.h>
 #include <overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h>
-
 }
 
 SaveInfo saveInfoCopy;
 
 void RegisterEndOfCycleSaveHooks() {
-    
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::BeforeEndOfCycleSave>([]() { 
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::BeforeEndOfCycleSave>([]() {
         memcpy(&saveInfoCopy, &gSaveContext.save.saveInfo, sizeof(SaveInfo));
-        });
+    });
 
     GameInteractor::Instance->RegisterGameHook<GameInteractor::AfterEndOfCycleSave>([]() {
         if (CVarGetInteger("gEnhancements.Cycle.DoNotResetRupees", 0)) {
@@ -50,22 +48,33 @@ void RegisterEndOfCycleSaveHooks() {
                 }
             }
         }
-        
+
         if (CVarGetInteger("gEnhancements.Cycle.DoNotResetBottleContent", 0)) {
+            int stolenBottles = (((saveInfoCopy.stolenItems & 0xFF000000) >> 0x18) == ITEM_BOTTLE) +
+                                (((saveInfoCopy.stolenItems & 0x00FF0000) >> 0x10) == ITEM_BOTTLE);
+
+            // Replace bottles back, accounting for any stolen bottles
             for (int i = SLOT_BOTTLE_1; i <= SLOT_BOTTLE_6; i++) {
-                for (int j = EQUIP_SLOT_C_LEFT; j <= EQUIP_SLOT_C_RIGHT; j++) {
-                    if (GET_CUR_FORM_BTN_ITEM(j) == ITEM_BOTTLE) {
-                        SET_CUR_FORM_BTN_ITEM(j, saveInfoCopy.inventory.items[i]);
-                    }
-                }
                 gSaveContext.save.saveInfo.inventory.items[i] = saveInfoCopy.inventory.items[i];
+
+                if (stolenBottles > 0 && saveInfoCopy.inventory.items[i] == ITEM_NONE) {
+                    stolenBottles--;
+                    gSaveContext.save.saveInfo.inventory.items[i] = ITEM_BOTTLE;
+                }
+            }
+
+            // Set back button equips to the correct bottle type
+            for (int j = EQUIP_SLOT_C_LEFT; j <= EQUIP_SLOT_C_RIGHT; j++) {
+                if (GET_CUR_FORM_BTN_ITEM(j) == ITEM_BOTTLE) {
+                    SET_CUR_FORM_BTN_ITEM(j, saveInfoCopy.equips.buttonItems[0][j]);
+                }
             }
         }
 
         if (CVarGetInteger("gEnhancements.Cycle.DoNotResetRazorSword", 0) &&
             ((saveInfoCopy.equips.equipment & gEquipMasks[EQUIP_TYPE_SWORD]) >>
              gEquipShifts[EQUIP_TYPE_SWORD]) == EQUIP_VALUE_SWORD_RAZOR) {
-            
+
             SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_RAZOR);
             CUR_FORM_EQUIP(EQUIP_SLOT_B) = ITEM_SWORD_RAZOR;
         }
