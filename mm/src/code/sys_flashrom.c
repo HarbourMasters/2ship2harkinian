@@ -7,7 +7,7 @@
 #include "z64thread.h"
 #include "sys_flashrom.h"
 #include "PR/os_internal_flash.h"
-#include "BenPort.h"
+#include "2s2h/SaveManager/SaveManager.h"
 
 OSMesgQueue sFlashromMesgQueue;
 OSMesg sFlashromMesg[1];
@@ -80,7 +80,7 @@ s32 SysFlashrom_InitFlash(void) {
 
 s32 SysFlashrom_ReadData(void* addr, u32 pageNum, u32 pageCount) {
     // #region 2S2H [Port] Redirect to our own read function
-    return BenSysFlashrom_ReadData(addr, pageNum, pageCount);
+    return SaveManager_SysFlashrom_ReadData(addr, pageNum, pageCount);
     // #endregion
 
     OSIoMesg msg;
@@ -223,7 +223,7 @@ void SysFlashrom_ThreadEntry(void* arg) {
 
 void SysFlashrom_WriteDataAsync(u8* addr, u32 pageNum, u32 pageCount) {
     // #region 2S2H [Port] Redirect to our own write function
-    BenSysFlashrom_WriteData(addr, pageNum, pageCount);
+    SaveManager_SysFlashrom_WriteData(addr, pageNum, pageCount);
     return;
     // #endregion
 
