@@ -293,6 +293,7 @@ void DrawEnhancementsMenu() {
 
         if (UIWidgets::BeginMenu("Graphics")) {
             MotionBlur_RenderMenuOptions();
+            ImGui::SeparatorText("Other");
             UIWidgets::CVarCheckbox("Authentic logo", "gEnhancements.Graphics.AuthenticLogo", {
                 .tooltip = "Hide the game version and build details and display the authentic model and texture on the boot logo start screen"
             });
@@ -333,14 +334,6 @@ void DrawEnhancementsMenu() {
 
             ImGui::EndMenu();
         }
-        
-        if (UIWidgets::BeginMenu("Restorations")) {
-            UIWidgets::CVarCheckbox("Side Rolls", "gEnhancements.Restorations.SideRoll", {
-                .tooltip = "Restores side rolling from OOT."
-            });
-
-            ImGui::EndMenu();
-        }
 
         if (UIWidgets::BeginMenu("Dialogue")) {
             UIWidgets::CVarCheckbox("Fast Text", "gEnhancements.Dialogue.FastText", {
@@ -353,6 +346,14 @@ void DrawEnhancementsMenu() {
         if (UIWidgets::BeginMenu("Fixes")) {
             UIWidgets::CVarCheckbox("Fix Ammo Count Color", "gFixes.FixAmmoCountEnvColor", {
                 .tooltip = "Fixes a missing gDPSetEnvColor, which causes the ammo count to be the wrong color prior to obtaining magic or other conditions."
+            });
+
+            ImGui::EndMenu();
+        }
+
+        if (UIWidgets::BeginMenu("Restorations")) {
+            UIWidgets::CVarCheckbox("Side Rolls", "gEnhancements.Restorations.SideRoll", {
+                .tooltip = "Restores side rolling from OOT."
             });
 
             ImGui::EndMenu();
