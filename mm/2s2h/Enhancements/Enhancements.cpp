@@ -18,5 +18,8 @@ void InitEnhancements() {
     // Cutscenes
     RegisterSkipEntranceCutscenes();
     RegisterHideTitleCards();
+    
+    // Modes
+    RegisterPlayAsKafei();
 
 }
