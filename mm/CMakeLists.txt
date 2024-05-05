@@ -164,6 +164,13 @@ file(GLOB_RECURSE soh__BenGui RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
     "2s2h/BenGui/*.hpp"
 )
 
+file(GLOB_RECURSE soh__SaveManager RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+    "2s2h/SaveManager/*.c"
+    "2s2h/SaveManager/*.cpp"
+    "2s2h/SaveManager/*.h"
+    "2s2h/SaveManager/*.hpp"
+)
+
 #list(REMOVE_ITEM soh__Enhancements "soh/Enhancements/gamecommand.h")
 #list(FILTER soh__Enhancements EXCLUDE REGEX "soh/Enhancements/gfx.*")
 
@@ -276,6 +283,7 @@ set(ALL_FILES
 #    ${soh__config}
     ${soh__Enhancements}
     ${soh__BenGui}
+    ${soh__SaveManager}
     ${soh__Extractor}
     ${soh__Resource}
     ${src__}

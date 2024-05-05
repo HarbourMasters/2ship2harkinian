@@ -11,6 +11,7 @@ void InitEnhancements() {
     // Masks
     RegisterFastTransformation();
     RegisterFierceDeityAnywhere();
+    RegisterNoBlastMaskCooldown();
 
     // Minigames
     RegisterAlwaysWinDoggyRace();
@@ -21,5 +22,8 @@ void InitEnhancements() {
     // Cutscenes
     RegisterSkipEntranceCutscenes();
     RegisterHideTitleCards();
+    
+    // Modes
+    RegisterPlayAsKafei();
 
 }
