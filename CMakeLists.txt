@@ -101,11 +101,11 @@ add_subdirectory(OTRExporter)
 add_subdirectory(mm)
 
 set_property(TARGET mm PROPERTY APPIMAGE_DESKTOP_FILE_TERMINAL YES)
-set_property(TARGET mm PROPERTY APPIMAGE_DESKTOP_FILE "${CMAKE_SOURCE_DIR}/scripts/linux/appimage/2s2h.desktop")
+set_property(TARGET mm PROPERTY APPIMAGE_DESKTOP_FILE "${CMAKE_SOURCE_DIR}/mm/linux/2s2h.desktop")
 set_property(TARGET mm PROPERTY APPIMAGE_ICON_FILE "${CMAKE_BINARY_DIR}/2s2hIcon.png")
 
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
-install(PROGRAMS "${CMAKE_BINARY_DIR}/linux/appimage/s2sh.sh" DESTINATION . COMPONENT appimage)
+install(PROGRAMS "${CMAKE_BINARY_DIR}/linux/2s2h.sh" DESTINATION . COMPONENT appimage)
 install(FILES "${CMAKE_SOURCE_DIR}/soh.otr" DESTINATION . COMPONENT ship)
 install(TARGETS ZAPD DESTINATION ./assets/extractor COMPONENT extractor)
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/mm/assets/extractor/" DESTINATION ./assets/extractor COMPONENT extractor)
@@ -162,13 +162,7 @@ add_custom_target(
 )
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
-    find_package(ImageMagick COMPONENTS convert)
-    if (ImageMagick_FOUND)
-        execute_process (
-            COMMAND ${ImageMagick_convert_EXECUTABLE} mm/macosx/2s2hIcon.png -resize 512x512 ${CMAKE_BINARY_DIR}/2s2hIcon.png
-            OUTPUT_VARIABLE outVar
-        )
-    endif()
+file(COPY ${CMAKE_SOURCE_DIR}/mm/linux/2s2hIcon.png DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
@@ -216,6 +210,8 @@ endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Windows|NintendoSwitch|CafeOS")
 install(FILES ${CMAKE_SOURCE_DIR}/README.md DESTINATION . COMPONENT 2s2h RENAME readme.txt )
+install(DIRECTORY DESTINATION .mods COMPONENT 2s2h)
+install(CODE "file(TOUCH \"\${CMAKE_INSTALL_PREFIX}/mods/custom_mod_files_go_here.txt\")" COMPONENT 2s2h)
 endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")

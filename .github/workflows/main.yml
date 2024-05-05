@@ -34,22 +34,22 @@ jobs:
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
         cmake --no-warn-unused-cli -H. -Bbuild-cmake -GNinja -DCMAKE_BUILD_TYPE:STRING=Release
+        cmake --build build-cmake --config Release --target GenerateSohOtr -j
         cmake --build build-cmake --config Release -j
-        # Not building releases/artifacts for now
-        # (cd build-cmake && cpack -G External)
 
-        # mv README.md readme.txt
-        # mv build-cmake/*.appimage 2ship.appimage
+        (cd build-cmake && cpack -G External)
+        mv README.md readme.txt
+        mv build-cmake/*.appimage 2ship.appimage
       env:
         CC: gcc
         CXX: g++
-    # - name: Upload build
-    #   uses: actions/upload-artifact@v3
-    #   with:
-    #     name: 2ship-linux-${{ matrix.archive-suffix }}
-    #     path: |
-    #       # 2ship.appimage
-    #       readme.txt
+    - name: Upload build
+      uses: actions/upload-artifact@v3
+      with:
+        name: 2ship-linux
+        path: |
+          2ship.appimage
+          readme.txt
   # build-windows:
   #   needs: generate-soh-otr-and-headers
   #   runs-on: windows-latest
@@ -143,22 +143,13 @@ jobs:
       run: |
         set $env:PATH="$env:USERPROFILE/.cargo/bin;$env:PATH"
         cmake -S . -B build-windows -G Ninja -DCMAKE_MAKE_PROGRAM=ninja -DCMAKE_BUILD_TYPE:STRING=Release
-        cmake --build build-windows --config Release --target ExtractAssetHeaders --parallel 10
+        cmake --build build-windows --config Release --target GenerateSohOtr --parallel 10
         cmake --build build-windows --config Release --parallel 10
 
-        # Not building releases/artifacts for now
-        # mkdir 2ship-windows
-        # mv ./x64/Release/mm.exe ./2ship-windows/2ship.exe
-        # mkdir 2ship-windows/debug
-        # mkdir 2ship-windows/mods
-        # New-Item 2ship-windows/mods/custom_otr_files_go_here.txt -type file
-        # mv ./x64/Release/2ship.pdb ./2ship-windows/debug/2ship.pdb
-        # mv ./README.md ./2ship-windows/readme.txt
-        # mv ./build-windows/gamecontrollerdb.txt ./2ship-windows/gamecontrollerdb.txt
-        # mv ./x64/Release/assets ./2ship-windows
-        # mv ./soh.otr ./2ship-windows/soh.otr
-    # - name: Upload build
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: 2ship-windows
-    #     path: 2ship-windows
+        (cd build-windows && cpack)
+        mv _packages/*.zip 2ship-windows.zip
+    - name: Upload build
+      uses: actions/upload-artifact@v4
+      with:
+        name: 2ship-windows.zip
+        path: 2ship-windows.zip

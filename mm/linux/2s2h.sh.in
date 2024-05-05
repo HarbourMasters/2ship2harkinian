@@ -1,0 +1,98 @@
+#!/bin/bash
+HERE="$(dirname "$(readlink -f "${0}")")"/../..
+
+export PATH="$HERE"/bin:"$HERE"/usr/bin:"$PATH"
+export LD_LIBRARY_PATH="$HERE"/usr/lib:"$LD_LIBRARY_PATH"
+export ZENITY=$(command -v zenity)
+
+if [ -z ${SHIP_HOME+x} ]; then
+export SHIP_HOME=$PWD
+fi
+
+if [ -z ${SHIP_BIN_DIR+x} ]; then
+export SHIP_BIN_DIR="$HERE/usr/bin"
+fi
+
+if [[ ! -e "$SHIP_HOME"/mods ]]; then
+    mkdir -p "$SHIP_HOME"/mods
+    touch "$SHIP_HOME"/mods/custom_mod_files_go_here.txt
+fi
+
+while [[ (! -e "$SHIP_HOME"/mm.otr) ]]; do
+        for romfile in "$SHIP_HOME"/*.*64
+        do
+            if [[ -e "$romfile" ]] || [[ -L "$romfile" ]]; then
+                export ASSETDIR="$(mktemp -d /tmp/assets-XXXXX)"
+                ln -s "$SHIP_BIN_DIR"/{assets,2s2h.elf,ZAPD} "$ASSETDIR"
+                export OLDPWD="$PWD"
+                mkdir -p "$ASSETDIR"/tmp
+                if [[ -e "$romfile" ]]; then
+                    ln -s "$romfile" "$ASSETDIR"/tmp/rom.z64
+                else
+                    ORIG_ROM_PATH=$(readlink "$romfile")
+                    ln -s "$ORIG_ROM_PATH" "$ASSETDIR"/tmp/rom.z64
+                fi
+                cd "$ASSETDIR"
+                ROMHASH=$(sha1sum -b "$ASSETDIR"/tmp/rom.z64 | awk '{ print $1 }')
+
+                # Remap v64 and n64 hashes to their z64 hash equivalent
+                # ZAPD will handle converting the data into z64 format
+                case "$ROMHASH" in
+                a9059b56e761c9034fbe02fe4c24985aaa835dac) # v64
+                    ROMHASH=cee6bc3c2a634b41728f2af8da54d9bf8cc14099
+                    ;;
+                24708102dc504d3f375a37f4ae4e149c167dc515) # n64
+                    ROMHASH=cee6bc3c2a634b41728f2af8da54d9bf8cc14099
+                    ;;
+                esac
+
+                case "$ROMHASH" in
+                cee6bc3c2a634b41728f2af8da54d9bf8cc14099)
+                    if [[ ! -e "$SHIP_HOME"/mm.otr ]]; then
+                        ROM=GC_NMQ_D
+                        OTRNAME="mm.otr"
+                    else
+                        continue
+                    fi
+                    ;;
+                *)
+                    echo -e "\n$romfile - $ROMHASH rom hash does not match\n"
+                    continue;;
+                esac
+                if [[ ! -e "$SHIP_HOME"/"$OTRNAME" ]]; then
+                    if [ -n "$ZENITY" ]; then
+                        (echo "# 25%"; echo "25"; sleep 2; echo "# 50%"; echo "50"; sleep 3; echo "# 75%"; echo "75"; sleep 2; echo "# 100%"; echo "100"; sleep 3) |
+                        zenity --progress --title="OTR Generating..." --timeout=10 --percentage=0 --icon-name=2s2h --window-icon=2s2h.png --height=80 --width=400 &
+                    else
+                        echo "Processing..."
+                    fi
+                    assets/extractor/ZAPD.out ed -eh -i assets/extractor/xmls/"${ROM}" -b tmp/rom.z64 -fl assets/extractor/filelists -o placeholder -osf placeholder -gsf 1 -rconf assets/extractor/Config_"${ROM}".xml -se OTR --otrfile "${OTRNAME}" --portVer "@CMAKE_PROJECT_VERSION@" > /dev/null 2>&1
+                    cp "$ASSETDIR"/"$OTRNAME" "$SHIP_HOME"
+                fi
+            else
+                if [[ (! -e "$SHIP_HOME"/mm.otr) ]]; then
+                    if [ -n "$ZENITY" ]; then
+                        zenity --error --timeout=5 --text="Place ROM in $SHIP_HOME" --title="Missing ROM file" --width=500 --width=200
+                    else
+                        echo -e "\nPlace ROM in this folder\n"
+                    fi	
+                    exit
+                fi
+            fi
+        done
+        if [[ (! -e "$SHIP_HOME"/mm.otr) ]]; then
+            if [ -n "$ZENITY" ]; then
+                zenity --error --timeout=10 --text="No valid ROMs were provided, No OTR was generated." --title="Incorrect ROM file" --width=500 --width=200
+            else
+                echo "No valid roms provided, no OTR was generated."
+            fi
+            rm -r "$ASSETDIR"
+            exit
+        else
+            (cd "$SHIP_BIN_DIR"; ./2s2h.elf)
+            exit
+        fi
+        rm -r "$ASSETDIR"
+done	
+	(cd "$SHIP_BIN_DIR"; ./2s2h.elf)
+exit
