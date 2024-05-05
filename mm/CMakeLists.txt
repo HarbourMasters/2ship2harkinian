@@ -428,7 +428,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE assets
 	.
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
 	if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
 		target_compile_definitions(${PROJECT_NAME} PRIVATE
 			"$<$<CONFIG:Debug>:"
@@ -439,9 +439,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 			"$<$<CONFIG:Release>:"
 				"NDEBUG"
 			">"
-#            "$<$<BOOL:${BUILD_CROWD_CONTROL}>:ENABLE_CROWD_CONTROL>"
+			# "$<$<BOOL:${BUILD_CROWD_CONTROL}>:ENABLE_CROWD_CONTROL>"
 			"INCLUDE_GAME_PRINTF;"
- #           "ENABLE_CROWD_CONTROL;"
 			"UNICODE;"
 			"_UNICODE"
 			STORMLIB_NO_AUTO_LINK
@@ -490,7 +489,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU|Clang|AppleClang")
 		"$<$<CONFIG:Release>:"
 			"NDEBUG"
 		">"
-#        "$<$<BOOL:${BUILD_CROWD_CONTROL}>:ENABLE_CROWD_CONTROL>"
+		# "$<$<BOOL:${BUILD_CROWD_CONTROL}>:ENABLE_CROWD_CONTROL>"
 		"SPDLOG_ACTIVE_LEVEL=0;"
 		"_CONSOLE;"
 		"_CRT_SECURE_NO_WARNINGS;"
@@ -717,7 +716,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 			"glu32;"
 			"SDL2::SDL2;"
 			"SDL2::SDL2main;"
- #           "$<$<BOOL:${BUILD_CROWD_CONTROL}>:SDL2_net::SDL2_net-static>"
+			# "$<$<BOOL:${BUILD_CROWD_CONTROL}>:SDL2_net::SDL2_net-static>"
 			"glfw;"
 			"winmm;"
 			"imm32;"
@@ -777,9 +776,13 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "NintendoSwitch|CafeOS")
 INSTALL(TARGETS mm DESTINATION . COMPONENT 2s2h)
 endif()
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
 INSTALL(FILES $<TARGET_PDB_FILE:mm> DESTINATION ./debug COMPONENT 2s2h)
 INSTALL(FILES ${CMAKE_BINARY_DIR}/mm/soh.otr DESTINATION . COMPONENT 2s2h)
+endif()
+
+if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/linux/2s2h.sh.in ${CMAKE_BINARY_DIR}/linux/2s2h.sh @ONLY)
 endif()
 
 find_program(CURL NAMES curl DOC "Path to the curl program.  Used to download files.")
