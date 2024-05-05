@@ -3,9 +3,9 @@
 #include "spdlog/spdlog.h"
 
 namespace SOH {
-std::shared_ptr<LUS::IResource>
-SetLightingSettingsFactory::ReadResource(std::shared_ptr<LUS::ResourceInitData> initData,
-                                         std::shared_ptr<LUS::BinaryReader> reader) {
+std::shared_ptr<Ship::IResource>
+SetLightingSettingsFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData,
+                                         std::shared_ptr<Ship::BinaryReader> reader) {
     auto setLightingSettings = std::make_shared<SetLightingSettings>(initData);
 
     ReadCommandId(setLightingSettings, reader);

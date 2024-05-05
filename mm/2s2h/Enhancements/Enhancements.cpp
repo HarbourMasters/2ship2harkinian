@@ -9,8 +9,14 @@ void InitEnhancements() {
     RegisterEndOfCycleSaveHooks();
 
     // Masks
+    RegisterFastTransformation();
     RegisterFierceDeityAnywhere();
+
+    // Restorations
+    RegisterSideRoll();
     
-    // Time Savers
-    RegisterTimeSaversHooks();
+    // Cutscenes
+    RegisterSkipEntranceCutscenes();
+    RegisterHideTitleCards();
+
 }

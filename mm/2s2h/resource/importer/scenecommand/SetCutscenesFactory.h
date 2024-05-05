@@ -5,8 +5,8 @@
 namespace SOH {
 class SetCutsceneFactoryMM : public SceneCommandFactoryBinaryV0 {
   public:
-    std::shared_ptr<LUS::IResource> ReadResource(std::shared_ptr<LUS::ResourceInitData> initData,
-                                            std::shared_ptr<LUS::BinaryReader> reader) override;
+    std::shared_ptr<Ship::IResource> ReadResource(std::shared_ptr<Ship::ResourceInitData> initData,
+                                            std::shared_ptr<Ship::BinaryReader> reader) override;
 };
 
 }; // namespace LUS
