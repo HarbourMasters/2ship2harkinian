@@ -7707,6 +7707,7 @@ s32 Player_ActionChange_4(Player* this, PlayState* play) {
                         if (var_a1 != NULL) {
                             if (!var_t1) {
                                 this->stateFlags2 |= PLAYER_STATE2_200000;
+                                // This code is the same as the OoT code, except for the !CutsceneManager_IsNext(CS_ID_GLOBAL_TALK), which is what prevented Tatl ISG from working
                                 bool vanillaCondition = !CutsceneManager_IsNext(CS_ID_GLOBAL_TALK);
                                 if (GameInteractor_Should(GI_VB_TATL_COVERSATION_AVAILABLE, vanillaCondition, 0) ||
                                     !CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_CUP)) {
