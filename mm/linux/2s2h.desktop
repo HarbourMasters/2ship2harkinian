@@ -1,7 +1,7 @@
 [Desktop Entry]
 Version=1.0
 Name=2SHIP
-Exec=s2sh.sh
+Exec=2s2h.sh
 Terminal=false
 Icon=2s2hIcon
 Type=Application

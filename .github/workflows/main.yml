@@ -147,6 +147,7 @@ jobs:
         cmake --build build-windows --config Release --parallel 10
 
         (cd build-windows && cpack)
+        cd ..
         mv _packages/*.zip 2ship-windows.zip
     - name: Upload build
       uses: actions/upload-artifact@v4
