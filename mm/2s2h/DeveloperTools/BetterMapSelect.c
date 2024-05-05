@@ -16,6 +16,10 @@ void BetterMapSelect_LoadGame(MapSelectState* mapSelectState, u32 entrance, s32 
 }
 
 void BetterMapSelect_LoadFileSelect(MapSelectState* mapSelectState) {
+    CVarSetInteger("gDeveloperTools.BetterMapSelect.CurrentScene", mapSelectState->currentScene);
+    CVarSetInteger("gDeveloperTools.BetterMapSelect.TopDisplayedScene", mapSelectState->topDisplayedScene);
+    CVarSetInteger("gDeveloperTools.BetterMapSelect.PageDownIndex", mapSelectState->pageDownIndex);
+    CVarSave();
     STOP_GAMESTATE(&mapSelectState->state);
     SET_NEXT_GAMESTATE(&mapSelectState->state, FileSelect_Init, sizeof(FileSelectState));
 }
