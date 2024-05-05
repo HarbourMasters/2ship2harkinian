@@ -22,20 +22,6 @@ endif()
 # Enable the Gfx debugger in LUS to use libgfxd from ZAPDTR
 set(GFX_DEBUG_DISASSEMBLER ON)
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-include(CMake/automate-vcpkg.cmake)
-
-if ("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "Win32")
-	set(VCPKG_TRIPLET x86-windows-static)
-	set(VCPKG_TARGET_TRIPLET x86-windows-static)
-elseif ("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-	set(VCPKG_TRIPLET x64-windows-static)
-	set(VCPKG_TARGET_TRIPLET x64-windows-static)
-endif()
-vcpkg_bootstrap()
-vcpkg_install_packages(zlib bzip2 libzip libpng sdl2 sdl2-net glew glfw3 nlohmann-json tinyxml2 spdlog)
-endif()
-
 ################################################################################
 # Set target arch type if empty. Visual studio solution generator provides it.
 ################################################################################
@@ -49,6 +35,23 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
         OR "${CMAKE_VS_PLATFORM_NAME}" STREQUAL "Win32"))
         message(FATAL_ERROR "${CMAKE_VS_PLATFORM_NAME} arch is not supported!")
     endif()
+endif()
+
+################################################################################
+# VCPKG dependencies for Windows
+################################################################################
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+include(CMake/automate-vcpkg.cmake)
+
+if ("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "Win32")
+	set(VCPKG_TRIPLET x86-windows-static)
+	set(VCPKG_TARGET_TRIPLET x86-windows-static)
+elseif ("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
+	set(VCPKG_TRIPLET x64-windows-static)
+	set(VCPKG_TARGET_TRIPLET x64-windows-static)
+endif()
+vcpkg_bootstrap()
+vcpkg_install_packages(zlib bzip2 libzip libpng sdl2 sdl2-net glew glfw3 nlohmann-json tinyxml2 spdlog)
 endif()
 
 ################################################################################
