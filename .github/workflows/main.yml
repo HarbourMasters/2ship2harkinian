@@ -150,7 +150,7 @@ jobs:
         cd ..
         mv _packages/*.zip 2ship-windows.zip
     - name: Unzip package
-      run: 7z x 2ship-windows.zip -o2ship-windows
+      run: Expand-Archive -Path 2ship-windows.zip -DestinationPath 2ship-windows
     - name: Upload build
       uses: actions/upload-artifact@v4
       with:
