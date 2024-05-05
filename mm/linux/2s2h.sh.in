@@ -50,6 +50,12 @@ while [[ (! -e "$SHIP_HOME"/mm.otr) ]]; do
                 1a26735c63cb3bdf5eb32d21acf774ee6724f227) # n64
                     ROMHASH=d6133ace5afaa0882cf214cf88daba39e266c078
                     ;;
+                8c378b87c83b3f4de20b14accf91e7590399f5dc) # v64
+                    ROMHASH=9743aa026e9269b339eb0e3044cd5830a440c1fd
+                    ;;
+                8b0436e540b95a5353969d4ee360273cf33fb659) # n64
+                    ROMHASH=9743aa026e9269b339eb0e3044cd5830a440c1fd
+                    ;;
                 esac
 
                 case "$ROMHASH" in
@@ -64,6 +70,14 @@ while [[ (! -e "$SHIP_HOME"/mm.otr) ]]; do
                 d6133ace5afaa0882cf214cf88daba39e266c078) # compressed
                     if [[ ! -e "$SHIP_HOME"/mm.otr ]]; then
                         ROM=N64_US
+                        OTRNAME="mm.otr"
+                    else
+                        continue
+                    fi
+                    ;;
+                9743aa026e9269b339eb0e3044cd5830a440c1fd) # compressed
+                    if [[ ! -e "$SHIP_HOME"/mm.otr ]]; then
+                        ROM=GC_US
                         OTRNAME="mm.otr"
                     else
                         continue
