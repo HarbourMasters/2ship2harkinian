@@ -8,6 +8,7 @@
 #include <string>
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/Enhancements/Graphics/MotionBlur.h"
+#include "2s2h/Enhancements/Graphics/PlayAsKafei.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "2s2h/DeveloperTools/WarpPoint.h"
 #include "HudEditor.h"
@@ -356,6 +357,15 @@ void DrawEnhancementsMenu() {
                 .tooltip = "Restores side rolling from OOT."
             });
 
+            ImGui::EndMenu();
+        }
+
+        if (UIWidgets::BeginMenu("Modes")) {
+            if (UIWidgets::CVarCheckbox("Play As Kafei", "gModes.PlayAsKafei", {
+                .tooltip = "Requires scene reload to take effect."
+            })) {
+                UpdatePlayAsKafeiSkeletons();
+            }
             ImGui::EndMenu();
         }
 
