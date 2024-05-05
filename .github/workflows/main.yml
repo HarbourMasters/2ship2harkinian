@@ -150,9 +150,7 @@ jobs:
         cd ..
         mv _packages/*.zip 2ship-windows.zip
     - name: Unzip package
-      uses: montudor/action-zip@v1
-      with:
-        args: unzip -qq 2ship-windows.zip -d 2ship-windows
+      run: 7z x 2ship-windows.zip -o2ship-windows
     - name: Upload build
       uses: actions/upload-artifact@v4
       with:
