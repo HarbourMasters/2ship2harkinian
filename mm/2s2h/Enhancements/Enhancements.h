@@ -9,6 +9,7 @@
 #include "Cutscenes/SkipEntranceCutscenes.h"
 #include "Cutscenes/HideTitleCards.h"
 #include "Restorations/SideRoll.h"
+#include "Restorations/TatlISG.h"
 #include "Graphics/PlayAsKafei.h"
 
 #ifdef __cplusplus

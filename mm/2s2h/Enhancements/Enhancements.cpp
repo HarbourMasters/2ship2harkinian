@@ -14,6 +14,7 @@ void InitEnhancements() {
 
     // Restorations
     RegisterSideRoll();
+    RegisterTatlISG();
     
     // Cutscenes
     RegisterSkipEntranceCutscenes();
