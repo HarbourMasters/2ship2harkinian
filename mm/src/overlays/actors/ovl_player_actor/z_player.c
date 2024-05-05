@@ -7707,7 +7707,11 @@ s32 Player_ActionChange_4(Player* this, PlayState* play) {
                         if (var_a1 != NULL) {
                             if (!var_t1) {
                                 this->stateFlags2 |= PLAYER_STATE2_200000;
-                                if (!CutsceneManager_IsNext(CS_ID_GLOBAL_TALK) ||
+                                if (CVarGetInteger("gEnhancements.Restorations.TatlISG", 0)) {
+                                    if (!CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_CUP)) {
+                                        return false;
+                                    }
+                                } else if (!CutsceneManager_IsNext(CS_ID_GLOBAL_TALK) ||
                                     !CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_CUP)) {
                                     return false;
                                 }

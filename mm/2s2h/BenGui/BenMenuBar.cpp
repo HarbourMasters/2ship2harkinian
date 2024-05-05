@@ -356,6 +356,9 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Side Rolls", "gEnhancements.Restorations.SideRoll", {
                 .tooltip = "Restores side rolling from OOT."
             });
+            UIWidgets::CVarCheckbox("Tatl ISG", "gEnhancements.Restorations.TatlISG", {
+                .tooltip = "Restores Navi ISG from OOT, but now with Tatl."
+            });
 
             ImGui::EndMenu();
         }
