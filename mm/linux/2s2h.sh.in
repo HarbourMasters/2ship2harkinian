@@ -38,18 +38,32 @@ while [[ (! -e "$SHIP_HOME"/mm.otr) ]]; do
                 # Remap v64 and n64 hashes to their z64 hash equivalent
                 # ZAPD will handle converting the data into z64 format
                 case "$ROMHASH" in
-                a9059b56e761c9034fbe02fe4c24985aaa835dac) # v64
-                    ROMHASH=cee6bc3c2a634b41728f2af8da54d9bf8cc14099
+                ef6d7273a7bc1cbf778f9021753db5efddfe495e) # v64
+                    ROMHASH=7f5630dbc4d5d61d6276213210c4d5cdd83a47d6
                     ;;
-                24708102dc504d3f375a37f4ae4e149c167dc515) # n64
-                    ROMHASH=cee6bc3c2a634b41728f2af8da54d9bf8cc14099
+                991460c32f53c7bb0bc650baf5a40ffde6165840) # n64
+                    ROMHASH=7f5630dbc4d5d61d6276213210c4d5cdd83a47d6
+                    ;;
+                22f8bfa1ab6c763013a3c2a568bb014395b12499) # v64
+                    ROMHASH=d6133ace5afaa0882cf214cf88daba39e266c078
+                    ;;
+                1a26735c63cb3bdf5eb32d21acf774ee6724f227) # n64
+                    ROMHASH=d6133ace5afaa0882cf214cf88daba39e266c078
                     ;;
                 esac
 
                 case "$ROMHASH" in
-                cee6bc3c2a634b41728f2af8da54d9bf8cc14099)
+                7f5630dbc4d5d61d6276213210c4d5cdd83a47d6) # uncompressed
                     if [[ ! -e "$SHIP_HOME"/mm.otr ]]; then
-                        ROM=GC_NMQ_D
+                        ROM=N64_US
+                        OTRNAME="mm.otr"
+                    else
+                        continue
+                    fi
+                    ;;
+                d6133ace5afaa0882cf214cf88daba39e266c078) # compressed
+                    if [[ ! -e "$SHIP_HOME"/mm.otr ]]; then
+                        ROM=N64_US
                         OTRNAME="mm.otr"
                     else
                         continue
@@ -75,7 +89,7 @@ while [[ (! -e "$SHIP_HOME"/mm.otr) ]]; do
                         zenity --error --timeout=5 --text="Place ROM in $SHIP_HOME" --title="Missing ROM file" --width=500 --width=200
                     else
                         echo -e "\nPlace ROM in this folder\n"
-                    fi	
+                    fi
                     exit
                 fi
             fi
@@ -93,6 +107,6 @@ while [[ (! -e "$SHIP_HOME"/mm.otr) ]]; do
             exit
         fi
         rm -r "$ASSETDIR"
-done	
-	(cd "$SHIP_BIN_DIR"; ./2s2h.elf)
+done
+    (cd "$SHIP_BIN_DIR"; ./2s2h.elf)
 exit
