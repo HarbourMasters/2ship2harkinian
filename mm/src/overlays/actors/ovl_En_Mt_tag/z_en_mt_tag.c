@@ -40,8 +40,9 @@ ActorInit En_Mt_tag_InitVars = {
     /**/ NULL,
 };
 
+// 2S2H [Port] - Add extra checkpoint for scene exit "18 + 1" to avoid UB in the checkpointIterator loop
 static s32 sStartingCheckpointPerSceneExitIndex[] = {
-    0, 0, 0, 0, 1, 9, 12, 16, 19, 22, 26, 29, 30, 32, 34, 36, 39, 42, 45,
+    0, 0, 0, 0, 1, 9, 12, 16, 19, 22, 26, 29, 30, 32, 34, 36, 39, 42, 45, 45,
 };
 
 // The Y-positions here are never used by any part of this actor.
@@ -155,9 +156,9 @@ s32 EnMttag_GetCurrentCheckpoint(Actor* actor, PlayState* play, s32* upcomingChe
     // Iterates through all possible checkpoints that are associated with this sceneExitIndex.
     do {
         if (Math3D_PointDistSqToLine2DImpl(
-                actor->world.pos.x, actor->world.pos.z, (&sCheckpointPositions[checkpointIterator])[-1].x,
-                (&sCheckpointPositions[checkpointIterator])[-1].z, (&sCheckpointPositions[checkpointIterator])[1].x,
-                (&sCheckpointPositions[checkpointIterator])[1].z, &perpendicularPointX, &perpendicularPointZ,
+                actor->world.pos.x, actor->world.pos.z, sCheckpointPositions[checkpointIterator - 1].x,
+                sCheckpointPositions[checkpointIterator - 1].z, sCheckpointPositions[checkpointIterator + 1].x,
+                sCheckpointPositions[checkpointIterator + 1].z, &perpendicularPointX, &perpendicularPointZ,
                 &lineLenSq) &&
             (!hasSetCurrentCheckpointOnce || ((curentCheckpoint + 1) == checkpointIterator) ||
              (lineLenSq < minLineLengthSq))) {

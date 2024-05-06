@@ -3726,7 +3726,9 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
 
                 if (bomb != NULL) {
                     bomb->timer = 0;
-                    this->blastMaskTimer = 310;
+                    if (GameInteractor_Should(GI_VB_SET_BLAST_MASK_COOLDOWN_TIMER, true, NULL)) {
+                        this->blastMaskTimer = 310;
+                    }
                 }
             }
         } else if (item == ITEM_F1) {
