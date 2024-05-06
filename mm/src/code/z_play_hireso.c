@@ -5,6 +5,8 @@
 #include "archives/schedule_dma_static/schedule_dma_static_yar.h"
 #include <string.h>
 
+#include "BenPort.h"
+
 #define BOMBERS_NOTEBOOK_ENTRY_SIZE 3
 #define BOMBERS_NOTEBOOK_ENTRY_MAX 10
 

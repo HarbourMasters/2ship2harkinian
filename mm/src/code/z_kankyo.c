@@ -23,6 +23,7 @@ typedef struct {
 #include "z64environment.h"
 #include "global.h"
 #include "sys_cfb.h"
+#include "BenPort.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "objects/gameplay_field_keep/gameplay_field_keep.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
