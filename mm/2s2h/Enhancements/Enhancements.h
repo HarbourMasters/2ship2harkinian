@@ -4,6 +4,7 @@
 #include "Cheats/MoonJump.h"
 #include "Cheats/Infinite.h"
 #include "Cycle/EndOfCycle.h"
+#include "Saving/PermanentOwlSaves.h"
 #include "Masks/FierceDeityAnywhere.h"
 #include "Masks/NoBlastMaskCooldown.h"
 #include "Masks/FastTransformation.h"

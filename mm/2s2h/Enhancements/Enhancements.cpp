@@ -5,8 +5,9 @@ void InitEnhancements() {
     RegisterInfiniteCheats();
     RegisterMoonJumpOnL();
 
-    // Cycle
+    // Cycle & Saving
     RegisterEndOfCycleSaveHooks();
+    RegisterPermanentOwlStatues();
 
     // Masks
     RegisterFastTransformation();

@@ -7,7 +7,6 @@
 #include "Enhancements/GameInteractor/GameInteractor.h"
 
 void Sram_SyncWriteToFlash(SramContext* sramCtx, s32 curPage, s32 numPages);
-void func_80147314(SramContext* sramCtx, s32 fileNum);
 void func_80147414(SramContext* sramCtx, s32 fileNum, s32 arg2);
 
 #define CHECK_NEWF(newf)                                                                                 \
@@ -1323,7 +1322,11 @@ void Sram_OpenSave(FileSelectState* fileSelect, SramContext* sramCtx) {
         }
 
         fileNum = gSaveContext.fileNum;
-        func_80147314(sramCtx, fileNum);
+
+        // Remove Owl saves on save continue
+        if (GameInteractor_Should(GI_VB_DELETE_OWL_SAVE, true, 0)) {
+            func_80147314(sramCtx, fileNum);
+        }
     }
 }
 

@@ -303,7 +303,8 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
         
-        if (UIWidgets::BeginMenu("Cycle")) {
+        if (UIWidgets::BeginMenu("Cycle & Saving")) {
+            ImGui::SeparatorText("Time Cycle");
             UIWidgets::CVarCheckbox("Do not reset Bottle content", "gEnhancements.Cycle.DoNotResetBottleContent", {
                 .tooltip = "Playing the Song Of Time will not reset the bottles' content."
             });
@@ -315,6 +316,11 @@ void DrawEnhancementsMenu() {
             });
             UIWidgets::CVarCheckbox("Do not reset Rupees", "gEnhancements.Cycle.DoNotResetRupees", {
                 .tooltip = "Playing the Song Of Time will not reset the your rupees."
+            });
+
+            ImGui::SeparatorText("Saving");
+            UIWidgets::CVarCheckbox("Permanent Owl Statues", "gEnhancements.Saving.PermanentOwlSaves", {
+                .tooltip = "Continueing a save will not remove the owl save. Playing Song of Time will remove the owl save and become the new last save."
             });
             
             ImGui::EndMenu();

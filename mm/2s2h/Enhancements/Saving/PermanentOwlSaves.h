@@ -1,0 +1,6 @@
+#ifndef SAVING_PERMANENT_OWL_STATUES_H
+#define SAVING_PERMANENT_OWL_STATUES_H
+
+void RegisterPermanentOwlStatues();
+
+#endif // SAVING_PERMANENT_OWL_STATUES_H
