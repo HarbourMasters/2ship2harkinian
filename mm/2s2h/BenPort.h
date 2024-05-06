@@ -45,6 +45,7 @@ uint32_t IsGameMasterQuest();
 #endif
 
 #ifndef __cplusplus
+#include <z64.h>
 void InitOTR(void);
 void DeinitOTR(void);
 void VanillaItemTable_Init();

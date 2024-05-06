@@ -4,6 +4,7 @@
 #include "macros.h"
 #include "2s2h/framebuffer_effects.h"
 #include <libultraship/bridge.h>
+#include "BenPort.h"
 
 // Variables are put before most headers as a hacky way to bypass bss reordering
 OSViMode sNotebookViMode; // placeholder name
