@@ -3815,7 +3815,9 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
 
                 if (bomb != NULL) {
                     bomb->timer = 0;
-                    this->blastMaskTimer = 310;
+                    if (GameInteractor_Should(GI_VB_SET_BLAST_MASK_COOLDOWN_TIMER, true, NULL)) {
+                        this->blastMaskTimer = 310;
+                    }
                 }
             }
         } else if (item == ITEM_F1) {
@@ -18230,6 +18232,8 @@ struct_8085D910 D_8085D910[] = {
 void Player_Action_86(Player* this, PlayState* play) {
     struct_8085D910* sp4C = D_8085D910;
     s32 sp48 = false;
+
+    if (GameInteractor_Should(GI_VB_PREVENT_MASK_TRANSFORMATION_CS, false, NULL)) return;
 
     func_808323C0(this, play->playerCsIds[PLAYER_CS_ID_MASK_TRANSFORMATION]);
     sPlayerControlInput = play->state.input;

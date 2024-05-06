@@ -39,6 +39,7 @@ void RenderWarpPointSection() {
         CVarSetFloat(CV "Z", player->actor.world.pos.z);
         CVarSetFloat(CV "Rotation", player->actor.shape.rot.y);
         CVarSetInteger(CV "Saved", 1);
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
     }
     if (CVarGetInteger(CV "Saved", 0)) {
         u32 sceneId = Entrance_GetSceneIdAbsolute(CVarGetInteger(CV "Entrance", ENTRANCE(SOUTH_CLOCK_TOWN, 0)));
@@ -53,6 +54,7 @@ void RenderWarpPointSection() {
             CVarClear(CV "Z");
             CVarClear(CV "Rotation");
             CVarClear(CV "Saved");
+            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
         }
         ImGui::SameLine();
         if (UIWidgets::Button("Warp", { .size = UIWidgets::Sizes::Inline })) {

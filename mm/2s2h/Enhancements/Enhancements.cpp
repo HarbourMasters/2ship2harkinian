@@ -9,11 +9,18 @@ void InitEnhancements() {
     RegisterEndOfCycleSaveHooks();
 
     // Masks
+    RegisterFastTransformation();
     RegisterFierceDeityAnywhere();
+    RegisterNoBlastMaskCooldown();
 
     // Restorations
     RegisterSideRoll();
     
-    // Time Savers
-    RegisterTimeSaversHooks();
+    // Cutscenes
+    RegisterSkipEntranceCutscenes();
+    RegisterHideTitleCards();
+    
+    // Modes
+    RegisterPlayAsKafei();
+
 }
