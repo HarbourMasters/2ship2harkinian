@@ -62,6 +62,14 @@ const char* presetNames[] = {
     "Widescreen",
 };
 
+namespace HudEditor {
+enum Presets {
+    VANILLA,
+    HIDDEN,
+    WIDESCREEN,
+};
+};
+
 void HudEditorWindow::DrawElement() {
     ImGui::SetNextWindowSize(ImVec2(480,600), ImGuiCond_FirstUseEver);
     if (!ImGui::Begin("Hud Editor", &mIsVisible, ImGuiWindowFlags_NoFocusOnAppearing)) {
@@ -69,7 +77,7 @@ void HudEditorWindow::DrawElement() {
         return;
     }
 
-    static int preset = 0;
+    static HudEditor::Presets preset = HudEditor::Presets::VANILLA;
     if (UIWidgets::Combobox("Preset", &preset, presetNames)) {
         for (int i = HUD_EDITOR_ELEMENT_B; i < HUD_EDITOR_ELEMENT_MAX; i++) {
             CVarClear(hudEditorElements[i].xCvar);
@@ -80,13 +88,13 @@ void HudEditorWindow::DrawElement() {
         }
 
         switch (preset) {
-            case 1: {
+            case HudEditor::Presets::HIDDEN: {
                 for (int i = HUD_EDITOR_ELEMENT_B; i < HUD_EDITOR_ELEMENT_MAX; i++) {
                     CVarSetInteger(hudEditorElements[i].modeCvar, HUD_EDITOR_ELEMENT_MODE_HIDDEN);
                 }
                 break;
             }
-            case 2: {
+            case HudEditor::Presets::WIDESCREEN: {
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_B].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_RIGHT);
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_C_LEFT].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_RIGHT);
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_C_DOWN].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_RIGHT);
@@ -99,6 +107,7 @@ void HudEditorWindow::DrawElement() {
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_RUPEE_COUNTER].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT);
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_KEY_COUNTER].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT);
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_SKULLTULA_COUNTER].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT);
+                CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_D_PAD].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_RIGHT);
                 break;
             }
         }
