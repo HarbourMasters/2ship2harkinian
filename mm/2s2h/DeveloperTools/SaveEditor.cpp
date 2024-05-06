@@ -36,6 +36,7 @@ const char* WALLET_LEVEL_NAMES[3] = { "Child Wallet", "Adult Wallet", "Giant Wal
 constexpr u8 WALLET_LEVEL_MAX = 2;
 ImVec4 colorTint;
 const char* songTooltip;
+static int bankedRupees = 0;
 
 InventorySlot selectedInventorySlot = SLOT_NONE;
 std::vector<ItemId> safeItemsForInventorySlot[SLOT_MASK_FIERCE_DEITY + 1] = {};
@@ -316,6 +317,13 @@ void DrawGeneralTab() {
     );
 
     ImGui::Text("Banked Rupees: %d", HS_GET_BANK_RUPEES());
+    if (HS_GET_BANK_RUPEES() >= 0) {
+        UIWidgets::PushStyleSlider(UIWidgets::Colors::Green);
+        if (ImGui::SliderInt("##setBank", &bankedRupees, 0, 5000, "Banked Rupees: %d")) {
+            HS_SET_BANK_RUPEES(bankedRupees);
+        }
+        UIWidgets::PopStyleSlider();
+    }
 
     // Temple clears
     static const std::array<std::pair<int32_t, const char*>, 4> templeClears = { {
