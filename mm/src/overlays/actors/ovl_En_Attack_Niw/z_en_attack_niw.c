@@ -397,8 +397,6 @@ void EnAttackNiw_Update(Actor* thisx, PlayState* play) {
     } else {
         f32 viewOffset = 20.0f;
 
-    label:
-
         if (this->actor.xyzDistToPlayerSq < SQ(viewOffset)) {
             parent = (EnNiw*)this->actor.parent;
             if ((this->actor.parent->update != NULL) && (this->actor.parent != NULL) && (parent != NULL) &&
