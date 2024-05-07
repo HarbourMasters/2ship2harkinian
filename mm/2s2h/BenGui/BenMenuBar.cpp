@@ -8,6 +8,7 @@
 #include <string>
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/Enhancements/Graphics/MotionBlur.h"
+#include "2s2h/Enhancements/Graphics/PlayAsKafei.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "2s2h/DeveloperTools/WarpPoint.h"
 #include "HudEditor.h"
@@ -36,6 +37,12 @@ static std::unordered_map<Ship::WindowBackend, const char*> windowBackendsMap = 
     { Ship::WindowBackend::SDL_OPENGL, "OpenGL" },
     { Ship::WindowBackend::SDL_METAL, "Metal" },
     { Ship::WindowBackend::GX2, "GX2" }
+};
+
+static const std::unordered_map<int32_t, const char*> alwaysWinDoggyraceOptions = {
+    { ALWAYS_WIN_DOGGY_RACE_OFF, "Off" },
+    { ALWAYS_WIN_DOGGY_RACE_MASKOFTRUTH, "When owning Mask of Truth" },
+    { ALWAYS_WIN_DOGGY_RACE_ALWAYS, "Always" },
 };
 
 namespace BenGui {
@@ -291,17 +298,13 @@ extern std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
 
-        if (UIWidgets::BeginMenu("Graphics")) {
-            MotionBlur_RenderMenuOptions();
-            ImGui::SeparatorText("Other");
-            UIWidgets::CVarCheckbox("Authentic logo", "gEnhancements.Graphics.AuthenticLogo", {
-                .tooltip = "Hide the game version and build details and display the authentic model and texture on the boot logo start screen"
-            });
-            UIWidgets::CVarCheckbox("24 Hours Clock", "gEnhancements.Graphics.24HoursClock");
+        if (UIWidgets::BeginMenu("Cutscenes")) {
+            UIWidgets::CVarCheckbox("Hide Title Cards", "gEnhancements.Cutscenes.HideTitleCards");
+            UIWidgets::CVarCheckbox("Skip Entrance Cutscenes", "gEnhancements.Cutscenes.SkipEntranceCutscenes");
 
             ImGui::EndMenu();
         }
-        
+
         if (UIWidgets::BeginMenu("Cycle")) {
             UIWidgets::CVarCheckbox("Do not reset Bottle content", "gEnhancements.Cycle.DoNotResetBottleContent", {
                 .tooltip = "Playing the Song Of Time will not reset the bottles' content."
@@ -319,33 +322,7 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
-        if (UIWidgets::BeginMenu("Masks")) {
-            UIWidgets::CVarCheckbox("Fast Transformation", "gEnhancements.Masks.FastTransformation");
-            UIWidgets::CVarCheckbox("Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere", {
-                .tooltip = "Allow using Fierce Deity's mask outside of boss rooms."
-            });
-
-            ImGui::EndMenu();
-        }
-
-        if (UIWidgets::BeginMenu("Songs")) {
-            UIWidgets::CVarCheckbox("Enable Sun's Song", "gEnhancements.Songs.EnableSunsSong", {
-                .tooltip = "Enables the partially implemented Sun's Song. RIGHT-DOWN-UP-RIGHT-DOWN-UP to play it. "
-                           "This song will make time move very fast until either Link moves to a different scene, "
-                           "or when the time switches to a new time period."
-            });
-            
-            ImGui::EndMenu();
-        }
-
-        if (UIWidgets::BeginMenu("Cutscenes")) {
-            UIWidgets::CVarCheckbox("Skip Entrance Cutscenes", "gEnhancements.Cutscenes.SkipEntranceCutscenes");
-            UIWidgets::CVarCheckbox("Hide Title Cards", "gEnhancements.Cutscenes.HideTitleCards");
-
-            ImGui::EndMenu();
-        }
-
-        if (UIWidgets::BeginMenu("Dialogue")) {
+        if (UIWidgets::BeginMenu("Dialogues")) {
             UIWidgets::CVarCheckbox("Fast Text", "gEnhancements.Dialogue.FastText", {
                 .tooltip = "Speeds up text rendering, and enables holding of B progress to next message"
             });
@@ -361,9 +338,55 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
+        if (UIWidgets::BeginMenu("Graphics")) {
+            MotionBlur_RenderMenuOptions();
+            ImGui::SeparatorText("Other");
+            UIWidgets::CVarCheckbox("24 Hours Clock", "gEnhancements.Graphics.24HoursClock");
+            UIWidgets::CVarCheckbox("Authentic logo", "gEnhancements.Graphics.AuthenticLogo", {
+                .tooltip = "Hide the game version and build details and display the authentic model and texture on the boot logo start screen"
+            });
+            
+            ImGui::EndMenu();
+        }
+        
+        if (UIWidgets::BeginMenu("Masks")) {
+            UIWidgets::CVarCheckbox("Fast Transformation", "gEnhancements.Masks.FastTransformation");
+            UIWidgets::CVarCheckbox("Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere", {
+                .tooltip = "Allow using Fierce Deity's mask outside of boss rooms."
+            });
+            UIWidgets::CVarCheckbox("No Blast Mask Cooldown", "gEnhancements.Masks.NoBlastMaskCooldown", {});
+
+            ImGui::EndMenu();
+        }
+
+        if (UIWidgets::BeginMenu("Minigames")) {
+            UIWidgets::CVarCombobox("Always Win Doggy Race", "gEnhancements.Minigames.AlwaysWinDoggyRace", alwaysWinDoggyraceOptions);
+
+            ImGui::EndMenu();
+        }
+
+        if (UIWidgets::BeginMenu("Modes")) {
+            if (UIWidgets::CVarCheckbox("Play As Kafei", "gModes.PlayAsKafei", {
+                .tooltip = "Requires scene reload to take effect."
+            })) {
+                UpdatePlayAsKafeiSkeletons();
+            }
+            ImGui::EndMenu();
+        }
+
         if (UIWidgets::BeginMenu("Restorations")) {
             UIWidgets::CVarCheckbox("Side Rolls", "gEnhancements.Restorations.SideRoll", {
                 .tooltip = "Restores side rolling from OOT."
+            });
+
+            ImGui::EndMenu();
+        }
+
+        if (UIWidgets::BeginMenu("Songs")) {
+            UIWidgets::CVarCheckbox("Enable Sun's Song", "gEnhancements.Songs.EnableSunsSong", {
+                .tooltip = "Enables the partially implemented Sun's Song. RIGHT-DOWN-UP-RIGHT-DOWN-UP to play it. "
+                           "This song will make time move very fast until either Link moves to a different scene, "
+                           "or when the time switches to a new time period."
             });
 
             ImGui::EndMenu();
@@ -386,6 +409,7 @@ void DrawCheatsMenu() {
         UIWidgets::CVarCheckbox("Infinite Magic", "gCheats.InfiniteMagic");
         UIWidgets::CVarCheckbox("Infinite Rupees", "gCheats.InfiniteRupees");
         UIWidgets::CVarCheckbox("Infinite Consumables", "gCheats.InfiniteConsumables");
+        UIWidgets::CVarCheckbox("Unbreakable Razor Sword", "gCheats.UnbreakableRazorSword");
         if (UIWidgets::CVarCheckbox("Moon Jump on L", "gCheats.MoonJumpOnL", {
             .tooltip = "Holding L makes you float into the air"
         })) {
