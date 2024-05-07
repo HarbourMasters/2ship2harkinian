@@ -63,6 +63,8 @@ Vec3f D_801EDDD0;
 Vec3f D_801EDDE0;
 Vec3f D_801EDDF0;
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
+#include "2s2h/Enhancements/Camera/FreeLook.h"
 
 // Camera will reload its paramData. Usually that means setting the read-only data from what is stored in
 // CameraModeValue arrays. Although sometimes some read-write data is reset as well
@@ -1956,6 +1958,10 @@ s32 Camera_Noop(Camera* camera) {
 }
 
 s32 Camera_Normal1(Camera* camera) {
+    if (GameInteractor_Should(GI_VB_FREE_LOOK, false, camera)) {
+        return Camera_FreeLook(camera);
+    }
+
     Vec3f* eye = &camera->eye;
     Vec3f* at = &camera->at;
     Vec3f* eyeNext = &camera->eyeNext;
@@ -2355,6 +2361,9 @@ s32 Camera_Normal2(Camera* camera) {
  * Riding Epona and Zora
  */
 s32 Camera_Normal3(Camera* camera) {
+    if (GameInteractor_Should(GI_VB_FREE_LOOK, false, camera)) {
+        return Camera_FreeLook(camera);
+    }
     Normal3ReadOnlyData* roData = &camera->paramData.norm3.roData;
     Normal3ReadWriteData* rwData = &camera->paramData.norm3.rwData;
     f32 sp8C;
@@ -2542,6 +2551,9 @@ s32 Camera_Normal3(Camera* camera) {
  * Identical to Normal1 except reads camera scene data to apply a camera roll
  */
 s32 Camera_Normal4(Camera* camera) {
+    if (GameInteractor_Should(GI_VB_FREE_LOOK, false, camera)) {
+        return Camera_FreeLook(camera);
+    }
     BgCamFuncData* bgCamFuncData;
     s16 roll;
 
@@ -2558,6 +2570,9 @@ s32 Camera_Normal4(Camera* camera) {
 }
 
 s32 Camera_Normal0(Camera* camera) {
+    if (GameInteractor_Should(GI_VB_FREE_LOOK, false, camera)) {
+        return Camera_FreeLook(camera);
+    }
     f32 phi_f0;
     f32 yNormal;
     s32 pad;
@@ -3114,6 +3129,9 @@ s32 Camera_Jump1(Camera* camera) {
  * Camera for climbing structures
  */
 s32 Camera_Jump2(Camera* camera) {
+    if (GameInteractor_Should(GI_VB_FREE_LOOK, false, camera)) {
+        return Camera_FreeLook(camera);
+    }
     Vec3f* eye = &camera->eye;
     Vec3f* at = &camera->at;
     Vec3f* eyeNext = &camera->eyeNext;
@@ -3296,6 +3314,9 @@ s32 Camera_Jump2(Camera* camera) {
  * e.g. Gyorg, Pinnacle Rock, whirlpool, water
  */
 s32 Camera_Jump3(Camera* camera) {
+    if (GameInteractor_Should(GI_VB_FREE_LOOK, false, camera)) {
+        return Camera_FreeLook(camera);
+    }
     Vec3f* sp48 = &camera->eye;
     Vec3f* sp44 = &camera->at;
     Vec3f* sp40 = &camera->eyeNext;
@@ -3535,6 +3556,9 @@ s32 Camera_Jump0(Camera* camera) {
 }
 
 s32 Camera_Battle1(Camera* camera) {
+    if (GameInteractor_Should(GI_VB_FREE_LOOK, false, camera)) {
+        return Camera_FreeLook(camera);
+    }
     Vec3f* eye = &camera->eye;
     Vec3f* at = &camera->at;
     Vec3f* eyeNext = &camera->eyeNext;
@@ -5296,6 +5320,9 @@ s32 Camera_Unique1(Camera* camera) {
  * Also used when using a door to leave a scene
  */
 s32 Camera_Unique2(Camera* camera) {
+    if (GameInteractor_Should(GI_VB_FREE_LOOK, false, camera)) {
+        return Camera_FreeLook(camera);
+    }
     Vec3f* eye = &camera->eye;
     Vec3f* at = &camera->at;
     f32 phi_f16;
@@ -7792,6 +7819,7 @@ s32 Camera_ChangeModeFlags(Camera* camera, s16 mode, u8 forceChange) {
 
     func_800DF498(camera);
     camera->mode = mode;
+    GameInteractor_ExecuteOnCameraChangeModeFlags(camera);
 
     return mode | 0x80000000;
 }

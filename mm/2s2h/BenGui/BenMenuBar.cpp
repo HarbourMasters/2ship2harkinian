@@ -302,6 +302,29 @@ void DrawEnhancementsMenu() {
 
             ImGui::EndMenu();
         }
+
+        if (UIWidgets::BeginMenu("Camera")) {
+            ImGui::SeparatorText("Free Look");
+            if (UIWidgets::CVarCheckbox("Free Look", "gEnhancements.Camera.FreeLook.Enable", {
+                .tooltip = "Enables free look camera control\nNote: You must remap C buttons off of the right stick in the controller config menu, and map the camera stick to the right stick."
+            })) {
+                RegisterCameraFreeLook();
+            }
+            UIWidgets::CVarCheckbox("Invert Camera X Axis", "gEnhancements.Camera.FreeLook.InvertXAxis", {
+                .tooltip = "Inverts the Camera X Axis in Free Look."
+            });
+            UIWidgets::CVarCheckbox("Invert Camera Y Axis", "gEnhancements.Camera.FreeLook.InvertYAxis", {
+                .tooltip = "Inverts the Camera Y Axis in Free Look.",
+                .defaultValue = true
+            });
+            UIWidgets::CVarSliderFloat("Third-Person Horizontal Sensitivity: %.0f %%", "gEnhancements.Camera.FreeLook.CameraSensitivity.X", 0.01f, 5.0f, 1.0f);
+            UIWidgets::CVarSliderFloat("Third-Person Vertical Sensitivity: %.0f %%", "gEnhancements.Camera.FreeLook.CameraSensitivity.Y", 0.01f, 5.0f, 1.0f);
+            UIWidgets::CVarSliderInt("Camera Distance: %d", "gEnhancements.Camera.FreeLook.MaxCameraDistance", 100, 900, 185);
+            UIWidgets::CVarSliderInt("Camera Transition Speed: %d", "gEnhancements.Camera.FreeLook.TransitionSpeed", 0, 900, 25);
+
+
+            ImGui::EndMenu();
+        }
         
         if (UIWidgets::BeginMenu("Cycle")) {
             UIWidgets::CVarCheckbox("Do not reset Bottle content", "gEnhancements.Cycle.DoNotResetBottleContent", {

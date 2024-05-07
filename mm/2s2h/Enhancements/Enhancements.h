@@ -1,6 +1,7 @@
 #ifndef ENHANCEMENTS_H
 #define ENHANCEMENTS_H
 
+#include "Camera/FreeLook.h"
 #include "Cheats/MoonJump.h"
 #include "Cheats/Infinite.h"
 #include "Cycle/EndOfCycle.h"

@@ -1,6 +1,9 @@
 #include "Enhancements.h"
 
 void InitEnhancements() {
+    // Camera
+    RegisterCameraFreeLook();
+
     // Cheats
     RegisterInfiniteCheats();
     RegisterMoonJumpOnL();

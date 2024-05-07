@@ -113,6 +113,13 @@ void GameInteractor_ExecuteOnFlagUnset(FlagType flagType, u32 flag) {
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnFlagUnset>(flagType, flag);
 }
 
+void GameInteractor_ExecuteOnCameraChangeModeFlags(Camera* camera) {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnCameraChangeModeFlags>(camera);
+    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnCameraChangeModeFlags>(camera->uid, camera);
+    GameInteractor::Instance->ExecuteHooksForPtr<GameInteractor::OnCameraChangeModeFlags>((uintptr_t)camera, camera);
+    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnCameraChangeModeFlags>(camera);
+}
+
 void GameInteractor_ExecuteOnOpenText(u16 textId) {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnOpenText>(textId);
     GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnOpenText>(textId, textId);
