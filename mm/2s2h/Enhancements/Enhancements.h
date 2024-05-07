@@ -11,6 +11,7 @@
 #include "Cutscenes/HideTitleCards.h"
 #include "Restorations/SideRoll.h"
 #include "Graphics/PlayAsKafei.h"
+#include "PlayerMovement/ClimbSpeed.h"
 
 #ifdef __cplusplus
 extern "C" {

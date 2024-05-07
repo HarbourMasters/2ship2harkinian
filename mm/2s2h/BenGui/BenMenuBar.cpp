@@ -370,6 +370,14 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
+        if (UIWidgets::BeginMenu("Time Savers")) {
+            UIWidgets::CVarSliderInt("Climb speed", "gEnhancements.PlayerMovement.ClimbSpeed", 1, 5, 1, {
+                .tooltip = "Increases the speed at which Link climbs vines and ladders." 
+            });
+
+            ImGui::EndMenu();
+        }
+
         if (mHudEditorWindow) {
             UIWidgets::WindowButton("Hud Editor", "gWindows.HudEditor", mHudEditorWindow, {
                 .tooltip = "Enables the Hud Editor window, allowing you to edit your hud"
