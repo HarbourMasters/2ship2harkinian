@@ -36,6 +36,8 @@ const char* WALLET_LEVEL_NAMES[3] = { "Child Wallet", "Adult Wallet", "Giant Wal
 constexpr u8 WALLET_LEVEL_MAX = 2;
 ImVec4 colorTint;
 const char* songTooltip;
+const char* curForm;
+ImVec4 formColor;
 
 InventorySlot selectedInventorySlot = SLOT_NONE;
 std::vector<ItemId> safeItemsForInventorySlot[SLOT_MASK_FIERCE_DEITY + 1] = {};
@@ -862,6 +864,113 @@ void DrawQuestStatusTab() {
     ImGui::PopStyleColor(1);
 }
 
+void GetPlayerForm() {
+    switch (GET_PLAYER_FORM) {
+        case PLAYER_FORM_FIERCE_DEITY:
+            curForm = "Fierce Deity";
+            formColor = UIWidgets::Colors::Red;
+            break;
+        case PLAYER_FORM_GORON:
+            curForm = "Goron";
+            formColor = UIWidgets::Colors::Yellow;
+            break;
+        case PLAYER_FORM_ZORA:
+            curForm = "Zora";
+            formColor = UIWidgets::Colors::Indigo;
+            break;
+        case PLAYER_FORM_DEKU:
+            curForm = "Deku";
+            formColor = UIWidgets::Colors::DarkGreen;
+            break;
+        case PLAYER_FORM_HUMAN:
+            curForm = "Human";
+            formColor = UIWidgets::Colors::LightGreen;
+            break;
+        default:
+            break;
+    }
+}
+
+void DrawPlayerTab() {
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 3.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f, 8.0f));
+    if (gPlayState) {
+        Player* player = GET_PLAYER(gPlayState);
+        ImGui::BeginChild("playerLocation", ImVec2(INV_GRID_WIDTH * 8 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 2 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+
+        GetPlayerForm();
+        ImGui::Text("%s Link", curForm);
+        ImGui::Text("Position:");
+        UIWidgets::PushStyleCombobox(formColor);
+        ImGui::PushItemWidth(ImGui::GetFontSize() * 6);
+        ImGui::InputScalar("X Pos", ImGuiDataType_Float, &player->actor.world.pos.x);
+        ImGui::SameLine();
+        ImGui::InputScalar("Y Pos", ImGuiDataType_Float, &player->actor.world.pos.y);
+        ImGui::SameLine();
+        ImGui::InputScalar("Z Pos", ImGuiDataType_Float, &player->actor.world.pos.z);
+        ImGui::Text("Rotation:");
+        ImGui::InputScalar("X Rot", ImGuiDataType_S16, &player->actor.world.rot.x); // convert to degrees?
+        ImGui::SameLine();
+        ImGui::InputScalar("Y Rot", ImGuiDataType_S16, &player->actor.world.rot.y);
+        ImGui::SameLine();
+        ImGui::InputScalar("Z Rot", ImGuiDataType_S16, &player->actor.world.rot.z);
+
+        ImGui::PopItemWidth();
+        UIWidgets::PopStyleCombobox();
+        ImGui::EndChild();
+
+        ImGui::BeginChild("playerSpeed", ImVec2(INV_GRID_WIDTH * 5 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 3 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+        UIWidgets::PushStyleCombobox(formColor);
+        ImGui::PushItemWidth(ImGui::GetFontSize() * 6);
+        ImGui::InputScalar("Linear Velocity", ImGuiDataType_Float, &player->linearVelocity);
+        ImGui::InputScalar("Y Velocity", ImGuiDataType_Float, &player->actor.velocity.y);
+        ImGui::InputScalar("Ledge Height", ImGuiDataType_Float, &player->yDistToLedge);
+        ImGui::InputScalar("Invincibility Timer", ImGuiDataType_S16, &player->invincibilityTimer);
+        ImGui::InputScalar("Gravity", ImGuiDataType_Float, &player->actor.gravity);
+
+        ImGui::PopItemWidth();
+        UIWidgets::PopStyleCombobox();
+        ImGui::EndChild();
+
+        ImGui::BeginChild("playerForm", ImVec2(INV_GRID_WIDTH * 6 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+        UIWidgets::PushStyleCombobox(UIWidgets::Colors::Red);
+        if (ImGui::Button("Fierce Deity")) {
+            
+        }
+        UIWidgets::PopStyleCombobox();
+        ImGui::SameLine();
+        UIWidgets::PushStyleCombobox(UIWidgets::Colors::Yellow);
+        if (ImGui::Button("Goron")) {
+            
+        }
+        UIWidgets::PopStyleCombobox();
+        ImGui::SameLine();
+        UIWidgets::PushStyleCombobox(UIWidgets::Colors::Indigo);
+        if (ImGui::Button("Zora")) {
+            
+        }
+        UIWidgets::PopStyleCombobox();
+        ImGui::SameLine();
+        UIWidgets::PushStyleCombobox(UIWidgets::Colors::DarkGreen);
+        if (ImGui::Button("Deku")) {
+            
+        }
+        UIWidgets::PopStyleCombobox();
+        ImGui::SameLine();
+        UIWidgets::PushStyleCombobox(UIWidgets::Colors::LightGreen);
+        if (ImGui::Button("Human")) {
+            
+        }
+        UIWidgets::PopStyleCombobox();
+        
+        ImGui::EndChild();
+
+    }
+    ImGui::PopStyleVar(2);
+    ImGui::PopStyleColor(1);
+}
+
 const char* regGroupNames[] = {
     "REG  (0)",
     "SREG (1)",
@@ -1384,10 +1493,10 @@ void SaveEditorWindow::DrawElement() {
             ImGui::EndTabItem();
         }
 
-        // if (ImGui::BeginTabItem("Player")) {
-        //     DrawPlayerTab();
-        //     ImGui::EndTabItem();
-        // }
+        if (ImGui::BeginTabItem("Player")) {
+            DrawPlayerTab();
+            ImGui::EndTabItem();
+        }
 
         ImGui::EndTabBar();
     }
