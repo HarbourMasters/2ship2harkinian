@@ -13,6 +13,9 @@ void InitEnhancements() {
     RegisterFierceDeityAnywhere();
     RegisterNoBlastMaskCooldown();
 
+    // Minigames
+    RegisterAlwaysWinDoggyRace();
+
     // Restorations
     RegisterSideRoll();
     

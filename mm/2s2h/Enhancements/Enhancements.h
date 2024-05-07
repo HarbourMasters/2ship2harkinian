@@ -8,10 +8,17 @@
 #include "Masks/FierceDeityAnywhere.h"
 #include "Masks/NoBlastMaskCooldown.h"
 #include "Masks/FastTransformation.h"
+#include "Minigames/AlwaysWinDoggyRace.h"
 #include "Cutscenes/SkipEntranceCutscenes.h"
 #include "Cutscenes/HideTitleCards.h"
 #include "Restorations/SideRoll.h"
 #include "Graphics/PlayAsKafei.h"
+
+enum AlwaysWinDoggyRaceOptions {
+    ALWAYS_WIN_DOGGY_RACE_OFF,
+    ALWAYS_WIN_DOGGY_RACE_MASKOFTRUTH,
+    ALWAYS_WIN_DOGGY_RACE_ALWAYS,
+};
 
 #ifdef __cplusplus
 extern "C" {
