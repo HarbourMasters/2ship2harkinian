@@ -34,6 +34,7 @@ extern PlayState* sCamPlayState;
 extern f32 Camera_ScaledStepToCeilF(f32 target, f32 cur, f32 stepScale, f32 minDiff);
 extern s16 Camera_ScaledStepToCeilS(s16 target, s16 cur, f32 stepScale, s16 minDiff);
 extern s32 Camera_BgCheckInfo(Camera* camera, Vec3f* from, CameraCollision* to);
+extern void Camera_ResetActionFuncState(Camera* camera, s32 mode);
 extern void func_800CBFA4(Camera* camera, Vec3f* arg1, Vec3f* arg2, s32 arg3);
 extern CameraSetting sCameraSettings[];
 extern s32 sCameraInterfaceFlags;
@@ -61,7 +62,7 @@ static f32 sCamX = 0.0f;
 static f32 sCamY = 0.0f;
 static bool sCanFreeLook = false;
 
-void UpdateFreeLook(Camera* camera) {
+void UpdateFreeLookState(Camera* camera) {
     if (CAM_MODE_TARGET <= camera->mode && camera->mode <= CAM_MODE_BATTLE) {
         sCanFreeLook = false;
     }
@@ -83,6 +84,7 @@ void UpdateFreeLook(Camera* camera) {
     }
 }
 
+// Function based on several camera functions, including Camera_Parallel1
 bool Camera_FreeLook(Camera* camera) {
     Vec3f* eye = &camera->eye;
     Vec3f* at = &camera->at;
@@ -92,16 +94,19 @@ bool Camera_FreeLook(Camera* camera) {
     Parallel1ReadOnlyData* roData = &camera->paramData.para1.roData;
     f32 playerHeight;
 
-    at->x = Camera_ScaledStepToCeilF(player->actor.world.pos.x, camera->at.x, 0.5f, 1.0f);
-    at->y = Camera_ScaledStepToCeilF(player->actor.world.pos.y + (player->rideActor != NULL
-                                                                      ? Player_GetHeight(player) / 2
-                                                                      : Player_GetHeight(player)) /
-                                                                     1.2f,
-                             camera->at.y, 0.5f, 1.0f);
-    at->z = Camera_ScaledStepToCeilF(player->actor.world.pos.z, camera->at.z, 0.5f, 1.0f);
+    // Smooth step camera 'at' towards player
+    f32 playerYOffset = Player_GetHeight(player) / 1.2f;
+    if (player->rideActor != NULL) {
+        playerYOffset /= 2;
+    }
+    at->x = Camera_ScaledStepToCeilF(player->actor.world.pos.x, at->x, 0.5f, 1.0f);
+    at->y = Camera_ScaledStepToCeilF(player->actor.world.pos.y + playerYOffset, at->y, 0.5f, 1.0f);
+    at->z = Camera_ScaledStepToCeilF(player->actor.world.pos.z, at->z, 0.5f, 1.0f);
 
+    // Equivalent to 'Camera_GetFocalActorHeight'
     playerHeight = Player_GetHeight(player);
 
+    // Camera param reloading based on Camera_Parallel1, only updating roData as only that seems necessary
     if (RELOAD_PARAMS(camera)) {
         CameraModeValue* values = sCameraSettings[camera->setting].cameraModes[camera->mode].values;
         f32 yNormal = (0.8f - ((68.0f / playerHeight) * -0.2f));
@@ -120,16 +125,16 @@ bool Camera_FreeLook(Camera* camera) {
         roData->unk_24 = GET_NEXT_RO_DATA(values);
     }
 
+    // 1 acts as a default value of sorts for sCameraInterfaceFlags
     sCameraInterfaceFlags = 1;
 
-    camera->animState = 0;
+    Camera_ResetActionFuncState(camera, camera->mode);
 
-    f32 newCamX = -sCamPlayState->state.input[0].cur.right_stick_x * 10.0f * (CVarGetFloat("gEnhancements.Camera.FreeLook.CameraSensitivity.X", 1.0f));
-    f32 newCamY = sCamPlayState->state.input[0].cur.right_stick_y * 10.0f * (CVarGetFloat("gEnhancements.Camera.FreeLook.CameraSensitivity.Y", 1.0f));
-    bool invertXAxis = (CVarGetInteger("gEnhancements.Camera.FreeLook.InvertXAxis", 0));
+    f32 camDiffX = -sCamPlayState->state.input[0].cur.right_stick_x * 10.0f * (CVarGetFloat("gEnhancements.Camera.FreeLook.CameraSensitivity.X", 1.0f));
+    f32 camDiffY = sCamPlayState->state.input[0].cur.right_stick_y * 10.0f * (CVarGetFloat("gEnhancements.Camera.FreeLook.CameraSensitivity.Y", 1.0f));
 
-    sCamX += newCamX * (invertXAxis ? -1 : 1);
-    sCamY += newCamY * (CVarGetInteger("gEnhancements.Camera.FreeLook.InvertYAxis", 1) ? 1 : -1);
+    sCamX += camDiffX * (CVarGetInteger("gEnhancements.Camera.FreeLook.InvertXAxis", 0) ? -1 : 1);
+    sCamY += camDiffY * (CVarGetInteger("gEnhancements.Camera.FreeLook.InvertYAxis", 1) ? 1 : -1);
 
     s16 maxY = DEG_TO_BINANG(CVarGetFloat("gEnhancements.Camera.FreeLook.MaxY", 72.0f));
     s16 minY = DEG_TO_BINANG(CVarGetFloat("gEnhancements.Camera.FreeLook.MinY", -49.0f));
@@ -142,23 +147,27 @@ bool Camera_FreeLook(Camera* camera) {
     }
 
     f32 distTarget = CVarGetInteger("gEnhancements.Camera.FreeLook.MaxCameraDistance", roData->unk_04);
-    f32 speedScaler = CVarGetInteger("gEnhancements.Camera.FreeLook.TransitionSpeed", 25);
-    f32 distDiff = ABS(distTarget - camera->dist);
-    if (distDiff > 0)
-        camera->dist = Camera_ScaledStepToCeilF(distTarget, camera->dist, speedScaler / (distDiff + speedScaler), 0.0f);
-    eyeAdjustment = OLib_Vec3fDiffToVecGeo(at, eyeNext);
+    f32 transitionSpeed = CVarGetInteger("gEnhancements.Camera.FreeLook.TransitionSpeed", 25);
+    // Smooth step camera away to max camera distance. Camera collision is calculated later
+    camera->dist = Camera_ScaledStepToCeilF(distTarget, camera->dist, transitionSpeed / (ABS(distTarget - camera->dist) + transitionSpeed), 0.0f);
 
+    // Setup new camera angle based on the calculations from stick inputs
+    eyeAdjustment = OLib_Vec3fDiffToVecGeo(at, eyeNext);
     eyeAdjustment.r = camera->dist;
     eyeAdjustment.yaw = sCamX;
     eyeAdjustment.pitch = sCamY;
 
     *eyeNext = OLib_AddVecGeoToVec3f(at, &eyeAdjustment);
+    // Apply new camera angle only when camera active
     if (camera->status == CAM_STATUS_ACTIVE) {
         *eye = *eyeNext;
+        // Adjust camera for collision with floors, walls and ceilings.
         func_800CBFA4(camera, at, eye, 0);
     }
 
-    camera->fov = Camera_ScaledStepToCeilF(65.0f, camera->fov, camera->fovUpdateRate, 0.1f);
+    // 65.0f based on value from SoH
+    f32 fovTarget = 65.0f;
+    camera->fov = Camera_ScaledStepToCeilF(fovTarget, camera->fov, camera->fovUpdateRate, 0.1f);
     camera->roll = Camera_ScaledStepToCeilS(0, camera->roll, 0.5f, 5);
 
     return true;
@@ -178,6 +187,7 @@ void RegisterCameraFreeLook() {
                 Camera* camera = static_cast<Camera*>(opt);
                 f32 camX = sCamPlayState->state.input[0].cur.right_stick_x * 10.0f;
                 f32 camY = sCamPlayState->state.input[0].cur.right_stick_y * 10.0f;
+                // Set sCamX/sCamY to camera positions after mode which disables free cam
                 if (!sCanFreeLook && (fabsf(camX) >= 15.0f || fabsf(camY) >= 15.0f)) {
                     VecGeo eyeAdjustment = OLib_Vec3fDiffToVecGeo(&camera->at, &camera->eye);
                     sCamX = eyeAdjustment.yaw;
@@ -195,7 +205,7 @@ void RegisterCameraFreeLook() {
 
     if (CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0)) {
         freeLookCameraSettingChangeHookId = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnCameraChangeModeFlags>([](Camera* camera) {
-            UpdateFreeLook(camera);
+            UpdateFreeLookState(camera);
         });
     }
 }

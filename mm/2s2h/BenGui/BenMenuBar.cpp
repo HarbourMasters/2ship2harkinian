@@ -309,7 +309,7 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarSliderFloat("Third-Person Horizontal Sensitivity: %.0f %%", "gEnhancements.Camera.FreeLook.CameraSensitivity.X", 0.01f, 5.0f, 1.0f);
             UIWidgets::CVarSliderFloat("Third-Person Vertical Sensitivity: %.0f %%", "gEnhancements.Camera.FreeLook.CameraSensitivity.Y", 0.01f, 5.0f, 1.0f);
             UIWidgets::CVarSliderInt("Camera Distance: %d", "gEnhancements.Camera.FreeLook.MaxCameraDistance", 100, 900, 185);
-            UIWidgets::CVarSliderInt("Camera Transition Speed: %d", "gEnhancements.Camera.FreeLook.TransitionSpeed", 0, 900, 25);
+            UIWidgets::CVarSliderInt("Camera Transition Speed: %d", "gEnhancements.Camera.FreeLook.TransitionSpeed", 1, 900, 25);
             UIWidgets::CVarSliderFloat("Max Camera Height Angle: %.0f %%", "gEnhancements.Camera.FreeLook.MaxY", -89.0f, 89.0f, 72.0f);
             UIWidgets::CVarSliderFloat("Min Camera Height Angle: %.0f %%", "gEnhancements.Camera.FreeLook.MinY", -89.0f, 89.0f, -49.0f);
             f32 maxY = CVarGetFloat("gEnhancements.Camera.FreeLook.MaxY", 72.0f);
