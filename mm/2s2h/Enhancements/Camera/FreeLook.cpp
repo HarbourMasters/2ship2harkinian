@@ -1,30 +1,7 @@
 #include "FreeLook.h"
 #include <libultraship/bridge.h>
 #include "Enhancements/GameInteractor/GameInteractor.h"
-
-typedef struct {
-    /* 0x0 */ s16 val;
-    /* 0x2 */ s16 param;
-} CameraModeValue; // size = 0x4
-
-typedef struct {
-    /* 0x0 */ s16 funcId;
-    /* 0x2 */ s16 numValues;
-    /* 0x4 */ CameraModeValue* values;
-} CameraMode; // size = 0x8
-
-/**
- * Flags:
- * (flags & 0xF): Priority (lower value has higher priority)
- * (flags & 0x40000000): Store previous setting and bgCamData, also ignores water checks
- * (flags & 0x80000000): Set camera setting based on bg/scene data and reset action function state
- */
-typedef struct {
-    /* 0x0 */ u32 validModes;
-    /* 0x4 */ u32 flags;
-    /* 0x8 */ CameraMode* cameraModes;
-} CameraSetting; // size = 0xC
-
+#include "CameraUtils.h"
 
 extern "C" {
 #include <macros.h>
@@ -39,23 +16,6 @@ extern void func_800CBFA4(Camera* camera, Vec3f* arg1, Vec3f* arg2, s32 arg3);
 extern CameraSetting sCameraSettings[];
 extern s32 sCameraInterfaceFlags;
 }
-
-// Camera will reload its paramData. Usually that means setting the read-only data from what is stored in
-// CameraModeValue arrays. Although sometimes some read-write data is reset as well
-#define RELOAD_PARAMS(camera) ((camera->animState == 0) || (camera->animState == 10) || (camera->animState == 20))
-
-/**
- * Camera data is stored in both read-only data and OREG as s16, and then converted to the appropriate type during
- * runtime. If a small f32 is being stored as an s16, it is common to store that value 100 times larger than the
- * original value. This is then scaled back down during runtime with the CAM_RODATA_UNSCALE macro.
- */
-#define CAM_RODATA_SCALE(x) ((x)*100.0f)
-#define CAM_RODATA_UNSCALE(x) ((x)*0.01f)
-
-// Load the next value from camera read-only data stored in CameraModeValue
-#define GET_NEXT_RO_DATA(values) ((values++)->val)
-// Load the next value and scale down from camera read-only data stored in CameraModeValue
-#define GET_NEXT_SCALED_RO_DATA(values) CAM_RODATA_UNSCALE(GET_NEXT_RO_DATA(values))
 
 // Static Data Used For Free Camera
 static f32 sCamX = 0.0f;
@@ -173,6 +133,19 @@ bool Camera_FreeLook(Camera* camera) {
     return true;
 }
 
+bool Camera_CanFreeLook(Camera* camera) {
+    f32 camX = sCamPlayState->state.input[0].cur.right_stick_x * 10.0f;
+    f32 camY = sCamPlayState->state.input[0].cur.right_stick_y * 10.0f;
+    // Set sCamX/sCamY to camera positions after mode which disables free cam
+    if (!sCanFreeLook && (fabsf(camX) >= 15.0f || fabsf(camY) >= 15.0f)) {
+        VecGeo eyeAdjustment = OLib_Vec3fDiffToVecGeo(&camera->at, &camera->eye);
+        sCamX = eyeAdjustment.yaw;
+        sCamY = eyeAdjustment.pitch;
+        sCanFreeLook = true;
+    }
+    return sCanFreeLook;
+}
+
 static uint32_t freeLookCameraSettingChangeHookId = 0;
 static uint32_t freeLookCameraVBHookId = 0;
 
@@ -183,18 +156,25 @@ void RegisterCameraFreeLook() {
     }
 
     if (CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0)) {
-        freeLookCameraVBHookId = REGISTER_VB_SHOULD(GI_VB_FREE_LOOK, {
+        freeLookCameraVBHookId = REGISTER_VB_SHOULD(GI_VB_USE_CUSTOM_CAMERA, {
                 Camera* camera = static_cast<Camera*>(opt);
-                f32 camX = sCamPlayState->state.input[0].cur.right_stick_x * 10.0f;
-                f32 camY = sCamPlayState->state.input[0].cur.right_stick_y * 10.0f;
-                // Set sCamX/sCamY to camera positions after mode which disables free cam
-                if (!sCanFreeLook && (fabsf(camX) >= 15.0f || fabsf(camY) >= 15.0f)) {
-                    VecGeo eyeAdjustment = OLib_Vec3fDiffToVecGeo(&camera->at, &camera->eye);
-                    sCamX = eyeAdjustment.yaw;
-                    sCamY = eyeAdjustment.pitch;
-                    sCanFreeLook = true;
+                switch (sCameraSettings[camera->setting].cameraModes[camera->mode].funcId) {
+                    case CAM_FUNC_NORMAL0:
+                    case CAM_FUNC_NORMAL1:
+                    case CAM_FUNC_NORMAL3:
+                    case CAM_FUNC_NORMAL4:
+                    case CAM_FUNC_JUMP2:
+                    case CAM_FUNC_JUMP3:
+                    case CAM_FUNC_BATTLE1:
+                    case CAM_FUNC_UNIQUE2:
+                        if (Camera_CanFreeLook(camera)) {
+                            Camera_FreeLook(camera);
+                            *should = false;
+                        }
+                        break;
+                    default:
+                        break;
                 }
-                *should = sCanFreeLook;
         });
     }
 

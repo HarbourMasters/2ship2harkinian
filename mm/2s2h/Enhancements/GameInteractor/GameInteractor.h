@@ -36,7 +36,7 @@ typedef enum {
     GI_VB_SET_BLAST_MASK_COOLDOWN_TIMER,
     GI_VB_PATCH_SIDEROLL,
     GI_VB_PREVENT_MASK_TRANSFORMATION_CS,
-    GI_VB_FREE_LOOK,
+    GI_VB_USE_CUSTOM_CAMERA,
 } GIVanillaBehavior;
 
 #ifdef __cplusplus
