@@ -28,6 +28,8 @@ void RegisterDebugSaveCreate() {
     if (CVarGetInteger("gDeveloperTools.DebugSaveFileMode", DEBUG_SAVE_INFO_NONE) != DEBUG_SAVE_INFO_NONE) {
         hookId = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSaveInit>([](s16 fileNum) {
             u8 playerName[8];
+
+            // Copy player name and set back after debug save init
             memcpy(playerName, gSaveContext.save.saveInfo.playerData.playerName, sizeof(playerName));
 
             Sram_InitDebugSave();
@@ -47,7 +49,6 @@ void RegisterDebugSaveCreate() {
                 gSaveContext.save.saveInfo.playerData.magicLevel = 2;
                 gSaveContext.save.saveInfo.playerData.magic = MAGIC_DOUBLE_METER;
                 gSaveContext.save.saveInfo.playerData.owlActivationFlags = (1 << (OWL_WARP_STONE_TOWER + 1)) - 1;
-                gSaveContext.save.saveInfo.playerData.rupees = 500;
                 gSaveContext.save.saveInfo.playerData.unk_20 = OWL_WARP_CLOCK_TOWN;
 
                 gSaveContext.save.saveInfo.inventory.defenseHearts = 20;
@@ -59,6 +60,7 @@ void RegisterDebugSaveCreate() {
                 Inventory_ChangeUpgrade(UPG_BOMB_BAG, 3);
                 Inventory_ChangeUpgrade(UPG_QUIVER, 3);
 
+                gSaveContext.save.saveInfo.playerData.rupees = CUR_CAPACITY(UPG_WALLET);
                 AMMO(ITEM_BOW) = CUR_CAPACITY(UPG_QUIVER);
                 AMMO(ITEM_BOMB) = AMMO(ITEM_BOMBCHU) = CUR_CAPACITY(UPG_BOMB_BAG);
                 AMMO(ITEM_DEKU_STICK) = CUR_CAPACITY(UPG_DEKU_STICKS);

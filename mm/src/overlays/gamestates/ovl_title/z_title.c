@@ -201,7 +201,7 @@ void ConsoleLogo_Main(GameState* thisx) {
         gSaveContext.gameMode = GAMEMODE_TITLE_SCREEN;
 
         STOP_GAMESTATE(&this->state);
-        if (CVarGetInteger("gEnhancements.Cutscenes.SkipTitleOpening", 0)) {
+        if (CVarGetInteger("gEnhancements.Cutscenes.SkipToFileSelect", 0)) {
             SET_NEXT_GAMESTATE(&this->state, FileSelect_Init, sizeof(FileSelectState));
         } else {
             SET_NEXT_GAMESTATE(&this->state, TitleSetup_Init, sizeof(TitleSetupState));
