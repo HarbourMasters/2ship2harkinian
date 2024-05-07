@@ -370,7 +370,7 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
-        if (UIWidgets::BeginMenu("Time Savers")) {
+        if (UIWidgets::BeginMenu("Player Movement")) {
             UIWidgets::CVarSliderInt("Climb speed", "gEnhancements.PlayerMovement.ClimbSpeed", 1, 5, 1, {
                 .tooltip = "Increases the speed at which Link climbs vines and ladders." 
             });
