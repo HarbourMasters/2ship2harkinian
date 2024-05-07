@@ -292,17 +292,13 @@ extern std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
 
-        if (UIWidgets::BeginMenu("Graphics")) {
-            MotionBlur_RenderMenuOptions();
-            ImGui::SeparatorText("Other");
-            UIWidgets::CVarCheckbox("Authentic logo", "gEnhancements.Graphics.AuthenticLogo", {
-                .tooltip = "Hide the game version and build details and display the authentic model and texture on the boot logo start screen"
-            });
-            UIWidgets::CVarCheckbox("24 Hours Clock", "gEnhancements.Graphics.24HoursClock");
+        if (UIWidgets::BeginMenu("Cutscenes")) {
+            UIWidgets::CVarCheckbox("Hide Title Cards", "gEnhancements.Cutscenes.HideTitleCards");
+            UIWidgets::CVarCheckbox("Skip Entrance Cutscenes", "gEnhancements.Cutscenes.SkipEntranceCutscenes");
 
             ImGui::EndMenu();
         }
-        
+
         if (UIWidgets::BeginMenu("Cycle")) {
             UIWidgets::CVarCheckbox("Do not reset Bottle content", "gEnhancements.Cycle.DoNotResetBottleContent", {
                 .tooltip = "Playing the Song Of Time will not reset the bottles' content."
@@ -320,23 +316,7 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
-        if (UIWidgets::BeginMenu("Masks")) {
-            UIWidgets::CVarCheckbox("Fast Transformation", "gEnhancements.Masks.FastTransformation");
-            UIWidgets::CVarCheckbox("Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere", {
-                .tooltip = "Allow using Fierce Deity's mask outside of boss rooms."
-            });
-
-            ImGui::EndMenu();
-        }
-
-        if (UIWidgets::BeginMenu("Cutscenes")) {
-            UIWidgets::CVarCheckbox("Skip Entrance Cutscenes", "gEnhancements.Cutscenes.SkipEntranceCutscenes");
-            UIWidgets::CVarCheckbox("Hide Title Cards", "gEnhancements.Cutscenes.HideTitleCards");
-
-            ImGui::EndMenu();
-        }
-
-        if (UIWidgets::BeginMenu("Dialogue")) {
+        if (UIWidgets::BeginMenu("Dialogues")) {
             UIWidgets::CVarCheckbox("Fast Text", "gEnhancements.Dialogue.FastText", {
                 .tooltip = "Speeds up text rendering, and enables holding of B progress to next message"
             });
@@ -352,13 +332,23 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
-        if (UIWidgets::BeginMenu("Restorations")) {
-            UIWidgets::CVarCheckbox("Side Rolls", "gEnhancements.Restorations.SideRoll", {
-                .tooltip = "Restores side rolling from OOT."
+        if (UIWidgets::BeginMenu("Graphics")) {
+            MotionBlur_RenderMenuOptions();
+            ImGui::SeparatorText("Other");
+            UIWidgets::CVarCheckbox("24 Hours Clock", "gEnhancements.Graphics.24HoursClock");
+            UIWidgets::CVarCheckbox("Authentic logo", "gEnhancements.Graphics.AuthenticLogo", {
+                .tooltip = "Hide the game version and build details and display the authentic model and texture on the boot logo start screen"
             });
-            UIWidgets::CVarCheckbox("Tatl ISG", "gEnhancements.Restorations.TatlISG", {
-                .tooltip = "Restores Navi ISG from OOT, but now with Tatl."
+            
+            ImGui::EndMenu();
+        }
+        
+        if (UIWidgets::BeginMenu("Masks")) {
+            UIWidgets::CVarCheckbox("Fast Transformation", "gEnhancements.Masks.FastTransformation");
+            UIWidgets::CVarCheckbox("Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere", {
+                .tooltip = "Allow using Fierce Deity's mask outside of boss rooms."
             });
+            UIWidgets::CVarCheckbox("No Blast Mask Cooldown", "gEnhancements.Masks.NoBlastMaskCooldown", {});
 
             ImGui::EndMenu();
         }
@@ -369,6 +359,17 @@ void DrawEnhancementsMenu() {
             })) {
                 UpdatePlayAsKafeiSkeletons();
             }
+            ImGui::EndMenu();
+        }
+
+        if (UIWidgets::BeginMenu("Restorations")) {
+            UIWidgets::CVarCheckbox("Side Rolls", "gEnhancements.Restorations.SideRoll", {
+                .tooltip = "Restores side rolling from OOT."
+            });
+            UIWidgets::CVarCheckbox("Tatl ISG", "gEnhancements.Restorations.TatlISG", {
+                .tooltip = "Restores Navi ISG from OOT, but now with Tatl."
+            });
+
             ImGui::EndMenu();
         }
 

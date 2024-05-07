@@ -95,48 +95,53 @@ static InitChainEntry sInitChain[] = {
 static EnTotoText D_80BA502C[] = {
     { 0, 0, 0x2B21 },
     { 3, 2, 0 },
-};
-
-static EnTotoText D_80BA5034[] = {
     { 0, 0, 0x2B23 },
-};
-
-static EnTotoText D_80BA5038[] = {
     { 2, 1, 0x2B24 },
     { 4, 0, 0x2B25 },
     { 3, 2, 0 },
-};
-
-static EnTotoText D_80BA5044[] = {
     { 4, 0, 0x2B25 },
-};
-
-static EnTotoText D_80BA5048[] = {
-    { 16, 0, 0x2A94 }, { 0, 0, 0x2A95 }, { 4, 0, 0x2A96 }, { 4, 0, 0x2A97 },
-    { 0, 0, 0x2A98 },  { 0, 0, 0x2A99 }, { 4, 0, 0x2A9A }, { 4, 0, 0x2A9B },
-};
-
-static EnTotoText D_80BA5068[] = {
+    { 16, 0, 0x2A94 },
+    { 0, 0, 0x2A95 },
+    { 4, 0, 0x2A96 },
+    { 4, 0, 0x2A97 },
+    { 0, 0, 0x2A98 },
+    { 0, 0, 0x2A99 },
+    { 4, 0, 0x2A9A },
+    { 4, 0, 0x2A9B },
     { 0, 0, 0x2AE1 },
     { 0, 0, 0x2AE2 },
     { 4, 0, 0x2AE3 },
-};
-
-static EnTotoText D_80BA5074[] = {
     { 4, 0, 0x2AE4 },
 };
+
 
 static AnimationHeader* D_80BA5078[] = { &object_zm_Anim_0028B8, &object_zm_Anim_00B894, &object_zm_Anim_002F20,
                                          &object_zm_Anim_00BC08 };
 
 static EnTotoText D_80BA5088[] = {
-    { 5, 0, 0 },  { 6, 20, 0 }, { 7, 0, 0 },  { 8, 9, 0 },  { 9, 10, 0 }, { 1, 0, 0 },  { 10, 0, 0 },
-    { 11, 0, 0 }, { 12, 0, 0 }, { 13, 0, 0 }, { 15, 0, 0 }, { 17, 1, 0 }, { 17, 0, 0 },
+    { 5, 0, 0 },
+    { 6, 20, 0 },
+    { 7, 0, 0 },
+    { 8, 9, 0 },
+    { 9, 10, 0 },
+    { 1, 0, 0 },
+    { 10, 0, 0 },
+    { 11, 0, 0 },
+    { 12, 0, 0 },
+    { 13, 0, 0 },
+    { 15, 0, 0 },
+    { 17, 1, 0 },
+    { 17, 0, 0 },
+    { 5, 0, 0 },
+    { 6, 20, 0 },
+    { 8, 5, 0 },
+    { 12, 0, 0 },
+    { 13, 0, 0 },
+    { 14, 20, 0x2B22 },
+    { 1, 0, 0 },
+    { 17, 0, 0 },
 };
 
-static EnTotoText D_80BA50BC[] = {
-    { 5, 0, 0 }, { 6, 20, 0 }, { 8, 5, 0 }, { 12, 0, 0 }, { 13, 0, 0 }, { 14, 20, 0x2B22 }, { 1, 0, 0 }, { 17, 0, 0 },
-};
 
 static EnTotoUnkStruct2 D_80BA50DC[] = {
     { 0x2B2F, 0x2B30, 0x2B31, { 0xFF96, 0x0016, 0xFE16 } },
@@ -260,7 +265,7 @@ void func_80BA39C8(EnToto* this, PlayState* play) {
          !((gSaveContext.save.time >= CLOCK_TIME(6, 0)) && (gSaveContext.save.time <= (CLOCK_TIME(22, 13) + 7)))) ||
         ((play->sceneId != SCENE_MILK_BAR) && func_80BA397C(this, 0x2000))) {
         if (this->unk2B6 != 0) {
-            this->text = D_80BA5044;
+            this->text = &D_80BA502C[6];
             this->actor.flags |= ACTOR_FLAG_10000;
             Actor_OfferTalkExchange(&this->actor, play, 9999.9f, 9999.9f, PLAYER_IA_NONE);
         } else {
@@ -269,19 +274,19 @@ void func_80BA39C8(EnToto* this, PlayState* play) {
             if (play->sceneId == SCENE_SONCHONOIE) {
                 if (player->transformation == PLAYER_FORM_DEKU) {
                     if (!Flags_GetSwitch(play, ENTOTO_GET_SWITCH_FLAG_3(&this->actor))) {
-                        this->text = D_80BA5068;
+                        this->text = &D_80BA502C[15];
                     } else {
-                        this->text = D_80BA5074;
+                        this->text = &D_80BA502C[18];
                     }
                 } else {
-                    this->text = D_80BA5048;
+                    this->text = &D_80BA502C[7];
                 }
             } else if (ENTOTO_WEEK_EVENT_FLAGS) {
-                this->text = D_80BA502C;
+                this->text = &D_80BA502C[0];
             } else if (!Flags_GetSwitch(play, ENTOTO_GET_SWITCH_FLAG_1(&this->actor))) {
-                this->text = D_80BA5034;
+                this->text = &D_80BA502C[2];
             } else {
-                this->text = D_80BA5038;
+                this->text = &D_80BA502C[3];
             }
         }
 
@@ -317,7 +322,7 @@ void func_80BA3CC4(EnToto* this, PlayState* play) {
 
 void func_80BA3D38(EnToto* this, PlayState* play) {
     this->csId = this->actor.csId;
-    this->text = ENTOTO_WEEK_EVENT_FLAGS ? D_80BA50BC : D_80BA5088;
+    this->text = ENTOTO_WEEK_EVENT_FLAGS ? &D_80BA5088[13] : &D_80BA5088[0];
     func_80BA4C0C(this, play);
     play->actorCtx.flags |= ACTORCTX_FLAG_5;
     this->blinkInfo.eyeTexIndex = 0;
@@ -726,7 +731,7 @@ void EnToto_Update(Actor* thisx, PlayState* play) {
 }
 
 void EnToto_Draw(Actor* thisx, PlayState* play) {
-    TexturePtr sp4C[] = { object_zm_Tex_008AE8, object_zm_Tex_00A068, object_zm_Tex_00A468 };
+    static TexturePtr sp4C[] = { object_zm_Tex_008AE8, object_zm_Tex_00A068, object_zm_Tex_00A468 };
     EnToto* this = THIS;
     s32 pad;
 

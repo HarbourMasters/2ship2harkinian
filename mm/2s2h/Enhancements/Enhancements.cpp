@@ -11,6 +11,7 @@ void InitEnhancements() {
     // Masks
     RegisterFastTransformation();
     RegisterFierceDeityAnywhere();
+    RegisterNoBlastMaskCooldown();
 
     // Restorations
     RegisterSideRoll();
