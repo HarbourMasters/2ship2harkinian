@@ -131,11 +131,14 @@ bool Camera_FreeLook(Camera* camera) {
     sCamX += newCamX * (invertXAxis ? -1 : 1);
     sCamY += newCamY * (CVarGetInteger("gEnhancements.Camera.FreeLook.InvertYAxis", 1) ? 1 : -1);
 
-    if (sCamY > 0x32A4) {
-        sCamY = 0x32A4;
+    s16 maxY = DEG_TO_BINANG(CVarGetFloat("gEnhancements.Camera.FreeLook.MaxY", 72.0f));
+    s16 minY = DEG_TO_BINANG(CVarGetFloat("gEnhancements.Camera.FreeLook.MinY", -49.0f));
+
+    if (sCamY > maxY) {
+        sCamY = maxY;
     }
-    if (sCamY < -0x228C) {
-        sCamY = -0x228C;
+    if (sCamY < minY) {
+        sCamY = minY;
     }
 
     f32 distTarget = CVarGetInteger("gEnhancements.Camera.FreeLook.MaxCameraDistance", roData->unk_04);
@@ -152,7 +155,7 @@ bool Camera_FreeLook(Camera* camera) {
     *eyeNext = OLib_AddVecGeoToVec3f(at, &eyeAdjustment);
     if (camera->status == CAM_STATUS_ACTIVE) {
         *eye = *eyeNext;
-        func_800CBFA4(camera, at, eye, 3);
+        func_800CBFA4(camera, at, eye, 0);
     }
 
     camera->fov = Camera_ScaledStepToCeilF(65.0f, camera->fov, camera->fovUpdateRate, 0.1f);
