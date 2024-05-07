@@ -8,6 +8,7 @@
 #include <string>
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/Enhancements/Graphics/MotionBlur.h"
+#include "2s2h/Enhancements/Graphics/PlayAsKafei.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "2s2h/DeveloperTools/WarpPoint.h"
 #include "HudEditor.h"
@@ -293,20 +294,13 @@ extern std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
 
-        if (UIWidgets::BeginMenu("Graphics")) {
-            ImGui::SeparatorText("Clock");
-            UIWidgets::CVarCombobox("Clock Type", "gEnhancements.Graphics.ClockType", clockTypeMap);
-            UIWidgets::CVarCheckbox("24 Hours Clock", "gEnhancements.Graphics.24HoursClock");
-            MotionBlur_RenderMenuOptions();
-            ImGui::SeparatorText("Other");
-            UIWidgets::CVarCheckbox("Authentic logo", "gEnhancements.Graphics.AuthenticLogo", {
-                .tooltip = "Hide the game version and build details and display the authentic model and texture on the boot logo start screen"
-            });
-            
+        if (UIWidgets::BeginMenu("Cutscenes")) {
+            UIWidgets::CVarCheckbox("Hide Title Cards", "gEnhancements.Cutscenes.HideTitleCards");
+            UIWidgets::CVarCheckbox("Skip Entrance Cutscenes", "gEnhancements.Cutscenes.SkipEntranceCutscenes");
 
             ImGui::EndMenu();
         }
-        
+
         if (UIWidgets::BeginMenu("Cycle")) {
             UIWidgets::CVarCheckbox("Do not reset Bottle content", "gEnhancements.Cycle.DoNotResetBottleContent", {
                 .tooltip = "Playing the Song Of Time will not reset the bottles' content."
@@ -324,23 +318,7 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
-        if (UIWidgets::BeginMenu("Masks")) {
-            UIWidgets::CVarCheckbox("Fast Transformation", "gEnhancements.Masks.FastTransformation");
-            UIWidgets::CVarCheckbox("Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere", {
-                .tooltip = "Allow using Fierce Deity's mask outside of boss rooms."
-            });
-
-            ImGui::EndMenu();
-        }
-
-        if (UIWidgets::BeginMenu("Cutscenes")) {
-            UIWidgets::CVarCheckbox("Skip Entrance Cutscenes", "gEnhancements.Cutscenes.SkipEntranceCutscenes");
-            UIWidgets::CVarCheckbox("Hide Title Cards", "gEnhancements.Cutscenes.HideTitleCards");
-
-            ImGui::EndMenu();
-        }
-
-        if (UIWidgets::BeginMenu("Dialogue")) {
+        if (UIWidgets::BeginMenu("Dialogues")) {
             UIWidgets::CVarCheckbox("Fast Text", "gEnhancements.Dialogue.FastText", {
                 .tooltip = "Speeds up text rendering, and enables holding of B progress to next message"
             });
@@ -353,6 +331,38 @@ void DrawEnhancementsMenu() {
                 .tooltip = "Fixes a missing gDPSetEnvColor, which causes the ammo count to be the wrong color prior to obtaining magic or other conditions."
             });
 
+            ImGui::EndMenu();
+        }
+
+        if (UIWidgets::BeginMenu("Graphics")) {
+            ImGui::SeparatorText("Clock");
+            UIWidgets::CVarCombobox("Clock Type", "gEnhancements.Graphics.ClockType", clockTypeMap);
+            UIWidgets::CVarCheckbox("24 Hours Clock", "gEnhancements.Graphics.24HoursClock");
+            MotionBlur_RenderMenuOptions();
+            ImGui::SeparatorText("Other");
+            UIWidgets::CVarCheckbox("Authentic logo", "gEnhancements.Graphics.AuthenticLogo", {
+                .tooltip = "Hide the game version and build details and display the authentic model and texture on the boot logo start screen"
+            });
+            
+            ImGui::EndMenu();
+        }
+        
+        if (UIWidgets::BeginMenu("Masks")) {
+            UIWidgets::CVarCheckbox("Fast Transformation", "gEnhancements.Masks.FastTransformation");
+            UIWidgets::CVarCheckbox("Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere", {
+                .tooltip = "Allow using Fierce Deity's mask outside of boss rooms."
+            });
+            UIWidgets::CVarCheckbox("No Blast Mask Cooldown", "gEnhancements.Masks.NoBlastMaskCooldown", {});
+
+            ImGui::EndMenu();
+        }
+
+        if (UIWidgets::BeginMenu("Modes")) {
+            if (UIWidgets::CVarCheckbox("Play As Kafei", "gModes.PlayAsKafei", {
+                .tooltip = "Requires scene reload to take effect."
+            })) {
+                UpdatePlayAsKafeiSkeletons();
+            }
             ImGui::EndMenu();
         }
 

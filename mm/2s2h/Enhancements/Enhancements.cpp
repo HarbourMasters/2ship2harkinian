@@ -14,6 +14,7 @@ void InitEnhancements() {
     // Masks
     RegisterFastTransformation();
     RegisterFierceDeityAnywhere();
+    RegisterNoBlastMaskCooldown();
 
     // Restorations
     RegisterSideRoll();
@@ -21,5 +22,8 @@ void InitEnhancements() {
     // Cutscenes
     RegisterSkipEntranceCutscenes();
     RegisterHideTitleCards();
+    
+    // Modes
+    RegisterPlayAsKafei();
 
 }
