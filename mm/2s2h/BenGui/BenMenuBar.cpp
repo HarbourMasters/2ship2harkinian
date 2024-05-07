@@ -321,7 +321,7 @@ void DrawEnhancementsMenu() {
 
             ImGui::EndMenu();
         }
-        
+
         if (UIWidgets::BeginMenu("Cycle")) {
             UIWidgets::CVarCheckbox("Do not reset Bottle content", "gEnhancements.Cycle.DoNotResetBottleContent", {
                 .tooltip = "Playing the Song Of Time will not reset the bottles' content."
