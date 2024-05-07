@@ -175,9 +175,6 @@ void RegisterCameraFreeLook() {
                 Camera* camera = static_cast<Camera*>(opt);
                 f32 camX = sCamPlayState->state.input[0].cur.right_stick_x * 10.0f;
                 f32 camY = sCamPlayState->state.input[0].cur.right_stick_y * 10.0f;
-                if (sCanFreeLook) {
-                    sCanFreeLook = true;
-                }
                 if (!sCanFreeLook && (fabsf(camX) >= 15.0f || fabsf(camY) >= 15.0f)) {
                     VecGeo eyeAdjustment = OLib_Vec3fDiffToVecGeo(&camera->at, &camera->eye);
                     sCamX = eyeAdjustment.yaw;
