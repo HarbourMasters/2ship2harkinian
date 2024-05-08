@@ -114,12 +114,6 @@ s32 osSetRumble(OSPfs* pfs, u32 vibrate) {
     return 0;
 }
 
-void osWritebackDCache(void* vaddr, s32 nbytes) {
-}
-
-void osInvalICache(void* vaddr, size_t nbytes) {
-}
-
 u32 __osGetFpcCsr() {
     return 0;
 }
@@ -134,22 +128,12 @@ OSIntMask __osDisableInt(void) {
 void __osRestoreInt(OSIntMask a0) {
 }
 
-OSPiHandle* osCartRomInit(void) {
-    return NULL;
-}
-
 u32 osMemSize = 1024 * 1024 * 1024;
 
 void Audio_osInvalDCache(void* buf, s32 size) {
 }
 
 void Audio_osWritebackDCache(void* mem, s32 size) {
-}
-
-void osInvalDCache(void* vaddr, size_t nbytes) {
-}
-
-void osWritebackDCacheAll(void) {
 }
 
 void Audio_SetBGM(u32 bgmId) {
@@ -314,14 +298,7 @@ void __osExceptionPreamble() {
 }
 void __osCleanupThread(void) {
 }
-void osSetEventMesg(OSEvent e, OSMesgQueue* mq, OSMesg msg) {
-}
 void osDestroyThread(OSThread* thread) {
-}
-s32 __osMotorAccess(OSPfs* pfs, u32 vibrate) {
-}
-s32 osMotorInit(OSMesgQueue* ctrlrqueue, OSPfs* pfs, s32 channel) {
-    return 0;
 }
 s32 osContSetCh(u8 ch) {
 }
