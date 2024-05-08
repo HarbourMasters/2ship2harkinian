@@ -92,10 +92,6 @@ if (NOT TARGET libultraship)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../libultraship ${CMAKE_BINARY_DIR}/libultraship)
 endif()
 
-if (NOT TARGET ZAPDUtils)
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../ZAPDTR/ZAPDUtils ${CMAKE_BINARY_DIR}/ZAPDUtils)
-endif()
-
 if (NOT TARGET ZAPDLib)
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../ZAPDTR/ZAPD ${CMAKE_BINARY_DIR}/ZAPD)
 endif()
@@ -166,6 +162,13 @@ file(GLOB_RECURSE soh__BenGui RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
     "2s2h/BenGui/*.cpp"
     "2s2h/BenGui/*.h"
     "2s2h/BenGui/*.hpp"
+)
+
+file(GLOB_RECURSE soh__SaveManager RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
+    "2s2h/SaveManager/*.c"
+    "2s2h/SaveManager/*.cpp"
+    "2s2h/SaveManager/*.h"
+    "2s2h/SaveManager/*.hpp"
 )
 
 #list(REMOVE_ITEM soh__Enhancements "soh/Enhancements/gamecommand.h")
@@ -280,6 +283,7 @@ set(ALL_FILES
 #    ${soh__config}
     ${soh__Enhancements}
     ${soh__BenGui}
+    ${soh__SaveManager}
     ${soh__Extractor}
     ${soh__Resource}
     ${src__}
@@ -414,7 +418,6 @@ target_include_directories(${PROJECT_NAME} PRIVATE assets
 	${CMAKE_CURRENT_SOURCE_DIR}/../libultraship/libultraship/Lib/spdlog/include/
     ${CMAKE_CURRENT_SOURCE_DIR}/../libultraship/src/graphic/Fast3D/U64/PR
     ${CMAKE_CURRENT_SOURCE_DIR}/../libultraship/src/graphic
-	${CMAKE_CURRENT_SOURCE_DIR}/../ZAPDTR/ZAPDUtils
     ${CMAKE_CURRENT_SOURCE_DIR}/../ZAPDTR/ZAPD/resource/type
 	${CMAKE_CURRENT_SOURCE_DIR}
 	${CMAKE_CURRENT_SOURCE_DIR}/2s2h/
@@ -425,7 +428,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE assets
 	.
 )
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
 	if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
 		target_compile_definitions(${PROJECT_NAME} PRIVATE
 			"$<$<CONFIG:Debug>:"
@@ -436,13 +439,13 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 			"$<$<CONFIG:Release>:"
 				"NDEBUG"
 			">"
-#            "$<$<BOOL:${BUILD_CROWD_CONTROL}>:ENABLE_CROWD_CONTROL>"
+			# "$<$<BOOL:${BUILD_CROWD_CONTROL}>:ENABLE_CROWD_CONTROL>"
 			"INCLUDE_GAME_PRINTF;"
- #           "ENABLE_CROWD_CONTROL;"
 			"UNICODE;"
 			"_UNICODE"
 			STORMLIB_NO_AUTO_LINK
 			"_CRT_SECURE_NO_WARNINGS;"
+			NOMINMAX
 		)
 	elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "Win32")
 		target_compile_definitions(${PROJECT_NAME} PRIVATE
@@ -462,6 +465,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 			"UNICODE;"
 			"_UNICODE"
 			STORMLIB_NO_AUTO_LINK
+			NOMINMAX
 		)
 	endif()
 elseif (CMAKE_SYSTEM_NAME STREQUAL "CafeOS")
@@ -485,7 +489,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU|Clang|AppleClang")
 		"$<$<CONFIG:Release>:"
 			"NDEBUG"
 		">"
-#        "$<$<BOOL:${BUILD_CROWD_CONTROL}>:ENABLE_CROWD_CONTROL>"
+		# "$<$<BOOL:${BUILD_CROWD_CONTROL}>:ENABLE_CROWD_CONTROL>"
 		"SPDLOG_ACTIVE_LEVEL=0;"
 		"_CONSOLE;"
 		"_CRT_SECURE_NO_WARNINGS;"
@@ -695,7 +699,6 @@ endif()
 # Dependencies
 ################################################################################
 add_dependencies(${PROJECT_NAME}
-    ZAPDUtils
     libultraship
 )
 if(NOT CMAKE_SYSTEM_NAME MATCHES "NintendoSwitch|CafeOS")
@@ -709,12 +712,11 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
 		set(ADDITIONAL_LIBRARY_DEPENDENCIES
 			"libultraship;"
-			"ZAPDUtils;"
 			"ZAPDLib;"
 			"glu32;"
 			"SDL2::SDL2;"
 			"SDL2::SDL2main;"
- #           "$<$<BOOL:${BUILD_CROWD_CONTROL}>:SDL2_net::SDL2_net-static>"
+			# "$<$<BOOL:${BUILD_CROWD_CONTROL}>:SDL2_net::SDL2_net-static>"
 			"glfw;"
 			"winmm;"
 			"imm32;"
@@ -724,7 +726,6 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "Win32")
 		set(ADDITIONAL_LIBRARY_DEPENDENCIES
 			"libultraship;"
-			"ZAPDUtils;"
 			"ZAPDLib;"
 			"glu32;"
 			"SDL2::SDL2;"
@@ -742,7 +743,6 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
     find_package(Threads REQUIRED)
     set(ADDITIONAL_LIBRARY_DEPENDENCIES
         "libultraship;"
-        "ZAPDUtils;"
         SDL2::SDL2
         -lglad
         Threads::Threads
@@ -764,7 +764,6 @@ else()
     find_package(Threads REQUIRED)
  	set(ADDITIONAL_LIBRARY_DEPENDENCIES
         "libultraship;"
-        "ZAPDUtils;"
 		"ZAPDLib;"
 		SDL2::SDL2
  #       "$<$<BOOL:${BUILD_CROWD_CONTROL}>:SDL2_net::SDL2_net>"
@@ -777,9 +776,13 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "NintendoSwitch|CafeOS")
 INSTALL(TARGETS mm DESTINATION . COMPONENT 2s2h)
 endif()
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
 INSTALL(FILES $<TARGET_PDB_FILE:mm> DESTINATION ./debug COMPONENT 2s2h)
 INSTALL(FILES ${CMAKE_BINARY_DIR}/mm/soh.otr DESTINATION . COMPONENT 2s2h)
+endif()
+
+if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/linux/2s2h.sh.in ${CMAKE_BINARY_DIR}/linux/2s2h.sh @ONLY)
 endif()
 
 find_program(CURL NAMES curl DOC "Path to the curl program.  Used to download files.")

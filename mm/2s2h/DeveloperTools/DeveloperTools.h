@@ -1,14 +1,16 @@
-#pragma once
+#ifndef DEVELOPER_TOOLS_H
+#define DEVELOPER_TOOLS_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+enum DebugSaveInfo {
+    DEBUG_SAVE_INFO_NONE,
+    DEBUG_SAVE_INFO_VANILLA_DEBUG,
+    DEBUG_SAVE_INFO_COMPLETE,
+};
 
+void RegisterDebugSaveCreate();
 void RegisterPreventActorUpdateHooks();
 void RegisterPreventActorDrawHooks();
 void RegisterPreventActorInitHooks();
 void InitDeveloperTools();
 
-#ifdef __cplusplus
-}
-#endif
+#endif // DEVELOPER_TOOLS_H

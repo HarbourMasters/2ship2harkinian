@@ -3726,7 +3726,9 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
 
                 if (bomb != NULL) {
                     bomb->timer = 0;
-                    this->blastMaskTimer = 310;
+                    if (GameInteractor_Should(GI_VB_SET_BLAST_MASK_COOLDOWN_TIMER, true, NULL)) {
+                        this->blastMaskTimer = 310;
+                    }
                 }
             }
         } else if (item == ITEM_F1) {
@@ -6617,8 +6619,10 @@ void func_80836AD8(PlayState* play, Player* this) {
 }
 
 void func_80836B3C(PlayState* play, Player* this, f32 arg2) {
-    this->currentYaw = this->actor.shape.rot.y;
-    this->actor.world.rot.y = this->actor.shape.rot.y;
+    if (GameInteractor_Should(GI_VB_PATCH_SIDEROLL, true, NULL)) {
+        this->currentYaw = this->actor.shape.rot.y;
+        this->actor.world.rot.y = this->actor.shape.rot.y;
+    }
 
     if (this->transformation == PLAYER_FORM_GORON) {
         func_80836AD8(play, this);
@@ -10031,7 +10035,9 @@ s32 func_8083FF30(PlayState* play, Player* this) {
 s32 func_8083FFEC(PlayState* play, Player* this) {
     if (this->heldItemAction == PLAYER_IA_SWORD_RAZOR) {
         if (gSaveContext.save.saveInfo.playerData.swordHealth > 0) {
-            gSaveContext.save.saveInfo.playerData.swordHealth--;
+            if (GameInteractor_Should(GI_VB_LOWER_RAZOR_SWORD_DURABILITY, true, NULL)) {
+                gSaveContext.save.saveInfo.playerData.swordHealth--;
+            }
             if (gSaveContext.save.saveInfo.playerData.swordHealth <= 0) {
                 Item_Give(play, ITEM_SWORD_KOKIRI);
                 Player_UseItem(play, this, ITEM_SWORD_KOKIRI);
@@ -18096,6 +18102,8 @@ struct_8085D910 D_8085D910[] = {
 void Player_Action_86(Player* this, PlayState* play) {
     struct_8085D910* sp4C = D_8085D910;
     s32 sp48 = false;
+
+    if (GameInteractor_Should(GI_VB_PREVENT_MASK_TRANSFORMATION_CS, false, NULL)) return;
 
     func_808323C0(this, play->playerCsIds[PLAYER_CS_ID_MASK_TRANSFORMATION]);
     sPlayerControlInput = play->state.input;

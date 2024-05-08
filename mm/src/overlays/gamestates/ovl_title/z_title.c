@@ -11,7 +11,7 @@
 #include "overlays/gamestates/ovl_opening/z_opening.h"
 #include "misc/nintendo_rogo_static/nintendo_rogo_static.h"
 
-#include "overlays/gamestates/ovl_select/z_select.h"
+#include "overlays/gamestates/ovl_file_choose/z_file_select.h"
 #include "build.h"
 #include "BenPort.h"
 #include <stdlib.h>
@@ -115,7 +115,7 @@ void ConsoleLogo_Draw(GameState* thisx) {
     char* logoDL = gNintendo64LogoNDL;
     char* logoText = gNintendo64LogoTextTex;
 
-    if (!CVarGetInteger("gEnhancements.General.AuthenticLogo", 0)) {
+    if (!CVarGetInteger("gEnhancements.Graphics.AuthenticLogo", 0)) {
         logoDL = gShipLogoDL;
         logoText = gLUSLogoTextTex;
     }
@@ -173,7 +173,7 @@ void ConsoleLogo_Draw(GameState* thisx) {
                             1 << 10, 1 << 10);
     }
 
-    if (!CVarGetInteger("gEnhancements.General.AuthenticLogo", 0)) {
+    if (!CVarGetInteger("gEnhancements.Graphics.AuthenticLogo", 0)) {
         ConsoleLogo_PrintBuildInfo(this);
     }
 
@@ -201,11 +201,8 @@ void ConsoleLogo_Main(GameState* thisx) {
         gSaveContext.gameMode = GAMEMODE_TITLE_SCREEN;
 
         STOP_GAMESTATE(&this->state);
-        // #region 2S2H [Debug] Eventually we'll get rid of this
-        if (CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
-            gSaveContext.gameMode = GAMEMODE_NORMAL;
-            SET_NEXT_GAMESTATE(&this->state, MapSelect_Init, sizeof(MapSelectState));
-        // #endregion
+        if (CVarGetInteger("gEnhancements.Cutscenes.SkipToFileSelect", 0)) {
+            SET_NEXT_GAMESTATE(&this->state, FileSelect_Init, sizeof(FileSelectState));
         } else {
             SET_NEXT_GAMESTATE(&this->state, TitleSetup_Init, sizeof(TitleSetupState));
         }
