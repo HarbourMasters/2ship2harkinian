@@ -46,7 +46,7 @@ void Camera_DebugCam(Camera* camera) {
 
     f32 camSpeed = CVarGetFloat("gEnhancements.Camera.DebugCam.CameraSpeed", 0.5f);
     if (CHECK_BTN_ANY(sCamPlayState->state.input[controllerPort].cur.button, BTN_A | BTN_B | BTN_L)) {
-        camSpeed *= 2.0f;
+        camSpeed *= 3.0f;
     }
 
     /* 
@@ -58,7 +58,7 @@ void Camera_DebugCam(Camera* camera) {
     if (sDebugCamRoll > DEG_TO_BINANG(180.0f)) {
         sDebugCamRoll -= DEG_TO_BINANG(360.0f);
     }
-    if (sDebugCamRoll < 0.0f) {
+    if (sDebugCamRoll < 0) {
         sDebugCamRoll += DEG_TO_BINANG(360.0f);
     }
 
@@ -69,9 +69,9 @@ void Camera_DebugCam(Camera* camera) {
      */
 
     // Transition speed set to be responsive
-    f32 transitionSpeed = 25;
-    sDebugCamDistTarget += (CHECK_BTN_ANY(sCamPlayState->state.input[controllerPort].cur.button, BTN_DDOWN) - CHECK_BTN_ANY(sCamPlayState->state.input[controllerPort].cur.button, BTN_DUP)) * 120.0f * camSpeed;
-    sDebugCamDistTarget = CLAMP_MIN(sDebugCamDistTarget, 30);
+    f32 transitionSpeed = camSpeed * 200.0f;
+    sDebugCamDistTarget += (CHECK_BTN_ANY(sCamPlayState->state.input[controllerPort].cur.button, BTN_DDOWN) - CHECK_BTN_ANY(sCamPlayState->state.input[controllerPort].cur.button, BTN_DUP)) * 1200.0f * camSpeed;
+    sDebugCamDistTarget = CLAMP_MIN(sDebugCamDistTarget, 1.0f);
     // Smooth step camera away to max camera distance.
     camera->dist = Camera_ScaledStepToCeilF(sDebugCamDistTarget, camera->dist, transitionSpeed / (ABS(sDebugCamDistTarget - camera->dist) + transitionSpeed), 0.0f);
 
@@ -120,14 +120,18 @@ void Camera_DebugCam(Camera* camera) {
     camera->up = Camera_CalcUpVec(diffGeo.pitch, diffGeo.yaw, camera->roll);
     Vec3f normX;
     Vec3f normY = camera->up;
-    Vec3f normZ;
-
-    normZ = OLib_Vec3fDistNormalize(at, eyeNext);
+    Vec3f normZ = OLib_Vec3fDistNormalize(at, eyeNext);
 
     // Cross Product
     normX.x = normY.y * normZ.z - normY.z * normZ.y;
     normX.y = normY.z * normZ.x - normY.x * normZ.z;
     normX.z = normY.x * normZ.y - normY.y * normZ.x;
+
+    // Account for flipped normal calculation due to camera roll
+    if (normY.y < 0.0f) {
+        posDiff.x = -posDiff.x;
+        posDiff.y = -posDiff.y;
+    }
 
     Math_Vec3f_Scale(&normX, posDiff.x);
     Math_Vec3f_Scale(&normY, posDiff.y);
