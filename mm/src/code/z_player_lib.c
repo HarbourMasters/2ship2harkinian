@@ -43,6 +43,7 @@
 
 // Assets for other actors
 #include "overlays/actors/ovl_En_Arrow/z_en_arrow.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 void PlayerCall_Init(Actor* thisx, PlayState* play);
 void PlayerCall_Destroy(Actor* thisx, PlayState* play);
@@ -3107,6 +3108,7 @@ void Player_DrawBunnyHood(PlayState* play) {
 
     Matrix_Push();
 
+    FrameInterpolation_RecordActorPosRotMatrix();
     earRot.x = sBunnyEarKinematics.rot.y + 0x3E2;
     earRot.y = sBunnyEarKinematics.rot.z + 0xDBE;
     earRot.z = sBunnyEarKinematics.rot.x - 0x348A;
