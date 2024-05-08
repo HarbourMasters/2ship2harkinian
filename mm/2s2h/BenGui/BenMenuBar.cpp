@@ -348,6 +348,7 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Bow Reticle", "gEnhancements.Graphics.BowReticle", {
                 .tooltip = "Gives the bow a reticle when you draw an arrow"
             });
+
             ImGui::EndMenu();
         }
         
