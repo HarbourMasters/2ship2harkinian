@@ -12,6 +12,7 @@
 #include "overlays/actors/ovl_En_Hakurock/z_en_hakurock.h"
 #include "overlays/actors/ovl_Item_B_Heart/z_item_b_heart.h"
 #include "overlays/effects/ovl_Effect_Ss_Fhg_Flash/z_eff_ss_fhg_flash.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 #include "objects/gameplay_keep/gameplay_keep.h"
 
@@ -2652,23 +2653,27 @@ void func_80B0C398(BossHakugin* this, PlayState* play) {
     gSPDisplayList(POLY_OPA_DISP++, gGohtRockMaterialDL);
     for (i = 0; i < ARRAY_COUNT(this->unk_09F8); i++) {
         effect = &this->unk_09F8[i];
+        FrameInterpolation_RecordOpenChild(effect, i);
         if ((effect->unk_18 >= 0) && (effect->unk_1A == 0)) {
             Matrix_SetTranslateRotateYXZ(effect->unk_0.x, effect->unk_0.y, effect->unk_0.z, &effect->unk_1C);
             Matrix_Scale(effect->unk_24, effect->unk_24, effect->unk_24, MTXMODE_APPLY);
             gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_OPA_DISP++, gGohtRockModelDL);
         }
+        FrameInterpolation_RecordCloseChild();
     }
 
     gSPDisplayList(POLY_OPA_DISP++, gGohtStalactiteMaterialDL);
     for (i = 0; i < ARRAY_COUNT(this->unk_09F8); i++) {
         effect = &this->unk_09F8[i];
+        FrameInterpolation_RecordOpenChild(effect, i);
         if ((effect->unk_18 >= 0) && (effect->unk_1A == 1)) {
             Matrix_SetTranslateRotateYXZ(effect->unk_0.x, effect->unk_0.y, effect->unk_0.z, &effect->unk_1C);
             Matrix_Scale(effect->unk_24, effect->unk_24, effect->unk_24, MTXMODE_APPLY);
             gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_OPA_DISP++, gGohtStalactiteModelDL);
         }
+        FrameInterpolation_RecordCloseChild();
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -2691,6 +2696,7 @@ void func_80B0C570(BossHakugin* this, PlayState* play) {
     for (i = 0; i < ARRAY_COUNT(this->unk_3158); i++) {
         for (j = 0; j < ARRAY_COUNT(this->unk_3158[0]); j++) {
             iter = &this->unk_3158[i][j];
+            FrameInterpolation_RecordOpenChild(iter, j);
             if (iter->unk_10 > 0) {
                 gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 0, 0, 0, iter->unk_10);
                 gSPSegment(POLY_XLU_DISP++, 0x08,
@@ -2703,6 +2709,7 @@ void func_80B0C570(BossHakugin* this, PlayState* play) {
                           G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                 gSPDisplayList(POLY_XLU_DISP++, gFrozenSteamModelDL);
             }
+            FrameInterpolation_RecordCloseChild();
         }
     }
 
@@ -2723,6 +2730,7 @@ void func_80B0C7B0(BossHakugin* this, PlayState* play) {
         gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 255, 255, 255, 255);
 
         for (i = -1; i <= 1; i += 2) {
+            FrameInterpolation_RecordOpenChild(this, i);
             Matrix_SetTranslateRotateYXZ(this->unk_0380.x, this->unk_0380.y, this->unk_0380.z, &this->unk_0374);
             Matrix_RotateYS(0x1400 * i, MTXMODE_APPLY);
             Matrix_RotateXS(0xC00 * i, MTXMODE_APPLY);
@@ -2737,6 +2745,7 @@ void func_80B0C7B0(BossHakugin* this, PlayState* play) {
 
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_XLU_DISP++, gGohtLightningModelDL);
+            FrameInterpolation_RecordCloseChild();
         }
 
         gDPPipeSync(POLY_XLU_DISP++);
@@ -2767,6 +2776,7 @@ void func_80B0CAF0(BossHakugin* this, PlayState* play) {
     for (i = 0; i < ARRAY_COUNT(this->unk_2618); i++) {
         iter = &this->unk_2618[i];
 
+        FrameInterpolation_RecordOpenChild(iter, i);
         if ((iter->unk_0C > 0) && (iter->unk_0C <= 255)) {
             Matrix_SetTranslateRotateYXZ(iter->unk_00.x, iter->unk_00.y, iter->unk_00.z, &iter->unk_0E);
             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
@@ -2781,6 +2791,7 @@ void func_80B0CAF0(BossHakugin* this, PlayState* play) {
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_XLU_DISP++, gGohtLightningModelDL);
         }
+        FrameInterpolation_RecordCloseChild();
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -2821,6 +2832,7 @@ void func_80B0CCD8(BossHakugin* this, PlayState* play2) {
     for (; i >= end; i--) {
         pos = &this->unk_3734[i];
 
+        FrameInterpolation_RecordOpenChild(this, i);
         gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 255, 255, 255, alpha);
         Matrix_Translate(pos->x, pos->y, pos->z, MTXMODE_NEW);
         Matrix_ReplaceRotation(&play->billboardMtxF);
@@ -2832,6 +2844,7 @@ void func_80B0CCD8(BossHakugin* this, PlayState* play2) {
         scale += 1.5f;
         alpha += 15;
         rotZ += 0x1000;
+        FrameInterpolation_RecordCloseChild();
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -3195,11 +3208,13 @@ void func_80B0E5A4(Actor* thisx, PlayState* play) {
     for (i = 0; i < 36; i++) {
         effect = &this->unk_09F8[i];
 
+        FrameInterpolation_RecordOpenChild(effect, i);
         Matrix_SetTranslateRotateYXZ(effect->unk_0.x, effect->unk_0.y, effect->unk_0.z, &effect->unk_1C);
         Matrix_Scale(effect->unk_24, effect->unk_24, effect->unk_24, MTXMODE_APPLY);
 
         gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gSPDisplayList(POLY_OPA_DISP++, gGohtRockModelDL);
+        FrameInterpolation_RecordCloseChild();
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
