@@ -1810,6 +1810,8 @@ void Sram_InitSave(FileSelectState* fileSelect2, SramContext* sramCtx) {
 
         gSaveContext.save.saveInfo.checksum = Sram_CalcChecksum(&gSaveContext.save, sizeof(Save));
 
+        GameInteractor_ExecuteOnSaveInit(fileSelect->buttonIndex);
+
         memcpy(sramCtx->saveBuf, &gSaveContext.save, sizeof(Save));
         memcpy(&sramCtx->saveBuf[0x2000], &gSaveContext.save, sizeof(Save));
 

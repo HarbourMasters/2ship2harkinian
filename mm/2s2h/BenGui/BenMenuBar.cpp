@@ -27,6 +27,12 @@ static const std::unordered_map<int32_t, const char*> textureFilteringMap = {
     { FILTER_NONE, "None" },
 };
 
+static const std::unordered_map<int32_t, const char*> debugSaveOptions = {
+    { DEBUG_SAVE_INFO_COMPLETE, "100\% save" },
+    { DEBUG_SAVE_INFO_VANILLA_DEBUG, "Vanilla debug save" },
+    { DEBUG_SAVE_INFO_NONE, "Empty save" },
+};
+
 static const std::unordered_map<Ship::AudioBackend, const char*> audioBackendsMap = {
     { Ship::AudioBackend::WASAPI, "Windows Audio Session API" },
     { Ship::AudioBackend::SDL, "SDL" },
@@ -301,6 +307,9 @@ void DrawEnhancementsMenu() {
         if (UIWidgets::BeginMenu("Cutscenes")) {
             UIWidgets::CVarCheckbox("Hide Title Cards", "gEnhancements.Cutscenes.HideTitleCards");
             UIWidgets::CVarCheckbox("Skip Entrance Cutscenes", "gEnhancements.Cutscenes.SkipEntranceCutscenes");
+            UIWidgets::CVarCheckbox(
+                "Skip to File Select", "gEnhancements.Cutscenes.SkipToFileSelect",
+                { .tooltip = "Skip the opening title sequence and go straight to the file select menu after boot" });
 
             ImGui::EndMenu();
         }
@@ -444,7 +453,19 @@ void DrawDeveloperToolsMenu() {
         UIWidgets::CVarCheckbox("Debug Mode", "gDeveloperTools.DebugEnabled", {
             .tooltip = "Enables Debug Mode, allowing you to select maps with L + R + Z."
         });
-        
+
+        if (CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
+            if (UIWidgets::CVarCombobox(
+                    "Debug Save File Mode", "gDeveloperTools.DebugSaveFileMode", debugSaveOptions,
+                    { .tooltip =
+                          "Change the behavior of creating saves while debug mode is enabled:\n\n"
+                          "- Empty Save: The default 3 heart save file in first cycle\n"
+                          "- Vanilla Debug Save: Uses the title screen save info (8 hearts, all items and masks)\n"
+                          "- 100\% Save: All items, equipment, mask, quast status and bombers notebook complete" })) {
+                RegisterDebugSaveCreate();
+            }
+        }
+
         UIWidgets::CVarCheckbox("Better Map Select", "gDeveloperTools.BetterMapSelect.Enabled");
         if (UIWidgets::CVarCheckbox("Prevent Actor Update", "gDeveloperTools.PreventActorUpdate")) {
             RegisterPreventActorUpdateHooks();
