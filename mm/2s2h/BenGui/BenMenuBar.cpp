@@ -293,12 +293,7 @@ void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
 
         if (UIWidgets::BeginMenu("Camera")) {
-            ImGui::SeparatorText("Free Look");
-            if (UIWidgets::CVarCheckbox("Free Look", "gEnhancements.Camera.FreeLook.Enable", {
-                .tooltip = "Enables free look camera control\nNote: You must remap C buttons off of the right stick in the controller config menu, and map the camera stick to the right stick."
-            })) {
-                RegisterCameraFreeLook();
-            }
+            ImGui::SeparatorText("Right Stick Camera");
             UIWidgets::CVarCheckbox("Invert Camera X Axis", "gEnhancements.Camera.FreeLook.InvertXAxis", {
                 .tooltip = "Inverts the Camera X Axis in Free Look."
             });
@@ -306,12 +301,20 @@ void DrawEnhancementsMenu() {
                 .tooltip = "Inverts the Camera Y Axis in Free Look.",
                 .defaultValue = true
             });
-            UIWidgets::CVarSliderFloat("Third-Person Horizontal Sensitivity: %.0f %%", "gEnhancements.Camera.FreeLook.CameraSensitivity.X", 0.01f, 5.0f, 1.0f);
-            UIWidgets::CVarSliderFloat("Third-Person Vertical Sensitivity: %.0f %%", "gEnhancements.Camera.FreeLook.CameraSensitivity.Y", 0.01f, 5.0f, 1.0f);
+            UIWidgets::CVarSliderFloat("Third-Person Horizontal Sensitivity: %.0f %", "gEnhancements.Camera.FreeLook.CameraSensitivity.X", 0.01f, 5.0f, 1.0f);
+            UIWidgets::CVarSliderFloat("Third-Person Vertical Sensitivity: %.0f %", "gEnhancements.Camera.FreeLook.CameraSensitivity.Y", 0.01f, 5.0f, 1.0f);
+
+            ImGui::SeparatorText("Free Look");
+            if (UIWidgets::CVarCheckbox("Free Look", "gEnhancements.Camera.FreeLook.Enable", {
+                .tooltip = "Enables free look camera control\nNote: You must remap C buttons off of the right stick in the controller config menu, and map the camera stick to the right stick."
+            })) {
+                RegisterCameraFreeLook();
+            }
+
             UIWidgets::CVarSliderInt("Camera Distance: %d", "gEnhancements.Camera.FreeLook.MaxCameraDistance", 100, 900, 185);
             UIWidgets::CVarSliderInt("Camera Transition Speed: %d", "gEnhancements.Camera.FreeLook.TransitionSpeed", 1, 900, 25);
-            UIWidgets::CVarSliderFloat("Max Camera Height Angle: %.0f %%", "gEnhancements.Camera.FreeLook.MaxY", -89.0f, 89.0f, 72.0f);
-            UIWidgets::CVarSliderFloat("Min Camera Height Angle: %.0f %%", "gEnhancements.Camera.FreeLook.MinY", -89.0f, 89.0f, -49.0f);
+            UIWidgets::CVarSliderFloat("Max Camera Height Angle: %.0f %°", "gEnhancements.Camera.FreeLook.MaxY", -89.0f, 89.0f, 72.0f);
+            UIWidgets::CVarSliderFloat("Min Camera Height Angle: %.0f %°", "gEnhancements.Camera.FreeLook.MinY", -89.0f, 89.0f, -49.0f);
             f32 maxY = CVarGetFloat("gEnhancements.Camera.FreeLook.MaxY", 72.0f);
             f32 minY = CVarGetFloat("gEnhancements.Camera.FreeLook.MinY", -49.0f);
             CVarSetFloat("gEnhancements.Camera.FreeLook.MaxY", std::max(maxY, minY));
