@@ -14,6 +14,7 @@
 #include "Restorations/SideRoll.h"
 #include "Graphics/PlayAsKafei.h"
 #include "Songs/EnableSunsSong.h"
+#include "Graphics/NoBlackBars.h"
 
 enum AlwaysWinDoggyRaceOptions {
     ALWAYS_WIN_DOGGY_RACE_OFF,

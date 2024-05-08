@@ -354,7 +354,10 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Authentic logo", "gEnhancements.Graphics.AuthenticLogo", {
                 .tooltip = "Hide the game version and build details and display the authentic model and texture on the boot logo start screen"
             });
-            
+            UIWidgets::CVarCheckbox("Disable Black Bar Letterboxes", "gEnhancements.Graphics.NoBlackBars", { 
+                .tooltip = "Disables Black Bar Letterboxes during cutscenes and Z-targeting\nNote: there may be minor visual glitches that were covered up by the black bars\nPlease disable this setting before reporting a bug"
+            });
+
             ImGui::EndMenu();
         }
         

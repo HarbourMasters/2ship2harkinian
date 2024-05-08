@@ -29,4 +29,7 @@ void InitEnhancements() {
     // Modes
     RegisterPlayAsKafei();
 
+    // Graphics
+    RegisterNoBlackBars();
+
 }

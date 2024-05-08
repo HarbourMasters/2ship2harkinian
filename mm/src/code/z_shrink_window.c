@@ -7,6 +7,7 @@
 #include "global.h"
 #include "z64shrink_window.h"
 #include <string.h>
+#include "Enhancements/GameInteractor/GameInteractor.h"
 
 typedef struct {
     /* 0x0 */ s8 letterboxTarget;
@@ -19,19 +20,27 @@ ShrinkWindow sShrinkWindow;
 ShrinkWindow* sShrinkWindowPtr;
 
 void ShrinkWindow_Letterbox_SetSizeTarget(s32 target) {
-    sShrinkWindowPtr->letterboxTarget = target;
+    if (GameInteractor_Should(GI_VB_SHOW_BLACK_BARS, true, NULL)) {
+        sShrinkWindowPtr->letterboxTarget = target;
+    }
 }
 
 s32 ShrinkWindow_Letterbox_GetSizeTarget(void) {
-    return sShrinkWindowPtr->letterboxTarget;
+    if (GameInteractor_Should(GI_VB_SHOW_BLACK_BARS, true, NULL)) {
+        return sShrinkWindowPtr->letterboxTarget;
+    }
 }
 
 void ShrinkWindow_Letterbox_SetSize(s32 size) {
-    sShrinkWindowPtr->letterboxSize = size;
+    if (GameInteractor_Should(GI_VB_SHOW_BLACK_BARS, true, NULL)) {
+        sShrinkWindowPtr->letterboxSize = size;
+    }
 }
 
 s32 ShrinkWindow_Letterbox_GetSize(void) {
-    return sShrinkWindowPtr->letterboxSize;
+    if (GameInteractor_Should(GI_VB_SHOW_BLACK_BARS, true, NULL)) {
+        return sShrinkWindowPtr->letterboxSize;
+    }
 }
 
 void ShrinkWindow_Pillarbox_SetSizeTarget(s32 target) {
@@ -77,31 +86,37 @@ void ShrinkWindow_Draw(GraphicsContext* gfxCtx) {
     s8 letterboxSize = sShrinkWindowPtr->letterboxSize;
     s8 pillarboxSize = sShrinkWindowPtr->pillarboxSize;
 
-    if (letterboxSize > 0) {
-        OPEN_DISPS(gfxCtx);
+    if (GameInteractor_Should(GI_VB_SHOW_BLACK_BARS, true, NULL)) {
+        if (letterboxSize > 0) {
+            OPEN_DISPS(gfxCtx);
 
-        gfx = OVERLAY_DISP;
+            gfx = OVERLAY_DISP;
 
-        gDPPipeSync(gfx++);
-        gDPSetCycleType(gfx++, G_CYC_FILL);
-        gDPSetRenderMode(gfx++, G_RM_NOOP, G_RM_NOOP2);
-        gDPSetFillColor(gfx++, (GPACK_RGBA5551(0, 0, 0, 1) << 16) | GPACK_RGBA5551(0, 0, 0, 1));
-        // #region 2S2H [Cosmetic] Account for different aspect ratios than 4:3
-        gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), 0, OTRGetRectDimensionFromRightEdge(gScreenWidth - 1), letterboxSize - 1);
-        gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), gScreenHeight - letterboxSize, OTRGetRectDimensionFromRightEdge(gScreenWidth - 1), gScreenHeight - 1);
+            gDPPipeSync(gfx++);
+            gDPSetCycleType(gfx++, G_CYC_FILL);
+            gDPSetRenderMode(gfx++, G_RM_NOOP, G_RM_NOOP2);
+            gDPSetFillColor(gfx++, (GPACK_RGBA5551(0, 0, 0, 1) << 16) | GPACK_RGBA5551(0, 0, 0, 1));
+            // #region 2S2H [Cosmetic] Account for different aspect ratios than 4:3
+            gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), 0,
+                                 OTRGetRectDimensionFromRightEdge(gScreenWidth - 1), letterboxSize - 1);
+            gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), gScreenHeight - letterboxSize,
+                                 OTRGetRectDimensionFromRightEdge(gScreenWidth - 1), gScreenHeight - 1);
 
-        gDPPipeSync(gfx++);
-        gDPSetCycleType(gfx++, G_CYC_1CYCLE);
-        gDPSetRenderMode(gfx++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-        gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, 0);
-        gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), letterboxSize, OTRGetRectDimensionFromRightEdge(gScreenWidth), letterboxSize + 1);
-        gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), gScreenHeight - letterboxSize - 1, OTRGetRectDimensionFromRightEdge(gScreenWidth), gScreenHeight - letterboxSize);
-        // #endregion
+            gDPPipeSync(gfx++);
+            gDPSetCycleType(gfx++, G_CYC_1CYCLE);
+            gDPSetRenderMode(gfx++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+            gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, 0);
+            gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), letterboxSize,
+                                 OTRGetRectDimensionFromRightEdge(gScreenWidth), letterboxSize + 1);
+            gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), gScreenHeight - letterboxSize - 1,
+                                 OTRGetRectDimensionFromRightEdge(gScreenWidth), gScreenHeight - letterboxSize);
+            // #endregion
 
-        gDPPipeSync(gfx++);
-        OVERLAY_DISP = gfx++;
+            gDPPipeSync(gfx++);
+            OVERLAY_DISP = gfx++;
 
-        CLOSE_DISPS(gfxCtx);
+            CLOSE_DISPS(gfxCtx);
+        }
     }
 
     if (pillarboxSize > 0) {
