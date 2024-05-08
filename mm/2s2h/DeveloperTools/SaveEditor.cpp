@@ -15,6 +15,13 @@ extern u8 gItemSlots[77];
 void Interface_LoadItemIconImpl(PlayState* play, u8 btn);
 void Interface_NewDay(PlayState* play, s32 day);
 extern RegEditor* gRegEditor;
+extern ActorOverlay gActorOverlayTable[ACTOR_ID_MAX];
+extern s16 gPlayerFormObjectIds[PLAYER_FORM_MAX];
+void Player_PlaySfx(Player* player, u16 sfxId);
+void PlayerCall_Init(Actor* thisx, PlayState* play);
+void PlayerCall_Update(Actor* thisx, PlayState* play);
+void PlayerCall_Draw(Actor* thisx, PlayState* play);
+void TransitionFade_SetColor(void* thisx, u32 color);
 }
 
 bool safeMode = true;
@@ -38,6 +45,7 @@ ImVec4 colorTint;
 const char* songTooltip;
 const char* curForm;
 ImVec4 formColor;
+uint32_t formObject;
 
 InventorySlot selectedInventorySlot = SLOT_NONE;
 std::vector<ItemId> safeItemsForInventorySlot[SLOT_MASK_FIERCE_DEITY + 1] = {};
@@ -864,27 +872,32 @@ void DrawQuestStatusTab() {
     ImGui::PopStyleColor(1);
 }
 
-void GetPlayerForm() {
-    switch (GET_PLAYER_FORM) {
+void GetPlayerForm(uint32_t form) {
+    switch (form) {
         case PLAYER_FORM_FIERCE_DEITY:
             curForm = "Fierce Deity";
             formColor = UIWidgets::Colors::Red;
+            formObject = OBJECT_LINK_BOY;
             break;
         case PLAYER_FORM_GORON:
             curForm = "Goron";
             formColor = UIWidgets::Colors::Yellow;
+            formObject = OBJECT_LINK_GORON;
             break;
         case PLAYER_FORM_ZORA:
             curForm = "Zora";
             formColor = UIWidgets::Colors::Indigo;
+            formObject = OBJECT_LINK_ZORA;
             break;
         case PLAYER_FORM_DEKU:
             curForm = "Deku";
             formColor = UIWidgets::Colors::DarkGreen;
+            formObject = OBJECT_LINK_NUTS;
             break;
         case PLAYER_FORM_HUMAN:
             curForm = "Human";
             formColor = UIWidgets::Colors::LightGreen;
+            formObject = OBJECT_LINK_CHILD;
             break;
         default:
             break;
@@ -897,9 +910,9 @@ void DrawPlayerTab() {
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f, 8.0f));
     if (gPlayState) {
         Player* player = GET_PLAYER(gPlayState);
-        ImGui::BeginChild("playerLocation", ImVec2(INV_GRID_WIDTH * 8 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 2 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+        ImGui::BeginChild("playerLocation", ImVec2(INV_GRID_WIDTH * 8 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1.75f + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
 
-        GetPlayerForm();
+        GetPlayerForm(GET_PLAYER_FORM);
         ImGui::Text("%s Link", curForm);
         ImGui::Text("Position:");
         UIWidgets::PushStyleCombobox(formColor);
@@ -910,7 +923,7 @@ void DrawPlayerTab() {
         ImGui::SameLine();
         ImGui::InputScalar("Z Pos", ImGuiDataType_Float, &player->actor.world.pos.z);
         ImGui::Text("Rotation:");
-        ImGui::InputScalar("X Rot", ImGuiDataType_S16, &player->actor.world.rot.x); // convert to degrees?
+        ImGui::InputScalar("X Rot", ImGuiDataType_S16, &player->actor.world.rot.x);
         ImGui::SameLine();
         ImGui::InputScalar("Y Rot", ImGuiDataType_S16, &player->actor.world.rot.y);
         ImGui::SameLine();
@@ -920,7 +933,8 @@ void DrawPlayerTab() {
         UIWidgets::PopStyleCombobox();
         ImGui::EndChild();
 
-        ImGui::BeginChild("playerSpeed", ImVec2(INV_GRID_WIDTH * 5 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 3 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+        ImGui::BeginChild("playerSpeed", ImVec2(INV_GRID_WIDTH * 5 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 2.75f + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+        ImGui::Text("Link's Speed");
         UIWidgets::PushStyleCombobox(formColor);
         ImGui::PushItemWidth(ImGui::GetFontSize() * 6);
         ImGui::InputScalar("Linear Velocity", ImGuiDataType_Float, &player->linearVelocity);
@@ -933,37 +947,114 @@ void DrawPlayerTab() {
         UIWidgets::PopStyleCombobox();
         ImGui::EndChild();
 
-        ImGui::BeginChild("playerForm", ImVec2(INV_GRID_WIDTH * 6 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
-        UIWidgets::PushStyleCombobox(UIWidgets::Colors::Red);
-        if (ImGui::Button("Fierce Deity")) {
-            
+        ImGui::BeginChild("playerForm", ImVec2(INV_GRID_WIDTH * 8 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 2.2f + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+        ImGui::Text("Change Link's Current Form");
+        for (int i = PLAYER_FORM_FIERCE_DEITY; i <= PLAYER_FORM_HUMAN; i++) {
+            GetPlayerForm(i);
+            UIWidgets::PushStyleButton(formColor);
+            if (ImGui::Button(curForm)) {
+                s16 objectId = formObject;
+                if (i != PLAYER_FORM_HUMAN) {
+                    gSaveContext.save.equippedMask = PLAYER_MASK_FIERCE_DEITY + i;
+                }
+                gActorOverlayTable[ACTOR_PLAYER].initInfo->objectId = objectId;
+                func_8012F73C(&gPlayState->objectCtx, player->actor.objectSlot, objectId);
+                player->actor.objectSlot = Object_GetSlot(&gPlayState->objectCtx, GAMEPLAY_KEEP);
+                gSaveContext.save.playerForm = i;
+                s32 objectSlot = Object_GetSlot(&gPlayState->objectCtx, gActorOverlayTable[ACTOR_PLAYER].initInfo->objectId);
+                player->actor.objectSlot = objectSlot;
+                player->actor.shape.rot.z = GET_PLAYER_FORM + 1;
+                player->actor.init = PlayerCall_Init;
+                player->actor.update = PlayerCall_Update;
+                player->actor.draw = PlayerCall_Draw;
+                gSaveContext.save.equippedMask = PLAYER_MASK_NONE;
+
+                TransitionFade_SetColor(&gPlayState->unk_18E48, 0x000000);
+                R_TRANS_FADE_FLASH_ALPHA_STEP = -1;
+                Player_PlaySfx(GET_PLAYER(gPlayState), NA_SE_SY_TRANSFORM_MASK_FLASH);
+            }
+            UIWidgets::PopStyleButton();
+            if (i != PLAYER_FORM_HUMAN) {
+                ImGui::SameLine();
+            }
         }
-        UIWidgets::PopStyleCombobox();
-        ImGui::SameLine();
-        UIWidgets::PushStyleCombobox(UIWidgets::Colors::Yellow);
-        if (ImGui::Button("Goron")) {
+
+        ImGui::Separator();
+        ImGui::Text("Link's Current Equipment");
+        if (GET_PLAYER_FORM == PLAYER_FORM_HUMAN) {
+            static const char* weaponCombo[] = { "Kokiri Sword", "Razor Sword", "Gilded Sword" };
+            static const char* shieldCombo[] = { "Hero's Shield", "Mirror Shield" };
+            static int currentWeapon = 0;
+            static int currentShield = 0;
+
+            UIWidgets::PushStyleCombobox(UIWidgets::Colors::LightGreen);
+            ImGui::PushItemWidth(ImGui::GetFontSize() * 15);
+            if (ImGui::BeginCombo("Equipped Sword", weaponCombo[currentWeapon])) {
+                for (int i = EQUIP_VALUE_SWORD_KOKIRI; i <= EQUIP_VALUE_SWORD_GILDED; i++) {
+                    const bool isSelected = (currentWeapon == i);
+                    if (ImGui::Selectable(weaponCombo[i - 1], isSelected)) {
+                        currentWeapon = i - 1;
+                        SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, i);
+                        if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) == EQUIP_VALUE_SWORD_RAZOR) {
+                            gSaveContext.save.saveInfo.playerData.swordHealth = 100;
+                        }
+                        BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_KOKIRI + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI;
+                        Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_B);
+                    }
+                    if (isSelected) {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+                ImGui::EndCombo();
+            }
+            if (ImGui::BeginCombo("Equipped Shield", shieldCombo[currentShield])) {
+                for (int i = EQUIP_VALUE_SHIELD_HERO; i <= EQUIP_VALUE_SHIELD_MIRROR; i++) {
+                    const bool isSelected = (currentShield == i);
+                    if (ImGui::Selectable(shieldCombo[i - 1], isSelected)) {
+                        currentShield = i - 1;
+                        SET_EQUIP_VALUE(EQUIP_TYPE_SHIELD, i);
+                        Player_SetEquipmentData(gPlayState, player);
+                    }
+                    if (isSelected) {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+                ImGui::EndCombo();
+            }
             
-        }
-        UIWidgets::PopStyleCombobox();
-        ImGui::SameLine();
-        UIWidgets::PushStyleCombobox(UIWidgets::Colors::Indigo);
-        if (ImGui::Button("Zora")) {
+            ImGui::PopItemWidth();
+            UIWidgets::PopStyleCombobox();
             
+        } else {
+            ImGui::Separator();
+            ImGui::Text("              No Equipment in this Form");
+            ImGui::Separator();
         }
-        UIWidgets::PopStyleCombobox();
-        ImGui::SameLine();
-        UIWidgets::PushStyleCombobox(UIWidgets::Colors::DarkGreen);
-        if (ImGui::Button("Deku")) {
-            
+        ImGui::EndChild();
+
+        ImGui::BeginChild("playerStates", ImVec2(INV_GRID_WIDTH * 8 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 0.75f + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+        ImGui::Text("Player States");
+        uint32_t states[4] = { player->stateFlags1, player->stateFlags2, player->stateFlags3, player->meleeWeaponState };
+
+        ImGui::BeginTable("stateTable", 4);
+        GetPlayerForm(GET_PLAYER_FORM);
+        ImGui::PushStyleVar(ImGuiTableColumnFlags_WidthFixed, 15.0f);
+        ImGui::PushStyleColor(ImGuiCol_TableHeaderBg, formColor);
+        ImGui::TableSetupColumn("State 1");
+        ImGui::TableSetupColumn("State 2");
+        ImGui::TableSetupColumn("State 3");
+        ImGui::TableSetupColumn("Sword State");
+        ImGui::TableHeadersRow();
+        ImGui::TableNextColumn();
+
+        for (int i = 0; i <= 3; i++) {
+            ImGui::Text(std::to_string(states[i]).c_str());
+            ImGui::TableNextColumn();
         }
-        UIWidgets::PopStyleCombobox();
-        ImGui::SameLine();
-        UIWidgets::PushStyleCombobox(UIWidgets::Colors::LightGreen);
-        if (ImGui::Button("Human")) {
-            
-        }
-        UIWidgets::PopStyleCombobox();
-        
+
+        ImGui::PopStyleColor(1);
+        ImGui::PopStyleVar(1);
+        ImGui::EndTable();
         ImGui::EndChild();
 
     }
