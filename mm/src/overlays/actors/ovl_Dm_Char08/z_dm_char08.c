@@ -73,6 +73,9 @@ static AnimationInfo sAnimationInfo[TURTLE_ANIM_MAX] = {
     { &gTurtleYawnAnim, 1.0f, 0.0f, -1.0f, ANIMMODE_LOOP, -24.0f },   // TURTLE_ANIM_YAWN
 };
 
+// 2S2H [Port] Copy of TURTLE_ANIM_FLOAT with no moprh frames
+static AnimationInfo sAnimInfoFloatStartFix = { &gTurtleFloatAnim, 1.0f, 0.0f, -1.0f, ANIMMODE_LOOP, 0.0f };
+
 static InitChainEntry sInitChain[] = {
     ICHAIN_F32(uncullZoneForward, 4000, ICHAIN_CONTINUE),
     ICHAIN_F32(uncullZoneScale, 4000, ICHAIN_CONTINUE),
@@ -247,6 +250,17 @@ void DmChar08_Init(Actor* thisx, PlayState* play2) {
         default:
             break;
     }
+
+    // 2S2H [Port] The turtle incorrectly morphs from the starting skeleton position
+    // to the floating animation. Although the float animation uses negative morph frames,
+    // it still seems to strangely morph causing it to "unfold" after init.
+    // Here before changing to the float animation, we change to a copy of it that has
+    // no morph frames. This forces the frame table to be set immediately, fixing the
+    // "unfold" effect. Then we allow the original animation to be set after.
+    if (this->animIndex == TURTLE_ANIM_FLOAT) {
+        DmChar08_ChangeAnim(&this->skelAnime, &sAnimInfoFloatStartFix, 0);
+    }
+
     DmChar08_ChangeAnim(&this->skelAnime, &sAnimationInfo[this->animIndex], 0);
 }
 
