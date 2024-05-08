@@ -151,7 +151,7 @@ static uint32_t freeLookCameraVBHookId = 0;
 
 void RegisterCameraFreeLook() {
     if (freeLookCameraVBHookId) {
-        GameInteractor::Instance->UnregisterGameHook<GameInteractor::ShouldVanillaBehavior>(freeLookCameraVBHookId);
+        GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::ShouldVanillaBehavior>(freeLookCameraVBHookId);
         freeLookCameraVBHookId = 0;
     }
 
