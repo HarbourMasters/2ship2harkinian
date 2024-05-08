@@ -2585,7 +2585,9 @@ void AudioOcarina_PlayControllerInput(u8 isOcarinaSfxSuppressedWhenCancelled) {
     // Prevents two different ocarina notes from being played on two consecutive frames
     if ((sOcarinaFlags != 0) && (sOcarinaDropInputTimer != 0)) {
         sOcarinaDropInputTimer--;
-        return;
+        if (!CVarGetInteger("gEnhancements.Playback.NoDropOcarinaInput", 0)) {
+            return;
+        }
     }
 
     // Ensures the button pressed to start the ocarina does not also play an ocarina note

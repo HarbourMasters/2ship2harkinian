@@ -382,6 +382,13 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
+        if (UIWidgets::BeginMenu("Songs/Playback")) {
+            UIWidgets::CVarCheckbox("Prevent Dropped Ocarina Inputs", "gEnhancements.Playback.NoDropOcarinaInput",
+                                    { .tooltip = "Prevent dropping inputs when playing the ocarina quickly" });
+
+            ImGui::EndMenu();
+        }
+
         if (mHudEditorWindow) {
             UIWidgets::WindowButton("Hud Editor", "gWindows.HudEditor", mHudEditorWindow, {
                 .tooltip = "Enables the Hud Editor window, allowing you to edit your hud"
