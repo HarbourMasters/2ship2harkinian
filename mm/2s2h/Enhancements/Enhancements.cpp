@@ -16,6 +16,9 @@ void InitEnhancements() {
     // Minigames
     RegisterAlwaysWinDoggyRace();
 
+    // Songs
+    RegisterEnableSunsSong();
+    
     // Restorations
     RegisterSideRoll();
     

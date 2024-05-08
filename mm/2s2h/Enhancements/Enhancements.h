@@ -13,6 +13,7 @@
 #include "Cutscenes/HideTitleCards.h"
 #include "Restorations/SideRoll.h"
 #include "Graphics/PlayAsKafei.h"
+#include "Songs/EnableSunsSong.h"
 
 enum AlwaysWinDoggyRaceOptions {
     ALWAYS_WIN_DOGGY_RACE_OFF,
