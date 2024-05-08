@@ -1001,7 +1001,7 @@ void func_80934464(EnFz* this, PlayState* play) {
 
     for (i = 0; i < ARRAY_COUNT(this->unk_23C); i++, ptr++) {
         if (ptr->unk_00 > 0) {
-            FrameInterpolation_RecordOpenChild(this, i);
+            FrameInterpolation_RecordOpenChild(ptr, i);
             gDPPipeSync(POLY_XLU_DISP++);
 
             if (flag == 0) {
