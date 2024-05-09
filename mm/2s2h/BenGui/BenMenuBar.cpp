@@ -3,6 +3,7 @@
 #include <imgui.h>
 #include "public/bridge/consolevariablebridge.h"
 #include <libultraship/libultraship.h>
+#include "graphic/Fast3D/gfx_rendering_api.h"
 #include "UIWidgets.hpp"
 #include <unordered_map>
 #include <string>
