@@ -1075,7 +1075,7 @@ void EnBigslime_Drop(EnBigslime* this, PlayState* play) {
         this->ceilingDropTimer--;
         this->ceilingMoveTimer--;
         EnBigslime_UpdateWavySurface(this);
-        EnBigslime_Scale(this, this->ceilingMoveTimer * 0x4000, 0.2f, 0.15);
+        EnBigslime_Scale(this, this->ceilingMoveTimer * 0x4000, 0.2f, 0.15f);
         this->actor.scale.z = this->actor.scale.x;
         if (this->ceilingDropTimer == 0) {
             this->actor.gravity = -2.0f;

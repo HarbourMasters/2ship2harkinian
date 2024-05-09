@@ -418,8 +418,6 @@ s32 func_80B85A00(EnKaizoku* this, PlayState* play, s16 arg2) {
     if (arg2) {
         s16 sp2A;
 
-        //! FAKE:
-    label:;
         if (sp30 >= 10000) {
             func_80B87900(this);
         } else {

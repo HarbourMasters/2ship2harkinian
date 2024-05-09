@@ -17254,8 +17254,6 @@ void Player_Action_67(Player* this, PlayState* play) {
                                                                      : &gPlayerAnim_link_bottle_drink_demo_wait);
             this->av2.actionVar2 = 1;
 
-        //! FAKE
-        dummy_label_235515:;
         } else if (this->av2.actionVar2 < 0) {
             this->av2.actionVar2++;
             if (this->av2.actionVar2 == 0) {

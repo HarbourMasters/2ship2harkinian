@@ -1,6 +1,7 @@
 #ifndef PR_OS_EXCEPTION_H
 #define PR_OS_EXCEPTION_H
-
+#include <libultraship/libultra/exception.h>
+#if 0
 #include "ultratypes.h"
 
 
@@ -44,6 +45,6 @@ typedef u32 OSHWIntr;
 //void __osGetHWIntrRoutine(OSHWIntr interrupt, s32 (**handler)(void), void** stackEnd);
 //void __osSetGlobalIntMask(OSHWIntr mask);
 //void __osResetGlobalIntMask(OSHWIntr mask);
-
+#endif
 
 #endif

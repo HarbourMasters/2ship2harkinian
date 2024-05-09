@@ -2655,7 +2655,7 @@ s32 Camera_Normal0(Camera* camera) {
     camera->pitchUpdateRateInv = Camera_ScaledStepToCeilF(16.0f, camera->pitchUpdateRateInv, spA0, 0.1f);
     camera->yOffsetUpdateRate = Camera_ScaledStepToCeilF(0.05f, camera->yOffsetUpdateRate, spA4, 0.0001f);
     camera->xzOffsetUpdateRate = Camera_ScaledStepToCeilF(0.05f, camera->xzOffsetUpdateRate, spA0, 0.0001f);
-    camera->fovUpdateRate = Camera_ScaledStepToCeilF(0.05, camera->fovUpdateRate, camera->speedRatio * 0.05f, 0.0001f);
+    camera->fovUpdateRate = Camera_ScaledStepToCeilF(0.05f, camera->fovUpdateRate, camera->speedRatio * 0.05f, 0.0001f);
 
     if (!(roData->interfaceFlags & NORMAL0_FLAG_7)) {
         Camera_CalcAtDefault(camera, &sp78, roData->unk_00, roData->interfaceFlags & NORMAL0_FLAG_0);
@@ -2858,8 +2858,6 @@ s32 Camera_Parallel1(Camera* camera) {
                 rwData->unk_00 = (bgCamFuncData->unk_0E == -1)
                                      ? roData->unk_04
                                      : CAM_RODATA_UNSCALE(bgCamFuncData->unk_0E) * focalActorHeight * yNormal;
-            //! FAKE
-            dummy:;
             } else {
                 rwData->unk_08 = roData->unk_14;
                 rwData->unk_00 = roData->unk_04;
@@ -4922,8 +4920,6 @@ s32 Camera_Fixed2(Camera* camera) {
                         rwData->unk_00 = OLib_AddVecGeoToVec3f(new_var1, &sp70);
                     } else {
                         rwData->unk_00 = *eye;
-                        //! FAKE:
-                    dummy:;
                     }
                 } else {
                     rwData->unk_00 = camera->eye;
