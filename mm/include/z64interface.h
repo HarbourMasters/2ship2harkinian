@@ -14,6 +14,17 @@ typedef enum {
     /*  5 */ EQUIP_SLOT_MAX
 } EquipSlot;
 
+// #region 2S2H
+typedef enum {
+    /* -1 */ EQUIP_SLOT_D_NONE = -1,
+    /*  0 */ EQUIP_SLOT_D_RIGHT,
+    /*  1 */ EQUIP_SLOT_D_LEFT,
+    /*  2 */ EQUIP_SLOT_D_DOWN,
+    /*  3 */ EQUIP_SLOT_D_UP,
+    /*  4 */ EQUIP_SLOT_D_MAX
+} DpadEquipSlot;
+// #endregion
+
 typedef enum {
     /* 0 */ A_BTN_STATE_0,
     /* 1 */ A_BTN_STATE_1,
@@ -141,6 +152,19 @@ typedef struct {
     char* subTex;
 } ActionLabel;
 
+// #region 2S2H
+typedef struct {
+    s16 dRightAlpha;
+    s16 dLeftAlpha;
+    s16 dDownAlpha;
+    s16 dUpAlpha;
+} DpadInterface;
+
+typedef struct {
+    DpadInterface dpad;
+} ShipInterfaceContext;
+// #endregion
+
 typedef struct {
     /* 0x000 */ View view;
     /* 0x168 */ Vtx* actionVtx;
@@ -238,6 +262,7 @@ typedef struct {
     /* 0x33C */ u8* storySegment;
     /* 0x340 */ uintptr_t storyAddr;
     /* 0x344 */ size_t storySize;
+    /* 2S2H  */ ShipInterfaceContext shipInterface;
 } InterfaceContext; // size = 0x348
 
 Gfx* Gfx_DrawTexRectRGBA16(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 textureHeight, s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy);
@@ -253,6 +278,10 @@ void Interface_SetHudVisibility(u16 hudVisibility);
 void Interface_UpdateButtonsPart2(struct PlayState* play);
 void Interface_SetSceneRestrictions(struct PlayState* play);
 void Interface_InitMinigame(struct PlayState* play);
+// #region 2S2H [Dpad]
+void Interface_Dpad_LoadItemIconImpl(struct PlayState* play, u8 btn);
+void Interface_Dpad_LoadItemIcon(struct PlayState* play, u8 btn);
+// #endregion
 void Interface_LoadItemIconImpl(struct PlayState* play, u8 btn);
 void Interface_LoadItemIcon(struct PlayState* play, u8 btn);
 void Interface_UpdateButtonsAlt(struct PlayState* play, u16 flag);
@@ -264,6 +293,9 @@ s32 Inventory_ReplaceItem(struct PlayState* play, u8 oldItem, u8 newItem);
 void Inventory_UpdateDeitySwordEquip(struct PlayState* play) ;
 s32 Inventory_HasEmptyBottle(void);
 s32 Inventory_HasItemInBottle(u8 item);
+// #region 2S2H [Dpad]
+void Inventory_Dpad_UpdateBottleItem(struct PlayState* play, u8 item, u8 btn);
+// #endregion
 void Inventory_UpdateBottleItem(struct PlayState* play, u8 item, u8 btn);
 s32 Inventory_ConsumeFairy(struct PlayState* play);
 void Inventory_UpdateItem(struct PlayState* play, s16 slot, s16 item);
