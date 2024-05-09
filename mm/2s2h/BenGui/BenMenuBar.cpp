@@ -356,14 +356,6 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
-        if (UIWidgets::BeginMenu("Restorations")) {
-            UIWidgets::CVarCheckbox("Power Crouch Stab", "gEnhancements.Restorations.PowerCrouchStab", {
-                .tooltip = "Crouch stabs will use the power of Link's previous melee attack, as is in MM JP 1.0 and OOT."
-            });
-
-            ImGui::EndMenu();
-        }
-
         if (UIWidgets::BeginMenu("Graphics")) {
             MotionBlur_RenderMenuOptions();
             ImGui::SeparatorText("Other");
@@ -401,6 +393,9 @@ void DrawEnhancementsMenu() {
         }
 
         if (UIWidgets::BeginMenu("Restorations")) {
+            UIWidgets::CVarCheckbox("Power Crouch Stab", "gEnhancements.Restorations.PowerCrouchStab", {
+                .tooltip = "Crouch stabs will use the power of Link's previous melee attack, as is in MM JP 1.0 and OOT."
+            });
             UIWidgets::CVarCheckbox("Side Rolls", "gEnhancements.Restorations.SideRoll", {
                 .tooltip = "Restores side rolling from OOT."
             });
