@@ -113,10 +113,9 @@ void Camera_DebugCam(Camera* camera) {
     posDiff.z = -sCamPlayState->state.input[controllerPort].cur.stick_y * camSpeed;
 
     // Adjust movement to camera's current direction
-    Vec3f camPosDiff;
-    camPosDiff.x = camPosDiff.y = camPosDiff.z = 0.0f;
+    Vec3f camPosDiff = { 0.0f, 0.0f, 0.0f };
 
-    VecGeo diffGeo = OLib_Vec3fDiffToVecGeo(at, eyeNext);
+    VecGeo diffGeo = OLib_Vec3fDiffToVecGeo(eyeNext, at);
     camera->up = Camera_CalcUpVec(diffGeo.pitch, diffGeo.yaw, camera->roll);
     Vec3f normX;
     Vec3f normY = camera->up;
@@ -126,12 +125,6 @@ void Camera_DebugCam(Camera* camera) {
     normX.x = normY.y * normZ.z - normY.z * normZ.y;
     normX.y = normY.z * normZ.x - normY.x * normZ.z;
     normX.z = normY.x * normZ.y - normY.y * normZ.x;
-
-    // Account for flipped normal calculation due to camera roll
-    if (normY.y < 0.0f) {
-        posDiff.x = -posDiff.x;
-        posDiff.y = -posDiff.y;
-    }
 
     Math_Vec3f_Scale(&normX, posDiff.x);
     Math_Vec3f_Scale(&normY, posDiff.y);
