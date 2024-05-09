@@ -1859,10 +1859,6 @@ void Animation_ChangeImpl(SkelAnime* skelAnime, AnimationHeader* animation, f32 
  */
 void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
                       u8 mode, f32 morphFrames) {
-    AnimationHeader* ogAnim = animation;
-
-    if (ResourceMgr_OTRSigCheck(animation) != 0)
-        animation = ResourceMgr_LoadAnimByName(animation);
     Animation_ChangeImpl(skelAnime, animation, playSpeed, startFrame, endFrame, mode, morphFrames, ANIMTAPER_NONE);
 }
 
