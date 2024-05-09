@@ -683,16 +683,16 @@ void KaleidoScope_UpdateMaskCursor(PlayState* play) {
     }
 }
 
-s16 sMaskCButtonPosX[] = { 
+s16 sMaskCButtonPosX[] = {
     660, 900, 1140,
     // #region 2S2H
-    1340, 860, 1100, 1100
+    1350, 1030, 1190, 1190
     // #endregion
 };
-s16 sMaskCButtonPosY[] = { 
+s16 sMaskCButtonPosY[] = {
     1100, 920, 1100,
     // #region 2S2H
-    620, 620, 440, 760
+    570, 570, 410, 730
     // #endregion
 };
 
@@ -1032,14 +1032,14 @@ void KaleidoScope_UpdateMaskEquip(PlayState* play) {
     s16 maskCButtonPosX = sMaskCButtonPosX[pauseCtx->equipTargetCBtn];
     s16 maskCButtonPosY = sMaskCButtonPosY[pauseCtx->equipTargetCBtn];
 
-    // BENTODO: Handle when DPad hud elements are added
-    HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_LEFT + pauseCtx->equipTargetCBtn);
+    HudEditor_SetActiveElement(pauseCtx->equipTargetCBtn < 3 ? HUD_EDITOR_ELEMENT_C_LEFT + pauseCtx->equipTargetCBtn
+                                                             : HUD_EDITOR_ELEMENT_D_PAD);
 
     if (sMaskEquipState == EQUIP_STATE_MOVE_TO_C_BTN && HudEditor_ShouldOverrideDraw()) {
         s16 equipAnimShrinkRate = 40;
         HudEditor_ModifyKaleidoEquipAnimValues(&maskCButtonPosX, &maskCButtonPosY, &equipAnimShrinkRate);
 
-        // Override the anim shrink rate at the beginning (when its value is 320)
+        // Override the anim shrink rate at the beginning (value is 320)
         if (pauseCtx->equipAnimScale == 320) {
             pauseCtx->equipAnimShrinkRate = equipAnimShrinkRate;
         }
@@ -1048,6 +1048,12 @@ void KaleidoScope_UpdateMaskEquip(PlayState* play) {
             HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
             pauseCtx->equipAnimScale = 0;
             pauseCtx->equipAnimShrinkRate = 0;
+        }
+    } else if (sMaskEquipState == EQUIP_STATE_MOVE_TO_C_BTN && pauseCtx->equipTargetCBtn >= 3) {
+        // Equips to DPad need to shrink fast to be have a final smaller size (16px),
+        // So we override the anim shrink rate at the beginning (value is 320)
+        if (pauseCtx->equipAnimScale == 320) {
+            pauseCtx->equipAnimShrinkRate = 160;
         }
     }
 
