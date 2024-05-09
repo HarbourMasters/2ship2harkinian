@@ -8,6 +8,8 @@
 #include "z64shrink_window.h"
 #include <string.h>
 
+#include "BenPort.h"
+
 typedef struct {
     /* 0x0 */ s8 letterboxTarget;
     /* 0x1 */ s8 letterboxSize;

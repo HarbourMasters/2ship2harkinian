@@ -1,6 +1,7 @@
 #include "fault.h"
 #include "idle.h"
 #include "z64.h"
+#include "BenPort.h"
 
 // Variables are put before most headers as a hacky way to bypass bss reordering
 FaultClient sSchedFaultClient;

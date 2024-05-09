@@ -249,57 +249,7 @@ void gSPInvalidateTexCache(Gfx* pkt, uintptr_t texAddr) {
 
     __gSPInvalidateTexCache(pkt, texAddr);
 }
-void func_801A1290(void) {
 
-}
-
-void func_801A1904(void) {
-
-}
-
-void func_801A1E0C(void) {
-
-}
-
-void func_801A2090(void) {
-
-}
-
-void func_801A312C(void) {
-
-}
-
-void func_801A3AC0(void) {
-
-}
-
-void func_801A1FB4(u8 playerIndex, Vec3f* pos, u16 seqId, f32 maxDist) {
-
-}
-
-void func_801A3A7C(s32 arg0) {
-
-}
-
-void func_801A3CD8(s8 param_1) {
-
-}
-void func_801A3CF4(s8 arg0) {
-}
-void func_801A3D98(s8 audioSetting) {
-}
-void func_801A3E38(u8 arg0) {
-}
-void func_801A3EC0(u8 arg0) {
-}
-void func_801A4058(UNK_TYPE arg0) {
-}
-void func_801A41C8(s32 arg0) {
-}
-void func_801A41F8(UNK_TYPE arg0) {
-}
-void func_801A3000(u16 seqId, u8 ioData) {
-}
 u16 func_801A5100(void) {
 }
 void __osDispatchThread(void) {
@@ -336,8 +286,6 @@ OSThread* __osPopThread(OSThread** param_1) {
 void osMapTLBRdb(void) {
 }
 u32 __osProbeTLB(void* param_1) {
-}
-void func_801A31EC(u16 seqId, s8 arg1, u8 arg2) {
 }
 s32 osAiSetFrequency(u32 frequency) {
     return 1;

@@ -6,6 +6,7 @@
 
 #include "z_obj_kinoko.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
+#include "BenPort.h"
 
 #define FLAGS (ACTOR_FLAG_10)
 

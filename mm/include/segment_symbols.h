@@ -4,44 +4,34 @@
 #include "libc/stddef.h"
 #include "PR/ultratypes.h"
 
-#define DECLARE_SEGMENT(name) \
-    //    extern u8 _##name##SegmentStart[]; \
-//    extern u8 _##name##SegmentEnd[];
+#define DECLARE_SEGMENT(name)
 
-#define DECLARE_ROM_SEGMENT(name) \
-    //    extern u8 _##name##SegmentRomStart[]; \
-//    extern u8 _##name##SegmentRomEnd[];
+#define DECLARE_ROM_SEGMENT(name)
 
-#define DECLARE_BSS_SEGMENT(name)             \
-//    extern u8 _##name##SegmentBssStart[]; \
-//    extern u8 _##name##SegmentBssEnd[]; \
-//
+#define DECLARE_BSS_SEGMENT(name) 
+
 #define DECLARE_OVERLAY_SEGMENT(name) \
     DECLARE_SEGMENT(ovl_##name)       \
     DECLARE_ROM_SEGMENT(ovl_##name)
 
 #define SEGMENT_START(segment) 0
-//(_ ## segment ## SegmentStart)
 
 #define SEGMENT_END(segment) 0
-//(_ ## segment ## SegmentEnd)
 
 #define SEGMENT_SIZE(segment) (uintptr_t) 0
-//((uintptr_t)SEGMENT_END(segment) - (uintptr_t)SEGMENT_START(segment))
+
 
 #define SEGMENT_ROM_START(segment) NULL
-//(_ ## segment ## SegmentRomStart)
+
 #define SEGMENT_ROM_END(segment) NULL
-//(_ ## segment ## SegmentRomEnd)
+
 #define SEGMENT_ROM_SIZE(segment) 0
-//((uintptr_t)SEGMENT_ROM_END(segment) - (uintptr_t)SEGMENT_ROM_START(segment))
 
 #define SEGMENT_BSS_START(segment) 0
-//(_ ## segment ## SegmentBssStart)
+
 #define SEGMENT_BSS_END(segment) 0
-//(_ ## segment ## SegmentBssEnd)
+
 #define SEGMENT_BSS_SIZE(segment) 0
-//((uintptr_t)SEGMENT_BSS_END(segment) - (uintptr_t)SEGMENT_BSS_START(segment))
 
 #define ROM_FILE(name) \
     { (uintptr_t) SEGMENT_ROM_START(name), (uintptr_t)SEGMENT_ROM_END(name) }

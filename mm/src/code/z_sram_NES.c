@@ -3,6 +3,7 @@
 #include "overlays/gamestates/ovl_file_choose/z_file_select.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include <string.h>
+#include "BenPort.h"
 
 #include "Enhancements/GameInteractor/GameInteractor.h"
 
@@ -1848,6 +1849,8 @@ void Sram_InitSave(FileSelectState* fileSelect2, SramContext* sramCtx) {
         gSaveContext.save.saveInfo.playerData.newf[5] = '3';
 
         gSaveContext.save.saveInfo.checksum = Sram_CalcChecksum(&gSaveContext.save, sizeof(Save));
+
+        GameInteractor_ExecuteOnSaveInit(fileSelect->buttonIndex);
 
         memcpy(sramCtx->saveBuf, &gSaveContext.save, sizeof(Save));
         memcpy(&sramCtx->saveBuf[0x2000], &gSaveContext.save, sizeof(Save));
