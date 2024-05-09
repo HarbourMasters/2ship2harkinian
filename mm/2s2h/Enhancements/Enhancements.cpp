@@ -20,6 +20,7 @@ void InitEnhancements() {
     RegisterEnableSunsSong();
     
     // Restorations
+    RegisterPowerCrouchStab();
     RegisterSideRoll();
     
     // Cutscenes

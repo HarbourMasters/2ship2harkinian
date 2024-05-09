@@ -9988,7 +9988,9 @@ s32 func_8083FD80(Player* this, PlayState* play) {
     if (!Player_IsGoronOrDeku(this) && (Player_GetMeleeWeaponHeld(this) != PLAYER_MELEEWEAPON_NONE) &&
         (this->transformation != PLAYER_FORM_ZORA) && sPlayerUseHeldItem) {
         //! Calling this function sets the meleeWeaponQuads' damage properties correctly, patching "Power Crouch Stab".
-        func_8083375C(this, PLAYER_MWA_STAB_1H);
+        if (GameInteractor_Should(GI_VB_PATCH_POWER_CROUCH_STAB, true, NULL)) {
+            func_8083375C(this, PLAYER_MWA_STAB_1H);
+        }
         Player_AnimationPlayOnce(play, this, &gPlayerAnim_link_normal_defense_kiru);
         this->av1.actionVar1 = 1;
         this->meleeWeaponAnimation = PLAYER_MWA_STAB_1H;
