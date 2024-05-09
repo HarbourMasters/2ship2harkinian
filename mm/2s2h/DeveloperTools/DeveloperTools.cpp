@@ -1,7 +1,6 @@
 #include "DeveloperTools.h"
 #include "BenPort.h"
 #include <libultraship/libultraship.h>
-#include <spdlog/spdlog.h>
 #include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 
 extern "C" {
