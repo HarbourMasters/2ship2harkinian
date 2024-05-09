@@ -3,6 +3,8 @@
 //! Note that this is not the same as the original libultra
 //! osAiSetNextBuffer, see comments in the function
 
+#if 0
+
 s32 osAiSetNextBuffer(void* buf, u32 size) {
     static u8 D_801D6010 = false;
     uintptr_t bufAdjusted = (uintptr_t)buf;
@@ -29,6 +31,8 @@ s32 osAiSetNextBuffer(void* buf, u32 size) {
     IO_WRITE(AI_LEN_REG, size);
     return 0;
 }
+
+#endif // 0
 
 //! Note that the remaining data and functions are unused and not part of the
 //! original libultra osAiSetNextBuffer

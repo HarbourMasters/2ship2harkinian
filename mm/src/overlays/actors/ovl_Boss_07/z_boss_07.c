@@ -5895,7 +5895,6 @@ void Boss07_Static_Update(Actor* thisx, PlayState* play2) {
 
     if (sHeartbeatTimer != 0) {
         sHeartbeatTimer--;
-    dummy_label:; //!@fake
         Audio_PlaySfx(NA_SE_EN_LAST2_HEARTBEAT_OLD - SFX_FLAG);
     }
     if (this->lensFlareOn) {

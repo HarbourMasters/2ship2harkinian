@@ -3,7 +3,7 @@
 #include "align_asset_macro.h"
 
 // This file is manually made
-// When new assets are added to the soh.otr file
+// When new assets are added to the 2ship.otr file
 // We need to add the aligned version of the resource names here and use in code
 // On Mac, not using aligned resource names was causing crashes in release builds
 
@@ -55,3 +55,6 @@ static const ALIGN_ASSET(2) char gThreeDayClockHour23Tex[] = dgThreeDayClockHour
 
 #define dgThreeDayClockHour24Tex "__OTR__textures/parameter_static/gThreeDayClockHour24Tex"
 static const ALIGN_ASSET(2) char gThreeDayClockHour24Tex[] = dgThreeDayClockHour24Tex;
+
+#define dgEmptyTexture "__OTR__textures/virtual/gEmptyTexture"
+static const ALIGN_ASSET(2) char gEmptyTexture[] = dgEmptyTexture;

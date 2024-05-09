@@ -1,6 +1,7 @@
 #ifndef LIBC_STDARG_H
 #define LIBC_STDARG_H
-
+#include <stdarg.h>
+#if 0
 // When building with GCC, use the official vaarg macros to avoid warnings
 // and possibly bad codegen.
 #ifdef __GNUC__
@@ -40,5 +41,5 @@ typedef char *va_list;
 #define va_end(__list)
 
 #endif /* __GNUC__ */
-
+#endif
 #endif /* STDARG_H */

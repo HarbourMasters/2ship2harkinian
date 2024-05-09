@@ -6,6 +6,8 @@
 
 #include "z_en_raf.h"
 #include "overlays/actors/ovl_En_Clear_Tag/z_en_clear_tag.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "BenPort.h"
 
 #define FLAGS (ACTOR_FLAG_CANT_LOCK_ON)
 
@@ -15,6 +17,7 @@ void EnRaf_Init(Actor* thisx, PlayState* play);
 void EnRaf_Destroy(Actor* thisx, PlayState* play);
 void EnRaf_Update(Actor* thisx, PlayState* play);
 void EnRaf_Draw(Actor* thisx, PlayState* play);
+void EnRaf_Reset(void);
 
 void EnRaf_SetupIdle(EnRaf* this);
 void EnRaf_Idle(EnRaf* this, PlayState* play);
@@ -78,6 +81,7 @@ ActorInit En_Raf_InitVars = {
     /**/ EnRaf_Destroy,
     /**/ EnRaf_Update,
     /**/ EnRaf_Draw,
+    /**/ EnRaf_Reset,
 };
 
 static ColliderCylinderInit sCylinderInit = {
@@ -144,6 +148,9 @@ static u8 sPetalClearPixelTableSecondPass[] = {
     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
 };
 
+static u8 sCurTeethMask[ARRAY_COUNTU(sTeethClearPixelTableFirstPass)];
+static u8 sCurPetalMask[ARRAY_COUNTU(sPetalClearPixelTableFirstPass)];
+
 static DamageTable sDamageTable = {
     /* Deku Nut       */ DMG_ENTRY(0, 0xF),
     /* Deku Stick     */ DMG_ENTRY(0, 0xF),
@@ -179,29 +186,34 @@ static DamageTable sDamageTable = {
     /* Powder Keg     */ DMG_ENTRY(0, 0xF),
 };
 
+
+// #region 2S2H [Port] The original game set the texture pixel to zero to make it transparent. 
+// We need to set a mask to 1 to tell the shader to mask that part of the texture. 
+// This applies to both functions.
+
 /**
- * Sets the `index`th pixel of the trap teeth texture to 0 (transparent black)
+ * Sets the `index`th pixel of the trap teeth texture mask to 1
  * according to the `clearPixelTable`. Only works if the texture uses 16-bit pixels.
  */
-void EnRaf_ClearPixelTeeth(u16* texture, u8* clearPixelTable, s32 index) {
+void EnRaf_ClearPixelTeeth(u8* mask, u8* clearPixelTable, s32 index) {
     if ((index < (8 * 8)) && (clearPixelTable[index] != 0)) {
-        texture[index] = 0;
+        mask[index] = 1;
     }
 }
 
 /**
- * Sets the `index`th pixel of the trap petal texture to 0 (transparent black)
+ * Sets the `index`th pixel of the trap petal texture mask to 1
  * according to the `clearPixelTable`. Only works if the texture uses 16-bit pixels.
  */
-void EnRaf_ClearPixelPetal(u16* texture, u8* clearPixelTable, s32 index) {
+void EnRaf_ClearPixelPetal(u8* mask, u8* clearPixelTable, s32 index) {
     if (clearPixelTable[index] != 0) {
-        texture[index] = 0;
+        mask[index] = 1;
     }
 }
 
 void EnRaf_Init(Actor* thisx, PlayState* play) {
     EnRaf* this = THIS;
-    Vec3f limbScale = { 1.0f, 1.0f, 1.0f };
+    static Vec3f limbScale = { 1.0f, 1.0f, 1.0f };
     s32 pad;
     s32 i;
     CollisionHeader* colHeader = NULL;
@@ -252,6 +264,10 @@ void EnRaf_Init(Actor* thisx, PlayState* play) {
         Actor_SetScale(&this->dyna.actor, 0.01f);
         EnRaf_SetupIdle(this);
     }
+
+    Gfx_RegisterBlendedTexture(gCarnivorousLilyPadTrapPetalTex, sCurPetalMask, NULL);
+    Gfx_RegisterBlendedTexture(gCarnivorousLilyPadTrapTeethTex, sCurTeethMask, NULL);
+
 }
 
 void EnRaf_Destroy(Actor* thisx, PlayState* play) {
@@ -608,10 +624,10 @@ void EnRaf_Dissolve(EnRaf* this, PlayState* play) {
         this->dissolveTimer++;
         if (this->dissolveTimer < (BREG(3) + 105)) {
             for (i = 0; i < (BREG(4) + 5); i++) {
-                EnRaf_ClearPixelPetal(Lib_SegmentedToVirtual(&gCarnivorousLilyPadTrapPetalTex),
-                                      sPetalClearPixelTableFirstPass, this->petalClearPixelFirstPassIndex);
-                EnRaf_ClearPixelTeeth(Lib_SegmentedToVirtual(&gCarnivorousLilyPadTrapTeethTex),
-                                      sTeethClearPixelTableFirstPass, this->teethClearPixelFirstPassIndex);
+                //#region 2S2H [Port] Instead of directly zeroing the texture pixels, set a texture mask.
+                // Applies to both loops.
+                EnRaf_ClearPixelPetal(sCurPetalMask, sPetalClearPixelTableFirstPass, this->petalClearPixelFirstPassIndex);
+                EnRaf_ClearPixelTeeth(sCurTeethMask, sTeethClearPixelTableFirstPass, this->teethClearPixelFirstPassIndex);
                 if (this->petalClearPixelFirstPassIndex < (16 * 32)) {
                     this->petalClearPixelFirstPassIndex++;
                 }
@@ -625,10 +641,8 @@ void EnRaf_Dissolve(EnRaf* this, PlayState* play) {
 
     if (this->dissolveTimer > (BREG(5) + 50)) {
         for (i = 0; i < (BREG(6) + 5); i++) {
-            EnRaf_ClearPixelPetal(Lib_SegmentedToVirtual(&gCarnivorousLilyPadTrapPetalTex),
-                                  sPetalClearPixelTableSecondPass, this->petalClearPixelSecondPassIndex);
-            EnRaf_ClearPixelTeeth(Lib_SegmentedToVirtual(&gCarnivorousLilyPadTrapTeethTex),
-                                  sTeethClearPixelTableSecondPass, this->teethClearPixelSecondPassIndex);
+            EnRaf_ClearPixelPetal(sCurPetalMask, sPetalClearPixelTableSecondPass, this->petalClearPixelSecondPassIndex);
+            EnRaf_ClearPixelTeeth(sCurTeethMask, sTeethClearPixelTableSecondPass, this->teethClearPixelSecondPassIndex);
             if (this->petalClearPixelSecondPassIndex < (16 * 32)) {
                 this->petalClearPixelSecondPassIndex++;
             }
@@ -876,8 +890,20 @@ void EnRaf_Draw(Actor* thisx, PlayState* play) {
 
     Gfx_SetupDL25_Opa(play->state.gfxCtx);
     Gfx_SetupDL25_Xlu(play->state.gfxCtx);
+    
+    OPEN_DISPS(play->state.gfxCtx);
+
+    // #2S2H [Port] Invalidate the blend masks when they are set in the cutscene
+    if (this->dissolveTimer < (BREG(3) + 105) || (this->dissolveTimer > (BREG(5) + 50))) {
+        gSPInvalidateTexCache(POLY_OPA_DISP++, sCurTeethMask);
+        gSPInvalidateTexCache(POLY_OPA_DISP++, sCurPetalMask);
+    }
+
+    CLOSE_DISPS(play->state.gfxCtx);
+
     SkelAnime_DrawTransformFlexOpa(play, this->skelAnime.skeleton, this->skelAnime.jointTable,
                                    this->skelAnime.dListCount, NULL, NULL, EnRaf_TransformLimbDraw, &this->dyna.actor);
+    
 
     if (this->action == EN_RAF_ACTION_EXPLODE) {
         EnRaf_DrawEffects(this, play);
@@ -952,6 +978,7 @@ void EnRaf_DrawEffects(EnRaf* this, PlayState* play) {
     Gfx_SetupDL25_Opa(play->state.gfxCtx);
     for (i = 0; i < ARRAY_COUNT(this->effects); i++, effect++) {
         if (effect->isEnabled) {
+            FrameInterpolation_RecordOpenChild(effect, i);
             Matrix_Translate(effect->pos.x, effect->pos.y, effect->pos.z, MTXMODE_NEW);
             Matrix_Scale(effect->scale, effect->scale, effect->scale, MTXMODE_APPLY);
             Matrix_RotateXS(effect->rot.x, MTXMODE_APPLY);
@@ -960,8 +987,20 @@ void EnRaf_DrawEffects(EnRaf* this, PlayState* play) {
 
             gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_OPA_DISP++, gCarnivorousLilyPadParticleDL);
+            FrameInterpolation_RecordCloseChild();
         }
     }
 
     CLOSE_DISPS(gfxCtx);
+}
+
+void EnRaf_Reset(void) {
+    Gfx_UnregisterBlendedTexture(gCarnivorousLilyPadTrapPetalTex);
+    Gfx_UnregisterBlendedTexture(gCarnivorousLilyPadTrapTeethTex);
+
+    Gfx_TextureCacheDelete(sCurPetalMask);
+    Gfx_TextureCacheDelete(sCurTeethMask);
+
+    memset(sCurPetalMask, 0, sizeof(sCurPetalMask));
+    memset(sCurTeethMask, 0, sizeof(sCurTeethMask));
 }
