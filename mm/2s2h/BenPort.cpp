@@ -121,9 +121,9 @@ OTRGlobals::OTRGlobals() {
     if (std::filesystem::exists(ootPath)) {
         OTRFiles.push_back(ootPath);
     }
-    std::string sohOtrPath = Ship::Context::GetPathRelativeToAppBundle("soh.otr");
-    if (std::filesystem::exists(sohOtrPath)) {
-        OTRFiles.push_back(sohOtrPath);
+    std::string shipOtrPath = Ship::Context::GetPathRelativeToAppBundle("2ship.otr");
+    if (std::filesystem::exists(shipOtrPath)) {
+        OTRFiles.push_back(shipOtrPath);
     }
     std::string patchesPath = Ship::Context::LocateFileAcrossAppDirs("mods", appShortName);
     if (patchesPath.length() > 0 && std::filesystem::exists(patchesPath)) {
@@ -140,7 +140,7 @@ OTRGlobals::OTRGlobals() {
                                                  OOT_PAL_11,     OOT_NTSC_JP_GC_CE, OOT_NTSC_JP_GC, OOT_NTSC_US_GC,
                                                  OOT_PAL_GC,     OOT_PAL_GC_DBG1,   OOT_PAL_GC_DBG2 };
     // tell LUS to reserve 3 SoH specific threads (Game, Audio, Save)
-    context = Ship::Context::CreateInstance("2 Ship 2 Harkinian", appShortName, "shipofharkinian.json", OTRFiles, {}, 3);
+    context = Ship::Context::CreateInstance("2 Ship 2 Harkinian", appShortName, "2ship2harkinian.json", OTRFiles, {}, 3);
 
     // Override LUS defaults
     Ship::Context::GetInstance()->GetLogger()->set_level((spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
