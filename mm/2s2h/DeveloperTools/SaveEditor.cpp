@@ -34,6 +34,8 @@ const char* MAGIC_LEVEL_NAMES[3] = { "No Magic", "Single Magic", "Double Magic" 
 constexpr int8_t MAGIC_LEVEL_MAX = 2;
 const char* WALLET_LEVEL_NAMES[3] = { "Child Wallet", "Adult Wallet", "Giant Wallet" };
 constexpr u8 WALLET_LEVEL_MAX = 2;
+ImVec4 colorTint;
+const char* songTooltip;
 
 InventorySlot selectedInventorySlot = SLOT_NONE;
 std::vector<ItemId> safeItemsForInventorySlot[SLOT_MASK_FIERCE_DEITY + 1] = {};
@@ -601,6 +603,268 @@ void DrawItemsAndMasksTab() {
     ImGui::PopStyleVar(2);
 }
 
+void SongInfo(int32_t itemID) {
+    switch (itemID) {
+        case QUEST_SONG_SONATA:
+            colorTint = ImVec4(0.588f, 1.0f, 0.392f, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Sonata of Awakening";
+            break;
+        case QUEST_SONG_LULLABY:
+            colorTint = ImVec4(1.0f, 0.313f, 0.156f, (CHECK_QUEST_ITEM(itemID) || CHECK_QUEST_ITEM(QUEST_SONG_LULLABY_INTRO)) ? 1.0f : 0.4f);
+            songTooltip = (!CHECK_QUEST_ITEM(itemID) && CHECK_QUEST_ITEM(QUEST_SONG_LULLABY_INTRO)) ? "Goron Lullaby Intro" : "Goron Lullaby";
+            break;
+        case QUEST_SONG_BOSSA_NOVA:
+            colorTint = ImVec4(0.392f, 0.588f, 1.0f, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "New Wave Bossa Nova";
+            break;
+        case QUEST_SONG_ELEGY:
+            colorTint = ImVec4(1.0f, 0.627f, 0.0f, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Elegy of Emptiness";
+            break;
+        case QUEST_SONG_OATH:
+            colorTint = ImVec4(1.0f, 0.392f, 1.0f, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Oath to Order";
+            break;
+        case QUEST_SONG_TIME:
+            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Song of Time";
+            break;
+        case QUEST_SONG_HEALING:
+            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Song of Healing";
+            break;
+        case QUEST_SONG_EPONA:
+            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Eponas Song";
+            break;
+        case QUEST_SONG_SOARING:
+            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Song of Soaring";
+            break;
+        case QUEST_SONG_STORMS:
+            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Song of Storms";
+            break;
+        case QUEST_SONG_SARIA:
+            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Saria's Song (Unused?)";
+            break;
+        case QUEST_SONG_SUN:
+            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Sun's Song (Not Obtainable)";
+            break;
+        default:
+            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = " ";
+            break;
+    }
+}
+
+std::map<QuestItem, ItemId>questToItemMap = {
+    { QUEST_REMAINS_ODOLWA,     ITEM_REMAINS_ODOLWA },
+    { QUEST_REMAINS_GOHT,       ITEM_REMAINS_GOHT },
+    { QUEST_REMAINS_GYORG,      ITEM_REMAINS_GYORG },
+    { QUEST_REMAINS_TWINMOLD,   ITEM_REMAINS_TWINMOLD },
+    { QUEST_SONG_SONATA,        ITEM_SONG_SONATA },
+    { QUEST_SONG_LULLABY,       ITEM_SONG_LULLABY },
+    { QUEST_SONG_BOSSA_NOVA,    ITEM_SONG_NOVA },
+    { QUEST_SONG_ELEGY,         ITEM_SONG_ELEGY },
+    { QUEST_SONG_OATH,          ITEM_SONG_OATH },
+    { QUEST_SONG_SARIA,         ITEM_SONG_SARIA },
+    { QUEST_SONG_TIME,          ITEM_SONG_TIME },
+    { QUEST_SONG_HEALING,       ITEM_SONG_HEALING },
+    { QUEST_SONG_EPONA,         ITEM_SONG_EPONA },
+    { QUEST_SONG_SOARING,       ITEM_SONG_SOARING },
+    { QUEST_SONG_STORMS,        ITEM_SONG_STORMS },
+    { QUEST_SONG_SUN,           ITEM_SONG_SUN }
+};
+
+void NextQuestInSlot(QuestItem slot) {
+    if (!gPlayState) {
+        return;
+    }
+    Player* player = GET_PLAYER(gPlayState);
+    if (slot == QUEST_SONG_LULLABY || slot == QUEST_SONG_LULLABY_INTRO) {
+        if (CHECK_QUEST_ITEM(QUEST_SONG_LULLABY)) {
+            REMOVE_QUEST_ITEM(QUEST_SONG_LULLABY);
+            REMOVE_QUEST_ITEM(QUEST_SONG_LULLABY_INTRO);
+        } else if (CHECK_QUEST_ITEM(QUEST_SONG_LULLABY_INTRO)) {
+            SET_QUEST_ITEM(QUEST_SONG_LULLABY);
+        } else {
+            SET_QUEST_ITEM(QUEST_SONG_LULLABY_INTRO);
+        }
+    } else if (slot == QUEST_SWORD) {
+        uint32_t currentSword = GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD);
+        if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) >= EQUIP_VALUE_SWORD_GILDED) {
+            SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_KOKIRI);
+        } else {
+            SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, currentSword + 1);
+        }
+        BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_KOKIRI + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI;
+        if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) == EQUIP_VALUE_SWORD_RAZOR) {
+            gSaveContext.save.saveInfo.playerData.swordHealth = 100;
+        }
+        Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_B);
+    } else if (slot == QUEST_SHIELD) {
+        uint32_t currentShield = GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD);
+        if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD) == 1) {
+            SET_EQUIP_VALUE(EQUIP_TYPE_SHIELD, EQUIP_VALUE_SHIELD_MIRROR);
+        } else {
+            SET_EQUIP_VALUE(EQUIP_TYPE_SHIELD, EQUIP_VALUE_SHIELD_HERO);
+        }
+        Player_SetEquipmentData(gPlayState, player);
+    } else {
+        if (CHECK_QUEST_ITEM(slot)) {
+            REMOVE_QUEST_ITEM(slot);
+        } else {
+            SET_QUEST_ITEM(slot);
+        }
+    }
+}
+
+void DrawQuestSlot(QuestItem slot) {
+    int x = slot % 6;
+    int y = ((int)floor(slot / 6) % 4);
+    ImGui::PushID(slot);
+    
+    ImGui::SetCursorPos(ImVec2(x * INV_GRID_WIDTH + INV_GRID_PADDING, y * INV_GRID_HEIGHT + INV_GRID_TOP_MARGIN + INV_GRID_PADDING));
+
+    ImTextureID textureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[questToItemMap[slot]]);
+    if (ImGui::ImageButton(std::to_string(slot).c_str(), textureId, ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, CHECK_QUEST_ITEM(slot) ? 1.0f : 0.4f))) {
+        NextQuestInSlot(slot);
+    }
+   
+    ImGui::PopID();
+}
+
+void DrawSong(QuestItem slot) {
+    SongInfo(slot);
+    if (ImGui::ImageButton(std::to_string(slot).c_str(), Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[questToItemMap[(QuestItem)slot]]),
+        ImVec2(INV_GRID_ICON_SIZE / 1.5f, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), colorTint)) {
+        NextQuestInSlot(slot);
+    }
+    if (ImGui::IsItemHovered()) {
+        ImGui::BeginTooltip();
+        ImGui::Text(songTooltip);
+        ImGui::EndTooltip();
+    }
+    if (slot != QUEST_SONG_SUN) {
+        ImGui::SameLine();
+    }
+}
+
+void DrawQuestStatusTab() {
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 3.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f, 8.0f));
+    ImGui::BeginChild("questTab", ImVec2(0, 0), true);
+
+    if (UIWidgets::Button("Give All##items", { .color = UIWidgets::Colors::Green, .size = UIWidgets::Sizes::Inline })) {
+        for (int32_t i = QUEST_REMAINS_ODOLWA; i <= QUEST_BOMBERS_NOTEBOOK; i++) {
+            if (i != QUEST_SHIELD && i != QUEST_SWORD) {
+                SET_QUEST_ITEM(i);
+            }
+        }
+        SET_EQUIP_VALUE(EQUIP_TYPE_SHIELD, EQUIP_VALUE_SHIELD_MIRROR);
+        if (GET_PLAYER_FORM != PLAYER_FORM_FIERCE_DEITY) {
+            SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_GILDED);
+            if (gPlayState) {
+                Player_SetEquipmentData(gPlayState, GET_PLAYER(gPlayState));
+                BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_KOKIRI + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI;
+                Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_B);
+            }
+        }
+    }
+    ImGui::SameLine();
+    if (UIWidgets::Button("Reset##items", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+        for (int32_t i = QUEST_REMAINS_ODOLWA; i <= QUEST_BOMBERS_NOTEBOOK; i++) {
+            if (i != QUEST_SHIELD && i != QUEST_SWORD) {
+                REMOVE_QUEST_ITEM(i);
+            }
+        }
+        REMOVE_QUEST_ITEM(QUEST_SONG_LULLABY_INTRO);
+        SET_EQUIP_VALUE(EQUIP_TYPE_SHIELD, EQUIP_VALUE_SHIELD_HERO);
+        if (GET_PLAYER_FORM != PLAYER_FORM_FIERCE_DEITY) {
+            SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_KOKIRI);
+            if (gPlayState) {
+                Player_SetEquipmentData(gPlayState, GET_PLAYER(gPlayState));
+                BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_KOKIRI + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI;
+                Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_B);
+            }
+        }
+        
+    }
+
+    ImGui::BeginChild("remainsBox", ImVec2(INV_GRID_WIDTH * 4 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+    ImGui::Text("Boss Remains");
+    for (int32_t i = QUEST_REMAINS_ODOLWA; i <= QUEST_REMAINS_TWINMOLD; i++) {
+        QuestItem slot = static_cast<QuestItem>(i);
+    
+        DrawQuestSlot(slot);
+    }
+    ImGui::EndChild();
+    ImGui::BeginChild("songBox", ImVec2((INV_GRID_WIDTH / 1.1f) * 6 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 2.15f + INV_GRID_PADDING * 1 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+    ImGui::Text("Songs");
+    for (int32_t i = QUEST_SONG_TIME; i <= QUEST_SONG_SUN; i++) {
+        DrawSong((QuestItem)i);
+    }
+    for (int32_t i = QUEST_SONG_SONATA; i <= QUEST_SONG_SARIA; i++) {
+        DrawSong((QuestItem)i);
+    }
+    ImGui::EndChild();
+    ImGui::BeginChild("equipBox", ImVec2(INV_GRID_WIDTH * 2.2 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+    ImGui::Text("Equipment");
+    if (GET_PLAYER_FORM == PLAYER_FORM_FIERCE_DEITY) {
+        ImTextureID swordTextureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[ITEM_SWORD_DEITY]);
+        ImGui::ImageButton(std::to_string(ITEM_SWORD_DEITY).c_str(), swordTextureId, ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
+    } else {
+        ImTextureID swordTextureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[ITEM_SWORD_KOKIRI + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI]);
+        if (ImGui::ImageButton(std::to_string(ITEM_SWORD_KOKIRI).c_str(), swordTextureId, ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
+            NextQuestInSlot(QUEST_SWORD);
+        }
+    }
+    ImGui::SameLine();
+    if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD) == EQUIP_VALUE_SHIELD_HERO) {
+        ImTextureID shieldTextureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[ITEM_SHIELD_HERO]);
+        if (ImGui::ImageButton(std::to_string(ITEM_SHIELD_HERO).c_str(), shieldTextureId, ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
+            NextQuestInSlot(QUEST_SHIELD);
+        }
+    } else {
+        ImTextureID shieldTextureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[ITEM_SHIELD_MIRROR]);
+        if (ImGui::ImageButton(std::to_string(ITEM_SHIELD_MIRROR).c_str(), shieldTextureId, ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
+            NextQuestInSlot(QUEST_SHIELD);
+        }
+    }
+    ImGui::EndChild();
+    ImGui::SameLine();
+    ImGui::BeginChild("notebookBox", ImVec2(INV_GRID_WIDTH * 1 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+    ImGui::Text("Bombers");
+    ImTextureID textureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[ITEM_BOMBERS_NOTEBOOK]);
+    if (ImGui::ImageButton(std::to_string(ITEM_BOMBERS_NOTEBOOK).c_str(), textureId, ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, CHECK_QUEST_ITEM(QUEST_BOMBERS_NOTEBOOK) ? 1.0f : 0.4f))) {
+        NextQuestInSlot(QUEST_BOMBERS_NOTEBOOK);
+    }
+    ImGui::EndChild();
+    ImGui::BeginChild("heartshapedBox", ImVec2(INV_GRID_WIDTH * 2 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT + INV_GRID_PADDING), ImGuiChildFlags_Border);
+    ImGui::Text("Heart Pieces");
+    int32_t pohCount = (gSaveContext.save.saveInfo.inventory.questItems & 0xF0000000) >> 28;
+    UIWidgets::PushStyleCombobox(UIWidgets::Colors::Red);
+    if (ImGui::BeginCombo("##PoHcount", std::to_string(pohCount).c_str())) {
+        for (int32_t i = 0; i < 4; i++) {
+            if (ImGui::Selectable(std::to_string(i).c_str(), pohCount == i)) {
+                gSaveContext.save.saveInfo.inventory.questItems &= ~0xF0000000;
+                gSaveContext.save.saveInfo.inventory.questItems |= (i << 28);
+            }
+        }
+        ImGui::EndCombo();
+    }
+    UIWidgets::PopStyleCombobox();
+    ImGui::EndChild();
+
+    ImGui::EndChild();
+    ImGui::PopStyleVar(2);
+    ImGui::PopStyleColor(1);
+}
+
 const char* regGroupNames[] = {
     "REG  (0)",
     "SREG (1)",
@@ -1103,6 +1367,11 @@ void SaveEditorWindow::DrawElement() {
             ImGui::EndTabItem();
         }
 
+        if (ImGui::BeginTabItem("Quest Status")) {
+            DrawQuestStatusTab();
+            ImGui::EndTabItem();
+        }
+
         if (ImGui::BeginTabItem("Reg Editor")) {
             DrawRegEditorTab();
             ImGui::EndTabItem();
@@ -1110,11 +1379,6 @@ void SaveEditorWindow::DrawElement() {
 
         // if (ImGui::BeginTabItem("Equipment")) {
         //     DrawEquipmentTab();
-        //     ImGui::EndTabItem();
-        // }
-
-        // if (ImGui::BeginTabItem("Quest Status")) {
-        //     DrawQuestStatusTab();
         //     ImGui::EndTabItem();
         // }
 
