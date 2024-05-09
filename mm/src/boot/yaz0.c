@@ -3,14 +3,18 @@
 #include <stdio.h>
 #include <string.h>
 
+// 2S2H [Port] We don't use any Yaz0 data. Applies to everything removed in this file.
+#if 0
 u8 sYaz0DataBuffer[0x400] ALIGNED(16);
 u8* sYaz0CurDataEnd;
 uintptr_t sYaz0CurRomStart;
 u32 sYaz0CurSize;
 u8* sYaz0MaxPtr;
 void* gYaz0DecompressDstEnd;
+#endif
 
 void* Yaz0_FirstDMA() {
+    #if 0
     u32 pad0;
     u32 dmaSize;
     u32 curSize;
@@ -23,10 +27,12 @@ void* Yaz0_FirstDMA() {
     DmaMgr_DmaRomToRam(sYaz0CurRomStart, sYaz0DataBuffer, dmaSize);
     sYaz0CurRomStart += dmaSize;
     sYaz0CurSize -= dmaSize;
-    return sYaz0DataBuffer;
+    #endif
+    return NULL;
 }
 
 void* Yaz0_NextDMA(void* curSrcPos) {
+    #if 0
     u8* dst;
     u32 restSize;
     u32 dmaSize;
@@ -57,6 +63,7 @@ void* Yaz0_NextDMA(void* curSrcPos) {
     }
 
     return dst;
+    #endif
 }
 
 typedef struct {
@@ -69,6 +76,7 @@ typedef struct {
 #define YAZ0_MAGIC 0x59617A30 // "Yaz0"
 
 s32 Yaz0_DecompressImpl(u8* src, u8* dst) {
+    #if 0
     u32 bitIdx = 0;
     u8* dstEnd;
     u32 chunkHeader = 0;
@@ -123,9 +131,12 @@ s32 Yaz0_DecompressImpl(u8* src, u8* dst) {
     gYaz0DecompressDstEnd = dstEnd;
 
     return 0;
+    #endif
 }
 
 void Yaz0_Decompress(uintptr_t romStart, void* dst, size_t size) {
+
+#if 0
     s32 status;
     u32 pad;
     char sp80[0x50];
@@ -149,4 +160,5 @@ void Yaz0_Decompress(uintptr_t romStart, void* dst, size_t size) {
     }
 
     sYaz0CurDataEnd = NULL;
+    #endif
 }

@@ -99,6 +99,7 @@ void CmpDma_LoadFile(uintptr_t segmentVrom, s32 id, void* dst, size_t size) {
 
 void CmpDma_LoadAllFiles(uintptr_t segmentVrom, void* dst, size_t size) {
     return;
+#if 0
     uintptr_t rom = DmaMgr_TranslateVromToRom(segmentVrom);
     u32 i;
     u32 end;
@@ -115,4 +116,5 @@ void CmpDma_LoadAllFiles(uintptr_t segmentVrom, void* dst, size_t size) {
         CmpDma_LoadFileImpl(rom, i, nextDst, 0);
         nextDst = gYaz0DecompressDstEnd;
     }
+    #endif
 }

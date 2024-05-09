@@ -304,15 +304,9 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	set_target_properties(${PROJECT_NAME} PROPERTIES
 		VS_GLOBAL_KEYWORD "Win32Proj"
 	)
-	if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-		set_target_properties(${PROJECT_NAME} PROPERTIES
-			INTERPROCEDURAL_OPTIMIZATION_RELEASE "TRUE"
-		)
-	elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "Win32")
-		set_target_properties(${PROJECT_NAME} PROPERTIES
-			INTERPROCEDURAL_OPTIMIZATION_RELEASE "TRUE"
-		)
-	endif()
+	set_target_properties(${PROJECT_NAME} PROPERTIES
+		INTERPROCEDURAL_OPTIMIZATION_RELEASE "TRUE"
+	)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set_target_properties(${PROJECT_NAME} PROPERTIES
         XCODE_ATTRIBUTE_CLANG_ENABLE_OBJC_ARC YES
@@ -328,27 +322,15 @@ endif()
 ################################################################################
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	get_property(MSVC_RUNTIME_LIBRARY_DEFAULT TARGET ${PROJECT_NAME} PROPERTY MSVC_RUNTIME_LIBRARY)
-	if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-		string(CONCAT "MSVC_RUNTIME_LIBRARY_STR"
-			$<$<CONFIG:Debug>:
-				MultiThreadedDebug
-			>
-			$<$<CONFIG:Release>:
-				MultiThreaded
-			>
-			$<$<NOT:$<OR:$<CONFIG:Debug>,$<CONFIG:Release>>>:${MSVC_RUNTIME_LIBRARY_DEFAULT}>
-		)
-	elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "Win32")
-		string(CONCAT "MSVC_RUNTIME_LIBRARY_STR"
-			$<$<CONFIG:Debug>:
-				MultiThreadedDebug
-			>
-			$<$<CONFIG:Release>:
-				MultiThreaded
-			>
-			$<$<NOT:$<OR:$<CONFIG:Debug>,$<CONFIG:Release>>>:${MSVC_RUNTIME_LIBRARY_DEFAULT}>
-		)
-	endif()
+	string(CONCAT "MSVC_RUNTIME_LIBRARY_STR"
+		$<$<CONFIG:Debug>:
+			MultiThreadedDebug
+		>
+		$<$<CONFIG:Release>:
+			MultiThreaded
+		>
+		$<$<NOT:$<OR:$<CONFIG:Debug>,$<CONFIG:Release>>>:${MSVC_RUNTIME_LIBRARY_DEFAULT}>
+	)
 	set_target_properties(${PROJECT_NAME} PROPERTIES MSVC_RUNTIME_LIBRARY ${MSVC_RUNTIME_LIBRARY_STR})
 endif()
 ################################################################################
@@ -428,46 +410,25 @@ target_include_directories(${PROJECT_NAME} PRIVATE assets
 	.
 )
 
-if ("${CMAKE_SYSTEM_NAME}" STREQUAL "Windows")
-	if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-		target_compile_definitions(${PROJECT_NAME} PRIVATE
-			"$<$<CONFIG:Debug>:"
-				"_DEBUG;"
-				"_CRT_SECURE_NO_WARNINGS;"
-				"ENABLE_DX11;"
-			">"
-			"$<$<CONFIG:Release>:"
-				"NDEBUG"
-			">"
-			# "$<$<BOOL:${BUILD_CROWD_CONTROL}>:ENABLE_CROWD_CONTROL>"
-			"INCLUDE_GAME_PRINTF;"
-			"UNICODE;"
-			"_UNICODE"
-			STORMLIB_NO_AUTO_LINK
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+	target_compile_definitions(${PROJECT_NAME} PRIVATE
+		"$<$<CONFIG:Debug>:"
+			"_DEBUG;"
 			"_CRT_SECURE_NO_WARNINGS;"
-			NOMINMAX
-		)
-	elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "Win32")
-		target_compile_definitions(${PROJECT_NAME} PRIVATE
-			"$<$<CONFIG:Debug>:"
-				"NOINCLUDE_GAME_PRINTF;"
-				"_DEBUG;"
-				"_CRT_SECURE_NO_WARNINGS;"
-				"ENABLE_OPENGL"
-			">"
-			"$<$<CONFIG:Release>:"
-				"NDEBUG;"
-			">"
-			"INCLUDE_GAME_PRINTF;"
-            "NON_EQUIVALENT;"
-            "NON_MATCHING;"
-			"WIN32;"
-			"UNICODE;"
-			"_UNICODE"
-			STORMLIB_NO_AUTO_LINK
-			NOMINMAX
-		)
-	endif()
+			"ENABLE_DX11;"
+		">"
+		"$<$<CONFIG:Release>:"
+			"NDEBUG"
+		">"
+           #"$<$<BOOL:${BUILD_CROWD_CONTROL}>:ENABLE_CROWD_CONTROL>"
+		"INCLUDE_GAME_PRINTF;"
+           #"ENABLE_CROWD_CONTROL;"
+		"UNICODE;"
+		"_UNICODE"
+		STORMLIB_NO_AUTO_LINK
+		"_CRT_SECURE_NO_WARNINGS;"
+		NOMINMAX
+	)
 elseif (CMAKE_SYSTEM_NAME STREQUAL "CafeOS")
 	target_compile_definitions(${PROJECT_NAME} PRIVATE
 		"$<$<CONFIG:Debug>:"
@@ -504,75 +465,44 @@ endif()
 # Compile and link options
 ################################################################################
 if(MSVC)
-    if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-        target_compile_options(${PROJECT_NAME} PRIVATE
-            $<$<CONFIG:Debug>:
-                /w;
-                /Od
-            >
-            $<$<CONFIG:Release>:
-                /Oi;
-                /Gy;
-                /W3
-            >
-            /sdl-;
-            /permissive-;
-            /MP;
-            ${DEFAULT_CXX_DEBUG_INFORMATION_FORMAT};
-            ${DEFAULT_CXX_EXCEPTION_HANDLING}
-        )
-        target_compile_options(${PROJECT_NAME} PRIVATE  $<$<CONFIG:Debug>:/ZI;>)
-    elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "Win32")
-        target_compile_options(${PROJECT_NAME} PRIVATE
-            $<$<CONFIG:Debug>:
-                /RTCs
-				/w
-				/Od
-            >
-            $<$<CONFIG:Release>:
-                /O2;
-                /Oi;
-                /Gy
-            >
-            /permissive-;
-            /MP;
-            /sdl-;
+    target_compile_options(${PROJECT_NAME} PRIVATE
+        $<$<CONFIG:Debug>:
             /w;
-            ${DEFAULT_CXX_DEBUG_INFORMATION_FORMAT};
-            ${DEFAULT_CXX_EXCEPTION_HANDLING}
-        )
-    endif()
-    if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-        target_link_options(${PROJECT_NAME} PRIVATE
-            $<$<CONFIG:Debug>:
-                /INCREMENTAL
-            >
-            $<$<CONFIG:Release>:
-                /OPT:REF;
-                /OPT:ICF;
-                /INCREMENTAL:NO;
-                /FORCE:MULTIPLE
-            >
-            /MANIFEST:NO;
-            /DEBUG;
-            /SUBSYSTEM:WINDOWS
-        )
-    elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "Win32")
-        target_link_options(${PROJECT_NAME} PRIVATE
-            $<$<CONFIG:Debug>:
-                /STACK:8777216
-            >
-            $<$<CONFIG:Release>:
-                /OPT:REF;
-                /OPT:ICF;
-                /INCREMENTAL:NO;
-                /FORCE:MULTIPLE
-            >
-            /MANIFEST:NO;
-            /DEBUG;
-            /SUBSYSTEM:WINDOWS
-        )
-    endif()
+            /Od
+        >
+        $<$<CONFIG:Release>:
+            /Oi;
+            /Gy;
+            /W3
+        >
+		
+		/wd4024 #different types for formal and actual parameter [x]. Usually seen along side 4047.
+		/wd4047 #'uintptr_t' differs in levels of indirection from 'Gfx *'. Usually caused by passing a uintptr_t into a function expecting a pointer-types
+		/wd4090 #'initializing': different 'const' qualifiers. Caused when initializing a non const struct member with a const char*.		
+		/wd4101 # unreferenced local variable. Things like stack pads.
+		/wd4133 #incompatible types. Usually caused by passing a c string into a function that takes a pointer.
+		/wd4244 #conversion from [a] to [b]. Used to warn when copying to smaller type without a cast.
+        /sdl-;
+        /permissive-;
+        /MP;
+        ${DEFAULT_CXX_DEBUG_INFORMATION_FORMAT};
+        ${DEFAULT_CXX_EXCEPTION_HANDLING}
+    )
+    target_compile_options(${PROJECT_NAME} PRIVATE  $<$<CONFIG:Debug>:/ZI;>)
+    target_link_options(${PROJECT_NAME} PRIVATE
+        $<$<CONFIG:Debug>:
+            /INCREMENTAL
+        >
+        $<$<CONFIG:Release>:
+            /OPT:REF;
+            /OPT:ICF;
+            /INCREMENTAL:NO;
+            /FORCE:MULTIPLE
+        >
+        /MANIFEST:NO;
+        /DEBUG;
+        /SUBSYSTEM:WINDOWS
+    )
 endif()
 
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
@@ -709,34 +639,19 @@ endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     find_package(glfw3 REQUIRED)
-	if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-		set(ADDITIONAL_LIBRARY_DEPENDENCIES
-			"libultraship;"
-			"ZAPDLib;"
-			"glu32;"
-			"SDL2::SDL2;"
-			"SDL2::SDL2main;"
-			# "$<$<BOOL:${BUILD_CROWD_CONTROL}>:SDL2_net::SDL2_net-static>"
-			"glfw;"
-			"winmm;"
-			"imm32;"
-			"version;"
-			"setupapi"
-		)
-	elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "Win32")
-		set(ADDITIONAL_LIBRARY_DEPENDENCIES
-			"libultraship;"
-			"ZAPDLib;"
-			"glu32;"
-			"SDL2::SDL2;"
-			"SDL2::SDL2main;"
-			"glfw;"
-			"winmm;"
-			"imm32;"
-			"version;"
-			"setupapi"
-		)
-	endif()
+	set(ADDITIONAL_LIBRARY_DEPENDENCIES
+		"libultraship;"
+		"ZAPDLib;"
+		"glu32;"
+		"SDL2::SDL2;"
+		"SDL2::SDL2main;"
+        #"$<$<BOOL:${BUILD_CROWD_CONTROL}>:SDL2_net::SDL2_net-static>"
+		"glfw;"
+		"winmm;"
+		"imm32;"
+		"version;"
+		"setupapi"
+	)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
     find_package(SDL2)
     set(THREADS_PREFER_PTHREAD_FLAG ON)
