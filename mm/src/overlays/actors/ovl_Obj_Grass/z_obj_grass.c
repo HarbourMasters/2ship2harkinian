@@ -467,7 +467,7 @@ void ObjGrass_DrawOpa(Actor* thisx, PlayState* play2) {
             for (j = 0; j < grassGroup->count; j++) {
                 grassElem = &grassGroup->elements[j];
 
-                FrameInterpolation_RecordOpenChild(this, i + j);
+                FrameInterpolation_RecordOpenChild(grassGroup, i + j);
 
                 if ((grassElem->flags & OBJ_GRASS_ELEM_DRAW) && (grassElem->alpha == 255)) {
                     rot.y = grassElem->rotY;
@@ -511,7 +511,7 @@ void ObjGrass_DrawXlu(Actor* thisx, PlayState* play) {
             for (j = 0; j < grassGroup->count; j++) {
                 grassElem = &grassGroup->elements[j];
 
-                FrameInterpolation_RecordOpenChild(this, i + j);
+                FrameInterpolation_RecordOpenChild(grassGroup, i + j);
 
                 if ((grassElem->flags & OBJ_GRASS_ELEM_DRAW) && (grassElem->alpha > 0) && (grassElem->alpha < 255)) {
                     rot.y = grassElem->rotY;

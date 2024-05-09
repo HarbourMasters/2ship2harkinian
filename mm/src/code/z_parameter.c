@@ -10,6 +10,8 @@
 #include "interface/do_action_static/do_action_static.h"
 #include "misc/story_static/story_static.h"
 
+#include "2s2h_assets.h"
+
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "overlays/actors/ovl_En_Mm3/z_en_mm3.h"
 #include "interface/week_static/week_static.h"
@@ -18,10 +20,6 @@
 #include "BenGui/HudEditor.h"
 #include "2s2h_assets.h"
 #include "Enhancements/GameInteractor/GameInteractor.h"
-
-// #region 2S2H [Port] Asset tables we can pull from instead of from ROM
-#define dgEmptyTexture "__OTR__textures/virtual/gEmptyTexture"
-static const ALIGN_ASSET(2) char gEmptyTexture[] = dgEmptyTexture;
 
 // 2S2H [Port] This was originally static but needs to be global so it can be accessed in z_kaleido_collect, z_kaleido_debug, and z_kaleido_draw.
 const char* sCounterTextures[] = {
@@ -321,6 +319,50 @@ Gfx* Gfx_DrawTexRectIA8(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 text
 
     return gfx;
 }
+
+// #region 2S2H [Dpad]
+Gfx* Gfx_DrawTexRectIA16_DropShadow(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 textureHeight, s16 rectLeft,
+                                   s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy, s16 r, s16 g, s16 b,
+                                   s16 a) {
+    s16 dropShadowAlpha = a;
+
+    if (a > 100) {
+        dropShadowAlpha = 100;
+    }
+
+    gDPPipeSync(gfx++);
+    gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, dropShadowAlpha);
+
+    gDPLoadTextureBlock(gfx++, texture, G_IM_FMT_IA, G_IM_SIZ_16b, textureWidth, textureHeight, 0,
+                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
+                        G_TX_NOLOD);
+
+    // #region 2S2H [Cosmetic] Hud Editor
+    if (HudEditor_ShouldOverrideDraw()) {
+        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+            hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+            return gfx;
+        }
+
+        HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+
+        hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+    }
+    // #endregion
+
+    // 2S2H [Cosmetic] Changed to Wide variant to support widescreen
+    gSPWideTextureRectangle(gfx++, (rectLeft + 2) * 4, (rectTop + 2) * 4, (rectLeft + rectWidth + 2) * 4,
+                        (rectTop + rectHeight + 2) * 4, G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
+
+    gDPPipeSync(gfx++);
+    gDPSetPrimColor(gfx++, 0, 0, r, g, b, a);
+    // 2S2H [Cosmetic] Changed to Wide variant to support widescreen
+    gSPWideTextureRectangle(gfx++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4, (rectTop + rectHeight) * 4,
+                        G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
+
+    return gfx;
+}
+// #endregion
 
 /**
  * Draw an IA8 texture on a rectangle with a shadow slightly offset to the bottom-right
@@ -1115,6 +1157,48 @@ void Interface_UpdateButtonAlphasByStatus(PlayState* play, s16 risingAlpha) {
         }
     }
 
+    // #region 2S2H [Dpad]
+    if (gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] == BTN_DISABLED) {
+        if (interfaceCtx->shipInterface.dpad.dRightAlpha != 70) {
+            interfaceCtx->shipInterface.dpad.dRightAlpha = 70;
+        }
+    } else {
+        if (interfaceCtx->shipInterface.dpad.dRightAlpha != 255) {
+            interfaceCtx->shipInterface.dpad.dRightAlpha = risingAlpha;
+        }
+    }
+
+    if (gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] == BTN_DISABLED) {
+        if (interfaceCtx->shipInterface.dpad.dLeftAlpha != 70) {
+            interfaceCtx->shipInterface.dpad.dLeftAlpha = 70;
+        }
+    } else {
+        if (interfaceCtx->shipInterface.dpad.dLeftAlpha != 255) {
+            interfaceCtx->shipInterface.dpad.dLeftAlpha = risingAlpha;
+        }
+    }
+
+    if (gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] == BTN_DISABLED) {
+        if (interfaceCtx->shipInterface.dpad.dDownAlpha != 70) {
+            interfaceCtx->shipInterface.dpad.dDownAlpha = 70;
+        }
+    } else {
+        if (interfaceCtx->shipInterface.dpad.dDownAlpha != 255) {
+            interfaceCtx->shipInterface.dpad.dDownAlpha = risingAlpha;
+        }
+    }
+
+    if (gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] == BTN_DISABLED) {
+        if (interfaceCtx->shipInterface.dpad.dUpAlpha != 70) {
+            interfaceCtx->shipInterface.dpad.dUpAlpha = 70;
+        }
+    } else {
+        if (interfaceCtx->shipInterface.dpad.dUpAlpha != 255) {
+            interfaceCtx->shipInterface.dpad.dUpAlpha = risingAlpha;
+        }
+    }
+    // #endregion
+
     if (gSaveContext.buttonStatus[EQUIP_SLOT_A] == BTN_DISABLED) {
         if (interfaceCtx->aAlpha != 70) {
             interfaceCtx->aAlpha = 70;
@@ -1158,6 +1242,24 @@ void Interface_UpdateButtonAlphas(PlayState* play, s16 dimmingAlpha, s16 risingA
     if ((interfaceCtx->cRightAlpha != 0) && (interfaceCtx->cRightAlpha > dimmingAlpha)) {
         interfaceCtx->cRightAlpha = dimmingAlpha;
     }
+
+    // #region 2S2H [Dpad]
+    if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+        interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
+    }
+
+    if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+        interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
+    }
+
+    if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+        interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
+    }
+
+    if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+        interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
+    }
+    // #endregion
 }
 
 void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
@@ -1193,6 +1295,24 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             if ((interfaceCtx->cRightAlpha != 0) && (interfaceCtx->cRightAlpha > dimmingAlpha)) {
                 interfaceCtx->cRightAlpha = dimmingAlpha;
             }
+
+            // #region 2S2H [Dpad]
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
+            }
+            // #endregion
 
             if ((interfaceCtx->healthAlpha != 0) && (interfaceCtx->healthAlpha > dimmingAlpha)) {
                 interfaceCtx->healthAlpha = dimmingAlpha;
@@ -1251,6 +1371,24 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             if ((interfaceCtx->cRightAlpha != 0) && (interfaceCtx->cRightAlpha > dimmingAlpha)) {
                 interfaceCtx->cRightAlpha = dimmingAlpha;
             }
+
+            // #region 2S2H [Dpad]
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
+            }
+            // #endregion
 
             if ((interfaceCtx->healthAlpha != 0) && (interfaceCtx->healthAlpha > dimmingAlpha)) {
                 interfaceCtx->healthAlpha = dimmingAlpha;
@@ -1358,6 +1496,24 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
                 interfaceCtx->cRightAlpha = dimmingAlpha;
             }
 
+            // #region 2S2H [Dpad]
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
+            }
+            // #endregion
+
             if ((interfaceCtx->minimapAlpha != 0) && (interfaceCtx->minimapAlpha > dimmingAlpha)) {
                 interfaceCtx->minimapAlpha = dimmingAlpha;
             }
@@ -1388,6 +1544,24 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             if ((interfaceCtx->cRightAlpha != 0) && (interfaceCtx->cRightAlpha > dimmingAlpha)) {
                 interfaceCtx->cRightAlpha = dimmingAlpha;
             }
+
+            // #region 2S2H [Dpad]
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
+            }
+            // #endregion
 
             if ((interfaceCtx->healthAlpha != 0) && (interfaceCtx->healthAlpha > dimmingAlpha)) {
                 interfaceCtx->healthAlpha = dimmingAlpha;
@@ -1427,6 +1601,24 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             if ((interfaceCtx->cRightAlpha != 0) && (interfaceCtx->cRightAlpha > dimmingAlpha)) {
                 interfaceCtx->cRightAlpha = dimmingAlpha;
             }
+
+            // #region 2S2H [Dpad]
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
+            }
+            // #endregion
 
             if ((interfaceCtx->minimapAlpha != 0) && (interfaceCtx->minimapAlpha > dimmingAlpha)) {
                 interfaceCtx->minimapAlpha = dimmingAlpha;
@@ -1473,6 +1665,24 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             if ((interfaceCtx->cRightAlpha != 0) && (interfaceCtx->cRightAlpha > dimmingAlpha)) {
                 interfaceCtx->cRightAlpha = dimmingAlpha;
             }
+
+            // #region 2S2H [Dpad]
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
+            }
+            // #endregion
 
             if ((interfaceCtx->magicAlpha != 0) && (interfaceCtx->magicAlpha > dimmingAlpha)) {
                 interfaceCtx->magicAlpha = dimmingAlpha;
@@ -1531,6 +1741,24 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
                 interfaceCtx->cRightAlpha = risingAlpha;
             }
 
+            // #region 2S2H [Dpad]
+            if (interfaceCtx->shipInterface.dpad.dRightAlpha != 255) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = risingAlpha;
+            }
+
+            if (interfaceCtx->shipInterface.dpad.dLeftAlpha != 255) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = risingAlpha;
+            }
+
+            if (interfaceCtx->shipInterface.dpad.dDownAlpha != 255) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = risingAlpha;
+            }
+
+            if (interfaceCtx->shipInterface.dpad.dUpAlpha != 255) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = risingAlpha;
+            }
+            // #endregion
+
             if (interfaceCtx->magicAlpha != 255) {
                 interfaceCtx->magicAlpha = risingAlpha;
             }
@@ -1565,6 +1793,24 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             if (interfaceCtx->cRightAlpha != 255) {
                 interfaceCtx->cRightAlpha = risingAlpha;
             }
+
+            // #region 2S2H [Dpad]
+            if (interfaceCtx->shipInterface.dpad.dRightAlpha != 255) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = risingAlpha;
+            }
+
+            if (interfaceCtx->shipInterface.dpad.dLeftAlpha != 255) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = risingAlpha;
+            }
+
+            if (interfaceCtx->shipInterface.dpad.dDownAlpha != 255) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = risingAlpha;
+            }
+
+            if (interfaceCtx->shipInterface.dpad.dUpAlpha != 255) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = risingAlpha;
+            }
+            // #endregion
 
             if (interfaceCtx->magicAlpha != 255) {
                 interfaceCtx->magicAlpha = risingAlpha;
@@ -1609,6 +1855,24 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
                 interfaceCtx->cRightAlpha = risingAlpha;
             }
 
+            // #region 2S2H [Dpad]
+            if (interfaceCtx->shipInterface.dpad.dRightAlpha != 255) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = risingAlpha;
+            }
+
+            if (interfaceCtx->shipInterface.dpad.dLeftAlpha != 255) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = risingAlpha;
+            }
+
+            if (interfaceCtx->shipInterface.dpad.dDownAlpha != 255) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = risingAlpha;
+            }
+
+            if (interfaceCtx->shipInterface.dpad.dUpAlpha != 255) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = risingAlpha;
+            }
+            // #endregion
+
             break;
 
         case HUD_VISIBILITY_B_MINIMAP:
@@ -1627,6 +1891,24 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             if ((interfaceCtx->cRightAlpha != 0) && (interfaceCtx->cRightAlpha > dimmingAlpha)) {
                 interfaceCtx->cRightAlpha = dimmingAlpha;
             }
+
+            // #region 2S2H [Dpad]
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
+            }
+            // #endregion
 
             if ((interfaceCtx->magicAlpha != 0) && (interfaceCtx->magicAlpha > dimmingAlpha)) {
                 interfaceCtx->magicAlpha = dimmingAlpha;
@@ -1667,6 +1949,24 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
                 interfaceCtx->cRightAlpha = dimmingAlpha;
             }
 
+            // #region 2S2H [Dpad]
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
+            }
+            // #endregion
+
             if (interfaceCtx->healthAlpha != 255) {
                 interfaceCtx->healthAlpha = risingAlpha;
             }
@@ -1697,6 +1997,24 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             if ((interfaceCtx->cRightAlpha != 0) && (interfaceCtx->cRightAlpha > dimmingAlpha)) {
                 interfaceCtx->cRightAlpha = dimmingAlpha;
             }
+
+            // #region 2S2H [Dpad]
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
+            }
+            // #endregion
 
             if (interfaceCtx->aAlpha != 255) {
                 interfaceCtx->aAlpha = risingAlpha;
@@ -1732,6 +2050,24 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             if ((interfaceCtx->cRightAlpha != 0) && (interfaceCtx->cRightAlpha > dimmingAlpha)) {
                 interfaceCtx->cRightAlpha = dimmingAlpha;
             }
+
+            // #region 2S2H [Dpad]
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
+            }
+            // #endregion
 
             if ((interfaceCtx->minimapAlpha != 0) && (interfaceCtx->minimapAlpha > dimmingAlpha)) {
                 interfaceCtx->minimapAlpha = dimmingAlpha;
@@ -1772,6 +2108,24 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
                 interfaceCtx->cRightAlpha = dimmingAlpha;
             }
 
+            // #region 2S2H [Dpad]
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
+            }
+            // #endregion
+
             if ((interfaceCtx->minimapAlpha != 0) && (interfaceCtx->minimapAlpha > dimmingAlpha)) {
                 interfaceCtx->minimapAlpha = dimmingAlpha;
             }
@@ -1798,6 +2152,24 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             if ((interfaceCtx->cRightAlpha != 0) && (interfaceCtx->cRightAlpha > dimmingAlpha)) {
                 interfaceCtx->cRightAlpha = dimmingAlpha;
             }
+
+            // #region 2S2H [Dpad]
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
+            }
+
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+                interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
+            }
+            // #endregion
 
             if (interfaceCtx->bAlpha != 255) {
                 interfaceCtx->bAlpha = risingAlpha;
@@ -1853,6 +2225,21 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                 gSaveContext.buttonStatus[i] = BTN_ENABLED;
             }
         }
+        // #region 2S2H [Dpad]
+        for (s16 j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++) {
+            if ((DPAD_GET_CUR_FORM_BTN_ITEM(j) != ITEM_PICTOGRAPH_BOX) || (msgCtx->msgMode != MSGMODE_NONE)) {
+                if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_ENABLED) {
+                    restoreHudVisibility = true;
+                }
+                gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
+            } else {
+                if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_DISABLED) {
+                    restoreHudVisibility = true;
+                }
+                gSaveContext.shipSaveContext.dpad.status[j] = BTN_ENABLED;
+            }
+        }
+        // #endregion
 
         if (sPictoState == PICTO_BOX_STATE_OFF) {
             if (gSaveContext.buttonStatus[EQUIP_SLOT_B] != BTN_DISABLED) {
@@ -1900,6 +2287,22 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                     }
                 }
             }
+            // #region 2S2H [Dpad]
+            for (s16 j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++) {
+                if ((DPAD_GET_CUR_FORM_BTN_ITEM(j) == ITEM_MASK_FIERCE_DEITY) ||
+                    ((DPAD_GET_CUR_FORM_BTN_ITEM(j) >= ITEM_BOTTLE) && (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_OBABA_DRINK))) {
+                    if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_DISABLED) {
+                        restoreHudVisibility = true;
+                        gSaveContext.shipSaveContext.dpad.status[j] = BTN_ENABLED;
+                    }
+                } else {
+                    if (gSaveContext.shipSaveContext.dpad.status[j] != BTN_DISABLED) {
+                        gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
+                        restoreHudVisibility = true;
+                    }
+                }
+            }
+            // #endregion
         } else {
             for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
                 if ((GET_CUR_FORM_BTN_ITEM(i) >= ITEM_MASK_DEKU) && (GET_CUR_FORM_BTN_ITEM(i) <= ITEM_MASK_ZORA)) {
@@ -1914,6 +2317,21 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                     gSaveContext.buttonStatus[i] = BTN_ENABLED;
                 }
             }
+            // #region 2S2H [Dpad]
+            for (s16 j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++) {
+                if ((DPAD_GET_CUR_FORM_BTN_ITEM(j) >= ITEM_MASK_DEKU) && (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_MASK_ZORA)) {
+                    if (gSaveContext.shipSaveContext.dpad.status[j] != BTN_DISABLED) {
+                        restoreHudVisibility = true;
+                    }
+                    gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
+                } else {
+                    if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_DISABLED) {
+                        restoreHudVisibility = true;
+                    }
+                    gSaveContext.shipSaveContext.dpad.status[j] = BTN_ENABLED;
+                }
+            }
+            // #endregion
         }
     } else if ((play->sceneId == SCENE_SPOT00) && (gSaveContext.sceneLayer == 6)) {
         // Unknown cutscene
@@ -1923,6 +2341,14 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
             }
             gSaveContext.buttonStatus[i] = BTN_DISABLED;
         }
+        // #region 2S2H [Dpad]
+        for (s16 j = EQUIP_SLOT_C_LEFT; j <= EQUIP_SLOT_C_RIGHT; j++) {
+            if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_ENABLED) {
+                restoreHudVisibility = true;
+            }
+            gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
+        }
+        // #endregion
     } else if (CHECK_EVENTINF(EVENTINF_34)) {
         // Deku playground minigame
         if (player->stateFlags3 & PLAYER_STATE3_1000000) {
@@ -1945,6 +2371,15 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                 }
                 gSaveContext.buttonStatus[i] = BTN_DISABLED;
             }
+
+            // #region 2S2H [Dpad]
+            for (s16 j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++) {
+                if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_ENABLED) {
+                    restoreHudVisibility = true;
+                }
+                gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
+            }
+            // #endregion
         }
 
         if (restoreHudVisibility || (gSaveContext.hudVisibility != HUD_VISIBILITY_A_B_MINIMAP)) {
@@ -1970,6 +2405,12 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
             gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
+            // #region 2S2H [Dpad]
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+            // #endregion
         }
     } else if (!gSaveContext.save.saveInfo.playerData.isMagicAcquired && (CUR_FORM == PLAYER_FORM_DEKU) &&
                (BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) == ITEM_DEKU_NUT)) {
@@ -2030,6 +2471,34 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                 restoreHudVisibility = true;
             }
         }
+        // #region 2S2H [Dpad]
+        for (s16 j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++) {
+            if (DPAD_GET_CUR_FORM_BTN_ITEM(j) != ITEM_MASK_ZORA) {
+                if (Player_GetEnvironmentalHazard(play) == PLAYER_ENV_HAZARD_UNDERWATER_FLOOR) {
+                    if (!((DPAD_GET_CUR_FORM_BTN_ITEM(j) >= ITEM_BOTTLE) &&
+                          (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_OBABA_DRINK))) {
+                        if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_ENABLED) {
+                            restoreHudVisibility = true;
+                        }
+                        gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
+                    } else {
+                        if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_DISABLED) {
+                            restoreHudVisibility = true;
+                        }
+                        gSaveContext.shipSaveContext.dpad.status[j] = BTN_ENABLED;
+                    }
+                } else {
+                    if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_ENABLED) {
+                        restoreHudVisibility = true;
+                    }
+                    gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
+                }
+            } else if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_DISABLED) {
+                gSaveContext.shipSaveContext.dpad.status[j] = BTN_ENABLED;
+                restoreHudVisibility = true;
+            }
+        }
+        // #endregion
 
         if (restoreHudVisibility) {
             gSaveContext.hudVisibility = HUD_VISIBILITY_IDLE;
@@ -2055,6 +2524,21 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                 gSaveContext.buttonStatus[i] = BTN_ENABLED;
             }
         }
+        // #region 2S2H [Dpad]
+        for (s16 j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++) {
+            if (DPAD_GET_CUR_FORM_BTN_ITEM(j) != ITEM_LENS_OF_TRUTH) {
+                if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_ENABLED) {
+                    restoreHudVisibility = true;
+                }
+                gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
+            } else {
+                if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_DISABLED) {
+                    restoreHudVisibility = true;
+                }
+                gSaveContext.shipSaveContext.dpad.status[j] = BTN_ENABLED;
+            }
+        }
+        // #endregion
 
         if (gSaveContext.buttonStatus[EQUIP_SLOT_B] != BTN_DISABLED) {
             gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_DISABLED;
@@ -2067,6 +2551,12 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
             gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
+            // #region 2S2H [Dpad]
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+            // #endregion
             restoreHudVisibility = true;
             Interface_SetHudVisibility(HUD_VISIBILITY_ALL);
         }
@@ -2301,6 +2791,150 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                     }
                 }
             }
+            // #region 2S2H [Dpad]
+            for (s16 j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++) {
+                // Individual D button
+                if (!gPlayerFormItemRestrictions[GET_PLAYER_FORM][DPAD_GET_CUR_FORM_BTN_ITEM(j)]) {
+                    // Item not usable in current playerForm
+                    if (gSaveContext.shipSaveContext.dpad.status[j] != BTN_DISABLED) {
+                        gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
+                        restoreHudVisibility = true;
+                    }
+                } else if (player->actor.id != ACTOR_PLAYER) {
+                    // Currently not playing as the main player
+                    if (gSaveContext.shipSaveContext.dpad.status[j] != BTN_DISABLED) {
+                        gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
+                        restoreHudVisibility = true;
+                    }
+                } else if (player->currentMask == PLAYER_MASK_GIANT) {
+                    // Currently wearing Giant's Mask
+                    if (DPAD_GET_CUR_FORM_BTN_ITEM(j) != ITEM_MASK_GIANT) {
+                        if (gSaveContext.shipSaveContext.dpad.status[j] != BTN_DISABLED) {
+                            gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
+                            restoreHudVisibility = true;
+                        }
+                    } else if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_DISABLED) {
+                        restoreHudVisibility = true;
+                        gSaveContext.shipSaveContext.dpad.status[j] = BTN_ENABLED;
+                    }
+                } else if (DPAD_GET_CUR_FORM_BTN_ITEM(j) == ITEM_MASK_GIANT) {
+                    // Giant's Mask is equipped
+                    if (play->sceneId != SCENE_INISIE_BS) {
+                        if (gSaveContext.shipSaveContext.dpad.status[j] != BTN_DISABLED) {
+                            gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
+                            restoreHudVisibility = true;
+                        }
+                    } else if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_DISABLED) {
+                        restoreHudVisibility = true;
+                        gSaveContext.shipSaveContext.dpad.status[j] = BTN_ENABLED;
+                    }
+                } else if (DPAD_GET_CUR_FORM_BTN_ITEM(j) == ITEM_MASK_FIERCE_DEITY) {
+                    // Fierce Deity's Mask is equipped
+                    if ((play->sceneId != SCENE_MITURIN_BS) && (play->sceneId != SCENE_HAKUGIN_BS) &&
+                        (play->sceneId != SCENE_SEA_BS) && (play->sceneId != SCENE_INISIE_BS) &&
+                        (play->sceneId != SCENE_LAST_BS)) {
+                        if (gSaveContext.shipSaveContext.dpad.status[j] != BTN_DISABLED) {
+                            gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
+                            restoreHudVisibility = true;
+                        }
+                    } else if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_DISABLED) {
+                        restoreHudVisibility = true;
+                        gSaveContext.shipSaveContext.dpad.status[j] = BTN_ENABLED;
+                    }
+                } else {
+                    // End of special item cases. Apply restrictions to buttons
+                    if (interfaceCtx->restrictions.tradeItems != 0) {
+                        if (((DPAD_GET_CUR_FORM_BTN_ITEM(j) >= ITEM_MOONS_TEAR) &&
+                             (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_PENDANT_OF_MEMORIES)) ||
+                            ((DPAD_GET_CUR_FORM_BTN_ITEM(j) >= ITEM_BOTTLE) &&
+                             (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_OBABA_DRINK)) ||
+                            (DPAD_GET_CUR_FORM_BTN_ITEM(j) == ITEM_OCARINA_OF_TIME)) {
+                            if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_ENABLED) {
+                                restoreHudVisibility = true;
+                            }
+                            gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
+                        }
+                    } else if (interfaceCtx->restrictions.tradeItems == 0) {
+                        if (((DPAD_GET_CUR_FORM_BTN_ITEM(j) >= ITEM_MOONS_TEAR) &&
+                             (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_PENDANT_OF_MEMORIES)) ||
+                            ((DPAD_GET_CUR_FORM_BTN_ITEM(j) >= ITEM_BOTTLE) &&
+                             (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_OBABA_DRINK)) ||
+                            (DPAD_GET_CUR_FORM_BTN_ITEM(j) == ITEM_OCARINA_OF_TIME)) {
+                            if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_DISABLED) {
+                                restoreHudVisibility = true;
+                            }
+                            gSaveContext.shipSaveContext.dpad.status[j] = BTN_ENABLED;
+                        }
+                    }
+
+                    if (interfaceCtx->restrictions.masks != 0) {
+                        if ((DPAD_GET_CUR_FORM_BTN_ITEM(j) >= ITEM_MASK_DEKU) &&
+                            (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_MASK_GIANT)) {
+                            if (!gSaveContext.shipSaveContext.dpad.status[j]) { // == BTN_ENABLED
+                                restoreHudVisibility = true;
+                            }
+                            gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
+                        }
+                    } else if (interfaceCtx->restrictions.masks == 0) {
+                        if ((DPAD_GET_CUR_FORM_BTN_ITEM(j) >= ITEM_MASK_DEKU) &&
+                            (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_MASK_GIANT)) {
+                            if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_DISABLED) {
+                                restoreHudVisibility = true;
+                            }
+                            gSaveContext.shipSaveContext.dpad.status[j] = BTN_ENABLED;
+                        }
+                    }
+
+                    if (interfaceCtx->restrictions.pictoBox != 0) {
+                        if (DPAD_GET_CUR_FORM_BTN_ITEM(j) == ITEM_PICTOGRAPH_BOX) {
+                            if (!gSaveContext.shipSaveContext.dpad.status[j]) { // == BTN_ENABLED
+                                restoreHudVisibility = true;
+                            }
+                            gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
+                        }
+                    } else if (interfaceCtx->restrictions.pictoBox == 0) {
+                        if (DPAD_GET_CUR_FORM_BTN_ITEM(j) == ITEM_PICTOGRAPH_BOX) {
+                            if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_DISABLED) {
+                                restoreHudVisibility = true;
+                            }
+                            gSaveContext.shipSaveContext.dpad.status[j] = BTN_ENABLED;
+                        }
+                    }
+
+                    if (interfaceCtx->restrictions.all != 0) {
+                        if (!((DPAD_GET_CUR_FORM_BTN_ITEM(j) >= ITEM_MOONS_TEAR) &&
+                              (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_PENDANT_OF_MEMORIES)) &&
+                            !((DPAD_GET_CUR_FORM_BTN_ITEM(j) >= ITEM_BOTTLE) &&
+                              (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_OBABA_DRINK)) &&
+                            (DPAD_GET_CUR_FORM_BTN_ITEM(j) != ITEM_OCARINA_OF_TIME) &&
+                            !((DPAD_GET_CUR_FORM_BTN_ITEM(j) >= ITEM_MASK_DEKU) &&
+                              (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_MASK_GIANT)) &&
+                            (DPAD_GET_CUR_FORM_BTN_ITEM(j) != ITEM_PICTOGRAPH_BOX)) {
+
+                            if ((gSaveContext.shipSaveContext.dpad.status[j] == BTN_ENABLED)) {
+                                restoreHudVisibility = true;
+                                gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
+                            }
+                        }
+                    } else if (interfaceCtx->restrictions.all == 0) {
+                        if (!((DPAD_GET_CUR_FORM_BTN_ITEM(j) >= ITEM_MOONS_TEAR) &&
+                              (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_PENDANT_OF_MEMORIES)) &&
+                            !((DPAD_GET_CUR_FORM_BTN_ITEM(j) >= ITEM_BOTTLE) &&
+                              (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_OBABA_DRINK)) &&
+                            (DPAD_GET_CUR_FORM_BTN_ITEM(j) != ITEM_OCARINA_OF_TIME) &&
+                            !((DPAD_GET_CUR_FORM_BTN_ITEM(j) >= ITEM_MASK_DEKU) &&
+                              (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_MASK_GIANT)) &&
+                            (DPAD_GET_CUR_FORM_BTN_ITEM(j) != ITEM_PICTOGRAPH_BOX)) {
+
+                            if ((gSaveContext.shipSaveContext.dpad.status[j] == BTN_DISABLED)) {
+                                restoreHudVisibility = true;
+                                gSaveContext.shipSaveContext.dpad.status[j] = BTN_ENABLED;
+                            }
+                        }
+                    }
+                }
+            }
+            // #endregion
         }
     }
 
@@ -2339,12 +2973,24 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                             gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
                             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
                             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
+                            // #region 2S2H [Dpad]
+                            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+                            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+                            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+                            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+                            // #endregion
                         }
                     } else if (gSaveContext.buttonStatus[EQUIP_SLOT_B] == BTN_DISABLED) {
                         gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_ENABLED;
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_ENABLED;
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_ENABLED;
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_ENABLED;
+                        // #region 2S2H [Dpad]
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_ENABLED;
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_ENABLED;
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_ENABLED;
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_ENABLED;
+                        // #endregion
                     }
 
                     Interface_SetHudVisibility(HUD_VISIBILITY_B_MAGIC);
@@ -2357,6 +3003,12 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_ENABLED;
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_ENABLED;
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_ENABLED;
+                        // #region 2S2H [Dpad]
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_ENABLED;
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_ENABLED;
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_ENABLED;
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_ENABLED;
+                        // #endregion
                         if (play->sceneId == SCENE_BOWLING) {
                             if (CURRENT_DAY == 1) {
                                 BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOMBCHU;
@@ -2369,6 +3021,12 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                             gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
                             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
                             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
+                            // #region 2S2H [Dpad]
+                            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+                            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+                            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+                            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+                            // #endregion
                         } else {
                             BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOW;
 
@@ -2383,6 +3041,12 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                             gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
                             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
                             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
+                            // #region 2S2H [Dpad]
+                            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+                            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+                            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+                            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+                            // #endregion
                             Interface_SetHudVisibility(HUD_VISIBILITY_A_HEARTS_MAGIC_MINIMAP_WITH_OVERWRITE);
                         }
                     }
@@ -2404,6 +3068,12 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
+                        // #region 2S2H [Dpad]
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+                        // #endregion
                         Interface_SetHudVisibility(HUD_VISIBILITY_A_B_MINIMAP);
                     } else if (player->stateFlags1 & PLAYER_STATE1_800000) {
                         Interface_SetHudVisibility(HUD_VISIBILITY_A_B_MINIMAP);
@@ -2425,6 +3095,12 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                     gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
                     gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
                     gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
+                    // #region 2S2H [Dpad]
+                    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+                    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+                    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+                    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+                    // #endregion
                 } else {
                     BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_BOW;
                 }
@@ -2445,6 +3121,12 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                 gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
                 gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
                 gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
+                // #region 2S2H [Dpad]
+                gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+                gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+                gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+                gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+                // #endregion
                 Interface_SetHudVisibility(HUD_VISIBILITY_A_HEARTS_MAGIC_MINIMAP_WITH_OVERWRITE);
 
                 if (play->transitionMode != TRANS_MODE_OFF) {
@@ -2461,6 +3143,12 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
                     gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
                     gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
                     gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
+                    // #region 2S2H [Dpad]
+                    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+                    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+                    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+                    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+                    // #endregion
                     Interface_SetHudVisibility(HUD_VISIBILITY_A_B_MINIMAP);
                 } else if (player->stateFlags1 & PLAYER_STATE1_800000) {
                     Interface_SetHudVisibility(HUD_VISIBILITY_A_B_MINIMAP);
@@ -2527,6 +3215,12 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
             gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
+            // #region 2S2H [Dpad]
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+            // #endregion
             Interface_SetHudVisibility(HUD_VISIBILITY_A_B_MINIMAP);
         } else if ((gSaveContext.save.entrance == ENTRANCE(GORON_RACETRACK, 1)) &&
                    (play->transitionTrigger == TRANS_TRIGGER_OFF) && (play->transitionMode == TRANS_MODE_OFF)) {
@@ -2534,6 +3228,12 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
             gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
+            // #region 2S2H [Dpad]
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+            // #endregion
             Interface_SetHudVisibility(HUD_VISIBILITY_A_B_HEARTS_MAGIC_MINIMAP);
         } else if (play->actorCtx.flags & ACTORCTX_FLAG_PICTO_BOX_ON) {
             // Related to pictograph
@@ -2604,6 +3304,12 @@ void Interface_InitMinigame(PlayState* play) {
     interfaceCtx->minigameAmmo = 20;
 }
 
+void Interface_Dpad_LoadItemIconImpl(PlayState* play, u8 btn) {
+    InterfaceContext* interfaceCtx = &play->interfaceCtx;
+    
+    interfaceCtx->iconItemSegment[DPAD_BUTTON(btn) + EQUIP_SLOT_MAX] = gItemIcons[DPAD_GET_CUR_FORM_BTN_ITEM(btn)];
+}
+
 void Interface_LoadItemIconImpl(PlayState* play, u8 btn) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
     
@@ -2612,6 +3318,10 @@ void Interface_LoadItemIconImpl(PlayState* play, u8 btn) {
     //             &interfaceCtx->iconItemSegment[(u32)btn * 0x1000], 0x1000);
     interfaceCtx->iconItemSegment[btn] = gItemIcons[GET_CUR_FORM_BTN_ITEM(btn)];
     // #endregion
+}
+
+void Interface_Dpad_LoadItemIcon(PlayState* play, u8 btn) {
+    Interface_Dpad_LoadItemIconImpl(play, btn);
 }
 
 void Interface_LoadItemIcon(PlayState* play, u8 btn) {
@@ -2645,10 +3355,18 @@ void Interface_UpdateButtonsAlt(PlayState* play, u16 flag) {
 
         gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] =
             gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_ENABLED;
+        // #region 2S2H [Dpad]
+        gSaveContext.buttonStatus[EQUIP_SLOT_D_RIGHT] = gSaveContext.buttonStatus[EQUIP_SLOT_D_LEFT] =
+            gSaveContext.buttonStatus[EQUIP_SLOT_D_DOWN] = gSaveContext.buttonStatus[EQUIP_SLOT_D_UP] = BTN_ENABLED;
+        // #endregion
         Interface_SetHudVisibility(HUD_VISIBILITY_ALL_NO_MINIMAP_W_DISABLED);
     } else {
         gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] =
             gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_ENABLED;
+        // #region 2S2H [Dpad]
+        gSaveContext.buttonStatus[EQUIP_SLOT_D_RIGHT] = gSaveContext.buttonStatus[EQUIP_SLOT_D_LEFT] =
+            gSaveContext.buttonStatus[EQUIP_SLOT_D_DOWN] = gSaveContext.buttonStatus[EQUIP_SLOT_D_UP] = BTN_ENABLED;
+        // #endregion
         Interface_UpdateButtonsPart1(play);
     }
 }
@@ -3050,6 +3768,25 @@ u8 Item_GiveImpl(PlayState* play, u8 item) {
                         Interface_LoadItemIconImpl(play, EQUIP_SLOT_C_RIGHT);
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_ENABLED;
                     }
+                    // #region 2S2H [DPad]
+                    else if ((slot + i) == DPAD_SLOT_EQUIP(0, EQUIP_SLOT_D_RIGHT)) {
+                        DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) = item;
+                        Interface_Dpad_LoadItemIconImpl(play, EQUIP_SLOT_D_RIGHT);
+                        gSaveContext.buttonStatus[EQUIP_SLOT_D_RIGHT] = BTN_ENABLED;
+                    } else if ((slot + i) == DPAD_SLOT_EQUIP(0, EQUIP_SLOT_D_LEFT)) {
+                        DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) = item;
+                        Interface_Dpad_LoadItemIconImpl(play, EQUIP_SLOT_D_LEFT);
+                        gSaveContext.buttonStatus[EQUIP_SLOT_D_LEFT] = BTN_ENABLED;
+                    } else if ((slot + i) == DPAD_SLOT_EQUIP(0, EQUIP_SLOT_D_DOWN)) {
+                        DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) = item;
+                        Interface_Dpad_LoadItemIconImpl(play, EQUIP_SLOT_D_DOWN);
+                        gSaveContext.buttonStatus[EQUIP_SLOT_D_DOWN] = BTN_ENABLED;
+                    } else if ((slot + i) == DPAD_SLOT_EQUIP(0, EQUIP_SLOT_D_UP)) {
+                        DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) = item;
+                        Interface_Dpad_LoadItemIconImpl(play, EQUIP_SLOT_D_UP);
+                        gSaveContext.buttonStatus[EQUIP_SLOT_D_UP] = BTN_ENABLED;
+                    }
+                    // #endregion
 
                     gSaveContext.save.saveInfo.inventory.items[slot + i] = item;
                     return ITEM_NONE;
@@ -3075,6 +3812,15 @@ u8 Item_GiveImpl(PlayState* play, u8 item) {
                     return ITEM_NONE;
                 }
             }
+            // #region 2S2H [Dpad]
+            for (s16 j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++) {
+                if (temp == DPAD_GET_CUR_FORM_BTN_ITEM(j)) {
+                    DPAD_SET_CUR_FORM_BTN_ITEM(j, item);
+                    Interface_Dpad_LoadItemIconImpl(play, j);
+                    return ITEM_NONE;
+                }
+            }
+            // #endregion
         }
         return ITEM_NONE;
     }
@@ -3266,6 +4012,14 @@ void Inventory_DeleteItem(s16 item, s16 slot) {
             SET_CUR_FORM_BTN_SLOT(btn, SLOT_NONE);
         }
     }
+    // #region 2S2H [Dpad]
+    for (s16 dpadBtn = EQUIP_SLOT_D_RIGHT; dpadBtn <= EQUIP_SLOT_D_UP; dpadBtn++) {
+        if (DPAD_GET_CUR_FORM_BTN_ITEM(dpadBtn) == item) {
+            DPAD_SET_CUR_FORM_BTN_ITEM(dpadBtn, ITEM_NONE);
+            DPAD_SET_CUR_FORM_BTN_SLOT(dpadBtn, SLOT_NONE);
+        }
+    }
+    // #endregion
 }
 
 void Inventory_UnequipItem(s16 item) {
@@ -3277,6 +4031,14 @@ void Inventory_UnequipItem(s16 item) {
             SET_CUR_FORM_BTN_SLOT(btn, SLOT_NONE);
         }
     }
+    // #region 2S2H [Dpad]
+    for (s16 dpadBtn = EQUIP_SLOT_D_RIGHT; dpadBtn <= EQUIP_SLOT_D_UP; dpadBtn++) {
+        if (DPAD_GET_CUR_FORM_BTN_ITEM(dpadBtn) == item) {
+            DPAD_SET_CUR_FORM_BTN_ITEM(dpadBtn, ITEM_NONE);
+            DPAD_SET_CUR_FORM_BTN_SLOT(dpadBtn, SLOT_NONE);
+        }
+    }
+    // #endregion
 }
 
 s32 Inventory_ReplaceItem(PlayState* play, u8 oldItem, u8 newItem) {
@@ -3293,6 +4055,15 @@ s32 Inventory_ReplaceItem(PlayState* play, u8 oldItem, u8 newItem) {
                     break;
                 }
             }
+            // #region 2S2H [Dpad]
+            for (u8 j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++) {
+                if (DPAD_GET_CUR_FORM_BTN_ITEM(j) == oldItem) {
+                    DPAD_SET_CUR_FORM_BTN_ITEM(j, newItem);
+                    Interface_Dpad_LoadItemIconImpl(play, j);
+                    break;
+                }
+            }            
+            // #endregion
             return true;
         }
     }
@@ -3349,6 +4120,22 @@ s32 Inventory_HasItemInBottle(u8 item) {
     return false;
 }
 
+// #region 2S2H [Dpad]
+void Inventory_Dpad_UpdateBottleItem(PlayState* play, u8 item, u8 btn) {
+    gSaveContext.save.saveInfo.inventory.items[DPAD_GET_CUR_FORM_BTN_SLOT(btn)] = item;
+    DPAD_SET_CUR_FORM_BTN_ITEM(btn, item);
+
+    Interface_Dpad_LoadItemIconImpl(play, btn);
+
+    play->pauseCtx.cursorItem[PAUSE_ITEM] = item;
+    gSaveContext.shipSaveContext.dpad.status[btn] = BTN_ENABLED;
+
+    if (item == ITEM_HOT_SPRING_WATER) {
+        Interface_StartBottleTimer(60, DPAD_GET_CUR_FORM_BTN_SLOT(btn) - SLOT_BOTTLE_1);
+    }
+}
+// #endregion
+
 void Inventory_UpdateBottleItem(PlayState* play, u8 item, u8 btn) {
     gSaveContext.save.saveInfo.inventory.items[GET_CUR_FORM_BTN_SLOT(btn)] = item;
     SET_CUR_FORM_BTN_ITEM(btn, item);
@@ -3379,6 +4166,19 @@ s32 Inventory_ConsumeFairy(PlayState* play) {
                     break;
                 }
             }
+            // #region 2S2H [Dpad]
+            if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+                for (u8 dpadBtn = EQUIP_SLOT_C_LEFT; dpadBtn <= EQUIP_SLOT_C_RIGHT; dpadBtn++) {
+                    if (DPAD_GET_CUR_FORM_BTN_ITEM(dpadBtn) == ITEM_FAIRY) {
+                        DPAD_SET_CUR_FORM_BTN_ITEM(dpadBtn, ITEM_BOTTLE);
+                        Interface_Dpad_LoadItemIconImpl(play, dpadBtn);
+                        bottleSlot = DPAD_GET_CUR_FORM_BTN_SLOT(dpadBtn);
+                        i = 0;
+                        break;
+                    }
+                }
+            }
+            // #endregion
             gSaveContext.save.saveInfo.inventory.items[bottleSlot + i] = ITEM_BOTTLE;
             return true;
         }
@@ -3401,6 +4201,14 @@ void Inventory_UpdateItem(PlayState* play, s16 slot, s16 item) {
             Interface_LoadItemIconImpl(play, btn);
         }
     }
+    // #region 2S2H [Dpad]
+    for (s16 dpadBtn = EQUIP_SLOT_D_RIGHT; dpadBtn <= EQUIP_SLOT_D_UP; dpadBtn++) {
+        if (DPAD_GET_CUR_FORM_BTN_SLOT(dpadBtn) == slot) {
+            DPAD_SET_CUR_FORM_BTN_ITEM(dpadBtn, item);
+            Interface_Dpad_LoadItemIconImpl(play, dpadBtn);
+        }
+    }
+    // #endregion 2S2H
 }
 
 void Interface_MemSetZeroed(u32* buf, s32 count) {
@@ -3935,7 +4743,14 @@ void Magic_Update(PlayState* play) {
                      (Player_GetEnvironmentalHazard(play) <= PLAYER_ENV_HAZARD_UNDERWATER_FREE)) ||
                     ((BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT) != ITEM_LENS_OF_TRUTH) &&
                      (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) != ITEM_LENS_OF_TRUTH) &&
-                     (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) != ITEM_LENS_OF_TRUTH)) ||
+                     (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) != ITEM_LENS_OF_TRUTH) &&
+                    //  #region 2S2H [Dpad]
+                     (!CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0) || 
+                      (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) != ITEM_LENS_OF_TRUTH) &&
+                      (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) != ITEM_LENS_OF_TRUTH) &&
+                      (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) != ITEM_LENS_OF_TRUTH) &&
+                      (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) != ITEM_LENS_OF_TRUTH))) ||
+                    //   #endregion
                     !play->actorCtx.lensActive) {
                     // Deactivate Lens of Truth and set magic state to idle
                     play->actorCtx.lensActive = false;
@@ -4260,6 +5075,16 @@ void Interface_DrawItemButtons(PlayState* play) {
     gDPPipeSync(OVERLAY_DISP++);
     gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
 
+    // #region 2S2H [Dpad]
+    if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+        s16 dpadAlpha = MAX(MAX(MAX(interfaceCtx->shipInterface.dpad.dRightAlpha, interfaceCtx->shipInterface.dpad.dLeftAlpha), interfaceCtx->shipInterface.dpad.dDownAlpha),
+                    interfaceCtx->shipInterface.dpad.dUpAlpha);
+        HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_D_PAD);
+        OVERLAY_DISP = Gfx_DrawTexRectIA16_DropShadow(OVERLAY_DISP, gDPadTex, 32, 32, 271, 55, 32, 32, 1024, 1024, 255, 255, 255, dpadAlpha);
+        gDPPipeSync(OVERLAY_DISP++);
+    }
+    // #endregion
+
     // B Button Color & Texture
     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_B);
     OVERLAY_DISP = Gfx_DrawTexRectIA8_DropShadow(
@@ -4417,6 +5242,139 @@ void Interface_DrawItemButtons(PlayState* play) {
 
     CLOSE_DISPS(play->state.gfxCtx);
 }
+
+// #region 2S2H [Dpad]
+s16 sDpadItemIconDD[] = {
+    1024, // EQUIP_SLOT_D_RIGHT
+    1024, // EQUIP_SLOT_D_LEFT
+    1024, // EQUIP_SLOT_D_DOWN
+    1024, // EQUIP_SLOT_D_UP
+};
+s16 sDpadItemIconLeft[] = {
+    295,  // EQUIP_SLOT_D_RIGHT
+    263,  // EQUIP_SLOT_D_LEFT
+    279,  // EQUIP_SLOT_D_DOWN
+    279,  // EQUIP_SLOT_D_UP
+};
+s16 sDpadItemIconTop[] = {
+    63, // EQUIP_SLOT_D_RIGHT
+    63, // EQUIP_SLOT_D_LEFT
+    79, // EQUIP_SLOT_D_DOWN
+    47, // EQUIP_SLOT_D_UP
+};
+
+void Interface_Dpad_DrawItemIconTexture(PlayState* play, TexturePtr texture, s16 button) {
+    static s16 sDpadItemIconWidth[] = { 16, 16, 16, 16 };
+
+    OPEN_DISPS(play->state.gfxCtx);
+
+    gDPLoadTextureBlock(OVERLAY_DISP++, texture, G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 32, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+
+    HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_D_PAD);
+    if (HudEditor_ShouldOverrideDraw()) {
+        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+            hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+        } else {
+            s16 rectLeft = sDpadItemIconLeft[button];
+            s16 rectTop = sDpadItemIconTop[button];
+            s16 rectWidth = sDpadItemIconWidth[button];
+            s16 rectHeight = sDpadItemIconWidth[button];
+            s16 dsdx = sDpadItemIconDD[button];
+            s16 dtdy = sDpadItemIconDD[button];
+
+            HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+
+            hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+
+            gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2,
+                            (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
+                            G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+        }
+    } else {
+        gSPTextureRectangle(OVERLAY_DISP++, sDpadItemIconLeft[button] << 2, sDpadItemIconTop[button] << 2,
+                            (sDpadItemIconLeft[button] + sDpadItemIconWidth[button]) << 2, (sDpadItemIconTop[button] + sDpadItemIconWidth[button]) << 2,
+                            G_TX_RENDERTILE, 0, 0, sDpadItemIconDD[button] << 1, sDpadItemIconDD[button] << 1);
+    }
+
+    CLOSE_DISPS(play->state.gfxCtx);
+}
+
+s16 sDpadItemAmmoX[] = {
+    295, // EQUIP_SLOT_D_RIGHT
+    263, // EQUIP_SLOT_D_LEFT
+    279, // EQUIP_SLOT_D_DOWN
+    279, // EQUIP_SLOT_D_UP
+};
+
+s16 sDpadItemAmmoY[] = { 
+    63 + 11, // EQUIP_SLOT_D_RIGHT
+    63 + 11, // EQUIP_SLOT_D_LEFT
+    79 + 11, // EQUIP_SLOT_D_DOWN
+    47 + 11, // EQUIP_SLOT_D_UP
+};
+
+void Interface_Dpad_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
+    u8 i;
+    u16 ammo;
+    OPEN_DISPS(play->state.gfxCtx);
+
+    i = ((void)0, DPAD_GET_CUR_FORM_BTN_ITEM(button));
+
+    if ((i == ITEM_DEKU_STICK) || (i == ITEM_DEKU_NUT) || (i == ITEM_BOMB) || (i == ITEM_BOW) ||
+        ((i >= ITEM_BOW_FIRE) && (i <= ITEM_BOW_LIGHT)) || (i == ITEM_BOMBCHU) || (i == ITEM_POWDER_KEG) ||
+        (i == ITEM_MAGIC_BEANS) || (i == ITEM_PICTOGRAPH_BOX)) {
+
+        if ((i >= ITEM_BOW_FIRE) && (i <= ITEM_BOW_LIGHT)) {
+            i = ITEM_BOW;
+        }
+
+        ammo = AMMO(i);
+
+        if (i == ITEM_PICTOGRAPH_BOX) {
+            if (!CHECK_QUEST_ITEM(QUEST_PICTOGRAPH)) {
+                ammo = 0;
+            } else {
+                ammo = 1;
+            }
+        }
+
+        gDPPipeSync(OVERLAY_DISP++);
+
+        if (((i == ITEM_BOW) && (AMMO(i) == CUR_CAPACITY(UPG_QUIVER))) ||
+                   ((i == ITEM_BOMB) && (AMMO(i) == CUR_CAPACITY(UPG_BOMB_BAG))) ||
+                   ((i == ITEM_DEKU_STICK) && (AMMO(i) == CUR_CAPACITY(UPG_DEKU_STICKS))) ||
+                   ((i == ITEM_DEKU_NUT) && (AMMO(i) == CUR_CAPACITY(UPG_DEKU_NUTS))) ||
+                   ((i == ITEM_BOMBCHU) && (AMMO(i) == CUR_CAPACITY(UPG_BOMB_BAG))) ||
+                   ((i == ITEM_POWDER_KEG) && (ammo == 1)) || ((i == ITEM_PICTOGRAPH_BOX) && (ammo == 1)) ||
+                   ((i == ITEM_MAGIC_BEANS) && (ammo == 20))) {
+            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 120, 255, 0, alpha);
+        }
+
+        if ((u32)ammo == 0) {
+            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 100, 100, 100, alpha);
+        }
+
+        for (i = 0; ammo >= 10; i++) {
+            ammo -= 10;
+        }
+
+        // Draw upper digit (tens)
+        if ((u32)i != 0) {
+            HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_D_PAD);
+            OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[i], 8, 8,
+                                              sDpadItemAmmoX[button], sDpadItemAmmoY[button], 8, 8, 1 << 10, 1 << 10);
+        }
+
+        // Draw lower digit (ones)
+        HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_D_PAD);
+        OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[ammo], 8, 8,
+                                          sDpadItemAmmoX[button] + 6, sDpadItemAmmoY[button], 8, 8, 1 << 10, 1 << 10);
+    }
+
+    CLOSE_DISPS(play->state.gfxCtx);
+}
+// #endregion
 
 void Interface_DrawItemIconTexture(PlayState* play, TexturePtr texture, s16 button) {
     static s16 D_801BFAFC[] = { 30, 24, 24, 24 };
@@ -4709,6 +5667,67 @@ void Interface_DrawCButtonIcons(PlayState* play) {
         gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
                           PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
         Interface_DrawAmmoCount(play, EQUIP_SLOT_C_RIGHT, interfaceCtx->cRightAlpha);
+    }
+
+    CLOSE_DISPS(play->state.gfxCtx);
+}
+
+void Interface_DrawDButtonIcons(PlayState* play) {
+    InterfaceContext* interfaceCtx = &play->interfaceCtx;
+    DpadInterface* dpadInterfaceCtx = &play->interfaceCtx.shipInterface.dpad;
+
+    OPEN_DISPS(play->state.gfxCtx);
+
+    gDPPipeSync(OVERLAY_DISP++);
+
+    // D-Right Button Icon & Ammo Count
+    if (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) < ITEM_F0) {
+        gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, dpadInterfaceCtx->dRightAlpha);
+        gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+        Interface_Dpad_DrawItemIconTexture(play, interfaceCtx->iconItemSegment[EQUIP_SLOT_D_RIGHT + EQUIP_SLOT_MAX], EQUIP_SLOT_D_RIGHT);
+        gDPPipeSync(OVERLAY_DISP++);
+        gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
+                          PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+        Interface_Dpad_DrawAmmoCount(play, EQUIP_SLOT_D_RIGHT, dpadInterfaceCtx->dRightAlpha);
+    }
+
+        gDPPipeSync(OVERLAY_DISP++);
+
+    // D-Left Button Icon & Ammo Count
+    if (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) < ITEM_F0) {
+        gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, dpadInterfaceCtx->dLeftAlpha);
+        gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+        Interface_Dpad_DrawItemIconTexture(play, interfaceCtx->iconItemSegment[EQUIP_SLOT_D_LEFT + EQUIP_SLOT_MAX], EQUIP_SLOT_D_LEFT);
+        gDPPipeSync(OVERLAY_DISP++);
+        gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
+                          PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+        Interface_Dpad_DrawAmmoCount(play, EQUIP_SLOT_D_LEFT, dpadInterfaceCtx->dLeftAlpha);
+    }
+
+    gDPPipeSync(OVERLAY_DISP++);
+
+    // D-Down Button Icon & Ammo Count
+    if (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) < ITEM_F0) {
+        gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, dpadInterfaceCtx->dDownAlpha);
+        gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+        Interface_Dpad_DrawItemIconTexture(play, interfaceCtx->iconItemSegment[EQUIP_SLOT_D_DOWN + EQUIP_SLOT_MAX], EQUIP_SLOT_D_DOWN);
+        gDPPipeSync(OVERLAY_DISP++);
+        gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
+                          PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+        Interface_Dpad_DrawAmmoCount(play, EQUIP_SLOT_D_DOWN, dpadInterfaceCtx->dDownAlpha);
+    }
+
+    gDPPipeSync(OVERLAY_DISP++);
+
+    // D-Up Button Icon & Ammo Count
+    if (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) < ITEM_F0) {
+        gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, dpadInterfaceCtx->dUpAlpha);
+        gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+        Interface_Dpad_DrawItemIconTexture(play, interfaceCtx->iconItemSegment[EQUIP_SLOT_D_UP + EQUIP_SLOT_MAX], EQUIP_SLOT_D_UP);
+        gDPPipeSync(OVERLAY_DISP++);
+        gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
+                          PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+        Interface_Dpad_DrawAmmoCount(play, EQUIP_SLOT_D_UP, dpadInterfaceCtx->dUpAlpha);
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -7114,6 +8133,12 @@ void Interface_Draw(PlayState* play) {
         }
         Interface_DrawCButtonIcons(play);
 
+        // #region 2S2H [Dpad]
+        if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+            Interface_DrawDButtonIcons(play);
+        }
+        // #endregion
+
         Interface_DrawAButton(play);
 
         Interface_DrawPauseMenuEquippingIcons(play);
@@ -7840,11 +8865,13 @@ void Interface_Init(PlayState* play) {
 
     Interface_NewDay(play, CURRENT_DAY);
 
-    interfaceCtx->iconItemSegment = THA_AllocTailAlign16(&play->state.tha, sizeof(char*) * EQUIP_SLOT_MAX);
-    for (size_t id = 0; id < EQUIP_SLOT_MAX; id++) {
+    // #region 2S2H [Dpad] Increase Size of iconItemSegment for dpad
+    interfaceCtx->iconItemSegment = THA_AllocTailAlign16(&play->state.tha, sizeof(char*) * (EQUIP_SLOT_MAX + EQUIP_SLOT_D_MAX));
+    for (size_t id = 0; id < (EQUIP_SLOT_MAX + EQUIP_SLOT_D_MAX); id++) {
         interfaceCtx->iconItemSegment[id] = gEmptyTexture;
     }
-    // #endregion
+    // #endregion [Dpad]
+    // #endregion [Port]
 
     if (CUR_FORM_EQUIP(EQUIP_SLOT_B) < ITEM_F0) {
         Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
@@ -7863,6 +8890,26 @@ void Interface_Init(PlayState* play) {
     if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) < ITEM_F0) {
         Interface_LoadItemIconImpl(play, EQUIP_SLOT_C_RIGHT);
     }
+
+    // #region 2S2H [Dpad]
+    if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+        if (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) < ITEM_F0) {
+            Interface_Dpad_LoadItemIconImpl(play, EQUIP_SLOT_D_RIGHT);
+        }
+
+        if (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) < ITEM_F0) {
+            Interface_Dpad_LoadItemIconImpl(play, EQUIP_SLOT_D_LEFT);
+        }
+
+        if (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) < ITEM_F0) {
+            Interface_Dpad_LoadItemIconImpl(play, EQUIP_SLOT_D_DOWN);
+        }
+
+        if (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) < ITEM_F0) {
+            Interface_Dpad_LoadItemIconImpl(play, EQUIP_SLOT_D_UP);
+        }
+    }
+    // #endregion
 
     if (((gSaveContext.timerStates[TIMER_ID_MINIGAME_2] == TIMER_STATE_COUNTING) ||
          (gSaveContext.timerStates[TIMER_ID_GORON_RACE_UNUSED] == TIMER_STATE_COUNTING)) &&

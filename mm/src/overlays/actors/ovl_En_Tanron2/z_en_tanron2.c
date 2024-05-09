@@ -8,6 +8,7 @@
 #include "overlays/actors/ovl_Boss_04/z_boss_04.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "objects/object_boss04/object_boss04.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
@@ -626,6 +627,7 @@ void EnTanron2_Draw(Actor* thisx, PlayState* play2) {
 
     for (i = 0; i < ARRAY_COUNT(D_80BB8458); i++) {
         if (D_80BB8458[i] != NULL) {
+            FrameInterpolation_RecordOpenChild(D_80BB8458[i], D_80BB8458[i]->actor.params);
             Matrix_Translate(D_80BB8458[i]->actor.world.pos.x, D_80BB8458[i]->actor.world.pos.y,
                              D_80BB8458[i]->actor.world.pos.z, MTXMODE_NEW);
             Matrix_ReplaceRotation(&play->billboardMtxF);
@@ -636,6 +638,7 @@ void EnTanron2_Draw(Actor* thisx, PlayState* play2) {
 
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_XLU_DISP++, gWartBubbleModelDL);
+            FrameInterpolation_RecordCloseChild();
         }
     }
 
@@ -647,11 +650,13 @@ void EnTanron2_Draw(Actor* thisx, PlayState* play2) {
     tanron2 = play->actorCtx.actorLists[ACTORCAT_BOSS].first;
     while (tanron2 != NULL) {
         if ((tanron2->params < 100) && (((EnTanron2*)tanron2)->unk_15B != 0)) {
+            FrameInterpolation_RecordOpenChild(tanron2, tanron2->params);
             Matrix_Translate(tanron2->world.pos.x, D_80BB8450->actor.floorHeight, tanron2->world.pos.z, MTXMODE_NEW);
             Matrix_Scale(0.6f, 0.0f, 0.6f, MTXMODE_APPLY);
 
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_XLU_DISP++, gWartShadowModelDL);
+            FrameInterpolation_RecordCloseChild();
         }
         tanron2 = tanron2->next;
     }
@@ -667,12 +672,14 @@ void EnTanron2_Draw(Actor* thisx, PlayState* play2) {
     while (tanron2 != NULL) {
         if ((tanron2->params < 100) && (((EnTanron2*)tanron2)->unk_15B != 0) &&
             (tanron2->world.pos.y <= tanron2->floorHeight)) {
+            FrameInterpolation_RecordOpenChild(tanron2, tanron2->params);
             Matrix_Translate(tanron2->world.pos.x, D_80BB8450->actor.floorHeight + 2.0f, tanron2->world.pos.z,
                              MTXMODE_NEW);
             Matrix_Scale(D_80BB8454, 0.0f, D_80BB8454, MTXMODE_APPLY);
 
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_XLU_DISP++, gEffWaterRippleDL);
+            FrameInterpolation_RecordCloseChild();
         }
         tanron2 = tanron2->next;
     }

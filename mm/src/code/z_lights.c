@@ -2,6 +2,7 @@
 #include "sys_cfb.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include <string.h>
+#include "BenPort.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 LightsBuffer sLightsBuffer;

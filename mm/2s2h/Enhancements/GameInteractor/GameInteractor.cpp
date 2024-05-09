@@ -18,6 +18,10 @@ void GameInteractor_ExecuteOnGameStateUpdate() {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnGameStateUpdate>();
 }
 
+void GameInteractor_ExecuteOnSaveInit(s16 fileNum) {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnSaveInit>(fileNum);
+}
+
 void GameInteractor_ExecuteBeforeEndOfCycleSave() {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::BeforeEndOfCycleSave>();
 }
