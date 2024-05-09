@@ -11,13 +11,13 @@
 #ifdef __GNUC__
 #include <math.h>
 #else
-float fabsf(float f);
-#pragma intrinsic(fabsf)
+//float fabsf(float f);
+//#pragma intrinsic(fabsf)
 #ifdef __GNUC__
-#define fabsf(f) __builtin_fabsf((float)(f))
+//#define fabsf(f) __builtin_fabsf((float)(f))
 #endif
 
-double sqrt(double d);
+//double sqrt(double d);
 #pragma intrinsic(sqrt)
 
 #endif

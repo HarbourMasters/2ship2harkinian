@@ -7,6 +7,7 @@
 #include "z_en_raf.h"
 #include "overlays/actors/ovl_En_Clear_Tag/z_en_clear_tag.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "BenPort.h"
 
 #define FLAGS (ACTOR_FLAG_CANT_LOCK_ON)
 

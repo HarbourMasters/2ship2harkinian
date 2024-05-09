@@ -7,6 +7,7 @@
 #include "global.h"
 #include "z_fbdemo_wipe3.h"
 #include <string.h>
+#include "BenPort.h"
 
 #define THIS ((TransitionWipe3*)thisx)
 

@@ -3,6 +3,7 @@
 #include <imgui.h>
 #include "public/bridge/consolevariablebridge.h"
 #include <libultraship/libultraship.h>
+#include "graphic/Fast3D/gfx_rendering_api.h"
 #include "UIWidgets.hpp"
 #include <unordered_map>
 #include <string>
@@ -25,6 +26,12 @@ static const std::unordered_map<int32_t, const char*> textureFilteringMap = {
     { FILTER_THREE_POINT, "Three-Point" },
     { FILTER_LINEAR, "Linear" },
     { FILTER_NONE, "None" },
+};
+
+static const std::unordered_map<int32_t, const char*> debugSaveOptions = {
+    { DEBUG_SAVE_INFO_COMPLETE, "100\% save" },
+    { DEBUG_SAVE_INFO_VANILLA_DEBUG, "Vanilla debug save" },
+    { DEBUG_SAVE_INFO_NONE, "Empty save" },
 };
 
 static const std::unordered_map<Ship::AudioBackend, const char*> audioBackendsMap = {
@@ -301,6 +308,9 @@ void DrawEnhancementsMenu() {
         if (UIWidgets::BeginMenu("Cutscenes")) {
             UIWidgets::CVarCheckbox("Hide Title Cards", "gEnhancements.Cutscenes.HideTitleCards");
             UIWidgets::CVarCheckbox("Skip Entrance Cutscenes", "gEnhancements.Cutscenes.SkipEntranceCutscenes");
+            UIWidgets::CVarCheckbox(
+                "Skip to File Select", "gEnhancements.Cutscenes.SkipToFileSelect",
+                { .tooltip = "Skip the opening title sequence and go straight to the file select menu after boot" });
 
             ImGui::EndMenu();
         }
@@ -327,6 +337,14 @@ void DrawEnhancementsMenu() {
                 .tooltip = "Speeds up text rendering, and enables holding of B progress to next message"
             });
             
+            ImGui::EndMenu();
+        }
+
+        if (UIWidgets::BeginMenu("Dpad")) {
+            UIWidgets::CVarCheckbox("Dpad Equips", "gEnhancements.Dpad.DpadEquips", {
+                .tooltip = "Allows you to equip items to your d-pad"
+            });
+
             ImGui::EndMenu();
         }
 
@@ -378,8 +396,21 @@ void DrawEnhancementsMenu() {
         }
 
         if (UIWidgets::BeginMenu("Restorations")) {
+            UIWidgets::CVarCheckbox("Power Crouch Stab", "gEnhancements.Restorations.PowerCrouchStab", {
+                .tooltip = "Crouch stabs will use the power of Link's previous melee attack, as is in MM JP 1.0 and OOT."
+            });
             UIWidgets::CVarCheckbox("Side Rolls", "gEnhancements.Restorations.SideRoll", {
                 .tooltip = "Restores side rolling from OOT."
+            });
+
+            ImGui::EndMenu();
+        }
+
+        if (UIWidgets::BeginMenu("Songs")) {
+            UIWidgets::CVarCheckbox("Enable Sun's Song", "gEnhancements.Songs.EnableSunsSong", {
+                .tooltip = "Enables the partially implemented Sun's Song. RIGHT-DOWN-UP-RIGHT-DOWN-UP to play it. "
+                           "This song will make time move very fast until either Link moves to a different scene, "
+                           "or when the time switches to a new time period."
             });
 
             ImGui::EndMenu();
@@ -437,7 +468,19 @@ void DrawDeveloperToolsMenu() {
         UIWidgets::CVarCheckbox("Debug Mode", "gDeveloperTools.DebugEnabled", {
             .tooltip = "Enables Debug Mode, allowing you to select maps with L + R + Z."
         });
-        
+
+        if (CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
+            if (UIWidgets::CVarCombobox(
+                    "Debug Save File Mode", "gDeveloperTools.DebugSaveFileMode", debugSaveOptions,
+                    { .tooltip =
+                          "Change the behavior of creating saves while debug mode is enabled:\n\n"
+                          "- Empty Save: The default 3 heart save file in first cycle\n"
+                          "- Vanilla Debug Save: Uses the title screen save info (8 hearts, all items and masks)\n"
+                          "- 100\% Save: All items, equipment, mask, quast status and bombers notebook complete" })) {
+                RegisterDebugSaveCreate();
+            }
+        }
+
         UIWidgets::CVarCheckbox("Better Map Select", "gDeveloperTools.BetterMapSelect.Enabled");
         if (UIWidgets::CVarCheckbox("Prevent Actor Update", "gDeveloperTools.PreventActorUpdate")) {
             RegisterPreventActorUpdateHooks();
