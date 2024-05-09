@@ -102,6 +102,15 @@ typedef enum {
     /* 2 */ PAUSE_EQUIP_C_RIGHT
 } PauseEquipCButton;
 
+// #region 2S2H [Dpad]
+typedef enum {
+    /* 3 */ PAUSE_EQUIP_D_RIGHT = 3,
+    /* 4 */ PAUSE_EQUIP_D_LEFT,
+    /* 5 */ PAUSE_EQUIP_D_DOWN,
+    /* 6 */ PAUSE_EQUIP_D_UP
+} PauseEquipDButton;
+// #endregion
+
 typedef enum {
     /* 0 */ EQUIP_STATE_MAGIC_ARROW_GROW_ORB,
     /* 1 */ EQUIP_STATE_MAGIC_ARROW_MOVE_TO_BOW_SLOT,

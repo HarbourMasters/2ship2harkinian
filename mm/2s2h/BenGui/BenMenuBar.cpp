@@ -339,6 +339,14 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
+        if (UIWidgets::BeginMenu("Dpad")) {
+            UIWidgets::CVarCheckbox("Dpad Equips", "gEnhancements.Dpad.DpadEquips", {
+                .tooltip = "Allows you to equip items to your d-pad"
+            });
+
+            ImGui::EndMenu();
+        }
+
         if (UIWidgets::BeginMenu("Fixes")) {
             UIWidgets::CVarCheckbox("Fix Ammo Count Color", "gFixes.FixAmmoCountEnvColor", {
                 .tooltip = "Fixes a missing gDPSetEnvColor, which causes the ammo count to be the wrong color prior to obtaining magic or other conditions."
