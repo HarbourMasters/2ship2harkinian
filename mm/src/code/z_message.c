@@ -6,6 +6,7 @@
 #include "interface/parameter_static/parameter_static.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "BenPort.h"
+#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 #include "assets/archives/schedule_dma_static/schedule_dma_static_yar.h"
 #include "assets/archives/icon_item_static/icon_item_static_yar.h"
 #include "assets/archives/icon_item_24_static/icon_item_24_static_yar.h"
@@ -13,9 +14,7 @@
 #include "assets/interface/message_texture_static/message_texture_static.h"
 #include <string.h>
 
-// #region 2S2H [Port] Asset tables we can pull from instead of from ROM
-#define dgEmptyTexture "__OTR__textures/virtual/gEmptyTexture"
-static const ALIGN_ASSET(2) char gEmptyTexture[] = dgEmptyTexture;
+#include "2s2h_assets.h"
 
 const char* gBombersNotebookPhotos[] = {
     gBombersNotebookPhotoAnjuTex,
@@ -318,7 +317,7 @@ s32 Message_ShouldAdvance(PlayState* play) {
         }
         return CHECK_BTN_ALL(controller->press.button, BTN_A) || CHECK_BTN_ALL(controller->press.button, BTN_B) ||
                // 2S2H [Enhancement] When fast text is on, we want to check if B is held instead of only if it was just pressed
-               (CVarGetInteger("gEnhancements.TimeSavers.FastText", 0) && CHECK_BTN_ALL(controller->cur.button, BTN_B)) ||
+               (CVarGetInteger("gEnhancements.Dialogue.FastText", 0) && CHECK_BTN_ALL(controller->cur.button, BTN_B)) ||
                CHECK_BTN_ALL(controller->press.button, BTN_CUP);
     }
 }
@@ -332,7 +331,7 @@ s32 Message_ShouldAdvanceSilent(PlayState* play) {
     } else {
         return CHECK_BTN_ALL(controller->press.button, BTN_A) || CHECK_BTN_ALL(controller->press.button, BTN_B) ||
                // 2S2H [Enhancement] When fast text is on, we want to check if B is held instead of only if it was just pressed
-               (CVarGetInteger("gEnhancements.TimeSavers.FastText", 0) && CHECK_BTN_ALL(controller->cur.button, BTN_B)) ||
+               (CVarGetInteger("gEnhancements.Dialogue.FastText", 0) && CHECK_BTN_ALL(controller->cur.button, BTN_B)) ||
                CHECK_BTN_ALL(controller->press.button, BTN_CUP);
     }
 }
@@ -2882,7 +2881,13 @@ void Message_Decode(PlayState* play) {
                 decodedBufPos--;
             } else if (curChar == 0x22E) {
                 digits[0] = digits[1] = digits[2] = 0;
-                digits[3] = gItemPrices[GET_CUR_FORM_BTN_ITEM(player->heldItemButton)];
+                // #region 2S2H [Dpad]
+                if (IS_HELD_DPAD(player->heldItemButton)) {
+                    digits[3] = gItemPrices[DPAD_GET_CUR_FORM_BTN_ITEM(HELD_ITEM_TO_DPAD(player->heldItemButton))];
+                } else {
+                    digits[3] = gItemPrices[GET_CUR_FORM_BTN_ITEM(player->heldItemButton)];
+                }
+                // #endregion
 
                 while (digits[3] >= 1000) {
                     digits[0]++;
@@ -3282,6 +3287,8 @@ void Message_OpenText(PlayState* play, u16 textId) {
     Font* font = &msgCtx->font;
     Player* player = GET_PLAYER(play);
     f32 var_fv0;
+
+    GameInteractor_ExecuteOnOpenText(textId);
 
     // BENTODO do this somewhere else
     gSaveContext.options.language = LANGUAGE_ENG;
@@ -4571,6 +4578,12 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
 
                 msgCtx->songPlayed = msgCtx->ocarinaStaff->state;
 
+                bool vanillaOwnedSongCheck = (msgCtx->ocarinaStaff->state == OCARINA_SONG_SCARECROW_SPAWN) ||
+                                             (msgCtx->ocarinaStaff->state == OCARINA_SONG_INVERTED_TIME) ||
+                                             (msgCtx->ocarinaStaff->state == OCARINA_SONG_DOUBLE_TIME) ||
+                                             (msgCtx->ocarinaStaff->state == OCARINA_SONG_GORON_LULLABY_INTRO) ||
+                                             CHECK_QUEST_ITEM(QUEST_SONG_SONATA + msgCtx->ocarinaStaff->state);
+
                 if (msgCtx->ocarinaStaff->state <= OCARINA_SONG_SCARECROW_SPAWN) {
                     if (msgCtx->ocarinaStaff->state == OCARINA_SONG_EVAN_PART1) {
                         AudioOcarina_ResetAndReadInput();
@@ -4580,11 +4593,7 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
                         AudioOcarina_SetOcarinaDisableTimer(0, 20);
                         Message_CloseTextbox(play);
                         play->msgCtx.ocarinaMode = OCARINA_MODE_PLAYED_FULL_EVAN_SONG;
-                    } else if ((msgCtx->ocarinaStaff->state == OCARINA_SONG_SCARECROW_SPAWN) ||
-                               (msgCtx->ocarinaStaff->state == OCARINA_SONG_INVERTED_TIME) ||
-                               (msgCtx->ocarinaStaff->state == OCARINA_SONG_DOUBLE_TIME) ||
-                               (msgCtx->ocarinaStaff->state == OCARINA_SONG_GORON_LULLABY_INTRO) ||
-                               CHECK_QUEST_ITEM(QUEST_SONG_SONATA + msgCtx->ocarinaStaff->state)) {
+                    } else if (GameInteractor_Should(GI_VB_SONG_AVAILABLE_TO_PLAY, vanillaOwnedSongCheck, &msgCtx->ocarinaStaff->state)) {
                         sLastPlayedSong = msgCtx->ocarinaStaff->state;
                         msgCtx->lastPlayedSong = msgCtx->ocarinaStaff->state;
                         msgCtx->songPlayed = msgCtx->ocarinaStaff->state;
@@ -5635,7 +5644,7 @@ void Message_Update(PlayState* play) {
                 if ((
                     CHECK_BTN_ALL(input->press.button, BTN_B) ||
                     // 2S2H [Enhancement] When fast text is on, we want to check if B is held instead of only if it was just pressed
-                    (CVarGetInteger("gEnhancements.TimeSavers.FastText", 0) && CHECK_BTN_ALL(input->cur.button, BTN_B))
+                    (CVarGetInteger("gEnhancements.Dialogue.FastText", 0) && CHECK_BTN_ALL(input->cur.button, BTN_B))
                 ) && !msgCtx->textUnskippable) {
                     msgCtx->textboxSkipped = true;
                     msgCtx->textDrawPos = msgCtx->decodedTextLen;

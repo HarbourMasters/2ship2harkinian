@@ -34,7 +34,10 @@ u8 sMotionBlurStatus;
 #include "overlays/gamestates/ovl_file_choose/z_file_select.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "debug.h"
+#include "BenPort.h"
+#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "2s2h/Enhancements/Graphics/MotionBlur.h"
 #include "2s2h/DeveloperTools/CollisionViewer.h"
 #include "2s2h/framebuffer_effects.h"
 #include <string.h>
@@ -83,6 +86,8 @@ void Play_DrawMotionBlur(PlayState* this) {
         alpha = 0;
         sMotionBlurStatus = MOTION_BLUR_OFF;
     }
+
+    MotionBlur_Override(&sMotionBlurStatus, &alpha);
 
     if (sMotionBlurStatus != MOTION_BLUR_OFF) {
         OPEN_DISPS(gfxCtx);
@@ -1472,37 +1477,8 @@ void Play_DrawMain(PlayState* this) {
                     // this->pauseBgPreRender.cvgSave = this->unk_18E58;
                     this->pauseBgPreRender.cvgSave = NULL;
 
-                    // #region 2S2H [Port] Custom handling for picto box capture
-                    // Copy to our reusable buffer first
-                    FB_CopyToFramebuffer(&sp74, 0, gReusableFrameBuffer, false, NULL);
-
-                    // Set the picto framebuffer as the draw target (320x240)
-                    gsSPSetFB(sp74++, gPictoBoxFrameBuffer);
-
-                    int16_t s0 = 0, t0 = 0;
-                    int16_t s1 = OTRGetGameRenderWidth();
-                    int16_t t1 = OTRGetGameRenderHeight();
-
-                    float aspectRatio = OTRGetAspectRatio();
-                    float fourByThree = 4.0f / 3.0f;
-
-                    // Adjsut the texture coordinates so that only a 4:3 region from the center is drawn
-                    // to the picto buffer. Currently ratios smaller than 4:3 will just stretch to fill.
-                    if (aspectRatio > fourByThree) {
-                        int16_t adjustedWidth = OTRGetGameRenderWidth() / (aspectRatio / fourByThree);
-                        s0 = (OTRGetCurrentWidth() - adjustedWidth) / 2;
-                        s1 -= s0;
-                    }
-
-                    gDPSetTextureImageFB(sp74++, 0, 0, 0, gReusableFrameBuffer);
-                    gDPImageRectangle(sp74++, 0 << 2, 0 << 2, s0, t0, SCREEN_WIDTH << 2, SCREEN_HEIGHT << 2, s1, t1,
-                                      G_TX_RENDERTILE, OTRGetGameRenderWidth(), OTRGetGameRenderHeight());
-
-                    // Read the picto box framebuffer back as a rgba16 buffer
-                    gDPReadFB(sp74++, gPictoBoxFrameBuffer, this->pauseBgPreRender.fbufSave, 0, 0, SCREEN_WIDTH,
-                              SCREEN_HEIGHT);
-
-                    gsSPResetFB(sp74++);
+                    // #region 2S2H [Port] Custom handling for picto box capture to CPU
+                    FB_WriteFramebufferSliceToCPU(&sp74, this->pauseBgPreRender.fbufSave, false);
                     // #endregion
                 } else {
                     gTransitionTileState = TRANS_TILE_PROCESS;
@@ -2361,9 +2337,10 @@ void Play_Init(GameState* thisx) {
 
     sceneLayer = gSaveContext.sceneLayer;
 
-    Play_SpawnScene(
-        this, Entrance_GetSceneIdAbsolute(((void)0, gSaveContext.save.entrance) + ((void)0, gSaveContext.sceneLayer)),
-        Entrance_GetSpawnNum(((void)0, gSaveContext.save.entrance) + ((void)0, gSaveContext.sceneLayer)));
+    s32 sceneIdAbsolute = Entrance_GetSceneIdAbsolute(((void)0, gSaveContext.save.entrance) + ((void)0, gSaveContext.sceneLayer));
+    s32 spawnNum = Entrance_GetSpawnNum(((void)0, gSaveContext.save.entrance) + ((void)0, gSaveContext.sceneLayer));
+    Play_SpawnScene(this, sceneIdAbsolute, spawnNum);
+
     KaleidoScopeCall_Init(this);
     Interface_Init(this);
 
@@ -2479,4 +2456,6 @@ void Play_Init(GameState* thisx) {
     BombersNotebook_Init(&sBombersNotebook);
 
     sJustClosedBomberNotebook = false;
+
+    GameInteractor_ExecuteOnSceneInit(sceneIdAbsolute, spawnNum);
 }

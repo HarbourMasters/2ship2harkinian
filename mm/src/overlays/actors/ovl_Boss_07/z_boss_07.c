@@ -630,6 +630,14 @@ static Vec3s sRemainsEnd[REMAINS_COUNT] = {
     { -712, 0x5500, 416 },
 }; // y value here is y rotation, not position
 
+// #region 2S2H [Port] Masks for CPU modified texture handling
+static u8 sWrathTexMask16by16[16 * 16]; // gMajorasWrathEarTex
+static u8 sWrathTexMask16by32[16 * 32]; // gMajoraStripesTex
+static u8 sWrathTexMask32by32[32 * 32]; // gMajorasWrathMouthTex, gMajoraBloodshotEyeTex
+// gMajorasWrathEyeTex, gMajorasMaskWithNormalEyesTex, gMajoraVeinsTex, gMajoraHandTex, gMajoraBodyTex
+static u8 sWrathTexMask32by64[32 * 64];
+// #endregion
+
 void Boss07_Init(Actor* thisx, PlayState* play2) {
     static s16 sRemainsParams[REMAINS_COUNT] = {
         MAJORAS_REMAINS + REMAINS_ODOLWA,
@@ -815,6 +823,24 @@ void Boss07_Init(Actor* thisx, PlayState* play2) {
 
     sWhipSegCount = 44;
     this->armScale = 1.0f;
+
+    // #region 2S2H [Port] Setup and register masks as blended textures to handle CPU modified
+    // textures in Wrath's death cutscene
+    memset(sWrathTexMask16by16, 0, sizeof(sWrathTexMask16by16));
+    memset(sWrathTexMask16by32, 0, sizeof(sWrathTexMask16by32));
+    memset(sWrathTexMask32by32, 0, sizeof(sWrathTexMask32by32));
+    memset(sWrathTexMask32by64, 0, sizeof(sWrathTexMask32by64));
+
+    Gfx_RegisterBlendedTexture(gMajorasWrathEarTex, sWrathTexMask16by16, NULL);
+    Gfx_RegisterBlendedTexture(gMajoraStripesTex, sWrathTexMask16by32, NULL);
+    Gfx_RegisterBlendedTexture(gMajorasWrathMouthTex, sWrathTexMask32by32, NULL);
+    Gfx_RegisterBlendedTexture(gMajoraBloodshotEyeTex, sWrathTexMask32by32, NULL);
+    Gfx_RegisterBlendedTexture(gMajorasWrathEyeTex, sWrathTexMask32by64, NULL);
+    Gfx_RegisterBlendedTexture(gMajorasMaskWithNormalEyesTex, sWrathTexMask32by64, NULL);
+    Gfx_RegisterBlendedTexture(gMajoraVeinsTex, sWrathTexMask32by64, NULL);
+    Gfx_RegisterBlendedTexture(gMajoraHandTex, sWrathTexMask32by64, NULL);
+    Gfx_RegisterBlendedTexture(gMajoraBodyTex, sWrathTexMask32by64, NULL);
+    // #endregion
 }
 
 void Boss07_Destroy(Actor* thisx, PlayState* play2) {
@@ -2227,18 +2253,8 @@ void Boss07_Wrath_Update(Actor* thisx, PlayState* play2) {
         Boss07_Wrath_SetupDeath(this, play);
     }
     if (this->bodyDecayRate != 0) {
-        // #region 2S2H these textures are modified.They need to be loaded first because not using the resource manager
-        // will cause the file path strings to be modified instead of the texture.
-        u16* sp74 = ResourceMgr_LoadTexOrDListByName(gMajorasWrathEarTex);
-        u16* sp70 = ResourceMgr_LoadTexOrDListByName(gMajoraStripesTex);
-        u16* sp6C = ResourceMgr_LoadTexOrDListByName(gMajorasWrathMouthTex);
-        u16* sp68 = ResourceMgr_LoadTexOrDListByName(gMajoraBloodshotEyeTex);
-        u16* sp64 = ResourceMgr_LoadTexOrDListByName(gMajorasWrathEyeTex);
-        u16* sp60 = ResourceMgr_LoadTexOrDListByName(gMajorasMaskWithNormalEyesTex);
-        u16* sp5C = ResourceMgr_LoadTexOrDListByName(gMajoraVeinsTex);
-        u16* sp58 = ResourceMgr_LoadTexOrDListByName(gMajoraHandTex);
-        u16* sp54 = ResourceMgr_LoadTexOrDListByName(gMajoraBodyTex);
-        // #endregion
+        // #region 2S2H [Port] CPU Modified textures
+        // Instead of modifying the textures directly, we modify masks that match the texture sizes
         for (i = 0; i < this->bodyDecayRate; i++) {
             s32 sp50;
             s32 sp4C;
@@ -2250,9 +2266,10 @@ void Boss07_Wrath_Update(Actor* thisx, PlayState* play2) {
             sp48 = Rand_ZeroFloat(0x400 - 0.01f);
             sp50 = Rand_ZeroFloat(0x800 - 0.01f);
 
-            sp74[sp44] = sp70[sp4C] = sp6C[sp48] = sp68[sp48] = sp64[sp50] = sp60[sp50] = sp5C[sp50] = sp58[sp50] =
-                sp54[sp50] = 0;
+            sWrathTexMask16by16[sp44] = sWrathTexMask16by32[sp4C] = sWrathTexMask32by32[sp48] =
+                sWrathTexMask32by64[sp50] = 1;
         }
+        // #endregion
     }
     Boss07_DamageEffects(this, play);
     if ((this->jumpSfxTimer == 1) || (this->jumpSfxTimer == 4)) {
@@ -2766,6 +2783,15 @@ void Boss07_Wrath_Draw(Actor* thisx, PlayState* play2) {
     u8* shadowTex = GRAPH_ALLOC(play->state.gfxCtx, sizeof(u8[0x40][0x40]));
 
     OPEN_DISPS(play->state.gfxCtx);
+
+    // #2S2H [Port] Invalidate the blend masks when they are set in the cutscene
+    if (this->csState == MAJORAS_WRATH_DEATH_STATE_4) {
+        gSPInvalidateTexCache(POLY_OPA_DISP++, sWrathTexMask16by16);
+        gSPInvalidateTexCache(POLY_OPA_DISP++, sWrathTexMask16by32);
+        gSPInvalidateTexCache(POLY_OPA_DISP++, sWrathTexMask32by32);
+        gSPInvalidateTexCache(POLY_OPA_DISP++, sWrathTexMask32by64);
+    }
+    // #enregion
 
     Gfx_SetupDL25_Opa(play->state.gfxCtx);
     Gfx_SetupDL25_Xlu(play->state.gfxCtx);
@@ -5869,7 +5895,6 @@ void Boss07_Static_Update(Actor* thisx, PlayState* play2) {
 
     if (sHeartbeatTimer != 0) {
         sHeartbeatTimer--;
-    dummy_label:; //!@fake
         Audio_PlaySfx(NA_SE_EN_LAST2_HEARTBEAT_OLD - SFX_FLAG);
     }
     if (this->lensFlareOn) {
@@ -6092,4 +6117,19 @@ void Boss07_Reset(void) {
     sSeed0 = 0;
     sSeed1 = 0;
     sSeed2 = 0;
+
+    Gfx_UnregisterBlendedTexture(gMajorasWrathEarTex);
+    Gfx_UnregisterBlendedTexture(gMajoraStripesTex);
+    Gfx_UnregisterBlendedTexture(gMajorasWrathMouthTex);
+    Gfx_UnregisterBlendedTexture(gMajoraBloodshotEyeTex);
+    Gfx_UnregisterBlendedTexture(gMajorasWrathEyeTex);
+    Gfx_UnregisterBlendedTexture(gMajorasMaskWithNormalEyesTex);
+    Gfx_UnregisterBlendedTexture(gMajoraVeinsTex);
+    Gfx_UnregisterBlendedTexture(gMajoraHandTex);
+    Gfx_UnregisterBlendedTexture(gMajoraBodyTex);
+
+    Gfx_TextureCacheDelete(sWrathTexMask16by16);
+    Gfx_TextureCacheDelete(sWrathTexMask16by32);
+    Gfx_TextureCacheDelete(sWrathTexMask32by32);
+    Gfx_TextureCacheDelete(sWrathTexMask32by64);
 }

@@ -261,24 +261,34 @@ extern Gfx gEmptyDL[];
 #define OVERLAY_DISP __gfxCtx->overlay.p
 #define DEBUG_DISP __gfxCtx->debug.p
 
+// #region 2S2H [Port] Logic to perform in DISPS methods for debug information and frame interpolation support
+#define OPEN_DISPS_PORT_HELPERS(gfxCtx)                            \
+    void FrameInterpolation_RecordOpenChild(const void* a, int b); \
+    FrameInterpolation_RecordOpenChild(__FILE__, __LINE__);        \
+    Gfx* __dispRefs[3];                                            \
+    Gfx __dispVals[3];                                             \
+    Graph_OpenDisps(__dispRefs, __dispVals, gfxCtx, __FILE__, __LINE__)
+
+#define CLOSE_DISPS_PORT_HELPERS(gfxCtx)            \
+    void FrameInterpolation_RecordCloseChild(void); \
+    FrameInterpolation_RecordCloseChild();          \
+    Graph_CloseDisps(__dispRefs, __dispVals, gfxCtx, __FILE__, __LINE__)
+
+// #endregion
+
 // __gfxCtx shouldn't be used directly.
 // Use the DISP macros defined above when writing to display buffers.
-// 2S2H [Port] Augmented to provide debug information and support interpolation
-#define OPEN_DISPS(gfxCtx)                                                  \
-    {                                                                       \
-        void FrameInterpolation_RecordOpenChild(const void* a, int b);      \
-        FrameInterpolation_RecordOpenChild(__FILE__, __LINE__);             \
-        GraphicsContext* __gfxCtx = gfxCtx;                                 \
-        Gfx* __dispRefs[3];                                                 \
-        Gfx __dispVals[3];                                                  \
-        Graph_OpenDisps(__dispRefs, __dispVals, gfxCtx, __FILE__, __LINE__)
+// 2S2H [Port] Augmented to use our disps helpers.
+// 2S2H [Port] There originally a `__dispPad` variable here. Removed because it has no use on PC.
+#define OPEN_DISPS(gfxCtx)                  \
+    {                                       \
+        GraphicsContext* __gfxCtx = gfxCtx; \
+        OPEN_DISPS_PORT_HELPERS(gfxCtx)
 
-#define CLOSE_DISPS(gfxCtx)                                               \
-    (void)0;                                                              \
-    void FrameInterpolation_RecordCloseChild(void);                       \
-    FrameInterpolation_RecordCloseChild();                                \
-    Graph_CloseDisps(__dispRefs, __dispVals, gfxCtx, __FILE__, __LINE__); \
-    }                                                                     \
+#define CLOSE_DISPS(gfxCtx)           \
+    (void)0;                          \
+    CLOSE_DISPS_PORT_HELPERS(gfxCtx); \
+    }                                 \
     (void)0
 
 #define GRAPH_ALLOC(gfxCtx, size) ((void*)((gfxCtx)->polyOpa.d = (Gfx*)((u8*)(gfxCtx)->polyOpa.d - ALIGN16(size))))

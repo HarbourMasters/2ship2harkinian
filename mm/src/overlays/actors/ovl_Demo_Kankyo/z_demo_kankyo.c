@@ -8,6 +8,7 @@
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "objects/object_bubble/object_bubble.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "BenPort.h"
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
@@ -154,7 +155,7 @@ void DemoKakyo_LostWoodsSparkleActionFunc(DemoKankyo* this, PlayState* play) {
                         this->effects[i].speedTarget = 0.0f;
                     }
 
-                    Math_SmoothStepToF(&this->effects[i].scale, 0.1, 0.1f, 0.001f, 0.00001f);
+                    Math_SmoothStepToF(&this->effects[i].scale, 0.1f, 0.1f, 0.001f, 0.00001f);
                     Math_SmoothStepToF(&this->effects[i].speed, this->effects[i].speedTarget, 0.5f, 0.2f, 0.02f);
                     this->effects[i].posOffset.x += sinf(this->effects[i].speedClock.x) * this->effects[i].speed;
                     this->effects[i].posOffset.y += sinf(this->effects[i].speedClock.y) * this->effects[i].speed;
@@ -218,7 +219,7 @@ void DemoKakyo_LostWoodsSparkleActionFunc(DemoKankyo* this, PlayState* play) {
                             this->effects[i].LostWoodsSkyFishPosOffsetMax;
                     } else {
                         // Tail Particles
-                        Math_SmoothStepToF(&this->effects[i].scale, 0.1, 0.1f, 0.001f, 0.00001f);
+                        Math_SmoothStepToF(&this->effects[i].scale, 0.1f, 0.1f, 0.001f, 0.00001f);
 
                         // Unused calculation, speed only used in posOffset calculations,
                         // but posOffset gets overwritten for tail particles immediately below
@@ -522,8 +523,17 @@ void DemoKakyo_DrawLostWoodsSparkle(Actor* thisx, PlayState* play2) {
 
             Play_GetScreenPos(play, &worldPos, &screenPos);
 
+            // #region 2S2H [Cosmetic] Increase particle render area for widescreen
+            f32 xMin = 0.0f;
+            f32 xMax = SCREEN_WIDTH;
+            if (OTRGetAspectRatio() > 4.0f / 3.0f) {
+                xMin = OTRGetDimensionFromLeftEdge(xMin);
+                xMax = OTRGetDimensionFromRightEdge(xMax);
+            }
+            // #pragma endregion
+
             // checking if particle is on screen
-            if ((screenPos.x >= 0.0f) && (screenPos.x < SCREEN_WIDTH) && (screenPos.y >= 0.0f) &&
+            if ((screenPos.x >= xMin) && (screenPos.x < xMax) && (screenPos.y >= 0.0f) &&
                 (screenPos.y < SCREEN_HEIGHT)) {
                 Matrix_Translate(worldPos.x, worldPos.y, worldPos.z, MTXMODE_NEW);
                 scaleAlpha = this->effects[i].alpha / 50.0f;
@@ -614,8 +624,17 @@ void DemoKankyo_DrawMoonAndGiant(Actor* thisx, PlayState* play2) {
 
             Play_GetScreenPos(play, &worldPos, &screenPos);
 
+            // #region 2S2H [Cosmetic] Increase effect render area for widescreen
+            f32 xMin = 0.0f;
+            f32 xMax = SCREEN_WIDTH;
+            if (OTRGetAspectRatio() > 4.0f / 3.0f) {
+                xMin = OTRGetDimensionFromLeftEdge(xMin);
+                xMax = OTRGetDimensionFromRightEdge(xMax);
+            }
+            // #pragma endregion
+
             // checking if effect is on screen
-            if ((screenPos.x >= 0.0f) && (screenPos.x < SCREEN_WIDTH) && (screenPos.y >= 0.0f) &&
+            if ((screenPos.x >= xMin) && (screenPos.x < xMax) && (screenPos.y >= 0.0f) &&
                 (screenPos.y < SCREEN_HEIGHT)) {
                 Matrix_Translate(worldPos.x, worldPos.y, worldPos.z, MTXMODE_NEW);
                 alphaScale = this->effects[i].alpha / 50.0f;

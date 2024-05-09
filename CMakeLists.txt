@@ -22,20 +22,6 @@ endif()
 # Enable the Gfx debugger in LUS to use libgfxd from ZAPDTR
 set(GFX_DEBUG_DISASSEMBLER ON)
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-include(CMake/automate-vcpkg.cmake)
-
-if ("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "Win32")
-	set(VCPKG_TRIPLET x86-windows-static)
-	set(VCPKG_TARGET_TRIPLET x86-windows-static)
-elseif ("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-	set(VCPKG_TRIPLET x64-windows-static)
-	set(VCPKG_TARGET_TRIPLET x64-windows-static)
-endif()
-vcpkg_bootstrap()
-vcpkg_install_packages(zlib bzip2 libpng sdl2 sdl2-net glew glfw3 libzip)
-endif()
-
 ################################################################################
 # Set target arch type if empty. Visual studio solution generator provides it.
 ################################################################################
@@ -49,6 +35,23 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
         OR "${CMAKE_VS_PLATFORM_NAME}" STREQUAL "Win32"))
         message(FATAL_ERROR "${CMAKE_VS_PLATFORM_NAME} arch is not supported!")
     endif()
+endif()
+
+################################################################################
+# VCPKG dependencies for Windows
+################################################################################
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+include(CMake/automate-vcpkg.cmake)
+
+if ("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "Win32")
+	set(VCPKG_TRIPLET x86-windows-static)
+	set(VCPKG_TARGET_TRIPLET x86-windows-static)
+elseif ("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
+	set(VCPKG_TRIPLET x64-windows-static)
+	set(VCPKG_TARGET_TRIPLET x64-windows-static)
+endif()
+vcpkg_bootstrap()
+vcpkg_install_packages(zlib bzip2 libzip libpng sdl2 sdl2-net glew glfw3 nlohmann-json tinyxml2 spdlog)
 endif()
 
 ################################################################################
@@ -101,12 +104,12 @@ add_subdirectory(OTRExporter)
 add_subdirectory(mm)
 
 set_property(TARGET mm PROPERTY APPIMAGE_DESKTOP_FILE_TERMINAL YES)
-set_property(TARGET mm PROPERTY APPIMAGE_DESKTOP_FILE "${CMAKE_SOURCE_DIR}/scripts/linux/appimage/2s2h.desktop")
+set_property(TARGET mm PROPERTY APPIMAGE_DESKTOP_FILE "${CMAKE_SOURCE_DIR}/mm/linux/2s2h.desktop")
 set_property(TARGET mm PROPERTY APPIMAGE_ICON_FILE "${CMAKE_BINARY_DIR}/2s2hIcon.png")
 
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
-install(PROGRAMS "${CMAKE_BINARY_DIR}/linux/appimage/s2sh.sh" DESTINATION . COMPONENT appimage)
-install(FILES "${CMAKE_SOURCE_DIR}/soh.otr" DESTINATION . COMPONENT ship)
+install(PROGRAMS "${CMAKE_BINARY_DIR}/linux/2s2h.sh" DESTINATION . COMPONENT appimage)
+install(FILES "${CMAKE_SOURCE_DIR}/2ship.otr" DESTINATION . COMPONENT ship)
 install(TARGETS ZAPD DESTINATION ./assets/extractor COMPONENT extractor)
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/mm/assets/extractor/" DESTINATION ./assets/extractor COMPONENT extractor)
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/mm/assets/xml/" DESTINATION ./assets/extractor/xmls COMPONENT extractor)
@@ -131,13 +134,13 @@ find_package(Python3 COMPONENTS Interpreter)
 add_custom_target(
     ExtractAssets
     # CMake versions prior to 3.17 do not have the rm command, use remove instead for older versions
-    COMMAND ${CMAKE_COMMAND} -E $<IF:$<VERSION_LESS:${CMAKE_VERSION},3.17>,remove,rm> -f mm.otr soh.otr
-    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/OTRExporter/extract_assets.py -z "$<TARGET_FILE:ZAPD>" --non-interactive --xml-root ../mm/assets/xml --custom-otr-file soh.otr "--custom-assets-path" ${CMAKE_CURRENT_SOURCE_DIR}/mm/assets/custom --port-ver "${CMAKE_PROJECT_VERSION}"
+    COMMAND ${CMAKE_COMMAND} -E $<IF:$<VERSION_LESS:${CMAKE_VERSION},3.17>,remove,rm> -f mm.otr 2ship.otr
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/OTRExporter/extract_assets.py -z "$<TARGET_FILE:ZAPD>" --non-interactive --xml-root ../mm/assets/xml --custom-otr-file 2ship.otr "--custom-assets-path" ${CMAKE_CURRENT_SOURCE_DIR}/mm/assets/custom --port-ver "${CMAKE_PROJECT_VERSION}"
     COMMAND ${CMAKE_COMMAND} -DSYSTEM_NAME=${CMAKE_SYSTEM_NAME} -DTARGET_DIR="$<TARGET_FILE_DIR:ZAPD>" -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -DBINARY_DIR=${CMAKE_BINARY_DIR} -P ${CMAKE_CURRENT_SOURCE_DIR}/copy-existing-otrs.cmake
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/OTRExporter
     COMMENT "Running asset extraction..."
     DEPENDS ZAPD
-    BYPRODUCTS mm.otr ${CMAKE_SOURCE_DIR}/mm.otr ${CMAKE_SOURCE_DIR}/soh.otr
+    BYPRODUCTS mm.otr ${CMAKE_SOURCE_DIR}/mm.otr ${CMAKE_SOURCE_DIR}/2ship.otr
 )
 
 # Target to generate headers
@@ -149,26 +152,20 @@ add_custom_target(
     DEPENDS ZAPD
 )
 
-# Target to generate only soh.otr
+# Target to generate only 2ship.otr
 add_custom_target(
-    GenerateSohOtr
+    Generate2ShipOtr
     # CMake versions prior to 3.17 do not have the rm command, use remove instead for older versions
-    COMMAND ${CMAKE_COMMAND} -E $<IF:$<VERSION_LESS:${CMAKE_VERSION},3.17>,remove,rm> -f soh.otr
-    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/OTRExporter/extract_assets.py -z "$<TARGET_FILE:ZAPD>" --norom --custom-otr-file soh.otr "--custom-assets-path" ${CMAKE_CURRENT_SOURCE_DIR}/mm/assets/custom --port-ver "${CMAKE_PROJECT_VERSION}"
-    COMMAND ${CMAKE_COMMAND} -DSYSTEM_NAME=${CMAKE_SYSTEM_NAME} -DTARGET_DIR="$<TARGET_FILE_DIR:ZAPD>" -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -DBINARY_DIR=${CMAKE_BINARY_DIR} -DONLYSOHOTR=On -P ${CMAKE_CURRENT_SOURCE_DIR}/copy-existing-otrs.cmake
+    COMMAND ${CMAKE_COMMAND} -E $<IF:$<VERSION_LESS:${CMAKE_VERSION},3.17>,remove,rm> -f 2ship.otr
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/OTRExporter/extract_assets.py -z "$<TARGET_FILE:ZAPD>" --norom --custom-otr-file 2ship.otr "--custom-assets-path" ${CMAKE_CURRENT_SOURCE_DIR}/mm/assets/custom --port-ver "${CMAKE_PROJECT_VERSION}"
+    COMMAND ${CMAKE_COMMAND} -DSYSTEM_NAME=${CMAKE_SYSTEM_NAME} -DTARGET_DIR="$<TARGET_FILE_DIR:ZAPD>" -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -DBINARY_DIR=${CMAKE_BINARY_DIR} -DONLY2SHIPOTR=On -P ${CMAKE_CURRENT_SOURCE_DIR}/copy-existing-otrs.cmake
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/OTRExporter
-    COMMENT "Generating soh.otr..."
+    COMMENT "Generating 2ship.otr..."
     DEPENDS ZAPD
 )
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")
-    find_package(ImageMagick COMPONENTS convert)
-    if (ImageMagick_FOUND)
-        execute_process (
-            COMMAND ${ImageMagick_convert_EXECUTABLE} mm/macosx/2s2hIcon.png -resize 512x512 ${CMAKE_BINARY_DIR}/2s2hIcon.png
-            OUTPUT_VARIABLE outVar
-        )
-    endif()
+file(COPY ${CMAKE_SOURCE_DIR}/mm/linux/2s2hIcon.png DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Darwin")
@@ -216,6 +213,8 @@ endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Windows|NintendoSwitch|CafeOS")
 install(FILES ${CMAKE_SOURCE_DIR}/README.md DESTINATION . COMPONENT 2s2h RENAME readme.txt )
+install(CODE "file(MAKE_DIRECTORY \"\${CMAKE_INSTALL_PREFIX}/mods\")" COMPONENT 2s2h)
+install(CODE "file(TOUCH \"\${CMAKE_INSTALL_PREFIX}/mods/custom_mod_files_go_here.txt\")" COMPONENT 2s2h)
 endif()
 
 if(CMAKE_SYSTEM_NAME MATCHES "Linux")

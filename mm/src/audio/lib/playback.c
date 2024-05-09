@@ -1,5 +1,6 @@
 #include "global.h"
 #include "audio/effects.h"
+#include "BenPort.h"
 
 void AudioPlayback_NoteSetResamplingRate(NoteSampleState* sampleState, f32 resamplingRateInput);
 void AudioPlayback_AudioListPushFront(AudioListItem* list, AudioListItem* item);
@@ -381,7 +382,7 @@ Instrument* AudioPlayback_GetInstrumentInner(s32 fontId, s32 instId) {
 }
 
 Drum* AudioPlayback_GetDrum(s32 fontId, s32 drumId) {
-    Drum* drum;
+    Drum* drum = NULL;
 
     if (fontId == 0xFF) {
         return NULL;

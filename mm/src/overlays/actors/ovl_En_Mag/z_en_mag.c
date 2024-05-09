@@ -6,6 +6,7 @@
 
 #include "z_en_mag.h"
 #include "objects/object_mag/object_mag.h"
+#include "BenPort.h"
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
@@ -657,6 +658,9 @@ void EnMag_DrawCharTexture(Gfx** gfxp, TexturePtr texture, s32 rectLeft, s32 rec
 #define COPYRIGHT_TEX_LEFT 94
 #define COPYRIGHT_TEX_TOP 198
 
+#define COPYRIGHT_TEX_WIDTH_GC 200
+#define COPYRIGHT_TEX_LEFT_GC 58
+
 #define NO_CONTROLLER_FIRST_TEX_WIDTH 256
 #define NO_CONTROLLER_FIRST_TEX_HEIGHT 9
 #define NO_CONTROLLER_FIRST_TEX_LEFT 35
@@ -843,8 +847,16 @@ void EnMag_DrawInner(Actor* thisx, PlayState* play, Gfx** gfxp) {
         gDPSetPrimColor(gfx++, 0, 0, this->copyrightAlpha, this->copyrightAlpha, this->copyrightAlpha,
                         this->copyrightAlpha);
 
-        EnMag_DrawTextureIA8(&gfx, gTitleScreenCopyright2000NintendoTex, COPYRIGHT_TEX_WIDTH, COPYRIGHT_TEX_HEIGHT,
-                             COPYRIGHT_TEX_LEFT, COPYRIGHT_TEX_TOP);
+        uint32_t gameVersion = ResourceMgr_GetGameVersion(0);
+
+        if (gameVersion == MM_NTSC_US_GC) {
+            EnMag_DrawTextureIA8(&gfx, gTitleScreenCopyright2000NintendoTex, COPYRIGHT_TEX_WIDTH_GC, COPYRIGHT_TEX_HEIGHT,
+                                COPYRIGHT_TEX_LEFT_GC, COPYRIGHT_TEX_TOP);
+        } else { // Default: MM_NTSC_US_10
+            EnMag_DrawTextureIA8(&gfx, gTitleScreenCopyright2000NintendoTex, COPYRIGHT_TEX_WIDTH, COPYRIGHT_TEX_HEIGHT,
+                                COPYRIGHT_TEX_LEFT, COPYRIGHT_TEX_TOP);
+        }
+
     }
 
     if (gSaveContext.fileNum == 0xFEDC) {

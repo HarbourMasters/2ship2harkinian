@@ -314,7 +314,7 @@ void EnBigslime_Init(Actor* thisx, PlayState* play2) {
     EnBigslime* this = THIS;
     s32 i;
 
-    sBigslimeStaticVtxData = ResourceMgr_LoadVtxByName(sBigslimeStaticVtxData);
+    sBigslimeStaticVtxData = ResourceMgr_LoadVtxByName(sBigslimeStaticVtx);
     sBigslimeDynamicVtxData[0] = ResourceMgr_LoadVtxByName(sBigslimeDynamicState0Vtx);
     sBigslimeDynamicVtxData[1] = ResourceMgr_LoadVtxByName(sBigslimeDynamicState1Vtx);
     sBigslimeTargetVtxData = ResourceMgr_LoadVtxByName(sBigslimeTargetVtx);
@@ -1075,7 +1075,7 @@ void EnBigslime_Drop(EnBigslime* this, PlayState* play) {
         this->ceilingDropTimer--;
         this->ceilingMoveTimer--;
         EnBigslime_UpdateWavySurface(this);
-        EnBigslime_Scale(this, this->ceilingMoveTimer * 0x4000, 0.2f, 0.15);
+        EnBigslime_Scale(this, this->ceilingMoveTimer * 0x4000, 0.2f, 0.15f);
         this->actor.scale.z = this->actor.scale.x;
         if (this->ceilingDropTimer == 0) {
             this->actor.gravity = -2.0f;
@@ -1733,7 +1733,7 @@ void EnBigslime_WindupThrowPlayer(EnBigslime* this, PlayState* play) {
     // Deforming Bigslime during the final windup punch while grabbing player using vtxSurfacePerturbation
     for (i = 0; i < BIGSLIME_NUM_VTX; i++) {
         dynamicVtx = &sBigslimeDynamicVtxData[this->dynamicVtxState][i];
-        staticVtx = &sBigslimeStaticVtx[i];
+        staticVtx = &sBigslimeStaticVtxData[i];
         if (this->vtxSurfacePerturbation[i] != 0.0f) {
             if (this->windupPunchTimer > 0) {
                 // loop over x, y, z

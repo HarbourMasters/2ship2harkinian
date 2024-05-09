@@ -920,14 +920,14 @@ void Message_DrawTextNES(PlayState* play, Gfx** gfxP, u16 textDrawPos) {
     }
 
     if (msgCtx->textDelayTimer == 0) {
-        msgCtx->textDrawPos = i + (CVarGetInteger("gEnhancements.TimeSavers.FastText", 0) ? 10 : 1);
+        msgCtx->textDrawPos = i + (CVarGetInteger("gEnhancements.Dialogue.FastText", 0) ? 10 : 1);
         msgCtx->textDelayTimer = 0;
         if (msgCtx->msgMode == MSGMODE_9) {
             msgCtx->msgMode = MSGMODE_TEXT_DISPLAYING;
         }
     } else {
         msgCtx->textDelayTimer--;
-        if (CVarGetInteger("gEnhancements.TimeSavers.FastText", 0)) {
+        if (CVarGetInteger("gEnhancements.Dialogue.FastText", 0)) {
             msgCtx->textDelayTimer = 0;
         }
     }
@@ -1564,7 +1564,13 @@ void Message_DecodeNES(PlayState* play) {
             decodedBufPos--;
         } else if (curChar == 0xDE) {
             digits[0] = digits[1] = digits[2] = 0;
-            digits[3] = gItemPrices[GET_CUR_FORM_BTN_ITEM(player->heldItemButton)];
+            // #region 2S2H [Dpad]
+            if (IS_HELD_DPAD(player->heldItemButton)) {
+                digits[3] = gItemPrices[DPAD_GET_CUR_FORM_BTN_ITEM(HELD_ITEM_TO_DPAD(player->heldItemButton))];
+            } else {
+                digits[3] = gItemPrices[GET_CUR_FORM_BTN_ITEM(player->heldItemButton)];
+            }
+            // #endregion
 
             while (digits[3] >= 1000) {
                 digits[0]++;

@@ -15,6 +15,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "BenPort.h"
+
 /**
  * SoundFont Notes:
  *
@@ -916,74 +918,8 @@ AudioTable* AudioLoad_GetLoadTable(s32 tableType) {
  * @param sampleBankReloc information on the sampleBank containing raw audio samples
  */
 
-void AudioLoad_RelocateFont(s32 fontId, SoundFontData* mem, SampleBankRelocInfo* relocInfo) {
-    uintptr_t reloc;
-    uintptr_t reloc2;
-    Instrument* inst;
-    Drum* drum;
-    TunedSample* sfx;
-    s32 i;
-    SoundFont* sf = NULL;
-    s32 numDrums = 0;
-    s32 numInstruments = 0;
-    s32 numSfx = 0;
-
-    sf = ResourceMgr_LoadAudioSoundFont(gFontToResource[fontId]);
-    numDrums = sf->numDrums;
-    numInstruments = sf->numInstruments;
-    numSfx = sf->numSfx;
-
-    void** ptrs = (void**)mem;
-
-#define BASE_OFFSET(x) (void*)((uintptr_t)(x) + (uintptr_t)(mem))
-
-    reloc2 = ptrs[0];
-    if ((numDrums != 0)) {
-        ptrs[0] = BASE_OFFSET(reloc2);
-        for (i = 0; i < numDrums; i++) {
-            drum = sf->drums[i];
-
-            if (!drum->isRelocated) {
-                AudioLoad_RelocateSample(&sf->drums[i]->tunedSample, mem, relocInfo, fontOffsets[fontId]);
-                drum->isRelocated = 1;
-            }
-        }
-    }
-
-    reloc2 = ptrs[1];
-    if (numSfx != 0) {
-        ptrs[1] = BASE_OFFSET(reloc2);
-        for (i = 0; i < numSfx; i++) {
-            reloc = (TunedSample*)ptrs[1] + i;
-            AudioLoad_RelocateSample(&sf->soundEffects[i].tunedSample, mem, relocInfo, fontOffsets[fontId]);
-        }
-    }
-
-    if (numInstruments > 0x7E) {
-        numInstruments = 0x7E;
-    }
-
-    int startI = 0;
-    int startEC = numInstruments - 1;
-    for (i = startI; i <= startEC; i++) {
-        ptrs[i] = BASE_OFFSET(ptrs[i]);
-        inst = sf->instruments[i];
-
-        if (inst != NULL && !inst->isRelocated) {
-            if (inst->normalRangeLo != 0) {
-                AudioLoad_RelocateSample(&inst->lowPitchTunedSample, mem, relocInfo, fontOffsets[fontId]);
-            }
-            AudioLoad_RelocateSample(&inst->normalPitchTunedSample, mem, relocInfo, fontOffsets[fontId]);
-            if (inst->normalRangeHi != 0x7F) {
-                AudioLoad_RelocateSample(&inst->highPitchTunedSample, mem, relocInfo, fontOffsets[fontId]);
-            }
-
-            reloc = inst->envelope;
-            inst->isRelocated = 1;
-        }
-    }
-
-#undef BASE_OFFSET
+static void AudioLoad_RelocateFont(s32 fontId, SoundFontData* mem, SampleBankRelocInfo* relocInfo) {
+    // 2S2H [PORT] This function is not needed on PC. Made static so the compiler can remove it without needing LTO
 }
 
 void AudioLoad_SyncDma(uintptr_t devAddr, u8* ramAddr, size_t size, s32 medium) {

@@ -1,5 +1,6 @@
 #include "framebuffer_effects.h"
 #include "global.h"
+#include "BenPort.h"
 
 int gfx_create_framebuffer(uint32_t width, uint32_t height, uint32_t native_width, uint32_t native_height,
                            uint8_t resize);
@@ -10,8 +11,8 @@ s32 gBlurFrameBuffer = -1;
 // i.e. the VisMono and VisFbuf effects
 s32 gReusableFrameBuffer = -1;
 
-// Picto box buffer is unscaled at 320x240
-s32 gPictoBoxFrameBuffer = -1;
+// N64 resolution sized buffer (320x240), used by picto box and deku bubble
+s32 gN64ResFrameBuffer = -1;
 
 void FB_CreateFramebuffers(void) {
     if (gPauseFrameBuffer == -1) {
@@ -26,8 +27,8 @@ void FB_CreateFramebuffers(void) {
         gReusableFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT, true);
     }
 
-    if (gPictoBoxFrameBuffer == -1) {
-        gPictoBoxFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT, false);
+    if (gN64ResFrameBuffer == -1) {
+        gN64ResFrameBuffer = gfx_create_framebuffer(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_WIDTH, SCREEN_HEIGHT, false);
     }
 }
 
@@ -61,6 +62,47 @@ void FB_CopyToFramebuffer(Gfx** gfxp, s32 fb_src, s32 fb_dest, u8 oncePerFrame, 
     gDPSetScissor(gfx++, G_SC_NON_INTERLACE, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
     gDPCopyFB(gfx++, fb_dest, fb_src, oncePerFrame, hasCopied);
+
+    *gfxp = gfx;
+}
+
+/**
+ * Copies a 4:3 slice of the current framebuffer scaled down to 320x240 to a CPU buffer address.
+ * The buffer output will be in RGBA16 format.
+ * Specify the byteswap flag to force the buffer data to be written as BigEndian, which is
+ * required if the buffer is being used as a texture in F3D.
+ */
+void FB_WriteFramebufferSliceToCPU(Gfx** gfxp, void* buffer, u8 byteSwap) {
+    Gfx* gfx = *gfxp;
+
+    FB_CopyToFramebuffer(&gfx, 0, gReusableFrameBuffer, false, NULL);
+
+    // Set the N64 resolution framebuffer as the draw target (320x240)
+    gsSPSetFB(gfx++, gN64ResFrameBuffer);
+
+    int16_t s0 = 0, t0 = 0;
+    int16_t s1 = OTRGetGameRenderWidth();
+    int16_t t1 = OTRGetGameRenderHeight();
+
+    float aspectRatio = OTRGetAspectRatio();
+    float fourByThree = 4.0f / 3.0f;
+
+    // Adjust the texture coordinates so that only a 4:3 region from the center is drawn
+    // to the N64 resolution buffer. Currently ratios smaller than 4:3 will just stretch to fill.
+    if (aspectRatio > fourByThree) {
+        int16_t adjustedWidth = OTRGetGameRenderWidth() / (aspectRatio / fourByThree);
+        s0 = (OTRGetCurrentWidth() - adjustedWidth) / 2;
+        s1 -= s0;
+    }
+
+    gDPSetTextureImageFB(gfx++, 0, 0, 0, gReusableFrameBuffer);
+    gDPImageRectangle(gfx++, 0 << 2, 0 << 2, s0, t0, SCREEN_WIDTH << 2, SCREEN_HEIGHT << 2, s1, t1, G_TX_RENDERTILE,
+                      OTRGetGameRenderWidth(), OTRGetGameRenderHeight());
+
+    // Read the final N64 framebuffer back as rgba16 into the CPU-side buffer
+    gDPReadFB(gfx++, gN64ResFrameBuffer, buffer, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, byteSwap);
+
+    gsSPResetFB(gfx++);
 
     *gfxp = gfx;
 }

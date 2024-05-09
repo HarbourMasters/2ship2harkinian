@@ -1,3 +1,8 @@
+#ifdef _WIN32
+#include <Windows.h>
+#include <stdio.h>
+#endif
+
 #include "audiomgr.h"
 #include "fault.h"
 #include "idle.h"
@@ -7,6 +12,7 @@
 #include "CIC6105.h"
 #include "stack.h"
 #include "stackcheck.h"
+#include "BenPort.h"
 
 // Variables are put before most headers as a hacky way to bypass bss reordering
 OSMesgQueue sSerialEventQueue;
@@ -50,6 +56,18 @@ void SDL_main(int argc, char** argv /* void* arg*/) {
     intptr_t sysHeap;
     s32 exit;
     s16* msg;
+
+// Attach console for windows so we can conditionally display it when running the extractor
+#ifdef _WIN32
+    AllocConsole();
+    (void)freopen("CONIN$", "r", stdin);
+    (void)freopen("CONOUT$", "w", stdout);
+    (void)freopen("CONOUT$", "w", stderr);
+#ifndef _DEBUG
+    ShowWindow(GetConsoleWindow(), SW_HIDE);
+#endif
+#endif // _WIN32
+
     InitOTR();
     Heaps_Alloc();
 
@@ -123,4 +141,8 @@ void SDL_main(int argc, char** argv /* void* arg*/) {
     osDestroyThread(&gGraphThread);
 
     DeinitOTR();
+
+#ifdef _WIN32
+    FreeConsole();
+#endif
 }

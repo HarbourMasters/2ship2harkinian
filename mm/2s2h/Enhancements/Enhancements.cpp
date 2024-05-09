@@ -5,9 +5,29 @@ void InitEnhancements() {
     RegisterInfiniteCheats();
     RegisterMoonJumpOnL();
 
+    // Cycle
+    RegisterEndOfCycleSaveHooks();
+
     // Masks
+    RegisterFastTransformation();
     RegisterFierceDeityAnywhere();
+    RegisterNoBlastMaskCooldown();
+
+    // Minigames
+    RegisterAlwaysWinDoggyRace();
+
+    // Songs
+    RegisterEnableSunsSong();
     
-    // Time Savers
-    RegisterTimeSaversHooks();
+    // Restorations
+    RegisterPowerCrouchStab();
+    RegisterSideRoll();
+    
+    // Cutscenes
+    RegisterSkipEntranceCutscenes();
+    RegisterHideTitleCards();
+    
+    // Modes
+    RegisterPlayAsKafei();
+
 }

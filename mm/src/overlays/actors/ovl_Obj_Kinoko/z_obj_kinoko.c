@@ -6,6 +6,7 @@
 
 #include "z_obj_kinoko.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
+#include "BenPort.h"
 
 #define FLAGS (ACTOR_FLAG_10)
 
@@ -75,15 +76,21 @@ void ObjKinoko_Draw(Actor* thisx, PlayState* play) {
 
     Gfx_SetupDL25_Xlu(play->state.gfxCtx);
 
+    // #region 2S2H [Port]
+    // We need to first load the DL before we can index it on the port
+    Gfx* gameplay_keep_DL_029D10_Data = ResourceMgr_LoadGfxByName(gameplay_keep_DL_029D10);
+
     gfx = POLY_XLU_DISP;
     gDPSetPrimColor(&gfx[0], 0, 0, 169, 63, 186, (u8)thisx->speed);
     gDPSetEnvColor(&gfx[1], 110, 44, 200, 100);
     gDPSetRenderMode(&gfx[2], G_RM_PASS, G_RM_ZB_CLD_SURF2);
     gSPMatrix(&gfx[3], Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-    gSPDisplayList(&gfx[4], &gameplay_keep_DL_029D10[2]);
+    // Index adjust 2 -> 4 (for gsDPPipeSync) to account for our extraction size changes
+    gSPDisplayList(&gfx[4], &gameplay_keep_DL_029D10_Data[4]);
     Matrix_RotateXS(-0x4000, MTXMODE_APPLY);
     gSPMatrix(&gfx[5], Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-    gSPDisplayList(&gfx[6], &gameplay_keep_DL_029D10[2]);
+    gSPDisplayList(&gfx[6], &gameplay_keep_DL_029D10_Data[4]);
+    // #endregion
     POLY_XLU_DISP = &gfx[7];
 
     CLOSE_DISPS(play->state.gfxCtx);

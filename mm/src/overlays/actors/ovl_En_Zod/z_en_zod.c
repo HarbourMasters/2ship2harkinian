@@ -107,7 +107,7 @@ void EnZod_Init(Actor* thisx, PlayState* play) {
 
     for (i = 0; i < ARRAY_COUNT(this->drumScales); i++) {
         this->drumScales[i] = 0.0f;
-        this->drumScaleVels[i] = 0.01;
+        this->drumScaleVels[i] = 0.01f;
     }
 
     EnZod_ChangeAnim(this, ENZOD_ANIM_PLAYING_LENTO, ANIMMODE_ONCE);

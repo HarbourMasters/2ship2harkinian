@@ -15,18 +15,18 @@ extern "C" {
 #include "overlays/gamestates/ovl_title/z_title.h"
 }
 
-#define CMD_REGISTER LUS::Context::GetInstance()->GetConsole()->AddCommand
+#define CMD_REGISTER Ship::Context::GetInstance()->GetConsole()->AddCommand
 // TODO: Commands should be using the output passed in.
 #define ERROR_MESSAGE                                                                \
-    std::reinterpret_pointer_cast<LUS::ConsoleWindow>(                               \
-        LUS::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Console")) \
+    std::reinterpret_pointer_cast<Ship::ConsoleWindow>(                               \
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Console")) \
         ->SendErrorMessage
 #define INFO_MESSAGE                                                                 \
-    std::reinterpret_pointer_cast<LUS::ConsoleWindow>(                               \
-        LUS::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Console")) \
+    std::reinterpret_pointer_cast<Ship::ConsoleWindow>(                               \
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Console")) \
         ->SendInfoMessage
 
-static bool ActorSpawnHandler(std::shared_ptr<LUS::Console> Console, const std::vector<std::string>& args,
+static bool ActorSpawnHandler(std::shared_ptr<Ship::Console> Console, const std::vector<std::string>& args,
                               std::string* output) {
     if ((args.size() != 9) && (args.size() != 3) && (args.size() != 6)) {
         ERROR_MESSAGE("Not enough arguments passed to actorspawn");
@@ -83,7 +83,7 @@ static bool ActorSpawnHandler(std::shared_ptr<LUS::Console> Console, const std::
     return 0;
 }
 
-static bool LoadSceneHandler(std::shared_ptr<LUS::Console> Console, const std::vector<std::string>&,
+static bool LoadSceneHandler(std::shared_ptr<Ship::Console> Console, const std::vector<std::string>&,
                              std::string* output) {
     gSaveContext.respawnFlag = 0;
     gSaveContext.seqId = 0xFF;
@@ -92,7 +92,7 @@ static bool LoadSceneHandler(std::shared_ptr<LUS::Console> Console, const std::v
     return 0;
 }
 
-static bool SetPosHandler(std::shared_ptr<LUS::Console> Console, const std::vector<std::string> args,
+static bool SetPosHandler(std::shared_ptr<Ship::Console> Console, const std::vector<std::string> args,
                           std::string* output) {
     if (gPlayState == nullptr) {
         ERROR_MESSAGE("PlayState == nullptr");
@@ -118,7 +118,7 @@ static bool SetPosHandler(std::shared_ptr<LUS::Console> Console, const std::vect
     return 0;
 }
 
-static bool ResetHandler(std::shared_ptr<LUS::Console> Console, std::vector<std::string> args, std::string* output) {
+static bool ResetHandler(std::shared_ptr<Ship::Console> Console, std::vector<std::string> args, std::string* output) {
     if (gPlayState == nullptr) {
         ERROR_MESSAGE("PlayState == nullptr");
         return 1;
@@ -132,7 +132,7 @@ static bool ResetHandler(std::shared_ptr<LUS::Console> Console, std::vector<std:
     return 0;
 }
 
-static bool BHandler(std::shared_ptr<LUS::Console> Console, const std::vector<std::string>& args, std::string* output) {
+static bool BHandler(std::shared_ptr<Ship::Console> Console, const std::vector<std::string>& args, std::string* output) {
     if (args.size() < 2) {
         ERROR_MESSAGE("[2S2H] Unexpected arguments passed");
         return 1;
@@ -156,7 +156,7 @@ static bool BHandler(std::shared_ptr<LUS::Console> Console, const std::vector<st
     return 0;
 }
 
-static bool GiveItemHandler(std::shared_ptr<LUS::Console> Console, const std::vector<std::string> args,
+static bool GiveItemHandler(std::shared_ptr<Ship::Console> Console, const std::vector<std::string> args,
                             std::string* output) {
     if (args.size() < 2) {
         ERROR_MESSAGE("[2S2H] Unexpected arguments passed");
@@ -191,7 +191,7 @@ static bool GiveItemHandler(std::shared_ptr<LUS::Console> Console, const std::ve
     return 0;
 }
 
-static bool EntranceHandler(std::shared_ptr<LUS::Console> Console, const std::vector<std::string>& args,
+static bool EntranceHandler(std::shared_ptr<Ship::Console> Console, const std::vector<std::string>& args,
                             std::string* output) {
     if (args.size() < 2) {
         ERROR_MESSAGE("[2S2H] Unexpected arguments passed");
@@ -211,9 +211,10 @@ static bool EntranceHandler(std::shared_ptr<LUS::Console> Console, const std::ve
     gPlayState->transitionTrigger = TRANS_TRIGGER_START;
     gPlayState->transitionType = TRANS_TYPE_INSTANT;
     gSaveContext.nextTransitionType = TRANS_TYPE_INSTANT;
+    return 0;
 }
 
-static bool VoidHandler(std::shared_ptr<LUS::Console> Console, const std::vector<std::string>& args,
+static bool VoidHandler(std::shared_ptr<Ship::Console> Console, const std::vector<std::string>& args,
                         std::string* output) {
     if (gPlayState != nullptr) {
         func_80169EFC(&gPlayState->state);
@@ -224,7 +225,7 @@ static bool VoidHandler(std::shared_ptr<LUS::Console> Console, const std::vector
     return 0;
 }
 
-static bool ReloadHandler(std::shared_ptr<LUS::Console> Console, const std::vector<std::string>& args,
+static bool ReloadHandler(std::shared_ptr<Ship::Console> Console, const std::vector<std::string>& args,
                           std::string* output) {
     if (gPlayState != nullptr) {
         gPlayState->nextEntrance = gSaveContext.save.entrance;
@@ -238,7 +239,7 @@ static bool ReloadHandler(std::shared_ptr<LUS::Console> Console, const std::vect
     return 0;
 }
 
-static bool FileSelectHandler(std::shared_ptr<LUS::Console> Console, const std::vector<std::string>& args,
+static bool FileSelectHandler(std::shared_ptr<Ship::Console> Console, const std::vector<std::string>& args,
                               std::string* output) {
     if (gPlayState != nullptr) {
         STOP_GAMESTATE(&gPlayState->state);
@@ -250,9 +251,9 @@ static bool FileSelectHandler(std::shared_ptr<LUS::Console> Console, const std::
     return 0;
 }
 
-static bool QuitHandler(std::shared_ptr<LUS::Console> Console, const std::vector<std::string>& args,
+static bool QuitHandler(std::shared_ptr<Ship::Console> Console, const std::vector<std::string>& args,
                         std::string* output) {
-    LUS::Context::GetInstance()->GetWindow()->Close();
+    Ship::Context::GetInstance()->GetWindow()->Close();
     return 0;
 }
 
@@ -267,30 +268,30 @@ void DebugConsole_Init(void) {
     CMD_REGISTER("reload", { ReloadHandler, "Reloads the current map." });
     CMD_REGISTER("entrance", { EntranceHandler,
                                "Sends player to the entered entrance (hex)",
-                               { { "entrance", LUS::ArgumentType::NUMBER } } });
+                               { { "entrance", Ship::ArgumentType::NUMBER } } });
 
     // Gameplay
     CMD_REGISTER("give_item", { GiveItemHandler,
                                 "Gives an item to the player as if it was given from an actor",
-                                { { "giveItemID", LUS::ArgumentType::NUMBER } } });
+                                { { "giveItemID", Ship::ArgumentType::NUMBER } } });
 
-    CMD_REGISTER("bItem", { BHandler, "Set an item to the B button.", { { "Item ID", LUS::ArgumentType::NUMBER } } });
+    CMD_REGISTER("bItem", { BHandler, "Set an item to the B button.", { { "Item ID", Ship::ArgumentType::NUMBER } } });
 
     CMD_REGISTER("spawn",
                  { ActorSpawnHandler,
                    "Spawn an actor.",
-                   { { "actor id", LUS::ArgumentType::NUMBER },
-                     { "data", LUS::ArgumentType::NUMBER },
-                     { "x", LUS::ArgumentType::NUMBER, true },
-                     { "y", LUS::ArgumentType::NUMBER, true },
-                     { "z", LUS::ArgumentType::NUMBER, true },
-                     { "rx", LUS::ArgumentType::NUMBER, true },
-                     { "ry", LUS::ArgumentType::NUMBER, true },
-                     { "rz", LUS::ArgumentType::NUMBER, true } } });
+                   { { "actor id", Ship::ArgumentType::NUMBER },
+                     { "data", Ship::ArgumentType::NUMBER },
+                     { "x", Ship::ArgumentType::NUMBER, true },
+                     { "y", Ship::ArgumentType::NUMBER, true },
+                     { "z", Ship::ArgumentType::NUMBER, true },
+                     { "rx", Ship::ArgumentType::NUMBER, true },
+                     { "ry", Ship::ArgumentType::NUMBER, true },
+                     { "rz", Ship::ArgumentType::NUMBER, true } } });
 
     CMD_REGISTER("pos", { SetPosHandler,
                           "Sets the position of the player.",
-                          { { "x", LUS::ArgumentType::NUMBER, true },
-                            { "y", LUS::ArgumentType::NUMBER, true },
-                            { "z", LUS::ArgumentType::NUMBER, true } } });
+                          { { "x", Ship::ArgumentType::NUMBER, true },
+                            { "y", Ship::ArgumentType::NUMBER, true },
+                            { "z", Ship::ArgumentType::NUMBER, true } } });
 }

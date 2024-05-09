@@ -7,7 +7,7 @@
 #include "UIWidgets.hpp"
 #include <unordered_map>
 
-class HudEditorWindow : public LUS::GuiWindow {
+class HudEditorWindow : public Ship::GuiWindow {
     public:
         using GuiWindow::GuiWindow;
 
@@ -35,6 +35,7 @@ typedef enum {
     HUD_EDITOR_ELEMENT_RUPEE_COUNTER,
     HUD_EDITOR_ELEMENT_KEY_COUNTER,
     HUD_EDITOR_ELEMENT_SKULLTULA_COUNTER,
+    HUD_EDITOR_ELEMENT_D_PAD,
     HUD_EDITOR_ELEMENT_MAX,
 } HudEditorElementID;
 

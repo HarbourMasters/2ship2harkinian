@@ -6,6 +6,7 @@
 
 #include "z_object_kankyo.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
+#include "BenPort.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_20 | ACTOR_FLAG_2000000)
@@ -543,8 +544,16 @@ void func_808DD3C8(Actor* thisx, PlayState* play2) {
         FrameInterpolation_RecordOpenChild(this, i);
         Play_GetScreenPos(play, &worldPos, &screenPos);
 
+        // #region 2S2H [Cosmetic] Increase snow render area for widescreen
+        f32 xMin = 0.0f;
+        f32 xMax = SCREEN_WIDTH;
+        if (OTRGetAspectRatio() > 4.0f / 3.0f) {
+            xMin = OTRGetDimensionFromLeftEdge(xMin);
+            xMax = OTRGetDimensionFromRightEdge(xMax);
+        }
+        // #pragma endregion
 
-        if ((screenPos.x >= 0.0f) && (screenPos.x < SCREEN_WIDTH) && (screenPos.y >= 0.0f) &&
+        if ((screenPos.x >= xMin) && (screenPos.x < xMax) && (screenPos.y >= 0.0f) &&
             (screenPos.y < SCREEN_HEIGHT)) {
             if (!spB4) {
                 spB4 = true;
@@ -619,7 +628,16 @@ void func_808DD970(Actor* thisx, PlayState* play2) {
         FrameInterpolation_RecordOpenChild(this, i);
         Play_GetScreenPos(play, &worldPos, &screenPos);
 
-        if ((screenPos.x >= 0.0f) && (screenPos.x < SCREEN_WIDTH) && (screenPos.y >= 0.0f) &&
+        // #region 2S2H [Cosmetic] Increase deep underwater dust render area for widescreen
+        f32 xMin = 0.0f;
+        f32 xMax = SCREEN_WIDTH;
+        if (OTRGetAspectRatio() > 4.0f / 3.0f) {
+            xMin = OTRGetDimensionFromLeftEdge(xMin);
+            xMax = OTRGetDimensionFromRightEdge(xMax);
+        }
+        // #pragma endregion
+
+        if ((screenPos.x >= xMin) && (screenPos.x < xMax) && (screenPos.y >= 0.0f) &&
             (screenPos.y < SCREEN_HEIGHT)) {
             Matrix_Translate(worldPos.x, worldPos.y, worldPos.z, MTXMODE_NEW);
             Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY);
