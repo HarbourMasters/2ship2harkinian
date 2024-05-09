@@ -5,6 +5,7 @@
  */
 
 #include "z_oceff_wipe2.h"
+#include "BenPort.h"
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_2000000)
 
