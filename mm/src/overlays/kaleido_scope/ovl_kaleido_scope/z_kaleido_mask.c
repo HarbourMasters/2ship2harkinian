@@ -581,37 +581,39 @@ void KaleidoScope_UpdateMaskCursor(PlayState* play) {
                         }
                     }
                     // #region 2S2H [Dpad]
-                    else if (CHECK_BTN_ALL(input->press.button, BTN_DRIGHT)) {
-                        if (((Player_GetCurMaskItemId(play) != ITEM_NONE) &&
-                             (Player_GetCurMaskItemId(play) == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT))) ||
-                            ((sMaskPlayerFormItems[GET_PLAYER_FORM] != ITEM_NONE) &&
-                             (sMaskPlayerFormItems[GET_PLAYER_FORM] == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT)))) {
-                            Audio_PlaySfx(NA_SE_SY_ERROR);
-                            return;
-                        }
-                    } else if (CHECK_BTN_ALL(input->press.button, BTN_DLEFT)) {
-                        if (((Player_GetCurMaskItemId(play) != ITEM_NONE) &&
-                             (Player_GetCurMaskItemId(play) == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT))) ||
-                            ((sMaskPlayerFormItems[GET_PLAYER_FORM] != ITEM_NONE) &&
-                             (sMaskPlayerFormItems[GET_PLAYER_FORM] == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT)))) {
-                            Audio_PlaySfx(NA_SE_SY_ERROR);
-                            return;
-                        }
-                    } else if (CHECK_BTN_ALL(input->press.button, BTN_DDOWN)) {
-                        if (((Player_GetCurMaskItemId(play) != ITEM_NONE) &&
-                             (Player_GetCurMaskItemId(play) == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN))) ||
-                            ((sMaskPlayerFormItems[GET_PLAYER_FORM] != ITEM_NONE) &&
-                             (sMaskPlayerFormItems[GET_PLAYER_FORM] == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN)))) {
-                            Audio_PlaySfx(NA_SE_SY_ERROR);
-                            return;
-                        }
-                    } else if (CHECK_BTN_ALL(input->press.button, BTN_DUP)) {
-                        if (((Player_GetCurMaskItemId(play) != ITEM_NONE) &&
-                             (Player_GetCurMaskItemId(play) == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP))) ||
-                            ((sMaskPlayerFormItems[GET_PLAYER_FORM] != ITEM_NONE) &&
-                             (sMaskPlayerFormItems[GET_PLAYER_FORM] == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP)))) {
-                            Audio_PlaySfx(NA_SE_SY_ERROR);
-                            return;
+                    else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+                        if (CHECK_BTN_ALL(input->press.button, BTN_DRIGHT)) {
+                            if (((Player_GetCurMaskItemId(play) != ITEM_NONE) &&
+                                (Player_GetCurMaskItemId(play) == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT))) ||
+                                ((sMaskPlayerFormItems[GET_PLAYER_FORM] != ITEM_NONE) &&
+                                (sMaskPlayerFormItems[GET_PLAYER_FORM] == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT)))) {
+                                Audio_PlaySfx(NA_SE_SY_ERROR);
+                                return;
+                            }
+                        } else if (CHECK_BTN_ALL(input->press.button, BTN_DLEFT)) {
+                            if (((Player_GetCurMaskItemId(play) != ITEM_NONE) &&
+                                (Player_GetCurMaskItemId(play) == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT))) ||
+                                ((sMaskPlayerFormItems[GET_PLAYER_FORM] != ITEM_NONE) &&
+                                (sMaskPlayerFormItems[GET_PLAYER_FORM] == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT)))) {
+                                Audio_PlaySfx(NA_SE_SY_ERROR);
+                                return;
+                            }
+                        } else if (CHECK_BTN_ALL(input->press.button, BTN_DDOWN)) {
+                            if (((Player_GetCurMaskItemId(play) != ITEM_NONE) &&
+                                (Player_GetCurMaskItemId(play) == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN))) ||
+                                ((sMaskPlayerFormItems[GET_PLAYER_FORM] != ITEM_NONE) &&
+                                (sMaskPlayerFormItems[GET_PLAYER_FORM] == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN)))) {
+                                Audio_PlaySfx(NA_SE_SY_ERROR);
+                                return;
+                            }
+                        } else if (CHECK_BTN_ALL(input->press.button, BTN_DUP)) {
+                            if (((Player_GetCurMaskItemId(play) != ITEM_NONE) &&
+                                (Player_GetCurMaskItemId(play) == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP))) ||
+                                ((sMaskPlayerFormItems[GET_PLAYER_FORM] != ITEM_NONE) &&
+                                (sMaskPlayerFormItems[GET_PLAYER_FORM] == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP)))) {
+                                Audio_PlaySfx(NA_SE_SY_ERROR);
+                                return;
+                            }
                         }
                     }
                     // #endregion
@@ -1111,9 +1113,7 @@ void KaleidoScope_UpdateMaskEquip(PlayState* play) {
                     }
                 }
                 // #region 2S2H [Dpad]
-                else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
-                    KaleidoScope_SwapDpadMaskToCMask(play, EQUIP_SLOT_C_LEFT);
-                }
+                KaleidoScope_SwapDpadMaskToCMask(play, EQUIP_SLOT_C_LEFT);
                 // #endregion
 
                 // Equip mask on CLeft
@@ -1142,9 +1142,7 @@ void KaleidoScope_UpdateMaskEquip(PlayState* play) {
                     }
                 }
                 // #region 2S2H [Dpad]
-                else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
-                    KaleidoScope_SwapDpadMaskToCMask(play, EQUIP_SLOT_C_DOWN);
-                }
+                KaleidoScope_SwapDpadMaskToCMask(play, EQUIP_SLOT_C_DOWN);
                 // #endregion
 
                 // Equip mask on CDown
@@ -1173,9 +1171,7 @@ void KaleidoScope_UpdateMaskEquip(PlayState* play) {
                     }
                 }
                 // #region 2S2H [Dpad]
-                else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
-                    KaleidoScope_SwapDpadMaskToCMask(play, EQUIP_SLOT_C_RIGHT);
-                }
+                KaleidoScope_SwapDpadMaskToCMask(play, EQUIP_SLOT_C_RIGHT);
                 // #endregion
 
                 // Equip mask on CRight
