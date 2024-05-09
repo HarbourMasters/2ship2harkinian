@@ -32,10 +32,14 @@ typedef enum {
     GI_VB_SHOW_TITLE_CARD,
     GI_VB_PLAY_ENTRANCE_CS,
     GI_VB_DISABLE_FD_MASK,
+    GI_VB_DOGGY_RACE_SET_MAX_SPEED,
+    GI_VB_LOWER_RAZOR_SWORD_DURABILITY,
     GI_VB_SET_BLAST_MASK_COOLDOWN_TIMER,
+    GI_VB_PATCH_POWER_CROUCH_STAB,
     GI_VB_PATCH_SIDEROLL,
     GI_VB_TATL_CONVERSATION_AVAILABLE,
     GI_VB_PREVENT_MASK_TRANSFORMATION_CS,
+    GI_VB_SONG_AVAILABLE_TO_PLAY,
 } GIVanillaBehavior;
 
 #ifdef __cplusplus
@@ -213,6 +217,7 @@ public:
     DEFINE_HOOK(OnGameStateMainFinish, ());
     DEFINE_HOOK(OnGameStateDrawFinish, ());
     DEFINE_HOOK(OnGameStateUpdate, ());
+    DEFINE_HOOK(OnSaveInit, (s16 fileNum));
     DEFINE_HOOK(BeforeEndOfCycleSave, ());
     DEFINE_HOOK(AfterEndOfCycleSave, ());
 
@@ -246,6 +251,7 @@ extern "C" {
 void GameInteractor_ExecuteOnGameStateMainFinish();
 void GameInteractor_ExecuteOnGameStateDrawFinish();
 void GameInteractor_ExecuteOnGameStateUpdate();
+void GameInteractor_ExecuteOnSaveInit(s16 fileNum);
 void GameInteractor_ExecuteBeforeEndOfCycleSave();
 void GameInteractor_ExecuteAfterEndOfCycleSave();
 

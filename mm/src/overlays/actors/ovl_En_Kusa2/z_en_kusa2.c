@@ -713,7 +713,6 @@ void func_80A5CB74(EnKusa2* this) {
     }
 
     D_80A5EB4C++;
-label:
     D_80A5EB4C &= 0x7;
 
     temp_f0 = Rand_ZeroOne();

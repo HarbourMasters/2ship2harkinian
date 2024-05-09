@@ -13,11 +13,7 @@
 #define ALIGNED(x) __attribute__ ((aligned (x)))
 #endif
 
-#ifdef __sgi /* IDO compiler */
-#define UNALIGNED __unaligned
-#else
-#define UNALIGNED
-#endif
+// 2S2H [Port] There was a macro for `UNALIGNED` here. We don't need it for PC and any file that does can include the proper header
 
 #ifdef __sgi /* IDO compiler */
 #define ALIGNOF(x) __builtin_alignof(x)

@@ -1715,7 +1715,7 @@ void Boss02_HandleGiantsMaskCutscene(Boss02* this, PlayState* play) {
         case GIANTS_MASK_CS_STATE_MASK_ON:
             if ((this->giantsMaskCsTimer < 80) && sCanSkipMaskOnCs &&
                 CHECK_BTN_ANY(CONTROLLER1(&play->state)->press.button,
-                              BTN_A | BTN_B | BTN_CUP | BTN_CDOWN | BTN_CLEFT | BTN_CRIGHT)) {
+                              BTN_A | BTN_B | BTN_CUP | BTN_CDOWN | BTN_CLEFT | BTN_CRIGHT | BTN_DPAD_EQUIP)) {
                 this->giantsMaskCsState++;
                 this->giantsMaskCsFlashState = GIANTS_MASK_CS_FLASH_STATE_STARTED;
                 this->giantsMaskCsTimer = 0;
@@ -1769,7 +1769,7 @@ void Boss02_HandleGiantsMaskCutscene(Boss02* this, PlayState* play) {
         case GIANTS_MASK_CS_STATE_MASK_OFF:
             if ((this->giantsMaskCsTimer < 30) && sCanSkipMaskOffCs &&
                 CHECK_BTN_ANY(CONTROLLER1(&play->state)->press.button,
-                              BTN_A | BTN_B | BTN_CUP | BTN_CDOWN | BTN_CLEFT | BTN_CRIGHT)) {
+                              BTN_A | BTN_B | BTN_CUP | BTN_CDOWN | BTN_CLEFT | BTN_CRIGHT | BTN_DPAD_EQUIP)) {
                 this->giantsMaskCsState++;
                 this->giantsMaskCsFlashState = GIANTS_MASK_CS_FLASH_STATE_STARTED;
                 this->giantsMaskCsTimer = 0;

@@ -1,6 +1,8 @@
 #ifndef PR_RDP_H
 #define PR_RDP_H
 
+#include <libultraship/libultra/rdp.h>
+#if 0
 /* DP Command Registers */
 #define DPC_START_REG    0x04100000
 #define DPC_END_REG      0x04100004
@@ -45,6 +47,6 @@
 
 u32 osDpGetStatus(void);
 void osDpSetStatus(u32 data);
-
+#endif
 
 #endif

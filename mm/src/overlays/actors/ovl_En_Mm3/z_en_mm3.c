@@ -6,6 +6,7 @@
 
 #include "z_en_mm3.h"
 #include "objects/object_mm/object_mm.h"
+#include "BenPort.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY | ACTOR_FLAG_10)
 

@@ -26,6 +26,7 @@ OSTime sGraphPrevUpdateEndTime;
 #include "overlays/gamestates/ovl_select/z_select.h"
 #include "overlays/gamestates/ovl_title/z_title.h"
 #include "z_title_setup.h"
+#include "BenPort.h"
 
 void Graph_StartFrame();
 void Graph_ProcessGfxCommands(Gfx* commands);
@@ -432,7 +433,9 @@ void RunFrame() {
 }
 
 void Graph_ThreadEntry(void* arg0) {
-    Graph_ProcessFrame(RunFrame);
+    while (WindowIsRunning()) {
+        RunFrame();
+    }
 }
 
 // #region 2S2H [Debugging] Debugging methods for viewing file/line info in the renderer.
