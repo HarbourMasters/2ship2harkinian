@@ -2,7 +2,10 @@
 #include "2s2h/resource/type/TextureAnimation.h"
 #include <libultraship/libultraship.h>
 #include "spdlog/spdlog.h"
+#ifndef __APPLE__
 #include <malloc.h>
+#endif
+#include <stdlib.h>
 
 namespace SOH {
 
