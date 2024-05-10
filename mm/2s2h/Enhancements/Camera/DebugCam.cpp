@@ -12,11 +12,91 @@ extern f32 Camera_ScaledStepToCeilF(f32 target, f32 cur, f32 stepScale, f32 minD
 extern Vec3f Camera_CalcUpVec(s16 pitch, s16 yaw, s16 roll);
 }
 
+#define CAMERA_DEBUG_DEFAULT_PORT 2
+
 // Static Data Used For Free Camera
 static f32 sDebugCamDistTarget = 185;
-static f32 sDebugCamPitch = 0.0f;
-static f32 sDebugCamYaw = 0.0f;
-static f32 sDebugCamRoll = 0.0f;
+
+Vec3f Camera_CrossProduct(Vec3f* a, Vec3f* b) {
+    Vec3f ret;
+
+    ret.x = a->y * b->z - a->z * b->y;
+    ret.y = a->z * b->x - a->x * b->z;
+    ret.z = a->x * b->y - a->y * b->x;
+
+    return ret;
+}
+
+Vec3f Camera_RotatePointAroundAxis(Vec3f* point, Vec3f* axis, s16 angle) {
+    f32 q0 = Math_CosS(angle / 2);
+    f32 q1 = Math_SinS(angle / 2) * axis->x;
+    f32 q2 = Math_SinS(angle / 2) * axis->y;
+    f32 q3 = Math_SinS(angle / 2) * axis->z;
+    Vec3f endPoint;
+
+    endPoint.x = (SQ(q0) + SQ(q1) - SQ(q2) - SQ(q3)) * point->x + 2 * (q1 * q2 - q0 * q3) * point->y + 2 * (q1 * q3 + q0 * q2) * point->z;
+    endPoint.y = 2 * (q2 * q1 + q0 * q3) * point->x + (SQ(q0) - SQ(q1) + SQ(q2) - SQ(q3)) * point->y + 2 * (q2 * q3 - q0 * q1) * point->z;
+    endPoint.z = 2 * (q3 * q1 - q0 * q2) * point->x + 2 * (q3 * q2 + q0 * q1) * point->y + (SQ(q0) - SQ(q1) - SQ(q2) + SQ(q3)) * point->z;
+
+    return endPoint;
+}
+
+void Camera_SetRollFromUp(Camera* camera) {
+    Vec3f* eyeNext = &camera->eyeNext;
+    Vec3f* at = &camera->at;
+    Vec3f* up = &camera->up;
+    VecGeo diffGeo = OLib_Vec3fDiffToVecGeo(eyeNext, at);
+    f32 pitch = diffGeo.pitch;
+    f32 yaw = diffGeo.yaw;
+    f32 sinP = Math_SinS(pitch);
+    f32 cosP = Math_CosS(pitch);
+    f32 sinY = Math_SinS(yaw);
+    f32 cosY = Math_CosS(yaw);
+    Vec3f preRollUp = { -sinP * sinY, cosP, -sinP * cosY };
+    Vec3f normal;
+
+    f32 dot = DOTXYZ(preRollUp, (*up));
+    Math_Vec3f_Diff(eyeNext, at, &normal);
+    Math3D_Normalize(&normal);
+    // Setup Matrix With Normal
+    //  ( preRollUp.x   up->x   normal.x)
+    //  ( preRollUp.y   up->y   normal.y)
+    //  ( preRollUp.z   up->z   normal.z)
+    f32 det = preRollUp.x * up->y * normal.z + up->x * normal.y * preRollUp.z + normal.x * preRollUp.y * up->z
+            - normal.x * up->y * preRollUp.z - normal.y * up->z * preRollUp.x - normal.z * up->x * preRollUp.y;
+
+    camera->roll = RAD_TO_BINANG(atan2(-det, -dot) - M_PI);
+}
+
+void Camera_Rotate(Camera* camera, f32 pitchDiff, f32 yawDiff) {
+    Vec3f* eyeNext = &camera->eyeNext;
+    Vec3f* eye = &camera->eye;
+    Vec3f* at = &camera->at;
+    Vec3f* up = &camera->up;
+
+    Vec3f camOut = OLib_Vec3fDistNormalize(at, eye);
+    Math3D_Normalize(&camOut);
+    Math3D_Normalize(up);
+    Vec3f right = Camera_CrossProduct(up, &camOut);
+    Math3D_Normalize(&right);
+    Vec3f force = {
+        up->x * pitchDiff + right.x * yawDiff,
+        up->y * pitchDiff + right.y * yawDiff,
+        up->z * pitchDiff + right.z * yawDiff
+    };
+    f32 angle = Math3D_Vec3fMagnitude(&force);
+
+    Vec3f rotAxis = Camera_CrossProduct(&camOut, &force);
+    Math3D_Normalize(&rotAxis);
+
+    Vec3f transPos = Camera_RotatePointAroundAxis(&camOut, &rotAxis, angle);
+    VecGeo transGeo = OLib_Vec3fToVecGeo(&transPos);
+    transGeo.r = camera->dist;
+    *eyeNext = OLib_AddVecGeoToVec3f(at, &transGeo);
+    *up = Camera_RotatePointAroundAxis(up, &rotAxis, angle);
+
+    Camera_SetRollFromUp(camera);
+}
 
 void Camera_DebugCam(Camera* camera) {
 
@@ -28,13 +108,14 @@ void Camera_DebugCam(Camera* camera) {
 
     // "If Refresh Static Params"
     if (true) {
-        sDebugCamPitch = originalEyeGeo.pitch;
-        sDebugCamYaw = originalEyeGeo.yaw;
-        sDebugCamRoll = camera->roll;
         sDebugCamDistTarget = camera->dist;
     }
 
-    s32 controllerPort = CVarGetInteger("gEnhancements.Camera.DebugCam.Port", 2) - 1;
+    s32 controllerPort = CVarGetInteger("gEnhancements.Camera.DebugCam.Port", CAMERA_DEBUG_DEFAULT_PORT) - 1;
+    if (controllerPort > 3 || controllerPort < 0) {
+        controllerPort = CAMERA_DEBUG_DEFAULT_PORT - 1;
+        CVarSetInteger("gEnhancements.Camera.DebugCam.Port", CAMERA_DEBUG_DEFAULT_PORT);
+    }
     if (controllerPort == 0) {
         // Disable Link Inputs
         GET_PLAYER(gPlayState)->stateFlags1 |= PLAYER_STATE1_20;
@@ -48,21 +129,6 @@ void Camera_DebugCam(Camera* camera) {
     if (CHECK_BTN_ANY(sCamPlayState->state.input[controllerPort].cur.button, BTN_A | BTN_B | BTN_L)) {
         camSpeed *= 3.0f;
     }
-
-    /* 
-        Camera Roll
-     */
-
-    sDebugCamRoll += (CHECK_BTN_ANY(sCamPlayState->state.input[controllerPort].cur.button, BTN_DLEFT) - CHECK_BTN_ANY(sCamPlayState->state.input[controllerPort].cur.button, BTN_DRIGHT)) * 1200.0f * camSpeed;
-
-    if (sDebugCamRoll > DEG_TO_BINANG(180.0f)) {
-        sDebugCamRoll -= DEG_TO_BINANG(360.0f);
-    }
-    if (sDebugCamRoll < 0) {
-        sDebugCamRoll += DEG_TO_BINANG(360.0f);
-    }
-
-    camera->roll = sDebugCamRoll;
 
     /* 
         Camera distance
@@ -81,26 +147,17 @@ void Camera_DebugCam(Camera* camera) {
     f32 yawDiff = -sCamPlayState->state.input[controllerPort].cur.right_stick_x * 10.0f * (CVarGetFloat("gEnhancements.Camera.FreeLook.CameraSensitivity.X", 1.0f));
     f32 pitchDiff = sCamPlayState->state.input[controllerPort].cur.right_stick_y * 10.0f * (CVarGetFloat("gEnhancements.Camera.FreeLook.CameraSensitivity.Y", 1.0f));
 
-    sDebugCamYaw += yawDiff * (CVarGetInteger("gEnhancements.Camera.FreeLook.InvertXAxis", 0) ? -1 : 1);
-    sDebugCamPitch += pitchDiff * (CVarGetInteger("gEnhancements.Camera.FreeLook.InvertYAxis", 1) ? 1 : -1);
-
-    s16 maxPitch = DEG_TO_BINANG(89.0f);
-    s16 minPitch = DEG_TO_BINANG(-89.0f);
-
-    if (sDebugCamPitch > maxPitch) {
-        sDebugCamPitch = maxPitch;
-    }
-    if (sDebugCamPitch < minPitch) {
-        sDebugCamPitch = minPitch;
-    }
+    yawDiff *= (CVarGetInteger("gEnhancements.Camera.FreeLook.InvertXAxis", 0) ? -1 : 1);
+    pitchDiff *= (CVarGetInteger("gEnhancements.Camera.FreeLook.InvertYAxis", 1) ? 1 : -1);
 
     // Setup new camera angle based on the calculations from right stick inputs
-    eyeAdjustment = OLib_Vec3fDiffToVecGeo(at, eyeNext);
-    eyeAdjustment.r = camera->dist;
-    eyeAdjustment.yaw = sDebugCamYaw;
-    eyeAdjustment.pitch = sDebugCamPitch;
+    Camera_Rotate(camera, pitchDiff, yawDiff);
 
-    *eyeNext = OLib_AddVecGeoToVec3f(at, &eyeAdjustment);
+    /* 
+        Camera Roll
+     */
+
+    camera->roll += (CHECK_BTN_ANY(sCamPlayState->state.input[controllerPort].cur.button, BTN_DLEFT) - CHECK_BTN_ANY(sCamPlayState->state.input[controllerPort].cur.button, BTN_DRIGHT)) * 1200.0f * camSpeed;
 
     /* 
         Camera Movement
@@ -122,9 +179,7 @@ void Camera_DebugCam(Camera* camera) {
     Vec3f normZ = OLib_Vec3fDistNormalize(at, eyeNext);
 
     // Cross Product
-    normX.x = normY.y * normZ.z - normY.z * normZ.y;
-    normX.y = normY.z * normZ.x - normY.x * normZ.z;
-    normX.z = normY.x * normZ.y - normY.y * normZ.x;
+    normX = Camera_CrossProduct(&normY, &normZ);
 
     Math_Vec3f_Scale(&normX, posDiff.x);
     Math_Vec3f_Scale(&normY, posDiff.y);
