@@ -6,6 +6,7 @@
 #include <chrono>
 
 #include <ResourceManager.h>
+#include "graphic/Fast3D/Fast3dWindow.h"
 #include <File.h>
 #include <DisplayList.h>
 #include <Window.h>
@@ -20,11 +21,6 @@
 #include <time.h>
 #endif
 #include <Array.h>
-#include <stb/stb_image.h>
-#define DRMP3_IMPLEMENTATION
-#include <dr_libs/mp3.h>
-#define DRWAV_IMPLEMENTATION
-#include <dr_libs/wav.h>
 #include <AudioPlayer.h>
 #include "variables.h"
 #include "z64.h"
@@ -121,9 +117,9 @@ OTRGlobals::OTRGlobals() {
     if (std::filesystem::exists(ootPath)) {
         OTRFiles.push_back(ootPath);
     }
-    std::string sohOtrPath = Ship::Context::GetPathRelativeToAppBundle("soh.otr");
-    if (std::filesystem::exists(sohOtrPath)) {
-        OTRFiles.push_back(sohOtrPath);
+    std::string shipOtrPath = Ship::Context::GetPathRelativeToAppBundle("2ship.otr");
+    if (std::filesystem::exists(shipOtrPath)) {
+        OTRFiles.push_back(shipOtrPath);
     }
     std::string patchesPath = Ship::Context::LocateFileAcrossAppDirs("mods", appShortName);
     if (patchesPath.length() > 0 && std::filesystem::exists(patchesPath)) {
@@ -140,7 +136,7 @@ OTRGlobals::OTRGlobals() {
                                                  OOT_PAL_11,     OOT_NTSC_JP_GC_CE, OOT_NTSC_JP_GC, OOT_NTSC_US_GC,
                                                  OOT_PAL_GC,     OOT_PAL_GC_DBG1,   OOT_PAL_GC_DBG2 };
     // tell LUS to reserve 3 SoH specific threads (Game, Audio, Save)
-    context = Ship::Context::CreateInstance("2 Ship 2 Harkinian", appShortName, "shipofharkinian.json", OTRFiles, {}, 3);
+    context = Ship::Context::CreateInstance("2 Ship 2 Harkinian", appShortName, "2ship2harkinian.json", OTRFiles, {}, 3);
 
     // Override LUS defaults
     Ship::Context::GetInstance()->GetLogger()->set_level((spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
@@ -524,11 +520,6 @@ extern "C" uint64_t GetUnixTimestamp() {
     return now;
 }
 
-// C->C++ Bridge
-extern "C" void Graph_ProcessFrame(void (*run_one_game_iter)(void)) {
-    OTRGlobals::Instance->context->GetWindow()->MainLoop(run_one_game_iter);
-}
-
 extern bool ShouldClearTextureCacheAtEndOfFrame;
 
 extern "C" void Graph_StartFrame() {
@@ -644,6 +635,7 @@ extern "C" void Graph_ProcessGfxCommands(Gfx* commands) {
     static int time;
     int fps = target_fps;
     int original_fps = 60 / R_UPDATE_RATE;
+    auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetInstance()->GetWindow());
 
     if (target_fps == 20 || original_fps > target_fps) {
         fps = original_fps;
@@ -667,11 +659,12 @@ extern "C" void Graph_ProcessGfxCommands(Gfx* commands) {
 
     time -= fps;
 
-    OTRGlobals::Instance->context->GetWindow()->SetTargetFps(fps);
-
     int threshold = CVarGetInteger("gExtraLatencyThreshold", 80);
-    OTRGlobals::Instance->context->GetWindow()->SetMaximumFrameLatency(threshold > 0 && target_fps >= threshold ? 2
-                                                                                                                : 1);
+
+    if (wnd != nullptr) {
+        wnd->SetTargetFps(fps);
+        wnd->SetMaximumFrameLatency(threshold > 0 && target_fps >= threshold ? 2 : 1);
+    }
 
     // When the gfx debugger is active, only run with the final mtx
     if (GfxDebuggerIsDebugging()) {
@@ -708,13 +701,25 @@ float divisor_num = 0.0f;
 extern "C" void OTRGetPixelDepthPrepare(float x, float y) {
     // Invert the Y value to match the origin values used in the renderer
     float adjustedY = SCREEN_HEIGHT - y;
-    OTRGlobals::Instance->context->GetWindow()->GetPixelDepthPrepare(x, adjustedY);
+
+    auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetInstance()->GetWindow());
+    if (wnd == nullptr) {
+        return;
+    }
+
+    wnd->GetPixelDepthPrepare(x, adjustedY);
 }
 
 extern "C" uint16_t OTRGetPixelDepth(float x, float y) {
     // Invert the Y value to match the origin values used in the renderer
     float adjustedY = SCREEN_HEIGHT - y;
-    return OTRGlobals::Instance->context->GetWindow()->GetPixelDepth(x, adjustedY);
+
+    auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(Ship::Context::GetInstance()->GetWindow());
+    if (wnd == nullptr) {
+        return 0;
+    }
+
+    return wnd->GetPixelDepth(x, adjustedY);
 }
 
 extern "C" uint32_t ResourceMgr_GetNumGameVersions() {
@@ -1037,7 +1042,7 @@ extern "C" void ResourceMgr_PatchGfxCopyCommandByName(const char* path, const ch
     }
 
     Gfx* destinationGfx = (Gfx*)&res->Instructions[destinationIndex];
-    Gfx sourceGfx = res->Instructions[sourceIndex];
+    Gfx sourceGfx = *(Gfx*)&res->Instructions[sourceIndex];
 
     if (!originalGfx.contains(path) || !originalGfx[path].contains(patchName)) {
         originalGfx[path][patchName] = { destinationIndex, *destinationGfx };

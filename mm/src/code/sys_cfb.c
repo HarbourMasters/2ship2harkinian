@@ -86,8 +86,6 @@ void SysCfb_SetHiResMode(void) {
         s32 rightAdjust;
         s32 lowerAdjust;
 
-    //! FAKE:
-    l1:
         rightAdjust = gCfbWidth - 610;
         lowerAdjust = gCfbHeight - 470;
         ViMode_Configure(&sNotebookViMode, -1, osTvType, 0, 1, 0, 1, gCfbWidth, gCfbHeight, 30, rightAdjust, 10,

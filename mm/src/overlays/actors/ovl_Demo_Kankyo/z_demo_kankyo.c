@@ -155,7 +155,7 @@ void DemoKakyo_LostWoodsSparkleActionFunc(DemoKankyo* this, PlayState* play) {
                         this->effects[i].speedTarget = 0.0f;
                     }
 
-                    Math_SmoothStepToF(&this->effects[i].scale, 0.1, 0.1f, 0.001f, 0.00001f);
+                    Math_SmoothStepToF(&this->effects[i].scale, 0.1f, 0.1f, 0.001f, 0.00001f);
                     Math_SmoothStepToF(&this->effects[i].speed, this->effects[i].speedTarget, 0.5f, 0.2f, 0.02f);
                     this->effects[i].posOffset.x += sinf(this->effects[i].speedClock.x) * this->effects[i].speed;
                     this->effects[i].posOffset.y += sinf(this->effects[i].speedClock.y) * this->effects[i].speed;
@@ -219,7 +219,7 @@ void DemoKakyo_LostWoodsSparkleActionFunc(DemoKankyo* this, PlayState* play) {
                             this->effects[i].LostWoodsSkyFishPosOffsetMax;
                     } else {
                         // Tail Particles
-                        Math_SmoothStepToF(&this->effects[i].scale, 0.1, 0.1f, 0.001f, 0.00001f);
+                        Math_SmoothStepToF(&this->effects[i].scale, 0.1f, 0.1f, 0.001f, 0.00001f);
 
                         // Unused calculation, speed only used in posOffset calculations,
                         // but posOffset gets overwritten for tail particles immediately below

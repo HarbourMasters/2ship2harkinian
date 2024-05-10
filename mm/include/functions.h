@@ -792,6 +792,9 @@ s32 func_80123448(PlayState* play);
 s32 Player_IsGoronOrDeku(Player* player);
 s32 func_801234D4(PlayState* play);
 s32 func_80123590(PlayState* play, Actor* actor);
+// #region 2S2H [Dpad]
+ItemId Player_Dpad_GetItemOnButton(PlayState* play, Player* player, DpadEquipSlot slot);
+// #endregion
 ItemId Player_GetItemOnButton(PlayState* play, Player* player, EquipSlot slot);
 PlayerItemAction func_80123810(PlayState* play);
 PlayerModelGroup Player_ActionToModelGroup(Player* player, PlayerItemAction itemAction);

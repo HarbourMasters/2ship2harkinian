@@ -253,7 +253,6 @@ void BgDblueMovebg_Init(Actor* thisx, PlayState* play) {
         case 9:
             this->unk_2F8[1] = NULL;
             this->unk_2F8[0] = NULL;
-        label:
             for (i = 0; i < ARRAY_COUNT(sCsIdList); i++) {
                 sCsIdList[i] = this->csIdList[i];
             }

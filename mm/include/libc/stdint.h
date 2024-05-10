@@ -9,7 +9,7 @@ typedef s32 intptr_t;
 typedef u32 uintptr_t;
 #endif
 // #endregion
-
+#if 0
 #define INT8_MIN    (-0x80)
 #define INT16_MIN   (-0x8000)
 #define INT32_MIN   (-0x80000000)
@@ -28,6 +28,6 @@ typedef u32 uintptr_t;
 #define INTPTR_MIN  (-0x80000000)
 #define INTPTR_MAX  0x7FFFFFFF
 #define UINTPTR_MAX 0xFFFFFFFF
-
+#endif
 
 #endif /* STDINT_H */

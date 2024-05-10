@@ -29,6 +29,7 @@ typedef enum {
     HUD_EDITOR_ELEMENT_C_RIGHT,
     HUD_EDITOR_ELEMENT_A,
     HUD_EDITOR_ELEMENT_C_UP,
+    HUD_EDITOR_ELEMENT_D_PAD,
     HUD_EDITOR_ELEMENT_START,
     HUD_EDITOR_ELEMENT_MAGIC_METER,
     HUD_EDITOR_ELEMENT_HEARTS,
@@ -48,6 +49,7 @@ typedef enum {
 
 void HudEditor_SetActiveElement(HudEditorElementID id);
 bool HudEditor_ShouldOverrideDraw();
+void HudEditor_ModifyKaleidoEquipAnimValues(s16* ulx, s16* uly, s16* shrinkRate);
 void HudEditor_ModifyDrawValues(s16* rectLeft, s16* rectTop, s16* rectWidth, s16* rectHeight, s16* dsdx, s16* dtdy);
 
 typedef struct {

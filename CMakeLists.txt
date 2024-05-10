@@ -109,7 +109,7 @@ set_property(TARGET mm PROPERTY APPIMAGE_ICON_FILE "${CMAKE_BINARY_DIR}/2s2hIcon
 
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
 install(PROGRAMS "${CMAKE_BINARY_DIR}/linux/2s2h.sh" DESTINATION . COMPONENT appimage)
-install(FILES "${CMAKE_SOURCE_DIR}/soh.otr" DESTINATION . COMPONENT ship)
+install(FILES "${CMAKE_SOURCE_DIR}/2ship.otr" DESTINATION . COMPONENT ship)
 install(TARGETS ZAPD DESTINATION ./assets/extractor COMPONENT extractor)
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/mm/assets/extractor/" DESTINATION ./assets/extractor COMPONENT extractor)
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/mm/assets/xml/" DESTINATION ./assets/extractor/xmls COMPONENT extractor)
@@ -134,13 +134,13 @@ find_package(Python3 COMPONENTS Interpreter)
 add_custom_target(
     ExtractAssets
     # CMake versions prior to 3.17 do not have the rm command, use remove instead for older versions
-    COMMAND ${CMAKE_COMMAND} -E $<IF:$<VERSION_LESS:${CMAKE_VERSION},3.17>,remove,rm> -f mm.otr soh.otr
-    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/OTRExporter/extract_assets.py -z "$<TARGET_FILE:ZAPD>" --non-interactive --xml-root ../mm/assets/xml --custom-otr-file soh.otr "--custom-assets-path" ${CMAKE_CURRENT_SOURCE_DIR}/mm/assets/custom --port-ver "${CMAKE_PROJECT_VERSION}"
+    COMMAND ${CMAKE_COMMAND} -E $<IF:$<VERSION_LESS:${CMAKE_VERSION},3.17>,remove,rm> -f mm.otr 2ship.otr
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/OTRExporter/extract_assets.py -z "$<TARGET_FILE:ZAPD>" --non-interactive --xml-root ../mm/assets/xml --custom-otr-file 2ship.otr "--custom-assets-path" ${CMAKE_CURRENT_SOURCE_DIR}/mm/assets/custom --port-ver "${CMAKE_PROJECT_VERSION}"
     COMMAND ${CMAKE_COMMAND} -DSYSTEM_NAME=${CMAKE_SYSTEM_NAME} -DTARGET_DIR="$<TARGET_FILE_DIR:ZAPD>" -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -DBINARY_DIR=${CMAKE_BINARY_DIR} -P ${CMAKE_CURRENT_SOURCE_DIR}/copy-existing-otrs.cmake
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/OTRExporter
     COMMENT "Running asset extraction..."
     DEPENDS ZAPD
-    BYPRODUCTS mm.otr ${CMAKE_SOURCE_DIR}/mm.otr ${CMAKE_SOURCE_DIR}/soh.otr
+    BYPRODUCTS mm.otr ${CMAKE_SOURCE_DIR}/mm.otr ${CMAKE_SOURCE_DIR}/2ship.otr
 )
 
 # Target to generate headers
@@ -152,15 +152,15 @@ add_custom_target(
     DEPENDS ZAPD
 )
 
-# Target to generate only soh.otr
+# Target to generate only 2ship.otr
 add_custom_target(
-    GenerateSohOtr
+    Generate2ShipOtr
     # CMake versions prior to 3.17 do not have the rm command, use remove instead for older versions
-    COMMAND ${CMAKE_COMMAND} -E $<IF:$<VERSION_LESS:${CMAKE_VERSION},3.17>,remove,rm> -f soh.otr
-    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/OTRExporter/extract_assets.py -z "$<TARGET_FILE:ZAPD>" --norom --custom-otr-file soh.otr "--custom-assets-path" ${CMAKE_CURRENT_SOURCE_DIR}/mm/assets/custom --port-ver "${CMAKE_PROJECT_VERSION}"
-    COMMAND ${CMAKE_COMMAND} -DSYSTEM_NAME=${CMAKE_SYSTEM_NAME} -DTARGET_DIR="$<TARGET_FILE_DIR:ZAPD>" -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -DBINARY_DIR=${CMAKE_BINARY_DIR} -DONLYSOHOTR=On -P ${CMAKE_CURRENT_SOURCE_DIR}/copy-existing-otrs.cmake
+    COMMAND ${CMAKE_COMMAND} -E $<IF:$<VERSION_LESS:${CMAKE_VERSION},3.17>,remove,rm> -f 2ship.otr
+    COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/OTRExporter/extract_assets.py -z "$<TARGET_FILE:ZAPD>" --norom --custom-otr-file 2ship.otr "--custom-assets-path" ${CMAKE_CURRENT_SOURCE_DIR}/mm/assets/custom --port-ver "${CMAKE_PROJECT_VERSION}"
+    COMMAND ${CMAKE_COMMAND} -DSYSTEM_NAME=${CMAKE_SYSTEM_NAME} -DTARGET_DIR="$<TARGET_FILE_DIR:ZAPD>" -DSOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR} -DBINARY_DIR=${CMAKE_BINARY_DIR} -DONLY2SHIPOTR=On -P ${CMAKE_CURRENT_SOURCE_DIR}/copy-existing-otrs.cmake
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/OTRExporter
-    COMMENT "Generating soh.otr..."
+    COMMENT "Generating 2ship.otr..."
     DEPENDS ZAPD
 )
 

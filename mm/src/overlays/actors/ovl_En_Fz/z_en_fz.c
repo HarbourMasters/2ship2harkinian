@@ -8,6 +8,7 @@
 #include "overlays/actors/ovl_En_Wiz/z_en_wiz.h"
 #include "objects/object_fz/object_fz.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_10)
 
@@ -1000,6 +1001,7 @@ void func_80934464(EnFz* this, PlayState* play) {
 
     for (i = 0; i < ARRAY_COUNT(this->unk_23C); i++, ptr++) {
         if (ptr->unk_00 > 0) {
+            FrameInterpolation_RecordOpenChild(ptr, i);
             gDPPipeSync(POLY_XLU_DISP++);
 
             if (flag == 0) {
@@ -1018,6 +1020,7 @@ void func_80934464(EnFz* this, PlayState* play) {
 
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_XLU_DISP++, gFrozenSteamModelDL);
+            FrameInterpolation_RecordCloseChild();
         }
     }
 
