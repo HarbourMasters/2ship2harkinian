@@ -5,10 +5,11 @@ TextureAnimation::~TextureAnimation() {
     for (auto& a : anims) {
         switch ((TextureAnimationParamsType)a.type) {
             case TextureAnimationParamsType::SingleScroll:
-                delete a.params;
+                // a.params is a void* and must be allocated and freed with malloc/free
+                free(a.params);
                 break;
             case TextureAnimationParamsType::DualScroll:
-                delete[] a.params;
+                free(a.params);
                 break;
             case TextureAnimationParamsType::ColorChange:
             case TextureAnimationParamsType::ColorChangeLERP:
@@ -16,13 +17,13 @@ TextureAnimation::~TextureAnimation() {
                 delete[] ((AnimatedMatColorParams*)a.params)->keyFrames;
                 delete[] ((AnimatedMatColorParams*)a.params)->primColors;
                 delete[] ((AnimatedMatColorParams*)a.params)->envColors;
-                delete a.params;
+                free(a.params);
                 break;
             case TextureAnimationParamsType::TextureCycle:
                 // BENTODO free the textures
                 delete[] ((AnimatedMatTexCycleParams*)a.params)->textureIndexList;
                 delete[] ((AnimatedMatTexCycleParams*)a.params)->textureList;
-                delete a.params;
+                free(a.params);
                 break;
         }
     }
