@@ -18,8 +18,6 @@ extern s32 sCameraInterfaceFlags;
 }
 
 // Static Data Used For Free Camera
-static f32 sCamX = 0.0f;
-static f32 sCamY = 0.0f;
 static bool sCanFreeLook = false;
 
 void UpdateFreeLookState(Camera* camera) {
@@ -50,9 +48,11 @@ bool Camera_FreeLook(Camera* camera) {
     Vec3f* at = &camera->at;
     Vec3f* eyeNext = &camera->eyeNext;
     Player* player = GET_PLAYER(gPlayState);
-    VecGeo eyeAdjustment;
+    VecGeo eyeAdjustment = OLib_Vec3fDiffToVecGeo(at, eye);
     Parallel1ReadOnlyData* roData = &camera->paramData.para1.roData;
     f32 playerHeight;
+    f32 pitch = eyeAdjustment.pitch;
+    f32 yaw = eyeAdjustment.yaw;
 
     // Smooth step camera 'at' towards player
     f32 playerYOffset = Player_GetHeight(player) / 1.2f;
@@ -90,20 +90,20 @@ bool Camera_FreeLook(Camera* camera) {
 
     Camera_ResetActionFuncState(camera, camera->mode);
 
-    f32 camDiffX = -sCamPlayState->state.input[0].cur.right_stick_x * 10.0f * (CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.X", 1.0f));
-    f32 camDiffY = sCamPlayState->state.input[0].cur.right_stick_y * 10.0f * (CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.Y", 1.0f));
+    f32 yawDiff = -sCamPlayState->state.input[0].cur.right_stick_x * 10.0f * (CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.X", 1.0f));
+    f32 pitchDiff = sCamPlayState->state.input[0].cur.right_stick_y * 10.0f * (CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.Y", 1.0f));
 
-    sCamX += camDiffX * (CVarGetInteger("gEnhancements.Camera.RightStick.InvertXAxis", 0) ? -1 : 1);
-    sCamY += camDiffY * (CVarGetInteger("gEnhancements.Camera.RightStick.InvertYAxis", 1) ? 1 : -1);
+    yaw += yawDiff * (CVarGetInteger("gEnhancements.Camera.RightStick.InvertXAxis", 0) ? -1 : 1);
+    pitch += pitchDiff * (CVarGetInteger("gEnhancements.Camera.RightStick.InvertYAxis", 1) ? 1 : -1);
 
-    s16 maxY = DEG_TO_BINANG(CVarGetFloat("gEnhancements.Camera.FreeLook.MaxY", 72.0f));
-    s16 minY = DEG_TO_BINANG(CVarGetFloat("gEnhancements.Camera.FreeLook.MinY", -49.0f));
+    s16 maxPitch = DEG_TO_BINANG(CVarGetFloat("gEnhancements.Camera.FreeLook.MaxPitch", 72.0f));
+    s16 minPitch = DEG_TO_BINANG(CVarGetFloat("gEnhancements.Camera.FreeLook.MinPitch", -49.0f));
 
-    if (sCamY > maxY) {
-        sCamY = maxY;
+    if (pitch > maxPitch) {
+        pitch = maxPitch;
     }
-    if (sCamY < minY) {
-        sCamY = minY;
+    if (pitch < minPitch) {
+        pitch = minPitch;
     }
 
     f32 distTarget = CVarGetInteger("gEnhancements.Camera.FreeLook.MaxCameraDistance", roData->unk_04);
@@ -113,8 +113,8 @@ bool Camera_FreeLook(Camera* camera) {
 
     // Setup new camera angle based on the calculations from stick inputs
     eyeAdjustment.r = camera->dist;
-    eyeAdjustment.yaw = sCamX;
-    eyeAdjustment.pitch = sCamY;
+    eyeAdjustment.yaw = yaw;
+    eyeAdjustment.pitch = pitch;
 
     *eyeNext = OLib_AddVecGeoToVec3f(at, &eyeAdjustment);
     // Apply new camera angle only when camera active
@@ -137,9 +137,6 @@ bool Camera_CanFreeLook(Camera* camera) {
     f32 camY = sCamPlayState->state.input[0].cur.right_stick_y * 10.0f;
     // Set sCamX/sCamY to camera positions after mode which disables free cam
     if (!sCanFreeLook && (fabsf(camX) >= 15.0f || fabsf(camY) >= 15.0f)) {
-        VecGeo eyeAdjustment = OLib_Vec3fDiffToVecGeo(&camera->at, &camera->eye);
-        sCamX = eyeAdjustment.yaw;
-        sCamY = eyeAdjustment.pitch;
         sCanFreeLook = true;
     }
     return sCanFreeLook;

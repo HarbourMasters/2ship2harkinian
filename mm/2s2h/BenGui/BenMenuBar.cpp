@@ -327,12 +327,12 @@ void DrawEnhancementsMenu() {
 
             UIWidgets::CVarSliderInt("Camera Distance: %d", "gEnhancements.Camera.FreeLook.MaxCameraDistance", 100, 900, 185);
             UIWidgets::CVarSliderInt("Camera Transition Speed: %d", "gEnhancements.Camera.FreeLook.TransitionSpeed", 1, 900, 25);
-            UIWidgets::CVarSliderFloat("Max Camera Height Angle: %.0f %°", "gEnhancements.Camera.FreeLook.MaxY", -89.0f, 89.0f, 72.0f);
-            UIWidgets::CVarSliderFloat("Min Camera Height Angle: %.0f %°", "gEnhancements.Camera.FreeLook.MinY", -89.0f, 89.0f, -49.0f);
-            f32 maxY = CVarGetFloat("gEnhancements.Camera.FreeLook.MaxY", 72.0f);
-            f32 minY = CVarGetFloat("gEnhancements.Camera.FreeLook.MinY", -49.0f);
-            CVarSetFloat("gEnhancements.Camera.FreeLook.MaxY", std::max(maxY, minY));
-            CVarSetFloat("gEnhancements.Camera.FreeLook.MinY", std::min(maxY, minY));
+            UIWidgets::CVarSliderFloat("Max Camera Height Angle: %.0f %°", "gEnhancements.Camera.FreeLook.MaxPitch", -89.0f, 89.0f, 72.0f);
+            UIWidgets::CVarSliderFloat("Min Camera Height Angle: %.0f %°", "gEnhancements.Camera.FreeLook.MinPitch", -89.0f, 89.0f, -49.0f);
+            f32 maxY = CVarGetFloat("gEnhancements.Camera.FreeLook.MaxPitch", 72.0f);
+            f32 minY = CVarGetFloat("gEnhancements.Camera.FreeLook.MinPitch", -49.0f);
+            CVarSetFloat("gEnhancements.Camera.FreeLook.MaxPitch", std::max(maxY, minY));
+            CVarSetFloat("gEnhancements.Camera.FreeLook.MinPitch", std::min(maxY, minY));
 
             ImGui::SeparatorText("'Debug' Camera");
             if (UIWidgets::CVarCheckbox("Debug Camera", "gEnhancements.Camera.DebugCam.Enable", {
