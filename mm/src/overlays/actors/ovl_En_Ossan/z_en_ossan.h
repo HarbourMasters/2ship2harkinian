@@ -7,7 +7,9 @@
 #include "objects/object_fsn/object_fsn.h"
 
 // Note: adding 1 to FSN_LIMB_MAX due to bug in the skeleton, see bug in object_fsn.xml
-#define ENOSSAN_LIMB_MAX MAX((s32)FSN_LIMB_MAX + 1, (s32)ANI_LIMB_MAX)
+// #region [2S2H] Port FSN_LIMB_MAX is actually the number of limbs. The original game has a bug where it thinks it needs one more because
+// the skeleton is bugged. Same fix as en_fsn.
+#define ENOSSAN_LIMB_MAX MAX((s32)FSN_LIMB_MAX, (s32)ANI_LIMB_MAX)
 
 struct EnOssan;
 
