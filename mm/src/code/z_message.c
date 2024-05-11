@@ -2164,10 +2164,10 @@ void Message_SetupLoadItemIcon(PlayState* play) {
         msgCtx->unk1206C = (u8)(font->msgBuf.schar[++msgCtx->msgBufPos]) << 8;
         msgCtx->unk1206C |= font->msgBuf.schar[++msgCtx->msgBufPos];
 
-        msgCtx->unk12070 = (u8)(font->msgBuf.schar[++msgCtx->msgBufPos] << 8);
+        msgCtx->unk12070 = (u8)(font->msgBuf.schar[++msgCtx->msgBufPos]) << 8;
         msgCtx->unk12070 |= font->msgBuf.schar[++msgCtx->msgBufPos];
 
-        msgCtx->unk12074 = (u8)(font->msgBuf.schar[++msgCtx->msgBufPos] << 8);
+        msgCtx->unk12074 = (u8)(font->msgBuf.schar[++msgCtx->msgBufPos]) << 8;
         msgCtx->unk12074 |= font->msgBuf.schar[++msgCtx->msgBufPos];
 
         msgCtx->msgBufPos++;
