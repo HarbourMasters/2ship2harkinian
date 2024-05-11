@@ -1391,6 +1391,7 @@ void EnOssan_Blink(EnOssan* this) {
 void EnOssan_CuriosityShopMan_Init(EnOssan* this, PlayState* play) {
     SkelAnime_InitFlex(play, &this->skelAnime, &gFsnSkel, &gFsnIdleAnim, this->jointTable, this->morphTable,
                        ENOSSAN_LIMB_MAX);
+    this->skelAnime.limbCount = ENOSSAN_LIMB_MAX;
     this->actor.draw = EnOssan_CuriosityShopMan_Draw;
 }
 
