@@ -18,6 +18,7 @@ HudEditorElement hudEditorElements[HUD_EDITOR_ELEMENT_MAX] = {
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_START,             "Start Button",   "Start",      136, 17,  255, 130, 60,  255),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_MAGIC_METER,       "Magic",          "Magic",      18,  34,  0,   200, 0,   255),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_HEARTS,            "Hearts",         "Hearts",     30,  26,  255, 70,  50,  255),
+    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_MINIGAME_COUNTER,  "Minigames",      "Minigames",  20,  67,  255, 255, 255, 255),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_RUPEE_COUNTER,     "Rupees",         "Rupees",     26,  206, 200, 255, 100, 255),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_KEY_COUNTER,       "Keys",           "Keys",       26,  190, 255, 255, 255, 255),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_SKULLTULA_COUNTER, "Skulltulas",     "Skulltulas", 26,  190, 255, 255, 255, 255),
@@ -142,6 +143,7 @@ void HudEditorWindow::DrawElement() {
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_START].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_RIGHT);
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_MAGIC_METER].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT);
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_HEARTS].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT);
+                CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_MINIGAME_COUNTER].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT);
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_RUPEE_COUNTER].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT);
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_KEY_COUNTER].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT);
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_SKULLTULA_COUNTER].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT);
