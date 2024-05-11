@@ -403,11 +403,14 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
-        if (UIWidgets::BeginMenu("Songs")) {
+        if (UIWidgets::BeginMenu("Songs/Playback")) {
             UIWidgets::CVarCheckbox("Enable Sun's Song", "gEnhancements.Songs.EnableSunsSong", {
                 .tooltip = "Enables the partially implemented Sun's Song. RIGHT-DOWN-UP-RIGHT-DOWN-UP to play it. "
                            "This song will make time move very fast until either Link moves to a different scene, "
                            "or when the time switches to a new time period."
+            });
+            UIWidgets::CVarCheckbox("Prevent Dropped Ocarina Inputs", "gEnhancements.Playback.NoDropOcarinaInput", { 
+                .tooltip = "Prevent dropping inputs when playing the ocarina quickly" 
             });
 
             ImGui::EndMenu();
