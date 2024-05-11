@@ -1480,10 +1480,8 @@ void EnFsn_Init(Actor* thisx, PlayState* play) {
     EnFsn* this = THIS;
 
     ActorShape_Init(&this->actor.shape, 0.0f, ActorShadow_DrawCircle, 20.0f);
-    // #region 2S2H [Port] The original game said the skel had 18 limbs but only has 17. 
     SkelAnime_InitFlex(play, &this->skelAnime, &gFsnSkel, &gFsnIdleAnim, this->jointTable, this->morphTable,
-                       FSN_LIMB_MAX);
-    this->skelAnime.limbCount = FSN_LIMB_MAX;
+                       ENFSN_LIMB_MAX);
 
     if (ENFSN_IS_SHOP(&this->actor)) {
         this->actor.shape.rot.y = BINANG_ROT180(this->actor.shape.rot.y);
@@ -1519,8 +1517,7 @@ void EnFsn_Update(Actor* thisx, PlayState* play) {
     this->actionFunc(this, play);
     Actor_MoveWithGravity(&this->actor);
     Actor_TrackPlayer(play, &this->actor, &this->headRot, &this->unk27A, this->actor.focus.pos);
-    // #region 2S2H [Port] The original game said the skel had 18 limbs but only has 17. 
-    SubS_UpdateFidgetTables(play, this->fidgetTableY, this->fidgetTableZ, FSN_LIMB_MAX);
+    SubS_UpdateFidgetTables(play, this->fidgetTableY, this->fidgetTableZ, ENFSN_LIMB_MAX);
     EnFsn_Blink(this);
     if (ENFSN_IS_SHOP(&this->actor) && EnFsn_HasItemsToSell()) {
         EnFsn_UpdateJoystickInputState(this, play);
