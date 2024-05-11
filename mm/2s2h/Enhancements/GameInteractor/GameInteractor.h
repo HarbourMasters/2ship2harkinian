@@ -240,6 +240,8 @@ public:
 
     DEFINE_HOOK(OnCameraChangeModeFlags, (Camera* camera));
 
+    DEFINE_HOOK(OnPassPlayerInputs, (Input* input));
+
     DEFINE_HOOK(OnOpenText, (u16 textId));
 
     DEFINE_HOOK(ShouldItemGive, (u8 item, bool* should));
@@ -275,6 +277,8 @@ void GameInteractor_ExecuteOnFlagSet(FlagType flagType, u32 flag);
 void GameInteractor_ExecuteOnFlagUnset(FlagType flagType, u32 flag);
 
 void GameInteractor_ExecuteOnCameraChangeModeFlags(Camera* camera);
+
+void GameInteractor_ExecuteOnPassPlayerInputs(Input* input);
 
 void GameInteractor_ExecuteOnOpenText(u16 textId);
 

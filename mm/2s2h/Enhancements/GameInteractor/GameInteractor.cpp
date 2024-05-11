@@ -124,6 +124,11 @@ void GameInteractor_ExecuteOnCameraChangeModeFlags(Camera* camera) {
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnCameraChangeModeFlags>(camera);
 }
 
+void GameInteractor_ExecuteOnPassPlayerInputs(Input* input) {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnPassPlayerInputs>(input);
+    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnPassPlayerInputs>(input);
+}
+
 void GameInteractor_ExecuteOnOpenText(u16 textId) {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnOpenText>(textId);
     GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnOpenText>(textId, textId);

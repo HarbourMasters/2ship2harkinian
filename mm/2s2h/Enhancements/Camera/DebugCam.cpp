@@ -9,23 +9,14 @@ extern "C" {
 extern PlayState* gPlayState;
 extern PlayState* sCamPlayState;
 extern f32 Camera_ScaledStepToCeilF(f32 target, f32 cur, f32 stepScale, f32 minDiff);
+extern s16 Camera_ScaledStepToCeilS(s16 target, s16 cur, f32 stepScale, s16 minDiff);
 extern Vec3f Camera_CalcUpVec(s16 pitch, s16 yaw, s16 roll);
 }
 
 #define CAMERA_DEBUG_DEFAULT_PORT 2
 
 // Static Data Used For Free Camera
-static f32 sDebugCamDistTarget = 185;
-
-Vec3f Camera_CrossProduct(Vec3f* a, Vec3f* b) {
-    Vec3f ret;
-
-    ret.x = a->y * b->z - a->z * b->y;
-    ret.y = a->z * b->x - a->x * b->z;
-    ret.z = a->x * b->y - a->y * b->x;
-
-    return ret;
-}
+static bool sDebugCamRefreshParams = true;
 
 Vec3f Camera_RotatePointAroundAxis(Vec3f* point, Vec3f* axis, s16 angle) {
     f32 q0 = Math_CosS(angle / 2);
@@ -68,7 +59,19 @@ void Camera_SetRollFromUp(Camera* camera) {
     camera->roll = RAD_TO_BINANG(atan2(-det, -dot) - M_PI);
 }
 
-void Camera_Rotate(Camera* camera, f32 pitchDiff, f32 yawDiff) {
+void Camera_RotateGeographic(Camera* camera, f32 pitchDiff, f32 yawDiff) {
+    Vec3f* eyeNext = &camera->eyeNext;
+    Vec3f* eye = &camera->eye;
+    Vec3f* at = &camera->at;
+    Vec3f camOut = OLib_Vec3fDistNormalize(at, eye);
+    VecGeo transGeo = OLib_Vec3fToVecGeo(&camOut);
+    transGeo.pitch += pitchDiff;
+    transGeo.pitch = OLib_ClampMaxDist(transGeo.pitch, DEG_TO_BINANG(89.0f));
+    transGeo.yaw += yawDiff;
+    *eyeNext = OLib_AddVecGeoToVec3f(at, &transGeo);
+}
+
+void Camera_Rotate6DOF(Camera* camera, f32 pitchDiff, f32 yawDiff) {
     Vec3f* eyeNext = &camera->eyeNext;
     Vec3f* eye = &camera->eye;
     Vec3f* at = &camera->at;
@@ -77,7 +80,8 @@ void Camera_Rotate(Camera* camera, f32 pitchDiff, f32 yawDiff) {
     Vec3f camOut = OLib_Vec3fDistNormalize(at, eye);
     Math3D_Normalize(&camOut);
     Math3D_Normalize(up);
-    Vec3f right = Camera_CrossProduct(up, &camOut);
+    Vec3f right;
+    Math3D_Vec3f_Cross(up, &camOut, &right);
     Math3D_Normalize(&right);
     Vec3f force = {
         up->x * pitchDiff + right.x * yawDiff,
@@ -86,7 +90,8 @@ void Camera_Rotate(Camera* camera, f32 pitchDiff, f32 yawDiff) {
     };
     f32 angle = Math3D_Vec3fMagnitude(&force);
 
-    Vec3f rotAxis = Camera_CrossProduct(&camOut, &force);
+    Vec3f rotAxis;
+    Math3D_Vec3f_Cross(&camOut, &force, &rotAxis);
     Math3D_Normalize(&rotAxis);
 
     Vec3f transPos = Camera_RotatePointAroundAxis(&camOut, &rotAxis, angle);
@@ -99,26 +104,23 @@ void Camera_Rotate(Camera* camera, f32 pitchDiff, f32 yawDiff) {
 }
 
 void Camera_DebugCam(Camera* camera) {
-
     Vec3f* eye = &camera->eye;
     Vec3f* at = &camera->at;
     Vec3f* eyeNext = &camera->eyeNext;
     VecGeo eyeAdjustment;
     VecGeo originalEyeGeo = OLib_Vec3fDiffToVecGeo(at, eye);
+    f32 distTarget;
 
-    // "If Refresh Static Params"
-    if (true) {
-        sDebugCamDistTarget = camera->dist;
+    if (sDebugCamRefreshParams) {
+        // Move camera focus to eye
+        *at = *eye;
+        sDebugCamRefreshParams = false;
     }
 
     s32 controllerPort = CVarGetInteger("gEnhancements.Camera.DebugCam.Port", CAMERA_DEBUG_DEFAULT_PORT) - 1;
     if (controllerPort > 3 || controllerPort < 0) {
         controllerPort = CAMERA_DEBUG_DEFAULT_PORT - 1;
         CVarSetInteger("gEnhancements.Camera.DebugCam.Port", CAMERA_DEBUG_DEFAULT_PORT);
-    }
-    if (controllerPort == 0) {
-        // Disable Link Inputs
-        GET_PLAYER(gPlayState)->stateFlags1 |= PLAYER_STATE1_20;
     }
 
     /* 
@@ -136,10 +138,10 @@ void Camera_DebugCam(Camera* camera) {
 
     // Transition speed set to be responsive
     f32 transitionSpeed = camSpeed * 200.0f;
-    sDebugCamDistTarget += (CHECK_BTN_ANY(sCamPlayState->state.input[controllerPort].cur.button, BTN_DDOWN) - CHECK_BTN_ANY(sCamPlayState->state.input[controllerPort].cur.button, BTN_DUP)) * 1200.0f * camSpeed;
-    sDebugCamDistTarget = CLAMP_MIN(sDebugCamDistTarget, 1.0f);
+    distTarget = camera->dist + (CHECK_BTN_ANY(sCamPlayState->state.input[controllerPort].cur.button, BTN_DDOWN) - CHECK_BTN_ANY(sCamPlayState->state.input[controllerPort].cur.button, BTN_DUP)) * 1200.0f * camSpeed;
+    distTarget = CLAMP_MIN(distTarget, 0.1f);
     // Smooth step camera away to max camera distance.
-    camera->dist = Camera_ScaledStepToCeilF(sDebugCamDistTarget, camera->dist, transitionSpeed / (ABS(sDebugCamDistTarget - camera->dist) + transitionSpeed), 0.0f);
+    camera->dist = Camera_ScaledStepToCeilF(distTarget, camera->dist, transitionSpeed / (ABS(distTarget - camera->dist) + transitionSpeed), 0.0f);
 
     /* 
         Set Camera Pitch and Yaw
@@ -151,14 +153,20 @@ void Camera_DebugCam(Camera* camera) {
     pitchDiff *= (CVarGetInteger("gEnhancements.Camera.FreeLook.InvertYAxis", 1) ? 1 : -1);
 
     // Setup new camera angle based on the calculations from right stick inputs
-    Camera_Rotate(camera, pitchDiff, yawDiff);
+    if (CVarGetInteger("gEnhancements.Camera.DebugCam.6DOF", 0)) {
+        Camera_Rotate6DOF(camera, pitchDiff, yawDiff);
+    } else {
+        Camera_RotateGeographic(camera, pitchDiff, yawDiff);
+    }
 
     /* 
         Camera Roll
      */
-
-    camera->roll += (CHECK_BTN_ANY(sCamPlayState->state.input[controllerPort].cur.button, BTN_DLEFT) - CHECK_BTN_ANY(sCamPlayState->state.input[controllerPort].cur.button, BTN_DRIGHT)) * 1200.0f * camSpeed;
-
+    if (CVarGetInteger("gEnhancements.Camera.DebugCam.6DOF", 0)) {
+        camera->roll += (CHECK_BTN_ANY(sCamPlayState->state.input[controllerPort].cur.button, BTN_DLEFT) - CHECK_BTN_ANY(sCamPlayState->state.input[controllerPort].cur.button, BTN_DRIGHT)) * 1200.0f * camSpeed;
+    } else {
+        camera->roll = Camera_ScaledStepToCeilS(0, camera->roll, 0.1f, 5);
+    }
     /* 
         Camera Movement
      */
@@ -173,13 +181,12 @@ void Camera_DebugCam(Camera* camera) {
     Vec3f camPosDiff = { 0.0f, 0.0f, 0.0f };
 
     VecGeo diffGeo = OLib_Vec3fDiffToVecGeo(eyeNext, at);
-    camera->up = Camera_CalcUpVec(diffGeo.pitch, diffGeo.yaw, camera->roll);
     Vec3f normX;
-    Vec3f normY = camera->up;
+    Vec3f normY = camera->up = Camera_CalcUpVec(diffGeo.pitch, diffGeo.yaw, camera->roll);
     Vec3f normZ = OLib_Vec3fDistNormalize(at, eyeNext);
 
     // Cross Product
-    normX = Camera_CrossProduct(&normY, &normZ);
+    Math3D_Vec3f_Cross(&normY, &normZ, &normX);
 
     Math_Vec3f_Scale(&normX, posDiff.x);
     Math_Vec3f_Scale(&normY, posDiff.y);
@@ -197,13 +204,21 @@ void Camera_DebugCam(Camera* camera) {
 }
 
 static uint32_t freeCamVBHookId = 0;
+static uint32_t freeCamDisableInputsId = 0;
 
 void RegisterDebugCam() {
+    sDebugCamRefreshParams = true;
+
     if (freeCamVBHookId) {
         GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::ShouldVanillaBehavior>(freeCamVBHookId);
         freeCamVBHookId = 0;
         // Re-enable Player Inputs
-        GET_PLAYER(gPlayState)->stateFlags1 &= ~PLAYER_STATE1_20;
+        GET_PLAYER(gPlayState)->stateFlags1 &= ~PLAYER_STATE1_20000000;
+    }
+
+    if (freeCamDisableInputsId) {
+        GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnPassPlayerInputs>(freeCamDisableInputsId);
+        freeCamDisableInputsId = 0;
     }
 
     if (CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0)) {
@@ -211,6 +226,18 @@ void RegisterDebugCam() {
             Camera* camera = static_cast<Camera*>(opt);
             Camera_DebugCam(camera);
             *should = false;
+        });
+
+        freeCamDisableInputsId = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPassPlayerInputs>([](Input* input) {
+            s32 controllerPort = CVarGetInteger("gEnhancements.Camera.DebugCam.Port", CAMERA_DEBUG_DEFAULT_PORT) - 1;
+            if (controllerPort > 3 || controllerPort < 0) {
+                controllerPort = CAMERA_DEBUG_DEFAULT_PORT - 1;
+                CVarSetInteger("gEnhancements.Camera.DebugCam.Port", CAMERA_DEBUG_DEFAULT_PORT);
+            }
+            if (controllerPort == 0) {
+                // Disable Link Inputs
+                memset(input, 0, sizeof(Input));
+            }
         });
     }
 }

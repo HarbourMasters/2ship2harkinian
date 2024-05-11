@@ -339,6 +339,9 @@ void DrawEnhancementsMenu() {
             })) {
                 RegisterDebugCam();
             }
+            UIWidgets::CVarCheckbox("Enable Roll (Six Degrees Of Freedom)", "gEnhancements.Camera.DebugCam.6DOF", {
+                .tooltip = "This allows for all six degrees of movement with the camera, NOTE: Yaw will work differently in this system, instead rotating around the focal point, rather than a polar axis."
+            });
             UIWidgets::CVarSliderFloat("Camera Speed: %.0f %", "gEnhancements.Camera.DebugCam.CameraSpeed", 0.1f, 3.0f, 0.5f);
             UIWidgets::CVarSliderInt("Controller Port: %d", "gEnhancements.Camera.DebugCam.Port", 1, 4, 2);
 
