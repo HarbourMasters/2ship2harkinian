@@ -3453,8 +3453,8 @@ void KaleidoScope_Update(PlayState* play) {
                         }
                         pauseCtx->state = PAUSE_STATE_UNPAUSE_SETUP;
                         sPauseMenuVerticalOffset = -6240.0f;
-                        pauseCtx->mainState = PAUSE_MAIN_STATE_IDLE;
                         Audio_PlaySfx_PauseMenuOpenOrClose(SFX_PAUSE_MENU_CLOSE);
+                        pauseCtx->mainState = PAUSE_MAIN_STATE_IDLE;
                     }
                     break;
 
