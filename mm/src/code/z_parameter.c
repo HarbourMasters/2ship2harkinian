@@ -7662,8 +7662,33 @@ void Interface_DrawMinigameIcons(PlayState* play) {
                                     G_TX_NOLOD, G_TX_NOLOD);
             }
 
-            gSPTextureRectangle(OVERLAY_DISP++, (rectX << 2), (rectY << 2), ((rectX + width) << 2),
-                                ((rectY + height) << 2), G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+            // #region 2S2H [Cosmetic] Hud Editor
+            HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_MINIGAME_COUNTER);
+            if (HudEditor_ShouldOverrideDraw()) {
+                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+                    hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+                } else {
+                    s16 newRectX = rectX;
+                    s16 newRectY = rectY;
+                    s16 newWidth = width;
+                    s16 newHeight = height;
+                    u16 dsdx = 512;
+                    u16 dtdy = 512;
+
+                    HudEditor_ModifyDrawValues(&newRectX, &newRectY, &newWidth, &newHeight, &dsdx, &dtdy);
+
+                    hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+
+                    gSPWideTextureRectangle(OVERLAY_DISP++, (newRectX << 2), (newRectY << 2),
+                                            ((newRectX + newWidth) << 2), ((newRectY + newHeight) << 2),
+                                            G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+                }
+            } else {
+                // #endregion
+                gSPTextureRectangle(OVERLAY_DISP++, (rectX << 2), (rectY << 2), ((rectX + width) << 2),
+                                    ((rectY + height) << 2), G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+            }
+
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->bAlpha);
             gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0,
@@ -7682,6 +7707,8 @@ void Interface_DrawMinigameIcons(PlayState* play) {
 
             for (i = 0, numDigitsDrawn = 0; i < 4; i++) {
                 if ((sMinigameScoreDigits[i] != 0) || (numDigitsDrawn != 0) || (i >= 3)) {
+                    // 2S2H [Cosmetic] Hud Editor
+                    HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_MINIGAME_COUNTER);
                     OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sCounterTextures[sMinigameScoreDigits[i]], 8, 0x10,
                                                      rectX, rectY - 2, 9, 0xFA, 0x370, 0x370);
                     rectX += 9;
