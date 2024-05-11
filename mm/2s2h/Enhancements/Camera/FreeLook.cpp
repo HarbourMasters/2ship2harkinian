@@ -112,7 +112,6 @@ bool Camera_FreeLook(Camera* camera) {
     camera->dist = Camera_ScaledStepToCeilF(distTarget, camera->dist, transitionSpeed / (ABS(distTarget - camera->dist) + transitionSpeed), 0.0f);
 
     // Setup new camera angle based on the calculations from stick inputs
-    eyeAdjustment = OLib_Vec3fDiffToVecGeo(at, eyeNext);
     eyeAdjustment.r = camera->dist;
     eyeAdjustment.yaw = sCamX;
     eyeAdjustment.pitch = sCamY;
@@ -155,6 +154,11 @@ void RegisterCameraFreeLook() {
         freeLookCameraVBHookId = 0;
     }
 
+    if (freeLookCameraSettingChangeHookId) {
+        GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnCameraChangeModeFlags>(freeLookCameraSettingChangeHookId);
+        freeLookCameraSettingChangeHookId = 0;
+    }
+
     if (CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0)) {
         freeLookCameraVBHookId = REGISTER_VB_SHOULD(GI_VB_USE_CUSTOM_CAMERA, {
                 Camera* camera = static_cast<Camera*>(opt);
@@ -176,14 +180,6 @@ void RegisterCameraFreeLook() {
                         break;
                 }
         });
-    }
-
-    if (freeLookCameraSettingChangeHookId) {
-        GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnCameraChangeModeFlags>(freeLookCameraSettingChangeHookId);
-        freeLookCameraSettingChangeHookId = 0;
-    }
-
-    if (CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0)) {
         freeLookCameraSettingChangeHookId = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnCameraChangeModeFlags>([](Camera* camera) {
             UpdateFreeLookState(camera);
         });
