@@ -13,7 +13,7 @@ extern s16 Camera_ScaledStepToCeilS(s16 target, s16 cur, f32 stepScale, s16 minD
 extern Vec3f Camera_CalcUpVec(s16 pitch, s16 yaw, s16 roll);
 }
 
-#define CAMERA_DEBUG_DEFAULT_PORT 2
+#define CAMERA_DEBUG_DEFAULT_PORT 1
 
 // Static Data Used For Free Camera
 static bool sDebugCamRefreshParams = true;
