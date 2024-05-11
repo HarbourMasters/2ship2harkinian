@@ -8,7 +8,7 @@
 #include "z64rumble.h"
 #include "overlays/actors/ovl_Arrow_Light/z_arrow_light.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
-#include "prevent_bss_reordering2.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_10 | ACTOR_FLAG_20 | ACTOR_FLAG_IGNORE_QUAKE)
 
@@ -69,8 +69,7 @@ const ActorInit En_Death_InitVars = {
     (ActorFunc)EnDeath_Draw,
 };
 
-// static ColliderSphereInit sSphereInit = {
-static ColliderSphereInit D_808C98E0 = {
+static ColliderSphereInit sSphereInit = {
     {
         COLTYPE_HIT3,
         AT_NONE,
@@ -90,8 +89,7 @@ static ColliderSphereInit D_808C98E0 = {
     { 1, { { 0, 0, 0 }, 22 }, 100 },
 };
 
-// static ColliderCylinderInit sCylinderInit = {
-static ColliderCylinderInit D_808C990C = {
+static ColliderCylinderInit sCylinderInit = {
     {
         COLTYPE_NONE,
         AT_NONE,
@@ -111,8 +109,7 @@ static ColliderCylinderInit D_808C990C = {
     { 35, 90, 20, { 0, 0, 0 } },
 };
 
-// static ColliderTrisElementInit sTrisElementsInit[2] = {
-static ColliderTrisElementInit D_808C9938[2] = {
+static ColliderTrisElementInit sTrisElementsInit[2] = {
     {
         {
             ELEMTYPE_UNK2,
@@ -137,8 +134,7 @@ static ColliderTrisElementInit D_808C9938[2] = {
     },
 };
 
-// static ColliderTrisInit sTrisInit = {
-static ColliderTrisInit D_808C99B0 = {
+static ColliderTrisInit sTrisInit = {
     {
         COLTYPE_METAL,
         AT_ON | AT_TYPE_ENEMY,
@@ -148,11 +144,10 @@ static ColliderTrisInit D_808C99B0 = {
         COLSHAPE_TRIS,
     },
     2,
-    D_808C9938, // sTrisElementsInit,
+    sTrisElementsInit, // sTrisElementsInit,
 };
 
-// static ColliderQuadInit sQuadInit = {
-static ColliderQuadInit D_808C99C0 = {
+static ColliderQuadInit sQuadInit = {
     {
         COLTYPE_NONE,
         AT_NONE | AT_TYPE_ENEMY,
@@ -180,8 +175,7 @@ typedef enum {
     DMGEFF_EXPLOSIVES = 15
 } EnDeathDamageEffect;
 
-// static DamageTable sDamageTable = {
-static DamageTable D_808C9A10 = {
+static DamageTable sDamageTable = {
     /* Deku Nut       */ DMG_ENTRY(0, DMGEFF_NONE),
     /* Deku Stick     */ DMG_ENTRY(1, DMGEFF_NONE),
     /* Horse trample  */ DMG_ENTRY(0, DMGEFF_NONE),
@@ -216,16 +210,14 @@ static DamageTable D_808C9A10 = {
     /* Powder Keg     */ DMG_ENTRY(1, DMGEFF_EXPLOSIVES),
 };
 
-// sColChkInfoInit
-static CollisionCheckInfoInit2 D_808C9A30 = { 20, 28, 90, 20, 100 };
+static CollisionCheckInfoInit2 sColChkInfoInit = { 20, 28, 90, 20, 100 };
 
 static EffectBlureInit2 D_808C9A3C = {
     0, 8, 0, { 100, 50, 100, 200 }, { 100, 0, 0, 64 }, { 100, 0, 0, 20 }, { 50, 0, 0, 0 }, 8,
     0, 2, 0, { 0, 0, 0, 0 },        { 0, 0, 0, 0 },
 };
 
-// static InitChainEntry sInitChain[] = {
-static InitChainEntry D_808C9A60[] = {
+static InitChainEntry sInitChain[] = {
     ICHAIN_VEC3F(scale, 0, ICHAIN_CONTINUE),
     ICHAIN_S8(hintId, TATL_HINT_ID_GOMESS, ICHAIN_CONTINUE),
     ICHAIN_F32(targetArrowOffset, 6000, ICHAIN_CONTINUE),
@@ -239,20 +231,20 @@ void EnDeath_Init(Actor* thisx, PlayState* play) {
     s16 yRot = 0;
     s32 i;
 
-    Actor_ProcessInitChain(&this->actor, D_808C9A60);
+    Actor_ProcessInitChain(&this->actor, sInitChain);
     ActorShape_Init(&this->actor.shape, 5500.0f, ActorShadow_DrawCircle, 80.0f);
 
     SkelAnime_InitFlex(play2, &this->skelAnime, &gGomessSkel, &gGomessFloatAnim, this->jointTable, this->morphTable,
                        GOMESS_LIMB_MAX);
 
-    Collider_InitAndSetSphere(play2, &this->coreCollider, &this->actor, &D_808C98E0);
-    Collider_InitAndSetCylinder(play2, &this->bodyCollider, &this->actor, &D_808C990C);
-    Collider_InitAndSetQuad(play2, &this->unk_788, &this->actor, &D_808C99C0);
-    Collider_InitAndSetTris(play2, &this->unk_860, &this->actor, &D_808C99B0, this->unk_880);
+    Collider_InitAndSetSphere(play2, &this->coreCollider, &this->actor, &sSphereInit);
+    Collider_InitAndSetCylinder(play2, &this->bodyCollider, &this->actor, &sCylinderInit);
+    Collider_InitAndSetQuad(play2, &this->unk_788, &this->actor, &sQuadInit);
+    Collider_InitAndSetTris(play2, &this->unk_860, &this->actor, &sTrisInit, this->unk_880);
 
     this->coreCollider.dim.worldSphere.radius = this->coreCollider.dim.modelSphere.radius;
 
-    CollisionCheck_SetInfo2(&this->actor.colChkInfo, &D_808C9A10, &D_808C9A30);
+    CollisionCheck_SetInfo2(&this->actor.colChkInfo, &sDamageTable, &sColChkInfoInit);
 
     Effect_Add(play2, &this->effectIndex, EFFECT_BLURE2, 0, 0, &D_808C9A3C);
 
@@ -1323,6 +1315,7 @@ void EnDeath_DrawScytheSpinning(EnDeath* this, PlayState* play) {
     dl = POLY_XLU_DISP;
 
     for (i = 1; i < this->numScytheAfterImages; i++) {
+        FrameInterpolation_RecordOpenChild(dl, 0);
         gDPPipeSync(dl++);
         gDPSetEnvColor(dl++, 30, 30, 0, 255 - i * 35);
 
@@ -1337,6 +1330,7 @@ void EnDeath_DrawScytheSpinning(EnDeath* this, PlayState* play) {
 
         gSPMatrix(dl++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gSPDisplayList(dl++, object_death_DL_0073D0); // scythe blade
+        FrameInterpolation_RecordCloseChild();
     }
 
     POLY_XLU_DISP = dl;
@@ -1433,23 +1427,27 @@ void EnDeath_DrawBats(EnDeath* this, PlayState* play) {
         if (this->actionFunc == EnDeath_BeginWithoutCutscene ||
             (this->miniDeaths[i]->actor.flags & ACTOR_FLAG_40) == ACTOR_FLAG_40) {
             miniDeath = this->miniDeaths[i];
+            FrameInterpolation_RecordOpenChild(miniDeath, i);
 
             Matrix_RotateZYX(miniDeath->actor.shape.rot.x, miniDeath->actor.shape.rot.y, 0, MTXMODE_NEW);
             Matrix_Scale(phi_fs2, phi_fs2, phi_fs2, MTXMODE_APPLY);
 
             for (phi_s0 = miniDeath->unk_160, j = 0; j < ARRAY_COUNT(miniDeath->unk_160); j++, phi_s0++) {
                 if (phi_s0->unk_1 == 0) {
+                    FrameInterpolation_RecordOpenChild(phi_s0, 0);
                     cmf->mf[3][0] = phi_s0->unk_4.x + sp9C.x;
                     cmf->mf[3][1] = phi_s0->unk_4.y + sp9C.y;
                     cmf->mf[3][2] = phi_s0->unk_4.z + sp9C.z;
 
                     gSPMatrix(dl++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                     gSPDisplayList(dl++, sMinideathDLs[phi_s0->animFrame]);
+                    FrameInterpolation_RecordCloseChild();
                 }
             }
 
             for (phi_s0 = miniDeath->unk_160, j = 0; j < ARRAY_COUNT(miniDeath->unk_160); j++, phi_s0++) {
                 if (phi_s0->unk_1 == 1) {
+                    FrameInterpolation_RecordOpenChild(phi_s0, 1);
                     Matrix_RotateZYX(0x4000, phi_s0->unk_1E, 0, MTXMODE_NEW);
                     Matrix_Scale(scale, scale, scale, MTXMODE_APPLY);
                     cmf->mf[3][0] = phi_s0->unk_4.x + sp9C.x;
@@ -1458,25 +1456,28 @@ void EnDeath_DrawBats(EnDeath* this, PlayState* play) {
 
                     gSPMatrix(dl++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                     gSPDisplayList(dl++, sMinideathDLs[phi_s0->animFrame]);
+                    FrameInterpolation_RecordCloseChild();
                 }
             }
+            FrameInterpolation_RecordCloseChild();
         }
     }
 
     if (this->unk_192) {
         for (i = 0; i < ARRAY_COUNT(this->miniDeaths); i++) {
             miniDeath = this->miniDeaths[i];
-
             Matrix_RotateZYX(miniDeath->actor.shape.rot.x, miniDeath->actor.shape.rot.y, 0, MTXMODE_NEW);
             Matrix_Scale(phi_fs2, phi_fs2, phi_fs2, MTXMODE_APPLY);
 
             for (phi_s0 = miniDeath->unk_160, j = 0; j < ARRAY_COUNT(miniDeath->unk_160); j++, phi_s0++) {
+                FrameInterpolation_RecordOpenChild(dl, j); // Kinda out of options for what to pass into `a`
                 cmf->mf[3][0] = miniDeath->actor.world.pos.x - phi_s0->unk_10.x;
                 cmf->mf[3][1] = miniDeath->actor.world.pos.y + (20.0f - phi_s0->unk_10.y);
                 cmf->mf[3][2] = miniDeath->actor.world.pos.z - phi_s0->unk_10.z;
 
                 gSPMatrix(dl++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                 gSPDisplayList(dl++, sMinideathDLs[phi_s0->animFrame]);
+                FrameInterpolation_RecordCloseChild();
             }
         }
     }
@@ -1498,14 +1499,14 @@ void EnDeath_DrawBats(EnDeath* this, PlayState* play) {
 
 void EnDeath_DrawFlames(EnDeath* this, PlayState* play2) {
     PlayState* play = play2;
-    s32 phi_t1;
+    s32 i;
     MtxF* cmf;
     s32 phi_s7;
-    u8* phi_s3;
-    Vec3f* phi_s1;
-    MiniDeathStruct* phi_s1_2;
+    u8* flameAlphas;
+    Vec3f* flamePos;
+    MiniDeathStruct* effect;
     u8 alpha;
-    s32 phi_s3_2;
+    s32 j;
 
     phi_s7 = this->actionTimer * 7;
     if (phi_s7 > ARRAY_COUNT(this->unk_1A9)) {
@@ -1521,25 +1522,27 @@ void EnDeath_DrawFlames(EnDeath* this, PlayState* play2) {
 
     cmf = Matrix_GetCurrent();
 
-    phi_s1 = this->unk_404;
-    phi_s3 = this->unk_1A9;
-    for (phi_t1 = 0; phi_t1 < phi_s7; phi_t1++) {
-        if (*phi_s3 > 0) {
+    flamePos = this->unk_404;
+    flameAlphas = this->unk_1A9;
+    for (i = 0; i < phi_s7; i++) {
+        if (*flameAlphas > 0) {
+            FrameInterpolation_RecordOpenChild(flameAlphas, i);
 
-            gDPSetPrimColor(POLY_XLU_DISP++, 0x80, 0x80, 165, 255, 215, *phi_s3);
+            gDPSetPrimColor(POLY_XLU_DISP++, 0x80, 0x80, 165, 255, 215, *flameAlphas);
             gSPSegment(POLY_XLU_DISP++, 0x08,
                        Gfx_TwoTexScroll(play->state.gfxCtx, 0, 0, 0, 32, 64, 1, 0,
-                                        ((play->gameplayFrames + (phi_t1 * 10)) * -20) & 0x1FF, 32, 128));
+                                        ((play->gameplayFrames + (i * 10)) * -20) & 0x1FF, 32, 128));
 
-            cmf->mf[3][0] = phi_s1->x;
-            cmf->mf[3][1] = phi_s1->y;
-            cmf->mf[3][2] = phi_s1->z;
+            cmf->mf[3][0] = flamePos->x;
+            cmf->mf[3][1] = flamePos->y;
+            cmf->mf[3][2] = flamePos->z;
 
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_XLU_DISP++, gEffFire1DL);
+            FrameInterpolation_RecordCloseChild();
         }
-        phi_s1++;
-        phi_s3++;
+        flamePos++;
+        flameAlphas++;
     }
 
     Matrix_Put(&play->billboardMtxF);
@@ -1551,23 +1554,25 @@ void EnDeath_DrawFlames(EnDeath* this, PlayState* play2) {
         alpha = 255;
     }
 
-    for (phi_t1 = 0; phi_t1 < ARRAY_COUNT(this->miniDeaths); phi_t1++) {
-        if ((this->miniDeaths[phi_t1]->actor.flags & ACTOR_FLAG_40) == ACTOR_FLAG_40) {
-            phi_s1_2 = this->miniDeaths[phi_t1]->unk_160;
+    for (i = 0; i < ARRAY_COUNT(this->miniDeaths); i++) {
+        if ((this->miniDeaths[i]->actor.flags & ACTOR_FLAG_40) == ACTOR_FLAG_40) {
+            effect = this->miniDeaths[i]->unk_160;
 
-            for (phi_s3_2 = 0; phi_s3_2 < ARRAY_COUNT(this->miniDeaths[phi_t1]->unk_160); phi_s3_2++, phi_s1_2++) {
-                cmf->mf[3][0] = phi_s1_2->unk_4.x;
-                cmf->mf[3][1] = phi_s1_2->unk_4.y - 12.0f;
-                cmf->mf[3][2] = phi_s1_2->unk_4.z;
+            for (j = 0; j < ARRAY_COUNT(this->miniDeaths[i]->unk_160); j++, effect++) {
+                FrameInterpolation_RecordOpenChild(POLY_XLU_DISP, j);
+                cmf->mf[3][0] = effect->unk_4.x;
+                cmf->mf[3][1] = effect->unk_4.y - 12.0f;
+                cmf->mf[3][2] = effect->unk_4.z;
 
                 gDPSetPrimColor(POLY_XLU_DISP++, 0x80, 0x80, 165, 255, 215, alpha);
                 gSPSegment(POLY_XLU_DISP++, 0x08,
                            Gfx_TwoTexScroll(play->state.gfxCtx, 0, 0, 0, 32, 64, 1, 0,
-                                            ((play->gameplayFrames + ((phi_s3_2 + phi_t1) * 10)) * -20) & 511, 32,
+                                            ((play->gameplayFrames + ((j + i) * 10)) * -20) & 511, 32,
                                             128));
                 gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx),
                           G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                 gSPDisplayList(POLY_XLU_DISP++, gEffFire1DL);
+                FrameInterpolation_RecordCloseChild();
             }
         }
     }
