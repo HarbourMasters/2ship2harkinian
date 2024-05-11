@@ -305,6 +305,50 @@ extern std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
 
+        if (UIWidgets::BeginMenu("Camera")) {
+            ImGui::SeparatorText("Right Stick Camera");
+            UIWidgets::CVarCheckbox("Invert Camera X Axis", "gEnhancements.Camera.RightStick.InvertXAxis", {
+                .tooltip = "Inverts the Camera X Axis in Free Look."
+            });
+            UIWidgets::CVarCheckbox("Invert Camera Y Axis", "gEnhancements.Camera.RightStick.InvertYAxis", {
+                .tooltip = "Inverts the Camera Y Axis in Free Look.",
+                .defaultValue = true
+            });
+            UIWidgets::CVarSliderFloat("Third-Person Horizontal Sensitivity: %.0f %", "gEnhancements.Camera.RightStick.CameraSensitivity.X", 0.01f, 5.0f, 1.0f);
+            UIWidgets::CVarSliderFloat("Third-Person Vertical Sensitivity: %.0f %", "gEnhancements.Camera.RightStick.CameraSensitivity.Y", 0.01f, 5.0f, 1.0f);
+
+            ImGui::SeparatorText("Free Look");
+            if (UIWidgets::CVarCheckbox("Free Look", "gEnhancements.Camera.FreeLook.Enable", {
+                .tooltip = "Enables free look camera control\nNote: You must remap C buttons off of the right stick in the controller config menu, and map the camera stick to the right stick.",
+                .disabled = CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0) != 0
+            })) {
+                RegisterCameraFreeLook();
+            }
+
+            UIWidgets::CVarSliderInt("Camera Distance: %d", "gEnhancements.Camera.FreeLook.MaxCameraDistance", 100, 900, 185);
+            UIWidgets::CVarSliderInt("Camera Transition Speed: %d", "gEnhancements.Camera.FreeLook.TransitionSpeed", 1, 900, 25);
+            UIWidgets::CVarSliderFloat("Max Camera Height Angle: %.0f %°", "gEnhancements.Camera.FreeLook.MaxPitch", -89.0f, 89.0f, 72.0f);
+            UIWidgets::CVarSliderFloat("Min Camera Height Angle: %.0f %°", "gEnhancements.Camera.FreeLook.MinPitch", -89.0f, 89.0f, -49.0f);
+            f32 maxY = CVarGetFloat("gEnhancements.Camera.FreeLook.MaxPitch", 72.0f);
+            f32 minY = CVarGetFloat("gEnhancements.Camera.FreeLook.MinPitch", -49.0f);
+            CVarSetFloat("gEnhancements.Camera.FreeLook.MaxPitch", std::max(maxY, minY));
+            CVarSetFloat("gEnhancements.Camera.FreeLook.MinPitch", std::min(maxY, minY));
+
+            ImGui::SeparatorText("'Debug' Camera");
+            if (UIWidgets::CVarCheckbox("Debug Camera", "gEnhancements.Camera.DebugCam.Enable", {
+                .tooltip = "Enables free camera control.",
+                .disabled = CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0) != 0
+            })) {
+                RegisterDebugCam();
+            }
+            UIWidgets::CVarCheckbox("Enable Roll (Six Degrees Of Freedom)", "gEnhancements.Camera.DebugCam.6DOF", {
+                .tooltip = "This allows for all six degrees of movement with the camera, NOTE: Yaw will work differently in this system, instead rotating around the focal point, rather than a polar axis."
+            });
+            UIWidgets::CVarSliderFloat("Camera Speed: %.0f %", "gEnhancements.Camera.DebugCam.CameraSpeed", 0.1f, 3.0f, 0.5f);
+
+            ImGui::EndMenu();
+        }
+
         if (UIWidgets::BeginMenu("Cutscenes")) {
             UIWidgets::CVarCheckbox("Hide Title Cards", "gEnhancements.Cutscenes.HideTitleCards");
             UIWidgets::CVarCheckbox("Skip Entrance Cutscenes", "gEnhancements.Cutscenes.SkipEntranceCutscenes");

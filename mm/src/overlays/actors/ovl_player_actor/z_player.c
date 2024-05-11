@@ -12616,6 +12616,8 @@ void Player_Update(Actor* thisx, PlayState* play) {
         }
     }
 
+    GameInteractor_ExecuteOnPassPlayerInputs(&input);
+
     Player_UpdateCommon(this, play, &input);
     skipUpdate:
     play->actorCtx.unk268 = 0;
