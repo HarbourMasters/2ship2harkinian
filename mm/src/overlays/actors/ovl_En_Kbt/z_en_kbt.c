@@ -15,6 +15,7 @@ void EnKbt_Init(Actor* thisx, PlayState* play);
 void EnKbt_Destroy(Actor* thisx, PlayState* play);
 void EnKbt_Update(Actor* thisx, PlayState* play);
 void EnKbt_Draw(Actor* thisx, PlayState* play);
+void EnKbt_Reset(void);
 
 s32 func_80B33E64(PlayState* play);
 s32 func_80B33E8C(PlayState* play);
@@ -50,6 +51,7 @@ ActorInit En_Kbt_InitVars = {
     /**/ EnKbt_Destroy,
     /**/ EnKbt_Update,
     /**/ EnKbt_Draw,
+    /**/ EnKbt_Reset,
 };
 
 static JointIndex* origIndicies_004274;
@@ -114,6 +116,9 @@ void EnKbt_Init(Actor* thisx, PlayState* play) {
 }
 
 void EnKbt_Destroy(Actor* thisx, PlayState* play) {
+}
+
+void EnKbt_Reset(void) {
     // #region 2S2H [Port] Reset the joint indicies back to their original value from the resource.
     AnimationHeader* anim = (AnimationHeader*)ResourceMgr_LoadAnimByName(object_kbt_Anim_004274);
     anim->jointIndices = origIndicies_004274;
