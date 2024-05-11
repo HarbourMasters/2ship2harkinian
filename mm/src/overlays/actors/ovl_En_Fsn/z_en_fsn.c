@@ -1480,6 +1480,7 @@ void EnFsn_Init(Actor* thisx, PlayState* play) {
     EnFsn* this = THIS;
 
     ActorShape_Init(&this->actor.shape, 0.0f, ActorShadow_DrawCircle, 20.0f);
+    // #region 2S2H [Port] The original game said the skel had 18 limbs but only has 17. 
     SkelAnime_InitFlex(play, &this->skelAnime, &gFsnSkel, &gFsnIdleAnim, this->jointTable, this->morphTable,
                        FSN_LIMB_MAX);
 
