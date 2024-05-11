@@ -13,7 +13,9 @@
 #define ENFSN_ANGRY (1 << 8)
 #define ENFSN_CALM_DOWN (1 << 9)
 
-#define ENFSN_LIMB_MAX FSN_LIMB_MAX + 1 // Note: adding 1 to FSN_LIMB_MAX due to bug in the skeleton, see bug in object_fsn.xml
+
+//#region 2S2H [Port] This originally had a +1 because the game incorrectly thought the skel had 18 limbs when it only has 17.
+#define ENFSN_LIMB_MAX FSN_LIMB_MAX
 
 struct EnFsn;
 
