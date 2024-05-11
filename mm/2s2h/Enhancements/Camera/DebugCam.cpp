@@ -68,6 +68,7 @@ void Camera_RotateGeographic(Camera* camera, f32 pitchDiff, f32 yawDiff) {
     transGeo.pitch += pitchDiff;
     transGeo.pitch = OLib_ClampMaxDist(transGeo.pitch, DEG_TO_BINANG(89.0f));
     transGeo.yaw += yawDiff;
+    transGeo.r = camera->dist;
     *eyeNext = OLib_AddVecGeoToVec3f(at, &transGeo);
 }
 
