@@ -363,7 +363,10 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Authentic logo", "gEnhancements.Graphics.AuthenticLogo", {
                 .tooltip = "Hide the game version and build details and display the authentic model and texture on the boot logo start screen"
             });
-            
+            UIWidgets::CVarCheckbox("Bow Reticle", "gEnhancements.Graphics.BowReticle", {
+                .tooltip = "Gives the bow a reticle when you draw an arrow"
+            });
+
             ImGui::EndMenu();
         }
         
