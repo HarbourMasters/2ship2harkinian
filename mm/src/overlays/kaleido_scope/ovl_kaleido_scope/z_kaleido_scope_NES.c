@@ -3503,7 +3503,7 @@ void KaleidoScope_Update(PlayState* play) {
                             Play_SaveCycleSceneFlags(&play->state);
                             gSaveContext.save.saveInfo.playerData.savedSceneId = play->sceneId;
                             func_8014546C(sramCtx);
-                            if (!gSaveContext.flashSaveAvailable) {
+                            if (!gSaveContext.flashSaveAvailable || gSaveContext.fileNum == 255) { // 2S2H [Enhancement] Don't let them save if they are in debug save
                                 pauseCtx->savePromptState = PAUSE_SAVEPROMPT_STATE_5;
                             } else {
                                 if (CVarGetInteger("gEnhancements.Kaleido.PauseSave", 0)) {
