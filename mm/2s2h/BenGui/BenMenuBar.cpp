@@ -359,7 +359,10 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
-        if (UIWidgets::BeginMenu("Cycle")) {
+        if (UIWidgets::BeginMenu("Cycle / Saving")) {
+            UIWidgets::CVarCheckbox("Pause Menu Save", "gEnhancements.Kaleido.PauseSave", {
+                .tooltip = "Re-introduce the pause menu save system. Pressing B in the pause menu will give you the option to create an Owl Save from your current location. When loading back into the game, you will be placed at your last entrance."
+            });
             UIWidgets::CVarCheckbox("Do not reset Bottle content", "gEnhancements.Cycle.DoNotResetBottleContent", {
                 .tooltip = "Playing the Song Of Time will not reset the bottles' content."
             });
@@ -413,7 +416,7 @@ void DrawEnhancementsMenu() {
 
             ImGui::EndMenu();
         }
-        
+
         if (UIWidgets::BeginMenu("Masks")) {
             UIWidgets::CVarCheckbox("Fast Transformation", "gEnhancements.Masks.FastTransformation");
             UIWidgets::CVarCheckbox("Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere", {
