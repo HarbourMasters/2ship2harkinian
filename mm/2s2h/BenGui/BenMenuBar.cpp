@@ -307,19 +307,20 @@ void DrawEnhancementsMenu() {
 
         if (UIWidgets::BeginMenu("Camera")) {
             ImGui::SeparatorText("Right Stick Camera");
-            UIWidgets::CVarCheckbox("Invert Camera X Axis", "gEnhancements.Camera.FreeLook.InvertXAxis", {
+            UIWidgets::CVarCheckbox("Invert Camera X Axis", "gEnhancements.Camera.RightStick.InvertXAxis", {
                 .tooltip = "Inverts the Camera X Axis in Free Look."
             });
-            UIWidgets::CVarCheckbox("Invert Camera Y Axis", "gEnhancements.Camera.FreeLook.InvertYAxis", {
+            UIWidgets::CVarCheckbox("Invert Camera Y Axis", "gEnhancements.Camera.RightStick.InvertYAxis", {
                 .tooltip = "Inverts the Camera Y Axis in Free Look.",
                 .defaultValue = true
             });
-            UIWidgets::CVarSliderFloat("Third-Person Horizontal Sensitivity: %.0f %", "gEnhancements.Camera.FreeLook.CameraSensitivity.X", 0.01f, 5.0f, 1.0f);
-            UIWidgets::CVarSliderFloat("Third-Person Vertical Sensitivity: %.0f %", "gEnhancements.Camera.FreeLook.CameraSensitivity.Y", 0.01f, 5.0f, 1.0f);
+            UIWidgets::CVarSliderFloat("Third-Person Horizontal Sensitivity: %.0f %", "gEnhancements.Camera.RightStick.CameraSensitivity.X", 0.01f, 5.0f, 1.0f);
+            UIWidgets::CVarSliderFloat("Third-Person Vertical Sensitivity: %.0f %", "gEnhancements.Camera.RightStick.CameraSensitivity.Y", 0.01f, 5.0f, 1.0f);
 
             ImGui::SeparatorText("Free Look");
             if (UIWidgets::CVarCheckbox("Free Look", "gEnhancements.Camera.FreeLook.Enable", {
-                .tooltip = "Enables free look camera control\nNote: You must remap C buttons off of the right stick in the controller config menu, and map the camera stick to the right stick."
+                .tooltip = "Enables free look camera control\nNote: You must remap C buttons off of the right stick in the controller config menu, and map the camera stick to the right stick.",
+                .disabled = CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0) != 0
             })) {
                 RegisterCameraFreeLook();
             }
@@ -335,7 +336,8 @@ void DrawEnhancementsMenu() {
 
             ImGui::SeparatorText("'Debug' Camera");
             if (UIWidgets::CVarCheckbox("Debug Camera", "gEnhancements.Camera.DebugCam.Enable", {
-                .tooltip = "Enables free camera control."
+                .tooltip = "Enables free camera control.",
+                .disabled = CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0) != 0
             })) {
                 RegisterDebugCam();
             }

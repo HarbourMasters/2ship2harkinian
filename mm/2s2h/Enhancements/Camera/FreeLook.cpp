@@ -90,11 +90,11 @@ bool Camera_FreeLook(Camera* camera) {
 
     Camera_ResetActionFuncState(camera, camera->mode);
 
-    f32 camDiffX = -sCamPlayState->state.input[0].cur.right_stick_x * 10.0f * (CVarGetFloat("gEnhancements.Camera.FreeLook.CameraSensitivity.X", 1.0f));
-    f32 camDiffY = sCamPlayState->state.input[0].cur.right_stick_y * 10.0f * (CVarGetFloat("gEnhancements.Camera.FreeLook.CameraSensitivity.Y", 1.0f));
+    f32 camDiffX = -sCamPlayState->state.input[0].cur.right_stick_x * 10.0f * (CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.X", 1.0f));
+    f32 camDiffY = sCamPlayState->state.input[0].cur.right_stick_y * 10.0f * (CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.Y", 1.0f));
 
-    sCamX += camDiffX * (CVarGetInteger("gEnhancements.Camera.FreeLook.InvertXAxis", 0) ? -1 : 1);
-    sCamY += camDiffY * (CVarGetInteger("gEnhancements.Camera.FreeLook.InvertYAxis", 1) ? 1 : -1);
+    sCamX += camDiffX * (CVarGetInteger("gEnhancements.Camera.RightStick.InvertXAxis", 0) ? -1 : 1);
+    sCamY += camDiffY * (CVarGetInteger("gEnhancements.Camera.RightStick.InvertYAxis", 1) ? 1 : -1);
 
     s16 maxY = DEG_TO_BINANG(CVarGetFloat("gEnhancements.Camera.FreeLook.MaxY", 72.0f));
     s16 minY = DEG_TO_BINANG(CVarGetFloat("gEnhancements.Camera.FreeLook.MinY", -49.0f));
