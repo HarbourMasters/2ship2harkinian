@@ -113,7 +113,8 @@ void Camera_DebugCam(Camera* camera) {
 
     if (sDebugCamRefreshParams) {
         // Move camera focus to eye
-        *at = *eye;
+        Vec3f unit = OLib_Vec3fDistNormalize(eye, at);
+        Math_Vec3f_Sum(eye, &unit, at);
         sDebugCamRefreshParams = false;
     }
 
