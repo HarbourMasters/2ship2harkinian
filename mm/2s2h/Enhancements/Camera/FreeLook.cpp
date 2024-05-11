@@ -135,7 +135,6 @@ bool Camera_FreeLook(Camera* camera) {
 bool Camera_CanFreeLook(Camera* camera) {
     f32 camX = sCamPlayState->state.input[0].cur.right_stick_x * 10.0f;
     f32 camY = sCamPlayState->state.input[0].cur.right_stick_y * 10.0f;
-    // Set sCamX/sCamY to camera positions after mode which disables free cam
     if (!sCanFreeLook && (fabsf(camX) >= 15.0f || fabsf(camY) >= 15.0f)) {
         sCanFreeLook = true;
     }
