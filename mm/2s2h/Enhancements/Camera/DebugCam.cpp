@@ -212,8 +212,6 @@ void RegisterDebugCam() {
     if (freeCamVBHookId) {
         GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::ShouldVanillaBehavior>(freeCamVBHookId);
         freeCamVBHookId = 0;
-        // Re-enable Player Inputs
-        GET_PLAYER(gPlayState)->stateFlags1 &= ~PLAYER_STATE1_20000000;
     }
 
     if (freeCamDisableInputsId) {
