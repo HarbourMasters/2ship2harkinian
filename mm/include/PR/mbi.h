@@ -1,6 +1,7 @@
 #ifndef PR_MBI_H
 #define PR_MBI_H
-
+#include <libultraship/libultra/mbi.h>
+#if 0
 /**************************************************************************
  *									  *
  *		 Copyright (C) 1994, Silicon Graphics, Inc.		  *
@@ -94,5 +95,5 @@
 #ifndef NULL
 #define NULL ((void*)0)
 #endif
-
+#endif
 #endif /* !_MBI_H_ */

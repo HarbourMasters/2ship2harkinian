@@ -15,6 +15,8 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "BenPort.h"
+
 /**
  * SoundFont Notes:
  *

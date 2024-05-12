@@ -1373,7 +1373,7 @@ void Animation_SetMorph(PlayState* play, SkelAnime* skelAnime, f32 morphFrames) 
  */
 void PlayerAnimation_Change(PlayState* play, SkelAnime* skelAnime, PlayerAnimationHeader* animation, f32 playSpeed,
                             f32 startFrame, f32 endFrame, u8 mode, f32 morphFrames) {
-    LinkAnimationHeader* ogAnim = animation;
+    PlayerAnimationHeader* ogAnim = animation;
 
     if (ResourceMgr_OTRSigCheck(animation) != 0)
         animation = ResourceMgr_LoadAnimByName(animation);
@@ -1383,7 +1383,7 @@ void PlayerAnimation_Change(PlayState* play, SkelAnime* skelAnime, PlayerAnimati
         currentAnimation = ResourceMgr_LoadAnimByName(currentAnimation);
 
     skelAnime->mode = mode;
-    if ((morphFrames != 0.0f) && ((animation != skelAnime->animation) || (startFrame != skelAnime->curFrame))) {
+    if ((morphFrames != 0.0f) && ((animation != currentAnimation) || (startFrame != skelAnime->curFrame))) {
         if (morphFrames < 0) {
             PlayerAnimation_SetUpdateFunction(skelAnime);
             SkelAnime_CopyFrameTable(skelAnime, skelAnime->morphTable, skelAnime->jointTable);
@@ -1401,7 +1401,7 @@ void PlayerAnimation_Change(PlayState* play, SkelAnime* skelAnime, PlayerAnimati
         skelAnime->morphWeight = 0.0f;
     }
 
-    // We need to restore the original animation because player does `this->skelAnime == &anim` type checks.
+    // 2S2H [Port] Set back the original animation to handle comparisons to other animation resources
     skelAnime->animation = ogAnim;
     skelAnime->curFrame = 0.0f;
     skelAnime->startFrame = startFrame;
@@ -1803,7 +1803,7 @@ s32 SkelAnime_Once(SkelAnime* skelAnime) {
  */
 void Animation_ChangeImpl(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
                           u8 mode, f32 morphFrames, s8 taper) {
-    LinkAnimationHeader* ogAnim = animation;
+    AnimationHeader* ogAnim = animation;
 
     if (ResourceMgr_OTRSigCheck(animation) != 0)
         animation = ResourceMgr_LoadAnimByName(animation);
@@ -1813,7 +1813,7 @@ void Animation_ChangeImpl(SkelAnime* skelAnime, AnimationHeader* animation, f32 
         currentAnimation = ResourceMgr_LoadAnimByName(currentAnimation);
 
     skelAnime->mode = mode;
-    if ((morphFrames != 0.0f) && ((animation != skelAnime->animation) || (startFrame != skelAnime->curFrame))) {
+    if ((morphFrames != 0.0f) && ((animation != currentAnimation) || (startFrame != skelAnime->curFrame))) {
         if (morphFrames < 0) {
             SkelAnime_SetUpdate(skelAnime);
             SkelAnime_CopyFrameTable(skelAnime, skelAnime->morphTable, skelAnime->jointTable);
@@ -1835,7 +1835,8 @@ void Animation_ChangeImpl(SkelAnime* skelAnime, AnimationHeader* animation, f32 
         skelAnime->morphWeight = 0.0f;
     }
 
-    skelAnime->animation = animation;
+    // 2S2H [Port] Set back the original animation to handle comparisons to other animation resources
+    skelAnime->animation = ogAnim;
     skelAnime->startFrame = startFrame;
     skelAnime->endFrame = endFrame;
     skelAnime->animLength = Animation_GetLength(&animation->common);
@@ -1858,12 +1859,7 @@ void Animation_ChangeImpl(SkelAnime* skelAnime, AnimationHeader* animation, f32 
  */
 void Animation_Change(SkelAnime* skelAnime, AnimationHeader* animation, f32 playSpeed, f32 startFrame, f32 endFrame,
                       u8 mode, f32 morphFrames) {
-    AnimationHeader* ogAnim = animation;
-
-    if (ResourceMgr_OTRSigCheck(animation) != 0)
-        animation = ResourceMgr_LoadAnimByName(animation);
     Animation_ChangeImpl(skelAnime, animation, playSpeed, startFrame, endFrame, mode, morphFrames, ANIMTAPER_NONE);
-    skelAnime->animation = ogAnim;
 }
 
 /**

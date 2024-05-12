@@ -11,6 +11,7 @@
 #include "overlays/effects/ovl_Effect_Ss_Hahen/z_eff_ss_hahen.h"
 #include "objects/object_bigslime/object_bigslime.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "BenPort.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_10 | ACTOR_FLAG_20 | ACTOR_FLAG_200)
@@ -1075,7 +1076,7 @@ void EnBigslime_Drop(EnBigslime* this, PlayState* play) {
         this->ceilingDropTimer--;
         this->ceilingMoveTimer--;
         EnBigslime_UpdateWavySurface(this);
-        EnBigslime_Scale(this, this->ceilingMoveTimer * 0x4000, 0.2f, 0.15);
+        EnBigslime_Scale(this, this->ceilingMoveTimer * 0x4000, 0.2f, 0.15f);
         this->actor.scale.z = this->actor.scale.x;
         if (this->ceilingDropTimer == 0) {
             this->actor.gravity = -2.0f;
@@ -1733,7 +1734,7 @@ void EnBigslime_WindupThrowPlayer(EnBigslime* this, PlayState* play) {
     // Deforming Bigslime during the final windup punch while grabbing player using vtxSurfacePerturbation
     for (i = 0; i < BIGSLIME_NUM_VTX; i++) {
         dynamicVtx = &sBigslimeDynamicVtxData[this->dynamicVtxState][i];
-        staticVtx = &sBigslimeStaticVtx[i];
+        staticVtx = &sBigslimeStaticVtxData[i];
         if (this->vtxSurfacePerturbation[i] != 0.0f) {
             if (this->windupPunchTimer > 0) {
                 // loop over x, y, z
@@ -2943,6 +2944,7 @@ void EnBigslime_DrawMinislime(EnBigslime* this, PlayState* play2) {
 
     for (i = 0; i < MINISLIME_NUM_SPAWN; i++) {
         minislime = this->minislime[indices[i]];
+        FrameInterpolation_RecordOpenChild(minislime, indices[i]);
         lights = LightContext_NewLights(&play->lightCtx, play->state.gfxCtx);
         Lights_BindAll(lights, play->lightCtx.listHead, &minislime->actor.world.pos, play);
         Lights_Draw(lights, play->state.gfxCtx);
@@ -2967,6 +2969,7 @@ void EnBigslime_DrawMinislime(EnBigslime* this, PlayState* play2) {
                                 (minislime->actor.scale.x * 0.4f) * 0.1f, (minislime->actor.scale.z * 0.4f) * 0.1f,
                                 minislime->actor.scale.y * 400.0f, minislime->actor.shape.rot.y,
                                 minislime->actor.shape.shadowAlpha * (175.0f / 255.0f));
+        FrameInterpolation_RecordCloseChild();
     }
 
     CLOSE_DISPS(play->state.gfxCtx);

@@ -14,9 +14,7 @@
 #include "assets/interface/message_texture_static/message_texture_static.h"
 #include <string.h>
 
-// #region 2S2H [Port] Asset tables we can pull from instead of from ROM
-#define dgEmptyTexture "__OTR__textures/virtual/gEmptyTexture"
-static const ALIGN_ASSET(2) char gEmptyTexture[] = dgEmptyTexture;
+#include "2s2h_assets.h"
 
 const char* gBombersNotebookPhotos[] = {
     gBombersNotebookPhotoAnjuTex,
@@ -2163,13 +2161,13 @@ void Message_SetupLoadItemIcon(PlayState* play) {
         msgCtx->nextTextId = font->msgBuf.schar[++msgCtx->msgBufPos] << 8;
         msgCtx->nextTextId += font->msgBuf.schar[++msgCtx->msgBufPos];
 
-        msgCtx->unk1206C = (u8)(font->msgBuf.schar[++msgCtx->msgBufPos] << 8);
+        msgCtx->unk1206C = (u8)(font->msgBuf.schar[++msgCtx->msgBufPos]) << 8;
         msgCtx->unk1206C |= font->msgBuf.schar[++msgCtx->msgBufPos];
 
-        msgCtx->unk12070 = (u8)(font->msgBuf.schar[++msgCtx->msgBufPos] << 8);
+        msgCtx->unk12070 = (u8)(font->msgBuf.schar[++msgCtx->msgBufPos]) << 8;
         msgCtx->unk12070 |= font->msgBuf.schar[++msgCtx->msgBufPos];
 
-        msgCtx->unk12074 = (u8)(font->msgBuf.schar[++msgCtx->msgBufPos] << 8);
+        msgCtx->unk12074 = (u8)(font->msgBuf.schar[++msgCtx->msgBufPos]) << 8;
         msgCtx->unk12074 |= font->msgBuf.schar[++msgCtx->msgBufPos];
 
         msgCtx->msgBufPos++;
@@ -2883,7 +2881,13 @@ void Message_Decode(PlayState* play) {
                 decodedBufPos--;
             } else if (curChar == 0x22E) {
                 digits[0] = digits[1] = digits[2] = 0;
-                digits[3] = gItemPrices[GET_CUR_FORM_BTN_ITEM(player->heldItemButton)];
+                // #region 2S2H [Dpad]
+                if (IS_HELD_DPAD(player->heldItemButton)) {
+                    digits[3] = gItemPrices[DPAD_GET_CUR_FORM_BTN_ITEM(HELD_ITEM_TO_DPAD(player->heldItemButton))];
+                } else {
+                    digits[3] = gItemPrices[GET_CUR_FORM_BTN_ITEM(player->heldItemButton)];
+                }
+                // #endregion
 
                 while (digits[3] >= 1000) {
                     digits[0]++;
@@ -4574,6 +4578,12 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
 
                 msgCtx->songPlayed = msgCtx->ocarinaStaff->state;
 
+                bool vanillaOwnedSongCheck = (msgCtx->ocarinaStaff->state == OCARINA_SONG_SCARECROW_SPAWN) ||
+                                             (msgCtx->ocarinaStaff->state == OCARINA_SONG_INVERTED_TIME) ||
+                                             (msgCtx->ocarinaStaff->state == OCARINA_SONG_DOUBLE_TIME) ||
+                                             (msgCtx->ocarinaStaff->state == OCARINA_SONG_GORON_LULLABY_INTRO) ||
+                                             CHECK_QUEST_ITEM(QUEST_SONG_SONATA + msgCtx->ocarinaStaff->state);
+
                 if (msgCtx->ocarinaStaff->state <= OCARINA_SONG_SCARECROW_SPAWN) {
                     if (msgCtx->ocarinaStaff->state == OCARINA_SONG_EVAN_PART1) {
                         AudioOcarina_ResetAndReadInput();
@@ -4583,11 +4593,7 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
                         AudioOcarina_SetOcarinaDisableTimer(0, 20);
                         Message_CloseTextbox(play);
                         play->msgCtx.ocarinaMode = OCARINA_MODE_PLAYED_FULL_EVAN_SONG;
-                    } else if ((msgCtx->ocarinaStaff->state == OCARINA_SONG_SCARECROW_SPAWN) ||
-                               (msgCtx->ocarinaStaff->state == OCARINA_SONG_INVERTED_TIME) ||
-                               (msgCtx->ocarinaStaff->state == OCARINA_SONG_DOUBLE_TIME) ||
-                               (msgCtx->ocarinaStaff->state == OCARINA_SONG_GORON_LULLABY_INTRO) ||
-                               CHECK_QUEST_ITEM(QUEST_SONG_SONATA + msgCtx->ocarinaStaff->state)) {
+                    } else if (GameInteractor_Should(GI_VB_SONG_AVAILABLE_TO_PLAY, vanillaOwnedSongCheck, &msgCtx->ocarinaStaff->state)) {
                         sLastPlayedSong = msgCtx->ocarinaStaff->state;
                         msgCtx->lastPlayedSong = msgCtx->ocarinaStaff->state;
                         msgCtx->songPlayed = msgCtx->ocarinaStaff->state;

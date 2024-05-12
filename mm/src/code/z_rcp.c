@@ -2,6 +2,8 @@
 #include "sys_cfb.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 
+#include "BenPort.h"
+
 Gfx gSetupDLs[SETUPDL_MAX][6] = {
     {
         /* SETUPDL_0 */

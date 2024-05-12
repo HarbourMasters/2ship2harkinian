@@ -84,7 +84,6 @@ void EffectSsBubble_Update(PlayState* play2, u32 index, EffectSs* this) {
         ripplePos.z = this->pos.z;
         EffectSsGRipple_Spawn(play, &ripplePos, 0, 80, 0);
         this->life = -1;
-    label:
         return;
     }
     if (((play->gameplayFrames + index) % 8) == 0) {

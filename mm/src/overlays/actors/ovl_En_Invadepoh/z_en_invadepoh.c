@@ -32,6 +32,7 @@ typedef enum {
 void EnInvadepoh_Init(Actor* thisx, PlayState* play);
 void EnInvadepoh_Destroy(Actor* thisx, PlayState* play);
 void EnInvadepoh_Event_Update(Actor* thisx, PlayState* play2);
+void EnInvadepoh_Reset(void);
 
 // Update functions
 void EnInvadepoh_Invader_WaitForObject(Actor* thisx, PlayState* play2);
@@ -177,6 +178,7 @@ ActorInit En_Invadepoh_InitVars = {
     (ActorFunc)EnInvadepoh_Destroy,
     (ActorFunc)EnInvadepoh_Event_Update,
     (ActorFunc)NULL,
+    (ActorFunc)EnInvadepoh_Reset,
 };
 
 ColliderCylinderInit sAlienCylinderInit = {
@@ -4448,4 +4450,9 @@ void EnInvadepoh_Cremia_Draw(Actor* thisx, PlayState* play) {
                           EnInvadepoh_Cremia_OverrideLimbDraw, EnInvadepoh_Cremia_PostLimbDraw, &this->actor);
 
     CLOSE_DISPS(play->state.gfxCtx);
+}
+
+void EnInvadepoh_Reset(void) {
+    sEventState = ENINVADEPOH_EVENT_UNSET;
+    sRewardFinished = false;
 }
