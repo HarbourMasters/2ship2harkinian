@@ -911,6 +911,8 @@ void DrawPlayerTab() {
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 3.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f, 8.0f));
+    ImGui::BeginChild("playerTab", ImVec2(0, 0), true);
+
     if (gPlayState) {
         Player* player = GET_PLAYER(gPlayState);
         ImGui::BeginChild("playerLocation", ImVec2(INV_GRID_WIDTH * 8 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1.75f + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
@@ -1039,28 +1041,29 @@ void DrawPlayerTab() {
         ImGui::Text("Player States");
         uint32_t states[4] = { player->stateFlags1, player->stateFlags2, player->stateFlags3, player->meleeWeaponState };
 
-        ImGui::BeginTable("stateTable", 4);
-        GetPlayerForm(GET_PLAYER_FORM);
-        ImGui::PushStyleVar(ImGuiTableColumnFlags_WidthFixed, 15.0f);
-        ImGui::PushStyleColor(ImGuiCol_TableHeaderBg, formColor);
-        ImGui::TableSetupColumn("State 1");
-        ImGui::TableSetupColumn("State 2");
-        ImGui::TableSetupColumn("State 3");
-        ImGui::TableSetupColumn("Sword State");
-        ImGui::TableHeadersRow();
-        ImGui::TableNextColumn();
-
-        for (int i = 0; i <= 3; i++) {
-            ImGui::Text(std::to_string(states[i]).c_str());
+        if (ImGui::BeginTable("stateTable", 4)) {
+            GetPlayerForm(GET_PLAYER_FORM);
+            ImGui::PushStyleVar(ImGuiTableColumnFlags_WidthFixed, 15.0f);
+            ImGui::PushStyleColor(ImGuiCol_TableHeaderBg, formColor);
+            ImGui::TableSetupColumn("State 1");
+            ImGui::TableSetupColumn("State 2");
+            ImGui::TableSetupColumn("State 3");
+            ImGui::TableSetupColumn("Sword State");
+            ImGui::TableHeadersRow();
             ImGui::TableNextColumn();
+
+            for (int i = 0; i <= 3; i++) {
+                ImGui::Text(std::to_string(states[i]).c_str());
+                ImGui::TableNextColumn();
+            }
+
+            ImGui::PopStyleColor(1);
+            ImGui::PopStyleVar(1);
+            ImGui::EndTable();
         }
-
-        ImGui::PopStyleColor(1);
-        ImGui::PopStyleVar(1);
-        ImGui::EndTable();
         ImGui::EndChild();
-
     }
+    ImGui::EndChild();
     ImGui::PopStyleVar(2);
     ImGui::PopStyleColor(1);
 }

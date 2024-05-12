@@ -168,26 +168,27 @@ void HudEditorWindow::DrawElement() {
             CVarClear(hudEditorElements[i].scaleCvar);
         }
         if (CVarGetInteger(hudEditorElements[i].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) >= HUD_EDITOR_ELEMENT_MODE_MOVABLE_43) {
-            ImGui::BeginTable("##table", 3, ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_NoBordersInBody);
-            ImGui::TableNextColumn();
-            UIWidgets::CVarSliderInt("X", hudEditorElements[i].xCvar, -10, 330, hudEditorElements[i].defaultX, {
-                .showButtons = false,
-                .format = "X: %d",
-                .labelPosition = UIWidgets::LabelPosition::None,
-            });
-            ImGui::TableNextColumn();
-            UIWidgets::CVarSliderInt("Y", hudEditorElements[i].yCvar, -10, 250, hudEditorElements[i].defaultY, {
-                .showButtons = false,
-                .format = "Y: %d",
-                .labelPosition = UIWidgets::LabelPosition::None,
-            });
-            ImGui::TableNextColumn();
-            UIWidgets::CVarSliderFloat("Scale", hudEditorElements[i].scaleCvar, 0.25f, 4.0f, 1.0f, {
-                .showButtons = false,
-                .format = "Scale: %.2f",
-                .labelPosition = UIWidgets::LabelPosition::None,
-            });
-            ImGui::EndTable();
+            if (ImGui::BeginTable("##table", 3, ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_NoBordersInBody)) {
+                ImGui::TableNextColumn();
+                UIWidgets::CVarSliderInt("X", hudEditorElements[i].xCvar, -10, 330, hudEditorElements[i].defaultX, {
+                    .showButtons = false,
+                    .format = "X: %d",
+                    .labelPosition = UIWidgets::LabelPosition::None,
+                });
+                ImGui::TableNextColumn();
+                UIWidgets::CVarSliderInt("Y", hudEditorElements[i].yCvar, -10, 250, hudEditorElements[i].defaultY, {
+                    .showButtons = false,
+                    .format = "Y: %d",
+                    .labelPosition = UIWidgets::LabelPosition::None,
+                });
+                ImGui::TableNextColumn();
+                UIWidgets::CVarSliderFloat("Scale", hudEditorElements[i].scaleCvar, 0.25f, 4.0f, 1.0f, {
+                    .showButtons = false,
+                    .format = "Scale: %.2f",
+                    .labelPosition = UIWidgets::LabelPosition::None,
+                });
+                ImGui::EndTable();
+            }
         }
         ImGui::PopID();
     }
