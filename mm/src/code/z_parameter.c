@@ -5952,8 +5952,9 @@ void Interface_DrawClock(PlayState* play) {
     s16 finalHoursClockSlots[8];
     s16 index;
 
-    if (GameInteractor_Should(GI_VB_PREVENT_CLOCK_DISPLAY, false, NULL))
+    if (GameInteractor_Should(GI_VB_PREVENT_CLOCK_DISPLAY, false, NULL)) {
         return;
+    }
 
     OPEN_DISPS(play->state.gfxCtx);
 

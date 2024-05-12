@@ -46,8 +46,11 @@ static std::unordered_map<Ship::WindowBackend, const char*> windowBackendsMap = 
     { Ship::WindowBackend::GX2, "GX2" }
 };
 
-
-static const char* clockTypeMap[3] = { "Original", "Text only", "Hidden" };
+static const std::unordered_map<int32_t, const char*> clockTypeOptions = {
+    { CLOCK_TYPE_ORIGINAL, "Original" },
+    { CLOCK_TYPE_TEXT_BASED, "Text only" },
+    { CLOCK_TYPE_HIDDEN, "Hidden" },
+};
 
 static const std::unordered_map<int32_t, const char*> alwaysWinDoggyraceOptions = {
     { ALWAYS_WIN_DOGGY_RACE_OFF, "Off" },
@@ -409,7 +412,7 @@ void DrawEnhancementsMenu() {
 
         if (UIWidgets::BeginMenu("Graphics")) {
             ImGui::SeparatorText("Clock");
-            UIWidgets::CVarCombobox("Clock Type", "gEnhancements.Graphics.ClockType", clockTypeMap);
+            UIWidgets::CVarCombobox("Clock Type", "gEnhancements.Graphics.ClockType", clockTypeOptions);
             UIWidgets::CVarCheckbox("24 Hours Clock", "gEnhancements.Graphics.24HoursClock");
             MotionBlur_RenderMenuOptions();
             ImGui::SeparatorText("Other");

@@ -1,6 +1,7 @@
 #include <libultraship/libultraship.h>
 #include "Enhancements/GameInteractor/GameInteractor.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "Enhancements/Enhancements.h"
 
 extern "C" {
 #include <z64.h>
@@ -15,12 +16,12 @@ extern GfxPrint* printer;
 void RegisterTextBasedClock() {
     REGISTER_VB_SHOULD(GI_VB_PREVENT_CLOCK_DISPLAY, {
 
-        if (CVarGetInteger("gEnhancements.Graphics.ClockType", 0) == 2) {
+        if (CVarGetInteger("gEnhancements.Graphics.ClockType", 0) == CLOCK_TYPE_HIDDEN) {
             *should = true;
             return;
         }
 
-        if (CVarGetInteger("gEnhancements.Graphics.ClockType", 0) == 1) {
+        if (CVarGetInteger("gEnhancements.Graphics.ClockType", 0) == CLOCK_TYPE_TEXT_BASED) {
             *should = true;
             if ((R_TIME_SPEED != 0) &&
                 ((gPlayState->msgCtx.msgMode == MSGMODE_NONE) ||

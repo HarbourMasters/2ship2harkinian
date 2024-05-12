@@ -25,6 +25,12 @@ enum AlwaysWinDoggyRaceOptions {
     ALWAYS_WIN_DOGGY_RACE_ALWAYS,
 };
 
+enum ClockTypeOptions {
+    CLOCK_TYPE_ORIGINAL,
+    CLOCK_TYPE_TEXT_BASED,
+    CLOCK_TYPE_HIDDEN,
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif
