@@ -58,7 +58,6 @@ static const std::unordered_map<int32_t, const char*> alwaysWinDoggyraceOptions 
     { ALWAYS_WIN_DOGGY_RACE_ALWAYS, "Always" },
 };
 
-
 namespace BenGui {
 
 void DrawMenuBarIcon() {
