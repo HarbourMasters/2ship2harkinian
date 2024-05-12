@@ -1516,7 +1516,7 @@ void EnEgol_Draw(Actor* thisx, PlayState* play2) {
             laserLightScaleMod = 10.0f;
             laserLightAlpha = 80.0f;
             for (i = 0; i < ARRAY_COUNT(sLightOrbColors); i++) {
-                FrameInterpolation_RecordOpenChild(POLY_XLU_DISP, i);
+                FrameInterpolation_RecordOpenChild(this, i);
                 Matrix_Push();
                 Matrix_Scale(laserLightScaleMod, laserLightScaleMod, laserLightScaleMod, MTXMODE_APPLY);
                 Matrix_ReplaceRotation(&play->billboardMtxF);
