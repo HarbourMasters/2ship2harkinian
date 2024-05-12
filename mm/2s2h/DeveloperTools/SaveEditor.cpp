@@ -347,6 +347,7 @@ void DrawGeneralTab() {
     }
 
     UIWidgets::Checkbox("Has Tatl", (bool*)&gSaveContext.save.hasTatl, { .color = UIWidgets::Colors::Gray });
+    UIWidgets::Checkbox("Is Owl Save", (bool*)&gSaveContext.save.isOwlSave, { .color = UIWidgets::Colors::Gray });
     ImGui::EndGroup();
 
     ImGui::PopItemWidth();
