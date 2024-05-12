@@ -9,9 +9,18 @@ extern "C" {
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 
 extern PlayState* gPlayState;
-extern GfxPrint* printer;
-
 }
+
+#define OPEN_PRINTER(printer, disp) \
+    {                               \
+        GfxPrint printer;           \
+        GfxPrint_Init(&printer);    \
+        GfxPrint_Open(&printer, disp);
+
+#define CLOSE_PRINTER(printer, disp) \
+    disp = GfxPrint_Close(&printer); \
+    GfxPrint_Destroy(&printer);      \
+    }  
 
 void RegisterTextBasedClock() {
     REGISTER_VB_SHOULD(GI_VB_PREVENT_CLOCK_DISPLAY, {
@@ -44,9 +53,7 @@ void RegisterTextBasedClock() {
                     char formattedTime[10];
                     char formattedCrashTime[10];
 
-                    GfxPrint printer;
-                    GfxPrint_Init(&printer);
-                    GfxPrint_Open(&printer, OVERLAY_DISP);
+                    OPEN_PRINTER(printer, OVERLAY_DISP);
                     GfxPrint_SetPos(&printer, 14, 26);
                     if (gSaveContext.save.timeSpeedOffset == -2) {
                         GfxPrint_SetColor(&printer, 0, 204, 255, 255);
@@ -86,8 +93,7 @@ void RegisterTextBasedClock() {
                         GfxPrint_Printf(&printer, "Crash in %s", formattedCrashTime);
                     }
 
-                    OVERLAY_DISP = GfxPrint_Close(&printer);
-                    GfxPrint_Destroy(&printer);
+                    CLOSE_PRINTER(printer, OVERLAY_DISP);
                 }
                 CLOSE_DISPS(gPlayState->state.gfxCtx);
             }
