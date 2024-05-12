@@ -19,6 +19,8 @@
 #include "archives/map_name_static/map_name_static.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
+#include "2s2h_assets.h"
+
 // Page Textures (Background of Page):
 // Broken up into multiple textures.
 // Numbered by column/row.
@@ -410,6 +412,12 @@ void KaleidoScope_MoveCursorToSpecialPos(PlayState* play, s16 cursorSpecialPos) 
     gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
     gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
     gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
+    // #region 2S2H [Dpad]
+    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+    // #endregion
     gSaveContext.buttonStatus[EQUIP_SLOT_A] = BTN_DISABLED;
 
     gSaveContext.hudVisibility = HUD_VISIBILITY_IDLE;
@@ -430,6 +438,12 @@ void KaleidoScope_MoveCursorFromSpecialPos(PlayState* play) {
     gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
     gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
     gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
+    // #region 2S2H [Dpad]
+    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
+    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
+    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
+    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
+    // #endregion
     gSaveContext.buttonStatus[EQUIP_SLOT_A] = BTN_ENABLED;
 
     gSaveContext.hudVisibility = HUD_VISIBILITY_IDLE;
@@ -470,6 +484,12 @@ void KaleidoScope_SwitchPage(PauseContext* pauseCtx, u8 direction) {
     gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
     gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
     gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
+    // #region 2S2H [Dpad]
+    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+    // #endregion
     gSaveContext.buttonStatus[EQUIP_SLOT_A] = BTN_DISABLED;
 
     gSaveContext.hudVisibility = HUD_VISIBILITY_IDLE;
@@ -583,6 +603,18 @@ s16 sCursorPrimColorTarget[][3] = {
 
 s16 sCursorEnvColorTarget[][3] = {
     { 0, 0, 0 }, { 170, 170, 170 }, { 0, 0, 0 }, { 255, 160, 0 }, { 0, 0, 100 }, { 0, 150, 255 },
+};
+
+static TexturePtr sSaveTexs[] = {
+    gPauseSave00Tex,    gPauseSave01Tex, gPauseSave02Tex, gPauseSave03Tex, gPauseSave04Tex,
+    gPauseSave10JPNTex, gPauseSave11Tex, gPauseSave12Tex, gPauseSave13Tex, gPauseSave14Tex,
+    gPauseSave20Tex,    gPauseSave21Tex, gPauseSave22Tex, gPauseSave23Tex, gPauseSave24Tex,
+};
+
+static TexturePtr sGameOverTexs[] = {
+    gPauseSave00Tex,    gPauseSave01Tex, gPauseSave02Tex, gPauseSave03Tex, gPauseSave04Tex,
+    gPauseGameOver10Tex, gPauseSave11Tex, gPauseSave12Tex, gPauseSave13Tex, gPauseSave14Tex,
+    gPauseSave20Tex,    gPauseSave21Tex, gPauseSave22Tex, gPauseSave23Tex, gPauseSave24Tex,
 };
 
 void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
@@ -877,6 +909,104 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
         }
     }
 
+    if (CVarGetInteger("gEnhancements.Kaleido.PauseSave", 0) || CVarGetInteger("gEnhancements.Kaleido.GameOver", 0)) {
+        Gfx_SetupDL42_Opa(gfxCtx);
+        if ((pauseCtx->state == PAUSE_STATE_SAVEPROMPT) || IS_PAUSE_STATE_GAMEOVER) {
+            KaleidoScope_UpdatePrompt(play);
+            gDPPipeSync(POLY_OPA_DISP++);
+            gDPSetCombineLERP(POLY_OPA_DISP++, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, SHADE, 0, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, SHADE, 0);
+            gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 180, 180, 120, 255);
+
+            switch (pauseCtx->pageIndex) {
+                case PAUSE_ITEM:
+                    pauseCtx->itemPageRoll = pauseCtx->roll + 314.0f;
+                    Matrix_RotateYF(0.0f, MTXMODE_NEW);
+                    Matrix_Translate(0, sPauseMenuVerticalOffset / 100.0f, -93.0f, MTXMODE_APPLY);
+                    Matrix_Scale(0.78f, 0.78f, 0.78f, 1);
+                    Matrix_RotateXFApply(-pauseCtx->roll / 100.0f);
+                    break;
+                case PAUSE_MAP:
+                    pauseCtx->mapPageRoll = pauseCtx->roll + 314.0f;
+                    Matrix_RotateYF(-1.57f, MTXMODE_NEW);
+                    Matrix_Translate(0, sPauseMenuVerticalOffset / 100.0f, -93.0f, MTXMODE_APPLY);
+                    Matrix_Scale(0.78f, 0.78f, 0.78f, 1);
+                    Matrix_RotateXFApply(-pauseCtx->roll / 100.0f);
+                    break;
+                case PAUSE_QUEST:
+                    pauseCtx->questPageRoll = pauseCtx->roll + 314.0f;
+                    Matrix_RotateYF(-3.14f, MTXMODE_NEW);
+                    Matrix_Translate(0, sPauseMenuVerticalOffset / 100.0f, -93.0f, MTXMODE_APPLY);
+                    Matrix_Scale(0.78f, 0.78f, 0.78f, 1);
+                    Matrix_RotateXFApply(-pauseCtx->roll / 100.0f);
+                    break;
+                case PAUSE_MASK:
+                    pauseCtx->maskPageRoll = pauseCtx->roll + 314.0f;
+                    Matrix_RotateYF(1.57f, MTXMODE_NEW);
+                    Matrix_Translate(0, sPauseMenuVerticalOffset / 100.0f, -93.0f, MTXMODE_APPLY);
+                    Matrix_Scale(0.78f, 0.78f, 0.78f, 1);
+                    Matrix_RotateXFApply(-pauseCtx->roll / 100.0f);
+                    break;
+            }
+            gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+
+            if (IS_PAUSE_STATE_GAMEOVER) {
+                POLY_OPA_DISP = KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->promptPageVtx, sGameOverTexs);
+            } else {
+                POLY_OPA_DISP = KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->promptPageVtx, sSaveTexs);
+            }
+
+            gSPVertex(POLY_OPA_DISP++, &pauseCtx->promptPageVtx[60], 32, 0);
+
+            if (((pauseCtx->state == PAUSE_STATE_SAVEPROMPT) && ((pauseCtx->savePromptState <= PAUSE_SAVEPROMPT_STATE_4) || (pauseCtx->savePromptState == PAUSE_SAVEPROMPT_STATE_6))) || (pauseCtx->state == PAUSE_STATE_GAMEOVER_SAVE_PROMPT)) {
+                gDPPipeSync(POLY_OPA_DISP++);
+                gDPSetCombineMode(POLY_OPA_DISP++, G_CC_MODULATEIA, G_CC_MODULATEIA);
+                gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, pauseCtx->alpha);
+                POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gPauseSavePromptENGTex, 152, 16, 0);
+                gDPPipeSync(POLY_OPA_DISP++);
+                gDPSetCombineLERP(POLY_OPA_DISP++, 1, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, 1, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0);
+                gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 100, 100, 255, pauseCtx->promptAlpha);
+                if (pauseCtx->promptChoice == PAUSE_PROMPT_YES) {
+                    gSPDisplayList(POLY_OPA_DISP++, gPromptCursorLeftDL);
+                } else {
+                    gSPDisplayList(POLY_OPA_DISP++, gPromptCursorRightDL);
+                }
+                gDPPipeSync(POLY_OPA_DISP++);
+                gDPSetCombineMode(POLY_OPA_DISP++, G_CC_MODULATEIA, G_CC_MODULATEIA);
+                gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, pauseCtx->alpha);
+                POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gPauseYesENGTex, 48, 16, 12);
+
+                POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gPauseNoENGTex, 48, 16, 16);
+
+            } else if (((pauseCtx->state == PAUSE_STATE_SAVEPROMPT) && (pauseCtx->savePromptState >= PAUSE_SAVEPROMPT_STATE_5)) || (pauseCtx->state == PAUSE_STATE_GAMEOVER_8)) {
+                POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gPauseSaveConfirmationENGTex, 152, 16, 0);
+            } else if ((pauseCtx->state == PAUSE_STATE_GAMEOVER_CONTINUE_PROMPT) || (pauseCtx->state == PAUSE_STATE_GAMEOVER_10)) {
+                POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gContinuePlayingENGTex, 152, 16, 0);
+                gDPPipeSync(POLY_OPA_DISP++);
+                gDPSetCombineLERP(POLY_OPA_DISP++, 1, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, 1, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0);
+                gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 100, 100, 255, pauseCtx->promptAlpha);
+                if (pauseCtx->promptChoice == PAUSE_PROMPT_YES) {
+                    gSPDisplayList(POLY_OPA_DISP++, gPromptCursorLeftDL);
+                } else {
+                    gSPDisplayList(POLY_OPA_DISP++, gPromptCursorRightDL);
+                }
+                gDPPipeSync(POLY_OPA_DISP++);
+                gDPSetCombineMode(POLY_OPA_DISP++, G_CC_MODULATEIA, G_CC_MODULATEIA);
+                gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, pauseCtx->alpha);
+                POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gPauseYesENGTex, 48, 16, 12);
+
+                POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gPauseNoENGTex, 48, 16, 16);
+            }
+
+            gDPPipeSync(POLY_OPA_DISP++);
+            gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+
+            if ((pauseCtx->state != PAUSE_STATE_GAMEOVER_CONTINUE_PROMPT) && (pauseCtx->state != PAUSE_STATE_GAMEOVER_10)) {
+                gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 0, pauseCtx->alpha);
+                gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 0);
+            }
+        }
+    }
+
     CLOSE_DISPS(gfxCtx);
     FrameInterpolation_RecordCloseChild();
 }
@@ -1148,7 +1278,8 @@ void KaleidoScope_DrawInfoPanel(PlayState* play) {
 
             pauseCtx->infoPanelVtx[17].v.tc[0] = pauseCtx->infoPanelVtx[19].v.tc[0] = 24 * (1 << 5);
 
-            pauseCtx->infoPanelVtx[21].v.tc[0] = pauseCtx->infoPanelVtx[23].v.tc[0] = 48 * (1 << 5);
+            // #region 2S2H - fixed vtx size for correct texture size
+            pauseCtx->infoPanelVtx[21].v.tc[0] = pauseCtx->infoPanelVtx[23].v.tc[0] = 64 * (1 << 5);
 
             gSPDisplayList(POLY_OPA_DISP++, gAButtonIconDL);
             gDPPipeSync(POLY_OPA_DISP++);
@@ -1262,6 +1393,9 @@ void KaleidoScope_DrawInfoPanel(PlayState* play) {
 }
 
 u8 sUnpausedButtonStatus[5];
+// #region 2S2H [Dpad]
+u8 sUnpausedDpadStatus[4];
+// #endregion
 f32 sCursorCirclesX[4];
 f32 sCursorCirclesY[4];
 
@@ -2113,7 +2247,11 @@ void KaleidoScope_SetVertices(PlayState* play, GraphicsContext* gfxCtx) {
         pauseCtx->itemPageVtx = GRAPH_ALLOC(gfxCtx, ((PAGE_BG_QUADS + VTX_PAGE_ITEM_QUADS) * 4) * sizeof(Vtx));
         KaleidoScope_SetPageVertices(play, pauseCtx->itemPageVtx, VTX_PAGE_ITEM, VTX_PAGE_ITEM_QUADS);
 
-        pauseCtx->itemVtx = GRAPH_ALLOC(gfxCtx, (QUAD_ITEM_MAX * 4) * sizeof(Vtx));
+        // #region 2S2H [Dpad] Increase size of allocation when you have dpad items
+        u32 quadItemMax = QUAD_ITEM_MAX;
+        quadItemMax += EQUIP_SLOT_D_MAX;
+        pauseCtx->itemVtx = GRAPH_ALLOC(gfxCtx, (quadItemMax * 4) * sizeof(Vtx));
+        // #endregion
 
         // QUAD_ITEM_GRID_FIRST..QUAD_ITEM_GRID_LAST
 
@@ -2209,6 +2347,59 @@ void KaleidoScope_SetVertices(PlayState* play, GraphicsContext* gfxCtx) {
                     pauseCtx->itemVtx[i + 0].v.ob[1] - ITEM_GRID_SELECTED_QUAD_HEIGHT;
             }
         }
+        // #region 2S2H [Dpad]
+        for (j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++, i += 4) {
+            if (DPAD_GET_CUR_FORM_BTN_SLOT(j) != ITEM_NONE) {
+                k = DPAD_GET_CUR_FORM_BTN_SLOT(j) * 4;
+
+                pauseCtx->itemVtx[i + 0].v.ob[0] = pauseCtx->itemVtx[i + 2].v.ob[0] =
+                    pauseCtx->itemVtx[k].v.ob[0] + ITEM_GRID_SELECTED_QUAD_MARGIN;
+
+                pauseCtx->itemVtx[i + 1].v.ob[0] = pauseCtx->itemVtx[i + 3].v.ob[0] =
+                    pauseCtx->itemVtx[i + 0].v.ob[0] + ITEM_GRID_SELECTED_QUAD_WIDTH;
+
+                pauseCtx->itemVtx[i + 0].v.ob[1] = pauseCtx->itemVtx[i + 1].v.ob[1] =
+                    pauseCtx->itemVtx[k].v.ob[1] - ITEM_GRID_SELECTED_QUAD_MARGIN;
+
+                pauseCtx->itemVtx[i + 2].v.ob[1] = pauseCtx->itemVtx[i + 3].v.ob[1] =
+                    pauseCtx->itemVtx[i + 0].v.ob[1] - ITEM_GRID_SELECTED_QUAD_WIDTH;
+
+                pauseCtx->itemVtx[i + 0].v.ob[2] = pauseCtx->itemVtx[i + 1].v.ob[2] = pauseCtx->itemVtx[i + 2].v.ob[2] =
+                    pauseCtx->itemVtx[i + 3].v.ob[2] = 0;
+
+                pauseCtx->itemVtx[i + 0].v.flag = pauseCtx->itemVtx[i + 1].v.flag = pauseCtx->itemVtx[i + 2].v.flag =
+                    pauseCtx->itemVtx[i + 3].v.flag = 0;
+
+                pauseCtx->itemVtx[i + 0].v.tc[0] = pauseCtx->itemVtx[i + 0].v.tc[1] = pauseCtx->itemVtx[i + 1].v.tc[1] =
+                    pauseCtx->itemVtx[i + 2].v.tc[0] = 0;
+
+                pauseCtx->itemVtx[i + 1].v.tc[0] = pauseCtx->itemVtx[i + 2].v.tc[1] = pauseCtx->itemVtx[i + 3].v.tc[0] =
+                    pauseCtx->itemVtx[i + 3].v.tc[1] = ITEM_GRID_SELECTED_QUAD_TEX_SIZE * (1 << 5);
+
+                pauseCtx->itemVtx[i + 0].v.cn[0] = pauseCtx->itemVtx[i + 1].v.cn[0] = pauseCtx->itemVtx[i + 2].v.cn[0] =
+                    pauseCtx->itemVtx[i + 3].v.cn[0] = pauseCtx->itemVtx[i + 0].v.cn[1] =
+                        pauseCtx->itemVtx[i + 1].v.cn[1] = pauseCtx->itemVtx[i + 2].v.cn[1] =
+                            pauseCtx->itemVtx[i + 3].v.cn[1] = pauseCtx->itemVtx[i + 0].v.cn[2] =
+                                pauseCtx->itemVtx[i + 1].v.cn[2] = pauseCtx->itemVtx[i + 2].v.cn[2] =
+                                    pauseCtx->itemVtx[i + 3].v.cn[2] = 255;
+
+                pauseCtx->itemVtx[i + 0].v.cn[3] = pauseCtx->itemVtx[i + 1].v.cn[3] = pauseCtx->itemVtx[i + 2].v.cn[3] =
+                    pauseCtx->itemVtx[i + 3].v.cn[3] = pauseCtx->alpha;
+            } else {
+                // No item equipped on the C button, put the quad out of view
+
+                pauseCtx->itemVtx[i + 2].v.ob[0] = -300;
+                pauseCtx->itemVtx[i + 0].v.ob[0] = pauseCtx->itemVtx[i + 2].v.ob[0];
+
+                pauseCtx->itemVtx[i + 1].v.ob[0] = pauseCtx->itemVtx[i + 3].v.ob[0] =
+                    pauseCtx->itemVtx[i + 0].v.ob[0] + ITEM_GRID_SELECTED_QUAD_WIDTH;
+
+                pauseCtx->itemVtx[i + 0].v.ob[1] = pauseCtx->itemVtx[i + 1].v.ob[1] = 300;
+                pauseCtx->itemVtx[i + 2].v.ob[1] = pauseCtx->itemVtx[i + 3].v.ob[1] =
+                    pauseCtx->itemVtx[i + 0].v.ob[1] - ITEM_GRID_SELECTED_QUAD_HEIGHT;
+            }
+        }
+        // #endregion
     }
 
     if (pauseCtx->pageIndex != PAUSE_MASK) {
@@ -2326,7 +2517,11 @@ void KaleidoScope_SetVertices(PlayState* play, GraphicsContext* gfxCtx) {
         pauseCtx->maskPageVtx = GRAPH_ALLOC(gfxCtx, ((PAGE_BG_QUADS + VTX_PAGE_MASK_QUADS) * 4) * sizeof(Vtx));
         KaleidoScope_SetPageVertices(play, pauseCtx->maskPageVtx, VTX_PAGE_MASK, VTX_PAGE_MASK_QUADS);
 
-        pauseCtx->maskVtx = GRAPH_ALLOC(gfxCtx, (QUAD_MASK_MAX * 4) * sizeof(Vtx));
+        // #region 2S2H [Dpad] Increase size of allocation when you have dpad items
+        u32 quadMaskMax = QUAD_MASK_MAX;
+        quadMaskMax += EQUIP_SLOT_D_MAX;
+        pauseCtx->maskVtx = GRAPH_ALLOC(gfxCtx, (quadMaskMax * 4) * sizeof(Vtx));
+        // #endregion
 
         // Loop over grid rows
         for (k = 0, i = 0, vtx_y = (MASK_GRID_ROWS * MASK_GRID_CELL_HEIGHT) / 2 - 6; k < MASK_GRID_ROWS;
@@ -2418,6 +2613,57 @@ void KaleidoScope_SetVertices(PlayState* play, GraphicsContext* gfxCtx) {
                     pauseCtx->maskVtx[i + 0].v.ob[1] - MASK_GRID_SELECTED_QUAD_HEIGHT;
             }
         }
+        // #region 2S2H [Dpad]
+        for (j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++, i += 4) {
+            if (DPAD_GET_CUR_FORM_BTN_SLOT(j) != ITEM_NONE) {
+                k = (DPAD_GET_CUR_FORM_BTN_SLOT(j) - ITEM_NUM_SLOTS) * 4;
+
+                pauseCtx->maskVtx[i + 0].v.ob[0] = pauseCtx->maskVtx[i + 2].v.ob[0] =
+                    pauseCtx->maskVtx[k].v.ob[0] + MASK_GRID_SELECTED_QUAD_MARGIN;
+
+                pauseCtx->maskVtx[i + 1].v.ob[0] = pauseCtx->maskVtx[i + 3].v.ob[0] =
+                    pauseCtx->maskVtx[i + 0].v.ob[0] + MASK_GRID_SELECTED_QUAD_WIDTH;
+
+                pauseCtx->maskVtx[i + 0].v.ob[1] = pauseCtx->maskVtx[i + 1].v.ob[1] =
+                    pauseCtx->maskVtx[k].v.ob[1] - MASK_GRID_SELECTED_QUAD_MARGIN;
+
+                pauseCtx->maskVtx[i + 2].v.ob[1] = pauseCtx->maskVtx[i + 3].v.ob[1] =
+                    pauseCtx->maskVtx[i + 0].v.ob[1] - MASK_GRID_SELECTED_QUAD_HEIGHT;
+
+                pauseCtx->maskVtx[i + 0].v.ob[2] = pauseCtx->maskVtx[i + 1].v.ob[2] = pauseCtx->maskVtx[i + 2].v.ob[2] =
+                    pauseCtx->maskVtx[i + 3].v.ob[2] = 0;
+
+                pauseCtx->maskVtx[i + 0].v.flag = pauseCtx->maskVtx[i + 1].v.flag = pauseCtx->maskVtx[i + 2].v.flag =
+                    pauseCtx->maskVtx[i + 3].v.flag = 0;
+
+                pauseCtx->maskVtx[i + 0].v.tc[0] = pauseCtx->maskVtx[i + 0].v.tc[1] = pauseCtx->maskVtx[i + 1].v.tc[1] =
+                    pauseCtx->maskVtx[i + 2].v.tc[0] = 0;
+
+                pauseCtx->maskVtx[i + 1].v.tc[0] = pauseCtx->maskVtx[i + 2].v.tc[1] = pauseCtx->maskVtx[i + 3].v.tc[0] =
+                    pauseCtx->maskVtx[i + 3].v.tc[1] = MASK_GRID_SELECTED_QUAD_TEX_SIZE * (1 << 5);
+
+                pauseCtx->maskVtx[i + 0].v.cn[0] = pauseCtx->maskVtx[i + 1].v.cn[0] = pauseCtx->maskVtx[i + 2].v.cn[0] =
+                    pauseCtx->maskVtx[i + 3].v.cn[0] = pauseCtx->maskVtx[i + 0].v.cn[1] =
+                        pauseCtx->maskVtx[i + 1].v.cn[1] = pauseCtx->maskVtx[i + 2].v.cn[1] =
+                            pauseCtx->maskVtx[i + 3].v.cn[1] = pauseCtx->maskVtx[i + 0].v.cn[2] =
+                                pauseCtx->maskVtx[i + 1].v.cn[2] = pauseCtx->maskVtx[i + 2].v.cn[2] =
+                                    pauseCtx->maskVtx[i + 3].v.cn[2] = 255;
+
+                pauseCtx->maskVtx[i + 0].v.cn[3] = pauseCtx->maskVtx[i + 1].v.cn[3] = pauseCtx->maskVtx[i + 2].v.cn[3] =
+                    pauseCtx->maskVtx[i + 3].v.cn[3] = pauseCtx->alpha;
+            } else {
+                pauseCtx->maskVtx[i + 2].v.ob[0] = -300;
+                pauseCtx->maskVtx[i + 0].v.ob[0] = pauseCtx->maskVtx[i + 2].v.ob[0];
+
+                pauseCtx->maskVtx[i + 1].v.ob[0] = pauseCtx->maskVtx[i + 3].v.ob[0] =
+                    pauseCtx->maskVtx[i + 0].v.ob[0] + MASK_GRID_SELECTED_QUAD_WIDTH;
+
+                pauseCtx->maskVtx[i + 0].v.ob[1] = pauseCtx->maskVtx[i + 1].v.ob[1] = 300;
+                pauseCtx->maskVtx[i + 2].v.ob[1] = pauseCtx->maskVtx[i + 3].v.ob[1] =
+                    pauseCtx->maskVtx[i + 0].v.ob[1] - MASK_GRID_SELECTED_QUAD_HEIGHT;
+            }
+        }
+        // #endregion
     }
 
     pauseCtx->cursorVtx = GRAPH_ALLOC(play->state.gfxCtx, (PAUSE_QUAD_CURSOR_MAX * 4) * sizeof(Vtx));
@@ -2931,12 +3177,24 @@ void KaleidoScope_UpdateOpening(PlayState* play) {
             gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
+            // #region 2S2H [Dpad]
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
+            // #endregion
             gSaveContext.buttonStatus[EQUIP_SLOT_A] = BTN_ENABLED;
         } else {
             gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_ENABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_DISABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_DISABLED;
+            // #region 2S2H [Dpad]
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_DISABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_DISABLED;
+            // #endregion
             gSaveContext.buttonStatus[EQUIP_SLOT_A] = BTN_DISABLED;
         }
 
@@ -3000,6 +3258,12 @@ void KaleidoScope_Update(PlayState* play) {
             sUnpausedButtonStatus[EQUIP_SLOT_C_DOWN] = gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN];
             sUnpausedButtonStatus[EQUIP_SLOT_C_RIGHT] = gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT];
             sUnpausedButtonStatus[EQUIP_SLOT_A] = gSaveContext.buttonStatus[EQUIP_SLOT_A];
+            // #region 2S2H [Dpad]
+            sUnpausedDpadStatus[EQUIP_SLOT_D_RIGHT] = gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT];
+            sUnpausedDpadStatus[EQUIP_SLOT_D_LEFT] = gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT];
+            sUnpausedDpadStatus[EQUIP_SLOT_D_DOWN] = gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN];
+            sUnpausedDpadStatus[EQUIP_SLOT_D_UP] = gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP];
+            // #endregion
 
             pauseCtx->cursorXIndex[PAUSE_MAP] = 0;
             pauseCtx->cursorSlot[PAUSE_MAP] = R_PLAYER_FLOOR_REVERSE_INDEX + DUNGEON_FLOOR_INDEX_4;
@@ -3096,6 +3360,13 @@ void KaleidoScope_Update(PlayState* play) {
                     if (!pauseCtx->itemDescriptionOn &&
                         (CHECK_BTN_ALL(input->press.button, BTN_START) || CHECK_BTN_ALL(input->press.button, BTN_B))) {
                         Interface_SetAButtonDoAction(play, DO_ACTION_NONE);
+                        if (CVarGetInteger("gEnhancements.Kaleido.PauseSave", 0)) {
+                            if (CHECK_BTN_ALL(input->press.button, BTN_B)) {
+                                pauseCtx->state = PAUSE_STATE_SAVEPROMPT;
+                                Audio_PlaySfx_MessageDecide();
+                                break;
+                            }
+                        }
                         pauseCtx->state = PAUSE_STATE_UNPAUSE_SETUP;
                         sPauseMenuVerticalOffset = -6240.0f;
                         Audio_PlaySfx_PauseMenuOpenOrClose(SFX_PAUSE_MENU_CLOSE);
@@ -3130,6 +3401,13 @@ void KaleidoScope_Update(PlayState* play) {
                         // Abort having the player play the song and close the pause menu
                         AudioOcarina_SetInstrument(OCARINA_INSTRUMENT_OFF);
                         Interface_SetAButtonDoAction(play, DO_ACTION_NONE);
+                        if (CVarGetInteger("gEnhancements.Kaleido.PauseSave", 0)) {
+                            if (CHECK_BTN_ALL(input->press.button, BTN_B)) {
+                                pauseCtx->state = PAUSE_STATE_SAVEPROMPT;
+                                Audio_PlaySfx_MessageDecide();
+                                break;
+                            }
+                        }
                         pauseCtx->state = PAUSE_STATE_UNPAUSE_SETUP;
                         sPauseMenuVerticalOffset = -6240.0f;
                         Audio_PlaySfx_PauseMenuOpenOrClose(SFX_PAUSE_MENU_CLOSE);
@@ -3166,6 +3444,13 @@ void KaleidoScope_Update(PlayState* play) {
                     if (CHECK_BTN_ALL(input->press.button, BTN_START) || CHECK_BTN_ALL(input->press.button, BTN_B)) {
                         AudioOcarina_SetInstrument(OCARINA_INSTRUMENT_OFF);
                         Interface_SetAButtonDoAction(play, DO_ACTION_NONE);
+                        if (CVarGetInteger("gEnhancements.Kaleido.PauseSave", 0)) {
+                            if (CHECK_BTN_ALL(input->press.button, BTN_B)) {
+                                pauseCtx->state = PAUSE_STATE_SAVEPROMPT;
+                                Audio_PlaySfx_MessageDecide();
+                                break;
+                            }
+                        }
                         pauseCtx->state = PAUSE_STATE_UNPAUSE_SETUP;
                         sPauseMenuVerticalOffset = -6240.0f;
                         Audio_PlaySfx_PauseMenuOpenOrClose(SFX_PAUSE_MENU_CLOSE);
@@ -3211,15 +3496,25 @@ void KaleidoScope_Update(PlayState* play) {
                             pauseCtx->savePromptState = PAUSE_SAVEPROMPT_STATE_RETURN_TO_MENU;
                         } else {
                             Audio_PlaySfx(NA_SE_SY_PIECE_OF_HEART);
+                            if (CVarGetInteger("gEnhancements.Kaleido.PauseSave", 0)) {
+                                gSaveContext.save.isOwlSave = true;
+                                gSaveContext.save.owlSaveLocation = gSaveContext.save.entrance;
+                            }
                             Play_SaveCycleSceneFlags(&play->state);
                             gSaveContext.save.saveInfo.playerData.savedSceneId = play->sceneId;
                             func_8014546C(sramCtx);
-                            if (!gSaveContext.flashSaveAvailable) {
+                            if (!gSaveContext.flashSaveAvailable || gSaveContext.fileNum == 255) { // 2S2H [Enhancement] Don't let them save if they are in debug save
                                 pauseCtx->savePromptState = PAUSE_SAVEPROMPT_STATE_5;
                             } else {
-                                Sram_SetFlashPagesDefault(sramCtx, gFlashSaveStartPages[gSaveContext.fileNum],
-                                                          gFlashSaveNumPages[gSaveContext.fileNum]);
-                                Sram_StartWriteToFlashDefault(sramCtx);
+                                if (CVarGetInteger("gEnhancements.Kaleido.PauseSave", 0)) {
+                                    Sram_SetFlashPagesOwlSave(sramCtx, gFlashOwlSaveStartPages[gSaveContext.fileNum * 2],
+                                            gFlashOwlSaveNumPages[gSaveContext.fileNum * 2]);
+                                    Sram_StartWriteToFlashOwlSave(sramCtx);
+                                } else {
+                                    Sram_SetFlashPagesDefault(sramCtx, gFlashSaveStartPages[gSaveContext.fileNum],
+                                        gFlashSaveNumPages[gSaveContext.fileNum]);
+                                    Sram_StartWriteToFlashDefault(sramCtx);
+                                }
                                 pauseCtx->savePromptState = PAUSE_SAVEPROMPT_STATE_4;
                             }
                             sDelayTimer = 90;
@@ -3298,6 +3593,16 @@ void KaleidoScope_Update(PlayState* play) {
                             gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
                         gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] =
                             gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
+                        // #region 2S2H [Dpad]
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] =
+                            gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][0];
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] =
+                            gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] =
+                            gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
+                        gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] =
+                            gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
+                        // #endregion
                         if ((pauseCtx->cursorSpecialPos == PAUSE_CURSOR_PAGE_LEFT) ||
                             (pauseCtx->cursorSpecialPos == PAUSE_CURSOR_PAGE_RIGHT)) {
                             KaleidoScope_MoveCursorToSpecialPos(play, pauseCtx->cursorSpecialPos);
@@ -3577,6 +3882,12 @@ void KaleidoScope_Update(PlayState* play) {
             sUnpausedButtonStatus[EQUIP_SLOT_C_DOWN] = gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN];
             sUnpausedButtonStatus[EQUIP_SLOT_C_RIGHT] = gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT];
             sUnpausedButtonStatus[EQUIP_SLOT_A] = gSaveContext.buttonStatus[EQUIP_SLOT_A];
+            // #region 2S2H [Dpad]
+            sUnpausedDpadStatus[EQUIP_SLOT_D_RIGHT] = gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT];
+            sUnpausedDpadStatus[EQUIP_SLOT_D_LEFT] = gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT];
+            sUnpausedDpadStatus[EQUIP_SLOT_D_DOWN] = gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN];
+            sUnpausedDpadStatus[EQUIP_SLOT_D_UP] = gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP];
+            // #endregion
 
             pauseCtx->cursorXIndex[PAUSE_MAP] = 0;
             pauseCtx->cursorSlot[PAUSE_MAP] = R_PLAYER_FLOOR_REVERSE_INDEX + DUNGEON_FLOOR_INDEX_4;
@@ -3747,6 +4058,12 @@ void KaleidoScope_Update(PlayState* play) {
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = sUnpausedButtonStatus[EQUIP_SLOT_C_DOWN];
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = sUnpausedButtonStatus[EQUIP_SLOT_C_RIGHT];
             gSaveContext.buttonStatus[EQUIP_SLOT_A] = sUnpausedButtonStatus[EQUIP_SLOT_A];
+            // #region 2S2H [Dpad]
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = sUnpausedDpadStatus[EQUIP_SLOT_D_RIGHT];
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = sUnpausedDpadStatus[EQUIP_SLOT_D_LEFT];
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = sUnpausedDpadStatus[EQUIP_SLOT_D_DOWN];
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = sUnpausedDpadStatus[EQUIP_SLOT_D_UP];
+            // #endregion
 
             Interface_UpdateButtonsPart2(play);
             gSaveContext.hudVisibility = HUD_VISIBILITY_IDLE;

@@ -12,6 +12,7 @@
 #include "CIC6105.h"
 #include "stack.h"
 #include "stackcheck.h"
+#include "BenPort.h"
 
 // Variables are put before most headers as a hacky way to bypass bss reordering
 OSMesgQueue sSerialEventQueue;

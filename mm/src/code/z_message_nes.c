@@ -1564,7 +1564,13 @@ void Message_DecodeNES(PlayState* play) {
             decodedBufPos--;
         } else if (curChar == 0xDE) {
             digits[0] = digits[1] = digits[2] = 0;
-            digits[3] = gItemPrices[GET_CUR_FORM_BTN_ITEM(player->heldItemButton)];
+            // #region 2S2H [Dpad]
+            if (IS_HELD_DPAD(player->heldItemButton)) {
+                digits[3] = gItemPrices[DPAD_GET_CUR_FORM_BTN_ITEM(HELD_ITEM_TO_DPAD(player->heldItemButton))];
+            } else {
+                digits[3] = gItemPrices[GET_CUR_FORM_BTN_ITEM(player->heldItemButton)];
+            }
+            // #endregion
 
             while (digits[3] >= 1000) {
                 digits[0]++;

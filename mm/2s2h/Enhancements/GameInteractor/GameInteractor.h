@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 #include "z64actor.h"
+#include "z64camera.h"
 #ifdef __cplusplus
 }
 #endif
@@ -32,10 +33,15 @@ typedef enum {
     GI_VB_SHOW_TITLE_CARD,
     GI_VB_PLAY_ENTRANCE_CS,
     GI_VB_DISABLE_FD_MASK,
+    GI_VB_DOGGY_RACE_SET_MAX_SPEED,
+    GI_VB_LOWER_RAZOR_SWORD_DURABILITY,
     GI_VB_SET_BLAST_MASK_COOLDOWN_TIMER,
+    GI_VB_PATCH_POWER_CROUCH_STAB,
     GI_VB_PATCH_SIDEROLL,
     GI_VB_PREVENT_MASK_TRANSFORMATION_CS,
     GI_VB_PREVENT_CLOCK_DISPLAY,
+    GI_VB_SONG_AVAILABLE_TO_PLAY,
+    GI_VB_USE_CUSTOM_CAMERA,
 } GIVanillaBehavior;
 
 #ifdef __cplusplus
@@ -213,6 +219,7 @@ public:
     DEFINE_HOOK(OnGameStateMainFinish, ());
     DEFINE_HOOK(OnGameStateDrawFinish, ());
     DEFINE_HOOK(OnGameStateUpdate, ());
+    DEFINE_HOOK(OnSaveInit, (s16 fileNum));
     DEFINE_HOOK(BeforeEndOfCycleSave, ());
     DEFINE_HOOK(AfterEndOfCycleSave, ());
 
@@ -232,6 +239,10 @@ public:
     DEFINE_HOOK(OnFlagSet, (FlagType flagType, u32 flag));
     DEFINE_HOOK(OnFlagUnset, (FlagType flagType, u32 flag));
 
+    DEFINE_HOOK(OnCameraChangeModeFlags, (Camera* camera));
+
+    DEFINE_HOOK(OnPassPlayerInputs, (Input* input));
+
     DEFINE_HOOK(OnOpenText, (u16 textId));
 
     DEFINE_HOOK(ShouldItemGive, (u8 item, bool* should));
@@ -246,6 +257,7 @@ extern "C" {
 void GameInteractor_ExecuteOnGameStateMainFinish();
 void GameInteractor_ExecuteOnGameStateDrawFinish();
 void GameInteractor_ExecuteOnGameStateUpdate();
+void GameInteractor_ExecuteOnSaveInit(s16 fileNum);
 void GameInteractor_ExecuteBeforeEndOfCycleSave();
 void GameInteractor_ExecuteAfterEndOfCycleSave();
 
@@ -264,6 +276,10 @@ void GameInteractor_ExecuteOnSceneFlagSet(s16 sceneId, FlagType flagType, u32 fl
 void GameInteractor_ExecuteOnSceneFlagUnset(s16 sceneId, FlagType flagType, u32 flag);
 void GameInteractor_ExecuteOnFlagSet(FlagType flagType, u32 flag);
 void GameInteractor_ExecuteOnFlagUnset(FlagType flagType, u32 flag);
+
+void GameInteractor_ExecuteOnCameraChangeModeFlags(Camera* camera);
+
+void GameInteractor_ExecuteOnPassPlayerInputs(Input* input);
 
 void GameInteractor_ExecuteOnOpenText(u16 textId);
 

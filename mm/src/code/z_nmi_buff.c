@@ -1,4 +1,5 @@
 #include "global.h"
+#include "BenPort.h"
 
 #define COLD_RESET 0
 #define NMI 1

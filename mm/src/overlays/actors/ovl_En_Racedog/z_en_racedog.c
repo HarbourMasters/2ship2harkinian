@@ -12,6 +12,8 @@
 #include "overlays/actors/ovl_En_Aob_01/z_en_aob_01.h"
 #include "overlays/actors/ovl_En_Dg/z_en_dg.h"
 
+#include "Enhancements/GameInteractor/GameInteractor.h"
+
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_80000000)
 
 #define THIS ((EnRacedog*)thisx)
@@ -514,7 +516,10 @@ void EnRacedog_UpdateSpeed(EnRacedog* this) {
 
     // The dog that the player has selected has a slightly higher max speed than the other dogs.
     if (this->index == this->selectedDogIndex) {
-        if (this->actor.speed > 7.5f) {
+
+        // Cap the speed of the dog, or always max it out with the 'Always Win Doggy Race' enhancement.
+        bool vanillaCondition = this->actor.speed > 7.5f;
+        if (GameInteractor_Should(GI_VB_DOGGY_RACE_SET_MAX_SPEED, vanillaCondition, NULL)) {
             this->actor.speed = 7.5f;
         }
     } else {

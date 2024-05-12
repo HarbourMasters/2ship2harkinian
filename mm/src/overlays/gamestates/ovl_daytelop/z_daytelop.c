@@ -11,6 +11,8 @@
 #include "misc/daytelop_static/daytelop_static.h"
 #include "interface/icon_item_gameover_static/icon_item_gameover_static.h"
 
+#include "BenPort.h"
+
 // unused
 UNK_TYPE D_808158E0[] = {
     0x00000C00, 0x00000000, 0x00000000, 0x40000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000,

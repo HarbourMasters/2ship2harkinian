@@ -18,6 +18,10 @@ void GameInteractor_ExecuteOnGameStateUpdate() {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnGameStateUpdate>();
 }
 
+void GameInteractor_ExecuteOnSaveInit(s16 fileNum) {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnSaveInit>(fileNum);
+}
+
 void GameInteractor_ExecuteBeforeEndOfCycleSave() {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::BeforeEndOfCycleSave>();
 }
@@ -111,6 +115,18 @@ void GameInteractor_ExecuteOnFlagSet(FlagType flagType, u32 flag) {
 void GameInteractor_ExecuteOnFlagUnset(FlagType flagType, u32 flag) {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnFlagUnset>(flagType, flag);
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnFlagUnset>(flagType, flag);
+}
+
+void GameInteractor_ExecuteOnCameraChangeModeFlags(Camera* camera) {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnCameraChangeModeFlags>(camera);
+    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnCameraChangeModeFlags>(camera->uid, camera);
+    GameInteractor::Instance->ExecuteHooksForPtr<GameInteractor::OnCameraChangeModeFlags>((uintptr_t)camera, camera);
+    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnCameraChangeModeFlags>(camera);
+}
+
+void GameInteractor_ExecuteOnPassPlayerInputs(Input* input) {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnPassPlayerInputs>(input);
+    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnPassPlayerInputs>(input);
 }
 
 void GameInteractor_ExecuteOnOpenText(u16 textId) {

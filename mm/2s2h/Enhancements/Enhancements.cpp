@@ -1,6 +1,10 @@
 #include "Enhancements.h"
 
 void InitEnhancements() {
+    // Camera
+    RegisterCameraFreeLook();
+    RegisterDebugCam();
+
     // Cheats
     RegisterInfiniteCheats();
     RegisterMoonJumpOnL();
@@ -16,7 +20,14 @@ void InitEnhancements() {
     RegisterFierceDeityAnywhere();
     RegisterNoBlastMaskCooldown();
 
+    // Minigames
+    RegisterAlwaysWinDoggyRace();
+
+    // Songs
+    RegisterEnableSunsSong();
+    
     // Restorations
+    RegisterPowerCrouchStab();
     RegisterSideRoll();
     
     // Cutscenes

@@ -63,6 +63,8 @@ Vec3f D_801EDDD0;
 Vec3f D_801EDDE0;
 Vec3f D_801EDDF0;
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
+#include "2s2h/Enhancements/Camera/FreeLook.h"
 
 // Camera will reload its paramData. Usually that means setting the read-only data from what is stored in
 // CameraModeValue arrays. Although sometimes some read-write data is reset as well
@@ -2655,7 +2657,7 @@ s32 Camera_Normal0(Camera* camera) {
     camera->pitchUpdateRateInv = Camera_ScaledStepToCeilF(16.0f, camera->pitchUpdateRateInv, spA0, 0.1f);
     camera->yOffsetUpdateRate = Camera_ScaledStepToCeilF(0.05f, camera->yOffsetUpdateRate, spA4, 0.0001f);
     camera->xzOffsetUpdateRate = Camera_ScaledStepToCeilF(0.05f, camera->xzOffsetUpdateRate, spA0, 0.0001f);
-    camera->fovUpdateRate = Camera_ScaledStepToCeilF(0.05, camera->fovUpdateRate, camera->speedRatio * 0.05f, 0.0001f);
+    camera->fovUpdateRate = Camera_ScaledStepToCeilF(0.05f, camera->fovUpdateRate, camera->speedRatio * 0.05f, 0.0001f);
 
     if (!(roData->interfaceFlags & NORMAL0_FLAG_7)) {
         Camera_CalcAtDefault(camera, &sp78, roData->unk_00, roData->interfaceFlags & NORMAL0_FLAG_0);
@@ -2858,8 +2860,6 @@ s32 Camera_Parallel1(Camera* camera) {
                 rwData->unk_00 = (bgCamFuncData->unk_0E == -1)
                                      ? roData->unk_04
                                      : CAM_RODATA_UNSCALE(bgCamFuncData->unk_0E) * focalActorHeight * yNormal;
-            //! FAKE
-            dummy:;
             } else {
                 rwData->unk_08 = roData->unk_14;
                 rwData->unk_00 = roData->unk_04;
@@ -4479,6 +4479,9 @@ s32 Camera_KeepOn3(Camera* camera) {
             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CDOWN) ||
             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CLEFT) ||
             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CRIGHT) ||
+            // #region 2S2H [Dpad]
+            CHECK_BTN_DPAD(CONTROLLER1(&camera->play->state)->press.button) ||
+            // #endregion
             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_Z) ||
             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_L) ||
             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_R)) {
@@ -4922,8 +4925,6 @@ s32 Camera_Fixed2(Camera* camera) {
                         rwData->unk_00 = OLib_AddVecGeoToVec3f(new_var1, &sp70);
                     } else {
                         rwData->unk_00 = *eye;
-                        //! FAKE:
-                    dummy:;
                     }
                 } else {
                     rwData->unk_00 = camera->eye;
@@ -5540,6 +5541,9 @@ s32 Camera_Unique0(Camera* camera) {
                             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CDOWN) ||
                             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CLEFT) ||
                             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CRIGHT) ||
+                            // #region 2S2H [Dpad]
+                            CHECK_BTN_DPAD(CONTROLLER1(&camera->play->state)->press.button) ||
+                            // #endregion
                             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_Z) ||
                             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_L) ||
                             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_R) ||
@@ -5564,6 +5568,9 @@ s32 Camera_Unique0(Camera* camera) {
                         CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CDOWN) ||
                         CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CLEFT) ||
                         CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CRIGHT) ||
+                        // #region 2S2H [Dpad]
+                        CHECK_BTN_DPAD(CONTROLLER1(&camera->play->state)->press.button) ||
+                        // #endregion
                         CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_Z) ||
                         CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_L) ||
                         CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_R) ||
@@ -6051,6 +6058,9 @@ s32 Camera_Demo2(Camera* camera) {
                    CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CDOWN) ||
                    CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CLEFT) ||
                    CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CRIGHT) ||
+                    // #region 2S2H [Dpad]
+                    CHECK_BTN_DPAD(CONTROLLER1(&camera->play->state)->press.button) ||
+                    // #endregion
                    CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_Z) ||
                    CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_L) ||
                    CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_R)) &&
@@ -6787,6 +6797,9 @@ s32 Camera_Special8(Camera* camera) {
             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CDOWN) ||
             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CLEFT) ||
             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CRIGHT) ||
+            // #region 2S2H [Dpad]
+            CHECK_BTN_DPAD(CONTROLLER1(&camera->play->state)->press.button) ||
+            // #endregion
             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_Z) ||
             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_L) ||
             CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_R) ||
@@ -6954,6 +6967,9 @@ s32 Camera_Special9(Camera* camera) {
                 CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CDOWN) ||
                 CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CLEFT) ||
                 CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CRIGHT) ||
+                // #region 2S2H [Dpad]
+                CHECK_BTN_DPAD(CONTROLLER1(&camera->play->state)->press.button) ||
+                // #endregion
                 CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_Z) ||
                 CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_L) ||
                 CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_R) ||
@@ -7538,7 +7554,9 @@ Vec3s Camera_Update(Camera* camera) {
     }
 
     // Call the camera update function
-    sCameraUpdateHandlers[sCameraSettings[camera->setting].cameraModes[camera->mode].funcId](camera);
+    if (GameInteractor_Should(GI_VB_USE_CUSTOM_CAMERA, true, camera)) {
+        sCameraUpdateHandlers[sCameraSettings[camera->setting].cameraModes[camera->mode].funcId](camera);
+    }
 
     // Update the interface
     if (sCameraInitSceneTimer != 0) {
@@ -7792,6 +7810,7 @@ s32 Camera_ChangeModeFlags(Camera* camera, s16 mode, u8 forceChange) {
 
     func_800DF498(camera);
     camera->mode = mode;
+    GameInteractor_ExecuteOnCameraChangeModeFlags(camera);
 
     return mode | 0x80000000;
 }

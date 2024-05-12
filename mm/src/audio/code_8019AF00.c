@@ -1,5 +1,7 @@
 #include "global.h"
 
+#include "Enhancements/GameInteractor/GameInteractor.h"
+
 typedef struct {
     /* 0x0 */ s8 x;
     /* 0x1 */ s8 y;
@@ -2551,7 +2553,8 @@ void AudioOcarina_CheckSongsWithoutMusicStaff(void) {
         // Loop through each of the songs
         for (songIndex = sFirstOcarinaSongIndex; songIndex < sLastOcarinaSongIndex; songIndex++) {
             // Checks to see if the song is available to be played
-            if ((u32)sOcarinaAvailableSongFlags & (1 << songIndex)) {
+            bool vanillaCondition = (u32)sOcarinaAvailableSongFlags & (1 << songIndex);
+            if (GameInteractor_Should(GI_VB_SONG_AVAILABLE_TO_PLAY, vanillaCondition, &songIndex)) {
                 // Loops through all possible starting indices?
                 // Loops through the notes of the song?
                 for (j = 0, k = 0; (j < gOcarinaSongButtons[songIndex].numButtons) && (k == 0) &&
@@ -2585,7 +2588,9 @@ void AudioOcarina_PlayControllerInput(u8 isOcarinaSfxSuppressedWhenCancelled) {
     // Prevents two different ocarina notes from being played on two consecutive frames
     if ((sOcarinaFlags != 0) && (sOcarinaDropInputTimer != 0)) {
         sOcarinaDropInputTimer--;
-        return;
+        if (!CVarGetInteger("gEnhancements.Playback.NoDropOcarinaInput", 0)) {
+            return;
+        }
     }
 
     // Ensures the button pressed to start the ocarina does not also play an ocarina note
