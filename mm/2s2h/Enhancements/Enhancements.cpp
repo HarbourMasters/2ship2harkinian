@@ -8,6 +8,7 @@ void InitEnhancements() {
     // Cheats
     RegisterInfiniteCheats();
     RegisterMoonJumpOnL();
+    RegisterUnbreakableRazorSword(); 
 
     // Cycle
     RegisterEndOfCycleSaveHooks();
