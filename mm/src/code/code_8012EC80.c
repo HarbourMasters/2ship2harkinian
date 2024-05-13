@@ -97,7 +97,7 @@ u32 gGsFlagsShift[] = {
     24,
 };
 
-TexturePtr gItemIcons[131] = {
+TexturePtr gItemIcons[] = {
     gItemIconOcarinaOfTimeTex,       // ITEM_OCARINA_OF_TIME
     gItemIconBowTex,                 // ITEM_BOW
     gItemIconFireArrowTex,           // ITEM_ARROW_FIRE
