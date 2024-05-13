@@ -43,13 +43,13 @@ jobs:
       env:
         CC: gcc
         CXX: g++
-    - name: Upload build
-      uses: actions/upload-artifact@v4
-      with:
-        name: 2ship-linux
-        path: |
-          2ship.appimage
-          readme.txt
+    # - name: Upload build
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: 2ship-linux
+    #     path: |
+    #       2ship.appimage
+    #       readme.txt
   # build-windows:
   #   needs: generate-soh-otr-and-headers
   #   runs-on: windows-latest
@@ -152,6 +152,7 @@ jobs:
     - name: Unzip package
       run: Expand-Archive -Path 2ship-windows.zip -DestinationPath 2ship-windows
     - name: Upload build
+      if: ${{ startsWith(github.ref, 'refs/heads/develop') }}
       uses: actions/upload-artifact@v4
       with:
         name: 2ship-windows
