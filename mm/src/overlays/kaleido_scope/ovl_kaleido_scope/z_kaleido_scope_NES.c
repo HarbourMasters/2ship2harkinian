@@ -3498,7 +3498,7 @@ void KaleidoScope_Update(PlayState* play) {
                             Audio_PlaySfx(NA_SE_SY_PIECE_OF_HEART);
                             if (CVarGetInteger("gEnhancements.Kaleido.PauseSave", 0)) {
                                 gSaveContext.save.isOwlSave = true;
-                                gSaveContext.save.owlSaveLocation = gSaveContext.save.entrance;
+                                gSaveContext.save.shipSaveInfo.pauseSaveEntrance = gSaveContext.save.entrance;
                             }
                             Play_SaveCycleSceneFlags(&play->state);
                             gSaveContext.save.saveInfo.playerData.savedSceneId = play->sceneId;
@@ -3510,6 +3510,8 @@ void KaleidoScope_Update(PlayState* play) {
                                     Sram_SetFlashPagesOwlSave(sramCtx, gFlashOwlSaveStartPages[gSaveContext.fileNum * 2],
                                             gFlashOwlSaveNumPages[gSaveContext.fileNum * 2]);
                                     Sram_StartWriteToFlashOwlSave(sramCtx);
+                                    gSaveContext.save.isOwlSave = false;
+                                    gSaveContext.save.shipSaveInfo.pauseSaveEntrance = -1;
                                 } else {
                                     Sram_SetFlashPagesDefault(sramCtx, gFlashSaveStartPages[gSaveContext.fileNum],
                                         gFlashSaveNumPages[gSaveContext.fileNum]);
