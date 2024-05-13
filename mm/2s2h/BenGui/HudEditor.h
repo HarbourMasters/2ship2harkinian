@@ -52,6 +52,7 @@ typedef enum {
 
 void HudEditor_SetActiveElement(HudEditorElementID id);
 bool HudEditor_ShouldOverrideDraw();
+void HudEditor_ModifyRectLeftRectTopValues(s16* rectLeft, s16* rectTop);
 void HudEditor_ModifyKaleidoEquipAnimValues(s16* ulx, s16* uly, s16* shrinkRate);
 void HudEditor_ModifyTimerDrawValues(s16 timerStartX, s16 timerStartY, s16* rectLeft, s16* rectTop, s16* rectWidth, s16* rectHeight, s16* dsdx, s16* dtdy);
 void HudEditor_ModifyDrawValues(s16* rectLeft, s16* rectTop, s16* rectWidth, s16* rectHeight, s16* dsdx, s16* dtdy);

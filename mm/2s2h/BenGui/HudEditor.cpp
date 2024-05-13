@@ -34,25 +34,31 @@ extern "C" void HudEditor_SetActiveElement(HudEditorElementID id) {
     hudEditorActiveElement = id;
 }
 
+extern "C" void HudEditor_ModifyRectLeftRectTopValues(s16* rectLeft, s16* rectTop) {
+    s16 offsetFromBaseX = *rectLeft - hudEditorElements[hudEditorActiveElement].defaultX;
+    s16 offsetFromBaseY = *rectTop - hudEditorElements[hudEditorActiveElement].defaultY;
+    *rectLeft = CVarGetInteger(hudEditorElements[hudEditorActiveElement].xCvar,
+                               hudEditorElements[hudEditorActiveElement].defaultX) +
+                (offsetFromBaseX * CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f));
+    *rectTop = CVarGetInteger(hudEditorElements[hudEditorActiveElement].yCvar,
+                              hudEditorElements[hudEditorActiveElement].defaultY) +
+               (offsetFromBaseY * CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f));
+
+    if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) ==
+        HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT) {
+        *rectLeft = OTRGetRectDimensionFromLeftEdge(*rectLeft);
+    } else if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) ==
+               HUD_EDITOR_ELEMENT_MODE_MOVABLE_RIGHT) {
+        *rectLeft = OTRGetRectDimensionFromRightEdge(*rectLeft);
+    }
+}
+
 extern "C" void HudEditor_ModifyKaleidoEquipAnimValues(s16* ulx, s16* uly, s16* shrinkRate) {
     // Normalize the kaleido matrix values to screen rectangle dimensions
     *ulx = (*ulx / 10) + (SCREEN_WIDTH / 2);
     *uly = (SCREEN_HEIGHT / 2) - (*uly / 10);
 
-    s16 offsetFromBaseX = *ulx - hudEditorElements[hudEditorActiveElement].defaultX;
-    s16 offsetFromBaseY = *uly - hudEditorElements[hudEditorActiveElement].defaultY;
-    *ulx = CVarGetInteger(hudEditorElements[hudEditorActiveElement].xCvar,
-                          hudEditorElements[hudEditorActiveElement].defaultX) +
-           (offsetFromBaseX * CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f));
-    *uly = CVarGetInteger(hudEditorElements[hudEditorActiveElement].yCvar,
-                          hudEditorElements[hudEditorActiveElement].defaultY) +
-           (offsetFromBaseY * CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f));
-
-    if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT) {
-        *ulx = OTRGetRectDimensionFromLeftEdge(*ulx);
-    } else if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_MOVABLE_RIGHT) {
-        *ulx = OTRGetRectDimensionFromRightEdge(*ulx);
-    }
+    HudEditor_ModifyRectLeftRectTopValues(ulx, uly);
 
     // Adjust the values to match the kaleido matrix (origin 0,0 at center of screen, +y going up)
     *ulx -= SCREEN_WIDTH / 2;
@@ -83,16 +89,7 @@ extern "C" void HudEditor_ModifyTimerDrawValues(s16 timerStartX, s16 timerStartY
 }
 
 extern "C" void HudEditor_ModifyDrawValues(s16* rectLeft, s16* rectTop, s16* rectWidth, s16* rectHeight, s16* dsdx, s16* dtdy) {
-    s16 offsetFromBaseX = *rectLeft - hudEditorElements[hudEditorActiveElement].defaultX;
-    s16 offsetFromBaseY = *rectTop - hudEditorElements[hudEditorActiveElement].defaultY;
-    *rectLeft = CVarGetInteger(hudEditorElements[hudEditorActiveElement].xCvar, hudEditorElements[hudEditorActiveElement].defaultX) + (offsetFromBaseX * CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f));
-    *rectTop = CVarGetInteger(hudEditorElements[hudEditorActiveElement].yCvar, hudEditorElements[hudEditorActiveElement].defaultY) + (offsetFromBaseY * CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f));
-
-    if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT) {
-        *rectLeft = OTRGetRectDimensionFromLeftEdge(*rectLeft);
-    } else if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_MOVABLE_RIGHT) {
-        *rectLeft = OTRGetRectDimensionFromRightEdge(*rectLeft);
-    }
+    HudEditor_ModifyRectLeftRectTopValues(rectLeft, rectTop);
 
     *rectWidth *= CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f);
     *rectHeight *= CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f);
