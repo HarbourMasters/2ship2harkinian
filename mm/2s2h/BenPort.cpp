@@ -113,11 +113,11 @@ OTRGlobals::OTRGlobals() {
     //if (std::filesystem::exists(mqPath)) {
     //    OTRFiles.push_back(mqPath);
     //}
-    std::string ootPath = Ship::Context::LocateFileAcrossAppDirs("mm.otr", appShortName);
+    std::string ootPath = Ship::Context::LocateFileAcrossAppDirs("mm.zip", appShortName);
     if (std::filesystem::exists(ootPath)) {
         OTRFiles.push_back(ootPath);
     }
-    std::string shipOtrPath = Ship::Context::GetPathRelativeToAppBundle("2ship.otr");
+    std::string shipOtrPath = Ship::Context::GetPathRelativeToAppBundle("2ship.zip");
     if (std::filesystem::exists(shipOtrPath)) {
         OTRFiles.push_back(shipOtrPath);
     }
@@ -125,7 +125,7 @@ OTRGlobals::OTRGlobals() {
     if (patchesPath.length() > 0 && std::filesystem::exists(patchesPath)) {
         if (std::filesystem::is_directory(patchesPath)) {
             for (const auto& p : std::filesystem::recursive_directory_iterator(patchesPath)) {
-                if (StringHelper::IEquals(p.path().extension().string(), ".otr")) {
+                if (StringHelper::IEquals(p.path().extension().string(), ".zip")) {
                     OTRFiles.push_back(p.path().generic_string());
                 }
             }
@@ -397,7 +397,7 @@ extern "C" void OTRExtScanner() {
 
 extern "C" void InitOTR() {
 #if not defined(__SWITCH__) && not defined(__WIIU__)
-    if (!std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.otr", appShortName))) {
+    if (!std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.zip", appShortName))) {
         std::string installPath = Ship::Context::GetAppBundlePath();
         if (!std::filesystem::exists(installPath + "/assets/extractor")) {
             Extractor::ShowErrorBox(
