@@ -15,6 +15,7 @@ void ObjHunsui_Init(Actor* thisx, PlayState* play);
 void ObjHunsui_Destroy(Actor* thisx, PlayState* play);
 void ObjHunsui_Update(Actor* thisx, PlayState* play);
 void ObjHunsui_Draw(Actor* thisx, PlayState* play);
+void ObjHunsui_Reset(void);
 
 void func_80B9CE64(ObjHunsui* this, PlayState* play);
 void func_80B9D0FC(ObjHunsui* this, PlayState* play);
@@ -56,6 +57,7 @@ ActorInit Obj_Hunsui_InitVars = {
     /**/ ObjHunsui_Destroy,
     /**/ ObjHunsui_Update,
     /**/ ObjHunsui_Draw,
+    /**/ ObjHunsui_Reset,
 };
 
 static InitChainEntry sInitChain[] = {
@@ -680,4 +682,10 @@ void func_80B9DA60(Actor* thisx, PlayState* play) {
 
         CLOSE_DISPS(play->state.gfxCtx);
     }
+}
+
+void ObjHunsui_Reset(void) {
+    D_80B9DED8.unk_00 = 0;
+    D_80B9DED8.unk_01 = 0;
+    D_80B9DED8.unk_02 = 0;
 }
