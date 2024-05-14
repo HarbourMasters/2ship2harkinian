@@ -3165,6 +3165,7 @@ void EnBigslime_DrawShatteringEffects(EnBigslime* this, PlayState* play) {
 
     for (i = 0; i < BIGSLIME_NUM_ICE_SHARD; i++) {
         iceShardEffect = &this->iceShardEffect[i];
+        FrameInterpolation_RecordOpenChild(iceShardEffect, i);
         if (iceShardEffect->isEnabled > false) {
             Matrix_SetTranslateRotateYXZ(iceShardEffect->pos.x, iceShardEffect->pos.y, iceShardEffect->pos.z,
                                          &iceShardEffect->rot);
@@ -3172,6 +3173,7 @@ void EnBigslime_DrawShatteringEffects(EnBigslime* this, PlayState* play) {
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_XLU_DISP++, gBigslimeIceShardVtxDL);
         }
+        FrameInterpolation_RecordCloseChild();
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
