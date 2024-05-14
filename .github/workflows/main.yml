@@ -167,4 +167,4 @@ jobs:
         r2-secret-access-key: ${{ secrets.R2_SECRET_ACCESS_KEY }}
         r2-bucket: ${{ secrets.R2_BUCKET }}
         source-dir: _packages
-        destination-dir: 2ship
+        destination-dir: ./
