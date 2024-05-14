@@ -41,10 +41,16 @@ SetMeshFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData, s
             std::string meshOpa = reader->ReadString();
             std::string meshXlu = reader->ReadString();
 
-            auto opaRes = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(meshOpa.c_str());
-            auto xluRes = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(meshXlu.c_str());
-            dlist.opa = meshOpa != "" ? (Gfx*)(opaRes ? opaRes->GetRawPointer() : nullptr) : 0;
-            dlist.xlu = meshXlu != "" ? (Gfx*)(xluRes ? xluRes->GetRawPointer() : nullptr) : 0;
+            dlist.opa = 0;
+            dlist.xlu = 0;
+            if (meshOpa != "") {
+                auto opaRes = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(meshOpa.c_str());
+                dlist.opa = (Gfx*)(opaRes ? opaRes->GetRawPointer() : nullptr);
+            }
+            if (meshXlu != "") {
+                auto xluRes = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(meshXlu.c_str());
+                dlist.xlu = (Gfx*)(xluRes ? xluRes->GetRawPointer() : nullptr);
+            }
 
             setMesh->dlists.push_back(dlist);
         } else if (setMesh->meshHeader.base.type == 1) {
@@ -54,10 +60,16 @@ SetMeshFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData, s
             std::string imgOpa = reader->ReadString();
             std::string imgXlu = reader->ReadString();
 
-            auto opaRes = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(imgOpa.c_str());
-            auto xluRes = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(imgXlu.c_str());
-            pType.opa = imgOpa != "" ? (Gfx*)(opaRes ? opaRes->GetRawPointer() : nullptr) : 0;
-            pType.xlu = imgXlu != "" ? (Gfx*)(xluRes ? xluRes->GetRawPointer() : nullptr) : 0;
+            pType.opa = 0;
+            pType.xlu = 0;
+            if (imgOpa != "") {
+                auto opaRes = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(imgOpa.c_str());
+                pType.opa = (Gfx*)(opaRes ? opaRes->GetRawPointer() : nullptr);
+            }
+            if (imgXlu != "") {
+                auto xluRes = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(imgXlu.c_str());
+                pType.xlu = (Gfx*)(xluRes ? xluRes->GetRawPointer() : nullptr);
+            }
 
             int32_t bgImageCount = reader->ReadUInt32();
             setMesh->images.reserve(bgImageCount);
@@ -103,10 +115,16 @@ SetMeshFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData, s
             std::string meshOpa = reader->ReadString();
             std::string meshXlu = reader->ReadString();
 
-            opaRes = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(meshOpa.c_str());
-            xluRes = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(meshXlu.c_str());
-            pType.opa = meshOpa != "" ? (Gfx*)(opaRes ? opaRes->GetRawPointer() : nullptr) : 0;
-            pType.xlu = meshXlu != "" ? (Gfx*)(xluRes ? xluRes->GetRawPointer() : nullptr) : 0;
+            pType.opa = 0;
+            pType.xlu = 0;
+            if (meshOpa != "") {
+                auto opaRes = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(meshOpa.c_str());
+                pType.opa = (Gfx*)(opaRes ? opaRes->GetRawPointer() : nullptr);
+            }
+            if (meshXlu != "") {
+                auto xluRes = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(meshXlu.c_str());
+                pType.xlu = (Gfx*)(xluRes ? xluRes->GetRawPointer() : nullptr);
+            }
 
             setMesh->dlists.push_back(pType);
         } else if (setMesh->meshHeader.base.type == 2) {
@@ -121,10 +139,16 @@ SetMeshFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData, s
             std::string meshOpa = reader->ReadString();
             std::string meshXlu = reader->ReadString();
 
-            auto opaRes = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(meshOpa.c_str());
-            auto xluRes = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(meshXlu.c_str());
-            dlist.opa = meshOpa != "" ? (Gfx*)(opaRes ? opaRes->GetRawPointer() : nullptr) : 0;
-            dlist.xlu = meshXlu != "" ? (Gfx*)(xluRes ? xluRes->GetRawPointer() : nullptr) : 0;
+            dlist.opa = 0;
+            dlist.xlu = 0;
+            if (meshOpa != "") {
+                auto opaRes = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(meshOpa.c_str());
+                dlist.opa = (Gfx*)(opaRes ? opaRes->GetRawPointer() : nullptr);
+            }
+            if (meshXlu != "") {
+                auto xluRes = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(meshXlu.c_str());
+                dlist.xlu = (Gfx*)(xluRes ? xluRes->GetRawPointer() : nullptr);
+            }
 
             setMesh->dlists2.push_back(dlist);
         } else {
