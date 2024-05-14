@@ -398,22 +398,22 @@ void DrawEquipItemMenu(InventorySlot slot) {
             gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][EQUIP_SLOT_C_RIGHT] = slot;
             Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_C_RIGHT);
         }
-        if (ImGui::MenuItem("D-Up")) {
+        if (ImGui::MenuItem("D-Right")) {
             gSaveContext.save.shipSaveInfo.dpadEquips.dpadItems[CUR_FORM][EQUIP_SLOT_D_RIGHT] = currentItemId;
             gSaveContext.save.shipSaveInfo.dpadEquips.dpadSlots[CUR_FORM][EQUIP_SLOT_D_RIGHT] = slot;
             Interface_Dpad_LoadItemIconImpl(gPlayState, EQUIP_SLOT_D_RIGHT);
         }
-        if (ImGui::MenuItem("D-Down")) {
+        if (ImGui::MenuItem("D-Left")) {
             gSaveContext.save.shipSaveInfo.dpadEquips.dpadItems[CUR_FORM][EQUIP_SLOT_D_LEFT] = currentItemId;
             gSaveContext.save.shipSaveInfo.dpadEquips.dpadSlots[CUR_FORM][EQUIP_SLOT_D_LEFT] = slot;
             Interface_Dpad_LoadItemIconImpl(gPlayState, EQUIP_SLOT_D_LEFT);
         }
-        if (ImGui::MenuItem("D-Left")) {
+        if (ImGui::MenuItem("D-Down")) {
             gSaveContext.save.shipSaveInfo.dpadEquips.dpadItems[CUR_FORM][EQUIP_SLOT_D_DOWN] = currentItemId;
             gSaveContext.save.shipSaveInfo.dpadEquips.dpadSlots[CUR_FORM][EQUIP_SLOT_D_DOWN] = slot;
             Interface_Dpad_LoadItemIconImpl(gPlayState, EQUIP_SLOT_D_DOWN);
         }
-        if (ImGui::MenuItem("D-Right")) {
+        if (ImGui::MenuItem("D-Up")) {
             gSaveContext.save.shipSaveInfo.dpadEquips.dpadItems[CUR_FORM][EQUIP_SLOT_D_UP] = currentItemId;
             gSaveContext.save.shipSaveInfo.dpadEquips.dpadSlots[CUR_FORM][EQUIP_SLOT_D_UP] = slot;
             Interface_Dpad_LoadItemIconImpl(gPlayState, EQUIP_SLOT_D_UP);
