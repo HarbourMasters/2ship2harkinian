@@ -1,7 +1,9 @@
 #ifndef Z_EN_KAKASI_H
 #define Z_EN_KAKASI_H
 
+#ifndef __cplusplus
 #include "global.h"
+#endif
 #include "z64snap.h"
 
 struct EnKakasi;
@@ -45,5 +47,8 @@ typedef struct EnKakasi {
 #define KAKASI_GET_SUMMON_DISTANCE(thisx) (((thisx)->params >> 0x8) & 0xFF) 
 #define KAKASI_GET_ABOVE_GROUND(thisx) ((thisx)->params & 0x1) 
 #define KAKASI_GET_TARGETMODE(thisx) ((thisx)->world.rot.x - 1)
+
+// 2S2H [Enhancements] Externed for time savers
+void EnKakasi_DancingNightAway(EnKakasi* thisx, PlayState* play);
 
 #endif // Z_EN_KAKASI_H

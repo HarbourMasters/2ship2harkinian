@@ -355,6 +355,9 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox(
                 "Skip to File Select", "gEnhancements.Cutscenes.SkipToFileSelect",
                 { .tooltip = "Skip the opening title sequence and go straight to the file select menu after boot" });
+            UIWidgets::CVarCheckbox("Skip Intro Sequence", "gEnhancements.Cutscenes.SkipIntroSequence");
+            UIWidgets::CVarCheckbox("Skip Story Cutscenes", "gEnhancements.Cutscenes.SkipStoryCutscenes");
+            UIWidgets::CVarCheckbox("Skip Misc Interactions", "gEnhancements.Cutscenes.SkipMiscInteractions");
 
             ImGui::EndMenu();
         }

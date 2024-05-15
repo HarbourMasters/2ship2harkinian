@@ -29,8 +29,7 @@ void InitEnhancements() {
     RegisterSideRoll();
     
     // Cutscenes
-    RegisterSkipEntranceCutscenes();
-    RegisterHideTitleCards();
+    RegisterCutscenes();
     
     // Modes
     RegisterPlayAsKafei();
