@@ -43,13 +43,13 @@ jobs:
       env:
         CC: gcc
         CXX: g++
-    - name: Upload build
-      uses: actions/upload-artifact@v4
-      with:
-        name: 2ship-linux
-        path: |
-          2ship.appimage
-          readme.txt
+    # - name: Upload build
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: 2ship-linux
+    #     path: |
+    #       2ship.appimage
+    #       readme.txt
   # build-windows:
   #   needs: generate-soh-otr-and-headers
   #   runs-on: windows-latest
@@ -148,11 +148,23 @@ jobs:
 
         (cd build-windows && cpack)
         cd ..
-        mv _packages/*.zip 2ship-windows.zip
-    - name: Unzip package
-      run: Expand-Archive -Path 2ship-windows.zip -DestinationPath 2ship-windows
+        mv _packages/*.zip _packages/2ship-windows.zip
+    # Temporarily replaced with an upload to R2 until we go public
+    # - name: Unzip package
+    #   run: Expand-Archive -Path 2ship-windows.zip -DestinationPath 2ship-windows
+    # - name: Upload build
+    #   if: ${{ startsWith(github.ref, 'refs/heads/develop') }}
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: 2ship-windows
+    #     path: 2ship-windows
     - name: Upload build
-      uses: actions/upload-artifact@v4
+      if: ${{ startsWith(github.ref, 'refs/heads/develop') }}
+      uses: ryand56/r2-upload-action@latest
       with:
-        name: 2ship-windows
-        path: 2ship-windows
+        r2-account-id: ${{ secrets.R2_ACCOUNT_ID }}
+        r2-access-key-id: ${{ secrets.R2_ACCESS_KEY_ID }}
+        r2-secret-access-key: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+        r2-bucket: ${{ secrets.R2_BUCKET }}
+        source-dir: _packages
+        destination-dir: ./

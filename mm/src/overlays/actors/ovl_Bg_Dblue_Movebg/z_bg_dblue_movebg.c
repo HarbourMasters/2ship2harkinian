@@ -17,6 +17,7 @@ void BgDblueMovebg_Init(Actor* thisx, PlayState* play);
 void BgDblueMovebg_Destroy(Actor* thisx, PlayState* play);
 void BgDblueMovebg_Update(Actor* thisx, PlayState* play);
 void BgDblueMovebg_Draw(Actor* thisx, PlayState* play2);
+void BgDblueMovebg_Reset(void);
 
 void func_80A2A1E0(BgDblueMovebg* this, PlayState* play);
 void func_80A2A32C(BgDblueMovebg* this, PlayState* play);
@@ -55,6 +56,7 @@ ActorInit Bg_Dblue_Movebg_InitVars = {
     /**/ BgDblueMovebg_Destroy,
     /**/ BgDblueMovebg_Update,
     /**/ BgDblueMovebg_Draw,
+    /**/ BgDblueMovebg_Reset,
 };
 
 static Gfx* sOpaDLists[] = {
@@ -862,4 +864,10 @@ void BgDblueMovebg_Draw(Actor* thisx, PlayState* play2) {
                                                     this->unk_1D4, 32);
         }
     }
+}
+
+void BgDblueMovebg_Reset(void) {
+    D_80A2BBF0 = NULL;
+    D_80A2BBF4.unk_00 = 0;
+    D_80A2BBF4.unk_01 = 0;
 }
