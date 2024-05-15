@@ -12,7 +12,7 @@ void InitEnhancements() {
 
     // Cycle & Saving
     RegisterEndOfCycleSaveHooks();
-    RegisterPermanentOwlStatues();
+    RegisterSavingEnhancements();
 
     // Masks
     RegisterFastTransformation();

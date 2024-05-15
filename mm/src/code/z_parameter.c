@@ -20,6 +20,7 @@
 #include "BenGui/HudEditor.h"
 #include "2s2h_assets.h"
 #include "Enhancements/GameInteractor/GameInteractor.h"
+#include "misc/title_static/title_static.h"
 
 // 2S2H [Port] This was originally static but needs to be global so it can be accessed in z_kaleido_collect, z_kaleido_debug, and z_kaleido_draw.
 const char* sCounterTextures[] = {
@@ -3316,6 +3317,34 @@ void Interface_Dpad_LoadItemIconImpl(PlayState* play, u8 btn) {
     } else {
         interfaceCtx->iconItemSegment[btn] = gEmptyTexture;
     }
+}
+
+void Interface_DrawAutosaveIcon(PlayState* play, uint16_t opacity) {
+    
+    s16 rectLeft = 290;
+    s16 rectTop = 220;
+    s16 rectWidth = 24;
+    s16 rectHeight = 12;
+    s16 dsdx = 512;
+    s16 dtdy = 512;
+
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+
+    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, opacity);
+    rectLeft = OTRGetRectDimensionFromRightEdge(rectLeft);
+    gDPPipeSync(OVERLAY_DISP++);
+    gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+
+    gDPLoadTextureBlock(OVERLAY_DISP++, gFileSelOwlSaveIconTex, G_IM_FMT_RGBA, G_IM_SIZ_32b, 24, 12, 0,
+                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
+                        G_TX_NOLOD);
+
+    gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2,
+                            (rectTop + rectHeight) << 2, G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+
+    gDPPipeSync(OVERLAY_DISP++);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
 
 void Interface_LoadItemIconImpl(PlayState* play, u8 btn) {

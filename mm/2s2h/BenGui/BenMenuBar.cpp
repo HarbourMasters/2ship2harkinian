@@ -360,6 +360,23 @@ void DrawEnhancementsMenu() {
         }
 
         if (UIWidgets::BeginMenu("Cycle / Saving")) {
+
+            ImGui::SeparatorText("Saving");
+            UIWidgets::CVarCheckbox("Permanent Owl Saves", "gEnhancements.Saving.PermanentOwlSaves", {
+                .tooltip = "Continuing a save will not remove the owl save. Playing Song of Time will remove the owl save and become the new last save."
+            });
+
+            UIWidgets::CVarCheckbox("Pause Menu Save", "gEnhancements.Saving.PauseSave", {
+                .tooltip = "Re-introduce the pause menu save system. Pressing B in the pause menu will give you the option to create an Owl Save from your current location. When loading back into the game, you will be placed at your last entrance."
+            });
+
+            UIWidgets::CVarCheckbox("Autosave", "gEnhancements.Saving.Autosave", {
+                .tooltip = "Automatically create owl saves on the chosen interval."
+            });
+
+            UIWidgets::CVarSliderInt("Autosave Interval (minutes): %d", "gEnhancements.Saving.AutosaveInterval", 1, 60, 5, 
+                { .disabled = !CVarGetInteger("gEnhancements.Saving.Autosave", 0) }
+            );
             
             ImGui::SeparatorText("Time Cycle");
             UIWidgets::CVarCheckbox("Do not reset Bottle content", "gEnhancements.Cycle.DoNotResetBottleContent", {
@@ -373,15 +390,6 @@ void DrawEnhancementsMenu() {
             });
             UIWidgets::CVarCheckbox("Do not reset Rupees", "gEnhancements.Cycle.DoNotResetRupees", {
                 .tooltip = "Playing the Song Of Time will not reset the your rupees."
-            });
-
-            ImGui::SeparatorText("Saving");
-            UIWidgets::CVarCheckbox("Pause Menu Save", "gEnhancements.Kaleido.PauseSave", {
-                .tooltip = "Re-introduce the pause menu save system. Pressing B in the pause menu will give you the option to create an Owl Save from your current location. When loading back into the game, you will be placed at your last entrance."
-            });
-
-            UIWidgets::CVarCheckbox("Permanent Owl Statues", "gEnhancements.Saving.PermanentOwlSaves", {
-                .tooltip = "Continueing a save will not remove the owl save. Playing Song of Time will remove the owl save and become the new last save."
             });
 
             ImGui::EndMenu();
