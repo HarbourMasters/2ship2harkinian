@@ -56,7 +56,9 @@ const std::unordered_map<uint32_t, std::function<void(nlohmann::json&)>> migrati
 
 void SaveManager_MigrateSave(nlohmann::json& j) {
     int version = j.value("version", 0);
-    while (version != CURRENT_SAVE_VERSION) {
+
+    // BENTODO: what should we do if the version number is greater?
+    while (version < CURRENT_SAVE_VERSION) {
         if (migrations.contains(version)) {
             auto migration = migrations.at(version);
             migration(j);
