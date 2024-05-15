@@ -34,7 +34,7 @@ extern "C" void HudEditor_SetActiveElement(HudEditorElementID id) {
     hudEditorActiveElement = id;
 }
 
-extern "C" void HudEditor_ModifyRectLeftRectTopValues(s16* rectLeft, s16* rectTop) {
+extern "C" void HudEditor_ModifyRectPosValues(s16* rectLeft, s16* rectTop) {
     s16 offsetFromBaseX = *rectLeft - hudEditorElements[hudEditorActiveElement].defaultX;
     s16 offsetFromBaseY = *rectTop - hudEditorElements[hudEditorActiveElement].defaultY;
     *rectLeft = CVarGetInteger(hudEditorElements[hudEditorActiveElement].xCvar,
@@ -58,7 +58,7 @@ extern "C" void HudEditor_ModifyKaleidoEquipAnimValues(s16* ulx, s16* uly, s16* 
     *ulx = (*ulx / 10) + (SCREEN_WIDTH / 2);
     *uly = (SCREEN_HEIGHT / 2) - (*uly / 10);
 
-    HudEditor_ModifyRectLeftRectTopValues(ulx, uly);
+    HudEditor_ModifyRectPosValues(ulx, uly);
 
     // Adjust the values to match the kaleido matrix (origin 0,0 at center of screen, +y going up)
     *ulx -= SCREEN_WIDTH / 2;
@@ -91,7 +91,7 @@ extern "C" void HudEditor_ModifyDrawValuesFromBase(s16 baseX, s16 baseY, s16* re
 
 extern "C" void HudEditor_ModifyDrawValues(s16* rectLeft, s16* rectTop, s16* rectWidth, s16* rectHeight, s16* dsdx,
                                            s16* dtdy) {
-    HudEditor_ModifyRectLeftRectTopValues(rectLeft, rectTop);
+    HudEditor_ModifyRectPosValues(rectLeft, rectTop);
 
     *rectWidth *= CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f);
     *rectHeight *= CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f);

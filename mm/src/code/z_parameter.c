@@ -7151,7 +7151,7 @@ void Interface_DrawTimers(PlayState* play) {
                 // #region 2S2H [Cosmetic] Hud editor values for postman timer
                 HudEditor_SetActiveElement(hudTimerElement);
                 if (HudEditor_ShouldOverrideDraw()) {
-                    HudEditor_ModifyRectLeftRectTopValues(&newTimerX, &newTimerY);
+                    HudEditor_ModifyRectPosValues(&newTimerX, &newTimerY);
                 } else {
                     newTimerX = 115;
                     newTimerY = 80;
@@ -7208,7 +7208,7 @@ void Interface_DrawTimers(PlayState* play) {
                         // #region 2S2H [Cosmetic] Hud editor values for static minigame timers
                         HudEditor_SetActiveElement(hudTimerElement);
                         if (HudEditor_ShouldOverrideDraw()) {
-                            HudEditor_ModifyRectLeftRectTopValues(&newTimerX, &newTimerY);
+                            HudEditor_ModifyRectPosValues(&newTimerX, &newTimerY);
                             modifiedTimerHudValues = true;
                             gSaveContext.timerX[sTimerId] = newTimerX;
                             gSaveContext.timerY[sTimerId] = newTimerY;
@@ -7247,7 +7247,7 @@ void Interface_DrawTimers(PlayState* play) {
                     // #region 2S2H [Cosmetic] Hud Editor values for timers animation position
                     HudEditor_SetActiveElement(hudTimerElement);
                     if (HudEditor_ShouldOverrideDraw()) {
-                        HudEditor_ModifyRectLeftRectTopValues(&newTimerX, &newTimerY);
+                        HudEditor_ModifyRectPosValues(&newTimerX, &newTimerY);
                         modifiedTimerHudValues = true;
                         j = ((((void)0, gSaveContext.timerX[sTimerId]) - newTimerX) / sTimerStateTimer);
                         gSaveContext.timerX[sTimerId] = ((void)0, gSaveContext.timerX[sTimerId]) - j;
@@ -7315,7 +7315,7 @@ void Interface_DrawTimers(PlayState* play) {
                         HudEditor_SetActiveElement(hudTimerElement);
                         // If we are in a fallthrough, we don't want to modify the values a second time
                         if (HudEditor_ShouldOverrideDraw() && !modifiedTimerHudValues) {
-                            HudEditor_ModifyRectLeftRectTopValues(&newTimerX, &newTimerY);
+                            HudEditor_ModifyRectPosValues(&newTimerX, &newTimerY);
                         }
                         gSaveContext.timerX[sTimerId] = newTimerX;
                         gSaveContext.timerY[sTimerId] = newTimerY;
