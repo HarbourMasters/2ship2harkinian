@@ -5,6 +5,7 @@
 #include "functions.h"
 #include "variables.h"
 #include "macros.h"
+#include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 
 void GameOver_Init(PlayState* play) {
     play->gameOverCtx.state = GAMEOVER_INACTIVE;
@@ -61,6 +62,12 @@ void GameOver_Update(PlayState* play) {
             gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_ENABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = BTN_ENABLED;
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = BTN_ENABLED;
+            // #region 2S2H
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = BTN_ENABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = BTN_ENABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = BTN_ENABLED;
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = BTN_ENABLED;
+            // #endregion
             gSaveContext.buttonStatus[EQUIP_SLOT_A] = BTN_ENABLED;
             gSaveContext.hudVisibilityForceButtonAlphasByStatus = false;
             gSaveContext.nextHudVisibility = HUD_VISIBILITY_IDLE;
@@ -73,6 +80,16 @@ void GameOver_Update(PlayState* play) {
             break;
 
         case GAMEOVER_DEATH_FADE_OUT:
+            if (CVarGetInteger("gEnhancements.Kaleido.GameOver", 0)) {
+                sGameOverTimer--;
+
+                if (sGameOverTimer == 0) {
+                    play->pauseCtx.state = PAUSE_STATE_GAMEOVER_0;
+                    gameOverCtx->state++;
+                    Rumble_StateReset();
+                }
+                break;
+            }
             if (AudioSeq_GetActiveSeqId(SEQ_PLAYER_FANFARE) != NA_BGM_GAME_OVER) {
                 func_80169F78(&play->state);
                 if (gSaveContext.respawnFlag != -7) {

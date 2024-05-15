@@ -6,6 +6,32 @@
 
 using json = nlohmann::json;
 
+void to_json(json& j, const DpadSaveInfo& dpadEquips) {
+    j = json{
+        { "dpadItems", dpadEquips.dpadItems },
+        { "dpadSlots", dpadEquips.dpadSlots },
+    };
+}
+
+void from_json(const json& j, DpadSaveInfo& dpadEquips) {
+    for (int i = 0; i < ARRAY_COUNT(dpadEquips.dpadItems); i++) {
+        j.at("dpadItems").at(i).get_to(dpadEquips.dpadItems[i]);
+        j.at("dpadSlots").at(i).get_to(dpadEquips.dpadSlots[i]);
+    }
+}
+
+void to_json(json& j, const ShipSaveInfo& shipSaveInfo) {
+    j = json {
+        { "dpadEquips", shipSaveInfo.dpadEquips },
+        { "pauseSaveEntrance", shipSaveInfo.pauseSaveEntrance },
+    };
+}
+
+void from_json(const json& j, ShipSaveInfo& shipSaveInfo) {
+    j.at("dpadEquips").get_to(shipSaveInfo.dpadEquips);
+    j.at("pauseSaveEntrance").get_to(shipSaveInfo.pauseSaveEntrance);
+}
+
 void to_json(json& j, const ItemEquips& itemEquips) {
     j = json{
         { "buttonItems", itemEquips.buttonItems },
@@ -252,6 +278,7 @@ void to_json(json& j, const Save& save) {
         { "hasTatl", save.hasTatl },
         { "isOwlSave", save.isOwlSave },
         { "saveInfo", save.saveInfo },
+        { "shipSaveInfo", save.shipSaveInfo },
     };
 }
 
@@ -273,6 +300,7 @@ void from_json(const json& j, Save& save) {
     j.at("hasTatl").get_to(save.hasTatl);
     j.at("isOwlSave").get_to(save.isOwlSave);
     j.at("saveInfo").get_to(save.saveInfo);
+    j.at("shipSaveInfo").get_to(save.shipSaveInfo);
 }
 
 void to_json(json& j, const SaveContext& saveContext) {

@@ -137,9 +137,6 @@ void func_80BD5E6C(BgHakaBombwall* this, PlayState* play) {
 
         scale = sRockScales[i & (ARRAY_COUNT(sRockScales) - 1)];
 
-        //! FAKE
-    fake_label:;
-
         if (scale >= 16) {
             gravity = -550;
         } else {

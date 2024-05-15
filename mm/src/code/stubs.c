@@ -114,12 +114,6 @@ s32 osSetRumble(OSPfs* pfs, u32 vibrate) {
     return 0;
 }
 
-void osWritebackDCache(void* vaddr, s32 nbytes) {
-}
-
-void osInvalICache(void* vaddr, size_t nbytes) {
-}
-
 u32 __osGetFpcCsr() {
     return 0;
 }
@@ -134,22 +128,12 @@ OSIntMask __osDisableInt(void) {
 void __osRestoreInt(OSIntMask a0) {
 }
 
-OSPiHandle* osCartRomInit(void) {
-    return NULL;
-}
-
 u32 osMemSize = 1024 * 1024 * 1024;
 
 void Audio_osInvalDCache(void* buf, s32 size) {
 }
 
 void Audio_osWritebackDCache(void* mem, s32 size) {
-}
-
-void osInvalDCache(void* vaddr, size_t nbytes) {
-}
-
-void osWritebackDCacheAll(void) {
 }
 
 void Audio_SetBGM(u32 bgmId) {
@@ -249,57 +233,7 @@ void gSPInvalidateTexCache(Gfx* pkt, uintptr_t texAddr) {
 
     __gSPInvalidateTexCache(pkt, texAddr);
 }
-void func_801A1290(void) {
 
-}
-
-void func_801A1904(void) {
-
-}
-
-void func_801A1E0C(void) {
-
-}
-
-void func_801A2090(void) {
-
-}
-
-void func_801A312C(void) {
-
-}
-
-void func_801A3AC0(void) {
-
-}
-
-void func_801A1FB4(u8 playerIndex, Vec3f* pos, u16 seqId, f32 maxDist) {
-
-}
-
-void func_801A3A7C(s32 arg0) {
-
-}
-
-void func_801A3CD8(s8 param_1) {
-
-}
-void func_801A3CF4(s8 arg0) {
-}
-void func_801A3D98(s8 audioSetting) {
-}
-void func_801A3E38(u8 arg0) {
-}
-void func_801A3EC0(u8 arg0) {
-}
-void func_801A4058(UNK_TYPE arg0) {
-}
-void func_801A41C8(s32 arg0) {
-}
-void func_801A41F8(UNK_TYPE arg0) {
-}
-void func_801A3000(u16 seqId, u8 ioData) {
-}
 u16 func_801A5100(void) {
 }
 void __osDispatchThread(void) {
@@ -337,8 +271,6 @@ void osMapTLBRdb(void) {
 }
 u32 __osProbeTLB(void* param_1) {
 }
-void func_801A31EC(u16 seqId, s8 arg1, u8 arg2) {
-}
 s32 osAiSetFrequency(u32 frequency) {
     return 1;
 }
@@ -366,14 +298,7 @@ void __osExceptionPreamble() {
 }
 void __osCleanupThread(void) {
 }
-void osSetEventMesg(OSEvent e, OSMesgQueue* mq, OSMesg msg) {
-}
 void osDestroyThread(OSThread* thread) {
-}
-s32 __osMotorAccess(OSPfs* pfs, u32 vibrate) {
-}
-s32 osMotorInit(OSMesgQueue* ctrlrqueue, OSPfs* pfs, s32 channel) {
-    return 0;
 }
 s32 osContSetCh(u8 ch) {
 }

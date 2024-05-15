@@ -34,7 +34,7 @@ jobs:
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
         cmake --no-warn-unused-cli -H. -Bbuild-cmake -GNinja -DCMAKE_BUILD_TYPE:STRING=Release
-        cmake --build build-cmake --config Release --target GenerateSohOtr -j
+        cmake --build build-cmake --config Release --target Generate2ShipOtr -j
         cmake --build build-cmake --config Release -j
 
         (cd build-cmake && cpack -G External)
@@ -43,13 +43,13 @@ jobs:
       env:
         CC: gcc
         CXX: g++
-    - name: Upload build
-      uses: actions/upload-artifact@v4
-      with:
-        name: 2ship-linux
-        path: |
-          2ship.appimage
-          readme.txt
+    # - name: Upload build
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: 2ship-linux
+    #     path: |
+    #       2ship.appimage
+    #       readme.txt
   # build-windows:
   #   needs: generate-soh-otr-and-headers
   #   runs-on: windows-latest
@@ -79,10 +79,10 @@ jobs:
   #         vcpkg
   #   - name: Configure Developer Command Prompt
   #     uses: ilammy/msvc-dev-cmd@v1
-  #   - name: Download soh.otr
+  #   - name: Download 2ship.otr
   #     uses: actions/download-artifact@v4
   #     with:
-  #       name: soh.otr
+  #       name: 2ship.otr
   #   - name: Download Headers
   #     uses: actions/download-artifact@v4
   #     with:
@@ -105,7 +105,7 @@ jobs:
   #       mv ./README.md ./2ship-windows/readme.txt
   #       mv ./build-windows/gamecontrollerdb.txt ./2ship-windows/gamecontrollerdb.txt
   #       mv ./x64/Release/assets ./2ship-windows
-  #       mv ./soh.otr ./2ship-windows/soh.otr
+  #       mv ./2ship.otr ./2ship-windows/2ship.otr
   #   - name: Upload build
   #     uses: actions/upload-artifact@v4
   #     with:
@@ -143,16 +143,28 @@ jobs:
       run: |
         set $env:PATH="$env:USERPROFILE/.cargo/bin;$env:PATH"
         cmake -S . -B build-windows -G Ninja -DCMAKE_MAKE_PROGRAM=ninja -DCMAKE_BUILD_TYPE:STRING=Release
-        cmake --build build-windows --config Release --target GenerateSohOtr --parallel 10
+        cmake --build build-windows --config Release --target Generate2ShipOtr --parallel 10
         cmake --build build-windows --config Release --parallel 10
 
         (cd build-windows && cpack)
         cd ..
-        mv _packages/*.zip 2ship-windows.zip
-    - name: Unzip package
-      run: Expand-Archive -Path 2ship-windows.zip -DestinationPath 2ship-windows
+        mv _packages/*.zip _packages/2ship-windows.zip
+    # Temporarily replaced with an upload to R2 until we go public
+    # - name: Unzip package
+    #   run: Expand-Archive -Path 2ship-windows.zip -DestinationPath 2ship-windows
+    # - name: Upload build
+    #   if: ${{ startsWith(github.ref, 'refs/heads/develop') }}
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: 2ship-windows
+    #     path: 2ship-windows
     - name: Upload build
-      uses: actions/upload-artifact@v4
+      if: ${{ startsWith(github.ref, 'refs/heads/develop') }}
+      uses: ryand56/r2-upload-action@latest
       with:
-        name: 2ship-windows
-        path: 2ship-windows
+        r2-account-id: ${{ secrets.R2_ACCOUNT_ID }}
+        r2-access-key-id: ${{ secrets.R2_ACCESS_KEY_ID }}
+        r2-secret-access-key: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+        r2-bucket: ${{ secrets.R2_BUCKET }}
+        source-dir: _packages
+        destination-dir: 2ship

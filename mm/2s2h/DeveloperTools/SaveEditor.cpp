@@ -15,6 +15,13 @@ extern u8 gItemSlots[77];
 void Interface_LoadItemIconImpl(PlayState* play, u8 btn);
 void Interface_NewDay(PlayState* play, s32 day);
 extern RegEditor* gRegEditor;
+extern ActorOverlay gActorOverlayTable[ACTOR_ID_MAX];
+extern s16 gPlayerFormObjectIds[PLAYER_FORM_MAX];
+void Player_PlaySfx(Player* player, u16 sfxId);
+void PlayerCall_Init(Actor* thisx, PlayState* play);
+void PlayerCall_Update(Actor* thisx, PlayState* play);
+void PlayerCall_Draw(Actor* thisx, PlayState* play);
+void TransitionFade_SetColor(void* thisx, u32 color);
 }
 
 bool safeMode = true;
@@ -34,6 +41,11 @@ const char* MAGIC_LEVEL_NAMES[3] = { "No Magic", "Single Magic", "Double Magic" 
 constexpr int8_t MAGIC_LEVEL_MAX = 2;
 const char* WALLET_LEVEL_NAMES[3] = { "Child Wallet", "Adult Wallet", "Giant Wallet" };
 constexpr u8 WALLET_LEVEL_MAX = 2;
+ImVec4 colorTint;
+const char* songTooltip;
+const char* curForm;
+ImVec4 formColor;
+uint32_t formObject;
 
 InventorySlot selectedInventorySlot = SLOT_NONE;
 std::vector<ItemId> safeItemsForInventorySlot[SLOT_MASK_FIERCE_DEITY + 1] = {};
@@ -335,6 +347,7 @@ void DrawGeneralTab() {
     }
 
     UIWidgets::Checkbox("Has Tatl", (bool*)&gSaveContext.save.hasTatl, { .color = UIWidgets::Colors::Gray });
+    UIWidgets::Checkbox("Is Owl Save", (bool*)&gSaveContext.save.isOwlSave, { .color = UIWidgets::Colors::Gray });
     ImGui::EndGroup();
 
     ImGui::PopItemWidth();
@@ -385,23 +398,26 @@ void DrawEquipItemMenu(InventorySlot slot) {
             gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][EQUIP_SLOT_C_RIGHT] = slot;
             Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_C_RIGHT);
         }
-        // Todo: DPAD equips support
-        // if (ImGui::MenuItem("D-Up")) {
-        //     gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][4] = currentItemId;
-        //     gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][3] = slot;
-        // }
-        // if (ImGui::MenuItem("D-Down")) {
-        //     gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][5] = currentItemId;
-        //     gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][4] = slot;
-        // }
-        // if (ImGui::MenuItem("D-Left")) {
-        //     gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][6] = currentItemId;
-        //     gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][5] = slot;
-        // }
-        // if (ImGui::MenuItem("D-Right")) {
-        //     gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][7] = currentItemId;
-        //     gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][6] = slot;
-        // }
+        if (ImGui::MenuItem("D-Right")) {
+            gSaveContext.save.shipSaveInfo.dpadEquips.dpadItems[CUR_FORM][EQUIP_SLOT_D_RIGHT] = currentItemId;
+            gSaveContext.save.shipSaveInfo.dpadEquips.dpadSlots[CUR_FORM][EQUIP_SLOT_D_RIGHT] = slot;
+            Interface_Dpad_LoadItemIconImpl(gPlayState, EQUIP_SLOT_D_RIGHT);
+        }
+        if (ImGui::MenuItem("D-Left")) {
+            gSaveContext.save.shipSaveInfo.dpadEquips.dpadItems[CUR_FORM][EQUIP_SLOT_D_LEFT] = currentItemId;
+            gSaveContext.save.shipSaveInfo.dpadEquips.dpadSlots[CUR_FORM][EQUIP_SLOT_D_LEFT] = slot;
+            Interface_Dpad_LoadItemIconImpl(gPlayState, EQUIP_SLOT_D_LEFT);
+        }
+        if (ImGui::MenuItem("D-Down")) {
+            gSaveContext.save.shipSaveInfo.dpadEquips.dpadItems[CUR_FORM][EQUIP_SLOT_D_DOWN] = currentItemId;
+            gSaveContext.save.shipSaveInfo.dpadEquips.dpadSlots[CUR_FORM][EQUIP_SLOT_D_DOWN] = slot;
+            Interface_Dpad_LoadItemIconImpl(gPlayState, EQUIP_SLOT_D_DOWN);
+        }
+        if (ImGui::MenuItem("D-Up")) {
+            gSaveContext.save.shipSaveInfo.dpadEquips.dpadItems[CUR_FORM][EQUIP_SLOT_D_UP] = currentItemId;
+            gSaveContext.save.shipSaveInfo.dpadEquips.dpadSlots[CUR_FORM][EQUIP_SLOT_D_UP] = slot;
+            Interface_Dpad_LoadItemIconImpl(gPlayState, EQUIP_SLOT_D_UP);
+        }
         ImGui::EndMenu();
     }
 }
@@ -596,6 +612,461 @@ void DrawItemsAndMasksTab() {
     // ImGui::Text("D-Pad");
     ImGui::EndChild();
     ImGui::PopStyleVar(2);
+}
+
+void SongInfo(int32_t itemID) {
+    switch (itemID) {
+        case QUEST_SONG_SONATA:
+            colorTint = ImVec4(0.588f, 1.0f, 0.392f, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Sonata of Awakening";
+            break;
+        case QUEST_SONG_LULLABY:
+            colorTint = ImVec4(1.0f, 0.313f, 0.156f, (CHECK_QUEST_ITEM(itemID) || CHECK_QUEST_ITEM(QUEST_SONG_LULLABY_INTRO)) ? 1.0f : 0.4f);
+            songTooltip = (!CHECK_QUEST_ITEM(itemID) && CHECK_QUEST_ITEM(QUEST_SONG_LULLABY_INTRO)) ? "Goron Lullaby Intro" : "Goron Lullaby";
+            break;
+        case QUEST_SONG_BOSSA_NOVA:
+            colorTint = ImVec4(0.392f, 0.588f, 1.0f, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "New Wave Bossa Nova";
+            break;
+        case QUEST_SONG_ELEGY:
+            colorTint = ImVec4(1.0f, 0.627f, 0.0f, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Elegy of Emptiness";
+            break;
+        case QUEST_SONG_OATH:
+            colorTint = ImVec4(1.0f, 0.392f, 1.0f, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Oath to Order";
+            break;
+        case QUEST_SONG_TIME:
+            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Song of Time";
+            break;
+        case QUEST_SONG_HEALING:
+            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Song of Healing";
+            break;
+        case QUEST_SONG_EPONA:
+            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Eponas Song";
+            break;
+        case QUEST_SONG_SOARING:
+            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Song of Soaring";
+            break;
+        case QUEST_SONG_STORMS:
+            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Song of Storms";
+            break;
+        case QUEST_SONG_SARIA:
+            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Saria's Song (Unused?)";
+            break;
+        case QUEST_SONG_SUN:
+            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = "Sun's Song (Not Obtainable)";
+            break;
+        default:
+            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
+            songTooltip = " ";
+            break;
+    }
+}
+
+std::map<QuestItem, ItemId>questToItemMap = {
+    { QUEST_REMAINS_ODOLWA,     ITEM_REMAINS_ODOLWA },
+    { QUEST_REMAINS_GOHT,       ITEM_REMAINS_GOHT },
+    { QUEST_REMAINS_GYORG,      ITEM_REMAINS_GYORG },
+    { QUEST_REMAINS_TWINMOLD,   ITEM_REMAINS_TWINMOLD },
+    { QUEST_SONG_SONATA,        ITEM_SONG_SONATA },
+    { QUEST_SONG_LULLABY,       ITEM_SONG_LULLABY },
+    { QUEST_SONG_BOSSA_NOVA,    ITEM_SONG_NOVA },
+    { QUEST_SONG_ELEGY,         ITEM_SONG_ELEGY },
+    { QUEST_SONG_OATH,          ITEM_SONG_OATH },
+    { QUEST_SONG_SARIA,         ITEM_SONG_SARIA },
+    { QUEST_SONG_TIME,          ITEM_SONG_TIME },
+    { QUEST_SONG_HEALING,       ITEM_SONG_HEALING },
+    { QUEST_SONG_EPONA,         ITEM_SONG_EPONA },
+    { QUEST_SONG_SOARING,       ITEM_SONG_SOARING },
+    { QUEST_SONG_STORMS,        ITEM_SONG_STORMS },
+    { QUEST_SONG_SUN,           ITEM_SONG_SUN }
+};
+
+void NextQuestInSlot(QuestItem slot) {
+    if (!gPlayState) {
+        return;
+    }
+    Player* player = GET_PLAYER(gPlayState);
+    if (slot == QUEST_SONG_LULLABY || slot == QUEST_SONG_LULLABY_INTRO) {
+        if (CHECK_QUEST_ITEM(QUEST_SONG_LULLABY)) {
+            REMOVE_QUEST_ITEM(QUEST_SONG_LULLABY);
+            REMOVE_QUEST_ITEM(QUEST_SONG_LULLABY_INTRO);
+        } else if (CHECK_QUEST_ITEM(QUEST_SONG_LULLABY_INTRO)) {
+            SET_QUEST_ITEM(QUEST_SONG_LULLABY);
+        } else {
+            SET_QUEST_ITEM(QUEST_SONG_LULLABY_INTRO);
+        }
+    } else if (slot == QUEST_SWORD) {
+        uint32_t currentSword = GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD);
+        if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) >= EQUIP_VALUE_SWORD_GILDED) {
+            SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_KOKIRI);
+        } else {
+            SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, currentSword + 1);
+        }
+        BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_KOKIRI + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI;
+        if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) == EQUIP_VALUE_SWORD_RAZOR) {
+            gSaveContext.save.saveInfo.playerData.swordHealth = 100;
+        }
+        Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_B);
+    } else if (slot == QUEST_SHIELD) {
+        uint32_t currentShield = GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD);
+        if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD) == 1) {
+            SET_EQUIP_VALUE(EQUIP_TYPE_SHIELD, EQUIP_VALUE_SHIELD_MIRROR);
+        } else {
+            SET_EQUIP_VALUE(EQUIP_TYPE_SHIELD, EQUIP_VALUE_SHIELD_HERO);
+        }
+        Player_SetEquipmentData(gPlayState, player);
+    } else {
+        if (CHECK_QUEST_ITEM(slot)) {
+            REMOVE_QUEST_ITEM(slot);
+        } else {
+            SET_QUEST_ITEM(slot);
+        }
+    }
+}
+
+void DrawQuestSlot(QuestItem slot) {
+    int x = slot % 6;
+    int y = ((int)floor(slot / 6) % 4);
+    ImGui::PushID(slot);
+    
+    ImGui::SetCursorPos(ImVec2(x * INV_GRID_WIDTH + INV_GRID_PADDING, y * INV_GRID_HEIGHT + INV_GRID_TOP_MARGIN + INV_GRID_PADDING));
+
+    ImTextureID textureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[questToItemMap[slot]]);
+    if (ImGui::ImageButton(std::to_string(slot).c_str(), textureId, ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, CHECK_QUEST_ITEM(slot) ? 1.0f : 0.4f))) {
+        NextQuestInSlot(slot);
+    }
+   
+    ImGui::PopID();
+}
+
+void DrawSong(QuestItem slot) {
+    SongInfo(slot);
+    if (ImGui::ImageButton(std::to_string(slot).c_str(), Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[questToItemMap[(QuestItem)slot]]),
+        ImVec2(INV_GRID_ICON_SIZE / 1.5f, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), colorTint)) {
+        NextQuestInSlot(slot);
+    }
+    if (ImGui::IsItemHovered()) {
+        ImGui::BeginTooltip();
+        ImGui::Text(songTooltip);
+        ImGui::EndTooltip();
+    }
+    if (slot != QUEST_SONG_SUN) {
+        ImGui::SameLine();
+    }
+}
+
+void DrawQuestStatusTab() {
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 3.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f, 8.0f));
+    ImGui::BeginChild("questTab", ImVec2(0, 0), true);
+
+    if (UIWidgets::Button("Give All##items", { .color = UIWidgets::Colors::Green, .size = UIWidgets::Sizes::Inline })) {
+        for (int32_t i = QUEST_REMAINS_ODOLWA; i <= QUEST_BOMBERS_NOTEBOOK; i++) {
+            if (i != QUEST_SHIELD && i != QUEST_SWORD) {
+                SET_QUEST_ITEM(i);
+            }
+        }
+        SET_EQUIP_VALUE(EQUIP_TYPE_SHIELD, EQUIP_VALUE_SHIELD_MIRROR);
+        if (GET_PLAYER_FORM != PLAYER_FORM_FIERCE_DEITY) {
+            SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_GILDED);
+            if (gPlayState) {
+                Player_SetEquipmentData(gPlayState, GET_PLAYER(gPlayState));
+                BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_KOKIRI + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI;
+                Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_B);
+            }
+        }
+    }
+    ImGui::SameLine();
+    if (UIWidgets::Button("Reset##items", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+        for (int32_t i = QUEST_REMAINS_ODOLWA; i <= QUEST_BOMBERS_NOTEBOOK; i++) {
+            if (i != QUEST_SHIELD && i != QUEST_SWORD) {
+                REMOVE_QUEST_ITEM(i);
+            }
+        }
+        REMOVE_QUEST_ITEM(QUEST_SONG_LULLABY_INTRO);
+        SET_EQUIP_VALUE(EQUIP_TYPE_SHIELD, EQUIP_VALUE_SHIELD_HERO);
+        if (GET_PLAYER_FORM != PLAYER_FORM_FIERCE_DEITY) {
+            SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_KOKIRI);
+            if (gPlayState) {
+                Player_SetEquipmentData(gPlayState, GET_PLAYER(gPlayState));
+                BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_KOKIRI + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI;
+                Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_B);
+            }
+        }
+        
+    }
+
+    ImGui::BeginChild("remainsBox", ImVec2(INV_GRID_WIDTH * 4 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+    ImGui::Text("Boss Remains");
+    for (int32_t i = QUEST_REMAINS_ODOLWA; i <= QUEST_REMAINS_TWINMOLD; i++) {
+        QuestItem slot = static_cast<QuestItem>(i);
+    
+        DrawQuestSlot(slot);
+    }
+    ImGui::EndChild();
+    ImGui::BeginChild("songBox", ImVec2((INV_GRID_WIDTH / 1.1f) * 6 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 2.15f + INV_GRID_PADDING * 1 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+    ImGui::Text("Songs");
+    for (int32_t i = QUEST_SONG_TIME; i <= QUEST_SONG_SUN; i++) {
+        DrawSong((QuestItem)i);
+    }
+    for (int32_t i = QUEST_SONG_SONATA; i <= QUEST_SONG_SARIA; i++) {
+        DrawSong((QuestItem)i);
+    }
+    ImGui::EndChild();
+    ImGui::BeginChild("equipBox", ImVec2(INV_GRID_WIDTH * 2.2 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+    ImGui::Text("Equipment");
+    if (GET_PLAYER_FORM == PLAYER_FORM_FIERCE_DEITY) {
+        ImTextureID swordTextureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[ITEM_SWORD_DEITY]);
+        ImGui::ImageButton(std::to_string(ITEM_SWORD_DEITY).c_str(), swordTextureId, ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1));
+    } else {
+        ImTextureID swordTextureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[ITEM_SWORD_KOKIRI + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI]);
+        if (ImGui::ImageButton(std::to_string(ITEM_SWORD_KOKIRI).c_str(), swordTextureId, ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
+            NextQuestInSlot(QUEST_SWORD);
+        }
+    }
+    ImGui::SameLine();
+    if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD) == EQUIP_VALUE_SHIELD_HERO) {
+        ImTextureID shieldTextureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[ITEM_SHIELD_HERO]);
+        if (ImGui::ImageButton(std::to_string(ITEM_SHIELD_HERO).c_str(), shieldTextureId, ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
+            NextQuestInSlot(QUEST_SHIELD);
+        }
+    } else {
+        ImTextureID shieldTextureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[ITEM_SHIELD_MIRROR]);
+        if (ImGui::ImageButton(std::to_string(ITEM_SHIELD_MIRROR).c_str(), shieldTextureId, ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
+            NextQuestInSlot(QUEST_SHIELD);
+        }
+    }
+    ImGui::EndChild();
+    ImGui::SameLine();
+    ImGui::BeginChild("notebookBox", ImVec2(INV_GRID_WIDTH * 1 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1 + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+    ImGui::Text("Bombers");
+    ImTextureID textureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[ITEM_BOMBERS_NOTEBOOK]);
+    if (ImGui::ImageButton(std::to_string(ITEM_BOMBERS_NOTEBOOK).c_str(), textureId, ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, CHECK_QUEST_ITEM(QUEST_BOMBERS_NOTEBOOK) ? 1.0f : 0.4f))) {
+        NextQuestInSlot(QUEST_BOMBERS_NOTEBOOK);
+    }
+    ImGui::EndChild();
+    ImGui::BeginChild("heartshapedBox", ImVec2(INV_GRID_WIDTH * 2 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT + INV_GRID_PADDING), ImGuiChildFlags_Border);
+    ImGui::Text("Heart Pieces");
+    int32_t pohCount = (gSaveContext.save.saveInfo.inventory.questItems & 0xF0000000) >> 28;
+    UIWidgets::PushStyleCombobox(UIWidgets::Colors::Red);
+    if (ImGui::BeginCombo("##PoHcount", std::to_string(pohCount).c_str())) {
+        for (int32_t i = 0; i < 4; i++) {
+            if (ImGui::Selectable(std::to_string(i).c_str(), pohCount == i)) {
+                gSaveContext.save.saveInfo.inventory.questItems &= ~0xF0000000;
+                gSaveContext.save.saveInfo.inventory.questItems |= (i << 28);
+            }
+        }
+        ImGui::EndCombo();
+    }
+    UIWidgets::PopStyleCombobox();
+    ImGui::EndChild();
+
+    ImGui::EndChild();
+    ImGui::PopStyleVar(2);
+    ImGui::PopStyleColor(1);
+}
+
+void GetPlayerForm(uint32_t form) {
+    switch (form) {
+        case PLAYER_FORM_FIERCE_DEITY:
+            curForm = "Fierce Deity";
+            formColor = UIWidgets::Colors::Red;
+            formObject = OBJECT_LINK_BOY;
+            break;
+        case PLAYER_FORM_GORON:
+            curForm = "Goron";
+            formColor = UIWidgets::Colors::Yellow;
+            formObject = OBJECT_LINK_GORON;
+            break;
+        case PLAYER_FORM_ZORA:
+            curForm = "Zora";
+            formColor = UIWidgets::Colors::Indigo;
+            formObject = OBJECT_LINK_ZORA;
+            break;
+        case PLAYER_FORM_DEKU:
+            curForm = "Deku";
+            formColor = UIWidgets::Colors::DarkGreen;
+            formObject = OBJECT_LINK_NUTS;
+            break;
+        case PLAYER_FORM_HUMAN:
+            curForm = "Human";
+            formColor = UIWidgets::Colors::LightGreen;
+            formObject = OBJECT_LINK_CHILD;
+            break;
+        default:
+            break;
+    }
+}
+
+void DrawPlayerTab() {
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 3.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f, 8.0f));
+    ImGui::BeginChild("playerTab", ImVec2(0, 0), true);
+
+    if (gPlayState) {
+        Player* player = GET_PLAYER(gPlayState);
+        ImGui::BeginChild("playerLocation", ImVec2(INV_GRID_WIDTH * 8 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1.75f + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+
+        GetPlayerForm(GET_PLAYER_FORM);
+        ImGui::Text("%s Link", curForm);
+        ImGui::Text("Position:");
+        UIWidgets::PushStyleCombobox(formColor);
+        ImGui::PushItemWidth(ImGui::GetFontSize() * 6);
+        ImGui::InputScalar("X Pos", ImGuiDataType_Float, &player->actor.world.pos.x);
+        ImGui::SameLine();
+        ImGui::InputScalar("Y Pos", ImGuiDataType_Float, &player->actor.world.pos.y);
+        ImGui::SameLine();
+        ImGui::InputScalar("Z Pos", ImGuiDataType_Float, &player->actor.world.pos.z);
+        ImGui::Text("Rotation:");
+        ImGui::InputScalar("X Rot", ImGuiDataType_S16, &player->actor.world.rot.x);
+        ImGui::SameLine();
+        ImGui::InputScalar("Y Rot", ImGuiDataType_S16, &player->actor.world.rot.y);
+        ImGui::SameLine();
+        ImGui::InputScalar("Z Rot", ImGuiDataType_S16, &player->actor.world.rot.z);
+
+        ImGui::PopItemWidth();
+        UIWidgets::PopStyleCombobox();
+        ImGui::EndChild();
+
+        ImGui::BeginChild("playerSpeed", ImVec2(INV_GRID_WIDTH * 5 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 2.75f + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+        ImGui::Text("Link's Speed");
+        UIWidgets::PushStyleCombobox(formColor);
+        ImGui::PushItemWidth(ImGui::GetFontSize() * 6);
+        ImGui::InputScalar("Linear Velocity", ImGuiDataType_Float, &player->linearVelocity);
+        ImGui::InputScalar("Y Velocity", ImGuiDataType_Float, &player->actor.velocity.y);
+        ImGui::InputScalar("Ledge Height", ImGuiDataType_Float, &player->yDistToLedge);
+        ImGui::InputScalar("Invincibility Timer", ImGuiDataType_S16, &player->invincibilityTimer);
+        ImGui::InputScalar("Gravity", ImGuiDataType_Float, &player->actor.gravity);
+
+        ImGui::PopItemWidth();
+        UIWidgets::PopStyleCombobox();
+        ImGui::EndChild();
+
+        ImGui::BeginChild("playerForm", ImVec2(INV_GRID_WIDTH * 8 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 2.2f + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+        ImGui::Text("Change Link's Current Form");
+        for (int i = PLAYER_FORM_FIERCE_DEITY; i <= PLAYER_FORM_HUMAN; i++) {
+            GetPlayerForm(i);
+            UIWidgets::PushStyleButton(formColor);
+            if (ImGui::Button(curForm)) {
+                s16 objectId = formObject;
+                if (i != PLAYER_FORM_HUMAN) {
+                    gSaveContext.save.equippedMask = PLAYER_MASK_FIERCE_DEITY + i;
+                }
+                gActorOverlayTable[ACTOR_PLAYER].initInfo->objectId = objectId;
+                func_8012F73C(&gPlayState->objectCtx, player->actor.objectSlot, objectId);
+                player->actor.objectSlot = Object_GetSlot(&gPlayState->objectCtx, GAMEPLAY_KEEP);
+                gSaveContext.save.playerForm = i;
+                s32 objectSlot = Object_GetSlot(&gPlayState->objectCtx, gActorOverlayTable[ACTOR_PLAYER].initInfo->objectId);
+                player->actor.objectSlot = objectSlot;
+                player->actor.shape.rot.z = GET_PLAYER_FORM + 1;
+                player->actor.init = PlayerCall_Init;
+                player->actor.update = PlayerCall_Update;
+                player->actor.draw = PlayerCall_Draw;
+                gSaveContext.save.equippedMask = PLAYER_MASK_NONE;
+
+                TransitionFade_SetColor(&gPlayState->unk_18E48, 0x000000);
+                R_TRANS_FADE_FLASH_ALPHA_STEP = -1;
+                Player_PlaySfx(GET_PLAYER(gPlayState), NA_SE_SY_TRANSFORM_MASK_FLASH);
+            }
+            UIWidgets::PopStyleButton();
+            if (i != PLAYER_FORM_HUMAN) {
+                ImGui::SameLine();
+            }
+        }
+
+        ImGui::Separator();
+        ImGui::Text("Link's Current Equipment");
+        if (GET_PLAYER_FORM == PLAYER_FORM_HUMAN) {
+            static const char* weaponCombo[] = { "Kokiri Sword", "Razor Sword", "Gilded Sword" };
+            static const char* shieldCombo[] = { "Hero's Shield", "Mirror Shield" };
+            static int currentWeapon = 0;
+            static int currentShield = 0;
+
+            UIWidgets::PushStyleCombobox(UIWidgets::Colors::LightGreen);
+            ImGui::PushItemWidth(ImGui::GetFontSize() * 15);
+            if (ImGui::BeginCombo("Equipped Sword", weaponCombo[currentWeapon])) {
+                for (int i = EQUIP_VALUE_SWORD_KOKIRI; i <= EQUIP_VALUE_SWORD_GILDED; i++) {
+                    const bool isSelected = (currentWeapon == i);
+                    if (ImGui::Selectable(weaponCombo[i - 1], isSelected)) {
+                        currentWeapon = i - 1;
+                        SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, i);
+                        if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) == EQUIP_VALUE_SWORD_RAZOR) {
+                            gSaveContext.save.saveInfo.playerData.swordHealth = 100;
+                        }
+                        BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_KOKIRI + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI;
+                        Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_B);
+                    }
+                    if (isSelected) {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+                ImGui::EndCombo();
+            }
+            if (ImGui::BeginCombo("Equipped Shield", shieldCombo[currentShield])) {
+                for (int i = EQUIP_VALUE_SHIELD_HERO; i <= EQUIP_VALUE_SHIELD_MIRROR; i++) {
+                    const bool isSelected = (currentShield == i);
+                    if (ImGui::Selectable(shieldCombo[i - 1], isSelected)) {
+                        currentShield = i - 1;
+                        SET_EQUIP_VALUE(EQUIP_TYPE_SHIELD, i);
+                        Player_SetEquipmentData(gPlayState, player);
+                    }
+                    if (isSelected) {
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+                ImGui::EndCombo();
+            }
+            
+            ImGui::PopItemWidth();
+            UIWidgets::PopStyleCombobox();
+            
+        } else {
+            ImGui::Separator();
+            ImGui::Text("              No Equipment in this Form");
+            ImGui::Separator();
+        }
+        ImGui::EndChild();
+
+        ImGui::BeginChild("playerStates", ImVec2(INV_GRID_WIDTH * 8 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 0.75f + INV_GRID_PADDING * 2 + INV_GRID_TOP_MARGIN), ImGuiChildFlags_Border);
+        ImGui::Text("Player States");
+        uint32_t states[4] = { player->stateFlags1, player->stateFlags2, player->stateFlags3, player->meleeWeaponState };
+
+        if (ImGui::BeginTable("stateTable", 4)) {
+            GetPlayerForm(GET_PLAYER_FORM);
+            ImGui::PushStyleVar(ImGuiTableColumnFlags_WidthFixed, 15.0f);
+            ImGui::PushStyleColor(ImGuiCol_TableHeaderBg, formColor);
+            ImGui::TableSetupColumn("State 1");
+            ImGui::TableSetupColumn("State 2");
+            ImGui::TableSetupColumn("State 3");
+            ImGui::TableSetupColumn("Sword State");
+            ImGui::TableHeadersRow();
+            ImGui::TableNextColumn();
+
+            for (int i = 0; i <= 3; i++) {
+                ImGui::Text(std::to_string(states[i]).c_str());
+                ImGui::TableNextColumn();
+            }
+
+            ImGui::PopStyleColor(1);
+            ImGui::PopStyleVar(1);
+            ImGui::EndTable();
+        }
+        ImGui::EndChild();
+    }
+    ImGui::EndChild();
+    ImGui::PopStyleVar(2);
+    ImGui::PopStyleColor(1);
 }
 
 const char* regGroupNames[] = {
@@ -1100,6 +1571,11 @@ void SaveEditorWindow::DrawElement() {
             ImGui::EndTabItem();
         }
 
+        if (ImGui::BeginTabItem("Quest Status")) {
+            DrawQuestStatusTab();
+            ImGui::EndTabItem();
+        }
+
         if (ImGui::BeginTabItem("Reg Editor")) {
             DrawRegEditorTab();
             ImGui::EndTabItem();
@@ -1110,20 +1586,15 @@ void SaveEditorWindow::DrawElement() {
         //     ImGui::EndTabItem();
         // }
 
-        // if (ImGui::BeginTabItem("Quest Status")) {
-        //     DrawQuestStatusTab();
-        //     ImGui::EndTabItem();
-        // }
-
         if (ImGui::BeginTabItem("Flags")) {
             DrawFlagsTab();
             ImGui::EndTabItem();
         }
 
-        // if (ImGui::BeginTabItem("Player")) {
-        //     DrawPlayerTab();
-        //     ImGui::EndTabItem();
-        // }
+        if (ImGui::BeginTabItem("Player")) {
+            DrawPlayerTab();
+            ImGui::EndTabItem();
+        }
 
         ImGui::EndTabBar();
     }

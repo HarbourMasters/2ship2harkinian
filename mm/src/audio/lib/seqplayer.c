@@ -16,6 +16,7 @@
 
 #include "endianness.h"
 #include "global.h"
+#include "BenPort.h"
 
 #define PROCESS_SCRIPT_END -1
 

@@ -1,6 +1,10 @@
 #ifndef PR_GU_H
 #define PR_GU_H
 
+#include <libultraship/libultra/gu.h>
+
+#if 0
+
 #include "ultratypes.h"
 #include "gbi.h"
 
@@ -48,16 +52,18 @@ void guMtxL2F(float m1[4][4], Mtx* m2);
 
 void guNormalize(float* x, float* y, float* z);
 
+#endif // 0
 
-f32 sinf(f32 __x);
-f32 cosf(f32 __x);
+// f32 sinf(f32 __x);
+// f32 cosf(f32 __x);
 
 s16 sins(u16 x);
 s16 coss(u16 x);
 
-f32 sqrtf(f32 f);
+// f32 sqrtf(f32 f);
 #ifdef __sgi
 #pragma intrinsic(sqrtf);
 #endif
+
 
 #endif

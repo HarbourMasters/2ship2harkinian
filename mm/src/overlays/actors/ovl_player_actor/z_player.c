@@ -3615,6 +3615,40 @@ s32 Player_ItemIsItemAction(Player* this, ItemId item, PlayerItemAction itemActi
     }
 }
 
+// #region 2S2H [Dpad]
+DpadEquipSlot func_Dpad_8082FD0C(Player* this, PlayerItemAction itemAction) {
+    s32 btn;
+
+    for (btn = EQUIP_SLOT_D_RIGHT; btn <= EQUIP_SLOT_D_UP; btn++) {
+        if (Player_ItemIsItemAction(this, DPAD_GET_CUR_FORM_BTN_ITEM(btn), itemAction)) {
+            return btn;
+        }
+    }
+
+    return EQUIP_SLOT_D_NONE;
+}
+
+u16 sDpadItemButtons[] = {
+    BTN_DRIGHT,
+    BTN_DLEFT,
+    BTN_DDOWN,
+    BTN_DUP,
+};
+
+// Return currently-pressed button, in order of priority DRIGHT, DLEFT, DDOWN, DUP.
+DpadEquipSlot func_Dpad_8082FDC4(void) {
+    DpadEquipSlot i;
+
+    for (i = 0; i < ARRAY_COUNT(sDpadItemButtons); i++) {
+        if (CHECK_BTN_ALL(sPlayerControlInput->press.button, sDpadItemButtons[i])) {
+            break;
+        }
+    }
+
+    return i;
+}
+// #endregion
+
 EquipSlot func_8082FD0C(Player* this, PlayerItemAction itemAction) {
     s32 btn;
 
@@ -3667,11 +3701,32 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
     if (this->transformation == PLAYER_FORM_HUMAN) {
         if (this->currentMask != PLAYER_MASK_NONE) {
             PlayerItemAction maskItemAction = GET_IA_FROM_MASK(this->currentMask);
-            EquipSlot btn = func_8082FD0C(this, maskItemAction);
+            // #region 2S2H [Dpad] - Changed from EquipSlot to s32 to allow for higher ranges
+            s32 btn = func_8082FD0C(this, maskItemAction);
+
+            if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+                if (btn <= EQUIP_SLOT_NONE) {
+                    DpadEquipSlot dpadBtn = func_Dpad_8082FD0C(this, maskItemAction);
+                    
+                    if (dpadBtn > EQUIP_SLOT_D_NONE) {
+                        btn = DPAD_TO_HELD_ITEM(dpadBtn);
+                    }
+                }
+            }
+            // #endregion
 
             if (btn <= EQUIP_SLOT_NONE) {
+                // #region 2S2H [Dpad] - need to convert between helditem value to actual item
+                ItemId maskItem;
+                if (IS_HELD_DPAD(this->unk_154)) {
+                    maskItem = DPAD_GET_CUR_FORM_BTN_ITEM(HELD_ITEM_TO_DPAD(this->unk_154));
+                } else {
+                    maskItem = GET_CUR_FORM_BTN_ITEM(this->unk_154);
+                }
+
                 s32 maskIdMinusOne =
-                    GET_MASK_FROM_IA(Player_ItemToItemAction(this, GET_CUR_FORM_BTN_ITEM(this->unk_154))) - 1;
+                    GET_MASK_FROM_IA(Player_ItemToItemAction(this, maskItem)) - 1;
+                // #endregion
 
                 if ((maskIdMinusOne < PLAYER_MASK_TRUTH - 1) || (maskIdMinusOne >= PLAYER_MASK_MAX - 1)) {
                     maskIdMinusOne = this->currentMask - 1;
@@ -3691,6 +3746,13 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
     if (((this->actor.id == ACTOR_PLAYER) && (this->itemAction >= PLAYER_IA_FISHING_ROD)) &&
         !(((Player_GetHeldBButtonSword(this) == PLAYER_B_SWORD_NONE) || (gSaveContext.jinxTimer == 0)) &&
           (Player_ItemIsInUse(this, (IREG(1) != 0) ? ITEM_FISHING_ROD : Inventory_GetBtnBItem(play)) ||
+    // #region 2S2H [Dpad]
+          (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0) &&
+          (Player_ItemIsInUse(this, DPAD_BTN_ITEM(EQUIP_SLOT_D_RIGHT)) ||
+           Player_ItemIsInUse(this, DPAD_BTN_ITEM(EQUIP_SLOT_D_LEFT)) ||
+           Player_ItemIsInUse(this, DPAD_BTN_ITEM(EQUIP_SLOT_D_DOWN)) ||
+           Player_ItemIsInUse(this, DPAD_BTN_ITEM(EQUIP_SLOT_D_UP)))) ||
+    // #end region
            Player_ItemIsInUse(this, C_BTN_ITEM(EQUIP_SLOT_C_LEFT)) ||
            Player_ItemIsInUse(this, C_BTN_ITEM(EQUIP_SLOT_C_DOWN)) ||
            Player_ItemIsInUse(this, C_BTN_ITEM(EQUIP_SLOT_C_RIGHT))))) {
@@ -3707,6 +3769,19 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
 
         item = Player_GetItemOnButton(play, this, i);
 
+        // #region 2S2H [Dpad]
+        if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+            if (i >= EQUIP_SLOT_A) {
+                DpadEquipSlot j = func_Dpad_8082FDC4();
+                ItemId dpadItem = Player_Dpad_GetItemOnButton(play, this, j);
+                if (dpadItem < item) {
+                    item = dpadItem;
+                }
+                i = (j >= EQUIP_SLOT_D_MAX) ? i : DPAD_TO_HELD_ITEM(j);
+            }
+        }
+        // #endregion
+
         if (item >= ITEM_FD) {
             for (i = 0; i < ARRAY_COUNT(sPlayerItemButtons); i++) {
                 if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, sPlayerItemButtons[i])) {
@@ -3718,6 +3793,20 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
             if ((item < ITEM_FD) && (Player_ItemToItemAction(this, item) == this->heldItemAction)) {
                 sPlayerHeldItemButtonIsHeldDown = true;
             }
+            // #region 2S2H [Dpad]
+            else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+                for (i = 0; i < ARRAY_COUNT(sDpadItemButtons); i++) {
+                    if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, sDpadItemButtons[i])) {
+                        break;
+                    }
+                }
+
+                item = Player_Dpad_GetItemOnButton(play, this, i);
+                if ((item < ITEM_FD) && (Player_ItemToItemAction(this, item) == this->heldItemAction)) {
+                    sPlayerHeldItemButtonIsHeldDown = true;
+                }
+            }
+            // #endregion
         } else if (item == ITEM_F0) {
             if (this->blastMaskTimer == 0) {
                 EnBom* bomb = (EnBom*)Actor_Spawn(&play->actorCtx, play, ACTOR_EN_BOM, this->actor.focus.pos.x,
@@ -4102,7 +4191,7 @@ s32 func_80830FD4(PlayState* play) {
     return (play->bButtonAmmoPlusOne != 0) &&
            ((play->bButtonAmmoPlusOne < 0) ||
             CHECK_BTN_ANY(sPlayerControlInput->cur.button,
-                          BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_CUP | BTN_B | BTN_A));
+                          BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_CUP | BTN_B | BTN_A | BTN_DPAD_EQUIP));
 }
 
 s32 func_80831010(Player* this, PlayState* play) {
@@ -4362,6 +4451,13 @@ void func_80831944(PlayState* play, Player* this) {
     if (Player_GetItemOnButton(play, this, func_8082FDC4()) == ITEM_LENS_OF_TRUTH) {
         func_808318C0(play);
     }
+    // #region 2S2H [Dpad]
+    else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+        if (Player_Dpad_GetItemOnButton(play, this, func_Dpad_8082FDC4()) == ITEM_LENS_OF_TRUTH) {
+            func_808318C0(play);
+        }
+    }
+    // #endregion
 }
 
 void Player_UseItem(PlayState* play, Player* this, ItemId item) {
@@ -9196,7 +9292,7 @@ s32 func_8083D738(Player* this, Actor* heldActor) {
 s32 Player_ActionChange_9(Player* this, PlayState* play) {
     if (this->stateFlags1 & PLAYER_STATE1_800) {
         if ((this->heldActor != NULL) &&
-            CHECK_BTN_ANY(sPlayerControlInput->press.button, BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_B | BTN_A)) {
+            CHECK_BTN_ANY(sPlayerControlInput->press.button, BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_B | BTN_A | BTN_DPAD_EQUIP)) {
             if (!func_808313A8(play, this, this->heldActor)) {
                 if (!func_8083D738(this, this->heldActor)) {
                     Player_SetAction(play, this, Player_Action_41, 1);
@@ -9988,7 +10084,9 @@ s32 func_8083FD80(Player* this, PlayState* play) {
     if (!Player_IsGoronOrDeku(this) && (Player_GetMeleeWeaponHeld(this) != PLAYER_MELEEWEAPON_NONE) &&
         (this->transformation != PLAYER_FORM_ZORA) && sPlayerUseHeldItem) {
         //! Calling this function sets the meleeWeaponQuads' damage properties correctly, patching "Power Crouch Stab".
-        func_8083375C(this, PLAYER_MWA_STAB_1H);
+        if (GameInteractor_Should(GI_VB_PATCH_POWER_CROUCH_STAB, true, NULL)) {
+            func_8083375C(this, PLAYER_MWA_STAB_1H);
+        }
         Player_AnimationPlayOnce(play, this, &gPlayerAnim_link_normal_defense_kiru);
         this->av1.actionVar1 = 1;
         this->meleeWeaponAnimation = PLAYER_MWA_STAB_1H;
@@ -10033,7 +10131,9 @@ s32 func_8083FF30(PlayState* play, Player* this) {
 s32 func_8083FFEC(PlayState* play, Player* this) {
     if (this->heldItemAction == PLAYER_IA_SWORD_RAZOR) {
         if (gSaveContext.save.saveInfo.playerData.swordHealth > 0) {
-            gSaveContext.save.saveInfo.playerData.swordHealth--;
+            if (GameInteractor_Should(GI_VB_LOWER_RAZOR_SWORD_DURABILITY, true, NULL)) {
+                gSaveContext.save.saveInfo.playerData.swordHealth--;
+            }
             if (gSaveContext.save.saveInfo.playerData.swordHealth <= 0) {
                 Item_Give(play, ITEM_SWORD_KOKIRI);
                 Player_UseItem(play, this, ITEM_SWORD_KOKIRI);
@@ -10866,6 +10966,12 @@ void Player_Init(Actor* thisx, PlayState* play) {
     if (((initMode == PLAYER_INITMODE_5) || (initMode == PLAYER_INITMODE_6)) &&
         (gSaveContext.save.cutsceneIndex >= 0xFFF0)) {
         initMode = PLAYER_INITMODE_D;
+    }
+
+    // When we have a pause save entrance, we need to override the init mode to ensure the loading is handled correctly
+    if (gSaveContext.save.shipSaveInfo.pauseSaveEntrance != -1) {
+        initMode = PLAYER_INITMODE_6;
+        gSaveContext.save.shipSaveInfo.pauseSaveEntrance = -1;
     }
 
     D_8085D2CC[initMode](play, this);
@@ -12515,6 +12621,8 @@ void Player_Update(Actor* thisx, PlayState* play) {
             input.press.button &= ~(BTN_CUP | BTN_B | BTN_A);
         }
     }
+
+    GameInteractor_ExecuteOnPassPlayerInputs(&input);
 
     Player_UpdateCommon(this, play, &input);
     skipUpdate:
@@ -14731,7 +14839,7 @@ void Player_Action_25(Player* this, PlayState* play) {
         if (this->stateFlags1 & PLAYER_STATE1_800) {
             heldActor = this->heldActor;
             if (!func_808313A8(play, this, heldActor) && (heldActor->id == ACTOR_EN_NIW) &&
-                CHECK_BTN_ANY(sPlayerControlInput->press.button, BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_B | BTN_A)) {
+                CHECK_BTN_ANY(sPlayerControlInput->press.button, BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_B | BTN_A | BTN_DPAD_EQUIP)) {
                 func_808409A8(play, this, this->linearVelocity + 2.0f, this->actor.velocity.y + 2.0f);
             }
         }
@@ -15462,7 +15570,7 @@ void Player_Action_38(Player* this, PlayState* play) {
         } else if (PlayerAnimation_OnFrame(&this->skelAnime, 25.0f)) {
             Player_AnimSfx_PlayVoice(this, NA_SE_VO_LI_SWORD_L);
         }
-    } else if (CHECK_BTN_ANY(sPlayerControlInput->press.button, BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_B | BTN_A)) {
+    } else if (CHECK_BTN_ANY(sPlayerControlInput->press.button, BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_B | BTN_A | BTN_DPAD_EQUIP)) {
         Player_SetAction(play, this, Player_Action_39, 1);
         Player_AnimationPlayOnce(play, this, &gPlayerAnim_link_silver_throw);
     }
@@ -15560,7 +15668,7 @@ void Player_Action_43(Player* this, PlayState* play) {
               (!func_800B7128(this) && !func_8082EF20(this))))) ||
            ((this->unk_AA5 == PLAYER_UNKAA5_1) &&
             CHECK_BTN_ANY(sPlayerControlInput->press.button,
-                          BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_CUP | BTN_R | BTN_B | BTN_A))) ||
+                          BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_CUP | BTN_R | BTN_B | BTN_A | BTN_DPAD_EQUIP))) ||
           Player_ActionChange_4(this, play)))) {
         func_80839ED0(this, play);
         Audio_PlaySfx(NA_SE_SY_CAMERA_ZOOM_UP);
@@ -17250,8 +17358,6 @@ void Player_Action_67(Player* this, PlayState* play) {
                                                                      : &gPlayerAnim_link_bottle_drink_demo_wait);
             this->av2.actionVar2 = 1;
 
-        //! FAKE
-        dummy_label_235515:;
         } else if (this->av2.actionVar2 < 0) {
             this->av2.actionVar2++;
             if (this->av2.actionVar2 == 0) {
@@ -17369,6 +17475,36 @@ void Player_Action_68(Player* this, PlayState* play) {
                         }
                     }
                 }
+                // #region 2S2H [Dpad]
+                else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+                    if (Player_Dpad_GetItemOnButton(play, this, HELD_ITEM_TO_DPAD(this->heldItemButton)) == ITEM_BOTTLE) {
+                        Actor* interactRangeActor = this->interactRangeActor;
+
+                        if (interactRangeActor != NULL) {
+                            struct_8085D798* entry = D_8085D798;
+                            s32 i;
+
+                            for (i = 0; i < ARRAY_COUNT(D_8085D798); i++) {
+                                if (((interactRangeActor->id == entry->actorId) &&
+                                    ((entry->actorParams <= BOTTLE_CATCH_PARAMS_ANY) ||
+                                    (interactRangeActor->params == entry->actorParams)))) {
+                                    break;
+                                }
+                                entry++;
+                            }
+
+                            if (i < ARRAY_COUNT(D_8085D798)) {
+                                this->av1.actionVar1 = i + 1;
+                                this->av2.actionVar2 = 0;
+                                this->stateFlags1 |= PLAYER_STATE1_10000000 | PLAYER_STATE1_20000000;
+                                interactRangeActor->parent = &this->actor;
+                                Player_UpdateBottleHeld(play, this, entry->itemId, entry->itemAction);
+                                func_8082DB90(play, this, sp24->unk_4);
+                            }
+                        }
+                    }
+                }
+                // #endregion
             }
         }
 
@@ -17730,10 +17866,18 @@ void Player_Action_80(Player* this, PlayState* play) {
 
                     play->actorCtx.flags |= ACTORCTX_FLAG_PICTO_BOX_ON;
                 }
+                // #region 2S2H [Dpad]
+                else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+                    if ((play->sceneId == SCENE_20SICHITAI) &&
+                        (Player_Dpad_GetItemOnButton(play, this, func_Dpad_8082FDC4()) == ITEM_PICTOGRAPH_BOX)) {
+                        play->actorCtx.flags |= ACTORCTX_FLAG_PICTO_BOX_ON;
+                    }  
+                }
+                // #endregion
             }
         }
     } else if (CHECK_BTN_ANY(sPlayerControlInput->press.button,
-                             BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_CUP | BTN_R | BTN_A)) {
+                             BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_CUP | BTN_R | BTN_A | BTN_DPAD_EQUIP)) {
         play->bButtonAmmoPlusOne = -1;
         Player_Action_81(this, play);
         Player_SetAction(play, this, Player_Action_80, 0);
@@ -18130,7 +18274,7 @@ void Player_Action_86(Player* this, PlayState* play) {
                 (sp48 =
                      ((this->transformation != PLAYER_FORM_HUMAN) || CHECK_WEEKEVENTREG(D_8085D908[GET_PLAYER_FORM])) &&
                      CHECK_BTN_ANY(sPlayerControlInput->press.button,
-                                   BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_CUP | BTN_B | BTN_A)))) {
+                                   BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_CUP | BTN_B | BTN_A | BTN_DPAD_EQUIP)))) {
         R_PLAY_FILL_SCREEN_ON = 45;
         R_PLAY_FILL_SCREEN_R = 220;
         R_PLAY_FILL_SCREEN_G = 220;

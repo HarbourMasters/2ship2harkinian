@@ -5,6 +5,7 @@
 
 #include "global.h"
 #include "overlays/actors/ovl_En_Door/z_en_door.h"
+#include "BenPort.h"
 
 s16 sPathDayFlags[] = { 0x40, 0x20, 0x10, 8, 4, 2, 1, 0 };
 

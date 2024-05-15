@@ -3,6 +3,7 @@
 #include "overlays/gamestates/ovl_file_choose/z_file_select.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include <string.h>
+#include "BenPort.h"
 
 #include "Enhancements/GameInteractor/GameInteractor.h"
 
@@ -553,6 +554,14 @@ void Sram_SaveEndOfCycle(PlayState* play) {
                         Interface_LoadItemIconImpl(play, j);
                     }
                 }
+                // #region 2S2H [Dpad]
+                for (s32 k = EQUIP_SLOT_D_RIGHT; k <= EQUIP_SLOT_D_UP; k++) {
+                    if (DPAD_GET_CUR_FORM_BTN_ITEM(k) == gSaveContext.save.saveInfo.inventory.items[i]) {
+                        DPAD_SET_CUR_FORM_BTN_ITEM(k, ITEM_BOTTLE);
+                        Interface_Dpad_LoadItemIconImpl(play, k);
+                    }
+                }                
+                // #endregion
                 gSaveContext.save.saveInfo.inventory.items[i] = ITEM_BOTTLE;
             }
         }
@@ -621,6 +630,14 @@ void Sram_SaveEndOfCycle(PlayState* play) {
             Interface_LoadItemIconImpl(play, j);
         }
     }
+    // #region 2S2H [Dpad]
+    for (s32 k = EQUIP_SLOT_D_RIGHT; k <= EQUIP_SLOT_D_UP; k++) {
+        if ((DPAD_GET_CUR_FORM_BTN_ITEM(k) >= ITEM_MOONS_TEAR) && (DPAD_GET_CUR_FORM_BTN_ITEM(k) <= ITEM_PENDANT_OF_MEMORIES)) {
+            DPAD_SET_CUR_FORM_BTN_ITEM(k, ITEM_NONE);
+            Interface_Dpad_LoadItemIconImpl(play, k);
+        }
+    }                
+    // #endregion
 
     gSaveContext.save.saveInfo.skullTokenCount &= ~0xFFFF0000;
     gSaveContext.save.saveInfo.skullTokenCount &= ~0x0000FFFF;
@@ -811,6 +828,23 @@ ItemEquips sSaveDefaultItemEquips = {
     0x11,
 };
 
+// #region 2S2H
+DpadSaveInfo sSaveDefaultDpadItemEquips = {
+    {
+        { ITEM_NONE, ITEM_NONE, ITEM_NONE, ITEM_NONE },
+        { ITEM_NONE, ITEM_NONE, ITEM_NONE, ITEM_NONE },
+        { ITEM_NONE, ITEM_NONE, ITEM_NONE, ITEM_NONE },
+        { ITEM_NONE, ITEM_NONE, ITEM_NONE, ITEM_NONE },
+    },
+    {
+        { SLOT_NONE, SLOT_NONE, SLOT_NONE, SLOT_NONE },
+        { SLOT_NONE, SLOT_NONE, SLOT_NONE, SLOT_NONE },
+        { SLOT_NONE, SLOT_NONE, SLOT_NONE, SLOT_NONE },
+        { SLOT_NONE, SLOT_NONE, SLOT_NONE, SLOT_NONE },
+    },
+};
+// #endregion
+
 Inventory sSaveDefaultInventory = {
     // items
     {
@@ -947,6 +981,12 @@ void Sram_InitNewSave(void) {
 
     gSaveContext.nextCutsceneIndex = 0;
     gSaveContext.save.saveInfo.playerData.magicLevel = 0;
+
+    // #region 2S2H
+    memcpy(&gSaveContext.save.shipSaveInfo.dpadEquips, &sSaveDefaultDpadItemEquips, sizeof(DpadSaveInfo));
+    gSaveContext.save.shipSaveInfo.pauseSaveEntrance = -1;
+    // #endregion
+
     Sram_GenerateRandomSaveFields();
 }
 
@@ -1167,6 +1207,11 @@ void Sram_InitDebugSave(void) {
     gSaveContext.save.saveInfo.permanentSceneFlags[SCENE_INSIDETOWER].switch0 = 1;
     gSaveContext.save.saveInfo.playerData.magicLevel = 0;
 
+    // #region 2S2H
+    memcpy(&gSaveContext.save.shipSaveInfo.dpadEquips, &sSaveDefaultDpadItemEquips, sizeof(DpadSaveInfo));
+    gSaveContext.save.shipSaveInfo.pauseSaveEntrance = -1;
+    // #endregion
+
     Sram_GenerateRandomSaveFields();
 }
 
@@ -1297,7 +1342,13 @@ void Sram_OpenSave(FileSelectState* fileSelect, SramContext* sramCtx) {
             gSaveContext.save.playerForm = PLAYER_FORM_HUMAN;
         }
     } else {
-        gSaveContext.save.entrance = D_801C6A58[(void)0, gSaveContext.save.owlSaveLocation];
+        // When a pauseSaveEntrance is available, prioritize it over the
+        // owlSaveLocation, this means the players last save was a pause save.
+        if (gSaveContext.save.shipSaveInfo.pauseSaveEntrance != -1) {
+            gSaveContext.save.entrance = gSaveContext.save.shipSaveInfo.pauseSaveEntrance;
+        } else {
+            gSaveContext.save.entrance = D_801C6A58[(void)0, gSaveContext.save.owlSaveLocation];
+        }
         if ((gSaveContext.save.entrance == ENTRANCE(SOUTHERN_SWAMP_POISONED, 10)) &&
             CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_WOODFALL_TEMPLE)) {
             gSaveContext.save.entrance = ENTRANCE(SOUTHERN_SWAMP_CLEARED, 10);
@@ -1812,6 +1863,8 @@ void Sram_InitSave(FileSelectState* fileSelect2, SramContext* sramCtx) {
         gSaveContext.save.saveInfo.playerData.newf[5] = '3';
 
         gSaveContext.save.saveInfo.checksum = Sram_CalcChecksum(&gSaveContext.save, sizeof(Save));
+
+        GameInteractor_ExecuteOnSaveInit(fileSelect->buttonIndex);
 
         memcpy(sramCtx->saveBuf, &gSaveContext.save, sizeof(Save));
         memcpy(&sramCtx->saveBuf[0x2000], &gSaveContext.save, sizeof(Save));
