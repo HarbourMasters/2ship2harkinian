@@ -76,11 +76,12 @@ extern "C" void HudEditor_ModifyKaleidoEquipAnimValues(s16* ulx, s16* uly, s16* 
     *shrinkRate = 320 - (s16)(endAnimSize * scale);
 }
 
-extern "C" void HudEditor_ModifyTimerDrawValues(s16 timerStartX, s16 timerStartY, s16* rectLeft, s16* rectTop, s16* rectWidth, s16* rectHeight, s16* dsdx, s16* dtdy) {
-    s16 offsetFromBaseX = *rectLeft - timerStartX;
-    s16 offsetFromBaseY = *rectTop - timerStartY;
-    *rectLeft = timerStartX + (offsetFromBaseX * CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f));
-    *rectTop = timerStartY + (offsetFromBaseY * CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f));
+extern "C" void HudEditor_ModifyDrawValuesFromBase(s16 baseX, s16 baseY, s16* rectLeft, s16* rectTop, s16* rectWidth,
+                                                   s16* rectHeight, s16* dsdx, s16* dtdy) {
+    s16 offsetFromBaseX = *rectLeft - baseX;
+    s16 offsetFromBaseY = *rectTop - baseY;
+    *rectLeft = baseX + (offsetFromBaseX * CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f));
+    *rectTop = baseY + (offsetFromBaseY * CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f));
 
     *rectWidth *= CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f);
     *rectHeight *= CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f);
@@ -88,7 +89,8 @@ extern "C" void HudEditor_ModifyTimerDrawValues(s16 timerStartX, s16 timerStartY
     *dtdy /= CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f);
 }
 
-extern "C" void HudEditor_ModifyDrawValues(s16* rectLeft, s16* rectTop, s16* rectWidth, s16* rectHeight, s16* dsdx, s16* dtdy) {
+extern "C" void HudEditor_ModifyDrawValues(s16* rectLeft, s16* rectTop, s16* rectWidth, s16* rectHeight, s16* dsdx,
+                                           s16* dtdy) {
     HudEditor_ModifyRectLeftRectTopValues(rectLeft, rectTop);
 
     *rectWidth *= CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f);

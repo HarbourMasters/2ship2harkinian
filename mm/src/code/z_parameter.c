@@ -309,8 +309,8 @@ Gfx* Gfx_DrawTexRectIA8(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 text
 
         if (hudEditorActiveElement == HUD_EDITOR_ELEMENT_TIMERS ||
             hudEditorActiveElement == HUD_EDITOR_ELEMENT_TIMERS_MOON_CRASH) {
-            HudEditor_ModifyTimerDrawValues(gSaveContext.timerX[sTimerId], gSaveContext.timerY[sTimerId], &rectLeft,
-                                            &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+            HudEditor_ModifyDrawValuesFromBase(gSaveContext.timerX[sTimerId], gSaveContext.timerY[sTimerId], &rectLeft,
+                                               &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
         } else {
             HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
         }
@@ -576,8 +576,8 @@ Gfx* Gfx_DrawTexRectI8(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 textu
 
         if (hudEditorActiveElement == HUD_EDITOR_ELEMENT_TIMERS ||
             hudEditorActiveElement == HUD_EDITOR_ELEMENT_TIMERS_MOON_CRASH) {
-            HudEditor_ModifyTimerDrawValues(gSaveContext.timerX[sTimerId], gSaveContext.timerY[sTimerId], &rectLeft,
-                                            &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+            HudEditor_ModifyDrawValuesFromBase(gSaveContext.timerX[sTimerId], gSaveContext.timerY[sTimerId], &rectLeft,
+                                               &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
         } else {
             HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
         }
