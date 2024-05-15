@@ -23,11 +23,13 @@ void from_json(const json& j, DpadSaveInfo& dpadEquips) {
 void to_json(json& j, const ShipSaveInfo& shipSaveInfo) {
     j = json {
         { "dpadEquips", shipSaveInfo.dpadEquips },
+        { "pauseSaveEntrance", shipSaveInfo.pauseSaveEntrance },
     };
 }
 
 void from_json(const json& j, ShipSaveInfo& shipSaveInfo) {
     j.at("dpadEquips").get_to(shipSaveInfo.dpadEquips);
+    j.at("pauseSaveEntrance").get_to(shipSaveInfo.pauseSaveEntrance);
 }
 
 void to_json(json& j, const ItemEquips& itemEquips) {

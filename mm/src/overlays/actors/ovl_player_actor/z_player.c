@@ -10968,6 +10968,12 @@ void Player_Init(Actor* thisx, PlayState* play) {
         initMode = PLAYER_INITMODE_D;
     }
 
+    // When we have a pause save entrance, we need to override the init mode to ensure the loading is handled correctly
+    if (gSaveContext.save.shipSaveInfo.pauseSaveEntrance != -1) {
+        initMode = PLAYER_INITMODE_6;
+        gSaveContext.save.shipSaveInfo.pauseSaveEntrance = -1;
+    }
+
     D_8085D2CC[initMode](play, this);
 
     if ((this->actor.draw != NULL) && gSaveContext.save.hasTatl &&
