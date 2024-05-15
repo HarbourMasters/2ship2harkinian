@@ -14,8 +14,10 @@ void RegisterPermanentOwlStatues() {
     });
 
     GameInteractor::Instance->RegisterGameHook<GameInteractor::BeforeEndOfCycleSave>([]() {
-        // Remove Owl Save on time cycle reset.
-        if (CVarGetInteger("gEnhancements.Saving.PermanentOwlSaves", 0)) {
+        // Remove Owl Save on time cycle reset, needed when persisting owl saves and when
+        // Pause Menu Saving is used to use Song of Time saving properly.
+        if (CVarGetInteger("gEnhancements.Saving.PermanentOwlSaves", 0) ||
+            CVarGetInteger("gEnhancements.Kaleido.PauseSave", 0)) {
 
             // Reset some gSaveContext stuff that usually happens when loading into a new savefile
             // when there's an owl save present. Fixes some unexpected behaviour that otherwise happens.
