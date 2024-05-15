@@ -1,4 +1,5 @@
 #include "GameInteractor.h"
+#include "spdlog/spdlog.h"
 
 extern "C" {
 #include "z64actor.h"
@@ -31,12 +32,14 @@ void GameInteractor_ExecuteAfterEndOfCycleSave() {
 }
 
 void GameInteractor_ExecuteOnSceneInit(s16 sceneId, s8 spawnNum) {
+    SPDLOG_DEBUG("OnSceneInit: sceneId: {}, spawnNum: {}", sceneId, spawnNum);
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnSceneInit>(sceneId, spawnNum);
     GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnSceneInit>(sceneId, sceneId, spawnNum);
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnSceneInit>(sceneId, spawnNum);
 }
 
 void GameInteractor_ExecuteOnRoomInit(s16 sceneId, s8 roomNum) {
+    SPDLOG_DEBUG("OnRoomInit: sceneId: {}, roomNum: {}", sceneId, roomNum);
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnRoomInit>(sceneId, roomNum);
     GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnRoomInit>(sceneId, sceneId, roomNum);
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnRoomInit>(sceneId, roomNum);
@@ -98,21 +101,31 @@ void GameInteractor_ExecuteOnActorKill(Actor* actor) {
 }
 
 void GameInteractor_ExecuteOnSceneFlagSet(s16 sceneId, FlagType flagType, u32 flag) {
+    SPDLOG_DEBUG("OnSceneFlagSet: sceneId: {}, flagType: {}, flag: {}", sceneId, (u32)flagType, flag);
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnSceneFlagSet>(sceneId, flagType, flag);
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnSceneFlagSet>(sceneId, flagType, flag);
 }
 
 void GameInteractor_ExecuteOnSceneFlagUnset(s16 sceneId, FlagType flagType, u32 flag) {
+    SPDLOG_DEBUG("OnSceneFlagUnset: sceneId: {}, flagType: {}, flag: {}", sceneId, (u32)flagType, flag);
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnSceneFlagUnset>(sceneId, flagType, flag);
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnSceneFlagUnset>(sceneId, flagType, flag);
 }
 
 void GameInteractor_ExecuteOnFlagSet(FlagType flagType, u32 flag) {
+    // This flag in particular is very spammy, so we'll suppress it
+    if (!(flagType == FLAG_WEEK_EVENT_REG && flag == WEEKEVENTREG_92_80)) {
+        SPDLOG_DEBUG("OnFlagSet: flagType: {}, flag: {}", (u32)flagType, flag);
+    }
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnFlagSet>(flagType, flag);
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnFlagSet>(flagType, flag);
 }
 
 void GameInteractor_ExecuteOnFlagUnset(FlagType flagType, u32 flag) {
+    // This flag in particular is very spammy, so we'll suppress it
+    if (!(flagType == FLAG_WEEK_EVENT_REG && flag == WEEKEVENTREG_92_80)) {
+        SPDLOG_DEBUG("OnFlagUnset: flagType: {}, flag: {}", (u32)flagType, flag);
+    }
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnFlagUnset>(flagType, flag);
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnFlagUnset>(flagType, flag);
 }
@@ -130,6 +143,7 @@ void GameInteractor_ExecuteOnPassPlayerInputs(Input* input) {
 }
 
 void GameInteractor_ExecuteOnOpenText(u16 textId) {
+    SPDLOG_DEBUG("OnOpenText: textId: {}", textId);
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnOpenText>(textId);
     GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnOpenText>(textId, textId);
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnOpenText>(textId);
@@ -144,6 +158,7 @@ bool GameInteractor_ShouldItemGive(u8 item) {
 }
 
 void GameInteractor_ExecuteOnItemGive(u8 item) {
+    SPDLOG_DEBUG("OnItemGive: item: {}", item);
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnItemGive>(item);
     GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnItemGive>(item, item);
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnItemGive>(item);
