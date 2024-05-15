@@ -167,8 +167,8 @@ void DrawGeneralTab() {
     std::string minutes = (curMinutes < 10 ? "0" : "") + std::to_string(curMinutes);
     std::string hours = "";
     std::string ampm = "";
-    // BENTODO: Switch to CVar if we ever add 24 hour mode display
-    if (false) {
+    // Handle 24 or 12 hour time
+    if (CVarGetInteger("gEnhancements.Graphics.24HoursClock", 0)) {
         if (curHours < 10) {
             hours += "0";
         }

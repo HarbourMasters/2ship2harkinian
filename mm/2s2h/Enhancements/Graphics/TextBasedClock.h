@@ -1,6 +1,6 @@
-#ifndef CLOCK_TEXT_BASED_H
-#define CLOCK_TEXT_BASED_H
+#ifndef TEXT_BASED_CLOCK_H
+#define TEXT_BASED_CLOCK_H
 
 void RegisterTextBasedClock();
 
-#endif // CLOCK_TEXT_BASED_H
+#endif // TEXT_BASED_CLOCK_H
