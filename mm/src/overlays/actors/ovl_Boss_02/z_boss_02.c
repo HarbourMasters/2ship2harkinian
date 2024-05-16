@@ -11,6 +11,7 @@
 #include "overlays/actors/ovl_En_Tanron5/z_en_tanron5.h"
 #include "overlays/actors/ovl_Item_B_Heart/z_item_b_heart.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
@@ -1567,6 +1568,7 @@ void Boss02_DrawEffects(PlayState* play) {
 
     for (i = 0; i < TWINMOLD_EFFECT_COUNT; i++, effect++) {
         if (effect->type == TWINMOLD_EFFECT_SAND) {
+            FrameInterpolation_RecordOpenChild(effect, i);
             if (!flag) {
                 gSPDisplayList(POLY_XLU_DISP++, gTwinmoldDustMaterialDL);
                 gDPSetEnvColor(POLY_XLU_DISP++, 185, 140, 70, 128);
@@ -1590,12 +1592,14 @@ void Boss02_DrawEffects(PlayState* play) {
 
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_XLU_DISP++, gTwinmoldDustModelDL);
+            FrameInterpolation_RecordCloseChild();
         }
     }
 
     effect = (TwinmoldEffect*)play->specialEffects;
     for (i = 0, flag = false; i < TWINMOLD_EFFECT_COUNT; i++, effect++) {
         if (effect->type == TWINMOLD_EFFECT_FRAGMENT) {
+            FrameInterpolation_RecordOpenChild(effect, i);
             if (!flag) {
                 gDPSetCombineLERP(POLY_OPA_DISP++, SHADE, 0, PRIMITIVE, 0, SHADE, 0, PRIMITIVE, 0, SHADE, 0, PRIMITIVE,
                                   0, SHADE, 0, PRIMITIVE, 0);
@@ -1611,12 +1615,14 @@ void Boss02_DrawEffects(PlayState* play) {
 
             gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_OPA_DISP++, gEffFragments1DL);
+            FrameInterpolation_RecordCloseChild();
         }
     }
 
     effect = (TwinmoldEffect*)play->specialEffects;
     for (i = 0, flag = false; i < TWINMOLD_EFFECT_COUNT; i++, effect++) {
         if (effect->type == TWINMOLD_EFFECT_FLASH) {
+            FrameInterpolation_RecordOpenChild(effect, i);
             if (!flag) { //! @bug - dev forgot to set flag to 1, should only apply to first entry?
                 gSPDisplayList(POLY_XLU_DISP++, gLightOrbMaterial1DL);
                 gDPSetEnvColor(POLY_XLU_DISP++, 255, 0, 0, 128);
@@ -1631,12 +1637,14 @@ void Boss02_DrawEffects(PlayState* play) {
 
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_XLU_DISP++, gLightOrbModelDL);
+            FrameInterpolation_RecordCloseChild();
         }
     }
 
     effect = (TwinmoldEffect*)play->specialEffects;
     for (i = 0, flag = false; i < TWINMOLD_EFFECT_COUNT; i++, effect++) {
         if (effect->type == TWINMOLD_EFFECT_BLACK_DUST) {
+            FrameInterpolation_RecordOpenChild(effect, i);
             if (!flag) {
                 gSPDisplayList(POLY_XLU_DISP++, gTwinmoldDustMaterialDL);
                 gDPSetEnvColor(POLY_XLU_DISP++, 30, 30, 30, 128);
@@ -1655,6 +1663,7 @@ void Boss02_DrawEffects(PlayState* play) {
 
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_XLU_DISP++, gTwinmoldDustModelDL);
+            FrameInterpolation_RecordCloseChild();
         }
     }
 
