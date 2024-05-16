@@ -10968,10 +10968,12 @@ void Player_Init(Actor* thisx, PlayState* play) {
         initMode = PLAYER_INITMODE_D;
     }
 
-    // When we have a pause save entrance, we need to override the init mode to ensure the loading is handled correctly
+    // 2S2H [Enhancement] When we have a pause save entrance, we need unset the values to prevent them from lingering
+    // Load into INITMODE_D for stationary Link spawn
     if (gSaveContext.save.shipSaveInfo.pauseSaveEntrance != -1) {
-        initMode = PLAYER_INITMODE_6;
+        initMode = PLAYER_INITMODE_D;
         gSaveContext.save.shipSaveInfo.pauseSaveEntrance = -1;
+        gSaveContext.save.isOwlSave = false;
     }
 
     D_8085D2CC[initMode](play, this);
