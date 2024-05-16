@@ -262,6 +262,7 @@ void DrawGeneralTab() {
         gSaveContext.save.saveInfo.playerData.magicLevel = 2;
         gSaveContext.save.saveInfo.playerData.isMagicAcquired = true;
         gSaveContext.save.saveInfo.playerData.isDoubleMagicAcquired = true;
+        BUTTON_ITEM_EQUIP(PLAYER_FORM_DEKU, EQUIP_SLOT_B) = ITEM_DEKU_NUT;
     }
     ImGui::SameLine();
     if (UIWidgets::Button("Reset##resetMagicButton", { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
@@ -282,10 +283,12 @@ void DrawGeneralTab() {
             case 1:
                 gSaveContext.save.saveInfo.playerData.isMagicAcquired = true;
                 gSaveContext.save.saveInfo.playerData.isDoubleMagicAcquired = false;
+                BUTTON_ITEM_EQUIP(PLAYER_FORM_DEKU, EQUIP_SLOT_B) = ITEM_DEKU_NUT;
                 break;
             case 2:
                 gSaveContext.save.saveInfo.playerData.isMagicAcquired = true;
                 gSaveContext.save.saveInfo.playerData.isDoubleMagicAcquired = true;
+                BUTTON_ITEM_EQUIP(PLAYER_FORM_DEKU, EQUIP_SLOT_B) = ITEM_DEKU_NUT;
                 break;
         }
     }
