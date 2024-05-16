@@ -15,7 +15,7 @@ HudEditorElement hudEditorElements[HUD_EDITOR_ELEMENT_MAX] = {
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_A,                 "A Button",          "A",             191, 18,  100, 200, 255, 255),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_C_UP,              "C-Up Button",       "CUp",           254, 16,  255, 240, 0,   255),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_D_PAD,             "D-Pad",             "DPad",          271, 55,  255, 255, 255, 255),
-    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_MINIMAP,           "Minimap",           "Minimap",       295, 220, 255, 255, 255, 255),
+    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_MINIMAP,           "Minimap",           "Minimap",       295, 220, 0,   255, 255, 160),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_START,             "Start Button",      "Start",         136, 17,  255, 130, 60,  255),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_HEARTS,            "Hearts",            "Hearts",        30,  26,  255, 70,  50,  255),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_MAGIC_METER,       "Magic",             "Magic",         18,  34,  0,   200, 0,   255),
