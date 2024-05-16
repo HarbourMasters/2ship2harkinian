@@ -157,8 +157,10 @@ void HudEditorWindow::DrawElement() {
         ImGui::PushID(hudEditorElements[i].name);
         ImGui::SeparatorText(hudEditorElements[i].name);
         float color[3] = {  (float)hudEditorElements[i].defaultR / 255, (float)hudEditorElements[i].defaultG / 255, (float)hudEditorElements[i].defaultB / 255 };
-        // This color picker currently doesn't do anything other than serve as a visual indicator. Eventually it will be used to set the color of the element.
+        // BENTODO: This color picker currently doesn't do anything other than serve as a visual indicator. Eventually it will be used to set the color of the element.
+        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
         ImGui::ColorEdit3("Color", color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+        ImGui::PopItemFlag();
         ImGui::SameLine();
         if (UIWidgets::CVarCombobox("Mode", hudEditorElements[i].modeCvar, modeNames, {
             .labelPosition = UIWidgets::LabelPosition::None
