@@ -54,6 +54,7 @@
 #include "overlays/actors/ovl_Item_B_Heart/z_item_b_heart.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "objects/object_water_effect/object_water_effect.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
@@ -2417,6 +2418,7 @@ void Boss03_DrawEffects(PlayState* play) {
 
     for (i = 0; i < GYORG_EFFECT_COUNT; i++, eff++) {
         if (eff->type == GYORG_EFFECT_BUBBLE) {
+            FrameInterpolation_RecordOpenChild(eff, i);
             if (!flag) {
                 gSPDisplayList(POLY_OPA_DISP++, gGyorgBubbleMaterialDL);
                 gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, 255);
@@ -2431,6 +2433,7 @@ void Boss03_DrawEffects(PlayState* play) {
 
             gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_OPA_DISP++, gGyorgBubbleModelDL);
+            FrameInterpolation_RecordCloseChild();
         }
     }
 
@@ -2442,7 +2445,7 @@ void Boss03_DrawEffects(PlayState* play) {
 
     for (i = 0; i < GYORG_EFFECT_COUNT; i++, eff++) {
         if ((eff->type == GYORG_EFFECT_DROPLET) || (eff->type == GYORG_EFFECT_SPLASH)) {
-
+            FrameInterpolation_RecordOpenChild(eff, i);
             if (!flag) {
                 POLY_XLU_DISP = Gfx_SetupDL(POLY_XLU_DISP, SETUPDL_0);
 
@@ -2468,6 +2471,7 @@ void Boss03_DrawEffects(PlayState* play) {
 
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_XLU_DISP++, object_water_effect_DL_0042B0);
+            FrameInterpolation_RecordCloseChild();
         }
     }
 
@@ -2477,6 +2481,7 @@ void Boss03_DrawEffects(PlayState* play) {
 
     for (i = 0; i < GYORG_EFFECT_COUNT; i++, eff++) {
         if (eff->type == GYORG_EFFECT_WET_SPOT) {
+            FrameInterpolation_RecordOpenChild(eff, i);
             if (!flag) {
                 Gfx_SetupDL44_Xlu(gfxCtx);
 
@@ -2497,6 +2502,7 @@ void Boss03_DrawEffects(PlayState* play) {
 
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_XLU_DISP++, object_water_effect_DL_0042F8);
+            FrameInterpolation_RecordCloseChild();
         }
     }
 
