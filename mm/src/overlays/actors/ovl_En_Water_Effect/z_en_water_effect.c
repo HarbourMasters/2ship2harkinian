@@ -178,6 +178,7 @@ void EnWaterEffect_Update(Actor* thisx, PlayState* play2) {
 
     for (i = 0; i < ARRAY_COUNT(this->unk_144) / 2; i++, ptr++) {
         if (ptr->unk_00 != 0) {
+            FrameInterpolation_RecordOpenChild(ptr, i);
             ptr->unk_01++;
 
             ptr->unk_04.x += ptr->unk_10.x;
@@ -276,6 +277,7 @@ void EnWaterEffect_Update(Actor* thisx, PlayState* play2) {
                     ptr->unk_00 = 0;
                 }
             }
+            FrameInterpolation_RecordCloseChild();
         }
     }
 }
@@ -643,6 +645,7 @@ void func_80A5A6B8(Actor* thisx, PlayState* play2) {
     if ((this->actor.params == ENWATEREFFECT_TYPE_GYORG_RIPPLES) ||
         (this->actor.params == ENWATEREFFECT_TYPE_GYORG_PRIMARY_SPRAY)) {
         if (this->unk_E2C > 1.0f) {
+            FrameInterpolation_RecordOpenChild(this, 0);
             Gfx_SetupDL25_Xlu(play->state.gfxCtx);
             AnimatedMat_Draw(play, Lib_SegmentedToVirtual(object_water_effect_Matanimheader_000DE0));
             Matrix_Scale(this->unk_DC8[1].y, this->unk_DC8[1].z, this->unk_DC8[1].y, MTXMODE_APPLY);
@@ -650,11 +653,13 @@ void func_80A5A6B8(Actor* thisx, PlayState* play2) {
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 255, 255, 255, (u8)this->unk_E2C);
             gSPDisplayList(POLY_XLU_DISP++, object_water_effect_DL_000420);
+            FrameInterpolation_RecordCloseChild();
         }
 
         Matrix_Pop();
 
         if (this->unk_E30 > 1.0f) {
+            FrameInterpolation_RecordOpenChild(this, 1);
             Gfx_SetupDL25_Xlu(play->state.gfxCtx);
             AnimatedMat_Draw(play, Lib_SegmentedToVirtual(object_water_effect_Matanimheader_000E0C));
             Matrix_Scale(this->unk_DC8[2].y, this->unk_DC8[2].z, this->unk_DC8[2].y, MTXMODE_APPLY);
@@ -662,6 +667,7 @@ void func_80A5A6B8(Actor* thisx, PlayState* play2) {
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 255, 255, 255, (u8)this->unk_E30);
             gSPDisplayList(POLY_XLU_DISP++, object_water_effect_DL_000730);
+            FrameInterpolation_RecordCloseChild();
         }
         Matrix_Pop();
     } else {
@@ -670,6 +676,7 @@ void func_80A5A6B8(Actor* thisx, PlayState* play2) {
     }
 
     if ((this->unk_E34 > 1.0f) && (this->actor.params != ENWATEREFFECT_TYPE_GYORG_SHOCKWAVE)) {
+        FrameInterpolation_RecordOpenChild(this, 2);
         Gfx_SetupDL25_Xlu(play->state.gfxCtx);
         AnimatedMat_Draw(play, Lib_SegmentedToVirtual(object_water_effect_Matanimheader_000E40));
         Matrix_Scale(this->unk_DC8[3].y, this->unk_DC8[3].z, this->unk_DC8[3].y, MTXMODE_APPLY);
@@ -677,12 +684,14 @@ void func_80A5A6B8(Actor* thisx, PlayState* play2) {
         gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 255, 255, 255, (u8)this->unk_E34);
         gSPDisplayList(POLY_XLU_DISP++, object_water_effect_DL_000A48);
+        FrameInterpolation_RecordCloseChild();
     }
 
     Matrix_Pop();
 
     if ((this->actor.params == ENWATEREFFECT_TYPE_GYORG_RIPPLES) ||
         (this->actor.params == ENWATEREFFECT_TYPE_GYORG_SHOCKWAVE)) {
+        FrameInterpolation_RecordOpenChild(this, 3);
         Gfx_SetupDL25_Xlu(play->state.gfxCtx);
         AnimatedMat_Draw(play, Lib_SegmentedToVirtual(object_water_effect_Matanimheader_000E58));
         Matrix_Scale(this->unk_DC8[4].y, this->unk_DC8[4].z, this->unk_DC8[4].y, MTXMODE_APPLY);
@@ -690,6 +699,7 @@ void func_80A5A6B8(Actor* thisx, PlayState* play2) {
         gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 255, 255, 255, (u8)this->unk_E38);
         gSPDisplayList(POLY_XLU_DISP++, object_water_effect_DL_000CD8);
+        FrameInterpolation_RecordCloseChild();
     }
 
     if (this->actor.params == ENWATEREFFECT_TYPE_GYORG_RIPPLES) {
