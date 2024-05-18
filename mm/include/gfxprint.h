@@ -47,4 +47,18 @@ Gfx* GfxPrint_Close(GfxPrint* this);
 s32 GfxPrint_VPrintf(GfxPrint* this, const char* fmt, va_list args);
 s32 GfxPrint_Printf(GfxPrint* this, const char* fmt, ...);
 
+// #region 2S2H [Port] Open/Close helper macros for the GfxPrint system
+#define OPEN_PRINTER(disp)       \
+    {                            \
+        GfxPrint printer;        \
+        GfxPrint_Init(&printer); \
+        GfxPrint_Open(&printer, disp)
+
+#define CLOSE_PRINTER(printer, disp) \
+    disp = GfxPrint_Close(&printer); \
+    GfxPrint_Destroy(&printer);      \
+    }                                \
+    (void)0
+// #endregion
+
 #endif

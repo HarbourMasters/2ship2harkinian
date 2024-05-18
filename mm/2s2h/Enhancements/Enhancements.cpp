@@ -10,6 +10,9 @@ void InitEnhancements() {
     RegisterMoonJumpOnL();
     RegisterUnbreakableRazorSword(); 
 
+    // Clock
+    RegisterTextBasedClock();
+  
     // Cycle
     RegisterEndOfCycleSaveHooks();
 
