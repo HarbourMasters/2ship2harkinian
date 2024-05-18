@@ -5,6 +5,7 @@
 #include "Camera/FreeLook.h"
 #include "Cheats/MoonJump.h"
 #include "Cheats/Infinite.h"
+#include "Graphics/TextBasedClock.h"
 #include "Cheats/UnbreakableRazorSword.h"
 #include "Cycle/EndOfCycle.h"
 #include "Masks/FierceDeityAnywhere.h"
@@ -22,6 +23,12 @@ enum AlwaysWinDoggyRaceOptions {
     ALWAYS_WIN_DOGGY_RACE_OFF,
     ALWAYS_WIN_DOGGY_RACE_MASKOFTRUTH,
     ALWAYS_WIN_DOGGY_RACE_ALWAYS,
+};
+
+enum ClockTypeOptions {
+    CLOCK_TYPE_ORIGINAL,
+    CLOCK_TYPE_TEXT_BASED,
+    CLOCK_TYPE_HIDDEN,
 };
 
 #ifdef __cplusplus
