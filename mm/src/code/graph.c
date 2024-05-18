@@ -426,7 +426,7 @@ void RunFrame() {
 
         runFrameContext.nextOvl = Graph_GetNextGameState(runFrameContext.gameState);
         GameState_Destroy(runFrameContext.gameState);
-        // System (runFrameContext.gameState);
+        SystemArena_Free(runFrameContext.gameState);
         Overlay_FreeGameState(runFrameContext.ovl);
     }
     Graph_Destroy(&runFrameContext.gfxCtx);
