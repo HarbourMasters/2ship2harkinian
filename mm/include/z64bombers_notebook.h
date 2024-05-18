@@ -38,20 +38,20 @@ typedef enum BombersNotebookEvent {
 
 typedef struct {
     /* 0x00 */ u8 loadState;
-    ///* 0x01 */ UNK_TYPE1 pad01[0x3F];
-    ///* 0x40 */ void* scheduleDmaSegment;
-    ///* 0x44 */ uintptr_t scheduleDmaSegmentStart;
-    ///* 0x48 */ size_t scheduleDmaSegmentSize;
-    ///* 0x4C */ DmaRequest dmaRequest;
-    ///* 0x6C */ OSMesgQueue loadQueue;
-    ///* 0x84 */ OSMesg loadMsg[1];
-    ///* 0x88 */ void* scheduleSegment;
-    ///* 0x8C */ uintptr_t scheduleSegmentStart;
-    ///* 0x90 */ size_t scheduleSegmentSize;
+    /* 0x01 */ UNK_TYPE1 pad01[0x3F];
+    /* 0x40 */ void* scheduleDmaSegment;
+    /* 0x44 */ uintptr_t scheduleDmaSegmentStart;
+    /* 0x48 */ size_t scheduleDmaSegmentSize;
+    /* 0x4C */ DmaRequest dmaRequest;
+    /* 0x6C */ OSMesgQueue loadQueue;
+    /* 0x84 */ OSMesg loadMsg[1];
+    /* 0x88 */ void* scheduleSegment;
+    /* 0x8C */ uintptr_t scheduleSegmentStart;
+    /* 0x90 */ size_t scheduleSegmentSize;
     /* 0x94 */ s32 cursorPageRow;
     /* 0x98 */ s32 cursorEntry; // Entries are 3 apart, see BOMBERS_NOTEBOOK_ENTRY_SIZE
     /* 0x9C */ s32 cursorPage;
-    ///* 0xA0 */ UNK_TYPE1 padA0[0x4];
+    /* 0xA0 */ UNK_TYPE1 padA0[0x4];
     /* 0xA4 */ s32 scrollAmount;
     /* 0xA8 */ s32 scrollOffset;
 } BombersNotebook; // size = 0xAC
