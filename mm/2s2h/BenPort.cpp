@@ -108,25 +108,34 @@ Color_RGB8 zoraColor = { 0x00, 0xEC, 0x64 };
 
 
 OTRGlobals::OTRGlobals() {
-    std::vector<std::string> OTRFiles;
+    std::vector<std::string> archiveFiles;
     //std::string mqPath = Ship::Context::LocateFileAcrossAppDirs("oot-mq.otr", appShortName);
     //if (std::filesystem::exists(mqPath)) {
     //    OTRFiles.push_back(mqPath);
     //}
-    std::string ootPath = Ship::Context::LocateFileAcrossAppDirs("mm.otr", appShortName);
-    if (std::filesystem::exists(ootPath)) {
-        OTRFiles.push_back(ootPath);
+    std::string mmPath = Ship::Context::LocateFileAcrossAppDirs("mm.zip", appShortName);
+    if (std::filesystem::exists(mmPath)) {
+        archiveFiles.push_back(mmPath);
+    } else {
+        mmPath = Ship::Context::LocateFileAcrossAppDirs("mm.otr", appShortName);
+        if (std::filesystem::exists(mmPath)) {
+            archiveFiles.push_back(mmPath);
+        }
     }
-    std::string shipOtrPath = Ship::Context::GetPathRelativeToAppBundle("2ship.otr");
+    std::string shipOtrPath = Ship::Context::GetPathRelativeToAppBundle("2ship.zip");
     if (std::filesystem::exists(shipOtrPath)) {
-        OTRFiles.push_back(shipOtrPath);
+        archiveFiles.push_back(shipOtrPath);
     }
     std::string patchesPath = Ship::Context::LocateFileAcrossAppDirs("mods", appShortName);
     if (patchesPath.length() > 0 && std::filesystem::exists(patchesPath)) {
         if (std::filesystem::is_directory(patchesPath)) {
             for (const auto& p : std::filesystem::recursive_directory_iterator(patchesPath)) {
-                if (StringHelper::IEquals(p.path().extension().string(), ".otr")) {
-                    OTRFiles.push_back(p.path().generic_string());
+                if (StringHelper::IEquals(p.path().extension().string(), ".zip")) {
+                    archiveFiles.push_back(p.path().generic_string());
+                } else {
+                    if (StringHelper::IEquals(p.path().extension().string(), ".otr")) {
+                        archiveFiles.push_back(p.path().generic_string());
+                    }
                 }
             }
         }
@@ -136,7 +145,7 @@ OTRGlobals::OTRGlobals() {
                                                  OOT_PAL_11,     OOT_NTSC_JP_GC_CE, OOT_NTSC_JP_GC, OOT_NTSC_US_GC,
                                                  OOT_PAL_GC,     OOT_PAL_GC_DBG1,   OOT_PAL_GC_DBG2 };
     // tell LUS to reserve 3 SoH specific threads (Game, Audio, Save)
-    context = Ship::Context::CreateInstance("2 Ship 2 Harkinian", appShortName, "2ship2harkinian.json", OTRFiles, {}, 3);
+    context = Ship::Context::CreateInstance("2 Ship 2 Harkinian", appShortName, "2ship2harkinian.json", archiveFiles, {}, 3);
 
     // Override LUS defaults
     Ship::Context::GetInstance()->GetLogger()->set_level((spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
@@ -397,7 +406,7 @@ extern "C" void OTRExtScanner() {
 
 extern "C" void InitOTR() {
 #if not defined(__SWITCH__) && not defined(__WIIU__)
-    if (!std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.otr", appShortName))) {
+    if (!std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.zip", appShortName))) {
         std::string installPath = Ship::Context::GetAppBundlePath();
         if (!std::filesystem::exists(installPath + "/assets/extractor")) {
             Extractor::ShowErrorBox(
