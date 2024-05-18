@@ -117,9 +117,10 @@ void Play_DrawMotionBlur(PlayState* this) {
         }
 
         hasCopiedForFrame = false;
+        u8 interpolate = CVarGetInteger("gEnhancements.Graphics.MotionBlur.Interpolate", 0);
 
-        // 2S2H [Port] Copy framebuffer only once per game frame to exclude motion blur from interpolation
-        FB_CopyToFramebuffer(&gfx, 0, gBlurFrameBuffer, true, &hasCopiedForFrame);
+        // 2S2H [Port] Copy framebuffer, either once per game frame or all frames depending on interpolation setting
+        FB_CopyToFramebuffer(&gfx, 0, gBlurFrameBuffer, !interpolate, &hasCopiedForFrame);
 
         gSPEndDisplayList(gfx++);
 

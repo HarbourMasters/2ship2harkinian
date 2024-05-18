@@ -14,6 +14,12 @@ void MotionBlur_RenderMenuOptions() {
     UIWidgets::CVarCombobox("Motion Blur Mode", "gEnhancements.Graphics.MotionBlur.Mode", motionBlurOptions, {
         .labelPosition = UIWidgets::LabelPosition::None,
     });
+
+    UIWidgets::CVarCheckbox(
+        "Interpolate", "gEnhancements.Graphics.MotionBlur.Interpolate",
+        { .tooltip = "Change motion blur capture to also happen on interpolated frames instead of only on game frames.\n"
+                     "This notably reduces the overall motion blur strength but smooths out the trails." });
+
     if (CVarGetInteger("gEnhancements.Graphics.MotionBlur.Mode", 0) == 0) {
         UIWidgets::Checkbox("On/Off", (bool*)&R_MOTION_BLUR_ENABLED);
         if (R_MOTION_BLUR_ENABLED) {
