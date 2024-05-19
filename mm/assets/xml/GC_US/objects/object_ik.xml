@@ -12,7 +12,7 @@
         <Animation Name="gIronKnuckleFrontHitAnim" Offset="0x5254" /> <!-- Original name is "ironknack_front_hit" -->
         <Animation Name="gIronKnuckleRunAnim" Offset="0x57F4" /> <!-- Original name is "ironknack_run" -->
         <Animation Name="gIronKnuckleWalkAnim" Offset="0x6294" /> <!-- Original name is "ironknack_walk" -->
-        <Array Name="gObjectIkVtx_009740" Count="566" Offset="0x6730">
+        <Array Name="gObjectIkVtx_0062B0" Count="889" Offset="0x62B0">
             <Vtx/>
         </Array>
         <DList Name="gIronKnuckleArmorFrontDL" Offset="0x9A40" /> <!-- Original name is "ironknack_front_armer" -->
