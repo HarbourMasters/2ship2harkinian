@@ -1082,7 +1082,8 @@ Gfx* sPlayerFirstPersonRightShoulderDLs[PLAYER_FORM_MAX] = {
 Gfx* sPlayerFirstPersonRightHandDLs[PLAYER_FORM_MAX] = {
     gLinkFierceDeityRightHandDL,
     //! @bug This is in the middle of a texture in the link_goron object. It has the same offset as a link_nuts dlist
-    (Gfx*)0x060038C0,
+    // 2S2H [Port] Put the DList that makes the most sense here. In reality nothing makes sense since goron has no first person items, but we need something here to prevent a crash.
+    gLinkGoronRightHandOpenDL,
     gLinkZoraRightHandOpenDL,
     gLinkDekuRightHandDL,
     object_link_child_DL_018490,
@@ -1091,7 +1092,8 @@ Gfx* sPlayerFirstPersonRightHandDLs[PLAYER_FORM_MAX] = {
 Gfx* sPlayerFirstPersonRightHandHookshotDLs[PLAYER_FORM_MAX] = {
     gLinkFierceDeityRightHandDL,
     //! @bug This is in the middle of a texture in the link_goron object. It has the same offset as a link_nuts dlist
-    (Gfx*)0x060038C0,
+    // 2S2H [Port] Put the DList that makes the most sense here. In reality nothing makes sense since goron has no first person items, but we need something here to prevent a crash.
+    gLinkGoronRightHandOpenDL,
     gLinkZoraRightHandOpenDL,
     gLinkDekuRightHandDL,
     object_link_child_DL_017B40,
