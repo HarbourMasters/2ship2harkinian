@@ -538,8 +538,9 @@ s32 SubS_ChangeAnimationByInfoS(SkelAnime* skelAnime, AnimationInfoS* animationI
 
     animationInfo += animIndex;
     AnimationHeader* anim = animationInfo->animation;
+    AnimationHeader* ogAnim = anim;
 
-	 if (ResourceMgr_OTRSigCheck(anim))
+    if (ResourceMgr_OTRSigCheck(anim))
         anim = ResourceMgr_LoadAnimByName(anim);
 
     endFrame = animationInfo->frameCount;
@@ -553,7 +554,7 @@ s32 SubS_ChangeAnimationByInfoS(SkelAnime* skelAnime, AnimationInfoS* animationI
     if (animationInfo->playSpeed < 0.0f) {
         SWAP(s32, endFrame, startFrame);
     }
-    Animation_Change(skelAnime, anim, animationInfo->playSpeed, startFrame, endFrame,
+    Animation_Change(skelAnime, ogAnim, animationInfo->playSpeed, startFrame, endFrame,
                      animationInfo->mode, animationInfo->morphFrames);
     return true;
 }
@@ -1389,7 +1390,8 @@ void SubS_ChangeAnimationBySpeedInfo(SkelAnime* skelAnime, AnimationSpeedInfo* a
     f32 endFrame;
     f32 morphFrames;
 
-	AnimationHeader* anim = animation->animation;
+    AnimationHeader* anim = animation->animation;
+    AnimationHeader* ogAnim = anim;
 
     if (ResourceMgr_OTRSigCheck(anim))
         anim = ResourceMgr_LoadAnimByName(anim);
@@ -1411,7 +1413,7 @@ void SubS_ChangeAnimationBySpeedInfo(SkelAnime* skelAnime, AnimationSpeedInfo* a
         startFrame = Animation_GetLastFrame(&anim->common);
         endFrame = 0.0f;
     }
-    Animation_Change(skelAnime, anim, animation->playSpeed, startFrame, endFrame, animation->mode,
+    Animation_Change(skelAnime, ogAnim, animation->playSpeed, startFrame, endFrame, animation->mode,
                      morphFrames);
     *curAnimIndex = nextAnimIndex;
 }
