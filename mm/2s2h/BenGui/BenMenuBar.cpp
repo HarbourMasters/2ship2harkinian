@@ -381,7 +381,10 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Do not reset Rupees", "gEnhancements.Cycle.DoNotResetRupees", {
                 .tooltip = "Playing the Song Of Time will not reset the your rupees."
             });
-            
+            UIWidgets::CVarSliderInt("Save Delay", "gEnhancements.Save.SaveDelay", 0, 5, 0, { 
+                .tooltip = "Sets the delay between pressing save and the save being marked as complete. Original game was 2." 
+            });
+
             ImGui::EndMenu();
         }
 
