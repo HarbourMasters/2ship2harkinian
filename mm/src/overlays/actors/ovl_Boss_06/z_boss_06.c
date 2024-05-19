@@ -481,7 +481,7 @@ void Boss06_Update(Actor* thisx, PlayState* play) {
             if ((i % 8) == 0) {
                 Math_Vec3f_Copy(&D_809F4370[i / 8], &sp7C);
             }
-
+            // BENTODO CPU modified texture
             if ((sp7C.x >= 0.0f) && (sp7C.y >= 0.0f) && (sp7C.x < 64.0f) && (sp7C.y < 64.0f)) {
                 s32 x = sp7C.x;
                 s32 idx = ((s32)sp7C.y << 5);

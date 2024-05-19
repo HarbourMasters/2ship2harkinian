@@ -252,7 +252,7 @@ u8 gAreaGsFlags[] = {
 // TODO: Also applies to owl warps
 s16 sGameOverRectPosY = 66;
 
-void Kaleido_LoadMapNameStatic(void* segment, u32 texIndex) {
+void Kaleido_LoadMapNameStatic(void** segment, u32 texIndex) {
     static const char* gMapNameStatics[] = {
         gMapPointGreatBayENGTex,      gMapPointZoraHallENGTex,        gMapPointRomaniRanchENGTex,
         gMapPointDekuPalaceENGTex,    gMapPointWoodfallENGTex,        gMapPointClockTownENGTex,
@@ -261,17 +261,21 @@ void Kaleido_LoadMapNameStatic(void* segment, u32 texIndex) {
         gMapPointSouthernSwampENGTex, gMapPointMountainVillageENGTex, gMapPointMilkRoadENGTex,
         gMapPointZoraCapeENGTex,
     };
-    void* tex = ResourceMgr_LoadTexOrDListByName(gMapNameStatics[texIndex]);
-    memcpy(segment, tex, 0x400);
+    if (texIndex < ARRAY_COUNTU(gMapNameStatics)) {
+        *segment = gMapNameStatics[texIndex];
+    } else {
+        *segment = gEmptyTexture;
+    }
     //CmpDma_LoadFile(SEGMENT_ROM_START(map_name_static), texIndex, segment, 0x400);
 }
 
 //! note: nothing from `map_name_static` is of size `0xA00` in US 1.0
-void Kaleido_LoadMapNameStaticLarge(void* segment, u32 texIndex) {
-    CmpDma_LoadFile(SEGMENT_ROM_START(map_name_static), texIndex, segment, 0xA00);
+void Kaleido_LoadMapNameStaticLarge(void** segment, u32 texIndex) {
+    Kaleido_LoadMapNameStatic(segment, texIndex);
+    //CmpDma_LoadFile(SEGMENT_ROM_START(map_name_static), texIndex, segment, 0xA00);
 }
 
-void Kaleido_LoadItemNameStatic(void* segment, u32 texIndex) {
+void Kaleido_LoadItemNameStatic(void** segment, u32 texIndex) {
     static const char* gItemNameStatics[] = {
         gItemNameOcarinaOfTimeENGTex,
         gItemNameHerosBowENGTex,
@@ -394,8 +398,11 @@ void Kaleido_LoadItemNameStatic(void* segment, u32 texIndex) {
         gItemNameDungeonMapENGTex,
         gItemNameStrayFairiesENGTex,
     };
-    void* tex = ResourceMgr_LoadTexOrDListByName(gItemNameStatics[texIndex]);
-    memcpy(segment, tex, 0x400);
+    if (texIndex < ARRAY_COUNTU(gItemNameStatics)) {
+        *segment = gItemNameStatics[texIndex];
+    } else {
+        *segment = gEmptyTexture;
+    }
     //CmpDma_LoadFile(SEGMENT_ROM_START(item_name_static), texIndex, segment, 0x400);
 }
 
@@ -1413,9 +1420,9 @@ void KaleidoScope_UpdateNamePanel(PlayState* play) {
 
         if (pauseCtx->namedItem != PAUSE_ITEM_NONE) {
             if ((pauseCtx->pageIndex == PAUSE_MAP) && !sInDungeonScene) {
-                Kaleido_LoadMapNameStatic(pauseCtx->nameSegment, namedItem);
+                Kaleido_LoadMapNameStatic(&pauseCtx->nameSegment, namedItem);
             } else {
-                Kaleido_LoadItemNameStatic(pauseCtx->nameSegment, namedItem);
+                Kaleido_LoadItemNameStatic(&pauseCtx->nameSegment, namedItem);
             }
             pauseCtx->nameDisplayTimer = 0;
         }
@@ -1699,9 +1706,9 @@ void KaleidoScope_UpdateOwlWarpNamePanel(PlayState* play) {
 
         if (pauseCtx->namedItem != PAUSE_ITEM_NONE) {
             if ((pauseCtx->pageIndex == PAUSE_MAP) && !sInDungeonScene) {
-                Kaleido_LoadMapNameStatic(pauseCtx->nameSegment, texIndex);
+                Kaleido_LoadMapNameStatic(&pauseCtx->nameSegment, texIndex);
             } else {
-                Kaleido_LoadItemNameStatic(pauseCtx->nameSegment, texIndex);
+                Kaleido_LoadItemNameStatic(&pauseCtx->nameSegment, texIndex);
             }
             pauseCtx->nameDisplayTimer = 0;
         }
@@ -3315,12 +3322,12 @@ void KaleidoScope_Update(PlayState* play) {
             pauseCtx->nameSegment = (void*)ALIGN16((uintptr_t)pauseCtx->iconItemLangSegment + size2);
             Interface_SetAButtonDoAction(play, DO_ACTION_INFO);
             if (((void)0, gSaveContext.worldMapArea) < 0x16) {
-                Kaleido_LoadMapNameStaticLarge(pauseCtx->nameSegment + 0x400, ((void)0, gSaveContext.worldMapArea));
+                Kaleido_LoadMapNameStaticLarge(&pauseCtx->nameSegment, ((void)0, gSaveContext.worldMapArea));
             }
 
             pauseCtx->iconItemVtxSegment = (void*)ALIGN16((uintptr_t)pauseCtx->nameSegment + 0xA00);
-            DmaMgr_SendRequest0(pauseCtx->iconItemVtxSegment, SEGMENT_ROM_START(icon_item_vtx_static),
-                                SEGMENT_ROM_SIZE(icon_item_vtx_static));
+            //DmaMgr_SendRequest0(pauseCtx->iconItemVtxSegment, SEGMENT_ROM_START(icon_item_vtx_static),
+            //                    SEGMENT_ROM_SIZE(icon_item_vtx_static));
 
             pauseCtx->unk_2B6 = 255;
             pauseCtx->unk_2B7 = 255;
@@ -3915,7 +3922,7 @@ void KaleidoScope_Update(PlayState* play) {
             pauseCtx->nameSegment = (void*)ALIGN16((uintptr_t)pauseCtx->iconItemLangSegment + size2);
             Interface_SetAButtonDoAction(play, DO_ACTION_WARP);
             worldMapCursorPoint = pauseCtx->cursorPoint[PAUSE_WORLD_MAP];
-            Kaleido_LoadMapNameStatic(pauseCtx->nameSegment, worldMapCursorPoint);
+            Kaleido_LoadMapNameStatic(&pauseCtx->nameSegment, worldMapCursorPoint);
 
             pauseCtx->iconItemVtxSegment = (void*)ALIGN16((uintptr_t)pauseCtx->nameSegment + 0xA00);
             DmaMgr_SendRequest0(pauseCtx->iconItemVtxSegment, SEGMENT_ROM_START(icon_item_vtx_static),
