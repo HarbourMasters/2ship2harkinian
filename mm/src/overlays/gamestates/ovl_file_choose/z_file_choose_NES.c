@@ -1314,18 +1314,32 @@ u16 D_80814654[] = {
     0x194,
     0x2A0,
 };
+
+#define dgFileSelFourthDayTex "__OTR__misc/title_static/gFileSelFourthDayTex"
+static const ALIGN_ASSET(2) char gFileSelFourthDayTex[] = dgFileSelFourthDayTex;
+
+#define dgFileSelCheatingDayTex "__OTR__misc/title_static/gFileSelCheatingDayTex"
+static const ALIGN_ASSET(2) char gFileSelCheatinghDayTex[] = dgFileSelCheatingDayTex;
+
 TexturePtr sFileSelRemainsTextures[] = {
     gFileSelOdolwasRemainsTex,
     gFileSelGohtsRemainsTex,
     gFileSelGyorgsRemainsTex,
     gFileSelTwinmoldsRemainsTex,
 };
+
+// 2S2H [Port] When making an owl save on day 4 the texture was currupt. We also decided to add a texture for going past
+// day 4.
+
 TexturePtr sFileSelDayENGTextures[] = {
     gFileSelFirstDayENGTex,
     gFileSelFirstDayENGTex,
     gFileSelSecondDayENGTex,
     gFileSelFinalDayENGTex,
+    gFileSelFourthDayTex,
+    gFileSelCheatinghDayTex,
 };
+
 TexturePtr sFileSelHeartPieceTextures[] = {
     gFileSel0QuarterHeartENGTex,
     gFileSel1QuarterHeartENGTex,
@@ -1573,8 +1587,10 @@ void FileSelect_DrawFileInfo(GameState* thisx, s16 fileIndex) {
         gSPVertex(POLY_OPA_DISP++, &this->windowContentVtx[D_80814654[fileIndex] + 0xDC], 8, 0);
 
         gDPSetPrimColor(POLY_OPA_DISP++, 0x00, 0x00, 0, 0, 0, this->fileInfoAlpha[fileIndex]);
+        // 2S2H [Port] When making an owl save on day 4 the texture was currupt. We also decided to add a texture for going past day 4.
+        uint32_t dayIndex = CLAMP_MAX(this->day[sp20C], 5);
 
-        gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sFileSelDayENGTextures[this->day[sp20C]], G_IM_FMT_I, 48, 24, 0,
+        gDPLoadTextureBlock_4b(POLY_OPA_DISP++, sFileSelDayENGTextures[dayIndex], G_IM_FMT_I, 48, 24, 0,
                                G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK,
                                G_TX_NOLOD, G_TX_NOLOD);
         gSP1Quadrangle(POLY_OPA_DISP++, 4, 6, 7, 5, 0);
