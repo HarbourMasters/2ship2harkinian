@@ -391,6 +391,13 @@ void DrawEnhancementsMenu() {
             }
             ImGui::EndMenu();
         }
+        if (UIWidgets::BeginMenu("Player Movement")) {
+            UIWidgets::CVarSliderInt("Climb speed", "gEnhancements.PlayerMovement.ClimbSpeed", 1, 5, 1, {
+                .tooltip = "Increases the speed at which Link climbs vines and ladders." 
+            });
+
+            ImGui::EndMenu();
+        }
 
         if (UIWidgets::BeginMenu("Restorations")) {
             UIWidgets::CVarCheckbox("Power Crouch Stab", "gEnhancements.Restorations.PowerCrouchStab", {
@@ -408,13 +415,6 @@ void DrawEnhancementsMenu() {
                 .tooltip = "Enables the partially implemented Sun's Song. RIGHT-DOWN-UP-RIGHT-DOWN-UP to play it. "
                            "This song will make time move very fast until either Link moves to a different scene, "
                            "or when the time switches to a new time period."
-            });
-
-            ImGui::EndMenu();
-        }
-        if (UIWidgets::BeginMenu("Player Movement")) {
-            UIWidgets::CVarSliderInt("Climb speed", "gEnhancements.PlayerMovement.ClimbSpeed", 1, 5, 1, {
-                .tooltip = "Increases the speed at which Link climbs vines and ladders." 
             });
 
             ImGui::EndMenu();
