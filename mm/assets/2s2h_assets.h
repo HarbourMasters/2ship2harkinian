@@ -73,3 +73,9 @@ static const ALIGN_ASSET(2) char gPauseSaveConfirmationENGTex[] = dgPauseSaveCon
 
 #define dgContinuePlayingENGTex "__OTR__textures/icon_item_static/gContinuePlayingENGTex"
 static const ALIGN_ASSET(2) char gContinuePlayingENGTex[] = dgContinuePlayingENGTex;
+
+#define dgFileSelFourthDayTex "__OTR__misc/title_static/gFileSelFourthDayTex"
+static const ALIGN_ASSET(2) char gFileSelFourthDayTex[] = dgFileSelFourthDayTex;
+
+#define dgFileSelCheatingDayTex "__OTR__misc/title_static/gFileSelCheatingDayTex"
+static const ALIGN_ASSET(2) char gFileSelCheatingDayTex[] = dgFileSelCheatingDayTex;
