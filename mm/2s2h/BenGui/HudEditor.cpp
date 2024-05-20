@@ -15,6 +15,7 @@ HudEditorElement hudEditorElements[HUD_EDITOR_ELEMENT_MAX] = {
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_A,                 "A Button",          "A",             191, 18,  100, 200, 255, 255),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_C_UP,              "C-Up Button",       "CUp",           254, 16,  255, 240, 0,   255),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_D_PAD,             "D-Pad",             "DPad",          271, 55,  255, 255, 255, 255),
+    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_MINIMAP,           "Minimap",           "Minimap",       295, 220, 0,   255, 255, 160),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_START,             "Start Button",      "Start",         136, 17,  255, 130, 60,  255),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_HEARTS,            "Hearts",            "Hearts",        30,  26,  255, 70,  50,  255),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_MAGIC_METER,       "Magic",             "Magic",         18,  34,  0,   200, 0,   255),
@@ -27,11 +28,33 @@ HudEditorElement hudEditorElements[HUD_EDITOR_ELEMENT_MAX] = {
 };
 
 extern "C" bool HudEditor_ShouldOverrideDraw() {
-    return hudEditorActiveElement != HUD_EDITOR_ELEMENT_NONE && CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) != HUD_EDITOR_ELEMENT_MODE_VANILLA;
+    return hudEditorActiveElement != HUD_EDITOR_ELEMENT_NONE &&
+           CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) !=
+               HUD_EDITOR_ELEMENT_MODE_VANILLA;
 }
 
 extern "C" void HudEditor_SetActiveElement(HudEditorElementID id) {
     hudEditorActiveElement = id;
+}
+
+extern "C" bool HudEditor_IsActiveElementHidden() {
+    return hudEditorActiveElement != HUD_EDITOR_ELEMENT_NONE
+               ? CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) ==
+                     HUD_EDITOR_ELEMENT_MODE_HIDDEN
+               : false;
+}
+
+extern "C" f32 HudEditor_GetActiveElementScale() {
+    return hudEditorActiveElement != HUD_EDITOR_ELEMENT_NONE
+               ? CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f)
+               : 1.0f;
+}
+
+extern "C" void HudEditor_ModifyRectPosValuesFromBase(s16 baseX, s16 baseY, s16* rectLeft, s16* rectTop) {
+    s16 offsetFromBaseX = *rectLeft - baseX;
+    s16 offsetFromBaseY = *rectTop - baseY;
+    *rectLeft = baseX + (offsetFromBaseX * CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f));
+    *rectTop = baseY + (offsetFromBaseY * CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f));
 }
 
 extern "C" void HudEditor_ModifyRectPosValues(s16* rectLeft, s16* rectTop) {
@@ -51,6 +74,16 @@ extern "C" void HudEditor_ModifyRectPosValues(s16* rectLeft, s16* rectTop) {
                HUD_EDITOR_ELEMENT_MODE_MOVABLE_RIGHT) {
         *rectLeft = OTRGetRectDimensionFromRightEdge(*rectLeft);
     }
+}
+
+extern "C" void HudEditor_ModifyRectSizeValues(s16* rectWidth, s16* rectHeight) {
+    *rectWidth *= CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f);
+    *rectHeight *= CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f);
+}
+
+extern "C" void HudEditor_ModifyTextureStepValues(s16* dsdx, s16* dtdy) {
+    *dsdx /= CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f);
+    *dtdy /= CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f);
 }
 
 extern "C" void HudEditor_ModifyKaleidoEquipAnimValues(s16* ulx, s16* uly, s16* shrinkRate) {
@@ -78,10 +111,7 @@ extern "C" void HudEditor_ModifyKaleidoEquipAnimValues(s16* ulx, s16* uly, s16* 
 
 extern "C" void HudEditor_ModifyDrawValuesFromBase(s16 baseX, s16 baseY, s16* rectLeft, s16* rectTop, s16* rectWidth,
                                                    s16* rectHeight, s16* dsdx, s16* dtdy) {
-    s16 offsetFromBaseX = *rectLeft - baseX;
-    s16 offsetFromBaseY = *rectTop - baseY;
-    *rectLeft = baseX + (offsetFromBaseX * CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f));
-    *rectTop = baseY + (offsetFromBaseY * CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f));
+    HudEditor_ModifyRectPosValuesFromBase(baseX, baseY, rectLeft, rectTop);
 
     *rectWidth *= CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f);
     *rectHeight *= CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f);
@@ -153,6 +183,7 @@ void HudEditorWindow::DrawElement() {
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_A].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_RIGHT);
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_C_UP].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_RIGHT);
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_D_PAD].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_RIGHT);
+                CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_MINIMAP].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_RIGHT);
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_START].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_RIGHT);
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_HEARTS].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT);
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_MAGIC_METER].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT);

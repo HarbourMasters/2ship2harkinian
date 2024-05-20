@@ -8,6 +8,7 @@
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 
 #include "BenPort.h"
+#include "BenGui/HudEditor.h"
 
 void MapDisp_DestroyMapI(PlayState* play);
 void MapDisp_InitMapI(PlayState* play);
@@ -317,8 +318,29 @@ void MapDisp_DrawMinimapRoom(PlayState* play, TexturePtr texture, s32 x, s32 y, 
     dsdx = (mapDataRoom->flags & MAP_DATA_ROOM_FLIP_X) ? dsdx_temp & 0xFFFF : dsdx_temp;
     dtdy = (mapDataRoom->flags & MAP_DATA_ROOM_FLIP_Y) ? dtdy_temp : dtdy_temp & 0xFFFF;
 
-    gSPTextureRectangle(OVERLAY_DISP++, x << 2, y << 2, (texWidth + x) << 2, (y + texHeight) << 2, G_TX_RENDERTILE, s,
-                        t, dsdx, dtdy);
+    // #region 2S2H [Cosmetic] Hud Editor minimap texture
+    if (HudEditor_ShouldOverrideDraw()) {
+        dsdx = 512;
+        dtdy = 512;
+
+        // Base position is already set, now we just handle the texture size and step
+        HudEditor_ModifyRectSizeValues(&texWidth, &texHeight);
+        HudEditor_ModifyTextureStepValues(&dsdx, &dtdy);
+
+        // Apply texture flipping to scaled value like above
+        dsdx_temp = ((mapDataRoom->flags & MAP_DATA_ROOM_FLIP_X) ? -1 : 1) * (dsdx << 1);
+        dtdy_temp = ((mapDataRoom->flags & MAP_DATA_ROOM_FLIP_Y) ? 1 : -1) * (dtdy << 1);
+
+        dsdx = (mapDataRoom->flags & MAP_DATA_ROOM_FLIP_X) ? dsdx_temp & 0xFFFF : dsdx_temp;
+        dtdy = (mapDataRoom->flags & MAP_DATA_ROOM_FLIP_Y) ? dtdy_temp : dtdy_temp & 0xFFFF;
+
+        gSPWideTextureRectangle(OVERLAY_DISP++, x << 2, y << 2, (texWidth + x) << 2, (y + texHeight) << 2,
+                                G_TX_RENDERTILE, s, t, dsdx, dtdy);
+    } else {
+        // #endregion
+        gSPTextureRectangle(OVERLAY_DISP++, x << 2, y << 2, (texWidth + x) << 2, (y + texHeight) << 2, G_TX_RENDERTILE,
+                            s, t, dsdx, dtdy);
+    }
 
     CLOSE_DISPS(play->state.gfxCtx);
 }
@@ -392,7 +414,22 @@ void MapDisp_Minimap_DrawActorIcon(PlayState* play, Actor* actor) {
                sMapDisp.minimapCurY - sMapDisp.minimapBaseY + texOffsetY;
     }
 
-    if ((posX > 0) && (posX < 0x3FF) && (posY > 0) && (posY < 0x3FF)) {
+    // 2S2H [Cosmetic] Widescreen support
+    if ((posX > OTRGetRectDimensionFromLeftEdge(0)) && (posX < 0x3FF) && (posY > 0) && (posY < 0x3FF)) {
+        // #region 2S2H [Cosmetic] Hud Editor override actor values and use them below
+        s16 squareWidth = actor->id == ACTOR_EN_BOX ? 4 : 1;
+        s16 squareHeight = actor->id == ACTOR_EN_BOX ? 4 : 1;
+        s16 dsdx = 512;
+        s16 dtdy = 512;
+        if (HudEditor_ShouldOverrideDraw()) {
+            HudEditor_ModifyDrawValuesFromBase(sMapDisp.minimapCurX, sMapDisp.minimapCurY, &posX, &posY, &squareWidth,
+                                            &squareHeight, &dsdx, &dtdy);
+            // Texture rectangles can't be smaller than 1 unit
+            squareWidth = MAX(squareWidth, 1);
+            squareHeight = MAX(squareHeight, 1);
+        }
+        // #endregion
+
         OPEN_DISPS(play->state.gfxCtx);
 
         if ((actor->category == ACTORCAT_PLAYER) && (actor->flags & ACTOR_FLAG_80000000)) {
@@ -414,6 +451,12 @@ void MapDisp_Minimap_DrawActorIcon(PlayState* play, Actor* actor) {
             }
             Matrix_RotateYF(compassRot / 10.0f, MTXMODE_APPLY);
             Matrix_Scale(0.4f, 0.4f, 0.4f, MTXMODE_APPLY);
+            // #region 2S2H [Cosmetic] Hud Editor yellow compass matrix scale on x and z
+            if (HudEditor_ShouldOverrideDraw()) {
+                f32 elemScale = HudEditor_GetActiveElementScale();
+                Matrix_Scale(elemScale, 1.0f, elemScale, MTXMODE_APPLY);
+            }
+            // #endregion
             gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 200, 255, 0, play->interfaceCtx.minimapAlpha);
             gSPDisplayList(OVERLAY_DISP++, gCompassArrowDL);
@@ -430,8 +473,15 @@ void MapDisp_Minimap_DrawActorIcon(PlayState* play, Actor* actor) {
                                      G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                      G_TX_NOLOD, G_TX_NOLOD);
 
-            gSPTextureRectangle(OVERLAY_DISP++, (posX - 4) << 2, (posY - 4) << 2, (posX + 4) << 2, (posY + 4) << 2,
-                                G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+            // #region 2S2H [Cosmetic] Hud Editor chest icons
+            if (HudEditor_ShouldOverrideDraw()) {
+                gSPWideTextureRectangle(OVERLAY_DISP++, (posX - squareWidth) << 2, (posY - squareHeight) << 2,
+                                        (posX + squareWidth) << 2, (posY + squareHeight) << 2, G_TX_RENDERTILE, 0, 0,
+                                        dsdx << 1, dtdy << 1);
+            } else {
+                gSPTextureRectangle(OVERLAY_DISP++, (posX - 4) << 2, (posY - 4) << 2, (posX + 4) << 2, (posY + 4) << 2,
+                                    G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+            }
         } else {
             Gfx_SetupDL39_Overlay(play->state.gfxCtx);
             gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
@@ -439,8 +489,16 @@ void MapDisp_Minimap_DrawActorIcon(PlayState* play, Actor* actor) {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, sMinimapActorCategoryColors[actor->category].r,
                                 sMinimapActorCategoryColors[actor->category].g,
                                 sMinimapActorCategoryColors[actor->category].b, play->interfaceCtx.minimapAlpha);
-                gSPTextureRectangle(OVERLAY_DISP++, (posX - 1) << 2, (posY - 1) << 2, (posX + 1) << 2, (posY + 1) << 2,
-                                    G_TX_RENDERTILE, 0, 0, 0x0001, 0x0001);
+
+                // #region 2S2H [Cosmetic] Hud Editor actor dots
+                if (HudEditor_ShouldOverrideDraw()) {
+                    gSPWideTextureRectangle(OVERLAY_DISP++, (posX - squareWidth) << 2, (posY - squareHeight) << 2,
+                                            (posX + squareWidth) << 2, (posY + squareHeight) << 2, G_TX_RENDERTILE, 0,
+                                            0, dsdx << 1, dtdy << 1);
+                } else {
+                    gSPTextureRectangle(OVERLAY_DISP++, (posX - 1) << 2, (posY - 1) << 2, (posX + 1) << 2,
+                                        (posY + 1) << 2, G_TX_RENDERTILE, 0, 0, 0x0001, 0x0001);
+                }
             }
         }
         CLOSE_DISPS(play->state.gfxCtx);
@@ -527,7 +585,9 @@ void MapDisp_Minimap_DrawDoorActor(PlayState* play, Actor* actor) {
                     sMapDisp.minimapBaseY) +
                    texOffsetY;
         }
-        if ((posX > 0) && (posX < 0x3FF) && (posY > 0) && (posY < 0x3FF)) {
+
+        // 2S2H [Cosmetic] Widescreen support
+        if ((posX > OTRGetRectDimensionFromLeftEdge(0)) && (posX < 0x3FF) && (posY > 0) && (posY < 0x3FF)) {
             OPEN_DISPS(play->state.gfxCtx);
 
             Gfx_SetupDL39_Overlay(play->state.gfxCtx);
@@ -552,12 +612,31 @@ void MapDisp_Minimap_DrawDoorActor(PlayState* play, Actor* actor) {
                     MapDisp_GetMapScale(mapDataRoom, &scaleTemp);
                     scale = scaleTemp;
                 }
-                if (scale <= 50) {
-                    gSPTextureRectangle(OVERLAY_DISP++, (posX - 2) << 2, (posY - 2) << 2, (posX + 2) << 2,
-                                        (posY + 2) << 2, G_TX_RENDERTILE, 0, 0, 0x0001, 0x0001);
+
+                // #region 2S2H [Cosmetic] Hud Editor door dots
+                if (HudEditor_ShouldOverrideDraw()) {
+                    s16 squareWidth = scale <= 50 ? 2 : 1;
+                    s16 squareHeight = scale <= 50 ? 2 : 1;
+
+                    HudEditor_ModifyRectPosValuesFromBase(sMapDisp.minimapCurX, sMapDisp.minimapCurY, &posX, &posY);
+                    HudEditor_ModifyRectSizeValues(&squareWidth, &squareHeight);
+
+                    // Text rectangles can't be smaller than 1 unit
+                    squareWidth = MAX(squareWidth, 1);
+                    squareHeight = MAX(squareHeight, 1);
+
+                    gSPWideTextureRectangle(OVERLAY_DISP++, (posX - squareWidth) << 2, (posY - squareHeight) << 2,
+                                            (posX + squareWidth) << 2, (posY + squareHeight) << 2, G_TX_RENDERTILE, 0,
+                                            0, 0x0001, 0x0001);
                 } else {
-                    gSPTextureRectangle(OVERLAY_DISP++, (posX - 1) << 2, (posY - 1) << 2, (posX + 1) << 2,
-                                        (posY + 1) << 2, G_TX_RENDERTILE, 0, 0, 0x0001, 0x0001);
+                    // #endregion
+                    if (scale <= 50) {
+                        gSPTextureRectangle(OVERLAY_DISP++, (posX - 2) << 2, (posY - 2) << 2, (posX + 2) << 2,
+                                            (posY + 2) << 2, G_TX_RENDERTILE, 0, 0, 0x0001, 0x0001);
+                    } else {
+                        gSPTextureRectangle(OVERLAY_DISP++, (posX - 1) << 2, (posY - 1) << 2, (posX + 1) << 2,
+                                            (posY + 1) << 2, G_TX_RENDERTILE, 0, 0, 0x0001, 0x0001);
+                    }
                 }
             }
 
@@ -917,6 +996,26 @@ void MapDisp_Update(PlayState* play) {
     s16 targetY;
 
     if ((sMapDisp.mapDataScene != NULL) && (sSceneNumRooms != 0)) {
+        // #region 2S2H [Cosmetic] Hud Editor minimap base position
+        // This value is used to determine the relative positioning for all the other elements
+        HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_MINIMAP);
+        if (HudEditor_ShouldOverrideDraw()) {
+            s32 width;
+            s32 height;
+
+            MapDataRoom* mapDataRoom = &sMapDisp.mapDataScene->rooms[sMapDisp.curRoom];
+            if (mapDataRoom != NULL && mapDataRoom->mapId != MAP_DATA_NO_MAP) {
+                MapDisp_GetMapTexDim(mapDataRoom, &width, &height);
+                sMapDisp.minimapBaseX = 295;
+                sMapDisp.minimapBaseY = 220;
+                HudEditor_ModifyRectPosValues(&sMapDisp.minimapBaseX, &sMapDisp.minimapBaseY);
+                // We don't want to scale width/height here, it will happen later when the texture is drawn
+                sMapDisp.minimapBaseX -= width;
+                sMapDisp.minimapBaseY -= height;
+            }
+        }
+        // #endregion
+
         sMapDisp.pauseMapCurStorey = DUNGEON_FLOOR_INDEX_0 - pauseCtx->cursorMapDungeonItem;
         if (sMapDisp.prevRoom != -1) {
             if (sMapDisp.swapAnimTimer > 0) {
@@ -941,7 +1040,13 @@ void MapDisp_Update(PlayState* play) {
             }
         } else {
             sMapDisp.swapAnimTimer = 0;
+
+            // #region 2S2H [Cosmetic] Hud Editor assign the values so that hud editor updates on the fly
+            sMapDisp.minimapCurX = sMapDisp.minimapBaseX;
+            sMapDisp.minimapCurY = sMapDisp.minimapBaseY;
         }
+
+        hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
     }
 }
 
@@ -985,6 +1090,25 @@ void MapDisp_SwapRooms(s16 nextRoom) {
             MapDisp_GetMapTexDim(nextMapDataRoom, &width, &height);
             sMapDisp.minimapBaseX = 295 - width;
             sMapDisp.minimapBaseY = 220 - height;
+
+            // #region 2S2H [Cosmetic] Hud Editor minimap base position
+            // This value is used to determine the relative positioning for all the other elements
+            HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_MINIMAP);
+            f32 elemScale = HudEditor_GetActiveElementScale();
+            if (HudEditor_ShouldOverrideDraw()) {
+                sMapDisp.minimapBaseX = 295;
+                sMapDisp.minimapBaseY = 220;
+                HudEditor_ModifyRectPosValues(&sMapDisp.minimapBaseX, &sMapDisp.minimapBaseY);
+                // We don't want to scale width/height here, it will happen later when the texture is drawn
+                sMapDisp.minimapBaseX -= width;
+                sMapDisp.minimapBaseY -= height;
+
+                // Scale the offset for use with the room swap animation
+                offsetX *= elemScale;
+                offsetY *= elemScale;
+            }
+            // #endregion
+
             if (sMapDisp.prevRoom != -1) {
                 prevMapDataRoom = &sMapDisp.mapDataScene->rooms[sMapDisp.prevRoom];
                 if (prevMapDataRoom->mapId == MAP_DATA_NO_MAP) {
@@ -1009,17 +1133,37 @@ void MapDisp_SwapRooms(s16 nextRoom) {
                         MapDisp_GetMapScale(nextMapDataRoom, &scaleTemp);
                         scale = scaleTemp;
                     }
-                    sMapDisp.minimapPrevX =
-                        TRUNCF_BINANG(((f32)offsetX + (((f32)prevMapDataRoom->centerX - (f32)nextMapDataRoom->centerX) *
-                                                       (1.0f / scale))) -
-                                      (f32)prevOffsetX);
-                    sMapDisp.minimapPrevY =
-                        TRUNCF_BINANG(((f32)offsetY + (((f32)prevMapDataRoom->centerZ - (f32)nextMapDataRoom->centerZ) *
-                                                       (1.0f / scale))) -
-                                      (f32)prevOffsetY);
+
+                    // #region 2S2H [Cosmetic] Hud Editor room swap animation init calculation
+                    if (HudEditor_ShouldOverrideDraw()) {
+                        prevOffsetX *= elemScale;
+                        prevOffsetY *= elemScale;
+
+                        sMapDisp.minimapPrevX = TRUNCF_BINANG(
+                            ((f32)offsetX +
+                             (((f32)prevMapDataRoom->centerX - (f32)nextMapDataRoom->centerX) * (1.0f / scale) * elemScale)) -
+                            (f32)prevOffsetX);
+                        sMapDisp.minimapPrevY = TRUNCF_BINANG(
+                            ((f32)offsetY +
+                             (((f32)prevMapDataRoom->centerZ - (f32)nextMapDataRoom->centerZ) * (1.0f / scale) * elemScale)) -
+                            (f32)prevOffsetY);
+                    } else {
+                        // #endregion
+                        sMapDisp.minimapPrevX =
+                            TRUNCF_BINANG(((f32)offsetX + (((f32)prevMapDataRoom->centerX - (f32)nextMapDataRoom->centerX) *
+                                                        (1.0f / scale))) -
+                                        (f32)prevOffsetX);
+                        sMapDisp.minimapPrevY =
+                            TRUNCF_BINANG(((f32)offsetY + (((f32)prevMapDataRoom->centerZ - (f32)nextMapDataRoom->centerZ) *
+                                                        (1.0f / scale))) -
+                                        (f32)prevOffsetY);
+                    }
+
                     sMapDisp.minimapCurX = minimapBaseX - sMapDisp.minimapPrevX;
                     sMapDisp.minimapCurY = minimapBaseY - sMapDisp.minimapPrevY;
                 }
+
+                hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
             } else {
                 sMapDisp.minimapPrevX = sMapDisp.minimapPrevY = 0;
                 sMapDisp.minimapCurX = sMapDisp.minimapBaseX;
@@ -1096,7 +1240,13 @@ void MapDisp_Minimap_DrawRedCompassIcon(PlayState* play, s32 x, s32 z, s32 rot) 
                (sMapDisp.minimapCurY - sMapDisp.minimapBaseY) + texOffsetY;
     }
 
-    if ((posX > 0) && (posX < 0x3FF) && (posY > 0) && (posY < 0x3FF)) {
+    // 2S2H [Cosmetic] Widescreen support
+    if ((posX > OTRGetRectDimensionFromLeftEdge(0)) && (posX < 0x3FF) && (posY > 0) && (posY < 0x3FF)) {
+        // 2S2H [Cosmetic] Hud Editor red compass position
+        if (HudEditor_ShouldOverrideDraw()) {
+            HudEditor_ModifyRectPosValuesFromBase(sMapDisp.minimapCurX, sMapDisp.minimapCurY, &posX, &posY);
+        }
+
         OPEN_DISPS(play->state.gfxCtx);
 
         Gfx_SetupDL42_Overlay(play->state.gfxCtx);
@@ -1113,6 +1263,12 @@ void MapDisp_Minimap_DrawRedCompassIcon(PlayState* play, s32 x, s32 z, s32 rot) 
         }
         Matrix_RotateYF(rot / 10.0f, MTXMODE_APPLY);
         Matrix_Scale(0.4f, 0.4f, 0.4f, MTXMODE_APPLY);
+        // #region 2S2H [Cosmetic] Hud Editor red compass scale the matrix in x and z
+        if (HudEditor_ShouldOverrideDraw()) {
+            f32 elemScale = HudEditor_GetActiveElementScale();
+            Matrix_Scale(elemScale, 1.0f, elemScale, MTXMODE_APPLY);
+        }
+        // #endregion
         gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gDPSetPrimColor(OVERLAY_DISP++, 0, 255, 200, 0, 0, play->interfaceCtx.minimapAlpha);
         gSPDisplayList(OVERLAY_DISP++, gCompassArrowDL);
@@ -1175,6 +1331,16 @@ s32 MapDisp_AreRoomsSameStorey(s32 curRoom, s32 prevRoom) {
 void MapDisp_DrawMinimap(PlayState* play, s32 playerInitX, s32 playerInitZ, s32 playerInitDir) {
     PauseContext* pauseCtx = &play->pauseCtx;
 
+    // #region 2S2H [Cosmetic] Hud Editor support for the minimap
+    // The active element is set and unset in this paraent method, so that all the child functions
+    // can use ShouldOverrideDraw
+    HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_MINIMAP);
+    if (HudEditor_ShouldOverrideDraw() && HudEditor_IsActiveElementHidden()) {
+        hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+        return;
+    }
+    // #endregion
+
     if ((sMapDisp.mapDataScene != NULL) && ((s32)pauseCtx->state <= PAUSE_STATE_OPENING_2) && !R_MINIMAP_DISABLED &&
         (play->interfaceCtx.minimapAlpha != 0)) {
         if (!MapDisp_IsLocationMinimapBlocked(play) && (sSceneNumRooms != 0)) {
@@ -1198,6 +1364,8 @@ void MapDisp_DrawMinimap(PlayState* play, s32 playerInitX, s32 playerInitZ, s32 
             }
         }
     }
+
+    hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
 }
 
 void MapDisp_ResetIMap(void) {
