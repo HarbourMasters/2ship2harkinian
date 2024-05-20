@@ -30,6 +30,7 @@ void InitEnhancements() {
     // Restorations
     RegisterPowerCrouchStab();
     RegisterSideRoll();
+    RegisterTatlISG();
     
     // Cutscenes
     RegisterSkipEntranceCutscenes();

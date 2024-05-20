@@ -16,6 +16,7 @@
 #include "Cutscenes/HideTitleCards.h"
 #include "Restorations/PowerCrouchStab.h"
 #include "Restorations/SideRoll.h"
+#include "Restorations/TatlISG.h"
 #include "Graphics/PlayAsKafei.h"
 #include "Songs/EnableSunsSong.h"
 
