@@ -329,6 +329,7 @@ typedef struct DpadSaveInfo {
 // See `ShipSaveContext` for values on the SaveContext that aren't persisted.
 typedef struct ShipSaveInfo {
     DpadSaveInfo dpadEquips;
+    s32 pauseSaveEntrance;
 } ShipSaveInfo;
 // #endregion
 

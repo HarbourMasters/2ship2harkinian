@@ -549,7 +549,7 @@ bool Extractor::CallZapd(std::string installPath, std::string exportdir) {
     char portVersion[18]; // 5 digits for int16_max (x3) + separators + terminator
     std::array<const char*, argc> argv;
     const char* version = GetZapdVerStr();
-    const char* otrFile = "mm.otr";
+    const char* otrFile = "mm.zip";
 
     std::string romPath = std::filesystem::absolute(mCurrentRomPath).string();
     installPath = std::filesystem::absolute(installPath).string();

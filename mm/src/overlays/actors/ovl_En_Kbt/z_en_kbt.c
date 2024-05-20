@@ -5,6 +5,7 @@
  */
 
 #include "z_en_kbt.h"
+#include "BenPort.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY)
 
@@ -14,6 +15,7 @@ void EnKbt_Init(Actor* thisx, PlayState* play);
 void EnKbt_Destroy(Actor* thisx, PlayState* play);
 void EnKbt_Update(Actor* thisx, PlayState* play);
 void EnKbt_Draw(Actor* thisx, PlayState* play);
+void EnKbt_Reset(void);
 
 s32 func_80B33E64(PlayState* play);
 s32 func_80B33E8C(PlayState* play);
@@ -49,14 +51,43 @@ ActorInit En_Kbt_InitVars = {
     /**/ EnKbt_Destroy,
     /**/ EnKbt_Update,
     /**/ EnKbt_Draw,
+    /**/ EnKbt_Reset,
 };
+
+static JointIndex* origIndicies_004274;
+
+// #region 2S2H [Port] This data originally stopped at the the entry { 0x000A, 0x000B, 0x000C }. 
+// The next 3 entries are set to zero because using the data the original game would have read would also have caused an OOB read
+static JointIndex object_kbt_Anim_004274JointIndicesFixed[] = {
+    { 0x0000, 0x000D, 0x0002 }, { 0x0003, 0x002B, 0x0003 }, { 0x0049, 0x0067, 0x0085 }, { 0x0000, 0x0000, 0x00A3 },
+    { 0x0000, 0x0000, 0x00C1 }, { 0x00DF, 0x00FD, 0x011B }, { 0x0000, 0x0000, 0x0139 }, { 0x0000, 0x0000, 0x0157 },
+    { 0x0000, 0x0000, 0x0175 }, { 0x0000, 0x0193, 0x01B1 }, { 0x01CF, 0x01ED, 0x020B }, { 0x0000, 0x0000, 0x0229 },
+    { 0x0004, 0x0005, 0x0006 }, { 0x0000, 0x0000, 0x0000 }, { 0x0007, 0x0008, 0x0009 }, { 0x0000, 0x0000, 0x0247 },
+    { 0x000A, 0x000B, 0x000C }, { 0x0000, 0x0000, 0x0000 }, { 0x0060, 0x0000, 0x0000 }, { 0x0000, 0x0000, 0x0000 },
+};
+// #endregion
 
 void EnKbt_Init(Actor* thisx, PlayState* play) {
     EnKbt* this = THIS;
 
     Actor_SetScale(&this->actor, 0.01f);
-    SkelAnime_InitFlex(play, &this->skelAnime, &object_kbt_Skel_00DEE8, &object_kbt_Anim_004274, this->jointTable,
+    // #region 2S2H [Port] The animation object_kbt_Anim_004274 has the wrong number of joint indicies. It should have 20 but only has 17. 
+    // We need to do the following steps to correct this.
+    // First we must tell the animation system to not load the animation when it initializes the skeleton.
+    // Then we must manually load the animation and change the joint index data see the static JointIndex data above for what we used for the data.
+    // Finally we manually set the animation
+
+    SkelAnime_InitFlex(play, &this->skelAnime, &object_kbt_Skel_00DEE8, NULL, this->jointTable,
                        this->morphTable, OBJECT_KBT_LIMB_MAX);
+    
+    AnimationHeader* anim = (AnimationHeader*)ResourceMgr_LoadAnimByName(object_kbt_Anim_004274);
+
+    origIndicies_004274 = anim->jointIndices;
+    anim->jointIndices = object_kbt_Anim_004274JointIndicesFixed;
+    Animation_PlayLoop(&this->skelAnime, object_kbt_Anim_004274);
+    // #endregion
+
+
     this->unk_27C = 0;
     this->actor.home.rot.z = 0;
     this->unk_27E = 4;
@@ -85,6 +116,13 @@ void EnKbt_Init(Actor* thisx, PlayState* play) {
 }
 
 void EnKbt_Destroy(Actor* thisx, PlayState* play) {
+}
+
+void EnKbt_Reset(void) {
+    // #region 2S2H [Port] Reset the joint indicies back to their original value from the resource.
+    AnimationHeader* anim = (AnimationHeader*)ResourceMgr_LoadAnimByName(object_kbt_Anim_004274);
+    anim->jointIndices = origIndicies_004274;
+    // #endregion
 }
 
 s32 func_80B33E64(PlayState* play) {

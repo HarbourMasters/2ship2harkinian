@@ -13,6 +13,7 @@ extern "C" {
 void Sram_InitDebugSave(void);
 void Flags_SetWeekEventReg(s32 flag);
 void Inventory_ChangeUpgrade(s16 upgrade, u32 value);
+void Inventory_SetWorldMapCloudVisibility(s16 tingleIndex);
 
 extern u16 sPersistentCycleWeekEventRegs[ARRAY_COUNT(gSaveContext.save.saveInfo.weekEventReg)];
 }
@@ -51,13 +52,16 @@ void RegisterDebugSaveCreate() {
                 gSaveContext.save.saveInfo.playerData.unk_20 = OWL_WARP_CLOCK_TOWN;
 
                 gSaveContext.save.saveInfo.inventory.defenseHearts = 20;
-                gSaveContext.save.saveInfo.worldMapCloudVisibility = (1 << WORLD_MAP_NUM_CLOUDS) - 1;
                 gSaveContext.save.saveInfo.regionsVisited = (1 << REGION_MAX) - 1;
                 gSaveContext.magicCapacity = MAGIC_DOUBLE_METER;
 
                 Inventory_ChangeUpgrade(UPG_WALLET, 2);
                 Inventory_ChangeUpgrade(UPG_BOMB_BAG, 3);
                 Inventory_ChangeUpgrade(UPG_QUIVER, 3);
+
+                for (int32_t i = 0; i < TINGLE_MAP_MAX; i++) {
+                    Inventory_SetWorldMapCloudVisibility(i);
+                }
 
                 gSaveContext.save.saveInfo.playerData.rupees = CUR_CAPACITY(UPG_WALLET);
                 AMMO(ITEM_BOW) = CUR_CAPACITY(UPG_QUIVER);

@@ -5,6 +5,7 @@
 #include "functions.h"
 #include "variables.h"
 #include "macros.h"
+#include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 
 void GameOver_Init(PlayState* play) {
     play->gameOverCtx.state = GAMEOVER_INACTIVE;
@@ -79,6 +80,16 @@ void GameOver_Update(PlayState* play) {
             break;
 
         case GAMEOVER_DEATH_FADE_OUT:
+            if (CVarGetInteger("gEnhancements.Kaleido.GameOver", 0)) {
+                sGameOverTimer--;
+
+                if (sGameOverTimer == 0) {
+                    play->pauseCtx.state = PAUSE_STATE_GAMEOVER_0;
+                    gameOverCtx->state++;
+                    Rumble_StateReset();
+                }
+                break;
+            }
             if (AudioSeq_GetActiveSeqId(SEQ_PLAYER_FANFARE) != NA_BGM_GAME_OVER) {
                 func_80169F78(&play->state);
                 if (gSaveContext.respawnFlag != -7) {

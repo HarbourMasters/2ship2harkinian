@@ -11,6 +11,7 @@
 #include "overlays/actors/ovl_En_Clear_Tag/z_en_clear_tag.h"
 #include "overlays/actors/ovl_En_Estone/z_en_estone.h"
 #include "overlays/effects/ovl_Effect_Ss_Hitmark/z_eff_ss_hitmark.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_10 | ACTOR_FLAG_20 | ACTOR_FLAG_80000000)
 
@@ -1515,6 +1516,7 @@ void EnEgol_Draw(Actor* thisx, PlayState* play2) {
             laserLightScaleMod = 10.0f;
             laserLightAlpha = 80.0f;
             for (i = 0; i < ARRAY_COUNT(sLightOrbColors); i++) {
+                FrameInterpolation_RecordOpenChild(this, i);
                 Matrix_Push();
                 Matrix_Scale(laserLightScaleMod, laserLightScaleMod, laserLightScaleMod, MTXMODE_APPLY);
                 Matrix_ReplaceRotation(&play->billboardMtxF);
@@ -1526,6 +1528,7 @@ void EnEgol_Draw(Actor* thisx, PlayState* play2) {
                 Matrix_Pop();
                 laserLightScaleMod = 3.0f;
                 laserLightAlpha = 200.0f;
+                FrameInterpolation_RecordCloseChild();
             }
         } else {
             gDPSetEnvColor(POLY_XLU_DISP++, 155, 255, 255, 128);
@@ -1627,6 +1630,7 @@ void EnEgol_DrawEffects(EnEgol* this, PlayState* play) {
     Gfx_SetupDL25_Opa(play->state.gfxCtx);
     for (i = 0; i < ARRAY_COUNT(this->effects); i++, effect++) {
         if (effect->isActive) {
+            FrameInterpolation_RecordOpenChild(effect, i);
             Matrix_Push();
 
             Matrix_Translate(effect->pos.x, effect->pos.y, effect->pos.z, MTXMODE_NEW);
@@ -1667,6 +1671,7 @@ void EnEgol_DrawEffects(EnEgol* this, PlayState* play) {
 
                 default:
                     break;
+            FrameInterpolation_RecordCloseChild();
             }
             Matrix_Pop();
         }

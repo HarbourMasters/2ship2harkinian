@@ -1,10 +1,18 @@
 #include "Enhancements.h"
 
 void InitEnhancements() {
+    // Camera
+    RegisterCameraFreeLook();
+    RegisterDebugCam();
+
     // Cheats
     RegisterInfiniteCheats();
     RegisterMoonJumpOnL();
+    RegisterUnbreakableRazorSword(); 
 
+    // Clock
+    RegisterTextBasedClock();
+  
     // Cycle
     RegisterEndOfCycleSaveHooks();
 
@@ -22,6 +30,7 @@ void InitEnhancements() {
     // Restorations
     RegisterPowerCrouchStab();
     RegisterSideRoll();
+    RegisterTatlISG();
     
     // Cutscenes
     RegisterSkipEntranceCutscenes();

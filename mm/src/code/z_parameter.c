@@ -307,7 +307,13 @@ Gfx* Gfx_DrawTexRectIA8(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 text
             return gfx;
         }
 
-        HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+        if (hudEditorActiveElement == HUD_EDITOR_ELEMENT_TIMERS ||
+            hudEditorActiveElement == HUD_EDITOR_ELEMENT_TIMERS_MOON_CRASH) {
+            HudEditor_ModifyDrawValuesFromBase(gSaveContext.timerX[sTimerId], gSaveContext.timerY[sTimerId], &rectLeft,
+                                               &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+        } else {
+            HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+        }
 
         hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
     }
@@ -568,7 +574,13 @@ Gfx* Gfx_DrawTexRectI8(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 textu
             return gfx;
         }
 
-        HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+        if (hudEditorActiveElement == HUD_EDITOR_ELEMENT_TIMERS ||
+            hudEditorActiveElement == HUD_EDITOR_ELEMENT_TIMERS_MOON_CRASH) {
+            HudEditor_ModifyDrawValuesFromBase(gSaveContext.timerX[sTimerId], gSaveContext.timerY[sTimerId], &rectLeft,
+                                               &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+        } else {
+            HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+        }
 
         hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
     }
@@ -2830,9 +2842,13 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                     }
                 } else if (DPAD_GET_CUR_FORM_BTN_ITEM(j) == ITEM_MASK_FIERCE_DEITY) {
                     // Fierce Deity's Mask is equipped
-                    if ((play->sceneId != SCENE_MITURIN_BS) && (play->sceneId != SCENE_HAKUGIN_BS) &&
-                        (play->sceneId != SCENE_SEA_BS) && (play->sceneId != SCENE_INISIE_BS) &&
-                        (play->sceneId != SCENE_LAST_BS)) {
+                    u8 vanillaSceneConditionResult = 
+                        (play->sceneId != SCENE_MITURIN_BS) && 
+                        (play->sceneId != SCENE_HAKUGIN_BS) &&
+                        (play->sceneId != SCENE_SEA_BS) &&
+                        (play->sceneId != SCENE_INISIE_BS) &&
+                        (play->sceneId != SCENE_LAST_BS);
+                    if (GameInteractor_Should(GI_VB_DISABLE_FD_MASK, vanillaSceneConditionResult, NULL)) {
                         if (gSaveContext.shipSaveContext.dpad.status[j] != BTN_DISABLED) {
                             gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
                             restoreHudVisibility = true;
@@ -3306,8 +3322,12 @@ void Interface_InitMinigame(PlayState* play) {
 
 void Interface_Dpad_LoadItemIconImpl(PlayState* play, u8 btn) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
-    
-    interfaceCtx->iconItemSegment[DPAD_BUTTON(btn) + EQUIP_SLOT_MAX] = gItemIcons[DPAD_GET_CUR_FORM_BTN_ITEM(btn)];
+
+    if (DPAD_GET_CUR_FORM_BTN_ITEM(btn) < ARRAY_COUNT(gItemIcons)) {
+        interfaceCtx->iconItemSegment[DPAD_BUTTON(btn) + EQUIP_SLOT_MAX] = gItemIcons[DPAD_GET_CUR_FORM_BTN_ITEM(btn)];
+    } else {
+        interfaceCtx->iconItemSegment[btn] = gEmptyTexture;
+    }
 }
 
 void Interface_LoadItemIconImpl(PlayState* play, u8 btn) {
@@ -3316,7 +3336,11 @@ void Interface_LoadItemIconImpl(PlayState* play, u8 btn) {
     // #region 2S2H [Port]
     // CmpDma_LoadFile(SEGMENT_ROM_START(icon_item_static_yar), GET_CUR_FORM_BTN_ITEM(btn),
     //             &interfaceCtx->iconItemSegment[(u32)btn * 0x1000], 0x1000);
-    interfaceCtx->iconItemSegment[btn] = gItemIcons[GET_CUR_FORM_BTN_ITEM(btn)];
+    if (GET_CUR_FORM_BTN_ITEM(btn) < ARRAY_COUNT(gItemIcons)) {
+        interfaceCtx->iconItemSegment[btn] = gItemIcons[GET_CUR_FORM_BTN_ITEM(btn)];
+    } else {
+        interfaceCtx->iconItemSegment[btn] = gEmptyTexture;
+    }
     // #endregion
 }
 
@@ -5894,7 +5918,7 @@ void Interface_DrawClock(PlayState* play) {
         gEmptyTexture, gEmptyTexture, // 2S2H [Port] To account for the vanilla bug detailed later on in this function
     };
         // 2S2H Region [Enhancements] 24 Hours Clock
-        static TexturePtr sThreeDayClockHourTwentyHourHoursTextures[] = {
+        static TexturePtr sThreeDayClockHourTwentyFourHoursTextures[] = {
         gThreeDayClockHour24Tex, gThreeDayClockHour1Tex, gThreeDayClockHour2Tex,  gThreeDayClockHour3Tex,
         gThreeDayClockHour4Tex,  gThreeDayClockHour5Tex, gThreeDayClockHour6Tex,  gThreeDayClockHour7Tex,
         gThreeDayClockHour8Tex,  gThreeDayClockHour9Tex, gThreeDayClockHour10Tex, gThreeDayClockHour11Tex,
@@ -5947,6 +5971,10 @@ void Interface_DrawClock(PlayState* play) {
     s16 colorStep;
     s16 finalHoursClockSlots[8];
     s16 index;
+
+    if (GameInteractor_Should(GI_VB_PREVENT_CLOCK_DISPLAY, false, NULL)) {
+        return;
+    }
 
     OPEN_DISPS(play->state.gfxCtx);
 
@@ -6266,7 +6294,7 @@ void Interface_DrawClock(PlayState* play) {
             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[24], 8, 0);
 
             OVERLAY_DISP = CVarGetInteger("gEnhancements.Graphics.24HoursClock", 0) ? 
-              Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTwentyHourHoursTextures[sp1C6], 4, 16, 11, 0) : 
+              Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTwentyFourHoursTextures[sp1C6], 4, 16, 11, 0) : 
               Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTextures[sp1C6], 4, 16, 11, 0);
 
             // Colours the Three-Day Clocks's Hour Digit Above the Sun
@@ -6292,7 +6320,7 @@ void Interface_DrawClock(PlayState* play) {
             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[32], 8, 0);
 
             OVERLAY_DISP = CVarGetInteger("gEnhancements.Graphics.24HoursClock", 0) ? 
-              Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTwentyHourHoursTextures[sp1C6], 4, 16, 11, 0) : 
+              Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTwentyFourHoursTextures[sp1C6], 4, 16, 11, 0) : 
               Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTextures[sp1C6], 4, 16, 11, 0);
 
 
@@ -7064,6 +7092,11 @@ void Interface_DrawTimers(PlayState* play) {
     OSTime postmanTimerStopOsTime;
     s16 j;
     s16 i;
+    // 2S2H [Cosmetic] Hud editor values for timers
+    s16 newTimerX;
+    s16 newTimerY;
+    u8 modifiedTimerHudValues;
+    s16 hudTimerElement;
 
     OPEN_DISPS(play->state.gfxCtx);
 
@@ -7098,8 +7131,40 @@ void Interface_DrawTimers(PlayState* play) {
 
             sTimerId = i;
 
+            // #region 2S2H [Cosmetic] Hud editor values for initial timer positions
+            if (sTimerId == TIMER_ID_MOON_CRASH) {
+                hudTimerElement = HUD_EDITOR_ELEMENT_TIMERS_MOON_CRASH;
+                newTimerX = R_MOON_CRASH_TIMER_X;
+                newTimerY = R_MOON_CRASH_TIMER_Y;
+            } else {
+                hudTimerElement = HUD_EDITOR_ELEMENT_TIMERS;
+                newTimerX = 26;
+                // In minigame that hides the hud, but not minigames where the timer starts in the center
+                if (interfaceCtx->minigameState != MINIGAME_STATE_NONE && interfaceCtx->magicAlpha != 255) {
+                    newTimerY = 22;
+                } else if (gSaveContext.save.saveInfo.playerData.healthCapacity > 0xA0) {
+                    newTimerY = 54; // two rows of hearts
+                } else {
+                    newTimerY = 46; // one row of hearts
+                }
+            }
+            // #endreion
+
             // Process the timer for the postman counting minigame
             if (sTimerId == TIMER_ID_POSTMAN) {
+                // #region 2S2H [Cosmetic] Hud editor values for postman timer
+                HudEditor_SetActiveElement(hudTimerElement);
+                if (HudEditor_ShouldOverrideDraw()) {
+                    HudEditor_ModifyRectPosValues(&newTimerX, &newTimerY);
+                } else {
+                    newTimerX = 115;
+                    newTimerY = 80;
+                }
+                gSaveContext.timerX[sTimerId] = newTimerX;
+                gSaveContext.timerY[sTimerId] = newTimerY;
+                hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+                // #endregion
+
                 switch (gSaveContext.timerStates[TIMER_ID_POSTMAN]) {
                     case TIMER_STATE_POSTMAN_START:
                         if (gSaveContext.timerDirections[TIMER_ID_POSTMAN] != TIMER_COUNT_DOWN) {
@@ -7144,6 +7209,17 @@ void Interface_DrawTimers(PlayState* play) {
                             gSaveContext.timerY[sTimerId] = 46; // one row of hearts
                         }
 
+                        // #region 2S2H [Cosmetic] Hud editor values for static minigame timers
+                        HudEditor_SetActiveElement(hudTimerElement);
+                        if (HudEditor_ShouldOverrideDraw()) {
+                            HudEditor_ModifyRectPosValues(&newTimerX, &newTimerY);
+                            modifiedTimerHudValues = true;
+                            gSaveContext.timerX[sTimerId] = newTimerX;
+                            gSaveContext.timerY[sTimerId] = newTimerY;
+                        }
+                        hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+                        // #endregion
+
                         if ((interfaceCtx->minigameState == MINIGAME_STATE_COUNTDOWN_GO) ||
                             (interfaceCtx->minigameState == MINIGAME_STATE_PLAYING)) {
                             if (gSaveContext.timerStates[sTimerId] == TIMER_STATE_START) {
@@ -7172,34 +7248,54 @@ void Interface_DrawTimers(PlayState* play) {
                     break;
 
                 case TIMER_STATE_MOVING_TIMER:
-                    // Move the timer from the center of the screen to the timer location where it will count.
-                    if (sTimerId == TIMER_ID_MOON_CRASH) {
-                        j = ((((void)0, gSaveContext.timerX[sTimerId]) - R_MOON_CRASH_TIMER_X) / sTimerStateTimer);
-                        gSaveContext.timerX[sTimerId] = ((void)0, gSaveContext.timerX[sTimerId]) - j;
-                        j = ((((void)0, gSaveContext.timerY[sTimerId]) - R_MOON_CRASH_TIMER_Y) / sTimerStateTimer);
-                        gSaveContext.timerY[sTimerId] = ((void)0, gSaveContext.timerY[sTimerId]) - j;
-                    } else {
-                        j = ((((void)0, gSaveContext.timerX[sTimerId]) - 26) / sTimerStateTimer);
+                    // #region 2S2H [Cosmetic] Hud Editor values for timers animation position
+                    HudEditor_SetActiveElement(hudTimerElement);
+                    if (HudEditor_ShouldOverrideDraw()) {
+                        HudEditor_ModifyRectPosValues(&newTimerX, &newTimerY);
+                        modifiedTimerHudValues = true;
+                        j = ((((void)0, gSaveContext.timerX[sTimerId]) - newTimerX) / sTimerStateTimer);
                         gSaveContext.timerX[sTimerId] = ((void)0, gSaveContext.timerX[sTimerId]) - j;
 
-                        j = (gSaveContext.save.saveInfo.playerData.healthCapacity > 0xA0)
-                                ? ((((void)0, gSaveContext.timerY[sTimerId]) - 54) / sTimerStateTimer)
-                                : ((((void)0, gSaveContext.timerY[sTimerId]) - 46) / sTimerStateTimer);
+                        j = ((((void)0, gSaveContext.timerY[sTimerId]) - newTimerY) / sTimerStateTimer);
                         gSaveContext.timerY[sTimerId] = ((void)0, gSaveContext.timerY[sTimerId]) - j;
+                    } else {
+                        // #endregion
+                        // Move the timer from the center of the screen to the timer location where it will count.
+                        if (sTimerId == TIMER_ID_MOON_CRASH) {
+                            j = ((((void)0, gSaveContext.timerX[sTimerId]) - R_MOON_CRASH_TIMER_X) / sTimerStateTimer);
+                            gSaveContext.timerX[sTimerId] = ((void)0, gSaveContext.timerX[sTimerId]) - j;
+                            j = ((((void)0, gSaveContext.timerY[sTimerId]) - R_MOON_CRASH_TIMER_Y) / sTimerStateTimer);
+                            gSaveContext.timerY[sTimerId] = ((void)0, gSaveContext.timerY[sTimerId]) - j;
+                        } else {
+                            j = ((((void)0, gSaveContext.timerX[sTimerId]) - 26) / sTimerStateTimer);
+                            gSaveContext.timerX[sTimerId] = ((void)0, gSaveContext.timerX[sTimerId]) - j;
+
+                            j = (gSaveContext.save.saveInfo.playerData.healthCapacity > 0xA0)
+                                    ? ((((void)0, gSaveContext.timerY[sTimerId]) - 54) / sTimerStateTimer)
+                                    : ((((void)0, gSaveContext.timerY[sTimerId]) - 46) / sTimerStateTimer);
+                            gSaveContext.timerY[sTimerId] = ((void)0, gSaveContext.timerY[sTimerId]) - j;
+                        }
                     }
 
                     sTimerStateTimer--;
                     if (sTimerStateTimer == 0) {
                         sTimerStateTimer = 20;
 
-                        if (sTimerId == TIMER_ID_MOON_CRASH) {
-                            gSaveContext.timerY[sTimerId] = R_MOON_CRASH_TIMER_Y;
+                        // #region 2S2H [Cosmetic] Hud Editor clamp final timer position
+                        if (HudEditor_ShouldOverrideDraw()) {
+                            gSaveContext.timerX[sTimerId] = newTimerX;
+                            gSaveContext.timerY[sTimerId] = newTimerY;
                         } else {
-                            gSaveContext.timerX[sTimerId] = 26;
-                            if (gSaveContext.save.saveInfo.playerData.healthCapacity > 0xA0) {
-                                gSaveContext.timerY[sTimerId] = 54; // two rows of hearts
+                            // #endregion
+                            if (sTimerId == TIMER_ID_MOON_CRASH) {
+                                gSaveContext.timerY[sTimerId] = R_MOON_CRASH_TIMER_Y;
                             } else {
-                                gSaveContext.timerY[sTimerId] = 46; // one row of hearts
+                                gSaveContext.timerX[sTimerId] = 26;
+                                if (gSaveContext.save.saveInfo.playerData.healthCapacity > 0xA0) {
+                                    gSaveContext.timerY[sTimerId] = 54; // two rows of hearts
+                                } else {
+                                    gSaveContext.timerY[sTimerId] = 46; // one row of hearts
+                                }
                             }
                         }
 
@@ -7208,6 +7304,8 @@ void Interface_DrawTimers(PlayState* play) {
                         gSaveContext.timerStopTimes[sTimerId] = SECONDS_TO_TIMER(0);
                         gSaveContext.timerPausedOsTimes[sTimerId] = 0;
                     }
+
+                    hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
                     // fallthrough
                 case TIMER_STATE_COUNTING:
                     if ((gSaveContext.timerStates[sTimerId] == TIMER_STATE_COUNTING) &&
@@ -7215,6 +7313,19 @@ void Interface_DrawTimers(PlayState* play) {
                         gSaveContext.timerX[TIMER_ID_MOON_CRASH] = R_MOON_CRASH_TIMER_X;
                         gSaveContext.timerY[TIMER_ID_MOON_CRASH] = R_MOON_CRASH_TIMER_Y;
                     }
+
+                    // #region 2S2H [Cosmetic] Hud Editor set timers final position
+                    if ((gSaveContext.timerStates[sTimerId] == TIMER_STATE_COUNTING)) {
+                        HudEditor_SetActiveElement(hudTimerElement);
+                        // If we are in a fallthrough, we don't want to modify the values a second time
+                        if (HudEditor_ShouldOverrideDraw() && !modifiedTimerHudValues) {
+                            HudEditor_ModifyRectPosValues(&newTimerX, &newTimerY);
+                        }
+                        gSaveContext.timerX[sTimerId] = newTimerX;
+                        gSaveContext.timerY[sTimerId] = newTimerY;
+                        hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+                    }
+                    // #endregion
                     break;
 
                 case TIMER_STATE_10:
@@ -7427,6 +7538,8 @@ void Interface_DrawTimers(PlayState* play) {
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 255);
             gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 0);
+
+            HudEditor_SetActiveElement(hudTimerElement);
             OVERLAY_DISP = Gfx_DrawTexRectIA8(
                 OVERLAY_DISP, gTimerClockIconTex, 0x10, 0x10, ((void)0, gSaveContext.timerX[sTimerId]),
                 ((void)0, gSaveContext.timerY[sTimerId]) + 2, 0x10, 0x10, 1 << 10, 1 << 10);
@@ -7476,6 +7589,7 @@ void Interface_DrawTimers(PlayState* play) {
                     if (sPostmanBunnyHoodState == POSTMAN_MINIGAME_BUNNY_HOOD_ON) {
                         // draw sTimerDigits[3] (10s of seconds) to sTimerDigits[6] (100s of milliseconds)
                         for (j = 0; j < 4; j++) {
+                            HudEditor_SetActiveElement(hudTimerElement);
                             OVERLAY_DISP = Gfx_DrawTexRectI8(
                                 OVERLAY_DISP, sCounterTextures[sTimerDigits[j + 3]], 8, 0x10,
                                 ((void)0, gSaveContext.timerX[sTimerId]) + sTimerDigitsOffsetX[j],
@@ -7484,6 +7598,7 @@ void Interface_DrawTimers(PlayState* play) {
                     } else {
                         // draw sTimerDigits[3] (10s of seconds) to sTimerDigits[7] (10s of milliseconds)
                         for (j = 0; j < 5; j++) {
+                            HudEditor_SetActiveElement(hudTimerElement);
                             OVERLAY_DISP = Gfx_DrawTexRectI8(
                                 OVERLAY_DISP, sCounterTextures[sTimerDigits[j + 3]], 8, 0x10,
                                 ((void)0, gSaveContext.timerX[sTimerId]) + sTimerDigitsOffsetX[j],
@@ -7493,6 +7608,7 @@ void Interface_DrawTimers(PlayState* play) {
                 } else {
                     // draw sTimerDigits[3] (6s of minutes) to sTimerDigits[7] (10s of milliseconds)
                     for (j = 0; j < 8; j++) {
+                        HudEditor_SetActiveElement(hudTimerElement);
                         OVERLAY_DISP = Gfx_DrawTexRectI8(
                             OVERLAY_DISP, sCounterTextures[sTimerDigits[j]], 8, 0x10,
                             ((void)0, gSaveContext.timerX[sTimerId]) + sTimerDigitsOffsetX[j],
@@ -7658,8 +7774,33 @@ void Interface_DrawMinigameIcons(PlayState* play) {
                                     G_TX_NOLOD, G_TX_NOLOD);
             }
 
-            gSPTextureRectangle(OVERLAY_DISP++, (rectX << 2), (rectY << 2), ((rectX + width) << 2),
-                                ((rectY + height) << 2), G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+            // #region 2S2H [Cosmetic] Hud Editor
+            HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_MINIGAME_COUNTER);
+            if (HudEditor_ShouldOverrideDraw()) {
+                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+                    hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+                } else {
+                    s16 newRectX = rectX;
+                    s16 newRectY = rectY;
+                    s16 newWidth = width;
+                    s16 newHeight = height;
+                    u16 dsdx = 512;
+                    u16 dtdy = 512;
+
+                    HudEditor_ModifyDrawValues(&newRectX, &newRectY, &newWidth, &newHeight, &dsdx, &dtdy);
+
+                    hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+
+                    gSPWideTextureRectangle(OVERLAY_DISP++, (newRectX << 2), (newRectY << 2),
+                                            ((newRectX + newWidth) << 2), ((newRectY + newHeight) << 2),
+                                            G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+                }
+            } else {
+                // #endregion
+                gSPTextureRectangle(OVERLAY_DISP++, (rectX << 2), (rectY << 2), ((rectX + width) << 2),
+                                    ((rectY + height) << 2), G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+            }
+
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->bAlpha);
             gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0,
@@ -7678,6 +7819,8 @@ void Interface_DrawMinigameIcons(PlayState* play) {
 
             for (i = 0, numDigitsDrawn = 0; i < 4; i++) {
                 if ((sMinigameScoreDigits[i] != 0) || (numDigitsDrawn != 0) || (i >= 3)) {
+                    // 2S2H [Cosmetic] Hud Editor
+                    HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_MINIGAME_COUNTER);
                     OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sCounterTextures[sMinigameScoreDigits[i]], 8, 0x10,
                                                      rectX, rectY - 2, 9, 0xFA, 0x370, 0x370);
                     rectX += 9;

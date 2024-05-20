@@ -17,6 +17,9 @@ void KaleidoScope_UpdatePrompt(PlayState* play) {
     s8 stickAdjX = input->rel.stick_x;
     s16 alphaStep;
 
+    // #region 2S2H [Port] - Fix stick inputs
+    stickAdjX = pauseCtx->stickAdjX;
+
     if (((pauseCtx->state == PAUSE_STATE_SAVEPROMPT) && (pauseCtx->savePromptState == PAUSE_SAVEPROMPT_STATE_1)) ||
         (pauseCtx->state == PAUSE_STATE_GAMEOVER_SAVE_PROMPT) ||
         (pauseCtx->state == PAUSE_STATE_GAMEOVER_CONTINUE_PROMPT)) {

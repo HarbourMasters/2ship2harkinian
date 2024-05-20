@@ -970,9 +970,6 @@ void Sram_InitNewSave(void) {
 
     memcpy(&gSaveContext.save.saveInfo.playerData, &sSaveDefaultPlayerData, sizeof(SavePlayerData));
     memcpy(&gSaveContext.save.saveInfo.equips, &sSaveDefaultItemEquips, sizeof(ItemEquips));
-    // #region 2S2H [Dpad]
-    memcpy(&gSaveContext.save.shipSaveInfo.dpadEquips, &sSaveDefaultDpadItemEquips, sizeof(DpadSaveInfo));
-    // #endregion
     memcpy(&gSaveContext.save.saveInfo.inventory, &sSaveDefaultInventory, sizeof(Inventory));
     memcpy(&gSaveContext.save.saveInfo.checksum, &sSaveDefaultChecksum,
                sizeof(gSaveContext.save.saveInfo.checksum));
@@ -985,6 +982,12 @@ void Sram_InitNewSave(void) {
 
     gSaveContext.nextCutsceneIndex = 0;
     gSaveContext.save.saveInfo.playerData.magicLevel = 0;
+
+    // #region 2S2H
+    memcpy(&gSaveContext.save.shipSaveInfo.dpadEquips, &sSaveDefaultDpadItemEquips, sizeof(DpadSaveInfo));
+    gSaveContext.save.shipSaveInfo.pauseSaveEntrance = -1;
+    // #endregion
+
     Sram_GenerateRandomSaveFields();
 }
 
@@ -1178,9 +1181,6 @@ void Sram_InitDebugSave(void) {
 
     memcpy(&gSaveContext.save.saveInfo.playerData, &sSaveDebugPlayerData, sizeof(SavePlayerData));
     memcpy(&gSaveContext.save.saveInfo.equips, &sSaveDebugItemEquips, sizeof(ItemEquips));
-    // #region 2S2H [Dpad]
-    memcpy(&gSaveContext.save.shipSaveInfo.dpadEquips, &sSaveDefaultDpadItemEquips, sizeof(DpadSaveInfo));
-    // #endregion
     memcpy(&gSaveContext.save.saveInfo.inventory, &sSaveDebugInventory, sizeof(Inventory));
     memcpy(&gSaveContext.save.saveInfo.checksum, &sSaveDebugChecksum, sizeof(gSaveContext.save.saveInfo.checksum));
 
@@ -1207,6 +1207,11 @@ void Sram_InitDebugSave(void) {
     gSaveContext.cycleSceneFlags[SCENE_INSIDETOWER].switch0 = 1;
     gSaveContext.save.saveInfo.permanentSceneFlags[SCENE_INSIDETOWER].switch0 = 1;
     gSaveContext.save.saveInfo.playerData.magicLevel = 0;
+
+    // #region 2S2H
+    memcpy(&gSaveContext.save.shipSaveInfo.dpadEquips, &sSaveDefaultDpadItemEquips, sizeof(DpadSaveInfo));
+    gSaveContext.save.shipSaveInfo.pauseSaveEntrance = -1;
+    // #endregion
 
     Sram_GenerateRandomSaveFields();
 }
@@ -1338,7 +1343,13 @@ void Sram_OpenSave(FileSelectState* fileSelect, SramContext* sramCtx) {
             gSaveContext.save.playerForm = PLAYER_FORM_HUMAN;
         }
     } else {
-        gSaveContext.save.entrance = D_801C6A58[(void)0, gSaveContext.save.owlSaveLocation];
+        // When a pauseSaveEntrance is available, prioritize it over the
+        // owlSaveLocation, this means the players last save was a pause save.
+        if (gSaveContext.save.shipSaveInfo.pauseSaveEntrance != -1) {
+            gSaveContext.save.entrance = gSaveContext.save.shipSaveInfo.pauseSaveEntrance;
+        } else {
+            gSaveContext.save.entrance = D_801C6A58[(void)0, gSaveContext.save.owlSaveLocation];
+        }
         if ((gSaveContext.save.entrance == ENTRANCE(SOUTHERN_SWAMP_POISONED, 10)) &&
             CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_WOODFALL_TEMPLE)) {
             gSaveContext.save.entrance = ENTRANCE(SOUTHERN_SWAMP_CLEARED, 10);
@@ -1983,7 +1994,7 @@ void Sram_UpdateWriteToFlashDefault(SramContext* sramCtx) {
                 sramCtx->status = 4;
             }
         }
-    } else if (OSTIME_TO_TIMER(osGetTime() - sramCtx->startWriteOsTime) >= SECONDS_TO_TIMER(0 /*2*/)) { // 2S2H [Port] Remove arbitrary 2 second delay
+    } else if (OSTIME_TO_TIMER(osGetTime() - sramCtx->startWriteOsTime) >= SECONDS_TO_TIMER(CVarGetInteger("gEnhancements.Save.SaveDelay", 0))) { // 2S2H [Port] Some tricks require a save delay so we can't just force it to zero
         // Finished status is hardcoded to 2 seconds instead of when the task finishes
         sramCtx->status = 0;
     }
@@ -2021,7 +2032,7 @@ void Sram_UpdateWriteToFlashOwlSave(SramContext* sramCtx) {
                 sramCtx->status = 4;
             }
         }
-    } else if (OSTIME_TO_TIMER(osGetTime() - sramCtx->startWriteOsTime) >= SECONDS_TO_TIMER(0 /*2*/)) {  // 2S2H [Port] Remove arbitrary 2 second delay
+    } else if (OSTIME_TO_TIMER(osGetTime() - sramCtx->startWriteOsTime) >= SECONDS_TO_TIMER(CVarGetInteger("gEnhancements.Save.SaveDelay", 0))) { // 2S2H [Port] Some tricks require a save delay so we can't just force it to zero
         // Finished status is hardcoded to 2 seconds instead of when the task finishes
         sramCtx->status = 0;
         memset(sramCtx->saveBuf, 0, SAVE_BUFFER_SIZE);

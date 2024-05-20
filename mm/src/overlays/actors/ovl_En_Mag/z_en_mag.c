@@ -532,6 +532,30 @@ void EnMag_DrawEffectTextures(Gfx** gfxp, TexturePtr maskTex, TexturePtr effectT
     *gfxp = gfx;
 }
 
+// 2S2H [HD Textures] The original function used pointer math and tiling to draw the full texture, this breaks support
+// for HD textures, additionally `source` is now an OTR path, not a pointer to the raw texture. This is our own version
+// that just hands off the OTR path and let the GBI handle the rest.
+void EnMag_DrawImageRGBA32HDSupport(Gfx** gfxp, s16 centerX, s16 centerY, TexturePtr source, u32 width, u32 height) {
+    Gfx* gfx = *gfxp;
+    u32 rectLeft = centerX - (width / 2);
+    u32 rectTop = centerY - (height / 2);
+
+    Gfx_SetupDL56_Ptr(&gfx);
+
+    gDPSetTileCustom(gfx++, G_IM_FMT_RGBA, G_IM_SIZ_32b, width, height, 0, G_TX_NOMIRROR | G_TX_CLAMP,
+                     G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+
+    gDPSetTextureImage(gfx++, G_IM_FMT_RGBA, G_IM_SIZ_32b, width, source);
+
+    gDPLoadSync(gfx++);
+    gDPLoadTile(gfx++, G_TX_LOADTILE, 0, 0, (width - 1) << 2, (height - 1) << 2);
+
+    gSPTextureRectangle(gfx++, rectLeft << 2, rectTop << 2, (rectLeft + (s32)width) << 2,
+                        (rectTop + height) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+
+    *gfxp = gfx;
+}
+
 /**
  * Draws an rgba32 texture. Because these are so large, this will draw the texture in horizontal stripes, each narrow
  * enough that that part of the texture will fit into TMEM's 4kB.
@@ -544,6 +568,9 @@ void EnMag_DrawEffectTextures(Gfx** gfxp, TexturePtr maskTex, TexturePtr effectT
  * @param[in]     height  Height of the texture.
  */
 void EnMag_DrawImageRGBA32(Gfx** gfxp, s16 centerX, s16 centerY, TexturePtr source, u32 width, u32 height) {
+    // 2S2H [HD Textures]
+    return EnMag_DrawImageRGBA32HDSupport(gfxp, centerX, centerY, source, width, height);
+
     Gfx* gfx = *gfxp;
     uintptr_t curTexture;
     s32 textureCount;
@@ -557,9 +584,7 @@ void EnMag_DrawImageRGBA32(Gfx** gfxp, s16 centerX, s16 centerY, TexturePtr sour
 
     Gfx_SetupDL56_Ptr(&gfx);
 
-    // #region 2S2H [Port] Originally this was just a pointer to the texture, now it's the OTR path so we need to grab it's actual address
-    curTexture = ResourceMgr_LoadTexOrDListByName(source);
-    // #endregion
+    curTexture = (uintptr_t)source;
     rectLeft = centerX - (width / 2);
     rectTop = centerY - (height / 2);
     textureHeight = TMEM_SIZE / (width << 2);

@@ -7,6 +7,8 @@
 #include "z_kaleido_scope.h"
 #include "interface/parameter_static/parameter_static.h"
 
+#include "BenGui/HudEditor.h"
+
 s16 sMaskEquipState = EQUIP_STATE_MAGIC_ARROW_GROW_ORB;
 
 // Timer to hold magic arrow icon over magic arrow slot before moving when equipping.
@@ -683,16 +685,16 @@ void KaleidoScope_UpdateMaskCursor(PlayState* play) {
     }
 }
 
-s16 sMaskCButtonPosX[] = { 
+s16 sMaskCButtonPosX[] = {
     660, 900, 1140,
     // #region 2S2H
-    1340, 860, 1100, 1100
+    1350, 1030, 1190, 1190
     // #endregion
 };
-s16 sMaskCButtonPosY[] = { 
+s16 sMaskCButtonPosY[] = {
     1100, 920, 1100,
     // #region 2S2H
-    620, 620, 440, 760
+    570, 570, 410, 730
     // #endregion
 };
 
@@ -1028,6 +1030,38 @@ void KaleidoScope_UpdateMaskEquip(PlayState* play) {
         return;
     }
 
+    // #region 2S2H [Cosmetic] Track the C button position vanilla values or HUD editor adjusted values
+    s16 maskCButtonPosX = sMaskCButtonPosX[pauseCtx->equipTargetCBtn];
+    s16 maskCButtonPosY = sMaskCButtonPosY[pauseCtx->equipTargetCBtn];
+
+    HudEditor_SetActiveElement(pauseCtx->equipTargetCBtn < 3 ? HUD_EDITOR_ELEMENT_C_LEFT + pauseCtx->equipTargetCBtn
+                                                             : HUD_EDITOR_ELEMENT_D_PAD);
+
+    if (sMaskEquipState == EQUIP_STATE_MOVE_TO_C_BTN && HudEditor_ShouldOverrideDraw()) {
+        s16 equipAnimShrinkRate = 40;
+        HudEditor_ModifyKaleidoEquipAnimValues(&maskCButtonPosX, &maskCButtonPosY, &equipAnimShrinkRate);
+
+        // Override the anim shrink rate at the beginning (value is 320)
+        if (pauseCtx->equipAnimScale == 320) {
+            pauseCtx->equipAnimShrinkRate = equipAnimShrinkRate;
+        }
+
+        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) ==
+            HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+            pauseCtx->equipAnimScale = 0;
+            pauseCtx->equipAnimShrinkRate = 0;
+        }
+    } else if (sMaskEquipState == EQUIP_STATE_MOVE_TO_C_BTN && pauseCtx->equipTargetCBtn >= 3) {
+        // Equips to DPad need to shrink fast to be have a final smaller size (16px),
+        // So we override the anim shrink rate at the beginning (value is 320)
+        if (pauseCtx->equipAnimScale == 320) {
+            pauseCtx->equipAnimShrinkRate = 160;
+        }
+    }
+
+    HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_NONE);
+    // #endregion
+
     if (sMaskEquipState == EQUIP_STATE_MAGIC_ARROW_MOVE_TO_BOW_SLOT) {
         //! Note: Copied from OoT when `SLOT_BOW` was still valued at 3.
         // Due to a shift, `SLOT_ARROW_ICE` now occupies slot 3 but this value was not updated
@@ -1036,8 +1070,9 @@ void KaleidoScope_UpdateMaskEquip(PlayState* play) {
         offsetX = ABS_ALT(pauseCtx->equipAnimX - bowItemVtx->v.ob[0] * 10) / sMaskEquipAnimTimer;
         offsetY = ABS_ALT(pauseCtx->equipAnimY - bowItemVtx->v.ob[1] * 10) / sMaskEquipAnimTimer;
     } else {
-        offsetX = ABS_ALT(pauseCtx->equipAnimX - sMaskCButtonPosX[pauseCtx->equipTargetCBtn]) / sMaskEquipAnimTimer;
-        offsetY = ABS_ALT(pauseCtx->equipAnimY - sMaskCButtonPosY[pauseCtx->equipTargetCBtn]) / sMaskEquipAnimTimer;
+        // 2S2H [Cosmetic] Use position vars from above
+        offsetX = ABS_ALT(pauseCtx->equipAnimX - maskCButtonPosX) / sMaskEquipAnimTimer;
+        offsetY = ABS_ALT(pauseCtx->equipAnimY - maskCButtonPosY) / sMaskEquipAnimTimer;
     }
 
     if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipAnimAlpha < 254)) {
@@ -1069,13 +1104,14 @@ void KaleidoScope_UpdateMaskEquip(PlayState* play) {
             }
         } else {
             // target is the c button
-            if (pauseCtx->equipAnimX >= sMaskCButtonPosX[pauseCtx->equipTargetCBtn]) {
+            // 2S2H [Cosmetic] Use position vars from above
+            if (pauseCtx->equipAnimX >= maskCButtonPosX) {
                 pauseCtx->equipAnimX -= offsetX;
             } else {
                 pauseCtx->equipAnimX += offsetX;
             }
 
-            if (pauseCtx->equipAnimY >= sMaskCButtonPosY[pauseCtx->equipTargetCBtn]) {
+            if (pauseCtx->equipAnimY >= maskCButtonPosY) {
                 pauseCtx->equipAnimY -= offsetY;
             } else {
                 pauseCtx->equipAnimY += offsetY;

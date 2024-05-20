@@ -49,7 +49,7 @@ jobs:
             return allArtifacts.data.artifacts.reduce((acc, item) => {
               if (item.name === "assets") return acc;
               acc += `
-              - [${item.name}.zip](https://nightly.link/${context.repo.owner}/${context.repo.repo}/actions/artifacts/${item.id}.zip)`;
+              - [${item.name}.zip](https://nightly.link/${context.repo.owner}/${context.repo.repo}/actions/artifacts/${item.id}.zip?h=20a00267c7ffeb2eb80ab31f356f2ba5f120f43c)`;
               return acc;
             }, '### Build Artifacts');
       - id: 'add-to-pr'

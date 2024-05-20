@@ -46,6 +46,12 @@ static std::unordered_map<Ship::WindowBackend, const char*> windowBackendsMap = 
     { Ship::WindowBackend::GX2, "GX2" }
 };
 
+static const std::unordered_map<int32_t, const char*> clockTypeOptions = {
+    { CLOCK_TYPE_ORIGINAL, "Original" },
+    { CLOCK_TYPE_TEXT_BASED, "Text only" },
+    { CLOCK_TYPE_HIDDEN, "Hidden" },
+};
+
 static const std::unordered_map<int32_t, const char*> alwaysWinDoggyraceOptions = {
     { ALWAYS_WIN_DOGGY_RACE_OFF, "Off" },
     { ALWAYS_WIN_DOGGY_RACE_MASKOFTRUTH, "When owning Mask of Truth" },
@@ -305,6 +311,50 @@ extern std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
 
+        if (UIWidgets::BeginMenu("Camera")) {
+            ImGui::SeparatorText("Right Stick Camera");
+            UIWidgets::CVarCheckbox("Invert Camera X Axis", "gEnhancements.Camera.RightStick.InvertXAxis", {
+                .tooltip = "Inverts the Camera X Axis in Free Look."
+            });
+            UIWidgets::CVarCheckbox("Invert Camera Y Axis", "gEnhancements.Camera.RightStick.InvertYAxis", {
+                .tooltip = "Inverts the Camera Y Axis in Free Look.",
+                .defaultValue = true
+            });
+            UIWidgets::CVarSliderFloat("Third-Person Horizontal Sensitivity: %.0f %", "gEnhancements.Camera.RightStick.CameraSensitivity.X", 0.01f, 5.0f, 1.0f);
+            UIWidgets::CVarSliderFloat("Third-Person Vertical Sensitivity: %.0f %", "gEnhancements.Camera.RightStick.CameraSensitivity.Y", 0.01f, 5.0f, 1.0f);
+
+            ImGui::SeparatorText("Free Look");
+            if (UIWidgets::CVarCheckbox("Free Look", "gEnhancements.Camera.FreeLook.Enable", {
+                .tooltip = "Enables free look camera control\nNote: You must remap C buttons off of the right stick in the controller config menu, and map the camera stick to the right stick.",
+                .disabled = CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0) != 0
+            })) {
+                RegisterCameraFreeLook();
+            }
+
+            UIWidgets::CVarSliderInt("Camera Distance: %d", "gEnhancements.Camera.FreeLook.MaxCameraDistance", 100, 900, 185);
+            UIWidgets::CVarSliderInt("Camera Transition Speed: %d", "gEnhancements.Camera.FreeLook.TransitionSpeed", 1, 900, 25);
+            UIWidgets::CVarSliderFloat("Max Camera Height Angle: %.0f %°", "gEnhancements.Camera.FreeLook.MaxPitch", -89.0f, 89.0f, 72.0f);
+            UIWidgets::CVarSliderFloat("Min Camera Height Angle: %.0f %°", "gEnhancements.Camera.FreeLook.MinPitch", -89.0f, 89.0f, -49.0f);
+            f32 maxY = CVarGetFloat("gEnhancements.Camera.FreeLook.MaxPitch", 72.0f);
+            f32 minY = CVarGetFloat("gEnhancements.Camera.FreeLook.MinPitch", -49.0f);
+            CVarSetFloat("gEnhancements.Camera.FreeLook.MaxPitch", std::max(maxY, minY));
+            CVarSetFloat("gEnhancements.Camera.FreeLook.MinPitch", std::min(maxY, minY));
+
+            ImGui::SeparatorText("'Debug' Camera");
+            if (UIWidgets::CVarCheckbox("Debug Camera", "gEnhancements.Camera.DebugCam.Enable", {
+                .tooltip = "Enables free camera control.",
+                .disabled = CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0) != 0
+            })) {
+                RegisterDebugCam();
+            }
+            UIWidgets::CVarCheckbox("Enable Roll (Six Degrees Of Freedom)", "gEnhancements.Camera.DebugCam.6DOF", {
+                .tooltip = "This allows for all six degrees of movement with the camera, NOTE: Yaw will work differently in this system, instead rotating around the focal point, rather than a polar axis."
+            });
+            UIWidgets::CVarSliderFloat("Camera Speed: %.0f %", "gEnhancements.Camera.DebugCam.CameraSpeed", 0.1f, 3.0f, 0.5f);
+
+            ImGui::EndMenu();
+        }
+
         if (UIWidgets::BeginMenu("Cutscenes")) {
             UIWidgets::CVarCheckbox("Hide Title Cards", "gEnhancements.Cutscenes.HideTitleCards");
             UIWidgets::CVarCheckbox("Skip Entrance Cutscenes", "gEnhancements.Cutscenes.SkipEntranceCutscenes");
@@ -315,7 +365,10 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
-        if (UIWidgets::BeginMenu("Cycle")) {
+        if (UIWidgets::BeginMenu("Cycle / Saving")) {
+            UIWidgets::CVarCheckbox("Pause Menu Save", "gEnhancements.Kaleido.PauseSave", {
+                .tooltip = "Re-introduce the pause menu save system. Pressing B in the pause menu will give you the option to create an Owl Save from your current location. When loading back into the game, you will be placed at your last entrance."
+            });
             UIWidgets::CVarCheckbox("Do not reset Bottle content", "gEnhancements.Cycle.DoNotResetBottleContent", {
                 .tooltip = "Playing the Song Of Time will not reset the bottles' content."
             });
@@ -328,7 +381,10 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Do not reset Rupees", "gEnhancements.Cycle.DoNotResetRupees", {
                 .tooltip = "Playing the Song Of Time will not reset the your rupees."
             });
-            
+            UIWidgets::CVarSliderInt("Save Delay", "gEnhancements.Save.SaveDelay", 0, 5, 0, { 
+                .tooltip = "Sets the delay between pressing save and the save being marked as complete. Original game was 2." 
+            });
+
             ImGui::EndMenu();
         }
 
@@ -357,16 +413,21 @@ void DrawEnhancementsMenu() {
         }
 
         if (UIWidgets::BeginMenu("Graphics")) {
+            ImGui::SeparatorText("Clock");
+            UIWidgets::CVarCombobox("Clock Type", "gEnhancements.Graphics.ClockType", clockTypeOptions);
+            UIWidgets::CVarCheckbox("24 Hours Clock", "gEnhancements.Graphics.24HoursClock");
             MotionBlur_RenderMenuOptions();
             ImGui::SeparatorText("Other");
-            UIWidgets::CVarCheckbox("24 Hours Clock", "gEnhancements.Graphics.24HoursClock");
             UIWidgets::CVarCheckbox("Authentic logo", "gEnhancements.Graphics.AuthenticLogo", {
                 .tooltip = "Hide the game version and build details and display the authentic model and texture on the boot logo start screen"
             });
-            
+            UIWidgets::CVarCheckbox("Bow Reticle", "gEnhancements.Graphics.BowReticle", {
+                .tooltip = "Gives the bow a reticle when you draw an arrow"
+            });
+
             ImGui::EndMenu();
         }
-        
+
         if (UIWidgets::BeginMenu("Masks")) {
             UIWidgets::CVarCheckbox("Fast Transformation", "gEnhancements.Masks.FastTransformation");
             UIWidgets::CVarCheckbox("Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere", {
@@ -406,15 +467,21 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Side Rolls", "gEnhancements.Restorations.SideRoll", {
                 .tooltip = "Restores side rolling from OOT."
             });
+            UIWidgets::CVarCheckbox("Tatl ISG", "gEnhancements.Restorations.TatlISG", {
+                .tooltip = "Restores Navi ISG from OOT, but now with Tatl."
+            });
 
             ImGui::EndMenu();
         }
 
-        if (UIWidgets::BeginMenu("Songs")) {
+        if (UIWidgets::BeginMenu("Songs/Playback")) {
             UIWidgets::CVarCheckbox("Enable Sun's Song", "gEnhancements.Songs.EnableSunsSong", {
                 .tooltip = "Enables the partially implemented Sun's Song. RIGHT-DOWN-UP-RIGHT-DOWN-UP to play it. "
                            "This song will make time move very fast until either Link moves to a different scene, "
                            "or when the time switches to a new time period."
+            });
+            UIWidgets::CVarCheckbox("Prevent Dropped Ocarina Inputs", "gEnhancements.Playback.NoDropOcarinaInput", { 
+                .tooltip = "Prevent dropping inputs when playing the ocarina quickly" 
             });
 
             ImGui::EndMenu();

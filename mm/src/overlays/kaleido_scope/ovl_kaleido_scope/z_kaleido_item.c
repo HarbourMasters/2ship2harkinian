@@ -7,6 +7,8 @@
 #include "z_kaleido_scope.h"
 #include "interface/parameter_static/parameter_static.h"
 
+#include "BenGui/HudEditor.h"
+
 s16 sEquipState = EQUIP_STATE_MAGIC_ARROW_GROW_ORB;
 
 // Timer to hold magic arrow icon over magic arrow slot before moving when equipping.
@@ -782,16 +784,16 @@ void KaleidoScope_UpdateItemCursor(PlayState* play) {
     }
 }
 
-s16 sCButtonPosX[] = { 
+s16 sCButtonPosX[] = {
     660, 900, 1140,
     // #region 2S2H [Dpad]
-    1340, 860, 1100, 1100
+    1350, 1030, 1190, 1190
     // #endregion
 };
-s16 sCButtonPosY[] = { 
+s16 sCButtonPosY[] = {
     1100, 920, 1100,
     // #region 2S2H [Dpad]
-    620, 620, 440, 760
+    570, 570, 410, 730
     // #endregion
 };
 
@@ -1499,13 +1501,46 @@ void KaleidoScope_UpdateItemEquip(PlayState* play) {
         return;
     }
 
+    // #region 2S2H [Cosmetic] Track the C button position vanilla values or HUD editor adjusted values
+    s16 cButtonPosX = sCButtonPosX[pauseCtx->equipTargetCBtn];
+    s16 cButtonPosY = sCButtonPosY[pauseCtx->equipTargetCBtn];
+
+    HudEditor_SetActiveElement(pauseCtx->equipTargetCBtn < 3 ? HUD_EDITOR_ELEMENT_C_LEFT + pauseCtx->equipTargetCBtn
+                                                             : HUD_EDITOR_ELEMENT_D_PAD);
+
+    if (sEquipState == EQUIP_STATE_MOVE_TO_C_BTN && HudEditor_ShouldOverrideDraw()) {
+        s16 equipAnimShrinkRate = 40;
+        HudEditor_ModifyKaleidoEquipAnimValues(&cButtonPosX, &cButtonPosY, &equipAnimShrinkRate);
+
+        // Override the anim shrink rate at the beginning (value is 320)
+        if (pauseCtx->equipAnimScale == 320) {
+            pauseCtx->equipAnimShrinkRate = equipAnimShrinkRate;
+        }
+
+        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) ==
+            HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+            pauseCtx->equipAnimScale = 0;
+            pauseCtx->equipAnimShrinkRate = 0;
+        }
+    } else if (sEquipState == EQUIP_STATE_MOVE_TO_C_BTN && pauseCtx->equipTargetCBtn >= 3) {
+        // Equips to DPad need to shrink fast to be have a final smaller size (16px),
+        // So we override the anim shrink rate at the beginning (value is 320)
+        if (pauseCtx->equipAnimScale == 320) {
+            pauseCtx->equipAnimShrinkRate = 160;
+        }
+    }
+
+    HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_NONE);
+    // #endregion
+
     if (sEquipState == EQUIP_STATE_MAGIC_ARROW_MOVE_TO_BOW_SLOT) {
         bowItemVtx = &pauseCtx->itemVtx[SLOT_BOW * 4];
         offsetX = ABS_ALT(pauseCtx->equipAnimX - bowItemVtx->v.ob[0] * 10) / sEquipAnimTimer;
         offsetY = ABS_ALT(pauseCtx->equipAnimY - bowItemVtx->v.ob[1] * 10) / sEquipAnimTimer;
     } else {
-        offsetX = ABS_ALT(pauseCtx->equipAnimX - sCButtonPosX[pauseCtx->equipTargetCBtn]) / sEquipAnimTimer;
-        offsetY = ABS_ALT(pauseCtx->equipAnimY - sCButtonPosY[pauseCtx->equipTargetCBtn]) / sEquipAnimTimer;
+        // 2S2H [Cosmetic] Use position vars from above
+        offsetX = ABS_ALT(pauseCtx->equipAnimX - cButtonPosX) / sEquipAnimTimer;
+        offsetY = ABS_ALT(pauseCtx->equipAnimY - cButtonPosY) / sEquipAnimTimer;
     }
 
     if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipAnimAlpha < 254)) {
@@ -1537,13 +1572,14 @@ void KaleidoScope_UpdateItemEquip(PlayState* play) {
             }
         } else {
             // target is the c button
-            if (pauseCtx->equipAnimX >= sCButtonPosX[pauseCtx->equipTargetCBtn]) {
+            // 2S2H [Cosmetic] Use position vars from above
+            if (pauseCtx->equipAnimX >= cButtonPosX) {
                 pauseCtx->equipAnimX -= offsetX;
             } else {
                 pauseCtx->equipAnimX += offsetX;
             }
 
-            if (pauseCtx->equipAnimY >= sCButtonPosY[pauseCtx->equipTargetCBtn]) {
+            if (pauseCtx->equipAnimY >= cButtonPosY) {
                 pauseCtx->equipAnimY -= offsetY;
             } else {
                 pauseCtx->equipAnimY += offsetY;

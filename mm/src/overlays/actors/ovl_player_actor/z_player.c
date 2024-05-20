@@ -7805,7 +7805,9 @@ s32 Player_ActionChange_4(Player* this, PlayState* play) {
                         if (var_a1 != NULL) {
                             if (!var_t1) {
                                 this->stateFlags2 |= PLAYER_STATE2_200000;
-                                if (!CutsceneManager_IsNext(CS_ID_GLOBAL_TALK) ||
+                                // This code is the same as the OoT code, except for the !CutsceneManager_IsNext(CS_ID_GLOBAL_TALK), which is what prevented Tatl ISG from working
+                                bool vanillaCondition = !CutsceneManager_IsNext(CS_ID_GLOBAL_TALK);
+                                if (GameInteractor_Should(GI_VB_TATL_CONVERSATION_AVAILABLE, vanillaCondition, NULL) ||
                                     !CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_CUP)) {
                                     return false;
                                 }
@@ -10968,6 +10970,14 @@ void Player_Init(Actor* thisx, PlayState* play) {
         initMode = PLAYER_INITMODE_D;
     }
 
+    // 2S2H [Enhancement] When we have a pause save entrance, we need unset the values to prevent them from lingering
+    // Load into INITMODE_D for stationary Link spawn
+    if (gSaveContext.save.shipSaveInfo.pauseSaveEntrance != -1) {
+        initMode = PLAYER_INITMODE_D;
+        gSaveContext.save.shipSaveInfo.pauseSaveEntrance = -1;
+        gSaveContext.save.isOwlSave = false;
+    }
+
     D_8085D2CC[initMode](play, this);
 
     if ((this->actor.draw != NULL) && gSaveContext.save.hasTatl &&
@@ -12615,6 +12625,8 @@ void Player_Update(Actor* thisx, PlayState* play) {
             input.press.button &= ~(BTN_CUP | BTN_B | BTN_A);
         }
     }
+
+    GameInteractor_ExecuteOnPassPlayerInputs(&input);
 
     Player_UpdateCommon(this, play, &input);
     skipUpdate:
