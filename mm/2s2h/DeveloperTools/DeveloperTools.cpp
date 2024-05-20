@@ -41,6 +41,9 @@ void RegisterDebugSaveCreate() {
             gSaveContext.save.cutsceneIndex = 0;
             gSaveContext.save.saveInfo.checksum = 1;
 
+            // Prevent first Song of Time reset from forcing Deku Link and having to learn Song of Healing
+            gSaveContext.save.saveInfo.playerData.threeDayResetCount = 1;
+
             if (CVarGetInteger("gDeveloperTools.DebugSaveFileMode", DEBUG_SAVE_INFO_NONE) == DEBUG_SAVE_INFO_COMPLETE) {
                 gSaveContext.save.saveInfo.playerData.doubleDefense = true;
                 gSaveContext.save.saveInfo.playerData.health = 20 * 0x10;
