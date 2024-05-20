@@ -1,0 +1,6 @@
+#ifndef RESTORATIONS_TATL_ISG_H
+#define RESTORATIONS_TATL_ISG_H
+
+void RegisterTatlISG();
+
+#endif // RESTORATIONS_TATL_ISG_H
