@@ -1,6 +1,0 @@
-#ifndef CUTSCENES_HIDE_TITLE_CARDS_H
-#define CUTSCENES_HIDE_TITLE_CARDS_H
-
-void RegisterHideTitleCards();
-
-#endif // CUTSCENES_HIDE_TITLE_CARDS_H

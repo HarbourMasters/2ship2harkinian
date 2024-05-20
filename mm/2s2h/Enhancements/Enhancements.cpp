@@ -33,8 +33,7 @@ void InitEnhancements() {
     RegisterTatlISG();
     
     // Cutscenes
-    RegisterSkipEntranceCutscenes();
-    RegisterHideTitleCards();
+    RegisterCutscenes();
     
     // Modes
     RegisterPlayAsKafei();
