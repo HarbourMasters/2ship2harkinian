@@ -56,6 +56,7 @@ typedef enum {
 #include <functional>
 #include <unordered_map>
 #include <cstdint>
+#include <algorithm>
 
 typedef uint32_t HOOK_ID;
 
