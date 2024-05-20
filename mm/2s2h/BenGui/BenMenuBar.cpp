@@ -452,6 +452,13 @@ void DrawEnhancementsMenu() {
             }
             ImGui::EndMenu();
         }
+        if (UIWidgets::BeginMenu("Player Movement")) {
+            UIWidgets::CVarSliderInt("Climb speed", "gEnhancements.PlayerMovement.ClimbSpeed", 1, 5, 1, {
+                .tooltip = "Increases the speed at which Link climbs vines and ladders." 
+            });
+
+            ImGui::EndMenu();
+        }
 
         if (UIWidgets::BeginMenu("Restorations")) {
             UIWidgets::CVarCheckbox("Power Crouch Stab", "gEnhancements.Restorations.PowerCrouchStab", {
