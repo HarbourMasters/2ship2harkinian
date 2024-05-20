@@ -13,6 +13,7 @@
 #include "interface/parameter_static/parameter_static.h"
 #include "misc/title_static/title_static.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "2s2h_assets.h"
 #include <string.h>
 
 s32 D_808144F10 = 100;
@@ -1315,12 +1316,6 @@ u16 D_80814654[] = {
     0x2A0,
 };
 
-#define dgFileSelFourthDayTex "__OTR__misc/title_static/gFileSelFourthDayTex"
-static const ALIGN_ASSET(2) char gFileSelFourthDayTex[] = dgFileSelFourthDayTex;
-
-#define dgFileSelCheatingDayTex "__OTR__misc/title_static/gFileSelCheatingDayTex"
-static const ALIGN_ASSET(2) char gFileSelCheatinghDayTex[] = dgFileSelCheatingDayTex;
-
 TexturePtr sFileSelRemainsTextures[] = {
     gFileSelOdolwasRemainsTex,
     gFileSelGohtsRemainsTex,
@@ -1337,7 +1332,7 @@ TexturePtr sFileSelDayENGTextures[] = {
     gFileSelSecondDayENGTex,
     gFileSelFinalDayENGTex,
     gFileSelFourthDayTex,
-    gFileSelCheatinghDayTex,
+    gFileSelCheatingDayTex,
 };
 
 TexturePtr sFileSelHeartPieceTextures[] = {
