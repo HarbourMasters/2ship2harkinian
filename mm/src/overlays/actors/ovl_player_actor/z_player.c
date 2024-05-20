@@ -16000,7 +16000,9 @@ void Player_Action_50(Player* this, PlayState* play) {
         var_fv1 = -1.0f;
     }
 
-    this->skelAnime.playSpeed = var_fv1 * var_fv0;
+    if (GameInteractor_Should(GI_VB_SET_CLIMB_SPEED, true, &var_fv1)) {
+        this->skelAnime.playSpeed = var_fv1 * var_fv0;
+    }
 
     if (this->av2.actionVar2 >= 0) {
         if ((this->actor.wallPoly != NULL) && (this->actor.wallBgId != BGCHECK_SCENE)) {
