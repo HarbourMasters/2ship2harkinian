@@ -30,9 +30,13 @@ typedef enum {
     HUD_EDITOR_ELEMENT_A,
     HUD_EDITOR_ELEMENT_C_UP,
     HUD_EDITOR_ELEMENT_D_PAD,
+    HUD_EDITOR_ELEMENT_MINIMAP,
     HUD_EDITOR_ELEMENT_START,
-    HUD_EDITOR_ELEMENT_MAGIC_METER,
+    HUD_EDITOR_ELEMENT_CLOCK,
     HUD_EDITOR_ELEMENT_HEARTS,
+    HUD_EDITOR_ELEMENT_MAGIC_METER,
+    HUD_EDITOR_ELEMENT_TIMERS,
+    HUD_EDITOR_ELEMENT_TIMERS_MOON_CRASH,
     HUD_EDITOR_ELEMENT_MINIGAME_COUNTER,
     HUD_EDITOR_ELEMENT_RUPEE_COUNTER,
     HUD_EDITOR_ELEMENT_KEY_COUNTER,
@@ -50,7 +54,15 @@ typedef enum {
 
 void HudEditor_SetActiveElement(HudEditorElementID id);
 bool HudEditor_ShouldOverrideDraw();
+bool HudEditor_IsActiveElementHidden();
+f32 HudEditor_GetActiveElementScale();
+void HudEditor_ModifyRectPosValuesFromBase(s16 baseX, s16 baseY, s16* rectLeft, s16* rectTop);
+void HudEditor_ModifyRectPosValues(s16* rectLeft, s16* rectTop);
+void HudEditor_ModifyRectSizeValues(s16* rectWidth, s16* rectHeight);
+void HudEditor_ModifyTextureStepValues(s16* dsdx, s16* dtdy);
+void HudEditor_ModifyMatrixValues(f32* transX, f32* transY);
 void HudEditor_ModifyKaleidoEquipAnimValues(s16* ulx, s16* uly, s16* shrinkRate);
+void HudEditor_ModifyDrawValuesFromBase(s16 baseX, s16 baseY, s16* rectLeft, s16* rectTop, s16* rectWidth, s16* rectHeight, s16* dsdx, s16* dtdy);
 void HudEditor_ModifyDrawValues(s16* rectLeft, s16* rectTop, s16* rectWidth, s16* rectHeight, s16* dsdx, s16* dtdy);
 
 typedef struct {

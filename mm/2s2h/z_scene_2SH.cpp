@@ -488,8 +488,6 @@ s32 OTRScene_ExecuteCommands(PlayState* play, SOH::Scene* scene) {
 }
 
 
-std::shared_ptr<Ship::IResource> GetResourceByNameHandlingMQ(const char* path);
-
 extern "C" s32 OTRfunc_8009728C(PlayState* play, RoomContext* roomCtx, s32 roomNum) {
     
     u32 size;
@@ -513,7 +511,7 @@ extern "C" s32 OTRfunc_8009728C(PlayState* play, RoomContext* roomCtx, s32 roomN
         //&roomCtx->loadQueue, NULL, __FILE__, __LINE__);
         printf("File Name %s\n", play->roomList[roomNum].fileName);
         auto roomData =
-            std::static_pointer_cast<SOH::Scene>(GetResourceByNameHandlingMQ(play->roomList[roomNum].fileName));
+            std::static_pointer_cast<SOH::Scene>(ResourceLoad(play->roomList[roomNum].fileName));
         roomCtx->status = 1;
         roomCtx->activeRoomVram = roomData.get();
 

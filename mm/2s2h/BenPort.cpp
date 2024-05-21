@@ -108,25 +108,30 @@ Color_RGB8 zoraColor = { 0x00, 0xEC, 0x64 };
 
 
 OTRGlobals::OTRGlobals() {
-    std::vector<std::string> OTRFiles;
-    //std::string mqPath = Ship::Context::LocateFileAcrossAppDirs("oot-mq.otr", appShortName);
-    //if (std::filesystem::exists(mqPath)) {
-    //    OTRFiles.push_back(mqPath);
-    //}
-    std::string ootPath = Ship::Context::LocateFileAcrossAppDirs("mm.otr", appShortName);
-    if (std::filesystem::exists(ootPath)) {
-        OTRFiles.push_back(ootPath);
+    std::vector<std::string> archiveFiles;
+    std::string mmPath = Ship::Context::LocateFileAcrossAppDirs("mm.zip", appShortName);
+    if (std::filesystem::exists(mmPath)) {
+        archiveFiles.push_back(mmPath);
+    } else {
+        mmPath = Ship::Context::LocateFileAcrossAppDirs("mm.otr", appShortName);
+        if (std::filesystem::exists(mmPath)) {
+            archiveFiles.push_back(mmPath);
+        }
     }
-    std::string shipOtrPath = Ship::Context::GetPathRelativeToAppBundle("2ship.otr");
+    std::string shipOtrPath = Ship::Context::GetPathRelativeToAppBundle("2ship.zip");
     if (std::filesystem::exists(shipOtrPath)) {
-        OTRFiles.push_back(shipOtrPath);
+        archiveFiles.push_back(shipOtrPath);
     }
     std::string patchesPath = Ship::Context::LocateFileAcrossAppDirs("mods", appShortName);
     if (patchesPath.length() > 0 && std::filesystem::exists(patchesPath)) {
         if (std::filesystem::is_directory(patchesPath)) {
             for (const auto& p : std::filesystem::recursive_directory_iterator(patchesPath)) {
-                if (StringHelper::IEquals(p.path().extension().string(), ".otr")) {
-                    OTRFiles.push_back(p.path().generic_string());
+                if (StringHelper::IEquals(p.path().extension().string(), ".zip")) {
+                    archiveFiles.push_back(p.path().generic_string());
+                } else {
+                    if (StringHelper::IEquals(p.path().extension().string(), ".otr")) {
+                        archiveFiles.push_back(p.path().generic_string());
+                    }
                 }
             }
         }
@@ -136,7 +141,7 @@ OTRGlobals::OTRGlobals() {
                                                  OOT_PAL_11,     OOT_NTSC_JP_GC_CE, OOT_NTSC_JP_GC, OOT_NTSC_US_GC,
                                                  OOT_PAL_GC,     OOT_PAL_GC_DBG1,   OOT_PAL_GC_DBG2 };
     // tell LUS to reserve 3 SoH specific threads (Game, Audio, Save)
-    context = Ship::Context::CreateInstance("2 Ship 2 Harkinian", appShortName, "2ship2harkinian.json", OTRFiles, {}, 3);
+    context = Ship::Context::CreateInstance("2 Ship 2 Harkinian", appShortName, "2ship2harkinian.json", archiveFiles, {}, 3);
 
     // Override LUS defaults
     Ship::Context::GetInstance()->GetLogger()->set_level((spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
@@ -397,7 +402,7 @@ extern "C" void OTRExtScanner() {
 
 extern "C" void InitOTR() {
 #if not defined(__SWITCH__) && not defined(__WIIU__)
-    if (!std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.otr", appShortName))) {
+    if (!std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.zip", appShortName))) {
         std::string installPath = Ship::Context::GetAppBundlePath();
         if (!std::filesystem::exists(installPath + "/assets/extractor")) {
             Extractor::ShowErrorBox(
@@ -406,7 +411,6 @@ extern "C" void InitOTR() {
             exit(1);
         }
 
-        bool generatedOtrIsMQ = false;
         if (Extractor::ShowYesNoBox("No OTR Files", "No OTR files found. Generate one now?") == IDYES) {
             Extractor extract;
             if (!extract.Run()) {
@@ -414,7 +418,6 @@ extern "C" void InitOTR() {
                 exit(1);
             }
             extract.CallZapd(installPath, Ship::Context::GetAppDirectoryPath(appShortName));
-            generatedOtrIsMQ = extract.IsMasterQuest();
         } else {
             exit(1);
         }
@@ -780,53 +783,6 @@ extern "C" uint32_t ResourceMgr_GetGameRegion(int index) {
     }
 }
 
-uint32_t IsSceneMasterQuest(s16 sceneNum) {
-    return false;
-    uint32_t value = 0;
-    //uint8_t mqMode = CVarGetInteger("gBetterDebugWarpScreenMQMode", WARP_MODE_OVERRIDE_OFF);
-    //if (mqMode == WARP_MODE_OVERRIDE_MQ_AS_VANILLA) {
-    //    return 1;
-    //} else if (mqMode == WARP_MODE_OVERRIDE_VANILLA_AS_MQ) {
-    //    return 0;
-    //} else {
-    //    if (OTRGlobals::Instance->HasMasterQuest()) {
-    //        if (!OTRGlobals::Instance->HasOriginal()) {
-    //            value = 1;
-    //        } else if (IS_MASTER_QUEST) {
-    //            value = 1;
-    //        } else {
-    //            value = 0;
-    //            if (IS_RANDO && !OTRGlobals::Instance->gRandomizer->masterQuestDungeons.empty() &&
-    //                OTRGlobals::Instance->gRandomizer->masterQuestDungeons.contains(sceneNum)) {
-    //                value = 1;
-    //            }
-    //        }
-    //    }
-    //}
-    return value;
-}
-
-uint32_t IsGameMasterQuest() {
-    return false;
-    //return gPlayState != NULL ? IsSceneMasterQuest(gPlayState->sceneNum) : 0;
-}
-
-extern "C" uint32_t ResourceMgr_GameHasMasterQuest() {
-    return OTRGlobals::Instance->HasMasterQuest();
-}
-
-extern "C" uint32_t ResourceMgr_GameHasOriginal() {
-    return OTRGlobals::Instance->HasOriginal();
-}
-
-extern "C" uint32_t ResourceMgr_IsSceneMasterQuest(s16 sceneNum) {
-    return IsSceneMasterQuest(sceneNum);
-}
-
-extern "C" uint32_t ResourceMgr_IsGameMasterQuest() {
-    return IsGameMasterQuest();
-}
-
 extern "C" void ResourceMgr_LoadDirectory(const char* resName) {
     Ship::Context::GetInstance()->GetResourceManager()->LoadDirectory(resName);
 }
@@ -864,25 +820,8 @@ extern "C" void ResourceMgr_LoadFile(const char* resName) {
     Ship::Context::GetInstance()->GetResourceManager()->LoadResource(resName);
 }
 
-std::shared_ptr<Ship::IResource> GetResourceByNameHandlingMQ(const char* path) {
-    std::string Path = path;
-    if (ResourceMgr_IsGameMasterQuest()) {
-        size_t pos = 0;
-        if ((pos = Path.find("/nonmq/", 0)) != std::string::npos) {
-            Path.replace(pos, 7, "/mq/");
-        }
-    }
-    return Ship::Context::GetInstance()->GetResourceManager()->LoadResource(Path.c_str());
-}
-
-extern "C" char* GetResourceDataByNameHandlingMQ(const char* path) {
-    auto res = GetResourceByNameHandlingMQ(path);
-
-    if (res == nullptr) {
-        return nullptr;
-    }
-
-    return (char*)res->GetRawPointer();
+std::shared_ptr<Ship::IResource> GetResourceByName(const char* path) {
+    return Ship::Context::GetInstance()->GetResourceManager()->LoadResource(path);
 }
 
 extern "C" char* ResourceMgr_LoadFileFromDisk(const char* filePath) {
@@ -900,7 +839,7 @@ extern "C" char* ResourceMgr_LoadFileFromDisk(const char* filePath) {
 }
 
 extern "C" uint8_t ResourceMgr_ResourceIsBackground(char* texPath) {
-    auto res = GetResourceByNameHandlingMQ(texPath);
+    auto res = GetResourceByName(texPath);
     return res->GetInitData()->Type == static_cast<uint32_t>(SOH::ResourceType::SOH_Background);
 }
 
@@ -946,19 +885,19 @@ extern "C" uint16_t ResourceMgr_LoadTexWidthByName(char* texPath);
 extern "C" uint16_t ResourceMgr_LoadTexHeightByName(char* texPath);
 
 extern "C" char* ResourceMgr_LoadTexOrDListByName(const char* filePath) {
-    auto res = GetResourceByNameHandlingMQ(filePath);
+    auto res = GetResourceByName(filePath);
 
     if (res->GetInitData()->Type == static_cast<uint32_t>(LUS::ResourceType::DisplayList))
         return (char*)&((std::static_pointer_cast<LUS::DisplayList>(res))->Instructions[0]);
     else if (res->GetInitData()->Type == static_cast<uint32_t>(LUS::ResourceType::Array))
         return (char*)(std::static_pointer_cast<LUS::Array>(res))->Vertices.data();
     else {
-        return (char*)GetResourceDataByNameHandlingMQ(filePath);
+        return (char*)ResourceGetDataByName(filePath);
     }
 }
 
 extern "C" char* ResourceMgr_LoadIfDListByName(const char* filePath) {
-    auto res = GetResourceByNameHandlingMQ(filePath);
+    auto res = GetResourceByName(filePath);
 
     if (res->GetInitData()->Type == static_cast<uint32_t>(LUS::ResourceType::DisplayList))
         return (char*)&((std::static_pointer_cast<LUS::DisplayList>(res))->Instructions[0]);
@@ -971,7 +910,7 @@ extern "C" char* ResourceMgr_LoadIfDListByName(const char* filePath) {
 //}
 
 extern "C" char* ResourceMgr_LoadPlayerAnimByName(const char* animPath) {
-    auto anim = std::static_pointer_cast<SOH::PlayerAnimation>(GetResourceByNameHandlingMQ(animPath));
+    auto anim = std::static_pointer_cast<SOH::PlayerAnimation>(GetResourceByName(animPath));
 
     return (char*)&anim->limbRotData[0];
 }
@@ -981,7 +920,7 @@ extern "C" void ResourceMgr_PushCurrentDirectory(char* path) {
 }
 
 extern "C" Gfx* ResourceMgr_LoadGfxByName(const char* path) {
-    auto res = std::static_pointer_cast<LUS::DisplayList>(GetResourceByNameHandlingMQ(path));
+    auto res = std::static_pointer_cast<LUS::DisplayList>(GetResourceByName(path));
     return (Gfx*)&res->Instructions[0];
 }
 
@@ -1064,32 +1003,30 @@ extern "C" void ResourceMgr_UnpatchGfxByName(const char* path, const char* patch
 }
 
 extern "C" char* ResourceMgr_LoadVtxArrayByName(const char* path) {
-    auto res = std::static_pointer_cast<LUS::Array>(GetResourceByNameHandlingMQ(path));
+    auto res = std::static_pointer_cast<LUS::Array>(GetResourceByName(path));
 
     return (char*)res->Vertices.data();
 }
 
 extern "C" size_t ResourceMgr_GetVtxArraySizeByName(const char* path) {
-    auto res = std::static_pointer_cast<LUS::Array>(GetResourceByNameHandlingMQ(path));
+    auto res = std::static_pointer_cast<LUS::Array>(GetResourceByName(path));
 
     return res->Vertices.size();
-    // }
 }
 
 extern "C" char* ResourceMgr_LoadArrayByName(const char* path) {
-    auto res = std::static_pointer_cast<LUS::Array>(GetResourceByNameHandlingMQ(path));
+    auto res = std::static_pointer_cast<LUS::Array>(GetResourceByName(path));
 
     return (char*)res->Scalars.data();
 }
 
 extern "C" size_t ResourceMgr_GetArraySizeByName(const char* path) {
-    auto res = std::static_pointer_cast<LUS::Array>(GetResourceByNameHandlingMQ(path));
+    auto res = std::static_pointer_cast<LUS::Array>(GetResourceByName(path));
 
     return res->Scalars.size();
-    // }
 }
 extern "C" char* ResourceMgr_LoadArrayByNameAsVec3s(const char* path) {
-    auto res = std::static_pointer_cast<LUS::Array>(GetResourceByNameHandlingMQ(path));
+    auto res = std::static_pointer_cast<LUS::Array>(GetResourceByName(path));
 
     // if (res->CachedGameAsset != nullptr)
     //     return (char*)res->CachedGameAsset;
@@ -1261,7 +1198,7 @@ extern "C" void ResourceMgr_ClearSkeletons(SkelAnime* skelAnime) {
 }
 
 extern "C" s32* ResourceMgr_LoadCSByName(const char* path) {
-    return (s32*)GetResourceDataByNameHandlingMQ(path);
+    return (s32*)ResourceGetDataByName(path);
 }
 
 std::filesystem::path GetSaveFile(std::shared_ptr<Ship::Config> Conf) {
@@ -1565,7 +1502,7 @@ extern "C" void Gfx_TextureCacheDelete(const uint8_t* texAddr) {
     }
 
     if (ResourceMgr_OTRSigCheck(imgName)) {
-        texAddr = (const uint8_t*)GetResourceDataByNameHandlingMQ(imgName);
+        texAddr = (const uint8_t*)ResourceGetDataByName(imgName);
     }
 
     gfx_texture_cache_delete(texAddr);

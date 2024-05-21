@@ -1573,7 +1573,15 @@ void Cutscene_HandleEntranceTriggers(PlayState* play) {
     }
 }
 
+// 2S2H [Enhancements] This is equivalent to Cutscene_HandleConditionalTriggers in OoT. It's unused normally, but we 
+// use it for VB. In VB changing *should to false has no effect, but you instead modify the entrance & cutsceneIndex to 
+// override the behavior.
 void func_800EDDB0(PlayState* play) {
+    LUSLOG_INFO("Cutscene_HandleConditionalTriggers: entrance: %d, cutsceneIndex: 0x%X", gSaveContext.save.entrance, gSaveContext.save.cutsceneIndex);
+
+    if (!GameInteractor_Should(GI_VB_PLAY_TRANSITION_CS, true, NULL)) {
+        return;
+    }
 }
 
 void func_800EDDBC(UNK_TYPE arg0, UNK_TYPE arg1) {

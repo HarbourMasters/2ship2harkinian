@@ -46,6 +46,11 @@ static std::unordered_map<Ship::WindowBackend, const char*> windowBackendsMap = 
     { Ship::WindowBackend::GX2, "GX2" }
 };
 
+static const std::unordered_map<int32_t, const char*> clockTypeOptions = {
+    { CLOCK_TYPE_ORIGINAL, "Original" },
+    { CLOCK_TYPE_TEXT_BASED, "Text only" },
+};
+
 static const std::unordered_map<int32_t, const char*> alwaysWinDoggyraceOptions = {
     { ALWAYS_WIN_DOGGY_RACE_OFF, "Off" },
     { ALWAYS_WIN_DOGGY_RACE_MASKOFTRUTH, "When owning Mask of Truth" },
@@ -355,6 +360,9 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox(
                 "Skip to File Select", "gEnhancements.Cutscenes.SkipToFileSelect",
                 { .tooltip = "Skip the opening title sequence and go straight to the file select menu after boot" });
+            UIWidgets::CVarCheckbox("Skip Intro Sequence", "gEnhancements.Cutscenes.SkipIntroSequence");
+            UIWidgets::CVarCheckbox("Skip Story Cutscenes", "gEnhancements.Cutscenes.SkipStoryCutscenes");
+            UIWidgets::CVarCheckbox("Skip Misc Interactions", "gEnhancements.Cutscenes.SkipMiscInteractions");
 
             ImGui::EndMenu();
         }
@@ -368,6 +376,10 @@ void DrawEnhancementsMenu() {
 
             UIWidgets::CVarCheckbox("Pause Menu Save", "gEnhancements.Saving.PauseSave", {
                 .tooltip = "Re-introduce the pause menu save system. Pressing B in the pause menu will give you the option to create an Owl Save from your current location. When loading back into the game, you will be placed at your last entrance."
+            });
+
+            UIWidgets::CVarSliderInt("Save Delay (seconds)", "gEnhancements.Save.SaveDelay", 0, 5, 0, { 
+                .tooltip = "Sets the delay between pressing save and the save being marked as complete. Original game was 2 seconds." 
             });
 
             UIWidgets::CVarCheckbox("Autosave", "gEnhancements.Saving.Autosave", {
@@ -391,6 +403,7 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Do not reset Rupees", "gEnhancements.Cycle.DoNotResetRupees", {
                 .tooltip = "Playing the Song Of Time will not reset the your rupees."
             });
+            
 
             ImGui::EndMenu();
         }
@@ -420,9 +433,11 @@ void DrawEnhancementsMenu() {
         }
 
         if (UIWidgets::BeginMenu("Graphics")) {
+            ImGui::SeparatorText("Clock");
+            UIWidgets::CVarCombobox("Clock Type", "gEnhancements.Graphics.ClockType", clockTypeOptions);
+            UIWidgets::CVarCheckbox("24 Hours Clock", "gEnhancements.Graphics.24HoursClock");
             MotionBlur_RenderMenuOptions();
             ImGui::SeparatorText("Other");
-            UIWidgets::CVarCheckbox("24 Hours Clock", "gEnhancements.Graphics.24HoursClock");
             UIWidgets::CVarCheckbox("Authentic logo", "gEnhancements.Graphics.AuthenticLogo", {
                 .tooltip = "Hide the game version and build details and display the authentic model and texture on the boot logo start screen"
             });
@@ -457,6 +472,13 @@ void DrawEnhancementsMenu() {
             }
             ImGui::EndMenu();
         }
+        if (UIWidgets::BeginMenu("Player Movement")) {
+            UIWidgets::CVarSliderInt("Climb speed", "gEnhancements.PlayerMovement.ClimbSpeed", 1, 5, 1, {
+                .tooltip = "Increases the speed at which Link climbs vines and ladders." 
+            });
+
+            ImGui::EndMenu();
+        }
 
         if (UIWidgets::BeginMenu("Restorations")) {
             UIWidgets::CVarCheckbox("Power Crouch Stab", "gEnhancements.Restorations.PowerCrouchStab", {
@@ -464,6 +486,9 @@ void DrawEnhancementsMenu() {
             });
             UIWidgets::CVarCheckbox("Side Rolls", "gEnhancements.Restorations.SideRoll", {
                 .tooltip = "Restores side rolling from OOT."
+            });
+            UIWidgets::CVarCheckbox("Tatl ISG", "gEnhancements.Restorations.TatlISG", {
+                .tooltip = "Restores Navi ISG from OOT, but now with Tatl."
             });
 
             ImGui::EndMenu();

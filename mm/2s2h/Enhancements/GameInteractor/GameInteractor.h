@@ -38,10 +38,17 @@ typedef enum {
     GI_VB_SET_BLAST_MASK_COOLDOWN_TIMER,
     GI_VB_PATCH_POWER_CROUCH_STAB,
     GI_VB_PATCH_SIDEROLL,
+    GI_VB_TATL_CONVERSATION_AVAILABLE,
     GI_VB_PREVENT_MASK_TRANSFORMATION_CS,
     GI_VB_DELETE_OWL_SAVE,
+    GI_VB_SET_CLIMB_SPEED,
+    GI_VB_PREVENT_CLOCK_DISPLAY,
     GI_VB_SONG_AVAILABLE_TO_PLAY,
     GI_VB_USE_CUSTOM_CAMERA,
+
+    GI_VB_PLAY_TRANSITION_CS,
+    GI_VB_TATL_INTERUPT_MSG3,
+    GI_VB_TATL_INTERUPT_MSG6
 } GIVanillaBehavior;
 
 #ifdef __cplusplus
@@ -50,6 +57,7 @@ typedef enum {
 #include <functional>
 #include <unordered_map>
 #include <cstdint>
+#include <algorithm>
 
 typedef uint32_t HOOK_ID;
 

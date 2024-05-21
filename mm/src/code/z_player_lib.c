@@ -1082,7 +1082,8 @@ Gfx* sPlayerFirstPersonRightShoulderDLs[PLAYER_FORM_MAX] = {
 Gfx* sPlayerFirstPersonRightHandDLs[PLAYER_FORM_MAX] = {
     gLinkFierceDeityRightHandDL,
     //! @bug This is in the middle of a texture in the link_goron object. It has the same offset as a link_nuts dlist
-    (Gfx*)0x060038C0,
+    // 2S2H [Port] Put the DList that makes the most sense here. In reality nothing makes sense since goron has no first person items, but we need something here to prevent a crash.
+    gLinkGoronRightHandOpenDL,
     gLinkZoraRightHandOpenDL,
     gLinkDekuRightHandDL,
     object_link_child_DL_018490,
@@ -1091,7 +1092,8 @@ Gfx* sPlayerFirstPersonRightHandDLs[PLAYER_FORM_MAX] = {
 Gfx* sPlayerFirstPersonRightHandHookshotDLs[PLAYER_FORM_MAX] = {
     gLinkFierceDeityRightHandDL,
     //! @bug This is in the middle of a texture in the link_goron object. It has the same offset as a link_nuts dlist
-    (Gfx*)0x060038C0,
+    // 2S2H [Port] Put the DList that makes the most sense here. In reality nothing makes sense since goron has no first person items, but we need something here to prevent a crash.
+    gLinkGoronRightHandOpenDL,
     gLinkZoraRightHandOpenDL,
     gLinkDekuRightHandDL,
     object_link_child_DL_017B40,
@@ -1175,6 +1177,12 @@ struct_80124618 D_801C0560[] = {
     { 2, { 95, 95, 100 } },
     { 3, { 105, 105, 100 } },
     { 5, { 102, 102, 102 } },
+    //! @bug When playing zora guitar, this is passed into func_80124618 with a curFrame of 6, and func_80124618
+    // will overflow it into the next struct until it hits the value with 9
+    // #region 2S2H [Port] We are adding the next two animation stop values here to prevent OOB reads
+    { 0, { 100, 100, 100 } },
+    { 9, { 100, 100, 100 } },
+    // #endregion
 };
 struct_80124618 D_801C0580[] = {
     { 0, { 100, 100, 100 } }, { 9, { 100, 100, 100 } }, { 10, { 150, 150, 150 } },

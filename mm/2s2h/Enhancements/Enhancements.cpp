@@ -10,6 +10,9 @@ void InitEnhancements() {
     RegisterMoonJumpOnL();
     RegisterUnbreakableRazorSword(); 
 
+    // Clock
+    RegisterTextBasedClock();
+  
     // Cycle & Saving
     RegisterEndOfCycleSaveHooks();
     RegisterSavingEnhancements();
@@ -28,12 +31,15 @@ void InitEnhancements() {
     // Restorations
     RegisterPowerCrouchStab();
     RegisterSideRoll();
+    RegisterTatlISG();
     
     // Cutscenes
-    RegisterSkipEntranceCutscenes();
-    RegisterHideTitleCards();
+    RegisterCutscenes();
     
     // Modes
     RegisterPlayAsKafei();
+
+    // Player Movement
+    RegisterClimbSpeed();
 
 }
