@@ -329,6 +329,13 @@ void DrawGeneralTab() {
     );
 
     ImGui::Text("Banked Rupees: %d", HS_GET_BANK_RUPEES());
+    int bankedRupees = HS_GET_BANK_RUPEES();
+    UIWidgets::PushStyleSlider(UIWidgets::Colors::Green);
+    if (ImGui::SliderInt("##setBank", &bankedRupees, 0, 5000, "Banked Rupees: %d")) {
+        HS_SET_BANK_RUPEES(bankedRupees);
+    }
+    UIWidgets::Tooltip("To recieve the rewards, set the bank to 199, 999, or 4,999 then deposit a single rupee");
+    UIWidgets::PopStyleSlider();
 
     // Temple clears
     static const std::array<std::pair<int32_t, const char*>, 4> templeClears = { {
