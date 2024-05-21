@@ -7,8 +7,6 @@ extern "C" {
 #include <functions.h>
 }
 
-const std::filesystem::path savesFolderPath(Ship::Context::GetPathRelativeToAppDirectory("Save"));
-
 static uint32_t autosaveInterval = 0;
 static uint32_t iconTimer = 0;
 static uint64_t currentTimestamp = 0;
@@ -62,7 +60,7 @@ void HandleAutoSave() {
         !Player_InBlockingCsMode(gPlayState, player) && gPlayState->pauseCtx.state == 0 &&
         gPlayState->msgCtx.msgMode == 0) {
 
-        // Reset timestamp set icon timer to show autosave icon for 5 seconds (100 frames)
+        // Reset timestamp, set icon timer to show autosave icon for 5 seconds (100 frames)
         lastSaveTimestamp = GetUnixTimestamp();
         iconTimer = 100;
 
