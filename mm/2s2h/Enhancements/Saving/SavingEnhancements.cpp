@@ -7,6 +7,8 @@ extern "C" {
 #include <functions.h>
 }
 
+const std::filesystem::path savesFolderPath(Ship::Context::GetPathRelativeToAppDirectory("Save"));
+
 static uint32_t autosaveInterval = 0;
 static uint32_t iconTimer = 0;
 static uint64_t currentTimestamp = 0;
@@ -14,35 +16,56 @@ static uint64_t lastSaveTimestamp = GetUnixTimestamp();
 
 static uint32_t autosaveGameStateUpdateHookId = 0;
 
+bool DoesOwlSaveExist() {
+    // Check if owl savefile exists for currently selected saveslot.
+
+    std::string fileName = "save_";
+    // Fileslot 1 maps to FLASH_SLOT_FILE_1_OWL_SAVE (4)
+    if (gSaveContext.fileNum == 0) {
+        fileName += +"4.sav";
+    // Fileslot 1 maps to FLASH_SLOT_FILE_2_OWL_SAVE (6)
+    } else if (gSaveContext.fileNum == 1) {
+        fileName += +"6.sav";
+    // Most likely a debug savefile
+    } else {
+        return false;
+    }
+
+    std::filesystem::path filePath = savesFolderPath / fileName;
+
+    return std::filesystem::exists(filePath) ? true : false;
+}
+
 void DeleteOwlSave() {
     // Remove Owl Save on time cycle reset, needed when persisting owl saves and/or when
     // creating owl saves without the player being send back to the file select screen.
 
-
-    // Reset some gSaveContext stuff that usually happens when loading into a new savefile
-    // when there's an owl save present. Fixes the wrong entrance and/or link form to be loaded
-    // when loading into a new savefile.
-    //
-    // But don't do this when the current day is 9 (which is day 4, used in the "Dawn of a new Day" cutscene
-    // after beating the game, otherwise it won't play the cutscene afterwards properly.
-    if (gSaveContext.save.day != 9) {
-        if (gSaveContext.save.isFirstCycle) {
-            gSaveContext.save.entrance = ENTRANCE(SOUTH_CLOCK_TOWN, 0);
-            gSaveContext.save.day = 0;
-            gSaveContext.save.time = CLOCK_TIME(6, 0) - 1;
-        } else {
-            gSaveContext.save.entrance = ENTRANCE(CUTSCENE, 0);
-            gSaveContext.nextCutsceneIndex = 0;
-            gSaveContext.save.playerForm = PLAYER_FORM_HUMAN;
+    if (DoesOwlSaveExist()) {
+        // Reset some gSaveContext stuff that usually happens when loading into a new savefile
+        // when there's an owl save present. Fixes the wrong entrance and/or link form to be loaded
+        // when loading into a new savefile.
+        //
+        // But don't do this when the current day is 9 (which is day 4, used in the "Dawn of a new Day" cutscene
+        // after beating the game, otherwise it won't play the cutscene afterwards properly.
+        if (gSaveContext.save.day != 9) {
+            if (gSaveContext.save.isFirstCycle) {
+                gSaveContext.save.entrance = ENTRANCE(SOUTH_CLOCK_TOWN, 0);
+                gSaveContext.save.day = 0;
+                gSaveContext.save.time = CLOCK_TIME(6, 0) - 1;
+            } else {
+                gSaveContext.save.entrance = ENTRANCE(CUTSCENE, 0);
+                gSaveContext.nextCutsceneIndex = 0;
+                gSaveContext.save.playerForm = PLAYER_FORM_HUMAN;
+            }
         }
+
+        // Delete Owl Save
+        func_80147314(&gPlayState->sramCtx, gSaveContext.fileNum);
+
+        // Set it to not be an owl save so after reloading the save file it doesn't try to load at the owl's position in
+        // clock town
+        gSaveContext.save.isOwlSave = 0;
     }
-
-    // Delete Owl Save
-    func_80147314(&gPlayState->sramCtx, gSaveContext.fileNum);
-
-    // Set it to not be an owl save so after reloading the save file it doesn't try to load at the owl's position in
-    // clock town
-    gSaveContext.save.isOwlSave = 0;
 }
 
 void DrawAutosaveIcon() {
