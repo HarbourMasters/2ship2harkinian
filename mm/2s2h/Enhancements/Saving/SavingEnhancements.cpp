@@ -1,4 +1,5 @@
 #include <libultraship/libultraship.h>
+#include "BenPort.h"
 #include "Enhancements/GameInteractor/GameInteractor.h"
 
 extern "C" {
@@ -6,9 +7,11 @@ extern "C" {
 #include <functions.h>
 }
 
-static uint32_t frameCount = 0;
-static uint32_t frameInterval = 0;
+static uint32_t autosaveInterval = 0;
 static uint32_t iconTimer = 0;
+static uint64_t currentTimestamp = 0;
+static uint64_t lastSaveTimestamp = GetUnixTimestamp();
+
 
 void DeleteOwlSave() {
     // Remove Owl Save on time cycle reset, needed when persisting owl saves and/or when
@@ -46,12 +49,6 @@ void PerformAutoSave() {
         return;
     }
 
-    Player* player = GET_PLAYER(gPlayState);
-
-    if (player == NULL) {
-        return;
-    }
-
     // 5 seconds (100 frames) of showing the owl save icon to signify autosave has happened.
     if (iconTimer != 0) {
         float opacity = 255.0;
@@ -66,18 +63,25 @@ void PerformAutoSave() {
         iconTimer--;
     }
 
-    frameCount++;
+    // Check if the interval has passed in minutes.
+    autosaveInterval = CVarGetInteger("gEnhancements.Saving.AutosaveInterval", 5) * 60000;
+    currentTimestamp = GetUnixTimestamp();
+    if ((currentTimestamp - lastSaveTimestamp) < autosaveInterval) {
+        return;
+    }
 
-    // Interval is set in minutes, need to be converted to frames.
-    frameInterval = CVarGetInteger("gEnhancements.Saving.AutosaveInterval", 5) * 60 * 20;
+    Player* player = GET_PLAYER(gPlayState);
+    if (player == NULL) {
+        return;
+    }
 
-    // If chosen interval elapsed and owl save available to create
-    if (frameCount > frameInterval && gSaveContext.flashSaveAvailable && gSaveContext.fileNum != 255 &&
+    // If owl save available to create, do it and reset the interval.
+    if (gSaveContext.flashSaveAvailable && gSaveContext.fileNum != 255 &&
         !Player_InBlockingCsMode(gPlayState, player) && gPlayState->pauseCtx.state == 0 &&
         gPlayState->msgCtx.msgMode == 0) {
 
-        // Reset frame count and set icon timer to show autosave icon for 5 seconds (100 frames)
-        frameCount = 0;
+        // Reset timestamp set icon timer to show autosave icon for 5 seconds (100 frames)
+        lastSaveTimestamp = GetUnixTimestamp();
         iconTimer = 100;
 
         // Create owl save
