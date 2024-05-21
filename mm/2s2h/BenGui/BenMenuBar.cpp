@@ -370,16 +370,14 @@ void DrawEnhancementsMenu() {
         if (UIWidgets::BeginMenu("Cycle / Saving")) {
 
             ImGui::SeparatorText("Saving");
-            UIWidgets::CVarCheckbox("Permanent Owl Saves", "gEnhancements.Saving.PermanentOwlSaves", {
-                .tooltip = "Continuing a save will not remove the owl save. Playing Song of Time will remove the owl save and become the new last save."
+            UIWidgets::CVarCheckbox("Persistent Owl Saves", "gEnhancements.Saving.PersistentOwlSaves", {
+                .tooltip = 
+                "Continuing a save will not remove the owl save. Playing Song of Time, allowing the moon to crash or finishing the "
+                "game will remove the owl save and become the new last save."
             });
 
             UIWidgets::CVarCheckbox("Pause Menu Save", "gEnhancements.Saving.PauseSave", {
                 .tooltip = "Re-introduce the pause menu save system. Pressing B in the pause menu will give you the option to create an Owl Save from your current location. When loading back into the game, you will be placed at your last entrance."
-            });
-
-            UIWidgets::CVarSliderInt("Save Delay (seconds)", "gEnhancements.Save.SaveDelay", 0, 5, 0, { 
-                .tooltip = "Sets the delay between pressing save and the save being marked as complete. Original game was 2 seconds." 
             });
 
             UIWidgets::CVarCheckbox("Autosave", "gEnhancements.Saving.Autosave", {
@@ -389,6 +387,10 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarSliderInt("Autosave Interval (minutes): %d", "gEnhancements.Saving.AutosaveInterval", 1, 60, 5, 
                 { .disabled = !CVarGetInteger("gEnhancements.Saving.Autosave", 0) }
             );
+
+            UIWidgets::CVarSliderInt("Save Delay (seconds)", "gEnhancements.Save.SaveDelay", 0, 5, 0, { 
+                .tooltip = "Sets the delay between pressing save and the save being marked as complete. Original game was 2 seconds." 
+            });
             
             ImGui::SeparatorText("Time Cycle");
             UIWidgets::CVarCheckbox("Do not reset Bottle content", "gEnhancements.Cycle.DoNotResetBottleContent", {
