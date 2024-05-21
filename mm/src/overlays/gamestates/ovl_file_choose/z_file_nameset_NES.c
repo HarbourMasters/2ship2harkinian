@@ -8,6 +8,7 @@
 #include "z64rumble.h"
 #include "misc/title_static/title_static.h"
 #include "overlays/ovl_file_choose/ovl_file_choose.h"
+#include "BenPort.h"
 
 void FileSelect_DrawTexQuadI4(GraphicsContext* gfxCtx, TexturePtr texture, s16 point) {
     OPEN_DISPS(gfxCtx);
@@ -841,6 +842,225 @@ OptionsMenuTextureInfo gOptionsMenuSettings[] = {
     { gFileSelSurroundENGTex, 48, 16 }, { gFileSelSwitchENGTex, 48, 16 }, { gFileSelHoldENGTex, 48, 16 },
 };
 
+void FileSelect_DrawOptionsImpl_NES_GC(GameState* thisx) {
+    static s16 sCursorPrimRed = 255;
+    static s16 sCursorPrimGreen = 255;
+    static s16 sCursorPrimBlue = 255;
+    static s16 sCursorEnvRed = 0;
+    static s16 sCursorEnvGreen = 0;
+    static s16 sCursorEnvBlue = 0;
+    static s16 sCursorPulseDir = 1;
+    static s16 sCursorFlashTimer = 20;
+    static s16 sCursorPrimColors[][3] = {
+        { 255, 255, 255 },
+        { 0, 255, 255 },
+    };
+    static s16 sCursorEnvColors[][3] = {
+        { 0, 0, 0 },
+        { 0, 150, 150 },
+    };
+    FileSelectState* this = (FileSelectState*)thisx;
+    s16 cursorRedStep;
+    s16 cursorGreenStep;
+    s16 cursorBlueStep;
+    s16 i;
+    s16 j;
+    s16 vtx;
+
+    OPEN_DISPS(this->state.gfxCtx);
+
+    cursorRedStep = ABS_ALT(sCursorPrimRed - sCursorPrimColors[sCursorPulseDir][0]) / sCursorFlashTimer;
+    cursorGreenStep = ABS_ALT(sCursorPrimGreen - sCursorPrimColors[sCursorPulseDir][1]) / sCursorFlashTimer;
+    cursorBlueStep = ABS_ALT(sCursorPrimBlue - sCursorPrimColors[sCursorPulseDir][2]) / sCursorFlashTimer;
+
+    if (sCursorPrimRed >= sCursorPrimColors[sCursorPulseDir][0]) {
+        sCursorPrimRed -= cursorRedStep;
+    } else {
+        sCursorPrimRed += cursorRedStep;
+    }
+
+    if (sCursorPrimGreen >= sCursorPrimColors[sCursorPulseDir][1]) {
+        sCursorPrimGreen -= cursorGreenStep;
+    } else {
+        sCursorPrimGreen += cursorGreenStep;
+    }
+
+    if (sCursorPrimBlue >= sCursorPrimColors[sCursorPulseDir][2]) {
+        sCursorPrimBlue -= cursorBlueStep;
+    } else {
+        sCursorPrimBlue += cursorBlueStep;
+    }
+
+    cursorRedStep = ABS_ALT(sCursorEnvRed - sCursorEnvColors[sCursorPulseDir][0]) / sCursorFlashTimer;
+    cursorGreenStep = ABS_ALT(sCursorEnvGreen - sCursorEnvColors[sCursorPulseDir][1]) / sCursorFlashTimer;
+    cursorBlueStep = ABS_ALT(sCursorEnvBlue - sCursorEnvColors[sCursorPulseDir][2]) / sCursorFlashTimer;
+
+    if (sCursorEnvRed >= sCursorEnvColors[sCursorPulseDir][0]) {
+        sCursorEnvRed -= cursorRedStep;
+    } else {
+        sCursorEnvRed += cursorRedStep;
+    }
+
+    if (sCursorEnvGreen >= sCursorEnvColors[sCursorPulseDir][1]) {
+        sCursorEnvGreen -= cursorGreenStep;
+    } else {
+        sCursorEnvGreen += cursorGreenStep;
+    }
+
+    if (sCursorEnvBlue >= sCursorEnvColors[sCursorPulseDir][2]) {
+        sCursorEnvBlue -= cursorBlueStep;
+    } else {
+        sCursorEnvBlue += cursorBlueStep;
+    }
+
+    if (--sCursorFlashTimer == 0) {
+        sCursorPrimRed = sCursorPrimColors[sCursorPulseDir][0];
+        sCursorPrimGreen = sCursorPrimColors[sCursorPulseDir][1];
+        sCursorPrimBlue = sCursorPrimColors[sCursorPulseDir][2];
+
+        sCursorEnvRed = sCursorEnvColors[sCursorPulseDir][0];
+        sCursorEnvGreen = sCursorEnvColors[sCursorPulseDir][1];
+        sCursorEnvBlue = sCursorEnvColors[sCursorPulseDir][2];
+
+        sCursorFlashTimer = 20;
+
+        if (++sCursorPulseDir > 1) {
+            sCursorPulseDir = 0;
+        }
+    }
+
+    // blue divider lines
+    gDPPipeSync(POLY_OPA_DISP++);
+    gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 0, 255, 255, this->titleAlpha[FS_TITLE_CUR]);
+    gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 0);
+
+    gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gFileSelOptionsDividerTex, G_IM_FMT_IA, 256, 2, 0,
+                           G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
+                           G_TX_NOLOD);
+
+    Matrix_Push();
+    Matrix_Translate(0.0f, 0.1f, 0.0f, MTXMODE_APPLY);
+    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(this->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSPVertex(POLY_OPA_DISP++, gOptionsDividerVtx, 12, 0);
+    gSP1Quadrangle(POLY_OPA_DISP++, 0, 2, 3, 1, 0);
+    Matrix_Pop();
+
+    Matrix_Push();
+    Matrix_Translate(0.0f, 0.2f, 0.0f, MTXMODE_APPLY);
+    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(this->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSP1Quadrangle(POLY_OPA_DISP++, 4, 6, 7, 5, 0);
+    Matrix_Pop();
+
+    Matrix_Push();
+    Matrix_Translate(0.0f, 0.4f, 0.0f, MTXMODE_APPLY);
+    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(this->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+    gSP1Quadrangle(POLY_OPA_DISP++, 8, 10, 11, 9, 0);
+    Matrix_Pop();
+
+    gSPVertex(POLY_OPA_DISP++, D_80813DF0, 20, 0);
+    gDPPipeSync(POLY_OPA_DISP++);
+    gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE,
+                      ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+    gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, this->titleAlpha[FS_TITLE_CUR]);
+    gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
+
+    for (i = 0, vtx = 0; i < 5; i++, vtx += 4) {
+        gDPPipeSync(POLY_OPA_DISP++);
+        if (i == 4) {
+            if (gSaveContext.options.audioSetting == SAVE_AUDIO_SURROUND) {
+                gDPSetEnvColor(POLY_OPA_DISP++, 255, 255, 255, 255);
+            } else {
+                gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 0, 0, 0, this->titleAlpha[FS_TITLE_CUR]);
+                gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
+            }
+            
+            gDPLoadTextureBlock(POLY_OPA_DISP++, gOptionsMenuHeaders[i].texture, G_IM_FMT_IA, G_IM_SIZ_8b,
+                            gOptionsMenuHeaders[i].width, gOptionsMenuHeaders[i].height, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        } else {
+            gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuHeaders[i].texture, G_IM_FMT_IA,
+                                gOptionsMenuHeaders[i].width, gOptionsMenuHeaders[i].height, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            
+        }
+        gSP1Quadrangle(POLY_OPA_DISP++, vtx, vtx + 2, vtx + 3, vtx + 1, 0);
+
+    }
+
+    gDPPipeSync(POLY_OPA_DISP++);
+    gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE,
+                      ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+
+    gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, this->titleAlpha[FS_TITLE_CUR]);
+    gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
+    gSPVertex(POLY_OPA_DISP++, D_80813F30, 24, 0);
+
+    for (i = 0, vtx = 0; i < 4; i++, vtx += 4) {
+        gDPPipeSync(POLY_OPA_DISP++);
+        if (i == gSaveContext.options.audioSetting) {
+            if (sSelectedSetting == FS_SETTING_AUDIO) {
+                gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, sCursorPrimRed, sCursorPrimGreen, sCursorPrimBlue,
+                                this->titleAlpha[FS_TITLE_CUR]);
+                gDPSetEnvColor(POLY_OPA_DISP++, sCursorEnvRed, sCursorEnvGreen, sCursorEnvBlue, 255);
+            } else {
+                gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, this->titleAlpha[FS_TITLE_CUR]);
+                gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
+            }
+        } else {
+            gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 120, 120, 120, this->titleAlpha[FS_TITLE_CUR]);
+            gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
+        }
+
+        gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuSettings[i].texture, G_IM_FMT_IA,
+                            gOptionsMenuSettings[i].width, gOptionsMenuSettings[i].height, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gSP1Quadrangle(POLY_OPA_DISP++, vtx, vtx + 2, vtx + 3, vtx + 1, 0);
+    }
+
+    for (; i < 6; i++, vtx += 4) {
+        gDPPipeSync(POLY_OPA_DISP++);
+
+        if (i == (gSaveContext.options.zTargetSetting + 4)) {
+            if (sSelectedSetting == FS_SETTING_ZTARGET) {
+                gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, sCursorPrimRed, sCursorPrimGreen, sCursorPrimBlue,
+                                this->titleAlpha[FS_TITLE_CUR]);
+                gDPSetEnvColor(POLY_OPA_DISP++, sCursorEnvRed, sCursorEnvGreen, sCursorEnvBlue, 255);
+            } else {
+                gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, this->titleAlpha[FS_TITLE_CUR]);
+                gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
+            }
+        } else {
+            gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 120, 120, 120, this->titleAlpha[FS_TITLE_CUR]);
+            gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
+        }
+
+        gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuSettings[i].texture, G_IM_FMT_IA,
+                            gOptionsMenuSettings[i].width, gOptionsMenuSettings[i].height, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gSP1Quadrangle(POLY_OPA_DISP++, vtx, vtx + 2, vtx + 3, vtx + 1, 0);
+    }
+
+    vtx = 0;
+    gDPPipeSync(POLY_OPA_DISP++);
+    // check brightness bars
+    gSPVertex(POLY_OPA_DISP++, D_80813EB0_ce0, 8, 0);
+    gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gFileSelBrightnessCheckTex, G_IM_FMT_IA, 96, 16, 0,
+                           G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
+                           G_TX_NOLOD);
+    gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 55, 55, 55, this->titleAlpha[FS_TITLE_CUR]);
+    gDPSetEnvColor(POLY_OPA_DISP++, 40, 40, 40, 255);
+    gSP1Quadrangle(POLY_OPA_DISP++,  vtx, vtx + 2, vtx + 3, vtx + 1, 0);
+
+    vtx += 4;
+
+    gDPPipeSync(POLY_OPA_DISP++);
+    gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 30, 30, 30, this->titleAlpha[FS_TITLE_CUR]);
+    gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
+    gSP1Quadrangle(POLY_OPA_DISP++, vtx, vtx + 2, vtx + 3, vtx + 1, 0);
+
+    CLOSE_DISPS(this->state.gfxCtx);
+}
+
 void FileSelect_DrawOptionsImpl(GameState* thisx) {
     static s16 sCursorPrimRed = 255;
     static s16 sCursorPrimGreen = 255;
@@ -865,6 +1085,13 @@ void FileSelect_DrawOptionsImpl(GameState* thisx) {
     s16 i;
     s16 j;
     s16 vtx;
+
+    // #region 2S2H [GC US Support]
+    if (ResourceMgr_GetGameVersion(0) == MM_NTSC_US_GC) {
+        FileSelect_DrawOptionsImpl_NES_GC(thisx);
+        return;
+    }
+    // #endregion
 
     OPEN_DISPS(this->state.gfxCtx);
 
