@@ -45,11 +45,7 @@ void DeleteOwlSave() {
     gSaveContext.save.isOwlSave = 0;
 }
 
-void PerformAutoSave() {
-    if (gPlayState == nullptr) {
-        return;
-    }
-
+void DrawAutosaveIcon() {
     // 5 seconds (100 frames) of showing the owl save icon to signify autosave has happened.
     if (iconTimer != 0) {
         float opacity = 255.0;
@@ -63,7 +59,9 @@ void PerformAutoSave() {
         Interface_DrawAutosaveIcon(gPlayState, uint16_t(opacity));
         iconTimer--;
     }
+}
 
+void HandleAutoSave() {
     // Check if the interval has passed in minutes.
     autosaveInterval = CVarGetInteger("gEnhancements.Saving.AutosaveInterval", 5) * 60000;
     currentTimestamp = GetUnixTimestamp();
@@ -123,6 +121,13 @@ void RegisterAutosave() {
 
     if (CVarGetInteger("gEnhancements.Saving.Autosave", 0)) {
         autosaveGameStateUpdateHookId =
-            GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameStateUpdate>([]() { PerformAutoSave(); });
+            GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameStateUpdate>([]() {
+                if (gPlayState == nullptr) {
+                    return;
+                }
+
+                DrawAutosaveIcon();
+                HandleAutoSave();
+            });
     }
 }
