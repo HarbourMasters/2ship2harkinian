@@ -173,3 +173,40 @@ bool GameInteractor_Should(GIVanillaBehavior flag, bool result, void* opt) {
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::ShouldVanillaBehavior>(flag, &result, opt);
     return result;
 }
+
+// Returns 1 or -1 based on a number of factors like CVars or other game states.
+int GameInteractor_InvertControl(GIInvertType type) {
+    int result = 1;
+
+    switch (type) {
+        case GI_INVERT_CAMERA_RIGHT_STICK_X:
+            if (CVarGetInteger("gEnhancements.Camera.RightStick.InvertXAxis", 0)) {
+                result *= -1;
+            }
+            break;
+        case GI_INVERT_CAMERA_RIGHT_STICK_Y:
+            if (CVarGetInteger("gEnhancements.Camera.RightStick.InvertYAxis", 1)) {
+                result *= -1;
+            }
+            break;
+    }
+
+    /*
+    // Invert all X axis inputs if the Mirrored World mode is enabled
+    if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
+        switch (type) {
+            case GI_INVERT_CAMERA_RIGHT_STICK_X:
+                result *= -1;
+                break;
+        }
+    }
+    */
+
+    /*
+    if (CrowdControl::State::InvertedInputs) {
+        result *= -1;
+    }
+    */
+
+    return result;
+}

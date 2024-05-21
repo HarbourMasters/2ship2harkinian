@@ -151,8 +151,8 @@ void Camera_DebugCam(Camera* camera) {
     f32 yawDiff = -sCamPlayState->state.input[controllerPort].cur.right_stick_x * 10.0f * (CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.X", 1.0f));
     f32 pitchDiff = sCamPlayState->state.input[controllerPort].cur.right_stick_y * 10.0f * (CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.Y", 1.0f));
 
-    yawDiff *= (CVarGetInteger("gEnhancements.Camera.RightStick.InvertXAxis", 0) ? -1 : 1);
-    pitchDiff *= (CVarGetInteger("gEnhancements.Camera.RightStick.InvertYAxis", 1) ? 1 : -1);
+    yawDiff *= GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_X);
+    pitchDiff *= -GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_Y);
 
     // Setup new camera angle based on the calculations from right stick inputs
     if (CVarGetInteger("gEnhancements.Camera.DebugCam.6DOF", 0)) {
