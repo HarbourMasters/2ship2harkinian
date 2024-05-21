@@ -17,6 +17,7 @@ HudEditorElement hudEditorElements[HUD_EDITOR_ELEMENT_MAX] = {
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_D_PAD,             "D-Pad",             "DPad",          271, 55,  255, 255, 255, 255),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_MINIMAP,           "Minimap",           "Minimap",       295, 220, 0,   255, 255, 160),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_START,             "Start Button",      "Start",         136, 17,  255, 130, 60,  255),
+    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_CLOCK,             "Three Day Clock",   "Clock",         160, 206, 255, 255, 255, 255),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_HEARTS,            "Hearts",            "Hearts",        30,  26,  255, 70,  50,  255),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_MAGIC_METER,       "Magic",             "Magic",         18,  34,  0,   200, 0,   255),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_TIMERS,            "Timers",            "Timers",        26,  46,  255, 255, 255, 255),
@@ -86,21 +87,30 @@ extern "C" void HudEditor_ModifyTextureStepValues(s16* dsdx, s16* dtdy) {
     *dtdy /= CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f);
 }
 
+// Modify matrix values based on the identity matrix (0,0) centered on the screen
+extern "C" void HudEditor_ModifyMatrixValues(f32* transX, f32* transY) {
+    *transX = (f32)(SCREEN_WIDTH / 2) + *transX;
+    *transY = (f32)(SCREEN_HEIGHT / 2) - *transY;
+
+    s16 newX = *transX;
+    s16 newY = *transY;
+
+    HudEditor_ModifyRectPosValues(&newX, &newY);
+
+    *transX = (f32)newX - (SCREEN_WIDTH / 2);
+    *transY = (f32)(SCREEN_HEIGHT / 2) - newY;
+}
+
 extern "C" void HudEditor_ModifyKaleidoEquipAnimValues(s16* ulx, s16* uly, s16* shrinkRate) {
-    // Normalize the kaleido matrix values to screen rectangle dimensions
-    *ulx = (*ulx / 10) + (SCREEN_WIDTH / 2);
-    *uly = (SCREEN_HEIGHT / 2) - (*uly / 10);
+    // Kaleido values are a multiple of 10 on the identity matrix
+    // Normalize them before passing to the modify matrix
+    f32 transX = *ulx / 10;
+    f32 transY = *uly / 10;
 
-    HudEditor_ModifyRectPosValues(ulx, uly);
+    HudEditor_ModifyMatrixValues(&transX, &transY);
 
-    // Adjust the values to match the kaleido matrix (origin 0,0 at center of screen, +y going up)
-    *ulx -= SCREEN_WIDTH / 2;
-    // *uly = SCREEN_HEIGHT - *uly;
-    *uly = (SCREEN_HEIGHT / 2) - *uly;
-
-    // Scale by 10 for kaleido animation logic
-    *ulx *= 10;
-    *uly *= 10;
+    *ulx = transX * 10;
+    *uly = transY * 10;
 
     float scale = CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f);
     // 320 is the vanilla start size, and 280 is the vanilla end size (or 160 for dpad)
@@ -185,6 +195,7 @@ void HudEditorWindow::DrawElement() {
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_D_PAD].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_RIGHT);
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_MINIMAP].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_RIGHT);
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_START].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_RIGHT);
+                CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_CLOCK].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_43);
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_HEARTS].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT);
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_MAGIC_METER].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT);
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_TIMERS].modeCvar, HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT);

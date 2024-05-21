@@ -49,7 +49,6 @@ static std::unordered_map<Ship::WindowBackend, const char*> windowBackendsMap = 
 static const std::unordered_map<int32_t, const char*> clockTypeOptions = {
     { CLOCK_TYPE_ORIGINAL, "Original" },
     { CLOCK_TYPE_TEXT_BASED, "Text only" },
-    { CLOCK_TYPE_HIDDEN, "Hidden" },
 };
 
 static const std::unordered_map<int32_t, const char*> alwaysWinDoggyraceOptions = {

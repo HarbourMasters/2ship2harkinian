@@ -617,7 +617,27 @@ Gfx* Gfx_DrawTexRect4b(Gfx* gfx, TexturePtr texture, s32 fmt, s16 textureWidth, 
     gDPLoadTextureBlock_4b(gfx++, texture, fmt, textureWidth, textureHeight, 0, cms, G_TX_NOMIRROR | G_TX_WRAP, masks,
                            G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
-    gSPTextureRectangle(gfx++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
+    // #region 2S2H [Cosmetic] Hud Editor
+    if (HudEditor_ShouldOverrideDraw()) {
+        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+            hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+            return gfx;
+        }
+
+        if (hudEditorActiveElement == HUD_EDITOR_ELEMENT_TIMERS ||
+            hudEditorActiveElement == HUD_EDITOR_ELEMENT_TIMERS_MOON_CRASH) {
+            HudEditor_ModifyDrawValuesFromBase(gSaveContext.timerX[sTimerId], gSaveContext.timerY[sTimerId], &rectLeft,
+                                               &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+        } else {
+            HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+        }
+
+        hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+    }
+    // #endregion
+
+    // 2S2H [Cosmetic] Changed to Wide variant to support widescreen
+    gSPWideTextureRectangle(gfx++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
                         G_TX_RENDERTILE, rects, 0, dsdx, dtdy);
 
     return gfx;
@@ -6032,6 +6052,7 @@ void Interface_DrawClock(PlayState* play) {
             gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0,
                               0, PRIMITIVE, 0);
 
+            HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
             OVERLAY_DISP = Gfx_DrawTexRect4b(OVERLAY_DISP, gThreeDayClockHourLinesTex, 4, 64, 35, 96, 180, 128, 35, 1,
                                              6, 0, 1 << 10, 1 << 10);
 
@@ -6043,6 +6064,7 @@ void Interface_DrawClock(PlayState* play) {
             gDPSetCombineLERP(OVERLAY_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0,
                               0, PRIMITIVE, 0);
 
+            HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
             //! @bug A texture height of 50 is given below. The texture is only 48 units height
             //!      resulting in this reading into the next texture. This results in a white
             //!      dot in the bottom center of the clock. For the three-day clock, this is
@@ -6145,6 +6167,7 @@ void Interface_DrawClock(PlayState* play) {
                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 170, 100, sThreeDayClockAlpha);
                 }
 
+                HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
                 OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gThreeDayClockDiamondTex, 40, 32, 140, 190, 40, 32,
                                                   1 << 10, 1 << 10);
 
@@ -6154,6 +6177,7 @@ void Interface_DrawClock(PlayState* play) {
                 gDPPipeSync(OVERLAY_DISP++);
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 155, sThreeDayClockAlpha);
 
+                HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
                 OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, interfaceCtx->doActionSegment[DO_ACTION_SEG_CLOCK].mainTex, 48,
                                                   27, 137, 192, 48, 27, 1 << 10, 1 << 10);
 
@@ -6193,8 +6217,23 @@ void Interface_DrawClock(PlayState* play) {
                 gDPSetAlphaCompare(OVERLAY_DISP++, G_AC_THRESHOLD);
                 gDPSetRenderMode(OVERLAY_DISP++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
 
-                Matrix_Translate(0.0f, -86.0f, 0.0f, MTXMODE_NEW);
-                Matrix_Scale(1.0f, 1.0f, D_801BF980, MTXMODE_APPLY);
+                // #region 2S2H [Cosmetic] Hud Editor clock star
+                HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
+                if (HudEditor_ShouldOverrideDraw()) {
+                    f32 posX = 0.0f;
+                    f32 posY = -86.0f;
+
+                    f32 elemScale = !HudEditor_IsActiveElementHidden() ? HudEditor_GetActiveElementScale() : 0.0f;
+                    HudEditor_ModifyMatrixValues(&posX, &posY);
+
+                    Matrix_Translate(posX, posY, 0.0f, MTXMODE_NEW);
+                    Matrix_Scale(elemScale, elemScale, D_801BF980, MTXMODE_APPLY);
+                } else {
+                    // #endregion
+                    Matrix_Translate(0.0f, -86.0f, 0.0f, MTXMODE_NEW);
+                    Matrix_Scale(1.0f, 1.0f, D_801BF980, MTXMODE_APPLY);
+                }
+
                 Matrix_RotateZF(-(timeInSeconds * 0.0175f) / 10.0f, MTXMODE_APPLY);
 
                 gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx),
@@ -6210,9 +6249,39 @@ void Interface_DrawClock(PlayState* play) {
              * Section: Cuts off Three-Day Clock's Sun and Moon when they dip below the clock
              */
             gDPPipeSync(OVERLAY_DISP++);
-            // 2S2H [Cosmetic] Adjust the x values so the scissor stays the same size regardless of widescreen
-            gDPSetScissor(OVERLAY_DISP++, G_SC_NON_INTERLACE, OTRConvertHUDXToScreenX(400 / 4), 620 / 4,
-                          OTRConvertHUDXToScreenX(880 / 4), R_THREE_DAY_CLOCK_SUN_MOON_CUTOFF);
+            // #region 2S2H [Cosmetic] Hud Editor clock sun/moon scissor
+            HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
+            if (HudEditor_ShouldOverrideDraw()) {
+                s16 rectLeft = 400 / 4;
+                s16 rectTop = 620 / 4;
+                s16 rectWidth = (880 / 4) - rectLeft;
+                s16 rectHeight = R_THREE_DAY_CLOCK_SUN_MOON_CUTOFF - rectTop;
+
+                HudEditor_ModifyRectPosValues(&rectLeft, &rectTop);
+                HudEditor_ModifyRectSizeValues(&rectWidth, &rectHeight);
+
+                s16 widthRemoved = rectLeft;
+                s16 heightRemoved = rectTop;
+
+                rectLeft = MAX(rectLeft, OTRGetRectDimensionFromLeftEdge(0));
+                rectTop = MAX(rectTop, 0);
+
+                widthRemoved = rectLeft - widthRemoved;
+                heightRemoved = rectTop - heightRemoved;
+                rectWidth -= widthRemoved;
+                rectHeight -= heightRemoved;
+
+                rectWidth = MIN(rectLeft + rectWidth, OTRGetRectDimensionFromRightEdge(SCREEN_WIDTH)) - rectLeft;
+                rectHeight = MIN(rectTop + rectHeight, SCREEN_HEIGHT) - rectTop;
+
+                gDPSetScissor(OVERLAY_DISP++, G_SC_NON_INTERLACE, OTRConvertHUDXToScreenX(rectLeft), rectTop,
+                              OTRConvertHUDXToScreenX(rectLeft + rectWidth), rectTop + rectHeight);
+            } else {
+                // #endregion
+                // 2S2H [Cosmetic] Adjust the x values so the scissor stays the same size regardless of widescreen
+                gDPSetScissor(OVERLAY_DISP++, G_SC_NON_INTERLACE, OTRConvertHUDXToScreenX(400 / 4), 620 / 4,
+                              OTRConvertHUDXToScreenX(880 / 4), R_THREE_DAY_CLOCK_SUN_MOON_CUTOFF);
+            }
 
             // determines the current hour
             for (sp1C6 = 0; sp1C6 <= 24; sp1C6++) {
@@ -6242,8 +6311,18 @@ void Interface_DrawClock(PlayState* play) {
             gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 100, 110, sThreeDayClockAlpha);
 
-            Matrix_Translate(sp1D8, temp_f14, 0.0f, MTXMODE_NEW);
-            Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
+            // #region 2S2H [Cosmetic] Hud Editor clock sun
+            HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
+            if (HudEditor_ShouldOverrideDraw()) {
+                f32 elemScale = !HudEditor_IsActiveElementHidden() ? HudEditor_GetActiveElementScale() : 0.0f;
+                HudEditor_ModifyMatrixValues(&sp1D8, &temp_f14);
+                Matrix_Translate(sp1D8, temp_f14, 0.0f, MTXMODE_NEW);
+                Matrix_Scale(elemScale, elemScale, 1.0f, MTXMODE_APPLY);
+            } else {
+                // #endregion
+                Matrix_Translate(sp1D8, temp_f14, 0.0f, MTXMODE_NEW);
+                Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
+            }
 
             gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[16], 4, 0);
@@ -6260,8 +6339,18 @@ void Interface_DrawClock(PlayState* play) {
             gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 55, sThreeDayClockAlpha);
 
-            Matrix_Translate(sp1D8, temp_f14, 0.0f, MTXMODE_NEW);
-            Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
+            // #region 2S2H [Cosmetic] Hud Editor clock moon
+            HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
+            if (HudEditor_ShouldOverrideDraw()) {
+                f32 elemScale = !HudEditor_IsActiveElementHidden() ? HudEditor_GetActiveElementScale() : 0.0f;
+                HudEditor_ModifyMatrixValues(&sp1D8, &temp_f14);
+                Matrix_Translate(sp1D8, temp_f14, 0.0f, MTXMODE_NEW);
+                Matrix_Scale(elemScale, elemScale, 1.0f, MTXMODE_APPLY);
+            } else {
+                Matrix_Translate(sp1D8, temp_f14, 0.0f, MTXMODE_NEW);
+                Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
+            }
+
             gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[20], 4, 0);
 
@@ -6271,9 +6360,40 @@ void Interface_DrawClock(PlayState* play) {
              * Section: Cuts off Three-Day Clock's Hour Digits when they dip below the clock
              */
             gDPPipeSync(OVERLAY_DISP++);
-            // 2S2H [Cosmetic] Adjust the x values so the scissor stays the same size regardless of widescreen
-            gDPSetScissor(OVERLAY_DISP++, G_SC_NON_INTERLACE, OTRConvertHUDXToScreenX(400 / 4), (620 / 4),
-                          OTRConvertHUDXToScreenX(880 / 4), R_THREE_DAY_CLOCK_SUN_MOON_CUTOFF);
+
+            // #region 2S2H [Cosmetic] Hud Editor clock hour scissor
+            HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
+            if (HudEditor_ShouldOverrideDraw()) {
+                s16 rectLeft = 400 / 4;
+                s16 rectTop = 620 / 4;
+                s16 rectWidth = (880 / 4) - rectLeft;
+                s16 rectHeight = R_THREE_DAY_CLOCK_SUN_MOON_CUTOFF - rectTop;
+
+                HudEditor_ModifyRectPosValues(&rectLeft, &rectTop);
+                HudEditor_ModifyRectSizeValues(&rectWidth, &rectHeight);
+
+                s16 widthRemoved = rectLeft;
+                s16 heightRemoved = rectTop;
+
+                rectLeft = MAX(rectLeft, OTRGetRectDimensionFromLeftEdge(0));
+                rectTop = MAX(rectTop, 0);
+
+                widthRemoved = rectLeft - widthRemoved;
+                heightRemoved = rectTop - heightRemoved;
+                rectWidth -= widthRemoved;
+                rectHeight -= heightRemoved;
+
+                rectWidth = MIN(rectLeft + rectWidth, OTRGetRectDimensionFromRightEdge(SCREEN_WIDTH)) - rectLeft;
+                rectHeight = MIN(rectTop + rectHeight, SCREEN_HEIGHT) - rectTop;
+
+
+                gDPSetScissor(OVERLAY_DISP++, G_SC_NON_INTERLACE, OTRConvertHUDXToScreenX(rectLeft), rectTop,
+                              OTRConvertHUDXToScreenX(rectLeft + rectWidth), rectTop + rectHeight);
+            } else {
+                // 2S2H [Cosmetic] Adjust the x values so the scissor stays the same size regardless of widescreen
+                gDPSetScissor(OVERLAY_DISP++, G_SC_NON_INTERLACE, OTRConvertHUDXToScreenX(400 / 4), (620 / 4),
+                              OTRConvertHUDXToScreenX(880 / 4), R_THREE_DAY_CLOCK_SUN_MOON_CUTOFF);
+            }
 
             /**
              * Section: Draws Three-Day Clock's Hour Digit Above the Sun
@@ -6281,8 +6401,23 @@ void Interface_DrawClock(PlayState* play) {
             sp1CC = gSaveContext.save.time * 0.000096131f; // (2.0f * 3.15f / 0x10000)
 
             // Rotates Three-Day Clock's Hour Digit To Above the Sun
-            Matrix_Translate(0.0f, R_THREE_DAY_CLOCK_Y_POS / 10.0f, 0.0f, MTXMODE_NEW);
-            Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
+            // #region 2S2H [Cosmetic] Hud Editor clock sun hour
+            HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
+            if (HudEditor_ShouldOverrideDraw()) {
+                f32 posX = 0.0f;
+                f32 posY = R_THREE_DAY_CLOCK_Y_POS / 10.0f;
+
+                f32 elemScale = !HudEditor_IsActiveElementHidden() ? HudEditor_GetActiveElementScale() : 0.0f;
+                HudEditor_ModifyMatrixValues(&posX, &posY);
+
+                Matrix_Translate(posX, posY, 0.0f, MTXMODE_NEW);
+                Matrix_Scale(elemScale, elemScale, 1.0f, MTXMODE_APPLY);
+            } else {
+                // #endregion
+                Matrix_Translate(0.0f, R_THREE_DAY_CLOCK_Y_POS / 10.0f, 0.0f, MTXMODE_NEW);
+                Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
+            }
+
             Matrix_RotateZF(-(sp1CC - 3.15f), MTXMODE_APPLY);
             gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
 
@@ -6307,8 +6442,23 @@ void Interface_DrawClock(PlayState* play) {
              */
 
             // Rotates Three-Day Clock's Hour Digit To Above the Moon
-            Matrix_Translate(0.0f, R_THREE_DAY_CLOCK_Y_POS / 10.0f, 0.0f, MTXMODE_NEW);
-            Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
+            // #region 2S2H [Cosmetic] Hud Editor clock moon hour
+            HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
+            if (HudEditor_ShouldOverrideDraw()) {
+                f32 posX = 0.0f;
+                f32 posY = R_THREE_DAY_CLOCK_Y_POS / 10.0f;
+
+                f32 elemScale = !HudEditor_IsActiveElementHidden() ? HudEditor_GetActiveElementScale() : 0.0f;
+                HudEditor_ModifyMatrixValues(&posX, &posY);
+
+                Matrix_Translate(posX, posY, 0.0f, MTXMODE_NEW);
+                Matrix_Scale(elemScale, elemScale, 1.0f, MTXMODE_APPLY);
+            } else {
+                // #endregion
+                Matrix_Translate(0.0f, R_THREE_DAY_CLOCK_Y_POS / 10.0f, 0.0f, MTXMODE_NEW);
+                Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
+            }
+
             Matrix_RotateZF(-sp1CC, MTXMODE_APPLY);
             gSPMatrix(OVERLAY_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
 
@@ -6412,6 +6562,7 @@ void Interface_DrawClock(PlayState* play) {
                 gDPSetEnvColor(OVERLAY_DISP++, sFinalHoursClockFrameEnvRed, sFinalHoursClockFrameEnvGreen,
                                sFinalHoursClockFrameEnvBlue, 0);
 
+                HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
                 OVERLAY_DISP = Gfx_DrawTexRect4b(OVERLAY_DISP, gFinalHoursClockFrameTex, 3, 80, 13, 119, 202, 80, 13, 0,
                                                  0, 0, 1 << 10, 1 << 10);
 
@@ -6462,11 +6613,14 @@ void Interface_DrawClock(PlayState* play) {
                 for (sp1C6 = 0; sp1C6 < 8; sp1C6++) {
                     index = sFinalHoursDigitSlotPosXOffset[sp1C6];
 
+                    HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
                     OVERLAY_DISP =
                         Gfx_DrawTexRectI8(OVERLAY_DISP, sFinalHoursDigitTextures[finalHoursClockSlots[sp1C6]], 8, 8,
                                           index, 205, 8, 8, 1 << 10, 1 << 10);
                 }
             }
+
+            hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
         }
     }
 

@@ -1,7 +1,8 @@
 #include <libultraship/libultraship.h>
-#include "Enhancements/GameInteractor/GameInteractor.h"
+#include "2s2h/BenGui/HudEditor.h"
+#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
+#include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
-#include "Enhancements/Enhancements.h"
 
 extern "C" {
 #include <z64.h>
@@ -14,13 +15,14 @@ extern PlayState* gPlayState;
 void RegisterTextBasedClock() {
     REGISTER_VB_SHOULD(GI_VB_PREVENT_CLOCK_DISPLAY, {
 
-        if (CVarGetInteger("gEnhancements.Graphics.ClockType", CLOCK_TYPE_ORIGINAL) == CLOCK_TYPE_HIDDEN) {
-            *should = true;
-            return;
-        }
-
         if (CVarGetInteger("gEnhancements.Graphics.ClockType", CLOCK_TYPE_ORIGINAL) == CLOCK_TYPE_TEXT_BASED) {
             *should = true;
+
+            HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
+            if (HudEditor_IsActiveElementHidden()) {
+                return;
+            }
+
             if ((R_TIME_SPEED != 0) &&
                 ((gPlayState->msgCtx.msgMode == MSGMODE_NONE) ||
                  ((gPlayState->actorCtx.flags & ACTORCTX_FLAG_1) && !Play_InCsMode(gPlayState)) ||
@@ -53,9 +55,19 @@ void RegisterTextBasedClock() {
                         GfxPrint_SetColor(&printer, 255, 255, 255, 255);
                     }
 
+                    // Scale starting position values by 8 for use with hud editor
+                    s16 posX = 13 * 8;
+                    s16 posY = 26 * 8;
+
+                    HudEditor_ModifyRectPosValues(&posX, &posY);
+
+                    // scale back down and clamp to avoid negative values
+                    posX = std::max(posX / 8, 0);
+                    posY = std::max(posY / 8, 0);
+
                     if (CVarGetInteger("gEnhancements.Graphics.24HoursClock", 0)) {
                         sprintf(formattedTime, "%02d:%02d", curHours, curMinutes);
-                        GfxPrint_SetPos(&printer, 14, 26);
+                        GfxPrint_SetPos(&printer, posX + 1, posY);
                     } else { // Format hours and minutes for 12-hour AM/PM clock
                         char amPm[3] = "am";
                         if (curHours >= 12) {
@@ -68,11 +80,11 @@ void RegisterTextBasedClock() {
                             curHours = 12;
                         }
                         sprintf(formattedTime, "%02d:%02d%s", curHours, curMinutes, amPm);
-                        GfxPrint_SetPos(&printer, 13, 26);
+                        GfxPrint_SetPos(&printer, posX, posY);
                     }
 
                     GfxPrint_Printf(&printer, "Day %d: %s", gSaveContext.save.day, formattedTime);
-                    GfxPrint_SetPos(&printer, 13, 27);
+                    GfxPrint_SetPos(&printer, posX, posY + 1);
 
                     // Crash Countdown
                     if ((CURRENT_DAY >= 4) ||
@@ -88,6 +100,8 @@ void RegisterTextBasedClock() {
 
                 CLOSE_DISPS(gPlayState->state.gfxCtx);
             }
+
+            hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
         }
     });
 }
