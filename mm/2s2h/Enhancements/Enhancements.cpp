@@ -16,6 +16,7 @@ void InitEnhancements() {
     // Cycle & Saving
     RegisterEndOfCycleSaveHooks();
     RegisterSavingEnhancements();
+    RegisterAutosave();
 
     // Masks
     RegisterFastTransformation();

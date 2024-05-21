@@ -380,9 +380,11 @@ void DrawEnhancementsMenu() {
                 .tooltip = "Re-introduce the pause menu save system. Pressing B in the pause menu will give you the option to create an Owl Save from your current location. When loading back into the game, you will be placed at your last entrance."
             });
 
-            UIWidgets::CVarCheckbox("Autosave", "gEnhancements.Saving.Autosave", {
+            if (UIWidgets::CVarCheckbox("Autosave", "gEnhancements.Saving.Autosave", {
                 .tooltip = "Automatically create owl saves on the chosen interval."
-            });
+            })) {
+                RegisterAutosave();
+            }
 
             UIWidgets::CVarSliderInt("Autosave Interval (minutes): %d", "gEnhancements.Saving.AutosaveInterval", 1, 60, 5, 
                 { .disabled = !CVarGetInteger("gEnhancements.Saving.Autosave", 0) }
