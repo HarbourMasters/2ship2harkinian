@@ -24,7 +24,8 @@ if (-not (Test-Path $clangFormatFilePath) -or ($currentVersion -ne $requiredVers
         exit
     }
 
-    Invoke-WebRequest -Uri $url -OutFile $outputPath
+    $wc = New-Object net.webclient
+    $wc.Downloadfile($url, $outputPath)
 
     $sevenZipPath = "C:\Program Files\7-Zip\7z.exe"
     & "$sevenZipPath" x $outputPath -o$extractionPath
