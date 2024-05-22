@@ -35,14 +35,13 @@ if (-not (Test-Path $clangFormatFilePath) -or ($currentVersion -ne $requiredVers
 
 $baseDir = "mm"
 
-$files = Get-ChildItem -Path $baseDir -Recurse -Include *.c, *.cpp, *.h |
-    Where-Object {
-        $_.FullName -notlike "*mm/assets/*" -and
-        ($_.Extension -ne ".h" -or 
-         ($_.FullName -notlike "*mm/src/*" -and $_.FullName -notlike "*mm/include/*"))
-    }
+$files = Get-ChildItem -Path .\mm -Recurse -File `
+    | Where-Object { $_.Extension -eq '.c' -or $_.Extension -eq '.cpp' -or `
+                     (($_.Extension -eq '.h') -and `
+                      (-not ($_.FullName -like "mm\src\*" -or $_.FullName -like "mm\include\*"))) -and `
+                     (-not $_.FullName.StartsWith("mm\assets")) }
 
-$files | ForEach-Object {
-    $escapedFileName = $_.FullName -replace ' ', '\\ '
-    & .\clang-format.exe -i $escapedFileName
+foreach ($file in $files) {
+    Write-Host "Formatting $($file.FullName)"
+    .\clang-format.exe -i $file.FullName
 }
