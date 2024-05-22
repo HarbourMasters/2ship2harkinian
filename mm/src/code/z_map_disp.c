@@ -998,21 +998,23 @@ void MapDisp_Update(PlayState* play) {
     if ((sMapDisp.mapDataScene != NULL) && (sSceneNumRooms != 0)) {
         // #region 2S2H [Cosmetic] Hud Editor minimap base position
         // This value is used to determine the relative positioning for all the other elements
+        MapDataRoom* mapDataRoom = &sMapDisp.mapDataScene->rooms[sMapDisp.curRoom];
         HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_MINIMAP);
-        if (HudEditor_ShouldOverrideDraw()) {
+        if (mapDataRoom != NULL && mapDataRoom->mapId != MAP_DATA_NO_MAP) {
             s32 width;
             s32 height;
+            MapDisp_GetMapTexDim(mapDataRoom, &width, &height);
 
-            MapDataRoom* mapDataRoom = &sMapDisp.mapDataScene->rooms[sMapDisp.curRoom];
-            if (mapDataRoom != NULL && mapDataRoom->mapId != MAP_DATA_NO_MAP) {
-                MapDisp_GetMapTexDim(mapDataRoom, &width, &height);
-                sMapDisp.minimapBaseX = 295;
-                sMapDisp.minimapBaseY = 220;
-                HudEditor_ModifyRectPosValues(&sMapDisp.minimapBaseX, &sMapDisp.minimapBaseY);
+            sMapDisp.minimapBaseX = 295;
+            sMapDisp.minimapBaseY = 220;
+
+            if (HudEditor_ShouldOverrideDraw()) {
                 // We don't want to scale width/height here, it will happen later when the texture is drawn
-                sMapDisp.minimapBaseX -= width;
-                sMapDisp.minimapBaseY -= height;
+                HudEditor_ModifyRectPosValues(&sMapDisp.minimapBaseX, &sMapDisp.minimapBaseY);
             }
+
+            sMapDisp.minimapBaseX -= width;
+            sMapDisp.minimapBaseY -= height;
         }
         // #endregion
 
@@ -1098,8 +1100,8 @@ void MapDisp_SwapRooms(s16 nextRoom) {
             if (HudEditor_ShouldOverrideDraw()) {
                 sMapDisp.minimapBaseX = 295;
                 sMapDisp.minimapBaseY = 220;
-                HudEditor_ModifyRectPosValues(&sMapDisp.minimapBaseX, &sMapDisp.minimapBaseY);
                 // We don't want to scale width/height here, it will happen later when the texture is drawn
+                HudEditor_ModifyRectPosValues(&sMapDisp.minimapBaseX, &sMapDisp.minimapBaseY);
                 sMapDisp.minimapBaseX -= width;
                 sMapDisp.minimapBaseY -= height;
 
