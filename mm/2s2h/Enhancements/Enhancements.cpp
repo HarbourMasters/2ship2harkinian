@@ -20,6 +20,7 @@ void InitEnhancements() {
     RegisterFastTransformation();
     RegisterFierceDeityAnywhere();
     RegisterNoBlastMaskCooldown();
+    RegisterPersistentMasks();
 
     // Minigames
     RegisterAlwaysWinDoggyRace();
