@@ -14,11 +14,11 @@ if (Test-Path $clangFormatFilePath) {
     $currentVersion = & $clangFormatFilePath --version
     if (-not ($currentVersion -eq $requiredVersion)) {
         # Delete the existing file if the version is incorrect
-        Remove-Item $specificFilePath -Force
+        Remove-Item $clangFormatFilePath -Force
     }
 }
 
-if (-not (Test-Path $specificFilePath) -or ($currentVersion -ne $requiredVersion)) {
+if (-not (Test-Path $clangFormatFilePath) -or ($currentVersion -ne $requiredVersion)) {
     if (-not (Test-7ZipInstalled)) {
         Write-Host "7-Zip is not installed. Please install 7-Zip and run the script again."
         exit
