@@ -436,9 +436,8 @@ void DrawEnhancementsMenu() {
                                     { .tooltip = "Fixes a missing gDPSetEnvColor, which causes the ammo count to be "
                                                  "the wrong color prior to obtaining magic or other conditions." });
 
-            UIWidgets::CVarCheckbox("Fix Hess and Weirdshot Crash", "gEnhancements.Fixes.HessCrash", {
-                .tooltip = "Fixes a crash that can occur when performing a HESS or Weirdshot."
-            });
+            UIWidgets::CVarCheckbox("Fix Hess and Weirdshot Crash", "gEnhancements.Fixes.HessCrash",
+                                    { .tooltip = "Fixes a crash that can occur when performing a HESS or Weirdshot." });
 
             ImGui::EndMenu();
         }
