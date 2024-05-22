@@ -418,24 +418,16 @@ void LifeMeter_Draw(PlayState* play) {
                     hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
                     Mtx_SetTranslateScaleMtx(mtx, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
                 } else {
-                    // All of this information was derived from the original call to gSPTextureRectangle below
-                    s16 offsetFromBaseX = (-130.0f + offsetX) - hudEditorElements[hudEditorActiveElement].defaultX;
-                    s16 offsetFromBaseY = -(94.5f - offsetY) - hudEditorElements[hudEditorActiveElement].defaultY;
-                    // TODO: These scale offsets don't seem to be working correctly
-                    s16 rectLeft = CVarGetInteger(hudEditorElements[hudEditorActiveElement].xCvar, hudEditorElements[hudEditorActiveElement].defaultX) + (offsetFromBaseX / CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f));
-                    s16 rectTop = CVarGetInteger(hudEditorElements[hudEditorActiveElement].yCvar, hudEditorElements[hudEditorActiveElement].defaultY) + (offsetFromBaseY / CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f));
-                    float size = 1.0f - (0.32f * lifesize);
+                    // All of this information was derived from the original call to Mtx_SetTranslateScaleMtx below
+                    f32 transX = -130.0f + offsetX;
+                    f32 transY = 94.5f - offsetY;
+                    f32 size = 1.0f - (0.32f * lifesize);
 
-                    size *= CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f);
-
-                    if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_MOVABLE_LEFT) {
-                        rectLeft = OTRGetRectDimensionFromLeftEdge(rectLeft);
-                    } else if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_MOVABLE_RIGHT) {
-                        rectLeft = OTRGetRectDimensionFromRightEdge(rectLeft);
-                    }
+                    size *= HudEditor_GetActiveElementScale();
+                    HudEditor_ModifyMatrixValues(&transX, &transY);
 
                     hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
-                    Mtx_SetTranslateScaleMtx(mtx, size, size, size, rectLeft, -rectTop, 0.0f);
+                    Mtx_SetTranslateScaleMtx(mtx, size, size, size, transX, transY, 0.0f);
                 }
             // #endregion
             } else {

@@ -5074,6 +5074,19 @@ void Interface_SetPerspectiveView(PlayState* play, s32 topY, s32 bottomY, s32 le
             HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
             hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
 
+            // Clamp the values to the avialable screen space while preserving the shape
+            // to avoid undefined behavior like stretching or hiding of the A button
+            rectLeft = MAX(rectLeft, OTRGetRectDimensionFromLeftEdge(0));
+            rectTop = MAX(rectTop, 0);
+
+            if (rectLeft + rectWidth > OTRGetRectDimensionFromRightEdge(SCREEN_WIDTH)) {
+                rectLeft = OTRGetRectDimensionFromRightEdge(SCREEN_WIDTH) - rectWidth;
+            }
+
+            if (rectTop + rectHeight > SCREEN_HEIGHT) {
+                rectTop = SCREEN_HEIGHT - rectHeight;
+            }
+
             interfaceCtx->viewport.leftX = OTRConvertHUDXToScreenX(rectLeft);
             interfaceCtx->viewport.rightX = OTRConvertHUDXToScreenX(rectLeft + rectWidth);
             interfaceCtx->viewport.topY = rectTop;
