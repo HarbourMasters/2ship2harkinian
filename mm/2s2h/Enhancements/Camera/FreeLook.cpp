@@ -90,8 +90,10 @@ bool Camera_FreeLook(Camera* camera) {
 
     Camera_ResetActionFuncState(camera, camera->mode);
 
-    f32 yawDiff = -sCamPlayState->state.input[0].cur.right_stick_x * 10.0f * (CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.X", 1.0f));
-    f32 pitchDiff = sCamPlayState->state.input[0].cur.right_stick_y * 10.0f * (CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.Y", 1.0f));
+    f32 yawDiff = -sCamPlayState->state.input[0].cur.right_stick_x * 10.0f *
+                  (CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.X", 1.0f));
+    f32 pitchDiff = sCamPlayState->state.input[0].cur.right_stick_y * 10.0f *
+                    (CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.Y", 1.0f));
 
     yaw += yawDiff * GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_X);
     pitch += pitchDiff * -GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_Y);
@@ -109,7 +111,8 @@ bool Camera_FreeLook(Camera* camera) {
     f32 distTarget = CVarGetInteger("gEnhancements.Camera.FreeLook.MaxCameraDistance", roData->unk_04);
     f32 transitionSpeed = CVarGetInteger("gEnhancements.Camera.FreeLook.TransitionSpeed", 25);
     // Smooth step camera away to max camera distance. Camera collision is calculated later
-    camera->dist = Camera_ScaledStepToCeilF(distTarget, camera->dist, transitionSpeed / (ABS(distTarget - camera->dist) + transitionSpeed), 0.0f);
+    camera->dist = Camera_ScaledStepToCeilF(distTarget, camera->dist,
+                                            transitionSpeed / (ABS(distTarget - camera->dist) + transitionSpeed), 0.0f);
 
     // Setup new camera angle based on the calculations from stick inputs
     eyeAdjustment.r = camera->dist;
@@ -146,38 +149,40 @@ static uint32_t freeLookCameraVBHookId = 0;
 
 void RegisterCameraFreeLook() {
     if (freeLookCameraVBHookId) {
-        GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::ShouldVanillaBehavior>(freeLookCameraVBHookId);
+        GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::ShouldVanillaBehavior>(
+            freeLookCameraVBHookId);
         freeLookCameraVBHookId = 0;
     }
 
     if (freeLookCameraSettingChangeHookId) {
-        GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnCameraChangeModeFlags>(freeLookCameraSettingChangeHookId);
+        GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnCameraChangeModeFlags>(
+            freeLookCameraSettingChangeHookId);
         freeLookCameraSettingChangeHookId = 0;
     }
 
     if (CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0)) {
         freeLookCameraVBHookId = REGISTER_VB_SHOULD(GI_VB_USE_CUSTOM_CAMERA, {
-                Camera* camera = static_cast<Camera*>(opt);
-                switch (sCameraSettings[camera->setting].cameraModes[camera->mode].funcId) {
-                    case CAM_FUNC_NORMAL0:
-                    case CAM_FUNC_NORMAL1:
-                    case CAM_FUNC_NORMAL3:
-                    case CAM_FUNC_NORMAL4:
-                    case CAM_FUNC_JUMP2:
-                    case CAM_FUNC_JUMP3:
-                    case CAM_FUNC_BATTLE1:
-                    case CAM_FUNC_UNIQUE2:
-                        if (Camera_CanFreeLook(camera)) {
-                            Camera_FreeLook(camera);
-                            *should = false;
-                        }
-                        break;
-                    default:
-                        break;
-                }
+            Camera* camera = static_cast<Camera*>(opt);
+            switch (sCameraSettings[camera->setting].cameraModes[camera->mode].funcId) {
+                case CAM_FUNC_NORMAL0:
+                case CAM_FUNC_NORMAL1:
+                case CAM_FUNC_NORMAL3:
+                case CAM_FUNC_NORMAL4:
+                case CAM_FUNC_JUMP2:
+                case CAM_FUNC_JUMP3:
+                case CAM_FUNC_BATTLE1:
+                case CAM_FUNC_UNIQUE2:
+                    if (Camera_CanFreeLook(camera)) {
+                        Camera_FreeLook(camera);
+                        *should = false;
+                    }
+                    break;
+                default:
+                    break;
+            }
         });
-        freeLookCameraSettingChangeHookId = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnCameraChangeModeFlags>([](Camera* camera) {
-            UpdateFreeLookState(camera);
-        });
+        freeLookCameraSettingChangeHookId =
+            GameInteractor::Instance->RegisterGameHook<GameInteractor::OnCameraChangeModeFlags>(
+                [](Camera* camera) { UpdateFreeLookState(camera); });
     }
 }

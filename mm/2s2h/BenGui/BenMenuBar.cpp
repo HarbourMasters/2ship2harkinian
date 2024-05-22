@@ -62,7 +62,8 @@ namespace BenGui {
 void DrawMenuBarIcon() {
     static bool gameIconLoaded = false;
     if (!gameIconLoaded) {
-        Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage("Game_Icon", "textures/icons/g2ShipIcon.png");
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadTextureFromRawImage("Game_Icon",
+                                                                                     "textures/icons/g2ShipIcon.png");
         gameIconLoaded = true;
     }
 
@@ -88,11 +89,11 @@ void DrawBenMenu() {
     if (UIWidgets::BeginMenu("2Ship")) {
         if (UIWidgets::MenuItem("Hide Menu Bar",
 #if !defined(__SWITCH__) && !defined(__WIIU__)
-            "F1"
+                                "F1"
 #else
-            "[-]"
+                                "[-]"
 #endif
-        )) {
+                                )) {
             Ship::Context::GetInstance()->GetWindow()->GetGui()->GetMenuBar()->ToggleVisibility();
         }
 #if !defined(__SWITCH__) && !defined(__WIIU__)
@@ -102,13 +103,13 @@ void DrawBenMenu() {
 #endif
         if (UIWidgets::MenuItem("Reset",
 #ifdef __APPLE__
-            "Command-R"
+                                "Command-R"
 #elif !defined(__SWITCH__) && !defined(__WIIU__)
-            "Ctrl+R"
+                                "Ctrl+R"
 #else
-            ""
+                                ""
 #endif
-        )) {
+                                )) {
             std::reinterpret_pointer_cast<Ship::ConsoleWindow>(
                 Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Console"))
                 ->Dispatch("reset");
@@ -132,30 +133,36 @@ extern std::shared_ptr<Ship::GuiWindow> mInputEditorWindow;
 void DrawSettingsMenu() {
     if (UIWidgets::BeginMenu("Settings")) {
         if (UIWidgets::BeginMenu("Audio")) {
-            UIWidgets::CVarSliderFloat("Master Volume: %.0f %%", "gSettings.Audio.MasterVolume", 0.0f, 1.0f, 1.0f, { .showButtons = false, .format = "", .isPercentage = true });
+            UIWidgets::CVarSliderFloat("Master Volume: %.0f %%", "gSettings.Audio.MasterVolume", 0.0f, 1.0f, 1.0f,
+                                       { .showButtons = false, .format = "", .isPercentage = true });
 
-            if (UIWidgets::CVarSliderFloat("Main Music Volume: %.0f %%", "gSettings.Audio.MainMusicVolume", 0.0f, 1.0f, 1.0f, { .showButtons = false, .format = "", .isPercentage = true })) {
+            if (UIWidgets::CVarSliderFloat("Main Music Volume: %.0f %%", "gSettings.Audio.MainMusicVolume", 0.0f, 1.0f,
+                                           1.0f, { .showButtons = false, .format = "", .isPercentage = true })) {
                 AudioSeq_SetPortVolumeScale(SEQ_PLAYER_BGM_MAIN, CVarGetFloat("gSettings.Audio.MainMusicVolume", 1.0f));
             }
-            if (UIWidgets::CVarSliderFloat("Sub Music Volume: %.0f %%", "gSettings.Audio.SubMusicVolume", 0.0f, 1.0f, 1.0f, { .showButtons = false, .format = "", .isPercentage = true })) {
+            if (UIWidgets::CVarSliderFloat("Sub Music Volume: %.0f %%", "gSettings.Audio.SubMusicVolume", 0.0f, 1.0f,
+                                           1.0f, { .showButtons = false, .format = "", .isPercentage = true })) {
                 AudioSeq_SetPortVolumeScale(SEQ_PLAYER_BGM_SUB, CVarGetFloat("gSettings.Audio.SubMusicVolume", 1.0f));
             }
-            if (UIWidgets::CVarSliderFloat("Sound Effects Volume: %.0f %%", "gSettings.Audio.SoundEffectsVolume", 0.0f, 1.0f, 1.0f, { .showButtons = false, .format = "", .isPercentage = true })) {
+            if (UIWidgets::CVarSliderFloat("Sound Effects Volume: %.0f %%", "gSettings.Audio.SoundEffectsVolume", 0.0f,
+                                           1.0f, 1.0f, { .showButtons = false, .format = "", .isPercentage = true })) {
                 AudioSeq_SetPortVolumeScale(SEQ_PLAYER_SFX, CVarGetFloat("gSettings.Audio.SoundEffectsVolume", 1.0f));
             }
-            if (UIWidgets::CVarSliderFloat("Fanfare Volume: %.0f %%", "gSettings.Audio.FanfareVolume", 0.0f, 1.0f, 1.0f, { .showButtons = false, .format = "", .isPercentage = true })) {
+            if (UIWidgets::CVarSliderFloat("Fanfare Volume: %.0f %%", "gSettings.Audio.FanfareVolume", 0.0f, 1.0f, 1.0f,
+                                           { .showButtons = false, .format = "", .isPercentage = true })) {
                 AudioSeq_SetPortVolumeScale(SEQ_PLAYER_FANFARE, CVarGetFloat("gSettings.Audio.FanfareVolume", 1.0f));
             }
-            if (UIWidgets::CVarSliderFloat("Ambience Volume: %.0f %%", "gSettings.Audio.AmbienceVolume", 0.0f, 1.0f, 1.0f, { .showButtons = false, .format = "", .isPercentage = true })) {
+            if (UIWidgets::CVarSliderFloat("Ambience Volume: %.0f %%", "gSettings.Audio.AmbienceVolume", 0.0f, 1.0f,
+                                           1.0f, { .showButtons = false, .format = "", .isPercentage = true })) {
                 AudioSeq_SetPortVolumeScale(SEQ_PLAYER_AMBIENCE, CVarGetFloat("gSettings.Audio.AmbienceVolume", 1.0f));
             }
 
             auto currentAudioBackend = Ship::Context::GetInstance()->GetAudio()->GetAudioBackend();
-            if (UIWidgets::Combobox("Audio API", &currentAudioBackend, audioBackendsMap, {
-                .tooltip = "Sets the audio API used by the game. Requires a relaunch to take effect.",
-                .disabled = Ship::Context::GetInstance()->GetAudio()->GetAvailableAudioBackends()->size() <= 1,
-                .disabledTooltip = "Only one audio API is available on this platform."
-            })) {
+            if (UIWidgets::Combobox(
+                    "Audio API", &currentAudioBackend, audioBackendsMap,
+                    { .tooltip = "Sets the audio API used by the game. Requires a relaunch to take effect.",
+                      .disabled = Ship::Context::GetInstance()->GetAudio()->GetAvailableAudioBackends()->size() <= 1,
+                      .disabledTooltip = "Only one audio API is available on this platform." })) {
                 Ship::Context::GetInstance()->GetAudio()->SetAudioBackend(currentAudioBackend);
             }
 
@@ -163,18 +170,22 @@ void DrawSettingsMenu() {
         }
 
         if (UIWidgets::BeginMenu("Graphics")) {
-            
-    #ifndef __APPLE__
+
+#ifndef __APPLE__
             if (UIWidgets::CVarSliderFloat("Internal Resolution: %f %%", "gInternalResolution", 0.5f, 2.0f, 1.0f)) {
-                Ship::Context::GetInstance()->GetWindow()->SetResolutionMultiplier(CVarGetFloat("gInternalResolution", 1));
+                Ship::Context::GetInstance()->GetWindow()->SetResolutionMultiplier(
+                    CVarGetFloat("gInternalResolution", 1));
             };
-            UIWidgets::Tooltip("Multiplies your output resolution by the value inputted, as a more intensive but effective " "form of anti-aliasing");
-#endif 
-#ifndef __WIIU__ 
-            if (UIWidgets::CVarSliderInt("MSAA: %d","gMSAAValue", 1, 8, 1)) {
+            UIWidgets::Tooltip(
+                "Multiplies your output resolution by the value inputted, as a more intensive but effective "
+                "form of anti-aliasing");
+#endif
+#ifndef __WIIU__
+            if (UIWidgets::CVarSliderInt("MSAA: %d", "gMSAAValue", 1, 8, 1)) {
                 Ship::Context::GetInstance()->GetWindow()->SetMsaaLevel(CVarGetInteger("gMSAAValue", 1));
             };
-            UIWidgets::Tooltip("Activates multi-sample anti-aliasing when above 1x up to 8x for 8 samples for every pixel");
+            UIWidgets::Tooltip(
+                "Activates multi-sample anti-aliasing when above 1x up to 8x for 8 samples for every pixel");
 #endif
 
             { // FPS Slider
@@ -185,22 +196,27 @@ void DrawSettingsMenu() {
                 } else {
                     maxFps = Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
                 }
-                unsigned int currentFps = std::max(std::min(OTRGlobals::Instance->GetInterpolationFPS(), maxFps), minFps);
+                unsigned int currentFps =
+                    std::max(std::min(OTRGlobals::Instance->GetInterpolationFPS(), maxFps), minFps);
                 bool matchingRefreshRate =
                     CVarGetInteger("gMatchRefreshRate", 0) &&
                     Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() != Ship::WindowBackend::DX11;
                 UIWidgets::CVarSliderInt((currentFps == 20) ? "FPS: Original (20)" : "FPS: %d", "gInterpolationFPS",
-                                         minFps, maxFps, 20, {.disabled = matchingRefreshRate} );
+                                         minFps, maxFps, 20, { .disabled = matchingRefreshRate });
                 if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::DX11) {
                     UIWidgets::Tooltip(
-                        "Uses Matrix Interpolation to create extra frames, resulting in smoother graphics. This is purely visual and does not impact game logic, execution of glitches etc.\n\n A higher target FPS than your monitor's refresh rate will waste resources, and might give a worse result."); 
-                } else { 
-                    UIWidgets::Tooltip( "Uses Matrix Interpolation to create extra frames, resulting in smoother graphics. This is purely visual and does not impact game logic, execution of glitches etc.");
+                        "Uses Matrix Interpolation to create extra frames, resulting in smoother graphics. This is "
+                        "purely visual and does not impact game logic, execution of glitches etc.\n\n A higher target "
+                        "FPS than your monitor's refresh rate will waste resources, and might give a worse result.");
+                } else {
+                    UIWidgets::Tooltip(
+                        "Uses Matrix Interpolation to create extra frames, resulting in smoother graphics. This is "
+                        "purely visual and does not impact game logic, execution of glitches etc.");
                 }
             } // END FPS Slider
 
             if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::DX11) {
-                //UIWidgets::Spacer(0);
+                // UIWidgets::Spacer(0);
                 if (ImGui::Button("Match Refresh Rate")) {
                     int hz = Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
                     if (hz >= 20 && hz <= 360) {
@@ -214,13 +230,17 @@ void DrawSettingsMenu() {
             UIWidgets::Tooltip("Matches interpolation value to the current game's window refresh rate");
 
             if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::DX11) {
-                UIWidgets::CVarSliderInt(CVarGetInteger("gExtraLatencyThreshold", 80) == 0 ? "Jitter fix: Off" : "Jitter fix: >= %d FPS",
-                    "gExtraLatencyThreshold", 0, 360, 80);
-                UIWidgets::Tooltip("When Interpolation FPS setting is at least this threshold, add one frame of input lag (e.g. 16.6 ms for 60 FPS) in order to avoid jitter. This setting allows the CPU to work on one frame while GPU works on the previous frame.\nThis setting should be used when your computer is too slow to do CPU + GPU work in time.");
+                UIWidgets::CVarSliderInt(CVarGetInteger("gExtraLatencyThreshold", 80) == 0 ? "Jitter fix: Off"
+                                                                                           : "Jitter fix: >= %d FPS",
+                                         "gExtraLatencyThreshold", 0, 360, 80);
+                UIWidgets::Tooltip("When Interpolation FPS setting is at least this threshold, add one frame of input "
+                                   "lag (e.g. 16.6 ms for 60 FPS) in order to avoid jitter. This setting allows the "
+                                   "CPU to work on one frame while GPU works on the previous frame.\nThis setting "
+                                   "should be used when your computer is too slow to do CPU + GPU work in time.");
             }
 
-            //UIWidgets::PaddedSeparator(true, true, 3.0f, 3.0f);
-            // #endregion */
+            // UIWidgets::PaddedSeparator(true, true, 3.0f, 3.0f);
+            //  #endregion */
 
             Ship::WindowBackend runningWindowBackend = Ship::Context::GetInstance()->GetWindow()->GetWindowBackend();
             Ship::WindowBackend configWindowBackend;
@@ -244,9 +264,9 @@ void DrawSettingsMenu() {
                       .disabled = Ship::Context::GetInstance()->GetWindow()->GetAvailableWindowBackends()->size() <= 1,
                       .disabledTooltip = "Only one renderer API is available on this platform." })) {
                 Ship::Context::GetInstance()->GetConfig()->SetInt("Window.Backend.Id",
-                                                                 static_cast<int32_t>(configWindowBackend));
+                                                                  static_cast<int32_t>(configWindowBackend));
                 Ship::Context::GetInstance()->GetConfig()->SetString("Window.Backend.Name",
-                                                                    windowBackendsMap.at(configWindowBackend));
+                                                                     windowBackendsMap.at(configWindowBackend));
                 Ship::Context::GetInstance()->GetConfig()->Save();
             }
 
@@ -271,12 +291,12 @@ void DrawSettingsMenu() {
 
             ImGui::EndMenu();
         }
-    // #region 2S2H [Todo] None of this works yet
+        // #region 2S2H [Todo] None of this works yet
         /*
         if (UIWidgets::BeginMenu("Controller")) { */
-            if (mInputEditorWindow) {
-                UIWidgets::WindowButton("Controller Mapping", "gWindows.InputEditor", mInputEditorWindow);
-            }
+        if (mInputEditorWindow) {
+            UIWidgets::WindowButton("Controller Mapping", "gWindows.InputEditor", mInputEditorWindow);
+        }
         /*
         #ifndef __SWITCH__
             UIWidgets::CVarCheckbox("Menubar Controller Navigation", "gControlNav", {
@@ -288,9 +308,9 @@ void DrawSettingsMenu() {
             UIWidgets::CVarCheckbox("Show Inputs", "gInputEnabled", {
                 .tooltip = "Shows currently pressed inputs on the bottom right of the screen"
             });
-            UIWidgets::CVarSliderFloat("Input Scale: %.1f", "gInputScale", 1.0f, 3.0f, 1.0f, { 
+            UIWidgets::CVarSliderFloat("Input Scale: %.1f", "gInputScale", 1.0f, 3.0f, 1.0f, {
                 .tooltip = "Sets the on screen size of the displayed inputs from the Show Inputs setting",
-                .showButtons = false, 
+                .showButtons = false,
                 .format = ""
             });
             UIWidgets::CVarSliderInt("Simulated Input Lag: %d frames", "gSimulatedInputLag", 0, 6, 0, {
@@ -312,44 +332,51 @@ void DrawEnhancementsMenu() {
 
         if (UIWidgets::BeginMenu("Camera")) {
             ImGui::SeparatorText("Right Stick Camera");
-            UIWidgets::CVarCheckbox("Invert Camera X Axis", "gEnhancements.Camera.RightStick.InvertXAxis", {
-                .tooltip = "Inverts the Camera X Axis in Free Look."
-            });
-            UIWidgets::CVarCheckbox("Invert Camera Y Axis", "gEnhancements.Camera.RightStick.InvertYAxis", {
-                .tooltip = "Inverts the Camera Y Axis in Free Look.",
-                .defaultValue = true
-            });
-            UIWidgets::CVarSliderFloat("Third-Person Horizontal Sensitivity: %.0f", "gEnhancements.Camera.RightStick.CameraSensitivity.X", 0.01f, 5.0f, 1.0f);
-            UIWidgets::CVarSliderFloat("Third-Person Vertical Sensitivity: %.0f", "gEnhancements.Camera.RightStick.CameraSensitivity.Y", 0.01f, 5.0f, 1.0f);
+            UIWidgets::CVarCheckbox("Invert Camera X Axis", "gEnhancements.Camera.RightStick.InvertXAxis",
+                                    { .tooltip = "Inverts the Camera X Axis in Free Look." });
+            UIWidgets::CVarCheckbox("Invert Camera Y Axis", "gEnhancements.Camera.RightStick.InvertYAxis",
+                                    { .tooltip = "Inverts the Camera Y Axis in Free Look.", .defaultValue = true });
+            UIWidgets::CVarSliderFloat("Third-Person Horizontal Sensitivity: %.0f",
+                                       "gEnhancements.Camera.RightStick.CameraSensitivity.X", 0.01f, 5.0f, 1.0f);
+            UIWidgets::CVarSliderFloat("Third-Person Vertical Sensitivity: %.0f",
+                                       "gEnhancements.Camera.RightStick.CameraSensitivity.Y", 0.01f, 5.0f, 1.0f);
 
             ImGui::SeparatorText("Free Look");
-            if (UIWidgets::CVarCheckbox("Free Look", "gEnhancements.Camera.FreeLook.Enable", {
-                .tooltip = "Enables free look camera control\nNote: You must remap C buttons off of the right stick in the controller config menu, and map the camera stick to the right stick.",
-                .disabled = CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0) != 0
-            })) {
+            if (UIWidgets::CVarCheckbox(
+                    "Free Look", "gEnhancements.Camera.FreeLook.Enable",
+                    { .tooltip = "Enables free look camera control\nNote: You must remap C buttons off of the right "
+                                 "stick in the controller config menu, and map the camera stick to the right stick.",
+                      .disabled = CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0) != 0 })) {
                 RegisterCameraFreeLook();
             }
 
-            UIWidgets::CVarSliderInt("Camera Distance: %d", "gEnhancements.Camera.FreeLook.MaxCameraDistance", 100, 900, 185);
-            UIWidgets::CVarSliderInt("Camera Transition Speed: %d", "gEnhancements.Camera.FreeLook.TransitionSpeed", 1, 900, 25);
-            UIWidgets::CVarSliderFloat("Max Camera Height Angle: %.0f°", "gEnhancements.Camera.FreeLook.MaxPitch", -89.0f, 89.0f, 72.0f);
-            UIWidgets::CVarSliderFloat("Min Camera Height Angle: %.0f°", "gEnhancements.Camera.FreeLook.MinPitch", -89.0f, 89.0f, -49.0f);
+            UIWidgets::CVarSliderInt("Camera Distance: %d", "gEnhancements.Camera.FreeLook.MaxCameraDistance", 100, 900,
+                                     185);
+            UIWidgets::CVarSliderInt("Camera Transition Speed: %d", "gEnhancements.Camera.FreeLook.TransitionSpeed", 1,
+                                     900, 25);
+            UIWidgets::CVarSliderFloat("Max Camera Height Angle: %.0f°", "gEnhancements.Camera.FreeLook.MaxPitch",
+                                       -89.0f, 89.0f, 72.0f);
+            UIWidgets::CVarSliderFloat("Min Camera Height Angle: %.0f°", "gEnhancements.Camera.FreeLook.MinPitch",
+                                       -89.0f, 89.0f, -49.0f);
             f32 maxY = CVarGetFloat("gEnhancements.Camera.FreeLook.MaxPitch", 72.0f);
             f32 minY = CVarGetFloat("gEnhancements.Camera.FreeLook.MinPitch", -49.0f);
             CVarSetFloat("gEnhancements.Camera.FreeLook.MaxPitch", std::max(maxY, minY));
             CVarSetFloat("gEnhancements.Camera.FreeLook.MinPitch", std::min(maxY, minY));
 
             ImGui::SeparatorText("'Debug' Camera");
-            if (UIWidgets::CVarCheckbox("Debug Camera", "gEnhancements.Camera.DebugCam.Enable", {
-                .tooltip = "Enables free camera control.",
-                .disabled = CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0) != 0
-            })) {
+            if (UIWidgets::CVarCheckbox(
+                    "Debug Camera", "gEnhancements.Camera.DebugCam.Enable",
+                    { .tooltip = "Enables free camera control.",
+                      .disabled = CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0) != 0 })) {
                 RegisterDebugCam();
             }
-            UIWidgets::CVarCheckbox("Enable Roll (Six Degrees Of Freedom)", "gEnhancements.Camera.DebugCam.6DOF", {
-                .tooltip = "This allows for all six degrees of movement with the camera, NOTE: Yaw will work differently in this system, instead rotating around the focal point, rather than a polar axis."
-            });
-            UIWidgets::CVarSliderFloat("Camera Speed: %.0f", "gEnhancements.Camera.DebugCam.CameraSpeed", 0.1f, 3.0f, 0.5f);
+            UIWidgets::CVarCheckbox(
+                "Enable Roll (Six Degrees Of Freedom)", "gEnhancements.Camera.DebugCam.6DOF",
+                { .tooltip =
+                      "This allows for all six degrees of movement with the camera, NOTE: Yaw will work differently in "
+                      "this system, instead rotating around the focal point, rather than a polar axis." });
+            UIWidgets::CVarSliderFloat("Camera Speed: %.0f", "gEnhancements.Camera.DebugCam.CameraSpeed", 0.1f, 3.0f,
+                                       0.5f);
 
             ImGui::EndMenu();
         }
@@ -368,48 +395,46 @@ void DrawEnhancementsMenu() {
         }
 
         if (UIWidgets::BeginMenu("Cycle / Saving")) {
-            UIWidgets::CVarCheckbox("Pause Menu Save", "gEnhancements.Kaleido.PauseSave", {
-                .tooltip = "Re-introduce the pause menu save system. Pressing B in the pause menu will give you the option to create an Owl Save from your current location. When loading back into the game, you will be placed at your last entrance."
-            });
-            UIWidgets::CVarCheckbox("Do not reset Bottle content", "gEnhancements.Cycle.DoNotResetBottleContent", {
-                .tooltip = "Playing the Song Of Time will not reset the bottles' content."
-            });
-            UIWidgets::CVarCheckbox("Do not reset Consumables", "gEnhancements.Cycle.DoNotResetConsumables", {
-                .tooltip = "Playing the Song Of Time will not reset the consumables."
-            });
-            UIWidgets::CVarCheckbox("Do not reset Razor Sword", "gEnhancements.Cycle.DoNotResetRazorSword", {
-                .tooltip = "Playing the Song Of Time will not reset the Sword back to Kokiri Sword."
-            });
-            UIWidgets::CVarCheckbox("Do not reset Rupees", "gEnhancements.Cycle.DoNotResetRupees", {
-                .tooltip = "Playing the Song Of Time will not reset the your rupees."
-            });
-            UIWidgets::CVarSliderInt("Save Delay", "gEnhancements.Save.SaveDelay", 0, 5, 0, { 
-                .tooltip = "Sets the delay between pressing save and the save being marked as complete. Original game was 2." 
-            });
+            UIWidgets::CVarCheckbox(
+                "Pause Menu Save", "gEnhancements.Kaleido.PauseSave",
+                { .tooltip = "Re-introduce the pause menu save system. Pressing B in the pause menu will give you the "
+                             "option to create an Owl Save from your current location. When loading back into the "
+                             "game, you will be placed at your last entrance." });
+            UIWidgets::CVarCheckbox("Do not reset Bottle content", "gEnhancements.Cycle.DoNotResetBottleContent",
+                                    { .tooltip = "Playing the Song Of Time will not reset the bottles' content." });
+            UIWidgets::CVarCheckbox("Do not reset Consumables", "gEnhancements.Cycle.DoNotResetConsumables",
+                                    { .tooltip = "Playing the Song Of Time will not reset the consumables." });
+            UIWidgets::CVarCheckbox(
+                "Do not reset Razor Sword", "gEnhancements.Cycle.DoNotResetRazorSword",
+                { .tooltip = "Playing the Song Of Time will not reset the Sword back to Kokiri Sword." });
+            UIWidgets::CVarCheckbox("Do not reset Rupees", "gEnhancements.Cycle.DoNotResetRupees",
+                                    { .tooltip = "Playing the Song Of Time will not reset the your rupees." });
+            UIWidgets::CVarSliderInt("Save Delay", "gEnhancements.Save.SaveDelay", 0, 5, 0,
+                                     { .tooltip = "Sets the delay between pressing save and the save being marked as "
+                                                  "complete. Original game was 2." });
 
             ImGui::EndMenu();
         }
 
         if (UIWidgets::BeginMenu("Dialogues")) {
-            UIWidgets::CVarCheckbox("Fast Text", "gEnhancements.Dialogue.FastText", {
-                .tooltip = "Speeds up text rendering, and enables holding of B progress to next message"
-            });
-            
+            UIWidgets::CVarCheckbox(
+                "Fast Text", "gEnhancements.Dialogue.FastText",
+                { .tooltip = "Speeds up text rendering, and enables holding of B progress to next message" });
+
             ImGui::EndMenu();
         }
 
         if (UIWidgets::BeginMenu("Dpad")) {
-            UIWidgets::CVarCheckbox("Dpad Equips", "gEnhancements.Dpad.DpadEquips", {
-                .tooltip = "Allows you to equip items to your d-pad"
-            });
+            UIWidgets::CVarCheckbox("Dpad Equips", "gEnhancements.Dpad.DpadEquips",
+                                    { .tooltip = "Allows you to equip items to your d-pad" });
 
             ImGui::EndMenu();
         }
 
         if (UIWidgets::BeginMenu("Fixes")) {
-            UIWidgets::CVarCheckbox("Fix Ammo Count Color", "gFixes.FixAmmoCountEnvColor", {
-                .tooltip = "Fixes a missing gDPSetEnvColor, which causes the ammo count to be the wrong color prior to obtaining magic or other conditions."
-            });
+            UIWidgets::CVarCheckbox("Fix Ammo Count Color", "gFixes.FixAmmoCountEnvColor",
+                                    { .tooltip = "Fixes a missing gDPSetEnvColor, which causes the ammo count to be "
+                                                 "the wrong color prior to obtaining magic or other conditions." });
 
             ImGui::EndMenu();
         }
@@ -420,84 +445,77 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("24 Hours Clock", "gEnhancements.Graphics.24HoursClock");
             MotionBlur_RenderMenuOptions();
             ImGui::SeparatorText("Other");
-            UIWidgets::CVarCheckbox("Authentic logo", "gEnhancements.Graphics.AuthenticLogo", {
-                .tooltip = "Hide the game version and build details and display the authentic model and texture on the boot logo start screen"
-            });
-            UIWidgets::CVarCheckbox("Bow Reticle", "gEnhancements.Graphics.BowReticle", {
-                .tooltip = "Gives the bow a reticle when you draw an arrow"
-            });
+            UIWidgets::CVarCheckbox("Authentic logo", "gEnhancements.Graphics.AuthenticLogo",
+                                    { .tooltip = "Hide the game version and build details and display the authentic "
+                                                 "model and texture on the boot logo start screen" });
+            UIWidgets::CVarCheckbox("Bow Reticle", "gEnhancements.Graphics.BowReticle",
+                                    { .tooltip = "Gives the bow a reticle when you draw an arrow" });
 
             ImGui::EndMenu();
         }
 
         if (UIWidgets::BeginMenu("Masks")) {
             UIWidgets::CVarCheckbox("Fast Transformation", "gEnhancements.Masks.FastTransformation");
-            UIWidgets::CVarCheckbox("Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere", {
-                .tooltip = "Allow using Fierce Deity's mask outside of boss rooms."
-            });
+            UIWidgets::CVarCheckbox("Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere",
+                                    { .tooltip = "Allow using Fierce Deity's mask outside of boss rooms." });
             UIWidgets::CVarCheckbox("No Blast Mask Cooldown", "gEnhancements.Masks.NoBlastMaskCooldown", {});
 
             ImGui::EndMenu();
         }
 
         if (UIWidgets::BeginMenu("Minigames")) {
-            UIWidgets::CVarCombobox("Always Win Doggy Race", "gEnhancements.Minigames.AlwaysWinDoggyRace", alwaysWinDoggyraceOptions);
+            UIWidgets::CVarCombobox("Always Win Doggy Race", "gEnhancements.Minigames.AlwaysWinDoggyRace",
+                                    alwaysWinDoggyraceOptions);
 
             ImGui::EndMenu();
         }
 
         if (UIWidgets::BeginMenu("Modes")) {
-            if (UIWidgets::CVarCheckbox("Play As Kafei", "gModes.PlayAsKafei", {
-                .tooltip = "Requires scene reload to take effect."
-            })) {
+            if (UIWidgets::CVarCheckbox("Play As Kafei", "gModes.PlayAsKafei",
+                                        { .tooltip = "Requires scene reload to take effect." })) {
                 UpdatePlayAsKafeiSkeletons();
             }
             ImGui::EndMenu();
         }
         if (UIWidgets::BeginMenu("Player Movement")) {
-            UIWidgets::CVarSliderInt("Climb speed", "gEnhancements.PlayerMovement.ClimbSpeed", 1, 5, 1, {
-                .tooltip = "Increases the speed at which Link climbs vines and ladders." 
-            });
+            UIWidgets::CVarSliderInt("Climb speed", "gEnhancements.PlayerMovement.ClimbSpeed", 1, 5, 1,
+                                     { .tooltip = "Increases the speed at which Link climbs vines and ladders." });
 
             ImGui::EndMenu();
         }
 
         if (UIWidgets::BeginMenu("Restorations")) {
-            UIWidgets::CVarCheckbox("Power Crouch Stab", "gEnhancements.Restorations.PowerCrouchStab", {
-                .tooltip = "Crouch stabs will use the power of Link's previous melee attack, as is in MM JP 1.0 and OOT."
-            });
-            UIWidgets::CVarCheckbox("Side Rolls", "gEnhancements.Restorations.SideRoll", {
-                .tooltip = "Restores side rolling from OOT."
-            });
-            UIWidgets::CVarCheckbox("Tatl ISG", "gEnhancements.Restorations.TatlISG", {
-                .tooltip = "Restores Navi ISG from OOT, but now with Tatl."
-            });
+            UIWidgets::CVarCheckbox(
+                "Power Crouch Stab", "gEnhancements.Restorations.PowerCrouchStab",
+                { .tooltip =
+                      "Crouch stabs will use the power of Link's previous melee attack, as is in MM JP 1.0 and OOT." });
+            UIWidgets::CVarCheckbox("Side Rolls", "gEnhancements.Restorations.SideRoll",
+                                    { .tooltip = "Restores side rolling from OOT." });
+            UIWidgets::CVarCheckbox("Tatl ISG", "gEnhancements.Restorations.TatlISG",
+                                    { .tooltip = "Restores Navi ISG from OOT, but now with Tatl." });
 
             ImGui::EndMenu();
         }
 
         if (UIWidgets::BeginMenu("Songs/Playback")) {
-            UIWidgets::CVarCheckbox("Enable Sun's Song", "gEnhancements.Songs.EnableSunsSong", {
-                .tooltip = "Enables the partially implemented Sun's Song. RIGHT-DOWN-UP-RIGHT-DOWN-UP to play it. "
-                           "This song will make time move very fast until either Link moves to a different scene, "
-                           "or when the time switches to a new time period."
-            });
-            UIWidgets::CVarCheckbox("Prevent Dropped Ocarina Inputs", "gEnhancements.Playback.NoDropOcarinaInput", { 
-                .tooltip = "Prevent dropping inputs when playing the ocarina quickly" 
-            });
+            UIWidgets::CVarCheckbox(
+                "Enable Sun's Song", "gEnhancements.Songs.EnableSunsSong",
+                { .tooltip = "Enables the partially implemented Sun's Song. RIGHT-DOWN-UP-RIGHT-DOWN-UP to play it. "
+                             "This song will make time move very fast until either Link moves to a different scene, "
+                             "or when the time switches to a new time period." });
+            UIWidgets::CVarCheckbox("Prevent Dropped Ocarina Inputs", "gEnhancements.Playback.NoDropOcarinaInput",
+                                    { .tooltip = "Prevent dropping inputs when playing the ocarina quickly" });
 
             ImGui::EndMenu();
         }
 
         if (mHudEditorWindow) {
-            UIWidgets::WindowButton("Hud Editor", "gWindows.HudEditor", mHudEditorWindow, {
-                .tooltip = "Enables the Hud Editor window, allowing you to edit your hud"
-            });
+            UIWidgets::WindowButton("Hud Editor", "gWindows.HudEditor", mHudEditorWindow,
+                                    { .tooltip = "Enables the Hud Editor window, allowing you to edit your hud" });
         }
 
         ImGui::EndMenu();
     }
-    
 }
 
 void DrawCheatsMenu() {
@@ -507,9 +525,8 @@ void DrawCheatsMenu() {
         UIWidgets::CVarCheckbox("Infinite Rupees", "gCheats.InfiniteRupees");
         UIWidgets::CVarCheckbox("Infinite Consumables", "gCheats.InfiniteConsumables");
         UIWidgets::CVarCheckbox("Unbreakable Razor Sword", "gCheats.UnbreakableRazorSword");
-        if (UIWidgets::CVarCheckbox("Moon Jump on L", "gCheats.MoonJumpOnL", {
-            .tooltip = "Holding L makes you float into the air"
-        })) {
+        if (UIWidgets::CVarCheckbox("Moon Jump on L", "gCheats.MoonJumpOnL",
+                                    { .tooltip = "Holding L makes you float into the air" })) {
             RegisterMoonJumpOnL();
         }
         UIWidgets::CVarCheckbox("No Clip", "gCheats.NoClip");
@@ -527,20 +544,13 @@ extern std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
 extern std::shared_ptr<EventLogWindow> mEventLogWindow;
 
 const char* logLevels[] = {
-    "trace",
-    "debug",
-    "info",
-    "warn",
-    "error",
-    "critical",
-    "off",
+    "trace", "debug", "info", "warn", "error", "critical", "off",
 };
 
 void DrawDeveloperToolsMenu() {
     if (UIWidgets::BeginMenu("Developer Tools", UIWidgets::Colors::Yellow)) {
-        UIWidgets::CVarCheckbox("Debug Mode", "gDeveloperTools.DebugEnabled", {
-            .tooltip = "Enables Debug Mode, allowing you to select maps with L + R + Z."
-        });
+        UIWidgets::CVarCheckbox("Debug Mode", "gDeveloperTools.DebugEnabled",
+                                { .tooltip = "Enables Debug Mode, allowing you to select maps with L + R + Z." });
 
         if (CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
             if (UIWidgets::CVarCombobox(
@@ -564,20 +574,23 @@ void DrawDeveloperToolsMenu() {
         if (UIWidgets::CVarCheckbox("Prevent Actor Init", "gDeveloperTools.PreventActorInit")) {
             RegisterPreventActorInitHooks();
         }
-        if (UIWidgets::CVarCombobox("Log Level", "gDeveloperTools.LogLevel", logLevels, {
-            .tooltip = "The log level determines which messages are printed to the console. This does not affect the log file output",
-            .defaultIndex = 1,
-        })) {
-            Ship::Context::GetInstance()->GetLogger()->set_level((spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
+        if (UIWidgets::CVarCombobox("Log Level", "gDeveloperTools.LogLevel", logLevels,
+                                    {
+                                        .tooltip = "The log level determines which messages are printed to the "
+                                                   "console. This does not affect the log file output",
+                                        .defaultIndex = 1,
+                                    })) {
+            Ship::Context::GetInstance()->GetLogger()->set_level(
+                (spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
         }
-        
+
         if (gPlayState != NULL) {
             ImGui::Separator();
-            UIWidgets::Checkbox("Frame Advance", (bool*)&gPlayState->frameAdvCtx.enabled, {
-                .tooltip = "This allows you to advance through the game one frame at a time on command. "
-                "To advance a frame, hold Z and tap R on the second controller. Holding Z "
-                "and R will advance a frame every half second. You can also use the buttons below."
-            });
+            UIWidgets::Checkbox(
+                "Frame Advance", (bool*)&gPlayState->frameAdvCtx.enabled,
+                { .tooltip = "This allows you to advance through the game one frame at a time on command. "
+                             "To advance a frame, hold Z and tap R on the second controller. Holding Z "
+                             "and R will advance a frame every half second. You can also use the buttons below." });
             if (gPlayState->frameAdvCtx.enabled) {
                 if (UIWidgets::Button("Advance 1", { .size = UIWidgets::Sizes::Inline })) {
                     CVarSetInteger("gDeveloperTools.FrameAdvanceTick", 1);
@@ -593,32 +606,34 @@ void DrawDeveloperToolsMenu() {
         ImGui::Separator();
         if (mCollisionViewerWindow) {
             UIWidgets::WindowButton("Collision Viewer", "gWindows.CollisionViewer", mCollisionViewerWindow,
-                { .tooltip = "Draws collision to the screen" });
+                                    { .tooltip = "Draws collision to the screen" });
         }
         if (mStatsWindow) {
-            UIWidgets::WindowButton("Stats", "gWindows.Stats", mStatsWindow, {
-                .tooltip = "Shows the stats window, with your FPS and frametimes, and the OS you're playing on"
-            });
+            UIWidgets::WindowButton(
+                "Stats", "gWindows.Stats", mStatsWindow,
+                { .tooltip = "Shows the stats window, with your FPS and frametimes, and the OS you're playing on" });
         }
         if (mConsoleWindow) {
-            UIWidgets::WindowButton("Console", "gWindows.Console", mConsoleWindow, {
-                .tooltip = "Enables the console window, allowing you to input commands, type help for some examples"
-            });
+            UIWidgets::WindowButton(
+                "Console", "gWindows.Console", mConsoleWindow,
+                { .tooltip =
+                      "Enables the console window, allowing you to input commands, type help for some examples" });
         }
         if (mGfxDebuggerWindow) {
-            UIWidgets::WindowButton("Gfx Debugger", "gWindows.GfxDebugger", mGfxDebuggerWindow, {
-                .tooltip = "Enables the Gfx Debugger window, allowing you to input commands, type help for some examples"
-            });
+            UIWidgets::WindowButton(
+                "Gfx Debugger", "gWindows.GfxDebugger", mGfxDebuggerWindow,
+                { .tooltip =
+                      "Enables the Gfx Debugger window, allowing you to input commands, type help for some examples" });
         }
         if (mSaveEditorWindow) {
-            UIWidgets::WindowButton("Save Editor", "gWindows.SaveEditor", mSaveEditorWindow, {
-                .tooltip = "Enables the Save Editor window, allowing you to edit your save file"
-            });
+            UIWidgets::WindowButton(
+                "Save Editor", "gWindows.SaveEditor", mSaveEditorWindow,
+                { .tooltip = "Enables the Save Editor window, allowing you to edit your save file" });
         }
         if (mActorViewerWindow) {
-            UIWidgets::WindowButton("Actor Viewer", "gWindows.ActorViewer", mActorViewerWindow, {
-                .tooltip = "Enables the Actor Viewer window, allowing you to view actors in the world."
-            });
+            UIWidgets::WindowButton(
+                "Actor Viewer", "gWindows.ActorViewer", mActorViewerWindow,
+                { .tooltip = "Enables the Actor Viewer window, allowing you to view actors in the world." });
         }
         if (mEventLogWindow) {
             UIWidgets::WindowButton("Event Log", "gWindows.EventLog", mEventLogWindow);
@@ -660,5 +675,5 @@ void BenMenuBar::DrawElement() {
         ImGui::EndMenuBar();
     }
 }
-}
+} // namespace BenGui
 // namespace BenGui

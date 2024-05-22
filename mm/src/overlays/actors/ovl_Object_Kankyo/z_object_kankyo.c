@@ -553,8 +553,7 @@ void func_808DD3C8(Actor* thisx, PlayState* play2) {
         }
         // #pragma endregion
 
-        if ((screenPos.x >= xMin) && (screenPos.x < xMax) && (screenPos.y >= 0.0f) &&
-            (screenPos.y < SCREEN_HEIGHT)) {
+        if ((screenPos.x >= xMin) && (screenPos.x < xMax) && (screenPos.y >= 0.0f) && (screenPos.y < SCREEN_HEIGHT)) {
             if (!spB4) {
                 spB4 = true;
 
@@ -637,8 +636,7 @@ void func_808DD970(Actor* thisx, PlayState* play2) {
         }
         // #pragma endregion
 
-        if ((screenPos.x >= xMin) && (screenPos.x < xMax) && (screenPos.y >= 0.0f) &&
-            (screenPos.y < SCREEN_HEIGHT)) {
+        if ((screenPos.x >= xMin) && (screenPos.x < xMax) && (screenPos.y >= 0.0f) && (screenPos.y < SCREEN_HEIGHT)) {
             Matrix_Translate(worldPos.x, worldPos.y, worldPos.z, MTXMODE_NEW);
             Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY);
             temp_f0 = Math_Vec3f_DistXYZ(&worldPos, &play->view.eye);

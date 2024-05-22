@@ -5,9 +5,9 @@
 
 namespace SOH {
 std::shared_ptr<Ship::IResource> SetPathwaysMMFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData,
-                                                            std::shared_ptr<Ship::BinaryReader> reader) {
+                                                                    std::shared_ptr<Ship::BinaryReader> reader) {
     auto setPathways = std::make_shared<SetPathwaysMM>(initData);
-    
+
     ReadCommandId(setPathways, reader);
 
     setPathways->numPaths = reader->ReadUInt32();

@@ -554,8 +554,8 @@ s32 SubS_ChangeAnimationByInfoS(SkelAnime* skelAnime, AnimationInfoS* animationI
     if (animationInfo->playSpeed < 0.0f) {
         SWAP(s32, endFrame, startFrame);
     }
-    Animation_Change(skelAnime, ogAnim, animationInfo->playSpeed, startFrame, endFrame,
-                     animationInfo->mode, animationInfo->morphFrames);
+    Animation_Change(skelAnime, ogAnim, animationInfo->playSpeed, startFrame, endFrame, animationInfo->mode,
+                     animationInfo->morphFrames);
     return true;
 }
 
@@ -1413,8 +1413,7 @@ void SubS_ChangeAnimationBySpeedInfo(SkelAnime* skelAnime, AnimationSpeedInfo* a
         startFrame = Animation_GetLastFrame(&anim->common);
         endFrame = 0.0f;
     }
-    Animation_Change(skelAnime, ogAnim, animation->playSpeed, startFrame, endFrame, animation->mode,
-                     morphFrames);
+    Animation_Change(skelAnime, ogAnim, animation->playSpeed, startFrame, endFrame, animation->mode, morphFrames);
     *curAnimIndex = nextAnimIndex;
 }
 

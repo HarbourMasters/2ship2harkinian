@@ -3,12 +3,13 @@
 #include "spdlog/spdlog.h"
 
 namespace SOH {
-std::shared_ptr<Ship::IResource> SetSkyboxModifierFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData,
-                                                                 std::shared_ptr<Ship::BinaryReader> reader) {
+std::shared_ptr<Ship::IResource>
+SetSkyboxModifierFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData,
+                                       std::shared_ptr<Ship::BinaryReader> reader) {
     auto setSkyboxModifier = std::make_shared<SetSkyboxModifier>(initData);
 
-	ReadCommandId(setSkyboxModifier, reader);
-	
+    ReadCommandId(setSkyboxModifier, reader);
+
     setSkyboxModifier->modifier.skyboxDisabled = reader->ReadInt8();
     setSkyboxModifier->modifier.sunMoonDisabled = reader->ReadInt8();
 

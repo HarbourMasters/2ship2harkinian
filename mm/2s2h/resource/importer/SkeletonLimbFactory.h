@@ -12,6 +12,6 @@ class ResourceFactoryBinarySkeletonLimbV0 : public Ship::ResourceFactoryBinary {
 
 class ResourceFactoryXMLSkeletonLimbV0 : public Ship::ResourceFactoryXML {
   public:
-    std::shared_ptr<Ship::IResource> ReadResource(std::shared_ptr<Ship::File> file) override;  
+    std::shared_ptr<Ship::IResource> ReadResource(std::shared_ptr<Ship::File> file) override;
 };
 } // namespace SOH

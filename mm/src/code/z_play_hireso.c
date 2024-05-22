@@ -1070,8 +1070,8 @@ void BombersNotebook_Draw(BombersNotebook* this, GraphicsContext* gfxCtx) {
     gfx = POLY_OPA_DISP;
 
     if (this->loadState == BOMBERS_NOTEBOOK_LOAD_STATE_DONE) {
-        //gSPSegment(gfx++, 0x07, this->scheduleDmaSegment);
-        //gSPSegment(gfx++, 0x08, this->scheduleSegment);
+        // gSPSegment(gfx++, 0x07, this->scheduleDmaSegment);
+        // gSPSegment(gfx++, 0x08, this->scheduleSegment);
         gfx = Gfx_SetupDL39(gfx);
         gDPSetCombineLERP(gfx++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE,
                           ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
@@ -1115,9 +1115,9 @@ void BombersNotebook_Draw(BombersNotebook* this, GraphicsContext* gfxCtx) {
 void BombersNotebook_LoadFiles(BombersNotebook* this, s32 flag) {
     switch (this->loadState) {
         case BOMBERS_NOTEBOOK_LOAD_STATE_NONE:
-            // #region 2S2H [Port] Same as the comment in the update function. We don't need to use the built in DMA
-            // engine. We use the resource manager.
-            #if 0
+// #region 2S2H [Port] Same as the comment in the update function. We don't need to use the built in DMA
+// engine. We use the resource manager.
+#if 0
             if (this->scheduleDmaSegment == NULL) {
                 break;
             }
@@ -1125,12 +1125,12 @@ void BombersNotebook_LoadFiles(BombersNotebook* this, s32 flag) {
             osCreateMesgQueue(&this->loadQueue, this->loadMsg, ARRAY_COUNT(this->loadMsg));
             DmaMgr_SendRequestImpl(&this->dmaRequest, this->scheduleSegment, this->scheduleSegmentStart,
                                    this->scheduleSegmentSize, 0, &this->loadQueue, OS_MESG_PTR(NULL));
-            #endif
+#endif
             this->loadState = BOMBERS_NOTEBOOK_LOAD_STATE_STARTED;
             // fallthrough
         case BOMBERS_NOTEBOOK_LOAD_STATE_STARTED:
-            //if (osRecvMesg(&this->loadQueue, NULL, flag) == 0) {
-                this->loadState = BOMBERS_NOTEBOOK_LOAD_STATE_DONE;
+            // if (osRecvMesg(&this->loadQueue, NULL, flag) == 0) {
+            this->loadState = BOMBERS_NOTEBOOK_LOAD_STATE_DONE;
             //}
             break;
 
@@ -1159,9 +1159,9 @@ void BombersNotebook_Update(PlayState* play, BombersNotebook* this, Input* input
     s32 stickAdjY = input->rel.stick_y;
     s32 cursorEntryScan;
 
-    // #region 2S2H [Port] We don't need to allocate anything because we don't use these segments.
-    // We also want to avoid using malloc here because using a size of zero still allocates some data.
-    #if 0
+// #region 2S2H [Port] We don't need to allocate anything because we don't use these segments.
+// We also want to avoid using malloc here because using a size of zero still allocates some data.
+#if 0
     this->scheduleDmaSegmentStart = SEGMENT_ROM_START(schedule_dma_static_yar);
     this->scheduleDmaSegmentSize = SEGMENT_ROM_SIZE(schedule_dma_static_syms);
     this->scheduleSegmentStart = SEGMENT_ROM_START(schedule_static);
@@ -1174,7 +1174,7 @@ void BombersNotebook_Update(PlayState* play, BombersNotebook* this, Input* input
     if (this->scheduleSegment == NULL) {
         this->scheduleSegment = ZeldaArena_Malloc(this->scheduleSegmentSize);
     }
-    #endif 
+#endif
 
     BombersNotebook_LoadFiles(this, OS_MESG_NOBLOCK);
 
@@ -1355,12 +1355,12 @@ void BombersNotebook_Destroy(BombersNotebook* this) {
     if (this->loadState == BOMBERS_NOTEBOOK_LOAD_STATE_STARTED) {
         BombersNotebook_LoadFiles(this, OS_MESG_BLOCK);
     }
-    #if 0
+#if 0
     if (this->scheduleDmaSegment != NULL) {
         ZeldaArena_Free(this->scheduleDmaSegment);
         this->scheduleDmaSegment = NULL;
     }
-    #endif
+#endif
     //! @bug: Does not free malloc'd memory for schedule segment
     // 2S2H [Port] "Fix" the bug by not allocating anything
 }

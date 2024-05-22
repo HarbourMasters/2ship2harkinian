@@ -356,8 +356,8 @@ void AudioSynth_Noop9(void) {
 
 void AudioSynth_DMemMove(Acmd* cmd, s32 dmemIn, s32 dmemOut, size_t size) {
     aDMEMMove(cmd, dmemIn, dmemOut, size);
-    //cmd->words.w0 = _SHIFTL(A_DMEMMOVE, 24, 8) | _SHIFTL(dmemIn, 0, 24);
-    //cmd->words.w1 = _SHIFTL(dmemOut, 16, 16) | _SHIFTL(size, 0, 16);
+    // cmd->words.w0 = _SHIFTL(A_DMEMMOVE, 24, 8) | _SHIFTL(dmemIn, 0, 24);
+    // cmd->words.w1 = _SHIFTL(dmemOut, 16, 16) | _SHIFTL(size, 0, 16);
 }
 
 void AudioSynth_Noop10(void) {
@@ -1031,7 +1031,7 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
                     }
 
                     numEntries = SAMPLES_PER_FRAME * sample->book->order * sample->book->numPredictors;
-                    //ResourceCheckSample(sample->sampleAddr, sample->book->codeBook);
+                    // ResourceCheckSample(sample->sampleAddr, sample->book->codeBook);
                     aLoadADPCM(cmd++, numEntries, gAudioCtx.adpcmCodeBook);
                 }
             }
@@ -1189,7 +1189,7 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
                     sampleDataDmemAddr = DMEM_COMPRESSED_ADPCM_DATA - sampleDataChunkSize;
 
                     // BEN: This will crash the asan. We can just ignore alignment since we don't have those strictures.
-                    //if (sampleDataChunkSize + sampleAddrOffset > sample->size) {
+                    // if (sampleDataChunkSize + sampleAddrOffset > sample->size) {
                     //    sampleDataChunkSize = sample->size - sampleAddrOffset;
                     //    sampleDataDmemAddr = DMEM_COMPRESSED_ADPCM_DATA - sampleDataChunkSize;
                     //}

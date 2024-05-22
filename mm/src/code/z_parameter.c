@@ -21,7 +21,8 @@
 #include "2s2h_assets.h"
 #include "Enhancements/GameInteractor/GameInteractor.h"
 
-// 2S2H [Port] This was originally static but needs to be global so it can be accessed in z_kaleido_collect, z_kaleido_debug, and z_kaleido_draw.
+// 2S2H [Port] This was originally static but needs to be global so it can be accessed in z_kaleido_collect,
+// z_kaleido_debug, and z_kaleido_draw.
 const char* sCounterTextures[] = {
     gCounterDigit0Tex, gCounterDigit1Tex, gCounterDigit2Tex, gCounterDigit3Tex, gCounterDigit4Tex, gCounterDigit5Tex,
     gCounterDigit6Tex, gCounterDigit7Tex, gCounterDigit8Tex, gCounterDigit9Tex, gCounterColonTex,
@@ -52,15 +53,37 @@ static const char* doActionTbl[] = {
 };
 
 static const char* emptyCButtonArrows[] = {
-    gEmptyCLeftArrowTex, gEmptyCDownArrowTex, gEmptyCRightArrowTex,
+    gEmptyCLeftArrowTex,
+    gEmptyCDownArrowTex,
+    gEmptyCRightArrowTex,
 };
 
 u8 gPlayerFormItemRestrictions[PLAYER_FORM_MAX][114] = {
-    { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 },
-    { 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x1, 0x1, 0x0, 0x0, 0x0, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 },
-    { 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x1, 0x0, 0x0, 0x0, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 },
-    { 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x0, 0x0, 0x0, 0x1, 0x1, 0x0, 0x0, 0x0, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 },
-    { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x0, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 },
+    { 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x1, 0x1, 0x1, 0x1,
+      0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 },
+    { 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x1, 0x1, 0x0, 0x0, 0x0, 0x1, 0x1, 0x1, 0x1, 0x1,
+      0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1,
+      0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 },
+    { 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x1, 0x0, 0x0, 0x0, 0x1, 0x1, 0x1, 0x1, 0x1,
+      0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1,
+      0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 },
+    { 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x1, 0x0, 0x0, 0x0, 0x1, 0x1, 0x0, 0x0, 0x0, 0x1, 0x1, 0x1, 0x1, 0x1,
+      0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1,
+      0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 },
+    { 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x0, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1,
+      0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1,
+      0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1,
+      0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x1, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+      0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 },
     // {0x0, 0x0, 0x0, 0x0, 0x0, 0x0}, extra bytes at the end of data.s?
 };
 // #endregion
@@ -129,7 +152,8 @@ Input sPostmanTimerInput[MAXCONTROLLERS];
 #define RESTRICTIONS_NO_DOUBLE_TIME RESTRICTIONS_SET(0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0)
 
 // 2S2H Added columns to scene table: entranceSceneId, betterMapSelectIndex, humanName
-#define DEFINE_SCENE(_name, enumValue, _textId, _drawConfig, restrictionFlags, _persistentCycleFlags, _entranceSceneId, _betterMapSelectIndex, _humanName) \
+#define DEFINE_SCENE(_name, enumValue, _textId, _drawConfig, restrictionFlags, _persistentCycleFlags, \
+                     _entranceSceneId, _betterMapSelectIndex, _humanName)                             \
     { enumValue, restrictionFlags },
 
 #define DEFINE_SCENE_UNSET(enumValue) { enumValue, RESTRICTIONS_NONE },
@@ -302,7 +326,8 @@ Gfx* Gfx_DrawTexRectIA8(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 text
 
     // #region 2S2H [Cosmetic] Hud Editor
     if (HudEditor_ShouldOverrideDraw()) {
-        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) ==
+            HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
             hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
             return gfx;
         }
@@ -320,16 +345,16 @@ Gfx* Gfx_DrawTexRectIA8(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 text
     // #endregion
 
     // 2S2H [Cosmetic] Changed to Wide variant to support widescreen
-    gSPWideTextureRectangle(gfx++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
-                        G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
+    gSPWideTextureRectangle(gfx++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2,
+                            (rectTop + rectHeight) << 2, G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
 
     return gfx;
 }
 
 // #region 2S2H [Dpad]
 Gfx* Gfx_DrawTexRectIA16_DropShadow(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 textureHeight, s16 rectLeft,
-                                   s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy, s16 r, s16 g, s16 b,
-                                   s16 a) {
+                                    s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy, s16 r, s16 g, s16 b,
+                                    s16 a) {
     s16 dropShadowAlpha = a;
 
     if (a > 100) {
@@ -345,7 +370,8 @@ Gfx* Gfx_DrawTexRectIA16_DropShadow(Gfx* gfx, TexturePtr texture, s16 textureWid
 
     // #region 2S2H [Cosmetic] Hud Editor
     if (HudEditor_ShouldOverrideDraw()) {
-        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) ==
+            HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
             hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
             return gfx;
         }
@@ -358,13 +384,13 @@ Gfx* Gfx_DrawTexRectIA16_DropShadow(Gfx* gfx, TexturePtr texture, s16 textureWid
 
     // 2S2H [Cosmetic] Changed to Wide variant to support widescreen
     gSPWideTextureRectangle(gfx++, (rectLeft + 2) * 4, (rectTop + 2) * 4, (rectLeft + rectWidth + 2) * 4,
-                        (rectTop + rectHeight + 2) * 4, G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
+                            (rectTop + rectHeight + 2) * 4, G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
 
     gDPPipeSync(gfx++);
     gDPSetPrimColor(gfx++, 0, 0, r, g, b, a);
     // 2S2H [Cosmetic] Changed to Wide variant to support widescreen
     gSPWideTextureRectangle(gfx++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4, (rectTop + rectHeight) * 4,
-                        G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
+                            G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
 
     return gfx;
 }
@@ -407,7 +433,8 @@ Gfx* Gfx_DrawTexRectIA8_DropShadow(Gfx* gfx, TexturePtr texture, s16 textureWidt
 
     // #region 2S2H [Cosmetic] Hud Editor
     if (HudEditor_ShouldOverrideDraw()) {
-        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) ==
+            HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
             hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
             return gfx;
         }
@@ -420,13 +447,13 @@ Gfx* Gfx_DrawTexRectIA8_DropShadow(Gfx* gfx, TexturePtr texture, s16 textureWidt
 
     // 2S2H [Cosmetic] Changed to Wide variant to support widescreen
     gSPWideTextureRectangle(gfx++, (rectLeft + 2) * 4, (rectTop + 2) * 4, (rectLeft + rectWidth + 2) * 4,
-                        (rectTop + rectHeight + 2) * 4, G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
+                            (rectTop + rectHeight + 2) * 4, G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
 
     gDPPipeSync(gfx++);
     gDPSetPrimColor(gfx++, 0, 0, r, g, b, a);
     // 2S2H [Cosmetic] Changed to Wide variant to support widescreen
     gSPWideTextureRectangle(gfx++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4, (rectTop + rectHeight) * 4,
-                        G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
+                            G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
 
     return gfx;
 }
@@ -457,7 +484,8 @@ Gfx* Gfx_DrawRect_DropShadow(Gfx* gfx, s16 rectLeft, s16 rectTop, s16 rectWidth,
 
     // #region 2S2H [Cosmetic] Hud Editor
     if (HudEditor_ShouldOverrideDraw()) {
-        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) ==
+            HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
             hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
             return gfx;
         }
@@ -472,13 +500,13 @@ Gfx* Gfx_DrawRect_DropShadow(Gfx* gfx, s16 rectLeft, s16 rectTop, s16 rectWidth,
     gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, dropShadowAlpha);
     // 2S2H [Cosmetic] Changed to Wide variant to support widescreen
     gSPWideTextureRectangle(gfx++, (rectLeft + 2) * 4, (rectTop + 2) * 4, (rectLeft + rectWidth + 2) * 4,
-                        (rectTop + rectHeight + 2) * 4, G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
+                            (rectTop + rectHeight + 2) * 4, G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
 
     gDPPipeSync(gfx++);
     gDPSetPrimColor(gfx++, 0, 0, r, g, b, a);
     // 2S2H [Cosmetic] Changed to Wide variant to support widescreen
     gSPWideTextureRectangle(gfx++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4, (rectTop + rectHeight) * 4,
-                        G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
+                            G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
 
     return gfx;
 }
@@ -521,7 +549,8 @@ Gfx* Gfx_DrawTexRectIA8_DropShadowOffset(Gfx* gfx, TexturePtr texture, s16 textu
 
     // #region 2S2H [Cosmetic] Hud Editor
     if (HudEditor_ShouldOverrideDraw()) {
-        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) ==
+            HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
             hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
             return gfx;
         }
@@ -534,14 +563,14 @@ Gfx* Gfx_DrawTexRectIA8_DropShadowOffset(Gfx* gfx, TexturePtr texture, s16 textu
 
     // 2S2H [Cosmetic] Changed to Wide variant to support widescreen
     gSPWideTextureRectangle(gfx++, (rectLeft + 2) * 4, (rectTop + 2) * 4, (rectLeft + rectWidth + 2) * 4,
-                        (rectTop + rectHeight + 2) * 4, G_TX_RENDERTILE, rects, 0, dsdx, dtdy);
+                            (rectTop + rectHeight + 2) * 4, G_TX_RENDERTILE, rects, 0, dsdx, dtdy);
 
     gDPPipeSync(gfx++);
     gDPSetPrimColor(gfx++, 0, 0, r, g, b, a);
 
     // 2S2H [Cosmetic] Changed to Wide variant to support widescreen
     gSPWideTextureRectangle(gfx++, rectLeft * 4, rectTop * 4, (rectLeft + rectWidth) * 4, (rectTop + rectHeight) * 4,
-                        G_TX_RENDERTILE, rects, 0, dsdx, dtdy);
+                            G_TX_RENDERTILE, rects, 0, dsdx, dtdy);
 
     return gfx;
 }
@@ -569,7 +598,8 @@ Gfx* Gfx_DrawTexRectI8(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 textu
 
     // #region 2S2H [Cosmetic] Hud Editor
     if (HudEditor_ShouldOverrideDraw()) {
-        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) ==
+            HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
             hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
             return gfx;
         }
@@ -587,8 +617,8 @@ Gfx* Gfx_DrawTexRectI8(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 textu
     // #endregion
 
     // 2S2H [Cosmetic] Changed to Wide variant to support widescreen
-    gSPWideTextureRectangle(gfx++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
-                        G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
+    gSPWideTextureRectangle(gfx++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2,
+                            (rectTop + rectHeight) << 2, G_TX_RENDERTILE, 0, 0, dsdx, dtdy);
 
     return gfx;
 }
@@ -619,7 +649,8 @@ Gfx* Gfx_DrawTexRect4b(Gfx* gfx, TexturePtr texture, s32 fmt, s16 textureWidth, 
 
     // #region 2S2H [Cosmetic] Hud Editor
     if (HudEditor_ShouldOverrideDraw()) {
-        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) ==
+            HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
             hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
             return gfx;
         }
@@ -637,8 +668,8 @@ Gfx* Gfx_DrawTexRect4b(Gfx* gfx, TexturePtr texture, s32 fmt, s16 textureWidth, 
     // #endregion
 
     // 2S2H [Cosmetic] Changed to Wide variant to support widescreen
-    gSPWideTextureRectangle(gfx++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
-                        G_TX_RENDERTILE, rects, 0, dsdx, dtdy);
+    gSPWideTextureRectangle(gfx++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2,
+                            (rectTop + rectHeight) << 2, G_TX_RENDERTILE, rects, 0, dsdx, dtdy);
 
     return gfx;
 }
@@ -1276,19 +1307,23 @@ void Interface_UpdateButtonAlphas(PlayState* play, s16 dimmingAlpha, s16 risingA
     }
 
     // #region 2S2H [Dpad]
-    if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+    if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) &&
+        (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
         interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
     }
 
-    if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+    if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) &&
+        (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
         interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
     }
 
-    if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+    if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) &&
+        (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
         interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
     }
 
-    if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+    if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) &&
+        (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
         interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
     }
     // #endregion
@@ -1329,19 +1364,23 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             // #region 2S2H [Dpad]
-            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
             }
             // #endregion
@@ -1405,19 +1444,23 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             // #region 2S2H [Dpad]
-            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
             }
             // #endregion
@@ -1529,19 +1572,23 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             // #region 2S2H [Dpad]
-            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
             }
             // #endregion
@@ -1578,19 +1625,23 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             // #region 2S2H [Dpad]
-            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
             }
             // #endregion
@@ -1635,19 +1686,23 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             // #region 2S2H [Dpad]
-            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
             }
             // #endregion
@@ -1699,19 +1754,23 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             // #region 2S2H [Dpad]
-            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
             }
             // #endregion
@@ -1925,19 +1984,23 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             // #region 2S2H [Dpad]
-            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
             }
             // #endregion
@@ -1982,19 +2045,23 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             // #region 2S2H [Dpad]
-            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
             }
             // #endregion
@@ -2031,19 +2098,23 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             // #region 2S2H [Dpad]
-            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
             }
             // #endregion
@@ -2084,19 +2155,23 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             // #region 2S2H [Dpad]
-            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
             }
             // #endregion
@@ -2141,19 +2216,23 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             // #region 2S2H [Dpad]
-            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
             }
             // #endregion
@@ -2186,19 +2265,23 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
             }
 
             // #region 2S2H [Dpad]
-            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) && (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dRightAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dRightAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dRightAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) && (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dLeftAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dLeftAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dLeftAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) && (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dDownAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dDownAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dDownAlpha = dimmingAlpha;
             }
 
-            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) && (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
+            if ((interfaceCtx->shipInterface.dpad.dUpAlpha != 0) &&
+                (interfaceCtx->shipInterface.dpad.dUpAlpha > dimmingAlpha)) {
                 interfaceCtx->shipInterface.dpad.dUpAlpha = dimmingAlpha;
             }
             // #endregion
@@ -2322,7 +2405,8 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
             // #region 2S2H [Dpad]
             for (s16 j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++) {
                 if ((DPAD_GET_CUR_FORM_BTN_ITEM(j) == ITEM_MASK_FIERCE_DEITY) ||
-                    ((DPAD_GET_CUR_FORM_BTN_ITEM(j) >= ITEM_BOTTLE) && (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_OBABA_DRINK))) {
+                    ((DPAD_GET_CUR_FORM_BTN_ITEM(j) >= ITEM_BOTTLE) &&
+                     (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_OBABA_DRINK))) {
                     if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_DISABLED) {
                         restoreHudVisibility = true;
                         gSaveContext.shipSaveContext.dpad.status[j] = BTN_ENABLED;
@@ -2351,7 +2435,8 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
             }
             // #region 2S2H [Dpad]
             for (s16 j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++) {
-                if ((DPAD_GET_CUR_FORM_BTN_ITEM(j) >= ITEM_MASK_DEKU) && (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_MASK_ZORA)) {
+                if ((DPAD_GET_CUR_FORM_BTN_ITEM(j) >= ITEM_MASK_DEKU) &&
+                    (DPAD_GET_CUR_FORM_BTN_ITEM(j) <= ITEM_MASK_ZORA)) {
                     if (gSaveContext.shipSaveContext.dpad.status[j] != BTN_DISABLED) {
                         restoreHudVisibility = true;
                     }
@@ -2715,11 +2800,9 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                     }
                 } else if (GET_CUR_FORM_BTN_ITEM(i) == ITEM_MASK_FIERCE_DEITY) {
                     // Fierce Deity's Mask is equipped
-                    u8 vanillaSceneConditionResult = 
-                        (play->sceneId != SCENE_MITURIN_BS) && 
-                        (play->sceneId != SCENE_HAKUGIN_BS) &&
-                        (play->sceneId != SCENE_SEA_BS) &&
-                        (play->sceneId != SCENE_INISIE_BS) &&
+                    u8 vanillaSceneConditionResult =
+                        (play->sceneId != SCENE_MITURIN_BS) && (play->sceneId != SCENE_HAKUGIN_BS) &&
+                        (play->sceneId != SCENE_SEA_BS) && (play->sceneId != SCENE_INISIE_BS) &&
                         (play->sceneId != SCENE_LAST_BS);
                     if (GameInteractor_Should(GI_VB_DISABLE_FD_MASK, vanillaSceneConditionResult, NULL)) {
                         if (gSaveContext.buttonStatus[i] != BTN_DISABLED) {
@@ -2862,11 +2945,9 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                     }
                 } else if (DPAD_GET_CUR_FORM_BTN_ITEM(j) == ITEM_MASK_FIERCE_DEITY) {
                     // Fierce Deity's Mask is equipped
-                    u8 vanillaSceneConditionResult = 
-                        (play->sceneId != SCENE_MITURIN_BS) && 
-                        (play->sceneId != SCENE_HAKUGIN_BS) &&
-                        (play->sceneId != SCENE_SEA_BS) &&
-                        (play->sceneId != SCENE_INISIE_BS) &&
+                    u8 vanillaSceneConditionResult =
+                        (play->sceneId != SCENE_MITURIN_BS) && (play->sceneId != SCENE_HAKUGIN_BS) &&
+                        (play->sceneId != SCENE_SEA_BS) && (play->sceneId != SCENE_INISIE_BS) &&
                         (play->sceneId != SCENE_LAST_BS);
                     if (GameInteractor_Should(GI_VB_DISABLE_FD_MASK, vanillaSceneConditionResult, NULL)) {
                         if (gSaveContext.shipSaveContext.dpad.status[j] != BTN_DISABLED) {
@@ -3352,7 +3433,7 @@ void Interface_Dpad_LoadItemIconImpl(PlayState* play, u8 btn) {
 
 void Interface_LoadItemIconImpl(PlayState* play, u8 btn) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
-    
+
     // #region 2S2H [Port]
     // CmpDma_LoadFile(SEGMENT_ROM_START(icon_item_static_yar), GET_CUR_FORM_BTN_ITEM(btn),
     //             &interfaceCtx->iconItemSegment[(u32)btn * 0x1000], 0x1000);
@@ -4106,7 +4187,7 @@ s32 Inventory_ReplaceItem(PlayState* play, u8 oldItem, u8 newItem) {
                     Interface_Dpad_LoadItemIconImpl(play, j);
                     break;
                 }
-            }            
+            }
             // #endregion
             return true;
         }
@@ -4366,7 +4447,7 @@ void Interface_SetTatlCall(PlayState* play, u16 tatlCallState) {
 
 void Interface_LoadBButtonDoActionLabel(PlayState* play, s16 bButtonDoAction) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
-    
+
     interfaceCtx->unk_224 = bButtonDoAction;
 
     // #region 2S2H [Port]
@@ -4788,12 +4869,12 @@ void Magic_Update(PlayState* play) {
                     ((BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT) != ITEM_LENS_OF_TRUTH) &&
                      (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) != ITEM_LENS_OF_TRUTH) &&
                      (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) != ITEM_LENS_OF_TRUTH) &&
-                    //  #region 2S2H [Dpad]
-                     (!CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0) || 
+                     //  #region 2S2H [Dpad]
+                     (!CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0) ||
                       (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) != ITEM_LENS_OF_TRUTH) &&
-                      (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) != ITEM_LENS_OF_TRUTH) &&
-                      (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) != ITEM_LENS_OF_TRUTH) &&
-                      (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) != ITEM_LENS_OF_TRUTH))) ||
+                          (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) != ITEM_LENS_OF_TRUTH) &&
+                          (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) != ITEM_LENS_OF_TRUTH) &&
+                          (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) != ITEM_LENS_OF_TRUTH))) ||
                     //   #endregion
                     !play->actorCtx.lensActive) {
                     // Deactivate Lens of Truth and set magic state to idle
@@ -4922,7 +5003,8 @@ void Magic_DrawMeter(PlayState* play) {
             // #region 2S2H [Cosmetic] Hud Editor
             HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_MAGIC_METER);
             if (HudEditor_ShouldOverrideDraw()) {
-                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar,
+                                   HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
                     hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
                 } else {
                     // All of this information was derived from the original call to gSPTextureRectangle below
@@ -4937,12 +5019,11 @@ void Magic_DrawMeter(PlayState* play) {
 
                     hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
 
-                    gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2,
-                                    (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
-                                    G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+                    gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2,
+                                            (rectTop + rectHeight) << 2, G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
                 }
             } else {
-            // #endregion
+                // #endregion
                 gSPTextureRectangle(OVERLAY_DISP++, 104, (magicBarY + 3) << 2,
                                     (((void)0, gSaveContext.save.saveInfo.playerData.magic) + 26) << 2,
                                     (magicBarY + 10) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
@@ -4961,7 +5042,8 @@ void Magic_DrawMeter(PlayState* play) {
             // #region 2S2H [Cosmetic] Hud Editor
             HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_MAGIC_METER);
             if (HudEditor_ShouldOverrideDraw()) {
-                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar,
+                                   HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
                     hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
                 } else {
                     // All of this information was derived from the original call to gSPTextureRectangle below
@@ -4976,16 +5058,15 @@ void Magic_DrawMeter(PlayState* play) {
 
                     hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
 
-                    gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2,
-                                    (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
-                                    G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+                    gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2,
+                                            (rectTop + rectHeight) << 2, G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
                 }
             } else {
-            // #endregion
+                // #endregion
                 gSPTextureRectangle(
                     OVERLAY_DISP++, 104, (magicBarY + 3) << 2,
-                    ((((void)0, gSaveContext.save.saveInfo.playerData.magic) - ((void)0, gSaveContext.magicToConsume)) + 26)
-                        << 2,
+                    ((((void)0, gSaveContext.save.saveInfo.playerData.magic) - ((void)0, gSaveContext.magicToConsume)) +
+                     26) << 2,
                     (magicBarY + 10) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
             }
         } else {
@@ -5004,7 +5085,8 @@ void Magic_DrawMeter(PlayState* play) {
             // #region 2S2H [Cosmetic] Hud Editor
             HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_MAGIC_METER);
             if (HudEditor_ShouldOverrideDraw()) {
-                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar,
+                                   HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
                     hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
                 } else {
                     // All of this information was derived from the original call to gSPTextureRectangle below
@@ -5019,11 +5101,10 @@ void Magic_DrawMeter(PlayState* play) {
 
                     hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
 
-                    gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2,
-                                    (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
-                                    G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+                    gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2,
+                                            (rectTop + rectHeight) << 2, G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
                 }
-            // #endregion
+                // #endregion
             } else {
                 gSPTextureRectangle(OVERLAY_DISP++, 104, (magicBarY + 3) << 2,
                                     (((void)0, gSaveContext.save.saveInfo.playerData.magic) + 26) << 2,
@@ -5051,14 +5132,16 @@ void Interface_SetPerspectiveView(PlayState* play, s32 topY, s32 bottomY, s32 le
 
     interfaceCtx->viewport.topY = topY;
     interfaceCtx->viewport.bottomY = bottomY;
-    // 2S2H [Cosmetic] These are originally relative to screen size, but by default we want them to instead be relative to the 4:3 HUD size, to match the rest of the HUD
+    // 2S2H [Cosmetic] These are originally relative to screen size, but by default we want them to instead be relative
+    // to the 4:3 HUD size, to match the rest of the HUD
     interfaceCtx->viewport.leftX = OTRConvertHUDXToScreenX(leftX);
     interfaceCtx->viewport.rightX = OTRConvertHUDXToScreenX(rightX);
 
     // #region 2S2H [Cosmetic] Hud Editor
     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_A);
     if (HudEditor_ShouldOverrideDraw()) {
-        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) ==
+            HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
             interfaceCtx->viewport.leftX = 0;
             interfaceCtx->viewport.rightX = 0;
             hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
@@ -5134,10 +5217,13 @@ void Interface_DrawItemButtons(PlayState* play) {
 
     // #region 2S2H [Dpad]
     if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
-        s16 dpadAlpha = MAX(MAX(MAX(interfaceCtx->shipInterface.dpad.dRightAlpha, interfaceCtx->shipInterface.dpad.dLeftAlpha), interfaceCtx->shipInterface.dpad.dDownAlpha),
-                    interfaceCtx->shipInterface.dpad.dUpAlpha);
+        s16 dpadAlpha =
+            MAX(MAX(MAX(interfaceCtx->shipInterface.dpad.dRightAlpha, interfaceCtx->shipInterface.dpad.dLeftAlpha),
+                    interfaceCtx->shipInterface.dpad.dDownAlpha),
+                interfaceCtx->shipInterface.dpad.dUpAlpha);
         HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_D_PAD);
-        OVERLAY_DISP = Gfx_DrawTexRectIA16_DropShadow(OVERLAY_DISP, gDPadTex, 32, 32, 271, 55, 32, 32, 1024, 1024, 255, 255, 255, dpadAlpha);
+        OVERLAY_DISP = Gfx_DrawTexRectIA16_DropShadow(OVERLAY_DISP, gDPadTex, 32, 32, 271, 55, 32, 32, 1024, 1024, 255,
+                                                      255, 255, dpadAlpha);
         gDPPipeSync(OVERLAY_DISP++);
     }
     // #endregion
@@ -5186,7 +5272,8 @@ void Interface_DrawItemButtons(PlayState* play) {
             // #region 2S2H [Cosmetic] Hud Editor
             HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_START);
             if (HudEditor_ShouldOverrideDraw()) {
-                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar,
+                                   HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
                     hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
                 } else {
                     // All of this information was derived from the original call to gSPTextureRectangle below
@@ -5201,13 +5288,13 @@ void Interface_DrawItemButtons(PlayState* play) {
 
                     hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
 
-                    gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2,
-                                    (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
-                                    G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+                    gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2,
+                                            (rectTop + rectHeight) << 2, G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
                 }
-            // #endregion
+                // #endregion
             } else {
-                gSPTextureRectangle(OVERLAY_DISP++, 0x01F8, 0x0054, 0x02D4, 0x009C, G_TX_RENDERTILE, 0, 0, 0x04A6, 0x04A6);
+                gSPTextureRectangle(OVERLAY_DISP++, 0x01F8, 0x0054, 0x02D4, 0x009C, G_TX_RENDERTILE, 0, 0, 0x04A6,
+                                    0x04A6);
             }
         }
     }
@@ -5246,7 +5333,8 @@ void Interface_DrawItemButtons(PlayState* play) {
             // #region 2S2H [Cosmetic] Hud Editor
             HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_UP);
             if (HudEditor_ShouldOverrideDraw()) {
-                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar,
+                                   HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
                     hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
                 } else {
                     // All of this information was derived from the original call to gSPTextureRectangle below
@@ -5291,9 +5379,9 @@ void Interface_DrawItemButtons(PlayState* play) {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 240, 0, interfaceCtx->cRightAlpha);
             }
             HudEditor_SetActiveElement(temp);
-            OVERLAY_DISP =
-                Gfx_DrawTexRectIA8(OVERLAY_DISP, emptyCButtonArrows[temp - 1], 0x20, 0x20, D_801BF9D4[temp], D_801BF9DC[temp],
-                                   D_801BFAF4[temp], D_801BFAF4[temp], D_801BF9E4[temp] * 2, D_801BF9E4[temp] * 2);
+            OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, emptyCButtonArrows[temp - 1], 0x20, 0x20, D_801BF9D4[temp],
+                                              D_801BF9DC[temp], D_801BFAF4[temp], D_801BFAF4[temp],
+                                              D_801BF9E4[temp] * 2, D_801BF9E4[temp] * 2);
         }
     }
 
@@ -5308,10 +5396,10 @@ s16 sDpadItemIconDD[] = {
     1024, // EQUIP_SLOT_D_UP
 };
 s16 sDpadItemIconLeft[] = {
-    295,  // EQUIP_SLOT_D_RIGHT
-    263,  // EQUIP_SLOT_D_LEFT
-    279,  // EQUIP_SLOT_D_DOWN
-    279,  // EQUIP_SLOT_D_UP
+    295, // EQUIP_SLOT_D_RIGHT
+    263, // EQUIP_SLOT_D_LEFT
+    279, // EQUIP_SLOT_D_DOWN
+    279, // EQUIP_SLOT_D_UP
 };
 s16 sDpadItemIconTop[] = {
     63, // EQUIP_SLOT_D_RIGHT
@@ -5330,7 +5418,8 @@ void Interface_Dpad_DrawItemIconTexture(PlayState* play, TexturePtr texture, s16
 
     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_D_PAD);
     if (HudEditor_ShouldOverrideDraw()) {
-        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) ==
+            HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
             hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
         } else {
             s16 rectLeft = sDpadItemIconLeft[button];
@@ -5344,14 +5433,14 @@ void Interface_Dpad_DrawItemIconTexture(PlayState* play, TexturePtr texture, s16
 
             hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
 
-            gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2,
-                            (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
-                            G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+            gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2,
+                                    (rectTop + rectHeight) << 2, G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
         }
     } else {
         gSPTextureRectangle(OVERLAY_DISP++, sDpadItemIconLeft[button] << 2, sDpadItemIconTop[button] << 2,
-                            (sDpadItemIconLeft[button] + sDpadItemIconWidth[button]) << 2, (sDpadItemIconTop[button] + sDpadItemIconWidth[button]) << 2,
-                            G_TX_RENDERTILE, 0, 0, sDpadItemIconDD[button] << 1, sDpadItemIconDD[button] << 1);
+                            (sDpadItemIconLeft[button] + sDpadItemIconWidth[button]) << 2,
+                            (sDpadItemIconTop[button] + sDpadItemIconWidth[button]) << 2, G_TX_RENDERTILE, 0, 0,
+                            sDpadItemIconDD[button] << 1, sDpadItemIconDD[button] << 1);
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -5364,7 +5453,7 @@ s16 sDpadItemAmmoX[] = {
     279, // EQUIP_SLOT_D_UP
 };
 
-s16 sDpadItemAmmoY[] = { 
+s16 sDpadItemAmmoY[] = {
     63 + 11, // EQUIP_SLOT_D_RIGHT
     63 + 11, // EQUIP_SLOT_D_LEFT
     79 + 11, // EQUIP_SLOT_D_DOWN
@@ -5399,12 +5488,12 @@ void Interface_Dpad_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
         gDPPipeSync(OVERLAY_DISP++);
 
         if (((i == ITEM_BOW) && (AMMO(i) == CUR_CAPACITY(UPG_QUIVER))) ||
-                   ((i == ITEM_BOMB) && (AMMO(i) == CUR_CAPACITY(UPG_BOMB_BAG))) ||
-                   ((i == ITEM_DEKU_STICK) && (AMMO(i) == CUR_CAPACITY(UPG_DEKU_STICKS))) ||
-                   ((i == ITEM_DEKU_NUT) && (AMMO(i) == CUR_CAPACITY(UPG_DEKU_NUTS))) ||
-                   ((i == ITEM_BOMBCHU) && (AMMO(i) == CUR_CAPACITY(UPG_BOMB_BAG))) ||
-                   ((i == ITEM_POWDER_KEG) && (ammo == 1)) || ((i == ITEM_PICTOGRAPH_BOX) && (ammo == 1)) ||
-                   ((i == ITEM_MAGIC_BEANS) && (ammo == 20))) {
+            ((i == ITEM_BOMB) && (AMMO(i) == CUR_CAPACITY(UPG_BOMB_BAG))) ||
+            ((i == ITEM_DEKU_STICK) && (AMMO(i) == CUR_CAPACITY(UPG_DEKU_STICKS))) ||
+            ((i == ITEM_DEKU_NUT) && (AMMO(i) == CUR_CAPACITY(UPG_DEKU_NUTS))) ||
+            ((i == ITEM_BOMBCHU) && (AMMO(i) == CUR_CAPACITY(UPG_BOMB_BAG))) ||
+            ((i == ITEM_POWDER_KEG) && (ammo == 1)) || ((i == ITEM_PICTOGRAPH_BOX) && (ammo == 1)) ||
+            ((i == ITEM_MAGIC_BEANS) && (ammo == 20))) {
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 120, 255, 0, alpha);
         }
 
@@ -5419,14 +5508,14 @@ void Interface_Dpad_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
         // Draw upper digit (tens)
         if ((u32)i != 0) {
             HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_D_PAD);
-            OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[i], 8, 8,
-                                              sDpadItemAmmoX[button], sDpadItemAmmoY[button], 8, 8, 1 << 10, 1 << 10);
+            OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[i], 8, 8, sDpadItemAmmoX[button],
+                                              sDpadItemAmmoY[button], 8, 8, 1 << 10, 1 << 10);
         }
 
         // Draw lower digit (ones)
         HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_D_PAD);
-        OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[ammo], 8, 8,
-                                          sDpadItemAmmoX[button] + 6, sDpadItemAmmoY[button], 8, 8, 1 << 10, 1 << 10);
+        OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[ammo], 8, 8, sDpadItemAmmoX[button] + 6,
+                                          sDpadItemAmmoY[button], 8, 8, 1 << 10, 1 << 10);
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -5444,7 +5533,8 @@ void Interface_DrawItemIconTexture(PlayState* play, TexturePtr texture, s16 butt
     // #region 2S2H [Cosmetic] Hud Editor
     HudEditor_SetActiveElement(button);
     if (HudEditor_ShouldOverrideDraw()) {
-        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) ==
+            HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
             hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
         } else {
             // All of this information was derived from the original call to gSPTextureRectangle below
@@ -5459,15 +5549,15 @@ void Interface_DrawItemIconTexture(PlayState* play, TexturePtr texture, s16 butt
 
             hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
 
-            gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2,
-                            (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
-                            G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+            gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2,
+                                    (rectTop + rectHeight) << 2, G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
         }
-    // #endregion
+        // #endregion
     } else {
         gSPTextureRectangle(OVERLAY_DISP++, D_801BF9D4[button] << 2, D_801BF9DC[button] << 2,
-                            (D_801BF9D4[button] + D_801BFAFC[button]) << 2, (D_801BF9DC[button] + D_801BFAFC[button]) << 2,
-                            G_TX_RENDERTILE, 0, 0, D_801BF9BC[button] << 1, D_801BF9BC[button] << 1);
+                            (D_801BF9D4[button] + D_801BFAFC[button]) << 2,
+                            (D_801BF9DC[button] + D_801BFAFC[button]) << 2, G_TX_RENDERTILE, 0, 0,
+                            D_801BF9BC[button] << 1, D_801BF9BC[button] << 1);
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -5536,14 +5626,14 @@ void Interface_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
         // Draw upper digit (tens)
         if ((u32)i != 0) {
             HudEditor_SetActiveElement(button);
-            OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[i], 8, 8,
-                                              D_801BFB04[button], D_801BFB0C[button], 8, 8, 1 << 10, 1 << 10);
+            OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[i], 8, 8, D_801BFB04[button],
+                                              D_801BFB0C[button], 8, 8, 1 << 10, 1 << 10);
         }
 
         // Draw lower digit (ones)
         HudEditor_SetActiveElement(button);
-        OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[ammo], 8, 8,
-                                          D_801BFB04[button] + 6, D_801BFB0C[button], 8, 8, 1 << 10, 1 << 10);
+        OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[ammo], 8, 8, D_801BFB04[button] + 6,
+                                          D_801BFB0C[button], 8, 8, 1 << 10, 1 << 10);
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -5608,7 +5698,8 @@ void Interface_DrawBButtonIcons(PlayState* play) {
         // #region 2S2H [Cosmetic] Hud Editor
         HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_B);
         if (HudEditor_ShouldOverrideDraw()) {
-            if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+            if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) ==
+                HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
                 hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
             } else {
                 // All of this information was derived from the original call to gSPTextureRectangle below
@@ -5623,16 +5714,16 @@ void Interface_DrawBButtonIcons(PlayState* play) {
 
                 hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
 
-                gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2,
-                                (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
-                                G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+                gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2,
+                                        (rectTop + rectHeight) << 2, G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
             }
-        // #endregion
+            // #endregion
         } else {
-            gSPTextureRectangle(
-                OVERLAY_DISP++, (D_801BF9C4[gSaveContext.options.language] * 4),
-                (D_801BF9C8[gSaveContext.options.language] * 4), ((D_801BF9C4[gSaveContext.options.language] + 0x30) << 2),
-                ((D_801BF9C8[gSaveContext.options.language] + 0x10) << 2), G_TX_RENDERTILE, 0, 0, D_801BF9B0, D_801BF9B0);
+            gSPTextureRectangle(OVERLAY_DISP++, (D_801BF9C4[gSaveContext.options.language] * 4),
+                                (D_801BF9C8[gSaveContext.options.language] * 4),
+                                ((D_801BF9C4[gSaveContext.options.language] + 0x30) << 2),
+                                ((D_801BF9C8[gSaveContext.options.language] + 0x10) << 2), G_TX_RENDERTILE, 0, 0,
+                                D_801BF9B0, D_801BF9B0);
         }
     } else if (interfaceCtx->bButtonDoAction != DO_ACTION_NONE) {
         gDPPipeSync(OVERLAY_DISP++);
@@ -5648,7 +5739,8 @@ void Interface_DrawBButtonIcons(PlayState* play) {
         // #region 2S2H [Cosmetic] Hud Editor
         HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_B);
         if (HudEditor_ShouldOverrideDraw()) {
-            if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+            if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) ==
+                HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
                 hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
             } else {
                 // All of this information was derived from the original call to gSPTextureRectangle below
@@ -5663,16 +5755,16 @@ void Interface_DrawBButtonIcons(PlayState* play) {
 
                 hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
 
-                gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2,
-                                (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
-                                G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+                gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2,
+                                        (rectTop + rectHeight) << 2, G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
             }
-        // #endregion
+            // #endregion
         } else {
-            gSPTextureRectangle(
-                OVERLAY_DISP++, (D_801BF9C4[gSaveContext.options.language] * 4),
-                (D_801BF9C8[gSaveContext.options.language] * 4), ((D_801BF9C4[gSaveContext.options.language] + 0x30) << 2),
-                ((D_801BF9C8[gSaveContext.options.language] + 0x10) << 2), G_TX_RENDERTILE, 0, 0, D_801BF9B0, D_801BF9B0);
+            gSPTextureRectangle(OVERLAY_DISP++, (D_801BF9C4[gSaveContext.options.language] * 4),
+                                (D_801BF9C8[gSaveContext.options.language] * 4),
+                                ((D_801BF9C4[gSaveContext.options.language] + 0x30) << 2),
+                                ((D_801BF9C8[gSaveContext.options.language] + 0x10) << 2), G_TX_RENDERTILE, 0, 0,
+                                D_801BF9B0, D_801BF9B0);
         }
     }
 
@@ -5741,20 +5833,22 @@ void Interface_DrawDButtonIcons(PlayState* play) {
     if (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) < ITEM_F0) {
         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, dpadInterfaceCtx->dRightAlpha);
         gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
-        Interface_Dpad_DrawItemIconTexture(play, interfaceCtx->iconItemSegment[EQUIP_SLOT_D_RIGHT + EQUIP_SLOT_MAX], EQUIP_SLOT_D_RIGHT);
+        Interface_Dpad_DrawItemIconTexture(play, interfaceCtx->iconItemSegment[EQUIP_SLOT_D_RIGHT + EQUIP_SLOT_MAX],
+                                           EQUIP_SLOT_D_RIGHT);
         gDPPipeSync(OVERLAY_DISP++);
         gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
                           PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
         Interface_Dpad_DrawAmmoCount(play, EQUIP_SLOT_D_RIGHT, dpadInterfaceCtx->dRightAlpha);
     }
 
-        gDPPipeSync(OVERLAY_DISP++);
+    gDPPipeSync(OVERLAY_DISP++);
 
     // D-Left Button Icon & Ammo Count
     if (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) < ITEM_F0) {
         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, dpadInterfaceCtx->dLeftAlpha);
         gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
-        Interface_Dpad_DrawItemIconTexture(play, interfaceCtx->iconItemSegment[EQUIP_SLOT_D_LEFT + EQUIP_SLOT_MAX], EQUIP_SLOT_D_LEFT);
+        Interface_Dpad_DrawItemIconTexture(play, interfaceCtx->iconItemSegment[EQUIP_SLOT_D_LEFT + EQUIP_SLOT_MAX],
+                                           EQUIP_SLOT_D_LEFT);
         gDPPipeSync(OVERLAY_DISP++);
         gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
                           PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
@@ -5767,7 +5861,8 @@ void Interface_DrawDButtonIcons(PlayState* play) {
     if (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) < ITEM_F0) {
         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, dpadInterfaceCtx->dDownAlpha);
         gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
-        Interface_Dpad_DrawItemIconTexture(play, interfaceCtx->iconItemSegment[EQUIP_SLOT_D_DOWN + EQUIP_SLOT_MAX], EQUIP_SLOT_D_DOWN);
+        Interface_Dpad_DrawItemIconTexture(play, interfaceCtx->iconItemSegment[EQUIP_SLOT_D_DOWN + EQUIP_SLOT_MAX],
+                                           EQUIP_SLOT_D_DOWN);
         gDPPipeSync(OVERLAY_DISP++);
         gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
                           PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
@@ -5780,7 +5875,8 @@ void Interface_DrawDButtonIcons(PlayState* play) {
     if (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) < ITEM_F0) {
         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, dpadInterfaceCtx->dUpAlpha);
         gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
-        Interface_Dpad_DrawItemIconTexture(play, interfaceCtx->iconItemSegment[EQUIP_SLOT_D_UP + EQUIP_SLOT_MAX], EQUIP_SLOT_D_UP);
+        Interface_Dpad_DrawItemIconTexture(play, interfaceCtx->iconItemSegment[EQUIP_SLOT_D_UP + EQUIP_SLOT_MAX],
+                                           EQUIP_SLOT_D_UP);
         gDPPipeSync(OVERLAY_DISP++);
         gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
                           PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
@@ -5916,8 +6012,8 @@ void Interface_DrawPauseMenuEquippingIcons(PlayState* play) {
 
             gSPVertex(OVERLAY_DISP++, &pauseCtx->cursorVtx[16], 4, 0);
             gDPLoadTextureBlock(OVERLAY_DISP++, gMagicArrowEquipEffectTex, G_IM_FMT_IA, G_IM_SIZ_8b, 32, 32, 0,
-                               G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                               G_TX_NOLOD, G_TX_NOLOD);
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                G_TX_NOLOD, G_TX_NOLOD);
         }
 
         gSP1Quadrangle(OVERLAY_DISP++, 0, 2, 3, 1, 0);
@@ -5948,17 +6044,19 @@ void Interface_DrawClock(PlayState* play) {
         gThreeDayClockHour12Tex, gThreeDayClockHour1Tex, gThreeDayClockHour2Tex,  gThreeDayClockHour3Tex,
         gThreeDayClockHour4Tex,  gThreeDayClockHour5Tex, gThreeDayClockHour6Tex,  gThreeDayClockHour7Tex,
         gThreeDayClockHour8Tex,  gThreeDayClockHour9Tex, gThreeDayClockHour10Tex, gThreeDayClockHour11Tex,
-        gEmptyTexture, gEmptyTexture, // 2S2H [Port] To account for the vanilla bug detailed later on in this function
+        gEmptyTexture,           gEmptyTexture, // 2S2H [Port] To account for the vanilla bug detailed later on in this
+                                                // function
     };
-        // 2S2H Region [Enhancements] 24 Hours Clock
-        static TexturePtr sThreeDayClockHourTwentyFourHoursTextures[] = {
-        gThreeDayClockHour24Tex, gThreeDayClockHour1Tex, gThreeDayClockHour2Tex,  gThreeDayClockHour3Tex,
-        gThreeDayClockHour4Tex,  gThreeDayClockHour5Tex, gThreeDayClockHour6Tex,  gThreeDayClockHour7Tex,
-        gThreeDayClockHour8Tex,  gThreeDayClockHour9Tex, gThreeDayClockHour10Tex, gThreeDayClockHour11Tex,
-        gThreeDayClockHour12Tex, gThreeDayClockHour13Tex, gThreeDayClockHour14Tex,  gThreeDayClockHour15Tex,
-        gThreeDayClockHour16Tex,  gThreeDayClockHour17Tex, gThreeDayClockHour18Tex,  gThreeDayClockHour19Tex,
-        gThreeDayClockHour20Tex,  gThreeDayClockHour21Tex, gThreeDayClockHour22Tex, gThreeDayClockHour23Tex,
-        gEmptyTexture, gEmptyTexture, // 2S2H [Port] To account for the vanilla bug detailed later on in this function
+    // 2S2H Region [Enhancements] 24 Hours Clock
+    static TexturePtr sThreeDayClockHourTwentyFourHoursTextures[] = {
+        gThreeDayClockHour24Tex, gThreeDayClockHour1Tex,  gThreeDayClockHour2Tex,  gThreeDayClockHour3Tex,
+        gThreeDayClockHour4Tex,  gThreeDayClockHour5Tex,  gThreeDayClockHour6Tex,  gThreeDayClockHour7Tex,
+        gThreeDayClockHour8Tex,  gThreeDayClockHour9Tex,  gThreeDayClockHour10Tex, gThreeDayClockHour11Tex,
+        gThreeDayClockHour12Tex, gThreeDayClockHour13Tex, gThreeDayClockHour14Tex, gThreeDayClockHour15Tex,
+        gThreeDayClockHour16Tex, gThreeDayClockHour17Tex, gThreeDayClockHour18Tex, gThreeDayClockHour19Tex,
+        gThreeDayClockHour20Tex, gThreeDayClockHour21Tex, gThreeDayClockHour22Tex, gThreeDayClockHour23Tex,
+        gEmptyTexture,           gEmptyTexture, // 2S2H [Port] To account for the vanilla bug detailed later on in this
+                                                // function
         // #endregison
     };
     static s16 sClockInvDiamondPrimRed = 0;
@@ -6084,8 +6182,8 @@ void Interface_DrawClock(PlayState* play) {
             //!      covered by the diamond. However, it can be seen by the final-hours clock.
             // 2S2H [Port] We are opting to fix this here because our garbage data will not
             // be consistent with the garbage rendered on hardware, and potentially dangerous.
-            OVERLAY_DISP = Gfx_DrawTexRect4b(OVERLAY_DISP, gThreeDayClockBorderTex, 4, 64, /*50*/ 48, 96, 168, 128, 50, 1, 6,
-                                             0, 1 << 10, 1 << 10);
+            OVERLAY_DISP = Gfx_DrawTexRect4b(OVERLAY_DISP, gThreeDayClockBorderTex, 4, 64, /*50*/ 48, 96, 168, 128, 50,
+                                             1, 6, 0, 1 << 10, 1 << 10);
 
             if (((CURRENT_DAY >= 4) ||
                  ((CURRENT_DAY == 3) && (((void)0, gSaveContext.save.time) >= (CLOCK_TIME(0, 0) + 5)) &&
@@ -6191,8 +6289,9 @@ void Interface_DrawClock(PlayState* play) {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 155, sThreeDayClockAlpha);
 
                 HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
-                OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, interfaceCtx->doActionSegment[DO_ACTION_SEG_CLOCK].mainTex, 48,
-                                                  27, 137, 192, 48, 27, 1 << 10, 1 << 10);
+                OVERLAY_DISP =
+                    Gfx_DrawTexRectIA8(OVERLAY_DISP, interfaceCtx->doActionSegment[DO_ACTION_SEG_CLOCK].mainTex, 48, 27,
+                                       137, 192, 48, 27, 1 << 10, 1 << 10);
 
                 /**
                  * Section: Draw Three-Day Clock's Star (for the Minute Tracker)
@@ -6399,7 +6498,6 @@ void Interface_DrawClock(PlayState* play) {
                 rectWidth = MIN(rectLeft + rectWidth, OTRGetRectDimensionFromRightEdge(SCREEN_WIDTH)) - rectLeft;
                 rectHeight = MIN(rectTop + rectHeight, SCREEN_HEIGHT) - rectTop;
 
-
                 gDPSetScissor(OVERLAY_DISP++, G_SC_NON_INTERLACE, OTRConvertHUDXToScreenX(rectLeft), rectTop,
                               OTRConvertHUDXToScreenX(rectLeft + rectWidth), rectTop + rectHeight);
             } else {
@@ -6441,9 +6539,10 @@ void Interface_DrawClock(PlayState* play) {
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, sThreeDayClockAlpha);
             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[24], 8, 0);
 
-            OVERLAY_DISP = CVarGetInteger("gEnhancements.Graphics.24HoursClock", 0) ? 
-              Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTwentyFourHoursTextures[sp1C6], 4, 16, 11, 0) : 
-              Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTextures[sp1C6], 4, 16, 11, 0);
+            OVERLAY_DISP =
+                CVarGetInteger("gEnhancements.Graphics.24HoursClock", 0)
+                    ? Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTwentyFourHoursTextures[sp1C6], 4, 16, 11, 0)
+                    : Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTextures[sp1C6], 4, 16, 11, 0);
 
             // Colours the Three-Day Clocks's Hour Digit Above the Sun
             gDPPipeSync(OVERLAY_DISP++);
@@ -6482,10 +6581,10 @@ void Interface_DrawClock(PlayState* play) {
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, sThreeDayClockAlpha);
             gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[32], 8, 0);
 
-            OVERLAY_DISP = CVarGetInteger("gEnhancements.Graphics.24HoursClock", 0) ? 
-              Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTwentyFourHoursTextures[sp1C6], 4, 16, 11, 0) : 
-              Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTextures[sp1C6], 4, 16, 11, 0);
-
+            OVERLAY_DISP =
+                CVarGetInteger("gEnhancements.Graphics.24HoursClock", 0)
+                    ? Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTwentyFourHoursTextures[sp1C6], 4, 16, 11, 0)
+                    : Gfx_DrawTexQuad4b(OVERLAY_DISP, sThreeDayClockHourTextures[sp1C6], 4, 16, 11, 0);
 
             // Colours the Three-Day Clocks's Hour Digit Above the Moon
             gDPPipeSync(OVERLAY_DISP++);
@@ -7944,7 +8043,8 @@ void Interface_DrawMinigameIcons(PlayState* play) {
             // #region 2S2H [Cosmetic] Hud Editor
             HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_MINIGAME_COUNTER);
             if (HudEditor_ShouldOverrideDraw()) {
-                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar,
+                                   HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
                     hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
                 } else {
                     s16 newRectX = rectX;
@@ -8162,8 +8262,8 @@ void Interface_Draw(PlayState* play) {
                         gDPPipeSync(OVERLAY_DISP++);
                         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, interfaceCtx->magicAlpha);
 
-                        OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sCounterTextures[counterDigits[2]], 8, 16, 43, 191,
-                                                         8, 16, 1 << 10, 1 << 10);
+                        OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sCounterTextures[counterDigits[2]], 8, 16, 43,
+                                                         191, 8, 16, 1 << 10, 1 << 10);
 
                         gDPPipeSync(OVERLAY_DISP++);
                         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->magicAlpha);
@@ -8186,7 +8286,8 @@ void Interface_Draw(PlayState* play) {
                     // #region 2S2H [Cosmetic] Hud Editor
                     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_KEY_COUNTER);
                     if (HudEditor_ShouldOverrideDraw()) {
-                        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+                        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar,
+                                           HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
                             hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
                         } else {
                             // All of this information was derived from the original call to gSPTextureRectangle below
@@ -8221,14 +8322,16 @@ void Interface_Draw(PlayState* play) {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->magicAlpha);
                 gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 255);
 
-                gDPLoadTextureBlock(OVERLAY_DISP++, gGoldSkulltulaCounterIconTex, G_IM_FMT_RGBA, G_IM_SIZ_32b, 24, 24, // 2S2H [Port] This last 24 was 18 in the minibuild, not sure why
+                gDPLoadTextureBlock(OVERLAY_DISP++, gGoldSkulltulaCounterIconTex, G_IM_FMT_RGBA, G_IM_SIZ_32b, 24,
+                                    24, // 2S2H [Port] This last 24 was 18 in the minibuild, not sure why
                                     0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                     G_TX_NOLOD, G_TX_NOLOD);
-                
+
                 // #region 2S2H [Cosmetic] Hud Editor
                 HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_SKULLTULA_COUNTER);
                 if (HudEditor_ShouldOverrideDraw()) {
-                    if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+                    if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar,
+                                       HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
                         hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
                     } else {
                         // All of this information was derived from the original call to gSPTextureRectangle below
@@ -8272,15 +8375,16 @@ void Interface_Draw(PlayState* play) {
                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, interfaceCtx->magicAlpha);
 
                     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_SKULLTULA_COUNTER);
-                    OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sCounterTextures[counterDigits[2]], 8, 16, 43, 191, 8,
-                                                     16, 1 << 10, 1 << 10);
+                    OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sCounterTextures[counterDigits[2]], 8, 16, 43, 191,
+                                                     8, 16, 1 << 10, 1 << 10);
 
                     gDPPipeSync(OVERLAY_DISP++);
                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->magicAlpha);
                     // #region 2S2H [Cosmetic] Hud Editor
                     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_SKULLTULA_COUNTER);
                     if (HudEditor_ShouldOverrideDraw()) {
-                        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+                        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar,
+                                           HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
                             hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
                         } else {
                             // All of this information was derived from the original call to gSPTextureRectangle below
@@ -8301,7 +8405,8 @@ void Interface_Draw(PlayState* play) {
                         }
                         // #endregion
                     } else {
-                        gSPTextureRectangle(OVERLAY_DISP++, 168, 760, 200, 824, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+                        gSPTextureRectangle(OVERLAY_DISP++, 168, 760, 200, 824, G_TX_RENDERTILE, 0, 0, 1 << 10,
+                                            1 << 10);
                     }
 
                     sp2CA += 8;
@@ -8311,8 +8416,8 @@ void Interface_Draw(PlayState* play) {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, interfaceCtx->magicAlpha);
 
                 HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_SKULLTULA_COUNTER);
-                OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sCounterTextures[counterDigits[3]], 8, 16, sp2CA + 1, 191,
-                                                 8, 16, 1 << 10, 1 << 10);
+                OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sCounterTextures[counterDigits[3]], 8, 16, sp2CA + 1,
+                                                 191, 8, 16, 1 << 10, 1 << 10);
 
                 gDPPipeSync(OVERLAY_DISP++);
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->magicAlpha);
@@ -8320,7 +8425,8 @@ void Interface_Draw(PlayState* play) {
                 // #region 2S2H [Cosmetic] Hud Editor
                 HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_SKULLTULA_COUNTER);
                 if (HudEditor_ShouldOverrideDraw()) {
-                    if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+                    if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar,
+                                       HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
                         hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
                     } else {
                         // All of this information was derived from the original call to gSPTextureRectangle below
@@ -8341,8 +8447,8 @@ void Interface_Draw(PlayState* play) {
                     }
                     // #endregion
                 } else {
-                    gSPTextureRectangle(OVERLAY_DISP++, sp2CA * 4, 760, (sp2CA * 4) + 0x20, 824, G_TX_RENDERTILE, 0,
-                                        0, 1 << 10, 1 << 10);
+                    gSPTextureRectangle(OVERLAY_DISP++, sp2CA * 4, 760, (sp2CA * 4) + 0x20, 824, G_TX_RENDERTILE, 0, 0,
+                                        1 << 10, 1 << 10);
                 }
                 break;
 
@@ -8385,8 +8491,8 @@ void Interface_Draw(PlayState* play) {
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, magicAlpha);
 
             HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_RUPEE_COUNTER);
-            OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sCounterTextures[counterDigits[sp2CC]], 8, 16, sp2CA + 1, 207,
-                                             8, 16, 1 << 10, 1 << 10);
+            OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sCounterTextures[counterDigits[sp2CC]], 8, 16, sp2CA + 1,
+                                             207, 8, 16, 1 << 10, 1 << 10);
 
             gDPPipeSync(OVERLAY_DISP++);
 
@@ -8401,7 +8507,8 @@ void Interface_Draw(PlayState* play) {
             // #region 2S2H [Cosmetic] Hud Editor
             HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_RUPEE_COUNTER);
             if (HudEditor_ShouldOverrideDraw()) {
-                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar,
+                                   HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
                     hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
                 } else {
                     // All of this information was derived from the original call to gSPTextureRectangle below
@@ -8416,14 +8523,13 @@ void Interface_Draw(PlayState* play) {
 
                     hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
 
-                    gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2,
-                                    (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
-                                    G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+                    gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2,
+                                            (rectTop + rectHeight) << 2, G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
                 }
-            // #endregion
+                // #endregion
             } else {
-                gSPTextureRectangle(OVERLAY_DISP++, sp2CA * 4, 824, (sp2CA * 4) + 0x20, 888, G_TX_RENDERTILE, 0, 0, 1 << 10,
-                                    1 << 10);
+                gSPTextureRectangle(OVERLAY_DISP++, sp2CA * 4, 824, (sp2CA * 4) + 0x20, 888, G_TX_RENDERTILE, 0, 0,
+                                    1 << 10, 1 << 10);
             }
         }
 
@@ -8629,7 +8735,7 @@ void Interface_LoadStory(PlayState* play, s32 osMesgFlag) {
         case STORY_DMA_LOADING:
             // if (osRecvMesg(&interfaceCtx->storyMsgQueue, NULL, osMesgFlag) == 0) {
             if (true) {
-            // #endregion
+                // #endregion
                 interfaceCtx->storyDmaStatus = STORY_DMA_DONE;
             }
             break;
@@ -9160,7 +9266,8 @@ void Interface_Init(PlayState* play) {
     parameterStaticSize = SEGMENT_ROM_SIZE(parameter_static);
     // #region 2S2H [Port]
     interfaceCtx->parameterSegment = THA_AllocTailAlign16(&play->state.tha, parameterStaticSize);
-    // DmaMgr_SendRequest0(interfaceCtx->parameterSegment, SEGMENT_ROM_START(parameter_static), parameterStaticSize); // 2S2H [Port] TODO
+    // DmaMgr_SendRequest0(interfaceCtx->parameterSegment, SEGMENT_ROM_START(parameter_static), parameterStaticSize); //
+    // 2S2H [Port] TODO
 
     interfaceCtx->doActionSegment = THA_AllocTailAlign16(&play->state.tha, sizeof(ActionLabel) * DO_ACTION_SEG_MAX);
     for (size_t id = 0; id < DO_ACTION_SEG_MAX; id++) {
@@ -9176,7 +9283,8 @@ void Interface_Init(PlayState* play) {
     Interface_NewDay(play, CURRENT_DAY);
 
     // #region 2S2H [Dpad] Increase Size of iconItemSegment for dpad
-    interfaceCtx->iconItemSegment = THA_AllocTailAlign16(&play->state.tha, sizeof(char*) * (EQUIP_SLOT_MAX + EQUIP_SLOT_D_MAX));
+    interfaceCtx->iconItemSegment =
+        THA_AllocTailAlign16(&play->state.tha, sizeof(char*) * (EQUIP_SLOT_MAX + EQUIP_SLOT_D_MAX));
     for (size_t id = 0; id < (EQUIP_SLOT_MAX + EQUIP_SLOT_D_MAX); id++) {
         interfaceCtx->iconItemSegment[id] = gEmptyTexture;
     }

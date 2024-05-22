@@ -62,9 +62,8 @@ static constexpr uint32_t OOT_PAL_11 = 0xB2055FBD;
 static constexpr uint32_t MM_US_10 = 0x5354631C;
 static constexpr uint32_t MM_US_GC = 0xB443EB08;
 
-static const std::unordered_map<uint32_t, const char*> verMap = { 
-    { MM_US_10, "US 1.0" },
-    { MM_US_GC, "US GC"},
+static const std::unordered_map<uint32_t, const char*> verMap = {
+    { MM_US_10, "US 1.0" }, { MM_US_GC, "US GC" },
     //{ OOT_PAL_GC, "PAL Gamecube" },
     //{ OOT_PAL_MQ, "PAL MQ" },
     //{ OOT_PAL_GC_DBG1, "PAL Debug 1" },
@@ -78,16 +77,16 @@ static const std::unordered_map<uint32_t, const char*> verMap = {
 static constexpr std::array<const uint32_t, 10> goodCrcs = {
     0x96F49400, // MM US 1.0 32MB
     0xBB434787, // MM GC
-    //0xfa8c0555, // MQ DBG 64MB (Original overdump)
-    //0x8652ac4c, // MQ DBG 64MB
-    //0x5B8A1EB7, // MQ DBG 64MB (Empty overdump)
-    //0x1f731ffe, // MQ DBG 54MB
-    //0x044b3982, // NMQ DBG 54MB
-    //0xEB15D7B9, // NMQ DBG 64MB
-    //0xDA8E61BF, // GC PAL
-    //0x7A2FAE68, // GC MQ PAL
-    //0xFD9913B1, // N64 PAL 1.0
-    //0xE033FBBA, // N64 PAL 1.1
+    // 0xfa8c0555, // MQ DBG 64MB (Original overdump)
+    // 0x8652ac4c, // MQ DBG 64MB
+    // 0x5B8A1EB7, // MQ DBG 64MB (Empty overdump)
+    // 0x1f731ffe, // MQ DBG 54MB
+    // 0x044b3982, // NMQ DBG 54MB
+    // 0xEB15D7B9, // NMQ DBG 64MB
+    // 0xDA8E61BF, // GC PAL
+    // 0x7A2FAE68, // GC MQ PAL
+    // 0xFD9913B1, // N64 PAL 1.0
+    // 0xE033FBBA, // N64 PAL 1.1
 };
 
 enum class ButtonId : int {
@@ -95,7 +94,6 @@ enum class ButtonId : int {
     NO,
     FIND,
 };
-
 
 void Extractor::ShowErrorBox(const char* title, const char* text) {
 #ifdef _WIN32
@@ -198,8 +196,7 @@ void Extractor::FilterRoms(std::vector<std::string>& roms, RomSearchMode searchM
 
         // Rom doesn't claim to be valid
         // Game type doesn't match search mode
-        if (!verMap.contains(GetRomVerCrc()) ||
-            (searchMode == RomSearchMode::Vanilla && IsMasterQuest()) ||
+        if (!verMap.contains(GetRomVerCrc()) || (searchMode == RomSearchMode::Vanilla && IsMasterQuest()) ||
             (searchMode == RomSearchMode::MQ && !IsMasterQuest())) {
             it = roms.erase(it);
             continue;
@@ -242,8 +239,7 @@ void Extractor::GetRoms(std::vector<std::string>& roms) {
 
                 // Get the position of the extension character.
                 char* ext = strrchr(dir->d_name, '.');
-                if (ext != NULL && (strcmp(ext, ".z64") == 0 || strcmp(ext, ".n64") == 0 ||
-                    strcmp(ext, ".v64") == 0)) {
+                if (ext != NULL && (strcmp(ext, ".z64") == 0 || strcmp(ext, ".n64") == 0 || strcmp(ext, ".v64") == 0)) {
                     roms.push_back(dir->d_name);
                 }
             }
@@ -272,7 +268,8 @@ bool Extractor::GetRomPathFromBox() {
     box.lpstrFile = nameBuffer;
     box.nMaxFile = sizeof(nameBuffer) / sizeof(nameBuffer[0]);
     box.lpstrTitle = "Open Rom";
-    box.Flags = OFN_NOCHANGEDIR | OFN_ENABLESIZING | OFN_FILEMUSTEXIST | OFN_LONGNAMES | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY;
+    box.Flags =
+        OFN_NOCHANGEDIR | OFN_ENABLESIZING | OFN_FILEMUSTEXIST | OFN_LONGNAMES | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY;
     box.lpstrFilter = "N64 Roms\0*.z64;*.v64;*.n64\0\0";
     if (!GetOpenFileNameA(&box)) {
         DWORD err = CommDlgExtendedError();
@@ -299,7 +296,7 @@ bool Extractor::GetRomPathFromBox() {
         return false;
     }
     mCurrentRomPath = nameBuffer;
-    #else
+#else
     auto selection = pfd::open_file("Select a file", ".", { "N64 Roms", "*.z64 *.n64 *.v64" }).result();
 
     if (selection.empty()) {
@@ -307,7 +304,7 @@ bool Extractor::GetRomPathFromBox() {
     }
 
     mCurrentRomPath = selection[0];
-    #endif
+#endif
     mCurRomSize = GetCurRomSize();
     return true;
 }
@@ -388,7 +385,9 @@ bool Extractor::ManuallySearchForRomMatchingType(RomSearchMode searchMode) {
     }
 
     char msgBuf[150];
-    snprintf(msgBuf, 150, "The selected rom does not match the expected game type\nExpected type: %s.\n\nDo you want to search again?",
+    snprintf(
+        msgBuf, 150,
+        "The selected rom does not match the expected game type\nExpected type: %s.\n\nDo you want to search again?",
         searchMode == RomSearchMode::MQ ? "Master Quest" : "Vanilla");
 
     while ((searchMode == RomSearchMode::Vanilla && IsMasterQuest()) ||
@@ -522,7 +521,7 @@ const char* Extractor::GetZapdVerStr() const {
 
 std::string Extractor::Mkdtemp() {
     std::string temp_dir = std::filesystem::temp_directory_path().string();
-    
+
     // create 6 random alphanumeric characters
     static const char charset[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     std::random_device rd;
@@ -559,7 +558,7 @@ bool Extractor::CallZapd(std::string installPath, std::string exportdir) {
     std::string curdir = std::filesystem::current_path().string();
 #ifdef _WIN32
     std::filesystem::copy(installPath + "/assets", tempdir + "/assets",
-        std::filesystem::copy_options::recursive | std::filesystem::copy_options::update_existing);
+                          std::filesystem::copy_options::recursive | std::filesystem::copy_options::update_existing);
 #else
     std::filesystem::create_symlink(installPath + "/assets", tempdir + "/assets");
 #endif
@@ -593,12 +592,16 @@ bool Extractor::CallZapd(std::string installPath, std::string exportdir) {
     // Grab a handle to the command window.
     HWND cmdWindow = GetConsoleWindow();
 
-    // Normally the command window is hidden. We want the window to be shown here so the user can see the progess of the extraction.
+    // Normally the command window is hidden. We want the window to be shown here so the user can see the progess of the
+    // extraction.
     ShowWindow(cmdWindow, SW_SHOW);
     SetWindowPos(cmdWindow, HWND_NOTOPMOST, 0, 0, 0, 0, SWP_NOSIZE | SWP_NOMOVE);
 #else
     // Show extraction in background message until linux/mac can have visual progress
-    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Extracting", "Extraction will now begin in the background.\n\nPlease be patient for the process to finish. Do not close the main program.", nullptr);
+    SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Extracting",
+                             "Extraction will now begin in the background.\n\nPlease be patient for the process to "
+                             "finish. Do not close the main program.",
+                             nullptr);
 #endif
 
     zapd_main(argc, (char**)argv.data());

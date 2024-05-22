@@ -8,15 +8,15 @@
 
 size_t gDmaMgrDmaBuffSize = 0x2000;
 
-//StackEntry sDmaMgrStackInfo;
-//u16 sNumDmaEntries;
-//OSMesgQueue sDmaMgrMsgQueue;
-//OSMesg sDmaMgrMsgs[32];
-//OSThread sDmaMgrThread;
-//STACK(sDmaMgrStack, 0x500);
+// StackEntry sDmaMgrStackInfo;
+// u16 sNumDmaEntries;
+// OSMesgQueue sDmaMgrMsgQueue;
+// OSMesg sDmaMgrMsgs[32];
+// OSThread sDmaMgrThread;
+// STACK(sDmaMgrStack, 0x500);
 
 s32 DmaMgr_DmaRomToRam(uintptr_t rom, void* ram, size_t size) {
-    #if 0
+#if 0
     OSIoMesg ioMsg;
     OSMesgQueue queue;
     OSMesg msg[1];
@@ -60,16 +60,16 @@ s32 DmaMgr_DmaRomToRam(uintptr_t rom, void* ram, size_t size) {
 
 END:
     return ret;
-    #endif
+#endif
     return 0;
 }
 
 s32 DmaMgr_DmaHandler(OSPiHandle* pihandle, OSIoMesg* mb, s32 direction) {
-    //return osEPiStartDma(pihandle, mb, direction);
+    // return osEPiStartDma(pihandle, mb, direction);
 }
 
 DmaEntry* DmaMgr_FindDmaEntry(uintptr_t vrom) {
-    #if 0
+#if 0
     DmaEntry* curr;
 
     for (curr = dmadata; curr->vromEnd != 0; curr++) {
@@ -84,11 +84,11 @@ DmaEntry* DmaMgr_FindDmaEntry(uintptr_t vrom) {
     }
 
     return NULL;
-    #endif
+#endif
 }
 
 u32 DmaMgr_TranslateVromToRom(uintptr_t vrom) {
-    #if 0
+#if 0
     DmaEntry* entry = DmaMgr_FindDmaEntry(vrom);
 
     if (entry != NULL) {
@@ -104,11 +104,11 @@ u32 DmaMgr_TranslateVromToRom(uintptr_t vrom) {
     }
 
     return -1;
-    #endif
+#endif
 }
 
 s32 DmaMgr_FindDmaIndex(uintptr_t vrom) {
-    #if 0
+#if 0
     DmaEntry* entry = DmaMgr_FindDmaEntry(vrom);
 
     if (entry != NULL) {
@@ -116,7 +116,7 @@ s32 DmaMgr_FindDmaIndex(uintptr_t vrom) {
     }
 
     return -1;
-    #endif
+#endif
 }
 
 const char* func_800809F4(uintptr_t a0) {
@@ -124,7 +124,7 @@ const char* func_800809F4(uintptr_t a0) {
 }
 
 void DmaMgr_ProcessMsg(DmaRequest* req) {
-    #if 0
+#if 0
     uintptr_t vrom;
     void* ram;
     size_t size;
@@ -166,11 +166,11 @@ void DmaMgr_ProcessMsg(DmaRequest* req) {
     } else {
         Fault_AddHungupAndCrash("../z_std_dma.c", 558);
     }
-    #endif
+#endif
 }
 
 void DmaMgr_ThreadEntry(void* a0) {
-    #if 0
+#if 0
     OSMesg msg;
     DmaRequest* req;
 
@@ -188,12 +188,12 @@ void DmaMgr_ThreadEntry(void* a0) {
             osSendMesg(req->notifyQueue, req->notifyMsg, OS_MESG_NOBLOCK);
         }
     }
-    #endif
+#endif
 }
 
 s32 DmaMgr_SendRequestImpl(DmaRequest* request, void* vramStart, uintptr_t vromStart, size_t size, UNK_TYPE4 unused,
                            OSMesgQueue* queue, OSMesg msg) {
-    #if 0
+#if 0
     if (gIrqMgrResetStatus >= 2) {
         return -2;
     }
@@ -206,12 +206,12 @@ s32 DmaMgr_SendRequestImpl(DmaRequest* request, void* vramStart, uintptr_t vromS
     request->notifyMsg = msg;
 
     osSendMesg(&sDmaMgrMsgQueue, OS_MESG_PTR(request), OS_MESG_BLOCK);
-    #endif
+#endif
     return 0;
 }
 
 s32 DmaMgr_SendRequest0(void* vramStart, uintptr_t vromStart, size_t size) {
-    #if 0
+#if 0
     DmaRequest req;
     OSMesgQueue queue;
     OSMesg msg[1];
@@ -226,12 +226,12 @@ s32 DmaMgr_SendRequest0(void* vramStart, uintptr_t vromStart, size_t size) {
     } else {
         osRecvMesg(&queue, NULL, OS_MESG_BLOCK);
     }
-    #endif
+#endif
     return 0;
 }
 
 void DmaMgr_Start(void) {
-    #if 0
+#if 0
     DmaMgr_DmaRomToRam(SEGMENT_ROM_START(dmadata), dmadata, SEGMENT_ROM_SIZE(dmadata));
 
     {
@@ -252,9 +252,9 @@ void DmaMgr_Start(void) {
                    Z_PRIORITY_DMAMGR);
 
     osStartThread(&sDmaMgrThread);
-    #endif
+#endif
 }
 
 void DmaMgr_Stop(void) {
-    //osSendMesg(&sDmaMgrMsgQueue, OS_MESG_PTR(NULL), OS_MESG_BLOCK);
+    // osSendMesg(&sDmaMgrMsgQueue, OS_MESG_PTR(NULL), OS_MESG_BLOCK);
 }

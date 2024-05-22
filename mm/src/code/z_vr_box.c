@@ -29,7 +29,8 @@ const char* sD2CloudStaticTex[] = {
     gCloudySkybox1Tex, gCloudySkybox2Tex, gCloudySkybox3Tex, gCloudySkybox4Tex, gCloudySkybox5Tex,
 };
 
-SkyboxFiles skyboxFiles[] = { // 2S2H [Port] Renamed from files because of conflcit
+SkyboxFiles skyboxFiles[] = {
+    // 2S2H [Port] Renamed from files because of conflcit
     { sD2FineStaticTex, gClearSkyboxTlue },
     { sD2CloudStaticTex, gClearSkyboxTlue },
 };

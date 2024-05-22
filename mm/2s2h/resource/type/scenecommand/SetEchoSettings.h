@@ -9,7 +9,7 @@
 
 namespace SOH {
 typedef struct {
-  int8_t echo;
+    int8_t echo;
 } EchoSettings;
 
 class SetEchoSettings : public SceneCommand<EchoSettings> {

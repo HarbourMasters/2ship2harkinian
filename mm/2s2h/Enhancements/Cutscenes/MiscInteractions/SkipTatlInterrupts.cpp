@@ -4,24 +4,21 @@
 #define ELFMSG3_GET_SWITCH_FLAG(thisx) (((thisx)->params & 0x7F00) >> 8)
 
 extern "C" {
-    #include "z64.h"
-    extern PlayState* gPlayState;
-    extern SaveContext gSaveContext;
-    extern u32 gBitFlags[];
-    void Flags_SetWeekEventReg(s32 flag);
-    void Flags_SetSwitch(PlayState* play, s32 flag);
-    void Actor_Kill(Actor* actor);
+#include "z64.h"
+extern PlayState* gPlayState;
+extern SaveContext gSaveContext;
+extern u32 gBitFlags[];
+void Flags_SetWeekEventReg(s32 flag);
+void Flags_SetSwitch(PlayState* play, s32 flag);
+void Actor_Kill(Actor* actor);
 }
 
 void RegisterSkipTatlInterrupts() {
     // First time entering Clock Town Interupt
     REGISTER_VB_SHOULD(GI_VB_PLAY_TRANSITION_CS, {
-        if (
-            gSaveContext.save.entrance == ENTRANCE(SOUTH_CLOCK_TOWN, 0) &&
-            gSaveContext.save.cutsceneIndex == 0 &&
+        if (gSaveContext.save.entrance == ENTRANCE(SOUTH_CLOCK_TOWN, 0) && gSaveContext.save.cutsceneIndex == 0 &&
             !CHECK_WEEKEVENTREG(WEEKEVENTREG_59_04) &&
-            CVarGetInteger("gEnhancements.Cutscenes.SkipMiscInteractions", 0)
-        ) {
+            CVarGetInteger("gEnhancements.Cutscenes.SkipMiscInteractions", 0)) {
             Flags_SetWeekEventReg(WEEKEVENTREG_59_04);
         }
     });

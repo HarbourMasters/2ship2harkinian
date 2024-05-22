@@ -4,7 +4,6 @@
 
 #include "public/bridge/gfxbridge.h"
 
-
 void Room_Noop(PlayState* play, Room* room, Input* input, s32 arg3) {
 }
 
@@ -549,12 +548,11 @@ size_t Room_AllocateAndLoad(PlayState* play, RoomContext* roomCtx) {
     return maxRoomSize;
 }
 
-
 s32 OTRfunc_8009728C(PlayState* play, RoomContext* roomCtx, s32 roomNum);
 
 s32 Room_StartRoomTransition(PlayState* play, RoomContext* roomCtx, s32 index) {
     return OTRfunc_8009728C(play, roomCtx, index);
-    #if 0
+#if 0
     if (roomCtx->status == 0) {
         size_t size;
 
@@ -576,7 +574,7 @@ s32 Room_StartRoomTransition(PlayState* play, RoomContext* roomCtx, s32 index) {
     }
 
     return 0;
-    #endif
+#endif
 }
 
 void OTRPlay_InitScene(PlayState* play, s32 spawn);
@@ -609,7 +607,7 @@ s32 Room_HandleLoadCallbacks(PlayState* play, RoomContext* roomCtx) {
     }
 
     return 1;
-    #endif
+#endif
 }
 
 RoomDrawHandler sRoomDrawHandlers[] = {

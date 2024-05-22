@@ -283,10 +283,10 @@ void Boss05_Init(Actor* thisx, PlayState* play) {
         this->dyna.bgId = DynaPoly_SetBgActor(play, &play->colCtx.dyna, &this->dyna.actor, colHeader);
         func_809EEDD0(this, play);
 
-        SkelAnime_InitFlex(play, &this->skelAnime10, &gBioDekuBabaLilyPadSkel, &gBioDekuBabaLilyPadIdleAnim, this->jointTable10, this->morphTable10,
-                           10);
-        SkelAnime_InitFlex(play, &this->skelAnime20, &gBioDekuBabaHeadSkel, &gBioDekuBabaHeadChompAnim, this->jointTable20, this->morphTable20,
-                           20);
+        SkelAnime_InitFlex(play, &this->skelAnime10, &gBioDekuBabaLilyPadSkel, &gBioDekuBabaLilyPadIdleAnim,
+                           this->jointTable10, this->morphTable10, 10);
+        SkelAnime_InitFlex(play, &this->skelAnime20, &gBioDekuBabaHeadSkel, &gBioDekuBabaHeadChompAnim,
+                           this->jointTable20, this->morphTable20, 20);
         this->lastAnimFrame = Animation_GetLastFrame(&gBioDekuBabaHeadChompAnim);
 
         Collider_InitAndSetJntSph(play, &this->collider2, &this->dyna.actor, &D_809F1B74, this->colliderElements2);
@@ -304,18 +304,18 @@ void Boss05_Init(Actor* thisx, PlayState* play) {
         CollisionHeader_GetVirtual(&sBioBabaLilypadCol, &colHeader);
         this->dyna.bgId = DynaPoly_SetBgActor(play, &play->colCtx.dyna, &this->dyna.actor, colHeader);
 
-        SkelAnime_InitFlex(play, &this->skelAnime10, &gBioDekuBabaLilyPadSkel, &gBioDekuBabaLilyPadIdleAnim, this->jointTable10, this->morphTable10,
-                           10);
+        SkelAnime_InitFlex(play, &this->skelAnime10, &gBioDekuBabaLilyPadSkel, &gBioDekuBabaLilyPadIdleAnim,
+                           this->jointTable10, this->morphTable10, 10);
         this->dyna.actor.flags &= ~ACTOR_FLAG_TARGETABLE;
         func_800BC154(play, &play->actorCtx, &this->dyna.actor, ACTORCAT_BG);
     } else if (this->dyna.actor.params == BIO_DEKU_BABA_TYPE_3) {
         this->actionFunc = func_809EFAB4;
         this->unk198 = 1.0f;
 
-        SkelAnime_InitFlex(play, &this->skelAnime10, &gBioDekuBabaLilyPadSkel, &gBioDekuBabaLilyPadIdleAnim, this->jointTable10, this->morphTable10,
-                           10);
-        SkelAnime_InitFlex(play, &this->skelAnime20, &gBioDekuBabaHeadSkel, &gBioDekuBabaHeadChompAnim, this->jointTable20, this->morphTable20,
-                           20);
+        SkelAnime_InitFlex(play, &this->skelAnime10, &gBioDekuBabaLilyPadSkel, &gBioDekuBabaLilyPadIdleAnim,
+                           this->jointTable10, this->morphTable10, 10);
+        SkelAnime_InitFlex(play, &this->skelAnime20, &gBioDekuBabaHeadSkel, &gBioDekuBabaHeadChompAnim,
+                           this->jointTable20, this->morphTable20, 20);
         this->lastAnimFrame = Animation_GetLastFrame(&gBioDekuBabaHeadChompAnim);
 
         Collider_InitAndSetJntSph(play, &this->collider2, &this->dyna.actor, &D_809F1B74, this->colliderElements2);
@@ -327,8 +327,8 @@ void Boss05_Init(Actor* thisx, PlayState* play) {
         func_809F00CC(this, play);
         this->dyna.actor.colChkInfo.mass = 90;
 
-        SkelAnime_InitFlex(play, &this->skelAnime20, &gBioDekuBabaHeadSkel, &gBioDekuBabaHeadChompAnim, this->jointTable20, this->morphTable20,
-                           20);
+        SkelAnime_InitFlex(play, &this->skelAnime20, &gBioDekuBabaHeadSkel, &gBioDekuBabaHeadChompAnim,
+                           this->jointTable20, this->morphTable20, 20);
 
         Collider_InitAndSetJntSph(play, &this->collider1, &this->dyna.actor, &D_809F1BDC, this->colliderElements1);
 
@@ -336,8 +336,8 @@ void Boss05_Init(Actor* thisx, PlayState* play) {
         this->dyna.actor.colChkInfo.damageTable = &D_809F1C20;
         this->dyna.actor.flags |= ACTOR_FLAG_10 | ACTOR_FLAG_20;
     } else if (this->dyna.actor.params >= BIO_DEKU_BABA_TYPE_10) {
-        SkelAnime_InitFlex(play, &this->skelAnime20, &gBioDekuBabaHeadSkel, &gBioDekuBabaHeadChompAnim, this->jointTable20, this->morphTable20,
-                           20);
+        SkelAnime_InitFlex(play, &this->skelAnime20, &gBioDekuBabaHeadSkel, &gBioDekuBabaHeadChompAnim,
+                           this->jointTable20, this->morphTable20, 20);
 
         this->dyna.actor.gravity = 0.0f;
         this->dyna.actor.world.rot.y = (s32)Rand_ZeroFloat(0x8000);

@@ -5,10 +5,11 @@
 
 namespace SOH {
 
-std::shared_ptr<Ship::IResource> SetAnimatedMaterialListFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData,
-                                                                             std::shared_ptr<Ship::BinaryReader> reader) {
+std::shared_ptr<Ship::IResource>
+SetAnimatedMaterialListFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData,
+                                             std::shared_ptr<Ship::BinaryReader> reader) {
     auto setAnimatedMat = std::make_shared<SetAnimatedMaterialList>(initData);
-    
+
     ReadCommandId(setAnimatedMat, reader);
 
     std::string str = reader->ReadString();
@@ -17,7 +18,7 @@ std::shared_ptr<Ship::IResource> SetAnimatedMaterialListFactory::ReadResource(st
 
     AnimatedMaterial* res = data->GetPointer();
     setAnimatedMat->mat = res;
-    
+
     return setAnimatedMat;
 }
-} // namespace LUS
+} // namespace SOH

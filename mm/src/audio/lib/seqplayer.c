@@ -1421,7 +1421,7 @@ void AudioScript_SequenceChannelProcessScript(SequenceChannel* channel) {
 
                     if (seqPlayer->defaultFont != 0xFF) {
                         if (gAudioCtx.seqReplaced[seqPlayer->playerIndex]) {
-                                seqPlayer->seqId = gAudioCtx.seqToPlay[seqPlayer->playerIndex];
+                            seqPlayer->seqId = gAudioCtx.seqToPlay[seqPlayer->playerIndex];
                             gAudioCtx.seqReplaced[seqPlayer->playerIndex] = 0;
                         }
                         u16 seqId = seqPlayer->seqId; // AudioEditor_GetReplacementSeq(seqPlayer->seqId);

@@ -2,7 +2,7 @@
 #include "fault.h"
 
 void _dbg_hungup(const char* file, int lineNum) {
-    //osGetThreadId(NULL);
+    // osGetThreadId(NULL);
     Fault_AddHungupAndCrash(file, lineNum);
 }
 

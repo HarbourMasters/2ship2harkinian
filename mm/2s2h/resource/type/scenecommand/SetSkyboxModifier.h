@@ -9,8 +9,8 @@
 
 namespace SOH {
 typedef struct {
-  uint8_t skyboxDisabled;
-  uint8_t sunMoonDisabled;
+    uint8_t skyboxDisabled;
+    uint8_t sunMoonDisabled;
 } SkyboxModifier;
 
 class SetSkyboxModifier : public SceneCommand<SkyboxModifier> {

@@ -473,7 +473,8 @@ void EnKnight_Init(Actor* thisx, PlayState* play) {
 
     if (this->actor.params == 0x64) {
         ActorShape_Init(&this->actor.shape, 0.0f, ActorShadow_DrawCircle, 12.0f);
-        SkelAnime_InitFlex(play, &this->unk194, &object_knight_Skel_0201A8, &object_knight_Anim_003008, this->unk2C4, this->unk372, 29);
+        SkelAnime_InitFlex(play, &this->unk194, &object_knight_Skel_0201A8, &object_knight_Anim_003008, this->unk2C4,
+                           this->unk372, 29);
         Actor_SetScale(&this->actor, KREG(12) * 0.001f + 0.017f);
         func_809BA058(this, play);
         Collider_InitAndSetCylinder(play, &this->unk488, &this->actor, &D_809BDC38);
@@ -485,10 +486,12 @@ void EnKnight_Init(Actor* thisx, PlayState* play) {
         this->actor.flags &= ~1;
         if (1) {}
         if (this->actor.params == 0xC8) {
-            SkelAnime_InitFlex(play, &this->unk194, &object_knight_Skel_020374, &object_knight_Anim_0040E0, this->unk2C4, this->unk372, 0x1D);
+            SkelAnime_InitFlex(play, &this->unk194, &object_knight_Skel_020374, &object_knight_Anim_0040E0,
+                               this->unk2C4, this->unk372, 0x1D);
             Actor_SetScale(&this->actor, KREG(13) * 0.001f + 0.013f);
         } else {
-            SkelAnime_InitFlex(play, &this->unk194, &object_knight_Skel_0201A8, &object_knight_Anim_0040E0, this->unk2C4, this->unk372, 0x1D);
+            SkelAnime_InitFlex(play, &this->unk194, &object_knight_Skel_0201A8, &object_knight_Anim_0040E0,
+                               this->unk2C4, this->unk372, 0x1D);
             Actor_SetScale(&this->actor, KREG(13) * 0.001f + 0.017f);
         }
         if (this->actor.params == 0xCA) {
@@ -503,12 +506,14 @@ void EnKnight_Init(Actor* thisx, PlayState* play) {
         Collider_InitAndSetJntSph(play, &this->unk594, &this->actor, &D_809BDC28, this->unk5B4);
         if (this->actor.params == 0x23) {
             Collider_InitAndSetJntSph(play, &this->unk4D4, &this->actor, &D_809BDB8C, this->unk4F4);
-            SkelAnime_InitFlex(play, &this->unk194, &object_knight_Skel_020374, &object_knight_Anim_0040E0, this->unk2C4, this->unk372, 0x1D);
+            SkelAnime_InitFlex(play, &this->unk194, &object_knight_Skel_020374, &object_knight_Anim_0040E0,
+                               this->unk2C4, this->unk372, 0x1D);
             this->actor.colChkInfo.health = 6 - BREG(40);
             Actor_SetScale(&this->actor, KREG(13) * 0.001f + 0.013f);
         } else {
             Collider_InitAndSetJntSph(play, &this->unk4D4, &this->actor, &D_809BDB9C, this->unk4F4);
-            SkelAnime_InitFlex(play, &this->unk194, &object_knight_Skel_0201A8, &object_knight_Anim_0040E0, this->unk2C4, this->unk372, 0x1D);
+            SkelAnime_InitFlex(play, &this->unk194, &object_knight_Skel_0201A8, &object_knight_Anim_0040E0,
+                               this->unk2C4, this->unk372, 0x1D);
             this->actor.colChkInfo.health = 14 - BREG(41);
             Actor_SetScale(&this->actor, KREG(12) * 0.001f + 0.017f);
             this->unk290 = Rand_ZeroFloat(1.9999f);

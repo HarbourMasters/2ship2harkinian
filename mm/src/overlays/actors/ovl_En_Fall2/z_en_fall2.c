@@ -36,9 +36,7 @@ void EnFall2_Init(Actor* thisx, PlayState* play) {
 
     Actor_SetScale(&this->actor, 1.0f);
     this->actionFunc = EnFall2_DoNothing;
-    Keyframe_InitFlex(&this->skeletonInfo, gFall2KFSkel_8898, gFall2FKAnim_5EF4,
-                      this->unk174, this->unk228,
-                  NULL);
+    Keyframe_InitFlex(&this->skeletonInfo, gFall2KFSkel_8898, gFall2FKAnim_5EF4, this->unk174, this->unk228, NULL);
     Keyframe_FlexPlayLoop(&this->skeletonInfo, (void*)gFall2FKAnim_5EF4);
     this->unk2DC = Lib_SegmentedToVirtual((void*)object_fall2_Matanimheader_008840);
     Actor_SetScale(&this->actor, 0.02f);

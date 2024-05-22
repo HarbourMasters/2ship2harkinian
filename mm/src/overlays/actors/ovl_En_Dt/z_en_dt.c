@@ -87,8 +87,8 @@ static u8 D_80BEB2E0[] = { 0, 0, 2, 0, 0, 2 };
 
 static s32 D_80BEB2E8[] = { 0, 1, 3, 1, 0, 2, 3, 1, 0, 3, 3, 1, 0, 3, 0, 0, 0, 5, 0, 0, 0, 4, 0, 0 };
 
-static TexturePtr D_80BEB348[] = { gDotourEyeShockTex, gDotourEyeOpenTex, gDotourEyeClosedTex,
-                                    gDotourEyeLookDownTex, gDotourEyeSquintTex };
+static TexturePtr D_80BEB348[] = { gDotourEyeShockTex, gDotourEyeOpenTex, gDotourEyeClosedTex, gDotourEyeLookDownTex,
+                                   gDotourEyeSquintTex };
 
 static TexturePtr D_80BEB35C[] = { &gDotourEyebrowHighTex, &gDotourEyebrowMidTex, &gDotourEyebrowLowTex };
 

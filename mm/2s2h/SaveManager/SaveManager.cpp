@@ -5,7 +5,6 @@
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 
-
 #include "macros.h"
 #include "BenJsonConversions.hpp"
 
@@ -26,10 +25,9 @@ typedef enum FlashSlotFile {
 } FlashSlotFile;
 
 #define GET_NEWF(save, index) (save.saveInfo.playerData.newf[index])
-#define IS_VALID_FILE(save)                                      \
-    ((GET_NEWF(save, 0) == 'Z') && (GET_NEWF(save, 1) == 'E') && \
-     (GET_NEWF(save, 2) == 'L') && (GET_NEWF(save, 3) == 'D') && \
-     (GET_NEWF(save, 4) == 'A') && (GET_NEWF(save, 5) == '3'))
+#define IS_VALID_FILE(save)                                                                    \
+    ((GET_NEWF(save, 0) == 'Z') && (GET_NEWF(save, 1) == 'E') && (GET_NEWF(save, 2) == 'L') && \
+     (GET_NEWF(save, 3) == 'D') && (GET_NEWF(save, 4) == 'A') && (GET_NEWF(save, 5) == '3'))
 
 const std::filesystem::path savesFolderPath(Ship::Context::GetPathRelativeToAppDirectory("Save"));
 
@@ -41,7 +39,8 @@ const std::filesystem::path savesFolderPath(Ship::Context::GetPathRelativeToAppD
 // To add a new migration:
 // - Increment CURRENT_SAVE_VERSION
 // - Create the migration file in the Migrations folder with the name `{CURRENT_SAVE_VERSION}.cpp`
-// - Add the migration function definition below and add it to the `migrations` map with the key being the previous version
+// - Add the migration function definition below and add it to the `migrations` map with the key being the previous
+// version
 const uint32_t CURRENT_SAVE_VERSION = 3;
 
 void SaveManager_Migration_1(nlohmann::json& j);
@@ -125,7 +124,8 @@ extern "C" void SaveManager_SysFlashrom_WriteData(u8* saveBuffer, u32 pageNum, u
             memcpy(&save, saveBuffer, sizeof(Save));
 
             std::string fileName = "save_" + std::to_string(flashSlotFile) + ".sav";
-            if (isBackup) fileName += ".bak";
+            if (isBackup)
+                fileName += ".bak";
 
             if (IS_VALID_FILE(save)) {
                 nlohmann::json j;
@@ -149,7 +149,8 @@ extern "C" void SaveManager_SysFlashrom_WriteData(u8* saveBuffer, u32 pageNum, u
             memcpy(&saveContext, saveBuffer, offsetof(SaveContext, fileNum));
 
             std::string fileName = "save_" + std::to_string(flashSlotFile) + ".sav";
-            if (isBackup) fileName += ".bak";
+            if (isBackup)
+                fileName += ".bak";
 
             if (IS_VALID_FILE(saveContext.save)) {
                 nlohmann::json j = saveContext;
@@ -196,11 +197,13 @@ extern "C" s32 SaveManager_SysFlashrom_ReadData(void* saveBuffer, u32 pageNum, u
         case FLASH_SLOT_FILE_1_NEW_CYCLE:
         case FLASH_SLOT_FILE_2_NEW_CYCLE: {
             std::string fileName = "save_" + std::to_string(flashSlotFile) + ".sav";
-            if (isBackup) fileName += ".bak";
+            if (isBackup)
+                fileName += ".bak";
 
             nlohmann::json j;
             int result = SaveManager_ReadSaveFile(fileName, j);
-            if (result != 0) return result;
+            if (result != 0)
+                return result;
 
             SaveManager_MigrateSave(j);
 
@@ -216,11 +219,13 @@ extern "C" s32 SaveManager_SysFlashrom_ReadData(void* saveBuffer, u32 pageNum, u
         case FLASH_SLOT_FILE_1_OWL_SAVE:
         case FLASH_SLOT_FILE_2_OWL_SAVE: {
             std::string fileName = "save_" + std::to_string(flashSlotFile) + ".sav";
-            if (isBackup) fileName += ".bak";
+            if (isBackup)
+                fileName += ".bak";
 
             nlohmann::json j;
             int result = SaveManager_ReadSaveFile(fileName, j);
-            if (result != 0) return result;
+            if (result != 0)
+                return result;
 
             SaveManager_MigrateSave(j);
 
@@ -235,7 +240,8 @@ extern "C" s32 SaveManager_SysFlashrom_ReadData(void* saveBuffer, u32 pageNum, u
 
             nlohmann::json j;
             int result = SaveManager_ReadSaveFile(fileName, j);
-            if (result != 0) return result;
+            if (result != 0)
+                return result;
 
             SaveOptions saveOptions = j;
 

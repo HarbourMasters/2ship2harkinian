@@ -1052,7 +1052,8 @@ void Environment_UpdateSkybox(u8 skyboxId, EnvironmentContext* envCtx, SkyboxCon
             size = sNormalSkyFiles[skybox1Index].file.vromEnd - sNormalSkyFiles[skybox1Index].file.vromStart;
             osCreateMesgQueue(&envCtx->loadQueue, envCtx->loadMsg, ARRAY_COUNT(envCtx->loadMsg));
             DmaMgr_SendRequestImpl(&envCtx->dmaRequest, skyboxCtx->staticSegments[0],
-                                   sNormalSkyFiles[skybox1Index].file.vromStart, size, 0, &envCtx->loadQueue, OS_MESG_PTR(NULL));
+                                   sNormalSkyFiles[skybox1Index].file.vromStart, size, 0, &envCtx->loadQueue,
+                                   OS_MESG_PTR(NULL));
             envCtx->skybox1Index = skybox1Index;
         }
 
@@ -1061,7 +1062,8 @@ void Environment_UpdateSkybox(u8 skyboxId, EnvironmentContext* envCtx, SkyboxCon
             size = sNormalSkyFiles[skybox2Index].file.vromEnd - sNormalSkyFiles[skybox2Index].file.vromStart;
             osCreateMesgQueue(&envCtx->loadQueue, envCtx->loadMsg, ARRAY_COUNT(envCtx->loadMsg));
             DmaMgr_SendRequestImpl(&envCtx->dmaRequest, skyboxCtx->staticSegments[1],
-                                   sNormalSkyFiles[skybox2Index].file.vromStart, size, 0, &envCtx->loadQueue, OS_MESG_PTR(NULL));
+                                   sNormalSkyFiles[skybox2Index].file.vromStart, size, 0, &envCtx->loadQueue,
+                                   OS_MESG_PTR(NULL));
             envCtx->skybox2Index = skybox2Index;
         }
 
@@ -1783,11 +1785,9 @@ void Environment_DrawSun(PlayState* play) {
             gSPMatrix(POLY_OPA_DISP++, D_01000000_TO_SEGMENTED, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_MODELVIEW);
             gDPPipeSync(POLY_OPA_DISP++);
             gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gSun1Tex, G_IM_FMT_I, 64, 64, 0, G_TX_NOMIRROR | G_TX_CLAMP,
-                                G_TX_NOMIRROR | G_TX_CLAMP,
-                                6, 6, G_TX_NOLOD, G_TX_NOLOD);
+                                   G_TX_NOMIRROR | G_TX_CLAMP, 6, 6, G_TX_NOLOD, G_TX_NOLOD);
             gDPLoadMultiBlock_4b(POLY_OPA_DISP++, gSunEvening1Tex, 0x0100, 1, G_IM_FMT_I, 64, 64, 0,
-                                G_TX_NOMIRROR | G_TX_CLAMP,
-                                G_TX_NOMIRROR | G_TX_CLAMP, 6, 6, G_TX_NOLOD, G_TX_NOLOD);
+                                 G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMIRROR | G_TX_CLAMP, 6, 6, G_TX_NOLOD, G_TX_NOLOD);
             gSPVertex(POLY_OPA_DISP++, vertices, 4, 0);
             gSP2Triangles(POLY_OPA_DISP++, 0, 1, 2, 0, 2, 1, 3, 0);
             // #endregion
@@ -2925,17 +2925,15 @@ void Environment_DrawSandstorm(PlayState* play, u8 sandstormState) {
                                     (u32)sp94 % 4096, 4095 - ((u32)sp92 % 4096), 256, 64));
         gDPSetTextureLUT(POLY_XLU_DISP++, G_TT_NONE);
         // #region 2S2H [Widescreen] Widescreen Sandstorm
-        //gSPDisplayList(POLY_XLU_DISP++, gFieldSandstormDL); // Original Dlist call
+        // gSPDisplayList(POLY_XLU_DISP++, gFieldSandstormDL); // Original Dlist call
         gDPPipeSync(POLY_XLU_DISP++);
         gDPSetTextureLUT(POLY_XLU_DISP++, G_TT_NONE);
         gDPSetRenderMode(POLY_XLU_DISP++, G_RM_PASS, G_RM_CLD_SURF2);
         gDPSetCombineLERP(POLY_XLU_DISP++, TEXEL1, TEXEL0, PRIM_LOD_FRAC, TEXEL0, TEXEL1, TEXEL0, ENVIRONMENT, TEXEL0,
-                          PRIMITIVE,
-                          ENVIRONMENT, COMBINED, ENVIRONMENT, COMBINED, 0, PRIMITIVE, 0);
+                          PRIMITIVE, ENVIRONMENT, COMBINED, ENVIRONMENT, COMBINED, 0, PRIMITIVE, 0);
         gSPClearGeometryMode(POLY_XLU_DISP++, G_CULL_BACK | G_FOG | G_LIGHTING | G_TEXTURE_GEN | G_TEXTURE_GEN_LINEAR);
         gDPLoadTextureBlock(POLY_XLU_DISP++, gFieldSandstorm1Tex, G_IM_FMT_I, G_IM_SIZ_8b, 64, 32, 0,
-                            G_TX_NOMIRROR | G_TX_WRAP,
-                            G_TX_NOMIRROR | G_TX_WRAP, 6, 5, 1, G_TX_NOLOD);
+                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, 6, 5, 1, G_TX_NOLOD);
         gDPLoadMultiBlock(POLY_XLU_DISP++, gFieldSandstorm2Tex, 0x0100, 1, G_IM_FMT_IA, G_IM_SIZ_8b, 64, 32, 0,
                           G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, 6, 5, 2, 1);
         gSPDisplayList(POLY_XLU_DISP++, 0x08000000 | 1);
@@ -2943,7 +2941,7 @@ void Environment_DrawSandstorm(PlayState* play, u8 sandstormState) {
                                 OTRGetRectDimensionFromRightEdge(SCREEN_WIDTH) << 2, SCREEN_HEIGHT << 2,
                                 G_TX_RENDERTILE, 0, 0, 0x008C, -0x008C);
         // #endregion
-        
+
         CLOSE_DISPS(play->state.gfxCtx);
     }
 
@@ -3167,7 +3165,8 @@ void Environment_DrawSkyboxStarsImpl(PlayState* play, Gfx** gfxP) {
         { 65, 164, 255, 255 },  { 131, 164, 230, 255 }, { 98, 205, 255, 255 }, { 82, 82, 255, 255 },
         { 123, 164, 164, 255 }, { 98, 205, 255, 255 },  { 98, 164, 230, 255 }, { 255, 90, 0, 255 },
     };
-    // 2S2H [Port] This originally had `UNALIGNED` however we don't need that for PC and it was causing warnings in the header file
+    // 2S2H [Port] This originally had `UNALIGNED` however we don't need that for PC and it was causing warnings in the
+    // header file
     static const Color_RGBA8_u32 D_801DD900[] = {
         { 64, 80, 112, 255 },   { 96, 96, 128, 255 },   { 128, 112, 144, 255 }, { 160, 128, 160, 255 },
         { 192, 144, 168, 255 }, { 224, 160, 176, 255 }, { 224, 160, 176, 255 }, { 104, 104, 136, 255 },
@@ -3305,8 +3304,9 @@ void Environment_DrawSkyboxStarsImpl(PlayState* play, Gfx** gfxP) {
                     (f32)(OTRGetRectDimensionFromRightEdge(SCREEN_WIDTH) - (SCREEN_WIDTH / 2)) / (SCREEN_WIDTH / 2);
             }
 
-            if ((scale >= 1.0f) && (imgX > -adjustedXBounds) && (imgX < adjustedXBounds) && (imgY > -1.0f) && (imgY < 1.0f)) {
-            // #endregion
+            if ((scale >= 1.0f) && (imgX > -adjustedXBounds) && (imgX < adjustedXBounds) && (imgY > -1.0f) &&
+                (imgY < 1.0f)) {
+                // #endregion
                 imgX = (imgX * (SCREEN_WIDTH / 2)) + (SCREEN_WIDTH / 2);
                 imgY = (imgY * -(SCREEN_HEIGHT / 2)) + (SCREEN_HEIGHT / 2);
 

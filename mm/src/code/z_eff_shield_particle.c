@@ -148,7 +148,7 @@ void EffectShieldParticle_Draw(void* thisx, GraphicsContext* gfxCtx) {
     Color_RGBA8 envColor;
 
     FrameInterpolation_RecordOpenChild(this, 0);
-    
+
     OPEN_DISPS(gfxCtx);
 
     if (this != NULL) {

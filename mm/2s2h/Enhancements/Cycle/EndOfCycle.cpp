@@ -9,9 +9,8 @@ extern "C" {
 SaveInfo saveInfoCopy;
 
 void RegisterEndOfCycleSaveHooks() {
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::BeforeEndOfCycleSave>([]() {
-        memcpy(&saveInfoCopy, &gSaveContext.save.saveInfo, sizeof(SaveInfo));
-    });
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::BeforeEndOfCycleSave>(
+        []() { memcpy(&saveInfoCopy, &gSaveContext.save.saveInfo, sizeof(SaveInfo)); });
 
     GameInteractor::Instance->RegisterGameHook<GameInteractor::AfterEndOfCycleSave>([]() {
         if (CVarGetInteger("gEnhancements.Cycle.DoNotResetRupees", 0)) {
@@ -72,8 +71,8 @@ void RegisterEndOfCycleSaveHooks() {
         }
 
         if (CVarGetInteger("gEnhancements.Cycle.DoNotResetRazorSword", 0) &&
-            ((saveInfoCopy.equips.equipment & gEquipMasks[EQUIP_TYPE_SWORD]) >>
-             gEquipShifts[EQUIP_TYPE_SWORD]) == EQUIP_VALUE_SWORD_RAZOR) {
+            ((saveInfoCopy.equips.equipment & gEquipMasks[EQUIP_TYPE_SWORD]) >> gEquipShifts[EQUIP_TYPE_SWORD]) ==
+                EQUIP_VALUE_SWORD_RAZOR) {
 
             SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_RAZOR);
             CUR_FORM_EQUIP(EQUIP_SLOT_B) = ITEM_SWORD_RAZOR;

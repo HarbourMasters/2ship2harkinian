@@ -43,7 +43,8 @@ extern "C" void OTRPlay_SpawnScene(PlayState* play, s32 sceneId, s32 spawn) {
     play->loadedScene = scene;
     play->sceneId = sceneId;
     play->sceneConfig = scene->drawConfig;
-    std::string scenePath = StringHelper::Sprintf("scenes/nonmq/%s/%s", scene->segment.fileName, scene->segment.fileName);
+    std::string scenePath =
+        StringHelper::Sprintf("scenes/nonmq/%s/%s", scene->segment.fileName, scene->segment.fileName);
     play->sceneSegment = OTRPlay_LoadFile(play, scenePath.c_str());
     scene->unk_D = 0;
     gSegments[2] = (uintptr_t)play->sceneSegment;

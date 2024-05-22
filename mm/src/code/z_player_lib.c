@@ -210,7 +210,7 @@ void func_801229FC(Player* player) {
     } else if (player->maskObjectLoadState == 2) {
         // if (osRecvMesg(&player->maskObjectLoadQueue, NULL, OS_MESG_NOBLOCK) == 0) {
         if (true) {
-        // #endregion
+            // #endregion
             player->maskObjectLoadState = 0;
 
             if (player->currentMask == PLAYER_MASK_GREAT_FAIRY) {
@@ -1082,7 +1082,8 @@ Gfx* sPlayerFirstPersonRightShoulderDLs[PLAYER_FORM_MAX] = {
 Gfx* sPlayerFirstPersonRightHandDLs[PLAYER_FORM_MAX] = {
     gLinkFierceDeityRightHandDL,
     //! @bug This is in the middle of a texture in the link_goron object. It has the same offset as a link_nuts dlist
-    // 2S2H [Port] Put the DList that makes the most sense here. In reality nothing makes sense since goron has no first person items, but we need something here to prevent a crash.
+    // 2S2H [Port] Put the DList that makes the most sense here. In reality nothing makes sense since goron has no first
+    // person items, but we need something here to prevent a crash.
     gLinkGoronRightHandOpenDL,
     gLinkZoraRightHandOpenDL,
     gLinkDekuRightHandDL,
@@ -1092,7 +1093,8 @@ Gfx* sPlayerFirstPersonRightHandDLs[PLAYER_FORM_MAX] = {
 Gfx* sPlayerFirstPersonRightHandHookshotDLs[PLAYER_FORM_MAX] = {
     gLinkFierceDeityRightHandDL,
     //! @bug This is in the middle of a texture in the link_goron object. It has the same offset as a link_nuts dlist
-    // 2S2H [Port] Put the DList that makes the most sense here. In reality nothing makes sense since goron has no first person items, but we need something here to prevent a crash.
+    // 2S2H [Port] Put the DList that makes the most sense here. In reality nothing makes sense since goron has no first
+    // person items, but we need something here to prevent a crash.
     gLinkGoronRightHandOpenDL,
     gLinkZoraRightHandOpenDL,
     gLinkDekuRightHandDL,
@@ -2261,8 +2263,9 @@ s32 Player_OverrideLimbDrawGameplayCommon(PlayState* play, s32 limbIndex, Gfx** 
                             ? D_801C0608
                             : ((BEN_ANIM_EQUAL(player->skelAnime.animation, gPlayerAnim_pg_wait))
                                    ? D_801C0628
-                                   : ((BEN_ANIM_EQUAL(player->skelAnime.animation, gPlayerAnim_pg_punchC)) ? D_801C07C0
-                                                                                              : D_801C0460));
+                                   : ((BEN_ANIM_EQUAL(player->skelAnime.animation, gPlayerAnim_pg_punchC))
+                                          ? D_801C07C0
+                                          : D_801C0460));
 
                     func_80124618(phi_a0, player->skelAnime.curFrame, player->unk_AF0);
                 } else {
@@ -3394,7 +3397,8 @@ s32 func_80128640(PlayState* play, Player* player, Gfx* dlist) {
     f32 temp_f0;
 
     if (temp_v1 ||
-        ((player->currentMask != PLAYER_MASK_NONE) && (BEN_ANIM_EQUAL(player->skelAnime.animation, gPlayerAnim_cl_setmask)) &&
+        ((player->currentMask != PLAYER_MASK_NONE) &&
+         (BEN_ANIM_EQUAL(player->skelAnime.animation, gPlayerAnim_cl_setmask)) &&
          (temp_f0 = player->skelAnime.curFrame - 8.0f, (temp_f0 >= 0.0f)) && (temp_f0 < 4.0f)) ||
         (player->stateFlags2 & PLAYER_STATE2_1000000)) {
         s32 mask;
@@ -3652,8 +3656,7 @@ void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList1, G
             } else if (CVarGetInteger("gEnhancements.Graphics.BowReticle", 0) &&
                        ((player->heldItemAction == PLAYER_IA_BOW_FIRE) ||
                         (player->heldItemAction == PLAYER_IA_BOW_ICE) ||
-                        (player->heldItemAction == PLAYER_IA_BOW_LIGHT) || 
-                        (player->heldItemAction == PLAYER_IA_BOW))) {
+                        (player->heldItemAction == PLAYER_IA_BOW_LIGHT) || (player->heldItemAction == PLAYER_IA_BOW))) {
                 if (heldActor != NULL) {
                     MtxF sp44;
 
@@ -3662,7 +3665,7 @@ void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList1, G
 
                     if (func_800B7128(player) != 0) {
                         Matrix_Translate(500.0f, 300.0f, 0.0f, MTXMODE_APPLY);
-                        Player_DrawHookshotReticle(play, player, 776000.0f); 
+                        Player_DrawHookshotReticle(play, player, 776000.0f);
                     }
                 }
             } else if (player->meleeWeaponState != PLAYER_MELEE_WEAPON_STATE_0) {
@@ -3752,7 +3755,8 @@ void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList1, G
         //! FAKE
         if (((*dList1 != NULL) && ((((void)0, player->currentMask)) != (((void)0, PLAYER_MASK_NONE)))) &&
             (((player->transformation == PLAYER_FORM_HUMAN) &&
-              ((!BEN_ANIM_EQUAL(player->skelAnime.animation, gPlayerAnim_cl_setmask)) || (player->skelAnime.curFrame >= 12.0f))) ||
+              ((!BEN_ANIM_EQUAL(player->skelAnime.animation, gPlayerAnim_cl_setmask)) ||
+               (player->skelAnime.curFrame >= 12.0f))) ||
              ((((player->transformation != PLAYER_FORM_HUMAN) && (player->currentMask >= PLAYER_MASK_FIERCE_DEITY)) &&
                ((player->transformation + PLAYER_MASK_FIERCE_DEITY) != player->currentMask)) &&
               (player->skelAnime.curFrame >= 10.0f)))) {

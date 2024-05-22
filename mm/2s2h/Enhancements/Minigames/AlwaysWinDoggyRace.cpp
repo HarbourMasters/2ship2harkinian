@@ -3,11 +3,10 @@
 #include "Enhancements/Enhancements.h"
 
 extern "C" {
-    #include <z64save.h>
-    extern SaveContext gSaveContext;
-    extern u8 gItemSlots[77];
+#include <z64save.h>
+extern SaveContext gSaveContext;
+extern u8 gItemSlots[77];
 }
-
 
 void RegisterAlwaysWinDoggyRace() {
     REGISTER_VB_SHOULD(GI_VB_DOGGY_RACE_SET_MAX_SPEED, {

@@ -36,7 +36,7 @@ s32 TransitionOverlay_Load(TransitionOverlay* overlayEntry) {
     s32 count;
     void* loadedRamAddr;
     return 3;
-    #if 0
+#if 0
     if (overlayEntry->vromStart == 0) {
         return 3;
     }
@@ -64,7 +64,7 @@ s32 TransitionOverlay_Load(TransitionOverlay* overlayEntry) {
         }
         return 2;
     }
-    #endif
+#endif
 }
 
 s32 TransitionOverlay_Free(TransitionOverlay* overlayEntry) {

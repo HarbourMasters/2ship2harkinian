@@ -263,7 +263,7 @@ void Kaleido_LoadMapNameStatic(void* segment, u32 texIndex) {
     };
     void* tex = ResourceMgr_LoadTexOrDListByName(gMapNameStatics[texIndex]);
     memcpy(segment, tex, 0x400);
-    //CmpDma_LoadFile(SEGMENT_ROM_START(map_name_static), texIndex, segment, 0x400);
+    // CmpDma_LoadFile(SEGMENT_ROM_START(map_name_static), texIndex, segment, 0x400);
 }
 
 //! note: nothing from `map_name_static` is of size `0xA00` in US 1.0
@@ -396,7 +396,7 @@ void Kaleido_LoadItemNameStatic(void* segment, u32 texIndex) {
     };
     void* tex = ResourceMgr_LoadTexOrDListByName(gItemNameStatics[texIndex]);
     memcpy(segment, tex, 0x400);
-    //CmpDma_LoadFile(SEGMENT_ROM_START(item_name_static), texIndex, segment, 0x400);
+    // CmpDma_LoadFile(SEGMENT_ROM_START(item_name_static), texIndex, segment, 0x400);
 }
 
 void KaleidoScope_MoveCursorToSpecialPos(PlayState* play, s16 cursorSpecialPos) {
@@ -439,9 +439,12 @@ void KaleidoScope_MoveCursorFromSpecialPos(PlayState* play) {
     gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
     gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
     // #region 2S2H [Dpad]
-    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
-    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
-    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
+    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] =
+        gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
+    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] =
+        gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
+    gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] =
+        gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
     gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex + 1][1];
     // #endregion
     gSaveContext.buttonStatus[EQUIP_SLOT_A] = BTN_ENABLED;
@@ -612,9 +615,9 @@ static TexturePtr sSaveTexs[] = {
 };
 
 static TexturePtr sGameOverTexs[] = {
-    gPauseSave00Tex,    gPauseSave01Tex, gPauseSave02Tex, gPauseSave03Tex, gPauseSave04Tex,
+    gPauseSave00Tex,     gPauseSave01Tex, gPauseSave02Tex, gPauseSave03Tex, gPauseSave04Tex,
     gPauseGameOver10Tex, gPauseSave11Tex, gPauseSave12Tex, gPauseSave13Tex, gPauseSave14Tex,
-    gPauseSave20Tex,    gPauseSave21Tex, gPauseSave22Tex, gPauseSave23Tex, gPauseSave24Tex,
+    gPauseSave20Tex,     gPauseSave21Tex, gPauseSave22Tex, gPauseSave23Tex, gPauseSave24Tex,
 };
 
 void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
@@ -914,7 +917,8 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
         if ((pauseCtx->state == PAUSE_STATE_SAVEPROMPT) || IS_PAUSE_STATE_GAMEOVER) {
             KaleidoScope_UpdatePrompt(play);
             gDPPipeSync(POLY_OPA_DISP++);
-            gDPSetCombineLERP(POLY_OPA_DISP++, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, SHADE, 0, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, SHADE, 0);
+            gDPSetCombineLERP(POLY_OPA_DISP++, TEXEL0, 0, PRIMITIVE, 0, TEXEL0, 0, SHADE, 0, TEXEL0, 0, PRIMITIVE, 0,
+                              TEXEL0, 0, SHADE, 0);
             gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 180, 180, 120, 255);
 
             switch (pauseCtx->pageIndex) {
@@ -957,13 +961,17 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
 
             gSPVertex(POLY_OPA_DISP++, &pauseCtx->promptPageVtx[60], 32, 0);
 
-            if (((pauseCtx->state == PAUSE_STATE_SAVEPROMPT) && ((pauseCtx->savePromptState <= PAUSE_SAVEPROMPT_STATE_4) || (pauseCtx->savePromptState == PAUSE_SAVEPROMPT_STATE_6))) || (pauseCtx->state == PAUSE_STATE_GAMEOVER_SAVE_PROMPT)) {
+            if (((pauseCtx->state == PAUSE_STATE_SAVEPROMPT) &&
+                 ((pauseCtx->savePromptState <= PAUSE_SAVEPROMPT_STATE_4) ||
+                  (pauseCtx->savePromptState == PAUSE_SAVEPROMPT_STATE_6))) ||
+                (pauseCtx->state == PAUSE_STATE_GAMEOVER_SAVE_PROMPT)) {
                 gDPPipeSync(POLY_OPA_DISP++);
                 gDPSetCombineMode(POLY_OPA_DISP++, G_CC_MODULATEIA, G_CC_MODULATEIA);
                 gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, pauseCtx->alpha);
                 POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gPauseSavePromptENGTex, 152, 16, 0);
                 gDPPipeSync(POLY_OPA_DISP++);
-                gDPSetCombineLERP(POLY_OPA_DISP++, 1, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, 1, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0);
+                gDPSetCombineLERP(POLY_OPA_DISP++, 1, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, 1, 0, PRIMITIVE, 0,
+                                  TEXEL0, 0, PRIMITIVE, 0);
                 gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 100, 100, 255, pauseCtx->promptAlpha);
                 if (pauseCtx->promptChoice == PAUSE_PROMPT_YES) {
                     gSPDisplayList(POLY_OPA_DISP++, gPromptCursorLeftDL);
@@ -977,12 +985,16 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
 
                 POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gPauseNoENGTex, 48, 16, 16);
 
-            } else if (((pauseCtx->state == PAUSE_STATE_SAVEPROMPT) && (pauseCtx->savePromptState >= PAUSE_SAVEPROMPT_STATE_5)) || (pauseCtx->state == PAUSE_STATE_GAMEOVER_8)) {
+            } else if (((pauseCtx->state == PAUSE_STATE_SAVEPROMPT) &&
+                        (pauseCtx->savePromptState >= PAUSE_SAVEPROMPT_STATE_5)) ||
+                       (pauseCtx->state == PAUSE_STATE_GAMEOVER_8)) {
                 POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gPauseSaveConfirmationENGTex, 152, 16, 0);
-            } else if ((pauseCtx->state == PAUSE_STATE_GAMEOVER_CONTINUE_PROMPT) || (pauseCtx->state == PAUSE_STATE_GAMEOVER_10)) {
+            } else if ((pauseCtx->state == PAUSE_STATE_GAMEOVER_CONTINUE_PROMPT) ||
+                       (pauseCtx->state == PAUSE_STATE_GAMEOVER_10)) {
                 POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gContinuePlayingENGTex, 152, 16, 0);
                 gDPPipeSync(POLY_OPA_DISP++);
-                gDPSetCombineLERP(POLY_OPA_DISP++, 1, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, 1, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0);
+                gDPSetCombineLERP(POLY_OPA_DISP++, 1, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, 1, 0, PRIMITIVE, 0,
+                                  TEXEL0, 0, PRIMITIVE, 0);
                 gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 100, 100, 255, pauseCtx->promptAlpha);
                 if (pauseCtx->promptChoice == PAUSE_PROMPT_YES) {
                     gSPDisplayList(POLY_OPA_DISP++, gPromptCursorLeftDL);
@@ -998,9 +1010,11 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
             }
 
             gDPPipeSync(POLY_OPA_DISP++);
-            gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+            gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
+                              PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
 
-            if ((pauseCtx->state != PAUSE_STATE_GAMEOVER_CONTINUE_PROMPT) && (pauseCtx->state != PAUSE_STATE_GAMEOVER_10)) {
+            if ((pauseCtx->state != PAUSE_STATE_GAMEOVER_CONTINUE_PROMPT) &&
+                (pauseCtx->state != PAUSE_STATE_GAMEOVER_10)) {
                 gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 0, pauseCtx->alpha);
                 gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 0);
             }
@@ -1332,7 +1346,6 @@ void KaleidoScope_DrawInfoPanel(PlayState* play) {
             gDPPipeSync(POLY_OPA_DISP++);
             gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, 255);
 
-
             POLY_OPA_DISP = Gfx_DrawTexQuad4b(POLY_OPA_DISP, gPauseToEquipENGTex, G_IM_FMT_IA, 64, 16, 4);
         } else if ((pauseCtx->pageIndex == PAUSE_MAP) && sInDungeonScene) {
             // No code in this case
@@ -1409,7 +1422,7 @@ void KaleidoScope_UpdateNamePanel(PlayState* play) {
         pauseCtx->namedItem = pauseCtx->cursorItem[pauseCtx->pageIndex];
         namedItem = pauseCtx->namedItem;
 
-        //osCreateMesgQueue(&pauseCtx->loadQueue, &pauseCtx->loadMsg, 1);
+        // osCreateMesgQueue(&pauseCtx->loadQueue, &pauseCtx->loadMsg, 1);
 
         if (pauseCtx->namedItem != PAUSE_ITEM_NONE) {
             if ((pauseCtx->pageIndex == PAUSE_MAP) && !sInDungeonScene) {
@@ -1695,7 +1708,7 @@ void KaleidoScope_UpdateOwlWarpNamePanel(PlayState* play) {
         pauseCtx->namedItem = pauseCtx->cursorItem[pauseCtx->pageIndex];
         texIndex = pauseCtx->namedItem;
 
-        //osCreateMesgQueue(&pauseCtx->loadQueue, &pauseCtx->loadMsg, 1);
+        // osCreateMesgQueue(&pauseCtx->loadQueue, &pauseCtx->loadMsg, 1);
 
         if (pauseCtx->namedItem != PAUSE_ITEM_NONE) {
             if ((pauseCtx->pageIndex == PAUSE_MAP) && !sInDungeonScene) {
@@ -3178,10 +3191,14 @@ void KaleidoScope_UpdateOpening(PlayState* play) {
             gSaveContext.buttonStatus[EQUIP_SLOT_C_DOWN] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
             gSaveContext.buttonStatus[EQUIP_SLOT_C_RIGHT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
             // #region 2S2H [Dpad]
-            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
-            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
-            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
-            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] = gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_RIGHT] =
+                gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_LEFT] =
+                gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_DOWN] =
+                gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
+            gSaveContext.shipSaveContext.dpad.status[EQUIP_SLOT_D_UP] =
+                gPageSwitchNextButtonStatus[pauseCtx->pageIndex][1];
             // #endregion
             gSaveContext.buttonStatus[EQUIP_SLOT_A] = BTN_ENABLED;
         } else {
@@ -3503,18 +3520,21 @@ void KaleidoScope_Update(PlayState* play) {
                             Play_SaveCycleSceneFlags(&play->state);
                             gSaveContext.save.saveInfo.playerData.savedSceneId = play->sceneId;
                             func_8014546C(sramCtx);
-                            if (!gSaveContext.flashSaveAvailable || gSaveContext.fileNum == 255) { // 2S2H [Enhancement] Don't let them save if they are in debug save
+                            if (!gSaveContext.flashSaveAvailable ||
+                                gSaveContext.fileNum ==
+                                    255) { // 2S2H [Enhancement] Don't let them save if they are in debug save
                                 pauseCtx->savePromptState = PAUSE_SAVEPROMPT_STATE_5;
                             } else {
                                 if (CVarGetInteger("gEnhancements.Kaleido.PauseSave", 0)) {
-                                    Sram_SetFlashPagesOwlSave(sramCtx, gFlashOwlSaveStartPages[gSaveContext.fileNum * 2],
-                                            gFlashOwlSaveNumPages[gSaveContext.fileNum * 2]);
+                                    Sram_SetFlashPagesOwlSave(sramCtx,
+                                                              gFlashOwlSaveStartPages[gSaveContext.fileNum * 2],
+                                                              gFlashOwlSaveNumPages[gSaveContext.fileNum * 2]);
                                     Sram_StartWriteToFlashOwlSave(sramCtx);
                                     gSaveContext.save.isOwlSave = false;
                                     gSaveContext.save.shipSaveInfo.pauseSaveEntrance = -1;
                                 } else {
                                     Sram_SetFlashPagesDefault(sramCtx, gFlashSaveStartPages[gSaveContext.fileNum],
-                                        gFlashSaveNumPages[gSaveContext.fileNum]);
+                                                              gFlashSaveNumPages[gSaveContext.fileNum]);
                                     Sram_StartWriteToFlashDefault(sramCtx);
                                 }
                                 pauseCtx->savePromptState = PAUSE_SAVEPROMPT_STATE_4;

@@ -1481,8 +1481,9 @@ void EnFsn_Init(Actor* thisx, PlayState* play) {
 
     ActorShape_Init(&this->actor.shape, 0.0f, ActorShadow_DrawCircle, 20.0f);
 
-    // #region 2S2H [Port] ENFSN_LIMB_MAX originally had a +1 because the game incorrectly thought the skel had 18 limbs when it
-    // only has 17. We also need to patch the count in skelAnime because it is reading the wrong number from the skeleton header.
+    // #region 2S2H [Port] ENFSN_LIMB_MAX originally had a +1 because the game incorrectly thought the skel had 18 limbs
+    // when it only has 17. We also need to patch the count in skelAnime because it is reading the wrong number from the
+    // skeleton header.
     SkelAnime_InitFlex(play, &this->skelAnime, &gFsnSkel, &gFsnIdleAnim, this->jointTable, this->morphTable,
                        ENFSN_LIMB_MAX);
     this->skelAnime.limbCount = ENFSN_LIMB_MAX;

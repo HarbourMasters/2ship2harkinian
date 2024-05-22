@@ -1026,8 +1026,8 @@ void func_809924EC(EnWf* this, PlayState* play) {
 
 void func_809926D0(EnWf* this) {
     this->collider2.base.acFlags &= ~AC_ON;
-    Animation_Change(&this->skelAnime, &gWolfosBackflipAnim, -1.0f, Animation_GetLastFrame(&gWolfosBackflipAnim),
-                     0.0f, ANIMMODE_ONCE, -3.0f);
+    Animation_Change(&this->skelAnime, &gWolfosBackflipAnim, -1.0f, Animation_GetLastFrame(&gWolfosBackflipAnim), 0.0f,
+                     ANIMMODE_ONCE, -3.0f);
     this->unk_2A0 = 0;
     this->actor.speed = 6.5f;
     this->actor.velocity.y = 15.0f;

@@ -24,8 +24,8 @@ void PatchMiniGameCrossAndCircleSymbols() {
     // The X and O displayed in mini-games are incorrectly set to FMT_I instead of FMT_IA,
     // Fast3D throws an assert and does nothing as FMT_I with SIZ_16 is not a valid texture type.
     // Patching all the relevant instructions to use FMT_IA matching the exported texture
-    const char* dLists[] = { gShootingGalleryOctorokCrossDL, gShootingGalleryOctorokCircleDL,
-                             gObjJgameLightIncorrectDL, gObjJgameLightCorrectDL };
+    const char* dLists[] = { gShootingGalleryOctorokCrossDL, gShootingGalleryOctorokCircleDL, gObjJgameLightIncorrectDL,
+                             gObjJgameLightCorrectDL };
 
     for (auto& dl : dLists) {
         Gfx* instructions = ResourceMgr_LoadGfxByName(dl);

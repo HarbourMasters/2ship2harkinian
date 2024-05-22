@@ -586,33 +586,37 @@ void KaleidoScope_UpdateMaskCursor(PlayState* play) {
                     else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
                         if (CHECK_BTN_ALL(input->press.button, BTN_DRIGHT)) {
                             if (((Player_GetCurMaskItemId(play) != ITEM_NONE) &&
-                                (Player_GetCurMaskItemId(play) == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT))) ||
+                                 (Player_GetCurMaskItemId(play) == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT))) ||
                                 ((sMaskPlayerFormItems[GET_PLAYER_FORM] != ITEM_NONE) &&
-                                (sMaskPlayerFormItems[GET_PLAYER_FORM] == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT)))) {
+                                 (sMaskPlayerFormItems[GET_PLAYER_FORM] ==
+                                  DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT)))) {
                                 Audio_PlaySfx(NA_SE_SY_ERROR);
                                 return;
                             }
                         } else if (CHECK_BTN_ALL(input->press.button, BTN_DLEFT)) {
                             if (((Player_GetCurMaskItemId(play) != ITEM_NONE) &&
-                                (Player_GetCurMaskItemId(play) == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT))) ||
+                                 (Player_GetCurMaskItemId(play) == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT))) ||
                                 ((sMaskPlayerFormItems[GET_PLAYER_FORM] != ITEM_NONE) &&
-                                (sMaskPlayerFormItems[GET_PLAYER_FORM] == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT)))) {
+                                 (sMaskPlayerFormItems[GET_PLAYER_FORM] ==
+                                  DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT)))) {
                                 Audio_PlaySfx(NA_SE_SY_ERROR);
                                 return;
                             }
                         } else if (CHECK_BTN_ALL(input->press.button, BTN_DDOWN)) {
                             if (((Player_GetCurMaskItemId(play) != ITEM_NONE) &&
-                                (Player_GetCurMaskItemId(play) == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN))) ||
+                                 (Player_GetCurMaskItemId(play) == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN))) ||
                                 ((sMaskPlayerFormItems[GET_PLAYER_FORM] != ITEM_NONE) &&
-                                (sMaskPlayerFormItems[GET_PLAYER_FORM] == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN)))) {
+                                 (sMaskPlayerFormItems[GET_PLAYER_FORM] ==
+                                  DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN)))) {
                                 Audio_PlaySfx(NA_SE_SY_ERROR);
                                 return;
                             }
                         } else if (CHECK_BTN_ALL(input->press.button, BTN_DUP)) {
                             if (((Player_GetCurMaskItemId(play) != ITEM_NONE) &&
-                                (Player_GetCurMaskItemId(play) == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP))) ||
+                                 (Player_GetCurMaskItemId(play) == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP))) ||
                                 ((sMaskPlayerFormItems[GET_PLAYER_FORM] != ITEM_NONE) &&
-                                (sMaskPlayerFormItems[GET_PLAYER_FORM] == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP)))) {
+                                 (sMaskPlayerFormItems[GET_PLAYER_FORM] ==
+                                  DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP)))) {
                                 Audio_PlaySfx(NA_SE_SY_ERROR);
                                 return;
                             }
@@ -1185,7 +1189,8 @@ void KaleidoScope_UpdateMaskEquip(PlayState* play) {
                 BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) = pauseCtx->equipTargetItem;
                 C_SLOT_EQUIP(0, EQUIP_SLOT_C_DOWN) = pauseCtx->equipTargetSlot;
                 Interface_LoadItemIconImpl(play, EQUIP_SLOT_C_DOWN);
-            } else if (pauseCtx->equipTargetCBtn == PAUSE_EQUIP_C_RIGHT) { // #region 2S2H [Dpad] Added condition here to allow for other cases
+            } else if (pauseCtx->equipTargetCBtn ==
+                       PAUSE_EQUIP_C_RIGHT) { // #region 2S2H [Dpad] Added condition here to allow for other cases
                 // Swap if mask is already equipped on CLeft or CDown.
                 if (pauseCtx->equipTargetSlot == C_SLOT_EQUIP(0, EQUIP_SLOT_C_LEFT)) {
                     if ((BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) & 0xFF) != ITEM_NONE) {
@@ -1215,7 +1220,7 @@ void KaleidoScope_UpdateMaskEquip(PlayState* play) {
                 C_SLOT_EQUIP(0, EQUIP_SLOT_C_RIGHT) = pauseCtx->equipTargetSlot;
                 Interface_LoadItemIconImpl(play, EQUIP_SLOT_C_RIGHT);
             }
-            // #region 2S2H [Dpad] 
+            // #region 2S2H [Dpad]
             else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
                 KaleidoScope_UpdateDpadMaskEquip(play);
             }

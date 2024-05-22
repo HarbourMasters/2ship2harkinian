@@ -5,7 +5,7 @@
 namespace SOH {
 
 std::shared_ptr<Ship::IResource> SetMinimapChestsFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData,
-                                                                      std::shared_ptr<Ship::BinaryReader> reader) {
+                                                                       std::shared_ptr<Ship::BinaryReader> reader) {
     auto chests = std::make_shared<SetMinimapChests>(initData);
 
     ReadCommandId(chests, reader);
@@ -26,4 +26,4 @@ std::shared_ptr<Ship::IResource> SetMinimapChestsFactory::ReadResource(std::shar
 
     return chests;
 }
-} // namespace LUS
+} // namespace SOH

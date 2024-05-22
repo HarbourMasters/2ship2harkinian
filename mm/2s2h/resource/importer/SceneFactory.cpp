@@ -58,7 +58,7 @@ ResourceFactoryBinarySceneV0::ResourceFactoryBinarySceneV0() {
     sceneCommandFactories[SceneCommandID::SetAlternateHeaders] = std::make_shared<SetAlternateHeadersFactory>();
     // TODO should we use a different custom scene command like cutscenes?
     sceneCommandFactories[SceneCommandID::SetPathways] = std::make_shared<SetPathwaysMMFactory>();
-    //sceneCommandFactories[SceneCommandID::SetCutscenes] = std::make_shared<SetCutsceneFactoryMM>();
+    // sceneCommandFactories[SceneCommandID::SetCutscenes] = std::make_shared<SetCutsceneFactoryMM>();
     sceneCommandFactories[SceneCommandID::SetLightList] = std::make_shared<SetLightListFactory>();
     sceneCommandFactories[SceneCommandID::SetMesh] = std::make_shared<SetMeshFactory>();
     sceneCommandFactories[SceneCommandID::SetCutscenesMM] = std::make_shared<SetCutsceneFactoryMM>();
@@ -79,8 +79,8 @@ void ResourceFactoryBinarySceneV0::ParseSceneCommands(std::shared_ptr<Scene> sce
 }
 
 std::shared_ptr<ISceneCommand>
-ResourceFactoryBinarySceneV0::ParseSceneCommand(std::shared_ptr<Scene> scene, std::shared_ptr<Ship::BinaryReader> reader,
-                                                uint32_t index) {
+ResourceFactoryBinarySceneV0::ParseSceneCommand(std::shared_ptr<Scene> scene,
+                                                std::shared_ptr<Ship::BinaryReader> reader, uint32_t index) {
     SceneCommandID cmdID = (SceneCommandID)reader->ReadInt32();
 
     reader->Seek(-sizeof(int32_t), Ship::SeekOffsetType::Current);

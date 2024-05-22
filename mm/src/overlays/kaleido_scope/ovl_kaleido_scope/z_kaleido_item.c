@@ -228,14 +228,13 @@ void KaleidoScope_DrawAmmoCount(PauseContext* pauseCtx, GraphicsContext* gfxCtx,
     // Draw upper digit
     if (ammoUpperDigit != 0) {
         POLY_OPA_DISP =
-            Gfx_DrawTexRectIA8(POLY_OPA_DISP,gAmmoDigitTextures[ammoUpperDigit], 8, 8,
-                               sAmmoRectLeft[ammoIndex], sAmmoRectHeight[ammoIndex], 8, 8, 1 << 10, 1 << 10);
+            Gfx_DrawTexRectIA8(POLY_OPA_DISP, gAmmoDigitTextures[ammoUpperDigit], 8, 8, sAmmoRectLeft[ammoIndex],
+                               sAmmoRectHeight[ammoIndex], 8, 8, 1 << 10, 1 << 10);
     }
 
     // Draw lower digit
-    POLY_OPA_DISP =
-        Gfx_DrawTexRectIA8(POLY_OPA_DISP, gAmmoDigitTextures[ammo], 8, 8, sAmmoRectLeft[ammoIndex] + 6,
-                           sAmmoRectHeight[ammoIndex], 8, 8, 1 << 10, 1 << 10);
+    POLY_OPA_DISP = Gfx_DrawTexRectIA8(POLY_OPA_DISP, gAmmoDigitTextures[ammo], 8, 8, sAmmoRectLeft[ammoIndex] + 6,
+                                       sAmmoRectHeight[ammoIndex], 8, 8, 1 << 10, 1 << 10);
 
     CLOSE_DISPS(gfxCtx);
 }
@@ -322,8 +321,8 @@ void KaleidoScope_DrawItemSelect(PlayState* play) {
                         pauseCtx->itemVtx[j + 0].v.ob[1] - 32;
                 }
             }
-            // #region 2S2H [Port] Originally this was done in KaleidoScope_Update, but now we are using gSPGrayscale on the fly
-            // It reads odd here to assign a u8 to a u16, then cast it to s32 for gPlayerFormItemRestrictions
+            // #region 2S2H [Port] Originally this was done in KaleidoScope_Update, but now we are using gSPGrayscale on
+            // the fly It reads odd here to assign a u8 to a u16, then cast it to s32 for gPlayerFormItemRestrictions
             // but this matches the behavior of the original code
             u16 itemId = gSaveContext.save.saveInfo.inventory.items[i];
             if (!gPlayerFormItemRestrictions[GET_PLAYER_FORM][(s32)itemId]) {
@@ -626,7 +625,8 @@ void KaleidoScope_UpdateItemCursor(PlayState* play) {
                 // Equip item to the C buttons
                 if ((pauseCtx->debugEditor == DEBUG_EDITOR_NONE) && !pauseCtx->itemDescriptionOn &&
                     (pauseCtx->state == PAUSE_STATE_MAIN) && (pauseCtx->mainState == PAUSE_MAIN_STATE_IDLE) &&
-                    CHECK_BTN_ANY(CONTROLLER1(&play->state)->press.button, BTN_CLEFT | BTN_CDOWN | BTN_CRIGHT | BTN_DPAD_EQUIP)) {
+                    CHECK_BTN_ANY(CONTROLLER1(&play->state)->press.button,
+                                  BTN_CLEFT | BTN_CDOWN | BTN_CRIGHT | BTN_DPAD_EQUIP)) {
 
                     // Ensure that a transformation mask can not be unequipped while being used
                     if (GET_PLAYER_FORM != PLAYER_FORM_HUMAN) {
@@ -650,7 +650,8 @@ void KaleidoScope_UpdateItemCursor(PlayState* play) {
                         // #region 2S2H [Dpad]
                         else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
                             if (CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, BTN_DRIGHT)) {
-                                if (sPlayerFormItems[GET_PLAYER_FORM] == DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT)) {
+                                if (sPlayerFormItems[GET_PLAYER_FORM] ==
+                                    DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT)) {
                                     Audio_PlaySfx(NA_SE_SY_ERROR);
                                     return;
                                 }
@@ -805,8 +806,8 @@ void KaleidoScope_SwapDpadItemToCItem(PlayState* play, EquipSlot cEquipSlot) {
         if ((BUTTON_ITEM_EQUIP(0, cEquipSlot) & 0xFF) != ITEM_NONE) {
             if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                 (((BUTTON_ITEM_EQUIP(0, cEquipSlot) & 0xFF) == ITEM_BOW) ||
-                (((BUTTON_ITEM_EQUIP(0, cEquipSlot) & 0xFF) >= ITEM_BOW_FIRE) &&
-                ((BUTTON_ITEM_EQUIP(0, cEquipSlot) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                 (((BUTTON_ITEM_EQUIP(0, cEquipSlot) & 0xFF) >= ITEM_BOW_FIRE) &&
+                  ((BUTTON_ITEM_EQUIP(0, cEquipSlot) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                 pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                 pauseCtx->equipTargetSlot = SLOT_BOW;
             } else {
@@ -822,8 +823,8 @@ void KaleidoScope_SwapDpadItemToCItem(PlayState* play, EquipSlot cEquipSlot) {
         if ((BUTTON_ITEM_EQUIP(0, cEquipSlot) & 0xFF) != ITEM_NONE) {
             if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                 (((BUTTON_ITEM_EQUIP(0, cEquipSlot) & 0xFF) == ITEM_BOW) ||
-                (((BUTTON_ITEM_EQUIP(0, cEquipSlot) & 0xFF) >= ITEM_BOW_FIRE) &&
-                ((BUTTON_ITEM_EQUIP(0, cEquipSlot) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                 (((BUTTON_ITEM_EQUIP(0, cEquipSlot) & 0xFF) >= ITEM_BOW_FIRE) &&
+                  ((BUTTON_ITEM_EQUIP(0, cEquipSlot) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                 pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                 pauseCtx->equipTargetSlot = SLOT_BOW;
             } else {
@@ -839,8 +840,8 @@ void KaleidoScope_SwapDpadItemToCItem(PlayState* play, EquipSlot cEquipSlot) {
         if ((BUTTON_ITEM_EQUIP(0, cEquipSlot) & 0xFF) != ITEM_NONE) {
             if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                 (((BUTTON_ITEM_EQUIP(0, cEquipSlot) & 0xFF) == ITEM_BOW) ||
-                (((BUTTON_ITEM_EQUIP(0, cEquipSlot) & 0xFF) >= ITEM_BOW_FIRE) &&
-                ((BUTTON_ITEM_EQUIP(0, cEquipSlot) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                 (((BUTTON_ITEM_EQUIP(0, cEquipSlot) & 0xFF) >= ITEM_BOW_FIRE) &&
+                  ((BUTTON_ITEM_EQUIP(0, cEquipSlot) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                 pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                 pauseCtx->equipTargetSlot = SLOT_BOW;
             } else {
@@ -856,8 +857,8 @@ void KaleidoScope_SwapDpadItemToCItem(PlayState* play, EquipSlot cEquipSlot) {
         if ((BUTTON_ITEM_EQUIP(0, cEquipSlot) & 0xFF) != ITEM_NONE) {
             if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                 (((BUTTON_ITEM_EQUIP(0, cEquipSlot) & 0xFF) == ITEM_BOW) ||
-                (((BUTTON_ITEM_EQUIP(0, cEquipSlot) & 0xFF) >= ITEM_BOW_FIRE) &&
-                ((BUTTON_ITEM_EQUIP(0, cEquipSlot) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                 (((BUTTON_ITEM_EQUIP(0, cEquipSlot) & 0xFF) >= ITEM_BOW_FIRE) &&
+                  ((BUTTON_ITEM_EQUIP(0, cEquipSlot) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                 pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                 pauseCtx->equipTargetSlot = SLOT_BOW;
             } else {
@@ -881,8 +882,8 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) != ITEM_NONE) {
                 if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) == ITEM_BOW) ||
-                        (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) >= ITEM_BOW_FIRE) &&
-                        ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) >= ITEM_BOW_FIRE) &&
+                      ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                     pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
@@ -898,8 +899,8 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) != ITEM_NONE) {
                 if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) == ITEM_BOW) ||
-                        (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) >= ITEM_BOW_FIRE) &&
-                        ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) >= ITEM_BOW_FIRE) &&
+                      ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                     pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
@@ -915,8 +916,8 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) != ITEM_NONE) {
                 if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) == ITEM_BOW) ||
-                        (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) >= ITEM_BOW_FIRE) &&
-                        ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) >= ITEM_BOW_FIRE) &&
+                      ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                     pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
@@ -932,8 +933,8 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) != ITEM_NONE) {
                 if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) == ITEM_BOW) ||
-                        (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) >= ITEM_BOW_FIRE) &&
-                        ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) >= ITEM_BOW_FIRE) &&
+                      ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                     pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
@@ -949,8 +950,8 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) != ITEM_NONE) {
                 if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) == ITEM_BOW) ||
-                        (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) >= ITEM_BOW_FIRE) &&
-                        ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) >= ITEM_BOW_FIRE) &&
+                      ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                     pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
@@ -966,8 +967,8 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) != ITEM_NONE) {
                 if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) == ITEM_BOW) ||
-                        (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) >= ITEM_BOW_FIRE) &&
-                        ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) >= ITEM_BOW_FIRE) &&
+                      ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                     pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
@@ -981,12 +982,11 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             }
         }
 
-
         // Special case for magic arrows
         if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8)) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) == ITEM_BOW) ||
                 ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) >= ITEM_BOW_FIRE) &&
-                    (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) <= ITEM_BOW_LIGHT))) {
+                 (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) <= ITEM_BOW_LIGHT))) {
                 pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                 pauseCtx->equipTargetSlot = SLOT_BOW;
             }
@@ -996,23 +996,23 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
                 BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT);
                 Interface_LoadItemIcon(play, EQUIP_SLOT_C_LEFT);
             } else if ((BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) >= ITEM_BOW_FIRE) &&
-                        (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) <= ITEM_BOW_LIGHT)) {
+                       (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) <= ITEM_BOW_LIGHT)) {
                 BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT);
                 Interface_LoadItemIcon(play, EQUIP_SLOT_C_DOWN);
             } else if ((BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) >= ITEM_BOW_FIRE) &&
-                        (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) <= ITEM_BOW_LIGHT)) {
+                       (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) <= ITEM_BOW_LIGHT)) {
                 BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT);
                 Interface_LoadItemIcon(play, EQUIP_SLOT_C_RIGHT);
             } else if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) >= ITEM_BOW_FIRE) &&
-                    (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) <= ITEM_BOW_LIGHT)) {
+                       (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) <= ITEM_BOW_LIGHT)) {
                 DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT);
                 Interface_Dpad_LoadItemIcon(play, EQUIP_SLOT_D_LEFT);
             } else if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) >= ITEM_BOW_FIRE) &&
-                    (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) <= ITEM_BOW_LIGHT)) {
+                       (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) <= ITEM_BOW_LIGHT)) {
                 DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT);
                 Interface_Dpad_LoadItemIcon(play, EQUIP_SLOT_D_DOWN);
             } else if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) >= ITEM_BOW_FIRE) &&
-                    (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) <= ITEM_BOW_LIGHT)) {
+                       (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) <= ITEM_BOW_LIGHT)) {
                 DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT);
                 Interface_Dpad_LoadItemIcon(play, EQUIP_SLOT_D_UP);
             }
@@ -1028,8 +1028,8 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) != ITEM_NONE) {
                 if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) == ITEM_BOW) ||
-                        (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) >= ITEM_BOW_FIRE) &&
-                        ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) >= ITEM_BOW_FIRE) &&
+                      ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                     pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
@@ -1045,8 +1045,8 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) != ITEM_NONE) {
                 if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) == ITEM_BOW) ||
-                        (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) >= ITEM_BOW_FIRE) &&
-                        ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) >= ITEM_BOW_FIRE) &&
+                      ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                     pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
@@ -1062,8 +1062,8 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) != ITEM_NONE) {
                 if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) == ITEM_BOW) ||
-                        (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) >= ITEM_BOW_FIRE) &&
-                        ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) >= ITEM_BOW_FIRE) &&
+                      ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                     pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
@@ -1079,8 +1079,8 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) != ITEM_NONE) {
                 if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) == ITEM_BOW) ||
-                        (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) >= ITEM_BOW_FIRE) &&
-                        ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) >= ITEM_BOW_FIRE) &&
+                      ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                     pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
@@ -1096,8 +1096,8 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) != ITEM_NONE) {
                 if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) == ITEM_BOW) ||
-                        (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) >= ITEM_BOW_FIRE) &&
-                        ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) >= ITEM_BOW_FIRE) &&
+                      ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                     pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
@@ -1113,8 +1113,8 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) != ITEM_NONE) {
                 if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) == ITEM_BOW) ||
-                        (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) >= ITEM_BOW_FIRE) &&
-                        ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) >= ITEM_BOW_FIRE) &&
+                      ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                     pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
@@ -1128,12 +1128,11 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             }
         }
 
-
         // Special case for magic arrows
         if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8)) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) == ITEM_BOW) ||
                 ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) >= ITEM_BOW_FIRE) &&
-                    (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) <= ITEM_BOW_LIGHT))) {
+                 (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) <= ITEM_BOW_LIGHT))) {
                 pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                 pauseCtx->equipTargetSlot = SLOT_BOW;
             }
@@ -1143,23 +1142,23 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
                 BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT);
                 Interface_LoadItemIcon(play, EQUIP_SLOT_C_LEFT);
             } else if ((BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) >= ITEM_BOW_FIRE) &&
-                        (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) <= ITEM_BOW_LIGHT)) {
+                       (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) <= ITEM_BOW_LIGHT)) {
                 BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT);
                 Interface_LoadItemIcon(play, EQUIP_SLOT_C_DOWN);
             } else if ((BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) >= ITEM_BOW_FIRE) &&
-                        (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) <= ITEM_BOW_LIGHT)) {
+                       (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) <= ITEM_BOW_LIGHT)) {
                 BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT);
                 Interface_LoadItemIcon(play, EQUIP_SLOT_C_RIGHT);
             } else if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) >= ITEM_BOW_FIRE) &&
-                    (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) <= ITEM_BOW_LIGHT)) {
+                       (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) <= ITEM_BOW_LIGHT)) {
                 DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT);
                 Interface_Dpad_LoadItemIcon(play, EQUIP_SLOT_D_RIGHT);
             } else if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) >= ITEM_BOW_FIRE) &&
-                    (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) <= ITEM_BOW_LIGHT)) {
+                       (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) <= ITEM_BOW_LIGHT)) {
                 DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT);
                 Interface_Dpad_LoadItemIcon(play, EQUIP_SLOT_D_DOWN);
             } else if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) >= ITEM_BOW_FIRE) &&
-                    (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) <= ITEM_BOW_LIGHT)) {
+                       (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) <= ITEM_BOW_LIGHT)) {
                 DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT);
                 Interface_Dpad_LoadItemIcon(play, EQUIP_SLOT_D_UP);
             }
@@ -1175,8 +1174,8 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) != ITEM_NONE) {
                 if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) == ITEM_BOW) ||
-                        (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) >= ITEM_BOW_FIRE) &&
-                        ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) >= ITEM_BOW_FIRE) &&
+                      ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                     pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
@@ -1192,8 +1191,8 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) != ITEM_NONE) {
                 if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) == ITEM_BOW) ||
-                        (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) >= ITEM_BOW_FIRE) &&
-                        ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) >= ITEM_BOW_FIRE) &&
+                      ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                     pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
@@ -1209,8 +1208,8 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) != ITEM_NONE) {
                 if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) == ITEM_BOW) ||
-                        (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) >= ITEM_BOW_FIRE) &&
-                        ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) >= ITEM_BOW_FIRE) &&
+                      ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                     pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
@@ -1226,8 +1225,8 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) != ITEM_NONE) {
                 if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) == ITEM_BOW) ||
-                        (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) >= ITEM_BOW_FIRE) &&
-                        ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) >= ITEM_BOW_FIRE) &&
+                      ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                     pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
@@ -1243,8 +1242,8 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) != ITEM_NONE) {
                 if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) == ITEM_BOW) ||
-                        (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) >= ITEM_BOW_FIRE) &&
-                        ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) >= ITEM_BOW_FIRE) &&
+                      ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                     pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
@@ -1260,8 +1259,8 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) != ITEM_NONE) {
                 if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) == ITEM_BOW) ||
-                        (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) >= ITEM_BOW_FIRE) &&
-                        ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) >= ITEM_BOW_FIRE) &&
+                      ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                     pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
@@ -1275,12 +1274,11 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             }
         }
 
-
         // Special case for magic arrows
         if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8)) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) == ITEM_BOW) ||
                 ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) >= ITEM_BOW_FIRE) &&
-                    (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) <= ITEM_BOW_LIGHT))) {
+                 (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) <= ITEM_BOW_LIGHT))) {
                 pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                 pauseCtx->equipTargetSlot = SLOT_BOW;
             }
@@ -1290,23 +1288,23 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
                 BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN);
                 Interface_LoadItemIcon(play, EQUIP_SLOT_C_LEFT);
             } else if ((BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) >= ITEM_BOW_FIRE) &&
-                        (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) <= ITEM_BOW_LIGHT)) {
+                       (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) <= ITEM_BOW_LIGHT)) {
                 BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN);
                 Interface_LoadItemIcon(play, EQUIP_SLOT_C_DOWN);
             } else if ((BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) >= ITEM_BOW_FIRE) &&
-                        (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) <= ITEM_BOW_LIGHT)) {
+                       (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) <= ITEM_BOW_LIGHT)) {
                 BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN);
                 Interface_LoadItemIcon(play, EQUIP_SLOT_C_RIGHT);
             } else if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) >= ITEM_BOW_FIRE) &&
-                    (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) <= ITEM_BOW_LIGHT)) {
+                       (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) <= ITEM_BOW_LIGHT)) {
                 DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN);
                 Interface_Dpad_LoadItemIcon(play, EQUIP_SLOT_D_RIGHT);
             } else if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) >= ITEM_BOW_FIRE) &&
-                    (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) <= ITEM_BOW_LIGHT)) {
+                       (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) <= ITEM_BOW_LIGHT)) {
                 DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN);
                 Interface_Dpad_LoadItemIcon(play, EQUIP_SLOT_D_LEFT);
             } else if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) >= ITEM_BOW_FIRE) &&
-                    (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) <= ITEM_BOW_LIGHT)) {
+                       (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) <= ITEM_BOW_LIGHT)) {
                 DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN);
                 Interface_Dpad_LoadItemIcon(play, EQUIP_SLOT_D_UP);
             }
@@ -1322,8 +1320,8 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) != ITEM_NONE) {
                 if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) == ITEM_BOW) ||
-                        (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) >= ITEM_BOW_FIRE) &&
-                        ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) >= ITEM_BOW_FIRE) &&
+                      ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                     pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
@@ -1339,8 +1337,8 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) != ITEM_NONE) {
                 if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) == ITEM_BOW) ||
-                        (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) >= ITEM_BOW_FIRE) &&
-                        ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) >= ITEM_BOW_FIRE) &&
+                      ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                     pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
@@ -1356,8 +1354,8 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) != ITEM_NONE) {
                 if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) == ITEM_BOW) ||
-                        (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) >= ITEM_BOW_FIRE) &&
-                        ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) >= ITEM_BOW_FIRE) &&
+                      ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                     pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
@@ -1373,8 +1371,8 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) != ITEM_NONE) {
                 if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) == ITEM_BOW) ||
-                        (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) >= ITEM_BOW_FIRE) &&
-                        ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) >= ITEM_BOW_FIRE) &&
+                      ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                     pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
@@ -1390,8 +1388,8 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) != ITEM_NONE) {
                 if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) == ITEM_BOW) ||
-                        (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) >= ITEM_BOW_FIRE) &&
-                        ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) >= ITEM_BOW_FIRE) &&
+                      ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                     pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
@@ -1407,8 +1405,8 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) != ITEM_NONE) {
                 if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) == ITEM_BOW) ||
-                        (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) >= ITEM_BOW_FIRE) &&
-                        ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) <= ITEM_BOW_LIGHT)))) {
+                     (((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) >= ITEM_BOW_FIRE) &&
+                      ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) & 0xFF) <= ITEM_BOW_LIGHT)))) {
                     pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                     pauseCtx->equipTargetSlot = SLOT_BOW;
                 } else {
@@ -1422,12 +1420,11 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
             }
         }
 
-
         // Special case for magic arrows
         if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8)) {
             if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) == ITEM_BOW) ||
                 ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) >= ITEM_BOW_FIRE) &&
-                    (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) <= ITEM_BOW_LIGHT))) {
+                 (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) <= ITEM_BOW_LIGHT))) {
                 pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
                 pauseCtx->equipTargetSlot = SLOT_BOW;
             }
@@ -1437,23 +1434,23 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
                 BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP);
                 Interface_LoadItemIcon(play, EQUIP_SLOT_C_LEFT);
             } else if ((BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) >= ITEM_BOW_FIRE) &&
-                        (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) <= ITEM_BOW_LIGHT)) {
+                       (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) <= ITEM_BOW_LIGHT)) {
                 BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP);
                 Interface_LoadItemIcon(play, EQUIP_SLOT_C_DOWN);
             } else if ((BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) >= ITEM_BOW_FIRE) &&
-                        (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) <= ITEM_BOW_LIGHT)) {
+                       (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) <= ITEM_BOW_LIGHT)) {
                 BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP);
                 Interface_LoadItemIcon(play, EQUIP_SLOT_C_RIGHT);
             } else if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) >= ITEM_BOW_FIRE) &&
-                    (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) <= ITEM_BOW_LIGHT)) {
+                       (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) <= ITEM_BOW_LIGHT)) {
                 DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP);
                 Interface_Dpad_LoadItemIcon(play, EQUIP_SLOT_D_RIGHT);
             } else if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) >= ITEM_BOW_FIRE) &&
-                    (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) <= ITEM_BOW_LIGHT)) {
+                       (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) <= ITEM_BOW_LIGHT)) {
                 DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP);
                 Interface_Dpad_LoadItemIcon(play, EQUIP_SLOT_D_LEFT);
             } else if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) >= ITEM_BOW_FIRE) &&
-                    (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) <= ITEM_BOW_LIGHT)) {
+                       (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) <= ITEM_BOW_LIGHT)) {
                 DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) = DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP);
                 Interface_Dpad_LoadItemIcon(play, EQUIP_SLOT_D_DOWN);
             }
@@ -1659,22 +1656,22 @@ void KaleidoScope_UpdateItemEquip(PlayState* play) {
                     // #region 2S2H [Dpad]
                     // Note Only C-Left has the swap of 'slot equips' here
                     if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) >= ITEM_BOW_FIRE) &&
-                            (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) <= ITEM_BOW_LIGHT)) {
+                        (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) <= ITEM_BOW_LIGHT)) {
                         DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) = BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT);
                         DPAD_SLOT_EQUIP(0, EQUIP_SLOT_D_RIGHT) = C_SLOT_EQUIP(0, EQUIP_SLOT_C_LEFT);
                         Interface_Dpad_LoadItemIcon(play, EQUIP_SLOT_D_RIGHT);
                     } else if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) >= ITEM_BOW_FIRE) &&
-                            (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) <= ITEM_BOW_LIGHT)) {
+                               (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) <= ITEM_BOW_LIGHT)) {
                         DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) = BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT);
                         DPAD_SLOT_EQUIP(0, EQUIP_SLOT_D_LEFT) = C_SLOT_EQUIP(0, EQUIP_SLOT_C_LEFT);
                         Interface_Dpad_LoadItemIcon(play, EQUIP_SLOT_D_LEFT);
                     } else if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) >= ITEM_BOW_FIRE) &&
-                            (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) <= ITEM_BOW_LIGHT)) {
+                               (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) <= ITEM_BOW_LIGHT)) {
                         DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) = BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT);
                         DPAD_SLOT_EQUIP(0, EQUIP_SLOT_D_DOWN) = C_SLOT_EQUIP(0, EQUIP_SLOT_C_LEFT);
                         Interface_Dpad_LoadItemIcon(play, EQUIP_SLOT_D_DOWN);
                     } else if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) >= ITEM_BOW_FIRE) &&
-                            (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) <= ITEM_BOW_LIGHT)) {
+                               (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) <= ITEM_BOW_LIGHT)) {
                         DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) = BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT);
                         DPAD_SLOT_EQUIP(0, EQUIP_SLOT_D_UP) = C_SLOT_EQUIP(0, EQUIP_SLOT_C_LEFT);
                         Interface_Dpad_LoadItemIcon(play, EQUIP_SLOT_D_UP);
@@ -1748,19 +1745,19 @@ void KaleidoScope_UpdateItemEquip(PlayState* play) {
                     // #region 2S2H [Dpad]
                     // Note Only C-Left has the swap of 'slot equips' here
                     if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) >= ITEM_BOW_FIRE) &&
-                            (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) <= ITEM_BOW_LIGHT)) {
+                        (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) <= ITEM_BOW_LIGHT)) {
                         DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) = BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN);
                         Interface_Dpad_LoadItemIcon(play, EQUIP_SLOT_D_RIGHT);
                     } else if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) >= ITEM_BOW_FIRE) &&
-                            (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) <= ITEM_BOW_LIGHT)) {
+                               (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) <= ITEM_BOW_LIGHT)) {
                         DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) = BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN);
                         Interface_Dpad_LoadItemIcon(play, EQUIP_SLOT_D_LEFT);
                     } else if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) >= ITEM_BOW_FIRE) &&
-                            (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) <= ITEM_BOW_LIGHT)) {
+                               (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) <= ITEM_BOW_LIGHT)) {
                         DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) = BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN);
                         Interface_Dpad_LoadItemIcon(play, EQUIP_SLOT_D_DOWN);
                     } else if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) >= ITEM_BOW_FIRE) &&
-                            (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) <= ITEM_BOW_LIGHT)) {
+                               (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) <= ITEM_BOW_LIGHT)) {
                         DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) = BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN);
                         Interface_Dpad_LoadItemIcon(play, EQUIP_SLOT_D_UP);
                     }
@@ -1771,7 +1768,8 @@ void KaleidoScope_UpdateItemEquip(PlayState* play) {
                 BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) = pauseCtx->equipTargetItem;
                 C_SLOT_EQUIP(0, EQUIP_SLOT_C_DOWN) = pauseCtx->equipTargetSlot;
                 Interface_LoadItemIconImpl(play, EQUIP_SLOT_C_DOWN);
-            } else if (pauseCtx->equipTargetCBtn == PAUSE_EQUIP_C_RIGHT) { // #Region 2S2H [Dpad] Added condition here to allow for other cases
+            } else if (pauseCtx->equipTargetCBtn ==
+                       PAUSE_EQUIP_C_RIGHT) { // #Region 2S2H [Dpad] Added condition here to allow for other cases
                 // Swap if item is already equipped on CLeft or CDown.
                 if (pauseCtx->equipTargetSlot == C_SLOT_EQUIP(0, EQUIP_SLOT_C_LEFT)) {
                     if ((BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) & 0xFF) != ITEM_NONE) {
@@ -1833,19 +1831,19 @@ void KaleidoScope_UpdateItemEquip(PlayState* play) {
                     // #region 2S2H [Dpad]
                     // Note Only C-Left has the swap of 'slot equips' here
                     if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) >= ITEM_BOW_FIRE) &&
-                            (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) <= ITEM_BOW_LIGHT)) {
+                        (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) <= ITEM_BOW_LIGHT)) {
                         DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) = BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT);
                         Interface_Dpad_LoadItemIcon(play, EQUIP_SLOT_D_RIGHT);
                     } else if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) >= ITEM_BOW_FIRE) &&
-                            (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) <= ITEM_BOW_LIGHT)) {
+                               (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) <= ITEM_BOW_LIGHT)) {
                         DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) = BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT);
                         Interface_Dpad_LoadItemIcon(play, EQUIP_SLOT_D_LEFT);
                     } else if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) >= ITEM_BOW_FIRE) &&
-                            (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) <= ITEM_BOW_LIGHT)) {
+                               (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) <= ITEM_BOW_LIGHT)) {
                         DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) = BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT);
                         Interface_Dpad_LoadItemIcon(play, EQUIP_SLOT_D_DOWN);
                     } else if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) >= ITEM_BOW_FIRE) &&
-                            (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) <= ITEM_BOW_LIGHT)) {
+                               (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) <= ITEM_BOW_LIGHT)) {
                         DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) = BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT);
                         Interface_Dpad_LoadItemIcon(play, EQUIP_SLOT_D_UP);
                     }

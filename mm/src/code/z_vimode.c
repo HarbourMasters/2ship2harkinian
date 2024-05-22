@@ -206,7 +206,7 @@ extern OSViMode osViModeMpalLan1;
 extern OSViMode osViModeFpalLan1;
 
 void ViMode_Save(ViMode* viMode) {
-    #if 0
+#if 0
     R_VI_MODE_EDIT_STATE = viMode->editState;
     R_VI_MODE_EDIT_WIDTH = viMode->viWidth;
     R_VI_MODE_EDIT_HEIGHT = viMode->viHeight;
@@ -231,7 +231,7 @@ void ViMode_Save(ViMode* viMode) {
                 break;
         }
     }
-    #endif
+#endif
 }
 
 void ViMode_Load(ViMode* viMode) {
@@ -271,7 +271,7 @@ void ViMode_Destroy(ViMode* viMode) {
 }
 
 void ViMode_ConfigureFeatures(ViMode* viMode, s32 viFeatures) {
-    #if 0
+#if 0
     u32 ctrl = viMode->customViMode.comRegs.ctrl;
 
     if (viFeatures & OS_VI_GAMMA_ON) {
@@ -293,7 +293,7 @@ void ViMode_ConfigureFeatures(ViMode* viMode, s32 viFeatures) {
         ctrl &= ~OS_VI_DIVOT;
     }
     viMode->customViMode.comRegs.ctrl = ctrl;
-    #endif
+#endif
 }
 
 /**
@@ -301,7 +301,7 @@ void ViMode_ConfigureFeatures(ViMode* viMode, s32 viFeatures) {
  * (through R_VI_MODE_EDIT_* entries)
  */
 void ViMode_Update(ViMode* viMode, Input* input) {
-    #if 0
+#if 0
     ViMode_Load(viMode);
 
     if ((viMode->editState == VI_MODE_EDIT_STATE_ACTIVE) || (viMode->editState == VI_MODE_EDIT_STATE_2) ||
@@ -407,5 +407,5 @@ void ViMode_Update(ViMode* viMode, Input* input) {
     }
 
     ViMode_Save(viMode);
-    #endif
+#endif
 }

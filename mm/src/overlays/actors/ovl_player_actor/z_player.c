@@ -3707,7 +3707,7 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
             if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
                 if (btn <= EQUIP_SLOT_NONE) {
                     DpadEquipSlot dpadBtn = func_Dpad_8082FD0C(this, maskItemAction);
-                    
+
                     if (dpadBtn > EQUIP_SLOT_D_NONE) {
                         btn = DPAD_TO_HELD_ITEM(dpadBtn);
                     }
@@ -3724,8 +3724,7 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
                     maskItem = GET_CUR_FORM_BTN_ITEM(this->unk_154);
                 }
 
-                s32 maskIdMinusOne =
-                    GET_MASK_FROM_IA(Player_ItemToItemAction(this, maskItem)) - 1;
+                s32 maskIdMinusOne = GET_MASK_FROM_IA(Player_ItemToItemAction(this, maskItem)) - 1;
                 // #endregion
 
                 if ((maskIdMinusOne < PLAYER_MASK_TRUTH - 1) || (maskIdMinusOne >= PLAYER_MASK_MAX - 1)) {
@@ -3746,13 +3745,13 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
     if (((this->actor.id == ACTOR_PLAYER) && (this->itemAction >= PLAYER_IA_FISHING_ROD)) &&
         !(((Player_GetHeldBButtonSword(this) == PLAYER_B_SWORD_NONE) || (gSaveContext.jinxTimer == 0)) &&
           (Player_ItemIsInUse(this, (IREG(1) != 0) ? ITEM_FISHING_ROD : Inventory_GetBtnBItem(play)) ||
-    // #region 2S2H [Dpad]
-          (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0) &&
-          (Player_ItemIsInUse(this, DPAD_BTN_ITEM(EQUIP_SLOT_D_RIGHT)) ||
-           Player_ItemIsInUse(this, DPAD_BTN_ITEM(EQUIP_SLOT_D_LEFT)) ||
-           Player_ItemIsInUse(this, DPAD_BTN_ITEM(EQUIP_SLOT_D_DOWN)) ||
-           Player_ItemIsInUse(this, DPAD_BTN_ITEM(EQUIP_SLOT_D_UP)))) ||
-    // #end region
+           // #region 2S2H [Dpad]
+           (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0) &&
+            (Player_ItemIsInUse(this, DPAD_BTN_ITEM(EQUIP_SLOT_D_RIGHT)) ||
+             Player_ItemIsInUse(this, DPAD_BTN_ITEM(EQUIP_SLOT_D_LEFT)) ||
+             Player_ItemIsInUse(this, DPAD_BTN_ITEM(EQUIP_SLOT_D_DOWN)) ||
+             Player_ItemIsInUse(this, DPAD_BTN_ITEM(EQUIP_SLOT_D_UP)))) ||
+           // #end region
            Player_ItemIsInUse(this, C_BTN_ITEM(EQUIP_SLOT_C_LEFT)) ||
            Player_ItemIsInUse(this, C_BTN_ITEM(EQUIP_SLOT_C_DOWN)) ||
            Player_ItemIsInUse(this, C_BTN_ITEM(EQUIP_SLOT_C_RIGHT))))) {
@@ -7805,7 +7804,9 @@ s32 Player_ActionChange_4(Player* this, PlayState* play) {
                         if (var_a1 != NULL) {
                             if (!var_t1) {
                                 this->stateFlags2 |= PLAYER_STATE2_200000;
-                                // This code is the same as the OoT code, except for the !CutsceneManager_IsNext(CS_ID_GLOBAL_TALK), which is what prevented Tatl ISG from working
+                                // This code is the same as the OoT code, except for the
+                                // !CutsceneManager_IsNext(CS_ID_GLOBAL_TALK), which is what prevented Tatl ISG from
+                                // working
                                 bool vanillaCondition = !CutsceneManager_IsNext(CS_ID_GLOBAL_TALK);
                                 if (GameInteractor_Should(GI_VB_TATL_CONVERSATION_AVAILABLE, vanillaCondition, NULL) ||
                                     !CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_CUP)) {
@@ -9294,7 +9295,8 @@ s32 func_8083D738(Player* this, Actor* heldActor) {
 s32 Player_ActionChange_9(Player* this, PlayState* play) {
     if (this->stateFlags1 & PLAYER_STATE1_800) {
         if ((this->heldActor != NULL) &&
-            CHECK_BTN_ANY(sPlayerControlInput->press.button, BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_B | BTN_A | BTN_DPAD_EQUIP)) {
+            CHECK_BTN_ANY(sPlayerControlInput->press.button,
+                          BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_B | BTN_A | BTN_DPAD_EQUIP)) {
             if (!func_808313A8(play, this, this->heldActor)) {
                 if (!func_8083D738(this, this->heldActor)) {
                     Player_SetAction(play, this, Player_Action_41, 1);
@@ -9787,7 +9789,8 @@ void Player_ChooseIdleAnim(PlayState* play, Player* this) {
     }
 
     endFrame = Animation_GetLastFrame(anim);
-    if ((BEN_ANIM_EQUAL(this->skelAnime.animation, anim)) || (BEN_ANIM_EQUAL(this->skelAnime.animation, gPlayerAnim_pz_attackAend)) ||
+    if ((BEN_ANIM_EQUAL(this->skelAnime.animation, anim)) ||
+        (BEN_ANIM_EQUAL(this->skelAnime.animation, gPlayerAnim_pz_attackAend)) ||
         (BEN_ANIM_EQUAL(this->skelAnime.animation, gPlayerAnim_pz_attackBend)) ||
         (BEN_ANIM_EQUAL(this->skelAnime.animation, gPlayerAnim_pz_attackCend))) {
         morphFrames = 0.0f;
@@ -12501,7 +12504,8 @@ s32 Player_UpdateNoclip(Player* this, PlayState* play) {
 
     if ((CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_L | BTN_R | BTN_A) &&
          CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_B)) ||
-        (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_L) && CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_DRIGHT))) {
+        (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_L) &&
+         CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_DRIGHT))) {
 
         sNoclipEnabled ^= 1;
 
@@ -12519,7 +12523,7 @@ s32 Player_UpdateNoclip(Player* this, PlayState* play) {
             speed = 20.0f;
         }
 
-        //DebugCamera_ScreenText(3, 2, "DEBUG MODE");
+        // DebugCamera_ScreenText(3, 2, "DEBUG MODE");
 
         if (!CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_L)) {
             if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B)) {
@@ -12552,9 +12556,10 @@ s32 Player_UpdateNoclip(Player* this, PlayState* play) {
         this->actor.gravity = 0.0f;
         this->actor.velocity.x = this->actor.velocity.y = this->actor.velocity.z = 0.0f;
 
-        //if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_L) && CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_DLEFT)) {
-        //    Flags_SetTempClear(play, play->roomCtx.curRoom.num);
-        //}
+        // if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_L) && CHECK_BTN_ALL(sPlayerControlInput->press.button,
+        // BTN_DLEFT)) {
+        //     Flags_SetTempClear(play, play->roomCtx.curRoom.num);
+        // }
 
         Math_Vec3f_Copy(&this->actor.home.pos, &this->actor.world.pos);
 
@@ -12564,8 +12569,6 @@ s32 Player_UpdateNoclip(Player* this, PlayState* play) {
     return true;
 }
 
-
-
 void Player_Update(Actor* thisx, PlayState* play) {
     static Vec3f sDogSpawnPos;
     Player* this = (Player*)thisx;
@@ -12574,15 +12577,14 @@ void Player_Update(Actor* thisx, PlayState* play) {
     Input input;
     s32 pad2;
 
-
     // 2S2H [port] bring over SoH's noclip
-    //Could be an if else. I think this looks nicer.
+    // Could be an if else. I think this looks nicer.
     if (!Player_UpdateNoclip(this, play)) {
         goto skipUpdate;
     }
 
     this->stateFlags3 &= ~PLAYER_STATE3_10;
-    
+
     // This block is a leftover dog-following mechanic from OoT
     if (gSaveContext.dogParams < 0) {
         if (Object_GetSlot(&play->objectCtx, OBJECT_DOG) < 0) {
@@ -12629,7 +12631,7 @@ void Player_Update(Actor* thisx, PlayState* play) {
     GameInteractor_ExecuteOnPassPlayerInputs(&input);
 
     Player_UpdateCommon(this, play, &input);
-    skipUpdate:
+skipUpdate:
     play->actorCtx.unk268 = 0;
     memset(&play->actorCtx.unk_26C, 0, sizeof(Input));
 
@@ -14068,8 +14070,10 @@ void Player_Action_4(Player* this, PlayState* play) {
     }
 
     if (animFinished ||
-        ((this->currentMask == PLAYER_MASK_SCENTS) && (!BEN_ANIM_EQUAL(this->skelAnime.animation, gPlayerAnim_cl_msbowait))) ||
-        ((this->currentMask != PLAYER_MASK_SCENTS) && (BEN_ANIM_EQUAL(this->skelAnime.animation, gPlayerAnim_cl_msbowait)))) {
+        ((this->currentMask == PLAYER_MASK_SCENTS) &&
+         (!BEN_ANIM_EQUAL(this->skelAnime.animation, gPlayerAnim_cl_msbowait))) ||
+        ((this->currentMask != PLAYER_MASK_SCENTS) &&
+         (BEN_ANIM_EQUAL(this->skelAnime.animation, gPlayerAnim_cl_msbowait)))) {
         if (this->av2.actionVar2 != 0) {
             if (DECR(this->av2.actionVar2) == 0) {
                 this->skelAnime.endFrame = this->skelAnime.animLength - 1.0f;
@@ -14843,7 +14847,8 @@ void Player_Action_25(Player* this, PlayState* play) {
         if (this->stateFlags1 & PLAYER_STATE1_800) {
             heldActor = this->heldActor;
             if (!func_808313A8(play, this, heldActor) && (heldActor->id == ACTOR_EN_NIW) &&
-                CHECK_BTN_ANY(sPlayerControlInput->press.button, BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_B | BTN_A | BTN_DPAD_EQUIP)) {
+                CHECK_BTN_ANY(sPlayerControlInput->press.button,
+                              BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_B | BTN_A | BTN_DPAD_EQUIP)) {
                 func_808409A8(play, this, this->linearVelocity + 2.0f, this->actor.velocity.y + 2.0f);
             }
         }
@@ -15289,7 +15294,8 @@ void Player_Action_33(Player* this, PlayState* play) {
             Player_AnimSfx_PlayVoice(this, NA_SE_VO_LI_CLIMB_END);
         }
 
-        if ((BEN_ANIM_EQUAL(this->skelAnime.animation, gPlayerAnim_link_normal_100step_up)) || (this->skelAnime.curFrame > 5.0f)) {
+        if ((BEN_ANIM_EQUAL(this->skelAnime.animation, gPlayerAnim_link_normal_100step_up)) ||
+            (this->skelAnime.curFrame > 5.0f)) {
             if (this->av2.actionVar2 == 0) {
                 Player_AnimSfx_PlayFloorJump(this);
                 this->av2.actionVar2 = 1;
@@ -15574,7 +15580,8 @@ void Player_Action_38(Player* this, PlayState* play) {
         } else if (PlayerAnimation_OnFrame(&this->skelAnime, 25.0f)) {
             Player_AnimSfx_PlayVoice(this, NA_SE_VO_LI_SWORD_L);
         }
-    } else if (CHECK_BTN_ANY(sPlayerControlInput->press.button, BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_B | BTN_A | BTN_DPAD_EQUIP)) {
+    } else if (CHECK_BTN_ANY(sPlayerControlInput->press.button,
+                             BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_B | BTN_A | BTN_DPAD_EQUIP)) {
         Player_SetAction(play, this, Player_Action_39, 1);
         Player_AnimationPlayOnce(play, this, &gPlayerAnim_link_silver_throw);
     }
@@ -17052,9 +17059,10 @@ void func_808525C4(PlayState* play, Player* this) {
 }
 
 void Player_Action_63(Player* this, PlayState* play) {
-    if ((this->unk_AA5 != PLAYER_UNKAA5_4) && ((PlayerAnimation_Update(play, &this->skelAnime) &&
-                                                (BEN_ANIM_EQUAL(this->skelAnime.animation, D_8085D17C[this->transformation]))) ||
-                                               ((this->skelAnime.mode == 0) && (this->av2.actionVar2 == 0)))) {
+    if ((this->unk_AA5 != PLAYER_UNKAA5_4) &&
+        ((PlayerAnimation_Update(play, &this->skelAnime) &&
+          (BEN_ANIM_EQUAL(this->skelAnime.animation, D_8085D17C[this->transformation]))) ||
+         ((this->skelAnime.mode == 0) && (this->av2.actionVar2 == 0)))) {
         func_808525C4(play, this);
         if (!(this->actor.flags & ACTOR_FLAG_20000000) || (this->unk_A90->id == ACTOR_EN_ZOT)) {
             Message_DisplayOcarinaStaff(play, OCARINA_ACTION_FREE_PLAY);
@@ -17483,7 +17491,8 @@ void Player_Action_68(Player* this, PlayState* play) {
                 }
                 // #region 2S2H [Dpad]
                 else if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
-                    if (Player_Dpad_GetItemOnButton(play, this, HELD_ITEM_TO_DPAD(this->heldItemButton)) == ITEM_BOTTLE) {
+                    if (Player_Dpad_GetItemOnButton(play, this, HELD_ITEM_TO_DPAD(this->heldItemButton)) ==
+                        ITEM_BOTTLE) {
                         Actor* interactRangeActor = this->interactRangeActor;
 
                         if (interactRangeActor != NULL) {
@@ -17492,8 +17501,8 @@ void Player_Action_68(Player* this, PlayState* play) {
 
                             for (i = 0; i < ARRAY_COUNT(D_8085D798); i++) {
                                 if (((interactRangeActor->id == entry->actorId) &&
-                                    ((entry->actorParams <= BOTTLE_CATCH_PARAMS_ANY) ||
-                                    (interactRangeActor->params == entry->actorParams)))) {
+                                     ((entry->actorParams <= BOTTLE_CATCH_PARAMS_ANY) ||
+                                      (interactRangeActor->params == entry->actorParams)))) {
                                     break;
                                 }
                                 entry++;
@@ -17877,7 +17886,7 @@ void Player_Action_80(Player* this, PlayState* play) {
                     if ((play->sceneId == SCENE_20SICHITAI) &&
                         (Player_Dpad_GetItemOnButton(play, this, func_Dpad_8082FDC4()) == ITEM_PICTOGRAPH_BOX)) {
                         play->actorCtx.flags |= ACTORCTX_FLAG_PICTO_BOX_ON;
-                    }  
+                    }
                 }
                 // #endregion
             }
@@ -18197,7 +18206,8 @@ AnimSfxEntry D_8085D904[] = {
 };
 
 void func_80855218(PlayState* play, Player* this, struct_8085D910** arg2) {
-    if (PlayerAnimation_Update(play, &this->skelAnime) && (BEN_ANIM_EQUAL(this->skelAnime.animation, gPlayerAnim_cl_setmask))) {
+    if (PlayerAnimation_Update(play, &this->skelAnime) &&
+        (BEN_ANIM_EQUAL(this->skelAnime.animation, gPlayerAnim_cl_setmask))) {
         func_8082DB60(play, this, &gPlayerAnim_cl_setmaskend);
     } else if ((BEN_ANIM_EQUAL(this->skelAnime.animation, gPlayerAnim_cl_setmask)) ||
                (BEN_ANIM_EQUAL(this->skelAnime.animation, gPlayerAnim_cl_setmaskend))) {
@@ -18249,7 +18259,8 @@ void Player_Action_86(Player* this, PlayState* play) {
     struct_8085D910* sp4C = D_8085D910;
     s32 sp48 = false;
 
-    if (GameInteractor_Should(GI_VB_PREVENT_MASK_TRANSFORMATION_CS, false, NULL)) return;
+    if (GameInteractor_Should(GI_VB_PREVENT_MASK_TRANSFORMATION_CS, false, NULL))
+        return;
 
     func_808323C0(this, play->playerCsIds[PLAYER_CS_ID_MASK_TRANSFORMATION]);
     sPlayerControlInput = play->state.input;
@@ -18482,7 +18493,8 @@ void Player_Action_92(Player* this, PlayState* play) {
         this->stateFlags2 &= ~PLAYER_STATE2_400;
         this->actor.bgCheckFlags |= BGCHECKFLAG_GROUND;
         this->stateFlags3 |= PLAYER_STATE3_10000;
-    } else if ((!BEN_ANIM_EQUAL(this->skelAnime.animation, gPlayerAnim_link_hook_fly_start)) || (this->skelAnime.curFrame >= 4.0f)) {
+    } else if ((!BEN_ANIM_EQUAL(this->skelAnime.animation, gPlayerAnim_link_hook_fly_start)) ||
+               (this->skelAnime.curFrame >= 4.0f)) {
         this->actor.gravity = 0.0f;
         Math_ScaledStepToS(&this->actor.shape.rot.x, this->actor.world.rot.x, 0x800);
         Player_RequestRumble(play, this, 100, 2, 100, SQ(0));

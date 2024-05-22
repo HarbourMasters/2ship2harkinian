@@ -8,11 +8,11 @@ void InitEnhancements() {
     // Cheats
     RegisterInfiniteCheats();
     RegisterMoonJumpOnL();
-    RegisterUnbreakableRazorSword(); 
+    RegisterUnbreakableRazorSword();
 
     // Clock
     RegisterTextBasedClock();
-  
+
     // Cycle
     RegisterEndOfCycleSaveHooks();
 
@@ -26,19 +26,18 @@ void InitEnhancements() {
 
     // Songs
     RegisterEnableSunsSong();
-    
+
     // Restorations
     RegisterPowerCrouchStab();
     RegisterSideRoll();
     RegisterTatlISG();
-    
+
     // Cutscenes
     RegisterCutscenes();
-    
+
     // Modes
     RegisterPlayAsKafei();
 
     // Player Movement
     RegisterClimbSpeed();
-
 }
