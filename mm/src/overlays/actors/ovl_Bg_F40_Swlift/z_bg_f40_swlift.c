@@ -49,9 +49,13 @@ void BgF40Swlift_Init(Actor* thisx, PlayState* play) {
         Actor_Kill(&this->dyna.actor);
         return;
     }
-
-    sHeights[index] = this->dyna.actor.world.pos.y;
-    sSwitchFlags[index] = BG_F40_SWLIFT_GET_SWITCH_FLAG(thisx);
+    // #region 2S2H [Port] - We likely want to avoid this UB but would like the rest of the code flow to run as normal
+    // Add condition to index to avoid OOB
+    if (index <= 3) {
+        sHeights[index] = this->dyna.actor.world.pos.y;
+        sSwitchFlags[index] = BG_F40_SWLIFT_GET_SWITCH_FLAG(thisx);
+    }
+    // #endregion
     if (index != 0) {
         Actor_Kill(&this->dyna.actor);
         return;

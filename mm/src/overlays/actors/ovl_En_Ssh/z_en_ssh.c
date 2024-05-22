@@ -631,6 +631,7 @@ void EnSsh_Init(Actor* thisx, PlayState* play) {
     //! @bug: object_st_Anim_000304 is similar if not idential to object_ssh_Anim_001494.
     //! They also shared the same offset into their respective object files in OoT.
     //! However since object_ssh is the one loaded, this ends up reading garbage data from within object_ssh_Tex_000190.
+    // 2S2H [Port] - Due to the nature of the port, this ends up reading the correct data anyway
     f32 frameCount = Animation_GetLastFrame(&object_st_Anim_000304);
     s32 pad;
     EnSsh* this = THIS;

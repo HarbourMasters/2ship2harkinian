@@ -10582,7 +10582,12 @@ void func_80841358(PlayState* play, Player* this, s32 arg2) {
     PlayerItemAction itemAction;
 
     //! @bug OoB read if player is goron, deku or human
-    item = D_8085D2B0[this->transformation];
+    // 2S2H [Port] - Set item to kokiri sword instead of OOB behaviour
+    if (this->transformation > 2) {
+        item = ITEM_SWORD_KOKIRI;
+    } else {
+        item = D_8085D2B0[this->transformation];
+    }
     itemAction = sItemItemActions[item];
     Player_DestroyHookshot(this);
     Player_DetachHeldActor(play, this);
@@ -20908,7 +20913,8 @@ s32 func_8085B930(PlayState* play, PlayerAnimationHeader* talkAnim, AnimationMod
 
     //! @bug When func_8082ED20 is used to get a wait animation, NULL is still passed to Animation_GetLastFrame,
     // causing it to read the frame count from address 0x80000000 which returns 15385
+    // 2S2H [Port] - avoid null read from addresss 0x80000000, use 15385 as default
     PlayerAnimation_Change(play, &player->skelAnime, (talkAnim == NULL) ? func_8082ED20(player) : talkAnim, 2.0f / 3.0f,
-                           0.0f, Animation_GetLastFrame(talkAnim), animMode, -6.0f);
+                           0.0f, (talkAnim == NULL) ? 15385 : Animation_GetLastFrame(talkAnim), animMode, -6.0f);
     return true;
 }
