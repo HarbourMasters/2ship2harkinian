@@ -293,8 +293,11 @@ s32 Inventory_ReplaceItem(struct PlayState* play, u8 oldItem, u8 newItem);
 void Inventory_UpdateDeitySwordEquip(struct PlayState* play) ;
 s32 Inventory_HasEmptyBottle(void);
 s32 Inventory_HasItemInBottle(u8 item);
-// #region 2S2H [Dpad]
+// #region 2S2H - Enhancements
+// [Dpad]
 void Inventory_Dpad_UpdateBottleItem(struct PlayState* play, u8 item, u8 btn);
+// [Autosave]
+void Interface_DrawAutosaveIcon(struct PlayState* play, uint16_t opacity);
 // #endregion
 void Inventory_UpdateBottleItem(struct PlayState* play, u8 item, u8 btn);
 s32 Inventory_ConsumeFairy(struct PlayState* play);
@@ -316,5 +319,6 @@ void Interface_Draw(struct PlayState* play);
 void Interface_Update(struct PlayState* play);
 void Interface_Destroy(struct PlayState* play);
 void Interface_Init(struct PlayState* play);
+
 
 #endif

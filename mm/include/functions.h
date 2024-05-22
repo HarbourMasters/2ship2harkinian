@@ -1365,12 +1365,6 @@ void osSpTaskYield(void);
 void osViSetXScale(f32 value);
 void osViSetYScale(f32 value);
 // #endregion
-// #region 2S2H [Port] Moved from z_sram_NES.c to use function in enhancement - Persistent Owl Saves
-void func_80147314(SramContext* sramCtx, s32 fileNum); // Removes Owl Saves
-// #endregion
-// #region 2S2H [Port] New functions for enhancements
-void Interface_DrawAutosaveIcon(PlayState* play, uint16_t opacity);
-// #endregion
 void Regs_InitData(PlayState* play);
 
 #ifdef __cplusplus

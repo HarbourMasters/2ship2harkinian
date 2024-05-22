@@ -3352,7 +3352,6 @@ void Interface_Dpad_LoadItemIconImpl(PlayState* play, u8 btn) {
 }
 
 void Interface_DrawAutosaveIcon(PlayState* play, uint16_t opacity) {
-    
     s16 rectLeft = 290;
     s16 rectTop = 220;
     s16 rectWidth = 24;

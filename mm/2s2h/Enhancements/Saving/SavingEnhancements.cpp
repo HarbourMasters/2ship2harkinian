@@ -13,6 +13,7 @@ static uint64_t currentTimestamp = 0;
 static uint64_t lastSaveTimestamp = GetUnixTimestamp();
 
 static uint32_t autosaveGameStateUpdateHookId = 0;
+static uint32_t autosaveGameStateDrawFinishHookId = 0;
 
 void DeleteOwlSave() {
     // Remove Owl Save on time cycle reset, needed when persisting owl saves and/or when
@@ -100,6 +101,11 @@ void RegisterAutosave() {
         autosaveGameStateUpdateHookId = 0;
     }
 
+    if (autosaveGameStateDrawFinishHookId) {
+        GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnGameStateDrawFinish>(autosaveGameStateDrawFinishHookId);
+        autosaveGameStateDrawFinishHookId = 0;
+    }
+
     if (CVarGetInteger("gEnhancements.Saving.Autosave", 0)) {
         autosaveGameStateUpdateHookId =
             GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameStateUpdate>([]() {
@@ -107,8 +113,16 @@ void RegisterAutosave() {
                     return;
                 }
 
-                DrawAutosaveIcon();
                 HandleAutoSave();
+            });
+
+        autosaveGameStateDrawFinishHookId =
+            GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameStateDrawFinish>([]() {
+                if (gPlayState == nullptr) {
+                    return;
+                }
+
+                DrawAutosaveIcon();
             });
     }
 }
