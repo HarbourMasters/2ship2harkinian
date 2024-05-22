@@ -23,7 +23,7 @@ void DeleteOwlSave() {
 
     // Set it to not be an owl save so after reloading the save file it doesn't try to load at the owl's position in
     // clock town
-    gSaveContext.save.isOwlSave = 0;
+    gSaveContext.save.isOwlSave = false;
 }
 
 void DrawAutosaveIcon() {
