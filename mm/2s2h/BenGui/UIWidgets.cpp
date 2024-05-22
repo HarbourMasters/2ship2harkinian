@@ -165,32 +165,32 @@ namespace UIWidgets {
                 ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::GetStyle().FramePadding.x * 2 - ImGui::GetStyle().ItemSpacing.x);
             } else if (options.labelPosition == LabelPosition::Above) {
                 ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(label).x);
-                ImGui::Text(label);
+                ImGui::Text("%s", label);
                 ImGui::NewLine();
                 ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::GetStyle().FramePadding.x * 2 - ImGui::GetStyle().ItemSpacing.x);
             }
         } else if (options.alignment == ComponentAlignment::Left) {
             if (options.labelPosition == LabelPosition::Above) {
-                ImGui::Text(label);
+                ImGui::Text("%s", label);
             }
         }
         dirty = ImGui::Checkbox(invisibleLabel, value);
         if (options.alignment == ComponentAlignment::Right) {
             if (options.labelPosition == LabelPosition::Near) {
                 ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(label).x - ImGui::GetStyle().FramePadding.x * 2 - ImGui::GetStyle().ItemSpacing.x * 2);
-                ImGui::Text(label);
+                ImGui::Text("%s", label);
             } else if (options.labelPosition == LabelPosition::Far) {
                 ImGui::SameLine();
                 ImGui::SetCursorPosX(startX);
-                ImGui::Text(label);
+                ImGui::Text("%s", label);
             }
         } else if (options.alignment == ComponentAlignment::Left) {
             if (options.labelPosition == LabelPosition::Near) {
                 ImGui::SameLine();
-                ImGui::Text(label);
+                ImGui::Text("%s", label);
             } else if (options.labelPosition == LabelPosition::Far) {
                 ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(label).x);
-                ImGui::Text(label);
+                ImGui::Text("%s", label);
             }
         }
         PopStyleCheckbox();
