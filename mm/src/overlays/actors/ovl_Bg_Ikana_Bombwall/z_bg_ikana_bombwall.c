@@ -156,7 +156,6 @@ void func_80BD4720(BgIkanaBombwall* this, PlayState* play) {
 
         scale = D_80BD52C8[i & (ARRAY_COUNT(D_80BD52C8) - 1)];
 
-
         if (scale >= 16) {
             gravity = -550;
         } else {

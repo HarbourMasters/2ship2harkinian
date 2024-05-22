@@ -1567,8 +1567,7 @@ void EnDeath_DrawFlames(EnDeath* this, PlayState* play2) {
                 gDPSetPrimColor(POLY_XLU_DISP++, 0x80, 0x80, 165, 255, 215, alpha);
                 gSPSegment(POLY_XLU_DISP++, 0x08,
                            Gfx_TwoTexScroll(play->state.gfxCtx, 0, 0, 0, 32, 64, 1, 0,
-                                            ((play->gameplayFrames + ((j + i) * 10)) * -20) & 511, 32,
-                                            128));
+                                            ((play->gameplayFrames + ((j + i) * 10)) * -20) & 511, 32, 128));
                 gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx),
                           G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                 gSPDisplayList(POLY_XLU_DISP++, gEffFire1DL);

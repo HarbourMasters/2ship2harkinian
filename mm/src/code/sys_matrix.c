@@ -1203,7 +1203,7 @@ Mtx* Matrix_ToMtx(Mtx* dest) {
     FrameInterpolation_RecordMatrixToMtx(dest, __FILE__, __LINE__);
     guMtxF2L(sCurrentMatrix, dest);
     return dest;
-    //return Matrix_MtxFToMtx(sCurrentMatrix, dest);
+    // return Matrix_MtxFToMtx(sCurrentMatrix, dest);
 }
 
 /**

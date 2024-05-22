@@ -3,8 +3,9 @@
 #include "spdlog/spdlog.h"
 
 namespace SOH {
-std::shared_ptr<Ship::IResource> SetActorCutsceneListFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData,
-                                                                     std::shared_ptr<Ship::BinaryReader> reader) {
+std::shared_ptr<Ship::IResource>
+SetActorCutsceneListFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData,
+                                          std::shared_ptr<Ship::BinaryReader> reader) {
     auto setActorCsList = std::make_shared<SetActorCutsceneList>(initData);
     ReadCommandId(setActorCsList, reader);
 
@@ -27,4 +28,4 @@ std::shared_ptr<Ship::IResource> SetActorCutsceneListFactory::ReadResource(std::
     }
     return setActorCsList;
 }
-} // namespace LUS
+} // namespace SOH

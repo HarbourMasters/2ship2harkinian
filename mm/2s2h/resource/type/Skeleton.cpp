@@ -9,7 +9,7 @@ SkeletonData* Skeleton::GetPointer() {
 }
 
 size_t Skeleton::GetPointerSize() {
-    switch(type) {
+    switch (type) {
         case SkeletonType::Normal:
             return sizeof(skeletonData.skeletonHeader);
         case SkeletonType::Flex:
@@ -22,7 +22,6 @@ size_t Skeleton::GetPointerSize() {
 }
 
 std::vector<SkeletonPatchInfo> SkeletonPatcher::skeletons;
-
 
 void SkeletonPatcher::RegisterSkeleton(std::string& path, SkelAnime* skelAnime) {
     SkeletonPatchInfo info;
@@ -49,8 +48,7 @@ void SkeletonPatcher::RegisterSkeleton(std::string& path, SkelAnime* skelAnime) 
 void SkeletonPatcher::UnregisterSkeleton(SkelAnime* skelAnime) {
 
     // TODO: Should probably just use a dictionary here...
-    for (int i = 0; i < skeletons.size(); i++) 
-    {
+    for (int i = 0; i < skeletons.size(); i++) {
         auto skel = skeletons[i];
 
         if (skel.skelAnime == skelAnime) {
@@ -59,8 +57,7 @@ void SkeletonPatcher::UnregisterSkeleton(SkelAnime* skelAnime) {
         }
     }
 }
-void SkeletonPatcher::ClearSkeletons() 
-{
+void SkeletonPatcher::ClearSkeletons() {
     skeletons.clear();
 }
 
@@ -68,14 +65,16 @@ void SkeletonPatcher::UpdateSkeletons() {
     bool isHD = CVarGetInteger("gAltAssets", 0);
     for (auto skel : skeletons) {
         Skeleton* newSkel =
-            (Skeleton*)Ship::Context::GetInstance()->GetResourceManager()
+            (Skeleton*)Ship::Context::GetInstance()
+                ->GetResourceManager()
                 ->LoadResource((isHD ? Ship::IResource::gAltAssetPrefix : "") + skel.vanillaSkeletonPath, true)
                 .get();
 
         if (newSkel != nullptr) {
             skel.skelAnime->skeleton = newSkel->skeletonData.skeletonHeader.segment;
             uintptr_t skelPtr = (uintptr_t)newSkel->GetPointer();
-            memcpy(&skel.skelAnime->skeleton, &skelPtr, sizeof(uintptr_t)); // Dumb thing that needs to be done because cast is not cooperating
+            memcpy(&skel.skelAnime->skeleton, &skelPtr,
+                   sizeof(uintptr_t)); // Dumb thing that needs to be done because cast is not cooperating
         }
     }
 }

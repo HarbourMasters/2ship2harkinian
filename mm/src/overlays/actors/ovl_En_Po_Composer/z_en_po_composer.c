@@ -278,9 +278,9 @@ void EnPoComposer_SetupStartedCutscene(EnPoComposer* this) {
     this->actionFunc = EnPoComposer_StartedCutscene;
 }
 
-// #region 2S2H [Port] There is an issue with MSVC where this function is removed in release mode and the check in EnPoComposer_UpdateAction fails.
-// We need to do something in this function that has a side effect which will cause MSVC to not remove it.
-// This modification seemed cleaner than `volatile int a = 5`. __declspec(noinlne) did not work.
+// #region 2S2H [Port] There is an issue with MSVC where this function is removed in release mode and the check in
+// EnPoComposer_UpdateAction fails. We need to do something in this function that has a side effect which will cause
+// MSVC to not remove it. This modification seemed cleaner than `volatile int a = 5`. __declspec(noinlne) did not work.
 void EnPoComposer_StartedCutscene(EnPoComposer* this, PlayState* play) {
     sPlayerIsPlayingOcarina = false;
 }

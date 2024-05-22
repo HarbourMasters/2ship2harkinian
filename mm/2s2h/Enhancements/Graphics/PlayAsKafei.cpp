@@ -31,7 +31,8 @@ void UpdatePlayAsKafeiSkeletons() {
 
 void UpdatePlayAsKafeiOther() {
     if (CVarGetInteger("gModes.PlayAsKafei", 0)) {
-        ResourceMgr_PatchGfxByName(gLinkHumanWaistDL, "gLinkHumanWaistDL0", 0, gsSPDisplayListOTRFilePath(gKafeiWaistDL));
+        ResourceMgr_PatchGfxByName(gLinkHumanWaistDL, "gLinkHumanWaistDL0", 0,
+                                   gsSPDisplayListOTRFilePath(gKafeiWaistDL));
         ResourceMgr_PatchGfxByName(gLinkHumanWaistDL, "gLinkHumanWaistDL1", 1, gsSPEndDisplayList());
 
         sPlayerEyesTextures[PLAYER_FORM_HUMAN][0] = (TexturePtr)gKafeiEyesOpenTex;
@@ -50,7 +51,7 @@ void UpdatePlayAsKafeiOther() {
     } else {
         ResourceMgr_UnpatchGfxByName(gLinkHumanWaistDL, "gLinkHumanWaistDL0");
         ResourceMgr_UnpatchGfxByName(gLinkHumanWaistDL, "gLinkHumanWaistDL1");
-        
+
         sPlayerEyesTextures[PLAYER_FORM_HUMAN][0] = (TexturePtr)gLinkHumanEyesOpenTex;
         sPlayerEyesTextures[PLAYER_FORM_HUMAN][1] = (TexturePtr)gLinkHumanEyesHalfTex;
         sPlayerEyesTextures[PLAYER_FORM_HUMAN][2] = (TexturePtr)gLinkHumanEyesClosedTex;
@@ -80,7 +81,6 @@ void RegisterPlayAsKafei() {
     UpdatePlayAsKafeiSkeletons();
     UpdatePlayAsKafeiOther();
 
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneInit>([] (s8 sceneId, s8 spawnNum) {
-        UpdatePlayAsKafeiOther();
-    });
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneInit>(
+        [](s8 sceneId, s8 spawnNum) { UpdatePlayAsKafeiOther(); });
 }

@@ -116,5 +116,5 @@ void CmpDma_LoadAllFiles(uintptr_t segmentVrom, void* dst, size_t size) {
         CmpDma_LoadFileImpl(rom, i, nextDst, 0);
         nextDst = gYaz0DecompressDstEnd;
     }
-    #endif
+#endif
 }

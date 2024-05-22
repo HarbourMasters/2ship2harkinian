@@ -8,12 +8,12 @@
 #include <unordered_map>
 
 class HudEditorWindow : public Ship::GuiWindow {
-    public:
-        using GuiWindow::GuiWindow;
+  public:
+    using GuiWindow::GuiWindow;
 
-        void InitElement() override {};
-        void DrawElement() override;
-        void UpdateElement() override {};
+    void InitElement() override{};
+    void DrawElement() override;
+    void UpdateElement() override{};
 };
 
 extern "C" {
@@ -62,7 +62,8 @@ void HudEditor_ModifyRectSizeValues(s16* rectWidth, s16* rectHeight);
 void HudEditor_ModifyTextureStepValues(s16* dsdx, s16* dtdy);
 void HudEditor_ModifyMatrixValues(f32* transX, f32* transY);
 void HudEditor_ModifyKaleidoEquipAnimValues(s16* ulx, s16* uly, s16* shrinkRate);
-void HudEditor_ModifyDrawValuesFromBase(s16 baseX, s16 baseY, s16* rectLeft, s16* rectTop, s16* rectWidth, s16* rectHeight, s16* dsdx, s16* dtdy);
+void HudEditor_ModifyDrawValuesFromBase(s16 baseX, s16 baseY, s16* rectLeft, s16* rectTop, s16* rectWidth,
+                                        s16* rectHeight, s16* dsdx, s16* dtdy);
 void HudEditor_ModifyDrawValues(s16* rectLeft, s16* rectTop, s16* rectWidth, s16* rectHeight, s16* dsdx, s16* dtdy);
 
 typedef struct {
@@ -81,13 +82,11 @@ typedef struct {
     const char* modeCvar;
 } HudEditorElement;
 
-#define HUD_EDITOR_ELEMENT(id, name, cvar, defaultX, defaultY, defaultR, defaultG, defaultB, defaultA) \
-    { \
-        id, name, defaultX, defaultY, defaultR, defaultG, defaultB, defaultA, \
-        "gHudEditor." cvar ".Position.X", "gHudEditor." cvar ".Position.Y", \
-        "gHudEditor." cvar ".Scale", \
-        "gHudEditor." cvar ".Color.Value", \
-        "gHudEditor." cvar ".Mode" \
+#define HUD_EDITOR_ELEMENT(id, name, cvar, defaultX, defaultY, defaultR, defaultG, defaultB, defaultA)          \
+    {                                                                                                           \
+        id, name, defaultX, defaultY, defaultR, defaultG, defaultB, defaultA, "gHudEditor." cvar ".Position.X", \
+            "gHudEditor." cvar ".Position.Y", "gHudEditor." cvar ".Scale", "gHudEditor." cvar ".Color.Value",   \
+            "gHudEditor." cvar ".Mode"                                                                          \
     }
 
 extern HudEditorElementID hudEditorActiveElement;

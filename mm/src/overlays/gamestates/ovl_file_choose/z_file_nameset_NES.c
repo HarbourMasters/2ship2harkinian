@@ -37,17 +37,11 @@ s16 D_80814280[] = {
     1, 1, 1, 2, 2, 2, 2, 2, 3, 2, 2, 4, 3, 2, 4, 1, 2, 2, 1, 1, 2, 2, 3, 2, 2, 0, 2, 2, 2, 0, 3, 1, 0,
 };
 
-s16 D_80814304[] = {
-    1, 2, 0, 1, 1, 2, 1, 1, 4, 2, 2, 2, 1, 1, 0, 2, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 2, 2, 2, 2, 2, 3,
-    2, 2, 4, 3, 2, 4, 1, 2, 2, 1, 1, 2, 2, 3, 2, 2, 0, 2, 2, 2, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 3,
-    0
-};
+s16 D_80814304[] = { 1, 2, 0, 1, 1, 2, 1, 1, 4, 2, 2, 2, 1, 1, 0, 2, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 2, 2, 2, 2, 2, 3, 2,
+                     2, 4, 3, 2, 4, 1, 2, 2, 1, 1, 2, 2, 3, 2, 2, 0, 2, 2, 2, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 3, 0 };
 
-s16 D_80814384[] = {
-    0, 1, 0, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    0
-};
+s16 D_80814384[] = { 0, 1, 0, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+                     1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 };
 
 s16 D_80814404[] = {
     -94, -96, -48, 0, 32, 64,
@@ -973,18 +967,18 @@ void FileSelect_DrawOptionsImpl_NES_GC(GameState* thisx) {
                 gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 0, 0, 0, this->titleAlpha[FS_TITLE_CUR]);
                 gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
             }
-            
+
             gDPLoadTextureBlock(POLY_OPA_DISP++, gOptionsMenuHeaders[i].texture, G_IM_FMT_IA, G_IM_SIZ_8b,
-                            gOptionsMenuHeaders[i].width, gOptionsMenuHeaders[i].height, 0, G_TX_NOMIRROR | G_TX_WRAP,
-                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                                gOptionsMenuHeaders[i].width, gOptionsMenuHeaders[i].height, 0,
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                G_TX_NOLOD, G_TX_NOLOD);
         } else {
             gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuHeaders[i].texture, G_IM_FMT_IA,
-                                gOptionsMenuHeaders[i].width, gOptionsMenuHeaders[i].height, 0, G_TX_NOMIRROR | G_TX_WRAP,
-                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
-            
+                                   gOptionsMenuHeaders[i].width, gOptionsMenuHeaders[i].height, 0,
+                                   G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                   G_TX_NOLOD, G_TX_NOLOD);
         }
         gSP1Quadrangle(POLY_OPA_DISP++, vtx, vtx + 2, vtx + 3, vtx + 1, 0);
-
     }
 
     gDPPipeSync(POLY_OPA_DISP++);
@@ -1012,8 +1006,9 @@ void FileSelect_DrawOptionsImpl_NES_GC(GameState* thisx) {
         }
 
         gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuSettings[i].texture, G_IM_FMT_IA,
-                            gOptionsMenuSettings[i].width, gOptionsMenuSettings[i].height, 0, G_TX_NOMIRROR | G_TX_WRAP,
-                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                               gOptionsMenuSettings[i].width, gOptionsMenuSettings[i].height, 0,
+                               G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                               G_TX_NOLOD, G_TX_NOLOD);
         gSP1Quadrangle(POLY_OPA_DISP++, vtx, vtx + 2, vtx + 3, vtx + 1, 0);
     }
 
@@ -1035,8 +1030,9 @@ void FileSelect_DrawOptionsImpl_NES_GC(GameState* thisx) {
         }
 
         gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gOptionsMenuSettings[i].texture, G_IM_FMT_IA,
-                            gOptionsMenuSettings[i].width, gOptionsMenuSettings[i].height, 0, G_TX_NOMIRROR | G_TX_WRAP,
-                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                               gOptionsMenuSettings[i].width, gOptionsMenuSettings[i].height, 0,
+                               G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                               G_TX_NOLOD, G_TX_NOLOD);
         gSP1Quadrangle(POLY_OPA_DISP++, vtx, vtx + 2, vtx + 3, vtx + 1, 0);
     }
 
@@ -1049,7 +1045,7 @@ void FileSelect_DrawOptionsImpl_NES_GC(GameState* thisx) {
                            G_TX_NOLOD);
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 55, 55, 55, this->titleAlpha[FS_TITLE_CUR]);
     gDPSetEnvColor(POLY_OPA_DISP++, 40, 40, 40, 255);
-    gSP1Quadrangle(POLY_OPA_DISP++,  vtx, vtx + 2, vtx + 3, vtx + 1, 0);
+    gSP1Quadrangle(POLY_OPA_DISP++, vtx, vtx + 2, vtx + 3, vtx + 1, 0);
 
     vtx += 4;
 

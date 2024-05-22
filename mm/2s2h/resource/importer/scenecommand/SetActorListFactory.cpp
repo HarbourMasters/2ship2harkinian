@@ -3,12 +3,12 @@
 #include "spdlog/spdlog.h"
 
 namespace SOH {
-std::shared_ptr<Ship::IResource>
-SetActorListFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData, std::shared_ptr<Ship::BinaryReader> reader) {
+std::shared_ptr<Ship::IResource> SetActorListFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData,
+                                                                   std::shared_ptr<Ship::BinaryReader> reader) {
     auto setActorList = std::make_shared<SetActorList>(initData);
 
     ReadCommandId(setActorList, reader);
-	
+
     setActorList->numActors = reader->ReadUInt32();
     setActorList->actorList.reserve(setActorList->numActors);
     for (uint32_t i = 0; i < setActorList->numActors; i++) {

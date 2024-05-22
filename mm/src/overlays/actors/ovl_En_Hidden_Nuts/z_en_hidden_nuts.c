@@ -104,8 +104,8 @@ void EnHiddenNuts_Init(Actor* thisx, PlayState* play) {
     EnHiddenNuts* this = THIS;
 
     ActorShape_Init(&this->actor.shape, 0.0f, ActorShadow_DrawCircle, 20.0f);
-    SkelAnime_Init(play, &this->skelAnime, &object_hintnuts_Skel_0023B8, &object_hintnuts_Anim_0024CC,
-                   this->jointTable, this->morphTable, OBJECT_HINTNUTS_LIMB_MAX);
+    SkelAnime_Init(play, &this->skelAnime, &object_hintnuts_Skel_0023B8, &object_hintnuts_Anim_0024CC, this->jointTable,
+                   this->morphTable, OBJECT_HINTNUTS_LIMB_MAX);
     Actor_SetScale(&this->actor, 0.01f);
 
     this->actor.colChkInfo.mass = MASS_IMMOVABLE;

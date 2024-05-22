@@ -14,4 +14,4 @@ class ResourceFactoryBinaryKeyFrameAnim : public Ship::ResourceFactoryBinary {
     std::shared_ptr<Ship::IResource> ReadResource(std::shared_ptr<Ship::File> file) override;
 };
 
-};
+}; // namespace SOH

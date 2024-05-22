@@ -161,11 +161,10 @@ void ConsoleLogo_Draw(GameState* thisx) {
 
     for (idx = 0, y = 94; idx < 16; idx++, y += 2) {
         // #region 2S2H [Port] Use LoadMultiTile so we can pass the resource path and control which bytes are loaded
-        gDPLoadMultiTile(POLY_OPA_DISP++, logoText, 0, G_TX_RENDERTILE, G_IM_FMT_I, G_IM_SIZ_8b, 192, 32,
-                         0, idx * 2, 192 - 1, (idx + 1) * 2 - 1, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
-                         G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
-        gDPSetTileSize(POLY_OPA_DISP++, 0, 0, 0, (192 - 1) << G_TEXTURE_IMAGE_FRAC,
-                       (2 - 1) << G_TEXTURE_IMAGE_FRAC);
+        gDPLoadMultiTile(POLY_OPA_DISP++, logoText, 0, G_TX_RENDERTILE, G_IM_FMT_I, G_IM_SIZ_8b, 192, 32, 0, idx * 2,
+                         192 - 1, (idx + 1) * 2 - 1, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP,
+                         G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gDPSetTileSize(POLY_OPA_DISP++, 0, 0, 0, (192 - 1) << G_TEXTURE_IMAGE_FRAC, (2 - 1) << G_TEXTURE_IMAGE_FRAC);
         // #endregion
 
         gDPSetTileSize(POLY_OPA_DISP++, 1, this->uls, (this->ult & 0x7F) - idx * 4, 0, 0);

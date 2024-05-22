@@ -398,7 +398,7 @@ void EnTest7_Init(Actor* thisx, PlayState* play2) {
     this->unk_1E94 = player->actor.scale.z;
 
     Keyframe_InitFlex(&this->unk_18CC, gGameplayKeepKFSkel_85640, gGameplayKeepKFAnim_83534, this->unk_18FC,
-                  this->unk_1BA8, NULL);
+                      this->unk_1BA8, NULL);
     Keyframe_FlexPlayOnce(&this->unk_18CC, gGameplayKeepKFAnim_83534);
     func_80AF0838(this->unk_15C);
     func_80AF1730(&this->unk_148);

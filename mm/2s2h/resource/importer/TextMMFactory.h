@@ -25,4 +25,4 @@ class TextMMFactory : public Ship::ResourceFactoryBinary
     ReadResourceXML(std::shared_ptr<ResourceInitData> initData, tinyxml2::XMLElement *reader) override;
 };
 #endif
-}; // namespace LUS
+}; // namespace SOH

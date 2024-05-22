@@ -2,7 +2,7 @@
 #include "Enhancements/GameInteractor/GameInteractor.h"
 
 extern "C" {
-    #include <z64ocarina.h>
+#include <z64ocarina.h>
 }
 
 void RegisterEnableSunsSong() {

@@ -133,7 +133,7 @@ void Overlay_Relocate(void* allocatedRamAddr, OverlayRelocationSection* ovlReloc
 
 size_t Overlay_Load(uintptr_t vromStart, uintptr_t vromEnd, void* ramStart, void* ramEnd, void* allocatedRamAddr) {
     return 0;
-    #if 0
+#if 0
     uintptr_t vramStart = (uintptr_t)ramStart;
     uintptr_t vramEnd = (uintptr_t)ramEnd;
     s32 size = vromEnd - vromStart;
@@ -166,7 +166,7 @@ size_t Overlay_Load(uintptr_t vromStart, uintptr_t vromEnd, void* ramStart, void
     if (gOverlayLogSeverity >= 3) {}
 
     return size;
-    #endif
+#endif
 }
 
 void* Overlay_AllocateAndLoad(uintptr_t vromStart, uintptr_t vromEnd, void* vramStart, void* vramEnd) {

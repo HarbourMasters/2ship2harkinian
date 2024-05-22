@@ -12,9 +12,9 @@ typedef struct Vec3s {
 } Vec3s;
 
 enum class KeyframeSkelType {
-	Normal,
-	Flex,
-	Error,
+    Normal,
+    Flex,
+    Error,
 };
 
 // Keyframe limb?

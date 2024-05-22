@@ -5,7 +5,7 @@
 
 namespace SOH {
 std::shared_ptr<Ship::IResource> SetCutsceneFactoryMM::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData,
-                                                             std::shared_ptr<Ship::BinaryReader> reader) {
+                                                                    std::shared_ptr<Ship::BinaryReader> reader) {
     auto setCutscenes = std::make_shared<SetCutscenesMM>(initData);
 
     ReadCommandId(setCutscenes, reader);
@@ -20,7 +20,8 @@ std::shared_ptr<Ship::IResource> SetCutsceneFactoryMM::ReadResource(std::shared_
         entry.entrance = reader->ReadUByte();
         entry.flag = reader->ReadUByte();
         entry.data = std::static_pointer_cast<Cutscene>(
-            Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(path.c_str()))->GetPointer();
+                         Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(path.c_str()))
+                         ->GetPointer();
         setCutscenes->entries.emplace_back(entry);
     }
 

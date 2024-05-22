@@ -529,7 +529,8 @@ void Boss06_Draw(Actor* thisx, PlayState* play2) {
     if (this->unk_144 & 2) {
         temp_s0 = Math_SinS(D_809F4970->unk_144) * 1000.0f;
         temp_f10 = (Math_CosS(D_809F4970->unk_144) * -2000.0f) - 2000.0f;
-        // #region 2S2H fix a crash caused by modifying what would be a string. Load the verticies here so the correct thing is modified.
+        // #region 2S2H fix a crash caused by modifying what would be a string. Load the verticies here so the correct
+        // thing is modified.
         temp_v0_2 = ResourceMgr_LoadVtxByName(object_knight_Vtx_018BD0);
         // #endregion
         temp_v0_2[0].v.ob[1] = (s16)this->unk_1A0 + 0xE92;

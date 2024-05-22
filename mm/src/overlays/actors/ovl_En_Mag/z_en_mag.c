@@ -550,8 +550,8 @@ void EnMag_DrawImageRGBA32HDSupport(Gfx** gfxp, s16 centerX, s16 centerY, Textur
     gDPLoadSync(gfx++);
     gDPLoadTile(gfx++, G_TX_LOADTILE, 0, 0, (width - 1) << 2, (height - 1) << 2);
 
-    gSPTextureRectangle(gfx++, rectLeft << 2, rectTop << 2, (rectLeft + (s32)width) << 2,
-                        (rectTop + height) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+    gSPTextureRectangle(gfx++, rectLeft << 2, rectTop << 2, (rectLeft + (s32)width) << 2, (rectTop + height) << 2,
+                        G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
 
     *gfxp = gfx;
 }
@@ -875,13 +875,12 @@ void EnMag_DrawInner(Actor* thisx, PlayState* play, Gfx** gfxp) {
         uint32_t gameVersion = ResourceMgr_GetGameVersion(0);
 
         if (gameVersion == MM_NTSC_US_GC) {
-            EnMag_DrawTextureIA8(&gfx, gTitleScreenCopyright2000NintendoTex, COPYRIGHT_TEX_WIDTH_GC, COPYRIGHT_TEX_HEIGHT,
-                                COPYRIGHT_TEX_LEFT_GC, COPYRIGHT_TEX_TOP);
+            EnMag_DrawTextureIA8(&gfx, gTitleScreenCopyright2000NintendoTex, COPYRIGHT_TEX_WIDTH_GC,
+                                 COPYRIGHT_TEX_HEIGHT, COPYRIGHT_TEX_LEFT_GC, COPYRIGHT_TEX_TOP);
         } else { // Default: MM_NTSC_US_10
             EnMag_DrawTextureIA8(&gfx, gTitleScreenCopyright2000NintendoTex, COPYRIGHT_TEX_WIDTH, COPYRIGHT_TEX_HEIGHT,
-                                COPYRIGHT_TEX_LEFT, COPYRIGHT_TEX_TOP);
+                                 COPYRIGHT_TEX_LEFT, COPYRIGHT_TEX_TOP);
         }
-
     }
 
     if (gSaveContext.fileNum == 0xFEDC) {

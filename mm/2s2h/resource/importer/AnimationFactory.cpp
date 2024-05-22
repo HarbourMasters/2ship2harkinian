@@ -5,8 +5,7 @@
 #include "spdlog/spdlog.h"
 
 namespace SOH {
-std::shared_ptr<Ship::IResource>
-ResourceFactoryBinaryAnimationV0::ReadResource(std::shared_ptr<Ship::File> file) {
+std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAnimationV0::ReadResource(std::shared_ptr<Ship::File> file) {
     if (!FileHasValidFormatAndReader(file)) {
         return nullptr;
     }
@@ -82,7 +81,8 @@ ResourceFactoryBinaryAnimationV0::ReadResource(std::shared_ptr<Ship::File> file)
 
         // Read the segment pointer (always 32 bit, doesn't adjust for system pointer size)
         std::string path = reader->ReadString();
-        const auto animData = std::static_pointer_cast<Animation>(Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(path.c_str()));
+        const auto animData = std::static_pointer_cast<Animation>(
+            Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(path.c_str()));
 
         animation->animationData.linkAnimationHeader.segment = animData->GetPointer();
     } else if (animType == AnimationType::Legacy) {

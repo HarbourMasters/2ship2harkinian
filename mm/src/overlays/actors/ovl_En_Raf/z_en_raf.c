@@ -186,9 +186,8 @@ static DamageTable sDamageTable = {
     /* Powder Keg     */ DMG_ENTRY(0, 0xF),
 };
 
-
-// #region 2S2H [Port] The original game set the texture pixel to zero to make it transparent. 
-// We need to set a mask to 1 to tell the shader to mask that part of the texture. 
+// #region 2S2H [Port] The original game set the texture pixel to zero to make it transparent.
+// We need to set a mask to 1 to tell the shader to mask that part of the texture.
 // This applies to both functions.
 
 /**
@@ -267,7 +266,6 @@ void EnRaf_Init(Actor* thisx, PlayState* play) {
 
     Gfx_RegisterBlendedTexture(gCarnivorousLilyPadTrapPetalTex, sCurPetalMask, NULL);
     Gfx_RegisterBlendedTexture(gCarnivorousLilyPadTrapTeethTex, sCurTeethMask, NULL);
-
 }
 
 void EnRaf_Destroy(Actor* thisx, PlayState* play) {
@@ -626,8 +624,10 @@ void EnRaf_Dissolve(EnRaf* this, PlayState* play) {
             for (i = 0; i < (BREG(4) + 5); i++) {
                 //#region 2S2H [Port] Instead of directly zeroing the texture pixels, set a texture mask.
                 // Applies to both loops.
-                EnRaf_ClearPixelPetal(sCurPetalMask, sPetalClearPixelTableFirstPass, this->petalClearPixelFirstPassIndex);
-                EnRaf_ClearPixelTeeth(sCurTeethMask, sTeethClearPixelTableFirstPass, this->teethClearPixelFirstPassIndex);
+                EnRaf_ClearPixelPetal(sCurPetalMask, sPetalClearPixelTableFirstPass,
+                                      this->petalClearPixelFirstPassIndex);
+                EnRaf_ClearPixelTeeth(sCurTeethMask, sTeethClearPixelTableFirstPass,
+                                      this->teethClearPixelFirstPassIndex);
                 if (this->petalClearPixelFirstPassIndex < (16 * 32)) {
                     this->petalClearPixelFirstPassIndex++;
                 }
@@ -890,7 +890,7 @@ void EnRaf_Draw(Actor* thisx, PlayState* play) {
 
     Gfx_SetupDL25_Opa(play->state.gfxCtx);
     Gfx_SetupDL25_Xlu(play->state.gfxCtx);
-    
+
     OPEN_DISPS(play->state.gfxCtx);
 
     // #2S2H [Port] Invalidate the blend masks when they are set in the cutscene
@@ -903,7 +903,6 @@ void EnRaf_Draw(Actor* thisx, PlayState* play) {
 
     SkelAnime_DrawTransformFlexOpa(play, this->skelAnime.skeleton, this->skelAnime.jointTable,
                                    this->skelAnime.dListCount, NULL, NULL, EnRaf_TransformLimbDraw, &this->dyna.actor);
-    
 
     if (this->action == EN_RAF_ACTION_EXPLODE) {
         EnRaf_DrawEffects(this, play);

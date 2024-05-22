@@ -1671,7 +1671,7 @@ void EnEgol_DrawEffects(EnEgol* this, PlayState* play) {
 
                 default:
                     break;
-            FrameInterpolation_RecordCloseChild();
+                    FrameInterpolation_RecordCloseChild();
             }
             Matrix_Pop();
         }

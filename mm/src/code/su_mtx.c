@@ -78,12 +78,9 @@
 void Mtx_SetTranslateScaleMtx(Mtx* mtx, f32 scaleX, f32 scaleY, f32 scaleZ, f32 translateX, f32 translateY,
                               f32 translateZ) {
     // #region 2S2H [Port] For compatibility with modern systems this has been changed to use guMtxF2L
-    MtxF mtxf = { {
-        { scaleX, 0, 0, 0 },
-        { 0, scaleY, 0, 0 },
-        { 0, 0, scaleZ, 0 },
-        { translateX, translateY, translateZ, 1 }
-    } };
+    MtxF mtxf = {
+        { { scaleX, 0, 0, 0 }, { 0, scaleY, 0, 0 }, { 0, 0, scaleZ, 0 }, { translateX, translateY, translateZ, 1 } }
+    };
     guMtxF2L(&mtxf, mtx);
 }
 

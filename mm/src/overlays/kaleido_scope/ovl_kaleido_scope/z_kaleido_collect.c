@@ -540,9 +540,9 @@ void KaleidoScope_DrawQuestStatus(PlayState* play) {
             for (j = 0; j < 3; j++, i += 4) {
                 if ((j >= 2) || (skullTokenDigits[j] != 0) || isDigitDrawn) {
                     // 2S2H [Port] Don't do pointer math and access the texture directly.
-                    gDPLoadTextureBlock(POLY_OPA_DISP++, sCounterTextures[skullTokenDigits[j]],
-                                        G_IM_FMT_I, G_IM_SIZ_8b, 8, 16, 0, G_TX_NOMIRROR | G_TX_WRAP,
-                                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                    gDPLoadTextureBlock(POLY_OPA_DISP++, sCounterTextures[skullTokenDigits[j]], G_IM_FMT_I, G_IM_SIZ_8b,
+                                        8, 16, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
+                                        G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
                     gSP1Quadrangle(POLY_OPA_DISP++, i, i + 2, i + 3, i + 1, 0);
 

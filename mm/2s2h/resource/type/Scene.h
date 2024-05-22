@@ -9,10 +9,11 @@
 namespace SOH {
 
 class Scene : public Ship::Resource<void> {
-public:
-  using Resource::Resource;
+  public:
+    using Resource::Resource;
 
-    Scene() : Resource(std::shared_ptr<Ship::ResourceInitData>()) {}
+    Scene() : Resource(std::shared_ptr<Ship::ResourceInitData>()) {
+    }
 
     void* GetPointer();
     size_t GetPointerSize();

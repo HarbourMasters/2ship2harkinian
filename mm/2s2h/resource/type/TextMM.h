@@ -23,11 +23,11 @@ class MessageEntryMM {
 };
 
 class TextMM : public Ship::Resource<MessageEntryMM> {
-public:
-  using Resource::Resource;
+  public:
+    using Resource::Resource;
 
     TextMM() : Resource(std::shared_ptr<Ship::ResourceInitData>()) {
-  }
+    }
 
     MessageEntryMM* GetPointer();
     size_t GetPointerSize();

@@ -41,9 +41,9 @@ s32 FrameAdvance_Update(FrameAdvanceContext* frameAdvCtx, Input* input) {
     }
 
     if (!frameAdvCtx->enabled || CVarGetInteger("gDeveloperTools.FrameAdvanceTick", 0) ||
-                                 (CHECK_BTN_ALL(input->cur.button, BTN_Z) &&
-                                  (CHECK_BTN_ALL(input->press.button, BTN_R) ||
-                                   (CHECK_BTN_ALL(input->cur.button, BTN_R) && (++frameAdvCtx->timer >= 9))))) {
+        (CHECK_BTN_ALL(input->cur.button, BTN_Z) &&
+         (CHECK_BTN_ALL(input->press.button, BTN_R) ||
+          (CHECK_BTN_ALL(input->cur.button, BTN_R) && (++frameAdvCtx->timer >= 9))))) {
         CVarClear("gDeveloperTools.FrameAdvanceTick");
         frameAdvCtx->timer = 0;
         return true;

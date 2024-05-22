@@ -13,11 +13,11 @@ typedef struct {
 
 class SetMinimapChests : public SceneCommand<MinimapChestData> {
   public:
-      using SceneCommand::SceneCommand;
+    using SceneCommand::SceneCommand;
 
-      MinimapChestData* GetPointer();
-      size_t GetPointerSize();
-      std::vector<MinimapChestData> chests;
+    MinimapChestData* GetPointer();
+    size_t GetPointerSize();
+    std::vector<MinimapChestData> chests;
 };
 
-}
+} // namespace SOH

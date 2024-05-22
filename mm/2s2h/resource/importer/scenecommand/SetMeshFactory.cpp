@@ -4,12 +4,12 @@
 #include "libultraship/libultraship.h"
 
 namespace SOH {
-std::shared_ptr<Ship::IResource>
-SetMeshFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData, std::shared_ptr<Ship::BinaryReader> reader) {
+std::shared_ptr<Ship::IResource> SetMeshFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData,
+                                                              std::shared_ptr<Ship::BinaryReader> reader) {
     auto setMesh = std::make_shared<SetMesh>(initData);
 
     ReadCommandId(setMesh, reader);
-    
+
     setMesh->data = reader->ReadInt8();
 
     setMesh->meshHeader.base.type = reader->ReadInt8();

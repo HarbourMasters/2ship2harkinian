@@ -5,7 +5,6 @@
 #include <unistd.h>
 #endif
 
-
 u8* gAudioHeap;
 
 u8* gSystemHeap;

@@ -386,8 +386,8 @@ s32 View_ApplyPerspective(View* view) {
 
     float eye_dist = sqrtf(sqr(view->eye.x - old_view.eye.x) + sqr(view->eye.y - old_view.eye.y) +
                            sqr(view->eye.z - old_view.eye.z));
-    float look_dist = sqrtf(sqr(view->at.x - old_view.at.x) + sqr(view->at.y - old_view.at.y) +
-                            sqr(view->at.z - old_view.at.z));
+    float look_dist =
+        sqrtf(sqr(view->at.x - old_view.at.x) + sqr(view->at.y - old_view.at.y) + sqr(view->at.z - old_view.at.z));
     float up_dist =
         sqrtf(sqr(view->up.x - old_view.up.x) + sqr(view->up.y - old_view.up.y) + sqr(view->up.z - old_view.up.z));
     float d_dist = sqrtf(sqr(dirx - odirx) + sqr(diry - odiry) + sqr(dirz - odirz));

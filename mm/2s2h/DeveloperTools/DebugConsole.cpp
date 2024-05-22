@@ -17,11 +17,11 @@ extern "C" {
 
 #define CMD_REGISTER Ship::Context::GetInstance()->GetConsole()->AddCommand
 // TODO: Commands should be using the output passed in.
-#define ERROR_MESSAGE                                                                \
+#define ERROR_MESSAGE                                                                 \
     std::reinterpret_pointer_cast<Ship::ConsoleWindow>(                               \
         Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Console")) \
         ->SendErrorMessage
-#define INFO_MESSAGE                                                                 \
+#define INFO_MESSAGE                                                                  \
     std::reinterpret_pointer_cast<Ship::ConsoleWindow>(                               \
         Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Console")) \
         ->SendInfoMessage
@@ -132,7 +132,8 @@ static bool ResetHandler(std::shared_ptr<Ship::Console> Console, std::vector<std
     return 0;
 }
 
-static bool BHandler(std::shared_ptr<Ship::Console> Console, const std::vector<std::string>& args, std::string* output) {
+static bool BHandler(std::shared_ptr<Ship::Console> Console, const std::vector<std::string>& args,
+                     std::string* output) {
     if (args.size() < 2) {
         ERROR_MESSAGE("[2S2H] Unexpected arguments passed");
         return 1;
@@ -277,17 +278,16 @@ void DebugConsole_Init(void) {
 
     CMD_REGISTER("bItem", { BHandler, "Set an item to the B button.", { { "Item ID", Ship::ArgumentType::NUMBER } } });
 
-    CMD_REGISTER("spawn",
-                 { ActorSpawnHandler,
-                   "Spawn an actor.",
-                   { { "actor id", Ship::ArgumentType::NUMBER },
-                     { "data", Ship::ArgumentType::NUMBER },
-                     { "x", Ship::ArgumentType::NUMBER, true },
-                     { "y", Ship::ArgumentType::NUMBER, true },
-                     { "z", Ship::ArgumentType::NUMBER, true },
-                     { "rx", Ship::ArgumentType::NUMBER, true },
-                     { "ry", Ship::ArgumentType::NUMBER, true },
-                     { "rz", Ship::ArgumentType::NUMBER, true } } });
+    CMD_REGISTER("spawn", { ActorSpawnHandler,
+                            "Spawn an actor.",
+                            { { "actor id", Ship::ArgumentType::NUMBER },
+                              { "data", Ship::ArgumentType::NUMBER },
+                              { "x", Ship::ArgumentType::NUMBER, true },
+                              { "y", Ship::ArgumentType::NUMBER, true },
+                              { "z", Ship::ArgumentType::NUMBER, true },
+                              { "rx", Ship::ArgumentType::NUMBER, true },
+                              { "ry", Ship::ArgumentType::NUMBER, true },
+                              { "rz", Ship::ArgumentType::NUMBER, true } } });
 
     CMD_REGISTER("pos", { SetPosHandler,
                           "Sets the position of the player.",

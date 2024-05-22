@@ -24,7 +24,7 @@ enum class SkeletonType {
 typedef struct {
     /* 0x00 */ void** segment;
     /* 0x04 */ uint8_t limbCount;
-               uint8_t skeletonType;
+    uint8_t skeletonType;
 } SkeletonHeader; // size = 0x8
 
 // Model has limbs with flexible meshes
@@ -54,14 +54,15 @@ class Skeleton : public Ship::Resource<SkeletonData> {
   public:
     using Resource::Resource;
 
-    Skeleton() : Resource(std::shared_ptr<Ship::ResourceInitData>()) {}
+    Skeleton() : Resource(std::shared_ptr<Ship::ResourceInitData>()) {
+    }
 
     SkeletonData* GetPointer();
     size_t GetPointerSize();
 
     SkeletonType type;
     SkeletonData skeletonData;
-    
+
     LimbType limbType;
     int limbCount;
     int dListCount;
@@ -74,8 +75,7 @@ class Skeleton : public Ship::Resource<SkeletonData> {
 };
 
 // TODO: CLEAN THIS UP LATER
-struct SkeletonPatchInfo 
-{
+struct SkeletonPatchInfo {
     SkelAnime* skelAnime;
     std::string vanillaSkeletonPath;
 };
@@ -89,6 +89,5 @@ class SkeletonPatcher {
 
     static std::vector<SkeletonPatchInfo> skeletons;
 };
-
 
 } // namespace SOH

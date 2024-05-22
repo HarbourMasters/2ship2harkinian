@@ -173,7 +173,8 @@ void VisFbuf_ApplyEffects(VisFbuf* this, Gfx** gfxP, void* source, void* img, s3
                         G_TD_CLAMP | G_TP_NONE | G_CYC_COPY | G_PM_NPRIMITIVE,
                     G_AC_NONE | G_ZS_PIXEL | G_RM_NOOP | G_RM_NOOP2);
 
-    // The function FB_CopyToFramebuffer uses f3dex2 opcodes, clear and set geometry ode. We need to load f3dex2, call the function, and then reload s2dex.
+    // The function FB_CopyToFramebuffer uses f3dex2 opcodes, clear and set geometry ode. We need to load f3dex2, call
+    // the function, and then reload s2dex.
     gSPLoadUcode(gfx++, ucode_f3dex2);
     FB_CopyToFramebuffer(&gfx, 0, gReusableFrameBuffer, false, NULL);
     gSPLoadUcode(gfx++, ucode_s2dex);
@@ -192,9 +193,10 @@ void VisFbuf_ApplyEffects(VisFbuf* this, Gfx** gfxP, void* source, void* img, s3
     //! @bug VisFbuf_SetBgSimple() sets the current color image back to the frame's default framebuffer at the end,
     //! so this will always fill in the default framebuffer, whatever are used as `source` and `img`. This does not
     //! arise in-game since this function is always used with `source = D_0F000000`.
-    
+
     gSPLoadUcode(gfx++, ucode_f3dex2);
-    gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), 0, OTRGetRectDimensionFromRightEdge(width - 1), height - 1);
+    gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), 0, OTRGetRectDimensionFromRightEdge(width - 1),
+                         height - 1);
     gSPLoadUcode(gfx++, ucode_s2dex);
 
     gDPPipeSync(gfx++);
@@ -233,8 +235,8 @@ void VisFbuf_ApplyEffects(VisFbuf* this, Gfx** gfxP, void* source, void* img, s3
 
         // 2S2H [Port][Widescreen]
         // Draw shrunk window using an adjusted horizontal scale accounting for different aspect ratios
-        // The function FB_DrawFromFramebufferScaled uses f3dex2 opcodes. We need to load f3dex2, call the function, and then
-        // reload s2dex.
+        // The function FB_DrawFromFramebufferScaled uses f3dex2 opcodes. We need to load f3dex2, call the function, and
+        // then reload s2dex.
 
         gSPLoadUcode(gfx++, ucode_f3dex2);
         FB_DrawFromFramebufferScaled(&gfx, gReusableFrameBuffer, 255,

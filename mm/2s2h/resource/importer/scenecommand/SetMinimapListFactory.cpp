@@ -4,7 +4,7 @@
 
 namespace SOH {
 std::shared_ptr<Ship::IResource> SetMinimapListFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData,
-                                                               std::shared_ptr<Ship::BinaryReader> reader) {
+                                                                     std::shared_ptr<Ship::BinaryReader> reader) {
     auto mapList = std::make_shared<SetMinimapList>(initData);
 
     ReadCommandId(mapList, reader);
@@ -26,6 +26,5 @@ std::shared_ptr<Ship::IResource> SetMinimapListFactory::ReadResource(std::shared
     mapList->list.entry = mapList->entries.data();
 
     return mapList;
-
 }
-} // namespace LUS
+} // namespace SOH

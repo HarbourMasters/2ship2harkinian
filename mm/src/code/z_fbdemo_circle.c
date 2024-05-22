@@ -122,7 +122,8 @@ void TransitionCircle_LoadAndSetTexture(Gfx** gfxp, TexturePtr texture, s32 fmt,
     // #region 2S2H [Cosmetic] Adjust circle overlay to support widescreen
     // The first wide rectangle instruction renders the tile information on the extra space on the left edge
     // The second instruction renders the original overlay in the center and has it extend to the right edge
-    // gSPTextureRectangle(gfx++, 0, 0, xh << 2, yh << 2, G_TX_RENDERTILE, (s32)(s * (1 << 5)), (s32)(t * (1 << 5)), dsdx,
+    // gSPTextureRectangle(gfx++, 0, 0, xh << 2, yh << 2, G_TX_RENDERTILE, (s32)(s * (1 << 5)), (s32)(t * (1 << 5)),
+    // dsdx,
     //                     dtdy);
     s32 x = OTRGetRectDimensionFromLeftEdge(0) << 2;
     if (x < 0) {

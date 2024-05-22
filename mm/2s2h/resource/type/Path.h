@@ -12,7 +12,7 @@ typedef struct {
     /* 0x1 */ u8 additionalPathIndex;
     /* 0x2 */ s16 customValue; // Path specific to help distinguish different paths
     /* 0x4 */ Vec3s* points;   // Segment Address to the array of points
-} PathDataMM; // size = 0x8
+} PathDataMM;                  // size = 0x8
 
 class PathMM : public Ship::Resource<PathDataMM> {
   public:

@@ -6,7 +6,8 @@
 
 namespace SOH {
 
-std::shared_ptr<Ship::IResource> ResourceFactoryBinaryTextureAnimationV0::ReadResource(std::shared_ptr<Ship::File> file) {
+std::shared_ptr<Ship::IResource>
+ResourceFactoryBinaryTextureAnimationV0::ReadResource(std::shared_ptr<Ship::File> file) {
     if (!FileHasValidFormatAndReader(file)) {
         return nullptr;
     }
@@ -144,4 +145,4 @@ std::shared_ptr<Ship::IResource> ResourceFactoryBinaryTextureAnimationV0::ReadRe
 
     return tAnim;
 }
-} // namespace LUS
+} // namespace SOH

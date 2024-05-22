@@ -70,7 +70,7 @@ void Actor_AddToCategory(ActorContext* actorCtx, Actor* actor, u8 actorCategory)
 Actor* Actor_RemoveFromCategory(PlayState* play, ActorContext* actorCtx, Actor* actorToRemove);
 
 void Actor_PrintLists(ActorContext* actorCtx) {
-    #if 0
+#if 0
     ActorListEntry* actorList = &actorCtx->actorLists[0];
     Actor* actor;
     s32 i;
@@ -87,7 +87,7 @@ void Actor_PrintLists(ActorContext* actorCtx) {
             actor = actor->next;
         }
     }
-    #endif
+#endif
 }
 
 void ActorShape_Init(ActorShape* actorShape, f32 yOffset, ActorShadowFunc shadowDraw, f32 shadowScale) {
@@ -615,7 +615,6 @@ void Target_Draw(TargetContext* targetCtx, PlayState* play) {
         TatlColor* color = &sTatlColorList[actor->category];
         FrameInterpolation_RecordOpenChild(actor, 0);
 
-
         POLY_XLU_DISP = Gfx_SetupDL(POLY_XLU_DISP, SETUPDL_7);
 
         Matrix_Translate(actor->focus.pos.x, actor->focus.pos.y + (actor->targetArrowOffset * actor->scale.y) + 17.0f,
@@ -880,10 +879,11 @@ void Flags_SetCollectible(PlayState* play, s32 flag) {
     }
 }
 
-// #region 2S2H Originally these flags were all set with macros, for the port we want them to be in functions so we can hook into them
+// #region 2S2H Originally these flags were all set with macros, for the port we want them to be in functions so we can
+// hook into them
 void Flags_SetWeekEventReg(s32 flag) {
     u8 previouslyOff = !CHECK_WEEKEVENTREG(flag);
-    WEEKEVENTREG((flag) >> 8) = GET_WEEKEVENTREG((flag) >> 8) | ((flag) & 0xFF);
+    WEEKEVENTREG((flag) >> 8) = GET_WEEKEVENTREG((flag) >> 8) | ((flag)&0xFF);
     if (previouslyOff) {
         GameInteractor_ExecuteOnFlagSet(FLAG_WEEK_EVENT_REG, flag);
     }
@@ -891,7 +891,7 @@ void Flags_SetWeekEventReg(s32 flag) {
 
 void Flags_ClearWeekEventReg(s32 flag) {
     u8 previouslyOn = CHECK_WEEKEVENTREG(flag);
-    WEEKEVENTREG((flag) >> 8) = GET_WEEKEVENTREG((flag) >> 8) & (u8)~((flag) & 0xFF);
+    WEEKEVENTREG((flag) >> 8) = GET_WEEKEVENTREG((flag) >> 8) & (u8) ~((flag)&0xFF);
     if (previouslyOn) {
         GameInteractor_ExecuteOnFlagUnset(FLAG_WEEK_EVENT_REG, flag);
     }
@@ -899,7 +899,7 @@ void Flags_ClearWeekEventReg(s32 flag) {
 
 void Flags_SetEventInf(s32 flag) {
     u8 previouslyOff = !CHECK_EVENTINF(flag);
-    gSaveContext.eventInf[(flag) >> 4] |= (1 << ((flag) & 0xF));
+    gSaveContext.eventInf[(flag) >> 4] |= (1 << ((flag)&0xF));
     if (previouslyOff) {
         GameInteractor_ExecuteOnFlagSet(FLAG_EVENT_INF, flag);
     }
@@ -907,7 +907,7 @@ void Flags_SetEventInf(s32 flag) {
 
 void Flags_ClearEventInf(s32 flag) {
     u8 previouslyOn = CHECK_EVENTINF(flag);
-    gSaveContext.eventInf[(flag) >> 4] &= (u8)~(1 << ((flag) & 0xF));
+    gSaveContext.eventInf[(flag) >> 4] &= (u8) ~(1 << ((flag)&0xF));
     if (previouslyOn) {
         GameInteractor_ExecuteOnFlagUnset(FLAG_EVENT_INF, flag);
     }
@@ -1951,17 +1951,17 @@ f32 Target_GetAdjustedDistSq(Actor* actor, Player* player, s16 playerShapeYaw) {
     { SQ(range), (f32)(range) / (leash) }
 
 TargetRangeParams gTargetRanges[TARGET_MODE_MAX] = {
-    TARGET_RANGE(70.0f, 140.0f),        // TARGET_MODE_0
-    TARGET_RANGE(170.0f, 255.0f),       // TARGET_MODE_1
-    TARGET_RANGE(280.0f, 5600.0f),      // TARGET_MODE_2
-    TARGET_RANGE(350.0f, 525.0f),       // TARGET_MODE_3
-    TARGET_RANGE(700.0f, 1050.0f),      // TARGET_MODE_4
-    TARGET_RANGE(1000.0f, 1500.0f),     // TARGET_MODE_5
-    TARGET_RANGE(100.0f, 105.36842f),   // TARGET_MODE_6
-    TARGET_RANGE(140.0f, 163.33333f),   // TARGET_MODE_7
-    TARGET_RANGE(240.0f, 576.0f),       // TARGET_MODE_8
-    TARGET_RANGE(280.0f, 280000.0f),    // TARGET_MODE_9
-    TARGET_RANGE(2500.0f, 3750.0f),     // TARGET_MODE_10
+    TARGET_RANGE(70.0f, 140.0f),      // TARGET_MODE_0
+    TARGET_RANGE(170.0f, 255.0f),     // TARGET_MODE_1
+    TARGET_RANGE(280.0f, 5600.0f),    // TARGET_MODE_2
+    TARGET_RANGE(350.0f, 525.0f),     // TARGET_MODE_3
+    TARGET_RANGE(700.0f, 1050.0f),    // TARGET_MODE_4
+    TARGET_RANGE(1000.0f, 1500.0f),   // TARGET_MODE_5
+    TARGET_RANGE(100.0f, 105.36842f), // TARGET_MODE_6
+    TARGET_RANGE(140.0f, 163.33333f), // TARGET_MODE_7
+    TARGET_RANGE(240.0f, 576.0f),     // TARGET_MODE_8
+    TARGET_RANGE(280.0f, 280000.0f),  // TARGET_MODE_9
+    TARGET_RANGE(2500.0f, 3750.0f),   // TARGET_MODE_10
 };
 
 /**
@@ -2517,7 +2517,7 @@ void Actor_InitContext(PlayState* play, ActorContext* actorCtx, ActorEntry* acto
     Actor_SpawnEntry(actorCtx, actorEntry, play);
     Target_Init(&actorCtx->targetCtx, actorCtx->actorLists[ACTORCAT_PLAYER].first, play);
     Actor_InitHalfDaysBit(actorCtx);
-    //Fault_AddClient(&sActorFaultClient, (void*)Actor_PrintLists, actorCtx, NULL);
+    // Fault_AddClient(&sActorFaultClient, (void*)Actor_PrintLists, actorCtx, NULL);
     Actor_SpawnHorse(play, (Player*)actorCtx->actorLists[ACTORCAT_PLAYER].first);
 }
 
@@ -2922,7 +2922,8 @@ void Actor_DrawLensActors(PlayState* play, s32 numLensActors, Actor** lensActors
 
     // Remnant of debug
     dbgVar1 = true;
-    // BENTODO: Disabling the framebufer effects temporarily for lens actors until we can restore framebuffer effects for real
+    // BENTODO: Disabling the framebufer effects temporarily for lens actors until we can restore framebuffer effects
+    // for real
     dbgVar2 = false;
 
     if (dbgVar1) {
@@ -3244,7 +3245,7 @@ void Actor_KillAllOnHalfDayChange(PlayState* play, ActorContext* actorCtx) {
 void Actor_CleanupContext(ActorContext* actorCtx, PlayState* play) {
     s32 i;
 
-    //Fault_RemoveClient(&sActorFaultClient);
+    // Fault_RemoveClient(&sActorFaultClient);
 
     for (i = 0; i < ARRAY_COUNT(actorCtx->actorLists); i++) {
         if (i != ACTORCAT_PLAYER) {
@@ -3442,7 +3443,7 @@ Actor* Actor_SpawnAsChildAndCutscene(ActorContext* actorCtx, PlayState* play, s1
     // for static variable cleanup
     // if (overlayEntry->vramStart != NULL) {
     if (true) {
-    // #endregion
+        // #endregion
         overlayEntry->numLoaded++;
     }
 
@@ -3599,7 +3600,7 @@ Actor* Actor_Delete(ActorContext* actorCtx, Actor* actor, PlayState* play) {
     // for static variable cleanup
     // if (overlayEntry->vramStart != NULL) {
     if (true) {
-    // #endregion
+        // #endregion
         overlayEntry->numLoaded--;
         Actor_FreeOverlay(overlayEntry);
     }
@@ -4797,7 +4798,6 @@ void Gfx_DrawDListXlu(PlayState* play, Gfx* dlist) {
 
     CLOSE_DISPS(play->state.gfxCtx);
 }
-
 
 /**
  * Finds the first actor instance of a specified Id and category within a given range from

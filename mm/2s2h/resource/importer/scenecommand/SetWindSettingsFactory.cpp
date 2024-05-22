@@ -4,7 +4,7 @@
 
 namespace SOH {
 std::shared_ptr<Ship::IResource> SetWindSettingsFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData,
-                                                                     std::shared_ptr<Ship::BinaryReader> reader) {
+                                                                      std::shared_ptr<Ship::BinaryReader> reader) {
     auto setWind = std::make_shared<SetWindSettings>(initData);
 
     ReadCommandId(setWind, reader);

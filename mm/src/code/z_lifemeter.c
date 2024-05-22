@@ -365,7 +365,8 @@ void LifeMeter_Draw(PlayState* play) {
             // #region 2S2H [Cosmetic] Hud Editor
             HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_HEARTS);
             if (HudEditor_ShouldOverrideDraw()) {
-                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar,
+                                   HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
                     hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
                 } else {
                     // All of this information was derived from the original call to gSPTextureRectangle below
@@ -380,15 +381,14 @@ void LifeMeter_Draw(PlayState* play) {
 
                     hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
 
-                    gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2,
-                                    (rectLeft + rectWidth) << 2, (rectTop + rectHeight) << 2,
-                                    G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+                    gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2,
+                                            (rectTop + rectHeight) << 2, G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
                 }
-            // #endregion
+                // #endregion
             } else {
                 gSPTextureRectangle(OVERLAY_DISP++, (s32)((posX - halfTexSize) * 4), (s32)((posY - halfTexSize) * 4),
-                                    (s32)((posX + halfTexSize) * 4), (s32)((posY + halfTexSize) * 4), G_TX_RENDERTILE, 0, 0,
-                                    (s32)temp_f4, (s32)temp_f4);
+                                    (s32)((posX + halfTexSize) * 4), (s32)((posY + halfTexSize) * 4), G_TX_RENDERTILE,
+                                    0, 0, (s32)temp_f4, (s32)temp_f4);
             }
         } else {
             Mtx* mtx;
@@ -414,7 +414,8 @@ void LifeMeter_Draw(PlayState* play) {
             // #region 2S2H [Cosmetic] Hud Editor
             HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_HEARTS);
             if (HudEditor_ShouldOverrideDraw()) {
-                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+                if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar,
+                                   HUD_EDITOR_ELEMENT_MODE_VANILLA) == HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
                     hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
                     Mtx_SetTranslateScaleMtx(mtx, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
                 } else {
@@ -429,7 +430,7 @@ void LifeMeter_Draw(PlayState* play) {
                     hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
                     Mtx_SetTranslateScaleMtx(mtx, size, size, size, transX, transY, 0.0f);
                 }
-            // #endregion
+                // #endregion
             } else {
                 Mtx_SetTranslateScaleMtx(mtx, 1.0f - (0.32f * lifesize), 1.0f - (0.32f * lifesize),
                                          1.0f - (0.32f * lifesize), -130.0f + offsetX, 94.5f - offsetY, 0.0f);

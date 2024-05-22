@@ -9,8 +9,8 @@
 
 namespace SOH {
 typedef struct {
-  int8_t cameraMovement;
-  int32_t worldMapArea;
+    int8_t cameraMovement;
+    int32_t worldMapArea;
 } CameraSettings;
 
 class SetCameraSettings : public SceneCommand<CameraSettings> {

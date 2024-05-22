@@ -787,7 +787,6 @@ void func_808726DC(PlayState* play, Vec3f* arg1, Vec3f* arg2, Vec3f* arg3, s32 a
     Math_Vec3f_Copy(arg1, &fuseSegmentPtr->pos);
 }
 
-
 // 2S2H [Port] See comment in the draw function.
 #define dgPowderKegFuseTexLarger "__OTR__overlays/ovl_En_Bom/gPowderKegFuseTexLarger"
 static const ALIGN_ASSET(2) char gPowderKegFuseTexLarger[] = dgPowderKegFuseTexLarger;
@@ -806,10 +805,9 @@ void EnBom_DrawKeg(PlayState* play, s32 timer) {
 
     gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
 
-    // 2S2H [Port] This was originally a static DL in the OTR file. The normal texture is too small to be rendered by Fast3D
-    // and causes a crash.
-    // This adds a custom texture in the OTR file and changes the DList to use the new size. At some point this should be 
-    // done in the GFX patcher.
+    // 2S2H [Port] This was originally a static DL in the OTR file. The normal texture is too small to be rendered by
+    // Fast3D and causes a crash. This adds a custom texture in the OTR file and changes the DList to use the new size.
+    // At some point this should be done in the GFX patcher.
     gDPPipeSync(POLY_OPA_DISP++);
     gDPSetTextureLUT(POLY_OPA_DISP++, G_TT_NONE);
     gSPClearGeometryMode(POLY_OPA_DISP++, G_CULL_BOTH);
@@ -818,10 +816,10 @@ void EnBom_DrawKeg(PlayState* play, s32 timer) {
     gDPSetRenderMode(POLY_OPA_DISP++, G_RM_FOG_SHADE_A, G_RM_AA_ZB_OPA_SURF2);
     gSPTexture(POLY_OPA_DISP++, 0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON);
     gDPLoadTextureBlock(POLY_OPA_DISP++, gPowderKegFuseTexLarger, G_IM_FMT_I, G_IM_SIZ_8b, 8, 8, 0,
-                             G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, 1, 1, G_TX_NOLOD, G_TX_NOLOD);
+                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, 1, 1, G_TX_NOLOD, G_TX_NOLOD);
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 200, 200, 0, 255);
     gSPVertex(POLY_OPA_DISP++, gPowderKegFuseVtx, 4, 0);
-    
+
     temp_s5 = (timer / 240) + 1;
     fuseSegmentPtr2 = &sPowderKegFuseSegments[1];
     // Bentodo the fuse is not visible enough to see if this is broken. Verify once the long timer crash is fixed.

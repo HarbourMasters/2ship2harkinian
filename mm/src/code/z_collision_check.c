@@ -2656,7 +2656,7 @@ void CollisionCheck_AC_SphereVsTris(PlayState* play, CollisionCheckContext* colC
  * AC overlap check. Calculates the center of each collider element and the point of contact.
  */
 void CollisionCheck_AC_SphereVsQuad(PlayState* play, CollisionCheckContext* colCtxt, Collider* colAT, Collider* colAC) {
-    
+
     ColliderSphere* at = (ColliderSphere*)colAT;
     Vec3f hitPos;
     ColliderQuad* ac = (ColliderQuad*)colAC;

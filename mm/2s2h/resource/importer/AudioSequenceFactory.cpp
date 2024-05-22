@@ -17,7 +17,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSequenceV2::ReadResou
         audioSequence->sequenceData.push_back(reader->ReadChar());
     }
     audioSequence->sequence.seqData = audioSequence->sequenceData.data();
-    
+
     audioSequence->sequence.seqNumber = reader->ReadUByte();
     audioSequence->sequence.medium = reader->ReadUByte();
     audioSequence->sequence.cachePolicy = reader->ReadUByte();

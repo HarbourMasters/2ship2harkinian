@@ -3,10 +3,10 @@
 #include "spdlog/spdlog.h"
 
 namespace SOH {
-std::shared_ptr<Ship::IResource>
-SetCsCameraFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData, std::shared_ptr<Ship::BinaryReader> reader) {
+std::shared_ptr<Ship::IResource> SetCsCameraFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData,
+                                                                  std::shared_ptr<Ship::BinaryReader> reader) {
     auto setCsCamera = std::make_shared<SetCsCamera>(initData);
-    
+
     ReadCommandId(setCsCamera, reader);
 
     size_t camSize = reader->ReadUInt32();
@@ -32,4 +32,4 @@ SetCsCameraFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData> initDat
 
     return setCsCamera;
 }
-} // namespace LUS
+} // namespace SOH

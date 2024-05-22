@@ -1013,7 +1013,6 @@ void EnBigslime_CallMinislime(EnBigslime* this, PlayState* play) {
     }
 }
 
-
 void EnBigslime_SetupMoveOnCeiling(EnBigslime* this) {
     Animation_PlayLoop(&this->skelAnime, &gGekkoSwimForwardAnim);
     this->actor.gravity = 0.0f;
@@ -1764,7 +1763,6 @@ void EnBigslime_WindupThrowPlayer(EnBigslime* this, PlayState* play) {
         }
     }
 }
-
 
 void EnBigslime_SetupSetDynamicVtxThrowPlayer(EnBigslime* this, PlayState* play) {
     this->grabPlayerTimer = 10;

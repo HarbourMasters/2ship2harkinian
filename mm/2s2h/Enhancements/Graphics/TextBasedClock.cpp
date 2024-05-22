@@ -14,7 +14,6 @@ extern PlayState* gPlayState;
 
 void RegisterTextBasedClock() {
     REGISTER_VB_SHOULD(GI_VB_PREVENT_CLOCK_DISPLAY, {
-
         if (CVarGetInteger("gEnhancements.Graphics.ClockType", CLOCK_TYPE_ORIGINAL) == CLOCK_TYPE_TEXT_BASED) {
             *should = true;
 
@@ -29,11 +28,13 @@ void RegisterTextBasedClock() {
                  (gPlayState->msgCtx.msgMode == MSGMODE_NONE) ||
                  ((gPlayState->msgCtx.currentTextId >= 0x100) && (gPlayState->msgCtx.currentTextId <= 0x200)) ||
                  (gSaveContext.gameMode == GAMEMODE_END_CREDITS)) &&
-                !FrameAdvance_IsEnabled(&gPlayState->state) && !Environment_IsTimeStopped() && (gSaveContext.save.day <= 3)) {
+                !FrameAdvance_IsEnabled(&gPlayState->state) && !Environment_IsTimeStopped() &&
+                (gSaveContext.save.day <= 3)) {
 
                 OPEN_DISPS(gPlayState->state.gfxCtx);
 
-                if ((gPlayState->pauseCtx.state == PAUSE_STATE_OFF) && (gPlayState->pauseCtx.debugEditor == DEBUG_EDITOR_NONE)) {
+                if ((gPlayState->pauseCtx.state == PAUSE_STATE_OFF) &&
+                    (gPlayState->pauseCtx.debugEditor == DEBUG_EDITOR_NONE)) {
                     Gfx_SetupDL39_Overlay(gPlayState->state.gfxCtx);
 
                     u16 curMinutes = (s32)TIME_TO_MINUTES_F(gSaveContext.save.time) % 60;

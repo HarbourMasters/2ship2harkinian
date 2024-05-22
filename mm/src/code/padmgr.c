@@ -37,7 +37,7 @@
 #include "fault.h"
 #include <stdio.h>
 #include <string.h>
-//extern FaultMgr gFaultMgr;
+// extern FaultMgr gFaultMgr;
 
 #define PADMGR_RETRACE_MSG (1 << 0)
 #define PADMGR_PRE_NMI_MSG (1 << 1)
@@ -356,10 +356,10 @@ void PadMgr_AdjustInput(Input* input) {
 
     // BENTODO: Do we need controller reset logic?
     if (/* CHECK_BTN_ANY(input->press.button, BTN_RESET) || */ (input->press.stick_x == 0)) {
-       input->press.stick_x = 61;
-       input->press.err_no = -61;
-       input->press.stick_y = 63;
-       input->rel.err_no = -63;
+        input->press.stick_x = 61;
+        input->press.err_no = -61;
+        input->press.stick_y = 63;
+        input->rel.err_no = -63;
     }
     pressX = input->press.stick_x;
     pressX2 = (s8)input->press.err_no;

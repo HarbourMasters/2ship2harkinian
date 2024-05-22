@@ -116,9 +116,10 @@ void AudioSeq_ProcessSeqCmd(u32 cmd) {
             fadeTimer = (cmd & 0xFF0000) >> 13;
             if (!gActiveSeqs[seqPlayerIndex].isWaitingForFonts && !sStartSeqDisabled) {
                 // BEN: The code block to later load a sequence doesn't exist in OOT.
-                // BEN: The thing preventing this code block from running is actually the fact that we killed the audio tables.
-                // BEN: This delayed loading method actually utilizes some functions that OOT is no longer utilizing.
-                // BEN: The short of it ends up being the short circuit here is fine since it works and the stuff is loaded anyway.
+                // BEN: The thing preventing this code block from running is actually the fact that we killed the audio
+                // tables. BEN: This delayed loading method actually utilizes some functions that OOT is no longer
+                // utilizing. BEN: The short of it ends up being the short circuit here is fine since it works and the
+                // stuff is loaded anyway.
                 if (seqArgs < 0x80 || 1) {
                     AudioSeq_StartSequence(seqPlayerIndex, seqId, seqArgs, fadeTimer);
                 } else {

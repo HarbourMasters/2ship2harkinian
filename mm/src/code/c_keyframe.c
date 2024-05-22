@@ -134,7 +134,7 @@ void Keyframe_InitFlex(KFSkelAnimeFlex* kfSkelAnime, KeyFrameSkeleton* skeleton,
     if (ResourceMgr_OTRSigCheck(anim)) {
         anim = (KeyFrameAnimation*)ResourceMgr_LoadKeyFrameAnimByName(animation);
     }
-    
+
     kfSkelAnime->skeleton = skel;
     kfSkelAnime->animation = anim;
     kfSkelAnime->jointTable = jointTable;
@@ -648,7 +648,7 @@ void Keyframe_StandardChangeAnimQuick(KFSkelAnime* kfSkelAnime, KeyFrameAnimatio
     if (ResourceMgr_OTRSigCheck(animation)) {
         animation = ResourceMgr_LoadKeyFrameAnimByName(animation);
     }
-    
+
     kfSkelAnime->animation = animation;
     kfSkelAnime->frameCtrl.duration = kfSkelAnime->animation->duration;
 }

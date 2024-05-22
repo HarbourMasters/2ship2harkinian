@@ -16,28 +16,15 @@ typedef enum Method {
     HOLD,
 } Method;
 
-std::array<const char*, 12> acMapping = { 
-    "Switch", 
-    "Background",
-    "Player",
-    "Explosive",
-    "NPC",
-    "Enemy",
-    "Prop",
-    "Item/Action",
-    "Misc.",
-    "Boss",
-    "Door",
-    "Chest"
-};
+std::array<const char*, 12> acMapping = { "Switch", "Background",  "Player", "Explosive", "NPC",  "Enemy",
+                                          "Prop",   "Item/Action", "Misc.",  "Boss",      "Door", "Chest" };
 
-
-#define DEFINE_ACTOR(name, _enumValue, _allocType, _debugName, _humanName) {_enumValue, _humanName},
-#define DEFINE_ACTOR_INTERNAL(_name, _enumValue, _allocType, _debugName, _humanName) {_enumValue, _humanName},
-#define DEFINE_ACTOR_UNSET(_enumValue) {_enumValue, "Unset"},
+#define DEFINE_ACTOR(name, _enumValue, _allocType, _debugName, _humanName) { _enumValue, _humanName },
+#define DEFINE_ACTOR_INTERNAL(_name, _enumValue, _allocType, _debugName, _humanName) { _enumValue, _humanName },
+#define DEFINE_ACTOR_UNSET(_enumValue) { _enumValue, "Unset" },
 
 std::unordered_map<s16, const char*> actorDescriptions = {
-#include "tables/actor_table.h"    
+#include "tables/actor_table.h"
 };
 
 #undef DEFINE_ACTOR
@@ -49,7 +36,8 @@ std::string GetActorDescription(u16 actorNum) {
 }
 
 std::vector<Actor*> GetCurrentSceneActors() {
-    if (!gPlayState) return {};
+    if (!gPlayState)
+        return {};
 
     std::vector<Actor*> sceneActors;
     for (size_t category = ACTORCAT_SWITCH; category < ACTORCAT_MAX; category++) {
@@ -62,7 +50,6 @@ std::vector<Actor*> GetCurrentSceneActors() {
         }
     }
     return sceneActors;
-
 }
 
 static bool needs_reset = false;
@@ -127,8 +114,10 @@ void ActorViewerWindow::DrawElement() {
                         display = list[i];
                         newActorId = i;
                         filler = label;
-                        GameInteractor::Instance->UnregisterGameHookForPtr<GameInteractor::ShouldActorDraw>(preventActorDrawHookId);
-                        GameInteractor::Instance->UnregisterGameHookForPtr<GameInteractor::ShouldActorUpdate>(preventActorUpdateHookId);
+                        GameInteractor::Instance->UnregisterGameHookForPtr<GameInteractor::ShouldActorDraw>(
+                            preventActorDrawHookId);
+                        GameInteractor::Instance->UnregisterGameHookForPtr<GameInteractor::ShouldActorUpdate>(
+                            preventActorUpdateHookId);
                         preventActorDrawHookId = 0;
                         preventActorUpdateHookId = 0;
                         break;
@@ -150,27 +139,29 @@ void ActorViewerWindow::DrawElement() {
                 ImGui::BeginGroup();
                 if (preventActorDrawHookId) {
                     if (ImGui::Button("Continue Drawing", ImVec2(ImGui::GetFontSize() * 10, 0))) {
-                        GameInteractor::Instance->UnregisterGameHookForPtr<GameInteractor::ShouldActorDraw>(preventActorDrawHookId);
+                        GameInteractor::Instance->UnregisterGameHookForPtr<GameInteractor::ShouldActorDraw>(
+                            preventActorDrawHookId);
                         preventActorDrawHookId = 0;
                     }
                 } else {
                     if (ImGui::Button("Stop Drawing", ImVec2(ImGui::GetFontSize() * 10, 0))) {
-                        preventActorDrawHookId = GameInteractor::Instance->RegisterGameHookForPtr<GameInteractor::ShouldActorDraw>((uintptr_t)display, [](Actor* _, bool* result) {
-                            *result = false;
-                        });
+                        preventActorDrawHookId =
+                            GameInteractor::Instance->RegisterGameHookForPtr<GameInteractor::ShouldActorDraw>(
+                                (uintptr_t)display, [](Actor* _, bool* result) { *result = false; });
                     }
                 }
                 ImGui::SameLine();
                 if (preventActorUpdateHookId) {
                     if (ImGui::Button("Continue Updating", ImVec2(ImGui::GetFontSize() * 10, 0))) {
-                        GameInteractor::Instance->UnregisterGameHookForPtr<GameInteractor::ShouldActorUpdate>(preventActorUpdateHookId);
+                        GameInteractor::Instance->UnregisterGameHookForPtr<GameInteractor::ShouldActorUpdate>(
+                            preventActorUpdateHookId);
                         preventActorUpdateHookId = 0;
                     }
                 } else {
                     if (ImGui::Button("Stop Updating", ImVec2(ImGui::GetFontSize() * 10, 0))) {
-                        preventActorUpdateHookId = GameInteractor::Instance->RegisterGameHookForPtr<GameInteractor::ShouldActorUpdate>((uintptr_t)display, [](Actor* _, bool* result) {
-                            *result = false;
-                        });
+                        preventActorUpdateHookId =
+                            GameInteractor::Instance->RegisterGameHookForPtr<GameInteractor::ShouldActorUpdate>(
+                                (uintptr_t)display, [](Actor* _, bool* result) { *result = false; });
                     }
                 }
                 ImGui::EndGroup();
@@ -228,7 +219,7 @@ void ActorViewerWindow::DrawElement() {
                 }
             }
 
-            if (UIWidgets::Button("Fetch: Target", {.tooltip = "Grabs actor with target arrow above it."})) {
+            if (UIWidgets::Button("Fetch: Target", { .tooltip = "Grabs actor with target arrow above it." })) {
                 Player* player = GET_PLAYER(gPlayState);
                 fetch = player->lockOnActor;
                 if (fetch != nullptr) {
@@ -240,7 +231,7 @@ void ActorViewerWindow::DrawElement() {
                     display = {};
                 }
             }
-            if (UIWidgets::Button("Fetch: Held", {.tooltip = "Grabs actor Link is currently holding."})) {
+            if (UIWidgets::Button("Fetch: Held", { .tooltip = "Grabs actor Link is currently holding." })) {
                 Player* player = GET_PLAYER(gPlayState);
                 fetch = player->heldActor;
                 if (fetch != nullptr) {
@@ -253,13 +244,11 @@ void ActorViewerWindow::DrawElement() {
                 }
             }
 
-            
-            if (UIWidgets::Button("Kill", {.color = UIWidgets::Colors::Red}) && display != nullptr &&
+            if (UIWidgets::Button("Kill", { .color = UIWidgets::Colors::Red }) && display != nullptr &&
                 display->id != ACTOR_PLAYER) {
                 Actor_Kill(display);
             }
             ImGui::TreePop();
-
         }
 
         if (ImGui::TreeNode("New...")) {
@@ -288,7 +277,8 @@ void ActorViewerWindow::DrawElement() {
             ImGui::InputScalar("rZ", ImGuiDataType_S16, &newActor.rot.z);
             ImGui::EndGroup();
 
-            UIWidgets::CVarCheckbox("Remove Obj Dep?", "gObjDep", { .tooltip = "Allows actors to spawn where/when they normally wouldn't."});
+            UIWidgets::CVarCheckbox("Remove Obj Dep?", "gObjDep",
+                                    { .tooltip = "Allows actors to spawn where/when they normally wouldn't." });
 
             if (UIWidgets::Button("Fetch from Link")) {
                 Player* player = GET_PLAYER(gPlayState);
@@ -296,16 +286,17 @@ void ActorViewerWindow::DrawElement() {
                 newActor.rot = player->actor.world.rot;
             }
 
-            if (UIWidgets::Button("Spawn", {.color = UIWidgets::Colors::Green})) {
+            if (UIWidgets::Button("Spawn", { .color = UIWidgets::Colors::Green })) {
                 Actor_Spawn(&gPlayState->actorCtx, gPlayState, newActor.id, newActor.pos.x, newActor.pos.y,
-                    newActor.pos.z, newActor.rot.x, newActor.rot.y, newActor.rot.z, newActor.params);
+                            newActor.pos.z, newActor.rot.x, newActor.rot.y, newActor.rot.z, newActor.params);
             }
 
-            if (UIWidgets::Button("Spawn as Child", {.color = UIWidgets::Colors::Green})) {
+            if (UIWidgets::Button("Spawn as Child", { .color = UIWidgets::Colors::Green })) {
                 Actor* parent = display;
                 if (parent != nullptr) {
                     Actor_SpawnAsChild(&gPlayState->actorCtx, parent, gPlayState, newActor.id, newActor.pos.x,
-                        newActor.pos.y, newActor.pos.z, newActor.rot.x, newActor.rot.y, newActor.rot.z, newActor.params);
+                                       newActor.pos.y, newActor.pos.z, newActor.rot.x, newActor.rot.y, newActor.rot.z,
+                                       newActor.params);
                 } else {
                     Audio_PlaySfx(NA_SE_SY_ERROR);
                 }
@@ -320,10 +311,8 @@ void ActorViewerWindow::DrawElement() {
     } else {
         ImGui::Text("Playstate needed for actors!");
     }
-    ImGui::End();    
+    ImGui::End();
 }
 
 void ActorViewerWindow::InitElement() {
-
 }
-

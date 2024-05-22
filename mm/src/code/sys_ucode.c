@@ -6,7 +6,7 @@
 #include "public/bridge/gfxbridge.h"
 
 UcodeHandlers initialgspUcodeText = ucode_f3dex2;
-//u64* initialgspUcodeData = gspF3DZEX2_NoN_PosLight_fifoDataStart;
+// u64* initialgspUcodeData = gspF3DZEX2_NoN_PosLight_fifoDataStart;
 
 u64* SysUcode_GetUCodeBoot(void) {
     return rspbootTextStart;
@@ -20,6 +20,6 @@ UcodeHandlers SysUcode_GetUCode(void) {
     return initialgspUcodeText;
 }
 
-//u64* SysUcode_GetUCodeData(void) {
-//    return initialgspUcodeData;
-//}
+// u64* SysUcode_GetUCodeData(void) {
+//     return initialgspUcodeData;
+// }

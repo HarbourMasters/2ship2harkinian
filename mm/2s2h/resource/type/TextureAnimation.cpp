@@ -14,15 +14,15 @@ TextureAnimation::~TextureAnimation() {
             case TextureAnimationParamsType::ColorChange:
             case TextureAnimationParamsType::ColorChangeLERP:
             case TextureAnimationParamsType::ColorChangeLagrange:
-                delete[] ((AnimatedMatColorParams*)a.params)->keyFrames;
-                delete[] ((AnimatedMatColorParams*)a.params)->primColors;
-                delete[] ((AnimatedMatColorParams*)a.params)->envColors;
+                delete[]((AnimatedMatColorParams*)a.params)->keyFrames;
+                delete[]((AnimatedMatColorParams*)a.params)->primColors;
+                delete[]((AnimatedMatColorParams*)a.params)->envColors;
                 free(a.params);
                 break;
             case TextureAnimationParamsType::TextureCycle:
                 // BENTODO free the textures
-                delete[] ((AnimatedMatTexCycleParams*)a.params)->textureIndexList;
-                delete[] ((AnimatedMatTexCycleParams*)a.params)->textureList;
+                delete[]((AnimatedMatTexCycleParams*)a.params)->textureIndexList;
+                delete[]((AnimatedMatTexCycleParams*)a.params)->textureList;
                 free(a.params);
                 break;
         }
