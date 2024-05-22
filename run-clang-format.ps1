@@ -36,10 +36,10 @@ if (-not (Test-Path $clangFormatFilePath) -or ($currentVersion -ne $requiredVers
 $baseDir = "mm"
 
 $files = Get-ChildItem -Path .\mm -Recurse -File `
-    | Where-Object { $_.Extension -eq '.c' -or $_.Extension -eq '.cpp' -or `
-                     (($_.Extension -eq '.h') -and `
-                      (-not ($_.FullName -like "mm\src\*" -or $_.FullName -like "mm\include\*"))) -and `
-                     (-notlike "mm\assets\*") }
+    | Where-Object { ($_.Extension -eq '.c' -or $_.Extension -eq '.cpp' -or `
+                      ($_.Extension -eq '.h' -and `
+                       (-not ($_.FullName -like "mm\src\*" -or $_.FullName -like "mm\include\*")))) -and `
+                     (-not ($_.FullName -like "mm\assets\*")) }
 
 foreach ($file in $files) {
     Write-Host "Formatting $($file.FullName)"
