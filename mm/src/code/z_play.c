@@ -50,12 +50,12 @@ u8 D_801D0D54 = false;
 PlayState* gPlayState;
 // #endregion
 
-// Track when the notebook is closed so we can refresh our framebuffer captures
-u8 sJustClosedBomberNotebook = false;
 // #region 2S2H [JP] Making sJPMessageEntryTablePtr available
 MessageTableEntry* sJPMessageEntryTablePtr = NULL;
 // #endregion
 
+// Track when the notebook is closed so we can refresh our framebuffer captures
+u8 sJustClosedBomberNotebook = false;
 typedef enum {
     /* 0 */ MOTION_BLUR_OFF,
     /* 1 */ MOTION_BLUR_SETUP,
