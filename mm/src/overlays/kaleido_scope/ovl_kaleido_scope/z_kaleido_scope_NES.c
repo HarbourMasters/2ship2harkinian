@@ -3515,7 +3515,10 @@ void KaleidoScope_Update(PlayState* play) {
                             Audio_PlaySfx(NA_SE_SY_PIECE_OF_HEART);
                             if (CVarGetInteger("gEnhancements.Kaleido.PauseSave", 0)) {
                                 gSaveContext.save.isOwlSave = true;
-                                gSaveContext.save.shipSaveInfo.pauseSaveEntrance = gSaveContext.save.entrance;
+                                // 2S2H [Enhancement] Eventually we might allow them to load from their last entrance,
+                                // but we need to first identify and fix edge cases where that doesn't work properly
+                                // like grottos and cutscenes
+                                gSaveContext.save.shipSaveInfo.pauseSaveEntrance = ENTRANCE(SOUTH_CLOCK_TOWN, 0);
                             }
                             Play_SaveCycleSceneFlags(&play->state);
                             gSaveContext.save.saveInfo.playerData.savedSceneId = play->sceneId;
