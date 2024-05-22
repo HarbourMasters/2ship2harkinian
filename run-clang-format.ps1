@@ -33,7 +33,7 @@ if (-not (Test-Path $clangFormatFilePath) -or ($currentVersion -ne $requiredVers
     Remove-Item $llvmInstallerPath -Force
 }
 
-$basePath = Resolve-Path .
+$basePath = (Resolve-Path .).Path
 $files = Get-ChildItem -Path $basePath\mm -Recurse -File `
     | Where-Object { ($_.Extension -eq '.c' -or $_.Extension -eq '.cpp' -or `
                       ($_.Extension -eq '.h' -and `
