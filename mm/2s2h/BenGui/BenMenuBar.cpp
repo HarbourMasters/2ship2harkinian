@@ -381,7 +381,7 @@ void DrawEnhancementsMenu() {
             });
 
             if (UIWidgets::CVarCheckbox("Autosave", "gEnhancements.Saving.Autosave", {
-                .tooltip = "Automatically create owl saves on the chosen interval."
+                .tooltip = "Automatically create owl saves on the chosen interval. When loading back into the game, you will be placed at your last entrance."
             })) {
                 RegisterAutosave();
             }
