@@ -160,6 +160,7 @@ bool Checkbox(const char* label, bool* value, const CheckboxOptions& options) {
     float startX = ImGui::GetCursorPosX();
     std::string invisibleLabelStr = "##" + std::string(label);
     const char* invisibleLabel = invisibleLabelStr.c_str();
+    ImGui::BeginGroup();
     ImGui::BeginDisabled(options.disabled);
     PushStyleCheckbox(options.color);
     if (options.alignment == ComponentAlignment::Right) {
@@ -173,10 +174,18 @@ bool Checkbox(const char* label, bool* value, const CheckboxOptions& options) {
             ImGui::NewLine();
             ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::GetStyle().FramePadding.x * 2 -
                             ImGui::GetStyle().ItemSpacing.x);
+            if (ImGui::IsItemClicked(0)) {
+                *value = !(*value);
+                dirty = true;
+            }
         }
     } else if (options.alignment == ComponentAlignment::Left) {
         if (options.labelPosition == LabelPosition::Above) {
             ImGui::Text("%s", label);
+            if (ImGui::IsItemClicked(0)) {
+                *value = !(*value);
+                dirty = true;
+            }
         }
     }
     dirty = ImGui::Checkbox(invisibleLabel, value);
@@ -185,22 +194,39 @@ bool Checkbox(const char* label, bool* value, const CheckboxOptions& options) {
             ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(label).x -
                             ImGui::GetStyle().FramePadding.x * 2 - ImGui::GetStyle().ItemSpacing.x * 2);
             ImGui::Text("%s", label);
+            if (ImGui::IsItemClicked(0)) {
+                *value = !(*value);
+                dirty = true;
+            }
         } else if (options.labelPosition == LabelPosition::Far) {
             ImGui::SameLine();
             ImGui::SetCursorPosX(startX);
             ImGui::Text("%s", label);
+            if (ImGui::IsItemClicked(0)) {
+                *value = !(*value);
+                dirty = true;
+            }
         }
     } else if (options.alignment == ComponentAlignment::Left) {
         if (options.labelPosition == LabelPosition::Near) {
             ImGui::SameLine();
             ImGui::Text("%s", label);
+            if (ImGui::IsItemClicked(0)) {
+                *value = !(*value);
+                dirty = true;
+            }
         } else if (options.labelPosition == LabelPosition::Far) {
             ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(label).x);
             ImGui::Text("%s", label);
+            if (ImGui::IsItemClicked(0)) {
+                *value = !(*value);
+                dirty = true;
+            }
         }
     }
     PopStyleCheckbox();
     ImGui::EndDisabled();
+    ImGui::EndGroup();
     if (options.disabled && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) &&
         strcmp(options.disabledTooltip, "") != 0) {
         ImGui::SetTooltip("%s", WrappedText(options.disabledTooltip));
