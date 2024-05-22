@@ -72,13 +72,11 @@ typedef uint32_t HOOK_ID;
     }
 
 class GameInteractor {
-public:
+  public:
     static GameInteractor* Instance;
 
     // Game State
-    class State {
-
-    };
+    class State {};
 
     // Game Hooks
     HOOK_ID nextHookId = 1;
@@ -98,7 +96,8 @@ public:
 
     // General Hooks
     template <typename H> HOOK_ID RegisterGameHook(typename H::fn h) {
-        if (this->nextHookId == 0 || this->nextHookId >= UINT32_MAX) this->nextHookId = 1;
+        if (this->nextHookId == 0 || this->nextHookId >= UINT32_MAX)
+            this->nextHookId = 1;
         while (RegisteredGameHooks<H>::functions.find(this->nextHookId) != RegisteredGameHooks<H>::functions.end()) {
             this->nextHookId++;
         }
@@ -107,7 +106,8 @@ public:
         return this->nextHookId++;
     }
     template <typename H> void UnregisterGameHook(HOOK_ID hookId) {
-        if (hookId == 0) return;
+        if (hookId == 0)
+            return;
         HooksToUnregister<H>::hooks.push_back(hookId);
     }
     template <typename H, typename... Args> void ExecuteHooks(Args&&... args) {
@@ -122,8 +122,10 @@ public:
 
     // ID based Hooks
     template <typename H> HOOK_ID RegisterGameHookForID(int32_t id, typename H::fn h) {
-        if (this->nextHookId == 0 || this->nextHookId >= UINT32_MAX) this->nextHookId = 1;
-        while (RegisteredGameHooks<H>::functionsForID[id].find(this->nextHookId) != RegisteredGameHooks<H>::functionsForID[id].end()) {
+        if (this->nextHookId == 0 || this->nextHookId >= UINT32_MAX)
+            this->nextHookId = 1;
+        while (RegisteredGameHooks<H>::functionsForID[id].find(this->nextHookId) !=
+               RegisteredGameHooks<H>::functionsForID[id].end()) {
             this->nextHookId++;
         }
 
@@ -131,15 +133,19 @@ public:
         return this->nextHookId++;
     }
     template <typename H> void UnregisterGameHookForID(HOOK_ID hookId) {
-        if (hookId == 0) return;
+        if (hookId == 0)
+            return;
         HooksToUnregister<H>::hooksForID.push_back(hookId);
     }
     template <typename H, typename... Args> void ExecuteHooksForID(int32_t id, Args&&... args) {
         for (auto& hookId : HooksToUnregister<H>::hooksForID) {
-            for (auto it = RegisteredGameHooks<H>::functionsForID[id].begin(); it != RegisteredGameHooks<H>::functionsForID[id].end(); ) {
+            for (auto it = RegisteredGameHooks<H>::functionsForID[id].begin();
+                 it != RegisteredGameHooks<H>::functionsForID[id].end();) {
                 if (it->first == hookId) {
                     it = RegisteredGameHooks<H>::functionsForID[id].erase(it);
-                    HooksToUnregister<H>::hooksForID.erase(std::remove(HooksToUnregister<H>::hooksForID.begin(), HooksToUnregister<H>::hooksForID.end(), hookId), HooksToUnregister<H>::hooksForID.end());
+                    HooksToUnregister<H>::hooksForID.erase(std::remove(HooksToUnregister<H>::hooksForID.begin(),
+                                                                       HooksToUnregister<H>::hooksForID.end(), hookId),
+                                                           HooksToUnregister<H>::hooksForID.end());
                 } else {
                     ++it;
                 }
@@ -152,8 +158,10 @@ public:
 
     // PTR based Hooks
     template <typename H> HOOK_ID RegisterGameHookForPtr(uintptr_t ptr, typename H::fn h) {
-        if (this->nextHookId == 0 || this->nextHookId >= UINT32_MAX) this->nextHookId = 1;
-        while (RegisteredGameHooks<H>::functionsForPtr[ptr].find(this->nextHookId) != RegisteredGameHooks<H>::functionsForPtr[ptr].end()) {
+        if (this->nextHookId == 0 || this->nextHookId >= UINT32_MAX)
+            this->nextHookId = 1;
+        while (RegisteredGameHooks<H>::functionsForPtr[ptr].find(this->nextHookId) !=
+               RegisteredGameHooks<H>::functionsForPtr[ptr].end()) {
             this->nextHookId++;
         }
 
@@ -161,15 +169,20 @@ public:
         return this->nextHookId++;
     }
     template <typename H> void UnregisterGameHookForPtr(HOOK_ID hookId) {
-        if (hookId == 0) return;
+        if (hookId == 0)
+            return;
         HooksToUnregister<H>::hooksForPtr.push_back(hookId);
     }
     template <typename H, typename... Args> void ExecuteHooksForPtr(uintptr_t ptr, Args&&... args) {
         for (auto& hookId : HooksToUnregister<H>::hooksForPtr) {
-            for (auto it = RegisteredGameHooks<H>::functionsForPtr[ptr].begin(); it != RegisteredGameHooks<H>::functionsForPtr[ptr].end(); ) {
+            for (auto it = RegisteredGameHooks<H>::functionsForPtr[ptr].begin();
+                 it != RegisteredGameHooks<H>::functionsForPtr[ptr].end();) {
                 if (it->first == hookId) {
                     it = RegisteredGameHooks<H>::functionsForPtr[ptr].erase(it);
-                    HooksToUnregister<H>::hooksForPtr.erase(std::remove(HooksToUnregister<H>::hooksForPtr.begin(), HooksToUnregister<H>::hooksForPtr.end(), hookId), HooksToUnregister<H>::hooksForPtr.end());
+                    HooksToUnregister<H>::hooksForPtr.erase(std::remove(HooksToUnregister<H>::hooksForPtr.begin(),
+                                                                        HooksToUnregister<H>::hooksForPtr.end(),
+                                                                        hookId),
+                                                            HooksToUnregister<H>::hooksForPtr.end());
                 } else {
                     ++it;
                 }
@@ -182,8 +195,10 @@ public:
 
     // Filter based Hooks
     template <typename H> HOOK_ID RegisterGameHookForFilter(typename H::filter f, typename H::fn h) {
-        if (this->nextHookId == 0 || this->nextHookId >= UINT32_MAX) this->nextHookId = 1;
-        while (RegisteredGameHooks<H>::functionsForFilter.find(this->nextHookId) != RegisteredGameHooks<H>::functionsForFilter.end()) {
+        if (this->nextHookId == 0 || this->nextHookId >= UINT32_MAX)
+            this->nextHookId = 1;
+        while (RegisteredGameHooks<H>::functionsForFilter.find(this->nextHookId) !=
+               RegisteredGameHooks<H>::functionsForFilter.end()) {
             this->nextHookId++;
         }
 
@@ -191,7 +206,8 @@ public:
         return this->nextHookId++;
     }
     template <typename H> void UnregisterGameHookForFilter(HOOK_ID hookId) {
-        if (hookId == 0) return;
+        if (hookId == 0)
+            return;
         HooksToUnregister<H>::hooksForFilter.push_back(hookId);
     }
     template <typename H, typename... Args> void ExecuteHooksForFilter(Args&&... args) {
@@ -207,7 +223,7 @@ public:
     }
 
     class HookFilter {
-    public:
+      public:
         static auto ActorNotPlayer(Actor* actor) {
             return actor->id != ACTOR_PLAYER;
         }
@@ -216,15 +232,11 @@ public:
             return actor->id != ACTOR_PLAYER;
         }
         static auto ActorMatchIdAndParams(int16_t id, int16_t params) {
-            return [id, params](Actor* actor) {
-                return actor->id == id && actor->params == params;
-            };
+            return [id, params](Actor* actor) { return actor->id == id && actor->params == params; };
         }
         // For use with Should hooks
         static auto SActorMatchIdAndParams(int16_t id, int16_t params) {
-            return [id, params](Actor* actor, bool* result) {
-                return actor->id == id && actor->params == params;
-            };
+            return [id, params](Actor* actor, bool* result) { return actor->id == id && actor->params == params; };
         }
     };
 
@@ -238,22 +250,22 @@ public:
     DEFINE_HOOK(OnSceneInit, (s8 sceneId, s8 spawnNum));
     DEFINE_HOOK(OnRoomInit, (s8 sceneId, s8 roomNum));
 
-    DEFINE_HOOK(ShouldActorInit, (Actor* actor, bool* should));
-    DEFINE_HOOK(OnActorInit, (Actor* actor));
-    DEFINE_HOOK(ShouldActorUpdate, (Actor* actor, bool* should));
-    DEFINE_HOOK(OnActorUpdate, (Actor* actor));
-    DEFINE_HOOK(ShouldActorDraw, (Actor* actor, bool* should));
-    DEFINE_HOOK(OnActorDraw, (Actor* actor));
-    DEFINE_HOOK(OnActorKill, (Actor* actor));
+    DEFINE_HOOK(ShouldActorInit, (Actor * actor, bool* should));
+    DEFINE_HOOK(OnActorInit, (Actor * actor));
+    DEFINE_HOOK(ShouldActorUpdate, (Actor * actor, bool* should));
+    DEFINE_HOOK(OnActorUpdate, (Actor * actor));
+    DEFINE_HOOK(ShouldActorDraw, (Actor * actor, bool* should));
+    DEFINE_HOOK(OnActorDraw, (Actor * actor));
+    DEFINE_HOOK(OnActorKill, (Actor * actor));
 
     DEFINE_HOOK(OnSceneFlagSet, (s16 sceneId, FlagType flagType, u32 flag));
     DEFINE_HOOK(OnSceneFlagUnset, (s16 sceneId, FlagType flagType, u32 flag));
     DEFINE_HOOK(OnFlagSet, (FlagType flagType, u32 flag));
     DEFINE_HOOK(OnFlagUnset, (FlagType flagType, u32 flag));
 
-    DEFINE_HOOK(OnCameraChangeModeFlags, (Camera* camera));
+    DEFINE_HOOK(OnCameraChangeModeFlags, (Camera * camera));
 
-    DEFINE_HOOK(OnPassPlayerInputs, (Input* input));
+    DEFINE_HOOK(OnPassPlayerInputs, (Input * input));
 
     DEFINE_HOOK(OnOpenText, (u16 textId));
 
@@ -299,8 +311,9 @@ bool GameInteractor_ShouldItemGive(u8 item);
 void GameInteractor_ExecuteOnItemGive(u8 item);
 
 bool GameInteractor_Should(GIVanillaBehavior flag, bool result, void* optionalArg);
-#define REGISTER_VB_SHOULD(flag, body) \
-    GameInteractor::Instance->RegisterGameHookForID<GameInteractor::ShouldVanillaBehavior>(flag, [](GIVanillaBehavior _, bool* should, void* opt) body)
+#define REGISTER_VB_SHOULD(flag, body)                                                      \
+    GameInteractor::Instance->RegisterGameHookForID<GameInteractor::ShouldVanillaBehavior>( \
+        flag, [](GIVanillaBehavior _, bool* should, void* opt) body)
 
 int GameInteractor_InvertControl(GIInvertType type);
 

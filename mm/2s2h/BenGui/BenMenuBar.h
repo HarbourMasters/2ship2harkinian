@@ -12,10 +12,11 @@ namespace BenGui {
 class BenMenuBar : public Ship::GuiMenuBar {
   public:
     using Ship::GuiMenuBar::GuiMenuBar;
+
   protected:
     void DrawElement() override;
-    void InitElement() override {};
-    void UpdateElement() override {};
+    void InitElement() override{};
+    void UpdateElement() override{};
 };
 } // namespace BenGui
 

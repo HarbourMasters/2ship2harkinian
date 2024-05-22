@@ -73,9 +73,8 @@ void DemoSyoten_Init(Actor* thisx, PlayState* play) {
 
     switch (DEMOSYOTEN_GET_F(&this->actor)) {
         case DEMOSYOTEN_F_0:
-            Keyframe_InitFlex(&this->unk_144, gSyotenKFSkel_1328, gSyotenKFAnim_023C,
-                              this->unk_174,
-                          this->unk_2A6, NULL);
+            Keyframe_InitFlex(&this->unk_144, gSyotenKFSkel_1328, gSyotenKFAnim_023C, this->unk_174, this->unk_2A6,
+                              NULL);
             Keyframe_FlexPlayLoop(&this->unk_144, gSyotenKFAnim_023C);
             this->actor.draw = NULL;
             this->actionFunc = func_80C16A74;

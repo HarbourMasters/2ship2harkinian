@@ -4,12 +4,12 @@
 void RegisterCutscenes();
 
 // MiscInteractions
-    void RegisterSkipDekuSalesman();
-    void RegisterSkipScarecrowDance();
-    void RegisterSkipTatlInterrupts();
+void RegisterSkipDekuSalesman();
+void RegisterSkipScarecrowDance();
+void RegisterSkipTatlInterrupts();
 
 // StoryCutscenes
-    void RegisterSkipClockTowerOpen();
+void RegisterSkipClockTowerOpen();
 
 void RegisterHideTitleCards();
 void RegisterSkipEntranceCutscenes();

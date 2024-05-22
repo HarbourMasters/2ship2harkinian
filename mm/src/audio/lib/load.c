@@ -925,7 +925,7 @@ static void AudioLoad_RelocateFont(s32 fontId, SoundFontData* mem, SampleBankRel
 void AudioLoad_SyncDma(uintptr_t devAddr, u8* ramAddr, size_t size, s32 medium) {
     OSMesgQueue* msgQueue = &gAudioCtx.syncDmaQueue;
     OSIoMesg* ioMesg = &gAudioCtx.syncDmaIoMesg;
-    //size = ALIGN16(size);
+    // size = ALIGN16(size);
 
     Audio_InvalDCache(ramAddr, size);
 

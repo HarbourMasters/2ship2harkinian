@@ -15,7 +15,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSoundFontV2::ReadReso
     audioSoundFont->soundFont.fntIndex = reader->ReadInt32();
     audioSoundFont->medium = reader->ReadInt8();
     audioSoundFont->cachePolicy = reader->ReadInt8();
-    
+
     audioSoundFont->data1 = reader->ReadUInt16();
     audioSoundFont->soundFont.sampleBankId1 = audioSoundFont->data1 >> 8;
     audioSoundFont->soundFont.sampleBankId2 = audioSoundFont->data1 & 0xFF;
@@ -25,10 +25,10 @@ std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSoundFontV2::ReadReso
 
     uint32_t drumCount = reader->ReadUInt32();
     audioSoundFont->soundFont.numDrums = drumCount;
-    
+
     uint32_t instrumentCount = reader->ReadUInt32();
     audioSoundFont->soundFont.numInstruments = instrumentCount;
-    
+
     uint32_t soundEffectCount = reader->ReadUInt32();
     audioSoundFont->soundFont.numSfx = soundEffectCount;
 
@@ -48,7 +48,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSoundFontV2::ReadReso
         drumEnvelopes.reserve(audioSoundFont->drumEnvelopeCounts[i]);
         for (uint32_t j = 0; j < audioSoundFont->drumEnvelopeCounts.back(); j++) {
             AdsrEnvelope env;
-            
+
             int16_t delay = reader->ReadInt16();
             int16_t arg = reader->ReadInt16();
 
@@ -147,11 +147,8 @@ std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSoundFontV2::ReadReso
             instrument.highNotesSound.tuning = 0;
         }
 
-        
         audioSoundFont->instruments.push_back(instrument);
-        audioSoundFont->instrumentAddresses.push_back(isValidEntry ? 
-                                                      &audioSoundFont->instruments.back() :
-                                                      nullptr);
+        audioSoundFont->instrumentAddresses.push_back(isValidEntry ? &audioSoundFont->instruments.back() : nullptr);
     }
     audioSoundFont->soundFont.instruments = audioSoundFont->instrumentAddresses.data();
 
@@ -168,7 +165,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSoundFontV2::ReadReso
             auto res = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(sampleFileName.c_str());
             soundEffect.sample = static_cast<Sample*>(res ? res->GetRawPointer() : nullptr);
         }
-        
+
         audioSoundFont->soundEffects.push_back(soundEffect);
     }
     audioSoundFont->soundFont.soundEffects = audioSoundFont->soundEffects.data();

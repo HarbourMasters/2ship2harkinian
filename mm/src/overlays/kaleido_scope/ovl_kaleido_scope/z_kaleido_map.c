@@ -33,8 +33,8 @@ void KaleidoScope_DrawDungeonStrayFairyCount(PlayState* play) {
         gDPPipeSync(POLY_OPA_DISP++);
         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 0, 0, 0, 255);
 
-        POLY_OPA_DISP = Gfx_DrawTexRectI8(POLY_OPA_DISP, sCounterTextures[counterDigits[digitIndex]],
-                                          8, 16, rectLeft + 1, 146, 8, 16, 1 << 10, 1 << 10);
+        POLY_OPA_DISP = Gfx_DrawTexRectI8(POLY_OPA_DISP, sCounterTextures[counterDigits[digitIndex]], 8, 16,
+                                          rectLeft + 1, 146, 8, 16, 1 << 10, 1 << 10);
 
         gDPPipeSync(POLY_OPA_DISP++);
         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, 255);
@@ -66,8 +66,8 @@ void KaleidoScope_DrawDungeonStrayFairyCount(PlayState* play) {
         gDPPipeSync(POLY_OPA_DISP++);
         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 0, 0, 0, 255);
 
-        POLY_OPA_DISP = Gfx_DrawTexRectI8(POLY_OPA_DISP, sCounterTextures[counterDigits[digitIndex]],
-                                          8, 16, rectLeft + 1, 146, 8, 16, 1 << 10, 1 << 10);
+        POLY_OPA_DISP = Gfx_DrawTexRectI8(POLY_OPA_DISP, sCounterTextures[counterDigits[digitIndex]], 8, 16,
+                                          rectLeft + 1, 146, 8, 16, 1 << 10, 1 << 10);
 
         gDPPipeSync(POLY_OPA_DISP++);
         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, 255);
@@ -572,9 +572,9 @@ void KaleidoScope_DrawWorldMap(PlayState* play) {
         // Process the 128 rows of pixels for gWorldMapImageTex, 8 rows at a time over 16 iterations
         // Loop over yPos (t), textureIndex (j)
         for (t = 62, j = 0; j < 16; j++, t += 8) {
-            gDPLoadTextureBlock(POLY_OPA_DISP++, &tex[j * (WORLD_MAP_IMAGE_WIDTH * 8)], G_IM_FMT_CI,
-                                G_IM_SIZ_8b, WORLD_MAP_IMAGE_WIDTH, 8, 0, G_TX_NOMIRROR | G_TX_WRAP,
-                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureBlock(POLY_OPA_DISP++, &tex[j * (WORLD_MAP_IMAGE_WIDTH * 8)], G_IM_FMT_CI, G_IM_SIZ_8b,
+                                WORLD_MAP_IMAGE_WIDTH, 8, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP,
+                                G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
             rectLeft = 51 << 2;
             rectRight = rectLeft + (WORLD_MAP_IMAGE_WIDTH << 2);
@@ -608,12 +608,12 @@ void KaleidoScope_DrawWorldMap(PlayState* play) {
 
         // Process the first 72 rows of pixels for gWorldMapImageTex, 9 rows at a time over 8 iterations
         // Loop over quadIndex of this loop (i), quadIndex of the entire texture (k), vtxIndex (j)
-        char* tex =  ResourceMgr_LoadTexOrDListByName(gWorldMapImageTex);
+        char* tex = ResourceMgr_LoadTexOrDListByName(gWorldMapImageTex);
         for (i = 0, k = 0, j = 0; i < 8; i++, k++, j += 4) {
-            gDPLoadTextureBlock(
-                POLY_OPA_DISP++, &tex[k * (WORLD_MAP_IMAGE_WIDTH * WORLD_MAP_IMAGE_FRAG_HEIGHT)],
-                G_IM_FMT_CI, G_IM_SIZ_8b, WORLD_MAP_IMAGE_WIDTH, WORLD_MAP_IMAGE_FRAG_HEIGHT, 0,
-                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            gDPLoadTextureBlock(POLY_OPA_DISP++, &tex[k * (WORLD_MAP_IMAGE_WIDTH * WORLD_MAP_IMAGE_FRAG_HEIGHT)],
+                                G_IM_FMT_CI, G_IM_SIZ_8b, WORLD_MAP_IMAGE_WIDTH, WORLD_MAP_IMAGE_FRAG_HEIGHT, 0,
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                G_TX_NOLOD, G_TX_NOLOD);
 
             gSP1Quadrangle(POLY_OPA_DISP++, j, j + 2, j + 3, j + 1, 0);
         }
@@ -626,19 +626,19 @@ void KaleidoScope_DrawWorldMap(PlayState* play) {
         // Loop over quadIndex of this loop (i), quadIndex of the entire texture (k), vtxIndex (j)
         for (i = 0, j = 0; i < 6; i++, k++, j += 4) {
             gDPLoadTextureBlock(POLY_OPA_DISP++, &tex[k * (WORLD_MAP_IMAGE_WIDTH * WORLD_MAP_IMAGE_FRAG_HEIGHT)],
-                G_IM_FMT_CI, G_IM_SIZ_8b, WORLD_MAP_IMAGE_WIDTH, WORLD_MAP_IMAGE_FRAG_HEIGHT, 0,
-                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+                                G_IM_FMT_CI, G_IM_SIZ_8b, WORLD_MAP_IMAGE_WIDTH, WORLD_MAP_IMAGE_FRAG_HEIGHT, 0,
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                G_TX_NOLOD, G_TX_NOLOD);
 
             gSP1Quadrangle(POLY_OPA_DISP++, j, j + 2, j + 3, j + 1, 0);
         }
 
         // Process the last 2 rows of pixels for gWorldMapImageTex
-        gDPLoadTextureBlock(
-            POLY_OPA_DISP++, &tex[k * (WORLD_MAP_IMAGE_WIDTH * WORLD_MAP_IMAGE_FRAG_HEIGHT)],
-            G_IM_FMT_CI, G_IM_SIZ_8b, WORLD_MAP_IMAGE_WIDTH, WORLD_MAP_IMAGE_HEIGHT % WORLD_MAP_IMAGE_FRAG_HEIGHT, 0,
-            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gDPLoadTextureBlock(POLY_OPA_DISP++, &tex[k * (WORLD_MAP_IMAGE_WIDTH * WORLD_MAP_IMAGE_FRAG_HEIGHT)],
+                            G_IM_FMT_CI, G_IM_SIZ_8b, WORLD_MAP_IMAGE_WIDTH,
+                            WORLD_MAP_IMAGE_HEIGHT % WORLD_MAP_IMAGE_FRAG_HEIGHT, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         gSP1Quadrangle(POLY_OPA_DISP++, j, j + 2, j + 3, j + 1, 0);
-
     }
 
     Gfx_SetupDL42_Opa(play->state.gfxCtx);

@@ -46,9 +46,8 @@ void DemoMoonend_Init(Actor* thisx, PlayState* play) {
         this->actionFunc = func_80C17B60;
     } else {
         Actor_SetScale(&this->actor, 0.095f);
-        Keyframe_InitFlex(&this->skeletonInfo, gMoonendKFSkel_B5A0, gMoonendKFAnim_1214,
-                          this->jointTable,
-                      this->morphTable, NULL);
+        Keyframe_InitFlex(&this->skeletonInfo, gMoonendKFSkel_B5A0, gMoonendKFAnim_1214, this->jointTable,
+                          this->morphTable, NULL);
         Keyframe_FlexPlayOnce(&this->skeletonInfo, gMoonendKFAnim_1214);
         this->cueType = CS_CMD_ACTOR_CUE_560;
         this->actionFunc = func_80C17C48;

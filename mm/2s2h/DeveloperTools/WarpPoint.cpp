@@ -15,19 +15,21 @@ extern SaveContext gSaveContext;
 #define CV "gDeveloperTools.WarpPoint."
 
 // 2S2H Added columns to scene table: entranceSceneId, betterMapSelectIndex, humanName
-#define DEFINE_SCENE(_name, enumValue, _textId, _drawConfig, _restrictionFlags, _persistentCycleFlags, _entranceSceneId, _betterMapSelectIndex, humanName) \
+#define DEFINE_SCENE(_name, enumValue, _textId, _drawConfig, _restrictionFlags, _persistentCycleFlags, \
+                     _entranceSceneId, _betterMapSelectIndex, humanName)                               \
     { enumValue, humanName },
 #define DEFINE_SCENE_UNSET(_enumValue)
 
 std::unordered_map<s16, const char*> warpPointSceneList = {
-#include "tables/scene_table.h"    
+#include "tables/scene_table.h"
 };
 
 #undef DEFINE_SCENE
 #undef DEFINE_SCENE_UNSET
 
 void RenderWarpPointSection() {
-    if (gPlayState == NULL) return;
+    if (gPlayState == NULL)
+        return;
 
     if (UIWidgets::Button("Set Warp Point")) {
         Player* player = GET_PLAYER(gPlayState);
@@ -58,14 +60,12 @@ void RenderWarpPointSection() {
         }
         ImGui::SameLine();
         if (UIWidgets::Button("Warp", { .size = UIWidgets::Sizes::Inline })) {
-            Vec3f pos = { CVarGetFloat(CV "X", 0.0f),
-                        CVarGetFloat(CV "Y", 0.0f),
-                        CVarGetFloat(CV "Z", 0.0f) };
+            Vec3f pos = { CVarGetFloat(CV "X", 0.0f), CVarGetFloat(CV "Y", 0.0f), CVarGetFloat(CV "Z", 0.0f) };
 
-            Play_SetRespawnData(&gPlayState->state, RESPAWN_MODE_DOWN, 
-                CVarGetInteger(CV "Entrance", ENTRANCE(SOUTH_CLOCK_TOWN, 0)),
-                CVarGetInteger(CV "Room", 0), PLAYER_PARAMS(0xFF, PLAYER_INITMODE_D),
-                &pos, CVarGetFloat(CV "Rotation", 0.0f));
+            Play_SetRespawnData(&gPlayState->state, RESPAWN_MODE_DOWN,
+                                CVarGetInteger(CV "Entrance", ENTRANCE(SOUTH_CLOCK_TOWN, 0)),
+                                CVarGetInteger(CV "Room", 0), PLAYER_PARAMS(0xFF, PLAYER_INITMODE_D), &pos,
+                                CVarGetFloat(CV "Rotation", 0.0f));
             func_80169EFC(&gPlayState->state);
         }
     }

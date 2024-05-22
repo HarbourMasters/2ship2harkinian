@@ -9,7 +9,6 @@ void MotionBlur_RenderMenuOptions();
 extern "C" {
 #endif
 
-
 void MotionBlur_Override(u8* status, s32* alpha);
 
 #ifdef __cplusplus

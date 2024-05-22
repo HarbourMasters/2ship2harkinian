@@ -11,7 +11,7 @@ s16 gPlayerFormObjectIds[PLAYER_FORM_MAX] = {
 ObjectId gObjectTableSize = OBJECT_ID_MAX;
 
 // Object Table definition
-#define DEFINE_OBJECT(name, _1) { 0, 0, #name},
+#define DEFINE_OBJECT(name, _1) { 0, 0, #name },
 #define DEFINE_OBJECT_NULL(name, _1) ROM_FILE(name),
 #define DEFINE_OBJECT_UNSET(_0) { 0, 0, "" },
 #define DEFINE_OBJECT_SIZE_ZERO(name, x) DEFINE_OBJECT_UNSET(aa)

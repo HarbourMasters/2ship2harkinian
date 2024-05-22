@@ -8,7 +8,6 @@
 #include "RomFile.h"
 #include <libultraship/libultra/types.h>
 
-
 namespace SOH {
 class SetAlternateHeaders : public SceneCommand<void> {
   public:

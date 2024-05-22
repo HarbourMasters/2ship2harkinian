@@ -18,10 +18,11 @@ typedef struct {
 } Sequence;
 
 class AudioSequence : public Ship::Resource<Sequence> {
-public:
+  public:
     using Resource::Resource;
 
-    AudioSequence() : Resource(std::shared_ptr<Ship::ResourceInitData>()) {}
+    AudioSequence() : Resource(std::shared_ptr<Ship::ResourceInitData>()) {
+    }
 
     Sequence* GetPointer();
     size_t GetPointerSize();

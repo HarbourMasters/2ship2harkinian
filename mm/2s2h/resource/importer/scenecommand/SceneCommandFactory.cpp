@@ -7,5 +7,4 @@ void SceneCommandFactoryBinaryV0::ReadCommandId(std::shared_ptr<SOH::ISceneComma
                                                 std::shared_ptr<Ship::BinaryReader> reader) {
     command->cmdId = (SceneCommandID)reader->ReadInt32();
 }
-}
-    
+} // namespace SOH

@@ -6,6 +6,6 @@ MessageEntryMM* TextMM::GetPointer() {
 }
 
 size_t TextMM::GetPointerSize() {
-	return messages.size() * sizeof(MessageEntryMM);
+    return messages.size() * sizeof(MessageEntryMM);
 }
 } // namespace SOH

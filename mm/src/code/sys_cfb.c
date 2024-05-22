@@ -60,7 +60,7 @@ void SysCfb_SetLoResMode(void) {
     gSysCfbHiResEnabled = false;
     gScreenWidth = gCfbWidth;
     gScreenHeight = gCfbHeight;
-    //gActiveViMode = &osViModeNtscLan1;
+    // gActiveViMode = &osViModeNtscLan1;
 
     // 2S2H [Port] Inform LUS on resolution changes
     GfxSetNativeDimensions((uint32_t)gScreenWidth, (uint32_t)gScreenHeight);

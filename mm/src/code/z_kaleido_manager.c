@@ -88,7 +88,7 @@ void KaleidoManager_Destroy() {
 
 void* KaleidoManager_GetRamAddr(void* vram) {
     return vram;
-    #if 0
+#if 0
     if (gKaleidoMgrCurOvl == NULL) {
         s32 pad[2];
         KaleidoMgrOverlay* ovl = &gKaleidoMgrOverlayTable[0];
@@ -108,5 +108,5 @@ void* KaleidoManager_GetRamAddr(void* vram) {
     }
 
     return (void*)((uintptr_t)vram + gKaleidoMgrCurOvl->offset);
-    #endif
+#endif
 }

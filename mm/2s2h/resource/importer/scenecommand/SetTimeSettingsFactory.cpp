@@ -4,7 +4,7 @@
 
 namespace SOH {
 std::shared_ptr<Ship::IResource> SetTimeSettingsFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData,
-                                                                     std::shared_ptr<Ship::BinaryReader> reader) {
+                                                                      std::shared_ptr<Ship::BinaryReader> reader) {
     auto setTimeSettings = std::make_shared<SetTimeSettings>(initData);
 
     ReadCommandId(setTimeSettings, reader);
@@ -16,4 +16,4 @@ std::shared_ptr<Ship::IResource> SetTimeSettingsFactory::ReadResource(std::share
     return setTimeSettings;
 }
 
-} // namespace LUS
+} // namespace SOH

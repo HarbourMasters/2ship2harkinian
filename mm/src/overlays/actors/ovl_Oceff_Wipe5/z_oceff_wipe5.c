@@ -60,7 +60,6 @@ void OceffWipe5_Update(Actor* thisx, PlayState* play) {
     }
 }
 
-
 static u8 sPrimColors[] = {
     255, 255, 200, 255, 255, 200, 200, 255, 255, 255, 255, 200, 255, 200, 255,
 };

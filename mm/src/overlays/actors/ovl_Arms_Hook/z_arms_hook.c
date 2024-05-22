@@ -265,8 +265,9 @@ void ArmsHook_Shoot(ArmsHook* this, PlayState* play) {
                 CollisionCheck_SpawnShieldParticlesMetal(play, &this->actor.world.pos);
                 Audio_PlaySfx_AtPos(&this->actor.projectedPos, NA_SE_IT_HOOKSHOT_REFLECT);
             }
-        } else if (CHECK_BTN_ANY(CONTROLLER1(&play->state)->press.button,
-                                 BTN_A | BTN_B | BTN_R | BTN_CUP | BTN_CLEFT | BTN_CRIGHT | BTN_CDOWN | BTN_DPAD_EQUIP)) {
+        } else if (CHECK_BTN_ANY(CONTROLLER1(&play->state)->press.button, BTN_A | BTN_B | BTN_R | BTN_CUP | BTN_CLEFT |
+                                                                              BTN_CRIGHT | BTN_CDOWN |
+                                                                              BTN_DPAD_EQUIP)) {
             s32 pad;
 
             this->timer = 1;

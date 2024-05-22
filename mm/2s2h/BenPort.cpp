@@ -106,7 +106,6 @@ Color_RGB8 kokiriColor = { 0x1E, 0x69, 0x1B };
 Color_RGB8 goronColor = { 0x64, 0x14, 0x00 };
 Color_RGB8 zoraColor = { 0x00, 0xEC, 0x64 };
 
-
 OTRGlobals::OTRGlobals() {
     std::vector<std::string> archiveFiles;
     std::string mmPath = Ship::Context::LocateFileAcrossAppDirs("mm.zip", appShortName);
@@ -141,13 +140,15 @@ OTRGlobals::OTRGlobals() {
                                                  OOT_PAL_11,     OOT_NTSC_JP_GC_CE, OOT_NTSC_JP_GC, OOT_NTSC_US_GC,
                                                  OOT_PAL_GC,     OOT_PAL_GC_DBG1,   OOT_PAL_GC_DBG2 };
     // tell LUS to reserve 3 SoH specific threads (Game, Audio, Save)
-    context = Ship::Context::CreateInstance("2 Ship 2 Harkinian", appShortName, "2ship2harkinian.json", archiveFiles, {}, 3);
+    context =
+        Ship::Context::CreateInstance("2 Ship 2 Harkinian", appShortName, "2ship2harkinian.json", archiveFiles, {}, 3);
 
     // Override LUS defaults
-    Ship::Context::GetInstance()->GetLogger()->set_level((spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
+    Ship::Context::GetInstance()->GetLogger()->set_level(
+        (spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
     Ship::Context::GetInstance()->GetLogger()->set_pattern("[%H:%M:%S.%e] [%s:%#] [%l] %v");
 
-    //context = Ship::Context::CreateUninitializedInstance("Ship of Harkinian", appShortName, "shipofharkinian.json");
+    // context = Ship::Context::CreateUninitializedInstance("Ship of Harkinian", appShortName, "shipofharkinian.json");
 
     auto overlay = context->GetInstance()->GetWindow()->GetGui()->GetGameOverlay();
     overlay->LoadFont("Press Start 2P", "fonts/PressStart2P-Regular.ttf", 12.0f);
@@ -180,9 +181,9 @@ OTRGlobals::OTRGlobals() {
                                     static_cast<uint32_t>(SOH::ResourceType::SOH_PlayerAnimation), 0);
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinarySceneV0>(), RESOURCE_FORMAT_BINARY,
                                     "Room", static_cast<uint32_t>(SOH::ResourceType::SOH_Room), 0);
-    loader
-        ->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryCollisionHeaderV0>(), RESOURCE_FORMAT_BINARY,
-                                  "CollisionHeader", static_cast<uint32_t>(SOH::ResourceType::SOH_CollisionHeader), 0);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryCollisionHeaderV0>(),
+                                    RESOURCE_FORMAT_BINARY, "CollisionHeader",
+                                    static_cast<uint32_t>(SOH::ResourceType::SOH_CollisionHeader), 0);
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinarySkeletonV0>(), RESOURCE_FORMAT_BINARY,
                                     "Skeleton", static_cast<uint32_t>(SOH::ResourceType::SOH_Skeleton), 0);
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinarySkeletonLimbV0>(),
@@ -200,7 +201,8 @@ OTRGlobals::OTRGlobals() {
                                     RESOURCE_FORMAT_BINARY, "AudioSoundFont",
                                     static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSoundFont), 2);
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryAudioSequenceV2>(),
-                                    RESOURCE_FORMAT_BINARY, "AudioSequence", static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSequence), 2);
+                                    RESOURCE_FORMAT_BINARY, "AudioSequence",
+                                    static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSequence), 2);
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryBackgroundV0>(), RESOURCE_FORMAT_BINARY,
                                     "Background", static_cast<uint32_t>(SOH::ResourceType::SOH_Background), 0);
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryTextureAnimationV0>(),
@@ -212,23 +214,23 @@ OTRGlobals::OTRGlobals() {
                                     "KeyFrameSkel", static_cast<uint32_t>(SOH::ResourceType::TSH_CKeyFrameSkel), 0);
     context->GetControlDeck()->SetSinglePlayerMappingMode(true);
 
-    //gSaveStateMgr = std::make_shared<SaveStateMgr>();
-    //gRandomizer = std::make_shared<Randomizer>();
+    // gSaveStateMgr = std::make_shared<SaveStateMgr>();
+    // gRandomizer = std::make_shared<Randomizer>();
     hasMasterQuest = hasOriginal = false;
 
     // Move the camera strings from read only memory onto the heap (writable memory)
     // This is in OTRGlobals right now because this is a place that will only ever be run once at the beginning of
     // startup. We should probably find some code in db_camera that does initialization and only run once, and then
     // dealloc on deinitialization.
-    //cameraStrings = (char**)malloc(sizeof(constCameraStrings));
-    //for (int32_t i = 0; i < sizeof(constCameraStrings) / sizeof(char*); i++) {
+    // cameraStrings = (char**)malloc(sizeof(constCameraStrings));
+    // for (int32_t i = 0; i < sizeof(constCameraStrings) / sizeof(char*); i++) {
     //    // OTRTODO: never deallocated...
     //    auto dup = strdup(constCameraStrings[i]);
     //    cameraStrings[i] = dup;
     //}
 
     auto versions = context->GetResourceManager()->GetArchiveManager()->GetGameVersions();
-    #if 0
+#if 0
     for (uint32_t version : versions) {
         if (!ValidHashes.contains(version)) {
 #if defined(__SWITCH__)
@@ -266,7 +268,7 @@ OTRGlobals::OTRGlobals() {
                 break;
         }
     }
-    #endif
+#endif
 }
 
 OTRGlobals::~OTRGlobals() {
@@ -317,7 +319,6 @@ static struct {
     bool processing;
 } audio;
 
-
 void OTRAudio_Thread() {
     while (audio.running) {
         {
@@ -331,21 +332,21 @@ void OTRAudio_Thread() {
             }
         }
         std::unique_lock<std::mutex> Lock(audio.mutex);
-        //AudioMgr_ThreadEntry(&gAudioMgr);
-        // 528 and 544 relate to 60 fps at 32 kHz 32000/60 = 533.333..
-        // in an ideal world, one third of the calls should use num_samples=544 and two thirds num_samples=528
-        //#define SAMPLES_HIGH 560
-        //#define SAMPLES_LOW 528
-        // PAL values
-        //#define SAMPLES_HIGH 656
-        //#define SAMPLES_LOW 624
+// AudioMgr_ThreadEntry(&gAudioMgr);
+//  528 and 544 relate to 60 fps at 32 kHz 32000/60 = 533.333..
+//  in an ideal world, one third of the calls should use num_samples=544 and two thirds num_samples=528
+//#define SAMPLES_HIGH 560
+//#define SAMPLES_LOW 528
+//  PAL values
+//#define SAMPLES_HIGH 656
+//#define SAMPLES_LOW 624
 
-        // 44KHZ values
-        #define SAMPLES_HIGH 752
-        #define SAMPLES_LOW 720
+// 44KHZ values
+#define SAMPLES_HIGH 752
+#define SAMPLES_LOW 720
 
-        #define AUDIO_FRAMES_PER_UPDATE (R_UPDATE_RATE > 0 ? R_UPDATE_RATE : 1 )
-        #define NUM_AUDIO_CHANNELS 2
+#define AUDIO_FRAMES_PER_UPDATE (R_UPDATE_RATE > 0 ? R_UPDATE_RATE : 1)
+#define NUM_AUDIO_CHANNELS 2
 
         int samples_left = AudioPlayer_Buffered();
         u32 num_audio_samples = samples_left < AudioPlayer_GetDesiredBuffered() ? SAMPLES_HIGH : SAMPLES_LOW;
@@ -353,10 +354,12 @@ void OTRAudio_Thread() {
         // 3 is the maximum authentic frame divisor.
         s16 audio_buffer[SAMPLES_HIGH * NUM_AUDIO_CHANNELS * 3];
         for (int i = 0; i < AUDIO_FRAMES_PER_UPDATE; i++) {
-            AudioMgr_CreateNextAudioBuffer(audio_buffer + i * (num_audio_samples * NUM_AUDIO_CHANNELS), num_audio_samples);
+            AudioMgr_CreateNextAudioBuffer(audio_buffer + i * (num_audio_samples * NUM_AUDIO_CHANNELS),
+                                           num_audio_samples);
         }
 
-        AudioPlayer_Play((u8*)audio_buffer, num_audio_samples * (sizeof(int16_t) * NUM_AUDIO_CHANNELS * AUDIO_FRAMES_PER_UPDATE));
+        AudioPlayer_Play((u8*)audio_buffer,
+                         num_audio_samples * (sizeof(int16_t) * NUM_AUDIO_CHANNELS * AUDIO_FRAMES_PER_UPDATE));
 
         audio.processing = false;
         audio.cv_from_thread.notify_one();
@@ -364,8 +367,7 @@ void OTRAudio_Thread() {
 }
 
 // C->C++ Bridge
-extern "C" void OTRAudio_Init()
-{
+extern "C" void OTRAudio_Init() {
     // Precache all our samples, sequences, etc...
     ResourceMgr_LoadDirectory("audio");
 
@@ -439,9 +441,9 @@ extern "C" void InitOTR() {
     DebugConsole_Init();
 
     clearMtx = (uintptr_t)&gMtxClear;
-    //OTRMessage_Init();
+    // OTRMessage_Init();
     OTRAudio_Init();
-    //OTRExtScanner();
+    // OTRExtScanner();
     time_t now = time(NULL);
     tm* tm_now = localtime(&now);
     if (tm_now->tm_mon == 11 && tm_now->tm_mday >= 24 && tm_now->tm_mday <= 25) {
@@ -462,11 +464,10 @@ extern "C" void InitOTR() {
 #endif
 
     std::shared_ptr<Ship::Config> conf = OTRGlobals::Instance->context->GetConfig();
-
 }
 
 extern "C" void SaveManager_ThreadPoolWait() {
-    //SaveManager::Instance->ThreadPoolWait();
+    // SaveManager::Instance->ThreadPoolWait();
 }
 
 extern "C" void DeinitOTR() {
@@ -532,7 +533,7 @@ extern "C" void Graph_StartFrame() {
     OTRGlobals::Instance->context->GetWindow()->SetLastScancode(-1);
 
     switch (dwScancode) {
-        #if 0
+#if 0
         case KbScancode::LUS_KB_F5: {
             if (CVarGetInteger("gSaveStatesEnabled", 0) == 0) {
                 Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGameOverlay()->TextDrawNotification(
@@ -608,7 +609,7 @@ extern "C" void Graph_StartFrame() {
         case KbScancode::LUS_KB_TAB: {
             // Toggle HD Assets
             CVarSetInteger("gAltAssets", !CVarGetInteger("gAltAssets", 0));
-            //ShouldClearTextureCacheAtEndOfFrame = true;
+            // ShouldClearTextureCacheAtEndOfFrame = true;
             break;
         }
     }
@@ -681,13 +682,13 @@ extern "C" void Graph_ProcessGfxCommands(Gfx* commands) {
     last_update_rate = R_UPDATE_RATE;
 
     {
-       std::unique_lock<std::mutex> Lock(audio.mutex);
-       while (audio.processing) {
-           audio.cv_from_thread.wait(Lock);
-       }
+        std::unique_lock<std::mutex> Lock(audio.mutex);
+        while (audio.processing) {
+            audio.cv_from_thread.wait(Lock);
+        }
     }
     //
-    //if (ShouldClearTextureCacheAtEndOfFrame) {
+    // if (ShouldClearTextureCacheAtEndOfFrame) {
     //    gfx_texture_cache_clear();
     //    Ship::SkeletonPatcher::UpdateSkeletons();
     //    ShouldClearTextureCacheAtEndOfFrame = false;
@@ -734,7 +735,8 @@ extern "C" uint32_t ResourceMgr_GetGameVersion(int index) {
 }
 
 extern "C" uint32_t ResourceMgr_GetGamePlatform(int index) {
-    uint32_t version = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->GetGameVersions()[index];
+    uint32_t version =
+        Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->GetGameVersions()[index];
 
     switch (version) {
         case OOT_NTSC_US_10:
@@ -759,7 +761,8 @@ extern "C" uint32_t ResourceMgr_GetGamePlatform(int index) {
 }
 
 extern "C" uint32_t ResourceMgr_GetGameRegion(int index) {
-    uint32_t version = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->GetGameVersions()[index];
+    uint32_t version =
+        Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->GetGameVersions()[index];
 
     switch (version) {
         case OOT_NTSC_US_10:
@@ -905,9 +908,9 @@ extern "C" char* ResourceMgr_LoadIfDListByName(const char* filePath) {
     return nullptr;
 }
 
-//extern "C" Sprite* GetSeedTexture(uint8_t index) {
-//    return OTRGlobals::Instance->gRandomizer->GetSeedTexture(index);
-//}
+// extern "C" Sprite* GetSeedTexture(uint8_t index) {
+//     return OTRGlobals::Instance->gRandomizer->GetSeedTexture(index);
+// }
 
 extern "C" char* ResourceMgr_LoadPlayerAnimByName(const char* animPath) {
     auto anim = std::static_pointer_cast<SOH::PlayerAnimation>(GetResourceByName(animPath));
@@ -1059,8 +1062,8 @@ extern "C" Vtx* ResourceMgr_LoadVtxByName(char* path) {
 }
 
 extern "C" SequenceData ResourceMgr_LoadSeqByName(const char* path) {
-   SequenceData* sequence = (SequenceData*)ResourceGetDataByName(path);
-   return *sequence;
+    SequenceData* sequence = (SequenceData*)ResourceGetDataByName(path);
+    return *sequence;
 }
 extern "C" KeyFrameSkeleton* ResourceMgr_LoadKeyFrameSkelByName(const char* path) {
     return (KeyFrameSkeleton*)ResourceGetDataByName(path);
@@ -1069,7 +1072,7 @@ extern "C" KeyFrameSkeleton* ResourceMgr_LoadKeyFrameSkelByName(const char* path
 extern "C" KeyFrameAnimation* ResourceMgr_LoadKeyFrameAnimByName(const char* path) {
     return (KeyFrameAnimation*)ResourceGetDataByName(path);
 }
-//std::map<std::string, SoundFontSample*> cachedCustomSFs;
+// std::map<std::string, SoundFontSample*> cachedCustomSFs;
 #if 0
 extern "C" SoundFontSample* ReadCustomSample(const char* path) {
     return nullptr;
@@ -1181,7 +1184,7 @@ extern "C" SkeletonHeader* ResourceMgr_LoadSkeletonByName(const char* path, Skel
     // Therefore we can take this oppurtunity to take note of the Skeleton that is created...
     if (skelAnime != nullptr) {
         auto stringPath = std::string(path);
-        //Ship::SkeletonPatcher::RegisterSkeleton(stringPath, skelAnime);
+        // Ship::SkeletonPatcher::RegisterSkeleton(stringPath, skelAnime);
     }
 
     return skelHeader;
@@ -1233,13 +1236,13 @@ void OTRGlobals::CheckSaveFile(size_t sramSize) const {
     saveFile.close();
 }
 
-//extern "C" void Ctx_ReadSaveFile(uintptr_t addr, void* dramAddr, size_t size) {
-//    SaveManager::ReadSaveFile(GetSaveFile(), addr, dramAddr, size);
-//}
+// extern "C" void Ctx_ReadSaveFile(uintptr_t addr, void* dramAddr, size_t size) {
+//     SaveManager::ReadSaveFile(GetSaveFile(), addr, dramAddr, size);
+// }
 
-//extern "C" void Ctx_WriteSaveFile(uintptr_t addr, void* dramAddr, size_t size) {
-//    SaveManager::WriteSaveFile(GetSaveFile(), addr, dramAddr, size);
-//}
+// extern "C" void Ctx_WriteSaveFile(uintptr_t addr, void* dramAddr, size_t size) {
+//     SaveManager::WriteSaveFile(GetSaveFile(), addr, dramAddr, size);
+// }
 
 std::wstring StringToU16(const std::string& s) {
     std::vector<unsigned long> result;
@@ -1345,7 +1348,7 @@ extern "C" uint32_t OTRGetCurrentHeight() {
 }
 
 Color_RGB8 GetColorForControllerLED() {
-    #if 0
+#if 0
     auto brightness = CVarGetFloat("gLedBrightness", 1.0f) / 1.0f;
     Color_RGB8 color = { 0, 0, 0 };
     if (brightness > 0.0f) {
@@ -1389,7 +1392,7 @@ Color_RGB8 GetColorForControllerLED() {
         color.g = color.g * brightness;
         color.b = color.b * brightness;
     }
-    #endif
+#endif
     return { 0, 0, 0 };
 }
 
@@ -1403,12 +1406,12 @@ extern "C" void OTRControllerCallback(uint8_t rumble) {
     if (controllerConfigWindow == nullptr) {
         controllerConfigWindow = std::dynamic_pointer_cast<Ship::InputEditorWindow>(
             Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Input Editor"));
-    // TODO: Add SoH Controller Config window rumble testing to upstream LUS config window
-    //       note: the current implementation may not be desired in LUS, as "true" rumble support
-    //             using osMotor calls is planned: https://github.com/Kenix3/libultraship/issues/9
-    //
-    // } else if (controllerConfigWindow->TestingRumble()) {
-    //     return;
+        // TODO: Add SoH Controller Config window rumble testing to upstream LUS config window
+        //       note: the current implementation may not be desired in LUS, as "true" rumble support
+        //             using osMotor calls is planned: https://github.com/Kenix3/libultraship/issues/9
+        //
+        // } else if (controllerConfigWindow->TestingRumble()) {
+        //     return;
     }
 
     if (rumble) {

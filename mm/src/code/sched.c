@@ -133,7 +133,7 @@ void Sched_HandleAudioCancel(SchedContext* sched) {
  * an RDP_DONE_MSG back to itself.
  */
 void Sched_HandleGfxCancel(SchedContext* sched) {
-    #if 0
+#if 0
     s32 i;
 
     // GRAPH SP Cancel
@@ -195,7 +195,7 @@ halt_rdp:
             osSendMesg(&sched->interruptQ, (OSMesg)RDP_DONE_MSG, OS_MESG_NOBLOCK);
         }
     }
-    #endif
+#endif
 }
 
 /**
@@ -370,7 +370,7 @@ void Sched_RunTask(SchedContext* sched, OSScTask* spTask, OSScTask* dpTask) {
  * Enqueues any tasks that have been sent to the scheduler down the command queue.
  */
 void Sched_HandleEntry(SchedContext* sched) {
-    #if 0
+#if 0
     OSScTask* spTask = NULL;
     OSScTask* dpTask = NULL;
     OSMesg msg = NULL;
@@ -390,7 +390,7 @@ void Sched_HandleEntry(SchedContext* sched) {
     if (Sched_Schedule(sched, &spTask, &dpTask, state) != state) {
         Sched_RunTask(sched, spTask, dpTask);
     }
-    #endif
+#endif
 }
 
 void Sched_HandleRetrace(SchedContext* sched) {
@@ -562,7 +562,8 @@ void Sched_FaultClient(void* param1, void* param2) {
  * threads or the OS.
  */
 void Sched_ThreadEntry(void* arg) {
-    OSMesg msg = OS_MESG_PTR(NULL);;
+    OSMesg msg = OS_MESG_PTR(NULL);
+    ;
     SchedContext* sched = (SchedContext*)arg;
 
     while (true) {

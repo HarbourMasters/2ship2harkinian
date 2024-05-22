@@ -1561,7 +1561,8 @@ void Cutscene_HandleEntranceTriggers(PlayState* play) {
 
     if ((gSaveContext.respawnFlag == 0) || (gSaveContext.respawnFlag == -2)) {
         scene = play->loadedScene;
-        if ((scene->titleTextId != 0) && GameInteractor_Should(GI_VB_SHOW_TITLE_CARD, gSaveContext.showTitleCard, NULL)) {
+        if ((scene->titleTextId != 0) &&
+            GameInteractor_Should(GI_VB_SHOW_TITLE_CARD, gSaveContext.showTitleCard, NULL)) {
             if ((Entrance_GetTransitionFlags(((void)0, gSaveContext.save.entrance) +
                                              ((void)0, gSaveContext.sceneLayer)) &
                  0x4000) != 0) {
@@ -1573,11 +1574,12 @@ void Cutscene_HandleEntranceTriggers(PlayState* play) {
     }
 }
 
-// 2S2H [Enhancements] This is equivalent to Cutscene_HandleConditionalTriggers in OoT. It's unused normally, but we 
-// use it for VB. In VB changing *should to false has no effect, but you instead modify the entrance & cutsceneIndex to 
+// 2S2H [Enhancements] This is equivalent to Cutscene_HandleConditionalTriggers in OoT. It's unused normally, but we
+// use it for VB. In VB changing *should to false has no effect, but you instead modify the entrance & cutsceneIndex to
 // override the behavior.
 void func_800EDDB0(PlayState* play) {
-    LUSLOG_INFO("Cutscene_HandleConditionalTriggers: entrance: %d, cutsceneIndex: 0x%X", gSaveContext.save.entrance, gSaveContext.save.cutsceneIndex);
+    LUSLOG_INFO("Cutscene_HandleConditionalTriggers: entrance: %d, cutsceneIndex: 0x%X", gSaveContext.save.entrance,
+                gSaveContext.save.cutsceneIndex);
 
     if (!GameInteractor_Should(GI_VB_PLAY_TRANSITION_CS, true, NULL)) {
         return;

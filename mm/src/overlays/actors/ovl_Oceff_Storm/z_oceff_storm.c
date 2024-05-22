@@ -200,7 +200,8 @@ void OceffStorm_Draw2(Actor* thisx, PlayState* play) {
 void OceffStorm_Draw(Actor* thisx, PlayState* play) {
     u32 scroll = play->state.frames & 0xFFF;
     OceffStorm* this = (OceffStorm*)thisx;
-    // #region 2S2H [Port] Originally this was just a pointer to the vertices, now it's the OTR path so we need to grab it's actual address
+    // #region 2S2H [Port] Originally this was just a pointer to the vertices, now it's the OTR path so we need to grab
+    // it's actual address
     Vtx* vtxPtr = ResourceMgr_LoadVtxByName(sSongOfStormsCylinderVtx);
     // #endregion
 

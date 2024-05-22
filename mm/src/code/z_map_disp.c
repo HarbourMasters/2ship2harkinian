@@ -66,7 +66,7 @@ static const u32 sLoadTextureBlock_siz_LINE_BYTES[4] = {
                        ((height)-1) << G_TEXTURE_IMAGE_FRAC);                                                          \
     })
 
-//static const UNK_TYPE4 D_801BEB30[2] = { 0, 0 };
+// static const UNK_TYPE4 D_801BEB30[2] = { 0, 0 };
 
 static const u64 sWhiteSquareTex[] = {
     0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF,
@@ -89,7 +89,7 @@ static MapDataScene sMapDataScene = {
 
 static s32 sSceneNumRooms = 0; // current scene's no. of rooms
 
-static s32 sNumChests = 0;     // MinimapChest count
+static s32 sNumChests = 0; // MinimapChest count
 
 static TransitionActorList sTransitionActorList = { 0, NULL };
 
@@ -163,7 +163,7 @@ void MapDisp_GetMapITexture(void* dst, s32 mapCompactId) {
     if (mapSize != 0) {
         void* data = ResourceMgr_LoadTexOrDListByName(sMapTextures[mapCompactId]);
         memcpy(dst, data, mapSize);
-        //CmpDma_LoadFile(SEGMENT_ROM_START(map_i_static), mapCompactId, dst, MapDisp_GetSizeOfMapITex(mapCompactId));
+        // CmpDma_LoadFile(SEGMENT_ROM_START(map_i_static), mapCompactId, dst, MapDisp_GetSizeOfMapITex(mapCompactId));
     }
 }
 
@@ -423,7 +423,7 @@ void MapDisp_Minimap_DrawActorIcon(PlayState* play, Actor* actor) {
         s16 dtdy = 512;
         if (HudEditor_ShouldOverrideDraw()) {
             HudEditor_ModifyDrawValuesFromBase(sMapDisp.minimapCurX, sMapDisp.minimapCurY, &posX, &posY, &squareWidth,
-                                            &squareHeight, &dsdx, &dtdy);
+                                               &squareHeight, &dsdx, &dtdy);
             // Texture rectangles can't be smaller than 1 unit
             squareWidth = MAX(squareWidth, 1);
             squareHeight = MAX(squareHeight, 1);
@@ -1142,23 +1142,23 @@ void MapDisp_SwapRooms(s16 nextRoom) {
                         prevOffsetY *= elemScale;
 
                         sMapDisp.minimapPrevX = TRUNCF_BINANG(
-                            ((f32)offsetX +
-                             (((f32)prevMapDataRoom->centerX - (f32)nextMapDataRoom->centerX) * (1.0f / scale) * elemScale)) -
+                            ((f32)offsetX + (((f32)prevMapDataRoom->centerX - (f32)nextMapDataRoom->centerX) *
+                                             (1.0f / scale) * elemScale)) -
                             (f32)prevOffsetX);
                         sMapDisp.minimapPrevY = TRUNCF_BINANG(
-                            ((f32)offsetY +
-                             (((f32)prevMapDataRoom->centerZ - (f32)nextMapDataRoom->centerZ) * (1.0f / scale) * elemScale)) -
+                            ((f32)offsetY + (((f32)prevMapDataRoom->centerZ - (f32)nextMapDataRoom->centerZ) *
+                                             (1.0f / scale) * elemScale)) -
                             (f32)prevOffsetY);
                     } else {
                         // #endregion
-                        sMapDisp.minimapPrevX =
-                            TRUNCF_BINANG(((f32)offsetX + (((f32)prevMapDataRoom->centerX - (f32)nextMapDataRoom->centerX) *
-                                                        (1.0f / scale))) -
-                                        (f32)prevOffsetX);
-                        sMapDisp.minimapPrevY =
-                            TRUNCF_BINANG(((f32)offsetY + (((f32)prevMapDataRoom->centerZ - (f32)nextMapDataRoom->centerZ) *
-                                                        (1.0f / scale))) -
-                                        (f32)prevOffsetY);
+                        sMapDisp.minimapPrevX = TRUNCF_BINANG(
+                            ((f32)offsetX +
+                             (((f32)prevMapDataRoom->centerX - (f32)nextMapDataRoom->centerX) * (1.0f / scale))) -
+                            (f32)prevOffsetX);
+                        sMapDisp.minimapPrevY = TRUNCF_BINANG(
+                            ((f32)offsetY +
+                             (((f32)prevMapDataRoom->centerZ - (f32)nextMapDataRoom->centerZ) * (1.0f / scale))) -
+                            (f32)prevOffsetY);
                     }
 
                     sMapDisp.minimapCurX = minimapBaseX - sMapDisp.minimapPrevX;
@@ -1187,9 +1187,10 @@ void MapDisp_SwapRooms(s16 nextRoom) {
                     if (MapData_GetSizeOfMapGrandTex(nextMapDataRoom->mapId) != 0) {
                         sMapDisp.minimapCurTex = ResourceMgr_LoadTexOrDListByName(
                             sMapGrandTextures[MAPDATA_GET_MAP_GRAND_ID_FROM_MAP_ID(nextMapDataRoom->mapId)]);
-                        //CmpDma_LoadFile(SEGMENT_ROM_START(map_grand_static),
-                        //                MAPDATA_GET_MAP_GRAND_ID_FROM_MAP_ID(nextMapDataRoom->mapId),
-                        //                sMapDisp.minimapCurTex, MapData_GetSizeOfMapGrandTex(nextMapDataRoom->mapId));
+                        // CmpDma_LoadFile(SEGMENT_ROM_START(map_grand_static),
+                        //                 MAPDATA_GET_MAP_GRAND_ID_FROM_MAP_ID(nextMapDataRoom->mapId),
+                        //                 sMapDisp.minimapCurTex,
+                        //                 MapData_GetSizeOfMapGrandTex(nextMapDataRoom->mapId));
                     }
                     break;
 

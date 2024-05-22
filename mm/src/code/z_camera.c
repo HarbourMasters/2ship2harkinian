@@ -6058,9 +6058,9 @@ s32 Camera_Demo2(Camera* camera) {
                    CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CDOWN) ||
                    CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CLEFT) ||
                    CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_CRIGHT) ||
-                    // #region 2S2H [Dpad]
-                    CHECK_BTN_DPAD(CONTROLLER1(&camera->play->state)->press.button) ||
-                    // #endregion
+                   // #region 2S2H [Dpad]
+                   CHECK_BTN_DPAD(CONTROLLER1(&camera->play->state)->press.button) ||
+                   // #endregion
                    CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_Z) ||
                    CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_L) ||
                    CHECK_BTN_ALL(CONTROLLER1(&camera->play->state)->press.button, BTN_R)) &&

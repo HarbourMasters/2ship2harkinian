@@ -27,11 +27,11 @@ void ArenaImpl_LockInit(Arena* arena) {
 }
 
 void ArenaImpl_Lock(Arena* arena) {
-    //osSendMesg(&arena->lock, NULL, OS_MESG_BLOCK);
+    // osSendMesg(&arena->lock, NULL, OS_MESG_BLOCK);
 }
 
 void ArenaImpl_Unlock(Arena* arena) {
-    //osRecvMesg(&arena->lock, NULL, OS_MESG_BLOCK);
+    // osRecvMesg(&arena->lock, NULL, OS_MESG_BLOCK);
 }
 
 ArenaNode* ArenaImpl_GetLastBlock(Arena* arena) {

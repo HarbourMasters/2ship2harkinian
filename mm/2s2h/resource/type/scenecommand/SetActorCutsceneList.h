@@ -19,12 +19,12 @@ typedef struct CutsceneEntry {
 
 class SetActorCutsceneList : public SceneCommand<CutsceneEntry> {
   public:
-      using SceneCommand::SceneCommand;
+    using SceneCommand::SceneCommand;
 
-      CutsceneEntry* GetPointer();
-      size_t GetPointerSize();
+    CutsceneEntry* GetPointer();
+    size_t GetPointerSize();
 
-      std::vector<CutsceneEntry> entries;
+    std::vector<CutsceneEntry> entries;
 };
 
-}
+} // namespace SOH

@@ -105,11 +105,14 @@ void func_80A2CF7C(ElfMsg3* this, PlayState* play) {
     Player* player = GET_PLAYER(play);
     EnElf* tatl = (EnElf*)player->tatlActor;
 
-    if (GameInteractor_Should(GI_VB_TATL_INTERUPT_MSG3, (((((player->tatlActor != NULL) &&
-           (fabsf(player->actor.world.pos.x - this->actor.world.pos.x) < (100.0f * this->actor.scale.x))) &&
-          (this->actor.world.pos.y <= player->actor.world.pos.y)) &&
-         ((player->actor.world.pos.y - this->actor.world.pos.y) < (100.0f * this->actor.scale.y))) &&
-        (fabsf(player->actor.world.pos.z - this->actor.world.pos.z) < (100.0f * this->actor.scale.z))), this)) {
+    if (GameInteractor_Should(
+            GI_VB_TATL_INTERUPT_MSG3,
+            (((((player->tatlActor != NULL) &&
+                (fabsf(player->actor.world.pos.x - this->actor.world.pos.x) < (100.0f * this->actor.scale.x))) &&
+               (this->actor.world.pos.y <= player->actor.world.pos.y)) &&
+              ((player->actor.world.pos.y - this->actor.world.pos.y) < (100.0f * this->actor.scale.y))) &&
+             (fabsf(player->actor.world.pos.z - this->actor.world.pos.z) < (100.0f * this->actor.scale.z))),
+            this)) {
         player->tatlTextId = func_80A2CF50(this);
         CutsceneManager_Queue(CS_ID_GLOBAL_TALK);
         tatl->elfMsg = &this->actor;

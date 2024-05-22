@@ -17,7 +17,7 @@ typedef struct {
     /* 0x0 */ s16 setting; // camera setting described by CameraSettingType enum
     /* 0x2 */ s16 count;
     /* 0x4 */ z64Vec3s* actorCsCamFuncData; // s16 data grouped in threes
-} ActorCsCamInfoData;                        // size = 0x8
+} ActorCsCamInfoData;                       // size = 0x8
 
 class SetCsCamera : public SceneCommand<ActorCsCamInfoData> {
   public:

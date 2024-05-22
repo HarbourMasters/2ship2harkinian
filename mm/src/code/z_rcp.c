@@ -1517,7 +1517,8 @@ void func_8012CF0C(GraphicsContext* gfxCtx, s32 clearFb, s32 clearZb, u8 r, u8 g
     // WideRectangle consumes two instructions and requires ++ for the macro to work
     // Remove `- 1` on the sizes so the rectangle fills the whole screen like `fillRect`
     Gfx* tmpGfx = masterGfx;
-    gDPFillWideRectangle(tmpGfx++, OTRGetRectDimensionFromLeftEdge(0), 0, OTRGetRectDimensionFromRightEdge(gCfbWidth), gCfbHeight);
+    gDPFillWideRectangle(tmpGfx++, OTRGetRectDimensionFromLeftEdge(0), 0, OTRGetRectDimensionFromRightEdge(gCfbWidth),
+                         gCfbHeight);
     gDPPipeSync(&masterGfx[2]);
     gSPEndDisplayList(&masterGfx[3]);
     // #endregion
@@ -1529,7 +1530,8 @@ void func_8012CF0C(GraphicsContext* gfxCtx, s32 clearFb, s32 clearZb, u8 r, u8 g
     // #region 2S2H [Cosmetic] Account for different aspect ratios than 4:3
     // WideRectangle consumes two instructions and requires ++ for the macro to work
     tmpGfx = masterGfx;
-    gDPFillWideRectangle(tmpGfx++, OTRGetRectDimensionFromLeftEdge(0), 0, OTRGetRectDimensionFromRightEdge(gCfbWidth), gCfbHeight);
+    gDPFillWideRectangle(tmpGfx++, OTRGetRectDimensionFromLeftEdge(0), 0, OTRGetRectDimensionFromRightEdge(gCfbWidth),
+                         gCfbHeight);
     gDPPipeSync(&masterGfx[2]);
     gSPEndDisplayList(&masterGfx[3]);
     // #endregion

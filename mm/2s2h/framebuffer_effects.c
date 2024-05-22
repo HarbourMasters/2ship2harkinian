@@ -37,7 +37,8 @@ void FB_CreateFramebuffers(void) {
  * Setting oncePerFrame ensures that the copy will only happen once every game frame. This
  * is important for effects that could be affected by increased frame interpolation (like motion blur).
  * A pointer to a boolean is passed to the render for the render to set once the copy has been performed.
- * This function uses opcodes from f3dex2 but may be called when s2dex is loaded, such as during shrink window. Make sure f3dex2 is loaded before this function is called.
+ * This function uses opcodes from f3dex2 but may be called when s2dex is loaded, such as during shrink window. Make
+ * sure f3dex2 is loaded before this function is called.
  */
 void FB_CopyToFramebuffer(Gfx** gfxp, s32 fb_src, s32 fb_dest, u8 oncePerFrame, u8* hasCopied) {
     Gfx* gfx = *gfxp;
@@ -118,8 +119,8 @@ void FB_DrawFromFramebuffer(Gfx** gfxp, s32 fb, u8 alpha) {
     gDPSetEnvColor(gfx++, 255, 255, 255, alpha);
 
     gDPSetOtherMode(gfx++,
-                    G_AD_NOISE | G_CD_NOISE | G_CK_NONE | G_TC_FILT | G_TF_POINT | G_TT_NONE | G_TL_TILE |
-                        G_TD_CLAMP | G_TP_NONE | G_CYC_1CYCLE | G_PM_NPRIMITIVE,
+                    G_AD_NOISE | G_CD_NOISE | G_CK_NONE | G_TC_FILT | G_TF_POINT | G_TT_NONE | G_TL_TILE | G_TD_CLAMP |
+                        G_TP_NONE | G_CYC_1CYCLE | G_PM_NPRIMITIVE,
                     G_AC_NONE | G_ZS_PRIM | G_RM_CLD_SURF | G_RM_CLD_SURF2);
 
     gSPClearGeometryMode(gfx++, G_CULL_BOTH | G_FOG | G_LIGHTING | G_TEXTURE_GEN | G_TEXTURE_GEN_LINEAR);
@@ -132,16 +133,16 @@ void FB_DrawFromFramebuffer(Gfx** gfxp, s32 fb, u8 alpha) {
 
     gDPSetTextureImageFB(gfx++, 0, 0, 0, fb);
     gDPImageRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0) << 2, 0 << 2, 0, 0,
-                      OTRGetRectDimensionFromRightEdge(SCREEN_WIDTH) << 2, SCREEN_HEIGHT << 2,
-                      OTRGetGameRenderWidth(), OTRGetGameRenderHeight(), G_TX_RENDERTILE,
-                      OTRGetGameRenderWidth(), OTRGetGameRenderHeight());
+                      OTRGetRectDimensionFromRightEdge(SCREEN_WIDTH) << 2, SCREEN_HEIGHT << 2, OTRGetGameRenderWidth(),
+                      OTRGetGameRenderHeight(), G_TX_RENDERTILE, OTRGetGameRenderWidth(), OTRGetGameRenderHeight());
 
     *gfxp = gfx;
 }
 
 /**
  * Similar to FB_DrawFromFramebuffer, but scales the image relative to the center of the screen.
- * This function uses opcodes from f3dex2 but may be called when s2dex is loaded, such as during shrink window. Make sure f3dex2 is loaded before this function is called.
+ * This function uses opcodes from f3dex2 but may be called when s2dex is loaded, such as during shrink window. Make
+ * sure f3dex2 is loaded before this function is called.
  */
 void FB_DrawFromFramebufferScaled(Gfx** gfxp, s32 fb, u8 alpha, float scaleX, float scaleY) {
     Gfx* gfx = *gfxp;
@@ -149,8 +150,8 @@ void FB_DrawFromFramebufferScaled(Gfx** gfxp, s32 fb, u8 alpha, float scaleX, fl
     gDPSetEnvColor(gfx++, 255, 255, 255, alpha);
 
     gDPSetOtherMode(gfx++,
-                    G_AD_NOISE | G_CD_NOISE | G_CK_NONE | G_TC_FILT | G_TF_POINT | G_TT_NONE | G_TL_TILE |
-                        G_TD_CLAMP | G_TP_NONE | G_CYC_1CYCLE | G_PM_NPRIMITIVE,
+                    G_AD_NOISE | G_CD_NOISE | G_CK_NONE | G_TC_FILT | G_TF_POINT | G_TT_NONE | G_TL_TILE | G_TD_CLAMP |
+                        G_TP_NONE | G_CYC_1CYCLE | G_PM_NPRIMITIVE,
                     G_AC_NONE | G_ZS_PRIM | G_RM_CLD_SURF | G_RM_CLD_SURF2);
 
     gDPSetCombineLERP(gfx++, TEXEL0, 0, ENVIRONMENT, 0, 0, 0, 0, ENVIRONMENT, TEXEL0, 0, ENVIRONMENT, 0, 0, 0, 0,
@@ -163,12 +164,10 @@ void FB_DrawFromFramebufferScaled(Gfx** gfxp, s32 fb, u8 alpha, float scaleX, fl
     float x0 = gScreenWidth * 0.5f * scaleX;
     float y0 = gScreenHeight * 0.5f * scaleY;
 
-    gDPImageRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(x0) << 2,
-                      (int)(y0) << 2, 0, 0,
+    gDPImageRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(x0) << 2, (int)(y0) << 2, 0, 0,
                       OTRGetRectDimensionFromRightEdge((float)(gScreenWidth - x0)) << 2,
-                      (int)((float)(gScreenHeight - y0)) << 2,
-                      OTRGetGameRenderWidth(), OTRGetGameRenderHeight(), G_TX_RENDERTILE,
-                      OTRGetGameRenderWidth(), OTRGetGameRenderHeight());
+                      (int)((float)(gScreenHeight - y0)) << 2, OTRGetGameRenderWidth(), OTRGetGameRenderHeight(),
+                      G_TX_RENDERTILE, OTRGetGameRenderWidth(), OTRGetGameRenderHeight());
 
     *gfxp = gfx;
 }

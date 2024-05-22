@@ -3,12 +3,13 @@
 #include "spdlog/spdlog.h"
 
 namespace SOH {
-std::shared_ptr<Ship::IResource> SetStartPositionListFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData,
-                                                                    std::shared_ptr<Ship::BinaryReader> reader) {
+std::shared_ptr<Ship::IResource>
+SetStartPositionListFactory::ReadResource(std::shared_ptr<Ship::ResourceInitData> initData,
+                                          std::shared_ptr<Ship::BinaryReader> reader) {
     auto setStartPositionList = std::make_shared<SetStartPositionList>(initData);
 
     ReadCommandId(setStartPositionList, reader);
-	
+
     setStartPositionList->numStartPositions = reader->ReadUInt32();
     setStartPositionList->startPositions.reserve(setStartPositionList->numStartPositions);
     for (uint32_t i = 0; i < setStartPositionList->numStartPositions; i++) {

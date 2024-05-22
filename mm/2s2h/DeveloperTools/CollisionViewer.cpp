@@ -74,10 +74,14 @@ void CollisionViewerWindow::DrawElement() {
 
     ImGui::SeparatorText("Collision Types");
 
-    UIWidgets::CVarCombobox("Scene", "gCollisionViewer.SceneCollisionMode", ColRenderSettingNames, { .color = UIWidgets::Colors::Gray });
-    UIWidgets::CVarCombobox("BG Actors", "gCollisionViewer.BGActorsCollisionMode", ColRenderSettingNames, { .color = UIWidgets::Colors::Gray });
-    UIWidgets::CVarCombobox("Col Check", "gCollisionViewer.ColCheckCollisionMode", ColRenderSettingNames, { .color = UIWidgets::Colors::Gray });
-    UIWidgets::CVarCombobox("Waterbox", "gCollisionViewer.WaterboxCollisionMode", ColRenderSettingNames, { .color = UIWidgets::Colors::Gray });
+    UIWidgets::CVarCombobox("Scene", "gCollisionViewer.SceneCollisionMode", ColRenderSettingNames,
+                            { .color = UIWidgets::Colors::Gray });
+    UIWidgets::CVarCombobox("BG Actors", "gCollisionViewer.BGActorsCollisionMode", ColRenderSettingNames,
+                            { .color = UIWidgets::Colors::Gray });
+    UIWidgets::CVarCombobox("Col Check", "gCollisionViewer.ColCheckCollisionMode", ColRenderSettingNames,
+                            { .color = UIWidgets::Colors::Gray });
+    UIWidgets::CVarCombobox("Waterbox", "gCollisionViewer.WaterboxCollisionMode", ColRenderSettingNames,
+                            { .color = UIWidgets::Colors::Gray });
 
     ImGui::SeparatorText("Colors");
 
@@ -102,8 +106,10 @@ void CollisionViewerWindow::DrawElement() {
         UIWidgets::CVarColorPicker("AT", "gCollisionViewer.ATCollisionColor", { 255, 0, 0, 255 });
         ImGui::EndTable();
     }
-    UIWidgets::CVarColorPicker("Special Surface (Grass/Sand/Etc)", "gCollisionViewer.SpecialSurfaceColor", { 192, 255, 192, 255 });
-    UIWidgets::CVarColorPicker("Interactable (Vines/Crawlspace/Etc)", "gCollisionViewer.InteractableColor", { 192, 0, 192, 255 });
+    UIWidgets::CVarColorPicker("Special Surface (Grass/Sand/Etc)", "gCollisionViewer.SpecialSurfaceColor",
+                               { 192, 255, 192, 255 });
+    UIWidgets::CVarColorPicker("Interactable (Vines/Crawlspace/Etc)", "gCollisionViewer.InteractableColor",
+                               { 192, 0, 192, 255 });
 
     ImGui::EndDisabled();
 
@@ -201,9 +207,9 @@ void CreateSphereFace(std::vector<std::tuple<size_t, size_t, size_t>>& faces, in
 
     // Create 3 new verticies at the midpoints
     Vec3f vs[3] = {
-        Vec3f{(v0.n.ob[0] + v1.n.ob[0]) / 2.0f, (v0.n.ob[1] + v1.n.ob[1]) / 2.0f, (v0.n.ob[2] + v1.n.ob[2]) / 2.0f},
-        Vec3f{(v1.n.ob[0] + v2.n.ob[0]) / 2.0f, (v1.n.ob[1] + v2.n.ob[1]) / 2.0f, (v1.n.ob[2] + v2.n.ob[2]) / 2.0f},
-        Vec3f{(v2.n.ob[0] + v0.n.ob[0]) / 2.0f, (v2.n.ob[1] + v0.n.ob[1]) / 2.0f, (v2.n.ob[2] + v0.n.ob[2]) / 2.0f}
+        Vec3f{ (v0.n.ob[0] + v1.n.ob[0]) / 2.0f, (v0.n.ob[1] + v1.n.ob[1]) / 2.0f, (v0.n.ob[2] + v1.n.ob[2]) / 2.0f },
+        Vec3f{ (v1.n.ob[0] + v2.n.ob[0]) / 2.0f, (v1.n.ob[1] + v2.n.ob[1]) / 2.0f, (v1.n.ob[2] + v2.n.ob[2]) / 2.0f },
+        Vec3f{ (v2.n.ob[0] + v0.n.ob[0]) / 2.0f, (v2.n.ob[1] + v0.n.ob[1]) / 2.0f, (v2.n.ob[2] + v0.n.ob[2]) / 2.0f }
     };
 
     // Normalize vertex positions so they are on the sphere
@@ -228,20 +234,20 @@ void CreateSphereData() {
     float d = (1.0f + sqrtf(5.0f)) / 2.0f;
 
     // Create the 12 starting verticies, 4 on each rectangle
-    base.emplace_back(Vec3f({-1, d, 0}));
-    base.emplace_back(Vec3f({1, d, 0}));
-    base.emplace_back(Vec3f({-1, -d, 0}));
-    base.emplace_back(Vec3f({1, -d, 0}));
+    base.emplace_back(Vec3f({ -1, d, 0 }));
+    base.emplace_back(Vec3f({ 1, d, 0 }));
+    base.emplace_back(Vec3f({ -1, -d, 0 }));
+    base.emplace_back(Vec3f({ 1, -d, 0 }));
 
-    base.emplace_back(Vec3f({0, -1, d}));
-    base.emplace_back(Vec3f({0, 1, d}));
-    base.emplace_back(Vec3f({0, -1, -d}));
-    base.emplace_back(Vec3f({0, 1, -d}));
+    base.emplace_back(Vec3f({ 0, -1, d }));
+    base.emplace_back(Vec3f({ 0, 1, d }));
+    base.emplace_back(Vec3f({ 0, -1, -d }));
+    base.emplace_back(Vec3f({ 0, 1, -d }));
 
-    base.emplace_back(Vec3f({d, 0, -1}));
-    base.emplace_back(Vec3f({d, 0, 1}));
-    base.emplace_back(Vec3f({-d, 0, -1}));
-    base.emplace_back(Vec3f({-d, 0, 1}));
+    base.emplace_back(Vec3f({ d, 0, -1 }));
+    base.emplace_back(Vec3f({ d, 0, 1 }));
+    base.emplace_back(Vec3f({ -d, 0, -1 }));
+    base.emplace_back(Vec3f({ -d, 0, 1 }));
 
     // Normalize verticies so they are on the unit sphere
     for (Vec3f& v : base) {
@@ -350,7 +356,8 @@ void DrawDynapoly(std::vector<Gfx>& dl, CollisionHeader* col, int32_t bgId) {
     Color_RGBA8 voidCollisionColor = CVarGetColor("gCollisionViewer.VoidCollisionColor", { 255, 0, 0, 255 });
     Color_RGBA8 entranceCollisionColor = CVarGetColor("gCollisionViewer.EntranceCollisionColor", { 0, 255, 0, 255 });
     Color_RGBA8 slopeCollisionColor = CVarGetColor("gCollisionViewer.SlopeCollisionColor", { 255, 255, 128, 255 });
-    Color_RGBA8 hookshotCollisionColor = CVarGetColor("gCollisionViewer.HookshotCollisionColor", { 128, 128, 255, 255 });
+    Color_RGBA8 hookshotCollisionColor =
+        CVarGetColor("gCollisionViewer.HookshotCollisionColor", { 128, 128, 255, 255 });
     Color_RGBA8 specialSurfaceColor = CVarGetColor("gCollisionViewer.SpecialSurfaceColor", { 192, 255, 192, 255 });
     Color_RGBA8 interactableColor = CVarGetColor("gCollisionViewer.InteractableColor", { 192, 0, 192, 255 });
     uint32_t colorR = sceneCollisionColor.r;
@@ -448,7 +455,8 @@ void DrawDynapoly(std::vector<Gfx>& dl, CollisionHeader* col, int32_t bgId) {
 
 // Draws the scene
 void DrawSceneCollision() {
-    ColRenderSetting showSceneColSetting = (ColRenderSetting)CVarGetInteger("gCollisionViewer.SceneCollisionMode", (uint32_t)ColRenderSetting::Disabled);
+    ColRenderSetting showSceneColSetting =
+        (ColRenderSetting)CVarGetInteger("gCollisionViewer.SceneCollisionMode", (uint32_t)ColRenderSetting::Disabled);
 
     if (showSceneColSetting == ColRenderSetting::Disabled) {
         return;
@@ -463,7 +471,8 @@ void DrawSceneCollision() {
 
 // Draws all Bg Actors
 void DrawBgActorCollision() {
-    ColRenderSetting showBgActorSetting = (ColRenderSetting)CVarGetInteger("gCollisionViewer.BGActorsCollisionMode", (uint32_t)ColRenderSetting::Disabled);
+    ColRenderSetting showBgActorSetting = (ColRenderSetting)CVarGetInteger("gCollisionViewer.BGActorsCollisionMode",
+                                                                           (uint32_t)ColRenderSetting::Disabled);
     if (showBgActorSetting == ColRenderSetting::Disabled) {
         return;
     }
@@ -591,7 +600,8 @@ void DrawColCheckCollision() {
     Color_RGBA8 oCollisionColor = CVarGetColor("gCollisionViewer.OCollisionColor", { 255, 255, 255, 255 });
     Color_RGBA8 aCollisionColor = CVarGetColor("gCollisionViewer.ACollisionColor", { 0, 0, 255, 255 });
     Color_RGBA8 aTCollisionColor = CVarGetColor("gCollisionViewer.ATCollisionColor", { 255, 0, 0, 255 });
-    ColRenderSetting showColCheckSetting = (ColRenderSetting)CVarGetInteger("gCollisionViewer.ColCheckCollisionMode", (uint32_t)ColRenderSetting::Disabled);
+    ColRenderSetting showColCheckSetting = (ColRenderSetting)CVarGetInteger("gCollisionViewer.ColCheckCollisionMode",
+                                                                            (uint32_t)ColRenderSetting::Disabled);
     if (showColCheckSetting == ColRenderSetting::Disabled) {
         return;
     }
@@ -639,7 +649,8 @@ void DrawWaterbox(std::vector<Gfx>& dl, WaterBox* water, float water_max_depth =
 // Draws all waterboxes
 void DrawWaterboxList() {
     Color_RGBA8 waterboxCollisionColor = CVarGetColor("gCollisionViewer.WaterboxCollisionColor", { 0, 0, 255, 255 });
-    ColRenderSetting showWaterboxSetting = (ColRenderSetting)CVarGetInteger("gCollisionViewer.WaterboxCollisionMode", (uint32_t)ColRenderSetting::Disabled);
+    ColRenderSetting showWaterboxSetting = (ColRenderSetting)CVarGetInteger("gCollisionViewer.WaterboxCollisionMode",
+                                                                            (uint32_t)ColRenderSetting::Disabled);
     if (showWaterboxSetting == ColRenderSetting::Disabled) {
         return;
     }
@@ -648,7 +659,8 @@ void DrawWaterboxList() {
     InitGfx(dl, showWaterboxSetting);
     dl.push_back(gsSPMatrix(&gIdentityMtx, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH));
 
-    dl.push_back(gsDPSetPrimColor(0, 0, waterboxCollisionColor.r, waterboxCollisionColor.g, waterboxCollisionColor.b, 255));
+    dl.push_back(
+        gsDPSetPrimColor(0, 0, waterboxCollisionColor.r, waterboxCollisionColor.g, waterboxCollisionColor.b, 255));
 
     CollisionHeader* col = gPlayState->colCtx.colHeader;
     for (int32_t waterboxIndex = 0; waterboxIndex < col->numWaterBoxes; waterboxIndex++) {

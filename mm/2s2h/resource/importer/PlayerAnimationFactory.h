@@ -8,4 +8,4 @@ class ResourceFactoryBinaryPlayerAnimationV0 : public Ship::ResourceFactoryBinar
   public:
     std::shared_ptr<Ship::IResource> ReadResource(std::shared_ptr<Ship::File> file) override;
 };
-}; // namespace LUS
+}; // namespace SOH

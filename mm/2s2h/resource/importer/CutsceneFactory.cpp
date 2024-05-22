@@ -850,4 +850,4 @@ void Ship::CutsceneFactoryV0::ParseFileBinaryOoT(std::shared_ptr<BinaryReader> r
     }
 }
 #endif
-} // namespace LUS
+} // namespace SOH

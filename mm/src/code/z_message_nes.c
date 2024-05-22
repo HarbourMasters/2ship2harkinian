@@ -35,7 +35,7 @@ void Message_FindMessageNES(PlayState* play, u16 textId) {
             foundSegment = msgEntry->segment;
             msgEntry++;
             nextSegment = msgEntry->segment;
-            
+
             font->messageStart = foundSegment - segment;
             font->messageEnd = nextSegment - foundSegment;
             return;
@@ -47,7 +47,7 @@ void Message_FindMessageNES(PlayState* play, u16 textId) {
     foundSegment = msgEntry->segment;
     msgEntry++;
     nextSegment = msgEntry->segment;
-    // #region 2S2H [Port] This seems to be a fallback if the message isn't found it just 
+    // #region 2S2H [Port] This seems to be a fallback if the message isn't found it just
     // returns the first message, we still don't need to change the messageStart and messageEnd
     // font->messageStart = foundSegment - segment;
     // font->messageEnd = nextSegment - foundSegment;
@@ -1102,8 +1102,8 @@ void Message_DecodeNES(PlayState* play) {
             decodedBufPos--;
         } else if (curChar == 0xC1) {
             // #region 2S2H [Port]
-            //DmaMgr_SendRequest0(msgCtx->textboxSegment + 0x1000, SEGMENT_ROM_START(message_texture_static), 0x900);
-            //DmaMgr_SendRequest0(msgCtx->textboxSegment + 0x1900, SEGMENT_ROM_START(message_texture_static) + 0x900,
+            // DmaMgr_SendRequest0(msgCtx->textboxSegment + 0x1000, SEGMENT_ROM_START(message_texture_static), 0x900);
+            // DmaMgr_SendRequest0(msgCtx->textboxSegment + 0x1900, SEGMENT_ROM_START(message_texture_static) + 0x900,
             //                    0x900);
             msgCtx->textboxSegment[TEXTBOX_SEG_BG_1] = gMessageXLeftTex;
             msgCtx->textboxSegment[TEXTBOX_SEG_BG_2] = gMessageXRightTex;

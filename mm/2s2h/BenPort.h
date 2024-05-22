@@ -3,7 +3,6 @@
 
 #pragma once
 
-
 #define GAME_REGION_NTSC 0
 #define GAME_REGION_PAL 1
 

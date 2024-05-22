@@ -25,12 +25,13 @@ void BetterMapSelect_LoadFileSelect(MapSelectState* mapSelectState) {
 }
 
 // 2S2H Added columns to scene table: entranceSceneId, betterMapSelectIndex, humanName
-#define DEFINE_SCENE(_name, _enumValue, _textId, _drawConfig, _restrictionFlags, _persistentCycleFlags, entranceSceneId, _betterMapSelectIndex, humanName) \
+#define DEFINE_SCENE(_name, _enumValue, _textId, _drawConfig, _restrictionFlags, _persistentCycleFlags, \
+                     entranceSceneId, _betterMapSelectIndex, humanName)                                 \
     { humanName, BetterMapSelect_LoadGame, ENTRANCE(entranceSceneId, 0) },
 #define DEFINE_SCENE_UNSET(_enumValue)
 
 static SceneSelectEntry sBetterScenes[104] = {
-    #include "tables/scene_table.h"
+#include "tables/scene_table.h"
     { "File Select", BetterMapSelect_LoadFileSelect, 0 },
     { "Title Screen", MapSelect_LoadConsoleLogo, 0 },
 };
@@ -39,7 +40,8 @@ static SceneSelectEntry sBetterScenes[104] = {
 #undef DEFINE_SCENE_UNSET
 
 // 2S2H Added columns to scene table: entranceSceneId, betterMapSelectIndex, humanName
-#define DEFINE_SCENE(_name, _enumValue, _textId, _drawConfig, _restrictionFlags, _persistentCycleFlags, entranceSceneId, betterMapSelectIndex, humanName) \
+#define DEFINE_SCENE(_name, _enumValue, _textId, _drawConfig, _restrictionFlags, _persistentCycleFlags, \
+                     entranceSceneId, betterMapSelectIndex, humanName)                                  \
     { humanName, ENTRANCE(entranceSceneId, 0), betterMapSelectIndex },
 #define DEFINE_SCENE_UNSET(_enumValue)
 
@@ -50,7 +52,7 @@ typedef struct {
 } BetterMapSelectInfoEntry;
 
 static BetterMapSelectInfoEntry sBetterMapSelectInfo[102] = {
-    #include "tables/scene_table.h"
+#include "tables/scene_table.h"
 };
 
 #undef DEFINE_SCENE
@@ -92,11 +94,7 @@ void BetterMapSelect_Update(MapSelectState* mapSelectState) {
 }
 
 static const char* betterFormLabels[] = {
-    "Deity",
-    "Goron",
-    "Zora",
-    "Deku",
-    "Child",
+    "Deity", "Goron", "Zora", "Deku", "Child",
 };
 
 void BetterMapSelect_PrintMenu(MapSelectState* mapSelectState, GfxPrint* printer) {
@@ -122,7 +120,7 @@ void BetterMapSelect_PrintMenu(MapSelectState* mapSelectState, GfxPrint* printer
         } else {
             GfxPrint_SetColor(printer, 175, 175, 175, 255);
         }
-        
+
         sceneName = sBetterScenes[sceneIndex].name;
         GfxPrint_Printf(printer, "%3d %s", sceneIndex, sceneName);
     };
@@ -173,11 +171,11 @@ void BetterMapSelect_PrintMenu(MapSelectState* mapSelectState, GfxPrint* printer
     GfxPrint_SetColor(printer, 200, 100, 200, 255);
     switch (gSaveContext.save.cutsceneIndex) {
         case 0:
-            gSaveContext.save.time = CLOCK_TIME(12, 0); 
+            gSaveContext.save.time = CLOCK_TIME(12, 0);
             stageName = "Afternoon";
             break;
         case 0x8000:
-            gSaveContext.save.time = CLOCK_TIME(6, 0) + 1; 
+            gSaveContext.save.time = CLOCK_TIME(6, 0) + 1;
             stageName = "Morning";
             break;
         case 0x8800:
@@ -185,7 +183,7 @@ void BetterMapSelect_PrintMenu(MapSelectState* mapSelectState, GfxPrint* printer
             stageName = "Night";
             break;
         case 0xFFF0:
-            gSaveContext.save.time = CLOCK_TIME(12, 0); 
+            gSaveContext.save.time = CLOCK_TIME(12, 0);
             stageName = "0";
             break;
         case 0xFFF1:

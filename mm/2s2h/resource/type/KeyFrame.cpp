@@ -2,7 +2,7 @@
 
 namespace SOH {
 
-KeyFrameSkel::~KeyFrameSkel() { 
+KeyFrameSkel::~KeyFrameSkel() {
     delete[] skelData.limbsFlex;
 }
 
@@ -13,7 +13,6 @@ KeyFrameSkeletonData* KeyFrameSkel::GetPointer() {
 size_t KeyFrameSkel::GetPointerSize() {
     return sizeof(skelData);
 }
-
 
 KeyFrameAnim::~KeyFrameAnim() {
     delete[] animData.bitFlags;
@@ -30,4 +29,4 @@ size_t KeyFrameAnim::GetPointerSize() {
     return sizeof(animData);
 }
 
-}
+} // namespace SOH

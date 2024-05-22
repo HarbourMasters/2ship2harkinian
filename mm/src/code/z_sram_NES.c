@@ -26,7 +26,8 @@ typedef struct PersistentCycleSceneFlags {
 #define PERSISTENT_CYCLE_FLAGS_NONE PERSISTENT_CYCLE_FLAGS_SET(0, 0, 0, 0)
 
 // 2S2H Added columns to scene table: entranceSceneId, betterMapSelectIndex, humanName
-#define DEFINE_SCENE(_name, _enumValue, _textId, _drawConfig, _restrictionFlags, persistentCycleFlags, _entranceSceneId, _betterMapSelectIndex, _humanName) \
+#define DEFINE_SCENE(_name, _enumValue, _textId, _drawConfig, _restrictionFlags, persistentCycleFlags, \
+                     _entranceSceneId, _betterMapSelectIndex, _humanName)                              \
     persistentCycleFlags
 #define DEFINE_SCENE_UNSET(_enumValue) PERSISTENT_CYCLE_FLAGS_NONE
 
@@ -561,7 +562,7 @@ void Sram_SaveEndOfCycle(PlayState* play) {
                         DPAD_SET_CUR_FORM_BTN_ITEM(k, ITEM_BOTTLE);
                         Interface_Dpad_LoadItemIconImpl(play, k);
                     }
-                }                
+                }
                 // #endregion
                 gSaveContext.save.saveInfo.inventory.items[i] = ITEM_BOTTLE;
             }
@@ -633,11 +634,12 @@ void Sram_SaveEndOfCycle(PlayState* play) {
     }
     // #region 2S2H [Dpad]
     for (s32 k = EQUIP_SLOT_D_RIGHT; k <= EQUIP_SLOT_D_UP; k++) {
-        if ((DPAD_GET_CUR_FORM_BTN_ITEM(k) >= ITEM_MOONS_TEAR) && (DPAD_GET_CUR_FORM_BTN_ITEM(k) <= ITEM_PENDANT_OF_MEMORIES)) {
+        if ((DPAD_GET_CUR_FORM_BTN_ITEM(k) >= ITEM_MOONS_TEAR) &&
+            (DPAD_GET_CUR_FORM_BTN_ITEM(k) <= ITEM_PENDANT_OF_MEMORIES)) {
             DPAD_SET_CUR_FORM_BTN_ITEM(k, ITEM_NONE);
             Interface_Dpad_LoadItemIconImpl(play, k);
         }
-    }                
+    }
     // #endregion
 
     gSaveContext.save.saveInfo.skullTokenCount &= ~0xFFFF0000;
@@ -971,8 +973,7 @@ void Sram_InitNewSave(void) {
     memcpy(&gSaveContext.save.saveInfo.playerData, &sSaveDefaultPlayerData, sizeof(SavePlayerData));
     memcpy(&gSaveContext.save.saveInfo.equips, &sSaveDefaultItemEquips, sizeof(ItemEquips));
     memcpy(&gSaveContext.save.saveInfo.inventory, &sSaveDefaultInventory, sizeof(Inventory));
-    memcpy(&gSaveContext.save.saveInfo.checksum, &sSaveDefaultChecksum,
-               sizeof(gSaveContext.save.saveInfo.checksum));
+    memcpy(&gSaveContext.save.saveInfo.checksum, &sSaveDefaultChecksum, sizeof(gSaveContext.save.saveInfo.checksum));
 
     gSaveContext.save.saveInfo.horseData.sceneId = SCENE_F01;
     gSaveContext.save.saveInfo.horseData.pos.x = -1420;
@@ -1368,7 +1369,7 @@ void Sram_OpenSave(FileSelectState* fileSelect, SramContext* sramCtx) {
 
         if (gSaveContext.save.saveInfo.scarecrowSpawnSongSet) {
             memcpy(gScarecrowSpawnSongPtr, gSaveContext.save.saveInfo.scarecrowSpawnSong,
-                       sizeof(gSaveContext.save.saveInfo.scarecrowSpawnSong));
+                   sizeof(gSaveContext.save.saveInfo.scarecrowSpawnSong));
 
             for (i = 0; i != ARRAY_COUNT(gSaveContext.save.saveInfo.scarecrowSpawnSong); i++) {}
         }
@@ -1994,7 +1995,10 @@ void Sram_UpdateWriteToFlashDefault(SramContext* sramCtx) {
                 sramCtx->status = 4;
             }
         }
-    } else if (OSTIME_TO_TIMER(osGetTime() - sramCtx->startWriteOsTime) >= SECONDS_TO_TIMER(CVarGetInteger("gEnhancements.Save.SaveDelay", 0))) { // 2S2H [Port] Some tricks require a save delay so we can't just force it to zero
+    } else if (OSTIME_TO_TIMER(osGetTime() - sramCtx->startWriteOsTime) >=
+               SECONDS_TO_TIMER(CVarGetInteger(
+                   "gEnhancements.Save.SaveDelay",
+                   0))) { // 2S2H [Port] Some tricks require a save delay so we can't just force it to zero
         // Finished status is hardcoded to 2 seconds instead of when the task finishes
         sramCtx->status = 0;
     }
@@ -2032,7 +2036,10 @@ void Sram_UpdateWriteToFlashOwlSave(SramContext* sramCtx) {
                 sramCtx->status = 4;
             }
         }
-    } else if (OSTIME_TO_TIMER(osGetTime() - sramCtx->startWriteOsTime) >= SECONDS_TO_TIMER(CVarGetInteger("gEnhancements.Save.SaveDelay", 0))) { // 2S2H [Port] Some tricks require a save delay so we can't just force it to zero
+    } else if (OSTIME_TO_TIMER(osGetTime() - sramCtx->startWriteOsTime) >=
+               SECONDS_TO_TIMER(CVarGetInteger(
+                   "gEnhancements.Save.SaveDelay",
+                   0))) { // 2S2H [Port] Some tricks require a save delay so we can't just force it to zero
         // Finished status is hardcoded to 2 seconds instead of when the task finishes
         sramCtx->status = 0;
         memset(sramCtx->saveBuf, 0, SAVE_BUFFER_SIZE);

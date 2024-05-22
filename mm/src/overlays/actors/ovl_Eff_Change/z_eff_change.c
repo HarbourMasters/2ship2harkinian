@@ -52,7 +52,7 @@ void EffChange_Init(Actor* thisx, PlayState* play) {
     Actor_SetScale(&this->actor, 0.075f);
     this->primColors[3] = 0;
     Keyframe_InitFlex(&this->skeletonInfo, gGameplayKeepKFSkel_2900C, gGameplayKeepKFAnim_281DC, this->jointTable,
-                  this->morphTable, NULL);
+                      this->morphTable, NULL);
     Keyframe_FlexPlayOnce(&this->skeletonInfo, gGameplayKeepKFAnim_281DC);
     this->step = 0;
     this->actor.shape.rot.y = 0;

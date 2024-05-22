@@ -23,7 +23,7 @@ extern u64 njpgdspMainDataStart[];
  * Configures and schedules a JPEG decoder task and waits for it to finish.
  */
 void Jpeg_ScheduleDecoderTask(JpegContext* jpegCtx) {
-    #if 0
+#if 0
     static OSTask_t sJpegTask = {
         M_NJPEGTASK,                         // type
         0,                                   // flags
@@ -69,7 +69,7 @@ void Jpeg_ScheduleDecoderTask(JpegContext* jpegCtx) {
     osSendMesg(&gSchedContext.cmdQ, (OSMesg*)&jpegCtx->scTask, OS_MESG_BLOCK);
     Sched_SendEntryMsg(&gSchedContext); // osScKickEntryMsg
     osRecvMesg(&jpegCtx->mq, NULL, OS_MESG_BLOCK);
-    #endif
+#endif
 }
 
 /**

@@ -1392,7 +1392,8 @@ void EnOssan_CuriosityShopMan_Init(EnOssan* this, PlayState* play) {
     SkelAnime_InitFlex(play, &this->skelAnime, &gFsnSkel, &gFsnIdleAnim, this->jointTable, this->morphTable,
                        ENOSSAN_LIMB_MAX);
 
-    // #region 2S2H [Port] We need to manually patch this skeleton because OBJECT_FSN lists the wrong amount. Same as in en_fsn
+    // #region 2S2H [Port] We need to manually patch this skeleton because OBJECT_FSN lists the wrong amount. Same as in
+    // en_fsn
     this->skelAnime.limbCount = ENOSSAN_LIMB_MAX;
     this->actor.draw = EnOssan_CuriosityShopMan_Draw;
 }
