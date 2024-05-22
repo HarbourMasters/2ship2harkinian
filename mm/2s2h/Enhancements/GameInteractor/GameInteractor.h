@@ -50,6 +50,11 @@ typedef enum {
     GI_VB_TATL_INTERUPT_MSG6
 } GIVanillaBehavior;
 
+typedef enum {
+    GI_INVERT_CAMERA_RIGHT_STICK_X,
+    GI_INVERT_CAMERA_RIGHT_STICK_Y,
+} GIInvertType;
+
 #ifdef __cplusplus
 
 #include <vector>
@@ -296,6 +301,8 @@ void GameInteractor_ExecuteOnItemGive(u8 item);
 bool GameInteractor_Should(GIVanillaBehavior flag, bool result, void* optionalArg);
 #define REGISTER_VB_SHOULD(flag, body) \
     GameInteractor::Instance->RegisterGameHookForID<GameInteractor::ShouldVanillaBehavior>(flag, [](GIVanillaBehavior _, bool* should, void* opt) body)
+
+int GameInteractor_InvertControl(GIInvertType type);
 
 #ifdef __cplusplus
 }

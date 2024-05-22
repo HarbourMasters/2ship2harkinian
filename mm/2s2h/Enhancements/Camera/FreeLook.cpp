@@ -93,8 +93,8 @@ bool Camera_FreeLook(Camera* camera) {
     f32 yawDiff = -sCamPlayState->state.input[0].cur.right_stick_x * 10.0f * (CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.X", 1.0f));
     f32 pitchDiff = sCamPlayState->state.input[0].cur.right_stick_y * 10.0f * (CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.Y", 1.0f));
 
-    yaw += yawDiff * (CVarGetInteger("gEnhancements.Camera.RightStick.InvertXAxis", 0) ? -1 : 1);
-    pitch += pitchDiff * (CVarGetInteger("gEnhancements.Camera.RightStick.InvertYAxis", 1) ? 1 : -1);
+    yaw += yawDiff * GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_X);
+    pitch += pitchDiff * -GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_Y);
 
     s16 maxPitch = DEG_TO_BINANG(CVarGetFloat("gEnhancements.Camera.FreeLook.MaxPitch", 72.0f));
     s16 minPitch = DEG_TO_BINANG(CVarGetFloat("gEnhancements.Camera.FreeLook.MinPitch", -49.0f));
