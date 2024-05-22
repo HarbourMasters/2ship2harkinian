@@ -10,7 +10,7 @@ namespace UIWidgets {
 // Automatically adds newlines to break up text longer than a specified number of characters
 // Manually included newlines will still be respected and reset the line length
 // If line is midword when it hits the limit, text should break at the last encountered space
-char* WrappedText(const char* text, unsigned int charactersPerLine) {
+std::string WrappedText(const char* text, unsigned int charactersPerLine) {
     std::string newText(text);
     const size_t tipLength = newText.length();
     int lastSpace = -1;
@@ -32,16 +32,16 @@ char* WrappedText(const char* text, unsigned int charactersPerLine) {
         currentLineLength++;
     }
 
-    return strdup(newText.c_str());
+    return newText;
 }
 
-char* WrappedText(const std::string& text, unsigned int charactersPerLine) {
+std::string WrappedText(const std::string& text, unsigned int charactersPerLine) {
     return WrappedText(text.c_str(), charactersPerLine);
 }
 
 void Tooltip(const char* text) {
     if (ImGui::IsItemHovered()) {
-        ImGui::SetTooltip("%s", WrappedText(text));
+        ImGui::SetTooltip("%s", WrappedText(text).c_str());
     }
 }
 
@@ -113,9 +113,9 @@ bool Button(const char* label, const ButtonOptions& options) {
     ImGui::EndDisabled();
     if (options.disabled && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) &&
         strcmp(options.disabledTooltip, "") != 0) {
-        ImGui::SetTooltip("%s", WrappedText(options.disabledTooltip));
+        ImGui::SetTooltip("%s", WrappedText(options.disabledTooltip).c_str());
     } else if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && strcmp(options.tooltip, "") != 0) {
-        ImGui::SetTooltip("%s", WrappedText(options.tooltip));
+        ImGui::SetTooltip("%s", WrappedText(options.tooltip).c_str());
     }
     return dirty;
 }
@@ -203,9 +203,9 @@ bool Checkbox(const char* label, bool* value, const CheckboxOptions& options) {
     ImGui::EndDisabled();
     if (options.disabled && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) &&
         strcmp(options.disabledTooltip, "") != 0) {
-        ImGui::SetTooltip("%s", WrappedText(options.disabledTooltip));
+        ImGui::SetTooltip("%s", WrappedText(options.disabledTooltip).c_str());
     } else if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && strcmp(options.tooltip, "") != 0) {
-        ImGui::SetTooltip("%s", WrappedText(options.tooltip));
+        ImGui::SetTooltip("%s", WrappedText(options.tooltip).c_str());
     }
     ImGui::PopID();
     return dirty;
@@ -313,9 +313,9 @@ bool SliderInt(const char* label, int32_t* value, int32_t min, int32_t max, cons
     ImGui::EndGroup();
     if (options.disabled && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) &&
         strcmp(options.disabledTooltip, "") != 0) {
-        ImGui::SetTooltip("%s", WrappedText(options.disabledTooltip));
+        ImGui::SetTooltip("%s", WrappedText(options.disabledTooltip).c_str());
     } else if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && strcmp(options.tooltip, "") != 0) {
-        ImGui::SetTooltip("%s", WrappedText(options.tooltip));
+        ImGui::SetTooltip("%s", WrappedText(options.tooltip).c_str());
     }
     ImGui::PopID();
     return dirty;
@@ -390,9 +390,9 @@ bool SliderFloat(const char* label, float* value, float min, float max, const Fl
     ImGui::EndGroup();
     if (options.disabled && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) &&
         strcmp(options.disabledTooltip, "") != 0) {
-        ImGui::SetTooltip("%s", WrappedText(options.disabledTooltip));
+        ImGui::SetTooltip("%s", WrappedText(options.disabledTooltip).c_str());
     } else if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && strcmp(options.tooltip, "") != 0) {
-        ImGui::SetTooltip("%s", WrappedText(options.tooltip));
+        ImGui::SetTooltip("%s", WrappedText(options.tooltip).c_str());
     }
     ImGui::PopID();
     return dirty;
