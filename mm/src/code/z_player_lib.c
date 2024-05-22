@@ -43,6 +43,7 @@
 
 // Assets for other actors
 #include "overlays/actors/ovl_En_Arrow/z_en_arrow.h"
+#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 
 void PlayerCall_Init(Actor* thisx, PlayState* play);
 void PlayerCall_Destroy(Actor* thisx, PlayState* play);
@@ -4019,6 +4020,8 @@ void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList1, G
     } else if (player->actor.scale.y >= 0.0f) {
         Player_SetFeetPos(play, player, limbIndex);
     }
+
+    GameInteractor_ExecuteOnPlayerPostLimbDraw(player, limbIndex);
 
     func_8012536C();
 }
