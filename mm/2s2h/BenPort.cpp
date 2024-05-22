@@ -814,53 +814,6 @@ extern "C" uint32_t ResourceMgr_GetGameDefaultLanguage(int index) {
     }
 }
 
-uint32_t IsSceneMasterQuest(s16 sceneNum) {
-    return false;
-    uint32_t value = 0;
-    //uint8_t mqMode = CVarGetInteger("gBetterDebugWarpScreenMQMode", WARP_MODE_OVERRIDE_OFF);
-    //if (mqMode == WARP_MODE_OVERRIDE_MQ_AS_VANILLA) {
-    //    return 1;
-    //} else if (mqMode == WARP_MODE_OVERRIDE_VANILLA_AS_MQ) {
-    //    return 0;
-    //} else {
-    //    if (OTRGlobals::Instance->HasMasterQuest()) {
-    //        if (!OTRGlobals::Instance->HasOriginal()) {
-    //            value = 1;
-    //        } else if (IS_MASTER_QUEST) {
-    //            value = 1;
-    //        } else {
-    //            value = 0;
-    //            if (IS_RANDO && !OTRGlobals::Instance->gRandomizer->masterQuestDungeons.empty() &&
-    //                OTRGlobals::Instance->gRandomizer->masterQuestDungeons.contains(sceneNum)) {
-    //                value = 1;
-    //            }
-    //        }
-    //    }
-    //}
-    return value;
-}
-
-uint32_t IsGameMasterQuest() {
-    return false;
-    //return gPlayState != NULL ? IsSceneMasterQuest(gPlayState->sceneNum) : 0;
-}
-
-extern "C" uint32_t ResourceMgr_GameHasMasterQuest() {
-    return OTRGlobals::Instance->HasMasterQuest();
-}
-
-extern "C" uint32_t ResourceMgr_GameHasOriginal() {
-    return OTRGlobals::Instance->HasOriginal();
-}
-
-extern "C" uint32_t ResourceMgr_IsSceneMasterQuest(s16 sceneNum) {
-    return IsSceneMasterQuest(sceneNum);
-}
-
-extern "C" uint32_t ResourceMgr_IsGameMasterQuest() {
-    return IsGameMasterQuest();
-}
-
 extern "C" void ResourceMgr_LoadDirectory(const char* resName) {
     Ship::Context::GetInstance()->GetResourceManager()->LoadDirectory(resName);
 }
