@@ -28,8 +28,6 @@ if (-not (Test-Path $clangFormatFilePath) -or ($currentVersion -ne $requiredVers
     $wc.Downloadfile($url, $outputPath)
 
     $sevenZipPath = "C:\Program Files\7-Zip\7z.exe"
-    & "$sevenZipPath" x $outputPath -o$extractionPath
-
     $specificFileInArchive = "bin\clang-format.exe"
     & "$sevenZipPath" e $outputPath -o$extractionPath $specificFileInArchive
 
