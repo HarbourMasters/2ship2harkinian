@@ -56,6 +56,7 @@ MessageTableEntry* sJPMessageEntryTablePtr = NULL;
 
 // Track when the notebook is closed so we can refresh our framebuffer captures
 u8 sJustClosedBomberNotebook = false;
+
 typedef enum {
     /* 0 */ MOTION_BLUR_OFF,
     /* 1 */ MOTION_BLUR_SETUP,
