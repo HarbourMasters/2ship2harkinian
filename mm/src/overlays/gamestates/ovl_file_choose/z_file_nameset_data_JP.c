@@ -3,6 +3,7 @@
 // Vtx Data
 #include "overlays/ovl_file_choose/ovl_file_choose.h"
 
+// clang-format off
 u8 D_808153D0_cj0[] = {
     //            'あ'  'か'  'さ'  'た'  'な'   'は'  'ま'  'や'  'ら'  'わ'   'ぁ'  'ゃ'  'っ'
     /* Row 0 */ 0x0A, 0x0F, 0x14, 0x19, 0x1E, 0x23, 0x28, 0x2D, 0x30, 0x35, 0x38, 0x3E, 0x3D,
@@ -41,3 +42,4 @@ u8 D_80815458_cj0[] = {
     //            '1'   '2'   '3'   '4'   '5'   '6'   '7'   '8'   '9'   '0'   '.'   '-'   ' '
     /* Row 4 */ 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x00, 0xEA, 0xE4, 0xDF, 
 };
+// clang-format on

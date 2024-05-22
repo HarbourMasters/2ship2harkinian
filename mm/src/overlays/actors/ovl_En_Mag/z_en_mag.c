@@ -991,16 +991,16 @@ void EnMag_DrawInner(Actor* thisx, PlayState* play, Gfx** gfxp) {
     *gfxp = gfx;
 }
 
-
 // Region [2S2H] Decomped JP Functions:
 
 // MATCHING
-void func_80950EA0_cj0(Gfx** gfxp, void* maskTex, void* effectTex, s16 maskWidth, s16 maskHeight, s16 effectWidth, s16 effectHeight, s16 rectLeft, s16 rectTop, u16 shifts, u16 shiftt, u16 index, EnMag* this) {
+void func_80950EA0_cj0(Gfx** gfxp, void* maskTex, void* effectTex, s16 maskWidth, s16 maskHeight, s16 effectWidth,
+                       s16 effectHeight, s16 rectLeft, s16 rectTop, u16 shifts, u16 shiftt, u16 index, EnMag* this) {
     Gfx* gfx = *gfxp;
 
     gDPLoadMultiBlock(gfx++, maskTex, 0x0000, G_TX_RENDERTILE, G_IM_FMT_I, G_IM_SIZ_8b, maskWidth, maskHeight, 0,
-                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
-                         G_TX_NOLOD);
+                      G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
+                      G_TX_NOLOD);
 
     gDPLoadMultiBlock(gfx++, effectTex, 0x0100, 1, G_IM_FMT_I, G_IM_SIZ_8b, effectWidth, effectHeight, 0,
                       G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, 5, 5, shifts, shiftt);
@@ -1049,7 +1049,7 @@ void func_80951820_cj0(Actor* thisx, PlayState* play, Gfx** gfxp) {
 
     gSPSegment(gfx++, 0x06, play->objectCtx.slots[this->actor.objectSlot].segment);
     Gfx_SetupDL39_Ptr(&gfx);
-    
+
     gDPPipeSync(gfx++);
     gDPSetCycleType(gfx++, G_CYC_2CYCLE);
     gDPSetAlphaCompare(gfx++, G_AC_THRESHOLD);
@@ -1071,9 +1071,8 @@ void func_80951820_cj0(Actor* thisx, PlayState* play, Gfx** gfxp) {
             for (j = 0, rectLeft = 0x39; j < 3; j++, k++, rectLeft += 0x40) {
                 this->effectScrollSs[k] += sEffectScrollVelocitySs[k];
                 this->effectScrollTs[k] += sEffectScrollVelocityTs[k];
-                EnMag_DrawEffectTextures(&gfx, sAppearEffectMaskTextures[k], sEffectTextures[k], 0x40,
-                                         0x40, 0x20, 0x20, rectLeft, rectTop,
-                                         1, 1, k, this);
+                EnMag_DrawEffectTextures(&gfx, sAppearEffectMaskTextures[k], sEffectTextures[k], 0x40, 0x40, 0x20, 0x20,
+                                         rectLeft, rectTop, 1, 1, k, this);
             }
         }
     }
@@ -1086,10 +1085,10 @@ void func_80951820_cj0(Actor* thisx, PlayState* play, Gfx** gfxp) {
         gDPSetPrimColor(gfx++, 0, 0, 255, 255, 255, this->majorasMaskAlpha);
         gDPSetEnvColor(gfx++, this->majorasMaskEnvColor[0], this->majorasMaskEnvColor[1], this->majorasMaskEnvColor[2],
                        255);
-       
+
         EnMag_DrawImageRGBA32(&gfx, 0x7C, 0x67, gTitleScreenMajorasMaskTex, 0x80, 0x70);
     }
-    
+
     gDPPipeSync(gfx++);
     gDPSetCycleType(gfx++, G_CYC_2CYCLE);
     gDPSetAlphaCompare(gfx++, G_AC_THRESHOLD);
@@ -1101,13 +1100,12 @@ void func_80951820_cj0(Actor* thisx, PlayState* play, Gfx** gfxp) {
                     this->displayEffectPrimColor[1], this->displayEffectPrimColor[2], this->displayEffectAlpha);
     gDPSetEnvColor(gfx++, this->displayEffectEnvColor[0], this->displayEffectEnvColor[1],
                    this->displayEffectEnvColor[2], 255);
-    
+
     if (this->displayEffectPrimLodFrac != 0) {
         for (k = 0, i = 0, rectTop = 0x26; i < 2; i++, rectTop += 0x40) {
             for (j = 0, rectLeft = 0x39; j < 3; j++, k++, rectLeft += 0x40) {
-                EnMag_DrawEffectTextures(&gfx, sDisplayEffectMaskTextures[k], sEffectTextures[k], 0x40,
-                                         0x40, 0x20, 0x20, rectLeft, rectTop,
-                                         1, 1, k, this);
+                EnMag_DrawEffectTextures(&gfx, sDisplayEffectMaskTextures[k], sEffectTextures[k], 0x40, 0x40, 0x20,
+                                         0x20, rectLeft, rectTop, 1, 1, k, this);
             }
         }
     }
@@ -1125,20 +1123,22 @@ void func_80951820_cj0(Actor* thisx, PlayState* play, Gfx** gfxp) {
 
         gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, this->subtitleAlpha);
         gDPSetEnvColor(gfx++, 100, 0, 100, 255);
-        
+
         EnMag_DrawTextureI8(&gfx, gTitleScreenMajorasMaskSubtitleMaskTex, 0x78, 0x10, 0x85, 0x8A);
     }
     gDPPipeSync(gfx++);
     gDPSetCycleType(gfx++, G_CYC_2CYCLE);
     gDPSetAlphaCompare(gfx++, G_AC_THRESHOLD);
     gDPSetRenderMode(gfx++, G_RM_PASS, G_RM_CLD_SURF2);
-    gDPSetCombineLERP(gfx++, TEXEL1, PRIMITIVE, PRIM_LOD_FRAC, TEXEL0, 0, 0, 0, TEXEL0, PRIMITIVE, ENVIRONMENT, COMBINED, ENVIRONMENT, COMBINED, 0, PRIMITIVE, 0);
+    gDPSetCombineLERP(gfx++, TEXEL1, PRIMITIVE, PRIM_LOD_FRAC, TEXEL0, 0, 0, 0, TEXEL0, PRIMITIVE, ENVIRONMENT,
+                      COMBINED, ENVIRONMENT, COMBINED, 0, PRIMITIVE, 0);
     gDPSetPrimColor(gfx++, 0, 120, 255, 255, 255, this->subtitleAlpha);
     gDPSetEnvColor(gfx++, 55, 255, 255, 255);
-    
+
     if (this->appearEffectPrimLodFrac != 0) {
         this->unk_11F42++;
-        func_80950EA0_cj0(&gfx, gTitleScreenMajorasMaskSubtitleTex, gTitleScreenFlame0Tex, 0x78, 0x10, 0x20, 0x20, 0x85, 0x8A, 1, 1, 6, this);
+        func_80950EA0_cj0(&gfx, gTitleScreenMajorasMaskSubtitleTex, gTitleScreenFlame0Tex, 0x78, 0x10, 0x20, 0x20, 0x85,
+                          0x8A, 1, 1, 6, this);
     }
     Gfx_SetupDL39_Ptr(&gfx);
     gDPSetAlphaCompare(gfx++, G_AC_NONE);
@@ -1146,9 +1146,9 @@ void func_80951820_cj0(Actor* thisx, PlayState* play, Gfx** gfxp) {
 
     if (this->mainTitleAlpha != 0) {
         gDPSetPrimColor(gfx++, 0, 0, 255, 255, 255, this->mainTitleAlpha);
-        
+
         EnMag_DrawImageRGBA32(&gfx, 0xB1, 0x69, gTitleScreenZeldaLogoTex, 0x90, 0x40);
-        
+
         gDPPipeSync(gfx++);
 
         if (this->mainTitleAlpha < 100) {
@@ -1158,13 +1158,13 @@ void func_80951820_cj0(Actor* thisx, PlayState* play, Gfx** gfxp) {
         }
 
         gDPSetPrimColor(gfx++, 0, 0, 208, 102, 222, this->mainTitleAlpha);
-        
+
         EnMag_DrawTextureI8(&gfx, gTitleScreenTheLegendOfTextTex, 0x48, 8, 0x9E, 0x47);
     }
 
     if (this->subtitleAlpha != 0) {
         gDPPipeSync(gfx++);
-        
+
         if (this->subtitleAlpha < 100) {
             gDPSetRenderMode(gfx++, G_RM_CLD_SURF, G_RM_CLD_SURF2);
         } else {
@@ -1184,7 +1184,7 @@ void func_80951820_cj0(Actor* thisx, PlayState* play, Gfx** gfxp) {
         EnMag_DrawTextureIA8(&gfx, gTitleScreenCopyright2000NintendoTex, 0xC8, 0x10, 0x3A, 0xC6);
     }
     if (gSaveContext.fileNum == 0xFEDC) {
-        
+
         TIMED_STEP_TO(sTextAlpha, sTextAlphaTargets[sTextAlphaTargetIndex], sTextAlphaTimer, step);
 
         gDPPipeSync(gfx++);
@@ -1245,7 +1245,7 @@ void func_80951820_cj0(Actor* thisx, PlayState* play, Gfx** gfxp) {
         gDPSetCombineLERP(gfx++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE,
                           0);
         gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, sTextAlpha);
-        
+
         rectLeft = 0x77 + 1;
         for (i = 0; i < ARRAY_COUNT(pressStartFontIndices); i++) {
             EnMag_DrawCharTexture(&gfx, font->fontBuf + pressStartFontIndices[i] * FONT_CHAR_TEX_SIZE, rectLeft,
@@ -1258,12 +1258,10 @@ void func_80951820_cj0(Actor* thisx, PlayState* play, Gfx** gfxp) {
         }
         gDPPipeSync(gfx++);
         gDPSetPrimColor(gfx++, 0, 0, 255, 30, 30, sTextAlpha);
-        
 
         rectLeft = 0x77;
         for (i = 0; i < ARRAY_COUNT(pressStartFontIndices); i++) {
-            EnMag_DrawCharTexture(&gfx, font->fontBuf + pressStartFontIndices[i] * FONT_CHAR_TEX_SIZE, rectLeft,
-                                  0xAE);
+            EnMag_DrawCharTexture(&gfx, font->fontBuf + pressStartFontIndices[i] * FONT_CHAR_TEX_SIZE, rectLeft, 0xAE);
             rectLeft += 7;
             if (i == 4) {
                 rectLeft += 5;

@@ -131,9 +131,7 @@ void FileSelect_FinishFadeIn_JP(GameState* thisx) {
 }
 
 // sEmptyName
-u8 D_8081568C_cj0[8] = {
-    0xDF, 0xDF, 0xDF, 0xDF, 0xDF, 0xDF, 0xDF, 0xDF
-};
+u8 D_8081568C_cj0[8] = { 0xDF, 0xDF, 0xDF, 0xDF, 0xDF, 0xDF, 0xDF, 0xDF };
 
 // FileSelect_UpdateMainMenu
 void FileSelect_UpdateMainMenu_JP(GameState* thisx) {
@@ -174,7 +172,7 @@ void FileSelect_UpdateMainMenu_JP(GameState* thisx) {
                 this->configMode = 0x22;
                 this->kbdButton = 0x63;
                 this->charPage = 0;
-                if (/*gSaveContext.options.language != LANGUAGE_JPN*/false) {
+                if (/*gSaveContext.options.language != LANGUAGE_JPN*/ false) {
                     this->charPage = 2;
                 }
                 this->kbdX = 0;
@@ -296,7 +294,6 @@ void FileSelect_UpdateMainMenu_JP(GameState* thisx) {
 
 // FileSelect_UnusedCM31
 void FileSelect_UnusedCM31_JP(s32 arg0) {
-
 }
 
 // FileSelect_UnusedCMDelay
@@ -354,8 +351,7 @@ s16 D_8081574C_cj0[] = { 70, 200 };
 // FileSelect_PulsateCursor
 void FileSelect_PulsateCursor_JP(GameState* thisx) {
     FileSelectState* this = (FileSelectState*)thisx;
-    s32 alphaStep =
-        ABS_ALT(this->highlightColor[3] - D_8081574C_cj0[this->highlightPulseDir]) / this->highlightTimer;
+    s32 alphaStep = ABS_ALT(this->highlightColor[3] - D_8081574C_cj0[this->highlightPulseDir]) / this->highlightTimer;
 
     if (this->highlightColor[3] >= D_8081574C_cj0[this->highlightPulseDir]) {
         this->highlightColor[3] -= alphaStep;
@@ -479,9 +475,7 @@ void FileSelect_SetWindowVtx_JP(GameState* thisx) {
 }
 
 // sFileInfoBoxPartWidths
-s16 D_80815668_cj0[] = {
-    36, 36, 36, 36, 24, 28, 28
-};
+s16 D_80815668_cj0[] = { 36, 36, 36, 36, 24, 28, 28 };
 
 // sWalletFirstDigit
 s16 D_80815684_cj0[] = {
@@ -500,9 +494,7 @@ s16 D_80815758_cj0[] = { 12, 12, 12, 0 };
 s16 D_80815760_cj0[] = { 12, 12, 12, 0 };
 
 // D_80814638
-s16 D_80815768_cj0[] = {
-    88, 104, 120, 940, 944, 948
-};
+s16 D_80815768_cj0[] = { 88, 104, 120, 940, 944, 948 };
 
 // D_80814644
 s16 D_80815774_cj0[] = { 88, 104, 120, 944 };
@@ -538,99 +530,128 @@ void FileSelect_SetWindowContentVtx_JP(GameState* thisx) {
     for (vtxId = 0; vtxId < 960; vtxId += 4) {
         this->windowContentVtx[vtxId + 0].v.ob[0] = this->windowContentVtx[vtxId + 2].v.ob[0] = 0x12C;
 
-        this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] = this->windowContentVtx[vtxId + 0].v.ob[0] + 16;
+        this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] =
+            this->windowContentVtx[vtxId + 0].v.ob[0] + 16;
 
         this->windowContentVtx[vtxId + 0].v.ob[1] = this->windowContentVtx[vtxId + 1].v.ob[1] = 0;
 
-        this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] = this->windowContentVtx[vtxId + 0].v.ob[1] - 16;
+        this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] =
+            this->windowContentVtx[vtxId + 0].v.ob[1] - 16;
 
-        this->windowContentVtx[vtxId + 0].v.ob[2] = this->windowContentVtx[vtxId + 1].v.ob[2] = this->windowContentVtx[vtxId + 2].v.ob[2] = this->windowContentVtx[vtxId + 3].v.ob[2] = 0;
+        this->windowContentVtx[vtxId + 0].v.ob[2] = this->windowContentVtx[vtxId + 1].v.ob[2] =
+            this->windowContentVtx[vtxId + 2].v.ob[2] = this->windowContentVtx[vtxId + 3].v.ob[2] = 0;
 
-        this->windowContentVtx[vtxId + 0].v.flag = this->windowContentVtx[vtxId + 1].v.flag = this->windowContentVtx[vtxId + 2].v.flag = this->windowContentVtx[vtxId + 3].v.flag = 0;
+        this->windowContentVtx[vtxId + 0].v.flag = this->windowContentVtx[vtxId + 1].v.flag =
+            this->windowContentVtx[vtxId + 2].v.flag = this->windowContentVtx[vtxId + 3].v.flag = 0;
 
-        this->windowContentVtx[vtxId + 0].v.tc[0] = this->windowContentVtx[vtxId + 0].v.tc[1] = this->windowContentVtx[vtxId + 1].v.tc[1] = this->windowContentVtx[vtxId + 2].v.tc[0] = 0;
-        
-        this->windowContentVtx[vtxId + 1].v.tc[0] = this->windowContentVtx[vtxId + 2].v.tc[1] = this->windowContentVtx[vtxId + 3].v.tc[0] = this->windowContentVtx[vtxId + 3].v.tc[1] = 0x200;
+        this->windowContentVtx[vtxId + 0].v.tc[0] = this->windowContentVtx[vtxId + 0].v.tc[1] =
+            this->windowContentVtx[vtxId + 1].v.tc[1] = this->windowContentVtx[vtxId + 2].v.tc[0] = 0;
 
-        this->windowContentVtx[vtxId + 0].v.cn[0] = this->windowContentVtx[vtxId + 1].v.cn[0] = this->windowContentVtx[vtxId + 2].v.cn[0] = this->windowContentVtx[vtxId + 3].v.cn[0] = this->windowContentVtx[vtxId + 0].v.cn[1] = this->windowContentVtx[vtxId + 1].v.cn[1] = this->windowContentVtx[vtxId + 2].v.cn[1] = this->windowContentVtx[vtxId + 3].v.cn[1] = this->windowContentVtx[vtxId + 0].v.cn[2] = this->windowContentVtx[vtxId + 1].v.cn[2] = this->windowContentVtx[vtxId + 2].v.cn[2] = this->windowContentVtx[vtxId + 3].v.cn[2] = this->windowContentVtx[vtxId + 0].v.cn[3] = this->windowContentVtx[vtxId + 1].v.cn[3] = this->windowContentVtx[vtxId + 2].v.cn[3] = this->windowContentVtx[vtxId + 3].v.cn[3] = 255;
+        this->windowContentVtx[vtxId + 1].v.tc[0] = this->windowContentVtx[vtxId + 2].v.tc[1] =
+            this->windowContentVtx[vtxId + 3].v.tc[0] = this->windowContentVtx[vtxId + 3].v.tc[1] = 0x200;
+
+        this->windowContentVtx[vtxId + 0].v.cn[0] = this->windowContentVtx[vtxId + 1].v.cn[0] =
+            this->windowContentVtx[vtxId + 2].v.cn[0] = this->windowContentVtx[vtxId + 3].v.cn[0] =
+                this->windowContentVtx[vtxId + 0].v.cn[1] = this->windowContentVtx[vtxId + 1].v.cn[1] =
+                    this->windowContentVtx[vtxId + 2].v.cn[1] = this->windowContentVtx[vtxId + 3].v.cn[1] =
+                        this->windowContentVtx[vtxId + 0].v.cn[2] = this->windowContentVtx[vtxId + 1].v.cn[2] =
+                            this->windowContentVtx[vtxId + 2].v.cn[2] = this->windowContentVtx[vtxId + 3].v.cn[2] =
+                                this->windowContentVtx[vtxId + 0].v.cn[3] = this->windowContentVtx[vtxId + 1].v.cn[3] =
+                                    this->windowContentVtx[vtxId + 2].v.cn[3] =
+                                        this->windowContentVtx[vtxId + 3].v.cn[3] = 255;
     }
-    
+
     this->windowContentVtx[0].v.ob[0] = this->windowContentVtx[2].v.ob[0] = this->windowPosX;
-    
+
     this->windowContentVtx[1].v.ob[0] = this->windowContentVtx[3].v.ob[0] = this->windowContentVtx[0].v.ob[0] + 0x80;
 
     this->windowContentVtx[0].v.ob[1] = this->windowContentVtx[1].v.ob[1] = 0x48;
 
     this->windowContentVtx[2].v.ob[1] = this->windowContentVtx[3].v.ob[1] = this->windowContentVtx[0].v.ob[1] - 0x10;
-    
+
     this->windowContentVtx[1].v.tc[0] = this->windowContentVtx[3].v.tc[0] = 0x1000;
 
     for (vtxId = 4, i = 0; i < 3; i++) {
         posX = this->windowPosX - 6;
 
-
         for (j = 0; j < 7; j++, vtxId += 4) {
             this->windowContentVtx[vtxId + 0].v.ob[0] = this->windowContentVtx[vtxId + 2].v.ob[0] = posX;
 
-            this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] = this->windowContentVtx[vtxId + 0].v.ob[0] + D_80815668_cj0[j];
+            this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] =
+                this->windowContentVtx[vtxId + 0].v.ob[0] + D_80815668_cj0[j];
 
-            this->windowContentVtx[vtxId + 0].v.ob[1] = this->windowContentVtx[vtxId + 1].v.ob[1] = this->fileNamesY[i] + 0x2C;
+            this->windowContentVtx[vtxId + 0].v.ob[1] = this->windowContentVtx[vtxId + 1].v.ob[1] =
+                this->fileNamesY[i] + 0x2C;
 
-            this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] = this->windowContentVtx[vtxId + 0].v.ob[1] - 0x38;
+            this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] =
+                this->windowContentVtx[vtxId + 0].v.ob[1] - 0x38;
 
-            this->windowContentVtx[vtxId + 1].v.tc[0] = this->windowContentVtx[vtxId + 3].v.tc[0] = D_80815668_cj0[j] << 5;
-            
+            this->windowContentVtx[vtxId + 1].v.tc[0] = this->windowContentVtx[vtxId + 3].v.tc[0] = D_80815668_cj0[j]
+                                                                                                    << 5;
+
             this->windowContentVtx[vtxId + 2].v.tc[1] = this->windowContentVtx[vtxId + 3].v.tc[1] = 0x700;
 
             posX += D_80815668_cj0[j];
         }
     }
-    
+
     posX = this->windowPosX - 6;
     posY = 44;
 
     for (j = 0; j < 3; j++, vtxId += 16, posY -= 0x10) {
         this->windowContentVtx[vtxId + 0].v.ob[0] = this->windowContentVtx[vtxId + 2].v.ob[0] = posX;
-        
-        this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] = this->windowContentVtx[vtxId + 0].v.ob[0] + 64;
 
-        this->windowContentVtx[vtxId + 0].v.ob[1] = this->windowContentVtx[vtxId + 1].v.ob[1] = this->buttonYOffsets[j] + posY;
+        this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] =
+            this->windowContentVtx[vtxId + 0].v.ob[0] + 64;
 
-        this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] = this->windowContentVtx[vtxId + 0].v.ob[1] - 16;
+        this->windowContentVtx[vtxId + 0].v.ob[1] = this->windowContentVtx[vtxId + 1].v.ob[1] =
+            this->buttonYOffsets[j] + posY;
+
+        this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] =
+            this->windowContentVtx[vtxId + 0].v.ob[1] - 16;
 
         this->windowContentVtx[vtxId + 1].v.tc[0] = this->windowContentVtx[vtxId + 3].v.tc[0] = 0x800;
 
         this->windowContentVtx[vtxId + 4].v.ob[0] = this->windowContentVtx[vtxId + 6].v.ob[0] = posX + 0x40;
 
-        this->windowContentVtx[vtxId + 5].v.ob[0] = this->windowContentVtx[vtxId + 7].v.ob[0] = this->windowContentVtx[vtxId + 4].v.ob[0] + 108;
+        this->windowContentVtx[vtxId + 5].v.ob[0] = this->windowContentVtx[vtxId + 7].v.ob[0] =
+            this->windowContentVtx[vtxId + 4].v.ob[0] + 108;
 
-        this->windowContentVtx[vtxId + 4].v.ob[1] = this->windowContentVtx[vtxId + 5].v.ob[1] = this->buttonYOffsets[j] + posY;
+        this->windowContentVtx[vtxId + 4].v.ob[1] = this->windowContentVtx[vtxId + 5].v.ob[1] =
+            this->buttonYOffsets[j] + posY;
 
-        this->windowContentVtx[vtxId + 6].v.ob[1] = this->windowContentVtx[vtxId + 7].v.ob[1] = this->windowContentVtx[vtxId + 4].v.ob[1] - 16;
+        this->windowContentVtx[vtxId + 6].v.ob[1] = this->windowContentVtx[vtxId + 7].v.ob[1] =
+            this->windowContentVtx[vtxId + 4].v.ob[1] - 16;
 
         this->windowContentVtx[vtxId + 5].v.tc[0] = this->windowContentVtx[vtxId + 7].v.tc[0] = 0xD80;
 
         this->windowContentVtx[vtxId + 8].v.ob[0] = this->windowContentVtx[vtxId + 10].v.ob[0] = posX + 52;
 
-        this->windowContentVtx[vtxId + 9].v.ob[0] = this->windowContentVtx[vtxId + 11].v.ob[0] = this->windowContentVtx[vtxId + 8].v.ob[0] + 0x18;
+        this->windowContentVtx[vtxId + 9].v.ob[0] = this->windowContentVtx[vtxId + 11].v.ob[0] =
+            this->windowContentVtx[vtxId + 8].v.ob[0] + 0x18;
 
-        this->windowContentVtx[vtxId + 8].v.ob[1] = this->windowContentVtx[vtxId + 9].v.ob[1] = this->buttonYOffsets[j] + posY;
+        this->windowContentVtx[vtxId + 8].v.ob[1] = this->windowContentVtx[vtxId + 9].v.ob[1] =
+            this->buttonYOffsets[j] + posY;
 
-        this->windowContentVtx[vtxId + 10].v.ob[1] = this->windowContentVtx[vtxId + 11].v.ob[1] = this->windowContentVtx[vtxId + 8].v.ob[1] - 0x10;
+        this->windowContentVtx[vtxId + 10].v.ob[1] = this->windowContentVtx[vtxId + 11].v.ob[1] =
+            this->windowContentVtx[vtxId + 8].v.ob[1] - 0x10;
 
         this->windowContentVtx[vtxId + 9].v.tc[0] = this->windowContentVtx[vtxId + 11].v.tc[0] = 0x300;
 
         this->windowContentVtx[vtxId + 12].v.ob[0] = this->windowContentVtx[vtxId + 14].v.ob[0] = posX + 0xA9;
 
-        this->windowContentVtx[vtxId + 13].v.ob[0] = this->windowContentVtx[vtxId + 15].v.ob[0] = this->windowContentVtx[vtxId + 12].v.ob[0] + 52;
+        this->windowContentVtx[vtxId + 13].v.ob[0] = this->windowContentVtx[vtxId + 15].v.ob[0] =
+            this->windowContentVtx[vtxId + 12].v.ob[0] + 52;
 
-        this->windowContentVtx[vtxId + 12].v.ob[1] = this->windowContentVtx[vtxId + 13].v.ob[1] = this->buttonYOffsets[j] + posY;
+        this->windowContentVtx[vtxId + 12].v.ob[1] = this->windowContentVtx[vtxId + 13].v.ob[1] =
+            this->buttonYOffsets[j] + posY;
 
-        this->windowContentVtx[vtxId + 14].v.ob[1] = this->windowContentVtx[vtxId + 15].v.ob[1] = this->windowContentVtx[vtxId + 12].v.ob[1] - 16;
+        this->windowContentVtx[vtxId + 14].v.ob[1] = this->windowContentVtx[vtxId + 15].v.ob[1] =
+            this->windowContentVtx[vtxId + 12].v.ob[1] - 16;
 
         this->windowContentVtx[vtxId + 13].v.tc[0] = this->windowContentVtx[vtxId + 15].v.tc[0] = 0x680;
     }
-    
+
     posY = 44;
 
     for (j = 0; j < 3; j++, posY -= 16) {
@@ -656,19 +677,23 @@ void FileSelect_SetWindowContentVtx_JP(GameState* thisx) {
         for (i = 0; i < 8; i++, vtxId += 4) {
             this->windowContentVtx[vtxId + 0].v.ob[0] = this->windowContentVtx[vtxId + 2].v.ob[0] = posX + 0x4E;
 
-            this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] = this->windowContentVtx[vtxId + 0].v.ob[0] + 11;
+            this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] =
+                this->windowContentVtx[vtxId + 0].v.ob[0] + 11;
 
             this->windowContentVtx[vtxId + 0].v.ob[1] = this->windowContentVtx[vtxId + 1].v.ob[1] = tempPosY;
 
-            this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] = this->windowContentVtx[vtxId + 0].v.ob[1] - 12;
-            
+            this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] =
+                this->windowContentVtx[vtxId + 0].v.ob[1] - 12;
+
             this->windowContentVtx[vtxId + 32].v.ob[0] = this->windowContentVtx[vtxId + 34].v.ob[0] = posX + 0x4F;
 
-            this->windowContentVtx[vtxId + 33].v.ob[0] = this->windowContentVtx[vtxId + 35].v.ob[0] = this->windowContentVtx[vtxId + 32].v.ob[0] + 11;
-            
+            this->windowContentVtx[vtxId + 33].v.ob[0] = this->windowContentVtx[vtxId + 35].v.ob[0] =
+                this->windowContentVtx[vtxId + 32].v.ob[0] + 11;
+
             this->windowContentVtx[vtxId + 32].v.ob[1] = this->windowContentVtx[vtxId + 33].v.ob[1] = tempPosY - 1;
 
-            this->windowContentVtx[vtxId + 34].v.ob[1] = this->windowContentVtx[vtxId + 35].v.ob[1] = this->windowContentVtx[vtxId + 32].v.ob[1] - 12;
+            this->windowContentVtx[vtxId + 34].v.ob[1] = this->windowContentVtx[vtxId + 35].v.ob[1] =
+                this->windowContentVtx[vtxId + 32].v.ob[1] - 12;
 
             posX += 10;
         }
@@ -676,27 +701,33 @@ void FileSelect_SetWindowContentVtx_JP(GameState* thisx) {
         vtxId += 32;
         posX = this->windowPosX + 14;
         tempPosY = relPosY - 0x18;
-        
+
         FileSelect_SplitNumber_JP(this->rupees[spAC], &spA4[0], &spA4[1], &spA4[2]);
 
         index = D_80815684_cj0[this->walletUpgrades[spAC]];
 
         for (i = 0; i < 3; i++, vtxId += 4, index++) {
-            this->windowContentVtx[vtxId + 0].v.ob[0] = this->windowContentVtx[vtxId + 2].v.ob[0] = D_80815784_cj0[spA4[index]] + posX;
+            this->windowContentVtx[vtxId + 0].v.ob[0] = this->windowContentVtx[vtxId + 2].v.ob[0] =
+                D_80815784_cj0[spA4[index]] + posX;
 
-            this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] = this->windowContentVtx[vtxId + 0].v.ob[0] + D_80815758_cj0[i];
+            this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] =
+                this->windowContentVtx[vtxId + 0].v.ob[0] + D_80815758_cj0[i];
 
             this->windowContentVtx[vtxId + 0].v.ob[1] = this->windowContentVtx[vtxId + 1].v.ob[1] = tempPosY;
 
-            this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] = this->windowContentVtx[vtxId + 0].v.ob[1] - D_80815760_cj0[i];
+            this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] =
+                this->windowContentVtx[vtxId + 0].v.ob[1] - D_80815760_cj0[i];
 
-            this->windowContentVtx[vtxId + 12].v.ob[0] = this->windowContentVtx[vtxId + 14].v.ob[0] = this->windowContentVtx[vtxId + 0].v.ob[0] + 1;
+            this->windowContentVtx[vtxId + 12].v.ob[0] = this->windowContentVtx[vtxId + 14].v.ob[0] =
+                this->windowContentVtx[vtxId + 0].v.ob[0] + 1;
 
-            this->windowContentVtx[vtxId + 13].v.ob[0] = this->windowContentVtx[vtxId + 15].v.ob[0] = this->windowContentVtx[vtxId + 12].v.ob[0] + D_80815758_cj0[i];
-            
+            this->windowContentVtx[vtxId + 13].v.ob[0] = this->windowContentVtx[vtxId + 15].v.ob[0] =
+                this->windowContentVtx[vtxId + 12].v.ob[0] + D_80815758_cj0[i];
+
             this->windowContentVtx[vtxId + 12].v.ob[1] = this->windowContentVtx[vtxId + 13].v.ob[1] = tempPosY - 1;
 
-            this->windowContentVtx[vtxId + 14].v.ob[1] = this->windowContentVtx[vtxId + 15].v.ob[1] = this->windowContentVtx[vtxId + 12].v.ob[1] - D_80815760_cj0[i];
+            this->windowContentVtx[vtxId + 14].v.ob[1] = this->windowContentVtx[vtxId + 15].v.ob[1] =
+                this->windowContentVtx[vtxId + 12].v.ob[1] - D_80815760_cj0[i];
 
             posX += D_80815750_cj0[i];
         }
@@ -707,36 +738,43 @@ void FileSelect_SetWindowContentVtx_JP(GameState* thisx) {
 
         for (i = 1; i < 3; i++, vtxId += 4) {
 
-            this->windowContentVtx[vtxId + 0].v.ob[0] = this->windowContentVtx[vtxId + 2].v.ob[0] = D_80815784_cj0[spA4[i]] + posX;
+            this->windowContentVtx[vtxId + 0].v.ob[0] = this->windowContentVtx[vtxId + 2].v.ob[0] =
+                D_80815784_cj0[spA4[i]] + posX;
 
-            this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] = this->windowContentVtx[vtxId + 0].v.ob[0] + D_80815758_cj0[i];
-            
+            this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] =
+                this->windowContentVtx[vtxId + 0].v.ob[0] + D_80815758_cj0[i];
+
             this->windowContentVtx[vtxId + 0].v.ob[1] = this->windowContentVtx[vtxId + 1].v.ob[1] = tempPosY;
 
-            this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] = this->windowContentVtx[vtxId + 0].v.ob[1] - D_80815760_cj0[i];
+            this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] =
+                this->windowContentVtx[vtxId + 0].v.ob[1] - D_80815760_cj0[i];
 
-            this->windowContentVtx[vtxId + 8].v.ob[0] = this->windowContentVtx[vtxId + 10].v.ob[0] = this->windowContentVtx[vtxId + 0].v.ob[0] + 1;
+            this->windowContentVtx[vtxId + 8].v.ob[0] = this->windowContentVtx[vtxId + 10].v.ob[0] =
+                this->windowContentVtx[vtxId + 0].v.ob[0] + 1;
 
-            this->windowContentVtx[vtxId + 9].v.ob[0] = this->windowContentVtx[vtxId + 11].v.ob[0] = this->windowContentVtx[vtxId + 8].v.ob[0] + D_80815758_cj0[i];
-            
+            this->windowContentVtx[vtxId + 9].v.ob[0] = this->windowContentVtx[vtxId + 11].v.ob[0] =
+                this->windowContentVtx[vtxId + 8].v.ob[0] + D_80815758_cj0[i];
+
             this->windowContentVtx[vtxId + 8].v.ob[1] = this->windowContentVtx[vtxId + 9].v.ob[1] = tempPosY - 1;
 
-            this->windowContentVtx[vtxId + 10].v.ob[1] = this->windowContentVtx[vtxId + 11].v.ob[1] = this->windowContentVtx[vtxId + 8].v.ob[1] - D_80815760_cj0[i];
+            this->windowContentVtx[vtxId + 10].v.ob[1] = this->windowContentVtx[vtxId + 11].v.ob[1] =
+                this->windowContentVtx[vtxId + 8].v.ob[1] - D_80815760_cj0[i];
             posX += D_80815750_cj0[i];
         }
         vtxId += 8;
-        
+
         tempPosY = relPosY - 0x10;
         posX = this->windowPosX + 0x3F;
 
         for (i = 0; i < 20; i++, vtxId += 4) {
             this->windowContentVtx[vtxId + 0].v.ob[0] = this->windowContentVtx[vtxId + 2].v.ob[0] = posX;
 
-
-            this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] = this->windowContentVtx[vtxId + 0].v.ob[0] + 10;
+            this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] =
+                this->windowContentVtx[vtxId + 0].v.ob[0] + 10;
             this->windowContentVtx[vtxId + 0].v.ob[1] = this->windowContentVtx[vtxId + 1].v.ob[1] = tempPosY;
 
-            this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] = this->windowContentVtx[vtxId + 0].v.ob[1] - 10;
+            this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] =
+                this->windowContentVtx[vtxId + 0].v.ob[1] - 10;
             if (i == 9) {
                 tempPosY -= 8;
                 posX = this->windowPosX + 0x36;
@@ -746,80 +784,92 @@ void FileSelect_SetWindowContentVtx_JP(GameState* thisx) {
 
         tempPosY = relPosY - 0x20;
         posX = this->windowPosX + 0x40;
-        
+
         for (i = 0; i < 4; i++, vtxId += 4) {
             this->windowContentVtx[vtxId + 0].v.ob[0] = this->windowContentVtx[vtxId + 2].v.ob[0] = posX;
 
-            this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] = this->windowContentVtx[vtxId + 0].v.ob[0] + 0x14;
-            
+            this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] =
+                this->windowContentVtx[vtxId + 0].v.ob[0] + 0x14;
+
             this->windowContentVtx[vtxId + 0].v.ob[1] = this->windowContentVtx[vtxId + 1].v.ob[1] = tempPosY;
 
-            this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] = this->windowContentVtx[vtxId + 0].v.ob[1] - 0x14;
+            this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] =
+                this->windowContentVtx[vtxId + 0].v.ob[1] - 0x14;
 
-            this->windowContentVtx[vtxId + 1].v.tc[0] = this->windowContentVtx[vtxId + 2].v.tc[1] = this->windowContentVtx[vtxId + 3].v.tc[0] = this->windowContentVtx[vtxId + 3].v.tc[1] = 0x400;
+            this->windowContentVtx[vtxId + 1].v.tc[0] = this->windowContentVtx[vtxId + 2].v.tc[1] =
+                this->windowContentVtx[vtxId + 3].v.tc[0] = this->windowContentVtx[vtxId + 3].v.tc[1] = 0x400;
             posX += 0x18;
         }
-        
+
         tempPosY = relPosY - 0x15;
-        
+
         this->windowContentVtx[vtxId + 0].v.ob[0] = this->windowContentVtx[vtxId + 2].v.ob[0] = this->windowPosX - 1;
 
-        this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] = this->windowContentVtx[vtxId + 0].v.ob[0] + 16;
-        
+        this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] =
+            this->windowContentVtx[vtxId + 0].v.ob[0] + 16;
+
         this->windowContentVtx[vtxId + 0].v.ob[1] = this->windowContentVtx[vtxId + 1].v.ob[1] = tempPosY;
 
-        this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] = this->windowContentVtx[vtxId + 0].v.ob[1] - 16;
+        this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] =
+            this->windowContentVtx[vtxId + 0].v.ob[1] - 16;
 
         this->windowContentVtx[vtxId + 1].v.tc[0] = this->windowContentVtx[vtxId + 3].v.tc[0] = 0x200;
 
         this->windowContentVtx[vtxId + 2].v.tc[1] = this->windowContentVtx[vtxId + 3].v.tc[1] = 0x200;
-        
+
         vtxId += 4;
-        
+
         this->windowContentVtx[vtxId + 0].v.ob[0] = this->windowContentVtx[vtxId + 2].v.ob[0] = this->windowPosX + 0x27;
 
-        this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] = this->windowContentVtx[vtxId + 0].v.ob[0] + 24;
-        
+        this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] =
+            this->windowContentVtx[vtxId + 0].v.ob[0] + 24;
+
         this->windowContentVtx[vtxId + 0].v.ob[1] = this->windowContentVtx[vtxId + 1].v.ob[1] = tempPosY;
-        
-        this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] = this->windowContentVtx[vtxId + 0].v.ob[1] - 16;
-        
+
+        this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] =
+            this->windowContentVtx[vtxId + 0].v.ob[1] - 16;
+
         this->windowContentVtx[vtxId + 1].v.tc[0] = this->windowContentVtx[vtxId + 3].v.tc[0] = 0x300;
 
         this->windowContentVtx[vtxId + 2].v.tc[1] = this->windowContentVtx[vtxId + 3].v.tc[1] = 0x200;
-        
+
         tempPosY = relPosY - 0x27;
-        
+
         vtxId += 4;
-        
+
         this->windowContentVtx[vtxId + 0].v.ob[0] = this->windowContentVtx[vtxId + 2].v.ob[0] = this->windowPosX - 10;
-        
-        this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] = this->windowContentVtx[vtxId + 0].v.ob[0] + 64;
-        
+
+        this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] =
+            this->windowContentVtx[vtxId + 0].v.ob[0] + 64;
+
         this->windowContentVtx[vtxId + 0].v.ob[1] = this->windowContentVtx[vtxId + 1].v.ob[1] = tempPosY;
 
-        this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] = this->windowContentVtx[vtxId + 0].v.ob[1] - 16;
+        this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] =
+            this->windowContentVtx[vtxId + 0].v.ob[1] - 16;
 
         this->windowContentVtx[vtxId + 1].v.tc[0] = this->windowContentVtx[vtxId + 3].v.tc[0] = 0x800;
 
         this->windowContentVtx[vtxId + 2].v.tc[1] = this->windowContentVtx[vtxId + 3].v.tc[1] = 0x200;
 
-        this->windowContentVtx[vtxId + 4].v.ob[0] = this->windowContentVtx[vtxId + 6].v.ob[0] = this->windowContentVtx[vtxId + 0].v.ob[0] + 1;
+        this->windowContentVtx[vtxId + 4].v.ob[0] = this->windowContentVtx[vtxId + 6].v.ob[0] =
+            this->windowContentVtx[vtxId + 0].v.ob[0] + 1;
 
-        this->windowContentVtx[vtxId + 5].v.ob[0] = this->windowContentVtx[vtxId + 7].v.ob[0] = this->windowContentVtx[vtxId + 4].v.ob[0] + 64;
-        
+        this->windowContentVtx[vtxId + 5].v.ob[0] = this->windowContentVtx[vtxId + 7].v.ob[0] =
+            this->windowContentVtx[vtxId + 4].v.ob[0] + 64;
+
         this->windowContentVtx[vtxId + 4].v.ob[1] = this->windowContentVtx[vtxId + 5].v.ob[1] = tempPosY - 1;
 
-        this->windowContentVtx[vtxId + 6].v.ob[1] = this->windowContentVtx[vtxId + 7].v.ob[1] = this->windowContentVtx[vtxId + 4].v.ob[1] - 16;
+        this->windowContentVtx[vtxId + 6].v.ob[1] = this->windowContentVtx[vtxId + 7].v.ob[1] =
+            this->windowContentVtx[vtxId + 4].v.ob[1] - 16;
 
         this->windowContentVtx[vtxId + 5].v.tc[0] = this->windowContentVtx[vtxId + 7].v.tc[0] = 0x800;
 
         this->windowContentVtx[vtxId + 6].v.tc[1] = this->windowContentVtx[vtxId + 7].v.tc[1] = 0x200;
-        
+
         vtxId += 8;
-        
+
         posX = this->windowPosX + 0xA3;
-        
+
         if ((this->configMode == 0x10) && (j == this->copyDestFileIndex)) {
             tempPosY = this->fileNamesY[j] + 0x2C;
         } else if (((this->configMode == 0x11) || (this->configMode == 0x12)) && (j == this->copyDestFileIndex)) {
@@ -827,30 +877,35 @@ void FileSelect_SetWindowContentVtx_JP(GameState* thisx) {
         } else {
             tempPosY = posY + this->buttonYOffsets[j] + this->fileNamesY[j];
         }
-        
+
         this->windowContentVtx[vtxId + 0].v.ob[0] = this->windowContentVtx[vtxId + 2].v.ob[0] = posX + 14;
 
-        this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] = this->windowContentVtx[vtxId + 0].v.ob[0] + 24;
-        
+        this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] =
+            this->windowContentVtx[vtxId + 0].v.ob[0] + 24;
+
         this->windowContentVtx[vtxId + 0].v.ob[1] = this->windowContentVtx[vtxId + 1].v.ob[1] = tempPosY - 2;
 
-        this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] = this->windowContentVtx[vtxId + 0].v.ob[1] - 12;
-        
+        this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] =
+            this->windowContentVtx[vtxId + 0].v.ob[1] - 12;
+
         this->windowContentVtx[vtxId + 1].v.tc[0] = this->windowContentVtx[vtxId + 3].v.tc[0] = 0x300;
 
         this->windowContentVtx[vtxId + 2].v.tc[1] = this->windowContentVtx[vtxId + 3].v.tc[1] = 0x180;
-        
+
         vtxId += 4;
-        
+
         for (i = 0; i < 2; i++, vtxId += 4) {
 
             this->windowContentVtx[vtxId + 0].v.ob[0] = this->windowContentVtx[vtxId + 2].v.ob[0] = posX + 2 + i;
 
-            this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] = this->windowContentVtx[vtxId + 0].v.ob[0] + 0x30;
+            this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] =
+                this->windowContentVtx[vtxId + 0].v.ob[0] + 0x30;
 
-            this->windowContentVtx[vtxId + 0].v.ob[1] = this->windowContentVtx[vtxId + 1].v.ob[1] = (tempPosY - i) - 0x12;
+            this->windowContentVtx[vtxId + 0].v.ob[1] = this->windowContentVtx[vtxId + 1].v.ob[1] =
+                (tempPosY - i) - 0x12;
 
-            this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] = this->windowContentVtx[vtxId + 0].v.ob[1] - 0x18;
+            this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] =
+                this->windowContentVtx[vtxId + 0].v.ob[1] - 0x18;
 
             this->windowContentVtx[vtxId + 1].v.tc[0] = this->windowContentVtx[vtxId + 3].v.tc[0] = 0x600;
 
@@ -862,54 +917,68 @@ void FileSelect_SetWindowContentVtx_JP(GameState* thisx) {
         for (i = 0; i < 5; i++, vtxId += 4) {
             this->windowContentVtx[vtxId + 0].v.ob[0] = this->windowContentVtx[vtxId + 2].v.ob[0] = posX;
 
-            this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] = this->windowContentVtx[vtxId + 0].v.ob[0] + 12;
+            this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] =
+                this->windowContentVtx[vtxId + 0].v.ob[0] + 12;
 
             this->windowContentVtx[vtxId + 0].v.ob[1] = this->windowContentVtx[vtxId + 1].v.ob[1] = tempPosY - 0x2A;
-            
-            this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] = this->windowContentVtx[vtxId + 0].v.ob[1] - 12;
-            
+
+            this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] =
+                this->windowContentVtx[vtxId + 0].v.ob[1] - 12;
+
             this->windowContentVtx[vtxId + 20].v.ob[0] = this->windowContentVtx[vtxId + 22].v.ob[0] = posX + 1;
 
-            this->windowContentVtx[vtxId + 21].v.ob[0] = this->windowContentVtx[vtxId + 23].v.ob[0] = this->windowContentVtx[vtxId + 20].v.ob[0] + 12;
-            
+            this->windowContentVtx[vtxId + 21].v.ob[0] = this->windowContentVtx[vtxId + 23].v.ob[0] =
+                this->windowContentVtx[vtxId + 20].v.ob[0] + 12;
+
             this->windowContentVtx[vtxId + 20].v.ob[1] = this->windowContentVtx[vtxId + 21].v.ob[1] = tempPosY - 0x2B;
 
-            this->windowContentVtx[vtxId + 22].v.ob[1] = this->windowContentVtx[vtxId + 23].v.ob[1] = this->windowContentVtx[vtxId + 20].v.ob[1] - 12;
+            this->windowContentVtx[vtxId + 22].v.ob[1] = this->windowContentVtx[vtxId + 23].v.ob[1] =
+                this->windowContentVtx[vtxId + 20].v.ob[1] - 12;
             posX += 8;
         }
 
-        this->windowContentVtx[index + 8].v.ob[0] = this->windowContentVtx[index + 10].v.ob[0] = this->windowContentVtx[index + 8].v.ob[0] + 3;
+        this->windowContentVtx[index + 8].v.ob[0] = this->windowContentVtx[index + 10].v.ob[0] =
+            this->windowContentVtx[index + 8].v.ob[0] + 3;
 
-        this->windowContentVtx[index + 9].v.ob[0] = this->windowContentVtx[index + 11].v.ob[0] = this->windowContentVtx[index + 8].v.ob[0] + 12;
+        this->windowContentVtx[index + 9].v.ob[0] = this->windowContentVtx[index + 11].v.ob[0] =
+            this->windowContentVtx[index + 8].v.ob[0] + 12;
 
-        this->windowContentVtx[index + 28].v.ob[0] = this->windowContentVtx[index + 30].v.ob[0] = this->windowContentVtx[index + 8].v.ob[0] + 1;
+        this->windowContentVtx[index + 28].v.ob[0] = this->windowContentVtx[index + 30].v.ob[0] =
+            this->windowContentVtx[index + 8].v.ob[0] + 1;
 
-        this->windowContentVtx[index + 29].v.ob[0] = this->windowContentVtx[index + 31].v.ob[0] = this->windowContentVtx[index + 28].v.ob[0] + 12;
-        
+        this->windowContentVtx[index + 29].v.ob[0] = this->windowContentVtx[index + 31].v.ob[0] =
+            this->windowContentVtx[index + 28].v.ob[0] + 12;
+
         vtxId += 20;
     }
     posY = -12;
     posX = this->windowPosX - 6;
-    
+
     for (j = 0; j < 2; j++, vtxId += 4) {
         this->windowContentVtx[vtxId + 0].v.ob[0] = this->windowContentVtx[vtxId + 2].v.ob[0] = posX;
 
-        this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] = this->windowContentVtx[vtxId + 0].v.ob[0] + 0x40;
+        this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] =
+            this->windowContentVtx[vtxId + 0].v.ob[0] + 0x40;
 
-        this->windowContentVtx[vtxId + 0].v.ob[1] = this->windowContentVtx[vtxId + 1].v.ob[1] = this->buttonYOffsets[j + 3] + posY;
+        this->windowContentVtx[vtxId + 0].v.ob[1] = this->windowContentVtx[vtxId + 1].v.ob[1] =
+            this->buttonYOffsets[j + 3] + posY;
 
-        this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] = this->windowContentVtx[vtxId + 0].v.ob[1] - 0x10;
-        
+        this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] =
+            this->windowContentVtx[vtxId + 0].v.ob[1] - 0x10;
+
         this->windowContentVtx[vtxId + 1].v.tc[0] = this->windowContentVtx[vtxId + 3].v.tc[0] = 0x800;
         posY -= 0x10;
     }
     this->windowContentVtx[vtxId + 0].v.ob[0] = this->windowContentVtx[vtxId + 2].v.ob[0] = posX;
 
-    this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] = this->windowContentVtx[vtxId + 0].v.ob[0] + 0x40;
-    
-    this->windowContentVtx[vtxId + 0].v.ob[1] = this->windowContentVtx[vtxId + 1].v.ob[1] = this->buttonYOffsets[5] - 0x34;
+    this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] =
+        this->windowContentVtx[vtxId + 0].v.ob[0] + 0x40;
 
-    this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] = this->windowContentVtx[vtxId + 0].v.ob[1] - 0x10;
+    this->windowContentVtx[vtxId + 0].v.ob[1] = this->windowContentVtx[vtxId + 1].v.ob[1] =
+        this->buttonYOffsets[5] - 0x34;
+
+    this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] =
+        this->windowContentVtx[vtxId + 0].v.ob[1] - 0x10;
 
     this->windowContentVtx[vtxId + 1].v.tc[0] = this->windowContentVtx[vtxId + 3].v.tc[0] = 0x800;
     vtxId += 4;
@@ -928,24 +997,30 @@ void FileSelect_SetWindowContentVtx_JP(GameState* thisx) {
         }
         this->windowContentVtx[vtxId + 0].v.ob[0] = this->windowContentVtx[vtxId + 2].v.ob[0] = this->windowPosX - 10;
 
-        this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] = this->windowContentVtx[vtxId + 0].v.ob[0] + 72;
+        this->windowContentVtx[vtxId + 1].v.ob[0] = this->windowContentVtx[vtxId + 3].v.ob[0] =
+            this->windowContentVtx[vtxId + 0].v.ob[0] + 72;
 
-        this->windowContentVtx[vtxId + 0].v.ob[1] = this->windowContentVtx[vtxId + 1].v.ob[1] = this->windowContentVtx[j].v.ob[1] + 4;
+        this->windowContentVtx[vtxId + 0].v.ob[1] = this->windowContentVtx[vtxId + 1].v.ob[1] =
+            this->windowContentVtx[j].v.ob[1] + 4;
 
-        this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] = this->windowContentVtx[vtxId + 0].v.ob[1] - 24;
+        this->windowContentVtx[vtxId + 2].v.ob[1] = this->windowContentVtx[vtxId + 3].v.ob[1] =
+            this->windowContentVtx[vtxId + 0].v.ob[1] - 24;
 
         this->windowContentVtx[vtxId + 1].v.tc[0] = this->windowContentVtx[vtxId + 3].v.tc[0] = 0x900;
 
         this->windowContentVtx[vtxId + 2].v.tc[1] = this->windowContentVtx[vtxId + 3].v.tc[1] = 0x300;
     }
-    
+
     this->windowContentVtx[vtxId + 4].v.ob[0] = this->windowContentVtx[vtxId + 6].v.ob[0] = this->windowPosX + 58;
 
-    this->windowContentVtx[vtxId + 5].v.ob[0] = this->windowContentVtx[vtxId + 7].v.ob[0] = this->windowContentVtx[vtxId + 4].v.ob[0] + 128;
+    this->windowContentVtx[vtxId + 5].v.ob[0] = this->windowContentVtx[vtxId + 7].v.ob[0] =
+        this->windowContentVtx[vtxId + 4].v.ob[0] + 128;
 
-    this->windowContentVtx[vtxId + 4].v.ob[1] = this->windowContentVtx[vtxId + 5].v.ob[1] = this->windowContentVtx[D_80815768_cj0[this->warningButtonIndex]].v.ob[1];
+    this->windowContentVtx[vtxId + 4].v.ob[1] = this->windowContentVtx[vtxId + 5].v.ob[1] =
+        this->windowContentVtx[D_80815768_cj0[this->warningButtonIndex]].v.ob[1];
 
-    this->windowContentVtx[vtxId + 6].v.ob[1] = this->windowContentVtx[vtxId + 7].v.ob[1] = this->windowContentVtx[vtxId + 4].v.ob[1] - 16;
+    this->windowContentVtx[vtxId + 6].v.ob[1] = this->windowContentVtx[vtxId + 7].v.ob[1] =
+        this->windowContentVtx[vtxId + 4].v.ob[1] - 16;
 
     this->windowContentVtx[vtxId + 5].v.tc[0] = this->windowContentVtx[vtxId + 7].v.tc[0] = 0x1000;
 }
@@ -956,7 +1031,7 @@ u16 D_80815808_cj0[] = {
     0x194,
     0x2A0,
 };
-    
+
 // sFileSelRemainsTextures
 TexturePtr D_80815810_cj0[] = {
     gFileSelOdolwasRemainsTex,
@@ -964,7 +1039,7 @@ TexturePtr D_80815810_cj0[] = {
     gFileSelGyorgsRemainsTex,
     gFileSelTwinmoldsRemainsTex,
 };
-    
+
 // sFileSelDayENGTextures
 TexturePtr D_80815820_cj0[] = {
     gFileSelFirstDayENGTex,
@@ -1000,9 +1075,7 @@ static TexturePtr D_80815840_cj0[][5] = {
 };
 
 // sHealthToQuarterHeartCount
-u8 D_80815868_cj0[] = {
-    0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3
-};
+u8 D_80815868_cj0[] = { 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3 };
 
 // sFileSelRupeePrimColors
 s16 D_80815878_cj0[3][3] = {
@@ -1043,26 +1116,29 @@ void FileSelect_DrawFileInfo_JP(GameState* thisx, s16 fileIndex) {
     s16 sp230[5];
     u16 sp228[3];
     u8 var_t2;
-    
+
     OPEN_DISPS(this->state.gfxCtx);
     gDPPipeSync(POLY_OPA_DISP++);
-    gDPSetCombineLERP(POLY_OPA_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0);
+    gDPSetCombineLERP(POLY_OPA_DISP++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0,
+                      PRIMITIVE, 0);
 
     sp23A = fileIndex;
-    
+
     if (this->nameAlpha[fileIndex] != 0) {
         gSPVertex(POLY_OPA_DISP++, &this->windowContentVtx[D_80815808_cj0[fileIndex] + 0x20], 32, 0);
         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 0, 0, 0, this->nameAlpha[fileIndex]);
-        
+
         for (var_s1 = 0, var_s0 = 0; var_s1 < 0x20; var_s1 += 4, var_s0++) {
-            FileSelect_DrawTexQuadI4_JP(this->state.gfxCtx, font->fontBuf + this->fileNames[fileIndex][var_s0] * FONT_CHAR_TEX_SIZE, var_s1);
+            FileSelect_DrawTexQuadI4_JP(
+                this->state.gfxCtx, font->fontBuf + this->fileNames[fileIndex][var_s0] * FONT_CHAR_TEX_SIZE, var_s1);
         }
-        
+
         gSPVertex(POLY_OPA_DISP++, &this->windowContentVtx[D_80815808_cj0[fileIndex]], 32, 0);
         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, this->nameAlpha[fileIndex]);
-        
+
         for (var_s1 = 0, var_s0 = 0; var_s1 < 0x20; var_s1 += 4, var_s0++) {
-            FileSelect_DrawTexQuadI4_JP(this->state.gfxCtx, font->fontBuf + this->fileNames[fileIndex][var_s0] * FONT_CHAR_TEX_SIZE, var_s1);
+            FileSelect_DrawTexQuadI4_JP(
+                this->state.gfxCtx, font->fontBuf + this->fileNames[fileIndex][var_s0] * FONT_CHAR_TEX_SIZE, var_s1);
         }
     }
 
@@ -1073,20 +1149,25 @@ void FileSelect_DrawFileInfo_JP(GameState* thisx, s16 fileIndex) {
         }
         gDPPipeSync(POLY_OPA_DISP++);
         gDPSetCombineMode(POLY_OPA_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
-        gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, D_80815878_cj0[this->walletUpgrades[sp23A]][0], D_80815878_cj0[this->walletUpgrades[sp23A]][1], D_80815878_cj0[this->walletUpgrades[sp23A]][2], this->fileInfoAlpha[fileIndex]);
-        gDPSetEnvColor(POLY_OPA_DISP++, D_8081588C_cj0[this->walletUpgrades[sp23A]][0], D_8081588C_cj0[this->walletUpgrades[sp23A]][1], D_8081588C_cj0[this->walletUpgrades[sp23A]][2], 255);
+        gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, D_80815878_cj0[this->walletUpgrades[sp23A]][0],
+                        D_80815878_cj0[this->walletUpgrades[sp23A]][1], D_80815878_cj0[this->walletUpgrades[sp23A]][2],
+                        this->fileInfoAlpha[fileIndex]);
+        gDPSetEnvColor(POLY_OPA_DISP++, D_8081588C_cj0[this->walletUpgrades[sp23A]][0],
+                       D_8081588C_cj0[this->walletUpgrades[sp23A]][1], D_8081588C_cj0[this->walletUpgrades[sp23A]][2],
+                       255);
         gSPVertex(POLY_OPA_DISP++, &this->windowContentVtx[D_80815808_cj0[fileIndex] + 200], 4, 0);
         gDPLoadTextureBlock(POLY_OPA_DISP++, gFileSelRupeeTex, G_IM_FMT_IA, G_IM_SIZ_8b, 16, 16, 0,
                             G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                             G_TX_NOLOD);
         gSP1Quadrangle(POLY_OPA_DISP++, 0, 2, 3, 1, 0);
         gDPPipeSync(POLY_OPA_DISP++);
-        gDPSetCombineLERP(POLY_OPA_DISP++, 1, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, 1, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0);
+        gDPSetCombineLERP(POLY_OPA_DISP++, 1, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, 1, 0, PRIMITIVE, 0, TEXEL0, 0,
+                          PRIMITIVE, 0);
         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 0, 0, 0, this->fileInfoAlpha[fileIndex]);
         gSPVertex(POLY_OPA_DISP++, &this->windowContentVtx[D_80815808_cj0[fileIndex] + 76], 12, 0);
 
         FileSelect_SplitNumber_JP(this->rupees[sp23A], &sp228[0], &sp228[1], &sp228[2]);
-        
+
         for (var_s1 = 0, var_s0 = D_80815684_cj0[this->walletUpgrades[sp23A]]; var_s0 < 3; var_s1 += 4, var_s0++) {
             FileSelect_DrawTexQuadI4_JP(this->state.gfxCtx, font->fontBuf + sp228[var_s0] * FONT_CHAR_TEX_SIZE, var_s1);
         }
@@ -1106,18 +1187,22 @@ void FileSelect_DrawFileInfo_JP(GameState* thisx, s16 fileIndex) {
         }
 
         gDPPipeSync(POLY_OPA_DISP++);
-        gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+        gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
+                          PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 0, 0, this->fileInfoAlpha[fileIndex]);
         gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
         gSPVertex(POLY_OPA_DISP++, &this->windowContentVtx[D_80815808_cj0[fileIndex] + 204], 4, 0);
-        POLY_OPA_DISP = FileSelect_DrawTexQuadIA8_JP(POLY_OPA_DISP, D_80815830_cj0[this->heartPieceCount[sp23A]], 24, 16, 0);
+        POLY_OPA_DISP =
+            FileSelect_DrawTexQuadIA8_JP(POLY_OPA_DISP, D_80815830_cj0[this->heartPieceCount[sp23A]], 24, 16, 0);
         if (this->defenseHearts[sp23A] == 0) {
             var_a2 = 0;
         } else {
             var_a2 = 1;
         }
-        gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, D_808158A0_cj0[var_a2][0], D_808158A0_cj0[var_a2][1], D_808158A0_cj0[var_a2][2], this->fileInfoAlpha[fileIndex]);
-        gDPSetEnvColor(POLY_OPA_DISP++, D_808158AC_cj0[var_a2][0], D_808158AC_cj0[var_a2][1], D_808158AC_cj0[var_a2][2], 255);
+        gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, D_808158A0_cj0[var_a2][0], D_808158A0_cj0[var_a2][1],
+                        D_808158A0_cj0[var_a2][2], this->fileInfoAlpha[fileIndex]);
+        gDPSetEnvColor(POLY_OPA_DISP++, D_808158AC_cj0[var_a2][0], D_808158AC_cj0[var_a2][1], D_808158AC_cj0[var_a2][2],
+                       255);
         var_t1 = this->health[sp23A];
         var_s0 = this->healthCapacity[sp23A] / 16;
         if ((this->isOwlSave[sp23A] == 0) && (var_t1 < 0x31)) {
@@ -1142,12 +1227,12 @@ void FileSelect_DrawFileInfo_JP(GameState* thisx, s16 fileIndex) {
 
             POLY_OPA_DISP = FileSelect_DrawTexQuadIA8_JP(POLY_OPA_DISP, D_80815840_cj0[var_a2][var_t2], 16, 16, 0);
         }
-        
+
         gDPPipeSync(POLY_OPA_DISP++);
         gDPSetCombineMode(POLY_OPA_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, this->fileInfoAlpha[fileIndex]);
         gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
-        
+
         for (var_s1 = 0, var_t3 = 0; var_t3 < 4; var_t3++, var_s1 += 4) {
             if (this->questItems[sp23A] & gBitFlags[var_t3]) {
                 gSPVertex(POLY_OPA_DISP++, &this->windowContentVtx[D_80815808_cj0[fileIndex] + 184 + var_s1], 4, 0);
@@ -1158,7 +1243,8 @@ void FileSelect_DrawFileInfo_JP(GameState* thisx, s16 fileIndex) {
             }
         }
         gDPPipeSync(POLY_OPA_DISP++);
-        gDPSetCombineLERP(POLY_OPA_DISP++, 1, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, 1, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0);
+        gDPSetCombineLERP(POLY_OPA_DISP++, 1, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, 1, 0, PRIMITIVE, 0, TEXEL0, 0,
+                          PRIMITIVE, 0);
         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 0, 0, 0, this->fileInfoAlpha[fileIndex]);
         gSPVertex(POLY_OPA_DISP++, &this->windowContentVtx[D_80815808_cj0[fileIndex] + 208], 8, 0);
         gDPLoadTextureBlock_4b(POLY_OPA_DISP++, gFileSelMASKSENGTex, G_IM_FMT_I, 64, 16, 0, G_TX_NOMIRROR | G_TX_WRAP,
@@ -1174,17 +1260,17 @@ void FileSelect_DrawFileInfo_JP(GameState* thisx, s16 fileIndex) {
         for (var_s1 = 0, var_s0 = 1; var_s0 < 3; var_s1 += 4, var_s0++) {
             FileSelect_DrawTexQuadI4_JP(this->state.gfxCtx, font->fontBuf + sp228[var_s0] * FONT_CHAR_TEX_SIZE, var_s1);
         }
-        
+
         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, this->fileInfoAlpha[fileIndex]);
         gSPVertex(POLY_OPA_DISP++, &this->windowContentVtx[D_80815808_cj0[fileIndex] + 88], 8, 0);
-        
+
         for (var_s1 = 0, var_s0 = 1; var_s0 < 3; var_s1 += 4, var_s0++) {
             FileSelect_DrawTexQuadI4_JP(this->state.gfxCtx, font->fontBuf + sp228[var_s0] * FONT_CHAR_TEX_SIZE, var_s1);
         }
     }
 
     if (this->isOwlSave[fileIndex + 2] != 0) {
-        
+
         gDPPipeSync(POLY_OPA_DISP++);
         gDPSetCombineMode(POLY_OPA_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, this->nameAlpha[fileIndex]);
@@ -1219,11 +1305,12 @@ void FileSelect_DrawFileInfo_JP(GameState* thisx, s16 fileIndex) {
             sp230[3]++;
             sp230[4] -= 10;
         }
-        
+
         sp230[2] = 0xE3;
-        
+
         gDPPipeSync(POLY_OPA_DISP++);
-        gDPSetCombineLERP(POLY_OPA_DISP++, 1, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, 1, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0);
+        gDPSetCombineLERP(POLY_OPA_DISP++, 1, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, 1, 0, PRIMITIVE, 0, TEXEL0, 0,
+                          PRIMITIVE, 0);
         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 0, 0, 0, this->fileInfoAlpha[fileIndex]);
         gSPVertex(POLY_OPA_DISP++, &this->windowContentVtx[D_80815808_cj0[fileIndex] + 248], 20, 0);
 
@@ -1241,15 +1328,14 @@ void FileSelect_DrawFileInfo_JP(GameState* thisx, s16 fileIndex) {
         gDPSetCombineMode(POLY_OPA_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, this->fileInfoAlpha[fileIndex]);
         gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
-        
 
         for (var_s1 = 0, var_t3 = 0; var_t3 < 4; var_t3++, var_s1 += 4) {
 
             if (this->questItems[fileIndex] & gBitFlags[var_t3]) {
                 gSPVertex(POLY_OPA_DISP++, &this->windowContentVtx[D_80815808_cj0[fileIndex] + 184 + var_s1], 4, 0);
                 gDPLoadTextureBlock(POLY_OPA_DISP++, D_80815810_cj0[var_t3], G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 32, 0,
-                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                G_TX_NOLOD, G_TX_NOLOD);
+                                    G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                                    G_TX_NOLOD, G_TX_NOLOD);
                 gSP1Quadrangle(POLY_OPA_DISP++, 0, 2, 3, 1, 0);
             }
         }
@@ -1262,15 +1348,10 @@ s16 D_80815678_cj0[] = { 100, 150, 255 };
 
 // sFileInfoBoxTextures
 TexturePtr D_808158B8_cj0[] = {
-    gFileSelFileInfoBox0Tex,
-    gFileSelFileInfoBox1Tex,
-    gFileSelFileInfoBox2Tex,
-    gFileSelFileInfoBox3Tex,
-    gFileSelFileInfoBox4Tex,
-    gFileSelFileExtraInfoBox0Tex,
-    gFileSelFileExtraInfoBox1Tex,
+    gFileSelFileInfoBox0Tex, gFileSelFileInfoBox1Tex,      gFileSelFileInfoBox2Tex,      gFileSelFileInfoBox3Tex,
+    gFileSelFileInfoBox4Tex, gFileSelFileExtraInfoBox0Tex, gFileSelFileExtraInfoBox1Tex,
 };
-    
+
 // jp equivalent sTitleLabels
 TexturePtr D_808158D4_cj0[][9] = {
     {
@@ -1305,16 +1386,14 @@ TexturePtr D_8081590C_cj0[][3] = {
         gFileSelFile3ButtonENGTex,
     },
 };
-    
+
 // jp equivalent sActionButtonTextures
-TexturePtr D_80815918_cj0[][4] = {
-    {
-        gFileSelCopyButtonENGTex,
-        gFileSelEraseButtonENGTex,
-        gFileSelYesButtonENGTex,
-        gFileSelQuitButtonENGTex,
-    }
-};
+TexturePtr D_80815918_cj0[][4] = { {
+    gFileSelCopyButtonENGTex,
+    gFileSelEraseButtonENGTex,
+    gFileSelYesButtonENGTex,
+    gFileSelQuitButtonENGTex,
+} };
 
 // jp array for jp equivalent to gFileSelOptionsButtonENGTex
 TexturePtr D_80815928_cj0[] = {
@@ -1330,34 +1409,37 @@ void FileSelect_DrawWindowContents_JP(GameState* thisx) {
     s16 var_t3;
 
     OPEN_DISPS(this->state.gfxCtx);
-    
+
     gDPPipeSync(POLY_OPA_DISP++);
-    gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+    gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE,
+                      ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, this->titleAlpha[0]);
     gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 0);
     gSPVertex(POLY_OPA_DISP++, &this->windowContentVtx[0], 4, 0);
-    gDPLoadTextureBlock(POLY_OPA_DISP++, D_808158D4_cj0[/*gSaveContext.options.language*/ LANGUAGE_JPN][this->titleLabel], G_IM_FMT_IA, G_IM_SIZ_8b, 128, 16, 0,
-                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
-                        G_TX_NOLOD);
+    gDPLoadTextureBlock(POLY_OPA_DISP++,
+                        D_808158D4_cj0[/*gSaveContext.options.language*/ LANGUAGE_JPN][this->titleLabel], G_IM_FMT_IA,
+                        G_IM_SIZ_8b, 128, 16, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
+                        G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
     gSP1Quadrangle(POLY_OPA_DISP++, 0, 2, 3, 1, 0);
     gDPPipeSync(POLY_OPA_DISP++);
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, this->titleAlpha[1]);
 
-
-    gDPLoadTextureBlock(POLY_OPA_DISP++, D_808158D4_cj0[/*gSaveContext.options.language*/ LANGUAGE_JPN][this->nextTitleLabel], G_IM_FMT_IA, G_IM_SIZ_8b, 128, 16, 0,
-                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
-                        G_TX_NOLOD);
+    gDPLoadTextureBlock(POLY_OPA_DISP++,
+                        D_808158D4_cj0[/*gSaveContext.options.language*/ LANGUAGE_JPN][this->nextTitleLabel],
+                        G_IM_FMT_IA, G_IM_SIZ_8b, 128, 16, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP,
+                        G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
     gSP1Quadrangle(POLY_OPA_DISP++, 0, 2, 3, 1, 0);
-    
+
     var_s6 = 4;
-    
+
     gDPPipeSync(POLY_OPA_DISP++);
 
     for (var_s0 = 0; var_s0 < 3; var_s0++, var_s6 += 0x1C) {
         if (var_s0 < 2) {
             gDPPipeSync(POLY_OPA_DISP++);
-            gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, this->windowColor[0], this->windowColor[1], this->windowColor[2], this->fileInfoAlpha[var_s0]);
+            gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, this->windowColor[0], this->windowColor[1], this->windowColor[2],
+                            this->fileInfoAlpha[var_s0]);
             gSPVertex(POLY_OPA_DISP++, &this->windowContentVtx[var_s6], 28, 0);
             for (var_t3 = 0, var_t2 = 0; var_t2 < 7; var_t2++, var_t3 += 4) {
                 if (var_t2 < 5 || (this->isOwlSave[var_s0 + 2] != 0 && var_t2 >= 5)) {
@@ -1369,32 +1451,36 @@ void FileSelect_DrawWindowContents_JP(GameState* thisx) {
             }
         }
     }
-    
+
     gDPPipeSync(POLY_OPA_DISP++);
     for (var_t2 = 0; var_t2 < 3; var_t2++, var_s6 += 0x10) {
         if (var_t2 < 2) {
-            gSPVertex(POLY_OPA_DISP++,  &this->windowContentVtx[var_s6], 16, 0);
-            gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, D_80815678_cj0[0], D_80815678_cj0[1], D_80815678_cj0[2], this->fileButtonAlpha[var_t2]);
-            gDPLoadTextureBlock(POLY_OPA_DISP++, D_8081590C_cj0[/*gSaveContext.options.language*/ LANGUAGE_JPN][var_t2], G_IM_FMT_IA, G_IM_SIZ_16b, 64, 16, 0,
-                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                G_TX_NOLOD, G_TX_NOLOD);
+            gSPVertex(POLY_OPA_DISP++, &this->windowContentVtx[var_s6], 16, 0);
+            gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, D_80815678_cj0[0], D_80815678_cj0[1], D_80815678_cj0[2],
+                            this->fileButtonAlpha[var_t2]);
+            gDPLoadTextureBlock(POLY_OPA_DISP++, D_8081590C_cj0[/*gSaveContext.options.language*/ LANGUAGE_JPN][var_t2],
+                                G_IM_FMT_IA, G_IM_SIZ_16b, 64, 16, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
             gSP1Quadrangle(POLY_OPA_DISP++, 0, 2, 3, 1, 0);
-            
-            gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, D_80815678_cj0[0], D_80815678_cj0[1], D_80815678_cj0[2], this->nameBoxAlpha[var_t2]);
+
+            gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, D_80815678_cj0[0], D_80815678_cj0[1], D_80815678_cj0[2],
+                            this->nameBoxAlpha[var_t2]);
             gDPLoadTextureBlock(POLY_OPA_DISP++, gFileSelFileNameBoxTex, G_IM_FMT_IA, G_IM_SIZ_16b, 108, 16, 0,
                                 G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                 G_TX_NOLOD, G_TX_NOLOD);
             gSP1Quadrangle(POLY_OPA_DISP++, 4, 6, 7, 5, 0);
 
-            gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, D_80815678_cj0[0], D_80815678_cj0[1], D_80815678_cj0[2], this->connectorAlpha[var_t2]);
+            gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, D_80815678_cj0[0], D_80815678_cj0[1], D_80815678_cj0[2],
+                            this->connectorAlpha[var_t2]);
             gDPLoadTextureBlock(POLY_OPA_DISP++, gFileSelConnectorTex, G_IM_FMT_IA, G_IM_SIZ_8b, 24, 16, 0,
                                 G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                 G_TX_NOLOD, G_TX_NOLOD);
             gSP1Quadrangle(POLY_OPA_DISP++, 8, 10, 11, 9, 0);
-            
+
             if (this->isOwlSave[var_t2 + 2] != 0) {
 
-                gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, D_80815678_cj0[0], D_80815678_cj0[1], D_80815678_cj0[2], this->nameBoxAlpha[var_t2]);
+                gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, D_80815678_cj0[0], D_80815678_cj0[1], D_80815678_cj0[2],
+                                this->nameBoxAlpha[var_t2]);
                 gDPLoadTextureBlock(POLY_OPA_DISP++, gFileSelBlankButtonTex, G_IM_FMT_IA, G_IM_SIZ_16b, 52, 16, 0,
                                     G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                     G_TX_NOLOD, G_TX_NOLOD);
@@ -1408,7 +1494,8 @@ void FileSelect_DrawWindowContents_JP(GameState* thisx) {
     }
     gDPPipeSync(POLY_OPA_DISP++);
 
-    gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+    gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE,
+                      ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
 
     gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 0);
 
@@ -1417,10 +1504,11 @@ void FileSelect_DrawWindowContents_JP(GameState* thisx) {
     for (var_t3 = 0, var_t2 = 0; var_t2 < 2; var_t2++, var_t3 += 4) {
         gDPPipeSync(POLY_OPA_DISP++);
 
-        gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, this->windowColor[0], this->windowColor[1], this->windowColor[2], this->actionButtonAlpha[var_t2]);
-        gDPLoadTextureBlock(POLY_OPA_DISP++, D_80815918_cj0[/*gSaveContext.options.language*/ LANGUAGE_JPN][var_t2], G_IM_FMT_IA, G_IM_SIZ_16b, 64, 16, 0,
-                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
-                            G_TX_NOLOD);
+        gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, this->windowColor[0], this->windowColor[1], this->windowColor[2],
+                        this->actionButtonAlpha[var_t2]);
+        gDPLoadTextureBlock(POLY_OPA_DISP++, D_80815918_cj0[/*gSaveContext.options.language*/ LANGUAGE_JPN][var_t2],
+                            G_IM_FMT_IA, G_IM_SIZ_16b, 64, 16, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP,
+                            G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         gSP1Quadrangle(POLY_OPA_DISP++, var_t3, var_t3 + 2, var_t3 + 3, var_t3 + 1, 0);
     }
 
@@ -1429,52 +1517,61 @@ void FileSelect_DrawWindowContents_JP(GameState* thisx) {
     for (var_t3 = 0, var_t2 = 0; var_t2 < 2; var_t2++, var_t3 += 4) {
         var_s6 = this->confirmButtonTexIndices[var_t2];
 
-        gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, this->windowColor[0], this->windowColor[1], this->windowColor[2], this->confirmButtonAlpha[var_t2]);
+        gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, this->windowColor[0], this->windowColor[1], this->windowColor[2],
+                        this->confirmButtonAlpha[var_t2]);
 
-        gDPLoadTextureBlock(POLY_OPA_DISP++, D_80815918_cj0[/*gSaveContext.options.language*/ LANGUAGE_JPN][var_s6], G_IM_FMT_IA, G_IM_SIZ_16b, 64, 16, 0,
-                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
-                            G_TX_NOLOD);
+        gDPLoadTextureBlock(POLY_OPA_DISP++, D_80815918_cj0[/*gSaveContext.options.language*/ LANGUAGE_JPN][var_s6],
+                            G_IM_FMT_IA, G_IM_SIZ_16b, 64, 16, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP,
+                            G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         gSP1Quadrangle(POLY_OPA_DISP++, var_t3, var_t3 + 2, var_t3 + 3, var_t3 + 1, 0);
     }
 
     gDPPipeSync(POLY_OPA_DISP++);
-    gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, this->windowColor[0], this->windowColor[1], this->windowColor[2], this->optionButtonAlpha);
-    
-    if (/*gSaveContext.options.language == LANGUAGE_JPN*/true) {
+    gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, this->windowColor[0], this->windowColor[1], this->windowColor[2],
+                    this->optionButtonAlpha);
+
+    if (/*gSaveContext.options.language == LANGUAGE_JPN*/ true) {
         gDPLoadTextureBlock(POLY_OPA_DISP++, gFileSelOptionsButtonENGTex, G_IM_FMT_IA, G_IM_SIZ_16b, 64, 16, 0,
-                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
-                        G_TX_NOLOD);
+                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
+                            G_TX_NOLOD);
     }
-    gDPLoadTextureBlock(POLY_OPA_DISP++, D_80815928_cj0[/*gSaveContext.options.language*/ LANGUAGE_JPN], G_IM_FMT_IA, G_IM_SIZ_16b, 64, 16, 0,
-                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
-                        G_TX_NOLOD);
+    gDPLoadTextureBlock(POLY_OPA_DISP++, D_80815928_cj0[/*gSaveContext.options.language*/ LANGUAGE_JPN], G_IM_FMT_IA,
+                        G_IM_SIZ_16b, 64, 16, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
+                        G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
     gSP1Quadrangle(POLY_OPA_DISP++, 8, 10, 11, 9, 0);
 
-    if (((this->menuMode == 0) && ((this->configMode == 2) || (this->configMode == 4) || (this->configMode == 7) || (this->configMode == 0xC) || (this->configMode == 0x16) || (this->configMode == 0x19))) || ((this->menuMode == 1) && (this->selectMode == 3))) {
+    if (((this->menuMode == 0) &&
+         ((this->configMode == 2) || (this->configMode == 4) || (this->configMode == 7) || (this->configMode == 0xC) ||
+          (this->configMode == 0x16) || (this->configMode == 0x19))) ||
+        ((this->menuMode == 1) && (this->selectMode == 3))) {
         gDPPipeSync(POLY_OPA_DISP++);
 
-        gDPSetCombineLERP(POLY_OPA_DISP++, 1, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, 1, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0);
+        gDPSetCombineLERP(POLY_OPA_DISP++, 1, 0, PRIMITIVE, 0, TEXEL0, 0, PRIMITIVE, 0, 1, 0, PRIMITIVE, 0, TEXEL0, 0,
+                          PRIMITIVE, 0);
 
-        gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, this->highlightColor[0], this->highlightColor[1], this->highlightColor[2], this->highlightColor[3]);
+        gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, this->highlightColor[0], this->highlightColor[1],
+                        this->highlightColor[2], this->highlightColor[3]);
 
         gDPLoadTextureBlock(POLY_OPA_DISP++, gFileSelBigButtonHighlightTex, G_IM_FMT_I, G_IM_SIZ_8b, 72, 24, 0,
                             G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                             G_TX_NOLOD);
-        
+
         gSP1Quadrangle(POLY_OPA_DISP++, 12, 14, 15, 13, 0);
     }
     if (this->warningLabel >= 0) {
         gDPPipeSync(POLY_OPA_DISP++);
 
-        gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+        gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
+                          PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
 
         gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, this->emptyFileTextAlpha);
 
         gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 0);
 
-        gDPLoadTextureBlock(POLY_OPA_DISP++, D_808158F8_cj0[/*gSaveContext.options.language*/ LANGUAGE_JPN][this->warningLabel], G_IM_FMT_IA, G_IM_SIZ_8b, 128, 16, 0,
-                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
-                            G_TX_NOLOD);
+        gDPLoadTextureBlock(POLY_OPA_DISP++,
+                            D_808158F8_cj0[/*gSaveContext.options.language*/ LANGUAGE_JPN][this->warningLabel],
+                            G_IM_FMT_IA, G_IM_SIZ_8b, 128, 16, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP,
+                            G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
 
         gSP1Quadrangle(POLY_OPA_DISP++, 16, 18, 19, 17, 0);
     }
@@ -1496,11 +1593,11 @@ void FileSelect_ConfigModeDraw_JP(GameState* thisx) {
     FileSelect_SetWindowVtx_JP(&this->state);
     FileSelect_SetWindowContentVtx_JP(&this->state);
 
-
     if ((this->configMode != 0x24) && (this->configMode != 0x23)) {
         gDPPipeSync(POLY_OPA_DISP++);
         gDPSetCombineMode(POLY_OPA_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
-        gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, this->windowColor[0], this->windowColor[1], this->windowColor[2], this->windowAlpha);
+        gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, this->windowColor[0], this->windowColor[1], this->windowColor[2],
+                        this->windowAlpha);
         gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 0);
         Matrix_Translate(0.0f, 0.0f, -93.6f, 0);
         Matrix_Scale(0.78f, 0.78f, 0.78f, 1);
@@ -1523,7 +1620,8 @@ void FileSelect_ConfigModeDraw_JP(GameState* thisx) {
         gDPPipeSync(POLY_OPA_DISP++);
 
         gDPSetCombineMode(POLY_OPA_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
-        gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, this->windowColor[0], this->windowColor[1], this->windowColor[2], this->windowAlpha);
+        gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, this->windowColor[0], this->windowColor[1], this->windowColor[2],
+                        this->windowAlpha);
         gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 0);
 
         Matrix_Translate(0.0f, 0.0f, -93.6f, 0);
@@ -1543,7 +1641,8 @@ void FileSelect_ConfigModeDraw_JP(GameState* thisx) {
 
         gDPPipeSync(POLY_OPA_DISP++);
         gDPSetCombineMode(POLY_OPA_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
-        gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, this->windowColor[0], this->windowColor[1], this->windowColor[2], this->windowAlpha);
+        gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, this->windowColor[0], this->windowColor[1], this->windowColor[2],
+                        this->windowAlpha);
         gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 0);
         Matrix_Translate(0.0f, 0.0f, -93.6f, 0);
         Matrix_Scale(0.78f, 0.78f, 0.78f, 1);
@@ -1557,7 +1656,7 @@ void FileSelect_ConfigModeDraw_JP(GameState* thisx) {
         gSPVertex(POLY_OPA_DISP++, &this->windowVtx[64], 16, 0);
         gSPDisplayList(POLY_OPA_DISP++, gFileSelWindow3DL);
         gDPPipeSync(POLY_OPA_DISP++);
-        
+
         FileSelect_DrawOptions_JP(&this->state);
     }
 
@@ -1809,14 +1908,10 @@ void FileSelect_LoadGame_JP(GameState* thisx) {
 
 // sSelectModeUpdateFuncs
 void (*D_80815934_cj0[])(GameState*) = {
-    FileSelect_FadeMainToSelect_JP,
-    FileSelect_MoveSelectedFileToTop_JP,
-    FileSelect_FadeInFileInfo_JP,
-    FileSelect_ConfirmFile_JP,
-    FileSelect_FadeOutFileInfo_JP,
-    FileSelect_MoveSelectedFileToSlot_JP,
-    FileSelect_FadeOut_JP,
-    FileSelect_LoadGame_JP,
+    FileSelect_FadeMainToSelect_JP, FileSelect_MoveSelectedFileToTop_JP,
+    FileSelect_FadeInFileInfo_JP,   FileSelect_ConfirmFile_JP,
+    FileSelect_FadeOutFileInfo_JP,  FileSelect_MoveSelectedFileToSlot_JP,
+    FileSelect_FadeOut_JP,          FileSelect_LoadGame_JP,
 };
 
 // FileSelect_SelectModeUpdate
@@ -2025,13 +2120,13 @@ void FileSelect_Main_JP(GameState* thisx) {
         texIndex = 1;
     }
 
-    gDPLoadTextureBlock(POLY_OPA_DISP++, D_80815964_cj0[texIndex], G_IM_FMT_IA, G_IM_SIZ_8b, D_80815970_cj0[texIndex], 16, 0,
-                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
-                        G_TX_NOLOD);
+    gDPLoadTextureBlock(POLY_OPA_DISP++, D_80815964_cj0[texIndex], G_IM_FMT_IA, G_IM_SIZ_8b, D_80815970_cj0[texIndex],
+                        16, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOMIRROR | G_TX_WRAP,
+                        G_TX_NOMASK, G_TX_NOLOD);
 
     gSPTextureRectangle(POLY_OPA_DISP++, D_80815978_cj0[texIndex] << 2, 204 << 2,
-                        (D_80815978_cj0[texIndex] + D_80815970_cj0[texIndex]) << 2, (204 + 16) << 2, G_TX_RENDERTILE, 0, 0,
-                        1 << 10, 1 << 10);
+                        (D_80815978_cj0[texIndex] + D_80815970_cj0[texIndex]) << 2, (204 + 16) << 2, G_TX_RENDERTILE, 0,
+                        0, 1 << 10, 1 << 10);
 
     gDPPipeSync(POLY_OPA_DISP++);
     gSPDisplayList(POLY_OPA_DISP++, D_80815640_cj0);

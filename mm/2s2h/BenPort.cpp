@@ -789,7 +789,8 @@ extern "C" uint32_t ResourceMgr_GetGameRegion(int index) {
 }
 
 extern "C" uint32_t ResourceMgr_GetGameDefaultLanguage(int index) {
-    uint32_t version = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->GetGameVersions()[index];
+    uint32_t version =
+        Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->GetGameVersions()[index];
 
     switch (version) {
         case OOT_NTSC_US_10:

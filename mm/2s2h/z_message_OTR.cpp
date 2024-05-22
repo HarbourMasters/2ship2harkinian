@@ -29,7 +29,6 @@ MessageTableEntry* OTRMessage_LoadTable(const char* filePath, bool isNES) {
         table[i].typePos = (file->messages[i].textboxType << 4) | file->messages[i].textboxYPos;
         table[i].segment = (const char*)malloc(file->messages[i].msg.size() + offset);
 
-
         if (isNES) {
             auto segment = (char*)table[i].segment;
             segment[0] = file->messages[i].textboxType;
@@ -75,14 +74,14 @@ extern "C" void OTRMessage_Init(PlayState* play, bool isJP) {
     // OTRTODO: Added a lot of null checks here so that we don't malloc the table multiple times causing a memory leak.
     // We really ought to fix the implementation such that we aren't malloc'ing new tables.
     // Once we fix the implementation, remove these NULL checks.
-    //if (play->msgCtx.messageEntryTableNes == NULL) {
-        // OTRTODO: 
-        if (isJP) {
-            OTRJPFontMessage_Init();
-        } else {
-            play->msgCtx.messageEntryTableNes = OTRMessage_LoadTable("text/message_data_static/message_data_static", true);
-            play->msgCtx.messageEntryTable = play->msgCtx.messageEntryTableNes;
-        }
+    // if (play->msgCtx.messageEntryTableNes == NULL) {
+    // OTRTODO:
+    if (isJP) {
+        OTRJPFontMessage_Init();
+    } else {
+        play->msgCtx.messageEntryTableNes = OTRMessage_LoadTable("text/message_data_static/message_data_static", true);
+        play->msgCtx.messageEntryTable = play->msgCtx.messageEntryTableNes;
+    }
     //}
 
     // if (play->msgCtx.messageTableStaff == NULL) {

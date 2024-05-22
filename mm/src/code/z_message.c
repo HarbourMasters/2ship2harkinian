@@ -689,7 +689,7 @@ void func_80148D64(PlayState* play) {
                 msgCtx->decodedBuffer.wchar[msgCtx->unk120C0 + msgCtx->unk120C2] = 0x8258;
             }
             Font_LoadChar(play, msgCtx->decodedBuffer.wchar[msgCtx->unk120C0 + msgCtx->unk120C2],
-                            msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
+                          msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
             Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
         } else if (msgCtx->stickAdjY >= 30) {
             msgCtx->decodedBuffer.wchar[msgCtx->unk120C0 + msgCtx->unk120C2]++;
@@ -697,7 +697,7 @@ void func_80148D64(PlayState* play) {
                 msgCtx->decodedBuffer.wchar[msgCtx->unk120C0 + msgCtx->unk120C2] = 0x824F;
             }
             Font_LoadChar(play, msgCtx->decodedBuffer.wchar[msgCtx->unk120C0 + msgCtx->unk120C2],
-                            msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
+                          msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
             Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
         } else if ((msgCtx->stickAdjX >= 30) && !sAnalogStickHeld) {
             sAnalogStickHeld = true;
@@ -729,7 +729,7 @@ void func_80148D64(PlayState* play) {
                 msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2] = '9';
             }
             Font_LoadCharNES(play, msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2],
-                            msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
+                             msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
             Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
         } else if (msgCtx->stickAdjY >= 30) {
             msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2]++;
@@ -737,7 +737,7 @@ void func_80148D64(PlayState* play) {
                 msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2] = '0';
             }
             Font_LoadCharNES(play, msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2],
-                            msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
+                             msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
             Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
         } else if ((msgCtx->stickAdjX >= 30) && !sAnalogStickHeld) {
             sAnalogStickHeld = true;
@@ -775,7 +775,7 @@ void func_80149048(PlayState* play) {
                 msgCtx->decodedBuffer.wchar[msgCtx->unk120C0 + msgCtx->unk120C2] = 0x8258;
             }
             Font_LoadChar(play, msgCtx->decodedBuffer.wchar[msgCtx->unk120C0 + msgCtx->unk120C2],
-                            msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
+                          msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
             Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
         } else if (msgCtx->stickAdjY >= 30) {
             msgCtx->decodedBuffer.wchar[msgCtx->unk120C0 + msgCtx->unk120C2]++;
@@ -783,7 +783,7 @@ void func_80149048(PlayState* play) {
                 msgCtx->decodedBuffer.wchar[msgCtx->unk120C0 + msgCtx->unk120C2] = 0x824F;
             }
             Font_LoadChar(play, msgCtx->decodedBuffer.wchar[msgCtx->unk120C0 + msgCtx->unk120C2],
-                            msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
+                          msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
             Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
         }
 
@@ -795,7 +795,7 @@ void func_80149048(PlayState* play) {
                 msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2] = '9';
             }
             Font_LoadCharNES(play, msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2],
-                            msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
+                             msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
             Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
         } else if (msgCtx->stickAdjY >= 30) {
             msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2]++;
@@ -803,7 +803,7 @@ void func_80149048(PlayState* play) {
                 msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2] = '0';
             }
             Font_LoadCharNES(play, msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2],
-                            msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
+                             msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
             Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
         }
 
@@ -821,18 +821,20 @@ void func_801491DC(PlayState* play) {
             if (msgCtx->unk12054[msgCtx->unk120C2] <= 0) {
                 msgCtx->unk12054[msgCtx->unk120C2] = 5;
             }
-            msgCtx->decodedBuffer.wchar[msgCtx->unk120C0 + msgCtx->unk120C2] = msgCtx->unk12054[msgCtx->unk120C2] + 0x824F;
+            msgCtx->decodedBuffer.wchar[msgCtx->unk120C0 + msgCtx->unk120C2] =
+                msgCtx->unk12054[msgCtx->unk120C2] + 0x824F;
             Font_LoadChar(play, msgCtx->decodedBuffer.wchar[msgCtx->unk120C0 + msgCtx->unk120C2],
-                            msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
+                          msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
             Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
         } else if (msgCtx->stickAdjY >= 30) {
             msgCtx->unk12054[msgCtx->unk120C2]++;
             if (msgCtx->unk12054[msgCtx->unk120C2] > 5) {
                 msgCtx->unk12054[msgCtx->unk120C2] = 1;
             }
-            msgCtx->decodedBuffer.wchar[msgCtx->unk120C0 + msgCtx->unk120C2] = msgCtx->unk12054[msgCtx->unk120C2] + 0x824F;
+            msgCtx->decodedBuffer.wchar[msgCtx->unk120C0 + msgCtx->unk120C2] =
+                msgCtx->unk12054[msgCtx->unk120C2] + 0x824F;
             Font_LoadChar(play, msgCtx->decodedBuffer.wchar[msgCtx->unk120C0 + msgCtx->unk120C2],
-                            msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
+                          msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
             Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
         } else if ((msgCtx->stickAdjX >= 30) && !sAnalogStickHeld) {
             sAnalogStickHeld = true;
@@ -861,7 +863,7 @@ void func_801491DC(PlayState* play) {
             }
             msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2] = msgCtx->unk12054[msgCtx->unk120C2] + '0';
             Font_LoadCharNES(play, msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2],
-                            msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
+                             msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
             Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
         } else if (msgCtx->stickAdjY >= 30) {
             msgCtx->unk12054[msgCtx->unk120C2]++;
@@ -870,7 +872,7 @@ void func_801491DC(PlayState* play) {
             }
             msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2] = msgCtx->unk12054[msgCtx->unk120C2] + '0';
             Font_LoadCharNES(play, msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2],
-                            msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
+                             msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
             Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
         } else if ((msgCtx->stickAdjX >= 30) && !sAnalogStickHeld) {
             sAnalogStickHeld = true;
@@ -904,18 +906,20 @@ void func_80149454(PlayState* play) {
             if (msgCtx->unk12054[msgCtx->unk120C2] < 0) {
                 msgCtx->unk12054[msgCtx->unk120C2] = 9;
             }
-            msgCtx->decodedBuffer.wchar[msgCtx->unk120C0 + msgCtx->unk120C2] = msgCtx->unk12054[msgCtx->unk120C2] + 0x824F;
+            msgCtx->decodedBuffer.wchar[msgCtx->unk120C0 + msgCtx->unk120C2] =
+                msgCtx->unk12054[msgCtx->unk120C2] + 0x824F;
             Font_LoadChar(play, msgCtx->decodedBuffer.wchar[msgCtx->unk120C0 + msgCtx->unk120C2],
-                            msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
+                          msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
             Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
         } else if (msgCtx->stickAdjY >= 30) {
             msgCtx->unk12054[msgCtx->unk120C2]++;
             if (msgCtx->unk12054[msgCtx->unk120C2] > 9) {
                 msgCtx->unk12054[msgCtx->unk120C2] = 0;
             }
-            msgCtx->decodedBuffer.wchar[msgCtx->unk120C0 + msgCtx->unk120C2] = msgCtx->unk12054[msgCtx->unk120C2] + 0x824F;
+            msgCtx->decodedBuffer.wchar[msgCtx->unk120C0 + msgCtx->unk120C2] =
+                msgCtx->unk12054[msgCtx->unk120C2] + 0x824F;
             Font_LoadChar(play, msgCtx->decodedBuffer.wchar[msgCtx->unk120C0 + msgCtx->unk120C2],
-                            msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
+                          msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
             Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
         } else if ((msgCtx->stickAdjX >= 30) && !sAnalogStickHeld) {
             sAnalogStickHeld = true;
@@ -944,7 +948,7 @@ void func_80149454(PlayState* play) {
             }
             msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2] = msgCtx->unk12054[msgCtx->unk120C2] + '0';
             Font_LoadCharNES(play, msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2],
-                            msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
+                             msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
             Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
         } else if (msgCtx->stickAdjY >= 30) {
             msgCtx->unk12054[msgCtx->unk120C2]++;
@@ -953,7 +957,7 @@ void func_80149454(PlayState* play) {
             }
             msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2] = msgCtx->unk12054[msgCtx->unk120C2] + '0';
             Font_LoadCharNES(play, msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2],
-                            msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
+                             msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
             Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
         } else if ((msgCtx->stickAdjX >= 30) && !sAnalogStickHeld) {
             sAnalogStickHeld = true;
@@ -2309,7 +2313,8 @@ void Message_SetupLoadItemIcon(PlayState* play) {
                     msgCtx->msgBufPos++;
                 } else {
                     msgCtx->msgBufPos++;
-                    if (((font->msgBuf.wchar[msgCtx->msgBufPos]) < 0xC8) || ((font->msgBuf.wchar[msgCtx->msgBufPos]) >= 0xD8)) {
+                    if (((font->msgBuf.wchar[msgCtx->msgBufPos]) < 0xC8) ||
+                        ((font->msgBuf.wchar[msgCtx->msgBufPos]) >= 0xD8)) {
                         msgCtx->itemId = D_801CFF94[font->msgBuf.wchar[msgCtx->msgBufPos]];
                     } else {
                         msgCtx->itemId = 0x270F;
@@ -2342,7 +2347,8 @@ void Message_SetupLoadItemIcon(PlayState* play) {
                     msgCtx->msgBufPos += 2;
                 } else {
                     msgCtx->msgBufPos += 2;
-                    if ((((u8)font->msgBuf.schar[msgCtx->msgBufPos]) < 0xC8) || (((u8)font->msgBuf.schar[msgCtx->msgBufPos]) >= 0xD8)) {
+                    if ((((u8)font->msgBuf.schar[msgCtx->msgBufPos]) < 0xC8) ||
+                        (((u8)font->msgBuf.schar[msgCtx->msgBufPos]) >= 0xD8)) {
                         msgCtx->itemId = D_801CFF94[(u8)font->msgBuf.schar[msgCtx->msgBufPos]];
                     } else {
                         msgCtx->itemId = 0xFE;
@@ -2370,7 +2376,6 @@ void Message_SetupLoadItemIcon(PlayState* play) {
             }
         }
     }
-
 }
 
 void Message_LoadTime(PlayState* play, u16 curChar, s32* offset, f32* arg3, s16* decodedBufPos) {
@@ -2553,7 +2558,7 @@ void Message_Decode(PlayState* play) {
     u16 curChar;
     u8 index2 = 0;
 
-    //BENTODO do this somewhere else
+    // BENTODO do this somewhere else
     gSaveContext.options.language = ResourceMgr_GetGameDefaultLanguage(0);
 
     msgCtx->textDelayTimer = 0;
@@ -2613,7 +2618,8 @@ void Message_Decode(PlayState* play) {
                 if (msgCtx->textboxSkipped || (msgCtx->textBoxType == TEXTBOX_TYPE_1) ||
                     (msgCtx->textBoxType == TEXTBOX_TYPE_3) || (msgCtx->textBoxType == TEXTBOX_TYPE_6) ||
                     (msgCtx->textBoxType == TEXTBOX_TYPE_8) || (msgCtx->textBoxType == TEXTBOX_TYPE_9) ||
-                    (msgCtx->textBoxType == TEXTBOX_TYPE_B) || (msgCtx->textBoxType == TEXTBOX_TYPE_C && ResourceMgr_GetGameDefaultLanguage(0) == LANGUAGE_JPN) || 
+                    (msgCtx->textBoxType == TEXTBOX_TYPE_B) ||
+                    (msgCtx->textBoxType == TEXTBOX_TYPE_C && ResourceMgr_GetGameDefaultLanguage(0) == LANGUAGE_JPN) ||
                     (msgCtx->unk11F0C == 3)) {
                     msgCtx->textDrawPos = msgCtx->decodedTextLen;
                 }
@@ -3584,7 +3590,7 @@ void Message_OpenText(PlayState* play, u16 textId) {
         msgCtx->msgLength = msgEntry->msgSize;
         memcpy(&font->msgBuf, msgEntry->segment, msgEntry->msgSize);
         // msgCtx->msgLength = font->messageEnd;
-        //DmaMgr_SendRequest0(&font->msgBuf, SEGMENT_ROM_START(message_data_static) + font->messageStart,
+        // DmaMgr_SendRequest0(&font->msgBuf, SEGMENT_ROM_START(message_data_static) + font->messageStart,
         //                    font->messageEnd);
     } else {
         Message_FindMessageNES(play, textId);
@@ -5448,7 +5454,8 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
                         temp = msgCtx->unk11FFA + (msgCtx->unk11FFC * temp_v0_33);
                         func_80147F18(play, &gfx,
                                       msgCtx->unk11F1A[temp_v0_33] +
-                                          (s32)(16.0f * msgCtx->textCharScale * (msgCtx->unk120C2 + benUnkScale)) - benUnkOffset,
+                                          (s32)(16.0f * msgCtx->textCharScale * (msgCtx->unk120C2 + benUnkScale)) -
+                                          benUnkOffset,
                                       temp);
                         func_80148D64(play);
                         break;
@@ -5457,7 +5464,8 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
                         temp_v0_33 = msgCtx->unk120BE;
                         temp = msgCtx->unk11FFA + (msgCtx->unk11FFC * temp_v0_33);
                         func_80148558(play, &gfx,
-                                      msgCtx->unk11F1A[temp_v0_33] + (s32)(16.0f * msgCtx->textCharScale * benUnkScale) - benUnkOffset,
+                                      msgCtx->unk11F1A[temp_v0_33] +
+                                          (s32)(16.0f * msgCtx->textCharScale * benUnkScale) - benUnkOffset,
                                       temp);
                         func_80149048(play);
                         break;
@@ -5467,7 +5475,8 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
                         temp = msgCtx->unk11FFA + (msgCtx->unk11FFC * temp_v0_33);
                         func_80147F18(play, &gfx,
                                       msgCtx->unk11F1A[temp_v0_33] +
-                                          (s32)(16.0f * msgCtx->textCharScale * (msgCtx->unk120C2 + benUnkScale)) - benUnkOffset,
+                                          (s32)(16.0f * msgCtx->textCharScale * (msgCtx->unk120C2 + benUnkScale)) -
+                                          benUnkOffset,
                                       temp);
                         func_801491DC(play);
                         break;
@@ -5477,7 +5486,8 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
                         temp = msgCtx->unk11FFA + (msgCtx->unk11FFC * temp_v0_33);
                         func_80147F18(play, &gfx,
                                       msgCtx->unk11F1A[temp_v0_33] +
-                                          (s32)(16.0f * msgCtx->textCharScale * (msgCtx->unk120C2 + benUnkScale)) - benUnkOffset,
+                                          (s32)(16.0f * msgCtx->textCharScale * (msgCtx->unk120C2 + benUnkScale)) -
+                                          benUnkOffset,
                                       temp);
                         func_80149454(play);
                         break;
@@ -6473,8 +6483,8 @@ void Message_Update(PlayState* play) {
 }
 
 void Message_SetTables(PlayState* play) {
-    //play->msgCtx.messageEntryTableNes = D_801C6B98;
-    //play->msgCtx.messageTableStaff = D_801CFB08;
+    // play->msgCtx.messageEntryTableNes = D_801C6B98;
+    // play->msgCtx.messageTableStaff = D_801CFB08;
     OTRMessage_Init(play, ResourceMgr_GetGameDefaultLanguage(0) == LANGUAGE_JPN);
 }
 
