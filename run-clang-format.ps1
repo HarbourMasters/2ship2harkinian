@@ -33,15 +33,15 @@ if (-not (Test-Path $clangFormatFilePath) -or ($currentVersion -ne $requiredVers
     Remove-Item $llvmInstallerPath -Force
 }
 
-$baseDir = "mm"
-
-$files = Get-ChildItem -Path .\mm -Recurse -File `
+$basePath = Resolve-Path .
+$files = Get-ChildItem -Path $basePath\mm -Recurse -File `
     | Where-Object { ($_.Extension -eq '.c' -or $_.Extension -eq '.cpp' -or `
                       ($_.Extension -eq '.h' -and `
-                       (-not ($_.FullName -like "mm\src\*" -or $_.FullName -like "mm\include\*")))) -and `
-                     (-not ($_.FullName -like "mm\assets\*")) }
+                       (-not ($_.FullName -like "*\mm\src\*" -or $_.FullName -like "*\mm\include\*")))) -and `
+                     (-not ($_.FullName -like "*\mm\assets\*")) }
 
 foreach ($file in $files) {
-    Write-Host "Formatting $($file.FullName)"
+    $relativePath = $file.FullName.Substring($basePath.Length + 1)
+    Write-Host "Formatting $relativePath"
     .\clang-format.exe -i $file.FullName
 }
