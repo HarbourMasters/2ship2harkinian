@@ -8,6 +8,11 @@
 #include "macros.h"
 #include "BenJsonConversions.hpp"
 
+extern "C" {
+#include "src/overlays/gamestates/ovl_file_choose/z_file_select.h"
+extern FileSelectState* gFileSelectState;
+}
+
 // This entire thing is temporary until we have a more robust save system that
 // supports backwards compatability, migrations, threaded saving, save sections, etc.
 typedef enum FlashSlotFile {
@@ -99,6 +104,79 @@ int SaveManager_ReadSaveFile(std::filesystem::path fileName, nlohmann::json& j) 
     return 0;
 }
 
+int SaveManager_GetOpenFileSlot() {
+    std::string fileName = "save_0.sav";
+    if (!std::filesystem::exists(savesFolderPath / fileName)) {
+        return 0;
+    }
+
+    fileName = "save_2.sav";
+    if (!std::filesystem::exists(savesFolderPath / fileName)) {
+        return 2;
+    }
+
+    return -1;
+}
+
+bool SaveManager_HandleFileDropped(std::string filePath) {
+    try {
+        std::ifstream fileStream(filePath);
+
+        if (!fileStream.is_open()) {
+            return false;
+        }
+
+        // Check if first byte is "{"
+        if (fileStream.peek() != '{') {
+            return false;
+        }
+
+        nlohmann::json j;
+        try {
+            fileStream >> j;
+        } catch (nlohmann::json::parse_error& e) {
+            SPDLOG_ERROR("Failed to parse JSON: {}", e.what());
+            return false;
+        }
+
+        if (!j.contains("type") || j["type"] != "2S2H_SAVE") {
+            SPDLOG_ERROR("Invalid save file type");
+            return false;
+        }
+
+        int saveSlot = SaveManager_GetOpenFileSlot();
+        if (saveSlot == -1) {
+            SPDLOG_ERROR("No save slot available");
+            auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+            gui->GetGameOverlay()->TextDrawNotification(30.0f, true, "No save slot available");
+            return true;
+        }
+
+        std::string fileName = "save_" + std::to_string(saveSlot) + ".sav";
+
+        SaveManager_WriteSaveFile(fileName, j);
+
+        if (gFileSelectState != NULL) {
+            func_801457CC(&gFileSelectState->state, &gFileSelectState->sramCtx);
+            if (gFileSelectState->menuMode == FS_MENU_MODE_CONFIG && gFileSelectState->configMode == CM_MAIN_MENU) {
+                gFileSelectState->configMode = CM_FADE_IN_START;
+            }
+        }
+
+        return true;
+    } catch (std::exception& e) {
+        SPDLOG_ERROR("Failed to load file: {}", e.what());
+        auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+        gui->GetGameOverlay()->TextDrawNotification(30.0f, true, "Failed to load file");
+        return false;
+    } catch (...) {
+        SPDLOG_ERROR("Failed to load file");
+        auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+        gui->GetGameOverlay()->TextDrawNotification(30.0f, true, "Failed to load file");
+        return false;
+    }
+}
+
 extern "C" void SaveManager_SysFlashrom_WriteData(u8* saveBuffer, u32 pageNum, u32 pageCount) {
     FlashSlotFile flashSlotFile = FLASH_SLOT_FILE_UNAVAILABLE;
     bool isBackup = false;
@@ -132,6 +210,7 @@ extern "C" void SaveManager_SysFlashrom_WriteData(u8* saveBuffer, u32 pageNum, u
 
                 j["save"] = save;
                 j["version"] = CURRENT_SAVE_VERSION;
+                j["type"] = "2S2H_SAVE";
 
                 SaveManager_WriteSaveFile(fileName, j);
             } else {
@@ -156,6 +235,7 @@ extern "C" void SaveManager_SysFlashrom_WriteData(u8* saveBuffer, u32 pageNum, u
                 nlohmann::json j = saveContext;
 
                 j["version"] = CURRENT_SAVE_VERSION;
+                j["type"] = "2S2H_SAVE";
 
                 SaveManager_WriteSaveFile(fileName, j);
             } else {
