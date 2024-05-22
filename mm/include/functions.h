@@ -527,7 +527,7 @@ void Font_LoadCharNES(PlayState* play, u8 codePointIndex, s32 offset);
 void Font_LoadMessageBoxEndIcon(Font* font, u16 icon);
 void Font_LoadOrderedFont(Font* font);
 
-void Lib_GetControlStickData(f32* outMagnitude, s16* outAngle, Input* input);
+void Lib_GetControlStickData(f32* outMagnitude, s16* outAngle, Input* input, u8 isRealPlayer);
 void Actor_ProcessInitChain(Actor* actor, InitChainEntry* ichain);
 void Color_RGBA8_Copy(Color_RGBA8* dst, Color_RGBA8* src);
 void Lib_PlaySfx(u16 sfxId);
@@ -1328,6 +1328,7 @@ void osContGetReadData(OSContPad* pad);
 // #region 2S2H [Port] Previously unavailable functions, made available for porting
 void PadMgr_ThreadEntry();
 void Heaps_Alloc(void);
+void SkinMatrix_Clear(MtxF* mf);
 // #endregion
 // #region 2S2H [Port] New methods added for porting
 void AudioSeq_SetPortVolumeScale(u8 seqPlayerIndex, f32 volume);
