@@ -1,5 +1,5 @@
 $url = "https://github.com/llvm/llvm-project/releases/download/llvmorg-14.0.6/LLVM-14.0.6-win64.exe"
-$outputPath = ".\LLVM-14.0.6-win64.exe"
+$llvmInstallerPath = ".\LLVM-14.0.6-win64.exe"
 $clangFormatFilePath = ".\clang-format.exe"
 $requiredVersion = "clang-format version 14.0.6"
 $currentVersion = ""
@@ -24,13 +24,13 @@ if (-not (Test-Path $clangFormatFilePath) -or ($currentVersion -ne $requiredVers
     }
 
     $wc = New-Object net.webclient
-    $wc.Downloadfile($url, $outputPath)
+    $wc.Downloadfile($url, $llvmInstallerPath)
 
     $sevenZipPath = "C:\Program Files\7-Zip\7z.exe"
     $specificFileInArchive = "bin\clang-format.exe"
-    & "$sevenZipPath" e $specificFileInArchive
+    & "$sevenZipPath" e $llvmInstallerPath $specificFileInArchive
 
-    Remove-Item $outputPath -Force
+    Remove-Item $llvmInstallerPath -Force
 }
 
 $baseDir = "mm"
