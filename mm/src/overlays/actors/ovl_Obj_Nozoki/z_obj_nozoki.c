@@ -457,7 +457,7 @@ Gfx* D_80BA34FC[] = {
     object_secom_obj_DL_000080,
     //! @bug This dlist should point to a dlist in OBJECT_GI_MSSA, but the segment and the offset are
     //! wrong. This doesn't have side effects because of the extra check in the Draw function
-    // (Gfx*)0x0A0001A0, 
+    // (Gfx*)0x0A0001A0,
     // 2S2H [Port] - Even though this is unreachable, putting the sun mask dl here
     gGiSunMaskFaceDL,
     object_secom_obj_DL_001230,

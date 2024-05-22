@@ -39,16 +39,14 @@ s16 D_80814280[] = {
 
 // 2S2H [Port] - Add halfword from following array to avoid OOB access
 s16 D_80814304[] = {
-    1, 2, 0, 1, 1, 2, 1, 1, 4, 2, 2, 2, 1, 1, 0, 2, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 2, 2, 2, 2, 2, 3,
-    2, 2, 4, 3, 2, 4, 1, 2, 2, 1, 1, 2, 2, 3, 2, 2, 0, 2, 2, 2, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 3,
-    0, 0
+    1, 2, 0, 1, 1, 2, 1, 1, 4, 2, 2, 2, 1, 1, 0, 2, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 2, 2, 2, 2, 2, 3, 2,
+    2, 4, 3, 2, 4, 1, 2, 2, 1, 1, 2, 2, 3, 2, 2, 0, 2, 2, 2, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 3, 0, 0
 };
 
 // 2S2H [Port] - Add halfword from following array to avoid OOB access
 s16 D_80814384[] = {
-    0, 1, 0, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    0, -94
+    0, 1, 0, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, -94
 };
 
 s16 D_80814404[] = {
@@ -1264,7 +1262,8 @@ void FileSelect_DrawOptionsImpl(GameState* thisx) {
 
         //! @bug the gOptionsMenuHeaders usage here will produce an OoB read for i == 5. It reads the first element of
         //! `gOptionsMenuSettings`
-        // 2S2H [Port] - directly use first element of gOptionsMenuSettings when i == 5, note this is fixed in the GC-US version
+        // 2S2H [Port] - directly use first element of gOptionsMenuSettings when i == 5, note this is fixed in the GC-US
+        // version
         u16 height;
         if (i == 5) {
             height = gOptionsMenuSettings[0].height;
