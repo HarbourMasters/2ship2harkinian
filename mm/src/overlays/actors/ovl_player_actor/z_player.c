@@ -2031,7 +2031,8 @@ void Player_ProcessControlStick(PlayState* play, Player* this) {
     this->prevControlStickMagnitude = sPlayerControlStickMagnitude;
     this->prevControlStickAngle = sPlayerControlStickAngle;
 
-    Lib_GetControlStickData(&sPlayerControlStickMagnitude, &sPlayerControlStickAngle, sPlayerControlInput);
+    Lib_GetControlStickData(&sPlayerControlStickMagnitude, &sPlayerControlStickAngle, sPlayerControlInput,
+                            this->actor.category == ACTORCAT_PLAYER);
 
     if (sPlayerControlStickMagnitude < 8.0f) {
         sPlayerControlStickMagnitude = 0.0f;
@@ -12986,12 +12987,15 @@ void Player_Destroy(Actor* thisx, PlayState* play) {
 s32 func_80847190(PlayState* play, Player* this, s32 arg2) {
     s32 pad;
     s16 var_s0;
+    s32 stickX = sPlayerControlInput->rel.stick_x;
+
+    stickX *= GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_AIM_X);
 
     if (!func_800B7128(this) && !func_8082EF20(this) && !arg2) {
         var_s0 = sPlayerControlInput->rel.stick_y * 0xF0;
         Math_SmoothStepToS(&this->actor.focus.rot.x, var_s0, 0xE, 0xFA0, 0x1E);
 
-        var_s0 = sPlayerControlInput->rel.stick_x * -0x10;
+        var_s0 = stickX * -0x10;
         var_s0 = CLAMP(var_s0, -0xBB8, 0xBB8);
         this->actor.focus.rot.y += var_s0;
     } else {
@@ -13008,8 +13012,7 @@ s32 func_80847190(PlayState* play, Player* this, s32 arg2) {
         }
 
         var_s0 = this->actor.focus.rot.y - this->actor.shape.rot.y;
-        temp3 = ((sPlayerControlInput->rel.stick_x >= 0) ? 1 : -1) *
-                (s32)((1.0f - Math_CosS(sPlayerControlInput->rel.stick_x * 0xC8)) * -1500.0f);
+        temp3 = ((stickX >= 0) ? 1 : -1) * (s32)((1.0f - Math_CosS(stickX * 0xC8)) * -1500.0f);
         var_s0 += temp3;
 
         this->actor.focus.rot.y = CLAMP(var_s0, -0x4AAA, 0x4AAA) + this->actor.shape.rot.y;
@@ -14610,6 +14613,7 @@ void Player_Action_18(Player* this, PlayState* play) {
         s16 var_a2;
         s16 var_a3;
 
+        xStick *= GameInteractor_InvertControl(GI_INVERT_SHIELD_X);
         var_a1 = (yStick * Math_CosS(temp_a0)) + (Math_SinS(temp_a0) * xStick);
         temp_ft5 = (xStick * Math_CosS(temp_a0)) - (Math_SinS(temp_a0) * yStick);
 
@@ -16997,7 +17001,7 @@ void func_80852290(PlayState* play, Player* this) {
         }
 
         sPlayerControlInput = play->state.input;
-        Lib_GetControlStickData(&sp3C, &sp38, sPlayerControlInput);
+        Lib_GetControlStickData(&sp3C, &sp38, sPlayerControlInput, this->actor.category == ACTORCAT_PLAYER);
 
         if (BINANG_ADD(sp38, 0x4000) < 0) {
             sp38 -= 0x8000;
@@ -18365,7 +18369,7 @@ void Player_Action_87(Player* this, PlayState* play) {
         f32 dist;
         s16 angle;
 
-        Lib_GetControlStickData(&dist, &angle, play->state.input);
+        Lib_GetControlStickData(&dist, &angle, play->state.input, this->actor.category == ACTORCAT_PLAYER);
         if (PlayerAnimation_Update(play, &this->skelAnime) || ((this->av1.actionVar1 > 10) && (dist != 0.0f))) {
             if (R_PLAY_FILL_SCREEN_ON == 0) {
                 this->stateFlags1 &= ~PLAYER_STATE1_2;

@@ -3082,6 +3082,10 @@ void KaleidoScope_Draw(PlayState* play) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
 
     OPEN_DISPS(play->state.gfxCtx);
+    if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
+        gSPClearExtraGeometryMode(POLY_OPA_DISP++, G_EX_INVERT_CULLING);
+        gSPClearExtraGeometryMode(POLY_XLU_DISP++, G_EX_INVERT_CULLING);
+    }
 
     gSPSegment(POLY_OPA_DISP++, 0x02, interfaceCtx->parameterSegment);
     gSPSegment(POLY_OPA_DISP++, 0x08, pauseCtx->iconItemSegment);
@@ -3142,6 +3146,14 @@ void KaleidoScope_Draw(PlayState* play) {
 
     if ((pauseCtx->debugEditor == DEBUG_EDITOR_INVENTORY_INIT) || (pauseCtx->debugEditor == DEBUG_EDITOR_INVENTORY)) {
         KaleidoScope_DrawInventoryEditor(play);
+    }
+
+    // Flip the OPA and XLU projections again as the set view call above reset the original flips from z_play
+    if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
+        gSPMatrix(POLY_OPA_DISP++, play->view.shipMirrorProjectionPtr, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
+        gSPMatrix(POLY_XLU_DISP++, play->view.shipMirrorProjectionPtr, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
+        gSPMatrix(POLY_OPA_DISP++, play->view.viewingPtr, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_PROJECTION);
+        gSPMatrix(POLY_XLU_DISP++, play->view.viewingPtr, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_PROJECTION);
     }
 
     CLOSE_DISPS(play->state.gfxCtx);

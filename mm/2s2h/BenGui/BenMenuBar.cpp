@@ -484,6 +484,14 @@ void DrawEnhancementsMenu() {
                                         { .tooltip = "Requires scene reload to take effect." })) {
                 UpdatePlayAsKafeiSkeletons();
             }
+            if (UIWidgets::CVarCheckbox("Mirrored World", "gModes.MirroredWorld.Mode")) {
+                if (CVarGetInteger("gModes.MirroredWorld.Mode", 0)) {
+                    CVarSetInteger("gModes.MirroredWorld.State", 1);
+                } else {
+                    CVarClear("gModes.MirroredWorld.State");
+                }
+            }
+
             ImGui::EndMenu();
         }
         if (UIWidgets::BeginMenu("Player Movement")) {
