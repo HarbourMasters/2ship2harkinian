@@ -494,6 +494,9 @@ void DrawEnhancementsMenu() {
 
         if (UIWidgets::BeginMenu("Restorations")) {
             UIWidgets::CVarCheckbox(
+                "Constant Distance Backflips and Sidehops", "gEnhancements.Restorations.ConstantFlipsHops",
+                { .tooltip = "Backflips and Sidehops travel a constant distance as they did in OOT." });
+            UIWidgets::CVarCheckbox(
                 "Power Crouch Stab", "gEnhancements.Restorations.PowerCrouchStab",
                 { .tooltip =
                       "Crouch stabs will use the power of Link's previous melee attack, as is in MM JP 1.0 and OOT." });
