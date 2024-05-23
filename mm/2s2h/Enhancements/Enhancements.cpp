@@ -54,6 +54,9 @@ void InitEnhancements() {
     RegisterPlayAsKafei();
     RegisterTimeMovesWhenYouMove();
 
+    // Player Actions
+    RegisterInstantPutaway();
+
     // Player Movement
     RegisterClimbSpeed();
 }
