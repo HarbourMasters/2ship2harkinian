@@ -32,6 +32,7 @@ void InitEnhancements() {
     RegisterPowerCrouchStab();
     RegisterSideRoll();
     RegisterTatlISG();
+    RegisterVariableFlipHop();
 
     // Cutscenes
     RegisterCutscenes();

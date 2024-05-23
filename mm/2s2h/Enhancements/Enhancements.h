@@ -14,6 +14,7 @@
 #include "Masks/FastTransformation.h"
 #include "Minigames/AlwaysWinDoggyRace.h"
 #include "Cutscenes/Cutscenes.h"
+#include "Restorations/FlipHopVariable.h"
 #include "Restorations/PowerCrouchStab.h"
 #include "Restorations/SideRoll.h"
 #include "Restorations/TatlISG.h"
