@@ -331,6 +331,11 @@ void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
 
         if (UIWidgets::BeginMenu("Camera")) {
+            ImGui::SeparatorText("Fixes");
+            UIWidgets::CVarCheckbox(
+                "Fix Targetting Camera Snap", "gEnhancements.Camera.FixTargettingCameraSnap",
+                { .tooltip =
+                      "Fixes the camera snap that occurs when you are moving and press the targetting button." });
             ImGui::SeparatorText("Right Stick Camera");
             UIWidgets::CVarCheckbox("Invert Camera X Axis", "gEnhancements.Camera.RightStick.InvertXAxis",
                                     { .tooltip = "Inverts the Camera X Axis in Free Look." });
@@ -506,6 +511,9 @@ void DrawEnhancementsMenu() {
         }
 
         if (UIWidgets::BeginMenu("Restorations")) {
+            UIWidgets::CVarCheckbox(
+                "Constant Distance Backflips and Sidehops", "gEnhancements.Restorations.ConstantFlipsHops",
+                { .tooltip = "Backflips and Sidehops travel a constant distance as they did in OOT." });
             UIWidgets::CVarCheckbox(
                 "Power Crouch Stab", "gEnhancements.Restorations.PowerCrouchStab",
                 { .tooltip =
