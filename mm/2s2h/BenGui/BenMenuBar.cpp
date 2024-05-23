@@ -409,9 +409,13 @@ void DrawEnhancementsMenu() {
                 { .tooltip = "Playing the Song Of Time will not reset the Sword back to Kokiri Sword." });
             UIWidgets::CVarCheckbox("Do not reset Rupees", "gEnhancements.Cycle.DoNotResetRupees",
                                     { .tooltip = "Playing the Song Of Time will not reset the your rupees." });
-            UIWidgets::CVarSliderInt("Save Delay", "gEnhancements.Save.SaveDelay", 0, 5, 0,
-                                     { .tooltip = "Sets the delay between pressing save and the save being marked as "
-                                                  "complete. Original game was 2." });
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 0, 255));
+            ImGui::SeparatorText("Unstable");
+            ImGui::PopStyleColor();
+            UIWidgets::CVarCheckbox(
+                "Disable Save Delay", "gEnhancements.Save.DisableSaveDelay",
+                { .tooltip = "Removes the arbitrary 2 second timer for saving from the original game. This is known to "
+                             "cause issues when attempting the 0th Day Glitch" });
 
             ImGui::EndMenu();
         }
