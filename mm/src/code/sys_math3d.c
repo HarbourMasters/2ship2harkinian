@@ -133,6 +133,8 @@ f32 Math3D_LineClosestToPoint(InfiniteLine* line, Vec3f* pos, Vec3f* closestPoin
     if (IS_ZERO(dirMagnitudeSq)) {
         Math_Vec3f_Copy(closestPoint, pos);
         //! @bug Missing early return
+        // 2S2H [Port] - return early to avoid div by 0!
+        return 0.0f;
     }
 
     t = (((pos->x - line->point.x) * line->dir.x) + ((pos->y - line->point.y) * line->dir.y) +
