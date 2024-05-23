@@ -208,7 +208,7 @@ jobs:
         echo "/opt/local/bin:/opt/local/sbin" >> $GITHUB_PATH
     - name: Install dependencies
       run: |
-        brew uninstall libpng
+        brew uninstall --ignore-dependencies libpng
         sudo port install $(cat .github/workflows/macports-deps.txt)
         brew install ninja
     # - name: Download 2ship.otr
