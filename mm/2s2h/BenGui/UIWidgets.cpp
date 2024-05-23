@@ -203,9 +203,10 @@ bool Checkbox(const char* _label, bool* value, const CheckboxOptions& options) {
             pos.x += ImGui::GetContentRegionAvail().x - (label_size.x + labelOffsetX);
         }
     }
-    float bbAboveX = lpFar ? ImGui::GetContentRegionAvail().x : (label_size.x + (above ? 0 : (style.ItemInnerSpacing.x * 2.0f) + square_sz));
+    float bbAboveX = lpFar ? ImGui::GetContentRegionAvail().x
+                           : (label_size.x + (above ? 0 : (style.ItemInnerSpacing.x * 2.0f) + square_sz));
     float bbAboveY = label_size.y + (above ? square_sz : 0) + (style.FramePadding.y * 2.0f);
-    const ImRect total_bb(pos, pos + ImVec2( bbAboveX, bbAboveY));
+    const ImRect total_bb(pos, pos + ImVec2(bbAboveX, bbAboveY));
 
     ImGui::ItemSize(total_bb, style.FramePadding.y);
     if (!ImGui::ItemAdd(total_bb, id)) {
