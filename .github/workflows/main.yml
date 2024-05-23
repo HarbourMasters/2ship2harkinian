@@ -169,7 +169,7 @@ jobs:
   #         readme.txt
 
   build-windows:
-    needs: generate-soh-otr
+    # needs: generate-soh-otr
     runs-on: windows-latest
     steps:
     - name: Install dependencies
