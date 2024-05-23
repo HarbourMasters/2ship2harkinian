@@ -219,7 +219,7 @@ jobs:
           tar -xzf 10.0.0.tar.gz
         fi
         cd tinyxml2-10.0.0
-        mkdir build
+        mkdir -p build
         cd build
         cmake ..
         make
