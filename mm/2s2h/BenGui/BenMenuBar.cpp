@@ -486,6 +486,12 @@ void DrawEnhancementsMenu() {
             }
             ImGui::EndMenu();
         }
+        if (UIWidgets::BeginMenu("Player Actions")) {
+            UIWidgets::CVarCheckbox("Instant Putaway", "gEnhancements.PlayerActions.InstantPutaway",
+                                    { .tooltip = "Allows Link to instantly puts away held item without waiting." });
+            ImGui::EndMenu();
+        }
+
         if (UIWidgets::BeginMenu("Player Movement")) {
             UIWidgets::CVarSliderInt("Climb speed", "gEnhancements.PlayerMovement.ClimbSpeed", 1, 5, 1,
                                      { .tooltip = "Increases the speed at which Link climbs vines and ladders." });

@@ -18,6 +18,7 @@
 #include "Restorations/SideRoll.h"
 #include "Restorations/TatlISG.h"
 #include "Graphics/PlayAsKafei.h"
+#include "PlayerActions/InstantPutaway.h"
 #include "PlayerMovement/ClimbSpeed.h"
 #include "Songs/EnableSunsSong.h"
 

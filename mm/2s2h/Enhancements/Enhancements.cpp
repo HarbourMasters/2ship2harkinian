@@ -39,6 +39,9 @@ void InitEnhancements() {
     // Modes
     RegisterPlayAsKafei();
 
+    // Player Actions
+    RegisterInstantPutaway();
+
     // Player Movement
     RegisterClimbSpeed();
 }

@@ -11241,11 +11241,13 @@ void Player_SetDoAction(PlayState* play, Player* this) {
             }
         }
 
-        if (doActionA != DO_ACTION_PUTAWAY) {
-            this->putAwayCountdown = 20;
-        } else if (this->putAwayCountdown != 0) {
-            doActionA = DO_ACTION_NONE;
-            this->putAwayCountdown--;
+        if (GameInteractor_Should(GI_VB_PUTAWAY_TIMER, true, NULL)) {
+            if (doActionA != DO_ACTION_PUTAWAY) {
+                this->putAwayCountdown = 20;
+            } else if (this->putAwayCountdown != 0) {
+                doActionA = DO_ACTION_NONE;
+                this->putAwayCountdown--;
+            }
         }
 
         Interface_SetAButtonDoAction(play, doActionA);
