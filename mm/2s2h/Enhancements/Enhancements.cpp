@@ -13,8 +13,10 @@ void InitEnhancements() {
     // Clock
     RegisterTextBasedClock();
 
-    // Cycle
+    // Cycle & Saving
     RegisterEndOfCycleSaveHooks();
+    RegisterSavingEnhancements();
+    RegisterAutosave();
 
     // Masks
     RegisterFastTransformation();

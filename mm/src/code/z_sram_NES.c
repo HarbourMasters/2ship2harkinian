@@ -8,7 +8,6 @@
 #include "Enhancements/GameInteractor/GameInteractor.h"
 
 void Sram_SyncWriteToFlash(SramContext* sramCtx, s32 curPage, s32 numPages);
-void func_80147314(SramContext* sramCtx, s32 fileNum);
 void func_80147414(SramContext* sramCtx, s32 fileNum, s32 arg2);
 
 #define CHECK_NEWF(newf)                                                                                 \
@@ -1218,6 +1217,7 @@ void Sram_InitDebugSave(void) {
 }
 
 void Sram_ResetSaveFromMoonCrash(SramContext* sramCtx) {
+    GameInteractor_ExecuteBeforeMoonCrashSaveReset();
     s32 i;
     s32 cutsceneIndex = gSaveContext.save.cutsceneIndex;
 
@@ -1375,7 +1375,11 @@ void Sram_OpenSave(FileSelectState* fileSelect, SramContext* sramCtx) {
         }
 
         fileNum = gSaveContext.fileNum;
-        func_80147314(sramCtx, fileNum);
+
+        // Remove Owl saves on save continue
+        if (GameInteractor_Should(GI_VB_DELETE_OWL_SAVE, true, 0)) {
+            func_80147314(sramCtx, fileNum);
+        }
     }
 }
 
@@ -1996,7 +2000,7 @@ void Sram_UpdateWriteToFlashDefault(SramContext* sramCtx) {
             }
         }
     } else if (OSTIME_TO_TIMER(osGetTime() - sramCtx->startWriteOsTime) >=
-               SECONDS_TO_TIMER(CVarGetInteger("gEnhancements.Save.DisableSaveDelay", 0) ? 0 : 2)) {
+               SECONDS_TO_TIMER(CVarGetInteger("gEnhancements.Saving.DisableSaveDelay", 0) ? 0 : 2)) {
         // 2S2H [Port] Some tricks require a save delay so we can't just force it to zero
         // Finished status is hardcoded to 2 seconds instead of when the task finishes
         sramCtx->status = 0;
@@ -2036,7 +2040,7 @@ void Sram_UpdateWriteToFlashOwlSave(SramContext* sramCtx) {
             }
         }
     } else if (OSTIME_TO_TIMER(osGetTime() - sramCtx->startWriteOsTime) >=
-               SECONDS_TO_TIMER(CVarGetInteger("gEnhancements.Save.DisableSaveDelay", 0) ? 0 : 2)) {
+               SECONDS_TO_TIMER(CVarGetInteger("gEnhancements.Saving.DisableSaveDelay", 0) ? 0 : 2)) {
         // 2S2H [Port] Some tricks require a save delay so we can't just force it to zero
         // Finished status is hardcoded to 2 seconds instead of when the task finishes
         sramCtx->status = 0;

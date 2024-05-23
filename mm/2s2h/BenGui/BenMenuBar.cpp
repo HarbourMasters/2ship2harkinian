@@ -394,12 +394,28 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
-        if (UIWidgets::BeginMenu("Cycle / Saving")) {
+        if (UIWidgets::BeginMenu("Saving / Time Cycle")) {
+
+            ImGui::SeparatorText("Saving");
+            UIWidgets::CVarCheckbox("Persistent Owl Saves", "gEnhancements.Saving.PersistentOwlSaves",
+                                    { .tooltip = "Continuing a save will not remove the owl save. Playing Song of "
+                                                 "Time, allowing the moon to crash or finishing the "
+                                                 "game will remove the owl save and become the new last save." });
             UIWidgets::CVarCheckbox(
-                "Pause Menu Save", "gEnhancements.Kaleido.PauseSave",
+                "Pause Menu Save", "gEnhancements.Saving.PauseSave",
                 { .tooltip = "Re-introduce the pause menu save system. Pressing B in the pause menu will give you the "
                              "option to create an Owl Save from your current location. When loading back into the "
                              "game, you will be placed at your last entrance." });
+            if (UIWidgets::CVarCheckbox(
+                    "Autosave", "gEnhancements.Saving.Autosave",
+                    { .tooltip = "Automatically create owl saves on the chosen interval. When loading back into the "
+                                 "game, you will be placed at your last entrance." })) {
+                RegisterAutosave();
+            }
+            UIWidgets::CVarSliderInt("Autosave Interval (minutes): %d", "gEnhancements.Saving.AutosaveInterval", 1, 60,
+                                     5, { .disabled = !CVarGetInteger("gEnhancements.Saving.Autosave", 0) });
+
+            ImGui::SeparatorText("Time Cycle");
             UIWidgets::CVarCheckbox("Do not reset Bottle content", "gEnhancements.Cycle.DoNotResetBottleContent",
                                     { .tooltip = "Playing the Song Of Time will not reset the bottles' content." });
             UIWidgets::CVarCheckbox("Do not reset Consumables", "gEnhancements.Cycle.DoNotResetConsumables",
@@ -409,11 +425,12 @@ void DrawEnhancementsMenu() {
                 { .tooltip = "Playing the Song Of Time will not reset the Sword back to Kokiri Sword." });
             UIWidgets::CVarCheckbox("Do not reset Rupees", "gEnhancements.Cycle.DoNotResetRupees",
                                     { .tooltip = "Playing the Song Of Time will not reset the your rupees." });
+
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 0, 255));
             ImGui::SeparatorText("Unstable");
             ImGui::PopStyleColor();
             UIWidgets::CVarCheckbox(
-                "Disable Save Delay", "gEnhancements.Save.DisableSaveDelay",
+                "Disable Save Delay", "gEnhancements.Saving.DisableSaveDelay",
                 { .tooltip = "Removes the arbitrary 2 second timer for saving from the original game. This is known to "
                              "cause issues when attempting the 0th Day Glitch" });
 
