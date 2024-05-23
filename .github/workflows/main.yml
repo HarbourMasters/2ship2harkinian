@@ -171,7 +171,7 @@ jobs:
 
   build-macos:
     # needs: generate-soh-otr
-    runs-on: ${{ (vars.MAC_RUNNER && fromJSON(vars.MAC_RUNNER)) || 'macos-14' }}
+    runs-on: macos-14
     steps:
     - uses: actions/checkout@v3
       with:
@@ -185,34 +185,32 @@ jobs:
           ${{ runner.os }}-14-ccache-${{ github.ref }}
           ${{ runner.os }}-14-ccache
     # - name: Install gtar wrapper
-    #   if: ${{ !vars.MAC_RUNNER }}
     #   run: |
     #     sudo mv /usr/local/bin/gtar /usr/local/bin/gtar.orig
     #     sudo cp .github/workflows//gtar /usr/local/bin/gtar
     #     sudo chmod +x /usr/local/bin/gtar
-    # - name: Cache MacPorts
-    #   id: cache-macports
-    #   if: ${{ !vars.MAC_RUNNER }}
-    #   uses: actions/cache@v2
-    #   with:
-    #     path: /opt/local/
-    #     key: ${{ runner.os }}-macports-${{ hashFiles('.github/workflows/macports-deps.txt') }}
-    #     restore-keys: |
-    #       ${{ runner.os }}-macports-
-    # - name: Install MacPorts (if necessary)
-    #   if: ${{ !vars.MAC_RUNNER }}
-    #   run: |
-    #     if [ -d /opt/local/ ]; then
-    #       echo "MacPorts already installed"
-    #     else
-    #       wget https://github.com/macports/macports-base/releases/download/v2.7.2/MacPorts-2.7.2-12-Monterey.pkg
-    #       sudo installer -pkg ./MacPorts-2.7.2-12-Monterey.pkg -target /
-    #     fi
-    #     echo "/opt/local/bin:/opt/local/sbin" >> $GITHUB_PATH
-    - name: Install dependencies
-      if: ${{ !vars.MAC_RUNNER }}
+    - name: Cache MacPorts
+      id: cache-macports
+      uses: actions/cache@v3
+      with:
+        path: /opt/local/
+        key: ${{ runner.os }}-macports-${{ hashFiles('.github/workflows/macports-deps.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-macports
+    - name: Install MacPorts (if necessary)
       run: |
-        brew install $(cat .github/workflows/brew-deps.txt)
+        if [ -d /opt/local/ ]; then
+          echo "MacPorts already installed"
+        else
+          wget https://github.com/macports/macports-base/releases/download/v2.9.3/MacPorts-2.9.3-14-Sonoma.pkg
+          sudo installer -pkg ./MacPorts-2.9.3-14-Sonoma.pkg -target /
+        fi
+        echo "/opt/local/bin:/opt/local/sbin" >> $GITHUB_PATH
+    - name: Install dependencies
+      run: |
+        brew uninstall libpng
+        sudo port install $(cat .github/workflows/macports-deps.txt)
+        brew install ninja
     # - name: Download 2ship.otr
     #   uses: actions/download-artifact@v3
     #   with:
