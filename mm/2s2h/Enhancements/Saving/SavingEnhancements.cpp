@@ -15,6 +15,31 @@ static uint64_t lastSaveTimestamp = GetUnixTimestamp();
 static uint32_t autosaveGameStateUpdateHookId = 0;
 static uint32_t autosaveGameStateDrawFinishHookId = 0;
 
+// Used for saving through Autosaves and Pause Menu saves.
+extern "C" int32_t GetSaveEntrance(PlayState* play) {
+    switch (play->sceneId) {
+        // Woodfall Temple + Odolwa
+        case SCENE_MITURIN:
+        case SCENE_MITURIN_BS:
+            return ENTRANCE(WOODFALL_TEMPLE, 0);
+        // Snowhead Temple + Goht
+        case SCENE_HAKUGIN:
+        case SCENE_HAKUGIN_BS:
+            return ENTRANCE(SNOWHEAD_TEMPLE, 0);
+        // Great Bay Temple + Gyorg
+        case SCENE_SEA:
+        case SCENE_SEA_BS:
+            return ENTRANCE(GREAT_BAY_TEMPLE, 0);
+        // Stone Tower Temple (+ inverted) + Twinmold
+        case SCENE_INISIE_N:
+        case SCENE_INISIE_R:
+        case SCENE_INISIE_BS:
+            return ENTRANCE(STONE_TOWER_TEMPLE, 0);
+        default:
+            return ENTRANCE(SOUTH_CLOCK_TOWN, 0);
+    }
+}
+
 void DeleteOwlSave() {
     // Remove Owl Save on time cycle reset, needed when persisting owl saves and/or when
     // creating owl saves without the player being send back to the file select screen.
@@ -67,8 +92,7 @@ void HandleAutoSave() {
 
         // Create owl save
         gSaveContext.save.isOwlSave = true;
-        gSaveContext.save.shipSaveInfo.pauseSaveEntrance = gSaveContext.save.shipSaveInfo.pauseSaveEntrance =
-            ENTRANCE(SOUTH_CLOCK_TOWN, 0);
+        gSaveContext.save.shipSaveInfo.pauseSaveEntrance = GetSaveEntrance(gPlayState);
         Play_SaveCycleSceneFlags(&gPlayState->state);
         gSaveContext.save.saveInfo.playerData.savedSceneId = gPlayState->sceneId;
         func_8014546C(&gPlayState->sramCtx);
