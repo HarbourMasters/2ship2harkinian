@@ -392,9 +392,23 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox(
                 "Skip to File Select", "gEnhancements.Cutscenes.SkipToFileSelect",
                 { .tooltip = "Skip the opening title sequence and go straight to the file select menu after boot" });
-            UIWidgets::CVarCheckbox("Skip Intro Sequence", "gEnhancements.Cutscenes.SkipIntroSequence");
-            UIWidgets::CVarCheckbox("Skip Story Cutscenes", "gEnhancements.Cutscenes.SkipStoryCutscenes");
-            UIWidgets::CVarCheckbox("Skip Misc Interactions", "gEnhancements.Cutscenes.SkipMiscInteractions");
+            UIWidgets::CVarCheckbox(
+                "Skip Intro Sequence", "gEnhancements.Cutscenes.SkipIntroSequence",
+                {
+                    .tooltip = "When starting a game you will be taken straight to South Clock Town as Deku Link.",
+                });
+            UIWidgets::CVarCheckbox(
+                "Skip Story Cutscenes", "gEnhancements.Cutscenes.SkipStoryCutscenes",
+                {
+                    .tooltip =
+                        "Disclaimer: This doesn't do much yet, we will be progressively adding more skips over time",
+                });
+            UIWidgets::CVarCheckbox(
+                "Skip Misc Interactions", "gEnhancements.Cutscenes.SkipMiscInteractions",
+                {
+                    .tooltip =
+                        "Disclaimer: This doesn't do much yet, we will be progressively adding more skips over time",
+                });
 
             ImGui::EndMenu();
         }
@@ -565,6 +579,10 @@ void DrawDeveloperToolsMenu() {
                                 { .tooltip = "Enables Debug Mode, allowing you to select maps with L + R + Z." });
 
         if (CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
+            UIWidgets::CVarCheckbox(
+                "Better Map Select", "gDeveloperTools.BetterMapSelect.Enabled",
+                { .tooltip = "Overrides the original map select with a translated, more user-friendly version." });
+
             if (UIWidgets::CVarCombobox(
                     "Debug Save File Mode", "gDeveloperTools.DebugSaveFileMode", debugSaveOptions,
                     { .tooltip =
@@ -576,7 +594,6 @@ void DrawDeveloperToolsMenu() {
             }
         }
 
-        UIWidgets::CVarCheckbox("Better Map Select", "gDeveloperTools.BetterMapSelect.Enabled");
         if (UIWidgets::CVarCheckbox("Prevent Actor Update", "gDeveloperTools.PreventActorUpdate")) {
             RegisterPreventActorUpdateHooks();
         }
