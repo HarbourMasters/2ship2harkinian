@@ -46,6 +46,7 @@
         <DList Name="gKokiriSwordDL" Offset="0x3050" />
         <DList Name="gRazorSwordDL" Offset="0x3060" />
 
+        <!-- 2S2H [Port] - Increase referenced texture's extraction size -->
         <DList Name="gDekuStickDL" Offset="0x32B0" /> <!-- @bug Supplies the wrong size to gsDPLoadTextureBlock, meaning it uses part of gLinkPauseChildJointTable as if it were a texture. -->
 
         <Array Name="gLinkMaskVtx" Count="157" Offset="0x3400"> <!-- Rendering the vertices shows the same shape as the Link Mask in object_stk -->
@@ -85,7 +86,8 @@
         <Texture Name="gameplay_keep_Tex_00C830" OutName="tex_00C830" Format="rgba16" Width="16" Height="16" Offset="0xC830" />
         <Texture Name="gameplay_keep_Tex_00CA30" OutName="tex_00CA30" Format="rgba16" Width="16" Height="16" Offset="0xCA30" />
 
-        <Texture Name="gDekuStickTex" OutName="deku_stick" Format="i8" Width="8" Height="8" Offset="0xCC30" />
+        <!-- 2S2H [Port] - gDekuStickDL loads this as a 16x16 texture, despite it being 8x8. We need to extract this extra 'garbage' data too -->
+        <Texture Name="gDekuStickTex" OutName="deku_stick" Format="i8" Width="16" Height="16" Offset="0xCC30" />
 
         <!-- Leftover joint tables from Ocarina of Time's Pause Menu. -->
         <Array Name="gLinkPauseChildJointTable" Count="24" Offset="0xCC70">
