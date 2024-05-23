@@ -7,6 +7,7 @@
 #include "Cheats/Infinite.h"
 #include "Graphics/TextBasedClock.h"
 #include "Cheats/UnbreakableRazorSword.h"
+#include "Cheats/UnrestrictedItems.h"
 #include "Cycle/EndOfCycle.h"
 #include "Masks/FierceDeityAnywhere.h"
 #include "Masks/NoBlastMaskCooldown.h"

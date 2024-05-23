@@ -47,7 +47,8 @@ typedef enum {
 
     GI_VB_PLAY_TRANSITION_CS,
     GI_VB_TATL_INTERUPT_MSG3,
-    GI_VB_TATL_INTERUPT_MSG6
+    GI_VB_TATL_INTERUPT_MSG6,
+    GI_VB_ITEM_BE_RESTRICTED,
 } GIVanillaBehavior;
 
 typedef enum {

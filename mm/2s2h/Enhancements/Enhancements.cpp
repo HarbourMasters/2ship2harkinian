@@ -9,6 +9,7 @@ void InitEnhancements() {
     RegisterInfiniteCheats();
     RegisterMoonJumpOnL();
     RegisterUnbreakableRazorSword();
+    RegisterUnrestrictedItems();
 
     // Clock
     RegisterTextBasedClock();
