@@ -175,10 +175,20 @@ void RenderText(ImVec2 pos, const char* text, const char* text_end, bool hide_te
     }
 }
 
-bool Checkbox(const char* label, bool* value, const CheckboxOptions& options) {
+bool Checkbox(const char* _label, bool* value, const CheckboxOptions& options) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if (window->SkipItems)
         return false;
+
+    bool above = options.labelPosition == LabelPosition::Above;
+    bool lpFar = options.labelPosition == LabelPosition::Far;
+    bool right = options.alignment == ComponentAlignment::Right;
+    bool none = options.labelPosition == LabelPosition::None;
+
+    std::string labelStr = (none ? "##" : "");
+    labelStr.append(_label);
+
+    const char* label = labelStr.c_str();
 
     ImGuiContext& g = *GImGui;
     const ImGuiStyle& style = g.Style;
@@ -186,15 +196,16 @@ bool Checkbox(const char* label, bool* value, const CheckboxOptions& options) {
     const ImVec2 label_size = ImGui::CalcTextSize(label, NULL, true);
     const float square_sz = ImGui::GetFrameHeight();
     ImVec2 pos = window->DC.CursorPos;
-    bool above = options.labelPosition == LabelPosition::Above;
 
-    if (options.alignment == ComponentAlignment::Right) {
-        float posAboveX = (above ? 0 : (style.ItemInnerSpacing.x * 2.0f) + square_sz);
-        pos.x += ImGui::GetContentRegionAvail().x - (label_size.x + posAboveX);
+    if (right) {
+        float labelOffsetX = (above ? 0 : (style.ItemInnerSpacing.x * 2.0f) + square_sz);
+        if (!lpFar) {
+            pos.x += ImGui::GetContentRegionAvail().x - (label_size.x + labelOffsetX);
+        }
     }
-    float bbAboveX = (above ? 0 : (style.ItemInnerSpacing.x * 2.0f) + square_sz);
-    float bbAboveY = (above ? square_sz : 0) + (style.FramePadding.y * 2.0f);
-    const ImRect total_bb(pos, pos + ImVec2(label_size.x + bbAboveX, label_size.y + bbAboveY));
+    float bbAboveX = lpFar ? ImGui::GetContentRegionAvail().x : (label_size.x + (above ? 0 : (style.ItemInnerSpacing.x * 2.0f) + square_sz));
+    float bbAboveY = label_size.y + (above ? square_sz : 0) + (style.FramePadding.y * 2.0f);
+    const ImRect total_bb(pos, pos + ImVec2( bbAboveX, bbAboveY));
 
     ImGui::ItemSize(total_bb, style.FramePadding.y);
     if (!ImGui::ItemAdd(total_bb, id)) {
@@ -222,8 +233,9 @@ bool Checkbox(const char* label, bool* value, const CheckboxOptions& options) {
     if (options.alignment == ComponentAlignment::Right) {
         checkPos.x = total_bb.Max.x - square_sz;
     } else {
-        labelPos.x +=
-            (options.labelPosition == LabelPosition::Above ? 0 : (style.ItemInnerSpacing.x * 2.0f) + square_sz);
+        float labelFarOffset = ImGui::GetContentRegionAvail().x - label_size.x;
+        float labelOffsetX = above ? 0 : (lpFar ? labelFarOffset : (style.ItemInnerSpacing.x * 2.0f) + square_sz);
+        labelPos.x += labelOffsetX;
     }
     const ImRect check_bb(checkPos, checkPos + ImVec2(square_sz, square_sz));
     ImGui::RenderNavHighlight(total_bb, id);
