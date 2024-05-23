@@ -4808,7 +4808,8 @@ void func_80832888(Player* this, PlayState* play) {
         } else {
             this->unk_738--;
         }
-    } else if (this->stateFlags1 & PLAYER_STATE1_20000) {
+    } else if (this->stateFlags1 & PLAYER_STATE1_20000 &&
+               !CVarGetInteger("gEnhancements.Camera.FixTargettingCameraSnap", 0)) {
         this->unk_738 = 0;
     } else if (this->unk_738 != 0) {
         this->unk_738--;
