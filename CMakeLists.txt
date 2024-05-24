@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD 20 CACHE STRING "The C++ standard to use")
 set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15" CACHE STRING "Minimum OS X deployment version")
 
 project(2s2h VERSION 0.0.1 LANGUAGES C CXX)
+include(CMake/2ship-cvars.cmake)
+include(CMake/lus-cvars.cmake)
 set(PROJECT_BUILD_NAME "PRE ALPHA" CACHE STRING "")
 set(PROJECT_TEAM "github.com/harbourmasters" CACHE STRING "")
 
