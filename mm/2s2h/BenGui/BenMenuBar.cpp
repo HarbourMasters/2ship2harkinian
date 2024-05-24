@@ -172,17 +172,17 @@ void DrawSettingsMenu() {
         if (UIWidgets::BeginMenu("Graphics")) {
 
 #ifndef __APPLE__
-            if (UIWidgets::CVarSliderFloat("Internal Resolution: %f %%", "gInternalResolution", 0.5f, 2.0f, 1.0f)) {
+            if (UIWidgets::CVarSliderFloat("Internal Resolution: %f %%", CVAR_INTERNAL_RESOLUTION, 0.5f, 2.0f, 1.0f)) {
                 Ship::Context::GetInstance()->GetWindow()->SetResolutionMultiplier(
-                    CVarGetFloat("gInternalResolution", 1));
+                    CVarGetFloat(CVAR_INTERNAL_RESOLUTION, 1));
             };
             UIWidgets::Tooltip(
                 "Multiplies your output resolution by the value inputted, as a more intensive but effective "
                 "form of anti-aliasing");
 #endif
 #ifndef __WIIU__
-            if (UIWidgets::CVarSliderInt("MSAA: %d", "gMSAAValue", 1, 8, 1)) {
-                Ship::Context::GetInstance()->GetWindow()->SetMsaaLevel(CVarGetInteger("gMSAAValue", 1));
+            if (UIWidgets::CVarSliderInt("MSAA: %d", CVAR_MSAA_VALUE, 1, 8, 1)) {
+                Ship::Context::GetInstance()->GetWindow()->SetMsaaLevel(CVarGetInteger(CVAR_MSAA_VALUE, 1));
             };
             UIWidgets::Tooltip(
                 "Activates multi-sample anti-aliasing when above 1x up to 8x for 8 samples for every pixel");
@@ -271,20 +271,20 @@ void DrawSettingsMenu() {
             }
 
             if (Ship::Context::GetInstance()->GetWindow()->CanDisableVerticalSync()) {
-                UIWidgets::CVarCheckbox("Enable Vsync", "gVsyncEnabled");
+                UIWidgets::CVarCheckbox("Enable Vsync", CVAR_VSYNC_ENABLED);
             }
 
             if (Ship::Context::GetInstance()->GetWindow()->SupportsWindowedFullscreen()) {
-                UIWidgets::CVarCheckbox("Windowed fullscreen", "gSdlWindowedFullscreen");
+                UIWidgets::CVarCheckbox("Windowed fullscreen", CVAR_SDL_WINDOWED_FULLSCREEN);
             }
 
             if (Ship::Context::GetInstance()->GetWindow()->GetGui()->SupportsViewports()) {
                 UIWidgets::CVarCheckbox(
-                    "Allow multi-windows", "gEnableMultiViewports",
+                    "Allow multi-windows", CVAR_ENABLE_MULTI_VIEWPORTS,
                     { .tooltip = "Allows multiple windows to be opened at once. Requires a reload to take effect." });
             }
 
-            UIWidgets::CVarCombobox("Texture Filter (Needs reload)", "gTextureFilter", textureFilteringMap);
+            UIWidgets::CVarCombobox("Texture Filter (Needs reload)", CVAR_TEXTURE_FILTER, textureFilteringMap);
 
             // Currently this only has "Overlays Text Font", it doesn't use our new UIWidgets so it stands out
             // Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGameOverlay()->DrawSettings();
@@ -299,7 +299,7 @@ void DrawSettingsMenu() {
         }
         /*
         #ifndef __SWITCH__
-            UIWidgets::CVarCheckbox("Menubar Controller Navigation", "gControlNav", {
+            UIWidgets::CVarCheckbox("Menubar Controller Navigation", CVAR_IMGUI_CONTROLLER_NAV, {
                 .tooltip = "Allows controller navigation of the SOH menu bar (Settings, Enhancements,...)\nCAUTION: "
                 "This will disable game inputs while the menubar is visible.\n\nD-pad to move between "
                 "items, A to select, and X to grab focus on the menu bar"
@@ -313,7 +313,7 @@ void DrawSettingsMenu() {
                 .showButtons = false,
                 .format = ""
             });
-            UIWidgets::CVarSliderInt("Simulated Input Lag: %d frames", "gSimulatedInputLag", 0, 6, 0, {
+            UIWidgets::CVarSliderInt("Simulated Input Lag: %d frames", CVAR_SIMULATED_INPUT_LAG, 0, 6, 0, {
                 .tooltip = "Buffers your inputs to be executed a specified amount of frames later"
             });
 
