@@ -331,6 +331,11 @@ void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
 
         if (UIWidgets::BeginMenu("Camera")) {
+            ImGui::SeparatorText("Fixes");
+            UIWidgets::CVarCheckbox(
+                "Fix Targetting Camera Snap", "gEnhancements.Camera.FixTargettingCameraSnap",
+                { .tooltip =
+                      "Fixes the camera snap that occurs when you are moving and press the targetting button." });
             ImGui::SeparatorText("Right Stick Camera");
             UIWidgets::CVarCheckbox("Invert Camera X Axis", "gEnhancements.Camera.RightStick.InvertXAxis",
                                     { .tooltip = "Inverts the Camera X Axis in Free Look." });
@@ -409,9 +414,13 @@ void DrawEnhancementsMenu() {
                 { .tooltip = "Playing the Song Of Time will not reset the Sword back to Kokiri Sword." });
             UIWidgets::CVarCheckbox("Do not reset Rupees", "gEnhancements.Cycle.DoNotResetRupees",
                                     { .tooltip = "Playing the Song Of Time will not reset the your rupees." });
-            UIWidgets::CVarSliderInt("Save Delay", "gEnhancements.Save.SaveDelay", 0, 5, 0,
-                                     { .tooltip = "Sets the delay between pressing save and the save being marked as "
-                                                  "complete. Original game was 2." });
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 0, 255));
+            ImGui::SeparatorText("Unstable");
+            ImGui::PopStyleColor();
+            UIWidgets::CVarCheckbox(
+                "Disable Save Delay", "gEnhancements.Save.DisableSaveDelay",
+                { .tooltip = "Removes the arbitrary 2 second timer for saving from the original game. This is known to "
+                             "cause issues when attempting the 0th Day Glitch" });
 
             ImGui::EndMenu();
         }
@@ -491,6 +500,9 @@ void DrawEnhancementsMenu() {
 
         if (UIWidgets::BeginMenu("Restorations")) {
             UIWidgets::CVarCheckbox(
+                "Constant Distance Backflips and Sidehops", "gEnhancements.Restorations.ConstantFlipsHops",
+                { .tooltip = "Backflips and Sidehops travel a constant distance as they did in OOT." });
+            UIWidgets::CVarCheckbox(
                 "Power Crouch Stab", "gEnhancements.Restorations.PowerCrouchStab",
                 { .tooltip =
                       "Crouch stabs will use the power of Link's previous melee attack, as is in MM JP 1.0 and OOT." });
@@ -530,6 +542,7 @@ void DrawCheatsMenu() {
         UIWidgets::CVarCheckbox("Infinite Rupees", "gCheats.InfiniteRupees");
         UIWidgets::CVarCheckbox("Infinite Consumables", "gCheats.InfiniteConsumables");
         UIWidgets::CVarCheckbox("Unbreakable Razor Sword", "gCheats.UnbreakableRazorSword");
+        UIWidgets::CVarCheckbox("Unrestricted Items", "gCheats.UnrestrictedItems");
         if (UIWidgets::CVarCheckbox("Moon Jump on L", "gCheats.MoonJumpOnL",
                                     { .tooltip = "Holding L makes you float into the air" })) {
             RegisterMoonJumpOnL();

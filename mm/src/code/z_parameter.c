@@ -2764,7 +2764,9 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
         if (GET_PLAYER_FORM == player->transformation) {
             for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
                 // Individual C button
-                if (!gPlayerFormItemRestrictions[GET_PLAYER_FORM][GET_CUR_FORM_BTN_ITEM(i)]) {
+                ItemId itemId = GET_CUR_FORM_BTN_ITEM(i);
+                if (GameInteractor_Should(GI_VB_ITEM_BE_RESTRICTED,
+                                          !gPlayerFormItemRestrictions[GET_PLAYER_FORM][itemId], &itemId)) {
                     // Item not usable in current playerForm
                     if (gSaveContext.buttonStatus[i] != BTN_DISABLED) {
                         gSaveContext.buttonStatus[i] = BTN_DISABLED;
@@ -2909,7 +2911,9 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
             // #region 2S2H [Dpad]
             for (s16 j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++) {
                 // Individual D button
-                if (!gPlayerFormItemRestrictions[GET_PLAYER_FORM][DPAD_GET_CUR_FORM_BTN_ITEM(j)]) {
+                ItemId itemId = DPAD_GET_CUR_FORM_BTN_ITEM(j);
+                if (GameInteractor_Should(GI_VB_ITEM_BE_RESTRICTED,
+                                          !gPlayerFormItemRestrictions[GET_PLAYER_FORM][itemId], &itemId)) {
                     // Item not usable in current playerForm
                     if (gSaveContext.shipSaveContext.dpad.status[j] != BTN_DISABLED) {
                         gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;

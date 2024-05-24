@@ -9,6 +9,7 @@ void InitEnhancements() {
     RegisterInfiniteCheats();
     RegisterMoonJumpOnL();
     RegisterUnbreakableRazorSword();
+    RegisterUnrestrictedItems();
 
     // Clock
     RegisterTextBasedClock();
@@ -32,6 +33,7 @@ void InitEnhancements() {
     RegisterPowerCrouchStab();
     RegisterSideRoll();
     RegisterTatlISG();
+    RegisterVariableFlipHop();
 
     // Cutscenes
     RegisterCutscenes();
