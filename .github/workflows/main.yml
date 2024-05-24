@@ -51,63 +51,52 @@ jobs:
   #   #       2ship.appimage
   #   #       readme.txt
 
-  # build-windows-self-hosted:
-  #   runs-on: [self-hosted, Windows]
-  #   steps:
-  #   - name: Install dependencies
-  #     run: |
-  #       choco install ninja -y
-  #       choco install gzip -y
-  #       Add-Content $env:GITHUB_PATH $env:ChocolateyInstall
-  #   - uses: actions/checkout@v4
-  #     with:
-  #       submodules: true
-  #   # - name: Cache build folder
-  #   #   uses: actions/cache@v4
-  #   #   with:
-  #   #     save-always: true
-  #   #     key: ${{ runner.os }}-self-build-${{ github.ref }}-${{ github.sha }}
-  #   #     restore-keys: |
-  #   #       ${{ runner.os }}-self-build-${{ github.ref }}
-  #   #       ${{ runner.os }}-self-build-
-  #   #     path: |
-  #   #       build-windows
-  #   #       vcpkg
-  #   - name: Configure Developer Command Prompt
-  #     uses: ilammy/msvc-dev-cmd@v1
-  #   - name: Copy Rom
-  #     run: Copy-Item -Path C:\baserom_mm.z64 -Destination ${{github.workspace}}/OTRExporter/baserom.z64
-  #   - name: Build 2Ship
-  #     env: 
-  #       VCPKG_ROOT: ${{github.workspace}}/vcpkg
-  #     run: |
-  #       set $env:PATH="$env:USERPROFILE/.cargo/bin;$env:PATH"
-  #       cmake -S . -B build-windows -G Ninja -DCMAKE_MAKE_PROGRAM=ninja -DCMAKE_BUILD_TYPE:STRING=Release
-  #       cmake --build build-windows --config Release --target Generate2ShipOtr --parallel 10
-  #       cmake --build build-windows --config Release --parallel 10
+  build-windows-self-hosted:
+    runs-on: [self-hosted, Windows]
+    steps:
+    - name: Install dependencies
+      run: |
+        choco install ninja -y
+        choco install gzip -y
+        Add-Content $env:GITHUB_PATH $env:ChocolateyInstall
+    - uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: Configure Developer Command Prompt
+      uses: ilammy/msvc-dev-cmd@v1
+    - name: Copy Rom
+      run: Copy-Item -Path C:\baserom_mm.z64 -Destination ${{github.workspace}}/OTRExporter/baserom.z64
+    - name: Build 2Ship
+      env: 
+        VCPKG_ROOT: ${{github.workspace}}/vcpkg
+      run: |
+        set $env:PATH="$env:USERPROFILE/.cargo/bin;$env:PATH"
+        cmake -S . -B build-windows -G Ninja -DCMAKE_MAKE_PROGRAM=ninja -DCMAKE_BUILD_TYPE:STRING=Release
+        cmake --build build-windows --config Release --target Generate2ShipOtr --parallel 10
+        cmake --build build-windows --config Release --parallel 10
 
-  #       (cd build-windows && cpack)
-  #       cd ..
-  #       mv _packages/*.zip _packages/2ship-windows.zip
-  #   # Temporarily replaced with an upload to R2 until we go public
-  #   # - name: Unzip package
-  #   #   run: Expand-Archive -Path 2ship-windows.zip -DestinationPath 2ship-windows
-  #   # - name: Upload build
-  #   #   if: ${{ startsWith(github.ref, 'refs/heads/develop') }}
-  #   #   uses: actions/upload-artifact@v4
-  #   #   with:
-  #   #     name: 2ship-windows
-  #   #     path: 2ship-windows
-  #   - name: Upload build
-  #     if: ${{ startsWith(github.ref, 'refs/heads/develop') }}
-  #     uses: ryand56/r2-upload-action@latest
-  #     with:
-  #       r2-account-id: ${{ secrets.R2_ACCOUNT_ID }}
-  #       r2-access-key-id: ${{ secrets.R2_ACCESS_KEY_ID }}
-  #       r2-secret-access-key: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-  #       r2-bucket: ${{ secrets.R2_BUCKET }}
-  #       source-dir: _packages
-  #       destination-dir: ./
+        (cd build-windows && cpack)
+        cd ..
+        mv _packages/*.zip _packages/2ship-windows.zip
+    # Temporarily replaced with an upload to R2 until we go public
+    # - name: Unzip package
+    #   run: Expand-Archive -Path 2ship-windows.zip -DestinationPath 2ship-windows
+    # - name: Upload build
+    #   if: ${{ startsWith(github.ref, 'refs/heads/develop') }}
+    #   uses: actions/upload-artifact@v4
+    #   with:
+    #     name: 2ship-windows
+    #     path: 2ship-windows
+    - name: Upload build
+      if: ${{ startsWith(github.ref, 'refs/heads/develop') }}
+      uses: ryand56/r2-upload-action@latest
+      with:
+        r2-account-id: ${{ secrets.R2_ACCOUNT_ID }}
+        r2-access-key-id: ${{ secrets.R2_ACCESS_KEY_ID }}
+        r2-secret-access-key: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+        r2-bucket: ${{ secrets.R2_BUCKET }}
+        source-dir: _packages
+        destination-dir: ./
 
   # build-macos:
   #   # needs: generate-2ship-otr
@@ -267,7 +256,7 @@ jobs:
         mkdir -p _release
         zip -qq _release/2ship-linux.zip 2ship.appimage readme.txt
     - name: Upload build
-      # if: ${{ startsWith(github.ref, 'refs/heads/develop') }}
+      if: ${{ startsWith(github.ref, 'refs/heads/develop') }}
       uses: ryand56/r2-upload-action@latest
       with:
         r2-account-id: ${{ secrets.R2_ACCOUNT_ID }}
