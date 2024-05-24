@@ -285,6 +285,9 @@ void ObjTokeidai_Destroy(Actor* thisx, PlayState* play) {
 
 void ObjTokeidai_RotateOnMinuteChange(ObjTokeidai* this, s32 playSfx) {
     s32 currentClockMinute = GET_CURRENT_CLOCK_MINUTE(this);
+    // 2S2H [Port] This was the only way I could tell the compiler to stop messing with the type here, we need it to be
+    // an s16 for the comparison it does below
+    volatile s16 targetGearRotation = GET_MINUTE_RING_OR_EXTERIOR_GEAR_ROTATION(currentClockMinute);
 
     if (currentClockMinute != this->clockMinute) {
         if ((this->minuteRingOrExteriorGearRotationTimer == 8) && playSfx) {
@@ -310,9 +313,8 @@ void ObjTokeidai_RotateOnMinuteChange(ObjTokeidai* this, s32 playSfx) {
         this->minuteRingOrExteriorGearRotationTimer++;
 
         if (((currentClockMinute == 15) && (this->minuteRingOrExteriorGearRotation < 0)) ||
-            ((currentClockMinute != 15) &&
-             this->minuteRingOrExteriorGearRotation > GET_MINUTE_RING_OR_EXTERIOR_GEAR_ROTATION(currentClockMinute))) {
-            this->minuteRingOrExteriorGearRotation = GET_MINUTE_RING_OR_EXTERIOR_GEAR_ROTATION(currentClockMinute);
+            ((currentClockMinute != 15) && this->minuteRingOrExteriorGearRotation > targetGearRotation)) {
+            this->minuteRingOrExteriorGearRotation = targetGearRotation;
             this->clockMinute = currentClockMinute;
             this->minuteRingOrExteriorGearAngularVelocity = 0x5A;
             this->minuteRingOrExteriorGearRotationTimer = 0;
