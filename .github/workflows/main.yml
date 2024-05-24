@@ -164,7 +164,7 @@ jobs:
         retention-days: 1
 
   build-macos:
-    # needs: generate-2ship-otr
+    needs: generate-2ship-otr
     runs-on: macos-14
     steps:
     - uses: actions/checkout@v4
