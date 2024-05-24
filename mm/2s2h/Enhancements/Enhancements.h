@@ -21,6 +21,7 @@
 #include "Graphics/PlayAsKafei.h"
 #include "PlayerMovement/ClimbSpeed.h"
 #include "Songs/EnableSunsSong.h"
+#include "Saving/SavingEnhancements.h"
 
 enum AlwaysWinDoggyRaceOptions {
     ALWAYS_WIN_DOGGY_RACE_OFF,

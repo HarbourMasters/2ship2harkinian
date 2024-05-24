@@ -912,7 +912,7 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
         }
     }
 
-    if (CVarGetInteger("gEnhancements.Kaleido.PauseSave", 0) || CVarGetInteger("gEnhancements.Kaleido.GameOver", 0)) {
+    if (CVarGetInteger("gEnhancements.Saving.PauseSave", 0) || CVarGetInteger("gEnhancements.Kaleido.GameOver", 0)) {
         Gfx_SetupDL42_Opa(gfxCtx);
         if ((pauseCtx->state == PAUSE_STATE_SAVEPROMPT) || IS_PAUSE_STATE_GAMEOVER) {
             KaleidoScope_UpdatePrompt(play);
@@ -3377,7 +3377,7 @@ void KaleidoScope_Update(PlayState* play) {
                     if (!pauseCtx->itemDescriptionOn &&
                         (CHECK_BTN_ALL(input->press.button, BTN_START) || CHECK_BTN_ALL(input->press.button, BTN_B))) {
                         Interface_SetAButtonDoAction(play, DO_ACTION_NONE);
-                        if (CVarGetInteger("gEnhancements.Kaleido.PauseSave", 0)) {
+                        if (CVarGetInteger("gEnhancements.Saving.PauseSave", 0)) {
                             if (CHECK_BTN_ALL(input->press.button, BTN_B)) {
                                 pauseCtx->state = PAUSE_STATE_SAVEPROMPT;
                                 Audio_PlaySfx_MessageDecide();
@@ -3418,7 +3418,7 @@ void KaleidoScope_Update(PlayState* play) {
                         // Abort having the player play the song and close the pause menu
                         AudioOcarina_SetInstrument(OCARINA_INSTRUMENT_OFF);
                         Interface_SetAButtonDoAction(play, DO_ACTION_NONE);
-                        if (CVarGetInteger("gEnhancements.Kaleido.PauseSave", 0)) {
+                        if (CVarGetInteger("gEnhancements.Saving.PauseSave", 0)) {
                             if (CHECK_BTN_ALL(input->press.button, BTN_B)) {
                                 pauseCtx->state = PAUSE_STATE_SAVEPROMPT;
                                 Audio_PlaySfx_MessageDecide();
@@ -3461,7 +3461,7 @@ void KaleidoScope_Update(PlayState* play) {
                     if (CHECK_BTN_ALL(input->press.button, BTN_START) || CHECK_BTN_ALL(input->press.button, BTN_B)) {
                         AudioOcarina_SetInstrument(OCARINA_INSTRUMENT_OFF);
                         Interface_SetAButtonDoAction(play, DO_ACTION_NONE);
-                        if (CVarGetInteger("gEnhancements.Kaleido.PauseSave", 0)) {
+                        if (CVarGetInteger("gEnhancements.Saving.PauseSave", 0)) {
                             if (CHECK_BTN_ALL(input->press.button, BTN_B)) {
                                 pauseCtx->state = PAUSE_STATE_SAVEPROMPT;
                                 Audio_PlaySfx_MessageDecide();
@@ -3513,12 +3513,12 @@ void KaleidoScope_Update(PlayState* play) {
                             pauseCtx->savePromptState = PAUSE_SAVEPROMPT_STATE_RETURN_TO_MENU;
                         } else {
                             Audio_PlaySfx(NA_SE_SY_PIECE_OF_HEART);
-                            if (CVarGetInteger("gEnhancements.Kaleido.PauseSave", 0)) {
+                            if (CVarGetInteger("gEnhancements.Saving.PauseSave", 0)) {
                                 gSaveContext.save.isOwlSave = true;
                                 // 2S2H [Enhancement] Eventually we might allow them to load from their last entrance,
                                 // but we need to first identify and fix edge cases where that doesn't work properly
                                 // like grottos and cutscenes
-                                gSaveContext.save.shipSaveInfo.pauseSaveEntrance = ENTRANCE(SOUTH_CLOCK_TOWN, 0);
+                                gSaveContext.save.shipSaveInfo.pauseSaveEntrance = GetSaveEntrance(play);
                             }
                             Play_SaveCycleSceneFlags(&play->state);
                             gSaveContext.save.saveInfo.playerData.savedSceneId = play->sceneId;
@@ -3528,7 +3528,7 @@ void KaleidoScope_Update(PlayState* play) {
                                     255) { // 2S2H [Enhancement] Don't let them save if they are in debug save
                                 pauseCtx->savePromptState = PAUSE_SAVEPROMPT_STATE_5;
                             } else {
-                                if (CVarGetInteger("gEnhancements.Kaleido.PauseSave", 0)) {
+                                if (CVarGetInteger("gEnhancements.Saving.PauseSave", 0)) {
                                     Sram_SetFlashPagesOwlSave(sramCtx,
                                                               gFlashOwlSaveStartPages[gSaveContext.fileNum * 2],
                                                               gFlashOwlSaveNumPages[gSaveContext.fileNum * 2]);

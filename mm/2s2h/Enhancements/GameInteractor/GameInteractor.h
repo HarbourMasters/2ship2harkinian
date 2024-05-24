@@ -45,6 +45,7 @@ typedef enum {
     GI_VB_PREVENT_CLOCK_DISPLAY,
     GI_VB_SONG_AVAILABLE_TO_PLAY,
     GI_VB_USE_CUSTOM_CAMERA,
+    GI_VB_DELETE_OWL_SAVE,
     GI_VB_PLAY_TRANSITION_CS,
     GI_VB_TATL_INTERUPT_MSG3,
     GI_VB_TATL_INTERUPT_MSG6,
@@ -250,6 +251,7 @@ class GameInteractor {
     DEFINE_HOOK(OnSaveInit, (s16 fileNum));
     DEFINE_HOOK(BeforeEndOfCycleSave, ());
     DEFINE_HOOK(AfterEndOfCycleSave, ());
+    DEFINE_HOOK(BeforeMoonCrashSaveReset, ());
 
     DEFINE_HOOK(OnSceneInit, (s8 sceneId, s8 spawnNum));
     DEFINE_HOOK(OnRoomInit, (s8 sceneId, s8 roomNum));
@@ -288,6 +290,7 @@ void GameInteractor_ExecuteOnGameStateUpdate();
 void GameInteractor_ExecuteOnSaveInit(s16 fileNum);
 void GameInteractor_ExecuteBeforeEndOfCycleSave();
 void GameInteractor_ExecuteAfterEndOfCycleSave();
+void GameInteractor_ExecuteBeforeMoonCrashSaveReset();
 
 void GameInteractor_ExecuteOnSceneInit(s16 sceneId, s8 spawnNum);
 void GameInteractor_ExecuteOnRoomInit(s16 sceneId, s8 roomNum);
