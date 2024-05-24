@@ -567,6 +567,10 @@ extern "C" void Graph_StartFrame() {
     OTRGlobals::Instance->context->GetWindow()->SetLastScancode(-1);
 
     switch (dwScancode) {
+        case KbScancode::LUS_KB_F8: {
+            OTRGlobals::Instance->context->GetWindow()->GetGui()->GetGuiWindow("Settings")->ToggleVisibility();
+            break;
+        }
 #if 0
         case KbScancode::LUS_KB_F5: {
             if (CVarGetInteger("gSaveStatesEnabled", 0) == 0) {
