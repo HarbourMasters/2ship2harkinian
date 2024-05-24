@@ -4026,7 +4026,13 @@ void Message_SpawnSongEffect(PlayState* play) {
         (msgCtx->songPlayed != OCARINA_SONG_GORON_LULLABY_INTRO) &&
         !((msgCtx->ocarinaAction >= OCARINA_ACTION_PROMPT_WIND_FISH_HUMAN) &&
           (msgCtx->ocarinaAction <= OCARINA_ACTION_PROMPT_WIND_FISH_DEKU))) {
-        msgCtx->ocarinaSongEffectActive = true;
+        if (CVarGetInteger(
+                "gEnhancements.Playback.FastSongPlayback",
+                0)) { // Set to false to allow subsequent ocarina actions without considering this effect as active
+            msgCtx->ocarinaSongEffectActive = false;
+        } else {
+            msgCtx->ocarinaSongEffectActive = true;
+        }
         if (msgCtx->songPlayed != OCARINA_SONG_SCARECROW_SPAWN) {
             Actor_Spawn(&play->actorCtx, play, sOcarinaEffectActorIds[msgCtx->songPlayed], player->actor.world.pos.x,
                         player->actor.world.pos.y, player->actor.world.pos.z, 0, 0, 0,
@@ -4766,7 +4772,10 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
                     AudioOcarina_SetPlaybackSong(msgCtx->ocarinaAction - OCARINA_ACTION_SCARECROW_LONG_RECORDING, 1);
                 } else {
                     AudioOcarina_SetInstrument(sPlayerFormOcarinaInstruments[CUR_FORM]);
-                    AudioOcarina_SetPlaybackSong((u8)msgCtx->songPlayed + 1, 1);
+                    if (!CVarGetInteger("gEnhancements.Playback.FastSongPlayback",
+                                        0)) { // Skips the visual note playback after playing a song
+                        AudioOcarina_SetPlaybackSong((u8)msgCtx->songPlayed + 1, 1);
+                    }
                     if (msgCtx->songPlayed != OCARINA_SONG_SCARECROW_SPAWN) {
                         Audio_PlayFanfareWithPlayerIOPort7((u16)sOcarinaSongFanfares[msgCtx->songPlayed],
                                                            (u8)sOcarinaSongFanfareIoData[CUR_FORM]);
@@ -4792,7 +4801,12 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
                 }
                 Message_Decode(play);
                 msgCtx->msgMode = MSGMODE_16;
-                msgCtx->stateTimer = 20;
+                if (CVarGetInteger("gEnhancements.Playback.FastSongPlayback",
+                                   0)) { // Speeds up the time it shows the song name after playback
+                    msgCtx->stateTimer = 1;
+                } else {
+                    msgCtx->stateTimer = 20;
+                }
                 Message_DrawText(play, &gfx);
                 break;
 

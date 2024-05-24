@@ -478,6 +478,12 @@ void EnTest6_InvertedSoTCutscene(EnTest6* this, PlayState* play) {
     subCam = Play_GetCamera(play, this->subCamId);
     mainCam = Play_GetCamera(play, CAM_ID_MAIN);
 
+    // Check if fast song playback is enabled and skip the cutscene if true
+    if (CVarGetInteger("gEnhancements.Playback.FastSongPlayback", 0)) {
+        EnTest6_StopInvertedSoTCutscene(this, play);
+        return;
+    }
+
     // Update cutscene effects
     switch (this->cueId) {
         case SOTCS_CUEID_INV_INIT:
@@ -726,6 +732,12 @@ void EnTest6_DoubleSoTCutscene(EnTest6* this, PlayState* play) {
     s32 pad;
     s16 subCamId;
     s16 pad2;
+
+    // Check if fast song playback is enabled and skip the cutscene if true
+    if (CVarGetInteger("gEnhancements.Playback.FastSongPlayback", 0)) {
+        EnTest6_StopDoubleSoTCutscene(this, play);
+        return;
+    }
 
     if (this->timer > 115) {
         this->doubleSoTEnvLerp += 0.2f;

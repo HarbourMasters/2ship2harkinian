@@ -13458,7 +13458,12 @@ void func_80848640(PlayState* play, Player* this) {
         Math_Vec3f_Copy(&torch2->actor.home.pos, &this->actor.world.pos);
         torch2->actor.home.rot.y = this->actor.shape.rot.y;
         torch2->state = 0;
-        torch2->framesUntilNextState = 20;
+        if (CVarGetInteger("gEnhancements.Playback.FastSongPlayback",
+                           0)) { // Speeds up the spawning of the elegy statue
+            torch2->framesUntilNextState = 1;
+        } else {
+            torch2->framesUntilNextState = 20;
+        }
     } else {
         torch2 = (EnTorch2*)Actor_Spawn(&play->actorCtx, play, ACTOR_EN_TORCH2, this->actor.world.pos.x,
                                         this->actor.world.pos.y, this->actor.world.pos.z, 0, this->actor.shape.rot.y, 0,
@@ -17097,13 +17102,28 @@ void Player_Action_63(Player* this, PlayState* play) {
                 (play->msgCtx.ocarinaMode == OCARINA_MODE_APPLY_INV_SOT_SLOW)) {
                 if (play->msgCtx.ocarinaMode == OCARINA_MODE_APPLY_SOT) {
                     if (!func_8082DA90(play)) {
-                        if (gSaveContext.save.saveInfo.playerData.threeDayResetCount == 1) {
+                        if (CVarGetInteger("gEnhancements.Playback.FastSongPlayback",
+                                           0)) { // Ensures proper time reset whenever fast playback is active. Probably
+                                                 // a better way to do this.
+                            play->nextEntrance = ENTRANCE(SOUTH_CLOCK_TOWN, 0);
+                            gSaveContext.save.timeSpeedOffset = 0;
+                            gSaveContext.save.eventDayCount = 0;
+                            gSaveContext.save.day = 0;
+                            gSaveContext.save.time = CLOCK_TIME(6, 0) - 1;
+
+                        } else if (gSaveContext.save.saveInfo.playerData.threeDayResetCount == 1) {
                             play->nextEntrance = ENTRANCE(CUTSCENE, 1);
                         } else {
                             play->nextEntrance = ENTRANCE(CUTSCENE, 0);
                         }
 
-                        gSaveContext.nextCutsceneIndex = 0xFFF7;
+                        if (CVarGetInteger("gEnhancements.Playback.FastSongPlayback",
+                                           0)) { // Ensures the player spawns back at the door of the clock tower when
+                                                 // fast playback is active.
+                            gSaveContext.nextCutsceneIndex = 0;
+                        } else {
+                            gSaveContext.nextCutsceneIndex = 0xFFF7;
+                        }
                         play->transitionTrigger = TRANS_TRIGGER_START;
                     }
                 } else {
@@ -18385,7 +18405,15 @@ void Player_Action_87(Player* this, PlayState* play) {
 }
 
 void Player_Action_88(Player* this, PlayState* play) {
-    if (this->av2.actionVar2++ > 90) {
+    if (CVarGetInteger("gEnhancements.Playback.FastSongPlayback",
+                       0)) { // Speeds up the ocarina waiting timer, allowing the player to move sooner
+        if (this->av2.actionVar2++ > 1) {
+            play->msgCtx.ocarinaMode = OCARINA_MODE_END;
+            func_8085B384(this, play);
+        } else if (this->av2.actionVar2 == 1) {
+            func_80848640(play, this);
+        }
+    } else if (this->av2.actionVar2++ > 90) {
         play->msgCtx.ocarinaMode = OCARINA_MODE_END;
         func_8085B384(this, play);
     } else if (this->av2.actionVar2 == 10) {

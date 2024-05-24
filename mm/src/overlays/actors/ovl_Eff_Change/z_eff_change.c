@@ -56,7 +56,10 @@ void EffChange_Init(Actor* thisx, PlayState* play) {
     Keyframe_FlexPlayOnce(&this->skeletonInfo, gGameplayKeepKFAnim_281DC);
     this->step = 0;
     this->actor.shape.rot.y = 0;
-    this->skeletonInfo.frameCtrl.speed = (2.0f / 3.0f);
+    this->skeletonInfo.frameCtrl.speed =
+        (2.0f / 3.0f) + (CVarGetInteger("gEnhancements.Playback.FastSongPlayback", 0)
+                             ? 1.0f
+                             : 0.0f); // Speeds up the spawning of the statue to ensure it keeps the switch pressed down
     CutsceneManager_Queue(CS_ID_GLOBAL_ELEGY);
 }
 
@@ -110,11 +113,14 @@ void func_80A4C5CC(EffChange* this, PlayState* play) {
         phi_fv0 = 0.0f;
     }
     Environment_AdjustLights(play, phi_fv0, 850.0f, 0.2f, 0.0f);
-    if (CutsceneManager_GetCurrentCsId() != CS_ID_GLOBAL_ELEGY) {
-        if (CutsceneManager_IsNext(CS_ID_GLOBAL_ELEGY)) {
-            CutsceneManager_Start(CS_ID_GLOBAL_ELEGY, &this->actor);
-        } else {
-            CutsceneManager_Queue(CS_ID_GLOBAL_ELEGY);
+    if (!CVarGetInteger("gEnhancements.Playback.FastSongPlayback",
+                        0)) { // skips the elegy cutscene, allowing you to instanly move away from the statue
+        if (CutsceneManager_GetCurrentCsId() != CS_ID_GLOBAL_ELEGY) {
+            if (CutsceneManager_IsNext(CS_ID_GLOBAL_ELEGY)) {
+                CutsceneManager_Start(CS_ID_GLOBAL_ELEGY, &this->actor);
+            } else {
+                CutsceneManager_Queue(CS_ID_GLOBAL_ELEGY);
+            }
         }
     }
 }
