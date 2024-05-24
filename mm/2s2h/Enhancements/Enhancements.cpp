@@ -16,6 +16,9 @@ void InitEnhancements() {
     // Cycle
     RegisterEndOfCycleSaveHooks();
 
+    // Equipment
+    RegisterSkipMagicArrowEquip();
+
     // Masks
     RegisterFastTransformation();
     RegisterFierceDeityAnywhere();

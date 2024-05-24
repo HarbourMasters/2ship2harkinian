@@ -8,6 +8,7 @@
 #include "Graphics/TextBasedClock.h"
 #include "Cheats/UnbreakableRazorSword.h"
 #include "Cycle/EndOfCycle.h"
+#include "Equipment/SkipMagicArrowEquip.h"
 #include "Masks/FierceDeityAnywhere.h"
 #include "Masks/NoBlastMaskCooldown.h"
 #include "Masks/FastTransformation.h"

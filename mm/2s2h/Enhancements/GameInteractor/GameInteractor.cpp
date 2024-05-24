@@ -19,6 +19,10 @@ void GameInteractor_ExecuteOnGameStateUpdate() {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnGameStateUpdate>();
 }
 
+void GameInteractor_ExecuteOnKaleidoUpdate(PauseContext* pauseCtx) {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnKaleidoUpdate>(pauseCtx);
+}
+
 void GameInteractor_ExecuteOnSaveInit(s16 fileNum) {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnSaveInit>(fileNum);
 }
