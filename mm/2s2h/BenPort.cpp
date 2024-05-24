@@ -54,6 +54,7 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/Enhancements/GfxPatcher/AuthenticGfxPatches.h"
 #include "2s2h/DeveloperTools/DebugConsole.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
+#include "2s2h/SaveManager/SaveManager.h"
 
 // Resource Types/Factories
 #include "resource/type/Array.h"
@@ -402,6 +403,52 @@ extern "C" void OTRExtScanner() {
     }
 }
 
+std::string SanitizePath(std::string stringValue) {
+    // Add backslashes.
+    for (auto i = stringValue.begin();;) {
+        auto const pos =
+            std::find_if(i, stringValue.end(), [](char const c) { return '\\' == c || '\'' == c || '"' == c; });
+        if (pos == stringValue.end()) {
+            break;
+        }
+        i = std::next(stringValue.insert(pos, '\\'), 2);
+    }
+
+    // Removes others.
+    stringValue.erase(std::remove_if(stringValue.begin(), stringValue.end(),
+                                     [](char const c) { return '\n' == c || '\r' == c || '\0' == c || '\x1A' == c; }),
+                      stringValue.end());
+
+    return stringValue;
+}
+
+void Ben_ProcessDroppedFiles(std::string filePath) {
+    SPDLOG_INFO("Processing dropped file: {}", filePath);
+
+    bool handled = false;
+
+    if (!handled) {
+        handled = SaveManager_HandleFileDropped(filePath);
+    }
+
+    if (!handled) {
+        handled = BinarySaveConverter_HandleFileDropped(filePath);
+    }
+
+    // if (!handled) {
+    //     handled = Randomizer_HandleFileDropped(filePath);
+    // }
+
+    // if (!handled) {
+    //     handled = Presets_HandleFileDropped(filePath);
+    // }
+
+    if (!handled) {
+        auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+        gui->GetGameOverlay()->TextDrawNotification(30.0f, true, "Unsupported file dropped, ignoring");
+    }
+}
+
 extern "C" void InitOTR() {
 #if not defined(__SWITCH__) && not defined(__WIIU__)
     if (!std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.zip", appShortName)) &&
@@ -445,6 +492,9 @@ extern "C" void InitOTR() {
     // OTRMessage_Init();
     OTRAudio_Init();
     // OTRExtScanner();
+
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnFileDropped>(Ben_ProcessDroppedFiles);
+
     time_t now = time(NULL);
     tm* tm_now = localtime(&now);
     if (tm_now->tm_mon == 11 && tm_now->tm_mday >= 24 && tm_now->tm_mday <= 25) {
@@ -615,6 +665,16 @@ extern "C" void Graph_StartFrame() {
         }
     }
 #endif
+
+    if (CVarGetInteger(CVAR_NEW_FILE_DROPPED, 0)) {
+        std::string filePath = SanitizePath(CVarGetString(CVAR_DROPPED_FILE, ""));
+        if (!filePath.empty()) {
+            GameInteractor::Instance->ExecuteHooks<GameInteractor::OnFileDropped>(filePath);
+        }
+        CVarClear(CVAR_NEW_FILE_DROPPED);
+        CVarClear(CVAR_DROPPED_FILE);
+    }
+
     OTRGlobals::Instance->context->GetWindow()->StartFrame();
 }
 
