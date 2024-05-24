@@ -570,6 +570,8 @@ void DrawEnhancementsMenu() {
                                     { .tooltip = "Enables using the Dpad for Ocarina playback." });
             UIWidgets::CVarCheckbox("Prevent Dropped Ocarina Inputs", "gEnhancements.Playback.NoDropOcarinaInput",
                                     { .tooltip = "Prevent dropping inputs when playing the ocarina quickly" });
+            UIWidgets::CVarCheckbox("Faster song playbacks", "gEnhancements.Playback.FastSongPlayback",
+                                    { .tooltip = "Makes song playback faster" });
 
             ImGui::EndMenu();
         }

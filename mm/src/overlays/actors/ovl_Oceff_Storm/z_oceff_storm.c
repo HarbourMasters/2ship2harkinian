@@ -205,26 +205,30 @@ void OceffStorm_Draw(Actor* thisx, PlayState* play) {
     Vtx* vtxPtr = ResourceMgr_LoadVtxByName(sSongOfStormsCylinderVtx);
     // #endregion
 
-    OPEN_DISPS(play->state.gfxCtx);
+    if (!CVarGetInteger("gEnhancements.Playback.FastSongPlayback",
+                        0)) { // Prevents the beam of light around Link from drawing, as it will awkwardly stay in place
+                              // when the player moves.
+        OPEN_DISPS(play->state.gfxCtx);
 
-    Gfx_SetupDL25_Xlu(play->state.gfxCtx);
+        Gfx_SetupDL25_Xlu(play->state.gfxCtx);
 
-    gDPSetPrimColor(POLY_XLU_DISP++, 0x80, 0x80, 255, 255, 200, 255);
-    gDPSetEnvColor(POLY_XLU_DISP++, 150, 150, 0, 128);
-    gDPSetAlphaDither(POLY_XLU_DISP++, G_AD_NOISE);
-    gDPSetColorDither(POLY_XLU_DISP++, G_CD_NOISE);
+        gDPSetPrimColor(POLY_XLU_DISP++, 0x80, 0x80, 255, 255, 200, 255);
+        gDPSetEnvColor(POLY_XLU_DISP++, 150, 150, 0, 128);
+        gDPSetAlphaDither(POLY_XLU_DISP++, G_AD_NOISE);
+        gDPSetColorDither(POLY_XLU_DISP++, G_CD_NOISE);
 
-    vtxPtr[0].v.cn[3] = vtxPtr[6].v.cn[3] = vtxPtr[16].v.cn[3] = vtxPtr[25].v.cn[3] = this->vtxAlpha >> 1;
-    vtxPtr[10].v.cn[3] = vtxPtr[22].v.cn[3] = this->vtxAlpha;
+        vtxPtr[0].v.cn[3] = vtxPtr[6].v.cn[3] = vtxPtr[16].v.cn[3] = vtxPtr[25].v.cn[3] = this->vtxAlpha >> 1;
+        vtxPtr[10].v.cn[3] = vtxPtr[22].v.cn[3] = this->vtxAlpha;
 
-    gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
 
-    gSPDisplayList(POLY_XLU_DISP++, &sSongOfStormsCylinderMaterialDL);
-    gSPDisplayList(POLY_XLU_DISP++, Gfx_TwoTexScroll(play->state.gfxCtx, G_TX_RENDERTILE, scroll * 4, (0 - scroll) * 8,
-                                                     32, 32, 1, scroll * 8, (0 - scroll) * 12, 32, 32));
-    gSPDisplayList(POLY_XLU_DISP++, &sSongOfStormsCylinderModelDL);
+        gSPDisplayList(POLY_XLU_DISP++, &sSongOfStormsCylinderMaterialDL);
+        gSPDisplayList(POLY_XLU_DISP++,
+                       Gfx_TwoTexScroll(play->state.gfxCtx, G_TX_RENDERTILE, scroll * 4, (0 - scroll) * 8, 32, 32, 1,
+                                        scroll * 8, (0 - scroll) * 12, 32, 32));
+        gSPDisplayList(POLY_XLU_DISP++, &sSongOfStormsCylinderModelDL);
 
-    CLOSE_DISPS(play->state.gfxCtx);
-
+        CLOSE_DISPS(play->state.gfxCtx);
+    }
     OceffStorm_Draw2(&this->actor, play);
 }
