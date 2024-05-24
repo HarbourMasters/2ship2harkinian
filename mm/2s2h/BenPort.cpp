@@ -488,7 +488,7 @@ extern "C" void InitOTR() {
     DebugConsole_Init();
 
     clearMtx = (uintptr_t)&gMtxClear;
-    // OTRMessage_Init();
+    OTRMessage_Init();
     OTRAudio_Init();
     // OTRExtScanner();
 
