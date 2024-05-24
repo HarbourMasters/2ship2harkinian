@@ -67,6 +67,6 @@
         <!-- Assets for the purified water in Woodfall, as well as the floor visible beneath the water. -->
         <DList Name="gWoodfallSceneryPurifiedWaterDL" Offset="0x10ED0" /> <!-- Original name is "z2_21_water_modelT" -->
         <DList Name="gWoodfallSceneryFloorDL" Offset="0x10FB8" /> <!-- Original name is "z2_21_water_model" -->
-        <TextureAnimation Name="gWoodfallSceneryPurifiedWaterTexAnim" Offset="0x10F78" />
+        <TextureAnimation Name="gWoodfallSceneryPurifiedWaterTexAnim" Offset="0x11098" />
     </File>
 </Root>
