@@ -97,6 +97,7 @@ namespace UIWidgets {
 
     void PushStyleCheckbox(const ImVec4& color = Colors::Indigo);
     void PopStyleCheckbox();
+    void RenderText(ImVec2 pos, const char* text, const char* text_end, bool hide_text_after_hash);
     bool Checkbox(const char* label, bool* v, const CheckboxOptions& options = {});
     bool CVarCheckbox(const char* label, const char* cvarName, const CheckboxOptions& options = {});
 
