@@ -35,6 +35,7 @@ std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
 std::shared_ptr<EventLogWindow> mEventLogWindow;
+std::shared_ptr<BenMenu> mBenMenu;
 
 void SetupGuiElements() {
     auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
@@ -89,6 +90,9 @@ void SetupGuiElements() {
 
     mEventLogWindow = std::make_shared<EventLogWindow>("gWindows.EventLog", "Event Log");
     gui->AddGuiWindow(mEventLogWindow);
+    
+    mBenMenu = std::make_shared<BenMenu>("gWindows.Menu", "Settings");
+    gui->AddGuiWindow(mBenMenu);
 }
 
 void Destroy() {
