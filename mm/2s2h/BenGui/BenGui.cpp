@@ -46,7 +46,7 @@ void SetupGuiElements() {
     style.ItemSpacing = ImVec2(8.0f, 6.0f);
     style.Colors[ImGuiCol_MenuBarBg] = UIWidgets::Colors::DarkGray;
 
-    mBenMenuBar = std::make_shared<BenMenuBar>("gOpenMenuBar", CVarGetInteger("gOpenMenuBar", 0));
+    mBenMenuBar = std::make_shared<BenMenuBar>(CVAR_MENU_BAR_OPEN, CVarGetInteger(CVAR_MENU_BAR_OPEN, 0));
     gui->SetMenuBar(std::reinterpret_pointer_cast<Ship::GuiMenuBar>(mBenMenuBar));
 
     if (gui->GetMenuBar() && !gui->GetMenuBar()->IsVisible()) {
