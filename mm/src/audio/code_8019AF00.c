@@ -2614,7 +2614,7 @@ void AudioOcarina_PlayControllerInput(u8 isOcarinaSfxSuppressedWhenCancelled) {
             sOcarinaInputButtonPress &= ocarinaBtnsHeld;
         }
 
-        int dpadCvarActive = CVarGetInteger("gEnhancements.Playback.DpadOcarina", 0);
+        uint8_t dpadCvarActive = CVarGetInteger("gEnhancements.Playback.DpadOcarina", 0);
 
         // Interprets and transforms controller input into ocarina buttons and notes
         if (CHECK_BTN_ANY(sOcarinaInputButtonPress, BTN_A)) {
