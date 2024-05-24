@@ -487,6 +487,9 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
         if (UIWidgets::BeginMenu("Player Movement")) {
+            UIWidgets::CVarCheckbox("Fast Deku Flower Launch", "gEnhancements.PlayerMovement.FastFlowerLaunch",
+                                    { .tooltip = "Speeds up the time it takes to be able to get maximum height from "
+                                                 "launching out of a deku flower" });
             UIWidgets::CVarSliderInt("Climb speed", "gEnhancements.PlayerMovement.ClimbSpeed", 1, 5, 1,
                                      { .tooltip = "Increases the speed at which Link climbs vines and ladders." });
 
