@@ -18594,7 +18594,8 @@ void Player_Action_93(Player* this, PlayState* play) {
             this->unk_B48 = -170.0f;
         }
         this->unk_ABC += this->unk_B48;
-        if (this->unk_ABC < -3900.0f) {
+        if (this->unk_ABC < -3900.0f ||
+            (CVarGetInteger("gEnhancements.Player.FastFlowerLaunch", 0) && this->unk_ABC < -1800.0f)) {
             this->unk_ABC = -3900.0f;
             this->av1.actionVar1 = 2;
             this->actor.shape.rot.y = Camera_GetInputDirYaw(GET_ACTIVE_CAM(play));
@@ -18622,7 +18623,7 @@ void Player_Action_93(Player* this, PlayState* play) {
                 this->av2.actionVar2 = 0;
             } else {
                 this->av1.actionVar1 = 3;
-                if (this->av2.actionVar2 >= 10) {
+                if (this->av2.actionVar2 >= 10 || CVarGetInteger("gEnhancements.Player.FastFlowerLaunch", 0)) {
                     this->unk_B48 = 2700.0f;
                 } else {
                     this->unk_B48 = 1450.0f;
@@ -18643,7 +18644,12 @@ void Player_Action_93(Player* this, PlayState* play) {
         if (temp_fv0_2 >= 0.0f) {
             f32 speed;
 
-            sp38 = (this->av2.actionVar2 >= 10);
+            if (CVarGetInteger("gEnhancements.Player.FastFlowerLaunch", 0)) {
+                sp38 = (this->av2.actionVar2 >= 0);
+            } else {
+                sp38 = (this->av2.actionVar2 >= 10);
+            }
+
             var_v1 = -1;
             speed = this->unk_B48 * this->actor.scale.y;
             if (this->actor.floorBgId != BGCHECK_SCENE) {

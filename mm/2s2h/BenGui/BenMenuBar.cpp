@@ -595,6 +595,9 @@ void DrawEnhancementsMenu() {
         if (UIWidgets::BeginMenu("Player")) {
             UIWidgets::CVarSliderInt("Climb speed", "gEnhancements.Player.ClimbSpeed", 1, 5, 1,
                                      { .tooltip = "Increases the speed at which Link climbs vines and ladders." });
+            UIWidgets::CVarCheckbox("Fast Deku Flower Launch", "gEnhancements.Player.FastFlowerLaunch",
+                                    { .tooltip = "Speeds up the time it takes to be able to get maximum height from "
+                                                 "launching out of a deku flower" });
             UIWidgets::CVarCheckbox("Instant Putaway", "gEnhancements.Player.InstantPutaway",
                                     { .tooltip = "Allows Link to instantly puts away held item without waiting." });
             ImGui::EndMenu();
