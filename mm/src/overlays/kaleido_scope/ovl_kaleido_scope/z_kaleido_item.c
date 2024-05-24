@@ -8,6 +8,7 @@
 #include "interface/parameter_static/parameter_static.h"
 
 #include "BenGui/HudEditor.h"
+#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 
 s16 sEquipState = EQUIP_STATE_MAGIC_ARROW_GROW_ORB;
 
@@ -325,14 +326,16 @@ void KaleidoScope_DrawItemSelect(PlayState* play) {
             // the fly It reads odd here to assign a u8 to a u16, then cast it to s32 for gPlayerFormItemRestrictions
             // but this matches the behavior of the original code
             u16 itemId = gSaveContext.save.saveInfo.inventory.items[i];
-            if (!gPlayerFormItemRestrictions[GET_PLAYER_FORM][(s32)itemId]) {
+            u8 itemRestricted = GameInteractor_Should(
+                GI_VB_ITEM_BE_RESTRICTED, !gPlayerFormItemRestrictions[GET_PLAYER_FORM][(s32)itemId], &itemId);
+            if (itemRestricted) {
                 gDPSetGrayscaleColor(POLY_OPA_DISP++, 109, 109, 109, 255);
                 gSPGrayscale(POLY_OPA_DISP++, true);
             }
             gSPVertex(POLY_OPA_DISP++, &pauseCtx->itemVtx[j + 0], 4, 0);
             KaleidoScope_DrawTexQuadRGBA32(
                 play->state.gfxCtx, gItemIcons[((void)0, gSaveContext.save.saveInfo.inventory.items[i])], 32, 32, 0);
-            if (!gPlayerFormItemRestrictions[GET_PLAYER_FORM][(s32)itemId]) {
+            if (itemRestricted) {
                 gSPGrayscale(POLY_OPA_DISP++, false);
             }
             // #endregion
