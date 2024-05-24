@@ -2,6 +2,7 @@
 #define GAME_INTERACTOR_H
 
 #ifdef __cplusplus
+#include <string>
 extern "C" {
 #endif
 #include "z64actor.h"
@@ -240,6 +241,8 @@ class GameInteractor {
             return [id, params](Actor* actor, bool* result) { return actor->id == id && actor->params == params; };
         }
     };
+
+    DEFINE_HOOK(OnFileDropped, (std::string path));
 
     DEFINE_HOOK(OnGameStateMainFinish, ());
     DEFINE_HOOK(OnGameStateDrawFinish, ());
