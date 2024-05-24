@@ -404,7 +404,8 @@ extern "C" void OTRExtScanner() {
 
 extern "C" void InitOTR() {
 #if not defined(__SWITCH__) && not defined(__WIIU__)
-    if (!std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.zip", appShortName))) {
+    if (!std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.zip", appShortName)) &&
+        !std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.otr", appShortName))) {
         std::string installPath = Ship::Context::GetAppBundlePath();
         if (!std::filesystem::exists(installPath + "/assets/extractor")) {
             Extractor::ShowErrorBox(
