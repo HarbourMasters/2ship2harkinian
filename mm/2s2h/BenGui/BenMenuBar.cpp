@@ -542,6 +542,9 @@ void DrawCheatsMenu() {
             RegisterMoonJumpOnL();
         }
         UIWidgets::CVarCheckbox("No Clip", "gCheats.NoClip");
+        UIWidgets::CVarCheckbox(
+            "Longer Deku Flower Glide", "gCheats.LongerFlowerGlide",
+            { .tooltip = "Allows Deku Link to glide longer, no longer dropping after a certain distance" });
 
         ImGui::EndMenu();
     }
