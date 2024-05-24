@@ -2,6 +2,7 @@
 #define GAME_INTERACTOR_H
 
 #ifdef __cplusplus
+#include <string>
 extern "C" {
 #include "z64.h"
 }
@@ -46,6 +47,7 @@ typedef enum {
     GI_VB_KALEIDO_DISPLAY_ITEM_TEXT,
     GI_VB_USE_ITEM_CONSIDER_LINK_HUMAN,
     GI_VB_DRAW_ITEM_EQUIPPED_OUTLINE,
+    GI_VB_DELETE_OWL_SAVE,
     GI_VB_PLAY_TRANSITION_CS,
     GI_VB_TATL_INTERUPT_MSG3,
     GI_VB_TATL_INTERUPT_MSG6,
@@ -243,6 +245,8 @@ class GameInteractor {
         }
     };
 
+    DEFINE_HOOK(OnFileDropped, (std::string path));
+
     DEFINE_HOOK(OnGameStateMainFinish, ());
     DEFINE_HOOK(OnGameStateDrawFinish, ());
     DEFINE_HOOK(OnGameStateUpdate, ());
@@ -251,6 +255,7 @@ class GameInteractor {
     DEFINE_HOOK(OnSaveInit, (s16 fileNum));
     DEFINE_HOOK(BeforeEndOfCycleSave, ());
     DEFINE_HOOK(AfterEndOfCycleSave, ());
+    DEFINE_HOOK(BeforeMoonCrashSaveReset, ());
 
     DEFINE_HOOK(OnSceneInit, (s8 sceneId, s8 spawnNum));
     DEFINE_HOOK(OnRoomInit, (s8 sceneId, s8 roomNum));
@@ -292,6 +297,7 @@ void GameInteractor_ExecuteAfterKaleidoDrawPage(PauseContext* pauseCtx, u16 paus
 void GameInteractor_ExecuteOnSaveInit(s16 fileNum);
 void GameInteractor_ExecuteBeforeEndOfCycleSave();
 void GameInteractor_ExecuteAfterEndOfCycleSave();
+void GameInteractor_ExecuteBeforeMoonCrashSaveReset();
 
 void GameInteractor_ExecuteOnSceneInit(s16 sceneId, s8 spawnNum);
 void GameInteractor_ExecuteOnRoomInit(s16 sceneId, s8 roomNum);

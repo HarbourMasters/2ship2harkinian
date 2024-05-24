@@ -42,6 +42,10 @@ void GameInteractor_ExecuteAfterEndOfCycleSave() {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::AfterEndOfCycleSave>();
 }
 
+void GameInteractor_ExecuteBeforeMoonCrashSaveReset() {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::BeforeMoonCrashSaveReset>();
+}
+
 void GameInteractor_ExecuteOnSceneInit(s16 sceneId, s8 spawnNum) {
     SPDLOG_DEBUG("OnSceneInit: sceneId: {}, spawnNum: {}", sceneId, spawnNum);
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnSceneInit>(sceneId, spawnNum);
