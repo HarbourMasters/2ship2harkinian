@@ -468,13 +468,15 @@ void EnTrt_GiveRedPotionForKoume(EnTrt* this, PlayState* play) {
 
 void EnTrt_GivenRedPotionForKoume(EnTrt* this, PlayState* play) {
     //! @bug: player is set to NULL not PLAYER
+    // 2S2H [Port] - Opt to comment out later reference of player to avoid bad access
     Player* player = NULL;
 
     if ((Message_GetState(&play->msgCtx) == TEXT_STATE_DONE) && Message_ShouldAdvance(play)) {
         if (this->cutsceneState == ENTRT_CUTSCENESTATE_STOPPED) {
             if (CutsceneManager_IsNext(this->csId)) {
                 CutsceneManager_StartWithPlayerCsAndSetFlag(this->csId, &this->actor);
-                player->stateFlags2 |= PLAYER_STATE2_20000000;
+                // 2S2H [Port] - player is always NULL by this point
+                // player->stateFlags2 |= PLAYER_STATE2_20000000;
                 //! @bug: EnTrt_ContinueShopping gets overwritten by EnTrt_ItemGiven
                 this->actionFunc = EnTrt_ContinueShopping;
                 this->cutsceneState = ENTRT_CUTSCENESTATE_PLAYING;

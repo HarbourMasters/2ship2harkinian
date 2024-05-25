@@ -10583,7 +10583,12 @@ void func_80841358(PlayState* play, Player* this, s32 arg2) {
     PlayerItemAction itemAction;
 
     //! @bug OoB read if player is goron, deku or human
-    item = D_8085D2B0[this->transformation];
+    // 2S2H [Port] - Set item to kokiri sword instead of OOB behaviour
+    if (this->transformation > 2) {
+        item = ITEM_SWORD_KOKIRI;
+    } else {
+        item = D_8085D2B0[this->transformation];
+    }
     itemAction = sItemItemActions[item];
     Player_DestroyHookshot(this);
     Player_DetachHeldActor(play, this);

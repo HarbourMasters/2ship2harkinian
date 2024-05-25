@@ -37,11 +37,17 @@ s16 D_80814280[] = {
     1, 1, 1, 2, 2, 2, 2, 2, 3, 2, 2, 4, 3, 2, 4, 1, 2, 2, 1, 1, 2, 2, 3, 2, 2, 0, 2, 2, 2, 0, 3, 1, 0,
 };
 
-s16 D_80814304[] = { 1, 2, 0, 1, 1, 2, 1, 1, 4, 2, 2, 2, 1, 1, 0, 2, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 2, 2, 2, 2, 2, 3, 2,
-                     2, 4, 3, 2, 4, 1, 2, 2, 1, 1, 2, 2, 3, 2, 2, 0, 2, 2, 2, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 3, 0 };
+// 2S2H [Port] - Add halfword from following array to avoid OOB access
+s16 D_80814304[] = {
+    1, 2, 0, 1, 1, 2, 1, 1, 4, 2, 2, 2, 1, 1, 0, 2, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 2, 2, 2, 2, 2, 3, 2,
+    2, 4, 3, 2, 4, 1, 2, 2, 1, 1, 2, 2, 3, 2, 2, 0, 2, 2, 2, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 3, 0, 0
+};
 
-s16 D_80814384[] = { 0, 1, 0, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-                     1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 };
+// 2S2H [Port] - Add halfword from following array to avoid OOB access
+s16 D_80814384[] = {
+    0, 1, 0, 1, 1, 1, 1, 1, 2, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 2, 1, 1, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, -94
+};
 
 s16 D_80814404[] = {
     -94, -96, -48, 0, 32, 64,
@@ -74,6 +80,7 @@ void FileSelect_SetKeyboardVtx(GameState* thisx) {
         for (phi_t1 = 0; phi_t1 < 13; phi_t1++, phi_t3 += 4, phi_t2++) {
             //! @bug D_80814304 is accessed out of bounds when drawing the empty space character (value of 64). Under
             //! normal circumstances it reads a halfword from D_80814384.
+            // 2S2H [Port] - increase D_80814304 size
             this->keyboardVtx[phi_t3].v.ob[0] = this->keyboardVtx[phi_t3 + 2].v.ob[0] = D_80814304[phi_t2] + phi_t0;
 
             this->keyboardVtx[phi_t3 + 1].v.ob[0] = this->keyboardVtx[phi_t3 + 3].v.ob[0] =
@@ -436,6 +443,7 @@ void FileSelect_DrawNameEntry(GameState* thisx) {
 
                     //! @bug D_80814384 is accessed out of bounds when drawing the empty space character (value of 64).
                     //! Under normal circumstances it reads a halfword from D_80814404.
+                    // 2S2H - increase D_80814384 size
                     this->keyboardVtx[(this->charIndex * 4) + 0].v.ob[0] =
                         this->keyboardVtx[(this->charIndex * 4) + 2].v.ob[0] =
                             this->keyboardVtx[(this->charIndex * 4) + 0].v.ob[0] + D_80814384[this->charIndex] - 2;
@@ -1254,8 +1262,16 @@ void FileSelect_DrawOptionsImpl(GameState* thisx) {
 
         //! @bug the gOptionsMenuHeaders usage here will produce an OoB read for i == 5. It reads the first element of
         //! `gOptionsMenuSettings`
+        // 2S2H [Port] - directly use first element of gOptionsMenuSettings when i == 5, note this is fixed in the GC-US
+        // version
+        u16 height;
+        if (i == 5) {
+            height = gOptionsMenuSettings[0].height;
+        } else {
+            height = gOptionsMenuHeaders[i].height;
+        }
         gDPLoadTextureBlock(POLY_OPA_DISP++, gOptionsMenuSettings[i].texture, G_IM_FMT_IA, G_IM_SIZ_8b,
-                            gOptionsMenuSettings[i].width, gOptionsMenuHeaders[i].height, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                            gOptionsMenuSettings[i].width, height, 0, G_TX_NOMIRROR | G_TX_WRAP,
                             G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
         gSP1Quadrangle(POLY_OPA_DISP++, vtx, vtx + 2, vtx + 3, vtx + 1, 0);
     }

@@ -6,6 +6,7 @@
 
 #include "z_obj_nozoki.h"
 #include "objects/object_secom_obj/object_secom_obj.h"
+#include "objects/object_gi_mssa/object_gi_mssa.h"
 
 #define FLAGS (ACTOR_FLAG_10)
 
@@ -454,8 +455,11 @@ void ObjNozoki_Update(Actor* thisx, PlayState* play) {
 
 Gfx* D_80BA34FC[] = {
     object_secom_obj_DL_000080,
-    (Gfx*)0x0A0001A0, //! @bug This dlist should point to a dlist in OBJECT_GI_MSSA, but the segment and the offset are
-                      //! wrong. This doesn't have side effects because of the extra check in the Draw function
+    //! @bug This dlist should point to a dlist in OBJECT_GI_MSSA, but the segment and the offset are
+    //! wrong. This doesn't have side effects because of the extra check in the Draw function
+    // (Gfx*)0x0A0001A0,
+    // 2S2H [Port] - Even though this is unreachable, putting the sun mask dl here
+    gGiSunMaskFaceDL,
     object_secom_obj_DL_001230,
     object_secom_obj_DL_001300,
 };
