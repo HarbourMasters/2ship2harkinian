@@ -696,11 +696,11 @@ bool BinarySaveConverter_HandleFileDropped(std::string filePath) {
         reader->Seek(saveOffsets[0] - 0x24, Ship::SeekOffsetType::Start);
         BinarySaveConverter_ReadBufferToSave(&saveContext, reader);
         nlohmann::json j;
-        std::string fileName = "save_" + std::to_string(saveSlot) + ".sav";
+        std::string fileName = SaveManager_GetFileName(saveSlot);
 
-        j["save"] = saveContext.save;
-
-        SaveManager_WriteSaveFile(fileName, j);
+        j["newCycleSave"]["save"] = saveContext.save;
+        j["type"] = "2S2H_SAVE";
+        j["version"] = 4;
 
         // Based on where the save was found, determine if the two possible owl save offsets are in the list of save
         // offsets. If they are, we can assume that the save is the owl save associated with the other file above
@@ -716,13 +716,11 @@ bool BinarySaveConverter_HandleFileDropped(std::string filePath) {
         if (foundOwlSave) {
             memset(&saveContext, 0, sizeof(Legacy_SaveContext));
             BinarySaveConverter_ReadBufferToSave(&saveContext, reader);
-            fileName = "save_" + std::to_string(saveSlot + 4) + ".sav";
-            nlohmann::json j2;
 
-            j2 = saveContext;
-
-            SaveManager_WriteSaveFile(fileName, j2);
+            j["owlSave"] = saveContext;
         }
+
+        SaveManager_WriteSaveFile(fileName, j);
 
         if (gFileSelectState != NULL) {
             func_801457CC(&gFileSelectState->state, &gFileSelectState->sramCtx);
