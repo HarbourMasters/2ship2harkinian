@@ -437,7 +437,8 @@ void DrawEnhancementsMenu() {
                                                  "the wrong color prior to obtaining magic or other conditions." });
 
             UIWidgets::CVarCheckbox("Fix Hess and Weirdshot Crash", "gEnhancements.Fixes.HessCrash",
-                                    { .tooltip = "Fixes a crash that can occur when performing a HESS or Weirdshot." });
+                                    { .tooltip = "Fixes a crash that can occur when performing a HESS or Weirdshot.",
+                                      .defaultValue = true });
 
             ImGui::EndMenu();
         }
