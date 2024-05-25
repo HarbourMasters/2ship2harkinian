@@ -80,6 +80,8 @@ void FB_WriteFramebufferSliceToCPU(Gfx** gfxp, void* buffer, u8 byteSwap) {
 
     // Set the N64 resolution framebuffer as the draw target (320x240)
     gsSPSetFB(gfx++, gN64ResFrameBuffer);
+    // Reset scissor for new framebuffer
+    gDPSetScissor(gfx++, G_SC_NON_INTERLACE, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
     int16_t s0 = 0, t0 = 0;
     int16_t s1 = OTRGetGameRenderWidth();
@@ -92,7 +94,7 @@ void FB_WriteFramebufferSliceToCPU(Gfx** gfxp, void* buffer, u8 byteSwap) {
     // to the N64 resolution buffer. Currently ratios smaller than 4:3 will just stretch to fill.
     if (aspectRatio > fourByThree) {
         int16_t adjustedWidth = OTRGetGameRenderWidth() / (aspectRatio / fourByThree);
-        s0 = (OTRGetCurrentWidth() - adjustedWidth) / 2;
+        s0 = (OTRGetGameRenderWidth() - adjustedWidth) / 2;
         s1 -= s0;
     }
 
@@ -104,6 +106,8 @@ void FB_WriteFramebufferSliceToCPU(Gfx** gfxp, void* buffer, u8 byteSwap) {
     gDPReadFB(gfx++, gN64ResFrameBuffer, buffer, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, byteSwap);
 
     gsSPResetFB(gfx++);
+    // Reset scissor for original framebuffer
+    gDPSetScissor(gfx++, G_SC_NON_INTERLACE, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
     *gfxp = gfx;
 }
