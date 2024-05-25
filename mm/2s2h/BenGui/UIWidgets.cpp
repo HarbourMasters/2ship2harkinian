@@ -210,20 +210,18 @@ bool Checkbox(const char* _label, bool* value, const CheckboxOptions& options) {
 
     ImGui::ItemSize(total_bb, style.FramePadding.y);
     if (!ImGui::ItemAdd(total_bb, id)) {
-        IMGUI_TEST_ENGINE_ITEM_INFO(id, label,
-                                    g.LastItemData.StatusFlags | ImGuiItemStatusFlags_Checkable |
-                                        (*value ? ImGuiItemStatusFlags_Checked : 0));
         return false;
     }
-
-    bool hovered, held;
-    bool pressed = ImGui::ButtonBehavior(total_bb, id, &hovered, &held);
-    if (pressed) {
-        *value = !(*value);
-        ImGui::MarkItemEdited(id);
-    }
     ImGui::BeginDisabled(options.disabled);
-    PushStyleCheckbox(options.color);
+    bool hovered, held, pressed;
+    if (!options.disabled) {
+        pressed = ImGui::ButtonBehavior(total_bb, id, &hovered, &held);
+        if (pressed) {
+            *value = !(*value);
+            ImGui::MarkItemEdited(id);
+        }
+        PushStyleCheckbox(options.color);
+    }
     ImVec2 checkPos = pos;
     ImVec2 labelPos = pos;
     if (options.labelPosition == LabelPosition::Above) {
@@ -258,7 +256,9 @@ bool Checkbox(const char* _label, bool* value, const CheckboxOptions& options) {
         ImGui::RenderCheckMark(window->DrawList, check_bb.Min + ImVec2(pad, pad), check_col, square_sz - pad * 2.0f);
     }
     RenderText(labelPos, label, ImGui::FindRenderedTextEnd(label), true);
-    PopStyleCheckbox();
+    if (!options.disabled) {
+        PopStyleCheckbox();
+    }
     ImGui::EndDisabled();
     if (options.disabled && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) &&
         strcmp(options.disabledTooltip, "") != 0) {
