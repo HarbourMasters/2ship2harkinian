@@ -176,6 +176,7 @@ void RenderText(ImVec2 pos, const char* text, const char* text_end, bool hide_te
 }
 
 bool Checkbox(const char* _label, bool* value, const CheckboxOptions& options) {
+    ImGui::BeginDisabled(options.disabled);
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if (window->SkipItems)
         return false;
@@ -210,18 +211,16 @@ bool Checkbox(const char* _label, bool* value, const CheckboxOptions& options) {
 
     ImGui::ItemSize(total_bb, style.FramePadding.y);
     if (!ImGui::ItemAdd(total_bb, id)) {
+        ImGui::EndDisabled();
         return false;
     }
-    ImGui::BeginDisabled(options.disabled);
     bool hovered, held, pressed;
-    if (!options.disabled) {
-        pressed = ImGui::ButtonBehavior(total_bb, id, &hovered, &held);
-        if (pressed) {
-            *value = !(*value);
-            ImGui::MarkItemEdited(id);
-        }
-        PushStyleCheckbox(options.color);
+    pressed = ImGui::ButtonBehavior(total_bb, id, &hovered, &held);
+    if (pressed) {
+        *value = !(*value);
+        ImGui::MarkItemEdited(id);
     }
+    PushStyleCheckbox(options.color);
     ImVec2 checkPos = pos;
     ImVec2 labelPos = pos;
     if (options.labelPosition == LabelPosition::Above) {
@@ -256,9 +255,7 @@ bool Checkbox(const char* _label, bool* value, const CheckboxOptions& options) {
         ImGui::RenderCheckMark(window->DrawList, check_bb.Min + ImVec2(pad, pad), check_col, square_sz - pad * 2.0f);
     }
     RenderText(labelPos, label, ImGui::FindRenderedTextEnd(label), true);
-    if (!options.disabled) {
-        PopStyleCheckbox();
-    }
+    PopStyleCheckbox();
     ImGui::EndDisabled();
     if (options.disabled && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) &&
         strcmp(options.disabledTooltip, "") != 0) {
