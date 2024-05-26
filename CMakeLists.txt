@@ -11,7 +11,7 @@ include(CMake/lus-cvars.cmake)
 set(PROJECT_BUILD_NAME "PRE ALPHA" CACHE STRING "")
 set(PROJECT_TEAM "github.com/harbourmasters" CACHE STRING "")
 
-set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT mm)
+set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT 2ship)
 add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/MP>)
 add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
 
@@ -105,9 +105,9 @@ add_subdirectory(ZAPDTR/ZAPD ${CMAKE_BINARY_DIR}/ZAPD)
 add_subdirectory(OTRExporter)
 add_subdirectory(mm)
 
-set_property(TARGET mm PROPERTY APPIMAGE_DESKTOP_FILE_TERMINAL YES)
-set_property(TARGET mm PROPERTY APPIMAGE_DESKTOP_FILE "${CMAKE_SOURCE_DIR}/mm/linux/2s2h.desktop")
-set_property(TARGET mm PROPERTY APPIMAGE_ICON_FILE "${CMAKE_BINARY_DIR}/2s2hIcon.png")
+set_property(TARGET 2ship PROPERTY APPIMAGE_DESKTOP_FILE_TERMINAL YES)
+set_property(TARGET 2ship PROPERTY APPIMAGE_DESKTOP_FILE "${CMAKE_SOURCE_DIR}/mm/linux/2s2h.desktop")
+set_property(TARGET 2ship PROPERTY APPIMAGE_ICON_FILE "${CMAKE_BINARY_DIR}/2s2hIcon.png")
 
 if("${CMAKE_SYSTEM_NAME}" STREQUAL "Linux")
 install(PROGRAMS "${CMAKE_BINARY_DIR}/linux/2s2h.sh" DESTINATION . COMPONENT appimage)
@@ -187,7 +187,7 @@ add_custom_target(CreateOSXIcons
    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
    COMMENT "Creating OSX icons ..."
    )
-add_dependencies(mm CreateOSXIcons)
+add_dependencies(2ship CreateOSXIcons)
 
 install(TARGETS ZAPD DESTINATION ${CMAKE_BINARY_DIR}/assets/extractor)
 

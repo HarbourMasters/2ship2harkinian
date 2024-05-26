@@ -10584,7 +10584,7 @@ void func_80841358(PlayState* play, Player* this, s32 arg2) {
 
     //! @bug OoB read if player is goron, deku or human
     // 2S2H [Port] - Set item to kokiri sword instead of OOB behaviour
-    if (this->transformation > 2) {
+    if (this->transformation >= 2) {
         item = ITEM_SWORD_KOKIRI;
     } else {
         item = D_8085D2B0[this->transformation];
@@ -12507,6 +12507,11 @@ static bool sNoclipEnabled;
 
 s32 Player_UpdateNoclip(Player* this, PlayState* play) {
     sPlayerControlInput = &play->state.input[0];
+
+    if (!CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
+        sNoclipEnabled = false;
+        return true;
+    }
 
     if ((CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_L | BTN_R | BTN_A) &&
          CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_B)) ||
