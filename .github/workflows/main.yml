@@ -295,7 +295,7 @@ jobs:
     #   with:
     #     name: 2ship.zip
     #     path: build-cmake/mm
-    - name: Build SoH
+    - name: Build 2Ship
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
         cmake --no-warn-unused-cli -H. -Bbuild-cmake -GNinja -DCMAKE_BUILD_TYPE:STRING=Release -DBUILD_REMOTE_CONTROL=1

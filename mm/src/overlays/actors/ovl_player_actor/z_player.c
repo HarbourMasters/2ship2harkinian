@@ -12508,6 +12508,11 @@ static bool sNoclipEnabled;
 s32 Player_UpdateNoclip(Player* this, PlayState* play) {
     sPlayerControlInput = &play->state.input[0];
 
+    if (!CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
+        sNoclipEnabled = false;
+        return true;
+    }
+
     if ((CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_L | BTN_R | BTN_A) &&
          CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_B)) ||
         (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_L) &&
