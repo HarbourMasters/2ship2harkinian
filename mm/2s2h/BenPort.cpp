@@ -109,29 +109,34 @@ Color_RGB8 zoraColor = { 0x00, 0xEC, 0x64 };
 
 OTRGlobals::OTRGlobals() {
     std::vector<std::string> archiveFiles;
-    std::string mmPath = Ship::Context::LocateFileAcrossAppDirs("mm.zip", appShortName);
-    if (std::filesystem::exists(mmPath)) {
-        archiveFiles.push_back(mmPath);
+    std::string mmPathO2R = Ship::Context::LocateFileAcrossAppDirs("mm.o2r", appShortName);
+    std::string mmPathZIP = Ship::Context::LocateFileAcrossAppDirs("mm.zip", appShortName);
+    if (std::filesystem::exists(mmPathO2R)) {
+        archiveFiles.push_back(mmPathO2R);
+    } else if (std::filesystem::exists(mmPathZIP)) {
+        archiveFiles.push_back(mmPathZIP);
     } else {
-        mmPath = Ship::Context::LocateFileAcrossAppDirs("mm.otr", appShortName);
+        std::string mmPath = Ship::Context::LocateFileAcrossAppDirs("mm.otr", appShortName);
         if (std::filesystem::exists(mmPath)) {
             archiveFiles.push_back(mmPath);
         }
     }
-    std::string shipOtrPath = Ship::Context::GetPathRelativeToAppBundle("2ship.zip");
+
+    std::string shipOtrPath = Ship::Context::GetPathRelativeToAppBundle("2ship.o2r");
     if (std::filesystem::exists(shipOtrPath)) {
         archiveFiles.push_back(shipOtrPath);
     }
+
     std::string patchesPath = Ship::Context::LocateFileAcrossAppDirs("mods", appShortName);
     if (patchesPath.length() > 0 && std::filesystem::exists(patchesPath)) {
         if (std::filesystem::is_directory(patchesPath)) {
             for (const auto& p : std::filesystem::recursive_directory_iterator(patchesPath)) {
-                if (StringHelper::IEquals(p.path().extension().string(), ".zip")) {
+                if (StringHelper::IEquals(p.path().extension().string(), ".o2r")) {
                     archiveFiles.push_back(p.path().generic_string());
-                } else {
-                    if (StringHelper::IEquals(p.path().extension().string(), ".otr")) {
-                        archiveFiles.push_back(p.path().generic_string());
-                    }
+                } else if (StringHelper::IEquals(p.path().extension().string(), ".zip")) {
+                    archiveFiles.push_back(p.path().generic_string());
+                } else if (StringHelper::IEquals(p.path().extension().string(), ".otr")) {
+                    archiveFiles.push_back(p.path().generic_string());
                 }
             }
         }
@@ -451,20 +456,21 @@ void Ben_ProcessDroppedFiles(std::string filePath) {
 
 extern "C" void InitOTR() {
 #if not defined(__SWITCH__) && not defined(__WIIU__)
-    if (!std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.zip", appShortName)) &&
+    if (!std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.o2r", appShortName)) &&
+        !std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.zip", appShortName)) &&
         !std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.otr", appShortName))) {
         std::string installPath = Ship::Context::GetAppBundlePath();
         if (!std::filesystem::exists(installPath + "/assets/extractor")) {
             Extractor::ShowErrorBox(
                 "Extractor assets not found",
-                "No OTR files found. Missing assets/extractor folder needed to generate OTR file. Exiting...");
+                "No game O2R files found. Missing assets/extractor folder needed to generate O2R file. Exiting...");
             exit(1);
         }
 
-        if (Extractor::ShowYesNoBox("No OTR Files", "No OTR files found. Generate one now?") == IDYES) {
+        if (Extractor::ShowYesNoBox("No O2R Files", "No O2R files found. Generate one now?") == IDYES) {
             Extractor extract;
             if (!extract.Run()) {
-                Extractor::ShowErrorBox("Error", "An error occured, no OTR file was generated. Exiting...");
+                Extractor::ShowErrorBox("Error", "An error occurred, no OTR file was generated. Exiting...");
                 exit(1);
             }
             extract.CallZapd(installPath, Ship::Context::GetAppDirectoryPath(appShortName));
