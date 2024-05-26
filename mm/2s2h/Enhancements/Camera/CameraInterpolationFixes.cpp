@@ -89,7 +89,7 @@ bool Camera_ShouldInterpolateDist(Camera* camera) {
     f32 diffPitch = fabsf(pitch - expectedPitch);
     f32 diffDistEye = Math_Vec3f_DistXYZ(eye, &expectedEye);
 
-    if ((diffYaw > 20.0f && diffYaw < 340.0f) || diffPitch > 20.0f || diffDistEye > 200.0f) {
+    if ((diffYaw > 90.0f && diffYaw < 270.0f) || diffPitch > 60.0f || diffDistEye > 200.0f) {
         shouldInterpolate = false;
     }
 
