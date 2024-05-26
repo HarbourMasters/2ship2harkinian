@@ -269,7 +269,9 @@ class GameInteractor {
     DEFINE_HOOK(OnFlagSet, (FlagType flagType, u32 flag));
     DEFINE_HOOK(OnFlagUnset, (FlagType flagType, u32 flag));
 
+    DEFINE_HOOK(AfterCameraUpdate, (Camera * camera));
     DEFINE_HOOK(OnCameraChangeModeFlags, (Camera * camera));
+    DEFINE_HOOK(OnCameraChangeSettingsFlags, (Camera * camera));
 
     DEFINE_HOOK(OnPassPlayerInputs, (Input * input));
 
@@ -308,7 +310,9 @@ void GameInteractor_ExecuteOnSceneFlagUnset(s16 sceneId, FlagType flagType, u32 
 void GameInteractor_ExecuteOnFlagSet(FlagType flagType, u32 flag);
 void GameInteractor_ExecuteOnFlagUnset(FlagType flagType, u32 flag);
 
+void GameInteractor_ExecuteAfterCameraUpdate(Camera* camera);
 void GameInteractor_ExecuteOnCameraChangeModeFlags(Camera* camera);
+void GameInteractor_ExecuteOnCameraChangeSettingsFlags(Camera* camera);
 
 void GameInteractor_ExecuteOnPassPlayerInputs(Input* input);
 

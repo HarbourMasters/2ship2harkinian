@@ -2,6 +2,7 @@
 
 void InitEnhancements() {
     // Camera
+    RegisterCameraInterpolationFixes();
     RegisterCameraFreeLook();
     RegisterDebugCam();
 
