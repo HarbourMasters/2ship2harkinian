@@ -176,10 +176,11 @@ void RenderText(ImVec2 pos, const char* text, const char* text_end, bool hide_te
 }
 
 bool Checkbox(const char* _label, bool* value, const CheckboxOptions& options) {
-    ImGui::BeginDisabled(options.disabled);
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if (window->SkipItems)
         return false;
+
+    ImGui::BeginDisabled(options.disabled);
 
     bool above = options.labelPosition == LabelPosition::Above;
     bool lpFar = options.labelPosition == LabelPosition::Far;
