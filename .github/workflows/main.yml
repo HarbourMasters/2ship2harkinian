@@ -159,8 +159,8 @@ jobs:
   #       cmake --build build-cmake --config Release --target Generate2ShipOtr -j3
   #   - uses: actions/upload-artifact@v4
   #     with:
-  #       name: 2ship.zip
-  #       path: 2ship.zip
+  #       name: 2ship.o2r
+  #       path: 2ship.o2r
   #       retention-days: 1
 
   # build-macos:
@@ -203,7 +203,7 @@ jobs:
   #   - name: Download 2ship.o2r
   #     uses: actions/download-artifact@v4
   #     with:
-  #       name: 2ship.zip
+  #       name: 2ship.o2r
   #       path: build-cmake/mm
   #   - name: Build 2Ship
   #     run: |
@@ -293,7 +293,7 @@ jobs:
     # - name: Download 2ship.o2r
     #   uses: actions/download-artifact@v4
     #   with:
-    #     name: 2ship.zip
+    #     name: 2ship.o2r
     #     path: build-cmake/mm
     - name: Build 2Ship
       run: |
@@ -368,7 +368,7 @@ jobs:
   #   - name: Download 2ship.o2r
   #     uses: actions/download-artifact@v4
   #     with:
-  #       name: 2ship.zip
+  #       name: 2ship.o2r
   #       path: build-windows/mm
   #   - name: Build 2Ship
   #     env: 
