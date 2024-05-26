@@ -79,6 +79,7 @@ execute_process(
     --executable=$<TARGET_FILE:mm>
     $<$<BOOL:$<TARGET_PROPERTY:mm,APPIMAGE_DESKTOP_FILE>>:--desktop-file=$<TARGET_PROPERTY:mm,APPIMAGE_DESKTOP_FILE>>
     $<$<BOOL:$<TARGET_PROPERTY:mm,APPIMAGE_ICON_FILE>>:--icon-file=$<TARGET_PROPERTY:mm,APPIMAGE_ICON_FILE>>
+    --exclude-library "*libcrypto*"
     --output=appimage
     # --verbosity=2
 )
