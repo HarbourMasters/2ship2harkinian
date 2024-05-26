@@ -99,7 +99,7 @@ bool Camera_ShouldInterpolateDist(Camera* camera) {
         lastPitchVelocity = 0.0f;
         lastEyeVelocity = { 0.0f, 0.0f, 0.0f };
     }
-    
+
     return shouldInterpolate;
 }
 
