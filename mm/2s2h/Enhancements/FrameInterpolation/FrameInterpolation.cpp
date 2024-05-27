@@ -451,11 +451,23 @@ unordered_map<Mtx*, MtxF> FrameInterpolation_Interpolate(float step) {
     return ctx.mtx_replacements;
 }
 
+bool camera_interpolation = false;
+
+void FrameInterpolation_ShouldInterpolateFrame(bool shouldInterpolate) {
+    camera_interpolation = shouldInterpolate;
+}
+
 void FrameInterpolation_StartRecord(void) {
     previous_recording = move(current_recording);
     current_recording = {};
     current_path.clear();
     current_path.push_back(&current_recording.root_path);
+    if (!camera_interpolation) {
+        // default to interpolating
+        camera_interpolation = true;
+        is_recording = false;
+        return;
+    }
     if (OTRGlobals::Instance->GetInterpolationFPS() != 20) {
         is_recording = true;
     }
