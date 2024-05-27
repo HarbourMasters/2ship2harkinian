@@ -86,8 +86,8 @@ while [[ (! -e "$SHIP_HOME"/mm.o2r) ]]; do
             esac
             if [[ ! -e "$SHIP_HOME"/mm.o2r ]]; then
                 if [ -n "$ZENITY" ]; then
-                    (echo "# 25%"; echo "25"; sleep 2; echo "# 50%"; echo "50"; sleep 3; echo "# 75%"; echo "75"; sleep 2; echo "# 100%"; echo "100"; sleep 3) |
-                    zenity --progress --title="OTR Generating..." --timeout=10 --percentage=0 --icon-name=2s2h --window-icon=2s2h.png --height=80 --width=400 &
+                    (echo "# 25%"; echo "25"; sleep 7; echo "# 50%"; echo "50"; sleep 7; echo "# 75%"; echo "75"; sleep 7; echo "# 100%"; echo "100"; sleep 7) |
+                    zenity --progress --title="OTR Generating..." --timeout=28 --percentage=0 --icon-name=2s2h --window-icon=2s2h.png --height=80 --width=400 &
                 else
                     echo "Processing..."
                 fi
