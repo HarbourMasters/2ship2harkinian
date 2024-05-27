@@ -178,6 +178,8 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-14-ccache-${{ github.ref }}
           ${{ runner.os }}-14-ccache
+    - name: Prepare MacPorts
+      run: sudo mkdir -p /opt/local
     - name: Cache MacPorts
       id: cache-macports
       uses: actions/cache@v4
@@ -188,7 +190,7 @@ jobs:
           ${{ runner.os }}-macports
     - name: Install MacPorts (if necessary)
       run: |
-        if [ -d /opt/local/ ]; then
+        if [ port version ]; then
           echo "MacPorts already installed"
         else
           wget https://github.com/macports/macports-base/releases/download/v2.9.3/MacPorts-2.9.3-14-Sonoma.pkg
