@@ -215,28 +215,14 @@ jobs:
 
         mv _packages/*.dmg 2Ship.dmg
         mv README.md readme.txt
-    # - name: Upload build
-    #   if: ${{ startsWith(github.ref, 'refs/heads/develop') }}
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: 2ship-mac
-    #     path: |
-    #       2Ship.dmg
-    #       readme.txt
-    - name: Zip build
-      run: |
-        mkdir -p _release
-        zip -qq _release/2ship-mac.zip 2ship.dmg readme.txt
     - name: Upload build
       if: ${{ startsWith(github.ref, 'refs/heads/develop') }}
-      uses: ryand56/r2-upload-action@latest
+      uses: actions/upload-artifact@v4
       with:
-        r2-account-id: ${{ secrets.R2_ACCOUNT_ID }}
-        r2-access-key-id: ${{ secrets.R2_ACCESS_KEY_ID }}
-        r2-secret-access-key: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-        r2-bucket: ${{ secrets.R2_BUCKET }}
-        source-dir: _release
-        destination-dir: ./
+        name: 2ship-mac
+        path: |
+          2Ship.dmg
+          readme.txt
 
   build-linux:
     # needs: generate-2ship-otr
@@ -323,29 +309,13 @@ jobs:
       env:
         CC: gcc-12
         CXX: g++-12
-    # Temporarily replaced with an upload to R2 until we go public
-    # - name: Upload build
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: 2ship-linux
-    #     path: |
-    #       2ship.appimage
-    #       readme.txt
-    # Remove Zip step when uploading directly to GH artifactory
-    - name: Zip build
-      run: |
-        mkdir -p _release
-        zip -qq _release/2ship-linux.zip 2ship.appimage readme.txt
     - name: Upload build
-      if: ${{ startsWith(github.ref, 'refs/heads/develop') }}
-      uses: ryand56/r2-upload-action@latest
+      uses: actions/upload-artifact@v4
       with:
-        r2-account-id: ${{ secrets.R2_ACCOUNT_ID }}
-        r2-access-key-id: ${{ secrets.R2_ACCESS_KEY_ID }}
-        r2-secret-access-key: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-        r2-bucket: ${{ secrets.R2_BUCKET }}
-        source-dir: _release
-        destination-dir: ./
+        name: 2ship-linux
+        path: |
+          2ship.appimage
+          readme.txt
 
   build-windows:
     # needs: generate-2ship-otr
@@ -397,22 +367,11 @@ jobs:
         (cd build-windows && cpack)
         cd ..
         mv _packages/*.zip _packages/2ship-windows.zip
-    # Temporarily replaced with an upload to R2 until we go public
-    # - name: Unzip package
-    #   run: Expand-Archive -Path _packages/2ship-windows.zip -DestinationPath 2ship-windows
-    # - name: Upload build
-    #   if: ${{ startsWith(github.ref, 'refs/heads/develop') }}
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: 2ship-windows
-    #     path: 2ship-windows
+    - name: Unzip package
+      run: Expand-Archive -Path _packages/2ship-windows.zip -DestinationPath 2ship-windows
     - name: Upload build
       if: ${{ startsWith(github.ref, 'refs/heads/develop') }}
-      uses: ryand56/r2-upload-action@latest
+      uses: actions/upload-artifact@v4
       with:
-        r2-account-id: ${{ secrets.R2_ACCOUNT_ID }}
-        r2-access-key-id: ${{ secrets.R2_ACCESS_KEY_ID }}
-        r2-secret-access-key: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-        r2-bucket: ${{ secrets.R2_BUCKET }}
-        source-dir: _packages
-        destination-dir: ./
+        name: 2ship-windows
+        path: 2ship-windows
