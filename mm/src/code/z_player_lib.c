@@ -1807,6 +1807,12 @@ void Player_DrawImpl(PlayState* play, void** skeleton, Vec3s* jointTable, s32 dL
 
     gfx = POLY_OPA_DISP;
 
+    if (CVarGetInteger("gEnhancements.Fixes.HessCrash", 1)) {
+        if (eyeIndex >= PLAYER_EYES_MAX) {
+            eyeIndex = 0;
+        }
+    }
+
     if (eyeIndex < 0) {
         eyeIndex = sPlayerFaces[face].eyeIndex;
     }
@@ -1820,6 +1826,12 @@ void Player_DrawImpl(PlayState* play, void** skeleton, Vec3s* jointTable, s32 dL
     }
 
     gSPSegment(&gfx[0], 0x08, Lib_SegmentedToVirtual(sPlayerEyesTextures[playerForm][eyeIndex]));
+
+    if (CVarGetInteger("gEnhancements.Fixes.HessCrash", 1)) {
+        if (mouthIndex >= PLAYER_MOUTH_MAX) {
+            mouthIndex = 0;
+        }
+    }
 
     if (mouthIndex < 0) {
         mouthIndex = sPlayerFaces[face].mouthIndex;
@@ -2402,6 +2414,11 @@ s32 Player_OverrideLimbDrawGameplayDefault(PlayState* play, s32 limbIndex, Gfx**
 
                     if (handIndex != 0) {
                         handIndex = (handIndex >> 8) - 1;
+                        if (CVarGetInteger("gEnhancements.Fixes.HessCrash", 1)) {
+                            if (handIndex > 2) {
+                                handIndex = 0;
+                            }
+                        }
                         rightHandDLists = &D_801C0964[handIndex][D_801F59E0];
                     }
                 }

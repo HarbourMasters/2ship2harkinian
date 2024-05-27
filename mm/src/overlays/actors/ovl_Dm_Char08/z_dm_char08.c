@@ -7,6 +7,7 @@
 #include "z_dm_char08.h"
 #include "objects/object_kamejima/object_kamejima.h"
 #include "BenPort.h"
+#include "stdlib.h"
 
 #define FLAGS (ACTOR_FLAG_2000000)
 
@@ -16,6 +17,7 @@ void DmChar08_Init(Actor* thisx, PlayState* play2);
 void DmChar08_Destroy(Actor* thisx, PlayState* play);
 void DmChar08_Update(Actor* thisx, PlayState* play);
 void DmChar08_Draw(Actor* thisx, PlayState* play);
+void DmChar08_Reset(void);
 
 void func_80AAFAC4(DmChar08* this, PlayState* play);
 void DmChar08_WaitForSong(DmChar08* this, PlayState* play);
@@ -47,6 +49,7 @@ ActorInit Dm_Char08_InitVars = {
     (ActorFunc)DmChar08_Destroy,
     (ActorFunc)DmChar08_Update,
     (ActorFunc)DmChar08_Draw,
+    /**/ DmChar08_Reset,
 };
 
 #include "overlays/ovl_Dm_Char08/ovl_Dm_Char08.h"
@@ -80,6 +83,9 @@ static InitChainEntry sInitChain[] = {
 };
 
 static CollisionHeader* sTurtleGreatBayTempleColData;
+static CollisionPoly* sTurtleGreatBayTempleColPolygonsData;
+static CollisionPoly* sTurtleGreatBayTempleColPolygons2Data;
+static Vec3s* sTurtleGreatBayTempleColVerticesOrigData;
 static Vec3s* sTurtleGreatBayTempleColVerticesData;
 static Vec3s* sTurtleGreatBayTempleColVertices2Data;
 
@@ -150,9 +156,37 @@ void DmChar08_ChangeAnim(SkelAnime* skelAnime, AnimationInfo* animInfo, u16 anim
 void DmChar08_Init(Actor* thisx, PlayState* play2) {
     PlayState* play = play2;
     DmChar08* this = THIS;
-    sTurtleGreatBayTempleColData = ResourceMgr_LoadColByName(sTurtleGreatBayTempleCol);
-    sTurtleGreatBayTempleColVerticesData = ResourceMgr_LoadArrayByNameAsVec3s(sTurtleGreatBayTempleColVertices);
-    sTurtleGreatBayTempleColVertices2Data = ResourceMgr_LoadArrayByNameAsVec3s(sTurtleGreatBayTempleColVertices2);
+
+    // region 2S2H [Port] The turtle does some unique things with CPU modified collision poly
+    // The effect is to have a the collision move with the turtle's fin. Depending on the player's
+    // position, the collision swaps to the closest fin.
+    // To handle this, we setup and track temporary pointers for holding the original values and
+    // staging pointers attached over the resource that we will modify.
+    if (sTurtleGreatBayTempleColData == NULL) {
+        sTurtleGreatBayTempleColData = ResourceMgr_LoadColByName(sTurtleGreatBayTempleCol);
+        // These vertex lists need to be manually freed when we are done
+        sTurtleGreatBayTempleColVerticesData = ResourceMgr_LoadArrayByNameAsVec3s(sTurtleGreatBayTempleColVertices);
+        sTurtleGreatBayTempleColVertices2Data = ResourceMgr_LoadArrayByNameAsVec3s(sTurtleGreatBayTempleColVertices2);
+
+        // Track the original vtx list and attach the staged pointer
+        sTurtleGreatBayTempleColVerticesOrigData = sTurtleGreatBayTempleColData->vtxList;
+        sTurtleGreatBayTempleColData->vtxList = sTurtleGreatBayTempleColVerticesData;
+
+        // The original poly list matches the right fin. So we create a copy for the left fin.
+        sTurtleGreatBayTempleColPolygonsData = sTurtleGreatBayTempleColData->polyList;
+        sTurtleGreatBayTempleColPolygons2Data =
+            (CollisionPoly*)malloc(sizeof(CollisionPoly) * sTurtleGreatBayTempleColData->numPolygons);
+        memcpy(sTurtleGreatBayTempleColPolygons2Data, sTurtleGreatBayTempleColPolygonsData,
+               sizeof(CollisionPoly) * sTurtleGreatBayTempleColData->numPolygons);
+
+        // Swap the order of the triangles to invert the direction of the faces
+        for (int i = 0; i < sTurtleGreatBayTempleColData->numPolygons; i++) {
+            u16 temp = sTurtleGreatBayTempleColPolygons2Data[i].vtxData[1];
+            sTurtleGreatBayTempleColPolygons2Data[i].vtxData[1] = sTurtleGreatBayTempleColPolygons2Data[i].vtxData[2];
+            sTurtleGreatBayTempleColPolygons2Data[i].vtxData[2] = temp;
+        }
+    }
+    // #endregion
 
     thisx->targetMode = TARGET_MODE_5;
     this->eyeMode = TURTLE_EYEMODE_CLOSED;
@@ -981,9 +1015,9 @@ void DmChar08_UpdateCollision(DmChar08* this, PlayState* play) {
             phi_f12 = 29.0f;
         }
 
-        sTurtleGreatBayTempleColData->polyList = sTurtleGreatBayTempleColPolygons;
+        sTurtleGreatBayTempleColData->polyList = sTurtleGreatBayTempleColPolygonsData;
 
-        for (i = 0; i < ResourceMgr_GetArraySizeByName(sTurtleGreatBayTempleColVertices); i++) {
+        for (i = 0; i < sTurtleGreatBayTempleColData->numVertices; i++) {
             sTurtleGreatBayTempleColVerticesData[i].x = sTurtleGreatBayTempleColVertices2Data[i].x;
         }
 
@@ -1006,9 +1040,9 @@ void DmChar08_UpdateCollision(DmChar08* this, PlayState* play) {
             phi_f2 = (29.0f - phi_f0) / 10.0f;
         }
 
-        sTurtleGreatBayTempleColData->polyList = sTurtleGreatBayTempleColPolygons2;
+        sTurtleGreatBayTempleColData->polyList = sTurtleGreatBayTempleColPolygons2Data;
 
-        for (i = 0; i < ResourceMgr_GetArraySizeByName(sTurtleGreatBayTempleColVertices); i++) {
+        for (i = 0; i < sTurtleGreatBayTempleColData->numVertices; i++) {
             sTurtleGreatBayTempleColVerticesData[i].x = -sTurtleGreatBayTempleColVertices2Data[i].x;
         }
 
@@ -1184,4 +1218,23 @@ void DmChar08_Draw(Actor* thisx, PlayState* play) {
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
+}
+
+void DmChar08_Reset(void) {
+    // Free up our managed memory
+    free(sTurtleGreatBayTempleColVerticesData);
+    free(sTurtleGreatBayTempleColVertices2Data);
+    free(sTurtleGreatBayTempleColPolygons2Data);
+
+    // Assign back the original pointers from the LUS resource
+    sTurtleGreatBayTempleColData->polyList = sTurtleGreatBayTempleColPolygonsData;
+    sTurtleGreatBayTempleColData->vtxList = sTurtleGreatBayTempleColVerticesOrigData;
+
+    // Wipe out the pointers for next init
+    sTurtleGreatBayTempleColData = NULL;
+    sTurtleGreatBayTempleColVerticesData = NULL;
+    sTurtleGreatBayTempleColVertices2Data = NULL;
+    sTurtleGreatBayTempleColVerticesOrigData = NULL;
+    sTurtleGreatBayTempleColPolygonsData = NULL;
+    sTurtleGreatBayTempleColPolygons2Data = NULL;
 }

@@ -31,6 +31,10 @@ void GameInteractor_ExecuteAfterEndOfCycleSave() {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::AfterEndOfCycleSave>();
 }
 
+void GameInteractor_ExecuteBeforeMoonCrashSaveReset() {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::BeforeMoonCrashSaveReset>();
+}
+
 void GameInteractor_ExecuteOnSceneInit(s16 sceneId, s8 spawnNum) {
     SPDLOG_DEBUG("OnSceneInit: sceneId: {}, spawnNum: {}", sceneId, spawnNum);
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnSceneInit>(sceneId, spawnNum);
@@ -135,6 +139,21 @@ void GameInteractor_ExecuteOnCameraChangeModeFlags(Camera* camera) {
     GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnCameraChangeModeFlags>(camera->uid, camera);
     GameInteractor::Instance->ExecuteHooksForPtr<GameInteractor::OnCameraChangeModeFlags>((uintptr_t)camera, camera);
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnCameraChangeModeFlags>(camera);
+}
+
+void GameInteractor_ExecuteAfterCameraUpdate(Camera* camera) {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::AfterCameraUpdate>(camera);
+    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::AfterCameraUpdate>(camera->uid, camera);
+    GameInteractor::Instance->ExecuteHooksForPtr<GameInteractor::AfterCameraUpdate>((uintptr_t)camera, camera);
+    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::AfterCameraUpdate>(camera);
+}
+
+void GameInteractor_ExecuteOnCameraChangeSettingsFlags(Camera* camera) {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnCameraChangeSettingsFlags>(camera);
+    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnCameraChangeSettingsFlags>(camera->uid, camera);
+    GameInteractor::Instance->ExecuteHooksForPtr<GameInteractor::OnCameraChangeSettingsFlags>((uintptr_t)camera,
+                                                                                              camera);
+    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnCameraChangeSettingsFlags>(camera);
 }
 
 void GameInteractor_ExecuteOnPassPlayerInputs(Input* input) {

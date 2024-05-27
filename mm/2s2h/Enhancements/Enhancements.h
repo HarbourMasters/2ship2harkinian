@@ -1,24 +1,28 @@
 #ifndef ENHANCEMENTS_H
 #define ENHANCEMENTS_H
 
+#include "Camera/CameraInterpolationFixes.h"
 #include "Camera/DebugCam.h"
 #include "Camera/FreeLook.h"
 #include "Cheats/MoonJump.h"
 #include "Cheats/Infinite.h"
 #include "Graphics/TextBasedClock.h"
 #include "Cheats/UnbreakableRazorSword.h"
+#include "Cheats/UnrestrictedItems.h"
 #include "Cycle/EndOfCycle.h"
 #include "Masks/FierceDeityAnywhere.h"
 #include "Masks/NoBlastMaskCooldown.h"
 #include "Masks/FastTransformation.h"
 #include "Minigames/AlwaysWinDoggyRace.h"
 #include "Cutscenes/Cutscenes.h"
+#include "Restorations/FlipHopVariable.h"
 #include "Restorations/PowerCrouchStab.h"
 #include "Restorations/SideRoll.h"
 #include "Restorations/TatlISG.h"
 #include "Graphics/PlayAsKafei.h"
 #include "PlayerMovement/ClimbSpeed.h"
 #include "Songs/EnableSunsSong.h"
+#include "Saving/SavingEnhancements.h"
 
 enum AlwaysWinDoggyRaceOptions {
     ALWAYS_WIN_DOGGY_RACE_OFF,

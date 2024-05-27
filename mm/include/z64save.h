@@ -1753,6 +1753,9 @@ void Sram_UpdateWriteToFlashDefault(SramContext* sramCtx);
 void Sram_SetFlashPagesOwlSave(SramContext* sramCtx, s32 curPage, s32 numPages);
 void Sram_StartWriteToFlashOwlSave(SramContext* sramCtx);
 void Sram_UpdateWriteToFlashOwlSave(SramContext* sramCtx);
+// #region 2S2H [Port] Moved from z_sram_NES.c to use function in enhancement - Persistent Owl Saves
+void func_80147314(SramContext* sramCtx, s32 fileNum); // Removes Owl Saves
+// #endregion
 
 extern u32 gSramSlotOffsets[];
 extern u8 gAmmoItems[];

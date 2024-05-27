@@ -18,7 +18,7 @@ if [[ ! -e "$SHIP_HOME"/mods ]]; then
     touch "$SHIP_HOME"/mods/custom_mod_files_go_here.txt
 fi
 
-while [[ (! -e "$SHIP_HOME"/mm.otr) ]]; do
+while [[ (! -e "$SHIP_HOME"/mm.o2r) ]]; do
     for romfile in "$SHIP_HOME"/*.*64
     do
         if [[ -e "$romfile" ]] || [[ -L "$romfile" ]]; then
@@ -60,21 +60,21 @@ while [[ (! -e "$SHIP_HOME"/mm.otr) ]]; do
 
             case "$ROMHASH" in
             7f5630dbc4d5d61d6276213210c4d5cdd83a47d6) # uncompressed
-                if [[ ! -e "$SHIP_HOME"/mm.otr ]]; then
+                if [[ ! -e "$SHIP_HOME"/mm.o2r ]]; then
                     ROM=N64_US
                 else
                     continue
                 fi
                 ;;
             d6133ace5afaa0882cf214cf88daba39e266c078) # compressed
-                if [[ ! -e "$SHIP_HOME"/mm.otr ]]; then
+                if [[ ! -e "$SHIP_HOME"/mm.o2r ]]; then
                     ROM=N64_US
                 else
                     continue
                 fi
                 ;;
             9743aa026e9269b339eb0e3044cd5830a440c1fd) # compressed
-                if [[ ! -e "$SHIP_HOME"/mm.otr ]]; then
+                if [[ ! -e "$SHIP_HOME"/mm.o2r ]]; then
                     ROM=GC_US
                 else
                     continue
@@ -84,18 +84,18 @@ while [[ (! -e "$SHIP_HOME"/mm.otr) ]]; do
                 echo -e "\n$romfile - $ROMHASH rom hash does not match\n"
                 continue;;
             esac
-            if [[ ! -e "$SHIP_HOME"/mm.otr ]]; then
+            if [[ ! -e "$SHIP_HOME"/mm.o2r ]]; then
                 if [ -n "$ZENITY" ]; then
-                    (echo "# 25%"; echo "25"; sleep 2; echo "# 50%"; echo "50"; sleep 3; echo "# 75%"; echo "75"; sleep 2; echo "# 100%"; echo "100"; sleep 3) |
-                    zenity --progress --title="OTR Generating..." --timeout=10 --percentage=0 --icon-name=2s2h --window-icon=2s2h.png --height=80 --width=400 &
+                    (echo "# 25%"; echo "25"; sleep 7; echo "# 50%"; echo "50"; sleep 7; echo "# 75%"; echo "75"; sleep 7; echo "# 100%"; echo "100"; sleep 7) |
+                    zenity --progress --title="OTR Generating..." --timeout=28 --percentage=0 --icon-name=2s2h --window-icon=2s2h.png --height=80 --width=400 &
                 else
                     echo "Processing..."
                 fi
-                assets/extractor/ZAPD.out ed -eh -i assets/extractor/xmls/"${ROM}" -b tmp/rom.z64 -fl assets/extractor/filelists -o placeholder -osf placeholder -gsf 1 -rconf assets/extractor/Config_"${ROM}".xml -se OTR --otrfile mm.otr --portVer "@CMAKE_PROJECT_VERSION@" > /dev/null 2>&1
-                cp "$ASSETDIR"/mm.otr "$SHIP_HOME"
+                assets/extractor/ZAPD.out ed -eh -i assets/extractor/xmls/"${ROM}" -b tmp/rom.z64 -fl assets/extractor/filelists -o placeholder -osf placeholder -gsf 1 -rconf assets/extractor/Config_"${ROM}".xml -se OTR --otrfile mm.o2r --portVer "@CMAKE_PROJECT_VERSION@" > /dev/null 2>&1
+                cp "$ASSETDIR"/mm.o2r "$SHIP_HOME"
             fi
         else
-            if [[ (! -e "$SHIP_HOME"/mm.otr) ]]; then
+            if [[ (! -e "$SHIP_HOME"/mm.o2r) ]]; then
                 if [ -n "$ZENITY" ]; then
                     zenity --error --timeout=5 --text="Place ROM in $SHIP_HOME" --title="Missing ROM file" --width=500 --width=200
                 else
@@ -105,7 +105,7 @@ while [[ (! -e "$SHIP_HOME"/mm.otr) ]]; do
             fi
         fi
     done
-    if [[ (! -e "$SHIP_HOME"/mm.otr) ]]; then
+    if [[ (! -e "$SHIP_HOME"/mm.o2r) ]]; then
         if [ -n "$ZENITY" ]; then
             zenity --error --timeout=10 --text="No valid ROMs were provided, No OTR was generated." --title="Incorrect ROM file" --width=500 --width=200
         else

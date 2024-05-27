@@ -2,6 +2,7 @@
 
 void InitEnhancements() {
     // Camera
+    RegisterCameraInterpolationFixes();
     RegisterCameraFreeLook();
     RegisterDebugCam();
 
@@ -9,12 +10,15 @@ void InitEnhancements() {
     RegisterInfiniteCheats();
     RegisterMoonJumpOnL();
     RegisterUnbreakableRazorSword();
+    RegisterUnrestrictedItems();
 
     // Clock
     RegisterTextBasedClock();
 
-    // Cycle
+    // Cycle & Saving
     RegisterEndOfCycleSaveHooks();
+    RegisterSavingEnhancements();
+    RegisterAutosave();
 
     // Masks
     RegisterFastTransformation();
@@ -31,6 +35,7 @@ void InitEnhancements() {
     RegisterPowerCrouchStab();
     RegisterSideRoll();
     RegisterTatlISG();
+    RegisterVariableFlipHop();
 
     // Cutscenes
     RegisterCutscenes();

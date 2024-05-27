@@ -2922,8 +2922,7 @@ void Actor_DrawLensActors(PlayState* play, s32 numLensActors, Actor** lensActors
 
     // Remnant of debug
     dbgVar1 = true;
-    // BENTODO: Disabling the framebufer effects temporarily for lens actors until we can restore framebuffer effects
-    // for real
+    // BENTODO: Disabling the framebufer effect for lens actors until we can restore effect for real
     dbgVar2 = false;
 
     if (dbgVar1) {
@@ -2965,12 +2964,17 @@ void Actor_DrawLensActors(PlayState* play, s32 numLensActors, Actor** lensActors
         }
 
         gfxTemp = gfx;
-        Actor_DrawLensOverlay(&gfxTemp, play->actorCtx.lensMaskSize);
+        // BENTODO: Disabling actor masking until we can implement the framebuffer effect for real
+        // Actor_DrawLensOverlay(&gfxTemp, play->actorCtx.lensMaskSize);
         gfx = Play_SetFog(play, gfxTemp);
 
         for (i = 0, lensActor = lensActors; i < numLensActors; i++, lensActor++) {
             POLY_XLU_DISP = gfx;
-            Actor_Draw(play, *lensActor);
+            // BENTODO: Since actor masking is diabled for actors that would normally
+            // be "hidden", we are opting to just not render them at all
+            if (play->roomCtx.curRoom.lensMode == LENS_MODE_HIDE_ACTORS) {
+                Actor_Draw(play, *lensActor);
+            }
             gfx = POLY_XLU_DISP;
         }
 

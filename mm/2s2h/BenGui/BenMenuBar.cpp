@@ -172,17 +172,17 @@ void DrawSettingsMenu() {
         if (UIWidgets::BeginMenu("Graphics")) {
 
 #ifndef __APPLE__
-            if (UIWidgets::CVarSliderFloat("Internal Resolution: %f %%", "gInternalResolution", 0.5f, 2.0f, 1.0f)) {
+            if (UIWidgets::CVarSliderFloat("Internal Resolution: %f %%", CVAR_INTERNAL_RESOLUTION, 0.5f, 2.0f, 1.0f)) {
                 Ship::Context::GetInstance()->GetWindow()->SetResolutionMultiplier(
-                    CVarGetFloat("gInternalResolution", 1));
+                    CVarGetFloat(CVAR_INTERNAL_RESOLUTION, 1));
             };
             UIWidgets::Tooltip(
                 "Multiplies your output resolution by the value inputted, as a more intensive but effective "
                 "form of anti-aliasing");
 #endif
 #ifndef __WIIU__
-            if (UIWidgets::CVarSliderInt("MSAA: %d", "gMSAAValue", 1, 8, 1)) {
-                Ship::Context::GetInstance()->GetWindow()->SetMsaaLevel(CVarGetInteger("gMSAAValue", 1));
+            if (UIWidgets::CVarSliderInt("MSAA: %d", CVAR_MSAA_VALUE, 1, 8, 1)) {
+                Ship::Context::GetInstance()->GetWindow()->SetMsaaLevel(CVarGetInteger(CVAR_MSAA_VALUE, 1));
             };
             UIWidgets::Tooltip(
                 "Activates multi-sample anti-aliasing when above 1x up to 8x for 8 samples for every pixel");
@@ -271,20 +271,20 @@ void DrawSettingsMenu() {
             }
 
             if (Ship::Context::GetInstance()->GetWindow()->CanDisableVerticalSync()) {
-                UIWidgets::CVarCheckbox("Enable Vsync", "gVsyncEnabled");
+                UIWidgets::CVarCheckbox("Enable Vsync", CVAR_VSYNC_ENABLED);
             }
 
             if (Ship::Context::GetInstance()->GetWindow()->SupportsWindowedFullscreen()) {
-                UIWidgets::CVarCheckbox("Windowed fullscreen", "gSdlWindowedFullscreen");
+                UIWidgets::CVarCheckbox("Windowed fullscreen", CVAR_SDL_WINDOWED_FULLSCREEN);
             }
 
             if (Ship::Context::GetInstance()->GetWindow()->GetGui()->SupportsViewports()) {
                 UIWidgets::CVarCheckbox(
-                    "Allow multi-windows", "gEnableMultiViewports",
+                    "Allow multi-windows", CVAR_ENABLE_MULTI_VIEWPORTS,
                     { .tooltip = "Allows multiple windows to be opened at once. Requires a reload to take effect." });
             }
 
-            UIWidgets::CVarCombobox("Texture Filter (Needs reload)", "gTextureFilter", textureFilteringMap);
+            UIWidgets::CVarCombobox("Texture Filter (Needs reload)", CVAR_TEXTURE_FILTER, textureFilteringMap);
 
             // Currently this only has "Overlays Text Font", it doesn't use our new UIWidgets so it stands out
             // Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGameOverlay()->DrawSettings();
@@ -299,7 +299,7 @@ void DrawSettingsMenu() {
         }
         /*
         #ifndef __SWITCH__
-            UIWidgets::CVarCheckbox("Menubar Controller Navigation", "gControlNav", {
+            UIWidgets::CVarCheckbox("Menubar Controller Navigation", CVAR_IMGUI_CONTROLLER_NAV, {
                 .tooltip = "Allows controller navigation of the SOH menu bar (Settings, Enhancements,...)\nCAUTION: "
                 "This will disable game inputs while the menubar is visible.\n\nD-pad to move between "
                 "items, A to select, and X to grab focus on the menu bar"
@@ -313,7 +313,7 @@ void DrawSettingsMenu() {
                 .showButtons = false,
                 .format = ""
             });
-            UIWidgets::CVarSliderInt("Simulated Input Lag: %d frames", "gSimulatedInputLag", 0, 6, 0, {
+            UIWidgets::CVarSliderInt("Simulated Input Lag: %d frames", CVAR_SIMULATED_INPUT_LAG, 0, 6, 0, {
                 .tooltip = "Buffers your inputs to be executed a specified amount of frames later"
             });
 
@@ -331,15 +331,11 @@ void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
 
         if (UIWidgets::BeginMenu("Camera")) {
-            ImGui::SeparatorText("Right Stick Camera");
-            UIWidgets::CVarCheckbox("Invert Camera X Axis", "gEnhancements.Camera.RightStick.InvertXAxis",
-                                    { .tooltip = "Inverts the Camera X Axis in Free Look." });
-            UIWidgets::CVarCheckbox("Invert Camera Y Axis", "gEnhancements.Camera.RightStick.InvertYAxis",
-                                    { .tooltip = "Inverts the Camera Y Axis in Free Look.", .defaultValue = true });
-            UIWidgets::CVarSliderFloat("Third-Person Horizontal Sensitivity: %.0f",
-                                       "gEnhancements.Camera.RightStick.CameraSensitivity.X", 0.01f, 5.0f, 1.0f);
-            UIWidgets::CVarSliderFloat("Third-Person Vertical Sensitivity: %.0f",
-                                       "gEnhancements.Camera.RightStick.CameraSensitivity.Y", 0.01f, 5.0f, 1.0f);
+            ImGui::SeparatorText("Fixes");
+            UIWidgets::CVarCheckbox(
+                "Fix Targetting Camera Snap", "gEnhancements.Camera.FixTargettingCameraSnap",
+                { .tooltip =
+                      "Fixes the camera snap that occurs when you are moving and press the targetting button." });
 
             ImGui::SeparatorText("Free Look");
             if (UIWidgets::CVarCheckbox(
@@ -350,18 +346,29 @@ void DrawEnhancementsMenu() {
                 RegisterCameraFreeLook();
             }
 
-            UIWidgets::CVarSliderInt("Camera Distance: %d", "gEnhancements.Camera.FreeLook.MaxCameraDistance", 100, 900,
-                                     185);
-            UIWidgets::CVarSliderInt("Camera Transition Speed: %d", "gEnhancements.Camera.FreeLook.TransitionSpeed", 1,
-                                     900, 25);
-            UIWidgets::CVarSliderFloat("Max Camera Height Angle: %.0f°", "gEnhancements.Camera.FreeLook.MaxPitch",
-                                       -89.0f, 89.0f, 72.0f);
-            UIWidgets::CVarSliderFloat("Min Camera Height Angle: %.0f°", "gEnhancements.Camera.FreeLook.MinPitch",
-                                       -89.0f, 89.0f, -49.0f);
-            f32 maxY = CVarGetFloat("gEnhancements.Camera.FreeLook.MaxPitch", 72.0f);
-            f32 minY = CVarGetFloat("gEnhancements.Camera.FreeLook.MinPitch", -49.0f);
-            CVarSetFloat("gEnhancements.Camera.FreeLook.MaxPitch", std::max(maxY, minY));
-            CVarSetFloat("gEnhancements.Camera.FreeLook.MinPitch", std::min(maxY, minY));
+            if (CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0)) {
+                UIWidgets::CVarCheckbox("Invert Camera X Axis", "gEnhancements.Camera.RightStick.InvertXAxis",
+                                        { .tooltip = "Inverts the Camera X Axis" });
+                UIWidgets::CVarCheckbox("Invert Camera Y Axis", "gEnhancements.Camera.RightStick.InvertYAxis",
+                                        { .tooltip = "Inverts the Camera Y Axis", .defaultValue = true });
+                UIWidgets::CVarSliderFloat("Third-Person Horizontal Sensitivity: %.0f",
+                                           "gEnhancements.Camera.RightStick.CameraSensitivity.X", 0.01f, 5.0f, 1.0f);
+                UIWidgets::CVarSliderFloat("Third-Person Vertical Sensitivity: %.0f",
+                                           "gEnhancements.Camera.RightStick.CameraSensitivity.Y", 0.01f, 5.0f, 1.0f);
+
+                UIWidgets::CVarSliderInt("Camera Distance: %d", "gEnhancements.Camera.FreeLook.MaxCameraDistance", 100,
+                                         900, 185);
+                UIWidgets::CVarSliderInt("Camera Transition Speed: %d", "gEnhancements.Camera.FreeLook.TransitionSpeed",
+                                         1, 900, 25);
+                UIWidgets::CVarSliderFloat("Max Camera Height Angle: %.0f°", "gEnhancements.Camera.FreeLook.MaxPitch",
+                                           -89.0f, 89.0f, 72.0f);
+                UIWidgets::CVarSliderFloat("Min Camera Height Angle: %.0f°", "gEnhancements.Camera.FreeLook.MinPitch",
+                                           -89.0f, 89.0f, -49.0f);
+                f32 maxY = CVarGetFloat("gEnhancements.Camera.FreeLook.MaxPitch", 72.0f);
+                f32 minY = CVarGetFloat("gEnhancements.Camera.FreeLook.MinPitch", -49.0f);
+                CVarSetFloat("gEnhancements.Camera.FreeLook.MaxPitch", std::max(maxY, minY));
+                CVarSetFloat("gEnhancements.Camera.FreeLook.MinPitch", std::min(maxY, minY));
+            }
 
             ImGui::SeparatorText("'Debug' Camera");
             if (UIWidgets::CVarCheckbox(
@@ -370,13 +377,25 @@ void DrawEnhancementsMenu() {
                       .disabled = CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0) != 0 })) {
                 RegisterDebugCam();
             }
-            UIWidgets::CVarCheckbox(
-                "Enable Roll (Six Degrees Of Freedom)", "gEnhancements.Camera.DebugCam.6DOF",
-                { .tooltip =
-                      "This allows for all six degrees of movement with the camera, NOTE: Yaw will work differently in "
-                      "this system, instead rotating around the focal point, rather than a polar axis." });
-            UIWidgets::CVarSliderFloat("Camera Speed: %.0f", "gEnhancements.Camera.DebugCam.CameraSpeed", 0.1f, 3.0f,
-                                       0.5f);
+
+            if (CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0)) {
+                UIWidgets::CVarCheckbox("Invert Camera X Axis", "gEnhancements.Camera.RightStick.InvertXAxis",
+                                        { .tooltip = "Inverts the Camera X Axis" });
+                UIWidgets::CVarCheckbox("Invert Camera Y Axis", "gEnhancements.Camera.RightStick.InvertYAxis",
+                                        { .tooltip = "Inverts the Camera Y Axis", .defaultValue = true });
+                UIWidgets::CVarSliderFloat("Third-Person Horizontal Sensitivity: %.0f",
+                                           "gEnhancements.Camera.RightStick.CameraSensitivity.X", 0.01f, 5.0f, 1.0f);
+                UIWidgets::CVarSliderFloat("Third-Person Vertical Sensitivity: %.0f",
+                                           "gEnhancements.Camera.RightStick.CameraSensitivity.Y", 0.01f, 5.0f, 1.0f);
+
+                UIWidgets::CVarCheckbox(
+                    "Enable Roll (Six Degrees Of Freedom)", "gEnhancements.Camera.DebugCam.6DOF",
+                    { .tooltip = "This allows for all six degrees of movement with the camera, NOTE: Yaw will work "
+                                 "differently in "
+                                 "this system, instead rotating around the focal point, rather than a polar axis." });
+                UIWidgets::CVarSliderFloat("Camera Speed: %.0f", "gEnhancements.Camera.DebugCam.CameraSpeed", 0.1f,
+                                           3.0f, 0.5f);
+            }
 
             ImGui::EndMenu();
         }
@@ -387,19 +406,51 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox(
                 "Skip to File Select", "gEnhancements.Cutscenes.SkipToFileSelect",
                 { .tooltip = "Skip the opening title sequence and go straight to the file select menu after boot" });
-            UIWidgets::CVarCheckbox("Skip Intro Sequence", "gEnhancements.Cutscenes.SkipIntroSequence");
-            UIWidgets::CVarCheckbox("Skip Story Cutscenes", "gEnhancements.Cutscenes.SkipStoryCutscenes");
-            UIWidgets::CVarCheckbox("Skip Misc Interactions", "gEnhancements.Cutscenes.SkipMiscInteractions");
+            UIWidgets::CVarCheckbox(
+                "Skip Intro Sequence", "gEnhancements.Cutscenes.SkipIntroSequence",
+                {
+                    .tooltip = "When starting a game you will be taken straight to South Clock Town as Deku Link.",
+                });
+            UIWidgets::CVarCheckbox(
+                "Skip Story Cutscenes", "gEnhancements.Cutscenes.SkipStoryCutscenes",
+                {
+                    .tooltip =
+                        "Disclaimer: This doesn't do much yet, we will be progressively adding more skips over time",
+                });
+            UIWidgets::CVarCheckbox(
+                "Skip Misc Interactions", "gEnhancements.Cutscenes.SkipMiscInteractions",
+                {
+                    .tooltip =
+                        "Disclaimer: This doesn't do much yet, we will be progressively adding more skips over time",
+                });
 
             ImGui::EndMenu();
         }
 
-        if (UIWidgets::BeginMenu("Cycle / Saving")) {
+        if (UIWidgets::BeginMenu("Saving / Time Cycle")) {
+
+            ImGui::SeparatorText("Saving");
+            UIWidgets::CVarCheckbox("Persistent Owl Saves", "gEnhancements.Saving.PersistentOwlSaves",
+                                    { .tooltip = "Continuing a save will not remove the owl save. Playing Song of "
+                                                 "Time, allowing the moon to crash or finishing the "
+                                                 "game will remove the owl save and become the new last save." });
             UIWidgets::CVarCheckbox(
-                "Pause Menu Save", "gEnhancements.Kaleido.PauseSave",
+                "Pause Menu Save", "gEnhancements.Saving.PauseSave",
                 { .tooltip = "Re-introduce the pause menu save system. Pressing B in the pause menu will give you the "
-                             "option to create an Owl Save from your current location. When loading back into the "
-                             "game, you will be placed at your last entrance." });
+                             "option to create an Owl Save from your current location.\n\nWhen loading back into the "
+                             "game, you will be placed either at the entrance of the dungeon you saved in, or in South "
+                             "Clock Town." });
+            if (UIWidgets::CVarCheckbox(
+                    "Autosave", "gEnhancements.Saving.Autosave",
+                    { .tooltip = "Automatically create owl saves on the chosen interval.\n\nWhen loading back into the "
+                                 "game, you will be placed either at the entrance of the dungeon you saved in, or in "
+                                 "South Clock Town." })) {
+                RegisterAutosave();
+            }
+            UIWidgets::CVarSliderInt("Autosave Interval (minutes): %d", "gEnhancements.Saving.AutosaveInterval", 1, 60,
+                                     5, { .disabled = !CVarGetInteger("gEnhancements.Saving.Autosave", 0) });
+
+            ImGui::SeparatorText("Time Cycle");
             UIWidgets::CVarCheckbox("Do not reset Bottle content", "gEnhancements.Cycle.DoNotResetBottleContent",
                                     { .tooltip = "Playing the Song Of Time will not reset the bottles' content." });
             UIWidgets::CVarCheckbox("Do not reset Consumables", "gEnhancements.Cycle.DoNotResetConsumables",
@@ -409,9 +460,14 @@ void DrawEnhancementsMenu() {
                 { .tooltip = "Playing the Song Of Time will not reset the Sword back to Kokiri Sword." });
             UIWidgets::CVarCheckbox("Do not reset Rupees", "gEnhancements.Cycle.DoNotResetRupees",
                                     { .tooltip = "Playing the Song Of Time will not reset the your rupees." });
-            UIWidgets::CVarSliderInt("Save Delay", "gEnhancements.Save.SaveDelay", 0, 5, 0,
-                                     { .tooltip = "Sets the delay between pressing save and the save being marked as "
-                                                  "complete. Original game was 2." });
+
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 0, 255));
+            ImGui::SeparatorText("Unstable");
+            ImGui::PopStyleColor();
+            UIWidgets::CVarCheckbox(
+                "Disable Save Delay", "gEnhancements.Saving.DisableSaveDelay",
+                { .tooltip = "Removes the arbitrary 2 second timer for saving from the original game. This is known to "
+                             "cause issues when attempting the 0th Day Glitch" });
 
             ImGui::EndMenu();
         }
@@ -435,6 +491,10 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Fix Ammo Count Color", "gFixes.FixAmmoCountEnvColor",
                                     { .tooltip = "Fixes a missing gDPSetEnvColor, which causes the ammo count to be "
                                                  "the wrong color prior to obtaining magic or other conditions." });
+
+            UIWidgets::CVarCheckbox("Fix Hess and Weirdshot Crash", "gEnhancements.Fixes.HessCrash",
+                                    { .tooltip = "Fixes a crash that can occur when performing a HESS or Weirdshot.",
+                                      .defaultValue = true });
 
             ImGui::EndMenu();
         }
@@ -486,6 +546,9 @@ void DrawEnhancementsMenu() {
 
         if (UIWidgets::BeginMenu("Restorations")) {
             UIWidgets::CVarCheckbox(
+                "Constant Distance Backflips and Sidehops", "gEnhancements.Restorations.ConstantFlipsHops",
+                { .tooltip = "Backflips and Sidehops travel a constant distance as they did in OOT." });
+            UIWidgets::CVarCheckbox(
                 "Power Crouch Stab", "gEnhancements.Restorations.PowerCrouchStab",
                 { .tooltip =
                       "Crouch stabs will use the power of Link's previous melee attack, as is in MM JP 1.0 and OOT." });
@@ -503,6 +566,8 @@ void DrawEnhancementsMenu() {
                 { .tooltip = "Enables the partially implemented Sun's Song. RIGHT-DOWN-UP-RIGHT-DOWN-UP to play it. "
                              "This song will make time move very fast until either Link moves to a different scene, "
                              "or when the time switches to a new time period." });
+            UIWidgets::CVarCheckbox("Dpad Ocarina", "gEnhancements.Playback.DpadOcarina",
+                                    { .tooltip = "Enables using the Dpad for Ocarina playback." });
             UIWidgets::CVarCheckbox("Prevent Dropped Ocarina Inputs", "gEnhancements.Playback.NoDropOcarinaInput",
                                     { .tooltip = "Prevent dropping inputs when playing the ocarina quickly" });
 
@@ -525,6 +590,7 @@ void DrawCheatsMenu() {
         UIWidgets::CVarCheckbox("Infinite Rupees", "gCheats.InfiniteRupees");
         UIWidgets::CVarCheckbox("Infinite Consumables", "gCheats.InfiniteConsumables");
         UIWidgets::CVarCheckbox("Unbreakable Razor Sword", "gCheats.UnbreakableRazorSword");
+        UIWidgets::CVarCheckbox("Unrestricted Items", "gCheats.UnrestrictedItems");
         if (UIWidgets::CVarCheckbox("Moon Jump on L", "gCheats.MoonJumpOnL",
                                     { .tooltip = "Holding L makes you float into the air" })) {
             RegisterMoonJumpOnL();
@@ -553,6 +619,10 @@ void DrawDeveloperToolsMenu() {
                                 { .tooltip = "Enables Debug Mode, allowing you to select maps with L + R + Z." });
 
         if (CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
+            UIWidgets::CVarCheckbox(
+                "Better Map Select", "gDeveloperTools.BetterMapSelect.Enabled",
+                { .tooltip = "Overrides the original map select with a translated, more user-friendly version." });
+
             if (UIWidgets::CVarCombobox(
                     "Debug Save File Mode", "gDeveloperTools.DebugSaveFileMode", debugSaveOptions,
                     { .tooltip =
@@ -564,7 +634,6 @@ void DrawDeveloperToolsMenu() {
             }
         }
 
-        UIWidgets::CVarCheckbox("Better Map Select", "gDeveloperTools.BetterMapSelect.Enabled");
         if (UIWidgets::CVarCheckbox("Prevent Actor Update", "gDeveloperTools.PreventActorUpdate")) {
             RegisterPreventActorUpdateHooks();
         }

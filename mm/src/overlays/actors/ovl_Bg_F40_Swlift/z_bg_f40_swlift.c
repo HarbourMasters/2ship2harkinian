@@ -45,7 +45,8 @@ void BgF40Swlift_Init(Actor* thisx, PlayState* play) {
     Actor_ProcessInitChain(&this->dyna.actor, sInitChain);
     DynaPolyActor_Init(&this->dyna, DYNA_TRANSFORM_POS);
     index = BG_F40_SWLIFT_GET_INDEX(thisx);
-    if ((index < 0) || (index >= 5)) { //! @bug An index greater than 3 will cause an out of bounds array access.
+    // #region 2S2H [Port] - Change index >= 5 to index >= 4 to avoid OOB array access
+    if ((index < 0) || (index >= 4)) { //! @bug An index greater than 3 will cause an out of bounds array access.
         Actor_Kill(&this->dyna.actor);
         return;
     }

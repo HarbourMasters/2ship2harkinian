@@ -4808,7 +4808,8 @@ void func_80832888(Player* this, PlayState* play) {
         } else {
             this->unk_738--;
         }
-    } else if (this->stateFlags1 & PLAYER_STATE1_20000) {
+    } else if (this->stateFlags1 & PLAYER_STATE1_20000 &&
+               !CVarGetInteger("gEnhancements.Camera.FixTargettingCameraSnap", 0)) {
         this->unk_738 = 0;
     } else if (this->unk_738 != 0) {
         this->unk_738--;
@@ -10582,7 +10583,12 @@ void func_80841358(PlayState* play, Player* this, s32 arg2) {
     PlayerItemAction itemAction;
 
     //! @bug OoB read if player is goron, deku or human
-    item = D_8085D2B0[this->transformation];
+    // 2S2H [Port] - Set item to kokiri sword instead of OOB behaviour
+    if (this->transformation >= 2) {
+        item = ITEM_SWORD_KOKIRI;
+    } else {
+        item = D_8085D2B0[this->transformation];
+    }
     itemAction = sItemItemActions[item];
     Player_DestroyHookshot(this);
     Player_DetachHeldActor(play, this);
@@ -12501,6 +12507,11 @@ static bool sNoclipEnabled;
 
 s32 Player_UpdateNoclip(Player* this, PlayState* play) {
     sPlayerControlInput = &play->state.input[0];
+
+    if (!CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
+        sNoclipEnabled = false;
+        return true;
+    }
 
     if ((CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_L | BTN_R | BTN_A) &&
          CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_B)) ||
@@ -14873,7 +14884,9 @@ void Player_Action_25(Player* this, PlayState* play) {
                 Math_StepToF(&this->unk_B10[1], 0.0f, this->unk_B10[0]);
             }
         } else {
-            func_8083CBC4(this, speedTarget, yawTarget, 1.0f, 0.05f, 0.1f, 0xC8);
+            if (GameInteractor_Should(GI_VB_FLIP_HOP_VARIABLE, true, NULL)) {
+                func_8083CBC4(this, speedTarget, yawTarget, 1.0f, 0.05f, 0.1f, 0xC8);
+            }
         }
 
         Player_UpdateUpperBody(this, play);

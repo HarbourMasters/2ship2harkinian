@@ -54,6 +54,7 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/Enhancements/GfxPatcher/AuthenticGfxPatches.h"
 #include "2s2h/DeveloperTools/DebugConsole.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
+#include "2s2h/SaveManager/SaveManager.h"
 
 // Resource Types/Factories
 #include "resource/type/Array.h"
@@ -108,29 +109,34 @@ Color_RGB8 zoraColor = { 0x00, 0xEC, 0x64 };
 
 OTRGlobals::OTRGlobals() {
     std::vector<std::string> archiveFiles;
-    std::string mmPath = Ship::Context::LocateFileAcrossAppDirs("mm.zip", appShortName);
-    if (std::filesystem::exists(mmPath)) {
-        archiveFiles.push_back(mmPath);
+    std::string mmPathO2R = Ship::Context::LocateFileAcrossAppDirs("mm.o2r", appShortName);
+    std::string mmPathZIP = Ship::Context::LocateFileAcrossAppDirs("mm.zip", appShortName);
+    if (std::filesystem::exists(mmPathO2R)) {
+        archiveFiles.push_back(mmPathO2R);
+    } else if (std::filesystem::exists(mmPathZIP)) {
+        archiveFiles.push_back(mmPathZIP);
     } else {
-        mmPath = Ship::Context::LocateFileAcrossAppDirs("mm.otr", appShortName);
+        std::string mmPath = Ship::Context::LocateFileAcrossAppDirs("mm.otr", appShortName);
         if (std::filesystem::exists(mmPath)) {
             archiveFiles.push_back(mmPath);
         }
     }
-    std::string shipOtrPath = Ship::Context::GetPathRelativeToAppBundle("2ship.zip");
+
+    std::string shipOtrPath = Ship::Context::GetPathRelativeToAppBundle("2ship.o2r");
     if (std::filesystem::exists(shipOtrPath)) {
         archiveFiles.push_back(shipOtrPath);
     }
+
     std::string patchesPath = Ship::Context::LocateFileAcrossAppDirs("mods", appShortName);
     if (patchesPath.length() > 0 && std::filesystem::exists(patchesPath)) {
         if (std::filesystem::is_directory(patchesPath)) {
             for (const auto& p : std::filesystem::recursive_directory_iterator(patchesPath)) {
-                if (StringHelper::IEquals(p.path().extension().string(), ".zip")) {
+                if (StringHelper::IEquals(p.path().extension().string(), ".o2r")) {
                     archiveFiles.push_back(p.path().generic_string());
-                } else {
-                    if (StringHelper::IEquals(p.path().extension().string(), ".otr")) {
-                        archiveFiles.push_back(p.path().generic_string());
-                    }
+                } else if (StringHelper::IEquals(p.path().extension().string(), ".zip")) {
+                    archiveFiles.push_back(p.path().generic_string());
+                } else if (StringHelper::IEquals(p.path().extension().string(), ".otr")) {
+                    archiveFiles.push_back(p.path().generic_string());
                 }
             }
         }
@@ -153,7 +159,7 @@ OTRGlobals::OTRGlobals() {
     auto overlay = context->GetInstance()->GetWindow()->GetGui()->GetGameOverlay();
     overlay->LoadFont("Press Start 2P", "fonts/PressStart2P-Regular.ttf", 12.0f);
     overlay->LoadFont("Fipps", "fonts/Fipps-Regular.otf", 32.0f);
-    overlay->SetCurrentFont(CVarGetString("gOverlayFont", "Press Start 2P"));
+    overlay->SetCurrentFont(CVarGetString(CVAR_GAME_OVERLAY_FONT, "Press Start 2P"));
 
     auto loader = context->GetResourceManager()->GetResourceLoader();
     loader->RegisterResourceFactory(std::make_shared<LUS::ResourceFactoryBinaryTextureV0>(), RESOURCE_FORMAT_BINARY,
@@ -402,21 +408,69 @@ extern "C" void OTRExtScanner() {
     }
 }
 
+std::string SanitizePath(std::string stringValue) {
+    // Add backslashes.
+    for (auto i = stringValue.begin();;) {
+        auto const pos =
+            std::find_if(i, stringValue.end(), [](char const c) { return '\\' == c || '\'' == c || '"' == c; });
+        if (pos == stringValue.end()) {
+            break;
+        }
+        i = std::next(stringValue.insert(pos, '\\'), 2);
+    }
+
+    // Removes others.
+    stringValue.erase(std::remove_if(stringValue.begin(), stringValue.end(),
+                                     [](char const c) { return '\n' == c || '\r' == c || '\0' == c || '\x1A' == c; }),
+                      stringValue.end());
+
+    return stringValue;
+}
+
+void Ben_ProcessDroppedFiles(std::string filePath) {
+    SPDLOG_INFO("Processing dropped file: {}", filePath);
+
+    bool handled = false;
+
+    if (!handled) {
+        handled = SaveManager_HandleFileDropped(filePath);
+    }
+
+    if (!handled) {
+        handled = BinarySaveConverter_HandleFileDropped(filePath);
+    }
+
+    // if (!handled) {
+    //     handled = Randomizer_HandleFileDropped(filePath);
+    // }
+
+    // if (!handled) {
+    //     handled = Presets_HandleFileDropped(filePath);
+    // }
+
+    if (!handled) {
+        auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+        gui->GetGameOverlay()->TextDrawNotification(30.0f, true, "Unsupported file dropped, ignoring");
+    }
+}
+
 extern "C" void InitOTR() {
 #if not defined(__SWITCH__) && not defined(__WIIU__)
-    if (!std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.zip", appShortName))) {
+    if (!std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.o2r", appShortName)) &&
+        !std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.zip", appShortName)) &&
+        !std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.otr", appShortName))) {
         std::string installPath = Ship::Context::GetAppBundlePath();
         if (!std::filesystem::exists(installPath + "/assets/extractor")) {
             Extractor::ShowErrorBox(
                 "Extractor assets not found",
-                "No OTR files found. Missing assets/extractor folder needed to generate OTR file. Exiting...");
+                "No game O2R files found. Missing assets/extractor folder needed to generate O2R file. Exiting...");
             exit(1);
         }
 
-        if (Extractor::ShowYesNoBox("No OTR Files", "No OTR files found. Generate one now?") == IDYES) {
+        if (Extractor::ShowYesNoBox("No O2R Files", "No O2R files found. Generate one now?") == IDYES) {
             Extractor extract;
             if (!extract.Run()) {
-                Extractor::ShowErrorBox("Error", "An error occured, no OTR file was generated. Exiting...");
+                Extractor::ShowErrorBox("Error", "An error occurred, no OTR file was generated. Exiting...");
                 exit(1);
             }
             extract.CallZapd(installPath, Ship::Context::GetAppDirectoryPath(appShortName));
@@ -441,9 +495,12 @@ extern "C" void InitOTR() {
     DebugConsole_Init();
 
     clearMtx = (uintptr_t)&gMtxClear;
-    // OTRMessage_Init();
+    OTRMessage_Init();
     OTRAudio_Init();
     // OTRExtScanner();
+
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnFileDropped>(Ben_ProcessDroppedFiles);
+
     time_t now = time(NULL);
     tm* tm_now = localtime(&now);
     if (tm_now->tm_mon == 11 && tm_now->tm_mday >= 24 && tm_now->tm_mday <= 25) {
@@ -451,6 +508,9 @@ extern "C" void InitOTR() {
     } else {
         CVarClear("gLetItSnow");
     }
+
+    // BENTODO Once we have a proper fix for the color cominber, remove this
+    CVarRegisterInteger(CVAR_DISABLE_CLOSE_COLOR_WRAP, 1);
 
     srand(now);
 #ifdef ENABLE_CROWD_CONTROL
@@ -608,12 +668,22 @@ extern "C" void Graph_StartFrame() {
 #endif
         case KbScancode::LUS_KB_TAB: {
             // Toggle HD Assets
-            CVarSetInteger("gAltAssets", !CVarGetInteger("gAltAssets", 0));
+            CVarSetInteger(CVAR_ALT_ASSETS, !CVarGetInteger(CVAR_ALT_ASSETS, 0));
             // ShouldClearTextureCacheAtEndOfFrame = true;
             break;
         }
     }
 #endif
+
+    if (CVarGetInteger(CVAR_NEW_FILE_DROPPED, 0)) {
+        std::string filePath = SanitizePath(CVarGetString(CVAR_DROPPED_FILE, ""));
+        if (!filePath.empty()) {
+            GameInteractor::Instance->ExecuteHooks<GameInteractor::OnFileDropped>(filePath);
+        }
+        CVarClear(CVAR_NEW_FILE_DROPPED);
+        CVarClear(CVAR_DROPPED_FILE);
+    }
+
     OTRGlobals::Instance->context->GetWindow()->StartFrame();
 }
 
@@ -1196,7 +1266,7 @@ extern "C" SkeletonHeader* ResourceMgr_LoadSkeletonByName(const char* path, Skel
         pathStr = pathStr.substr(sOtr.length());
     }
 
-    bool isAlt = CVarGetInteger("gAltAssets", 0);
+    bool isAlt = CVarGetInteger(CVAR_ALT_ASSETS, 0);
 
     if (isAlt) {
         pathStr = Ship::IResource::gAltAssetPrefix + pathStr;

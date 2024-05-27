@@ -7635,6 +7635,8 @@ Vec3s Camera_Update(Camera* camera) {
         camera->inputDir.z = 0;
     }
 
+    GameInteractor_ExecuteAfterCameraUpdate(camera);
+
     return camera->inputDir;
 }
 
@@ -7884,6 +7886,8 @@ s16 Camera_ChangeSettingFlags(Camera* camera, s16 setting, s16 flags) {
     }
 
     camera->setting = setting;
+
+    GameInteractor_ExecuteOnCameraChangeSettingsFlags(camera);
 
     if (Camera_ChangeModeFlags(camera, camera->mode, true) >= 0) {
         Camera_ResetActionFuncState(camera, camera->mode);

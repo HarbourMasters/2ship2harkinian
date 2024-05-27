@@ -2,6 +2,7 @@
 #define GAME_INTERACTOR_H
 
 #ifdef __cplusplus
+#include <string>
 extern "C" {
 #endif
 #include "z64actor.h"
@@ -44,10 +45,12 @@ typedef enum {
     GI_VB_PREVENT_CLOCK_DISPLAY,
     GI_VB_SONG_AVAILABLE_TO_PLAY,
     GI_VB_USE_CUSTOM_CAMERA,
-
+    GI_VB_DELETE_OWL_SAVE,
     GI_VB_PLAY_TRANSITION_CS,
     GI_VB_TATL_INTERUPT_MSG3,
-    GI_VB_TATL_INTERUPT_MSG6
+    GI_VB_TATL_INTERUPT_MSG6,
+    GI_VB_ITEM_BE_RESTRICTED,
+    GI_VB_FLIP_HOP_VARIABLE,
 } GIVanillaBehavior;
 
 typedef enum {
@@ -240,12 +243,15 @@ class GameInteractor {
         }
     };
 
+    DEFINE_HOOK(OnFileDropped, (std::string path));
+
     DEFINE_HOOK(OnGameStateMainFinish, ());
     DEFINE_HOOK(OnGameStateDrawFinish, ());
     DEFINE_HOOK(OnGameStateUpdate, ());
     DEFINE_HOOK(OnSaveInit, (s16 fileNum));
     DEFINE_HOOK(BeforeEndOfCycleSave, ());
     DEFINE_HOOK(AfterEndOfCycleSave, ());
+    DEFINE_HOOK(BeforeMoonCrashSaveReset, ());
 
     DEFINE_HOOK(OnSceneInit, (s8 sceneId, s8 spawnNum));
     DEFINE_HOOK(OnRoomInit, (s8 sceneId, s8 roomNum));
@@ -263,7 +269,9 @@ class GameInteractor {
     DEFINE_HOOK(OnFlagSet, (FlagType flagType, u32 flag));
     DEFINE_HOOK(OnFlagUnset, (FlagType flagType, u32 flag));
 
+    DEFINE_HOOK(AfterCameraUpdate, (Camera * camera));
     DEFINE_HOOK(OnCameraChangeModeFlags, (Camera * camera));
+    DEFINE_HOOK(OnCameraChangeSettingsFlags, (Camera * camera));
 
     DEFINE_HOOK(OnPassPlayerInputs, (Input * input));
 
@@ -284,6 +292,7 @@ void GameInteractor_ExecuteOnGameStateUpdate();
 void GameInteractor_ExecuteOnSaveInit(s16 fileNum);
 void GameInteractor_ExecuteBeforeEndOfCycleSave();
 void GameInteractor_ExecuteAfterEndOfCycleSave();
+void GameInteractor_ExecuteBeforeMoonCrashSaveReset();
 
 void GameInteractor_ExecuteOnSceneInit(s16 sceneId, s8 spawnNum);
 void GameInteractor_ExecuteOnRoomInit(s16 sceneId, s8 roomNum);
@@ -301,7 +310,9 @@ void GameInteractor_ExecuteOnSceneFlagUnset(s16 sceneId, FlagType flagType, u32 
 void GameInteractor_ExecuteOnFlagSet(FlagType flagType, u32 flag);
 void GameInteractor_ExecuteOnFlagUnset(FlagType flagType, u32 flag);
 
+void GameInteractor_ExecuteAfterCameraUpdate(Camera* camera);
 void GameInteractor_ExecuteOnCameraChangeModeFlags(Camera* camera);
+void GameInteractor_ExecuteOnCameraChangeSettingsFlags(Camera* camera);
 
 void GameInteractor_ExecuteOnPassPlayerInputs(Input* input);
 

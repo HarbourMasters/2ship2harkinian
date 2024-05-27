@@ -1,5 +1,7 @@
 *.zip
 *.otr
+*.o2r
+.DS_Store
 .vscode
 *.swp
 logs
@@ -9,6 +11,7 @@ shipofharkinian.json
 *.sav
 .envrc
 imgui.ini
+saves/*
 
 mm/libultraship/extern/Debug/ImGui.lib
 

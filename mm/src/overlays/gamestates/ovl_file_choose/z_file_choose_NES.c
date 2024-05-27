@@ -21,6 +21,8 @@ f32 D_808144F14 = 8.0f;
 f32 D_808144F18 = 100.0f;
 s32 D_808144F1C = 0;
 
+FileSelectState* gFileSelectState = NULL;
+
 static Gfx sScreenFillSetupDL[] = {
     gsDPPipeSync(),
     gsSPClearGeometryMode(G_ZBUFFER | G_SHADE | G_CULL_BOTH | G_FOG | G_LIGHTING | G_TEXTURE_GEN |
@@ -2533,11 +2535,13 @@ void FileSelect_InitContext(GameState* thisx) {
 
 void FileSelect_Destroy(GameState* this) {
     ShrinkWindow_Destroy();
+    gFileSelectState = NULL;
 }
 
 void FileSelect_Init(GameState* thisx) {
     s32 pad;
     FileSelectState* this = (FileSelectState*)thisx;
+    gFileSelectState = this;
     size_t size;
 
     GameState_SetFramerateDivisor(&this->state, 1);

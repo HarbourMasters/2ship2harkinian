@@ -29,8 +29,8 @@ namespace UIWidgets {
         }
     };
 
-    char* WrappedText(const char* text, unsigned int charactersPerLine = 60);
-    char* WrappedText(const std::string& text, unsigned int charactersPerLine = 60);
+    std::string WrappedText(const char* text, unsigned int charactersPerLine = 60);
+    std::string WrappedText(const std::string& text, unsigned int charactersPerLine = 60);
     void Tooltip(const char* text);
 
     namespace Colors {
@@ -179,9 +179,9 @@ namespace UIWidgets {
         ImGui::EndDisabled();
         ImGui::EndGroup();
         if (options.disabled && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && strcmp(options.disabledTooltip, "") != 0) {
-            ImGui::SetTooltip("%s", WrappedText(options.disabledTooltip));
+            ImGui::SetTooltip("%s", WrappedText(options.disabledTooltip).c_str());
         } else if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && strcmp(options.tooltip, "") != 0) {
-            ImGui::SetTooltip("%s", WrappedText(options.tooltip));
+            ImGui::SetTooltip("%s", WrappedText(options.tooltip).c_str());
         }
         ImGui::PopID();
         return dirty;
@@ -254,9 +254,9 @@ namespace UIWidgets {
         ImGui::EndDisabled();
         ImGui::EndGroup();
         if (options.disabled && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && strcmp(options.disabledTooltip, "") != 0) {
-            ImGui::SetTooltip("%s", WrappedText(options.disabledTooltip));
+            ImGui::SetTooltip("%s", WrappedText(options.disabledTooltip).c_str());
         } else if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && strcmp(options.tooltip, "") != 0) {
-            ImGui::SetTooltip("%s", WrappedText(options.tooltip));
+            ImGui::SetTooltip("%s", WrappedText(options.tooltip).c_str());
         }
         ImGui::PopID();
         return dirty;
@@ -332,9 +332,9 @@ namespace UIWidgets {
         ImGui::EndDisabled();
         ImGui::EndGroup();
         if (options.disabled && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && strcmp(options.disabledTooltip, "") != 0) {
-            ImGui::SetTooltip("%s", WrappedText(options.disabledTooltip));
+            ImGui::SetTooltip("%s", WrappedText(options.disabledTooltip).c_str());
         } else if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && strcmp(options.tooltip, "") != 0) {
-            ImGui::SetTooltip("%s", WrappedText(options.tooltip));
+            ImGui::SetTooltip("%s", WrappedText(options.tooltip).c_str());
         }
         ImGui::PopID();
         return dirty;

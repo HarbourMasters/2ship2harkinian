@@ -208,9 +208,8 @@ u16 gBombersNotebookWeekEventFlags[BOMBERS_NOTEBOOK_EVENT_MAX] = {
 #undef DEFINE_PERSON
 #undef DEFINE_EVENT
 
-// TODO: Scripts
-// Include message tables D_801C6B98 and D_801CFB08
-#include "src/code/z_message_tables.inc"
+MessageTableEntry* sMessageTableNES;
+MessageTableEntry* sMessageTableCredits;
 
 s16 D_801CFC78[TEXTBOX_TYPE_MAX] = {
     0,  //  TEXTBOX_TYPE_0
@@ -6483,9 +6482,9 @@ void Message_Update(PlayState* play) {
 }
 
 void Message_SetTables(PlayState* play) {
-    // play->msgCtx.messageEntryTableNes = D_801C6B98;
-    // play->msgCtx.messageTableStaff = D_801CFB08;
     OTRMessage_Init(play, ResourceMgr_GetGameDefaultLanguage(0) == LANGUAGE_JPN);
+    play->msgCtx.messageEntryTableNes = sMessageTableNES;
+    play->msgCtx.messageTableStaff = sMessageTableCredits;
 }
 
 void Message_Init(PlayState* play) {

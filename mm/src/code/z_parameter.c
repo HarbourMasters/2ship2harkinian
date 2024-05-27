@@ -15,6 +15,7 @@
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "overlays/actors/ovl_En_Mm3/z_en_mm3.h"
 #include "interface/week_static/week_static.h"
+#include "misc/title_static/title_static.h"
 #include "BenPort.h"
 #include <string.h>
 #include "BenGui/HudEditor.h"
@@ -2764,7 +2765,9 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
         if (GET_PLAYER_FORM == player->transformation) {
             for (i = EQUIP_SLOT_C_LEFT; i <= EQUIP_SLOT_C_RIGHT; i++) {
                 // Individual C button
-                if (!gPlayerFormItemRestrictions[GET_PLAYER_FORM][GET_CUR_FORM_BTN_ITEM(i)]) {
+                ItemId itemId = GET_CUR_FORM_BTN_ITEM(i);
+                if (GameInteractor_Should(GI_VB_ITEM_BE_RESTRICTED,
+                                          !gPlayerFormItemRestrictions[GET_PLAYER_FORM][itemId], &itemId)) {
                     // Item not usable in current playerForm
                     if (gSaveContext.buttonStatus[i] != BTN_DISABLED) {
                         gSaveContext.buttonStatus[i] = BTN_DISABLED;
@@ -2909,7 +2912,9 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
             // #region 2S2H [Dpad]
             for (s16 j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++) {
                 // Individual D button
-                if (!gPlayerFormItemRestrictions[GET_PLAYER_FORM][DPAD_GET_CUR_FORM_BTN_ITEM(j)]) {
+                ItemId itemId = DPAD_GET_CUR_FORM_BTN_ITEM(j);
+                if (GameInteractor_Should(GI_VB_ITEM_BE_RESTRICTED,
+                                          !gPlayerFormItemRestrictions[GET_PLAYER_FORM][itemId], &itemId)) {
                     // Item not usable in current playerForm
                     if (gSaveContext.shipSaveContext.dpad.status[j] != BTN_DISABLED) {
                         gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
@@ -3429,6 +3434,33 @@ void Interface_Dpad_LoadItemIconImpl(PlayState* play, u8 btn) {
     } else {
         interfaceCtx->iconItemSegment[btn] = gEmptyTexture;
     }
+}
+
+void Interface_DrawAutosaveIcon(PlayState* play, uint16_t opacity) {
+    s16 rectLeft = 290;
+    s16 rectTop = 220;
+    s16 rectWidth = 24;
+    s16 rectHeight = 12;
+    s16 dsdx = 512;
+    s16 dtdy = 512;
+
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+
+    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, opacity);
+    rectLeft = OTRGetRectDimensionFromRightEdge(rectLeft);
+    gDPPipeSync(OVERLAY_DISP++);
+    gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+
+    gDPLoadTextureBlock(OVERLAY_DISP++, gFileSelOwlSaveIconTex, G_IM_FMT_RGBA, G_IM_SIZ_32b, 24, 12, 0,
+                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
+                        G_TX_NOLOD);
+
+    gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2,
+                            (rectTop + rectHeight) << 2, G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+
+    gDPPipeSync(OVERLAY_DISP++);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
 
 void Interface_LoadItemIconImpl(PlayState* play, u8 btn) {
