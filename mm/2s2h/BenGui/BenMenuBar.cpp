@@ -487,6 +487,12 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
+        if (UIWidgets::BeginMenu("Equipment")) {
+            UIWidgets::CVarCheckbox("Fast Magic Arrow Equip Animation", "gEnhancements.Equipment.MagicArrowEquipSpeed",
+                                    { .tooltip = "Removes the animation for equipping Magic Arrows." });
+            ImGui::EndMenu();
+        }
+
         if (UIWidgets::BeginMenu("Fixes")) {
             UIWidgets::CVarCheckbox("Fix Ammo Count Color", "gFixes.FixAmmoCountEnvColor",
                                     { .tooltip = "Fixes a missing gDPSetEnvColor, which causes the ammo count to be "

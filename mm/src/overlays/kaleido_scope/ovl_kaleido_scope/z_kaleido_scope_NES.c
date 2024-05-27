@@ -21,6 +21,8 @@
 
 #include "2s2h_assets.h"
 
+#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
+
 // Page Textures (Background of Page):
 // Broken up into multiple textures.
 // Numbered by column/row.
@@ -4230,4 +4232,5 @@ void KaleidoScope_Update(PlayState* play) {
     if ((pauseCtx->debugEditor == DEBUG_EDITOR_INVENTORY_INIT) || (pauseCtx->debugEditor == DEBUG_EDITOR_INVENTORY)) {
         KaleidoScope_UpdateInventoryEditor(play);
     }
+    GameInteractor_ExecuteOnKaleidoUpdate(pauseCtx);
 }

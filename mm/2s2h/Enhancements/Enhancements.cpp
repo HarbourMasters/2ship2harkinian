@@ -20,6 +20,9 @@ void InitEnhancements() {
     RegisterSavingEnhancements();
     RegisterAutosave();
 
+    // Equipment
+    RegisterSkipMagicArrowEquip();
+
     // Masks
     RegisterFastTransformation();
     RegisterFierceDeityAnywhere();
