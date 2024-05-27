@@ -194,8 +194,6 @@ jobs:
           ${{ runner.os }}-14-macports-
     - name: Install MacPorts (if necessary)
       run: |
-        command -v port
-        echo $?
         if [ command -v port &>/dev/null ]; then
           echo "MacPorts already installed"
         else
@@ -217,8 +215,8 @@ jobs:
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
         cmake --no-warn-unused-cli -H. -Bbuild-cmake -GNinja -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"
-        cmake --build build-cmake --config Release --target Generate2ShipOtr --parallel 10
         cmake --build build-cmake --config Release --parallel 10
+        cmake --build build-cmake --config Release --target Generate2ShipOtr --parallel 10
         (cd build-cmake && cpack)
 
         mv _packages/*.dmg 2Ship.dmg
@@ -307,8 +305,8 @@ jobs:
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
         cmake --no-warn-unused-cli -H. -Bbuild-cmake -GNinja -DCMAKE_BUILD_TYPE:STRING=Release -DBUILD_REMOTE_CONTROL=1
-        cmake --build build-cmake --config Release --target Generate2ShipOtr -j3
         cmake --build build-cmake --config Release -j3
+        cmake --build build-cmake --config Release --target Generate2ShipOtr -j3
         (cd build-cmake && cpack -G External)
 
         mv README.md readme.txt
@@ -368,8 +366,8 @@ jobs:
       run: |
         set $env:PATH="$env:USERPROFILE/.cargo/bin;$env:PATH"
         cmake -S . -B build-windows -G Ninja -DCMAKE_MAKE_PROGRAM=ninja -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
-        cmake --build build-windows --config Release --target Generate2ShipOtr --parallel 10
         cmake --build build-windows --config Release --parallel 10
+        cmake --build build-windows --config Release --target Generate2ShipOtr --parallel 10
 
         (cd build-windows && cpack)
         cd ..
