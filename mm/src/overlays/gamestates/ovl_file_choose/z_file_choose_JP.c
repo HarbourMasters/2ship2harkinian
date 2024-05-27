@@ -13,7 +13,7 @@
 #include "interface/parameter_static/parameter_static.h"
 #include "misc/title_static/title_static.h"
 #include <string.h>
-#include <GameVersions.h>
+#include "BenPort.h"
 
 // FileSelect_SetView
 void FileSelect_SetView_JP(FileSelectState* this, f32 eyeX, f32 eyeY, f32 eyeZ) {
