@@ -245,7 +245,7 @@ class GameInteractor {
     };
 
     DEFINE_HOOK(OnFileDropped, (std::string path));
-        
+
     DEFINE_HOOK(OnGameStateMainFinish, ());
     DEFINE_HOOK(OnGameStateDrawFinish, ());
     DEFINE_HOOK(OnGameStateUpdate, ());
