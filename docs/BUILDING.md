@@ -29,8 +29,8 @@ _Note: Be sure to either clone with the ``--recursive`` flag or do ``git submodu
 
 _Note: Instructions assume using powershell_
 ```powershell
-# Navigate to the Shipwright repo within powershell. ie: cd "C:\yourpath\Shipwright"
-cd Shipwright
+# Navigate to the 2ship2harkinian repo within powershell. ie: cd "C:\yourpath\2ship2harkinian"
+cd 2ship2harkinian
 
 # Setup cmake project
 & 'C:\Program Files\CMake\bin\cmake' -S . -B "build/x64" -G "Visual Studio 17 2022" -T v142 -A x64 # -DCMAKE_BUILD_TYPE:STRING=Release (if you're packaging)
@@ -59,7 +59,7 @@ With the cmake build system you have two options for working on the project:
 #### Visual Studio
 To develop using Visual Studio you only need to use cmake to generate the solution file:
 ```powershell
-# Generates Ship.sln at `build/x64` for Visual Studio 2022
+# Generates 2s2h.sln at `build/x64` for Visual Studio 2022
 & 'C:\Program Files\CMake\bin\cmake' -S . -B "build/x64" -G "Visual Studio 17 2022" -T v142 -A x64
 # or for Visual Studio 2019
 & 'C:\Program Files\CMake\bin\cmake' -S . -B "build/x64" -G "Visual Studio 16 2019" -T v142 -A x64
@@ -124,8 +124,8 @@ _Note: If you're using Visual Studio Code, the [CMake Tools plugin](https://mark
 
 ```bash
 # Clone the repo and enter the directory
-git clone https://github.com/HarbourMasters/Shipwright.git
-cd Shipwright
+git clone https://github.com/HarbourMasters/2ship2harkinian.git
+cd 2ship2harkinian
 
 # Clone the submodules
 git submodule update --init
@@ -177,8 +177,8 @@ _Note: If you're using Visual Studio Code, the [cpack plugin](https://marketplac
 
 ```bash
 # Clone the repo
-git clone https://github.com/HarbourMasters/Shipwright.git
-cd ShipWright
+git clone https://github.com/HarbourMasters/2ship2harkinian.git
+cd 2ship2harkinian
 # Clone the submodule libultraship
 git submodule update --init
 # Copy the baserom to the OTRExporter folder
