@@ -574,6 +574,13 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
+        if (UIWidgets::BeginMenu("Misc")) {
+            UIWidgets::CVarCheckbox("Friendly Dogs", "gEnhancements.Misc.FriendlyDogs", 
+                                    {.tooltip = "Dogs will always be friendly no matter what form Link is in."});
+
+            ImGui::EndMenu();
+        }
+
         if (mHudEditorWindow) {
             UIWidgets::WindowButton("Hud Editor", "gWindows.HudEditor", mHudEditorWindow,
                                     { .tooltip = "Enables the Hud Editor window, allowing you to edit your hud" });

@@ -76,7 +76,8 @@ typedef enum {
     /* 5 */ DOG_BEHAVIOR_ZORA_WAIT,
     /* 6 */ DOG_BEHAVIOR_DEKU,
     /* 7 */ DOG_BEHAVIOR_DEKU_WAIT,
-    /* 8 */ DOG_BEHAVIOR_DEFAULT
+    /* 8 */ DOG_BEHAVIOR_DEFAULT,
+    /* 9 */ DOG_BEHAVIOR_FIERCE_DEITY
 } DogBehavior;
 
 static u8 sIsAnyDogHeld = false;
@@ -574,7 +575,12 @@ void EnDg_CheckForBremenMaskMarch(EnDg* this, PlayState* play) {
         this->dogFlags &= ~DOG_FLAG_FOLLOWING_BREMEN_MASK;
         sBremenMaskFollowerIndex = ENDG_INDEX_NO_BREMEN_MASK_FOLLOWER;
         EnDg_SetupIdleMove(this, play);
-        this->actionFunc = EnDg_IdleMove;
+        if (!CVarGetInteger("gEnhancements.Misc.FriendlyDogs", 0)) {
+            this->actionFunc = EnDg_IdleMove;
+        } else {
+            this->actionFunc = EnDg_ApproachPlayer;
+        }
+
     }
 }
 
@@ -597,6 +603,12 @@ s32 EnDg_ShouldReactToNonHumanPlayer(EnDg* this, PlayState* play) {
                 return true;
             }
             break;
+
+        case PLAYER_FORM_HUMAN:
+        case PLAYER_FORM_FIERCE_DEITY:
+            if ((this->actor.xzDistToPlayer < 300.0f) && (CVarGetInteger("gEnhancements.Misc.FriendlyDogs", 0))) {
+                return true;
+            }
     }
 
     return false;
@@ -615,10 +627,16 @@ void EnDg_ChooseActionForForm(EnDg* this, PlayState* play) {
     if (!(this->actor.bgCheckFlags & BGCHECKFLAG_WATER)) {
         switch (player->transformation) {
             case PLAYER_FORM_HUMAN:
-                if (this->behavior != DOG_BEHAVIOR_HUMAN) {
+                if (this->behavior != DOG_BEHAVIOR_HUMAN && (!CVarGetInteger("gEnhancements.Misc.FriendlyDogs", 0))) {
                     this->behavior = DOG_BEHAVIOR_HUMAN;
                     this->dogFlags &= ~DOG_FLAG_JUMP_ATTACKING;
                     EnDg_SetupIdleMove(this, play);
+                }
+
+                else if (this->behavior != DOG_BEHAVIOR_HUMAN && (CVarGetInteger("gEnhancements.Misc.FriendlyDogs", 0))) {
+                    this->behavior = DOG_BEHAVIOR_HUMAN;
+                    EnDg_ChangeAnim(&this->skelAnime, sAnimationInfo, DOG_ANIM_RUN);
+                    this->actionFunc = EnDg_ApproachPlayer;
                 }
                 break;
 
@@ -638,11 +656,17 @@ void EnDg_ChooseActionForForm(EnDg* this, PlayState* play) {
 
             case PLAYER_FORM_GORON:
                 this->dogFlags &= ~DOG_FLAG_JUMP_ATTACKING;
-                if ((this->behavior != DOG_BEHAVIOR_GORON) && (player->actor.speed > 1.0f)) {
+                if ((this->behavior != DOG_BEHAVIOR_GORON) && (player->actor.speed > 1.0f) && (!CVarGetInteger("gEnhancements.Misc.FriendlyDogs", 0))) {
                     this->behavior = DOG_BEHAVIOR_GORON;
                     EnDg_ChangeAnim(&this->skelAnime, sAnimationInfo, DOG_ANIM_WALK_BACKWARDS);
                     this->timer = 50;
                     this->actionFunc = EnDg_BackAwayFromGoron;
+                }
+
+                else if ((this->behavior != DOG_BEHAVIOR_GORON) && (player->actor.speed > 1.0f) && (CVarGetInteger("gEnhancements.Misc.FriendlyDogs", 0))) {
+                    this->behavior = DOG_BEHAVIOR_GORON;
+                    EnDg_ChangeAnim(&this->skelAnime, sAnimationInfo, DOG_ANIM_RUN);
+                    this->actionFunc = EnDg_ApproachPlayer;
                 }
 
                 if ((this->behavior != DOG_BEHAVIOR_GORON_WAIT) && (this->behavior != DOG_BEHAVIOR_GORON)) {
@@ -653,16 +677,38 @@ void EnDg_ChooseActionForForm(EnDg* this, PlayState* play) {
 
             case PLAYER_FORM_DEKU:
                 this->dogFlags &= ~DOG_FLAG_JUMP_ATTACKING;
-                if ((this->behavior != DOG_BEHAVIOR_DEKU) && (player->actor.speed > 1.0f)) {
+                if ((this->behavior != DOG_BEHAVIOR_DEKU) && (player->actor.speed > 1.0f) && (!CVarGetInteger("gEnhancements.Misc.FriendlyDogs", 0))) {
                     this->behavior = DOG_BEHAVIOR_DEKU;
                     EnDg_ChangeAnim(&this->skelAnime, sAnimationInfo, DOG_ANIM_RUN);
                     this->actionFunc = EnDg_ApproachPlayerToAttack;
+                }
+
+                else if ((this->behavior != DOG_BEHAVIOR_DEKU) && (player->actor.speed > 1.0f) && (CVarGetInteger("gEnhancements.Misc.FriendlyDogs", 0))) {
+                    this->behavior = DOG_BEHAVIOR_DEKU;
+                    EnDg_ChangeAnim(&this->skelAnime, sAnimationInfo, DOG_ANIM_RUN);
+                    this->actionFunc = EnDg_ApproachPlayer;
                 }
 
                 if ((this->behavior != DOG_BEHAVIOR_DEKU_WAIT) && (this->behavior != DOG_BEHAVIOR_DEKU)) {
                     this->behavior = DOG_BEHAVIOR_DEKU_WAIT;
                     EnDg_SetupIdleMove(this, play);
                 }
+                break;
+
+            case PLAYER_FORM_FIERCE_DEITY:
+                this->dogFlags &= ~DOG_FLAG_JUMP_ATTACKING;
+                if ((this->behavior != DOG_BEHAVIOR_FIERCE_DEITY) && (player->actor.speed > 1.0f) && (!CVarGetInteger("gEnhancements.Misc.FriendlyDogs", 0))) {
+                    this->behavior = DOG_BEHAVIOR_FIERCE_DEITY;
+                    this->dogFlags &= ~DOG_FLAG_JUMP_ATTACKING;
+                    EnDg_SetupIdleMove(this, play);
+                }
+
+                else if ((this->behavior != DOG_BEHAVIOR_FIERCE_DEITY) && (player->actor.speed > 1.0f) && (CVarGetInteger("gEnhancements.Misc.FriendlyDogs", 0))) {
+                    this->behavior = DOG_BEHAVIOR_FIERCE_DEITY;
+                    EnDg_ChangeAnim(&this->skelAnime, sAnimationInfo, DOG_ANIM_RUN);
+                    this->actionFunc = EnDg_ApproachPlayer;
+                }
+
                 break;
         }
     }
