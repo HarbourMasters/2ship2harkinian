@@ -185,9 +185,9 @@ jobs:
       uses: actions/cache@v4
       with:
         path: /opt/local/
-        key: ${{ runner.os }}-macports-${{ hashFiles('.github/workflows/macports-deps.txt') }}
+        key: ${{ runner.os }}-14-macports-${{ hashFiles('.github/workflows/macports-deps.txt') }}
         restore-keys: |
-          ${{ runner.os }}-macports
+          ${{ runner.os }}-14-macports
     - name: Install MacPorts (if necessary)
       run: |
         if [ port version ]; then
