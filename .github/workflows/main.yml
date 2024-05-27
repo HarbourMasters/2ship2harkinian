@@ -177,7 +177,7 @@ jobs:
         key: ${{ runner.os }}-14-ccache-${{ github.ref }}-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-14-ccache-${{ github.ref }}
-          ${{ runner.os }}-14-ccache
+          ${{ runner.os }}-14-ccache-
     - name: Prepare MacPorts
       run: sudo mkdir -p /opt/local
     - name: Cache MacPorts
@@ -187,7 +187,7 @@ jobs:
         path: /opt/local/
         key: ${{ runner.os }}-14-macports-${{ hashFiles('.github/workflows/macports-deps.txt') }}
         restore-keys: |
-          ${{ runner.os }}-14-macports
+          ${{ runner.os }}-14-macports-
     - name: Install MacPorts (if necessary)
       run: |
         if [ port version ]; then
@@ -218,7 +218,6 @@ jobs:
         mv _packages/*.dmg 2Ship.dmg
         mv README.md readme.txt
     - name: Upload build
-      if: ${{ startsWith(github.ref, 'refs/heads/develop') }}
       uses: actions/upload-artifact@v4
       with:
         name: 2ship-mac
@@ -238,19 +237,19 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y $(cat .github/workflows/apt-deps.txt)
     - name: ccache
-      uses: hendrikmuhs/ccache-action@v1.2.11
+      uses: hendrikmuhs/ccache-action@v1.2.13
       with:
         key: linux-ccache-${{ github.ref }}-${{ github.sha }}
         restore-keys: |
           linux-ccache-${{ github.ref }}
-          linux-ccache
+          linux-ccache-
     - name: Cache build folders
       uses: actions/cache@v4
       with:
         key: linux-build-${{ github.ref }}-${{ github.sha }}
         restore-keys: |
           linux-build-${{ github.ref }}
-          linux-build
+          linux-build-
         path: |
           SDL2-2.28.5
           SDL2_net-2.2.0
@@ -331,14 +330,14 @@ jobs:
       with:
         submodules: true
     - name: ccache
-      uses: hendrikmuhs/ccache-action@v1.2.11
+      uses: hendrikmuhs/ccache-action@v1.2.13
       with:
         variant: sccache
         max-size: "1G"
         key: ${{ runner.os }}-ccache-${{ github.ref }}-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-ccache-${{ github.ref }}
-          ${{ runner.os }}-ccache
+          ${{ runner.os }}-ccache-
     - name: Cache build folder
       uses: actions/cache@v4
       with:
@@ -346,7 +345,7 @@ jobs:
         key: ${{ runner.os }}-build-${{ github.ref }}-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-build-${{ github.ref }}
-          ${{ runner.os }}-build
+          ${{ runner.os }}-build-
         path: |
           build-windows
           vcpkg
@@ -358,7 +357,7 @@ jobs:
     #     name: 2ship.o2r
     #     path: build-windows/mm
     - name: Build 2Ship
-      env: 
+      env:
         VCPKG_ROOT: ${{github.workspace}}/vcpkg
       run: |
         set $env:PATH="$env:USERPROFILE/.cargo/bin;$env:PATH"
@@ -372,7 +371,6 @@ jobs:
     - name: Unzip package
       run: Expand-Archive -Path _packages/2ship-windows.zip -DestinationPath 2ship-windows
     - name: Upload build
-      if: ${{ startsWith(github.ref, 'refs/heads/develop') }}
       uses: actions/upload-artifact@v4
       with:
         name: 2ship-windows
