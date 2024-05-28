@@ -152,7 +152,6 @@ jobs:
         cmake ..
         make
         sudo make install
-        sudo cp -av /usr/local/lib/libzip* /lib/x86_64-linux-gnu/
     - name: Generate 2ship.o2r
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
@@ -297,6 +296,7 @@ jobs:
         cmake .. -DENABLE_COMMONCRYPTO=OFF -DENABLE_GNUTLS=OFF -DENABLE_MBEDTLS=OFF -DENABLE_OPENSSL=OFF
         make
         sudo make install
+        sudo cp -av /usr/local/lib/libzip* /lib/x86_64-linux-gnu/
     - name: Download 2ship.o2r
       uses: actions/download-artifact@v4
       with:
