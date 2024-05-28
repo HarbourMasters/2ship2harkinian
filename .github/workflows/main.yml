@@ -152,6 +152,7 @@ jobs:
         cmake ..
         make
         sudo make install
+        sudo cp -av /usr/local/lib/libzip* /lib/x86_64-linux-gnu/
     - name: Generate 2ship.o2r
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
