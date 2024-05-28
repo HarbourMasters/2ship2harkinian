@@ -539,8 +539,10 @@ void DrawEnhancementsMenu() {
         }
 
         if (UIWidgets::BeginMenu("Player Actions")) {
-            UIWidgets::CVarCheckbox("Instant Fin Boomerangs Recall", "gEnhancements.PlayerActions.InstantRecall",
-                                     { .tooltip = "Pressing B will instantly recall the fin boomerang back to Zora Link after they are thrown." });
+            UIWidgets::CVarCheckbox(
+                "Instant Fin Boomerangs Recall", "gEnhancements.PlayerActions.InstantRecall",
+                { .tooltip =
+                      "Pressing B will instantly recall the fin boomerang back to Zora Link after they are thrown." });
 
             ImGui::EndMenu();
         }

@@ -32,7 +32,7 @@ void Player_ReturnBoomerangs() {
 void RegisterInstantRecall() {
     GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::OnActorUpdate>(onActorUpdateHookId);
     onActorUpdateHookId = 0;
-    
+
     onActorUpdateHookId = GameInteractor::Instance->RegisterGameHookForID<GameInteractor::OnActorUpdate>(
         ACTOR_EN_BOOM, [](Actor* outerActor) {
             if (CVarGetInteger("gEnhancements.PlayerActions.InstantRecall", 0)) {
