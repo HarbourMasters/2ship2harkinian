@@ -230,3 +230,22 @@ int GameInteractor_InvertControl(GIInvertType type) {
 
     return result;
 }
+
+uint32_t GameInteractor_Dpad(GIDpadType type, uint32_t buttonCombo) {
+    uint32_t result = 0;
+
+    switch (type) {
+        case GI_DPAD_OCARINA:
+            if (CVarGetInteger("gEnhancements.Playback.DpadOcarina", 0)) {
+                result = buttonCombo;
+            }
+            break;
+        case GI_DPAD_EQUIP:
+            if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+                result = buttonCombo;
+            }
+            break;
+    }
+
+    return result;
+}
