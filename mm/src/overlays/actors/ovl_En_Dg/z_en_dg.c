@@ -933,6 +933,10 @@ void EnDg_SitNextToPlayer(EnDg* this, PlayState* play) {
     if (!(this->dogFlags & DOG_FLAG_FOLLOWING_BREMEN_MASK)) {
         EnDg_PlaySfxWhine(this);
     }
+    
+    if (CVarGetInteger("gEnhancements.Misc.FriendlyDogs", 0)) {
+        EnDg_TryPickUp(this, play);
+    }
 }
 
 void EnDg_JumpAttack(EnDg* this, PlayState* play) {
@@ -1018,7 +1022,12 @@ void EnDg_SetupBremenMaskApproachPlayer(EnDg* this, PlayState* play) {
 void EnDg_Fall(EnDg* this, PlayState* play) {
     if (this->actor.bgCheckFlags & BGCHECKFLAG_GROUND) {
         EnDg_ChangeAnim(&this->skelAnime, sAnimationInfo, DOG_ANIM_RUN);
-        this->actionFunc = EnDg_IdleMove;
+
+        if ((CVarGetInteger("gEnhancements.Misc.FriendlyDogs", 0))) {
+            this->actionFunc = EnDg_ApproachPlayer;
+        } else {
+            this->actionFunc = EnDg_IdleMove;
+        }
     }
 
     Actor_MoveWithGravity(&this->actor);
@@ -1326,7 +1335,12 @@ void EnDg_Thrown(EnDg* this, PlayState* play) {
     if (DECR(this->sitAfterThrowTimer) == 0) {
         this->grabState = DOG_GRAB_STATE_NONE;
         EnDg_SetupIdleMove(this, play);
-        this->actionFunc = EnDg_IdleMove;
+        if ((CVarGetInteger("gEnhancements.Misc.FriendlyDogs", 0))) {
+            this->actionFunc = EnDg_ApproachPlayer;
+        } else {
+            this->actionFunc = EnDg_IdleMove;
+        }
+        
     }
 
     Actor_MoveWithGravity(&this->actor);
