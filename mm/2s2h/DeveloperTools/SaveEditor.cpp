@@ -971,12 +971,12 @@ void DrawDungeonItemTab() {
     const char* dungeonNames[4] = { "Woodfall Temple", "Snowhead Temple", "Great Bay Temple", "Stone Tower Temple" };
     uint32_t smallKeyCounts[4] = { 1, 3, 1, 4 };
     const char* fairyIcons[] = { gDungeonStrayFairyWoodfallIconTex, gDungeonStrayFairySnowheadIconTex,
-                                gDungeonStrayFairyGreatBayIconTex, gDungeonStrayFairyStoneTowerIconTex };
+                                 gDungeonStrayFairyGreatBayIconTex, gDungeonStrayFairyStoneTowerIconTex };
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 3.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f, 8.0f));
     ImGui::BeginChild("dungeonTab", ImVec2(0, 0), true);
-    
+
     for (int i = DUNGEON_INDEX_WOODFALL_TEMPLE; i <= DUNGEON_INDEX_STONE_TOWER_TEMPLE; i++) {
         std::string stray_id = "Stray" + std::to_string(i);
         std::string map_id = "Map" + std::to_string(i);
@@ -985,48 +985,54 @@ void DrawDungeonItemTab() {
         std::string bKey_id = "Boss Key" + std::to_string(i);
         int dungeonId = i;
         ImGui::BeginChild(std::to_string(i).c_str(),
-                        ImVec2(INV_GRID_WIDTH * 6 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1.5 + INV_GRID_PADDING),
-                        ImGuiChildFlags_Border);
+                          ImVec2(INV_GRID_WIDTH * 6 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1.5 + INV_GRID_PADDING),
+                          ImGuiChildFlags_Border);
         ImGui::Text(dungeonNames[i]);
-        if (ImGui::ImageButton(stray_id.c_str(),
-                        Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(fairyIcons[dungeonId]),
+        if (ImGui::ImageButton(
+                stray_id.c_str(),
+                Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(fairyIcons[dungeonId]),
                 ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
                 ImVec4(1, 1, 1, gSaveContext.save.saveInfo.inventory.strayFairies[dungeonId] ? 1.0f : 0.4f))) {
             ImGui::OpenPopup("strayFairies");
         }
         ImGui::SameLine();
-        if (ImGui::ImageButton(map_id.c_str(),
-                        Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(gQuestIconDungeonMapTex),
-                        ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
-                        ImVec4(1, 1, 1, CHECK_DUNGEON_ITEM(DUNGEON_MAP, i) ? 1.0f : 0.4f))) {
+        if (ImGui::ImageButton(
+                map_id.c_str(),
+                Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(gQuestIconDungeonMapTex),
+                ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
+                ImVec4(1, 1, 1, CHECK_DUNGEON_ITEM(DUNGEON_MAP, i) ? 1.0f : 0.4f))) {
             SetDungeonItems(DUNGEON_MAP, i);
         }
         ImGui::SameLine();
-        if (ImGui::ImageButton(comp_id.c_str(),
-                        Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(gQuestIconCompassTex),
-                        ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
-                        ImVec4(1, 1, 1, CHECK_DUNGEON_ITEM(DUNGEON_COMPASS, i) ? 1.0f : 0.4f))) {
+        if (ImGui::ImageButton(
+                comp_id.c_str(),
+                Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(gQuestIconCompassTex),
+                ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
+                ImVec4(1, 1, 1, CHECK_DUNGEON_ITEM(DUNGEON_COMPASS, i) ? 1.0f : 0.4f))) {
             SetDungeonItems(DUNGEON_COMPASS, i);
         }
         ImGui::SameLine();
-        if (ImGui::ImageButton(sKey_id.c_str(),
-                        Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(gQuestIconSmallKeyTex),
-                        ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
-                        ImVec4(1, 1, 1, DUNGEON_KEY_COUNT(i) + 1 ? 1.0f : 0.4f))) {
+        if (ImGui::ImageButton(
+                sKey_id.c_str(),
+                Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(gQuestIconSmallKeyTex),
+                ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
+                ImVec4(1, 1, 1, DUNGEON_KEY_COUNT(i) + 1 ? 1.0f : 0.4f))) {
             ImGui::OpenPopup("smallKeys");
         }
         ImGui::SameLine();
-        if (ImGui::ImageButton(bKey_id.c_str(),
+        if (ImGui::ImageButton(
+                bKey_id.c_str(),
                 Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(gQuestIconBossKeyTex),
-                        ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
-                        ImVec4(1, 1, 1, CHECK_DUNGEON_ITEM(DUNGEON_BOSS_KEY, i) ? 1.0f : 0.4f))) {
+                ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
+                ImVec4(1, 1, 1, CHECK_DUNGEON_ITEM(DUNGEON_BOSS_KEY, i) ? 1.0f : 0.4f))) {
             SetDungeonItems(DUNGEON_BOSS_KEY, i);
         }
         if (ImGui::BeginPopup("strayFairies")) {
             s32 minStray = 0;
             s32 maxStray = 15;
             int currentStrays = gSaveContext.save.saveInfo.inventory.strayFairies[dungeonId];
-            if (ImGui::SliderScalar("##strayCount", ImGuiDataType_S32, &currentStrays, &minStray, &maxStray, "Strays: %d")) {
+            if (ImGui::SliderScalar("##strayCount", ImGuiDataType_S32, &currentStrays, &minStray, &maxStray,
+                                    "Strays: %d")) {
                 gSaveContext.save.saveInfo.inventory.strayFairies[dungeonId] = currentStrays;
             }
             ImGui::EndPopup();
@@ -1035,7 +1041,8 @@ void DrawDungeonItemTab() {
             s32 minKey = -1;
             s32 maxKey = smallKeyCounts[dungeonId];
             int currentKeys = gSaveContext.save.saveInfo.inventory.dungeonKeys[dungeonId];
-            if (ImGui::SliderScalar("##sKeyCount", ImGuiDataType_S32, &currentKeys, &minKey, &maxKey, "Small Keys: %d")) {
+            if (ImGui::SliderScalar("##sKeyCount", ImGuiDataType_S32, &currentKeys, &minKey, &maxKey,
+                                    "Small Keys: %d")) {
                 gSaveContext.save.saveInfo.inventory.dungeonKeys[dungeonId] = currentKeys;
             }
             ImGui::EndPopup();
@@ -1832,11 +1839,16 @@ void SaveEditorWindow::InitElement() {
         const char* path = static_cast<const char*>(entry);
         Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture(path, path, ImVec4(1, 1, 1, 1));
     }
-    const char* textureLoad[8] = {  gDungeonStrayFairyWoodfallIconTex,    gDungeonStrayFairySnowheadIconTex,
-                                    gDungeonStrayFairyGreatBayIconTex,    gDungeonStrayFairyStoneTowerIconTex,
-                                    gQuestIconDungeonMapTex,              gQuestIconCompassTex, 
-                                    gQuestIconSmallKeyTex,                gQuestIconBossKeyTex };
-    for (int i = 0 ; i <= 7; i++) {
-        Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture(textureLoad[i], textureLoad[i], ImVec4(1, 1, 1, 1));
+    const char* textureLoad[8] = { gDungeonStrayFairyWoodfallIconTex,
+                                   gDungeonStrayFairySnowheadIconTex,
+                                   gDungeonStrayFairyGreatBayIconTex,
+                                   gDungeonStrayFairyStoneTowerIconTex,
+                                   gQuestIconDungeonMapTex,
+                                   gQuestIconCompassTex,
+                                   gQuestIconSmallKeyTex,
+                                   gQuestIconBossKeyTex };
+    for (int i = 0; i <= 7; i++) {
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture(textureLoad[i], textureLoad[i],
+                                                                            ImVec4(1, 1, 1, 1));
     }
 }
