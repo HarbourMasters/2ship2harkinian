@@ -537,6 +537,14 @@ void DrawEnhancementsMenu() {
             }
             ImGui::EndMenu();
         }
+
+        if (UIWidgets::BeginMenu("Player Actions")) {
+            UIWidgets::CVarCheckbox("Instant Fin Boomerangs Recall", "gEnhancements.PlayerActions.InstantRecall",
+                                     { .tooltip = "Pressing B will instantly recall the fin boomerang back to Zora Link after they are thrown." });
+
+            ImGui::EndMenu();
+        }
+
         if (UIWidgets::BeginMenu("Player Movement")) {
             UIWidgets::CVarSliderInt("Climb speed", "gEnhancements.PlayerMovement.ClimbSpeed", 1, 5, 1,
                                      { .tooltip = "Increases the speed at which Link climbs vines and ladders." });
