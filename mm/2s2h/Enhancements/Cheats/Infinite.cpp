@@ -26,7 +26,6 @@ void RegisterInfiniteCheats() {
         }
 
         if (CVarGetInteger("gCheats.InfiniteConsumables", 0)) {
-            
             if (INV_CONTENT(ITEM_BOW) == ITEM_BOW) {
                 AMMO(ITEM_BOW) = CUR_CAPACITY(UPG_QUIVER);
             }
