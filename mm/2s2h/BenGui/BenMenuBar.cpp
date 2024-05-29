@@ -510,6 +510,11 @@ void DrawEnhancementsMenu() {
                                                  "model and texture on the boot logo start screen" });
             UIWidgets::CVarCheckbox("Bow Reticle", "gEnhancements.Graphics.BowReticle",
                                     { .tooltip = "Gives the bow a reticle when you draw an arrow" });
+            UIWidgets::CVarCheckbox(
+                "Disable Black Bar Letterboxes", "gEnhancements.Graphics.DisableBlackBars",
+                { .tooltip = "Disables Black Bar Letterboxes during cutscenes and Z-targeting\nNote: there may be "
+                             "minor visual glitches that were covered up by the black bars\nPlease disable this "
+                             "setting before reporting a bug" });
 
             ImGui::EndMenu();
         }

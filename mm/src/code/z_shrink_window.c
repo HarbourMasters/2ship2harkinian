@@ -7,6 +7,7 @@
 #include "global.h"
 #include "z64shrink_window.h"
 #include <string.h>
+#include "Enhancements/GameInteractor/GameInteractor.h"
 
 #include "BenPort.h"
 
@@ -21,7 +22,9 @@ ShrinkWindow sShrinkWindow;
 ShrinkWindow* sShrinkWindowPtr;
 
 void ShrinkWindow_Letterbox_SetSizeTarget(s32 target) {
-    sShrinkWindowPtr->letterboxTarget = target;
+    if (GameInteractor_Should(GI_VB_SHOW_BLACK_BARS, true, NULL)) {
+        sShrinkWindowPtr->letterboxTarget = target;
+    }
 }
 
 s32 ShrinkWindow_Letterbox_GetSizeTarget(void) {
@@ -37,7 +40,9 @@ s32 ShrinkWindow_Letterbox_GetSize(void) {
 }
 
 void ShrinkWindow_Pillarbox_SetSizeTarget(s32 target) {
-    sShrinkWindowPtr->pillarboxTarget = target;
+    if (GameInteractor_Should(GI_VB_SHOW_BLACK_BARS, true, NULL)) {
+        sShrinkWindowPtr->pillarboxTarget = target;
+    }
 }
 
 s32 ShrinkWindow_Pillarbox_GetSizeTarget(void) {

@@ -20,6 +20,9 @@ void InitEnhancements() {
     RegisterSavingEnhancements();
     RegisterAutosave();
 
+    // Graphics
+    RegisterDisableBlackBars();
+
     // Masks
     RegisterFastTransformation();
     RegisterFierceDeityAnywhere();
