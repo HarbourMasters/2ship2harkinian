@@ -160,53 +160,55 @@ void View_ApplyLetterbox(View* view) {
     s32 lrx;
     s32 lry;
 
-    if (GameInteractor_Should(GI_VB_SHOW_LETTERBOX, true, NULL)) {
-        OPEN_DISPS(view->gfxCtx);
-
-        letterboxY = ShrinkWindow_Letterbox_GetSize();
-
-        letterboxX = -1; // The following is optimized to varX = 0 but affects codegen
-
-        if (letterboxX < 0) {
-            letterboxX = 0;
-        }
-        if (letterboxX > (SCREEN_WIDTH / 2)) {
-            letterboxX = SCREEN_WIDTH / 2;
-        }
-
-        if (letterboxY < 0) {
-            letterboxY = 0;
-        } else if (letterboxY > (SCREEN_HEIGHT / 2)) {
-            letterboxY = SCREEN_HEIGHT / 2;
-        }
-
-        ulx = view->viewport.leftX + letterboxX;
-        uly = view->viewport.topY + letterboxY;
-        lrx = view->viewport.rightX - letterboxX;
-        lry = view->viewport.bottomY - letterboxY;
-
-        gDPPipeSync(POLY_OPA_DISP++);
-        {
-            s32 pad2;
-            Gfx* polyOpa;
-
-            polyOpa = POLY_OPA_DISP;
-            View_SetScissor(&polyOpa, ulx, uly, lrx, lry);
-            POLY_OPA_DISP = polyOpa;
-        }
-
-        gDPPipeSync(POLY_XLU_DISP++);
-        {
-            Gfx* polyXlu;
-            s32 pad3;
-
-            polyXlu = POLY_XLU_DISP;
-            View_SetScissor(&polyXlu, ulx, uly, lrx, lry);
-            POLY_XLU_DISP = polyXlu;
-        }
-
-        CLOSE_DISPS(view->gfxCtx);
+    if (GameInteractor_Should(GI_VB_DISABLE_LETTERBOX, false, NULL)) {
+        return;
     }
+
+    OPEN_DISPS(view->gfxCtx);
+
+    letterboxY = ShrinkWindow_Letterbox_GetSize();
+
+    letterboxX = -1; // The following is optimized to varX = 0 but affects codegen
+
+    if (letterboxX < 0) {
+        letterboxX = 0;
+    }
+    if (letterboxX > (SCREEN_WIDTH / 2)) {
+        letterboxX = SCREEN_WIDTH / 2;
+    }
+
+    if (letterboxY < 0) {
+        letterboxY = 0;
+    } else if (letterboxY > (SCREEN_HEIGHT / 2)) {
+        letterboxY = SCREEN_HEIGHT / 2;
+    }
+
+    ulx = view->viewport.leftX + letterboxX;
+    uly = view->viewport.topY + letterboxY;
+    lrx = view->viewport.rightX - letterboxX;
+    lry = view->viewport.bottomY - letterboxY;
+
+    gDPPipeSync(POLY_OPA_DISP++);
+    {
+        s32 pad2;
+        Gfx* polyOpa;
+
+        polyOpa = POLY_OPA_DISP;
+        View_SetScissor(&polyOpa, ulx, uly, lrx, lry);
+        POLY_OPA_DISP = polyOpa;
+    }
+
+    gDPPipeSync(POLY_XLU_DISP++);
+    {
+        Gfx* polyXlu;
+        s32 pad3;
+
+        polyXlu = POLY_XLU_DISP;
+        View_SetScissor(&polyXlu, ulx, uly, lrx, lry);
+        POLY_XLU_DISP = polyXlu;
+    }
+
+    CLOSE_DISPS(view->gfxCtx);
 }
 
 s32 View_SetDistortionOrientation(View* view, f32 rotX, f32 rotY, f32 rotZ) {

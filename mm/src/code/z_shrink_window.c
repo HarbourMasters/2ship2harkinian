@@ -80,38 +80,39 @@ void ShrinkWindow_Draw(GraphicsContext* gfxCtx) {
     s8 letterboxSize = sShrinkWindowPtr->letterboxSize;
     s8 pillarboxSize = sShrinkWindowPtr->pillarboxSize;
 
-    if (GameInteractor_Should(GI_VB_SHOW_LETTERBOX, true, NULL)) {
+    if (GameInteractor_Should(GI_VB_DISABLE_LETTERBOX, false, NULL)) {
+        return;
+    }
 
-        if (letterboxSize > 0) {
-            OPEN_DISPS(gfxCtx);
+    if (letterboxSize > 0) {
+        OPEN_DISPS(gfxCtx);
 
-            gfx = OVERLAY_DISP;
+        gfx = OVERLAY_DISP;
 
-            gDPPipeSync(gfx++);
-            gDPSetCycleType(gfx++, G_CYC_FILL);
-            gDPSetRenderMode(gfx++, G_RM_NOOP, G_RM_NOOP2);
-            gDPSetFillColor(gfx++, (GPACK_RGBA5551(0, 0, 0, 1) << 16) | GPACK_RGBA5551(0, 0, 0, 1));
-            // #region 2S2H [Cosmetic] Account for different aspect ratios than 4:3
-            gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), 0,
-                                 OTRGetRectDimensionFromRightEdge(gScreenWidth - 1), letterboxSize - 1);
-            gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), gScreenHeight - letterboxSize,
-                                 OTRGetRectDimensionFromRightEdge(gScreenWidth - 1), gScreenHeight - 1);
+        gDPPipeSync(gfx++);
+        gDPSetCycleType(gfx++, G_CYC_FILL);
+        gDPSetRenderMode(gfx++, G_RM_NOOP, G_RM_NOOP2);
+        gDPSetFillColor(gfx++, (GPACK_RGBA5551(0, 0, 0, 1) << 16) | GPACK_RGBA5551(0, 0, 0, 1));
+        // #region 2S2H [Cosmetic] Account for different aspect ratios than 4:3
+        gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), 0,
+                             OTRGetRectDimensionFromRightEdge(gScreenWidth - 1), letterboxSize - 1);
+        gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), gScreenHeight - letterboxSize,
+                             OTRGetRectDimensionFromRightEdge(gScreenWidth - 1), gScreenHeight - 1);
 
-            gDPPipeSync(gfx++);
-            gDPSetCycleType(gfx++, G_CYC_1CYCLE);
-            gDPSetRenderMode(gfx++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-            gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, 0);
-            gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), letterboxSize,
-                                 OTRGetRectDimensionFromRightEdge(gScreenWidth), letterboxSize + 1);
-            gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), gScreenHeight - letterboxSize - 1,
-                                 OTRGetRectDimensionFromRightEdge(gScreenWidth), gScreenHeight - letterboxSize);
-            // #endregion
+        gDPPipeSync(gfx++);
+        gDPSetCycleType(gfx++, G_CYC_1CYCLE);
+        gDPSetRenderMode(gfx++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+        gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, 0);
+        gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), letterboxSize,
+                             OTRGetRectDimensionFromRightEdge(gScreenWidth), letterboxSize + 1);
+        gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), gScreenHeight - letterboxSize - 1,
+                             OTRGetRectDimensionFromRightEdge(gScreenWidth), gScreenHeight - letterboxSize);
+        // #endregion
 
-            gDPPipeSync(gfx++);
-            OVERLAY_DISP = gfx++;
+        gDPPipeSync(gfx++);
+        OVERLAY_DISP = gfx++;
 
-            CLOSE_DISPS(gfxCtx);
-        }
+        CLOSE_DISPS(gfxCtx);
     }
 
     if (pillarboxSize > 0) {

@@ -51,7 +51,7 @@ typedef enum {
     GI_VB_TATL_INTERUPT_MSG6,
     GI_VB_ITEM_BE_RESTRICTED,
     GI_VB_FLIP_HOP_VARIABLE,
-    GI_VB_SHOW_LETTERBOX,
+    GI_VB_DISABLE_LETTERBOX,
 } GIVanillaBehavior;
 
 typedef enum {
