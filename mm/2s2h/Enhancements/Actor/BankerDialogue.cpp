@@ -20,7 +20,8 @@ void RegisterBankerDialogue() {
                     const char rupeeChar[3] = { firstChar, secondChar, thirdChar };
 
                     for (int i = 22; i <= 24; i++) {
-                        gPlayState->msgCtx.bankRupeesSelected = gPlayState->msgCtx.decodedBuffer.schar[i] = rupeeChar[i - 22];
+                        gPlayState->msgCtx.bankRupeesSelected = gPlayState->msgCtx.decodedBuffer.schar[i] =
+                            rupeeChar[i - 22];
                         Font_LoadCharNES(gPlayState, gPlayState->msgCtx.decodedBuffer.schar[i],
                                          gPlayState->msgCtx.unk120C4 + (0 + (i - 22) << 7));
                     }
