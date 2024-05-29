@@ -13,6 +13,7 @@
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "2s2h/DeveloperTools/WarpPoint.h"
 #include "HudEditor.h"
+#include <Enhancements/ResolutionEditor/ResolutionEditor.h>
 
 extern bool ShouldClearTextureCacheAtEndOfFrame;
 
@@ -129,6 +130,7 @@ void DrawBenMenu() {
 }
 
 extern std::shared_ptr<Ship::GuiWindow> mInputEditorWindow;
+extern std::shared_ptr<AdvancedResolutionSettings::AdvancedResolutionSettingsWindow> mAdvancedResolutionSettingsWindow;
 
 void DrawSettingsMenu() {
     if (UIWidgets::BeginMenu("Settings")) {
@@ -172,6 +174,7 @@ void DrawSettingsMenu() {
         if (UIWidgets::BeginMenu("Graphics")) {
 
 #ifndef __APPLE__
+            // TODO: Will need to disable this slider when "Advanced Resolution" mode is active.
             if (UIWidgets::CVarSliderFloat("Internal Resolution: %f %%", CVAR_INTERNAL_RESOLUTION, 0.5f, 2.0f, 1.0f)) {
                 Ship::Context::GetInstance()->GetWindow()->SetResolutionMultiplier(
                     CVarGetFloat(CVAR_INTERNAL_RESOLUTION, 1));
@@ -288,6 +291,11 @@ void DrawSettingsMenu() {
 
             // Currently this only has "Overlays Text Font", it doesn't use our new UIWidgets so it stands out
             // Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGameOverlay()->DrawSettings();
+
+            if (mAdvancedResolutionSettingsWindow) {
+                UIWidgets::WindowButton("Advanced Resolution", "gWindows.gAdvancedResolutionEditor",
+                                        mAdvancedResolutionSettingsWindow);//, { .tooltip = "" });
+            }
 
             ImGui::EndMenu();
         }
