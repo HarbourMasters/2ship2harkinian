@@ -26,10 +26,10 @@ void RegisterInfiniteCheats() {
         }
 
         if (CVarGetInteger("gCheats.InfiniteConsumables", 0)) {
-            uint32_t ammoItems[7] = {   ITEM_BOW,         ITEM_BOMB,          ITEM_BOMBCHU,   ITEM_DEKU_STICK,
-                                        ITEM_DEKU_NUT,    ITEM_MAGIC_BEANS,   ITEM_POWDER_KEG };
-            uint32_t upgCapacity[7] = { UPG_QUIVER,     UPG_BOMB_BAG,       UPG_BOMB_BAG,   UPG_DEKU_STICKS,
-                                        UPG_DEKU_NUTS,  ITEM_MAGIC_BEANS,   ITEM_POWDER_KEG };
+            uint32_t ammoItems[7] = { ITEM_BOW,      ITEM_BOMB,        ITEM_BOMBCHU,   ITEM_DEKU_STICK,
+                                      ITEM_DEKU_NUT, ITEM_MAGIC_BEANS, ITEM_POWDER_KEG };
+            uint32_t upgCapacity[7] = { UPG_QUIVER,    UPG_BOMB_BAG,     UPG_BOMB_BAG,   UPG_DEKU_STICKS,
+                                        UPG_DEKU_NUTS, ITEM_MAGIC_BEANS, ITEM_POWDER_KEG };
             for (int i = 0; i <= sizeof(ammoItems) / sizeof(ammoItems[0]); i++) {
                 if (INV_CONTENT(ammoItems[i]) == ammoItems[i]) {
                     if (ammoItems[i] == ITEM_MAGIC_BEANS) {
