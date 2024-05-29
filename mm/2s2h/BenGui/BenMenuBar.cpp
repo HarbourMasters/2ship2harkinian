@@ -189,8 +189,7 @@ void DrawSettingsMenu() {
             UIWidgets::Tooltip(
                 "Activates MSAA (multi-sample anti-aliasing) from 2x up to 8x, to smooth the edges of rendered "
                 "geometry.\n"
-                "Higher sample count will result in smoother edges on models, but may reduce performance.\n\n"
-                "Recommended: 2x or 4x");
+                "Higher sample count will result in smoother edges on models, but may reduce performance.");
 #endif
 
             { // FPS Slider
