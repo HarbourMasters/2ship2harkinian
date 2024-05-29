@@ -3,7 +3,7 @@
 #include "z64.h"
 #include "global.h"
 
-#include "src/overlays/actors/ovl_En_Ginko_Man/z_en_ginko_man.h"
+#include "overlays/actors/ovl_En_Ginko_Man/z_en_ginko_man.h"
 
 void RegisterBankerDialogue() {
 
