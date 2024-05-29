@@ -1,6 +1,7 @@
 #ifndef ENHANCEMENTS_H
 #define ENHANCEMENTS_H
 
+#include "Actor/BankerDialogue.h"
 #include "Camera/CameraInterpolationFixes.h"
 #include "Camera/DebugCam.h"
 #include "Camera/FreeLook.h"
