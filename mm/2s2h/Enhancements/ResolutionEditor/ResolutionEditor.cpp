@@ -4,9 +4,9 @@
 #include <2s2h/BenGui/UIWidgets.hpp>
 #include <graphic/Fast3D/gfx_pc.h>
 
-/*  Console Variables are grouped under gAdvancedResolution. (e.g. CVAR_PREFIX_ADVANCED_RESOLUTION ".Enabled")
+/*  Console Variables are grouped under CVAR_PREFIX_ADVANCED_RESOLUTION.
 
-    The following cvars are used in Libultraship and can be edited here:
+    The following CVars are used in Libultraship and can be edited here:
         - Enabled                                       - Turns Advanced Resolution Mode on.
         - AspectRatioX, AspectRatioY                    - Aspect ratio controls. To toggle off, set either to zero.
         - VerticalPixelCount, VerticalResolutionToggle  - Resolution controls.
@@ -14,7 +14,7 @@
         - IntegerScale.FitAutomatically                 - Automatic resizing for Pixel Perfect Mode.
         - IntegerScale.NeverExceedBounds                - Prevents manual resizing from exceeding screen bounds.
 
-    The following cvars are also implemented in LUS for niche use cases:
+    The following CVars are also implemented in LUS for niche use cases:
         - IgnoreAspectCorrection                        - Stretch framebuffer to fill screen.
             This is something of a power-user setting for niche setups that most people won't need or care about,
             but may be useful if playing the Switch/Wii U ports on a 4:3 television.
@@ -107,7 +107,7 @@ void AdvancedResolutionSettingsWindow::DrawElement() {
         // Display HiDPI warning. (Remove this once we can definitively say it's fixed.)
         ImGui::TextColored(messageColor[MESSAGE_INFO],
                            ICON_FA_INFO_CIRCLE " These settings may behave incorrectly on Retina displays.");
-        ImGui::SeparatorText(" "); // was PaddedSeparator
+        ImGui::SeparatorText(""); // was PaddedSeparator
 #endif
 
         if (ImGui::CollapsingHeader("Original Settings", ImGuiTreeNodeFlags_DefaultOpen)) {
@@ -115,7 +115,8 @@ void AdvancedResolutionSettingsWindow::DrawElement() {
             const bool disabled_resolutionSlider =
                 (CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".VerticalResolutionToggle", 0) &&
                  CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".Enabled", 0)) ||
-                CVarGetInteger("gLowResMode", 0); // TODO: Currently unused.
+                CVarGetInteger("gLowResMode", 0);
+            // TODO: Disabling logic currently unimplemented in this PR.
 #ifndef __APPLE__
             if (UIWidgets::CVarSliderFloat("Internal Resolution: %f %%", CVAR_INTERNAL_RESOLUTION, 0.5f, 2.0f, 1.0f)) {
                 Ship::Context::GetInstance()->GetWindow()->SetResolutionMultiplier(
@@ -123,15 +124,18 @@ void AdvancedResolutionSettingsWindow::DrawElement() {
             }
             UIWidgets::Tooltip("Multiplies your output resolution by the value entered.");
 #endif
-            // TODO: Note to self: There's probably no reason to even expose this window on Apple.
 
             // The original MSAA slider (also for convenience)
 #ifndef __WIIU__
-            if (UIWidgets::CVarSliderInt("MSAA: %d", CVAR_MSAA_VALUE, 1, 8, 1)) {
+            if (UIWidgets::CVarSliderInt((CVarGetInteger(CVAR_MSAA_VALUE, 1) == 1) ? "Anti-aliasing (MSAA): Off"
+                                                                                   : "Anti-aliasing (MSAA): %d",
+                                         CVAR_MSAA_VALUE, 1, 8, 1)) {
                 Ship::Context::GetInstance()->GetWindow()->SetMsaaLevel(CVarGetInteger(CVAR_MSAA_VALUE, 1));
             };
             UIWidgets::Tooltip(
-                "Activates multi-sample anti-aliasing when above 1x up to 8x for 8 samples for every pixel");
+                "Activates MSAA (multi-sample anti-aliasing) from 2x up to 8x, to smooth the edges of rendered "
+                "geometry.\n"
+                "Higher sample count will result in smoother edges on models, but may reduce performance.");
 #endif
 
             // N64 Mode toggle (again for convenience)
@@ -336,52 +340,52 @@ void AdvancedResolutionSettingsWindow::DrawElement() {
 
         // Collapsible panel for additional settings
         if (ImGui::CollapsingHeader("Additional Settings")) {
-            // UIWidgets::Spacer(0);
-
-            // TODO: Should I remove anything to do with console ports or is this harmless to leave here?
+            // Beginning of miscellanous additional settings.
+            {
+                // TODO: Should I remove anything to do with console ports or is this harmless to leave here?
 #if defined(__SWITCH__) || defined(__WIIU__)
-            // Disable aspect correction, stretching the framebuffer to fill the viewport.
-            // This option is only really needed on systems limited to 16:9 TV resolutions, such as consoles.
-            // The associated cvar is still functional on PC platforms if you want to use it though.
-            UIWidgets::CVarCheckbox("Disable aspect correction and stretch the output image.\n"
-                                    "(Might be useful for 4:3 televisions!)\n"
-                                    "Not available in Pixel Perfect Mode.",
-                                    CVAR_PREFIX_ADVANCED_RESOLUTION ".IgnoreAspectCorrection");
-            // TODO: disable this widget on the following: ".PixelPerfectMode" = true || disabled_everything
+                // Disable aspect correction, stretching the framebuffer to fill the viewport.
+                // This option is only really needed on systems limited to 16:9 TV resolutions, such as consoles.
+                // The associated CVar is still functional on PC platforms if you want to use it though.
+                UIWidgets::CVarCheckbox("Disable aspect correction and stretch the output image.\n"
+                                        "(Might be useful for 4:3 televisions!)\n"
+                                        "Not available in Pixel Perfect Mode.",
+                                        CVAR_PREFIX_ADVANCED_RESOLUTION ".IgnoreAspectCorrection");
+                // TODO: disable this widget on the following: ".PixelPerfectMode" = true || disabled_everything
 #else
-            if (CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".IgnoreAspectCorrection", 0)) {
-                // This setting is intentionally not exposed on PC platforms,
-                // but may be accidentally activated for varying reasons.
-                // Having this button should hopefully prevent support headaches.
-                ImGui::TextColored(messageColor[MESSAGE_QUESTION], ICON_FA_QUESTION_CIRCLE
-                                   " If the image is stretched and you don't know why, click this.");
-                if (ImGui::Button("Click to reenable aspect correction.")) {
-                    CVarSetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".IgnoreAspectCorrection", 0);
-                    CVarSave();
+                if (CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".IgnoreAspectCorrection", 0)) {
+                    // This setting is intentionally not exposed on PC platforms,
+                    // but may be accidentally activated for varying reasons.
+                    // Having this button should hopefully prevent support headaches.
+                    ImGui::TextColored(messageColor[MESSAGE_QUESTION], ICON_FA_QUESTION_CIRCLE
+                                       " If the image is stretched and you don't know why, click this.");
+                    if (ImGui::Button("Click to reenable aspect correction.")) {
+                        CVarSetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".IgnoreAspectCorrection", 0);
+                        CVarSave();
+                    }
+                    // UIWidgets::Spacer(2);
                 }
-                // UIWidgets::Spacer(2);
-            }
 #endif
 
-            // A requested addition; an alternative way of displaying the resolution field.
-            /*
-            if (ImGui::Checkbox("Show a horizontal resolution field, instead of aspect ratio.",
-                                &showHorizontalResField)) {
-                if (!showHorizontalResField && (aspectRatioX > 0.0f)) { // when turning this setting off
-                    // Refresh relevant values
-                    aspectRatioX = aspectRatioY * horizontalPixelCount / verticalPixelCount;
-                    horizontalPixelCount = (verticalPixelCount / aspectRatioY) * aspectRatioX;
-                } else { // when turning this setting on
-                    item_aspectRatio = default_aspectRatio;
-                    if (aspectRatioX > 0.0f) {
-                        // Refresh relevant values in the opposite order
-                        horizontalPixelCount = (verticalPixelCount / aspectRatioY) * aspectRatioX;
+                // A requested addition; an alternative way of displaying the resolution field.
+                if (ImGui::Checkbox("Show a horizontal resolution field, instead of aspect ratio.",
+                                    &showHorizontalResField)) {
+                    if (!showHorizontalResField && (aspectRatioX > 0.0f)) { // when turning this setting off
+                        // Refresh relevant values
                         aspectRatioX = aspectRatioY * horizontalPixelCount / verticalPixelCount;
+                        horizontalPixelCount = (verticalPixelCount / aspectRatioY) * aspectRatioX;
+                    } else { // when turning this setting on
+                        item_aspectRatio = default_aspectRatio;
+                        if (aspectRatioX > 0.0f) {
+                            // Refresh relevant values in the opposite order
+                            horizontalPixelCount = (verticalPixelCount / aspectRatioY) * aspectRatioX;
+                            aspectRatioX = aspectRatioY * horizontalPixelCount / verticalPixelCount;
+                        }
                     }
+                    update[UPDATE_aspectRatioX] = true;
                 }
-                update[UPDATE_aspectRatioX] = true;
-            }*/
-            // TODO: PLEASE let me remove this option.
+                // Note to self: I would love to be able to remove this option. It adds so much complexity.
+            }
 
             // Beginning of Integer Scaling additional settings.
             {
@@ -406,7 +410,7 @@ void AdvancedResolutionSettingsWindow::DrawElement() {
                     " " ICON_FA_INFO_CIRCLE
                     " Please note that exceeding screen bounds may show a scroll bar on-screen.");
 
-                // Initialise the (currently unused) "Exceed Bounds By" cvar if it's been changed.
+                // Initialise the (currently unused) "Exceed Bounds By" CVar if it's been changed.
                 if (checkbox_neverExceedBounds &&
                     CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".IntegerScale.ExceedBoundsBy", 0)) {
                     CVarSetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".IntegerScale.ExceedBoundsBy", 0);
@@ -436,7 +440,7 @@ void AdvancedResolutionSettingsWindow::DrawElement() {
                         // UIWidgets::ReEnableComponent("disabledTooltipText");
                     }
 
-                    // Another support helper button, to disable the unused "Exceed Bounds By" cvar.
+                    // Another support helper button, to disable the unused "Exceed Bounds By" CVar.
                     // (Remove this button if uncommenting the checkbox.)
                     if (CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".IntegerScale.ExceedBoundsBy", 0)) {
                         if (ImGui::Button("Click to reset a console variable that may be causing this.")) {
@@ -451,7 +455,7 @@ void AdvancedResolutionSettingsWindow::DrawElement() {
 
         } // End of additional settings
 
-        // Clamp and update the cvars that don't use UIWidgets
+        // Clamp and update the CVars that don't use UIWidgets
         if (update[UPDATE_aspectRatioX] || update[UPDATE_aspectRatioY] || update[UPDATE_verticalPixelCount]) {
             if (update[UPDATE_aspectRatioX]) {
                 if (aspectRatioX < 0.0f) {
