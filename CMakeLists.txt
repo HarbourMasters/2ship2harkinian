@@ -29,7 +29,7 @@ if (CMAKE_SYSTEM_NAME MATCHES "Windows|Linux")
 endif()
 
 # Enable the Gfx debugger in LUS to use libgfxd from ZAPDTR
-set(GFX_DEBUG_DISASSEMBLER ON)
+# set(GFX_DEBUG_DISASSEMBLER ON)
 
 ################################################################################
 # Set target arch type if empty. Visual studio solution generator provides it.
