@@ -422,6 +422,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 		">"
            #"$<$<BOOL:${BUILD_CROWD_CONTROL}>:ENABLE_CROWD_CONTROL>"
 		"INCLUDE_GAME_PRINTF;"
+        "F3DEX_GBI_2;"
            #"ENABLE_CROWD_CONTROL;"
 		"UNICODE;"
 		"_UNICODE"
@@ -437,6 +438,7 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "CafeOS")
 		"$<$<CONFIG:Release>:"
 			"NDEBUG"
 		">"
+        "F3DEX_GBI_2;"
         "SPDLOG_ACTIVE_LEVEL=3;"
 		"SPDLOG_NO_THREAD_ID;"
         "SPDLOG_NO_TLS;"
@@ -456,6 +458,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" MATCHES "GNU|Clang|AppleClang")
 		"_CRT_SECURE_NO_WARNINGS;"
 		"ENABLE_OPENGL;"
 		"UNICODE;"
+        "F3DEX_GBI_2;"
 		"_UNICODE"
         "NON_MATCHING;"
         "NON_EQUIVALENT;"
@@ -475,10 +478,10 @@ if(MSVC)
             /Gy;
             /W3
         >
-		
+
 		/wd4024 #different types for formal and actual parameter [x]. Usually seen along side 4047.
 		/wd4047 #'uintptr_t' differs in levels of indirection from 'Gfx *'. Usually caused by passing a uintptr_t into a function expecting a pointer-types
-		/wd4090 #'initializing': different 'const' qualifiers. Caused when initializing a non const struct member with a const char*.		
+		/wd4090 #'initializing': different 'const' qualifiers. Caused when initializing a non const struct member with a const char*.
 		/wd4101 # unreferenced local variable. Things like stack pads.
 		/wd4133 #incompatible types. Usually caused by passing a c string into a function that takes a pointer.
 		/wd4244 #conversion from [a] to [b]. Used to warn when copying to smaller type without a cast.
