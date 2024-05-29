@@ -50,7 +50,7 @@ void RegisterInfiniteCheats() {
             if (INV_CONTENT(ITEM_MAGIC_BEANS) == ITEM_MAGIC_BEANS) {
                 AMMO(ITEM_MAGIC_BEANS) = 20;
             }
-            
+
             if (INV_CONTENT(ITEM_POWDER_KEG) == ITEM_POWDER_KEG) {
                 AMMO(ITEM_POWDER_KEG) = 1;
             }
