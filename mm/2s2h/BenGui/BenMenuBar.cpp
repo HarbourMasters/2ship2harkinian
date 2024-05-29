@@ -294,7 +294,7 @@ void DrawSettingsMenu() {
 
             if (mAdvancedResolutionSettingsWindow) {
                 UIWidgets::WindowButton("Advanced Resolution", "gWindows.gAdvancedResolutionEditor",
-                                        mAdvancedResolutionSettingsWindow);//, { .tooltip = "" });
+                                        mAdvancedResolutionSettingsWindow); //, { .tooltip = "" });
             }
 
             ImGui::EndMenu();
