@@ -6,7 +6,11 @@
 #include "src\overlays\actors\ovl_En_Ginko_Man\z_en_ginko_man.h"
 
 void RegisterBankerDialogue() {
+
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnActorUpdate>([](Actor* actor) {
+        if (!CVarGetInteger("gEnhancements.Actor.BankerDepositRupees", 0)) {
+            return;
+        }
         if (actor->id == ACTOR_EN_GINKO_MAN) {
             if (gPlayState->msgCtx.currentTextId == 1104) {
                 if (CHECK_BTN_ALL(gPlayState->state.input[0].cur.button, BTN_Z)) {

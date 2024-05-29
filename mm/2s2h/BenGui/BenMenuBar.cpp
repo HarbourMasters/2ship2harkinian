@@ -329,6 +329,15 @@ extern std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 
 void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
+        if (UIWidgets::BeginMenu("Actors")) {
+            ImGui::SeparatorText("West Clock Town");
+            UIWidgets::CVarCheckbox(
+                "Banker - Press Z or R for Max/Min Rupees", "gEnhancements.Actor.BankerDepositRupees",
+                { .tooltip =
+                      "Pressing the Z or r buttons while the Deposit Rupees dialogue is open will "
+                      "set the Rupees to Links current Rupees or 0 respectively." });
+            ImGui::EndMenu();
+        }
 
         if (UIWidgets::BeginMenu("Camera")) {
             ImGui::SeparatorText("Fixes");
