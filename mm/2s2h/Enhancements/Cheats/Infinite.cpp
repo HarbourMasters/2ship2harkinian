@@ -27,26 +27,33 @@ void RegisterInfiniteCheats() {
 
         if (CVarGetInteger("gCheats.InfiniteConsumables", 0)) {
             
-            if (INV_CONTENT(ITEM_BOW) == ITEM_BOW) //Sanity check for bottle duping.
+            if (INV_CONTENT(ITEM_BOW) == ITEM_BOW) {
                 AMMO(ITEM_BOW) = CUR_CAPACITY(UPG_QUIVER);
+            }
 
-            if (INV_CONTENT(ITEM_BOMB) == ITEM_BOMB)
+            if (INV_CONTENT(ITEM_BOMB) == ITEM_BOMB) {
                 AMMO(ITEM_BOMB) = CUR_CAPACITY(UPG_BOMB_BAG);
+            }
 
-            if (INV_CONTENT(ITEM_BOMBCHU) == ITEM_BOMBCHU)
+            if (INV_CONTENT(ITEM_BOMBCHU) == ITEM_BOMBCHU) {
                 AMMO(ITEM_BOMBCHU) = CUR_CAPACITY(UPG_BOMB_BAG);
+            }
 
-            if (INV_CONTENT(ITEM_DEKU_STICK) == ITEM_DEKU_STICK)
+            if (INV_CONTENT(ITEM_DEKU_STICK) == ITEM_DEKU_STICK) {
                 AMMO(ITEM_DEKU_STICK) = CUR_CAPACITY(UPG_DEKU_STICKS);
+            }
 
-            if (INV_CONTENT(ITEM_DEKU_NUT) == ITEM_DEKU_NUT)
+            if (INV_CONTENT(ITEM_DEKU_NUT) == ITEM_DEKU_NUT) {
                 AMMO(ITEM_DEKU_NUT) = CUR_CAPACITY(UPG_DEKU_NUTS);
+            }
 
-            if (INV_CONTENT(ITEM_MAGIC_BEANS) == ITEM_MAGIC_BEANS)
+            if (INV_CONTENT(ITEM_MAGIC_BEANS) == ITEM_MAGIC_BEANS) {
                 AMMO(ITEM_MAGIC_BEANS) = 20;
+            }
             
-            if (INV_CONTENT(ITEM_POWDER_KEG) == ITEM_POWDER_KEG) //This both checks for sanity on duping and avoids the Keg License issue. 
+            if (INV_CONTENT(ITEM_POWDER_KEG) == ITEM_POWDER_KEG) {
                 AMMO(ITEM_POWDER_KEG) = 1;
+            }
         }
     });
 }
