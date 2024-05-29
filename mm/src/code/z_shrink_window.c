@@ -22,9 +22,7 @@ ShrinkWindow sShrinkWindow;
 ShrinkWindow* sShrinkWindowPtr;
 
 void ShrinkWindow_Letterbox_SetSizeTarget(s32 target) {
-    if (GameInteractor_Should(GI_VB_SHOW_BLACK_BARS, true, NULL)) {
-        sShrinkWindowPtr->letterboxTarget = target;
-    }
+    sShrinkWindowPtr->letterboxTarget = target;
 }
 
 s32 ShrinkWindow_Letterbox_GetSizeTarget(void) {
@@ -40,9 +38,7 @@ s32 ShrinkWindow_Letterbox_GetSize(void) {
 }
 
 void ShrinkWindow_Pillarbox_SetSizeTarget(s32 target) {
-    if (GameInteractor_Should(GI_VB_SHOW_BLACK_BARS, true, NULL)) {
-        sShrinkWindowPtr->pillarboxTarget = target;
-    }
+    sShrinkWindowPtr->pillarboxTarget = target;
 }
 
 s32 ShrinkWindow_Pillarbox_GetSizeTarget(void) {
@@ -84,35 +80,38 @@ void ShrinkWindow_Draw(GraphicsContext* gfxCtx) {
     s8 letterboxSize = sShrinkWindowPtr->letterboxSize;
     s8 pillarboxSize = sShrinkWindowPtr->pillarboxSize;
 
-    if (letterboxSize > 0) {
-        OPEN_DISPS(gfxCtx);
+    if (GameInteractor_Should(GI_VB_SHOW_LETTERBOX, true, NULL)) {
 
-        gfx = OVERLAY_DISP;
+        if (letterboxSize > 0) {
+            OPEN_DISPS(gfxCtx);
 
-        gDPPipeSync(gfx++);
-        gDPSetCycleType(gfx++, G_CYC_FILL);
-        gDPSetRenderMode(gfx++, G_RM_NOOP, G_RM_NOOP2);
-        gDPSetFillColor(gfx++, (GPACK_RGBA5551(0, 0, 0, 1) << 16) | GPACK_RGBA5551(0, 0, 0, 1));
-        // #region 2S2H [Cosmetic] Account for different aspect ratios than 4:3
-        gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), 0,
-                             OTRGetRectDimensionFromRightEdge(gScreenWidth - 1), letterboxSize - 1);
-        gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), gScreenHeight - letterboxSize,
-                             OTRGetRectDimensionFromRightEdge(gScreenWidth - 1), gScreenHeight - 1);
+            gfx = OVERLAY_DISP;
 
-        gDPPipeSync(gfx++);
-        gDPSetCycleType(gfx++, G_CYC_1CYCLE);
-        gDPSetRenderMode(gfx++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
-        gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, 0);
-        gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), letterboxSize,
-                             OTRGetRectDimensionFromRightEdge(gScreenWidth), letterboxSize + 1);
-        gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), gScreenHeight - letterboxSize - 1,
-                             OTRGetRectDimensionFromRightEdge(gScreenWidth), gScreenHeight - letterboxSize);
-        // #endregion
+            gDPPipeSync(gfx++);
+            gDPSetCycleType(gfx++, G_CYC_FILL);
+            gDPSetRenderMode(gfx++, G_RM_NOOP, G_RM_NOOP2);
+            gDPSetFillColor(gfx++, (GPACK_RGBA5551(0, 0, 0, 1) << 16) | GPACK_RGBA5551(0, 0, 0, 1));
+            // #region 2S2H [Cosmetic] Account for different aspect ratios than 4:3
+            gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), 0,
+                                 OTRGetRectDimensionFromRightEdge(gScreenWidth - 1), letterboxSize - 1);
+            gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), gScreenHeight - letterboxSize,
+                                 OTRGetRectDimensionFromRightEdge(gScreenWidth - 1), gScreenHeight - 1);
 
-        gDPPipeSync(gfx++);
-        OVERLAY_DISP = gfx++;
+            gDPPipeSync(gfx++);
+            gDPSetCycleType(gfx++, G_CYC_1CYCLE);
+            gDPSetRenderMode(gfx++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+            gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, 0);
+            gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), letterboxSize,
+                                 OTRGetRectDimensionFromRightEdge(gScreenWidth), letterboxSize + 1);
+            gDPFillWideRectangle(gfx++, OTRGetRectDimensionFromLeftEdge(0), gScreenHeight - letterboxSize - 1,
+                                 OTRGetRectDimensionFromRightEdge(gScreenWidth), gScreenHeight - letterboxSize);
+            // #endregion
 
-        CLOSE_DISPS(gfxCtx);
+            gDPPipeSync(gfx++);
+            OVERLAY_DISP = gfx++;
+
+            CLOSE_DISPS(gfxCtx);
+        }
     }
 
     if (pillarboxSize > 0) {

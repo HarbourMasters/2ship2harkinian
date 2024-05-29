@@ -3,7 +3,7 @@
 #include "DisableBlackBars.h"
 
 void RegisterDisableBlackBars() {
-    REGISTER_VB_SHOULD(GI_VB_SHOW_BLACK_BARS, {
+    REGISTER_VB_SHOULD(GI_VB_SHOW_LETTERBOX, {
         if (CVarGetInteger("gEnhancements.Graphics.DisableBlackBars", 0)) {
             *should = false;
         }
