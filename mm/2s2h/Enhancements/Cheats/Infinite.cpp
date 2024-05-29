@@ -32,7 +32,11 @@ void RegisterInfiniteCheats() {
             AMMO(ITEM_DEKU_STICK) = CUR_CAPACITY(UPG_DEKU_STICKS);
             AMMO(ITEM_DEKU_NUT) = CUR_CAPACITY(UPG_DEKU_NUTS);
             AMMO(ITEM_MAGIC_BEANS) = 20;
-            AMMO(ITEM_POWDER_KEG) = 1;
+            if (INV_CONTENT(ITEM_POWDER_KEG) != ITEM_NONE) {
+                AMMO(ITEM_POWDER_KEG) = 1;
+            } else {
+                AMMO(ITEM_POWDER_KEG) = 0;
+            }
         }
     });
 }
