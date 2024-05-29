@@ -20,6 +20,9 @@ void InitEnhancements() {
     RegisterSavingEnhancements();
     RegisterAutosave();
 
+    // Equipment
+    RegisterInstantRecall();
+
     // Masks
     RegisterFastTransformation();
     RegisterFierceDeityAnywhere();
@@ -42,9 +45,6 @@ void InitEnhancements() {
 
     // Modes
     RegisterPlayAsKafei();
-
-    // Player Actions
-    RegisterInstantRecall();
 
     // Player Movement
     RegisterClimbSpeed();

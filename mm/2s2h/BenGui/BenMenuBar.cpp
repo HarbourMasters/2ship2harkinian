@@ -487,6 +487,15 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
+        if (UIWidgets::BeginMenu("Equipment")) {
+            UIWidgets::CVarCheckbox(
+                "Instant Fin Boomerangs Recall", "gEnhancements.PlayerActions.InstantRecall",
+                { .tooltip =
+                      "Pressing B will instantly recall the fin boomerang back to Zora Link after they are thrown." });
+
+            ImGui::EndMenu();
+        }
+
         if (UIWidgets::BeginMenu("Fixes")) {
             UIWidgets::CVarCheckbox("Fix Ammo Count Color", "gFixes.FixAmmoCountEnvColor",
                                     { .tooltip = "Fixes a missing gDPSetEnvColor, which causes the ammo count to be "
@@ -535,15 +544,6 @@ void DrawEnhancementsMenu() {
                                         { .tooltip = "Requires scene reload to take effect." })) {
                 UpdatePlayAsKafeiSkeletons();
             }
-            ImGui::EndMenu();
-        }
-
-        if (UIWidgets::BeginMenu("Player Actions")) {
-            UIWidgets::CVarCheckbox(
-                "Instant Fin Boomerangs Recall", "gEnhancements.PlayerActions.InstantRecall",
-                { .tooltip =
-                      "Pressing B will instantly recall the fin boomerang back to Zora Link after they are thrown." });
-
             ImGui::EndMenu();
         }
 

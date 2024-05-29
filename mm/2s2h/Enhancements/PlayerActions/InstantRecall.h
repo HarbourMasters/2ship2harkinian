@@ -1,6 +1,0 @@
-#ifndef PLAYER_ACTION_INSTAND_RECALL_H
-#define PLAYER_ACTION_INSTAND_RECALL_H
-
-void RegisterInstantRecall();
-
-#endif // PLAYER_ACTION_INSTAND_RECALL_H
