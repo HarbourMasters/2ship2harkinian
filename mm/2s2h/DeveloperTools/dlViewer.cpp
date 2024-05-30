@@ -64,7 +64,8 @@ std::map<int, std::string> cmdMap = {
 };
 
 void PerformDisplayListSearch() {
-    auto result = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->ListFiles("*" + std::string(searchString) + "*DL*");
+    auto result = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->ListFiles(
+        "*" + std::string(searchString) + "*DL*");
 
     displayListSearchResults.clear();
 
@@ -77,15 +78,12 @@ void PerformDisplayListSearch() {
     }
 
     // Sort the final list
-    std::sort(displayListSearchResults.begin(), displayListSearchResults.end(), [](const std::string& a, const std::string& b) {
-        return std::lexicographical_compare(
-            a.begin(), a.end(),
-            b.begin(), b.end(),
-            [](char c1, char c2) {
-                return std::tolower(c1) < std::tolower(c2);
-            }
-        );
-    });
+    std::sort(displayListSearchResults.begin(), displayListSearchResults.end(),
+              [](const std::string& a, const std::string& b) {
+                  return std::lexicographical_compare(a.begin(), a.end(), b.begin(), b.end(), [](char c1, char c2) {
+                      return std::tolower(c1) < std::tolower(c2);
+                  });
+              });
 }
 
 void DLViewerWindow::DrawElement() {
@@ -126,7 +124,8 @@ void DLViewerWindow::DrawElement() {
     }
 
     try {
-        auto res = std::static_pointer_cast<LUS::DisplayList>(Ship::Context::GetInstance()->GetResourceManager()->LoadResource(activeDisplayList));
+        auto res = std::static_pointer_cast<LUS::DisplayList>(
+            Ship::Context::GetInstance()->GetResourceManager()->LoadResource(activeDisplayList));
 
         if (res->GetInitData()->Type != static_cast<uint32_t>(LUS::ResourceType::DisplayList)) {
             ImGui::Text("Resource type is not a Display List. Please choose another.");
@@ -140,7 +139,8 @@ void DLViewerWindow::DrawElement() {
             std::string id = "##CMD" + std::to_string(i);
             Gfx* gfx = (Gfx*)&res->Instructions[i];
             int cmd = gfx->words.w0 >> 24;
-            if (cmdMap.find(cmd) == cmdMap.end()) continue;
+            if (cmdMap.find(cmd) == cmdMap.end())
+                continue;
 
             std::string cmdLabel = cmdMap.at(cmd);
 
@@ -196,13 +196,12 @@ void DLViewerWindow::DrawElement() {
                 }
                 ImGui::PopItemWidth();
             }
-            if (cmd == G_RDPPIPESYNC) {
-            }
+            if (cmd == G_RDPPIPESYNC) {}
             if (cmd == G_SETGRAYSCALE) {
                 bool* state = (bool*)&gfx->words.w1;
                 ImGui::SameLine();
                 if (ImGui::Checkbox(("state" + id).c_str(), state)) {
-                    // 
+                    //
                 }
             }
             if (cmd == G_SETTILE) {
@@ -299,8 +298,7 @@ void DLViewerWindow::DrawElement() {
                 ImGui::SameLine();
                 ImGui::Text("Vertex Name: %s", fileName);
             }
-            if (cmd == G_DL) {
-            }
+            if (cmd == G_DL) {}
             if (cmd == G_DL_OTR_HASH) {
                 gfx++;
                 uint64_t hash = ((uint64_t)gfx->words.w0 << 32) + (uint64_t)gfx->words.w1;
@@ -315,8 +313,8 @@ void DLViewerWindow::DrawElement() {
             }
 
             // Skip second half of instructions that are over 128-bit wide
-            if (cmd == G_SETTIMG_OTR_HASH || cmd == G_DL_OTR_HASH || cmd == G_VTX_OTR_HASH ||
-                cmd == G_BRANCH_Z_OTR || cmd == G_MARKER || cmd == G_MTX_OTR) {
+            if (cmd == G_SETTIMG_OTR_HASH || cmd == G_DL_OTR_HASH || cmd == G_VTX_OTR_HASH || cmd == G_BRANCH_Z_OTR ||
+                cmd == G_MARKER || cmd == G_MTX_OTR) {
                 i++;
                 ImGui::Text("%lu - Reserved - Second half of %s", i, cmdLabel.c_str());
             }
