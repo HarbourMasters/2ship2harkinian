@@ -408,25 +408,6 @@ extern "C" void OTRExtScanner() {
     }
 }
 
-std::string SanitizePath(std::string stringValue) {
-    // Add backslashes.
-    for (auto i = stringValue.begin();;) {
-        auto const pos =
-            std::find_if(i, stringValue.end(), [](char const c) { return '\\' == c || '\'' == c || '"' == c; });
-        if (pos == stringValue.end()) {
-            break;
-        }
-        i = std::next(stringValue.insert(pos, '\\'), 2);
-    }
-
-    // Removes others.
-    stringValue.erase(std::remove_if(stringValue.begin(), stringValue.end(),
-                                     [](char const c) { return '\n' == c || '\r' == c || '\0' == c || '\x1A' == c; }),
-                      stringValue.end());
-
-    return stringValue;
-}
-
 void Ben_ProcessDroppedFiles(std::string filePath) {
     SPDLOG_INFO("Processing dropped file: {}", filePath);
 
@@ -676,7 +657,7 @@ extern "C" void Graph_StartFrame() {
 #endif
 
     if (CVarGetInteger(CVAR_NEW_FILE_DROPPED, 0)) {
-        std::string filePath = SanitizePath(CVarGetString(CVAR_DROPPED_FILE, ""));
+        std::string filePath = CVarGetString(CVAR_DROPPED_FILE, "");
         if (!filePath.empty()) {
             GameInteractor::Instance->ExecuteHooks<GameInteractor::OnFileDropped>(filePath);
         }
