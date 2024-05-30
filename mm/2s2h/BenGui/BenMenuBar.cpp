@@ -608,6 +608,7 @@ extern std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
 extern std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 extern std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
 extern std::shared_ptr<EventLogWindow> mEventLogWindow;
+extern std::shared_ptr<DLViewerWindow> mDLViewerWindow;
 
 const char* logLevels[] = {
     "trace", "debug", "info", "warn", "error", "critical", "off",
@@ -676,6 +677,9 @@ void DrawDeveloperToolsMenu() {
         if (mCollisionViewerWindow) {
             UIWidgets::WindowButton("Collision Viewer", "gWindows.CollisionViewer", mCollisionViewerWindow,
                                     { .tooltip = "Draws collision to the screen" });
+        }
+        if (mDLViewerWindow) {
+            UIWidgets::WindowButton("Display List Viewer", "gWindows.DLViewer", mDLViewerWindow, {});
         }
         if (mStatsWindow) {
             UIWidgets::WindowButton(

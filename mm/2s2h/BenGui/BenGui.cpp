@@ -37,6 +37,7 @@ std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
 std::shared_ptr<EventLogWindow> mEventLogWindow;
+std::shared_ptr<DLViewerWindow> mDLViewerWindow;
 
 void SetupGuiElements() {
     auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
@@ -91,6 +92,9 @@ void SetupGuiElements() {
 
     mEventLogWindow = std::make_shared<EventLogWindow>("gWindows.EventLog", "Event Log");
     gui->AddGuiWindow(mEventLogWindow);
+
+    mDLViewerWindow = std::make_shared<DLViewerWindow>("gWindows.DLViewer", "DL Viewer");
+    gui->AddGuiWindow(mDLViewerWindow);
 }
 
 void Destroy() {
@@ -105,5 +109,6 @@ void Destroy() {
     mSaveEditorWindow = nullptr;
     mHudEditorWindow = nullptr;
     mActorViewerWindow = nullptr;
+    mDLViewerWindow = nullptr;
 }
 } // namespace BenGui
