@@ -19,7 +19,7 @@ void RegisterBankerDialogue() {
                 (uintptr_t)outerActor, [](Actor* actor) {
                     EnGinkoMan* enGinko = (EnGinkoMan*)actor;
                     if (CVarGetInteger("gEnhancements.Actor.BankerDepositRupees", 0)) {
-                        if (gPlayState->msgCtx.currentTextId == 1104 ) {
+                        if (gPlayState->msgCtx.currentTextId == 1104) {
                             if (CHECK_BTN_ALL(gPlayState->state.input[0].cur.button, BTN_Z) &&
                                 gPlayState->msgCtx.bankRupeesSelected != gSaveContext.save.saveInfo.playerData.rupees) {
                                 char firstChar = (gSaveContext.save.saveInfo.playerData.rupees / 100) + '0';
