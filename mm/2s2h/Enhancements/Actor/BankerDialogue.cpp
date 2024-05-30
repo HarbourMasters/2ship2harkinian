@@ -28,9 +28,8 @@ void RegisterBankerDialogue() {
                                 const char rupeeChar[3] = { firstChar, secondChar, thirdChar };
 
                                 for (int i = 0; i <= 2; i++) {
-                                    gPlayState->msgCtx.bankRupeesSelected =
-                                        gPlayState->msgCtx.decodedBuffer.schar[gPlayState->msgCtx.unk120C0 + i] =
-                                            rupeeChar[i];
+                                    gPlayState->msgCtx.decodedBuffer.schar[gPlayState->msgCtx.unk120C0 + i] =
+                                        rupeeChar[i];
                                     Font_LoadCharNES(
                                         gPlayState,
                                         gPlayState->msgCtx.decodedBuffer.schar[gPlayState->msgCtx.unk120C0 + i],
@@ -41,8 +40,7 @@ void RegisterBankerDialogue() {
                             if (CHECK_BTN_ALL(gPlayState->state.input[0].cur.button, BTN_R) &&
                                 gPlayState->msgCtx.bankRupeesSelected != 0) {
                                 for (int i = 0; i <= 2; i++) {
-                                    gPlayState->msgCtx.bankRupeesSelected =
-                                        gPlayState->msgCtx.decodedBuffer.schar[gPlayState->msgCtx.unk120C0 + i] = '0';
+                                    gPlayState->msgCtx.decodedBuffer.schar[gPlayState->msgCtx.unk120C0 + i] = '0';
                                     Font_LoadCharNES(
                                         gPlayState,
                                         gPlayState->msgCtx.decodedBuffer.schar[gPlayState->msgCtx.unk120C0 + i],
