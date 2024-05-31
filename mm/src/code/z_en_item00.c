@@ -4,6 +4,7 @@
 #include "objects/object_gi_hearts/object_gi_hearts.h"
 #include "overlays/actors/ovl_En_Elf/z_en_elf.h"
 #include "overlays/actors/ovl_En_Elforg/z_en_elforg.h"
+#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 
 #define FLAGS 0x00000000
 
@@ -489,6 +490,7 @@ void func_800A6A40(EnItem00* this, PlayState* play) {
 
 void EnItem00_Update(Actor* thisx, PlayState* play) {
     EnItem00* this = THIS;
+    GameInteractor_ExecuteOn3DSpinItemdrops(this, play);
     s32 pad;
     Player* player = GET_PLAYER(play);
     s32 sp38 = player->stateFlags3 & PLAYER_STATE3_1000;
@@ -752,6 +754,7 @@ void EnItem00_Draw(Actor* thisx, PlayState* play) {
             case ITEM00_SMALL_KEY:
             case ITEM00_DEKU_NUTS_10:
             case ITEM00_BOMBS_0:
+                GameInteractor_ExecuteOn3DItemDrops(this, play);
                 EnItem00_DrawSprite(this, play);
                 break;
 
@@ -821,6 +824,7 @@ TexturePtr sItemDropTextures[] = {
 };
 
 void EnItem00_DrawSprite(EnItem00* this, PlayState* play) {
+    if (CVarGetInteger("gEnhancements.Graphics.Item3D", 0) == 0) {
     s32 texIndex = this->actor.params - 3;
 
     OPEN_DISPS(play->state.gfxCtx);
@@ -847,6 +851,7 @@ void EnItem00_DrawSprite(EnItem00* this, PlayState* play) {
     gSPDisplayList(POLY_OPA_DISP++, gItemDropDL);
 
     CLOSE_DISPS(play->state.gfxCtx);
+    }
 }
 
 void EnItem00_DrawHeartContainer(EnItem00* this, PlayState* play) {

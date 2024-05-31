@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <string>
 #include "2s2h/Enhancements/Enhancements.h"
+#include "2s2h/Enhancements/Graphics/3DItemDrops.h"
 #include "2s2h/Enhancements/Graphics/MotionBlur.h"
 #include "2s2h/Enhancements/Graphics/PlayAsKafei.h"
 #include "2s2h/Enhancements/Modes/TimeMovesWhenYouMove.h"
@@ -526,6 +527,8 @@ void DrawEnhancementsMenu() {
                                                  "model and texture on the boot logo start screen" });
             UIWidgets::CVarCheckbox("Bow Reticle", "gEnhancements.Graphics.BowReticle",
                                     { .tooltip = "Gives the bow a reticle when you draw an arrow" });
+            UIWidgets::CVarCheckbox("3D Item Drops", "gEnhancements.Graphics.Item3D",
+                                    { .tooltip = "Makes item drops 3D" });
             UIWidgets::CVarCheckbox(
                 "Disable Black Bar Letterboxes", "gEnhancements.Graphics.DisableBlackBars",
                 { .tooltip = "Disables Black Bar Letterboxes during cutscenes and Z-targeting\nNote: there may be "

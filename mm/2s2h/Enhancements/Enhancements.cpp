@@ -28,6 +28,7 @@ void InitEnhancements() {
 
     // Graphics
     RegisterDisableBlackBars();
+    Register3DItemDrops();
 
     // Masks
     RegisterFastTransformation();
