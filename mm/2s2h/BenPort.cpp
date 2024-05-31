@@ -150,6 +150,7 @@ OTRGlobals::OTRGlobals() {
     context =
         Ship::Context::CreateInstance("2 Ship 2 Harkinian", appShortName, "2ship2harkinian.json", archiveFiles, {}, 3);
     prevAltAssets = CVarGetInteger("gAltAssets", 0);
+    context->GetResourceManager()->SetAltAssetsEnabled(prevAltAssets);
 
     // Override LUS defaults
     Ship::Context::GetInstance()->GetLogger()->set_level(
