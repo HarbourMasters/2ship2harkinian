@@ -101,6 +101,7 @@ OTRGlobals* OTRGlobals::Instance;
 GameInteractor* GameInteractor::Instance;
 
 extern "C" char** cameraStrings;
+bool prevAltAssets = false;
 std::vector<std::shared_ptr<std::string>> cameraStdStrings;
 
 Color_RGB8 kokiriColor = { 0x1E, 0x69, 0x1B };
@@ -148,6 +149,7 @@ OTRGlobals::OTRGlobals() {
     // tell LUS to reserve 3 SoH specific threads (Game, Audio, Save)
     context =
         Ship::Context::CreateInstance("2 Ship 2 Harkinian", appShortName, "2ship2harkinian.json", archiveFiles, {}, 3);
+    prevAltAssets = CVarGetInteger("gAltAssets", 0);
 
     // Override LUS defaults
     Ship::Context::GetInstance()->GetLogger()->set_level(
@@ -649,12 +651,22 @@ extern "C" void Graph_StartFrame() {
 #endif
         case KbScancode::LUS_KB_TAB: {
             // Toggle HD Assets
-            CVarSetInteger(CVAR_ALT_ASSETS, !CVarGetInteger(CVAR_ALT_ASSETS, 0));
+            CVarSetInteger("gAltAssets", !CVarGetInteger("gAltAssets", 0));
             // ShouldClearTextureCacheAtEndOfFrame = true;
             break;
         }
     }
 #endif
+
+    bool curAltAssets = CVarGetInteger("gAltAssets", 0);
+    if (prevAltAssets != curAltAssets) {
+        prevAltAssets = curAltAssets;
+        Ship::Context::GetInstance()->GetResourceManager()->SetAltAssetsEnabled(curAltAssets);
+        gfx_texture_cache_clear();
+        // TODO: skeleton patch, hooks
+        // SOH::SkeletonPatcher::UpdateSkeletons();
+        // GameInteractor::Instance->ExecuteHooks<GameInteractor::OnAssetAltChange>();
+    }
 
     if (CVarGetInteger(CVAR_NEW_FILE_DROPPED, 0)) {
         std::string filePath = CVarGetString(CVAR_DROPPED_FILE, "");
@@ -775,6 +787,10 @@ extern "C" uint16_t OTRGetPixelDepth(float x, float y) {
     }
 
     return wnd->GetPixelDepth(x, adjustedY);
+}
+
+extern "C" bool ResourceMgr_IsAltAssetsEnabled() {
+    return Ship::Context::GetInstance()->GetResourceManager()->IsAltAssetsEnabled();
 }
 
 extern "C" uint32_t ResourceMgr_GetNumGameVersions() {
@@ -1218,7 +1234,7 @@ extern "C" SkeletonHeader* ResourceMgr_LoadSkeletonByName(const char* path, Skel
         pathStr = pathStr.substr(sOtr.length());
     }
 
-    bool isAlt = CVarGetInteger(CVAR_ALT_ASSETS, 0);
+    bool isAlt = ResourceMgr_IsAltAssetsEnabled();
 
     if (isAlt) {
         pathStr = Ship::IResource::gAltAssetPrefix + pathStr;
