@@ -49,6 +49,10 @@ void GameInteractor_ExecuteOnRoomInit(s16 sceneId, s8 roomNum) {
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnRoomInit>(sceneId, roomNum);
 }
 
+void GameInteractor_ExecuteOnPlayDestroy() {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnPlayDestroy>();
+}
+
 bool GameInteractor_ShouldActorInit(Actor* actor) {
     bool result = true;
     GameInteractor::Instance->ExecuteHooks<GameInteractor::ShouldActorInit>(actor, &result);

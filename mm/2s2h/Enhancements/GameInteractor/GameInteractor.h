@@ -255,6 +255,7 @@ class GameInteractor {
 
     DEFINE_HOOK(OnSceneInit, (s8 sceneId, s8 spawnNum));
     DEFINE_HOOK(OnRoomInit, (s8 sceneId, s8 roomNum));
+    DEFINE_HOOK(OnPlayDestroy, ());
 
     DEFINE_HOOK(ShouldActorInit, (Actor * actor, bool* should));
     DEFINE_HOOK(OnActorInit, (Actor * actor));
@@ -296,6 +297,7 @@ void GameInteractor_ExecuteBeforeMoonCrashSaveReset();
 
 void GameInteractor_ExecuteOnSceneInit(s16 sceneId, s8 spawnNum);
 void GameInteractor_ExecuteOnRoomInit(s16 sceneId, s8 roomNum);
+void GameInteractor_ExecuteOnPlayDestroy();
 
 bool GameInteractor_ShouldActorInit(Actor* actor);
 void GameInteractor_ExecuteOnActorInit(Actor* actor);

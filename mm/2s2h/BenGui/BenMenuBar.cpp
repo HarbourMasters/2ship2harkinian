@@ -531,10 +531,8 @@ void DrawEnhancementsMenu() {
         }
 
         if (UIWidgets::BeginMenu("Modes")) {
-            if (UIWidgets::CVarCheckbox("Play As Kafei", "gModes.PlayAsKafei",
-                                        { .tooltip = "Requires scene reload to take effect." })) {
-                UpdatePlayAsKafeiSkeletons();
-            }
+            UIWidgets::CVarCheckbox("Play As Kafei", "gModes.PlayAsKafei",
+                                    { .tooltip = "Requires scene reload to take effect." });
             ImGui::EndMenu();
         }
         if (UIWidgets::BeginMenu("Player Movement")) {
