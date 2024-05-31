@@ -567,8 +567,6 @@ extern "C" uint64_t GetUnixTimestamp() {
     return now;
 }
 
-extern bool ShouldClearTextureCacheAtEndOfFrame;
-
 extern "C" void Graph_StartFrame() {
 #ifndef __WIIU__
     using Ship::KbScancode;
@@ -658,16 +656,6 @@ extern "C" void Graph_StartFrame() {
     }
 #endif
 
-    bool curAltAssets = CVarGetInteger("gAltAssets", 0);
-    if (prevAltAssets != curAltAssets) {
-        prevAltAssets = curAltAssets;
-        Ship::Context::GetInstance()->GetResourceManager()->SetAltAssetsEnabled(curAltAssets);
-        gfx_texture_cache_clear();
-        // TODO: skeleton patch, hooks
-        // SOH::SkeletonPatcher::UpdateSkeletons();
-        // GameInteractor::Instance->ExecuteHooks<GameInteractor::OnAssetAltChange>();
-    }
-
     if (CVarGetInteger(CVAR_NEW_FILE_DROPPED, 0)) {
         std::string filePath = CVarGetString(CVAR_DROPPED_FILE, "");
         if (!filePath.empty()) {
@@ -750,12 +738,16 @@ extern "C" void Graph_ProcessGfxCommands(Gfx* commands) {
             audio.cv_from_thread.wait(Lock);
         }
     }
-    //
-    // if (ShouldClearTextureCacheAtEndOfFrame) {
-    //    gfx_texture_cache_clear();
-    //    Ship::SkeletonPatcher::UpdateSkeletons();
-    //    ShouldClearTextureCacheAtEndOfFrame = false;
-    //}
+
+    bool curAltAssets = CVarGetInteger("gAltAssets", 0);
+    if (prevAltAssets != curAltAssets) {
+        prevAltAssets = curAltAssets;
+        Ship::Context::GetInstance()->GetResourceManager()->SetAltAssetsEnabled(curAltAssets);
+        gfx_texture_cache_clear();
+        // TODO: skeleton patch, hooks
+        // SOH::SkeletonPatcher::UpdateSkeletons();
+        // GameInteractor::Instance->ExecuteHooks<GameInteractor::OnAssetAltChange>();
+    }
 
     // OTRTODO: FIGURE OUT END FRAME POINT
     /* if (OTRGlobals::Instance->context->GetWindow()->lastScancode != -1)

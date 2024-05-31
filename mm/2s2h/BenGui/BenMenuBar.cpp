@@ -14,8 +14,6 @@
 #include "2s2h/DeveloperTools/WarpPoint.h"
 #include "HudEditor.h"
 
-extern bool ShouldClearTextureCacheAtEndOfFrame;
-
 extern "C" {
 #include "z64.h"
 #include "functions.h"
