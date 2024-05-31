@@ -51,6 +51,7 @@ typedef enum {
     GI_VB_TATL_INTERUPT_MSG6,
     GI_VB_ITEM_BE_RESTRICTED,
     GI_VB_FLIP_HOP_VARIABLE,
+    GI_VB_SET_ZORA_EGG_COUNT,
 } GIVanillaBehavior;
 
 typedef enum {

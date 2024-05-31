@@ -578,6 +578,13 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
+        if (UIWidgets::BeginMenu("Songs/Playback")) {
+            UIWidgets::CVarSliderInt("Zora Eggs For Bossa Nova", "gEnhancements.Songs.ZoraEggCount", 1, 7, 7,
+                                     { .tooltip = "The number of eggs required to unlock new wave bossa nova." });
+
+            ImGui::EndMenu();
+        }
+
         if (mHudEditorWindow) {
             UIWidgets::WindowButton("Hud Editor", "gWindows.HudEditor", mHudEditorWindow,
                                     { .tooltip = "Enables the Hud Editor window, allowing you to edit your hud" });

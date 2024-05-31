@@ -30,6 +30,7 @@ void InitEnhancements() {
 
     // Songs
     RegisterEnableSunsSong();
+    RegisterZoraEggCount();
 
     // Restorations
     RegisterPowerCrouchStab();
