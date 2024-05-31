@@ -437,14 +437,14 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox(
                 "Pause Menu Save", "gEnhancements.Saving.PauseSave",
                 { .tooltip = "Re-introduce the pause menu save system. Pressing B in the pause menu will give you the "
-                             "option to create an Owl Save from your current location.\n\nWhen loading back into the "
-                             "game, you will be placed either at the entrance of the dungeon you saved in, or in South "
-                             "Clock Town." });
+                             "option to create a persistent Owl Save from your current location.\n\nWhen loading back "
+                             "into the game, you will be placed either at the entrance of the dungeon you saved in, or "
+                             "in South Clock Town." });
             if (UIWidgets::CVarCheckbox(
                     "Autosave", "gEnhancements.Saving.Autosave",
-                    { .tooltip = "Automatically create owl saves on the chosen interval.\n\nWhen loading back into the "
-                                 "game, you will be placed either at the entrance of the dungeon you saved in, or in "
-                                 "South Clock Town." })) {
+                    { .tooltip = "Automatically create a persistent Owl Save on the chosen interval.\n\nWhen loading "
+                                 "back into the game, you will be placed either at the entrance of the dungeon you "
+                                 "saved in, or in South Clock Town." })) {
                 RegisterAutosave();
             }
             UIWidgets::CVarSliderInt("Autosave Interval (minutes): %d", "gEnhancements.Saving.AutosaveInterval", 1, 60,
