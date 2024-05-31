@@ -181,11 +181,15 @@ void DrawSettingsMenu() {
                 "form of anti-aliasing");
 #endif
 #ifndef __WIIU__
-            if (UIWidgets::CVarSliderInt("MSAA: %d", CVAR_MSAA_VALUE, 1, 8, 1)) {
+            if (UIWidgets::CVarSliderInt((CVarGetInteger(CVAR_MSAA_VALUE, 1) == 1) ? "Anti-aliasing (MSAA): Off"
+                                                                                   : "Anti-aliasing (MSAA): %d",
+                                         CVAR_MSAA_VALUE, 1, 8, 1)) {
                 Ship::Context::GetInstance()->GetWindow()->SetMsaaLevel(CVarGetInteger(CVAR_MSAA_VALUE, 1));
             };
             UIWidgets::Tooltip(
-                "Activates multi-sample anti-aliasing when above 1x up to 8x for 8 samples for every pixel");
+                "Activates MSAA (multi-sample anti-aliasing) from 2x up to 8x, to smooth the edges of rendered "
+                "geometry.\n"
+                "Higher sample count will result in smoother edges on models, but may reduce performance.");
 #endif
 
             { // FPS Slider
