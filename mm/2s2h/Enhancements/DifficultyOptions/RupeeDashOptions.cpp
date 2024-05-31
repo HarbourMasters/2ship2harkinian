@@ -22,8 +22,8 @@ void RegisterRupeeDash() {
         playerKillHook = 0;
 
         playerUpdateHook = GameInteractor::Instance->RegisterGameHookForPtr<GameInteractor::OnActorUpdate>(
-                (uintptr_t)outerActor, [](Actor* actor) {
-            if (CVarGetInteger("gEnhancements.Difficulty.RupeeBleed", 0)) {
+            (uintptr_t)outerActor, [](Actor* actor) {
+                if (CVarGetInteger("gEnhancements.Difficulty.RupeeBleed", 0)) {
                     if (bleedInterval <= 0) {
                         if (gSaveContext.save.saveInfo.playerData.rupees >= 1) {
                             s8 walletSize = CUR_UPG_VALUE(UPG_WALLET) + 1;
@@ -34,12 +34,14 @@ void RegisterRupeeDash() {
                         bleedInterval = (CVarGetInteger("gEnhancements.Difficulty.BleedInterval", 0) * 20);
                     }
                     bleedInterval--;
-            } else {
-                playerKillHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneInit>([](s8 sceneId, s8 spawnNum) {
-                        GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnActorUpdate>(playerUpdateHook);
-                        GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnSceneInit>(playerKillHook);
-                });
-            }
-        });
+                } else {
+                    playerKillHook = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneInit>(
+                        [](s8 sceneId, s8 spawnNum) {
+                            GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnActorUpdate>(
+                                playerUpdateHook);
+                            GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnSceneInit>(playerKillHook);
+                        });
+                }
+            });
     });
 }
