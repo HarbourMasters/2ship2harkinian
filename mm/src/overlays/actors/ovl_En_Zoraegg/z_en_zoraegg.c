@@ -413,8 +413,7 @@ void func_80B32390(EnZoraegg* this, PlayState* play) {
             SET_EVENTINF(EVENTINF_33);
             Actor_Kill(&this->actor);
         }
-    } else if (GameInteractor_Should(GI_VB_SET_ZORA_EGG_COUNT, true, &eggcount) && 
-               (func_80B319A8(play) >= eggcount) &&
+    } else if (GameInteractor_Should(GI_VB_SET_ZORA_EGG_COUNT, true, &eggcount) && (func_80B319A8(play) >= eggcount) &&
                (fabsf(player->actor.world.pos.x - this->actor.world.pos.x) < (100.0f * this->actor.scale.x)) &&
                (fabsf(player->actor.world.pos.z - this->actor.world.pos.z) < (100.0f * this->actor.scale.z)) &&
                (fabsf(player->actor.world.pos.y - this->actor.world.pos.y) < 30.0f)) {
