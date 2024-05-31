@@ -496,6 +496,10 @@ void DrawEnhancementsMenu() {
                                     { .tooltip = "Fixes a crash that can occur when performing a HESS or Weirdshot.",
                                       .defaultValue = true });
 
+            UIWidgets::CVarCheckbox("Fix Text Control Characters", "gEnhancements.Fixes.ControlCharacters",
+                                    { .tooltip = "Fixes certain control characters not functioning properly "
+                                                 "depending on their position within the text." });
+
             ImGui::EndMenu();
         }
 
