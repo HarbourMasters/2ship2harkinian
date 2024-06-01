@@ -1244,6 +1244,7 @@ void Message_DrawTextDefault(PlayState* play, Gfx** gfxP) {
     for (i = 0; i < msgCtx->textDrawPos; i++) {
         character = msgCtx->decodedBuffer.wchar[i];
 
+        // Switch Statement for Text Format Codes. See https://wiki.cloudmodding.com/mm/Text_Format
         switch (character) {
             case 0x2000:
                 if (play->pauseCtx.bombersNotebookOpen || (msgCtx->textBoxType == TEXTBOX_TYPE_D)) {
@@ -1345,7 +1346,7 @@ void Message_DrawTextDefault(PlayState* play, Gfx** gfxP) {
                 continue;
 
             case 0x9:
-            case 0xB:
+            case 0xB: // Box Break II 
                 if (msgCtx->msgMode == MSGMODE_TEXT_DISPLAYING) {
                     if (!msgCtx->textboxSkipped) {
                         Audio_PlaySfx(NA_SE_NONE);
@@ -1395,7 +1396,7 @@ void Message_DrawTextDefault(PlayState* play, Gfx** gfxP) {
                 *gfxP = gfx;
                 return;
 
-            case 0x111:
+            case 0x111: // Keep Text on Screen for xxxx Before Closing 
                 if (msgCtx->msgMode == MSGMODE_TEXT_DISPLAYING) {
                     msgCtx->msgMode = MSGMODE_TEXT_DONE;
                     if (msgCtx->unk11F0C == 3) {
@@ -1412,7 +1413,7 @@ void Message_DrawTextDefault(PlayState* play, Gfx** gfxP) {
                 *gfxP = gfx;
                 return;
 
-            case 0x112:
+            case 0x112: // Delay for xxxx Before Ending Conversation 
                 if (msgCtx->msgMode == MSGMODE_TEXT_DISPLAYING) {
                     msgCtx->msgMode = MSGMODE_TEXT_DONE;
                     msgCtx->textboxEndType = TEXTBOX_ENDTYPE_52;
@@ -1435,7 +1436,7 @@ void Message_DrawTextDefault(PlayState* play, Gfx** gfxP) {
                 i++;
                 break;
 
-            case 0x128:
+            case 0x128:// Delay for xxxx Before Resuming Text Flow
                 if (((i + 1) == msgCtx->textDrawPos) && (msgCtx->msgMode == MSGMODE_TEXT_DISPLAYING)) {
                     msgCtx->msgMode = MSGMODE_9;
                     msgCtx->textDelayTimer = msgCtx->decodedBuffer.wchar[i + 1];
@@ -1499,7 +1500,7 @@ void Message_DrawTextDefault(PlayState* play, Gfx** gfxP) {
                 msgCtx->textPosX += 32;
                 break;
 
-            case 0x202:
+            case 0x202://Initialize Selection: Two Choices
                 msgCtx->textboxEndType = TEXTBOX_ENDTYPE_10;
 
                 if (msgCtx->msgMode == MSGMODE_TEXT_DISPLAYING) {
@@ -1509,7 +1510,7 @@ void Message_DrawTextDefault(PlayState* play, Gfx** gfxP) {
                 }
                 break;
 
-            case 0x203:
+            case 0x203: //Initiaze Selection: Three Choices
                 msgCtx->textboxEndType = TEXTBOX_ENDTYPE_11;
 
                 if (msgCtx->msgMode == MSGMODE_TEXT_DISPLAYING) {
@@ -1519,7 +1520,7 @@ void Message_DrawTextDefault(PlayState* play, Gfx** gfxP) {
                 }
                 break;
 
-            case 0x20C:
+            case 0x20C: // Display Prompt: Withdraw Or Deposit Rupees
                 msgCtx->textboxEndType = TEXTBOX_ENDTYPE_60;
 
                 if (msgCtx->msgMode == MSGMODE_TEXT_DISPLAYING) {
@@ -1527,7 +1528,7 @@ void Message_DrawTextDefault(PlayState* play, Gfx** gfxP) {
                 }
                 break;
 
-            case 0x220:
+            case 0x220: // Display Prompt: Rupees to Bet 
                 msgCtx->textboxEndType = TEXTBOX_ENDTYPE_61;
 
                 if (msgCtx->msgMode == MSGMODE_TEXT_DISPLAYING) {
@@ -1535,7 +1536,7 @@ void Message_DrawTextDefault(PlayState* play, Gfx** gfxP) {
                 }
                 break;
 
-            case 0x221:
+            case 0x221: // Display Prompt: Bombers' Code 
                 msgCtx->textboxEndType = TEXTBOX_ENDTYPE_62;
 
                 if (msgCtx->msgMode == MSGMODE_TEXT_DISPLAYING) {
@@ -1543,7 +1544,7 @@ void Message_DrawTextDefault(PlayState* play, Gfx** gfxP) {
                 }
                 break;
 
-            case 0x222:
+            case 0x222: // Item Prompt 
                 if (msgCtx->msgMode == MSGMODE_TEXT_DISPLAYING) {
                     msgCtx->msgMode = MSGMODE_TEXT_DONE;
                     msgCtx->textboxEndType = TEXTBOX_ENDTYPE_41;
@@ -1552,7 +1553,7 @@ void Message_DrawTextDefault(PlayState* play, Gfx** gfxP) {
                 }
                 break;
 
-            case 0x225:
+            case 0x225: // Display Prompt: Lottery Number 
                 msgCtx->textboxEndType = TEXTBOX_ENDTYPE_63;
 
                 if (msgCtx->msgMode == MSGMODE_TEXT_DISPLAYING) {
@@ -5829,6 +5830,30 @@ void Message_Update(PlayState* play) {
                         }
                         Message_CloseTextbox(play);
                     }
+                } else if ((msgCtx->textboxEndType == TEXTBOX_ENDTYPE_62) &&
+                           (play->msgCtx.ocarinaMode == OCARINA_MODE_PROCESS_DOUBLE_TIME)) {
+                    Input* controller = CONTROLLER1(&play->state);
+                    if (CHECK_BTN_ALL(controller->press.button, BTN_A)) {
+                        Audio_PlaySfx_MessageDecide();
+                        play->msgCtx.ocarinaMode = OCARINA_MODE_END;
+                        Message_CloseTextbox(play);
+                        int16_t hour_2 = play->msgCtx.unk12054[0];
+                        int16_t hour_1 = play->msgCtx.unk12054[1];
+                        int16_t min_2 = play->msgCtx.unk12054[2];
+                        int16_t min_1 = play->msgCtx.unk12054[3];
+                        int16_t am_pm = play->msgCtx.unk12054[4];
+                        s32 hour = (hour_2 * 10) + hour_1;
+                        s32 min = (min_2 * 10) + min_1;
+                        gSaveContext.save.time = CLOCK_TIME(hour, min);
+                        play->msgCtx.ocarinaMode = OCARINA_MODE_APPLY_DOUBLE_SOT;
+                        gSaveContext.timerStates[TIMER_ID_MOON_CRASH] = TIMER_STATE_OFF;
+                    } else if (CHECK_BTN_ALL(controller->press.button, BTN_B)) {
+                        Audio_PlaySfx_MessageCancel();
+                        play->msgCtx.ocarinaMode = OCARINA_MODE_END;
+                        Message_CloseTextbox(play);
+                    } else {
+                        func_801491DC(play);
+                    }
                 } else if ((msgCtx->textboxEndType != TEXTBOX_ENDTYPE_10) ||
                            (pauseCtx->state != PAUSE_STATE_OWLWARP_CONFIRM)) {
                     if ((msgCtx->textboxEndType == TEXTBOX_ENDTYPE_10) &&
@@ -6020,11 +6045,12 @@ void Message_Update(PlayState* play) {
                 } else if (sLastPlayedSong == OCARINA_SONG_DOUBLE_TIME) {
                     if (interfaceCtx->restrictions.songOfDoubleTime == 0) {
                         if ((CURRENT_DAY != 3) || (gSaveContext.save.isNight == 0)) {
-                            if (gSaveContext.save.isNight) {
-                                Message_StartTextbox(play, D_801D0464[CURRENT_DAY - 1], NULL);
-                            } else {
-                                Message_StartTextbox(play, D_801D045C[CURRENT_DAY - 1], NULL);
-                            }
+                            Message_StartTextbox(play, 0x0729, NULL);
+                            //if (gSaveContext.save.isNight) {
+                            //    Message_StartTextbox(play, D_801D0464[CURRENT_DAY - 1], NULL);
+                            //} else {
+                            //    Message_StartTextbox(play, D_801D045C[CURRENT_DAY - 1], NULL);
+                            //}
                             play->msgCtx.ocarinaMode = OCARINA_MODE_PROCESS_DOUBLE_TIME;
                         } else {
                             Message_StartTextbox(play, 0x1B94, NULL);

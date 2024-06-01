@@ -258,7 +258,7 @@ void func_80C04D8C(EnBombers2* this, PlayState* play) {
                 }
             }
 
-            if (correctDigits >= 5) {
+            if (correctDigits >= 5) { // If the player entered the correct code
                 this->textIdIndex = 6;
                 this->actor.textId = sTextIds[this->textIdIndex];
                 Message_ContinueTextbox(play, this->actor.textId);
@@ -278,20 +278,20 @@ void func_80C04D8C(EnBombers2* this, PlayState* play) {
                 case 0:
                 case 1:
                 case 5:
-                case 7:
+                case 7: // Bomber message after moving out of the way
                     this->unk_28E = 0;
                     Message_CloseTextbox(play);
                     func_80C04B40(this);
                     break;
 
-                case 2:
+                case 2: // Triggers textbox to input bomber code
                     this->textIdIndex = 3;
                     this->actor.textId = sTextIds[this->textIdIndex];
                     Message_ContinueTextbox(play, this->actor.textId);
                     this->talkState = TEXT_STATE_15;
                     break;
 
-                case 3:
+                case 3: // Input incorrect bomber code
                     for (j = 0; j < ARRAY_COUNT(this->correctDigitSlots); j++) {
                         this->correctDigitSlots[j] = false;
                     }
@@ -309,7 +309,7 @@ void func_80C04D8C(EnBombers2* this, PlayState* play) {
                     this->talkState = TEXT_STATE_5;
                     break;
 
-                case 6:
+                case 6: // Bomber moves out of the way
                     play->msgCtx.msgLength = 0;
                     func_80C050B8(this, play);
                     break;

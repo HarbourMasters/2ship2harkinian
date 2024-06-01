@@ -11,49 +11,49 @@ struct OcarinaStaff;
 struct PlayState;
 
 typedef enum TextBoxType {
-    /* 0x00 */ TEXTBOX_TYPE_0,
-    /* 0x01 */ TEXTBOX_TYPE_1,
-    /* 0x02 */ TEXTBOX_TYPE_2,
-    /* 0x03 */ TEXTBOX_TYPE_3,
-    /* 0x04 */ TEXTBOX_TYPE_4,
-    /* 0x05 */ TEXTBOX_TYPE_5,
-    /* 0x06 */ TEXTBOX_TYPE_6,
-    /* 0x07 */ TEXTBOX_TYPE_7,
-    /* 0x08 */ TEXTBOX_TYPE_8,
-    /* 0x09 */ TEXTBOX_TYPE_9,
-    /* 0x0A */ TEXTBOX_TYPE_A,
-    /* 0x0B */ TEXTBOX_TYPE_B,
-    /* 0x0C */ TEXTBOX_TYPE_C,
-    /* 0x0D */ TEXTBOX_TYPE_D,
-    /* 0x0E */ TEXTBOX_TYPE_E,
-    /* 0x0F */ TEXTBOX_TYPE_F,
+    /* 0x00 */ TEXTBOX_TYPE_0, // Standard Text Box I 
+    /* 0x01 */ TEXTBOX_TYPE_1, // Wooden Sign Background 
+    /* 0x02 */ TEXTBOX_TYPE_2, // Transluscent Blue Text Box 
+    /* 0x03 */ TEXTBOX_TYPE_3, // Ocarina Staff 
+    /* 0x04 */ TEXTBOX_TYPE_4, // Invisible Text Box I 
+    /* 0x05 */ TEXTBOX_TYPE_5, // Invisible Text Box II (Default Text Color: Black) 
+    /* 0x06 */ TEXTBOX_TYPE_6, // Standard Text Box II 
+    /* 0x07 */ TEXTBOX_TYPE_7, // Invisible Text Box 
+    /* 0x08 */ TEXTBOX_TYPE_8, // Blue Text Box 
+    /* 0x09 */ TEXTBOX_TYPE_9, // Red Text Box I 
+    /* 0x0A */ TEXTBOX_TYPE_A, // Invisible Text Box III 
+    /* 0x0B */ TEXTBOX_TYPE_B, // Invisible Text Box IV (Text Align: Top of Screen) 
+    /* 0x0C */ TEXTBOX_TYPE_C, // Invisible Text Box V 
+    /* 0x0D */ TEXTBOX_TYPE_D, // Bombers' Notebook (Default Text Color: Black) 
+    /* 0x0E */ TEXTBOX_TYPE_E, // Invisible Text Box VI 
+    /* 0x0F */ TEXTBOX_TYPE_F, // Red Text Box II 
     /* 0x10 */ TEXTBOX_TYPE_MAX
 } TextBoxType;
 
-#define TEXTBOX_ENDTYPE_00    0x00
+#define TEXTBOX_ENDTYPE_00    0x00 // DEFAULT
 
-#define TEXTBOX_ENDTYPE_10    0x10
-#define TEXTBOX_ENDTYPE_11    0x11
-#define TEXTBOX_ENDTYPE_12    0x12
+#define TEXTBOX_ENDTYPE_10    0x10 // TWO CHOICE
+#define TEXTBOX_ENDTYPE_11    0x11 // THREE CHOICE
+#define TEXTBOX_ENDTYPE_12    0x12 
 
-#define TEXTBOX_ENDTYPE_20    0x20
+#define TEXTBOX_ENDTYPE_20    0x20 // NEXT
 
-#define TEXTBOX_ENDTYPE_30    0x30
+#define TEXTBOX_ENDTYPE_30    0x30 // PERSISTENT
 
-#define TEXTBOX_ENDTYPE_40    0x40
-#define TEXTBOX_ENDTYPE_41    0x41
-#define TEXTBOX_ENDTYPE_42    0x42
+#define TEXTBOX_ENDTYPE_40    0x40 // EVENT
+#define TEXTBOX_ENDTYPE_41    0x41 // PAUSE MENU
+#define TEXTBOX_ENDTYPE_42    0x42 // EVENT 2
 
 #define TEXTBOX_ENDTYPE_50    0x50
-#define TEXTBOX_ENDTYPE_52    0x52
-#define TEXTBOX_ENDTYPE_55    0x55
-#define TEXTBOX_ENDTYPE_56    0x56
-#define TEXTBOX_ENDTYPE_57    0x57
+#define TEXTBOX_ENDTYPE_52    0x52 // FADE SKIPABLLE
+#define TEXTBOX_ENDTYPE_55    0x55 // FADE STAGES 1
+#define TEXTBOX_ENDTYPE_56    0x56 // FADE STAGES 2
+#define TEXTBOX_ENDTYPE_57    0x57 // FADE STAGES 3
 
-#define TEXTBOX_ENDTYPE_60    0x60
-#define TEXTBOX_ENDTYPE_61    0x61
-#define TEXTBOX_ENDTYPE_62    0x62
-#define TEXTBOX_ENDTYPE_63    0x63
+#define TEXTBOX_ENDTYPE_60    0x60 // INPUT BANK
+#define TEXTBOX_ENDTYPE_61    0x61 // INPUT DOGGY RACETRACK BET
+#define TEXTBOX_ENDTYPE_62    0x62 // INPUT BOMBER CODE
+#define TEXTBOX_ENDTYPE_63    0x63 // INPUT LOTTERY CODE
 #define TEXTBOX_ENDTYPE_64    0x64
 
 typedef enum MessageMode {
@@ -154,23 +154,23 @@ u16 Text_GetFaceReaction(struct PlayState* play, FaceReactionSet reactionSet);
 
 typedef enum TextState {
     /*  0 */ TEXT_STATE_NONE,
-    /*  1 */ TEXT_STATE_1,
+    /*  1 */ TEXT_STATE_1, // Next
     /*  2 */ TEXT_STATE_CLOSING,
-    /*  3 */ TEXT_STATE_3,
+    /*  3 */ TEXT_STATE_3, // Fading
     /*  4 */ TEXT_STATE_CHOICE,
-    /*  5 */ TEXT_STATE_5,
+    /*  5 */ TEXT_STATE_5, // Event
     /*  6 */ TEXT_STATE_DONE,
-    /*  7 */ TEXT_STATE_7,
-    /*  8 */ TEXT_STATE_8,
+    /*  7 */ TEXT_STATE_7, // Song Demo Done
+    /*  8 */ TEXT_STATE_8, 
     /*  9 */ TEXT_STATE_9,
-    /* 10 */ TEXT_STATE_10,
+    /* 10 */ TEXT_STATE_10, // Awaiting Next
     /* 11 */ TEXT_STATE_11,
     /* 12 */ TEXT_STATE_12,
     /* 13 */ TEXT_STATE_13,
-    /* 14 */ TEXT_STATE_14,
-    /* 15 */ TEXT_STATE_15,
-    /* 16 */ TEXT_STATE_16,
-    /* 17 */ TEXT_STATE_17,
+    /* 14 */ TEXT_STATE_14, // Input Rupees
+    /* 15 */ TEXT_STATE_15, // Input Bomber Code
+    /* 16 */ TEXT_STATE_16, // Pause Menu
+    /* 17 */ TEXT_STATE_17, // Input Lottery Code
     /* 18 */ TEXT_STATE_18
 } TextState;
 
@@ -283,15 +283,15 @@ typedef struct MessageContext {
     /* 0x12046 */ s16 blockSunsSong;
     /* 0x12048 */ u8 ocarinaButtonIndex;
     /* 0x1204A */ s16 ocarinaButtonsPosY[5];
-    /* 0x12054 */ s16 unk12054[6]; // First, second and third digits in lottery code guess
+    /* 0x12054 */ s16 unk12054[6]; // Buffer for Lottery, Bank, Bomber Code, etc. Contains each number.
     /* 0x1205A */ UNK_TYPE1 unk12060[0x8];
     /* 0x12068 */ s16 textboxX;
     /* 0x1206A */ s16 textboxY;
     /* 0x1206C */ s32 unk1206C;
     /* 0x12070 */ s32 unk12070;
     /* 0x12074 */ s32 unk12074;
-    /* 0x12078 */ s32 bankRupeesSelected;
-    /* 0x1207C */ s32 bankRupees;
+    /* 0x12078 */ s32 bankRupeesSelected; // Used for bank and doggy racetrack bet
+    /* 0x1207C */ s32 bankRupees; // Used for bank and doggy racetrack bet
     /* 0x12080 */ struct MessageTableEntry* messageEntryTable;
     /* 0x12084 */ struct MessageTableEntry* messageEntryTableNes;
     /* 0x12088 */ UNK_TYPE1 unk12088[0x4];
@@ -314,7 +314,7 @@ typedef struct MessageContext {
     /* 0x120BC */ u16 hudVisibility;
     /* 0x120BE */ s16 unk120BE;
     /* 0x120C0 */ s16 unk120C0;
-    /* 0x120C2 */ s16 unk120C2;
+    /* 0x120C2 */ s16 unk120C2; // Currently selected index in text menu for rupee selection, bombers' code, etc.
     /* 0x120C4 */ s32 unk120C4;
     /* 0x120C8 */ s16 unk120C8;
     /* 0x120CA */ s16 unk120CA;
