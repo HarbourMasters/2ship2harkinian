@@ -20,6 +20,7 @@
 #include "Restorations/SideRoll.h"
 #include "Restorations/TatlISG.h"
 #include "Graphics/PlayAsKafei.h"
+#include "Equipment/InstantRecall.h"
 #include "PlayerMovement/ClimbSpeed.h"
 #include "Songs/EnableSunsSong.h"
 #include "Saving/SavingEnhancements.h"
