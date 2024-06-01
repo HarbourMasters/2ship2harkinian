@@ -493,9 +493,6 @@ extern "C" void InitOTR() {
         CVarClear("gLetItSnow");
     }
 
-    // BENTODO Once we have a proper fix for the color cominber, remove this
-    CVarRegisterInteger(CVAR_DISABLE_CLOSE_COLOR_WRAP, 1);
-
     srand(now);
 #ifdef ENABLE_CROWD_CONTROL
     CrowdControl::Instance = new CrowdControl();
