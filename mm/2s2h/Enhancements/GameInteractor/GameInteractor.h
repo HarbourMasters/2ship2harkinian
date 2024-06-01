@@ -59,6 +59,11 @@ typedef enum {
     GI_INVERT_CAMERA_RIGHT_STICK_Y,
 } GIInvertType;
 
+typedef enum {
+    GI_DPAD_OCARINA,
+    GI_DPAD_EQUIP,
+} GIDpadType;
+
 #ifdef __cplusplus
 
 #include <vector>
@@ -330,6 +335,7 @@ bool GameInteractor_Should(GIVanillaBehavior flag, bool result, void* optionalAr
         flag, [](GIVanillaBehavior _, bool* should, void* opt) body)
 
 int GameInteractor_InvertControl(GIInvertType type);
+uint32_t GameInteractor_Dpad(GIDpadType type, uint32_t buttonCombo);
 
 #ifdef __cplusplus
 }
