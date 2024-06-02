@@ -144,8 +144,8 @@ bool Camera_CanFreeLook(Camera* camera) {
     return sCanFreeLook;
 }
 
-static uint32_t freeLookCameraSettingChangeHookId = 0;
-static uint32_t freeLookCameraVBHookId = 0;
+static HOOK_ID freeLookCameraSettingChangeHookId = 0;
+static HOOK_ID freeLookCameraVBHookId = 0;
 
 void RegisterCameraFreeLook() {
     if (freeLookCameraVBHookId) {
@@ -172,6 +172,7 @@ void RegisterCameraFreeLook() {
                 case CAM_FUNC_JUMP3:
                 case CAM_FUNC_BATTLE1:
                 case CAM_FUNC_UNIQUE2:
+                case CAM_FUNC_UNIQUE3:
                     if (Camera_CanFreeLook(camera)) {
                         Camera_FreeLook(camera);
                         *should = false;
