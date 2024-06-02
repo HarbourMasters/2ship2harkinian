@@ -34,7 +34,7 @@ typedef enum TextBoxType {
 
 #define TEXTBOX_ENDTYPE_10    0x10 // TWO CHOICE
 #define TEXTBOX_ENDTYPE_11    0x11 // THREE CHOICE
-#define TEXTBOX_ENDTYPE_12    0x12 
+#define TEXTBOX_ENDTYPE_12    0x12
 
 #define TEXTBOX_ENDTYPE_20    0x20 // NEXT
 
@@ -161,7 +161,7 @@ typedef enum TextState {
     /*  5 */ TEXT_STATE_5, // Event
     /*  6 */ TEXT_STATE_DONE,
     /*  7 */ TEXT_STATE_7, // Song Demo Done
-    /*  8 */ TEXT_STATE_8, 
+    /*  8 */ TEXT_STATE_8,
     /*  9 */ TEXT_STATE_9,
     /* 10 */ TEXT_STATE_10, // Awaiting Next
     /* 11 */ TEXT_STATE_11,

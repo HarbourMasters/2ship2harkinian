@@ -5280,22 +5280,17 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
                         break;
 
                     case TEXTBOX_ENDTYPE_62:
-                        bool isActuallyBomber = false; // A check to confirm this isn't the Song Of Double TIme Selector.
-                        if (!CVarGetInteger("gEnhancements.Songs.SongOfDoubleTimeSelector", 0)) {
-                            isActuallyBomber = true;
-                        }
-                        else if (play->msgCtx.ocarinaMode != OCARINA_MODE_PROCESS_DOUBLE_TIME) {
-                            isActuallyBomber = true;
-                        }
                         temp_v0_33 = msgCtx->unk120BE;
                         temp = msgCtx->unk11FFA + (msgCtx->unk11FFC * temp_v0_33);
                         func_80147F18(play, &gfx,
                                       msgCtx->unk11F1A[temp_v0_33] +
                                           (s32)(16.0f * msgCtx->textCharScale * (msgCtx->unk120C2 + 5)) - 1,
                                       temp);
-                        if (isActuallyBomber) {
-                            func_801491DC(play);
+                        if (CVarGetInteger("gEnhancements.Songs.SongOfDoubleTimeSelector", 0) &&
+                            play->msgCtx.ocarinaMode == OCARINA_MODE_PROCESS_DOUBLE_TIME) {
+                            break;
                         }
+                        func_801491DC(play);
                         break;
 
                     case TEXTBOX_ENDTYPE_63:
