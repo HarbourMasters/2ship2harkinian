@@ -786,6 +786,80 @@ void func_801491DC(PlayState* play) {
     }
 }
 
+void func_SongOfDoubleTimeSelector(PlayState* play) {
+    static s16 sAnalogStickHeld = false;
+    MessageContext* msgCtx = &play->msgCtx;
+
+    uint16_t currentHr = TIME_TO_HOURS_F(gSaveContext.save.time);
+    uint16_t currentMin = TIME_TO_MINUTES_F(gSaveContext.save.time);
+
+    if (msgCtx->stickAdjY <= -30) {
+        msgCtx->unk12054[msgCtx->unk120C2]--;
+        if (msgCtx->unk12054[msgCtx->unk120C2] < 0) {
+            if (msgCtx->unk120C2 == 0) {
+                msgCtx->unk12054[msgCtx->unk120C2] = 2;
+            } else if (msgCtx->unk120C2 == 1) {
+                msgCtx->unk12054[msgCtx->unk120C2] = 9;
+            } else if (msgCtx->unk120C2 == 2) {
+                msgCtx->unk12054[msgCtx->unk120C2] = 5;
+            } else if (msgCtx->unk120C2 == 3) {
+                msgCtx->unk12054[msgCtx->unk120C2] = 9;
+            } else {
+                msgCtx->unk12054[msgCtx->unk120C2] = 3;
+            }
+        }
+        msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2] = msgCtx->unk12054[msgCtx->unk120C2] + '0';
+        Font_LoadCharNES(play, msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2],
+                         msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
+        Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
+    } else if (msgCtx->stickAdjY >= 30) {
+        msgCtx->unk12054[msgCtx->unk120C2]++;
+        if (msgCtx->unk120C2 == 0) {
+            if (msgCtx->unk12054[msgCtx->unk120C2] > 2) {
+                msgCtx->unk12054[msgCtx->unk120C2] = 0;
+            } 
+        } else if (msgCtx->unk120C2 == 1) {
+            if (msgCtx->unk12054[msgCtx->unk120C2] > 9) {
+                msgCtx->unk12054[msgCtx->unk120C2] = 0;
+            }
+        } else if (msgCtx->unk120C2 == 2) {
+            if (msgCtx->unk12054[msgCtx->unk120C2] > 5) {
+                msgCtx->unk12054[msgCtx->unk120C2] = 0;
+            }
+        } else if (msgCtx->unk120C2 == 3) {
+            if (msgCtx->unk12054[msgCtx->unk120C2] > 9) {
+                msgCtx->unk12054[msgCtx->unk120C2] = 0;
+            }
+        } else {
+            if (msgCtx->unk12054[msgCtx->unk120C2] > 3) {
+                msgCtx->unk12054[msgCtx->unk120C2] = 1;
+            }
+        }
+        msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2] = msgCtx->unk12054[msgCtx->unk120C2] + '0';
+        Font_LoadCharNES(play, msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2],
+                         msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
+        Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
+    } else if ((msgCtx->stickAdjX >= 30) && !sAnalogStickHeld) {
+        sAnalogStickHeld = true;
+        msgCtx->unk120C2++;
+        if (msgCtx->unk120C2 > 4) {
+            msgCtx->unk120C2 = 4;
+        } else {
+            Audio_PlaySfx(NA_SE_SY_CURSOR);
+        }
+    } else if ((msgCtx->stickAdjX <= -30) && !sAnalogStickHeld) {
+        sAnalogStickHeld = true;
+        msgCtx->unk120C2--;
+        if (msgCtx->unk120C2 < 0) {
+            msgCtx->unk120C2 = 0;
+        } else {
+            Audio_PlaySfx(NA_SE_SY_CURSOR);
+        }
+    } else {
+        sAnalogStickHeld = false;
+    }
+}
+
 void func_80149454(PlayState* play) {
     static s16 sAnalogStickHeld = false;
     MessageContext* msgCtx = &play->msgCtx;
@@ -5206,13 +5280,22 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
                         break;
 
                     case TEXTBOX_ENDTYPE_62:
+                        bool isActuallyBomber = false; // A check to confirm this isn't the Song Of Double TIme Selector.
+                        if (!CVarGetInteger("gEnhancements.Songs.SongOfDoubleTimeSelector", 0)) {
+                            isActuallyBomber = true;
+                        }
+                        else if (play->msgCtx.ocarinaMode != OCARINA_MODE_PROCESS_DOUBLE_TIME) {
+                            isActuallyBomber = true;
+                        }
                         temp_v0_33 = msgCtx->unk120BE;
                         temp = msgCtx->unk11FFA + (msgCtx->unk11FFC * temp_v0_33);
                         func_80147F18(play, &gfx,
                                       msgCtx->unk11F1A[temp_v0_33] +
                                           (s32)(16.0f * msgCtx->textCharScale * (msgCtx->unk120C2 + 5)) - 1,
                                       temp);
-                        func_801491DC(play);
+                        if (isActuallyBomber) {
+                            func_801491DC(play);
+                        }
                         break;
 
                     case TEXTBOX_ENDTYPE_63:
@@ -5832,27 +5915,29 @@ void Message_Update(PlayState* play) {
                     }
                 } else if ((msgCtx->textboxEndType == TEXTBOX_ENDTYPE_62) &&
                            (play->msgCtx.ocarinaMode == OCARINA_MODE_PROCESS_DOUBLE_TIME)) {
-                    Input* controller = CONTROLLER1(&play->state);
-                    if (CHECK_BTN_ALL(controller->press.button, BTN_A)) {
-                        Audio_PlaySfx_MessageDecide();
-                        play->msgCtx.ocarinaMode = OCARINA_MODE_END;
-                        Message_CloseTextbox(play);
+                    // Only ever occurs if the Song of Double Time Selector enhancement is selected.
+                    if (CHECK_BTN_ALL(input->press.button, BTN_A)) {
                         int16_t hour_2 = play->msgCtx.unk12054[0];
                         int16_t hour_1 = play->msgCtx.unk12054[1];
                         int16_t min_2 = play->msgCtx.unk12054[2];
                         int16_t min_1 = play->msgCtx.unk12054[3];
                         int16_t am_pm = play->msgCtx.unk12054[4];
+
                         s32 hour = (hour_2 * 10) + hour_1;
                         s32 min = (min_2 * 10) + min_1;
                         gSaveContext.save.time = CLOCK_TIME(hour, min);
+
+                        Audio_PlaySfx_MessageDecide();
+                        play->msgCtx.ocarinaMode = OCARINA_MODE_END;
+                        Message_CloseTextbox(play);
                         play->msgCtx.ocarinaMode = OCARINA_MODE_APPLY_DOUBLE_SOT;
                         gSaveContext.timerStates[TIMER_ID_MOON_CRASH] = TIMER_STATE_OFF;
-                    } else if (CHECK_BTN_ALL(controller->press.button, BTN_B)) {
+                    } else if (CHECK_BTN_ALL(input->press.button, BTN_B)) {
                         Audio_PlaySfx_MessageCancel();
                         play->msgCtx.ocarinaMode = OCARINA_MODE_END;
                         Message_CloseTextbox(play);
                     } else {
-                        func_801491DC(play);
+                        func_SongOfDoubleTimeSelector(play);
                     }
                 } else if ((msgCtx->textboxEndType != TEXTBOX_ENDTYPE_10) ||
                            (pauseCtx->state != PAUSE_STATE_OWLWARP_CONFIRM)) {
@@ -6044,17 +6129,22 @@ void Message_Update(PlayState* play) {
                     }
                 } else if (sLastPlayedSong == OCARINA_SONG_DOUBLE_TIME) {
                     if (interfaceCtx->restrictions.songOfDoubleTime == 0) {
-                        if ((CURRENT_DAY != 3) || (gSaveContext.save.isNight == 0)) {
-                            Message_StartTextbox(play, 0x0729, NULL);
-                            //if (gSaveContext.save.isNight) {
-                            //    Message_StartTextbox(play, D_801D0464[CURRENT_DAY - 1], NULL);
-                            //} else {
-                            //    Message_StartTextbox(play, D_801D045C[CURRENT_DAY - 1], NULL);
-                            //}
-                            play->msgCtx.ocarinaMode = OCARINA_MODE_PROCESS_DOUBLE_TIME;
+                        if (!CVarGetInteger("gEnhancements.Songs.SongOfDoubleTimeSelector", 0))
+                        {
+                            if ((CURRENT_DAY != 3) || (gSaveContext.save.isNight == 0)) {
+                                if (gSaveContext.save.isNight) {
+                                    Message_StartTextbox(play, D_801D0464[CURRENT_DAY - 1], NULL);
+                                } else {
+                                    Message_StartTextbox(play, D_801D045C[CURRENT_DAY - 1], NULL);
+                                }
+                                play->msgCtx.ocarinaMode = OCARINA_MODE_PROCESS_DOUBLE_TIME;
+                            } else {
+                                Message_StartTextbox(play, 0x1B94, NULL);
+                                play->msgCtx.ocarinaMode = OCARINA_MODE_END;
+                            }
                         } else {
-                            Message_StartTextbox(play, 0x1B94, NULL);
-                            play->msgCtx.ocarinaMode = OCARINA_MODE_END;
+                            Message_StartTextbox(play, 0x0729, NULL);
+                            play->msgCtx.ocarinaMode = OCARINA_MODE_PROCESS_DOUBLE_TIME;
                         }
                     } else {
                         sLastPlayedSong = 0xFF;

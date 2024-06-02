@@ -1448,11 +1448,33 @@ void Message_DecodeNES(PlayState* play) {
             msgCtx->unk120C2 = 0;
             msgCtx->bankRupeesSelected = 0;
             msgCtx->unk120C4 = charTexIndex;
+            if ((play->msgCtx.ocarinaMode == OCARINA_MODE_PROCESS_DOUBLE_TIME)) {
 
-            for (i = 0; i < 5; i++) {
-                msgCtx->unk12054[i] = 1;
-                Message_LoadCharNES(play, '1', &charTexIndex, &spA4, decodedBufPos);
+                uint16_t currHr = TIME_TO_HOURS_F(gSaveContext.save.time);
+                uint16_t currMin = TIME_TO_MINUTES_F(gSaveContext.save.time);
+                currMin = currMin - (currHr * 60);
+
+                msgCtx->unk12054[0] = currHr / 10;
+                Message_LoadCharNES(play, msgCtx->unk12054[0]  + '0', &charTexIndex, &spA4, decodedBufPos);
                 decodedBufPos++;
+                msgCtx->unk12054[1] = currHr % 10;
+                Message_LoadCharNES(play, msgCtx->unk12054[1] + '0', &charTexIndex, &spA4, decodedBufPos);
+                decodedBufPos++;
+                msgCtx->unk12054[2] = currMin / 10;
+                Message_LoadCharNES(play, msgCtx->unk12054[2] + '0', &charTexIndex, &spA4, decodedBufPos);
+                decodedBufPos++;
+                msgCtx->unk12054[3] = currMin % 10;
+                Message_LoadCharNES(play, msgCtx->unk12054[3] + '0', &charTexIndex, &spA4, decodedBufPos);
+                decodedBufPos++;
+                msgCtx->unk12054[4] = gSaveContext.save.day;
+                Message_LoadCharNES(play, msgCtx->unk12054[4] + '0', &charTexIndex, &spA4, decodedBufPos);
+                decodedBufPos++;
+            } else {
+                for (i = 0; i < 5; i++) {
+                    msgCtx->unk12054[i] = 1;
+                    Message_LoadCharNES(play, '1', &charTexIndex, &spA4, decodedBufPos);
+                    decodedBufPos++;
+                }
             }
             decodedBufPos--;
         } else if (curChar == 0xD3) {
