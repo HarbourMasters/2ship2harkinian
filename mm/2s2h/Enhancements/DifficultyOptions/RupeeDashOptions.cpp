@@ -27,7 +27,11 @@ void RegisterRupeeDash() {
                     if (bleedInterval <= 0) {
                         if (gSaveContext.save.saveInfo.playerData.rupees >= 1) {
                             s8 walletSize = CUR_UPG_VALUE(UPG_WALLET) + 1;
-                            RupeeReductionEffect(walletSize);
+                            if (gSaveContext.save.saveInfo.playerData.rupees >= walletSize) {
+                                RupeeReductionEffect(walletSize);
+                            } else {
+                                RupeeReductionEffect(gSaveContext.save.saveInfo.playerData.rupees);
+                            }
                         } else {
                             gSaveContext.save.saveInfo.playerData.health -= 0x10;
                         }
