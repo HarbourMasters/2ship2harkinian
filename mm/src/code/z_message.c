@@ -792,53 +792,286 @@ void func_SongOfDoubleTimeSelector(PlayState* play) {
 
     uint16_t currentHr = TIME_TO_HOURS_F(gSaveContext.save.time);
     uint16_t currentMin = TIME_TO_MINUTES_F(gSaveContext.save.time);
+    currentMin = currentMin - (currentHr * 60);
+    uint16_t currentDay = gSaveContext.save.day;
+    uint16_t totalCurrentTime = ((currentHr * 60) + currentMin) + (1440 * (currentDay-1));
+
+    uint16_t selectedHr = (msgCtx->unk12054[0] * 10) + (msgCtx->unk12054[1]);
+    uint16_t selectedMin = (msgCtx->unk12054[2] * 10) + (msgCtx->unk12054[3]);
+    uint16_t selectedDay = (msgCtx->unk12054[4]);
+    uint16_t totalSelectedTime = ((selectedHr * 60) + selectedMin) + (1440 * (selectedDay-1));
+
+    uint16_t updatedItems[5] = {0,0,0,0,0};
+
+    uint16_t maxTime = 4320;
 
     if (msgCtx->stickAdjY <= -30) {
-        msgCtx->unk12054[msgCtx->unk120C2]--;
-        if (msgCtx->unk12054[msgCtx->unk120C2] < 0) {
-            if (msgCtx->unk120C2 == 0) {
-                msgCtx->unk12054[msgCtx->unk120C2] = 2;
-            } else if (msgCtx->unk120C2 == 1) {
-                msgCtx->unk12054[msgCtx->unk120C2] = 9;
-            } else if (msgCtx->unk120C2 == 2) {
-                msgCtx->unk12054[msgCtx->unk120C2] = 5;
-            } else if (msgCtx->unk120C2 == 3) {
-                msgCtx->unk12054[msgCtx->unk120C2] = 9;
-            } else {
-                msgCtx->unk12054[msgCtx->unk120C2] = 3;
+        switch (msgCtx->unk120C2) { 
+            case 0:
+                totalSelectedTime = totalSelectedTime - 600;
+                if (totalSelectedTime < totalCurrentTime) {
+                    Audio_PlaySfx(NA_SE_SY_ERROR);
+                    break;
+                }
+                if (msgCtx->unk12054[0] == 0) {
+                    msgCtx->unk12054[0] = 2;
+                    msgCtx->unk12054[4]--;
+                    updatedItems[4] = 1;
+                } else{
+                    msgCtx->unk12054[0]--;
+                }
+                updatedItems[0] = 1;
+                break;
+            case 1:
+                totalSelectedTime = totalSelectedTime - 60;
+                if (totalSelectedTime < totalCurrentTime) {
+                    Audio_PlaySfx(NA_SE_SY_ERROR);
+                    break;
+                }
+                if (msgCtx->unk12054[1] == 0) {
+                    msgCtx->unk12054[0]--;
+                    updatedItems[0] = 1;
+                    if (msgCtx->unk12054[0] < 0) {
+                        msgCtx->unk12054[0] = 2;
+                        msgCtx->unk12054[1] = 3;
+                        msgCtx->unk12054[4]--;
+                        updatedItems[4] = 1;
+                    } else {
+                        msgCtx->unk12054[1] = 9;
+                    }
+
+                } else {
+                    msgCtx->unk12054[1]--;
+                }
+                updatedItems[1] = 1;
+                break;
+            case 2:
+                totalSelectedTime = totalSelectedTime - 10; 
+                if (totalSelectedTime < totalCurrentTime) {
+                    Audio_PlaySfx(NA_SE_SY_ERROR);
+                    break;
+                }
+                if (msgCtx->unk12054[2] == 0) {
+                    msgCtx->unk12054[2] = 5;
+                    msgCtx->unk12054[1]--;
+                    updatedItems[1] = 1;
+                    if (msgCtx->unk12054[1] < 0) {
+                        msgCtx->unk12054[1] = 9;
+                        msgCtx->unk12054[0]--;
+                        updatedItems[0] = 1;
+                        if (msgCtx->unk12054[0] < 0) {
+                            msgCtx->unk12054[0] = 2;
+                            msgCtx->unk12054[1] = 3;
+                            msgCtx->unk12054[4]--;
+                            updatedItems[4] = 1;
+                        }
+                    }
+                } else {
+                    msgCtx->unk12054[2]--;
+                }
+                updatedItems[2] = 1;
+                break;
+            case 3:
+                totalSelectedTime = totalSelectedTime - 1; 
+                if (totalSelectedTime < totalCurrentTime) {
+                    Audio_PlaySfx(NA_SE_SY_ERROR);
+                    break;
+                }
+                if (msgCtx->unk12054[3] == 0) {
+                    msgCtx->unk12054[3] = 9;
+                    msgCtx->unk12054[2]--;
+                    updatedItems[2] = 1;
+                    if (msgCtx->unk12054[2] < 0) {
+                        msgCtx->unk12054[2] = 5;
+                        msgCtx->unk12054[1]--;
+                        updatedItems[1] = 1;
+                        if (msgCtx->unk12054[1] < 0) {
+                            msgCtx->unk12054[1] = 9;
+                            msgCtx->unk12054[0]--;
+                            updatedItems[0] = 1;
+                            if (msgCtx->unk12054[0] < 0) {
+                                msgCtx->unk12054[0] = 2;
+                                msgCtx->unk12054[1] = 3;
+                                msgCtx->unk12054[4]--;
+                                updatedItems[4] = 1;
+                            }
+                        }
+                    }
+                } else {
+                    msgCtx->unk12054[3]--;
+                }
+                updatedItems[3] = 1;
+                break;
+            case 4:
+                totalSelectedTime = totalSelectedTime - 1440; 
+                if (totalSelectedTime < totalCurrentTime) {
+                    Audio_PlaySfx(NA_SE_SY_ERROR);
+                    break;
+                }
+                if (msgCtx->unk12054[4] == 1) {
+                    Audio_PlaySfx(NA_SE_SY_ERROR);
+                    break;
+                } else {
+                    msgCtx->unk12054[4]--;
+                }
+                updatedItems[4] = 1;
+                break;
+        }
+        for (int i = 0; i < 5; i++) {
+            if (updatedItems[i] == 1) {
+                msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + i] =
+                    msgCtx->unk12054[i] + '0';
+                Font_LoadCharNES(play, msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + i],
+                                 msgCtx->unk120C4 + (i << 7));
+                Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
             }
         }
-        msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2] = msgCtx->unk12054[msgCtx->unk120C2] + '0';
-        Font_LoadCharNES(play, msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2],
-                         msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
-        Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
     } else if (msgCtx->stickAdjY >= 30) {
-        msgCtx->unk12054[msgCtx->unk120C2]++;
-        if (msgCtx->unk120C2 == 0) {
-            if (msgCtx->unk12054[msgCtx->unk120C2] > 2) {
-                msgCtx->unk12054[msgCtx->unk120C2] = 0;
-            } 
-        } else if (msgCtx->unk120C2 == 1) {
-            if (msgCtx->unk12054[msgCtx->unk120C2] > 9) {
-                msgCtx->unk12054[msgCtx->unk120C2] = 0;
-            }
-        } else if (msgCtx->unk120C2 == 2) {
-            if (msgCtx->unk12054[msgCtx->unk120C2] > 5) {
-                msgCtx->unk12054[msgCtx->unk120C2] = 0;
-            }
-        } else if (msgCtx->unk120C2 == 3) {
-            if (msgCtx->unk12054[msgCtx->unk120C2] > 9) {
-                msgCtx->unk12054[msgCtx->unk120C2] = 0;
-            }
-        } else {
-            if (msgCtx->unk12054[msgCtx->unk120C2] > 3) {
-                msgCtx->unk12054[msgCtx->unk120C2] = 1;
+        switch (msgCtx->unk120C2) { 
+            case 0:
+                totalSelectedTime = totalSelectedTime + 600;
+                if (totalSelectedTime >= maxTime) {
+                    Audio_PlaySfx(NA_SE_SY_ERROR);
+                    break;
+                } else {
+                    if (msgCtx->unk12054[0] == 2) {
+                        if (msgCtx->unk12054[4] != 3) {
+                            msgCtx->unk12054[4]++;
+                            msgCtx->unk12054[0] = 0;
+                            updatedItems[4] = 1;
+                        } else {
+                            Audio_PlaySfx(NA_SE_SY_ERROR);
+                            break;
+                        }
+                    } else {
+                        msgCtx->unk12054[0]++;
+                    }
+                }
+                updatedItems[0] = 1;
+                break;
+            case 1:
+                totalSelectedTime = totalSelectedTime + 60;
+                if (totalSelectedTime >= maxTime) {
+                    Audio_PlaySfx(NA_SE_SY_ERROR);
+                    break;
+                } else {
+                    if (msgCtx->unk12054[0] == 2 && msgCtx->unk12054[1] == 3) {
+                        if (msgCtx->unk12054[4] != 3) {
+                            msgCtx->unk12054[1] = 0;
+                            msgCtx->unk12054[0] = 0;
+                            msgCtx->unk12054[4]++;
+                            updatedItems[0] = 1;
+                            updatedItems[4] = 1;
+                        } else {
+                            Audio_PlaySfx(NA_SE_SY_ERROR);
+                            break;
+                        }
+                    } else if (msgCtx->unk12054[1] == 9) {
+                        msgCtx->unk12054[1] = 0;
+                        msgCtx->unk12054[0]++;
+                        updatedItems[0] = 1;
+                    } else {
+                        msgCtx->unk12054[1]++;
+                    }
+                }
+                updatedItems[1] = 1;
+                break;
+            case 2:
+                totalSelectedTime = totalSelectedTime + 10;
+                if (totalSelectedTime >= maxTime) {
+                    Audio_PlaySfx(NA_SE_SY_ERROR);
+                    break;
+                } else {
+                    if (msgCtx->unk12054[2] == 5) {
+                        if (msgCtx->unk12054[0] == 2 && msgCtx->unk12054[1] == 3) {
+                            if (msgCtx->unk12054[4] != 3) {
+                                msgCtx->unk12054[2] = 0;
+                                msgCtx->unk12054[1] = 0;
+                                msgCtx->unk12054[0] = 0;
+                                msgCtx->unk12054[4]++;
+                                updatedItems[0] = 1;
+                                updatedItems[1] = 1;
+                                updatedItems[4] = 1;
+                            } else {
+                                Audio_PlaySfx(NA_SE_SY_ERROR);
+                                break;
+                            }
+                        } else {
+                            msgCtx->unk12054[2] = 0;
+                            msgCtx->unk12054[1]++;
+                            updatedItems[1] = 1;
+                            if (msgCtx->unk12054[1] > 9) {
+                                msgCtx->unk12054[1] = 0;
+                                msgCtx->unk12054[0]++;
+                                updatedItems[0] = 1;
+                            }
+                        }
+                    } else {
+                        msgCtx->unk12054[2]++;
+                    }
+                }
+                updatedItems[2] = 1;
+                break;
+            case 3:
+                totalSelectedTime = totalSelectedTime + 1;
+                if (totalSelectedTime >= maxTime) {
+                    Audio_PlaySfx(NA_SE_SY_ERROR);
+                    break;
+                } else {
+                    if (msgCtx->unk12054[3] == 9) {
+                        if (msgCtx->unk12054[0] == 2 && msgCtx->unk12054[1] == 3 && msgCtx->unk12054[2] == 5) {
+                            if (msgCtx->unk12054[4] != 3) {
+                                msgCtx->unk12054[3] = 0;
+                                msgCtx->unk12054[2] = 0;
+                                msgCtx->unk12054[1] = 0;
+                                msgCtx->unk12054[0] = 0;
+                                msgCtx->unk12054[4]++;
+                                updatedItems[0] = 1;
+                                updatedItems[1] = 1;
+                                updatedItems[2] = 1;
+                                updatedItems[4] = 1;
+                            } else {
+                                Audio_PlaySfx(NA_SE_SY_ERROR);
+                                break;
+                            }
+                        } else {
+                            msgCtx->unk12054[3] = 0;
+                            msgCtx->unk12054[2]++;
+                            updatedItems[2] = 1;
+                            if (msgCtx->unk12054[2] > 5) {
+                                msgCtx->unk12054[2] = 0;
+                                msgCtx->unk12054[1]++;
+                                updatedItems[1] = 1;
+                                if (msgCtx->unk12054[1] > 9) {
+                                    msgCtx->unk12054[1] = 0;
+                                    msgCtx->unk12054[0]++;
+                                    updatedItems[0] = 1;
+                                }
+                            }
+                        }
+                    } else {
+                        msgCtx->unk12054[3]++;
+                    }
+                }
+                updatedItems[3] = 1;
+                break;
+            case 4:
+                if (msgCtx->unk12054[4] == 3) {
+                    Audio_PlaySfx(NA_SE_SY_ERROR);
+                    break;
+                } else {
+                    msgCtx->unk12054[4]++;
+                }
+                updatedItems[4] = 1;
+                break;
+        }
+        for (int i = 0; i < 5; i++) {
+            if (updatedItems[i] == 1) {
+                msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + i] = msgCtx->unk12054[i] + '0';
+                Font_LoadCharNES(play, msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + i], msgCtx->unk120C4 + (i << 7));
+                Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
             }
         }
-        msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2] = msgCtx->unk12054[msgCtx->unk120C2] + '0';
-        Font_LoadCharNES(play, msgCtx->decodedBuffer.schar[msgCtx->unk120C0 + msgCtx->unk120C2],
-                         msgCtx->unk120C4 + (msgCtx->unk120C2 << 7));
-        Audio_PlaySfx(NA_SE_SY_RUPY_COUNT);
     } else if ((msgCtx->stickAdjX >= 30) && !sAnalogStickHeld) {
         sAnalogStickHeld = true;
         msgCtx->unk120C2++;
