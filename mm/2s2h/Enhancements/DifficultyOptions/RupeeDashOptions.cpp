@@ -14,8 +14,8 @@ void RupeeReductionEffect(s8 amount) {
 
 void RegisterRupeeDash() {
     GameInteractor::Instance->RegisterGameHookForID<GameInteractor::OnActorInit>(ACTOR_PLAYER, [](Actor* outerActor) {
-        static uint32_t playerUpdateHook = 0;
-        static uint32_t playerKillHook = 0;
+        static HOOK_ID playerUpdateHook = 0;
+        static HOOK_ID playerKillHook = 0;
         GameInteractor::Instance->UnregisterGameHookForPtr<GameInteractor::OnActorUpdate>(playerUpdateHook);
         GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnSceneInit>(playerKillHook);
         playerUpdateHook = 0;
