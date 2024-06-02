@@ -32,7 +32,7 @@ void RegisterBankerDialogue() {
                 (uintptr_t)outerActor, [](Actor* actor) {
                     EnGinkoMan* enGinko = (EnGinkoMan*)actor;
                     if (CVarGetInteger("gEnhancements.Actor.BankerDepositRupees", 0)) {
-                        if (gPlayState->msgCtx.currentTextId == 1104) {
+                        if (gPlayState->msgCtx.currentTextId == 0x450) {
                             if (CHECK_BTN_ALL(gPlayState->state.input[0].cur.button, BTN_Z) &&
                                 gPlayState->msgCtx.bankRupeesSelected != gSaveContext.save.saveInfo.playerData.rupees) {
                                 char firstChar = (gSaveContext.save.saveInfo.playerData.rupees / 100) + '0';
@@ -42,7 +42,7 @@ void RegisterBankerDialogue() {
 
                                 BankerDialogue_UpdateMessage(rupeeChar);
                             }
-                        } else if (gPlayState->msgCtx.currentTextId == 1134 ) {
+                        } else if (gPlayState->msgCtx.currentTextId == 0x46E) {
                             uint32_t walletSize = CUR_UPG_VALUE(UPG_WALLET);
                             uint32_t currentRupees = gSaveContext.save.saveInfo.playerData.rupees;
                             uint32_t maxWallet;
@@ -68,7 +68,7 @@ void RegisterBankerDialogue() {
                                 }
                             }
                         }
-                        if (gPlayState->msgCtx.currentTextId == 1104 || gPlayState->msgCtx.currentTextId == 1134) {
+                        if (gPlayState->msgCtx.currentTextId == 0x450 || gPlayState->msgCtx.currentTextId == 0x46E) {
                             if (CHECK_BTN_ALL(gPlayState->state.input[0].cur.button, BTN_R) &&
                                 gPlayState->msgCtx.bankRupeesSelected != 0) {
 
