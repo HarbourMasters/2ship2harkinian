@@ -17,4 +17,8 @@ private:
     void DrawSettingsMenu();
     void DrawEnhancementsMenu();
     void DrawCheatsMenu();
+
+    void DrawAudioSettings(float width);
+    void DrawGraphicsSettings(float width);
+    void DrawControllerSettings(float width);
 };
