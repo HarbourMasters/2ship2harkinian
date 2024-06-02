@@ -482,6 +482,24 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
+        if (UIWidgets::BeginMenu("Difficulty Options")) {
+            ImGui::SeparatorText("Rupee Dash Mode");
+            UIWidgets::CVarCheckbox("Disable Sound Effect", "gEnhancements.Difficulty.RupeeSound",
+                                    { .tooltip = "Disable the sound effect when Rupee Dash Modes reduce Rupees." });
+            ImGui::Separator();
+            UIWidgets::CVarCheckbox(
+                "Rupee Bleed", "gEnhancements.Difficulty.RupeeBleed",
+                { .tooltip = "Rupees decrease over time, once Link reaches 0 he will take 1 Heart instead." });
+            if (CVarGetInteger("gEnhancements.Difficulty.RupeeBleed", 0)) {
+                UIWidgets::CVarSliderInt("Bleed Interval", "gEnhancements.Difficulty.BleedInterval", 1, 30, 5,
+                                         { .color = UIWidgets::Colors::Indigo,
+                                           .tooltip = "Interval (in seconds) before the next Bleed occurs." });
+                ImGui::Separator();
+            }
+
+            ImGui::EndMenu();
+        }
+
         if (UIWidgets::BeginMenu("Dpad")) {
             UIWidgets::CVarCheckbox("Dpad Equips", "gEnhancements.Dpad.DpadEquips",
                                     { .tooltip = "Allows you to equip items to your d-pad" });
