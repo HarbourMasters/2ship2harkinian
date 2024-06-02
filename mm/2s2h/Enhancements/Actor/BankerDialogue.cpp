@@ -7,7 +7,6 @@
 
 static const char zeroRupees[3] = { '0', '0', '0' };
 
-
 void BankerDialogue_UpdateMessage(const char rupeeValue[3]) {
     for (int i = 0; i <= 2; i++) {
         gPlayState->msgCtx.decodedBuffer.schar[gPlayState->msgCtx.unk120C0 + i] = rupeeValue[i];
@@ -20,7 +19,6 @@ void BankerDialogue_UpdateMessage(const char rupeeValue[3]) {
 void RegisterBankerDialogue() {
     GameInteractor::Instance->RegisterGameHookForID<GameInteractor::OnActorInit>(
         ACTOR_EN_GINKO_MAN, [](Actor* outerActor) {
-            
             static HOOK_ID enGinkoUpdateHook = 0;
             static HOOK_ID enGinkoKillHook = 0;
             GameInteractor::Instance->UnregisterGameHookForPtr<GameInteractor::OnActorUpdate>(enGinkoUpdateHook);
