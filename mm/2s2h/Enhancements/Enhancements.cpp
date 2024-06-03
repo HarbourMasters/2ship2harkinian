@@ -42,6 +42,7 @@ void InitEnhancements() {
 
     // Modes
     RegisterPlayAsKafei();
+    RegisterTimeMovesWhenYouMove();
 
     // Player Movement
     RegisterClimbSpeed();
