@@ -332,7 +332,6 @@ extern std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 
 void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
-
         if (UIWidgets::BeginMenu("Camera")) {
             ImGui::SeparatorText("Fixes");
             UIWidgets::CVarCheckbox(
@@ -475,7 +474,11 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
-        if (UIWidgets::BeginMenu("Dialogues")) {
+        if (UIWidgets::BeginMenu("Dialogue")) {
+            UIWidgets::CVarCheckbox(
+                "Fast Bank Selection", "gEnhancements.Dialogue.FastBankSelection",
+                { .tooltip = "Pressing the Z or R buttons while the Deposit/Withdrawl Rupees dialogue is open will set "
+                             "the Rupees to Links current Rupees or 0 respectively." });
             UIWidgets::CVarCheckbox(
                 "Fast Text", "gEnhancements.Dialogue.FastText",
                 { .tooltip = "Speeds up text rendering, and enables holding of B progress to next message" });

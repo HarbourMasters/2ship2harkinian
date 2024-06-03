@@ -20,6 +20,9 @@ void InitEnhancements() {
     RegisterSavingEnhancements();
     RegisterAutosave();
 
+    // Dialogue
+    RegisterFastBankSelection();
+
     // Equipment
     RegisterSkipMagicArrowEquip();
 

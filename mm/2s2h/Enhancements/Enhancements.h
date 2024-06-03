@@ -6,6 +6,7 @@
 #include "Camera/FreeLook.h"
 #include "Cheats/MoonJump.h"
 #include "Cheats/Infinite.h"
+#include "Dialogue/Dialogue.h"
 #include "Graphics/TextBasedClock.h"
 #include "Cheats/UnbreakableRazorSword.h"
 #include "Cheats/UnrestrictedItems.h"
