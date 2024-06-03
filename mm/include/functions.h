@@ -1321,6 +1321,10 @@ u8 AudioSeq_ResetReverb(void);
 void AudioSeq_ResetActiveSequences(void);
 void AudioSeq_ResetActiveSequencesAndVolume(void);
 
+// #region 2S2H [JP]
+s32 Kanji_OffsetFromShiftJIS(u32);
+// #endregion
+
 // #region 2S2H [Port] Made Available via C++
 s32 osContInit(OSMesgQueue* mq, u8* controllerBits, OSContStatus* status);
 s32 osContStartReadData(OSMesgQueue* mesg);
