@@ -20,6 +20,15 @@ void InitEnhancements() {
     RegisterSavingEnhancements();
     RegisterAutosave();
 
+    // Dialogue
+    RegisterFastBankSelection();
+
+    // Equipment
+    RegisterSkipMagicArrowEquip();
+
+    // Graphics
+    RegisterDisableBlackBars();
+
     // Masks
     RegisterFastTransformation();
     RegisterFierceDeityAnywhere();
@@ -43,6 +52,7 @@ void InitEnhancements() {
 
     // Modes
     RegisterPlayAsKafei();
+    RegisterTimeMovesWhenYouMove();
 
     // Player Movement
     RegisterClimbSpeed();

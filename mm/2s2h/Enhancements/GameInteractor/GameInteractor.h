@@ -7,6 +7,7 @@ extern "C" {
 #endif
 #include "z64actor.h"
 #include "z64camera.h"
+#include "z64.h"
 #ifdef __cplusplus
 }
 #endif
@@ -51,6 +52,7 @@ typedef enum {
     GI_VB_TATL_INTERUPT_MSG6,
     GI_VB_ITEM_BE_RESTRICTED,
     GI_VB_FLIP_HOP_VARIABLE,
+    GI_VB_DISABLE_LETTERBOX,
     GI_VB_CLOCK_TOWER_OPENING_CONSIDER_THIS_FIRST_CYCLE,
 } GIVanillaBehavior;
 
@@ -254,6 +256,7 @@ class GameInteractor {
     DEFINE_HOOK(OnGameStateMainFinish, ());
     DEFINE_HOOK(OnGameStateDrawFinish, ());
     DEFINE_HOOK(OnGameStateUpdate, ());
+    DEFINE_HOOK(OnKaleidoUpdate, (PauseContext * pauseCtx));
     DEFINE_HOOK(OnSaveInit, (s16 fileNum));
     DEFINE_HOOK(BeforeEndOfCycleSave, ());
     DEFINE_HOOK(AfterEndOfCycleSave, ());
@@ -296,6 +299,7 @@ extern "C" {
 void GameInteractor_ExecuteOnGameStateMainFinish();
 void GameInteractor_ExecuteOnGameStateDrawFinish();
 void GameInteractor_ExecuteOnGameStateUpdate();
+void GameInteractor_ExecuteOnKaleidoUpdate(PauseContext* pauseCtx);
 void GameInteractor_ExecuteOnSaveInit(s16 fileNum);
 void GameInteractor_ExecuteBeforeEndOfCycleSave();
 void GameInteractor_ExecuteAfterEndOfCycleSave();

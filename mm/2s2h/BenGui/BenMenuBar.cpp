@@ -10,6 +10,7 @@
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/Enhancements/Graphics/MotionBlur.h"
 #include "2s2h/Enhancements/Graphics/PlayAsKafei.h"
+#include "2s2h/Enhancements/Modes/TimeMovesWhenYouMove.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "2s2h/DeveloperTools/WarpPoint.h"
 #include "HudEditor.h"
@@ -331,7 +332,6 @@ extern std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 
 void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
-
         if (UIWidgets::BeginMenu("Camera")) {
             ImGui::SeparatorText("Fixes");
             UIWidgets::CVarCheckbox(
@@ -474,7 +474,11 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
-        if (UIWidgets::BeginMenu("Dialogues")) {
+        if (UIWidgets::BeginMenu("Dialogue")) {
+            UIWidgets::CVarCheckbox(
+                "Fast Bank Selection", "gEnhancements.Dialogue.FastBankSelection",
+                { .tooltip = "Pressing the Z or R buttons while the Deposit/Withdrawl Rupees dialogue is open will set "
+                             "the Rupees to Links current Rupees or 0 respectively." });
             UIWidgets::CVarCheckbox(
                 "Fast Text", "gEnhancements.Dialogue.FastText",
                 { .tooltip = "Speeds up text rendering, and enables holding of B progress to next message" });
@@ -486,6 +490,12 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Dpad Equips", "gEnhancements.Dpad.DpadEquips",
                                     { .tooltip = "Allows you to equip items to your d-pad" });
 
+            ImGui::EndMenu();
+        }
+
+        if (UIWidgets::BeginMenu("Equipment")) {
+            UIWidgets::CVarCheckbox("Fast Magic Arrow Equip Animation", "gEnhancements.Equipment.MagicArrowEquipSpeed",
+                                    { .tooltip = "Removes the animation for equipping Magic Arrows." });
             ImGui::EndMenu();
         }
 
@@ -516,6 +526,11 @@ void DrawEnhancementsMenu() {
                                                  "model and texture on the boot logo start screen" });
             UIWidgets::CVarCheckbox("Bow Reticle", "gEnhancements.Graphics.BowReticle",
                                     { .tooltip = "Gives the bow a reticle when you draw an arrow" });
+            UIWidgets::CVarCheckbox(
+                "Disable Black Bar Letterboxes", "gEnhancements.Graphics.DisableBlackBars",
+                { .tooltip = "Disables Black Bar Letterboxes during cutscenes and Z-targeting\nNote: there may be "
+                             "minor visual glitches that were covered up by the black bars\nPlease disable this "
+                             "setting before reporting a bug" });
 
             ImGui::EndMenu();
         }
@@ -540,6 +555,9 @@ void DrawEnhancementsMenu() {
         if (UIWidgets::BeginMenu("Modes")) {
             UIWidgets::CVarCheckbox("Play As Kafei", "gModes.PlayAsKafei",
                                     { .tooltip = "Requires scene reload to take effect." });
+            if (UIWidgets::CVarCheckbox("Time Moves When You Move", "gModes.TimeMovesWhenYouMove")) {
+                RegisterTimeMovesWhenYouMove();
+            }
             ImGui::EndMenu();
         }
         if (UIWidgets::BeginMenu("Player Movement")) {

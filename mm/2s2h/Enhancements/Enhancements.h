@@ -6,10 +6,12 @@
 #include "Camera/FreeLook.h"
 #include "Cheats/MoonJump.h"
 #include "Cheats/Infinite.h"
+#include "Dialogue/Dialogue.h"
 #include "Graphics/TextBasedClock.h"
 #include "Cheats/UnbreakableRazorSword.h"
 #include "Cheats/UnrestrictedItems.h"
 #include "Cycle/EndOfCycle.h"
+#include "Equipment/SkipMagicArrowEquip.h"
 #include "Masks/BlastMaskKeg.h"
 #include "Masks/FierceDeityAnywhere.h"
 #include "Masks/NoBlastMaskCooldown.h"
@@ -24,6 +26,8 @@
 #include "PlayerMovement/ClimbSpeed.h"
 #include "Songs/EnableSunsSong.h"
 #include "Saving/SavingEnhancements.h"
+#include "Graphics/DisableBlackBars.h"
+#include "Modes/TimeMovesWhenYouMove.h"
 
 enum AlwaysWinDoggyRaceOptions {
     ALWAYS_WIN_DOGGY_RACE_OFF,
