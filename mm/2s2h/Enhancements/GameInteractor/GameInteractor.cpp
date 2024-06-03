@@ -19,6 +19,10 @@ void GameInteractor_ExecuteOnGameStateUpdate() {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnGameStateUpdate>();
 }
 
+void GameInteractor_ExecuteOnKaleidoUpdate(PauseContext* pauseCtx) {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnKaleidoUpdate>(pauseCtx);
+}
+
 void GameInteractor_ExecuteOnSaveInit(s16 fileNum) {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnSaveInit>(fileNum);
 }
@@ -47,6 +51,10 @@ void GameInteractor_ExecuteOnRoomInit(s16 sceneId, s8 roomNum) {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnRoomInit>(sceneId, roomNum);
     GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnRoomInit>(sceneId, sceneId, roomNum);
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnRoomInit>(sceneId, roomNum);
+}
+
+void GameInteractor_ExecuteOnPlayDestroy() {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnPlayDestroy>();
 }
 
 bool GameInteractor_ShouldActorInit(Actor* actor) {
@@ -227,6 +235,25 @@ int GameInteractor_InvertControl(GIInvertType type) {
         result *= -1;
     }
     */
+
+    return result;
+}
+
+uint32_t GameInteractor_Dpad(GIDpadType type, uint32_t buttonCombo) {
+    uint32_t result = 0;
+
+    switch (type) {
+        case GI_DPAD_OCARINA:
+            if (CVarGetInteger("gEnhancements.Playback.DpadOcarina", 0)) {
+                result = buttonCombo;
+            }
+            break;
+        case GI_DPAD_EQUIP:
+            if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
+                result = buttonCombo;
+            }
+            break;
+    }
 
     return result;
 }

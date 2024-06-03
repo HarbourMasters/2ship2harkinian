@@ -10,11 +10,10 @@
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/Enhancements/Graphics/MotionBlur.h"
 #include "2s2h/Enhancements/Graphics/PlayAsKafei.h"
+#include "2s2h/Enhancements/Modes/TimeMovesWhenYouMove.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "2s2h/DeveloperTools/WarpPoint.h"
 #include "HudEditor.h"
-
-extern bool ShouldClearTextureCacheAtEndOfFrame;
 
 extern "C" {
 #include "z64.h"
@@ -181,11 +180,15 @@ void DrawSettingsMenu() {
                 "form of anti-aliasing");
 #endif
 #ifndef __WIIU__
-            if (UIWidgets::CVarSliderInt("MSAA: %d", CVAR_MSAA_VALUE, 1, 8, 1)) {
+            if (UIWidgets::CVarSliderInt((CVarGetInteger(CVAR_MSAA_VALUE, 1) == 1) ? "Anti-aliasing (MSAA): Off"
+                                                                                   : "Anti-aliasing (MSAA): %d",
+                                         CVAR_MSAA_VALUE, 1, 8, 1)) {
                 Ship::Context::GetInstance()->GetWindow()->SetMsaaLevel(CVarGetInteger(CVAR_MSAA_VALUE, 1));
             };
             UIWidgets::Tooltip(
-                "Activates multi-sample anti-aliasing when above 1x up to 8x for 8 samples for every pixel");
+                "Activates MSAA (multi-sample anti-aliasing) from 2x up to 8x, to smooth the edges of rendered "
+                "geometry.\n"
+                "Higher sample count will result in smoother edges on models, but may reduce performance.");
 #endif
 
             { // FPS Slider
@@ -437,14 +440,14 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox(
                 "Pause Menu Save", "gEnhancements.Saving.PauseSave",
                 { .tooltip = "Re-introduce the pause menu save system. Pressing B in the pause menu will give you the "
-                             "option to create an Owl Save from your current location.\n\nWhen loading back into the "
-                             "game, you will be placed either at the entrance of the dungeon you saved in, or in South "
-                             "Clock Town." });
+                             "option to create a persistent Owl Save from your current location.\n\nWhen loading back "
+                             "into the game, you will be placed either at the entrance of the dungeon you saved in, or "
+                             "in South Clock Town." });
             if (UIWidgets::CVarCheckbox(
                     "Autosave", "gEnhancements.Saving.Autosave",
-                    { .tooltip = "Automatically create owl saves on the chosen interval.\n\nWhen loading back into the "
-                                 "game, you will be placed either at the entrance of the dungeon you saved in, or in "
-                                 "South Clock Town." })) {
+                    { .tooltip = "Automatically create a persistent Owl Save on the chosen interval.\n\nWhen loading "
+                                 "back into the game, you will be placed either at the entrance of the dungeon you "
+                                 "saved in, or in South Clock Town." })) {
                 RegisterAutosave();
             }
             UIWidgets::CVarSliderInt("Autosave Interval (minutes): %d", "gEnhancements.Saving.AutosaveInterval", 1, 60,
@@ -487,6 +490,12 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
+        if (UIWidgets::BeginMenu("Equipment")) {
+            UIWidgets::CVarCheckbox("Fast Magic Arrow Equip Animation", "gEnhancements.Equipment.MagicArrowEquipSpeed",
+                                    { .tooltip = "Removes the animation for equipping Magic Arrows." });
+            ImGui::EndMenu();
+        }
+
         if (UIWidgets::BeginMenu("Fixes")) {
             UIWidgets::CVarCheckbox("Fix Ammo Count Color", "gFixes.FixAmmoCountEnvColor",
                                     { .tooltip = "Fixes a missing gDPSetEnvColor, which causes the ammo count to be "
@@ -495,6 +504,10 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Fix Hess and Weirdshot Crash", "gEnhancements.Fixes.HessCrash",
                                     { .tooltip = "Fixes a crash that can occur when performing a HESS or Weirdshot.",
                                       .defaultValue = true });
+
+            UIWidgets::CVarCheckbox("Fix Text Control Characters", "gEnhancements.Fixes.ControlCharacters",
+                                    { .tooltip = "Fixes certain control characters not functioning properly "
+                                                 "depending on their position within the text." });
 
             ImGui::EndMenu();
         }
@@ -536,9 +549,10 @@ void DrawEnhancementsMenu() {
         }
 
         if (UIWidgets::BeginMenu("Modes")) {
-            if (UIWidgets::CVarCheckbox("Play As Kafei", "gModes.PlayAsKafei",
-                                        { .tooltip = "Requires scene reload to take effect." })) {
-                UpdatePlayAsKafeiSkeletons();
+            UIWidgets::CVarCheckbox("Play As Kafei", "gModes.PlayAsKafei",
+                                    { .tooltip = "Requires scene reload to take effect." });
+            if (UIWidgets::CVarCheckbox("Time Moves When You Move", "gModes.TimeMovesWhenYouMove")) {
+                RegisterTimeMovesWhenYouMove();
             }
             ImGui::EndMenu();
         }
