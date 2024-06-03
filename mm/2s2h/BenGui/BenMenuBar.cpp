@@ -527,8 +527,10 @@ void DrawEnhancementsMenu() {
                                                  "model and texture on the boot logo start screen" });
             UIWidgets::CVarCheckbox("Bow Reticle", "gEnhancements.Graphics.BowReticle",
                                     { .tooltip = "Gives the bow a reticle when you draw an arrow" });
-            UIWidgets::CVarCheckbox("3D Item Drops", "gEnhancements.Graphics.Item3D",
-                                    { .tooltip = "Makes item drops 3D" });
+            if (UIWidgets::CVarCheckbox("3D Item Drops", "gEnhancements.Graphics.3DItemDrops",
+                                        { .tooltip = "Makes item drops 3D" })) {
+                Register3DItemDrops();
+            }
             UIWidgets::CVarCheckbox(
                 "Disable Black Bar Letterboxes", "gEnhancements.Graphics.DisableBlackBars",
                 { .tooltip = "Disables Black Bar Letterboxes during cutscenes and Z-targeting\nNote: there may be "
