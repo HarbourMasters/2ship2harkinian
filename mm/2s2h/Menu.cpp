@@ -468,7 +468,7 @@ void BenMenu::DrawGraphicsSettings(float width) {
 }
 
 void BenMenu::DrawControllerSettings(float width) {
-    ImGui::BeginChild("Audio Settings", { width, 600 });
+    ImGui::BeginChild("Controller Settings", { width, 600 });
     ImGui::EndChild();
 }
 

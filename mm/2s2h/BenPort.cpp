@@ -281,11 +281,11 @@ OTRGlobals::OTRGlobals() {
     }
 #endif
 
-    fontMono = CreateFontWithSize(14.0f, "fonts/Inconsolata-Regular.ttf");
-    fontMonoLarger = CreateFontWithSize(18.0f, "fonts/Inconsolata-Regular.ttf");
+    fontMono = CreateFontWithSize(16.0f, "fonts/Inconsolata-Regular.ttf");
+    fontMonoLarger = CreateFontWithSize(20.0f, "fonts/Inconsolata-Regular.ttf");
     fontMonoLargest = CreateFontWithSize(24.0f, "fonts/Inconsolata-Regular.ttf");
-    fontStandard = CreateFontWithSize(14.0f, "fonts/Montserrat-Regular.ttf");
-    fontStandardLarger = CreateFontWithSize(18.0f, "fonts/Montserrat-Regular.ttf");
+    fontStandard = CreateFontWithSize(16.0f, "fonts/Montserrat-Regular.ttf");
+    fontStandardLarger = CreateFontWithSize(20.0f, "fonts/Montserrat-Regular.ttf");
     fontStandardLargest = CreateFontWithSize(24.0f, "fonts/Montserrat-Regular.ttf");
     ImGui::GetIO().FontDefault = fontMono;
 }
