@@ -540,11 +540,10 @@ void DrawEnhancementsMenu() {
                 { .tooltip =
                       "Disables the distance check for scene geometry, allowing it to be drawn no matter how far "
                       "away it is from the player. This may have unintended side effects." });
-            // BENTODO: Not implemented yet
-            // UIWidgets::CVarCheckbox("Widescreen Actor Culling",
-            //                         "gEnhancements.Graphics.ActorCullingAccountsForWidescreen",
-            //                         { .tooltip = "Adjusts the culling planes to account for widescreen resolutions. "
-            //                                      "This may have unintended side effects." });
+            UIWidgets::CVarCheckbox("Widescreen Actor Culling",
+                                    "gEnhancements.Graphics.ActorCullingAccountsForWidescreen",
+                                    { .tooltip = "Adjusts the culling planes to account for widescreen resolutions. "
+                                                 "This may have unintended side effects." });
             if (UIWidgets::CVarSliderInt(
                     "Increase Actor Draw Distance: %dx", "gEnhancements.Graphics.IncreaseActorDrawDistance", 1, 5, 1,
                     { .tooltip =
