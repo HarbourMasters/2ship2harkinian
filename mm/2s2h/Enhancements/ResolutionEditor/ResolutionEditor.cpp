@@ -117,6 +117,8 @@ void AdvancedResolutionSettingsWindow::DrawElement() {
                  CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".Enabled", 0)) ||
                 CVarGetInteger("gLowResMode", 0);
 #ifndef __APPLE__
+            // TODO and note for code review:
+            // - This is copied from BenMenuBar. I'm aware this needs to be replaced with a non-float slider.
             if (UIWidgets::CVarSliderFloat("Internal Resolution: %f %%", CVAR_INTERNAL_RESOLUTION, 0.5f, 2.0f, 1.0f,
                                            { .disabled = disabled_resolutionSlider })) {
                 Ship::Context::GetInstance()->GetWindow()->SetResolutionMultiplier(
@@ -151,14 +153,14 @@ void AdvancedResolutionSettingsWindow::DrawElement() {
             if (IsDroppingFrames()) { // Significant frame drop warning
                 ImGui::TextColored(messageColor[MESSAGE_WARNING],
                                    ICON_FA_EXCLAMATION_TRIANGLE " Significant frame rate (FPS) drops may be occuring.");
-                // UIWidgets::Spacer(2);
             } else { // No warnings
                 ImGui::Text(" ");
             }
         } else { // N64 Mode warning
             ImGui::TextColored(messageColor[MESSAGE_QUESTION],
                                ICON_FA_QUESTION_CIRCLE " Legacy \"N64 Mode\" is overriding these settings.");
-            if (ImGui::Button("Click to disable")) {
+            if (UIWidgets::Button("Click to resolve")) {
+                // Not sure how necessary this button is if the checkbox is available.
                 CVarSetInteger(CVAR_LOW_RES_MODE, 0);
                 CVarSave();
             }
@@ -170,15 +172,15 @@ void AdvancedResolutionSettingsWindow::DrawElement() {
 
         ImGui::SeparatorText("Advanced settings"); // was PaddedSeparator
 
-        if (disabled_everything) { // Hide aspect ratio controls.
-            // UIWidgets::DisableComponent(ImGui::GetStyle().Alpha * 0.5f);
-        } // TODO
+        ImGui::BeginDisabled(disabled_everything); // Hide aspect ratio controls.
 
         // Aspect Ratio
         ImGui::Text("Force aspect ratio:");
         ImGui::SameLine();
         ImGui::TextColored(messageColor[MESSAGE_GRAY_75], "(Select \"Off\" to disable.)");
+
         // Presets
+        UIWidgets::PushStyleCombobox(); // Also repurposing this style for the Input fields.
         if (ImGui::Combo(" ", &item_aspectRatio, aspectRatioPresetLabels,
                          IM_ARRAYSIZE(aspectRatioPresetLabels)) &&
             item_aspectRatio != default_aspectRatio) { // don't change anything if "Custom" is selected.
@@ -213,10 +215,9 @@ void AdvancedResolutionSettingsWindow::DrawElement() {
                 ImGui::Text(" ");
             }
         }
+        UIWidgets::PopStyleCombobox();
 
-        if (disabled_everything) { // Hide aspect ratio controls.
-            // UIWidgets::ReEnableComponent("disabledTooltipText");
-        } // TODO
+        ImGui::EndDisabled(); // End of hide aspect ratio controls. (disabled_everything)
 
         // UIWidgets::Spacer(0);
 
@@ -224,12 +225,12 @@ void AdvancedResolutionSettingsWindow::DrawElement() {
         UIWidgets::CVarCheckbox("Set fixed vertical resolution (disables Resolution slider)",
                                 CVAR_PREFIX_ADVANCED_RESOLUTION ".VerticalResolutionToggle",
                                 { .disabled = disabled_everything });
-
         UIWidgets::Tooltip(
             "Override the resolution scale slider and use the settings below, irrespective of window size.");
-        if (disabled_pixelCount || disabled_everything) { // Hide pixel count controls.
-            // UIWidgets::DisableComponent(ImGui::GetStyle().Alpha * 0.5f);
-        } // TODO
+
+        ImGui::BeginDisabled(disabled_pixelCount || disabled_everything); // Hide pixel count controls.
+
+        UIWidgets::PushStyleCombobox(); // Also repurposing this style for the Input fields.
         if (ImGui::Combo("Pixel Count Presets", &item_pixelCount, pixelCountPresetLabels,
                          IM_ARRAYSIZE(pixelCountPresetLabels)) &&
             item_pixelCount != default_pixelCount) { // don't change anything if "Custom" is selected.
@@ -288,9 +289,9 @@ void AdvancedResolutionSettingsWindow::DrawElement() {
                 update[UPDATE_aspectRatioY] = true;
             }
         }
-        if (disabled_pixelCount || disabled_everything) { // Hide pixel count controls.
-            // UIWidgets::ReEnableComponent("disabledTooltipText");
-        } // TODO
+        UIWidgets::PopStyleCombobox();
+
+        ImGui::EndDisabled(); // End of hide pixel count controls. (disabled_pixelCount || disabled_everything)
 
         // UIWidgets::Spacer(0);
 
@@ -298,6 +299,7 @@ void AdvancedResolutionSettingsWindow::DrawElement() {
         static const ImGuiTreeNodeFlags IntegerScalingResolvedImGuiFlag =
             CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".PixelPerfectMode", 0) ? ImGuiTreeNodeFlags_DefaultOpen
                                                                                    : ImGuiTreeNodeFlags_None;
+        // TODO: Need to add a matching styled Collapsing Header to the UIWidgets at some point.
         if (ImGui::CollapsingHeader("Integer Scaling Settings", IntegerScalingResolvedImGuiFlag)) {
             const bool disabled_pixelPerfectMode =
                 !CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".PixelPerfectMode", 0) || disabled_everything;
@@ -366,17 +368,16 @@ void AdvancedResolutionSettingsWindow::DrawElement() {
                     // Having this button should hopefully prevent support headaches.
                     ImGui::TextColored(messageColor[MESSAGE_QUESTION], ICON_FA_QUESTION_CIRCLE
                                        " If the image is stretched and you don't know why, click this.");
-                    if (ImGui::Button("Click to reenable aspect correction.")) {
+                    if (UIWidgets::Button("Click to reenable aspect correction.")) {
                         CVarSetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".IgnoreAspectCorrection", 0);
                         CVarSave();
                     }
-                    // UIWidgets::Spacer(2);
                 }
 #endif
 
                 // A requested addition; an alternative way of displaying the resolution field.
-                if (ImGui::Checkbox("Show a horizontal resolution field, instead of aspect ratio.",
-                                    &showHorizontalResField)) {
+                if (UIWidgets::Checkbox("Show a horizontal resolution field, instead of aspect ratio.",
+                                        &showHorizontalResField)) {
                     if (!showHorizontalResField && (aspectRatioX > 0.0f)) { // when turning this setting off
                         // Refresh relevant values
                         aspectRatioX = aspectRatioY * horizontalPixelCount / verticalPixelCount;
@@ -391,7 +392,6 @@ void AdvancedResolutionSettingsWindow::DrawElement() {
                     }
                     update[UPDATE_aspectRatioX] = true;
                 }
-                // Note to self: It would be nice to remove this option. It adds so much complexity.
             }
 
             // Beginning of Integer Scaling additional settings.
@@ -445,13 +445,13 @@ void AdvancedResolutionSettingsWindow::DrawElement() {
                     // Another support helper button, to disable the unused "Exceed Bounds By" CVar.
                     // (Remove this button if uncommenting the "Exceed Bounds" checkbox.)
                     if (CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".IntegerScale.ExceedBoundsBy", 0)) {
-                        if (ImGui::Button("Click to reset a console variable that may be causing this.")) {
+                        if (UIWidgets::Button("Click to reset a console variable that may be causing this.")) {
                             CVarSetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".IntegerScale.ExceedBoundsBy", 0);
                             CVarSave();
                         }
                     }
                 } else {
-                    ImGui::Text(" ");
+                    ImGui::Text(" "); // No message.
                 }
             } // End of Integer Scaling additional settings.
 
