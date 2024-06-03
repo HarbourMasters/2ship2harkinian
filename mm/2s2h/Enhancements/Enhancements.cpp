@@ -1,9 +1,6 @@
 #include "Enhancements.h"
 
 void InitEnhancements() {
-    // Actor
-    RegisterBankerDialogue();
-
     // Camera
     RegisterCameraInterpolationFixes();
     RegisterCameraFreeLook();
@@ -22,6 +19,9 @@ void InitEnhancements() {
     RegisterEndOfCycleSaveHooks();
     RegisterSavingEnhancements();
     RegisterAutosave();
+
+    // Dialogue
+    RegisterFastBankSelection();
 
     // Masks
     RegisterFastTransformation();
