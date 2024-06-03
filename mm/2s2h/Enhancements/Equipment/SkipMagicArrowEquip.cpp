@@ -3,7 +3,6 @@
 #include "z64.h"
 #include "src/overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 
-// 2S2H [Enhancement] Added to override Magic Arrow Equip Animation
 extern "C" {
 extern s16 sEquipState;
 extern s16 sEquipAnimTimer;
