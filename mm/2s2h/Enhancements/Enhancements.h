@@ -24,6 +24,7 @@
 #include "PlayerMovement/ClimbSpeed.h"
 #include "Songs/EnableSunsSong.h"
 #include "Saving/SavingEnhancements.h"
+#include "Graphics/DisableBlackBars.h"
 #include "Modes/TimeMovesWhenYouMove.h"
 
 enum AlwaysWinDoggyRaceOptions {

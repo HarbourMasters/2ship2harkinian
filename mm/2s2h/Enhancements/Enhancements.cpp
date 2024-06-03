@@ -23,6 +23,9 @@ void InitEnhancements() {
     // Equipment
     RegisterSkipMagicArrowEquip();
 
+    // Graphics
+    RegisterDisableBlackBars();
+
     // Masks
     RegisterFastTransformation();
     RegisterFierceDeityAnywhere();
