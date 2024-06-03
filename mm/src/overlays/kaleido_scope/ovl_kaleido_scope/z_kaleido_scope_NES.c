@@ -18,8 +18,11 @@
 #include "archives/item_name_static/item_name_static.h"
 #include "archives/map_name_static/map_name_static.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "2s2h/Enhancements/Saving/SavingEnhancements.h"
 
 #include "2s2h_assets.h"
+
+#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 
 // Page Textures (Background of Page):
 // Broken up into multiple textures.
@@ -3377,7 +3380,7 @@ void KaleidoScope_Update(PlayState* play) {
                     if (!pauseCtx->itemDescriptionOn &&
                         (CHECK_BTN_ALL(input->press.button, BTN_START) || CHECK_BTN_ALL(input->press.button, BTN_B))) {
                         Interface_SetAButtonDoAction(play, DO_ACTION_NONE);
-                        if (CVarGetInteger("gEnhancements.Saving.PauseSave", 0)) {
+                        if (CVarGetInteger("gEnhancements.Saving.PauseSave", 0) && SavingEnhancements_CanSave()) {
                             if (CHECK_BTN_ALL(input->press.button, BTN_B)) {
                                 pauseCtx->state = PAUSE_STATE_SAVEPROMPT;
                                 Audio_PlaySfx_MessageDecide();
@@ -3418,7 +3421,7 @@ void KaleidoScope_Update(PlayState* play) {
                         // Abort having the player play the song and close the pause menu
                         AudioOcarina_SetInstrument(OCARINA_INSTRUMENT_OFF);
                         Interface_SetAButtonDoAction(play, DO_ACTION_NONE);
-                        if (CVarGetInteger("gEnhancements.Saving.PauseSave", 0)) {
+                        if (CVarGetInteger("gEnhancements.Saving.PauseSave", 0) && SavingEnhancements_CanSave()) {
                             if (CHECK_BTN_ALL(input->press.button, BTN_B)) {
                                 pauseCtx->state = PAUSE_STATE_SAVEPROMPT;
                                 Audio_PlaySfx_MessageDecide();
@@ -3461,7 +3464,7 @@ void KaleidoScope_Update(PlayState* play) {
                     if (CHECK_BTN_ALL(input->press.button, BTN_START) || CHECK_BTN_ALL(input->press.button, BTN_B)) {
                         AudioOcarina_SetInstrument(OCARINA_INSTRUMENT_OFF);
                         Interface_SetAButtonDoAction(play, DO_ACTION_NONE);
-                        if (CVarGetInteger("gEnhancements.Saving.PauseSave", 0)) {
+                        if (CVarGetInteger("gEnhancements.Saving.PauseSave", 0) && SavingEnhancements_CanSave()) {
                             if (CHECK_BTN_ALL(input->press.button, BTN_B)) {
                                 pauseCtx->state = PAUSE_STATE_SAVEPROMPT;
                                 Audio_PlaySfx_MessageDecide();
@@ -3518,7 +3521,7 @@ void KaleidoScope_Update(PlayState* play) {
                                 // 2S2H [Enhancement] Eventually we might allow them to load from their last entrance,
                                 // but we need to first identify and fix edge cases where that doesn't work properly
                                 // like grottos and cutscenes
-                                gSaveContext.save.shipSaveInfo.pauseSaveEntrance = GetSaveEntrance(play);
+                                gSaveContext.save.shipSaveInfo.pauseSaveEntrance = SavingEnhancements_GetSaveEntrance();
                             }
                             Play_SaveCycleSceneFlags(&play->state);
                             gSaveContext.save.saveInfo.playerData.savedSceneId = play->sceneId;
@@ -4230,4 +4233,5 @@ void KaleidoScope_Update(PlayState* play) {
     if ((pauseCtx->debugEditor == DEBUG_EDITOR_INVENTORY_INIT) || (pauseCtx->debugEditor == DEBUG_EDITOR_INVENTORY)) {
         KaleidoScope_UpdateInventoryEditor(play);
     }
+    GameInteractor_ExecuteOnKaleidoUpdate(pauseCtx);
 }

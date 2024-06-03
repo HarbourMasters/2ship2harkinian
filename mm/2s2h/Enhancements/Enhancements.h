@@ -11,6 +11,7 @@
 #include "Cheats/UnbreakableRazorSword.h"
 #include "Cheats/UnrestrictedItems.h"
 #include "Cycle/EndOfCycle.h"
+#include "Equipment/SkipMagicArrowEquip.h"
 #include "Masks/FierceDeityAnywhere.h"
 #include "Masks/NoBlastMaskCooldown.h"
 #include "Masks/FastTransformation.h"
@@ -24,6 +25,7 @@
 #include "PlayerMovement/ClimbSpeed.h"
 #include "Songs/EnableSunsSong.h"
 #include "Saving/SavingEnhancements.h"
+#include "Modes/TimeMovesWhenYouMove.h"
 
 enum AlwaysWinDoggyRaceOptions {
     ALWAYS_WIN_DOGGY_RACE_OFF,

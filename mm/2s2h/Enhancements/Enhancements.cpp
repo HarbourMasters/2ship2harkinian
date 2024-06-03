@@ -23,6 +23,9 @@ void InitEnhancements() {
     // Dialogue
     RegisterFastBankSelection();
 
+    // Equipment
+    RegisterSkipMagicArrowEquip();
+
     // Masks
     RegisterFastTransformation();
     RegisterFierceDeityAnywhere();
@@ -45,6 +48,7 @@ void InitEnhancements() {
 
     // Modes
     RegisterPlayAsKafei();
+    RegisterTimeMovesWhenYouMove();
 
     // Player Movement
     RegisterClimbSpeed();

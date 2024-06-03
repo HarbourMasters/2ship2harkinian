@@ -526,6 +526,8 @@ typedef enum {
 #define CHECK_DUNGEON_ITEM(item, dungeonIndex) (gSaveContext.save.saveInfo.inventory.dungeonItems[(void)0, dungeonIndex] & gBitFlags[item])
 #define CHECK_DUNGEON_ITEM_ALT(item, dungeonIndex) (gSaveContext.save.saveInfo.inventory.dungeonItems[dungeonIndex] & gBitFlags[item])
 #define SET_DUNGEON_ITEM(item, dungeonIndex) (gSaveContext.save.saveInfo.inventory.dungeonItems[(void)0, dungeonIndex] |= (u8)gBitFlags[item])
+// 2S2H [Enhancements] We added this for save editor
+#define REMOVE_DUNGEON_ITEM(item, dungeonIndex) (gSaveContext.save.saveInfo.inventory.dungeonItems[(void)0, dungeonIndex] &= ~(u8)gBitFlags[item])
 #define DUNGEON_KEY_COUNT(dungeonIndex) (gSaveContext.save.saveInfo.inventory.dungeonKeys[(void)0, dungeonIndex])
 #define GET_DUNGEON_FLOOR_VISITED(sceneId, floor) (gSaveContext.save.saveInfo.permanentSceneFlags[(sceneId)].unk_14 & gBitFlags[floor])
 #define SET_DUNGEON_FLOOR_VISITED(sceneId, floor) (gSaveContext.save.saveInfo.permanentSceneFlags[(sceneId)].unk_14 |= gBitFlags[floor])
@@ -559,11 +561,12 @@ typedef enum {
     (void)0
 
 // #region 2S2H [DPad]
+#define BTN_DPAD (BTN_DRIGHT | BTN_DLEFT | BTN_DDOWN | BTN_DUP)
 #define DPAD_TO_HELD_ITEM(btn) (btn + EQUIP_SLOT_MAX) 
 #define HELD_ITEM_TO_DPAD(heldBtn) (heldBtn - EQUIP_SLOT_MAX)
 #define IS_HELD_DPAD(heldBtn) ((heldBtn >= DPAD_TO_HELD_ITEM(EQUIP_SLOT_D_RIGHT)) && (heldBtn <= DPAD_TO_HELD_ITEM(EQUIP_SLOT_D_UP)))
 
-#define BTN_DPAD_EQUIP (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0) ? (BTN_DRIGHT | BTN_DLEFT | BTN_DDOWN | BTN_DUP) : 0)
+#define BTN_DPAD_EQUIP (GameInteractor_Dpad(GI_DPAD_EQUIP, BTN_DPAD))
 #define CHECK_BTN_DPAD(input) (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0) && \
                               (CHECK_BTN_ALL(input, BTN_DRIGHT) || \
                                CHECK_BTN_ALL(input, BTN_DLEFT)  || \
