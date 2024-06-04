@@ -8,6 +8,7 @@ void InitEnhancements() {
 
     // Cheats
     RegisterInfiniteCheats();
+    RegisterLongerFlowerGlide();
     RegisterMoonJumpOnL();
     RegisterUnbreakableRazorSword();
     RegisterUnrestrictedItems();
@@ -20,13 +21,28 @@ void InitEnhancements() {
     RegisterSavingEnhancements();
     RegisterAutosave();
 
+    // Dialogue
+    RegisterFastBankSelection();
+
+    // Equipment
+    RegisterSkipMagicArrowEquip();
+
+    // Graphics
+    RegisterDisableBlackBars();
+
     // Masks
     RegisterFastTransformation();
     RegisterFierceDeityAnywhere();
+    RegisterBlastMaskKeg();
     RegisterNoBlastMaskCooldown();
 
     // Minigames
     RegisterAlwaysWinDoggyRace();
+
+    // Player
+    RegisterClimbSpeed();
+    RegisterFastFlowerLaunch();
+    RegisterInstantPutaway();
 
     // Songs
     RegisterEnableSunsSong();
@@ -42,7 +58,5 @@ void InitEnhancements() {
 
     // Modes
     RegisterPlayAsKafei();
-
-    // Player Movement
-    RegisterClimbSpeed();
+    RegisterTimeMovesWhenYouMove();
 }

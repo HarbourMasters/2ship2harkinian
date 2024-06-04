@@ -2,6 +2,9 @@
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 
+#include "interface/icon_item_dungeon_static/icon_item_dungeon_static.h"
+#include "archives/icon_item_24_static/icon_item_24_static_yar.h"
+
 extern "C" {
 #include <z64.h>
 #include <z64save.h>
@@ -279,6 +282,15 @@ void DrawGeneralTab() {
         gSaveContext.save.saveInfo.playerData.magicLevel = 0;
         gSaveContext.save.saveInfo.playerData.isMagicAcquired = false;
         gSaveContext.save.saveInfo.playerData.isDoubleMagicAcquired = false;
+    }
+    ImGui::SameLine();
+    bool spinAttack = CHECK_WEEKEVENTREG(WEEKEVENTREG_OBTAINED_GREAT_SPIN_ATTACK);
+    if (UIWidgets::Checkbox("Spin Lv2", &spinAttack, { .color = UIWidgets::Colors::DarkGreen })) {
+        if (spinAttack) {
+            SET_WEEKEVENTREG(WEEKEVENTREG_OBTAINED_GREAT_SPIN_ATTACK);
+        } else {
+            CLEAR_WEEKEVENTREG(WEEKEVENTREG_OBTAINED_GREAT_SPIN_ATTACK);
+        }
     }
     UIWidgets::PushStyleSlider(UIWidgets::Colors::DarkGreen);
     if (ImGui::SliderScalar("##magicLevelSlider", ImGuiDataType_S8, &gSaveContext.save.saveInfo.playerData.magicLevel,
@@ -942,6 +954,101 @@ void DrawQuestStatusTab() {
     UIWidgets::PopStyleCombobox();
     ImGui::EndChild();
 
+    ImGui::EndChild();
+    ImGui::PopStyleVar(2);
+    ImGui::PopStyleColor(1);
+}
+
+void SetDungeonItems(uint32_t dungeonItem, uint32_t dungeonId) {
+    if (CHECK_DUNGEON_ITEM(dungeonItem, dungeonId)) {
+        REMOVE_DUNGEON_ITEM(dungeonItem, dungeonId);
+    } else {
+        SET_DUNGEON_ITEM(dungeonItem, dungeonId);
+    }
+}
+
+const char* dungeonNames[4] = { "Woodfall Temple", "Snowhead Temple", "Great Bay Temple", "Stone Tower Temple" };
+uint32_t smallKeyCounts[4] = { 1, 3, 1, 4 };
+const char* fairyIcons[] = { gDungeonStrayFairyWoodfallIconTex, gDungeonStrayFairySnowheadIconTex,
+                             gDungeonStrayFairyGreatBayIconTex, gDungeonStrayFairyStoneTowerIconTex };
+void DrawDungeonItemTab() {
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 3.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f, 8.0f));
+    ImGui::BeginChild("dungeonTab", ImVec2(0, 0), true);
+
+    for (int i = DUNGEON_INDEX_WOODFALL_TEMPLE; i <= DUNGEON_INDEX_STONE_TOWER_TEMPLE; i++) {
+        std::string stray_id = "Stray" + std::to_string(i);
+        std::string map_id = "Map" + std::to_string(i);
+        std::string comp_id = "Compass" + std::to_string(i);
+        std::string sKey_id = "Small Key" + std::to_string(i);
+        std::string bKey_id = "Boss Key" + std::to_string(i);
+        int dungeonId = i;
+        ImGui::BeginChild(std::to_string(i).c_str(),
+                          ImVec2(INV_GRID_WIDTH * 6 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1.5 + INV_GRID_PADDING),
+                          ImGuiChildFlags_Border);
+        ImGui::Text(dungeonNames[i]);
+        if (ImGui::ImageButton(
+                stray_id.c_str(),
+                Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(fairyIcons[dungeonId]),
+                ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
+                ImVec4(1, 1, 1, gSaveContext.save.saveInfo.inventory.strayFairies[dungeonId] ? 1.0f : 0.4f))) {
+            ImGui::OpenPopup("strayFairies");
+        }
+        ImGui::SameLine();
+        if (ImGui::ImageButton(
+                map_id.c_str(),
+                Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(gQuestIconDungeonMapTex),
+                ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
+                ImVec4(1, 1, 1, CHECK_DUNGEON_ITEM(DUNGEON_MAP, i) ? 1.0f : 0.4f))) {
+            SetDungeonItems(DUNGEON_MAP, i);
+        }
+        ImGui::SameLine();
+        if (ImGui::ImageButton(
+                comp_id.c_str(),
+                Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(gQuestIconCompassTex),
+                ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
+                ImVec4(1, 1, 1, CHECK_DUNGEON_ITEM(DUNGEON_COMPASS, i) ? 1.0f : 0.4f))) {
+            SetDungeonItems(DUNGEON_COMPASS, i);
+        }
+        ImGui::SameLine();
+        if (ImGui::ImageButton(
+                sKey_id.c_str(),
+                Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(gQuestIconSmallKeyTex),
+                ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
+                ImVec4(1, 1, 1, DUNGEON_KEY_COUNT(i) + 1 ? 1.0f : 0.4f))) {
+            ImGui::OpenPopup("smallKeys");
+        }
+        ImGui::SameLine();
+        if (ImGui::ImageButton(
+                bKey_id.c_str(),
+                Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(gQuestIconBossKeyTex),
+                ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
+                ImVec4(1, 1, 1, CHECK_DUNGEON_ITEM(DUNGEON_BOSS_KEY, i) ? 1.0f : 0.4f))) {
+            SetDungeonItems(DUNGEON_BOSS_KEY, i);
+        }
+        if (ImGui::BeginPopup("strayFairies")) {
+            s32 minStray = 0;
+            s32 maxStray = 15;
+            int currentStrays = gSaveContext.save.saveInfo.inventory.strayFairies[dungeonId];
+            if (ImGui::SliderScalar("##strayCount", ImGuiDataType_S32, &currentStrays, &minStray, &maxStray,
+                                    "Strays: %d")) {
+                gSaveContext.save.saveInfo.inventory.strayFairies[dungeonId] = currentStrays;
+            }
+            ImGui::EndPopup();
+        }
+        if (ImGui::BeginPopup("smallKeys")) {
+            s32 minKey = -1;
+            s32 maxKey = smallKeyCounts[dungeonId];
+            int currentKeys = gSaveContext.save.saveInfo.inventory.dungeonKeys[dungeonId];
+            if (ImGui::SliderScalar("##sKeyCount", ImGuiDataType_S32, &currentKeys, &minKey, &maxKey,
+                                    "Small Keys: %d")) {
+                gSaveContext.save.saveInfo.inventory.dungeonKeys[dungeonId] = currentKeys;
+            }
+            ImGui::EndPopup();
+        }
+        ImGui::EndChild();
+    }
     ImGui::EndChild();
     ImGui::PopStyleVar(2);
     ImGui::PopStyleColor(1);
@@ -1694,6 +1801,11 @@ void SaveEditorWindow::DrawElement() {
             ImGui::EndTabItem();
         }
 
+        if (ImGui::BeginTabItem("Dungeon Items")) {
+            DrawDungeonItemTab();
+            ImGui::EndTabItem();
+        }
+
         if (ImGui::BeginTabItem("Reg Editor")) {
             DrawRegEditorTab();
             ImGui::EndTabItem();
@@ -1720,11 +1832,24 @@ void SaveEditorWindow::DrawElement() {
     ImGui::End();
 }
 
+const char* textureLoad[8] = { gDungeonStrayFairyWoodfallIconTex,
+                               gDungeonStrayFairySnowheadIconTex,
+                               gDungeonStrayFairyGreatBayIconTex,
+                               gDungeonStrayFairyStoneTowerIconTex,
+                               gQuestIconDungeonMapTex,
+                               gQuestIconCompassTex,
+                               gQuestIconSmallKeyTex,
+                               gQuestIconBossKeyTex };
+
 void SaveEditorWindow::InitElement() {
     initSafeItemsForInventorySlot();
 
     for (TexturePtr entry : gItemIcons) {
         const char* path = static_cast<const char*>(entry);
         Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture(path, path, ImVec4(1, 1, 1, 1));
+    }
+    for (int i = 0; i <= 7; i++) {
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture(textureLoad[i], textureLoad[i],
+                                                                            ImVec4(1, 1, 1, 1));
     }
 }
