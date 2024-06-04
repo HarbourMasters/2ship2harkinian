@@ -38,6 +38,10 @@ void InitEnhancements() {
     // Minigames
     RegisterAlwaysWinDoggyRace();
 
+    // Player
+    RegisterClimbSpeed();
+    RegisterInstantPutaway();
+
     // Songs
     RegisterEnableSunsSong();
 
@@ -53,7 +57,4 @@ void InitEnhancements() {
     // Modes
     RegisterPlayAsKafei();
     RegisterTimeMovesWhenYouMove();
-
-    // Player Movement
-    RegisterClimbSpeed();
 }
