@@ -6,8 +6,6 @@
 
 #include "z_en_mk.h"
 
-#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
-
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY | ACTOR_FLAG_10)
 
 #define THIS ((EnMk*)thisx)
@@ -122,12 +120,7 @@ void EnMk_Destroy(Actor* thisx, PlayState* play) {
 }
 
 s32 func_80959524(PlayState* play) {
-    s32 eggcount;
-    if (GameInteractor_Should(GI_VB_SET_ZORA_EGG_COUNT, true, &eggcount)) {
-        return gSaveContext.save.saveInfo.permanentSceneFlags[play->sceneId].unk_14 + (7 - eggcount) & 7;
-    } else {
-        return gSaveContext.save.saveInfo.permanentSceneFlags[play->sceneId].unk_14 & 7;
-    }
+    return gSaveContext.save.saveInfo.permanentSceneFlags[play->sceneId].unk_14 & 7;
 }
 
 void func_8095954C(EnMk* this, PlayState* play) {

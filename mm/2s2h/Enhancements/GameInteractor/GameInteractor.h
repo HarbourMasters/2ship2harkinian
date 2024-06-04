@@ -7,6 +7,7 @@ extern "C" {
 #endif
 #include "z64actor.h"
 #include "z64camera.h"
+#include "z64.h"
 #ifdef __cplusplus
 }
 #endif
@@ -51,13 +52,19 @@ typedef enum {
     GI_VB_TATL_INTERUPT_MSG6,
     GI_VB_ITEM_BE_RESTRICTED,
     GI_VB_FLIP_HOP_VARIABLE,
-    GI_VB_SET_ZORA_EGG_COUNT,
+    GI_VB_DISABLE_LETTERBOX,
+    GI_VB_CLOCK_TOWER_OPENING_CONSIDER_THIS_FIRST_CYCLE,
 } GIVanillaBehavior;
 
 typedef enum {
     GI_INVERT_CAMERA_RIGHT_STICK_X,
     GI_INVERT_CAMERA_RIGHT_STICK_Y,
 } GIInvertType;
+
+typedef enum {
+    GI_DPAD_OCARINA,
+    GI_DPAD_EQUIP,
+} GIDpadType;
 
 #ifdef __cplusplus
 
@@ -249,6 +256,7 @@ class GameInteractor {
     DEFINE_HOOK(OnGameStateMainFinish, ());
     DEFINE_HOOK(OnGameStateDrawFinish, ());
     DEFINE_HOOK(OnGameStateUpdate, ());
+    DEFINE_HOOK(OnKaleidoUpdate, (PauseContext * pauseCtx));
     DEFINE_HOOK(OnSaveInit, (s16 fileNum));
     DEFINE_HOOK(BeforeEndOfCycleSave, ());
     DEFINE_HOOK(AfterEndOfCycleSave, ());
@@ -256,6 +264,7 @@ class GameInteractor {
 
     DEFINE_HOOK(OnSceneInit, (s8 sceneId, s8 spawnNum));
     DEFINE_HOOK(OnRoomInit, (s8 sceneId, s8 roomNum));
+    DEFINE_HOOK(OnPlayDestroy, ());
 
     DEFINE_HOOK(ShouldActorInit, (Actor * actor, bool* should));
     DEFINE_HOOK(OnActorInit, (Actor * actor));
@@ -290,6 +299,7 @@ extern "C" {
 void GameInteractor_ExecuteOnGameStateMainFinish();
 void GameInteractor_ExecuteOnGameStateDrawFinish();
 void GameInteractor_ExecuteOnGameStateUpdate();
+void GameInteractor_ExecuteOnKaleidoUpdate(PauseContext* pauseCtx);
 void GameInteractor_ExecuteOnSaveInit(s16 fileNum);
 void GameInteractor_ExecuteBeforeEndOfCycleSave();
 void GameInteractor_ExecuteAfterEndOfCycleSave();
@@ -297,6 +307,7 @@ void GameInteractor_ExecuteBeforeMoonCrashSaveReset();
 
 void GameInteractor_ExecuteOnSceneInit(s16 sceneId, s8 spawnNum);
 void GameInteractor_ExecuteOnRoomInit(s16 sceneId, s8 roomNum);
+void GameInteractor_ExecuteOnPlayDestroy();
 
 bool GameInteractor_ShouldActorInit(Actor* actor);
 void GameInteractor_ExecuteOnActorInit(Actor* actor);
@@ -328,6 +339,7 @@ bool GameInteractor_Should(GIVanillaBehavior flag, bool result, void* optionalAr
         flag, [](GIVanillaBehavior _, bool* should, void* opt) body)
 
 int GameInteractor_InvertControl(GIInvertType type);
+uint32_t GameInteractor_Dpad(GIDpadType type, uint32_t buttonCombo);
 
 #ifdef __cplusplus
 }

@@ -7,8 +7,6 @@
 #include "z_en_zoraegg.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
 
-#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
-
 #define FLAGS (ACTOR_FLAG_10)
 
 #define THIS ((EnZoraegg*)thisx)
@@ -402,7 +400,6 @@ void func_80B322BC(EnZoraegg* this, PlayState* play) {
 
 void func_80B32390(EnZoraegg* this, PlayState* play) {
     s32 pad;
-    s32 eggcount;
     Player* player = GET_PLAYER(play);
 
     if (CutsceneManager_IsNext(this->actor.csId)) {
@@ -413,11 +410,6 @@ void func_80B32390(EnZoraegg* this, PlayState* play) {
             SET_EVENTINF(EVENTINF_33);
             Actor_Kill(&this->actor);
         }
-    } else if (GameInteractor_Should(GI_VB_SET_ZORA_EGG_COUNT, true, &eggcount) && (func_80B319A8(play) >= eggcount) &&
-               (fabsf(player->actor.world.pos.x - this->actor.world.pos.x) < (100.0f * this->actor.scale.x)) &&
-               (fabsf(player->actor.world.pos.z - this->actor.world.pos.z) < (100.0f * this->actor.scale.z)) &&
-               (fabsf(player->actor.world.pos.y - this->actor.world.pos.y) < 30.0f)) {
-        CutsceneManager_Queue(this->actor.csId);
     } else if ((func_80B319A8(play) >= 7) &&
                (fabsf(player->actor.world.pos.x - this->actor.world.pos.x) < (100.0f * this->actor.scale.x)) &&
                (fabsf(player->actor.world.pos.z - this->actor.world.pos.z) < (100.0f * this->actor.scale.z)) &&
