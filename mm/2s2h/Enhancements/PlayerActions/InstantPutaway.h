@@ -1,6 +1,0 @@
-#ifndef PLAYER_ACTION_INSTANT_PUTAWAY_H
-#define PLAYER_ACTION_INSTANT_PUTAWAY_H
-
-void RegisterInstantPutaway();
-
-#endif // PLAYER_ACTION_INSTANT_PUTAWAY_H
