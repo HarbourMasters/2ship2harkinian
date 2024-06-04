@@ -41,6 +41,7 @@ void InitEnhancements() {
 
     // Player
     RegisterClimbSpeed();
+    RegisterFastFlowerLaunch();
     RegisterInstantPutaway();
 
     // Songs
