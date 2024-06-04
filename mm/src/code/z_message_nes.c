@@ -1466,7 +1466,11 @@ void Message_DecodeNES(PlayState* play) {
                 msgCtx->unk12054[3] = currMin % 10;
                 Message_LoadCharNES(play, msgCtx->unk12054[3] + '0', &charTexIndex, &spA4, decodedBufPos);
                 decodedBufPos++;
-                msgCtx->unk12054[4] = gSaveContext.save.day;
+                if ((currHr * 60) + currMin < 360) {
+                    msgCtx->unk12054[4] = gSaveContext.save.day + 1;
+                } else {
+                    msgCtx->unk12054[4] = gSaveContext.save.day;
+                }
                 Message_LoadCharNES(play, msgCtx->unk12054[4] + '0', &charTexIndex, &spA4, decodedBufPos);
                 decodedBufPos++;
             } else {

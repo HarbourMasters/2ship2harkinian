@@ -786,22 +786,28 @@ void func_801491DC(PlayState* play) {
     }
 }
 
+// Function containing logic for the user to select the actual time to skip to.
 void func_SongOfDoubleTimeSelector(PlayState* play) {
     static s16 sAnalogStickHeld = false;
     MessageContext* msgCtx = &play->msgCtx;
 
+    // Logic to find the current time so the user cannot select a time less than the current time.
     uint16_t currentHr = TIME_TO_HOURS_F(gSaveContext.save.time);
     uint16_t currentMin = TIME_TO_MINUTES_F(gSaveContext.save.time);
     currentMin = currentMin - (currentHr * 60);
     uint16_t currentDay = gSaveContext.save.day;
+    if (((currentHr * 60) + currentMin) < 360) {
+        currentDay = currentDay + 1;
+    }
     uint16_t totalCurrentTime = ((currentHr * 60) + currentMin) + (1440 * (currentDay-1));
 
+    // Logic to calculate the current time.
     uint16_t selectedHr = (msgCtx->unk12054[0] * 10) + (msgCtx->unk12054[1]);
     uint16_t selectedMin = (msgCtx->unk12054[2] * 10) + (msgCtx->unk12054[3]);
     uint16_t selectedDay = (msgCtx->unk12054[4]);
     uint16_t totalSelectedTime = ((selectedHr * 60) + selectedMin) + (1440 * (selectedDay-1));
 
-    uint16_t updatedItems[5] = {0,0,0,0,0};
+    uint16_t updatedItems[5] = {0,0,0,0,0}; // Keeps track of which indices are updated so they can be re-drawn.
 
     uint16_t maxTime = 4320;
 
@@ -945,6 +951,10 @@ void func_SongOfDoubleTimeSelector(PlayState* play) {
                         }
                     } else {
                         msgCtx->unk12054[0]++;
+                        if (msgCtx->unk12054[1] > 3) { // Prevents hour from incrementing into impossible values like 28.
+                            msgCtx->unk12054[1] = 0;
+                            updatedItems[1] = 1;
+                        }
                     }
                 }
                 updatedItems[0] = 1;
@@ -6149,14 +6159,31 @@ void Message_Update(PlayState* play) {
                         int16_t hour_1 = play->msgCtx.unk12054[1];
                         int16_t min_2 = play->msgCtx.unk12054[2];
                         int16_t min_1 = play->msgCtx.unk12054[3];
-                        int16_t am_pm = play->msgCtx.unk12054[4];
+                        int16_t day = play->msgCtx.unk12054[4];
 
                         s32 hour = (hour_2 * 10) + hour_1;
                         s32 min = (min_2 * 10) + min_1;
+
+                        uint16_t currentHr = TIME_TO_HOURS_F(gSaveContext.save.time);
+
+                        if (gSaveContext.save.day != day) {
+                            if (0 <= hour < 6) {
+                                gSaveContext.save.day = day - 1;
+                            }
+                            else {
+                                gSaveContext.save.day = day;
+                            }
+                        }
+
                         gSaveContext.save.time = CLOCK_TIME(hour, min);
 
+                        if (0 <= hour < 6 || 18 <= hour < 24) {
+                            gSaveContext.save.isNight = 1;
+                        } else {
+                            gSaveContext.save.isNight = 0;
+                        }
+
                         Audio_PlaySfx_MessageDecide();
-                        play->msgCtx.ocarinaMode = OCARINA_MODE_END;
                         Message_CloseTextbox(play);
                         play->msgCtx.ocarinaMode = OCARINA_MODE_APPLY_DOUBLE_SOT;
                         gSaveContext.timerStates[TIMER_ID_MOON_CRASH] = TIMER_STATE_OFF;
