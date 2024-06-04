@@ -462,6 +462,8 @@ void DrawEnhancementsMenu() {
                 { .tooltip = "Playing the Song Of Time will not reset the Sword back to Kokiri Sword." });
             UIWidgets::CVarCheckbox("Do not reset Rupees", "gEnhancements.Cycle.DoNotResetRupees",
                                     { .tooltip = "Playing the Song Of Time will not reset the your rupees." });
+            UIWidgets::CVarCheckbox("Do not reset Time Speed", "gEnhancements.Cycle.DoNotResetTimeSpeed",
+                                    { .tooltip = "Playing the Song Of Time will not reset the current time speed set by Inverted Song of Time." });
 
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 0, 255));
             ImGui::SeparatorText("Unstable");

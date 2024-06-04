@@ -7,10 +7,12 @@ extern "C" {
 }
 
 SaveInfo saveInfoCopy;
+s32 timeSpeedOffsetCopy;
 
 void RegisterEndOfCycleSaveHooks() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::BeforeEndOfCycleSave>(
-        []() { memcpy(&saveInfoCopy, &gSaveContext.save.saveInfo, sizeof(SaveInfo)); });
+        []() { memcpy(&saveInfoCopy, &gSaveContext.save.saveInfo, sizeof(SaveInfo));
+               memcpy(&timeSpeedOffsetCopy, &gSaveContext.save.timeSpeedOffset, sizeof(s32)); });
 
     GameInteractor::Instance->RegisterGameHook<GameInteractor::AfterEndOfCycleSave>([]() {
         if (CVarGetInteger("gEnhancements.Cycle.DoNotResetRupees", 0)) {
@@ -76,6 +78,10 @@ void RegisterEndOfCycleSaveHooks() {
 
             SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_RAZOR);
             CUR_FORM_EQUIP(EQUIP_SLOT_B) = ITEM_SWORD_RAZOR;
+        }
+
+        if (CVarGetInteger("gEnhancements.Cycle.DoNotResetTimeSpeed", 0)) {
+            gSaveContext.save.timeSpeedOffset = timeSpeedOffsetCopy;
         }
     });
 }
