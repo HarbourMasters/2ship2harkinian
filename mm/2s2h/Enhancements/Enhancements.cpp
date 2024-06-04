@@ -8,6 +8,7 @@ void InitEnhancements() {
 
     // Cheats
     RegisterInfiniteCheats();
+    RegisterLongerFlowerGlide();
     RegisterMoonJumpOnL();
     RegisterUnbreakableRazorSword();
     RegisterUnrestrictedItems();

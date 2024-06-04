@@ -18837,7 +18837,7 @@ void Player_Action_94(Player* this, PlayState* play) {
         temp_fv1 = D_8085D958[this->av1.actionVar1] - Math_Vec3f_DistXZ(&this->actor.world.pos, this->unk_AF0);
         PlayerAnimation_Update(play, &this->skelAnime);
 
-        if (((this->av2.actionVar2 != 0) && (temp_fv1 > 300.0f)) || (CVarGetInteger("gCheats.LongerFlowerGlide", 0))) {
+        if ((this->av2.actionVar2 != 0) && (temp_fv1 > 300.0f)) {
             sp76 = 0x1770;
             if (!BEN_ANIM_EQUAL(this->skelAnime.animation, gPlayerAnim_pn_kakku)) {
                 func_8082E5EC(play, this, &gPlayerAnim_pn_kakkufinish);
