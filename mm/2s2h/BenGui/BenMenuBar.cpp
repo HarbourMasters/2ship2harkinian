@@ -14,6 +14,7 @@
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "2s2h/DeveloperTools/WarpPoint.h"
 #include "2s2h/Enhancements/Cheats/Cheats.h"
+#include "2s2h/Enhancements/Player/Player.h"
 #include "HudEditor.h"
 
 extern "C" {
@@ -595,9 +596,12 @@ void DrawEnhancementsMenu() {
         if (UIWidgets::BeginMenu("Player")) {
             UIWidgets::CVarSliderInt("Climb speed", "gEnhancements.Player.ClimbSpeed", 1, 5, 1,
                                      { .tooltip = "Increases the speed at which Link climbs vines and ladders." });
-            UIWidgets::CVarCheckbox("Fast Deku Flower Launch", "gEnhancements.Player.FastFlowerLaunch",
-                                    { .tooltip = "Speeds up the time it takes to be able to get maximum height from "
-                                                 "launching out of a deku flower" });
+            if (UIWidgets::CVarCheckbox("Fast Deku Flower Launch", "gEnhancements.Player.FastFlowerLaunch",
+                                        { .tooltip =
+                                              "Speeds up the time it takes to be able to get maximum height from "
+                                              "launching out of a deku flower" })) {
+                RegisterFastFlowerLaunch();
+            }
             UIWidgets::CVarCheckbox("Instant Putaway", "gEnhancements.Player.InstantPutaway",
                                     { .tooltip = "Allows Link to instantly puts away held item without waiting." });
             ImGui::EndMenu();
