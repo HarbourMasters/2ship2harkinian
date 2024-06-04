@@ -12,6 +12,8 @@
 
 namespace UIWidgets {
 
+    using SectionFunc = void(*)();
+
     struct TextFilters {
         static int FilterNumbers(ImGuiInputTextCallbackData* data) {
             if (data->EventChar < 256 && strchr("1234567890", (char)data->EventChar)) {
@@ -110,6 +112,17 @@ namespace UIWidgets {
         ComponentAlignment alignment = ComponentAlignment::Left;
         LabelPosition labelPosition = LabelPosition::Above;
         ImGuiComboFlags flags = 0;
+    };
+
+    struct SidebarEntry {
+        std::string label;
+        std::vector<SectionFunc> columnFuncs;
+    };
+
+    struct MainMenuEntry {
+        std::string label;
+        std::vector<SidebarEntry> sidebarEntries;
+        const char* sidebarCvar;
     };
 
     void PushStyleCombobox(const ImVec4& color = Colors::Indigo);

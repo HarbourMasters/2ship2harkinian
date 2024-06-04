@@ -4,6 +4,7 @@
 #include "graphic/Fast3D/gfx_rendering_api.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "2s2h/Enhancements/Enhancements.h"
+#include <format>
 
 extern "C" {
 #include "z64.h"
@@ -68,113 +69,147 @@ void BenMenu::DrawElement() {
     ImGuiContext& g = *GImGui;
     ImGuiWindow* window = g.CurrentWindow;
     ImGuiStyle& style = ImGui::GetStyle();
-    std::vector<const char*> entries = { "Settings##Menu", "Enhancements##Menu", "Cheats##Menu" };
-    /*std::vector<std::vector<std::string>> sidebarEntries = {
-        { "Audio", "Graphics", "Controls" },
-        { "Camera", "Cutscenes", "Cycle/Saving", "Dialogues", "Dpad", "Fixes", "Graphics", "Masks", "Minigames",
-          "Modes", "Player Movement", "Restorations", "Songs/Playback" },
-        {}
-    };*/
-    
+
+    std::vector<UIWidgets::SidebarEntry> settingsSidebar = {
+        { "Audio",    { DrawAudioSettings } },
+        { "Graphics", { DrawGraphicsSettings } },
+        { "Controls", { DrawControllerSettings } }
+    };
+    std::vector<UIWidgets::MainMenuEntry> menuEntries = {
+        { "Settings", settingsSidebar, "gSettings.Menu.SettingsSidebarIndex" },
+        { "Enhancements", {}, "gSettings.Menu.EnhancementsSidebarIndex"},
+        { "Cheats", {}, "gSettings.Menu.CheatsSidebarIndex"}
+    };
+
+    auto sectionCount = menuEntries.size();
+    const char* headerCvar = "gSettings.Menu.SelectedHeader";
+    uint8_t selectedHeader = CVarGetInteger(headerCvar, 0);
     float centerX = ImGui::GetMainViewport()->GetCenter().x;
-    uint8_t selectedHeader = CVarGetInteger("gSettings.SelectedHeader", 0);
-    std::vector<ImVec2> headerSizes = { ImGui::CalcTextSize(entries.at(0), NULL, true),  ImGui::CalcTextSize(entries.at(1), NULL, true), ImGui::CalcTextSize(entries.at(2), NULL, true)};
+    std::vector<ImVec2> headerSizes;
+    for (int i = 0; i < sectionCount; i++) {
+        headerSizes.push_back(ImGui::CalcTextSize(menuEntries.at(i).label.c_str()));
+    }
+    
     ImVec2 pos = window->DC.CursorPos;
     pos.x = centerX - (headerSizes.at(0).x + headerSizes.at(1).x / 2 + (style.ItemSpacing.x * 2));
     pos.y += 100;
+    std::vector<UIWidgets::SidebarEntry> sidebar;
+    float headerHeight = 0;
 
-    const ImGuiID settingsId = window->GetID(entries.at(0));
-    const ImGuiID enhId = window->GetID(entries.at(1));
-    const ImGuiID cheatsId = window->GetID(entries.at(2));
-    ImRect bb = { pos - style.FramePadding, pos + headerSizes.at(0) + style.FramePadding };
-    ImGui::ItemSize(bb, style.FramePadding.y);
-    ImGui::ItemAdd(bb, settingsId);
-    bool hovered, held;
-    bool pressed = ImGui::ButtonBehavior(bb, settingsId, &hovered, &held);
-    if (pressed) {
-        ImGui::MarkItemEdited(settingsId);
-        CVarSetInteger("gSettings.SelectedHeader", 0);
-        selectedHeader = 0;
-    }
-    if (selectedHeader != 0) {
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, { 0, 0, 0, 0 });
-    }
-    window->DrawList->AddRectFilled(pos - style.FramePadding, pos + headerSizes.at(0) + style.FramePadding, 
-                                        ImGui::GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive
-                                                           : hovered         ? ImGuiCol_FrameBgHovered
-                                                                             : ImGuiCol_FrameBg),
-                                        true, style.FrameRounding);
-    if (selectedHeader != 0) {
-        ImGui::PopStyleColor();
-    }
+    for (int i = 0; i < sectionCount; i++) {
+        auto entry = menuEntries.at(i);
+        const ImGuiID headerId = window->GetID(std::string(entry.label + "##Header").c_str());
+        ImRect bb = { pos - style.FramePadding, pos + headerSizes.at(i) + style.FramePadding };
+        ImGui::ItemSize(bb, style.FramePadding.y);
+        ImGui::ItemAdd(bb, headerId);
+        bool hovered, held;
+        bool pressed = ImGui::ButtonBehavior(bb, headerId, &hovered, &held);
+        if (pressed) {
+            ImGui::MarkItemEdited(headerId);
+            CVarSetInteger(headerCvar, i);
+            selectedHeader = i;
+        }
+        if (selectedHeader != i) {
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, { 0, 0, 0, 0 });
+        }
+        if (selectedHeader == i) {
+            sidebar = entry.sidebarEntries;
+        }
+        window->DrawList->AddRectFilled(pos - style.FramePadding, pos + headerSizes.at(i) + style.FramePadding,
+            ImGui::GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive
+                : hovered ? ImGuiCol_FrameBgHovered
+                : ImGuiCol_FrameBg),
+            true, style.FrameRounding);
+        if (selectedHeader != i) {
+            ImGui::PopStyleColor();
+        }
 
-    UIWidgets::RenderText(pos, entries.at(0), ImGui::FindRenderedTextEnd(entries.at(0)), true);
-    pos.x += headerSizes.at(0).x + style.ItemSpacing.x * 2;
-
-    bb = { pos - style.FramePadding, pos + headerSizes.at(1) + style.FramePadding };
-    ImGui::ItemSize(bb, style.FramePadding.y);
-    ImGui::ItemAdd(bb, enhId);
-    pressed = ImGui::ButtonBehavior(bb, enhId, &hovered, &held);
-    if (pressed) {
-        ImGui::MarkItemEdited(enhId);
-        CVarSetInteger("gSettings.SelectedHeader", 1);
-        selectedHeader = 1;
+        UIWidgets::RenderText(pos, entry.label.c_str(), ImGui::FindRenderedTextEnd(entry.label.c_str()), true);
+        if (i + 1 < sectionCount) {
+            pos.x += headerSizes.at(i).x + style.ItemSpacing.x * 2;
+        } else {
+            headerHeight = bb.GetHeight();
+        }
     }
-    if (selectedHeader != 1) {
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, { 0, 0, 0, 0 });
-    }
-    window->DrawList->AddRectFilled(pos - style.FramePadding, pos + headerSizes.at(1) + style.FramePadding,
-        ImGui::GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive
-            : hovered ? ImGuiCol_FrameBgHovered
-            : ImGuiCol_FrameBg),
-        true, style.FrameRounding);
-    if (selectedHeader != 1) {
-        ImGui::PopStyleColor();
-    }
-
-    UIWidgets::RenderText(pos, entries.at(1), ImGui::FindRenderedTextEnd(entries.at(1)), true);
-    pos.x += headerSizes.at(1).x + style.ItemSpacing.x * 2;
-
-    bb = { pos - style.FramePadding, pos + headerSizes.at(2) + style.FramePadding };
-    ImGui::ItemSize(bb, style.FramePadding.y);
-    ImGui::ItemAdd(bb, cheatsId);
-    pressed = ImGui::ButtonBehavior(bb, cheatsId, &hovered, &held);
-    if (pressed) {
-        ImGui::MarkItemEdited(cheatsId);
-        CVarSetInteger("gSettings.SelectedHeader", 2);
-        selectedHeader = 2;
-    }
-    if (selectedHeader != 2) {
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, { 0, 0, 0, 0 });
-    }
-    window->DrawList->AddRectFilled(pos - style.FramePadding, pos + headerSizes.at(2) + style.FramePadding,
-        ImGui::GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive
-            : hovered ? ImGuiCol_FrameBgHovered
-            : ImGuiCol_FrameBg),
-        true, style.FrameRounding);
-    if (selectedHeader != 2) {
-        ImGui::PopStyleColor();
-    }
-
-    UIWidgets::RenderText(pos, entries.at(2), ImGui::FindRenderedTextEnd(entries.at(2)), true);
-
-    pos.y += bb.GetHeight() + style.ItemSpacing.y;
+    pos.y += headerHeight + style.ItemSpacing.y;
     pos.x = centerX - 640;
     window->DrawList->AddRectFilled(pos, pos + ImVec2{ 1280, 4 }, ImGui::GetColorU32({255, 255, 255, 255}), true, style.WindowRounding);
     pos.y += style.ItemSpacing.y;
     ImGui::SetNextWindowPos(pos);
     ImGui::SetNextWindowSize({ 1280, 600 });
 
-    switch (selectedHeader) {
-    case 1:
-        DrawEnhancementsMenu();
-        break;
-    case 2:
-        DrawCheatsMenu();
-    case 0:
-    default:
-        DrawSettingsMenu();
-        break;
+    const char* menuId = (menuEntries.at(selectedHeader).label + " Menu").c_str();
+    {
+        ImGui::BeginChild(menuId);
+        ImGui::SetNextWindowPos(pos + style.ItemSpacing);
+        ImGui::SetNextWindowSize({ 140, 600 });
+
+        const char* sectionId = (menuEntries.at(selectedHeader).label + " Section").c_str();
+        const char* sidebarCvar = menuEntries.at(selectedHeader).sidebarCvar;
+
+        uint8_t sectionIndex = CVarGetInteger(sidebarCvar, 0);
+        if (sectionIndex > 2) sectionIndex = 2;
+        if (sectionIndex < 0) sectionIndex = 0;
+        float sectionCenterX = pos.x + 70;
+        float topY = pos.y;
+        {
+            ImGui::BeginChild(sectionId);
+            for (int i = 0; i < sidebar.size(); i++) {
+                auto sidebarEntry = sidebar.at(i);
+                const char* label = sidebarEntry.label.c_str();
+                const ImGuiID sidebarId = window->GetID(std::string(sidebarEntry.label + "##Sidebar").c_str());
+                ImVec2 labelSize = ImGui::CalcTextSize(label, ImGui::FindRenderedTextEnd(label), true);
+                pos.y += style.ItemSpacing.y + style.FramePadding.y;
+                pos.x = sectionCenterX - labelSize.x / 2;
+                ImRect bb = { pos - style.FramePadding, pos + labelSize + style.FramePadding };
+                ImGui::ItemSize(bb, style.FramePadding.y);
+                ImGui::ItemAdd(bb, sidebarId);
+                bool hovered, held;
+                bool pressed = ImGui::ButtonBehavior(bb, sidebarId, &hovered, &held);
+                if (pressed) {
+                    ImGui::MarkItemEdited(sidebarId);
+                    CVarSetInteger(sidebarCvar, i);
+                    sectionIndex = 0;
+                }
+                if (sectionIndex != 0) {
+                    ImGui::PushStyleColor(ImGuiCol_FrameBg, { 0, 0, 0, 0 });
+                }
+                if (sectionIndex == i) {
+
+                }
+                window->DrawList->AddRectFilled(pos - style.FramePadding, pos + labelSize + style.FramePadding,
+                    ImGui::GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive
+                        : hovered ? ImGuiCol_FrameBgHovered
+                        : ImGuiCol_FrameBg),
+                    true, style.FrameRounding);
+                if (sectionIndex != 0) {
+                    ImGui::PopStyleColor();
+                }
+                UIWidgets::RenderText(pos, label, ImGui::FindRenderedTextEnd(label), true);
+                pos.y += bb.GetHeight();
+            }
+            ImGui::EndChild();
+        }
+
+        ImGui::PushFont(OTRGlobals::Instance->fontMonoLarger);
+        pos = ImVec2{ sectionCenterX + 70, topY } + style.ItemSpacing;
+        window->DrawList->AddRectFilled(pos, pos + ImVec2{ 4, 600 - style.FramePadding.y * 2 }, ImGui::GetColorU32({ 255, 255, 255, 255 }), true, style.WindowRounding);
+        pos.x += 4 + style.ItemSpacing.x;
+        ImGui::SetNextWindowPos(pos + style.ItemSpacing);
+        float windowWidth = 1280 - 140 - 4 - style.ItemSpacing.x * 6;
+        std::string sectionMenuId = sidebar.at(sectionIndex).label + " Settings";
+        {
+            ImGui::BeginChild(sectionMenuId.c_str(), { windowWidth, 600 });
+            for (int i = 0; i < sidebar.at(sectionIndex).columnFuncs.size(); i++) {
+                std::string sectionId = std::string(sectionMenuId + std::format(" Column {}", i));
+                ImGui::BeginChild(sectionId.c_str(), { (windowWidth - style.ItemSpacing.x) / 3, 600 });
+                sidebar.at(sectionIndex).columnFuncs.at(i);
+                ImGui::EndChild();
+            }
+            ImGui::EndChild();
+        }
+        ImGui::PopFont();
+        ImGui::EndChild();
     }
     ImGui::PopFont();
 
@@ -183,128 +218,7 @@ void BenMenu::DrawElement() {
     ImGui::End();
 }
 
-void BenMenu::DrawSettingsMenu() {
-    ImGui::BeginChild("Settings Menu");
-
-    ImGuiContext& g = *GImGui;
-    ImGuiWindow* window = g.CurrentWindow;
-    ImVec2 pos = window->DC.CursorPos;
-    ImGuiStyle& style = ImGui::GetStyle();
-    ImGui::SetNextWindowPos(pos + style.ItemSpacing);
-    ImGui::SetNextWindowSize({ 140, 600 });
-
-    ImGui::BeginChild("Settings Section");
-    uint8_t sectionIndex = CVarGetInteger("gSettings.SettingsMenuIndex", 0);
-    if (sectionIndex > 2) sectionIndex = 2;
-    if (sectionIndex < 0) sectionIndex = 0;
-    std::vector<const char*> entries = { "Audio##Settings", "Graphics##Settings", "Controls##Settings" };
-    std::vector<ImVec2> headerSizes = { ImGui::CalcTextSize(entries.at(0), NULL, true),  ImGui::CalcTextSize(entries.at(1), NULL, true), ImGui::CalcTextSize(entries.at(2), NULL, true) };
-    const ImGuiID audioId = window->GetID(entries.at(0));
-    const ImGuiID graphicsId = window->GetID(entries.at(1));
-    const ImGuiID controlsId = window->GetID(entries.at(2));
-    float sectionCenterX = pos.x + 70;
-    float topY = pos.y;
-    pos.y += style.ItemSpacing.y + style.FramePadding.y;
-    pos.x = sectionCenterX - headerSizes.at(0).x / 2;
-    ImVec2 offset = { headerSizes.at(0).x / 2, 0 };
-    ImRect bb = { pos - style.FramePadding - offset, pos + headerSizes.at(0) + style.FramePadding };
-    ImGui::ItemSize(bb, style.FramePadding.y);
-    ImGui::ItemAdd(bb, audioId);
-    bool hovered, held;
-    bool pressed = ImGui::ButtonBehavior(bb, audioId, &hovered, &held);
-    if (pressed) {
-        ImGui::MarkItemEdited(audioId);
-        CVarSetInteger("gSettings.SettingsMenuIndex", 0);
-        sectionIndex = 0;
-    }
-    if (sectionIndex != 0) {
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, { 0, 0, 0, 0 });
-    }
-    window->DrawList->AddRectFilled(pos - style.FramePadding, pos + headerSizes.at(0) + style.FramePadding,
-        ImGui::GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive
-            : hovered ? ImGuiCol_FrameBgHovered
-            : ImGuiCol_FrameBg),
-        true, style.FrameRounding);
-    if (sectionIndex != 0) {
-        ImGui::PopStyleColor();
-    }
-    UIWidgets::RenderText(pos, entries.at(0), ImGui::FindRenderedTextEnd(entries.at(0)), true);
-
-    offset = { headerSizes.at(1).x / 2, 0 };
-    pos.y += style.ItemSpacing.y + headerSizes.at(1).y + style.FramePadding.y * 2;
-    pos.x = sectionCenterX - headerSizes.at(1).x / 2;
-    bb = { pos - style.FramePadding, pos + headerSizes.at(1) + style.FramePadding };
-    ImGui::ItemSize(bb, style.FramePadding.y);
-    ImGui::ItemAdd(bb, graphicsId);
-    pressed = ImGui::ButtonBehavior(bb, graphicsId, &hovered, &held);
-    if (pressed) {
-        ImGui::MarkItemEdited(graphicsId);
-        CVarSetInteger("gSettings.SettingsMenuIndex", 1);
-        sectionIndex = 1;
-    }
-    if (sectionIndex != 1) {
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, { 0, 0, 0, 0 });
-    }
-    window->DrawList->AddRectFilled(pos - style.FramePadding, pos + headerSizes.at(1) + style.FramePadding,
-        ImGui::GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive
-            : hovered ? ImGuiCol_FrameBgHovered
-            : ImGuiCol_FrameBg),
-        true, style.FrameRounding);
-    if (sectionIndex != 1) {
-        ImGui::PopStyleColor();
-    }
-    UIWidgets::RenderText(pos, entries.at(1), ImGui::FindRenderedTextEnd(entries.at(1)), true);
-
-    offset = { headerSizes.at(2).x / 2, 0 };
-    pos.y += style.ItemSpacing.y + headerSizes.at(2).y + style.FramePadding.y * 2;
-    pos.x = sectionCenterX - headerSizes.at(2).x / 2;
-    bb = { pos - style.FramePadding, pos + headerSizes.at(2) + style.FramePadding };
-    ImGui::ItemSize(bb, style.FramePadding.y);
-    ImGui::ItemAdd(bb, controlsId);
-    pressed = ImGui::ButtonBehavior(bb, controlsId, &hovered, &held);
-    if (pressed) {
-        ImGui::MarkItemEdited(controlsId);
-        CVarSetInteger("gSettings.SettingsMenuIndex", 2);
-        sectionIndex = 2;
-    }
-    if (sectionIndex != 2) {
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, { 0, 0, 0, 0 });
-    }
-    window->DrawList->AddRectFilled(pos - style.FramePadding, pos + headerSizes.at(2) + style.FramePadding,
-        ImGui::GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive
-            : hovered ? ImGuiCol_FrameBgHovered
-            : ImGuiCol_FrameBg),
-        true, style.FrameRounding);
-    if (sectionIndex != 2) {
-        ImGui::PopStyleColor();
-    }
-    UIWidgets::RenderText(pos, entries.at(2), ImGui::FindRenderedTextEnd(entries.at(2)), true);
-    ImGui::EndChild();
-
-    ImGui::PushFont(OTRGlobals::Instance->fontMonoLarger);
-    pos = ImVec2{ sectionCenterX + 70, topY } + style.ItemSpacing;
-    window->DrawList->AddRectFilled(pos, pos + ImVec2{ 4, 600 - style.FramePadding.y * 2 }, ImGui::GetColorU32({ 255, 255, 255, 255 }), true, style.WindowRounding);
-    pos.x += 4 + style.ItemSpacing.x;
-    ImGui::SetNextWindowPos(pos + style.ItemSpacing);
-    float windowWidth = 1280 - 140 - 4 - style.ItemSpacing.x * 6;
-    switch (sectionIndex) {
-        case 0:
-        default:
-            DrawAudioSettings((windowWidth - style.ItemSpacing.x) / 3);
-            break;
-        case 1:
-            DrawGraphicsSettings((windowWidth - style.ItemSpacing.x) / 3);
-            break;
-        case 2:
-            DrawControllerSettings((windowWidth - style.ItemSpacing.x) / 3);
-    }
-    ImGui::PopFont();
-
-    ImGui::EndChild();
-}
-
-void BenMenu::DrawAudioSettings(float width) {
-    ImGui::BeginChild("Audio Settings", { width, 600 });
+void DrawAudioSettings() {
     UIWidgets::CVarSliderFloat("Master Volume: %.0f %%", "gSettings.Audio.MasterVolume", 0.0f, 1.0f, 1.0f,
         { .showButtons = false, .format = "", .isPercentage = true });
 
@@ -337,11 +251,9 @@ void BenMenu::DrawAudioSettings(float width) {
           .disabledTooltip = "Only one audio API is available on this platform." })) {
         Ship::Context::GetInstance()->GetAudio()->SetAudioBackend(currentAudioBackend);
     }
-    ImGui::EndChild();
 }
 
-void BenMenu::DrawGraphicsSettings(float width) {
-    ImGui::BeginChild("Audio Settings", { width, 600 });
+void DrawGraphicsSettings() {
 #ifndef __APPLE__
     if (UIWidgets::CVarSliderFloat("Internal Resolution: %f %%", CVAR_INTERNAL_RESOLUTION, 0.5f, 2.0f, 1.0f)) {
         Ship::Context::GetInstance()->GetWindow()->SetResolutionMultiplier(
@@ -464,26 +376,6 @@ void BenMenu::DrawGraphicsSettings(float width) {
     }
 
     UIWidgets::CVarCombobox("Texture Filter (Needs reload)", CVAR_TEXTURE_FILTER, textureFilteringMap);
-    ImGui::EndChild();
 }
 
-void BenMenu::DrawControllerSettings(float width) {
-    ImGui::BeginChild("Controller Settings", { width, 600 });
-    ImGui::EndChild();
-}
-
-void BenMenu::DrawEnhancementsMenu() {
-    ImGui::BeginChild("Enhancements Menu");
-
-
-
-    ImGui::EndChild();
-}
-
-void BenMenu::DrawCheatsMenu() {
-    ImGui::BeginChild("Cheats Menu");
-
-
-
-    ImGui::EndChild();
-}
+void DrawControllerSettings() {};
