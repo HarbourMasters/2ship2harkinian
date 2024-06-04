@@ -5638,8 +5638,7 @@ void Message_Update(PlayState* play) {
 
         case MSGMODE_TEXT_DISPLAYING:
             if (msgCtx->textBoxType != TEXTBOX_TYPE_4) {
-                if (CHECK_BTN_ALL(input->press.button, BTN_B) &&
-                    !msgCtx->textUnskippable) {
+                if (CHECK_BTN_ALL(input->press.button, BTN_B) && !msgCtx->textUnskippable) {
                     msgCtx->textboxSkipped = true;
                     msgCtx->textDrawPos = msgCtx->decodedTextLen;
                 } else if (CHECK_BTN_ALL(input->press.button, BTN_A) && !msgCtx->textUnskippable) {
@@ -5653,11 +5652,12 @@ void Message_Update(PlayState* play) {
                         }
                         msgCtx->textDrawPos++;
                     }
-                // 2S2H [Enhancement] When fast text is on, we want to check if B is held instead of only if it was
-                // just pressed. Has an additional check that the textbox hasnt been skipped already to prevent the
-                // message from failing to continue.
+                    // 2S2H [Enhancement] When fast text is on, we want to check if B is held instead of only if it was
+                    // just pressed. Has an additional check that the textbox hasnt been skipped already to prevent the
+                    // message from failing to continue.
                 } else if ((CVarGetInteger("gEnhancements.Dialogue.FastText", 0) &&
-                      CHECK_BTN_ALL(input->cur.button, BTN_B)) && !msgCtx->textUnskippable && !msgCtx->textboxSkipped) {
+                            CHECK_BTN_ALL(input->cur.button, BTN_B)) &&
+                           !msgCtx->textUnskippable && !msgCtx->textboxSkipped) {
                     msgCtx->textboxSkipped = true;
                     msgCtx->textDrawPos = msgCtx->decodedTextLen;
                 }
