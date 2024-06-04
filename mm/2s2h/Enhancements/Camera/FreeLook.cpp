@@ -141,6 +141,11 @@ bool Camera_CanFreeLook(Camera* camera) {
     if (!sCanFreeLook && (fabsf(camX) >= 15.0f || fabsf(camY) >= 15.0f)) {
         sCanFreeLook = true;
     }
+    // Pressing Z will "Reset" Camera
+    if (CHECK_BTN_ALL(sCamPlayState->state.input[0].press.button, BTN_Z)) {
+        sCanFreeLook = false;
+    }
+
     return sCanFreeLook;
 }
 
