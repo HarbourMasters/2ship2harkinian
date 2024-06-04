@@ -8,6 +8,7 @@
 #include "Cheats/Infinite.h"
 #include "Dialogue/Dialogue.h"
 #include "Graphics/TextBasedClock.h"
+#include "Cheats/Cheats.h"
 #include "Cheats/UnbreakableRazorSword.h"
 #include "Cheats/UnrestrictedItems.h"
 #include "Cycle/EndOfCycle.h"

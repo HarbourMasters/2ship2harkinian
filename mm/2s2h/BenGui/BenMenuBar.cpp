@@ -13,6 +13,7 @@
 #include "2s2h/Enhancements/Modes/TimeMovesWhenYouMove.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "2s2h/DeveloperTools/WarpPoint.h"
+#include "2s2h/Enhancements/Cheats/Cheats.h"
 #include "HudEditor.h"
 
 extern "C" {
@@ -644,13 +645,18 @@ void DrawCheatsMenu() {
         UIWidgets::CVarCheckbox("Infinite Magic", "gCheats.InfiniteMagic");
         UIWidgets::CVarCheckbox("Infinite Rupees", "gCheats.InfiniteRupees");
         UIWidgets::CVarCheckbox("Infinite Consumables", "gCheats.InfiniteConsumables");
+        if (UIWidgets::CVarCheckbox(
+                "Longer Deku Flower Glide", "gCheats.LongerFlowerGlide",
+                { .tooltip = "Allows Deku Link to glide longer, no longer dropping after a certain distance" })) {
+            RegisterLongerFlowerGlide();
+        }
+        UIWidgets::CVarCheckbox("No Clip", "gCheats.NoClip");
         UIWidgets::CVarCheckbox("Unbreakable Razor Sword", "gCheats.UnbreakableRazorSword");
         UIWidgets::CVarCheckbox("Unrestricted Items", "gCheats.UnrestrictedItems");
         if (UIWidgets::CVarCheckbox("Moon Jump on L", "gCheats.MoonJumpOnL",
                                     { .tooltip = "Holding L makes you float into the air" })) {
             RegisterMoonJumpOnL();
         }
-        UIWidgets::CVarCheckbox("No Clip", "gCheats.NoClip");
 
         ImGui::EndMenu();
     }
