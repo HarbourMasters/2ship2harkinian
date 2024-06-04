@@ -175,6 +175,10 @@ void RenderText(ImVec2 pos, const char* text, const char* text_end, bool hide_te
     }
 }
 
+void MainMenu(const char* cvar, std::string label, std::vector<MainMenuEntry> entries, ImVec2 size) {
+
+}
+
 bool Checkbox(const char* _label, bool* value, const CheckboxOptions& options) {
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if (window->SkipItems)

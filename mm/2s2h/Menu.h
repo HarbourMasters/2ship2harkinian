@@ -1,6 +1,7 @@
 #pragma once
 
 #include <libultraship/libultraship.h>
+#include <2s2h/BenGui/UIWidgets.hpp>
 
 class BenMenu : public Ship::GuiWindow {
 public:
@@ -13,12 +14,10 @@ public:
 private:
     uint32_t menuHeight;
     uint32_t menuWidth;
-
-    void DrawSettingsMenu();
-    void DrawEnhancementsMenu();
-    void DrawCheatsMenu();
-
-    void DrawAudioSettings(float width);
-    void DrawGraphicsSettings(float width);
-    void DrawControllerSettings(float width);
+    UIWidgets::SidebarEntry audioSettingsEntry;
+    UIWidgets::MainMenuEntry settingsEntry;
 };
+
+void DrawAudioSettings();
+void DrawGraphicsSettings();
+void DrawControllerSettings();
