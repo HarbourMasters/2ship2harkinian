@@ -10,6 +10,7 @@
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/Enhancements/Graphics/MotionBlur.h"
 #include "2s2h/Enhancements/Graphics/PlayAsKafei.h"
+#include "2s2h/Enhancements/Graphics/HWStyledLink.h"
 #include "2s2h/Enhancements/Modes/TimeMovesWhenYouMove.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "2s2h/DeveloperTools/WarpPoint.h"
@@ -533,6 +534,9 @@ void DrawEnhancementsMenu() {
                 { .tooltip = "Disables Black Bar Letterboxes during cutscenes and Z-targeting\nNote: there may be "
                              "minor visual glitches that were covered up by the black bars\nPlease disable this "
                              "setting before reporting a bug" });
+            UIWidgets::CVarCheckbox("Hyrule Warriors Young Link", "gEnhancements.Graphics.HWStyledLink",
+                { .tooltip = "When acquired, places the Keaton and Fierce Deity masks on Link "
+                             "similarly to how he wears them in Hyrule Warriors" });
 
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 0, 255));
             ImGui::SeparatorText("Unstable");

@@ -29,6 +29,7 @@ void InitEnhancements() {
 
     // Graphics
     RegisterDisableBlackBars();
+    RegisterHWStyledLink();
 
     // Masks
     RegisterFastTransformation();
