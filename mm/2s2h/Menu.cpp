@@ -52,15 +52,15 @@ void BenMenu::InitElement() {
 }
 
 void BenMenu::UpdateElement() {
-    menuHeight = ImGui::GetMainViewport()->WorkSize.y;
-    menuWidth = ImGui::GetMainViewport()->WorkSize.x;
+    windowHeight = ImGui::GetMainViewport()->WorkSize.y;
+    windowWidth = ImGui::GetMainViewport()->WorkSize.x;
 }
 
 void BenMenu::DrawElement() {
-    ImGui::SetNextWindowSize({ static_cast<float>(menuWidth), static_cast<float>(menuHeight) });
+    ImGui::SetNextWindowSize({ static_cast<float>(windowWidth), static_cast<float>(windowHeight) });
     ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), 0, { 0.5f, 0.5f });
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-    if (!ImGui::Begin("Main Menu", NULL, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings)) {
+    if (!ImGui::Begin("Main Menu", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings)) {
         ImGui::PopStyleVar();
         ImGui::End();
         return;
@@ -92,11 +92,11 @@ void BenMenu::DrawElement() {
     for (int i = 0; i < sectionCount; i++) {
         headerSizes.push_back(ImGui::CalcTextSize(menuEntries.at(i).label.c_str()));
     }
-    
-    float menuHeight = 800;
+    float menuHeight = std::fminf(800, window->Viewport->Size.y);
+
+    float sectionHeight = std::fminf(window->Viewport->Size.y, menuHeight - 200);
     ImVec2 pos = window->DC.CursorPos;
     pos.x = centerX - (headerSizes.at(0).x + headerSizes.at(1).x / 2 + (style.ItemSpacing.x * 2));
-    if (window->Viewport->Size.y > menuHeight)
     pos.y += std::fminf(window->Viewport->Size.y - menuHeight, 100);
     std::vector<UIWidgets::SidebarEntry> sidebar;
     float headerHeight = 0;
@@ -141,12 +141,12 @@ void BenMenu::DrawElement() {
     window->DrawList->AddRectFilled(pos, pos + ImVec2{ 1280, 4 }, ImGui::GetColorU32({255, 255, 255, 255}), true, style.WindowRounding);
     pos.y += style.ItemSpacing.y;
     ImGui::SetNextWindowPos(pos);
-    ImGui::SetNextWindowSize({ 1280, 600 });
+    ImGui::SetNextWindowSize({ 1280, sectionHeight });
 
     ImGui::BeginChild((menuEntries.at(selectedHeader).label + " Menu").c_str());
     ImGui::SetNextWindowPos(pos + style.ItemSpacing);
     float sidebarWidth = 200;
-    ImGui::SetNextWindowSize({ sidebarWidth, 600 });
+    ImGui::SetNextWindowSize({ sidebarWidth, sectionHeight });
 
     const char* sidebarCvar = menuEntries.at(selectedHeader).sidebarCvar;
 
@@ -194,15 +194,15 @@ void BenMenu::DrawElement() {
 
     ImGui::PushFont(OTRGlobals::Instance->fontMonoLarger);
     pos = ImVec2{ sectionCenterX + (sidebarWidth / 2), topY} + style.ItemSpacing;
-    window->DrawList->AddRectFilled(pos, pos + ImVec2{ 4, 600 - style.FramePadding.y * 2 }, ImGui::GetColorU32({ 255, 255, 255, 255 }), true, style.WindowRounding);
+    window->DrawList->AddRectFilled(pos, pos + ImVec2{ 4, sectionHeight - style.FramePadding.y * 2 }, ImGui::GetColorU32({ 255, 255, 255, 255 }), true, style.WindowRounding);
     pos.x += 4 + style.ItemSpacing.x;
     ImGui::SetNextWindowPos(pos + style.ItemSpacing);
-    float windowWidth = 1280 - sidebarWidth - 4 - style.ItemSpacing.x * 6;
+    float sectionWidth = 1280 - sidebarWidth - 4 - style.ItemSpacing.x * 6;
     std::string sectionMenuId = sidebar.at(sectionIndex).label + " Settings";
-    ImGui::BeginChild(sectionMenuId.c_str(), { windowWidth, 600 });
+    ImGui::BeginChild(sectionMenuId.c_str(), { sectionWidth, sectionHeight });
     for (int i = 0; i < sidebar.at(sectionIndex).columnFuncs.size(); i++) {
         std::string sectionId = std::format("{} Column {}", sectionMenuId, i);
-        ImGui::BeginChild(sectionId.c_str(), { (windowWidth - style.ItemSpacing.x) / 3, 600 });
+        ImGui::BeginChild(sectionId.c_str(), { (sectionWidth - style.ItemSpacing.x) / 3, 600 });
         sidebar.at(sectionIndex).columnFuncs.at(i)();
         ImGui::EndChild();
     }
