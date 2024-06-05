@@ -12,44 +12,7 @@ extern PlayState* gPlayState;
 
 const uint32_t MAX_EGGS = 7;
 
-// every egg is active in marine lab regardless of progress, this tracks only the visible ones in tank
-static uint32_t visibleEggCount = 0;
-
-void ResetStatics() {
-    visibleEggCount = 0;
-}
-
 void RegisterZoraEggCount() {
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::BeforeEndOfCycleSave>([]() { ResetStatics(); });
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::BeforeMoonCrashSaveReset>([]() { ResetStatics(); });
-
-    // zora egg object, figures out how many eggs are being drawn
-    GameInteractor::Instance->RegisterGameHookForID<GameInteractor::OnActorInit>(
-        ACTOR_EN_ZORAEGG, [](Actor* outerActor) {
-            static uint32_t enEggUpdateHook = 0;
-            static uint32_t enEggKillHook = 0;
-            GameInteractor::Instance->UnregisterGameHookForPtr<GameInteractor::OnActorUpdate>(enEggUpdateHook);
-            GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnSceneInit>(enEggKillHook);
-            enEggUpdateHook = 0;
-            enEggKillHook = 0;
-
-            EnZoraegg* enZoraEgg = (EnZoraegg*)outerActor;
-            if (enZoraEgg->actor.draw != nullptr && gPlayState->sceneId == SCENE_LABO) {
-                visibleEggCount++;
-            }
-
-            enEggKillHook =
-                GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneInit>([](s8 sceneId, s8 spawnNum) {
-                    if (sceneId != SCENE_LABO) {
-                        visibleEggCount = 0;
-                    }
-                    GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnActorUpdate>(enEggUpdateHook);
-                    GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnSceneInit>(enEggKillHook);
-                    enEggUpdateHook = 0;
-                    enEggKillHook = 0;
-                });
-        });
-
     // marine researcher, his actor update call is more consistent than the eggs
     GameInteractor::Instance->RegisterGameHookForID<GameInteractor::OnActorInit>(ACTOR_EN_MK, [](Actor* outerActor) {
         static uint32_t enMkUpdateHook = 0;
