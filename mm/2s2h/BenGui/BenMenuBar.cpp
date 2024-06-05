@@ -534,9 +534,6 @@ void DrawEnhancementsMenu() {
                 { .tooltip = "Disables Black Bar Letterboxes during cutscenes and Z-targeting\nNote: there may be "
                              "minor visual glitches that were covered up by the black bars\nPlease disable this "
                              "setting before reporting a bug" });
-            UIWidgets::CVarCheckbox("Hyrule Warriors Young Link", "gEnhancements.Graphics.HWStyledLink",
-                { .tooltip = "When acquired, places the Keaton and Fierce Deity masks on Link "
-                             "similarly to how he wears them in Hyrule Warriors" });
 
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 0, 255));
             ImGui::SeparatorText("Unstable");
@@ -597,6 +594,9 @@ void DrawEnhancementsMenu() {
         if (UIWidgets::BeginMenu("Modes")) {
             UIWidgets::CVarCheckbox("Play As Kafei", "gModes.PlayAsKafei",
                                     { .tooltip = "Requires scene reload to take effect." });
+            UIWidgets::CVarCheckbox("Hyrule Warriors Young Link", "gModes.HWStyledLink",
+                { .tooltip = "When acquired, places the Keaton and Fierce Deity masks on Link "
+                "similarly to how he wears them in Hyrule Warriors" });
             if (UIWidgets::CVarCheckbox("Time Moves When You Move", "gModes.TimeMovesWhenYouMove")) {
                 RegisterTimeMovesWhenYouMove();
             }

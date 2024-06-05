@@ -21,26 +21,25 @@ void ResourceMgr_UnpatchGfxByName(const char* path, const char* patchName);
 void UpdateHWStyledLink() {
     GameInteractor::Instance->RegisterGameHookForID<GameInteractor::OnPlayerPostLimbDraw>(
     PLAYER_LIMB_HEAD, [](Player* player, s32 limbIndex) {
-        if (CVarGetInteger("gEnhancements.Graphics.HWStyledLink", 0)){
-            if (player->currentMask == PLAYER_MASK_NONE &&
-            player->transformation == PLAYER_FORM_HUMAN &&
-            INV_CONTENT(ITEM_MASK_KEATON) == ITEM_MASK_KEATON) {
-                OPEN_DISPS(gPlayState->state.gfxCtx);
-                Matrix_Push();
-                Matrix_RotateYS(14563, MTXMODE_APPLY);
-                Matrix_RotateZS(-4854, MTXMODE_APPLY);
-                Matrix_Translate(300.0f, -250.0f, 77.7f, MTXMODE_APPLY);
-                Matrix_Scale(0.648f, 0.648f, 0.648f, MTXMODE_APPLY);
-                gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
-                gSPDisplayList(POLY_OPA_DISP++, (Gfx*)D_801C0B20[PLAYER_MASK_KEATON - 1]);
-                Matrix_Pop();
-                CLOSE_DISPS(gPlayState->state.gfxCtx);
-            }
+        if (CVarGetInteger("gModes.HWStyledLink", 0) &&
+        player->currentMask == PLAYER_MASK_NONE &&
+        player->transformation == PLAYER_FORM_HUMAN &&
+        INV_CONTENT(ITEM_MASK_KEATON) == ITEM_MASK_KEATON){
+            OPEN_DISPS(gPlayState->state.gfxCtx);
+            Matrix_Push();
+            Matrix_RotateYS(14563, MTXMODE_APPLY);
+            Matrix_RotateZS(-4854, MTXMODE_APPLY);
+            Matrix_Translate(300.0f, -250.0f, 77.7f, MTXMODE_APPLY);
+            Matrix_Scale(0.648f, 0.648f, 0.648f, MTXMODE_APPLY);
+            gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+            gSPDisplayList(POLY_OPA_DISP++, (Gfx*)D_801C0B20[PLAYER_MASK_KEATON - 1]);
+            Matrix_Pop();
+            CLOSE_DISPS(gPlayState->state.gfxCtx);
         }
     });
     GameInteractor::Instance->RegisterGameHookForID<GameInteractor::OnPlayerPostLimbDraw>(
     PLAYER_LIMB_WAIST, [](Player* player, s32 limbIndex) {
-        if (CVarGetInteger("gEnhancements.Graphics.HWStyledLink", 0) && 
+        if (CVarGetInteger("gModes.HWStyledLink", 0) && 
             player->transformation == PLAYER_FORM_HUMAN &&
             player->itemAction != PLAYER_IA_MASK_FIERCE_DEITY &&
             INV_CONTENT(ITEM_MASK_FIERCE_DEITY) == ITEM_MASK_FIERCE_DEITY) {
@@ -55,7 +54,7 @@ void UpdateHWStyledLink() {
                 gSPDisplayList(POLY_OPA_DISP++, (Gfx*)D_801C0B20[PLAYER_MASK_FIERCE_DEITY - 1]);
                 Matrix_Pop();
                 CLOSE_DISPS(gPlayState->state.gfxCtx);
-            }
+        }
     });
 }
 
