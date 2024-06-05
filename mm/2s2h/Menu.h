@@ -12,8 +12,8 @@ public:
     void UpdateElement() override;
 
 private:
-    uint32_t menuHeight;
-    uint32_t menuWidth;
+    uint32_t windowHeight;
+    uint32_t windowWidth;
     UIWidgets::SidebarEntry audioSettingsEntry;
     UIWidgets::MainMenuEntry settingsEntry;
 };
