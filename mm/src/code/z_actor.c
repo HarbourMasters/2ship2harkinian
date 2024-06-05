@@ -3070,6 +3070,45 @@ s32 func_800BA2FC(PlayState* play, Actor* actor, Vec3f* projectedPos, f32 projec
     return false;
 }
 
+// #region 2S2H [Enhancements] Allows us to increase the draw and update distance independently, mostly a modified
+// version of the function above
+void Ship_CalcShouldDrawAndUpdate(PlayState* play, Actor* actor, Vec3f* projectedPos, f32 projectedW, bool* shouldDraw,
+                                  bool* shouldUpdate) {
+    s32 updateMulti = CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1);
+    s32 drawMulti = CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1);
+    bool updateCheck =
+        (-(actor->uncullZoneScale * updateMulti) < projectedPos->z) &&
+        (projectedPos->z < ((actor->uncullZoneForward * updateMulti) + (actor->uncullZoneScale * updateMulti)));
+    bool drawCheck =
+        (-(actor->uncullZoneScale * drawMulti) < projectedPos->z) &&
+        (projectedPos->z < ((actor->uncullZoneForward * drawMulti) + (actor->uncullZoneScale * drawMulti)));
+
+    if (updateCheck || drawCheck) {
+        f32 phi_f12;
+        f32 phi_f2 = CLAMP_MIN(projectedW, 1.0f);
+        f32 phi_f14;
+        f32 phi_f16;
+
+        if (play->view.fovy != 60.0f) {
+            phi_f12 = actor->uncullZoneScale * play->projectionMtxFDiagonal.x * 0.76980036f; // sqrt(16/27)
+
+            phi_f14 = play->projectionMtxFDiagonal.y * 0.57735026f; // 1 / sqrt(3)
+            phi_f16 = actor->uncullZoneScale * phi_f14;
+            phi_f14 *= actor->uncullZoneDownward;
+        } else {
+            phi_f16 = phi_f12 = actor->uncullZoneScale;
+            phi_f14 = actor->uncullZoneDownward;
+        }
+
+        if (((fabsf(projectedPos->x) - phi_f12) < phi_f2) && ((-phi_f2 < (projectedPos->y + phi_f14))) &&
+            ((projectedPos->y - phi_f16) < phi_f2)) {
+            *shouldDraw = drawCheck;
+            *shouldUpdate = updateCheck;
+        }
+    }
+}
+// #endregion
+
 void Actor_DrawAll(PlayState* play, ActorContext* actorCtx) {
     s32 pad[2];
     Gfx* ref2;
@@ -3105,14 +3144,30 @@ void Actor_DrawAll(PlayState* play, ActorContext* actorCtx) {
                 Actor_UpdateFlaggedAudio(actor);
             }
 
-            if (func_800BA2D8(play, actor)) {
-                actor->flags |= ACTOR_FLAG_40;
+            // #region 2S2H
+            bool shipShouldDraw = false;
+            bool shipShouldUpdate = false;
+            if (CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1) > 1 ||
+                CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1) > 1) {
+                Ship_CalcShouldDrawAndUpdate(play, actor, &actor->projectedPos, actor->projectedW, &shipShouldDraw,
+                                             &shipShouldUpdate);
+
+                if (shipShouldUpdate) {
+                    actor->flags |= ACTOR_FLAG_40;
+                } else {
+                    actor->flags &= ~ACTOR_FLAG_40;
+                }
             } else {
-                actor->flags &= ~ACTOR_FLAG_40;
+                if (func_800BA2D8(play, actor)) {
+                    actor->flags |= ACTOR_FLAG_40;
+                } else {
+                    actor->flags &= ~ACTOR_FLAG_40;
+                }
             }
 
             actor->isDrawn = false;
-            if ((actor->init == NULL) && (actor->draw != NULL) && (actor->flags & actorFlags)) {
+            if ((actor->init == NULL) && (actor->draw != NULL) && ((actor->flags & actorFlags) || shipShouldDraw)) {
+                // #endregion
                 if ((actor->flags & ACTOR_FLAG_REACT_TO_LENS) &&
                     ((play->roomCtx.curRoom.lensMode == LENS_MODE_HIDE_ACTORS) ||
                      (play->actorCtx.lensMaskSize == LENS_MASK_ACTIVE_SIZE) ||

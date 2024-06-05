@@ -13,6 +13,8 @@
 #include "2s2h/Enhancements/Modes/TimeMovesWhenYouMove.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "2s2h/DeveloperTools/WarpPoint.h"
+#include "2s2h/Enhancements/Cheats/Cheats.h"
+#include "2s2h/Enhancements/Player/Player.h"
 #include "HudEditor.h"
 
 extern "C" {
@@ -532,10 +534,42 @@ void DrawEnhancementsMenu() {
                              "minor visual glitches that were covered up by the black bars\nPlease disable this "
                              "setting before reporting a bug" });
 
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 0, 255));
+            ImGui::SeparatorText("Unstable");
+            ImGui::PopStyleColor();
+            UIWidgets::CVarCheckbox(
+                "Disable Scene Geometry Distance Check", "gEnhancements.Graphics.DisableSceneGeometryDistanceCheck",
+                { .tooltip =
+                      "Disables the distance check for scene geometry, allowing it to be drawn no matter how far "
+                      "away it is from the player. This may have unintended side effects." });
+            // BENTODO: Not implemented yet
+            // UIWidgets::CVarCheckbox("Widescreen Actor Culling",
+            //                         "gEnhancements.Graphics.ActorCullingAccountsForWidescreen",
+            //                         { .tooltip = "Adjusts the culling planes to account for widescreen resolutions. "
+            //                                      "This may have unintended side effects." });
+            if (UIWidgets::CVarSliderInt(
+                    "Increase Actor Draw Distance: %dx", "gEnhancements.Graphics.IncreaseActorDrawDistance", 1, 5, 1,
+                    { .tooltip =
+                          "Increase the range in which Actors are drawn. This may have unintended side effects." })) {
+                CVarSetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance",
+                               MIN(CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1),
+                                   CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1)));
+            }
+            if (UIWidgets::CVarSliderInt(
+                    "Increase Actor Update Distance: %dx", "gEnhancements.Graphics.IncreaseActorUpdateDistance", 1, 5,
+                    1,
+                    { .tooltip =
+                          "Increase the range in which Actors are updated. This may have unintended side effects." })) {
+                CVarSetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance",
+                               MAX(CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1),
+                                   CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1)));
+            }
+
             ImGui::EndMenu();
         }
 
         if (UIWidgets::BeginMenu("Masks")) {
+            UIWidgets::CVarCheckbox("Blast Mask has Powder Keg Force", "gEnhancements.Masks.BlastMaskKeg");
             UIWidgets::CVarCheckbox("Fast Transformation", "gEnhancements.Masks.FastTransformation");
             UIWidgets::CVarCheckbox("Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere",
                                     { .tooltip = "Allow using Fierce Deity's mask outside of boss rooms." });
@@ -564,10 +598,17 @@ void DrawEnhancementsMenu() {
             }
             ImGui::EndMenu();
         }
-        if (UIWidgets::BeginMenu("Player Movement")) {
-            UIWidgets::CVarSliderInt("Climb speed", "gEnhancements.PlayerMovement.ClimbSpeed", 1, 5, 1,
+        if (UIWidgets::BeginMenu("Player")) {
+            UIWidgets::CVarSliderInt("Climb speed", "gEnhancements.Player.ClimbSpeed", 1, 5, 1,
                                      { .tooltip = "Increases the speed at which Link climbs vines and ladders." });
-
+            if (UIWidgets::CVarCheckbox("Fast Deku Flower Launch", "gEnhancements.Player.FastFlowerLaunch",
+                                        { .tooltip =
+                                              "Speeds up the time it takes to be able to get maximum height from "
+                                              "launching out of a deku flower" })) {
+                RegisterFastFlowerLaunch();
+            }
+            UIWidgets::CVarCheckbox("Instant Putaway", "gEnhancements.Player.InstantPutaway",
+                                    { .tooltip = "Allows Link to instantly puts away held item without waiting." });
             ImGui::EndMenu();
         }
 
@@ -616,13 +657,18 @@ void DrawCheatsMenu() {
         UIWidgets::CVarCheckbox("Infinite Magic", "gCheats.InfiniteMagic");
         UIWidgets::CVarCheckbox("Infinite Rupees", "gCheats.InfiniteRupees");
         UIWidgets::CVarCheckbox("Infinite Consumables", "gCheats.InfiniteConsumables");
+        if (UIWidgets::CVarCheckbox(
+                "Longer Deku Flower Glide", "gCheats.LongerFlowerGlide",
+                { .tooltip = "Allows Deku Link to glide longer, no longer dropping after a certain distance" })) {
+            RegisterLongerFlowerGlide();
+        }
+        UIWidgets::CVarCheckbox("No Clip", "gCheats.NoClip");
         UIWidgets::CVarCheckbox("Unbreakable Razor Sword", "gCheats.UnbreakableRazorSword");
         UIWidgets::CVarCheckbox("Unrestricted Items", "gCheats.UnrestrictedItems");
         if (UIWidgets::CVarCheckbox("Moon Jump on L", "gCheats.MoonJumpOnL",
                                     { .tooltip = "Holding L makes you float into the air" })) {
             RegisterMoonJumpOnL();
         }
-        UIWidgets::CVarCheckbox("No Clip", "gCheats.NoClip");
 
         ImGui::EndMenu();
     }
@@ -642,8 +688,32 @@ const char* logLevels[] = {
 
 void DrawDeveloperToolsMenu() {
     if (UIWidgets::BeginMenu("Developer Tools", UIWidgets::Colors::Yellow)) {
-        UIWidgets::CVarCheckbox("Debug Mode", "gDeveloperTools.DebugEnabled",
-                                { .tooltip = "Enables Debug Mode, allowing you to select maps with L + R + Z." });
+        if (UIWidgets::CVarCheckbox("Debug Mode", "gDeveloperTools.DebugEnabled",
+                                    { .tooltip = "Enables Debug Mode, revealing some developer options and allows you "
+                                                 "to enter Map Select with L + R + Z" })) {
+            // If disabling debug mode, disable all debug features
+            if (!CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
+                CVarClear("gDeveloperTools.DebugSaveFileMode");
+                CVarClear("gDeveloperTools.PreventActorUpdate");
+                CVarClear("gDeveloperTools.PreventActorDraw");
+                CVarClear("gDeveloperTools.PreventActorInit");
+                CVarClear("gDeveloperTools.DisableObjectDependency");
+                if (gPlayState != NULL) {
+                    gPlayState->frameAdvCtx.enabled = false;
+                }
+                RegisterDebugSaveCreate();
+                RegisterPreventActorUpdateHooks();
+                RegisterPreventActorDrawHooks();
+                RegisterPreventActorInitHooks();
+            }
+        }
+        if (ImGui::IsItemHovered()) {
+            ImGui::BeginTooltip();
+            ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f),
+                               "Warning: Some of these features can break your game,\nor cause unexpected behavior, "
+                               "please ensure you disable them\nbefore reporting any bugs.");
+            ImGui::EndTooltip();
+        }
 
         if (CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
             UIWidgets::CVarCheckbox(
@@ -656,45 +726,48 @@ void DrawDeveloperToolsMenu() {
                           "Change the behavior of creating saves while debug mode is enabled:\n\n"
                           "- Empty Save: The default 3 heart save file in first cycle\n"
                           "- Vanilla Debug Save: Uses the title screen save info (8 hearts, all items and masks)\n"
-                          "- 100\% Save: All items, equipment, mask, quast status and bombers notebook complete" })) {
+                          "- 100\% Save: All items, equipment, mask, quast status and bombers notebook complete",
+                      .defaultIndex = DEBUG_SAVE_INFO_NONE })) {
                 RegisterDebugSaveCreate();
             }
-        }
 
-        if (UIWidgets::CVarCheckbox("Prevent Actor Update", "gDeveloperTools.PreventActorUpdate")) {
-            RegisterPreventActorUpdateHooks();
-        }
-        if (UIWidgets::CVarCheckbox("Prevent Actor Draw", "gDeveloperTools.PreventActorDraw")) {
-            RegisterPreventActorDrawHooks();
-        }
-        if (UIWidgets::CVarCheckbox("Prevent Actor Init", "gDeveloperTools.PreventActorInit")) {
-            RegisterPreventActorInitHooks();
-        }
-        if (UIWidgets::CVarCombobox("Log Level", "gDeveloperTools.LogLevel", logLevels,
-                                    {
-                                        .tooltip = "The log level determines which messages are printed to the "
-                                                   "console. This does not affect the log file output",
-                                        .defaultIndex = 1,
-                                    })) {
-            Ship::Context::GetInstance()->GetLogger()->set_level(
-                (spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
-        }
+            if (UIWidgets::CVarCheckbox("Prevent Actor Update", "gDeveloperTools.PreventActorUpdate")) {
+                RegisterPreventActorUpdateHooks();
+            }
+            if (UIWidgets::CVarCheckbox("Prevent Actor Draw", "gDeveloperTools.PreventActorDraw")) {
+                RegisterPreventActorDrawHooks();
+            }
+            if (UIWidgets::CVarCheckbox("Prevent Actor Init", "gDeveloperTools.PreventActorInit")) {
+                RegisterPreventActorInitHooks();
+            }
+            UIWidgets::CVarCheckbox("Disable Object Dependency", "gDeveloperTools.DisableObjectDependency");
 
-        if (gPlayState != NULL) {
-            ImGui::Separator();
-            UIWidgets::Checkbox(
-                "Frame Advance", (bool*)&gPlayState->frameAdvCtx.enabled,
-                { .tooltip = "This allows you to advance through the game one frame at a time on command. "
-                             "To advance a frame, hold Z and tap R on the second controller. Holding Z "
-                             "and R will advance a frame every half second. You can also use the buttons below." });
-            if (gPlayState->frameAdvCtx.enabled) {
-                if (UIWidgets::Button("Advance 1", { .size = UIWidgets::Sizes::Inline })) {
-                    CVarSetInteger("gDeveloperTools.FrameAdvanceTick", 1);
-                }
-                ImGui::SameLine();
-                UIWidgets::Button("Advance (Hold)", { .size = UIWidgets::Sizes::Inline });
-                if (ImGui::IsItemActive()) {
-                    CVarSetInteger("gDeveloperTools.FrameAdvanceTick", 1);
+            if (UIWidgets::CVarCombobox("Log Level", "gDeveloperTools.LogLevel", logLevels,
+                                        {
+                                            .tooltip = "The log level determines which messages are printed to the "
+                                                       "console. This does not affect the log file output",
+                                            .defaultIndex = 1,
+                                        })) {
+                Ship::Context::GetInstance()->GetLogger()->set_level(
+                    (spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
+            }
+
+            if (gPlayState != NULL) {
+                ImGui::Separator();
+                UIWidgets::Checkbox(
+                    "Frame Advance", (bool*)&gPlayState->frameAdvCtx.enabled,
+                    { .tooltip = "This allows you to advance through the game one frame at a time on command. "
+                                 "To advance a frame, hold Z and tap R on the second controller. Holding Z "
+                                 "and R will advance a frame every half second. You can also use the buttons below." });
+                if (gPlayState->frameAdvCtx.enabled) {
+                    if (UIWidgets::Button("Advance 1", { .size = UIWidgets::Sizes::Inline })) {
+                        CVarSetInteger("gDeveloperTools.FrameAdvanceTick", 1);
+                    }
+                    ImGui::SameLine();
+                    UIWidgets::Button("Advance (Hold)", { .size = UIWidgets::Sizes::Inline });
+                    if (ImGui::IsItemActive()) {
+                        CVarSetInteger("gDeveloperTools.FrameAdvanceTick", 1);
+                    }
                 }
             }
         }
