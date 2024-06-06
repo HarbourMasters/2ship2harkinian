@@ -10,7 +10,7 @@
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/Enhancements/Graphics/MotionBlur.h"
 #include "2s2h/Enhancements/Graphics/PlayAsKafei.h"
-#include "2s2h/Enhancements/Graphics/HWStyledLink.h"
+#include "2s2h/Enhancements/Graphics/HyruleWarriorsStyledLink.h"
 #include "2s2h/Enhancements/Modes/TimeMovesWhenYouMove.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "2s2h/DeveloperTools/WarpPoint.h"
@@ -594,7 +594,7 @@ void DrawEnhancementsMenu() {
         if (UIWidgets::BeginMenu("Modes")) {
             UIWidgets::CVarCheckbox("Play As Kafei", "gModes.PlayAsKafei",
                                     { .tooltip = "Requires scene reload to take effect." });
-            UIWidgets::CVarCheckbox("Hyrule Warriors Young Link", "gModes.HWStyledLink",
+            UIWidgets::CVarCheckbox("Hyrule Warriors Young Link", "gModes.HyruleWarriorsStyledLink",
                                     { .tooltip = "When acquired, places the Keaton and Fierce Deity masks on Link "
                                                  "similarly to how he wears them in Hyrule Warriors" });
             if (UIWidgets::CVarCheckbox("Time Moves When You Move", "gModes.TimeMovesWhenYouMove")) {

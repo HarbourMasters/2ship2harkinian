@@ -29,7 +29,7 @@ void InitEnhancements() {
 
     // Graphics
     RegisterDisableBlackBars();
-    RegisterHWStyledLink();
+    RegisterHyruleWarriorsStyledLink();
 
     // Masks
     RegisterFastTransformation();

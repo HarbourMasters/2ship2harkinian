@@ -30,7 +30,7 @@
 #include "Saving/SavingEnhancements.h"
 #include "Graphics/DisableBlackBars.h"
 #include "Modes/TimeMovesWhenYouMove.h"
-#include "Graphics/HWStyledLink.h"
+#include "Graphics/HyruleWarriorsStyledLink.h"
 
 enum AlwaysWinDoggyRaceOptions {
     ALWAYS_WIN_DOGGY_RACE_OFF,
