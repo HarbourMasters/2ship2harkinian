@@ -116,7 +116,7 @@ namespace UIWidgets {
 
     typedef enum SidebarEntryType {
         SIDEBAR_ENTRY_SECTION,
-        SIDEBAR_ENTRY_WINDOW
+        SIDEBAR_ENTRY_WINDOW,
     };
 
     struct SidebarEntry {
