@@ -1,5 +1,6 @@
 #include "Menu.h"
 #include "BenPort.h"
+#include "2s2h/BenGui/BenGui.hpp"
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "graphic/Fast3D/gfx_rendering_api.h"
 #include "2s2h/Enhancements/Enhancements.h"
@@ -20,15 +21,6 @@ extern "C" {
 #include "z64.h"
 #include "functions.h"
 }
-
-extern std::shared_ptr<HudEditorWindow> mHudEditorWindow;
-extern std::shared_ptr<Ship::GuiWindow> mStatsWindow;
-extern std::shared_ptr<Ship::GuiWindow> mConsoleWindow;
-extern std::shared_ptr<Ship::GuiWindow> mGfxDebuggerWindow;
-extern std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
-extern std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
-extern std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
-extern std::shared_ptr<EventLogWindow> mEventLogWindow;
 std::vector<ImVec2> windowTypeSizes = { {} };
 
 static const std::unordered_map<int32_t, const char*> textureFilteringMap = {
@@ -65,6 +57,17 @@ static const std::unordered_map<int32_t, const char*> alwaysWinDoggyraceOptions 
     { ALWAYS_WIN_DOGGY_RACE_MASKOFTRUTH, "When owning Mask of Truth" },
     { ALWAYS_WIN_DOGGY_RACE_ALWAYS, "Always" },
 };
+
+namespace BenGui {
+
+extern std::shared_ptr<HudEditorWindow> mHudEditorWindow;
+extern std::shared_ptr<Ship::GuiWindow> mStatsWindow;
+extern std::shared_ptr<Ship::GuiWindow> mConsoleWindow;
+extern std::shared_ptr<Ship::GuiWindow> mGfxDebuggerWindow;
+extern std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
+extern std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
+extern std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
+extern std::shared_ptr<EventLogWindow> mEventLogWindow;
 
 void DrawAudioSettings() {
     UIWidgets::CVarSliderFloat("Master Volume: %.0f %%", "gSettings.Audio.MasterVolume", 0.0f, 1.0f, 1.0f,
@@ -230,6 +233,7 @@ void DrawControllerSettings() {};
 
 // Camera
 void DrawCameraFixes() {
+    ImGui::SeparatorText("Fixes");
     UIWidgets::CVarCheckbox(
         "Fix Targetting Camera Snap", "gEnhancements.Camera.FixTargettingCameraSnap",
         { .tooltip =
@@ -396,6 +400,7 @@ void DrawItemEnhancements() {
                             { .tooltip = "Allow using Fierce Deity's mask outside of boss rooms." });
     UIWidgets::CVarCheckbox("No Blast Mask Cooldown", "gEnhancements.Masks.NoBlastMaskCooldown", {});
 }
+
 void DrawSongEnhancements() {
     UIWidgets::CVarCheckbox("Enable Sun's Song", "gEnhancements.Songs.EnableSunsSong",
         { .tooltip = "Enables the partially implemented Sun's Song. RIGHT-DOWN-UP-RIGHT-DOWN-UP to play it. "
@@ -465,8 +470,14 @@ void BenMenu::DrawElement() {
         { "HUD Editor", {}, UIWidgets::SIDEBAR_ENTRY_WINDOW, "gWindows.HudEditor", mHudEditorWindow, 
             {.tooltip = "Enables the Hud Editor window, allowing you to edit your hud" } };
     std::vector<UIWidgets::SidebarEntry> enhancementsSidebar = {
-        { "Camera", { DrawCameraFixes, DrawFreeLook, DrawCameraDebug } },
-        hudEditorButton
+        { "Camera",       { DrawCameraFixes, DrawFreeLook, DrawCameraDebug } },
+        { "Cheats",       { DrawCheatEnhancements } },
+        { "Gameplay",     { DrawGameplayEnhancements, DrawGameModesEnhancements, DrawSaveTimeEnhancements } },
+        { "Graphics",     { DrawGraphicsEnhancements } },
+        { "Items/Songs",  { DrawItemEnhancements, DrawSongEnhancements } },
+        { "Time Savers",  { DrawTimeSaverEnhancements } },
+        { "Fixes",        { DrawFixEnhancements } },
+        { "Restorations", { DrawRestorationEnhancements } }
     };
     std::vector<UIWidgets::MainMenuEntry> menuEntries = {
         { "Settings", settingsSidebar, "gSettings.Menu.SettingsSidebarIndex" },
@@ -547,12 +558,12 @@ void BenMenu::DrawElement() {
 
     ImGui::BeginChild((menuEntries.at(selectedHeader).label + " Menu").c_str(), { 1280, sectionHeight }, ImGuiChildFlags_None, ImGuiWindowFlags_NoDecoration);
     ImGui::SetNextWindowPos(pos + style.ItemSpacing);
-    float sidebarWidth = 200;
+    float sidebarWidth = 200 - style.ItemSpacing.y;
 
     const char* sidebarCvar = menuEntries.at(selectedHeader).sidebarCvar;
 
     uint8_t sectionIndex = CVarGetInteger(sidebarCvar, 0);
-    if (sectionIndex > 2) sectionIndex = 2;
+    if (sectionIndex > sidebar.size()) sectionIndex = sidebar.size();
     if (sectionIndex < 0) sectionIndex = 0;
     float sectionCenterX = pos.x + (sidebarWidth / 2);
     float topY = pos.y;
@@ -561,6 +572,7 @@ void BenMenu::DrawElement() {
         auto sidebarEntry = sidebar.at(i);
         if (sidebarEntry.type == UIWidgets::SIDEBAR_ENTRY_WINDOW) {
             UIWidgets::SidebarButton sidebarButton = static_cast<UIWidgets::SidebarButton>(sidebarEntry);
+            ImGui::SetWindowPos(pos);
             UIWidgets::WindowButton(sidebarEntry.label.c_str(), sidebarButton.windowCvar.c_str(), sidebarButton.windowPtr, sidebarButton.options);
         }
         else {
@@ -582,9 +594,6 @@ void BenMenu::DrawElement() {
             if (sectionIndex != i) {
                 ImGui::PushStyleColor(ImGuiCol_FrameBg, { 0, 0, 0, 0 });
             }
-            if (sectionIndex == i) {
-
-            }
             window->DrawList->AddRectFilled(pos - style.FramePadding, pos + labelSize + style.FramePadding,
                 ImGui::GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive
                     : hovered ? ImGuiCol_FrameBgHovered
@@ -595,12 +604,13 @@ void BenMenu::DrawElement() {
             }
             UIWidgets::RenderText(pos, label, ImGui::FindRenderedTextEnd(label), true);
             pos.y += bb.GetHeight();
+            window->DC.CursorPos = pos;
         }
     }
     ImGui::EndChild();
 
     ImGui::PushFont(OTRGlobals::Instance->fontMonoLarger);
-    pos = ImVec2{ sectionCenterX + (sidebarWidth / 2), topY} + style.ItemSpacing;
+    pos = ImVec2{ sectionCenterX + (sidebarWidth / 2), topY} + style.ItemSpacing * 2;
     window->DrawList->AddRectFilled(pos, pos + ImVec2{ 4, sectionHeight - style.FramePadding.y * 2 }, ImGui::GetColorU32({ 255, 255, 255, 255 }), true, style.WindowRounding);
     pos.x += 4 + style.ItemSpacing.x;
     ImGui::SetNextWindowPos(pos + style.ItemSpacing);
@@ -623,4 +633,5 @@ void BenMenu::DrawElement() {
     // style.Colors[ImGuiCol_Button] = prevButtonCol;
     ImGui::PopStyleVar();
     ImGui::End();
+}
 }

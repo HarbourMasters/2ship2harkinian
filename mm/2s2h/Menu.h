@@ -3,9 +3,10 @@
 #include <libultraship/libultraship.h>
 #include <2s2h/BenGui/UIWidgets.hpp>
 
+namespace BenGui {
 class BenMenu : public Ship::GuiWindow {
 public:
-    using GuiWindow::GuiWindow;
+    using Ship::GuiWindow::GuiWindow;
 
     void InitElement() override;
     void DrawElement() override;
@@ -17,3 +18,4 @@ private:
     UIWidgets::SidebarEntry audioSettingsEntry;
     UIWidgets::MainMenuEntry settingsEntry;
 };
+}
