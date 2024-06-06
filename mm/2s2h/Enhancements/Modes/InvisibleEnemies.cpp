@@ -15,14 +15,14 @@ void RegisterInvisibleEnemies() {
     GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnRoomInit>(roomLensModeHookId);
 
     if (CVarGetInteger("gModes.InvisibleEnemies", 0)) {
-        enemyLensReactHookId = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnActorInit>([](Actor* actor) {
-            if (actor->category == ACTORCAT_ENEMY) {
-                actor->flags |= ACTOR_FLAG_REACT_TO_LENS;
-            }
-        });
+        enemyLensReactHookId =
+            GameInteractor::Instance->RegisterGameHook<GameInteractor::OnActorInit>([](Actor* actor) {
+                if (actor->category == ACTORCAT_ENEMY) {
+                    actor->flags |= ACTOR_FLAG_REACT_TO_LENS;
+                }
+            });
 
-        roomLensModeHookId = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnRoomInit>([](s8 sceneId, s8 roomNum) {
-            gPlayState->roomCtx.curRoom.lensMode = LENS_MODE_HIDE_ACTORS;
-        });
+        roomLensModeHookId = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnRoomInit>(
+            [](s8 sceneId, s8 roomNum) { gPlayState->roomCtx.curRoom.lensMode = LENS_MODE_HIDE_ACTORS; });
     }
 }

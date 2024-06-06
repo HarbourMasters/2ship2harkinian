@@ -586,9 +586,9 @@ void DrawEnhancementsMenu() {
         }
 
         if (UIWidgets::BeginMenu("Modes")) {
-            if (UIWidgets::CVarCheckbox("Invisible Enemies", "gModes.InvisibleEnemies", {
-                .tooltip = "Enemies will appear invisible without using the lens of truth"
-            })) {
+            if (UIWidgets::CVarCheckbox(
+                    "Invisible Enemies", "gModes.InvisibleEnemies",
+                    { .tooltip = "Enemies will appear invisible without using the lens of truth" })) {
                 RegisterInvisibleEnemies();
             }
             UIWidgets::CVarCheckbox("Play As Kafei", "gModes.PlayAsKafei",
