@@ -2,8 +2,18 @@
 #include "BenPort.h"
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "graphic/Fast3D/gfx_rendering_api.h"
-#include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "2s2h/Enhancements/Enhancements.h"
+#include "2s2h/Enhancements/Graphics/MotionBlur.h"
+#include "2s2h/Enhancements/Graphics/PlayAsKafei.h"
+#include "2s2h/DeveloperTools/DeveloperTools.h"
+#include "2s2h/DeveloperTools/WarpPoint.h"
+#include "window/gui/GuiMenuBar.h"
+#include "window/gui/GuiElement.h"
+#include "DeveloperTools/SaveEditor.h"
+#include "DeveloperTools/ActorViewer.h"
+#include "DeveloperTools/CollisionViewer.h"
+#include "DeveloperTools/EventLog.h"
+#include "2s2h/BenGui/HudEditor.h"
 #include <format>
 
 extern "C" {
@@ -11,6 +21,14 @@ extern "C" {
 #include "functions.h"
 }
 
+extern std::shared_ptr<HudEditorWindow> mHudEditorWindow;
+extern std::shared_ptr<Ship::GuiWindow> mStatsWindow;
+extern std::shared_ptr<Ship::GuiWindow> mConsoleWindow;
+extern std::shared_ptr<Ship::GuiWindow> mGfxDebuggerWindow;
+extern std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
+extern std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
+extern std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
+extern std::shared_ptr<EventLogWindow> mEventLogWindow;
 std::vector<ImVec2> windowTypeSizes = { {} };
 
 static const std::unordered_map<int32_t, const char*> textureFilteringMap = {
@@ -47,174 +65,6 @@ static const std::unordered_map<int32_t, const char*> alwaysWinDoggyraceOptions 
     { ALWAYS_WIN_DOGGY_RACE_MASKOFTRUTH, "When owning Mask of Truth" },
     { ALWAYS_WIN_DOGGY_RACE_ALWAYS, "Always" },
 };
-
-void BenMenu::InitElement() {
-}
-
-void BenMenu::UpdateElement() {
-    windowHeight = ImGui::GetMainViewport()->WorkSize.y;
-    windowWidth = ImGui::GetMainViewport()->WorkSize.x;
-}
-
-void BenMenu::DrawElement() {
-    ImGui::SetNextWindowSize({ static_cast<float>(windowWidth), static_cast<float>(windowHeight) });
-    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), 0, { 0.5f, 0.5f });
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-    if (!ImGui::Begin("Main Menu", NULL, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings)) {
-        ImGui::PopStyleVar();
-        ImGui::End();
-        return;
-    }
-    ImGui::PushFont(OTRGlobals::Instance->fontStandardLargest);
-    ImGuiContext& g = *GImGui;
-    ImGuiWindow* window = g.CurrentWindow;
-    ImGuiStyle& style = ImGui::GetStyle();
-
-    std::vector<UIWidgets::SidebarEntry> settingsSidebar = {
-        { "Audio",    { DrawAudioSettings } },
-        { "Graphics", { DrawGraphicsSettings } },
-        { "Controls", { DrawControllerSettings } }
-    };
-    std::vector<UIWidgets::SidebarEntry> enhancementsSidebar = {
-        { "Gameplay", { DrawControllerSettings } }
-    };
-    std::vector<UIWidgets::MainMenuEntry> menuEntries = {
-        { "Settings", settingsSidebar, "gSettings.Menu.SettingsSidebarIndex" },
-        { "Enhancements", enhancementsSidebar, "gSettings.Menu.EnhancementsSidebarIndex"},
-        { "Cheats", {}, "gSettings.Menu.CheatsSidebarIndex"}
-    };
-
-    auto sectionCount = menuEntries.size();
-    const char* headerCvar = "gSettings.Menu.SelectedHeader";
-    uint8_t selectedHeader = CVarGetInteger(headerCvar, 0);
-    float centerX = ImGui::GetMainViewport()->GetCenter().x;
-    std::vector<ImVec2> headerSizes;
-    for (int i = 0; i < sectionCount; i++) {
-        headerSizes.push_back(ImGui::CalcTextSize(menuEntries.at(i).label.c_str()));
-    }
-    float menuHeight = std::fminf(800, window->Viewport->Size.y);
-
-    float sectionHeight = std::fminf(window->Viewport->Size.y, menuHeight - 200);
-    ImVec2 pos = window->DC.CursorPos;
-    pos.x = centerX - (headerSizes.at(0).x + headerSizes.at(1).x / 2 + (style.ItemSpacing.x * 2));
-    pos.y += std::fminf(window->Viewport->Size.y - menuHeight, 100);
-    std::vector<UIWidgets::SidebarEntry> sidebar;
-    float headerHeight = 0;
-
-    for (int i = 0; i < sectionCount; i++) {
-        auto entry = menuEntries.at(i);
-        const ImGuiID headerId = window->GetID(std::string(entry.label + "##Header").c_str());
-        ImRect bb = { pos - style.FramePadding, pos + headerSizes.at(i) + style.FramePadding };
-        ImGui::ItemSize(bb, style.FramePadding.y);
-        ImGui::ItemAdd(bb, headerId);
-        bool hovered, held;
-        bool pressed = ImGui::ButtonBehavior(bb, headerId, &hovered, &held);
-        if (pressed) {
-            ImGui::MarkItemEdited(headerId);
-            CVarSetInteger(headerCvar, i);
-            selectedHeader = i;
-        }
-        if (selectedHeader != i) {
-            ImGui::PushStyleColor(ImGuiCol_FrameBg, { 0, 0, 0, 0 });
-        }
-        if (selectedHeader == i) {
-            sidebar = entry.sidebarEntries;
-        }
-        window->DrawList->AddRectFilled(pos - style.FramePadding, pos + headerSizes.at(i) + style.FramePadding,
-            ImGui::GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive
-                : hovered ? ImGuiCol_FrameBgHovered
-                : ImGuiCol_FrameBg),
-            true, style.FrameRounding);
-        if (selectedHeader != i) {
-            ImGui::PopStyleColor();
-        }
-
-        UIWidgets::RenderText(pos, entry.label.c_str(), ImGui::FindRenderedTextEnd(entry.label.c_str()), true);
-        if (i + 1 < sectionCount) {
-            pos.x += headerSizes.at(i).x + style.ItemSpacing.x * 2;
-        } else {
-            headerHeight = bb.GetHeight();
-        }
-    }
-    pos.y += headerHeight + style.ItemSpacing.y;
-    pos.x = centerX - 640;
-    window->DrawList->AddRectFilled(pos, pos + ImVec2{ 1280, 4 }, ImGui::GetColorU32({255, 255, 255, 255}), true, style.WindowRounding);
-    pos.y += style.ItemSpacing.y;
-    ImGui::SetNextWindowPos(pos);
-    ImGui::SetNextWindowSize({ 1280, sectionHeight });
-
-    ImGui::BeginChild((menuEntries.at(selectedHeader).label + " Menu").c_str());
-    ImGui::SetNextWindowPos(pos + style.ItemSpacing);
-    float sidebarWidth = 200;
-    ImGui::SetNextWindowSize({ sidebarWidth, sectionHeight });
-
-    const char* sidebarCvar = menuEntries.at(selectedHeader).sidebarCvar;
-
-    uint8_t sectionIndex = CVarGetInteger(sidebarCvar, 0);
-    if (sectionIndex > 2) sectionIndex = 2;
-    if (sectionIndex < 0) sectionIndex = 0;
-    float sectionCenterX = pos.x + (sidebarWidth / 2);
-    float topY = pos.y;
-    ImGui::BeginChild((menuEntries.at(selectedHeader).label + " Section").c_str());
-    for (int i = 0; i < sidebar.size(); i++) {
-        auto sidebarEntry = sidebar.at(i);
-        const char* label = sidebarEntry.label.c_str();
-        const ImGuiID sidebarId = window->GetID(std::string(sidebarEntry.label + "##Sidebar").c_str());
-        ImVec2 labelSize = ImGui::CalcTextSize(label, ImGui::FindRenderedTextEnd(label), true);
-        pos.y += style.ItemSpacing.y + style.FramePadding.y;
-        pos.x = sectionCenterX - labelSize.x / 2;
-        ImRect bb = { pos - style.FramePadding, pos + labelSize + style.FramePadding };
-        ImGui::ItemSize(bb, style.FramePadding.y);
-        ImGui::ItemAdd(bb, sidebarId);
-        bool hovered, held;
-        bool pressed = ImGui::ButtonBehavior(bb, sidebarId, &hovered, &held);
-        if (pressed) {
-            ImGui::MarkItemEdited(sidebarId);
-            CVarSetInteger(sidebarCvar, i);
-            sectionIndex = i;
-        }
-        if (sectionIndex != i) {
-            ImGui::PushStyleColor(ImGuiCol_FrameBg, { 0, 0, 0, 0 });
-        }
-        if (sectionIndex == i) {
-
-        }
-        window->DrawList->AddRectFilled(pos - style.FramePadding, pos + labelSize + style.FramePadding,
-            ImGui::GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive
-                : hovered ? ImGuiCol_FrameBgHovered
-                : ImGuiCol_FrameBg),
-            true, style.FrameRounding);
-        if (sectionIndex != i) {
-            ImGui::PopStyleColor();
-        }
-        UIWidgets::RenderText(pos, label, ImGui::FindRenderedTextEnd(label), true);
-        pos.y += bb.GetHeight();
-    }
-    ImGui::EndChild();
-
-    ImGui::PushFont(OTRGlobals::Instance->fontMonoLarger);
-    pos = ImVec2{ sectionCenterX + (sidebarWidth / 2), topY} + style.ItemSpacing;
-    window->DrawList->AddRectFilled(pos, pos + ImVec2{ 4, sectionHeight - style.FramePadding.y * 2 }, ImGui::GetColorU32({ 255, 255, 255, 255 }), true, style.WindowRounding);
-    pos.x += 4 + style.ItemSpacing.x;
-    ImGui::SetNextWindowPos(pos + style.ItemSpacing);
-    float sectionWidth = 1280 - sidebarWidth - 4 - style.ItemSpacing.x * 6;
-    std::string sectionMenuId = sidebar.at(sectionIndex).label + " Settings";
-    ImGui::BeginChild(sectionMenuId.c_str(), { sectionWidth, sectionHeight });
-    for (int i = 0; i < sidebar.at(sectionIndex).columnFuncs.size(); i++) {
-        std::string sectionId = std::format("{} Column {}", sectionMenuId, i);
-        ImGui::BeginChild(sectionId.c_str(), { (sectionWidth - style.ItemSpacing.x) / 3, 600 });
-        sidebar.at(sectionIndex).columnFuncs.at(i)();
-        ImGui::EndChild();
-    }
-    ImGui::EndChild();
-    ImGui::PopFont();
-    ImGui::EndChild();
-    ImGui::PopFont();
-
-    // style.Colors[ImGuiCol_Button] = prevButtonCol;
-    ImGui::PopStyleVar();
-    ImGui::End();
-}
 
 void DrawAudioSettings() {
     UIWidgets::CVarSliderFloat("Master Volume: %.0f %%", "gSettings.Audio.MasterVolume", 0.0f, 1.0f, 1.0f,
@@ -377,3 +227,400 @@ void DrawGraphicsSettings() {
 }
 
 void DrawControllerSettings() {};
+
+// Camera
+void DrawCameraFixes() {
+    UIWidgets::CVarCheckbox(
+        "Fix Targetting Camera Snap", "gEnhancements.Camera.FixTargettingCameraSnap",
+        { .tooltip =
+                "Fixes the camera snap that occurs when you are moving and press the targetting button." });
+}
+
+void DrawFreeLook() {
+    ImGui::SeparatorText("Free Look");
+    if (UIWidgets::CVarCheckbox(
+        "Free Look", "gEnhancements.Camera.FreeLook.Enable",
+        { .tooltip = "Enables free look camera control\nNote: You must remap C buttons off of the right "
+                        "stick in the controller config menu, and map the camera stick to the right stick.",
+            .disabled = CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0) != 0 })) {
+        RegisterCameraFreeLook();
+    }
+
+    if (CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0)) {
+        UIWidgets::CVarCheckbox("Invert Camera X Axis", "gEnhancements.Camera.RightStick.InvertXAxis",
+            { .tooltip = "Inverts the Camera X Axis" });
+        UIWidgets::CVarCheckbox("Invert Camera Y Axis", "gEnhancements.Camera.RightStick.InvertYAxis",
+            { .tooltip = "Inverts the Camera Y Axis", .defaultValue = true });
+        UIWidgets::CVarSliderFloat("Third-Person Horizontal Sensitivity: %.0f",
+            "gEnhancements.Camera.RightStick.CameraSensitivity.X", 0.01f, 5.0f, 1.0f);
+        UIWidgets::CVarSliderFloat("Third-Person Vertical Sensitivity: %.0f",
+            "gEnhancements.Camera.RightStick.CameraSensitivity.Y", 0.01f, 5.0f, 1.0f);
+
+        UIWidgets::CVarSliderInt("Camera Distance: %d", "gEnhancements.Camera.FreeLook.MaxCameraDistance", 100,
+            900, 185);
+        UIWidgets::CVarSliderInt("Camera Transition Speed: %d", "gEnhancements.Camera.FreeLook.TransitionSpeed",
+            1, 900, 25);
+        UIWidgets::CVarSliderFloat("Max Camera Height Angle: %.0f°", "gEnhancements.Camera.FreeLook.MaxPitch",
+            -89.0f, 89.0f, 72.0f);
+        UIWidgets::CVarSliderFloat("Min Camera Height Angle: %.0f°", "gEnhancements.Camera.FreeLook.MinPitch",
+            -89.0f, 89.0f, -49.0f);
+        f32 maxY = CVarGetFloat("gEnhancements.Camera.FreeLook.MaxPitch", 72.0f);
+        f32 minY = CVarGetFloat("gEnhancements.Camera.FreeLook.MinPitch", -49.0f);
+        CVarSetFloat("gEnhancements.Camera.FreeLook.MaxPitch", std::max(maxY, minY));
+        CVarSetFloat("gEnhancements.Camera.FreeLook.MinPitch", std::min(maxY, minY));
+    }
+}
+
+void DrawCameraDebug() {
+    ImGui::SeparatorText("'Debug' Camera");
+    if (UIWidgets::CVarCheckbox(
+        "Debug Camera", "gEnhancements.Camera.DebugCam.Enable",
+        { .tooltip = "Enables free camera control.",
+            .disabled = CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0) != 0 })) {
+        RegisterDebugCam();
+    }
+
+    if (CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0)) {
+        UIWidgets::CVarCheckbox("Invert Camera X Axis", "gEnhancements.Camera.RightStick.InvertXAxis",
+            { .tooltip = "Inverts the Camera X Axis" });
+        UIWidgets::CVarCheckbox("Invert Camera Y Axis", "gEnhancements.Camera.RightStick.InvertYAxis",
+            { .tooltip = "Inverts the Camera Y Axis", .defaultValue = true });
+        UIWidgets::CVarSliderFloat("Third-Person Horizontal Sensitivity: %.0f",
+            "gEnhancements.Camera.RightStick.CameraSensitivity.X", 0.01f, 5.0f, 1.0f);
+        UIWidgets::CVarSliderFloat("Third-Person Vertical Sensitivity: %.0f",
+            "gEnhancements.Camera.RightStick.CameraSensitivity.Y", 0.01f, 5.0f, 1.0f);
+
+        UIWidgets::CVarCheckbox(
+            "Enable Roll (Six Degrees Of Freedom)", "gEnhancements.Camera.DebugCam.6DOF",
+            { .tooltip = "This allows for all six degrees of movement with the camera, NOTE: Yaw will work "
+                            "differently in "
+                            "this system, instead rotating around the focal point, rather than a polar axis." });
+        UIWidgets::CVarSliderFloat("Camera Speed: %.0f", "gEnhancements.Camera.DebugCam.CameraSpeed", 0.1f,
+            3.0f, 0.5f);
+    }
+}
+
+// Cheats
+void DrawCheatEnhancements() {
+    UIWidgets::CVarCheckbox("Infinite Health", "gCheats.InfiniteHealth");
+    UIWidgets::CVarCheckbox("Infinite Magic", "gCheats.InfiniteMagic");
+    UIWidgets::CVarCheckbox("Infinite Rupees", "gCheats.InfiniteRupees");
+    UIWidgets::CVarCheckbox("Infinite Consumables", "gCheats.InfiniteConsumables");
+    UIWidgets::CVarCheckbox("Unbreakable Razor Sword", "gCheats.UnbreakableRazorSword");
+    UIWidgets::CVarCheckbox("Unrestricted Items", "gCheats.UnrestrictedItems");
+    if (UIWidgets::CVarCheckbox("Moon Jump on L", "gCheats.MoonJumpOnL",
+                                { .tooltip = "Holding L makes you float into the air" })) {
+        RegisterMoonJumpOnL();
+    }
+    UIWidgets::CVarCheckbox("No Clip", "gCheats.NoClip");
+}
+
+// Gameplay
+void DrawGameplayEnhancements() {
+    ImGui::SeparatorText("Ocarina");
+    UIWidgets::CVarCheckbox("Dpad Ocarina", "gEnhancements.Playback.DpadOcarina",
+                            { .tooltip = "Enables using the Dpad for Ocarina playback." });
+    UIWidgets::CVarCheckbox("Prevent Dropped Ocarina Inputs", "gEnhancements.Playback.NoDropOcarinaInput",
+                            { .tooltip = "Prevent dropping inputs when playing the ocarina quickly" });
+    UIWidgets::CVarCheckbox("Dpad Equips", "gEnhancements.Dpad.DpadEquips",
+                            { .tooltip = "Allows you to equip items to your d-pad" });
+    UIWidgets::CVarCombobox("Always Win Doggy Race", "gEnhancements.Minigames.AlwaysWinDoggyRace",
+                            alwaysWinDoggyraceOptions);
+    UIWidgets::CVarSliderInt("Climb speed", "gEnhancements.PlayerMovement.ClimbSpeed", 1, 5, 1,
+                            { .tooltip = "Increases the speed at which Link climbs vines and ladders." });
+}
+
+void DrawGameModesEnhancements() {
+    UIWidgets::CVarCheckbox("Play As Kafei", "gModes.PlayAsKafei",
+        { .tooltip = "Requires scene reload to take effect." });
+}
+
+void DrawSaveTimeEnhancements() {
+    ImGui::SeparatorText("Saving");
+    UIWidgets::CVarCheckbox("Persistent Owl Saves", "gEnhancements.Saving.PersistentOwlSaves",
+                            { .tooltip = "Continuing a save will not remove the owl save. Playing Song of "
+                                            "Time, allowing the moon to crash or finishing the "
+                                            "game will remove the owl save and become the new last save." });
+    UIWidgets::CVarCheckbox("Pause Menu Save", "gEnhancements.Saving.PauseSave",
+        { .tooltip = "Re-introduce the pause menu save system. Pressing B in the pause menu will give you the "
+                        "option to create a persistent Owl Save from your current location.\n\nWhen loading back "
+                        "into the game, you will be placed either at the entrance of the dungeon you saved in, or "
+                        "in South Clock Town." });
+    if (UIWidgets::CVarCheckbox("Autosave", "gEnhancements.Saving.Autosave",
+            { .tooltip = "Automatically create a persistent Owl Save on the chosen interval.\n\nWhen loading "
+                            "back into the game, you will be placed either at the entrance of the dungeon you "
+                            "saved in, or in South Clock Town." })) {
+        RegisterAutosave();
+    }
+    UIWidgets::CVarSliderInt("Autosave Interval (minutes): %d", "gEnhancements.Saving.AutosaveInterval", 1, 60,
+                                5, { .disabled = !CVarGetInteger("gEnhancements.Saving.Autosave", 0) });
+
+    ImGui::SeparatorText("Time Cycle");
+    UIWidgets::CVarCheckbox("Do not reset Bottle content", "gEnhancements.Cycle.DoNotResetBottleContent",
+                            { .tooltip = "Playing the Song Of Time will not reset the bottles' content." });
+    UIWidgets::CVarCheckbox("Do not reset Consumables", "gEnhancements.Cycle.DoNotResetConsumables",
+                            { .tooltip = "Playing the Song Of Time will not reset the consumables." });
+    UIWidgets::CVarCheckbox(
+        "Do not reset Razor Sword", "gEnhancements.Cycle.DoNotResetRazorSword",
+        { .tooltip = "Playing the Song Of Time will not reset the Sword back to Kokiri Sword." });
+    UIWidgets::CVarCheckbox("Do not reset Rupees", "gEnhancements.Cycle.DoNotResetRupees",
+                            { .tooltip = "Playing the Song Of Time will not reset the your rupees." });
+
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 0, 255));
+    ImGui::SeparatorText("Unstable");
+    ImGui::PopStyleColor();
+    UIWidgets::CVarCheckbox("Disable Save Delay", "gEnhancements.Saving.DisableSaveDelay",
+        { .tooltip = "Removes the arbitrary 2 second timer for saving from the original game. This is known to "
+                        "cause issues when attempting the 0th Day Glitch" });
+}
+
+// Graphics
+void DrawGraphicsEnhancements() {
+    ImGui::SeparatorText("Clock");
+    UIWidgets::CVarCombobox("Clock Type", "gEnhancements.Graphics.ClockType", clockTypeOptions);
+    UIWidgets::CVarCheckbox("24 Hours Clock", "gEnhancements.Graphics.24HoursClock");
+    MotionBlur_RenderMenuOptions();
+    ImGui::SeparatorText("Other");
+    UIWidgets::CVarCheckbox("Authentic logo", "gEnhancements.Graphics.AuthenticLogo",
+                            { .tooltip = "Hide the game version and build details and display the authentic "
+                                            "model and texture on the boot logo start screen" });
+    UIWidgets::CVarCheckbox("Bow Reticle", "gEnhancements.Graphics.BowReticle",
+                            { .tooltip = "Gives the bow a reticle when you draw an arrow" });
+};
+
+// Items/Songs
+void DrawItemEnhancements() {
+    ImGui::SeparatorText("Masks");
+    UIWidgets::CVarCheckbox("Fast Transformation", "gEnhancements.Masks.FastTransformation");
+    UIWidgets::CVarCheckbox("Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere",
+                            { .tooltip = "Allow using Fierce Deity's mask outside of boss rooms." });
+    UIWidgets::CVarCheckbox("No Blast Mask Cooldown", "gEnhancements.Masks.NoBlastMaskCooldown", {});
+}
+void DrawSongEnhancements() {
+    UIWidgets::CVarCheckbox("Enable Sun's Song", "gEnhancements.Songs.EnableSunsSong",
+        { .tooltip = "Enables the partially implemented Sun's Song. RIGHT-DOWN-UP-RIGHT-DOWN-UP to play it. "
+                        "This song will make time move very fast until either Link moves to a different scene, "
+                        "or when the time switches to a new time period." });
+}
+
+void DrawTimeSaverEnhancements() {
+    ImGui::SeparatorText("Cutscenes");
+    UIWidgets::CVarCheckbox("Hide Title Cards", "gEnhancements.Cutscenes.HideTitleCards");
+    UIWidgets::CVarCheckbox("Skip Entrance Cutscenes", "gEnhancements.Cutscenes.SkipEntranceCutscenes");
+    UIWidgets::CVarCheckbox("Skip to File Select", "gEnhancements.Cutscenes.SkipToFileSelect",
+        { .tooltip = "Skip the opening title sequence and go straight to the file select menu after boot" });
+    UIWidgets::CVarCheckbox("Skip Intro Sequence", "gEnhancements.Cutscenes.SkipIntroSequence",
+        { .tooltip = "When starting a game you will be taken straight to South Clock Town as Deku Link." });
+    UIWidgets::CVarCheckbox("Skip Story Cutscenes", "gEnhancements.Cutscenes.SkipStoryCutscenes",
+        { .tooltip =
+                "Disclaimer: This doesn't do much yet, we will be progressively adding more skips over time" });
+    UIWidgets::CVarCheckbox("Skip Misc Interactions", "gEnhancements.Cutscenes.SkipMiscInteractions",
+        { .tooltip =
+                "Disclaimer: This doesn't do much yet, we will be progressively adding more skips over time" });
+    UIWidgets::CVarCheckbox("Fast Text", "gEnhancements.Dialogue.FastText",
+        { .tooltip = "Speeds up text rendering, and enables holding of B progress to next message" });
+}
+
+void DrawFixEnhancements() {
+    UIWidgets::CVarCheckbox("Fix Ammo Count Color", "gFixes.FixAmmoCountEnvColor",
+        { .tooltip = "Fixes a missing gDPSetEnvColor, which causes the ammo count to be "
+                     "the wrong color prior to obtaining magic or other conditions." });
+
+    UIWidgets::CVarCheckbox("Fix Hess and Weirdshot Crash", "gEnhancements.Fixes.HessCrash",
+        { .tooltip = "Fixes a crash that can occur when performing a HESS or Weirdshot.",
+            .defaultValue = true });
+
+    UIWidgets::CVarCheckbox("Fix Text Control Characters", "gEnhancements.Fixes.ControlCharacters",
+        { .tooltip = "Fixes certain control characters not functioning properly "
+                        "depending on their position within the text." });
+}
+
+void DrawRestorationEnhancements() {
+    UIWidgets::CVarCheckbox("Constant Distance Backflips and Sidehops", "gEnhancements.Restorations.ConstantFlipsHops",
+        { .tooltip = "Backflips and Sidehops travel a constant distance as they did in OOT." });
+    UIWidgets::CVarCheckbox("Power Crouch Stab", "gEnhancements.Restorations.PowerCrouchStab",
+        { .tooltip =
+                "Crouch stabs will use the power of Link's previous melee attack, as is in MM JP 1.0 and OOT." });
+    UIWidgets::CVarCheckbox("Side Rolls", "gEnhancements.Restorations.SideRoll",
+                            { .tooltip = "Restores side rolling from OOT." });
+    UIWidgets::CVarCheckbox("Tatl ISG", "gEnhancements.Restorations.TatlISG",
+                            { .tooltip = "Restores Navi ISG from OOT, but now with Tatl." });
+}
+
+void BenMenu::InitElement() {
+}
+
+void BenMenu::UpdateElement() {
+    windowHeight = ImGui::GetMainViewport()->WorkSize.y;
+    windowWidth = ImGui::GetMainViewport()->WorkSize.x;
+}
+
+void BenMenu::DrawElement() {
+    std::vector<UIWidgets::SidebarEntry> settingsSidebar = {
+        { "Audio", { DrawAudioSettings } },
+        { "Graphics", { DrawGraphicsSettings } },
+        { "Controls", { DrawControllerSettings } }
+    };
+    UIWidgets::SidebarButton hudEditorButton =
+        { "HUD Editor", {}, UIWidgets::SIDEBAR_ENTRY_WINDOW, "gWindows.HudEditor", mHudEditorWindow, 
+            {.tooltip = "Enables the Hud Editor window, allowing you to edit your hud" } };
+    std::vector<UIWidgets::SidebarEntry> enhancementsSidebar = {
+        { "Camera", { DrawCameraFixes, DrawFreeLook, DrawCameraDebug } },
+        hudEditorButton
+    };
+    std::vector<UIWidgets::MainMenuEntry> menuEntries = {
+        { "Settings", settingsSidebar, "gSettings.Menu.SettingsSidebarIndex" },
+        { "Enhancements", enhancementsSidebar, "gSettings.Menu.EnhancementsSidebarIndex"}
+    };
+
+    ImGui::SetNextWindowSize({ static_cast<float>(windowWidth), static_cast<float>(windowHeight) });
+    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), 0, { 0.5f, 0.5f });
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    if (!ImGui::Begin("Main Menu", NULL, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings)) {
+        ImGui::PopStyleVar();
+        ImGui::End();
+        return;
+    }
+    ImGui::PushFont(OTRGlobals::Instance->fontStandardLargest);
+    ImGuiContext& g = *GImGui;
+    ImGuiWindow* window = g.CurrentWindow;
+    ImGuiStyle& style = ImGui::GetStyle();
+
+    auto sectionCount = menuEntries.size();
+    const char* headerCvar = "gSettings.Menu.SelectedHeader";
+    uint8_t selectedHeader = CVarGetInteger(headerCvar, 0);
+    float centerX = ImGui::GetMainViewport()->GetCenter().x;
+    std::vector<ImVec2> headerSizes;
+    for (int i = 0; i < sectionCount; i++) {
+        headerSizes.push_back(ImGui::CalcTextSize(menuEntries.at(i).label.c_str()));
+    }
+    float menuHeight = std::fminf(800, window->Viewport->Size.y);
+
+    ImVec2 pos = window->DC.CursorPos;
+    pos.x = centerX - (headerSizes.at(0).x + headerSizes.at(1).x / 2 + (style.ItemSpacing.x * 2));
+    pos.y += std::fminf(window->Viewport->Size.y - menuHeight, std::fminf(100, (window->Viewport->Size.y - menuHeight)/2));
+    std::vector<UIWidgets::SidebarEntry> sidebar;
+    float headerHeight = 0;
+
+    for (int i = 0; i < sectionCount; i++) {
+        auto entry = menuEntries.at(i);
+        const ImGuiID headerId = window->GetID(std::string(entry.label + "##Header").c_str());
+        ImRect bb = { pos - style.FramePadding, pos + headerSizes.at(i) + style.FramePadding };
+        ImGui::ItemSize(bb, style.FramePadding.y);
+        ImGui::ItemAdd(bb, headerId);
+        bool hovered, held;
+        bool pressed = ImGui::ButtonBehavior(bb, headerId, &hovered, &held);
+        if (pressed) {
+            ImGui::MarkItemEdited(headerId);
+            CVarSetInteger(headerCvar, i);
+            selectedHeader = i;
+        }
+        if (selectedHeader != i) {
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, { 0, 0, 0, 0 });
+        }
+        if (selectedHeader == i) {
+            sidebar = entry.sidebarEntries;
+        }
+        window->DrawList->AddRectFilled(pos - style.FramePadding, pos + headerSizes.at(i) + style.FramePadding,
+            ImGui::GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive
+                : hovered ? ImGuiCol_FrameBgHovered
+                : ImGuiCol_FrameBg),
+            true, style.FrameRounding);
+        if (selectedHeader != i) {
+            ImGui::PopStyleColor();
+        }
+
+        UIWidgets::RenderText(pos, entry.label.c_str(), ImGui::FindRenderedTextEnd(entry.label.c_str()), true);
+        if (i + 1 < sectionCount) {
+            pos.x += headerSizes.at(i).x + style.ItemSpacing.x * 2;
+        } else {
+            headerHeight = bb.GetHeight();
+        }
+    }
+    pos.y += headerHeight + style.ItemSpacing.y;
+    pos.x = centerX - 640;
+    window->DrawList->AddRectFilled(pos, pos + ImVec2{ 1280, 4 }, ImGui::GetColorU32({255, 255, 255, 255}), true, style.WindowRounding);
+    pos.y += style.ItemSpacing.y;
+    float sectionHeight = menuHeight - headerHeight - 4 - style.ItemSpacing.y * 2;
+    float columnHeight = 800 - -headerHeight - 4 - style.ItemSpacing.y * 2;
+    ImGui::SetNextWindowPos(pos);
+
+    ImGui::BeginChild((menuEntries.at(selectedHeader).label + " Menu").c_str(), { 1280, sectionHeight }, ImGuiChildFlags_None, ImGuiWindowFlags_NoDecoration);
+    ImGui::SetNextWindowPos(pos + style.ItemSpacing);
+    float sidebarWidth = 200;
+
+    const char* sidebarCvar = menuEntries.at(selectedHeader).sidebarCvar;
+
+    uint8_t sectionIndex = CVarGetInteger(sidebarCvar, 0);
+    if (sectionIndex > 2) sectionIndex = 2;
+    if (sectionIndex < 0) sectionIndex = 0;
+    float sectionCenterX = pos.x + (sidebarWidth / 2);
+    float topY = pos.y;
+    ImGui::BeginChild((menuEntries.at(selectedHeader).label + " Section").c_str(), { sidebarWidth, sectionHeight }, ImGuiChildFlags_None, ImGuiWindowFlags_NoDecoration);
+    for (int i = 0; i < sidebar.size(); i++) {
+        auto sidebarEntry = sidebar.at(i);
+        if (sidebarEntry.type == UIWidgets::SIDEBAR_ENTRY_WINDOW) {
+            UIWidgets::SidebarButton sidebarButton = static_cast<UIWidgets::SidebarButton>(sidebarEntry);
+            UIWidgets::WindowButton(sidebarEntry.label.c_str(), sidebarButton.windowCvar.c_str(), sidebarButton.windowPtr, sidebarButton.options);
+        }
+        else {
+            const char* label = sidebarEntry.label.c_str();
+            const ImGuiID sidebarId = window->GetID(std::string(sidebarEntry.label + "##Sidebar").c_str());
+            ImVec2 labelSize = ImGui::CalcTextSize(label, ImGui::FindRenderedTextEnd(label), true);
+            pos.y += style.ItemSpacing.y + style.FramePadding.y;
+            pos.x = sectionCenterX - labelSize.x / 2;
+            ImRect bb = { pos - style.FramePadding, pos + labelSize + style.FramePadding };
+            ImGui::ItemSize(bb, style.FramePadding.y);
+            ImGui::ItemAdd(bb, sidebarId);
+            bool hovered, held;
+            bool pressed = ImGui::ButtonBehavior(bb, sidebarId, &hovered, &held);
+            if (pressed) {
+                ImGui::MarkItemEdited(sidebarId);
+                CVarSetInteger(sidebarCvar, i);
+                sectionIndex = i;
+            }
+            if (sectionIndex != i) {
+                ImGui::PushStyleColor(ImGuiCol_FrameBg, { 0, 0, 0, 0 });
+            }
+            if (sectionIndex == i) {
+
+            }
+            window->DrawList->AddRectFilled(pos - style.FramePadding, pos + labelSize + style.FramePadding,
+                ImGui::GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive
+                    : hovered ? ImGuiCol_FrameBgHovered
+                    : ImGuiCol_FrameBg),
+                true, style.FrameRounding);
+            if (sectionIndex != i) {
+                ImGui::PopStyleColor();
+            }
+            UIWidgets::RenderText(pos, label, ImGui::FindRenderedTextEnd(label), true);
+            pos.y += bb.GetHeight();
+        }
+    }
+    ImGui::EndChild();
+
+    ImGui::PushFont(OTRGlobals::Instance->fontMonoLarger);
+    pos = ImVec2{ sectionCenterX + (sidebarWidth / 2), topY} + style.ItemSpacing;
+    window->DrawList->AddRectFilled(pos, pos + ImVec2{ 4, sectionHeight - style.FramePadding.y * 2 }, ImGui::GetColorU32({ 255, 255, 255, 255 }), true, style.WindowRounding);
+    pos.x += 4 + style.ItemSpacing.x;
+    ImGui::SetNextWindowPos(pos + style.ItemSpacing);
+    float sectionWidth = 1280 - sidebarWidth - 4 - style.ItemSpacing.x * 6;
+    std::string sectionMenuId = sidebar.at(sectionIndex).label + " Settings";
+    float columnWidth = (sectionWidth - style.ItemSpacing.x) / 3;
+    ImGui::BeginChild(sectionMenuId.c_str(), { sectionWidth, sectionHeight }, ImGuiChildFlags_None, ImGuiWindowFlags_NoDecoration);
+    for (int i = 0; i < sidebar.at(sectionIndex).columnFuncs.size(); i++) {
+        std::string sectionId = std::format("{} Column {}", sectionMenuId, i);
+        ImGui::BeginChild(sectionId.c_str(), { columnWidth, sectionHeight });
+        sidebar.at(sectionIndex).columnFuncs.at(i)();
+        ImGui::EndChild();
+        ImGui::SameLine();
+    }
+    ImGui::EndChild();
+    ImGui::PopFont();
+    ImGui::EndChild();
+    ImGui::PopFont();
+
+    // style.Colors[ImGuiCol_Button] = prevButtonCol;
+    ImGui::PopStyleVar();
+    ImGui::End();
+}
