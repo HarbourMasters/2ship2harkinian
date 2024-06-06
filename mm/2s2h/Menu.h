@@ -17,7 +17,3 @@ private:
     UIWidgets::SidebarEntry audioSettingsEntry;
     UIWidgets::MainMenuEntry settingsEntry;
 };
-
-void DrawAudioSettings();
-void DrawGraphicsSettings();
-void DrawControllerSettings();

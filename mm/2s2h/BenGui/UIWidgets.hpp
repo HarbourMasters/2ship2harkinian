@@ -114,9 +114,21 @@ namespace UIWidgets {
         ImGuiComboFlags flags = 0;
     };
 
+    typedef enum SidebarEntryType {
+        SIDEBAR_ENTRY_SECTION,
+        SIDEBAR_ENTRY_WINDOW
+    };
+
     struct SidebarEntry {
         std::string label;
         std::vector<SectionFunc> columnFuncs;
+        SidebarEntryType type = SIDEBAR_ENTRY_SECTION;
+    };
+
+    struct SidebarButton : SidebarEntry {
+        std::string windowCvar;
+        std::shared_ptr<Ship::GuiWindow> windowPtr;
+        ButtonOptions options;
     };
 
     struct MainMenuEntry {
