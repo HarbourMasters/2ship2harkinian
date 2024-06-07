@@ -10,9 +10,10 @@ SaveInfo saveInfoCopy;
 s32 timeSpeedOffsetCopy;
 
 void RegisterEndOfCycleSaveHooks() {
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::BeforeEndOfCycleSave>(
-        []() { memcpy(&saveInfoCopy, &gSaveContext.save.saveInfo, sizeof(SaveInfo));
-               memcpy(&timeSpeedOffsetCopy, &gSaveContext.save.timeSpeedOffset, sizeof(s32)); });
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::BeforeEndOfCycleSave>([]() {
+        memcpy(&saveInfoCopy, &gSaveContext.save.saveInfo, sizeof(SaveInfo));
+        memcpy(&timeSpeedOffsetCopy, &gSaveContext.save.timeSpeedOffset, sizeof(s32));
+    });
 
     GameInteractor::Instance->RegisterGameHook<GameInteractor::AfterEndOfCycleSave>([]() {
         if (CVarGetInteger("gEnhancements.Cycle.DoNotResetRupees", 0)) {
