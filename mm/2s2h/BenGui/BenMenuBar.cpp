@@ -427,6 +427,11 @@ void DrawEnhancementsMenu() {
                     .tooltip =
                         "Disclaimer: This doesn't do much yet, we will be progressively adding more skips over time",
                 });
+            UIWidgets::CVarCheckbox(
+                "Cremia Always Gives Hugs", "gEnhancements.Cutscenes.CremiaHugs",
+                {
+                    .tooltip = "After obtaining the Romani Mask, Cremia will always give a hug as a reward.",
+                });
 
             ImGui::EndMenu();
         }
