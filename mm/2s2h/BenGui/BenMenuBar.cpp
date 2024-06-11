@@ -648,6 +648,10 @@ void DrawEnhancementsMenu() {
 
 void DrawCheatsMenu() {
     if (UIWidgets::BeginMenu("Cheats")) {
+        UIWidgets::CVarCheckbox("Hookshot Everything", "gCheats.HookshotEverything");
+        if (CVarGetInteger("gCheats.HookshotEverything", 0)) {
+            UIWidgets::CVarSliderFloat("Hookshot Reach Multiplier", "gCheats.HookshotReachMultiplier", 1.0f, 5.0f, 1.0f);
+        }
         UIWidgets::CVarCheckbox("Infinite Health", "gCheats.InfiniteHealth");
         UIWidgets::CVarCheckbox("Infinite Magic", "gCheats.InfiniteMagic");
         UIWidgets::CVarCheckbox("Infinite Rupees", "gCheats.InfiniteRupees");

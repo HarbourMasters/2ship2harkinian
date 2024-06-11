@@ -3667,7 +3667,7 @@ void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList1, G
                     heldActor->shape.rot = heldActor->world.rot;
                     if (func_800B7128(player)) {
                         Matrix_Translate(500.0f, 300.0f, 0.0f, MTXMODE_APPLY);
-                        Player_DrawHookshotReticle(play, player, 77600.0f);
+                        Player_DrawHookshotReticle(play, player, ((player->heldItemAction == PLAYER_IA_HOOKSHOT) ? 38600.0f : 77600.0f) * CVarGetFloat("gCheats.HookshotReachMultiplier", 1.0f));
                     }
                 }
             } else if (CVarGetInteger("gEnhancements.Graphics.BowReticle", 0) &&

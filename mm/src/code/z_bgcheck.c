@@ -4266,7 +4266,7 @@ u32 SurfaceType_GetEcho(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId)
 }
 
 u32 SurfaceType_IsHookshotSurface(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId) {
-    return SurfaceType_GetData(colCtx, poly, bgId, 1) >> 17 & 1;
+    return CVarGetInteger("gCheats.HookshotEverything", 0) || SurfaceType_GetData(colCtx, poly, bgId, 1) >> 17 & 1;
 }
 
 s32 SurfaceType_IsIgnoredByEntities(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId) {
