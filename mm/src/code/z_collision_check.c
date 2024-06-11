@@ -61,7 +61,7 @@ f32 CollisionCheck_GetDamageAndEffectOnBumper(Collider* at, ColliderInfo* atInfo
         }
 
         // #region 2S2H - Enhancements - Sword Beams
-        if ((!GameInteractor_Should(GI_VB_DISABLE_FD_MASK, true, NULL) && i == 25)) {
+        if ((!GameInteractor_Should(GI_VB_SWORD_BEAMS_ON_REGULAR_ENEMIES, true, NULL) && i == 25)) {
             /**
              * Default damage multiplier of 1.0, unless a non-zero multiplier is already defined
              */

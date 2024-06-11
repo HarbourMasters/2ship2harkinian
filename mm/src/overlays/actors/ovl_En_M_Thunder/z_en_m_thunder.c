@@ -175,6 +175,11 @@ void EnMThunder_Init(Actor* thisx, PlayState* play) {
             this->timer = 1;
             this->scaleTarget = 12;
             this->collider.info.toucher.dmgFlags = DMG_SWORD_BEAM;
+            // #region 2S2H - Enhancements - Give sword beams arrow damage effect
+            if (!GameInteractor_Should(GI_VB_SWORD_BEAMS_ON_REGULAR_ENEMIES, true, NULL)) {
+                this->collider.info.toucher.dmgFlags |= DMG_NORMAL_ARROW;
+            }
+            // #endregion
             this->collider.info.toucher.damage = 3;
         } else {
             this->actionFunc = EnMThunder_Spin_Attack;
