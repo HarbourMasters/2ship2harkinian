@@ -46,6 +46,7 @@ void InitEnhancements() {
 
     // Songs
     RegisterEnableSunsSong();
+    RegisterPauseOwlWarp();
 
     // Restorations
     RegisterPowerCrouchStab();

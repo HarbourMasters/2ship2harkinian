@@ -902,6 +902,8 @@ void KaleidoScopeCall_Init(PlayState* play);
 void KaleidoScopeCall_Destroy(PlayState* play);
 void KaleidoScopeCall_Update(PlayState* play);
 void KaleidoScopeCall_Draw(PlayState* play);
+void KaleidoScope_UpdateOwlWarpNamePanel(PlayState* play);
+void KaleidoScope_UpdateNamePanel(PlayState* play);
 void Transition_Init(TransitionContext* transitionCtx);
 void Transition_Destroy(TransitionContext* transitionCtx);
 
