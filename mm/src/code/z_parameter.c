@@ -8789,6 +8789,87 @@ void Interface_AllocStory(PlayState* play) {
     Interface_LoadStory(play, OS_MESG_NOBLOCK);
 }
 
+void Change_MagicArrow(PlayState* play, Player* this, ItemId item) {
+    PlayerItemAction itemAction = Player_ItemToItemAction(this, item);
+
+    if (itemAction != this->heldItemAction) {
+        Player_DetachHeldActor(play, this);
+        Player_InitItemAction(play, this, itemAction);
+    }
+}
+
+void Cycle_MagicArrows() {
+    Player* player = GET_PLAYER(gPlayState);
+    Input* input = &gPlayState->state.input[0];
+
+    if (gSaveContext.save.playerForm != PLAYER_FORM_HUMAN)
+        return;
+    if ((GET_INV_CONTENT(ITEM_BOW) == ITEM_BOW) && ((GET_INV_CONTENT(ITEM_ARROW_FIRE) == ITEM_ARROW_FIRE) |
+        (GET_INV_CONTENT(ITEM_ARROW_ICE) == ITEM_ARROW_ICE) | (GET_INV_CONTENT(ITEM_ARROW_LIGHT) == ITEM_ARROW_LIGHT))) {
+
+        if (!(player->stateFlags1 & PLAYER_STATE1_8))
+            return;
+        // Cycle arrows Fire->Ice->Light->Normal
+        if (CHECK_BTN_ALL(input->cur.button, BTN_CLEFT) && CHECK_BTN_ALL(input->press.button, BTN_A)) {
+            u8 Cycle_Arrow;
+
+            if (gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][EQUIP_SLOT_C_LEFT] == ITEM_BOW_FIRE)
+                Cycle_Arrow = 1;
+            else if (gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][EQUIP_SLOT_C_LEFT] == ITEM_BOW_ICE)
+                Cycle_Arrow = 2;
+            else if (gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][EQUIP_SLOT_C_LEFT] == ITEM_BOW_LIGHT)
+                Cycle_Arrow = 3;
+            else
+                Cycle_Arrow = 0;
+
+            if (Cycle_Arrow == 0) {
+                if (GET_INV_CONTENT(ITEM_ARROW_FIRE) == ITEM_ARROW_FIRE) {
+                    gSaveContext.magicState = MAGIC_STATE_IDLE;
+                    gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][EQUIP_SLOT_C_LEFT] = ITEM_BOW_FIRE;
+                    gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][EQUIP_SLOT_C_LEFT] = SLOT_BOW;
+                    Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_C_LEFT);
+                    Change_MagicArrow(gPlayState, player, ITEM_ARROW_FIRE);
+                    Cycle_Arrow = 1;
+                    return;
+                }
+                Cycle_Arrow = 1;
+            }
+            if (Cycle_Arrow == 1) {
+                if (GET_INV_CONTENT(ITEM_ARROW_ICE) == ITEM_ARROW_ICE) {
+                    gSaveContext.magicState = MAGIC_STATE_IDLE;
+                    gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][EQUIP_SLOT_C_LEFT] = ITEM_BOW_ICE;
+                    gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][EQUIP_SLOT_C_LEFT] = SLOT_BOW;
+                    Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_C_LEFT);
+                    Change_MagicArrow(gPlayState, player, ITEM_ARROW_ICE);
+                    Cycle_Arrow = 2;
+                    return;
+                }
+                Cycle_Arrow = 2;
+            }
+            if (Cycle_Arrow == 2) {
+                if (GET_INV_CONTENT(ITEM_ARROW_LIGHT) == ITEM_ARROW_LIGHT) {
+                    gSaveContext.magicState = MAGIC_STATE_IDLE;
+                    gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][EQUIP_SLOT_C_LEFT] = ITEM_BOW_LIGHT;
+                    gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][EQUIP_SLOT_C_LEFT] = SLOT_BOW;
+                    Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_C_LEFT);
+                    Change_MagicArrow(gPlayState, player, ITEM_ARROW_LIGHT);
+                    Cycle_Arrow = 3;
+                    return;
+                }
+                Cycle_Arrow = 3;
+            }
+            if (Cycle_Arrow == 3) {
+                gSaveContext.magicState = MAGIC_STATE_IDLE;
+                gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][EQUIP_SLOT_C_LEFT] = ITEM_BOW;
+                gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][EQUIP_SLOT_C_LEFT] = SLOT_BOW;
+                Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_C_LEFT);
+                Change_MagicArrow(gPlayState, player, ITEM_BOW);
+            }
+            Cycle_Arrow = 0;
+        }
+    }
+}
+
 void Interface_Update(PlayState* play) {
     static u8 sIsSunsPlayedAtDay = false;
     static s16 sPrevTimeSpeed = 0;
@@ -9271,6 +9352,7 @@ void Interface_Update(PlayState* play) {
             }
         }
     }
+    Cycle_MagicArrows();
 }
 
 void Interface_Destroy(PlayState* play) {
