@@ -71,10 +71,12 @@ void UpdateCursorForOwlWarpPoints(PauseContext* pauseCtx) {
                     return;
                 }
             } while (!pauseCtx->worldMapPoints[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]]);
-            pauseCtx->cursorItem[PAUSE_MAP] =
-                sOwlWarpPauseItems[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]] - ITEM_MAP_POINT_GREAT_BAY;
-            pauseCtx->cursorSlot[PAUSE_MAP] = 31 + pauseCtx->cursorPoint[PAUSE_WORLD_MAP];
-            Audio_PlaySfx(NA_SE_SY_CURSOR);
+            if (pauseCtx->worldMapPoints[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]]) {
+                pauseCtx->cursorItem[PAUSE_MAP] =
+                    sOwlWarpPauseItems[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]] - ITEM_MAP_POINT_GREAT_BAY;
+                pauseCtx->cursorSlot[PAUSE_MAP] = 31 + pauseCtx->cursorPoint[PAUSE_WORLD_MAP];
+                Audio_PlaySfx(NA_SE_SY_CURSOR);
+            }
         } else if (pauseCtx->stickAdjX < -30) {
             pauseCtx->cursorShrinkRate = 4.0f;
             sStickAdjTimer = 0;
@@ -85,35 +87,63 @@ void UpdateCursorForOwlWarpPoints(PauseContext* pauseCtx) {
                     return;
                 }
             } while (!pauseCtx->worldMapPoints[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]]);
-            pauseCtx->cursorItem[PAUSE_MAP] =
-                sOwlWarpPauseItems[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]] - ITEM_MAP_POINT_GREAT_BAY;
-            pauseCtx->cursorSlot[PAUSE_MAP] = 31 + pauseCtx->cursorPoint[PAUSE_WORLD_MAP];
-            Audio_PlaySfx(NA_SE_SY_CURSOR);
+            if (pauseCtx->worldMapPoints[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]]) {
+                pauseCtx->cursorItem[PAUSE_MAP] =
+                    sOwlWarpPauseItems[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]] - ITEM_MAP_POINT_GREAT_BAY;
+                pauseCtx->cursorSlot[PAUSE_MAP] = 31 + pauseCtx->cursorPoint[PAUSE_WORLD_MAP];
+                Audio_PlaySfx(NA_SE_SY_CURSOR);
+            }
         } else {
             sStickAdjTimer++;
         }
     } else if (pauseCtx->cursorSpecialPos == PAUSE_CURSOR_PAGE_LEFT && pauseCtx->stickAdjX > 30) {
         KaleidoScope_MoveCursorFromSpecialPos(gPlayState);
-        pauseCtx->cursorPoint[PAUSE_WORLD_MAP] = OWL_WARP_GREAT_BAY_COAST;
-        pauseCtx->cursorItem[PAUSE_MAP] =
-            sOwlWarpPauseItems[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]] - ITEM_MAP_POINT_GREAT_BAY;
-        pauseCtx->cursorSlot[PAUSE_MAP] = 31 + pauseCtx->cursorPoint[PAUSE_WORLD_MAP];
-        KaleidoScope_UpdateWorldMapCursor(gPlayState);
-        KaleidoScope_UpdateNamePanel(gPlayState);
+        for (int i = OWL_WARP_GREAT_BAY_COAST; i <= OWL_WARP_STONE_TOWER; i++) {
+            if (pauseCtx->worldMapPoints[i]) {
+                pauseCtx->cursorPoint[PAUSE_WORLD_MAP] = i;
+                pauseCtx->cursorItem[PAUSE_MAP] =
+                    sOwlWarpPauseItems[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]] - ITEM_MAP_POINT_GREAT_BAY;
+                pauseCtx->cursorSlot[PAUSE_MAP] = 31 + pauseCtx->cursorPoint[PAUSE_WORLD_MAP];
+                KaleidoScope_UpdateWorldMapCursor(gPlayState);
+                KaleidoScope_UpdateNamePanel(gPlayState);
+                return;
+            }
+        }
+        KaleidoScope_MoveCursorToSpecialPos(gPlayState, PAUSE_CURSOR_PAGE_RIGHT);
     } else if (pauseCtx->cursorSpecialPos == PAUSE_CURSOR_PAGE_RIGHT && pauseCtx->stickAdjX < -30) {
         KaleidoScope_MoveCursorFromSpecialPos(gPlayState);
-        pauseCtx->cursorPoint[PAUSE_WORLD_MAP] = OWL_WARP_STONE_TOWER;
-        pauseCtx->cursorItem[PAUSE_MAP] =
-            sOwlWarpPauseItems[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]] - ITEM_MAP_POINT_GREAT_BAY;
-        pauseCtx->cursorSlot[PAUSE_MAP] = 31 + pauseCtx->cursorPoint[PAUSE_WORLD_MAP];
-        KaleidoScope_UpdateWorldMapCursor(gPlayState);
-        KaleidoScope_UpdateNamePanel(gPlayState);
+        for (int i = OWL_WARP_STONE_TOWER; i >= OWL_WARP_GREAT_BAY_COAST; i--) {
+            if (pauseCtx->worldMapPoints[i]) {
+                pauseCtx->cursorPoint[PAUSE_WORLD_MAP] = i;
+                pauseCtx->cursorItem[PAUSE_MAP] =
+                    sOwlWarpPauseItems[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]] - ITEM_MAP_POINT_GREAT_BAY;
+                pauseCtx->cursorSlot[PAUSE_MAP] = 31 + pauseCtx->cursorPoint[PAUSE_WORLD_MAP];
+                KaleidoScope_UpdateWorldMapCursor(gPlayState);
+                KaleidoScope_UpdateNamePanel(gPlayState);
+                return;
+            }
+        }
+        KaleidoScope_MoveCursorToSpecialPos(gPlayState, PAUSE_CURSOR_PAGE_LEFT);
     }
 }
 
 void RegisterPauseOwlWarp() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnKaleidoUpdate>([](PauseContext* pauseCtx) {
         if (CVarGetInteger("gEnhancements.Songs.PauseOwlWarp", 0)) {
+            // Initialize worldMapPoints based on owl activation flags
+            for (int i = OWL_WARP_STONE_TOWER; i >= OWL_WARP_GREAT_BAY_COAST; i--) {
+                pauseCtx->worldMapPoints[i] = (gSaveContext.save.saveInfo.playerData.owlActivationFlags >> i) & 1;
+            }
+            // Ensure cursor starts at an activated point
+            if (!pauseCtx->worldMapPoints[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]]) {
+                for (int i = OWL_WARP_GREAT_BAY_COAST; i <= OWL_WARP_STONE_TOWER; i++) {
+                    if (pauseCtx->worldMapPoints[i]) {
+                        pauseCtx->cursorPoint[PAUSE_WORLD_MAP] = i;
+                        break;
+                    }
+                }
+            }
+
             Player* player = GET_PLAYER(gPlayState);
             Input* input = &gPlayState->state.input[0];
 
