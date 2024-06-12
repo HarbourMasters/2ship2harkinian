@@ -634,7 +634,8 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Prevent Dropped Ocarina Inputs", "gEnhancements.Playback.NoDropOcarinaInput",
                                     { .tooltip = "Prevent dropping inputs when playing the ocarina quickly" });
             UIWidgets::CVarCheckbox("Pause Owl Warp", "gEnhancements.Songs.PauseOwlWarp",
-                                    { .tooltip = "Allows the player to use the pause menu map to owl warp instead of having to play the Song of Soaring." });
+                                    { .tooltip = "Allows the player to use the pause menu map to owl warp instead of "
+                                                 "having to play the Song of Soaring." });
 
             ImGui::EndMenu();
         }

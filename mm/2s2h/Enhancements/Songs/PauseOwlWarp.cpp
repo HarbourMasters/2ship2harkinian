@@ -3,12 +3,12 @@
 #include "Enhancements/GameInteractor/GameInteractor.h"
 
 extern "C" {
-    #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
+#include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 
-    extern f32 sPauseMenuVerticalOffset;
-    extern u16 sCursorPointsToOcarinaModes[];
-    extern u16 sOwlWarpPauseItems[];
-    extern u16 D_80AF343C[];
+extern f32 sPauseMenuVerticalOffset;
+extern u16 sCursorPointsToOcarinaModes[];
+extern u16 sOwlWarpPauseItems[];
+extern u16 D_80AF343C[];
 }
 
 static bool isConfirming = false;
@@ -71,7 +71,8 @@ void UpdateCursorForOwlWarpPoints(PauseContext* pauseCtx) {
                     return;
                 }
             } while (!pauseCtx->worldMapPoints[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]]);
-            pauseCtx->cursorItem[PAUSE_MAP] = sOwlWarpPauseItems[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]] - ITEM_MAP_POINT_GREAT_BAY;
+            pauseCtx->cursorItem[PAUSE_MAP] =
+                sOwlWarpPauseItems[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]] - ITEM_MAP_POINT_GREAT_BAY;
             pauseCtx->cursorSlot[PAUSE_MAP] = 31 + pauseCtx->cursorPoint[PAUSE_WORLD_MAP];
             Audio_PlaySfx(NA_SE_SY_CURSOR);
         } else if (pauseCtx->stickAdjX < -30) {
@@ -84,7 +85,8 @@ void UpdateCursorForOwlWarpPoints(PauseContext* pauseCtx) {
                     return;
                 }
             } while (!pauseCtx->worldMapPoints[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]]);
-            pauseCtx->cursorItem[PAUSE_MAP] = sOwlWarpPauseItems[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]] - ITEM_MAP_POINT_GREAT_BAY;
+            pauseCtx->cursorItem[PAUSE_MAP] =
+                sOwlWarpPauseItems[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]] - ITEM_MAP_POINT_GREAT_BAY;
             pauseCtx->cursorSlot[PAUSE_MAP] = 31 + pauseCtx->cursorPoint[PAUSE_WORLD_MAP];
             Audio_PlaySfx(NA_SE_SY_CURSOR);
         } else {
@@ -93,14 +95,16 @@ void UpdateCursorForOwlWarpPoints(PauseContext* pauseCtx) {
     } else if (pauseCtx->cursorSpecialPos == PAUSE_CURSOR_PAGE_LEFT && pauseCtx->stickAdjX > 30) {
         KaleidoScope_MoveCursorFromSpecialPos(gPlayState);
         pauseCtx->cursorPoint[PAUSE_WORLD_MAP] = OWL_WARP_GREAT_BAY_COAST;
-        pauseCtx->cursorItem[PAUSE_MAP] = sOwlWarpPauseItems[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]] - ITEM_MAP_POINT_GREAT_BAY;
+        pauseCtx->cursorItem[PAUSE_MAP] =
+            sOwlWarpPauseItems[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]] - ITEM_MAP_POINT_GREAT_BAY;
         pauseCtx->cursorSlot[PAUSE_MAP] = 31 + pauseCtx->cursorPoint[PAUSE_WORLD_MAP];
         KaleidoScope_UpdateWorldMapCursor(gPlayState);
         KaleidoScope_UpdateNamePanel(gPlayState);
     } else if (pauseCtx->cursorSpecialPos == PAUSE_CURSOR_PAGE_RIGHT && pauseCtx->stickAdjX < -30) {
         KaleidoScope_MoveCursorFromSpecialPos(gPlayState);
         pauseCtx->cursorPoint[PAUSE_WORLD_MAP] = OWL_WARP_STONE_TOWER;
-        pauseCtx->cursorItem[PAUSE_MAP] = sOwlWarpPauseItems[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]] - ITEM_MAP_POINT_GREAT_BAY;
+        pauseCtx->cursorItem[PAUSE_MAP] =
+            sOwlWarpPauseItems[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]] - ITEM_MAP_POINT_GREAT_BAY;
         pauseCtx->cursorSlot[PAUSE_MAP] = 31 + pauseCtx->cursorPoint[PAUSE_WORLD_MAP];
         KaleidoScope_UpdateWorldMapCursor(gPlayState);
         KaleidoScope_UpdateNamePanel(gPlayState);
@@ -113,11 +117,14 @@ void RegisterPauseOwlWarp() {
             Player* player = GET_PLAYER(gPlayState);
             Input* input = &gPlayState->state.input[0];
 
-            if ((pauseCtx->state == PAUSE_STATE_MAIN && pauseCtx->pageIndex == PAUSE_MAP && pauseCtx->mapPageRoll == 0) || isConfirming) {
+            if ((pauseCtx->state == PAUSE_STATE_MAIN && pauseCtx->pageIndex == PAUSE_MAP &&
+                 pauseCtx->mapPageRoll == 0) ||
+                isConfirming) {
                 if (CHECK_BTN_ALL(input->press.button, BTN_START) || CHECK_BTN_ALL(input->press.button, BTN_B)) {
                     ClosePauseMenu(pauseCtx);
                 } else if (CHECK_BTN_ALL(input->press.button, BTN_A) && !isConfirming) {
-                    if (pauseCtx->cursorSpecialPos == 0 && pauseCtx->worldMapPoints[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]]) {
+                    if (pauseCtx->cursorSpecialPos == 0 &&
+                        pauseCtx->worldMapPoints[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]]) {
                         Audio_PlaySfx(NA_SE_SY_DECIDE);
                         Message_StartTextbox(gPlayState, 0x1B93, NULL);
                         isConfirming = true;
