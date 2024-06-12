@@ -1,12 +1,8 @@
 #include "ZoraEggCount.h"
 #include <libultraship/bridge.h>
 #include "Enhancements/GameInteractor/GameInteractor.h"
-#include "global.h"
 
 extern "C" {
-extern PlayState* gPlayState;
-#include "z64.h"
-#include "src/overlays/actors/ovl_En_Zoraegg/z_en_zoraegg.h"
 #include "src/overlays/actors/ovl_En_Mk/z_en_mk.h"
 }
 
