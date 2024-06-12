@@ -50,6 +50,13 @@ f32 CollisionCheck_GetDamageAndEffectOnBumper(Collider* at, ColliderInfo* atInfo
     *effect = 0;
     damage = CollisionCheck_GetToucherDamage(at, atInfo, ac, acInfo);
 
+    // Store damage information for hook purposes
+    DamageAndEffectHookInfo damageAndEffectInfo;
+    damageAndEffectInfo.damageTable = ac->actor->colChkInfo.damageTable;
+    damageAndEffectInfo.damage = &damage;
+    damageAndEffectInfo.multipliers = damageMultipliers;
+    damageAndEffectInfo.effect = effect;
+
     if (ac->actor->colChkInfo.damageTable != NULL) {
         dmgFlags = atInfo->toucher.dmgFlags;
 
@@ -60,32 +67,13 @@ f32 CollisionCheck_GetDamageAndEffectOnBumper(Collider* at, ColliderInfo* atInfo
             dmgFlags >>= 1;
         }
 
-        // #region 2S2H - Enhancements - Sword Beams
-        if ((!GameInteractor_Should(GI_VB_SWORD_BEAMS_ON_REGULAR_ENEMIES, true, NULL) && i == 25)) {
-            /**
-             * Default damage multiplier of 1.0, unless a non-zero multiplier is already defined
-             */
-            u8 defaultMultiplier = ac->actor->colChkInfo.damageTable->attack[i] & 0xF;
-            damage *= damageMultipliers[defaultMultiplier == 0 ? 1 : defaultMultiplier];
-
-            u8 defaultEffect = (ac->actor->colChkInfo.damageTable->attack[i] >> 4) & 0xF;
-            if (defaultEffect == 0) {
-                /**
-                 * If sword beams have an effect of 0, that usually corresponds to having no effect.
-                 * In that case, prefer the spin attack effect, unless that is also 0, then prefer the sword slash
-                 * effect. If everything is 0, this actor probably does not want to deal with swords in any form.
-                 */
-                u8 spinAttackEffect = (ac->actor->colChkInfo.damageTable->attack[24] >> 4) & 0xF;
-                u8 swordEffect = (ac->actor->colChkInfo.damageTable->attack[9] >> 4) & 0xF;
-                *effect = spinAttackEffect == 0 ? swordEffect : spinAttackEffect;
-            } else {
-                /**
-                 * An effect for sword beams has been defined, so just use that.
-                 */
-                *effect = defaultEffect;
-            }
-        } else {
+        // #region 2S2H - Enhancements - Damage Multiplier and Effect
+        damageAndEffectInfo.index = i;
+        if ((GameInteractor_Should(GI_VB_DAMAGE_MULTIPLIER, true, &damageAndEffectInfo))) {
             damage *= damageMultipliers[ac->actor->colChkInfo.damageTable->attack[i] & 0xF];
+        }
+
+        if ((GameInteractor_Should(GI_VB_DAMAGE_EFFECT, true, &i))) {
             *effect = (ac->actor->colChkInfo.damageTable->attack[i] >> 4) & 0xF;
         }
         // #endregion
