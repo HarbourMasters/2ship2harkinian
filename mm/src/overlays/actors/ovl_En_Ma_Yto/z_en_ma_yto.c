@@ -311,7 +311,7 @@ void EnMaYto_ChooseAction(EnMaYto* this, PlayState* play) {
             this->unk310 = 0;
             if ((INV_CONTENT(ITEM_MASK_ROMANI) == ITEM_MASK_ROMANI) &&
                 CHECK_WEEKEVENTREG(WEEKEVENTREG_ESCORTED_CREMIA) &&
-                ((Rand_Next() & 0x80 || GameInteractor_Should(GI_VB_RANDOM_CREMIA_HUGS, false, NULL)))) {
+                ((Rand_Next() & 0x80 || GameInteractor_Should(GI_VB_RANDOM_COMPARISON, false, NULL)))) {
                 EnMaYto_SetupBeginWarmFuzzyFeelingCs(this);
             } else {
                 EnMaYto_SetupAfterMilkRunInit(this);

@@ -14,5 +14,6 @@ void RegisterSkipClockTowerOpen();
 void RegisterHideTitleCards();
 void RegisterSkipEntranceCutscenes();
 void RegisterSkipIntroSequence();
+void RegisterCremiaHugs();
 
 #endif // CUTSCENES_H
