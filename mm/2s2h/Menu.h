@@ -13,6 +13,7 @@ public:
     void UpdateElement() override;
 
 private:
+    bool allowPopout = true;  // PortNote: should be set to false on small screen ports
     uint32_t windowHeight;
     uint32_t windowWidth;
     UIWidgets::SidebarEntry audioSettingsEntry;
