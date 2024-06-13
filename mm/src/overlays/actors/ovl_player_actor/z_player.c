@@ -15690,9 +15690,7 @@ void Player_Action_43(Player* this, PlayState* play) {
             ((this->unk_AA5 == PLAYER_UNKAA5_3) &&
              (((Player_ItemToItemAction(this, Inventory_GetBtnBItem(play)) != this->heldItemAction) &&
                CHECK_BTN_ANY(sPlayerControlInput->press.button, BTN_B)) ||
-              CHECK_BTN_ANY(sPlayerControlInput->press.button, BTN_R | BTN_A) &&
-                  !CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_CLEFT) ||
-              func_80123434(this) ||
+              CHECK_BTN_ANY(sPlayerControlInput->press.button, BTN_R | BTN_A) || func_80123434(this) ||
               (!func_800B7128(this) && !func_8082EF20(this))))) ||
            ((this->unk_AA5 == PLAYER_UNKAA5_1) &&
             CHECK_BTN_ANY(sPlayerControlInput->press.button,

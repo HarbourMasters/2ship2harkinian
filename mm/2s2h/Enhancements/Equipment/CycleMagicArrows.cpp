@@ -51,7 +51,7 @@ void NextArrowInSlot(uint32_t item) {
 }
 
 void RegisterCycleMagicArrows() {
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPassPlayerInputs>([](Input * input) {
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPassPlayerInputs>([](Input* input) {
         if (gPlayState == NULL) {
             return;
         }
