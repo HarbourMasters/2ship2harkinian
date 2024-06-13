@@ -498,6 +498,9 @@ void DrawEnhancementsMenu() {
         if (UIWidgets::BeginMenu("Equipment")) {
             UIWidgets::CVarCheckbox("Fast Magic Arrow Equip Animation", "gEnhancements.Equipment.MagicArrowEquipSpeed",
                                     { .tooltip = "Removes the animation for equipping Magic Arrows." });
+            UIWidgets::CVarCheckbox("Allow Cycling Magic Arrows", "gEnhancements.Equipment.CycleMagicArrows", 
+                                    { .tooltip = "Pressing C-Left or Right while aiming you Bow will\n"
+                                                 "cycle available Magic Arrows." });
             ImGui::EndMenu();
         }
 
