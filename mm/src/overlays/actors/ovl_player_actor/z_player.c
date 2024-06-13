@@ -3991,9 +3991,9 @@ s32 func_808306F8(Player* this, PlayState* play) {
                         &play->actorCtx, &this->actor, play, ACTOR_EN_ARROW, this->actor.world.pos.x,
                         this->actor.world.pos.y, this->actor.world.pos.z, 0, this->actor.shape.rot.y, 0, arrowType);
 
-                    //if ((this->heldActor != NULL) && (magicArrowType > ARROW_MAGIC_INVALID)) {
-                    //    Magic_Consume(play, sMagicArrowCosts[magicArrowType], MAGIC_CONSUME_NOW);
-                    //}
+                    if ((this->heldActor != NULL) && (magicArrowType > ARROW_MAGIC_INVALID)) {
+                        Magic_Consume(play, sMagicArrowCosts[magicArrowType], MAGIC_CONSUME_NOW);
+                    }
                 }
             }
         }
@@ -4243,27 +4243,6 @@ s32 func_80831194(PlayState* play, Player* this) {
                 } else if (play->bButtonAmmoPlusOne != 0) {
                     play->bButtonAmmoPlusOne--;
                 } else {
-                    ArrowType arrowType;
-                    ArrowMagic magicArrowType;
-                    if (func_808305BC(play, this, &item, &arrowType) > 0) {
-                        if (this->unk_B28 >= 0) {
-                            magicArrowType = ARROW_GET_MAGIC_FROM_TYPE(arrowType);
-
-                            if ((ARROW_GET_MAGIC_FROM_TYPE(arrowType) >= ARROW_MAGIC_FIRE) &&
-                                (ARROW_GET_MAGIC_FROM_TYPE(arrowType) <= ARROW_MAGIC_LIGHT)) {
-                                if (((void)0, gSaveContext.save.saveInfo.playerData.magic) <
-                                    sMagicArrowCosts[magicArrowType]) {
-                                    arrowType = ARROW_TYPE_NORMAL;
-                                    magicArrowType = ARROW_MAGIC_INVALID;
-                                }
-                            } else {
-                                magicArrowType = ARROW_MAGIC_INVALID;
-                            }
-                            if (magicArrowType > ARROW_MAGIC_INVALID) {
-                                 Magic_Consume(play, sMagicArrowCosts[magicArrowType], MAGIC_CONSUME_NOW);
-                            }
-                        }
-                    }
                     Inventory_ChangeAmmo(item, -1);
                 }
             }
