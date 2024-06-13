@@ -58,6 +58,12 @@ static const std::unordered_map<int32_t, const char*> alwaysWinDoggyraceOptions 
     { ALWAYS_WIN_DOGGY_RACE_ALWAYS, "Always" },
 };
 
+static const std::unordered_map<int32_t, const char*> cremiaRewardOptions = {
+    { CREMIA_REWARD_RANDOM, "Vanilla. Reward is random" },
+    { CREMIA_REWARD_ALWAYS_HUG, "Always get the hug cutscene" },
+    { CREMIA_REWARD_ALWAYS_RUPEE, "Always get the rupee reward" },
+};
+
 namespace BenGui {
 
 void DrawMenuBarIcon() {
@@ -427,11 +433,7 @@ void DrawEnhancementsMenu() {
                     .tooltip =
                         "Disclaimer: This doesn't do much yet, we will be progressively adding more skips over time",
                 });
-            UIWidgets::CVarCheckbox(
-                "Cremia Always Gives Hugs", "gEnhancements.Cutscenes.CremiaHugs",
-                {
-                    .tooltip = "After obtaining the Romani Mask, Cremia will always give a hug as a reward.",
-                });
+            UIWidgets::CVarCombobox("Cremia Reward Options", "gEnhancements.Cutscenes.CremiaHugs", cremiaRewardOptions);
 
             ImGui::EndMenu();
         }
