@@ -130,7 +130,8 @@ void UpdateCursorForOwlWarpPoints(PauseContext* pauseCtx) {
 
 void RegisterPauseOwlWarp() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnKaleidoUpdate>([](PauseContext* pauseCtx) {
-        if (!sInDungeonScene && CVarGetInteger("gEnhancements.Songs.PauseOwlWarp", 0) && CHECK_QUEST_ITEM(QUEST_SONG_SOARING)) {
+        if (!sInDungeonScene && CVarGetInteger("gEnhancements.Songs.PauseOwlWarp", 0) &&
+            CHECK_QUEST_ITEM(QUEST_SONG_SOARING)) {
             // Initialize worldMapPoints based on owl activation flags
             for (int i = OWL_WARP_STONE_TOWER; i >= OWL_WARP_GREAT_BAY_COAST; i--) {
                 pauseCtx->worldMapPoints[i] = (gSaveContext.save.saveInfo.playerData.owlActivationFlags >> i) & 1;
