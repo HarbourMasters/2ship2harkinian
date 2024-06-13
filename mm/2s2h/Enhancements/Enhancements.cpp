@@ -59,6 +59,7 @@ void InitEnhancements() {
     RegisterSideRoll();
     RegisterTatlISG();
     RegisterVariableFlipHop();
+    RegisterFierceDeityBackwalk();
 
     // Cutscenes
     RegisterCutscenes();

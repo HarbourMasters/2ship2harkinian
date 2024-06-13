@@ -651,6 +651,9 @@ void DrawEnhancementsMenu() {
                                     { .tooltip = "Restores side rolling from OOT." });
             UIWidgets::CVarCheckbox("Tatl ISG", "gEnhancements.Restorations.TatlISG",
                                     { .tooltip = "Restores Navi ISG from OOT, but now with Tatl." });
+            UIWidgets::CVarCheckbox("Fierce Deity Backwalk", "gEnhancements.Restorations.FierceDeityBackwalk",
+                                    { .tooltip = "Adjusts the backwalk animation of Fierce Deity when Z-targeting an "
+                                                 "enemy to use the full animation cycle." });
 
             ImGui::EndMenu();
         }

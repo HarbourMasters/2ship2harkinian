@@ -26,6 +26,7 @@
 #include "Restorations/PowerCrouchStab.h"
 #include "Restorations/SideRoll.h"
 #include "Restorations/TatlISG.h"
+#include "Restorations/FierceDeityBackwalk.h"
 #include "Graphics/3DItemDrops.h"
 #include "Graphics/PlayAsKafei.h"
 #include "Equipment/InstantRecall.h"

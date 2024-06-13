@@ -14524,7 +14524,8 @@ void Player_Action_15(Player* this, PlayState* play) {
 
     Player_GetMovementSpeedAndYaw(this, &speedTarget, &yawTarget, SPEED_MODE_LINEAR, play);
 
-    if ((this->skelAnime.morphWeight == 0.0f) && (this->skelAnime.curFrame > 5.0f)) {
+    if ((this->skelAnime.morphWeight == 0.0f) &&
+        GameInteractor_Should(GI_VB_ANCHORED_BACKWALK, this->skelAnime.curFrame > 5.0f, this)) {
         func_80832F24(this);
         if ((this->skelAnime.curFrame > 10.0f) && (func_8083E404(this, speedTarget, yawTarget) < 0)) {
             func_8083AF8C(this, yawTarget, play);
