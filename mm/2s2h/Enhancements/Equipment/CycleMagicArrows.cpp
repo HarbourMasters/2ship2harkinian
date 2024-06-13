@@ -82,9 +82,28 @@ void RegisterCycleMagicArrows() {
                                 ChangeItemAction(player, BUTTON_ITEM_EQUIP(0, i));
                             }
                         }
-                        
                     }
-                    
+                    if (shouldChange == true) {
+                        for (int i = EQUIP_SLOT_D_RIGHT; i <= EQUIP_SLOT_D_UP; i++) {
+                            for (int v = ITEM_BOW_FIRE; v <= ITEM_BOW_LIGHT; v++) {
+                                if (gSaveContext.save.shipSaveInfo.dpadEquips.dpadItems[0][i] == v &&
+                                    shouldChange == true) {
+                                    if (v == ITEM_BOW_LIGHT) {
+                                        NextArrowInSlot(ITEM_BOW_FIRE);
+                                        DPAD_BUTTON_ITEM_EQUIP(0, i) = nextArrow;
+                                        Interface_Dpad_LoadItemIconImpl(gPlayState, i);
+                                        shouldChange = false;
+                                    } else {
+                                        NextArrowInSlot((ItemId)v + 1);
+                                        DPAD_BUTTON_ITEM_EQUIP(0, i) = nextArrow;
+                                        Interface_Dpad_LoadItemIconImpl(gPlayState, i);
+                                        shouldChange = false;
+                                    }
+                                    ChangeItemAction(player, DPAD_BUTTON_ITEM_EQUIP(0, i));
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
