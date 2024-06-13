@@ -23,6 +23,7 @@
 #include "Restorations/PowerCrouchStab.h"
 #include "Restorations/SideRoll.h"
 #include "Restorations/TatlISG.h"
+#include "Restorations/FierceDeityBackwalk.h"
 #include "Graphics/PlayAsKafei.h"
 #include "Player/Player.h"
 #include "Songs/EnableSunsSong.h"
