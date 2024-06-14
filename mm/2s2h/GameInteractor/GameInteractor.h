@@ -69,6 +69,8 @@ typedef enum {
     VB_SHOULD_PUTAWAY,
     VB_ELEGY_CHECK_SCENE,
     VB_NEED_SCARECROW_SONG,
+    VB_HELD_ITEM_BUTTON_PRESS,
+    VB_MAGIC_SPIN_ATTACK_CHECK_FORM,
 } GIVanillaBehavior;
 
 typedef enum {

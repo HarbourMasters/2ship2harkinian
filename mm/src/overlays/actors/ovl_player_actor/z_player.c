@@ -5268,7 +5268,9 @@ void func_808332A0(PlayState* play, Player* this, s32 magicCost, s32 isSwordBeam
     }
 
     this->stateFlags1 |= PLAYER_STATE1_1000;
-    if ((this->actor.id == ACTOR_PLAYER) && (isSwordBeam || (this->transformation == PLAYER_FORM_HUMAN))) {
+    if ((this->actor.id == ACTOR_PLAYER) &&
+        (isSwordBeam || (GameInteractor_Should(VB_MAGIC_SPIN_ATTACK_CHECK_FORM,
+                                               this->transformation == PLAYER_FORM_HUMAN, &this->transformation)))) {
         s16 pitch = 0;
         Actor* thunder;
 
@@ -8191,14 +8193,33 @@ s32 func_8083A4A4(Player* this, f32* arg1, s16* arg2, f32 arg3) {
     return false;
 }
 
+// #region 2S2H [Port] [Dpad] Convenience method that checks any held item button, not just B
+bool isPressingHeldItemButton(Player* this) {
+    if (this->heldItemButton < 0) {
+        return false;
+    }
+
+    uint16_t buttonToCheck;
+    if (IS_HELD_DPAD(this->heldItemButton)) {
+        buttonToCheck = sDpadItemButtons[HELD_ITEM_TO_DPAD(this->heldItemButton)];
+    } else {
+        buttonToCheck = sPlayerItemButtons[this->heldItemButton];
+    }
+
+    return CHECK_BTN_ALL(sPlayerControlInput->cur.button, buttonToCheck);
+}
+// #endregion
+
 void func_8083A548(Player* this) {
-    if ((this->unk_ADC > 0) && !CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B)) {
+    if ((this->unk_ADC > 0) && !GameInteractor_Should(VB_HELD_ITEM_BUTTON_PRESS,
+                                                      CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B), this)) {
         this->unk_ADC = -this->unk_ADC;
     }
 }
 
 s32 Player_ActionChange_8(Player* this, PlayState* play) {
-    if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B)) {
+    if (GameInteractor_Should(VB_HELD_ITEM_BUTTON_PRESS, CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B),
+                              this)) {
         if (!(this->stateFlags1 & PLAYER_STATE1_400000) &&
             (Player_GetMeleeWeaponHeld(this) != PLAYER_MELEEWEAPON_NONE)) {
             if ((this->unk_ADC > 0) && (((this->transformation == PLAYER_FORM_ZORA)) ||
@@ -10462,7 +10483,8 @@ s32 func_80840A30(PlayState* play, Player* this, f32* arg2, f32 arg3) {
 s32 func_80840CD4(Player* this, PlayState* play) {
     if (Player_StartCsAction(play, this)) {
         this->stateFlags2 |= PLAYER_STATE2_20000;
-    } else if (!CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B)) {
+    } else if (!GameInteractor_Should(VB_HELD_ITEM_BUTTON_PRESS,
+                                      CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B), this)) {
         PlayerMeleeWeaponAnimation meleeWeaponAnim;
 
         if ((this->unk_B08 >= 0.85f) || func_808333CC(this)) {
@@ -14561,7 +14583,8 @@ void Player_Action_12(Player* this, PlayState* play) {
     if (!func_80847880(play, this)) {
         if (!Player_TryActionChangeList(play, this, sPlayerActionChangeList7, false) ||
             (Player_Action_12 == this->actionFunc)) {
-            if (!CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B)) {
+            if (!GameInteractor_Should(VB_HELD_ITEM_BUTTON_PRESS,
+                                       CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B), this)) {
                 func_80839E74(this, play);
             }
         }
@@ -15246,7 +15269,8 @@ void Player_Action_30(Player* this, PlayState* play) {
             if (this->unk_B08 >= 0.1f) {
                 this->unk_ADD = 0;
                 this->av2.actionVar2 = 1;
-            } else if (!CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B)) {
+            } else if (!GameInteractor_Should(VB_HELD_ITEM_BUTTON_PRESS,
+                                              CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B), this)) {
                 func_80840E5C(this, play);
             }
         } else if (!func_80840CD4(this, play)) {
