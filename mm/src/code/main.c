@@ -13,6 +13,7 @@
 #include "stack.h"
 #include "stackcheck.h"
 #include "BenPort.h"
+#include "event-control.h"
 
 // Variables are put before most headers as a hacky way to bypass bss reordering
 OSMesgQueue sSerialEventQueue;
@@ -34,6 +35,26 @@ StackEntry sPadMgrStackInfo;
 AudioMgr sAudioMgr;
 static s32 sBssPad;
 PadMgr gPadMgr;
+
+// DefaultStorage eventControlStorage;
+
+// bool defaultRoll(Input *sPlayerControlInput){
+//     for(int i = 0; i < sPlayerControlInput->press.specialButtonCount; i++){
+//         SpecialButton c = sPlayerControlInput->press.specialButtons[i];
+//         if(c.id == 1 && c.pressed){
+//             return true;
+//         }
+//     }
+// }
+// bool defaultInteract(Input *sPlayerControlInput){
+//     for(int i = 0; i < sPlayerControlInput->press.specialButtonCount; i++){
+//         SpecialButton c = sPlayerControlInput->press.specialButtons[i];
+//         if(c.id == 2 && c.pressed){
+//             return true;
+//         }
+//     }
+// }
+// EventControl curEventControl;
 
 #include "main.h"
 #include "buffers.h"

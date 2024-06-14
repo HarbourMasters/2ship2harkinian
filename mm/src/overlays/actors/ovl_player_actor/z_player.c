@@ -46,6 +46,7 @@
 #include "objects/object_link_child/object_link_child.h"
 
 #include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
+#include "event-control.h"
 
 #define THIS ((Player*)thisx)
 
@@ -7794,7 +7795,8 @@ s32 Player_ActionChange_4(Player* this, PlayState* play) {
                                 return false;
                             }
 
-                            if (CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_A) ||
+                            // if (_inputCheck(sPlayerControlInput, EVENT_CONTROL_INTERACT, BTN_A) ||
+                            if ((sPlayerControlInput->press.intentControls == NULL) ? false : sPlayerControlInput->press.intentControls->checkIntentButton(EVENT_CONTROL_INTERACT) ||
                                 (talkActor->flags & ACTOR_FLAG_10000)) {
                                 var_a1 = NULL;
                             } else if (var_a1 == NULL) {
@@ -7970,7 +7972,9 @@ s32 func_80839A84(PlayState* play, Player* this) {
 }
 
 s32 Player_ActionChange_10(Player* this, PlayState* play) {
-    if (CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_A) &&
+    if (
+        // _inputCheck(sPlayerControlInput, EVENT_CONTROL_ROLL, BTN_A) 
+        (sPlayerControlInput->press.intentControls == NULL) ? false : sPlayerControlInput->press.intentControls->checkIntentButton(EVENT_CONTROL_ROLL) &&
         (play->roomCtx.curRoom.behaviorType1 != ROOM_BEHAVIOR_TYPE1_2) && (sPlayerFloorType != FLOOR_TYPE_7) &&
         (sPlayerFloorEffect != FLOOR_EFFECT_1)) {
         s32 temp_a2 = this->unk_AE3[this->unk_ADE];
@@ -8100,7 +8104,11 @@ s32 Player_ActionChange_6(Player* this, PlayState* play) {
     if (!D_80862B04 && !(this->stateFlags1 & PLAYER_STATE1_800000) && !func_8082FB68(this)) {
         if ((this->transformation == PLAYER_FORM_ZORA) && (this->stateFlags1 & PLAYER_STATE1_8000000)) {
             func_8083A04C(this);
-        } else if (CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_A) && !func_8082FB68(this)) {
+        } else if (
+            // _inputCheck(sPlayerControlInput,  EVENT_CONTROL_ROLL, BTN_A)
+            GET_INTENTS((&sPlayerControlInput->press), checkIntentButton(EVENT_CONTROL_ROLL), 0)
+            && !func_8082FB68(this)
+        ) {
             if (this->transformation == PLAYER_FORM_GORON) {
                 if (func_80839F98(play, this)) {
                     return true;

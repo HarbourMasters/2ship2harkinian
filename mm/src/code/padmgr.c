@@ -37,6 +37,7 @@
 #include "fault.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 // extern FaultMgr gFaultMgr;
 
 #define PADMGR_RETRACE_MSG (1 << 0)
@@ -499,6 +500,95 @@ void PadMgr_UpdateInputs(void) {
         diff = input->prev.button ^ input->cur.button;
         input->press.button |= (u16)(diff & input->cur.button);
         input->rel.button |= (u16)(diff & input->prev.button);
+
+        
+        if(input->cur.intentControls){
+            input->cur.intentControls->updateCurState(
+                input->cur.intentControls,
+                input->prev.intentControls,
+                input->press.intentControls,
+                input->rel.intentControls
+            );
+        }
+
+        if(input->cur.intentControls != input->prev.intentControls){
+            input->prev.intentControls = input->cur.intentControls;
+        }
+        if(input->cur.intentControls != input->press.intentControls){
+            input->press.intentControls = input->cur.intentControls;
+        }
+        if(input->cur.intentControls != input->rel.intentControls){
+            input->rel.intentControls = input->cur.intentControls;
+        }
+
+        if(input->prev.intentControls){
+            input->prev.intentControls->updatePrevState(
+                input->cur.intentControls,
+                input->prev.intentControls,
+                input->press.intentControls,
+                input->rel.intentControls
+            );
+        }
+        if(input->press.intentControls){
+            input->press.intentControls->updatePressState(
+                input->cur.intentControls,
+                input->prev.intentControls,
+                input->press.intentControls,
+                input->rel.intentControls
+            );
+        }
+        if(input->rel.intentControls){
+            input->rel.intentControls->updateRelState(
+                input->cur.intentControls,
+                input->prev.intentControls,
+                input->press.intentControls,
+                input->rel.intentControls
+            );
+        }
+
+        // for(int j = 0; j < input->cur.specialButtonCount; j++){
+        //     SpecialButton* cur = &input->cur.specialButtons[j];
+        //     bool specialDiff = cur->pressed;
+        //     SpecialButton* prev = NULL;
+
+        //     for(int k = 0; k < input->prev.specialButtonCount && k < input->cur.specialButtonCount; k++){
+        //         if(input->prev.specialButtons[k].id == cur->id){
+        //             prev = &input->prev.specialButtons[k];
+        //         }
+        //     }
+
+        //     if(prev != NULL){
+        //         bool prevPressed = prev->pressed;
+        //         specialDiff = !specialDiff != !prevPressed;
+        //         // specialDiff = (specialDiff && !prevPressed) || (prevPressed && !specialDiff);
+        //     }
+
+        //     if(input->press.specialButtonCount != input->cur.specialButtonCount){
+        //         if(input->press.specialButtons != NULL){
+        //             free(input->press.specialButtons);
+        //         }
+        //         input->press.specialButtonCount = input->cur.specialButtonCount;
+        //         input->press.specialButtons = malloc(input->press.specialButtonCount * sizeof(SpecialButton));
+        //     }
+        //     if(input->rel.specialButtonCount != input->cur.specialButtonCount){
+        //         if(input->rel.specialButtons != NULL){
+        //             free(input->rel.specialButtons);
+        //         }
+        //         input->rel.specialButtonCount = input->cur.specialButtonCount;
+        //         input->rel.specialButtons = malloc(input->rel.specialButtonCount * sizeof(SpecialButton));
+        //     }
+
+            
+        //     input->press.specialButtons[j].id = cur->id;
+        //     input->press.specialButtons[j].pressed = specialDiff && cur->pressed;
+            
+        //     input->rel.specialButtons[j].id = cur->id;
+        //     input->rel.specialButtons[j].pressed = specialDiff;
+        //     if(prev){
+        //         input->rel.specialButtons[j].pressed = specialDiff && prev->pressed;
+        //     }
+            
+        // }
 
         if (1) {}
         PadMgr_AdjustInput(input);
