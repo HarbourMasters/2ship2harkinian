@@ -466,7 +466,7 @@ void BenMenu::UpdateElement() {
 }
 
 std::vector<UIWidgets::SidebarEntry> settingsSidebar = {
-    { "Audio", { DrawAudioSettings } },
+    { "Audio", { DrawAudioSettings, nullptr, nullptr } },
     { "Graphics", { DrawGraphicsSettings } },
     { "Controls", { DrawControllerSettings } }
 };
@@ -505,10 +505,10 @@ void BenMenu::DrawElement() {
     if (popout) {
         windowHeight = 800;
         windowWidth = 1280;
-        windowFlags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDocking;
+        windowFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDocking;
         windowCond = ImGuiCond_FirstUseEver;
     }
-    ImGui::SetNextWindowSize({ static_cast<float>(windowWidth), static_cast<float>(windowHeight) }, ImGuiCond_Always);
+    ImGui::SetNextWindowSize({ static_cast<float>(windowWidth), static_cast<float>(windowHeight) }, windowCond);
     ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), windowCond, { 0.5f, 0.5f });
     if (!popout) {
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
@@ -524,6 +524,8 @@ void BenMenu::DrawElement() {
     ImGuiContext& g = *GImGui;
     ImGuiWindow* window = g.CurrentWindow;
     ImGuiStyle& style = ImGui::GetStyle();
+    windowHeight = window->WorkRect.GetHeight();
+    windowWidth = window->WorkRect.GetWidth();
 
     auto sectionCount = menuEntries.size();
     const char* headerCvar = "gSettings.Menu.SelectedHeader";
@@ -581,13 +583,13 @@ void BenMenu::DrawElement() {
     pos.x = centerX - menuWidth / 2 - style.ItemSpacing.x;
     window->DrawList->AddRectFilled(pos, pos + ImVec2{menuWidth, 4}, ImGui::GetColorU32({255, 255, 255, 255}), true, style.WindowRounding);
     pos.y += style.ItemSpacing.y;
-    float sectionHeight = menuHeight - headerHeight - 4 - style.ItemSpacing.y * 8;
+    float sectionHeight = menuHeight - headerHeight - 4 - style.ItemSpacing.y * 4;
     float columnHeight = sectionHeight - style.ItemSpacing.y * 2;
     ImGui::SetNextWindowPos(pos);
 
-    ImGui::BeginChild((menuEntries.at(selectedHeader).label + " Menu").c_str(), { menuWidth, sectionHeight }, ImGuiChildFlags_None, ImGuiWindowFlags_NoDecoration);
+    ImGui::BeginChild((menuEntries.at(selectedHeader).label + " Menu").c_str(), { menuWidth, sectionHeight }, ImGuiChildFlags_AutoResizeY, ImGuiWindowFlags_NoDecoration);
     ImGui::SetNextWindowPos(pos + style.ItemSpacing);
-    float sidebarWidth = 200 - style.ItemSpacing.y;
+    float sidebarWidth = 200 - style.ItemSpacing.x;
 
     const char* sidebarCvar = menuEntries.at(selectedHeader).sidebarCvar;
 
@@ -596,7 +598,8 @@ void BenMenu::DrawElement() {
     if (sectionIndex < 0) sectionIndex = 0;
     float sectionCenterX = pos.x + (sidebarWidth / 2);
     float topY = pos.y;
-    ImGui::BeginChild((menuEntries.at(selectedHeader).label + " Section").c_str(), { sidebarWidth, sectionHeight }, ImGuiChildFlags_None, ImGuiWindowFlags_NoDecoration);
+    ImGui::BeginChild((menuEntries.at(selectedHeader).label + " Section").c_str(), { sidebarWidth, 0 }, ImGuiChildFlags_AutoResizeY,
+        ImGuiWindowFlags_NoTitleBar);
     for (int i = 0; i < sidebar.size(); i++) {
         auto sidebarEntry = sidebar.at(i);
         if (sidebarEntry.type == UIWidgets::SIDEBAR_ENTRY_WINDOW) {
@@ -645,14 +648,28 @@ void BenMenu::DrawElement() {
     ImGui::SetNextWindowPos(pos + style.ItemSpacing);
     float sectionWidth = menuWidth - sidebarWidth - 4 - style.ItemSpacing.x * 4;
     std::string sectionMenuId = sidebar.at(sectionIndex).label + " Settings";
-    float columnWidth = (sectionWidth - style.ItemSpacing.x * 3) / 3;
-    ImGui::BeginChild(sectionMenuId.c_str(), { sectionWidth, sectionHeight }, ImGuiChildFlags_None, ImGuiWindowFlags_NoDecoration);
-    for (int i = 0; i < sidebar.at(sectionIndex).columnFuncs.size(); i++) {
+    int columns = sidebar.at(sectionIndex).columnFuncs.size();
+    int columnFuncs = 0;
+    for (auto func : sidebar.at(sectionIndex).columnFuncs) {
+        if (func != nullptr) {
+            columnFuncs++;
+        }
+    }
+    if (windowWidth < 800) {
+        columns = 1;
+    }
+    float columnWidth = (sectionWidth - style.ItemSpacing.x * columns) / columns;
+    ImGui::BeginChild(sectionMenuId.c_str(), { sectionWidth, 0 }, ImGuiChildFlags_AutoResizeY, ImGuiWindowFlags_NoDecoration);
+    for (int i = 0; i < columnFuncs; i++) {
         std::string sectionId = std::format("{} Column {}", sectionMenuId, i);
-        ImGui::BeginChild(sectionId.c_str(), { columnWidth, columnHeight });
-        sidebar.at(sectionIndex).columnFuncs.at(i)();
+        ImGui::BeginChild(sectionId.c_str(), { columnWidth, 0 }, ImGuiChildFlags_AutoResizeY);
+        if (sidebar.at(sectionIndex).columnFuncs.at(i) != nullptr) {
+            sidebar.at(sectionIndex).columnFuncs.at(i)();
+        }
         ImGui::EndChild();
-        ImGui::SameLine();
+        if (i < columns - 1) {
+            ImGui::SameLine();
+        }
     }
     ImGui::EndChild();
     ImGui::PopFont();
