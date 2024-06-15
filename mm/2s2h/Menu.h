@@ -14,8 +14,11 @@ public:
 
 private:
     bool allowPopout = true;  // PortNote: should be set to false on small screen ports
-    uint32_t windowHeight;
-    uint32_t windowWidth;
+    bool popped;
+    ImVec2 poppedSize;
+    ImVec2 poppedPos;
+    float windowHeight;
+    float windowWidth;
     UIWidgets::SidebarEntry audioSettingsEntry;
     UIWidgets::MainMenuEntry settingsEntry;
 };

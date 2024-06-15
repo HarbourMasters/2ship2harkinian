@@ -452,6 +452,14 @@ void DrawRestorationEnhancements() {
                             { .tooltip = "Restores Navi ISG from OOT, but now with Tatl." });
 }
 
+void DrawHudEditorContents() {
+    UIWidgets::WindowButton("Popout Hud Editor", "gWindows.HudEditor", mHudEditorWindow,
+        { .tooltip = "Enables the Hud Editor window, allowing you to edit your hud" });
+    if (!CVarGetInteger("gWindows.HudEditor", 0)) {
+        mHudEditorWindow->DrawContents();
+    }
+}
+
 void DrawGeneralDevTools() {
     // PortNote: This should be hidden for ports on systems that are single-screen, and/or smaller than 1280x800.
     // Popout will assume size of 1280x800, and will break on those systems.
@@ -459,64 +467,118 @@ void DrawGeneralDevTools() {
         { .tooltip = "Changes the menu display from overlay to windowed." });
 }
 
+std::vector<UIWidgets::MainMenuEntry> menuEntries;
+
+
 void BenMenu::InitElement() {
+    popped = CVarGetInteger("gSettings.Menu.Popout", 0);
+    poppedSize.x = CVarGetInteger("gSettings.Menu.PoppedWidth", 1280);
+    poppedSize.y = CVarGetInteger("gSettings.Menu.PoppedHeight", 800);
+    poppedPos.x = CVarGetInteger("gSettings.Menu.PoppedPos.x", 0);
+    poppedPos.y = CVarGetInteger("gSettings.Menu.PoppedPos.y", 0);
+    std::vector<UIWidgets::SidebarEntry> settingsSidebar = {
+        { "Audio", { DrawAudioSettings, nullptr, nullptr } },
+        { "Graphics", { DrawGraphicsSettings } },
+        { "Controls", { DrawControllerSettings } }
+    };
+
+    std::vector<UIWidgets::SidebarEntry> enhancementsSidebar = {
+        { "Camera",       { DrawCameraFixes, DrawFreeLook, DrawCameraDebug } },
+        { "Cheats",       { DrawCheatEnhancements } },
+        { "Gameplay",     { DrawGameplayEnhancements, DrawGameModesEnhancements, DrawSaveTimeEnhancements } },
+        { "Graphics",     { DrawGraphicsEnhancements } },
+        { "Items/Songs",  { DrawItemEnhancements, DrawSongEnhancements } },
+        { "Time Savers",  { DrawTimeSaverEnhancements } },
+        { "Fixes",        { DrawFixEnhancements } },
+        { "Restorations", { DrawRestorationEnhancements } },
+        { "Hud Editor",   { DrawHudEditorContents, nullptr } }
+    };
+
+    std::vector<UIWidgets::SidebarEntry> devToolsSidebar = {
+        { "General", { DrawGeneralDevTools } }
+    };
+
+    menuEntries = {
+        { "Settings", settingsSidebar, "gSettings.Menu.SettingsSidebarIndex" },
+        { "Enhancements", enhancementsSidebar, "gSettings.Menu.EnhancementsSidebarIndex"},
+        { "Developer Tools", devToolsSidebar, "gSettings.Menu.DevToolsSidebarIndex"}
+    };
 }
 
 void BenMenu::UpdateElement() {
 }
 
-std::vector<UIWidgets::SidebarEntry> settingsSidebar = {
-    { "Audio", { DrawAudioSettings, nullptr, nullptr } },
-    { "Graphics", { DrawGraphicsSettings } },
-    { "Controls", { DrawControllerSettings } }
-};
-
-UIWidgets::SidebarButton hudEditorButton =
-{ "HUD Editor", {}, UIWidgets::SIDEBAR_ENTRY_WINDOW, "gWindows.HudEditor", mHudEditorWindow,
-    {.tooltip = "Enables the Hud Editor window, allowing you to edit your hud" } };
-
-std::vector<UIWidgets::SidebarEntry> enhancementsSidebar = {
-    { "Camera",       { DrawCameraFixes, DrawFreeLook, DrawCameraDebug } },
-    { "Cheats",       { DrawCheatEnhancements } },
-    { "Gameplay",     { DrawGameplayEnhancements, DrawGameModesEnhancements, DrawSaveTimeEnhancements } },
-    { "Graphics",     { DrawGraphicsEnhancements } },
-    { "Items/Songs",  { DrawItemEnhancements, DrawSongEnhancements } },
-    { "Time Savers",  { DrawTimeSaverEnhancements } },
-    { "Fixes",        { DrawFixEnhancements } },
-    { "Restorations", { DrawRestorationEnhancements } }
-};
-
-std::vector<UIWidgets::SidebarEntry> devToolsSidebar = {
-    { "General", { DrawGeneralDevTools } }
-};
-
-std::vector<UIWidgets::MainMenuEntry> menuEntries = {
-    { "Settings", settingsSidebar, "gSettings.Menu.SettingsSidebarIndex" },
-    { "Enhancements", enhancementsSidebar, "gSettings.Menu.EnhancementsSidebarIndex"},
-    { "Developer Tools", devToolsSidebar, "gSettings.Menu.DevToolsSidebarIndex"}
-};
+bool ModernMenuSidebarEntry(std::string label) {
+    ImGuiContext& g = *GImGui;
+    ImGuiWindow* window = g.CurrentWindow;
+    ImGuiStyle& style = ImGui::GetStyle();
+    ImVec2 pos = window->DC.CursorPos;
+    const ImGuiID sidebarId = window->GetID(std::string(label + "##Sidebar").c_str());
+    ImVec2 labelSize = ImGui::CalcTextSize(label.c_str(), ImGui::FindRenderedTextEnd(label.c_str()), true);
+    pos.y += style.FramePadding.y;
+    pos.x = window->WorkRect.GetCenter().x - labelSize.x / 2;
+    ImRect bb = { pos - style.FramePadding, pos + labelSize + style.FramePadding };
+    ImGui::ItemSize(bb, style.FramePadding.y);
+    ImGui::ItemAdd(bb, sidebarId);
+    bool hovered, held;
+    bool pressed = ImGui::ButtonBehavior(bb, sidebarId, &hovered, &held);
+    if (pressed) {
+        ImGui::MarkItemEdited(sidebarId);
+    }
+    window->DrawList->AddRectFilled(pos - style.FramePadding, pos + labelSize + style.FramePadding,
+        ImGui::GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive
+            : hovered ? ImGuiCol_FrameBgHovered
+            : ImGuiCol_FrameBg),
+        true, style.FrameRounding);
+    UIWidgets::RenderText(pos, label.c_str(), ImGui::FindRenderedTextEnd(label.c_str()), true);
+    return pressed;
+}
 
 void BenMenu::DrawElement() {
     windowHeight = ImGui::GetMainViewport()->WorkSize.y;
     windowWidth = ImGui::GetMainViewport()->WorkSize.x;
-    bool popout = CVarGetInteger("gSettings.Menu.Popout", 0) && allowPopout;
     auto windowFlags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
-    auto windowCond = ImGuiCond_Always;
+    bool popout = CVarGetInteger("gSettings.Menu.Popout", 0) && allowPopout;
     if (popout) {
-        windowHeight = 800;
-        windowWidth = 1280;
         windowFlags = ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoDocking;
-        windowCond = ImGuiCond_FirstUseEver;
     }
-    ImGui::SetNextWindowSize({ static_cast<float>(windowWidth), static_cast<float>(windowHeight) }, windowCond);
-    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), windowCond, { 0.5f, 0.5f });
+    if (popout != popped) {
+        if (popout) {
+            windowHeight = poppedSize.y;
+            windowWidth = poppedSize.x;
+            ImGui::SetNextWindowSize({ static_cast<float>(windowWidth), static_cast<float>(windowHeight) }, ImGuiCond_Always);
+            ImGui::SetNextWindowPos(poppedPos, ImGuiCond_Always);
+        }
+        else if (popped) {
+            CVarSetFloat("gSettings.Menu.PoppedWidth", poppedSize.x);
+            CVarSetFloat("gSettings.Menu.PoppedHeight", poppedSize.y);
+            CVarSave();
+        }
+    }
+    popped = popout;
+    auto windowCond = ImGuiCond_Always;
     if (!popout) {
+        ImGui::SetNextWindowSize({ static_cast<float>(windowWidth), static_cast<float>(windowHeight) }, windowCond);
+        ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), windowCond, { 0.5f, 0.5f });
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     }
-    if (!ImGui::Begin("Main Menu", NULL, windowFlags)) {
+    if (!ImGui::Begin("Main Menu", &popped, windowFlags)) {
         if (!popout) {
             ImGui::PopStyleVar();
         }
+        ImGui::End();
+        return;
+    }
+    if (popped != popout) {
+        if (!popout) {
+            ImGui::PopStyleVar();
+        }
+        CVarSetInteger("gSettings.Menu.Popout", popped);
+        CVarSetFloat("gSettings.Menu.PoppedWidth", poppedSize.x);
+        CVarSetFloat("gSettings.Menu.PoppedHeight", poppedSize.y);
+        CVarSetFloat("gSettings.Menu.PoppedPos.x", poppedSize.x);
+        CVarSetFloat("gSettings.Menu.PoppedPos.y", poppedSize.y);
+        CVarSave();
         ImGui::End();
         return;
     }
@@ -536,7 +598,7 @@ void BenMenu::DrawElement() {
     for (int i = 0; i < sectionCount; i++) {
         headerSizes.push_back(ImGui::CalcTextSize(menuEntries.at(i).label.c_str()));
     }
-    float menuHeight = std::fminf(800, windowHeight) - style.ItemSpacing.y * 2;
+    float menuHeight = std::fminf(800, windowHeight);
 
     pos.x = centerX - (headerSizes.at(0).x + headerSizes.at(1).x / 2 + (style.ItemSpacing.x * 2));
     pos.y += std::fminf(windowHeight - menuHeight, std::fminf(100, (windowHeight - menuHeight)/2));
@@ -554,6 +616,7 @@ void BenMenu::DrawElement() {
         if (pressed) {
             ImGui::MarkItemEdited(headerId);
             CVarSetInteger(headerCvar, i);
+            CVarSave();
             selectedHeader = i;
         }
         if (selectedHeader != i) {
@@ -578,17 +641,22 @@ void BenMenu::DrawElement() {
             headerHeight = bb.GetHeight();
         }
     }
-    float menuWidth = std::fminf(1280, windowWidth) - style.ItemSpacing.x * 2;
+    float menuWidth = std::fminf(1280, windowWidth);
     pos.y += headerHeight + style.ItemSpacing.y;
-    pos.x = centerX - menuWidth / 2 - style.ItemSpacing.x;
+    pos.x = centerX - menuWidth / 2;
     window->DrawList->AddRectFilled(pos, pos + ImVec2{menuWidth, 4}, ImGui::GetColorU32({255, 255, 255, 255}), true, style.WindowRounding);
     pos.y += style.ItemSpacing.y;
-    float sectionHeight = menuHeight - headerHeight - 4 - style.ItemSpacing.y * 4;
-    float columnHeight = sectionHeight - style.ItemSpacing.y * 2;
+    float sectionHeight = menuHeight - headerHeight - 4 - style.ItemSpacing.y * 2;
+    float columnHeight = sectionHeight - style.ItemSpacing.y * 4;
     ImGui::SetNextWindowPos(pos);
 
-    ImGui::BeginChild((menuEntries.at(selectedHeader).label + " Menu").c_str(), { menuWidth, sectionHeight }, ImGuiChildFlags_AutoResizeY, ImGuiWindowFlags_NoDecoration);
-    ImGui::SetNextWindowPos(pos + style.ItemSpacing);
+    ImGui::BeginChild((menuEntries.at(selectedHeader).label + " Menu").c_str(), { menuWidth, sectionHeight }, ImGuiChildFlags_None, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize);
+    //ImGui::BeginTable((menuEntries.at(selectedHeader).label + " Menu").c_str(), 3, ImGuiTableFlags_ScrollY  | ImGuiTableFlags_NoBordersInBody, { menuWidth, sectionHeight });
+    //auto sidebarFlags = ImGuiTableColumnFlags_NoSort | ImGuiTableColumnFlags_NoReorder | ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoHeaderLabel | ImGuiTableColumnFlags_NoHide;
+    /*ImGui::TableSetupColumn("Sidebar Column", sidebarFlags, 200);
+    ImGui::TableSetupColumn("Separator Column", sidebarFlags);
+    ImGui::TableSetupColumn("Section Column", sidebarFlags & ~ImGuiTableColumnFlags_WidthFixed);*/
+    ImGui::SetNextWindowPos(pos + style.ItemSpacing * 2);
     float sidebarWidth = 200 - style.ItemSpacing.x;
 
     const char* sidebarCvar = menuEntries.at(selectedHeader).sidebarCvar;
@@ -598,45 +666,25 @@ void BenMenu::DrawElement() {
     if (sectionIndex < 0) sectionIndex = 0;
     float sectionCenterX = pos.x + (sidebarWidth / 2);
     float topY = pos.y;
-    ImGui::BeginChild((menuEntries.at(selectedHeader).label + " Section").c_str(), { sidebarWidth, 0 }, ImGuiChildFlags_AutoResizeY,
+    ImGui::SetNextWindowSizeConstraints({ sidebarWidth, 0 }, { sidebarWidth, columnHeight });
+    ImGui::BeginChild((menuEntries.at(selectedHeader).label + " Section").c_str(), { sidebarWidth, columnHeight * 3 }, ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize,
         ImGuiWindowFlags_NoTitleBar);
     for (int i = 0; i < sidebar.size(); i++) {
         auto sidebarEntry = sidebar.at(i);
-        if (sidebarEntry.type == UIWidgets::SIDEBAR_ENTRY_WINDOW) {
-            UIWidgets::SidebarButton sidebarButton = static_cast<UIWidgets::SidebarButton>(sidebarEntry);
-            ImGui::SetWindowPos(pos);
-            UIWidgets::WindowButton(sidebarEntry.label.c_str(), sidebarButton.windowCvar.c_str(), sidebarButton.windowPtr, sidebarButton.options);
+        uint8_t nextIndex = i;
+        if (sectionIndex != i) {
+            ImGui::PushStyleColor(ImGuiCol_FrameBg, { 0, 0, 0, 0 });
         }
-        else {
-            const char* label = sidebarEntry.label.c_str();
-            const ImGuiID sidebarId = window->GetID(std::string(sidebarEntry.label + "##Sidebar").c_str());
-            ImVec2 labelSize = ImGui::CalcTextSize(label, ImGui::FindRenderedTextEnd(label), true);
-            pos.y += style.ItemSpacing.y + style.FramePadding.y;
-            pos.x = sectionCenterX - labelSize.x / 2;
-            ImRect bb = { pos - style.FramePadding, pos + labelSize + style.FramePadding };
-            ImGui::ItemSize(bb, style.FramePadding.y);
-            ImGui::ItemAdd(bb, sidebarId);
-            bool hovered, held;
-            bool pressed = ImGui::ButtonBehavior(bb, sidebarId, &hovered, &held);
-            if (pressed) {
-                ImGui::MarkItemEdited(sidebarId);
-                CVarSetInteger(sidebarCvar, i);
-                sectionIndex = i;
-            }
-            if (sectionIndex != i) {
-                ImGui::PushStyleColor(ImGuiCol_FrameBg, { 0, 0, 0, 0 });
-            }
-            window->DrawList->AddRectFilled(pos - style.FramePadding, pos + labelSize + style.FramePadding,
-                ImGui::GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive
-                    : hovered ? ImGuiCol_FrameBgHovered
-                    : ImGuiCol_FrameBg),
-                true, style.FrameRounding);
-            if (sectionIndex != i) {
-                ImGui::PopStyleColor();
-            }
-            UIWidgets::RenderText(pos, label, ImGui::FindRenderedTextEnd(label), true);
-            pos.y += bb.GetHeight();
-            window->DC.CursorPos = pos;
+        if (ModernMenuSidebarEntry(sidebarEntry.label)) {
+            CVarSetInteger(sidebarCvar, i);
+            CVarSave();
+            nextIndex = i;
+        }
+        if (sectionIndex != i) {
+            ImGui::PopStyleColor();
+        }
+        if (nextIndex != i) {
+            sectionIndex = i;
         }
     }
     ImGui::EndChild();
@@ -659,14 +707,23 @@ void BenMenu::DrawElement() {
         columns = 1;
     }
     float columnWidth = (sectionWidth - style.ItemSpacing.x * columns) / columns;
-    ImGui::BeginChild(sectionMenuId.c_str(), { sectionWidth, 0 }, ImGuiChildFlags_AutoResizeY, ImGuiWindowFlags_NoDecoration);
+    bool useColumns = columns > 1;
+    if (!useColumns) {
+        ImGui::SetNextWindowSizeConstraints({ sectionWidth, 0 }, { sectionWidth, columnHeight });
+    }
+    ImGui::BeginChild(sectionMenuId.c_str(), { sectionWidth, windowHeight * 4 }, ImGuiChildFlags_AutoResizeY, ImGuiWindowFlags_NoTitleBar);
     for (int i = 0; i < columnFuncs; i++) {
         std::string sectionId = std::format("{} Column {}", sectionMenuId, i);
-        ImGui::BeginChild(sectionId.c_str(), { columnWidth, 0 }, ImGuiChildFlags_AutoResizeY);
+        if (useColumns) {
+            ImGui::SetNextWindowSizeConstraints({ columnWidth, 0 }, { columnWidth, columnHeight });
+            ImGui::BeginChild(sectionId.c_str(), { columnWidth, windowHeight * 4 }, ImGuiChildFlags_AutoResizeY, ImGuiWindowFlags_NoTitleBar);
+        }
         if (sidebar.at(sectionIndex).columnFuncs.at(i) != nullptr) {
             sidebar.at(sectionIndex).columnFuncs.at(i)();
         }
-        ImGui::EndChild();
+        if (useColumns) {
+            ImGui::EndChild();
+        }
         if (i < columns - 1) {
             ImGui::SameLine();
         }
@@ -679,6 +736,10 @@ void BenMenu::DrawElement() {
     // style.Colors[ImGuiCol_Button] = prevButtonCol;
     if (!popout) {
         ImGui::PopStyleVar();
+    }
+    if (popout) {
+        poppedSize = ImGui::GetWindowSize();
+        poppedPos = ImGui::GetWindowPos();
     }
     ImGui::End();
 }
