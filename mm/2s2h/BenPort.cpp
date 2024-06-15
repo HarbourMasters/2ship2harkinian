@@ -608,7 +608,7 @@ extern "C" void Graph_StartFrame() {
     OTRGlobals::Instance->context->GetWindow()->SetLastScancode(-1);
 
     switch (dwScancode) {
-        case KbScancode::LUS_KB_F8: {
+        case KbScancode::LUS_KB_ESCAPE: {
             OTRGlobals::Instance->context->GetWindow()->GetGui()->GetGuiWindow("Settings Menu")->ToggleVisibility();
             break;
         }

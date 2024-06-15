@@ -125,12 +125,6 @@ namespace UIWidgets {
         SidebarEntryType type = SIDEBAR_ENTRY_SECTION;
     };
 
-    struct SidebarButton : SidebarEntry {
-        std::string windowCvar;
-        std::shared_ptr<Ship::GuiWindow> windowPtr;
-        ButtonOptions options;
-    };
-
     struct MainMenuEntry {
         std::string label;
         std::vector<SidebarEntry> sidebarEntries;
