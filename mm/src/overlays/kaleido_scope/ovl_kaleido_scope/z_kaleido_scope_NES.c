@@ -2887,8 +2887,11 @@ void KaleidoScope_UpdateCursorSize(PlayState* play) {
 
             case PAUSE_MAP:
                 if (!sInDungeonScene) {
-                    if (IS_PAUSE_STATE_OWLWARP || (CVarGetInteger("gEnhancements.Songs.PauseOwlWarp", 0) &&
-                                                   CHECK_QUEST_ITEM(QUEST_SONG_SOARING))) {
+                    if (IS_PAUSE_STATE_OWLWARP ||
+                        (CVarGetInteger("gEnhancements.Songs.PauseOwlWarp", 0) &&
+                         CHECK_QUEST_ITEM(QUEST_SONG_SOARING) &&
+                         (gSaveContext.save.saveInfo.playerData.owlActivationFlags != 0) &&
+                         (gSaveContext.save.saveInfo.playerData.owlActivationFlags != (1 << 15)))) {
                         pauseCtx->cursorX = sOwlWarpWorldMapCursorsX[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]];
                         pauseCtx->cursorY = sOwlWarpWorldMapCursorsY[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]];
                     } else {
