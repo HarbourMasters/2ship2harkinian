@@ -13,6 +13,7 @@
 #include "stack.h"
 #include "stackcheck.h"
 #include "BenPort.h"
+#include "intent-control-types.h"
 
 // Variables are put before most headers as a hacky way to bypass bss reordering
 OSMesgQueue sSerialEventQueue;
@@ -51,11 +52,22 @@ void InitOTR();
 #define SDL_main main
 #endif
 
+IntentControlDefinition* intentDefinitions = NULL;
+uint16_t intentDefinitionCount = 0;
+
 void SDL_main(int argc, char** argv /* void* arg*/) {
     intptr_t fb;
     intptr_t sysHeap;
     s32 exit;
     s16* msg;
+
+    IntentControlDefinition d[] = {
+        {INTENT_CONTROL_ROLL, "Roll"}, 
+        {INTENT_CONTROL_JUMP, "Jump"},
+        {INTENT_CONTROL_TALK, "Talk"}
+    };
+    intentDefinitions = d;
+    intentDefinitionCount = sizeof(d) / sizeof(IntentControlDefinition);
 
 // Attach console for windows so we can conditionally display it when running the extractor
 #ifdef _WIN32
