@@ -665,9 +665,8 @@ void DrawCheatsMenu() {
             RegisterMoonJumpOnL();
         }
 
-        if (UIWidgets::CVarCheckbox(
-                "Hookshot Anywhere", "gCheats.HookshotAnywhere",
-                { .tooltip = "Allows most surfaces hookshot-able" })) {
+        if (UIWidgets::CVarCheckbox("Hookshot Anywhere", "gCheats.HookshotAnywhere",
+                                    { .tooltip = "Allows most surfaces hookshot-able" })) {
             RegisterHookshotAnywhere();
         }
 
