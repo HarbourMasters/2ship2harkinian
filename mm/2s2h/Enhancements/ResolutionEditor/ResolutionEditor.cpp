@@ -65,7 +65,7 @@ void AdvancedResolutionSettingsWindow::DrawElement() {
 
         // Initialise integer scale bounds.
         int max_integerScaleFactor = default_maxIntegerScaleFactor; // default value, which may or may not get
-                                                                      // overridden depending on viewport res
+                                                                    // overridden depending on viewport res
 
         int integerScale_maximumBounds = 1; // can change when window is resized
         // This is mostly just for UX purposes, as Fit Automatically logic is part of LUS.
@@ -117,8 +117,7 @@ void AdvancedResolutionSettingsWindow::DrawElement() {
                  CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".Enabled", 0)) ||
                 CVarGetInteger("gLowResMode", 0);
 #ifndef __APPLE__
-            // TODO and note for code review:
-            // - This is copied from BenMenuBar. I'm aware this needs to be replaced with a non-float slider.
+            // This is copied from BenMenuBar. I'm aware this needs to be replaced with a non-float slider.
             if (UIWidgets::CVarSliderFloat("Internal Resolution: %f %%", CVAR_INTERNAL_RESOLUTION, 0.5f, 2.0f, 1.0f,
                                            { .disabled = disabled_resolutionSlider })) {
                 Ship::Context::GetInstance()->GetWindow()->SetResolutionMultiplier(
