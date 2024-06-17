@@ -41,9 +41,9 @@ const int default_pixelCount = 0; // Default combo list option
 const uint32_t minVerticalPixelCount = SCREEN_HEIGHT;
 const uint32_t maxVerticalPixelCount = 4320; // 18x native, or 8K TV resolution
 
-const unsigned short default_maxIntegerScaleFactor = 6; // Default size of Integer scale factor slider.
+const unsigned int default_maxIntegerScaleFactor = 6; // Default size of Integer scale factor slider.
 
-enum messageType { MESSAGE_ERROR, MESSAGE_WARNING, MESSAGE_QUESTION, MESSAGE_INFO, MESSAGE_GRAY_75 };
+enum MessageType { MESSAGE_ERROR, MESSAGE_WARNING, MESSAGE_QUESTION, MESSAGE_INFO, MESSAGE_GRAY_75 };
 const ImVec4 messageColor[]{
     { 0.85f, 0.0f, 0.0f, 1.0f },  // MESSAGE_ERROR
     { 0.85f, 0.85f, 0.0f, 1.0f }, // MESSAGE_WARNING
@@ -64,10 +64,10 @@ void AdvancedResolutionSettingsWindow::DrawElement() {
             update[i] = false;
 
         // Initialise integer scale bounds.
-        short max_integerScaleFactor = default_maxIntegerScaleFactor; // default value, which may or may not get
+        int max_integerScaleFactor = default_maxIntegerScaleFactor; // default value, which may or may not get
                                                                       // overridden depending on viewport res
 
-        short integerScale_maximumBounds = 1; // can change when window is resized
+        int integerScale_maximumBounds = 1; // can change when window is resized
         // This is mostly just for UX purposes, as Fit Automatically logic is part of LUS.
         if (((float)gfx_current_game_window_viewport.width / gfx_current_game_window_viewport.height) >
             ((float)gfx_current_dimensions.width / gfx_current_dimensions.height)) {
@@ -348,8 +348,6 @@ void AdvancedResolutionSettingsWindow::DrawElement() {
         if (ImGui::CollapsingHeader("Additional Settings")) {
             // Beginning of miscellanous additional settings.
             {
-                // Note for code review:
-                // - Should I remove anything to do with console ports or is this harmless to leave here?
 #if defined(__SWITCH__) || defined(__WIIU__)
                 // Disable aspect correction, stretching the framebuffer to fill the viewport.
                 // This option is only really needed on systems limited to 16:9 TV resolutions, such as consoles.
@@ -496,7 +494,7 @@ void AdvancedResolutionSettingsWindow::UpdateElement() {
 bool AdvancedResolutionSettingsWindow::IsDroppingFrames() {
     // a rather imprecise way of checking for frame drops.
     // but it's mostly there to inform the player of large drops.
-    const short targetFPS = CVarGetInteger("gInterpolationFPS", 20);
+    const int targetFPS = CVarGetInteger("gInterpolationFPS", 20);
     const float threshold = targetFPS / 20.0f + 4.1f;
     return ImGui::GetIO().Framerate < targetFPS - threshold;
 }
