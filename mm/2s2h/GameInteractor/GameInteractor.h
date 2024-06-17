@@ -72,6 +72,7 @@ typedef enum {
     VB_CHECK_HELD_ITEM_BUTTON_PRESS,
     VB_MAGIC_SPIN_ATTACK_CHECK_FORM,
     VB_TRANSFORM_THUNDER_MATRIX,
+    VB_BE_HOOKSHOT_SURFACE,
 } GIVanillaBehavior;
 
 typedef enum {

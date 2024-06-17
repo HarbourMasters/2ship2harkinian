@@ -14,7 +14,7 @@ void InitEnhancements() {
     RegisterUnrestrictedItems();
     RegisterTimeStopInTemples();
     RegisterElegyAnywhere();
-
+    RegisterHookshotAnywhere();
     // Clock
     RegisterTextBasedClock();
     Register3DSClock();
