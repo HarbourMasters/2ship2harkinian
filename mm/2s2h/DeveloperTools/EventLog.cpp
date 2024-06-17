@@ -258,7 +258,7 @@ void RegisterEventLogHooks() {
     });
 }
 
-void EventLogWindow::DrawElement() {
+void EventLogWindow::DrawContents() {
     ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
     if (!ImGui::Begin("Event Log", &mIsVisible, ImGuiWindowFlags_NoFocusOnAppearing)) {
         ImGui::End();
@@ -386,6 +386,10 @@ void EventLogWindow::DrawElement() {
     }
 
     ImGui::End();
+}
+
+void EventLogWindow::DrawElement() {
+    DrawContents();
 }
 
 void EventLogWindow::InitElement() {
