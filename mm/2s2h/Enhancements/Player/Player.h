@@ -4,5 +4,6 @@
 void RegisterClimbSpeed();
 void RegisterFastFlowerLaunch();
 void RegisterInstantPutaway();
+void RegisterManualJump();
 
 #endif // PLAYER_H

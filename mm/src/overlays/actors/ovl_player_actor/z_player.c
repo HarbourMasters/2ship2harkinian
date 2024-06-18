@@ -47,6 +47,41 @@
 
 #include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 
+#define BIT32_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c"
+#define BIT32_TO_BINARY(BIT32)  \
+  ((BIT32) & 0x80000000 ? '1' : '0'), \
+  ((BIT32) & 0x40000000 ? '1' : '0'), \
+  ((BIT32) & 0x20000000 ? '1' : '0'), \
+  ((BIT32) & 0x10000000 ? '1' : '0'), \
+  ((BIT32) & 0x08000000 ? '1' : '0'), \
+  ((BIT32) & 0x04000000 ? '1' : '0'), \
+  ((BIT32) & 0x02000000 ? '1' : '0'), \
+  ((BIT32) & 0x01000000 ? '1' : '0'), \
+  ((BIT32) & 0x00800000 ? '1' : '0'), \
+  ((BIT32) & 0x00400000 ? '1' : '0'), \
+  ((BIT32) & 0x00200000 ? '1' : '0'), \
+  ((BIT32) & 0x00100000 ? '1' : '0'), \
+  ((BIT32) & 0x00080000 ? '1' : '0'), \
+  ((BIT32) & 0x00040000 ? '1' : '0'), \
+  ((BIT32) & 0x00020000 ? '1' : '0'), \
+  ((BIT32) & 0x00010000 ? '1' : '0'), \
+  ((BIT32) & 0x00008000 ? '1' : '0'), \
+  ((BIT32) & 0x00004000 ? '1' : '0'), \
+  ((BIT32) & 0x00002000 ? '1' : '0'), \
+  ((BIT32) & 0x00001000 ? '1' : '0'), \
+  ((BIT32) & 0x00000800 ? '1' : '0'), \
+  ((BIT32) & 0x00000400 ? '1' : '0'), \
+  ((BIT32) & 0x00000200 ? '1' : '0'), \
+  ((BIT32) & 0x00000100 ? '1' : '0'), \
+  ((BIT32) & 0x00000080 ? '1' : '0'), \
+  ((BIT32) & 0x00000040 ? '1' : '0'), \
+  ((BIT32) & 0x00000020 ? '1' : '0'), \
+  ((BIT32) & 0x00000010 ? '1' : '0'), \
+  ((BIT32) & 0x00000008 ? '1' : '0'), \
+  ((BIT32) & 0x00000004 ? '1' : '0'), \
+  ((BIT32) & 0x00000002 ? '1' : '0'), \
+  ((BIT32) & 0x00000001 ? '1' : '0')
+
 #define THIS ((Player*)thisx)
 
 void Player_Init(Actor* thisx, PlayState* play);
@@ -7969,13 +8004,13 @@ s32 func_80839A84(PlayState* play, Player* this) {
     return true;
 }
 
-//Z target
+// Z target but doesn't activate when you're swimming
 s32 Player_ActionChange_10(Player* this, PlayState* play) {
     if (CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_A) &&
         (play->roomCtx.curRoom.behaviorType1 != ROOM_BEHAVIOR_TYPE1_2) && (sPlayerFloorType != FLOOR_TYPE_7) &&
         (sPlayerFloorEffect != FLOOR_EFFECT_1)) {
         s32 temp_a2 = this->unk_AE3[this->unk_ADE];
-        //covers when link is staying put and when link is moving forward
+        // covers when link is staying put and when link is moving forward
         if (temp_a2 <= 0) {
             if (func_8082FBE8(this)) {
                 if (this->actor.category != ACTORCAT_PLAYER) {
@@ -7985,23 +8020,23 @@ s32 Player_ActionChange_10(Player* this, PlayState* play) {
                         func_80836B3C(play, this, 0.0f);
                     }
                 }
-                //Jump/Leap (Was jump slash)
+                // Jump/Leap (Was jump slash)
                 else if (!(this->stateFlags1 & PLAYER_STATE1_8000000) &&
                            (Player_GetMeleeWeaponHeld(this) != PLAYER_MELEEWEAPON_NONE) &&
                            Player_CanUpdateItems(this) && (this->transformation != PLAYER_FORM_GORON)) {
-                    if (this->transformation == PLAYER_FORM_ZORA) {func_808395F0(play, this, PLAYER_MWA_JUMPSLASH_START, 5.0f, 5.0f);}
-                    //Leap
-                    else if (temp_a2 == 0) {func_80834D50(play, this, D_8085C2A4[0].unk_0, 5.0f, NA_SE_VO_LI_SWORD_N);}
-                    //Jump
-                    else {func_80834DB8(this, &gPlayerAnim_link_normal_jump, REG(69) / 100.0f, play);}
-                    
+                    // if (this->transformation == PLAYER_FORM_ZORA) {func_808395F0(play, this, PLAYER_MWA_JUMPSLASH_START, 5.0f, 5.0f);}
+                    // // Leap
+                    // else if (temp_a2 == 0) {func_80834D50(play, this, D_8085C2A4[0].unk_0, 5.0f, NA_SE_VO_LI_SWORD_N);}
+                    // // Jump
+                    // else {func_80834DB8(this, &gPlayerAnim_link_normal_jump, REG(69) / 100.0f, play);}
+                    func_808395F0(play, this, PLAYER_MWA_JUMPSLASH_START, 5.0f, 5.0f);
                 } else if (!func_80839A84(play, this)) {
                     func_80836B3C(play, this, 0.0f);
                 }
 
                 return true;
             }
-        //covers when link is backflipping or sidehopping
+        // covers when link is backflipping or sidehopping
         } else {
             func_80839860(this, play, temp_a2);
             return true;
