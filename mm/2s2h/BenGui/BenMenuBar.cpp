@@ -664,8 +664,9 @@ void DrawCheatsMenu() {
                                     { .tooltip = "Holding L makes you float into the air" })) {
             RegisterMoonJumpOnL();
         }
-        UIWidgets::CVarCheckbox("Stop Time in Temples", "gCheats.TempleTimeStop",
-                                { .tooltip = "Time will not advance while in Temples" });
+        UIWidgets::CVarCheckbox(
+            "Stop Time in Temples", "gCheats.TempleTimeStop",
+            { .tooltip = "Time will not advance while in Temples. Requires a scene change to update." });
 
         ImGui::EndMenu();
     }
