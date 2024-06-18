@@ -39,14 +39,7 @@ static std::vector<Vtx> cylinderVtx;
 static std::vector<Gfx> sphereGfx;
 static std::vector<Vtx> sphereVtx;
 
-// Draws the ImGui window for the collision viewer
-void CollisionViewerWindow::DrawElement() {
-    ImGui::SetNextWindowSize(ImVec2(390, 475), ImGuiCond_FirstUseEver);
-    if (!ImGui::Begin("Collision Viewer", &mIsVisible, ImGuiWindowFlags_NoFocusOnAppearing)) {
-        ImGui::End();
-        return;
-    }
-
+void CollisionViewerWindow::DrawContents() {
     UIWidgets::CVarCheckbox("Enabled", "gCollisionViewer.Enabled");
 
     ImGui::SameLine();
@@ -75,13 +68,13 @@ void CollisionViewerWindow::DrawElement() {
     ImGui::SeparatorText("Collision Types");
 
     UIWidgets::CVarCombobox("Scene", "gCollisionViewer.SceneCollisionMode", ColRenderSettingNames,
-                            { .color = UIWidgets::Colors::Gray });
+        { .color = UIWidgets::Colors::Gray });
     UIWidgets::CVarCombobox("BG Actors", "gCollisionViewer.BGActorsCollisionMode", ColRenderSettingNames,
-                            { .color = UIWidgets::Colors::Gray });
+        { .color = UIWidgets::Colors::Gray });
     UIWidgets::CVarCombobox("Col Check", "gCollisionViewer.ColCheckCollisionMode", ColRenderSettingNames,
-                            { .color = UIWidgets::Colors::Gray });
+        { .color = UIWidgets::Colors::Gray });
     UIWidgets::CVarCombobox("Waterbox", "gCollisionViewer.WaterboxCollisionMode", ColRenderSettingNames,
-                            { .color = UIWidgets::Colors::Gray });
+        { .color = UIWidgets::Colors::Gray });
 
     ImGui::SeparatorText("Colors");
 
@@ -107,12 +100,21 @@ void CollisionViewerWindow::DrawElement() {
         ImGui::EndTable();
     }
     UIWidgets::CVarColorPicker("Special Surface (Grass/Sand/Etc)", "gCollisionViewer.SpecialSurfaceColor",
-                               { 192, 255, 192, 255 });
+        { 192, 255, 192, 255 });
     UIWidgets::CVarColorPicker("Interactable (Vines/Crawlspace/Etc)", "gCollisionViewer.InteractableColor",
-                               { 192, 0, 192, 255 });
+        { 192, 0, 192, 255 });
 
     ImGui::EndDisabled();
+}
 
+// Draws the ImGui window for the collision viewer
+void CollisionViewerWindow::DrawElement() {
+    ImGui::SetNextWindowSize(ImVec2(390, 475), ImGuiCond_FirstUseEver);
+    if (!ImGui::Begin("Collision Viewer", &mIsVisible, ImGuiWindowFlags_NoFocusOnAppearing)) {
+        ImGui::End();
+        return;
+    }
+    DrawContents();
     ImGui::End();
 }
 

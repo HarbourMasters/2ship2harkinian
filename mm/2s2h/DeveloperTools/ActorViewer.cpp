@@ -77,13 +77,7 @@ void ResetVariables() {
     preventActorUpdateHookId = 0;
 }
 
-void ActorViewerWindow::DrawElement() {
-    ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
-    if (!ImGui::Begin("Actor Viewer", &mIsVisible, ImGuiWindowFlags_NoFocusOnAppearing)) {
-        ImGui::End();
-        return;
-    }
-
+void ActorViewerWindow::DrawContents() {
     if (gPlayState != nullptr) {
         needs_reset = lastSceneId != gPlayState->sceneId;
         if (needs_reset) {
@@ -318,6 +312,15 @@ void ActorViewerWindow::DrawElement() {
     } else {
         ImGui::Text("Playstate needed for actors!");
     }
+}
+
+void ActorViewerWindow::DrawElement() {
+    ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
+    if (!ImGui::Begin("Actor Viewer", &mIsVisible, ImGuiWindowFlags_NoFocusOnAppearing)) {
+        ImGui::End();
+        return;
+    }
+    DrawContents();
     ImGui::End();
 }
 
