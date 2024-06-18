@@ -16,7 +16,7 @@ void func_80834DB8(Player* player, PlayerAnimationHeader* anim, f32 speed, PlayS
 }
 
 void RegisterManualJump() {
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPassPlayerInputs>([](Input * input) { 
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPassPlayerInputs>([](Input* input) {
         if (gPlayState == NULL) {
             return;
         }
@@ -27,13 +27,16 @@ void RegisterManualJump() {
             Player* player = GET_PLAYER(gPlayState);
             s8 temp = player->unk_AE3[player->unk_ADE];
             if (player->stateFlags1 & PLAYER_STATE1_8000 + PLAYER_STATE1_20000) {
-                if (!(player->stateFlags1 & PLAYER_STATE1_8000000) && (Player_GetMeleeWeaponHeld(player) != PLAYER_MELEEWEAPON_NONE)) { 
+                if (!(player->stateFlags1 & PLAYER_STATE1_8000000) &&
+                    (Player_GetMeleeWeaponHeld(player) != PLAYER_MELEEWEAPON_NONE)) {
                     if (CHECK_BTN_ALL(input->press.button, BTN_A)) {
                         if (temp == 0) {
-                            func_80834D50(gPlayState, player, (PlayerAnimationHeader*)&gPlayerAnim_link_fighter_front_jump , 5.0f, NA_SE_VO_LI_SWORD_N);
-                        }
-                        else if (temp == -1) {
-                            func_80834DB8(player, (PlayerAnimationHeader*)&gPlayerAnim_link_normal_jump, REG(69) / 100.0f, gPlayState);
+                            func_80834D50(gPlayState, player,
+                                          (PlayerAnimationHeader*)&gPlayerAnim_link_fighter_front_jump, 5.0f,
+                                          NA_SE_VO_LI_SWORD_N);
+                        } else if (temp == -1) {
+                            func_80834DB8(player, (PlayerAnimationHeader*)&gPlayerAnim_link_normal_jump,
+                                          REG(69) / 100.0f, gPlayState);
                         }
                     }
                 }

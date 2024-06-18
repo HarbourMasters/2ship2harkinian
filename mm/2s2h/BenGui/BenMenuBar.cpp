@@ -604,8 +604,8 @@ void DrawEnhancementsMenu() {
             }
             UIWidgets::CVarCheckbox("Instant Putaway", "gEnhancements.Player.InstantPutaway",
                                     { .tooltip = "Allows Link to instantly puts away held item without waiting." });
-            UIWidgets::CVarCheckbox("Manual Jump", "gEnhancements.Player.ManualJump", 
-                                    { .tooltip = "Z + A to Jump and B while midair to Jump Attack"});
+            UIWidgets::CVarCheckbox("Manual Jump", "gEnhancements.Player.ManualJump",
+                                    { .tooltip = "Z + A to Jump and B while midair to Jump Attack" });
             ImGui::EndMenu();
         }
 

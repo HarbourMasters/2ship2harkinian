@@ -47,41 +47,6 @@
 
 #include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 
-#define BIT32_TO_BINARY_PATTERN "%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c%c"
-#define BIT32_TO_BINARY(BIT32)  \
-  ((BIT32) & 0x80000000 ? '1' : '0'), \
-  ((BIT32) & 0x40000000 ? '1' : '0'), \
-  ((BIT32) & 0x20000000 ? '1' : '0'), \
-  ((BIT32) & 0x10000000 ? '1' : '0'), \
-  ((BIT32) & 0x08000000 ? '1' : '0'), \
-  ((BIT32) & 0x04000000 ? '1' : '0'), \
-  ((BIT32) & 0x02000000 ? '1' : '0'), \
-  ((BIT32) & 0x01000000 ? '1' : '0'), \
-  ((BIT32) & 0x00800000 ? '1' : '0'), \
-  ((BIT32) & 0x00400000 ? '1' : '0'), \
-  ((BIT32) & 0x00200000 ? '1' : '0'), \
-  ((BIT32) & 0x00100000 ? '1' : '0'), \
-  ((BIT32) & 0x00080000 ? '1' : '0'), \
-  ((BIT32) & 0x00040000 ? '1' : '0'), \
-  ((BIT32) & 0x00020000 ? '1' : '0'), \
-  ((BIT32) & 0x00010000 ? '1' : '0'), \
-  ((BIT32) & 0x00008000 ? '1' : '0'), \
-  ((BIT32) & 0x00004000 ? '1' : '0'), \
-  ((BIT32) & 0x00002000 ? '1' : '0'), \
-  ((BIT32) & 0x00001000 ? '1' : '0'), \
-  ((BIT32) & 0x00000800 ? '1' : '0'), \
-  ((BIT32) & 0x00000400 ? '1' : '0'), \
-  ((BIT32) & 0x00000200 ? '1' : '0'), \
-  ((BIT32) & 0x00000100 ? '1' : '0'), \
-  ((BIT32) & 0x00000080 ? '1' : '0'), \
-  ((BIT32) & 0x00000040 ? '1' : '0'), \
-  ((BIT32) & 0x00000020 ? '1' : '0'), \
-  ((BIT32) & 0x00000010 ? '1' : '0'), \
-  ((BIT32) & 0x00000008 ? '1' : '0'), \
-  ((BIT32) & 0x00000004 ? '1' : '0'), \
-  ((BIT32) & 0x00000002 ? '1' : '0'), \
-  ((BIT32) & 0x00000001 ? '1' : '0')
-
 #define THIS ((Player*)thisx)
 
 void Player_Init(Actor* thisx, PlayState* play);
@@ -7942,7 +7907,7 @@ s32 func_80839800(Player* this, PlayState* play) {
     }
     return false;
 }
-//Side Hops and Backflip
+// Side Hops and Backflip
 void func_80839860(Player* this, PlayState* play, s32 arg2) {
     s32 pad;
     f32 speed = (!(arg2 & 1) ? 5.8f : 3.5f);
@@ -8022,11 +7987,13 @@ s32 Player_ActionChange_10(Player* this, PlayState* play) {
                 }
                 // Jump/Leap (Was jump slash)
                 else if (!(this->stateFlags1 & PLAYER_STATE1_8000000) &&
-                           (Player_GetMeleeWeaponHeld(this) != PLAYER_MELEEWEAPON_NONE) &&
-                           Player_CanUpdateItems(this) && (this->transformation != PLAYER_FORM_GORON)) {
-                    // if (this->transformation == PLAYER_FORM_ZORA) {func_808395F0(play, this, PLAYER_MWA_JUMPSLASH_START, 5.0f, 5.0f);}
+                         (Player_GetMeleeWeaponHeld(this) != PLAYER_MELEEWEAPON_NONE) && Player_CanUpdateItems(this) &&
+                         (this->transformation != PLAYER_FORM_GORON)) {
+                    // if (this->transformation == PLAYER_FORM_ZORA) {func_808395F0(play, this,
+                    // PLAYER_MWA_JUMPSLASH_START, 5.0f, 5.0f);}
                     // // Leap
-                    // else if (temp_a2 == 0) {func_80834D50(play, this, D_8085C2A4[0].unk_0, 5.0f, NA_SE_VO_LI_SWORD_N);}
+                    // else if (temp_a2 == 0) {func_80834D50(play, this, D_8085C2A4[0].unk_0, 5.0f,
+                    // NA_SE_VO_LI_SWORD_N);}
                     // // Jump
                     // else {func_80834DB8(this, &gPlayerAnim_link_normal_jump, REG(69) / 100.0f, play);}
                     func_808395F0(play, this, PLAYER_MWA_JUMPSLASH_START, 5.0f, 5.0f);
@@ -8036,7 +8003,7 @@ s32 Player_ActionChange_10(Player* this, PlayState* play) {
 
                 return true;
             }
-        // covers when link is backflipping or sidehopping
+            // covers when link is backflipping or sidehopping
         } else {
             func_80839860(this, play, temp_a2);
             return true;
