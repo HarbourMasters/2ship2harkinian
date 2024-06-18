@@ -626,7 +626,7 @@ void BenMenu::DrawElement() {
 
     std::vector<UIWidgets::SidebarEntry> sidebar;
     float headerHeight = headerSizes.at(0).y + style.FramePadding.y * 2;
-    ImVec2 buttonSize = ImGui::CalcTextSize(ICON_FA_TIMES_CIRCLE) + style.FramePadding * 3;
+    ImVec2 buttonSize = ImGui::CalcTextSize(ICON_FA_TIMES_CIRCLE) + style.FramePadding * 2;
     bool scrollbar = false;
     if (headerWidth > menuSize.x - buttonSize.x * 3 - style.ItemSpacing.x * 3) {
         headerHeight += style.ScrollbarSize;
@@ -672,7 +672,7 @@ void BenMenu::DrawElement() {
         }
     }
     ImGui::EndChild();
-    ImGui::SameLine(menuSize.x - (buttonSize.x * 2));
+    ImGui::SameLine(menuSize.x - (buttonSize.x * 2) - style.ItemSpacing.x);
     if (UIWidgets::Button(ICON_FA_REFRESH, { .color = UIWidgets::Colors::Red,
                                              .size = UIWidgets::Sizes::Inline,
                                              .tooltip = "Reset"
