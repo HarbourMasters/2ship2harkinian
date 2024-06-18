@@ -20,6 +20,7 @@
 extern "C" {
 #include "z64.h"
 #include "functions.h"
+extern PlayState* gPlayState;
 }
 std::vector<ImVec2> windowTypeSizes = { {} };
 
@@ -56,6 +57,10 @@ static const std::unordered_map<int32_t, const char*> alwaysWinDoggyraceOptions 
     { ALWAYS_WIN_DOGGY_RACE_OFF, "Off" },
     { ALWAYS_WIN_DOGGY_RACE_MASKOFTRUTH, "When owning Mask of Truth" },
     { ALWAYS_WIN_DOGGY_RACE_ALWAYS, "Always" },
+};
+
+const char* logLevels[] = {
+    "trace", "debug", "info", "warn", "error", "critical", "off",
 };
 
 namespace BenGui {
@@ -105,6 +110,10 @@ void DrawAudioSettings() {
 }
 
 void DrawGraphicsSettings() {
+    bool fs = Ship::Context::GetInstance()->GetWindow()->IsFullscreen();
+    if (UIWidgets::Checkbox("Toggle Fullscreen", &fs)) {
+        Ship::Context::GetInstance()->GetWindow()->ToggleFullscreen();
+    }
 #ifndef __APPLE__
     if (UIWidgets::CVarSliderFloat("Internal Resolution: %f %%", CVAR_INTERNAL_RESOLUTION, 0.5f, 2.0f, 1.0f)) {
         Ship::Context::GetInstance()->GetWindow()->SetResolutionMultiplier(CVarGetFloat(CVAR_INTERNAL_RESOLUTION, 1));
@@ -448,7 +457,7 @@ void DrawRestorationEnhancements() {
 
 void DrawHudEditorContents() {
     UIWidgets::WindowButton("Popout Hud Editor", "gWindows.HudEditor", mHudEditorWindow,
-                            { .tooltip = "Enables the Hud Editor window, allowing you to edit your hud" });
+        { .tooltip = "Enables the Hud Editor window, allowing you to edit your hud" });
     if (!CVarGetInteger("gWindows.HudEditor", 0)) {
         mHudEditorWindow->DrawContents();
     }
@@ -459,6 +468,122 @@ void DrawGeneralDevTools() {
     // Popout will assume size of 1280x800, and will break on those systems.
     UIWidgets::CVarCheckbox("Popout Menu", "gSettings.Menu.Popout",
                             { .tooltip = "Changes the menu display from overlay to windowed." });
+    if (UIWidgets::Button("Open App Files Folder", {.tooltip = "Opens the folder that contains the save and mods folders, etc." })) {
+        std::string filesPath = Ship::Context::GetInstance()->GetAppDirectoryPath();
+        SDL_OpenURL(std::string("file:///" + std::filesystem::absolute(filesPath).string()).c_str());
+    }
+    UIWidgets::CVarCheckbox("Debug Mode", "gDeveloperTools.DebugEnabled",
+        { .tooltip = "Enables Debug Mode, allowing you to select maps with L + R + Z." });
+
+    if (CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
+        UIWidgets::CVarCheckbox(
+            "Better Map Select", "gDeveloperTools.BetterMapSelect.Enabled",
+            { .tooltip = "Overrides the original map select with a translated, more user-friendly version." });
+
+        if (UIWidgets::CVarCombobox(
+            "Debug Save File Mode", "gDeveloperTools.DebugSaveFileMode", debugSaveOptions,
+            { .tooltip =
+                  "Change the behavior of creating saves while debug mode is enabled:\n\n"
+                  "- Empty Save: The default 3 heart save file in first cycle\n"
+                  "- Vanilla Debug Save: Uses the title screen save info (8 hearts, all items and masks)\n"
+                  "- 100\% Save: All items, equipment, mask, quast status and bombers notebook complete" })) {
+            RegisterDebugSaveCreate();
+        }
+    }
+
+    if (UIWidgets::CVarCheckbox("Prevent Actor Update", "gDeveloperTools.PreventActorUpdate")) {
+        RegisterPreventActorUpdateHooks();
+    }
+    if (UIWidgets::CVarCheckbox("Prevent Actor Draw", "gDeveloperTools.PreventActorDraw")) {
+        RegisterPreventActorDrawHooks();
+    }
+    if (UIWidgets::CVarCheckbox("Prevent Actor Init", "gDeveloperTools.PreventActorInit")) {
+        RegisterPreventActorInitHooks();
+    }
+    if (UIWidgets::CVarCombobox("Log Level", "gDeveloperTools.LogLevel", logLevels,
+        {
+            .tooltip = "The log level determines which messages are printed to the "
+                       "console. This does not affect the log file output",
+            .defaultIndex = 1,
+        })) {
+        Ship::Context::GetInstance()->GetLogger()->set_level(
+            (spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
+    }
+
+    if (gPlayState != NULL) {
+        ImGui::Separator();
+        UIWidgets::Checkbox(
+            "Frame Advance", (bool*)&gPlayState->frameAdvCtx.enabled,
+            { .tooltip = "This allows you to advance through the game one frame at a time on command. "
+                         "To advance a frame, hold Z and tap R on the second controller. Holding Z "
+                         "and R will advance a frame every half second. You can also use the buttons below." });
+        if (gPlayState->frameAdvCtx.enabled) {
+            if (UIWidgets::Button("Advance 1", { .size = UIWidgets::Sizes::Inline })) {
+                CVarSetInteger("gDeveloperTools.FrameAdvanceTick", 1);
+            }
+            ImGui::SameLine();
+            UIWidgets::Button("Advance (Hold)", { .size = UIWidgets::Sizes::Inline });
+            if (ImGui::IsItemActive()) {
+                CVarSetInteger("gDeveloperTools.FrameAdvanceTick", 1);
+            }
+        }
+    }
+    RenderWarpPointSection();
+}
+
+void DrawCollisionViewerContents() {
+    UIWidgets::WindowButton("Popout Collision Viewer", "gWindows.CollisionViewer", mCollisionViewerWindow,
+        { .tooltip = "Draws collision to the screen" });
+    if (!CVarGetInteger("gWindows.CollisionViewer", 0)) {
+        mCollisionViewerWindow->DrawContents();
+    }
+}
+
+void DrawStatsContents() {
+    UIWidgets::WindowButton("Popout Stats", "gWindows.Stats", mStatsWindow,
+        { .tooltip = "Shows the stats window, with your FPS and frametimes, and the OS you're playing on" });
+    if (!CVarGetInteger("gWindows.Stats", 0)) {
+        //mStatsWindow->DrawContents();
+    }
+}
+
+void DrawConsoleContents() {
+    UIWidgets::WindowButton("Popout Console", "gWindows.Console", mConsoleWindow,
+        { .tooltip = "Enables the console window, allowing you to input commands, type help for some examples" });
+    if (!CVarGetInteger("gWindows.Console", 0)) {
+        //mConsoleWindow->DrawContents();
+    }
+}
+
+void DrawGfxDebuggerContents() {
+    UIWidgets::WindowButton("Popout Gfx Debugger", "gWindows.GfxDebugger", mGfxDebuggerWindow,
+        { .tooltip = "Enables the Gfx Debugger window, allowing you to input commands, type help for some examples" });
+    if (!CVarGetInteger("gWindows.GfxDebugger", 0)) {
+        //mGfxDebuggerWindow->DrawContents();
+    }
+}
+
+void DrawSaveEditorContents() {
+    UIWidgets::WindowButton("Popout Save Editor", "gWindows.SaveEditor", mSaveEditorWindow,
+        { .tooltip = "Enables the Save Editor window, allowing you to edit your save file" });
+    if (!CVarGetInteger("gWindows.SaveEditor", 0)) {
+        mSaveEditorWindow->DrawContents();
+    }
+}
+
+void DrawActorViewerContents() {
+    UIWidgets::WindowButton("Popout Actor Viewer", "gWindows.ActorViewer", mActorViewerWindow,
+        { .tooltip = "Enables the Actor Viewer window, allowing you to view actors in the world." });
+    if (!CVarGetInteger("gWindows.ActorViewer", 0)) {
+        mActorViewerWindow->DrawContents();
+    }
+}
+
+void DrawEventLogContents() {
+    UIWidgets::WindowButton("Popout Event Log", "gWindows.EventLog", mEventLogWindow);
+    if (!CVarGetInteger("gWindows.EventLog", 0)) {
+        mActorViewerWindow->DrawContents();
+    }
 }
 
 std::vector<UIWidgets::MainMenuEntry> menuEntries;
@@ -473,22 +598,31 @@ void BenMenu::InitElement() {
     poppedPos.x = CVarGetInteger("gSettings.Menu.PoppedPos.x", 0);
     poppedPos.y = CVarGetInteger("gSettings.Menu.PoppedPos.y", 0);
     std::vector<UIWidgets::SidebarEntry> settingsSidebar = { { "Audio", { DrawAudioSettings, nullptr, nullptr } },
-                                                             { "Graphics", { DrawGraphicsSettings } },
-                                                             { "Controls", { DrawControllerSettings } } };
+                                                             { "Graphics", { DrawGraphicsSettings, nullptr, nullptr } },
+                                                             { "Controls", { DrawControllerSettings, nullptr, nullptr } } };
 
     std::vector<UIWidgets::SidebarEntry> enhancementsSidebar = {
         { "Camera", { DrawCameraFixes, DrawFreeLook, DrawCameraDebug } },
-        { "Cheats", { DrawCheatEnhancements } },
+        { "Cheats", { DrawCheatEnhancements, nullptr, nullptr } },
         { "Gameplay", { DrawGameplayEnhancements, DrawGameModesEnhancements, DrawSaveTimeEnhancements } },
-        { "Graphics", { DrawGraphicsEnhancements } },
-        { "Items/Songs", { DrawItemEnhancements, DrawSongEnhancements } },
-        { "Time Savers", { DrawTimeSaverEnhancements } },
-        { "Fixes", { DrawFixEnhancements } },
-        { "Restorations", { DrawRestorationEnhancements } },
+        { "Graphics", { DrawGraphicsEnhancements, nullptr, nullptr } },
+        { "Items/Songs", { DrawItemEnhancements, DrawSongEnhancements, nullptr } },
+        { "Time Savers", { DrawTimeSaverEnhancements, nullptr, nullptr } },
+        { "Fixes", { DrawFixEnhancements, nullptr, nullptr } },
+        { "Restorations", { DrawRestorationEnhancements, nullptr, nullptr } },
         { "Hud Editor", { DrawHudEditorContents, nullptr } }
     };
 
-    std::vector<UIWidgets::SidebarEntry> devToolsSidebar = { { "General", { DrawGeneralDevTools } } };
+    std::vector<UIWidgets::SidebarEntry> devToolsSidebar = { 
+        { "General",          { DrawGeneralDevTools, nullptr, nullptr } },
+        { "Collision Viewer", { DrawCollisionViewerContents, nullptr } },
+        { "Stats",            { DrawStatsContents, nullptr } },
+        { "Console",          { DrawConsoleContents, nullptr } },
+        { "Gfx Debugger",     { DrawGfxDebuggerContents, nullptr } },
+        { "Save Editor",      { DrawSaveEditorContents, nullptr } },
+        { "Actor Viewer",     { DrawActorViewerContents, nullptr } },
+        { "Event Log",        { DrawEventLogContents, nullptr } }
+    };
 
     menuEntries = { { "Settings", settingsSidebar, "gSettings.Menu.SettingsSidebarIndex" },
                     { "Enhancements", enhancementsSidebar, "gSettings.Menu.EnhancementsSidebarIndex" },
@@ -635,7 +769,7 @@ void BenMenu::DrawElement() {
     ImGui::SetNextWindowPos(pos + ImVec2{ menuSize.x, headerHeight } / 2, ImGuiCond_Always, { 0.5f, 0.5f });
     ImGui::BeginChild("Menu Header", { menuSize.x, headerHeight },
                       ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize, ImGuiWindowFlags_NoTitleBar);
-    if (UIWidgets::Button(ICON_FA_TIMES_CIRCLE, { .size = UIWidgets::Sizes::Inline, .tooltip = "Close Menu" })) {
+    if (UIWidgets::Button(ICON_FA_TIMES_CIRCLE, { .size = UIWidgets::Sizes::Inline, .tooltip = "Close Menu (Esc)" })) {
         ToggleVisibility();
     }
     ImGui::SameLine();
@@ -673,13 +807,13 @@ void BenMenu::DrawElement() {
     }
     ImGui::EndChild();
     ImGui::SameLine(menuSize.x - (buttonSize.x * 2) - style.ItemSpacing.x);
-    if (UIWidgets::Button(ICON_FA_REFRESH, { .color = UIWidgets::Colors::Red,
+    if (UIWidgets::Button(ICON_FA_UNDO, { .color = UIWidgets::Colors::Red,
                                              .size = UIWidgets::Sizes::Inline,
                                              .tooltip = "Reset"
 #ifdef __APPLE__
-                                                        " Command-R"
+                                                        " (Command-R)"
 #elif !defined(__SWITCH__) && !defined(__WIIU__)
-                                                        " Ctrl+R"
+                                                        " (Ctrl+R)"
 #else
                                                         ""
 #endif
@@ -690,7 +824,7 @@ void BenMenu::DrawElement() {
     }
     ImGui::SameLine();
     if (UIWidgets::Button(
-            ICON_FA_SIGN_OUT,
+            ICON_FA_POWER_OFF,
             { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline, .tooltip = "Quit 2S2H" })) {
         Ship::Context::GetInstance()->GetWindow()->Close();
     }

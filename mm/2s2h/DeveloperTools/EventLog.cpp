@@ -259,12 +259,6 @@ void RegisterEventLogHooks() {
 }
 
 void EventLogWindow::DrawContents() {
-    ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
-    if (!ImGui::Begin("Event Log", &mIsVisible, ImGuiWindowFlags_NoFocusOnAppearing)) {
-        ImGui::End();
-        return;
-    }
-
     if (UIWidgets::CVarCheckbox("Enable", "gEventLog.Enabled")) {
         RegisterEventLogHooks();
     }
@@ -384,12 +378,18 @@ void EventLogWindow::DrawContents() {
 
         ImGui::EndTable();
     }
-
-    ImGui::End();
 }
 
 void EventLogWindow::DrawElement() {
+    ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
+    if (!ImGui::Begin("Event Log", &mIsVisible, ImGuiWindowFlags_NoFocusOnAppearing)) {
+        ImGui::End();
+        return;
+    }
+
     DrawContents();
+
+    ImGui::End();
 }
 
 void EventLogWindow::InitElement() {
