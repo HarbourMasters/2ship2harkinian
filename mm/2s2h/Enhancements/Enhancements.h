@@ -11,6 +11,7 @@
 #include "Cheats/Cheats.h"
 #include "Cheats/UnbreakableRazorSword.h"
 #include "Cheats/UnrestrictedItems.h"
+#include "Cheats/TimeStop.h"
 #include "Cycle/EndOfCycle.h"
 #include "Equipment/SkipMagicArrowEquip.h"
 #include "Masks/BlastMaskKeg.h"
