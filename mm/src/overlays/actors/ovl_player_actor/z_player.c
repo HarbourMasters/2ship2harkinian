@@ -7989,14 +7989,22 @@ s32 Player_ActionChange_10(Player* this, PlayState* play) {
                 else if (!(this->stateFlags1 & PLAYER_STATE1_8000000) &&
                          (Player_GetMeleeWeaponHeld(this) != PLAYER_MELEEWEAPON_NONE) && Player_CanUpdateItems(this) &&
                          (this->transformation != PLAYER_FORM_GORON)) {
-                    // if (this->transformation == PLAYER_FORM_ZORA) {func_808395F0(play, this,
-                    // PLAYER_MWA_JUMPSLASH_START, 5.0f, 5.0f);}
-                    // // Leap
-                    // else if (temp_a2 == 0) {func_80834D50(play, this, D_8085C2A4[0].unk_0, 5.0f,
-                    // NA_SE_VO_LI_SWORD_N);}
-                    // // Jump
-                    // else {func_80834DB8(this, &gPlayerAnim_link_normal_jump, REG(69) / 100.0f, play);}
-                    func_808395F0(play, this, PLAYER_MWA_JUMPSLASH_START, 5.0f, 5.0f);
+                    if (!GameInteractor_Should(GI_VB_MANUAL_JUMP, true, NULL)) {
+                        if (this->transformation == PLAYER_FORM_ZORA) {
+                            func_808395F0(play, this, PLAYER_MWA_JUMPSLASH_START, 5.0f, 5.0f);
+                        }
+                        // Leap
+                        else if (temp_a2 == 0) {
+                            func_80834D50(play, this, D_8085C2A4[0].unk_0, 5.8f, NA_SE_VO_LI_SWORD_N);
+                        }
+                        // Jump
+                        else {
+                            func_80834DB8(this, &gPlayerAnim_link_normal_jump, REG(69) / 100.0f, play);
+                        }
+                    } else {
+                        func_808395F0(play, this, PLAYER_MWA_JUMPSLASH_START, 5.0f, 5.0f);
+                    }
+
                 } else if (!func_80839A84(play, this)) {
                     func_80836B3C(play, this, 0.0f);
                 }
