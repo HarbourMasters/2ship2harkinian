@@ -42,10 +42,9 @@ static const std::unordered_map<Ship::AudioBackend, const char*> audioBackendsMa
 };
 
 static std::unordered_map<Ship::WindowBackend, const char*> windowBackendsMap = {
-    { Ship::WindowBackend::DX11, "DirectX" },
-    { Ship::WindowBackend::SDL_OPENGL, "OpenGL" },
-    { Ship::WindowBackend::SDL_METAL, "Metal" },
-    { Ship::WindowBackend::GX2, "GX2" }
+    { Ship::WindowBackend::FAST3D_DXGI_DX11, "DirectX" },
+    { Ship::WindowBackend::FAST3D_SDL_OPENGL, "OpenGL" },
+    { Ship::WindowBackend::FAST3D_SDL_METAL, "Metal" },
 };
 
 static const std::unordered_map<int32_t, const char*> clockTypeOptions = {
@@ -73,6 +72,23 @@ extern std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
 extern std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 extern std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
 extern std::shared_ptr<EventLogWindow> mEventLogWindow;
+extern std::shared_ptr<BenInputEditorWindow> mBenInputEditorWindow;
+
+void DrawGeneralSettings() {
+#if not defined(__SWITCH__) and not defined (__WIIU__)
+    UIWidgets::CVarCheckbox("Menubar Controller Navigation", CVAR_IMGUI_CONTROLLER_NAV, {
+        .tooltip = "Allows controller navigation of the SOH menu bar (Settings, Enhancements,...)\nCAUTION: "
+        "This will disable game inputs while the menubar is visible.\n\nD-pad to move between "
+        "items, A to select, and X to grab focus on the menu bar"
+        });
+    bool cursor = Ship::Context::GetInstance()->GetWindow()->ShouldForceCursorVisibility();
+    if (UIWidgets::Checkbox("Cursor Always Visible", &cursor, {
+        .tooltip = "Makes the cursor always visible, even in full screen."
+        })) {
+        Ship::Context::GetInstance()->GetWindow()->SetForceCursorVisibility(cursor);
+    }
+#endif
+}
 
 void DrawAudioSettings() {
     UIWidgets::CVarSliderFloat("Master Volume: %.0f %%", "gSettings.Audio.MasterVolume", 0.0f, 1.0f, 1.0f,
@@ -135,7 +151,7 @@ void DrawGraphicsSettings() {
     { // FPS Slider
         constexpr unsigned int minFps = 20;
         static unsigned int maxFps;
-        if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::DX11) {
+        if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::FAST3D_DXGI_DX11) {
             maxFps = 360;
         } else {
             maxFps = Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
@@ -143,10 +159,10 @@ void DrawGraphicsSettings() {
         unsigned int currentFps = std::max(std::min(OTRGlobals::Instance->GetInterpolationFPS(), maxFps), minFps);
         bool matchingRefreshRate =
             CVarGetInteger("gMatchRefreshRate", 0) &&
-            Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() != Ship::WindowBackend::DX11;
+            Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() != Ship::WindowBackend::FAST3D_DXGI_DX11;
         UIWidgets::CVarSliderInt((currentFps == 20) ? "FPS: Original (20)" : "FPS: %d", "gInterpolationFPS", minFps,
                                  maxFps, 20, { .disabled = matchingRefreshRate });
-        if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::DX11) {
+        if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::FAST3D_DXGI_DX11) {
             UIWidgets::Tooltip(
                 "Uses Matrix Interpolation to create extra frames, resulting in smoother graphics. This is "
                 "purely visual and does not impact game logic, execution of glitches etc.\n\n A higher target "
@@ -158,7 +174,7 @@ void DrawGraphicsSettings() {
         }
     } // END FPS Slider
 
-    if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::DX11) {
+    if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::FAST3D_DXGI_DX11) {
         // UIWidgets::Spacer(0);
         if (ImGui::Button("Match Refresh Rate")) {
             int hz = Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
@@ -172,7 +188,7 @@ void DrawGraphicsSettings() {
     }
     UIWidgets::Tooltip("Matches interpolation value to the current game's window refresh rate");
 
-    if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::DX11) {
+    if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::FAST3D_DXGI_DX11) {
         UIWidgets::CVarSliderInt(CVarGetInteger("gExtraLatencyThreshold", 80) == 0 ? "Jitter fix: Off"
                                                                                    : "Jitter fix: >= %d FPS",
                                  "gExtraLatencyThreshold", 0, 360, 80);
@@ -188,7 +204,7 @@ void DrawGraphicsSettings() {
     Ship::WindowBackend runningWindowBackend = Ship::Context::GetInstance()->GetWindow()->GetWindowBackend();
     Ship::WindowBackend configWindowBackend;
     int32_t configWindowBackendId = Ship::Context::GetInstance()->GetConfig()->GetInt("Window.Backend.Id", -1);
-    if (configWindowBackendId != -1 && configWindowBackendId < static_cast<int>(Ship::WindowBackend::BACKEND_COUNT)) {
+    if (configWindowBackendId != -1 && configWindowBackendId < static_cast<int>(Ship::WindowBackend::WINDOW_BACKEND_COUNT)) {
         configWindowBackend = static_cast<Ship::WindowBackend>(configWindowBackendId);
     } else {
         configWindowBackend = runningWindowBackend;
@@ -229,17 +245,23 @@ void DrawGraphicsSettings() {
     UIWidgets::CVarCombobox("Texture Filter (Needs reload)", CVAR_TEXTURE_FILTER, textureFilteringMap);
 }
 
-void DrawControllerSettings(){};
+void DrawControllerSettings(){
+    UIWidgets::WindowButton("Popout Input Editor", "gWindows.InputEditor", mBenInputEditorWindow,
+        { .tooltip = "Enables the separate Input Editor window." });
+    if (!CVarGetInteger("gWindows.InputEditor", 0)) {
+        mBenInputEditorWindow->DrawPortTabContents(0);
+    }
+};
 
 // Camera
-void DrawCameraFixes() {
+void DrawCameraEnhancements1() {
     ImGui::SeparatorText("Fixes");
     UIWidgets::CVarCheckbox(
         "Fix Targetting Camera Snap", "gEnhancements.Camera.FixTargettingCameraSnap",
         { .tooltip = "Fixes the camera snap that occurs when you are moving and press the targetting button." });
 }
 
-void DrawFreeLook() {
+void DrawCameraEnhancements2() {
     ImGui::SeparatorText("Free Look");
     if (UIWidgets::CVarCheckbox(
             "Free Look", "gEnhancements.Camera.FreeLook.Enable",
@@ -274,7 +296,7 @@ void DrawFreeLook() {
     }
 }
 
-void DrawCameraDebug() {
+void DrawCameraEnhancements3() {
     ImGui::SeparatorText("'Debug' Camera");
     if (UIWidgets::CVarCheckbox("Debug Camera", "gEnhancements.Camera.DebugCam.Enable",
                                 { .tooltip = "Enables free camera control.",
@@ -540,26 +562,26 @@ void DrawCollisionViewerContents() {
 }
 
 void DrawStatsContents() {
-    UIWidgets::WindowButton("Popout Stats", "gWindows.Stats", mStatsWindow,
+    UIWidgets::WindowButton("Popout Stats", "gOpenWindows.Stats", mStatsWindow,
         { .tooltip = "Shows the stats window, with your FPS and frametimes, and the OS you're playing on" });
-    if (!CVarGetInteger("gWindows.Stats", 0)) {
-        //mStatsWindow->DrawContents();
+    if (!CVarGetInteger("gOpenWindows.Stats", 0)) {
+        mStatsWindow->DrawContents();
     }
 }
 
 void DrawConsoleContents() {
-    UIWidgets::WindowButton("Popout Console", "gWindows.Console", mConsoleWindow,
+    UIWidgets::WindowButton("Popout Console", "gOpenWindows.Console", mConsoleWindow,
         { .tooltip = "Enables the console window, allowing you to input commands, type help for some examples" });
-    if (!CVarGetInteger("gWindows.Console", 0)) {
-        //mConsoleWindow->DrawContents();
+    if (!CVarGetInteger("gOpenWindows.Console", 0)) {
+        mConsoleWindow->DrawContents();
     }
 }
 
 void DrawGfxDebuggerContents() {
-    UIWidgets::WindowButton("Popout Gfx Debugger", "gWindows.GfxDebugger", mGfxDebuggerWindow,
+    UIWidgets::WindowButton("Popout Gfx Debugger", "gOpenWindows.GfxDebugger", mGfxDebuggerWindow,
         { .tooltip = "Enables the Gfx Debugger window, allowing you to input commands, type help for some examples" });
-    if (!CVarGetInteger("gWindows.GfxDebugger", 0)) {
-        //mGfxDebuggerWindow->DrawContents();
+    if (!CVarGetInteger("gOpenWindows.GfxDebugger", 0)) {
+        mGfxDebuggerWindow->DrawContents();
     }
 }
 
@@ -597,12 +619,15 @@ void BenMenu::InitElement() {
     poppedSize.y = CVarGetInteger("gSettings.Menu.PoppedHeight", 800);
     poppedPos.x = CVarGetInteger("gSettings.Menu.PoppedPos.x", 0);
     poppedPos.y = CVarGetInteger("gSettings.Menu.PoppedPos.y", 0);
-    std::vector<UIWidgets::SidebarEntry> settingsSidebar = { { "Audio", { DrawAudioSettings, nullptr, nullptr } },
-                                                             { "Graphics", { DrawGraphicsSettings, nullptr, nullptr } },
-                                                             { "Controls", { DrawControllerSettings, nullptr, nullptr } } };
+    std::vector<UIWidgets::SidebarEntry> settingsSidebar = {
+        { "General",  { DrawGeneralSettings, nullptr, nullptr } },
+        { "Audio",    { DrawAudioSettings, nullptr, nullptr } },
+        { "Graphics", { DrawGraphicsSettings, nullptr, nullptr } },
+        { "Controls", { DrawControllerSettings } }
+    };
 
     std::vector<UIWidgets::SidebarEntry> enhancementsSidebar = {
-        { "Camera", { DrawCameraFixes, DrawFreeLook, DrawCameraDebug } },
+        { "Camera", { DrawCameraEnhancements1, DrawCameraEnhancements2, DrawCameraEnhancements3 } },
         { "Cheats", { DrawCheatEnhancements, nullptr, nullptr } },
         { "Gameplay", { DrawGameplayEnhancements, DrawGameModesEnhancements, DrawSaveTimeEnhancements } },
         { "Graphics", { DrawGraphicsEnhancements, nullptr, nullptr } },
@@ -630,6 +655,12 @@ void BenMenu::InitElement() {
 }
 
 void BenMenu::UpdateElement() {
+}
+
+void BenMenu::ToggleMenu() {
+    ToggleVisibility();
+    Ship::Context::GetInstance()->GetWindow()->SetCursorVisibility(mIsVisible
+        || Ship::Context::GetInstance()->GetWindow()->ShouldForceCursorVisibility());
 }
 
 bool ModernMenuSidebarEntry(std::string label) {
