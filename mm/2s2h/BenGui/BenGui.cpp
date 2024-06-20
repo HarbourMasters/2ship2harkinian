@@ -56,6 +56,9 @@ void SetupGuiElements() {
 #endif
     }
 
+    mBenMenu = std::make_shared<BenMenu>("gWindows.Menu", "Settings Menu");
+    gui->SetMenu(mBenMenu);
+
     mStatsWindow = gui->GetGuiWindow("Stats");
     if (mStatsWindow == nullptr) {
         SPDLOG_ERROR("Could not find stats window");
@@ -88,13 +91,11 @@ void SetupGuiElements() {
 
     mEventLogWindow = std::make_shared<EventLogWindow>("gWindows.EventLog", "Event Log");
     gui->AddGuiWindow(mEventLogWindow);
-
-    mBenMenu = std::make_shared<BenMenu>("gWindows.Menu", "Settings Menu");
-    gui->SetMenu(mBenMenu);
 }
 
 void Destroy() {
     mBenMenuBar = nullptr;
+    mBenMenu = nullptr;
     mStatsWindow = nullptr;
     mConsoleWindow = nullptr;
     mBenInputEditorWindow = nullptr;
