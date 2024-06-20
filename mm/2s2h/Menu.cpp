@@ -15,7 +15,6 @@
 #include "DeveloperTools/CollisionViewer.h"
 #include "DeveloperTools/EventLog.h"
 #include "2s2h/BenGui/HudEditor.h"
-#include <format>
 
 extern "C" {
 #include "z64.h"
