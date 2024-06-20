@@ -75,16 +75,15 @@ extern std::shared_ptr<EventLogWindow> mEventLogWindow;
 extern std::shared_ptr<BenInputEditorWindow> mBenInputEditorWindow;
 
 void DrawGeneralSettings() {
-#if not defined(__SWITCH__) and not defined (__WIIU__)
-    UIWidgets::CVarCheckbox("Menubar Controller Navigation", CVAR_IMGUI_CONTROLLER_NAV, {
-        .tooltip = "Allows controller navigation of the SOH menu bar (Settings, Enhancements,...)\nCAUTION: "
-        "This will disable game inputs while the menubar is visible.\n\nD-pad to move between "
-        "items, A to select, and X to grab focus on the menu bar"
-        });
+#if not defined(__SWITCH__) and not defined(__WIIU__)
+    UIWidgets::CVarCheckbox(
+        "Menubar Controller Navigation", CVAR_IMGUI_CONTROLLER_NAV,
+        { .tooltip = "Allows controller navigation of the SOH menu bar (Settings, Enhancements,...)\nCAUTION: "
+                     "This will disable game inputs while the menubar is visible.\n\nD-pad to move between "
+                     "items, A to select, and X to grab focus on the menu bar" });
     bool cursor = Ship::Context::GetInstance()->GetWindow()->ShouldForceCursorVisibility();
-    if (UIWidgets::Checkbox("Cursor Always Visible", &cursor, {
-        .tooltip = "Makes the cursor always visible, even in full screen."
-        })) {
+    if (UIWidgets::Checkbox("Cursor Always Visible", &cursor,
+                            { .tooltip = "Makes the cursor always visible, even in full screen." })) {
         Ship::Context::GetInstance()->GetWindow()->SetForceCursorVisibility(cursor);
     }
 #endif
@@ -204,7 +203,8 @@ void DrawGraphicsSettings() {
     Ship::WindowBackend runningWindowBackend = Ship::Context::GetInstance()->GetWindow()->GetWindowBackend();
     Ship::WindowBackend configWindowBackend;
     int32_t configWindowBackendId = Ship::Context::GetInstance()->GetConfig()->GetInt("Window.Backend.Id", -1);
-    if (configWindowBackendId != -1 && configWindowBackendId < static_cast<int>(Ship::WindowBackend::WINDOW_BACKEND_COUNT)) {
+    if (configWindowBackendId != -1 &&
+        configWindowBackendId < static_cast<int>(Ship::WindowBackend::WINDOW_BACKEND_COUNT)) {
         configWindowBackend = static_cast<Ship::WindowBackend>(configWindowBackendId);
     } else {
         configWindowBackend = runningWindowBackend;
@@ -245,9 +245,9 @@ void DrawGraphicsSettings() {
     UIWidgets::CVarCombobox("Texture Filter (Needs reload)", CVAR_TEXTURE_FILTER, textureFilteringMap);
 }
 
-void DrawControllerSettings(){
+void DrawControllerSettings() {
     UIWidgets::WindowButton("Popout Input Editor", "gWindows.InputEditor", mBenInputEditorWindow,
-        { .tooltip = "Enables the separate Input Editor window." });
+                            { .tooltip = "Enables the separate Input Editor window." });
     if (!CVarGetInteger("gWindows.InputEditor", 0)) {
         mBenInputEditorWindow->DrawPortTabContents(0);
     }
@@ -479,7 +479,7 @@ void DrawRestorationEnhancements() {
 
 void DrawHudEditorContents() {
     UIWidgets::WindowButton("Popout Hud Editor", "gWindows.HudEditor", mHudEditorWindow,
-        { .tooltip = "Enables the Hud Editor window, allowing you to edit your hud" });
+                            { .tooltip = "Enables the Hud Editor window, allowing you to edit your hud" });
     if (!CVarGetInteger("gWindows.HudEditor", 0)) {
         mHudEditorWindow->DrawContents();
     }
@@ -490,12 +490,13 @@ void DrawGeneralDevTools() {
     // Popout will assume size of 1280x800, and will break on those systems.
     UIWidgets::CVarCheckbox("Popout Menu", "gSettings.Menu.Popout",
                             { .tooltip = "Changes the menu display from overlay to windowed." });
-    if (UIWidgets::Button("Open App Files Folder", {.tooltip = "Opens the folder that contains the save and mods folders, etc." })) {
+    if (UIWidgets::Button("Open App Files Folder",
+                          { .tooltip = "Opens the folder that contains the save and mods folders, etc." })) {
         std::string filesPath = Ship::Context::GetInstance()->GetAppDirectoryPath();
         SDL_OpenURL(std::string("file:///" + std::filesystem::absolute(filesPath).string()).c_str());
     }
     UIWidgets::CVarCheckbox("Debug Mode", "gDeveloperTools.DebugEnabled",
-        { .tooltip = "Enables Debug Mode, allowing you to select maps with L + R + Z." });
+                            { .tooltip = "Enables Debug Mode, allowing you to select maps with L + R + Z." });
 
     if (CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
         UIWidgets::CVarCheckbox(
@@ -503,12 +504,12 @@ void DrawGeneralDevTools() {
             { .tooltip = "Overrides the original map select with a translated, more user-friendly version." });
 
         if (UIWidgets::CVarCombobox(
-            "Debug Save File Mode", "gDeveloperTools.DebugSaveFileMode", debugSaveOptions,
-            { .tooltip =
-                  "Change the behavior of creating saves while debug mode is enabled:\n\n"
-                  "- Empty Save: The default 3 heart save file in first cycle\n"
-                  "- Vanilla Debug Save: Uses the title screen save info (8 hearts, all items and masks)\n"
-                  "- 100\% Save: All items, equipment, mask, quast status and bombers notebook complete" })) {
+                "Debug Save File Mode", "gDeveloperTools.DebugSaveFileMode", debugSaveOptions,
+                { .tooltip =
+                      "Change the behavior of creating saves while debug mode is enabled:\n\n"
+                      "- Empty Save: The default 3 heart save file in first cycle\n"
+                      "- Vanilla Debug Save: Uses the title screen save info (8 hearts, all items and masks)\n"
+                      "- 100\% Save: All items, equipment, mask, quast status and bombers notebook complete" })) {
             RegisterDebugSaveCreate();
         }
     }
@@ -523,11 +524,11 @@ void DrawGeneralDevTools() {
         RegisterPreventActorInitHooks();
     }
     if (UIWidgets::CVarCombobox("Log Level", "gDeveloperTools.LogLevel", logLevels,
-        {
-            .tooltip = "The log level determines which messages are printed to the "
-                       "console. This does not affect the log file output",
-            .defaultIndex = 1,
-        })) {
+                                {
+                                    .tooltip = "The log level determines which messages are printed to the "
+                                               "console. This does not affect the log file output",
+                                    .defaultIndex = 1,
+                                })) {
         Ship::Context::GetInstance()->GetLogger()->set_level(
             (spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
     }
@@ -555,14 +556,15 @@ void DrawGeneralDevTools() {
 
 void DrawCollisionViewerContents() {
     UIWidgets::WindowButton("Popout Collision Viewer", "gWindows.CollisionViewer", mCollisionViewerWindow,
-        { .tooltip = "Draws collision to the screen" });
+                            { .tooltip = "Draws collision to the screen" });
     if (!CVarGetInteger("gWindows.CollisionViewer", 0)) {
         mCollisionViewerWindow->DrawContents();
     }
 }
 
 void DrawStatsContents() {
-    UIWidgets::WindowButton("Popout Stats", "gOpenWindows.Stats", mStatsWindow,
+    UIWidgets::WindowButton(
+        "Popout Stats", "gOpenWindows.Stats", mStatsWindow,
         { .tooltip = "Shows the stats window, with your FPS and frametimes, and the OS you're playing on" });
     if (!CVarGetInteger("gOpenWindows.Stats", 0)) {
         mStatsWindow->DrawContents();
@@ -570,7 +572,8 @@ void DrawStatsContents() {
 }
 
 void DrawConsoleContents() {
-    UIWidgets::WindowButton("Popout Console", "gOpenWindows.Console", mConsoleWindow,
+    UIWidgets::WindowButton(
+        "Popout Console", "gOpenWindows.Console", mConsoleWindow,
         { .tooltip = "Enables the console window, allowing you to input commands, type help for some examples" });
     if (!CVarGetInteger("gOpenWindows.Console", 0)) {
         mConsoleWindow->DrawContents();
@@ -578,7 +581,8 @@ void DrawConsoleContents() {
 }
 
 void DrawGfxDebuggerContents() {
-    UIWidgets::WindowButton("Popout Gfx Debugger", "gOpenWindows.GfxDebugger", mGfxDebuggerWindow,
+    UIWidgets::WindowButton(
+        "Popout Gfx Debugger", "gOpenWindows.GfxDebugger", mGfxDebuggerWindow,
         { .tooltip = "Enables the Gfx Debugger window, allowing you to input commands, type help for some examples" });
     if (!CVarGetInteger("gOpenWindows.GfxDebugger", 0)) {
         mGfxDebuggerWindow->DrawContents();
@@ -587,14 +591,15 @@ void DrawGfxDebuggerContents() {
 
 void DrawSaveEditorContents() {
     UIWidgets::WindowButton("Popout Save Editor", "gWindows.SaveEditor", mSaveEditorWindow,
-        { .tooltip = "Enables the Save Editor window, allowing you to edit your save file" });
+                            { .tooltip = "Enables the Save Editor window, allowing you to edit your save file" });
     if (!CVarGetInteger("gWindows.SaveEditor", 0)) {
         mSaveEditorWindow->DrawContents();
     }
 }
 
 void DrawActorViewerContents() {
-    UIWidgets::WindowButton("Popout Actor Viewer", "gWindows.ActorViewer", mActorViewerWindow,
+    UIWidgets::WindowButton(
+        "Popout Actor Viewer", "gWindows.ActorViewer", mActorViewerWindow,
         { .tooltip = "Enables the Actor Viewer window, allowing you to view actors in the world." });
     if (!CVarGetInteger("gWindows.ActorViewer", 0)) {
         mActorViewerWindow->DrawContents();
@@ -619,12 +624,10 @@ void BenMenu::InitElement() {
     poppedSize.y = CVarGetInteger("gSettings.Menu.PoppedHeight", 800);
     poppedPos.x = CVarGetInteger("gSettings.Menu.PoppedPos.x", 0);
     poppedPos.y = CVarGetInteger("gSettings.Menu.PoppedPos.y", 0);
-    std::vector<UIWidgets::SidebarEntry> settingsSidebar = {
-        { "General",  { DrawGeneralSettings, nullptr, nullptr } },
-        { "Audio",    { DrawAudioSettings, nullptr, nullptr } },
-        { "Graphics", { DrawGraphicsSettings, nullptr, nullptr } },
-        { "Controls", { DrawControllerSettings } }
-    };
+    std::vector<UIWidgets::SidebarEntry> settingsSidebar = { { "General", { DrawGeneralSettings, nullptr, nullptr } },
+                                                             { "Audio", { DrawAudioSettings, nullptr, nullptr } },
+                                                             { "Graphics", { DrawGraphicsSettings, nullptr, nullptr } },
+                                                             { "Controls", { DrawControllerSettings } } };
 
     std::vector<UIWidgets::SidebarEntry> enhancementsSidebar = {
         { "Camera", { DrawCameraEnhancements1, DrawCameraEnhancements2, DrawCameraEnhancements3 } },
@@ -638,16 +641,15 @@ void BenMenu::InitElement() {
         { "Hud Editor", { DrawHudEditorContents, nullptr } }
     };
 
-    std::vector<UIWidgets::SidebarEntry> devToolsSidebar = { 
-        { "General",          { DrawGeneralDevTools, nullptr, nullptr } },
-        { "Collision Viewer", { DrawCollisionViewerContents, nullptr } },
-        { "Stats",            { DrawStatsContents, nullptr } },
-        { "Console",          { DrawConsoleContents, nullptr } },
-        { "Gfx Debugger",     { DrawGfxDebuggerContents, nullptr } },
-        { "Save Editor",      { DrawSaveEditorContents, nullptr } },
-        { "Actor Viewer",     { DrawActorViewerContents, nullptr } },
-        { "Event Log",        { DrawEventLogContents, nullptr } }
-    };
+    std::vector<UIWidgets::SidebarEntry> devToolsSidebar = { { "General", { DrawGeneralDevTools, nullptr, nullptr } },
+                                                             { "Collision Viewer",
+                                                               { DrawCollisionViewerContents, nullptr } },
+                                                             { "Stats", { DrawStatsContents, nullptr } },
+                                                             { "Console", { DrawConsoleContents, nullptr } },
+                                                             { "Gfx Debugger", { DrawGfxDebuggerContents, nullptr } },
+                                                             { "Save Editor", { DrawSaveEditorContents, nullptr } },
+                                                             { "Actor Viewer", { DrawActorViewerContents, nullptr } },
+                                                             { "Event Log", { DrawEventLogContents, nullptr } } };
 
     menuEntries = { { "Settings", settingsSidebar, "gSettings.Menu.SettingsSidebarIndex" },
                     { "Enhancements", enhancementsSidebar, "gSettings.Menu.EnhancementsSidebarIndex" },
@@ -659,8 +661,8 @@ void BenMenu::UpdateElement() {
 
 void BenMenu::ToggleMenu() {
     ToggleVisibility();
-    Ship::Context::GetInstance()->GetWindow()->SetCursorVisibility(mIsVisible
-        || Ship::Context::GetInstance()->GetWindow()->ShouldForceCursorVisibility());
+    Ship::Context::GetInstance()->GetWindow()->SetCursorVisibility(
+        mIsVisible || Ship::Context::GetInstance()->GetWindow()->ShouldForceCursorVisibility());
 }
 
 bool ModernMenuSidebarEntry(std::string label) {
@@ -839,16 +841,16 @@ void BenMenu::DrawElement() {
     ImGui::EndChild();
     ImGui::SameLine(menuSize.x - (buttonSize.x * 2) - style.ItemSpacing.x);
     if (UIWidgets::Button(ICON_FA_UNDO, { .color = UIWidgets::Colors::Red,
-                                             .size = UIWidgets::Sizes::Inline,
-                                             .tooltip = "Reset"
+                                          .size = UIWidgets::Sizes::Inline,
+                                          .tooltip = "Reset"
 #ifdef __APPLE__
-                                                        " (Command-R)"
+                                                     " (Command-R)"
 #elif !defined(__SWITCH__) && !defined(__WIIU__)
-                                                        " (Ctrl+R)"
+                                                     " (Ctrl+R)"
 #else
-                                                        ""
+                                                     ""
 #endif
-                                           })) {
+                                        })) {
         std::reinterpret_pointer_cast<Ship::ConsoleWindow>(
             Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Console"))
             ->Dispatch("reset");

@@ -68,13 +68,13 @@ void CollisionViewerWindow::DrawContents() {
     ImGui::SeparatorText("Collision Types");
 
     UIWidgets::CVarCombobox("Scene", "gCollisionViewer.SceneCollisionMode", ColRenderSettingNames,
-        { .color = UIWidgets::Colors::Gray });
+                            { .color = UIWidgets::Colors::Gray });
     UIWidgets::CVarCombobox("BG Actors", "gCollisionViewer.BGActorsCollisionMode", ColRenderSettingNames,
-        { .color = UIWidgets::Colors::Gray });
+                            { .color = UIWidgets::Colors::Gray });
     UIWidgets::CVarCombobox("Col Check", "gCollisionViewer.ColCheckCollisionMode", ColRenderSettingNames,
-        { .color = UIWidgets::Colors::Gray });
+                            { .color = UIWidgets::Colors::Gray });
     UIWidgets::CVarCombobox("Waterbox", "gCollisionViewer.WaterboxCollisionMode", ColRenderSettingNames,
-        { .color = UIWidgets::Colors::Gray });
+                            { .color = UIWidgets::Colors::Gray });
 
     ImGui::SeparatorText("Colors");
 
@@ -100,9 +100,9 @@ void CollisionViewerWindow::DrawContents() {
         ImGui::EndTable();
     }
     UIWidgets::CVarColorPicker("Special Surface (Grass/Sand/Etc)", "gCollisionViewer.SpecialSurfaceColor",
-        { 192, 255, 192, 255 });
+                               { 192, 255, 192, 255 });
     UIWidgets::CVarColorPicker("Interactable (Vines/Crawlspace/Etc)", "gCollisionViewer.InteractableColor",
-        { 192, 0, 192, 255 });
+                               { 192, 0, 192, 255 });
 
     ImGui::EndDisabled();
 }

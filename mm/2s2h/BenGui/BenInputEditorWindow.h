@@ -25,7 +25,7 @@ class BenInputEditorWindow : public Ship::GuiWindow {
     bool TestingRumble();
     void DrawFullContents();
     void DrawPortTabContents(uint8_t portIndex);
-    void DrawContents() override {};
+    void DrawContents() override{};
 
   protected:
     void InitElement() override;
@@ -39,7 +39,8 @@ class BenInputEditorWindow : public Ship::GuiWindow {
     void DrawButtonLineEditMappingButton(uint8_t port, CONTROLLERBUTTONS_T bitmask, std::string id);
     void DrawButtonLineAddMappingButton(uint8_t port, CONTROLLERBUTTONS_T bitmask);
 
-    void DrawStickDirectionLineEditMappingButton(uint8_t port, uint8_t stick, Ship::Direction direction, std::string id);
+    void DrawStickDirectionLineEditMappingButton(uint8_t port, uint8_t stick, Ship::Direction direction,
+                                                 std::string id);
     void DrawStickDirectionLineAddMappingButton(uint8_t port, uint8_t stick, Ship::Direction direction);
     void DrawStickSection(uint8_t port, uint8_t stick, int32_t id, ImVec4 color);
 
@@ -64,13 +65,15 @@ class BenInputEditorWindow : public Ship::GuiWindow {
     std::unordered_map<uint8_t, std::unordered_map<CONTROLLERBUTTONS_T, std::vector<std::string>>> mBitmaskToMappingIds;
 
     // mStickDirectionToMappingIds[port][stick][direction] = { id0, id1, ... }
-    std::unordered_map<uint8_t, std::unordered_map<uint8_t, std::unordered_map<Ship::Direction, std::vector<std::string>>>>
+    std::unordered_map<uint8_t,
+                       std::unordered_map<uint8_t, std::unordered_map<Ship::Direction, std::vector<std::string>>>>
         mStickDirectionToMappingIds;
 
     void UpdateBitmaskToMappingIds(uint8_t port);
     void UpdateStickDirectionToMappingIds(uint8_t port);
 
-    void GetButtonColorsForShipDeviceIndex(Ship::ShipDeviceIndex lusIndex, ImVec4& buttonColor, ImVec4& buttonHoveredColor);
+    void GetButtonColorsForShipDeviceIndex(Ship::ShipDeviceIndex lusIndex, ImVec4& buttonColor,
+                                           ImVec4& buttonHoveredColor);
     void DrawPortTab(uint8_t portIndex);
     std::set<CONTROLLERBUTTONS_T> mButtonsBitmasks;
     std::set<CONTROLLERBUTTONS_T> mDpadBitmasks;

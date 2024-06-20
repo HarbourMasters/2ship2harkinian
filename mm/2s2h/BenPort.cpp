@@ -603,7 +603,9 @@ extern "C" uint64_t GetUnixTimestamp() {
 }
 
 void ToggleMenu() {
-    dynamic_pointer_cast<BenGui::BenMenu>(Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Settings Menu"))->ToggleMenu();
+    dynamic_pointer_cast<BenGui::BenMenu>(
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Settings Menu"))
+        ->ToggleMenu();
 }
 
 extern "C" void Graph_StartFrame() {
