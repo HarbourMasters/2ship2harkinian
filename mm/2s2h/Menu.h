@@ -13,7 +13,7 @@ class BenMenu : public Ship::GuiWindow {
     void InitElement() override;
     void DrawElement() override;
     void UpdateElement() override;
-    void DrawContents() override {};
+    void DrawContents() override{};
     void ToggleMenu();
 
   private:
