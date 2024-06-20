@@ -27,7 +27,6 @@ std::shared_ptr<BenMenuBar> mBenMenuBar;
 
 std::shared_ptr<Ship::GuiWindow> mConsoleWindow;
 std::shared_ptr<Ship::GuiWindow> mStatsWindow;
-std::shared_ptr<Ship::GuiWindow> mInputEditorWindow;
 std::shared_ptr<Ship::GuiWindow> mGfxDebuggerWindow;
 
 std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
@@ -36,6 +35,7 @@ std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
 std::shared_ptr<EventLogWindow> mEventLogWindow;
 std::shared_ptr<BenMenu> mBenMenu;
+std::shared_ptr<BenInputEditorWindow> mBenInputEditorWindow;
 
 void SetupGuiElements() {
     auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
@@ -52,7 +52,7 @@ void SetupGuiElements() {
 #if defined(__SWITCH__) || defined(__WIIU__)
         gui->GetGameOverlay()->TextDrawNotification(30.0f, true, "Press - to access enhancements menu");
 #else
-        gui->GetGameOverlay()->TextDrawNotification(30.0f, true, "Press F1 to access enhancements menu");
+        //gui->GetGameOverlay()->TextDrawNotification(30.0f, true, "Press F1 to access enhancements menu");
 #endif
     }
 
@@ -66,15 +66,13 @@ void SetupGuiElements() {
         SPDLOG_ERROR("Could not find console window");
     }
 
-    mInputEditorWindow = gui->GetGuiWindow("Input Editor");
-    if (mInputEditorWindow == nullptr) {
-        SPDLOG_ERROR("Could not find input editor window");
-    }
-
     mGfxDebuggerWindow = gui->GetGuiWindow("GfxDebuggerWindow");
     if (mGfxDebuggerWindow == nullptr) {
         SPDLOG_ERROR("Could not find input GfxDebuggerWindow");
     }
+
+    mBenInputEditorWindow = std::make_shared<BenInputEditorWindow>("gWindows.InputEditor", "Input Editor");
+    gui->AddGuiWindow(mBenInputEditorWindow);
 
     mSaveEditorWindow = std::make_shared<SaveEditorWindow>("gWindows.SaveEditor", "Save Editor");
     gui->AddGuiWindow(mSaveEditorWindow);
@@ -99,7 +97,7 @@ void Destroy() {
     mBenMenuBar = nullptr;
     mStatsWindow = nullptr;
     mConsoleWindow = nullptr;
-    mInputEditorWindow = nullptr;
+    mBenInputEditorWindow = nullptr;
     mGfxDebuggerWindow = nullptr;
     mCollisionViewerWindow = nullptr;
     mEventLogWindow = nullptr;

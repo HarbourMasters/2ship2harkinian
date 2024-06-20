@@ -602,6 +602,10 @@ extern "C" uint64_t GetUnixTimestamp() {
     return now;
 }
 
+void ToggleMenu() {
+    dynamic_pointer_cast<BenGui::BenMenu>(Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Settings Menu"))->ToggleMenu();
+}
+
 extern "C" void Graph_StartFrame() {
 #ifndef __WIIU__
     using Ship::KbScancode;
@@ -610,7 +614,7 @@ extern "C" void Graph_StartFrame() {
 
     switch (dwScancode) {
         case KbScancode::LUS_KB_ESCAPE: {
-            OTRGlobals::Instance->context->GetWindow()->GetGui()->GetGuiWindow("Settings Menu")->ToggleVisibility();
+            ToggleMenu();
             break;
         }
 #if 0
@@ -1500,9 +1504,9 @@ extern "C" void OTRControllerCallback(uint8_t rumble) {
     Ship::Context::GetInstance()->GetControlDeck()->GetControllerByPort(0)->GetLED()->SetLEDColor(
         GetColorForControllerLED());
 
-    static std::shared_ptr<Ship::InputEditorWindow> controllerConfigWindow = nullptr;
+    static std::shared_ptr<BenInputEditorWindow> controllerConfigWindow = nullptr;
     if (controllerConfigWindow == nullptr) {
-        controllerConfigWindow = std::dynamic_pointer_cast<Ship::InputEditorWindow>(
+        controllerConfigWindow = std::dynamic_pointer_cast<BenInputEditorWindow>(
             Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Input Editor"));
         // TODO: Add SoH Controller Config window rumble testing to upstream LUS config window
         //       note: the current implementation may not be desired in LUS, as "true" rumble support
