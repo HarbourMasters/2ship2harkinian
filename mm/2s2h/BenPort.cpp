@@ -604,7 +604,7 @@ extern "C" uint64_t GetUnixTimestamp() {
 
 void ToggleMenu() {
     dynamic_pointer_cast<BenGui::BenMenu>(
-        Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Settings Menu"))
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->GetMenu())
         ->ToggleMenu();
 }
 

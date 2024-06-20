@@ -86,6 +86,9 @@ void DrawGeneralSettings() {
         Ship::Context::GetInstance()->GetWindow()->SetForceCursorVisibility(cursor);
     }
 #endif
+    UIWidgets::CVarCheckbox("Hide Menu Hotkey Text", "gSettings.DisableMenuShortcutNotify",
+        { .tooltip = "Prevents showing the text telling you the shortcut to open the menu\n"
+                        "when the menu isn't open." });
 }
 
 void DrawAudioSettings() {
@@ -663,8 +666,10 @@ void BenMenu::UpdateElement() {
 
 void BenMenu::ToggleMenu() {
     ToggleVisibility();
-    Ship::Context::GetInstance()->GetWindow()->SetCursorVisibility(
-        mIsVisible || Ship::Context::GetInstance()->GetWindow()->ShouldForceCursorVisibility());
+    if (Ship::Context::GetInstance()->GetWindow()->IsFullscreen()) {
+        Ship::Context::GetInstance()->GetWindow()->SetCursorVisibility(
+            mIsVisible || Ship::Context::GetInstance()->GetWindow()->ShouldForceCursorVisibility());
+    }
 }
 
 bool ModernMenuSidebarEntry(std::string label) {
