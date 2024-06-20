@@ -91,7 +91,6 @@ void SetupGuiElements() {
 
     mBenMenu = std::make_shared<BenMenu>("gWindows.Menu", "Settings Menu");
     gui->SetMenu(mBenMenu);
-    //gui->AddGuiWindow(mBenMenu);
 }
 
 void Destroy() {

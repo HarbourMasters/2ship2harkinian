@@ -87,8 +87,8 @@ void DrawGeneralSettings() {
     }
 #endif
     UIWidgets::CVarCheckbox("Hide Menu Hotkey Text", "gSettings.DisableMenuShortcutNotify",
-        { .tooltip = "Prevents showing the text telling you the shortcut to open the menu\n"
-                        "when the menu isn't open." });
+                            { .tooltip = "Prevents showing the text telling you the shortcut to open the menu\n"
+                                         "when the menu isn't open." });
 }
 
 void DrawAudioSettings() {
@@ -626,9 +626,6 @@ void BenMenu::InitElement() {
     poppedSize.y = CVarGetInteger("gSettings.Menu.PoppedHeight", 800);
     poppedPos.x = CVarGetInteger("gSettings.Menu.PoppedPos.x", 0);
     poppedPos.y = CVarGetInteger("gSettings.Menu.PoppedPos.y", 0);
-    if (mIsVisible) {
-        Ship::Context::GetInstance()->GetWindow()->SetCursorVisibility(true);
-    }
     std::vector<UIWidgets::SidebarEntry> settingsSidebar = { { "General", { DrawGeneralSettings, nullptr, nullptr } },
                                                              { "Audio", { DrawAudioSettings, nullptr, nullptr } },
                                                              { "Graphics", { DrawGraphicsSettings, nullptr, nullptr } },
