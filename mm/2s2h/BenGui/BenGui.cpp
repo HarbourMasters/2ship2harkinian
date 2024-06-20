@@ -48,11 +48,11 @@ void SetupGuiElements() {
     mBenMenuBar = std::make_shared<BenMenuBar>(CVAR_MENU_BAR_OPEN, CVarGetInteger(CVAR_MENU_BAR_OPEN, 0));
     gui->SetMenuBar(std::reinterpret_pointer_cast<Ship::GuiMenuBar>(mBenMenuBar));
 
-    if (gui->GetMenuBar() && !gui->GetMenuBar()->IsVisible()) {
+    if (gui->GetMenuOrMenubarVisible() && !CVarGetInteger("gSettings.DisableMenuShortcutNotify", 0)) {
 #if defined(__SWITCH__) || defined(__WIIU__)
         gui->GetGameOverlay()->TextDrawNotification(30.0f, true, "Press - to access enhancements menu");
 #else
-        // gui->GetGameOverlay()->TextDrawNotification(30.0f, true, "Press F1 to access enhancements menu");
+        gui->GetGameOverlay()->TextDrawNotification(30.0f, true, "Press F1 to access enhancements menu");
 #endif
     }
 
@@ -90,7 +90,8 @@ void SetupGuiElements() {
     gui->AddGuiWindow(mEventLogWindow);
 
     mBenMenu = std::make_shared<BenMenu>("gWindows.Menu", "Settings Menu");
-    gui->AddGuiWindow(mBenMenu);
+    gui->SetMenu(mBenMenu);
+    //gui->AddGuiWindow(mBenMenu);
 }
 
 void Destroy() {
