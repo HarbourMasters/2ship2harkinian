@@ -1,3 +1,7 @@
 #define INTENT_CONTROL_ROLL 1
 #define INTENT_CONTROL_JUMP 2
 #define INTENT_CONTROL_TALK 3
+
+// Buttons for firing/shooting
+#define INTENT_CONTROL_FIRE_BOW 4
+#define INTENT_CONTROL_FIRE_HOOKSHOT 5

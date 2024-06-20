@@ -3762,6 +3762,24 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
         ItemId item;
         EquipSlot i = func_8082FDC4();
 
+        uint8_t isBow = this->heldItemId == ITEM_BOW
+                || this->heldItemId == ITEM_BOW_FIRE
+                || this->heldItemId == ITEM_BOW_ICE
+                || this->heldItemId == ITEM_BOW_LIGHT;
+        uint8_t isBowFireButtonActive = CHECK_INTENT((sPlayerControlInput->cur.intentControls), INTENT_CONTROL_FIRE_BOW, BUTTON_STATE_CUR, 0);
+        
+        uint8_t isHookshot = this->heldItemId == ITEM_HOOKSHOT;
+        uint8_t isHookshotFireButtonActive = CHECK_INTENT((sPlayerControlInput->cur.intentControls), INTENT_CONTROL_FIRE_HOOKSHOT, BUTTON_STATE_CUR, 0);
+        
+        if((isBow && isBowFireButtonActive) || (isHookshot && isHookshotFireButtonActive)){
+            for (i = 0; i < ARRAY_COUNT(sPlayerItemButtons); i++) {
+                if (Player_GetItemOnButton(play, this, i) == this->heldItemId) {
+                    break;
+                }
+            }
+        }
+
+
         i = ((i >= EQUIP_SLOT_A) && (this->transformation == PLAYER_FORM_FIERCE_DEITY) &&
              (this->heldItemAction != PLAYER_IA_SWORD_TWO_HANDED))
                 ? EQUIP_SLOT_B

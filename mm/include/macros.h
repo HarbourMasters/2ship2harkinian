@@ -58,12 +58,12 @@
 #define MAGIC_FILL_TO_CAPACITY (((void)0, gSaveContext.magicFillTarget) + (gSaveContext.save.saveInfo.playerData.isDoubleMagicAcquired + 1) * MAGIC_NORMAL_METER)
 
 #define _debug_btnAny(state, combo, file, line) ( \
-    ((((state) & (combo)) != 0) && (combo & BTN_A) ? (lusprintf(file, line, LUSLOG_LEVEL_DEBUG, "A button ANY pressed.\n"),0) : 0 ), \
+    ((((state) & (combo)) != 0) && (combo & BTN_CRIGHT) ? (lusprintf(file, line, LUSLOG_LEVEL_DEBUG, "BTN_CRIGHT button ANY pressed.\n"),0) : 0 ), \
     (((state) & (combo)) != 0) \
 )
 
 #define _debug_btnAll(state, combo, file, line) ( \
-    ((~((state) | ~(combo)) == 0) && (combo & BTN_A) ? (lusprintf(file, line, LUSLOG_LEVEL_DEBUG, "A button ALL pressed.\n"),0) : 0 ), \
+    ((~((state) | ~(combo)) == 0) && (combo & BTN_CRIGHT) ? (lusprintf(file, line, LUSLOG_LEVEL_DEBUG, "BTN_CRIGHT button ALL pressed.\n"),0) : 0 ), \
     ((~((state) | ~(combo)) == 0) != 0) \
 )
 
