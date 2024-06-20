@@ -624,6 +624,9 @@ void BenMenu::InitElement() {
     poppedSize.y = CVarGetInteger("gSettings.Menu.PoppedHeight", 800);
     poppedPos.x = CVarGetInteger("gSettings.Menu.PoppedPos.x", 0);
     poppedPos.y = CVarGetInteger("gSettings.Menu.PoppedPos.y", 0);
+    if (mIsVisible) {
+        Ship::Context::GetInstance()->GetWindow()->SetCursorVisibility(true);
+    }
     std::vector<UIWidgets::SidebarEntry> settingsSidebar = { { "General", { DrawGeneralSettings, nullptr, nullptr } },
                                                              { "Audio", { DrawAudioSettings, nullptr, nullptr } },
                                                              { "Graphics", { DrawGraphicsSettings, nullptr, nullptr } },
@@ -936,7 +939,7 @@ void BenMenu::DrawElement() {
     ImGui::BeginChild(sectionMenuId.c_str(), { sectionWidth, windowHeight * 4 }, ImGuiChildFlags_AutoResizeY,
                       ImGuiWindowFlags_NoTitleBar);
     for (int i = 0; i < columnFuncs; i++) {
-        std::string sectionId = std::format("{} Column {}", sectionMenuId, i);
+        std::string sectionId = fmt::format("{} Column {}", sectionMenuId, i);
         if (useColumns) {
             ImGui::SetNextWindowSizeConstraints({ columnWidth, 0 }, { columnWidth, columnHeight });
             ImGui::BeginChild(sectionId.c_str(), { columnWidth, windowHeight * 4 }, ImGuiChildFlags_AutoResizeY,
