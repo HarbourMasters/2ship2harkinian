@@ -37,6 +37,12 @@ enum AlwaysWinDoggyRaceOptions {
     ALWAYS_WIN_DOGGY_RACE_ALWAYS,
 };
 
+enum TimeStopOptions {
+    TIME_STOP_OFF,
+    TIME_STOP_TEMPLES,
+    TIME_STOP_TEMPLES_DUNGEONS,
+};
+
 enum ClockTypeOptions {
     CLOCK_TYPE_ORIGINAL,
     CLOCK_TYPE_TEXT_BASED,
