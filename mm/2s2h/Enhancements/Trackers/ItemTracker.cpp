@@ -5,59 +5,59 @@
 #include "assets/archives/icon_item_24_static/icon_item_24_static_yar.h"
 #include "z64.h"
 
-#define CVAR_TRACKER(var) var
-#define CVAR_TRACKER_ITEM(var) CVAR_TRACKER("ItemTracker." var)
+#define CFG_TRACKER_ITEM(var) ("ItemTracker." var)
 
 using namespace Ship;
 
 ItemTrackerWindow::ItemTrackerWindow(const std::string& consoleVariable, const std::string& name) {
     auto config = Context::GetInstance()->GetConfig();
 
-    mItemDrawModes.fill(SECTION_DISPLAY_HIDDEN);
     mCapacityModes.fill(false);
 
-    mBgColor.x = config->GetFloat(CVAR_TRACKER_ITEM("BgColorR"), 0.0f);
-    mBgColor.y = config->GetFloat(CVAR_TRACKER_ITEM("BgColorG"), 0.0f);
-    mBgColor.z = config->GetFloat(CVAR_TRACKER_ITEM("BgColorB"), 0.0f);
-    mBgColor.w = config->GetFloat(CVAR_TRACKER_ITEM("BgColorA"), 0.0f);
-    mIconSize = config->GetFloat(CVAR_TRACKER_ITEM("Iconsize"), 13.0f);
-    mIconSpacing = config->GetFloat(CVAR_TRACKER_ITEM("IconSpacing"), 12.0f);
-    mTextSize = config->GetFloat(CVAR_TRACKER_ITEM("TextSize"), 13.0f);
-    mTextOffset = config->GetFloat(CVAR_TRACKER_ITEM("TextOffset"), 0.0f);
-    mWindowType = config->GetInt(CVAR_TRACKER_ITEM("WindowType"), TrackerWindowType::TRACKER_WINDOW_FLOATING);
-    mIsDraggable = config->GetBool(CVAR_TRACKER_ITEM("IsDraggable"), false);
-    mOnlyDrawPaused = config->GetBool(CVAR_TRACKER_ITEM("OnlyDrawPaused"), false);
-    mCapacityModes[ItemTrackerCapacityMode::DrawCurrent] = config->GetBool(CVAR_TRACKER_ITEM("DrawCurrentAmmo"), false);
-    mCapacityModes[ItemTrackerCapacityMode::DrawCurCapacity] = config->GetBool(CVAR_TRACKER_ITEM("DrawMaxAmmo"), false);
+    mBgColor.x = config->GetFloat(CFG_TRACKER_ITEM("BgColorR"), 0.0f);
+    mBgColor.y = config->GetFloat(CFG_TRACKER_ITEM("BgColorG"), 0.0f);
+    mBgColor.z = config->GetFloat(CFG_TRACKER_ITEM("BgColorB"), 0.0f);
+    mBgColor.w = config->GetFloat(CFG_TRACKER_ITEM("BgColorA"), 0.0f);
+    mIconSize = config->GetFloat(CFG_TRACKER_ITEM("Iconsize"), 13.0f);
+    mIconSpacing = config->GetFloat(CFG_TRACKER_ITEM("IconSpacing"), 12.0f);
+    mTextSize = config->GetFloat(CFG_TRACKER_ITEM("TextSize"), 13.0f);
+    mTextOffset = config->GetFloat(CFG_TRACKER_ITEM("TextOffset"), 0.0f);
+    mWindowType = (TrackerWindowType)config->GetInt(CFG_TRACKER_ITEM("WindowType"), (int8_t)TrackerWindowType::Floating);
+    mIsDraggable = config->GetBool(CFG_TRACKER_ITEM("IsDraggable"), false);
+    mOnlyDrawPaused = config->GetBool(CFG_TRACKER_ITEM("OnlyDrawPaused"), false);
+    mCapacityModes[ItemTrackerCapacityMode::DrawCurrent] = config->GetBool(CFG_TRACKER_ITEM("DrawCurrentAmmo"), false);
+    mCapacityModes[ItemTrackerCapacityMode::DrawCurCapacity] = config->GetBool(CFG_TRACKER_ITEM("DrawMaxAmmo"), false);
     mCapacityModes[ItemTrackerCapacityMode::DrawMaxCapacity] =
-        config->GetBool(CVAR_TRACKER_ITEM("DrawMaxCapacity"), false);
-    mItemDrawModes[SECTION_INVENTORY] = config->GetInt(CVAR_TRACKER_ITEM("InventoryDrawMode"), SECTION_DISPLAY_HIDDEN);
-    mItemDrawModes[SECTION_MASKS] = config->GetInt(CVAR_TRACKER_ITEM("MasksDrawMode"), SECTION_DISPLAY_HIDDEN);
-    mItemDrawModes[SECTION_SONGS] = config->GetInt(CVAR_TRACKER_ITEM("SongsDrawMode"), SECTION_DISPLAY_HIDDEN);
-    mItemDrawModes[SECTION_DUNGEON] = config->GetInt(CVAR_TRACKER_ITEM("DungeonDrawMode"), SECTION_DISPLAY_HIDDEN);
+        config->GetBool(CFG_TRACKER_ITEM("DrawMaxCapacity"), false);
+    mItemDrawModes[SECTION_INVENTORY] =
+        (ItemTrackerDisplayType)config->GetInt(CFG_TRACKER_ITEM("InventoryDrawMode"), (int32_t)ItemTrackerDisplayType::Hidden);
+    mItemDrawModes[SECTION_MASKS] = (ItemTrackerDisplayType)config->GetInt(CFG_TRACKER_ITEM("MasksDrawMode"), (int32_t)ItemTrackerDisplayType::Hidden);
+    mItemDrawModes[SECTION_SONGS] = (ItemTrackerDisplayType)config->GetInt(CFG_TRACKER_ITEM("SongsDrawMode"), (int32_t)ItemTrackerDisplayType::Hidden);
+    mItemDrawModes[SECTION_DUNGEON] =
+        (ItemTrackerDisplayType)config->GetInt(CFG_TRACKER_ITEM("DungeonDrawMode"), (int32_t)ItemTrackerDisplayType::Hidden);
 }
 
 ItemTrackerWindow::~ItemTrackerWindow() {
     auto config = Context::GetInstance()->GetConfig();
 
-    config->SetFloat(CVAR_TRACKER_ITEM("BgColorR"), mBgColor.x);
-    config->SetFloat(CVAR_TRACKER_ITEM("BgColorG"), mBgColor.y);
-    config->SetFloat(CVAR_TRACKER_ITEM("BgColorB"), mBgColor.z);
-    config->SetFloat(CVAR_TRACKER_ITEM("BgColorA"), mBgColor.w);
-    config->SetFloat(CVAR_TRACKER_ITEM("IconSize"), mIconSize);
-    config->SetFloat(CVAR_TRACKER_ITEM("IconSpacing"), mIconSpacing);
-    config->SetFloat(CVAR_TRACKER_ITEM("TextSize"), mTextSize);
-    config->SetFloat(CVAR_TRACKER_ITEM("TextOffset"), mTextOffset);
-    config->SetInt(CVAR_TRACKER_ITEM("WindowType"), mWindowType);
-    config->SetBool(CVAR_TRACKER_ITEM("IsDraggable"), mIsDraggable);
-    config->SetBool(CVAR_TRACKER_ITEM("OnlyDrawPaused"), mOnlyDrawPaused);
-    config->SetBool(CVAR_TRACKER_ITEM("DrawCurrentAmmo"), mCapacityModes[ItemTrackerCapacityMode::DrawCurrent]);
-    config->SetBool(CVAR_TRACKER_ITEM("DrawMaxAmmo"), mCapacityModes[ItemTrackerCapacityMode::DrawCurCapacity]);
-    config->SetBool(CVAR_TRACKER_ITEM("DrawMaxCapacity"), mCapacityModes[ItemTrackerCapacityMode::DrawMaxCapacity]);
-    config->SetInt(CVAR_TRACKER_ITEM("InventoryDrawMode"), mItemDrawModes[SECTION_INVENTORY]);
-    config->SetInt(CVAR_TRACKER_ITEM("MasksDrawMode"), mItemDrawModes[SECTION_MASKS]);
-    config->SetInt(CVAR_TRACKER_ITEM("SongsDrawMode"), mItemDrawModes[SECTION_SONGS]);
-    config->SetInt(CVAR_TRACKER_ITEM("DungeonDrawMode"), mItemDrawModes[SECTION_DUNGEON]);
+    config->SetFloat(CFG_TRACKER_ITEM("BgColorR"), mBgColor.x);
+    config->SetFloat(CFG_TRACKER_ITEM("BgColorG"), mBgColor.y);
+    config->SetFloat(CFG_TRACKER_ITEM("BgColorB"), mBgColor.z);
+    config->SetFloat(CFG_TRACKER_ITEM("BgColorA"), mBgColor.w);
+    config->SetFloat(CFG_TRACKER_ITEM("IconSize"), mIconSize);
+    config->SetFloat(CFG_TRACKER_ITEM("IconSpacing"), mIconSpacing);
+    config->SetFloat(CFG_TRACKER_ITEM("TextSize"), mTextSize);
+    config->SetFloat(CFG_TRACKER_ITEM("TextOffset"), mTextOffset);
+    config->SetInt(CFG_TRACKER_ITEM("WindowType"), (int8_t)mWindowType);
+    config->SetBool(CFG_TRACKER_ITEM("IsDraggable"), mIsDraggable);
+    config->SetBool(CFG_TRACKER_ITEM("OnlyDrawPaused"), mOnlyDrawPaused);
+    config->SetBool(CFG_TRACKER_ITEM("DrawCurrentAmmo"), mCapacityModes[ItemTrackerCapacityMode::DrawCurrent]);
+    config->SetBool(CFG_TRACKER_ITEM("DrawMaxAmmo"), mCapacityModes[ItemTrackerCapacityMode::DrawCurCapacity]);
+    config->SetBool(CFG_TRACKER_ITEM("DrawMaxCapacity"), mCapacityModes[ItemTrackerCapacityMode::DrawMaxCapacity]);
+    config->SetInt(CFG_TRACKER_ITEM("InventoryDrawMode"), (int8_t)mItemDrawModes[SECTION_INVENTORY]);
+    config->SetInt(CFG_TRACKER_ITEM("MasksDrawMode"), (int8_t)mItemDrawModes[SECTION_MASKS]);
+    config->SetInt(CFG_TRACKER_ITEM("SongsDrawMode"), (int8_t)mItemDrawModes[SECTION_SONGS]);
+    config->SetInt(CFG_TRACKER_ITEM("DungeonDrawMode"), (int8_t)mItemDrawModes[SECTION_DUNGEON]);
 }
 
 void ItemTrackerWindow::BeginFloatingWindows(const char* name, ImGuiWindowFlags flags) {
@@ -68,7 +68,7 @@ void ItemTrackerWindow::BeginFloatingWindows(const char* name, ImGuiWindowFlags 
             ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoResize;
     }
 
-    if (mWindowType == TRACKER_WINDOW_FLOATING) {
+    if (mWindowType == TrackerWindowType::Floating) {
         ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
         windowFlags |= ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoTitleBar |
                        ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoScrollbar;
@@ -91,7 +91,7 @@ void EndFloatingWindows() {
 }
 
 static constexpr ImVec4 opaqueTex = { 1.0f, 1.0f, 1.0f, 1.0f };
-static constexpr ImVec4 fadedTex = { 0.5f, 0.6f, 1.0f, 0.5f };
+static constexpr ImVec4 fadedTex = { 0.5f, 0.5f, 0.5f, 0.5f };
 
 void DrawItem(char* tex, bool drawFaded, float itemSize) {
     ImGui::Image(Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(tex), ImVec2(itemSize, itemSize),
@@ -106,8 +106,17 @@ static constexpr std::array<ImVec4, 5> songInfo = {
     ImVec4(1.0f, 0.392f, 1.0f, 1.0f),   // QUEST_SONG_OATH
 };
 
-void DrawNote(size_t songIndex, bool drawFaded) {
+void ItemTrackerWindow::DrawNote(size_t songIndex, bool drawFaded) {
     ImVec4 color;
+    //Scale the note to 24*36 from 16*24 because all other items assume 36*36.
+    constexpr float noteTo36scale = 36.0f / 24.0f;
+    
+    const float iconScale = mIconSize / 36.0f;
+
+    //Scale the note icon with the rest of the items.
+    const ImVec2 scaledNoteSize(noteTo36scale * 16.0f * iconScale, noteTo36scale * 24.0f * iconScale);
+
+
     if (songIndex >= 5) {
         color = songInfo[songIndex - 5];
     } else {
@@ -117,7 +126,7 @@ void DrawNote(size_t songIndex, bool drawFaded) {
         color.w = .5f;
     }
     ImGui::Image(Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(gItemIconSongNoteTex),
-                 ImVec2(24, 36), ImVec2(0, 0), ImVec2(1, 1), color);
+                 scaledNoteSize, ImVec2(0, 0), ImVec2(1, 1), color);
 }
 
 extern "C" {
@@ -380,54 +389,54 @@ void ItemTrackerWindow::DrawItemsInRows(int columns) {
     if (mOnlyDrawPaused && gPlayState->pauseCtx.state == 0) {
         return;
     }
-    if (mItemDrawModes[SECTION_INVENTORY] != SECTION_DISPLAY_HIDDEN) {
-        if (mItemDrawModes[SECTION_INVENTORY] == SECTION_DISPLAY_SEPARATE) {
+    if (mItemDrawModes[SECTION_INVENTORY] != ItemTrackerDisplayType::Hidden) {
+        if (mItemDrawModes[SECTION_INVENTORY] == ItemTrackerDisplayType::Seperate) {
             BeginFloatingWindows("Items");
         }
         advancedBy = DrawItems(6, mainWindowPos);
-        if (mItemDrawModes[SECTION_INVENTORY] == SECTION_DISPLAY_SEPARATE) {
+        if (mItemDrawModes[SECTION_INVENTORY] == ItemTrackerDisplayType::Seperate) {
             EndFloatingWindows();
         } else {
             mainWindowPos += advancedBy;
         }
     }
 
-    if (mItemDrawModes[SECTION_MASKS] != SECTION_DISPLAY_HIDDEN) {
+    if (mItemDrawModes[SECTION_MASKS] != ItemTrackerDisplayType::Hidden) {
         int drawPos = mainWindowPos;
-        if (mItemDrawModes[SECTION_MASKS] == SECTION_DISPLAY_SEPARATE) {
+        if (mItemDrawModes[SECTION_MASKS] == ItemTrackerDisplayType::Seperate) {
             drawPos = 0;
             BeginFloatingWindows("Masks");
         }
         advancedBy = DrawMasks(6, drawPos);
-        if (mItemDrawModes[SECTION_MASKS] == SECTION_DISPLAY_SEPARATE) {
+        if (mItemDrawModes[SECTION_MASKS] == ItemTrackerDisplayType::Seperate) {
             EndFloatingWindows();
         } else {
             mainWindowPos += advancedBy;
         }
     }
 
-    if (mItemDrawModes[SECTION_SONGS] != SECTION_DISPLAY_HIDDEN) {
+    if (mItemDrawModes[SECTION_SONGS] != ItemTrackerDisplayType::Hidden) {
         int drawPos = mainWindowPos;
-        if (mItemDrawModes[SECTION_SONGS] == SECTION_DISPLAY_SEPARATE) {
+        if (mItemDrawModes[SECTION_SONGS] == ItemTrackerDisplayType::Seperate) {
             drawPos = 0;
             BeginFloatingWindows("Songs");
         }
         advancedBy = DrawSongs(5, drawPos);
-        if (mItemDrawModes[SECTION_SONGS] == SECTION_DISPLAY_SEPARATE) {
+        if (mItemDrawModes[SECTION_SONGS] == ItemTrackerDisplayType::Seperate) {
             EndFloatingWindows();
         } else {
             mainWindowPos += advancedBy;
         }
     }
 
-    if (mItemDrawModes[SECTION_DUNGEON] != SECTION_DISPLAY_HIDDEN) {
+    if (mItemDrawModes[SECTION_DUNGEON] != ItemTrackerDisplayType::Hidden) {
         int drawPos = mainWindowPos;
-        if (mItemDrawModes[SECTION_DUNGEON] == SECTION_DISPLAY_SEPARATE) {
+        if (mItemDrawModes[SECTION_DUNGEON] == ItemTrackerDisplayType::Seperate) {
             drawPos = 0;
             BeginFloatingWindows("Dungeon Items");
         }
         advancedBy = DrawDungeonItemsVert(6, drawPos);
-        if (mItemDrawModes[SECTION_DUNGEON] == SECTION_DISPLAY_SEPARATE) {
+        if (mItemDrawModes[SECTION_DUNGEON] == ItemTrackerDisplayType::Seperate) {
             EndFloatingWindows();
         } else {
             mainWindowPos += advancedBy;
@@ -455,7 +464,7 @@ float* ItemTrackerWindow::GetTextOffsetPtr() {
     return &mTextOffset;
 }
 
-int* ItemTrackerWindow::GetWindowTypePtr() {
+TrackerWindowType* ItemTrackerWindow::GetWindowTypePtr() {
     return &mWindowType;
 }
 
@@ -467,7 +476,7 @@ bool* ItemTrackerWindow::GetOnlyShowPausedPtr() {
     return &mOnlyDrawPaused;
 }
 
-uint8_t* ItemTrackerWindow::GetDrawModePtr(ItemTrackerSection type) {
+ItemTrackerDisplayType* ItemTrackerWindow::GetDrawModePtr(ItemTrackerSection type) {
     return &mItemDrawModes[type];
 }
 
