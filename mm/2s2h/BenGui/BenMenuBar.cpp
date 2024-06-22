@@ -17,6 +17,9 @@
 #include "2s2h/Enhancements/Player/Player.h"
 #include "HudEditor.h"
 
+#include "2s2h/Enhancements/Trackers/ItemTracker.h"
+#include "2s2h/Enhancements/Trackers/ItemTrackerSettings.h"
+
 extern "C" {
 #include "z64.h"
 #include "functions.h"
@@ -333,6 +336,8 @@ void DrawSettingsMenu() {
 }
 
 extern std::shared_ptr<HudEditorWindow> mHudEditorWindow;
+extern std::shared_ptr<ItemTrackerWindow> mItemTrackerWindow;
+extern std::shared_ptr<ItemTrackerSettingsWindow> mItemTrackerSettingsWindow;
 
 void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
@@ -642,6 +647,15 @@ void DrawEnhancementsMenu() {
         if (mHudEditorWindow) {
             UIWidgets::WindowButton("Hud Editor", "gWindows.HudEditor", mHudEditorWindow,
                                     { .tooltip = "Enables the Hud Editor window, allowing you to edit your hud" });
+        }
+
+        if (mItemTrackerWindow) {
+            UIWidgets::WindowButton("Item Tracker", "gWindows.ItemTracker", mItemTrackerWindow);
+        }
+
+        if (mItemTrackerSettingsWindow) {
+            UIWidgets::WindowButton("Item Tracker Settings", "gWindows.ItemTrackerSettings",
+                                    mItemTrackerSettingsWindow);
         }
 
         ImGui::EndMenu();
