@@ -22,19 +22,22 @@ ItemTrackerWindow::ItemTrackerWindow(const std::string& consoleVariable, const s
     mIconSpacing = config->GetFloat(CFG_TRACKER_ITEM("IconSpacing"), 12.0f);
     mTextSize = config->GetFloat(CFG_TRACKER_ITEM("TextSize"), 13.0f);
     mTextOffset = config->GetFloat(CFG_TRACKER_ITEM("TextOffset"), 0.0f);
-    mWindowType = (TrackerWindowType)config->GetInt(CFG_TRACKER_ITEM("WindowType"), (int8_t)TrackerWindowType::Floating);
+    mWindowType =
+        (TrackerWindowType)config->GetInt(CFG_TRACKER_ITEM("WindowType"), (int8_t)TrackerWindowType::Floating);
     mIsDraggable = config->GetBool(CFG_TRACKER_ITEM("IsDraggable"), false);
     mOnlyDrawPaused = config->GetBool(CFG_TRACKER_ITEM("OnlyDrawPaused"), false);
     mCapacityModes[ItemTrackerCapacityMode::DrawCurrent] = config->GetBool(CFG_TRACKER_ITEM("DrawCurrentAmmo"), false);
     mCapacityModes[ItemTrackerCapacityMode::DrawCurCapacity] = config->GetBool(CFG_TRACKER_ITEM("DrawMaxAmmo"), false);
     mCapacityModes[ItemTrackerCapacityMode::DrawMaxCapacity] =
         config->GetBool(CFG_TRACKER_ITEM("DrawMaxCapacity"), false);
-    mItemDrawModes[SECTION_INVENTORY] =
-        (ItemTrackerDisplayType)config->GetInt(CFG_TRACKER_ITEM("InventoryDrawMode"), (int32_t)ItemTrackerDisplayType::Hidden);
-    mItemDrawModes[SECTION_MASKS] = (ItemTrackerDisplayType)config->GetInt(CFG_TRACKER_ITEM("MasksDrawMode"), (int32_t)ItemTrackerDisplayType::Hidden);
-    mItemDrawModes[SECTION_SONGS] = (ItemTrackerDisplayType)config->GetInt(CFG_TRACKER_ITEM("SongsDrawMode"), (int32_t)ItemTrackerDisplayType::Hidden);
-    mItemDrawModes[SECTION_DUNGEON] =
-        (ItemTrackerDisplayType)config->GetInt(CFG_TRACKER_ITEM("DungeonDrawMode"), (int32_t)ItemTrackerDisplayType::Hidden);
+    mItemDrawModes[SECTION_INVENTORY] = (ItemTrackerDisplayType)config->GetInt(CFG_TRACKER_ITEM("InventoryDrawMode"),
+                                                                               (int32_t)ItemTrackerDisplayType::Hidden);
+    mItemDrawModes[SECTION_MASKS] = (ItemTrackerDisplayType)config->GetInt(CFG_TRACKER_ITEM("MasksDrawMode"),
+                                                                           (int32_t)ItemTrackerDisplayType::Hidden);
+    mItemDrawModes[SECTION_SONGS] = (ItemTrackerDisplayType)config->GetInt(CFG_TRACKER_ITEM("SongsDrawMode"),
+                                                                           (int32_t)ItemTrackerDisplayType::Hidden);
+    mItemDrawModes[SECTION_DUNGEON] = (ItemTrackerDisplayType)config->GetInt(CFG_TRACKER_ITEM("DungeonDrawMode"),
+                                                                             (int32_t)ItemTrackerDisplayType::Hidden);
 }
 
 ItemTrackerWindow::~ItemTrackerWindow() {
@@ -108,14 +111,13 @@ static constexpr std::array<ImVec4, 5> songInfo = {
 
 void ItemTrackerWindow::DrawNote(size_t songIndex, bool drawFaded) {
     ImVec4 color;
-    //Scale the note to 24*36 from 16*24 because all other items assume 36*36.
+    // Scale the note to 24*36 from 16*24 because all other items assume 36*36.
     constexpr float noteTo36scale = 36.0f / 24.0f;
-    
+
     const float iconScale = mIconSize / 36.0f;
 
-    //Scale the note icon with the rest of the items.
+    // Scale the note icon with the rest of the items.
     const ImVec2 scaledNoteSize(noteTo36scale * 16.0f * iconScale, noteTo36scale * 24.0f * iconScale);
-
 
     if (songIndex >= 5) {
         color = songInfo[songIndex - 5];
