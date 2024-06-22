@@ -159,7 +159,7 @@ void DrawTempleClears() {
     } else {
         open = CHECK_WEEKEVENTREG(WEEKEVENTREG_20_01);
     }
-    if (UIWidgets::Checkbox("Woodfall Open", &open, {.disabled = cleared})) {
+    if (UIWidgets::Checkbox("Woodfall Open", &open, { .disabled = cleared })) {
         if (open) {
             SET_WEEKEVENTREG(WEEKEVENTREG_20_01);
         } else {
