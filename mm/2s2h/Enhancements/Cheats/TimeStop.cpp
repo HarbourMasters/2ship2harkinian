@@ -15,17 +15,17 @@ void RegisterTimeStopInTemples() {
         switch (selectedOption) {
             case TIME_STOP_TEMPLES_DUNGEONS:
                 switch (gPlayState->sceneId) {
-                    // Swamp Spider House
+                    // Swamp + Ocean Spider House
                     case SCENE_KINSTA1:
-                    // Ocean Spider House
                     case SCENE_KINDAN2:
                     // Pirates' Fortress
                     case SCENE_KAIZOKU:
+                    case SCENE_PIRATE:
+                    case SCENE_TORIDE:
                     // Beneath the Well
                     case SCENE_REDEAD:
-                    // Ancient Castle of Ikana
+                    // Ancient Castle of Ikana + Igos's Lair
                     case SCENE_CASTLE:
-                    // Igos du Ikana's Lair
                     case SCENE_IKNINSIDE:
                     // Secret Shrine
                     case SCENE_RANDOM:
