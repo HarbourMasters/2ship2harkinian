@@ -14,16 +14,6 @@ void ItemTrackerSettingsWindow::UpdateElement() {
 void ItemTrackerSettingsWindow::InitElement() {
 }
 
-#define CVAR_TRACKER(var) CVAR_PREFIX_TRACKER "." var
-#define CVAR_TRACKER_ITEM(var) CVAR_TRACKER(".ItemTracker." var)
-
-static const char* itemTrackerCapacityTrackOptions[5] = {
-    "No Numbers",
-    "Current Capacity",
-    "Current Ammo",
-    "Current Capacity / Max Capacity",
-    "Current Ammo / Current Capacity",
-};
 static const char* windowTypes[2] = { "Floating", "Window" };
 static const char* displayTypes[3] = { "Hidden", "Main Window", "Separate" };
 static const char* displayModes[2] = { "Always", "Combo Button Hold" };
@@ -55,8 +45,6 @@ void ItemTrackerSettingsWindow::DrawElement() {
     UIWidgets::Combobox("Window Type", mItemTrackerWindow->GetWindowTypePtr(), windowTypes);
     UIWidgets::Checkbox("Enable Dragging", mItemTrackerWindow->GetIsDraggablePtr());
     UIWidgets::Checkbox("Only enable while paused", mItemTrackerWindow->GetOnlyShowPausedPtr());
-
-    if (UIWidgets::CVarCombobox("Display Mode", CVAR_TRACKER_ITEM("DisplayType.Main"), displayModes)) {}
 
     UIWidgets::SliderFloat("Icon size : %.0fpx", mItemTrackerWindow->GetIconSizePtr(), 0.0f, 128.0f, sliderOpts);
     UIWidgets::SliderFloat("Icon margins : %.0fpx", mItemTrackerWindow->GetIconSpacingPtr(), -5.0f, 50.0f, sliderOpts);

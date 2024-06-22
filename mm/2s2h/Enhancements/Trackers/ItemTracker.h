@@ -1,13 +1,13 @@
 #include <libultraship/classes.h>
-typedef enum {
-    TRACKER_WINDOW_FLOATING,
-    TRACKER_WINDOW_WINDOW,
+typedef enum class TrackerWindowType : uint8_t {
+    Floating,
+    Window,
 } TrackerWindowType;
 
-typedef enum {
-    SECTION_DISPLAY_HIDDEN,
-    SECTION_DISPLAY_MAIN_WINDOW,
-    SECTION_DISPLAY_SEPARATE,
+typedef enum class ItemTrackerDisplayType : int8_t {
+    Hidden,
+    MainWindow,
+    Seperate,
 } ItemTrackerDisplayType;
 
 typedef enum {
@@ -41,10 +41,10 @@ class ItemTrackerWindow : public Ship::GuiWindow {
     float* GetIconSpacingPtr();
     float* GetTextSizePtr();
     float* GetTextOffsetPtr();
-    int* GetWindowTypePtr();
+    TrackerWindowType* GetWindowTypePtr();
     bool* GetIsDraggablePtr();
     bool* GetOnlyShowPausedPtr();
-    uint8_t* GetDrawModePtr(ItemTrackerSection type);
+    ItemTrackerDisplayType* GetDrawModePtr(ItemTrackerSection type);
     bool* GetCapacityModePtr(ItemTrackerCapacityMode mode);
 
   protected:
@@ -58,6 +58,7 @@ class ItemTrackerWindow : public Ship::GuiWindow {
     int DrawItems(int columns, int startAt);
     int DrawMasks(int columns, int startAt);
     int DrawSongs(int columns, int startAt);
+    void DrawNote(size_t songIndex, bool drawFaded);
     int DrawDungeonItemsVert(int columns, int startAt);
     void DrawAmmoCount(int itemId, const ImVec2& iconPos);
     bool HasAmmoCount(int itemId);
@@ -68,9 +69,9 @@ class ItemTrackerWindow : public Ship::GuiWindow {
     float mIconSpacing = 12.0f;
     float mTextSize = 13.0f;
     float mTextOffset = 0.0f;
-    int mWindowType = TrackerWindowType::TRACKER_WINDOW_FLOATING;
+    TrackerWindowType mWindowType = TrackerWindowType::Floating;
     bool mIsDraggable = false;
     bool mOnlyDrawPaused = false;
     std::array<bool, DrawCapacityMax> mCapacityModes;
-    std::array<uint8_t, SECTION_MAX> mItemDrawModes;
+    std::array<ItemTrackerDisplayType, SECTION_MAX> mItemDrawModes;
 };
