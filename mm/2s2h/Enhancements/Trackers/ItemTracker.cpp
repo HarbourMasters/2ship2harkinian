@@ -10,8 +10,7 @@
 
 using namespace Ship;
 
-ItemTrackerWindow::ItemTrackerWindow(const std::string& consoleVariable,
-                                     const std::string& name) {
+ItemTrackerWindow::ItemTrackerWindow(const std::string& consoleVariable, const std::string& name) {
     auto config = Context::GetInstance()->GetConfig();
 
     mItemDrawModes.fill(SECTION_DISPLAY_HIDDEN);
@@ -30,7 +29,8 @@ ItemTrackerWindow::ItemTrackerWindow(const std::string& consoleVariable,
     mOnlyDrawPaused = config->GetBool(CVAR_TRACKER_ITEM("OnlyDrawPaused"), false);
     mCapacityModes[ItemTrackerCapacityMode::DrawCurrent] = config->GetBool(CVAR_TRACKER_ITEM("DrawCurrentAmmo"), false);
     mCapacityModes[ItemTrackerCapacityMode::DrawCurCapacity] = config->GetBool(CVAR_TRACKER_ITEM("DrawMaxAmmo"), false);
-    mCapacityModes[ItemTrackerCapacityMode::DrawMaxCapacity] = config->GetBool(CVAR_TRACKER_ITEM("DrawMaxCapacity"), false);
+    mCapacityModes[ItemTrackerCapacityMode::DrawMaxCapacity] =
+        config->GetBool(CVAR_TRACKER_ITEM("DrawMaxCapacity"), false);
     mItemDrawModes[SECTION_INVENTORY] = config->GetInt(CVAR_TRACKER_ITEM("InventoryDrawMode"), SECTION_DISPLAY_HIDDEN);
     mItemDrawModes[SECTION_MASKS] = config->GetInt(CVAR_TRACKER_ITEM("MasksDrawMode"), SECTION_DISPLAY_HIDDEN);
     mItemDrawModes[SECTION_SONGS] = config->GetInt(CVAR_TRACKER_ITEM("SongsDrawMode"), SECTION_DISPLAY_HIDDEN);
@@ -91,7 +91,7 @@ void EndFloatingWindows() {
 }
 
 static constexpr ImVec4 opaqueTex = { 1.0f, 1.0f, 1.0f, 1.0f };
-static constexpr ImVec4 fadedTex = { 0.5f, 0.6f, 1.0f, 0.5f};
+static constexpr ImVec4 fadedTex = { 0.5f, 0.6f, 1.0f, 0.5f };
 
 void DrawItem(char* tex, bool drawFaded, float itemSize) {
     ImGui::Image(Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(tex), ImVec2(itemSize, itemSize),
@@ -103,7 +103,7 @@ static constexpr std::array<ImVec4, 5> songInfo = {
     ImVec4(1.0f, 0.313f, 0.156f, 1.0f), // QUEST_SONG_LULLABY
     ImVec4(0.392f, 0.588f, 1.0f, 1.0f), // QUEST_SONG_BOSSA_NOVA
     ImVec4(1.0f, 0.627f, 0.0f, 1.0f),   // QUEST_SONG_ELEGY
-    ImVec4(1.0f, 0.392f, 1.0f, 1.0f), //QUEST_SONG_OATH
+    ImVec4(1.0f, 0.392f, 1.0f, 1.0f),   // QUEST_SONG_OATH
 };
 
 void DrawNote(size_t songIndex, bool drawFaded) {
@@ -116,8 +116,8 @@ void DrawNote(size_t songIndex, bool drawFaded) {
     if (drawFaded) {
         color.w = .5f;
     }
-    ImGui::Image(Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(gItemIconSongNoteTex), ImVec2(24, 36),
-                 ImVec2(0, 0), ImVec2(1, 1), color);
+    ImGui::Image(Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(gItemIconSongNoteTex),
+                 ImVec2(24, 36), ImVec2(0, 0), ImVec2(1, 1), color);
 }
 
 extern "C" {
@@ -150,7 +150,7 @@ static constexpr std::array<uint8_t, 10> sSongBits = {
 };
 
 bool ItemTrackerWindow::HasAmmoCount(int itemId) {
-    switch (itemId) { 
+    switch (itemId) {
         case ITEM_BOW:
         case ITEM_BOMB:
         case ITEM_BOMBCHU:
@@ -197,13 +197,13 @@ void ItemTrackerWindow::DrawAmmoCount(int itemId, const ImVec2& iconPos) {
     char curCapStr[4] = { 0 };
     char maxCapStr[4] = { 0 };
     AmmoInfo info;
-  
+
     if (!HasAmmoCount(itemId)) {
         return;
     }
 
     info = GetAmmoInfo(itemId);
-    
+
     if (mCapacityModes[ItemTrackerCapacityMode::DrawCurrent]) {
         snprintf(curStr, std::size(curStr), "%d", info.cur);
         if (mCapacityModes[ItemTrackerCapacityMode::DrawCurCapacity] ||
@@ -227,7 +227,7 @@ void ItemTrackerWindow::DrawAmmoCount(int itemId, const ImVec2& iconPos) {
     ImVec2 iconPos2 = ImGui::GetCursorScreenPos();
 
     snprintf(ammoStr, std::size(ammoStr), "%s%s%s", curStr, curCapStr, maxCapStr);
-    
+
     float x = iconPos2.x + (mIconSize / 2.0f) - (ImGui::CalcTextSize(ammoStr).x / 2.0f);
     // Normalize the offset based on the icon being 36x36 to account for larger icons.
     ImGui::SetCursorScreenPos({ x, iconPos2.y - (mTextOffset / 36.0f) * mIconSize });
@@ -244,8 +244,9 @@ int ItemTrackerWindow::DrawItems(int columns, int prevDrawnColumns) {
         int row = prevDrawnColumns + (i / columns);
         int column = i % columns;
         char* texToDraw;
-        const ImVec2 pos = {(column * (mIconSize + mIconSpacing) + 8.0f), (row * (mIconSize + mIconSpacing)) + 8.0f + topPadding};
-        
+        const ImVec2 pos = { (column * (mIconSize + mIconSpacing) + 8.0f),
+                             (row * (mIconSize + mIconSpacing)) + 8.0f + topPadding };
+
         ImGui::SetCursorPos(pos);
 
         if (gSaveContext.save.saveInfo.inventory.items[i] == ITEM_NONE) {
@@ -269,8 +270,8 @@ int ItemTrackerWindow::DrawItems(int columns, int prevDrawnColumns) {
     for (; i < 24; i++) {
         int row = prevDrawnColumns + (i / columns);
         int column = i % columns;
-        ImGui::SetCursorPos(
-            ImVec2((column * (mIconSize + mIconSpacing) + 8.0f), (row * (mIconSize + mIconSpacing)) + 8.0f + topPadding));
+        ImGui::SetCursorPos(ImVec2((column * (mIconSize + mIconSpacing) + 8.0f),
+                                   (row * (mIconSize + mIconSpacing)) + 8.0f + topPadding));
 
         if (gSaveContext.save.saveInfo.inventory.items[i] == ITEM_NONE) {
             DrawItem(const_cast<char*>(gItemIconEmptyBottleTex), true, mIconSize);
@@ -282,13 +283,13 @@ int ItemTrackerWindow::DrawItems(int columns, int prevDrawnColumns) {
 }
 
 int ItemTrackerWindow::DrawMasks(int columns, int prevDrawnColumns) {
-    int topPadding = 0; 
+    int topPadding = 0;
     // Masks
     for (size_t i = 0; i < 24; i++) {
         int row = prevDrawnColumns + (i / columns);
         int column = i % columns;
-        ImGui::SetCursorPos(
-            ImVec2((column * (mIconSize + mIconSpacing) + 8.0f), (row * (mIconSize + mIconSpacing)) + 8.0f + topPadding));
+        ImGui::SetCursorPos(ImVec2((column * (mIconSize + mIconSpacing) + 8.0f),
+                                   (row * (mIconSize + mIconSpacing)) + 8.0f + topPadding));
 
         DrawItem(const_cast<char*>(sMaskTextures[i]), gSaveContext.save.saveInfo.inventory.items[i + 24] == ITEM_NONE,
                  mIconSize);
@@ -302,13 +303,13 @@ static int RoundDown(int orig, int nearest) {
 }
 
 int ItemTrackerWindow::DrawSongs(int columns, int prevDrawnColumns) {
-    int topPadding = 0; 
+    int topPadding = 0;
 
     for (size_t i = 0; i < sSongBits.size(); i++) {
         int row = prevDrawnColumns + (i / 5);
         int column = i % 5;
-        ImGui::SetCursorPos(
-            ImVec2((column * (mIconSize + mIconSpacing) + 8.0f), (row * (mIconSize + mIconSpacing)) + 8.0f + topPadding));
+        ImGui::SetCursorPos(ImVec2((column * (mIconSize + mIconSpacing) + 8.0f),
+                                   (row * (mIconSize + mIconSpacing)) + 8.0f + topPadding));
 
         DrawNote(i, !CHECK_QUEST_ITEM(sSongBits[i]));
     }
@@ -316,23 +317,24 @@ int ItemTrackerWindow::DrawSongs(int columns, int prevDrawnColumns) {
 }
 
 int ItemTrackerWindow::DrawDungeonItemsVert(int columns, int prevDrawnColumns) {
-    int topPadding = 0; 
+    int topPadding = 0;
 
     // The icon size is based on 36x36.
     float iconScale = mIconSize / 36.0f;
     // Yes this does nothing. But for other icon sizes it will.
     float squareIconSize = iconScale * 36.0f;
     float rectIconSize = iconScale * 36.0f;
-    
+
     for (size_t i = 0; i < 4; i++) {
         int row = prevDrawnColumns + (i / columns);
         int column = i % columns;
-        ImGui::SetCursorPos(ImVec2((column * (squareIconSize + mIconSpacing) + 8.0f), (row * (squareIconSize + mIconSpacing)) + 8.0f + topPadding));
+        ImGui::SetCursorPos(ImVec2((column * (squareIconSize + mIconSpacing) + 8.0f),
+                                   (row * (squareIconSize + mIconSpacing)) + 8.0f + topPadding));
         DrawItem(static_cast<char*>(gItemIcons[i + ITEM_REMAINS_ODOLWA]), !CHECK_QUEST_ITEM(i), squareIconSize);
     }
-    
+
     prevDrawnColumns++;
-    
+
     for (size_t i = 0; i < 4; i++) {
         int row = prevDrawnColumns + (i / columns);
         int column = i % columns;
@@ -340,9 +342,9 @@ int ItemTrackerWindow::DrawDungeonItemsVert(int columns, int prevDrawnColumns) {
                                    (row * (rectIconSize + mIconSpacing)) + 8.0f + topPadding));
         DrawItem(const_cast<char*>(gQuestIconBossKeyTex), !CHECK_DUNGEON_ITEM(DUNGEON_BOSS_KEY, i), rectIconSize);
     }
-    
+
     prevDrawnColumns++;
-    
+
     for (size_t i = 0; i < 4; i++) {
         int row = prevDrawnColumns + (i / columns);
         int column = i % columns;
@@ -352,7 +354,7 @@ int ItemTrackerWindow::DrawDungeonItemsVert(int columns, int prevDrawnColumns) {
     }
 
     prevDrawnColumns++;
-    
+
     for (size_t i = 0; i < 4; i++) {
         int row = prevDrawnColumns + (i / columns);
         int column = i % columns;
@@ -364,11 +366,10 @@ int ItemTrackerWindow::DrawDungeonItemsVert(int columns, int prevDrawnColumns) {
     return 4;
 }
 
-
 void ItemTrackerWindow::DrawItemsInRows(int columns) {
     float iconSize = mIconSize;
     float iconSpacing = mIconSpacing;
-    int topPadding = 0; 
+    int topPadding = 0;
     int mainWindowPos = 0;
     int advancedBy = 0;
 
@@ -432,7 +433,6 @@ void ItemTrackerWindow::DrawItemsInRows(int columns) {
             mainWindowPos += advancedBy;
         }
     }
-
 }
 
 ImVec4* ItemTrackerWindow::GetBgColorPtr() {
@@ -482,7 +482,4 @@ void ItemTrackerWindow::DrawElement() {
     BeginFloatingWindows("Inventory Items Tracker");
     DrawItemsInRows();
     EndFloatingWindows();
-
 }
-
-

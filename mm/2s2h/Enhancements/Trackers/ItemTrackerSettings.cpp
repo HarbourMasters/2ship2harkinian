@@ -49,18 +49,15 @@ void ItemTrackerSettingsWindow::DrawElement() {
 
     ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
 
-    if (ImGui::ColorEdit4("BG Color", (float*)mItemTrackerWindow->GetBgColorPtr(),
-                          ImGuiColorEditFlags_AlphaPreview | ImGuiColorEditFlags_AlphaBar |
-                              ImGuiColorEditFlags_NoLabel)) {
-
-    }
+    ImGui::ColorEdit4("BG Color", (float*)mItemTrackerWindow->GetBgColorPtr(),
+                      ImGuiColorEditFlags_AlphaPreview | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_NoLabel);
 
     UIWidgets::Combobox("Window Type", mItemTrackerWindow->GetWindowTypePtr(), windowTypes);
     UIWidgets::Checkbox("Enable Dragging", mItemTrackerWindow->GetIsDraggablePtr());
     UIWidgets::Checkbox("Only enable while paused", mItemTrackerWindow->GetOnlyShowPausedPtr());
-   
+
     if (UIWidgets::CVarCombobox("Display Mode", CVAR_TRACKER_ITEM("DisplayType.Main"), displayModes)) {}
-    
+
     UIWidgets::SliderFloat("Icon size : %.0fpx", mItemTrackerWindow->GetIconSizePtr(), 0.0f, 128.0f, sliderOpts);
     UIWidgets::SliderFloat("Icon margins : %.0fpx", mItemTrackerWindow->GetIconSpacingPtr(), -5.0f, 50.0f, sliderOpts);
     UIWidgets::SliderFloat("Text size : %.0fpx", mItemTrackerWindow->GetTextSizePtr(), 1.0f, 30.0f, sliderOpts);
@@ -86,5 +83,4 @@ void ItemTrackerSettingsWindow::DrawElement() {
     ImGui::EndTable();
 
     ImGui::End();
-
 }

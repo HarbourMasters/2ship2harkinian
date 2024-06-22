@@ -23,7 +23,7 @@ typedef enum {
     DrawCurCapacity,
     DrawMaxCapacity,
     DrawCapacityMax,
-}ItemTrackerCapacityMode;
+} ItemTrackerCapacityMode;
 
 class ItemTrackerWindow : public Ship::GuiWindow {
     typedef struct AmmoInfo {
