@@ -50,12 +50,15 @@ f32 CollisionCheck_GetDamageAndEffectOnBumper(Collider* at, ColliderInfo* atInfo
     *effect = 0;
     damage = CollisionCheck_GetToucherDamage(at, atInfo, ac, acInfo);
 
+    // #region 2S2H - Enhancements - Damage Multiplier and Effect
     // Store damage information for hook purposes
     DamageAndEffectHookInfo damageAndEffectInfo;
     damageAndEffectInfo.damageTable = ac->actor->colChkInfo.damageTable;
     damageAndEffectInfo.damage = &damage;
     damageAndEffectInfo.multipliers = damageMultipliers;
     damageAndEffectInfo.effect = effect;
+    damageAndEffectInfo.actor = ac->actor;
+    // #endregion
 
     if (ac->actor->colChkInfo.damageTable != NULL) {
         dmgFlags = atInfo->toucher.dmgFlags;
@@ -1377,8 +1380,10 @@ s32 CollisionCheck_SkipBump(ColliderInfo* info) {
  * If the AT element has no dmgFlags in common with the AC element, no collision happens.
  */
 s32 CollisionCheck_NoSharedFlags(ColliderInfo* toucher, ColliderInfo* bumper) {
-    if (!(toucher->toucher.dmgFlags & bumper->bumper.dmgFlags)) {
-        return 1;
+    if (GameInteractor_Should(GI_VB_CHECK_BUMPER_COLLISION, true, bumper)) {
+        if (!(toucher->toucher.dmgFlags & bumper->bumper.dmgFlags)) {
+            return 1;
+        }
     }
     return 0;
 }
