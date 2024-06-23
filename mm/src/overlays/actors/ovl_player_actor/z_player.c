@@ -3699,6 +3699,41 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
         return;
     }
 
+    int8_t swapDirection = 0;
+    swapDirection += CHECK_INTENT((sPlayerControlInput->press.intentControls), INTENT_HOTSWAP_ITEM_LEFT, BUTTON_STATE_PRESS, 0) ? -1 : 0;
+    swapDirection += CHECK_INTENT((sPlayerControlInput->press.intentControls), INTENT_HOTSWAP_ITEM_RIGHT, BUTTON_STATE_PRESS, 0) ? 1 : 0;
+
+    if(gSaveContext.save.saveInfo.equips.selectedEquipmentSlot < EQUIP_SLOT_C_LEFT){
+        gSaveContext.save.saveInfo.equips.selectedEquipmentSlot = EQUIP_SLOT_C_LEFT;
+    }
+
+    if(swapDirection != 0){
+        // for (uint8_t i = 0; i < ARRAY_COUNT(sPlayerItemButtons); i++) {
+        //     if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, sPlayerItemButtons[i])) {
+        //         BUTTON_ITEM_EQUIP_ACTIVE_INDEX(0, i) = (BUTTON_ITEM_EQUIP_ACTIVE_INDEX(0, i) + swapDirection) % 3;
+        //         if(BUTTON_ITEM_EQUIP_ACTIVE_INDEX(0, i) < 0){
+        //             BUTTON_ITEM_EQUIP_ACTIVE_INDEX(0, i) += 3;
+        //         }
+        //         Interface_LoadItemIconImpl(gPlayState, i);
+        //     }
+        // }
+        gSaveContext.save.saveInfo.equips.selectedEquipmentSlot += swapDirection;
+        if(gSaveContext.save.saveInfo.equips.selectedEquipmentSlot > EQUIP_SLOT_C_RIGHT){
+            gSaveContext.save.saveInfo.equips.selectedEquipmentSlot = EQUIP_SLOT_C_LEFT;
+        }
+        if(gSaveContext.save.saveInfo.equips.selectedEquipmentSlot < EQUIP_SLOT_C_LEFT){
+            gSaveContext.save.saveInfo.equips.selectedEquipmentSlot = EQUIP_SLOT_C_RIGHT;
+        }
+        return;
+    }
+    
+    for (uint8_t i = 0; i < ARRAY_COUNT(sPlayerItemButtons); i++) {
+        if (i != EQUIP_SLOT_B && CHECK_BTN_ALL(sPlayerControlInput->press.button, sPlayerItemButtons[i])) {
+            gSaveContext.save.saveInfo.equips.selectedEquipmentSlot = i;
+            break;
+        }
+    }
+
     if (this->transformation == PLAYER_FORM_HUMAN) {
         if (this->currentMask != PLAYER_MASK_NONE) {
             PlayerItemAction maskItemAction = GET_IA_FROM_MASK(this->currentMask);
@@ -3760,7 +3795,20 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
     } else {
         s32 pad;
         ItemId item;
-        EquipSlot i = func_8082FDC4();
+        EquipSlot i = ARRAY_COUNT(sPlayerItemButtons);
+        if(
+            CHECK_INTENT(sPlayerControlInput->cur.intentControls, INTENT_HOTSWAP_ITEM_LEFT, BUTTON_STATE_CUR, 0) 
+            || CHECK_INTENT(sPlayerControlInput->cur.intentControls, INTENT_HOTSWAP_ITEM_RIGHT, BUTTON_STATE_CUR, 0)
+        ){
+            i = ARRAY_COUNT(sPlayerItemButtons);
+        }
+        else if(CHECK_INTENT(sPlayerControlInput->press.intentControls, INTENT_USE_ITEM, BUTTON_STATE_PRESS, 0)){
+            i = gSaveContext.save.saveInfo.equips.selectedEquipmentSlot;
+        }
+
+        if(CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_B)){
+            i = EQUIP_SLOT_B;
+        }
 
         uint8_t isBow = this->heldItemId == ITEM_BOW
                 || this->heldItemId == ITEM_BOW_FIRE
@@ -3801,11 +3849,15 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
         // #endregion
 
         if (item >= ITEM_FD) {
-            for (i = 0; i < ARRAY_COUNT(sPlayerItemButtons); i++) {
-                if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, sPlayerItemButtons[i])) {
-                    break;
-                }
+            i = ARRAY_COUNT(sPlayerItemButtons);
+            if(CHECK_INTENT(sPlayerControlInput->cur.intentControls, INTENT_USE_ITEM, BUTTON_STATE_CUR, 0)){
+                i = gSaveContext.save.saveInfo.equips.selectedEquipmentSlot;
             }
+            // for (i = 0; i < ARRAY_COUNT(sPlayerItemButtons); i++) {
+            //     if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, sPlayerItemButtons[i])) {
+            //         break;
+            //     }
+            // }
 
             item = Player_GetItemOnButton(play, this, i);
             if ((item < ITEM_FD) && (Player_ItemToItemAction(this, item) == this->heldItemAction)) {

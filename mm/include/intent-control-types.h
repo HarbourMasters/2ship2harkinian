@@ -5,3 +5,7 @@
 // Buttons for firing/shooting
 #define INTENT_CONTROL_FIRE_BOW 4
 #define INTENT_CONTROL_FIRE_HOOKSHOT 5
+
+#define INTENT_HOTSWAP_ITEM_RIGHT 6
+#define INTENT_HOTSWAP_ITEM_LEFT 7
+#define INTENT_USE_ITEM 8

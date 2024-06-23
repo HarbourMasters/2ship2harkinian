@@ -44,7 +44,9 @@ void from_json(const json& j, ItemEquips& itemEquips) {
     j.at("equipment").get_to(itemEquips.equipment);
     // buttonItems and cButtonSlots are arrays of arrays, so we need to manually parse them
     for (int i = 0; i < ARRAY_COUNT(itemEquips.buttonItems); i++) {
-        j.at("buttonItems").at(i).get_to(itemEquips.buttonItems[i]);
+        for (int k = 0; k < ARRAY_COUNT(itemEquips.buttonItems[i]); k++){
+            j.at("buttonItems").at(i).at(k).get_to(itemEquips.buttonItems[i][k]);
+        }
         j.at("cButtonSlots").at(i).get_to(itemEquips.cButtonSlots[i]);
     }
 }

@@ -66,7 +66,10 @@ void SDL_main(int argc, char** argv /* void* arg*/) {
         {INTENT_CONTROL_JUMP, "Jump"},
         {INTENT_CONTROL_TALK, "Talk"},
         {INTENT_CONTROL_FIRE_BOW, "Fire Bow"},
-        {INTENT_CONTROL_FIRE_HOOKSHOT, "Fire Hookshot"}
+        {INTENT_CONTROL_FIRE_HOOKSHOT, "Fire Hookshot"},
+        {INTENT_HOTSWAP_ITEM_RIGHT, "Swap Item Right"},
+        {INTENT_HOTSWAP_ITEM_LEFT, "Swap Item Left"},
+        {INTENT_USE_ITEM, "Use Item"}
     };
     intentDefinitions = d;
     intentDefinitionCount = sizeof(d) / sizeof(IntentControlDefinition);
