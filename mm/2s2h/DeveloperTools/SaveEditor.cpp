@@ -208,7 +208,7 @@ void DrawTempleClears() {
     if (cleared) {
         open = true;
         // 53_20 is if the turtle is raised
-        // 93_08 determines if a long or short cutscene should paly
+        // 93_08 determines if a long or short cutscene should play
         SET_WEEKEVENTREG(WEEKEVENTREG_53_20);
         SET_WEEKEVENTREG(WEEKEVENTREG_93_08);
     } else {
