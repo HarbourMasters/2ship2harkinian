@@ -1,4 +1,5 @@
-#include <libultraship/classes.h>
+#include "window/gui/Gui.h"
+#include "window/gui/GuiWindow.h"
 
 class ItemTrackerSettingsWindow : public Ship::GuiWindow {
   public:

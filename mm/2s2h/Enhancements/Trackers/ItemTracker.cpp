@@ -1,9 +1,8 @@
 #include "ItemTracker.h"
-#include <array>
-#include "public/bridge/consolevariablebridge.h"
+#include "Context.h"
+#include "config/Config.h"
 #include "assets/archives/icon_item_static/icon_item_static_yar.h"
 #include "assets/archives/icon_item_24_static/icon_item_24_static_yar.h"
-#include "z64.h"
 
 #define CFG_TRACKER_ITEM(var) ("ItemTracker." var)
 
@@ -132,10 +131,11 @@ void ItemTrackerWindow::DrawNote(size_t songIndex, bool drawFaded) {
 }
 
 extern "C" {
-extern void* gItemIcons[131];
-extern uint8_t gItemSlots[77];
 #include "z64save.h"
 #include "macros.h"
+#include "z64.h"
+extern void* gItemIcons[131];
+extern uint8_t gItemSlots[77];
 extern SaveContext gSaveContext;
 extern u32 gBitFlags[32];
 extern PlayState* gPlayState;

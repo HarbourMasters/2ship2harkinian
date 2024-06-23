@@ -1,4 +1,7 @@
-#include <libultraship/classes.h>
+#include "window/gui/Gui.h"
+#include "window/gui/GuiWindow.h"
+#include <array>
+
 typedef enum class TrackerWindowType : uint8_t {
     Floating,
     Window,
