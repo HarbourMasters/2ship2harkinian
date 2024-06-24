@@ -137,6 +137,105 @@ int setPlayerName(ImGuiInputTextCallbackData* data) {
     return 0;
 };
 
+void DrawTempleClears() {
+    bool cleared;
+    bool open;
+
+    // Woodfall
+    cleared = CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_WOODFALL_TEMPLE);
+    if (UIWidgets::Checkbox("Woodfall cleared", &cleared)) {
+        if (cleared) {
+            SET_WEEKEVENTREG(WEEKEVENTREG_CLEARED_WOODFALL_TEMPLE);
+        } else {
+            CLEAR_WEEKEVENTREG(WEEKEVENTREG_CLEARED_WOODFALL_TEMPLE);
+        }
+    }
+
+    ImGui::SameLine();
+
+    if (cleared) {
+        open = true;
+        SET_WEEKEVENTREG(WEEKEVENTREG_20_01);
+    } else {
+        open = CHECK_WEEKEVENTREG(WEEKEVENTREG_20_01);
+    }
+    if (UIWidgets::Checkbox("Woodfall Open", &open, { .disabled = cleared })) {
+        if (open) {
+            SET_WEEKEVENTREG(WEEKEVENTREG_20_01);
+        } else {
+            CLEAR_WEEKEVENTREG(WEEKEVENTREG_20_01);
+        }
+    }
+
+    // Snowhead
+    cleared = CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_SNOWHEAD_TEMPLE);
+    if (UIWidgets::Checkbox("Snowhead cleared", &cleared)) {
+        if (cleared) {
+            SET_WEEKEVENTREG(WEEKEVENTREG_CLEARED_SNOWHEAD_TEMPLE);
+        } else {
+            CLEAR_WEEKEVENTREG(WEEKEVENTREG_CLEARED_SNOWHEAD_TEMPLE);
+        }
+    }
+
+    ImGui::SameLine();
+
+    if (cleared) {
+        open = true;
+        SET_WEEKEVENTREG(WEEKEVENTREG_30_01);
+    } else {
+        open = CHECK_WEEKEVENTREG(WEEKEVENTREG_30_01);
+    }
+    if (UIWidgets::Checkbox("Snowhead Open", &open, { .disabled = cleared })) {
+        if (open) {
+            SET_WEEKEVENTREG(WEEKEVENTREG_30_01);
+        } else {
+            CLEAR_WEEKEVENTREG(WEEKEVENTREG_30_01);
+        }
+    }
+
+    // Great Bay
+    cleared = CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_GREAT_BAY_TEMPLE);
+    if (UIWidgets::Checkbox("Great Bay cleared", &cleared)) {
+        if (cleared) {
+            SET_WEEKEVENTREG(WEEKEVENTREG_CLEARED_GREAT_BAY_TEMPLE);
+        } else {
+            CLEAR_WEEKEVENTREG(WEEKEVENTREG_CLEARED_GREAT_BAY_TEMPLE);
+        }
+    }
+
+    ImGui::SameLine();
+
+    if (cleared) {
+        open = true;
+        // 53_20 is if the turtle is raised
+        // 93_08 determines if a long or short cutscene should play
+        SET_WEEKEVENTREG(WEEKEVENTREG_53_20);
+        SET_WEEKEVENTREG(WEEKEVENTREG_93_08);
+    } else {
+        open = CHECK_WEEKEVENTREG(WEEKEVENTREG_53_20);
+    }
+    if (UIWidgets::Checkbox("Great Bay Open", &open, { .disabled = cleared })) {
+        if (open) {
+            SET_WEEKEVENTREG(WEEKEVENTREG_53_20);
+            SET_WEEKEVENTREG(WEEKEVENTREG_93_08);
+        } else {
+            CLEAR_WEEKEVENTREG(WEEKEVENTREG_53_20);
+            CLEAR_WEEKEVENTREG(WEEKEVENTREG_93_08);
+        }
+    }
+
+    // Stone Tower
+    // Stone Tower Temple is always open so there is no need to have an option to open it.
+    cleared = CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_STONE_TOWER_TEMPLE);
+    if (UIWidgets::Checkbox("Stone Tower cleared", &cleared)) {
+        if (cleared) {
+            SET_WEEKEVENTREG(WEEKEVENTREG_CLEARED_STONE_TOWER_TEMPLE);
+        } else {
+            CLEAR_WEEKEVENTREG(WEEKEVENTREG_CLEARED_STONE_TOWER_TEMPLE);
+        }
+    }
+}
+
 void DrawGeneralTab() {
     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 3.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f, 8.0f));
@@ -350,24 +449,7 @@ void DrawGeneralTab() {
     UIWidgets::Tooltip("To recieve the rewards, set the bank to 199, 999, or 4,999 then deposit a single rupee");
     UIWidgets::PopStyleSlider();
 
-    // Temple clears
-    static const std::array<std::pair<int32_t, const char*>, 4> templeClears = { {
-        { WEEKEVENTREG_CLEARED_WOODFALL_TEMPLE, "Woodfall Cleared" },
-        { WEEKEVENTREG_CLEARED_SNOWHEAD_TEMPLE, "Snowhead Cleared" },
-        { WEEKEVENTREG_CLEARED_GREAT_BAY_TEMPLE, "Great Bay Cleared" },
-        { WEEKEVENTREG_CLEARED_STONE_TOWER_TEMPLE, "Stone Tower Cleared" },
-    } };
-
-    for (const auto& temple : templeClears) {
-        bool cleared = CHECK_WEEKEVENTREG(temple.first);
-        if (UIWidgets::Checkbox(temple.second, &cleared, { .color = UIWidgets::Colors::Gray })) {
-            if (cleared) {
-                SET_WEEKEVENTREG(temple.first);
-            } else {
-                CLEAR_WEEKEVENTREG(temple.first);
-            }
-        }
-    }
+    DrawTempleClears();
 
     UIWidgets::Checkbox("Has Tatl", (bool*)&gSaveContext.save.hasTatl, { .color = UIWidgets::Colors::Gray });
     UIWidgets::Checkbox("Is Owl Save", (bool*)&gSaveContext.save.isOwlSave, { .color = UIWidgets::Colors::Gray });
