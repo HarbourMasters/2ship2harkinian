@@ -10,6 +10,12 @@ extern u16 sCursorPointsToOcarinaModes[];
 extern u16 sOwlWarpPauseItems[];
 extern u16 D_80AF343C[];
 extern s16 sInDungeonScene;
+
+bool IsOwlWarpEnabled() {
+    return CVarGetInteger("gEnhancements.Songs.PauseOwlWarp", 0) && CHECK_QUEST_ITEM(QUEST_SONG_SOARING) &&
+           gSaveContext.save.saveInfo.playerData.owlActivationFlags != 0 &&
+           gSaveContext.save.saveInfo.playerData.owlActivationFlags != (1 << 15);
+}
 }
 
 static bool isConfirming = false;
@@ -130,8 +136,8 @@ void UpdateCursorForOwlWarpPoints(PauseContext* pauseCtx) {
 
 void RegisterPauseOwlWarp() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnKaleidoUpdate>([](PauseContext* pauseCtx) {
-        if (!sInDungeonScene && CVarGetInteger("gEnhancements.Songs.PauseOwlWarp", 0) &&
-            CHECK_QUEST_ITEM(QUEST_SONG_SOARING) && (gSaveContext.save.saveInfo.playerData.owlActivationFlags != 0) &&
+        if (!sInDungeonScene && IsOwlWarpEnabled() && CHECK_QUEST_ITEM(QUEST_SONG_SOARING) &&
+            (gSaveContext.save.saveInfo.playerData.owlActivationFlags != 0) &&
             (gSaveContext.save.saveInfo.playerData.owlActivationFlags != (1 << 15))) {
             // Initialize worldMapPoints based on owl activation flags
             for (int i = OWL_WARP_STONE_TOWER; i >= OWL_WARP_GREAT_BAY_COAST; i--) {

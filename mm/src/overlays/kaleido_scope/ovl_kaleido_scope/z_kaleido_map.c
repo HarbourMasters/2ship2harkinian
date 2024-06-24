@@ -675,10 +675,7 @@ void KaleidoScope_DrawWorldMap(PlayState* play) {
 
     Gfx_SetupDL42_Opa(play->state.gfxCtx);
 
-    if (!IS_PAUSE_STATE_OWLWARP &&
-        (!CVarGetInteger("gEnhancements.Songs.PauseOwlWarp", 0) || !CHECK_QUEST_ITEM(QUEST_SONG_SOARING) ||
-         (gSaveContext.save.saveInfo.playerData.owlActivationFlags == 0) ||
-         (gSaveContext.save.saveInfo.playerData.owlActivationFlags == (1 << 15)))) {
+    if (!IS_PAUSE_STATE_OWLWARP && !IsOwlWarpEnabled()) {
         // Browsing the world map regions on the pause menu
         gDPLoadTextureBlock(POLY_OPA_DISP++, gWorldMapDotTex, G_IM_FMT_IA, G_IM_SIZ_8b, 8, 8, 0,
                             G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
@@ -849,10 +846,7 @@ void KaleidoScope_UpdateWorldMapCursor(PlayState* play) {
     s16 oldCursorPoint;
 
     if ((pauseCtx->state == PAUSE_STATE_MAIN) && (pauseCtx->mainState == PAUSE_MAIN_STATE_IDLE) &&
-        (pauseCtx->pageIndex == PAUSE_MAP) &&
-        (!CVarGetInteger("gEnhancements.Songs.PauseOwlWarp", 0) || !CHECK_QUEST_ITEM(QUEST_SONG_SOARING) ||
-         (gSaveContext.save.saveInfo.playerData.owlActivationFlags == 0) ||
-         (gSaveContext.save.saveInfo.playerData.owlActivationFlags == (1 << 15)))) {
+        (pauseCtx->pageIndex == PAUSE_MAP) && !IsOwlWarpEnabled()) {
         pauseCtx->cursorColorSet = PAUSE_CURSOR_COLOR_SET_WHITE;
         oldCursorPoint = pauseCtx->cursorPoint[PAUSE_WORLD_MAP];
 
