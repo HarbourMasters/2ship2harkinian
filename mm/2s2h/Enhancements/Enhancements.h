@@ -8,6 +8,7 @@
 #include "Cheats/Infinite.h"
 #include "Dialogue/Dialogue.h"
 #include "Graphics/TextBasedClock.h"
+#include "Graphics/3DSClock.h"
 #include "Cheats/Cheats.h"
 #include "Cheats/UnbreakableRazorSword.h"
 #include "Cheats/UnrestrictedItems.h"
@@ -39,6 +40,7 @@ enum AlwaysWinDoggyRaceOptions {
 enum ClockTypeOptions {
     CLOCK_TYPE_ORIGINAL,
     CLOCK_TYPE_TEXT_BASED,
+    CLOCK_TYPE_3DS,
 };
 
 #ifdef __cplusplus

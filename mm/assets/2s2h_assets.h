@@ -59,6 +59,12 @@ static const ALIGN_ASSET(2) char gThreeDayClockHour24Tex[] = dgThreeDayClockHour
 #define dgEmptyTexture "__OTR__textures/virtual/gEmptyTexture"
 static const ALIGN_ASSET(2) char gEmptyTexture[] = dgEmptyTexture;
 
+#define dgThreeDayClock3DSEdgeTex "__OTR__textures/parameter_static/gThreeDayClock3DSEdgeTex"
+static const ALIGN_ASSET(2) char gThreeDayClock3DSEdgeTex[] = dgThreeDayClock3DSEdgeTex;
+
+#define dgThreeDayClock3DSMiddleTex "__OTR__textures/parameter_static/gThreeDayClock3DSMiddleTex"
+static const ALIGN_ASSET(2) char gThreeDayClock3DSMiddleTex[] = dgThreeDayClock3DSMiddleTex;
+
 #define dgPauseSavePromptENGTex "__OTR__textures/icon_item_static/gPauseSavePromptENGTex"
 static const ALIGN_ASSET(2) char gPauseSavePromptENGTex[] = dgPauseSavePromptENGTex;
 
