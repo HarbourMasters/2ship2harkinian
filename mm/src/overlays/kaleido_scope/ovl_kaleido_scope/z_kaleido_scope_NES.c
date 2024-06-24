@@ -24,6 +24,8 @@
 
 #include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 
+extern bool IsOwlWarpEnabled();
+
 // Page Textures (Background of Page):
 // Broken up into multiple textures.
 // Numbered by column/row.
