@@ -424,6 +424,7 @@ void KaleidoScope_SetCursorVtxPos(PauseContext* pauseCtx, u16 vtxIndex, Vtx* vtx
 void KaleidoScope_DrawItemSelect(PlayState* play);
 void KaleidoScope_UpdateItemCursor(PlayState* play);
 void KaleidoScope_UpdateItemEquip(PlayState* play);
+void KaleidoScope_UpdateItemEquipArbitrary(PlayState* play);
 
 // Mask
 void KaleidoScope_DrawMaskSelect(PlayState* play);

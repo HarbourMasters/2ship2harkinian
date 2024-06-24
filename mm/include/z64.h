@@ -130,6 +130,7 @@ typedef struct PauseContext {
     /* 0x272 */ u16 equipTargetItem;
     /* 0x274 */ u16 equipTargetSlot;
     /* 0x276 */ u16 equipTargetCBtn;
+    /* 0x276 */ u16 equipTargetArbitraryEquip;
     /* 0x278 */ s16 equipAnimX;
     /* 0x27A */ s16 equipAnimY;
     /* 0x27C */ s16 equipAnimAlpha;

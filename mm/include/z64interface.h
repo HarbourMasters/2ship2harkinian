@@ -283,6 +283,7 @@ void Interface_Dpad_LoadItemIconImpl(struct PlayState* play, u8 btn);
 void Interface_Dpad_LoadItemIcon(struct PlayState* play, u8 btn);
 // #endregion
 void Interface_LoadItemIconImpl(struct PlayState* play, u8 btn);
+void Interface_LoadItemIconImplArbitrary(struct PlayState* play, ArbitraryItemEquipButton* btn);
 void Interface_LoadItemIcon(struct PlayState* play, u8 btn);
 void Interface_UpdateButtonsAlt(struct PlayState* play, u16 flag);
 u8 Item_Give(struct PlayState* play, u8 item);

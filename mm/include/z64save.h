@@ -7,6 +7,7 @@
 #include "z64math.h"
 #include "unk.h"
 #include "z64item.h"
+#include "padutils.h"
 
 struct GameState;
 struct PlayState;
@@ -199,6 +200,30 @@ typedef struct SramContext {
     /* 0x24 */ s16 unk_24;
 } SramContext; // size = 0x28
 
+typedef struct ArbitraryItemEquipButton {
+    uint16_t id;
+    uint16_t assignedItem;
+
+    // Draw parameters
+    s16 rectLeft;
+    s16 rectTop;
+    s16 rectWidth;
+    s16 rectHeight;
+    u16 dsdx;
+    u16 dtdy;
+    s16 r;
+    s16 g;
+    s16 b;
+    s16 a;
+
+    // Logic checks
+    uint8_t (*canTakeAssignment)(ItemId item);
+    uint8_t (*assignmentTriggered)(Input* input);
+} ArbitraryItemEquipButton;
+
+extern ArbitraryItemEquipButton *arbitraryItemEquipButtonDefinitions;
+extern size_t arbitraryItemEquipButtonDefinitionCount;
+
 typedef struct ItemEquips {
     u8 buttonItemAssignmentIndices[4][4];
     s8 buttonItemActiveIndices[4][4];
@@ -206,6 +231,9 @@ typedef struct ItemEquips {
     /* 0x00 */ u8 buttonItems[4][4][3];                    // "register_item"
     /* 0x10 */ u8 cButtonSlots[4][4];                   // "register_item_pt"
     /* 0x20 */ u16 equipment;
+
+    ArbitraryItemEquipButton *arbEquipButtons;
+    u8 arbEquipButtonCount;
 } ItemEquips; // size = 0x22
 
 typedef struct Inventory {

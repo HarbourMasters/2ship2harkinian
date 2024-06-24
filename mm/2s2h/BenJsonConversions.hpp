@@ -49,6 +49,43 @@ void from_json(const json& j, ItemEquips& itemEquips) {
         }
         j.at("cButtonSlots").at(i).get_to(itemEquips.cButtonSlots[i]);
     }
+
+    size_t arbCount = 0;
+    if(j.contains("arbitraryEquipmentButtons")){
+        arbCount = j.at("arbitraryEquipmentButtons").size();
+    }
+    
+    itemEquips.arbEquipButtonCount = arbitraryItemEquipButtonDefinitionCount;
+    itemEquips.arbEquipButtons = new ArbitraryItemEquipButton[arbitraryItemEquipButtonDefinitionCount];
+    
+    for(int i = 0; i < arbitraryItemEquipButtonDefinitionCount; i++){
+        ArbitraryItemEquipButton& a = itemEquips.arbEquipButtons[i];
+        a = arbitraryItemEquipButtonDefinitions[i];
+
+        #define parseArbField(field) j.at("arbitraryEquipmentButtons").at(k).at(#field).get_to(a.field)
+        
+        for(size_t k = 0; k < arbCount ; k++){
+            uint16_t parsedId = 0;
+            j.at("arbitraryEquipmentButtons").at(k).at("id").get_to(parsedId);
+
+            if(parsedId == a.id){
+                parseArbField(assignedItem);
+            }
+        }
+        
+        // parseArbField(rectTop);
+        // parseArbField(rectLeft);
+        // parseArbField(rectWidth);
+        // parseArbField(rectHeight);
+        
+        // parseArbField(r);
+        // parseArbField(g);
+        // parseArbField(b);
+        // parseArbField(a);
+
+        // parseArbField(dsdx);
+        // parseArbField(dtdy);
+    }
 }
 
 void to_json(json& j, const Inventory& inventory) {

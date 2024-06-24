@@ -55,6 +55,23 @@ void InitOTR();
 IntentControlDefinition* intentDefinitions = NULL;
 uint16_t intentDefinitionCount = 0;
 
+ArbitraryItemEquipButton *arbitraryItemEquipButtonDefinitions = NULL;
+size_t arbitraryItemEquipButtonDefinitionCount = 0;
+
+uint8_t canTakeAssignment(ItemId item){
+    return true;
+}
+uint8_t assignmentTriggeredTrue(Input* input){
+    if(CHECK_BTN_ALL(input->press.button, BTN_A)){
+        return true;
+    }
+}
+uint8_t assignmentTriggeredFalse(Input* input){
+    if(CHECK_BTN_ALL(input->press.button, BTN_A)){
+        return true;
+    }
+}
+
 void SDL_main(int argc, char** argv /* void* arg*/) {
     intptr_t fb;
     intptr_t sysHeap;
@@ -73,6 +90,27 @@ void SDL_main(int argc, char** argv /* void* arg*/) {
     };
     intentDefinitions = d;
     intentDefinitionCount = sizeof(d) / sizeof(IntentControlDefinition);
+
+    ArbitraryItemEquipButton e[10];
+    uint16_t width = 27, height = 27;
+    for(uint8_t i = 0; i < 10; i++){
+            e[i].id = 1;
+            e[i].assignedItem = ITEM_HOOKSHOT + i;
+            e[i].rectLeft = width * i;
+            e[i].rectTop = (height * i);
+            e[i].rectWidth = width;
+            e[i].rectHeight = height;
+            e[i].dsdx = 620;
+            e[i].dtdy = 620;
+            e[i].r = i % 3 == 0 ? 255 : 0;
+            e[i].g = i % 3 == 1 ? 255 : 0;
+            e[i].b = i % 3 == 2 ? 255 : 0;
+            e[i].a = 255;
+            e[i].canTakeAssignment = canTakeAssignment;
+            e[i].assignmentTriggered = i == 2 ? assignmentTriggeredTrue : assignmentTriggeredFalse;
+    }
+    arbitraryItemEquipButtonDefinitions = e;
+    arbitraryItemEquipButtonDefinitionCount = sizeof(e) / sizeof(ArbitraryItemEquipButton);
 
 // Attach console for windows so we can conditionally display it when running the extractor
 #ifdef _WIN32

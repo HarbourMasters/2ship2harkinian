@@ -3708,15 +3708,6 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
     }
 
     if(swapDirection != 0){
-        // for (uint8_t i = 0; i < ARRAY_COUNT(sPlayerItemButtons); i++) {
-        //     if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, sPlayerItemButtons[i])) {
-        //         BUTTON_ITEM_EQUIP_ACTIVE_INDEX(0, i) = (BUTTON_ITEM_EQUIP_ACTIVE_INDEX(0, i) + swapDirection) % 3;
-        //         if(BUTTON_ITEM_EQUIP_ACTIVE_INDEX(0, i) < 0){
-        //             BUTTON_ITEM_EQUIP_ACTIVE_INDEX(0, i) += 3;
-        //         }
-        //         Interface_LoadItemIconImpl(gPlayState, i);
-        //     }
-        // }
         gSaveContext.save.saveInfo.equips.selectedEquipmentSlot += swapDirection;
         if(gSaveContext.save.saveInfo.equips.selectedEquipmentSlot > EQUIP_SLOT_C_RIGHT){
             gSaveContext.save.saveInfo.equips.selectedEquipmentSlot = EQUIP_SLOT_C_LEFT;

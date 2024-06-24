@@ -625,11 +625,24 @@ void KaleidoScope_UpdateItemCursor(PlayState* play) {
             pauseCtx->cursorItem[PAUSE_ITEM] = cursorItem;
             pauseCtx->cursorSlot[PAUSE_ITEM] = cursorSlot;
             if (cursorItem != PAUSE_ITEM_NONE) {
+                uint8_t arbEquipAccepts = 0;
+                pauseCtx->equipTargetArbitraryEquip = 0;
+                for(size_t arbIndex = 0; arbIndex < gSaveContext.save.saveInfo.equips.arbEquipButtonCount; arbIndex++){
+                    ArbitraryItemEquipButton* targetArb = &gSaveContext.save.saveInfo.equips.arbEquipButtons[arbIndex];
+                    if(
+                        targetArb->canTakeAssignment && targetArb->canTakeAssignment(cursorItem)
+                        && targetArb->assignmentTriggered && targetArb->assignmentTriggered(CONTROLLER1(&play->state))
+                    ){
+                        arbEquipAccepts = 1;
+                        pauseCtx->equipTargetArbitraryEquip = targetArb->id;
+                        break;
+                    }
+                }
                 // Equip item to the C buttons
                 if ((pauseCtx->debugEditor == DEBUG_EDITOR_NONE) && !pauseCtx->itemDescriptionOn &&
                     (pauseCtx->state == PAUSE_STATE_MAIN) && (pauseCtx->mainState == PAUSE_MAIN_STATE_IDLE) &&
-                    CHECK_BTN_ANY(CONTROLLER1(&play->state)->press.button,
-                                  BTN_CLEFT | BTN_CDOWN | BTN_CRIGHT | BTN_DPAD_EQUIP)) {
+                    (CHECK_BTN_ANY(CONTROLLER1(&play->state)->press.button,
+                                  BTN_CLEFT | BTN_CDOWN | BTN_CRIGHT | BTN_DPAD_EQUIP) || arbEquipAccepts)) {
 
                     // Ensure that a transformation mask can not be unequipped while being used
                     if (GET_PLAYER_FORM != PLAYER_FORM_HUMAN) {
@@ -678,8 +691,11 @@ void KaleidoScope_UpdateItemCursor(PlayState* play) {
                         // #endregion
                     }
 
+                    if(arbEquipAccepts){
+
+                    }
                     // Ensure that a non-transformation mask can not be unequipped while being used
-                    if (CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, BTN_CLEFT)) {
+                    else if (CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, BTN_CLEFT)) {
                         if ((Player_GetCurMaskItemId(play) != ITEM_NONE) &&
                             (Player_GetCurMaskItemId(play) == BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT))) {
                             Audio_PlaySfx(NA_SE_SY_ERROR);
@@ -1474,6 +1490,11 @@ void KaleidoScope_AssignCButtonEquip(PlayState* play, PauseContext *pauseCtx, ui
     Interface_LoadItemIconImpl(play, button);
 }
 
+void KaleidoScope_AssignArbitraryButtonEquip(PlayState* play, PauseContext *pauseCtx, uint8_t form, ArbitraryItemEquipButton* arbEquip){
+    arbEquip->assignedItem = pauseCtx->equipTargetItem;
+    Interface_LoadItemIconImplArbitrary(play, arbEquip);
+}
+
 void KaleifoScope_SetCButton_01(PauseContext *pauseCtx, PlayState* play, uint8_t cSlot, uint8_t equipmentCSlot){
     if ((BUTTON_ITEM_EQUIP(0, cSlot) & 0xFF) != ITEM_NONE) {
         if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8) &&
@@ -1573,12 +1594,79 @@ void KaleifoScope_SetCButton(PauseContext *pauseCtx, PlayState* play, uint8_t cS
                 // Interface_LoadItemIconImpl(play, EQUIP_SLOT_C_LEFT);
 }
 
+void KaleifoScope_SetArbitraryButton(PauseContext *pauseCtx, PlayState* play, ArbitraryItemEquipButton *arbEquip){
+    // TODO: Swap logic
+    // Swap if item is already equipped on CDown or CRight.
+                // if (pauseCtx->equipTargetSlot == C_SLOT_EQUIP(0, other1)) {
+                //     KaleifoScope_SetCButton_01(pauseCtx, play, cSlot, other1);
+                // } else if (pauseCtx->equipTargetSlot == C_SLOT_EQUIP(0, other2)) {
+                //     KaleifoScope_SetCButton_01(pauseCtx, play, cSlot, other2);
+                // }
+                
+
+                // Special case for magic arrows
+                // if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipTargetItem < 0xB8)) {
+                //     if ((BUTTON_ITEM_EQUIP(0, cSlot) == ITEM_BOW) ||
+                //         ((BUTTON_ITEM_EQUIP(0, cSlot) >= ITEM_BOW_FIRE) &&
+                //          (BUTTON_ITEM_EQUIP(0, cSlot) <= ITEM_BOW_LIGHT))) {
+                //         pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
+                //         pauseCtx->equipTargetSlot = SLOT_BOW;
+                //     }
+                // } else if (pauseCtx->equipTargetItem == ITEM_BOW) {
+                //     if ((BUTTON_ITEM_EQUIP(0, other1) >= ITEM_BOW_FIRE) &&
+                //         (BUTTON_ITEM_EQUIP(0, other1) <= ITEM_BOW_LIGHT)) {
+                //         BUTTON_ITEM_EQUIP(0, other1) = BUTTON_ITEM_EQUIP(0, cSlot);
+                //         C_SLOT_EQUIP(0, other1) = C_SLOT_EQUIP(0, cSlot);
+                //         Interface_LoadItemIcon(play, other1);
+                //     } else if ((BUTTON_ITEM_EQUIP(0, other2) >= ITEM_BOW_FIRE) &&
+                //                (BUTTON_ITEM_EQUIP(0, other2) <= ITEM_BOW_LIGHT)) {
+                //         BUTTON_ITEM_EQUIP(0, other2) = BUTTON_ITEM_EQUIP(0, cSlot);
+                //         C_SLOT_EQUIP(0, other2) = C_SLOT_EQUIP(0, cSlot);
+                //         Interface_LoadItemIcon(play, other2);
+                //     }
+                //     // #region 2S2H [Dpad]
+                //     // Note Only C-Left has the swap of 'slot equips' here
+                //     if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) >= ITEM_BOW_FIRE) &&
+                //         (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) <= ITEM_BOW_LIGHT)) {
+                //         DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) = BUTTON_ITEM_EQUIP(0, cSlot);
+                //         DPAD_SLOT_EQUIP(0, EQUIP_SLOT_D_RIGHT) = C_SLOT_EQUIP(0, cSlot);
+                //         Interface_Dpad_LoadItemIcon(play, EQUIP_SLOT_D_RIGHT);
+                //     } else if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) >= ITEM_BOW_FIRE) &&
+                //                (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) <= ITEM_BOW_LIGHT)) {
+                //         DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) = BUTTON_ITEM_EQUIP(0, cSlot);
+                //         DPAD_SLOT_EQUIP(0, EQUIP_SLOT_D_LEFT) = C_SLOT_EQUIP(0, cSlot);
+                //         Interface_Dpad_LoadItemIcon(play, EQUIP_SLOT_D_LEFT);
+                //     } else if ((DPAD_BUTTON_ITEM_EQUIP(0, other1) >= ITEM_BOW_FIRE) &&
+                //                (DPAD_BUTTON_ITEM_EQUIP(0, other1) <= ITEM_BOW_LIGHT)) {
+                //         DPAD_BUTTON_ITEM_EQUIP(0, other1) = BUTTON_ITEM_EQUIP(0, cSlot);
+                //         DPAD_SLOT_EQUIP(0, other1) = C_SLOT_EQUIP(0, cSlot);
+                //         Interface_Dpad_LoadItemIcon(play, other1);
+                //     } else if ((DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) >= ITEM_BOW_FIRE) &&
+                //                (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) <= ITEM_BOW_LIGHT)) {
+                //         DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) = BUTTON_ITEM_EQUIP(0, cSlot);
+                //         DPAD_SLOT_EQUIP(0, EQUIP_SLOT_D_UP) = C_SLOT_EQUIP(0, cSlot);
+                //         Interface_Dpad_LoadItemIcon(play, EQUIP_SLOT_D_UP);
+                //     }
+                //     // #endregion
+                // }
+
+                // Equip item on CLeft
+                KaleidoScope_AssignArbitraryButtonEquip(play, pauseCtx, 0, arbEquip);
+                // BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT) = pauseCtx->equipTargetItem;
+                // C_SLOT_EQUIP(0, EQUIP_SLOT_C_LEFT) = pauseCtx->equipTargetSlot;
+                // Interface_LoadItemIconImpl(play, EQUIP_SLOT_C_LEFT);
+}
+
 void KaleidoScope_UpdateItemEquip(PlayState* play) {
     static s16 sEquipMagicArrowBowSlotHoldTimer = 0;
     PauseContext* pauseCtx = &play->pauseCtx;
     Vtx* bowItemVtx;
     u16 offsetX;
     u16 offsetY;
+
+    if(pauseCtx->equipTargetArbitraryEquip != 0){
+        return;
+    }
 
     // Grow glowing orb when equipping magic arrows
     if (sEquipState == EQUIP_STATE_MAGIC_ARROW_GROW_ORB) {
@@ -1713,6 +1801,134 @@ void KaleidoScope_UpdateItemEquip(PlayState* play) {
                 KaleidoScope_UpdateDpadItemEquip(play);
             }
             // #endregion
+
+            // Reset params
+            pauseCtx->mainState = PAUSE_MAIN_STATE_IDLE;
+            sEquipAnimTimer = 10;
+            pauseCtx->equipAnimScale = 320;
+            pauseCtx->equipAnimShrinkRate = 40;
+        }
+    } else {
+        sEquipMagicArrowSlotHoldTimer--;
+        if (sEquipMagicArrowSlotHoldTimer == 0) {
+            pauseCtx->equipAnimAlpha = 255;
+        }
+    }
+}
+
+void KaleidoScope_UpdateItemEquipArbitrary(PlayState* play) {
+    static s16 sEquipMagicArrowBowSlotHoldTimer = 0;
+    PauseContext* pauseCtx = &play->pauseCtx;
+    Vtx* bowItemVtx;
+    u16 offsetX;
+    u16 offsetY;
+
+    ArbitraryItemEquipButton* arbEquip = NULL;
+    if(pauseCtx->equipTargetArbitraryEquip == 0){
+        return;
+    }
+    for(size_t i = 0 ; i < gSaveContext.save.saveInfo.equips.arbEquipButtonCount; i++){
+        ArbitraryItemEquipButton* e = &gSaveContext.save.saveInfo.equips.arbEquipButtons[i];
+        if(e->id == pauseCtx->equipTargetArbitraryEquip){
+            arbEquip = e;
+            break;
+        }
+    }
+    if(arbEquip == NULL){
+        return;
+    }
+
+    s32 cButtonPosX = -1580 + arbEquip->rectLeft;
+    s32 cButtonPosY = 1260 + arbEquip->rectTop;
+
+    // Grow glowing orb when equipping magic arrows
+    if (sEquipState == EQUIP_STATE_MAGIC_ARROW_GROW_ORB) {
+        pauseCtx->equipAnimAlpha += 14;
+        if (pauseCtx->equipAnimAlpha > 255) {
+            pauseCtx->equipAnimAlpha = 254;
+            sEquipState++;
+        }
+        // Hover over magic arrow slot when the next state is reached
+        sEquipMagicArrowSlotHoldTimer = 5;
+        return;
+    }
+
+    if (sEquipState == EQUIP_STATE_MAGIC_ARROW_HOVER_OVER_BOW_SLOT) {
+        sEquipMagicArrowBowSlotHoldTimer--;
+
+        if (sEquipMagicArrowBowSlotHoldTimer == 0) {
+            pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
+            pauseCtx->equipTargetSlot = SLOT_BOW;
+            sEquipAnimTimer = 6;
+            pauseCtx->equipAnimScale = 320;
+            pauseCtx->equipAnimShrinkRate = 40;
+            sEquipState++;
+            Audio_PlaySfx(NA_SE_SY_SYNTH_MAGIC_ARROW);
+        }
+        return;
+    }
+
+    if (sEquipState == EQUIP_STATE_MAGIC_ARROW_MOVE_TO_BOW_SLOT) {
+        bowItemVtx = &pauseCtx->itemVtx[SLOT_BOW * 4];
+        offsetX = ABS_ALT(pauseCtx->equipAnimX - bowItemVtx->v.ob[0] * 10) / sEquipAnimTimer;
+        offsetY = ABS_ALT(pauseCtx->equipAnimY - bowItemVtx->v.ob[1] * 10) / sEquipAnimTimer;
+    } else {
+        // 2S2H [Cosmetic] Use position vars from above
+        offsetX = ABS_ALT(pauseCtx->equipAnimX - cButtonPosX) / sEquipAnimTimer;
+        offsetY = ABS_ALT(pauseCtx->equipAnimY - cButtonPosY) / sEquipAnimTimer;
+    }
+
+    if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipAnimAlpha < 254)) {
+        pauseCtx->equipAnimAlpha += 14;
+        if (pauseCtx->equipAnimAlpha > 255) {
+            pauseCtx->equipAnimAlpha = 254;
+        }
+        sEquipMagicArrowSlotHoldTimer = 5;
+        return;
+    }
+
+    if (sEquipMagicArrowSlotHoldTimer == 0) {
+        pauseCtx->equipAnimScale -= pauseCtx->equipAnimShrinkRate / sEquipAnimTimer;
+        pauseCtx->equipAnimShrinkRate -= pauseCtx->equipAnimShrinkRate / sEquipAnimTimer;
+
+        // Update coordinates of item icon while being equipped
+        if (sEquipState == EQUIP_STATE_MAGIC_ARROW_MOVE_TO_BOW_SLOT) {
+            // target is the bow slot
+            if (pauseCtx->equipAnimX >= (pauseCtx->itemVtx[SLOT_BOW * 4].v.ob[0] * 10)) {
+                pauseCtx->equipAnimX -= offsetX;
+            } else {
+                pauseCtx->equipAnimX += offsetX;
+            }
+
+            if (pauseCtx->equipAnimY >= (pauseCtx->itemVtx[SLOT_BOW * 4].v.ob[1] * 10)) {
+                pauseCtx->equipAnimY -= offsetY;
+            } else {
+                pauseCtx->equipAnimY += offsetY;
+            }
+        } else {
+            if (pauseCtx->equipAnimX >= cButtonPosX) {
+                pauseCtx->equipAnimX -= offsetX;
+            } else {
+                pauseCtx->equipAnimX += offsetX;
+            }
+
+            if (pauseCtx->equipAnimY >= cButtonPosY) {
+                pauseCtx->equipAnimY -= offsetY;
+            } else {
+                pauseCtx->equipAnimY += offsetY;
+            }
+        }
+
+        sEquipAnimTimer--;
+        if (sEquipAnimTimer == 0) {
+            if (sEquipState == EQUIP_STATE_MAGIC_ARROW_MOVE_TO_BOW_SLOT) {
+                sEquipState++;
+                sEquipMagicArrowBowSlotHoldTimer = 4;
+                return;
+            }
+
+            // Equip item onto arbitrary buttons
+            KaleifoScope_SetArbitraryButton(pauseCtx, play, arbEquip);
 
             // Reset params
             pauseCtx->mainState = PAUSE_MAIN_STATE_IDLE;
