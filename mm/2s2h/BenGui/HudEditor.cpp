@@ -166,7 +166,7 @@ enum Presets {
 };
 };
 
-void HudEditorWindow::DrawContents() {
+void HudEditorWindow::DrawElement() {
     static HudEditor::Presets preset = HudEditor::Presets::VANILLA;
     if (UIWidgets::Combobox("Preset", &preset, presetNames)) {
         for (int i = HUD_EDITOR_ELEMENT_B; i < HUD_EDITOR_ELEMENT_MAX; i++) {
@@ -273,16 +273,4 @@ void HudEditorWindow::DrawContents() {
         }
         ImGui::PopID();
     }
-}
-
-void HudEditorWindow::DrawElement() {
-    ImGui::SetNextWindowSize(ImVec2(480, 600), ImGuiCond_FirstUseEver);
-    if (!ImGui::Begin("Hud Editor", &mIsVisible, ImGuiWindowFlags_NoFocusOnAppearing)) {
-        ImGui::End();
-        return;
-    }
-
-    DrawContents();
-
-    ImGui::End();
 }

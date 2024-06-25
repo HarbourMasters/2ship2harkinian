@@ -1778,7 +1778,7 @@ void DrawFlagsTab() {
     ImGui::PopStyleVar(2);
 }
 
-void SaveEditorWindow::DrawContents() {
+void SaveEditorWindow::DrawElement() {
     if (ImGui::BeginTabBar("SaveContextTabBar", ImGuiTabBarFlags_NoCloseWithMiddleMouseButton)) {
         if (ImGui::BeginTabItem("General")) {
             DrawGeneralTab();
@@ -1822,16 +1822,6 @@ void SaveEditorWindow::DrawContents() {
 
         ImGui::EndTabBar();
     }
-}
-
-void SaveEditorWindow::DrawElement() {
-    ImGui::SetNextWindowSize(ImVec2(480, 600), ImGuiCond_FirstUseEver);
-    if (!ImGui::Begin("Save Editor", &mIsVisible, ImGuiWindowFlags_NoFocusOnAppearing)) {
-        ImGui::End();
-        return;
-    }
-    DrawContents();
-    ImGui::End();
 }
 
 const char* textureLoad[8] = { gDungeonStrayFairyWoodfallIconTex,
