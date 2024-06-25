@@ -3761,8 +3761,10 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
         ItemId item;
         EquipSlot i = func_8082FDC4();
 
-        i = ((i >= EQUIP_SLOT_A) && (this->transformation == PLAYER_FORM_FIERCE_DEITY) &&
-             (this->heldItemAction != PLAYER_IA_SWORD_TWO_HANDED))
+        i = GameInteractor_Should(GI_VB_FD_ALWAYS_WIELD_SWORD,
+                                  (i >= EQUIP_SLOT_A) && (this->transformation == PLAYER_FORM_FIERCE_DEITY) &&
+                                      (this->heldItemAction != PLAYER_IA_SWORD_TWO_HANDED),
+                                  NULL)
                 ? EQUIP_SLOT_B
                 : i;
 
@@ -8114,8 +8116,11 @@ s32 Player_ActionChange_6(Player* this, PlayState* play) {
                 return true;
             }
 
-            if ((this->putAwayCountdown == 0) && (this->heldItemAction >= PLAYER_IA_SWORD_KOKIRI) &&
-                (this->transformation != PLAYER_FORM_FIERCE_DEITY)) {
+            if (GameInteractor_Should(GI_VB_SHOULD_PUTAWAY,
+                                      ((this->putAwayCountdown == 0) &&
+                                       (this->heldItemAction >= PLAYER_IA_SWORD_KOKIRI) &&
+                                       this->transformation != PLAYER_FORM_FIERCE_DEITY),
+                                      NULL)) {
                 Player_UseItem(play, this, ITEM_NONE);
             } else {
                 this->stateFlags2 ^= PLAYER_STATE2_100000;
@@ -11243,11 +11248,13 @@ void Player_SetDoAction(PlayState* play, Player* this) {
                 } else if ((this->transformation == PLAYER_FORM_DEKU) && !(this->stateFlags1 & PLAYER_STATE1_8000000) &&
                            (this->actor.bgCheckFlags & BGCHECKFLAG_GROUND)) {
                     doActionA = DO_ACTION_ATTACK;
-                } else if (((this->transformation == PLAYER_FORM_HUMAN) ||
-                            (this->transformation == PLAYER_FORM_ZORA)) &&
-                           ((this->heldItemAction >= PLAYER_IA_SWORD_KOKIRI) ||
-                            ((this->stateFlags2 & PLAYER_STATE2_100000) &&
-                             (play->actorCtx.targetCtx.fairyActor == NULL)))) {
+                } else if (GameInteractor_Should(GI_VB_SHOULD_PUTAWAY,
+                                                 ((this->transformation == PLAYER_FORM_HUMAN) ||
+                                                  (this->transformation == PLAYER_FORM_ZORA)) &&
+                                                     ((this->heldItemAction >= PLAYER_IA_SWORD_KOKIRI) ||
+                                                      ((this->stateFlags2 & PLAYER_STATE2_100000) &&
+                                                       (play->actorCtx.targetCtx.fairyActor == NULL))),
+                                                 NULL)) {
                     doActionA = DO_ACTION_PUTAWAY;
 
                     if (play->msgCtx.currentTextId == 0) {} //! FAKE
