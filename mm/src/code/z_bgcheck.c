@@ -5,6 +5,7 @@
 #include "vt.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include <stdio.h>
+#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 
 #define DYNA_RAYCAST_FLOORS 1
 #define DYNA_RAYCAST_WALLS 2
@@ -4266,6 +4267,9 @@ u32 SurfaceType_GetEcho(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId)
 }
 
 u32 SurfaceType_IsHookshotSurface(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId) {
+    if (GameInteractor_Should(GI_VB_ENABLE_HOOKSHOT_ANYWHERE, false, NULL))
+        return 1;
+
     return SurfaceType_GetData(colCtx, poly, bgId, 1) >> 17 & 1;
 }
 
