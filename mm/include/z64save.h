@@ -217,8 +217,8 @@ typedef struct ArbitraryItemEquipButton {
     s16 a;
 
     // Logic checks
-    uint8_t (*canTakeAssignment)(ItemId item);
-    uint8_t (*assignmentTriggered)(Input* input);
+    uint8_t (*canTakeAssignment)(struct ArbitraryItemEquipButton* self, ItemId item);
+    uint8_t (*assignmentTriggered)(struct ArbitraryItemEquipButton* self, Input* input);
 } ArbitraryItemEquipButton;
 
 extern ArbitraryItemEquipButton *arbitraryItemEquipButtonDefinitions;

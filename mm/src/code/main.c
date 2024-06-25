@@ -58,18 +58,18 @@ uint16_t intentDefinitionCount = 0;
 ArbitraryItemEquipButton *arbitraryItemEquipButtonDefinitions = NULL;
 size_t arbitraryItemEquipButtonDefinitionCount = 0;
 
-uint8_t canTakeAssignment(ItemId item){
-    return true;
+uint16_t itemIndex = 0;
+uint8_t canTakeAssignment(ArbitraryItemEquipButton* self, ItemId item){
+    uint8_t allow = (itemIndex % 10) == (self->id - 1);
+    
+    return allow;
 }
-uint8_t assignmentTriggeredTrue(Input* input){
+uint8_t assignmentTriggeredTrue(ArbitraryItemEquipButton* self, Input* input){
     if(CHECK_BTN_ALL(input->press.button, BTN_A)){
+        itemIndex++;
         return true;
     }
-}
-uint8_t assignmentTriggeredFalse(Input* input){
-    if(CHECK_BTN_ALL(input->press.button, BTN_A)){
-        return true;
-    }
+    return false;
 }
 
 void SDL_main(int argc, char** argv /* void* arg*/) {
@@ -94,9 +94,9 @@ void SDL_main(int argc, char** argv /* void* arg*/) {
     ArbitraryItemEquipButton e[10];
     uint16_t width = 27, height = 27;
     for(uint8_t i = 0; i < 10; i++){
-            e[i].id = 1;
+            e[i].id = i + 1;
             e[i].assignedItem = ITEM_HOOKSHOT + i;
-            e[i].rectLeft = width * i;
+            e[i].rectLeft = 0;
             e[i].rectTop = (height * i);
             e[i].rectWidth = width;
             e[i].rectHeight = height;
@@ -107,7 +107,7 @@ void SDL_main(int argc, char** argv /* void* arg*/) {
             e[i].b = i % 3 == 2 ? 255 : 0;
             e[i].a = 255;
             e[i].canTakeAssignment = canTakeAssignment;
-            e[i].assignmentTriggered = i == 2 ? assignmentTriggeredTrue : assignmentTriggeredFalse;
+            e[i].assignmentTriggered = assignmentTriggeredTrue;
     }
     arbitraryItemEquipButtonDefinitions = e;
     arbitraryItemEquipButtonDefinitionCount = sizeof(e) / sizeof(ArbitraryItemEquipButton);

@@ -630,8 +630,8 @@ void KaleidoScope_UpdateItemCursor(PlayState* play) {
                 for(size_t arbIndex = 0; arbIndex < gSaveContext.save.saveInfo.equips.arbEquipButtonCount; arbIndex++){
                     ArbitraryItemEquipButton* targetArb = &gSaveContext.save.saveInfo.equips.arbEquipButtons[arbIndex];
                     if(
-                        targetArb->canTakeAssignment && targetArb->canTakeAssignment(cursorItem)
-                        && targetArb->assignmentTriggered && targetArb->assignmentTriggered(CONTROLLER1(&play->state))
+                        targetArb->canTakeAssignment && targetArb->canTakeAssignment(targetArb, cursorItem)
+                        && targetArb->assignmentTriggered && targetArb->assignmentTriggered(targetArb, CONTROLLER1(&play->state))
                     ){
                         arbEquipAccepts = 1;
                         pauseCtx->equipTargetArbitraryEquip = targetArb->id;
@@ -1838,8 +1838,8 @@ void KaleidoScope_UpdateItemEquipArbitrary(PlayState* play) {
         return;
     }
 
-    s32 cButtonPosX = -1580 + arbEquip->rectLeft;
-    s32 cButtonPosY = 1260 + arbEquip->rectTop;
+    s32 cButtonPosX = -1580 - arbEquip->rectLeft * 10;
+    s32 cButtonPosY = 1260 - arbEquip->rectTop * 10;
 
     // Grow glowing orb when equipping magic arrows
     if (sEquipState == EQUIP_STATE_MAGIC_ARROW_GROW_ORB) {
