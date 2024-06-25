@@ -43,6 +43,8 @@ static TexturePtr sFinalHoursDigitTextures[] = {
 
 s16 finalHoursClockSlots[8];
 
+s32 previousTimeCheck = -1;
+
 void Register3DSClock() {
     REGISTER_VB_SHOULD(GI_VB_PREVENT_CLOCK_DISPLAY, {
         if (CVarGetInteger("gEnhancements.Graphics.ClockType", CLOCK_TYPE_ORIGINAL) == CLOCK_TYPE_3DS) {
@@ -123,8 +125,19 @@ void Register3DSClock() {
                         currentTime += 1440;
                     }
 
-                    s32 timeoffset = std::max(
-                        std::min(((currentTime + (gSaveContext.save.day - 1) * 1440) * (3 * 48)) / 4320, 3 * 48), 0);
+                    s32 timeUntilCrash = (s32)TIME_TO_SECONDS_F(TIME_UNTIL_MOON_CRASH);
+
+                    // This is a safety measure to delay skipping the arrow marker back a day on the frame before the day changes by just checking if time went backwards
+                    if (previousTimeCheck != -1 && previousTimeCheck > 259200 - timeUntilCrash) {
+                        s32 trueTimeUntilCrash = timeUntilCrash;
+                        timeUntilCrash = 259200 - previousTimeCheck;
+                        previousTimeCheck = 259200 - trueTimeUntilCrash;
+                    } else {
+                        previousTimeCheck = 259200 - timeUntilCrash;
+                    }
+
+                    s32 timeoffset = std::max(std::min(3 * 48 - (timeUntilCrash * 3 * 48) / 259200, 3 * 48), 0);
+
 
                     u16 counterX = posX - 24 - 48 + timeoffset;
                     u16 counterY = posY - 4;
@@ -141,7 +154,6 @@ void Register3DSClock() {
                         ((CURRENT_DAY == 3) && (((void)0, gSaveContext.save.time) >= (CLOCK_TIME(0, 0) + 5)) &&
                          (((void)0, gSaveContext.save.time) < CLOCK_TIME(6, 0)))) {
 
-                        s32 timeUntilCrash = (s32)TIME_TO_SECONDS_F(TIME_UNTIL_MOON_CRASH);
                         s32 timeInSeconds = timeUntilCrash % 60;
                         s32 timeInMinutes = (timeUntilCrash / 60) % 60;
                         s32 timeInHours = (timeUntilCrash / 60) / 60;
@@ -280,7 +292,11 @@ void Register3DSClock() {
                     gDPPipeSync(OVERLAY_DISP++);
 
                     CLOSE_DISPS(gPlayState->state.gfxCtx);
+                } else {
+                    previousTimeCheck = 259200 - (s32)TIME_TO_SECONDS_F(TIME_UNTIL_MOON_CRASH);
                 }
+            } else {
+                previousTimeCheck = 259200 - (s32)TIME_TO_SECONDS_F(TIME_UNTIL_MOON_CRASH);
             }
 
             hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
