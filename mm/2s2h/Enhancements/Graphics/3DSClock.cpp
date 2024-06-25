@@ -52,7 +52,6 @@ void Register3DSClock() {
             if (HudEditor_IsActiveElementHidden()) {
                 return;
             }
-            OPEN_DISPS(gPlayState->state.gfxCtx);
 
             if ((R_TIME_SPEED != 0) &&
                 ((gPlayState->msgCtx.msgMode == MSGMODE_NONE) ||
@@ -65,6 +64,7 @@ void Register3DSClock() {
                 if ((gPlayState->pauseCtx.state == PAUSE_STATE_OFF) &&
                     (gPlayState->pauseCtx.debugEditor == DEBUG_EDITOR_NONE)) {
 
+                    OPEN_DISPS(gPlayState->state.gfxCtx);
                     s16 posX = 160;
                     s16 posY = 210;
 
@@ -264,9 +264,10 @@ void Register3DSClock() {
                                                          counterY, 8, 8, 1 << 10, 1 << 10);
                     }
                     gDPPipeSync(OVERLAY_DISP++);
+
+                    CLOSE_DISPS(gPlayState->state.gfxCtx);
                 }
             }
-            CLOSE_DISPS(gPlayState->state.gfxCtx);
 
             hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
         }
