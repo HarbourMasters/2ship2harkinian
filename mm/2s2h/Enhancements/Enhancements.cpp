@@ -29,12 +29,14 @@ void InitEnhancements() {
 
     // Graphics
     RegisterDisableBlackBars();
+    RegisterHyruleWarriorsStyledLink();
 
     // Masks
     RegisterFastTransformation();
     RegisterFierceDeityAnywhere();
     RegisterBlastMaskKeg();
     RegisterNoBlastMaskCooldown();
+    RegisterPersistentMasks();
 
     // Minigames
     RegisterAlwaysWinDoggyRace();
