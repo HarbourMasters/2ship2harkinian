@@ -13,8 +13,13 @@ class BenMenu : public Ship::GuiWindow {
     void InitElement() override;
     void DrawElement() override;
     void UpdateElement() override;
-    void DrawContents() override{};
+    void Draw() override;
     void ToggleMenu();
+
+  protected:
+    ImVec2 mOriginalSize;
+    std::string mName;
+    uint32_t mWindowFlags;
 
   private:
     bool allowPopout = true; // PortNote: should be set to false on small screen ports

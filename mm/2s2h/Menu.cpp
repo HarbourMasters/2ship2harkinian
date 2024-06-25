@@ -483,7 +483,7 @@ void DrawHudEditorContents() {
     UIWidgets::WindowButton("Popout Hud Editor", "gWindows.HudEditor", mHudEditorWindow,
                             { .tooltip = "Enables the Hud Editor window, allowing you to edit your hud" });
     if (!CVarGetInteger("gWindows.HudEditor", 0)) {
-        mHudEditorWindow->DrawContents();
+        mHudEditorWindow->DrawElement();
     }
 }
 
@@ -560,7 +560,7 @@ void DrawCollisionViewerContents() {
     UIWidgets::WindowButton("Popout Collision Viewer", "gWindows.CollisionViewer", mCollisionViewerWindow,
                             { .tooltip = "Draws collision to the screen" });
     if (!CVarGetInteger("gWindows.CollisionViewer", 0)) {
-        mCollisionViewerWindow->DrawContents();
+        mCollisionViewerWindow->DrawElement();
     }
 }
 
@@ -569,7 +569,7 @@ void DrawStatsContents() {
         "Popout Stats", "gOpenWindows.Stats", mStatsWindow,
         { .tooltip = "Shows the stats window, with your FPS and frametimes, and the OS you're playing on" });
     if (!CVarGetInteger("gOpenWindows.Stats", 0)) {
-        mStatsWindow->DrawContents();
+        mStatsWindow->DrawElement();
     }
 }
 
@@ -578,7 +578,7 @@ void DrawConsoleContents() {
         "Popout Console", "gOpenWindows.Console", mConsoleWindow,
         { .tooltip = "Enables the console window, allowing you to input commands, type help for some examples" });
     if (!CVarGetInteger("gOpenWindows.Console", 0)) {
-        mConsoleWindow->DrawContents();
+        mConsoleWindow->DrawElement();
     }
 }
 
@@ -587,7 +587,7 @@ void DrawGfxDebuggerContents() {
         "Popout Gfx Debugger", "gOpenWindows.GfxDebugger", mGfxDebuggerWindow,
         { .tooltip = "Enables the Gfx Debugger window, allowing you to input commands, type help for some examples" });
     if (!CVarGetInteger("gOpenWindows.GfxDebugger", 0)) {
-        mGfxDebuggerWindow->DrawContents();
+        mGfxDebuggerWindow->DrawElement();
     }
 }
 
@@ -595,7 +595,7 @@ void DrawSaveEditorContents() {
     UIWidgets::WindowButton("Popout Save Editor", "gWindows.SaveEditor", mSaveEditorWindow,
                             { .tooltip = "Enables the Save Editor window, allowing you to edit your save file" });
     if (!CVarGetInteger("gWindows.SaveEditor", 0)) {
-        mSaveEditorWindow->DrawContents();
+        mSaveEditorWindow->DrawElement();
     }
 }
 
@@ -604,14 +604,14 @@ void DrawActorViewerContents() {
         "Popout Actor Viewer", "gWindows.ActorViewer", mActorViewerWindow,
         { .tooltip = "Enables the Actor Viewer window, allowing you to view actors in the world." });
     if (!CVarGetInteger("gWindows.ActorViewer", 0)) {
-        mActorViewerWindow->DrawContents();
+        mActorViewerWindow->DrawElement();
     }
 }
 
 void DrawEventLogContents() {
     UIWidgets::WindowButton("Popout Event Log", "gWindows.EventLog", mEventLogWindow);
     if (!CVarGetInteger("gWindows.EventLog", 0)) {
-        mActorViewerWindow->DrawContents();
+        mActorViewerWindow->DrawElement();
     }
 }
 
@@ -715,6 +715,15 @@ bool ModernMenuHeaderEntry(std::string label) {
     pos += style.FramePadding;
     UIWidgets::RenderText(pos, label.c_str(), ImGui::FindRenderedTextEnd(label.c_str()), true);
     return pressed;
+}
+
+void BenMenu::Draw() {
+    if (!IsVisible()) {
+        return;
+    }
+    DrawElement();
+    // Sync up the IsVisible flag if it was changed by ImGui
+    SyncVisibilityConsoleVariable();
 }
 
 void BenMenu::DrawElement() {

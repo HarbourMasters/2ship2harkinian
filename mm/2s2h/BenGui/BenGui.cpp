@@ -74,22 +74,24 @@ void SetupGuiElements() {
         SPDLOG_ERROR("Could not find input GfxDebuggerWindow");
     }
 
-    mBenInputEditorWindow = std::make_shared<BenInputEditorWindow>("gWindows.InputEditor", "Input Editor");
+    mBenInputEditorWindow =
+        std::make_shared<BenInputEditorWindow>("gWindows.InputEditor", "Input Editor", ImVec2(520, 600));
     gui->AddGuiWindow(mBenInputEditorWindow);
 
-    mSaveEditorWindow = std::make_shared<SaveEditorWindow>("gWindows.SaveEditor", "Save Editor");
+    mSaveEditorWindow = std::make_shared<SaveEditorWindow>("gWindows.SaveEditor", "Save Editor", ImVec2(480, 600));
     gui->AddGuiWindow(mSaveEditorWindow);
 
-    mHudEditorWindow = std::make_shared<HudEditorWindow>("gWindows.HudEditor", "Hud Editor");
+    mHudEditorWindow = std::make_shared<HudEditorWindow>("gWindows.HudEditor", "Hud Editor", ImVec2(480, 600));
     gui->AddGuiWindow(mHudEditorWindow);
 
-    mActorViewerWindow = std::make_shared<ActorViewerWindow>("gWindows.ActorViewer", "Actor Viewer");
+    mActorViewerWindow = std::make_shared<ActorViewerWindow>("gWindows.ActorViewer", "Actor Viewer", ImVec2(520, 600));
     gui->AddGuiWindow(mActorViewerWindow);
 
-    mCollisionViewerWindow = std::make_shared<CollisionViewerWindow>("gWindows.CollisionViewer", "Collision Viewer");
+    mCollisionViewerWindow =
+        std::make_shared<CollisionViewerWindow>("gWindows.CollisionViewer", "Collision Viewer", ImVec2(390, 475));
     gui->AddGuiWindow(mCollisionViewerWindow);
 
-    mEventLogWindow = std::make_shared<EventLogWindow>("gWindows.EventLog", "Event Log");
+    mEventLogWindow = std::make_shared<EventLogWindow>("gWindows.EventLog", "Event Log", ImVec2(520, 600));
     gui->AddGuiWindow(mEventLogWindow);
 }
 

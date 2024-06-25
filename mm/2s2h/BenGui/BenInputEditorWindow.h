@@ -25,7 +25,6 @@ class BenInputEditorWindow : public Ship::GuiWindow {
     bool TestingRumble();
     void DrawFullContents();
     void DrawPortTabContents(uint8_t portIndex);
-    void DrawContents() override{};
 
   protected:
     void InitElement() override;

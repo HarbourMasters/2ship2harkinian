@@ -39,7 +39,8 @@ static std::vector<Vtx> cylinderVtx;
 static std::vector<Gfx> sphereGfx;
 static std::vector<Vtx> sphereVtx;
 
-void CollisionViewerWindow::DrawContents() {
+// Draws the ImGui window for the collision viewer
+void CollisionViewerWindow::DrawElement() {
     UIWidgets::CVarCheckbox("Enabled", "gCollisionViewer.Enabled");
 
     ImGui::SameLine();
@@ -105,17 +106,6 @@ void CollisionViewerWindow::DrawContents() {
                                { 192, 0, 192, 255 });
 
     ImGui::EndDisabled();
-}
-
-// Draws the ImGui window for the collision viewer
-void CollisionViewerWindow::DrawElement() {
-    ImGui::SetNextWindowSize(ImVec2(390, 475), ImGuiCond_FirstUseEver);
-    if (!ImGui::Begin("Collision Viewer", &mIsVisible, ImGuiWindowFlags_NoFocusOnAppearing)) {
-        ImGui::End();
-        return;
-    }
-    DrawContents();
-    ImGui::End();
 }
 
 // Calculates the normal for a triangle at the 3 specified points

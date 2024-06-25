@@ -14,7 +14,6 @@ class HudEditorWindow : public Ship::GuiWindow {
     void InitElement() override{};
     void DrawElement() override;
     void UpdateElement() override{};
-    void DrawContents();
 };
 
 extern "C" {
