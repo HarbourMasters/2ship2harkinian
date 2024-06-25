@@ -127,7 +127,8 @@ void Register3DSClock() {
 
                     s32 timeUntilCrash = (s32)TIME_TO_SECONDS_F(TIME_UNTIL_MOON_CRASH);
 
-                    // This is a safety measure to delay skipping the arrow marker back a day on the frame before the day changes by just checking if time went backwards
+                    // This is a safety measure to delay skipping the arrow marker back a day on the frame before the
+                    // day changes by just checking if time went backwards
                     if (previousTimeCheck != -1 && previousTimeCheck > 259200 - timeUntilCrash) {
                         s32 trueTimeUntilCrash = timeUntilCrash;
                         timeUntilCrash = 259200 - previousTimeCheck;
@@ -137,7 +138,6 @@ void Register3DSClock() {
                     }
 
                     s32 timeoffset = std::max(std::min(3 * 48 - (timeUntilCrash * 3 * 48) / 259200, 3 * 48), 0);
-
 
                     u16 counterX = posX - 24 - 48 + timeoffset;
                     u16 counterY = posY - 4;
