@@ -169,6 +169,7 @@ void Register3DSClock() {
                                                    16, finalTimerPos, posY - 12, 16, 16, 1 << 10, 1 << 10);
                             finalTimerPos += finalTimerSpacing;
                         }
+                        HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
                         OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSFinalHoursMoonTex,
                                                           16, 16, posX - 8, posY - 26, 16, 16, 1 << 10, 1 << 10);
                     } else {
