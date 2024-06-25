@@ -39,8 +39,8 @@ enum AlwaysWinDoggyRaceOptions {
 
 enum ClockTypeOptions {
     CLOCK_TYPE_ORIGINAL,
-    CLOCK_TYPE_TEXT_BASED,
     CLOCK_TYPE_3DS,
+    CLOCK_TYPE_TEXT_BASED,
 };
 
 #ifdef __cplusplus
