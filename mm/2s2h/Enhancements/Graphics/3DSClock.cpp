@@ -74,7 +74,8 @@ void Register3DSClock() {
                     s16 posX = 160;
                     s16 posY = 210;
 
-                    // Draw background of 3D clock
+                    // Draw background of 3DS clock
+                    // TODO: Replace this with matrix/vertex handling to avoid gaps when scaled
                     OVERLAY_DISP = Gfx_DrawTexRectIA8_DropShadow(OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSEdgeTex, 72,
                                                                  12, posX - 24 - 72, posY, 72, 12, 1 << 10, 1 << 10,
                                                                  255, 255, 255, 255);
@@ -138,10 +139,10 @@ void Register3DSClock() {
                     OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSArrowTex, 8, 8,
                                                       counterX - 4, posY + 4, 8, 8, 1 << 10, 1 << 10);
 
-                    // Draw the current time in a small box
                     u16 curMinutes = (s32)TIME_TO_MINUTES_F(gSaveContext.save.time) % 60;
                     u16 curHours = (s32)TIME_TO_MINUTES_F(gSaveContext.save.time) / 60;
                     
+                    //Final hours timer
                      if ((CURRENT_DAY >= 4) ||
                         ((CURRENT_DAY == 3) && (((void)0, gSaveContext.save.time) >= (CLOCK_TIME(0, 0) + 5)) &&
                          (((void)0, gSaveContext.save.time) < CLOCK_TIME(6, 0)))) {
@@ -175,6 +176,8 @@ void Register3DSClock() {
                         OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSFinalHoursMoonTex, 16, 16, posX-8, posY - 26, 16, 16, 1 << 10, 1 << 10);
                      } else {
 
+                         // Draw the current time in a small box
+                         // TODO: Add scale slider to allow this box to be scaled independently of the main UI element
                          if (gSaveContext.save.timeSpeedOffset == -2) {
                              u16 pulseTime = ((s32)TIME_TO_SECONDS_F(gSaveContext.save.time) % 120);
                              u16 pulse;
@@ -229,6 +232,7 @@ void Register3DSClock() {
                              gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 64, 192, 255, 255);
                          }
 
+                         // Digital time
                          u16 timerSpacing = 6;
 
                          if (curTensHours > 0) {
@@ -260,88 +264,6 @@ void Register3DSClock() {
                                                           counterX, counterY, 8, 8, 1 << 10, 1 << 10);
                      }
                     gDPPipeSync(OVERLAY_DISP++);
-                    /* if ((R_TIME_SPEED != 0) &&
-                        ((gPlayState->msgCtx.msgMode == MSGMODE_NONE) ||
-                         ((gPlayState->actorCtx.flags & ACTORCTX_FLAG_1) && !Play_InCsMode(gPlayState)) ||
-                         (gPlayState->msgCtx.msgMode == MSGMODE_NONE) ||
-                         ((gPlayState->msgCtx.currentTextId >= 0x100) && (gPlayState->msgCtx.currentTextId <= 0x200)) ||
-                         (gSaveContext.gameMode == GAMEMODE_END_CREDITS)) &&
-                        !FrameAdvance_IsEnabled(&gPlayState->state) && !Environment_IsTimeStopped() &&
-                        (gSaveContext.save.day <= 3)) {
-
-                        OPEN_DISPS(gPlayState->state.gfxCtx);
-
-                        if ((gPlayState->pauseCtx.state == PAUSE_STATE_OFF) &&
-                            (gPlayState->pauseCtx.debugEditor == DEBUG_EDITOR_NONE)) {
-                            Gfx_SetupDL39_Overlay(gPlayState->state.gfxCtx);
-
-                            u16 curMinutes = (s32)TIME_TO_MINUTES_F(gSaveContext.save.time) % 60;
-                            u16 curHours = (s32)TIME_TO_MINUTES_F(gSaveContext.save.time) / 60;
-
-                            u16 timeUntilMoonCrash = (s32)TIME_UNTIL_MOON_CRASH;
-                            u16 timeInMinutes = (s32)TIME_TO_MINUTES_F(timeUntilMoonCrash) % 60;
-                            u16 timeInHours = (s32)TIME_TO_MINUTES_F(timeUntilMoonCrash) / 60;
-
-                            char formattedTime[10];
-                            char formattedCrashTime[10];
-
-                            //
-                            // Section: Draw Clock's Border
-                            //
-                            gDPPipeSync(OVERLAY_DISP++);
-
-                            OPEN_PRINTER(OVERLAY_DISP);
-
-                            // Inverted time
-                            if (gSaveContext.save.timeSpeedOffset == -2) {
-                                GfxPrint_SetColor(&printer, 0, 204, 255, 255);
-                            } else {
-                                GfxPrint_SetColor(&printer, 255, 255, 255, 255);
-                            }
-
-                            // Scale starting position values by 8 for use with hud editor
-                            s16 posX = 13 * 8;
-                            s16 posY = 26 * 8;
-
-                            HudEditor_ModifyRectPosValues(&posX, &posY);
-
-                            // scale back down and clamp to avoid negative values
-                            posX = std::max(posX / 8, 0);
-                            posY = std::max(posY / 8, 0);
-
-                            if (CVarGetInteger("gEnhancements.Graphics.24HoursClock", 0)) {
-                                sprintf(formattedTime, "%02d:%02d", curHours, curMinutes);
-                                GfxPrint_SetPos(&printer, posX + 1, posY);
-                            } else { // Format hours and minutes for 12-hour AM/PM clock
-                                char amPm[3] = "am";
-                                if (curHours >= 12) {
-                                    strcpy(amPm, "pm");
-                                    if (curHours > 12) {
-                                        curHours -= 12;
-                                    }
-                                }
-                                if (curHours == 0) {
-                                    curHours = 12;
-                                }
-                                sprintf(formattedTime, "%02d:%02d%s", curHours, curMinutes, amPm);
-                                GfxPrint_SetPos(&printer, posX, posY);
-                            }
-
-                            GfxPrint_Printf(&printer, "Day %d: %s", gSaveContext.save.day, formattedTime);
-                            GfxPrint_SetPos(&printer, posX, posY + 1);
-
-                            // Crash Countdown
-                            if ((CURRENT_DAY >= 4) ||
-                                ((CURRENT_DAY == 3) && (((void)0, gSaveContext.save.time) >= (CLOCK_TIME(0, 0) + 5)) &&
-                                 (((void)0, gSaveContext.save.time) < CLOCK_TIME(6, 0)))) {
-                                GfxPrint_SetColor(&printer, 255, 0, 0, 255);
-                                sprintf(formattedCrashTime, "%02d:%02d", timeInHours, timeInMinutes);
-                                GfxPrint_Printf(&printer, "Crash in %s", formattedCrashTime);
-                            }
-
-                            CLOSE_PRINTER(printer, OVERLAY_DISP);
-                        }
-                        */
 
                 }
             }
