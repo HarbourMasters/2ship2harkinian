@@ -41,12 +41,17 @@ u8 sMotionBlurStatus;
 #include "2s2h/DeveloperTools/CollisionViewer.h"
 #include "2s2h/framebuffer_effects.h"
 #include <string.h>
+#include <GameVersions.h>
 
 s32 gDbgCamEnabled = false;
 u8 D_801D0D54 = false;
 
 // #region 2S2H [General] Making gPlayState available
 PlayState* gPlayState;
+// #endregion
+
+// #region 2S2H [JP] Making sJPMessageEntryTablePtr available
+MessageTableEntry* sJPMessageEntryTablePtr = NULL;
 // #endregion
 
 // Track when the notebook is closed so we can refresh our framebuffer captures
@@ -761,7 +766,11 @@ void Play_UpdateTransition(PlayState* this) {
                         }
                     } else { // GAMEMODE_FILE_SELECT
                         STOP_GAMESTATE(&this->state);
-                        SET_NEXT_GAMESTATE(&this->state, FileSelect_Init, sizeof(FileSelectState));
+                        if (ResourceMgr_GetGameDefaultLanguage(0) == LANGUAGE_JPN) {
+                            SET_NEXT_GAMESTATE(&this->state, FileSelect_JP_Init, sizeof(FileSelectState));
+                        } else {
+                            SET_NEXT_GAMESTATE(&this->state, FileSelect_Init, sizeof(FileSelectState));
+                        }
                     }
                 } else {
                     if (this->transitionCtx.transitionType == TRANS_TYPE_CIRCLE) {

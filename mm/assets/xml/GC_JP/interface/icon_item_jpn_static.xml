@@ -1,0 +1,41 @@
+<Root>
+    <!-- Pause Menu: Language-Dependent Textures -->
+    <File Name="icon_item_jpn_static" Segment="13">
+        <!-- Pause Menu Dungeon Title Cards -->
+        <Texture Name="gPauseWoodfallTitleENGTex" OutName="pause_woodfall_title_eng" Format="ia8" Width="128" Height="16" Offset="0x0"/>
+        <Texture Name="gPauseSnowheadTitleENGTex" OutName="pause_snowhead_title_eng" Format="ia8" Width="128" Height="16" Offset="0x800"/>
+        <Texture Name="gPauseGreatBayTitleENGTex" OutName="pause_great_bay_title_eng" Format="ia8" Width="128" Height="16" Offset="0x1000"/>
+        <Texture Name="gPauseStoneTowerTitleENGTex" OutName="pause_stone_tower_title_eng" Format="ia8" Width="128" Height="16" Offset="0x1800"/>
+
+        <!-- JPN Extra Dungeon Title Stuff? -->
+        <!--
+        <Texture Name="" OutName="" Format="ia8" Width="96" Height="16" Offset="0x2000"/>
+        <Texture Name="" OutName="" Format="ia8" Width="96" Height="16" Offset="0x2600"/>
+        <Texture Name="" OutName="" Format="ia8" Width="96" Height="16" Offset="0x2C00"/>
+        <Texture Name="" OutName="" Format="ia8" Width="96" Height="16" Offset="0x3200"/>
+        <Texture Name="" OutName="" Format="ia8" Width="96" Height="16" Offset="0x3800"/>
+        <Texture Name="" OutName="" Format="ia8" Width="96" Height="16" Offset="0x3E00"/>
+         -->
+
+        <!-- Pause Menu Info Panel To-> Textures -->
+        <Texture Name="gPauseToEquipENGTex" OutName="pause_to_equip_eng" Format="ia4" Width="64" Height="16" Offset="0x4400"/>
+        <Texture Name="gPauseToDecideENGTex" OutName="pause_to_decide_eng" Format="ia4" Width="48" Height="16" Offset="0x4600"/>
+        <Texture Name="gPauseToPlayMelodyENGTex" OutName="pause_to_play_melody_eng" Format="ia4" Width="96" Height="16" Offset="0x4780"/>
+        <Texture Name="gPauseToSelectItemENGTex" OutName="pause_to_select_item_eng" Format="ia4" Width="128" Height="16" Offset="0x4A80"/>
+        <Texture Name="gPauseToMapENGTex" OutName="pause_to_map_eng" Format="ia4" Width="128" Height="16" Offset="0x4E80"/>
+        <Texture Name="gPauseToQuestStatusENGTex" OutName="pause_to_quest_status_eng" Format="ia4" Width="128" Height="16" Offset="0x5280"/>
+        <Texture Name="gPauseToMasksENGTex" OutName="pause_to_masks_eng" Format="ia4" Width="128" Height="16" Offset="0x5680"/>
+        <Texture Name="gPauseToViewNotebookENGTex" OutName="pause_to_view_notebook_eng" Format="ia4" Width="96" Height="16" Offset="0x5A80"/>
+
+        <!-- JPN Save Stuff -->
+        <!--
+        <Texture Name="" OutName="" Format="ia8" Width="152" Height="16" Offset="0x5D80"/>
+        <Texture Name="" OutName="" Format="ia8" Width="152" Height="16" Offset="0x6700"/>
+        <Texture Name="" OutName="" Format="ia8" Width="48" Height="16" Offset="0x7080"/>
+        <Texture Name="" OutName="" Format="ia8" Width="48" Height="16" Offset="0x7380"/>
+         -->
+        <!-- ci4 64x__? <Texture Name="" OutName="" Format="" Width="" Height="" Offset="0x7680"/> -->
+
+        <!-- Pause Menu Pages Background Textures (Do Not Exist on JP) -->
+    </File>
+</Root>
