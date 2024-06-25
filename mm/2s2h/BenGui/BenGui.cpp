@@ -20,6 +20,9 @@
 #include "include/global.h"
 #include "include/z64audio.h"
 
+#include "Enhancements/Trackers/ItemTracker.h"
+#include "Enhancements/Trackers/ItemTrackerSettings.h"
+
 namespace BenGui {
 // MARK: - Delegates
 
@@ -35,6 +38,8 @@ std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
 std::shared_ptr<EventLogWindow> mEventLogWindow;
+std::shared_ptr<ItemTrackerWindow> mItemTrackerWindow;
+std::shared_ptr<ItemTrackerSettingsWindow> mItemTrackerSettingsWindow;
 
 void SetupGuiElements() {
     auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
@@ -89,9 +94,19 @@ void SetupGuiElements() {
 
     mEventLogWindow = std::make_shared<EventLogWindow>("gWindows.EventLog", "Event Log");
     gui->AddGuiWindow(mEventLogWindow);
+
+    mItemTrackerWindow = std::make_shared<ItemTrackerWindow>("gWindows.ItemTracker", "Item Tracker");
+    gui->AddGuiWindow(mItemTrackerWindow);
+
+    mItemTrackerSettingsWindow =
+        std::make_shared<ItemTrackerSettingsWindow>("gWindows.ItemTrackerSettings", "Item Tracker Settings");
+    gui->AddGuiWindow(mItemTrackerSettingsWindow);
 }
 
 void Destroy() {
+    auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+
+    gui->RemoveAllGuiWindows();
     mBenMenuBar = nullptr;
     mStatsWindow = nullptr;
     mConsoleWindow = nullptr;
@@ -99,9 +114,10 @@ void Destroy() {
     mGfxDebuggerWindow = nullptr;
     mCollisionViewerWindow = nullptr;
     mEventLogWindow = nullptr;
-
     mSaveEditorWindow = nullptr;
     mHudEditorWindow = nullptr;
     mActorViewerWindow = nullptr;
+    mItemTrackerWindow = nullptr;
+    mItemTrackerSettingsWindow = nullptr;
 }
 } // namespace BenGui
