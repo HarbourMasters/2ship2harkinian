@@ -21,30 +21,24 @@ Gfx* Gfx_DrawTexRectIA8_DropShadow(Gfx* gfx, TexturePtr texture, s16 textureWidt
                                    s16 a);
 
 Gfx* Gfx_DrawTexRectIA8_DropShadowOffset(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 textureHeight,
-                                          s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy,
-                                          s16 r, s16 g, s16 b, s16 a, s32 masks, s32 rects);
-
+                                         s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy,
+                                         s16 r, s16 g, s16 b, s16 a, s32 masks, s32 rects);
 }
 
 static TexturePtr sDigitTextures[] = {
-    (TexturePtr)gFinalHoursClockDigit0Tex,
-    (TexturePtr)gFinalHoursClockDigit1Tex,
-    (TexturePtr)gFinalHoursClockDigit2Tex,
-    (TexturePtr)gFinalHoursClockDigit3Tex,
-    (TexturePtr)gFinalHoursClockDigit4Tex,
-    (TexturePtr)gFinalHoursClockDigit5Tex,
-    (TexturePtr)gFinalHoursClockDigit6Tex,
-    (TexturePtr)gFinalHoursClockDigit7Tex,
-    (TexturePtr)gFinalHoursClockDigit8Tex,
-    (TexturePtr)gFinalHoursClockDigit9Tex, 
-    (TexturePtr)gFinalHoursClockColonTex,
+    (TexturePtr)gFinalHoursClockDigit0Tex, (TexturePtr)gFinalHoursClockDigit1Tex, (TexturePtr)gFinalHoursClockDigit2Tex,
+    (TexturePtr)gFinalHoursClockDigit3Tex, (TexturePtr)gFinalHoursClockDigit4Tex, (TexturePtr)gFinalHoursClockDigit5Tex,
+    (TexturePtr)gFinalHoursClockDigit6Tex, (TexturePtr)gFinalHoursClockDigit7Tex, (TexturePtr)gFinalHoursClockDigit8Tex,
+    (TexturePtr)gFinalHoursClockDigit9Tex, (TexturePtr)gFinalHoursClockColonTex,
 };
 
 static TexturePtr sFinalHoursDigitTextures[] = {
-    (TexturePtr)gThreeDayClock3DSFinalHoursDigit0Tex, (TexturePtr)gThreeDayClock3DSFinalHoursDigit1Tex, (TexturePtr)gThreeDayClock3DSFinalHoursDigit2Tex,
-    (TexturePtr)gThreeDayClock3DSFinalHoursDigit3Tex, (TexturePtr)gThreeDayClock3DSFinalHoursDigit4Tex, (TexturePtr)gThreeDayClock3DSFinalHoursDigit5Tex,
-    (TexturePtr)gThreeDayClock3DSFinalHoursDigit6Tex, (TexturePtr)gThreeDayClock3DSFinalHoursDigit7Tex, (TexturePtr)gThreeDayClock3DSFinalHoursDigit8Tex,
-    (TexturePtr)gThreeDayClock3DSFinalHoursDigit9Tex, (TexturePtr)gThreeDayClock3DSFinalHoursColonTex,
+    (TexturePtr)gThreeDayClock3DSFinalHoursDigit0Tex, (TexturePtr)gThreeDayClock3DSFinalHoursDigit1Tex,
+    (TexturePtr)gThreeDayClock3DSFinalHoursDigit2Tex, (TexturePtr)gThreeDayClock3DSFinalHoursDigit3Tex,
+    (TexturePtr)gThreeDayClock3DSFinalHoursDigit4Tex, (TexturePtr)gThreeDayClock3DSFinalHoursDigit5Tex,
+    (TexturePtr)gThreeDayClock3DSFinalHoursDigit6Tex, (TexturePtr)gThreeDayClock3DSFinalHoursDigit7Tex,
+    (TexturePtr)gThreeDayClock3DSFinalHoursDigit8Tex, (TexturePtr)gThreeDayClock3DSFinalHoursDigit9Tex,
+    (TexturePtr)gThreeDayClock3DSFinalHoursColonTex,
 };
 
 s16 finalHoursClockSlots[8];
@@ -141,9 +135,9 @@ void Register3DSClock() {
 
                     u16 curMinutes = (s32)TIME_TO_MINUTES_F(gSaveContext.save.time) % 60;
                     u16 curHours = (s32)TIME_TO_MINUTES_F(gSaveContext.save.time) / 60;
-                    
-                    //Final hours timer
-                     if ((CURRENT_DAY >= 4) ||
+
+                    // Final hours timer
+                    if ((CURRENT_DAY >= 4) ||
                         ((CURRENT_DAY == 3) && (((void)0, gSaveContext.save.time) >= (CLOCK_TIME(0, 0) + 5)) &&
                          (((void)0, gSaveContext.save.time) < CLOCK_TIME(6, 0)))) {
 
@@ -164,107 +158,111 @@ void Register3DSClock() {
 
                         u16 finalTimerSpacing = 8;
 
-                        u16 finalTimerPos = posX - finalTimerSpacing * 4 - finalTimerSpacing/2;
+                        u16 finalTimerPos = posX - finalTimerSpacing * 4 - finalTimerSpacing / 2;
                         s16 i;
                         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 0, 0, 255);
                         for (i = 0; i < 8; i++) {
 
                             HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
-                            OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, sFinalHoursDigitTextures[finalHoursClockSlots[i]], 16, 16, finalTimerPos, posY - 12, 16, 16, 1 << 10, 1 << 10);
+                            OVERLAY_DISP =
+                                Gfx_DrawTexRectIA8(OVERLAY_DISP, sFinalHoursDigitTextures[finalHoursClockSlots[i]], 16,
+                                                   16, finalTimerPos, posY - 12, 16, 16, 1 << 10, 1 << 10);
                             finalTimerPos += finalTimerSpacing;
                         }
-                        OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSFinalHoursMoonTex, 16, 16, posX-8, posY - 26, 16, 16, 1 << 10, 1 << 10);
-                     } else {
+                        OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSFinalHoursMoonTex,
+                                                          16, 16, posX - 8, posY - 26, 16, 16, 1 << 10, 1 << 10);
+                    } else {
 
-                         // Draw the current time in a small box
-                         // TODO: Add scale slider to allow this box to be scaled independently of the main UI element
-                         if (gSaveContext.save.timeSpeedOffset == -2) {
-                             u16 pulseTime = ((s32)TIME_TO_SECONDS_F(gSaveContext.save.time) % 120);
-                             u16 pulse;
-                             if (pulseTime < 60) {
-                                 pulse = (pulseTime * 255) / 60;
-                             } else {
-                                 pulse = 255 - ((pulseTime - 60) * 255) / 60;
-                             }
+                        // Draw the current time in a small box
+                        // TODO: Add scale slider to allow this box to be scaled independently of the main UI element
+                        if (gSaveContext.save.timeSpeedOffset == -2) {
+                            u16 pulseTime = ((s32)TIME_TO_SECONDS_F(gSaveContext.save.time) % 120);
+                            u16 pulse;
+                            if (pulseTime < 60) {
+                                pulse = (pulseTime * 255) / 60;
+                            } else {
+                                pulse = 255 - ((pulseTime - 60) * 255) / 60;
+                            }
 
-                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, pulse, pulse, 0, 128);
-                         } else {
-                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, 128);
-                         }
-                         HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
-                         OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSTimeBackdropTex, 48, 16,
-                                                counterX - 24, counterY - 4, 48, 16, 1 << 10, 1 << 10);
+                            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, pulse, pulse, 0, 128);
+                        } else {
+                            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, 128);
+                        }
+                        HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
+                        OVERLAY_DISP =
+                            Gfx_DrawTexRectIA8(OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSTimeBackdropTex, 48, 16,
+                                               counterX - 24, counterY - 4, 48, 16, 1 << 10, 1 << 10);
 
-                         counterX -= 8;
+                        counterX -= 8;
 
-                         TexturePtr daynightmarker;
-                         if (curHours < 6 || curHours >= 18) {
-                             daynightmarker = (TexturePtr)gThreeDayClockMoonHourTex;
-                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 200, 200, 0, 255);
-                         } else {
-                             daynightmarker = (TexturePtr)gThreeDayClockSunHourTex;
-                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 200, 64, 0, 255);
-                         }
-                         HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
-                         OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, daynightmarker, 24, 24, counterX - 11,
-                                                          counterY - 2, 12, 12, 1 << 11, 1 << 11);
-                         if (!CVarGetInteger("gEnhancements.Graphics.24HoursClock", 0)) {
-                             curHours %= 12;
-                             if (curHours == 0) {
-                                 curHours = 12;
-                             }
-                         }
+                        TexturePtr daynightmarker;
+                        if (curHours < 6 || curHours >= 18) {
+                            daynightmarker = (TexturePtr)gThreeDayClockMoonHourTex;
+                            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 200, 200, 0, 255);
+                        } else {
+                            daynightmarker = (TexturePtr)gThreeDayClockSunHourTex;
+                            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 200, 64, 0, 255);
+                        }
+                        HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
+                        OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, daynightmarker, 24, 24, counterX - 11,
+                                                         counterY - 2, 12, 12, 1 << 11, 1 << 11);
+                        if (!CVarGetInteger("gEnhancements.Graphics.24HoursClock", 0)) {
+                            curHours %= 12;
+                            if (curHours == 0) {
+                                curHours = 12;
+                            }
+                        }
 
-                         u16 curTensHours = curHours / 10;
-                         curHours %= 10;
+                        u16 curTensHours = curHours / 10;
+                        curHours %= 10;
 
-                         u16 curTensMinutes = curMinutes / 10;
-                         curMinutes %= 10;
+                        u16 curTensMinutes = curMinutes / 10;
+                        curMinutes %= 10;
 
-                         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 255);
+                        gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, 255);
 
-                         // Inverted time
-                         if (gSaveContext.save.timeSpeedOffset == -2) {
-                             HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
-                             OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSSlowTimeTex, 16, 16,
-                                                    counterX + 8 + 20, counterY - 4, 16, 16, 1 << 10, 1 << 10);
+                        // Inverted time
+                        if (gSaveContext.save.timeSpeedOffset == -2) {
+                            HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
+                            OVERLAY_DISP =
+                                Gfx_DrawTexRectIA8(OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSSlowTimeTex, 16, 16,
+                                                   counterX + 8 + 20, counterY - 4, 16, 16, 1 << 10, 1 << 10);
 
-                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 64, 192, 255, 255);
-                         }
+                            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 64, 192, 255, 255);
+                        }
 
-                         // Digital time
-                         u16 timerSpacing = 6;
+                        // Digital time
+                        u16 timerSpacing = 6;
 
-                         if (curTensHours > 0) {
-                             timerSpacing = 4;
+                        if (curTensHours > 0) {
+                            timerSpacing = 4;
 
-                             HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
-                             OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sDigitTextures[curTensHours], 8,
-                                                              8, counterX, counterY, 8, 8, 1 << 10, 1 << 10);
-                             counterX += timerSpacing;
-                         }
+                            HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
+                            OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sDigitTextures[curTensHours], 8, 8, counterX,
+                                                             counterY, 8, 8, 1 << 10, 1 << 10);
+                            counterX += timerSpacing;
+                        }
 
-                         HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
-                         OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sDigitTextures[curHours], 8, 8,
-                                                          counterX, counterY, 8, 8, 1 << 10, 1 << 10);
-                         counterX += timerSpacing;
+                        HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
+                        OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sDigitTextures[curHours], 8, 8, counterX,
+                                                         counterY, 8, 8, 1 << 10, 1 << 10);
+                        counterX += timerSpacing;
 
-                         HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
-                         OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sDigitTextures[10], 8, 8, counterX,
-                                                          counterY, 8, 8, 1 << 10, 1 << 10);
-                         counterX += timerSpacing;
+                        HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
+                        OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sDigitTextures[10], 8, 8, counterX, counterY, 8,
+                                                         8, 1 << 10, 1 << 10);
+                        counterX += timerSpacing;
 
-                         HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
-                         OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sDigitTextures[curTensMinutes], 8, 8,
-                                                          counterX, counterY, 8, 8, 1 << 10, 1 << 10);
-                         counterX += timerSpacing;
+                        HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
+                        OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sDigitTextures[curTensMinutes], 8, 8, counterX,
+                                                         counterY, 8, 8, 1 << 10, 1 << 10);
+                        counterX += timerSpacing;
 
-                         HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
-                         OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sDigitTextures[curMinutes], 8, 8,
-                                                          counterX, counterY, 8, 8, 1 << 10, 1 << 10);
-                     }
+                        HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
+                        OVERLAY_DISP = Gfx_DrawTexRectI8(OVERLAY_DISP, sDigitTextures[curMinutes], 8, 8, counterX,
+                                                         counterY, 8, 8, 1 << 10, 1 << 10);
+                    }
                     gDPPipeSync(OVERLAY_DISP++);
-
                 }
             }
             CLOSE_DISPS(gPlayState->state.gfxCtx);
