@@ -10,6 +10,7 @@ void InitEnhancements() {
     RegisterInfiniteCheats();
     RegisterLongerFlowerGlide();
     RegisterMoonJumpOnL();
+    RegisterOverrideTextExample();
     RegisterUnbreakableRazorSword();
     RegisterUnrestrictedItems();
 

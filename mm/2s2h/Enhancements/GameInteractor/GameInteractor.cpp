@@ -173,10 +173,10 @@ void GameInteractor_ExecuteOnPassPlayerInputs(Input* input) {
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnPassPlayerInputs>(input);
 }
 
-void GameInteractor_ExecuteOnOpenText(u16 textId) {
-    SPDLOG_DEBUG("OnOpenText: textId: {}", textId);
+void GameInteractor_ExecuteOnOpenText(u16* textId) {
+    SPDLOG_DEBUG("OnOpenText: textId: {}", *textId);
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnOpenText>(textId);
-    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnOpenText>(textId, textId);
+    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnOpenText>(*textId, textId);
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnOpenText>(textId);
 }
 

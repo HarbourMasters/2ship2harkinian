@@ -287,7 +287,7 @@ class GameInteractor {
 
     DEFINE_HOOK(OnPassPlayerInputs, (Input * input));
 
-    DEFINE_HOOK(OnOpenText, (u16 textId));
+    DEFINE_HOOK(OnOpenText, (u16 * textId));
 
     DEFINE_HOOK(ShouldItemGive, (u8 item, bool* should));
     DEFINE_HOOK(OnItemGive, (u8 item));
@@ -331,7 +331,7 @@ void GameInteractor_ExecuteOnCameraChangeSettingsFlags(Camera* camera);
 
 void GameInteractor_ExecuteOnPassPlayerInputs(Input* input);
 
-void GameInteractor_ExecuteOnOpenText(u16 textId);
+void GameInteractor_ExecuteOnOpenText(u16* textId);
 
 bool GameInteractor_ShouldItemGive(u8 item);
 void GameInteractor_ExecuteOnItemGive(u8 item);
