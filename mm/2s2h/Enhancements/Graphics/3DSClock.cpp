@@ -67,24 +67,7 @@ void Register3DSClock() {
                 !FrameAdvance_IsEnabled(&gPlayState->state) && !Environment_IsTimeStopped() &&
                 (gSaveContext.save.day <= 3)) {
 
-                InterfaceContext interfaceCtx = gPlayState->interfaceCtx;
-                s16 colorStep;
-
-                if (gSaveContext.hudVisibility == HUD_VISIBILITY_ALL) {
-                    if (!func_801234D4(gPlayState)) {
-                        if (gPlayState->actorCtx.flags & ACTORCTX_FLAG_1) {
-                            sThreeDayClockAlpha = 255;
-                        } else {
-                            sThreeDayClockAlpha = interfaceCtx.bAlpha;
-                        }
-                    }
-                } else {
-                    if (gPlayState->actorCtx.flags & ACTORCTX_FLAG_1) {
-                        sThreeDayClockAlpha = 255;
-                    } else {
-                        sThreeDayClockAlpha = interfaceCtx.bAlpha;
-                    }
-                }
+                sThreeDayClockAlpha = gPlayState->interfaceCtx.bAlpha;
 
                 if ((gPlayState->pauseCtx.state == PAUSE_STATE_OFF) &&
                     (gPlayState->pauseCtx.debugEditor == DEBUG_EDITOR_NONE)) {
