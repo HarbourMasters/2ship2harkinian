@@ -28,8 +28,8 @@ You can verify you have dumped a supported copy of the game by using the compati
 * Execute `2ship.appimage`.  You may have to `chmod +x` the appimage via terminal.
 
 #### macOS
-* Run `2ship.app`. When prompted, select your supported copy of the game.
-* You should see a notification saying `Processing O2R`, then, once the process is complete, you should get a notification saying `O2R Successfully Generated`, then the game should start.
+* Run `2ship.app`.
+* When prompted, select your supported copy of the game.
 
 ### 4. Play!
 
