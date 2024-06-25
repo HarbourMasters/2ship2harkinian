@@ -221,6 +221,16 @@ int GameInteractor_InvertControl(GIInvertType type) {
                 result *= -1;
             }
             break;
+        case GI_INVERT_FIRST_PERSON_AIM_X:
+            if (CVarGetInteger("gEnhancements.Camera.FirstPerson.InvertX", 0)) {
+                result *= -1;
+            }
+            break;
+        case GI_INVERT_FIRST_PERSON_AIM_Y:
+            if (CVarGetInteger("gEnhancements.Camera.FirstPerson.InvertY", 1)) {
+                result *= -1;
+            }
+            break;
     }
 
     /*
@@ -228,6 +238,7 @@ int GameInteractor_InvertControl(GIInvertType type) {
     if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
         switch (type) {
             case GI_INVERT_CAMERA_RIGHT_STICK_X:
+            case GI_INVERT_FIRST_PERSON_AIM_X:
                 result *= -1;
                 break;
         }

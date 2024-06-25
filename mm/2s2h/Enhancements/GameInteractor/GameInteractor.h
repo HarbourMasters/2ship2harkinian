@@ -60,6 +60,8 @@ typedef enum {
 typedef enum {
     GI_INVERT_CAMERA_RIGHT_STICK_X,
     GI_INVERT_CAMERA_RIGHT_STICK_Y,
+    GI_INVERT_FIRST_PERSON_AIM_X,
+    GI_INVERT_FIRST_PERSON_AIM_Y,
 } GIInvertType;
 
 typedef enum {

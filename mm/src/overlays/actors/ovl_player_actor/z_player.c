@@ -12995,7 +12995,78 @@ void Player_Destroy(Actor* thisx, PlayState* play) {
     func_80831454(this);
 }
 
+s32 Ship_HandleFirstPersonAiming(PlayState* play, Player* this, s32 arg2) {
+    s16 var_s0;
+    s32 stickX = sPlayerControlInput->rel.stick_x; // -60 to 60
+    s32 stickY = sPlayerControlInput->rel.stick_y; // -60 to 60
+
+    stickX *= GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_AIM_X);
+    stickY *= -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_AIM_Y);
+
+    stickX *= CVarGetFloat("gEnhancements.Camera.FirstPerson.SensitivityX", 1.0f);
+    stickY *= CVarGetFloat("gEnhancements.Camera.FirstPerson.SensitivityY", 1.0f);
+
+    if (CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroEnabled", 0)) {
+        float gyroX = -sPlayerControlInput->cur.gyro_y; // -40 to 40, avg -4 to 4
+        float gyroY = sPlayerControlInput->cur.gyro_x;  // -20 to 20, avg -2 to 2
+
+        gyroX *= CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroInvertX", 0) ? 1 : -1;
+        gyroY *= CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroInvertY", 0) ? 1 : -1;
+
+        stickX += gyroX * 60.0f * CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityX", 1.0f);
+        stickY += gyroY * 60.0f * CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityY", 1.0f);
+    }
+
+    if (CVarGetInteger("gEnhancements.Camera.FirstPerson.RightStickEnabled", 0)) {
+        s32 rightStickX = sPlayerControlInput->cur.right_stick_x; // -40 to 40, avg -4 to 4
+        s32 rightStickY = sPlayerControlInput->cur.right_stick_y; // -20 to 20, avg -2 to 2
+
+        rightStickX *= -(CVarGetInteger("gEnhancements.Camera.FirstPerson.RightStickInvertX", 0) ? 1 : -1);
+        rightStickY *= (CVarGetInteger("gEnhancements.Camera.FirstPerson.RightStickInvertY", 1) ? 1 : -1);
+
+        stickX += rightStickX * CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityX", 1.0f);
+        stickY += rightStickY * CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityY", 1.0f);
+    }
+
+    stickX = CLAMP(stickX, -60, 60);
+    stickY = CLAMP(stickY, -60, 60);
+
+    if (!func_800B7128(this) && !func_8082EF20(this) && !arg2) { // First person without weapon
+        var_s0 = stickY * 0xF0;
+        Math_SmoothStepToS(&this->actor.focus.rot.x, var_s0, 0xE, 0xFA0, 0x1E);
+
+        var_s0 = stickX * -0x10;
+        var_s0 = CLAMP(var_s0, -0xBB8, 0xBB8);
+        this->actor.focus.rot.y += var_s0;
+    } else { // First person with weapon
+        s16 temp3;
+
+        temp3 = ((stickY >= 0) ? 1 : -1) * (s32)((1.0f - Math_CosS(stickY * 0xC8)) * 1500.0f);
+        this->actor.focus.rot.x += temp3;
+
+        if (this->stateFlags1 & PLAYER_STATE1_800000) {
+            this->actor.focus.rot.x = CLAMP(this->actor.focus.rot.x, -0x1F40, 0xFA0);
+        } else {
+            this->actor.focus.rot.x = CLAMP(this->actor.focus.rot.x, -0x36B0, 0x36B0);
+        }
+
+        var_s0 = this->actor.focus.rot.y - this->actor.shape.rot.y;
+        temp3 = ((stickX >= 0) ? 1 : -1) * (s32)((1.0f - Math_CosS(stickX * 0xC8)) * -1500.0f);
+        var_s0 += temp3;
+
+        this->actor.focus.rot.y = CLAMP(var_s0, -0x4AAA, 0x4AAA) + this->actor.shape.rot.y;
+    }
+
+    this->unk_AA6 |= 2;
+
+    return func_80832754(this, (play->bButtonAmmoPlusOne != 0) || func_800B7128(this) || func_8082EF20(this));
+}
+
 s32 func_80847190(PlayState* play, Player* this, s32 arg2) {
+    // #region 2S2H [Enhancements] Use our own heavily modified version of this for customizations
+    return Ship_HandleFirstPersonAiming(play, this, arg2);
+    // #endregion
+
     s32 pad;
     s16 var_s0;
 
