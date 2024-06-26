@@ -181,7 +181,7 @@ void Register3DSClock() {
                         u16 finalTimerPos = posX - finalTimerSpacing * 4 - finalTimerSpacing / 2;
                         s16 i;
 
-                        s32 percentToCrash = (timeUntilCrash * 255) / 21600;
+                        s32 percentToCrash = std::min(std::max((timeUntilCrash * 255) / 21600, 0), 255);
 
                         u16 finalHoursR1 = 255;
                         u16 finalHoursR2 = 255;
@@ -190,9 +190,12 @@ void Register3DSClock() {
                         u16 finalHoursB1 = 0;
                         u16 finalHoursB2 = 0;
 
-                        u16 finalHoursR = finalHoursR2 + (percentToCrash * (finalHoursR1 - finalHoursR2));
-                        u16 finalHoursG = finalHoursG2 + (percentToCrash * (finalHoursG1 - finalHoursG2));
-                        u16 finalHoursB = finalHoursB2 + (percentToCrash * (finalHoursB1 - finalHoursB2));
+                        u16 finalHoursR =
+                            (((255 - percentToCrash) * finalHoursR1) + (percentToCrash * finalHoursR2)) / 255;
+                        u16 finalHoursG =
+                            (((255 - percentToCrash) * finalHoursG1) + (percentToCrash * finalHoursG2)) / 255;
+                        u16 finalHoursB =
+                            (((255 - percentToCrash) * finalHoursB1) + (percentToCrash * finalHoursB2)) / 255;
 
                         s32 finalHoursOffset = 10;
                         s32 finalHoursModifier = 2;
