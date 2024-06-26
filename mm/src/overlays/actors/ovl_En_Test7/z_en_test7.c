@@ -406,6 +406,12 @@ void EnTest7_Init(Actor* thisx, PlayState* play2) {
     if (ENTEST7_GET(&this->actor) == ENTEST7_MINUS1) {
         func_80AF082C(this, func_80AF2938);
         EnTest7_SetupAction(this, NULL);
+    } else if (CVarGetInteger("gEnhancements.Playback.FastSongPlayback",
+                              0)) { // Skips the wings cutscene for song of soaring. Must be below previous lines or
+                                    // warping to entrance of temples will warp to Mayors Residence instead
+        func_80AF082C(this, func_80AF2350);
+        EnTest7_SetupAction(this, NULL);
+        Audio_PlayBgm_StorePrevBgm(NA_BGM_SONG_OF_SOARING);
     } else {
         func_80AF082C(this, func_80AF19A8);
         EnTest7_SetupAction(this, func_80AF2854);
@@ -766,7 +772,10 @@ void func_80AF2938(EnTest7* this, PlayState* play) {
     player->stateFlags2 |= PLAYER_STATE2_20000000;
     this->unk_144 |= 2;
     this->unk_148.unk_04 = 30.0f;
-    if (play->roomCtx.curRoom.behaviorType1 != ROOM_BEHAVIOR_TYPE1_1) {
+    if ((play->roomCtx.curRoom.behaviorType1 != ROOM_BEHAVIOR_TYPE1_1) &&
+        (!CVarGetInteger("gEnhancements.Playback.FastSongPlayback",
+                         0))) { // When CVar is true, it will play the temple entrance spawning cutscene instead of the
+                                // longer overworld one
         func_80AF082C(this, func_80AF2AE8);
     } else {
         func_80AF082C(this, func_80AF2EC8);
@@ -884,7 +893,12 @@ void func_80AF2EC8(EnTest7* this, PlayState* play) {
         subCam = Play_GetCamera(play, CutsceneManager_GetCurrentSubCamId(play->playerCsIds[PLAYER_CS_ID_SONG_WARP]));
         this->subCamEye = subCam->eye;
         this->subCamAt = subCam->at;
-        this->unk_1E54 = 40;
+        if (CVarGetInteger("gEnhancements.Playback.FastSongPlayback",
+                           0)) { // Skips part of the feather animation when you spawn in
+            this->unk_1E54 = 60;
+        } else {
+            this->unk_1E54 = 40;
+        }
 
         func_80AF2DB4(this, play);
     }

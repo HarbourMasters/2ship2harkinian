@@ -51,10 +51,11 @@ void OceffWipe5_Destroy(Actor* thisx, PlayState* play) {
 
 void OceffWipe5_Update(Actor* thisx, PlayState* play) {
     OceffWipe5* this = THIS;
+    s32 fastPlayback = CVarGetInteger("gEnhancements.Playback.FastSongPlayback", 0);
 
     this->actor.world.pos = GET_ACTIVE_CAM(play)->eye;
     if (this->counter < 100) {
-        this->counter++;
+        this->counter += fastPlayback ? 2 : 1; // Speeds up the ocarina effect
     } else {
         Actor_Kill(&this->actor);
     }

@@ -127,7 +127,11 @@ void EnTorch2_Update(Actor* thisx, PlayState* play) {
             CollisionCheck_SetOC(play, &play->colChkCtx, &this->collider.base);
             targetAlpha = 255;
         }
-        Math_StepToS(&this->alpha, targetAlpha, 8);
+        Math_StepToS(&this->alpha, targetAlpha,
+                     8 + (CVarGetInteger("gEnhancements.Playback.FastSongPlayback", 0)
+                              ? 56
+                              : 0)); // speeds up the speed of which the elegy statue becomes solid.  Also needed to
+                                     // ensure it keeps the switches pushed down.
     }
 }
 
