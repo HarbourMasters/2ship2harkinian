@@ -49,6 +49,8 @@ void Register3DSClock() {
 
     static s32 sPreviousTimeCheck = -1;
 
+    static s32 sFinalHoursIntro = 0;
+
     REGISTER_VB_SHOULD(GI_VB_PREVENT_CLOCK_DISPLAY, {
         if (CVarGetInteger("gEnhancements.Graphics.ClockType", CLOCK_TYPE_ORIGINAL) == CLOCK_TYPE_3DS) {
             *should = true;
@@ -192,20 +194,33 @@ void Register3DSClock() {
                         u16 finalHoursG = finalHoursG2 + (percentToCrash * (finalHoursG1 - finalHoursG2));
                         u16 finalHoursB = finalHoursB2 + (percentToCrash * (finalHoursB1 - finalHoursB2));
 
+                        s32 finalHoursOffset = 10;
+                        s32 finalHoursModifier = 2;
+                        if (sFinalHoursIntro < finalHoursOffset * finalHoursModifier) {
+                            sFinalHoursIntro++;
+                        }
+
                         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, finalHoursR, finalHoursG, finalHoursB,
-                                        sThreeDayClockAlpha);
+                                        (sThreeDayClockAlpha * sFinalHoursIntro) /
+                                            (finalHoursOffset * finalHoursModifier));
+
                         for (i = 0; i < 8; i++) {
 
                             HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
-                            OVERLAY_DISP =
-                                Gfx_DrawTexRectIA8(OVERLAY_DISP, sFinalHoursDigitTextures[finalHoursClockSlots[i]], 16,
-                                                   16, finalTimerPos, posY - 14, 16, 16, 1 << 10, 1 << 10);
+                            OVERLAY_DISP = Gfx_DrawTexRectIA8(
+                                OVERLAY_DISP, sFinalHoursDigitTextures[finalHoursClockSlots[i]], 16, 16, finalTimerPos,
+                                posY - 14 - finalHoursOffset + (sFinalHoursIntro / finalHoursModifier), 16, 16, 1 << 10,
+                                1 << 10);
                             finalTimerPos += finalTimerSpacing;
                         }
                         HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
-                        OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSFinalHoursMoonTex,
-                                                          16, 16, posX - 8, posY - 28, 16, 16, 1 << 10, 1 << 10);
+                        OVERLAY_DISP = Gfx_DrawTexRectIA8(
+                            OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSFinalHoursMoonTex, 16, 16, posX - 8,
+                            posY - 28 - finalHoursOffset + (sFinalHoursIntro / finalHoursModifier), 16, 16, 1 << 10,
+                            1 << 10);
                     } else {
+
+                        sFinalHoursIntro = 0;
 
                         // Draw the current time in a small box
                         // TODO: Add scale slider to allow this box to be scaled independently of the main UI element
