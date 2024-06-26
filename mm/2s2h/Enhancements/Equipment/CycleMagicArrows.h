@@ -1,0 +1,6 @@
+#ifndef EQUIPMENT_CYCLE_MAGIC_ARROW_H
+#define EQUIPMENT_CYCLE_MAGIC_ARROW_H
+
+void RegisterCycleMagicArrows();
+
+#endif // EQUIPMENT_CYCLE_MAGIC_ARROW_H

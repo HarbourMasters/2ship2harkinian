@@ -26,6 +26,7 @@ void InitEnhancements() {
 
     // Equipment
     RegisterSkipMagicArrowEquip();
+    RegisterCycleMagicArrows();
 
     // Graphics
     RegisterDisableBlackBars();

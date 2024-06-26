@@ -13,6 +13,7 @@
 #include "Cheats/UnrestrictedItems.h"
 #include "Cycle/EndOfCycle.h"
 #include "Equipment/SkipMagicArrowEquip.h"
+#include "Equipment/CycleMagicArrows.h"
 #include "Masks/BlastMaskKeg.h"
 #include "Masks/FierceDeityAnywhere.h"
 #include "Masks/NoBlastMaskCooldown.h"
