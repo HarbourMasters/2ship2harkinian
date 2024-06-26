@@ -60,9 +60,8 @@ static const std::unordered_map<int32_t, const char*> alwaysWinDoggyraceOptions 
 
 static const std::unordered_map<int32_t, const char*> timeStopOptions = {
     { TIME_STOP_OFF, "Off" },
-    { TIME_STOP_TEMPLES, "Time stops in the 4 main temples. Requires a scene update to take effect." },
-    { TIME_STOP_TEMPLES_DUNGEONS,
-      "Time stops in the 4 main temples and the mini-dungeons. Requires a scene update to take effect." },
+    { TIME_STOP_TEMPLES, "In the 4 main temples. Requires a room change to update." },
+    { TIME_STOP_TEMPLES_DUNGEONS, "In the 4 main temples and mini-dungeons. Requires a room change to update." },
 };
 
 namespace BenGui {
