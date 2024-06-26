@@ -262,7 +262,15 @@ void Kaleido_LoadMapNameStatic(void* segment, u32 texIndex) {
         gMapPointSouthernSwampENGTex, gMapPointMountainVillageENGTex, gMapPointMilkRoadENGTex,
         gMapPointZoraCapeENGTex,
     };
-    void* tex = ResourceMgr_LoadTexOrDListByName(gMapNameStatics[texIndex]);
+
+    // 2S2H [Port] Bounds check texture to load to prevent crashes when using index warp
+    void* tex;
+    if (texIndex >= 0 && texIndex < ARRAY_COUNTU(gMapNameStatics)) {
+        tex = ResourceMgr_LoadTexOrDListByName(gMapNameStatics[texIndex]);
+    } else {
+        tex = ResourceMgr_LoadTexOrDListByName(gEmptyTexture);
+    }
+
     memcpy(segment, tex, 0x400);
     // CmpDma_LoadFile(SEGMENT_ROM_START(map_name_static), texIndex, segment, 0x400);
 }
@@ -395,7 +403,15 @@ void Kaleido_LoadItemNameStatic(void* segment, u32 texIndex) {
         gItemNameDungeonMapENGTex,
         gItemNameStrayFairiesENGTex,
     };
-    void* tex = ResourceMgr_LoadTexOrDListByName(gItemNameStatics[texIndex]);
+
+    // 2S2H [Port] Bounds check texture to load to prevent crashes
+    void* tex;
+    if (texIndex >= 0 && texIndex < ARRAY_COUNTU(gItemNameStatics)) {
+        tex = ResourceMgr_LoadTexOrDListByName(gItemNameStatics[texIndex]);
+    } else {
+        tex = ResourceMgr_LoadTexOrDListByName(gEmptyTexture);
+    }
+
     memcpy(segment, tex, 0x400);
     // CmpDma_LoadFile(SEGMENT_ROM_START(item_name_static), texIndex, segment, 0x400);
 }
