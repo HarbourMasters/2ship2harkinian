@@ -12,6 +12,7 @@
 #include "interface/icon_item_gameover_static/icon_item_gameover_static.h"
 
 #include "BenPort.h"
+#include "assets/2s2h_assets.h"
 
 // unused
 UNK_TYPE D_808158E0[] = {
@@ -126,6 +127,9 @@ TexturePtr sHoursLeftTextures[] = {
     gDaytelop72HoursNESTex,
     gDaytelop48HoursNESTex,
     gDaytelop24HoursNESTex,
+
+    // 2S2H [Port] Added empty texture to support "Dawn of" with the 4th day glitch and prevent crashing
+    gEmptyTexture,
 };
 
 void DayTelop_Draw(DayTelopState* this) {
