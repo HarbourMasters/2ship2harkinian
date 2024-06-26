@@ -53,6 +53,14 @@ void GameInteractor_ExecuteOnRoomInit(s16 sceneId, s8 roomNum) {
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnRoomInit>(sceneId, roomNum);
 }
 
+void GameInteractor_ExecuteOnRoomInitAfterSceneCommands(s16 sceneId, s8 roomNum) {
+    SPDLOG_DEBUG("OnRoomInitAfterSceneCommands: sceneId: {}, roomNum: {}", sceneId, roomNum);
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnRoomInitAfterSceneCommands>(sceneId, roomNum);
+    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnRoomInitAfterSceneCommands>(sceneId, sceneId,
+                                                                                              roomNum);
+    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnRoomInitAfterSceneCommands>(sceneId, roomNum);
+}
+
 void GameInteractor_ExecuteOnPlayDestroy() {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnPlayDestroy>();
 }
