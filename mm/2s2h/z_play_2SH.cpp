@@ -74,7 +74,7 @@ extern "C" s32 OTRfunc_800973FC(PlayState* play, RoomContext* roomCtx) {
                 Environment_StopStormNatureAmbience(play);
             }
             // Insert hook
-            GameInteractor_ExecuteOnRoomInitAfterSceneCommands(play->sceneId, roomCtx->curRoom.num);
+            GameInteractor_ExecuteAfterRoomSceneCommands(play->sceneId, roomCtx->curRoom.num);
             return 1;
         }
 
