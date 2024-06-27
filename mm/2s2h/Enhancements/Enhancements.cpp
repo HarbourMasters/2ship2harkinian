@@ -20,6 +20,7 @@ void InitEnhancements() {
     RegisterEndOfCycleSaveHooks();
     RegisterSavingEnhancements();
     RegisterAutosave();
+    RegisterSkipScarecrowSong();
 
     // Dialogue
     RegisterFastBankSelection();
