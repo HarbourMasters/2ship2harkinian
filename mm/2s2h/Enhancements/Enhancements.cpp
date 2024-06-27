@@ -61,6 +61,7 @@ void InitEnhancements() {
     RegisterFasterSongPlayback();
     RegisterPauseOwlWarp();
     RegisterZoraEggCount();
+    RegisterSkipScarecrowSong();
 
     // Restorations
     RegisterPowerCrouchStab();

@@ -68,6 +68,7 @@ typedef enum {
     VB_FD_ALWAYS_WIELD_SWORD,
     VB_SHOULD_PUTAWAY,
     VB_ELEGY_CHECK_SCENE,
+    VB_NEED_SCARECROW_SONG,
 } GIVanillaBehavior;
 
 typedef enum {
