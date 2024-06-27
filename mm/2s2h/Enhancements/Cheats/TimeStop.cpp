@@ -34,6 +34,7 @@ void RegisterTimeStopInTemples() {
                     default:
                         break;
                 }
+                // fallthrough
             case TIME_STOP_TEMPLES:
                 switch (gPlayState->sceneId) {
                     // Woodfall Temple + Odolwa
