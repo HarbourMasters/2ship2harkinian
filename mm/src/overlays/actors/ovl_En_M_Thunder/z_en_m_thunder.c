@@ -547,7 +547,15 @@ void EnMThunder_Draw(Actor* thisx, PlayState* play2) {
         Matrix_Translate(0.0f, 220.0f, 0.0f, MTXMODE_APPLY);
         Matrix_Scale(-1.2f, -0.8f, -0.6f, MTXMODE_APPLY);
         Matrix_RotateXS(0x4000, MTXMODE_APPLY);
-    } else {
+    }
+    // #region 2S2H [Enhancements] Two Handed Sword Magic Charge Effect
+    else if (this->type == ENMTHUNDER_TYPE_GREAT_FAIRYS_SWORD) {
+        Matrix_Translate(0.0f, 220.0f, 0.0f, MTXMODE_APPLY);
+        Matrix_Scale(-1.7f, -1.0f, -0.6f, MTXMODE_APPLY);
+        Matrix_RotateXS(0x4000, MTXMODE_APPLY);
+    }
+    // #endregion
+    else {
         Matrix_Translate(0.0f, 220.0f, 0.0f, MTXMODE_APPLY);
         Matrix_Scale(-0.7f, -0.6f, -0.4f, MTXMODE_APPLY);
         Matrix_RotateXS(0x4000, MTXMODE_APPLY);
