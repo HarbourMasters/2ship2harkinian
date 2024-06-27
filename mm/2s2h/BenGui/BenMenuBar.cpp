@@ -56,6 +56,12 @@ static const std::unordered_map<int32_t, const char*> alwaysWinDoggyraceOptions 
     { ALWAYS_WIN_DOGGY_RACE_ALWAYS, "Always" },
 };
 
+static const std::unordered_map<int32_t, const char*> timeStopOptions = {
+    { TIME_STOP_OFF, "Off" },
+    { TIME_STOP_TEMPLES, "In the 4 main temples. Requires a room change to update." },
+    { TIME_STOP_TEMPLES_DUNGEONS, "In the 4 main temples and mini-dungeons. Requires a room change to update." },
+};
+
 namespace BenGui {
 
 void DrawMenuBarIcon() {
@@ -665,6 +671,7 @@ void DrawCheatsMenu() {
                                     { .tooltip = "Holding L makes you float into the air" })) {
             RegisterMoonJumpOnL();
         }
+        UIWidgets::CVarCombobox("Stop Time in Dungeons", "gCheats.TempleTimeStop", timeStopOptions);
 
         ImGui::EndMenu();
     }
