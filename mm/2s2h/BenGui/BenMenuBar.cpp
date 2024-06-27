@@ -15,6 +15,7 @@
 #include "2s2h/Enhancements/Cheats/Cheats.h"
 #include "2s2h/Enhancements/Player/Player.h"
 #include "HudEditor.h"
+#include <Enhancements/ResolutionEditor/ResolutionEditor.h>
 
 extern "C" {
 #include "z64.h"
@@ -128,6 +129,7 @@ void DrawBenMenu() {
 }
 
 extern std::shared_ptr<Ship::GuiWindow> mInputEditorWindow;
+extern std::shared_ptr<AdvancedResolutionSettings::AdvancedResolutionSettingsWindow> mAdvancedResolutionSettingsWindow;
 
 void DrawSettingsMenu() {
     if (UIWidgets::BeginMenu("Settings")) {
@@ -171,7 +173,12 @@ void DrawSettingsMenu() {
         if (UIWidgets::BeginMenu("Graphics")) {
 
 #ifndef __APPLE__
-            if (UIWidgets::CVarSliderFloat("Internal Resolution: %f %%", CVAR_INTERNAL_RESOLUTION, 0.5f, 2.0f, 1.0f)) {
+            const bool disabled_resolutionSlider =
+                (CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".VerticalResolutionToggle", 0) &&
+                 CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".Enabled", 0)) ||
+                CVarGetInteger("gLowResMode", 0);
+            if (UIWidgets::CVarSliderFloat("Internal Resolution: %f %%", CVAR_INTERNAL_RESOLUTION, 0.5f, 2.0f, 1.0f,
+                                           { .disabled = disabled_resolutionSlider })) {
                 Ship::Context::GetInstance()->GetWindow()->SetResolutionMultiplier(
                     CVarGetFloat(CVAR_INTERNAL_RESOLUTION, 1));
             };
@@ -294,6 +301,11 @@ void DrawSettingsMenu() {
 
             // Currently this only has "Overlays Text Font", it doesn't use our new UIWidgets so it stands out
             // Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGameOverlay()->DrawSettings();
+
+            if (mAdvancedResolutionSettingsWindow) {
+                UIWidgets::WindowButton("Advanced Resolution", "gWindows.gAdvancedResolutionEditor",
+                                        mAdvancedResolutionSettingsWindow); //, { .tooltip = "" });
+            }
 
             ImGui::EndMenu();
         }
