@@ -21,7 +21,7 @@ void MapSelect_LoadGame(MapSelectState* this, u32 entrance, s32 spawn) {
     if (gSaveContext.fileNum == 0xFF) {
         Sram_InitDebugSave();
 
-        // #region 2S2h [Debug] Clear all flags when using debug file slot.
+        // #region 2S2H [Debug] Clear all flags when using debug file slot.
         // This is mostly copied from Sram_OpenSave.
         for (size_t i = 0; i < ARRAY_COUNT(gSaveContext.eventInf); i++) {
             gSaveContext.eventInf[i] = 0;
@@ -40,7 +40,7 @@ void MapSelect_LoadGame(MapSelectState* this, u32 entrance, s32 spawn) {
     // #region 2S2H [Debug] Clear some potential lingering flags
     CLEAR_EVENTINF(EVENTINF_17);
     CLEAR_EVENTINF(EVENTINF_TRIGGER_DAYTELOP);
-    // #region
+    // #endregion
 
     gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_ENABLED;
     gSaveContext.buttonStatus[EQUIP_SLOT_C_LEFT] = BTN_ENABLED;
