@@ -1288,9 +1288,9 @@ void AudioScript_SequenceChannelProcessScript(SequenceChannel* channel) {
                     }
                     break;
 
-                case 0xEB: // channel: set soundFont and instrument
+                case 0xEB: { // channel: set soundFont and instrument
                     // #region 2S2H [Port] Custom sequences
-                    u8 result = (u8)cmdArgs[0];
+                    uint8_t result = (uint8_t)cmdArgs[0];
                     cmd = (u8)cmdArgs[0];
 
                     if (seqPlayer->defaultFont != 0xFF) {
@@ -1308,6 +1308,7 @@ void AudioScript_SequenceChannelProcessScript(SequenceChannel* channel) {
                     }
 
                     cmdArgs[0] = cmdArgs[1];
+                }
                     // fallthrough
                 case 0xC1: // channel: set instrument
                     cmd = (u8)cmdArgs[0];

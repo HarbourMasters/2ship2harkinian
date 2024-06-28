@@ -1,4 +1,5 @@
 #include "global.h"
+#include "2s2h/Enhancements/Audio/AudioEditor.h"
 
 typedef struct {
     /* 0x00 */ u16 sfxId;
