@@ -542,12 +542,12 @@ void AudioEditor::DrawElement() {
                                             "couple of octaves so they can still harmonize with the other notes of the "
                                             "sequence.");
                 ImGui::PopItemWidth();
-                #endif
-            }
             ImGui::EndChild();
             ImGui::EndTable();
             ImGui::PopStyleVar(1);
             ImGui::EndTabItem();
+            }
+            #endif
         }
 
         static bool excludeTabOpen = false;
