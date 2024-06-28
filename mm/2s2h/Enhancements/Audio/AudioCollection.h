@@ -23,7 +23,7 @@ enum SeqType {
 
 struct SequenceInfo {
     uint16_t sequenceId;
-    std::string label;
+    const char* label;
     std::string sfxKey;
     SeqType category;
     bool canBeReplaced;

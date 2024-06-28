@@ -216,7 +216,7 @@ void AudioCollection::AddToCollection(char* otrPath, uint16_t seqNum) {
         type = SEQ_FANFARE;
     }
     SequenceInfo info = {seqNum,
-                         sequenceName,
+                         sequenceName.c_str(),
                          StringHelper::Replace(StringHelper::Replace(StringHelper::Replace(sequenceName, " ", "_"), "~", "-"),".", ""),
                          type, false, true};
     sequenceMap.emplace(seqNum, info);
@@ -290,7 +290,7 @@ bool AudioCollection::HasSequenceNum(uint16_t seqId) {
 const char* AudioCollection::GetSequenceName(uint16_t seqId) {
     auto seqIt = sequenceMap.find(seqId);
     if (seqIt != sequenceMap.end()) {
-        return seqIt->second.label.c_str();
+        return seqIt->second.label;
     }
     return nullptr;
 }

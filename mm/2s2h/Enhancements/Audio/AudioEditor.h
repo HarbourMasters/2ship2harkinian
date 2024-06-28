@@ -1,14 +1,15 @@
 #pragma once
 #include "stdint.h"
 
+#include "libultraship/libultra/types.h"
 #ifdef __cplusplus
+#include "window/gui/Gui.h"
+#include "window/gui/GuiWindow.h"
+#include "AudioCollection.h"
 
-#include <libultraship/libultraship.h>
 #ifndef IMGUI_DEFINE_MATH_OPERATORS
 #define IMGUI_DEFINE_MATH_OPERATORS
 #endif
-#include <imgui.h>
-#include "AudioCollection.h"
 
 class AudioEditor : public Ship::GuiWindow {
     public:
@@ -18,6 +19,11 @@ class AudioEditor : public Ship::GuiWindow {
         void InitElement() override;
         void UpdateElement() override {};
         ~AudioEditor() {};
+
+    private:
+        void DrawPreviewButton(uint16_t sequenceId, std::string sfxKey, SeqType sequenceType);
+        void Draw_SfxTab(const std::string& tabId, SeqType type);
+        uint16_t mPlayingSeq = 0;
 };
 
 void AudioEditor_RandomizeAll();
