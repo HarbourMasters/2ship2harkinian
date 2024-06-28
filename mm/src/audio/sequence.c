@@ -18,6 +18,7 @@
  * the graph thread to the audio thread.
  */
 #include "global.h"
+#include "2s2h/Enhancements/Audio/AudioEditor.h"
 
 // Direct audio command (skips the queueing system)
 #define SEQCMD_SET_SEQPLAYER_VOLUME_NOW(seqPlayerIndex, duration, volume)                          \
@@ -434,6 +435,17 @@ void AudioSeq_ProcessSeqCmd(u32 cmd) {
  * Add the sequence cmd to the `sAudioSeqCmds` queue
  */
 void AudioSeq_QueueSeqCmd(u32 cmd) {
+    // 2S2H [Port] Allow loading custom sequences
+    u8 op = cmd >> 28;
+    if (op == 0 || op == 2 || op == 12) {
+        u8 seqId = cmd & 0xFF;
+        u8 playerIdx = (cmd & 0xF000000) >> 24;
+        u16 newSeqId = AudioEditor_GetReplacementSeq(seqId);
+        gAudioCtx.seqReplaced[playerIdx] = (seqId != newSeqId);
+        gAudioCtx.seqToPlay[playerIdx] = newSeqId;
+        cmd |= (seqId & 0xFF);
+    }
+
     sAudioSeqCmds[sSeqCmdWritePos++] = cmd;
 }
 

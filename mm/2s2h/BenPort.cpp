@@ -54,6 +54,7 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/DeveloperTools/DebugConsole.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "2s2h/SaveManager/SaveManager.h"
+#include "2s2h/Enhancements/Audio/AudioCollection.h"
 
 // Resource Types/Factories
 #include "resource/type/Blob.h"
@@ -98,6 +99,7 @@ CrowdControl* CrowdControl::Instance;
 
 OTRGlobals* OTRGlobals::Instance;
 GameInteractor* GameInteractor::Instance;
+AudioCollection* AudioCollection::Instance;
 
 extern "C" char** cameraStrings;
 bool prevAltAssets = false;
@@ -468,6 +470,7 @@ extern "C" void InitOTR() {
 
     OTRGlobals::Instance = new OTRGlobals();
     GameInteractor::Instance = new GameInteractor();
+    AudioCollection::Instance = new AudioCollection();
     BenGui::SetupGuiElements();
     InitEnhancements();
     InitDeveloperTools();

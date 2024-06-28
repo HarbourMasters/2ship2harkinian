@@ -8,6 +8,8 @@
 #include <Fast3D/gfx_pc.h>
 #include "UIWidgets.hpp"
 #include "HudEditor.h"
+#include "../Enhancements/Audio/AudioEditor.h"
+
 
 #ifdef __APPLE__
 #include "graphic/Fast3D/gfx_metal.h"
@@ -35,6 +37,7 @@ std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
 std::shared_ptr<EventLogWindow> mEventLogWindow;
+std::shared_ptr<AudioEditor> mAudioEditorWindow;
 
 void SetupGuiElements() {
     auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
@@ -89,6 +92,9 @@ void SetupGuiElements() {
 
     mEventLogWindow = std::make_shared<EventLogWindow>("gWindows.EventLog", "Event Log");
     gui->AddGuiWindow(mEventLogWindow);
+
+    mAudioEditorWindow = std::make_shared<AudioEditor>("gWindows.AudioEditor", "Audio Editor");
+    gui->AddGuiWindow(mAudioEditorWindow);
 }
 
 void Destroy() {
@@ -103,5 +109,7 @@ void Destroy() {
     mSaveEditorWindow = nullptr;
     mHudEditorWindow = nullptr;
     mActorViewerWindow = nullptr;
+
+    mAudioEditorWindow = nullptr;
 }
 } // namespace BenGui

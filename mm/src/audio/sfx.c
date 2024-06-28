@@ -217,7 +217,17 @@ void AudioSfx_ProcessRequest(void) {
     if (req->sfxId == NA_SE_NONE) {
         return;
     }
-
+    // #region 2S2H [Port] Custom sequences
+    evictIndex = 0x80;
+    if (req->sfxId == 0) {
+        return;
+    }
+    u16 newSfxId = AudioEditor_GetReplacementSeq(req->sfxId);
+    if (req->sfxId != newSfxId) {
+        gAudioCtx.seqReplaced[SEQ_PLAYER_SFX] = 1;
+        req->sfxId = newSfxId;
+    }
+    // #end region
     bankId = SFX_BANK(req->sfxId);
     channelCount = 0;
     index = gSfxBanks[bankId][0].next;

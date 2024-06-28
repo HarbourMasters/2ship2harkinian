@@ -2070,6 +2070,23 @@ const char sAudioOcarinaUnusedText5[] = "last key is bad !!! %d %d %02X %02X\n";
 const char sAudioOcarinaUnusedText6[] = "last key step is too short !!! %d:%d %d<%d\n";
 const char sAudioOcarinaUnusedText7[] = "check is over!!! %d %d %d\n";
 
+// BENTODO find a final place for this function
+// 2S2H [Port] Part of the audio editor
+void PreviewSequence(u16 seqId) {
+    u16 curSeqId = AudioSeq_GetActiveSeqId(SEQ_PLAYER_BGM_MAIN);
+
+    // if ((curSeqId & 0xFF) != NA_BGM_GANON_TOWER && (curSeqId & 0xFF) != NA_BGM_ESCAPE && curSeqId != seqId) {
+    Audio_SetSequenceMode(SEQ_MODE_IGNORE);
+    if (curSeqId != NA_BGM_DISABLED) {
+        sPrevMainBgmSeqId = curSeqId;
+    } else {
+        osSyncPrintf("Middle Boss BGM Start not stack \n");
+    }
+
+    AudioSeq_QueueSeqCmd(seqId);
+    // }
+}
+
 void AudioOcarina_ReadControllerInput(void) {
     Input inputs[MAXCONTROLLERS];
     Input* input = &inputs[0];
@@ -2760,6 +2777,14 @@ void AudioOcarina_SetOcarinaDisableTimer(u8 unused, u8 timer) {
 
 void AudioOcarina_SetInstrument(u8 ocarinaInstrumentId) {
     if ((sOcarinaInstrumentId != ocarinaInstrumentId) || (ocarinaInstrumentId == OCARINA_INSTRUMENT_DEFAULT)) {
+        // #region 2S2H [Port] Custom Sequnces
+        u16 sfxEditorId = ocarinaInstrumentId + 0x81;
+        u16 neSeq = AudioEditor_GetReplacementSeq(sfxEditorId);
+        if (neSeq != sfxEditorId) {
+            gAudioCtx.seqReplaced[SEQ_PLAYER_SFX] = 1;
+            ocarinaInstrumentId = neSeq - 0x81;
+        }
+        // #end region
         SEQCMD_SET_CHANNEL_IO(SEQ_PLAYER_SFX, SFX_CHANNEL_OCARINA, 1, ocarinaInstrumentId);
         sOcarinaInstrumentId = ocarinaInstrumentId;
 
