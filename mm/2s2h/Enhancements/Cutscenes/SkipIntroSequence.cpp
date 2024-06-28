@@ -3,8 +3,10 @@
 
 extern "C" {
 #include "z64.h"
+#include <variables.h>
 extern PlayState* gPlayState;
 extern SaveContext gSaveContext;
+void Flags_SetWeekEventReg(s32 flag);
 }
 
 void RegisterSkipIntroSequence() {
@@ -35,6 +37,17 @@ void RegisterSkipIntroSequence() {
                     gSaveContext.save.saveInfo.playerData.threeDayResetCount = 1;
                 }
                 gSaveContext.save.isFirstCycle = false;
+
+                // Lose nuts
+                AMMO(ITEM_DEKU_NUT) = 0;
+
+                // Set in Fairy Fountain during First Cycle
+                gSaveContext.cycleSceneFlags[SCENE_YOUSEI_IZUMI].switch0 |= (1 << 10);
+
+                // Set Tatl second cycle (?) text if not already set
+                if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_31_04)) {
+                    SET_WEEKEVENTREG(WEEKEVENTREG_31_04);
+                }
             }
         }
     });
