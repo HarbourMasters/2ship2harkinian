@@ -12,7 +12,6 @@
 #include "2s2h/Enhancements/Graphics/PlayAsKafei.h"
 #include "2s2h/Enhancements/Modes/TimeMovesWhenYouMove.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
-#include "2s2h/DeveloperTools/WarpPoint.h"
 #include "2s2h/Enhancements/Cheats/Cheats.h"
 #include "2s2h/Enhancements/Player/Player.h"
 #include "HudEditor.h"
