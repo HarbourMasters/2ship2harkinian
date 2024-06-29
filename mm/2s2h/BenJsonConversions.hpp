@@ -55,11 +55,9 @@ void from_json(const json& j, ItemEquips& itemEquips) {
         arbCount = j.at("arbitraryEquipmentButtons").size();
     }
     
-    if(itemEquips.getEquipSlots == NULL){
-        initItemEquips(&itemEquips);
-    }
+    initItemEquips(&itemEquips);
 
-    ArbitraryItemEquipSet slots = itemEquips.getEquipSlots();
+    ArbitraryItemEquipSet slots = itemEquips.equipsSlotGetter.getEquipSlots(&itemEquips.equipsSlotGetter);
     
     for(int i = 0; i < slots.count; i++){
         ArbitraryItemEquipButton& a = slots.equips[i];

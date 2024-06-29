@@ -5287,7 +5287,7 @@ void Interface_DrawItemButtons(PlayState* play) {
         100, 255, 120, interfaceCtx->bAlpha);
     gDPPipeSync(OVERLAY_DISP++);
 
-    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.getEquipSlots();
+    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter);
 
     for(uint8_t i = 0; i < slots.count; i++){
         ArbitraryItemEquipButton* eqBtn = &slots.equips[i];
@@ -5971,7 +5971,7 @@ void Interface_DrawCButtonIcons(PlayState* play) {
 
     gDPPipeSync(OVERLAY_DISP++);
     
-    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.getEquipSlots();
+    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter);
 
     for(uint8_t i = 0; i < slots.count; i++){
         ArbitraryItemEquipButton* eqBtn = &slots.equips[i];

@@ -677,11 +677,9 @@ PlayerItemAction func_80123810(PlayState* play) {
         }
     }
 
-    if(gSaveContext.save.saveInfo.equips.getEquipSlots == NULL){
-        initItemEquips(&gSaveContext.save.saveInfo.equips);
-    }
+    initItemEquips(&gSaveContext.save.saveInfo.equips);    
 
-    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.getEquipSlots();
+    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter);
 
     for(uint16_t arbIndex = 0; arbIndex < slots.count; arbIndex++){
         ArbitraryItemEquipButton* arb = &slots.equips[arbIndex];

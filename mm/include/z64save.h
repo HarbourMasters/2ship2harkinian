@@ -232,6 +232,11 @@ typedef struct ArbitraryItemEquipSlots {
     u8 count;
 } ArbitraryItemEquipSet;
 
+typedef struct ArbitraryEquipsSlotGetter {
+    void* userData;
+    ArbitraryItemEquipSet (*getEquipSlots)(struct ArbitraryEquipsSlotGetter* self);
+} ItemEquipsIniter;
+
 typedef struct ItemEquips {
     u8 buttonItemAssignmentIndices[4][4];
     s8 buttonItemActiveIndices[4][4];
@@ -240,7 +245,7 @@ typedef struct ItemEquips {
     /* 0x10 */ u8 cButtonSlots[4][4];                   // "register_item_pt"
     /* 0x20 */ u16 equipment;
 
-    ArbitraryItemEquipSet (*getEquipSlots)();
+    struct ArbitraryEquipsSlotGetter equipsSlotGetter;
 } ItemEquips; // size = 0x22
 
 extern void initItemEquips(ItemEquips* equips);

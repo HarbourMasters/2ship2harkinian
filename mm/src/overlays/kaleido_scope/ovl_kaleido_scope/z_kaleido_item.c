@@ -393,7 +393,7 @@ void KaleidoScope_UpdateItemCursor(PlayState* play) {
     pauseCtx->cursorColorSet = PAUSE_CURSOR_COLOR_SET_WHITE;
     pauseCtx->nameColorSet = PAUSE_NAME_COLOR_SET_WHITE;
 
-    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.getEquipSlots();
+    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter);
 
     if ((pauseCtx->state == PAUSE_STATE_MAIN) && (pauseCtx->mainState == PAUSE_MAIN_STATE_IDLE) &&
         (pauseCtx->pageIndex == PAUSE_ITEM) && !pauseCtx->itemDescriptionOn) {
@@ -1830,8 +1830,8 @@ void KaleidoScope_UpdateItemEquipArbitrary(PlayState* play) {
         return;
     }
 
-    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.getEquipSlots();
-    
+    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter);
+
     for(size_t i = 0 ; i < slots.count; i++){
         ArbitraryItemEquipButton* e = &slots.equips[i];
         if(e->id == pauseCtx->equipTargetArbitraryEquip){
