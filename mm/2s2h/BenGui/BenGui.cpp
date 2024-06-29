@@ -75,7 +75,7 @@ void SetupGuiElements() {
     }
 
     mBenInputEditorWindow =
-        std::make_shared<BenInputEditorWindow>("gWindows.InputEditor", "Input Editor", ImVec2(520, 600));
+        std::make_shared<BenInputEditorWindow>("gWindows.BenInputEditor", "2S2H Input Editor");
     gui->AddGuiWindow(mBenInputEditorWindow);
 
     mSaveEditorWindow = std::make_shared<SaveEditorWindow>("gWindows.SaveEditor", "Save Editor", ImVec2(480, 600));
@@ -93,6 +93,7 @@ void SetupGuiElements() {
 
     mEventLogWindow = std::make_shared<EventLogWindow>("gWindows.EventLog", "Event Log", ImVec2(520, 600));
     gui->AddGuiWindow(mEventLogWindow);
+    gui->SetPadBtnTogglesMenu();
 }
 
 void Destroy() {

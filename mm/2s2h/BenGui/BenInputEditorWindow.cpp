@@ -1667,7 +1667,5 @@ void BenInputEditorWindow::DrawFullContents() {
 }
 
 void BenInputEditorWindow::DrawElement() {
-    ImGui::Begin("Controller Configuration", &mIsVisible);
     DrawFullContents();
-    ImGui::End();
 }

@@ -602,10 +602,6 @@ extern "C" uint64_t GetUnixTimestamp() {
     return now;
 }
 
-void ToggleMenu() {
-    dynamic_pointer_cast<BenGui::BenMenu>(Ship::Context::GetInstance()->GetWindow()->GetGui()->GetMenu())->ToggleMenu();
-}
-
 extern "C" void Graph_StartFrame() {
 #ifndef __WIIU__
     using Ship::KbScancode;
@@ -613,10 +609,6 @@ extern "C" void Graph_StartFrame() {
     OTRGlobals::Instance->context->GetWindow()->SetLastScancode(-1);
 
     switch (dwScancode) {
-        case KbScancode::LUS_KB_ESCAPE: {
-            ToggleMenu();
-            break;
-        }
 #if 0
         case KbScancode::LUS_KB_F5: {
             if (CVarGetInteger("gSaveStatesEnabled", 0) == 0) {
