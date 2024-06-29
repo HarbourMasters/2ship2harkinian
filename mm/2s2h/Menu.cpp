@@ -7,7 +7,6 @@
 #include "2s2h/Enhancements/Graphics/MotionBlur.h"
 #include "2s2h/Enhancements/Graphics/PlayAsKafei.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
-#include "2s2h/DeveloperTools/WarpPoint.h"
 #include "window/gui/GuiMenuBar.h"
 #include "window/gui/GuiElement.h"
 #include "DeveloperTools/SaveEditor.h"
@@ -331,33 +330,46 @@ void DrawCheatEnhancements() {
     UIWidgets::CVarCheckbox("Infinite Magic", "gCheats.InfiniteMagic");
     UIWidgets::CVarCheckbox("Infinite Rupees", "gCheats.InfiniteRupees");
     UIWidgets::CVarCheckbox("Infinite Consumables", "gCheats.InfiniteConsumables");
+    if (UIWidgets::CVarCheckbox(
+        "Longer Deku Flower Glide", "gCheats.LongerFlowerGlide",
+        { .tooltip = "Allows Deku Link to glide longer, no longer dropping after a certain distance" })) {
+        RegisterLongerFlowerGlide();
+    }
+    UIWidgets::CVarCheckbox("No Clip", "gCheats.NoClip");
     UIWidgets::CVarCheckbox("Unbreakable Razor Sword", "gCheats.UnbreakableRazorSword");
     UIWidgets::CVarCheckbox("Unrestricted Items", "gCheats.UnrestrictedItems");
     if (UIWidgets::CVarCheckbox("Moon Jump on L", "gCheats.MoonJumpOnL",
                                 { .tooltip = "Holding L makes you float into the air" })) {
         RegisterMoonJumpOnL();
     }
-    UIWidgets::CVarCheckbox("No Clip", "gCheats.NoClip");
 }
 
 // Gameplay
 void DrawGameplayEnhancements() {
-    ImGui::SeparatorText("Ocarina");
-    UIWidgets::CVarCheckbox("Dpad Ocarina", "gEnhancements.Playback.DpadOcarina",
-                            { .tooltip = "Enables using the Dpad for Ocarina playback." });
-    UIWidgets::CVarCheckbox("Prevent Dropped Ocarina Inputs", "gEnhancements.Playback.NoDropOcarinaInput",
-                            { .tooltip = "Prevent dropping inputs when playing the ocarina quickly" });
-    UIWidgets::CVarCheckbox("Dpad Equips", "gEnhancements.Dpad.DpadEquips",
-                            { .tooltip = "Allows you to equip items to your d-pad" });
-    UIWidgets::CVarCombobox("Always Win Doggy Race", "gEnhancements.Minigames.AlwaysWinDoggyRace",
-                            alwaysWinDoggyraceOptions);
+    ImGui::SeparatorText("Player");
+    if (UIWidgets::CVarCheckbox("Fast Deku Flower Launch", "gEnhancements.Player.FastFlowerLaunch",
+        { .tooltip =
+              "Speeds up the time it takes to be able to get maximum height from "
+              "launching out of a deku flower" })) {
+        RegisterFastFlowerLaunch();
+    }
+    UIWidgets::CVarCheckbox("Instant Putaway", "gEnhancements.Player.InstantPutaway",
+        { .tooltip = "Allows Link to instantly puts away held item without waiting." });
     UIWidgets::CVarSliderInt("Climb speed", "gEnhancements.PlayerMovement.ClimbSpeed", 1, 5, 1,
-                             { .tooltip = "Increases the speed at which Link climbs vines and ladders." });
+        { .tooltip = "Increases the speed at which Link climbs vines and ladders." });
+    UIWidgets::CVarCheckbox("Dpad Equips", "gEnhancements.Dpad.DpadEquips",
+        { .tooltip = "Allows you to equip items to your d-pad" });
+    UIWidgets::CVarCombobox("Always Win Doggy Race", "gEnhancements.Minigames.AlwaysWinDoggyRace",
+        alwaysWinDoggyraceOptions);
 }
 
 void DrawGameModesEnhancements() {
+    ImGui::SeparatorText("Modes");
     UIWidgets::CVarCheckbox("Play As Kafei", "gModes.PlayAsKafei",
                             { .tooltip = "Requires scene reload to take effect." });
+    if (UIWidgets::CVarCheckbox("Time Moves When You Move", "gModes.TimeMovesWhenYouMove")) {
+        RegisterTimeMovesWhenYouMove();
+    }
 }
 
 void DrawSaveTimeEnhancements() {
@@ -413,11 +425,48 @@ void DrawGraphicsEnhancements() {
                                          "model and texture on the boot logo start screen" });
     UIWidgets::CVarCheckbox("Bow Reticle", "gEnhancements.Graphics.BowReticle",
                             { .tooltip = "Gives the bow a reticle when you draw an arrow" });
+    UIWidgets::CVarCheckbox(
+        "Disable Black Bar Letterboxes", "gEnhancements.Graphics.DisableBlackBars",
+        { .tooltip = "Disables Black Bar Letterboxes during cutscenes and Z-targeting\nNote: there may be "
+                     "minor visual glitches that were covered up by the black bars\nPlease disable this "
+                     "setting before reporting a bug" });
+
+    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 0, 255));
+    ImGui::SeparatorText("Unstable");
+    ImGui::PopStyleColor();
+    UIWidgets::CVarCheckbox(
+        "Disable Scene Geometry Distance Check", "gEnhancements.Graphics.DisableSceneGeometryDistanceCheck",
+        { .tooltip =
+              "Disables the distance check for scene geometry, allowing it to be drawn no matter how far "
+              "away it is from the player. This may have unintended side effects." });
+    // BENTODO: Not implemented yet
+    // UIWidgets::CVarCheckbox("Widescreen Actor Culling",
+    //                         "gEnhancements.Graphics.ActorCullingAccountsForWidescreen",
+    //                         { .tooltip = "Adjusts the culling planes to account for widescreen resolutions. "
+    //                                      "This may have unintended side effects." });
+    if (UIWidgets::CVarSliderInt(
+        "Increase Actor Draw Distance: %dx", "gEnhancements.Graphics.IncreaseActorDrawDistance", 1, 5, 1,
+        { .tooltip =
+              "Increase the range in which Actors are drawn. This may have unintended side effects." })) {
+        CVarSetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance",
+            MIN(CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1),
+                CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1)));
+    }
+    if (UIWidgets::CVarSliderInt(
+        "Increase Actor Update Distance: %dx", "gEnhancements.Graphics.IncreaseActorUpdateDistance", 1, 5,
+        1,
+        { .tooltip =
+              "Increase the range in which Actors are updated. This may have unintended side effects." })) {
+        CVarSetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance",
+            MAX(CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1),
+                CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1)));
+    }
 };
 
 // Items/Songs
 void DrawItemEnhancements() {
     ImGui::SeparatorText("Masks");
+    UIWidgets::CVarCheckbox("Blast Mask has Powder Keg Force", "gEnhancements.Masks.BlastMaskKeg");
     UIWidgets::CVarCheckbox("Fast Transformation", "gEnhancements.Masks.FastTransformation");
     UIWidgets::CVarCheckbox("Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere",
                             { .tooltip = "Allow using Fierce Deity's mask outside of boss rooms." });
@@ -430,9 +479,13 @@ void DrawSongEnhancements() {
         { .tooltip = "Enables the partially implemented Sun's Song. RIGHT-DOWN-UP-RIGHT-DOWN-UP to play it. "
                      "This song will make time move very fast until either Link moves to a different scene, "
                      "or when the time switches to a new time period." });
+    UIWidgets::CVarCheckbox("Dpad Ocarina", "gEnhancements.Playback.DpadOcarina",
+        { .tooltip = "Enables using the Dpad for Ocarina playback." });
+    UIWidgets::CVarCheckbox("Prevent Dropped Ocarina Inputs", "gEnhancements.Playback.NoDropOcarinaInput",
+        { .tooltip = "Prevent dropping inputs when playing the ocarina quickly" });
 }
 
-void DrawTimeSaverEnhancements() {
+void DrawTimeSaverEnhancements1() {
     ImGui::SeparatorText("Cutscenes");
     UIWidgets::CVarCheckbox("Hide Title Cards", "gEnhancements.Cutscenes.HideTitleCards");
     UIWidgets::CVarCheckbox("Skip Entrance Cutscenes", "gEnhancements.Cutscenes.SkipEntranceCutscenes");
@@ -448,9 +501,18 @@ void DrawTimeSaverEnhancements() {
     UIWidgets::CVarCheckbox(
         "Skip Misc Interactions", "gEnhancements.Cutscenes.SkipMiscInteractions",
         { .tooltip = "Disclaimer: This doesn't do much yet, we will be progressively adding more skips over time" });
+}
+
+void DrawTimeSaverEnhancements2() {
+    UIWidgets::CVarCheckbox(
+        "Fast Bank Selection", "gEnhancements.Dialogue.FastBankSelection",
+        { .tooltip = "Pressing the Z or R buttons while the Deposit/Withdrawl Rupees dialogue is open will set "
+                     "the Rupees to Links current Rupees or 0 respectively." });
     UIWidgets::CVarCheckbox(
         "Fast Text", "gEnhancements.Dialogue.FastText",
         { .tooltip = "Speeds up text rendering, and enables holding of B progress to next message" });
+    UIWidgets::CVarCheckbox("Fast Magic Arrow Equip Animation", "gEnhancements.Equipment.MagicArrowEquipSpeed",
+        { .tooltip = "Removes the animation for equipping Magic Arrows." });
 }
 
 void DrawFixEnhancements() {
@@ -497,8 +559,24 @@ void DrawGeneralDevTools() {
         std::string filesPath = Ship::Context::GetInstance()->GetAppDirectoryPath();
         SDL_OpenURL(std::string("file:///" + std::filesystem::absolute(filesPath).string()).c_str());
     }
-    UIWidgets::CVarCheckbox("Debug Mode", "gDeveloperTools.DebugEnabled",
-                            { .tooltip = "Enables Debug Mode, allowing you to select maps with L + R + Z." });
+    if (UIWidgets::CVarCheckbox("Debug Mode", "gDeveloperTools.DebugEnabled",
+                                { .tooltip = "Enables Debug Mode, allowing you to select maps with L + R + Z." })) {
+        // If disabling debug mode, disable all debug features
+        if (!CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
+            CVarClear("gDeveloperTools.DebugSaveFileMode");
+            CVarClear("gDeveloperTools.PreventActorUpdate");
+            CVarClear("gDeveloperTools.PreventActorDraw");
+            CVarClear("gDeveloperTools.PreventActorInit");
+            CVarClear("gDeveloperTools.DisableObjectDependency");
+            if (gPlayState != NULL) {
+                gPlayState->frameAdvCtx.enabled = false;
+            }
+            RegisterDebugSaveCreate();
+            RegisterPreventActorUpdateHooks();
+            RegisterPreventActorDrawHooks();
+            RegisterPreventActorInitHooks();
+        }
+    };
 
     if (CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
         UIWidgets::CVarCheckbox(
@@ -525,6 +603,7 @@ void DrawGeneralDevTools() {
     if (UIWidgets::CVarCheckbox("Prevent Actor Init", "gDeveloperTools.PreventActorInit")) {
         RegisterPreventActorInitHooks();
     }
+    UIWidgets::CVarCheckbox("Disable Object Dependency", "gDeveloperTools.DisableObjectDependency");
     if (UIWidgets::CVarCombobox("Log Level", "gDeveloperTools.LogLevel", logLevels,
                                 {
                                     .tooltip = "The log level determines which messages are printed to the "
@@ -637,7 +716,7 @@ void BenMenu::InitElement() {
         { "Gameplay", { DrawGameplayEnhancements, DrawGameModesEnhancements, DrawSaveTimeEnhancements } },
         { "Graphics", { DrawGraphicsEnhancements, nullptr, nullptr } },
         { "Items/Songs", { DrawItemEnhancements, DrawSongEnhancements, nullptr } },
-        { "Time Savers", { DrawTimeSaverEnhancements, nullptr, nullptr } },
+        { "Time Savers", { DrawTimeSaverEnhancements1, DrawTimeSaverEnhancements2, nullptr } },
         { "Fixes", { DrawFixEnhancements, nullptr, nullptr } },
         { "Restorations", { DrawRestorationEnhancements, nullptr, nullptr } },
         { "Hud Editor", { DrawHudEditorContents, nullptr } }
