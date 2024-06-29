@@ -14,7 +14,6 @@ class BenMenu : public Ship::GuiWindow {
     void DrawElement() override;
     void UpdateElement() override;
     void Draw() override;
-    void ToggleMenu();
 
   protected:
     ImVec2 mOriginalSize;

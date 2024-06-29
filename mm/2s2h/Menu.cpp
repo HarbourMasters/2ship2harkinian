@@ -248,9 +248,9 @@ void DrawGraphicsSettings() {
 }
 
 void DrawControllerSettings() {
-    UIWidgets::WindowButton("Popout Input Editor", "gWindows.InputEditor", mBenInputEditorWindow,
+    UIWidgets::WindowButton("Popout Input Editor", "gWindows.BenInputEditor", mBenInputEditorWindow,
                             { .tooltip = "Enables the separate Input Editor window." });
-    if (!CVarGetInteger("gWindows.InputEditor", 0)) {
+    if (!CVarGetInteger("gWindows.BenInputEditor", 0)) {
         mBenInputEditorWindow->DrawPortTabContents(0);
     }
 };
@@ -659,14 +659,6 @@ void BenMenu::InitElement() {
 }
 
 void BenMenu::UpdateElement() {
-}
-
-void BenMenu::ToggleMenu() {
-    ToggleVisibility();
-    if (Ship::Context::GetInstance()->GetWindow()->IsFullscreen()) {
-        Ship::Context::GetInstance()->GetWindow()->SetCursorVisibility(
-            mIsVisible || Ship::Context::GetInstance()->GetWindow()->ShouldForceCursorVisibility());
-    }
 }
 
 bool ModernMenuSidebarEntry(std::string label) {
