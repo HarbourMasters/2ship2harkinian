@@ -25,6 +25,7 @@
 #include "Restorations/TatlISG.h"
 #include "Graphics/PlayAsKafei.h"
 #include "Player/Player.h"
+#include "Player/ManualJump.h"
 #include "Songs/EnableSunsSong.h"
 #include "Saving/SavingEnhancements.h"
 #include "Graphics/DisableBlackBars.h"

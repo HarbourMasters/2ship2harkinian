@@ -43,6 +43,7 @@ void InitEnhancements() {
     RegisterClimbSpeed();
     RegisterFastFlowerLaunch();
     RegisterInstantPutaway();
+    RegisterManualJump();
 
     // Songs
     RegisterEnableSunsSong();
