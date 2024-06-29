@@ -8,6 +8,8 @@ extern "C" {
 #include <macros.h>
 #include <variables.h>
 #include <functions.h>
+#include "overlays/actors/ovl_En_Test4/z_en_test4.h"
+
 extern PlayState* gPlayState;
 extern SaveContext gSaveContext;
 extern TexturePtr gItemIcons[131];
@@ -22,6 +24,9 @@ void PlayerCall_Init(Actor* thisx, PlayState* play);
 void PlayerCall_Update(Actor* thisx, PlayState* play);
 void PlayerCall_Draw(Actor* thisx, PlayState* play);
 void TransitionFade_SetColor(void* thisx, u32 color);
+
+void func_80A42198(EnTest4* thisx);
+void func_80A425E4(EnTest4* thisx, PlayState* play);
 }
 
 bool safeMode = true;
@@ -136,6 +141,75 @@ int setPlayerName(ImGuiInputTextCallbackData* data) {
     }
     return 0;
 };
+
+EnTest4* FindEnTest4Actor() {
+    if (gPlayState == NULL) {
+        return NULL;
+    }
+
+    Actor* enTest4Search = gPlayState->actorCtx.actorLists[ACTORCAT_SWITCH].first;
+
+    while (enTest4Search != NULL) {
+        if (enTest4Search->id == ACTOR_EN_TEST4) {
+            return (EnTest4*)enTest4Search;
+        }
+        enTest4Search = enTest4Search->next;
+    }
+
+    return NULL;
+}
+
+void UpdateGameTime(u16 gameTime) {
+    bool newTimeIsNight = (gameTime > CLOCK_TIME(18, 0)) || (gameTime < CLOCK_TIME(6, 0));
+    bool prevTimeIsNight = (gSaveContext.save.time > CLOCK_TIME(18, 0)) || (gSaveContext.save.time < CLOCK_TIME(6, 0));
+
+    gSaveContext.save.time = gameTime;
+
+    if (gPlayState == NULL) {
+        return;
+    }
+
+    // Clear weather from day 2
+    gWeatherMode = WEATHER_MODE_CLEAR;
+    gPlayState->envCtx.lightningState = LIGHTNING_LAST;
+
+    // When transitioning over night boundaries, stop the sequences and ask to replay, then respawn actors
+    if (newTimeIsNight != prevTimeIsNight) {
+        // AMBIENCE_ID_13 is used to persist a scenes sequence through night, so we shouldn't
+        // change anything if thats active
+        if (gPlayState->sequenceCtx.ambienceId != AMBIENCE_ID_13) {
+            SEQCMD_STOP_SEQUENCE(SEQ_PLAYER_AMBIENCE, 0);
+            SEQCMD_STOP_SEQUENCE(SEQ_PLAYER_BGM_MAIN, 240);
+            gSaveContext.seqId = (u8)NA_BGM_DISABLED;
+            gSaveContext.ambienceId = AMBIENCE_ID_DISABLED;
+            Environment_PlaySceneSequence(gPlayState);
+        }
+
+        // Kills/Spawns half-day actors
+        gPlayState->numSetupActors = -gPlayState->numSetupActors;
+    }
+
+    EnTest4* enTest4 = FindEnTest4Actor();
+
+    // Update EnTest4 actor to be in sync with the new time
+    // This ensures that day transitions are not triggered with the change
+    if (enTest4 != NULL) {
+        enTest4->unk_146 = gameTime;
+        enTest4->lastBellTime = gameTime;
+        enTest4->csIdIndex = newTimeIsNight ? 0 : 1;
+
+        // Sets the nextBellTime based on the new current time
+        if (CURRENT_DAY == 3) {
+            func_80A42198(enTest4);
+        } else {
+            func_80A425E4(enTest4, gPlayState);
+        }
+
+        // Unset any screen scaling from the above funcs
+        gSaveContext.screenScale = 1000.0f;
+        gSaveContext.screenScaleFlag = false;
+    }
+}
 
 void DrawTempleClears() {
     bool cleared;
@@ -278,8 +352,11 @@ void DrawGeneralTab() {
     }
     hours += std::to_string(curHours);
     std::string timeString = hours + ":" + minutes + ampm + " (0x%x)";
-    ImGui::SliderScalar("##timeInput", ImGuiDataType_U16, &gSaveContext.save.time, &minTime, &maxTime,
-                        timeString.c_str());
+
+    u16 gameTime = gSaveContext.save.time;
+    if (ImGui::SliderScalar("##timeInput", ImGuiDataType_U16, &gameTime, &minTime, &maxTime, timeString.c_str())) {
+        UpdateGameTime(gameTime);
+    }
     UIWidgets::PopStyleSlider();
     ImGui::EndGroup();
 
@@ -329,7 +406,7 @@ void DrawGeneralTab() {
     for (size_t i = 0; i < timeSkipAmounts.size(); i++) {
         const auto& skip = timeSkipAmounts.at(i);
         if (UIWidgets::Button(skip.second, { .color = UIWidgets::Colors::Indigo, .size = UIWidgets::Sizes::Inline })) {
-            gSaveContext.save.time += CLOCK_TIME(0, skip.first);
+            UpdateGameTime(gSaveContext.save.time + CLOCK_TIME(0, skip.first));
         }
         if (i < timeSkipAmounts.size() - 1) {
             ImGui::SameLine();
@@ -337,27 +414,33 @@ void DrawGeneralTab() {
     }
     // Day slider
     UIWidgets::PushStyleSlider();
-    static s32 minDay = 1;
-    static s32 maxDay = 3;
+    static s32 minDay = 0;
+    static s32 maxDay = 4;
     if (ImGui::SliderScalar("##dayInput", ImGuiDataType_S32, &gSaveContext.save.day, &minDay, &maxDay, "Day: %d")) {
         gSaveContext.save.eventDayCount = CURRENT_DAY;
-        // Reset the time to the start of day/night
-        if (gSaveContext.save.time < CLOCK_TIME(6, 0) || gSaveContext.save.time > CLOCK_TIME(18, 0)) {
-            gSaveContext.save.time = CLOCK_TIME(18, 1);
-        } else {
-            gSaveContext.save.time = CLOCK_TIME(6, 1);
-        }
+
         if (gPlayState != nullptr) {
             Interface_NewDay(gPlayState, CURRENT_DAY);
-            // Inverting setup actors forces actors to kill/respawn for new day
+            // Inverting setup actors forces half-day actors to kill/respawn for new day
             gPlayState->numSetupActors = -gPlayState->numSetupActors;
+            // Load environment values for new day
+            func_800FEAF4(&gPlayState->envCtx);
+            // Clear weather from day 2
+            gWeatherMode = WEATHER_MODE_CLEAR;
+            gPlayState->envCtx.lightningState = LIGHTNING_LAST;
         }
     }
     // Time speed slider
     // Values are added to R_TIME_SPEED which is generally 3 in normal play state
     static s32 minSpeed = -3; // Time frozen
     static s32 maxSpeed = 7;
-    std::string timeSpeedString = "Time Speed: " + std::to_string(gSaveContext.save.timeSpeedOffset + 3);
+    std::string extraText = "";
+    if (gSaveContext.save.timeSpeedOffset == 0) {
+        extraText = " (default)";
+    } else if (gSaveContext.save.timeSpeedOffset == -2) {
+        extraText = " (inverted)";
+    }
+    std::string timeSpeedString = "Time Speed: " + std::to_string(gSaveContext.save.timeSpeedOffset + 3) + extraText;
     ImGui::SliderScalar("##timeSpeedInput", ImGuiDataType_S32, &gSaveContext.save.timeSpeedOffset, &minSpeed, &maxSpeed,
                         timeSpeedString.c_str());
     UIWidgets::PopStyleSlider();
