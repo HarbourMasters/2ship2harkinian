@@ -15,6 +15,9 @@
 #include "BenPort.h"
 #include "intent-control-types.h"
 
+#define ARB_EQUIP_ITEM_1 101
+#define ARB_EQUIP_ITEM_2 102
+
 // Variables are put before most headers as a hacky way to bypass bss reordering
 OSMesgQueue sSerialEventQueue;
 OSMesg sSerialMsgBuf[1];
@@ -55,23 +58,6 @@ void InitOTR();
 IntentControlDefinition* intentDefinitions = NULL;
 uint16_t intentDefinitionCount = 0;
 
-ArbitraryItemEquipButton *arbitraryItemEquipButtonDefinitions = NULL;
-size_t arbitraryItemEquipButtonDefinitionCount = 0;
-
-uint16_t itemIndex = 0;
-uint8_t canTakeAssignment(ArbitraryItemEquipButton* self, ItemId item){
-    uint8_t allow = (itemIndex % 10) == (self->id - 1);
-    
-    return allow;
-}
-uint8_t assignmentTriggeredTrue(ArbitraryItemEquipButton* self, Input* input){
-    if(CHECK_BTN_ALL(input->press.button, BTN_A)){
-        itemIndex++;
-        return true;
-    }
-    return false;
-}
-
 void SDL_main(int argc, char** argv /* void* arg*/) {
     intptr_t fb;
     intptr_t sysHeap;
@@ -86,31 +72,33 @@ void SDL_main(int argc, char** argv /* void* arg*/) {
         {INTENT_CONTROL_FIRE_HOOKSHOT, "Fire Hookshot"},
         {INTENT_HOTSWAP_ITEM_RIGHT, "Swap Item Right"},
         {INTENT_HOTSWAP_ITEM_LEFT, "Swap Item Left"},
-        {INTENT_USE_ITEM, "Use Item"}
+        {INTENT_USE_ITEM, "Use Item"},
+
+        {ARB_EQUIP_ITEM_1, "Arbitrary Equipment Button 1"},
+        {ARB_EQUIP_ITEM_2, "Arbitrary Equipment Button 2"}
     };
     intentDefinitions = d;
     intentDefinitionCount = sizeof(d) / sizeof(IntentControlDefinition);
 
-    ArbitraryItemEquipButton e[10];
-    uint16_t width = 27, height = 27;
-    for(uint8_t i = 0; i < 10; i++){
-            e[i].id = i + 1;
-            e[i].assignedItem = ITEM_HOOKSHOT + i;
-            e[i].rectLeft = 0;
-            e[i].rectTop = (height * i);
-            e[i].rectWidth = width;
-            e[i].rectHeight = height;
-            e[i].dsdx = 620;
-            e[i].dtdy = 620;
-            e[i].r = i % 3 == 0 ? 255 : 0;
-            e[i].g = i % 3 == 1 ? 255 : 0;
-            e[i].b = i % 3 == 2 ? 255 : 0;
-            e[i].a = 255;
-            e[i].canTakeAssignment = canTakeAssignment;
-            e[i].assignmentTriggered = assignmentTriggeredTrue;
-    }
-    arbitraryItemEquipButtonDefinitions = e;
-    arbitraryItemEquipButtonDefinitionCount = sizeof(e) / sizeof(ArbitraryItemEquipButton);
+    // uint16_t width = 27, height = 27;
+    // for(uint8_t i = 0; i < 10; i++){
+    //         e[i].id = i + 1;
+    //         e[i].assignedItem = ITEM_HOOKSHOT + i;
+    //         e[i].rectLeft = 0;
+    //         e[i].rectTop = (height * i);
+    //         e[i].rectWidth = width;
+    //         e[i].rectHeight = height;
+    //         e[i].dsdx = 620;
+    //         e[i].dtdy = 620;
+    //         e[i].r = i % 3 == 0 ? 255 : 0;
+    //         e[i].g = i % 3 == 1 ? 255 : 0;
+    //         e[i].b = i % 3 == 2 ? 255 : 0;
+    //         e[i].a = 255;
+    //         e[i].canTakeAssignment = canTakeAssignment;
+    //         e[i].assignmentTriggered = assignmentTriggeredTrue;
+    // }
+    // arbitraryItemEquipButtonDefinitions = e;
+    // arbitraryItemEquipButtonDefinitionCount = sizeof(e) / sizeof(ArbitraryItemEquipButton);
 
 // Attach console for windows so we can conditionally display it when running the extractor
 #ifdef _WIN32

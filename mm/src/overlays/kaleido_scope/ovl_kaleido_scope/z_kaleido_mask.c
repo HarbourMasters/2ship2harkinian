@@ -305,6 +305,8 @@ void KaleidoScope_UpdateMaskCursor(PlayState* play) {
 
     pauseCtx->cursorColorSet = PAUSE_CURSOR_COLOR_SET_WHITE;
     pauseCtx->nameColorSet = PAUSE_NAME_COLOR_SET_WHITE;
+    
+    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.getEquipSlots();
 
     if ((pauseCtx->state == PAUSE_STATE_MAIN) && (pauseCtx->mainState == PAUSE_MAIN_STATE_IDLE) &&
         (pauseCtx->pageIndex == PAUSE_MASK) && !pauseCtx->itemDescriptionOn) {
@@ -552,13 +554,30 @@ void KaleidoScope_UpdateMaskCursor(PlayState* play) {
             pauseCtx->cursorItem[PAUSE_MASK] = cursorItem;
             pauseCtx->cursorSlot[PAUSE_MASK] = cursorSlot;
             if (cursorItem != PAUSE_ITEM_NONE) {
+                uint8_t arbEquipAccepts = 0;
+                pauseCtx->equipTargetArbitraryEquip = 0;
+                for(size_t arbIndex = 0; arbIndex < slots.count; arbIndex++){
+                    ArbitraryItemEquipButton* targetArb = &slots.equips[arbIndex];
+                    if(
+                        targetArb->canTakeAssignment && targetArb->canTakeAssignment(targetArb, cursorItem)
+                        && targetArb->assignmentTriggered && targetArb->assignmentTriggered(targetArb, CONTROLLER1(&play->state))
+                    ){
+                        arbEquipAccepts = 1;
+                        pauseCtx->equipTargetArbitraryEquip = targetArb->id;
+                        break;
+                    }
+                }
                 // Equip item to the C buttons
                 if ((pauseCtx->debugEditor == DEBUG_EDITOR_NONE) && !pauseCtx->itemDescriptionOn &&
                     (pauseCtx->state == PAUSE_STATE_MAIN) && (pauseCtx->mainState == PAUSE_MAIN_STATE_IDLE) &&
-                    CHECK_BTN_ANY(input->press.button, BTN_CLEFT | BTN_CDOWN | BTN_CRIGHT | BTN_DPAD_EQUIP)) {
+                    (CHECK_BTN_ANY(input->press.button, 
+                                BTN_CLEFT | BTN_CDOWN | BTN_CRIGHT | BTN_DPAD_EQUIP) || arbEquipAccepts)) {
+                    
+                    if(arbEquipAccepts){
 
+                    }
                     // Ensure that a mask is not unequipped while being used
-                    if (CHECK_BTN_ALL(input->press.button, BTN_CLEFT)) {
+                    else if (CHECK_BTN_ALL(input->press.button, BTN_CLEFT)) {
                         if (((Player_GetCurMaskItemId(play) != ITEM_NONE) &&
                              (Player_GetCurMaskItemId(play) == BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT))) ||
                             ((sMaskPlayerFormItems[GET_PLAYER_FORM] != ITEM_NONE) &&
@@ -633,7 +652,10 @@ void KaleidoScope_UpdateMaskCursor(PlayState* play) {
                         return;
                     }
 
-                    if (CHECK_BTN_ALL(input->press.button, BTN_CLEFT)) {
+                    if(arbEquipAccepts){
+
+                    }
+                    else if (CHECK_BTN_ALL(input->press.button, BTN_CLEFT)) {
                         pauseCtx->equipTargetCBtn = PAUSE_EQUIP_C_LEFT;
                     } else if (CHECK_BTN_ALL(input->press.button, BTN_CDOWN)) {
                         pauseCtx->equipTargetCBtn = PAUSE_EQUIP_C_DOWN;
@@ -1008,6 +1030,10 @@ void KaleidoScope_UpdateMaskEquip(PlayState* play) {
     u16 offsetX;
     u16 offsetY;
 
+    if(pauseCtx->equipTargetArbitraryEquip != 0){
+        return;
+    }
+
     // Grow glowing orb when equipping magic arrows
     if (sMaskEquipState == EQUIP_STATE_MAGIC_ARROW_GROW_ORB) {
         pauseCtx->equipAnimAlpha += 14;
@@ -1226,6 +1252,143 @@ void KaleidoScope_UpdateMaskEquip(PlayState* play) {
                 KaleidoScope_UpdateDpadMaskEquip(play);
             }
             // #endregion
+
+            // Reset params
+            pauseCtx->mainState = PAUSE_MAIN_STATE_IDLE;
+            sMaskEquipAnimTimer = 10;
+            pauseCtx->equipAnimScale = 320;
+            pauseCtx->equipAnimShrinkRate = 40;
+        }
+    } else {
+        sMaskEquipMagicArrowSlotHoldTimer--;
+        if (sMaskEquipMagicArrowSlotHoldTimer == 0) {
+            pauseCtx->equipAnimAlpha = 255;
+        }
+    }
+}
+
+void KaleidoScope_UpdateMaskEquipArbitrary(PlayState* play) {
+    static s16 sMaskEquipMagicArrowBowSlotHoldTimer = 0;
+    PauseContext* pauseCtx = &play->pauseCtx;
+    Vtx* bowItemVtx;
+    u16 offsetX;
+    u16 offsetY;
+
+    ArbitraryItemEquipButton* arbEquip = NULL;
+    if(pauseCtx->equipTargetArbitraryEquip == 0){
+        return;
+    }
+
+    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.getEquipSlots();
+
+    for(size_t i = 0 ; i < slots.count; i++){
+        ArbitraryItemEquipButton* e = &slots.equips[i];
+        if(e->id == pauseCtx->equipTargetArbitraryEquip){
+            arbEquip = e;
+            break;
+        }
+    }
+    if(arbEquip == NULL){
+        return;
+    }
+
+    ArbitraryItemDrawParams drawParams = arbEquip->getDrawParams(arbEquip);
+    s32 maskCButtonPosX = -1580 - drawParams.rectLeft * 10;
+    s32 maskCButtonPosY = 1260 - drawParams.rectTop * 10;
+
+    // Grow glowing orb when equipping magic arrows
+    if (sMaskEquipState == EQUIP_STATE_MAGIC_ARROW_GROW_ORB) {
+        pauseCtx->equipAnimAlpha += 14;
+        if (pauseCtx->equipAnimAlpha > 255) {
+            pauseCtx->equipAnimAlpha = 254;
+            sMaskEquipState++;
+        }
+        // Hover over magic arrow slot when the next state is reached
+        sMaskEquipMagicArrowSlotHoldTimer = 5;
+        return;
+    }
+
+    if (sMaskEquipState == EQUIP_STATE_MAGIC_ARROW_HOVER_OVER_BOW_SLOT) {
+        sMaskEquipMagicArrowBowSlotHoldTimer--;
+
+        if (sMaskEquipMagicArrowBowSlotHoldTimer == 0) {
+            pauseCtx->equipTargetItem -= 0xB5 - ITEM_BOW_FIRE;
+            pauseCtx->equipTargetSlot = SLOT_BOW;
+            sMaskEquipAnimTimer = 6;
+            pauseCtx->equipAnimScale = 320;
+            pauseCtx->equipAnimShrinkRate = 40;
+            sMaskEquipState++;
+            Audio_PlaySfx(NA_SE_SY_SYNTH_MAGIC_ARROW);
+        }
+        return;
+    }
+
+    if (sMaskEquipState == EQUIP_STATE_MAGIC_ARROW_MOVE_TO_BOW_SLOT) {
+        //! Note: Copied from OoT when `SLOT_BOW` was still valued at 3.
+        // Due to a shift, `SLOT_ARROW_ICE` now occupies slot 3 but this value was not updated
+        // Block is never reached as you can not equip magic arrows from the mask page
+        bowItemVtx = &pauseCtx->itemVtx[SLOT_ARROW_ICE * 4];
+        offsetX = ABS_ALT(pauseCtx->equipAnimX - bowItemVtx->v.ob[0] * 10) / sMaskEquipAnimTimer;
+        offsetY = ABS_ALT(pauseCtx->equipAnimY - bowItemVtx->v.ob[1] * 10) / sMaskEquipAnimTimer;
+    } else {
+        // 2S2H [Cosmetic] Use position vars from above
+        offsetX = ABS_ALT(pauseCtx->equipAnimX - maskCButtonPosX) / sMaskEquipAnimTimer;
+        offsetY = ABS_ALT(pauseCtx->equipAnimY - maskCButtonPosY) / sMaskEquipAnimTimer;
+    }
+
+    if ((pauseCtx->equipTargetItem >= 0xB5) && (pauseCtx->equipAnimAlpha < 254)) {
+        pauseCtx->equipAnimAlpha += 14;
+        if (pauseCtx->equipAnimAlpha > 255) {
+            pauseCtx->equipAnimAlpha = 254;
+        }
+        sMaskEquipMagicArrowSlotHoldTimer = 5;
+        return;
+    }
+
+    if (sMaskEquipMagicArrowSlotHoldTimer == 0) {
+        pauseCtx->equipAnimScale -= pauseCtx->equipAnimShrinkRate / sMaskEquipAnimTimer;
+        pauseCtx->equipAnimShrinkRate -= pauseCtx->equipAnimShrinkRate / sMaskEquipAnimTimer;
+
+        // Update coordinates of item icon while being equipped
+        if (sMaskEquipState == EQUIP_STATE_MAGIC_ARROW_MOVE_TO_BOW_SLOT) {
+            // target is the bow slot
+            if (pauseCtx->equipAnimX >= (pauseCtx->itemVtx[12].v.ob[0] * 10)) {
+                pauseCtx->equipAnimX -= offsetX;
+            } else {
+                pauseCtx->equipAnimX += offsetX;
+            }
+
+            if (pauseCtx->equipAnimY >= (pauseCtx->itemVtx[12].v.ob[1] * 10)) {
+                pauseCtx->equipAnimY -= offsetY;
+            } else {
+                pauseCtx->equipAnimY += offsetY;
+            }
+        } else {
+            // target is the c button
+            // 2S2H [Cosmetic] Use position vars from above
+            if (pauseCtx->equipAnimX >= maskCButtonPosX) {
+                pauseCtx->equipAnimX -= offsetX;
+            } else {
+                pauseCtx->equipAnimX += offsetX;
+            }
+
+            if (pauseCtx->equipAnimY >= maskCButtonPosY) {
+                pauseCtx->equipAnimY -= offsetY;
+            } else {
+                pauseCtx->equipAnimY += offsetY;
+            }
+        }
+
+        sMaskEquipAnimTimer--;
+        if (sMaskEquipAnimTimer == 0) {
+            if (sMaskEquipState == EQUIP_STATE_MAGIC_ARROW_MOVE_TO_BOW_SLOT) {
+                sMaskEquipState++;
+                sMaskEquipMagicArrowBowSlotHoldTimer = 4;
+                return;
+            }
+
+            // Equip mask onto arbitrary button
+            KaleifoScope_SetArbitraryButton(pauseCtx, play, arbEquip);
 
             // Reset params
             pauseCtx->mainState = PAUSE_MAIN_STATE_IDLE;

@@ -5287,24 +5287,25 @@ void Interface_DrawItemButtons(PlayState* play) {
         100, 255, 120, interfaceCtx->bAlpha);
     gDPPipeSync(OVERLAY_DISP++);
 
-    for(uint8_t i = 0; i < gSaveContext.save.saveInfo.equips.arbEquipButtonCount; i++){
-        ArbitraryItemEquipButton* eqBtn = &gSaveContext.save.saveInfo.equips.arbEquipButtons[i];
+    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.getEquipSlots();
+
+    for(uint8_t i = 0; i < slots.count; i++){
+        ArbitraryItemEquipButton* eqBtn = &slots.equips[i];
+        ArbitraryItemDrawParams drawParams = eqBtn->getDrawParams(eqBtn);
         // HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_LEFT);
         OVERLAY_DISP = Gfx_DrawRect_DropShadow(
             OVERLAY_DISP,
-            eqBtn->rectLeft, 
-            eqBtn->rectTop,
-            eqBtn->rectWidth, 
-            eqBtn->rectHeight,
-            eqBtn->dsdx * 2, 
-            eqBtn->dtdy * 2, 
-            eqBtn->r,
-            eqBtn->g, 
-            eqBtn->b, 
+            drawParams.rectLeft, 
+            drawParams.rectTop,
+            drawParams.rectWidth, 
+            drawParams.rectHeight,
+            drawParams.dsdx * 2, 
+            drawParams.dtdy * 2, 
+            drawParams.r,
+            drawParams.g, 
+            drawParams.b, 
             UINT16_MAX //eqBtn->a
         );
-
-        
     }
 
     // C-Left Button Color & Texture
@@ -5650,18 +5651,19 @@ void Interface_DrawItemIconTextureArb(PlayState* play, TexturePtr texture, Arbit
 
     // #region 2S2H [Cosmetic] Hud Editor
     // HudEditor_SetActiveElement(button);
+    ArbitraryItemDrawParams drawParams = arbEquipment->getDrawParams(arbEquipment);
     if (HudEditor_ShouldOverrideDraw()) {
         if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) ==
             HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
             hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
         } else {
             // All of this information was derived from the original call to gSPTextureRectangle below
-            s16 rectLeft = arbEquipment->rectLeft;
-            s16 rectTop = arbEquipment->rectTop;
-            s16 rectWidth = arbEquipment->rectWidth;
-            s16 rectHeight = arbEquipment->rectHeight;
-            s16 dsdx = arbEquipment->dsdx;
-            s16 dtdy = arbEquipment->dtdy;
+            s16 rectLeft = drawParams.rectLeft;
+            s16 rectTop = drawParams.rectTop;
+            s16 rectWidth = drawParams.rectWidth;
+            s16 rectHeight = drawParams.rectHeight;
+            s16 dsdx = drawParams.dsdx;
+            s16 dtdy = drawParams.dtdy;
 
             HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
 
@@ -5672,10 +5674,10 @@ void Interface_DrawItemIconTextureArb(PlayState* play, TexturePtr texture, Arbit
         }
         // #endregion
     } else {
-        gSPTextureRectangle(OVERLAY_DISP++, arbEquipment->rectLeft << 2, arbEquipment->rectTop << 2,
-                            (arbEquipment->rectLeft + arbEquipment->rectWidth) << 2,
-                            (arbEquipment->rectTop + arbEquipment->rectHeight) << 2, G_TX_RENDERTILE, 0, 0,
-                            arbEquipment->dsdx << 1, arbEquipment->dtdy << 1);
+        gSPTextureRectangle(OVERLAY_DISP++, drawParams.rectLeft << 2, drawParams.rectTop << 2,
+                            (drawParams.rectLeft + drawParams.rectWidth) << 2,
+                            (drawParams.rectTop + drawParams.rectHeight) << 2, G_TX_RENDERTILE, 0, 0,
+                            drawParams.dsdx << 1, drawParams.dtdy << 1);
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -5762,7 +5764,7 @@ void Interface_DrawAmmoCountArbEquip(PlayState* play, ArbitraryItemEquipButton* 
     u16 ammo;
     OPEN_DISPS(play->state.gfxCtx);
 
-    i = arbEquip->assignedItem;
+    i = arbEquip->getAssignedItem(arbEquip);
 
     if ((i == ITEM_DEKU_STICK) || (i == ITEM_DEKU_NUT) || (i == ITEM_BOMB) || (i == ITEM_BOW) ||
         ((i >= ITEM_BOW_FIRE) && (i <= ITEM_BOW_LIGHT)) || (i == ITEM_BOMBCHU) || (i == ITEM_POWDER_KEG) ||
@@ -5810,17 +5812,18 @@ void Interface_DrawAmmoCountArbEquip(PlayState* play, ArbitraryItemEquipButton* 
             ammo -= 10;
         }
 
+        ArbitraryItemDrawParams drawParams = arbEquip->getDrawParams(arbEquip);
         // Draw upper digit (tens)
         if ((u32)i != 0) {
             // HudEditor_SetActiveElement(button);
-            OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[i], 8, 8, arbEquip->rectLeft,
-                                              arbEquip->rectTop + arbEquip->rectHeight - 8, 8, 8, 1 << 10, 1 << 10);
+            OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[i], 8, 8, drawParams.rectLeft,
+                                              drawParams.rectTop + drawParams.rectHeight - 8, 8, 8, 1 << 10, 1 << 10);
         }
 
         // Draw lower digit (ones)
         // HudEditor_SetActiveElement(button);
-        OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[ammo], 8, 8, arbEquip->rectLeft + 6,
-                                          arbEquip->rectTop + arbEquip->rectHeight - 8, 8, 8, 1 << 10, 1 << 10);
+        OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[ammo], 8, 8, drawParams.rectLeft + 6,
+                                          drawParams.rectTop + drawParams.rectHeight - 8, 8, 8, 1 << 10, 1 << 10);
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -5967,17 +5970,27 @@ void Interface_DrawCButtonIcons(PlayState* play) {
     OPEN_DISPS(play->state.gfxCtx);
 
     gDPPipeSync(OVERLAY_DISP++);
+    
+    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.getEquipSlots();
 
-    for(uint8_t i = 0; i < gSaveContext.save.saveInfo.equips.arbEquipButtonCount; i++){
-        ArbitraryItemEquipButton* eqBtn = &gSaveContext.save.saveInfo.equips.arbEquipButtons[i];
+    for(uint8_t i = 0; i < slots.count; i++){
+        ArbitraryItemEquipButton* eqBtn = &slots.equips[i];
+        ArbitraryItemDrawParams drawParams = eqBtn->getDrawParams(eqBtn);
 
-        gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, eqBtn->a);
+        gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, drawParams.a);
         gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
-        Interface_DrawItemIconTextureArb(play, gItemIcons[eqBtn->assignedItem], eqBtn);
+        ItemId item = eqBtn->getAssignedItem(eqBtn); 
+
+        if(item == ITEM_NONE){
+            Interface_DrawItemIconTextureArb(play, gEmptyTexture, eqBtn);
+        }
+        else {
+            Interface_DrawItemIconTextureArb(play, gItemIcons[eqBtn->getAssignedItem(eqBtn)], eqBtn);
+        }
         gDPPipeSync(OVERLAY_DISP++);
         gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
                           PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
-        Interface_DrawAmmoCountArbEquip(play, eqBtn, eqBtn->a);
+        Interface_DrawAmmoCountArbEquip(play, eqBtn, drawParams.a);
     }
 
     // C-Left Button Icon & Ammo Count

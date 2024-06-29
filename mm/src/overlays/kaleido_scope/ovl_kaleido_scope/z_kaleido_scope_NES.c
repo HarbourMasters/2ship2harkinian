@@ -3484,6 +3484,7 @@ void KaleidoScope_Update(PlayState* play) {
 
                 case PAUSE_MAIN_STATE_EQUIP_MASK:
                     KaleidoScope_UpdateMaskEquip(play);
+                    KaleidoScope_UpdateMaskEquipArbitrary(play);
                     break;
 
                 case PAUSE_MAIN_STATE_BOMBERS_NOTEBOOK_OPEN:

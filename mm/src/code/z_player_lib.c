@@ -676,6 +676,33 @@ PlayerItemAction func_80123810(PlayState* play) {
             }
         }
     }
+
+    if(gSaveContext.save.saveInfo.equips.getEquipSlots == NULL){
+        initItemEquips(&gSaveContext.save.saveInfo.equips);
+    }
+
+    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.getEquipSlots();
+
+    for(uint16_t arbIndex = 0; arbIndex < slots.count; arbIndex++){
+        ArbitraryItemEquipButton* arb = &slots.equips[arbIndex];
+        if(arb->tradeItem(arb, CONTROLLER1(&play->state))){
+            play->interfaceCtx.unk_222 = 0;
+            play->interfaceCtx.unk_224 = 0;
+            Interface_SetHudVisibility(play->msgCtx.hudVisibility);
+            itemId = arb->getAssignedItem(arb);
+
+            if ((itemId >= ITEM_FD) || ((itemAction = play->unk_18794(play, player, itemId)) <= PLAYER_IA_MINUS1)) {
+                Audio_PlaySfx(NA_SE_SY_ERROR);
+                return PLAYER_IA_MINUS1;
+            } else {
+                s32 pad;
+
+                player->heldItemButton = EQUIP_SLOT_MAX;
+                return itemAction;
+            }
+        }
+    }
+
     // #region 2S2H [Dpad]
     if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
         for (i = 0; i < ARRAY_COUNT(sDItemButtons); i++) {

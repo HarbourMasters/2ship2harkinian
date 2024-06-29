@@ -393,6 +393,8 @@ void KaleidoScope_UpdateItemCursor(PlayState* play) {
     pauseCtx->cursorColorSet = PAUSE_CURSOR_COLOR_SET_WHITE;
     pauseCtx->nameColorSet = PAUSE_NAME_COLOR_SET_WHITE;
 
+    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.getEquipSlots();
+
     if ((pauseCtx->state == PAUSE_STATE_MAIN) && (pauseCtx->mainState == PAUSE_MAIN_STATE_IDLE) &&
         (pauseCtx->pageIndex == PAUSE_ITEM) && !pauseCtx->itemDescriptionOn) {
         moveCursorResult = PAUSE_CURSOR_RESULT_NONE;
@@ -627,8 +629,8 @@ void KaleidoScope_UpdateItemCursor(PlayState* play) {
             if (cursorItem != PAUSE_ITEM_NONE) {
                 uint8_t arbEquipAccepts = 0;
                 pauseCtx->equipTargetArbitraryEquip = 0;
-                for(size_t arbIndex = 0; arbIndex < gSaveContext.save.saveInfo.equips.arbEquipButtonCount; arbIndex++){
-                    ArbitraryItemEquipButton* targetArb = &gSaveContext.save.saveInfo.equips.arbEquipButtons[arbIndex];
+                for(size_t arbIndex = 0; arbIndex < slots.count; arbIndex++){
+                    ArbitraryItemEquipButton* targetArb = &slots.equips[arbIndex];
                     if(
                         targetArb->canTakeAssignment && targetArb->canTakeAssignment(targetArb, cursorItem)
                         && targetArb->assignmentTriggered && targetArb->assignmentTriggered(targetArb, CONTROLLER1(&play->state))
@@ -1491,7 +1493,7 @@ void KaleidoScope_AssignCButtonEquip(PlayState* play, PauseContext *pauseCtx, ui
 }
 
 void KaleidoScope_AssignArbitraryButtonEquip(PlayState* play, PauseContext *pauseCtx, uint8_t form, ArbitraryItemEquipButton* arbEquip){
-    arbEquip->assignedItem = pauseCtx->equipTargetItem;
+    arbEquip->assignItem(arbEquip, pauseCtx->equipTargetItem);
     Interface_LoadItemIconImplArbitrary(play, arbEquip);
 }
 
@@ -1827,8 +1829,11 @@ void KaleidoScope_UpdateItemEquipArbitrary(PlayState* play) {
     if(pauseCtx->equipTargetArbitraryEquip == 0){
         return;
     }
-    for(size_t i = 0 ; i < gSaveContext.save.saveInfo.equips.arbEquipButtonCount; i++){
-        ArbitraryItemEquipButton* e = &gSaveContext.save.saveInfo.equips.arbEquipButtons[i];
+
+    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.getEquipSlots();
+    
+    for(size_t i = 0 ; i < slots.count; i++){
+        ArbitraryItemEquipButton* e = &slots.equips[i];
         if(e->id == pauseCtx->equipTargetArbitraryEquip){
             arbEquip = e;
             break;
@@ -1838,8 +1843,9 @@ void KaleidoScope_UpdateItemEquipArbitrary(PlayState* play) {
         return;
     }
 
-    s32 cButtonPosX = -1580 - arbEquip->rectLeft * 10;
-    s32 cButtonPosY = 1260 - arbEquip->rectTop * 10;
+    ArbitraryItemDrawParams drawParams = arbEquip->getDrawParams(arbEquip);
+    s32 cButtonPosX = -1580 - drawParams.rectLeft * 10;
+    s32 cButtonPosY = 1260 - drawParams.rectTop * 10;
 
     // Grow glowing orb when equipping magic arrows
     if (sEquipState == EQUIP_STATE_MAGIC_ARROW_GROW_ORB) {

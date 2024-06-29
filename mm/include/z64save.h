@@ -200,11 +200,7 @@ typedef struct SramContext {
     /* 0x24 */ s16 unk_24;
 } SramContext; // size = 0x28
 
-typedef struct ArbitraryItemEquipButton {
-    uint16_t id;
-    uint16_t assignedItem;
-
-    // Draw parameters
+typedef struct ArbitraryItemDrawParams {
     s16 rectLeft;
     s16 rectTop;
     s16 rectWidth;
@@ -215,14 +211,26 @@ typedef struct ArbitraryItemEquipButton {
     s16 g;
     s16 b;
     s16 a;
+} ArbitraryItemDrawParams;
+
+typedef struct ArbitraryItemEquipButton {
+    uint16_t id;
+    void* userData;
 
     // Logic checks
     uint8_t (*canTakeAssignment)(struct ArbitraryItemEquipButton* self, ItemId item);
     uint8_t (*assignmentTriggered)(struct ArbitraryItemEquipButton* self, Input* input);
+    uint8_t (*activateItem)(struct ArbitraryItemEquipButton* self, Input* input, uint8_t buttonState);
+    uint8_t (*tradeItem)(struct ArbitraryItemEquipButton* self, Input* input);
+    ArbitraryItemDrawParams (*getDrawParams)(struct ArbitraryItemEquipButton* self);
+    uint16_t (*getAssignedItem)(struct ArbitraryItemEquipButton* self);
+    uint16_t (*assignItem)(struct ArbitraryItemEquipButton* self, uint16_t item);
 } ArbitraryItemEquipButton;
 
-extern ArbitraryItemEquipButton *arbitraryItemEquipButtonDefinitions;
-extern size_t arbitraryItemEquipButtonDefinitionCount;
+typedef struct ArbitraryItemEquipSlots {
+    ArbitraryItemEquipButton *equips;
+    u8 count;
+} ArbitraryItemEquipSet;
 
 typedef struct ItemEquips {
     u8 buttonItemAssignmentIndices[4][4];
@@ -232,9 +240,10 @@ typedef struct ItemEquips {
     /* 0x10 */ u8 cButtonSlots[4][4];                   // "register_item_pt"
     /* 0x20 */ u16 equipment;
 
-    ArbitraryItemEquipButton *arbEquipButtons;
-    u8 arbEquipButtonCount;
+    ArbitraryItemEquipSet (*getEquipSlots)();
 } ItemEquips; // size = 0x22
+
+extern void initItemEquips(ItemEquips* equips);
 
 typedef struct Inventory {
     /* 0x00 */ u8 items[48];                            // "item_register", first 24 elements are normal items and the other 24 are masks

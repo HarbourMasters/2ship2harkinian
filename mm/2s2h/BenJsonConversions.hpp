@@ -55,36 +55,25 @@ void from_json(const json& j, ItemEquips& itemEquips) {
         arbCount = j.at("arbitraryEquipmentButtons").size();
     }
     
-    itemEquips.arbEquipButtonCount = arbitraryItemEquipButtonDefinitionCount;
-    itemEquips.arbEquipButtons = new ArbitraryItemEquipButton[arbitraryItemEquipButtonDefinitionCount];
-    
-    for(int i = 0; i < arbitraryItemEquipButtonDefinitionCount; i++){
-        ArbitraryItemEquipButton& a = itemEquips.arbEquipButtons[i];
-        a = arbitraryItemEquipButtonDefinitions[i];
+    if(itemEquips.getEquipSlots == NULL){
+        initItemEquips(&itemEquips);
+    }
 
-        #define parseArbField(field) j.at("arbitraryEquipmentButtons").at(k).at(#field).get_to(a.field)
+    ArbitraryItemEquipSet slots = itemEquips.getEquipSlots();
+    
+    for(int i = 0; i < slots.count; i++){
+        ArbitraryItemEquipButton& a = slots.equips[i];
         
         for(size_t k = 0; k < arbCount ; k++){
             uint16_t parsedId = 0;
             j.at("arbitraryEquipmentButtons").at(k).at("id").get_to(parsedId);
 
             if(parsedId == a.id){
-                parseArbField(assignedItem);
+                uint16_t item;
+                j.at("arbitraryEquipmentButtons").at(k).at("assignedItem").get_to(item);
+                a.assignItem(&a, item);
             }
         }
-        
-        // parseArbField(rectTop);
-        // parseArbField(rectLeft);
-        // parseArbField(rectWidth);
-        // parseArbField(rectHeight);
-        
-        // parseArbField(r);
-        // parseArbField(g);
-        // parseArbField(b);
-        // parseArbField(a);
-
-        // parseArbField(dsdx);
-        // parseArbField(dtdy);
     }
 }
 
