@@ -331,8 +331,8 @@ void DrawCheatEnhancements() {
     UIWidgets::CVarCheckbox("Infinite Rupees", "gCheats.InfiniteRupees");
     UIWidgets::CVarCheckbox("Infinite Consumables", "gCheats.InfiniteConsumables");
     if (UIWidgets::CVarCheckbox(
-        "Longer Deku Flower Glide", "gCheats.LongerFlowerGlide",
-        { .tooltip = "Allows Deku Link to glide longer, no longer dropping after a certain distance" })) {
+            "Longer Deku Flower Glide", "gCheats.LongerFlowerGlide",
+            { .tooltip = "Allows Deku Link to glide longer, no longer dropping after a certain distance" })) {
         RegisterLongerFlowerGlide();
     }
     UIWidgets::CVarCheckbox("No Clip", "gCheats.NoClip");
@@ -348,19 +348,18 @@ void DrawCheatEnhancements() {
 void DrawGameplayEnhancements() {
     ImGui::SeparatorText("Player");
     if (UIWidgets::CVarCheckbox("Fast Deku Flower Launch", "gEnhancements.Player.FastFlowerLaunch",
-        { .tooltip =
-              "Speeds up the time it takes to be able to get maximum height from "
-              "launching out of a deku flower" })) {
+                                { .tooltip = "Speeds up the time it takes to be able to get maximum height from "
+                                             "launching out of a deku flower" })) {
         RegisterFastFlowerLaunch();
     }
     UIWidgets::CVarCheckbox("Instant Putaway", "gEnhancements.Player.InstantPutaway",
-        { .tooltip = "Allows Link to instantly puts away held item without waiting." });
+                            { .tooltip = "Allows Link to instantly puts away held item without waiting." });
     UIWidgets::CVarSliderInt("Climb speed", "gEnhancements.PlayerMovement.ClimbSpeed", 1, 5, 1,
-        { .tooltip = "Increases the speed at which Link climbs vines and ladders." });
+                             { .tooltip = "Increases the speed at which Link climbs vines and ladders." });
     UIWidgets::CVarCheckbox("Dpad Equips", "gEnhancements.Dpad.DpadEquips",
-        { .tooltip = "Allows you to equip items to your d-pad" });
+                            { .tooltip = "Allows you to equip items to your d-pad" });
     UIWidgets::CVarCombobox("Always Win Doggy Race", "gEnhancements.Minigames.AlwaysWinDoggyRace",
-        alwaysWinDoggyraceOptions);
+                            alwaysWinDoggyraceOptions);
 }
 
 void DrawGameModesEnhancements() {
@@ -425,41 +424,37 @@ void DrawGraphicsEnhancements() {
                                          "model and texture on the boot logo start screen" });
     UIWidgets::CVarCheckbox("Bow Reticle", "gEnhancements.Graphics.BowReticle",
                             { .tooltip = "Gives the bow a reticle when you draw an arrow" });
-    UIWidgets::CVarCheckbox(
-        "Disable Black Bar Letterboxes", "gEnhancements.Graphics.DisableBlackBars",
-        { .tooltip = "Disables Black Bar Letterboxes during cutscenes and Z-targeting\nNote: there may be "
-                     "minor visual glitches that were covered up by the black bars\nPlease disable this "
-                     "setting before reporting a bug" });
+    UIWidgets::CVarCheckbox("Disable Black Bar Letterboxes", "gEnhancements.Graphics.DisableBlackBars",
+                            { .tooltip =
+                                  "Disables Black Bar Letterboxes during cutscenes and Z-targeting\nNote: there may be "
+                                  "minor visual glitches that were covered up by the black bars\nPlease disable this "
+                                  "setting before reporting a bug" });
 
     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 0, 255));
     ImGui::SeparatorText("Unstable");
     ImGui::PopStyleColor();
     UIWidgets::CVarCheckbox(
         "Disable Scene Geometry Distance Check", "gEnhancements.Graphics.DisableSceneGeometryDistanceCheck",
-        { .tooltip =
-              "Disables the distance check for scene geometry, allowing it to be drawn no matter how far "
-              "away it is from the player. This may have unintended side effects." });
+        { .tooltip = "Disables the distance check for scene geometry, allowing it to be drawn no matter how far "
+                     "away it is from the player. This may have unintended side effects." });
     // BENTODO: Not implemented yet
     // UIWidgets::CVarCheckbox("Widescreen Actor Culling",
     //                         "gEnhancements.Graphics.ActorCullingAccountsForWidescreen",
     //                         { .tooltip = "Adjusts the culling planes to account for widescreen resolutions. "
     //                                      "This may have unintended side effects." });
     if (UIWidgets::CVarSliderInt(
-        "Increase Actor Draw Distance: %dx", "gEnhancements.Graphics.IncreaseActorDrawDistance", 1, 5, 1,
-        { .tooltip =
-              "Increase the range in which Actors are drawn. This may have unintended side effects." })) {
+            "Increase Actor Draw Distance: %dx", "gEnhancements.Graphics.IncreaseActorDrawDistance", 1, 5, 1,
+            { .tooltip = "Increase the range in which Actors are drawn. This may have unintended side effects." })) {
         CVarSetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance",
-            MIN(CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1),
-                CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1)));
+                       MIN(CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1),
+                           CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1)));
     }
     if (UIWidgets::CVarSliderInt(
-        "Increase Actor Update Distance: %dx", "gEnhancements.Graphics.IncreaseActorUpdateDistance", 1, 5,
-        1,
-        { .tooltip =
-              "Increase the range in which Actors are updated. This may have unintended side effects." })) {
+            "Increase Actor Update Distance: %dx", "gEnhancements.Graphics.IncreaseActorUpdateDistance", 1, 5, 1,
+            { .tooltip = "Increase the range in which Actors are updated. This may have unintended side effects." })) {
         CVarSetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance",
-            MAX(CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1),
-                CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1)));
+                       MAX(CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1),
+                           CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1)));
     }
 };
 
@@ -480,9 +475,9 @@ void DrawSongEnhancements() {
                      "This song will make time move very fast until either Link moves to a different scene, "
                      "or when the time switches to a new time period." });
     UIWidgets::CVarCheckbox("Dpad Ocarina", "gEnhancements.Playback.DpadOcarina",
-        { .tooltip = "Enables using the Dpad for Ocarina playback." });
+                            { .tooltip = "Enables using the Dpad for Ocarina playback." });
     UIWidgets::CVarCheckbox("Prevent Dropped Ocarina Inputs", "gEnhancements.Playback.NoDropOcarinaInput",
-        { .tooltip = "Prevent dropping inputs when playing the ocarina quickly" });
+                            { .tooltip = "Prevent dropping inputs when playing the ocarina quickly" });
 }
 
 void DrawTimeSaverEnhancements1() {
@@ -512,7 +507,7 @@ void DrawTimeSaverEnhancements2() {
         "Fast Text", "gEnhancements.Dialogue.FastText",
         { .tooltip = "Speeds up text rendering, and enables holding of B progress to next message" });
     UIWidgets::CVarCheckbox("Fast Magic Arrow Equip Animation", "gEnhancements.Equipment.MagicArrowEquipSpeed",
-        { .tooltip = "Removes the animation for equipping Magic Arrows." });
+                            { .tooltip = "Removes the animation for equipping Magic Arrows." });
 }
 
 void DrawFixEnhancements() {
