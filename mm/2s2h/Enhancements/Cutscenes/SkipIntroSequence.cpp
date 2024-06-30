@@ -41,7 +41,7 @@ void RegisterSkipIntroSequence() {
                 // Lose nuts
                 AMMO(ITEM_DEKU_NUT) = 0;
 
-                // Set in Fairy Fountain during First Cycle
+                // Tatl's text at seeing the broken great fairy
                 gSaveContext.cycleSceneFlags[SCENE_YOUSEI_IZUMI].switch0 |= (1 << 10);
 
                 // Set Tatl second cycle (?) text if not already set
