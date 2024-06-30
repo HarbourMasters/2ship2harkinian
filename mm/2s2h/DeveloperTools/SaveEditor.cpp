@@ -420,17 +420,17 @@ void DrawEquipItemMenu(InventorySlot slot) {
 
     if (ImGui::BeginMenu("Equip")) {
         if (ImGui::MenuItem("C-Left")) {
-            gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][EQUIP_SLOT_C_LEFT][0] = currentItemId;
+            gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][EQUIP_SLOT_C_LEFT] = currentItemId;
             gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][EQUIP_SLOT_C_LEFT] = slot;
             Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_C_LEFT);
         }
         if (ImGui::MenuItem("C-Down")) {
-            gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][EQUIP_SLOT_C_DOWN][0] = currentItemId;
+            gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][EQUIP_SLOT_C_DOWN] = currentItemId;
             gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][EQUIP_SLOT_C_DOWN] = slot;
             Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_C_DOWN);
         }
         if (ImGui::MenuItem("C-Right")) {
-            gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][EQUIP_SLOT_C_RIGHT][0] = currentItemId;
+            gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][EQUIP_SLOT_C_RIGHT] = currentItemId;
             gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][EQUIP_SLOT_C_RIGHT] = slot;
             Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_C_RIGHT);
         }

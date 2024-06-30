@@ -3711,32 +3711,6 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
         return;
     }
 
-    int8_t swapDirection = 0;
-    swapDirection += CHECK_INTENT((sPlayerControlInput->press.intentControls), INTENT_HOTSWAP_ITEM_LEFT, BUTTON_STATE_PRESS, 0) ? -1 : 0;
-    swapDirection += CHECK_INTENT((sPlayerControlInput->press.intentControls), INTENT_HOTSWAP_ITEM_RIGHT, BUTTON_STATE_PRESS, 0) ? 1 : 0;
-
-    if(gSaveContext.save.saveInfo.equips.selectedEquipmentSlot < EQUIP_SLOT_C_LEFT){
-        gSaveContext.save.saveInfo.equips.selectedEquipmentSlot = EQUIP_SLOT_C_LEFT;
-    }
-
-    if(swapDirection != 0){
-        gSaveContext.save.saveInfo.equips.selectedEquipmentSlot += swapDirection;
-        if(gSaveContext.save.saveInfo.equips.selectedEquipmentSlot > EQUIP_SLOT_C_RIGHT){
-            gSaveContext.save.saveInfo.equips.selectedEquipmentSlot = EQUIP_SLOT_C_LEFT;
-        }
-        if(gSaveContext.save.saveInfo.equips.selectedEquipmentSlot < EQUIP_SLOT_C_LEFT){
-            gSaveContext.save.saveInfo.equips.selectedEquipmentSlot = EQUIP_SLOT_C_RIGHT;
-        }
-        return;
-    }
-    
-    for (uint8_t i = 0; i < ARRAY_COUNT(sPlayerItemButtons); i++) {
-        if (i != EQUIP_SLOT_B && CHECK_BTN_ALL(sPlayerControlInput->press.button, sPlayerItemButtons[i])) {
-            gSaveContext.save.saveInfo.equips.selectedEquipmentSlot = i;
-            break;
-        }
-    }
-
     if (this->transformation == PLAYER_FORM_HUMAN) {
         if (this->currentMask != PLAYER_MASK_NONE) {
             PlayerItemAction maskItemAction = GET_IA_FROM_MASK(this->currentMask);

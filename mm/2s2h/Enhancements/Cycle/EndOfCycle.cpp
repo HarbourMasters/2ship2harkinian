@@ -65,7 +65,7 @@ void RegisterEndOfCycleSaveHooks() {
             // Set back button equips to the correct bottle type
             for (int j = EQUIP_SLOT_C_LEFT; j <= EQUIP_SLOT_C_RIGHT; j++) {
                 if (GET_CUR_FORM_BTN_ITEM(j) == ITEM_BOTTLE) {
-                    SET_CUR_FORM_BTN_ITEM(j, saveInfoCopy.equips.buttonItems[0][j][0]);
+                    SET_CUR_FORM_BTN_ITEM(j, saveInfoCopy.equips.buttonItems[0][j]);
                 }
             }
         }

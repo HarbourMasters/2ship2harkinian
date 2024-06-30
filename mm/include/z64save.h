@@ -211,6 +211,8 @@ typedef struct ArbitraryItemDrawParams {
     s16 g;
     s16 b;
     s16 a;
+
+    uint8_t visible;
 } ArbitraryItemDrawParams;
 
 typedef struct ArbitraryItemEquipButton {
@@ -238,10 +240,7 @@ typedef struct ArbitraryEquipsSlotGetter {
 } ItemEquipsIniter;
 
 typedef struct ItemEquips {
-    u8 buttonItemAssignmentIndices[4][4];
-    s8 buttonItemActiveIndices[4][4];
-    u8 selectedEquipmentSlot;
-    /* 0x00 */ u8 buttonItems[4][4][3];                    // "register_item"
+    /* 0x00 */ u8 buttonItems[4][4];                    // "register_item"
     /* 0x10 */ u8 cButtonSlots[4][4];                   // "register_item_pt"
     /* 0x20 */ u16 equipment;
 
@@ -553,15 +552,7 @@ typedef enum {
 
 #define SET_EQUIP_VALUE(equip, value) (gSaveContext.save.saveInfo.equips.equipment = ((GET_SAVE_EQUIPS_EQUIPMENT & gEquipNegMasks[equip]) | (u16)((u16)(value) << gEquipShifts[equip])))
 
-// #define BUTTON_ITEM_EQUIP_ASSIGN(form, button) (gSaveContext.save.saveInfo.equips.buttonItems[form][button][gSaveContext.save.saveInfo.equips.buttonItemAssignmentIndices[form][button]])
-// #define BUTTON_ITEM_EQUIP(form, button) (gSaveContext.save.saveInfo.equips.buttonItems[form][button][gSaveContext.save.saveInfo.equips.buttonItemActiveIndices[form][button]])
-// #define BUTTON_ITEM_EQUIP_INDEX(form, button) (gSaveContext.save.saveInfo.equips.buttonItemAssignmentIndices[form][button])
-// #define BUTTON_ITEM_EQUIP_ACTIVE_INDEX(form, button) (gSaveContext.save.saveInfo.equips.buttonItemActiveIndices[form][button])
-
-#define BUTTON_ITEM_EQUIP_ASSIGN(form, button) (gSaveContext.save.saveInfo.equips.buttonItems[form][button][0])
-#define BUTTON_ITEM_EQUIP(form, button) (gSaveContext.save.saveInfo.equips.buttonItems[form][button][0])
-#define BUTTON_ITEM_EQUIP_INDEX(form, button) (gSaveContext.save.saveInfo.equips.buttonItemAssignmentIndices[form][button])
-#define BUTTON_ITEM_EQUIP_ACTIVE_INDEX(form, button) (gSaveContext.save.saveInfo.equips.buttonItemActiveIndices[form][button])
+#define BUTTON_ITEM_EQUIP(form, button) (gSaveContext.save.saveInfo.equips.buttonItems[form][button])
 #define CUR_FORM_EQUIP(button) BUTTON_ITEM_EQUIP(CUR_FORM, button)
 
 #define C_SLOT_EQUIP(form, button) (gSaveContext.save.saveInfo.equips.cButtonSlots[form][button])

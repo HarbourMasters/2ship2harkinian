@@ -5292,6 +5292,9 @@ void Interface_DrawItemButtons(PlayState* play) {
     for(uint8_t i = 0; i < slots.count; i++){
         ArbitraryItemEquipButton* eqBtn = &slots.equips[i];
         ArbitraryItemDrawParams drawParams = eqBtn->getDrawParams(eqBtn);
+        if(!drawParams.visible){
+            continue;
+        }
         // HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_LEFT);
         OVERLAY_DISP = Gfx_DrawRect_DropShadow(
             OVERLAY_DISP,
@@ -5309,29 +5312,23 @@ void Interface_DrawItemButtons(PlayState* play) {
     }
 
     // C-Left Button Color & Texture
-    if(gSaveContext.save.saveInfo.equips.selectedEquipmentSlot == EQUIP_SLOT_C_LEFT){
-        HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_LEFT);
-        OVERLAY_DISP = Gfx_DrawRect_DropShadow(OVERLAY_DISP, D_801BF9D4[EQUIP_SLOT_C_LEFT], D_801BF9DC[EQUIP_SLOT_C_LEFT],
-                                            D_801BFAF4[EQUIP_SLOT_C_LEFT], D_801BFAF4[EQUIP_SLOT_C_LEFT],
-                                            D_801BF9E4[EQUIP_SLOT_C_LEFT] * 2, D_801BF9E4[EQUIP_SLOT_C_LEFT] * 2, 255,
-                                            240, 0, interfaceCtx->cLeftAlpha);
-    }
+    HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_LEFT);
+    OVERLAY_DISP = Gfx_DrawRect_DropShadow(OVERLAY_DISP, D_801BF9D4[EQUIP_SLOT_C_LEFT], D_801BF9DC[EQUIP_SLOT_C_LEFT],
+                                        D_801BFAF4[EQUIP_SLOT_C_LEFT], D_801BFAF4[EQUIP_SLOT_C_LEFT],
+                                        D_801BF9E4[EQUIP_SLOT_C_LEFT] * 2, D_801BF9E4[EQUIP_SLOT_C_LEFT] * 2, 255,
+                                        240, 0, interfaceCtx->cLeftAlpha);
     // C-Down Button Color & Texture
-    if(gSaveContext.save.saveInfo.equips.selectedEquipmentSlot == EQUIP_SLOT_C_DOWN){
-        HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_DOWN);
-        OVERLAY_DISP = Gfx_DrawRect_DropShadow(OVERLAY_DISP, D_801BF9D4[EQUIP_SLOT_C_DOWN], D_801BF9DC[EQUIP_SLOT_C_DOWN],
-                                            D_801BFAF4[EQUIP_SLOT_C_DOWN], D_801BFAF4[EQUIP_SLOT_C_DOWN],
-                                            D_801BF9E4[EQUIP_SLOT_C_DOWN] * 2, D_801BF9E4[EQUIP_SLOT_C_DOWN] * 2, 255,
-                                            240, 0, interfaceCtx->cDownAlpha);
-    }
+    HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_DOWN);
+    OVERLAY_DISP = Gfx_DrawRect_DropShadow(OVERLAY_DISP, D_801BF9D4[EQUIP_SLOT_C_DOWN], D_801BF9DC[EQUIP_SLOT_C_DOWN],
+                                        D_801BFAF4[EQUIP_SLOT_C_DOWN], D_801BFAF4[EQUIP_SLOT_C_DOWN],
+                                        D_801BF9E4[EQUIP_SLOT_C_DOWN] * 2, D_801BF9E4[EQUIP_SLOT_C_DOWN] * 2, 255,
+                                        240, 0, interfaceCtx->cDownAlpha);
     // C-Right Button Color & Texture
-    if(gSaveContext.save.saveInfo.equips.selectedEquipmentSlot == EQUIP_SLOT_C_RIGHT){
-        HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_RIGHT);
-        OVERLAY_DISP = Gfx_DrawRect_DropShadow(OVERLAY_DISP, D_801BF9D4[EQUIP_SLOT_C_RIGHT], D_801BF9DC[EQUIP_SLOT_C_RIGHT],
-                                            D_801BFAF4[EQUIP_SLOT_C_RIGHT], D_801BFAF4[EQUIP_SLOT_C_RIGHT],
-                                            D_801BF9E4[EQUIP_SLOT_C_RIGHT] * 2, D_801BF9E4[EQUIP_SLOT_C_RIGHT] * 2, 255,
-                                            240, 0, interfaceCtx->cRightAlpha);
-    }
+    HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_RIGHT);
+    OVERLAY_DISP = Gfx_DrawRect_DropShadow(OVERLAY_DISP, D_801BF9D4[EQUIP_SLOT_C_RIGHT], D_801BF9DC[EQUIP_SLOT_C_RIGHT],
+                                        D_801BFAF4[EQUIP_SLOT_C_RIGHT], D_801BFAF4[EQUIP_SLOT_C_RIGHT],
+                                        D_801BF9E4[EQUIP_SLOT_C_RIGHT] * 2, D_801BF9E4[EQUIP_SLOT_C_RIGHT] * 2, 255,
+                                        240, 0, interfaceCtx->cRightAlpha);
 
     if (!IS_PAUSE_STATE_GAMEOVER) {
         if ((play->pauseCtx.state != PAUSE_STATE_OFF) || (play->pauseCtx.debugEditor != DEBUG_EDITOR_NONE)) {
@@ -5448,7 +5445,7 @@ void Interface_DrawItemButtons(PlayState* play) {
 
     // Empty C Button Arrows
     for (temp = EQUIP_SLOT_C_LEFT; temp <= EQUIP_SLOT_C_RIGHT; temp++) {
-        if (temp == gSaveContext.save.saveInfo.equips.selectedEquipmentSlot && GET_CUR_FORM_BTN_ITEM(temp) > 0xF0) {
+        if (GET_CUR_FORM_BTN_ITEM(temp) > 0xF0) {
             if (temp == EQUIP_SLOT_C_LEFT) {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 240, 0, interfaceCtx->cLeftAlpha);
             } else if (temp == EQUIP_SLOT_C_DOWN) {
@@ -5976,6 +5973,9 @@ void Interface_DrawCButtonIcons(PlayState* play) {
     for(uint8_t i = 0; i < slots.count; i++){
         ArbitraryItemEquipButton* eqBtn = &slots.equips[i];
         ArbitraryItemDrawParams drawParams = eqBtn->getDrawParams(eqBtn);
+        if(!drawParams.visible){
+            continue;
+        }
 
         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, drawParams.a);
         gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
@@ -5994,7 +5994,7 @@ void Interface_DrawCButtonIcons(PlayState* play) {
     }
 
     // C-Left Button Icon & Ammo Count
-    if (gSaveContext.save.saveInfo.equips.selectedEquipmentSlot == EQUIP_SLOT_C_LEFT && BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT) < ITEM_F0) {
+    if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT) < ITEM_F0) {
         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->cLeftAlpha);
         gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
         Interface_DrawItemIconTexture(play, interfaceCtx->iconItemSegment[EQUIP_SLOT_C_LEFT], EQUIP_SLOT_C_LEFT);
@@ -6007,7 +6007,7 @@ void Interface_DrawCButtonIcons(PlayState* play) {
     gDPPipeSync(OVERLAY_DISP++);
 
     // C-Down Button Icon & Ammo Count
-    if (gSaveContext.save.saveInfo.equips.selectedEquipmentSlot == EQUIP_SLOT_C_DOWN && BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) < ITEM_F0) {
+    if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_DOWN) < ITEM_F0) {
         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->cDownAlpha);
         gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
         Interface_DrawItemIconTexture(play, interfaceCtx->iconItemSegment[EQUIP_SLOT_C_DOWN], EQUIP_SLOT_C_DOWN);
@@ -6020,7 +6020,7 @@ void Interface_DrawCButtonIcons(PlayState* play) {
     gDPPipeSync(OVERLAY_DISP++);
 
     // C-Right Button Icon & Ammo Count
-    if (gSaveContext.save.saveInfo.equips.selectedEquipmentSlot == EQUIP_SLOT_C_RIGHT && BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) < ITEM_F0) {
+    if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_RIGHT) < ITEM_F0) {
         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->cRightAlpha);
         gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
         Interface_DrawItemIconTexture(play, interfaceCtx->iconItemSegment[EQUIP_SLOT_C_RIGHT], EQUIP_SLOT_C_RIGHT);

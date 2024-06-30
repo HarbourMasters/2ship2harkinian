@@ -1486,8 +1486,7 @@ void KaleidoScope_UpdateDpadItemEquip(PlayState* play) {
 // #endregion
 
 void KaleidoScope_AssignCButtonEquip(PlayState* play, PauseContext *pauseCtx, uint8_t form, uint8_t button){
-    BUTTON_ITEM_EQUIP_ASSIGN(form, button) = pauseCtx->equipTargetItem;
-    BUTTON_ITEM_EQUIP_INDEX(form, button) = (BUTTON_ITEM_EQUIP_INDEX(form, button) + 1) % 3;
+    BUTTON_ITEM_EQUIP(form, button) = pauseCtx->equipTargetItem;
     C_SLOT_EQUIP(form, button) = pauseCtx->equipTargetSlot;
     Interface_LoadItemIconImpl(play, button);
 }
