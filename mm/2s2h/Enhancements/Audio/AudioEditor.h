@@ -12,18 +12,18 @@
 #endif
 
 class AudioEditor : public Ship::GuiWindow {
-    public:
-        using GuiWindow::GuiWindow;
+  public:
+    using GuiWindow::GuiWindow;
 
-        void DrawElement() override;
-        void InitElement() override;
-        void UpdateElement() override {};
-        ~AudioEditor() {};
+    void DrawElement() override;
+    void InitElement() override;
+    void UpdateElement() override{};
+    ~AudioEditor(){};
 
-    private:
-        void DrawPreviewButton(uint16_t sequenceId, std::string sfxKey, SeqType sequenceType);
-        void Draw_SfxTab(const std::string& tabId, SeqType type);
-        uint16_t mPlayingSeq = 0;
+  private:
+    void DrawPreviewButton(uint16_t sequenceId, std::string sfxKey, SeqType sequenceType);
+    void Draw_SfxTab(const std::string& tabId, SeqType type);
+    uint16_t mPlayingSeq = 0;
 };
 
 void AudioEditor_RandomizeAll();
@@ -37,7 +37,6 @@ extern "C" {
 #endif
 
 u16 AudioEditor_GetReplacementSeq(u16 seqId);
-
 
 #ifdef __cplusplus
 }

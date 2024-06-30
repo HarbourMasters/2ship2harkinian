@@ -21,7 +21,8 @@ class ResourceFactoryXMLSoundFontV0 : public Ship::ResourceFactoryXML {
     void ParseDrums(AudioSoundFont* soundFont, tinyxml2::XMLElement* element);
     void ParseInstruments(AudioSoundFont* soundFont, tinyxml2::XMLElement* element);
     void ParseSfxTable(AudioSoundFont* soundFont, tinyxml2::XMLElement* element);
-    std::vector<AdsrEnvelope> ParseEnvelopes(AudioSoundFont* soundFont, tinyxml2::XMLElement* element, unsigned int* count);
+    std::vector<AdsrEnvelope> ParseEnvelopes(AudioSoundFont* soundFont, tinyxml2::XMLElement* element,
+                                             unsigned int* count);
 };
 
 } // namespace SOH

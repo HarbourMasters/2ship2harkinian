@@ -10,26 +10,32 @@
 #include <filesystem>
 
 #define SEQUENCE_MAP_ENTRY(sequenceId, label, sfxKey, category, canBeReplaced, canBeUsedAsReplacement) \
-    { sequenceId, { sequenceId, label, sfxKey, category, canBeReplaced, canBeUsedAsReplacement } }
+    {                                                                                                  \
+        sequenceId, {                                                                                  \
+            sequenceId, label, sfxKey, category, canBeReplaced, canBeUsedAsReplacement                 \
+        }                                                                                              \
+    }
 
 AudioCollection::AudioCollection() {
-    //                    (originalSequenceId,                  label,                                      sfxKey,                           category,    canBeReplaced, canBeUsedAsReplacement),
-    sequenceMap = { 
+    //                    (originalSequenceId,                  label,                                      sfxKey,
+    //                    category,    canBeReplaced, canBeUsedAsReplacement),
+    sequenceMap = {
         SEQUENCE_MAP_ENTRY(NA_BGM_GENERAL_SFX, "General SFX", "SEQUENCE_MAP_ENTRY", SEQ_BGM_WORLD, true, true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_AMBIENCE,    "Ambience", "NA_BGM_AMBIENCE", SEQ_BGM_WORLD, true, true),
+        SEQUENCE_MAP_ENTRY(NA_BGM_AMBIENCE, "Ambience", "NA_BGM_AMBIENCE", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_TERMINA_FIELD, "Termina Field", "NA_BGM_TERMINA_FIELD", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_CHASE, "Chase", "NA_BGM_CHASE", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_MAJORAS_THEME, "Majoras Theme", "NA_BGM_MAJORAS_THEME", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_CLOCK_TOWER, "Clock Tower", "NA_BGM_CLOCK_TOWER", SEQ_BGM_WORLD, true, true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_STONE_TOWER_TEMPLE, "Stone Tower Temple", "NA_BGM_STONE_TOWER_TEMPLE", SEQ_BGM_WORLD, true,
-                           true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_INV_STONE_TOWER_TEMPLE, "Inverted Stone Tower Temple", "NA_BGM_INV_STONE_TOWER_TEMPLE", SEQ_BGM_WORLD, true,
-                           true),
+        SEQUENCE_MAP_ENTRY(NA_BGM_STONE_TOWER_TEMPLE, "Stone Tower Temple", "NA_BGM_STONE_TOWER_TEMPLE", SEQ_BGM_WORLD,
+                           true, true),
+        SEQUENCE_MAP_ENTRY(NA_BGM_INV_STONE_TOWER_TEMPLE, "Inverted Stone Tower Temple",
+                           "NA_BGM_INV_STONE_TOWER_TEMPLE", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_FAILURE_0, "Missed Event 0", "NA_BGM_FAILURE_0", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_FAILURE_1, "Missed Event 1", "NA_BGM_FAILURE_1", SEQ_BGM_WORLD, true, true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_HAPPY_MASK_SALESMAN, "Happy Mask Salesman's Theme", "NA_BGM_HAPPY_MASK_SALESMAN", SEQ_BGM_WORLD, true,
+        SEQUENCE_MAP_ENTRY(NA_BGM_HAPPY_MASK_SALESMAN, "Happy Mask Salesman's Theme", "NA_BGM_HAPPY_MASK_SALESMAN",
+                           SEQ_BGM_WORLD, true, true),
+        SEQUENCE_MAP_ENTRY(NA_BGM_SONG_OF_HEALING, "Song Of Healing", "NA_BGM_SONG_OF_HEALING", SEQ_BGM_WORLD, true,
                            true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_SONG_OF_HEALING, "Song Of Healing", "NA_BGM_SONG_OF_HEALING", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_SWAMP_REGION, "Southern Swamp", "NA_BGM_SWAMP_REGION", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_ALIEN_INVASION, "Alien Invasion", "NA_BGM_ALIEN_INVASION", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_SWAMP_CRUISE, "Boat Cruise", "NA_BGM_SWAMP_CRUISE", SEQ_BGM_WORLD, true, true),
@@ -37,8 +43,10 @@ AudioCollection::AudioCollection() {
         SEQUENCE_MAP_ENTRY(NA_BGM_GREAT_BAY_REGION, "Great Bay", "NA_BGM_GREAT_BAY_REGION", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_IKANA_REGION, "Ikana", "NA_BGM_IKANA_REGION", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_DEKU_PALACE, "Deku Palace", "NA_BGM_DEKU_PALACE", SEQ_BGM_WORLD, true, true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_MOUNTAIN_REGION, "Mountain Region", "NA_BGM_MOUNTAIN_REGION", SEQ_BGM_WORLD, true, true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_PIRATES_FORTRESS, "Pirates Fortress", "NA_BGM_PIRATES_FORTRESS", SEQ_BGM_WORLD, true, true),
+        SEQUENCE_MAP_ENTRY(NA_BGM_MOUNTAIN_REGION, "Mountain Region", "NA_BGM_MOUNTAIN_REGION", SEQ_BGM_WORLD, true,
+                           true),
+        SEQUENCE_MAP_ENTRY(NA_BGM_PIRATES_FORTRESS, "Pirates Fortress", "NA_BGM_PIRATES_FORTRESS", SEQ_BGM_WORLD, true,
+                           true),
         SEQUENCE_MAP_ENTRY(NA_BGM_CLOCK_TOWN_DAY_1, "Clock Town Day 1", "NA_BGM_CLOCK_TOWN_DAY_1", SEQ_BGM_WORLD, true,
                            true),
         SEQUENCE_MAP_ENTRY(NA_BGM_CLOCK_TOWN_DAY_2, "Clock Town Day 2", "NA_BGM_CLOCK_TOWN_DAY_2", SEQ_BGM_WORLD, true,
@@ -186,10 +194,11 @@ AudioCollection::AudioCollection() {
         SEQUENCE_MAP_ENTRY(NA_BGM_INTO_THE_MOON, "Enter Moon", "NA_BGM_INTO_THE_MOON", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_GOODBYE_GIANT, "Giants Leave", "NA_BGM_GOODBYE_GIANT", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_TATL_AND_TAEL, "Tatl & Tale", "NA_BGM_TATL_AND_TAEL", SEQ_BGM_WORLD, true, true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_MOONS_DESTRUCTION, "Moon's Destruction", "NA_BGM_MOONS_DESTRUCTION", SEQ_BGM_WORLD, true, true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_END_CREDITS_SECOND_HALF, "Credits (Second Half)", "NA_BGM_END_CREDITS_SECOND_HALF", SEQ_BGM_WORLD, true, true),
+        SEQUENCE_MAP_ENTRY(NA_BGM_MOONS_DESTRUCTION, "Moon's Destruction", "NA_BGM_MOONS_DESTRUCTION", SEQ_BGM_WORLD,
+                           true, true),
+        SEQUENCE_MAP_ENTRY(NA_BGM_END_CREDITS_SECOND_HALF, "Credits (Second Half)", "NA_BGM_END_CREDITS_SECOND_HALF",
+                           SEQ_BGM_WORLD, true, true),
     };
-
 }
 #define CVAR_AUDIO(var) CVAR_PREFIX_AUDIO "." var
 std::string AudioCollection::GetCvarKey(std::string sfxKey) {
@@ -215,10 +224,13 @@ void AudioCollection::AddToCollection(char* otrPath, uint16_t seqNum) {
     if (typeString == "fanfare") {
         type = SEQ_FANFARE;
     }
-    SequenceInfo info = {seqNum,
-                         sequenceName.c_str(),
-                         StringHelper::Replace(StringHelper::Replace(StringHelper::Replace(sequenceName, " ", "_"), "~", "-"),".", ""),
-                         type, false, true};
+    SequenceInfo info = { seqNum,
+                          sequenceName.c_str(),
+                          StringHelper::Replace(
+                              StringHelper::Replace(StringHelper::Replace(sequenceName, " ", "_"), "~", "-"), ".", ""),
+                          type,
+                          false,
+                          true };
     sequenceMap.emplace(seqNum, info);
 }
 
@@ -226,10 +238,11 @@ uint16_t AudioCollection::GetReplacementSequence(uint16_t seqId) {
     // if Hyrule Field Morning is about to play, but Hyrule Field is swapped, get the replacement sequence
     // for Hyrule Field instead. Otherwise, leave it alone, so that without any sfx editor modifications we will
     // play the normal track as usual.
-    
-    //BENTODO what did this do in ship?
-    //if (seqId == NA_BGM_FIELD_MORNING) {
-    //    if (CVarGetInteger(CVAR_AUDIO("ReplacedSequences.NA_BGM_FIELD_LOGIC.value"), NA_BGM_FIELD_LOGIC) != NA_BGM_FIELD_LOGIC) {
+
+    // BENTODO what did this do in ship?
+    // if (seqId == NA_BGM_FIELD_MORNING) {
+    //    if (CVarGetInteger(CVAR_AUDIO("ReplacedSequences.NA_BGM_FIELD_LOGIC.value"), NA_BGM_FIELD_LOGIC) !=
+    //    NA_BGM_FIELD_LOGIC) {
     //        seqId = NA_BGM_FIELD_LOGIC;
     //    }
     //}
@@ -264,10 +277,12 @@ void AudioCollection::AddToShufflePool(SequenceInfo* seqInfo) {
 }
 
 void AudioCollection::InitializeShufflePool() {
-    if (shufflePoolInitialized) return;
-    
+    if (shufflePoolInitialized)
+        return;
+
     for (auto& [seqId, seqInfo] : sequenceMap) {
-        if (!seqInfo.canBeUsedAsReplacement) continue;
+        if (!seqInfo.canBeUsedAsReplacement)
+            continue;
         const std::string cvarKey = std::string(CVAR_AUDIO("Excluded.")) + seqInfo.sfxKey;
         if (CVarGetInteger(cvarKey.c_str(), 0)) {
             excludedSequences.insert(&seqInfo);
@@ -279,7 +294,7 @@ void AudioCollection::InitializeShufflePool() {
     shufflePoolInitialized = true;
 };
 
-extern "C" void AudioCollection_AddToCollection(char *otrPath, uint16_t seqNum) {
+extern "C" void AudioCollection_AddToCollection(char* otrPath, uint16_t seqNum) {
     AudioCollection::Instance->AddToCollection(otrPath, seqNum);
 }
 
