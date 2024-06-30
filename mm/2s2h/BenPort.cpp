@@ -207,9 +207,15 @@ OTRGlobals::OTRGlobals() {
                                     "TextMM", static_cast<uint32_t>(SOH::ResourceType::TSH_TextMM), 0);
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryAudioSampleV2>(), RESOURCE_FORMAT_BINARY,
                                     "AudioSample", static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSample), 2);
+    
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryAudioSoundFontV2>(),
                                     RESOURCE_FORMAT_BINARY, "AudioSoundFont",
                                     static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSoundFont), 2);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLSoundFontV0>(),
+                                    RESOURCE_FORMAT_XML, "SoundFont",
+                                    static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSoundFont), 0);
+
+
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryAudioSequenceV2>(),
                                     RESOURCE_FORMAT_BINARY, "AudioSequence",
                                     static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSequence), 2);

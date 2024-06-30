@@ -2,6 +2,7 @@
 #include "2s2h/resource/type/AudioSoundFont.h"
 #include "spdlog/spdlog.h"
 #include "libultraship/libultraship.h"
+#include "StringHelper.h"
 
 namespace SOH {
 std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSoundFontV2::ReadResource(std::shared_ptr<Ship::File> file) {
@@ -172,4 +173,232 @@ std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSoundFontV2::ReadReso
 
     return audioSoundFont;
 }
+
+int8_t SOH::ResourceFactoryXMLSoundFontV0::MediumStrToInt(const char* str) {
+    if (!strcmp("Ram", str)) {
+        return 0;
+    } else if (!strcmp("Unk", str)) {
+        return 1;
+    } else if (!strcmp("Cart", str)) {
+        return 2;
+    } else if (!strcmp("Disk", str)) {
+        return 3;
+        //4 is skipped
+    } else if (!strcmp("RamUnloaded", str)) {
+        return 5;
+    } else {
+        throw std::runtime_error(StringHelper::Sprintf("Bad medium value. Got %s, expected Ram, Unk, Cart, or Disk.", str));
+    }
+}
+
+int8_t ResourceFactoryXMLSoundFontV0::CachePolicyToInt(const char* str) {
+    if (!strcmp("Temporary", str)) {
+        return 0;
+    } else if (!strcmp("Persistent", str)) {
+        return 1;
+    } else if (!strcmp("Either", str)) {
+        return 2;
+    } else if (!strcmp("Permanent", str)) {
+        return 3;
+    } else {
+        throw std::runtime_error(
+            StringHelper::Sprintf("Bad cache policy value. Got %s, expected Temporary, Persistent, Either, or Permanent.", str));
+    }
+}
+
+void ResourceFactoryXMLSoundFontV0::ParseDrums(AudioSoundFont* soundFont, tinyxml2::XMLElement* element) {
+    element = (tinyxml2::XMLElement*)element->FirstChildElement();
+    // No drums
+    if (element == nullptr) {
+        soundFont->soundFont.drums = nullptr;
+        soundFont->soundFont.numDrums = 0;
+        return;
+    }
+    do {
+        Drum drum;
+        std::vector<AdsrEnvelope> envelopes;
+        drum.releaseRate = element->IntAttribute("ReleaseRate");
+        drum.pan = element->IntAttribute("Pan");
+        drum.loaded = element->IntAttribute("Loaded");
+        drum.sound.tuning = element->FloatAttribute("Tuning");
+        const char* sampleStr = element->Attribute("SampleRef");
+        if (sampleStr != nullptr && sampleStr[0] != 0) {
+            auto res = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(sampleStr);
+            drum.sound.sample = static_cast<Sample*>(res ? res->GetRawPointer() : nullptr);
+        } else {
+            drum.sound.sample = nullptr;
+        }
+        element = (tinyxml2::XMLElement*)element->FirstChildElement();
+        if (!strcmp(element->Name(), "Envelopes")) {
+            //element = (tinyxml2::XMLElement*)element->FirstChildElement();
+            unsigned int envCount = 0;
+            envelopes = ParseEnvelopes(soundFont, element, &envCount);
+            element = (tinyxml2::XMLElement*)element->Parent();
+            soundFont->drumEnvelopeArrays.push_back(envelopes);
+            drum.envelope = soundFont->drumEnvelopeArrays.back().data();
+        } else {
+            drum.envelope = nullptr;
+        }
+
+        // BENTODO the binary importer does this not sure why... @jack or @kenix?
+        soundFont->drums.push_back(drum);
+        //if (drum.sound.sample == nullptr) {
+        //    soundFont->drumAddresses.push_back(nullptr);
+        //} else {
+            soundFont->drumAddresses.push_back(&soundFont->drums.back());
+        //}
+
+        
+        element = element->NextSiblingElement();
+    } while (element != nullptr);
+    soundFont->soundFont.numDrums = soundFont->drumAddresses.size();
+    soundFont->soundFont.drums = soundFont->drumAddresses.data();
+}
+
+ void SOH::ResourceFactoryXMLSoundFontV0::ParseInstruments(AudioSoundFont* soundFont, tinyxml2::XMLElement* element) {
+     element = element->FirstChildElement();
+     do {
+         Instrument instrument = { 0 };
+         unsigned int envCount = 0;
+         std::vector<AdsrEnvelope> envelopes;
+
+         int isValid = element->BoolAttribute("IsValid");
+         instrument.loaded = element->IntAttribute("Loaded");
+         instrument.normalRangeLo = element->IntAttribute("NormalRangeLo");
+         instrument.normalRangeHi = element->IntAttribute("NormalRangeHi");
+         instrument.releaseRate = element->IntAttribute("ReleseRate"); // BENTODO fix the spelling
+         tinyxml2::XMLElement* instrumentElement = element->FirstChildElement();
+         tinyxml2::XMLElement* instrumentElementCopy = instrumentElement;
+         if (instrumentElement != nullptr && !strcmp(instrumentElement->Name(), "Envelopes")) {
+             envelopes = ParseEnvelopes(soundFont, instrumentElement, &envCount);
+             soundFont->instrumentEnvelopeCounts.push_back(envCount);
+             soundFont->instrumentEnvelopeArrays.push_back(envelopes);
+             instrument.envelope = soundFont->instrumentEnvelopeArrays.back().data();
+             instrumentElement = instrumentElement->NextSiblingElement();
+         } 
+         if (instrumentElement != nullptr && !strcmp("LowNotesSound", instrumentElement->Name())) {
+             instrument.lowNotesSound.tuning = instrumentElement->FloatAttribute("Tuning");
+             const char* sampleStr = instrumentElement->Attribute("SampleRef");
+             if (sampleStr != nullptr && sampleStr[0] != 0) {
+                 auto res = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(sampleStr);
+                 instrument.lowNotesSound.sample = static_cast<Sample*>(res ? res->GetRawPointer() : nullptr);
+             }
+             instrumentElement = instrumentElement->NextSiblingElement();
+         } 
+         if (instrumentElement != nullptr && !strcmp("NormalNotesSound", instrumentElement->Name())) {
+             instrument.normalNotesSound.tuning = instrumentElement->FloatAttribute("Tuning");
+             const char* sampleStr = instrumentElement->Attribute("SampleRef");
+             if (sampleStr != nullptr && sampleStr[0] != 0) {
+                 auto res = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(sampleStr);
+                 instrument.normalNotesSound.sample = static_cast<Sample*>(res ? res->GetRawPointer() : nullptr);
+             }
+             instrumentElement = instrumentElement->NextSiblingElement();
+         } 
+         if (instrumentElement != nullptr && !strcmp("HighNotesSound", instrumentElement->Name())) {
+             instrument.highNotesSound.tuning = instrumentElement->FloatAttribute("Tuning");
+             const char* sampleStr = instrumentElement->Attribute("SampleRef");
+             if (sampleStr != nullptr && sampleStr[0] != 0) {
+                 auto res = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(sampleStr);
+                 instrument.highNotesSound.sample = static_cast<Sample*>(res ? res->GetRawPointer() : nullptr);
+             }
+             instrumentElement = instrumentElement->NextSiblingElement();
+         }
+         element = instrumentElementCopy;
+         element = (tinyxml2::XMLElement*)element->Parent();
+         element = element->NextSiblingElement();
+         soundFont->instruments.push_back(instrument);
+         soundFont->instrumentAddresses.push_back(isValid ? &soundFont->instruments.back() : nullptr);
+    } while (element != nullptr);
+    soundFont->soundFont.instruments = soundFont->instrumentAddresses.data();
+    soundFont->soundFont.numInstruments = soundFont->instrumentAddresses.size();
+ }
+
+
+void SOH::ResourceFactoryXMLSoundFontV0::ParseSfxTable(AudioSoundFont* soundFont, tinyxml2::XMLElement* element) {
+    element = (tinyxml2::XMLElement*)element->FirstChildElement();
+
+    while (element != nullptr) {
+        SoundFontSound sound;
+        sound.tuning = element->FloatAttribute("Tuning");
+        const char* sampleStr = element->Attribute("SampleRef");
+        if (sampleStr != nullptr && sampleStr[0] != 0) {
+            auto res = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(sampleStr);
+            sound.sample = static_cast<Sample*>(res ? res->GetRawPointer() : nullptr);
+        }
+        element = element->NextSiblingElement();
+        soundFont->soundEffects.push_back(sound);
+    }
+    soundFont->soundFont.soundEffects = soundFont->soundEffects.data();
+    soundFont->soundFont.numSfx = soundFont->soundEffects.size();
+}
+
+
+ std::vector<AdsrEnvelope> SOH::ResourceFactoryXMLSoundFontV0::ParseEnvelopes(AudioSoundFont* soundFont,
+                                                                           tinyxml2::XMLElement* element,
+                                                                           unsigned int* count) {
+    std::vector<AdsrEnvelope> envelopes;
+    unsigned int total = 0;
+    element = element->FirstChildElement("Envelope");
+
+    while (element != nullptr) {
+        AdsrEnvelope env = {
+            .delay = (s16)element->IntAttribute("Delay"),
+            .arg = (s16)element->IntAttribute("Arg"),
+        };
+        env.delay = BSWAP16(env.delay);
+        env.arg = BSWAP16(env.arg);
+        envelopes.emplace_back(env);
+        element = element->NextSiblingElement("Envelope");
+        total++;
+    } 
+    *count = total;
+    return envelopes;
+}
+
+std::shared_ptr<Ship::IResource> ResourceFactoryXMLSoundFontV0::ReadResource(std::shared_ptr<Ship::File> file) {
+    if (!FileHasValidFormatAndReader(file)) {
+        return nullptr;
+    }
+
+    auto audioSoundFont = std::make_shared<AudioSoundFont>(file->InitData);
+    auto child =
+        std::get<std::shared_ptr<tinyxml2::XMLDocument>>(file->Reader)->FirstChildElement();
+    // Header data
+    memset(&audioSoundFont->soundFont, 0, sizeof(audioSoundFont->soundFont));
+    audioSoundFont->soundFont.fntIndex = child->IntAttribute("Num", 0);
+    if (audioSoundFont->soundFont.fntIndex == 1) {
+        int bp = 0;
+    }
+    const char* mediumStr = child->Attribute("Medium");
+    audioSoundFont->medium = MediumStrToInt(mediumStr);
+
+    const char* cachePolicyStr = child->Attribute("CachePolicy");
+    audioSoundFont->cachePolicy = CachePolicyToInt(cachePolicyStr);
+
+    audioSoundFont->data1 = child->IntAttribute("Data1");
+    audioSoundFont->data2 = child->IntAttribute("Data2");
+    audioSoundFont->data3 = child->IntAttribute("Data3");
+
+    audioSoundFont->soundFont.sampleBankId1 = audioSoundFont->data1 >> 8;
+    audioSoundFont->soundFont.sampleBankId2 = audioSoundFont->data1 & 0xFF;
+
+    child = (tinyxml2::XMLElement*)child->FirstChildElement();
+
+    while (child != nullptr) {
+        const char* name = child->Name();
+
+        if (!strcmp(name, "Drums")) {
+            ParseDrums(audioSoundFont.get(), child);
+        } else if (!strcmp(name, "Instruments")) {
+            ParseInstruments(audioSoundFont.get(), child);
+        } else if (!strcmp(name, "SfxTable")) {
+            ParseSfxTable(audioSoundFont.get(), child);
+        }
+        child = child->NextSiblingElement();
+    }
+
+    return audioSoundFont;
+}
+
+
 } // namespace SOH
