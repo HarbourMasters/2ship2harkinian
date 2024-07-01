@@ -54,6 +54,7 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/DeveloperTools/DebugConsole.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "2s2h/SaveManager/SaveManager.h"
+#include "2s2h/Enhancements/Audio/AudioCollection.h"
 
 // Resource Types/Factories
 #include "resource/type/Blob.h"
@@ -98,6 +99,7 @@ CrowdControl* CrowdControl::Instance;
 
 OTRGlobals* OTRGlobals::Instance;
 GameInteractor* GameInteractor::Instance;
+AudioCollection* AudioCollection::Instance;
 
 extern "C" char** cameraStrings;
 bool prevAltAssets = false;
@@ -205,9 +207,13 @@ OTRGlobals::OTRGlobals() {
                                     "TextMM", static_cast<uint32_t>(SOH::ResourceType::TSH_TextMM), 0);
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryAudioSampleV2>(), RESOURCE_FORMAT_BINARY,
                                     "AudioSample", static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSample), 2);
+
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryAudioSoundFontV2>(),
                                     RESOURCE_FORMAT_BINARY, "AudioSoundFont",
                                     static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSoundFont), 2);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLSoundFontV0>(), RESOURCE_FORMAT_XML,
+                                    "SoundFont", static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSoundFont), 0);
+
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryAudioSequenceV2>(),
                                     RESOURCE_FORMAT_BINARY, "AudioSequence",
                                     static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSequence), 2);
@@ -468,6 +474,7 @@ extern "C" void InitOTR() {
 
     OTRGlobals::Instance = new OTRGlobals();
     GameInteractor::Instance = new GameInteractor();
+    AudioCollection::Instance = new AudioCollection();
     BenGui::SetupGuiElements();
     InitEnhancements();
     InitDeveloperTools();

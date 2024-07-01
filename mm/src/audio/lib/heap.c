@@ -13,7 +13,7 @@ void AudioHeap_ApplySampleBankCacheInternal(s32 apply, s32 sampleBankId);
 void AudioHeap_DiscardSampleBanks(void);
 void AudioHeap_InitReverb(s32 reverbIndex, ReverbSettings* settings, s32 isFirstInit);
 
-extern size_t gSequenceToResourceSize;
+extern size_t sequenceMapSize;
 
 #define gTatumsPerBeat (gAudioTatumInit[1])
 
@@ -68,7 +68,7 @@ void AudioHeap_ResetLoadStatus(void) {
         }
     }
 
-    for (i = 0; i < gSequenceToResourceSize; i++) {
+    for (i = 0; i < sequenceMapSize; i++) {
         if (gAudioCtx.seqLoadStatus[i] != LOAD_STATUS_PERMANENT) {
             gAudioCtx.seqLoadStatus[i] = LOAD_STATUS_NOT_LOADED;
         }
