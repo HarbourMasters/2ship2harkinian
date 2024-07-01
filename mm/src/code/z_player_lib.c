@@ -679,7 +679,7 @@ PlayerItemAction func_80123810(PlayState* play) {
 
     initItemEquips(&gSaveContext.save.saveInfo.equips);    
 
-    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter);
+    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, CONTROLLER1(&play->state));
 
     for(uint16_t arbIndex = 0; arbIndex < slots.count; arbIndex++){
         ArbitraryItemEquipButton* arb = &slots.equips[arbIndex];

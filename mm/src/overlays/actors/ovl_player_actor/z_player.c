@@ -3608,7 +3608,7 @@ s32 Player_ItemIsInUse(Player* this, ItemId item) {
     }
 }
 s32 Player_ItemIsInUseAnyArbitraryEquipment(Player* this) {
-    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter);
+    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, NULL);
     for(size_t i = 0 ; i < slots.count; i++){
         ArbitraryItemEquipButton* e = &slots.equips[i];
         ItemId item = e->getAssignedItem(e);
@@ -3774,40 +3774,7 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
         s32 pad;
         ItemId item;
         EquipSlot i = func_8082FDC4();
-        // ARRAY_COUNT(sPlayerItemButtons);
-        // if(
-        //     CHECK_INTENT(sPlayerControlInput->cur.intentControls, INTENT_HOTSWAP_ITEM_LEFT, BUTTON_STATE_CUR, 0) 
-        //     || CHECK_INTENT(sPlayerControlInput->cur.intentControls, INTENT_HOTSWAP_ITEM_RIGHT, BUTTON_STATE_CUR, 0)
-        // ){
-        //     i = ARRAY_COUNT(sPlayerItemButtons);
-        // }
-        // else if(CHECK_INTENT(sPlayerControlInput->press.intentControls, INTENT_USE_ITEM, BUTTON_STATE_PRESS, 0)){
-        //     i = gSaveContext.save.saveInfo.equips.selectedEquipmentSlot;
-        // }
-
-        // if(CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_B)){
-        //     i = EQUIP_SLOT_B;
-        // }
-
-        // uint8_t isBow = this->heldItemId == ITEM_BOW
-        //         || this->heldItemId == ITEM_BOW_FIRE
-        //         || this->heldItemId == ITEM_BOW_ICE
-        //         || this->heldItemId == ITEM_BOW_LIGHT;
-        // uint8_t isBowFireButtonActive = CHECK_INTENT((sPlayerControlInput->cur.intentControls), INTENT_CONTROL_FIRE_BOW, BUTTON_STATE_CUR, 0);
         
-        // uint8_t isHookshot = this->heldItemId == ITEM_HOOKSHOT;
-        // uint8_t isHookshotFireButtonActive = CHECK_INTENT((sPlayerControlInput->cur.intentControls), INTENT_CONTROL_FIRE_HOOKSHOT, BUTTON_STATE_CUR, 0);
-        
-        // if((isBow && isBowFireButtonActive) || (isHookshot && isHookshotFireButtonActive)){
-        //     for (i = 0; i < ARRAY_COUNT(sPlayerItemButtons); i++) {
-        //         if (Player_GetItemOnButton(play, this, i) == this->heldItemId) {
-        //             break;
-        //         }
-        //     }
-        // }
-
-        
-
         i = ((i >= EQUIP_SLOT_A) && (this->transformation == PLAYER_FORM_FIERCE_DEITY) &&
              (this->heldItemAction != PLAYER_IA_SWORD_TWO_HANDED))
                 ? EQUIP_SLOT_B
@@ -3828,7 +3795,7 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
         }
         // #endregion
 
-        ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter);
+        ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, CONTROLLER1(&play->state));
         ArbitraryItemEquipButton* arbitraryEquipSlot = NULL;
         for(size_t arbIndex = 0; arbIndex < slots.count; arbIndex++){
             ArbitraryItemEquipButton* arb = &slots.equips[arbIndex];
@@ -3841,10 +3808,6 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
         }
 
         if (item >= ITEM_FD) {
-            // i = ARRAY_COUNT(sPlayerItemButtons);
-            // if(CHECK_INTENT(sPlayerControlInput->cur.intentControls, INTENT_USE_ITEM, BUTTON_STATE_CUR, 0)){
-            //     i = gSaveContext.save.saveInfo.equips.selectedEquipmentSlot;
-            // }
             for (i = 0; i < ARRAY_COUNT(sPlayerItemButtons); i++) {
                 if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, sPlayerItemButtons[i])) {
                     break;

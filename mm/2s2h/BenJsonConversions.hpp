@@ -55,7 +55,7 @@ void from_json(const json& j, ItemEquips& itemEquips) {
     
     initItemEquips(&itemEquips);
 
-    ArbitraryItemEquipSet slots = itemEquips.equipsSlotGetter.getEquipSlots(&itemEquips.equipsSlotGetter);
+    ArbitraryItemEquipSet slots = itemEquips.equipsSlotGetter.getEquipSlots(&itemEquips.equipsSlotGetter, NULL);
     
     for(int i = 0; i < slots.count; i++){
         ArbitraryItemEquipButton& a = slots.equips[i];

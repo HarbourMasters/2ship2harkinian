@@ -224,7 +224,7 @@ typedef struct ArbitraryItemEquipButton {
     uint8_t (*assignmentTriggered)(struct ArbitraryItemEquipButton* self, Input* input);
     uint8_t (*activateItem)(struct ArbitraryItemEquipButton* self, Input* input, uint8_t buttonState);
     uint8_t (*tradeItem)(struct ArbitraryItemEquipButton* self, Input* input);
-    ArbitraryItemDrawParams (*getDrawParams)(struct ArbitraryItemEquipButton* self);
+    ArbitraryItemDrawParams (*getDrawParams)(struct ArbitraryItemEquipButton* self, struct PlayState *play);
     uint16_t (*getAssignedItem)(struct ArbitraryItemEquipButton* self);
     uint16_t (*assignItem)(struct ArbitraryItemEquipButton* self, uint16_t item);
 } ArbitraryItemEquipButton;
@@ -236,7 +236,7 @@ typedef struct ArbitraryItemEquipSlots {
 
 typedef struct ArbitraryEquipsSlotGetter {
     void* userData;
-    ArbitraryItemEquipSet (*getEquipSlots)(struct ArbitraryEquipsSlotGetter* self);
+    ArbitraryItemEquipSet (*getEquipSlots)(struct ArbitraryEquipsSlotGetter* self, Input* input);
 } ItemEquipsIniter;
 
 typedef struct ItemEquips {

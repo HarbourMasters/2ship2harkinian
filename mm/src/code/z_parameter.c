@@ -5287,11 +5287,11 @@ void Interface_DrawItemButtons(PlayState* play) {
         100, 255, 120, interfaceCtx->bAlpha);
     gDPPipeSync(OVERLAY_DISP++);
 
-    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter);
+    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, CONTROLLER1(&play->state));
 
     for(uint8_t i = 0; i < slots.count; i++){
         ArbitraryItemEquipButton* eqBtn = &slots.equips[i];
-        ArbitraryItemDrawParams drawParams = eqBtn->getDrawParams(eqBtn);
+        ArbitraryItemDrawParams drawParams = eqBtn->getDrawParams(eqBtn, play);
         if(!drawParams.visible){
             continue;
         }
@@ -5307,7 +5307,7 @@ void Interface_DrawItemButtons(PlayState* play) {
             drawParams.r,
             drawParams.g, 
             drawParams.b, 
-            UINT16_MAX //eqBtn->a
+            drawParams.a
         );
     }
 
@@ -5648,7 +5648,7 @@ void Interface_DrawItemIconTextureArb(PlayState* play, TexturePtr texture, Arbit
 
     // #region 2S2H [Cosmetic] Hud Editor
     // HudEditor_SetActiveElement(button);
-    ArbitraryItemDrawParams drawParams = arbEquipment->getDrawParams(arbEquipment);
+    ArbitraryItemDrawParams drawParams = arbEquipment->getDrawParams(arbEquipment, play);
     if (HudEditor_ShouldOverrideDraw()) {
         if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) ==
             HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
@@ -5809,7 +5809,7 @@ void Interface_DrawAmmoCountArbEquip(PlayState* play, ArbitraryItemEquipButton* 
             ammo -= 10;
         }
 
-        ArbitraryItemDrawParams drawParams = arbEquip->getDrawParams(arbEquip);
+        ArbitraryItemDrawParams drawParams = arbEquip->getDrawParams(arbEquip, play);
         // Draw upper digit (tens)
         if ((u32)i != 0) {
             // HudEditor_SetActiveElement(button);
@@ -5968,11 +5968,11 @@ void Interface_DrawCButtonIcons(PlayState* play) {
 
     gDPPipeSync(OVERLAY_DISP++);
     
-    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter);
+    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, CONTROLLER1(&play->state));
 
     for(uint8_t i = 0; i < slots.count; i++){
         ArbitraryItemEquipButton* eqBtn = &slots.equips[i];
-        ArbitraryItemDrawParams drawParams = eqBtn->getDrawParams(eqBtn);
+        ArbitraryItemDrawParams drawParams = eqBtn->getDrawParams(eqBtn, play);
         if(!drawParams.visible){
             continue;
         }
