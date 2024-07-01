@@ -24,21 +24,19 @@ struct CarouselItemSlotManager : public ArbitraryItemSlotManager {
 struct CarouselItemSlotLister : public ArbitraryItemSlotLister {
     uint16_t equipButtonIntent = 0;
 
+    uint8_t slotCount = 3;
     int16_t selectedIndex = 0;
     int16_t previousSelectedIndex = 0;
     int32_t rectLeft = 288;
     int32_t rectTop = 190;
     float rgb[3] = {255.0 / 255.0, 240.0 / 255.0, 0.0 / 255.0};
     
-    std::vector<std::shared_ptr<CarouselItemSlotManager>> carouselSlots = {
-        std::shared_ptr<CarouselItemSlotManager>{ new CarouselItemSlotManager(1, this) },
-        std::shared_ptr<CarouselItemSlotManager>{ new CarouselItemSlotManager(2, this) },
-        std::shared_ptr<CarouselItemSlotManager>{ new CarouselItemSlotManager(3, this) }
-    };
+    std::vector<std::shared_ptr<CarouselItemSlotManager>> carouselSlots = {};
 
     std::chrono::high_resolution_clock::time_point lastSlotSwap = std::chrono::high_resolution_clock::now();
 
     CarouselItemSlotLister(uint16_t equipButtonIntent);
+    void resetSlotCount(uint8_t count);
     virtual ArbitraryItemEquipSet getEquipSlots(Input* input);
     virtual void initItemEquips(ItemEquips* equips);
 };

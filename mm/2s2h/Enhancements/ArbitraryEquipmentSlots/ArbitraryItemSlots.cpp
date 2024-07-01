@@ -15,7 +15,7 @@ extern "C" {
 uint16_t width = 27, height = 27;
 
 ArbitraryItemSlotManager::ArbitraryItemSlotManager(uint16_t id, uint16_t specialButtonId) {
-    this->arbId = id;
+    // this->arbId = id;
     this->specialButtonId = specialButtonId;
     this->assignedItem = ITEM_NONE;
     this->drawParams = {

@@ -53,7 +53,6 @@ ArbitraryItemDrawParams CarouselItemSlotManager::getDrawParams(PlayState *play){
     std::chrono::duration<double, std::ratio<1LL, 1LL>> elapsedTime =
         (std::chrono::high_resolution_clock::now() - this->lister->lastSlotSwap);
 
-
     auto dist = this->getLeftOffset(this->lister->selectedIndex);
     auto prevDist = this->getLeftOffset(this->lister->previousSelectedIndex);
 
@@ -159,7 +158,27 @@ uint8_t CarouselItemSlotManager::tradeItem(Input* input){
     return CHECK_INTENT(input->cur.intentControls, this->lister->equipButtonIntent, BUTTON_STATE_PRESS, 0);
 }
 
+void CarouselItemSlotLister::resetSlotCount(uint8_t count){
+    std::vector<std::shared_ptr<CarouselItemSlotManager>> newSlots;
+
+    for(size_t i = 0; i < count; i++){
+        if(i < this->carouselSlots.size()){
+            auto existing = this->carouselSlots.at(i);
+            existing->arbId = i + 1;
+            newSlots.push_back(existing);
+        }
+        else {
+            auto newSlot = std::shared_ptr<CarouselItemSlotManager>{ new CarouselItemSlotManager(i + 1, this) };
+            newSlots.push_back(newSlot);
+        }
+    }
+
+    this->slotCount = newSlots.size();
+    this->carouselSlots = newSlots;
+}
+
 CarouselItemSlotLister::CarouselItemSlotLister(uint16_t equipButtonIntent){
+    this->resetSlotCount(this->slotCount);
     this->equipButtonIntent = equipButtonIntent;
     this->options = std::shared_ptr<CarouselListerOptions>(new CarouselListerOptions());
 }
