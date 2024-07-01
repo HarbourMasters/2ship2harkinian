@@ -15,6 +15,7 @@
 #include "2s2h/DeveloperTools/WarpPoint.h"
 #include "2s2h/Enhancements/Cheats/Cheats.h"
 #include "2s2h/Enhancements/Player/Player.h"
+#include "2s2h/Enhancements/ArbitraryEquipmentSlots/ArbitraryItemSlotsGUI.h"
 #include "HudEditor.h"
 
 extern "C" {
@@ -498,6 +499,9 @@ void DrawEnhancementsMenu() {
         if (UIWidgets::BeginMenu("Equipment")) {
             UIWidgets::CVarCheckbox("Fast Magic Arrow Equip Animation", "gEnhancements.Equipment.MagicArrowEquipSpeed",
                                     { .tooltip = "Removes the animation for equipping Magic Arrows." });
+            
+            UIWidgets::WindowButton("Arbitrary Item Slots", "gWindow.ArbitraryItemSlots", arbItemSlotsWindow);
+            
             ImGui::EndMenu();
         }
 

@@ -5,11 +5,12 @@ extern "C" {
 #include <macros.h>
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 }
+#include "./guis/CarouselGUI.h"
 
 CarouselItemSlotManager::CarouselItemSlotManager(uint16_t id, CarouselItemSlotLister* lister): ArbitraryItemSlotManager(id) {
     this->lister = lister;
-    this->drawParams.rectLeft = lister->rectLeft;
-    this->drawParams.rectTop = lister->rectTop;
+    this->drawParams.rectLeft = 0;
+    this->drawParams.rectTop = 0;
 }
 
 int32_t CarouselItemSlotManager::getLeftOffset(int16_t index){
@@ -56,8 +57,8 @@ ArbitraryItemDrawParams CarouselItemSlotManager::getDrawParams(PlayState *play){
     auto dist = this->getLeftOffset(this->lister->selectedIndex);
     auto prevDist = this->getLeftOffset(this->lister->previousSelectedIndex);
 
-    double targetLeft = this->lister->rectLeft + 27 * dist;
-    double prevLeft = this->lister->rectLeft + 27 * prevDist;
+    double targetLeft = 27 * dist;
+    double prevLeft = 27 * prevDist;
 
     double stepSize = ((targetLeft - prevLeft) / 10.0);
 
@@ -79,9 +80,9 @@ ArbitraryItemDrawParams CarouselItemSlotManager::getDrawParams(PlayState *play){
         this->drawParams.rectLeft += stepSize;
     }
     
-    this->drawParams.r = this->arbId % 3 == 1 ? 255 : 0;
-    this->drawParams.g = this->arbId % 3 == 2 ? 255 : 0;
-    this->drawParams.b = this->arbId % 3 == 0 ? 255 : 0;
+    this->drawParams.r = this->lister->rgb[0] * 255;
+    this->drawParams.g = this->lister->rgb[1] * 255;
+    this->drawParams.b = this->lister->rgb[2] * 255;
 
     double alpha = std::pow(0.5, std::abs(dist)) * 255.0;
     double linger = 0.5;
@@ -98,7 +99,10 @@ ArbitraryItemDrawParams CarouselItemSlotManager::getDrawParams(PlayState *play){
         this->drawParams.a = alpha;
     }
 
-    return this->drawParams;
+    auto result = this->drawParams;
+    result.rectLeft += this->lister->rectLeft;
+    result.rectTop += this->lister->rectTop;
+    return result;
 }
 
 bool CarouselItemSlotManager::isSelectedSlot(){
@@ -157,6 +161,7 @@ uint8_t CarouselItemSlotManager::tradeItem(Input* input){
 
 CarouselItemSlotLister::CarouselItemSlotLister(uint16_t equipButtonIntent){
     this->equipButtonIntent = equipButtonIntent;
+    this->options = std::shared_ptr<CarouselListerOptions>(new CarouselListerOptions());
 }
 
 ArbitraryItemEquipSet CarouselItemSlotLister::getEquipSlots(Input* input){

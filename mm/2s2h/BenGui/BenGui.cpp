@@ -19,6 +19,7 @@
 
 #include "include/global.h"
 #include "include/z64audio.h"
+#include "2s2h/Enhancements/ArbitraryEquipmentSlots/ArbitraryItemSlotsGUI.h"
 
 namespace BenGui {
 // MARK: - Delegates
@@ -89,6 +90,9 @@ void SetupGuiElements() {
 
     mEventLogWindow = std::make_shared<EventLogWindow>("gWindows.EventLog", "Event Log");
     gui->AddGuiWindow(mEventLogWindow);
+
+    arbItemSlotsWindow = std::shared_ptr<ArbitraryItemSlotsWindow>{new ArbitraryItemSlotsWindow()};
+    gui->AddGuiWindow(arbItemSlotsWindow);
 }
 
 void Destroy() {

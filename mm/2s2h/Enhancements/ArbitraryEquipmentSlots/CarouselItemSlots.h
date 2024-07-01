@@ -26,8 +26,9 @@ struct CarouselItemSlotLister : public ArbitraryItemSlotLister {
 
     int16_t selectedIndex = 0;
     int16_t previousSelectedIndex = 0;
-    int32_t rectLeft = 75;
-    int32_t rectTop = 10;
+    int32_t rectLeft = 288;
+    int32_t rectTop = 190;
+    float rgb[3] = {255.0 / 255.0, 240.0 / 255.0, 0.0 / 255.0};
     
     std::vector<std::shared_ptr<CarouselItemSlotManager>> carouselSlots = {
         std::shared_ptr<CarouselItemSlotManager>{ new CarouselItemSlotManager(1, this) },

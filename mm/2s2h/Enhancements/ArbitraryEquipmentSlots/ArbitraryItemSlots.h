@@ -5,9 +5,12 @@
 extern "C" {
 #include <z64save.h>
 }
+#include "ArbitraryItemSlotsGUI.h"
 
 #define ARB_EQUIP_ITEM_1 101
 #define ARB_EQUIP_ITEM_2 102
+
+struct ArbitraryItemSlotsManagerOptions;
 
 struct ArbitraryItemSlotManager {
     uint16_t arbId;
@@ -30,6 +33,7 @@ struct ArbitraryItemSlotManager {
 };
 
 struct ArbitraryItemSlotLister {
+    std::shared_ptr<ArbitraryItemSlotsListerOptions> options{new ArbitraryItemSlotsListerOptions()};
     std::vector<ArbitraryItemEquipButton> baseSlots;
     std::vector<std::shared_ptr<ArbitraryItemSlotManager>> slots = {
         std::shared_ptr<ArbitraryItemSlotManager>{ new ArbitraryItemSlotManager(1, ARB_EQUIP_ITEM_1) },
@@ -39,6 +43,8 @@ struct ArbitraryItemSlotLister {
     virtual ArbitraryItemEquipSet getEquipSlots(Input* input);
 
     virtual void initItemEquips(ItemEquips* equips);
+
+    static std::shared_ptr<ArbitraryItemSlotLister> getLister();
 };
 
 #endif

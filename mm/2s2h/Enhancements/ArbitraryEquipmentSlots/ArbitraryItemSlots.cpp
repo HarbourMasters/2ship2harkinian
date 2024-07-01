@@ -115,12 +115,16 @@ void ArbitraryItemSlotLister::initItemEquips(ItemEquips* equips) {
     second->drawParams.b = 255;
 }
 
-ArbitraryItemSlotLister* currentLister = NULL;
+std::shared_ptr<ArbitraryItemSlotLister> currentLister = NULL;
 
-extern "C" void initItemEquips(ItemEquips* equips) {
+std::shared_ptr<ArbitraryItemSlotLister> ArbitraryItemSlotLister::getLister(){
     if (currentLister == NULL) {
         // currentLister = new ArbitraryItemSlotLister();
-        currentLister = new CarouselItemSlotLister(INTENT_USE_ITEM);
+        currentLister = std::shared_ptr<ArbitraryItemSlotLister>{new CarouselItemSlotLister(INTENT_USE_ITEM)};
     }
-    return currentLister->initItemEquips(equips);
+    return currentLister;
+}
+
+extern "C" void initItemEquips(ItemEquips* equips) {
+    return ArbitraryItemSlotLister::getLister()->initItemEquips(equips);
 }
