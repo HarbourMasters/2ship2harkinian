@@ -3728,7 +3728,19 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
             }
             // #endregion
 
-            if (btn <= EQUIP_SLOT_NONE) {
+            ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, NULL);
+            ArbitraryItemEquipButton* targetArbSlot = NULL;
+            for(size_t i = 0 ; i < slots.count; i++){
+                ArbitraryItemEquipButton* e = &slots.equips[i];
+                ItemId item = e->getAssignedItem(e);
+                
+                if (Player_ItemIsItemAction(this, item, maskItemAction)) {
+                    targetArbSlot = e;
+                    break;
+                }
+            }
+
+            if (btn <= EQUIP_SLOT_NONE && targetArbSlot == NULL) {
                 // #region 2S2H [Dpad] - need to convert between helditem value to actual item
                 ItemId maskItem;
                 if (IS_HELD_DPAD(this->unk_154)) {
@@ -3866,6 +3878,7 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
             }
         } else {
             this->heldItemButton = i;
+            this->heldArbitraryEquipmentSlot = arbitraryEquipSlot;
             Player_UseItem(play, this, item);
         }
     }

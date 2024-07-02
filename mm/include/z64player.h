@@ -1308,6 +1308,8 @@ typedef struct Player {
     /* 0xD6A */ s8 unk_D6A;
     /* 0xD6B */ u8 unk_D6B;
     /* 0xD6C */ Vec3f unk_D6C; // previous body part 0 position
+
+    ArbitraryItemEquipButton* heldArbitraryEquipmentSlot;
 } Player; // size = 0xD78
 #ifdef __cplusplus
 }
