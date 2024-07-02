@@ -64,11 +64,9 @@ void UpdateWindowBackendObjects() {
     Ship::WindowBackend runningWindowBackend = Ship::Context::GetInstance()->GetWindow()->GetWindowBackend();
     Ship::WindowBackend configWindowBackend;
     int32_t configWindowBackendId = Ship::Context::GetInstance()->GetConfig()->GetInt("Window.Backend.Id", -1);
-    if (configWindowBackendId != -1 &&
-        configWindowBackendId < static_cast<int>(Ship::WindowBackend::BACKEND_COUNT)) {
+    if (configWindowBackendId != -1 && configWindowBackendId < static_cast<int>(Ship::WindowBackend::BACKEND_COUNT)) {
         configWindowBackend = static_cast<Ship::WindowBackend>(configWindowBackendId);
-    }
-    else {
+    } else {
         configWindowBackend = runningWindowBackend;
     }
 
