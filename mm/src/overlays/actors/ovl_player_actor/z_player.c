@@ -3878,7 +3878,6 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
             }
         } else {
             this->heldItemButton = i;
-            this->heldArbitraryEquipmentSlot = arbitraryEquipSlot;
             Player_UseItem(play, this, item);
         }
     }
