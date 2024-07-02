@@ -71,6 +71,24 @@ extern std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 extern std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
 extern std::shared_ptr<EventLogWindow> mEventLogWindow;
 extern std::shared_ptr<BenInputEditorWindow> mBenInputEditorWindow;
+std::shared_ptr<std::vector<Ship::WindowBackend>> availableWindowBackends;
+std::unordered_map<Ship::WindowBackend, const char*> availableWindowBackendsMap;
+Ship::WindowBackend configWindowBackend;
+
+void UpdateWindowBackendObjects() {
+    availableWindowBackends = Ship::Context::GetInstance()->GetWindow()->GetAvailableWindowBackends();
+    for (auto& backend : *availableWindowBackends) {
+        availableWindowBackendsMap[backend] = windowBackendsMap[backend];
+    }
+
+    int32_t configWindowBackendId = Ship::Context::GetInstance()->GetConfig()->GetInt("Window.Backend.Id", -1);
+    Ship::WindowBackend runningWindowBackend = Ship::Context::GetInstance()->GetWindow()->GetWindowBackend();
+    if (Ship::Context::GetInstance()->GetWindow()->IsAvailableWindowBackend(configWindowBackendId)) {
+        configWindowBackend = static_cast<Ship::WindowBackend>(configWindowBackendId);
+    } else {
+        configWindowBackend = runningWindowBackend;
+    }
+}
 
 void DrawGeneralSettings() {
 #if not defined(__SWITCH__) and not defined(__WIIU__)
@@ -201,27 +219,10 @@ void DrawGraphicsSettings() {
     // UIWidgets::PaddedSeparator(true, true, 3.0f, 3.0f);
     //  #endregion */
 
-    Ship::WindowBackend runningWindowBackend = Ship::Context::GetInstance()->GetWindow()->GetWindowBackend();
-    Ship::WindowBackend configWindowBackend;
-    int32_t configWindowBackendId = Ship::Context::GetInstance()->GetConfig()->GetInt("Window.Backend.Id", -1);
-    if (configWindowBackendId != -1 &&
-        configWindowBackendId < static_cast<int>(Ship::WindowBackend::WINDOW_BACKEND_COUNT)) {
-        configWindowBackend = static_cast<Ship::WindowBackend>(configWindowBackendId);
-    } else {
-        configWindowBackend = runningWindowBackend;
-    }
-
-    auto availableWindowBackends = Ship::Context::GetInstance()->GetWindow()->GetAvailableWindowBackends();
-    std::unordered_map<Ship::WindowBackend, const char*> availableWindowBackendsMap;
-    for (auto& backend : *availableWindowBackends) {
-        availableWindowBackendsMap[backend] = windowBackendsMap[backend];
-    }
-
-    if (UIWidgets::Combobox(
-            "Renderer API (Needs reload)", &configWindowBackend, availableWindowBackendsMap,
-            { .tooltip = "Sets the renderer API used by the game. Requires a relaunch to take effect.",
-              .disabled = Ship::Context::GetInstance()->GetWindow()->GetAvailableWindowBackends()->size() <= 1,
-              .disabledTooltip = "Only one renderer API is available on this platform." })) {
+    if (UIWidgets::Combobox("Renderer API (Needs reload)", &configWindowBackend, availableWindowBackendsMap,
+                            { .tooltip = "Sets the renderer API used by the game. Requires a relaunch to take effect.",
+                              .disabled = availableWindowBackends->size() <= 1,
+                              .disabledTooltip = "Only one renderer API is available on this platform." })) {
         Ship::Context::GetInstance()->GetConfig()->SetInt("Window.Backend.Id",
                                                           static_cast<int32_t>(configWindowBackend));
         Ship::Context::GetInstance()->GetConfig()->SetString("Window.Backend.Name",
@@ -730,6 +731,8 @@ void BenMenu::InitElement() {
     menuEntries = { { "Settings", settingsSidebar, "gSettings.Menu.SettingsSidebarIndex" },
                     { "Enhancements", enhancementsSidebar, "gSettings.Menu.EnhancementsSidebarIndex" },
                     { "Developer Tools", devToolsSidebar, "gSettings.Menu.DevToolsSidebarIndex" } };
+
+    UpdateWindowBackendObjects();
 }
 
 void BenMenu::UpdateElement() {
