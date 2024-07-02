@@ -12,6 +12,7 @@
 #include "Cheats/UnbreakableRazorSword.h"
 #include "Cheats/UnrestrictedItems.h"
 #include "Cycle/EndOfCycle.h"
+#include "Cycle/BothLetterToMamaRewards.h"
 #include "Equipment/SkipMagicArrowEquip.h"
 #include "Masks/BlastMaskKeg.h"
 #include "Masks/FierceDeityAnywhere.h"
