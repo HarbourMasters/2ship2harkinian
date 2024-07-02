@@ -2315,6 +2315,160 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
     }
 }
 
+s16 Interface_UpdateButtonsPart2_ArbitraryButton(PlayState* play, ArbitraryItemEquipButton* arbSlot){
+                MessageContext* msgCtx = &play->msgCtx;
+                InterfaceContext* interfaceCtx = &play->interfaceCtx;
+                Player* player = GET_PLAYER(play);
+                s16 restoreHudVisibility = false;
+                
+                ItemId arbItemId = arbSlot->getAssignedItem(arbSlot);
+                ItemId itemId = arbItemId;
+                if (GameInteractor_Should(GI_VB_ITEM_BE_RESTRICTED,
+                                          !gPlayerFormItemRestrictions[GET_PLAYER_FORM][itemId], &itemId)) {
+                    // Item not usable in current playerForm
+                    if (!arbSlot->isDisabled(arbSlot)) {
+                        arbSlot->setDisabled(arbSlot,BTN_DISABLED);
+                        restoreHudVisibility = true;
+                    }
+                } else if (player->actor.id != ACTOR_PLAYER) {
+                    // Currently not playing as the main player
+                    if (!arbSlot->isDisabled(arbSlot)) {
+                        arbSlot->setDisabled(arbSlot,BTN_DISABLED);
+                        restoreHudVisibility = true;
+                    }
+                } else if (player->currentMask == PLAYER_MASK_GIANT) {
+                    // Currently wearing Giant's Mask
+                    if (arbItemId != ITEM_MASK_GIANT) {
+                        if (!arbSlot->isDisabled(arbSlot)) {
+                            arbSlot->setDisabled(arbSlot,BTN_DISABLED);
+                            restoreHudVisibility = true;
+                        }
+                    } else if (arbSlot->isDisabled(arbSlot)) {
+                        restoreHudVisibility = true;
+                        arbSlot->setDisabled(arbSlot,BTN_ENABLED);
+                    }
+                } else if (arbItemId == ITEM_MASK_GIANT) {
+                    // Giant's Mask is equipped
+                    if (play->sceneId != SCENE_INISIE_BS) {
+                        if (!arbSlot->isDisabled(arbSlot)) {
+                            arbSlot->setDisabled(arbSlot,BTN_DISABLED);
+                            restoreHudVisibility = true;
+                        }
+                    } else if (arbSlot->isDisabled(arbSlot)) {
+                        restoreHudVisibility = true;
+                        arbSlot->setDisabled(arbSlot,BTN_ENABLED);
+                    }
+                } else if (arbItemId == ITEM_MASK_FIERCE_DEITY) {
+                    // Fierce Deity's Mask is equipped
+                    u8 vanillaSceneConditionResult =
+                        (play->sceneId != SCENE_MITURIN_BS) && (play->sceneId != SCENE_HAKUGIN_BS) &&
+                        (play->sceneId != SCENE_SEA_BS) && (play->sceneId != SCENE_INISIE_BS) &&
+                        (play->sceneId != SCENE_LAST_BS);
+                    if (GameInteractor_Should(GI_VB_DISABLE_FD_MASK, vanillaSceneConditionResult, NULL)) {
+                        if (!arbSlot->isDisabled(arbSlot)) {
+                            arbSlot->setDisabled(arbSlot,BTN_DISABLED);
+                            restoreHudVisibility = true;
+                        }
+                    } else if (arbSlot->isDisabled(arbSlot)) {
+                        restoreHudVisibility = true;
+                        arbSlot->setDisabled(arbSlot,BTN_ENABLED);
+                    }
+                } else {
+                    // End of special item cases. Apply restrictions to buttons
+                    if (interfaceCtx->restrictions.tradeItems != 0) {
+                        if (((arbItemId >= ITEM_MOONS_TEAR) &&
+                             (arbItemId <= ITEM_PENDANT_OF_MEMORIES)) ||
+                            ((arbItemId >= ITEM_BOTTLE) &&
+                             (arbItemId <= ITEM_OBABA_DRINK)) ||
+                            (arbItemId == ITEM_OCARINA_OF_TIME)) {
+                            if (!arbSlot->isDisabled(arbSlot)) {
+                                restoreHudVisibility = true;
+                            }
+                            arbSlot->setDisabled(arbSlot,BTN_DISABLED);
+                        }
+                    } else if (interfaceCtx->restrictions.tradeItems == 0) {
+                        if (((arbItemId >= ITEM_MOONS_TEAR) &&
+                             (arbItemId <= ITEM_PENDANT_OF_MEMORIES)) ||
+                            ((arbItemId >= ITEM_BOTTLE) &&
+                             (arbItemId <= ITEM_OBABA_DRINK)) ||
+                            (arbItemId == ITEM_OCARINA_OF_TIME)) {
+                            if (arbSlot->isDisabled(arbSlot)) {
+                                restoreHudVisibility = true;
+                            }
+                            arbSlot->setDisabled(arbSlot,BTN_ENABLED);
+                        }
+                    }
+
+                    if (interfaceCtx->restrictions.masks != 0) {
+                        if ((arbItemId >= ITEM_MASK_DEKU) &&
+                            (arbItemId <= ITEM_MASK_GIANT)) {
+                            if (!arbSlot->isDisabled(arbSlot)) {
+                                restoreHudVisibility = true;
+                            }
+                            arbSlot->setDisabled(arbSlot,BTN_DISABLED);
+                        }
+                    } else if (interfaceCtx->restrictions.masks == 0) {
+                        if ((arbItemId >= ITEM_MASK_DEKU) &&
+                            (arbItemId <= ITEM_MASK_GIANT)) {
+                            if (arbSlot->isDisabled(arbSlot)) {
+                                restoreHudVisibility = true;
+                            }
+                            arbSlot->setDisabled(arbSlot,BTN_ENABLED);
+                        }
+                    }
+
+                    if (interfaceCtx->restrictions.pictoBox != 0) {
+                        if (arbItemId == ITEM_PICTOGRAPH_BOX) {
+                            if (!arbSlot->isDisabled(arbSlot)) { // == BTN_ENABLED
+                                restoreHudVisibility = true;
+                            }
+                            arbSlot->setDisabled(arbSlot,BTN_DISABLED);
+                        }
+                    } else if (interfaceCtx->restrictions.pictoBox == 0) {
+                        if (arbItemId == ITEM_PICTOGRAPH_BOX) {
+                            if (arbSlot->isDisabled(arbSlot)) {
+                                restoreHudVisibility = true;
+                            }
+                            arbSlot->setDisabled(arbSlot,BTN_ENABLED);
+                        }
+                    }
+
+                    if (interfaceCtx->restrictions.all != 0) {
+                        if (!((arbItemId >= ITEM_MOONS_TEAR) &&
+                              (arbItemId <= ITEM_PENDANT_OF_MEMORIES)) &&
+                            !((arbItemId >= ITEM_BOTTLE) &&
+                              (arbItemId <= ITEM_OBABA_DRINK)) &&
+                            (arbItemId != ITEM_OCARINA_OF_TIME) &&
+                            !((arbItemId >= ITEM_MASK_DEKU) &&
+                              (arbItemId <= ITEM_MASK_GIANT)) &&
+                            (arbItemId != ITEM_PICTOGRAPH_BOX)) {
+
+                            if ((!arbSlot->isDisabled(arbSlot))) {
+                                restoreHudVisibility = true;
+                                arbSlot->setDisabled(arbSlot,BTN_DISABLED);
+                            }
+                        }
+                    } else if (interfaceCtx->restrictions.all == 0) {
+                        if (!((arbItemId >= ITEM_MOONS_TEAR) &&
+                              (arbItemId <= ITEM_PENDANT_OF_MEMORIES)) &&
+                            !((arbItemId >= ITEM_BOTTLE) &&
+                              (arbItemId <= ITEM_OBABA_DRINK)) &&
+                            (arbItemId != ITEM_OCARINA_OF_TIME) &&
+                            !((arbItemId >= ITEM_MASK_DEKU) &&
+                              (arbItemId <= ITEM_MASK_GIANT)) &&
+                            (arbItemId != ITEM_PICTOGRAPH_BOX)) {
+
+                            if ((arbSlot->isDisabled(arbSlot))) {
+                                restoreHudVisibility = true;
+                                arbSlot->setDisabled(arbSlot,BTN_ENABLED);
+                            }
+                        }
+                    }
+                }
+            
+                return restoreHudVisibility;
+            }
+
 /**
  * A continuation of the if-else chain from Interface_UpdateButtonsPart1
  * Also used directly when opening the pause menu i.e. skips part 1
@@ -3057,6 +3211,10 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                 }
             }
             // #endregion
+            FOREACH_SLOT(ARB_SLOTS(play, CONTROLLER1(&play->state)), arbSlot, {
+                restoreHudVisibility = Interface_UpdateButtonsPart2_ArbitraryButton(play, arbSlot);
+            })
+            
         }
     }
 
@@ -5287,7 +5445,7 @@ void Interface_DrawItemButtons(PlayState* play) {
         100, 255, 120, interfaceCtx->bAlpha);
     gDPPipeSync(OVERLAY_DISP++);
 
-    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, CONTROLLER1(&play->state));
+    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, play, CONTROLLER1(&play->state));
 
     for(uint8_t i = 0; i < slots.count; i++){
         ArbitraryItemEquipButton* eqBtn = &slots.equips[i];
@@ -5968,7 +6126,7 @@ void Interface_DrawCButtonIcons(PlayState* play) {
 
     gDPPipeSync(OVERLAY_DISP++);
     
-    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, CONTROLLER1(&play->state));
+    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, play, CONTROLLER1(&play->state));
 
     for(uint8_t i = 0; i < slots.count; i++){
         ArbitraryItemEquipButton* eqBtn = &slots.equips[i];

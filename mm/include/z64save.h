@@ -227,16 +227,33 @@ typedef struct ArbitraryItemEquipButton {
     ArbitraryItemDrawParams (*getDrawParams)(struct ArbitraryItemEquipButton* self, struct PlayState *play);
     uint16_t (*getAssignedItem)(struct ArbitraryItemEquipButton* self);
     uint16_t (*assignItem)(struct ArbitraryItemEquipButton* self, uint16_t item);
+    
+    uint8_t (*setDisabled)(struct ArbitraryItemEquipButton* self, uint8_t disabled);
+    uint8_t (*isDisabled)(struct ArbitraryItemEquipButton* self);
+    
 } ArbitraryItemEquipButton;
 
-typedef struct ArbitraryItemEquipSlots {
+typedef struct ArbitraryItemEquipSet {
     ArbitraryItemEquipButton *equips;
     u8 count;
 } ArbitraryItemEquipSet;
 
+#define ARB_SLOTS(play, input) gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, play, input)
+
+#define FOREACH_SLOT(slots, curentSlotName, code) \
+    {\
+    ArbitraryItemEquipSet _arbitrarySlotsToIterate = slots; \
+    for(size_t _arbitraryItemSlotIndex = 0; _arbitraryItemSlotIndex < _arbitrarySlotsToIterate.count; _arbitraryItemSlotIndex++){\
+        ArbitraryItemEquipButton* curentSlotName = &_arbitrarySlotsToIterate.equips[_arbitraryItemSlotIndex];\
+        {\
+            code \
+        }\
+    } \
+    }
+
 typedef struct ArbitraryEquipsSlotGetter {
     void* userData;
-    ArbitraryItemEquipSet (*getEquipSlots)(struct ArbitraryEquipsSlotGetter* self, Input* input);
+    ArbitraryItemEquipSet (*getEquipSlots)(struct ArbitraryEquipsSlotGetter* self, struct PlayState *play, Input* input);
 } ItemEquipsIniter;
 
 typedef struct ItemEquips {

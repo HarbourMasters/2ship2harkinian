@@ -101,6 +101,14 @@ ArbitraryItemDrawParams CarouselItemSlotManager::getDrawParams(PlayState *play){
     auto result = this->drawParams;
     result.rectLeft += this->lister->rectLeft;
     result.rectTop += this->lister->rectTop;
+
+    if(this->disabled){
+        result.r = 128;
+        result.g = 0;
+        result.b = 0;
+        // result.a *= 0.25;
+    }
+
     return result;
 }
 
@@ -147,6 +155,9 @@ uint8_t CarouselItemSlotManager::activateItem(Input* input, uint8_t buttonState)
     if(!this->isSelectedSlot()){
         return 0;
     }
+    else if(this->disabled){
+        return 0;
+    }
 
     return CHECK_INTENT(input->press.intentControls, this->lister->equipButtonIntent, buttonState, 0);
 }
@@ -183,15 +194,41 @@ CarouselItemSlotLister::CarouselItemSlotLister(uint16_t equipButtonIntent){
     this->options = std::shared_ptr<CarouselListerOptions>(new CarouselListerOptions());
 }
 
-ArbitraryItemEquipSet CarouselItemSlotLister::getEquipSlots(Input* input){
-    if(input != NULL){
+ArbitraryItemEquipSet CarouselItemSlotLister::getEquipSlots(PlayState *play, Input* input){
+    play->state.frames;
+    if (input != NULL && play != NULL && this->processedInputOnFrame != play->state.frames){
+        this->processedInputOnFrame = play->state.frames;
         int16_t prev = selectedIndex;
+        int8_t direction = 0;
 
         if(CHECK_INTENT(input->press.intentControls, INTENT_HOTSWAP_ITEM_LEFT, BUTTON_STATE_PRESS, 0)){
-            selectedIndex--;
+            direction--;
         }
         if(CHECK_INTENT(input->press.intentControls, INTENT_HOTSWAP_ITEM_RIGHT, BUTTON_STATE_PRESS, 0)){
-            selectedIndex++;
+            direction++;
+        }
+
+        selectedIndex += direction;
+
+        if(prev != selectedIndex){
+            while(selectedIndex < 0){
+                selectedIndex += this->carouselSlots.size();
+            }
+            while(selectedIndex >= this->carouselSlots.size()){
+                selectedIndex -= this->carouselSlots.size();
+            }
+        }
+
+        if(play != NULL && play->pauseCtx.state == PAUSE_STATE_OFF){
+            while(this->carouselSlots.at(selectedIndex)->disabled && selectedIndex != prev){
+                selectedIndex += direction;
+                while(selectedIndex < 0){
+                    selectedIndex += this->carouselSlots.size();
+                }
+                while(selectedIndex >= this->carouselSlots.size()){
+                    selectedIndex -= this->carouselSlots.size();
+                }
+            }
         }
 
         if(prev != selectedIndex){
@@ -214,7 +251,7 @@ ArbitraryItemEquipSet CarouselItemSlotLister::getEquipSlots(Input* input){
 
 void CarouselItemSlotLister::initItemEquips(ItemEquips* equips){
     equips->equipsSlotGetter.userData = this;
-    equips->equipsSlotGetter.getEquipSlots = +[](ArbitraryEquipsSlotGetter* self, Input* input) {
-        return ((CarouselItemSlotLister*)self->userData)->getEquipSlots(input);
+    equips->equipsSlotGetter.getEquipSlots = +[](ArbitraryEquipsSlotGetter* self, PlayState* play, Input* input) {
+        return ((CarouselItemSlotLister*)self->userData)->getEquipSlots(play, input);
     };
 }

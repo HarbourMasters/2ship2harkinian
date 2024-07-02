@@ -56,6 +56,13 @@ ArbitraryItemEquipButton ArbitraryItemSlotManager::makeEquipButton() {
         +[](ArbitraryItemEquipButton* self, uint16_t item) {
             return ((ArbitraryItemSlotManager*)self->userData)->assignItem(item);
         }, // assignItem
+
+        +[](struct ArbitraryItemEquipButton* self, uint8_t disabled) {
+            return ((ArbitraryItemSlotManager*)self->userData)->setDisabled(disabled);
+        }, // setDisabled
+        +[](struct ArbitraryItemEquipButton* self){
+            return ((ArbitraryItemSlotManager*)self->userData)->isDisabled();
+        }, // isDisabled
     };
 }
 
@@ -89,7 +96,15 @@ uint16_t ArbitraryItemSlotManager::assignItem(uint16_t item) {
     return item;
 }
 
-ArbitraryItemEquipSet ArbitraryItemSlotLister::getEquipSlots(Input* input){
+uint8_t ArbitraryItemSlotManager::setDisabled(uint8_t disabled){
+    return (this->disabled = disabled);
+}
+
+uint8_t ArbitraryItemSlotManager::isDisabled(){
+    return this->disabled;
+}
+
+ArbitraryItemEquipSet ArbitraryItemSlotLister::getEquipSlots(PlayState *play, Input* input){
     this->baseSlots = {};
 
     for (auto& slot : this->slots) {
@@ -104,8 +119,8 @@ ArbitraryItemEquipSet ArbitraryItemSlotLister::getEquipSlots(Input* input){
 
 void ArbitraryItemSlotLister::initItemEquips(ItemEquips* equips) {
     equips->equipsSlotGetter.userData = this;
-    equips->equipsSlotGetter.getEquipSlots = +[](ArbitraryEquipsSlotGetter* self, Input* input) {
-        return ((ArbitraryItemSlotLister*)self->userData)->getEquipSlots(input);
+    equips->equipsSlotGetter.getEquipSlots = +[](ArbitraryEquipsSlotGetter* self, PlayState *play, Input* input) {
+        return ((ArbitraryItemSlotLister*)self->userData)->getEquipSlots(play, input);
     };
 
     auto second = this->slots.at(1);

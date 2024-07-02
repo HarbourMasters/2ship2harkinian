@@ -23,6 +23,7 @@ struct CarouselItemSlotManager : public ArbitraryItemSlotManager {
 
 struct CarouselItemSlotLister : public ArbitraryItemSlotLister {
     uint16_t equipButtonIntent = 0;
+    uint32_t processedInputOnFrame = 0;
 
     uint8_t slotCount = 3;
     int16_t selectedIndex = 0;
@@ -37,7 +38,7 @@ struct CarouselItemSlotLister : public ArbitraryItemSlotLister {
 
     CarouselItemSlotLister(uint16_t equipButtonIntent);
     void resetSlotCount(uint8_t count);
-    virtual ArbitraryItemEquipSet getEquipSlots(Input* input);
+    virtual ArbitraryItemEquipSet getEquipSlots(PlayState *play, Input* input);
     virtual void initItemEquips(ItemEquips* equips);
 };
 

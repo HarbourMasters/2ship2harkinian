@@ -18,6 +18,7 @@ struct ArbitraryItemSlotManager {
     uint16_t assignedItem;
     ArbitraryItemDrawParams drawParams;
     std::chrono::high_resolution_clock::time_point createPoint = std::chrono::high_resolution_clock::now();
+    bool disabled = false;
 
     ArbitraryItemSlotManager(uint16_t id);
     ArbitraryItemSlotManager(uint16_t id, uint16_t specialButtonId);
@@ -30,6 +31,9 @@ struct ArbitraryItemSlotManager {
     virtual uint16_t getAssignedItem();
     virtual uint16_t assignItem(uint16_t item);
     virtual ArbitraryItemDrawParams getDrawParams(PlayState *play);
+
+    virtual uint8_t setDisabled(uint8_t disabled);
+    virtual uint8_t isDisabled();
 };
 
 struct ArbitraryItemSlotLister {
@@ -40,7 +44,7 @@ struct ArbitraryItemSlotLister {
         std::shared_ptr<ArbitraryItemSlotManager>{ new ArbitraryItemSlotManager(2, ARB_EQUIP_ITEM_2) }
     };
 
-    virtual ArbitraryItemEquipSet getEquipSlots(Input* input);
+    virtual ArbitraryItemEquipSet getEquipSlots(PlayState *play, Input* input);
 
     virtual void initItemEquips(ItemEquips* equips);
 

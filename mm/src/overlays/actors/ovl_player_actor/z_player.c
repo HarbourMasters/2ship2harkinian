@@ -3608,7 +3608,7 @@ s32 Player_ItemIsInUse(Player* this, ItemId item) {
     }
 }
 s32 Player_ItemIsInUseAnyArbitraryEquipment(Player* this) {
-    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, NULL);
+    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, NULL, NULL);
     for(size_t i = 0 ; i < slots.count; i++){
         ArbitraryItemEquipButton* e = &slots.equips[i];
         ItemId item = e->getAssignedItem(e);
@@ -3728,7 +3728,7 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
             }
             // #endregion
 
-            ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, NULL);
+            ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, NULL, NULL);
             ArbitraryItemEquipButton* targetArbSlot = NULL;
             for(size_t i = 0 ; i < slots.count; i++){
                 ArbitraryItemEquipButton* e = &slots.equips[i];
@@ -3807,7 +3807,7 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
         }
         // #endregion
 
-        ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, CONTROLLER1(&play->state));
+        ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, play, CONTROLLER1(&play->state));
         ArbitraryItemEquipButton* arbitraryEquipSlot = NULL;
         for(size_t arbIndex = 0; arbIndex < slots.count; arbIndex++){
             ArbitraryItemEquipButton* arb = &slots.equips[arbIndex];
