@@ -9,8 +9,7 @@ extern "C" {
 
 CarouselItemSlotManager::CarouselItemSlotManager(uint16_t id, CarouselItemSlotLister* lister): ArbitraryItemSlotManager(id) {
     this->lister = lister;
-    this->drawParams.rectLeft = 0;
-    this->drawParams.rectTop = 0;
+    this->scrollPosition = 0;
 }
 
 int32_t CarouselItemSlotManager::getLeftOffset(int16_t index){
@@ -61,18 +60,18 @@ ArbitraryItemDrawParams CarouselItemSlotManager::getDrawParams(PlayState *play){
 
     double stepSize = ((targetLeft - prevLeft) / 10.0);
 
-    if(stepSize >= 0 && this->drawParams.rectLeft > targetLeft){
-        this->drawParams.rectLeft = targetLeft;
+    if(stepSize >= 0 && this->scrollPosition > targetLeft){
+        this->scrollPosition = targetLeft;
     }
-    else if(stepSize < 0 && this->drawParams.rectLeft < targetLeft) {
-        this->drawParams.rectLeft = targetLeft;
+    else if(stepSize < 0 && this->scrollPosition < targetLeft) {
+        this->scrollPosition = targetLeft;
     }
 
-    if(std::abs(targetLeft - this->drawParams.rectLeft) < std::abs(stepSize)){
-        this->drawParams.rectLeft = targetLeft;
+    if(std::abs(targetLeft - this->scrollPosition) < std::abs(stepSize)){
+        this->scrollPosition = targetLeft;
     }
     else {
-        this->drawParams.rectLeft += stepSize;
+        this->scrollPosition += stepSize;
     }
     
     this->drawParams.r = this->lister->rgb[0] * 255;
@@ -95,8 +94,9 @@ ArbitraryItemDrawParams CarouselItemSlotManager::getDrawParams(PlayState *play){
     }
 
     auto result = this->drawParams;
-    result.rectLeft += this->lister->rectLeft;
-    result.rectTop += this->lister->rectTop;
+    float angleRads = this->lister->carouselDirectionAngle;
+    result.rectLeft = std::cos(angleRads) * this->scrollPosition + this->lister->rectLeft;
+    result.rectTop = std::sin(angleRads) * this->scrollPosition + this->lister->rectTop;
 
     if(this->disabled){
         result.r = 128;

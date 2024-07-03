@@ -12,6 +12,7 @@ struct CarouselItemSlotManager : public ArbitraryItemSlotManager {
     CarouselItemSlotManager(uint16_t id, CarouselItemSlotLister* lister);
     int32_t getLeftOffset(int16_t index);
     bool isSelectedSlot();
+    int16_t scrollPosition = 0;
 
     virtual uint8_t canTakeAssignment(ItemId item);
     virtual uint8_t assignmentTriggered(Input* input);
@@ -25,6 +26,10 @@ struct CarouselItemSlotLister : public ArbitraryItemSlotLister {
     uint16_t equipButtonIntent = 0;
     uint32_t processedInputOnFrame = 0;
     bool prevWasPaused = false;
+    /**
+     * Direction of the carousel in radians
+     */
+    float carouselDirectionAngle = 0;
 
     uint8_t slotCount = 3;
     int16_t selectedIndex = 0;
