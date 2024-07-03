@@ -337,7 +337,7 @@ void SOH::ResourceFactoryXMLSoundFontV0::ParseSfxTable(AudioSoundFont* soundFont
         const char* sampleStr = element->Attribute("SampleRef");
         // Insert an empty sound effect. The game assumes the empty slots are
         // filled so we can't just skip them
-        if (sampleStr == 0)
+        if (sampleStr == nullptr)
             goto skip;
 
         sound.tuning = element->FloatAttribute("Tuning");
@@ -355,7 +355,7 @@ void SOH::ResourceFactoryXMLSoundFontV0::ParseSfxTable(AudioSoundFont* soundFont
 
 std::vector<AdsrEnvelope> SOH::ResourceFactoryXMLSoundFontV0::ParseEnvelopes(AudioSoundFont* soundFont,
                                                                              tinyxml2::XMLElement* element,
-                                                                             unsigned int* count) {
+                                                                          unsigned int* count) {
     std::vector<AdsrEnvelope> envelopes;
     unsigned int total = 0;
     element = element->FirstChildElement("Envelope");
