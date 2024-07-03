@@ -79,31 +79,76 @@ ArbitraryItemDrawParams CarouselItemSlotManager::getDrawParams(PlayState *play){
     this->drawParams.b = this->lister->rgb[2] * 255;
 
     double alpha = std::pow(0.5, std::abs(dist)) * 255.0;
-    double linger = 0.5;
-    double fadeTime = 0.125;
 
     bool isGameUnpaused = play->pauseCtx.state == PAUSE_STATE_OFF;
-    if(isGameUnpaused && (dist != 0 && elapsedTime.count() > linger)){
-        double timeSince = (elapsedTime.count() - linger);
-        double ratio = timeSince / fadeTime;
-        double angle = std::clamp(ratio * (M_PI / 2), 0.0, M_PI / 2.0);
-        this->drawParams.a = alpha * std::cos(angle);
-    }
-    else {
-        this->drawParams.a = alpha;
-    }
+    this->drawParams.a = alpha;
 
     auto result = this->drawParams;
     float angleRads = this->lister->carouselDirectionAngle;
-    result.rectLeft = std::cos(angleRads) * this->scrollPosition + this->lister->rectLeft;
-    result.rectTop = std::sin(angleRads) * this->scrollPosition + this->lister->rectTop;
+    result.rectLeft = std::cos(angleRads) * this->scrollPosition;
+    result.rectTop = std::sin(angleRads) * this->scrollPosition;
+
+    int32_t centerPositionLeft = this->lister->restPositionLeft;
+    int32_t centerPositionTop = this->lister->restPositionTop;
+
+    int32_t diffLeft = this->lister->restPositionLeft - this->lister->activePositionLeft;
+    int32_t diffTop = this->lister->restPositionTop - this->lister->activePositionTop;
 
     if(this->disabled){
         result.r = 128;
         result.g = 0;
         result.b = 0;
-        // result.a *= 0.25;
     }
+
+    if(this->lister->active){
+            std::chrono::duration<double, std::ratio<1LL, 1LL>> time =
+                (std::chrono::high_resolution_clock::now() - this->lister->activeStarted);
+
+            double timeSince = time.count();
+            double ratio = timeSince / this->lister->fadeTimeSeconds;
+            double angle = std::clamp(ratio * (M_PI / 2), 0.0, M_PI / 2.0);
+
+        if(this->lister->activePositionDifferent){
+            centerPositionLeft = this->lister->restPositionLeft - std::sin(angle) * (diffLeft);
+            centerPositionTop = this->lister->restPositionTop - std::sin(angle) * (diffTop);
+        }
+
+        if(isGameUnpaused && dist != 0){
+            result.a = alpha * std::sin(angle);
+        }
+
+        if(dist == 0){
+            result.r += (255 - result.r) * std::sin(angle);
+            result.g += (255 - result.g) * std::sin(angle);
+            result.b += (255 - result.b) * std::sin(angle);
+        }
+    }
+    else {
+        std::chrono::duration<double, std::ratio<1LL, 1LL>> time =
+            (std::chrono::high_resolution_clock::now() - this->lister->inactiveStarted);
+
+        double timeSince = time.count();
+        double ratio = timeSince / this->lister->fadeTimeSeconds;
+        double angle = std::clamp(ratio * (M_PI / 2), 0.0, M_PI / 2.0);
+
+        if(this->lister->activePositionDifferent){
+            centerPositionLeft = this->lister->restPositionLeft - std::cos(angle) * (diffLeft);
+            centerPositionTop = this->lister->restPositionTop - std::cos(angle) * (diffTop);
+        }
+        
+        if(isGameUnpaused && dist != 0){
+            result.a = alpha * std::cos(angle);
+        }
+
+        if(dist == 0){
+            result.r += (255 - result.r) * std::cos(angle);
+            result.g += (255 - result.g) * std::cos(angle);
+            result.b += (255 - result.b) * std::cos(angle);
+        }
+    }
+    
+    result.rectLeft += centerPositionLeft;
+    result.rectTop += centerPositionTop;
 
     return result;
 }
@@ -246,10 +291,24 @@ ArbitraryItemEquipSet CarouselItemSlotLister::getEquipSlots(PlayState *play, Inp
             }
         }
 
+        auto now = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::ratio<1LL, 1LL>> elapsedActiveTime =
+            (now - this->activeStarted);
+        std::chrono::duration<double, std::ratio<1LL, 1LL>> elapsedSwapTime =
+            (now - this->lastSlotSwap);
+
         // Set tracking info for animation purposes
         if(prev != selectedIndex){
             this->previousSelectedIndex = prev;
-            this->lastSlotSwap = std::chrono::high_resolution_clock::now();
+            this->lastSlotSwap = now;
+            if(!this->active){
+                this->active = true;
+                this->activeStarted = this->lastSlotSwap;
+            }
+        }
+        else if(this->active && elapsedSwapTime.count() >= this->lingerSeconds) {
+            this->active = false;
+            this->inactiveStarted = now;
         }
     }
 

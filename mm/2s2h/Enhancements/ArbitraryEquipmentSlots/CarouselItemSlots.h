@@ -29,18 +29,30 @@ struct CarouselItemSlotLister : public ArbitraryItemSlotLister {
     /**
      * Direction of the carousel in radians
      */
-    float carouselDirectionAngle = 0;
+    float carouselDirectionAngle = M_PI / 2;
 
     uint8_t slotCount = 3;
     int16_t selectedIndex = 0;
     int16_t previousSelectedIndex = 0;
-    int32_t rectLeft = 288;
-    int32_t rectTop = 190;
+    int32_t restPositionLeft = 330;
+    int32_t restPositionTop = 18;
+
+    bool activePositionDifferent = true;
+    int32_t activePositionLeft = 330;
+    int32_t activePositionTop = 43;
+
+    double lingerSeconds = 1.5;
+    double fadeTimeSeconds = 0.125;
+
     float rgb[3] = {255.0 / 255.0, 240.0 / 255.0, 0.0 / 255.0};
     
     std::vector<std::shared_ptr<CarouselItemSlotManager>> carouselSlots = {};
 
     std::chrono::high_resolution_clock::time_point lastSlotSwap = std::chrono::high_resolution_clock::now();
+
+    bool active = false;
+    std::chrono::high_resolution_clock::time_point activeStarted = std::chrono::high_resolution_clock::now();
+    std::chrono::high_resolution_clock::time_point inactiveStarted = std::chrono::high_resolution_clock::now();
 
     CarouselItemSlotLister(uint16_t equipButtonIntent);
     void resetSlotCount(uint8_t count);
