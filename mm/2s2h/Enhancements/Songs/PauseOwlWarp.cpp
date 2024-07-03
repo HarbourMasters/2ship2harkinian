@@ -13,8 +13,8 @@ extern s16 sInDungeonScene;
 
 bool IsOwlWarpEnabled() {
     return CVarGetInteger("gEnhancements.Songs.PauseOwlWarp", 0) && CHECK_QUEST_ITEM(QUEST_SONG_SOARING) &&
-           gSaveContext.save.saveInfo.playerData.owlActivationFlags != 0 &&
-           gSaveContext.save.saveInfo.playerData.owlActivationFlags != (1 << 15);
+           (gSaveContext.save.saveInfo.playerData.owlActivationFlags != 0 ||
+            gSaveContext.save.saveInfo.playerData.owlActivationFlags == (1 << 15));
 }
 }
 
@@ -136,13 +136,52 @@ void UpdateCursorForOwlWarpPoints(PauseContext* pauseCtx) {
 
 void RegisterPauseOwlWarp() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnKaleidoUpdate>([](PauseContext* pauseCtx) {
-        if (!sInDungeonScene && IsOwlWarpEnabled() && CHECK_QUEST_ITEM(QUEST_SONG_SOARING) &&
-            (gSaveContext.save.saveInfo.playerData.owlActivationFlags != 0) &&
-            (gSaveContext.save.saveInfo.playerData.owlActivationFlags != (1 << 15))) {
+        if (!sInDungeonScene && IsOwlWarpEnabled() && CHECK_QUEST_ITEM(QUEST_SONG_SOARING)) {
             // Initialize worldMapPoints based on owl activation flags
             for (int i = OWL_WARP_STONE_TOWER; i >= OWL_WARP_GREAT_BAY_COAST; i--) {
                 pauseCtx->worldMapPoints[i] = (gSaveContext.save.saveInfo.playerData.owlActivationFlags >> i) & 1;
             }
+
+            // Special condition for when only the 15th owl statue is activated
+            if (gSaveContext.save.saveInfo.playerData.owlActivationFlags == (1 << 15)) {
+                for (int i = REGION_GREAT_BAY; i < REGION_MAX; i++) {
+                    if ((gSaveContext.save.saveInfo.regionsVisited >> i) & 1) {
+                        switch (i) {
+                            case REGION_GREAT_BAY:
+                                pauseCtx->worldMapPoints[OWL_WARP_GREAT_BAY_COAST] = true;
+                                break;
+                            case REGION_ZORA_HALL:
+                                pauseCtx->worldMapPoints[OWL_WARP_ZORA_CAPE] = true;
+                                break;
+                            case REGION_ROMANI_RANCH:
+                                pauseCtx->worldMapPoints[OWL_WARP_SNOWHEAD] = true;
+                                break;
+                            case REGION_DEKU_PALACE:
+                                pauseCtx->worldMapPoints[OWL_WARP_MOUNTAIN_VILLAGE] = true;
+                                break;
+                            case REGION_WOODFALL:
+                                pauseCtx->worldMapPoints[OWL_WARP_CLOCK_TOWN] = true;
+                                break;
+                            case REGION_CLOCK_TOWN:
+                                pauseCtx->worldMapPoints[OWL_WARP_MILK_ROAD] = true;
+                                break;
+                            case REGION_SNOWHEAD:
+                                pauseCtx->worldMapPoints[OWL_WARP_WOODFALL] = true;
+                                break;
+                            case REGION_IKANA_GRAVEYARD:
+                                pauseCtx->worldMapPoints[OWL_WARP_SOUTHERN_SWAMP] = true;
+                                break;
+                            case REGION_IKANA_CANYON:
+                                pauseCtx->worldMapPoints[OWL_WARP_IKANA_CANYON] = true;
+                                break;
+                            case REGION_GORON_VILLAGE:
+                                pauseCtx->worldMapPoints[OWL_WARP_STONE_TOWER] = true;
+                                break;
+                        }
+                    }
+                }
+            }
+
             // Ensure cursor starts at an activated point
             if (!pauseCtx->worldMapPoints[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]]) {
                 for (int i = OWL_WARP_GREAT_BAY_COAST; i <= OWL_WARP_STONE_TOWER; i++) {
