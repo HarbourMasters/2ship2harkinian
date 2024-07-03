@@ -24,6 +24,7 @@ struct CarouselItemSlotManager : public ArbitraryItemSlotManager {
 struct CarouselItemSlotLister : public ArbitraryItemSlotLister {
     uint16_t equipButtonIntent = 0;
     uint32_t processedInputOnFrame = 0;
+    bool prevWasPaused = false;
 
     uint8_t slotCount = 3;
     int16_t selectedIndex = 0;

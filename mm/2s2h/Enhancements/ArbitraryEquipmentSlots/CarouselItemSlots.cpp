@@ -69,11 +69,7 @@ ArbitraryItemDrawParams CarouselItemSlotManager::getDrawParams(PlayState *play){
     }
 
     if(std::abs(targetLeft - this->drawParams.rectLeft) < std::abs(stepSize)){
-        double cur = std::abs(targetLeft - this->drawParams.rectLeft);
-        double next = std::abs(targetLeft - (this->drawParams.rectLeft + stepSize));
-        if(next < cur){
-            this->drawParams.rectLeft += stepSize;
-        }
+        this->drawParams.rectLeft = targetLeft;
     }
     else {
         this->drawParams.rectLeft += stepSize;
@@ -199,6 +195,10 @@ ArbitraryItemEquipSet CarouselItemSlotLister::getEquipSlots(PlayState *play, Inp
     // Only process carousel index changes when the frame has changed to prevent the same button press from changing the index twice.
     if (input != NULL && play != NULL && this->processedInputOnFrame != play->state.frames){
         this->processedInputOnFrame = play->state.frames;
+        bool isPaused = play->pauseCtx.state != PAUSE_STATE_OFF;
+        bool pauseMenuJustClosed = this->prevWasPaused && !isPaused;
+        this->prevWasPaused = isPaused;
+
         int16_t prev = selectedIndex;
         int8_t direction = 0;
 
@@ -223,7 +223,8 @@ ArbitraryItemEquipSet CarouselItemSlotLister::getEquipSlots(PlayState *play, Inp
 
         // When outside the pause menu, swap to the next non-disabled item slot.
         // Disable this when paused so that items can be assigned to disabled slots.
-        if(play != NULL && play->pauseCtx.state == PAUSE_STATE_OFF){
+        // Don't swap immediately after closing the pause menu so that the game has a moment to update disabled status.
+        if(play != NULL && !isPaused && !pauseMenuJustClosed){
             // If the direction is zero, set to one so that the while-loop below doesn't loop forever.
             if(direction == 0 ){
                 direction = 1;
@@ -261,6 +262,8 @@ ArbitraryItemEquipSet CarouselItemSlotLister::getEquipSlots(PlayState *play, Inp
     ArbitraryItemEquipSet set;
     set.equips = this->baseSlots.data();
     set.count = this->baseSlots.size();
+ 
+    this->addEquipSetCallbacks(&set);
     return set;
 }
 

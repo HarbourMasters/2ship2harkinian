@@ -236,6 +236,10 @@ typedef struct ArbitraryItemEquipButton {
 typedef struct ArbitraryItemEquipSet {
     ArbitraryItemEquipButton *equips;
     u8 count;
+    /**
+     * Returns the index of the slot with specified item, or -1 if none found.
+     */
+    int (*findSlotWithItem)(struct ArbitraryItemEquipSet* thisSet, uint16_t item);
 } ArbitraryItemEquipSet;
 
 #define ARB_SLOTS(play, input) gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, play, input)
@@ -254,6 +258,7 @@ typedef struct ArbitraryItemEquipSet {
 typedef struct ArbitraryEquipsSlotGetter {
     void* userData;
     ArbitraryItemEquipSet (*getEquipSlots)(struct ArbitraryEquipsSlotGetter* self, struct PlayState *play, Input* input);
+
 } ItemEquipsIniter;
 
 typedef struct ItemEquips {

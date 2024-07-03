@@ -93,6 +93,7 @@ uint16_t ArbitraryItemSlotManager::getAssignedItem() {
 }
 uint16_t ArbitraryItemSlotManager::assignItem(uint16_t item) {
     this->assignedItem = item;
+    this->disabled = false;
     return item;
 }
 
@@ -114,7 +115,20 @@ ArbitraryItemEquipSet ArbitraryItemSlotLister::getEquipSlots(PlayState *play, In
     ArbitraryItemEquipSet set;
     set.equips = this->baseSlots.data();
     set.count = this->baseSlots.size();
+    this->addEquipSetCallbacks(&set);
+    
     return set;
+}
+
+void ArbitraryItemSlotLister::addEquipSetCallbacks(ArbitraryItemEquipSet* set){
+    set->findSlotWithItem = +[](ArbitraryItemEquipSet* self, uint16_t item){
+        FOREACH_SLOT(*self, slot, {
+            if(slot->getAssignedItem(slot) == item){
+                return 1;
+            }
+        });
+        return -1;
+    };
 }
 
 void ArbitraryItemSlotLister::initItemEquips(ItemEquips* equips) {

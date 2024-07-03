@@ -5068,6 +5068,13 @@ void Magic_Update(PlayState* play) {
                 (play->transitionTrigger == TRANS_TRIGGER_OFF) && (play->transitionMode == TRANS_MODE_OFF) &&
                 !Play_InCsMode(play)) {
 
+                ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(
+                    &gSaveContext.save.saveInfo.equips.equipsSlotGetter,
+                    play,
+                    CONTROLLER1(&play->state)
+                );
+                int lensOfTruthIndex = slots.findSlotWithItem(&slots, ITEM_LENS_OF_TRUTH);
+
                 if ((gSaveContext.save.saveInfo.playerData.magic == 0) ||
                     ((Player_GetEnvironmentalHazard(play) >= PLAYER_ENV_HAZARD_UNDERWATER_FLOOR) &&
                      (Player_GetEnvironmentalHazard(play) <= PLAYER_ENV_HAZARD_UNDERWATER_FREE)) ||
@@ -5079,8 +5086,10 @@ void Magic_Update(PlayState* play) {
                       (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) != ITEM_LENS_OF_TRUTH) &&
                           (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) != ITEM_LENS_OF_TRUTH) &&
                           (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) != ITEM_LENS_OF_TRUTH) &&
-                          (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) != ITEM_LENS_OF_TRUTH))) ||
+                          (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) != ITEM_LENS_OF_TRUTH))
                     //   #endregion
+                          && (lensOfTruthIndex < 0)
+                          ) ||
                     !play->actorCtx.lensActive) {
                     // Deactivate Lens of Truth and set magic state to idle
                     play->actorCtx.lensActive = false;

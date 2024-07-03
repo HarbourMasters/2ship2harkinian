@@ -47,6 +47,7 @@ struct ArbitraryItemSlotLister {
     virtual ArbitraryItemEquipSet getEquipSlots(PlayState *play, Input* input);
 
     virtual void initItemEquips(ItemEquips* equips);
+    virtual void addEquipSetCallbacks(ArbitraryItemEquipSet* set);
 
     static std::shared_ptr<ArbitraryItemSlotLister> getLister();
 };
