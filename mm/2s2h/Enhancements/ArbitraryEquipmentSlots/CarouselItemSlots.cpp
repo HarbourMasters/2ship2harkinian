@@ -196,6 +196,7 @@ CarouselItemSlotLister::CarouselItemSlotLister(uint16_t equipButtonIntent){
 
 ArbitraryItemEquipSet CarouselItemSlotLister::getEquipSlots(PlayState *play, Input* input){
     play->state.frames;
+    // Only process carousel index changes when the frame has changed to prevent the same button press from changing the index twice.
     if (input != NULL && play != NULL && this->processedInputOnFrame != play->state.frames){
         this->processedInputOnFrame = play->state.frames;
         int16_t prev = selectedIndex;
@@ -210,6 +211,7 @@ ArbitraryItemEquipSet CarouselItemSlotLister::getEquipSlots(PlayState *play, Inp
 
         selectedIndex += direction;
 
+        // Normalize the index into a valid point withing the index range
         if(prev != selectedIndex){
             while(selectedIndex < 0){
                 selectedIndex += this->carouselSlots.size();
@@ -219,8 +221,16 @@ ArbitraryItemEquipSet CarouselItemSlotLister::getEquipSlots(PlayState *play, Inp
             }
         }
 
+        // When outside the pause menu, swap to the next non-disabled item slot.
+        // Disable this when paused so that items can be assigned to disabled slots.
         if(play != NULL && play->pauseCtx.state == PAUSE_STATE_OFF){
-            while(this->carouselSlots.at(selectedIndex)->disabled && selectedIndex != prev){
+            // If the direction is zero, set to one so that the while-loop below doesn't loop forever.
+            if(direction == 0 ){
+                direction = 1;
+            }
+            // End the loop if no non-disabled item slot was found.
+            size_t iterationCount = 0;
+            while(this->carouselSlots.at(selectedIndex)->disabled && iterationCount++ < this->carouselSlots.size()){
                 selectedIndex += direction;
                 while(selectedIndex < 0){
                     selectedIndex += this->carouselSlots.size();
@@ -229,8 +239,13 @@ ArbitraryItemEquipSet CarouselItemSlotLister::getEquipSlots(PlayState *play, Inp
                     selectedIndex -= this->carouselSlots.size();
                 }
             }
+            // If no non-disabled item slot was found, then reset the index.
+            if(iterationCount >= this->carouselSlots.size()){
+                selectedIndex = prev;
+            }
         }
 
+        // Set tracking info for animation purposes
         if(prev != selectedIndex){
             this->previousSelectedIndex = prev;
             this->lastSlotSwap = std::chrono::high_resolution_clock::now();
