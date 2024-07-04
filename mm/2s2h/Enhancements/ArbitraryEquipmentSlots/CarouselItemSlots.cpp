@@ -229,9 +229,11 @@ void CarouselItemSlotLister::resetSlotCount(uint8_t count){
     this->carouselSlots = newSlots;
 }
 
-CarouselItemSlotLister::CarouselItemSlotLister(uint16_t equipButtonIntent){
+CarouselItemSlotLister::CarouselItemSlotLister(uint16_t equipButtonIntent, uint16_t swapLeftIntent, uint16_t swapRightIntent){
     this->resetSlotCount(this->slotCount);
     this->equipButtonIntent = equipButtonIntent;
+    this->swapLeftIntent = swapLeftIntent;
+    this->swapRightIntent = swapRightIntent;
     this->options = std::shared_ptr<CarouselListerOptions>(new CarouselListerOptions());
 }
 
@@ -247,10 +249,10 @@ ArbitraryItemEquipSet CarouselItemSlotLister::getEquipSlots(PlayState *play, Inp
         int16_t prev = selectedIndex;
         int8_t direction = 0;
 
-        if(CHECK_INTENT(input->press.intentControls, INTENT_HOTSWAP_ITEM_LEFT, BUTTON_STATE_PRESS, 0)){
+        if(CHECK_INTENT(input->press.intentControls, this->swapLeftIntent, BUTTON_STATE_PRESS, 0)){
             direction--;
         }
-        if(CHECK_INTENT(input->press.intentControls, INTENT_HOTSWAP_ITEM_RIGHT, BUTTON_STATE_PRESS, 0)){
+        if(CHECK_INTENT(input->press.intentControls, this->swapRightIntent, BUTTON_STATE_PRESS, 0)){
             direction++;
         }
 

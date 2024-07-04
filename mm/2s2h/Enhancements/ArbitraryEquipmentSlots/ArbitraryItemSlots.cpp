@@ -149,7 +149,7 @@ std::shared_ptr<ArbitraryItemSlotLister> currentLister = NULL;
 std::shared_ptr<ArbitraryItemSlotLister> ArbitraryItemSlotLister::getLister(){
     if (currentLister == NULL) {
         // currentLister = new ArbitraryItemSlotLister();
-        currentLister = std::shared_ptr<ArbitraryItemSlotLister>{new CarouselItemSlotLister(INTENT_USE_ITEM)};
+        currentLister = std::shared_ptr<ArbitraryItemSlotLister>{new CarouselItemSlotLister(INTENT_USE_ITEM, INTENT_HOTSWAP_ITEM_LEFT, INTENT_HOTSWAP_ITEM_RIGHT)};
     }
     return currentLister;
 }

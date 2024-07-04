@@ -4,25 +4,28 @@
 #include "window/gui/GuiWindow.h"
 #include <memory>
 #include "2s2h/BenGui/UIWidgets.hpp"
+#include "InputEditorWindow.h"
 
 struct ArbitraryItemSlotLister;
 struct ArbitraryItemSlotManager;
 
 struct ArbitraryItemSlotsWindow : public Ship::GuiWindow {
+    
     ArbitraryItemSlotsWindow();
 
     void InitElement() override;
     void DrawElement() override;
     void UpdateElement() override;
+    
 };
 
 struct ArbitraryItemSlotsListerOptions {
-    virtual void drawOptions(ArbitraryItemSlotLister* manager){
+    virtual void drawOptions(ArbitraryItemSlotsWindow* win, ArbitraryItemSlotLister* manager){
 
     }
 };
 struct ArbitraryItemSlotsManagerOptions {
-    virtual void drawOptions(ArbitraryItemSlotManager* lister){}
+    virtual void drawOptions(ArbitraryItemSlotsWindow* win, ArbitraryItemSlotManager* lister){}
 };
 
 extern std::shared_ptr<ArbitraryItemSlotsWindow> arbItemSlotsWindow;

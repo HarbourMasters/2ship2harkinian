@@ -24,6 +24,8 @@ struct CarouselItemSlotManager : public ArbitraryItemSlotManager {
 
 struct CarouselItemSlotLister : public ArbitraryItemSlotLister {
     uint16_t equipButtonIntent = 0;
+    uint16_t swapLeftIntent = 0;
+    uint16_t swapRightIntent = 0;
     uint32_t processedInputOnFrame = 0;
     bool prevWasPaused = false;
     /**
@@ -54,7 +56,7 @@ struct CarouselItemSlotLister : public ArbitraryItemSlotLister {
     std::chrono::high_resolution_clock::time_point activeStarted = std::chrono::high_resolution_clock::now();
     std::chrono::high_resolution_clock::time_point inactiveStarted = std::chrono::high_resolution_clock::now();
 
-    CarouselItemSlotLister(uint16_t equipButtonIntent);
+    CarouselItemSlotLister(uint16_t equipButtonIntent, uint16_t swapLeftIntent, uint16_t swapRightIntent);
     void resetSlotCount(uint8_t count);
     virtual ArbitraryItemEquipSet getEquipSlots(PlayState *play, Input* input);
     virtual void initItemEquips(ItemEquips* equips);

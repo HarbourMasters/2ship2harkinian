@@ -3,7 +3,7 @@
 #include "../ArbitraryItemSlotsGUI.h"
 
 struct CarouselListerOptions : public ArbitraryItemSlotsListerOptions {
-    virtual void drawOptions(ArbitraryItemSlotLister* manager) override;
+    virtual void drawOptions(ArbitraryItemSlotsWindow* win, ArbitraryItemSlotLister* manager) override;
 };
 
 #endif
