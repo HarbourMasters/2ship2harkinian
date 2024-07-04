@@ -34,122 +34,115 @@ std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSoundFontV2::ReadReso
     audioSoundFont->soundFont.numSfx = soundEffectCount;
 
     // 🥁 DRUMS 🥁
-    audioSoundFont->drums.reserve(audioSoundFont->soundFont.numDrums);
+    //audioSoundFont->drums.reserve(audioSoundFont->soundFont.numDrums);
     audioSoundFont->drumAddresses.reserve(audioSoundFont->soundFont.numDrums);
     for (uint32_t i = 0; i < audioSoundFont->soundFont.numDrums; i++) {
-        Drum drum;
-        drum.releaseRate = reader->ReadUByte();
-        drum.pan = reader->ReadUByte();
-        drum.loaded = reader->ReadUByte();
-        drum.loaded = 0; // this was always getting set to zero in ResourceMgr_LoadAudioSoundFont
+        Drum* drum = new Drum;
+        drum->releaseRate = reader->ReadUByte();
+        drum->pan = reader->ReadUByte();
+        drum->loaded = reader->ReadUByte();
+        drum->loaded = 0; // this was always getting set to zero in ResourceMgr_LoadAudioSoundFont
 
         uint32_t envelopeCount = reader->ReadUInt32();
-        audioSoundFont->drumEnvelopeCounts.push_back(envelopeCount);
-        std::vector<AdsrEnvelope> drumEnvelopes;
-        drumEnvelopes.reserve(audioSoundFont->drumEnvelopeCounts[i]);
-        for (uint32_t j = 0; j < audioSoundFont->drumEnvelopeCounts.back(); j++) {
-            AdsrEnvelope env;
-
+        drum->envelope = new AdsrEnvelope[envelopeCount];
+        for (uint32_t j = 0; j < envelopeCount; j++) {
             int16_t delay = reader->ReadInt16();
             int16_t arg = reader->ReadInt16();
 
-            env.delay = BE16SWAP(delay);
-            env.arg = BE16SWAP(arg);
-
-            drumEnvelopes.push_back(env);
+            drum->envelope[j].delay = BE16SWAP(delay);
+            drum->envelope[j].arg = BE16SWAP(arg);
         }
-        audioSoundFont->drumEnvelopeArrays.push_back(drumEnvelopes);
-        drum.envelope = audioSoundFont->drumEnvelopeArrays.back().data();
 
         bool hasSample = reader->ReadInt8();
         std::string sampleFileName = reader->ReadString();
-        drum.sound.tuning = reader->ReadFloat();
+        drum->sound.tuning = reader->ReadFloat();
 
         if (sampleFileName.empty()) {
-            drum.sound.sample = nullptr;
+            drum->sound.sample = nullptr;
         } else {
             auto res = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(sampleFileName.c_str());
-            drum.sound.sample = static_cast<Sample*>(res ? res->GetRawPointer() : nullptr);
+            drum->sound.sample = static_cast<Sample*>(res ? res->GetRawPointer() : nullptr);
         }
 
-        audioSoundFont->drums.push_back(drum);
+        //audioSoundFont->drums.push_back(drum);
         // BENTODO clean this up in V3.
-        if (drum.sound.sample == nullptr) {
+        if (drum->sound.sample == nullptr) {
+            delete[] drum->envelope;
+            delete drum;
             audioSoundFont->drumAddresses.push_back(nullptr);
         } else {
-            audioSoundFont->drumAddresses.push_back(&audioSoundFont->drums.back());
+            audioSoundFont->drumAddresses.push_back(drum);
         }
     }
     audioSoundFont->soundFont.drums = audioSoundFont->drumAddresses.data();
 
     // 🎺🎻🎷🎸🎹 INSTRUMENTS 🎹🎸🎷🎻🎺
-    audioSoundFont->instruments.reserve(audioSoundFont->soundFont.numInstruments);
     for (uint32_t i = 0; i < audioSoundFont->soundFont.numInstruments; i++) {
-        Instrument instrument;
+        Instrument* instrument = new Instrument;
 
         uint8_t isValidEntry = reader->ReadUByte();
-        instrument.loaded = reader->ReadUByte();
-        instrument.loaded = 0; // this was always getting set to zero in ResourceMgr_LoadAudioSoundFont
+        instrument->loaded = reader->ReadUByte();
+        instrument->loaded = 0; // this was always getting set to zero in ResourceMgr_LoadAudioSoundFont
 
-        instrument.normalRangeLo = reader->ReadUByte();
-        instrument.normalRangeHi = reader->ReadUByte();
-        instrument.releaseRate = reader->ReadUByte();
+        instrument->normalRangeLo = reader->ReadUByte();
+        instrument->normalRangeHi = reader->ReadUByte();
+        instrument->releaseRate = reader->ReadUByte();
 
         uint32_t envelopeCount = reader->ReadInt32();
-        audioSoundFont->instrumentEnvelopeCounts.push_back(envelopeCount);
-        std::vector<AdsrEnvelope> instrumentEnvelopes;
-        for (uint32_t j = 0; j < audioSoundFont->instrumentEnvelopeCounts.back(); j++) {
-            AdsrEnvelope env;
+        instrument->envelope = new AdsrEnvelope[envelopeCount];
 
+        for (uint32_t j = 0; j <envelopeCount; j++) {
             int16_t delay = reader->ReadInt16();
             int16_t arg = reader->ReadInt16();
 
-            env.delay = BE16SWAP(delay);
-            env.arg = BE16SWAP(arg);
-
-            instrumentEnvelopes.push_back(env);
+            instrument->envelope[j].delay = BE16SWAP(delay);
+            instrument->envelope[j].arg = BE16SWAP(arg);
         }
-        audioSoundFont->instrumentEnvelopeArrays.push_back(instrumentEnvelopes);
-        instrument.envelope = audioSoundFont->instrumentEnvelopeArrays.back().data();
 
         bool hasLowNoteSoundFontEntry = reader->ReadInt8();
         if (hasLowNoteSoundFontEntry) {
             bool hasSampleRef = reader->ReadInt8();
             std::string sampleFileName = reader->ReadString();
-            instrument.lowNotesSound.tuning = reader->ReadFloat();
+            instrument->lowNotesSound.tuning = reader->ReadFloat();
             auto res = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(sampleFileName.c_str());
-            instrument.lowNotesSound.sample = static_cast<Sample*>(res ? res->GetRawPointer() : nullptr);
+            instrument->lowNotesSound.sample = static_cast<Sample*>(res ? res->GetRawPointer() : nullptr);
         } else {
-            instrument.lowNotesSound.sample = nullptr;
-            instrument.lowNotesSound.tuning = 0;
+            instrument->lowNotesSound.sample = nullptr;
+            instrument->lowNotesSound.tuning = 0;
         }
 
         bool hasNormalNoteSoundFontEntry = reader->ReadInt8();
         if (hasNormalNoteSoundFontEntry) {
+            // BENTODO remove in V3
             bool hasSampleRef = reader->ReadInt8();
             std::string sampleFileName = reader->ReadString();
-            instrument.normalNotesSound.tuning = reader->ReadFloat();
+            instrument->normalNotesSound.tuning = reader->ReadFloat();
             auto res = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(sampleFileName.c_str());
-            instrument.normalNotesSound.sample = static_cast<Sample*>(res ? res->GetRawPointer() : nullptr);
+            instrument->normalNotesSound.sample = static_cast<Sample*>(res ? res->GetRawPointer() : nullptr);
         } else {
-            instrument.normalNotesSound.sample = nullptr;
-            instrument.normalNotesSound.tuning = 0;
+            instrument->normalNotesSound.sample = nullptr;
+            instrument->normalNotesSound.tuning = 0;
         }
 
         bool hasHighNoteSoundFontEntry = reader->ReadInt8();
         if (hasHighNoteSoundFontEntry) {
             bool hasSampleRef = reader->ReadInt8();
             std::string sampleFileName = reader->ReadString();
-            instrument.highNotesSound.tuning = reader->ReadFloat();
+            instrument->highNotesSound.tuning = reader->ReadFloat();
             auto res = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(sampleFileName.c_str());
-            instrument.highNotesSound.sample = static_cast<Sample*>(res ? res->GetRawPointer() : nullptr);
+            instrument->highNotesSound.sample = static_cast<Sample*>(res ? res->GetRawPointer() : nullptr);
         } else {
-            instrument.highNotesSound.sample = nullptr;
-            instrument.highNotesSound.tuning = 0;
+            instrument->highNotesSound.sample = nullptr;
+            instrument->highNotesSound.tuning = 0;
         }
 
-        audioSoundFont->instruments.push_back(instrument);
-        audioSoundFont->instrumentAddresses.push_back(isValidEntry ? &audioSoundFont->instruments.back() : nullptr);
+        if (isValidEntry) {
+            audioSoundFont->instrumentAddresses.push_back(instrument);
+        } else {
+            delete[] instrument->envelope;
+            delete instrument;
+            audioSoundFont->instrumentAddresses.push_back(nullptr);
+        }
     }
     audioSoundFont->soundFont.instruments = audioSoundFont->instrumentAddresses.data();
 
@@ -245,9 +238,6 @@ void ResourceFactoryXMLSoundFontV0::ParseDrums(AudioSoundFont* soundFont, tinyxm
             drum->envelope = nullptr;
         }
 
-        // BENTODO the binary importer does this not sure why... @jack or @kenix?
-        // soundFont->drums.push_back(drum);
-        // BENTODO clean this up in V3.
 
         if (drum->sound.sample == nullptr) {
             soundFont->drumAddresses.push_back(nullptr);
@@ -280,7 +270,6 @@ void SOH::ResourceFactoryXMLSoundFontV0::ParseInstruments(AudioSoundFont* soundF
 
         if (instrumentElement != nullptr && !strcmp(instrumentElement->Name(), "Envelopes")) {
             envelopes = ParseEnvelopes(soundFont, instrumentElement, &envCount);
-            soundFont->instrumentEnvelopeCounts.push_back(envCount);
             instrument->envelope = new AdsrEnvelope[envelopes.size()];
             memcpy(instrument->envelope, envelopes.data(), envelopes.size() * sizeof(AdsrEnvelope));
             instrumentElement = instrumentElement->NextSiblingElement();
