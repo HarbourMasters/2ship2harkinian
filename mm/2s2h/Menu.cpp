@@ -881,9 +881,6 @@ void BenMenu::DrawElement() {
         headerHeight += style.ScrollbarSize;
         scrollbar = true;
     }
-    ImGui::SetNextWindowPos(pos + ImVec2{ menuSize.x, headerHeight } / 2, ImGuiCond_Always, { 0.5f, 0.5f });
-    ImGui::BeginChild("Menu Header", { menuSize.x, headerHeight },
-                      ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize, ImGuiWindowFlags_NoTitleBar);
     if (UIWidgets::Button(ICON_FA_TIMES_CIRCLE, { .size = UIWidgets::Sizes::Inline, .tooltip = "Close Menu (Esc)" })) {
         ToggleVisibility();
     }
@@ -943,7 +940,6 @@ void BenMenu::DrawElement() {
             { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline, .tooltip = "Quit 2S2H" })) {
         Ship::Context::GetInstance()->GetWindow()->Close();
     }
-    ImGui::EndChild();
     ImGui::PopStyleVar();
 
     pos.y += headerHeight + style.ItemSpacing.y;
@@ -953,10 +949,6 @@ void BenMenu::DrawElement() {
     pos.y += style.ItemSpacing.y;
     float sectionHeight = menuSize.y - headerHeight - 4 - style.ItemSpacing.y * 2;
     float columnHeight = sectionHeight - style.ItemSpacing.y * 4;
-    ImGui::SetNextWindowPos(pos);
-
-    ImGui::BeginChild((menuEntries.at(headerIndex).label + " Menu").c_str(), { menuSize.x, sectionHeight },
-                      ImGuiChildFlags_None, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize);
     ImGui::SetNextWindowPos(pos + style.ItemSpacing * 2);
     float sidebarWidth = 200 - style.ItemSpacing.x;
 
@@ -1013,10 +1005,11 @@ void BenMenu::DrawElement() {
     float columnWidth = (sectionWidth - style.ItemSpacing.x * columns) / columns;
     bool useColumns = columns > 1;
     if (!useColumns) {
+        ImGui::SameLine();
         ImGui::SetNextWindowSizeConstraints({ sectionWidth, 0 }, { sectionWidth, columnHeight });
+        ImGui::BeginChild(sectionMenuId.c_str(), { sectionWidth, windowHeight * 4 }, ImGuiChildFlags_AutoResizeY,
+            ImGuiWindowFlags_NoTitleBar);
     }
-    ImGui::BeginChild(sectionMenuId.c_str(), { sectionWidth, windowHeight * 4 }, ImGuiChildFlags_AutoResizeY,
-                      ImGuiWindowFlags_NoTitleBar);
     for (int i = 0; i < columnFuncs; i++) {
         std::string sectionId = fmt::format("{} Column {}", sectionMenuId, i);
         if (useColumns) {
@@ -1034,12 +1027,12 @@ void BenMenu::DrawElement() {
             ImGui::SameLine();
         }
     }
-    ImGui::EndChild();
+    if (!useColumns) {
+        ImGui::EndChild();
+    }
     ImGui::PopFont();
-    ImGui::EndChild();
     ImGui::PopFont();
 
-    // style.Colors[ImGuiCol_Button] = prevButtonCol;
     if (!popout) {
         ImGui::PopStyleVar();
     }
