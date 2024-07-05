@@ -18,7 +18,9 @@ void CarouselListerOptions::drawOptions(ArbitraryItemSlotsWindow* win, Arbitrary
         ImGui::DragInt("\tPosition Position Top", &m->activePositionTop);
     }
     ImGui::SliderAngle("Scroll Direction", &m->carouselDirectionAngle);
-    ImGui::ColorPicker3("Slots Color", m->rgb);
+
+    ImGui::ColorEdit3("Slots Color", m->rgb, ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_NoInputs);
+    
     uint8_t size = m->slotCount;
     ImGui::Text("Slot count: %u", m->slotCount);
 

@@ -7,41 +7,41 @@ extern "C" {
 }
 #include "./guis/CarouselGUI.h"
 
-CarouselItemSlotManager::CarouselItemSlotManager(uint16_t id, CarouselItemSlotLister* lister): ArbitraryItemSlotManager(id) {
-    this->lister = lister;
+CarouselItemSlotManager::CarouselItemSlotManager(uint16_t id, CarouselItemSlotLister* lister): ArbitraryItemSlotManager(id, lister) {
     this->scrollPosition = 0;
 }
 
 int32_t CarouselItemSlotManager::getLeftOffset(int16_t index){
     int8_t negative = index < 0 ? -1 : 1;
     int abs = index * negative;
-    abs %= this->lister->carouselSlots.size();
+    auto l = (CarouselItemSlotLister*) lister;
+    abs %= l->carouselSlots.size();
     
     if(negative < 0){
         abs *= -1;
-        abs += this->lister->carouselSlots.size();
-        abs %= this->lister->carouselSlots.size();
+        abs += l->carouselSlots.size();
+        abs %= l->carouselSlots.size();
     }
 
     auto it = std::find_if(
-        this->lister->carouselSlots.begin(),
-        this->lister->carouselSlots.end(),
+        l->carouselSlots.begin(),
+        l->carouselSlots.end(),
         [this](
             std::shared_ptr<CarouselItemSlotManager> slot
         ){
             return slot.get() == this;
         }
     );
-    long thisIndex = it - this->lister->carouselSlots.begin();
+    long thisIndex = it - l->carouselSlots.begin();
 
     long dist = thisIndex - abs;
 
-    if(std::abs(dist) > ((double)this->lister->carouselSlots.size() / 2.0 )){
+    if(std::abs(dist) > ((double)l->carouselSlots.size() / 2.0 )){
         if(dist < 0){
-            dist += this->lister->carouselSlots.size();
+            dist += l->carouselSlots.size();
         }
         else {
-            dist -= this->lister->carouselSlots.size();
+            dist -= l->carouselSlots.size();
         }
     }
 
@@ -49,11 +49,12 @@ int32_t CarouselItemSlotManager::getLeftOffset(int16_t index){
 }
 
 ArbitraryItemDrawParams CarouselItemSlotManager::getDrawParams(PlayState *play){
+    auto l = (CarouselItemSlotLister*) lister;
     std::chrono::duration<double, std::ratio<1LL, 1LL>> elapsedTime =
-        (std::chrono::high_resolution_clock::now() - this->lister->lastSlotSwap);
+        (std::chrono::high_resolution_clock::now() - l->lastSlotSwap);
 
-    auto dist = this->getLeftOffset(this->lister->selectedIndex);
-    auto prevDist = this->getLeftOffset(this->lister->previousSelectedIndex);
+    auto dist = this->getLeftOffset(l->selectedIndex);
+    auto prevDist = this->getLeftOffset(l->previousSelectedIndex);
 
     double targetLeft = 27 * dist;
     double prevLeft = 27 * prevDist;
@@ -74,9 +75,9 @@ ArbitraryItemDrawParams CarouselItemSlotManager::getDrawParams(PlayState *play){
         this->scrollPosition += stepSize;
     }
     
-    this->drawParams.r = this->lister->rgb[0] * 255;
-    this->drawParams.g = this->lister->rgb[1] * 255;
-    this->drawParams.b = this->lister->rgb[2] * 255;
+    this->drawParams.r = l->rgb[0] * 255;
+    this->drawParams.g = l->rgb[1] * 255;
+    this->drawParams.b = l->rgb[2] * 255;
 
     double alpha = std::pow(0.5, std::abs(dist)) * 255.0;
 
@@ -84,15 +85,15 @@ ArbitraryItemDrawParams CarouselItemSlotManager::getDrawParams(PlayState *play){
     this->drawParams.a = alpha;
 
     auto result = this->drawParams;
-    float angleRads = this->lister->carouselDirectionAngle;
+    float angleRads = l->carouselDirectionAngle;
     result.rectLeft = std::cos(angleRads) * this->scrollPosition;
     result.rectTop = std::sin(angleRads) * this->scrollPosition;
 
-    int32_t centerPositionLeft = this->lister->restPositionLeft;
-    int32_t centerPositionTop = this->lister->restPositionTop;
+    int32_t centerPositionLeft = l->restPositionLeft;
+    int32_t centerPositionTop = l->restPositionTop;
 
-    int32_t diffLeft = this->lister->restPositionLeft - this->lister->activePositionLeft;
-    int32_t diffTop = this->lister->restPositionTop - this->lister->activePositionTop;
+    int32_t diffLeft = l->restPositionLeft - l->activePositionLeft;
+    int32_t diffTop = l->restPositionTop - l->activePositionTop;
 
     if(this->disabled){
         result.r = 128;
@@ -100,17 +101,17 @@ ArbitraryItemDrawParams CarouselItemSlotManager::getDrawParams(PlayState *play){
         result.b = 0;
     }
 
-    if(this->lister->active){
+    if(l->active){
             std::chrono::duration<double, std::ratio<1LL, 1LL>> time =
-                (std::chrono::high_resolution_clock::now() - this->lister->activeStarted);
+                (std::chrono::high_resolution_clock::now() - l->activeStarted);
 
             double timeSince = time.count();
-            double ratio = timeSince / this->lister->fadeTimeSeconds;
+            double ratio = timeSince / l->fadeTimeSeconds;
             double angle = std::clamp(ratio * (M_PI / 2), 0.0, M_PI / 2.0);
 
-        if(this->lister->activePositionDifferent){
-            centerPositionLeft = this->lister->restPositionLeft - std::sin(angle) * (diffLeft);
-            centerPositionTop = this->lister->restPositionTop - std::sin(angle) * (diffTop);
+        if(l->activePositionDifferent){
+            centerPositionLeft = l->restPositionLeft - std::sin(angle) * (diffLeft);
+            centerPositionTop = l->restPositionTop - std::sin(angle) * (diffTop);
         }
 
         if(isGameUnpaused && dist != 0){
@@ -125,15 +126,15 @@ ArbitraryItemDrawParams CarouselItemSlotManager::getDrawParams(PlayState *play){
     }
     else {
         std::chrono::duration<double, std::ratio<1LL, 1LL>> time =
-            (std::chrono::high_resolution_clock::now() - this->lister->inactiveStarted);
+            (std::chrono::high_resolution_clock::now() - l->inactiveStarted);
 
         double timeSince = time.count();
-        double ratio = timeSince / this->lister->fadeTimeSeconds;
+        double ratio = timeSince / l->fadeTimeSeconds;
         double angle = std::clamp(ratio * (M_PI / 2), 0.0, M_PI / 2.0);
 
-        if(this->lister->activePositionDifferent){
-            centerPositionLeft = this->lister->restPositionLeft - std::cos(angle) * (diffLeft);
-            centerPositionTop = this->lister->restPositionTop - std::cos(angle) * (diffTop);
+        if(l->activePositionDifferent){
+            centerPositionLeft = l->restPositionLeft - std::cos(angle) * (diffLeft);
+            centerPositionTop = l->restPositionTop - std::cos(angle) * (diffTop);
         }
         
         if(isGameUnpaused && dist != 0){
@@ -154,26 +155,27 @@ ArbitraryItemDrawParams CarouselItemSlotManager::getDrawParams(PlayState *play){
 }
 
 bool CarouselItemSlotManager::isSelectedSlot(){
-    int8_t negative = this->lister->selectedIndex < 0 ? -1 : 1;
-    int abs = this->lister->selectedIndex * negative;
-    abs %= this->lister->carouselSlots.size();
+    auto l = (CarouselItemSlotLister*) lister;
+    int8_t negative = l->selectedIndex < 0 ? -1 : 1;
+    int abs = l->selectedIndex * negative;
+    abs %= l->carouselSlots.size();
     
     if(negative < 0){
         abs *= -1;
-        abs += this->lister->carouselSlots.size();
-        abs %= this->lister->carouselSlots.size();
+        abs += l->carouselSlots.size();
+        abs %= l->carouselSlots.size();
     }
 
     auto it = std::find_if(
-        this->lister->carouselSlots.begin(),
-        this->lister->carouselSlots.end(),
+        l->carouselSlots.begin(),
+        l->carouselSlots.end(),
         [this](
             std::shared_ptr<CarouselItemSlotManager> slot
         ){
             return slot.get() == this;
         }
     );
-    long thisIndex = it - this->lister->carouselSlots.begin();
+    long thisIndex = it - l->carouselSlots.begin();
 
     return thisIndex == abs;
 }
@@ -190,7 +192,8 @@ uint8_t CarouselItemSlotManager::assignmentTriggered(Input* input){
         return 0;
     }
 
-    return CHECK_INTENT(input->press.intentControls, this->lister->equipButtonIntent, BUTTON_STATE_PRESS, 0);
+    auto l = (CarouselItemSlotLister*) lister;
+    return CHECK_INTENT(input->press.intentControls, l->equipButtonIntent, BUTTON_STATE_PRESS, 0);
 }
 uint8_t CarouselItemSlotManager::activateItem(Input* input, uint8_t buttonState){
     if(!this->isSelectedSlot()){
@@ -200,14 +203,16 @@ uint8_t CarouselItemSlotManager::activateItem(Input* input, uint8_t buttonState)
         return 0;
     }
 
-    return CHECK_INTENT(input->press.intentControls, this->lister->equipButtonIntent, buttonState, 0);
+    auto l = (CarouselItemSlotLister*) lister;
+    return CHECK_INTENT(input->press.intentControls, l->equipButtonIntent, buttonState, 0);
 }
 uint8_t CarouselItemSlotManager::tradeItem(Input* input){
     if(!this->isSelectedSlot()){
         return 0;
     }
 
-    return CHECK_INTENT(input->cur.intentControls, this->lister->equipButtonIntent, BUTTON_STATE_PRESS, 0);
+    auto l = (CarouselItemSlotLister*) lister;
+    return CHECK_INTENT(input->cur.intentControls, l->equipButtonIntent, BUTTON_STATE_PRESS, 0);
 }
 
 void CarouselItemSlotLister::resetSlotCount(uint8_t count){
@@ -229,12 +234,13 @@ void CarouselItemSlotLister::resetSlotCount(uint8_t count){
     this->carouselSlots = newSlots;
 }
 
-CarouselItemSlotLister::CarouselItemSlotLister(uint16_t equipButtonIntent, uint16_t swapLeftIntent, uint16_t swapRightIntent){
+CarouselItemSlotLister::CarouselItemSlotLister(std::string name, uint16_t equipButtonIntent, uint16_t swapLeftIntent, uint16_t swapRightIntent){
     this->resetSlotCount(this->slotCount);
     this->equipButtonIntent = equipButtonIntent;
     this->swapLeftIntent = swapLeftIntent;
     this->swapRightIntent = swapRightIntent;
     this->options = std::shared_ptr<CarouselListerOptions>(new CarouselListerOptions());
+    this->name = name;
 }
 
 ArbitraryItemEquipSet CarouselItemSlotLister::getEquipSlots(PlayState *play, Input* input){

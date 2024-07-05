@@ -11,24 +11,27 @@ extern "C" {
 }
 
 #include "CarouselItemSlots.h"
+#include "MultipleConfigs.h"
 
 uint16_t width = 27, height = 27;
 
-ArbitraryItemSlotManager::ArbitraryItemSlotManager(uint16_t id, uint16_t specialButtonId) {
+ArbitraryItemSlotManager::ArbitraryItemSlotManager(uint16_t id, uint16_t specialButtonId, ArbitraryItemSlotLister* lister) {
     // this->arbId = id;
     this->specialButtonId = specialButtonId;
     this->assignedItem = ITEM_NONE;
     this->drawParams = {
         0, 0, 27, 27, 620, 620, 255, 0, 0, 255, true
     };
+    this->lister = lister;
 }
-ArbitraryItemSlotManager::ArbitraryItemSlotManager(uint16_t id) {
+ArbitraryItemSlotManager::ArbitraryItemSlotManager(uint16_t id, ArbitraryItemSlotLister* lister) {
     this->arbId = id;
     this->specialButtonId = 0;
     this->assignedItem = ITEM_NONE;
     this->drawParams = {
         0, 0, 27, 27, 620, 620, 255, 0, 0, 255, true
     };
+    this->lister = lister;
 }
 
 ArbitraryItemEquipButton ArbitraryItemSlotManager::makeEquipButton() {
@@ -79,13 +82,9 @@ uint8_t ArbitraryItemSlotManager::tradeItem(Input* input) {
     return CHECK_INTENT(input->cur.intentControls, this->specialButtonId, BUTTON_STATE_PRESS, 0);
 }
 ArbitraryItemDrawParams ArbitraryItemSlotManager::getDrawParams(PlayState *play) {
-    std::chrono::duration<double, std::ratio<1LL, 1LL>> diff =
-        (std::chrono::high_resolution_clock::now() - this->createPoint);
-
     ArbitraryItemDrawParams result = this->drawParams;
-    double angle = diff.count() * (M_PI / 4);
-    result.rectLeft += (5 * width) * sin(angle);
-
+    result.rectLeft += this->lister->parentLeft;
+    result.rectTop += this->lister->parentTop;
     return result;
 }
 uint16_t ArbitraryItemSlotManager::getAssignedItem() {
@@ -148,8 +147,19 @@ std::shared_ptr<ArbitraryItemSlotLister> currentLister = NULL;
 
 std::shared_ptr<ArbitraryItemSlotLister> ArbitraryItemSlotLister::getLister(){
     if (currentLister == NULL) {
-        // currentLister = new ArbitraryItemSlotLister();
-        currentLister = std::shared_ptr<ArbitraryItemSlotLister>{new CarouselItemSlotLister(INTENT_USE_ITEM, INTENT_HOTSWAP_ITEM_LEFT, INTENT_HOTSWAP_ITEM_RIGHT)};
+        currentLister = std::shared_ptr<ArbitraryItemSlotLister>{new MulitpleItemSlotLister(
+            "Slots",
+            {
+                std::shared_ptr<ArbitraryItemSlotLister>{new ArbitraryItemSlotLister()},
+                std::shared_ptr<ArbitraryItemSlotLister>{
+                    new MulitpleItemSlotLister(
+                        "Carousel Slots",
+                        {
+                            std::shared_ptr<ArbitraryItemSlotLister>{
+                                new CarouselItemSlotLister("1", INTENT_USE_ITEM, INTENT_HOTSWAP_ITEM_LEFT, INTENT_HOTSWAP_ITEM_RIGHT)
+                            }
+                        })}
+            })};
     }
     return currentLister;
 }

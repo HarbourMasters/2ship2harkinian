@@ -20,9 +20,7 @@ struct ArbitraryItemSlotsWindow : public Ship::GuiWindow {
 };
 
 struct ArbitraryItemSlotsListerOptions {
-    virtual void drawOptions(ArbitraryItemSlotsWindow* win, ArbitraryItemSlotLister* manager){
-
-    }
+    virtual void drawOptions(ArbitraryItemSlotsWindow* win, ArbitraryItemSlotLister* manager);
 };
 struct ArbitraryItemSlotsManagerOptions {
     virtual void drawOptions(ArbitraryItemSlotsWindow* win, ArbitraryItemSlotManager* lister){}

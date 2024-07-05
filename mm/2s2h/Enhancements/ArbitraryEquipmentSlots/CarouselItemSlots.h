@@ -8,7 +8,6 @@
 struct CarouselItemSlotLister;
 
 struct CarouselItemSlotManager : public ArbitraryItemSlotManager {
-    CarouselItemSlotLister* lister;
     CarouselItemSlotManager(uint16_t id, CarouselItemSlotLister* lister);
     int32_t getLeftOffset(int16_t index);
     bool isSelectedSlot();
@@ -46,7 +45,7 @@ struct CarouselItemSlotLister : public ArbitraryItemSlotLister {
     double lingerSeconds = 1.5;
     double fadeTimeSeconds = 0.125;
 
-    float rgb[3] = {255.0 / 255.0, 240.0 / 255.0, 0.0 / 255.0};
+    float rgb[4] = {255.0 / 255.0, 240.0 / 255.0, 0.0 / 255.0, 255.0};
     
     std::vector<std::shared_ptr<CarouselItemSlotManager>> carouselSlots = {};
 
@@ -56,7 +55,7 @@ struct CarouselItemSlotLister : public ArbitraryItemSlotLister {
     std::chrono::high_resolution_clock::time_point activeStarted = std::chrono::high_resolution_clock::now();
     std::chrono::high_resolution_clock::time_point inactiveStarted = std::chrono::high_resolution_clock::now();
 
-    CarouselItemSlotLister(uint16_t equipButtonIntent, uint16_t swapLeftIntent, uint16_t swapRightIntent);
+    CarouselItemSlotLister(std::string name, uint16_t equipButtonIntent, uint16_t swapLeftIntent, uint16_t swapRightIntent);
     void resetSlotCount(uint8_t count);
     virtual ArbitraryItemEquipSet getEquipSlots(PlayState *play, Input* input);
     virtual void initItemEquips(ItemEquips* equips);
