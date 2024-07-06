@@ -12,7 +12,6 @@
 #include "2s2h/Enhancements/Graphics/PlayAsKafei.h"
 #include "2s2h/Enhancements/Modes/TimeMovesWhenYouMove.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
-#include "2s2h/DeveloperTools/WarpPoint.h"
 #include "2s2h/Enhancements/Cheats/Cheats.h"
 #include "2s2h/Enhancements/Player/Player.h"
 #include "HudEditor.h"
@@ -41,10 +40,9 @@ static const std::unordered_map<Ship::AudioBackend, const char*> audioBackendsMa
 };
 
 static std::unordered_map<Ship::WindowBackend, const char*> windowBackendsMap = {
-    { Ship::WindowBackend::DX11, "DirectX" },
-    { Ship::WindowBackend::SDL_OPENGL, "OpenGL" },
-    { Ship::WindowBackend::SDL_METAL, "Metal" },
-    { Ship::WindowBackend::GX2, "GX2" }
+    { Ship::WindowBackend::FAST3D_DXGI_DX11, "DirectX" },
+    { Ship::WindowBackend::FAST3D_SDL_OPENGL, "OpenGL" },
+    { Ship::WindowBackend::FAST3D_SDL_METAL, "Metal" },
 };
 
 static const std::unordered_map<int32_t, const char*> clockTypeOptions = {
@@ -202,19 +200,21 @@ void DrawSettingsMenu() {
             { // FPS Slider
                 constexpr unsigned int minFps = 20;
                 static unsigned int maxFps;
-                if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::DX11) {
+                if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() ==
+                    Ship::WindowBackend::FAST3D_DXGI_DX11) {
                     maxFps = 360;
                 } else {
                     maxFps = Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
                 }
                 unsigned int currentFps =
                     std::max(std::min(OTRGlobals::Instance->GetInterpolationFPS(), maxFps), minFps);
-                bool matchingRefreshRate =
-                    CVarGetInteger("gMatchRefreshRate", 0) &&
-                    Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() != Ship::WindowBackend::DX11;
+                bool matchingRefreshRate = CVarGetInteger("gMatchRefreshRate", 0) &&
+                                           Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() !=
+                                               Ship::WindowBackend::FAST3D_DXGI_DX11;
                 UIWidgets::CVarSliderInt((currentFps == 20) ? "FPS: Original (20)" : "FPS: %d", "gInterpolationFPS",
                                          minFps, maxFps, 20, { .disabled = matchingRefreshRate });
-                if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::DX11) {
+                if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() ==
+                    Ship::WindowBackend::FAST3D_DXGI_DX11) {
                     UIWidgets::Tooltip(
                         "Uses Matrix Interpolation to create extra frames, resulting in smoother graphics. This is "
                         "purely visual and does not impact game logic, execution of glitches etc.\n\n A higher target "
@@ -226,7 +226,8 @@ void DrawSettingsMenu() {
                 }
             } // END FPS Slider
 
-            if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::DX11) {
+            if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() ==
+                Ship::WindowBackend::FAST3D_DXGI_DX11) {
                 // UIWidgets::Spacer(0);
                 if (ImGui::Button("Match Refresh Rate")) {
                     int hz = Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
@@ -240,7 +241,8 @@ void DrawSettingsMenu() {
             }
             UIWidgets::Tooltip("Matches interpolation value to the current game's window refresh rate");
 
-            if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::DX11) {
+            if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() ==
+                Ship::WindowBackend::FAST3D_DXGI_DX11) {
                 UIWidgets::CVarSliderInt(CVarGetInteger("gExtraLatencyThreshold", 80) == 0 ? "Jitter fix: Off"
                                                                                            : "Jitter fix: >= %d FPS",
                                          "gExtraLatencyThreshold", 0, 360, 80);
@@ -256,8 +258,7 @@ void DrawSettingsMenu() {
             Ship::WindowBackend runningWindowBackend = Ship::Context::GetInstance()->GetWindow()->GetWindowBackend();
             Ship::WindowBackend configWindowBackend;
             int32_t configWindowBackendId = Ship::Context::GetInstance()->GetConfig()->GetInt("Window.Backend.Id", -1);
-            if (configWindowBackendId != -1 &&
-                configWindowBackendId < static_cast<int>(Ship::WindowBackend::BACKEND_COUNT)) {
+            if (Ship::Context::GetInstance()->GetWindow()->IsAvailableWindowBackend(configWindowBackendId)) {
                 configWindowBackend = static_cast<Ship::WindowBackend>(configWindowBackendId);
             } else {
                 configWindowBackend = runningWindowBackend;

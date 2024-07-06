@@ -32,7 +32,7 @@ endif()
 set(GFX_DEBUG_DISASSEMBLER ON)
 
 # Tell LUS we're using F3DEX_GBI_2 (in a way that doesn't break libgfxd)
-set(USE_F3DEX2 ON)
+set(GBI_UCODE F3DEX_GBI_2)
 
 ################################################################################
 # Set target arch type if empty. Visual studio solution generator provides it.

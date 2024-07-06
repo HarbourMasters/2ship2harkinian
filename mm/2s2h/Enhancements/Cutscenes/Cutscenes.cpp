@@ -12,5 +12,7 @@ void RegisterCutscenes() {
     RegisterHideTitleCards();
     RegisterSkipEntranceCutscenes();
     RegisterSkipIntroSequence();
+    RegisterSkipToFileSelect();
+
     RegisterCremiaHugs();
 }

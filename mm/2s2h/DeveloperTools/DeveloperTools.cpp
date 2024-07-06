@@ -155,4 +155,5 @@ void InitDeveloperTools() {
     RegisterPreventActorUpdateHooks();
     RegisterPreventActorDrawHooks();
     RegisterPreventActorInitHooks();
+    RegisterWarpPoint();
 }
