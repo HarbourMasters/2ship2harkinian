@@ -21,6 +21,11 @@ struct ArbitraryItemSlotManager {
     ArbitraryItemSlotLister* lister;
     std::chrono::high_resolution_clock::time_point createPoint = std::chrono::high_resolution_clock::now();
     bool disabled = false;
+    float scale = 1;
+    int32_t positionLeft = 0;
+    int32_t positionTop = 0;
+    float rgb[4] = {255.0 / 255.0, 240.0 / 255.0, 0.0 / 255.0, 255.0};
+    float transparency = 1;
 
     ArbitraryItemSlotManager(uint16_t id, ArbitraryItemSlotLister* lister);
     ArbitraryItemSlotManager(uint16_t id, uint16_t specialButtonId, ArbitraryItemSlotLister* lister);
@@ -42,6 +47,9 @@ struct ArbitraryItemSlotLister {
     std::string name = "Dedicated Slots";
     int32_t parentLeft = 0;
     int32_t parentTop = 0;
+    float parentScale = 1;
+    float rgb[4] = {255.0 / 255.0, 240.0 / 255.0, 0.0 / 255.0, 255.0};
+    float parentTransparency = 1;
     std::shared_ptr<ArbitraryItemSlotsListerOptions> options{new ArbitraryItemSlotsListerOptions()};
     std::vector<ArbitraryItemEquipButton> baseSlots;
     std::vector<std::shared_ptr<ArbitraryItemSlotManager>> slots = {

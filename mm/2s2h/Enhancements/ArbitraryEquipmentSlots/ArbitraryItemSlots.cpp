@@ -16,7 +16,7 @@ extern "C" {
 uint16_t width = 27, height = 27;
 
 ArbitraryItemSlotManager::ArbitraryItemSlotManager(uint16_t id, uint16_t specialButtonId, ArbitraryItemSlotLister* lister) {
-    // this->arbId = id;
+    this->arbId = id;
     this->specialButtonId = specialButtonId;
     this->assignedItem = ITEM_NONE;
     this->drawParams = {
@@ -83,8 +83,27 @@ uint8_t ArbitraryItemSlotManager::tradeItem(Input* input) {
 }
 ArbitraryItemDrawParams ArbitraryItemSlotManager::getDrawParams(PlayState *play) {
     ArbitraryItemDrawParams result = this->drawParams;
-    result.rectLeft += this->lister->parentLeft;
-    result.rectTop += this->lister->parentTop;
+    result.rectLeft = this->lister->parentLeft + this->positionLeft;
+    result.rectTop = this->lister->parentTop + this->positionTop;
+
+    float scale = this->scale * this->lister->parentScale;
+    if(scale <= 0){
+        scale = 0.0001;
+    }
+
+    result.rectHeight *= scale;
+    result.rectWidth *= scale;
+    result.dsdx *= 1.0 / scale;
+    result.dtdy *= 1.0 / scale;
+
+    float childAlpha = this->rgb[3];
+    float parentAlpha = 1 - this->rgb[3];
+
+    result.r = 255 * this->rgb[0] * childAlpha + (255 * this->lister->rgb[0] * parentAlpha);
+    result.g = 255 * this->rgb[1] * childAlpha + (255 * this->lister->rgb[1] * parentAlpha);
+    result.b = 255 * this->rgb[2] * childAlpha + (255 * this->lister->rgb[2] * parentAlpha);
+    result.a = 255 * this->transparency * this->lister->parentTransparency;
+
     return result;
 }
 uint16_t ArbitraryItemSlotManager::getAssignedItem() {

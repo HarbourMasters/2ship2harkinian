@@ -45,8 +45,6 @@ struct CarouselItemSlotLister : public ArbitraryItemSlotLister {
     double lingerSeconds = 1.5;
     double fadeTimeSeconds = 0.125;
 
-    float rgb[4] = {255.0 / 255.0, 240.0 / 255.0, 0.0 / 255.0, 255.0};
-    
     std::vector<std::shared_ptr<CarouselItemSlotManager>> carouselSlots = {};
 
     std::chrono::high_resolution_clock::time_point lastSlotSwap = std::chrono::high_resolution_clock::now();

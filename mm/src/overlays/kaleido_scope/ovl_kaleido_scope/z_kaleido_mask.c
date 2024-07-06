@@ -555,7 +555,7 @@ void KaleidoScope_UpdateMaskCursor(PlayState* play) {
             pauseCtx->cursorSlot[PAUSE_MASK] = cursorSlot;
             if (cursorItem != PAUSE_ITEM_NONE) {
                 uint8_t arbEquipAccepts = 0;
-                pauseCtx->equipTargetArbitraryEquip = 0;
+                pauseCtx->equipTargetArbitraryEquip = NULL;
                 for(size_t arbIndex = 0; arbIndex < slots.count; arbIndex++){
                     ArbitraryItemEquipButton* targetArb = &slots.equips[arbIndex];
                     if(
@@ -563,7 +563,7 @@ void KaleidoScope_UpdateMaskCursor(PlayState* play) {
                         && targetArb->assignmentTriggered && targetArb->assignmentTriggered(targetArb, CONTROLLER1(&play->state))
                     ){
                         arbEquipAccepts = 1;
-                        pauseCtx->equipTargetArbitraryEquip = targetArb->id;
+                        pauseCtx->equipTargetArbitraryEquip = targetArb;
                         break;
                     }
                 }
@@ -1030,7 +1030,7 @@ void KaleidoScope_UpdateMaskEquip(PlayState* play) {
     u16 offsetX;
     u16 offsetY;
 
-    if(pauseCtx->equipTargetArbitraryEquip != 0){
+    if(pauseCtx->equipTargetArbitraryEquip != NULL){
         return;
     }
 
@@ -1274,20 +1274,7 @@ void KaleidoScope_UpdateMaskEquipArbitrary(PlayState* play) {
     u16 offsetX;
     u16 offsetY;
 
-    ArbitraryItemEquipButton* arbEquip = NULL;
-    if(pauseCtx->equipTargetArbitraryEquip == 0){
-        return;
-    }
-
-    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, play, CONTROLLER1(&play->state));
-
-    for(size_t i = 0 ; i < slots.count; i++){
-        ArbitraryItemEquipButton* e = &slots.equips[i];
-        if(e->id == pauseCtx->equipTargetArbitraryEquip){
-            arbEquip = e;
-            break;
-        }
-    }
+    ArbitraryItemEquipButton* arbEquip = pauseCtx->equipTargetArbitraryEquip;
     if(arbEquip == NULL){
         return;
     }
