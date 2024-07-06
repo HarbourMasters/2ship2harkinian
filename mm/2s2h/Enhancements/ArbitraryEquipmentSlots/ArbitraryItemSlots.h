@@ -6,6 +6,7 @@ extern "C" {
 #include <z64save.h>
 }
 #include "ArbitraryItemSlotsGUI.h"
+#include "./SlotState.h"
 
 #define ARB_EQUIP_ITEM_1 101
 #define ARB_EQUIP_ITEM_2 102
@@ -21,11 +22,8 @@ struct ArbitraryItemSlotManager {
     ArbitraryItemSlotLister* lister;
     std::chrono::high_resolution_clock::time_point createPoint = std::chrono::high_resolution_clock::now();
     bool disabled = false;
-    float scale = 1;
-    int32_t positionLeft = 0;
-    int32_t positionTop = 0;
-    float rgb[4] = {255.0 / 255.0, 240.0 / 255.0, 0.0 / 255.0, 255.0};
-    float transparency = 1;
+    SlotState state;
+    SlotState disabledState{};
 
     ArbitraryItemSlotManager(uint16_t id, ArbitraryItemSlotLister* lister);
     ArbitraryItemSlotManager(uint16_t id, uint16_t specialButtonId, ArbitraryItemSlotLister* lister);
@@ -45,11 +43,8 @@ struct ArbitraryItemSlotManager {
 
 struct ArbitraryItemSlotLister {
     std::string name = "Dedicated Slots";
-    int32_t parentLeft = 0;
-    int32_t parentTop = 0;
-    float parentScale = 1;
-    float rgb[4] = {255.0 / 255.0, 240.0 / 255.0, 0.0 / 255.0, 255.0};
-    float parentTransparency = 1;
+    SlotState parentState;
+    SlotState disabledState;
     std::shared_ptr<ArbitraryItemSlotsListerOptions> options{new ArbitraryItemSlotsListerOptions()};
     std::vector<ArbitraryItemEquipButton> baseSlots;
     std::vector<std::shared_ptr<ArbitraryItemSlotManager>> slots = {
@@ -61,6 +56,8 @@ struct ArbitraryItemSlotLister {
 
     virtual void initItemEquips(ItemEquips* equips);
     virtual void addEquipSetCallbacks(ArbitraryItemEquipSet* set);
+
+    ArbitraryItemSlotLister();
 
     static std::shared_ptr<ArbitraryItemSlotLister> getLister();
 };

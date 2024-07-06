@@ -76,33 +76,41 @@ uint8_t ArbitraryItemSlotManager::assignmentTriggered(Input* input) {
     return CHECK_INTENT(input->cur.intentControls, this->specialButtonId, BUTTON_STATE_PRESS, 0);
 }
 uint8_t ArbitraryItemSlotManager::activateItem(Input* input, uint8_t buttonState) {
+    if(this->disabled){
+        return 0;
+    }
     return CHECK_INTENT(input->cur.intentControls, this->specialButtonId, buttonState, 0);
 }
 uint8_t ArbitraryItemSlotManager::tradeItem(Input* input) {
+    if(this->disabled){
+        return 0;
+    }
     return CHECK_INTENT(input->cur.intentControls, this->specialButtonId, BUTTON_STATE_PRESS, 0);
 }
 ArbitraryItemDrawParams ArbitraryItemSlotManager::getDrawParams(PlayState *play) {
     ArbitraryItemDrawParams result = this->drawParams;
-    result.rectLeft = this->lister->parentLeft + this->positionLeft;
-    result.rectTop = this->lister->parentTop + this->positionTop;
 
-    float scale = this->scale * this->lister->parentScale;
-    if(scale <= 0){
-        scale = 0.0001;
+    SlotState state;
+    if(this->disabled){
+        state = this->lister->disabledState.parent(this->disabledState);
     }
+    else {
+        state = this->lister->parentState.parent(this->state);
+    }
+    
+    result.rectHeight = 27.0 * state.scale;
+    result.rectWidth = 27.0 * state.scale;
 
-    result.rectHeight *= scale;
-    result.rectWidth *= scale;
-    result.dsdx *= 1.0 / scale;
-    result.dtdy *= 1.0 / scale;
+    result.rectLeft = state.posLeft - result.rectWidth / 2.0;
+    result.rectTop = state.posTop - result.rectHeight / 2.0;
 
-    float childAlpha = this->rgb[3];
-    float parentAlpha = 1 - this->rgb[3];
+    result.dsdx = 620.0 * (1.0 / state.scale);
+    result.dtdy = 620.0 * (1.0 / state.scale);
 
-    result.r = 255 * this->rgb[0] * childAlpha + (255 * this->lister->rgb[0] * parentAlpha);
-    result.g = 255 * this->rgb[1] * childAlpha + (255 * this->lister->rgb[1] * parentAlpha);
-    result.b = 255 * this->rgb[2] * childAlpha + (255 * this->lister->rgb[2] * parentAlpha);
-    result.a = 255 * this->transparency * this->lister->parentTransparency;
+    result.r = 255 * state.rgb[0];
+    result.g = 255 * state.rgb[1];
+    result.b = 255 * state.rgb[2];
+    result.a = 255 * state.transparency;
 
     return result;
 }
@@ -160,6 +168,10 @@ void ArbitraryItemSlotLister::initItemEquips(ItemEquips* equips) {
     second->drawParams.r = 0;
     second->drawParams.g = 0;
     second->drawParams.b = 255;
+}
+
+ArbitraryItemSlotLister::ArbitraryItemSlotLister(){
+    this->disabledState.transparency = 0.25;
 }
 
 std::shared_ptr<ArbitraryItemSlotLister> currentLister = NULL;

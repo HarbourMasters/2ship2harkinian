@@ -5,6 +5,7 @@
 #include <memory>
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "InputEditorWindow.h"
+#include "./SlotState.h"
 
 struct ArbitraryItemSlotLister;
 struct ArbitraryItemSlotManager;
@@ -21,6 +22,7 @@ struct ArbitraryItemSlotsWindow : public Ship::GuiWindow {
 
 struct ArbitraryItemSlotsListerOptions {
     virtual void drawOptions(ArbitraryItemSlotsWindow* win, ArbitraryItemSlotLister* manager);
+    virtual void drawSlotState(ArbitraryItemSlotsWindow* win, SlotState* state, std::string appendex);
 };
 struct ArbitraryItemSlotsManagerOptions {
     virtual void drawOptions(ArbitraryItemSlotsWindow* win, ArbitraryItemSlotManager* lister){}

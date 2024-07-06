@@ -26,6 +26,7 @@ struct CarouselItemSlotLister : public ArbitraryItemSlotLister {
     uint16_t swapLeftIntent = 0;
     uint16_t swapRightIntent = 0;
     uint32_t processedInputOnFrame = 0;
+    float rgb[4] = {255.0 / 255.0, 240.0 / 255.0, 0.0 / 255.0, 255.0};
     bool prevWasPaused = false;
     /**
      * Direction of the carousel in radians

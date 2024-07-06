@@ -24,14 +24,20 @@ ArbitraryItemSlotsWindow::ArbitraryItemSlotsWindow(): Ship::GuiWindow("", ""){
     
 }
 
+void ArbitraryItemSlotsListerOptions::drawSlotState(ArbitraryItemSlotsWindow* win, SlotState* state, std::string appendex){
+    ImGui::DragInt(("Position left" + appendex).c_str(), &state->posLeft);
+    ImGui::DragInt(("Position top" + appendex).c_str(), &state->posTop);
+    ImGui::DragFloat(("Scale" + appendex).c_str(), &state->scale, 0.01, 0.001, 0);
+    ImGui::DragFloat(("Transparency" + appendex).c_str(), &state->transparency, 0.01, 0.001, 2);
+    ImGui::ColorEdit4(("Color" + appendex).c_str(), state->rgb, ImGuiColorEditFlags_NoInputs);
+}
+
 void ArbitraryItemSlotsListerOptions::drawOptions(ArbitraryItemSlotsWindow* win, ArbitraryItemSlotLister* manager){
     Ship::InputEditorWindow* inputWindow = (Ship::InputEditorWindow*) (void*) Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Input Editor").get();
-    
-    ImGui::DragInt("Group root position left", &manager->parentLeft);
-    ImGui::DragInt("Group root position top", &manager->parentTop);
-    ImGui::DragFloat("Group scale", &manager->parentScale, 0.01, 0.001, 0);
-    ImGui::DragFloat("Group transparency", &manager->parentTransparency, 0.01, 0.001, 1);
-    ImGui::ColorEdit3("Parent Color", manager->rgb, ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_NoInputs);
+    ImGui::Text("Default State");
+    this->drawSlotState(win, &manager->parentState, "##parentState");
+    ImGui::Text("Disabled State");
+    this->drawSlotState(win, &manager->disabledState, "##parentDisabledState");
     
     size_t i = 1;
 
@@ -43,18 +49,18 @@ void ArbitraryItemSlotsListerOptions::drawOptions(ArbitraryItemSlotsWindow* win,
         label += slotUniqueAppendex;
 
         if(ImGui::CollapsingHeader(label.c_str())){
-            ImGui::DragInt(("Position left" + slotUniqueAppendex).c_str(), &slot->positionLeft);
-            ImGui::DragInt(("Position top" + slotUniqueAppendex).c_str(), &slot->positionTop);
-            ImGui::DragFloat(("Scale" + slotUniqueAppendex).c_str(), &slot->scale, 0.01, 0.001, 0);
-            ImGui::DragFloat(("Transparency" + slotUniqueAppendex).c_str(), &slot->transparency, 0.01, 0.001, 2);
-            ImGui::ColorEdit4(("Blend Color" + slotUniqueAppendex).c_str(), slot->rgb, ImGuiColorEditFlags_NoInputs);
+            ImGui::Text("Default State");
+            this->drawSlotState(win, &slot->state, slotUniqueAppendex);
+            ImGui::Text("Disabled State");
+            this->drawSlotState(win, &slot->disabledState, slotUniqueAppendex + "disabledState");
+
             if(inputWindow != nullptr){
                 inputWindow->DrawButtonLine(
                     "Use/Assign Item",
                     0,
                     0,
                     slot->specialButtonId,
-                    ImVec4(slot->rgb[0], slot->rgb[1], slot->rgb[2], slot->rgb[3])
+                    ImVec4(slot->state.rgb[0], slot->state.rgb[1], slot->state.rgb[2], slot->state.rgb[3])
                 );
             }
         }
