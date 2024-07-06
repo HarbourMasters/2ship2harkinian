@@ -1008,7 +1008,7 @@ void BenMenu::DrawElement() {
         ImGui::SameLine();
         ImGui::SetNextWindowSizeConstraints({ sectionWidth, 0 }, { sectionWidth, columnHeight });
         ImGui::BeginChild(sectionMenuId.c_str(), { sectionWidth, windowHeight * 4 }, ImGuiChildFlags_AutoResizeY,
-            ImGuiWindowFlags_NoTitleBar);
+                          ImGuiWindowFlags_NoTitleBar);
     }
     for (int i = 0; i < columnFuncs; i++) {
         std::string sectionId = fmt::format("{} Column {}", sectionMenuId, i);
