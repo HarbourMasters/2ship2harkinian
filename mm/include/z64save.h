@@ -213,6 +213,16 @@ typedef struct ArbitraryItemDrawParams {
     s16 a;
 
     uint8_t visible;
+    
+    s16 ammoRectLeft;
+    s16 ammoRectTop;
+    s16 ammoTensRectLeft;
+    s16 ammoTensRectTop;
+
+    s16 ammoRectWidth;
+    s16 ammoRectHeight;
+    u16 ammoDsdx;
+    u16 ammoDtdy;
 } ArbitraryItemDrawParams;
 
 typedef struct ArbitraryItemEquipButton {

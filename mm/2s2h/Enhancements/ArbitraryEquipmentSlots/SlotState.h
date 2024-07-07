@@ -1,6 +1,7 @@
 #ifndef _2SHIP_ENHANCEMENT_ARBITRARY_ITEM_SLOTS_SLOT_STATE
 #define _2SHIP_ENHANCEMENT_ARBITRARY_ITEM_SLOTS_SLOT_STATE
 #include <stdint.h>
+#include <z64save.h>
 
 struct SlotState {
     int32_t posLeft = 0;
@@ -11,6 +12,7 @@ struct SlotState {
 
     SlotState blend(SlotState& other, float ratio);
     SlotState parent(SlotState& child);
+    ArbitraryItemDrawParams toDrawParams();
 };
 
 #endif

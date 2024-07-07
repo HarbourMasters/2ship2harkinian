@@ -21,6 +21,7 @@ struct ArbitraryItemSlotManager {
     ArbitraryItemDrawParams drawParams;
     ArbitraryItemSlotLister* lister;
     std::chrono::high_resolution_clock::time_point createPoint = std::chrono::high_resolution_clock::now();
+    std::chrono::high_resolution_clock::time_point disabledStarted = std::chrono::high_resolution_clock::now();
     bool disabled = false;
     SlotState state;
     SlotState disabledState{};

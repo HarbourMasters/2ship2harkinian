@@ -124,6 +124,9 @@ uint16_t ArbitraryItemSlotManager::assignItem(uint16_t item) {
 }
 
 uint8_t ArbitraryItemSlotManager::setDisabled(uint8_t disabled){
+    if(disabled != this->disabled){
+        this->disabledStarted = std::chrono::steady_clock::now();
+    }
     return (this->disabled = disabled);
 }
 

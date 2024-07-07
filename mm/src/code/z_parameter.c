@@ -5980,14 +5980,20 @@ void Interface_DrawAmmoCountArbEquip(PlayState* play, ArbitraryItemEquipButton* 
         // Draw upper digit (tens)
         if ((u32)i != 0) {
             // HudEditor_SetActiveElement(button);
-            OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[i], 8, 8, drawParams.rectLeft,
-                                              drawParams.rectTop + drawParams.rectHeight - 8, 8, 8, 1 << 10, 1 << 10);
+            // OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[i], 8, 8, drawParams.rectLeft,
+            //                                   drawParams.rectTop + drawParams.rectHeight - 8, 8, 8, 1 << 10, 1 << 10);
+            OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[i], 8, 8, drawParams.ammoRectLeft,
+                                              drawParams.ammoRectTop, 
+                                              drawParams.ammoRectWidth, drawParams.ammoRectHeight, drawParams.ammoDsdx, drawParams.ammoDtdy);
         }
 
         // Draw lower digit (ones)
         // HudEditor_SetActiveElement(button);
-        OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[ammo], 8, 8, drawParams.rectLeft + 6,
-                                          drawParams.rectTop + drawParams.rectHeight - 8, 8, 8, 1 << 10, 1 << 10);
+        // OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[ammo], 8, 8, drawParams.rectLeft + 6,
+        //                                   drawParams.rectTop + drawParams.rectHeight - 8, 8, 8, 1 << 10, 1 << 10);
+        OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[ammo], 8, 8, drawParams.ammoTensRectLeft,
+                                          drawParams.ammoTensRectTop, 
+                                          drawParams.ammoRectWidth, drawParams.ammoRectHeight, drawParams.ammoDsdx, drawParams.ammoDtdy);
     }
 
     CLOSE_DISPS(play->state.gfxCtx);

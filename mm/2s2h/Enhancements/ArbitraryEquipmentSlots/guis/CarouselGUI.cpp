@@ -10,16 +10,26 @@ void CarouselListerOptions::drawOptions(ArbitraryItemSlotsWindow* win, Arbitrary
         inputWindow->DrawButtonLine("Swap Item Left", 0, 0, m->swapLeftIntent, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));
         inputWindow->DrawButtonLine("Swap Item Right", 0, 0, m->swapRightIntent, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));
     }
-    ImGui::DragInt("Rest Position Left", &m->restPositionLeft);
-    ImGui::DragInt("Rest Position Top", &m->restPositionTop);
-    ImGui::Checkbox("Use different position while scrolling", &m->activePositionDifferent);
-    if(m->activePositionDifferent){
-        ImGui::DragInt("\tPosition Left", &m->activePositionLeft);
-        ImGui::DragInt("\tPosition Position Top", &m->activePositionTop);
+    if(ImGui::CollapsingHeader("Default State##carouselParentState")){
+        this->drawSlotState(win, &m->parentState, "##carouselParentState");
     }
+    if(ImGui::CollapsingHeader("Scrolling State##carouselScrollingState")){
+        this->drawSlotState(win, &m->scrollingState, "##carouselScrollingState");
+    }
+    if(ImGui::CollapsingHeader("Disabled State##carouselDisabledState")){
+        this->drawSlotState(win, &m->disabledState, "##carouselDisabledState");
+    }
+
+    // ImGui::DragInt("Rest Position Left", &m->restPositionLeft);
+    // ImGui::DragInt("Rest Position Top", &m->restPositionTop);
+    // ImGui::Checkbox("Use different position while scrolling", &m->activePositionDifferent);
+    // if(m->activePositionDifferent){
+    //     ImGui::DragInt("\tPosition Left", &m->activePositionLeft);
+    //     ImGui::DragInt("\tPosition Position Top", &m->activePositionTop);
+    // }
     ImGui::SliderAngle("Scroll Direction", &m->carouselDirectionAngle);
 
-    ImGui::ColorEdit3("Slots Color", m->rgb, ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_NoInputs);
+    // ImGui::ColorEdit3("Slots Color", m->rgb, ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_NoInputs);
     
     uint8_t size = m->slotCount;
     ImGui::Text("Slot count: %u", m->slotCount);

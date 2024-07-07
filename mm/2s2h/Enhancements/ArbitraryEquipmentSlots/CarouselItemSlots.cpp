@@ -55,9 +55,65 @@ ArbitraryItemDrawParams CarouselItemSlotManager::getDrawParams(PlayState *play){
 
     auto dist = this->getLeftOffset(l->selectedIndex);
     auto prevDist = this->getLeftOffset(l->previousSelectedIndex);
+    
+    bool isGameUnpaused = play->pauseCtx.state == PAUSE_STATE_OFF;
 
-    double targetLeft = 27 * dist;
-    double prevLeft = 27 * prevDist;
+    auto resultState = l->parentState;
+
+    if(l->active){
+        std::chrono::duration<double, std::ratio<1LL, 1LL>> time =
+            (std::chrono::high_resolution_clock::now() - l->activeStarted);
+
+        double timeSince = time.count();
+        double ratio = timeSince / l->fadeTimeSeconds;
+        double angle = std::clamp(ratio * (M_PI / 2), 0.0, M_PI / 2.0);
+        double sin = std::sin(angle);
+        resultState = l->parentState.parent(l->scrollingState).blend(resultState, sin);
+        
+    }
+    else {
+        std::chrono::duration<double, std::ratio<1LL, 1LL>> time =
+            (std::chrono::high_resolution_clock::now() - l->inactiveStarted);
+
+        double timeSince = time.count();
+        double ratio = timeSince / l->fadeTimeSeconds;
+        double angle = std::clamp(ratio * (M_PI / 2), 0.0, M_PI / 2.0);
+        double cos = std::cos(angle);
+        resultState = l->parentState.parent(l->scrollingState).blend(resultState, cos);
+        
+        if(dist != 0){
+            resultState.transparency *= cos;
+        }
+    }
+    
+    if(this->disabled){
+        std::chrono::duration<double, std::ratio<1LL, 1LL>> time =
+            (std::chrono::high_resolution_clock::now() - l->inactiveStarted);
+        double timeSince = time.count();
+        double ratio = timeSince / l->fadeTimeSeconds;
+        double angle = std::clamp(ratio * (M_PI / 2), 0.0, M_PI / 2.0);
+        double sin = std::sin(angle);
+        resultState = resultState.parent(l->disabledState); //.blend(resultState, sin);
+    }
+
+    if(isGameUnpaused && dist != 0){
+        resultState.transparency *= std::pow(0.5, std::abs(dist));
+    }
+
+    
+    double targetLeft = 0;//resultState.scale * 27.0 * dist;
+    double prevLeft = 0;//resultState.scale * 27.0 * prevDist;
+
+    double sign = std::signbit(dist) ? -1 : 1;
+    for(int i = 0; i < std::abs(dist); i++){
+        targetLeft += sign * 20.25 * resultState.scale * std::pow(0.5, std::abs(i));
+    }
+    sign = std::signbit(prevDist) ? -1 : 1;
+    for(int i = 0; i < std::abs(prevDist); i++){
+        prevLeft += sign * 20.25 * resultState.scale * std::pow(0.5, std::abs(i));
+    }
+
+    resultState.scale *= std::pow(0.5, std::abs(dist));
 
     double stepSize = ((targetLeft - prevLeft) / 10.0);
 
@@ -74,84 +130,13 @@ ArbitraryItemDrawParams CarouselItemSlotManager::getDrawParams(PlayState *play){
     else {
         this->scrollPosition += stepSize;
     }
-    
-    this->drawParams.r = l->rgb[0] * 255;
-    this->drawParams.g = l->rgb[1] * 255;
-    this->drawParams.b = l->rgb[2] * 255;
 
-    double alpha = std::pow(0.5, std::abs(dist)) * 255.0;
-
-    bool isGameUnpaused = play->pauseCtx.state == PAUSE_STATE_OFF;
-    this->drawParams.a = alpha;
-
-    auto result = this->drawParams;
     float angleRads = l->carouselDirectionAngle;
-    result.rectLeft = std::cos(angleRads) * this->scrollPosition;
-    result.rectTop = std::sin(angleRads) * this->scrollPosition;
 
-    int32_t centerPositionLeft = l->restPositionLeft;
-    int32_t centerPositionTop = l->restPositionTop;
+    resultState.posLeft += std::cos(angleRads) * this->scrollPosition;
+    resultState.posTop += std::sin(angleRads) * this->scrollPosition;
 
-    int32_t diffLeft = l->restPositionLeft - l->activePositionLeft;
-    int32_t diffTop = l->restPositionTop - l->activePositionTop;
-
-    if(this->disabled){
-        result.r = 128;
-        result.g = 0;
-        result.b = 0;
-    }
-
-    if(l->active){
-            std::chrono::duration<double, std::ratio<1LL, 1LL>> time =
-                (std::chrono::high_resolution_clock::now() - l->activeStarted);
-
-            double timeSince = time.count();
-            double ratio = timeSince / l->fadeTimeSeconds;
-            double angle = std::clamp(ratio * (M_PI / 2), 0.0, M_PI / 2.0);
-
-        if(l->activePositionDifferent){
-            centerPositionLeft = l->restPositionLeft - std::sin(angle) * (diffLeft);
-            centerPositionTop = l->restPositionTop - std::sin(angle) * (diffTop);
-        }
-
-        if(isGameUnpaused && dist != 0){
-            result.a = alpha * std::sin(angle);
-        }
-
-        if(dist == 0){
-            result.r += (255 - result.r) * std::sin(angle);
-            result.g += (255 - result.g) * std::sin(angle);
-            result.b += (255 - result.b) * std::sin(angle);
-        }
-    }
-    else {
-        std::chrono::duration<double, std::ratio<1LL, 1LL>> time =
-            (std::chrono::high_resolution_clock::now() - l->inactiveStarted);
-
-        double timeSince = time.count();
-        double ratio = timeSince / l->fadeTimeSeconds;
-        double angle = std::clamp(ratio * (M_PI / 2), 0.0, M_PI / 2.0);
-
-        if(l->activePositionDifferent){
-            centerPositionLeft = l->restPositionLeft - std::cos(angle) * (diffLeft);
-            centerPositionTop = l->restPositionTop - std::cos(angle) * (diffTop);
-        }
-        
-        if(isGameUnpaused && dist != 0){
-            result.a = alpha * std::cos(angle);
-        }
-
-        if(dist == 0){
-            result.r += (255 - result.r) * std::cos(angle);
-            result.g += (255 - result.g) * std::cos(angle);
-            result.b += (255 - result.b) * std::cos(angle);
-        }
-    }
-    
-    result.rectLeft += centerPositionLeft;
-    result.rectTop += centerPositionTop;
-
-    return result;
+    return resultState.toDrawParams();
 }
 
 bool CarouselItemSlotManager::isSelectedSlot(){

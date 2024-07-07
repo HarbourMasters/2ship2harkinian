@@ -26,7 +26,8 @@ struct CarouselItemSlotLister : public ArbitraryItemSlotLister {
     uint16_t swapLeftIntent = 0;
     uint16_t swapRightIntent = 0;
     uint32_t processedInputOnFrame = 0;
-    float rgb[4] = {255.0 / 255.0, 240.0 / 255.0, 0.0 / 255.0, 255.0};
+    SlotState scrollingState;
+    
     bool prevWasPaused = false;
     /**
      * Direction of the carousel in radians
@@ -36,12 +37,8 @@ struct CarouselItemSlotLister : public ArbitraryItemSlotLister {
     uint8_t slotCount = 3;
     int16_t selectedIndex = 0;
     int16_t previousSelectedIndex = 0;
-    int32_t restPositionLeft = 330;
-    int32_t restPositionTop = 18;
 
     bool activePositionDifferent = true;
-    int32_t activePositionLeft = 330;
-    int32_t activePositionTop = 43;
 
     double lingerSeconds = 1.5;
     double fadeTimeSeconds = 0.125;

@@ -40,3 +40,32 @@ SlotState SlotState::parent(SlotState& child){
 
     return result;
 }
+
+ArbitraryItemDrawParams SlotState::toDrawParams(){
+    ArbitraryItemDrawParams result;
+    result.rectWidth = 27.0 * this->scale;
+    result.rectHeight = 27.0 * this->scale;
+    result.dsdx = 620.0 / this->scale;
+    result.dtdy = 620.0 / this->scale;
+
+    result.rectLeft = this->posLeft - result.rectWidth / 2.0;
+    result.rectTop = this->posTop - result.rectHeight / 2.0;
+
+    result.r = 255 * this->rgb[0];
+    result.g = 255 * this->rgb[1];
+    result.b = 255 * this->rgb[2];
+    result.a = 255 * this->transparency;
+
+    result.ammoRectLeft = result.rectLeft;
+    result.ammoRectTop = result.rectTop + result.rectHeight - 8 * this->scale;
+    
+    result.ammoTensRectLeft = result.ammoRectLeft + 6 * this->scale;
+    result.ammoTensRectTop = result.ammoRectTop;
+
+    result.ammoRectWidth = 8 * this->scale;
+    result.ammoRectHeight = 8 * this->scale;
+    result.ammoDsdx = (1 << 10) / this->scale;
+    result.ammoDtdy = (1 << 10) / this->scale;
+
+    return result;
+}
