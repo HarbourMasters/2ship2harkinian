@@ -12,7 +12,7 @@ struct SlotState {
 
     SlotState blend(SlotState& other, float ratio);
     SlotState parent(SlotState& child);
-    ArbitraryItemDrawParams toDrawParams();
+    ArbitraryItemDrawParams toDrawParams(int32_t hudAlpha);
 };
 
 #endif

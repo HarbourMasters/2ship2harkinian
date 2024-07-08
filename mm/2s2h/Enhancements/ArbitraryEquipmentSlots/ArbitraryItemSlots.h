@@ -18,6 +18,7 @@ struct ArbitraryItemSlotManager {
     uint16_t arbId;
     uint16_t specialButtonId;
     uint16_t assignedItem;
+    int32_t hudAlpha = 255;
     ArbitraryItemDrawParams drawParams;
     ArbitraryItemSlotLister* lister;
     std::chrono::high_resolution_clock::time_point createPoint = std::chrono::high_resolution_clock::now();
@@ -40,6 +41,7 @@ struct ArbitraryItemSlotManager {
 
     virtual uint8_t setDisabled(uint8_t disabled);
     virtual uint8_t isDisabled();
+    virtual void updateHudAlpha(PlayState *play, HudVisibility hudMode, s16 dimmingAlpha);
 };
 
 struct ArbitraryItemSlotLister {

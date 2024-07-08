@@ -1334,6 +1334,10 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
     s16 risingAlpha = 255 - dimmingAlpha;
 
+    FOREACH_SLOT(ARB_SLOTS(play, CONTROLLER1(&play->state)), arbSlot, {
+        arbSlot->updateHudAlpha(arbSlot, play, gSaveContext.nextHudVisibility, dimmingAlpha);
+    })
+
     switch (gSaveContext.nextHudVisibility) {
         case HUD_VISIBILITY_NONE:
         case HUD_VISIBILITY_NONE_ALT:
@@ -5980,8 +5984,6 @@ void Interface_DrawAmmoCountArbEquip(PlayState* play, ArbitraryItemEquipButton* 
         // Draw upper digit (tens)
         if ((u32)i != 0) {
             // HudEditor_SetActiveElement(button);
-            // OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[i], 8, 8, drawParams.rectLeft,
-            //                                   drawParams.rectTop + drawParams.rectHeight - 8, 8, 8, 1 << 10, 1 << 10);
             OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[i], 8, 8, drawParams.ammoRectLeft,
                                               drawParams.ammoRectTop, 
                                               drawParams.ammoRectWidth, drawParams.ammoRectHeight, drawParams.ammoDsdx, drawParams.ammoDtdy);
@@ -5989,8 +5991,6 @@ void Interface_DrawAmmoCountArbEquip(PlayState* play, ArbitraryItemEquipButton* 
 
         // Draw lower digit (ones)
         // HudEditor_SetActiveElement(button);
-        // OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[ammo], 8, 8, drawParams.rectLeft + 6,
-        //                                   drawParams.rectTop + drawParams.rectHeight - 8, 8, 8, 1 << 10, 1 << 10);
         OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[ammo], 8, 8, drawParams.ammoTensRectLeft,
                                           drawParams.ammoTensRectTop, 
                                           drawParams.ammoRectWidth, drawParams.ammoRectHeight, drawParams.ammoDsdx, drawParams.ammoDtdy);
@@ -9219,6 +9219,10 @@ void Interface_Update(PlayState* play) {
             }
 
             Interface_UpdateButtonAlphasByStatus(play, risingAlpha);
+            
+            FOREACH_SLOT(ARB_SLOTS(play, CONTROLLER1(&play->state)), arbSlot, {
+                arbSlot->updateHudAlpha(arbSlot, play, HUD_VISIBILITY_ALL, dimmingAlpha);
+            })
 
             if (gSaveContext.buttonStatus[5] == BTN_DISABLED) {
                 if (interfaceCtx->startAlpha != 70) {

@@ -213,7 +213,7 @@ typedef struct ArbitraryItemDrawParams {
     s16 a;
 
     uint8_t visible;
-    
+
     s16 ammoRectLeft;
     s16 ammoRectTop;
     s16 ammoTensRectLeft;
@@ -240,6 +240,7 @@ typedef struct ArbitraryItemEquipButton {
     
     uint8_t (*setDisabled)(struct ArbitraryItemEquipButton* self, uint8_t disabled);
     uint8_t (*isDisabled)(struct ArbitraryItemEquipButton* self);
+    void (*updateHudAlpha)(struct ArbitraryItemEquipButton* self, struct PlayState *play, HudVisibility hudMode, s16 dimmingAlpha);
     
 } ArbitraryItemEquipButton;
 

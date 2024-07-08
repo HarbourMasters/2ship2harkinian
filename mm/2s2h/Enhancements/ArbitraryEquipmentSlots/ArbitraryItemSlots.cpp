@@ -12,6 +12,12 @@ extern "C" {
 
 #include "CarouselItemSlots.h"
 #include "MultipleConfigs.h"
+#include <variables.h>
+extern "C" {
+#include <z64.h>
+#include <macros.h>
+#include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
+}
 
 uint16_t width = 27, height = 27;
 
@@ -66,6 +72,9 @@ ArbitraryItemEquipButton ArbitraryItemSlotManager::makeEquipButton() {
         +[](struct ArbitraryItemEquipButton* self){
             return ((ArbitraryItemSlotManager*)self->userData)->isDisabled();
         }, // isDisabled
+        +[](struct ArbitraryItemEquipButton* self, PlayState *play, HudVisibility hudMode, s16 dimmingAlpha){
+            ((ArbitraryItemSlotManager*)self->userData)->updateHudAlpha(play, hudMode, dimmingAlpha);
+        }, // updateHudAlpha
     };
 }
 
@@ -110,7 +119,7 @@ ArbitraryItemDrawParams ArbitraryItemSlotManager::getDrawParams(PlayState *play)
     result.r = 255 * state.rgb[0];
     result.g = 255 * state.rgb[1];
     result.b = 255 * state.rgb[2];
-    result.a = 255 * state.transparency;
+    result.a = this->hudAlpha * state.transparency;
 
     return result;
 }
@@ -132,6 +141,61 @@ uint8_t ArbitraryItemSlotManager::setDisabled(uint8_t disabled){
 
 uint8_t ArbitraryItemSlotManager::isDisabled(){
     return this->disabled;
+}
+
+void ArbitraryItemSlotManager::updateHudAlpha(PlayState *play, HudVisibility hudMode, s16 dimmingAlpha){
+    int32_t risingAlpha = 255 - dimmingAlpha;
+
+    #define disabledCheck() \
+        if(this->disabled && play->pauseCtx.state == PAUSE_STATE_OFF){  \
+            if(this->hudAlpha != 70){                                   \
+                this->hudAlpha = 70;                                    \
+            }                                                           \
+        }                                                               \
+        else {                                                          \
+            if(this->hudAlpha != 255){                                  \
+                this->hudAlpha = risingAlpha;                           \
+            }                                                           \
+        }                                                               \
+
+    switch (hudMode) {
+        case HUD_VISIBILITY_NONE:
+        case HUD_VISIBILITY_NONE_ALT:
+        case HUD_VISIBILITY_B:
+        case HUD_VISIBILITY_A:
+        case HUD_VISIBILITY_HEARTS_MAGIC:
+        case HUD_VISIBILITY_B_ALT:
+        case HUD_VISIBILITY_HEARTS:
+        case HUD_VISIBILITY_A_B_MINIMAP:
+        case HUD_VISIBILITY_B_MINIMAP:
+        case HUD_VISIBILITY_HEARTS_MAGIC_MINIMAP:
+        case HUD_VISIBILITY_A_HEARTS_MAGIC_MINIMAP:
+        case HUD_VISIBILITY_B_MAGIC:
+        case HUD_VISIBILITY_A_B:
+        case HUD_VISIBILITY_A_B_HEARTS_MAGIC_MINIMAP:
+            this->hudAlpha = dimmingAlpha;
+            break;
+        case HUD_VISIBILITY_HEARTS_MAGIC_C:
+        case HUD_VISIBILITY_ALL_NO_MINIMAP:
+        case HUD_VISIBILITY_A_B_C:
+            this->hudAlpha = risingAlpha;
+            break;
+        case HUD_VISIBILITY_HEARTS_WITH_OVERWRITE:
+        case HUD_VISIBILITY_A_HEARTS_MAGIC_WITH_OVERWRITE:
+        case HUD_VISIBILITY_A_HEARTS_MAGIC_MINIMAP_WITH_OVERWRITE:
+        case HUD_VISIBILITY_HEARTS_MAGIC_WITH_OVERWRITE:
+            if (gSaveContext.hudVisibilityForceButtonAlphasByStatus) {
+                disabledCheck();
+            }
+            else {
+                this->hudAlpha = dimmingAlpha;
+            }
+            break;
+        case HUD_VISIBILITY_ALL_NO_MINIMAP_W_DISABLED:
+        case HUD_VISIBILITY_ALL:
+            disabledCheck();
+            break;
+    }
 }
 
 ArbitraryItemEquipSet ArbitraryItemSlotLister::getEquipSlots(PlayState *play, Input* input){
@@ -174,7 +238,6 @@ void ArbitraryItemSlotLister::initItemEquips(ItemEquips* equips) {
 }
 
 ArbitraryItemSlotLister::ArbitraryItemSlotLister(){
-    this->disabledState.transparency = 0.25;
 }
 
 std::shared_ptr<ArbitraryItemSlotLister> currentLister = NULL;

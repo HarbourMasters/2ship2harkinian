@@ -41,7 +41,7 @@ SlotState SlotState::parent(SlotState& child){
     return result;
 }
 
-ArbitraryItemDrawParams SlotState::toDrawParams(){
+ArbitraryItemDrawParams SlotState::toDrawParams(int32_t hudAlpha){
     ArbitraryItemDrawParams result;
     result.rectWidth = 27.0 * this->scale;
     result.rectHeight = 27.0 * this->scale;
@@ -54,7 +54,7 @@ ArbitraryItemDrawParams SlotState::toDrawParams(){
     result.r = 255 * this->rgb[0];
     result.g = 255 * this->rgb[1];
     result.b = 255 * this->rgb[2];
-    result.a = 255 * this->transparency;
+    result.a = hudAlpha * this->transparency;
 
     result.ammoRectLeft = result.rectLeft;
     result.ammoRectTop = result.rectTop + result.rectHeight - 8 * this->scale;

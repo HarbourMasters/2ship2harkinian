@@ -136,7 +136,7 @@ ArbitraryItemDrawParams CarouselItemSlotManager::getDrawParams(PlayState *play){
     resultState.posLeft += std::cos(angleRads) * this->scrollPosition;
     resultState.posTop += std::sin(angleRads) * this->scrollPosition;
 
-    return resultState.toDrawParams();
+    return resultState.toDrawParams(this->hudAlpha);
 }
 
 bool CarouselItemSlotManager::isSelectedSlot(){
