@@ -135,6 +135,12 @@ TexturePtr sHoursLeftTextures[] = {
 void DayTelop_Draw(DayTelopState* this) {
     GraphicsContext* gfxCtx = this->state.gfxCtx;
 
+    // 2S2H [Port] Exit early for day 0 or less to avoid an OOB read on the texture arrays.
+    // This is only possible when using the save editor while the "Dawn of" screen is up.
+    if (CURRENT_DAY <= 0) {
+        return;
+    }
+
     OPEN_DISPS(gfxCtx);
 
     Gfx_SetupDL39_Opa(this->state.gfxCtx);
