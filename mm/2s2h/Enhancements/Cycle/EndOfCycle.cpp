@@ -12,7 +12,7 @@ s32 timeSpeedOffsetCopy = 3;
 void RegisterEndOfCycleSaveHooks() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::BeforeEndOfCycleSave>([]() {
         memcpy(&saveInfoCopy, &gSaveContext.save.saveInfo, sizeof(SaveInfo));
-        memcpy(&timeSpeedOffsetCopy, &gSaveContext.save.timeSpeedOffset, sizeof(s32));
+        timeSpeedOffsetCopy = gSaveContext.save.timeSpeedOffset;
     });
 
     GameInteractor::Instance->RegisterGameHook<GameInteractor::AfterEndOfCycleSave>([]() {
