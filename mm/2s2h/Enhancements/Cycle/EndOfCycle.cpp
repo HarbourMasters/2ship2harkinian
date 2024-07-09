@@ -7,7 +7,7 @@ extern "C" {
 }
 
 SaveInfo saveInfoCopy;
-s32 timeSpeedOffsetCopy;
+s32 timeSpeedOffsetCopy = 3;
 
 void RegisterEndOfCycleSaveHooks() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::BeforeEndOfCycleSave>([]() {
