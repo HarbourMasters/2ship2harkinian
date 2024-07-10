@@ -37,9 +37,16 @@ void MapSelect_LoadGame(MapSelectState* this, u32 entrance, s32 spawn) {
         // #endregion
     }
 
-    // #region 2S2H [Debug] Clear some potential lingering flags
+    // #region 2S2H [Debug] Clear some potential lingering flags and values
+    CLEAR_WEEKEVENTREG(WEEKEVENTREG_08_01);
+    CLEAR_WEEKEVENTREG(WEEKEVENTREG_KICKOUT_WAIT);
+    CLEAR_WEEKEVENTREG(WEEKEVENTREG_82_08);
+    CLEAR_WEEKEVENTREG(WEEKEVENTREG_90_20);
     CLEAR_EVENTINF(EVENTINF_17);
+    CLEAR_EVENTINF(EVENTINF_34);
+    CLEAR_EVENTINF(EVENTINF_41);
     CLEAR_EVENTINF(EVENTINF_TRIGGER_DAYTELOP);
+    gSaveContext.save.equippedMask = PLAYER_MASK_NONE;
     // #endregion
 
     gSaveContext.buttonStatus[EQUIP_SLOT_B] = BTN_ENABLED;
