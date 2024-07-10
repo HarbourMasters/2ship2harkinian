@@ -573,38 +573,38 @@ void DrawEquipItemMenu(InventorySlot slot) {
 
     if (ImGui::BeginMenu("Equip")) {
         if (ImGui::MenuItem("C-Left")) {
-            gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][EQUIP_SLOT_C_LEFT] = currentItemId;
-            gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][EQUIP_SLOT_C_LEFT] = slot;
+            SET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_C_LEFT, currentItemId);
+            SET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_C_LEFT, slot);
             Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_C_LEFT);
         }
         if (ImGui::MenuItem("C-Down")) {
-            gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][EQUIP_SLOT_C_DOWN] = currentItemId;
-            gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][EQUIP_SLOT_C_DOWN] = slot;
+            SET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_C_DOWN, currentItemId);
+            SET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_C_DOWN, slot);
             Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_C_DOWN);
         }
         if (ImGui::MenuItem("C-Right")) {
-            gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][EQUIP_SLOT_C_RIGHT] = currentItemId;
-            gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][EQUIP_SLOT_C_RIGHT] = slot;
+            SET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_C_RIGHT, currentItemId);
+            SET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_C_RIGHT, slot);
             Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_C_RIGHT);
         }
         if (ImGui::MenuItem("D-Right")) {
-            gSaveContext.save.shipSaveInfo.dpadEquips.dpadItems[CUR_FORM][EQUIP_SLOT_D_RIGHT] = currentItemId;
-            gSaveContext.save.shipSaveInfo.dpadEquips.dpadSlots[CUR_FORM][EQUIP_SLOT_D_RIGHT] = slot;
+            DPAD_SET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_RIGHT, currentItemId);
+            DPAD_SET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_D_RIGHT, slot);
             Interface_Dpad_LoadItemIconImpl(gPlayState, EQUIP_SLOT_D_RIGHT);
         }
         if (ImGui::MenuItem("D-Left")) {
-            gSaveContext.save.shipSaveInfo.dpadEquips.dpadItems[CUR_FORM][EQUIP_SLOT_D_LEFT] = currentItemId;
-            gSaveContext.save.shipSaveInfo.dpadEquips.dpadSlots[CUR_FORM][EQUIP_SLOT_D_LEFT] = slot;
+            DPAD_SET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_LEFT, currentItemId);
+            DPAD_SET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_D_LEFT, slot);
             Interface_Dpad_LoadItemIconImpl(gPlayState, EQUIP_SLOT_D_LEFT);
         }
         if (ImGui::MenuItem("D-Down")) {
-            gSaveContext.save.shipSaveInfo.dpadEquips.dpadItems[CUR_FORM][EQUIP_SLOT_D_DOWN] = currentItemId;
-            gSaveContext.save.shipSaveInfo.dpadEquips.dpadSlots[CUR_FORM][EQUIP_SLOT_D_DOWN] = slot;
+            DPAD_SET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_DOWN, currentItemId);
+            DPAD_SET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_D_DOWN, slot);
             Interface_Dpad_LoadItemIconImpl(gPlayState, EQUIP_SLOT_D_DOWN);
         }
         if (ImGui::MenuItem("D-Up")) {
-            gSaveContext.save.shipSaveInfo.dpadEquips.dpadItems[CUR_FORM][EQUIP_SLOT_D_UP] = currentItemId;
-            gSaveContext.save.shipSaveInfo.dpadEquips.dpadSlots[CUR_FORM][EQUIP_SLOT_D_UP] = slot;
+            DPAD_SET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_UP, currentItemId);
+            DPAD_SET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_D_UP, slot);
             Interface_Dpad_LoadItemIconImpl(gPlayState, EQUIP_SLOT_D_UP);
         }
         ImGui::EndMenu();
@@ -677,9 +677,13 @@ void DrawSlot(InventorySlot slot) {
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 1.0f, 1.0f, 0.2f));
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 1.0f, 1.0f, 0.1f));
-    if (gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][EQUIP_SLOT_C_LEFT] == slot ||
-        gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][EQUIP_SLOT_C_DOWN] == slot ||
-        gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][EQUIP_SLOT_C_RIGHT] == slot) {
+    if (GET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_C_LEFT) == slot || GET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_C_DOWN) == slot ||
+        GET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_C_RIGHT) == slot ||
+        (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0) &&
+         (DPAD_GET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_D_RIGHT) == slot ||
+          DPAD_GET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_D_LEFT) == slot ||
+          DPAD_GET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_D_DOWN) == slot ||
+          DPAD_GET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_D_UP) == slot))) {
         ImGui::PushStyleColor(ImGuiCol_Border, UIWidgets::Colors::White);
     } else {
         ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
