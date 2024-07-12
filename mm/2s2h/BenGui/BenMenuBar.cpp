@@ -57,6 +57,24 @@ static const std::unordered_map<int32_t, const char*> alwaysWinDoggyraceOptions 
 };
 
 namespace BenGui {
+std::shared_ptr<std::vector<Ship::WindowBackend>> availableWindowBackends;
+std::unordered_map<Ship::WindowBackend, const char*> availableWindowBackendsMap;
+Ship::WindowBackend configWindowBackend;
+
+void UpdateWindowBackendObjects() {
+    Ship::WindowBackend runningWindowBackend = Ship::Context::GetInstance()->GetWindow()->GetWindowBackend();
+    int32_t configWindowBackendId = Ship::Context::GetInstance()->GetConfig()->GetInt("Window.Backend.Id", -1);
+    if (Ship::Context::GetInstance()->GetWindow()->IsAvailableWindowBackend(configWindowBackendId)) {
+        configWindowBackend = static_cast<Ship::WindowBackend>(configWindowBackendId);
+    } else {
+        configWindowBackend = runningWindowBackend;
+    }
+
+    availableWindowBackends = Ship::Context::GetInstance()->GetWindow()->GetAvailableWindowBackends();
+    for (auto& backend : *availableWindowBackends) {
+        availableWindowBackendsMap[backend] = windowBackendsMap[backend];
+    }
+}
 
 void DrawMenuBarIcon() {
     static bool gameIconLoaded = false;
@@ -249,31 +267,17 @@ void DrawSettingsMenu() {
             // UIWidgets::PaddedSeparator(true, true, 3.0f, 3.0f);
             //  #endregion */
 
-            Ship::WindowBackend runningWindowBackend = Ship::Context::GetInstance()->GetWindow()->GetWindowBackend();
-            Ship::WindowBackend configWindowBackend;
-            int32_t configWindowBackendId = Ship::Context::GetInstance()->GetConfig()->GetInt("Window.Backend.Id", -1);
-            if (Ship::Context::GetInstance()->GetWindow()->IsAvailableWindowBackend(configWindowBackendId)) {
-                configWindowBackend = static_cast<Ship::WindowBackend>(configWindowBackendId);
-            } else {
-                configWindowBackend = runningWindowBackend;
-            }
-
-            auto availableWindowBackends = Ship::Context::GetInstance()->GetWindow()->GetAvailableWindowBackends();
-            std::unordered_map<Ship::WindowBackend, const char*> availableWindowBackendsMap;
-            for (auto& backend : *availableWindowBackends) {
-                availableWindowBackendsMap[backend] = windowBackendsMap[backend];
-            }
-
             if (UIWidgets::Combobox(
                     "Renderer API (Needs reload)", &configWindowBackend, availableWindowBackendsMap,
                     { .tooltip = "Sets the renderer API used by the game. Requires a relaunch to take effect.",
-                      .disabled = Ship::Context::GetInstance()->GetWindow()->GetAvailableWindowBackends()->size() <= 1,
+                      .disabled = availableWindowBackends->size() <= 1,
                       .disabledTooltip = "Only one renderer API is available on this platform." })) {
                 Ship::Context::GetInstance()->GetConfig()->SetInt("Window.Backend.Id",
                                                                   static_cast<int32_t>(configWindowBackend));
                 Ship::Context::GetInstance()->GetConfig()->SetString("Window.Backend.Name",
                                                                      windowBackendsMap.at(configWindowBackend));
                 Ship::Context::GetInstance()->GetConfig()->Save();
+                UpdateWindowBackendObjects();
             }
 
             if (Ship::Context::GetInstance()->GetWindow()->CanDisableVerticalSync()) {
@@ -809,6 +813,10 @@ void DrawDeveloperToolsMenu() {
         }
         ImGui::EndMenu();
     }
+}
+
+void BenMenuBar::InitElement() {
+    UpdateWindowBackendObjects();
 }
 
 void BenMenuBar::DrawElement() {
