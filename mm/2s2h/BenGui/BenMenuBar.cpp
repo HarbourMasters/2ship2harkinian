@@ -10,8 +10,10 @@
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/Enhancements/Graphics/MotionBlur.h"
 #include "2s2h/Enhancements/Graphics/PlayAsKafei.h"
+#include "2s2h/Enhancements/Modes/TimeMovesWhenYouMove.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
-#include "2s2h/DeveloperTools/WarpPoint.h"
+#include "2s2h/Enhancements/Cheats/Cheats.h"
+#include "2s2h/Enhancements/Player/Player.h"
 #include "HudEditor.h"
 
 extern "C" {
@@ -38,10 +40,9 @@ static const std::unordered_map<Ship::AudioBackend, const char*> audioBackendsMa
 };
 
 static std::unordered_map<Ship::WindowBackend, const char*> windowBackendsMap = {
-    { Ship::WindowBackend::DX11, "DirectX" },
-    { Ship::WindowBackend::SDL_OPENGL, "OpenGL" },
-    { Ship::WindowBackend::SDL_METAL, "Metal" },
-    { Ship::WindowBackend::GX2, "GX2" }
+    { Ship::WindowBackend::FAST3D_DXGI_DX11, "DirectX" },
+    { Ship::WindowBackend::FAST3D_SDL_OPENGL, "OpenGL" },
+    { Ship::WindowBackend::FAST3D_SDL_METAL, "Metal" },
 };
 
 static const std::unordered_map<int32_t, const char*> clockTypeOptions = {
@@ -63,7 +64,7 @@ Ship::WindowBackend configWindowBackend;
 void UpdateWindowBackendObjects() {
     Ship::WindowBackend runningWindowBackend = Ship::Context::GetInstance()->GetWindow()->GetWindowBackend();
     int32_t configWindowBackendId = Ship::Context::GetInstance()->GetConfig()->GetInt("Window.Backend.Id", -1);
-    if (configWindowBackendId != -1 && configWindowBackendId < static_cast<int>(Ship::WindowBackend::BACKEND_COUNT)) {
+    if (Ship::Context::GetInstance()->GetWindow()->IsAvailableWindowBackend(configWindowBackendId)) {
         configWindowBackend = static_cast<Ship::WindowBackend>(configWindowBackendId);
     } else {
         configWindowBackend = runningWindowBackend;
@@ -211,19 +212,21 @@ void DrawSettingsMenu() {
             { // FPS Slider
                 constexpr unsigned int minFps = 20;
                 static unsigned int maxFps;
-                if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::DX11) {
+                if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() ==
+                    Ship::WindowBackend::FAST3D_DXGI_DX11) {
                     maxFps = 360;
                 } else {
                     maxFps = Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
                 }
                 unsigned int currentFps =
                     std::max(std::min(OTRGlobals::Instance->GetInterpolationFPS(), maxFps), minFps);
-                bool matchingRefreshRate =
-                    CVarGetInteger("gMatchRefreshRate", 0) &&
-                    Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() != Ship::WindowBackend::DX11;
+                bool matchingRefreshRate = CVarGetInteger("gMatchRefreshRate", 0) &&
+                                           Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() !=
+                                               Ship::WindowBackend::FAST3D_DXGI_DX11;
                 UIWidgets::CVarSliderInt((currentFps == 20) ? "FPS: Original (20)" : "FPS: %d", "gInterpolationFPS",
                                          minFps, maxFps, 20, { .disabled = matchingRefreshRate });
-                if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::DX11) {
+                if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() ==
+                    Ship::WindowBackend::FAST3D_DXGI_DX11) {
                     UIWidgets::Tooltip(
                         "Uses Matrix Interpolation to create extra frames, resulting in smoother graphics. This is "
                         "purely visual and does not impact game logic, execution of glitches etc.\n\n A higher target "
@@ -235,7 +238,8 @@ void DrawSettingsMenu() {
                 }
             } // END FPS Slider
 
-            if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::DX11) {
+            if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() ==
+                Ship::WindowBackend::FAST3D_DXGI_DX11) {
                 // UIWidgets::Spacer(0);
                 if (ImGui::Button("Match Refresh Rate")) {
                     int hz = Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
@@ -249,7 +253,8 @@ void DrawSettingsMenu() {
             }
             UIWidgets::Tooltip("Matches interpolation value to the current game's window refresh rate");
 
-            if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::DX11) {
+            if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() ==
+                Ship::WindowBackend::FAST3D_DXGI_DX11) {
                 UIWidgets::CVarSliderInt(CVarGetInteger("gExtraLatencyThreshold", 80) == 0 ? "Jitter fix: Off"
                                                                                            : "Jitter fix: >= %d FPS",
                                          "gExtraLatencyThreshold", 0, 360, 80);
@@ -334,7 +339,6 @@ extern std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 
 void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
-
         if (UIWidgets::BeginMenu("Camera")) {
             ImGui::SeparatorText("Fixes");
             UIWidgets::CVarCheckbox(
@@ -465,6 +469,10 @@ void DrawEnhancementsMenu() {
                 { .tooltip = "Playing the Song Of Time will not reset the Sword back to Kokiri Sword." });
             UIWidgets::CVarCheckbox("Do not reset Rupees", "gEnhancements.Cycle.DoNotResetRupees",
                                     { .tooltip = "Playing the Song Of Time will not reset the your rupees." });
+            UIWidgets::CVarCheckbox(
+                "Do not reset Time Speed", "gEnhancements.Cycle.DoNotResetTimeSpeed",
+                { .tooltip =
+                      "Playing the Song Of Time will not reset the current time speed set by Inverted Song of Time." });
 
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 0, 255));
             ImGui::SeparatorText("Unstable");
@@ -477,7 +485,11 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
-        if (UIWidgets::BeginMenu("Dialogues")) {
+        if (UIWidgets::BeginMenu("Dialogue")) {
+            UIWidgets::CVarCheckbox(
+                "Fast Bank Selection", "gEnhancements.Dialogue.FastBankSelection",
+                { .tooltip = "Pressing the Z or R buttons while the Deposit/Withdrawl Rupees dialogue is open will set "
+                             "the Rupees to Links current Rupees or 0 respectively." });
             UIWidgets::CVarCheckbox(
                 "Fast Text", "gEnhancements.Dialogue.FastText",
                 { .tooltip = "Speeds up text rendering, and enables holding of B progress to next message" });
@@ -492,6 +504,12 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
+        if (UIWidgets::BeginMenu("Equipment")) {
+            UIWidgets::CVarCheckbox("Fast Magic Arrow Equip Animation", "gEnhancements.Equipment.MagicArrowEquipSpeed",
+                                    { .tooltip = "Removes the animation for equipping Magic Arrows." });
+            ImGui::EndMenu();
+        }
+
         if (UIWidgets::BeginMenu("Fixes")) {
             UIWidgets::CVarCheckbox("Fix Ammo Count Color", "gFixes.FixAmmoCountEnvColor",
                                     { .tooltip = "Fixes a missing gDPSetEnvColor, which causes the ammo count to be "
@@ -500,6 +518,10 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Fix Hess and Weirdshot Crash", "gEnhancements.Fixes.HessCrash",
                                     { .tooltip = "Fixes a crash that can occur when performing a HESS or Weirdshot.",
                                       .defaultValue = true });
+
+            UIWidgets::CVarCheckbox("Fix Text Control Characters", "gEnhancements.Fixes.ControlCharacters",
+                                    { .tooltip = "Fixes certain control characters not functioning properly "
+                                                 "depending on their position within the text." });
 
             ImGui::EndMenu();
         }
@@ -515,11 +537,48 @@ void DrawEnhancementsMenu() {
                                                  "model and texture on the boot logo start screen" });
             UIWidgets::CVarCheckbox("Bow Reticle", "gEnhancements.Graphics.BowReticle",
                                     { .tooltip = "Gives the bow a reticle when you draw an arrow" });
+            UIWidgets::CVarCheckbox(
+                "Disable Black Bar Letterboxes", "gEnhancements.Graphics.DisableBlackBars",
+                { .tooltip = "Disables Black Bar Letterboxes during cutscenes and Z-targeting\nNote: there may be "
+                             "minor visual glitches that were covered up by the black bars\nPlease disable this "
+                             "setting before reporting a bug" });
+
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 0, 255));
+            ImGui::SeparatorText("Unstable");
+            ImGui::PopStyleColor();
+            UIWidgets::CVarCheckbox(
+                "Disable Scene Geometry Distance Check", "gEnhancements.Graphics.DisableSceneGeometryDistanceCheck",
+                { .tooltip =
+                      "Disables the distance check for scene geometry, allowing it to be drawn no matter how far "
+                      "away it is from the player. This may have unintended side effects." });
+            // BENTODO: Not implemented yet
+            // UIWidgets::CVarCheckbox("Widescreen Actor Culling",
+            //                         "gEnhancements.Graphics.ActorCullingAccountsForWidescreen",
+            //                         { .tooltip = "Adjusts the culling planes to account for widescreen resolutions. "
+            //                                      "This may have unintended side effects." });
+            if (UIWidgets::CVarSliderInt(
+                    "Increase Actor Draw Distance: %dx", "gEnhancements.Graphics.IncreaseActorDrawDistance", 1, 5, 1,
+                    { .tooltip =
+                          "Increase the range in which Actors are drawn. This may have unintended side effects." })) {
+                CVarSetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance",
+                               MIN(CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1),
+                                   CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1)));
+            }
+            if (UIWidgets::CVarSliderInt(
+                    "Increase Actor Update Distance: %dx", "gEnhancements.Graphics.IncreaseActorUpdateDistance", 1, 5,
+                    1,
+                    { .tooltip =
+                          "Increase the range in which Actors are updated. This may have unintended side effects." })) {
+                CVarSetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance",
+                               MAX(CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1),
+                                   CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1)));
+            }
 
             ImGui::EndMenu();
         }
 
         if (UIWidgets::BeginMenu("Masks")) {
+            UIWidgets::CVarCheckbox("Blast Mask has Powder Keg Force", "gEnhancements.Masks.BlastMaskKeg");
             UIWidgets::CVarCheckbox("Fast Transformation", "gEnhancements.Masks.FastTransformation");
             UIWidgets::CVarCheckbox("Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere",
                                     { .tooltip = "Allow using Fierce Deity's mask outside of boss rooms." });
@@ -538,12 +597,22 @@ void DrawEnhancementsMenu() {
         if (UIWidgets::BeginMenu("Modes")) {
             UIWidgets::CVarCheckbox("Play As Kafei", "gModes.PlayAsKafei",
                                     { .tooltip = "Requires scene reload to take effect." });
+            if (UIWidgets::CVarCheckbox("Time Moves When You Move", "gModes.TimeMovesWhenYouMove")) {
+                RegisterTimeMovesWhenYouMove();
+            }
             ImGui::EndMenu();
         }
-        if (UIWidgets::BeginMenu("Player Movement")) {
-            UIWidgets::CVarSliderInt("Climb speed", "gEnhancements.PlayerMovement.ClimbSpeed", 1, 5, 1,
+        if (UIWidgets::BeginMenu("Player")) {
+            UIWidgets::CVarSliderInt("Climb speed", "gEnhancements.Player.ClimbSpeed", 1, 5, 1,
                                      { .tooltip = "Increases the speed at which Link climbs vines and ladders." });
-
+            if (UIWidgets::CVarCheckbox("Fast Deku Flower Launch", "gEnhancements.Player.FastFlowerLaunch",
+                                        { .tooltip =
+                                              "Speeds up the time it takes to be able to get maximum height from "
+                                              "launching out of a deku flower" })) {
+                RegisterFastFlowerLaunch();
+            }
+            UIWidgets::CVarCheckbox("Instant Putaway", "gEnhancements.Player.InstantPutaway",
+                                    { .tooltip = "Allows Link to instantly puts away held item without waiting." });
             ImGui::EndMenu();
         }
 
@@ -592,13 +661,18 @@ void DrawCheatsMenu() {
         UIWidgets::CVarCheckbox("Infinite Magic", "gCheats.InfiniteMagic");
         UIWidgets::CVarCheckbox("Infinite Rupees", "gCheats.InfiniteRupees");
         UIWidgets::CVarCheckbox("Infinite Consumables", "gCheats.InfiniteConsumables");
+        if (UIWidgets::CVarCheckbox(
+                "Longer Deku Flower Glide", "gCheats.LongerFlowerGlide",
+                { .tooltip = "Allows Deku Link to glide longer, no longer dropping after a certain distance" })) {
+            RegisterLongerFlowerGlide();
+        }
+        UIWidgets::CVarCheckbox("No Clip", "gCheats.NoClip");
         UIWidgets::CVarCheckbox("Unbreakable Razor Sword", "gCheats.UnbreakableRazorSword");
         UIWidgets::CVarCheckbox("Unrestricted Items", "gCheats.UnrestrictedItems");
         if (UIWidgets::CVarCheckbox("Moon Jump on L", "gCheats.MoonJumpOnL",
                                     { .tooltip = "Holding L makes you float into the air" })) {
             RegisterMoonJumpOnL();
         }
-        UIWidgets::CVarCheckbox("No Clip", "gCheats.NoClip");
 
         ImGui::EndMenu();
     }

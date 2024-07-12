@@ -12,8 +12,8 @@ static uint32_t iconTimer = 0;
 static uint64_t currentTimestamp = 0;
 static uint64_t lastSaveTimestamp = GetUnixTimestamp();
 
-static uint32_t autosaveGameStateUpdateHookId = 0;
-static uint32_t autosaveGameStateDrawFinishHookId = 0;
+static HOOK_ID autosaveGameStateUpdateHookId = 0;
+static HOOK_ID autosaveGameStateDrawFinishHookId = 0;
 
 // Used for saving through Autosaves and Pause Menu saves.
 extern "C" int SavingEnhancements_GetSaveEntrance() {

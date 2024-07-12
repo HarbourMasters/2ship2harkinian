@@ -214,8 +214,8 @@ void Camera_DebugCam(Camera* camera) {
     *eye = *eyeNext;
 }
 
-static uint32_t freeCamVBHookId = 0;
-static uint32_t freeCamDisableInputsId = 0;
+static HOOK_ID freeCamVBHookId = 0;
+static HOOK_ID freeCamDisableInputsId = 0;
 
 void RegisterDebugCam() {
     sDebugCamRefreshParams = true;

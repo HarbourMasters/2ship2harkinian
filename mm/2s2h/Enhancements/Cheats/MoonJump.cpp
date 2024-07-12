@@ -3,7 +3,7 @@
 #include "Enhancements/GameInteractor/GameInteractor.h"
 #include "variables.h"
 
-static uint32_t moonJumpOnLGameStateUpdateHookId = 0;
+static HOOK_ID moonJumpOnLGameStateUpdateHookId = 0;
 void RegisterMoonJumpOnL() {
     if (moonJumpOnLGameStateUpdateHookId) {
         GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnGameStateUpdate>(

@@ -26,6 +26,10 @@ VisZbuf sGameVisZbuf;
 VisMono sGameVisMono;
 ViMode sGameViMode;
 
+// #region 2S2H [General] Making gGameState available
+GameState* gGameState;
+// #endregion
+
 void GameState_UpdateFramerateDivisors(s32 divisor) {
     gFramerateDivisor = divisor;
     gFramerateDivisorF = divisor;
@@ -205,6 +209,7 @@ void GameState_Realloc(GameState* gameState, size_t size) {
 }
 
 void GameState_Init(GameState* gameState, GameStateFunc init, GraphicsContext* gfxCtx) {
+    gGameState = gameState;
     gameState->gfxCtx = gfxCtx;
     gameState->frames = 0;
     gameState->main = NULL;
@@ -256,6 +261,7 @@ void GameState_Destroy(GameState* gameState) {
     ViMode_Destroy(&sGameViMode);
     THA_Destroy(&gameState->tha);
     GameAlloc_Cleanup(&gameState->alloc);
+    gGameState = NULL;
 }
 
 GameStateFunc GameState_GetInit(GameState* gameState) {

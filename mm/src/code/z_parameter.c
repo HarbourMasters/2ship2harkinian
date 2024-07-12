@@ -8025,9 +8025,34 @@ void Interface_DrawMinigameIcons(PlayState* play) {
                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->aAlpha);
                 }
 
-                gSPTextureRectangle(OVERLAY_DISP++, rectX << 2, rectY << 2, (rectX + 16) << 2, (rectY + 16) << 2,
-                                    G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+                // #region 2S2H [Cosmetic] Hud Editor Carrots
+                HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CARROT);
+                if (HudEditor_ShouldOverrideDraw()) {
+                    // Derived from the original call to gSPTextureRectangle below
+                    // Y pos set to 56 in override mode to ignore minigame state differences
+                    s16 newX = rectX;
+                    s16 newY = 56;
+                    s16 newWidth = 16;
+                    s16 newHeight = 16;
+                    s16 dsdx = 512;
+                    s16 dtdy = 512;
+
+                    if (HudEditor_IsActiveElementHidden()) {
+                        break;
+                    }
+
+                    HudEditor_ModifyDrawValues(&newX, &newY, &newWidth, &newHeight, &dsdx, &dtdy);
+
+                    gSPWideTextureRectangle(OVERLAY_DISP++, newX << 2, newY << 2, (newX + newWidth) << 2,
+                                            (newY + newHeight) << 2, G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+                } else {
+                    // #endregion
+                    gSPTextureRectangle(OVERLAY_DISP++, rectX << 2, rectY << 2, (rectX + 16) << 2, (rectY + 16) << 2,
+                                        G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+                }
             }
+
+            hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
         }
 
         if (gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE) {
