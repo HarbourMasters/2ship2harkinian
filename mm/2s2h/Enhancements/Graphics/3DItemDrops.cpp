@@ -5,11 +5,22 @@
 extern "C" {
 #include "z64.h"
 #include "functions.h"
-#include "objects/object_gi_rupy/object_gi_rupy.h"
 extern PlayState* gPlayState;
 void EnItem00_Draw(Actor* thisx, PlayState* play);
-void ResourceMgr_PatchGfxByName(const char* path, const char* patchName, int index, Gfx instruction);
-void ResourceMgr_UnpatchGfxByName(const char* path, const char* patchName);
+}
+
+bool ItemShouldSpinWhen3D(Actor* actor) {
+    EnItem00* enItem00 = (EnItem00*)actor;
+
+    // Exclude actors that already have spin normally, or shouldn't spin ever
+    if ((actor->params <= ITEM00_RUPEE_RED) || ((actor->params == ITEM00_RECOVERY_HEART) && (enItem00->unk152 < 0)) ||
+        (actor->params == ITEM00_HEART_PIECE) || (actor->params == ITEM00_HEART_CONTAINER) ||
+        (actor->params == ITEM00_RUPEE_HUGE) || (actor->params == ITEM00_RUPEE_PURPLE) ||
+        (actor->params == ITEM00_SHIELD_HERO) || (actor->params == ITEM00_MAP) || (actor->params == ITEM00_COMPASS)) {
+        return false;
+    }
+
+    return true;
 }
 
 void EnItem00_3DItemsDraw(Actor* actor, PlayState* play) {
@@ -18,20 +29,23 @@ void EnItem00_3DItemsDraw(Actor* actor, PlayState* play) {
     if (!(enItem00->unk14E & enItem00->unk150)) {
         switch (enItem00->actor.params) {
             case ITEM00_RUPEE_GREEN:
-                Matrix_Scale(20.0f, 20.0f, 20.0f, MTXMODE_APPLY);
+                Matrix_Scale(25.0f, 25.0f, 25.0f, MTXMODE_APPLY);
                 GetItem_Draw(play, GID_RUPEE_GREEN);
                 break;
             case ITEM00_RUPEE_BLUE:
-                Matrix_Scale(20.0f, 20.0f, 20.0f, MTXMODE_APPLY);
+                Matrix_Scale(25.0f, 25.0f, 25.0f, MTXMODE_APPLY);
                 GetItem_Draw(play, GID_RUPEE_BLUE);
                 break;
             case ITEM00_RUPEE_RED:
-            case ITEM00_RUPEE_HUGE:
-                Matrix_Scale(20.0f, 20.0f, 20.0f, MTXMODE_APPLY);
+                Matrix_Scale(25.0f, 25.0f, 25.0f, MTXMODE_APPLY);
                 GetItem_Draw(play, GID_RUPEE_RED);
                 break;
+            case ITEM00_RUPEE_HUGE:
+                Matrix_Scale(17.5f, 17.5f, 17.5f, MTXMODE_APPLY);
+                GetItem_Draw(play, GID_RUPEE_HUGE);
+                break;
             case ITEM00_RUPEE_PURPLE:
-                Matrix_Scale(20.0f, 20.0f, 20.0f, MTXMODE_APPLY);
+                Matrix_Scale(17.5f, 17.5f, 17.5f, MTXMODE_APPLY);
                 GetItem_Draw(play, GID_RUPEE_PURPLE);
                 break;
 
@@ -107,8 +121,6 @@ void Register3DItemDrops() {
     actorInitHookID = 0;
     actorUpdateHookID = 0;
 
-    ResourceMgr_UnpatchGfxByName(gGiRupeeOuterDL, "RupeeOuter");
-
     if (gPlayState != NULL) {
         Actor* actor = gPlayState->actorCtx.actorLists[ACTORCAT_MISC].first;
 
@@ -118,6 +130,11 @@ void Register3DItemDrops() {
                     actor->draw = EnItem00_3DItemsDraw;
                 } else {
                     actor->draw = EnItem00_Draw;
+
+                    // Reset rotation for bill-boarded sprites
+                    if (ItemShouldSpinWhen3D(actor)) {
+                        actor->shape.rot.y = 0;
+                    }
                 }
             }
 
@@ -129,14 +146,12 @@ void Register3DItemDrops() {
         return;
     }
 
-    ResourceMgr_PatchGfxByName(gGiRupeeOuterDL, "RupeeOuter", 0, gsSPEndDisplayList());
-
     actorInitHookID = GameInteractor::Instance->RegisterGameHookForID<GameInteractor::OnActorInit>(
         ACTOR_EN_ITEM00, [](Actor* actor) { actor->draw = EnItem00_3DItemsDraw; });
     actorUpdateHookID = GameInteractor::Instance->RegisterGameHookForID<GameInteractor::OnActorUpdate>(
         ACTOR_EN_ITEM00, [](Actor* actor) {
-            if (actor->params >= ITEM00_RECOVERY_HEART && actor->params != ITEM00_HEART_PIECE &&
-                actor->params != ITEM00_HEART_CONTAINER) {
+            // Add spin to normally bill-boarded items
+            if (ItemShouldSpinWhen3D(actor)) {
                 actor->shape.rot.y += 0x3C0;
             }
         });
