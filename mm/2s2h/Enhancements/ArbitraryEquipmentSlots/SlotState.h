@@ -10,6 +10,9 @@ struct SlotState {
     float rgb[4] = {255.0 / 255.0, 240.0 / 255.0, 0.0 / 255.0, 1.0};
     float transparency = 1;
 
+    int32_t getWidth();
+    int32_t getHeight();
+
     SlotState blend(SlotState& other, float ratio);
     SlotState parent(SlotState& child);
     ArbitraryItemDrawParams toDrawParams(int32_t hudAlpha);

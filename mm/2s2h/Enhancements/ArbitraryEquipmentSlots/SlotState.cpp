@@ -41,10 +41,17 @@ SlotState SlotState::parent(SlotState& child){
     return result;
 }
 
+int32_t SlotState::getWidth(){
+    return this->scale * 27.0;
+}
+int32_t SlotState::getHeight(){
+    return this->scale * 27.0;
+}
+
 ArbitraryItemDrawParams SlotState::toDrawParams(int32_t hudAlpha){
     ArbitraryItemDrawParams result;
-    result.rectWidth = 27.0 * this->scale;
-    result.rectHeight = 27.0 * this->scale;
+    result.rectWidth = this->getWidth();
+    result.rectHeight = this->getHeight();
     result.dsdx = 620.0 / this->scale;
     result.dtdy = 620.0 / this->scale;
 
