@@ -42,6 +42,7 @@ typedef enum {
     GI_VB_PATCH_SIDEROLL,
     GI_VB_TATL_CONVERSATION_AVAILABLE,
     GI_VB_PREVENT_MASK_TRANSFORMATION_CS,
+    GI_VB_RESET_PUTAWAY_TIMER,
     GI_VB_SET_CLIMB_SPEED,
     GI_VB_PREVENT_CLOCK_DISPLAY,
     GI_VB_SONG_AVAILABLE_TO_PLAY,
@@ -256,6 +257,7 @@ class GameInteractor {
     DEFINE_HOOK(OnGameStateMainFinish, ());
     DEFINE_HOOK(OnGameStateDrawFinish, ());
     DEFINE_HOOK(OnGameStateUpdate, ());
+    DEFINE_HOOK(OnConsoleLogoUpdate, ());
     DEFINE_HOOK(OnKaleidoUpdate, (PauseContext * pauseCtx));
     DEFINE_HOOK(OnSaveInit, (s16 fileNum));
     DEFINE_HOOK(BeforeEndOfCycleSave, ());
@@ -299,6 +301,7 @@ extern "C" {
 void GameInteractor_ExecuteOnGameStateMainFinish();
 void GameInteractor_ExecuteOnGameStateDrawFinish();
 void GameInteractor_ExecuteOnGameStateUpdate();
+void GameInteractor_ExecuteOnConsoleLogoUpdate();
 void GameInteractor_ExecuteOnKaleidoUpdate(PauseContext* pauseCtx);
 void GameInteractor_ExecuteOnSaveInit(s16 fileNum);
 void GameInteractor_ExecuteBeforeEndOfCycleSave();

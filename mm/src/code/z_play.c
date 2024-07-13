@@ -2194,9 +2194,6 @@ void Play_FillScreen(GameState* thisx, s16 fillScreenOn, u8 red, u8 green, u8 bl
 
 void Play_Init(GameState* thisx) {
     PlayState* this = (PlayState*)thisx;
-    // #region 2S2H [General] Making gPlayState available
-    gPlayState = this;
-    // #endregion
     GraphicsContext* gfxCtx = this->state.gfxCtx;
     s32 pad;
     uintptr_t zAlloc;
@@ -2229,6 +2226,11 @@ void Play_Init(GameState* thisx) {
         SET_NEXT_GAMESTATE(&this->state, TitleSetup_Init, sizeof(TitleSetupState));
         return;
     }
+
+    // #region 2S2H [General] Making gPlayState available
+    // Setting after the early returns, so that Play_Destroy is registered to unset the ptr later
+    gPlayState = this;
+    // #endregion
 
     if ((gSaveContext.nextCutsceneIndex == 0xFFEF) || (gSaveContext.nextCutsceneIndex == 0xFFF0)) {
         scene = ((void)0, gSaveContext.save.entrance) >> 9;

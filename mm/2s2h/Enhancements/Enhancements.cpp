@@ -8,6 +8,7 @@ void InitEnhancements() {
 
     // Cheats
     RegisterInfiniteCheats();
+    RegisterLongerFlowerGlide();
     RegisterMoonJumpOnL();
     RegisterUnbreakableRazorSword();
     RegisterUnrestrictedItems();
@@ -39,6 +40,11 @@ void InitEnhancements() {
     // Minigames
     RegisterAlwaysWinDoggyRace();
 
+    // Player
+    RegisterClimbSpeed();
+    RegisterFastFlowerLaunch();
+    RegisterInstantPutaway();
+
     // Songs
     RegisterEnableSunsSong();
 
@@ -54,7 +60,4 @@ void InitEnhancements() {
     // Modes
     RegisterPlayAsKafei();
     RegisterTimeMovesWhenYouMove();
-
-    // Player Movement
-    RegisterClimbSpeed();
 }

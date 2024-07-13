@@ -20,7 +20,6 @@
 #else
 #include <time.h>
 #endif
-#include <Array.h>
 #include <AudioPlayer.h>
 #include "variables.h"
 #include "z64.h"
@@ -57,7 +56,6 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/SaveManager/SaveManager.h"
 
 // Resource Types/Factories
-#include "resource/type/Array.h"
 #include "resource/type/Blob.h"
 #include "resource/type/DisplayList.h"
 #include "resource/type/Matrix.h"
@@ -65,6 +63,7 @@ CrowdControl* CrowdControl::Instance;
 #include "resource/type/Vertex.h"
 #include "2s2h/resource/type/2shResourceType.h"
 #include "2s2h/resource/type/Animation.h"
+#include "2s2h/resource/type/Array.h"
 #include "2s2h/resource/type/AudioSample.h"
 #include "2s2h/resource/type/AudioSequence.h"
 #include "2s2h/resource/type/AudioSoundFont.h"
@@ -75,13 +74,13 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/resource/type/Scene.h"
 #include "2s2h/resource/type/Skeleton.h"
 #include "2s2h/resource/type/SkeletonLimb.h"
-#include "resource/factory/ArrayFactory.h"
 #include "resource/factory/BlobFactory.h"
 #include "resource/factory/DisplayListFactory.h"
 #include "resource/factory/MatrixFactory.h"
 #include "resource/factory/TextureFactory.h"
 #include "resource/factory/VertexFactory.h"
 #include "2s2h/resource/importer/AnimationFactory.h"
+#include "2s2h/resource/importer/ArrayFactory.h"
 #include "2s2h/resource/importer/AudioSampleFactory.h"
 #include "2s2h/resource/importer/AudioSequenceFactory.h"
 #include "2s2h/resource/importer/AudioSoundFontFactory.h"
@@ -179,10 +178,10 @@ OTRGlobals::OTRGlobals() {
                                     "DisplayList", static_cast<uint32_t>(LUS::ResourceType::DisplayList), 0);
     loader->RegisterResourceFactory(std::make_shared<LUS::ResourceFactoryBinaryMatrixV0>(), RESOURCE_FORMAT_BINARY,
                                     "Matrix", static_cast<uint32_t>(LUS::ResourceType::Matrix), 0);
-    loader->RegisterResourceFactory(std::make_shared<LUS::ResourceFactoryBinaryArrayV0>(), RESOURCE_FORMAT_BINARY,
-                                    "Array", static_cast<uint32_t>(LUS::ResourceType::Array), 0);
     loader->RegisterResourceFactory(std::make_shared<LUS::ResourceFactoryBinaryBlobV0>(), RESOURCE_FORMAT_BINARY,
                                     "Blob", static_cast<uint32_t>(LUS::ResourceType::Blob), 0);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryArrayV0>(), RESOURCE_FORMAT_BINARY,
+                                    "Array", static_cast<uint32_t>(SOH::ResourceType::SOH_Array), 0);
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryAnimationV0>(), RESOURCE_FORMAT_BINARY,
                                     "Animation", static_cast<uint32_t>(SOH::ResourceType::SOH_Animation), 0);
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryPlayerAnimationV0>(),
@@ -292,7 +291,7 @@ bool OTRGlobals::HasOriginal() {
 }
 
 uint32_t OTRGlobals::GetInterpolationFPS() {
-    if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::DX11) {
+    if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::FAST3D_DXGI_DX11) {
         return CVarGetInteger("gInterpolationFPS", 20);
     }
 
@@ -309,9 +308,6 @@ struct ExtensionEntry {
     std::string ext;
 };
 
-extern uintptr_t clearMtx;
-extern "C" Mtx gMtxClear;
-extern "C" MtxF gMtxFClear;
 extern "C" void OTRMessage_Init();
 extern "C" void AudioMgr_CreateNextAudioBuffer(s16* samples, u32 num_samples);
 extern "C" void AudioPlayer_Play(const uint8_t* buf, uint32_t len);
@@ -478,7 +474,6 @@ extern "C" void InitOTR() {
     GfxPatcher_ApplyNecessaryAuthenticPatches();
     DebugConsole_Init();
 
-    clearMtx = (uintptr_t)&gMtxClear;
     OTRMessage_Init();
     OTRAudio_Init();
     // OTRExtScanner();
@@ -949,8 +944,8 @@ extern "C" char* ResourceMgr_LoadTexOrDListByName(const char* filePath) {
 
     if (res->GetInitData()->Type == static_cast<uint32_t>(LUS::ResourceType::DisplayList))
         return (char*)&((std::static_pointer_cast<LUS::DisplayList>(res))->Instructions[0]);
-    else if (res->GetInitData()->Type == static_cast<uint32_t>(LUS::ResourceType::Array))
-        return (char*)(std::static_pointer_cast<LUS::Array>(res))->Vertices.data();
+    else if (res->GetInitData()->Type == static_cast<uint32_t>(SOH::ResourceType::SOH_Array))
+        return (char*)(std::static_pointer_cast<SOH::Array>(res))->Vertices.data();
     else {
         return (char*)ResourceGetDataByName(filePath);
     }
@@ -1063,30 +1058,30 @@ extern "C" void ResourceMgr_UnpatchGfxByName(const char* path, const char* patch
 }
 
 extern "C" char* ResourceMgr_LoadVtxArrayByName(const char* path) {
-    auto res = std::static_pointer_cast<LUS::Array>(GetResourceByName(path));
+    auto res = std::static_pointer_cast<SOH::Array>(GetResourceByName(path));
 
     return (char*)res->Vertices.data();
 }
 
 extern "C" size_t ResourceMgr_GetVtxArraySizeByName(const char* path) {
-    auto res = std::static_pointer_cast<LUS::Array>(GetResourceByName(path));
+    auto res = std::static_pointer_cast<SOH::Array>(GetResourceByName(path));
 
     return res->Vertices.size();
 }
 
 extern "C" char* ResourceMgr_LoadArrayByName(const char* path) {
-    auto res = std::static_pointer_cast<LUS::Array>(GetResourceByName(path));
+    auto res = std::static_pointer_cast<SOH::Array>(GetResourceByName(path));
 
     return (char*)res->Scalars.data();
 }
 
 extern "C" size_t ResourceMgr_GetArraySizeByName(const char* path) {
-    auto res = std::static_pointer_cast<LUS::Array>(GetResourceByName(path));
+    auto res = std::static_pointer_cast<SOH::Array>(GetResourceByName(path));
 
     return res->Scalars.size();
 }
 extern "C" char* ResourceMgr_LoadArrayByNameAsVec3s(const char* path) {
-    auto res = std::static_pointer_cast<LUS::Array>(GetResourceByName(path));
+    auto res = std::static_pointer_cast<SOH::Array>(GetResourceByName(path));
 
     // if (res->CachedGameAsset != nullptr)
     //     return (char*)res->CachedGameAsset;

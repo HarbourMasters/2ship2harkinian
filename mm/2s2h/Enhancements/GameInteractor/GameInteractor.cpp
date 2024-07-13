@@ -19,6 +19,10 @@ void GameInteractor_ExecuteOnGameStateUpdate() {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnGameStateUpdate>();
 }
 
+void GameInteractor_ExecuteOnConsoleLogoUpdate() {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnConsoleLogoUpdate>();
+}
+
 void GameInteractor_ExecuteOnKaleidoUpdate(PauseContext* pauseCtx) {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnKaleidoUpdate>(pauseCtx);
 }
