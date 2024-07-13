@@ -1631,7 +1631,7 @@ PlayerAnimationHeader* D_8085BE84[PLAYER_ANIMGROUP_MAX][PLAYER_ANIMTYPE_MAX] = {
         &gPlayerAnim_sude_nwait,
     }
 };
-
+// Animations while on Z-Target
 struct_8085C2A4 D_8085C2A4[] = {
     /* 0 / Forward */
     {
@@ -7907,7 +7907,7 @@ s32 func_80839800(Player* this, PlayState* play) {
     }
     return false;
 }
-
+// Side Hops and Backflip
 void func_80839860(Player* this, PlayState* play, s32 arg2) {
     s32 pad;
     f32 speed = (!(arg2 & 1) ? 5.8f : 3.5f);
@@ -7969,12 +7969,13 @@ s32 func_80839A84(PlayState* play, Player* this) {
     return true;
 }
 
+// Z target but doesn't activate when you're swimming
 s32 Player_ActionChange_10(Player* this, PlayState* play) {
     if (CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_A) &&
         (play->roomCtx.curRoom.behaviorType1 != ROOM_BEHAVIOR_TYPE1_2) && (sPlayerFloorType != FLOOR_TYPE_7) &&
         (sPlayerFloorEffect != FLOOR_EFFECT_1)) {
         s32 temp_a2 = this->unk_AE3[this->unk_ADE];
-
+        // covers when link is staying put and when link is moving forward
         if (temp_a2 <= 0) {
             if (func_8082FBE8(this)) {
                 if (this->actor.category != ACTORCAT_PLAYER) {
@@ -7983,16 +7984,34 @@ s32 Player_ActionChange_10(Player* this, PlayState* play) {
                     } else {
                         func_80836B3C(play, this, 0.0f);
                     }
-                } else if (!(this->stateFlags1 & PLAYER_STATE1_8000000) &&
-                           (Player_GetMeleeWeaponHeld(this) != PLAYER_MELEEWEAPON_NONE) &&
-                           Player_CanUpdateItems(this) && (this->transformation != PLAYER_FORM_GORON)) {
-                    func_808395F0(play, this, PLAYER_MWA_JUMPSLASH_START, 5.0f, 5.0f);
+                }
+                // Jump/Leap (Was jump slash)
+                else if (!(this->stateFlags1 & PLAYER_STATE1_8000000) &&
+                         (Player_GetMeleeWeaponHeld(this) != PLAYER_MELEEWEAPON_NONE) && Player_CanUpdateItems(this) &&
+                         (this->transformation != PLAYER_FORM_GORON)) {
+                    if (!GameInteractor_Should(GI_VB_MANUAL_JUMP, true, NULL)) {
+                        if (this->transformation == PLAYER_FORM_ZORA) {
+                            func_808395F0(play, this, PLAYER_MWA_JUMPSLASH_START, 5.0f, 5.0f);
+                        }
+                        // Leap
+                        else if (temp_a2 == 0) {
+                            func_80834D50(play, this, D_8085C2A4[0].unk_0, 5.8f, NA_SE_VO_LI_SWORD_N);
+                        }
+                        // Jump
+                        else {
+                            func_80834DB8(this, &gPlayerAnim_link_normal_jump, REG(69) / 100.0f, play);
+                        }
+                    } else {
+                        func_808395F0(play, this, PLAYER_MWA_JUMPSLASH_START, 5.0f, 5.0f);
+                    }
+
                 } else if (!func_80839A84(play, this)) {
                     func_80836B3C(play, this, 0.0f);
                 }
 
                 return true;
             }
+            // covers when link is backflipping or sidehopping
         } else {
             func_80839860(this, play, temp_a2);
             return true;
