@@ -7,6 +7,8 @@
 #include "z_en_slime.h"
 #include "overlays/actors/ovl_En_Clear_Tag/z_en_clear_tag.h"
 
+#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
+
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_10 | ACTOR_FLAG_200)
 
 #define THIS ((EnSlime*)thisx)
@@ -1240,22 +1242,7 @@ void EnSlime_Draw(Actor* thisx, PlayState* play) {
         Matrix_Translate(this->actor.world.pos.x, this->actor.world.pos.y + (2000.0f * this->actor.scale.y),
                          this->actor.world.pos.z, MTXMODE_NEW);
 
-        if (CVarGetInteger("gEnhancements.Graphics.3DItemDrops", 0)) {
-            switch (this->actor.params) {
-                case EN_SLIME_TYPE_RED:
-                    Matrix_Scale(0.3f, 0.3f, 0.3f, MTXMODE_APPLY);
-                    GetItem_Draw(play, GID_RECOVERY_HEART);
-                    break;
-                case EN_SLIME_TYPE_GREEN:
-                    Matrix_Scale(0.3f, 0.3f, 0.3f, MTXMODE_APPLY);
-                    GetItem_Draw(play, GID_MAGIC_JAR_SMALL);
-                    break;
-                case EN_SLIME_TYPE_YELLOW:
-                    Matrix_Scale(0.3f, 0.3f, 0.3f, MTXMODE_APPLY);
-                    GetItem_Draw(play, GID_ARROWS_MEDIUM);
-                    break;
-            }
-        } else {
+        if (GameInteractor_Should(GI_VB_DRAW_SLIME_BODY_ITEM, true, this)) {
             Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY);
 
             gSPSegment(POLY_OPA_DISP++, 8, (uintptr_t)this->itemDropTex);
