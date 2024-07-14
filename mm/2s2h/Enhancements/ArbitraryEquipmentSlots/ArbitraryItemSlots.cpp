@@ -29,6 +29,7 @@ ArbitraryItemSlotManager::ArbitraryItemSlotManager(std::string id, uint16_t spec
         0, 0, 27, 27, 620, 620, 255, 0, 0, 255, true
     };
     this->lister = lister;
+    this->loadCVars();
 }
 ArbitraryItemSlotManager::ArbitraryItemSlotManager(std::string id, ArbitraryItemSlotLister* lister) {
     this->arbId = id;
@@ -38,6 +39,7 @@ ArbitraryItemSlotManager::ArbitraryItemSlotManager(std::string id, ArbitraryItem
         0, 0, 27, 27, 620, 620, 255, 0, 0, 255, true
     };
     this->lister = lister;
+    this->loadCVars();
 }
 
 ArbitraryItemEquipButton ArbitraryItemSlotManager::makeEquipButton() {
@@ -105,20 +107,6 @@ ArbitraryItemDrawParams ArbitraryItemSlotManager::getDrawParams(PlayState *play)
     if(this->disabled){
         state = state.parent(this->disabledState);
     }
-    
-    // result.rectHeight = 27.0 * state.scale;
-    // result.rectWidth = 27.0 * state.scale;
-
-    // result.rectLeft = state.posLeft - result.rectWidth / 2.0;
-    // result.rectTop = state.posTop - result.rectHeight / 2.0;
-
-    // result.dsdx = 620.0 * (1.0 / state.scale);
-    // result.dtdy = 620.0 * (1.0 / state.scale);
-
-    // result.r = 255 * state.rgb[0];
-    // result.g = 255 * state.rgb[1];
-    // result.b = 255 * state.rgb[2];
-    // result.a = this->hudAlpha * state.transparency;
 
     return state.toDrawParams(this->hudAlpha);
 }
@@ -197,6 +185,33 @@ void ArbitraryItemSlotManager::updateHudAlpha(PlayState *play, HudVisibility hud
     }
 }
 
+
+std::string ArbitraryItemSlotManager::getCVarListerString(){
+    return this->lister->getCVarListerString() + "." + this->arbId;
+}
+
+std::string ArbitraryItemSlotLister::getCVarListerString(){
+    return std::string("gEnhancements.equipment.arbitraryEquipmentSlots.") + this->name;
+}
+
+void ArbitraryItemSlotManager::saveCVars(){
+    this->state.saveCVars(this->getCVarListerString() + ".defaultState");
+    this->disabledState.saveCVars(this->getCVarListerString() + ".disabledState");
+}
+void ArbitraryItemSlotManager::loadCVars(){
+    this->state.loadCVars(this->getCVarListerString() + ".defaultState");
+    this->disabledState.loadCVars(this->getCVarListerString() + ".disabledState");
+}
+
+void ArbitraryItemSlotLister::saveCVars(){
+    this->parentState.saveCVars(this->getCVarListerString() + ".defaultState");
+    this->disabledState.saveCVars(this->getCVarListerString() + ".disabledState");
+}
+void ArbitraryItemSlotLister::loadCVars(){
+    this->parentState.loadCVars(this->getCVarListerString() + ".defaultState");
+    this->disabledState.loadCVars(this->getCVarListerString() + ".disabledState");
+}
+
 ArbitraryItemEquipSet ArbitraryItemSlotLister::getEquipSlots(PlayState *play, Input* input){
     this->baseSlots = {};
 
@@ -237,6 +252,7 @@ void ArbitraryItemSlotLister::initItemEquips(ItemEquips* equips) {
 }
 
 ArbitraryItemSlotLister::ArbitraryItemSlotLister(){
+    this->loadCVars();
 }
 
 std::shared_ptr<ArbitraryItemSlotLister> currentLister = NULL;

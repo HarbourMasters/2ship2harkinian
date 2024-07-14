@@ -1,4 +1,5 @@
 #include "./SlotState.h"
+#include "consolevariablebridge.h"
 
 SlotState SlotState::blend(SlotState& other, float ratio){
     SlotState result;
@@ -47,6 +48,35 @@ int32_t SlotState::getWidth(){
 int32_t SlotState::getHeight(){
     return this->scale * 27.0;
 }
+
+#define LOAD_CVAR(name, cvarFun) this->name = cvarFun((savePath + "." #name).c_str(), this->name)
+#define SET_CVAR(name, cvarFun) cvarFun((savePath + "." #name).c_str(), this->name)
+
+void SlotState::saveCVars(std::string savePath){
+    SET_CVAR(posLeft, CVarSetInteger);
+    SET_CVAR(posTop, CVarSetInteger);
+    SET_CVAR(scale, CVarSetFloat);
+    SET_CVAR(transparency, CVarSetFloat);
+
+    SET_CVAR(rgb[0], CVarSetFloat);
+    SET_CVAR(rgb[1], CVarSetFloat);
+    SET_CVAR(rgb[2], CVarSetFloat);
+    SET_CVAR(rgb[3], CVarSetFloat);
+}
+void SlotState::loadCVars(std::string savePath){
+    LOAD_CVAR(posLeft, CVarGetInteger);
+    LOAD_CVAR(posTop, CVarGetInteger);
+    LOAD_CVAR(scale, CVarGetFloat);
+    LOAD_CVAR(transparency, CVarGetFloat);
+
+    LOAD_CVAR(rgb[0], CVarGetFloat);
+    LOAD_CVAR(rgb[1], CVarGetFloat);
+    LOAD_CVAR(rgb[2], CVarGetFloat);
+    LOAD_CVAR(rgb[3], CVarGetFloat);
+}
+
+#undef LOAD_CVAR
+#undef SET_CVAR
 
 ArbitraryItemDrawParams SlotState::toDrawParams(int32_t hudAlpha){
     ArbitraryItemDrawParams result;

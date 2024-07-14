@@ -186,6 +186,35 @@ uint8_t CarouselItemSlotManager::tradeItem(Input* input){
     return CHECK_INTENT(input->cur.intentControls, l->equipButtonIntent, BUTTON_STATE_PRESS, 0);
 }
 
+#define LOAD_CVAR(name, cvarFun) this->name = cvarFun((this->getCVarListerString() + "." #name).c_str(), this->name)
+#define SET_CVAR(name, cvarFun) cvarFun((this->getCVarListerString() + "." #name).c_str(), this->name)
+
+void CarouselItemSlotManager::loadCVars(){
+    ArbitraryItemSlotManager::loadCVars();
+}    
+void CarouselItemSlotManager::saveCVars(){
+    ArbitraryItemSlotManager::saveCVars();
+}  
+
+void CarouselItemSlotLister::loadCVars(){
+    ArbitraryItemSlotLister::loadCVars();
+    LOAD_CVAR(slotCount, CVarGetInteger);
+    LOAD_CVAR(carouselIndexRadius, CVarGetInteger);
+    LOAD_CVAR(carouselDirectionAngle, CVarGetFloat);
+    this->parentState.loadCVars(this->getCVarListerString() + ".defaultState");
+}
+void CarouselItemSlotLister::saveCVars(){
+    ArbitraryItemSlotLister::saveCVars();
+    SET_CVAR(slotCount, CVarSetInteger);
+    SET_CVAR(carouselIndexRadius, CVarSetInteger);
+    SET_CVAR(carouselDirectionAngle, CVarSetFloat);
+
+    this->parentState.saveCVars(this->getCVarListerString() + ".defaultState");
+}
+
+#undef LOAD_CVAR
+#undef SET_CVAR
+
 void CarouselItemSlotLister::resetSlotCount(uint8_t count){
     std::vector<std::shared_ptr<CarouselItemSlotManager>> newSlots;
 
@@ -206,12 +235,11 @@ void CarouselItemSlotLister::resetSlotCount(uint8_t count){
 }
 
 CarouselItemSlotLister::CarouselItemSlotLister(std::string name, uint16_t equipButtonIntent, uint16_t swapLeftIntent, uint16_t swapRightIntent){
-    this->resetSlotCount(this->slotCount);
+    this->name = name;
     this->equipButtonIntent = equipButtonIntent;
     this->swapLeftIntent = swapLeftIntent;
     this->swapRightIntent = swapRightIntent;
     this->options = std::shared_ptr<CarouselListerOptions>(new CarouselListerOptions());
-    this->name = name;
 
     this->parentState.posLeft = 345;
     this->parentState.posTop = 32;
@@ -222,6 +250,9 @@ CarouselItemSlotLister::CarouselItemSlotLister(std::string name, uint16_t equipB
     this->scrollingSelectedState.rgb[0] = 1;
     this->scrollingSelectedState.rgb[1] = 1;
     this->scrollingSelectedState.rgb[2] = 1;
+    
+    this->loadCVars();
+    this->resetSlotCount(this->slotCount);
 }
 
 ArbitraryItemEquipSet CarouselItemSlotLister::getEquipSlots(PlayState *play, Input* input){

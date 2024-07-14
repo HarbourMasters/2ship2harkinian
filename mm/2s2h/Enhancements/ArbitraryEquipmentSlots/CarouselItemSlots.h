@@ -12,6 +12,9 @@ struct CarouselItemSlotManager : public ArbitraryItemSlotManager {
     int32_t getLeftOffset(int16_t index);
     bool isSelectedSlot();
 
+    virtual void saveCVars();
+    virtual void loadCVars();
+
     virtual uint8_t canTakeAssignment(ItemId item);
     virtual uint8_t assignmentTriggered(Input* input);
     virtual uint8_t activateItem(Input* input, uint8_t buttonState);
@@ -60,6 +63,10 @@ struct CarouselItemSlotLister : public ArbitraryItemSlotLister {
 
     CarouselItemSlotLister(std::string name, uint16_t equipButtonIntent, uint16_t swapLeftIntent, uint16_t swapRightIntent);
     void resetSlotCount(uint8_t count);
+    
+    virtual void saveCVars() override;
+    virtual void loadCVars() override;
+
     virtual ArbitraryItemEquipSet getEquipSlots(PlayState *play, Input* input);
     virtual void initItemEquips(ItemEquips* equips);
 };

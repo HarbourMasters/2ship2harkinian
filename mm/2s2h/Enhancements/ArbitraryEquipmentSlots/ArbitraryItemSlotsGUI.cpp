@@ -65,7 +65,11 @@ void ArbitraryItemSlotsListerOptions::drawOptions(ArbitraryItemSlotsWindow* win,
             }
         }
         i++;
+        slot->saveCVars();
     }
+
+    manager->saveCVars();
+    CVarSave();
 }
 
 std::shared_ptr<ArbitraryItemSlotsWindow> arbItemSlotsWindow;

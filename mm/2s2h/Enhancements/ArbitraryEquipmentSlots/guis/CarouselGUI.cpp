@@ -34,4 +34,6 @@ void CarouselListerOptions::drawOptions(ArbitraryItemSlotsWindow* win, Arbitrary
     if(ImGui::CollapsingHeader("Disabled State##carouselDisabledState")){
         this->drawSlotState(win, &m->disabledState, "##carouselDisabledState");
     }
+    m->saveCVars();
+    CVarSave();
 }

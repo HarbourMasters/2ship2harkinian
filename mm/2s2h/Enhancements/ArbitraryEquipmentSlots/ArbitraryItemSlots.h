@@ -30,6 +30,11 @@ struct ArbitraryItemSlotManager {
     ArbitraryItemSlotManager(std::string id, ArbitraryItemSlotLister* lister);
     ArbitraryItemSlotManager(std::string id, uint16_t specialButtonId, ArbitraryItemSlotLister* lister);
 
+    virtual std::string getCVarListerString();
+
+    virtual void saveCVars();
+    virtual void loadCVars();
+
     virtual ArbitraryItemEquipButton makeEquipButton();
     virtual uint8_t canTakeAssignment(ItemId item);
     virtual uint8_t assignmentTriggered(Input* input);
@@ -54,6 +59,11 @@ struct ArbitraryItemSlotLister {
         std::shared_ptr<ArbitraryItemSlotManager>{ new ArbitraryItemSlotManager("1", ARB_EQUIP_ITEM_1, this) },
         std::shared_ptr<ArbitraryItemSlotManager>{ new ArbitraryItemSlotManager("2", ARB_EQUIP_ITEM_2, this) }
     };
+
+    virtual std::string getCVarListerString();
+    
+    virtual void saveCVars();
+    virtual void loadCVars();
 
     virtual ArbitraryItemEquipSet getEquipSlots(PlayState *play, Input* input);
 
