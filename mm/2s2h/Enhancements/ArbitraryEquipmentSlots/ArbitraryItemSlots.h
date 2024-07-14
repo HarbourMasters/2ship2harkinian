@@ -15,7 +15,7 @@ struct ArbitraryItemSlotsManagerOptions;
 struct ArbitraryItemSlotLister;
 
 struct ArbitraryItemSlotManager {
-    uint16_t arbId;
+    std::string arbId;
     uint16_t specialButtonId;
     uint16_t assignedItem;
     int32_t hudAlpha = 255;
@@ -27,8 +27,8 @@ struct ArbitraryItemSlotManager {
     SlotState state;
     SlotState disabledState{};
 
-    ArbitraryItemSlotManager(uint16_t id, ArbitraryItemSlotLister* lister);
-    ArbitraryItemSlotManager(uint16_t id, uint16_t specialButtonId, ArbitraryItemSlotLister* lister);
+    ArbitraryItemSlotManager(std::string id, ArbitraryItemSlotLister* lister);
+    ArbitraryItemSlotManager(std::string id, uint16_t specialButtonId, ArbitraryItemSlotLister* lister);
 
     virtual ArbitraryItemEquipButton makeEquipButton();
     virtual uint8_t canTakeAssignment(ItemId item);
@@ -51,8 +51,8 @@ struct ArbitraryItemSlotLister {
     std::shared_ptr<ArbitraryItemSlotsListerOptions> options{new ArbitraryItemSlotsListerOptions()};
     std::vector<ArbitraryItemEquipButton> baseSlots;
     std::vector<std::shared_ptr<ArbitraryItemSlotManager>> slots = {
-        std::shared_ptr<ArbitraryItemSlotManager>{ new ArbitraryItemSlotManager(1, ARB_EQUIP_ITEM_1, this) },
-        std::shared_ptr<ArbitraryItemSlotManager>{ new ArbitraryItemSlotManager(2, ARB_EQUIP_ITEM_2, this) }
+        std::shared_ptr<ArbitraryItemSlotManager>{ new ArbitraryItemSlotManager("1", ARB_EQUIP_ITEM_1, this) },
+        std::shared_ptr<ArbitraryItemSlotManager>{ new ArbitraryItemSlotManager("2", ARB_EQUIP_ITEM_2, this) }
     };
 
     virtual ArbitraryItemEquipSet getEquipSlots(PlayState *play, Input* input);

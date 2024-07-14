@@ -32,11 +32,25 @@ void from_json(const json& j, ShipSaveInfo& shipSaveInfo) {
     j.at("pauseSaveEntrance").get_to(shipSaveInfo.pauseSaveEntrance);
 }
 
+// void from_json(const json& j, );
+
 void to_json(json& j, const ItemEquips& itemEquips) {
+    std::vector<json> a;
+    FOREACH_SLOT(
+        itemEquips.equipsSlotGetter.getEquipSlots(&itemEquips.equipsSlotGetter, nullptr, nullptr), 
+        arbSlot, 
+        {
+            a.push_back(json{
+                {"id", arbSlot->getID(arbSlot)},
+                {"assignedItem", arbSlot->getAssignedItem(arbSlot)}
+            });
+        }
+    );
     j = json{
         { "buttonItems", itemEquips.buttonItems },
         { "cButtonSlots", itemEquips.cButtonSlots },
         { "equipment", itemEquips.equipment },
+        { "arbitraryEquipmentSlots", a },
     };
 }
 
@@ -49,8 +63,8 @@ void from_json(const json& j, ItemEquips& itemEquips) {
     }
 
     size_t arbCount = 0;
-    if(j.contains("arbitraryEquipmentButtons")){
-        arbCount = j.at("arbitraryEquipmentButtons").size();
+    if(j.contains("arbitraryEquipmentSlots")){
+        arbCount = j.at("arbitraryEquipmentSlots").size();
     }
     
     initItemEquips(&itemEquips);
@@ -61,12 +75,12 @@ void from_json(const json& j, ItemEquips& itemEquips) {
         ArbitraryItemEquipButton& a = slots.equips[i];
         
         for(size_t k = 0; k < arbCount ; k++){
-            uint16_t parsedId = 0;
-            j.at("arbitraryEquipmentButtons").at(k).at("id").get_to(parsedId);
+            std::string parsedId;
+            j.at("arbitraryEquipmentSlots").at(k).at("id").get_to(parsedId);
 
-            if(parsedId == a.id){
+            if(parsedId == a.getID(&a)){
                 uint16_t item;
-                j.at("arbitraryEquipmentButtons").at(k).at("assignedItem").get_to(item);
+                j.at("arbitraryEquipmentSlots").at(k).at("assignedItem").get_to(item);
                 a.assignItem(&a, item);
             }
         }

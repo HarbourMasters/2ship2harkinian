@@ -7,7 +7,7 @@ extern "C" {
 }
 #include "./guis/CarouselGUI.h"
 
-CarouselItemSlotManager::CarouselItemSlotManager(uint16_t id, CarouselItemSlotLister* lister): ArbitraryItemSlotManager(id, lister) {
+CarouselItemSlotManager::CarouselItemSlotManager(std::string id, CarouselItemSlotLister* lister): ArbitraryItemSlotManager(id, lister) {
     // this->scrollPosition = 0;
 }
 
@@ -196,7 +196,7 @@ void CarouselItemSlotLister::resetSlotCount(uint8_t count){
             newSlots.push_back(existing);
         }
         else {
-            auto newSlot = std::shared_ptr<CarouselItemSlotManager>{ new CarouselItemSlotManager(i + 1, this) };
+            auto newSlot = std::shared_ptr<CarouselItemSlotManager>{ new CarouselItemSlotManager("carouselSlotNum" + std::to_string(i + 1), this) };
             newSlots.push_back(newSlot);
         }
     }
@@ -317,7 +317,7 @@ ArbitraryItemEquipSet CarouselItemSlotLister::getEquipSlots(PlayState *play, Inp
 
 void CarouselItemSlotLister::initItemEquips(ItemEquips* equips){
     equips->equipsSlotGetter.userData = this;
-    equips->equipsSlotGetter.getEquipSlots = +[](ArbitraryEquipsSlotGetter* self, PlayState* play, Input* input) {
+    equips->equipsSlotGetter.getEquipSlots = +[](const ArbitraryEquipsSlotGetter* self, PlayState* play, Input* input) {
         return ((CarouselItemSlotLister*)self->userData)->getEquipSlots(play, input);
     };
 }

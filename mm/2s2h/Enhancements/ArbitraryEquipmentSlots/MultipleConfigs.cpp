@@ -42,7 +42,7 @@ ArbitraryItemEquipSet MulitpleItemSlotLister::getEquipSlots(PlayState *play, Inp
 
 void MulitpleItemSlotLister::initItemEquips(ItemEquips* equips) {
     equips->equipsSlotGetter.userData = this;
-    equips->equipsSlotGetter.getEquipSlots = +[](ArbitraryEquipsSlotGetter* self, PlayState* play, Input* input) {
+    equips->equipsSlotGetter.getEquipSlots = +[](const ArbitraryEquipsSlotGetter* self, PlayState* play, Input* input) {
         return ((MulitpleItemSlotLister*)self->userData)->getEquipSlots(play, input);
     };
 }

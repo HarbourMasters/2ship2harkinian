@@ -21,7 +21,7 @@ extern "C" {
 
 uint16_t width = 27, height = 27;
 
-ArbitraryItemSlotManager::ArbitraryItemSlotManager(uint16_t id, uint16_t specialButtonId, ArbitraryItemSlotLister* lister) {
+ArbitraryItemSlotManager::ArbitraryItemSlotManager(std::string id, uint16_t specialButtonId, ArbitraryItemSlotLister* lister) {
     this->arbId = id;
     this->specialButtonId = specialButtonId;
     this->assignedItem = ITEM_NONE;
@@ -30,7 +30,7 @@ ArbitraryItemSlotManager::ArbitraryItemSlotManager(uint16_t id, uint16_t special
     };
     this->lister = lister;
 }
-ArbitraryItemSlotManager::ArbitraryItemSlotManager(uint16_t id, ArbitraryItemSlotLister* lister) {
+ArbitraryItemSlotManager::ArbitraryItemSlotManager(std::string id, ArbitraryItemSlotLister* lister) {
     this->arbId = id;
     this->specialButtonId = 0;
     this->assignedItem = ITEM_NONE;
@@ -42,7 +42,6 @@ ArbitraryItemSlotManager::ArbitraryItemSlotManager(uint16_t id, ArbitraryItemSlo
 
 ArbitraryItemEquipButton ArbitraryItemSlotManager::makeEquipButton() {
     return {
-        this->arbId, // id;
         this,        // userData;
         +[](ArbitraryItemEquipButton* self, ItemId item) {
             return ((ArbitraryItemSlotManager*)self->userData)->canTakeAssignment(item);
@@ -75,6 +74,9 @@ ArbitraryItemEquipButton ArbitraryItemSlotManager::makeEquipButton() {
         +[](struct ArbitraryItemEquipButton* self, PlayState *play, HudVisibility hudMode, s16 dimmingAlpha){
             ((ArbitraryItemSlotManager*)self->userData)->updateHudAlpha(play, hudMode, dimmingAlpha);
         }, // updateHudAlpha
+        +[](struct ArbitraryItemEquipButton* self){
+            return ((ArbitraryItemSlotManager*)self->userData)->arbId.c_str();
+        },
     };
 }
 
@@ -99,29 +101,26 @@ uint8_t ArbitraryItemSlotManager::tradeItem(Input* input) {
 ArbitraryItemDrawParams ArbitraryItemSlotManager::getDrawParams(PlayState *play) {
     ArbitraryItemDrawParams result = this->drawParams;
 
-    SlotState state;
+    SlotState state = this->lister->parentState.parent(this->state);
     if(this->disabled){
-        state = this->lister->disabledState.parent(this->disabledState);
-    }
-    else {
-        state = this->lister->parentState.parent(this->state);
+        state = state.parent(this->disabledState);
     }
     
-    result.rectHeight = 27.0 * state.scale;
-    result.rectWidth = 27.0 * state.scale;
+    // result.rectHeight = 27.0 * state.scale;
+    // result.rectWidth = 27.0 * state.scale;
 
-    result.rectLeft = state.posLeft - result.rectWidth / 2.0;
-    result.rectTop = state.posTop - result.rectHeight / 2.0;
+    // result.rectLeft = state.posLeft - result.rectWidth / 2.0;
+    // result.rectTop = state.posTop - result.rectHeight / 2.0;
 
-    result.dsdx = 620.0 * (1.0 / state.scale);
-    result.dtdy = 620.0 * (1.0 / state.scale);
+    // result.dsdx = 620.0 * (1.0 / state.scale);
+    // result.dtdy = 620.0 * (1.0 / state.scale);
 
-    result.r = 255 * state.rgb[0];
-    result.g = 255 * state.rgb[1];
-    result.b = 255 * state.rgb[2];
-    result.a = this->hudAlpha * state.transparency;
+    // result.r = 255 * state.rgb[0];
+    // result.g = 255 * state.rgb[1];
+    // result.b = 255 * state.rgb[2];
+    // result.a = this->hudAlpha * state.transparency;
 
-    return result;
+    return state.toDrawParams(this->hudAlpha);
 }
 uint16_t ArbitraryItemSlotManager::getAssignedItem() {
     return this->assignedItem;
@@ -226,7 +225,7 @@ void ArbitraryItemSlotLister::addEquipSetCallbacks(ArbitraryItemEquipSet* set){
 
 void ArbitraryItemSlotLister::initItemEquips(ItemEquips* equips) {
     equips->equipsSlotGetter.userData = this;
-    equips->equipsSlotGetter.getEquipSlots = +[](ArbitraryEquipsSlotGetter* self, PlayState *play, Input* input) {
+    equips->equipsSlotGetter.getEquipSlots = +[](const ArbitraryEquipsSlotGetter* self, PlayState *play, Input* input) {
         return ((ArbitraryItemSlotLister*)self->userData)->getEquipSlots(play, input);
     };
 

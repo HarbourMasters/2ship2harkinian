@@ -226,7 +226,6 @@ typedef struct ArbitraryItemDrawParams {
 } ArbitraryItemDrawParams;
 
 typedef struct ArbitraryItemEquipButton {
-    uint16_t id;
     void* userData;
 
     // Logic checks
@@ -237,10 +236,12 @@ typedef struct ArbitraryItemEquipButton {
     ArbitraryItemDrawParams (*getDrawParams)(struct ArbitraryItemEquipButton* self, struct PlayState *play);
     uint16_t (*getAssignedItem)(struct ArbitraryItemEquipButton* self);
     uint16_t (*assignItem)(struct ArbitraryItemEquipButton* self, uint16_t item);
-    
+
     uint8_t (*setDisabled)(struct ArbitraryItemEquipButton* self, uint8_t disabled);
     uint8_t (*isDisabled)(struct ArbitraryItemEquipButton* self);
     void (*updateHudAlpha)(struct ArbitraryItemEquipButton* self, struct PlayState *play, HudVisibility hudMode, s16 dimmingAlpha);
+    
+    const char* (*getID)(struct ArbitraryItemEquipButton* self);
     
 } ArbitraryItemEquipButton;
 
@@ -268,8 +269,7 @@ typedef struct ArbitraryItemEquipSet {
 
 typedef struct ArbitraryEquipsSlotGetter {
     void* userData;
-    ArbitraryItemEquipSet (*getEquipSlots)(struct ArbitraryEquipsSlotGetter* self, struct PlayState *play, Input* input);
-
+    ArbitraryItemEquipSet (*getEquipSlots)(const struct ArbitraryEquipsSlotGetter* self, struct PlayState *play, Input* input);
 } ItemEquipsIniter;
 
 typedef struct ItemEquips {

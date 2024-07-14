@@ -8,7 +8,7 @@
 struct CarouselItemSlotLister;
 
 struct CarouselItemSlotManager : public ArbitraryItemSlotManager {
-    CarouselItemSlotManager(uint16_t id, CarouselItemSlotLister* lister);
+    CarouselItemSlotManager(std::string id, CarouselItemSlotLister* lister);
     int32_t getLeftOffset(int16_t index);
     bool isSelectedSlot();
 
