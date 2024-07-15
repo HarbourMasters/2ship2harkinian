@@ -1514,8 +1514,10 @@ void Play_DrawMain(PlayState* this) {
                 }
             }
 
-            // Draw collision before the PostWorldDraw label so that collision is not drawn during pause
+            // Draw Enhancements that need to be placed in the world. This happens before the PostWorldDraw
+            // so that they aren't drawn when the pause menu is up (e.g. collision viewer, actor name tags)
             DrawCollisionViewer();
+            GameInteractor_ExecuteOnPlayDrawWorldEnd();
 
         PostWorldDraw:
             if (1) {

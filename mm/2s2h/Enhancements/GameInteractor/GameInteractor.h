@@ -266,6 +266,7 @@ class GameInteractor {
 
     DEFINE_HOOK(OnSceneInit, (s8 sceneId, s8 spawnNum));
     DEFINE_HOOK(OnRoomInit, (s8 sceneId, s8 roomNum));
+    DEFINE_HOOK(OnPlayDrawWorldEnd, ());
     DEFINE_HOOK(OnPlayDestroy, ());
 
     DEFINE_HOOK(ShouldActorInit, (Actor * actor, bool* should));
@@ -275,6 +276,7 @@ class GameInteractor {
     DEFINE_HOOK(ShouldActorDraw, (Actor * actor, bool* should));
     DEFINE_HOOK(OnActorDraw, (Actor * actor));
     DEFINE_HOOK(OnActorKill, (Actor * actor));
+    DEFINE_HOOK(OnActorDestroy, (Actor * actor));
 
     DEFINE_HOOK(OnSceneFlagSet, (s16 sceneId, FlagType flagType, u32 flag));
     DEFINE_HOOK(OnSceneFlagUnset, (s16 sceneId, FlagType flagType, u32 flag));
@@ -310,6 +312,7 @@ void GameInteractor_ExecuteBeforeMoonCrashSaveReset();
 
 void GameInteractor_ExecuteOnSceneInit(s16 sceneId, s8 spawnNum);
 void GameInteractor_ExecuteOnRoomInit(s16 sceneId, s8 roomNum);
+void GameInteractor_ExecuteOnPlayDrawWorldEnd();
 void GameInteractor_ExecuteOnPlayDestroy();
 
 bool GameInteractor_ShouldActorInit(Actor* actor);
@@ -319,6 +322,7 @@ void GameInteractor_ExecuteOnActorUpdate(Actor* actor);
 bool GameInteractor_ShouldActorDraw(Actor* actor);
 void GameInteractor_ExecuteOnActorDraw(Actor* actor);
 void GameInteractor_ExecuteOnActorKill(Actor* actor);
+void GameInteractor_ExecuteOnActorDestroy(Actor* actor);
 
 void GameInteractor_ExecuteOnSceneFlagSet(s16 sceneId, FlagType flagType, u32 flag);
 void GameInteractor_ExecuteOnSceneFlagUnset(s16 sceneId, FlagType flagType, u32 flag);
