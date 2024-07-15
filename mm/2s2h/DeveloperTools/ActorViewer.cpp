@@ -192,8 +192,8 @@ void ActorViewerWindow::DrawElement() {
         if (ImGui::BeginChild("options", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY)) {
             ImGui::Text("Options");
             if (UIWidgets::CVarCombobox("Actor Name Tags", "gDeveloperTools.ActorViewer.NameTags", nameTagOptions,
-                                        { .defaultIndex = ACTORVIEWER_NAMETAGS_NONE,
-                                          .tooltip = "Adds \"name tags\" above actors for identification" })) {
+                                        { .tooltip = "Adds \"name tags\" above actors for identification",
+                                          .defaultIndex = ACTORVIEWER_NAMETAGS_NONE })) {
                 ActorViewer_RegisterNameTagHooks();
                 NameTag_RemoveAllByTag(DEBUG_ACTOR_NAMETAG_TAG);
                 ActorViewer_AddTagForAllActors();

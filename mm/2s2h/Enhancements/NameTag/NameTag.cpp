@@ -17,16 +17,16 @@ extern PlayState* gPlayState;
 
 typedef struct {
     Actor* actor;
-    std::string text; // Original text
+    std::string text;          // Original text
     std::string processedText; // Text filtered for supported font textures
-    const char* tag; // Tag identifier
-    Color_RGBA8 textColor; // Text color override. Global color is used if alpha is 0
-    int16_t height; // Textbox height
-    int16_t width; // Textbox width
-    int16_t yOffset; // Addition Y offset
-    uint8_t noZBuffer; // Allow rendering over geometry
-    Mtx* mtx; // Allocated Mtx for rendering
-    Vtx* vtx; // Allocated Vtx for rendering
+    const char* tag;           // Tag identifier
+    Color_RGBA8 textColor;     // Text color override. Global color is used if alpha is 0
+    int16_t height;            // Textbox height
+    int16_t width;             // Textbox width
+    int16_t yOffset;           // Addition Y offset
+    uint8_t noZBuffer;         // Allow rendering over geometry
+    Mtx* mtx;                  // Allocated Mtx for rendering
+    Vtx* vtx;                  // Allocated Vtx for rendering
 } NameTag;
 
 static std::vector<NameTag> nameTags;
@@ -70,7 +70,7 @@ void DrawNameTag(PlayState* play, const NameTag* nameTag) {
         return;
     }
 
-    Color_RGBA8 textboxColor = { 0, 0, 0, 80};
+    Color_RGBA8 textboxColor = { 0, 0, 0, 80 };
     Color_RGBA8 textColor = { 255, 255, 255, 255 };
 
     // BENTODO: Cosmetic editor support
@@ -213,11 +213,12 @@ extern "C" void NameTag_RegisterForActorWithOptions(Actor* actor, const char* te
     std::string processedText = std::string(text);
 
     // Strip out unsupported characters
-    processedText.erase(std::remove_if(processedText.begin(), processedText.end(), [](const char& c) {
-        // 172 is max supported texture for the in-game font system,
-        // and filter anything less than a space but not the newline or nul characters
-        return (uint8_t)c > 188 || (c < ' ' && c != '\n' && c != '\0');
-    }), processedText.end());
+    // 188 is max supported texture for the in-game font system,
+    // and filter anything less than a space but not the newline or nul characters
+    processedText.erase(
+        std::remove_if(processedText.begin(), processedText.end(),
+                       [](const char& c) { return (uint8_t)c > 188 || (c < ' ' && c != '\n' && c != '\0'); }),
+        processedText.end());
 
     size_t numChar = processedText.length();
     int16_t numLines = 1;
