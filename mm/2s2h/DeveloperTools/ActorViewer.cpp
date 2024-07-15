@@ -77,6 +77,18 @@ void ResetVariables() {
     preventActorUpdateHookId = 0;
 }
 
+void ActorViewer_RegisterHooks() {
+    static HOOK_ID actorDeleteHookID = 0;
+    GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnActorDestroy>(actorDeleteHookID);
+    actorDeleteHookID = 0;
+
+    actorDeleteHookID = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnActorDestroy>([](Actor* actor) {
+        if (actor == display) {
+            ResetVariables();
+        }
+    });
+}
+
 void ActorViewerWindow::DrawElement() {
     ImGui::SetNextWindowSize(ImVec2(520, 600), ImGuiCond_FirstUseEver);
     if (!ImGui::Begin("Actor Viewer", &mIsVisible, ImGuiWindowFlags_NoFocusOnAppearing)) {
@@ -92,42 +104,41 @@ void ActorViewerWindow::DrawElement() {
             needs_reset = false;
         }
 
-        if (ImGui::BeginCombo("Actor", filler.c_str())) {
-            if (gPlayState != nullptr) {
+        if (ImGui::TreeNode("Select existing Actor")) {
+            if (ImGui::BeginCombo("Actor", filler.c_str())) {
                 list = GetCurrentSceneActors();
                 lastSceneId = gPlayState->sceneId;
-            }
-            if (!list.empty()) {
-                u8 count = 0;
-                u8 prev_category = 0xff;
-                for (size_t i = 0; i < list.size(); i++) {
-                    std::string label = acMapping[list[i]->category];
-                    if (list[i]->category != prev_category) {
-                        prev_category = list[i]->category;
-                        count = 1;
-                    } else {
-                        count++;
-                    }
-                    label += " " + std::to_string(count) + ": " + GetActorDescription(list[i]->id);
-                    if (ImGui::Selectable(label.c_str())) {
-                        method = LIST;
-                        display = list[i];
-                        newActorId = i;
-                        filler = label;
-                        GameInteractor::Instance->UnregisterGameHookForPtr<GameInteractor::ShouldActorDraw>(
-                            preventActorDrawHookId);
-                        GameInteractor::Instance->UnregisterGameHookForPtr<GameInteractor::ShouldActorUpdate>(
-                            preventActorUpdateHookId);
-                        preventActorDrawHookId = 0;
-                        preventActorUpdateHookId = 0;
-                        break;
+
+                if (!list.empty()) {
+                    u8 count = 0;
+                    u8 prev_category = 0xff;
+                    for (size_t i = 0; i < list.size(); i++) {
+                        std::string label = acMapping[list[i]->category];
+                        if (list[i]->category != prev_category) {
+                            prev_category = list[i]->category;
+                            count = 1;
+                        } else {
+                            count++;
+                        }
+                        label += " " + std::to_string(count) + ": " + GetActorDescription(list[i]->id);
+                        if (ImGui::Selectable(label.c_str())) {
+                            method = LIST;
+                            display = list[i];
+                            newActorId = i;
+                            filler = label;
+                            GameInteractor::Instance->UnregisterGameHookForPtr<GameInteractor::ShouldActorDraw>(
+                                preventActorDrawHookId);
+                            GameInteractor::Instance->UnregisterGameHookForPtr<GameInteractor::ShouldActorUpdate>(
+                                preventActorUpdateHookId);
+                            preventActorDrawHookId = 0;
+                            preventActorUpdateHookId = 0;
+                            break;
+                        }
                     }
                 }
+                ImGui::EndCombo();
             }
-            ImGui::EndCombo();
-        }
 
-        if (ImGui::TreeNode("Selected Actor")) {
             if (display != nullptr) {
                 ImGui::BeginGroup();
                 ImGui::Text("ID: %hd", display->id);
@@ -251,7 +262,7 @@ void ActorViewerWindow::DrawElement() {
             ImGui::TreePop();
         }
 
-        if (ImGui::TreeNode("New...")) {
+        if (ImGui::TreeNode("Spawn new Actor")) {
             ImGui::PushItemWidth(ImGui::GetFontSize() * 10);
             ImU16 one = 1;
 
@@ -322,4 +333,5 @@ void ActorViewerWindow::DrawElement() {
 }
 
 void ActorViewerWindow::InitElement() {
+    ActorViewer_RegisterHooks();
 }
