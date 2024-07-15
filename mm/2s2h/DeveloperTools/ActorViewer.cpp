@@ -1,7 +1,9 @@
 #include "ActorViewer.h"
 #include "2s2h/BenGui/UIWidgets.hpp"
+#include <unordered_map>
 #include "global.h"
 #include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
+#include "2s2h/Enhancements/NameTag/NameTag.h"
 
 typedef struct ActorInfo {
     u16 id;
@@ -15,6 +17,20 @@ typedef enum Method {
     TARGET,
     HOLD,
 } Method;
+
+typedef enum {
+    ACTORVIEWER_NAMETAGS_NONE,
+    ACTORVIEWER_NAMETAGS_DESC,
+    ACTORVIEWER_NAMETAGS_NAME,
+    ACTORVIEWER_NAMETAGS_BOTH,
+} ActorViewerNameTagsType;
+
+static const std::unordered_map<int32_t, const char*> nameTagOptions = {
+    { ACTORVIEWER_NAMETAGS_BOTH, "Both" },
+    { ACTORVIEWER_NAMETAGS_NAME, "Actor ID" },
+    { ACTORVIEWER_NAMETAGS_DESC, "Short Description" },
+    { ACTORVIEWER_NAMETAGS_NONE, "None" },
+};
 
 std::array<const char*, 12> acMapping = { "Switch", "Background",  "Player", "Explosive", "NPC",  "Enemy",
                                           "Prop",   "Item/Action", "Misc.",  "Boss",      "Door", "Chest" };
@@ -31,8 +47,26 @@ std::unordered_map<s16, const char*> actorDescriptions = {
 #undef DEFINE_ACTOR_INTERNAL
 #undef DEFINE_ACTOR_UNSET
 
+#define DEFINE_ACTOR(name, _enumValue, _allocType, _debugName, _humanName) { _enumValue, _debugName },
+#define DEFINE_ACTOR_INTERNAL(_name, _enumValue, _allocType, _debugName, _humanName) { _enumValue, _debugName },
+#define DEFINE_ACTOR_UNSET(_enumValue) { _enumValue, "Unset" },
+
+std::unordered_map<s16, const char*> actorDebugNames = {
+#include "tables/actor_table.h"
+};
+
+#undef DEFINE_ACTOR
+#undef DEFINE_ACTOR_INTERNAL
+#undef DEFINE_ACTOR_UNSET
+
+#define DEBUG_ACTOR_NAMETAG_TAG "debug_actor_viewer"
+
 std::string GetActorDescription(u16 actorNum) {
     return actorDescriptions.contains(actorNum) ? actorDescriptions[actorNum] : "???";
+}
+
+std::string GetActorDebugName(u16 actorNum) {
+    return actorDebugNames.contains(actorNum) ? actorDebugNames[actorNum] : "???";
 }
 
 std::vector<Actor*> GetCurrentSceneActors() {
@@ -77,6 +111,57 @@ void ResetVariables() {
     preventActorUpdateHookId = 0;
 }
 
+void ActorViewer_AddTagForActor(Actor* actor) {
+    int val = CVarGetInteger("gDeveloperTools.ActorViewer.NameTags", ACTORVIEWER_NAMETAGS_NONE);
+
+    if (val > ACTORVIEWER_NAMETAGS_NONE) {
+        std::string tag;
+
+        switch (val) {
+            case ACTORVIEWER_NAMETAGS_DESC:
+                tag = GetActorDescription(actor->id);
+                break;
+            case ACTORVIEWER_NAMETAGS_NAME:
+                tag = GetActorDebugName(actor->id);
+                break;
+            case ACTORVIEWER_NAMETAGS_BOTH:
+                tag = GetActorDebugName(actor->id) + '\n' + GetActorDescription(actor->id);
+                break;
+        }
+
+        NameTag_RegisterForActorWithOptions(actor, tag.c_str(), { .tag = DEBUG_ACTOR_NAMETAG_TAG, .noZBuffer = true });
+    }
+}
+
+void ActorViewer_AddTagForAllActors() {
+    if (gPlayState == nullptr) {
+        return;
+    }
+
+    for (size_t i = 0; i < ARRAY_COUNT(gPlayState->actorCtx.actorLists); i++) {
+        ActorListEntry currList = gPlayState->actorCtx.actorLists[i];
+        Actor* currAct = currList.first;
+        while (currAct != nullptr) {
+            ActorViewer_AddTagForActor(currAct);
+            currAct = currAct->next;
+        }
+    }
+}
+
+void ActorViewer_RegisterNameTagHooks() {
+    static HOOK_ID actorInitHookID = 0;
+    GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnActorInit>(actorInitHookID);
+    actorInitHookID = 0;
+
+    if (CVarGetInteger("gDeveloperTools.ActorViewer.NameTags", ACTORVIEWER_NAMETAGS_NONE) ==
+        ACTORVIEWER_NAMETAGS_NONE) {
+        return;
+    }
+
+    actorInitHookID =
+        GameInteractor::Instance->RegisterGameHook<GameInteractor::OnActorInit>(ActorViewer_AddTagForActor);
+}
+
 void ActorViewer_RegisterHooks() {
     static HOOK_ID actorDeleteHookID = 0;
     GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnActorDestroy>(actorDeleteHookID);
@@ -103,6 +188,18 @@ void ActorViewerWindow::DrawElement() {
             lastSceneId = gPlayState->sceneId;
             needs_reset = false;
         }
+
+        if (ImGui::BeginChild("options", ImVec2(0, 0), ImGuiChildFlags_Border | ImGuiChildFlags_AutoResizeY)) {
+            ImGui::Text("Options");
+            if (UIWidgets::CVarCombobox("Actor Name Tags", "gDeveloperTools.ActorViewer.NameTags", nameTagOptions,
+                                        { .defaultIndex = ACTORVIEWER_NAMETAGS_NONE,
+                                          .tooltip = "Adds \"name tags\" above actors for identification" })) {
+                ActorViewer_RegisterNameTagHooks();
+                NameTag_RemoveAllByTag(DEBUG_ACTOR_NAMETAG_TAG);
+                ActorViewer_AddTagForAllActors();
+            }
+        }
+        ImGui::EndChild();
 
         if (ImGui::TreeNode("Select existing Actor")) {
             if (ImGui::BeginCombo("Actor", filler.c_str())) {
@@ -334,4 +431,5 @@ void ActorViewerWindow::DrawElement() {
 
 void ActorViewerWindow::InitElement() {
     ActorViewer_RegisterHooks();
+    ActorViewer_RegisterNameTagHooks();
 }
