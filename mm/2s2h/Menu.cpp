@@ -71,24 +71,11 @@ extern std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 extern std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
 extern std::shared_ptr<EventLogWindow> mEventLogWindow;
 extern std::shared_ptr<BenInputEditorWindow> mBenInputEditorWindow;
-std::shared_ptr<std::vector<Ship::WindowBackend>> availableWindowBackends;
-std::unordered_map<Ship::WindowBackend, const char*> availableWindowBackendsMap;
-Ship::WindowBackend configWindowBackend;
+extern std::shared_ptr<std::vector<Ship::WindowBackend>> availableWindowBackends;
+extern std::unordered_map<Ship::WindowBackend, const char*> availableWindowBackendsMap;
+extern Ship::WindowBackend configWindowBackend;
 
-void UpdateWindowBackendObjects() {
-    availableWindowBackends = Ship::Context::GetInstance()->GetWindow()->GetAvailableWindowBackends();
-    for (auto& backend : *availableWindowBackends) {
-        availableWindowBackendsMap[backend] = windowBackendsMap[backend];
-    }
-
-    int32_t configWindowBackendId = Ship::Context::GetInstance()->GetConfig()->GetInt("Window.Backend.Id", -1);
-    Ship::WindowBackend runningWindowBackend = Ship::Context::GetInstance()->GetWindow()->GetWindowBackend();
-    if (Ship::Context::GetInstance()->GetWindow()->IsAvailableWindowBackend(configWindowBackendId)) {
-        configWindowBackend = static_cast<Ship::WindowBackend>(configWindowBackendId);
-    } else {
-        configWindowBackend = runningWindowBackend;
-    }
-}
+extern void UpdateWindowBackendObjects();
 
 void DrawGeneralSettings() {
 #if not defined(__SWITCH__) and not defined(__WIIU__)
