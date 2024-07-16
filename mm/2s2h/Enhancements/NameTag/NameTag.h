@@ -1,6 +1,13 @@
 #ifndef NAMETAG_H
 #define NAMETAG_H
-#include <z64.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include "z64actor.h"
+#ifdef __cplusplus
+}
+#endif
 
 typedef struct {
     const char* tag;       // Tag identifier to filter/remove multiple tags
