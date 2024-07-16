@@ -228,6 +228,7 @@ void DrawGraphicsSettings() {
         Ship::Context::GetInstance()->GetConfig()->SetString("Window.Backend.Name",
                                                              windowBackendsMap.at(configWindowBackend));
         Ship::Context::GetInstance()->GetConfig()->Save();
+        UpdateWindowBackendObjects();
     }
 
     if (Ship::Context::GetInstance()->GetWindow()->CanDisableVerticalSync()) {
