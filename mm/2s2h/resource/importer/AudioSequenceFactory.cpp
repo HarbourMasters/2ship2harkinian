@@ -4,6 +4,7 @@
 #include "StringHelper.h"
 #include "libultraship/libultraship.h"
 
+#include "dr_wav.h"
 
 namespace SOH {
 std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSequenceV2::ReadResource(std::shared_ptr<Ship::File> file) {
@@ -83,6 +84,8 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
     sequence->sequence.cachePolicy = CachePolicyToInt(child->Attribute("CachePolicy"));
     sequence->sequence.seqDataSize = child->IntAttribute("Size");
     sequence->sequence.seqNumber = child->IntAttribute("Index");
+    const char* customStr = child->Attribute("CustomFormat");
+
     
     memset(sequence->sequence.fonts, 0, sizeof(sequence->sequence.fonts));
 
@@ -99,12 +102,29 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
     initData->Path = path;
     initData->IsCustom = false;
     initData->ByteOrder = Ship::Endianness::Native;
-
     auto seqFile = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->LoadFile(path, initData);
 
-    sequence->sequenceData = *seqFile->Buffer.get();  
-    sequence->sequence.seqData = sequence->sequenceData.data();
+    if (customStr == nullptr) {
+        sequence->sequenceData = *seqFile->Buffer.get();
+        sequence->sequence.seqData = sequence->sequenceData.data();
+    } else {
+        drwav wav;
+        drwav_uint64 numFrames;
+        
+        drwav_bool32 ret = drwav_init_memory(&wav, seqFile->Buffer.get()->data(), seqFile->Buffer.get()->size(), nullptr);
 
+        drwav_get_length_in_pcm_frames(&wav, &numFrames);
+
+        sequence->sampleRate = wav.fmt.sampleRate;
+        sequence->numChannels = wav.fmt.channels;
+        sequence->customSeqData = std::make_unique<short[]>(numFrames);
+        drwav_read_pcm_frames_s16(&wav, numFrames, sequence->customSeqData.get());
+        
+        sequence->sequence.seqData = (char*)sequence->customSeqData.get();
+        // Write a marker to show this is a streamed audio file
+        memcpy(sequence->sequence.fonts, "07151129", sizeof("07151129"));
+        drwav_uninit(&wav);
+    }
     return sequence;
 }
 } // namespace SOH
