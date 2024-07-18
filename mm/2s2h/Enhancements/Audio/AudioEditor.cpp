@@ -661,7 +661,7 @@ void AudioEditor::DrawElement() {
                         ImGui::SameLine();
                         DrawTypeChip(seqInfo->category);
                         ImGui::SameLine();
-                        ImGui::Text("%s", seqInfo->label);
+                        ImGui::Text("%s", seqInfo->label.c_str());
                     }
                 }
                 ImGui::EndChild();
@@ -685,7 +685,7 @@ void AudioEditor::DrawElement() {
                         ImGui::SameLine();
                         DrawTypeChip(seqInfo->category);
                         ImGui::SameLine();
-                        ImGui::Text("%s", seqInfo->label);
+                        ImGui::Text("%s", seqInfo->label.c_str());
                     }
                 }
                 ImGui::EndChild();
