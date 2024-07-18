@@ -281,11 +281,11 @@ void AudioEditor::Draw_SfxTab(const std::string& tabId, SeqType type) {
 
         ImGui::TableNextRow();
         ImGui::TableNextColumn();
-        ImGui::Text("%s", seqData.label);
+        ImGui::Text("%s", seqData.label.c_str());
         ImGui::TableNextColumn();
         ImGui::PushItemWidth(-FLT_MIN);
         const int initialValue = map.contains(currentValue) ? currentValue : defaultValue;
-        if (ImGui::BeginCombo(hiddenKey.c_str(), map.at(initialValue).label)) {
+        if (ImGui::BeginCombo(hiddenKey.c_str(), map.at(initialValue).label.c_str())) {
             for (const auto& [value, seqData] : map) {
                 // If excluded as a replacement sequence, don't show in other dropdowns except the effect's own
                 // dropdown.
@@ -294,7 +294,7 @@ void AudioEditor::Draw_SfxTab(const std::string& tabId, SeqType type) {
                     continue;
                 }
 
-                if (ImGui::Selectable(seqData.label)) {
+                if (ImGui::Selectable(seqData.label.c_str())) {
                     CVarSetInteger(cvarKey.c_str(), value);
                     Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
                     UpdateCurrentBGM(defaultValue, type);
@@ -577,7 +577,7 @@ void AudioEditor::DrawElement() {
             ImGui::SameLine();
             if (ImGui::Button("Exclude All")) {
                 for (auto seqInfo : AudioCollection::Instance->GetIncludedSequences()) {
-                    if (sequenceSearch.PassFilter(seqInfo->label) && showType[seqInfo->category]) {
+                    if (sequenceSearch.PassFilter(seqInfo->label.c_str()) && showType[seqInfo->category]) {
                         seqsToExclude.insert(seqInfo);
                     }
                 }
@@ -585,7 +585,7 @@ void AudioEditor::DrawElement() {
             ImGui::SameLine();
             if (ImGui::Button("Include All")) {
                 for (auto seqInfo : AudioCollection::Instance->GetExcludedSequences()) {
-                    if (sequenceSearch.PassFilter(seqInfo->label) && showType[seqInfo->category]) {
+                    if (sequenceSearch.PassFilter(seqInfo->label.c_str()) && showType[seqInfo->category]) {
                         seqsToInclude.insert(seqInfo);
                     }
                 }
@@ -652,7 +652,7 @@ void AudioEditor::DrawElement() {
 
                 ImGui::BeginChild("ChildIncludedSequences", ImVec2(0, -8));
                 for (auto seqInfo : AudioCollection::Instance->GetIncludedSequences()) {
-                    if (sequenceSearch.PassFilter(seqInfo->label) && showType[seqInfo->category]) {
+                    if (sequenceSearch.PassFilter(seqInfo->label.c_str()) && showType[seqInfo->category]) {
                         if (ImGui::Button(std::string(ICON_FA_TIMES "##" + seqInfo->sfxKey).c_str())) {
                             seqsToExclude.insert(seqInfo);
                         }
@@ -676,7 +676,7 @@ void AudioEditor::DrawElement() {
 
                 ImGui::BeginChild("ChildExcludedSequences", ImVec2(0, -8));
                 for (auto seqInfo : AudioCollection::Instance->GetExcludedSequences()) {
-                    if (sequenceSearch.PassFilter(seqInfo->label) && showType[seqInfo->category]) {
+                    if (sequenceSearch.PassFilter(seqInfo->label.c_str()) && showType[seqInfo->category]) {
                         if (ImGui::Button(std::string(ICON_FA_PLUS "##" + seqInfo->sfxKey).c_str())) {
                             seqsToInclude.insert(seqInfo);
                         }

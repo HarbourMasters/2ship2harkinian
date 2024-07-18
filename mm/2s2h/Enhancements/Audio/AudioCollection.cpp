@@ -19,7 +19,7 @@
 AudioCollection::AudioCollection() {
     //                    (originalSequenceId,                  label,                                      sfxKey,
     //                    category,    canBeReplaced, canBeUsedAsReplacement),
-    sequenceMap = {
+    mSequenceMap = {
         SEQUENCE_MAP_ENTRY(NA_BGM_GENERAL_SFX, "General SFX", "SEQUENCE_MAP_ENTRY", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_AMBIENCE, "Ambience", "NA_BGM_AMBIENCE", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_TERMINA_FIELD, "Termina Field", "NA_BGM_TERMINA_FIELD", SEQ_BGM_WORLD, true, true),
@@ -225,13 +225,13 @@ void AudioCollection::AddToCollection(char* otrPath, uint16_t seqNum) {
         type = SEQ_FANFARE;
     }
     SequenceInfo info = { seqNum,
-                          sequenceName.c_str(),
+                          sequenceName,
                           StringHelper::Replace(
                               StringHelper::Replace(StringHelper::Replace(sequenceName, " ", "_"), "~", "-"), ".", ""),
                           type,
                           false,
                           true };
-    sequenceMap.emplace(seqNum, info);
+    mSequenceMap.emplace(seqNum, info);
 }
 
 uint16_t AudioCollection::GetReplacementSequence(uint16_t seqId) {
@@ -247,14 +247,14 @@ uint16_t AudioCollection::GetReplacementSequence(uint16_t seqId) {
     //    }
     //}
 
-    if (sequenceMap.find(seqId) == sequenceMap.end()) {
+    if (mSequenceMap.find(seqId) == mSequenceMap.end()) {
         return seqId;
     }
 
-    const auto& sequenceInfo = sequenceMap.at(seqId);
+    const auto& sequenceInfo = mSequenceMap.at(seqId);
     const std::string cvarKey = GetCvarKey(sequenceInfo.sfxKey);
     int replacementSeq = CVarGetInteger(cvarKey.c_str(), seqId);
-    if (!sequenceMap.contains(replacementSeq)) {
+    if (!mSequenceMap.contains(replacementSeq)) {
         replacementSeq = seqId;
     }
     return static_cast<uint16_t>(replacementSeq);
@@ -280,7 +280,7 @@ void AudioCollection::InitializeShufflePool() {
     if (shufflePoolInitialized)
         return;
 
-    for (auto& [seqId, seqInfo] : sequenceMap) {
+    for (auto& [seqId, seqInfo] : mSequenceMap) {
         if (!seqInfo.canBeUsedAsReplacement)
             continue;
         const std::string cvarKey = std::string(CVAR_AUDIO("Excluded.")) + seqInfo.sfxKey;
@@ -299,19 +299,19 @@ extern "C" void AudioCollection_AddToCollection(char* otrPath, uint16_t seqNum) 
 }
 
 bool AudioCollection::HasSequenceNum(uint16_t seqId) {
-    return sequenceMap.contains(seqId);
+    return mSequenceMap.contains(seqId);
 }
 
 const char* AudioCollection::GetSequenceName(uint16_t seqId) {
-    auto seqIt = sequenceMap.find(seqId);
-    if (seqIt != sequenceMap.end()) {
-        return seqIt->second.label;
+    auto seqIt = mSequenceMap.find(seqId);
+    if (seqIt != mSequenceMap.end()) {
+        return seqIt->second.label.c_str();
     }
     return nullptr;
 }
 
 size_t AudioCollection::SequenceMapSize() {
-    return sequenceMap.size();
+    return mSequenceMap.size();
 }
 
 extern "C" const char* AudioCollection_GetSequenceName(uint16_t seqId) {

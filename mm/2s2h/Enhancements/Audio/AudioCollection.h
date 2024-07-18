@@ -23,7 +23,7 @@ enum SeqType {
 
 struct SequenceInfo {
     uint16_t sequenceId;
-    const char* label;
+    std::string label;
     std::string sfxKey;
     SeqType category;
     bool canBeReplaced;
@@ -33,7 +33,7 @@ struct SequenceInfo {
 class AudioCollection {
   private:
     // All Loaded Audio
-    std::map<uint16_t, SequenceInfo> sequenceMap;
+    std::map<uint16_t, SequenceInfo> mSequenceMap;
 
     // Sequences/SFX to include in/exclude from shuffle pool
     struct compareSequenceLabel {
@@ -49,7 +49,7 @@ class AudioCollection {
     static AudioCollection* Instance;
     AudioCollection();
     std::map<uint16_t, SequenceInfo> GetAllSequences() const {
-        return sequenceMap;
+        return mSequenceMap;
     }
     std::set<SequenceInfo*, compareSequenceLabel> GetIncludedSequences() const {
         return includedSequences;
