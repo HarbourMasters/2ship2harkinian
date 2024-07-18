@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include "2s2h/Enhancements/Audio/AudioCollection.h"
 #include "2s2h/Enhancements/Audio/AudioEditor.h"
+#include "2s2h/Enhancements/Audio/AudioSeqQueue.h"
 #include "BenPort.h"
 
 /**
@@ -764,11 +765,21 @@ void* AudioLoad_SyncLoad(s32 tableType, u32 id, s32* didAllocate) {
         // cachePolicy = table->entries[id].cachePolicy;
         // romAddr = table->entries[realId].romAddr;
 
-        char* seqData = 0;
+        char* seqData = NULL;
         SoundFont* fnt;
 
         if (tableType == SEQUENCE_TABLE) {
+            // 2S2H [Port] Custom Audio. Read audio data from the archive and if needed, handle streamed audio.
             SequenceData sData = ResourceMgr_LoadSeqByName(sequenceMap[id]);
+            // Streamed audio
+            if (memcmp(sData.fonts, "07151129", sizeof("07151129")) == 0) {
+                // BENTODO Why do we need to add this 4 times?
+                AudioQueue_Enqueue(sequenceMap[id]);
+                AudioQueue_Enqueue(sequenceMap[id]);
+                AudioQueue_Enqueue(sequenceMap[id]);
+                AudioQueue_Enqueue(sequenceMap[id]);
+                return;
+            }
             seqData = sData.seqData;
             size = sData.seqDataSize;
             medium = sData.medium;
@@ -1253,7 +1264,7 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
     free(seqList);
 
     //2S2H Port I think we need to take use seqListSize because entry 0x7A is missing.
-    int startingSeqNum = seqListSize; // MAX_AUTHENTIC_SEQID; // 109 is the highest vanilla sequence
+    int startingSeqNum = MAX_AUTHENTIC_SEQID; // 109 is the highest vanilla sequence
     qsort(customSeqList, customSeqListSize, sizeof(char*), strcmp_sort);
 
     // Because AudioCollection's sequenceMap actually has more than sequences (including instruments from 130-135 and
@@ -1302,7 +1313,7 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
 
     if (addr = AudioHeap_Alloc(&gAudioCtx.initPool, gAudioHeapInitSizes.permanentPoolSize), addr == NULL) {
         // cast away const from gAudioHeapInitSizes
-        *((u32*)&gAudioHeapInitSizes.permanentPoolSize) = 0;
+        *((size_t*)&gAudioHeapInitSizes.permanentPoolSize) = 0;
     }
 
     AudioHeap_InitPool(&gAudioCtx.permanentPool, addr, gAudioHeapInitSizes.permanentPoolSize);

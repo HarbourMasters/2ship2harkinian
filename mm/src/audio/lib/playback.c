@@ -153,8 +153,8 @@ void AudioPlayback_NoteInit(Note* note) {
     note->sampleState = gDefaultSampleState;
 }
 
-void AudioPlayback_NoteDisable(Note* note) {
-    if (note->sampleState.bitField0.needsInit == true) {
+void AudioPlayback_NoteDisable(Note* note) {	
+	if (note->sampleState.bitField0.needsInit == true) {
         note->sampleState.bitField0.needsInit = false;
     }
     note->playbackState.priority = 0;
@@ -183,6 +183,10 @@ void AudioPlayback_ProcessNotes(void) {
     for (i = 0; i < gAudioCtx.numNotes; i++) {
         note = &gAudioCtx.notes[i];
         sampleState = &gAudioCtx.sampleStateList[gAudioCtx.sampleStateOffset + i];
+        // BENTODO: Verify there are no side effects from this...
+        if (sampleState->bitField0.ignoreNoteState) {
+            goto skip;
+        }
         playbackState = &note->playbackState;
         if (playbackState->parentLayer != NO_LAYER) {
 

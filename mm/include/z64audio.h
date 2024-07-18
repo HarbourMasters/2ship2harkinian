@@ -476,7 +476,8 @@ typedef struct {
         /* 0x00 */ volatile u8 enabled : 1;
         /* 0x00 */ u8 needsInit : 1;
         /* 0x00 */ u8 finished : 1;
-        /* 0x00 */ u8 unused : 1;
+		///* 0x00 */ u8 unused : 1;
+		/* 0x00 */ u8 ignoreNoteState : 1; // For streamed audio where our voices don't come from a note
         /* 0x00 */ u8 strongRight : 1;
         /* 0x00 */ u8 strongLeft : 1;
         /* 0x00 */ u8 strongReverbRight : 1;

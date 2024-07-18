@@ -208,12 +208,110 @@ void AudioSynth_SyncSampleStates(s32 updateIndex) {
         if (noteSampleState->bitField0.enabled) {
             noteSampleState->bitField0.needsInit = false;
         } else {
-            sampleState->bitField0.enabled = false;
+            if (!sampleState->bitField0.ignoreNoteState)
+                sampleState->bitField0.enabled = false;
         }
 
         noteSampleState->harmonicIndexCurAndPrev = 0;
     }
 }
+
+#include <stdlib.h>
+#include <assert.h>
+#include <stdio.h>
+
+typedef struct TunedSamplePool {
+    TunedSample tunedSample;
+    Sample sample;
+    AdpcmLoop loop;
+    uint8_t inUse;
+
+    struct TunedSamplePool* next;
+} TunedSamplePool;
+
+static TunedSamplePool samplePool;
+
+static TunedSamplePool* AudioSamplePool_CreateNew(void) {
+    TunedSamplePool* cur = &samplePool;
+
+    while (cur->next != NULL && cur->inUse == true) {
+        cur = cur->next;
+    }
+    if (cur->next == NULL) {
+        cur->next = malloc(sizeof(TunedSamplePool));
+        // BENTODO real error handling
+        if (cur->next == NULL) {
+            printf("Uh oh. Time to download more ram\n");
+            assert(0);
+        }
+        cur = cur->next;
+        cur->next = NULL;
+    }
+    cur->inUse = true;
+    return cur;
+}
+
+static TunedSamplePool* AudioSamplePool_FindElemenyByPtr(Sample* key) {
+    TunedSamplePool* cur = &samplePool;
+
+    while (cur->next != NULL && cur->inUse == true) {
+        if (&cur->sample == key) {
+            return cur;
+        }
+        cur = cur->next;
+    }
+    return NULL;
+
+}
+
+
+void Audio_LoadCustomBgm(int reverseUpdateIndex, uint64_t numFrames, uint32_t numChannels, uint32_t sampleRate, s16* sampleData) {
+    int updateIndex = (gAudioCtx.audioBufferParameters.updatesPerFrame - reverseUpdateIndex) * gAudioCtx.numNotes;
+    for (int i = 1; i < gAudioCtx.numNotes; i++) {
+        NoteSampleState* sampleState = &gAudioCtx.sampleStateList[i + updateIndex];
+        NoteSampleState* noteSampleState = &gAudioCtx.notes[i + updateIndex].sampleState;
+        if (!sampleState->bitField0.enabled) {
+            sampleState->bitField0.enabled = true;
+            sampleState->bitField0.ignoreNoteState = true;
+            noteSampleState->bitField0.enabled = true;
+            sampleState->bitField0.needsInit = true;
+
+            sampleState->bitField0.finished = 0;
+            sampleState->frequencyFixedPoint = 24000;
+            sampleState->targetVolLeft = 1024;
+            sampleState->targetVolRight = 1024;
+            gAudioCtx.notes[i + updateIndex].playbackState.priority = 14;
+            gAudioCtx.notes[i + updateIndex].playbackState.status = 1;
+
+            //// Did someone say ***memory leaks***?
+            TunedSamplePool* poolEntry = AudioSamplePool_CreateNew();
+
+            sampleState->tunedSample = &poolEntry->tunedSample;
+            memset(sampleState->tunedSample, 0, sizeof(TunedSample));
+            
+            sampleState->tunedSample->sample = &poolEntry->sample;
+            memset(sampleState->tunedSample->sample, 0, sizeof(Sample));
+            
+            sampleState->tunedSample->sample->loop = &poolEntry->loop;
+            memset(sampleState->tunedSample->sample->loop, 0, sizeof(AdpcmLoop));
+            
+            sampleState->bitField1.isSyntheticWave = 0;
+            sampleState->tunedSample->sample->isRelocated = true;
+            sampleState->tunedSample->sample->medium = MEDIUM_RAM;
+            sampleState->gain = 1 << 4; // 1.0
+            sampleState->tunedSample->tuning = 1.0f;
+            sampleState->tunedSample->sample->codec = CODEC_S16;
+            sampleState->tunedSample->sample->size = numFrames * 2;
+            sampleState->tunedSample->sample->loop->sampleEnd = numFrames - 5;
+            sampleState->tunedSample->sample->loop->loopEnd = numFrames  - 5;
+            sampleState->tunedSample->sample->loop->count = -1;
+            sampleState->tunedSample->sample->sampleAddr = sampleData;
+            break;
+        }
+    }
+}
+
+#include "2s2h/Enhancements/Audio/AudioSeqQueue.h"
 
 Acmd* AudioSynth_Update(Acmd* abiCmdStart, s32* numAbiCmds, s16* aiBufStart, s32 numSamplesPerFrame) {
     s32 numSamplesPerUpdate;
@@ -254,6 +352,16 @@ Acmd* AudioSynth_Update(Acmd* abiCmdStart, s32* numAbiCmds, s16* aiBufStart, s32
                                                 gAudioCtx.audioBufferParameters.updatesPerFrame - reverseUpdateIndex,
                                                 reverbIndex);
             }
+        }
+       
+        if (!AudioQueue_IsEmpty()) {
+            uint64_t numFrames;
+            uint32_t numChannels;
+            uint32_t sampleRate;
+            s16* sampleData;
+            AudioQueue_GetSeqInfo(AudioQueue_Dequeue(), &numFrames, &numChannels, &sampleRate, &sampleData);
+
+            Audio_LoadCustomBgm(reverseUpdateIndex, numFrames, numChannels, sampleRate, sampleData);
         }
 
         curCmd = AudioSynth_ProcessSamples(curAiBufPos, numSamplesPerUpdate, curCmd,
@@ -844,7 +952,7 @@ Acmd* AudioSynth_ProcessSamples(s16* aiBuf, s32 numSamplesPerUpdate, Acmd* cmd, 
 
         if (useReverb) {
             if ((reverb->filterLeft != NULL) || (reverb->filterRight != NULL)) {
-                cmd = AudioSynth_FilterReverb(cmd, numSamplesPerUpdate * SAMPLE_SIZE, reverb);
+                //cmd = AudioSynth_FilterReverb(cmd, numSamplesPerUpdate * SAMPLE_SIZE, reverb);
             }
 
             // Saves the wet channel sample from DMEM (DMEM_WET_LEFT_CH) into (ringBuffer) DRAM for future use
@@ -1138,7 +1246,7 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
                                                (numSamplesToLoadAdj + SAMPLES_PER_FRAME) * SAMPLE_SIZE);
                         flags = A_CONTINUE;
                         skipBytes = 0;
-                        numSamplesProcessed = numSamplesToLoadAdj;
+                        numSamplesProcessed += numSamplesToLoadAdj;
                         dmemUncompressedAddrOffset1 = numSamplesToLoadAdj;
                         goto skip;
 
@@ -1147,8 +1255,19 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
                                                (numSamplesToLoadAdj + SAMPLES_PER_FRAME) * SAMPLE_SIZE);
                         flags = A_CONTINUE;
                         skipBytes = 0;
-                        numSamplesProcessed = numSamplesToLoadAdj;
+                        numSamplesProcessed += numSamplesToLoadAdj;
                         dmemUncompressedAddrOffset1 = numSamplesToLoadAdj;
+                        size_t bytesToRead;
+
+                        if (((synthState->samplePosInt * 2) + (numSamplesToLoadAdj + SAMPLES_PER_FRAME) * SAMPLE_SIZE) <
+                            sample->size) {
+                            bytesToRead = (numSamplesToLoadAdj + SAMPLES_PER_FRAME) * SAMPLE_SIZE;
+                        } else {
+                            bytesToRead = sample->size - (synthState->samplePosInt * 2);
+                        }
+
+                        aLoadBuffer(cmd++, sampleAddr + (synthState->samplePosInt * 2), DMEM_UNCOMPRESSED_NOTE, bytesToRead);
+                        
                         goto skip;
 
                     default:
@@ -1184,10 +1303,15 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
 
                     // Move the raw sample chunk from ram to the rsp
                     // DMEM at the addresses before DMEM_COMPRESSED_ADPCM_DATA
-                    sampleDataChunkAlignPad = (uintptr_t)samplesToLoadAddr & 0xF;
+                    sampleDataChunkAlignPad = 0;//(uintptr_t)samplesToLoadAddr & 0xF;
                     sampleDataChunkSize = ALIGN16((numFramesToDecode * frameSize) + SAMPLES_PER_FRAME);
                     sampleDataDmemAddr = DMEM_COMPRESSED_ADPCM_DATA - sampleDataChunkSize;
 
+                    uintptr_t actualAddrLoaded = samplesToLoadAddr - sampleDataChunkAlignPad;
+                    uintptr_t offset = actualAddrLoaded - (uintptr_t)sampleAddr;
+                    if (offset + sampleDataChunkSize > sample->size) {
+                        sampleDataChunkSize -= (offset + sampleDataChunkSize - sample->size);
+                    }
                     // BEN: This will crash the asan. We can just ignore alignment since we don't have those strictures.
                     // if (sampleDataChunkSize + sampleAddrOffset > sample->size) {
                     //    sampleDataChunkSize = sample->size - sampleAddrOffset;
@@ -1297,6 +1421,14 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
                     }
                     finished = true;
                     note->sampleState.bitField0.finished = true;
+                    
+                    if (sampleState->bitField0.ignoreNoteState) {
+                        sampleState->bitField0.enabled = false;
+                        note->sampleState.bitField0.enabled = false;
+                        TunedSamplePool* entry = AudioSamplePool_FindElemenyByPtr(sampleState->tunedSample->sample);
+                        entry->inUse = false;                        
+                    }
+
                     AudioSynth_DisableSampleStates(updateIndex, noteIndex);
                     break; // break out of the for-loop
                 } else if (loopToPoint) {
