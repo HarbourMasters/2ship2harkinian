@@ -24,7 +24,7 @@ uint16_t width = 27, height = 27;
 ArbitraryItemSlotManager::ArbitraryItemSlotManager(std::string id, uint16_t specialButtonId, ArbitraryItemSlotLister* lister) {
     this->arbId = id;
     this->specialButtonId = specialButtonId;
-    this->assignedItem = ITEM_NONE;
+    this->assignedItemSlot = SLOT_NONE;
     this->drawParams = {
         0, 0, 27, 27, 620, 620, 255, 0, 0, 255, true
     };
@@ -34,7 +34,7 @@ ArbitraryItemSlotManager::ArbitraryItemSlotManager(std::string id, uint16_t spec
 ArbitraryItemSlotManager::ArbitraryItemSlotManager(std::string id, ArbitraryItemSlotLister* lister) {
     this->arbId = id;
     this->specialButtonId = 0;
-    this->assignedItem = ITEM_NONE;
+    this->assignedItemSlot = SLOT_NONE;
     this->drawParams = {
         0, 0, 27, 27, 620, 620, 255, 0, 0, 255, true
     };
@@ -61,11 +61,11 @@ ArbitraryItemEquipButton ArbitraryItemSlotManager::makeEquipButton() {
             return ((ArbitraryItemSlotManager*)self->userData)->getDrawParams(play);
         }, // getDrawParams
         +[](ArbitraryItemEquipButton* self) {
-            return ((ArbitraryItemSlotManager*)self->userData)->getAssignedItem();
-        }, // getAssignedItem
-        +[](ArbitraryItemEquipButton* self, uint16_t item) {
-            return ((ArbitraryItemSlotManager*)self->userData)->assignItem(item);
-        }, // assignItem
+            return ((ArbitraryItemSlotManager*)self->userData)->getAssignedItemSlot();
+        }, // getAssignedItemSlot
+        +[](ArbitraryItemEquipButton* self, InventorySlot itemSlot) {
+            return ((ArbitraryItemSlotManager*)self->userData)->assignItemSlot(itemSlot);
+        }, // assignItemSlot
 
         +[](struct ArbitraryItemEquipButton* self, uint8_t disabled) {
             return ((ArbitraryItemSlotManager*)self->userData)->setDisabled(disabled);
@@ -78,7 +78,10 @@ ArbitraryItemEquipButton ArbitraryItemSlotManager::makeEquipButton() {
         }, // updateHudAlpha
         +[](struct ArbitraryItemEquipButton* self){
             return ((ArbitraryItemSlotManager*)self->userData)->arbId.c_str();
-        },
+        }, // getId
+        +[](ArbitraryItemEquipButton* self) {
+            return ((ArbitraryItemSlotManager*)self->userData)->getAssignedItemID();
+        }, // getAssignedItemID
     };
 }
 
@@ -110,13 +113,21 @@ ArbitraryItemDrawParams ArbitraryItemSlotManager::getDrawParams(PlayState *play)
 
     return state.toDrawParams(this->hudAlpha);
 }
-uint16_t ArbitraryItemSlotManager::getAssignedItem() {
-    return this->assignedItem;
+InventorySlot ArbitraryItemSlotManager::getAssignedItemSlot() {
+    // return gSaveContext.save.saveInfo.inventory.items[this->assignedItemSlot];
+    return this->assignedItemSlot;
 }
-uint16_t ArbitraryItemSlotManager::assignItem(uint16_t item) {
-    this->assignedItem = item;
+InventorySlot ArbitraryItemSlotManager::assignItemSlot(InventorySlot itemSlot) {
+    this->assignedItemSlot = itemSlot;
     this->disabled = false;
-    return item;
+    return itemSlot;
+}
+
+ItemId ArbitraryItemSlotManager::getAssignedItemID() {
+    if(this->assignedItemSlot == SLOT_NONE){
+        return ITEM_NONE;
+    }
+    return (ItemId) gSaveContext.save.saveInfo.inventory.items[this->assignedItemSlot];
 }
 
 uint8_t ArbitraryItemSlotManager::setDisabled(uint8_t disabled){
@@ -230,7 +241,7 @@ ArbitraryItemEquipSet ArbitraryItemSlotLister::getEquipSlots(PlayState *play, In
 void ArbitraryItemSlotLister::addEquipSetCallbacks(ArbitraryItemEquipSet* set){
     set->findSlotWithItem = +[](ArbitraryItemEquipSet* self, uint16_t item){
         FOREACH_SLOT(*self, slot, {
-            if(slot->getAssignedItem(slot) == item){
+            if(gSaveContext.save.saveInfo.inventory.items[slot->getAssignedItemSlot(slot)] == item){
                 return 1;
             }
         });

@@ -2325,7 +2325,7 @@ s16 Interface_UpdateButtonsPart2_ArbitraryButton(PlayState* play, ArbitraryItemE
                 Player* player = GET_PLAYER(play);
                 s16 restoreHudVisibility = false;
                 
-                ItemId arbItemId = arbSlot->getAssignedItem(arbSlot);
+                ItemId arbItemId = arbSlot->getAssignedItemID(arbSlot);
                 ItemId itemId = arbItemId;
                 if (GameInteractor_Should(GI_VB_ITEM_BE_RESTRICTED,
                                           !gPlayerFormItemRestrictions[GET_PLAYER_FORM][itemId], &itemId)) {
@@ -4484,6 +4484,21 @@ void Inventory_UpdateBottleItem(PlayState* play, u8 item, u8 btn) {
     }
 }
 
+
+void Inventory_Arbitrary_UpdateBottleItem(PlayState* play, u8 item, ArbitraryItemEquipButton* eqp) {
+    InventorySlot slot = eqp->getAssignedItemSlot(eqp);
+    gSaveContext.save.saveInfo.inventory.items[slot] = item;
+
+    Interface_LoadItemIconImplArbitrary(play, eqp);
+
+    play->pauseCtx.cursorItem[PAUSE_ITEM] = item;
+    eqp->setDisabled(eqp, BTN_ENABLED);
+
+    if (item == ITEM_HOT_SPRING_WATER) {
+        Interface_StartBottleTimer(60, slot - SLOT_BOTTLE_1);
+    }
+}
+
 s32 Inventory_ConsumeFairy(PlayState* play) {
     u8 bottleSlot = SLOT(ITEM_FAIRY);
     u8 btn;
@@ -5931,8 +5946,7 @@ void Interface_DrawAmmoCountArbEquip(PlayState* play, ArbitraryItemEquipButton* 
     u8 i;
     u16 ammo;
     OPEN_DISPS(play->state.gfxCtx);
-
-    i = arbEquip->getAssignedItem(arbEquip);
+    i = arbEquip->getAssignedItemID(arbEquip);
 
     if ((i == ITEM_DEKU_STICK) || (i == ITEM_DEKU_NUT) || (i == ITEM_BOMB) || (i == ITEM_BOW) ||
         ((i >= ITEM_BOW_FIRE) && (i <= ITEM_BOW_LIGHT)) || (i == ITEM_BOMBCHU) || (i == ITEM_POWDER_KEG) ||
@@ -6152,13 +6166,13 @@ void Interface_DrawCButtonIcons(PlayState* play) {
 
         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, drawParams.a);
         gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
-        ItemId item = eqBtn->getAssignedItem(eqBtn); 
+        ItemId item = eqBtn->getAssignedItemID(eqBtn); 
 
         if(item == ITEM_NONE){
             Interface_DrawItemIconTextureArb(play, gEmptyTexture, eqBtn);
         }
         else {
-            Interface_DrawItemIconTextureArb(play, gItemIcons[eqBtn->getAssignedItem(eqBtn)], eqBtn);
+            Interface_DrawItemIconTextureArb(play, gItemIcons[item], eqBtn);
         }
         gDPPipeSync(OVERLAY_DISP++);
         gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,

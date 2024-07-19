@@ -36,16 +36,18 @@ void from_json(const json& j, ShipSaveInfo& shipSaveInfo) {
 
 void to_json(json& j, const ItemEquips& itemEquips) {
     std::vector<json> a;
-    FOREACH_SLOT(
-        itemEquips.equipsSlotGetter.getEquipSlots(&itemEquips.equipsSlotGetter, nullptr, nullptr), 
-        arbSlot, 
-        {
-            a.push_back(json{
-                {"id", arbSlot->getID(arbSlot)},
-                {"assignedItem", arbSlot->getAssignedItem(arbSlot)}
-            });
-        }
-    );
+    if(itemEquips.equipsSlotGetter.getEquipSlots != nullptr){
+        FOREACH_SLOT(
+            itemEquips.equipsSlotGetter.getEquipSlots(&itemEquips.equipsSlotGetter, nullptr, nullptr), 
+            arbSlot, 
+            {
+                a.push_back(json{
+                    {"id", arbSlot->getID(arbSlot)},
+                    {"assignedItemSlot", arbSlot->getAssignedItemSlot(arbSlot)}
+                });
+            }
+        );
+    }
     j = json{
         { "buttonItems", itemEquips.buttonItems },
         { "cButtonSlots", itemEquips.cButtonSlots },
@@ -79,9 +81,9 @@ void from_json(const json& j, ItemEquips& itemEquips) {
             j.at("arbitraryEquipmentSlots").at(k).at("id").get_to(parsedId);
 
             if(parsedId == a.getID(&a)){
-                uint16_t item;
-                j.at("arbitraryEquipmentSlots").at(k).at("assignedItem").get_to(item);
-                a.assignItem(&a, item);
+                InventorySlot itemSlot;
+                j.at("arbitraryEquipmentSlots").at(k).at("assignedItemSlot").get_to(itemSlot);
+                a.assignItemSlot(&a, itemSlot); // TODO
             }
         }
     }

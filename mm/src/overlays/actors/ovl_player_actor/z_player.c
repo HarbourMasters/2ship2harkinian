@@ -3611,7 +3611,9 @@ s32 Player_ItemIsInUseAnyArbitraryEquipment(Player* this) {
     ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, NULL, NULL);
     for(size_t i = 0 ; i < slots.count; i++){
         ArbitraryItemEquipButton* e = &slots.equips[i];
-        ItemId item = e->getAssignedItem(e);
+        
+        ItemId item = e->getAssignedItemID(e);
+
         if ((item < ITEM_FD) && (Player_ItemToItemAction(this, item) == this->itemAction)) {
             return true;
         }
@@ -3732,7 +3734,8 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
             ArbitraryItemEquipButton* targetArbSlot = NULL;
             for(size_t i = 0 ; i < slots.count; i++){
                 ArbitraryItemEquipButton* e = &slots.equips[i];
-                ItemId item = e->getAssignedItem(e);
+
+                ItemId item = e->getAssignedItemID(e);
                 
                 if (Player_ItemIsItemAction(this, item, maskItemAction)) {
                     targetArbSlot = e;
@@ -3813,8 +3816,9 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
             ArbitraryItemEquipButton* arb = &slots.equips[arbIndex];
             if(arb->activateItem(arb, sPlayerControlInput, BUTTON_STATE_PRESS)){
                 arbitraryEquipSlot = arb;
+
                 i = EQUIP_SLOT_MAX;
-                item = arbitraryEquipSlot->getAssignedItem(arbitraryEquipSlot);
+                item = arb->getAssignedItemID(arb);
                 break;
             }
         }
@@ -3832,7 +3836,8 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
                 ArbitraryItemEquipButton* arb = &slots.equips[arbIndex];
                 if(arb->activateItem(arb, sPlayerControlInput, BUTTON_STATE_CUR)){
                     i = EQUIP_SLOT_MAX;
-                    item = arb->getAssignedItem(arb);
+
+                    item = arb->getAssignedItemID(arb);
                     break;
                 }
             }
@@ -3878,6 +3883,7 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
             }
         } else {
             this->heldItemButton = i;
+            this->heldArbitrarySlot = arbitraryEquipSlot;
             Player_UseItem(play, this, item);
         }
     }
@@ -17587,6 +17593,38 @@ void Player_Action_68(Player* this, PlayState* play) {
                     }
                 }
                 // #endregion
+                else {
+                    FOREACH_SLOT(ARB_SLOTS(play, CONTROLLER1(&play->state)), arbSlot, {
+                        ItemId item = arbSlot->getAssignedItemID(arbSlot);
+                        if(item == ITEM_BOTTLE){
+                            Actor* interactRangeActor = this->interactRangeActor;
+
+                            if (interactRangeActor != NULL) {
+                                struct_8085D798* entry = D_8085D798;
+                                s32 i;
+
+                                for (i = 0; i < ARRAY_COUNT(D_8085D798); i++) {
+                                    if (((interactRangeActor->id == entry->actorId) &&
+                                        ((entry->actorParams <= BOTTLE_CATCH_PARAMS_ANY) ||
+                                        (interactRangeActor->params == entry->actorParams)))) {
+                                        break;
+                                    }
+                                    entry++;
+                                }
+
+                                if (i < ARRAY_COUNT(D_8085D798)) {
+                                    this->av1.actionVar1 = i + 1;
+                                    this->av2.actionVar2 = 0;
+                                    this->stateFlags1 |= PLAYER_STATE1_10000000 | PLAYER_STATE1_20000000;
+                                    interactRangeActor->parent = &this->actor;
+                                    Player_UpdateBottleHeld(play, this, entry->itemId, entry->itemAction);
+                                    func_8082DB90(play, this, sp24->unk_4);
+                                }
+                            }
+                            break;
+                        } 
+                    })
+                }
             }
         }
 

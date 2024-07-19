@@ -17,7 +17,7 @@ struct ArbitraryItemSlotLister;
 struct ArbitraryItemSlotManager {
     std::string arbId;
     uint16_t specialButtonId;
-    uint16_t assignedItem;
+    InventorySlot assignedItemSlot;
     int32_t hudAlpha = 255;
     ArbitraryItemDrawParams drawParams;
     ArbitraryItemSlotLister* lister;
@@ -40,8 +40,9 @@ struct ArbitraryItemSlotManager {
     virtual uint8_t assignmentTriggered(Input* input);
     virtual uint8_t activateItem(Input* input, uint8_t buttonState);
     virtual uint8_t tradeItem(Input* input);
-    virtual uint16_t getAssignedItem();
-    virtual uint16_t assignItem(uint16_t item);
+    virtual InventorySlot getAssignedItemSlot();
+    virtual ItemId getAssignedItemID();
+    virtual InventorySlot assignItemSlot(InventorySlot item);
     virtual ArbitraryItemDrawParams getDrawParams(PlayState *play);
 
     virtual uint8_t setDisabled(uint8_t disabled);

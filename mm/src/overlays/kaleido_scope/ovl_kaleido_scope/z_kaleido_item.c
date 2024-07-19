@@ -1492,7 +1492,7 @@ void KaleidoScope_AssignCButtonEquip(PlayState* play, PauseContext *pauseCtx, ui
 }
 
 void KaleidoScope_AssignArbitraryButtonEquip(PlayState* play, PauseContext *pauseCtx, uint8_t form, ArbitraryItemEquipButton* arbEquip){
-    arbEquip->assignItem(arbEquip, pauseCtx->equipTargetItem);
+    arbEquip->assignItemSlot(arbEquip, pauseCtx->equipTargetSlot);
     Interface_LoadItemIconImplArbitrary(play, arbEquip);
 }
 

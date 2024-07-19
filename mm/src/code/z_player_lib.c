@@ -687,7 +687,7 @@ PlayerItemAction func_80123810(PlayState* play) {
             play->interfaceCtx.unk_222 = 0;
             play->interfaceCtx.unk_224 = 0;
             Interface_SetHudVisibility(play->msgCtx.hudVisibility);
-            itemId = arb->getAssignedItem(arb);
+            itemId = arb->getAssignedItemID(arb);
 
             if ((itemId >= ITEM_FD) || ((itemAction = play->unk_18794(play, player, itemId)) <= PLAYER_IA_MINUS1)) {
                 Audio_PlaySfx(NA_SE_SY_ERROR);
@@ -696,6 +696,7 @@ PlayerItemAction func_80123810(PlayState* play) {
                 s32 pad;
 
                 player->heldItemButton = EQUIP_SLOT_MAX;
+                player->heldArbitrarySlot = arb;
                 return itemAction;
             }
         }
@@ -1393,8 +1394,11 @@ void Player_SetEquipmentData(PlayState* play, Player* player) {
 }
 
 void Player_UpdateBottleHeld(PlayState* play, Player* player, ItemId itemId, PlayerItemAction itemAction) {
+    if(player->heldItemButton == EQUIP_SLOT_MAX && player->heldArbitrarySlot != NULL){
+        Inventory_Arbitrary_UpdateBottleItem(play, itemId, player->heldArbitrarySlot);
+    }
     // #region 2S2H [Dpad]
-    if (IS_HELD_DPAD(player->heldItemButton)) {
+    else if (IS_HELD_DPAD(player->heldItemButton)) {
         Inventory_Dpad_UpdateBottleItem(play, itemId, HELD_ITEM_TO_DPAD(player->heldItemButton));
     } else {
         Inventory_UpdateBottleItem(play, itemId, player->heldItemButton);

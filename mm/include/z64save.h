@@ -234,15 +234,15 @@ typedef struct ArbitraryItemEquipButton {
     uint8_t (*activateItem)(struct ArbitraryItemEquipButton* self, Input* input, uint8_t buttonState);
     uint8_t (*tradeItem)(struct ArbitraryItemEquipButton* self, Input* input);
     ArbitraryItemDrawParams (*getDrawParams)(struct ArbitraryItemEquipButton* self, struct PlayState *play);
-    uint16_t (*getAssignedItem)(struct ArbitraryItemEquipButton* self);
-    uint16_t (*assignItem)(struct ArbitraryItemEquipButton* self, uint16_t item);
+    InventorySlot (*getAssignedItemSlot)(struct ArbitraryItemEquipButton* self);
+    InventorySlot (*assignItemSlot)(struct ArbitraryItemEquipButton* self, InventorySlot item);
 
     uint8_t (*setDisabled)(struct ArbitraryItemEquipButton* self, uint8_t disabled);
     uint8_t (*isDisabled)(struct ArbitraryItemEquipButton* self);
     void (*updateHudAlpha)(struct ArbitraryItemEquipButton* self, struct PlayState *play, HudVisibility hudMode, s16 dimmingAlpha);
     
     const char* (*getID)(struct ArbitraryItemEquipButton* self);
-    
+    ItemId (*getAssignedItemID)(struct ArbitraryItemEquipButton* self);
 } ArbitraryItemEquipButton;
 
 typedef struct ArbitraryItemEquipSet {
