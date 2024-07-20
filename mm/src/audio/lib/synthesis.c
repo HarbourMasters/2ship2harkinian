@@ -251,7 +251,7 @@ static TunedSamplePool* AudioSamplePool_CreateNew(void) {
     return cur;
 }
 
-static TunedSamplePool* AudioSamplePool_FindElemenyByPtr(Sample* key) {
+TunedSamplePool* AudioSamplePool_FindElemenyByPtr(Sample* key) {
     TunedSamplePool* cur = &samplePool;
 
     while (cur->next != NULL && cur->inUse == true) {
@@ -263,6 +263,8 @@ static TunedSamplePool* AudioSamplePool_FindElemenyByPtr(Sample* key) {
     return NULL;
 
 }
+
+
 
 
 void Audio_LoadCustomBgm(int reverseUpdateIndex, uint64_t numFrames, uint32_t numChannels, uint32_t sampleRate, s16* sampleData) {
@@ -985,6 +987,8 @@ Acmd* AudioSynth_ProcessSamples(s16* aiBuf, s32 numSamplesPerUpdate, Acmd* cmd, 
     return cmd;
 }
 
+uint8_t gForceStopSeq = false;
+
 Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, NoteSynthesisState* synthState, s16* aiBuf,
                                s32 numSamplesPerUpdate, Acmd* cmd, s32 updateIndex) {
     s32 pad1[2];
@@ -1414,7 +1418,8 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
             skip:
 
                 // Update what to do with the samples next
-                if (sampleFinished) {
+                if (sampleFinished || gForceStopSeq) {
+                    gForceStopSeq = false;
                     if ((numSamplesToLoadAdj - numSamplesProcessed) != 0) {
                         AudioSynth_ClearBuffer(cmd++, DMEM_UNCOMPRESSED_NOTE + dmemUncompressedAddrOffset1,
                                                (numSamplesToLoadAdj - numSamplesProcessed) * SAMPLE_SIZE);

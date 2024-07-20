@@ -109,22 +109,35 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
         sequence->sequenceData = *seqFile->Buffer.get();
         sequence->sequence.seqData = sequence->sequenceData.data();
     } else {
-        drwav wav;
-        drwav_uint64 numFrames;
-        
-        drwav_bool32 ret = drwav_init_memory(&wav, seqFile->Buffer.get()->data(), seqFile->Buffer.get()->size(), nullptr);
+        for (size_t i = 0;customStr[i] != 0;i++) {
+            const_cast<char*>(customStr)[i] = tolower(customStr[i]);
+        }
+        if (strcmp(customStr, "wav") == 0) {
+            drwav wav;
+            drwav_uint64 numFrames;
 
-        drwav_get_length_in_pcm_frames(&wav, &numFrames);
+            drwav_bool32 ret =
+                drwav_init_memory(&wav, seqFile->Buffer.get()->data(), seqFile->Buffer.get()->size(), nullptr);
 
-        sequence->sampleRate = wav.fmt.sampleRate;
-        sequence->numChannels = wav.fmt.channels;
-        sequence->customSeqData = std::make_unique<short[]>(numFrames);
-        drwav_read_pcm_frames_s16(&wav, numFrames, sequence->customSeqData.get());
-        
-        sequence->sequence.seqData = (char*)sequence->customSeqData.get();
-        // Write a marker to show this is a streamed audio file
-        memcpy(sequence->sequence.fonts, "07151129", sizeof("07151129"));
-        drwav_uninit(&wav);
+            drwav_get_length_in_pcm_frames(&wav, &numFrames);
+
+            sequence->sampleRate = wav.fmt.sampleRate;
+            sequence->numChannels = wav.fmt.channels;
+            sequence->customSeqData = std::make_unique<short[]>(numFrames);
+            drwav_read_pcm_frames_s16(&wav, numFrames, sequence->customSeqData.get());
+
+            sequence->sequence.seqData = (char*)sequence->customSeqData.get();
+            // Write a marker to show this is a streamed audio file
+            memcpy(sequence->sequence.fonts, "07151129", sizeof("07151129"));
+            drwav_uninit(&wav);
+        } else if (strcmp(customStr, "mp3") == 0) {
+            // BENTODO
+        } else if (strcmp(customStr, "flac") == 0) {
+            // BENTODO
+        } else {
+            throw std::runtime_error(
+                StringHelper::Sprintf("Bad audio format value. Got %s, expected wav, mp3, or flac.", customStr));
+        }
     }
     return sequence;
 }

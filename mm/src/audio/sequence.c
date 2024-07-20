@@ -35,10 +35,33 @@ u8 gAudioSpecId = 0;
 u8 gAudioHeapResetState = AUDIO_HEAP_RESET_STATE_NONE;
 u32 sResetAudioHeapSeqCmd = 0;
 
+// 2S2H [Port] Part of streamed audio support
+extern SequenceData ResourceMgr_LoadSeqByName(const char* path);
+extern char** sequenceMap;
+extern size_t sequenceMapSize;
+
+bool AudioSeq_IsSeqStreamedByPath(char* path) {
+    SequenceData sData = ResourceMgr_LoadSeqByName(path);
+    // Streamed audio
+    return memcmp(sData.fonts, "07151129", sizeof("07151129")) == 0;
+}
+
+bool AudioSeq_IsSeqStreamedById(u16 seqId) {
+    if (seqId > sequenceMapSize) {
+        return false;
+    }
+    return AudioSeq_IsSeqStreamedByPath(sequenceMap[seqId]);
+}
+
+SequenceData* ResourceMgr_LoadSeqPtrByName(const char* path);
+void AudioQueue_Enqueue(char* seqId);
+
 void AudioSeq_StartSequence(u8 seqPlayerIndex, u8 seqId, u8 seqArgs, u16 fadeInDuration) {
     u8 channelIndex;
     u16 skipTicks;
     s32 pad;
+
+    seqId = AudioEditor_GetReplacementSeq(seqId);
 
     if (!sStartSeqDisabled || (seqPlayerIndex == SEQ_PLAYER_SFX)) {
         seqArgs &= 0x7F;
@@ -50,6 +73,20 @@ void AudioSeq_StartSequence(u8 seqPlayerIndex, u8 seqId, u8 seqArgs, u16 fadeInD
             // `fadeInDuration` interpreted as 1/30th of a second, does not account for change in refresh rate for PAL
             AUDIOCMD_GLOBAL_INIT_SEQPLAYER(seqPlayerIndex, seqId,
                                            (fadeInDuration * (u16)gAudioCtx.audioBufferParameters.updatesPerFrame) / 4);
+        }
+
+        SequenceData* sData = ResourceMgr_LoadSeqPtrByName(sequenceMap[seqId]);
+
+        if (memcmp(sData->fonts, "07151129", sizeof("07151129")) == 0) {
+            // BENTODO Why do we need to add this 4 times?
+            AudioQueue_Enqueue(sequenceMap[seqId]);
+            AudioQueue_Enqueue(sequenceMap[seqId]);
+            AudioQueue_Enqueue(sequenceMap[seqId]);
+            AudioQueue_Enqueue(sequenceMap[seqId]);
+            AudioQueue_Enqueue(sequenceMap[seqId]);
+            AudioQueue_Enqueue(sequenceMap[seqId]);
+            AudioQueue_Enqueue(sequenceMap[seqId]);
+            AudioQueue_Enqueue(sequenceMap[seqId]);
         }
 
         gActiveSeqs[seqPlayerIndex].seqId = seqId | (seqArgs << 8);
@@ -75,10 +112,20 @@ void AudioSeq_StartSequence(u8 seqPlayerIndex, u8 seqId, u8 seqArgs, u16 fadeInD
         gActiveSeqs[seqPlayerIndex].volChannelFlags = 0;
     }
 }
+extern uint8_t gForceStopSeq;
 
 void AudioSeq_StopSequence(u8 seqPlayerIndex, u16 fadeOutDuration) {
     AUDIOCMD_GLOBAL_DISABLE_SEQPLAYER(seqPlayerIndex,
                                       (fadeOutDuration * (u16)gAudioCtx.audioBufferParameters.updatesPerFrame) / 4);
+
+    if (AudioSeq_IsSeqStreamedById(gActiveSeqs[seqPlayerIndex].seqId)) {
+        SequenceData sData = ResourceMgr_LoadSeqByName(sequenceMap[gActiveSeqs[seqPlayerIndex].seqId]);
+        //TUnedSa
+        //extern uint8_t gForceStopSeq;
+        gForceStopSeq = true;
+    }
+    
+
     gActiveSeqs[seqPlayerIndex].seqId = NA_BGM_DISABLED;
 }
 

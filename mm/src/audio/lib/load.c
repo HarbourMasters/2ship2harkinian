@@ -70,6 +70,7 @@ void AudioLoad_RelocateFontAndPreloadSamples(s32 fontId, SoundFontData* fontData
 s32 AudioLoad_ProcessSamplePreloads(s32 resetStatus);
 
 SequenceData ResourceMgr_LoadSeqByName(const char* path);
+SequenceData* ResourceMgr_LoadSeqPtrByName(const char* path);
 SoundFont* ResourceMgr_LoadAudioSoundFont(const char* path);
 
 // TODO: what's that for? it seems to rely on an uninitizalied variable in soh
@@ -623,10 +624,25 @@ s32 AudioLoad_SyncInitSeqPlayerInternal(s32 playerIndex, s32 seqId, s32 arg2) {
         AudioLoad_SyncLoadFont(fontId);
     }
 
+    // BENTODO leave a note
     seqData = AudioLoad_SyncLoadSeq(seqId);
+    if (seqData == 0x1) {
+        seqPlayer->seqId = seqId;
+        gActiveSeqs[playerIndex].seqId = seqId;
+        seqPlayer->seqData = seqData;
+        seqPlayer->enabled = true;
+        seqPlayer->scriptState.depth = 0;
+        seqPlayer->delay = 0;
+        seqPlayer->finished = false;
+        seqPlayer->playerIndex = playerIndex;
+        return 1;
+    }
+    
     if (seqData == NULL) {
         return 0;
     }
+
+    
 
     AudioScript_ResetSequencePlayer(seqPlayer);
     seqPlayer->seqId = seqId;
@@ -771,14 +787,8 @@ void* AudioLoad_SyncLoad(s32 tableType, u32 id, s32* didAllocate) {
         if (tableType == SEQUENCE_TABLE) {
             // 2S2H [Port] Custom Audio. Read audio data from the archive and if needed, handle streamed audio.
             SequenceData sData = ResourceMgr_LoadSeqByName(sequenceMap[id]);
-            // Streamed audio
             if (memcmp(sData.fonts, "07151129", sizeof("07151129")) == 0) {
-                // BENTODO Why do we need to add this 4 times?
-                AudioQueue_Enqueue(sequenceMap[id]);
-                AudioQueue_Enqueue(sequenceMap[id]);
-                AudioQueue_Enqueue(sequenceMap[id]);
-                AudioQueue_Enqueue(sequenceMap[id]);
-                return;
+                return (uintptr_t)1;
             }
             seqData = sData.seqData;
             size = sData.seqDataSize;
@@ -1135,9 +1145,6 @@ int strcmp_sort(const void* str1, const void* str2) {
     return strcmp(*pp1, *pp2);
 }
 
-char** sequenceMap;
-size_t sequenceMapSize;
-char* fontMap[256];
 extern AudioContext gAudioCtx;
 // #end region
 void AudioLoad_Init(void* heap, size_t heapSize) {
@@ -1281,13 +1288,13 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
         }
         int j = i - startingSeqNum;
         AudioCollection_AddToCollection(customSeqList[j], seqNum);
-        SequenceData sDat = ResourceMgr_LoadSeqByName(customSeqList[j]);
-        sDat.seqNumber = seqNum;
+        SequenceData* sDat = ResourceMgr_LoadSeqPtrByName(customSeqList[j]);
+        sDat->seqNumber = seqNum;
 
         char* str = malloc(strlen(customSeqList[j]) + 1);
         strcpy(str, customSeqList[j]);
 
-        sequenceMap[sDat.seqNumber] = str;
+        sequenceMap[sDat->seqNumber] = str;
         seqNum++;
     }
 
