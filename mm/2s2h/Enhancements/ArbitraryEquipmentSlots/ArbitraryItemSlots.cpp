@@ -281,8 +281,11 @@ std::shared_ptr<ArbitraryItemSlotLister> ArbitraryItemSlotLister::getLister(){
                             std::shared_ptr<ArbitraryItemSlotLister>{
                                 new CarouselItemSlotLister("1", INTENT_USE_ITEM, INTENT_HOTSWAP_ITEM_LEFT, INTENT_HOTSWAP_ITEM_RIGHT)
                             }
-                        })}
-            })};
+                        }, 
+                        CarouselItemSlotLister::makeCarousel
+                        )}
+            },
+            nullptr)};
     }
     return currentLister;
 }

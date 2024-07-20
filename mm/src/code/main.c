@@ -72,10 +72,14 @@ void SDL_main(int argc, char** argv /* void* arg*/) {
         {INTENT_CONTROL_FIRE_HOOKSHOT, "Fire Hookshot"},
         {INTENT_HOTSWAP_ITEM_RIGHT, "Swap Item Right"},
         {INTENT_HOTSWAP_ITEM_LEFT, "Swap Item Left"},
+        
         {INTENT_USE_ITEM, "Use Item"},
-
         {ARB_EQUIP_ITEM_1, "Arbitrary Equipment Button 1"},
-        {ARB_EQUIP_ITEM_2, "Arbitrary Equipment Button 2"}
+        {ARB_EQUIP_ITEM_2, "Arbitrary Equipment Button 2"},
+        
+        {INTENT_USE_ITEM2, "Use Item 2"},
+        {INTENT_HOTSWAP_ITEM_RIGHT2, "Swap Item Right 2"},
+        {INTENT_HOTSWAP_ITEM_LEFT2, "Swap Item Left 2"}
     };
     intentDefinitions = d;
     intentDefinitionCount = sizeof(d) / sizeof(IntentControlDefinition);

@@ -28,6 +28,7 @@ struct CarouselItemSlotManager : public ArbitraryItemSlotManager {
 };
 
 struct CarouselItemSlotLister : public ArbitraryItemSlotLister {
+    static std::shared_ptr<CarouselItemSlotLister> makeCarousel();
     uint16_t equipButtonIntent = 0;
     uint16_t swapLeftIntent = 0;
     uint16_t swapRightIntent = 0;

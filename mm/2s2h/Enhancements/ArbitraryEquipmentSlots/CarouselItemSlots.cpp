@@ -352,3 +352,7 @@ void CarouselItemSlotLister::initItemEquips(ItemEquips* equips){
         return ((CarouselItemSlotLister*)self->userData)->getEquipSlots(play, input);
     };
 }
+
+std::shared_ptr<CarouselItemSlotLister> CarouselItemSlotLister::makeCarousel(){
+    return std::shared_ptr<CarouselItemSlotLister>{new CarouselItemSlotLister("Created Lister", INTENT_USE_ITEM2, INTENT_HOTSWAP_ITEM_LEFT2, INTENT_HOTSWAP_ITEM_RIGHT2)};
+}

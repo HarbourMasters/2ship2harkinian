@@ -254,7 +254,7 @@ typedef struct ArbitraryItemEquipSet {
     int (*findSlotWithItem)(struct ArbitraryItemEquipSet* thisSet, uint16_t item);
 } ArbitraryItemEquipSet;
 
-#define ARB_SLOTS(play, input) gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, play, input)
+#define ARB_SLOTS(play, input) gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots ? (gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, play, input)) : (ArbitraryItemEquipSet){0,0,0}
 
 #define FOREACH_SLOT(slots, curentSlotName, code) \
     {\

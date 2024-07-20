@@ -11,12 +11,24 @@ void MultipleItemSlotsListerOptions::drawOptions(ArbitraryItemSlotsWindow* win, 
             ImGui::EndTabItem();
         }
     }
+
+    if(mulLister->subFactory != nullptr && ImGui::TabItemButton("+##addNewSubLister")){
+        std::printf("Add a new element: %X\n", this);
+        auto newSub = mulLister->subFactory();
+        if(newSub.get() != nullptr){
+            mulLister->subListers.push_back(newSub);
+        }
+    }
+
     ImGui::EndTabBar();
+    ImGui::SameLine();
+
 }
 
-MulitpleItemSlotLister::MulitpleItemSlotLister(std::string name, std::vector<std::shared_ptr<ArbitraryItemSlotLister>> subListers){
+MulitpleItemSlotLister::MulitpleItemSlotLister(std::string name, std::vector<std::shared_ptr<ArbitraryItemSlotLister>> subListers, SubListerFactory subFactory){
     this->name = name;
     this->subListers = subListers;
+    this->subFactory = subFactory;
     this->options = std::shared_ptr<ArbitraryItemSlotsListerOptions>(
         new MultipleItemSlotsListerOptions()
     );
