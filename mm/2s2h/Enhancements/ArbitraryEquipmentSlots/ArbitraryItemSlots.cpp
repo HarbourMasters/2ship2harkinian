@@ -21,13 +21,12 @@ extern "C" {
 
 uint16_t width = 27, height = 27;
 
-ArbitraryItemSlotManager::ArbitraryItemSlotManager(std::string id, uint16_t specialButtonId, ArbitraryItemSlotLister* lister) {
+ArbitraryItemSlotManager::ArbitraryItemSlotManager(std::string id, uint16_t specialButtonId,
+                                                   ArbitraryItemSlotLister* lister) {
     this->arbId = id;
     this->specialButtonId = specialButtonId;
     this->assignedItemSlot = SLOT_NONE;
-    this->drawParams = {
-        0, 0, 27, 27, 620, 620, 255, 0, 0, 255, true
-    };
+    this->drawParams = { 0, 0, 27, 27, 620, 620, 255, 0, 0, 255, true };
     this->lister = lister;
     this->loadCVars();
 }
@@ -35,16 +34,14 @@ ArbitraryItemSlotManager::ArbitraryItemSlotManager(std::string id, ArbitraryItem
     this->arbId = id;
     this->specialButtonId = 0;
     this->assignedItemSlot = SLOT_NONE;
-    this->drawParams = {
-        0, 0, 27, 27, 620, 620, 255, 0, 0, 255, true
-    };
+    this->drawParams = { 0, 0, 27, 27, 620, 620, 255, 0, 0, 255, true };
     this->lister = lister;
     this->loadCVars();
 }
 
 ArbitraryItemEquipButton ArbitraryItemSlotManager::makeEquipButton() {
     return {
-        this,        // userData;
+        this, // userData;
         +[](ArbitraryItemEquipButton* self, ItemId item) {
             return ((ArbitraryItemSlotManager*)self->userData)->canTakeAssignment(item);
         }, // canTakeAssignment
@@ -57,7 +54,7 @@ ArbitraryItemEquipButton ArbitraryItemSlotManager::makeEquipButton() {
         +[](ArbitraryItemEquipButton* self, Input* input) {
             return ((ArbitraryItemSlotManager*)self->userData)->tradeItem(input);
         }, // tradeItem
-        +[](ArbitraryItemEquipButton* self, PlayState *play) {
+        +[](ArbitraryItemEquipButton* self, PlayState* play) {
             return ((ArbitraryItemSlotManager*)self->userData)->getDrawParams(play);
         }, // getDrawParams
         +[](ArbitraryItemEquipButton* self) {
@@ -70,13 +67,13 @@ ArbitraryItemEquipButton ArbitraryItemSlotManager::makeEquipButton() {
         +[](struct ArbitraryItemEquipButton* self, uint8_t disabled) {
             return ((ArbitraryItemSlotManager*)self->userData)->setDisabled(disabled);
         }, // setDisabled
-        +[](struct ArbitraryItemEquipButton* self){
+        +[](struct ArbitraryItemEquipButton* self) {
             return ((ArbitraryItemSlotManager*)self->userData)->isDisabled();
         }, // isDisabled
-        +[](struct ArbitraryItemEquipButton* self, PlayState *play, HudVisibility hudMode, s16 dimmingAlpha){
+        +[](struct ArbitraryItemEquipButton* self, PlayState* play, HudVisibility hudMode, s16 dimmingAlpha) {
             ((ArbitraryItemSlotManager*)self->userData)->updateHudAlpha(play, hudMode, dimmingAlpha);
         }, // updateHudAlpha
-        +[](struct ArbitraryItemEquipButton* self){
+        +[](struct ArbitraryItemEquipButton* self) {
             return ((ArbitraryItemSlotManager*)self->userData)->arbId.c_str();
         }, // getId
         +[](ArbitraryItemEquipButton* self) {
@@ -92,22 +89,22 @@ uint8_t ArbitraryItemSlotManager::assignmentTriggered(Input* input) {
     return CHECK_INTENT(input->cur.intentControls, this->specialButtonId, BUTTON_STATE_PRESS, 0);
 }
 uint8_t ArbitraryItemSlotManager::activateItem(Input* input, uint8_t buttonState) {
-    if(this->disabled){
+    if (this->disabled) {
         return 0;
     }
     return CHECK_INTENT(input->cur.intentControls, this->specialButtonId, buttonState, 0);
 }
 uint8_t ArbitraryItemSlotManager::tradeItem(Input* input) {
-    if(this->disabled){
+    if (this->disabled) {
         return 0;
     }
     return CHECK_INTENT(input->cur.intentControls, this->specialButtonId, BUTTON_STATE_PRESS, 0);
 }
-ArbitraryItemDrawParams ArbitraryItemSlotManager::getDrawParams(PlayState *play) {
+ArbitraryItemDrawParams ArbitraryItemSlotManager::getDrawParams(PlayState* play) {
     ArbitraryItemDrawParams result = this->drawParams;
 
     SlotState state = this->lister->parentState.parent(this->state);
-    if(this->disabled){
+    if (this->disabled) {
         state = state.parent(this->disabledState);
     }
 
@@ -124,37 +121,36 @@ InventorySlot ArbitraryItemSlotManager::assignItemSlot(InventorySlot itemSlot) {
 }
 
 ItemId ArbitraryItemSlotManager::getAssignedItemID() {
-    if(this->assignedItemSlot == SLOT_NONE){
+    if (this->assignedItemSlot == SLOT_NONE) {
         return ITEM_NONE;
     }
-    return (ItemId) gSaveContext.save.saveInfo.inventory.items[this->assignedItemSlot];
+    return (ItemId)gSaveContext.save.saveInfo.inventory.items[this->assignedItemSlot];
 }
 
-uint8_t ArbitraryItemSlotManager::setDisabled(uint8_t disabled){
-    if(disabled != this->disabled){
+uint8_t ArbitraryItemSlotManager::setDisabled(uint8_t disabled) {
+    if (disabled != this->disabled) {
         this->disabledStarted = std::chrono::steady_clock::now();
     }
     return (this->disabled = disabled);
 }
 
-uint8_t ArbitraryItemSlotManager::isDisabled(){
+uint8_t ArbitraryItemSlotManager::isDisabled() {
     return this->disabled;
 }
 
-void ArbitraryItemSlotManager::updateHudAlpha(PlayState *play, HudVisibility hudMode, s16 dimmingAlpha){
+void ArbitraryItemSlotManager::updateHudAlpha(PlayState* play, HudVisibility hudMode, s16 dimmingAlpha) {
     int32_t risingAlpha = 255 - dimmingAlpha;
 
-    #define disabledCheck() \
-        if(this->disabled && play->pauseCtx.state == PAUSE_STATE_OFF){  \
-            if(this->hudAlpha != 70){                                   \
-                this->hudAlpha = 70;                                    \
-            }                                                           \
-        }                                                               \
-        else {                                                          \
-            if(this->hudAlpha != 255){                                  \
-                this->hudAlpha = risingAlpha;                           \
-            }                                                           \
-        }                                                               \
+#define disabledCheck()                                              \
+    if (this->disabled && play->pauseCtx.state == PAUSE_STATE_OFF) { \
+        if (this->hudAlpha != 70) {                                  \
+            this->hudAlpha = 70;                                     \
+        }                                                            \
+    } else {                                                         \
+        if (this->hudAlpha != 255) {                                 \
+            this->hudAlpha = risingAlpha;                            \
+        }                                                            \
+    }
 
     switch (hudMode) {
         case HUD_VISIBILITY_NONE:
@@ -184,8 +180,7 @@ void ArbitraryItemSlotManager::updateHudAlpha(PlayState *play, HudVisibility hud
         case HUD_VISIBILITY_HEARTS_MAGIC_WITH_OVERWRITE:
             if (gSaveContext.hudVisibilityForceButtonAlphasByStatus) {
                 disabledCheck();
-            }
-            else {
+            } else {
                 this->hudAlpha = dimmingAlpha;
             }
             break;
@@ -196,34 +191,33 @@ void ArbitraryItemSlotManager::updateHudAlpha(PlayState *play, HudVisibility hud
     }
 }
 
-
-std::string ArbitraryItemSlotManager::getCVarListerString(){
+std::string ArbitraryItemSlotManager::getCVarListerString() {
     return this->lister->getCVarListerString() + "." + this->arbId;
 }
 
-std::string ArbitraryItemSlotLister::getCVarListerString(){
+std::string ArbitraryItemSlotLister::getCVarListerString() {
     return std::string("gEnhancements.equipment.arbitraryEquipmentSlots.") + this->name;
 }
 
-void ArbitraryItemSlotManager::saveCVars(){
+void ArbitraryItemSlotManager::saveCVars() {
     this->state.saveCVars(this->getCVarListerString() + ".defaultState");
     this->disabledState.saveCVars(this->getCVarListerString() + ".disabledState");
 }
-void ArbitraryItemSlotManager::loadCVars(){
+void ArbitraryItemSlotManager::loadCVars() {
     this->state.loadCVars(this->getCVarListerString() + ".defaultState");
     this->disabledState.loadCVars(this->getCVarListerString() + ".disabledState");
 }
 
-void ArbitraryItemSlotLister::saveCVars(){
+void ArbitraryItemSlotLister::saveCVars() {
     this->parentState.saveCVars(this->getCVarListerString() + ".defaultState");
     this->disabledState.saveCVars(this->getCVarListerString() + ".disabledState");
 }
-void ArbitraryItemSlotLister::loadCVars(){
+void ArbitraryItemSlotLister::loadCVars() {
     this->parentState.loadCVars(this->getCVarListerString() + ".defaultState");
     this->disabledState.loadCVars(this->getCVarListerString() + ".disabledState");
 }
 
-ArbitraryItemEquipSet ArbitraryItemSlotLister::getEquipSlots(PlayState *play, Input* input){
+ArbitraryItemEquipSet ArbitraryItemSlotLister::getEquipSlots(PlayState* play, Input* input) {
     this->baseSlots = {};
 
     for (auto& slot : this->slots) {
@@ -234,14 +228,14 @@ ArbitraryItemEquipSet ArbitraryItemSlotLister::getEquipSlots(PlayState *play, In
     set.equips = this->baseSlots.data();
     set.count = this->baseSlots.size();
     this->addEquipSetCallbacks(&set);
-    
+
     return set;
 }
 
-void ArbitraryItemSlotLister::addEquipSetCallbacks(ArbitraryItemEquipSet* set){
-    set->findSlotWithItem = +[](ArbitraryItemEquipSet* self, uint16_t item){
+void ArbitraryItemSlotLister::addEquipSetCallbacks(ArbitraryItemEquipSet* set) {
+    set->findSlotWithItem = +[](ArbitraryItemEquipSet* self, uint16_t item) {
         FOREACH_SLOT(*self, slot, {
-            if(gSaveContext.save.saveInfo.inventory.items[slot->getAssignedItemSlot(slot)] == item){
+            if (gSaveContext.save.saveInfo.inventory.items[slot->getAssignedItemSlot(slot)] == item) {
                 return 1;
             }
         });
@@ -251,7 +245,7 @@ void ArbitraryItemSlotLister::addEquipSetCallbacks(ArbitraryItemEquipSet* set){
 
 void ArbitraryItemSlotLister::initItemEquips(ItemEquips* equips) {
     equips->equipsSlotGetter.userData = this;
-    equips->equipsSlotGetter.getEquipSlots = +[](const ArbitraryEquipsSlotGetter* self, PlayState *play, Input* input) {
+    equips->equipsSlotGetter.getEquipSlots = +[](const ArbitraryEquipsSlotGetter* self, PlayState* play, Input* input) {
         return ((ArbitraryItemSlotLister*)self->userData)->getEquipSlots(play, input);
     };
 
@@ -262,30 +256,23 @@ void ArbitraryItemSlotLister::initItemEquips(ItemEquips* equips) {
     second->drawParams.b = 255;
 }
 
-ArbitraryItemSlotLister::ArbitraryItemSlotLister(){
+ArbitraryItemSlotLister::ArbitraryItemSlotLister() {
     this->loadCVars();
 }
 
 std::shared_ptr<ArbitraryItemSlotLister> currentLister = NULL;
 
-std::shared_ptr<ArbitraryItemSlotLister> ArbitraryItemSlotLister::getLister(){
+std::shared_ptr<ArbitraryItemSlotLister> ArbitraryItemSlotLister::getLister() {
     if (currentLister == NULL) {
-        currentLister = std::shared_ptr<ArbitraryItemSlotLister>{new MulitpleItemSlotLister(
+        currentLister = std::shared_ptr<ArbitraryItemSlotLister>{ new MulitpleItemSlotLister(
             "Slots",
-            {
-                std::shared_ptr<ArbitraryItemSlotLister>{new ArbitraryItemSlotLister()},
-                std::shared_ptr<ArbitraryItemSlotLister>{
-                    new MulitpleItemSlotLister(
-                        "Carousel Slots",
-                        {
-                            std::shared_ptr<ArbitraryItemSlotLister>{
-                                new CarouselItemSlotLister("1", INTENT_USE_ITEM, INTENT_HOTSWAP_ITEM_LEFT, INTENT_HOTSWAP_ITEM_RIGHT)
-                            }
-                        }, 
-                        CarouselItemSlotLister::makeCarousel
-                        )}
-            },
-            nullptr)};
+            { std::shared_ptr<ArbitraryItemSlotLister>{ new ArbitraryItemSlotLister() },
+              std::shared_ptr<ArbitraryItemSlotLister>{ new MulitpleItemSlotLister(
+                  "Carousel Slots",
+                  { std::shared_ptr<ArbitraryItemSlotLister>{ new CarouselItemSlotLister(
+                      "1", INTENT_USE_ITEM, INTENT_HOTSWAP_ITEM_LEFT, INTENT_HOTSWAP_ITEM_RIGHT) } },
+                  CarouselItemSlotLister::makeCarousel) } },
+            nullptr) };
     }
     return currentLister;
 }

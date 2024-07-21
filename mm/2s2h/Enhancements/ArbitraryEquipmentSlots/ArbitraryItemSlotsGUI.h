@@ -11,13 +11,12 @@ struct ArbitraryItemSlotLister;
 struct ArbitraryItemSlotManager;
 
 struct ArbitraryItemSlotsWindow : public Ship::GuiWindow {
-    
+
     ArbitraryItemSlotsWindow();
 
     void InitElement() override;
     void DrawElement() override;
     void UpdateElement() override;
-    
 };
 
 struct ArbitraryItemSlotsListerOptions {
@@ -25,7 +24,8 @@ struct ArbitraryItemSlotsListerOptions {
     virtual void drawSlotState(ArbitraryItemSlotsWindow* win, SlotState* state, std::string appendex);
 };
 struct ArbitraryItemSlotsManagerOptions {
-    virtual void drawOptions(ArbitraryItemSlotsWindow* win, ArbitraryItemSlotManager* lister){}
+    virtual void drawOptions(ArbitraryItemSlotsWindow* win, ArbitraryItemSlotManager* lister) {
+    }
 };
 
 extern std::shared_ptr<ArbitraryItemSlotsWindow> arbItemSlotsWindow;

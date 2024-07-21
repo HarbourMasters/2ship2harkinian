@@ -3,7 +3,7 @@
 #include "spdlog/spdlog.h"
 // TODO headers
 // extern "C" {
-//#include "z64cutscene.h"
+// #include "z64cutscene.h"
 //}
 typedef enum {
     /* 0x00A */ CS_CMD_TEXT = 10,

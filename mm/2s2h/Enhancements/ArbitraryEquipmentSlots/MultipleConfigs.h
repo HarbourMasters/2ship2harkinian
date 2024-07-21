@@ -10,11 +10,12 @@ struct MultipleItemSlotsListerOptions : public ArbitraryItemSlotsListerOptions {
 struct MulitpleItemSlotLister : public ArbitraryItemSlotLister {
     std::vector<std::shared_ptr<ArbitraryItemSlotLister>> subListers;
     using SubListerFactory = std::function<std::shared_ptr<ArbitraryItemSlotLister>()>;
-    SubListerFactory subFactory = [](){return nullptr;};
+    SubListerFactory subFactory = []() { return nullptr; };
 
-    MulitpleItemSlotLister(std::string name, std::vector<std::shared_ptr<ArbitraryItemSlotLister>> subListers, SubListerFactory subFactory);
+    MulitpleItemSlotLister(std::string name, std::vector<std::shared_ptr<ArbitraryItemSlotLister>> subListers,
+                           SubListerFactory subFactory);
 
-    virtual ArbitraryItemEquipSet getEquipSlots(PlayState *play, Input* input) override;
+    virtual ArbitraryItemEquipSet getEquipSlots(PlayState* play, Input* input) override;
 
     virtual void initItemEquips(ItemEquips* equips) override;
 };

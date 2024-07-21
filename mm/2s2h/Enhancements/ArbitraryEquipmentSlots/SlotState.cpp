@@ -1,12 +1,12 @@
 #include "./SlotState.h"
 #include "consolevariablebridge.h"
 
-SlotState SlotState::blend(SlotState& other, float ratio){
+SlotState SlotState::blend(SlotState& other, float ratio) {
     SlotState result;
 
     float otherRatio = 1.0 - ratio;
 
-    #define blend(a,b) a * ratio + b * otherRatio
+#define blend(a, b) a* ratio + b* otherRatio
 
     result.rgb[0] = blend(this->rgb[0], other.rgb[0]);
     result.rgb[1] = blend(this->rgb[1], other.rgb[1]);
@@ -20,12 +20,12 @@ SlotState SlotState::blend(SlotState& other, float ratio){
 
     result.scale = blend(this->scale, other.scale);
 
-    #undef blend
+#undef blend
 
     return result;
 }
 
-SlotState SlotState::parent(SlotState& child){
+SlotState SlotState::parent(SlotState& child) {
     SlotState result;
 
     SlotState blended = child.blend(*this, child.rgb[3]);
@@ -42,17 +42,17 @@ SlotState SlotState::parent(SlotState& child){
     return result;
 }
 
-int32_t SlotState::getWidth(){
+int32_t SlotState::getWidth() {
     return this->scale * 27.0;
 }
-int32_t SlotState::getHeight(){
+int32_t SlotState::getHeight() {
     return this->scale * 27.0;
 }
 
 #define LOAD_CVAR(name, cvarFun) this->name = cvarFun((savePath + "." #name).c_str(), this->name)
 #define SET_CVAR(name, cvarFun) cvarFun((savePath + "." #name).c_str(), this->name)
 
-void SlotState::saveCVars(std::string savePath){
+void SlotState::saveCVars(std::string savePath) {
     SET_CVAR(posLeft, CVarSetInteger);
     SET_CVAR(posTop, CVarSetInteger);
     SET_CVAR(scale, CVarSetFloat);
@@ -63,7 +63,7 @@ void SlotState::saveCVars(std::string savePath){
     SET_CVAR(rgb[2], CVarSetFloat);
     SET_CVAR(rgb[3], CVarSetFloat);
 }
-void SlotState::loadCVars(std::string savePath){
+void SlotState::loadCVars(std::string savePath) {
     LOAD_CVAR(posLeft, CVarGetInteger);
     LOAD_CVAR(posTop, CVarGetInteger);
     LOAD_CVAR(scale, CVarGetFloat);
@@ -78,7 +78,7 @@ void SlotState::loadCVars(std::string savePath){
 #undef LOAD_CVAR
 #undef SET_CVAR
 
-ArbitraryItemDrawParams SlotState::toDrawParams(int32_t hudAlpha){
+ArbitraryItemDrawParams SlotState::toDrawParams(int32_t hudAlpha) {
     ArbitraryItemDrawParams result;
     result.rectWidth = this->getWidth();
     result.rectHeight = this->getHeight();
@@ -95,7 +95,7 @@ ArbitraryItemDrawParams SlotState::toDrawParams(int32_t hudAlpha){
 
     result.ammoRectLeft = result.rectLeft;
     result.ammoRectTop = result.rectTop + result.rectHeight - 8 * this->scale;
-    
+
     result.ammoTensRectLeft = result.ammoRectLeft + 6 * this->scale;
     result.ammoTensRectTop = result.ammoRectTop;
 

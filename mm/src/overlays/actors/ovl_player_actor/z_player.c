@@ -100,13 +100,12 @@ typedef enum AnimSfxType {
 #define ANIMSFX_STOP (0)
 
 #define ANIMSFX_FLAGS(type, frame, cont) \
-    (((ANIMSFX_##cont) == ANIMSFX_STOP ? -1 : 1) * (ANIMSFX_SHIFT_TYPE(type) | ((frame)&0x7FF)))
+    (((ANIMSFX_##cont) == ANIMSFX_STOP ? -1 : 1) * (ANIMSFX_SHIFT_TYPE(type) | ((frame) & 0x7FF)))
 
-#define ANIMSFX(type, frame, sfxId, cont) \
-    { (sfxId), ANIMSFX_FLAGS(type, frame, cont) }
+#define ANIMSFX(type, frame, sfxId, cont) { (sfxId), ANIMSFX_FLAGS(type, frame, cont) }
 
-#define ANIMSFX_GET_TYPE(data) ((data)&0x7800)
-#define ANIMSFX_GET_FRAME(data) ((data)&0x7FF)
+#define ANIMSFX_GET_TYPE(data) ((data) & 0x7800)
+#define ANIMSFX_GET_FRAME(data) ((data) & 0x7FF)
 
 typedef struct AnimSfxEntry {
     /* 0x0 */ u16 sfxId;
@@ -2069,7 +2068,7 @@ s32 func_8082ECCC(Player* this) {
 #define GET_ITEM(itemId, objectId, drawId, textId, field, chestAnim) \
     { itemId, field, (chestAnim != CHEST_ANIM_SHORT ? 1 : -1) * (drawId + 1), textId, objectId }
 
-#define GIFIELD_GET_DROP_TYPE(field) ((field)&0x1F)
+#define GIFIELD_GET_DROP_TYPE(field) ((field) & 0x1F)
 #define GIFIELD_20 (1 << 5)
 #define GIFIELD_40 (1 << 6)
 #define GIFIELD_NO_COLLECTIBLE (1 << 7)
@@ -3608,10 +3607,11 @@ s32 Player_ItemIsInUse(Player* this, ItemId item) {
     }
 }
 s32 Player_ItemIsInUseAnyArbitraryEquipment(Player* this) {
-    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, NULL, NULL);
-    for(size_t i = 0 ; i < slots.count; i++){
+    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(
+        &gSaveContext.save.saveInfo.equips.equipsSlotGetter, NULL, NULL);
+    for (size_t i = 0; i < slots.count; i++) {
         ArbitraryItemEquipButton* e = &slots.equips[i];
-        
+
         ItemId item = e->getAssignedItemID(e);
 
         if ((item < ITEM_FD) && (Player_ItemToItemAction(this, item) == this->itemAction)) {
@@ -3730,13 +3730,14 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
             }
             // #endregion
 
-            ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, NULL, NULL);
+            ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(
+                &gSaveContext.save.saveInfo.equips.equipsSlotGetter, NULL, NULL);
             ArbitraryItemEquipButton* targetArbSlot = NULL;
-            for(size_t i = 0 ; i < slots.count; i++){
+            for (size_t i = 0; i < slots.count; i++) {
                 ArbitraryItemEquipButton* e = &slots.equips[i];
 
                 ItemId item = e->getAssignedItemID(e);
-                
+
                 if (Player_ItemIsItemAction(this, item, maskItemAction)) {
                     targetArbSlot = e;
                     break;
@@ -3789,7 +3790,7 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
         s32 pad;
         ItemId item;
         EquipSlot i = func_8082FDC4();
-        
+
         i = ((i >= EQUIP_SLOT_A) && (this->transformation == PLAYER_FORM_FIERCE_DEITY) &&
              (this->heldItemAction != PLAYER_IA_SWORD_TWO_HANDED))
                 ? EQUIP_SLOT_B
@@ -3810,11 +3811,12 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
         }
         // #endregion
 
-        ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, play, CONTROLLER1(&play->state));
+        ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(
+            &gSaveContext.save.saveInfo.equips.equipsSlotGetter, play, CONTROLLER1(&play->state));
         ArbitraryItemEquipButton* arbitraryEquipSlot = NULL;
-        for(size_t arbIndex = 0; arbIndex < slots.count; arbIndex++){
+        for (size_t arbIndex = 0; arbIndex < slots.count; arbIndex++) {
             ArbitraryItemEquipButton* arb = &slots.equips[arbIndex];
-            if(arb->activateItem(arb, sPlayerControlInput, BUTTON_STATE_PRESS)){
+            if (arb->activateItem(arb, sPlayerControlInput, BUTTON_STATE_PRESS)) {
                 arbitraryEquipSlot = arb;
 
                 i = EQUIP_SLOT_MAX;
@@ -3832,9 +3834,9 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
 
             item = Player_GetItemOnButton(play, this, i);
 
-            for(size_t arbIndex = 0; arbIndex < slots.count; arbIndex++){
+            for (size_t arbIndex = 0; arbIndex < slots.count; arbIndex++) {
                 ArbitraryItemEquipButton* arb = &slots.equips[arbIndex];
-                if(arb->activateItem(arb, sPlayerControlInput, BUTTON_STATE_CUR)){
+                if (arb->activateItem(arb, sPlayerControlInput, BUTTON_STATE_CUR)) {
                     i = EQUIP_SLOT_MAX;
 
                     item = arb->getAssignedItemID(arb);
@@ -7848,7 +7850,8 @@ s32 Player_ActionChange_4(Player* this, PlayState* play) {
                                 return false;
                             }
 
-                            if (CHECK_INTENT((sPlayerControlInput->press.intentControls), INTENT_CONTROL_TALK, BUTTON_STATE_PRESS, 0) ||
+                            if (CHECK_INTENT((sPlayerControlInput->press.intentControls), INTENT_CONTROL_TALK,
+                                             BUTTON_STATE_PRESS, 0) ||
                                 (talkActor->flags & ACTOR_FLAG_10000)) {
                                 var_a1 = NULL;
                             } else if (var_a1 == NULL) {
@@ -8024,8 +8027,7 @@ s32 func_80839A84(PlayState* play, Player* this) {
 }
 
 s32 Player_ActionChange_10(Player* this, PlayState* play) {
-    if (
-        CHECK_INTENT((sPlayerControlInput->press.intentControls), INTENT_CONTROL_JUMP, BUTTON_STATE_PRESS, 0) &&
+    if (CHECK_INTENT((sPlayerControlInput->press.intentControls), INTENT_CONTROL_JUMP, BUTTON_STATE_PRESS, 0) &&
         (play->roomCtx.curRoom.behaviorType1 != ROOM_BEHAVIOR_TYPE1_2) && (sPlayerFloorType != FLOOR_TYPE_7) &&
         (sPlayerFloorEffect != FLOOR_EFFECT_1)) {
         s32 temp_a2 = this->unk_AE3[this->unk_ADE];
@@ -8155,10 +8157,9 @@ s32 Player_ActionChange_6(Player* this, PlayState* play) {
     if (!D_80862B04 && !(this->stateFlags1 & PLAYER_STATE1_800000) && !func_8082FB68(this)) {
         if ((this->transformation == PLAYER_FORM_ZORA) && (this->stateFlags1 & PLAYER_STATE1_8000000)) {
             func_8083A04C(this);
-        } else if (
-            CHECK_INTENT((sPlayerControlInput->press.intentControls), INTENT_CONTROL_ROLL, BUTTON_STATE_PRESS, 0)
-            && !func_8082FB68(this)
-        ) {
+        } else if (CHECK_INTENT((sPlayerControlInput->press.intentControls), INTENT_CONTROL_ROLL, BUTTON_STATE_PRESS,
+                                0) &&
+                   !func_8082FB68(this)) {
             if (this->transformation == PLAYER_FORM_GORON) {
                 if (func_80839F98(play, this)) {
                     return true;
@@ -17596,7 +17597,7 @@ void Player_Action_68(Player* this, PlayState* play) {
                 else {
                     FOREACH_SLOT(ARB_SLOTS(play, CONTROLLER1(&play->state)), arbSlot, {
                         ItemId item = arbSlot->getAssignedItemID(arbSlot);
-                        if(item == ITEM_BOTTLE){
+                        if (item == ITEM_BOTTLE) {
                             Actor* interactRangeActor = this->interactRangeActor;
 
                             if (interactRangeActor != NULL) {
@@ -17605,8 +17606,8 @@ void Player_Action_68(Player* this, PlayState* play) {
 
                                 for (i = 0; i < ARRAY_COUNT(D_8085D798); i++) {
                                     if (((interactRangeActor->id == entry->actorId) &&
-                                        ((entry->actorParams <= BOTTLE_CATCH_PARAMS_ANY) ||
-                                        (interactRangeActor->params == entry->actorParams)))) {
+                                         ((entry->actorParams <= BOTTLE_CATCH_PARAMS_ANY) ||
+                                          (interactRangeActor->params == entry->actorParams)))) {
                                         break;
                                     }
                                     entry++;
@@ -17622,7 +17623,7 @@ void Player_Action_68(Player* this, PlayState* play) {
                                 }
                             }
                             break;
-                        } 
+                        }
                     })
                 }
             }

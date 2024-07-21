@@ -44,7 +44,7 @@
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 /* data */
-#define qs1616(e) ((s32)((e)*0x00010000))
+#define qs1616(e) ((s32)((e) * 0x00010000))
 
 #define IPART(x) ((qs1616(x) >> 16) & 0xFFFF)
 #define FPART(x) (qs1616(x) & 0xFFFF)

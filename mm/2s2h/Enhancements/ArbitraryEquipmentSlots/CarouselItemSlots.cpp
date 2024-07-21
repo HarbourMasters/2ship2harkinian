@@ -7,40 +7,33 @@ extern "C" {
 }
 #include "./guis/CarouselGUI.h"
 
-CarouselItemSlotManager::CarouselItemSlotManager(std::string id, CarouselItemSlotLister* lister): ArbitraryItemSlotManager(id, lister) {
+CarouselItemSlotManager::CarouselItemSlotManager(std::string id, CarouselItemSlotLister* lister)
+    : ArbitraryItemSlotManager(id, lister) {
     // this->scrollPosition = 0;
 }
 
-int32_t CarouselItemSlotManager::getLeftOffset(int16_t index){
+int32_t CarouselItemSlotManager::getLeftOffset(int16_t index) {
     int8_t negative = index < 0 ? -1 : 1;
     int abs = index * negative;
-    auto l = (CarouselItemSlotLister*) lister;
+    auto l = (CarouselItemSlotLister*)lister;
     abs %= l->carouselSlots.size();
-    
-    if(negative < 0){
+
+    if (negative < 0) {
         abs *= -1;
         abs += l->carouselSlots.size();
         abs %= l->carouselSlots.size();
     }
 
-    auto it = std::find_if(
-        l->carouselSlots.begin(),
-        l->carouselSlots.end(),
-        [this](
-            std::shared_ptr<CarouselItemSlotManager> slot
-        ){
-            return slot.get() == this;
-        }
-    );
+    auto it = std::find_if(l->carouselSlots.begin(), l->carouselSlots.end(),
+                           [this](std::shared_ptr<CarouselItemSlotManager> slot) { return slot.get() == this; });
     long thisIndex = it - l->carouselSlots.begin();
 
     long dist = thisIndex - abs;
 
-    if(std::abs(dist) > ((double)l->carouselSlots.size() / 2.0 )){
-        if(dist < 0){
+    if (std::abs(dist) > ((double)l->carouselSlots.size() / 2.0)) {
+        if (dist < 0) {
             dist += l->carouselSlots.size();
-        }
-        else {
+        } else {
             dist -= l->carouselSlots.size();
         }
     }
@@ -48,8 +41,8 @@ int32_t CarouselItemSlotManager::getLeftOffset(int16_t index){
     return dist;
 }
 
-SlotState CarouselItemSlotManager::getIndexSlotState(int16_t relativeIndex, double width){
-    auto l = (CarouselItemSlotLister*) lister;
+SlotState CarouselItemSlotManager::getIndexSlotState(int16_t relativeIndex, double width) {
+    auto l = (CarouselItemSlotLister*)lister;
     SlotState resultState;
     double distance = width * relativeIndex;
 
@@ -58,40 +51,40 @@ SlotState CarouselItemSlotManager::getIndexSlotState(int16_t relativeIndex, doub
     resultState.posLeft += std::cos(angleRads) * distance;
     resultState.posTop += std::sin(angleRads) * distance;
 
-    if(std::abs(relativeIndex) > l->carouselIndexRadius){
+    if (std::abs(relativeIndex) > l->carouselIndexRadius) {
         resultState.transparency = 0;
     }
 
     return resultState;
 }
 
-double CarouselItemSlotManager::getScrollTimeRatio(){
-    auto l = (CarouselItemSlotLister*) lister;
+double CarouselItemSlotManager::getScrollTimeRatio() {
+    auto l = (CarouselItemSlotLister*)lister;
     std::chrono::duration<double, std::ratio<1LL, 1LL>> elapsedTime =
         (std::chrono::high_resolution_clock::now() - l->lastSlotSwap);
-    
+
     return std::clamp(elapsedTime.count() / l->fadeTimeSeconds, 0.0, 1.0);
 }
-double CarouselItemSlotManager::getActivationRatio(){
-    auto l = (CarouselItemSlotLister*) lister;
+double CarouselItemSlotManager::getActivationRatio() {
+    auto l = (CarouselItemSlotLister*)lister;
     std::chrono::duration<double, std::ratio<1LL, 1LL>> elapsedTime =
         (std::chrono::high_resolution_clock::now() - l->activeStarted);
-        
-    if(!l->active){
+
+    if (!l->active) {
         elapsedTime = (std::chrono::high_resolution_clock::now() - l->inactiveStarted);
     }
 
     double clampedRatio = std::clamp(elapsedTime.count() / l->fadeTimeSeconds, 0.0, 1.0);
-    
-    if(!l->active){
+
+    if (!l->active) {
         clampedRatio = 1.0 - clampedRatio;
     }
 
     return clampedRatio;
 }
 
-ArbitraryItemDrawParams CarouselItemSlotManager::getDrawParams(PlayState *play){
-    auto l = (CarouselItemSlotLister*) lister;
+ArbitraryItemDrawParams CarouselItemSlotManager::getDrawParams(PlayState* play) {
+    auto l = (CarouselItemSlotLister*)lister;
 
     SlotState defaultState = l->parentState;
     SlotState scrollingState = l->scrollingState;
@@ -99,24 +92,23 @@ ArbitraryItemDrawParams CarouselItemSlotManager::getDrawParams(PlayState *play){
 
     auto dist = this->getLeftOffset(l->selectedIndex);
     auto prevDist = this->getLeftOffset(l->previousSelectedIndex);
-    
+
     SlotState result = defaultState.parent(scrollingState);
 
     SlotState scrollingCurPositionState = this->getIndexSlotState(dist, scrollingSelectedState.getWidth());
     SlotState scrollingPrevPositionState = this->getIndexSlotState(prevDist, scrollingSelectedState.getWidth());
-    SlotState scrollingPositionState = scrollingCurPositionState.blend(scrollingPrevPositionState, this->getScrollTimeRatio());
+    SlotState scrollingPositionState =
+        scrollingCurPositionState.blend(scrollingPrevPositionState, this->getScrollTimeRatio());
 
     result = result.parent(scrollingPositionState);
 
-    if(dist == 0)
-    {
+    if (dist == 0) {
         result = result.parent(scrollingSelectedState);
-    }
-    else {
+    } else {
         defaultState.transparency = 0;
     }
 
-    if(this->disabled){
+    if (this->disabled) {
         result = result.parent(l->disabledState);
     }
 
@@ -125,85 +117,77 @@ ArbitraryItemDrawParams CarouselItemSlotManager::getDrawParams(PlayState *play){
     return result.toDrawParams(this->hudAlpha);
 }
 
-bool CarouselItemSlotManager::isSelectedSlot(){
-    auto l = (CarouselItemSlotLister*) lister;
+bool CarouselItemSlotManager::isSelectedSlot() {
+    auto l = (CarouselItemSlotLister*)lister;
     int8_t negative = l->selectedIndex < 0 ? -1 : 1;
     int abs = l->selectedIndex * negative;
     abs %= l->carouselSlots.size();
-    
-    if(negative < 0){
+
+    if (negative < 0) {
         abs *= -1;
         abs += l->carouselSlots.size();
         abs %= l->carouselSlots.size();
     }
 
-    auto it = std::find_if(
-        l->carouselSlots.begin(),
-        l->carouselSlots.end(),
-        [this](
-            std::shared_ptr<CarouselItemSlotManager> slot
-        ){
-            return slot.get() == this;
-        }
-    );
+    auto it = std::find_if(l->carouselSlots.begin(), l->carouselSlots.end(),
+                           [this](std::shared_ptr<CarouselItemSlotManager> slot) { return slot.get() == this; });
     long thisIndex = it - l->carouselSlots.begin();
 
     return thisIndex == abs;
 }
 
-uint8_t CarouselItemSlotManager::canTakeAssignment(ItemId item){
-    if(!this->isSelectedSlot()){
+uint8_t CarouselItemSlotManager::canTakeAssignment(ItemId item) {
+    if (!this->isSelectedSlot()) {
         return 0;
     }
 
     return true;
 }
-uint8_t CarouselItemSlotManager::assignmentTriggered(Input* input){
-    if(!this->isSelectedSlot()){
+uint8_t CarouselItemSlotManager::assignmentTriggered(Input* input) {
+    if (!this->isSelectedSlot()) {
         return 0;
     }
 
-    auto l = (CarouselItemSlotLister*) lister;
+    auto l = (CarouselItemSlotLister*)lister;
     return CHECK_INTENT(input->press.intentControls, l->equipButtonIntent, BUTTON_STATE_PRESS, 0);
 }
-uint8_t CarouselItemSlotManager::activateItem(Input* input, uint8_t buttonState){
-    if(!this->isSelectedSlot()){
+uint8_t CarouselItemSlotManager::activateItem(Input* input, uint8_t buttonState) {
+    if (!this->isSelectedSlot()) {
         return 0;
-    }
-    else if(this->disabled){
+    } else if (this->disabled) {
         return 0;
     }
 
-    auto l = (CarouselItemSlotLister*) lister;
+    auto l = (CarouselItemSlotLister*)lister;
     return CHECK_INTENT(input->press.intentControls, l->equipButtonIntent, buttonState, 0);
 }
-uint8_t CarouselItemSlotManager::tradeItem(Input* input){
-    if(!this->isSelectedSlot()){
+uint8_t CarouselItemSlotManager::tradeItem(Input* input) {
+    if (!this->isSelectedSlot()) {
         return 0;
     }
 
-    auto l = (CarouselItemSlotLister*) lister;
+    auto l = (CarouselItemSlotLister*)lister;
     return CHECK_INTENT(input->cur.intentControls, l->equipButtonIntent, BUTTON_STATE_PRESS, 0);
 }
 
 #define LOAD_CVAR(name, cvarFun) this->name = cvarFun((this->getCVarListerString() + "." #name).c_str(), this->name)
 #define SET_CVAR(name, cvarFun) cvarFun((this->getCVarListerString() + "." #name).c_str(), this->name)
 
-void CarouselItemSlotManager::loadCVars(){
+void CarouselItemSlotManager::loadCVars() {
     ArbitraryItemSlotManager::loadCVars();
-}    
-void CarouselItemSlotManager::saveCVars(){
+}
+void CarouselItemSlotManager::saveCVars() {
     ArbitraryItemSlotManager::saveCVars();
-}  
+}
 
-void CarouselItemSlotLister::loadCVars(){
+void CarouselItemSlotLister::loadCVars() {
     ArbitraryItemSlotLister::loadCVars();
     LOAD_CVAR(slotCount, CVarGetInteger);
     LOAD_CVAR(carouselIndexRadius, CVarGetInteger);
     LOAD_CVAR(carouselDirectionAngle, CVarGetFloat);
     this->parentState.loadCVars(this->getCVarListerString() + ".defaultState");
 }
-void CarouselItemSlotLister::saveCVars(){
+void CarouselItemSlotLister::saveCVars() {
     ArbitraryItemSlotLister::saveCVars();
     SET_CVAR(slotCount, CVarSetInteger);
     SET_CVAR(carouselIndexRadius, CVarSetInteger);
@@ -215,17 +199,17 @@ void CarouselItemSlotLister::saveCVars(){
 #undef LOAD_CVAR
 #undef SET_CVAR
 
-void CarouselItemSlotLister::resetSlotCount(uint8_t count){
+void CarouselItemSlotLister::resetSlotCount(uint8_t count) {
     std::vector<std::shared_ptr<CarouselItemSlotManager>> newSlots;
 
-    for(size_t i = 0; i < count; i++){
-        if(i < this->carouselSlots.size()){
+    for (size_t i = 0; i < count; i++) {
+        if (i < this->carouselSlots.size()) {
             auto existing = this->carouselSlots.at(i);
             existing->arbId = i + 1;
             newSlots.push_back(existing);
-        }
-        else {
-            auto newSlot = std::shared_ptr<CarouselItemSlotManager>{ new CarouselItemSlotManager("carouselSlotNum" + std::to_string(i + 1), this) };
+        } else {
+            auto newSlot = std::shared_ptr<CarouselItemSlotManager>{ new CarouselItemSlotManager(
+                "carouselSlotNum" + std::to_string(i + 1), this) };
             newSlots.push_back(newSlot);
         }
     }
@@ -234,7 +218,8 @@ void CarouselItemSlotLister::resetSlotCount(uint8_t count){
     this->carouselSlots = newSlots;
 }
 
-CarouselItemSlotLister::CarouselItemSlotLister(std::string name, uint16_t equipButtonIntent, uint16_t swapLeftIntent, uint16_t swapRightIntent){
+CarouselItemSlotLister::CarouselItemSlotLister(std::string name, uint16_t equipButtonIntent, uint16_t swapLeftIntent,
+                                               uint16_t swapRightIntent) {
     this->name = name;
     this->equipButtonIntent = equipButtonIntent;
     this->swapLeftIntent = swapLeftIntent;
@@ -250,15 +235,16 @@ CarouselItemSlotLister::CarouselItemSlotLister(std::string name, uint16_t equipB
     this->scrollingSelectedState.rgb[0] = 1;
     this->scrollingSelectedState.rgb[1] = 1;
     this->scrollingSelectedState.rgb[2] = 1;
-    
+
     this->loadCVars();
     this->resetSlotCount(this->slotCount);
 }
 
-ArbitraryItemEquipSet CarouselItemSlotLister::getEquipSlots(PlayState *play, Input* input){
+ArbitraryItemEquipSet CarouselItemSlotLister::getEquipSlots(PlayState* play, Input* input) {
     play->state.frames;
-    // Only process carousel index changes when the frame has changed to prevent the same button press from changing the index twice.
-    if (input != NULL && play != NULL && this->processedInputOnFrame != play->state.frames){
+    // Only process carousel index changes when the frame has changed to prevent the same button press from changing the
+    // index twice.
+    if (input != NULL && play != NULL && this->processedInputOnFrame != play->state.frames) {
         this->processedInputOnFrame = play->state.frames;
         bool isPaused = play->pauseCtx.state != PAUSE_STATE_OFF;
         bool pauseMenuJustClosed = this->prevWasPaused && !isPaused;
@@ -267,21 +253,21 @@ ArbitraryItemEquipSet CarouselItemSlotLister::getEquipSlots(PlayState *play, Inp
         int16_t prev = selectedIndex;
         int8_t direction = 0;
 
-        if(CHECK_INTENT(input->press.intentControls, this->swapLeftIntent, BUTTON_STATE_PRESS, 0)){
+        if (CHECK_INTENT(input->press.intentControls, this->swapLeftIntent, BUTTON_STATE_PRESS, 0)) {
             direction--;
         }
-        if(CHECK_INTENT(input->press.intentControls, this->swapRightIntent, BUTTON_STATE_PRESS, 0)){
+        if (CHECK_INTENT(input->press.intentControls, this->swapRightIntent, BUTTON_STATE_PRESS, 0)) {
             direction++;
         }
 
         selectedIndex += direction;
 
         // Normalize the index into a valid point withing the index range
-        if(prev != selectedIndex){
-            while(selectedIndex < 0){
+        if (prev != selectedIndex) {
+            while (selectedIndex < 0) {
                 selectedIndex += this->carouselSlots.size();
             }
-            while(selectedIndex >= this->carouselSlots.size()){
+            while (selectedIndex >= this->carouselSlots.size()) {
                 selectedIndex -= this->carouselSlots.size();
             }
         }
@@ -289,44 +275,41 @@ ArbitraryItemEquipSet CarouselItemSlotLister::getEquipSlots(PlayState *play, Inp
         // When outside the pause menu, swap to the next non-disabled item slot.
         // Disable this when paused so that items can be assigned to disabled slots.
         // Don't swap immediately after closing the pause menu so that the game has a moment to update disabled status.
-        if(play != NULL && !isPaused && !pauseMenuJustClosed){
+        if (play != NULL && !isPaused && !pauseMenuJustClosed) {
             // If the direction is zero, set to one so that the while-loop below doesn't loop forever.
-            if(direction == 0 ){
+            if (direction == 0) {
                 direction = 1;
             }
             // End the loop if no non-disabled item slot was found.
             size_t iterationCount = 0;
-            while(this->carouselSlots.at(selectedIndex)->disabled && iterationCount++ < this->carouselSlots.size()){
+            while (this->carouselSlots.at(selectedIndex)->disabled && iterationCount++ < this->carouselSlots.size()) {
                 selectedIndex += direction;
-                while(selectedIndex < 0){
+                while (selectedIndex < 0) {
                     selectedIndex += this->carouselSlots.size();
                 }
-                while(selectedIndex >= this->carouselSlots.size()){
+                while (selectedIndex >= this->carouselSlots.size()) {
                     selectedIndex -= this->carouselSlots.size();
                 }
             }
             // If no non-disabled item slot was found, then reset the index.
-            if(iterationCount >= this->carouselSlots.size()){
+            if (iterationCount >= this->carouselSlots.size()) {
                 selectedIndex = prev;
             }
         }
 
         auto now = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double, std::ratio<1LL, 1LL>> elapsedActiveTime =
-            (now - this->activeStarted);
-        std::chrono::duration<double, std::ratio<1LL, 1LL>> elapsedSwapTime =
-            (now - this->lastSlotSwap);
+        std::chrono::duration<double, std::ratio<1LL, 1LL>> elapsedActiveTime = (now - this->activeStarted);
+        std::chrono::duration<double, std::ratio<1LL, 1LL>> elapsedSwapTime = (now - this->lastSlotSwap);
 
         // Set tracking info for animation purposes
-        if(prev != selectedIndex){
+        if (prev != selectedIndex) {
             this->previousSelectedIndex = prev;
             this->lastSlotSwap = now;
-            if(!this->active){
+            if (!this->active) {
                 this->active = true;
                 this->activeStarted = this->lastSlotSwap;
             }
-        }
-        else if(this->active && elapsedSwapTime.count() >= this->lingerSeconds) {
+        } else if (this->active && elapsedSwapTime.count() >= this->lingerSeconds) {
             this->active = false;
             this->inactiveStarted = now;
         }
@@ -341,18 +324,19 @@ ArbitraryItemEquipSet CarouselItemSlotLister::getEquipSlots(PlayState *play, Inp
     ArbitraryItemEquipSet set;
     set.equips = this->baseSlots.data();
     set.count = this->baseSlots.size();
- 
+
     this->addEquipSetCallbacks(&set);
     return set;
 }
 
-void CarouselItemSlotLister::initItemEquips(ItemEquips* equips){
+void CarouselItemSlotLister::initItemEquips(ItemEquips* equips) {
     equips->equipsSlotGetter.userData = this;
     equips->equipsSlotGetter.getEquipSlots = +[](const ArbitraryEquipsSlotGetter* self, PlayState* play, Input* input) {
         return ((CarouselItemSlotLister*)self->userData)->getEquipSlots(play, input);
     };
 }
 
-std::shared_ptr<CarouselItemSlotLister> CarouselItemSlotLister::makeCarousel(){
-    return std::shared_ptr<CarouselItemSlotLister>{new CarouselItemSlotLister("Created Lister", INTENT_USE_ITEM2, INTENT_HOTSWAP_ITEM_LEFT2, INTENT_HOTSWAP_ITEM_RIGHT2)};
+std::shared_ptr<CarouselItemSlotLister> CarouselItemSlotLister::makeCarousel() {
+    return std::shared_ptr<CarouselItemSlotLister>{ new CarouselItemSlotLister(
+        "Created Lister", INTENT_USE_ITEM2, INTENT_HOTSWAP_ITEM_LEFT2, INTENT_HOTSWAP_ITEM_RIGHT2) };
 }

@@ -501,18 +501,17 @@ void PadMgr_UpdateInputs(void) {
         input->press.button |= (u16)(diff & input->cur.button);
         input->rel.button |= (u16)(diff & input->prev.button);
 
-        
-        if(input->cur.intentControls != input->prev.intentControls){
+        if (input->cur.intentControls != input->prev.intentControls) {
             input->prev.intentControls = input->cur.intentControls;
         }
-        if(input->cur.intentControls != input->press.intentControls){
+        if (input->cur.intentControls != input->press.intentControls) {
             input->press.intentControls = input->cur.intentControls;
         }
-        if(input->cur.intentControls != input->rel.intentControls){
+        if (input->cur.intentControls != input->rel.intentControls) {
             input->rel.intentControls = input->cur.intentControls;
         }
 
-        if(input->cur.intentControls != NULL){
+        if (input->cur.intentControls != NULL) {
             input->cur.intentControls->updateState(input->cur.intentControls->userData);
         }
 

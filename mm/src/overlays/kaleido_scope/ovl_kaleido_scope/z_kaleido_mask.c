@@ -305,8 +305,9 @@ void KaleidoScope_UpdateMaskCursor(PlayState* play) {
 
     pauseCtx->cursorColorSet = PAUSE_CURSOR_COLOR_SET_WHITE;
     pauseCtx->nameColorSet = PAUSE_NAME_COLOR_SET_WHITE;
-    
-    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, play, input);
+
+    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(
+        &gSaveContext.save.saveInfo.equips.equipsSlotGetter, play, input);
 
     if ((pauseCtx->state == PAUSE_STATE_MAIN) && (pauseCtx->mainState == PAUSE_MAIN_STATE_IDLE) &&
         (pauseCtx->pageIndex == PAUSE_MASK) && !pauseCtx->itemDescriptionOn) {
@@ -556,12 +557,11 @@ void KaleidoScope_UpdateMaskCursor(PlayState* play) {
             if (cursorItem != PAUSE_ITEM_NONE) {
                 uint8_t arbEquipAccepts = 0;
                 pauseCtx->equipTargetArbitraryEquip = NULL;
-                for(size_t arbIndex = 0; arbIndex < slots.count; arbIndex++){
+                for (size_t arbIndex = 0; arbIndex < slots.count; arbIndex++) {
                     ArbitraryItemEquipButton* targetArb = &slots.equips[arbIndex];
-                    if(
-                        targetArb->canTakeAssignment && targetArb->canTakeAssignment(targetArb, cursorItem)
-                        && targetArb->assignmentTriggered && targetArb->assignmentTriggered(targetArb, CONTROLLER1(&play->state))
-                    ){
+                    if (targetArb->canTakeAssignment && targetArb->canTakeAssignment(targetArb, cursorItem) &&
+                        targetArb->assignmentTriggered &&
+                        targetArb->assignmentTriggered(targetArb, CONTROLLER1(&play->state))) {
                         arbEquipAccepts = 1;
                         pauseCtx->equipTargetArbitraryEquip = targetArb;
                         break;
@@ -570,10 +570,10 @@ void KaleidoScope_UpdateMaskCursor(PlayState* play) {
                 // Equip item to the C buttons
                 if ((pauseCtx->debugEditor == DEBUG_EDITOR_NONE) && !pauseCtx->itemDescriptionOn &&
                     (pauseCtx->state == PAUSE_STATE_MAIN) && (pauseCtx->mainState == PAUSE_MAIN_STATE_IDLE) &&
-                    (CHECK_BTN_ANY(input->press.button, 
-                                BTN_CLEFT | BTN_CDOWN | BTN_CRIGHT | BTN_DPAD_EQUIP) || arbEquipAccepts)) {
-                    
-                    if(arbEquipAccepts){
+                    (CHECK_BTN_ANY(input->press.button, BTN_CLEFT | BTN_CDOWN | BTN_CRIGHT | BTN_DPAD_EQUIP) ||
+                     arbEquipAccepts)) {
+
+                    if (arbEquipAccepts) {
 
                     }
                     // Ensure that a mask is not unequipped while being used
@@ -652,10 +652,9 @@ void KaleidoScope_UpdateMaskCursor(PlayState* play) {
                         return;
                     }
 
-                    if(arbEquipAccepts){
+                    if (arbEquipAccepts) {
 
-                    }
-                    else if (CHECK_BTN_ALL(input->press.button, BTN_CLEFT)) {
+                    } else if (CHECK_BTN_ALL(input->press.button, BTN_CLEFT)) {
                         pauseCtx->equipTargetCBtn = PAUSE_EQUIP_C_LEFT;
                     } else if (CHECK_BTN_ALL(input->press.button, BTN_CDOWN)) {
                         pauseCtx->equipTargetCBtn = PAUSE_EQUIP_C_DOWN;
@@ -1030,7 +1029,7 @@ void KaleidoScope_UpdateMaskEquip(PlayState* play) {
     u16 offsetX;
     u16 offsetY;
 
-    if(pauseCtx->equipTargetArbitraryEquip != NULL){
+    if (pauseCtx->equipTargetArbitraryEquip != NULL) {
         return;
     }
 
@@ -1275,7 +1274,7 @@ void KaleidoScope_UpdateMaskEquipArbitrary(PlayState* play) {
     u16 offsetY;
 
     ArbitraryItemEquipButton* arbEquip = pauseCtx->equipTargetArbitraryEquip;
-    if(arbEquip == NULL){
+    if (arbEquip == NULL) {
         return;
     }
 

@@ -91,7 +91,7 @@ void SetupGuiElements() {
     mEventLogWindow = std::make_shared<EventLogWindow>("gWindows.EventLog", "Event Log");
     gui->AddGuiWindow(mEventLogWindow);
 
-    arbItemSlotsWindow = std::shared_ptr<ArbitraryItemSlotsWindow>{new ArbitraryItemSlotsWindow()};
+    arbItemSlotsWindow = std::shared_ptr<ArbitraryItemSlotsWindow>{ new ArbitraryItemSlotsWindow() };
     gui->AddGuiWindow(arbItemSlotsWindow);
 }
 

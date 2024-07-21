@@ -677,13 +677,14 @@ PlayerItemAction func_80123810(PlayState* play) {
         }
     }
 
-    initItemEquips(&gSaveContext.save.saveInfo.equips);    
+    initItemEquips(&gSaveContext.save.saveInfo.equips);
 
-    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, play, CONTROLLER1(&play->state));
+    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(
+        &gSaveContext.save.saveInfo.equips.equipsSlotGetter, play, CONTROLLER1(&play->state));
 
-    for(uint16_t arbIndex = 0; arbIndex < slots.count; arbIndex++){
+    for (uint16_t arbIndex = 0; arbIndex < slots.count; arbIndex++) {
         ArbitraryItemEquipButton* arb = &slots.equips[arbIndex];
-        if(arb->tradeItem(arb, CONTROLLER1(&play->state))){
+        if (arb->tradeItem(arb, CONTROLLER1(&play->state))) {
             play->interfaceCtx.unk_222 = 0;
             play->interfaceCtx.unk_224 = 0;
             Interface_SetHudVisibility(play->msgCtx.hudVisibility);
@@ -1394,7 +1395,7 @@ void Player_SetEquipmentData(PlayState* play, Player* player) {
 }
 
 void Player_UpdateBottleHeld(PlayState* play, Player* player, ItemId itemId, PlayerItemAction itemAction) {
-    if(player->heldItemButton == EQUIP_SLOT_MAX && player->heldArbitrarySlot != NULL){
+    if (player->heldItemButton == EQUIP_SLOT_MAX && player->heldArbitrarySlot != NULL) {
         Inventory_Arbitrary_UpdateBottleItem(play, itemId, player->heldArbitrarySlot);
     }
     // #region 2S2H [Dpad]

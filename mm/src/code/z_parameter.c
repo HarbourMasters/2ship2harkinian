@@ -141,10 +141,10 @@ Input sPostmanTimerInput[MAXCONTROLLERS];
 
 #define RESTRICTIONS_SET(hGauge, bButton, aButton, tradeItems, songOfTime, songOfDoubleTime, invSongOfTime, \
                          songOfSoaring, songOfStorms, masks, pictoBox, all)                                 \
-    ((((hGauge)&3) << 6) | (((bButton)&3) << 4) | (((aButton)&3) << 2) | (((tradeItems)&3) << 0)),          \
-        ((((songOfTime)&3) << 6) | (((songOfDoubleTime)&3) << 4) | (((invSongOfTime)&3) << 2) |             \
-         (((songOfSoaring)&3) << 0)),                                                                       \
-        ((((songOfStorms)&3) << 6) | (((masks)&3) << 4) | (((pictoBox)&3) << 2) | (((all)&3) << 0))
+    ((((hGauge) & 3) << 6) | (((bButton) & 3) << 4) | (((aButton) & 3) << 2) | (((tradeItems) & 3) << 0)),  \
+        ((((songOfTime) & 3) << 6) | (((songOfDoubleTime) & 3) << 4) | (((invSongOfTime) & 3) << 2) |       \
+         (((songOfSoaring) & 3) << 0)),                                                                     \
+        ((((songOfStorms) & 3) << 6) | (((masks) & 3) << 4) | (((pictoBox) & 3) << 2) | (((all) & 3) << 0))
 
 // Common patterns
 #define RESTRICTIONS_NONE RESTRICTIONS_SET(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
@@ -1334,9 +1334,8 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
     s16 risingAlpha = 255 - dimmingAlpha;
 
-    FOREACH_SLOT(ARB_SLOTS(play, CONTROLLER1(&play->state)), arbSlot, {
-        arbSlot->updateHudAlpha(arbSlot, play, gSaveContext.nextHudVisibility, dimmingAlpha);
-    })
+    FOREACH_SLOT(ARB_SLOTS(play, CONTROLLER1(&play->state)), arbSlot,
+                 { arbSlot->updateHudAlpha(arbSlot, play, gSaveContext.nextHudVisibility, dimmingAlpha); })
 
     switch (gSaveContext.nextHudVisibility) {
         case HUD_VISIBILITY_NONE:
@@ -2319,159 +2318,146 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
     }
 }
 
-s16 Interface_UpdateButtonsPart2_ArbitraryButton(PlayState* play, ArbitraryItemEquipButton* arbSlot){
-                MessageContext* msgCtx = &play->msgCtx;
-                InterfaceContext* interfaceCtx = &play->interfaceCtx;
-                Player* player = GET_PLAYER(play);
-                s16 restoreHudVisibility = false;
-                
-                ItemId arbItemId = arbSlot->getAssignedItemID(arbSlot);
-                ItemId itemId = arbItemId;
-                if (GameInteractor_Should(GI_VB_ITEM_BE_RESTRICTED,
-                                          !gPlayerFormItemRestrictions[GET_PLAYER_FORM][itemId], &itemId)) {
-                    // Item not usable in current playerForm
-                    if (!arbSlot->isDisabled(arbSlot)) {
-                        arbSlot->setDisabled(arbSlot,BTN_DISABLED);
-                        restoreHudVisibility = true;
-                    }
-                } else if (player->actor.id != ACTOR_PLAYER) {
-                    // Currently not playing as the main player
-                    if (!arbSlot->isDisabled(arbSlot)) {
-                        arbSlot->setDisabled(arbSlot,BTN_DISABLED);
-                        restoreHudVisibility = true;
-                    }
-                } else if (player->currentMask == PLAYER_MASK_GIANT) {
-                    // Currently wearing Giant's Mask
-                    if (arbItemId != ITEM_MASK_GIANT) {
-                        if (!arbSlot->isDisabled(arbSlot)) {
-                            arbSlot->setDisabled(arbSlot,BTN_DISABLED);
-                            restoreHudVisibility = true;
-                        }
-                    } else if (arbSlot->isDisabled(arbSlot)) {
-                        restoreHudVisibility = true;
-                        arbSlot->setDisabled(arbSlot,BTN_ENABLED);
-                    }
-                } else if (arbItemId == ITEM_MASK_GIANT) {
-                    // Giant's Mask is equipped
-                    if (play->sceneId != SCENE_INISIE_BS) {
-                        if (!arbSlot->isDisabled(arbSlot)) {
-                            arbSlot->setDisabled(arbSlot,BTN_DISABLED);
-                            restoreHudVisibility = true;
-                        }
-                    } else if (arbSlot->isDisabled(arbSlot)) {
-                        restoreHudVisibility = true;
-                        arbSlot->setDisabled(arbSlot,BTN_ENABLED);
-                    }
-                } else if (arbItemId == ITEM_MASK_FIERCE_DEITY) {
-                    // Fierce Deity's Mask is equipped
-                    u8 vanillaSceneConditionResult =
-                        (play->sceneId != SCENE_MITURIN_BS) && (play->sceneId != SCENE_HAKUGIN_BS) &&
-                        (play->sceneId != SCENE_SEA_BS) && (play->sceneId != SCENE_INISIE_BS) &&
-                        (play->sceneId != SCENE_LAST_BS);
-                    if (GameInteractor_Should(GI_VB_DISABLE_FD_MASK, vanillaSceneConditionResult, NULL)) {
-                        if (!arbSlot->isDisabled(arbSlot)) {
-                            arbSlot->setDisabled(arbSlot,BTN_DISABLED);
-                            restoreHudVisibility = true;
-                        }
-                    } else if (arbSlot->isDisabled(arbSlot)) {
-                        restoreHudVisibility = true;
-                        arbSlot->setDisabled(arbSlot,BTN_ENABLED);
-                    }
-                } else {
-                    // End of special item cases. Apply restrictions to buttons
-                    if (interfaceCtx->restrictions.tradeItems != 0) {
-                        if (((arbItemId >= ITEM_MOONS_TEAR) &&
-                             (arbItemId <= ITEM_PENDANT_OF_MEMORIES)) ||
-                            ((arbItemId >= ITEM_BOTTLE) &&
-                             (arbItemId <= ITEM_OBABA_DRINK)) ||
-                            (arbItemId == ITEM_OCARINA_OF_TIME)) {
-                            if (!arbSlot->isDisabled(arbSlot)) {
-                                restoreHudVisibility = true;
-                            }
-                            arbSlot->setDisabled(arbSlot,BTN_DISABLED);
-                        }
-                    } else if (interfaceCtx->restrictions.tradeItems == 0) {
-                        if (((arbItemId >= ITEM_MOONS_TEAR) &&
-                             (arbItemId <= ITEM_PENDANT_OF_MEMORIES)) ||
-                            ((arbItemId >= ITEM_BOTTLE) &&
-                             (arbItemId <= ITEM_OBABA_DRINK)) ||
-                            (arbItemId == ITEM_OCARINA_OF_TIME)) {
-                            if (arbSlot->isDisabled(arbSlot)) {
-                                restoreHudVisibility = true;
-                            }
-                            arbSlot->setDisabled(arbSlot,BTN_ENABLED);
-                        }
-                    }
+s16 Interface_UpdateButtonsPart2_ArbitraryButton(PlayState* play, ArbitraryItemEquipButton* arbSlot) {
+    MessageContext* msgCtx = &play->msgCtx;
+    InterfaceContext* interfaceCtx = &play->interfaceCtx;
+    Player* player = GET_PLAYER(play);
+    s16 restoreHudVisibility = false;
 
-                    if (interfaceCtx->restrictions.masks != 0) {
-                        if ((arbItemId >= ITEM_MASK_DEKU) &&
-                            (arbItemId <= ITEM_MASK_GIANT)) {
-                            if (!arbSlot->isDisabled(arbSlot)) {
-                                restoreHudVisibility = true;
-                            }
-                            arbSlot->setDisabled(arbSlot,BTN_DISABLED);
-                        }
-                    } else if (interfaceCtx->restrictions.masks == 0) {
-                        if ((arbItemId >= ITEM_MASK_DEKU) &&
-                            (arbItemId <= ITEM_MASK_GIANT)) {
-                            if (arbSlot->isDisabled(arbSlot)) {
-                                restoreHudVisibility = true;
-                            }
-                            arbSlot->setDisabled(arbSlot,BTN_ENABLED);
-                        }
-                    }
-
-                    if (interfaceCtx->restrictions.pictoBox != 0) {
-                        if (arbItemId == ITEM_PICTOGRAPH_BOX) {
-                            if (!arbSlot->isDisabled(arbSlot)) { // == BTN_ENABLED
-                                restoreHudVisibility = true;
-                            }
-                            arbSlot->setDisabled(arbSlot,BTN_DISABLED);
-                        }
-                    } else if (interfaceCtx->restrictions.pictoBox == 0) {
-                        if (arbItemId == ITEM_PICTOGRAPH_BOX) {
-                            if (arbSlot->isDisabled(arbSlot)) {
-                                restoreHudVisibility = true;
-                            }
-                            arbSlot->setDisabled(arbSlot,BTN_ENABLED);
-                        }
-                    }
-
-                    if (interfaceCtx->restrictions.all != 0) {
-                        if (!((arbItemId >= ITEM_MOONS_TEAR) &&
-                              (arbItemId <= ITEM_PENDANT_OF_MEMORIES)) &&
-                            !((arbItemId >= ITEM_BOTTLE) &&
-                              (arbItemId <= ITEM_OBABA_DRINK)) &&
-                            (arbItemId != ITEM_OCARINA_OF_TIME) &&
-                            !((arbItemId >= ITEM_MASK_DEKU) &&
-                              (arbItemId <= ITEM_MASK_GIANT)) &&
-                            (arbItemId != ITEM_PICTOGRAPH_BOX)) {
-
-                            if ((!arbSlot->isDisabled(arbSlot))) {
-                                restoreHudVisibility = true;
-                                arbSlot->setDisabled(arbSlot,BTN_DISABLED);
-                            }
-                        }
-                    } else if (interfaceCtx->restrictions.all == 0) {
-                        if (!((arbItemId >= ITEM_MOONS_TEAR) &&
-                              (arbItemId <= ITEM_PENDANT_OF_MEMORIES)) &&
-                            !((arbItemId >= ITEM_BOTTLE) &&
-                              (arbItemId <= ITEM_OBABA_DRINK)) &&
-                            (arbItemId != ITEM_OCARINA_OF_TIME) &&
-                            !((arbItemId >= ITEM_MASK_DEKU) &&
-                              (arbItemId <= ITEM_MASK_GIANT)) &&
-                            (arbItemId != ITEM_PICTOGRAPH_BOX)) {
-
-                            if ((arbSlot->isDisabled(arbSlot))) {
-                                restoreHudVisibility = true;
-                                arbSlot->setDisabled(arbSlot,BTN_ENABLED);
-                            }
-                        }
-                    }
-                }
-            
-                return restoreHudVisibility;
+    ItemId arbItemId = arbSlot->getAssignedItemID(arbSlot);
+    ItemId itemId = arbItemId;
+    if (GameInteractor_Should(GI_VB_ITEM_BE_RESTRICTED, !gPlayerFormItemRestrictions[GET_PLAYER_FORM][itemId],
+                              &itemId)) {
+        // Item not usable in current playerForm
+        if (!arbSlot->isDisabled(arbSlot)) {
+            arbSlot->setDisabled(arbSlot, BTN_DISABLED);
+            restoreHudVisibility = true;
+        }
+    } else if (player->actor.id != ACTOR_PLAYER) {
+        // Currently not playing as the main player
+        if (!arbSlot->isDisabled(arbSlot)) {
+            arbSlot->setDisabled(arbSlot, BTN_DISABLED);
+            restoreHudVisibility = true;
+        }
+    } else if (player->currentMask == PLAYER_MASK_GIANT) {
+        // Currently wearing Giant's Mask
+        if (arbItemId != ITEM_MASK_GIANT) {
+            if (!arbSlot->isDisabled(arbSlot)) {
+                arbSlot->setDisabled(arbSlot, BTN_DISABLED);
+                restoreHudVisibility = true;
             }
+        } else if (arbSlot->isDisabled(arbSlot)) {
+            restoreHudVisibility = true;
+            arbSlot->setDisabled(arbSlot, BTN_ENABLED);
+        }
+    } else if (arbItemId == ITEM_MASK_GIANT) {
+        // Giant's Mask is equipped
+        if (play->sceneId != SCENE_INISIE_BS) {
+            if (!arbSlot->isDisabled(arbSlot)) {
+                arbSlot->setDisabled(arbSlot, BTN_DISABLED);
+                restoreHudVisibility = true;
+            }
+        } else if (arbSlot->isDisabled(arbSlot)) {
+            restoreHudVisibility = true;
+            arbSlot->setDisabled(arbSlot, BTN_ENABLED);
+        }
+    } else if (arbItemId == ITEM_MASK_FIERCE_DEITY) {
+        // Fierce Deity's Mask is equipped
+        u8 vanillaSceneConditionResult = (play->sceneId != SCENE_MITURIN_BS) && (play->sceneId != SCENE_HAKUGIN_BS) &&
+                                         (play->sceneId != SCENE_SEA_BS) && (play->sceneId != SCENE_INISIE_BS) &&
+                                         (play->sceneId != SCENE_LAST_BS);
+        if (GameInteractor_Should(GI_VB_DISABLE_FD_MASK, vanillaSceneConditionResult, NULL)) {
+            if (!arbSlot->isDisabled(arbSlot)) {
+                arbSlot->setDisabled(arbSlot, BTN_DISABLED);
+                restoreHudVisibility = true;
+            }
+        } else if (arbSlot->isDisabled(arbSlot)) {
+            restoreHudVisibility = true;
+            arbSlot->setDisabled(arbSlot, BTN_ENABLED);
+        }
+    } else {
+        // End of special item cases. Apply restrictions to buttons
+        if (interfaceCtx->restrictions.tradeItems != 0) {
+            if (((arbItemId >= ITEM_MOONS_TEAR) && (arbItemId <= ITEM_PENDANT_OF_MEMORIES)) ||
+                ((arbItemId >= ITEM_BOTTLE) && (arbItemId <= ITEM_OBABA_DRINK)) ||
+                (arbItemId == ITEM_OCARINA_OF_TIME)) {
+                if (!arbSlot->isDisabled(arbSlot)) {
+                    restoreHudVisibility = true;
+                }
+                arbSlot->setDisabled(arbSlot, BTN_DISABLED);
+            }
+        } else if (interfaceCtx->restrictions.tradeItems == 0) {
+            if (((arbItemId >= ITEM_MOONS_TEAR) && (arbItemId <= ITEM_PENDANT_OF_MEMORIES)) ||
+                ((arbItemId >= ITEM_BOTTLE) && (arbItemId <= ITEM_OBABA_DRINK)) ||
+                (arbItemId == ITEM_OCARINA_OF_TIME)) {
+                if (arbSlot->isDisabled(arbSlot)) {
+                    restoreHudVisibility = true;
+                }
+                arbSlot->setDisabled(arbSlot, BTN_ENABLED);
+            }
+        }
+
+        if (interfaceCtx->restrictions.masks != 0) {
+            if ((arbItemId >= ITEM_MASK_DEKU) && (arbItemId <= ITEM_MASK_GIANT)) {
+                if (!arbSlot->isDisabled(arbSlot)) {
+                    restoreHudVisibility = true;
+                }
+                arbSlot->setDisabled(arbSlot, BTN_DISABLED);
+            }
+        } else if (interfaceCtx->restrictions.masks == 0) {
+            if ((arbItemId >= ITEM_MASK_DEKU) && (arbItemId <= ITEM_MASK_GIANT)) {
+                if (arbSlot->isDisabled(arbSlot)) {
+                    restoreHudVisibility = true;
+                }
+                arbSlot->setDisabled(arbSlot, BTN_ENABLED);
+            }
+        }
+
+        if (interfaceCtx->restrictions.pictoBox != 0) {
+            if (arbItemId == ITEM_PICTOGRAPH_BOX) {
+                if (!arbSlot->isDisabled(arbSlot)) { // == BTN_ENABLED
+                    restoreHudVisibility = true;
+                }
+                arbSlot->setDisabled(arbSlot, BTN_DISABLED);
+            }
+        } else if (interfaceCtx->restrictions.pictoBox == 0) {
+            if (arbItemId == ITEM_PICTOGRAPH_BOX) {
+                if (arbSlot->isDisabled(arbSlot)) {
+                    restoreHudVisibility = true;
+                }
+                arbSlot->setDisabled(arbSlot, BTN_ENABLED);
+            }
+        }
+
+        if (interfaceCtx->restrictions.all != 0) {
+            if (!((arbItemId >= ITEM_MOONS_TEAR) && (arbItemId <= ITEM_PENDANT_OF_MEMORIES)) &&
+                !((arbItemId >= ITEM_BOTTLE) && (arbItemId <= ITEM_OBABA_DRINK)) &&
+                (arbItemId != ITEM_OCARINA_OF_TIME) &&
+                !((arbItemId >= ITEM_MASK_DEKU) && (arbItemId <= ITEM_MASK_GIANT)) &&
+                (arbItemId != ITEM_PICTOGRAPH_BOX)) {
+
+                if ((!arbSlot->isDisabled(arbSlot))) {
+                    restoreHudVisibility = true;
+                    arbSlot->setDisabled(arbSlot, BTN_DISABLED);
+                }
+            }
+        } else if (interfaceCtx->restrictions.all == 0) {
+            if (!((arbItemId >= ITEM_MOONS_TEAR) && (arbItemId <= ITEM_PENDANT_OF_MEMORIES)) &&
+                !((arbItemId >= ITEM_BOTTLE) && (arbItemId <= ITEM_OBABA_DRINK)) &&
+                (arbItemId != ITEM_OCARINA_OF_TIME) &&
+                !((arbItemId >= ITEM_MASK_DEKU) && (arbItemId <= ITEM_MASK_GIANT)) &&
+                (arbItemId != ITEM_PICTOGRAPH_BOX)) {
+
+                if ((arbSlot->isDisabled(arbSlot))) {
+                    restoreHudVisibility = true;
+                    arbSlot->setDisabled(arbSlot, BTN_ENABLED);
+                }
+            }
+        }
+    }
+
+    return restoreHudVisibility;
+}
 
 /**
  * A continuation of the if-else chain from Interface_UpdateButtonsPart1
@@ -3215,10 +3201,8 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                 }
             }
             // #endregion
-            FOREACH_SLOT(ARB_SLOTS(play, CONTROLLER1(&play->state)), arbSlot, {
-                restoreHudVisibility = Interface_UpdateButtonsPart2_ArbitraryButton(play, arbSlot);
-            })
-            
+            FOREACH_SLOT(ARB_SLOTS(play, CONTROLLER1(&play->state)), arbSlot,
+                         { restoreHudVisibility = Interface_UpdateButtonsPart2_ArbitraryButton(play, arbSlot); })
         }
     }
 
@@ -4484,7 +4468,6 @@ void Inventory_UpdateBottleItem(PlayState* play, u8 item, u8 btn) {
     }
 }
 
-
 void Inventory_Arbitrary_UpdateBottleItem(PlayState* play, u8 item, ArbitraryItemEquipButton* eqp) {
     InventorySlot slot = eqp->getAssignedItemSlot(eqp);
     gSaveContext.save.saveInfo.inventory.items[slot] = item;
@@ -5088,10 +5071,7 @@ void Magic_Update(PlayState* play) {
                 !Play_InCsMode(play)) {
 
                 ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(
-                    &gSaveContext.save.saveInfo.equips.equipsSlotGetter,
-                    play,
-                    CONTROLLER1(&play->state)
-                );
+                    &gSaveContext.save.saveInfo.equips.equipsSlotGetter, play, CONTROLLER1(&play->state));
                 int lensOfTruthIndex = slots.findSlotWithItem(&slots, ITEM_LENS_OF_TRUTH);
 
                 if ((gSaveContext.save.saveInfo.playerData.magic == 0) ||
@@ -5106,9 +5086,8 @@ void Magic_Update(PlayState* play) {
                           (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) != ITEM_LENS_OF_TRUTH) &&
                           (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) != ITEM_LENS_OF_TRUTH) &&
                           (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) != ITEM_LENS_OF_TRUTH))
-                    //   #endregion
-                          && (lensOfTruthIndex < 0)
-                          ) ||
+                     //   #endregion
+                     && (lensOfTruthIndex < 0)) ||
                     !play->actorCtx.lensActive) {
                     // Deactivate Lens of Truth and set magic state to idle
                     play->actorCtx.lensActive = false;
@@ -5422,8 +5401,7 @@ void Interface_SetOrthoView(InterfaceContext* interfaceCtx) {
     View_ApplyOrthoToOverlay(&interfaceCtx->view);
 }
 
-void Interface_DrawItemCButton(uint8_t cButton){
-    
+void Interface_DrawItemCButton(uint8_t cButton) {
 }
 
 void Interface_DrawItemButtons(PlayState* play) {
@@ -5473,48 +5451,39 @@ void Interface_DrawItemButtons(PlayState* play) {
         100, 255, 120, interfaceCtx->bAlpha);
     gDPPipeSync(OVERLAY_DISP++);
 
-    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, play, CONTROLLER1(&play->state));
+    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(
+        &gSaveContext.save.saveInfo.equips.equipsSlotGetter, play, CONTROLLER1(&play->state));
 
-    for(uint8_t i = 0; i < slots.count; i++){
+    for (uint8_t i = 0; i < slots.count; i++) {
         ArbitraryItemEquipButton* eqBtn = &slots.equips[i];
         ArbitraryItemDrawParams drawParams = eqBtn->getDrawParams(eqBtn, play);
-        if(!drawParams.visible){
+        if (!drawParams.visible) {
             continue;
         }
         // HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_LEFT);
         OVERLAY_DISP = Gfx_DrawRect_DropShadow(
-            OVERLAY_DISP,
-            drawParams.rectLeft, 
-            drawParams.rectTop,
-            drawParams.rectWidth, 
-            drawParams.rectHeight,
-            drawParams.dsdx * 2, 
-            drawParams.dtdy * 2, 
-            drawParams.r,
-            drawParams.g, 
-            drawParams.b, 
-            drawParams.a
-        );
+            OVERLAY_DISP, drawParams.rectLeft, drawParams.rectTop, drawParams.rectWidth, drawParams.rectHeight,
+            drawParams.dsdx * 2, drawParams.dtdy * 2, drawParams.r, drawParams.g, drawParams.b, drawParams.a);
     }
 
     // C-Left Button Color & Texture
     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_LEFT);
     OVERLAY_DISP = Gfx_DrawRect_DropShadow(OVERLAY_DISP, D_801BF9D4[EQUIP_SLOT_C_LEFT], D_801BF9DC[EQUIP_SLOT_C_LEFT],
-                                        D_801BFAF4[EQUIP_SLOT_C_LEFT], D_801BFAF4[EQUIP_SLOT_C_LEFT],
-                                        D_801BF9E4[EQUIP_SLOT_C_LEFT] * 2, D_801BF9E4[EQUIP_SLOT_C_LEFT] * 2, 255,
-                                        240, 0, interfaceCtx->cLeftAlpha);
+                                           D_801BFAF4[EQUIP_SLOT_C_LEFT], D_801BFAF4[EQUIP_SLOT_C_LEFT],
+                                           D_801BF9E4[EQUIP_SLOT_C_LEFT] * 2, D_801BF9E4[EQUIP_SLOT_C_LEFT] * 2, 255,
+                                           240, 0, interfaceCtx->cLeftAlpha);
     // C-Down Button Color & Texture
     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_DOWN);
     OVERLAY_DISP = Gfx_DrawRect_DropShadow(OVERLAY_DISP, D_801BF9D4[EQUIP_SLOT_C_DOWN], D_801BF9DC[EQUIP_SLOT_C_DOWN],
-                                        D_801BFAF4[EQUIP_SLOT_C_DOWN], D_801BFAF4[EQUIP_SLOT_C_DOWN],
-                                        D_801BF9E4[EQUIP_SLOT_C_DOWN] * 2, D_801BF9E4[EQUIP_SLOT_C_DOWN] * 2, 255,
-                                        240, 0, interfaceCtx->cDownAlpha);
+                                           D_801BFAF4[EQUIP_SLOT_C_DOWN], D_801BFAF4[EQUIP_SLOT_C_DOWN],
+                                           D_801BF9E4[EQUIP_SLOT_C_DOWN] * 2, D_801BF9E4[EQUIP_SLOT_C_DOWN] * 2, 255,
+                                           240, 0, interfaceCtx->cDownAlpha);
     // C-Right Button Color & Texture
     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_RIGHT);
     OVERLAY_DISP = Gfx_DrawRect_DropShadow(OVERLAY_DISP, D_801BF9D4[EQUIP_SLOT_C_RIGHT], D_801BF9DC[EQUIP_SLOT_C_RIGHT],
-                                        D_801BFAF4[EQUIP_SLOT_C_RIGHT], D_801BFAF4[EQUIP_SLOT_C_RIGHT],
-                                        D_801BF9E4[EQUIP_SLOT_C_RIGHT] * 2, D_801BF9E4[EQUIP_SLOT_C_RIGHT] * 2, 255,
-                                        240, 0, interfaceCtx->cRightAlpha);
+                                           D_801BFAF4[EQUIP_SLOT_C_RIGHT], D_801BFAF4[EQUIP_SLOT_C_RIGHT],
+                                           D_801BF9E4[EQUIP_SLOT_C_RIGHT] * 2, D_801BF9E4[EQUIP_SLOT_C_RIGHT] * 2, 255,
+                                           240, 0, interfaceCtx->cRightAlpha);
 
     if (!IS_PAUSE_STATE_GAMEOVER) {
         if ((play->pauseCtx.state != PAUSE_STATE_OFF) || (play->pauseCtx.debugEditor != DEBUG_EDITOR_NONE)) {
@@ -5977,12 +5946,12 @@ void Interface_DrawAmmoCountArbEquip(PlayState* play, ArbitraryItemEquipButton* 
         }
 
         if (((i == ITEM_BOW) && (AMMO(i) == CUR_CAPACITY(UPG_QUIVER))) ||
-                   ((i == ITEM_BOMB) && (AMMO(i) == CUR_CAPACITY(UPG_BOMB_BAG))) ||
-                   ((i == ITEM_DEKU_STICK) && (AMMO(i) == CUR_CAPACITY(UPG_DEKU_STICKS))) ||
-                   ((i == ITEM_DEKU_NUT) && (AMMO(i) == CUR_CAPACITY(UPG_DEKU_NUTS))) ||
-                   ((i == ITEM_BOMBCHU) && (AMMO(i) == CUR_CAPACITY(UPG_BOMB_BAG))) ||
-                   ((i == ITEM_POWDER_KEG) && (ammo == 1)) || ((i == ITEM_PICTOGRAPH_BOX) && (ammo == 1)) ||
-                   ((i == ITEM_MAGIC_BEANS) && (ammo == 20))) {
+            ((i == ITEM_BOMB) && (AMMO(i) == CUR_CAPACITY(UPG_BOMB_BAG))) ||
+            ((i == ITEM_DEKU_STICK) && (AMMO(i) == CUR_CAPACITY(UPG_DEKU_STICKS))) ||
+            ((i == ITEM_DEKU_NUT) && (AMMO(i) == CUR_CAPACITY(UPG_DEKU_NUTS))) ||
+            ((i == ITEM_BOMBCHU) && (AMMO(i) == CUR_CAPACITY(UPG_BOMB_BAG))) ||
+            ((i == ITEM_POWDER_KEG) && (ammo == 1)) || ((i == ITEM_PICTOGRAPH_BOX) && (ammo == 1)) ||
+            ((i == ITEM_MAGIC_BEANS) && (ammo == 20))) {
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 120, 255, 0, alpha);
         }
 
@@ -5999,15 +5968,15 @@ void Interface_DrawAmmoCountArbEquip(PlayState* play, ArbitraryItemEquipButton* 
         if ((u32)i != 0) {
             // HudEditor_SetActiveElement(button);
             OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[i], 8, 8, drawParams.ammoRectLeft,
-                                              drawParams.ammoRectTop, 
-                                              drawParams.ammoRectWidth, drawParams.ammoRectHeight, drawParams.ammoDsdx, drawParams.ammoDtdy);
+                                              drawParams.ammoRectTop, drawParams.ammoRectWidth,
+                                              drawParams.ammoRectHeight, drawParams.ammoDsdx, drawParams.ammoDtdy);
         }
 
         // Draw lower digit (ones)
         // HudEditor_SetActiveElement(button);
         OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[ammo], 8, 8, drawParams.ammoTensRectLeft,
-                                          drawParams.ammoTensRectTop, 
-                                          drawParams.ammoRectWidth, drawParams.ammoRectHeight, drawParams.ammoDsdx, drawParams.ammoDtdy);
+                                          drawParams.ammoTensRectTop, drawParams.ammoRectWidth,
+                                          drawParams.ammoRectHeight, drawParams.ammoDsdx, drawParams.ammoDtdy);
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -6154,24 +6123,24 @@ void Interface_DrawCButtonIcons(PlayState* play) {
     OPEN_DISPS(play->state.gfxCtx);
 
     gDPPipeSync(OVERLAY_DISP++);
-    
-    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, play, CONTROLLER1(&play->state));
 
-    for(uint8_t i = 0; i < slots.count; i++){
+    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(
+        &gSaveContext.save.saveInfo.equips.equipsSlotGetter, play, CONTROLLER1(&play->state));
+
+    for (uint8_t i = 0; i < slots.count; i++) {
         ArbitraryItemEquipButton* eqBtn = &slots.equips[i];
         ArbitraryItemDrawParams drawParams = eqBtn->getDrawParams(eqBtn, play);
-        if(!drawParams.visible){
+        if (!drawParams.visible) {
             continue;
         }
 
         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, drawParams.a);
         gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
-        ItemId item = eqBtn->getAssignedItemID(eqBtn); 
+        ItemId item = eqBtn->getAssignedItemID(eqBtn);
 
-        if(item == ITEM_NONE){
+        if (item == ITEM_NONE) {
             Interface_DrawItemIconTextureArb(play, gEmptyTexture, eqBtn);
-        }
-        else {
+        } else {
             Interface_DrawItemIconTextureArb(play, gItemIcons[item], eqBtn);
         }
         gDPPipeSync(OVERLAY_DISP++);
@@ -9258,10 +9227,9 @@ void Interface_Update(PlayState* play) {
             }
 
             Interface_UpdateButtonAlphasByStatus(play, risingAlpha);
-            
-            FOREACH_SLOT(ARB_SLOTS(play, CONTROLLER1(&play->state)), arbSlot, {
-                arbSlot->updateHudAlpha(arbSlot, play, HUD_VISIBILITY_ALL, dimmingAlpha);
-            })
+
+            FOREACH_SLOT(ARB_SLOTS(play, CONTROLLER1(&play->state)), arbSlot,
+                         { arbSlot->updateHudAlpha(arbSlot, play, HUD_VISIBILITY_ALL, dimmingAlpha); })
 
             if (gSaveContext.buttonStatus[5] == BTN_DISABLED) {
                 if (interfaceCtx->startAlpha != 70) {

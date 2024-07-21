@@ -43,18 +43,18 @@ struct ArbitraryItemSlotManager {
     virtual InventorySlot getAssignedItemSlot();
     virtual ItemId getAssignedItemID();
     virtual InventorySlot assignItemSlot(InventorySlot item);
-    virtual ArbitraryItemDrawParams getDrawParams(PlayState *play);
+    virtual ArbitraryItemDrawParams getDrawParams(PlayState* play);
 
     virtual uint8_t setDisabled(uint8_t disabled);
     virtual uint8_t isDisabled();
-    virtual void updateHudAlpha(PlayState *play, HudVisibility hudMode, s16 dimmingAlpha);
+    virtual void updateHudAlpha(PlayState* play, HudVisibility hudMode, s16 dimmingAlpha);
 };
 
 struct ArbitraryItemSlotLister {
     std::string name = "Dedicated Slots";
     SlotState parentState;
     SlotState disabledState;
-    std::shared_ptr<ArbitraryItemSlotsListerOptions> options{new ArbitraryItemSlotsListerOptions()};
+    std::shared_ptr<ArbitraryItemSlotsListerOptions> options{ new ArbitraryItemSlotsListerOptions() };
     std::vector<ArbitraryItemEquipButton> baseSlots;
     std::vector<std::shared_ptr<ArbitraryItemSlotManager>> slots = {
         std::shared_ptr<ArbitraryItemSlotManager>{ new ArbitraryItemSlotManager("1", ARB_EQUIP_ITEM_1, this) },
@@ -62,11 +62,11 @@ struct ArbitraryItemSlotLister {
     };
 
     virtual std::string getCVarListerString();
-    
+
     virtual void saveCVars();
     virtual void loadCVars();
 
-    virtual ArbitraryItemEquipSet getEquipSlots(PlayState *play, Input* input);
+    virtual ArbitraryItemEquipSet getEquipSlots(PlayState* play, Input* input);
 
     virtual void initItemEquips(ItemEquips* equips);
     virtual void addEquipSetCallbacks(ArbitraryItemEquipSet* set);

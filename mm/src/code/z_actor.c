@@ -883,7 +883,7 @@ void Flags_SetCollectible(PlayState* play, s32 flag) {
 // hook into them
 void Flags_SetWeekEventReg(s32 flag) {
     u8 previouslyOff = !CHECK_WEEKEVENTREG(flag);
-    WEEKEVENTREG((flag) >> 8) = GET_WEEKEVENTREG((flag) >> 8) | ((flag)&0xFF);
+    WEEKEVENTREG((flag) >> 8) = GET_WEEKEVENTREG((flag) >> 8) | ((flag) & 0xFF);
     if (previouslyOff) {
         GameInteractor_ExecuteOnFlagSet(FLAG_WEEK_EVENT_REG, flag);
     }
@@ -891,7 +891,7 @@ void Flags_SetWeekEventReg(s32 flag) {
 
 void Flags_ClearWeekEventReg(s32 flag) {
     u8 previouslyOn = CHECK_WEEKEVENTREG(flag);
-    WEEKEVENTREG((flag) >> 8) = GET_WEEKEVENTREG((flag) >> 8) & (u8) ~((flag)&0xFF);
+    WEEKEVENTREG((flag) >> 8) = GET_WEEKEVENTREG((flag) >> 8) & (u8) ~((flag) & 0xFF);
     if (previouslyOn) {
         GameInteractor_ExecuteOnFlagUnset(FLAG_WEEK_EVENT_REG, flag);
     }
@@ -899,7 +899,7 @@ void Flags_ClearWeekEventReg(s32 flag) {
 
 void Flags_SetEventInf(s32 flag) {
     u8 previouslyOff = !CHECK_EVENTINF(flag);
-    gSaveContext.eventInf[(flag) >> 4] |= (1 << ((flag)&0xF));
+    gSaveContext.eventInf[(flag) >> 4] |= (1 << ((flag) & 0xF));
     if (previouslyOff) {
         GameInteractor_ExecuteOnFlagSet(FLAG_EVENT_INF, flag);
     }
@@ -907,7 +907,7 @@ void Flags_SetEventInf(s32 flag) {
 
 void Flags_ClearEventInf(s32 flag) {
     u8 previouslyOn = CHECK_EVENTINF(flag);
-    gSaveContext.eventInf[(flag) >> 4] &= (u8) ~(1 << ((flag)&0xF));
+    gSaveContext.eventInf[(flag) >> 4] &= (u8) ~(1 << ((flag) & 0xF));
     if (previouslyOn) {
         GameInteractor_ExecuteOnFlagUnset(FLAG_EVENT_INF, flag);
     }
@@ -1947,8 +1947,7 @@ f32 Target_GetAdjustedDistSq(Actor* actor, Player* player, s16 playerShapeYaw) {
     return actor->xyzDistToPlayerSq;
 }
 
-#define TARGET_RANGE(range, leash) \
-    { SQ(range), (f32)(range) / (leash) }
+#define TARGET_RANGE(range, leash) { SQ(range), (f32)(range) / (leash) }
 
 TargetRangeParams gTargetRanges[TARGET_MODE_MAX] = {
     TARGET_RANGE(70.0f, 140.0f),      // TARGET_MODE_0

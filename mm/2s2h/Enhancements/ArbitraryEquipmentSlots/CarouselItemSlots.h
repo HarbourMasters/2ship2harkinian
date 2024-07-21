@@ -19,8 +19,8 @@ struct CarouselItemSlotManager : public ArbitraryItemSlotManager {
     virtual uint8_t assignmentTriggered(Input* input);
     virtual uint8_t activateItem(Input* input, uint8_t buttonState);
     virtual uint8_t tradeItem(Input* input);
-    
-    virtual ArbitraryItemDrawParams getDrawParams(PlayState *play);
+
+    virtual ArbitraryItemDrawParams getDrawParams(PlayState* play);
 
     virtual SlotState getIndexSlotState(int16_t index, double width);
     virtual double getScrollTimeRatio();
@@ -38,7 +38,7 @@ struct CarouselItemSlotLister : public ArbitraryItemSlotLister {
 
     SlotState scrollingState;
     SlotState scrollingSelectedState;
-    
+
     bool prevWasPaused = false;
     /**
      * Direction of the carousel in radians
@@ -62,13 +62,14 @@ struct CarouselItemSlotLister : public ArbitraryItemSlotLister {
     std::chrono::high_resolution_clock::time_point activeStarted = std::chrono::high_resolution_clock::now();
     std::chrono::high_resolution_clock::time_point inactiveStarted = std::chrono::high_resolution_clock::now();
 
-    CarouselItemSlotLister(std::string name, uint16_t equipButtonIntent, uint16_t swapLeftIntent, uint16_t swapRightIntent);
+    CarouselItemSlotLister(std::string name, uint16_t equipButtonIntent, uint16_t swapLeftIntent,
+                           uint16_t swapRightIntent);
     void resetSlotCount(uint8_t count);
-    
+
     virtual void saveCVars() override;
     virtual void loadCVars() override;
 
-    virtual ArbitraryItemEquipSet getEquipSlots(PlayState *play, Input* input);
+    virtual ArbitraryItemEquipSet getEquipSlots(PlayState* play, Input* input);
     virtual void initItemEquips(ItemEquips* equips);
 };
 

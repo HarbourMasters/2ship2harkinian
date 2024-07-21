@@ -508,9 +508,9 @@ void DrawEnhancementsMenu() {
         if (UIWidgets::BeginMenu("Equipment")) {
             UIWidgets::CVarCheckbox("Fast Magic Arrow Equip Animation", "gEnhancements.Equipment.MagicArrowEquipSpeed",
                                     { .tooltip = "Removes the animation for equipping Magic Arrows." });
-            
+
             UIWidgets::WindowButton("Arbitrary Item Slots", "gWindow.ArbitraryItemSlots", arbItemSlotsWindow);
-            
+
             ImGui::EndMenu();
         }
 

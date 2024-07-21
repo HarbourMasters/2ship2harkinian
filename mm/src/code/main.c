@@ -64,23 +64,21 @@ void SDL_main(int argc, char** argv /* void* arg*/) {
     s32 exit;
     s16* msg;
 
-    IntentControlDefinition d[] = {
-        {INTENT_CONTROL_ROLL, "Roll"}, 
-        {INTENT_CONTROL_JUMP, "Jump"},
-        {INTENT_CONTROL_TALK, "Talk"},
-        {INTENT_CONTROL_FIRE_BOW, "Fire Bow"},
-        {INTENT_CONTROL_FIRE_HOOKSHOT, "Fire Hookshot"},
-        {INTENT_HOTSWAP_ITEM_RIGHT, "Swap Item Right"},
-        {INTENT_HOTSWAP_ITEM_LEFT, "Swap Item Left"},
-        
-        {INTENT_USE_ITEM, "Use Item"},
-        {ARB_EQUIP_ITEM_1, "Arbitrary Equipment Button 1"},
-        {ARB_EQUIP_ITEM_2, "Arbitrary Equipment Button 2"},
-        
-        {INTENT_USE_ITEM2, "Use Item 2"},
-        {INTENT_HOTSWAP_ITEM_RIGHT2, "Swap Item Right 2"},
-        {INTENT_HOTSWAP_ITEM_LEFT2, "Swap Item Left 2"}
-    };
+    IntentControlDefinition d[] = { { INTENT_CONTROL_ROLL, "Roll" },
+                                    { INTENT_CONTROL_JUMP, "Jump" },
+                                    { INTENT_CONTROL_TALK, "Talk" },
+                                    { INTENT_CONTROL_FIRE_BOW, "Fire Bow" },
+                                    { INTENT_CONTROL_FIRE_HOOKSHOT, "Fire Hookshot" },
+                                    { INTENT_HOTSWAP_ITEM_RIGHT, "Swap Item Right" },
+                                    { INTENT_HOTSWAP_ITEM_LEFT, "Swap Item Left" },
+
+                                    { INTENT_USE_ITEM, "Use Item" },
+                                    { ARB_EQUIP_ITEM_1, "Arbitrary Equipment Button 1" },
+                                    { ARB_EQUIP_ITEM_2, "Arbitrary Equipment Button 2" },
+
+                                    { INTENT_USE_ITEM2, "Use Item 2" },
+                                    { INTENT_HOTSWAP_ITEM_RIGHT2, "Swap Item Right 2" },
+                                    { INTENT_HOTSWAP_ITEM_LEFT2, "Swap Item Left 2" } };
     intentDefinitions = d;
     intentDefinitionCount = sizeof(d) / sizeof(IntentControlDefinition);
 
