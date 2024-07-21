@@ -610,7 +610,7 @@ s32 AudioLoad_SyncInitSeqPlayerInternal(s32 playerIndex, s32 seqId, s32 arg2) {
     AudioScript_SequencePlayerDisable(seqPlayer);
 
     fontId = 0xFF;
-    if (gAudioCtx.seqReplaced[playerIndex]) {
+    if (gAudioCtx.seqReplaced[playerIndex] && seqId < ARRAY_COUNT(seqCachePolicyMap)) {
         authCachePolicy = seqCachePolicyMap[seqId];
         seqId = gAudioCtx.seqToPlay[playerIndex];
     }

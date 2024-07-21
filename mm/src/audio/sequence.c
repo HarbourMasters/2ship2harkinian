@@ -75,19 +75,11 @@ void AudioSeq_StartSequence(u8 seqPlayerIndex, u8 seqId, u8 seqArgs, u16 fadeInD
                                            (fadeInDuration * (u16)gAudioCtx.audioBufferParameters.updatesPerFrame) / 4);
         }
 
-        SequenceData* sData = ResourceMgr_LoadSeqPtrByName(sequenceMap[seqId]);
+		SequenceData* sData = ResourceMgr_LoadSeqPtrByName(sequenceMap[seqId]);
 
         if (memcmp(sData->fonts, "07151129", sizeof("07151129")) == 0) {
-            // BENTODO Why do we need to add this 4 times?
-            AudioQueue_Enqueue(sequenceMap[seqId]);
-            AudioQueue_Enqueue(sequenceMap[seqId]);
-            AudioQueue_Enqueue(sequenceMap[seqId]);
-            AudioQueue_Enqueue(sequenceMap[seqId]);
-            AudioQueue_Enqueue(sequenceMap[seqId]);
-            AudioQueue_Enqueue(sequenceMap[seqId]);
-            AudioQueue_Enqueue(sequenceMap[seqId]);
-            AudioQueue_Enqueue(sequenceMap[seqId]);
-        }
+			gActiveSeqs[seqPlayerIndex].initCustomSeq = 2;
+		}
 
         gActiveSeqs[seqPlayerIndex].seqId = seqId | (seqArgs << 8);
         gActiveSeqs[seqPlayerIndex].prevSeqId = seqId | (seqArgs << 8);
@@ -594,6 +586,26 @@ void AudioSeq_UpdateActiveSequences(void) {
         if (gActiveSeqs[seqPlayerIndex].isSeqPlayerInit && gAudioCtx.seqPlayers[seqPlayerIndex].enabled) {
             gActiveSeqs[seqPlayerIndex].isSeqPlayerInit = false;
         }
+
+		if (gActiveSeqs[seqPlayerIndex].initCustomSeq > 0)
+		{
+            gActiveSeqs[seqPlayerIndex].initCustomSeq--;
+
+			if (gActiveSeqs[seqPlayerIndex].initCustomSeq == 0) 
+			{
+                seqId = gActiveSeqs[seqPlayerIndex].seqId & 0xFF;
+
+                SequenceData* sData = ResourceMgr_LoadSeqPtrByName(sequenceMap[seqId]);
+
+                if (memcmp(sData->fonts, "07151129", sizeof("07151129")) == 0) {
+                    // BENTODO Why do we need to add this 4 times?
+                    AudioQueue_Enqueue(sequenceMap[seqId]);
+                    AudioQueue_Enqueue(sequenceMap[seqId]);
+                    AudioQueue_Enqueue(sequenceMap[seqId]);
+                    AudioQueue_Enqueue(sequenceMap[seqId]);
+                }
+            }
+		}
 
         // The seqPlayer is no longer playing the active sequences
         if ((AudioSeq_GetActiveSeqId(seqPlayerIndex) != NA_BGM_DISABLED) &&

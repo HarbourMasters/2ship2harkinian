@@ -5762,6 +5762,9 @@ void Audio_SetSequenceMode(u8 seqMode) {
 
         seqId = gActiveSeqs[SEQ_PLAYER_BGM_MAIN].seqId;
 
+		if (seqId >= ARRAY_COUNT(sSeqFlags))
+            seqId = ARRAY_COUNT(sSeqFlags) - 1;
+
         if ((seqId == NA_BGM_DISABLED) || (sSeqFlags[(u8)(seqId & 0xFF)] & SEQ_FLAG_ENEMY) ||
             ((sPrevSeqMode & 0x7F) == SEQ_MODE_ENEMY)) {
             if (seqMode != (sPrevSeqMode & 0x7F)) {

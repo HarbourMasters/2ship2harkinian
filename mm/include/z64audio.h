@@ -802,6 +802,7 @@ typedef struct {
     /* 0x219 */ u8 setupCmdNum; // number of setup commands
     /* 0x21A */ u8 setupFadeTimer;
     /* 0x21B */ u8 isSeqPlayerInit;
+    /* 0x21B */ u8 initCustomSeq;
 } ActiveSequence; // size = 0x21C
 
 typedef struct {

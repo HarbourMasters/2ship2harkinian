@@ -886,6 +886,12 @@ Acmd* AudioSynth_ProcessSamples(s16* aiBuf, s32 numSamplesPerUpdate, Acmd* cmd, 
         for (reverbIndex = 0; reverbIndex < gAudioCtx.numSynthesisReverbs; reverbIndex++) {
             for (i = 0; i < gAudioCtx.numNotes; i++) {
                 sampleState = &gAudioCtx.sampleStateList[sampleStateOffset + i];
+                if (sampleState->tunedSample != NULL &&
+                    sampleState->tunedSample->sample != NULL && sampleState->tunedSample->sample->codec == CODEC_S16)
+				{
+                    int bp = 0;
+				}
+
                 if (sampleState->bitField0.enabled && (sampleState->bitField1.reverbIndex == reverbIndex)) {
                     noteIndices[noteCount++] = i;
                 }
@@ -894,6 +900,12 @@ Acmd* AudioSynth_ProcessSamples(s16* aiBuf, s32 numSamplesPerUpdate, Acmd* cmd, 
 
         for (i = 0; i < gAudioCtx.numNotes; i++) {
             sampleState = &gAudioCtx.sampleStateList[sampleStateOffset + i];
+
+			if (sampleState->tunedSample != NULL &&
+                sampleState->tunedSample->sample != NULL && sampleState->tunedSample->sample->codec == CODEC_S16) {
+                int bp = 0;
+            }
+
             if (sampleState->bitField0.enabled &&
                 (sampleState->bitField1.reverbIndex >= gAudioCtx.numSynthesisReverbs)) {
                 noteIndices[noteCount++] = i;
@@ -1103,6 +1115,11 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
             sampleEndPos = loopInfo->sampleEnd;
         } else {
             sampleEndPos = loopInfo->loopEnd;
+        }
+
+		
+	if (sample->codec == CODEC_S16) {
+            int bp = 0;
         }
 
         sampleAddr = sample->sampleAddr;
@@ -1418,8 +1435,8 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
             skip:
 
                 // Update what to do with the samples next
-                if (sampleFinished || gForceStopSeq) {
-                    gForceStopSeq = false;
+                if (sampleFinished || gForceStopSeq) 
+				{
                     if ((numSamplesToLoadAdj - numSamplesProcessed) != 0) {
                         AudioSynth_ClearBuffer(cmd++, DMEM_UNCOMPRESSED_NOTE + dmemUncompressedAddrOffset1,
                                                (numSamplesToLoadAdj - numSamplesProcessed) * SAMPLE_SIZE);
@@ -1431,8 +1448,12 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
                         sampleState->bitField0.enabled = false;
                         note->sampleState.bitField0.enabled = false;
                         TunedSamplePool* entry = AudioSamplePool_FindElemenyByPtr(sampleState->tunedSample->sample);
-                        entry->inUse = false;                        
+
+						if (entry != NULL)
+							entry->inUse = false;
                     }
+
+                    gForceStopSeq = false;
 
                     AudioSynth_DisableSampleStates(updateIndex, noteIndex);
                     break; // break out of the for-loop
