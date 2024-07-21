@@ -13,14 +13,14 @@ typedef struct {
     /* 0x18 */ u32 vBurst;
 } ViModeStruct; // size = 0x1C
 
-#define BURST(hsync_width, color_width, vsync_width, color_start)                                            \
-    (((u32)(hsync_width) & 0xFF) | (((u32)(color_width) & 0xFF) << 8) | (((u32)(vsync_width) & 0xF) << 16) | \
-     (((u32)(color_start) & 0xFFFF) << 20))
+#define BURST(hsync_width, color_width, vsync_width, color_start)                                      \
+    (((u32)(hsync_width)&0xFF) | (((u32)(color_width)&0xFF) << 8) | (((u32)(vsync_width)&0xF) << 16) | \
+     (((u32)(color_start)&0xFFFF) << 20))
 #define WIDTH(v) (v)
 #define VSYNC(v) (v)
-#define HSYNC(duration, leap) (((u32)(leap) << 16) | ((u32)(duration) & 0xFFFF))
-#define LEAP(upper, lower) (((u32)(upper) << 16) | ((u32)(lower) & 0xFFFF))
-#define START(start, end) (((u32)(start) << 16) | ((u32)(end) & 0xFFFF))
+#define HSYNC(duration, leap) (((u32)(leap) << 16) | ((u32)(duration)&0xFFFF))
+#define LEAP(upper, lower) (((u32)(upper) << 16) | ((u32)(lower)&0xFFFF))
+#define START(start, end) (((u32)(start) << 16) | ((u32)(end)&0xFFFF))
 
 #define FTOFIX(val, i, f) ((u32)((val) * (f32)(1 << (f))) & ((1 << ((i) + (f))) - 1))
 

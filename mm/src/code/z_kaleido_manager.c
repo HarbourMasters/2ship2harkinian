@@ -9,10 +9,8 @@
 //            SEGMENT_END(ovl_##name), 0, #name,                                                       \
 //    }
 
-#define KALEIDO_OVERLAY(name)       \
-    {                               \
-        NULL, 0, 0, 0, 0, 0, #name, \
-    }
+#define KALEIDO_OVERLAY(name) \
+    { NULL, 0, 0, 0, 0, 0, #name, }
 
 KaleidoMgrOverlay gKaleidoMgrOverlayTable[] = {
     KALEIDO_OVERLAY(kaleido_scope),

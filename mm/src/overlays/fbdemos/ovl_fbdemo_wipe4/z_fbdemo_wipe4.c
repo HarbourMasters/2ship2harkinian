@@ -15,7 +15,7 @@
 #define THIS ((TransitionWipe4*)thisx)
 
 #define TRANS4_GET_COLORTYPE(type) (((type) >> 1) & 3)
-#define TRANS4_GET_SPEEDTYPE(type) ((type) & 1)
+#define TRANS4_GET_SPEEDTYPE(type) ((type)&1)
 
 typedef enum TransitionWipe4Direction {
     /* 0 */ TRANS_WIPE4_DIR_IN,

@@ -20,7 +20,7 @@
 
 #define THIS ((BossHakugin*)thisx)
 
-#define GOHT_LIMB_FLAG(limbIndex) (1 << ((limbIndex) - 1))
+#define GOHT_LIMB_FLAG(limbIndex) (1 << ((limbIndex)-1))
 
 void BossHakugin_Init(Actor* thisx, PlayState* play2);
 void BossHakugin_Destroy(Actor* thisx, PlayState* play);

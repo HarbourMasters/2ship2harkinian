@@ -664,10 +664,10 @@ s32 MsgEvent_Cmd32(Actor* actor, PlayState* play, u8** scriptPtr, MsgEventCallba
 }
 
 #define MSCRIPT_GET_TIME(hour, minute, dest, temp) \
-    (temp) = (hour) * 60.0f;                       \
+    (temp) = (hour)*60.0f;                         \
     (temp) += (minute);                            \
     (dest) = (temp) * (0x10000 / 60 / 24.0f);      \
-    (dest) = ((dest) - 0x10000 / 360 * 90)
+    (dest) = ((dest)-0x10000 / 360 * 90)
 
 #define MSCRIPT_TIME_NOW ((gSaveContext.save.time) - 0x10000 / 360 * 90)
 

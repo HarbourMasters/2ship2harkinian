@@ -1,7 +1,7 @@
 #include "global.h"
 
 #define SCHEDULE_CALC_TIME(hour, minute, dest, temp) \
-    (temp) = (hour) * 60.0f;                         \
+    (temp) = (hour)*60.0f;                           \
     (temp) += (minute);                              \
     (dest) = (temp) * (0x10000 / 60 / 24.0f);        \
     (dest) = SCHEDULE_CONVERT_TIME(dest)
