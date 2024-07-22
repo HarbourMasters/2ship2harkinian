@@ -886,11 +886,7 @@ Acmd* AudioSynth_ProcessSamples(s16* aiBuf, s32 numSamplesPerUpdate, Acmd* cmd, 
         for (reverbIndex = 0; reverbIndex < gAudioCtx.numSynthesisReverbs; reverbIndex++) {
             for (i = 0; i < gAudioCtx.numNotes; i++) {
                 sampleState = &gAudioCtx.sampleStateList[sampleStateOffset + i];
-                if (sampleState->tunedSample != NULL &&
-                    sampleState->tunedSample->sample != NULL && sampleState->tunedSample->sample->codec == CODEC_S16)
-				{
-                    int bp = 0;
-				}
+
 
                 if (sampleState->bitField0.enabled && (sampleState->bitField1.reverbIndex == reverbIndex)) {
                     noteIndices[noteCount++] = i;
@@ -901,10 +897,6 @@ Acmd* AudioSynth_ProcessSamples(s16* aiBuf, s32 numSamplesPerUpdate, Acmd* cmd, 
         for (i = 0; i < gAudioCtx.numNotes; i++) {
             sampleState = &gAudioCtx.sampleStateList[sampleStateOffset + i];
 
-			if (sampleState->tunedSample != NULL &&
-                sampleState->tunedSample->sample != NULL && sampleState->tunedSample->sample->codec == CODEC_S16) {
-                int bp = 0;
-            }
 
             if (sampleState->bitField0.enabled &&
                 (sampleState->bitField1.reverbIndex >= gAudioCtx.numSynthesisReverbs)) {
@@ -1115,11 +1107,6 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
             sampleEndPos = loopInfo->sampleEnd;
         } else {
             sampleEndPos = loopInfo->loopEnd;
-        }
-
-		
-	if (sample->codec == CODEC_S16) {
-            int bp = 0;
         }
 
         sampleAddr = sample->sampleAddr;
