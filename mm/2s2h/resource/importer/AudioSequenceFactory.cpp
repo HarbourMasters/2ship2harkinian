@@ -38,7 +38,6 @@ std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSequenceV2::ReadResou
     return audioSequence;
 }
 
-
 int8_t SOH::ResourceFactoryXMLAudioSequenceV0::MediumStrToInt(const char* str) {
     if (!strcmp("Ram", str)) {
         return 0;
@@ -87,7 +86,6 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
     sequence->sequence.seqNumber = child->IntAttribute("Index");
     const char* customStr = child->Attribute("CustomFormat");
 
-    
     memset(sequence->sequence.fonts, 0, sizeof(sequence->sequence.fonts));
 
     tinyxml2::XMLElement* fontsElement = child->FirstChildElement();
@@ -109,7 +107,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
         sequence->sequenceData = *seqFile->Buffer.get();
         sequence->sequence.seqData = sequence->sequenceData.data();
     } else {
-        for (size_t i = 0;customStr[i] != 0;i++) {
+        for (size_t i = 0; customStr[i] != 0; i++) {
             const_cast<char*>(customStr)[i] = tolower(customStr[i]);
         }
         if (strcmp(customStr, "wav") == 0) {
