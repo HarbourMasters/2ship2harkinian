@@ -49,17 +49,14 @@ void EnItem00_3DItemsDraw(Actor* actor, PlayState* play) {
                 Matrix_Scale(17.5f, 17.5f, 17.5f, MTXMODE_APPLY);
                 GetItem_Draw(play, GID_RUPEE_PURPLE);
                 break;
-
             case ITEM00_HEART_PIECE:
                 Matrix_Scale(16.0f, 16.0f, 16.0f, MTXMODE_APPLY);
                 GetItem_Draw(play, GID_HEART_PIECE);
                 break;
-
             case ITEM00_HEART_CONTAINER:
                 Matrix_Scale(16.0f, 16.0f, 16.0f, MTXMODE_APPLY);
                 GetItem_Draw(play, GID_HEART_CONTAINER);
                 break;
-
             case ITEM00_RECOVERY_HEART:
                 Matrix_Scale(16.0f, 16.0f, 16.0f, MTXMODE_APPLY);
                 GetItem_Draw(play, GID_RECOVERY_HEART);
@@ -104,15 +101,12 @@ void EnItem00_3DItemsDraw(Actor* actor, PlayState* play) {
                 Matrix_Scale(9.0f, 9.0f, 9.0f, MTXMODE_APPLY);
                 GetItem_Draw(play, GID_DEKU_NUTS);
                 break;
-
             case ITEM00_SHIELD_HERO:
                 GetItem_Draw(play, GID_SHIELD_HERO);
                 break;
-
             case ITEM00_MAP:
                 GetItem_Draw(play, GID_DUNGEON_MAP);
                 break;
-
             case ITEM00_COMPASS:
                 GetItem_Draw(play, GID_COMPASS);
                 break;
