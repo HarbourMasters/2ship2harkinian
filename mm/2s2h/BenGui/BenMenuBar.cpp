@@ -647,7 +647,10 @@ void DrawEnhancementsMenu() {
                                     { .tooltip = "Enables using the Dpad for Ocarina playback." });
             UIWidgets::CVarCheckbox("Prevent Dropped Ocarina Inputs", "gEnhancements.Playback.NoDropOcarinaInput",
                                     { .tooltip = "Prevent dropping inputs when playing the ocarina quickly" });
-
+            UIWidgets::CVarCheckbox(
+                "Song Of Double Time Selector", "gEnhancements.Songs.SongOfDoubleTimeSelector",
+                { .tooltip = "Enables selecting the specific time to skip to with the Song Of Double Time."
+                             "Note: The first 2 values represent the hour, the next 2 represent the minute, and the final represents the day." });
             ImGui::EndMenu();
         }
 
