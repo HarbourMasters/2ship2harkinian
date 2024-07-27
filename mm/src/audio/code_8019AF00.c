@@ -2073,6 +2073,9 @@ const char sAudioOcarinaUnusedText7[] = "check is over!!! %d %d %d\n";
 
 // BENTODO find a final place for this function
 // 2S2H [Port] Part of the audio editor
+#define SEQCMD_PLAY_SEQUENCE(seqPlayerIndex, fadeInDuration, seqId)                                                   \
+    AudioSeq_QueueSeqCmd((SEQCMD_OP_PLAY_SEQUENCE << 28) | ((seqPlayerIndex) << 24) | ((u32)(fadeInDuration) << 16) | \
+                         (u32)(seqId))
 void PreviewSequence(u16 seqId) {
     u16 curSeqId = AudioSeq_GetActiveSeqId(SEQ_PLAYER_BGM_MAIN);
 
@@ -2084,7 +2087,7 @@ void PreviewSequence(u16 seqId) {
         osSyncPrintf("Middle Boss BGM Start not stack \n");
     }
 
-    AudioSeq_QueueSeqCmd(seqId);
+    SEQCMD_PLAY_SEQUENCE(SEQ_PLAYER_BGM_MAIN, 1, seqId);
     // }
 }
 
@@ -5506,10 +5509,13 @@ void Audio_StartSceneSequence(u16 seqId) {
     sPrevSceneSeqId = seqId & 0xFF;
 }
 
+extern uint16_t AudioEditor_GetOriginalSequence(uint16_t seqId);
+
 void Audio_UpdateSceneSequenceResumePoint(void) {
     u16 seqId = AudioSeq_GetActiveSeqId(SEQ_PLAYER_BGM_MAIN);
+    seqId = AudioEditor_GetOriginalSequence(seqId);
     // BENTODO find a better fix
-    if (seqId >= ARRAY_COUNT(sSeqFlags) || (seqId != NA_BGM_DISABLED) && (sSeqFlags[seqId & 0xFF & 0xFF] & SEQ_FLAG_RESUME)) {
+    if ((seqId != NA_BGM_DISABLED) && (sSeqFlags[seqId & 0xFF & 0xFF] & SEQ_FLAG_RESUME)) {
         if (sSeqResumePoint != SEQ_RESUME_POINT_NONE) {
             // Get the current point to resume from
             sSeqResumePoint = gAudioCtx.seqPlayers[SEQ_PLAYER_BGM_MAIN].seqScriptIO[3];
@@ -5761,9 +5767,8 @@ void Audio_SetSequenceMode(u8 seqMode) {
         // clang-format on
 
         seqId = gActiveSeqs[SEQ_PLAYER_BGM_MAIN].seqId;
+        seqId = AudioEditor_GetOriginalSequence(seqId);
 
-		if (seqId >= ARRAY_COUNT(sSeqFlags))
-            seqId = ARRAY_COUNT(sSeqFlags) - 1;
 
         if ((seqId == NA_BGM_DISABLED) || (sSeqFlags[(u8)(seqId & 0xFF)] & SEQ_FLAG_ENEMY) ||
             ((sPrevSeqMode & 0x7F) == SEQ_MODE_ENEMY)) {
@@ -5849,7 +5854,7 @@ void Audio_UpdateEnemyBgmVolume(f32 dist) {
 
             sBgmEnemyVolume = ((350.0f - adjDist) * 127.0f) / 350.0f;
             AudioSeq_SetVolumeScale(SEQ_PLAYER_BGM_SUB, VOL_SCALE_INDEX_BGM_SUB, sBgmEnemyVolume, 10);
-
+            seqId = AudioEditor_GetOriginalSequence(seqId);
             if ((seqId >= NA_BGM_TERMINA_FIELD) && !(sSeqFlags[seqId & 0xFF & 0xFF] & SEQ_FLAG_FANFARE_KAMARO)) {
                 AudioSeq_SetVolumeScale(SEQ_PLAYER_BGM_MAIN, VOL_SCALE_INDEX_BGM_SUB, (0x7F - sBgmEnemyVolume), 10);
             }
@@ -6241,7 +6246,7 @@ void func_801A4348(void) {
 
 void Audio_SetSfxVolumeExceptSystemAndOcarinaBanks(u8 volume) {
     u8 channelIndex;
-
+    printf("%d\n", volume);
     if (!sAllPlayersMutedExceptSystemAndOcarina) {
         for (channelIndex = 0; channelIndex < SEQ_NUM_CHANNELS; channelIndex++) {
             switch (channelIndex) {

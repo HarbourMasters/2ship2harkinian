@@ -19,6 +19,7 @@
  */
 #include "global.h"
 #include "2s2h/Enhancements/Audio/AudioEditor.h"
+#include "2s2h/Enhancements/Audio/AudioSeqQueue.h"
 
 // Direct audio command (skips the queueing system)
 #define SEQCMD_SET_SEQPLAYER_VOLUME_NOW(seqPlayerIndex, duration, volume)                          \
@@ -54,7 +55,6 @@ bool AudioSeq_IsSeqStreamedById(u16 seqId) {
 }
 
 SequenceData* ResourceMgr_LoadSeqPtrByName(const char* path);
-void AudioQueue_Enqueue(char* seqId);
 
 void AudioSeq_StartSequence(u8 seqPlayerIndex, u8 seqId, u8 seqArgs, u16 fadeInDuration) {
     u8 channelIndex;
@@ -599,10 +599,10 @@ void AudioSeq_UpdateActiveSequences(void) {
 
                 if (memcmp(sData->fonts, "07151129", sizeof("07151129")) == 0) {
                     // BENTODO Why do we need to add this 4 times?
-                    AudioQueue_Enqueue(sequenceMap[seqId]);
-                    AudioQueue_Enqueue(sequenceMap[seqId]);
-                    AudioQueue_Enqueue(sequenceMap[seqId]);
-                    AudioQueue_Enqueue(sequenceMap[seqId]);
+                    AudioQueue_Enqueue((QueuePair){sequenceMap[seqId], seqPlayerIndex});
+                    AudioQueue_Enqueue((QueuePair){sequenceMap[seqId], seqPlayerIndex});
+                    AudioQueue_Enqueue((QueuePair){sequenceMap[seqId], seqPlayerIndex});
+                    AudioQueue_Enqueue((QueuePair){sequenceMap[seqId], seqPlayerIndex});
                 }
             }
 		}

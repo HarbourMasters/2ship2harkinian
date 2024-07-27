@@ -363,6 +363,10 @@ extern "C" u16 AudioEditor_GetReplacementSeq(u16 seqId) {
     return AudioCollection::Instance->GetReplacementSequence(seqId);
 }
 
+extern "C" u16 AudioEditor_GetOriginalSequence(u16 seqId) {
+    return AudioCollection::Instance->GetOriginalSequence(seqId);
+}
+
 const char* GetSequenceTypeName(SeqType type) {
     switch (type) {
         case SEQ_NOSHUFFLE:

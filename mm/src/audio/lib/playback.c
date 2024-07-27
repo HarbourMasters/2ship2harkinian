@@ -183,11 +183,12 @@ void AudioPlayback_ProcessNotes(void) {
     for (i = 0; i < gAudioCtx.numNotes; i++) {
         note = &gAudioCtx.notes[i];
         sampleState = &gAudioCtx.sampleStateList[gAudioCtx.sampleStateOffset + i];
-        // BENTODO: Verify there are no side effects from this...
-        if (sampleState->bitField0.ignoreNoteState) {
-            goto skip;
-        }
         playbackState = &note->playbackState;
+
+		// BENTODO: Verify there are no side effects from this...
+        if (sampleState->bitField0.ignoreNoteState) {
+            goto out;
+        }
         if (playbackState->parentLayer != NO_LAYER) {
 
             // OTRTODO: This skips playback if the pointer is below where memory on the N64 normally would be.
@@ -234,7 +235,7 @@ void AudioPlayback_ProcessNotes(void) {
             noteSampleState = &note->sampleState;
             if ((playbackState->status >= 1) || noteSampleState->bitField0.finished) {
                 if ((playbackState->adsr.action.s.status == ADSR_STATUS_DISABLED) ||
-                    noteSampleState->bitField0.finished) {
+                    noteSampleState->bitField0.finished && !sampleState->bitField0.ignoreNoteState) {
                     if (playbackState->wantedParentLayer != NO_LAYER) {
                         AudioPlayback_NoteDisable(note);
                         if (playbackState->wantedParentLayer->channel != NULL) {
@@ -272,6 +273,7 @@ void AudioPlayback_ProcessNotes(void) {
                 continue;
             }
 
+			out2:
             adsrVolumeScale = AudioEffects_UpdateAdsr(&playbackState->adsr);
             AudioEffects_UpdatePortamentoAndVibrato(note);
             playbackStatus = playbackState->status;
@@ -295,6 +297,13 @@ void AudioPlayback_ProcessNotes(void) {
                 subAttrs.frequency = layer->noteFreqScale;
                 subAttrs.velocity = layer->noteVelocity;
                 subAttrs.pan = layer->notePan;
+
+				if (sampleState->tunedSample != NULL && sampleState->tunedSample->sample != NULL &&
+                    sampleState->tunedSample->sample->codec == CODEC_S16)
+				{
+                    subAttrs.velocity = layer->noteVelocity;
+                    volatile int bp = 0;
+				}
 
                 if (layer->surroundEffectIndex == 0x80) {
                     subAttrs.surroundEffectIndex = channel->surroundEffectIndex;
@@ -336,8 +345,11 @@ void AudioPlayback_ProcessNotes(void) {
             subAttrs.frequency *= playbackState->vibratoFreqScale * playbackState->portamentoFreqScale;
             subAttrs.frequency *= gAudioCtx.audioBufferParameters.resampleRate;
             subAttrs.velocity *= adsrVolumeScale;
-            AudioPlayback_InitSampleState(note, sampleState, &subAttrs);
-            noteSampleState->bitField1.bookOffset = bookOffset;
+
+			if (!sampleState->bitField0.ignoreNoteState)
+				AudioPlayback_InitSampleState(note, sampleState, &subAttrs);
+            
+			noteSampleState->bitField1.bookOffset = bookOffset;
         skip:;
         }
     }

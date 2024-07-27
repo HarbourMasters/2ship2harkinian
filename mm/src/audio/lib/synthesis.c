@@ -267,11 +267,11 @@ TunedSamplePool* AudioSamplePool_FindElemenyByPtr(Sample* key) {
 
 
 
-void Audio_LoadCustomBgm(int reverseUpdateIndex, uint64_t numFrames, uint32_t numChannels, uint32_t sampleRate, s16* sampleData) {
+void Audio_LoadCustomBgm(int reverseUpdateIndex, uint64_t numFrames, uint32_t numChannels, uint32_t sampleRate, s16* sampleData, uint8_t seqPlayer) {
     int updateIndex = (gAudioCtx.audioBufferParameters.updatesPerFrame - reverseUpdateIndex) * gAudioCtx.numNotes;
     for (int i = 1; i < gAudioCtx.numNotes; i++) {
         NoteSampleState* sampleState = &gAudioCtx.sampleStateList[i + updateIndex];
-        NoteSampleState* noteSampleState = &gAudioCtx.notes[i + updateIndex].sampleState;
+        NoteSampleState* noteSampleState = &gAudioCtx.notes[i + updateIndex].sampleState;  
         if (!sampleState->bitField0.enabled) {
             sampleState->bitField0.enabled = true;
             sampleState->bitField0.ignoreNoteState = true;
@@ -285,7 +285,6 @@ void Audio_LoadCustomBgm(int reverseUpdateIndex, uint64_t numFrames, uint32_t nu
             gAudioCtx.notes[i + updateIndex].playbackState.priority = 14;
             gAudioCtx.notes[i + updateIndex].playbackState.status = 1;
 
-            //// Did someone say ***memory leaks***?
             TunedSamplePool* poolEntry = AudioSamplePool_CreateNew();
 
             sampleState->tunedSample = &poolEntry->tunedSample;
@@ -308,6 +307,24 @@ void Audio_LoadCustomBgm(int reverseUpdateIndex, uint64_t numFrames, uint32_t nu
             sampleState->tunedSample->sample->loop->loopEnd = numFrames  - 5;
             sampleState->tunedSample->sample->loop->count = -1;
             sampleState->tunedSample->sample->sampleAddr = sampleData;
+
+            for (int j = 0; j < ARRAY_COUNT(gAudioCtx.seqPlayers[seqPlayer].channels); j++) {
+                SequenceChannel* channel = gAudioCtx.seqPlayers[seqPlayer].channels[j];
+                if (!channel->enabled) {
+                    memset(channel, 0, sizeof(SequenceChannel));
+                    channel->enabled = true;
+                    channel->volume = 1.0f;
+                    channel->layers[0] = malloc(sizeof(SequenceLayer));
+                    channel->layers[0]->enabled = true;
+                    channel->layers[0]->tunedSample = sampleState->tunedSample;
+                    channel->layers[0]->channel = channel;
+                    channel->seqPlayer = &gAudioCtx.seqPlayers[seqPlayer];
+                    channel->layers[0]->note = &gAudioCtx.notes[i + updateIndex];
+					channel->layers[0]->note->playbackState.parentLayer = channel->layers[0];
+                    break;
+                }
+            }
+            
             break;
         }
     }
@@ -361,9 +378,10 @@ Acmd* AudioSynth_Update(Acmd* abiCmdStart, s32* numAbiCmds, s16* aiBufStart, s32
             uint32_t numChannels;
             uint32_t sampleRate;
             s16* sampleData;
-            AudioQueue_GetSeqInfo(AudioQueue_Dequeue(), &numFrames, &numChannels, &sampleRate, &sampleData);
+            QueuePair pair = AudioQueue_Dequeue();
+            AudioQueue_GetSeqInfo(pair.path, &numFrames, &numChannels, &sampleRate, &sampleData);
 
-            Audio_LoadCustomBgm(reverseUpdateIndex, numFrames, numChannels, sampleRate, sampleData);
+            Audio_LoadCustomBgm(reverseUpdateIndex, numFrames, numChannels, sampleRate, sampleData, pair.seqPlayer);
         }
 
         curCmd = AudioSynth_ProcessSamples(curAiBufPos, numSamplesPerUpdate, curCmd,

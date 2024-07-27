@@ -260,6 +260,23 @@ uint16_t AudioCollection::GetReplacementSequence(uint16_t seqId) {
     return static_cast<uint16_t>(replacementSeq);
 }
 
+uint16_t AudioCollection::GetOriginalSequence(uint16_t seqId) {
+    // BENTODO there is probably a better way to do this.
+   if (seqId <=0x7f) {
+        return seqId;
+    }
+
+    for (const auto& a : mSequenceMap) {
+        const std::string cvarKey = GetCvarKey(a.second.sfxKey);
+        int replacementSeq = CVarGetInteger(cvarKey.c_str(), NA_BGM_DISABLED);
+        if (replacementSeq == seqId) {
+            return a.first;
+        }
+    }
+    return seqId;
+
+}
+
 void AudioCollection::RemoveFromShufflePool(SequenceInfo* seqInfo) {
     const std::string cvarKey = std::string(CVAR_AUDIO("Excluded.")) + seqInfo->sfxKey;
     excludedSequences.insert(seqInfo);

@@ -3,15 +3,15 @@
 #include "resource/type/AudioSequence.h"
 #include "Context.h"
 
-static SafeQueue<char*> audioQueue;
+static SafeQueue<QueuePair> audioQueue;
 
 extern "C" {
 
-void AudioQueue_Enqueue(char* seqId) {
-    audioQueue.enqueue(seqId);
+void AudioQueue_Enqueue(QueuePair pair) {
+    audioQueue.enqueue(pair);
 }
 
-char* AudioQueue_Dequeue(void) {
+QueuePair AudioQueue_Dequeue(void) {
     return audioQueue.dequeue();
 }
 

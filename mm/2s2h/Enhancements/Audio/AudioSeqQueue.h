@@ -2,6 +2,10 @@
 #define AUDIO_SEQ_QUEUE_H
 
 #include <stdint.h>
+typedef struct QueuePair {
+    char* path;
+    uint8_t seqPlayer;
+} QueuePair;
 
 #ifdef __cplusplus
 
@@ -53,8 +57,8 @@ template <class T> class SafeQueue {
 extern "C" {
 #endif
 
-void AudioQueue_Enqueue(char* seqId);
-char* AudioQueue_Dequeue(void);
+void AudioQueue_Enqueue(QueuePair seqId);
+QueuePair AudioQueue_Dequeue(void);
 int32_t AudioQueue_IsEmpty(void);
 void AudioQueue_GetSeqInfo(const char* path, uint64_t* numFrames, uint32_t* numChannels, uint32_t* sampleRate,
                            int16_t** sampleData);
