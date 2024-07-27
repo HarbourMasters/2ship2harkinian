@@ -1,6 +1,8 @@
 #ifndef PAUSE_OWL_WARP_H
 #define PAUSE_OWL_WARP_H
 
+#include <stdbool.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
