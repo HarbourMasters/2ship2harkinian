@@ -5,7 +5,8 @@
 extern "C" {
 #endif
 
-void RegisterPauseOwlWarp();
+void RegisterPauseOwlWarp(void);
+bool PauseOwlWarp_IsOwlWarpEnabled(void);
 
 #ifdef __cplusplus
 }

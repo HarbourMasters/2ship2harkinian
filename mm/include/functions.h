@@ -902,8 +902,6 @@ void KaleidoScopeCall_Init(PlayState* play);
 void KaleidoScopeCall_Destroy(PlayState* play);
 void KaleidoScopeCall_Update(PlayState* play);
 void KaleidoScopeCall_Draw(PlayState* play);
-void KaleidoScope_UpdateOwlWarpNamePanel(PlayState* play);
-void KaleidoScope_UpdateNamePanel(PlayState* play);
 void Transition_Init(TransitionContext* transitionCtx);
 void Transition_Destroy(TransitionContext* transitionCtx);
 
@@ -1330,6 +1328,8 @@ void osContGetReadData(OSContPad* pad);
 // #region 2S2H [Port] Previously unavailable functions, made available for porting
 void PadMgr_ThreadEntry();
 void Heaps_Alloc(void);
+void KaleidoScope_UpdateOwlWarpNamePanel(PlayState* play);
+void KaleidoScope_UpdateNamePanel(PlayState* play);
 // #endregion
 // #region 2S2H [Port] New methods added for porting
 void AudioSeq_SetPortVolumeScale(u8 seqPlayerIndex, f32 volume);
