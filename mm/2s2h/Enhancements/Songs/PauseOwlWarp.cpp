@@ -12,7 +12,7 @@ extern u16 D_80AF343C[];
 extern s16 sInDungeonScene;
 }
 
-extern "C" bool PauseOwlWarp_IsOwlWarpEnabled() {
+bool PauseOwlWarp_IsOwlWarpEnabled() {
     return CVarGetInteger("gEnhancements.Songs.PauseOwlWarp", 0) && CHECK_QUEST_ITEM(QUEST_SONG_SOARING) &&
            gSaveContext.save.saveInfo.playerData.owlActivationFlags != 0;
 }
