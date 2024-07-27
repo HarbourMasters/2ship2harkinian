@@ -10,7 +10,7 @@ extern "C" {
 
 void RegisterTimeStopInTemples() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::AfterRoomSceneCommands>([](s16 sceneId, s8 roomNum) {
-        uint8_t selectedOption = CVarGetInteger("gCheats.TempleTimeStop", 0);
+        uint8_t selectedOption = CVarGetInteger("gCheats.TempleTimeStop", TIME_STOP_OFF);
 
         switch (selectedOption) {
             case TIME_STOP_TEMPLES_DUNGEONS:

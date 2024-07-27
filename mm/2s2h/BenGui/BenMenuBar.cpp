@@ -60,8 +60,8 @@ static const std::unordered_map<int32_t, const char*> alwaysWinDoggyraceOptions 
 
 static const std::unordered_map<int32_t, const char*> timeStopOptions = {
     { TIME_STOP_OFF, "Off" },
-    { TIME_STOP_TEMPLES, "In the 4 main temples. Requires a room change to update." },
-    { TIME_STOP_TEMPLES_DUNGEONS, "In the 4 main temples and mini-dungeons. Requires a room change to update." },
+    { TIME_STOP_TEMPLES, "Temples" },
+    { TIME_STOP_TEMPLES_DUNGEONS, "Temples + Mini Dungeons" },
 };
 
 namespace BenGui {
@@ -670,7 +670,14 @@ void DrawCheatsMenu() {
                                     { .tooltip = "Holding L makes you float into the air" })) {
             RegisterMoonJumpOnL();
         }
-        UIWidgets::CVarCombobox("Stop Time in Dungeons", "gCheats.TempleTimeStop", timeStopOptions);
+        UIWidgets::CVarCombobox(
+            "Stop Time in Dungeons", "gCheats.TempleTimeStop", timeStopOptions,
+            { .tooltip = "Stops time from advancing in selected areas. Requires a room change to update.\n\n"
+                         "- Off: Vanilla behaviour.\n"
+                         "- Temples: Stops time in Woodfall, Snowhead, Great Bay, and Stone Tower Temples.\n"
+                         "- Temples + Mini Dungeons: In addition to the above temples, stops time in both Spider "
+                         "Houses, Pirate's Fortress, Beneath the Well, Ancient Castle of Ikana, and Secret Shrine.",
+              .defaultIndex = TIME_STOP_OFF });
 
         ImGui::EndMenu();
     }
