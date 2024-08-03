@@ -14,7 +14,8 @@ extern s16 sInDungeonScene;
 
 extern "C" bool PauseOwlWarp_IsOwlWarpEnabled() {
     return CVarGetInteger("gEnhancements.Songs.PauseOwlWarp", 0) && CHECK_QUEST_ITEM(QUEST_SONG_SOARING) &&
-           gSaveContext.save.saveInfo.playerData.owlActivationFlags != 0;
+           gSaveContext.save.saveInfo.playerData.owlActivationFlags != 0 &&
+           gPlayState->pauseCtx.debugEditor == DEBUG_EDITOR_NONE;
 }
 
 static bool sIsConfirming = false;
@@ -197,8 +198,7 @@ void HandlePauseOwlWarp(PauseContext* pauseCtx) {
         if (CHECK_BTN_ALL(input->press.button, BTN_START) || CHECK_BTN_ALL(input->press.button, BTN_B)) {
             ClosePauseMenu(pauseCtx);
         } else if (CHECK_BTN_ALL(input->press.button, BTN_A) && !sIsConfirming) {
-            if (pauseCtx->cursorSpecialPos == 0 && pauseCtx->worldMapPoints[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]] &&
-                pauseCtx->debugEditor == DEBUG_EDITOR_NONE) {
+            if (pauseCtx->cursorSpecialPos == 0 && pauseCtx->worldMapPoints[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]]) {
                 Audio_PlaySfx(NA_SE_SY_DECIDE);
                 Message_StartTextbox(gPlayState, 0x1B93, NULL);
                 sIsConfirming = true;
