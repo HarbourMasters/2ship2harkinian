@@ -197,7 +197,8 @@ void HandlePauseOwlWarp(PauseContext* pauseCtx) {
         if (CHECK_BTN_ALL(input->press.button, BTN_START) || CHECK_BTN_ALL(input->press.button, BTN_B)) {
             ClosePauseMenu(pauseCtx);
         } else if (CHECK_BTN_ALL(input->press.button, BTN_A) && !sIsConfirming) {
-            if (pauseCtx->cursorSpecialPos == 0 && pauseCtx->worldMapPoints[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]]) {
+            if (pauseCtx->cursorSpecialPos == 0 && pauseCtx->worldMapPoints[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]] &&
+                pauseCtx->debugEditor == DEBUG_EDITOR_NONE) {
                 Audio_PlaySfx(NA_SE_SY_DECIDE);
                 Message_StartTextbox(gPlayState, 0x1B93, NULL);
                 sIsConfirming = true;
