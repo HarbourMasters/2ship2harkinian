@@ -55,9 +55,6 @@ void InitOTR();
 #define SDL_main main
 #endif
 
-IntentControlDefinition* intentDefinitions = NULL;
-uint16_t intentDefinitionCount = 0;
-
 void SDL_main(int argc, char** argv /* void* arg*/) {
     intptr_t fb;
     intptr_t sysHeap;
@@ -79,8 +76,9 @@ void SDL_main(int argc, char** argv /* void* arg*/) {
                                     { INTENT_USE_ITEM2, "Use Item 2" },
                                     { INTENT_HOTSWAP_ITEM_RIGHT2, "Swap Item Right 2" },
                                     { INTENT_HOTSWAP_ITEM_LEFT2, "Swap Item Left 2" } };
-    intentDefinitions = d;
-    intentDefinitionCount = sizeof(d) / sizeof(IntentControlDefinition);
+    // intentDefinitions = d;
+    // intentDefinitionCount = sizeof(d) / sizeof(IntentControlDefinition);
+    setIntentControlDefinitions((IntentControlDefinitionSet){d, sizeof(d) / sizeof(IntentControlDefinition)});
 
     // uint16_t width = 27, height = 27;
     // for(uint8_t i = 0; i < 10; i++){
