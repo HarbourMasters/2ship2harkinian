@@ -76,7 +76,6 @@ void SDL_main(int argc, char** argv /* void* arg*/) {
                                     { INTENT_USE_ITEM2, "Use Item 2" },
                                     { INTENT_HOTSWAP_ITEM_RIGHT2, "Swap Item Right 2" },
                                     { INTENT_HOTSWAP_ITEM_LEFT2, "Swap Item Left 2" } };
-    
     setIntentControlDefinitions((IntentControlDefinitionSet){ d, sizeof(d) / sizeof(IntentControlDefinition) });
 
 // Attach console for windows so we can conditionally display it when running the extractor
