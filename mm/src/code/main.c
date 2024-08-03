@@ -76,29 +76,8 @@ void SDL_main(int argc, char** argv /* void* arg*/) {
                                     { INTENT_USE_ITEM2, "Use Item 2" },
                                     { INTENT_HOTSWAP_ITEM_RIGHT2, "Swap Item Right 2" },
                                     { INTENT_HOTSWAP_ITEM_LEFT2, "Swap Item Left 2" } };
-    // intentDefinitions = d;
-    // intentDefinitionCount = sizeof(d) / sizeof(IntentControlDefinition);
-    setIntentControlDefinitions((IntentControlDefinitionSet){d, sizeof(d) / sizeof(IntentControlDefinition)});
-
-    // uint16_t width = 27, height = 27;
-    // for(uint8_t i = 0; i < 10; i++){
-    //         e[i].id = i + 1;
-    //         e[i].assignedItem = ITEM_HOOKSHOT + i;
-    //         e[i].rectLeft = 0;
-    //         e[i].rectTop = (height * i);
-    //         e[i].rectWidth = width;
-    //         e[i].rectHeight = height;
-    //         e[i].dsdx = 620;
-    //         e[i].dtdy = 620;
-    //         e[i].r = i % 3 == 0 ? 255 : 0;
-    //         e[i].g = i % 3 == 1 ? 255 : 0;
-    //         e[i].b = i % 3 == 2 ? 255 : 0;
-    //         e[i].a = 255;
-    //         e[i].canTakeAssignment = canTakeAssignment;
-    //         e[i].assignmentTriggered = assignmentTriggeredTrue;
-    // }
-    // arbitraryItemEquipButtonDefinitions = e;
-    // arbitraryItemEquipButtonDefinitionCount = sizeof(e) / sizeof(ArbitraryItemEquipButton);
+    
+    setIntentControlDefinitions((IntentControlDefinitionSet){ d, sizeof(d) / sizeof(IntentControlDefinition) });
 
 // Attach console for windows so we can conditionally display it when running the extractor
 #ifdef _WIN32
