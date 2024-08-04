@@ -149,7 +149,7 @@ uint8_t CarouselItemSlotManager::assignmentTriggered(Input* input) {
     }
 
     auto l = (CarouselItemSlotLister*)lister;
-    return CHECK_INTENT(input->press.intentControls, l->equipButtonIntent, BUTTON_STATE_PRESS, 0);
+    return CHECK_INTENT(input->press.intentControls, l->buttons.useItem, BUTTON_STATE_PRESS, 0);
 }
 uint8_t CarouselItemSlotManager::activateItem(Input* input, uint8_t buttonState) {
     if (!this->isSelectedSlot()) {
@@ -159,7 +159,7 @@ uint8_t CarouselItemSlotManager::activateItem(Input* input, uint8_t buttonState)
     }
 
     auto l = (CarouselItemSlotLister*)lister;
-    return CHECK_INTENT(input->press.intentControls, l->equipButtonIntent, buttonState, 0);
+    return CHECK_INTENT(input->press.intentControls, l->buttons.useItem, buttonState, 0);
 }
 uint8_t CarouselItemSlotManager::tradeItem(Input* input) {
     if (!this->isSelectedSlot()) {
@@ -167,7 +167,7 @@ uint8_t CarouselItemSlotManager::tradeItem(Input* input) {
     }
 
     auto l = (CarouselItemSlotLister*)lister;
-    return CHECK_INTENT(input->cur.intentControls, l->equipButtonIntent, BUTTON_STATE_PRESS, 0);
+    return CHECK_INTENT(input->cur.intentControls, l->buttons.useItem, BUTTON_STATE_PRESS, 0);
 }
 
 #define LOAD_CVAR(name, cvarFun) this->name = cvarFun((this->getCVarListerString() + "." #name).c_str(), this->name)
@@ -218,12 +218,9 @@ void CarouselItemSlotLister::resetSlotCount(uint8_t count) {
     this->carouselSlots = newSlots;
 }
 
-CarouselItemSlotLister::CarouselItemSlotLister(std::string name, uint16_t equipButtonIntent, uint16_t swapLeftIntent,
-                                               uint16_t swapRightIntent) {
+CarouselItemSlotLister::CarouselItemSlotLister(std::string name, CAROUSEL_BUTTONS_TYPE buttons) {
     this->name = name;
-    this->equipButtonIntent = equipButtonIntent;
-    this->swapLeftIntent = swapLeftIntent;
-    this->swapRightIntent = swapRightIntent;
+    this->buttons = buttons;
     this->options = std::shared_ptr<CarouselListerOptions>(new CarouselListerOptions());
 
     this->parentState.posLeft = 345;
@@ -253,10 +250,10 @@ ArbitraryItemEquipSet CarouselItemSlotLister::getEquipSlots(PlayState* play, Inp
         int16_t prev = selectedIndex;
         int8_t direction = 0;
 
-        if (CHECK_INTENT(input->press.intentControls, this->swapLeftIntent, BUTTON_STATE_PRESS, 0)) {
+        if (CHECK_INTENT(input->press.intentControls, this->buttons.swapLeft, BUTTON_STATE_PRESS, 0)) {
             direction--;
         }
-        if (CHECK_INTENT(input->press.intentControls, this->swapRightIntent, BUTTON_STATE_PRESS, 0)) {
+        if (CHECK_INTENT(input->press.intentControls, this->buttons.swapRight, BUTTON_STATE_PRESS, 0)) {
             direction++;
         }
 
@@ -336,7 +333,38 @@ void CarouselItemSlotLister::initItemEquips(ItemEquips* equips) {
     };
 }
 
-std::shared_ptr<CarouselItemSlotLister> CarouselItemSlotLister::makeCarousel() {
-    return std::shared_ptr<CarouselItemSlotLister>{ new CarouselItemSlotLister(
-        "Created Lister", INTENT_USE_ITEM2, INTENT_HOTSWAP_ITEM_LEFT2, INTENT_HOTSWAP_ITEM_RIGHT2) };
+std::vector<std::weak_ptr<CarouselItemSlotLister>> CarouselItemSlotLister::existingCarousels;
+
+std::shared_ptr<CarouselItemSlotLister> CarouselItemSlotLister::makeCarousel(MulitpleItemSlotLister* parent) {
+    uint8_t carouselNumber = 1;
+    while(carouselNumber <= 5){
+        bool numberWasInUse = false;
+        for(auto listerRef : CarouselItemSlotLister::existingCarousels){
+            if(!listerRef.expired()){
+                auto lister = listerRef.lock();
+                if(lister->buttons.carouselNumber == carouselNumber){
+                    carouselNumber++;
+                    numberWasInUse = true;
+                    break;
+                }
+            }
+        }
+        if(!numberWasInUse){
+            break;
+        }
+    }
+
+    std::printf("Making carousel #%d\n", carouselNumber);
+    auto config = INDEXED_CAROUSELS[carouselNumber - 1];
+
+    auto newLister = std::shared_ptr<CarouselItemSlotLister>{ 
+        new CarouselItemSlotLister(
+            std::string("Carousel #") + std::to_string(config.carouselNumber), 
+            config
+        ) 
+    };
+
+    CarouselItemSlotLister::existingCarousels.push_back(newLister);
+
+    return newLister;
 }

@@ -9,10 +9,11 @@ void CarouselListerOptions::drawOptions(ArbitraryItemSlotsWindow* win, Arbitrary
                                                ->GetGui()
                                                ->GetGuiWindow("Input Editor")
                                                .get();
+    inputWindow->DrawDeviceVisibilityButtons();
     if (inputWindow != nullptr) {
-        inputWindow->DrawButtonLine("Use/Assign Item", 0, 0, m->equipButtonIntent, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));
-        inputWindow->DrawButtonLine("Swap Item Left", 0, 0, m->swapLeftIntent, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));
-        inputWindow->DrawButtonLine("Swap Item Right", 0, 0, m->swapRightIntent, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));
+        inputWindow->DrawButtonLine(m->buttons.useItemName, 0, 0, m->buttons.useItem, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));
+        inputWindow->DrawButtonLine(m->buttons.swapLeftName, 0, 0, m->buttons.swapLeft, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));
+        inputWindow->DrawButtonLine(m->buttons.swapRightName, 0, 0, m->buttons.swapRight, ImVec4(0.4f, 0.4f, 0.4f, 1.0f));
     }
 
     ImGui::SliderAngle("Scroll Direction", &m->carouselDirectionAngle);

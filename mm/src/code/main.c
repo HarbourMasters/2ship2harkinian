@@ -61,21 +61,33 @@ void SDL_main(int argc, char** argv /* void* arg*/) {
     s32 exit;
     s16* msg;
 
+    #define CAROUSEL_REGISTRATION(num) \
+        {(CAROUSEL ## num).useItem, (CAROUSEL ## num).useItemName},\
+        {(CAROUSEL ## num).swapRight, (CAROUSEL ## num).swapRightName},\
+        {(CAROUSEL ## num).swapLeft, (CAROUSEL ## num).swapLeftName}\
+
     IntentControlDefinition d[] = { { INTENT_CONTROL_ROLL, "Roll" },
                                     { INTENT_CONTROL_JUMP, "Jump" },
                                     { INTENT_CONTROL_TALK, "Talk" },
                                     { INTENT_CONTROL_FIRE_BOW, "Fire Bow" },
                                     { INTENT_CONTROL_FIRE_HOOKSHOT, "Fire Hookshot" },
-                                    { INTENT_HOTSWAP_ITEM_RIGHT, "Swap Item Right" },
-                                    { INTENT_HOTSWAP_ITEM_LEFT, "Swap Item Left" },
+                                    // { INTENT_HOTSWAP_ITEM_RIGHT, "Swap Item Right" },
+                                    // { INTENT_HOTSWAP_ITEM_LEFT, "Swap Item Left" },
 
-                                    { INTENT_USE_ITEM, "Use Item" },
+                                    // { INTENT_USE_ITEM, "Use Item" },
                                     { ARB_EQUIP_ITEM_1, "Arbitrary Equipment Button 1" },
                                     { ARB_EQUIP_ITEM_2, "Arbitrary Equipment Button 2" },
 
-                                    { INTENT_USE_ITEM2, "Use Item 2" },
-                                    { INTENT_HOTSWAP_ITEM_RIGHT2, "Swap Item Right 2" },
-                                    { INTENT_HOTSWAP_ITEM_LEFT2, "Swap Item Left 2" } };
+                                    // { INTENT_USE_ITEM2, "Use Item 2" },
+                                    // { INTENT_HOTSWAP_ITEM_RIGHT2, "Swap Item Right 2" },
+                                    // { INTENT_HOTSWAP_ITEM_LEFT2, "Swap Item Left 2" }, 
+
+                                    CAROUSEL_REGISTRATION(1),
+                                    CAROUSEL_REGISTRATION(2),
+                                    CAROUSEL_REGISTRATION(3),
+                                    CAROUSEL_REGISTRATION(4),
+                                    CAROUSEL_REGISTRATION(5),
+                                };
     setIntentControlDefinitions((IntentControlDefinitionSet){ d, sizeof(d) / sizeof(IntentControlDefinition) });
 
 // Attach console for windows so we can conditionally display it when running the extractor

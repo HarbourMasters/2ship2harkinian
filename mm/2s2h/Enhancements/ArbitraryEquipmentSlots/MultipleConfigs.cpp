@@ -14,7 +14,7 @@ void MultipleItemSlotsListerOptions::drawOptions(ArbitraryItemSlotsWindow* win, 
 
     if (mulLister->subFactory != nullptr && ImGui::TabItemButton("+##addNewSubLister")) {
         std::printf("Add a new element: %X\n", this);
-        auto newSub = mulLister->subFactory();
+        auto newSub = mulLister->subFactory(mulLister);
         if (newSub.get() != nullptr) {
             mulLister->subListers.push_back(newSub);
         }

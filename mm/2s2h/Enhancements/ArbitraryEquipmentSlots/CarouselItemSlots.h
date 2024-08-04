@@ -4,6 +4,7 @@
 #include "ArbitraryItemSlots.h"
 #include "intent-control-types.h"
 #include <algorithm>
+#include "MultipleConfigs.h"
 
 struct CarouselItemSlotLister;
 
@@ -28,10 +29,9 @@ struct CarouselItemSlotManager : public ArbitraryItemSlotManager {
 };
 
 struct CarouselItemSlotLister : public ArbitraryItemSlotLister {
-    static std::shared_ptr<CarouselItemSlotLister> makeCarousel();
-    uint16_t equipButtonIntent = 0;
-    uint16_t swapLeftIntent = 0;
-    uint16_t swapRightIntent = 0;
+    static std::shared_ptr<CarouselItemSlotLister> makeCarousel(MulitpleItemSlotLister* parent);
+    static std::vector<std::weak_ptr<CarouselItemSlotLister>> existingCarousels;
+    CAROUSEL_BUTTONS_TYPE buttons;
     uint32_t processedInputOnFrame = 0;
 
     int carouselIndexRadius = 1;
@@ -62,8 +62,6 @@ struct CarouselItemSlotLister : public ArbitraryItemSlotLister {
     std::chrono::high_resolution_clock::time_point activeStarted = std::chrono::high_resolution_clock::now();
     std::chrono::high_resolution_clock::time_point inactiveStarted = std::chrono::high_resolution_clock::now();
 
-    CarouselItemSlotLister(std::string name, uint16_t equipButtonIntent, uint16_t swapLeftIntent,
-                           uint16_t swapRightIntent);
     void resetSlotCount(uint8_t count);
 
     virtual void saveCVars() override;
@@ -71,6 +69,8 @@ struct CarouselItemSlotLister : public ArbitraryItemSlotLister {
 
     virtual ArbitraryItemEquipSet getEquipSlots(PlayState* play, Input* input);
     virtual void initItemEquips(ItemEquips* equips);
+private: 
+    CarouselItemSlotLister(std::string name, CAROUSEL_BUTTONS_TYPE buttons);
 };
 
 #endif
