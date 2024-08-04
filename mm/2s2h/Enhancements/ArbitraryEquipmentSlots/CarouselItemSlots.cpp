@@ -185,7 +185,11 @@ void CarouselItemSlotLister::loadCVars() {
     LOAD_CVAR(slotCount, CVarGetInteger);
     LOAD_CVAR(carouselIndexRadius, CVarGetInteger);
     LOAD_CVAR(carouselDirectionAngle, CVarGetFloat);
-    this->parentState.loadCVars(this->getCVarListerString() + ".defaultState");
+    #define LOAD_STATE_CVAR(state) this->state.loadCVars(this->getCVarListerString() + "." #state);
+    LOAD_STATE_CVAR(parentState);
+    LOAD_STATE_CVAR(disabledState);
+    LOAD_STATE_CVAR(scrollingState);
+    LOAD_STATE_CVAR(scrollingSelectedState);
 }
 void CarouselItemSlotLister::saveCVars() {
     ArbitraryItemSlotLister::saveCVars();
@@ -193,7 +197,11 @@ void CarouselItemSlotLister::saveCVars() {
     SET_CVAR(carouselIndexRadius, CVarSetInteger);
     SET_CVAR(carouselDirectionAngle, CVarSetFloat);
 
-    this->parentState.saveCVars(this->getCVarListerString() + ".defaultState");
+    #define SAVE_STATE_CVAR(state) this->state.saveCVars(this->getCVarListerString() + "." #state)
+    SAVE_STATE_CVAR(parentState);
+    SAVE_STATE_CVAR(disabledState);
+    SAVE_STATE_CVAR(scrollingState);
+    SAVE_STATE_CVAR(scrollingSelectedState);
 }
 
 #undef LOAD_CVAR
