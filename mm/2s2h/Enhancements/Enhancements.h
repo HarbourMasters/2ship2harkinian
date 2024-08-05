@@ -28,6 +28,7 @@
 #include "Graphics/PlayAsKafei.h"
 #include "Player/Player.h"
 #include "Songs/EnableSunsSong.h"
+#include "Songs/PauseOwlWarp.h"
 #include "Saving/SavingEnhancements.h"
 #include "Graphics/DisableBlackBars.h"
 #include "Modes/TimeMovesWhenYouMove.h"
