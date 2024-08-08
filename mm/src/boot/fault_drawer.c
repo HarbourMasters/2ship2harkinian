@@ -78,7 +78,7 @@ FaultDrawer sFaultDrawerDefault = {
 };
 #endif
 //! TODO: Needs to be extracted
-//#pragma GLOBAL_ASM("asm/non_matchings/boot/fault_drawer/sFaultDrawerFont.s")
+// #pragma GLOBAL_ASM("asm/non_matchings/boot/fault_drawer/sFaultDrawerFont.s")
 
 void FaultDrawer_SetOsSyncPrintfEnabled(u32 enabled) {
     // sFaultDrawerInstance->osSyncPrintfEnabled = enabled;

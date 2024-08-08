@@ -1011,9 +1011,9 @@ void Fault_UpdatePad(void) {
     // Fault_SetOptionsFromController3();
 }
 
-//#define FAULT_MSG_CPU_BREAK ((OSMesg)1)
-//#define FAULT_MSG_FAULT ((OSMesg)2)
-//#define FAULT_MSG_UNK ((OSMesg)3)
+// #define FAULT_MSG_CPU_BREAK ((OSMesg)1)
+// #define FAULT_MSG_FAULT ((OSMesg)2)
+// #define FAULT_MSG_UNK ((OSMesg)3)
 
 void Fault_ThreadEntry(void* arg) {
 #if 0

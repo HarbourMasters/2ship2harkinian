@@ -1334,6 +1334,9 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
     s16 risingAlpha = 255 - dimmingAlpha;
 
+    FOREACH_SLOT(ARB_SLOTS(play, CONTROLLER1(&play->state)), arbSlot,
+                 { arbSlot->updateHudAlpha(arbSlot, play, gSaveContext.nextHudVisibility, dimmingAlpha); })
+
     switch (gSaveContext.nextHudVisibility) {
         case HUD_VISIBILITY_NONE:
         case HUD_VISIBILITY_NONE_ALT:
@@ -2315,6 +2318,147 @@ void Interface_UpdateHudAlphas(PlayState* play, s16 dimmingAlpha) {
     }
 }
 
+s16 Interface_UpdateButtonsPart2_ArbitraryButton(PlayState* play, ArbitraryItemEquipButton* arbSlot) {
+    MessageContext* msgCtx = &play->msgCtx;
+    InterfaceContext* interfaceCtx = &play->interfaceCtx;
+    Player* player = GET_PLAYER(play);
+    s16 restoreHudVisibility = false;
+
+    ItemId arbItemId = arbSlot->getAssignedItemID(arbSlot);
+    ItemId itemId = arbItemId;
+    if (GameInteractor_Should(GI_VB_ITEM_BE_RESTRICTED, !gPlayerFormItemRestrictions[GET_PLAYER_FORM][itemId],
+                              &itemId)) {
+        // Item not usable in current playerForm
+        if (!arbSlot->isDisabled(arbSlot)) {
+            arbSlot->setDisabled(arbSlot, BTN_DISABLED);
+            restoreHudVisibility = true;
+        }
+    } else if (player->actor.id != ACTOR_PLAYER) {
+        // Currently not playing as the main player
+        if (!arbSlot->isDisabled(arbSlot)) {
+            arbSlot->setDisabled(arbSlot, BTN_DISABLED);
+            restoreHudVisibility = true;
+        }
+    } else if (player->currentMask == PLAYER_MASK_GIANT) {
+        // Currently wearing Giant's Mask
+        if (arbItemId != ITEM_MASK_GIANT) {
+            if (!arbSlot->isDisabled(arbSlot)) {
+                arbSlot->setDisabled(arbSlot, BTN_DISABLED);
+                restoreHudVisibility = true;
+            }
+        } else if (arbSlot->isDisabled(arbSlot)) {
+            restoreHudVisibility = true;
+            arbSlot->setDisabled(arbSlot, BTN_ENABLED);
+        }
+    } else if (arbItemId == ITEM_MASK_GIANT) {
+        // Giant's Mask is equipped
+        if (play->sceneId != SCENE_INISIE_BS) {
+            if (!arbSlot->isDisabled(arbSlot)) {
+                arbSlot->setDisabled(arbSlot, BTN_DISABLED);
+                restoreHudVisibility = true;
+            }
+        } else if (arbSlot->isDisabled(arbSlot)) {
+            restoreHudVisibility = true;
+            arbSlot->setDisabled(arbSlot, BTN_ENABLED);
+        }
+    } else if (arbItemId == ITEM_MASK_FIERCE_DEITY) {
+        // Fierce Deity's Mask is equipped
+        u8 vanillaSceneConditionResult = (play->sceneId != SCENE_MITURIN_BS) && (play->sceneId != SCENE_HAKUGIN_BS) &&
+                                         (play->sceneId != SCENE_SEA_BS) && (play->sceneId != SCENE_INISIE_BS) &&
+                                         (play->sceneId != SCENE_LAST_BS);
+        if (GameInteractor_Should(GI_VB_DISABLE_FD_MASK, vanillaSceneConditionResult, NULL)) {
+            if (!arbSlot->isDisabled(arbSlot)) {
+                arbSlot->setDisabled(arbSlot, BTN_DISABLED);
+                restoreHudVisibility = true;
+            }
+        } else if (arbSlot->isDisabled(arbSlot)) {
+            restoreHudVisibility = true;
+            arbSlot->setDisabled(arbSlot, BTN_ENABLED);
+        }
+    } else {
+        // End of special item cases. Apply restrictions to buttons
+        if (interfaceCtx->restrictions.tradeItems != 0) {
+            if (((arbItemId >= ITEM_MOONS_TEAR) && (arbItemId <= ITEM_PENDANT_OF_MEMORIES)) ||
+                ((arbItemId >= ITEM_BOTTLE) && (arbItemId <= ITEM_OBABA_DRINK)) ||
+                (arbItemId == ITEM_OCARINA_OF_TIME)) {
+                if (!arbSlot->isDisabled(arbSlot)) {
+                    restoreHudVisibility = true;
+                }
+                arbSlot->setDisabled(arbSlot, BTN_DISABLED);
+            }
+        } else if (interfaceCtx->restrictions.tradeItems == 0) {
+            if (((arbItemId >= ITEM_MOONS_TEAR) && (arbItemId <= ITEM_PENDANT_OF_MEMORIES)) ||
+                ((arbItemId >= ITEM_BOTTLE) && (arbItemId <= ITEM_OBABA_DRINK)) ||
+                (arbItemId == ITEM_OCARINA_OF_TIME)) {
+                if (arbSlot->isDisabled(arbSlot)) {
+                    restoreHudVisibility = true;
+                }
+                arbSlot->setDisabled(arbSlot, BTN_ENABLED);
+            }
+        }
+
+        if (interfaceCtx->restrictions.masks != 0) {
+            if ((arbItemId >= ITEM_MASK_DEKU) && (arbItemId <= ITEM_MASK_GIANT)) {
+                if (!arbSlot->isDisabled(arbSlot)) {
+                    restoreHudVisibility = true;
+                }
+                arbSlot->setDisabled(arbSlot, BTN_DISABLED);
+            }
+        } else if (interfaceCtx->restrictions.masks == 0) {
+            if ((arbItemId >= ITEM_MASK_DEKU) && (arbItemId <= ITEM_MASK_GIANT)) {
+                if (arbSlot->isDisabled(arbSlot)) {
+                    restoreHudVisibility = true;
+                }
+                arbSlot->setDisabled(arbSlot, BTN_ENABLED);
+            }
+        }
+
+        if (interfaceCtx->restrictions.pictoBox != 0) {
+            if (arbItemId == ITEM_PICTOGRAPH_BOX) {
+                if (!arbSlot->isDisabled(arbSlot)) { // == BTN_ENABLED
+                    restoreHudVisibility = true;
+                }
+                arbSlot->setDisabled(arbSlot, BTN_DISABLED);
+            }
+        } else if (interfaceCtx->restrictions.pictoBox == 0) {
+            if (arbItemId == ITEM_PICTOGRAPH_BOX) {
+                if (arbSlot->isDisabled(arbSlot)) {
+                    restoreHudVisibility = true;
+                }
+                arbSlot->setDisabled(arbSlot, BTN_ENABLED);
+            }
+        }
+
+        if (interfaceCtx->restrictions.all != 0) {
+            if (!((arbItemId >= ITEM_MOONS_TEAR) && (arbItemId <= ITEM_PENDANT_OF_MEMORIES)) &&
+                !((arbItemId >= ITEM_BOTTLE) && (arbItemId <= ITEM_OBABA_DRINK)) &&
+                (arbItemId != ITEM_OCARINA_OF_TIME) &&
+                !((arbItemId >= ITEM_MASK_DEKU) && (arbItemId <= ITEM_MASK_GIANT)) &&
+                (arbItemId != ITEM_PICTOGRAPH_BOX)) {
+
+                if ((!arbSlot->isDisabled(arbSlot))) {
+                    restoreHudVisibility = true;
+                    arbSlot->setDisabled(arbSlot, BTN_DISABLED);
+                }
+            }
+        } else if (interfaceCtx->restrictions.all == 0) {
+            if (!((arbItemId >= ITEM_MOONS_TEAR) && (arbItemId <= ITEM_PENDANT_OF_MEMORIES)) &&
+                !((arbItemId >= ITEM_BOTTLE) && (arbItemId <= ITEM_OBABA_DRINK)) &&
+                (arbItemId != ITEM_OCARINA_OF_TIME) &&
+                !((arbItemId >= ITEM_MASK_DEKU) && (arbItemId <= ITEM_MASK_GIANT)) &&
+                (arbItemId != ITEM_PICTOGRAPH_BOX)) {
+
+                if ((arbSlot->isDisabled(arbSlot))) {
+                    restoreHudVisibility = true;
+                    arbSlot->setDisabled(arbSlot, BTN_ENABLED);
+                }
+            }
+        }
+    }
+
+    return restoreHudVisibility;
+}
+
 /**
  * A continuation of the if-else chain from Interface_UpdateButtonsPart1
  * Also used directly when opening the pause menu i.e. skips part 1
@@ -3057,6 +3201,8 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                 }
             }
             // #endregion
+            FOREACH_SLOT(ARB_SLOTS(play, CONTROLLER1(&play->state)), arbSlot,
+                         { restoreHudVisibility = Interface_UpdateButtonsPart2_ArbitraryButton(play, arbSlot); })
         }
     }
 
@@ -3474,6 +3620,21 @@ void Interface_LoadItemIconImpl(PlayState* play, u8 btn) {
     } else {
         interfaceCtx->iconItemSegment[btn] = gEmptyTexture;
     }
+    // #endregion
+}
+
+void Interface_LoadItemIconImplArbitrary(PlayState* play, ArbitraryItemEquipButton* arbEquip) {
+    InterfaceContext* interfaceCtx = &play->interfaceCtx;
+    // TODO
+
+    // #region 2S2H [Port]
+    // CmpDma_LoadFile(SEGMENT_ROM_START(icon_item_static_yar), GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_C_DOWN),
+    //             &interfaceCtx->iconItemSegment[(u32)EQUIP_SLOT_C_DOWN * 0x1000], 0x1000);
+    // if (arbEquip->assignedItem < ARRAY_COUNT(gItemIcons)) {
+    //     interfaceCtx->iconItemSegment[EQUIP_SLOT_C_DOWN] = gItemIcons[arbEquip->assignedItem];
+    // } else {
+    //     interfaceCtx->iconItemSegment[EQUIP_SLOT_C_DOWN] = gEmptyTexture;
+    // }
     // #endregion
 }
 
@@ -4307,6 +4468,20 @@ void Inventory_UpdateBottleItem(PlayState* play, u8 item, u8 btn) {
     }
 }
 
+void Inventory_Arbitrary_UpdateBottleItem(PlayState* play, u8 item, ArbitraryItemEquipButton* eqp) {
+    InventorySlot slot = eqp->getAssignedItemSlot(eqp);
+    gSaveContext.save.saveInfo.inventory.items[slot] = item;
+
+    Interface_LoadItemIconImplArbitrary(play, eqp);
+
+    play->pauseCtx.cursorItem[PAUSE_ITEM] = item;
+    eqp->setDisabled(eqp, BTN_ENABLED);
+
+    if (item == ITEM_HOT_SPRING_WATER) {
+        Interface_StartBottleTimer(60, slot - SLOT_BOTTLE_1);
+    }
+}
+
 s32 Inventory_ConsumeFairy(PlayState* play) {
     u8 bottleSlot = SLOT(ITEM_FAIRY);
     u8 btn;
@@ -4895,6 +5070,10 @@ void Magic_Update(PlayState* play) {
                 (play->transitionTrigger == TRANS_TRIGGER_OFF) && (play->transitionMode == TRANS_MODE_OFF) &&
                 !Play_InCsMode(play)) {
 
+                ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(
+                    &gSaveContext.save.saveInfo.equips.equipsSlotGetter, play, CONTROLLER1(&play->state));
+                int lensOfTruthIndex = slots.findSlotWithItem(&slots, ITEM_LENS_OF_TRUTH);
+
                 if ((gSaveContext.save.saveInfo.playerData.magic == 0) ||
                     ((Player_GetEnvironmentalHazard(play) >= PLAYER_ENV_HAZARD_UNDERWATER_FLOOR) &&
                      (Player_GetEnvironmentalHazard(play) <= PLAYER_ENV_HAZARD_UNDERWATER_FREE)) ||
@@ -4906,8 +5085,9 @@ void Magic_Update(PlayState* play) {
                       (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_RIGHT) != ITEM_LENS_OF_TRUTH) &&
                           (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_LEFT) != ITEM_LENS_OF_TRUTH) &&
                           (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_DOWN) != ITEM_LENS_OF_TRUTH) &&
-                          (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) != ITEM_LENS_OF_TRUTH))) ||
-                    //   #endregion
+                          (DPAD_BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_D_UP) != ITEM_LENS_OF_TRUTH))
+                     //   #endregion
+                     && (lensOfTruthIndex < 0)) ||
                     !play->actorCtx.lensActive) {
                     // Deactivate Lens of Truth and set magic state to idle
                     play->actorCtx.lensActive = false;
@@ -5221,6 +5401,9 @@ void Interface_SetOrthoView(InterfaceContext* interfaceCtx) {
     View_ApplyOrthoToOverlay(&interfaceCtx->view);
 }
 
+void Interface_DrawItemCButton(uint8_t cButton) {
+}
+
 void Interface_DrawItemButtons(PlayState* play) {
     static TexturePtr cUpLabelTextures[] = {
         gTatlCUpENGTex, gTatlCUpENGTex, gTatlCUpGERTex, gTatlCUpFRATex, gTatlCUpESPTex,
@@ -5267,6 +5450,21 @@ void Interface_DrawItemButtons(PlayState* play) {
         D_801BFAF4[EQUIP_SLOT_B], D_801BFAF4[EQUIP_SLOT_B], D_801BF9E4[EQUIP_SLOT_B] * 2, D_801BF9E4[EQUIP_SLOT_B] * 2,
         100, 255, 120, interfaceCtx->bAlpha);
     gDPPipeSync(OVERLAY_DISP++);
+
+    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(
+        &gSaveContext.save.saveInfo.equips.equipsSlotGetter, play, CONTROLLER1(&play->state));
+
+    for (uint8_t i = 0; i < slots.count; i++) {
+        ArbitraryItemEquipButton* eqBtn = &slots.equips[i];
+        ArbitraryItemDrawParams drawParams = eqBtn->getDrawParams(eqBtn, play);
+        if (!drawParams.visible) {
+            continue;
+        }
+        // HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_LEFT);
+        OVERLAY_DISP = Gfx_DrawRect_DropShadow(
+            OVERLAY_DISP, drawParams.rectLeft, drawParams.rectTop, drawParams.rectWidth, drawParams.rectHeight,
+            drawParams.dsdx * 2, drawParams.dtdy * 2, drawParams.r, drawParams.g, drawParams.b, drawParams.a);
+    }
 
     // C-Left Button Color & Texture
     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_LEFT);
@@ -5595,6 +5793,48 @@ void Interface_DrawItemIconTexture(PlayState* play, TexturePtr texture, s16 butt
     CLOSE_DISPS(play->state.gfxCtx);
 }
 
+void Interface_DrawItemIconTextureArb(PlayState* play, TexturePtr texture, ArbitraryItemEquipButton* arbEquipment) {
+    static s16 D_801BFAFC[] = { 30, 24, 24, 24 };
+
+    OPEN_DISPS(play->state.gfxCtx);
+
+    gDPLoadTextureBlock(OVERLAY_DISP++, texture, G_IM_FMT_RGBA, G_IM_SIZ_32b, 32, 32, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+
+    // #region 2S2H [Cosmetic] Hud Editor
+    // HudEditor_SetActiveElement(button);
+    ArbitraryItemDrawParams drawParams = arbEquipment->getDrawParams(arbEquipment, play);
+    if (HudEditor_ShouldOverrideDraw()) {
+        if (CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) ==
+            HUD_EDITOR_ELEMENT_MODE_HIDDEN) {
+            hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+        } else {
+            // All of this information was derived from the original call to gSPTextureRectangle below
+            s16 rectLeft = drawParams.rectLeft;
+            s16 rectTop = drawParams.rectTop;
+            s16 rectWidth = drawParams.rectWidth;
+            s16 rectHeight = drawParams.rectHeight;
+            s16 dsdx = drawParams.dsdx;
+            s16 dtdy = drawParams.dtdy;
+
+            HudEditor_ModifyDrawValues(&rectLeft, &rectTop, &rectWidth, &rectHeight, &dsdx, &dtdy);
+
+            hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
+
+            gSPWideTextureRectangle(OVERLAY_DISP++, rectLeft << 2, rectTop << 2, (rectLeft + rectWidth) << 2,
+                                    (rectTop + rectHeight) << 2, G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+        }
+        // #endregion
+    } else {
+        gSPTextureRectangle(OVERLAY_DISP++, drawParams.rectLeft << 2, drawParams.rectTop << 2,
+                            (drawParams.rectLeft + drawParams.rectWidth) << 2,
+                            (drawParams.rectTop + drawParams.rectHeight) << 2, G_TX_RENDERTILE, 0, 0,
+                            drawParams.dsdx << 1, drawParams.dtdy << 1);
+    }
+
+    CLOSE_DISPS(play->state.gfxCtx);
+}
+
 s16 D_801BFB04[] = { 0xA2, 0xE4, 0xFA, 0x110 };
 s16 D_801BFB0C[] = { 0x23, 0x23, 0x33, 0x23 };
 
@@ -5666,6 +5906,77 @@ void Interface_DrawAmmoCount(PlayState* play, s16 button, s16 alpha) {
         HudEditor_SetActiveElement(button);
         OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[ammo], 8, 8, D_801BFB04[button] + 6,
                                           D_801BFB0C[button], 8, 8, 1 << 10, 1 << 10);
+    }
+
+    CLOSE_DISPS(play->state.gfxCtx);
+}
+
+void Interface_DrawAmmoCountArbEquip(PlayState* play, ArbitraryItemEquipButton* arbEquip, s16 alpha) {
+    u8 i;
+    u16 ammo;
+    OPEN_DISPS(play->state.gfxCtx);
+    i = arbEquip->getAssignedItemID(arbEquip);
+
+    if ((i == ITEM_DEKU_STICK) || (i == ITEM_DEKU_NUT) || (i == ITEM_BOMB) || (i == ITEM_BOW) ||
+        ((i >= ITEM_BOW_FIRE) && (i <= ITEM_BOW_LIGHT)) || (i == ITEM_BOMBCHU) || (i == ITEM_POWDER_KEG) ||
+        (i == ITEM_MAGIC_BEANS) || (i == ITEM_PICTOGRAPH_BOX)) {
+
+        if ((i >= ITEM_BOW_FIRE) && (i <= ITEM_BOW_LIGHT)) {
+            i = ITEM_BOW;
+        }
+
+        ammo = AMMO(i);
+
+        if (i == ITEM_PICTOGRAPH_BOX) {
+            if (!CHECK_QUEST_ITEM(QUEST_PICTOGRAPH)) {
+                ammo = 0;
+            } else {
+                ammo = 1;
+            }
+        }
+
+        gDPPipeSync(OVERLAY_DISP++);
+        // @bug Missing a gDPSetEnvColor here, which means the ammo count will be drawn with the last env color set.
+        // Once you have the magic meter, this becomes a non issue, as the magic meter will set the color to black,
+        // but prior to that, when certain conditions are met, the color will have last been set by the wallet icon
+        // causing the ammo count to be drawn incorrectly. This is most obvious when you get deku nuts early on, and
+        // the ammo count is drawn with a shade of green.
+        if (CVarGetInteger("gFixes.FixAmmoCountEnvColor", 0)) {
+            gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 255);
+        }
+
+        if (((i == ITEM_BOW) && (AMMO(i) == CUR_CAPACITY(UPG_QUIVER))) ||
+            ((i == ITEM_BOMB) && (AMMO(i) == CUR_CAPACITY(UPG_BOMB_BAG))) ||
+            ((i == ITEM_DEKU_STICK) && (AMMO(i) == CUR_CAPACITY(UPG_DEKU_STICKS))) ||
+            ((i == ITEM_DEKU_NUT) && (AMMO(i) == CUR_CAPACITY(UPG_DEKU_NUTS))) ||
+            ((i == ITEM_BOMBCHU) && (AMMO(i) == CUR_CAPACITY(UPG_BOMB_BAG))) ||
+            ((i == ITEM_POWDER_KEG) && (ammo == 1)) || ((i == ITEM_PICTOGRAPH_BOX) && (ammo == 1)) ||
+            ((i == ITEM_MAGIC_BEANS) && (ammo == 20))) {
+            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 120, 255, 0, alpha);
+        }
+
+        if ((u32)ammo == 0) {
+            gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 100, 100, 100, alpha);
+        }
+
+        for (i = 0; ammo >= 10; i++) {
+            ammo -= 10;
+        }
+
+        ArbitraryItemDrawParams drawParams = arbEquip->getDrawParams(arbEquip, play);
+        // Draw upper digit (tens)
+        if ((u32)i != 0) {
+            // HudEditor_SetActiveElement(button);
+            OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[i], 8, 8, drawParams.ammoRectLeft,
+                                              drawParams.ammoRectTop, drawParams.ammoRectWidth,
+                                              drawParams.ammoRectHeight, drawParams.ammoDsdx, drawParams.ammoDtdy);
+        }
+
+        // Draw lower digit (ones)
+        // HudEditor_SetActiveElement(button);
+        OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, gAmmoDigitTextures[ammo], 8, 8, drawParams.ammoTensRectLeft,
+                                          drawParams.ammoTensRectTop, drawParams.ammoRectWidth,
+                                          drawParams.ammoRectHeight, drawParams.ammoDsdx, drawParams.ammoDtdy);
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -5812,6 +6123,31 @@ void Interface_DrawCButtonIcons(PlayState* play) {
     OPEN_DISPS(play->state.gfxCtx);
 
     gDPPipeSync(OVERLAY_DISP++);
+
+    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(
+        &gSaveContext.save.saveInfo.equips.equipsSlotGetter, play, CONTROLLER1(&play->state));
+
+    for (uint8_t i = 0; i < slots.count; i++) {
+        ArbitraryItemEquipButton* eqBtn = &slots.equips[i];
+        ArbitraryItemDrawParams drawParams = eqBtn->getDrawParams(eqBtn, play);
+        if (!drawParams.visible) {
+            continue;
+        }
+
+        gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, drawParams.a);
+        gDPSetCombineMode(OVERLAY_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+        ItemId item = eqBtn->getAssignedItemID(eqBtn);
+
+        if (item == ITEM_NONE) {
+            Interface_DrawItemIconTextureArb(play, gEmptyTexture, eqBtn);
+        } else {
+            Interface_DrawItemIconTextureArb(play, gItemIcons[item], eqBtn);
+        }
+        gDPPipeSync(OVERLAY_DISP++);
+        gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
+                          PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+        Interface_DrawAmmoCountArbEquip(play, eqBtn, drawParams.a);
+    }
 
     // C-Left Button Icon & Ammo Count
     if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_C_LEFT) < ITEM_F0) {
@@ -8891,6 +9227,9 @@ void Interface_Update(PlayState* play) {
             }
 
             Interface_UpdateButtonAlphasByStatus(play, risingAlpha);
+
+            FOREACH_SLOT(ARB_SLOTS(play, CONTROLLER1(&play->state)), arbSlot,
+                         { arbSlot->updateHudAlpha(arbSlot, play, HUD_VISIBILITY_ALL, dimmingAlpha); })
 
             if (gSaveContext.buttonStatus[5] == BTN_DISABLED) {
                 if (interfaceCtx->startAlpha != 70) {

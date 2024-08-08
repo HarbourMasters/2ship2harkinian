@@ -622,8 +622,8 @@ void EnRaf_Dissolve(EnRaf* this, PlayState* play) {
         this->dissolveTimer++;
         if (this->dissolveTimer < (BREG(3) + 105)) {
             for (i = 0; i < (BREG(4) + 5); i++) {
-                //#region 2S2H [Port] Instead of directly zeroing the texture pixels, set a texture mask.
-                // Applies to both loops.
+                // #region 2S2H [Port] Instead of directly zeroing the texture pixels, set a texture mask.
+                //  Applies to both loops.
                 EnRaf_ClearPixelPetal(sCurPetalMask, sPetalClearPixelTableFirstPass,
                                       this->petalClearPixelFirstPassIndex);
                 EnRaf_ClearPixelTeeth(sCurTeethMask, sTeethClearPixelTableFirstPass,

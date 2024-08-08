@@ -32,11 +32,27 @@ void from_json(const json& j, ShipSaveInfo& shipSaveInfo) {
     j.at("pauseSaveEntrance").get_to(shipSaveInfo.pauseSaveEntrance);
 }
 
+// void from_json(const json& j, );
+
 void to_json(json& j, const ItemEquips& itemEquips) {
+    std::vector<json> a;
+    if(itemEquips.equipsSlotGetter.getEquipSlots != nullptr){
+        FOREACH_SLOT(
+            itemEquips.equipsSlotGetter.getEquipSlots(&itemEquips.equipsSlotGetter, nullptr, nullptr), 
+            arbSlot, 
+            {
+                a.push_back(json{
+                    {"id", arbSlot->getID(arbSlot)},
+                    {"assignedItemSlot", arbSlot->getAssignedItemSlot(arbSlot)}
+                });
+            }
+        );
+    }
     j = json{
         { "buttonItems", itemEquips.buttonItems },
         { "cButtonSlots", itemEquips.cButtonSlots },
         { "equipment", itemEquips.equipment },
+        { "arbitraryEquipmentSlots", a },
     };
 }
 
@@ -46,6 +62,30 @@ void from_json(const json& j, ItemEquips& itemEquips) {
     for (int i = 0; i < ARRAY_COUNT(itemEquips.buttonItems); i++) {
         j.at("buttonItems").at(i).get_to(itemEquips.buttonItems[i]);
         j.at("cButtonSlots").at(i).get_to(itemEquips.cButtonSlots[i]);
+    }
+
+    size_t arbCount = 0;
+    if(j.contains("arbitraryEquipmentSlots")){
+        arbCount = j.at("arbitraryEquipmentSlots").size();
+    }
+    
+    initItemEquips(&itemEquips);
+
+    ArbitraryItemEquipSet slots = itemEquips.equipsSlotGetter.getEquipSlots(&itemEquips.equipsSlotGetter, NULL, NULL);
+    
+    for(int i = 0; i < slots.count; i++){
+        ArbitraryItemEquipButton& a = slots.equips[i];
+        
+        for(size_t k = 0; k < arbCount ; k++){
+            std::string parsedId;
+            j.at("arbitraryEquipmentSlots").at(k).at("id").get_to(parsedId);
+
+            if(parsedId == a.getID(&a)){
+                InventorySlot itemSlot;
+                j.at("arbitraryEquipmentSlots").at(k).at("assignedItemSlot").get_to(itemSlot);
+                a.assignItemSlot(&a, itemSlot); // TODO
+            }
+        }
     }
 }
 

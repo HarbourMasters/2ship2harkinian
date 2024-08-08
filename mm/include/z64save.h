@@ -7,6 +7,7 @@
 #include "z64math.h"
 #include "unk.h"
 #include "z64item.h"
+#include "padutils.h"
 
 struct GameState;
 struct PlayState;
@@ -199,11 +200,87 @@ typedef struct SramContext {
     /* 0x24 */ s16 unk_24;
 } SramContext; // size = 0x28
 
+typedef struct ArbitraryItemDrawParams {
+    s16 rectLeft;
+    s16 rectTop;
+    s16 rectWidth;
+    s16 rectHeight;
+    u16 dsdx;
+    u16 dtdy;
+    s16 r;
+    s16 g;
+    s16 b;
+    s16 a;
+
+    uint8_t visible;
+
+    s16 ammoRectLeft;
+    s16 ammoRectTop;
+    s16 ammoTensRectLeft;
+    s16 ammoTensRectTop;
+
+    s16 ammoRectWidth;
+    s16 ammoRectHeight;
+    u16 ammoDsdx;
+    u16 ammoDtdy;
+} ArbitraryItemDrawParams;
+
+typedef struct ArbitraryItemEquipButton {
+    void* userData;
+
+    // Logic checks
+    uint8_t (*canTakeAssignment)(struct ArbitraryItemEquipButton* self, ItemId item);
+    uint8_t (*assignmentTriggered)(struct ArbitraryItemEquipButton* self, Input* input);
+    uint8_t (*activateItem)(struct ArbitraryItemEquipButton* self, Input* input, uint8_t buttonState);
+    uint8_t (*tradeItem)(struct ArbitraryItemEquipButton* self, Input* input);
+    ArbitraryItemDrawParams (*getDrawParams)(struct ArbitraryItemEquipButton* self, struct PlayState *play);
+    InventorySlot (*getAssignedItemSlot)(struct ArbitraryItemEquipButton* self);
+    InventorySlot (*assignItemSlot)(struct ArbitraryItemEquipButton* self, InventorySlot item);
+
+    uint8_t (*setDisabled)(struct ArbitraryItemEquipButton* self, uint8_t disabled);
+    uint8_t (*isDisabled)(struct ArbitraryItemEquipButton* self);
+    void (*updateHudAlpha)(struct ArbitraryItemEquipButton* self, struct PlayState *play, HudVisibility hudMode, s16 dimmingAlpha);
+    
+    const char* (*getID)(struct ArbitraryItemEquipButton* self);
+    ItemId (*getAssignedItemID)(struct ArbitraryItemEquipButton* self);
+} ArbitraryItemEquipButton;
+
+typedef struct ArbitraryItemEquipSet {
+    ArbitraryItemEquipButton *equips;
+    u8 count;
+    /**
+     * Returns the index of the slot with specified item, or -1 if none found.
+     */
+    int (*findSlotWithItem)(struct ArbitraryItemEquipSet* thisSet, uint16_t item);
+} ArbitraryItemEquipSet;
+
+#define ARB_SLOTS(play, input) gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots ? (gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(&gSaveContext.save.saveInfo.equips.equipsSlotGetter, play, input)) : (ArbitraryItemEquipSet){0,0,0}
+
+#define FOREACH_SLOT(slots, curentSlotName, code) \
+    {\
+    ArbitraryItemEquipSet _arbitrarySlotsToIterate = slots; \
+    for(size_t _arbitraryItemSlotIndex = 0; _arbitraryItemSlotIndex < _arbitrarySlotsToIterate.count; _arbitraryItemSlotIndex++){\
+        ArbitraryItemEquipButton* curentSlotName = &_arbitrarySlotsToIterate.equips[_arbitraryItemSlotIndex];\
+        {\
+            code \
+        }\
+    } \
+    }
+
+typedef struct ArbitraryEquipsSlotGetter {
+    void* userData;
+    ArbitraryItemEquipSet (*getEquipSlots)(const struct ArbitraryEquipsSlotGetter* self, struct PlayState *play, Input* input);
+} ItemEquipsIniter;
+
 typedef struct ItemEquips {
     /* 0x00 */ u8 buttonItems[4][4];                    // "register_item"
     /* 0x10 */ u8 cButtonSlots[4][4];                   // "register_item_pt"
     /* 0x20 */ u16 equipment;
+
+    struct ArbitraryEquipsSlotGetter equipsSlotGetter;
 } ItemEquips; // size = 0x22
+
+extern void initItemEquips(ItemEquips* equips);
 
 typedef struct Inventory {
     /* 0x00 */ u8 items[48];                            // "item_register", first 24 elements are normal items and the other 24 are masks

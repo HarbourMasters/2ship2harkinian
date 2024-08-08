@@ -3426,6 +3426,7 @@ void KaleidoScope_Update(PlayState* play) {
 
                 case PAUSE_MAIN_STATE_EQUIP_ITEM:
                     KaleidoScope_UpdateItemEquip(play);
+                    KaleidoScope_UpdateItemEquipArbitrary(play);
                     break;
 
                 case PAUSE_MAIN_STATE_SONG_PROMPT_INIT:
@@ -3500,6 +3501,7 @@ void KaleidoScope_Update(PlayState* play) {
 
                 case PAUSE_MAIN_STATE_EQUIP_MASK:
                     KaleidoScope_UpdateMaskEquip(play);
+                    KaleidoScope_UpdateMaskEquipArbitrary(play);
                     break;
 
                 case PAUSE_MAIN_STATE_BOMBERS_NOTEBOOK_OPEN:

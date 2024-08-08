@@ -37,6 +37,7 @@
 #include "fault.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 // extern FaultMgr gFaultMgr;
 
 #define PADMGR_RETRACE_MSG (1 << 0)
@@ -499,6 +500,20 @@ void PadMgr_UpdateInputs(void) {
         diff = input->prev.button ^ input->cur.button;
         input->press.button |= (u16)(diff & input->cur.button);
         input->rel.button |= (u16)(diff & input->prev.button);
+
+        if (input->cur.intentControls != input->prev.intentControls) {
+            input->prev.intentControls = input->cur.intentControls;
+        }
+        if (input->cur.intentControls != input->press.intentControls) {
+            input->press.intentControls = input->cur.intentControls;
+        }
+        if (input->cur.intentControls != input->rel.intentControls) {
+            input->rel.intentControls = input->cur.intentControls;
+        }
+
+        if (input->cur.intentControls != NULL) {
+            input->cur.intentControls->updateState(input->cur.intentControls->userData);
+        }
 
         if (1) {}
         PadMgr_AdjustInput(input);

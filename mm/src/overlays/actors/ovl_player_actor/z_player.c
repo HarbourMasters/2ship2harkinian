@@ -46,6 +46,7 @@
 #include "objects/object_link_child/object_link_child.h"
 
 #include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
+#include "intent-control-types.h"
 
 #define THIS ((Player*)thisx)
 
@@ -3606,6 +3607,21 @@ s32 Player_ItemIsInUse(Player* this, ItemId item) {
         return false;
     }
 }
+s32 Player_ItemIsInUseAnyArbitraryEquipment(Player* this) {
+    ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(
+        &gSaveContext.save.saveInfo.equips.equipsSlotGetter, NULL, NULL);
+    for (size_t i = 0; i < slots.count; i++) {
+        ArbitraryItemEquipButton* e = &slots.equips[i];
+
+        ItemId item = e->getAssignedItemID(e);
+
+        if ((item < ITEM_FD) && (Player_ItemToItemAction(this, item) == this->itemAction)) {
+            return true;
+        }
+    }
+
+    return false;
+}
 
 s32 Player_ItemIsItemAction(Player* this, ItemId item, PlayerItemAction itemAction) {
     if ((item < ITEM_FD) && (Player_ItemToItemAction(this, item) == itemAction)) {
@@ -3715,7 +3731,21 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
             }
             // #endregion
 
-            if (btn <= EQUIP_SLOT_NONE) {
+            ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(
+                &gSaveContext.save.saveInfo.equips.equipsSlotGetter, NULL, NULL);
+            ArbitraryItemEquipButton* targetArbSlot = NULL;
+            for (size_t i = 0; i < slots.count; i++) {
+                ArbitraryItemEquipButton* e = &slots.equips[i];
+
+                ItemId item = e->getAssignedItemID(e);
+
+                if (Player_ItemIsItemAction(this, item, maskItemAction)) {
+                    targetArbSlot = e;
+                    break;
+                }
+            }
+
+            if (btn <= EQUIP_SLOT_NONE && targetArbSlot == NULL) {
                 // #region 2S2H [Dpad] - need to convert between helditem value to actual item
                 ItemId maskItem;
                 if (IS_HELD_DPAD(this->unk_154)) {
@@ -3754,7 +3784,8 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
            // #end region
            Player_ItemIsInUse(this, C_BTN_ITEM(EQUIP_SLOT_C_LEFT)) ||
            Player_ItemIsInUse(this, C_BTN_ITEM(EQUIP_SLOT_C_DOWN)) ||
-           Player_ItemIsInUse(this, C_BTN_ITEM(EQUIP_SLOT_C_RIGHT))))) {
+           Player_ItemIsInUse(this, C_BTN_ITEM(EQUIP_SLOT_C_RIGHT)) ||
+           Player_ItemIsInUseAnyArbitraryEquipment(this)))) {
         Player_UseItem(play, this, ITEM_NONE);
     } else {
         s32 pad;
@@ -3781,6 +3812,20 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
         }
         // #endregion
 
+        ArbitraryItemEquipSet slots = gSaveContext.save.saveInfo.equips.equipsSlotGetter.getEquipSlots(
+            &gSaveContext.save.saveInfo.equips.equipsSlotGetter, play, CONTROLLER1(&play->state));
+        ArbitraryItemEquipButton* arbitraryEquipSlot = NULL;
+        for (size_t arbIndex = 0; arbIndex < slots.count; arbIndex++) {
+            ArbitraryItemEquipButton* arb = &slots.equips[arbIndex];
+            if (arb->activateItem(arb, sPlayerControlInput, BUTTON_STATE_PRESS)) {
+                arbitraryEquipSlot = arb;
+
+                i = EQUIP_SLOT_MAX;
+                item = arb->getAssignedItemID(arb);
+                break;
+            }
+        }
+
         if (item >= ITEM_FD) {
             for (i = 0; i < ARRAY_COUNT(sPlayerItemButtons); i++) {
                 if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, sPlayerItemButtons[i])) {
@@ -3789,6 +3834,17 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
             }
 
             item = Player_GetItemOnButton(play, this, i);
+
+            for (size_t arbIndex = 0; arbIndex < slots.count; arbIndex++) {
+                ArbitraryItemEquipButton* arb = &slots.equips[arbIndex];
+                if (arb->activateItem(arb, sPlayerControlInput, BUTTON_STATE_CUR)) {
+                    i = EQUIP_SLOT_MAX;
+
+                    item = arb->getAssignedItemID(arb);
+                    break;
+                }
+            }
+
             if ((item < ITEM_FD) && (Player_ItemToItemAction(this, item) == this->heldItemAction)) {
                 sPlayerHeldItemButtonIsHeldDown = true;
             }
@@ -3830,6 +3886,7 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
             }
         } else {
             this->heldItemButton = i;
+            this->heldArbitrarySlot = arbitraryEquipSlot;
             Player_UseItem(play, this, item);
         }
     }
@@ -7794,7 +7851,8 @@ s32 Player_ActionChange_4(Player* this, PlayState* play) {
                                 return false;
                             }
 
-                            if (CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_A) ||
+                            if (CHECK_INTENT((sPlayerControlInput->press.intentControls), INTENT_CONTROL_TALK,
+                                             BUTTON_STATE_PRESS, 0) ||
                                 (talkActor->flags & ACTOR_FLAG_10000)) {
                                 var_a1 = NULL;
                             } else if (var_a1 == NULL) {
@@ -7970,7 +8028,7 @@ s32 func_80839A84(PlayState* play, Player* this) {
 }
 
 s32 Player_ActionChange_10(Player* this, PlayState* play) {
-    if (CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_A) &&
+    if (CHECK_INTENT((sPlayerControlInput->press.intentControls), INTENT_CONTROL_JUMP, BUTTON_STATE_PRESS, 0) &&
         (play->roomCtx.curRoom.behaviorType1 != ROOM_BEHAVIOR_TYPE1_2) && (sPlayerFloorType != FLOOR_TYPE_7) &&
         (sPlayerFloorEffect != FLOOR_EFFECT_1)) {
         s32 temp_a2 = this->unk_AE3[this->unk_ADE];
@@ -8100,7 +8158,9 @@ s32 Player_ActionChange_6(Player* this, PlayState* play) {
     if (!D_80862B04 && !(this->stateFlags1 & PLAYER_STATE1_800000) && !func_8082FB68(this)) {
         if ((this->transformation == PLAYER_FORM_ZORA) && (this->stateFlags1 & PLAYER_STATE1_8000000)) {
             func_8083A04C(this);
-        } else if (CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_A) && !func_8082FB68(this)) {
+        } else if (CHECK_INTENT((sPlayerControlInput->press.intentControls), INTENT_CONTROL_ROLL, BUTTON_STATE_PRESS,
+                                0) &&
+                   !func_8082FB68(this)) {
             if (this->transformation == PLAYER_FORM_GORON) {
                 if (func_80839F98(play, this)) {
                     return true;
@@ -17535,6 +17595,38 @@ void Player_Action_68(Player* this, PlayState* play) {
                     }
                 }
                 // #endregion
+                else {
+                    FOREACH_SLOT(ARB_SLOTS(play, CONTROLLER1(&play->state)), arbSlot, {
+                        ItemId item = arbSlot->getAssignedItemID(arbSlot);
+                        if (item == ITEM_BOTTLE) {
+                            Actor* interactRangeActor = this->interactRangeActor;
+
+                            if (interactRangeActor != NULL) {
+                                struct_8085D798* entry = D_8085D798;
+                                s32 i;
+
+                                for (i = 0; i < ARRAY_COUNT(D_8085D798); i++) {
+                                    if (((interactRangeActor->id == entry->actorId) &&
+                                         ((entry->actorParams <= BOTTLE_CATCH_PARAMS_ANY) ||
+                                          (interactRangeActor->params == entry->actorParams)))) {
+                                        break;
+                                    }
+                                    entry++;
+                                }
+
+                                if (i < ARRAY_COUNT(D_8085D798)) {
+                                    this->av1.actionVar1 = i + 1;
+                                    this->av2.actionVar2 = 0;
+                                    this->stateFlags1 |= PLAYER_STATE1_10000000 | PLAYER_STATE1_20000000;
+                                    interactRangeActor->parent = &this->actor;
+                                    Player_UpdateBottleHeld(play, this, entry->itemId, entry->itemAction);
+                                    func_8082DB90(play, this, sp24->unk_4);
+                                }
+                            }
+                            break;
+                        }
+                    })
+                }
             }
         }
 

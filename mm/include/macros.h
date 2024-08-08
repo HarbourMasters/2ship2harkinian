@@ -4,6 +4,7 @@
 #include "libc/stdint.h"
 #include "PR/os_convert.h"
 #include "main.h"
+#include "luslog.h"
 
 #define SCREEN_WIDTH  320
 #define SCREEN_HEIGHT 240
@@ -56,10 +57,20 @@
 // To be used with `Magic_Add`, but ensures enough magic is added to fill the magic bar to capacity
 #define MAGIC_FILL_TO_CAPACITY (((void)0, gSaveContext.magicFillTarget) + (gSaveContext.save.saveInfo.playerData.isDoubleMagicAcquired + 1) * MAGIC_NORMAL_METER)
 
-#define CHECK_BTN_ALL(state, combo) (~((state) | ~(combo)) == 0)
-#define CHECK_BTN_ANY(state, combo) (((state) & (combo)) != 0)
+#define _debug_btnAny(state, combo, file, line) ( \
+    ((((state) & (combo)) != 0) && (combo & BTN_CRIGHT) ? (lusprintf(file, line, LUSLOG_LEVEL_DEBUG, "BTN_CRIGHT button ANY pressed.\n"),0) : 0 ), \
+    (((state) & (combo)) != 0) \
+)
 
-#define CHECK_FLAG_ALL(flags, mask) (((flags) & (mask)) == (mask))
+#define _debug_btnAll(state, combo, file, line) ( \
+    ((~((state) | ~(combo)) == 0) && (combo & BTN_CRIGHT) ? (lusprintf(file, line, LUSLOG_LEVEL_DEBUG, "BTN_CRIGHT button ALL pressed.\n"),0) : 0 ), \
+    ((~((state) | ~(combo)) == 0) != 0) \
+)
+
+#define CHECK_BTN_ALL(state, combo) _debug_btnAll(state, combo, __FILE__, __LINE__)
+#define CHECK_BTN_ANY(state, combo) _debug_btnAny(state, combo, __FILE__, __LINE__)
+
+#define CHECK_FLAG_ALL(flags, mask) (((flags) & (mask)) ==  (mask))
 
 #define BIT_FLAG_TO_SHIFT(flag) \
     ((flag & 0x80) ? 7 : \

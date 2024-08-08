@@ -424,11 +424,14 @@ void KaleidoScope_SetCursorVtxPos(PauseContext* pauseCtx, u16 vtxIndex, Vtx* vtx
 void KaleidoScope_DrawItemSelect(PlayState* play);
 void KaleidoScope_UpdateItemCursor(PlayState* play);
 void KaleidoScope_UpdateItemEquip(PlayState* play);
+void KaleifoScope_SetArbitraryButton(PauseContext *pauseCtx, PlayState* play, ArbitraryItemEquipButton *arbEquip);
+void KaleidoScope_UpdateItemEquipArbitrary(PlayState* play);
 
 // Mask
 void KaleidoScope_DrawMaskSelect(PlayState* play);
 void KaleidoScope_UpdateMaskCursor(PlayState* play);
 void KaleidoScope_UpdateMaskEquip(PlayState* play);
+void KaleidoScope_UpdateMaskEquipArbitrary(PlayState* play);
 
 // Prompt
 void KaleidoScope_UpdatePrompt(PlayState* play);
