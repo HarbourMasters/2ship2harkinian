@@ -19,6 +19,7 @@
 #include "archives/map_name_static/map_name_static.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h/Enhancements/Saving/SavingEnhancements.h"
+#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 
 #include "2s2h_assets.h"
 
@@ -4138,6 +4139,7 @@ void KaleidoScope_Update(PlayState* play) {
             gSaveContext.hudVisibility = HUD_VISIBILITY_IDLE;
             Interface_SetHudVisibility(sUnpausedHudVisibility);
             Audio_SetPauseState(false);
+            GameInteractor_ExecuteOnKaleidoClose();
             break;
 
         default:

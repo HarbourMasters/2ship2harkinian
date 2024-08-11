@@ -672,6 +672,8 @@ void KaleidoScope_UpdateMaskCursor(PlayState* play) {
                     sMaskEquipState = EQUIP_STATE_MOVE_TO_C_BTN;
                     sMaskEquipAnimTimer = 10;
                     Audio_PlaySfx(NA_SE_SY_DECIDE);
+                    // EasyMaskEquip check disables the mask description textbox from appearing when a mask is selected
+                    // with A button.
                 } else if ((pauseCtx->debugEditor == DEBUG_EDITOR_NONE) && (pauseCtx->state == PAUSE_STATE_MAIN) &&
                            (pauseCtx->mainState == PAUSE_MAIN_STATE_IDLE) &&
                            CHECK_BTN_ALL(input->press.button, BTN_A) && (msgCtx->msgLength == 0)) {

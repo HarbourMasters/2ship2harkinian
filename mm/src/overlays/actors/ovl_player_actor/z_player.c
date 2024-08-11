@@ -47,6 +47,8 @@
 
 #include "2s2h/GameInteractor/GameInteractor.h"
 
+#include "2s2h/Enhancements/Masks/EasyMaskEquip.h"
+
 #define THIS ((Player*)thisx)
 
 void Player_Init(Actor* thisx, PlayState* play);
@@ -3730,8 +3732,12 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
                 if ((maskIdMinusOne < PLAYER_MASK_TRUTH - 1) || (maskIdMinusOne >= PLAYER_MASK_MAX - 1)) {
                     maskIdMinusOne = this->currentMask - 1;
                 }
-                Player_UseItem(play, this, Player_MaskIdToItemId(maskIdMinusOne));
-                return;
+
+                // EasyMaskEquip check allows equipping a mask without it being on a C button or D button
+                if (!EasyMaskEquip_IsEnabled()) {
+                    Player_UseItem(play, this, Player_MaskIdToItemId(maskIdMinusOne));
+                    return;
+                }
             }
 
             if ((this->currentMask == PLAYER_MASK_GIANT) && (gSaveContext.save.saveInfo.playerData.magic == 0)) {

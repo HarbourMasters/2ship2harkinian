@@ -614,6 +614,9 @@ void DrawEnhancementsMenu() {
                                                      "'A' on it in the mask menu." })) {
                 UpdatePersistentMasksState();
             }
+            UIWidgets::CVarCheckbox(
+                "Easy Mask Equip", "gEnhancements.Masks.EasyMaskEquip",
+                { .tooltip = "Allows you to equip masks directly from the pause menu by pressing A." });
 
             ImGui::EndMenu();
         }
