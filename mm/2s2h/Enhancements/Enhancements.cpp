@@ -12,6 +12,7 @@ void InitEnhancements() {
     RegisterMoonJumpOnL();
     RegisterUnbreakableRazorSword();
     RegisterUnrestrictedItems();
+    RegisterTimeStopInTemples();
 
     // Clock
     RegisterTextBasedClock();
@@ -48,6 +49,7 @@ void InitEnhancements() {
 
     // Songs
     RegisterEnableSunsSong();
+    RegisterPauseOwlWarp();
 
     // Restorations
     RegisterPowerCrouchStab();

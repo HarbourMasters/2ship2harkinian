@@ -1329,6 +1329,8 @@ void osContGetReadData(OSContPad* pad);
 void PadMgr_ThreadEntry();
 void Heaps_Alloc(void);
 void Player_UseItem(PlayState* play, Player* this, ItemId item);
+void KaleidoScope_UpdateOwlWarpNamePanel(PlayState* play);
+void KaleidoScope_UpdateNamePanel(PlayState* play);
 // #endregion
 // #region 2S2H [Port] New methods added for porting
 void AudioSeq_SetPortVolumeScale(u8 seqPlayerIndex, f32 volume);

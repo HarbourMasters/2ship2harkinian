@@ -25,6 +25,8 @@
 
 #include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 
+#include "2s2h/Enhancements/Songs/PauseOwlWarp.h"
+
 // Page Textures (Background of Page):
 // Broken up into multiple textures.
 // Numbered by column/row.
@@ -2910,7 +2912,7 @@ void KaleidoScope_UpdateCursorSize(PlayState* play) {
 
             case PAUSE_MAP:
                 if (!sInDungeonScene) {
-                    if (IS_PAUSE_STATE_OWLWARP) {
+                    if (IS_PAUSE_STATE_OWLWARP || PauseOwlWarp_IsOwlWarpEnabled()) {
                         pauseCtx->cursorX = sOwlWarpWorldMapCursorsX[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]];
                         pauseCtx->cursorY = sOwlWarpWorldMapCursorsY[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]];
                     } else {

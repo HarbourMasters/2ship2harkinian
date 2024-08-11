@@ -57,6 +57,12 @@ static const std::unordered_map<int32_t, const char*> alwaysWinDoggyraceOptions 
     { ALWAYS_WIN_DOGGY_RACE_ALWAYS, "Always" },
 };
 
+static const std::unordered_map<int32_t, const char*> timeStopOptions = {
+    { TIME_STOP_OFF, "Off" },
+    { TIME_STOP_TEMPLES, "Temples" },
+    { TIME_STOP_TEMPLES_DUNGEONS, "Temples + Mini Dungeons" },
+};
+
 namespace BenGui {
 std::shared_ptr<std::vector<Ship::WindowBackend>> availableWindowBackends;
 std::unordered_map<Ship::WindowBackend, const char*> availableWindowBackendsMap;
@@ -556,11 +562,10 @@ void DrawEnhancementsMenu() {
                 { .tooltip =
                       "Disables the distance check for scene geometry, allowing it to be drawn no matter how far "
                       "away it is from the player. This may have unintended side effects." });
-            // BENTODO: Not implemented yet
-            // UIWidgets::CVarCheckbox("Widescreen Actor Culling",
-            //                         "gEnhancements.Graphics.ActorCullingAccountsForWidescreen",
-            //                         { .tooltip = "Adjusts the culling planes to account for widescreen resolutions. "
-            //                                      "This may have unintended side effects." });
+            UIWidgets::CVarCheckbox("Widescreen Actor Culling",
+                                    "gEnhancements.Graphics.ActorCullingAccountsForWidescreen",
+                                    { .tooltip = "Adjusts the culling planes to account for widescreen resolutions. "
+                                                 "This may have unintended side effects." });
             if (UIWidgets::CVarSliderInt(
                     "Increase Actor Draw Distance: %dx", "gEnhancements.Graphics.IncreaseActorDrawDistance", 1, 5, 1,
                     { .tooltip =
@@ -650,6 +655,9 @@ void DrawEnhancementsMenu() {
                                     { .tooltip = "Enables using the Dpad for Ocarina playback." });
             UIWidgets::CVarCheckbox("Prevent Dropped Ocarina Inputs", "gEnhancements.Playback.NoDropOcarinaInput",
                                     { .tooltip = "Prevent dropping inputs when playing the ocarina quickly" });
+            UIWidgets::CVarCheckbox("Pause Owl Warp", "gEnhancements.Songs.PauseOwlWarp",
+                                    { .tooltip = "Allows the player to use the pause menu map to owl warp instead of "
+                                                 "having to play the Song of Soaring." });
 
             ImGui::EndMenu();
         }
@@ -681,6 +689,14 @@ void DrawCheatsMenu() {
                                     { .tooltip = "Holding L makes you float into the air" })) {
             RegisterMoonJumpOnL();
         }
+        UIWidgets::CVarCombobox(
+            "Stop Time in Dungeons", "gCheats.TempleTimeStop", timeStopOptions,
+            { .tooltip = "Stops time from advancing in selected areas. Requires a room change to update.\n\n"
+                         "- Off: Vanilla behaviour.\n"
+                         "- Temples: Stops time in Woodfall, Snowhead, Great Bay, and Stone Tower Temples.\n"
+                         "- Temples + Mini Dungeons: In addition to the above temples, stops time in both Spider "
+                         "Houses, Pirate's Fortress, Beneath the Well, Ancient Castle of Ikana, and Secret Shrine.",
+              .defaultIndex = TIME_STOP_OFF });
 
         ImGui::EndMenu();
     }

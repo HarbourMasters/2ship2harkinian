@@ -11,6 +11,7 @@
 #include "Cheats/Cheats.h"
 #include "Cheats/UnbreakableRazorSword.h"
 #include "Cheats/UnrestrictedItems.h"
+#include "Cheats/TimeStop.h"
 #include "Cycle/EndOfCycle.h"
 #include "Equipment/SkipMagicArrowEquip.h"
 #include "Masks/BlastMaskKeg.h"
@@ -28,6 +29,7 @@
 #include "Graphics/PlayAsKafei.h"
 #include "Player/Player.h"
 #include "Songs/EnableSunsSong.h"
+#include "Songs/PauseOwlWarp.h"
 #include "Saving/SavingEnhancements.h"
 #include "Graphics/DisableBlackBars.h"
 #include "Modes/TimeMovesWhenYouMove.h"
@@ -36,6 +38,12 @@ enum AlwaysWinDoggyRaceOptions {
     ALWAYS_WIN_DOGGY_RACE_OFF,
     ALWAYS_WIN_DOGGY_RACE_MASKOFTRUTH,
     ALWAYS_WIN_DOGGY_RACE_ALWAYS,
+};
+
+enum TimeStopOptions {
+    TIME_STOP_OFF,
+    TIME_STOP_TEMPLES,
+    TIME_STOP_TEMPLES_DUNGEONS,
 };
 
 enum ClockTypeOptions {
