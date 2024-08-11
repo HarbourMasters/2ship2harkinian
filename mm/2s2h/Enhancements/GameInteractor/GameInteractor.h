@@ -260,6 +260,9 @@ class GameInteractor {
     DEFINE_HOOK(OnGameStateUpdate, ());
     DEFINE_HOOK(OnConsoleLogoUpdate, ());
     DEFINE_HOOK(OnKaleidoUpdate, (PauseContext * pauseCtx));
+    DEFINE_HOOK(BeforeKaleidoDrawPage, (PauseContext * pauseCtx, u16 pauseIndex));
+    DEFINE_HOOK(AfterKaleidoDrawPage, (PauseContext * pauseCtx, u16 pauseIndex));
+    DEFINE_HOOK(OnKaleidoClose, ());
     DEFINE_HOOK(OnSaveInit, (s16 fileNum));
     DEFINE_HOOK(BeforeEndOfCycleSave, ());
     DEFINE_HOOK(AfterEndOfCycleSave, ());
@@ -276,6 +279,7 @@ class GameInteractor {
     DEFINE_HOOK(ShouldActorDraw, (Actor * actor, bool* should));
     DEFINE_HOOK(OnActorDraw, (Actor * actor));
     DEFINE_HOOK(OnActorKill, (Actor * actor));
+    DEFINE_HOOK(OnPlayerPostLimbDraw, (Player * player, s32 limbIndex));
 
     DEFINE_HOOK(OnSceneFlagSet, (s16 sceneId, FlagType flagType, u32 flag));
     DEFINE_HOOK(OnSceneFlagUnset, (s16 sceneId, FlagType flagType, u32 flag));
@@ -293,6 +297,9 @@ class GameInteractor {
     DEFINE_HOOK(ShouldItemGive, (u8 item, bool* should));
     DEFINE_HOOK(OnItemGive, (u8 item));
 
+    DEFINE_HOOK(OnMaskTransform, (Player * player, PlayerMask maskId));
+    DEFINE_HOOK(OnTransformationComplete, (Player * player));
+
     DEFINE_HOOK(ShouldVanillaBehavior, (GIVanillaBehavior flag, bool* should, void* optionalArg));
 };
 
@@ -304,6 +311,9 @@ void GameInteractor_ExecuteOnGameStateDrawFinish();
 void GameInteractor_ExecuteOnGameStateUpdate();
 void GameInteractor_ExecuteOnConsoleLogoUpdate();
 void GameInteractor_ExecuteOnKaleidoUpdate(PauseContext* pauseCtx);
+void GameInteractor_ExecuteBeforeKaleidoDrawPage(PauseContext* pauseCtx, u16 pauseIndex);
+void GameInteractor_ExecuteAfterKaleidoDrawPage(PauseContext* pauseCtx, u16 pauseIndex);
+void GameInteractor_ExecuteOnKaleidoClose();
 void GameInteractor_ExecuteOnSaveInit(s16 fileNum);
 void GameInteractor_ExecuteBeforeEndOfCycleSave();
 void GameInteractor_ExecuteAfterEndOfCycleSave();
@@ -320,6 +330,7 @@ void GameInteractor_ExecuteOnActorUpdate(Actor* actor);
 bool GameInteractor_ShouldActorDraw(Actor* actor);
 void GameInteractor_ExecuteOnActorDraw(Actor* actor);
 void GameInteractor_ExecuteOnActorKill(Actor* actor);
+void GameInteractor_ExecuteOnPlayerPostLimbDraw(Player* player, s32 limbIndex);
 
 void GameInteractor_ExecuteOnSceneFlagSet(s16 sceneId, FlagType flagType, u32 flag);
 void GameInteractor_ExecuteOnSceneFlagUnset(s16 sceneId, FlagType flagType, u32 flag);

@@ -36,6 +36,7 @@ void InitEnhancements() {
     RegisterFierceDeityAnywhere();
     RegisterBlastMaskKeg();
     RegisterNoBlastMaskCooldown();
+    RegisterEasyMaskEquip();
 
     // Minigames
     RegisterAlwaysWinDoggyRace();
