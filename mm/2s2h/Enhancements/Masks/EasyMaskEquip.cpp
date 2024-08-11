@@ -6,6 +6,8 @@
 extern "C" {
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "interface/parameter_static/parameter_static.h"
+#include "macros.h"
+extern u16 sMasksGivenOnMoonBits[];
 }
 
 static Vtx* easyMaskEquipVtx;
@@ -104,6 +106,22 @@ void HandleEasyMaskEquip(PauseContext* pauseCtx) {
         if (CHECK_BTN_ALL(CONTROLLER1(&gPlayState->state)->press.button, BTN_A)) {
             s16 cursorItem = pauseCtx->cursorItem[PAUSE_MASK];
             if (cursorItem != PAUSE_ITEM_NONE) {
+                Player* player = GET_PLAYER(gPlayState);
+
+                // Check if the player is underwater and trying to equip Deku or Goron mask
+                if ((Player_GetEnvironmentalHazard(gPlayState) >= PLAYER_ENV_HAZARD_UNDERWATER_FLOOR) &&
+                    (Player_GetEnvironmentalHazard(gPlayState) <= PLAYER_ENV_HAZARD_UNDERWATER_FREE) &&
+                    (cursorItem != ITEM_MASK_ZORA)) {
+                    Audio_PlaySfx(NA_SE_SY_ERROR);
+                    return;
+                }
+
+                // Check if the mask is given on the moon
+                if (CHECK_GIVEN_MASK_ON_MOON(cursorItem - ITEM_NUM_SLOTS)) {
+                    Audio_PlaySfx(NA_SE_SY_ERROR);
+                    return;
+                }
+
                 sPendingMask = cursorItem;
                 sIsTransforming =
                     (cursorItem == ITEM_MASK_DEKU || cursorItem == ITEM_MASK_GORON || cursorItem == ITEM_MASK_ZORA ||

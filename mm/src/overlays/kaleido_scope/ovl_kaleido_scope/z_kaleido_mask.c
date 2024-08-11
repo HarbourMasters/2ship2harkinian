@@ -10,6 +10,8 @@
 #include "BenGui/HudEditor.h"
 #include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 
+#include "macros.h"
+
 #include "2s2h/Enhancements/Masks/EasyMaskEquip.h"
 
 s16 sMaskEquipState = EQUIP_STATE_MAGIC_ARROW_GROW_ORB;
@@ -160,8 +162,6 @@ u8 gMaskPlayerFormSlotRestrictions[PLAYER_FORM_MAX][MASK_NUM_SLOTS] = {
 
 #define SET_MOON_MASK_BIT(masksGivenOnMoonIndex, masksGivenOnMoonFlag) \
     ((masksGivenOnMoonIndex) << 8 | (masksGivenOnMoonFlag))
-#define CHECK_GIVEN_MASK_ON_MOON(maskIndex) \
-    (gSaveContext.masksGivenOnMoon[sMasksGivenOnMoonBits[maskIndex] >> 8] & (u8)sMasksGivenOnMoonBits[maskIndex])
 
 u16 sMasksGivenOnMoonBits[] = {
     SET_MOON_MASK_BIT(1, 0x1),  // SLOT_MASK_POSTMAN
