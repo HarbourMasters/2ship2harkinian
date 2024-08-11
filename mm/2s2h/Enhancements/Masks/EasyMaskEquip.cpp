@@ -10,6 +10,7 @@ extern "C" {
 
 static Vtx* easyMaskEquipVtx;
 static s16 sPendingMask = ITEM_NONE;
+static s16 sLastEquippedMask = ITEM_NONE;
 static bool sIsTransforming = false;
 
 extern "C" bool EasyMaskEquip_IsEnabled() {
@@ -145,17 +146,18 @@ void RegisterEasyMaskEquip() {
                     sPendingMask != ITEM_MASK_ZORA && sPendingMask != ITEM_MASK_FIERCE_DEITY &&
                     sPendingMask != ITEM_MASK_GIANT) {
                     if (player->transformation != PLAYER_FORM_HUMAN) {
-                        // Equip the new mask directly if not a transformation mask and player is not human
                         Player_UseItem(gPlayState, player, static_cast<ItemId>(sPendingMask));
+                        sLastEquippedMask = sPendingMask;
                         sIsTransforming = true;
                     } else {
-                        // Equip the new mask directly if not a transformation mask and player is human
                         Player_UseItem(gPlayState, player, static_cast<ItemId>(sPendingMask));
-                        sPendingMask = ITEM_NONE; // Clear pending mask after equipping
+                        sLastEquippedMask = sPendingMask;
+                        sPendingMask = ITEM_NONE;
                     }
                 } else {
-                    // Handle transformation masks
                     Player_UseItem(gPlayState, player, static_cast<ItemId>(sPendingMask));
+                    sLastEquippedMask = sPendingMask;
+                    sPendingMask = ITEM_NONE;
                     sIsTransforming = true;
                 }
             }
@@ -169,7 +171,8 @@ void RegisterEasyMaskEquip() {
                 if (player->skelAnime.curFrame == player->skelAnime.endFrame) {
                     if (sPendingMask != ITEM_NONE) {
                         Player_UseItem(gPlayState, player, static_cast<ItemId>(sPendingMask));
-                        sPendingMask = ITEM_NONE; // Clear pending mask after equipping
+                        sLastEquippedMask = sPendingMask;
+                        sPendingMask = ITEM_NONE;
                         sIsTransforming = false;
                     }
                 }
