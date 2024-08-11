@@ -115,6 +115,9 @@
 #define D_0F000000_TO_SEGMENTED (0x0F000000 | 1)
 // Used to compare animations. The statically linked global animations can end up with different pointer addresses if an animation gets set from one file and then compared against the static animation in another
 #define BEN_ANIM_EQUAL(anim1, anim2) ((anim1 == NULL) ? ((anim2 == NULL) ? true : false) : ((anim2 == NULL) ? false : strcmp(anim1, anim2) == 0))
+// Macro to check if a given mask has been given on the moon
+#define CHECK_GIVEN_MASK_ON_MOON(maskIndex) \
+    (gSaveContext.masksGivenOnMoon[sMasksGivenOnMoonBits[maskIndex] >> 8] & (u8)sMasksGivenOnMoonBits[maskIndex])
 // #endregion
 
 #endif // MACROS_H
