@@ -108,6 +108,14 @@ void HandleEasyMaskEquip(PauseContext* pauseCtx) {
             if (cursorItem != PAUSE_ITEM_NONE) {
                 Player* player = GET_PLAYER(gPlayState);
 
+                // Check if the player is in the air and trying to equip a transformation mask
+                if (!(player->actor.bgCheckFlags & BGCHECKFLAG_GROUND) &&
+                    (cursorItem == ITEM_MASK_DEKU || cursorItem == ITEM_MASK_GORON || cursorItem == ITEM_MASK_ZORA ||
+                     cursorItem == ITEM_MASK_FIERCE_DEITY || cursorItem == ITEM_MASK_GIANT)) {
+                    Audio_PlaySfx(NA_SE_SY_ERROR);
+                    return;
+                }
+
                 // Check if the player is underwater and trying to equip Deku or Goron mask
                 if ((Player_GetEnvironmentalHazard(gPlayState) >= PLAYER_ENV_HAZARD_UNDERWATER_FLOOR) &&
                     (Player_GetEnvironmentalHazard(gPlayState) <= PLAYER_ENV_HAZARD_UNDERWATER_FREE) &&
@@ -127,6 +135,7 @@ void HandleEasyMaskEquip(PauseContext* pauseCtx) {
                     (cursorItem == ITEM_MASK_DEKU || cursorItem == ITEM_MASK_GORON || cursorItem == ITEM_MASK_ZORA ||
                      cursorItem == ITEM_MASK_FIERCE_DEITY || cursorItem == ITEM_MASK_GIANT);
                 UpdateEasyMaskEquipVtx(pauseCtx);
+                Audio_PlaySfx(NA_SE_SY_DECIDE);
             }
         } else if (CHECK_BTN_ALL(CONTROLLER1(&gPlayState->state)->press.button, BTN_B)) {
             sPendingMask = ITEM_NONE;
