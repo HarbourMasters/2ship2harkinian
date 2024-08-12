@@ -23,8 +23,8 @@ void MotionBlur_RenderMenuOptions() {
               "This notably reduces the overall motion blur strength but smooths out the trails." });
 
     if (CVarGetInteger("gEnhancements.Graphics.MotionBlur.Mode", 0) == 0) {
-        UIWidgets::CVarCheckbox("On/Off", "gEnhancements.Graphics.MotionBlur.Toggle", 
-            { .tooltip = "Enables Motion Blur." });
+        UIWidgets::CVarCheckbox("On/Off", "gEnhancements.Graphics.MotionBlur.Toggle",
+                                { .tooltip = "Enables Motion Blur." });
     }
     if (CVarGetInteger("gEnhancements.Graphics.MotionBlur.Mode", 0) == 2 ||
         CVarGetInteger("gEnhancements.Graphics.MotionBlur.Toggle", 0) == 1) {

@@ -58,7 +58,7 @@ uint32_t enhSize = sizeof(enhancementList) / sizeof(enhancementList[0]);
 void DrawSearchSettings() {
     ImGui::Text("Search: ");
     ImGui::SameLine();
-    ImGui::PushStyleColor(ImGuiCol_FrameBg, menuTheme[CVarGetInteger("gSettings.MenuTheme", 0)]);
+    ImGui::PushStyleColor(ImGuiCol_FrameBg, menuTheme[menuThemeIndex]);
     ImGui::InputText("##search", searchText, sizeof(searchText));
     ImGui::PopStyleColor(1);
     std::string str(searchText);
@@ -69,7 +69,7 @@ void DrawSearchSettings() {
     }
     ImGui::BeginChild("Search Results");
     for (int i = 0; i < enhSize; i++) {
-        std::string ctr(enhancementList[i].cVarText);
+        std::string ctr(enhancementList[i].widgetName);
         std::transform(str.begin(), str.end(), str.begin(), ::tolower);
         str.erase(std::remove(str.begin(), str.end(), ' '), str.end());
         std::transform(ctr.begin(), ctr.end(), ctr.begin(), ::tolower);
@@ -107,7 +107,7 @@ void DrawAudioSettings() {
     auto currentAudioBackend = Ship::Context::GetInstance()->GetAudio()->GetAudioBackend();
     if (UIWidgets::Combobox(
             "Audio API", &currentAudioBackend, audioBackendsMap,
-            { .color = menuTheme[CVarGetInteger("gSettings.MenuTheme", 0)],
+            { .color = menuTheme[menuThemeIndex],
               .tooltip = "Sets the audio API used by the game. Requires a relaunch to take effect.",
               .disabled = Ship::Context::GetInstance()->GetAudio()->GetAvailableAudioBackends()->size() <= 1,
               .disabledTooltip = "Only one audio API is available on this platform." })) {
@@ -130,7 +130,7 @@ void DrawGraphicsSettings() {
     }
     //  #endregion */
     if (UIWidgets::Combobox("Renderer API (Needs reload)", &configWindowBackend, availableWindowBackendsMap,
-                            { .color = menuTheme[CVarGetInteger("gSettings.MenuTheme", 0)],
+                            { .color = menuTheme[menuThemeIndex],
                               .tooltip = "Sets the renderer API used by the game. Requires a relaunch to take effect.",
                               .disabled = availableWindowBackends->size() <= 1,
                               .disabledTooltip = "Only one renderer API is available on this platform." })) {
@@ -376,15 +376,14 @@ void DrawGeneralDevTools() {
             }
         }
     }
-    ImGui::PushStyleColor(ImGuiCol_Button, menuTheme[CVarGetInteger("gSettings.MenuTheme", 0)]);
+    ImGui::PushStyleColor(ImGuiCol_Button, menuTheme[menuThemeIndex]);
     RenderWarpPointSection();
     ImGui::PopStyleColor(1);
 }
 
 void DrawCollisionViewerContents() {
-    UIWidgets::WindowButton(
-        "Popout Collision Viewer", "gWindows.CollisionViewer", mCollisionViewerWindow,
-        { .color = menuTheme[CVarGetInteger("gSettings.MenuTheme", 0)], .tooltip = "Draws collision to the screen" });
+    UIWidgets::WindowButton("Popout Collision Viewer", "gWindows.CollisionViewer", mCollisionViewerWindow,
+                            { .color = menuTheme[menuThemeIndex], .tooltip = "Draws collision to the screen" });
     if (!CVarGetInteger("gWindows.CollisionViewer", 0)) {
         mCollisionViewerWindow->DrawElement();
     }
@@ -393,7 +392,7 @@ void DrawCollisionViewerContents() {
 void DrawStatsContents() {
     UIWidgets::WindowButton(
         "Popout Stats", "gOpenWindows.Stats", mStatsWindow,
-        { .color = menuTheme[CVarGetInteger("gSettings.MenuTheme", 0)],
+        { .color = menuTheme[menuThemeIndex],
           .tooltip = "Shows the stats window, with your FPS and frametimes, and the OS you're playing on" });
     if (!CVarGetInteger("gOpenWindows.Stats", 0)) {
         mStatsWindow->DrawElement();
@@ -403,7 +402,7 @@ void DrawStatsContents() {
 void DrawConsoleContents() {
     UIWidgets::WindowButton(
         "Popout Console", "gOpenWindows.Console", mConsoleWindow,
-        { .color = menuTheme[CVarGetInteger("gSettings.MenuTheme", 0)],
+        { .color = menuTheme[menuThemeIndex],
           .tooltip = "Enables the console window, allowing you to input commands, type help for some examples" });
     if (!CVarGetInteger("gOpenWindows.Console", 0)) {
         mConsoleWindow->DrawElement();
@@ -413,7 +412,7 @@ void DrawConsoleContents() {
 void DrawGfxDebuggerContents() {
     UIWidgets::WindowButton(
         "Popout Gfx Debugger", "gOpenWindows.GfxDebugger", mGfxDebuggerWindow,
-        { .color = menuTheme[CVarGetInteger("gSettings.MenuTheme", 0)],
+        { .color = menuTheme[menuThemeIndex],
           .tooltip = "Enables the Gfx Debugger window, allowing you to input commands, type help for some examples" });
     if (!CVarGetInteger("gOpenWindows.GfxDebugger", 0)) {
         mGfxDebuggerWindow->DrawElement();
@@ -422,7 +421,7 @@ void DrawGfxDebuggerContents() {
 
 void DrawSaveEditorContents() {
     UIWidgets::WindowButton("Popout Save Editor", "gWindows.SaveEditor", mSaveEditorWindow,
-                            { .color = menuTheme[CVarGetInteger("gSettings.MenuTheme", 0)],
+                            { .color = menuTheme[menuThemeIndex],
                               .tooltip = "Enables the Save Editor window, allowing you to edit your save file" });
     if (!CVarGetInteger("gWindows.SaveEditor", 0)) {
         mSaveEditorWindow->DrawElement();
@@ -432,7 +431,7 @@ void DrawSaveEditorContents() {
 void DrawActorViewerContents() {
     UIWidgets::WindowButton(
         "Popout Actor Viewer", "gWindows.ActorViewer", mActorViewerWindow,
-        { .color = menuTheme[CVarGetInteger("gSettings.MenuTheme", 0)],
+        { .color = menuTheme[menuThemeIndex],
           .tooltip = "Enables the Actor Viewer window, allowing you to view actors in the world." });
     if (!CVarGetInteger("gWindows.ActorViewer", 0)) {
         mActorViewerWindow->DrawElement();
@@ -442,7 +441,7 @@ void DrawActorViewerContents() {
 void DrawEventLogContents() {
     UIWidgets::WindowButton("Popout Event Log", "gWindows.EventLog", mEventLogWindow,
                             {
-                                .color = menuTheme[CVarGetInteger("gSettings.MenuTheme", 0)],
+                                .color = menuTheme[menuThemeIndex],
                             });
     if (!CVarGetInteger("gWindows.EventLog", 0)) {
         mActorViewerWindow->DrawElement();
@@ -555,8 +554,24 @@ void BenMenu::Draw() {
     SyncVisibilityConsoleVariable();
 }
 
+CVarVariant GetVariantCVar(disabledInfo* info) {
+    switch (info->conditionVal.index()) {
+        case 0:
+            return CVarGetInteger(info->cVar, std::get<int32_t>(info->cVarDefault));
+        default:
+        case 1:
+            return CVarGetString(info->cVar, std::get<const char*>(info->cVarDefault));
+        case 2:
+            return CVarGetFloat(info->cVar, std::get<float>(info->cVarDefault));
+    }
+}
+
 void BenMenu::DrawElement() {
-    SearchMenuUpdateDisabled();
+    for (auto& [reason, info] : disabledMap) {
+        CVarVariant state = GetVariantCVar(&info);
+        info.active = conditionFuncs.at(info.condition)(info.conditionVal, state);
+    }
+    menuThemeIndex = CVarGetInteger("gSettings.MenuTheme", 3);
 
     windowHeight = ImGui::GetMainViewport()->WorkSize.y;
     windowWidth = ImGui::GetMainViewport()->WorkSize.x;

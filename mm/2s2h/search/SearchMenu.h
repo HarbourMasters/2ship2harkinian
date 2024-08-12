@@ -1,4 +1,5 @@
 #include "2s2h/Enhancements/Enhancements.h"
+#include <variant>
 
 extern "C" {
 #include "functions.h"
@@ -9,6 +10,7 @@ using WidgetFunc = void (*)();
 std::string disabledTempTooltip;
 const char* disabledTooltip;
 bool disabledValue = false;
+int32_t menuThemeIndex = 1;
 
 std::vector<ImVec4> menuTheme = {
     ImVec4(1.0f, 1.0f, 1.0f, 1.0f),    ImVec4(0.4f, 0.4f, 0.4f, 1.0f), ImVec4(0.1f, 0.1f, 0.1f, 1.0f),
@@ -54,22 +56,63 @@ typedef enum {
     DEBUG_LOG_OFF,
 };
 
-struct widgetOptions {
-    int32_t min;
-    int32_t max;
-    int32_t defaultValue;
+typedef enum { DISABLE_FOR_DEBUG_CAM_ON, DISABLE_FOR_FREE_LOOK_ON, DISABLE_FOR_AUTO_SAVE_OFF } DisableOption;
+
+typedef enum { DISABLE_COND_LESS_THAN, DISABLE_COND_GREATER_THAN, DISABLE_COND_EQUAL_TO } DisableCondition;
+
+using CVarVariant = std::variant<int32_t, const char*, float>;
+
+struct WidgetOptions {
+    CVarVariant min;
+    CVarVariant max;
+    CVarVariant defaultValue;
     std::unordered_map<int32_t, const char*> comboBoxOptions;
 };
 
-struct cvarObject {
-    uint32_t cVarIndex;
-    const char* cVarText;
-    const char* cVarName;
-    const char* cVarTooltip;
+std::unordered_map<DisableCondition, bool (*)(CVarVariant, CVarVariant)> conditionFuncs = {
+    { DISABLE_COND_LESS_THAN,
+      [](CVarVariant state, CVarVariant conditionVal) -> bool {
+          assert((std::holds_alternative<float>(state) || std::holds_alternative<int32_t>(state)) &&
+                 (std::holds_alternative<float>(conditionVal) || std::holds_alternative<int32_t>(conditionVal)));
+          return state < conditionVal;
+      } },
+    { DISABLE_COND_GREATER_THAN,
+      [](CVarVariant state, CVarVariant conditionVal) -> bool {
+          assert((std::holds_alternative<float>(state) || std::holds_alternative<int32_t>(state)) &&
+                 (std::holds_alternative<float>(conditionVal) || std::holds_alternative<int32_t>(conditionVal)));
+          return state > conditionVal;
+      } },
+    { DISABLE_COND_EQUAL_TO,
+      [](CVarVariant state, CVarVariant conditionVal) -> bool { return state == conditionVal; } },
+};
+
+struct widgetInfo {
+    uint32_t widgetIndex;
+    const char* widgetName;
+    const char* widgetCVar;
+    const char* widgetTooltip;
     uint32_t widgetType;
-    widgetOptions cVarOptions;
-    WidgetFunc cVarFunction;
-    std::vector<const char*> disabledName;
+    WidgetOptions widgetOptions;
+    WidgetFunc widgetCallback = nullptr;
+    std::vector<DisableOption> disableOptions;
+};
+
+struct disabledInfo {
+    const char* cVar;
+    const char* reason;
+    DisableCondition condition;
+    CVarVariant cVarDefault;
+    CVarVariant conditionVal;
+    bool active = false;
+};
+
+std::unordered_map<DisableOption, disabledInfo> disabledMap = {
+    { DISABLE_FOR_DEBUG_CAM_ON,
+      { "gEnhancements.Camera.DebugCam.Enable", "Debug Camera is Enabled", DISABLE_COND_EQUAL_TO, false, true } },
+    { DISABLE_FOR_FREE_LOOK_ON,
+      { "gEnhancements.Camera.FreeLook.Enable", "Free Look is Enabled", DISABLE_COND_EQUAL_TO, false, true } },
+    { DISABLE_FOR_AUTO_SAVE_OFF,
+      { "gEnhancements.Saving.Autosave", "AutoSave is Disabled", DISABLE_COND_EQUAL_TO, false, false } }
 };
 
 std::unordered_map<int32_t, const char*> menuThemeOptions = {
@@ -102,7 +145,6 @@ static const std::unordered_map<int32_t, const char*> textureFilteringMap = {
     { FILTER_NONE, "None" },
 };
 
-
 static const std::unordered_map<int32_t, const char*> motionBlurOptions = {
     { MOTION_BLUR_DYNAMIC, "Dynamic (default)" },
     { MOTION_BLUR_ALWAYS_OFF, "Always Off" },
@@ -115,17 +157,10 @@ static const std::unordered_map<int32_t, const char*> debugSaveOptions = {
     { DEBUG_SAVE_INFO_NONE, "Empty save" },
 };
 
-
 static const std::unordered_map<int32_t, const char*> logLevels = {
     { DEBUG_LOG_TRACE, "Trace" }, { DEBUG_LOG_DEBUG, "Debug" }, { DEBUG_LOG_INFO, "Info" },
     { DEBUG_LOG_WARN, "Warn" },   { DEBUG_LOG_ERROR, "Error" }, { DEBUG_LOG_CRITICAL, "Critical" },
     { DEBUG_LOG_OFF, "Off" },
-};
-
-std::unordered_map<const char*, bool> disabledMap = {
-    { "Debug Camera is Enabled", false },
-    { "Free Look is Enabled", false },
-    { "AutoSave is Disabled", false },
 };
 
 typedef enum {
@@ -241,15 +276,14 @@ typedef enum {
     MENU_ITEM_FRAME_ADVANCE_HOLD,
 };
 
-cvarObject enhancementList[] = {
+widgetInfo enhancementList[] = {
     // Menu Theme
     { MENU_ITEM_MENU_THEME,
       "Menu Theme",
       "gSettings.MenuTheme",
       "Changes the Theme of the Menu Widgets.",
       COMBOBOX,
-      { 0, 0, 0, menuThemeOptions },
-      nullptr },
+      { 0, 0, 0, menuThemeOptions } },
     // General Settings
     { MENU_ITEM_MENUBAR_CONTROLLER_NAV,
       "Menubar Controller Navigation",
@@ -258,8 +292,7 @@ cvarObject enhancementList[] = {
       "This will disable game inputs while the menubar is visible.\n\nD-pad to move between "
       "items, A to select, and X to grab focus on the menu bar",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_CURSOR_VISIBILITY,
       "Cursor Always Visible",
       "gSettings.CursorVisibility",
@@ -276,22 +309,20 @@ cvarObject enhancementList[] = {
       "Prevents showing the text telling you the shortcut to open the menu\n"
       "when the menu isn't open.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     // Audio Settings
     { MENU_ITEM_MASTER_VOLUME,
       "Master Volume: %.2f%%",
       "gSettings.Audio.MasterVolume",
       "Adjust overall sound volume.",
       SLIDER_FLOAT,
-      { 0, 100, 100 },
-      nullptr },
+      { 0.0f, 100.0f, 100.0f } },
     { MENU_ITEM_MAIN_MUSIC_VOLUME,
       "Main Music Volume: %.2f%%",
       "gSettings.Audio.MainMusicVolume",
       "Adjust the Background Music volume.",
       SLIDER_FLOAT,
-      { 0, 100, 100 },
+      { 0.0f, 100.0f, 100.0f },
       ([]() {
           AudioSeq_SetPortVolumeScale(SEQ_PLAYER_BGM_MAIN, CVarGetFloat("gSettings.Audio.MainMusicVolume", 1.0f));
       }) },
@@ -300,7 +331,7 @@ cvarObject enhancementList[] = {
       "gSettings.Audio.SubMusicVolume",
       "Adjust the Sub Music volume.",
       SLIDER_FLOAT,
-      { 0, 100, 100 },
+      { 0.0f, 100.0f, 100.0f },
       ([]() {
           AudioSeq_SetPortVolumeScale(SEQ_PLAYER_BGM_SUB, CVarGetFloat("gSettings.Audio.SubMusicVolume", 1.0f));
       }) },
@@ -309,7 +340,7 @@ cvarObject enhancementList[] = {
       "gSettings.Audio.SoundEffectsVolume",
       "Adjust the Sound Effects volume.",
       SLIDER_FLOAT,
-      { 0, 100, 100 },
+      { 0.0f, 100.0f, 100.0f },
       ([]() {
           AudioSeq_SetPortVolumeScale(SEQ_PLAYER_SFX, CVarGetFloat("gSettings.Audio.SoundEffectsVolume", 1.0f));
       }) },
@@ -318,7 +349,7 @@ cvarObject enhancementList[] = {
       "gSettings.Audio.FanfareVolume",
       "Adjust the Fanfare volume.",
       SLIDER_FLOAT,
-      { 0, 100, 100 },
+      { 0.0f, 100.0f, 100.0f },
       ([]() {
           AudioSeq_SetPortVolumeScale(SEQ_PLAYER_FANFARE, CVarGetFloat("gSettings.Audio.FanfareVolume", 1.0f));
       }) },
@@ -327,7 +358,7 @@ cvarObject enhancementList[] = {
       "gSettings.Audio.AmbienceVolume",
       "Adjust the Ambient Sound volume.",
       SLIDER_FLOAT,
-      { 0, 100, 100 },
+      { 0.0f, 100.0f, 100.0f },
       ([]() {
           AudioSeq_SetPortVolumeScale(SEQ_PLAYER_AMBIENCE, CVarGetFloat("gSettings.Audio.AmbienceVolume", 1.0f));
       }) },
@@ -346,7 +377,7 @@ cvarObject enhancementList[] = {
       "Multiplies your output resolution by the value inputted, as a more intensive but effective "
       "form of anti-aliasing.",
       SLIDER_FLOAT,
-      { 50, 200, 100 },
+      { 50.0f, 200.0f, 100.0f },
       ([]() {
           Ship::Context::GetInstance()->GetWindow()->SetResolutionMultiplier(CVarGetFloat(CVAR_INTERNAL_RESOLUTION, 1));
       }) },
@@ -366,14 +397,13 @@ cvarObject enhancementList[] = {
       "purely visual and does not impact game logic, execution of glitches etc.\n\n A higher target "
       "FPS than your monitor's refresh rate will waste resources, and might give a worse result.",
       SLIDER_INT,
-      { 20, 360, 20 },
-      nullptr },
+      { 20, 360, 20 } },
     { MENU_ITEM_MATCH_REFRESH_RATE,
       "Match Refresh Rate",
       "",
       "Matches interpolation value to the current game's window refresh rate.",
       BUTTON,
-      { },
+      {},
       ([]() {
           int hz = Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
           if (hz >= 20 && hz <= 360) {
@@ -389,8 +419,7 @@ cvarObject enhancementList[] = {
       "CPU to work on one frame while GPU works on the previous frame.\nThis setting "
       "should be used when your computer is too slow to do CPU + GPU work in time.",
       SLIDER_INT,
-      { 0, 360, 80 },
-      nullptr },
+      { 0, 360, 80 } },
     //{ MENU_ITEM_RENDERER_API }, Unused placeholder
     { MENU_ITEM_ENABLE_VSYNC, "Enable Vsync", CVAR_VSYNC_ENABLED, "Enables Vsync.", CHECKBOX, {}, nullptr },
     { MENU_ITEM_ENABLE_WINDOWED_FULLSCREEN,
@@ -398,38 +427,33 @@ cvarObject enhancementList[] = {
       CVAR_SDL_WINDOWED_FULLSCREEN,
       "Enables Windowed Fullscreen Mode.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_ENABLE_MULTI_VIEWPORT,
       "Allow multi-windows",
       CVAR_ENABLE_MULTI_VIEWPORTS,
       "Allows multiple windows to be opened at once. Requires a reload to take effect.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_TEXTURE_FILTER,
       "Texture Filter (Needs reload)",
       CVAR_TEXTURE_FILTER,
       "Sets the applied Texture Filtering.",
       COMBOBOX,
-      { 0, 0, 0, textureFilteringMap },
-      nullptr },
+      { 0, 0, 0, textureFilteringMap } },
     // Input Editor
     { MENU_ITEM_INPUT_EDITOR,
       "Popout Input Editor",
       "gWindows.BenInputEditor",
       "Enables the separate Input Editor window.",
       BUTTON,
-      {},
-      nullptr },
+      {} },
     // Camera Snap Fix
     { MENU_ITEM_FIX_TARGET_CAMERA_SNAP,
       "Fix Targetting Camera Snap",
       "gEnhancements.Camera.FixTargettingCameraSnap",
       "Fixes the camera snap that occurs when you are moving and press the targetting button.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     // Free Look Settings
     { MENU_ITEM_ENABLE_FREE_LOOK,
       "Free Look",
@@ -438,35 +462,32 @@ cvarObject enhancementList[] = {
       "stick in the controller config menu, and map the camera stick to the right stick.",
       CHECKBOX,
       {},
-      ([]() { RegisterCameraFreeLook(); }), { "Debug Camera is Enabled" } },
+      ([]() { RegisterCameraFreeLook(); }),
+      { DISABLE_FOR_DEBUG_CAM_ON } },
     { MENU_ITEM_FREE_LOOK_CAMERA_DISTANCE,
       "Camera Distance: %d",
       "gEnhancements.Camera.FreeLook.MaxCameraDistance",
       "Maximum Camera Distance for Free Look.",
       SLIDER_INT,
-      { 100, 900, 185 },
-      nullptr },
+      { 100, 900, 185 } },
     { MENU_ITEM_FREE_LOOK_TRANSITION_SPEED,
       "Camera Transition Speed: %d",
       "gEnhancements.Camera.FreeLook.TransitionSpeed",
       "Can someone help me?",
       SLIDER_INT,
-      { 1, 900, 25 },
-      nullptr },
+      { 1, 900, 25 } },
     { MENU_ITEM_FREE_LOOK_MAX_PITCH,
       "Max Camera Height Angle: %.0f\xC2\xB0",
       "gEnhancements.Camera.FreeLook.MaxPitch",
       "Maximum Height of the Camera.",
       SLIDER_FLOAT,
-      { -8900, 8900, 7200 },
-      nullptr },
+      { -8900.0f, 8900.0f, 7200.0f } },
     { MENU_ITEM_FREE_LOOK_MIN_PITCH,
       "Min Camera Height Angle: %.0f\xC2\xB0",
       "gEnhancements.Camera.FreeLook.MinPitch",
       "Minimum Height of the Camera.",
       SLIDER_FLOAT,
-      { -8900, 8900, -4900 },
-      nullptr },
+      { -8900.0f, 8900.0f, -4900.0f } },
     // Camera Enhancements
     { MENU_ITEM_ENABLE_DEBUG_CAMERA,
       "Debug Camera",
@@ -474,35 +495,32 @@ cvarObject enhancementList[] = {
       "Enables free camera control.",
       CHECKBOX,
       {},
-      ([]() { RegisterDebugCam(); }), { "Free Look is Enabled" } },
+      ([]() { RegisterDebugCam(); }),
+      { DISABLE_FOR_FREE_LOOK_ON } },
     { MENU_ITEM_INVERT_CAMERA_X_AXIS,
       "Invert Camera X Axis",
       "gEnhancements.Camera.RightStick.InvertXAxis",
       "Inverts the Camera X Axis",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_INVERT_CAMERA_Y_AXIS,
       "Invert Camera Y Axis",
       "gEnhancements.Camera.RightStick.InvertYAxis",
       "Inverts the Camera Y Axis",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_THIRD_PERSON_CAMERA_X_SENSITIVITY,
       "Third-Person Horizontal Sensitivity: %.0f",
       "gEnhancements.Camera.RightStick.CameraSensitivity.X",
       "Adjust the Sensitivity of the x axis when in Third Person.",
       SLIDER_FLOAT,
-      { 1, 500, 100 },
-      nullptr },
+      { 1.0f, 500.0f, 100.0f } },
     { MENU_ITEM_THIRD_PERSON_CAMERA_Y_SENSITIVITY,
       "Third-Person Vertical Sensitivity: %.0f",
       "gEnhancements.Camera.RightStick.CameraSensitivity.Y",
       "Adjust the Sensitivity of the x axis when in Third Person.",
       SLIDER_FLOAT,
-      { 1, 500, 100 },
-      nullptr },
+      { 1.0f, 500.0f, 100.0f } },
     { MENU_ITEM_ENABLE_CAMERA_ROLL,
       "Enable Roll (6\xC2\xB0 of Freedom)",
       "gEnhancements.Camera.DebugCam.6DOF",
@@ -510,44 +528,38 @@ cvarObject enhancementList[] = {
       "differently in this system, instead rotating around the focal point"
       ", rather than a polar axis.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_CAMERA_SPEED,
       "Camera Speed: %.0f",
       "gEnhancements.Camera.DebugCam.CameraSpeed",
       "Adjusts the speed of the Camera.",
       SLIDER_FLOAT,
-      { 10, 300, 50 },
-      nullptr },
+      { 10.0f, 300.0f, 50.0f } },
     // Cheats
     { MENU_ITEM_CHEATS_INFINITE_HEALTH,
       "Infinite Health",
       "gCheats.InfiniteHealth",
       "Always have full Hearts.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_CHEATS_INFINITE_MAGIC,
       "Infinite Magic",
       "gCheats.InfiniteMagic",
       "Always have full Magic.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_CHEATS_INFINITE_RUPEES,
       "Infinite Rupees",
       "gCheats.InfiniteRupees",
       "Always have a full Wallet.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_CHEATS_INFINITE_CONSUMABLES,
       "Infinite Consumables",
       "gCheats.InfiniteConsumables",
       "Always have max Consumables, you must have collected the consumables first.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_CHEATS_LONG_FLOWER_GLIDE,
       "Longer Deku Flower Glide",
       "gCheats.LongerFlowerGlide",
@@ -555,27 +567,19 @@ cvarObject enhancementList[] = {
       CHECKBOX,
       {},
       ([]() { RegisterLongerFlowerGlide(); }) },
-    { MENU_ITEM_CHEATS_NO_CLIP,
-      "No Clip",
-      "gCheats.NoClip",
-      "Allows Link to phase through collision.",
-      CHECKBOX,
-      {},
-      nullptr },
+    { MENU_ITEM_CHEATS_NO_CLIP, "No Clip", "gCheats.NoClip", "Allows Link to phase through collision.", CHECKBOX, {} },
     { MENU_ITEM_CHEATS_INFINITE_RAZOR_SWORD,
       "Unbreakable Razor Sword",
       "gCheats.UnbreakableRazorSword",
       "Allows to Razor Sword to be used indefinitely without dulling its blade.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_CHEATS_UNRESTRICTED_ITEMS,
       "Unrestricted Items",
       "gCheats.UnrestrictedItems",
       "Allows all Forms to use all Items.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_CHEATS_MOON_JUMP_ON_L,
       "Moon Jump on L",
       "gCheats.MoonJumpOnL",
@@ -596,15 +600,13 @@ cvarObject enhancementList[] = {
       "gEnhancements.Player.InstantPutaway",
       "Allows Link to instantly puts away held item without waiting.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_CLIMB_SPEED,
       "Climb speed",
       "gEnhancements.PlayerMovement.ClimbSpeed",
       "Increases the speed at which Link climbs vines and ladders.",
       SLIDER_INT,
-      { 1, 5, 1 },
-      nullptr },
+      { 1, 5, 1 } },
     { MENU_ITEM_DPAD_EQUIPS,
       "Dpad Equips",
       "gEnhancements.Dpad.DpadEquips",
@@ -617,16 +619,14 @@ cvarObject enhancementList[] = {
       "gEnhancements.Minigames.AlwaysWinDoggyRace",
       "Makes the Doggy Race easier to win.",
       COMBOBOX,
-      { 0, 0, 0, alwaysWinDoggyraceOptions },
-      nullptr },
+      { 0, 0, 0, alwaysWinDoggyraceOptions } },
     // Game Modes
     { MENU_ITEM_PLAY_AS_KAFEI,
       "Play as Kafei",
       "gModes.PlayAsKafei",
       "Requires scene reload to take effect.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_TIME_MOVES_WHEN_YOU_MOVE,
       "Time Moves when you Move",
       "gModes.TimeMovesWhenYouMove",
@@ -642,8 +642,7 @@ cvarObject enhancementList[] = {
       "Time, allowing the moon to crash or finishing the "
       "game will remove the owl save and become the new last save.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_PAUSE_MENU_SAVE,
       "Pause Menu Save",
       "gEnhancements.Saving.PauseSave",
@@ -652,8 +651,7 @@ cvarObject enhancementList[] = {
       "into the game, you will be placed either at the entrance of the dungeon you saved in, or "
       "in South Clock Town.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_AUTOSAVE,
       "Autosave",
       "gEnhancements.Saving.Autosave",
@@ -669,73 +667,65 @@ cvarObject enhancementList[] = {
       "Sets the interval between Autosaves.",
       SLIDER_INT,
       { 1, 60, 5 },
-      nullptr, { "AutoSave is Disabled" } },
+      nullptr,
+      { DISABLE_FOR_AUTO_SAVE_OFF } },
     { MENU_ITEM_DISABLE_BOTTLE_RESET,
       "Do not reset Bottle content",
       "gEnhancements.Cycle.DoNotResetBottleContent",
       "Playing the Song Of Time will not reset the bottles' content.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_DISABLE_CONSUMABLE_RESET,
       "Do not reset Consumables",
       "gEnhancements.Cycle.DoNotResetConsumables",
       "Playing the Song Of Time will not reset the consumables.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_DISABLE_RAZOR_SWORD_RESET,
       "Do not reset Razor Sword",
       "gEnhancements.Cycle.DoNotResetRazorSword",
       "Playing the Song Of Time will not reset the Sword back to Kokiri Sword.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_DISABLE_RUPEE_RESET,
       "Do not reset Rupees",
       "gEnhancements.Cycle.DoNotResetRupees",
       "Playing the Song Of Time will not reset the your rupees.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_DISABLE_SAVE_DELAY,
       "Disable Save Delay",
       "gEnhancements.Saving.DisableSaveDelay",
       "Removes the arbitrary 2 second timer for saving from the original game. This is known to "
       "cause issues when attempting the 0th Day Glitch",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     // Graphics Enhancements
     { MENU_ITEM_CLOCK_OPTIONS,
       "Clock Type",
       "gEnhancements.Graphics.ClockType",
       "Swaps between Graphical and Text only Clock types.",
       COMBOBOX,
-      { 0, 0, 0, clockTypeOptions },
-      nullptr },
+      { 0, 0, 0, clockTypeOptions } },
     { MENU_ITEM_MILITARY_CLOCK,
       "24 Hours Clock",
       "gEnhancements.Graphics.24HoursClock",
       "Changes from a 12 Hour to a 24 Hour Clock",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_MOTION_BLUR_MODE,
       "Motion Blur Mode",
       "gEnhancements.Graphics.MotionBlur.Mode",
       "Selects the Mode for Motion Blur.",
       COMBOBOX,
-      { 0, 0, 0, motionBlurOptions },
-      nullptr },
+      { 0, 0, 0, motionBlurOptions } },
     { MENU_ITEM_MOTION_BLUE_INTERPOLATE,
       "Interpolate",
       "gEnhancements.Graphics.MotionBlur.Interpolate",
       "Change motion blur capture to also happen on interpolated frames instead of only on game frames.\n"
       "This notably reduces the overall motion blur strength but smooths out the trails.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_MOTION_BLUR_ENABLE,
       "On/Off",
       "gEnhancements.Graphics.MotionBlur.Toggle",
@@ -755,23 +745,20 @@ cvarObject enhancementList[] = {
       "gEnhancements.Graphics.MotionBlur.Strength",
       "Motion Blur strength.",
       SLIDER_INT,
-      { 0, 255, 180 },
-      nullptr },
+      { 0, 255, 180 } },
     { MENU_ITEM_AUTHENTIC_LOGO,
       "Authentic Logo",
       "gEnhancements.Graphics.AuthenticLogo",
       "Hide the game version and build details and display the authentic "
       "model and texture on the boot logo start screen",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_BOW_RETICLE,
       "Bow Reticle",
       "gEnhancements.Graphics.BowReticle",
       "Gives the bow a reticle when you draw an arrow.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_DISABLE_BLACK_BARS,
       "Disable Black Bar Letterboxes",
       "gEnhancements.Graphics.DisableBlackBars",
@@ -779,16 +766,14 @@ cvarObject enhancementList[] = {
       "minor visual glitches that were covered up by the black bars\nPlease disable this "
       "setting before reporting a bug.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_GEOMETRY_DISTANCE_CHECK,
       "Disable Scene Geometry Distance Check",
       "gEnhancements.Graphics.DisableSceneGeometryDistanceCheck",
       "Disables the distance check for scene geometry, allowing it to be drawn no matter how far "
       "away it is from the player. This may have unintended side effects.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_ACTOR_DRAW_DISTANCE,
       "Increase Actor Draw Distance: %dx",
       "gEnhancements.Graphics.IncreaseActorDrawDistance",
@@ -817,29 +802,25 @@ cvarObject enhancementList[] = {
       "gEnhancements.Masks.BlastMaskKeg",
       "Blast Mask can also destroy objects only the Powder Keg can.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_FAST_TRANSFORMATION,
       "Fast Transformation",
       "gEnhancements.Masks.FastTransformation",
       "Removes the delay when using transormation masks.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_FIERCE_DEITY_ANYWHERE,
       "Fierce Deity's Mask Anywhere",
       "gEnhancements.Masks.FierceDeitysAnywhere",
       "Allow using Fierce Deity's mask outside of boss rooms.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_NO_BLAST_MASK_COOLDOWN,
       "No Blast Mask Cooldown",
       "gEnhancements.Masks.NoBlastMaskCooldown",
       "Eliminates the Cooldown between Blast Mask usage.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     // Song Enhancements
     { MENU_ITEM_ENABLE_SUNS_SONG,
       "Enable Sun's Song",
@@ -848,65 +829,56 @@ cvarObject enhancementList[] = {
       "This song will make time move very fast until either Link moves to a different scene, "
       "or when the time switches to a new time period.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_DPAD_OCARINA,
       "Dpad Ocarina",
       "gEnhancements.Playback.DpadOcarina",
       "Enables using the Dpad for Ocarina playback.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_PREVENT_DROPPED_OCARINA_INPUTS,
       "Prevent Dropped Ocarina Inputs",
       "gEnhancements.Playback.NoDropOcarinaInput",
       "Prevent dropping inputs when playing the ocarina quickly.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     // Cutscene Skips
     { MENU_ITEM_HIDE_TITLE_CARDS,
       "Hide Title Cards",
       "gEnhancements.Cutscenes.HideTitleCards",
       "Hides Title Cards when entering areas.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_SKIP_ENTRANCE_CUTSCENES,
       "Skip Entrance Cutscenes",
       "gEnhancements.Cutscenes.SkipEntranceCutscenes",
       "Skip cutscenes that occur when first entering a new area.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_SKIP_TO_FILE_SELECT,
       "Skip to File Select",
       "gEnhancements.Cutscenes.SkipToFileSelect",
       "Skip the opening title sequence and go straight to the file select menu after boot.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_SKIP_INTRO_SEQUENCE,
       "Skip Intro Sequence",
       "gEnhancements.Cutscenes.SkipIntroSequence",
       "When starting a game you will be taken straight to South Clock Town as Deku Link.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_SKIP_STORY_CUTSCENES,
       "Skip Story Cutscenes",
       "gEnhancements.Cutscenes.SkipStoryCutscenes",
       "Disclaimer: This doesn't do much yet, we will be progressively adding more skips over time.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_SKIP_MISC_INTERACTIONS,
       "Skip Misc Interactions",
       "gEnhancements.Cutscenes.SkipMiscInteractions",
       "Disclaimer: This doesn't do much yet, we will be progressively adding more skips over time.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     // Dialogue Enhancements
     { MENU_ITEM_FAST_BANK_SELECTION,
       "Fast Bank Selection",
@@ -914,22 +886,19 @@ cvarObject enhancementList[] = {
       "Pressing the Z or R buttons while the Deposit/Withdrawl Rupees dialogue is open will set "
       "the Rupees to Links current Rupees or 0 respectively.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_FAST_TEXT,
       "Fast Text",
       "gEnhancements.Dialogue.FastText",
       "Speeds up text rendering, and enables holding of B progress to next message.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_FAST_MAGIC_ARROW_ANIM,
       "Fast Magic Arrow Equip Animation",
       "gEnhancements.Equipment.MagicArrowEquipSpeed",
       "Removes the animation for equipping Magic Arrows.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     // Fixes
     { MENU_ITEM_FIX_AMMO_COUNT_COLOR,
       "Fix Ammo Count Color",
@@ -937,52 +906,45 @@ cvarObject enhancementList[] = {
       "Fixes a missing gDPSetEnvColor, which causes the ammo count to be "
       "the wrong color prior to obtaining magic or other conditions.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_FIX_HESS_WEIRDSHOT,
       "Fix Hess and Weirdshot Crash",
       "gEnhancements.Fixes.HessCrash",
       "Fixes a crash that can occur when performing a HESS or Weirdshot.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_FIX_TEXT_CONTROL_CHAR,
       "Fix Text Control Characters",
       "gEnhancements.Fixes.ControlCharacters",
       "Fixes certain control characters not functioning properly "
       "depending on their position within the text.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     // Restorations
     { MENU_ITEM_RESTORE_DISTANCE_FLIPS_HOPS,
       "Constant Distance Backflips and Sidehops",
       "gEnhancements.Restorations.ConstantFlipsHops",
       "Backflips and Sidehops travel a constant distance as they did in OoT.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_RESTORE_POWER_CROUCH_STAB,
       "Power Crouch Stab",
       "gEnhancements.Restorations.PowerCrouchStab",
       "Crouch stabs will use the power of Link's previous melee attack, as is in MM JP 1.0 and OoT.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_RESTORE_SIDEROLLS,
       "Side Rolls",
       "gEnhancements.Restorations.SideRoll",
       "Restores side rolling from OoT.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_RESTORE_TATL_ISG,
       "Tatl ISG",
       "gEnhancements.Restorations.TatlISG",
       "Restores Navi ISG from OoT, but now with Tatl.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     // HUD Editor
     // { MENU_ITEM_HUD_EDITOR }, Unused placeholder
     { MENU_ITEM_MODERN_MENU_POPOUT,
@@ -990,8 +952,7 @@ cvarObject enhancementList[] = {
       "gSettings.Menu.Popout",
       "Changes the menu display from overlay to windowed.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_OPEN_APP_FILES,
       "Open App Files Folder",
       "",
@@ -1029,8 +990,7 @@ cvarObject enhancementList[] = {
       "gDeveloperTools.BetterMapSelect.Enabled",
       "Overrides the original map select with a translated, more user-friendly version.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_DEBUG_SAVE_FILE_MODE,
       "Debug Save File Mode",
       "gDeveloperTools.DebugSaveFileMode",
@@ -1067,8 +1027,7 @@ cvarObject enhancementList[] = {
       "gDeveloperTools.DisableObjectDependency",
       "Disables dependencies when loading objects.",
       CHECKBOX,
-      {},
-      nullptr },
+      {} },
     { MENU_ITEM_DEBUG_LOG_LEVEL,
       "Log Level",
       "gDeveloperTools.LogLevel",
@@ -1098,37 +1057,25 @@ cvarObject enhancementList[] = {
     { MENU_ITEM_FRAME_ADVANCE_SINGLE, "Advance 1", "", "Advance 1 frame.", BUTTON, {}, ([]() {
           CVarSetInteger("gDeveloperTools.FrameAdvanceTick", 1);
       }) },
-    { MENU_ITEM_FRAME_ADVANCE_HOLD,
-      "Advance (Hold)",
-      "",
-      "Advance frames while the button is held.",
-      BUTTON,
-      {},
-      nullptr },
+    { MENU_ITEM_FRAME_ADVANCE_HOLD, "Advance (Hold)", "", "Advance frames while the button is held.", BUTTON, {} },
 };
-
-void SearchMenuUpdateDisabled() {
-    disabledMap.at("Debug Camera is Enabled") = CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0);
-    disabledMap.at("Free Look is Enabled") = CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0);
-    disabledMap.at("AutoSave is Disabled") = !CVarGetInteger("gEnhancements.Saving.Autosave", 0);
-}
 
 void SearchMenuGetItem(uint32_t index) {
     disabledTempTooltip = "This setting is disabled because the following is set: \n\n";
     disabledValue = false;
     disabledTooltip = " ";
 
-    if (!enhancementList[index].disabledName.empty()) {
-        for (int i = 0; i < enhancementList[index].disabledName.size(); i++) {
-            if (disabledMap.at(enhancementList[index].disabledName[i]) == true) {
+    if (!enhancementList[index].disableOptions.empty()) {
+        for (auto reason : enhancementList[index].disableOptions) {
+            if (disabledMap.at(reason).active) {
                 disabledValue = true;
-                disabledTempTooltip += std::string("- ") + enhancementList[index].disabledName[i] + std::string("\n");
+                disabledTempTooltip += std::string("- ") + disabledMap.at(reason).reason + std::string("\n");
             }
         }
         disabledTooltip = disabledTempTooltip.c_str();
     } else {
         disabledValue = false;
-        disabledTooltip= " ";
+        disabledTooltip = " ";
     }
 
     float floatMin;
@@ -1137,74 +1084,79 @@ void SearchMenuGetItem(uint32_t index) {
 
     switch (enhancementList[index].widgetType) {
         case CHECKBOX:
-            if (UIWidgets::CVarCheckbox(enhancementList[index].cVarText, enhancementList[index].cVarName,
+            if (UIWidgets::CVarCheckbox(enhancementList[index].widgetName, enhancementList[index].widgetCVar,
                                         {
-                                            .color = menuTheme[CVarGetInteger("gSettings.MenuTheme", 0)],
-                                            .tooltip = enhancementList[index].cVarTooltip,
+                                            .color = menuTheme[menuThemeIndex],
+                                            .tooltip = enhancementList[index].widgetTooltip,
                                             .disabled = disabledValue,
                                             .disabledTooltip = disabledTooltip,
+                                            .defaultValue = static_cast<bool>(
+                                                std::get<int32_t>(enhancementList[index].widgetOptions.defaultValue)),
                                         })) {
-                if (enhancementList[index].cVarFunction != nullptr) {
-                    enhancementList[index].cVarFunction();
+                if (enhancementList[index].widgetCallback != nullptr) {
+                    enhancementList[index].widgetCallback();
                 }
             };
             break;
         case COMBOBOX:
-            if (UIWidgets::CVarCombobox(enhancementList[index].cVarText, enhancementList[index].cVarName,
-                                        enhancementList[index].cVarOptions.comboBoxOptions,
+            if (UIWidgets::CVarCombobox(enhancementList[index].widgetName, enhancementList[index].widgetCVar,
+                                        enhancementList[index].widgetOptions.comboBoxOptions,
                                         {
-                                            .color = menuTheme[CVarGetInteger("gSettings.MenuTheme", 0)],
-                                            .tooltip = enhancementList[index].cVarTooltip,
+                                            .color = menuTheme[menuThemeIndex],
+                                            .tooltip = enhancementList[index].widgetTooltip,
                                             .disabled = disabledValue,
                                             .disabledTooltip = disabledTooltip,
+                                            .defaultIndex = static_cast<uint32_t>(
+                                                std::get<int32_t>(enhancementList[index].widgetOptions.defaultValue)),
                                         })) {
-                if (enhancementList[index].cVarFunction != nullptr) {
-                    enhancementList[index].cVarFunction();
+                if (enhancementList[index].widgetCallback != nullptr) {
+                    enhancementList[index].widgetCallback();
                 }
             }
             break;
         case SLIDER_INT:
-            if (UIWidgets::CVarSliderInt(enhancementList[index].cVarText, enhancementList[index].cVarName,
-                                         enhancementList[index].cVarOptions.min, enhancementList[index].cVarOptions.max,
-                                         enhancementList[index].cVarOptions.defaultValue,
+            if (UIWidgets::CVarSliderInt(enhancementList[index].widgetName, enhancementList[index].widgetCVar,
+                                         std::get<int32_t>(enhancementList[index].widgetOptions.min),
+                                         std::get<int32_t>(enhancementList[index].widgetOptions.max),
+                                         std::get<int32_t>(enhancementList[index].widgetOptions.defaultValue),
                                          {
-                                             .color = menuTheme[CVarGetInteger("gSettings.MenuTheme", 0)],
-                                             .tooltip = enhancementList[index].cVarTooltip,
+                                             .color = menuTheme[menuThemeIndex],
+                                             .tooltip = enhancementList[index].widgetTooltip,
                                              .disabled = disabledValue,
                                              .disabledTooltip = disabledTooltip,
                                          })) {
-                if (enhancementList[index].cVarFunction != nullptr) {
-                    enhancementList[index].cVarFunction();
+                if (enhancementList[index].widgetCallback != nullptr) {
+                    enhancementList[index].widgetCallback();
                 }
             };
             break;
         case SLIDER_FLOAT:
-            floatMin = (static_cast<float>(enhancementList[index].cVarOptions.min) / 100);
-            floatMax = (static_cast<float>(enhancementList[index].cVarOptions.max) / 100);
-            floatDefault = (static_cast<float>(enhancementList[index].cVarOptions.defaultValue) / 100);
-            if (UIWidgets::CVarSliderFloat(enhancementList[index].cVarText, enhancementList[index].cVarName, floatMin,
-                                           floatMax, floatDefault,
+            floatMin = (std::get<float>(enhancementList[index].widgetOptions.min) / 100);
+            floatMax = (std::get<float>(enhancementList[index].widgetOptions.max) / 100);
+            floatDefault = (std::get<float>(enhancementList[index].widgetOptions.defaultValue) / 100);
+            if (UIWidgets::CVarSliderFloat(enhancementList[index].widgetName, enhancementList[index].widgetCVar,
+                                           floatMin, floatMax, floatDefault,
                                            {
-                                               .color = menuTheme[CVarGetInteger("gSettings.MenuTheme", 0)],
-                                               .tooltip = enhancementList[index].cVarTooltip,
+                                               .color = menuTheme[menuThemeIndex],
+                                               .tooltip = enhancementList[index].widgetTooltip,
                                                .disabled = disabledValue,
                                                .disabledTooltip = disabledTooltip,
                                            })) {
-                if (enhancementList[index].cVarFunction != nullptr) {
-                    enhancementList[index].cVarFunction();
+                if (enhancementList[index].widgetCallback != nullptr) {
+                    enhancementList[index].widgetCallback();
                 }
             }
             break;
         case BUTTON:
-            if (UIWidgets::Button(enhancementList[index].cVarText,
+            if (UIWidgets::Button(enhancementList[index].widgetName,
                                   {
-                                      .color = menuTheme[CVarGetInteger("gSettings.MenuTheme", 0)],
-                                      .tooltip = enhancementList[index].cVarTooltip,
+                                      .color = menuTheme[menuThemeIndex],
+                                      .tooltip = enhancementList[index].widgetTooltip,
                                       .disabled = disabledValue,
                                       .disabledTooltip = disabledTooltip,
                                   })) {
-                if (enhancementList[index].cVarFunction != nullptr) {
-                    enhancementList[index].cVarFunction();
+                if (enhancementList[index].widgetCallback != nullptr) {
+                    enhancementList[index].widgetCallback();
                 }
             }
             break;
