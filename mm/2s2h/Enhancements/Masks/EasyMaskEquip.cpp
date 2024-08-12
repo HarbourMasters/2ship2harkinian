@@ -130,6 +130,17 @@ void HandleEasyMaskEquip(PauseContext* pauseCtx) {
                     return;
                 }
 
+                // Check if the player is busy with an action and trying to equip a transformation mask
+                if ((cursorItem == ITEM_MASK_DEKU || cursorItem == ITEM_MASK_GORON || cursorItem == ITEM_MASK_ZORA ||
+                     cursorItem == ITEM_MASK_FIERCE_DEITY || cursorItem == ITEM_MASK_GIANT) &&
+                    ((player->stateFlags1 & (PLAYER_STATE1_800 | PLAYER_STATE1_400 | PLAYER_STATE1_20000000)) ||
+                     (player->stateFlags2 & (PLAYER_STATE2_10 | PLAYER_STATE2_80)) ||
+                     (player->heldItemAction != PLAYER_IA_NONE) ||
+                     (player->meleeWeaponState != PLAYER_MELEE_WEAPON_STATE_0))) {
+                    Audio_PlaySfx(NA_SE_SY_ERROR);
+                    return;
+                }
+
                 sPendingMask = cursorItem;
                 sIsTransforming =
                     (cursorItem == ITEM_MASK_DEKU || cursorItem == ITEM_MASK_GORON || cursorItem == ITEM_MASK_ZORA ||
