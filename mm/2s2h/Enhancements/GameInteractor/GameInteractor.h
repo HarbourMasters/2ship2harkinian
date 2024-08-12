@@ -298,9 +298,6 @@ class GameInteractor {
     DEFINE_HOOK(ShouldItemGive, (u8 item, bool* should));
     DEFINE_HOOK(OnItemGive, (u8 item));
 
-    DEFINE_HOOK(OnMaskTransform, (Player * player, PlayerMask maskId));
-    DEFINE_HOOK(OnTransformationComplete, (Player * player));
-
     DEFINE_HOOK(ShouldVanillaBehavior, (GIVanillaBehavior flag, bool* should, void* optionalArg));
 };
 

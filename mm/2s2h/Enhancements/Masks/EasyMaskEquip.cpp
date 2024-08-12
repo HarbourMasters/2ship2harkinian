@@ -69,6 +69,11 @@ void DrawEasyMaskEquipBorder(PauseContext* pauseCtx) {
         return;
     }
 
+    // Check if the player owns the mask
+    if (gSaveContext.save.saveInfo.inventory.items[slot + ITEM_NUM_SLOTS] == ITEM_NONE) {
+        return;
+    }
+
     GraphicsContext* gfxCtx = gPlayState->state.gfxCtx;
 
     OPEN_DISPS(gfxCtx);
