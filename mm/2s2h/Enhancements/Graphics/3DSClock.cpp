@@ -25,6 +25,11 @@ Gfx* Gfx_DrawTexRectIA8_DropShadowOffset(Gfx* gfx, TexturePtr texture, s16 textu
                                          s16 r, s16 g, s16 b, s16 a, s32 masks, s32 rects);
 }
 
+#define SECONDS_IN_THREE_DAYS (3 * 24 * 60 * 60)
+#define SECONDS_IN_SIX_HOURS (6 * 60 * 60)
+#define CLOCK_SECTION_HALFWIDTH 24
+#define CLOCK_SECTION_WIDTH 48
+
 static TexturePtr sDigitTextures[] = {
     (TexturePtr)gFinalHoursClockDigit0Tex, (TexturePtr)gFinalHoursClockDigit1Tex, (TexturePtr)gFinalHoursClockDigit2Tex,
     (TexturePtr)gFinalHoursClockDigit3Tex, (TexturePtr)gFinalHoursClockDigit4Tex, (TexturePtr)gFinalHoursClockDigit5Tex,
@@ -45,12 +50,6 @@ s16 finalHoursClockSlots[8];
 
 void Register3DSClock() {
 
-    static s16 sThreeDayClockAlpha = 255;
-
-    static s32 sPreviousTimeCheck = -1;
-
-    static s32 sFinalHoursIntro = 0;
-
     REGISTER_VB_SHOULD(GI_VB_PREVENT_CLOCK_DISPLAY, {
         if (CVarGetInteger("gEnhancements.Graphics.ClockType", CLOCK_TYPE_ORIGINAL) == CLOCK_TYPE_3DS) {
             *should = true;
@@ -59,6 +58,8 @@ void Register3DSClock() {
             if (HudEditor_IsActiveElementHidden()) {
                 return;
             }
+
+            static s32 sPreviousTimeCheck = -1;
 
             if ((R_TIME_SPEED != 0) &&
                 ((gPlayState->msgCtx.msgMode == MSGMODE_NONE) ||
@@ -69,10 +70,14 @@ void Register3DSClock() {
                 !FrameAdvance_IsEnabled(&gPlayState->state) && !Environment_IsTimeStopped() &&
                 (gSaveContext.save.day <= 3)) {
 
-                sThreeDayClockAlpha = gPlayState->interfaceCtx.bAlpha;
-
                 if ((gPlayState->pauseCtx.state == PAUSE_STATE_OFF) &&
                     (gPlayState->pauseCtx.debugEditor == DEBUG_EDITOR_NONE)) {
+
+                    static s16 sThreeDayClockAlpha = 255;
+
+                    static s32 sFinalHoursIntro = 0;
+
+                    sThreeDayClockAlpha = gPlayState->interfaceCtx.aAlpha;
 
                     OPEN_DISPS(gPlayState->state.gfxCtx);
                     s16 posX = 160;
@@ -80,21 +85,24 @@ void Register3DSClock() {
 
                     // Draw background of 3DS clock
                     // TODO: Replace this with matrix/vertex handling to avoid gaps when scaled
-                    OVERLAY_DISP = Gfx_DrawTexRectIA8_DropShadow(OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSEdgeTex, 72,
-                                                                 12, posX - 24 - 72, posY, 72, 12, 1 << 10, 1 << 10,
-                                                                 255, 255, 255, sThreeDayClockAlpha);
+                    OVERLAY_DISP = Gfx_DrawTexRectIA8_DropShadow(
+                        OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSEdgeTex, CLOCK_SECTION_HALFWIDTH * 3, 12,
+                        posX - (CLOCK_SECTION_HALFWIDTH * 4), posY, CLOCK_SECTION_HALFWIDTH * 3, 12, 1 << 10, 1 << 10,
+                        255, 255, 255, sThreeDayClockAlpha);
 
                     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
-                    OVERLAY_DISP = Gfx_DrawTexRectIA8_DropShadow(OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSMiddleTex,
-                                                                 48, 12, posX - 24, posY, 48, 12, 1 << 10, 1 << 10, 255,
-                                                                 255, 255, sThreeDayClockAlpha);
+                    OVERLAY_DISP = Gfx_DrawTexRectIA8_DropShadow(
+                        OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSMiddleTex, CLOCK_SECTION_WIDTH, 12,
+                        posX - CLOCK_SECTION_HALFWIDTH, posY, CLOCK_SECTION_WIDTH, 12, 1 << 10, 1 << 10, 255, 255, 255,
+                        sThreeDayClockAlpha);
 
                     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
                     OVERLAY_DISP = Gfx_DrawTexRectIA8_DropShadowOffset(
-                        OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSEdgeTex, 72, 12, posX + 24, posY, 72, 12, 1 << 10,
-                        1 << 10, 255, 255, 255, sThreeDayClockAlpha, 3, 72 << 5);
+                        OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSEdgeTex, CLOCK_SECTION_HALFWIDTH * 3, 12,
+                        posX + CLOCK_SECTION_HALFWIDTH, posY, CLOCK_SECTION_HALFWIDTH * 3, 12, 1 << 10, 1 << 10, 255,
+                        255, 255, sThreeDayClockAlpha, 3, (CLOCK_SECTION_HALFWIDTH * 3) << 5);
 
-                    // Coloured day markers
+                    // Coloured day markers, which highlights the current day with its own colour
                     u16 fillalpha = 64;
                     if (gSaveContext.save.day <= 1) {
                         fillalpha = 255;
@@ -102,8 +110,9 @@ void Register3DSClock() {
                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 128, 255, (fillalpha * sThreeDayClockAlpha) / 255);
 
                     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
-                    OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSFillTex, 48, 12,
-                                                      posX - 24 - 48, posY, 48, 12, 1 << 10, 1 << 10);
+                    OVERLAY_DISP =
+                        Gfx_DrawTexRectIA8(OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSFillTex, CLOCK_SECTION_WIDTH, 12,
+                                           posX - CLOCK_SECTION_WIDTH, posY, CLOCK_SECTION_WIDTH, 12, 1 << 10, 1 << 10);
 
                     fillalpha = 64;
                     if (gSaveContext.save.day == 2) {
@@ -112,8 +121,9 @@ void Register3DSClock() {
                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 192, 0, (fillalpha * sThreeDayClockAlpha) / 255);
 
                     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
-                    OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSFillTex, 48, 12,
-                                                      posX - 24, posY, 48, 12, 1 << 10, 1 << 10);
+                    OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSFillTex,
+                                                      CLOCK_SECTION_WIDTH, 12, posX - CLOCK_SECTION_HALFWIDTH, posY,
+                                                      CLOCK_SECTION_WIDTH, 12, 1 << 10, 1 << 10);
 
                     fillalpha = 64;
                     if (gSaveContext.save.day >= 3) {
@@ -122,33 +132,35 @@ void Register3DSClock() {
                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 64, 0, (fillalpha * sThreeDayClockAlpha) / 255);
 
                     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
-                    OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSFillTex, 48, 12,
-                                                      posX + 24, posY, 48, 12, 1 << 10, 1 << 10);
+                    OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSFillTex,
+                                                      CLOCK_SECTION_WIDTH, 12, posX + CLOCK_SECTION_HALFWIDTH, posY,
+                                                      CLOCK_SECTION_WIDTH, 12, 1 << 10, 1 << 10);
 
-                    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 200, 0, 0, sThreeDayClockAlpha);
-
-                    // Compute percentage time through the 3 day cycle and draw the current time arrow
-                    s32 currentTime = (s32)TIME_TO_MINUTES_F(gSaveContext.save.time) - 360;
-                    if (currentTime < 0) {
-                        currentTime += 1440;
-                    }
+                    // This next part is for the little arrow that shows what the current time is
 
                     s32 timeUntilCrash = (s32)TIME_TO_SECONDS_F(TIME_UNTIL_MOON_CRASH);
 
                     // This is a safety measure to delay skipping the arrow marker back a day on the frame before the
                     // day changes by just checking if time went backwards
-                    if (sPreviousTimeCheck != -1 && sPreviousTimeCheck > 259200 - timeUntilCrash) {
+                    if (sPreviousTimeCheck != -1 && sPreviousTimeCheck > SECONDS_IN_THREE_DAYS - timeUntilCrash) {
                         s32 trueTimeUntilCrash = timeUntilCrash;
-                        timeUntilCrash = 259200 - sPreviousTimeCheck;
-                        sPreviousTimeCheck = 259200 - trueTimeUntilCrash;
+                        timeUntilCrash = SECONDS_IN_THREE_DAYS - sPreviousTimeCheck;
+                        sPreviousTimeCheck = SECONDS_IN_THREE_DAYS - trueTimeUntilCrash;
                     } else {
-                        sPreviousTimeCheck = 259200 - timeUntilCrash;
+                        sPreviousTimeCheck = SECONDS_IN_THREE_DAYS - timeUntilCrash;
                     }
 
-                    s32 timeoffset = std::max(std::min(3 * 48 - (timeUntilCrash * 3 * 48) / 259200, 3 * 48), 0);
+                    // Compute the position of the arrow, and then draw it
+                    s32 timeoffset =
+                        std::max(std::min(3 * CLOCK_SECTION_WIDTH -
+                                              (timeUntilCrash * 3 * CLOCK_SECTION_WIDTH) / SECONDS_IN_THREE_DAYS,
+                                          3 * CLOCK_SECTION_WIDTH),
+                                 0);
 
-                    u16 counterX = posX - 24 - 48 + timeoffset;
+                    u16 counterX = posX - (CLOCK_SECTION_HALFWIDTH * 3) + timeoffset;
                     u16 counterY = posY - 4;
+
+                    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 200, 0, 0, sThreeDayClockAlpha);
 
                     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
                     OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSArrowTex, 8, 8,
@@ -162,6 +174,7 @@ void Register3DSClock() {
                         ((CURRENT_DAY == 3) && (((void)0, gSaveContext.save.time) >= (CLOCK_TIME(0, 0) + 5)) &&
                          (((void)0, gSaveContext.save.time) < CLOCK_TIME(6, 0)))) {
 
+                        // This all just gets the time to display in each number slot
                         s32 timeInSeconds = timeUntilCrash % 60;
                         s32 timeInMinutes = (timeUntilCrash / 60) % 60;
                         s32 timeInHours = (timeUntilCrash / 60) / 60;
@@ -181,8 +194,9 @@ void Register3DSClock() {
                         u16 finalTimerPos = posX - finalTimerSpacing * 4 - finalTimerSpacing / 2;
                         s16 i;
 
-                        s32 percentToCrash = std::min(std::max((timeUntilCrash * 255) / 21600, 0), 255);
+                        s32 percentToCrash = std::min(std::max((timeUntilCrash * 255) / SECONDS_IN_SIX_HOURS, 0), 255);
 
+                        // This is a lerp between yellow and red based on the remaining time
                         u16 finalHoursR1 = 255;
                         u16 finalHoursR2 = 255;
                         u16 finalHoursG1 = 0;
@@ -197,6 +211,9 @@ void Register3DSClock() {
                         u16 finalHoursB =
                             (((255 - percentToCrash) * finalHoursB1) + (percentToCrash * finalHoursB2)) / 255;
 
+                        // Controls the distance and speed modifier of the final hours clock intro animation
+                        // finalHoursOffset controls the distance offset for the intro animation
+                        // finalHoursModifier controls the speed of the intro animation - larger is slower
                         s32 finalHoursOffset = 10;
                         s32 finalHoursModifier = 2;
                         if (sFinalHoursIntro < finalHoursOffset * finalHoursModifier) {
@@ -206,7 +223,7 @@ void Register3DSClock() {
                         gDPSetPrimColor(OVERLAY_DISP++, 0, 0, finalHoursR, finalHoursG, finalHoursB,
                                         (sThreeDayClockAlpha * sFinalHoursIntro) /
                                             (finalHoursOffset * finalHoursModifier));
-
+                        // This just loops through and draws all the numbers
                         for (i = 0; i < 8; i++) {
 
                             HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
@@ -227,6 +244,8 @@ void Register3DSClock() {
 
                         // Draw the current time in a small box
                         // TODO: Add scale slider to allow this box to be scaled independently of the main UI element
+
+                        // Draw the background box
                         if (gSaveContext.save.timeSpeedOffset == -2) {
                             u16 pulseTime = ((s32)TIME_TO_SECONDS_F(gSaveContext.save.time) % 120);
                             u16 pulse;
@@ -241,12 +260,13 @@ void Register3DSClock() {
                             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 0, 0, 0, sThreeDayClockAlpha / 2);
                         }
                         HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
-                        OVERLAY_DISP =
-                            Gfx_DrawTexRectIA8(OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSTimeBackdropTex, 48, 16,
-                                               counterX - 24, counterY - 4, 48, 16, 1 << 10, 1 << 10);
+                        OVERLAY_DISP = Gfx_DrawTexRectIA8(OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSTimeBackdropTex,
+                                                          CLOCK_SECTION_WIDTH, 16, counterX - CLOCK_SECTION_HALFWIDTH,
+                                                          counterY - 4, CLOCK_SECTION_WIDTH, 16, 1 << 10, 1 << 10);
 
                         counterX -= 8;
 
+                        // Draw the sun/moon next to the current time
                         TexturePtr daynightmarker;
                         if (curHours < 6 || curHours >= 18) {
                             daynightmarker = (TexturePtr)gThreeDayClockMoonHourTex;
@@ -286,7 +306,7 @@ void Register3DSClock() {
                         // Digital time
                         u16 timerSpacing = 6;
 
-                        if (curTensHours > 0) {
+                        if (curTensHours > 0 || CVarGetInteger("gEnhancements.Graphics.24HoursClock", 0)) {
                             timerSpacing = 4;
 
                             HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
@@ -318,10 +338,10 @@ void Register3DSClock() {
 
                     CLOSE_DISPS(gPlayState->state.gfxCtx);
                 } else {
-                    sPreviousTimeCheck = 259200 - (s32)TIME_TO_SECONDS_F(TIME_UNTIL_MOON_CRASH);
+                    sPreviousTimeCheck = SECONDS_IN_THREE_DAYS - (s32)TIME_TO_SECONDS_F(TIME_UNTIL_MOON_CRASH);
                 }
             } else {
-                sPreviousTimeCheck = 259200 - (s32)TIME_TO_SECONDS_F(TIME_UNTIL_MOON_CRASH);
+                sPreviousTimeCheck = SECONDS_IN_THREE_DAYS - (s32)TIME_TO_SECONDS_F(TIME_UNTIL_MOON_CRASH);
             }
 
             hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
