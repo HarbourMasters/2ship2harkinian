@@ -130,8 +130,9 @@ void HandleEasyMaskEquip(PauseContext* pauseCtx) {
                 // Check if the player is in the air and trying to equip a transformation mask
                 if (!(player->actor.bgCheckFlags & BGCHECKFLAG_GROUND)) {
                     if (player->transformation == PLAYER_FORM_HUMAN) {
-                        if (cursorItem == ITEM_MASK_DEKU || cursorItem == ITEM_MASK_GORON || cursorItem == ITEM_MASK_ZORA ||
-                            cursorItem == ITEM_MASK_FIERCE_DEITY || cursorItem == ITEM_MASK_GIANT) {
+                        if (cursorItem == ITEM_MASK_DEKU || cursorItem == ITEM_MASK_GORON ||
+                            cursorItem == ITEM_MASK_ZORA || cursorItem == ITEM_MASK_FIERCE_DEITY ||
+                            cursorItem == ITEM_MASK_GIANT) {
                             Audio_PlaySfx(NA_SE_SY_ERROR);
                             return;
                         }
