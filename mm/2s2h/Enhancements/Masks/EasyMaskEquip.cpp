@@ -21,9 +21,10 @@ extern "C" bool EasyMaskEquip_IsEnabled() {
 }
 
 s16 GetEquippedMaskSlot() {
-    s16 equippedMask = Player_GetCurMaskItemId(gPlayState);
-    if (equippedMask == ITEM_NONE || sIsTransforming) {
-        equippedMask = sPendingMask;
+    s16 maskToCheck = sPendingMask != ITEM_NONE ? sPendingMask : Player_GetCurMaskItemId(gPlayState);
+
+    if (maskToCheck == ITEM_NONE || sIsTransforming) {
+        maskToCheck = sLastEquippedMask;
     }
 
     // Check for pending mask first
@@ -37,10 +38,11 @@ s16 GetEquippedMaskSlot() {
 
     // Check for equipped mask
     for (s16 i = 0; i < MASK_NUM_SLOTS; i++) {
-        if (gSaveContext.save.saveInfo.inventory.items[i + ITEM_NUM_SLOTS] == equippedMask) {
+        if (gSaveContext.save.saveInfo.inventory.items[i + ITEM_NUM_SLOTS] == maskToCheck) {
             return i;
         }
     }
+
     return -1;
 }
 
@@ -71,6 +73,11 @@ void DrawEasyMaskEquipBorder(PauseContext* pauseCtx) {
 
     // Check if the player owns the mask
     if (gSaveContext.save.saveInfo.inventory.items[slot + ITEM_NUM_SLOTS] == ITEM_NONE) {
+        return;
+    }
+
+    // If the equipped item is equal to the pending item, remove the border
+    if (Player_GetCurMaskItemId(gPlayState) == sPendingMask) {
         return;
     }
 
@@ -111,14 +118,27 @@ void HandleEasyMaskEquip(PauseContext* pauseCtx) {
         if (CHECK_BTN_ALL(CONTROLLER1(&gPlayState->state)->press.button, BTN_A)) {
             s16 cursorItem = pauseCtx->cursorItem[PAUSE_MASK];
             if (cursorItem != PAUSE_ITEM_NONE) {
+                // If sPendingMask is already the cursor item, remove the border and reset sPendingMask
+                if (sPendingMask == cursorItem) {
+                    sPendingMask = ITEM_NONE;
+                    sIsTransforming = false;
+                    return;
+                }
+
                 Player* player = GET_PLAYER(gPlayState);
 
                 // Check if the player is in the air and trying to equip a transformation mask
-                if (!(player->actor.bgCheckFlags & BGCHECKFLAG_GROUND) &&
-                    (cursorItem == ITEM_MASK_DEKU || cursorItem == ITEM_MASK_GORON || cursorItem == ITEM_MASK_ZORA ||
-                     cursorItem == ITEM_MASK_FIERCE_DEITY || cursorItem == ITEM_MASK_GIANT)) {
-                    Audio_PlaySfx(NA_SE_SY_ERROR);
-                    return;
+                if (!(player->actor.bgCheckFlags & BGCHECKFLAG_GROUND)) {
+                    if (player->transformation == PLAYER_FORM_HUMAN) {
+                        if (cursorItem == ITEM_MASK_DEKU || cursorItem == ITEM_MASK_GORON || cursorItem == ITEM_MASK_ZORA ||
+                            cursorItem == ITEM_MASK_FIERCE_DEITY || cursorItem == ITEM_MASK_GIANT) {
+                            Audio_PlaySfx(NA_SE_SY_ERROR);
+                            return;
+                        }
+                    } else {
+                        Audio_PlaySfx(NA_SE_SY_ERROR);
+                        return;
+                    }
                 }
 
                 // Check if the player is underwater and trying to equip Deku or Goron mask
@@ -156,6 +176,7 @@ void HandleEasyMaskEquip(PauseContext* pauseCtx) {
         } else if (CHECK_BTN_ALL(CONTROLLER1(&gPlayState->state)->press.button, BTN_B)) {
             sPendingMask = ITEM_NONE;
             sIsTransforming = false;
+            sLastEquippedMask = ITEM_NONE;
         }
     }
 }
