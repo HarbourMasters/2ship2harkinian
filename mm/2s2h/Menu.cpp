@@ -554,24 +554,32 @@ void BenMenu::Draw() {
     SyncVisibilityConsoleVariable();
 }
 
-CVarVariant GetVariantCVar(disabledInfo* info) {
-    switch (info->conditionVal.index()) {
-        case 0:
-            return CVarGetInteger(info->cVar, std::get<int32_t>(info->cVarDefault));
+CVarVariant GetCVarVariant(std::shared_ptr<Ship::CVar> cVar, CVarVariant cVarDefault) {
+    if (cVar == nullptr) {
+        return cVarDefault;
+    }
+    switch (cVar->Type) {
         default:
-        case 1:
-            return CVarGetString(info->cVar, std::get<const char*>(info->cVarDefault));
-        case 2:
-            return CVarGetFloat(info->cVar, std::get<float>(info->cVarDefault));
+        case Ship::ConsoleVariableType::Integer:
+            return cVar->Integer;
+        case Ship::ConsoleVariableType::String:
+            return cVar->String.c_str();
+        case Ship::ConsoleVariableType::Float:
+            return cVar->Float;
+        //case Ship::ConsoleVariableType::Color:
+        //    return cVar->Color;
+        //case Ship::ConsoleVariableType::Color24:
+        //    return cVar->Color24;
     }
 }
 
 void BenMenu::DrawElement() {
     for (auto& [reason, info] : disabledMap) {
-        CVarVariant state = GetVariantCVar(&info);
+        auto cVar = CVarGet(info.cVar);
+        CVarVariant state = GetCVarVariant(cVar, info.cVarDefault);
         info.active = conditionFuncs.at(info.condition)(info.conditionVal, state);
     }
-    menuThemeIndex = CVarGetInteger("gSettings.MenuTheme", 3);
+    menuThemeIndex = static_cast<ColorOption>(CVarGetInteger("gSettings.MenuTheme", 3));
 
     windowHeight = ImGui::GetMainViewport()->WorkSize.y;
     windowWidth = ImGui::GetMainViewport()->WorkSize.x;
