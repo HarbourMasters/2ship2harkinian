@@ -566,10 +566,10 @@ CVarVariant GetCVarVariant(std::shared_ptr<Ship::CVar> cVar, CVarVariant cVarDef
             return cVar->String.c_str();
         case Ship::ConsoleVariableType::Float:
             return cVar->Float;
-        //case Ship::ConsoleVariableType::Color:
-        //    return cVar->Color;
-        //case Ship::ConsoleVariableType::Color24:
-        //    return cVar->Color24;
+        case Ship::ConsoleVariableType::Color:
+            return cVar->Color;
+        case Ship::ConsoleVariableType::Color24:
+            return cVar->Color24;
     }
 }
 

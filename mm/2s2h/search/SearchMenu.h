@@ -56,7 +56,7 @@ typedef enum { DISABLE_FOR_DEBUG_CAM_ON, DISABLE_FOR_FREE_LOOK_ON, DISABLE_FOR_A
 
 typedef enum { DISABLE_COND_LESS_THAN, DISABLE_COND_GREATER_THAN, DISABLE_COND_EQUAL_TO } DisableCondition;
 
-using CVarVariant = std::variant<int32_t, const char*, float>;
+using CVarVariant = std::variant<int32_t, const char*, float, Color_RGBA8, Color_RGB8>;
 
 struct WidgetOptions {
     CVarVariant min;
@@ -65,38 +65,48 @@ struct WidgetOptions {
     std::unordered_map<int32_t, const char*> comboBoxOptions;
 };
 
-//int32_t GetCVarValue(const char* cVarName, int32_t defaultValue) {
-//    return CVarGetInteger(cVarName, defaultValue);
-//}
-//
-//bool GetCVarValue(const char* cVarName, bool defaultValue) {
-//    return static_cast<bool>(CVarGetInteger(cVarName, static_cast<int32_t>(defaultValue)));
-//}
-//
-//uint32_t GetCVarValue(const char* cVarName, uint32_t defaultValue) {
-//    return static_cast<uint32_t>(CVarGetInteger(cVarName, static_cast<int32_t>(defaultValue)));
-//}
-//
-//float GetCVarValue(const char* cVarName, float defaultValue) {
-//    return CVarGetFloat(cVarName, defaultValue);
-//}
-//
-//const char* GetCVarValue(const char* cVarName, const char* defaultValue) {
-//    return CVarGetString(cVarName, defaultValue);
-//}
+bool operator==(Color_RGB8 const& l, Color_RGB8 const& r) noexcept {
+    return l.r == r.r && l.g == r.g && l.b == r.b;
+}
 
-//std::unordered_map<Ship::ConsoleVariableType, std::any(*)(const char*, std::any)> cVarFuncs = {
-//    { Ship::ConsoleVariableType::Integer, [](const char* cVarName, int32_t cVarDefault) -> int32_t {
-//        return CVarGetInteger(cVarName, cVarDefault);
-//    }}
-//};
+bool operator==(Color_RGBA8 const& l, Color_RGBA8 const& r) noexcept {
+    return l.r == r.r && l.g == r.g && l.b == r.b && l.a == r.a;
+}
 
-std::unordered_map<ColorOption, ImVec4> menuTheme = {
-    { COLOR_WHITE, UIWidgets::Colors::White }, { COLOR_GRAY, UIWidgets::Colors::Gray }, { COLOR_DARK_GRAY, UIWidgets::Colors::DarkGray },
-    { COLOR_INDIGO, UIWidgets::Colors::Indigo }, { COLOR_RED, UIWidgets::Colors::Red }, { COLOR_DARK_RED, UIWidgets::Colors::DarkRed },
-    { COLOR_LIGHT_GREEN, UIWidgets::Colors::LightGreen }, { COLOR_GREEN, UIWidgets::Colors::Green }, { COLOR_DARK_GREEN, UIWidgets::Colors::DarkGreen },
-    { COLOR_YELLOW, UIWidgets::Colors::Yellow }
-};
+bool operator<(Color_RGB8 const& l, Color_RGB8 const& r) noexcept {
+    return (l.r < r.r && l.g <= r.g && l.b <= r.b) || (l.r <= r.r && l.g < r.g && l.b <= r.b) ||
+           (l.r <= r.r && l.g <= r.g && l.b < r.b);
+}
+
+bool operator<(Color_RGBA8 const& l, Color_RGBA8 const& r) noexcept {
+    return (l.r < r.r && l.g <= r.g && l.b <= r.b && l.a <= r.a) ||
+           (l.r <= r.r && l.g < r.g && l.b <= r.b && l.a <= r.a) ||
+           (l.r <= r.r && l.g <= r.g && l.b < r.b && l.a <= r.a) ||
+           (l.r <= r.r && l.g <= r.g && l.b <= r.b && l.a < r.a);
+}
+
+bool operator>(Color_RGB8 const& l, Color_RGB8 const& r) noexcept {
+    return (l.r > r.r && l.g >= r.g && l.b >= r.b) || (l.r >= r.r && l.g > r.g && l.b >= r.b) ||
+           (l.r >= r.r && l.g >= r.g && l.b > r.b);
+}
+
+bool operator>(Color_RGBA8 const& l, Color_RGBA8 const& r) noexcept {
+    return (l.r > r.r && l.g >= r.g && l.b >= r.b && l.a >= r.a) ||
+           (l.r >= r.r && l.g > r.g && l.b >= r.b && l.a >= r.a) ||
+           (l.r >= r.r && l.g >= r.g && l.b > r.b && l.a >= r.a) ||
+           (l.r >= r.r && l.g >= r.g && l.b >= r.b && l.a > r.a);
+}
+
+std::unordered_map<ColorOption, ImVec4> menuTheme = { { COLOR_WHITE, UIWidgets::Colors::White },
+                                                      { COLOR_GRAY, UIWidgets::Colors::Gray },
+                                                      { COLOR_DARK_GRAY, UIWidgets::Colors::DarkGray },
+                                                      { COLOR_INDIGO, UIWidgets::Colors::Indigo },
+                                                      { COLOR_RED, UIWidgets::Colors::Red },
+                                                      { COLOR_DARK_RED, UIWidgets::Colors::DarkRed },
+                                                      { COLOR_LIGHT_GREEN, UIWidgets::Colors::LightGreen },
+                                                      { COLOR_GREEN, UIWidgets::Colors::Green },
+                                                      { COLOR_DARK_GREEN, UIWidgets::Colors::DarkGreen },
+                                                      { COLOR_YELLOW, UIWidgets::Colors::Yellow } };
 
 std::unordered_map<DisableCondition, bool (*)(CVarVariant, CVarVariant)> conditionFuncs = {
     { DISABLE_COND_LESS_THAN,
@@ -596,7 +606,12 @@ widgetInfo enhancementList[] = {
       WIDGET_CHECKBOX,
       {},
       ([]() { RegisterLongerFlowerGlide(); }) },
-    { MENU_ITEM_CHEATS_NO_CLIP, "No Clip", "gCheats.NoClip", "Allows Link to phase through collision.", WIDGET_CHECKBOX, {} },
+    { MENU_ITEM_CHEATS_NO_CLIP,
+      "No Clip",
+      "gCheats.NoClip",
+      "Allows Link to phase through collision.",
+      WIDGET_CHECKBOX,
+      {} },
     { MENU_ITEM_CHEATS_INFINITE_RAZOR_SWORD,
       "Unbreakable Razor Sword",
       "gCheats.UnbreakableRazorSword",
@@ -1086,7 +1101,12 @@ widgetInfo enhancementList[] = {
     { MENU_ITEM_FRAME_ADVANCE_SINGLE, "Advance 1", "", "Advance 1 frame.", WIDGET_BUTTON, {}, ([]() {
           CVarSetInteger("gDeveloperTools.FrameAdvanceTick", 1);
       }) },
-    { MENU_ITEM_FRAME_ADVANCE_HOLD, "Advance (Hold)", "", "Advance frames while the button is held.", WIDGET_BUTTON, {} },
+    { MENU_ITEM_FRAME_ADVANCE_HOLD,
+      "Advance (Hold)",
+      "",
+      "Advance frames while the button is held.",
+      WIDGET_BUTTON,
+      {} },
 };
 
 void SearchMenuGetItem(uint32_t index) {
@@ -1155,24 +1175,23 @@ void SearchMenuGetItem(uint32_t index) {
                 }
             };
             break;
-        case WIDGET_SLIDER_FLOAT:
-        {
+        case WIDGET_SLIDER_FLOAT: {
             float floatMin = (std::get<float>(enhancementList[index].widgetOptions.min) / 100);
             float floatMax = (std::get<float>(enhancementList[index].widgetOptions.max) / 100);
             float floatDefault = (std::get<float>(enhancementList[index].widgetOptions.defaultVariant) / 100);
             if (UIWidgets::CVarSliderFloat(enhancementList[index].widgetName, enhancementList[index].widgetCVar,
-                floatMin, floatMax, floatDefault,
-                {
-                    .color = menuTheme[menuThemeIndex],
-                    .tooltip = enhancementList[index].widgetTooltip,
-                    .disabled = disabledValue,
-                    .disabledTooltip = disabledTooltip,
-                })) {
+                                           floatMin, floatMax, floatDefault,
+                                           {
+                                               .color = menuTheme[menuThemeIndex],
+                                               .tooltip = enhancementList[index].widgetTooltip,
+                                               .disabled = disabledValue,
+                                               .disabledTooltip = disabledTooltip,
+                                           })) {
                 if (enhancementList[index].widgetCallback != nullptr) {
                     enhancementList[index].widgetCallback();
                 }
             }
-        }   break;
+        } break;
         case WIDGET_BUTTON:
             if (UIWidgets::Button(enhancementList[index].widgetName,
                                   {
