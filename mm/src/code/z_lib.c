@@ -1,6 +1,5 @@
 #include "global.h"
 #include <libultraship/bridge.h>
-#include "BenPort.h"
 
 f32 Math_CosS(s16 angle) {
     return coss(angle) * SHT_MINV;
@@ -678,10 +677,7 @@ void Lib_Nop801004FC(void) {
 }
 
 void* Lib_SegmentedToVirtual(void* ptr) {
-    if (ResourceMgr_OTRSigCheck(ptr)) {
-        return ResourceGetDataByName(ptr); // SEGMENTED_TO_VIRTUAL(ptr);
-    }
-    return ptr;
+    return SEGMENTED_TO_K0(ptr);
 }
 
 void* Lib_SegmentedToVirtualNull(void* ptr) {
