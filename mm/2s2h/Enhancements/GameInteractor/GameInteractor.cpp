@@ -19,6 +19,10 @@ void GameInteractor_ExecuteOnGameStateUpdate() {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnGameStateUpdate>();
 }
 
+void GameInteractor_ExecuteOnConsoleLogoUpdate() {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnConsoleLogoUpdate>();
+}
+
 void GameInteractor_ExecuteOnKaleidoUpdate(PauseContext* pauseCtx) {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnKaleidoUpdate>(pauseCtx);
 }
@@ -62,6 +66,13 @@ void GameInteractor_ExecuteOnRoomInit(s16 sceneId, s8 roomNum) {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnRoomInit>(sceneId, roomNum);
     GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnRoomInit>(sceneId, sceneId, roomNum);
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnRoomInit>(sceneId, roomNum);
+}
+
+void GameInteractor_ExecuteAfterRoomSceneCommands(s16 sceneId, s8 roomNum) {
+    SPDLOG_DEBUG("AfterRoomSceneCommands: sceneId: {}, roomNum: {}", sceneId, roomNum);
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::AfterRoomSceneCommands>(sceneId, roomNum);
+    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::AfterRoomSceneCommands>(sceneId, sceneId, roomNum);
+    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::AfterRoomSceneCommands>(sceneId, roomNum);
 }
 
 void GameInteractor_ExecuteOnPlayDestroy() {

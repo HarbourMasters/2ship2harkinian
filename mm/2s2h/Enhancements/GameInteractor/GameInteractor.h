@@ -58,6 +58,7 @@ typedef enum {
     GI_VB_FLIP_HOP_VARIABLE,
     GI_VB_DISABLE_LETTERBOX,
     GI_VB_CLOCK_TOWER_OPENING_CONSIDER_THIS_FIRST_CYCLE,
+    GI_VB_DRAW_SLIME_BODY_ITEM,
 } GIVanillaBehavior;
 
 typedef enum {
@@ -260,6 +261,7 @@ class GameInteractor {
     DEFINE_HOOK(OnGameStateMainFinish, ());
     DEFINE_HOOK(OnGameStateDrawFinish, ());
     DEFINE_HOOK(OnGameStateUpdate, ());
+    DEFINE_HOOK(OnConsoleLogoUpdate, ());
     DEFINE_HOOK(OnKaleidoUpdate, (PauseContext * pauseCtx));
     DEFINE_HOOK(BeforeKaleidoDrawPage, (PauseContext * pauseCtx, u16 pauseIndex));
     DEFINE_HOOK(AfterKaleidoDrawPage, (PauseContext * pauseCtx, u16 pauseIndex));
@@ -270,6 +272,7 @@ class GameInteractor {
 
     DEFINE_HOOK(OnSceneInit, (s8 sceneId, s8 spawnNum));
     DEFINE_HOOK(OnRoomInit, (s8 sceneId, s8 roomNum));
+    DEFINE_HOOK(AfterRoomSceneCommands, (s8 sceneId, s8 roomNum));
     DEFINE_HOOK(OnPlayDestroy, ());
 
     DEFINE_HOOK(ShouldActorInit, (Actor * actor, bool* should));
@@ -306,6 +309,7 @@ extern "C" {
 void GameInteractor_ExecuteOnGameStateMainFinish();
 void GameInteractor_ExecuteOnGameStateDrawFinish();
 void GameInteractor_ExecuteOnGameStateUpdate();
+void GameInteractor_ExecuteOnConsoleLogoUpdate();
 void GameInteractor_ExecuteOnKaleidoUpdate(PauseContext* pauseCtx);
 void GameInteractor_ExecuteBeforeKaleidoDrawPage(PauseContext* pauseCtx, u16 pauseIndex);
 void GameInteractor_ExecuteAfterKaleidoDrawPage(PauseContext* pauseCtx, u16 pauseIndex);
@@ -316,6 +320,7 @@ void GameInteractor_ExecuteBeforeMoonCrashSaveReset();
 
 void GameInteractor_ExecuteOnSceneInit(s16 sceneId, s8 spawnNum);
 void GameInteractor_ExecuteOnRoomInit(s16 sceneId, s8 roomNum);
+void GameInteractor_ExecuteAfterRoomSceneCommands(s16 sceneId, s8 roomNum);
 void GameInteractor_ExecuteOnPlayDestroy();
 
 bool GameInteractor_ShouldActorInit(Actor* actor);

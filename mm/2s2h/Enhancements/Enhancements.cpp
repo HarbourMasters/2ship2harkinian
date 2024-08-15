@@ -12,6 +12,7 @@ void InitEnhancements() {
     RegisterMoonJumpOnL();
     RegisterUnbreakableRazorSword();
     RegisterUnrestrictedItems();
+    RegisterTimeStopInTemples();
 
     // Clock
     RegisterTextBasedClock();
@@ -30,6 +31,7 @@ void InitEnhancements() {
     // Graphics
     RegisterDisableBlackBars();
     RegisterHyruleWarriorsStyledLink();
+    Register3DItemDrops();
 
     // Masks
     RegisterFastTransformation();
@@ -48,6 +50,7 @@ void InitEnhancements() {
 
     // Songs
     RegisterEnableSunsSong();
+    RegisterPauseOwlWarp();
 
     // Restorations
     RegisterPowerCrouchStab();
