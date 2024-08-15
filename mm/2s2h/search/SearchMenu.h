@@ -21,6 +21,7 @@ typedef enum {
 } ColorOption;
 
 using WidgetFunc = void (*)();
+using ConditionFunc = bool (*)();
 std::string disabledTempTooltip;
 const char* disabledTooltip;
 bool disabledValue = false;
@@ -52,9 +53,13 @@ typedef enum {
     DEBUG_LOG_OFF,
 };
 
-typedef enum { DISABLE_FOR_DEBUG_CAM_ON, DISABLE_FOR_FREE_LOOK_ON, DISABLE_FOR_AUTO_SAVE_OFF } DisableOption;
-
-typedef enum { DISABLE_COND_LESS_THAN, DISABLE_COND_GREATER_THAN, DISABLE_COND_EQUAL_TO } DisableCondition;
+typedef enum {
+    DISABLE_FOR_DEBUG_CAM_ON,
+    DISABLE_FOR_DEBUG_CAM_OFF,
+    DISABLE_FOR_FREE_LOOK_ON,
+    DISABLE_FOR_FREE_LOOK_OFF,
+    DISABLE_FOR_AUTO_SAVE_OFF
+} DisableOption;
 
 using CVarVariant = std::variant<int32_t, const char*, float, Color_RGBA8, Color_RGB8>;
 
@@ -108,23 +113,6 @@ std::unordered_map<ColorOption, ImVec4> menuTheme = { { COLOR_WHITE, UIWidgets::
                                                       { COLOR_DARK_GREEN, UIWidgets::Colors::DarkGreen },
                                                       { COLOR_YELLOW, UIWidgets::Colors::Yellow } };
 
-std::unordered_map<DisableCondition, bool (*)(CVarVariant, CVarVariant)> conditionFuncs = {
-    { DISABLE_COND_LESS_THAN,
-      [](CVarVariant state, CVarVariant conditionVal) -> bool {
-          assert((std::holds_alternative<float>(state) || std::holds_alternative<int32_t>(state)) &&
-                 (std::holds_alternative<float>(conditionVal) || std::holds_alternative<int32_t>(conditionVal)));
-          return state < conditionVal;
-      } },
-    { DISABLE_COND_GREATER_THAN,
-      [](CVarVariant state, CVarVariant conditionVal) -> bool {
-          assert((std::holds_alternative<float>(state) || std::holds_alternative<int32_t>(state)) &&
-                 (std::holds_alternative<float>(conditionVal) || std::holds_alternative<int32_t>(conditionVal)));
-          return state > conditionVal;
-      } },
-    { DISABLE_COND_EQUAL_TO,
-      [](CVarVariant state, CVarVariant conditionVal) -> bool { return state == conditionVal; } },
-};
-
 struct widgetInfo {
     uint32_t widgetIndex;
     const char* widgetName;
@@ -137,21 +125,25 @@ struct widgetInfo {
 };
 
 struct disabledInfo {
-    const char* cVar;
+    ConditionFunc evaluation;
     const char* reason;
-    DisableCondition condition;
-    CVarVariant cVarDefault;
-    CVarVariant conditionVal;
     bool active = false;
 };
 
 std::unordered_map<DisableOption, disabledInfo> disabledMap = {
     { DISABLE_FOR_DEBUG_CAM_ON,
-      { "gEnhancements.Camera.DebugCam.Enable", "Debug Camera is Enabled", DISABLE_COND_EQUAL_TO, false, true } },
+      { []() -> bool { return CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0); },
+        "Debug Camera is Enabled" } },
+    { DISABLE_FOR_DEBUG_CAM_OFF,
+      { []() -> bool { return !CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0); },
+        "Debug Camera is Disabled" } },
     { DISABLE_FOR_FREE_LOOK_ON,
-      { "gEnhancements.Camera.FreeLook.Enable", "Free Look is Enabled", DISABLE_COND_EQUAL_TO, false, true } },
+      { []() -> bool { return CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0); }, "Free Look is Enabled" } },
+    { DISABLE_FOR_FREE_LOOK_OFF,
+      { []() -> bool { return !CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0); },
+        "Free Look is Disabled" } },
     { DISABLE_FOR_AUTO_SAVE_OFF,
-      { "gEnhancements.Saving.Autosave", "AutoSave is Disabled", DISABLE_COND_EQUAL_TO, false, false } }
+      { []() -> bool { return !CVarGetInteger("gEnhancements.Saving.Autosave", 0); }, "AutoSave is Disabled" } }
 };
 
 std::unordered_map<int32_t, const char*> menuThemeOptions = {
