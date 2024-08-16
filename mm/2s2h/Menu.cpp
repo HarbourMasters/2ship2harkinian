@@ -382,21 +382,11 @@ void DrawGeneralDevTools() {
 }
 
 void DrawCollisionViewerContents() {
-    UIWidgets::WindowButton("Popout Collision Viewer", "gWindows.CollisionViewer", mCollisionViewerWindow,
-                            { .color = menuTheme[menuThemeIndex], .tooltip = "Draws collision to the screen" });
-    if (!CVarGetInteger("gWindows.CollisionViewer", 0)) {
-        mCollisionViewerWindow->DrawElement();
-    }
+    SearchMenuGetItem(MENU_ITEM_COLLISION_VIEWER_BUTTON);
 }
 
 void DrawStatsContents() {
-    UIWidgets::WindowButton(
-        "Popout Stats", "gOpenWindows.Stats", mStatsWindow,
-        { .color = menuTheme[menuThemeIndex],
-          .tooltip = "Shows the stats window, with your FPS and frametimes, and the OS you're playing on" });
-    if (!CVarGetInteger("gOpenWindows.Stats", 0)) {
-        mStatsWindow->DrawElement();
-    }
+    SearchMenuGetItem(MENU_ITEM_STATS_BUTTON);
 }
 
 void DrawConsoleContents() {
@@ -554,30 +544,9 @@ void BenMenu::Draw() {
     SyncVisibilityConsoleVariable();
 }
 
-CVarVariant GetCVarVariant(std::shared_ptr<Ship::CVar> cVar, CVarVariant cVarDefault) {
-    if (cVar == nullptr) {
-        return cVarDefault;
-    }
-    switch (cVar->Type) {
-        default:
-        case Ship::ConsoleVariableType::Integer:
-            return cVar->Integer;
-        case Ship::ConsoleVariableType::String:
-            return cVar->String.c_str();
-        case Ship::ConsoleVariableType::Float:
-            return cVar->Float;
-        case Ship::ConsoleVariableType::Color:
-            return cVar->Color;
-        case Ship::ConsoleVariableType::Color24:
-            return cVar->Color24;
-    }
-}
-
 void BenMenu::DrawElement() {
     for (auto& [reason, info] : disabledMap) {
-        auto cVar = CVarGet(info.cVar);
-        CVarVariant state = GetCVarVariant(cVar, info.cVarDefault);
-        info.active = conditionFuncs.at(info.condition)(info.conditionVal, state);
+        info.active = info.evaluation();
     }
     menuThemeIndex = static_cast<ColorOption>(CVarGetInteger("gSettings.MenuTheme", 3));
 

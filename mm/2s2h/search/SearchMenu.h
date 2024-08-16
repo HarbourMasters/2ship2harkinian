@@ -1,6 +1,7 @@
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include <variant>
+#include <tuple>
 
 extern "C" {
 #include "functions.h"
@@ -20,8 +21,20 @@ typedef enum {
     COLOR_YELLOW,
 } ColorOption;
 
-using WidgetFunc = void (*)();
+typedef enum {
+    DISABLE_FOR_DEBUG_CAM_ON,
+    DISABLE_FOR_DEBUG_CAM_OFF,
+    DISABLE_FOR_FREE_LOOK_ON,
+    DISABLE_FOR_FREE_LOOK_OFF,
+    DISABLE_FOR_AUTO_SAVE_OFF,
+    DISABLE_FOR_SAVE_NOT_LOADED
+} DisableOption;
+
+struct widgetInfo;
+using VoidFunc = void (*)();
 using ConditionFunc = bool (*)();
+using DisableVec = std::vector<DisableOption>;
+using ModifierFunc = void (*)(widgetInfo&);
 std::string disabledTempTooltip;
 const char* disabledTooltip;
 bool disabledValue = false;
@@ -34,7 +47,8 @@ typedef enum {
     WIDGET_SLIDER_FLOAT,
     WIDGET_BUTTON,
     WIDGET_COLOR_24,
-    WIDGET_COLOR_32
+    WIDGET_COLOR_32,
+    WIDGET_WINDOW_BUTTON
 } WidgetType;
 
 typedef enum {
@@ -52,14 +66,6 @@ typedef enum {
     DEBUG_LOG_CRITICAL,
     DEBUG_LOG_OFF,
 };
-
-typedef enum {
-    DISABLE_FOR_DEBUG_CAM_ON,
-    DISABLE_FOR_DEBUG_CAM_OFF,
-    DISABLE_FOR_FREE_LOOK_ON,
-    DISABLE_FOR_FREE_LOOK_OFF,
-    DISABLE_FOR_AUTO_SAVE_OFF
-} DisableOption;
 
 using CVarVariant = std::variant<int32_t, const char*, float, Color_RGBA8, Color_RGB8>;
 
@@ -120,8 +126,10 @@ struct widgetInfo {
     const char* widgetTooltip;
     uint32_t widgetType;
     WidgetOptions widgetOptions;
-    WidgetFunc widgetCallback = nullptr;
-    std::vector<DisableOption> disableOptions;
+    VoidFunc widgetCallback = nullptr;
+    ModifierFunc modifierFunc = nullptr;
+    DisableVec activeDisables = {};
+    bool isHidden = false;
 };
 
 struct disabledInfo {
@@ -130,7 +138,7 @@ struct disabledInfo {
     bool active = false;
 };
 
-std::unordered_map<DisableOption, disabledInfo> disabledMap = {
+static std::pair<DisableOption, disabledInfo> disabledMap[] = {
     { DISABLE_FOR_DEBUG_CAM_ON,
       { []() -> bool { return CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0); },
         "Debug Camera is Enabled" } },
@@ -143,7 +151,8 @@ std::unordered_map<DisableOption, disabledInfo> disabledMap = {
       { []() -> bool { return !CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0); },
         "Free Look is Disabled" } },
     { DISABLE_FOR_AUTO_SAVE_OFF,
-      { []() -> bool { return !CVarGetInteger("gEnhancements.Saving.Autosave", 0); }, "AutoSave is Disabled" } }
+      { []() -> bool { return !CVarGetInteger("gEnhancements.Saving.Autosave", 0); }, "AutoSave is Disabled" } },
+    { DISABLE_FOR_SAVE_NOT_LOADED, { []() -> bool { return gPlayState == NULL; }, "Save Not Loaded" } }
 };
 
 std::unordered_map<int32_t, const char*> menuThemeOptions = {
@@ -193,6 +202,8 @@ static const std::unordered_map<int32_t, const char*> logLevels = {
     { DEBUG_LOG_WARN, "Warn" },   { DEBUG_LOG_ERROR, "Error" }, { DEBUG_LOG_CRITICAL, "Critical" },
     { DEBUG_LOG_OFF, "Off" },
 };
+
+typedef enum { SIDEBAR_SECTION_SETTINGS_GENERAL, SIDEBAR_SECTION_SETTINGS_GRAPHICS, SIDEBAR_SECTION_SETTINGS_ };
 
 typedef enum {
     MENU_ITEM_MENU_THEME,
@@ -305,6 +316,8 @@ typedef enum {
     MENU_ITEM_FRAME_ADVANCE_ENABLE,
     MENU_ITEM_FRAME_ADVANCE_SINGLE,
     MENU_ITEM_FRAME_ADVANCE_HOLD,
+    MENU_ITEM_COLLISION_VIEWER_BUTTON,
+    MENU_ITEM_STATS_BUTTON
 };
 
 widgetInfo enhancementList[] = {
@@ -494,7 +507,10 @@ widgetInfo enhancementList[] = {
       WIDGET_CHECKBOX,
       {},
       ([]() { RegisterCameraFreeLook(); }),
-      { DISABLE_FOR_DEBUG_CAM_ON } },
+      [](widgetInfo& info) {
+          if (disabledMap[DISABLE_FOR_DEBUG_CAM_ON].second.active)
+              info.activeDisables.push_back(DISABLE_FOR_DEBUG_CAM_ON);
+      } },
     { MENU_ITEM_FREE_LOOK_CAMERA_DISTANCE,
       "Camera Distance: %d",
       "gEnhancements.Camera.FreeLook.MaxCameraDistance",
@@ -527,7 +543,11 @@ widgetInfo enhancementList[] = {
       WIDGET_CHECKBOX,
       {},
       ([]() { RegisterDebugCam(); }),
-      { DISABLE_FOR_FREE_LOOK_ON } },
+      [](widgetInfo& info) {
+          if (disabledMap[DISABLE_FOR_FREE_LOOK_ON].second.active) {
+              info.activeDisables.push_back(DISABLE_FOR_FREE_LOOK_ON);
+          }
+      } },
     { MENU_ITEM_INVERT_CAMERA_X_AXIS,
       "Invert Camera X Axis",
       "gEnhancements.Camera.RightStick.InvertXAxis",
@@ -704,7 +724,11 @@ widgetInfo enhancementList[] = {
       WIDGET_SLIDER_INT,
       { 1, 60, 5 },
       nullptr,
-      { DISABLE_FOR_AUTO_SAVE_OFF } },
+      [](widgetInfo& info) {
+          if (disabledMap[DISABLE_FOR_AUTO_SAVE_OFF].second.active) {
+              info.activeDisables.push_back(DISABLE_FOR_AUTO_SAVE_OFF);
+          }
+      } },
     { MENU_ITEM_DISABLE_BOTTLE_RESET,
       "Do not reset Bottle content",
       "gEnhancements.Cycle.DoNotResetBottleContent",
@@ -1093,12 +1117,11 @@ widgetInfo enhancementList[] = {
     { MENU_ITEM_FRAME_ADVANCE_SINGLE, "Advance 1", "", "Advance 1 frame.", WIDGET_BUTTON, {}, ([]() {
           CVarSetInteger("gDeveloperTools.FrameAdvanceTick", 1);
       }) },
-    { MENU_ITEM_FRAME_ADVANCE_HOLD,
-      "Advance (Hold)",
-      "",
-      "Advance frames while the button is held.",
-      WIDGET_BUTTON,
-      {} },
+    { MENU_ITEM_FRAME_ADVANCE_HOLD, "Advance (Hold)", "", "Advance frames while the button is held.", WIDGET_BUTTON },
+    { MENU_ITEM_COLLISION_VIEWER_BUTTON, "Collision Viewer", "gWindows.CollisionViewer",
+      "Draws collision to the screen", WIDGET_WINDOW_BUTTON },
+    { MENU_ITEM_STATS_BUTTON, "Stats", "gOpenWindows.Stats",
+      "Shows the stats window, with your FPS and frametimes, and the OS you're playing on", WIDGET_WINDOW_BUTTON }
 };
 
 void SearchMenuGetItem(uint32_t index) {
@@ -1106,17 +1129,20 @@ void SearchMenuGetItem(uint32_t index) {
     disabledValue = false;
     disabledTooltip = " ";
 
-    if (!enhancementList[index].disableOptions.empty()) {
-        for (auto reason : enhancementList[index].disableOptions) {
-            if (disabledMap.at(reason).active) {
-                disabledValue = true;
-                disabledTempTooltip += std::string("- ") + disabledMap.at(reason).reason + std::string("\n");
-            }
+    if (enhancementList[index].modifierFunc != nullptr) {
+        enhancementList[index].activeDisables.clear();
+        enhancementList[index].isHidden = false;
+        enhancementList[index].modifierFunc(enhancementList[index]);
+        if (enhancementList[index].isHidden) {
+            return;
         }
-        disabledTooltip = disabledTempTooltip.c_str();
-    } else {
-        disabledValue = false;
-        disabledTooltip = " ";
+        if (!enhancementList[index].activeDisables.empty()) {
+            disabledValue = true;
+            for (auto option : enhancementList[index].activeDisables) {
+                disabledTempTooltip += std::string("- ") + disabledMap[option].second.reason + std::string("\n");
+            }
+            disabledTooltip = disabledTempTooltip.c_str();
+        }
     }
 
     switch (enhancementList[index].widgetType) {
@@ -1197,6 +1223,18 @@ void SearchMenuGetItem(uint32_t index) {
                 }
             }
             break;
+        case WIDGET_WINDOW_BUTTON: {
+            auto window =
+                Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow(enhancementList[index].widgetName);
+            std::string buttonText = "Popout ";
+            buttonText.append(enhancementList[index].widgetName);
+            UIWidgets::WindowButton(
+                buttonText.c_str(), enhancementList[index].widgetCVar, window,
+                { .color = menuTheme[menuThemeIndex], .tooltip = enhancementList[index].widgetTooltip });
+            if (!window->IsVisible()) {
+                window->DrawElement();
+            }
+        } break;
         default:
             break;
     }
