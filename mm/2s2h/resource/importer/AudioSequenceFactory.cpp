@@ -3,7 +3,7 @@
 #include "spdlog/spdlog.h"
 #include "StringHelper.h"
 #include "libultraship/libultraship.h"
-
+#define DR_WAV_IMPLEMENTATION
 #include "dr_wav.h"
 
 namespace SOH {
