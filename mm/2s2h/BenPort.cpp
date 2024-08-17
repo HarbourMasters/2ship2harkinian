@@ -15,6 +15,7 @@
 #include "z64animation.h"
 #include "z64bgcheck.h"
 #include <libultraship/libultra/gbi.h>
+#include "stb_image.h"
 #ifdef _WIN32
 #include <Windows.h>
 #else
