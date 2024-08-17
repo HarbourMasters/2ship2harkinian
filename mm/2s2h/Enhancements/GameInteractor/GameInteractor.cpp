@@ -208,11 +208,16 @@ void GameInteractor_ExecuteOnPassPlayerInputs(Input* input) {
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnPassPlayerInputs>(input);
 }
 
-void GameInteractor_ExecuteOnOpenText(u16 textId) {
-    SPDLOG_DEBUG("OnOpenText: textId: {}", textId);
+void GameInteractor_ExecuteOnOpenText(u16* textId) {
+    SPDLOG_DEBUG("OnOpenText: textId: {}", *textId);
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnOpenText>(textId);
-    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnOpenText>(textId, textId);
+    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnOpenText>(*textId, textId);
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnOpenText>(textId);
+}
+
+void GameInteractor_ExecuteOnHandleCustomMessage(s32 modId, s32 textId, std::string* msg) {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnHandleCustomMessage>(modId, textId, msg);
+    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnHandleCustomMessage>(modId, textId, msg);
 }
 
 bool GameInteractor_ShouldItemGive(u8 item) {
