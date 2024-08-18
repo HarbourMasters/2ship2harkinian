@@ -18,6 +18,7 @@
 #include "Masks/FierceDeityAnywhere.h"
 #include "Masks/NoBlastMaskCooldown.h"
 #include "Masks/FastTransformation.h"
+#include "Masks/PersistentMasks.h"
 #include "Minigames/AlwaysWinDoggyRace.h"
 #include "Cutscenes/Cutscenes.h"
 #include "Restorations/FlipHopVariable.h"
