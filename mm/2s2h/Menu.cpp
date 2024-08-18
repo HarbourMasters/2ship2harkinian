@@ -173,35 +173,19 @@ void DrawCameraEnhancements1() {
 }
 
 void DrawCameraEnhancements2() {
-    ImGui::SeparatorText("Free Look");
+    ImGui::SeparatorText("Cameras");
     SearchMenuGetItem(MENU_ITEM_ENABLE_FREE_LOOK);
-    if (CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0)) {
-        SearchMenuGetItem(MENU_ITEM_INVERT_CAMERA_X_AXIS);
-        SearchMenuGetItem(MENU_ITEM_INVERT_CAMERA_Y_AXIS);
-        SearchMenuGetItem(MENU_ITEM_THIRD_PERSON_CAMERA_X_SENSITIVITY);
-        SearchMenuGetItem(MENU_ITEM_THIRD_PERSON_CAMERA_Y_SENSITIVITY);
-        SearchMenuGetItem(MENU_ITEM_FREE_LOOK_CAMERA_DISTANCE);
-        SearchMenuGetItem(MENU_ITEM_FREE_LOOK_TRANSITION_SPEED);
-        SearchMenuGetItem(MENU_ITEM_FREE_LOOK_MAX_PITCH);
-        SearchMenuGetItem(MENU_ITEM_FREE_LOOK_MIN_PITCH);
-        f32 maxY = CVarGetFloat("gEnhancements.Camera.FreeLook.MaxPitch", 72.0f);
-        f32 minY = CVarGetFloat("gEnhancements.Camera.FreeLook.MinPitch", -49.0f);
-        CVarSetFloat("gEnhancements.Camera.FreeLook.MaxPitch", std::max(maxY, minY));
-        CVarSetFloat("gEnhancements.Camera.FreeLook.MinPitch", std::min(maxY, minY));
-    }
-}
-
-void DrawCameraEnhancements3() {
-    ImGui::SeparatorText("'Debug' Camera");
     SearchMenuGetItem(MENU_ITEM_ENABLE_DEBUG_CAMERA);
-    if (CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0)) {
-        SearchMenuGetItem(MENU_ITEM_INVERT_CAMERA_X_AXIS);
-        SearchMenuGetItem(MENU_ITEM_INVERT_CAMERA_Y_AXIS);
-        SearchMenuGetItem(MENU_ITEM_THIRD_PERSON_CAMERA_X_SENSITIVITY);
-        SearchMenuGetItem(MENU_ITEM_THIRD_PERSON_CAMERA_Y_SENSITIVITY);
-        SearchMenuGetItem(MENU_ITEM_ENABLE_CAMERA_ROLL);
-        SearchMenuGetItem(MENU_ITEM_CAMERA_SPEED);
-    }
+    SearchMenuGetItem(MENU_ITEM_INVERT_CAMERA_X_AXIS);
+    SearchMenuGetItem(MENU_ITEM_INVERT_CAMERA_Y_AXIS);
+    SearchMenuGetItem(MENU_ITEM_THIRD_PERSON_CAMERA_X_SENSITIVITY);
+    SearchMenuGetItem(MENU_ITEM_THIRD_PERSON_CAMERA_Y_SENSITIVITY);
+    SearchMenuGetItem(MENU_ITEM_FREE_LOOK_CAMERA_DISTANCE);
+    SearchMenuGetItem(MENU_ITEM_FREE_LOOK_TRANSITION_SPEED);
+    SearchMenuGetItem(MENU_ITEM_FREE_LOOK_MAX_PITCH);
+    SearchMenuGetItem(MENU_ITEM_FREE_LOOK_MIN_PITCH);
+    SearchMenuGetItem(MENU_ITEM_ENABLE_CAMERA_ROLL);
+    SearchMenuGetItem(MENU_ITEM_CAMERA_SPEED);
 }
 
 // Cheats
@@ -456,7 +440,7 @@ void BenMenu::InitElement() {
                                                              { "Controls", { DrawControllerSettings } } };
 
     std::vector<UIWidgets::SidebarEntry> enhancementsSidebar = {
-        { "Camera", { DrawCameraEnhancements1, DrawCameraEnhancements2, DrawCameraEnhancements3 } },
+        { "Camera", { DrawCameraEnhancements1, DrawCameraEnhancements2, nullptr } },
         { "Cheats", { DrawCheatEnhancements, nullptr, nullptr } },
         { "Gameplay", { DrawGameplayEnhancements, DrawGameModesEnhancements, DrawSaveTimeEnhancements } },
         { "Graphics", { DrawGraphicsEnhancements, nullptr, nullptr } },

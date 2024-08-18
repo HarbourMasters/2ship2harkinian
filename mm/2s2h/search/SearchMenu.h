@@ -22,6 +22,7 @@ typedef enum {
 } ColorOption;
 
 typedef enum {
+    DISABLE_FOR_CAMERAS_OFF,
     DISABLE_FOR_DEBUG_CAM_ON,
     DISABLE_FOR_DEBUG_CAM_OFF,
     DISABLE_FOR_FREE_LOOK_ON,
@@ -139,6 +140,12 @@ struct disabledInfo {
 };
 
 static std::pair<DisableOption, disabledInfo> disabledMap[] = {
+    { DISABLE_FOR_CAMERAS_OFF,
+      { []() -> bool {
+           return !CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0) &&
+                  !CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0);
+       },
+        "Both Debug Camera and Free Look are Disabled" } },
     { DISABLE_FOR_DEBUG_CAM_ON,
       { []() -> bool { return CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0); },
         "Debug Camera is Enabled" } },
@@ -320,6 +327,13 @@ typedef enum {
     MENU_ITEM_STATS_BUTTON
 };
 
+void FreeLookPitchMinMax() {
+    f32 maxY = CVarGetFloat("gEnhancements.Camera.FreeLook.MaxPitch", 72.0f);
+    f32 minY = CVarGetFloat("gEnhancements.Camera.FreeLook.MinPitch", -49.0f);
+    CVarSetFloat("gEnhancements.Camera.FreeLook.MaxPitch", std::max(maxY, minY));
+    CVarSetFloat("gEnhancements.Camera.FreeLook.MinPitch", std::min(maxY, minY));
+}
+
 widgetInfo enhancementList[] = {
     // Menu Theme
     { MENU_ITEM_MENU_THEME,
@@ -498,7 +512,7 @@ widgetInfo enhancementList[] = {
       "Fixes the camera snap that occurs when you are moving and press the targetting button.",
       WIDGET_CHECKBOX,
       {} },
-    // Free Look Settings
+    // Camera Enhancements
     { MENU_ITEM_ENABLE_FREE_LOOK,
       "Free Look",
       "gEnhancements.Camera.FreeLook.Enable",
@@ -516,26 +530,33 @@ widgetInfo enhancementList[] = {
       "gEnhancements.Camera.FreeLook.MaxCameraDistance",
       "Maximum Camera Distance for Free Look.",
       WIDGET_SLIDER_INT,
-      { 100, 900, 185 } },
+      { 100, 900, 185 },
+      nullptr,
+      [](widgetInfo& info) { info.isHidden = disabledMap[DISABLE_FOR_FREE_LOOK_OFF].second.active; } },
     { MENU_ITEM_FREE_LOOK_TRANSITION_SPEED,
       "Camera Transition Speed: %d",
       "gEnhancements.Camera.FreeLook.TransitionSpeed",
       "Can someone help me?",
       WIDGET_SLIDER_INT,
-      { 1, 900, 25 } },
+      { 1, 900, 25 },
+      nullptr,
+      [](widgetInfo& info) { info.isHidden = disabledMap[DISABLE_FOR_FREE_LOOK_OFF].second.active; } },
     { MENU_ITEM_FREE_LOOK_MAX_PITCH,
       "Max Camera Height Angle: %.0f\xC2\xB0",
       "gEnhancements.Camera.FreeLook.MaxPitch",
       "Maximum Height of the Camera.",
       WIDGET_SLIDER_FLOAT,
-      { -8900.0f, 8900.0f, 7200.0f } },
+      { -8900.0f, 8900.0f, 7200.0f },
+      []() { FreeLookPitchMinMax(); },
+      [](widgetInfo& info) { info.isHidden = disabledMap[DISABLE_FOR_FREE_LOOK_OFF].second.active; } },
     { MENU_ITEM_FREE_LOOK_MIN_PITCH,
       "Min Camera Height Angle: %.0f\xC2\xB0",
       "gEnhancements.Camera.FreeLook.MinPitch",
       "Minimum Height of the Camera.",
       WIDGET_SLIDER_FLOAT,
-      { -8900.0f, 8900.0f, -4900.0f } },
-    // Camera Enhancements
+      { -8900.0f, 8900.0f, -4900.0f },
+      []() { FreeLookPitchMinMax(); },
+      [](widgetInfo& info) { info.isHidden = disabledMap[DISABLE_FOR_FREE_LOOK_OFF].second.active; } },
     { MENU_ITEM_ENABLE_DEBUG_CAMERA,
       "Debug Camera",
       "gEnhancements.Camera.DebugCam.Enable",
@@ -553,25 +574,49 @@ widgetInfo enhancementList[] = {
       "gEnhancements.Camera.RightStick.InvertXAxis",
       "Inverts the Camera X Axis",
       WIDGET_CHECKBOX,
-      {} },
+      {},
+      nullptr,
+      [](widgetInfo& info) {
+          if (disabledMap[DISABLE_FOR_CAMERAS_OFF].second.active) {
+              info.activeDisables.push_back(DISABLE_FOR_CAMERAS_OFF);
+          }
+      } },
     { MENU_ITEM_INVERT_CAMERA_Y_AXIS,
       "Invert Camera Y Axis",
       "gEnhancements.Camera.RightStick.InvertYAxis",
       "Inverts the Camera Y Axis",
       WIDGET_CHECKBOX,
-      {} },
+      {},
+      nullptr,
+      [](widgetInfo& info) {
+          if (disabledMap[DISABLE_FOR_CAMERAS_OFF].second.active) {
+              info.activeDisables.push_back(DISABLE_FOR_CAMERAS_OFF);
+          }
+      } },
     { MENU_ITEM_THIRD_PERSON_CAMERA_X_SENSITIVITY,
       "Third-Person Horizontal Sensitivity: %.0f",
       "gEnhancements.Camera.RightStick.CameraSensitivity.X",
       "Adjust the Sensitivity of the x axis when in Third Person.",
       WIDGET_SLIDER_FLOAT,
-      { 1.0f, 500.0f, 100.0f } },
+      { 1.0f, 500.0f, 100.0f },
+      nullptr,
+      [](widgetInfo& info) {
+          if (disabledMap[DISABLE_FOR_CAMERAS_OFF].second.active) {
+              info.activeDisables.push_back(DISABLE_FOR_CAMERAS_OFF);
+          }
+      } },
     { MENU_ITEM_THIRD_PERSON_CAMERA_Y_SENSITIVITY,
       "Third-Person Vertical Sensitivity: %.0f",
       "gEnhancements.Camera.RightStick.CameraSensitivity.Y",
       "Adjust the Sensitivity of the x axis when in Third Person.",
       WIDGET_SLIDER_FLOAT,
-      { 1.0f, 500.0f, 100.0f } },
+      { 1.0f, 500.0f, 100.0f },
+      nullptr,
+      [](widgetInfo& info) {
+          if (disabledMap[DISABLE_FOR_CAMERAS_OFF].second.active) {
+              info.activeDisables.push_back(DISABLE_FOR_CAMERAS_OFF);
+          }
+      } },
     { MENU_ITEM_ENABLE_CAMERA_ROLL,
       "Enable Roll (6\xC2\xB0 of Freedom)",
       "gEnhancements.Camera.DebugCam.6DOF",
@@ -579,13 +624,17 @@ widgetInfo enhancementList[] = {
       "differently in this system, instead rotating around the focal point"
       ", rather than a polar axis.",
       WIDGET_CHECKBOX,
-      {} },
+      {},
+      nullptr,
+      [](widgetInfo& info) { info.isHidden = disabledMap[DISABLE_FOR_DEBUG_CAM_OFF].second.active; } },
     { MENU_ITEM_CAMERA_SPEED,
       "Camera Speed: %.0f",
       "gEnhancements.Camera.DebugCam.CameraSpeed",
       "Adjusts the speed of the Camera.",
       WIDGET_SLIDER_FLOAT,
-      { 10.0f, 300.0f, 50.0f } },
+      { 10.0f, 300.0f, 50.0f },
+      nullptr,
+      [](widgetInfo& info) { info.isHidden = disabledMap[DISABLE_FOR_DEBUG_CAM_OFF].second.active; } },
     // Cheats
     { MENU_ITEM_CHEATS_INFINITE_HEALTH,
       "Infinite Health",
@@ -1125,7 +1174,7 @@ widgetInfo enhancementList[] = {
 };
 
 void SearchMenuGetItem(uint32_t index) {
-    disabledTempTooltip = "This setting is disabled because the following is set: \n\n";
+    disabledTempTooltip = "This setting is disabled because: \n\n";
     disabledValue = false;
     disabledTooltip = " ";
 
