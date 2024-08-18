@@ -27,6 +27,7 @@ void InitEnhancements() {
 
     // Equipment
     RegisterSkipMagicArrowEquip();
+    RegisterGreatFairySwordOnB();
 
     // Graphics
     RegisterDisableBlackBars();
