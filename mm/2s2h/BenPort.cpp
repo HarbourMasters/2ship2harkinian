@@ -20,7 +20,6 @@
 #else
 #include <time.h>
 #endif
-#include <Array.h>
 #include <AudioPlayer.h>
 #include "variables.h"
 #include "z64.h"
@@ -57,7 +56,6 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/SaveManager/SaveManager.h"
 
 // Resource Types/Factories
-#include "resource/type/Array.h"
 #include "resource/type/Blob.h"
 #include "resource/type/DisplayList.h"
 #include "resource/type/Matrix.h"
@@ -65,6 +63,7 @@ CrowdControl* CrowdControl::Instance;
 #include "resource/type/Vertex.h"
 #include "2s2h/resource/type/2shResourceType.h"
 #include "2s2h/resource/type/Animation.h"
+#include "2s2h/resource/type/Array.h"
 #include "2s2h/resource/type/AudioSample.h"
 #include "2s2h/resource/type/AudioSequence.h"
 #include "2s2h/resource/type/AudioSoundFont.h"
@@ -75,13 +74,13 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/resource/type/Scene.h"
 #include "2s2h/resource/type/Skeleton.h"
 #include "2s2h/resource/type/SkeletonLimb.h"
-#include "resource/factory/ArrayFactory.h"
 #include "resource/factory/BlobFactory.h"
 #include "resource/factory/DisplayListFactory.h"
 #include "resource/factory/MatrixFactory.h"
 #include "resource/factory/TextureFactory.h"
 #include "resource/factory/VertexFactory.h"
 #include "2s2h/resource/importer/AnimationFactory.h"
+#include "2s2h/resource/importer/ArrayFactory.h"
 #include "2s2h/resource/importer/AudioSampleFactory.h"
 #include "2s2h/resource/importer/AudioSequenceFactory.h"
 #include "2s2h/resource/importer/AudioSoundFontFactory.h"
@@ -101,6 +100,7 @@ OTRGlobals* OTRGlobals::Instance;
 GameInteractor* GameInteractor::Instance;
 
 extern "C" char** cameraStrings;
+bool prevAltAssets = false;
 std::vector<std::shared_ptr<std::string>> cameraStdStrings;
 
 Color_RGB8 kokiriColor = { 0x1E, 0x69, 0x1B };
@@ -148,6 +148,8 @@ OTRGlobals::OTRGlobals() {
     // tell LUS to reserve 3 SoH specific threads (Game, Audio, Save)
     context =
         Ship::Context::CreateInstance("2 Ship 2 Harkinian", appShortName, "2ship2harkinian.json", archiveFiles, {}, 3);
+    prevAltAssets = CVarGetInteger("gAltAssets", 0);
+    context->GetResourceManager()->SetAltAssetsEnabled(prevAltAssets);
 
     // Override LUS defaults
     Ship::Context::GetInstance()->GetLogger()->set_level(
@@ -176,10 +178,10 @@ OTRGlobals::OTRGlobals() {
                                     "DisplayList", static_cast<uint32_t>(LUS::ResourceType::DisplayList), 0);
     loader->RegisterResourceFactory(std::make_shared<LUS::ResourceFactoryBinaryMatrixV0>(), RESOURCE_FORMAT_BINARY,
                                     "Matrix", static_cast<uint32_t>(LUS::ResourceType::Matrix), 0);
-    loader->RegisterResourceFactory(std::make_shared<LUS::ResourceFactoryBinaryArrayV0>(), RESOURCE_FORMAT_BINARY,
-                                    "Array", static_cast<uint32_t>(LUS::ResourceType::Array), 0);
     loader->RegisterResourceFactory(std::make_shared<LUS::ResourceFactoryBinaryBlobV0>(), RESOURCE_FORMAT_BINARY,
                                     "Blob", static_cast<uint32_t>(LUS::ResourceType::Blob), 0);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryArrayV0>(), RESOURCE_FORMAT_BINARY,
+                                    "Array", static_cast<uint32_t>(SOH::ResourceType::SOH_Array), 0);
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryAnimationV0>(), RESOURCE_FORMAT_BINARY,
                                     "Animation", static_cast<uint32_t>(SOH::ResourceType::SOH_Animation), 0);
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryPlayerAnimationV0>(),
@@ -289,7 +291,7 @@ bool OTRGlobals::HasOriginal() {
 }
 
 uint32_t OTRGlobals::GetInterpolationFPS() {
-    if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::DX11) {
+    if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::FAST3D_DXGI_DX11) {
         return CVarGetInteger("gInterpolationFPS", 20);
     }
 
@@ -306,9 +308,6 @@ struct ExtensionEntry {
     std::string ext;
 };
 
-extern uintptr_t clearMtx;
-extern "C" Mtx gMtxClear;
-extern "C" MtxF gMtxFClear;
 extern "C" void OTRMessage_Init();
 extern "C" void AudioMgr_CreateNextAudioBuffer(s16* samples, u32 num_samples);
 extern "C" void AudioPlayer_Play(const uint8_t* buf, uint32_t len);
@@ -408,25 +407,6 @@ extern "C" void OTRExtScanner() {
     }
 }
 
-std::string SanitizePath(std::string stringValue) {
-    // Add backslashes.
-    for (auto i = stringValue.begin();;) {
-        auto const pos =
-            std::find_if(i, stringValue.end(), [](char const c) { return '\\' == c || '\'' == c || '"' == c; });
-        if (pos == stringValue.end()) {
-            break;
-        }
-        i = std::next(stringValue.insert(pos, '\\'), 2);
-    }
-
-    // Removes others.
-    stringValue.erase(std::remove_if(stringValue.begin(), stringValue.end(),
-                                     [](char const c) { return '\n' == c || '\r' == c || '\0' == c || '\x1A' == c; }),
-                      stringValue.end());
-
-    return stringValue;
-}
-
 void Ben_ProcessDroppedFiles(std::string filePath) {
     SPDLOG_INFO("Processing dropped file: {}", filePath);
 
@@ -494,7 +474,6 @@ extern "C" void InitOTR() {
     GfxPatcher_ApplyNecessaryAuthenticPatches();
     DebugConsole_Init();
 
-    clearMtx = (uintptr_t)&gMtxClear;
     OTRMessage_Init();
     OTRAudio_Init();
     // OTRExtScanner();
@@ -508,9 +487,6 @@ extern "C" void InitOTR() {
     } else {
         CVarClear("gLetItSnow");
     }
-
-    // BENTODO Once we have a proper fix for the color cominber, remove this
-    CVarRegisterInteger(CVAR_DISABLE_CLOSE_COLOR_WRAP, 1);
 
     srand(now);
 #ifdef ENABLE_CROWD_CONTROL
@@ -583,8 +559,6 @@ extern "C" uint64_t GetUnixTimestamp() {
     long now = millis.count();
     return now;
 }
-
-extern bool ShouldClearTextureCacheAtEndOfFrame;
 
 extern "C" void Graph_StartFrame() {
 #ifndef __WIIU__
@@ -668,7 +642,7 @@ extern "C" void Graph_StartFrame() {
 #endif
         case KbScancode::LUS_KB_TAB: {
             // Toggle HD Assets
-            CVarSetInteger(CVAR_ALT_ASSETS, !CVarGetInteger(CVAR_ALT_ASSETS, 0));
+            CVarSetInteger("gAltAssets", !CVarGetInteger("gAltAssets", 0));
             // ShouldClearTextureCacheAtEndOfFrame = true;
             break;
         }
@@ -676,7 +650,7 @@ extern "C" void Graph_StartFrame() {
 #endif
 
     if (CVarGetInteger(CVAR_NEW_FILE_DROPPED, 0)) {
-        std::string filePath = SanitizePath(CVarGetString(CVAR_DROPPED_FILE, ""));
+        std::string filePath = CVarGetString(CVAR_DROPPED_FILE, "");
         if (!filePath.empty()) {
             GameInteractor::Instance->ExecuteHooks<GameInteractor::OnFileDropped>(filePath);
         }
@@ -757,12 +731,16 @@ extern "C" void Graph_ProcessGfxCommands(Gfx* commands) {
             audio.cv_from_thread.wait(Lock);
         }
     }
-    //
-    // if (ShouldClearTextureCacheAtEndOfFrame) {
-    //    gfx_texture_cache_clear();
-    //    Ship::SkeletonPatcher::UpdateSkeletons();
-    //    ShouldClearTextureCacheAtEndOfFrame = false;
-    //}
+
+    bool curAltAssets = CVarGetInteger("gAltAssets", 0);
+    if (prevAltAssets != curAltAssets) {
+        prevAltAssets = curAltAssets;
+        Ship::Context::GetInstance()->GetResourceManager()->SetAltAssetsEnabled(curAltAssets);
+        gfx_texture_cache_clear();
+        // TODO: skeleton patch, hooks
+        // SOH::SkeletonPatcher::UpdateSkeletons();
+        // GameInteractor::Instance->ExecuteHooks<GameInteractor::OnAssetAltChange>();
+    }
 
     // OTRTODO: FIGURE OUT END FRAME POINT
     /* if (OTRGlobals::Instance->context->GetWindow()->lastScancode != -1)
@@ -794,6 +772,10 @@ extern "C" uint16_t OTRGetPixelDepth(float x, float y) {
     }
 
     return wnd->GetPixelDepth(x, adjustedY);
+}
+
+extern "C" bool ResourceMgr_IsAltAssetsEnabled() {
+    return Ship::Context::GetInstance()->GetResourceManager()->IsAltAssetsEnabled();
 }
 
 extern "C" uint32_t ResourceMgr_GetNumGameVersions() {
@@ -962,8 +944,8 @@ extern "C" char* ResourceMgr_LoadTexOrDListByName(const char* filePath) {
 
     if (res->GetInitData()->Type == static_cast<uint32_t>(LUS::ResourceType::DisplayList))
         return (char*)&((std::static_pointer_cast<LUS::DisplayList>(res))->Instructions[0]);
-    else if (res->GetInitData()->Type == static_cast<uint32_t>(LUS::ResourceType::Array))
-        return (char*)(std::static_pointer_cast<LUS::Array>(res))->Vertices.data();
+    else if (res->GetInitData()->Type == static_cast<uint32_t>(SOH::ResourceType::SOH_Array))
+        return (char*)(std::static_pointer_cast<SOH::Array>(res))->Vertices.data();
     else {
         return (char*)ResourceGetDataByName(filePath);
     }
@@ -1076,30 +1058,30 @@ extern "C" void ResourceMgr_UnpatchGfxByName(const char* path, const char* patch
 }
 
 extern "C" char* ResourceMgr_LoadVtxArrayByName(const char* path) {
-    auto res = std::static_pointer_cast<LUS::Array>(GetResourceByName(path));
+    auto res = std::static_pointer_cast<SOH::Array>(GetResourceByName(path));
 
     return (char*)res->Vertices.data();
 }
 
 extern "C" size_t ResourceMgr_GetVtxArraySizeByName(const char* path) {
-    auto res = std::static_pointer_cast<LUS::Array>(GetResourceByName(path));
+    auto res = std::static_pointer_cast<SOH::Array>(GetResourceByName(path));
 
     return res->Vertices.size();
 }
 
 extern "C" char* ResourceMgr_LoadArrayByName(const char* path) {
-    auto res = std::static_pointer_cast<LUS::Array>(GetResourceByName(path));
+    auto res = std::static_pointer_cast<SOH::Array>(GetResourceByName(path));
 
     return (char*)res->Scalars.data();
 }
 
 extern "C" size_t ResourceMgr_GetArraySizeByName(const char* path) {
-    auto res = std::static_pointer_cast<LUS::Array>(GetResourceByName(path));
+    auto res = std::static_pointer_cast<SOH::Array>(GetResourceByName(path));
 
     return res->Scalars.size();
 }
 extern "C" char* ResourceMgr_LoadArrayByNameAsVec3s(const char* path) {
-    auto res = std::static_pointer_cast<LUS::Array>(GetResourceByName(path));
+    auto res = std::static_pointer_cast<SOH::Array>(GetResourceByName(path));
 
     // if (res->CachedGameAsset != nullptr)
     //     return (char*)res->CachedGameAsset;
@@ -1237,7 +1219,7 @@ extern "C" SkeletonHeader* ResourceMgr_LoadSkeletonByName(const char* path, Skel
         pathStr = pathStr.substr(sOtr.length());
     }
 
-    bool isAlt = CVarGetInteger(CVAR_ALT_ASSETS, 0);
+    bool isAlt = ResourceMgr_IsAltAssetsEnabled();
 
     if (isAlt) {
         pathStr = Ship::IResource::gAltAssetPrefix + pathStr;

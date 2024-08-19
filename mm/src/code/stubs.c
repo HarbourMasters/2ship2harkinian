@@ -92,8 +92,6 @@ u64 rspbootTextEnd[1];
 u64 njpgdspMainTextStart[1];
 u64 njpgdspMainDataStart[1];
 
-Mtx gMtxClear;
-
 u8 gPictoPhotoI8[PICTO_PHOTO_SIZE];
 u8 D_80784600[0x56200];
 
@@ -184,13 +182,13 @@ void gSPSegmentLoadRes(void* value, int segNum, uintptr_t target) {
     __gSPSegment(value, segNum, target);
 }
 
-void gDPSetTextureImage(Gfx* pkt, u32 format, u32 size, u32 width, uintptr_t i) {
-    __gDPSetTextureImage(pkt, format, size, width, i);
-}
+// void gDPSetTextureImage(Gfx* pkt, u32 format, u32 size, u32 width, uintptr_t i) {
+//     __gDPSetTextureImage(pkt, format, size, width, i);
+// }
 
-void gDPSetTextureImageFB(Gfx* pkt, u32 format, u32 size, u32 width, int fb) {
-    __gDPSetTextureImageFB(pkt, format, size, width, fb);
-}
+// void gDPSetTextureImageFB(Gfx* pkt, u32 format, u32 size, u32 width, int fb) {
+//     __gDPSetTextureImageFB(pkt, format, size, width, fb);
+// }
 
 void gSPDisplayList(Gfx* pkt, Gfx* dl) {
     char* imgData = (char*)dl;

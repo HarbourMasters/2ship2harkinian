@@ -23,6 +23,7 @@
 #include <string.h>
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
+#include "2s2h/BenPort.h"
 
 // bss
 // FaultClient sActorFaultClient; // 2 funcs
@@ -3070,6 +3071,59 @@ s32 func_800BA2FC(PlayState* play, Actor* actor, Vec3f* projectedPos, f32 projec
     return false;
 }
 
+// #region 2S2H [Enhancements] Allows us to increase the draw and update distance independently, mostly a modified
+// version of the function above
+void Ship_CalcShouldDrawAndUpdate(PlayState* play, Actor* actor, Vec3f* projectedPos, f32 projectedW, bool* shouldDraw,
+                                  bool* shouldUpdate) {
+    s32 updateMulti = CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1);
+    s32 drawMulti = CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1);
+    bool updateCheck =
+        (-(actor->uncullZoneScale * updateMulti) < projectedPos->z) &&
+        (projectedPos->z < ((actor->uncullZoneForward * updateMulti) + (actor->uncullZoneScale * updateMulti)));
+    bool drawCheck =
+        (-(actor->uncullZoneScale * drawMulti) < projectedPos->z) &&
+        (projectedPos->z < ((actor->uncullZoneForward * drawMulti) + (actor->uncullZoneScale * drawMulti)));
+
+    if (updateCheck || drawCheck) {
+        // Ensure the projected W value is at least 1.0
+        f32 clampedProjectedW = CLAMP_MIN(projectedW, 1.0f);
+        f32 uncullZoneScaleDiagonal;
+        f32 uncullZoneScaleVertical;
+        f32 uncullZoneDownwardAdjusted;
+
+        // Adjust calculations if the field of view is not the default 60 degrees
+        if (play->view.fovy != 60.0f) {
+            uncullZoneScaleDiagonal =
+                actor->uncullZoneScale * play->projectionMtxFDiagonal.x * 0.76980036f; // sqrt(16/27)
+
+            uncullZoneScaleVertical = play->projectionMtxFDiagonal.y * 0.57735026f; // 1 / sqrt(3)
+            uncullZoneDownwardAdjusted = actor->uncullZoneScale * uncullZoneScaleVertical;
+            uncullZoneScaleVertical *= actor->uncullZoneDownward;
+        } else {
+            uncullZoneDownwardAdjusted = uncullZoneScaleDiagonal = actor->uncullZoneScale;
+            uncullZoneScaleVertical = actor->uncullZoneDownward;
+        }
+
+        if (CVarGetInteger("gEnhancements.Graphics.ActorCullingAccountsForWidescreen", 0)) {
+            float originalAspectRatio = 4.0f / 3.0f;
+            float currentAspectRatio = OTRGetAspectRatio();
+            float aspectRatioMultiplier = MAX(currentAspectRatio / originalAspectRatio, 1.0f);
+
+            clampedProjectedW *= aspectRatioMultiplier;
+        }
+
+        bool isWithinHorizontalCullZone = ((fabsf(projectedPos->x) - uncullZoneScaleDiagonal) < clampedProjectedW);
+        bool isAboveBottomOfCullZone = ((-clampedProjectedW < (projectedPos->y + uncullZoneScaleVertical)));
+        bool isBelowTopOfCullZone = ((projectedPos->y - uncullZoneDownwardAdjusted) < clampedProjectedW);
+
+        if (isWithinHorizontalCullZone && isAboveBottomOfCullZone && isBelowTopOfCullZone) {
+            *shouldDraw = drawCheck;
+            *shouldUpdate = updateCheck;
+        }
+    }
+}
+// #endregion
+
 void Actor_DrawAll(PlayState* play, ActorContext* actorCtx) {
     s32 pad[2];
     Gfx* ref2;
@@ -3105,14 +3159,31 @@ void Actor_DrawAll(PlayState* play, ActorContext* actorCtx) {
                 Actor_UpdateFlaggedAudio(actor);
             }
 
-            if (func_800BA2D8(play, actor)) {
-                actor->flags |= ACTOR_FLAG_40;
+            // #region 2S2H
+            bool shipShouldDraw = false;
+            bool shipShouldUpdate = false;
+            if (CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1) > 1 ||
+                CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1) > 1 ||
+                CVarGetInteger("gEnhancements.Graphics.ActorCullingAccountsForWidescreen", 0)) {
+                Ship_CalcShouldDrawAndUpdate(play, actor, &actor->projectedPos, actor->projectedW, &shipShouldDraw,
+                                             &shipShouldUpdate);
+
+                if (shipShouldUpdate) {
+                    actor->flags |= ACTOR_FLAG_40;
+                } else {
+                    actor->flags &= ~ACTOR_FLAG_40;
+                }
             } else {
-                actor->flags &= ~ACTOR_FLAG_40;
+                if (func_800BA2D8(play, actor)) {
+                    actor->flags |= ACTOR_FLAG_40;
+                } else {
+                    actor->flags &= ~ACTOR_FLAG_40;
+                }
             }
 
             actor->isDrawn = false;
-            if ((actor->init == NULL) && (actor->draw != NULL) && (actor->flags & actorFlags)) {
+            if ((actor->init == NULL) && (actor->draw != NULL) && ((actor->flags & actorFlags) || shipShouldDraw)) {
+                // #endregion
                 if ((actor->flags & ACTOR_FLAG_REACT_TO_LENS) &&
                     ((play->roomCtx.curRoom.lensMode == LENS_MODE_HIDE_ACTORS) ||
                      (play->actorCtx.lensMaskSize == LENS_MASK_ACTIVE_SIZE) ||

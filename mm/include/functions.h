@@ -1328,6 +1328,8 @@ void osContGetReadData(OSContPad* pad);
 // #region 2S2H [Port] Previously unavailable functions, made available for porting
 void PadMgr_ThreadEntry();
 void Heaps_Alloc(void);
+void KaleidoScope_UpdateOwlWarpNamePanel(PlayState* play);
+void KaleidoScope_UpdateNamePanel(PlayState* play);
 // #endregion
 // #region 2S2H [Port] New methods added for porting
 void AudioSeq_SetPortVolumeScale(u8 seqPlayerIndex, f32 volume);
@@ -1364,10 +1366,6 @@ OSYieldResult osSpTaskYielded(OSTask* task);
 void osSpTaskYield(void);
 void osViSetXScale(f32 value);
 void osViSetYScale(f32 value);
-// #endregion
-// #region 2S2H [Enhancements]
-// [Autosaves & Pause Menu Saves]
-int32_t GetSaveEntrance(PlayState* play);
 // #endregion
 
 void Regs_InitData(PlayState* play);

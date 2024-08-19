@@ -2,12 +2,17 @@
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 
+#include "interface/icon_item_dungeon_static/icon_item_dungeon_static.h"
+#include "archives/icon_item_24_static/icon_item_24_static_yar.h"
+
 extern "C" {
 #include <z64.h>
 #include <z64save.h>
 #include <macros.h>
 #include <variables.h>
 #include <functions.h>
+#include "overlays/actors/ovl_En_Test4/z_en_test4.h"
+
 extern PlayState* gPlayState;
 extern SaveContext gSaveContext;
 extern TexturePtr gItemIcons[131];
@@ -22,6 +27,9 @@ void PlayerCall_Init(Actor* thisx, PlayState* play);
 void PlayerCall_Update(Actor* thisx, PlayState* play);
 void PlayerCall_Draw(Actor* thisx, PlayState* play);
 void TransitionFade_SetColor(void* thisx, u32 color);
+
+void func_80A42198(EnTest4* thisx);
+void func_80A425E4(EnTest4* thisx, PlayState* play);
 }
 
 bool safeMode = true;
@@ -137,6 +145,174 @@ int setPlayerName(ImGuiInputTextCallbackData* data) {
     return 0;
 };
 
+EnTest4* FindEnTest4Actor() {
+    if (gPlayState == NULL) {
+        return NULL;
+    }
+
+    Actor* enTest4Search = gPlayState->actorCtx.actorLists[ACTORCAT_SWITCH].first;
+
+    while (enTest4Search != NULL) {
+        if (enTest4Search->id == ACTOR_EN_TEST4) {
+            return (EnTest4*)enTest4Search;
+        }
+        enTest4Search = enTest4Search->next;
+    }
+
+    return NULL;
+}
+
+void UpdateGameTime(u16 gameTime) {
+    bool newTimeIsNight = (gameTime > CLOCK_TIME(18, 0)) || (gameTime < CLOCK_TIME(6, 0));
+    bool prevTimeIsNight = (gSaveContext.save.time > CLOCK_TIME(18, 0)) || (gSaveContext.save.time < CLOCK_TIME(6, 0));
+
+    gSaveContext.save.time = gameTime;
+
+    if (gPlayState == NULL) {
+        return;
+    }
+
+    // Clear weather from day 2
+    gWeatherMode = WEATHER_MODE_CLEAR;
+    gPlayState->envCtx.lightningState = LIGHTNING_LAST;
+
+    // When transitioning over night boundaries, stop the sequences and ask to replay, then respawn actors
+    if (newTimeIsNight != prevTimeIsNight) {
+        // AMBIENCE_ID_13 is used to persist a scenes sequence through night, so we shouldn't
+        // change anything if thats active
+        if (gPlayState->sequenceCtx.ambienceId != AMBIENCE_ID_13) {
+            SEQCMD_STOP_SEQUENCE(SEQ_PLAYER_AMBIENCE, 0);
+            SEQCMD_STOP_SEQUENCE(SEQ_PLAYER_BGM_MAIN, 240);
+            gSaveContext.seqId = (u8)NA_BGM_DISABLED;
+            gSaveContext.ambienceId = AMBIENCE_ID_DISABLED;
+            Environment_PlaySceneSequence(gPlayState);
+        }
+
+        // Kills/Spawns half-day actors
+        gPlayState->numSetupActors = -gPlayState->numSetupActors;
+    }
+
+    EnTest4* enTest4 = FindEnTest4Actor();
+
+    // Update EnTest4 actor to be in sync with the new time
+    // This ensures that day transitions are not triggered with the change
+    if (enTest4 != NULL) {
+        enTest4->unk_146 = gameTime;
+        enTest4->lastBellTime = gameTime;
+        enTest4->csIdIndex = newTimeIsNight ? 0 : 1;
+
+        // Sets the nextBellTime based on the new current time
+        if (CURRENT_DAY == 3) {
+            func_80A42198(enTest4);
+        } else {
+            func_80A425E4(enTest4, gPlayState);
+        }
+
+        // Unset any screen scaling from the above funcs
+        gSaveContext.screenScale = 1000.0f;
+        gSaveContext.screenScaleFlag = false;
+    }
+}
+
+void DrawTempleClears() {
+    bool cleared;
+    bool open;
+
+    // Woodfall
+    cleared = CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_WOODFALL_TEMPLE);
+    if (UIWidgets::Checkbox("Woodfall cleared", &cleared)) {
+        if (cleared) {
+            SET_WEEKEVENTREG(WEEKEVENTREG_CLEARED_WOODFALL_TEMPLE);
+        } else {
+            CLEAR_WEEKEVENTREG(WEEKEVENTREG_CLEARED_WOODFALL_TEMPLE);
+        }
+    }
+
+    ImGui::SameLine();
+
+    if (cleared) {
+        open = true;
+        SET_WEEKEVENTREG(WEEKEVENTREG_20_01);
+    } else {
+        open = CHECK_WEEKEVENTREG(WEEKEVENTREG_20_01);
+    }
+    if (UIWidgets::Checkbox("Woodfall Open", &open, { .disabled = cleared })) {
+        if (open) {
+            SET_WEEKEVENTREG(WEEKEVENTREG_20_01);
+        } else {
+            CLEAR_WEEKEVENTREG(WEEKEVENTREG_20_01);
+        }
+    }
+
+    // Snowhead
+    cleared = CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_SNOWHEAD_TEMPLE);
+    if (UIWidgets::Checkbox("Snowhead cleared", &cleared)) {
+        if (cleared) {
+            SET_WEEKEVENTREG(WEEKEVENTREG_CLEARED_SNOWHEAD_TEMPLE);
+        } else {
+            CLEAR_WEEKEVENTREG(WEEKEVENTREG_CLEARED_SNOWHEAD_TEMPLE);
+        }
+    }
+
+    ImGui::SameLine();
+
+    if (cleared) {
+        open = true;
+        SET_WEEKEVENTREG(WEEKEVENTREG_30_01);
+    } else {
+        open = CHECK_WEEKEVENTREG(WEEKEVENTREG_30_01);
+    }
+    if (UIWidgets::Checkbox("Snowhead Open", &open, { .disabled = cleared })) {
+        if (open) {
+            SET_WEEKEVENTREG(WEEKEVENTREG_30_01);
+        } else {
+            CLEAR_WEEKEVENTREG(WEEKEVENTREG_30_01);
+        }
+    }
+
+    // Great Bay
+    cleared = CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_GREAT_BAY_TEMPLE);
+    if (UIWidgets::Checkbox("Great Bay cleared", &cleared)) {
+        if (cleared) {
+            SET_WEEKEVENTREG(WEEKEVENTREG_CLEARED_GREAT_BAY_TEMPLE);
+        } else {
+            CLEAR_WEEKEVENTREG(WEEKEVENTREG_CLEARED_GREAT_BAY_TEMPLE);
+        }
+    }
+
+    ImGui::SameLine();
+
+    if (cleared) {
+        open = true;
+        // 53_20 is if the turtle is raised
+        // 93_08 determines if a long or short cutscene should play
+        SET_WEEKEVENTREG(WEEKEVENTREG_53_20);
+        SET_WEEKEVENTREG(WEEKEVENTREG_93_08);
+    } else {
+        open = CHECK_WEEKEVENTREG(WEEKEVENTREG_53_20);
+    }
+    if (UIWidgets::Checkbox("Great Bay Open", &open, { .disabled = cleared })) {
+        if (open) {
+            SET_WEEKEVENTREG(WEEKEVENTREG_53_20);
+            SET_WEEKEVENTREG(WEEKEVENTREG_93_08);
+        } else {
+            CLEAR_WEEKEVENTREG(WEEKEVENTREG_53_20);
+            CLEAR_WEEKEVENTREG(WEEKEVENTREG_93_08);
+        }
+    }
+
+    // Stone Tower
+    // Stone Tower Temple is always open so there is no need to have an option to open it.
+    cleared = CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_STONE_TOWER_TEMPLE);
+    if (UIWidgets::Checkbox("Stone Tower cleared", &cleared)) {
+        if (cleared) {
+            SET_WEEKEVENTREG(WEEKEVENTREG_CLEARED_STONE_TOWER_TEMPLE);
+        } else {
+            CLEAR_WEEKEVENTREG(WEEKEVENTREG_CLEARED_STONE_TOWER_TEMPLE);
+        }
+    }
+}
+
 void DrawGeneralTab() {
     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 3.0f);
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f, 8.0f));
@@ -179,8 +355,11 @@ void DrawGeneralTab() {
     }
     hours += std::to_string(curHours);
     std::string timeString = hours + ":" + minutes + ampm + " (0x%x)";
-    ImGui::SliderScalar("##timeInput", ImGuiDataType_U16, &gSaveContext.save.time, &minTime, &maxTime,
-                        timeString.c_str());
+
+    u16 gameTime = gSaveContext.save.time;
+    if (ImGui::SliderScalar("##timeInput", ImGuiDataType_U16, &gameTime, &minTime, &maxTime, timeString.c_str())) {
+        UpdateGameTime(gameTime);
+    }
     UIWidgets::PopStyleSlider();
     ImGui::EndGroup();
 
@@ -230,7 +409,7 @@ void DrawGeneralTab() {
     for (size_t i = 0; i < timeSkipAmounts.size(); i++) {
         const auto& skip = timeSkipAmounts.at(i);
         if (UIWidgets::Button(skip.second, { .color = UIWidgets::Colors::Indigo, .size = UIWidgets::Sizes::Inline })) {
-            gSaveContext.save.time += CLOCK_TIME(0, skip.first);
+            UpdateGameTime(gSaveContext.save.time + CLOCK_TIME(0, skip.first));
         }
         if (i < timeSkipAmounts.size() - 1) {
             ImGui::SameLine();
@@ -238,27 +417,33 @@ void DrawGeneralTab() {
     }
     // Day slider
     UIWidgets::PushStyleSlider();
-    static s32 minDay = 1;
-    static s32 maxDay = 3;
+    static s32 minDay = 0;
+    static s32 maxDay = 4;
     if (ImGui::SliderScalar("##dayInput", ImGuiDataType_S32, &gSaveContext.save.day, &minDay, &maxDay, "Day: %d")) {
         gSaveContext.save.eventDayCount = CURRENT_DAY;
-        // Reset the time to the start of day/night
-        if (gSaveContext.save.time < CLOCK_TIME(6, 0) || gSaveContext.save.time > CLOCK_TIME(18, 0)) {
-            gSaveContext.save.time = CLOCK_TIME(18, 1);
-        } else {
-            gSaveContext.save.time = CLOCK_TIME(6, 1);
-        }
+
         if (gPlayState != nullptr) {
             Interface_NewDay(gPlayState, CURRENT_DAY);
-            // Inverting setup actors forces actors to kill/respawn for new day
+            // Inverting setup actors forces half-day actors to kill/respawn for new day
             gPlayState->numSetupActors = -gPlayState->numSetupActors;
+            // Load environment values for new day
+            func_800FEAF4(&gPlayState->envCtx);
+            // Clear weather from day 2
+            gWeatherMode = WEATHER_MODE_CLEAR;
+            gPlayState->envCtx.lightningState = LIGHTNING_LAST;
         }
     }
     // Time speed slider
     // Values are added to R_TIME_SPEED which is generally 3 in normal play state
     static s32 minSpeed = -3; // Time frozen
     static s32 maxSpeed = 7;
-    std::string timeSpeedString = "Time Speed: " + std::to_string(gSaveContext.save.timeSpeedOffset + 3);
+    std::string extraText = "";
+    if (gSaveContext.save.timeSpeedOffset == 0) {
+        extraText = " (default)";
+    } else if (gSaveContext.save.timeSpeedOffset == -2) {
+        extraText = " (inverted)";
+    }
+    std::string timeSpeedString = "Time Speed: " + std::to_string(gSaveContext.save.timeSpeedOffset + 3) + extraText;
     ImGui::SliderScalar("##timeSpeedInput", ImGuiDataType_S32, &gSaveContext.save.timeSpeedOffset, &minSpeed, &maxSpeed,
                         timeSpeedString.c_str());
     UIWidgets::PopStyleSlider();
@@ -279,6 +464,15 @@ void DrawGeneralTab() {
         gSaveContext.save.saveInfo.playerData.magicLevel = 0;
         gSaveContext.save.saveInfo.playerData.isMagicAcquired = false;
         gSaveContext.save.saveInfo.playerData.isDoubleMagicAcquired = false;
+    }
+    ImGui::SameLine();
+    bool spinAttack = CHECK_WEEKEVENTREG(WEEKEVENTREG_OBTAINED_GREAT_SPIN_ATTACK);
+    if (UIWidgets::Checkbox("Spin Lv2", &spinAttack, { .color = UIWidgets::Colors::DarkGreen })) {
+        if (spinAttack) {
+            SET_WEEKEVENTREG(WEEKEVENTREG_OBTAINED_GREAT_SPIN_ATTACK);
+        } else {
+            CLEAR_WEEKEVENTREG(WEEKEVENTREG_OBTAINED_GREAT_SPIN_ATTACK);
+        }
     }
     UIWidgets::PushStyleSlider(UIWidgets::Colors::DarkGreen);
     if (ImGui::SliderScalar("##magicLevelSlider", ImGuiDataType_S8, &gSaveContext.save.saveInfo.playerData.magicLevel,
@@ -350,24 +544,7 @@ void DrawGeneralTab() {
     UIWidgets::Tooltip("To recieve the rewards, set the bank to 199, 999, or 4,999 then deposit a single rupee");
     UIWidgets::PopStyleSlider();
 
-    // Temple clears
-    static const std::array<std::pair<int32_t, const char*>, 4> templeClears = { {
-        { WEEKEVENTREG_CLEARED_WOODFALL_TEMPLE, "Woodfall Cleared" },
-        { WEEKEVENTREG_CLEARED_SNOWHEAD_TEMPLE, "Snowhead Cleared" },
-        { WEEKEVENTREG_CLEARED_GREAT_BAY_TEMPLE, "Great Bay Cleared" },
-        { WEEKEVENTREG_CLEARED_STONE_TOWER_TEMPLE, "Stone Tower Cleared" },
-    } };
-
-    for (const auto& temple : templeClears) {
-        bool cleared = CHECK_WEEKEVENTREG(temple.first);
-        if (UIWidgets::Checkbox(temple.second, &cleared, { .color = UIWidgets::Colors::Gray })) {
-            if (cleared) {
-                SET_WEEKEVENTREG(temple.first);
-            } else {
-                CLEAR_WEEKEVENTREG(temple.first);
-            }
-        }
-    }
+    DrawTempleClears();
 
     UIWidgets::Checkbox("Has Tatl", (bool*)&gSaveContext.save.hasTatl, { .color = UIWidgets::Colors::Gray });
     UIWidgets::Checkbox("Is Owl Save", (bool*)&gSaveContext.save.isOwlSave, { .color = UIWidgets::Colors::Gray });
@@ -408,38 +585,38 @@ void DrawEquipItemMenu(InventorySlot slot) {
 
     if (ImGui::BeginMenu("Equip")) {
         if (ImGui::MenuItem("C-Left")) {
-            gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][EQUIP_SLOT_C_LEFT] = currentItemId;
-            gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][EQUIP_SLOT_C_LEFT] = slot;
+            SET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_C_LEFT, currentItemId);
+            SET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_C_LEFT, slot);
             Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_C_LEFT);
         }
         if (ImGui::MenuItem("C-Down")) {
-            gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][EQUIP_SLOT_C_DOWN] = currentItemId;
-            gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][EQUIP_SLOT_C_DOWN] = slot;
+            SET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_C_DOWN, currentItemId);
+            SET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_C_DOWN, slot);
             Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_C_DOWN);
         }
         if (ImGui::MenuItem("C-Right")) {
-            gSaveContext.save.saveInfo.equips.buttonItems[CUR_FORM][EQUIP_SLOT_C_RIGHT] = currentItemId;
-            gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][EQUIP_SLOT_C_RIGHT] = slot;
+            SET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_C_RIGHT, currentItemId);
+            SET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_C_RIGHT, slot);
             Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_C_RIGHT);
         }
         if (ImGui::MenuItem("D-Right")) {
-            gSaveContext.save.shipSaveInfo.dpadEquips.dpadItems[CUR_FORM][EQUIP_SLOT_D_RIGHT] = currentItemId;
-            gSaveContext.save.shipSaveInfo.dpadEquips.dpadSlots[CUR_FORM][EQUIP_SLOT_D_RIGHT] = slot;
+            DPAD_SET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_RIGHT, currentItemId);
+            DPAD_SET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_D_RIGHT, slot);
             Interface_Dpad_LoadItemIconImpl(gPlayState, EQUIP_SLOT_D_RIGHT);
         }
         if (ImGui::MenuItem("D-Left")) {
-            gSaveContext.save.shipSaveInfo.dpadEquips.dpadItems[CUR_FORM][EQUIP_SLOT_D_LEFT] = currentItemId;
-            gSaveContext.save.shipSaveInfo.dpadEquips.dpadSlots[CUR_FORM][EQUIP_SLOT_D_LEFT] = slot;
+            DPAD_SET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_LEFT, currentItemId);
+            DPAD_SET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_D_LEFT, slot);
             Interface_Dpad_LoadItemIconImpl(gPlayState, EQUIP_SLOT_D_LEFT);
         }
         if (ImGui::MenuItem("D-Down")) {
-            gSaveContext.save.shipSaveInfo.dpadEquips.dpadItems[CUR_FORM][EQUIP_SLOT_D_DOWN] = currentItemId;
-            gSaveContext.save.shipSaveInfo.dpadEquips.dpadSlots[CUR_FORM][EQUIP_SLOT_D_DOWN] = slot;
+            DPAD_SET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_DOWN, currentItemId);
+            DPAD_SET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_D_DOWN, slot);
             Interface_Dpad_LoadItemIconImpl(gPlayState, EQUIP_SLOT_D_DOWN);
         }
         if (ImGui::MenuItem("D-Up")) {
-            gSaveContext.save.shipSaveInfo.dpadEquips.dpadItems[CUR_FORM][EQUIP_SLOT_D_UP] = currentItemId;
-            gSaveContext.save.shipSaveInfo.dpadEquips.dpadSlots[CUR_FORM][EQUIP_SLOT_D_UP] = slot;
+            DPAD_SET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_UP, currentItemId);
+            DPAD_SET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_D_UP, slot);
             Interface_Dpad_LoadItemIconImpl(gPlayState, EQUIP_SLOT_D_UP);
         }
         ImGui::EndMenu();
@@ -512,9 +689,13 @@ void DrawSlot(InventorySlot slot) {
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 1.0f, 1.0f, 0.2f));
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 1.0f, 1.0f, 0.1f));
-    if (gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][EQUIP_SLOT_C_LEFT] == slot ||
-        gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][EQUIP_SLOT_C_DOWN] == slot ||
-        gSaveContext.save.saveInfo.equips.cButtonSlots[CUR_FORM][EQUIP_SLOT_C_RIGHT] == slot) {
+    if (GET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_C_LEFT) == slot || GET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_C_DOWN) == slot ||
+        GET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_C_RIGHT) == slot ||
+        (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0) &&
+         (DPAD_GET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_D_RIGHT) == slot ||
+          DPAD_GET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_D_LEFT) == slot ||
+          DPAD_GET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_D_DOWN) == slot ||
+          DPAD_GET_CUR_FORM_BTN_SLOT(EQUIP_SLOT_D_UP) == slot))) {
         ImGui::PushStyleColor(ImGuiCol_Border, UIWidgets::Colors::White);
     } else {
         ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
@@ -947,6 +1128,101 @@ void DrawQuestStatusTab() {
     ImGui::PopStyleColor(1);
 }
 
+void SetDungeonItems(uint32_t dungeonItem, uint32_t dungeonId) {
+    if (CHECK_DUNGEON_ITEM(dungeonItem, dungeonId)) {
+        REMOVE_DUNGEON_ITEM(dungeonItem, dungeonId);
+    } else {
+        SET_DUNGEON_ITEM(dungeonItem, dungeonId);
+    }
+}
+
+const char* dungeonNames[4] = { "Woodfall Temple", "Snowhead Temple", "Great Bay Temple", "Stone Tower Temple" };
+uint32_t smallKeyCounts[4] = { 1, 3, 1, 4 };
+const char* fairyIcons[] = { gDungeonStrayFairyWoodfallIconTex, gDungeonStrayFairySnowheadIconTex,
+                             gDungeonStrayFairyGreatBayIconTex, gDungeonStrayFairyStoneTowerIconTex };
+void DrawDungeonItemTab() {
+    ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 3.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(8.0f, 8.0f));
+    ImGui::BeginChild("dungeonTab", ImVec2(0, 0), true);
+
+    for (int i = DUNGEON_INDEX_WOODFALL_TEMPLE; i <= DUNGEON_INDEX_STONE_TOWER_TEMPLE; i++) {
+        std::string stray_id = "Stray" + std::to_string(i);
+        std::string map_id = "Map" + std::to_string(i);
+        std::string comp_id = "Compass" + std::to_string(i);
+        std::string sKey_id = "Small Key" + std::to_string(i);
+        std::string bKey_id = "Boss Key" + std::to_string(i);
+        int dungeonId = i;
+        ImGui::BeginChild(std::to_string(i).c_str(),
+                          ImVec2(INV_GRID_WIDTH * 6 + INV_GRID_PADDING * 2, INV_GRID_HEIGHT * 1.5 + INV_GRID_PADDING),
+                          ImGuiChildFlags_Border);
+        ImGui::Text(dungeonNames[i]);
+        if (ImGui::ImageButton(
+                stray_id.c_str(),
+                Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(fairyIcons[dungeonId]),
+                ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
+                ImVec4(1, 1, 1, gSaveContext.save.saveInfo.inventory.strayFairies[dungeonId] ? 1.0f : 0.4f))) {
+            ImGui::OpenPopup("strayFairies");
+        }
+        ImGui::SameLine();
+        if (ImGui::ImageButton(
+                map_id.c_str(),
+                Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(gQuestIconDungeonMapTex),
+                ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
+                ImVec4(1, 1, 1, CHECK_DUNGEON_ITEM(DUNGEON_MAP, i) ? 1.0f : 0.4f))) {
+            SetDungeonItems(DUNGEON_MAP, i);
+        }
+        ImGui::SameLine();
+        if (ImGui::ImageButton(
+                comp_id.c_str(),
+                Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(gQuestIconCompassTex),
+                ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
+                ImVec4(1, 1, 1, CHECK_DUNGEON_ITEM(DUNGEON_COMPASS, i) ? 1.0f : 0.4f))) {
+            SetDungeonItems(DUNGEON_COMPASS, i);
+        }
+        ImGui::SameLine();
+        if (ImGui::ImageButton(
+                sKey_id.c_str(),
+                Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(gQuestIconSmallKeyTex),
+                ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
+                ImVec4(1, 1, 1, DUNGEON_KEY_COUNT(i) + 1 ? 1.0f : 0.4f))) {
+            ImGui::OpenPopup("smallKeys");
+        }
+        ImGui::SameLine();
+        if (ImGui::ImageButton(
+                bKey_id.c_str(),
+                Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(gQuestIconBossKeyTex),
+                ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
+                ImVec4(1, 1, 1, CHECK_DUNGEON_ITEM(DUNGEON_BOSS_KEY, i) ? 1.0f : 0.4f))) {
+            SetDungeonItems(DUNGEON_BOSS_KEY, i);
+        }
+        if (ImGui::BeginPopup("strayFairies")) {
+            s32 minStray = 0;
+            s32 maxStray = 15;
+            int currentStrays = gSaveContext.save.saveInfo.inventory.strayFairies[dungeonId];
+            if (ImGui::SliderScalar("##strayCount", ImGuiDataType_S32, &currentStrays, &minStray, &maxStray,
+                                    "Strays: %d")) {
+                gSaveContext.save.saveInfo.inventory.strayFairies[dungeonId] = currentStrays;
+            }
+            ImGui::EndPopup();
+        }
+        if (ImGui::BeginPopup("smallKeys")) {
+            s32 minKey = -1;
+            s32 maxKey = smallKeyCounts[dungeonId];
+            int currentKeys = gSaveContext.save.saveInfo.inventory.dungeonKeys[dungeonId];
+            if (ImGui::SliderScalar("##sKeyCount", ImGuiDataType_S32, &currentKeys, &minKey, &maxKey,
+                                    "Small Keys: %d")) {
+                gSaveContext.save.saveInfo.inventory.dungeonKeys[dungeonId] = currentKeys;
+            }
+            ImGui::EndPopup();
+        }
+        ImGui::EndChild();
+    }
+    ImGui::EndChild();
+    ImGui::PopStyleVar(2);
+    ImGui::PopStyleColor(1);
+}
+
 void GetPlayerForm(uint32_t form) {
     switch (form) {
         case PLAYER_FORM_FIERCE_DEITY:
@@ -1244,7 +1520,7 @@ void DrawFlagsTab() {
 
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(1.0f, 1.0f));
     switch (selectedFlagSection) {
-        case 0:
+        case 0: // currentSceneFlags
             if (gPlayState == NULL) {
                 ImGui::Text("Play state is NULL, cannot display scene flags");
                 break;
@@ -1421,7 +1697,7 @@ void DrawFlagsTab() {
             UIWidgets::DrawFlagArray32("##collectible3", gPlayState->actorCtx.sceneFlags.collectible[3]);
             ImGui::EndGroup();
             break;
-        case 1:
+        case 1: // weekEventReg
             for (int i = 0; i < 100; i++) {
                 ImGui::PushID(i);
                 ImGui::Text("%02d", i);
@@ -1430,7 +1706,7 @@ void DrawFlagsTab() {
                 ImGui::PopID();
             }
             break;
-        case 2:
+        case 2: // eventInf
             for (int i = 0; i < 8; i++) {
                 ImGui::PushID(i);
                 ImGui::Text("%02d", i);
@@ -1439,7 +1715,7 @@ void DrawFlagsTab() {
                 ImGui::PopID();
             }
             break;
-        case 3:
+        case 3: // scenesVisible
             if (UIWidgets::Button("All##scenesVisible",
                                   { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
                 for (int i = 0; i < 7; i++) {
@@ -1459,19 +1735,20 @@ void DrawFlagsTab() {
                 ImGui::PopID();
             }
             break;
-        case 4:
-            if (UIWidgets::Button("All##scenesVisible",
+        case 4: // owlActivation
+            if (UIWidgets::Button("All##owlActivationFlags",
                                   { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
                 gSaveContext.save.saveInfo.playerData.owlActivationFlags = UINT16_MAX;
             }
             ImGui::SameLine();
-            if (UIWidgets::Button("Clear##scenesVisible",
+            if (UIWidgets::Button("Clear##owlActivationFlags",
                                   { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
                 gSaveContext.save.saveInfo.playerData.owlActivationFlags = 0;
             }
-            UIWidgets::DrawFlagArray16("##scenesVisible", gSaveContext.save.saveInfo.playerData.owlActivationFlags);
+            UIWidgets::DrawFlagArray16("##owlActivationFlags",
+                                       gSaveContext.save.saveInfo.playerData.owlActivationFlags);
             break;
-        case 5:
+        case 5: // permanentSceneFlags
             ImGui::BeginGroup();
             ImGui::AlignTextToFramePadding();
             ImGui::Text("chest");
@@ -1586,19 +1863,19 @@ void DrawFlagsTab() {
             UIWidgets::DrawFlagArray32("##rooms", gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].rooms);
             ImGui::EndGroup();
             break;
-        case 6:
+        case 6: // cycleSceneFlags
             ImGui::BeginGroup();
             ImGui::AlignTextToFramePadding();
             ImGui::Text("chest");
             ImGui::SameLine(110);
             if (UIWidgets::Button("All##chest",
                                   { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
-                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].chest = UINT32_MAX;
+                gSaveContext.cycleSceneFlags[selectedScene].chest = UINT32_MAX;
             }
             ImGui::SameLine();
             if (UIWidgets::Button("Clear##chest",
                                   { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
-                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].chest = 0;
+                gSaveContext.cycleSceneFlags[selectedScene].chest = 0;
             }
             UIWidgets::DrawFlagArray32("##chest", gSaveContext.cycleSceneFlags[selectedScene].chest);
             ImGui::EndGroup();
@@ -1609,12 +1886,12 @@ void DrawFlagsTab() {
             ImGui::SameLine(110);
             if (UIWidgets::Button("All##switch0",
                                   { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
-                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].switch0 = UINT32_MAX;
+                gSaveContext.cycleSceneFlags[selectedScene].switch0 = UINT32_MAX;
             }
             ImGui::SameLine();
             if (UIWidgets::Button("Clear##switch0",
                                   { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
-                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].switch0 = 0;
+                gSaveContext.cycleSceneFlags[selectedScene].switch0 = 0;
             }
             UIWidgets::DrawFlagArray32("##switch0", gSaveContext.cycleSceneFlags[selectedScene].switch0);
             ImGui::EndGroup();
@@ -1624,12 +1901,12 @@ void DrawFlagsTab() {
             ImGui::SameLine(110);
             if (UIWidgets::Button("All##collectible",
                                   { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
-                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].collectible = UINT32_MAX;
+                gSaveContext.cycleSceneFlags[selectedScene].collectible = UINT32_MAX;
             }
             ImGui::SameLine();
             if (UIWidgets::Button("Clear##collectible",
                                   { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
-                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].collectible = 0;
+                gSaveContext.cycleSceneFlags[selectedScene].collectible = 0;
             }
             UIWidgets::DrawFlagArray32("##collectible", gSaveContext.cycleSceneFlags[selectedScene].collectible);
             ImGui::EndGroup();
@@ -1640,12 +1917,12 @@ void DrawFlagsTab() {
             ImGui::SameLine(110);
             if (UIWidgets::Button("All##switch1",
                                   { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
-                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].switch1 = UINT32_MAX;
+                gSaveContext.cycleSceneFlags[selectedScene].switch1 = UINT32_MAX;
             }
             ImGui::SameLine();
             if (UIWidgets::Button("Clear##switch1",
                                   { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
-                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].switch1 = 0;
+                gSaveContext.cycleSceneFlags[selectedScene].switch1 = 0;
             }
             UIWidgets::DrawFlagArray32("##switch1", gSaveContext.cycleSceneFlags[selectedScene].switch1);
             ImGui::EndGroup();
@@ -1655,12 +1932,12 @@ void DrawFlagsTab() {
             ImGui::SameLine(110);
             if (UIWidgets::Button("All##clearedRoom",
                                   { .color = UIWidgets::Colors::Gray, .size = UIWidgets::Sizes::Inline })) {
-                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].clearedRoom = UINT32_MAX;
+                gSaveContext.cycleSceneFlags[selectedScene].clearedRoom = UINT32_MAX;
             }
             ImGui::SameLine();
             if (UIWidgets::Button("Clear##clearedRoom",
                                   { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
-                gSaveContext.save.saveInfo.permanentSceneFlags[selectedScene].clearedRoom = 0;
+                gSaveContext.cycleSceneFlags[selectedScene].clearedRoom = 0;
             }
             UIWidgets::DrawFlagArray32("##clearedRoom", gSaveContext.cycleSceneFlags[selectedScene].clearedRoom);
             ImGui::EndGroup();
@@ -1694,6 +1971,11 @@ void SaveEditorWindow::DrawElement() {
             ImGui::EndTabItem();
         }
 
+        if (ImGui::BeginTabItem("Dungeon Items")) {
+            DrawDungeonItemTab();
+            ImGui::EndTabItem();
+        }
+
         if (ImGui::BeginTabItem("Reg Editor")) {
             DrawRegEditorTab();
             ImGui::EndTabItem();
@@ -1720,11 +2002,24 @@ void SaveEditorWindow::DrawElement() {
     ImGui::End();
 }
 
+const char* textureLoad[8] = { gDungeonStrayFairyWoodfallIconTex,
+                               gDungeonStrayFairySnowheadIconTex,
+                               gDungeonStrayFairyGreatBayIconTex,
+                               gDungeonStrayFairyStoneTowerIconTex,
+                               gQuestIconDungeonMapTex,
+                               gQuestIconCompassTex,
+                               gQuestIconSmallKeyTex,
+                               gQuestIconBossKeyTex };
+
 void SaveEditorWindow::InitElement() {
     initSafeItemsForInventorySlot();
 
     for (TexturePtr entry : gItemIcons) {
         const char* path = static_cast<const char*>(entry);
         Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture(path, path, ImVec4(1, 1, 1, 1));
+    }
+    for (int i = 0; i <= 7; i++) {
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture(textureLoad[i], textureLoad[i],
+                                                                            ImVec4(1, 1, 1, 1));
     }
 }

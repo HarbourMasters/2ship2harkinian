@@ -17,6 +17,7 @@ HudEditorElement hudEditorElements[HUD_EDITOR_ELEMENT_MAX] = {
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_D_PAD, "D-Pad", "DPad", 271, 55, 255, 255, 255, 255),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_MINIMAP, "Minimap", "Minimap", 295, 220, 0, 255, 255, 160),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_START, "Start Button", "Start", 136, 17, 255, 130, 60, 255),
+    HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_CARROT, "Horse Carrots", "Carrots", 160, 64, 236, 92, 41, 255),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_CLOCK, "Three Day Clock", "Clock", 160, 206, 255, 255, 255, 255),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_HEARTS, "Hearts", "Hearts", 30, 26, 255, 70, 50, 255),
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_MAGIC_METER, "Magic", "Magic", 18, 34, 0, 200, 0, 255),
@@ -59,9 +60,9 @@ extern "C" void HudEditor_ModifyRectPosValuesFromBase(s16 baseX, s16 baseY, s16*
     *rectTop = baseY + (offsetFromBaseY * CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f));
 }
 
-extern "C" void HudEditor_ModifyRectPosValues(s16* rectLeft, s16* rectTop) {
-    s16 offsetFromBaseX = *rectLeft - hudEditorElements[hudEditorActiveElement].defaultX;
-    s16 offsetFromBaseY = *rectTop - hudEditorElements[hudEditorActiveElement].defaultY;
+void HudEditor_ModifyRectPosValuesFloat(f32* rectLeft, f32* rectTop) {
+    f32 offsetFromBaseX = *rectLeft - hudEditorElements[hudEditorActiveElement].defaultX;
+    f32 offsetFromBaseY = *rectTop - hudEditorElements[hudEditorActiveElement].defaultY;
     *rectLeft = CVarGetInteger(hudEditorElements[hudEditorActiveElement].xCvar,
                                hudEditorElements[hudEditorActiveElement].defaultX) +
                 (offsetFromBaseX * CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f));
@@ -78,6 +79,16 @@ extern "C" void HudEditor_ModifyRectPosValues(s16* rectLeft, s16* rectTop) {
     }
 }
 
+extern "C" void HudEditor_ModifyRectPosValues(s16* rectLeft, s16* rectTop) {
+    f32 newLeft = *rectLeft;
+    f32 newTop = *rectTop;
+
+    HudEditor_ModifyRectPosValuesFloat(&newLeft, &newTop);
+
+    *rectLeft = (s16)newLeft;
+    *rectTop = (s16)newTop;
+}
+
 extern "C" void HudEditor_ModifyRectSizeValues(s16* rectWidth, s16* rectHeight) {
     *rectWidth *= CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f);
     *rectHeight *= CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f);
@@ -90,16 +101,13 @@ extern "C" void HudEditor_ModifyTextureStepValues(s16* dsdx, s16* dtdy) {
 
 // Modify matrix values based on the identity matrix (0,0) centered on the screen
 extern "C" void HudEditor_ModifyMatrixValues(f32* transX, f32* transY) {
-    *transX = (f32)(SCREEN_WIDTH / 2) + *transX;
-    *transY = (f32)(SCREEN_HEIGHT / 2) - *transY;
+    *transX = ((f32)SCREEN_WIDTH / 2) + *transX;
+    *transY = ((f32)SCREEN_HEIGHT / 2) - *transY;
 
-    s16 newX = *transX;
-    s16 newY = *transY;
+    HudEditor_ModifyRectPosValuesFloat(transX, transY);
 
-    HudEditor_ModifyRectPosValues(&newX, &newY);
-
-    *transX = (f32)newX - (SCREEN_WIDTH / 2);
-    *transY = (f32)(SCREEN_HEIGHT / 2) - newY;
+    *transX = *transX - ((f32)SCREEN_WIDTH / 2);
+    *transY = ((f32)SCREEN_HEIGHT / 2) - *transY;
 }
 
 extern "C" void HudEditor_ModifyKaleidoEquipAnimValues(s16* ulx, s16* uly, s16* shrinkRate) {
@@ -199,6 +207,8 @@ void HudEditorWindow::DrawElement() {
                                HUD_EDITOR_ELEMENT_MODE_MOVABLE_RIGHT);
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_START].modeCvar,
                                HUD_EDITOR_ELEMENT_MODE_MOVABLE_RIGHT);
+                CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_CARROT].modeCvar,
+                               HUD_EDITOR_ELEMENT_MODE_MOVABLE_43);
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_CLOCK].modeCvar,
                                HUD_EDITOR_ELEMENT_MODE_MOVABLE_43);
                 CVarSetInteger(hudEditorElements[HUD_EDITOR_ELEMENT_HEARTS].modeCvar,

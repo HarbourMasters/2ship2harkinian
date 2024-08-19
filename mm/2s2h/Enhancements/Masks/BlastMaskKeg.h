@@ -1,0 +1,6 @@
+#ifndef EQUIPMENT_BLAST_MASK_KEG_H
+#define EQUIPMENT_BLAST_MASK_KEG_H
+
+void RegisterBlastMaskKeg();
+
+#endif // EQUIPMENT_BLAST_MASK_KEG_H

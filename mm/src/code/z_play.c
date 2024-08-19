@@ -467,6 +467,9 @@ void Play_Destroy(GameState* thisx) {
     KaleidoScopeCall_Destroy(this);
     KaleidoManager_Destroy();
     ZeldaArena_Cleanup();
+
+    GameInteractor_ExecuteOnPlayDestroy();
+
     // #region 2S2H [General] Making gPlayState available
     gPlayState = NULL;
     // #endregion
@@ -1370,10 +1373,20 @@ void Play_DrawMain(PlayState* this) {
                 if (1) {
                     u32 roomDrawFlags = ((1) ? 1 : 0) | (((void)0, 1) ? 2 : 0); // FAKE:
 
+                    if (CVarGetInteger("gEnhancements.Graphics.DisableSceneGeometryDistanceCheck", 0)) {
+                        gSPSetExtraGeometryMode(POLY_OPA_DISP++, G_EX_ALWAYS_EXECUTE_BRANCH);
+                        gSPSetExtraGeometryMode(POLY_XLU_DISP++, G_EX_ALWAYS_EXECUTE_BRANCH);
+                    }
+
                     Scene_Draw(this);
                     if (this->roomCtx.unk78) {
                         Room_Draw(this, &this->roomCtx.curRoom, roomDrawFlags & 3);
                         Room_Draw(this, &this->roomCtx.prevRoom, roomDrawFlags & 3);
+                    }
+
+                    if (CVarGetInteger("gEnhancements.Graphics.DisableSceneGeometryDistanceCheck", 0)) {
+                        gSPClearExtraGeometryMode(POLY_OPA_DISP++, G_EX_ALWAYS_EXECUTE_BRANCH);
+                        gSPClearExtraGeometryMode(POLY_XLU_DISP++, G_EX_ALWAYS_EXECUTE_BRANCH);
                     }
                 }
 
@@ -2181,9 +2194,6 @@ void Play_FillScreen(GameState* thisx, s16 fillScreenOn, u8 red, u8 green, u8 bl
 
 void Play_Init(GameState* thisx) {
     PlayState* this = (PlayState*)thisx;
-    // #region 2S2H [General] Making gPlayState available
-    gPlayState = this;
-    // #endregion
     GraphicsContext* gfxCtx = this->state.gfxCtx;
     s32 pad;
     uintptr_t zAlloc;
@@ -2216,6 +2226,11 @@ void Play_Init(GameState* thisx) {
         SET_NEXT_GAMESTATE(&this->state, TitleSetup_Init, sizeof(TitleSetupState));
         return;
     }
+
+    // #region 2S2H [General] Making gPlayState available
+    // Setting after the early returns, so that Play_Destroy is registered to unset the ptr later
+    gPlayState = this;
+    // #endregion
 
     if ((gSaveContext.nextCutsceneIndex == 0xFFEF) || (gSaveContext.nextCutsceneIndex == 0xFFF0)) {
         scene = ((void)0, gSaveContext.save.entrance) >> 9;
