@@ -4471,7 +4471,9 @@ void Player_UseItem(PlayState* play, Player* this, ItemId item) {
          (itemAction == PLAYER_IA_MASK_ZORA) ||
          ((this->currentBoots >= PLAYER_BOOTS_ZORA_UNDERWATER) && (this->actor.bgCheckFlags & BGCHECKFLAG_GROUND)))) {
         s32 var_v1 = ((itemAction >= PLAYER_IA_MASK_MIN) && (itemAction <= PLAYER_IA_MASK_MAX) &&
-                      ((this->transformation != PLAYER_FORM_HUMAN) || (itemAction >= PLAYER_IA_MASK_GIANT)));
+                      (!GameInteractor_Should(GI_VB_USE_ITEM_CONSIDER_LINK_HUMAN,
+                                              this->transformation == PLAYER_FORM_HUMAN, &itemAction) ||
+                       (itemAction >= PLAYER_IA_MASK_GIANT)));
         CollisionPoly* sp5C;
         s32 sp58;
         f32 sp54;
@@ -4531,20 +4533,23 @@ void Player_UseItem(PlayState* play, Player* this, ItemId item) {
             } else {
                 Audio_PlaySfx(NA_SE_SY_ERROR);
             }
-        } else if ((this->transformation == PLAYER_FORM_HUMAN) && (itemAction >= PLAYER_IA_MASK_MIN) &&
-                   (itemAction < PLAYER_IA_MASK_GIANT)) {
+        } else if (GameInteractor_Should(GI_VB_USE_ITEM_CONSIDER_LINK_HUMAN, this->transformation == PLAYER_FORM_HUMAN,
+                                         &itemAction) &&
+                   (itemAction >= PLAYER_IA_MASK_MIN) && (itemAction < PLAYER_IA_MASK_GIANT)) {
             PlayerMask maskId = GET_MASK_FROM_IA(itemAction);
 
-            // Handle wearable masks
-            this->prevMask = this->currentMask;
-            if (maskId == this->currentMask) {
-                this->currentMask = PLAYER_MASK_NONE;
-                func_8082E1F0(this, NA_SE_PL_TAKE_OUT_SHIELD);
-            } else {
-                this->currentMask = maskId;
-                func_8082E1F0(this, NA_SE_PL_CHANGE_ARMS);
+            if (GameInteractor_Should(GI_VB_USE_ITEM_EQUIP_MASK, true, &maskId)) {
+                // Handle wearable masks
+                this->prevMask = this->currentMask;
+                if (maskId == this->currentMask) {
+                    this->currentMask = PLAYER_MASK_NONE;
+                    func_8082E1F0(this, NA_SE_PL_TAKE_OUT_SHIELD);
+                } else {
+                    this->currentMask = maskId;
+                    func_8082E1F0(this, NA_SE_PL_CHANGE_ARMS);
+                }
+                gSaveContext.save.equippedMask = this->currentMask;
             }
-            gSaveContext.save.equippedMask = this->currentMask;
         } else if ((itemAction != this->heldItemAction) ||
                    ((this->heldActor == NULL) && (Player_ExplosiveFromIA(this, itemAction) > PLAYER_EXPLOSIVE_NONE))) {
             u8 nextAnimType;
@@ -12193,7 +12198,7 @@ void Player_UpdateCommon(Player* this, PlayState* play, Input* input) {
 
         this->actor.shape.face = ((play->gameplayFrames & 0x20) ? 0 : 3) + this->blinkInfo.eyeTexIndex;
 
-        if (this->currentMask == PLAYER_MASK_BUNNY) {
+        if (GameInteractor_Should(GI_VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY, this)) {
             Player_UpdateBunnyEars(this);
         }
 
@@ -14458,7 +14463,7 @@ void Player_Action_13(Player* this, PlayState* play) {
 
     Player_GetMovementSpeedAndYaw(this, &speedTarget, &yawTarget, SPEED_MODE_CURVED, play);
 
-    if (this->currentMask == PLAYER_MASK_BUNNY) {
+    if (GameInteractor_Should(GI_VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY, this)) {
         speedTarget *= 1.5f;
     }
 

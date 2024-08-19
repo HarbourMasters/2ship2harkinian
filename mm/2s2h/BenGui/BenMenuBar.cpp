@@ -48,6 +48,7 @@ static std::unordered_map<Ship::WindowBackend, const char*> windowBackendsMap = 
 
 static const std::unordered_map<int32_t, const char*> clockTypeOptions = {
     { CLOCK_TYPE_ORIGINAL, "Original" },
+    { CLOCK_TYPE_3DS, "MM3D style" },
     { CLOCK_TYPE_TEXT_BASED, "Text only" },
 };
 
@@ -593,6 +594,11 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere",
                                     { .tooltip = "Allow using Fierce Deity's mask outside of boss rooms." });
             UIWidgets::CVarCheckbox("No Blast Mask Cooldown", "gEnhancements.Masks.NoBlastMaskCooldown", {});
+            if (UIWidgets::CVarCheckbox("Persistent Bunny Hood", "gEnhancements.Masks.PersistentBunnyHood.Enabled",
+                                        { .tooltip = "Permanantly toggle a speed boost from the bunny hood by pressing "
+                                                     "'A' on it in the mask menu." })) {
+                UpdatePersistentMasksState();
+            }
 
             ImGui::EndMenu();
         }

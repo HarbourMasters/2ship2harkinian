@@ -16,6 +16,7 @@ void InitEnhancements() {
 
     // Clock
     RegisterTextBasedClock();
+    Register3DSClock();
 
     // Cycle & Saving
     RegisterEndOfCycleSaveHooks();
@@ -37,6 +38,7 @@ void InitEnhancements() {
     RegisterFierceDeityAnywhere();
     RegisterBlastMaskKeg();
     RegisterNoBlastMaskCooldown();
+    RegisterPersistentMasks();
 
     // Minigames
     RegisterAlwaysWinDoggyRace();
