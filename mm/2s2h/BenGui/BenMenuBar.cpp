@@ -514,7 +514,7 @@ void DrawEnhancementsMenu() {
         if (UIWidgets::BeginMenu("Equipment")) {
             UIWidgets::CVarCheckbox("Fast Magic Arrow Equip Animation", "gEnhancements.Equipment.MagicArrowEquipSpeed",
                                     { .tooltip = "Removes the animation for equipping Magic Arrows." });
-            if (UIWidgets::CVarCheckbox("GFS on B", "gEnhancements.Equipment.GreatFairySwordB",
+            if (UIWidgets::CVarCheckbox("Great Fairy Sword on B", "gEnhancements.Equipment.GreatFairySwordB",
                                     { .tooltip = "Press A on the Great Fairy Sword in the pause menu to equip/unequip it to B." })) {
                                         UpdateGreatFairySwordState();
                                     }

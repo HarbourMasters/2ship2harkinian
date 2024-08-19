@@ -12,13 +12,19 @@ extern PlayState* gPlayState;
 
 //TODO: Changing to FD and back while GFS on B will revert back to normal sword, but state is active 
 //TODO: Decide whether to allow equiping GFS on C while active
-//TODO: Investigate random crash
 //TODO: Check what happens when stolen. It leaves inv, but not button. State gets stuck on.
+//TODO: Loading from owl save had GFS on B, but state off
 
 
 void RestoreSwordState() {
-    BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) =
-            ITEM_SWORD_KOKIRI + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI;
+    u8 bItemId = ITEM_SWORD_KOKIRI + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI;
+    // Check to prevent Light Arrows from being set to B if you're missing your normal sword.
+    if (bItemId > ITEM_BOW_LIGHT && bItemId < ITEM_SHIELD_HERO) {
+        BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = bItemId;
+    } else {
+        BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_NONE;
+    }
+    
     Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_B);
 }
 
