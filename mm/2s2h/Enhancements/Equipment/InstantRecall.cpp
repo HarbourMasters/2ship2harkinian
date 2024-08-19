@@ -12,16 +12,14 @@ static HOOK_ID onActorUpdateHookId = 0;
 void Player_ReturnBoomerangs() {
     Player* player = GET_PLAYER(gPlayState);
 
+    if (player == NULL) {
+        return;
+    }
+
     EnBoom* boomerangs = (EnBoom*)player->boomerangActor;
 
+    // Kill both boomerangs
     if (boomerangs != NULL) {
-        // Set the positions of both boomerangs
-        boomerangs->actor.world.pos = player->actor.world.pos;
-        if (boomerangs->actor.child != NULL) {
-            boomerangs->actor.child->world.pos = player->actor.world.pos;
-        }
-
-        // Kill both boomerangs
         Actor_Kill(&boomerangs->actor);
         if (boomerangs->actor.child != NULL) {
             Actor_Kill(boomerangs->actor.child);
@@ -36,7 +34,7 @@ void RegisterInstantRecall() {
     onActorUpdateHookId = GameInteractor::Instance->RegisterGameHookForID<GameInteractor::OnActorUpdate>(
         ACTOR_EN_BOOM, [](Actor* outerActor) {
             if (CVarGetInteger("gEnhancements.PlayerActions.InstantRecall", 0)) {
-                if (gPlayState->state.input->cur.button == BTN_B) {
+                if (CHECK_BTN_ALL(gPlayState->state.input->press.button, BTN_B)) {
                     Player_ReturnBoomerangs();
                 }
             }
