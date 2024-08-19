@@ -28,6 +28,7 @@
 #include "Restorations/TatlISG.h"
 #include "Graphics/3DItemDrops.h"
 #include "Graphics/PlayAsKafei.h"
+#include "Equipment/InstantRecall.h"
 #include "Player/Player.h"
 #include "Songs/EnableSunsSong.h"
 #include "Songs/PauseOwlWarp.h"

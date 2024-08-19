@@ -516,6 +516,12 @@ void DrawEnhancementsMenu() {
         if (UIWidgets::BeginMenu("Equipment")) {
             UIWidgets::CVarCheckbox("Fast Magic Arrow Equip Animation", "gEnhancements.Equipment.MagicArrowEquipSpeed",
                                     { .tooltip = "Removes the animation for equipping Magic Arrows." });
+
+            UIWidgets::CVarCheckbox(
+                "Instant Fin Boomerangs Recall", "gEnhancements.PlayerActions.InstantRecall",
+                { .tooltip =
+                      "Pressing B will instantly recall the fin boomerang back to Zora Link after they are thrown." });
+
             ImGui::EndMenu();
         }
 
@@ -622,6 +628,7 @@ void DrawEnhancementsMenu() {
             }
             ImGui::EndMenu();
         }
+
         if (UIWidgets::BeginMenu("Player")) {
             UIWidgets::CVarSliderInt("Climb speed", "gEnhancements.Player.ClimbSpeed", 1, 5, 1,
                                      { .tooltip = "Increases the speed at which Link climbs vines and ladders." });
