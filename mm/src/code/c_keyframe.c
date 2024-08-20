@@ -189,8 +189,8 @@ void Keyframe_FlexChangeAnim(KFSkelAnimeFlex* kfSkelAnime, KeyFrameSkeleton* ske
     }
     if (ResourceMgr_OTRSigCheck(animation)) {
         animation = ResourceMgr_LoadKeyFrameAnimByName(animation);
-        // Overwrite the end time after fetching the animation data has the parent caller most liekly
-        // passed in garbage data
+        // Overwrite the end time after fetching the animation data as the parent caller most likely
+        // passed in garbage data from the "fake" animation pointer (casted from resource string)
         endTime = animation->duration;
     }
 
