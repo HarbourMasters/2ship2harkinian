@@ -1597,10 +1597,13 @@ void SkelAnime_Init(PlayState* play, SkelAnime* skelAnime, SkeletonHeader* skele
  */
 void SkelAnime_InitFlex(PlayState* play, SkelAnime* skelAnime, FlexSkeletonHeader* skeletonHeaderSeg,
                         AnimationHeader* animation, Vec3s* jointTable, Vec3s* morphTable, s32 limbCount) {
-    FlexSkeletonHeader* skeletonHeader;
-    if (ResourceMgr_OTRSigCheck(skeletonHeaderSeg))
+    if (ResourceMgr_OTRSigCheck(skeletonHeaderSeg)) {
         skeletonHeaderSeg = ResourceMgr_LoadSkeletonByName(skeletonHeaderSeg, NULL);
-    skeletonHeader = skeletonHeaderSeg;
+    }
+
+    FlexSkeletonHeader* skeletonHeader;
+
+    skeletonHeader = Lib_SegmentedToVirtual(skeletonHeaderSeg);
     skelAnime->limbCount = skeletonHeader->sh.limbCount + 1;
     skelAnime->dListCount = skeletonHeader->dListCount;
     skelAnime->skeleton = Lib_SegmentedToVirtual(skeletonHeader->sh.segment);
@@ -1624,10 +1627,13 @@ void SkelAnime_InitFlex(PlayState* play, SkelAnime* skelAnime, FlexSkeletonHeade
  */
 void SkelAnime_InitSkin(GameState* gameState, SkelAnime* skelAnime, SkeletonHeader* skeletonHeaderSeg,
                         AnimationHeader* animation) {
-    SkeletonHeader* skeletonHeader;
-    if (ResourceMgr_OTRSigCheck(skeletonHeaderSeg))
+    if (ResourceMgr_OTRSigCheck(skeletonHeaderSeg)) {
         skeletonHeaderSeg = ResourceMgr_LoadSkeletonByName(skeletonHeaderSeg, NULL);
-    skeletonHeader = skeletonHeaderSeg;
+    }
+
+    SkeletonHeader* skeletonHeader;
+
+    skeletonHeader = Lib_SegmentedToVirtual(skeletonHeaderSeg);
     skelAnime->limbCount = skeletonHeader->limbCount + 1;
     skelAnime->skeleton = Lib_SegmentedToVirtual(skeletonHeader->segment);
     skelAnime->jointTable = ZeldaArena_Malloc(sizeof(*skelAnime->jointTable) * skelAnime->limbCount);
