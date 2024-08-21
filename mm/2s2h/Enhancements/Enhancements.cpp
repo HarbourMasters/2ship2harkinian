@@ -8,28 +8,50 @@ void InitEnhancements() {
 
     // Cheats
     RegisterInfiniteCheats();
+    RegisterLongerFlowerGlide();
     RegisterMoonJumpOnL();
     RegisterUnbreakableRazorSword();
     RegisterUnrestrictedItems();
+    RegisterTimeStopInTemples();
 
     // Clock
     RegisterTextBasedClock();
+    Register3DSClock();
 
     // Cycle & Saving
     RegisterEndOfCycleSaveHooks();
     RegisterSavingEnhancements();
     RegisterAutosave();
 
+    // Dialogue
+    RegisterFastBankSelection();
+
+    // Equipment
+    RegisterSkipMagicArrowEquip();
+    RegisterInstantRecall();
+
+    // Graphics
+    RegisterDisableBlackBars();
+    Register3DItemDrops();
+
     // Masks
     RegisterFastTransformation();
     RegisterFierceDeityAnywhere();
+    RegisterBlastMaskKeg();
     RegisterNoBlastMaskCooldown();
+    RegisterPersistentMasks();
 
     // Minigames
     RegisterAlwaysWinDoggyRace();
 
+    // Player
+    RegisterClimbSpeed();
+    RegisterFastFlowerLaunch();
+    RegisterInstantPutaway();
+
     // Songs
     RegisterEnableSunsSong();
+    RegisterPauseOwlWarp();
     RegisterZoraEggCount();
 
     // Restorations
@@ -43,7 +65,5 @@ void InitEnhancements() {
 
     // Modes
     RegisterPlayAsKafei();
-
-    // Player Movement
-    RegisterClimbSpeed();
+    RegisterTimeMovesWhenYouMove();
 }

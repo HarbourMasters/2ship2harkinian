@@ -8,13 +8,14 @@
 #include <unordered_map>
 #include <string>
 #include "2s2h/Enhancements/Enhancements.h"
+#include "2s2h/Enhancements/Graphics/3DItemDrops.h"
 #include "2s2h/Enhancements/Graphics/MotionBlur.h"
 #include "2s2h/Enhancements/Graphics/PlayAsKafei.h"
+#include "2s2h/Enhancements/Modes/TimeMovesWhenYouMove.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
-#include "2s2h/DeveloperTools/WarpPoint.h"
+#include "2s2h/Enhancements/Cheats/Cheats.h"
+#include "2s2h/Enhancements/Player/Player.h"
 #include "HudEditor.h"
-
-extern bool ShouldClearTextureCacheAtEndOfFrame;
 
 extern "C" {
 #include "z64.h"
@@ -40,14 +41,14 @@ static const std::unordered_map<Ship::AudioBackend, const char*> audioBackendsMa
 };
 
 static std::unordered_map<Ship::WindowBackend, const char*> windowBackendsMap = {
-    { Ship::WindowBackend::DX11, "DirectX" },
-    { Ship::WindowBackend::SDL_OPENGL, "OpenGL" },
-    { Ship::WindowBackend::SDL_METAL, "Metal" },
-    { Ship::WindowBackend::GX2, "GX2" }
+    { Ship::WindowBackend::FAST3D_DXGI_DX11, "DirectX" },
+    { Ship::WindowBackend::FAST3D_SDL_OPENGL, "OpenGL" },
+    { Ship::WindowBackend::FAST3D_SDL_METAL, "Metal" },
 };
 
 static const std::unordered_map<int32_t, const char*> clockTypeOptions = {
     { CLOCK_TYPE_ORIGINAL, "Original" },
+    { CLOCK_TYPE_3DS, "MM3D style" },
     { CLOCK_TYPE_TEXT_BASED, "Text only" },
 };
 
@@ -57,7 +58,31 @@ static const std::unordered_map<int32_t, const char*> alwaysWinDoggyraceOptions 
     { ALWAYS_WIN_DOGGY_RACE_ALWAYS, "Always" },
 };
 
+static const std::unordered_map<int32_t, const char*> timeStopOptions = {
+    { TIME_STOP_OFF, "Off" },
+    { TIME_STOP_TEMPLES, "Temples" },
+    { TIME_STOP_TEMPLES_DUNGEONS, "Temples + Mini Dungeons" },
+};
+
 namespace BenGui {
+std::shared_ptr<std::vector<Ship::WindowBackend>> availableWindowBackends;
+std::unordered_map<Ship::WindowBackend, const char*> availableWindowBackendsMap;
+Ship::WindowBackend configWindowBackend;
+
+void UpdateWindowBackendObjects() {
+    Ship::WindowBackend runningWindowBackend = Ship::Context::GetInstance()->GetWindow()->GetWindowBackend();
+    int32_t configWindowBackendId = Ship::Context::GetInstance()->GetConfig()->GetInt("Window.Backend.Id", -1);
+    if (Ship::Context::GetInstance()->GetWindow()->IsAvailableWindowBackend(configWindowBackendId)) {
+        configWindowBackend = static_cast<Ship::WindowBackend>(configWindowBackendId);
+    } else {
+        configWindowBackend = runningWindowBackend;
+    }
+
+    availableWindowBackends = Ship::Context::GetInstance()->GetWindow()->GetAvailableWindowBackends();
+    for (auto& backend : *availableWindowBackends) {
+        availableWindowBackendsMap[backend] = windowBackendsMap[backend];
+    }
+}
 
 void DrawMenuBarIcon() {
     static bool gameIconLoaded = false;
@@ -181,29 +206,35 @@ void DrawSettingsMenu() {
                 "form of anti-aliasing");
 #endif
 #ifndef __WIIU__
-            if (UIWidgets::CVarSliderInt("MSAA: %d", CVAR_MSAA_VALUE, 1, 8, 1)) {
+            if (UIWidgets::CVarSliderInt((CVarGetInteger(CVAR_MSAA_VALUE, 1) == 1) ? "Anti-aliasing (MSAA): Off"
+                                                                                   : "Anti-aliasing (MSAA): %d",
+                                         CVAR_MSAA_VALUE, 1, 8, 1)) {
                 Ship::Context::GetInstance()->GetWindow()->SetMsaaLevel(CVarGetInteger(CVAR_MSAA_VALUE, 1));
             };
             UIWidgets::Tooltip(
-                "Activates multi-sample anti-aliasing when above 1x up to 8x for 8 samples for every pixel");
+                "Activates MSAA (multi-sample anti-aliasing) from 2x up to 8x, to smooth the edges of rendered "
+                "geometry.\n"
+                "Higher sample count will result in smoother edges on models, but may reduce performance.");
 #endif
 
             { // FPS Slider
                 constexpr unsigned int minFps = 20;
                 static unsigned int maxFps;
-                if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::DX11) {
+                if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() ==
+                    Ship::WindowBackend::FAST3D_DXGI_DX11) {
                     maxFps = 360;
                 } else {
                     maxFps = Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
                 }
                 unsigned int currentFps =
                     std::max(std::min(OTRGlobals::Instance->GetInterpolationFPS(), maxFps), minFps);
-                bool matchingRefreshRate =
-                    CVarGetInteger("gMatchRefreshRate", 0) &&
-                    Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() != Ship::WindowBackend::DX11;
+                bool matchingRefreshRate = CVarGetInteger("gMatchRefreshRate", 0) &&
+                                           Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() !=
+                                               Ship::WindowBackend::FAST3D_DXGI_DX11;
                 UIWidgets::CVarSliderInt((currentFps == 20) ? "FPS: Original (20)" : "FPS: %d", "gInterpolationFPS",
                                          minFps, maxFps, 20, { .disabled = matchingRefreshRate });
-                if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::DX11) {
+                if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() ==
+                    Ship::WindowBackend::FAST3D_DXGI_DX11) {
                     UIWidgets::Tooltip(
                         "Uses Matrix Interpolation to create extra frames, resulting in smoother graphics. This is "
                         "purely visual and does not impact game logic, execution of glitches etc.\n\n A higher target "
@@ -215,7 +246,8 @@ void DrawSettingsMenu() {
                 }
             } // END FPS Slider
 
-            if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::DX11) {
+            if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() ==
+                Ship::WindowBackend::FAST3D_DXGI_DX11) {
                 // UIWidgets::Spacer(0);
                 if (ImGui::Button("Match Refresh Rate")) {
                     int hz = Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
@@ -229,7 +261,8 @@ void DrawSettingsMenu() {
             }
             UIWidgets::Tooltip("Matches interpolation value to the current game's window refresh rate");
 
-            if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::DX11) {
+            if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() ==
+                Ship::WindowBackend::FAST3D_DXGI_DX11) {
                 UIWidgets::CVarSliderInt(CVarGetInteger("gExtraLatencyThreshold", 80) == 0 ? "Jitter fix: Off"
                                                                                            : "Jitter fix: >= %d FPS",
                                          "gExtraLatencyThreshold", 0, 360, 80);
@@ -242,32 +275,17 @@ void DrawSettingsMenu() {
             // UIWidgets::PaddedSeparator(true, true, 3.0f, 3.0f);
             //  #endregion */
 
-            Ship::WindowBackend runningWindowBackend = Ship::Context::GetInstance()->GetWindow()->GetWindowBackend();
-            Ship::WindowBackend configWindowBackend;
-            int32_t configWindowBackendId = Ship::Context::GetInstance()->GetConfig()->GetInt("Window.Backend.Id", -1);
-            if (configWindowBackendId != -1 &&
-                configWindowBackendId < static_cast<int>(Ship::WindowBackend::BACKEND_COUNT)) {
-                configWindowBackend = static_cast<Ship::WindowBackend>(configWindowBackendId);
-            } else {
-                configWindowBackend = runningWindowBackend;
-            }
-
-            auto availableWindowBackends = Ship::Context::GetInstance()->GetWindow()->GetAvailableWindowBackends();
-            std::unordered_map<Ship::WindowBackend, const char*> availableWindowBackendsMap;
-            for (auto& backend : *availableWindowBackends) {
-                availableWindowBackendsMap[backend] = windowBackendsMap[backend];
-            }
-
             if (UIWidgets::Combobox(
                     "Renderer API (Needs reload)", &configWindowBackend, availableWindowBackendsMap,
                     { .tooltip = "Sets the renderer API used by the game. Requires a relaunch to take effect.",
-                      .disabled = Ship::Context::GetInstance()->GetWindow()->GetAvailableWindowBackends()->size() <= 1,
+                      .disabled = availableWindowBackends->size() <= 1,
                       .disabledTooltip = "Only one renderer API is available on this platform." })) {
                 Ship::Context::GetInstance()->GetConfig()->SetInt("Window.Backend.Id",
                                                                   static_cast<int32_t>(configWindowBackend));
                 Ship::Context::GetInstance()->GetConfig()->SetString("Window.Backend.Name",
                                                                      windowBackendsMap.at(configWindowBackend));
                 Ship::Context::GetInstance()->GetConfig()->Save();
+                UpdateWindowBackendObjects();
             }
 
             if (Ship::Context::GetInstance()->GetWindow()->CanDisableVerticalSync()) {
@@ -329,7 +347,6 @@ extern std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 
 void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
-
         if (UIWidgets::BeginMenu("Camera")) {
             ImGui::SeparatorText("Fixes");
             UIWidgets::CVarCheckbox(
@@ -437,14 +454,14 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox(
                 "Pause Menu Save", "gEnhancements.Saving.PauseSave",
                 { .tooltip = "Re-introduce the pause menu save system. Pressing B in the pause menu will give you the "
-                             "option to create an Owl Save from your current location.\n\nWhen loading back into the "
-                             "game, you will be placed either at the entrance of the dungeon you saved in, or in South "
-                             "Clock Town." });
+                             "option to create a persistent Owl Save from your current location.\n\nWhen loading back "
+                             "into the game, you will be placed either at the entrance of the dungeon you saved in, or "
+                             "in South Clock Town." });
             if (UIWidgets::CVarCheckbox(
                     "Autosave", "gEnhancements.Saving.Autosave",
-                    { .tooltip = "Automatically create owl saves on the chosen interval.\n\nWhen loading back into the "
-                                 "game, you will be placed either at the entrance of the dungeon you saved in, or in "
-                                 "South Clock Town." })) {
+                    { .tooltip = "Automatically create a persistent Owl Save on the chosen interval.\n\nWhen loading "
+                                 "back into the game, you will be placed either at the entrance of the dungeon you "
+                                 "saved in, or in South Clock Town." })) {
                 RegisterAutosave();
             }
             UIWidgets::CVarSliderInt("Autosave Interval (minutes): %d", "gEnhancements.Saving.AutosaveInterval", 1, 60,
@@ -460,6 +477,10 @@ void DrawEnhancementsMenu() {
                 { .tooltip = "Playing the Song Of Time will not reset the Sword back to Kokiri Sword." });
             UIWidgets::CVarCheckbox("Do not reset Rupees", "gEnhancements.Cycle.DoNotResetRupees",
                                     { .tooltip = "Playing the Song Of Time will not reset the your rupees." });
+            UIWidgets::CVarCheckbox(
+                "Do not reset Time Speed", "gEnhancements.Cycle.DoNotResetTimeSpeed",
+                { .tooltip =
+                      "Playing the Song Of Time will not reset the current time speed set by Inverted Song of Time." });
 
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 0, 255));
             ImGui::SeparatorText("Unstable");
@@ -472,7 +493,11 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
-        if (UIWidgets::BeginMenu("Dialogues")) {
+        if (UIWidgets::BeginMenu("Dialogue")) {
+            UIWidgets::CVarCheckbox(
+                "Fast Bank Selection", "gEnhancements.Dialogue.FastBankSelection",
+                { .tooltip = "Pressing the Z or R buttons while the Deposit/Withdrawl Rupees dialogue is open will set "
+                             "the Rupees to Links current Rupees or 0 respectively." });
             UIWidgets::CVarCheckbox(
                 "Fast Text", "gEnhancements.Dialogue.FastText",
                 { .tooltip = "Speeds up text rendering, and enables holding of B progress to next message" });
@@ -483,6 +508,18 @@ void DrawEnhancementsMenu() {
         if (UIWidgets::BeginMenu("Dpad")) {
             UIWidgets::CVarCheckbox("Dpad Equips", "gEnhancements.Dpad.DpadEquips",
                                     { .tooltip = "Allows you to equip items to your d-pad" });
+
+            ImGui::EndMenu();
+        }
+
+        if (UIWidgets::BeginMenu("Equipment")) {
+            UIWidgets::CVarCheckbox("Fast Magic Arrow Equip Animation", "gEnhancements.Equipment.MagicArrowEquipSpeed",
+                                    { .tooltip = "Removes the animation for equipping Magic Arrows." });
+
+            UIWidgets::CVarCheckbox(
+                "Instant Fin Boomerangs Recall", "gEnhancements.PlayerActions.InstantRecall",
+                { .tooltip =
+                      "Pressing B will instantly recall the fin boomerang back to Zora Link after they are thrown." });
 
             ImGui::EndMenu();
         }
@@ -514,15 +551,60 @@ void DrawEnhancementsMenu() {
                                                  "model and texture on the boot logo start screen" });
             UIWidgets::CVarCheckbox("Bow Reticle", "gEnhancements.Graphics.BowReticle",
                                     { .tooltip = "Gives the bow a reticle when you draw an arrow" });
+            if (UIWidgets::CVarCheckbox("3D Item Drops", "gEnhancements.Graphics.3DItemDrops",
+                                        { .tooltip = "Makes item drops 3D" })) {
+                Register3DItemDrops();
+            }
+            UIWidgets::CVarCheckbox(
+                "Disable Black Bar Letterboxes", "gEnhancements.Graphics.DisableBlackBars",
+                { .tooltip = "Disables Black Bar Letterboxes during cutscenes and Z-targeting\nNote: there may be "
+                             "minor visual glitches that were covered up by the black bars\nPlease disable this "
+                             "setting before reporting a bug" });
+
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 0, 255));
+            ImGui::SeparatorText("Unstable");
+            ImGui::PopStyleColor();
+            UIWidgets::CVarCheckbox(
+                "Disable Scene Geometry Distance Check", "gEnhancements.Graphics.DisableSceneGeometryDistanceCheck",
+                { .tooltip =
+                      "Disables the distance check for scene geometry, allowing it to be drawn no matter how far "
+                      "away it is from the player. This may have unintended side effects." });
+            UIWidgets::CVarCheckbox("Widescreen Actor Culling",
+                                    "gEnhancements.Graphics.ActorCullingAccountsForWidescreen",
+                                    { .tooltip = "Adjusts the culling planes to account for widescreen resolutions. "
+                                                 "This may have unintended side effects." });
+            if (UIWidgets::CVarSliderInt(
+                    "Increase Actor Draw Distance: %dx", "gEnhancements.Graphics.IncreaseActorDrawDistance", 1, 5, 1,
+                    { .tooltip =
+                          "Increase the range in which Actors are drawn. This may have unintended side effects." })) {
+                CVarSetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance",
+                               MIN(CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1),
+                                   CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1)));
+            }
+            if (UIWidgets::CVarSliderInt(
+                    "Increase Actor Update Distance: %dx", "gEnhancements.Graphics.IncreaseActorUpdateDistance", 1, 5,
+                    1,
+                    { .tooltip =
+                          "Increase the range in which Actors are updated. This may have unintended side effects." })) {
+                CVarSetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance",
+                               MAX(CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1),
+                                   CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1)));
+            }
 
             ImGui::EndMenu();
         }
 
         if (UIWidgets::BeginMenu("Masks")) {
+            UIWidgets::CVarCheckbox("Blast Mask has Powder Keg Force", "gEnhancements.Masks.BlastMaskKeg");
             UIWidgets::CVarCheckbox("Fast Transformation", "gEnhancements.Masks.FastTransformation");
             UIWidgets::CVarCheckbox("Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere",
                                     { .tooltip = "Allow using Fierce Deity's mask outside of boss rooms." });
             UIWidgets::CVarCheckbox("No Blast Mask Cooldown", "gEnhancements.Masks.NoBlastMaskCooldown", {});
+            if (UIWidgets::CVarCheckbox("Persistent Bunny Hood", "gEnhancements.Masks.PersistentBunnyHood.Enabled",
+                                        { .tooltip = "Permanantly toggle a speed boost from the bunny hood by pressing "
+                                                     "'A' on it in the mask menu." })) {
+                UpdatePersistentMasksState();
+            }
 
             ImGui::EndMenu();
         }
@@ -535,16 +617,25 @@ void DrawEnhancementsMenu() {
         }
 
         if (UIWidgets::BeginMenu("Modes")) {
-            if (UIWidgets::CVarCheckbox("Play As Kafei", "gModes.PlayAsKafei",
-                                        { .tooltip = "Requires scene reload to take effect." })) {
-                UpdatePlayAsKafeiSkeletons();
+            UIWidgets::CVarCheckbox("Play As Kafei", "gModes.PlayAsKafei",
+                                    { .tooltip = "Requires scene reload to take effect." });
+            if (UIWidgets::CVarCheckbox("Time Moves When You Move", "gModes.TimeMovesWhenYouMove")) {
+                RegisterTimeMovesWhenYouMove();
             }
             ImGui::EndMenu();
         }
-        if (UIWidgets::BeginMenu("Player Movement")) {
-            UIWidgets::CVarSliderInt("Climb speed", "gEnhancements.PlayerMovement.ClimbSpeed", 1, 5, 1,
-                                     { .tooltip = "Increases the speed at which Link climbs vines and ladders." });
 
+        if (UIWidgets::BeginMenu("Player")) {
+            UIWidgets::CVarSliderInt("Climb speed", "gEnhancements.Player.ClimbSpeed", 1, 5, 1,
+                                     { .tooltip = "Increases the speed at which Link climbs vines and ladders." });
+            if (UIWidgets::CVarCheckbox("Fast Deku Flower Launch", "gEnhancements.Player.FastFlowerLaunch",
+                                        { .tooltip =
+                                              "Speeds up the time it takes to be able to get maximum height from "
+                                              "launching out of a deku flower" })) {
+                RegisterFastFlowerLaunch();
+            }
+            UIWidgets::CVarCheckbox("Instant Putaway", "gEnhancements.Player.InstantPutaway",
+                                    { .tooltip = "Allows Link to instantly puts away held item without waiting." });
             ImGui::EndMenu();
         }
 
@@ -574,6 +665,9 @@ void DrawEnhancementsMenu() {
                                     { .tooltip = "Enables using the Dpad for Ocarina playback." });
             UIWidgets::CVarCheckbox("Prevent Dropped Ocarina Inputs", "gEnhancements.Playback.NoDropOcarinaInput",
                                     { .tooltip = "Prevent dropping inputs when playing the ocarina quickly" });
+            UIWidgets::CVarCheckbox("Pause Owl Warp", "gEnhancements.Songs.PauseOwlWarp",
+                                    { .tooltip = "Allows the player to use the pause menu map to owl warp instead of "
+                                                 "having to play the Song of Soaring." });
             UIWidgets::CVarSliderInt("Zora Eggs For Bossa Nova", "gEnhancements.Songs.ZoraEggCount", 1, 7, 7,
                                      { .tooltip = "The number of eggs required to unlock new wave bossa nova." });
 
@@ -595,13 +689,26 @@ void DrawCheatsMenu() {
         UIWidgets::CVarCheckbox("Infinite Magic", "gCheats.InfiniteMagic");
         UIWidgets::CVarCheckbox("Infinite Rupees", "gCheats.InfiniteRupees");
         UIWidgets::CVarCheckbox("Infinite Consumables", "gCheats.InfiniteConsumables");
+        if (UIWidgets::CVarCheckbox(
+                "Longer Deku Flower Glide", "gCheats.LongerFlowerGlide",
+                { .tooltip = "Allows Deku Link to glide longer, no longer dropping after a certain distance" })) {
+            RegisterLongerFlowerGlide();
+        }
+        UIWidgets::CVarCheckbox("No Clip", "gCheats.NoClip");
         UIWidgets::CVarCheckbox("Unbreakable Razor Sword", "gCheats.UnbreakableRazorSword");
         UIWidgets::CVarCheckbox("Unrestricted Items", "gCheats.UnrestrictedItems");
         if (UIWidgets::CVarCheckbox("Moon Jump on L", "gCheats.MoonJumpOnL",
                                     { .tooltip = "Holding L makes you float into the air" })) {
             RegisterMoonJumpOnL();
         }
-        UIWidgets::CVarCheckbox("No Clip", "gCheats.NoClip");
+        UIWidgets::CVarCombobox(
+            "Stop Time in Dungeons", "gCheats.TempleTimeStop", timeStopOptions,
+            { .tooltip = "Stops time from advancing in selected areas. Requires a room change to update.\n\n"
+                         "- Off: Vanilla behaviour.\n"
+                         "- Temples: Stops time in Woodfall, Snowhead, Great Bay, and Stone Tower Temples.\n"
+                         "- Temples + Mini Dungeons: In addition to the above temples, stops time in both Spider "
+                         "Houses, Pirate's Fortress, Beneath the Well, Ancient Castle of Ikana, and Secret Shrine.",
+              .defaultIndex = TIME_STOP_OFF });
 
         ImGui::EndMenu();
     }
@@ -621,8 +728,32 @@ const char* logLevels[] = {
 
 void DrawDeveloperToolsMenu() {
     if (UIWidgets::BeginMenu("Developer Tools", UIWidgets::Colors::Yellow)) {
-        UIWidgets::CVarCheckbox("Debug Mode", "gDeveloperTools.DebugEnabled",
-                                { .tooltip = "Enables Debug Mode, allowing you to select maps with L + R + Z." });
+        if (UIWidgets::CVarCheckbox("Debug Mode", "gDeveloperTools.DebugEnabled",
+                                    { .tooltip = "Enables Debug Mode, revealing some developer options and allows you "
+                                                 "to enter Map Select with L + R + Z" })) {
+            // If disabling debug mode, disable all debug features
+            if (!CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
+                CVarClear("gDeveloperTools.DebugSaveFileMode");
+                CVarClear("gDeveloperTools.PreventActorUpdate");
+                CVarClear("gDeveloperTools.PreventActorDraw");
+                CVarClear("gDeveloperTools.PreventActorInit");
+                CVarClear("gDeveloperTools.DisableObjectDependency");
+                if (gPlayState != NULL) {
+                    gPlayState->frameAdvCtx.enabled = false;
+                }
+                RegisterDebugSaveCreate();
+                RegisterPreventActorUpdateHooks();
+                RegisterPreventActorDrawHooks();
+                RegisterPreventActorInitHooks();
+            }
+        }
+        if (ImGui::IsItemHovered()) {
+            ImGui::BeginTooltip();
+            ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f),
+                               "Warning: Some of these features can break your game,\nor cause unexpected behavior, "
+                               "please ensure you disable them\nbefore reporting any bugs.");
+            ImGui::EndTooltip();
+        }
 
         if (CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
             UIWidgets::CVarCheckbox(
@@ -635,45 +766,48 @@ void DrawDeveloperToolsMenu() {
                           "Change the behavior of creating saves while debug mode is enabled:\n\n"
                           "- Empty Save: The default 3 heart save file in first cycle\n"
                           "- Vanilla Debug Save: Uses the title screen save info (8 hearts, all items and masks)\n"
-                          "- 100\% Save: All items, equipment, mask, quast status and bombers notebook complete" })) {
+                          "- 100\% Save: All items, equipment, mask, quast status and bombers notebook complete",
+                      .defaultIndex = DEBUG_SAVE_INFO_NONE })) {
                 RegisterDebugSaveCreate();
             }
-        }
 
-        if (UIWidgets::CVarCheckbox("Prevent Actor Update", "gDeveloperTools.PreventActorUpdate")) {
-            RegisterPreventActorUpdateHooks();
-        }
-        if (UIWidgets::CVarCheckbox("Prevent Actor Draw", "gDeveloperTools.PreventActorDraw")) {
-            RegisterPreventActorDrawHooks();
-        }
-        if (UIWidgets::CVarCheckbox("Prevent Actor Init", "gDeveloperTools.PreventActorInit")) {
-            RegisterPreventActorInitHooks();
-        }
-        if (UIWidgets::CVarCombobox("Log Level", "gDeveloperTools.LogLevel", logLevels,
-                                    {
-                                        .tooltip = "The log level determines which messages are printed to the "
-                                                   "console. This does not affect the log file output",
-                                        .defaultIndex = 1,
-                                    })) {
-            Ship::Context::GetInstance()->GetLogger()->set_level(
-                (spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
-        }
+            if (UIWidgets::CVarCheckbox("Prevent Actor Update", "gDeveloperTools.PreventActorUpdate")) {
+                RegisterPreventActorUpdateHooks();
+            }
+            if (UIWidgets::CVarCheckbox("Prevent Actor Draw", "gDeveloperTools.PreventActorDraw")) {
+                RegisterPreventActorDrawHooks();
+            }
+            if (UIWidgets::CVarCheckbox("Prevent Actor Init", "gDeveloperTools.PreventActorInit")) {
+                RegisterPreventActorInitHooks();
+            }
+            UIWidgets::CVarCheckbox("Disable Object Dependency", "gDeveloperTools.DisableObjectDependency");
 
-        if (gPlayState != NULL) {
-            ImGui::Separator();
-            UIWidgets::Checkbox(
-                "Frame Advance", (bool*)&gPlayState->frameAdvCtx.enabled,
-                { .tooltip = "This allows you to advance through the game one frame at a time on command. "
-                             "To advance a frame, hold Z and tap R on the second controller. Holding Z "
-                             "and R will advance a frame every half second. You can also use the buttons below." });
-            if (gPlayState->frameAdvCtx.enabled) {
-                if (UIWidgets::Button("Advance 1", { .size = UIWidgets::Sizes::Inline })) {
-                    CVarSetInteger("gDeveloperTools.FrameAdvanceTick", 1);
-                }
-                ImGui::SameLine();
-                UIWidgets::Button("Advance (Hold)", { .size = UIWidgets::Sizes::Inline });
-                if (ImGui::IsItemActive()) {
-                    CVarSetInteger("gDeveloperTools.FrameAdvanceTick", 1);
+            if (UIWidgets::CVarCombobox("Log Level", "gDeveloperTools.LogLevel", logLevels,
+                                        {
+                                            .tooltip = "The log level determines which messages are printed to the "
+                                                       "console. This does not affect the log file output",
+                                            .defaultIndex = 1,
+                                        })) {
+                Ship::Context::GetInstance()->GetLogger()->set_level(
+                    (spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
+            }
+
+            if (gPlayState != NULL) {
+                ImGui::Separator();
+                UIWidgets::Checkbox(
+                    "Frame Advance", (bool*)&gPlayState->frameAdvCtx.enabled,
+                    { .tooltip = "This allows you to advance through the game one frame at a time on command. "
+                                 "To advance a frame, hold Z and tap R on the second controller. Holding Z "
+                                 "and R will advance a frame every half second. You can also use the buttons below." });
+                if (gPlayState->frameAdvCtx.enabled) {
+                    if (UIWidgets::Button("Advance 1", { .size = UIWidgets::Sizes::Inline })) {
+                        CVarSetInteger("gDeveloperTools.FrameAdvanceTick", 1);
+                    }
+                    ImGui::SameLine();
+                    UIWidgets::Button("Advance (Hold)", { .size = UIWidgets::Sizes::Inline });
+                    if (ImGui::IsItemActive()) {
+                        CVarSetInteger("gDeveloperTools.FrameAdvanceTick", 1);
+                    }
                 }
             }
         }
@@ -715,6 +849,10 @@ void DrawDeveloperToolsMenu() {
         }
         ImGui::EndMenu();
     }
+}
+
+void BenMenuBar::InitElement() {
+    UpdateWindowBackendObjects();
 }
 
 void BenMenuBar::DrawElement() {

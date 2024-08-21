@@ -4471,7 +4471,9 @@ void Player_UseItem(PlayState* play, Player* this, ItemId item) {
          (itemAction == PLAYER_IA_MASK_ZORA) ||
          ((this->currentBoots >= PLAYER_BOOTS_ZORA_UNDERWATER) && (this->actor.bgCheckFlags & BGCHECKFLAG_GROUND)))) {
         s32 var_v1 = ((itemAction >= PLAYER_IA_MASK_MIN) && (itemAction <= PLAYER_IA_MASK_MAX) &&
-                      ((this->transformation != PLAYER_FORM_HUMAN) || (itemAction >= PLAYER_IA_MASK_GIANT)));
+                      (!GameInteractor_Should(GI_VB_USE_ITEM_CONSIDER_LINK_HUMAN,
+                                              this->transformation == PLAYER_FORM_HUMAN, &itemAction) ||
+                       (itemAction >= PLAYER_IA_MASK_GIANT)));
         CollisionPoly* sp5C;
         s32 sp58;
         f32 sp54;
@@ -4531,20 +4533,23 @@ void Player_UseItem(PlayState* play, Player* this, ItemId item) {
             } else {
                 Audio_PlaySfx(NA_SE_SY_ERROR);
             }
-        } else if ((this->transformation == PLAYER_FORM_HUMAN) && (itemAction >= PLAYER_IA_MASK_MIN) &&
-                   (itemAction < PLAYER_IA_MASK_GIANT)) {
+        } else if (GameInteractor_Should(GI_VB_USE_ITEM_CONSIDER_LINK_HUMAN, this->transformation == PLAYER_FORM_HUMAN,
+                                         &itemAction) &&
+                   (itemAction >= PLAYER_IA_MASK_MIN) && (itemAction < PLAYER_IA_MASK_GIANT)) {
             PlayerMask maskId = GET_MASK_FROM_IA(itemAction);
 
-            // Handle wearable masks
-            this->prevMask = this->currentMask;
-            if (maskId == this->currentMask) {
-                this->currentMask = PLAYER_MASK_NONE;
-                func_8082E1F0(this, NA_SE_PL_TAKE_OUT_SHIELD);
-            } else {
-                this->currentMask = maskId;
-                func_8082E1F0(this, NA_SE_PL_CHANGE_ARMS);
+            if (GameInteractor_Should(GI_VB_USE_ITEM_EQUIP_MASK, true, &maskId)) {
+                // Handle wearable masks
+                this->prevMask = this->currentMask;
+                if (maskId == this->currentMask) {
+                    this->currentMask = PLAYER_MASK_NONE;
+                    func_8082E1F0(this, NA_SE_PL_TAKE_OUT_SHIELD);
+                } else {
+                    this->currentMask = maskId;
+                    func_8082E1F0(this, NA_SE_PL_CHANGE_ARMS);
+                }
+                gSaveContext.save.equippedMask = this->currentMask;
             }
-            gSaveContext.save.equippedMask = this->currentMask;
         } else if ((itemAction != this->heldItemAction) ||
                    ((this->heldActor == NULL) && (Player_ExplosiveFromIA(this, itemAction) > PLAYER_EXPLOSIVE_NONE))) {
             u8 nextAnimType;
@@ -11247,7 +11252,9 @@ void Player_SetDoAction(PlayState* play, Player* this) {
         }
 
         if (doActionA != DO_ACTION_PUTAWAY) {
-            this->putAwayCountdown = 20;
+            if (GameInteractor_Should(GI_VB_RESET_PUTAWAY_TIMER, true, NULL)) {
+                this->putAwayCountdown = 20;
+            }
         } else if (this->putAwayCountdown != 0) {
             doActionA = DO_ACTION_NONE;
             this->putAwayCountdown--;
@@ -12191,7 +12198,7 @@ void Player_UpdateCommon(Player* this, PlayState* play, Input* input) {
 
         this->actor.shape.face = ((play->gameplayFrames & 0x20) ? 0 : 3) + this->blinkInfo.eyeTexIndex;
 
-        if (this->currentMask == PLAYER_MASK_BUNNY) {
+        if (GameInteractor_Should(GI_VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY, this)) {
             Player_UpdateBunnyEars(this);
         }
 
@@ -14456,7 +14463,7 @@ void Player_Action_13(Player* this, PlayState* play) {
 
     Player_GetMovementSpeedAndYaw(this, &speedTarget, &yawTarget, SPEED_MODE_CURVED, play);
 
-    if (this->currentMask == PLAYER_MASK_BUNNY) {
+    if (GameInteractor_Should(GI_VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY, this)) {
         speedTarget *= 1.5f;
     }
 
@@ -18258,10 +18265,11 @@ void func_80855218(PlayState* play, Player* this, struct_8085D910** arg2) {
 }
 
 u16 D_8085D908[] = {
-    WEEKEVENTREG_30_80, // PLAYER_FORM_FIERCE_DEITY
-    WEEKEVENTREG_30_20, // PLAYER_FORM_GORON
-    WEEKEVENTREG_30_40, // PLAYER_FORM_ZORA
-    WEEKEVENTREG_30_10, // PLAYER_FORM_DEKU
+    WEEKEVENTREG_30_80,               // PLAYER_FORM_FIERCE_DEITY
+    WEEKEVENTREG_30_20,               // PLAYER_FORM_GORON
+    WEEKEVENTREG_30_40,               // PLAYER_FORM_ZORA
+    WEEKEVENTREG_30_10,               // PLAYER_FORM_DEKU
+    PACK_WEEKEVENTREG_FLAG(16, 0x0A), // 2S2H [Port] Added to match OOB value read on console for human form
 };
 struct_8085D910 D_8085D910[] = {
     { 0x10, 0xA, 0x3B, 0x3F },
@@ -18297,6 +18305,11 @@ void Player_Action_86(Player* this, PlayState* play) {
             this->actor.draw = NULL;
             this->av1.actionVar1 = 0;
             Play_DisableMotionBlurPriority();
+            //! @bug When taking off a transformation mask, PLAYER_FORM_HUMAN will index OOB leading
+            // to the next value causing WEEKEVENT_REG 16 being set with 0x0A which sets two flags at once
+            // WEEKEVENTREG_16_02 and WEEKEVENTREG_16_08
+            // WEEKEVENTREG_16_02 corresponds to showing a text ID from the Gorman Brothers on the 3rd day
+            // if the player has saved the farm, so this bug would prevent that text from displaying
             SET_WEEKEVENTREG(D_8085D908[GET_PLAYER_FORM]);
         }
     } else if ((this->av1.actionVar1++ > ((this->transformation == PLAYER_FORM_HUMAN) ? 0x53 : 0x37)) ||

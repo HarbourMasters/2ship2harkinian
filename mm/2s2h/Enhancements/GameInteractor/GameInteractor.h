@@ -5,8 +5,7 @@
 #include <string>
 extern "C" {
 #endif
-#include "z64actor.h"
-#include "z64camera.h"
+#include "z64.h"
 #ifdef __cplusplus
 }
 #endif
@@ -41,22 +40,36 @@ typedef enum {
     GI_VB_PATCH_SIDEROLL,
     GI_VB_TATL_CONVERSATION_AVAILABLE,
     GI_VB_PREVENT_MASK_TRANSFORMATION_CS,
+    GI_VB_RESET_PUTAWAY_TIMER,
     GI_VB_SET_CLIMB_SPEED,
     GI_VB_PREVENT_CLOCK_DISPLAY,
     GI_VB_SONG_AVAILABLE_TO_PLAY,
     GI_VB_USE_CUSTOM_CAMERA,
     GI_VB_DELETE_OWL_SAVE,
+    GI_VB_CONSIDER_BUNNY_HOOD_EQUIPPED,
+    GI_VB_USE_ITEM_EQUIP_MASK,
+    GI_VB_KALEIDO_DISPLAY_ITEM_TEXT,
+    GI_VB_USE_ITEM_CONSIDER_LINK_HUMAN,
+    GI_VB_DRAW_ITEM_EQUIPPED_OUTLINE,
     GI_VB_PLAY_TRANSITION_CS,
     GI_VB_TATL_INTERUPT_MSG3,
     GI_VB_TATL_INTERUPT_MSG6,
     GI_VB_ITEM_BE_RESTRICTED,
     GI_VB_FLIP_HOP_VARIABLE,
+    GI_VB_DISABLE_LETTERBOX,
+    GI_VB_CLOCK_TOWER_OPENING_CONSIDER_THIS_FIRST_CYCLE,
+    GI_VB_DRAW_SLIME_BODY_ITEM,
 } GIVanillaBehavior;
 
 typedef enum {
     GI_INVERT_CAMERA_RIGHT_STICK_X,
     GI_INVERT_CAMERA_RIGHT_STICK_Y,
 } GIInvertType;
+
+typedef enum {
+    GI_DPAD_OCARINA,
+    GI_DPAD_EQUIP,
+} GIDpadType;
 
 #ifdef __cplusplus
 
@@ -248,6 +261,10 @@ class GameInteractor {
     DEFINE_HOOK(OnGameStateMainFinish, ());
     DEFINE_HOOK(OnGameStateDrawFinish, ());
     DEFINE_HOOK(OnGameStateUpdate, ());
+    DEFINE_HOOK(OnConsoleLogoUpdate, ());
+    DEFINE_HOOK(OnKaleidoUpdate, (PauseContext * pauseCtx));
+    DEFINE_HOOK(BeforeKaleidoDrawPage, (PauseContext * pauseCtx, u16 pauseIndex));
+    DEFINE_HOOK(AfterKaleidoDrawPage, (PauseContext * pauseCtx, u16 pauseIndex));
     DEFINE_HOOK(OnSaveInit, (s16 fileNum));
     DEFINE_HOOK(BeforeEndOfCycleSave, ());
     DEFINE_HOOK(AfterEndOfCycleSave, ());
@@ -255,6 +272,8 @@ class GameInteractor {
 
     DEFINE_HOOK(OnSceneInit, (s8 sceneId, s8 spawnNum));
     DEFINE_HOOK(OnRoomInit, (s8 sceneId, s8 roomNum));
+    DEFINE_HOOK(AfterRoomSceneCommands, (s8 sceneId, s8 roomNum));
+    DEFINE_HOOK(OnPlayDestroy, ());
 
     DEFINE_HOOK(ShouldActorInit, (Actor * actor, bool* should));
     DEFINE_HOOK(OnActorInit, (Actor * actor));
@@ -263,6 +282,7 @@ class GameInteractor {
     DEFINE_HOOK(ShouldActorDraw, (Actor * actor, bool* should));
     DEFINE_HOOK(OnActorDraw, (Actor * actor));
     DEFINE_HOOK(OnActorKill, (Actor * actor));
+    DEFINE_HOOK(OnPlayerPostLimbDraw, (Player * player, s32 limbIndex));
 
     DEFINE_HOOK(OnSceneFlagSet, (s16 sceneId, FlagType flagType, u32 flag));
     DEFINE_HOOK(OnSceneFlagUnset, (s16 sceneId, FlagType flagType, u32 flag));
@@ -289,6 +309,10 @@ extern "C" {
 void GameInteractor_ExecuteOnGameStateMainFinish();
 void GameInteractor_ExecuteOnGameStateDrawFinish();
 void GameInteractor_ExecuteOnGameStateUpdate();
+void GameInteractor_ExecuteOnConsoleLogoUpdate();
+void GameInteractor_ExecuteOnKaleidoUpdate(PauseContext* pauseCtx);
+void GameInteractor_ExecuteBeforeKaleidoDrawPage(PauseContext* pauseCtx, u16 pauseIndex);
+void GameInteractor_ExecuteAfterKaleidoDrawPage(PauseContext* pauseCtx, u16 pauseIndex);
 void GameInteractor_ExecuteOnSaveInit(s16 fileNum);
 void GameInteractor_ExecuteBeforeEndOfCycleSave();
 void GameInteractor_ExecuteAfterEndOfCycleSave();
@@ -296,6 +320,8 @@ void GameInteractor_ExecuteBeforeMoonCrashSaveReset();
 
 void GameInteractor_ExecuteOnSceneInit(s16 sceneId, s8 spawnNum);
 void GameInteractor_ExecuteOnRoomInit(s16 sceneId, s8 roomNum);
+void GameInteractor_ExecuteAfterRoomSceneCommands(s16 sceneId, s8 roomNum);
+void GameInteractor_ExecuteOnPlayDestroy();
 
 bool GameInteractor_ShouldActorInit(Actor* actor);
 void GameInteractor_ExecuteOnActorInit(Actor* actor);
@@ -304,6 +330,7 @@ void GameInteractor_ExecuteOnActorUpdate(Actor* actor);
 bool GameInteractor_ShouldActorDraw(Actor* actor);
 void GameInteractor_ExecuteOnActorDraw(Actor* actor);
 void GameInteractor_ExecuteOnActorKill(Actor* actor);
+void GameInteractor_ExecuteOnPlayerPostLimbDraw(Player* player, s32 limbIndex);
 
 void GameInteractor_ExecuteOnSceneFlagSet(s16 sceneId, FlagType flagType, u32 flag);
 void GameInteractor_ExecuteOnSceneFlagUnset(s16 sceneId, FlagType flagType, u32 flag);
@@ -327,6 +354,7 @@ bool GameInteractor_Should(GIVanillaBehavior flag, bool result, void* optionalAr
         flag, [](GIVanillaBehavior _, bool* should, void* opt) body)
 
 int GameInteractor_InvertControl(GIInvertType type);
+uint32_t GameInteractor_Dpad(GIDpadType type, uint32_t buttonCombo);
 
 #ifdef __cplusplus
 }
