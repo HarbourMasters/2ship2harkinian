@@ -24,17 +24,6 @@ extern PlayState* gPlayState;
 }
 std::vector<ImVec2> windowTypeSizes = { {} };
 
-static const std::unordered_map<Ship::AudioBackend, const char*> audioBackendsMap = {
-    { Ship::AudioBackend::WASAPI, "Windows Audio Session API" },
-    { Ship::AudioBackend::SDL, "SDL" },
-};
-
-static std::unordered_map<Ship::WindowBackend, const char*> windowBackendsMap = {
-    { Ship::WindowBackend::FAST3D_DXGI_DX11, "DirectX" },
-    { Ship::WindowBackend::FAST3D_SDL_OPENGL, "OpenGL" },
-    { Ship::WindowBackend::FAST3D_SDL_METAL, "Metal" },
-};
-
 namespace BenGui {
 
 extern std::shared_ptr<HudEditorWindow> mHudEditorWindow;
@@ -46,10 +35,10 @@ extern std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 extern std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
 extern std::shared_ptr<EventLogWindow> mEventLogWindow;
 extern std::shared_ptr<BenInputEditorWindow> mBenInputEditorWindow;
+
 extern std::shared_ptr<std::vector<Ship::WindowBackend>> availableWindowBackends;
 extern std::unordered_map<Ship::WindowBackend, const char*> availableWindowBackendsMap;
 extern Ship::WindowBackend configWindowBackend;
-
 extern void UpdateWindowBackendObjects();
 
 char searchText[30] = "";
@@ -103,16 +92,7 @@ void DrawAudioSettings() {
     SearchMenuGetItem(MENU_ITEM_SOUND_EFFECT_VOLUME);
     SearchMenuGetItem(MENU_ITEM_FANFARE_VOLUME);
     SearchMenuGetItem(MENU_ITEM_AMBIENT_VOLUME);
-
-    auto currentAudioBackend = Ship::Context::GetInstance()->GetAudio()->GetAudioBackend();
-    if (UIWidgets::Combobox(
-            "Audio API", &currentAudioBackend, audioBackendsMap,
-            { .color = menuTheme[menuThemeIndex],
-              .tooltip = "Sets the audio API used by the game. Requires a relaunch to take effect.",
-              .disabled = Ship::Context::GetInstance()->GetAudio()->GetAvailableAudioBackends()->size() <= 1,
-              .disabledTooltip = "Only one audio API is available on this platform." })) {
-        Ship::Context::GetInstance()->GetAudio()->SetAudioBackend(currentAudioBackend);
-    }
+    SearchMenuGetItem(MENU_ITEM_AUDIO_API);
 }
 
 void DrawGraphicsSettings() {
@@ -124,41 +104,20 @@ void DrawGraphicsSettings() {
     SearchMenuGetItem(MENU_ITEM_MSAA);
 #endif
     SearchMenuGetItem(MENU_ITEM_FRAME_RATE);
-    SearchMenuGetItem(MENU_ITEM_MATCH_REFRESH_RATE);
-    if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::FAST3D_DXGI_DX11) {
-        SearchMenuGetItem(MENU_ITEM_JITTER_FIX);
-    }
+    SearchMenuGetItem(MENU_ITEM_MATCH_REFRESH_RATE_BUTTON);
+    SearchMenuGetItem(MENU_ITEM_MATCH_REFRESH_RATE_CHECK);
+    SearchMenuGetItem(MENU_ITEM_JITTER_FIX);
     //  #endregion */
-    if (UIWidgets::Combobox("Renderer API (Needs reload)", &configWindowBackend, availableWindowBackendsMap,
-                            { .color = menuTheme[menuThemeIndex],
-                              .tooltip = "Sets the renderer API used by the game. Requires a relaunch to take effect.",
-                              .disabled = availableWindowBackends->size() <= 1,
-                              .disabledTooltip = "Only one renderer API is available on this platform." })) {
-        Ship::Context::GetInstance()->GetConfig()->SetInt("Window.Backend.Id",
-                                                          static_cast<int32_t>(configWindowBackend));
-        Ship::Context::GetInstance()->GetConfig()->SetString("Window.Backend.Name",
-                                                             windowBackendsMap.at(configWindowBackend));
-        Ship::Context::GetInstance()->GetConfig()->Save();
-        UpdateWindowBackendObjects();
-    }
 
-    if (Ship::Context::GetInstance()->GetWindow()->CanDisableVerticalSync()) {
-        SearchMenuGetItem(MENU_ITEM_ENABLE_VSYNC);
-    }
-
-    if (Ship::Context::GetInstance()->GetWindow()->SupportsWindowedFullscreen()) {
-        SearchMenuGetItem(MENU_ITEM_ENABLE_WINDOWED_FULLSCREEN);
-    }
-
-    if (Ship::Context::GetInstance()->GetWindow()->GetGui()->SupportsViewports()) {
-        SearchMenuGetItem(MENU_ITEM_ENABLE_MULTI_VIEWPORT);
-    }
+    SearchMenuGetItem(MENU_ITEM_ENABLE_VSYNC);
+    SearchMenuGetItem(MENU_ITEM_ENABLE_WINDOWED_FULLSCREEN);
+    SearchMenuGetItem(MENU_ITEM_ENABLE_MULTI_VIEWPORT);
 
     SearchMenuGetItem(MENU_ITEM_TEXTURE_FILTER);
 }
 
 void DrawControllerSettings() {
-    // SearchMenuGetItem(MENU_ITEM_INPUT_EDITOR);
+    SearchMenuGetItem(MENU_ITEM_INPUT_EDITOR_WINDOW);
     UIWidgets::WindowButton("Popout Input Editor", "gWindows.BenInputEditor", mBenInputEditorWindow,
                             { .tooltip = "Enables the separate Input Editor window." });
     if (!CVarGetInteger("gWindows.BenInputEditor", 0)) {
@@ -244,11 +203,11 @@ void DrawGraphicsEnhancements() {
 
     ImGui::SeparatorText("Motion Blur");
     SearchMenuGetItem(MENU_ITEM_MOTION_BLUR_MODE);
-    SearchMenuGetItem(MENU_ITEM_MOTION_BLUE_INTERPOLATE);
+    SearchMenuGetItem(MENU_ITEM_MOTION_BLUR_INTERPOLATE);
     if (CVarGetInteger("gEnhancements.Graphics.MotionBlur.Mode", 0) == 0) {
         SearchMenuGetItem(MENU_ITEM_MOTION_BLUR_ENABLE);
     } else if (CVarGetInteger("gEnhancements.Graphics.MotionBlur.Mode", 0) == 1) {
-        CVarSetInteger("gEnhancements.Graphics.MotionBlur.Toggle", 0);
+        
     }
     if (CVarGetInteger("gEnhancements.Graphics.MotionBlur.Mode", 0) == 2 ||
         CVarGetInteger("gEnhancements.Graphics.MotionBlur.Toggle", 0) == 1) {
@@ -323,12 +282,7 @@ void DrawRestorationEnhancements() {
 }
 
 void DrawHudEditorContents() {
-    // SearchMenuGetItem(MENU_ITEM_HUD_EDITOR);
-    UIWidgets::WindowButton("Popout Hud Editor", "gWindows.HudEditor", mHudEditorWindow,
-                            { .tooltip = "Enables the Hud Editor window, allowing you to edit your hud" });
-    if (!CVarGetInteger("gWindows.HudEditor", 0)) {
-        mHudEditorWindow->DrawElement();
-    }
+    SearchMenuGetItem(MENU_ITEM_HUD_EDITOR_BUTTON);
 }
 
 void DrawGeneralDevTools() {
@@ -338,10 +292,8 @@ void DrawGeneralDevTools() {
     SearchMenuGetItem(MENU_ITEM_OPEN_APP_FILES);
     SearchMenuGetItem(MENU_ITEM_DEBUG_MODE_ENABLE);
 
-    if (CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
-        SearchMenuGetItem(MENU_ITEM_DEBUG_BETTER_MAP_SELECT);
-        SearchMenuGetItem(MENU_ITEM_DEBUG_SAVE_FILE_MODE);
-    }
+    SearchMenuGetItem(MENU_ITEM_DEBUG_BETTER_MAP_SELECT);
+    SearchMenuGetItem(MENU_ITEM_DEBUG_SAVE_FILE_MODE);
 
     SearchMenuGetItem(MENU_ITEM_PREVENT_ACTOR_UPDATE);
     SearchMenuGetItem(MENU_ITEM_PREVENT_ACTOR_DRAW);

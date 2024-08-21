@@ -1,5 +1,6 @@
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/BenGui/UIWidgets.hpp"
+#include "2s2h/BenGui/BenMenuBar.h"
 #include <variant>
 #include <tuple>
 
@@ -28,7 +29,15 @@ typedef enum {
     DISABLE_FOR_FREE_LOOK_ON,
     DISABLE_FOR_FREE_LOOK_OFF,
     DISABLE_FOR_AUTO_SAVE_OFF,
-    DISABLE_FOR_SAVE_NOT_LOADED
+    DISABLE_FOR_SAVE_NOT_LOADED,
+    DISABLE_FOR_DEBUG_MODE_OFF,
+    DISABLE_FOR_NO_VSYNC,
+    DISABLE_FOR_NO_WINDOWED_FULLSCREEN,
+    DISABLE_FOR_NO_MULTI_VIEWPORT,
+    DISABLE_FOR_NOT_DIRECTX,
+    DISABLE_FOR_MATCH_REFRESH_RATE_ON,
+    DISABLE_FOR_MOTION_BLUR_MODE,
+    DISABLE_FOR_MOTION_BLUR_OFF
 } DisableOption;
 
 struct widgetInfo;
@@ -49,7 +58,9 @@ typedef enum {
     WIDGET_BUTTON,
     WIDGET_COLOR_24,
     WIDGET_COLOR_32,
-    WIDGET_WINDOW_BUTTON
+    WIDGET_WINDOW_BUTTON,
+    WIDGET_AUDIO_BACKEND,
+    WIDGET_VIDEO_BACKEND
 } WidgetType;
 
 typedef enum {
@@ -137,7 +148,14 @@ struct disabledInfo {
     ConditionFunc evaluation;
     const char* reason;
     bool active = false;
+    int32_t state = 0;
 };
+
+namespace BenGui {
+extern std::shared_ptr<std::vector<Ship::WindowBackend>> availableWindowBackends;
+extern std::unordered_map<Ship::WindowBackend, const char*> availableWindowBackendsMap;
+extern Ship::WindowBackend configWindowBackend;
+extern void UpdateWindowBackendObjects();
 
 static std::pair<DisableOption, disabledInfo> disabledMap[] = {
     { DISABLE_FOR_CAMERAS_OFF,
@@ -159,7 +177,27 @@ static std::pair<DisableOption, disabledInfo> disabledMap[] = {
         "Free Look is Disabled" } },
     { DISABLE_FOR_AUTO_SAVE_OFF,
       { []() -> bool { return !CVarGetInteger("gEnhancements.Saving.Autosave", 0); }, "AutoSave is Disabled" } },
-    { DISABLE_FOR_SAVE_NOT_LOADED, { []() -> bool { return gPlayState == NULL; }, "Save Not Loaded" } }
+    { DISABLE_FOR_SAVE_NOT_LOADED, { []() -> bool { return gPlayState == NULL; }, "Save Not Loaded" } },
+    { DISABLE_FOR_DEBUG_MODE_OFF, { []() -> bool 
+      { return !CVarGetInteger("gDeveloperTools.DebugEnabled", 0); }, "Save Not Loaded" } },
+    { DISABLE_FOR_NO_VSYNC,
+      { []() -> bool { return !Ship::Context::GetInstance()->GetWindow()->CanDisableVerticalSync(); },
+        "Disabling VSync not supported" } },
+    { DISABLE_FOR_NO_WINDOWED_FULLSCREEN,
+      { []() -> bool { return !Ship::Context::GetInstance()->GetWindow()->SupportsWindowedFullscreen(); },
+        "Windowed Fullscreen not supported" } },
+    { DISABLE_FOR_NO_MULTI_VIEWPORT,
+      { []() -> bool { return !Ship::Context::GetInstance()->GetWindow()->GetGui()->SupportsViewports(); },
+        "Multi-viewports not supported" } },
+    { DISABLE_FOR_MATCH_REFRESH_RATE_ON,
+      { []() -> bool { return !CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0); },
+        "Free Look is Disabled" } },
+    { DISABLE_FOR_MOTION_BLUR_MODE,
+      { []() -> bool { return !CVarGetInteger("gEnhancements.Graphics.MotionBlur.Mode", 0); },
+        "Free Look is Disabled" } },
+    { DISABLE_FOR_MOTION_BLUR_OFF,
+      { []() -> bool { return !CVarGetInteger("gEnhancements.Graphics.MotionBlur.Toggle", 0); },
+        "Free Look is Disabled" } }
 };
 
 std::unordered_map<int32_t, const char*> menuThemeOptions = {
@@ -210,6 +248,17 @@ static const std::unordered_map<int32_t, const char*> logLevels = {
     { DEBUG_LOG_OFF, "Off" },
 };
 
+static const std::unordered_map<Ship::AudioBackend, const char*> audioBackendsMap = {
+    { Ship::AudioBackend::WASAPI, "Windows Audio Session API" },
+    { Ship::AudioBackend::SDL, "SDL" },
+};
+
+static std::unordered_map<Ship::WindowBackend, const char*> windowBackendsMap = {
+    { Ship::WindowBackend::FAST3D_DXGI_DX11, "DirectX" },
+    { Ship::WindowBackend::FAST3D_SDL_OPENGL, "OpenGL" },
+    { Ship::WindowBackend::FAST3D_SDL_METAL, "Metal" },
+};
+
 typedef enum { SIDEBAR_SECTION_SETTINGS_GENERAL, SIDEBAR_SECTION_SETTINGS_GRAPHICS, SIDEBAR_SECTION_SETTINGS_ };
 
 typedef enum {
@@ -223,14 +272,15 @@ typedef enum {
     MENU_ITEM_SOUND_EFFECT_VOLUME,
     MENU_ITEM_FANFARE_VOLUME,
     MENU_ITEM_AMBIENT_VOLUME,
-    // MENU_ITEM_AUDIO_BACKEND, (Unused placeholder)
+    MENU_ITEM_AUDIO_API,
     MENU_ITEM_TOGGLE_FULLSCREEN,
     MENU_ITEM_INTERNAL_RESOLUTION,
     MENU_ITEM_MSAA,
     MENU_ITEM_FRAME_RATE,
-    MENU_ITEM_MATCH_REFRESH_RATE,
+    MENU_ITEM_MATCH_REFRESH_RATE_BUTTON,
+    MENU_ITEM_MATCH_REFRESH_RATE_CHECK,
+    MENU_ITEM_RENDERER_API,
     MENU_ITEM_JITTER_FIX,
-    // MENU_ITEM_RENDERER_API, (Unused placeholder)
     MENU_ITEM_ENABLE_VSYNC,
     MENU_ITEM_ENABLE_WINDOWED_FULLSCREEN,
     MENU_ITEM_ENABLE_MULTI_VIEWPORT,
@@ -277,7 +327,7 @@ typedef enum {
     MENU_ITEM_CLOCK_OPTIONS,
     MENU_ITEM_MILITARY_CLOCK,
     MENU_ITEM_MOTION_BLUR_MODE,
-    MENU_ITEM_MOTION_BLUE_INTERPOLATE,
+    MENU_ITEM_MOTION_BLUR_INTERPOLATE,
     MENU_ITEM_MOTION_BLUR_ENABLE,
     MENU_ITEM_MOTION_BLUR_STRENGTH,
     MENU_ITEM_AUTHENTIC_LOGO,
@@ -309,7 +359,6 @@ typedef enum {
     MENU_ITEM_RESTORE_POWER_CROUCH_STAB,
     MENU_ITEM_RESTORE_SIDEROLLS,
     MENU_ITEM_RESTORE_TATL_ISG,
-    // MENU_ITEM_HUD_EDITOR, Unused placeholder
     MENU_ITEM_MODERN_MENU_POPOUT,
     MENU_ITEM_OPEN_APP_FILES,
     MENU_ITEM_DEBUG_MODE_ENABLE,
@@ -323,8 +372,10 @@ typedef enum {
     MENU_ITEM_FRAME_ADVANCE_ENABLE,
     MENU_ITEM_FRAME_ADVANCE_SINGLE,
     MENU_ITEM_FRAME_ADVANCE_HOLD,
+    MENU_ITEM_INPUT_EDITOR_WINDOW,
     MENU_ITEM_COLLISION_VIEWER_BUTTON,
-    MENU_ITEM_STATS_BUTTON
+    MENU_ITEM_STATS_BUTTON,
+    MENU_ITEM_HUD_EDITOR_BUTTON
 };
 
 void FreeLookPitchMinMax() {
@@ -420,7 +471,11 @@ widgetInfo enhancementList[] = {
       ([]() {
           AudioSeq_SetPortVolumeScale(SEQ_PLAYER_AMBIENCE, CVarGetFloat("gSettings.Audio.AmbienceVolume", 1.0f));
       }) },
-    //{ MENU_ITEM_AUDIO_BACKEND }, Unused placeholder
+    { MENU_ITEM_AUDIO_API,
+      "Audio API",
+      NULL,
+      "Sets the audio API used by the game. Requires a relaunch to take effect.",
+      WIDGET_AUDIO_BACKEND },
     // Graphics Settings
     { MENU_ITEM_TOGGLE_FULLSCREEN,
       "Toggle Fullscreen",
@@ -455,8 +510,26 @@ widgetInfo enhancementList[] = {
       "purely visual and does not impact game logic, execution of glitches etc.\n\n A higher target "
       "FPS than your monitor's refresh rate will waste resources, and might give a worse result.",
       WIDGET_SLIDER_INT,
-      { 20, 360, 20 } },
-    { MENU_ITEM_MATCH_REFRESH_RATE,
+      { 20, static_cast<int32_t>(Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate()), 20 },
+      nullptr,
+      [](widgetInfo& info) {
+          if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::FAST3D_DXGI_DX11 && 
+              std::get<int32_t>(info.widgetOptions.max) != 360) {
+              info.widgetOptions.max = 360;
+              info.widgetTooltip = "Uses Matrix Interpolation to create extra frames, resulting in smoother graphics. This is "
+                  "purely visual and does not impact game logic, execution of glitches etc.\n\n A higher target "
+                  "FPS than your monitor's refresh rate will waste resources, and might give a worse result.";
+          }
+          int32_t defaultVal = std::get<int32_t>(info.widgetOptions.defaultVariant);
+          if (CVarGetInteger(info.widgetCVar, defaultVal) == defaultVal) {
+              info.widgetName = "Current FPS: Original (%d)";
+          } else {
+              info.widgetName = "Current FPS: %d";
+          }
+          if (disabledMap[DISABLE_FOR_MATCH_REFRESH_RATE_ON].second.active)
+              info.activeDisables.push_back(DISABLE_FOR_MATCH_REFRESH_RATE_ON);
+      } },
+    { MENU_ITEM_MATCH_REFRESH_RATE_BUTTON,
       "Match Refresh Rate",
       "",
       "Matches interpolation value to the current game's window refresh rate.",
@@ -468,7 +541,28 @@ widgetInfo enhancementList[] = {
               CVarSetInteger("gInterpolationFPS", hz);
               Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
           }
-      }) },
+      }),
+      [](widgetInfo& info) {
+          if (disabledMap[DISABLE_FOR_NOT_DIRECTX].second.active)
+              info.isHidden = true;
+      } },
+    { MENU_ITEM_MATCH_REFRESH_RATE_CHECK,
+      "Match Refresh Rate",
+      "gMatchRefreshRate",
+      "Matches interpolation value to the current game's window refresh rate.",
+      WIDGET_CHECKBOX,
+      {},
+      ([]() {
+          int hz = Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
+          if (hz >= 20 && hz <= 360) {
+              CVarSetInteger("gInterpolationFPS", hz);
+              Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+          }
+      }),
+      [](widgetInfo& info) {
+          if (!disabledMap[DISABLE_FOR_NOT_DIRECTX].second.active)
+              info.isHidden = true;
+      } },
     { MENU_ITEM_JITTER_FIX,
       "Jitter fix : >= % d FPS",
       "gExtraLatencyThreshold",
@@ -477,21 +571,32 @@ widgetInfo enhancementList[] = {
       "CPU to work on one frame while GPU works on the previous frame.\nThis setting "
       "should be used when your computer is too slow to do CPU + GPU work in time.",
       WIDGET_SLIDER_INT,
-      { 0, 360, 80 } },
-    //{ MENU_ITEM_RENDERER_API }, Unused placeholder
-    { MENU_ITEM_ENABLE_VSYNC, "Enable Vsync", CVAR_VSYNC_ENABLED, "Enables Vsync.", WIDGET_CHECKBOX, {}, nullptr },
+      { 0, 360, 80 },
+      nullptr,
+      [](widgetInfo& info) { info.isHidden = disabledMap[DISABLE_FOR_NOT_DIRECTX].second.active; } },
+    { MENU_ITEM_RENDERER_API,
+      "Renderer API (Needs reload)",
+      NULL,
+      "Sets the audio API used by the game. Requires a relaunch to take effect.",
+      WIDGET_AUDIO_BACKEND },
+    { MENU_ITEM_ENABLE_VSYNC, "Enable Vsync", CVAR_VSYNC_ENABLED, "Enables Vsync.", WIDGET_CHECKBOX, {}, nullptr,
+      [](widgetInfo& info) { info.isHidden = disabledMap[DISABLE_FOR_NO_VSYNC].second.active; } },
     { MENU_ITEM_ENABLE_WINDOWED_FULLSCREEN,
       "Windowed Fullscreen",
       CVAR_SDL_WINDOWED_FULLSCREEN,
       "Enables Windowed Fullscreen Mode.",
       WIDGET_CHECKBOX,
-      {} },
+      {},
+      nullptr,
+        [](widgetInfo& info) { info.isHidden = disabledMap[DISABLE_FOR_NO_WINDOWED_FULLSCREEN].second.active; } },
     { MENU_ITEM_ENABLE_MULTI_VIEWPORT,
       "Allow multi-windows",
       CVAR_ENABLE_MULTI_VIEWPORTS,
       "Allows multiple windows to be opened at once. Requires a reload to take effect.",
       WIDGET_CHECKBOX,
-      {} },
+      {},
+      nullptr,
+        [](widgetInfo& info) { info.isHidden = disabledMap[DISABLE_FOR_NO_MULTI_VIEWPORT].second.active; } },
     { MENU_ITEM_TEXTURE_FILTER,
       "Texture Filter (Needs reload)",
       CVAR_TEXTURE_FILTER,
@@ -827,8 +932,13 @@ widgetInfo enhancementList[] = {
       "gEnhancements.Graphics.MotionBlur.Mode",
       "Selects the Mode for Motion Blur.",
       WIDGET_COMBOBOX,
-      { 0, 0, 0, motionBlurOptions } },
-    { MENU_ITEM_MOTION_BLUE_INTERPOLATE,
+      { 0, 0, 0, motionBlurOptions },
+      ([]() {
+          if (CVarGetInteger("gEnhancements.Graphics.MotionBlur.Mode", 0) == 1) {
+              CVarSetInteger("gEnhancements.Graphics.MotionBlur.Toggle", 0);
+          }
+      }) },
+    { MENU_ITEM_MOTION_BLUR_INTERPOLATE,
       "Interpolate",
       "gEnhancements.Graphics.MotionBlur.Interpolate",
       "Change motion blur capture to also happen on interpolated frames instead of only on game frames.\n"
@@ -1054,8 +1164,6 @@ widgetInfo enhancementList[] = {
       "Restores Navi ISG from OoT, but now with Tatl.",
       WIDGET_CHECKBOX,
       {} },
-    // HUD Editor
-    // { MENU_ITEM_HUD_EDITOR }, Unused placeholder
     { MENU_ITEM_MODERN_MENU_POPOUT,
       "Popout Menu",
       "gSettings.Menu.Popout",
@@ -1167,8 +1275,11 @@ widgetInfo enhancementList[] = {
           CVarSetInteger("gDeveloperTools.FrameAdvanceTick", 1);
       }) },
     { MENU_ITEM_FRAME_ADVANCE_HOLD, "Advance (Hold)", "", "Advance frames while the button is held.", WIDGET_BUTTON },
+    // HUD Editor
+    { MENU_ITEM_HUD_EDITOR_BUTTON, "HUD Editor", "gWindows.HudEditor", 
+      "Enables the HUD Editor window, allowing you to modify your HUD", WIDGET_WINDOW_BUTTON },
     { MENU_ITEM_COLLISION_VIEWER_BUTTON, "Collision Viewer", "gWindows.CollisionViewer",
-      "Draws collision to the screen", WIDGET_WINDOW_BUTTON },
+      "Makes collision visible on screen", WIDGET_WINDOW_BUTTON },
     { MENU_ITEM_STATS_BUTTON, "Stats", "gOpenWindows.Stats",
       "Shows the stats window, with your FPS and frametimes, and the OS you're playing on", WIDGET_WINDOW_BUTTON }
 };
@@ -1210,6 +1321,31 @@ void SearchMenuGetItem(uint32_t index) {
                 }
             };
             break;
+        case WIDGET_AUDIO_BACKEND: {
+            auto currentAudioBackend = Ship::Context::GetInstance()->GetAudio()->GetAudioBackend();
+            if (UIWidgets::Combobox(
+                "Audio API", &currentAudioBackend, audioBackendsMap,
+                { .color = menuTheme[menuThemeIndex],
+                  .tooltip = enhancementList[index].widgetTooltip,
+                  .disabled = Ship::Context::GetInstance()->GetAudio()->GetAvailableAudioBackends()->size() <= 1,
+                  .disabledTooltip = "Only one audio API is available on this platform." })) {
+                Ship::Context::GetInstance()->GetAudio()->SetAudioBackend(currentAudioBackend);
+            }
+        } break;
+        case WIDGET_VIDEO_BACKEND: {
+            if (UIWidgets::Combobox("Renderer API (Needs reload)", &configWindowBackend, availableWindowBackendsMap,
+                { .color = menuTheme[menuThemeIndex],
+                  .tooltip = enhancementList[index].widgetTooltip,
+                  .disabled = availableWindowBackends->size() <= 1,
+                  .disabledTooltip = "Only one renderer API is available on this platform." })) {
+                Ship::Context::GetInstance()->GetConfig()->SetInt("Window.Backend.Id",
+                    static_cast<int32_t>(configWindowBackend));
+                Ship::Context::GetInstance()->GetConfig()->SetString("Window.Backend.Name",
+                    windowBackendsMap.at(configWindowBackend));
+                Ship::Context::GetInstance()->GetConfig()->Save();
+                UpdateWindowBackendObjects();
+            }
+        } break;
         case WIDGET_COMBOBOX:
             if (UIWidgets::CVarCombobox(enhancementList[index].widgetName, enhancementList[index].widgetCVar,
                                         enhancementList[index].widgetOptions.comboBoxOptions,
@@ -1279,7 +1415,7 @@ void SearchMenuGetItem(uint32_t index) {
             buttonText.append(enhancementList[index].widgetName);
             UIWidgets::WindowButton(
                 buttonText.c_str(), enhancementList[index].widgetCVar, window,
-                { .color = menuTheme[menuThemeIndex], .tooltip = enhancementList[index].widgetTooltip });
+                { .tooltip = enhancementList[index].widgetTooltip });
             if (!window->IsVisible()) {
                 window->DrawElement();
             }
@@ -1287,4 +1423,5 @@ void SearchMenuGetItem(uint32_t index) {
         default:
             break;
     }
+}
 }
