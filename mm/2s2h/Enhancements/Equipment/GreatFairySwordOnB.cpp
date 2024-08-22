@@ -10,10 +10,9 @@ extern "C" {
 extern PlayState* gPlayState;
 }
 
-//TODO: Changing to FD and back while GFS on B will revert back to normal sword, but state is active 
-//TODO: Decide whether to allow equiping GFS on C while active
-//TODO: Check what happens when stolen. It leaves inv, but not button. State gets stuck on.
-//TODO: Loading from owl save had GFS on B, but state off
+ 
+// TODO: Decide whether to allow equiping GFS on C while active. If so, should the white border be suppressed?
+// TODO: Bremen and Blast mask actions aren't available when state is on. Should that be changed?
 
 
 void RestoreSwordState() {
@@ -24,7 +23,6 @@ void RestoreSwordState() {
     } else {
         BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_NONE;
     }
-    
     Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_B);
 }
 
@@ -35,7 +33,7 @@ void UpdateGreatFairySwordState() {
 
     if (!CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB", 0)) {
         CVarClear("gEnhancements.Equipment.GreatFairySwordB.State");
-        if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) == EQUIP_VALUE_SWORD_DIETY) {
+        if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) == ITEM_SWORD_GREAT_FAIRY) {
             RestoreSwordState();
         }
         return;
@@ -106,7 +104,6 @@ void UpdateGreatFairySwordState() {
                     POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, (TexturePtr)gEquippedItemOutlineTex, 32, 32, 0);
                 }
             }
-
             CLOSE_DISPS(gfxCtx);
         });
 }
@@ -118,13 +115,65 @@ void RegisterGreatFairySwordOnB() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnSceneInit>(
         [](s8 sceneId, s8 spawnNum) { UpdateGreatFairySwordState(); });
 
-    // Override "A" press behavior on kaleido scope to toggle the mask state
+    // Ensure that the state is set when loading from a save (make sure the green square appears)
+    // Or restore normal sword if enhancement was turned off
+    GameInteractor::Instance->RegisterGameHookForID<GameInteractor::OnActorInit>(
+        ACTOR_PLAYER, [](Actor* actor) {
+            
+            if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) == ITEM_SWORD_GREAT_FAIRY) {
+                if (CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB", 0)) {
+                    CVarSetInteger("gEnhancements.Equipment.GreatFairySwordB.State", 1);
+                } else {
+                    RestoreSwordState();
+                }
+            }
+    });
+
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnItemStolen>( [](u8 item) {
+        if (CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB", 0) && CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB.State", 0)) {
+            if (item == ITEM_SWORD_GREAT_FAIRY) {
+                CVarClear("gEnhancements.Equipment.GreatFairySwordB.State");
+                RestoreSwordState();
+            } else if (item >= ITEM_SWORD_KOKIRI && item <= ITEM_SWORD_GILDED) {
+                BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_GREAT_FAIRY;
+                Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_B);
+            }
+            
+        }
+    });
+
+    // When transforming from FD, clear the state. 
+    // In testing, this always executed before FastTransformation's hook. If execution order changed,
+    // this would execute when transforming TO FD, which I would consider preferable.
+    REGISTER_VB_SHOULD(GI_VB_PREVENT_MASK_TRANSFORMATION_CS, {
+        Player* player = GET_PLAYER(gPlayState);
+        if (player->transformation == PLAYER_FORM_FIERCE_DEITY) {
+            CVarClear("gEnhancements.Equipment.GreatFairySwordB.State");
+            // if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) == EQUIP_VALUE_SWORD_DIETY) {
+            //     RestoreSwordState();
+            // }
+        }
+    });
+
+    //Could this be used to handle Blast and Bremen?
+    // This hook doesn't handle transformation masks
+    // REGISTER_VB_SHOULD(GI_VB_USE_ITEM_EQUIP_MASK, {
+    //     PlayerMask* maskId = (PlayerMask*)opt;
+    //     Player* player = GET_PLAYER(gPlayState);
+    //     LUSLOG_DEBUG("GI_VB_USE...", NULL);
+
+    //     if (*maskId == PLAYER_MASK_FIERCE_DEITY && CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB", 0)) {
+    //         CVarClear("gEnhancements.Equipment.GreatFairySwordB.State");
+    //         LUSLOG_DEBUG("Cleared state", NULL);
+    //     }
+    // });
+
+    // Override "A" press behavior on kaleido scope to toggle the item state
     REGISTER_VB_SHOULD(GI_VB_KALEIDO_DISPLAY_ITEM_TEXT, {
         ItemId* itemId = (ItemId*)opt;
         Player* player = GET_PLAYER(gPlayState);
         //LUSLOG_DEBUG("itemID: %x", *itemId);
-        //TODO: Figure out better way to check which item we're on. Right now checking against 0x10 because the itemId changes sometimes, but always ends in 0x10
-        if (CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB", 0) && player->transformation == PLAYER_FORM_HUMAN && (*itemId & 0xFF) == 0x10 ) {
+        if (CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB", 0) && player->transformation == PLAYER_FORM_HUMAN && (*itemId & 0xFF) == ITEM_SWORD_GREAT_FAIRY ) {
             *should = false;
             CVarSetInteger("gEnhancements.Equipment.GreatFairySwordB.State",
                            !CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB.State", 0));
@@ -139,49 +188,12 @@ void RegisterGreatFairySwordOnB() {
             }
         } 
     });
+
+    // // Prevent the "equipped" white border from being drawn so ours shows instead (ours was drawn before it, so it's
+    // // underneath)
+    // REGISTER_VB_SHOULD(GI_VB_DRAW_ITEM_EQUIPPED_OUTLINE, {
+    //     if (*(ItemId*)opt == ITEM_MASK_BUNNY && CVarGetInteger("gEnhancements.Masks.PersistentBunnyHood.State", 0)) {
+    //         *should = false;
+    //     }
+    // });
 }
-
-/*
-void UpdatePersistentMasksState() {
-    static Vtx* persistentMasksVtx;
-    static HOOK_ID beforePageDrawHook = 0;
-    static HOOK_ID onPlayerPostLimbDrawHook = 0;
-    GameInteractor::Instance->UnregisterGameHook<GameInteractor::BeforeKaleidoDrawPage>(beforePageDrawHook);
-    GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::OnPlayerPostLimbDraw>(onPlayerPostLimbDrawHook);
-
-    if (!CVarGetInteger("gEnhancements.Masks.PersistentBunnyHood.Enabled", 0)) {
-        CVarClear("gEnhancements.Masks.PersistentBunnyHood.State");
-        return;
-    }
-
-    // If the mask is equipped, unequip it
-    if (gSaveContext.save.equippedMask == PLAYER_MASK_BUNNY) {
-        gSaveContext.save.equippedMask = PLAYER_MASK_NONE;
-        CVarSetInteger("gEnhancements.Masks.PersistentBunnyHood.State", 1);
-
-        if (gPlayState != NULL) {
-            Player* player = GET_PLAYER(gPlayState);
-            player->prevMask = player->currentMask;
-            player->currentMask = PLAYER_MASK_NONE;
-        }
-    }
-
-    // If they don't have the mask, clear the state
-    if (INV_CONTENT(ITEM_MASK_BUNNY) != ITEM_MASK_BUNNY) {
-        CVarClear("gEnhancements.Masks.PersistentBunnyHood.State");
-    }
-
-}
-
-void RegisterPersistentMasks() {
-    // Prevent the "equipped" white border from being drawn so ours shows instead (ours was drawn before it, so it's
-    // underneath)
-    REGISTER_VB_SHOULD(GI_VB_DRAW_ITEM_EQUIPPED_OUTLINE, {
-        if (*(ItemId*)opt == ITEM_MASK_BUNNY && CVarGetInteger("gEnhancements.Masks.PersistentBunnyHood.State", 0)) {
-            *should = false;
-        }
-    });
-
-}
-
-*/
