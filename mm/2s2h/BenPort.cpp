@@ -476,7 +476,7 @@ extern "C" void InitOTR() {
 
     OTRMessage_Init();
     OTRAudio_Init();
-    // OTRExtScanner();
+    OTRExtScanner();
 
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnFileDropped>(Ben_ProcessDroppedFiles);
 
