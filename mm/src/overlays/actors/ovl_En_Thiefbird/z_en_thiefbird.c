@@ -258,7 +258,7 @@ s32 func_80C10B0C(EnThiefbird* this, PlayState* play) {
             Message_StartTextbox(play, 0xF4, NULL);
         }
         itemId1 = ITEM_BOTTLE;
-        GameInteractor_ExecuteOnItemStolen(ITEM_BOTTLE);
+        GameInteractor_ExecuteOnItemStolen(itemId2);
     } else if (phi_a3 != 0) {
         if (phi_a3 >= 5) {
             if (Rand_ZeroOne() < 0.5f) {
