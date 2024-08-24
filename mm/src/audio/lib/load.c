@@ -1126,9 +1126,11 @@ int strcmp_sort(const void* str1, const void* str2) {
 
 char** sequenceMap;
 size_t sequenceMapSize;
-char* fontMap[256];
 extern AudioContext gAudioCtx;
 // #end region
+#include "resourcebridge.h"
+#include "assert.h"
+
 void AudioLoad_Init(void* heap, size_t heapSize) {
     s32 pad1[9];
     s32 numFonts;
@@ -1252,7 +1254,38 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
 
     free(seqList);
 
-    //2S2H Port I think we need to take use seqListSize because entry 0x7A is missing.
+    // 2S2H [Streamed Audio] We need to load the custom songs after the fonts because streamed songs will use a hash to
+    // find its soundfont
+    int fntListSize = 0;
+    int customFntListSize = 0;
+    char** fntList = ResourceMgr_ListFiles("audio/fonts*", &fntListSize);
+    char** customFntList = ResourceMgr_ListFiles("custom/fonts/*", &customFntListSize);
+
+    for (int i = 0; i < fntListSize; i++) {
+        SoundFont* sf = ResourceMgr_LoadAudioSoundFont(fntList[i]);
+
+        char* str = malloc(strlen(fntList[i]) + 1);
+        strcpy(str, fntList[i]);
+
+        fontMap[sf->fntIndex] = str;
+    }
+
+    free(fntList);
+    
+    int customFontStart = fntListSize;
+    for (int i = customFontStart; i < customFntListSize + fntListSize; i++) {
+        SoundFont* sf = ResourceMgr_LoadAudioSoundFont(customFntList[i - customFontStart]);
+        sf->fntIndex = i;
+
+        char* str = malloc(strlen(customFntList[i - customFontStart]) + 1);
+        strcpy(str, customFntList[i - customFontStart]);
+        // BENTODO remove this
+        assert(i < 255);
+        fontMap[i] = str;
+    }
+    free(customFntList);
+    
+    // 2S2H Port I think we need to take use seqListSize because entry 0x7A is missing.
     int startingSeqNum = seqListSize; // MAX_AUTHENTIC_SEQID; // 109 is the highest vanilla sequence
     qsort(customSeqList, customSeqListSize, sizeof(char*), strcmp_sort);
 
@@ -1270,33 +1303,34 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
         }
         int j = i - startingSeqNum;
         AudioCollection_AddToCollection(customSeqList[j], seqNum);
-        SequenceData sDat = ResourceMgr_LoadSeqByName(customSeqList[j]);
-        sDat.seqNumber = seqNum;
+        SequenceData* sDat = ResourceMgr_LoadSeqPtrByName(customSeqList[j]);
+        sDat->seqNumber = seqNum;
+
+        if (sDat->numFonts == -1) {
+            uint64_t crc;
+
+            memcpy(&crc, sDat->fonts, sizeof(uint64_t));
+            crc = _byteswap_uint64(crc);
+            const char* res = ResourceGetNameByCrc(crc);
+            SoundFont* sf = ResourceMgr_LoadAudioSoundFont(res);
+            sDat->fonts[0] = sf->fntIndex;
+            memset(&sDat->fonts[1], 0, sizeof(sDat->fonts) - sizeof(uint16_t));
+            sDat->numFonts = 1;
+        }
 
         char* str = malloc(strlen(customSeqList[j]) + 1);
         strcpy(str, customSeqList[j]);
 
-        sequenceMap[sDat.seqNumber] = str;
+        sequenceMap[sDat->seqNumber] = str;
         seqNum++;
     }
 
     free(customSeqList);
 
-    int fntListSize = 0;
-    char** fntList = ResourceMgr_ListFiles("audio/fonts*", &fntListSize);
-
-    for (int i = 0; i < fntListSize; i++) {
-        SoundFont* sf = ResourceMgr_LoadAudioSoundFont(fntList[i]);
-
-        char* str = malloc(strlen(fntList[i]) + 1);
-        strcpy(str, fntList[i]);
-
-        fontMap[sf->fntIndex] = str;
-    }
 
     numFonts = fntListSize;
 
-    free(fntList);
+    
     // #end region
     gAudioCtx.soundFontList = AudioHeap_Alloc(&gAudioCtx.initPool, numFonts * sizeof(SoundFont));
 
