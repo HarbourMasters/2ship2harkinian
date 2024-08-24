@@ -44,6 +44,11 @@ void RegisterSkipIntroSequence() {
                 // Tatl's text at seeing the broken great fairy
                 gSaveContext.cycleSceneFlags[SCENE_YOUSEI_IZUMI].switch0 |= (1 << 10);
 
+                // Tatl's text when first entering South Clock Town
+                if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_59_04)) {
+                    SET_WEEKEVENTREG(WEEKEVENTREG_59_04);
+                }
+
                 // Set Tatl second cycle (?) text if not already set
                 if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_31_04)) {
                     SET_WEEKEVENTREG(WEEKEVENTREG_31_04);
