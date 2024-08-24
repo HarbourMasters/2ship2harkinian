@@ -14,10 +14,10 @@ class ResourceFactoryBinaryAudioSoundFontV2 : public Ship::ResourceFactoryBinary
 class ResourceFactoryXMLSoundFontV0 : public Ship::ResourceFactoryXML {
   public:
     std::shared_ptr<Ship::IResource> ReadResource(std::shared_ptr<Ship::File> file) override;
+    static int8_t MediumStrToInt(const char* str);
+    static int8_t CachePolicyToInt(const char* str);
 
   private:
-    int8_t MediumStrToInt(const char* str);
-    int8_t CachePolicyToInt(const char* str);
     void ParseDrums(AudioSoundFont* soundFont, tinyxml2::XMLElement* element);
     void ParseInstruments(AudioSoundFont* soundFont, tinyxml2::XMLElement* element);
     void ParseSfxTable(AudioSoundFont* soundFont, tinyxml2::XMLElement* element);

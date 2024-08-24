@@ -167,7 +167,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSoundFontV2::ReadReso
     return audioSoundFont;
 }
 
-int8_t SOH::ResourceFactoryXMLSoundFontV0::MediumStrToInt(const char* str) {
+int8_t ResourceFactoryXMLSoundFontV0::MediumStrToInt(const char* str) {
     if (!strcmp("Ram", str)) {
         return 0;
     } else if (!strcmp("Unk", str)) {

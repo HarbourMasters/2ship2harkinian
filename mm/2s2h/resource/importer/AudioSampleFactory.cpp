@@ -1,6 +1,10 @@
 #include "2s2h/resource/importer/AudioSampleFactory.h"
 #include "2s2h/resource/type/AudioSample.h"
-#include "spdlog/spdlog.h"
+#include "2s2h/resource/importer/AudioSoundFontFactory.h"
+#include "StringHelper.h"
+#include "libultraship/libultraship.h"
+#define DR_WAV_IMPLEMENTATION
+#include "dr_wav.h"
 
 namespace SOH {
 std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSampleV2::ReadResource(std::shared_ptr<Ship::File> file) {
@@ -48,6 +52,105 @@ std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSampleV2::ReadResourc
     audioSample->sample.book = &audioSample->book;
 
     return audioSample;
+}
+std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(std::shared_ptr<Ship::File> file) {
+    if (!FileHasValidFormatAndReader(file)) {
+        return nullptr;
+    }
+
+    auto audioSample = std::make_shared<AudioSample>(file->InitData);
+    auto child = std::get<std::shared_ptr<tinyxml2::XMLDocument>>(file->Reader)->FirstChildElement();
+    std::shared_ptr<Ship::ResourceInitData> initData = std::make_shared<Ship::ResourceInitData>();
+    const char* customFormatStr = child->Attribute("CustomFormat");
+    memset(&audioSample->sample, 0, sizeof(audioSample->sample));
+    audioSample->sample.codec = CodecStrToInt(child->Attribute("Codec"));
+    audioSample->sample.medium = ResourceFactoryXMLSoundFontV0::MediumStrToInt(child->Attribute("Medium"));
+    audioSample->sample.unk_bit25 = child->IntAttribute("Relocated");
+    audioSample->sample.unk_bit26 = child->IntAttribute("bit26");
+    audioSample->loop.start = child->IntAttribute("LoopStart");
+    audioSample->loop.end = child->IntAttribute("LoopEnd");
+    audioSample->loop.count = child->IntAttribute("LoopCount");
+    
+    // CODEC_ADPCM || CODEC_SMALL_ADPCM
+    if (audioSample->sample.codec == 0 || audioSample->sample.codec == 3) {
+        tinyxml2::XMLElement* loopElement = child->FirstChildElement();
+        size_t i = 0;
+        memset(audioSample->loop.state, 0, sizeof(audioSample->loop.state));
+        if (loopElement != nullptr) {
+            while (strcmp(loopElement->Name(), "LoopState") == 0) {
+                audioSample->loop.state[i] = loopElement->IntAttribute("Loop");
+                loopElement = loopElement->NextSiblingElement();
+                i++;
+            }
+            audioSample->loop.count = i;
+            i = 0;
+            while (loopElement != nullptr && strcmp(loopElement->Name(), "Books") == 0) {
+                audioSample->bookData.push_back(loopElement->IntAttribute("Book"));
+                loopElement = loopElement->NextSiblingElement();
+                i++;
+            }
+        }
+        audioSample->book.npredictors = child->IntAttribute("Npredictors");
+        audioSample->book.order = child->IntAttribute("Order");
+        
+        audioSample->book.book = audioSample->bookData.data();
+        audioSample->sample.book = &audioSample->book;
+    }
+    audioSample->sample.loop = &audioSample->loop;
+    size_t size = child->Int64Attribute("SampleSize");
+    audioSample->sample.size = size;
+
+    const char* path = child->Attribute("SamplePath");
+    initData->Path = path;
+    initData->IsCustom = false;
+    initData->ByteOrder = Ship::Endianness::Native;
+    auto sampleFile = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->LoadFile(path, initData);
+    if (customFormatStr != nullptr && strcmp(customFormatStr, "wav") == 0) {
+        Ship::BinaryWriter writer = Ship::BinaryWriter();
+
+        drwav wav;
+        drwav_uint64 numFrames;
+
+        drwav_bool32 ret =
+            drwav_init_memory(&wav, sampleFile->Buffer.get()->data(), sampleFile->Buffer.get()->size(), nullptr);
+
+        drwav_get_length_in_pcm_frames(&wav, &numFrames);
+
+        audioSample->audioSampleData.reserve(numFrames * 4);
+        
+        drwav_read_pcm_frames_s16(&wav, numFrames, (int16_t*)audioSample->audioSampleData.data());
+    } else {
+        audioSample->audioSampleData.reserve(size);
+        for (uint32_t i = 0; i < size; i++) {
+            audioSample->audioSampleData.push_back((char)(sampleFile->Buffer.get()->at(i)));
+        }
+    }
+    audioSample->sample.sampleAddr = audioSample->audioSampleData.data();
+
+    return audioSample;
+}
+#include <cassert>
+uint8_t ResourceFactoryXMLAudioSampleV0::CodecStrToInt(const char* str) {
+    if (strcmp("ADPCM", str) == 0) {
+        return 0;
+    } else if (strcmp("S8", str) == 0) {
+        return 1;
+    } else if (strcmp("S16MEM", str) == 0) {
+        return 2;
+    } else if (strcmp("ADPCMSMALL", str) == 0) {
+        return 3;
+    } else if (strcmp("REVERB", str) == 0) {
+        return 4;
+    } else if (strcmp("S16", str) == 0) {
+        return 5;
+    } else if (strcmp("UNK6", str) == 0) {
+        return 6;
+    } else if (strcmp("UNK7", str) == 0) {
+        return 7;
+    } else {
+        assert(0);
+
+    }
 }
 } // namespace SOH
 

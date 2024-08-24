@@ -1,10 +1,10 @@
 #include "2s2h/resource/importer/AudioSequenceFactory.h"
 #include "2s2h/resource/type/AudioSequence.h"
+#include "BinaryWriter.h"
 #include "spdlog/spdlog.h"
 #include "StringHelper.h"
 #include "libultraship/libultraship.h"
-#define DR_WAV_IMPLEMENTATION
-#include "dr_wav.h"
+
 
 namespace SOH {
 std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSequenceV2::ReadResource(std::shared_ptr<Ship::File> file) {
@@ -84,7 +84,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
     sequence->sequence.cachePolicy = CachePolicyToInt(child->Attribute("CachePolicy"));
     sequence->sequence.seqDataSize = child->IntAttribute("Size");
     sequence->sequence.seqNumber = child->IntAttribute("Index");
-    const char* customStr = child->Attribute("CustomFormat");
+    bool streamed = child->BoolAttribute("Streamed");
 
     
     memset(sequence->sequence.fonts, 0, sizeof(sequence->sequence.fonts));
@@ -99,15 +99,30 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
     sequence->sequence.numFonts = i;
 
     const char* path = child->Attribute("Path");
-    initData->Path = path;
-    initData->IsCustom = false;
-    initData->ByteOrder = Ship::Endianness::Native;
-    auto seqFile = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->LoadFile(path, initData);
+    std::shared_ptr<Ship::File> seqFile;
+    if (path != nullptr) {
+        initData->Path = path;
+        initData->IsCustom = false;
+        initData->ByteOrder = Ship::Endianness::Native;
+        seqFile = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->LoadFile(path, initData);
+    }
 
-    if (customStr == nullptr) {
+    if (!streamed) {
         sequence->sequenceData = *seqFile->Buffer.get();
         sequence->sequence.seqData = sequence->sequenceData.data();
     } else {
+        if (path != nullptr) {
+            sequence->sequenceData = *seqFile->Buffer.get();
+            sequence->sequence.seqData = sequence->sequenceData.data();
+            sequence->sequence.numFonts = -1;
+            sequence->sequence.seqDataSize = seqFile->Buffer.get()->size();
+        }
+        else {
+            // Build the sequence manually
+        }
+        #if 0
+        Ship::BinaryWriter writer = Ship::BinaryWriter();
+
         drwav wav;
         drwav_uint64 numFrames;
         
@@ -121,9 +136,51 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
         drwav_read_pcm_frames_s16(&wav, numFrames, sequence->customSeqData.get());
         
         sequence->sequence.seqData = (char*)sequence->customSeqData.get();
+        // mutebhv 0x20
+        writer.Write((uint8_t)0xD3); // 0x0
+        writer.Write((uint8_t)0x20); // 0x1
+
+        // mutescale 50
+        writer.Write((uint8_t)0xD5); // 0x2
+        writer.Write((uint8_t)50);   // 0x3
+
+        // initchan 1 (only channel 1)
+        writer.Write((uint8_t)0xD7); // 0x4
+        writer.Write((uint16_t)1);   // 0x5
+
+        // ldchan 1, placeholder
+        writer.Write((uint8_t)0x90 | 1); // 0x7
+        writer.Write((uint16_t)0x0000);// 0x8 Fill it in later
+
+        //vol 100
+        writer.Write((uint8_t)0xDF);    //0xA
+        writer.Write((uint8_t)100);     //0xB
+
+        // tempo
+        writer.Write((uint8_t)0xDD);    //0xC
+        writer.Write((uint8_t)120);     //0xD
+
+        // delay 0x540
+        writer.Write((uint8_t)0xFD);    //0xE
+        writer.Write((uint8_t)0x7F);    //0xF  
+
+        // freechan 1 (only channel 1)
+        writer.Write((uint8_t)0xD5);   //0x10
+        writer.Write((uint16_t)1);     //0x11
+        writer.Write(0xFF);            //0x12
+
+        // Go back and write the channel address
+        size_t curPos = writer.GetBaseAddress();
+        writer.Seek(0x8, Ship::SeekOffsetType::Start);
+        writer.Write((uint16_t)curPos);
+        writer.Seek(curPos, Ship::SeekOffsetType::Start);
+
+
+
         // Write a marker to show this is a streamed audio file
         memcpy(sequence->sequence.fonts, "07151129", sizeof("07151129"));
         drwav_uninit(&wav);
+        #endif
     }
     return sequence;
 }
