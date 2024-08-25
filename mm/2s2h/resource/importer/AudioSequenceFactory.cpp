@@ -1,9 +1,10 @@
 #include "2s2h/resource/importer/AudioSequenceFactory.h"
 #include "2s2h/resource/type/AudioSequence.h"
 #include "BinaryWriter.h"
-#include "spdlog/spdlog.h"
 #include "StringHelper.h"
 #include "libultraship/libultraship.h"
+#include "BinaryWriter.h"
+#include <type_traits>
 
 
 namespace SOH {
@@ -71,10 +72,104 @@ int8_t ResourceFactoryXMLAudioSequenceV0::CachePolicyToInt(const char* str) {
     }
 }
 
+template <typename T>
+void ResourceFactoryXMLAudioSequenceV0::WriteInsnOneArg(Ship::BinaryWriter* writer, uint8_t opcode, T arg) {
+    static_assert(std::is_fundamental<T>::value);
+    writer->Write(opcode);
+    writer->Write(arg);
+}
+
+template <typename T1, typename T2>
+void ResourceFactoryXMLAudioSequenceV0::WriteInsnTwoArg(Ship::BinaryWriter* writer, uint8_t opcode, T1 arg1, T2 arg2) {
+    static_assert(std::is_fundamental<T1>::value && std::is_fundamental<T2>::value);
+    writer->Write(opcode);
+    writer->Write(arg1);
+    writer->Write(arg2);
+}
+
+void ResourceFactoryXMLAudioSequenceV0::WriteInsnNoArg(Ship::BinaryWriter* writer, uint8_t opcode) {
+    writer->Write(opcode);
+}
+
+void ResourceFactoryXMLAudioSequenceV0::WriteMuteBhv(Ship::BinaryWriter* writer, uint8_t arg) {
+    WriteInsnOneArg(writer, 0xD3, arg);
+}
+
+void ResourceFactoryXMLAudioSequenceV0::WriteMuteScale(Ship::BinaryWriter* writer, uint8_t arg) {
+    WriteInsnOneArg(writer, 0xD5, arg);
+}
+
+void ResourceFactoryXMLAudioSequenceV0::WriteInitchan(Ship::BinaryWriter* writer, uint16_t channels) {
+    WriteInsnOneArg(writer, 0xD7, channels);
+}
+
+void ResourceFactoryXMLAudioSequenceV0::WriteLdchan(Ship::BinaryWriter* writer, uint8_t channel, uint16_t offset) {
+    WriteInsnOneArg(writer, 0x90 | channel, offset);
+}
+
+void ResourceFactoryXMLAudioSequenceV0::WriteVolSHeader(Ship::BinaryWriter* writer, uint8_t vol) {
+    WriteInsnOneArg(writer, 0xDB, vol);
+}
+
+void ResourceFactoryXMLAudioSequenceV0::WriteVolCHeader(Ship::BinaryWriter* writer, uint8_t vol) {
+    WriteInsnOneArg(writer, 0xDF, vol);
+}
+
+void ResourceFactoryXMLAudioSequenceV0::WriteTempo(Ship::BinaryWriter* writer, uint8_t tempo) {
+    WriteInsnOneArg(writer, 0xDD, tempo);
+}
+
+void ResourceFactoryXMLAudioSequenceV0::WriteJump(Ship::BinaryWriter* writer, uint16_t offset) {
+    WriteInsnOneArg(writer, 0xFB, offset);
+}
+
+void ResourceFactoryXMLAudioSequenceV0::WriteDisablecan(Ship::BinaryWriter* writer, uint16_t channels) {
+    WriteInsnOneArg(writer, 0xD6, channels);
+}
+
+void ResourceFactoryXMLAudioSequenceV0::WriteNoshort(Ship::BinaryWriter* writer) {
+    WriteInsnNoArg(writer, 0xC4);
+}
+
+void ResourceFactoryXMLAudioSequenceV0::WriteLdlayer(Ship::BinaryWriter* writer, uint8_t layer, uint16_t offset) {
+    WriteInsnOneArg(writer, 0x88 | layer, offset);
+}
+
+void ResourceFactoryXMLAudioSequenceV0::WritePan(Ship::BinaryWriter* writer, uint8_t pan) {
+    WriteInsnOneArg(writer, 0xDD, pan);
+}
+
+void ResourceFactoryXMLAudioSequenceV0::WriteBend(Ship::BinaryWriter* writer, uint8_t bend) {
+    WriteInsnOneArg(writer, 0xD3, bend);
+}
+
+void ResourceFactoryXMLAudioSequenceV0::WriteInstrument(Ship::BinaryWriter* writer, uint8_t instrument) {
+    WriteInsnOneArg(writer, 0xC1, instrument);
+}
+
+void ResourceFactoryXMLAudioSequenceV0::WriteTranspose(Ship::BinaryWriter* writer, int8_t transpose) {
+    WriteInsnOneArg(writer, 0xC2, transpose);
+}
+
+template <typename T> void ResourceFactoryXMLAudioSequenceV0::WriteDelay(Ship::BinaryWriter* writer, T delay) {
+    WriteInsnOneArg(writer, 0xFD, delay);
+}
+
+template <typename T> void ResourceFactoryXMLAudioSequenceV0::WriteLDelay(Ship::BinaryWriter* writer, T delay) {
+    WriteInsnOneArg(writer, 0xC0, delay);
+}
+
+template <typename T>
+void ResourceFactoryXMLAudioSequenceV0::WriteNotedv(Ship::BinaryWriter* writer, uint8_t note, T delay,
+                                                    uint8_t velocity) {
+    WriteInsnTwoArg(writer, note, delay, velocity);
+}
+
 std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource(std::shared_ptr<Ship::File> file) {
     if (!FileHasValidFormatAndReader(file)) {
         return nullptr;
     }
+
     auto sequence = std::make_shared<AudioSequence>(file->InitData);
     auto child = std::get<std::shared_ptr<tinyxml2::XMLDocument>>(file->Reader)->FirstChildElement();
     unsigned int i = 0;
@@ -118,69 +213,63 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
             sequence->sequence.seqDataSize = seqFile->Buffer.get()->size();
         }
         else {
-            // Build the sequence manually
+            Ship::BinaryWriter writer = Ship::BinaryWriter();
+            writer.SetEndianness(Ship::Endianness::Big);
+            // Placeholder off is the offset of the instruction to be replaced. The second variable is the target adress
+            // of what we need to load of jump to
+            uint16_t loopPlaceholderOff, loopPoint;
+            uint16_t channelPlaceholderOff, channelStart;
+            uint16_t layerPlaceholderOff, layerStart;
+
+            // Write seq header
+            WriteMuteBhv(&writer, 0x20);
+            WriteMuteScale(&writer, 0x32);
+            WriteInitchan(&writer, 1);
+            channelPlaceholderOff = writer.GetBaseAddress();
+            loopPoint = writer.GetBaseAddress();
+            WriteLdchan(&writer, 0, 0); // Fill in the actual address later
+            WriteVolSHeader(&writer, 88);
+            WriteTempo(&writer, 60);
+            WriteDelay(&writer, static_cast<uint16_t>(0x18C0 + 0x8000));
+            WriteJump(&writer, loopPoint);
+            WriteDisablecan(&writer, 1);
+            writer.Write(static_cast<uint8_t>(0xFF));
+
+            // Fill in the ldchan from before
+            channelStart = writer.GetBaseAddress();
+            writer.Seek(channelPlaceholderOff, Ship::SeekOffsetType::Start);
+            WriteLdchan(&writer, 0, channelStart);
+            writer.Seek(channelStart, Ship::SeekOffsetType::Start);
+
+            // Channel header
+            WriteNoshort(&writer);
+            layerPlaceholderOff = writer.GetBaseAddress();
+            WriteLdlayer(&writer, 0, 0);
+            WritePan(&writer, 64);
+            WriteVolCHeader(&writer, 127);
+            WriteBend(&writer, 0);
+            WriteInstrument(&writer, 0);
+            WriteDelay(&writer, static_cast<uint16_t>(0x18C0 + 0x8000));
+            writer.Write(static_cast<uint8_t>(0xFF));
+
+            layerStart = writer.GetBaseAddress();
+            writer.Seek(layerPlaceholderOff, Ship::SeekOffsetType::Start);
+            WriteLdlayer(&writer, 0, layerStart);
+            writer.Seek(layerStart, Ship::SeekOffsetType::Start);
+
+            // Note layer
+            WriteTranspose(&writer, 0);
+            WriteNotedv(&writer, 39 + 0x40, static_cast<uint16_t>(0x1860 + 0x8000),
+                        127); // todo move the +40 into the function
+            WriteLDelay(&writer, (uint8_t)96);
+            writer.Write(static_cast<uint8_t>(0xFF));
+
+            sequence->sequenceData = writer.ToVector();
+            sequence->sequence.seqData = sequence->sequenceData.data();
+            sequence->sequence.numFonts = -1;
+            sequence->sequence.seqDataSize = writer.ToVector().size();
         }
-        #if 0
-        Ship::BinaryWriter writer = Ship::BinaryWriter();
 
-        drwav wav;
-        drwav_uint64 numFrames;
-        
-        drwav_bool32 ret = drwav_init_memory(&wav, seqFile->Buffer.get()->data(), seqFile->Buffer.get()->size(), nullptr);
-
-        drwav_get_length_in_pcm_frames(&wav, &numFrames);
-
-        sequence->sampleRate = wav.fmt.sampleRate;
-        sequence->numChannels = wav.fmt.channels;
-        sequence->customSeqData = std::make_unique<short[]>(numFrames);
-        drwav_read_pcm_frames_s16(&wav, numFrames, sequence->customSeqData.get());
-        
-        sequence->sequence.seqData = (char*)sequence->customSeqData.get();
-        // mutebhv 0x20
-        writer.Write((uint8_t)0xD3); // 0x0
-        writer.Write((uint8_t)0x20); // 0x1
-
-        // mutescale 50
-        writer.Write((uint8_t)0xD5); // 0x2
-        writer.Write((uint8_t)50);   // 0x3
-
-        // initchan 1 (only channel 1)
-        writer.Write((uint8_t)0xD7); // 0x4
-        writer.Write((uint16_t)1);   // 0x5
-
-        // ldchan 1, placeholder
-        writer.Write((uint8_t)0x90 | 1); // 0x7
-        writer.Write((uint16_t)0x0000);// 0x8 Fill it in later
-
-        //vol 100
-        writer.Write((uint8_t)0xDF);    //0xA
-        writer.Write((uint8_t)100);     //0xB
-
-        // tempo
-        writer.Write((uint8_t)0xDD);    //0xC
-        writer.Write((uint8_t)120);     //0xD
-
-        // delay 0x540
-        writer.Write((uint8_t)0xFD);    //0xE
-        writer.Write((uint8_t)0x7F);    //0xF  
-
-        // freechan 1 (only channel 1)
-        writer.Write((uint8_t)0xD5);   //0x10
-        writer.Write((uint16_t)1);     //0x11
-        writer.Write(0xFF);            //0x12
-
-        // Go back and write the channel address
-        size_t curPos = writer.GetBaseAddress();
-        writer.Seek(0x8, Ship::SeekOffsetType::Start);
-        writer.Write((uint16_t)curPos);
-        writer.Seek(curPos, Ship::SeekOffsetType::Start);
-
-
-
-        // Write a marker to show this is a streamed audio file
-        memcpy(sequence->sequence.fonts, "07151129", sizeof("07151129"));
-        drwav_uninit(&wav);
-        #endif
     }
     return sequence;
 }
