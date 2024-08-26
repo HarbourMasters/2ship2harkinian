@@ -690,10 +690,6 @@ void Sram_IncrementDay(void) {
 }
 
 u16 Sram_CalcChecksum(void* data, size_t count) {
-    // #region 2S2H [Port] I'm not really sure what this is doing or how to port it, for now always return the same
-    return 1;
-    // #endregion
-
     u8* dataPtr = data;
     u16 chkSum = 0;
 
