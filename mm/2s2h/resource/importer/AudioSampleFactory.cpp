@@ -6,6 +6,9 @@
 #define DR_WAV_IMPLEMENTATION
 #include "dr_wav.h"
 
+#define DR_MP3_IMPLEMENTATION
+#include "dr_mp3.h"
+
 namespace SOH {
 std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSampleV2::ReadResource(std::shared_ptr<Ship::File> file) {
     if (!FileHasValidFormatAndReader(file)) {
@@ -106,8 +109,6 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
     initData->ByteOrder = Ship::Endianness::Native;
     auto sampleFile = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->LoadFile(path, initData);
     if (customFormatStr != nullptr && strcmp(customFormatStr, "wav") == 0) {
-        Ship::BinaryWriter writer = Ship::BinaryWriter();
-
         drwav wav;
         drwav_uint64 numFrames;
 
@@ -119,6 +120,17 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
         audioSample->audioSampleData.reserve(numFrames * 4);
         
         drwav_read_pcm_frames_s16(&wav, numFrames, (int16_t*)audioSample->audioSampleData.data());
+    } else if (customFormatStr != nullptr && strcmp(customFormatStr, "mp3") == 0) {
+        drmp3 mp3;
+        drwav_uint64 numFrames;
+        drmp3_bool32 ret =
+            drmp3_init_memory(&mp3, sampleFile->Buffer.get()->data(), sampleFile->Buffer.get()->size(), nullptr);
+        numFrames = drmp3_get_pcm_frame_count(&mp3);
+        drwav_uint64 channels = mp3.channels;
+        drwav_uint64 sampleRate = mp3.sampleRate;
+
+        audioSample->audioSampleData.reserve(numFrames * channels * 2); // 2 for sizeof(s16)
+        drmp3_read_pcm_frames_s16(&mp3, numFrames, (int16_t*)audioSample->audioSampleData.data());
     } else {
         audioSample->audioSampleData.reserve(size);
         for (uint32_t i = 0; i < size; i++) {
