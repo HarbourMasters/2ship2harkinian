@@ -1310,7 +1310,7 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
             uint64_t crc;
 
             memcpy(&crc, sDat->fonts, sizeof(uint64_t));
-            crc = _byteswap_uint64(crc);
+            //crc = _byteswap_uint64(crc);
             const char* res = ResourceGetNameByCrc(crc);
             SoundFont* sf = ResourceMgr_LoadAudioSoundFont(res);
             sDat->fonts[0] = sf->fntIndex;
