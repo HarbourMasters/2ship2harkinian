@@ -217,7 +217,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
             writer.SetEndianness(Ship::Endianness::Big);
             // Placeholder off is the offset of the instruction to be replaced. The second variable is the target adress
             // of what we need to load of jump to
-            uint16_t loopPlaceholderOff, loopPoint;
+            uint16_t loopPoint;
             uint16_t channelPlaceholderOff, channelStart;
             uint16_t layerPlaceholderOff, layerStart;
 
@@ -228,9 +228,10 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
             channelPlaceholderOff = writer.GetBaseAddress();
             loopPoint = writer.GetBaseAddress();
             WriteLdchan(&writer, 0, 0); // Fill in the actual address later
-            WriteVolSHeader(&writer, 88);
-            WriteTempo(&writer, 60);
-            WriteDelay(&writer, static_cast<uint16_t>(0x18C0 + 0x8000));
+            WriteVolSHeader(&writer, 127); // Max volume
+            WriteTempo(&writer, 1); // 1 BPM
+
+            WriteDelay(&writer, static_cast<uint16_t>(0x7FFF + 0x8000));
             WriteJump(&writer, loopPoint);
             WriteDisablecan(&writer, 1);
             writer.Write(static_cast<uint8_t>(0xFF));
@@ -246,10 +247,11 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
             layerPlaceholderOff = writer.GetBaseAddress();
             WriteLdlayer(&writer, 0, 0);
             WritePan(&writer, 64);
-            WriteVolCHeader(&writer, 127);
+            WriteVolCHeader(&writer, 127); // Max volume
             WriteBend(&writer, 0);
             WriteInstrument(&writer, 0);
-            WriteDelay(&writer, static_cast<uint16_t>(0x18C0 + 0x8000));
+            // Max delay. ~113 minutes.
+            WriteDelay(&writer, static_cast<uint16_t>(0x7FFF + 0x8000));
             writer.Write(static_cast<uint8_t>(0xFF));
 
             layerStart = writer.GetBaseAddress();
@@ -259,9 +261,8 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
 
             // Note layer
             WriteTranspose(&writer, 0);
-            WriteNotedv(&writer, 39 + 0x40, static_cast<uint16_t>(0x1860 + 0x8000),
-                        127); // todo move the +40 into the function
-            WriteLDelay(&writer, (uint8_t)96);
+            WriteNotedv(&writer, 39 + 0x40, static_cast<uint16_t>((0x7FFF + 0x8000) - 1), 127); // todo move the +40 into the function
+            WriteLDelay(&writer, static_cast<uint16_t>(0x7FFF + 0x8000));
             writer.Write(static_cast<uint8_t>(0xFF));
 
             sequence->sequenceData = writer.ToVector();
@@ -269,7 +270,6 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
             sequence->sequence.numFonts = -1;
             sequence->sequence.seqDataSize = writer.ToVector().size();
         }
-
     }
     return sequence;
 }
