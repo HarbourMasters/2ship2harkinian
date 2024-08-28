@@ -114,23 +114,6 @@ namespace UIWidgets {
         ImGuiComboFlags flags = 0;
     };
 
-    typedef enum SidebarEntryType {
-        SIDEBAR_ENTRY_SECTION,
-        SIDEBAR_ENTRY_WINDOW,
-    };
-
-    struct SidebarEntry {
-        std::string label;
-        std::vector<SectionFunc> columnFuncs;
-        SidebarEntryType type = SIDEBAR_ENTRY_SECTION;
-    };
-
-    struct MainMenuEntry {
-        std::string label;
-        std::vector<SidebarEntry> sidebarEntries;
-        const char* sidebarCvar;
-    };
-
     void PushStyleCombobox(const ImVec4& color = Colors::Indigo);
     void PopStyleCombobox();
 

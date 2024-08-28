@@ -80,7 +80,7 @@ void SetupGuiElements() {
     mSaveEditorWindow = std::make_shared<SaveEditorWindow>("gWindows.SaveEditor", "Save Editor", ImVec2(480, 600));
     gui->AddGuiWindow(mSaveEditorWindow);
 
-    mHudEditorWindow = std::make_shared<HudEditorWindow>("gWindows.HudEditor", "Hud Editor", ImVec2(480, 600));
+    mHudEditorWindow = std::make_shared<HudEditorWindow>("gWindows.HudEditor", "HUD Editor", ImVec2(480, 600));
     gui->AddGuiWindow(mHudEditorWindow);
 
     mActorViewerWindow = std::make_shared<ActorViewerWindow>("gWindows.ActorViewer", "Actor Viewer", ImVec2(520, 600));

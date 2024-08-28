@@ -41,340 +41,50 @@ extern std::unordered_map<Ship::WindowBackend, const char*> availableWindowBacke
 extern Ship::WindowBackend configWindowBackend;
 extern void UpdateWindowBackendObjects();
 
-char searchText[30] = "";
-uint32_t enhSize = sizeof(enhancementList) / sizeof(enhancementList[0]);
+//#if not defined(__SWITCH__) and not defined(__WIIU__)
+//    SearchMenuGetItem(MENU_ITEM_MENUBAR_CONTROLLER_NAV);
+//    SearchMenuGetItem(MENU_ITEM_CURSOR_VISIBILITY);
+// bool cursor = Ship::Context::GetInstance()->GetWindow()->ShouldForceCursorVisibility();
+// if (UIWidgets::Checkbox("Cursor Always Visible", &cursor,
+//                         { .tooltip = "Makes the cursor always visible, even in full screen." })) {
+//     Ship::Context::GetInstance()->GetWindow()->SetForceCursorVisibility(cursor);
+// }
+//#endif
 
-void DrawSearchSettings() {
-    ImGui::Text("Search: ");
-    ImGui::SameLine();
-    ImGui::PushStyleColor(ImGuiCol_FrameBg, menuTheme[menuThemeIndex]);
-    ImGui::InputText("##search", searchText, sizeof(searchText));
-    ImGui::PopStyleColor(1);
-    std::string str(searchText);
+/* ImGui::SeparatorText("Motion Blur");
+ SearchMenuGetItem(MENU_ITEM_MOTION_BLUR_MODE);
+ SearchMenuGetItem(MENU_ITEM_MOTION_BLUR_INTERPOLATE);
+ if (CVarGetInteger("gEnhancements.Graphics.MotionBlur.Mode", 0) == 0) {
+     SearchMenuGetItem(MENU_ITEM_MOTION_BLUR_ENABLE);
+ } else if (CVarGetInteger("gEnhancements.Graphics.MotionBlur.Mode", 0) == 1) {
 
-    if (str == "") {
-        ImGui::Text("Start typing to see results.");
-        return;
-    }
-    ImGui::BeginChild("Search Results");
-    for (int i = 0; i < enhSize; i++) {
-        std::string ctr(enhancementList[i].widgetName);
-        std::transform(str.begin(), str.end(), str.begin(), ::tolower);
-        str.erase(std::remove(str.begin(), str.end(), ' '), str.end());
-        std::transform(ctr.begin(), ctr.end(), ctr.begin(), ::tolower);
-        ctr.erase(std::remove(ctr.begin(), ctr.end(), ' '), ctr.end());
-        if (ctr.find(str) != std::string::npos) {
-            SearchMenuGetItem(i);
-        }
-    }
-    ImGui::EndChild();
-}
+ }
+ if (CVarGetInteger("gEnhancements.Graphics.MotionBlur.Mode", 0) == 2 ||
+     CVarGetInteger("gEnhancements.Graphics.MotionBlur.Toggle", 0) == 1) {
+     SearchMenuGetItem(MENU_ITEM_MOTION_BLUR_STRENGTH);
+ }*/
 
-void DrawGeneralSettings() {
-    SearchMenuGetItem(MENU_ITEM_MENU_THEME);
+// BENTODO: Not implemented yet
+// UIWidgets::CVarCheckbox("Widescreen Actor Culling",
+//                         "gEnhancements.Graphics.ActorCullingAccountsForWidescreen",
+//                         { .tooltip = "Adjusts the culling planes to account for widescreen resolutions. "
+//                                      "This may have unintended side effects." });
 
-#if not defined(__SWITCH__) and not defined(__WIIU__)
-    SearchMenuGetItem(MENU_ITEM_MENUBAR_CONTROLLER_NAV);
-    SearchMenuGetItem(MENU_ITEM_CURSOR_VISIBILITY);
-    // bool cursor = Ship::Context::GetInstance()->GetWindow()->ShouldForceCursorVisibility();
-    // if (UIWidgets::Checkbox("Cursor Always Visible", &cursor,
-    //                         { .tooltip = "Makes the cursor always visible, even in full screen." })) {
-    //     Ship::Context::GetInstance()->GetWindow()->SetForceCursorVisibility(cursor);
-    // }
-#endif
-    SearchMenuGetItem(MENU_ITEM_HOTKEY_TEXT);
-}
-
-void DrawAudioSettings() {
-    SearchMenuGetItem(MENU_ITEM_MASTER_VOLUME);
-    SearchMenuGetItem(MENU_ITEM_MAIN_MUSIC_VOLUME);
-    SearchMenuGetItem(MENU_ITEM_SUB_MUSIC_VOLUME);
-    SearchMenuGetItem(MENU_ITEM_SOUND_EFFECT_VOLUME);
-    SearchMenuGetItem(MENU_ITEM_FANFARE_VOLUME);
-    SearchMenuGetItem(MENU_ITEM_AMBIENT_VOLUME);
-    SearchMenuGetItem(MENU_ITEM_AUDIO_API);
-}
-
-void DrawGraphicsSettings() {
-    SearchMenuGetItem(MENU_ITEM_TOGGLE_FULLSCREEN);
-#ifndef __APPLE__
-    SearchMenuGetItem(MENU_ITEM_INTERNAL_RESOLUTION);
-#endif
-#ifndef __WIIU__
-    SearchMenuGetItem(MENU_ITEM_MSAA);
-#endif
-    SearchMenuGetItem(MENU_ITEM_FRAME_RATE);
-    SearchMenuGetItem(MENU_ITEM_MATCH_REFRESH_RATE_BUTTON);
-    SearchMenuGetItem(MENU_ITEM_MATCH_REFRESH_RATE_CHECK);
-    SearchMenuGetItem(MENU_ITEM_JITTER_FIX);
-    //  #endregion */
-
-    SearchMenuGetItem(MENU_ITEM_ENABLE_VSYNC);
-    SearchMenuGetItem(MENU_ITEM_ENABLE_WINDOWED_FULLSCREEN);
-    SearchMenuGetItem(MENU_ITEM_ENABLE_MULTI_VIEWPORT);
-
-    SearchMenuGetItem(MENU_ITEM_TEXTURE_FILTER);
-}
-
-void DrawControllerSettings() {
-    SearchMenuGetItem(MENU_ITEM_INPUT_EDITOR_WINDOW);
-    UIWidgets::WindowButton("Popout Input Editor", "gWindows.BenInputEditor", mBenInputEditorWindow,
-                            { .tooltip = "Enables the separate Input Editor window." });
-    if (!CVarGetInteger("gWindows.BenInputEditor", 0)) {
-        mBenInputEditorWindow->DrawPortTabContents(0);
-    }
-};
-
-// Camera
-void DrawCameraEnhancements1() {
-    ImGui::SeparatorText("Fixes");
-    SearchMenuGetItem(MENU_ITEM_FIX_TARGET_CAMERA_SNAP);
-}
-
-void DrawCameraEnhancements2() {
-    ImGui::SeparatorText("Cameras");
-    SearchMenuGetItem(MENU_ITEM_ENABLE_FREE_LOOK);
-    SearchMenuGetItem(MENU_ITEM_ENABLE_DEBUG_CAMERA);
-    SearchMenuGetItem(MENU_ITEM_INVERT_CAMERA_X_AXIS);
-    SearchMenuGetItem(MENU_ITEM_INVERT_CAMERA_Y_AXIS);
-    SearchMenuGetItem(MENU_ITEM_THIRD_PERSON_CAMERA_X_SENSITIVITY);
-    SearchMenuGetItem(MENU_ITEM_THIRD_PERSON_CAMERA_Y_SENSITIVITY);
-    SearchMenuGetItem(MENU_ITEM_FREE_LOOK_CAMERA_DISTANCE);
-    SearchMenuGetItem(MENU_ITEM_FREE_LOOK_TRANSITION_SPEED);
-    SearchMenuGetItem(MENU_ITEM_FREE_LOOK_MAX_PITCH);
-    SearchMenuGetItem(MENU_ITEM_FREE_LOOK_MIN_PITCH);
-    SearchMenuGetItem(MENU_ITEM_ENABLE_CAMERA_ROLL);
-    SearchMenuGetItem(MENU_ITEM_CAMERA_SPEED);
-}
-
-// Cheats
-void DrawCheatEnhancements() {
-    SearchMenuGetItem(MENU_ITEM_CHEATS_INFINITE_HEALTH);
-    SearchMenuGetItem(MENU_ITEM_CHEATS_INFINITE_MAGIC);
-    SearchMenuGetItem(MENU_ITEM_CHEATS_INFINITE_RUPEES);
-    SearchMenuGetItem(MENU_ITEM_CHEATS_INFINITE_CONSUMABLES);
-    SearchMenuGetItem(MENU_ITEM_CHEATS_LONG_FLOWER_GLIDE);
-    SearchMenuGetItem(MENU_ITEM_CHEATS_NO_CLIP);
-    SearchMenuGetItem(MENU_ITEM_CHEATS_INFINITE_RAZOR_SWORD);
-    SearchMenuGetItem(MENU_ITEM_CHEATS_UNRESTRICTED_ITEMS);
-    SearchMenuGetItem(MENU_ITEM_CHEATS_MOON_JUMP_ON_L);
-}
-
-// Gameplay
-void DrawGameplayEnhancements() {
-    ImGui::SeparatorText("Player");
-    SearchMenuGetItem(MENU_ITEM_FAST_FLOWER_LAUNCH);
-    SearchMenuGetItem(MENU_ITEM_INSTANT_PUTAWAY);
-    SearchMenuGetItem(MENU_ITEM_CLIMB_SPEED);
-    SearchMenuGetItem(MENU_ITEM_DPAD_EQUIPS);
-    SearchMenuGetItem(MENU_ITEM_ALWAYS_WIN_DOGGY_RACE);
-}
-
-void DrawGameModesEnhancements() {
-    ImGui::SeparatorText("Modes");
-    SearchMenuGetItem(MENU_ITEM_PLAY_AS_KAFEI);
-    SearchMenuGetItem(MENU_ITEM_TIME_MOVES_WHEN_YOU_MOVE);
-}
-
-void DrawSaveTimeEnhancements() {
-    ImGui::SeparatorText("Saving");
-    SearchMenuGetItem(MENU_ITEM_PERSIST_OWL_SAVES);
-    SearchMenuGetItem(MENU_ITEM_PAUSE_MENU_SAVE);
-    SearchMenuGetItem(MENU_ITEM_AUTOSAVE);
-    SearchMenuGetItem(MENU_ITEM_AUTOSAVE_INTERVAL);
-
-    ImGui::SeparatorText("Time Cycle");
-    SearchMenuGetItem(MENU_ITEM_DISABLE_BOTTLE_RESET);
-    SearchMenuGetItem(MENU_ITEM_DISABLE_CONSUMABLE_RESET);
-    SearchMenuGetItem(MENU_ITEM_DISABLE_RAZOR_SWORD_RESET);
-    SearchMenuGetItem(MENU_ITEM_DISABLE_RUPEE_RESET);
-
-    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 0, 255));
-    ImGui::SeparatorText("Unstable");
-    ImGui::PopStyleColor();
-    SearchMenuGetItem(MENU_ITEM_DISABLE_SAVE_DELAY);
-}
-
-// Graphics
-void DrawGraphicsEnhancements() {
-    ImGui::SeparatorText("Clock");
-    SearchMenuGetItem(MENU_ITEM_CLOCK_OPTIONS);
-    SearchMenuGetItem(MENU_ITEM_MILITARY_CLOCK);
-
-    ImGui::SeparatorText("Motion Blur");
-    SearchMenuGetItem(MENU_ITEM_MOTION_BLUR_MODE);
-    SearchMenuGetItem(MENU_ITEM_MOTION_BLUR_INTERPOLATE);
-    if (CVarGetInteger("gEnhancements.Graphics.MotionBlur.Mode", 0) == 0) {
-        SearchMenuGetItem(MENU_ITEM_MOTION_BLUR_ENABLE);
-    } else if (CVarGetInteger("gEnhancements.Graphics.MotionBlur.Mode", 0) == 1) {
-        
-    }
-    if (CVarGetInteger("gEnhancements.Graphics.MotionBlur.Mode", 0) == 2 ||
-        CVarGetInteger("gEnhancements.Graphics.MotionBlur.Toggle", 0) == 1) {
-        SearchMenuGetItem(MENU_ITEM_MOTION_BLUR_STRENGTH);
-    }
-
-    ImGui::SeparatorText("Other");
-    SearchMenuGetItem(MENU_ITEM_AUTHENTIC_LOGO);
-    SearchMenuGetItem(MENU_ITEM_BOW_RETICLE);
-    SearchMenuGetItem(MENU_ITEM_DISABLE_BLACK_BARS);
-
-    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 0, 255));
-    ImGui::SeparatorText("Unstable");
-    ImGui::PopStyleColor();
-    SearchMenuGetItem(MENU_ITEM_GEOMETRY_DISTANCE_CHECK);
-    // BENTODO: Not implemented yet
-    // UIWidgets::CVarCheckbox("Widescreen Actor Culling",
-    //                         "gEnhancements.Graphics.ActorCullingAccountsForWidescreen",
-    //                         { .tooltip = "Adjusts the culling planes to account for widescreen resolutions. "
-    //                                      "This may have unintended side effects." });
-
-    SearchMenuGetItem(MENU_ITEM_ACTOR_DRAW_DISTANCE);
-    SearchMenuGetItem(MENU_ITEM_ACTOR_UPDATE_DISTANCE);
-}
-
-// Items/Songs
-void DrawItemEnhancements() {
-    ImGui::SeparatorText("Masks");
-    SearchMenuGetItem(MENU_ITEM_BLAST_MASK_KEG_FORCE);
-    SearchMenuGetItem(MENU_ITEM_FAST_TRANSFORMATION);
-    SearchMenuGetItem(MENU_ITEM_FIERCE_DEITY_ANYWHERE);
-    SearchMenuGetItem(MENU_ITEM_NO_BLAST_MASK_COOLDOWN);
-}
-
-void DrawSongEnhancements() {
-    ImGui::SeparatorText("Items/Songs");
-    SearchMenuGetItem(MENU_ITEM_ENABLE_SUNS_SONG);
-    SearchMenuGetItem(MENU_ITEM_DPAD_OCARINA);
-    SearchMenuGetItem(MENU_ITEM_PREVENT_DROPPED_OCARINA_INPUTS);
-}
-
-void DrawTimeSaverEnhancements1() {
-    ImGui::SeparatorText("Cutscenes");
-    SearchMenuGetItem(MENU_ITEM_HIDE_TITLE_CARDS);
-    SearchMenuGetItem(MENU_ITEM_SKIP_ENTRANCE_CUTSCENES);
-    SearchMenuGetItem(MENU_ITEM_SKIP_TO_FILE_SELECT);
-    SearchMenuGetItem(MENU_ITEM_SKIP_INTRO_SEQUENCE);
-    SearchMenuGetItem(MENU_ITEM_SKIP_STORY_CUTSCENES);
-    SearchMenuGetItem(MENU_ITEM_SKIP_MISC_INTERACTIONS);
-}
-
-void DrawTimeSaverEnhancements2() {
-    ImGui::SeparatorText("Dialogue");
-    SearchMenuGetItem(MENU_ITEM_FAST_BANK_SELECTION);
-    SearchMenuGetItem(MENU_ITEM_FAST_TEXT);
-    SearchMenuGetItem(MENU_ITEM_FAST_MAGIC_ARROW_ANIM);
-}
-
-void DrawFixEnhancements() {
-    ImGui::SeparatorText("Fixes");
-    SearchMenuGetItem(MENU_ITEM_FIX_AMMO_COUNT_COLOR);
-    SearchMenuGetItem(MENU_ITEM_FIX_HESS_WEIRDSHOT);
-    SearchMenuGetItem(MENU_ITEM_FIX_TEXT_CONTROL_CHAR);
-}
-
-void DrawRestorationEnhancements() {
-    ImGui::SeparatorText("Restorations");
-    SearchMenuGetItem(MENU_ITEM_RESTORE_DISTANCE_FLIPS_HOPS);
-    SearchMenuGetItem(MENU_ITEM_RESTORE_POWER_CROUCH_STAB);
-    SearchMenuGetItem(MENU_ITEM_RESTORE_SIDEROLLS);
-    SearchMenuGetItem(MENU_ITEM_RESTORE_TATL_ISG);
-}
-
-void DrawHudEditorContents() {
-    SearchMenuGetItem(MENU_ITEM_HUD_EDITOR_BUTTON);
-}
-
-void DrawGeneralDevTools() {
-    // PortNote: This should be hidden for ports on systems that are single-screen, and/or smaller than 1280x800.
-    // Popout will assume size of 1280x800, and will break on those systems.
-    SearchMenuGetItem(MENU_ITEM_MODERN_MENU_POPOUT);
-    SearchMenuGetItem(MENU_ITEM_OPEN_APP_FILES);
-    SearchMenuGetItem(MENU_ITEM_DEBUG_MODE_ENABLE);
-
-    SearchMenuGetItem(MENU_ITEM_DEBUG_BETTER_MAP_SELECT);
-    SearchMenuGetItem(MENU_ITEM_DEBUG_SAVE_FILE_MODE);
-
-    SearchMenuGetItem(MENU_ITEM_PREVENT_ACTOR_UPDATE);
-    SearchMenuGetItem(MENU_ITEM_PREVENT_ACTOR_DRAW);
-    SearchMenuGetItem(MENU_ITEM_PREVENT_ACTOR_INIT);
-    SearchMenuGetItem(MENU_ITEM_DISABLE_OBJECT_DEPENDECY);
-    SearchMenuGetItem(MENU_ITEM_DEBUG_LOG_LEVEL);
-
-    if (gPlayState != NULL) {
-        ImGui::Separator();
-        SearchMenuGetItem(MENU_ITEM_FRAME_ADVANCE_ENABLE);
-        if (gPlayState->frameAdvCtx.enabled) {
-            SearchMenuGetItem(MENU_ITEM_FRAME_ADVANCE_SINGLE);
-            SearchMenuGetItem(MENU_ITEM_FRAME_ADVANCE_HOLD);
-            if (ImGui::IsItemActive()) {
-                CVarSetInteger("gDeveloperTools.FrameAdvanceTick", 1);
-            }
-        }
-    }
-    ImGui::PushStyleColor(ImGuiCol_Button, menuTheme[menuThemeIndex]);
-    RenderWarpPointSection();
-    ImGui::PopStyleColor(1);
-}
-
-void DrawCollisionViewerContents() {
-    SearchMenuGetItem(MENU_ITEM_COLLISION_VIEWER_BUTTON);
-}
-
-void DrawStatsContents() {
-    SearchMenuGetItem(MENU_ITEM_STATS_BUTTON);
-}
-
-void DrawConsoleContents() {
-    UIWidgets::WindowButton(
-        "Popout Console", "gOpenWindows.Console", mConsoleWindow,
-        { .color = menuTheme[menuThemeIndex],
-          .tooltip = "Enables the console window, allowing you to input commands, type help for some examples" });
-    if (!CVarGetInteger("gOpenWindows.Console", 0)) {
-        mConsoleWindow->DrawElement();
-    }
-}
-
-void DrawGfxDebuggerContents() {
-    UIWidgets::WindowButton(
-        "Popout Gfx Debugger", "gOpenWindows.GfxDebugger", mGfxDebuggerWindow,
-        { .color = menuTheme[menuThemeIndex],
-          .tooltip = "Enables the Gfx Debugger window, allowing you to input commands, type help for some examples" });
-    if (!CVarGetInteger("gOpenWindows.GfxDebugger", 0)) {
-        mGfxDebuggerWindow->DrawElement();
-    }
-}
-
-void DrawSaveEditorContents() {
-    UIWidgets::WindowButton("Popout Save Editor", "gWindows.SaveEditor", mSaveEditorWindow,
-                            { .color = menuTheme[menuThemeIndex],
-                              .tooltip = "Enables the Save Editor window, allowing you to edit your save file" });
-    if (!CVarGetInteger("gWindows.SaveEditor", 0)) {
-        mSaveEditorWindow->DrawElement();
-    }
-}
-
-void DrawActorViewerContents() {
-    UIWidgets::WindowButton(
-        "Popout Actor Viewer", "gWindows.ActorViewer", mActorViewerWindow,
-        { .color = menuTheme[menuThemeIndex],
-          .tooltip = "Enables the Actor Viewer window, allowing you to view actors in the world." });
-    if (!CVarGetInteger("gWindows.ActorViewer", 0)) {
-        mActorViewerWindow->DrawElement();
-    }
-}
-
-void DrawEventLogContents() {
-    UIWidgets::WindowButton("Popout Event Log", "gWindows.EventLog", mEventLogWindow,
-                            {
-                                .color = menuTheme[menuThemeIndex],
-                            });
-    if (!CVarGetInteger("gWindows.EventLog", 0)) {
-        mActorViewerWindow->DrawElement();
-    }
-}
-
-std::vector<UIWidgets::MainMenuEntry> menuEntries;
+// if (gPlayState != NULL) {
+//     ImGui::Separator();
+//     SearchMenuGetItem(MENU_ITEM_FRAME_ADVANCE_ENABLE);
+//     if (gPlayState->frameAdvCtx.enabled) {
+//         SearchMenuGetItem(MENU_ITEM_FRAME_ADVANCE_SINGLE);
+//         SearchMenuGetItem(MENU_ITEM_FRAME_ADVANCE_HOLD);
+//         if (ImGui::IsItemActive()) {
+//             CVarSetInteger("gDeveloperTools.FrameAdvanceTick", 1);
+//         }
+//     }
+// }
+// ImGui::PushStyleColor(ImGuiCol_Button, menuTheme[menuThemeIndex]);
+// RenderWarpPointSection();
+// ImGui::PopStyleColor(1);
+//}
 
 BenMenu::BenMenu(const std::string& consoleVariable, const std::string& name) : GuiWindow(consoleVariable, name) {
 }
@@ -385,33 +95,19 @@ void BenMenu::InitElement() {
     poppedSize.y = CVarGetInteger("gSettings.Menu.PoppedHeight", 800);
     poppedPos.x = CVarGetInteger("gSettings.Menu.PoppedPos.x", 0);
     poppedPos.y = CVarGetInteger("gSettings.Menu.PoppedPos.y", 0);
-    std::vector<UIWidgets::SidebarEntry> settingsSidebar = { { "Search", { DrawSearchSettings, nullptr, nullptr } },
-                                                             { "General", { DrawGeneralSettings, nullptr, nullptr } },
-                                                             { "Audio", { DrawAudioSettings, nullptr, nullptr } },
-                                                             { "Graphics", { DrawGraphicsSettings, nullptr, nullptr } },
-                                                             { "Controls", { DrawControllerSettings } } };
-
-    std::vector<UIWidgets::SidebarEntry> enhancementsSidebar = {
-        { "Camera", { DrawCameraEnhancements1, DrawCameraEnhancements2, nullptr } },
-        { "Cheats", { DrawCheatEnhancements, nullptr, nullptr } },
-        { "Gameplay", { DrawGameplayEnhancements, DrawGameModesEnhancements, DrawSaveTimeEnhancements } },
-        { "Graphics", { DrawGraphicsEnhancements, nullptr, nullptr } },
-        { "Items/Songs", { DrawItemEnhancements, DrawSongEnhancements, nullptr } },
-        { "Time Savers", { DrawTimeSaverEnhancements1, DrawTimeSaverEnhancements2, nullptr } },
-        { "Fixes", { DrawFixEnhancements, nullptr, nullptr } },
-        { "Restorations", { DrawRestorationEnhancements, nullptr, nullptr } },
-        { "Hud Editor", { DrawHudEditorContents, nullptr } }
-    };
-
-    std::vector<UIWidgets::SidebarEntry> devToolsSidebar = { { "General", { DrawGeneralDevTools, nullptr, nullptr } },
-                                                             { "Collision Viewer",
-                                                               { DrawCollisionViewerContents, nullptr } },
-                                                             { "Stats", { DrawStatsContents, nullptr } },
-                                                             { "Console", { DrawConsoleContents, nullptr } },
-                                                             { "Gfx Debugger", { DrawGfxDebuggerContents, nullptr } },
-                                                             { "Save Editor", { DrawSaveEditorContents, nullptr } },
-                                                             { "Actor Viewer", { DrawActorViewerContents, nullptr } },
-                                                             { "Event Log", { DrawEventLogContents, nullptr } } };
+    AddSettings();
+    AddEnhancements();
+    AddDevTools();
+    auto settingsSidebar = { SETTINGS_INDEX_SEARCH, SETTINGS_INDEX_GENERAL, SETTINGS_INDEX_AUDIO,
+                             SETTINGS_INDEX_GRAPHICS, SETTINGS_INDEX_CONTROLS };
+    auto enhancementsSidebar = { ENHANCEMENTS_INDEX_CAMERA,      ENHANCEMENTS_INDEX_CHEATS,
+                                 ENHANCEMENTS_INDEX_GAMEPLAY,    ENHANCEMENTS_INDEX_GRAPHICS,
+                                 ENHANCEMENTS_INDEX_ITEMS_SONGS, ENHANCEMENTS_INDEX_TIME_SAVERS,
+                                 ENHANCEMENTS_INDEX_FIXES,       ENHANCEMENTS_INDEX_RESTORATIONS,
+                                 ENHANCEMENTS_INDEX_HUD_EDITOR };
+    auto devToolsSidebar = { DEV_TOOLS_INDEX_GENERAL,      DEV_TOOLS_INDEX_COLLISION,    DEV_TOOLS_INDEX_STATS,
+                             DEV_TOOLS_INDEX_CONSOLE,      DEV_TOOLS_INDEX_GFX_DEBUGGER, DEV_TOOLS_INDEX_SAVE_EDITOR,
+                             DEV_TOOLS_INDEX_ACTOR_VIEWER, DEV_TOOLS_INDEX_EVENT_LOG };
 
     menuEntries = { { "Settings", settingsSidebar, "gSettings.Menu.SettingsSidebarIndex" },
                     { "Enhancements", enhancementsSidebar, "gSettings.Menu.EnhancementsSidebarIndex" },
@@ -563,7 +259,7 @@ void BenMenu::DrawElement() {
                       ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize,
                       ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
 
-    std::vector<UIWidgets::SidebarEntry> sidebar;
+    std::vector<SidebarEntryIndex> sidebar;
     float headerHeight = headerSizes.at(0).y + style.FramePadding.y * 2;
     ImVec2 buttonSize = ImGui::CalcTextSize(ICON_FA_TIMES_CIRCLE) + style.FramePadding * 2;
     bool scrollbar = false;
@@ -645,6 +341,7 @@ void BenMenu::DrawElement() {
     const char* sidebarCvar = menuEntries.at(headerIndex).sidebarCvar;
 
     uint8_t sectionIndex = CVarGetInteger(sidebarCvar, 0);
+    SidebarEntryIndex entryIndex = static_cast<SidebarEntryIndex>(sectionIndex);
     if (sectionIndex > sidebar.size())
         sectionIndex = sidebar.size();
     if (sectionIndex < 0)
@@ -654,22 +351,22 @@ void BenMenu::DrawElement() {
     ImGui::SetNextWindowSizeConstraints({ sidebarWidth, 0 }, { sidebarWidth, columnHeight });
     ImGui::BeginChild((menuEntries.at(headerIndex).label + " Section").c_str(), { sidebarWidth, columnHeight * 3 },
                       ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize, ImGuiWindowFlags_NoTitleBar);
-    for (int i = 0; i < sidebar.size(); i++) {
-        auto sidebarEntry = sidebar.at(i);
-        uint8_t nextIndex = i;
-        if (sectionIndex != i) {
+    for (auto index : sidebar) {
+        SidebarEntryIndex nextIndex = index;
+        auto sidebarEntry = sidebarEntries.at(index);
+        if (sectionIndex != index) {
             ImGui::PushStyleColor(ImGuiCol_FrameBg, { 0, 0, 0, 0 });
         }
         if (ModernMenuSidebarEntry(sidebarEntry.label)) {
-            CVarSetInteger(sidebarCvar, i);
+            CVarSetInteger(sidebarCvar, index);
             CVarSave();
-            nextIndex = i;
+            nextIndex = index;
         }
-        if (sectionIndex != i) {
+        if (sectionIndex != index) {
             ImGui::PopStyleColor();
         }
-        if (nextIndex != i) {
-            sectionIndex = i;
+        if (nextIndex != index) {
+            sectionIndex = index;
         }
     }
     ImGui::EndChild();
@@ -681,14 +378,9 @@ void BenMenu::DrawElement() {
     pos.x += 4 + style.ItemSpacing.x;
     ImGui::SetNextWindowPos(pos + style.ItemSpacing);
     float sectionWidth = menuSize.x - sidebarWidth - 4 - style.ItemSpacing.x * 4;
-    std::string sectionMenuId = sidebar.at(sectionIndex).label + " Settings";
-    int columns = sidebar.at(sectionIndex).columnFuncs.size();
-    int columnFuncs = 0;
-    for (auto func : sidebar.at(sectionIndex).columnFuncs) {
-        if (func != nullptr) {
-            columnFuncs++;
-        }
-    }
+    std::string sectionMenuId = sidebarEntries.at(entryIndex).label + " Settings";
+    int columns = sidebarEntries.at(entryIndex).columnCount;
+    int columnFuncs = sidebarEntries.at(entryIndex).columnWidgets.size();
     if (windowWidth < 800) {
         columns = 1;
     }
@@ -707,8 +399,8 @@ void BenMenu::DrawElement() {
             ImGui::BeginChild(sectionId.c_str(), { columnWidth, windowHeight * 4 }, ImGuiChildFlags_AutoResizeY,
                               ImGuiWindowFlags_NoTitleBar);
         }
-        if (sidebar.at(sectionIndex).columnFuncs.at(i) != nullptr) {
-            sidebar.at(sectionIndex).columnFuncs.at(i)();
+        for (auto& entry : sidebarEntries.at(entryIndex).columnWidgets.at(i)) {
+            SearchMenuGetItem(entry);
         }
         if (useColumns) {
             ImGui::EndChild();

@@ -27,7 +27,5 @@ class BenMenu : public Ship::GuiWindow {
     ImVec2 poppedPos;
     float windowHeight;
     float windowWidth;
-    UIWidgets::SidebarEntry audioSettingsEntry;
-    UIWidgets::MainMenuEntry settingsEntry;
 };
 } // namespace BenGui
