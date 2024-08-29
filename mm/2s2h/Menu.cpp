@@ -98,16 +98,6 @@ void BenMenu::InitElement() {
     AddSettings();
     AddEnhancements();
     AddDevTools();
-    auto settingsSidebar = { SETTINGS_INDEX_SEARCH, SETTINGS_INDEX_GENERAL, SETTINGS_INDEX_AUDIO,
-                             SETTINGS_INDEX_GRAPHICS, SETTINGS_INDEX_CONTROLS };
-    auto enhancementsSidebar = { ENHANCEMENTS_INDEX_CAMERA,      ENHANCEMENTS_INDEX_CHEATS,
-                                 ENHANCEMENTS_INDEX_GAMEPLAY,    ENHANCEMENTS_INDEX_GRAPHICS,
-                                 ENHANCEMENTS_INDEX_ITEMS_SONGS, ENHANCEMENTS_INDEX_TIME_SAVERS,
-                                 ENHANCEMENTS_INDEX_FIXES,       ENHANCEMENTS_INDEX_RESTORATIONS,
-                                 ENHANCEMENTS_INDEX_HUD_EDITOR };
-    auto devToolsSidebar = { DEV_TOOLS_INDEX_GENERAL,      DEV_TOOLS_INDEX_COLLISION,    DEV_TOOLS_INDEX_STATS,
-                             DEV_TOOLS_INDEX_CONSOLE,      DEV_TOOLS_INDEX_GFX_DEBUGGER, DEV_TOOLS_INDEX_SAVE_EDITOR,
-                             DEV_TOOLS_INDEX_ACTOR_VIEWER, DEV_TOOLS_INDEX_EVENT_LOG };
 
     menuEntries = { { "Settings", settingsSidebar, "gSettings.Menu.SettingsSidebarIndex" },
                     { "Enhancements", enhancementsSidebar, "gSettings.Menu.EnhancementsSidebarIndex" },
@@ -259,7 +249,7 @@ void BenMenu::DrawElement() {
                       ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize,
                       ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
 
-    std::vector<SidebarEntryIndex> sidebar;
+    std::vector<SidebarEntry> sidebar;
     float headerHeight = headerSizes.at(0).y + style.FramePadding.y * 2;
     ImVec2 buttonSize = ImGui::CalcTextSize(ICON_FA_TIMES_CIRCLE) + style.FramePadding * 2;
     bool scrollbar = false;
@@ -341,7 +331,6 @@ void BenMenu::DrawElement() {
     const char* sidebarCvar = menuEntries.at(headerIndex).sidebarCvar;
 
     uint8_t sectionIndex = CVarGetInteger(sidebarCvar, 0);
-    SidebarEntryIndex entryIndex = static_cast<SidebarEntryIndex>(sectionIndex);
     if (sectionIndex > sidebar.size())
         sectionIndex = sidebar.size();
     if (sectionIndex < 0)
@@ -351,22 +340,22 @@ void BenMenu::DrawElement() {
     ImGui::SetNextWindowSizeConstraints({ sidebarWidth, 0 }, { sidebarWidth, columnHeight });
     ImGui::BeginChild((menuEntries.at(headerIndex).label + " Section").c_str(), { sidebarWidth, columnHeight * 3 },
                       ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize, ImGuiWindowFlags_NoTitleBar);
-    for (auto index : sidebar) {
-        SidebarEntryIndex nextIndex = index;
-        auto sidebarEntry = sidebarEntries.at(index);
-        if (sectionIndex != index) {
+    for (int i = 0; i < sidebar.size(); i++) {
+        auto sidebarEntry = sidebar.at(i);
+        uint8_t nextIndex = i;
+        if (sectionIndex != i) {
             ImGui::PushStyleColor(ImGuiCol_FrameBg, { 0, 0, 0, 0 });
         }
         if (ModernMenuSidebarEntry(sidebarEntry.label)) {
-            CVarSetInteger(sidebarCvar, index);
+            CVarSetInteger(sidebarCvar, i);
             CVarSave();
-            nextIndex = index;
+            nextIndex = i;
         }
-        if (sectionIndex != index) {
+        if (sectionIndex != i) {
             ImGui::PopStyleColor();
         }
-        if (nextIndex != index) {
-            sectionIndex = index;
+        if (nextIndex != i) {
+            sectionIndex = i;
         }
     }
     ImGui::EndChild();
@@ -378,9 +367,9 @@ void BenMenu::DrawElement() {
     pos.x += 4 + style.ItemSpacing.x;
     ImGui::SetNextWindowPos(pos + style.ItemSpacing);
     float sectionWidth = menuSize.x - sidebarWidth - 4 - style.ItemSpacing.x * 4;
-    std::string sectionMenuId = sidebarEntries.at(entryIndex).label + " Settings";
-    int columns = sidebarEntries.at(entryIndex).columnCount;
-    int columnFuncs = sidebarEntries.at(entryIndex).columnWidgets.size();
+    std::string sectionMenuId = sidebar.at(sectionIndex).label + " Settings";
+    int columns = sidebar.at(sectionIndex).columnCount;
+    int columnFuncs = sidebar.at(sectionIndex).columnWidgets.size();
     if (windowWidth < 800) {
         columns = 1;
     }
@@ -399,7 +388,7 @@ void BenMenu::DrawElement() {
             ImGui::BeginChild(sectionId.c_str(), { columnWidth, windowHeight * 4 }, ImGuiChildFlags_AutoResizeY,
                               ImGuiWindowFlags_NoTitleBar);
         }
-        for (auto& entry : sidebarEntries.at(entryIndex).columnWidgets.at(i)) {
+        for (auto& entry : sidebar.at(sectionIndex).columnWidgets.at(i)) {
             SearchMenuGetItem(entry);
         }
         if (useColumns) {
