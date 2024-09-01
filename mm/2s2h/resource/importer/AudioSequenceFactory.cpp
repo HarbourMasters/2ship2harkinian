@@ -87,6 +87,15 @@ void ResourceFactoryXMLAudioSequenceV0::WriteInsnTwoArg(Ship::BinaryWriter* writ
     writer->Write(arg2);
 }
 
+template <typename T1, typename T2, typename T3>
+void ResourceFactoryXMLAudioSequenceV0::WriteInsnThreeArg(Ship::BinaryWriter* writer, uint8_t opcode, T1 arg1, T2 arg2, T3 arg3) {
+    static_assert(std::is_fundamental<T1>::value && std::is_fundamental<T2>::value);
+    writer->Write(opcode);
+    writer->Write(arg1);
+    writer->Write(arg2);
+    writer->Write(arg3);
+}
+
 void ResourceFactoryXMLAudioSequenceV0::WriteInsnNoArg(Ship::BinaryWriter* writer, uint8_t opcode) {
     writer->Write(opcode);
 }
@@ -164,6 +173,10 @@ void ResourceFactoryXMLAudioSequenceV0::WriteNotedv(Ship::BinaryWriter* writer, 
                                                     uint8_t velocity) {
     WriteInsnTwoArg(writer, note, delay, velocity);
 }
+template <typename T>
+void ResourceFactoryXMLAudioSequenceV0::WriteNotedvg(Ship::BinaryWriter* writer, uint8_t note, T delay, uint8_t velocity, uint8_t gateTime) {
+    WriteInsnThreeArg(writer, note, delay, velocity, gateTime);
+}
 
 std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource(std::shared_ptr<Ship::File> file) {
     if (!FileHasValidFormatAndReader(file)) {
@@ -229,9 +242,9 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
             loopPoint = writer.GetBaseAddress();
             WriteLdchan(&writer, 0, 0); // Fill in the actual address later
             WriteVolSHeader(&writer, 127); // Max volume
-            WriteTempo(&writer, 1); // 1 BPM
+            WriteTempo(&writer, 0xA); // 1 BPM
 
-            WriteDelay(&writer, static_cast<uint16_t>(0x7FFF + 0x8000));
+            WriteDelay(&writer, static_cast<uint8_t>(0xFFFF));
             WriteJump(&writer, loopPoint);
             WriteDisablecan(&writer, 1);
             writer.Write(static_cast<uint8_t>(0xFF));
@@ -251,7 +264,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
             WriteBend(&writer, 0);
             WriteInstrument(&writer, 0);
             // Max delay. ~113 minutes.
-            WriteDelay(&writer, static_cast<uint16_t>(0x7FFF + 0x8000));
+            WriteDelay(&writer, static_cast<uint8_t>(0xFFFF));
             writer.Write(static_cast<uint8_t>(0xFF));
 
             layerStart = writer.GetBaseAddress();
@@ -261,8 +274,9 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
 
             // Note layer
             WriteTranspose(&writer, 0);
-            WriteNotedv(&writer, 39 + 0x40, static_cast<uint16_t>((0x7FFF + 0x8000) - 1), 127); // todo move the +40 into the function
-            WriteLDelay(&writer, static_cast<uint16_t>(0x7FFF + 0x8000));
+            WriteNotedv(&writer, 39 + 0x40, static_cast<uint16_t>((0xFFFF) - 1), 127); // todo move the +40 into the function
+            //WriteNotedvg(&writer, 39, static_cast<uint8_t>(0xC0), static_cast<uint8_t>(0x5F), static_cast<uint8_t>(0x2A));
+            //WriteLDelay(&writer, static_cast<uint16_t>(0xc0));
             writer.Write(static_cast<uint8_t>(0xFF));
 
             sequence->sequenceData = writer.ToVector();

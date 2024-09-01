@@ -680,15 +680,24 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "CafeOS")
 else()
     find_package(SDL2)
     set(THREADS_PREFER_PTHREAD_FLAG ON)
+    
     find_package(Threads REQUIRED)
- 	set(ADDITIONAL_LIBRARY_DEPENDENCIES
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(OGG REQUIRED ogg)
+    pkg_check_modules(VORBIS REQUIRED vorbis)
+    pkg_check_modules(VORBISFILE REQUIRED vorbisfile)
+    set(ADDITIONAL_LIBRARY_DEPENDENCIES
         "libultraship;"
 		"ZAPDLib;"
+        "ogg"
+        "vorbis"
+        "vorbisfile"
 		SDL2::SDL2
  #       "$<$<BOOL:${BUILD_CROWD_CONTROL}>:SDL2_net::SDL2_net>"
 		${CMAKE_DL_LIBS}
 		Threads::Threads
 	)
+
 endif()
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "NintendoSwitch|CafeOS")

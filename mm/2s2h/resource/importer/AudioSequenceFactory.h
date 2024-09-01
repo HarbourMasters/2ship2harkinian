@@ -22,6 +22,8 @@ class ResourceFactoryXMLAudioSequenceV0 : public Ship::ResourceFactoryXML {
     template<typename T> static void WriteInsnOneArg(Ship::BinaryWriter* writer, uint8_t opcode, T arg);
     template <typename T1, typename T2>
     static void WriteInsnTwoArg(Ship::BinaryWriter* writer, uint8_t opcode, T1 arg1, T2 arg2);
+template <typename T1, typename T2, typename T3>
+static void WriteInsnThreeArg(Ship::BinaryWriter* writer, uint8_t opcode, T1 arg1, T2 arg2, T3 arg3);
     static void WriteMuteBhv(Ship::BinaryWriter* writer, uint8_t arg);
     static void WriteMuteScale(Ship::BinaryWriter* writer, uint8_t arg);
     static void WriteInitchan(Ship::BinaryWriter* writer, uint16_t channels);
@@ -40,7 +42,8 @@ class ResourceFactoryXMLAudioSequenceV0 : public Ship::ResourceFactoryXML {
     static void WriteInstrument(Ship::BinaryWriter* writer, uint8_t instrument);
     static void WriteTranspose(Ship::BinaryWriter* writer, int8_t transpose);
     template <typename T> static void WriteNotedv(Ship::BinaryWriter* writer, uint8_t note, T delay, uint8_t velocity);
-
+    template <typename T>
+    static void WriteNotedvg(Ship::BinaryWriter* writer, uint8_t note, T delay, uint8_t velocity, uint8_t gateTime);
 };
 
 } // namespace SOH

@@ -9,6 +9,68 @@
 #define DR_MP3_IMPLEMENTATION
 #include "dr_mp3.h"
 
+#include "vorbis/vorbisfile.h"
+
+struct OggFileData {
+    void* data;
+    size_t pos;
+    size_t size;
+};
+
+static size_t VorbisReadCallback(void* out, size_t size, size_t elems, void* src) {
+    OggFileData* data = static_cast<OggFileData*>(src);
+    size_t toRead = size * elems;
+
+    if (toRead > data->size - data->pos) {
+        toRead = data->size - data->pos;
+    }
+
+    memcpy(out, static_cast<uint8_t*>(data->data) + data->pos, toRead);
+    data->pos += toRead;
+    
+    return toRead / size;
+}
+
+static int VorbisSeekCallback(void* src, ogg_int64_t pos, int whence) {
+    OggFileData* data = static_cast<OggFileData*>(src);
+    size_t newPos;
+    
+    switch(whence) {
+        case SEEK_SET:
+            newPos = pos;
+            break;
+        case SEEK_CUR:
+            newPos = data->pos + pos;
+            break;
+        case SEEK_END:
+            newPos = data->size + pos;
+            break;
+        default:
+            return -1;
+    }
+    if (newPos > data->size) {
+        return -1;
+    }
+    data->pos = newPos;
+    return 0;
+}
+
+static int VorbisCloseCallback([[maybe_unused]] void* src) {
+    return 0;
+}
+
+static long VorbisTellCallback(void* src) {
+    OggFileData* data = static_cast<OggFileData*>(src);
+    return data->pos;
+}
+
+static const ov_callbacks vorbisCallbacks = {
+    VorbisReadCallback,
+    VorbisSeekCallback,
+    VorbisCloseCallback,
+    VorbisTellCallback,
+};
+
 namespace SOH {
 std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSampleV2::ReadResource(std::shared_ptr<Ship::File> file) {
     if (!FileHasValidFormatAndReader(file)) {
@@ -131,7 +193,38 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
 
         audioSample->audioSampleData.reserve(numFrames * channels * 2); // 2 for sizeof(s16)
         drmp3_read_pcm_frames_s16(&mp3, numFrames, (int16_t*)audioSample->audioSampleData.data());
-    } else {
+    } else if (customFormatStr != nullptr && strcmp(customFormatStr, "ogg") == 0) {
+        OggVorbis_File vf;
+        char dataBuff[4096];
+        long read = 0;
+        size_t pos = 0;
+        OggFileData fileData =  {
+            .data = sampleFile->Buffer.get()->data(),
+            .pos = 0,
+            .size = sampleFile->Buffer.get()->size(),
+        };
+        int ret = ov_open_callbacks(&fileData, &vf, nullptr, 0, vorbisCallbacks);
+        
+        if (ret < 0) {
+            assert(!"ohno");
+        }
+        vorbis_info* vi = ov_info(&vf, -1);
+
+        uint64_t numFrames = ov_pcm_total(&vf, -1);
+        uint64_t sampleRate = vi->rate;
+        uint64_t numChannels = vi->channels;
+        int bitStream = 0;
+        size_t toRead = numFrames * numChannels * 2;
+        audioSample->audioSampleData.reserve(toRead);
+        do {
+            read = ov_read(&vf, dataBuff, 4096, 0, 2, 1, &bitStream);
+            memcpy(audioSample->audioSampleData.data() + pos, dataBuff, read);
+            pos += read;
+        } while (read != 0);
+        assert(pos == toRead);
+        ov_clear(&vf);
+    }
+    else {
         audioSample->audioSampleData.reserve(size);
         for (uint32_t i = 0; i < size; i++) {
             audioSample->audioSampleData.push_back((char)(sampleFile->Buffer.get()->at(i)));
