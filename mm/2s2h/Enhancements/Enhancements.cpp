@@ -30,6 +30,9 @@ void InitEnhancements() {
     RegisterSkipMagicArrowEquip();
     RegisterInstantRecall();
 
+    // Fixes
+    RegisterFierceDeityZTargetMovement();
+
     // Graphics
     RegisterDisableBlackBars();
     Register3DItemDrops();
@@ -59,7 +62,6 @@ void InitEnhancements() {
     RegisterSideRoll();
     RegisterTatlISG();
     RegisterVariableFlipHop();
-    RegisterFierceDeityBackwalk();
 
     // Cutscenes
     RegisterCutscenes();
