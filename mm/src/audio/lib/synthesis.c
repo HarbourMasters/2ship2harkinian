@@ -1157,9 +1157,13 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
                         } else {
                             bytesToRead = sample->size - (synthState->samplePosInt * 2);
                         }
-
-                        aLoadBuffer(cmd++, sampleAddr + (synthState->samplePosInt * 2), DMEM_UNCOMPRESSED_NOTE,
+                        // 2S2H [Port] [Custom audio]
+                        // TLDR samples are loaded async and might be null the first time they are played.
+                        // See note in AudioSampleFactory.cpp
+                        if (sampleAddr != NULL) {
+                            aLoadBuffer(cmd++, sampleAddr + (synthState->samplePosInt * 2), DMEM_UNCOMPRESSED_NOTE,
                                     bytesToRead);
+                        }
 
                         goto skip;
 

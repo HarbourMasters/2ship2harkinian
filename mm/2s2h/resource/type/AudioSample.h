@@ -4,6 +4,7 @@
 #include <vector>
 #include "Resource.h"
 #include <libultraship/libultra/types.h>
+#include <thread>
 
 namespace SOH {
 typedef struct {
@@ -57,5 +58,6 @@ class AudioSample : public Ship::Resource<Sample> {
     AdpcmBook book;
     uint32_t bookDataCount;
     std::vector<int16_t> bookData;
+    std::thread oggLoadThread;
 };
 }; // namespace SOH

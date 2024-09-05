@@ -9,6 +9,7 @@
 #define DR_MP3_IMPLEMENTATION
 #include "dr_mp3.h"
 
+
 #include "vorbis/vorbisfile.h"
 
 struct OggFileData {
@@ -70,6 +71,39 @@ static const ov_callbacks vorbisCallbacks = {
     VorbisCloseCallback,
     VorbisTellCallback,
 };
+#include <chrono>
+static void OggDecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std::shared_ptr<Ship::File> sampleFile) {
+        OggVorbis_File vf;
+        char dataBuff[4096];
+        long read = 0;
+        size_t pos = 0;
+
+        OggFileData fileData =  {
+            .data = sampleFile->Buffer.get()->data(),
+            .pos = 0,
+            .size = sampleFile->Buffer.get()->size(),
+        };
+        int ret = ov_open_callbacks(&fileData, &vf, nullptr, 0, vorbisCallbacks);
+        
+        if (ret < 0) {
+            assert(!"ohno");
+        }
+        vorbis_info* vi = ov_info(&vf, -1);
+
+        uint64_t numFrames = ov_pcm_total(&vf, -1);
+        uint64_t sampleRate = vi->rate;
+        uint64_t numChannels = vi->channels;
+        int bitStream = 0;
+        size_t toRead = numFrames * numChannels * 2;
+        audioSample->audioSampleData.reserve(toRead);
+        do {
+            read = ov_read(&vf, dataBuff, 4096, 0, 2, 1, &bitStream);
+            memcpy(audioSample->audioSampleData.data() + pos, dataBuff, read);
+            pos += read;
+        } while (read != 0);
+        audioSample->sample.sampleAddr = audioSample->audioSampleData.data();
+        ov_clear(&vf);
+}
 
 namespace SOH {
 std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSampleV2::ReadResource(std::shared_ptr<Ship::File> file) {
@@ -118,6 +152,8 @@ std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSampleV2::ReadResourc
 
     return audioSample;
 }
+
+
 std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(std::shared_ptr<Ship::File> file) {
     if (!FileHasValidFormatAndReader(file)) {
         return nullptr;
@@ -194,35 +230,10 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
         audioSample->audioSampleData.reserve(numFrames * channels * 2); // 2 for sizeof(s16)
         drmp3_read_pcm_frames_s16(&mp3, numFrames, (int16_t*)audioSample->audioSampleData.data());
     } else if (customFormatStr != nullptr && strcmp(customFormatStr, "ogg") == 0) {
-        OggVorbis_File vf;
-        char dataBuff[4096];
-        long read = 0;
-        size_t pos = 0;
-        OggFileData fileData =  {
-            .data = sampleFile->Buffer.get()->data(),
-            .pos = 0,
-            .size = sampleFile->Buffer.get()->size(),
-        };
-        int ret = ov_open_callbacks(&fileData, &vf, nullptr, 0, vorbisCallbacks);
-        
-        if (ret < 0) {
-            assert(!"ohno");
-        }
-        vorbis_info* vi = ov_info(&vf, -1);
-
-        uint64_t numFrames = ov_pcm_total(&vf, -1);
-        uint64_t sampleRate = vi->rate;
-        uint64_t numChannels = vi->channels;
-        int bitStream = 0;
-        size_t toRead = numFrames * numChannels * 2;
-        audioSample->audioSampleData.reserve(toRead);
-        do {
-            read = ov_read(&vf, dataBuff, 4096, 0, 2, 1, &bitStream);
-            memcpy(audioSample->audioSampleData.data() + pos, dataBuff, read);
-            pos += read;
-        } while (read != 0);
-        assert(pos == toRead);
-        ov_clear(&vf);
+        // OGGs take a really long time to decode (~250ms per). This worked when we tested it (09/04/2024) (Works on my machine)
+        audioSample->oggLoadThread = std::thread(OggDecoderWorker, audioSample, sampleFile);
+        audioSample->oggLoadThread.detach();
+        return audioSample;
     }
     else {
         audioSample->audioSampleData.reserve(size);
