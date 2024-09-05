@@ -364,6 +364,10 @@ extern "C" u16 AudioEditor_GetReplacementSeq(u16 seqId) {
     return AudioCollection::Instance->GetReplacementSequence(seqId);
 }
 
+extern "C" u16 AudioEditor_GetOriginalSeq(u16 seqId) {
+    return AudioCollection::Instance->GetOriginalSequence(seqId);
+}
+
 const char* GetSequenceTypeName(SeqType type) {
     switch (type) {
         case SEQ_NOSHUFFLE:
@@ -662,7 +666,7 @@ void AudioEditor::DrawElement() {
                         ImGui::SameLine();
                         DrawTypeChip(seqInfo->category);
                         ImGui::SameLine();
-                        ImGui::Text("%s", seqInfo->label);
+                        ImGui::Text("%s", seqInfo->label.c_str());
                     }
                 }
                 ImGui::EndChild();
@@ -686,7 +690,7 @@ void AudioEditor::DrawElement() {
                         ImGui::SameLine();
                         DrawTypeChip(seqInfo->category);
                         ImGui::SameLine();
-                        ImGui::Text("%s", seqInfo->label);
+                        ImGui::Text("%s", seqInfo->label.c_str());
                     }
                 }
                 ImGui::EndChild();

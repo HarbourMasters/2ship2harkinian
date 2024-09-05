@@ -714,7 +714,7 @@ typedef struct {
     /* 0x4350 */ AudioCommonPoolSplit persistentCommonPoolSplit; // splits persistent common pool into caches for sequences, soundFonts, sample banks
     /* 0x435C */ AudioCommonPoolSplit temporaryCommonPoolSplit; // splits temporary common pool into caches for sequences, soundFonts, sample banks
     /* 0x4368 */ u8 sampleFontLoadStatus[0x30];
-    /* 0x4398 */ u8 fontLoadStatus[0x30];
+    /* 0x4398 */ u8* fontLoadStatus; // 2S2H [Port] [Custom Audio] Allow for new soundfonts. Was originally fontLoadStatus[0x30]
     /* 0x43C8 */ u8* seqLoadStatus;
     /* 0x4448 */ volatile u8 resetStatus;
     /* 0x4449 */ u8 specId;

@@ -643,6 +643,8 @@ endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     find_package(glfw3 REQUIRED)
+	find_package(ogg REQUIRED)
+	find_package(vorbis REQUIRED)
 	set(ADDITIONAL_LIBRARY_DEPENDENCIES
 		"libultraship;"
 		"ZAPDLib;"
@@ -654,7 +656,10 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 		"winmm;"
 		"imm32;"
 		"version;"
-		"setupapi"
+		"setupapi;"
+		"ogg;"
+		"vorbis;"
+		"vorbisfile;"
 	)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
     find_package(SDL2)

@@ -37,6 +37,7 @@ extern "C" {
 #endif
 
 u16 AudioEditor_GetReplacementSeq(u16 seqId);
+u16 AudioEditor_GetOriginalSeq(u16 seqId);
 
 #ifdef __cplusplus
 }
