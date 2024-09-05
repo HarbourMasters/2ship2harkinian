@@ -78,10 +78,9 @@ std::vector<Actor*> GetCurrentSceneActors() {
 
 static Actor* selectedActor = nullptr;
 static ActorInfo newActor;
-static std::vector<Actor*> list;
-
 static s16 lastSceneId = -1;
 static std::string comboBoxLabel = "Please select";
+
 static HOOK_ID preventActorDrawHookId = 0;
 static HOOK_ID preventActorUpdateHookId = 0;
 static HOOK_ID actorDeleteHookID = 0;
@@ -244,7 +243,7 @@ void ActorViewerWindow::DrawElement() {
 
         if (ImGui::TreeNode("Select existing Actor")) {
             if (ImGui::BeginCombo("Actor", comboBoxLabel.c_str())) {
-                list = GetCurrentSceneActors();
+                auto list = GetCurrentSceneActors();
                 lastSceneId = gPlayState->sceneId;
 
                 if (!list.empty()) {
