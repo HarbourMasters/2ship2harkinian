@@ -3,7 +3,6 @@
 #include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 #include "2s2h/Enhancements/NameTag/NameTag.h"
 #include <spdlog/fmt/fmt.h>
-#include <spdlog/fmt/ranges.h>
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -126,7 +125,13 @@ void ActorViewer_AddTagForActor(Actor* actor) {
         parts.push_back(fmt::format("0x{:04X} ({})", (u16)actor->params, actor->params));
     }
 
-    std::string tag = fmt::format("{}", fmt::join(parts, "\n"));
+    std::string tag = "";
+    for (size_t i = 0; i < parts.size(); i++) {
+        if (i != 0) {
+            tag += "\n";
+        }
+        tag += parts.at(i);
+    }
 
     bool withZBuffer = CVarGetInteger(CVAR_ACTOR_NAME_TAGS("WithZBuffer"), 0);
 
