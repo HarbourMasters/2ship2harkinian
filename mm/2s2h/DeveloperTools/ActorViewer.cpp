@@ -2,8 +2,8 @@
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 #include "2s2h/Enhancements/NameTag/NameTag.h"
-#include <fmt/format.h>
-#include <fmt/ranges.h>
+#include <spdlog/fmt/fmt.h>
+#include <spdlog/fmt/ranges.h>
 #include <string>
 #include <vector>
 #include <unordered_map>
