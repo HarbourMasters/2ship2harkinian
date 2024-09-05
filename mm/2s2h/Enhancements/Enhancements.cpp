@@ -30,6 +30,9 @@ void InitEnhancements() {
     RegisterSkipMagicArrowEquip();
     RegisterInstantRecall();
 
+    // Fixes
+    RegisterFierceDeityZTargetMovement();
+
     // Graphics
     RegisterDisableBlackBars();
     Register3DItemDrops();
