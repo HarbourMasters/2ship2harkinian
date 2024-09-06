@@ -243,16 +243,16 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
         
         drwav_read_pcm_frames_s16(&wav, numFrames, (int16_t*)audioSample->audioSampleData.data());
     } else if (customFormatStr != nullptr && strcmp(customFormatStr, "mp3") == 0) {
-        audioSample->fileDecoderThread = std::thread(Mp3DecoderWorker, audioSample, sampleFile);
-        audioSample->fileDecoderThread.detach();
+        std::thread fileDecoderThread = std::thread(Mp3DecoderWorker, audioSample, sampleFile);
+        fileDecoderThread.detach();
         return audioSample;
     } else if (customFormatStr != nullptr && strcmp(customFormatStr, "ogg") == 0) {
-        audioSample->fileDecoderThread = std::thread(OggDecoderWorker, audioSample, sampleFile);
-        audioSample->fileDecoderThread.detach();
+        std::thread fileDecoderThread = std::thread(OggDecoderWorker, audioSample, sampleFile);
+        fileDecoderThread.detach();
         return audioSample;
     } else if (customFormatStr != nullptr && strcmp(customFormatStr, "flac") == 0) {
-        audioSample->fileDecoderThread = std::thread(FlacDecoderWorker, audioSample, sampleFile);
-        audioSample->fileDecoderThread.detach();
+        std::thread fileDecoderThread = std::thread(FlacDecoderWorker, audioSample, sampleFile);
+        fileDecoderThread.detach();
         return audioSample;
     }
     else {

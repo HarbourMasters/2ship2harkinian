@@ -596,6 +596,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
             -Wno-narrowing
             -Wno-missing-braces
             -Wno-int-conversion
+            -fsanitize=address
             $<$<COMPILE_LANGUAGE:C>:
                 #-Werror-implicit-function-declaration
                 -Wno-incompatible-pointer-types
@@ -609,6 +610,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
         target_link_options(${PROJECT_NAME} PRIVATE
             -pthread
             -Wl,-export-dynamic
+            -fsanitize=address
         )
     endif()
 endif()

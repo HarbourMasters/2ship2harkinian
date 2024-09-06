@@ -58,6 +58,5 @@ class AudioSample : public Ship::Resource<Sample> {
     AdpcmBook book;
     uint32_t bookDataCount;
     std::vector<int16_t> bookData;
-    std::thread fileDecoderThread;
 };
 }; // namespace SOH
