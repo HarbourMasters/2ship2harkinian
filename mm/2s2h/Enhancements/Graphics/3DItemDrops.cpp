@@ -114,7 +114,7 @@ void EnItem00_3DItemsDraw(Actor* actor, PlayState* play) {
     }
 }
 
-void DrawSlime3DItem(GIVanillaBehavior _, bool* should, void* opt) {
+void DrawSlime3DItem(GIVanillaBehavior _, bool* should, void* opt, va_list originalArgs) {
     *should = false;
     EnSlime* slime = static_cast<EnSlime*>(opt);
 
@@ -133,6 +133,27 @@ void DrawSlime3DItem(GIVanillaBehavior _, bool* should, void* opt) {
             GetItem_Draw(gPlayState, GID_ARROWS_SMALL);
             break;
     }
+}
+
+void DrawSlime3DItemVArgsTest(GIVanillaBehavior _, bool* should, void* opt, va_list originalArgs) {
+    // Must create a copy of the original args, so that other subscribers are unaffected
+    va_list argsCopy;
+    va_copy(argsCopy, originalArgs);
+
+    // Read args in order. Can be any pointer type or standard type after "default argument promotion"
+    // (e.g. bool,char,short -> int, float -> double)
+    int* num1 = va_arg(argsCopy, int*);
+    int* num2 = va_arg(argsCopy, int*);
+    float* num3 = va_arg(argsCopy, float*);
+    double num4 = va_arg(argsCopy, double);
+
+    assert(*num1 == 17);
+    assert(*num2 == 59);
+    assert(*num3 == 80.0f);
+    assert(num4 == 120.0f);
+
+    // Always end the copy when done reading args
+    va_end(argsCopy);
 }
 
 void Register3DItemDrops() {
@@ -182,4 +203,25 @@ void Register3DItemDrops() {
         });
     slimeVBHookID = GameInteractor::Instance->RegisterGameHookForID<GameInteractor::ShouldVanillaBehavior>(
         GI_VB_DRAW_SLIME_BODY_ITEM, DrawSlime3DItem);
+
+    // Example hooks registrations for va_list demo
+    GameInteractor::Instance->RegisterGameHookForID<GameInteractor::ShouldVanillaBehavior>(GI_VB_DRAW_SLIME_BODY_ITEM,
+                                                                                           DrawSlime3DItemVArgsTest);
+
+    REGISTER_VB_SHOULD(GI_VB_DRAW_SLIME_BODY_ITEM, {
+        va_list argsCopy;
+        va_copy(argsCopy, originalArgs);
+
+        int* num1 = va_arg(argsCopy, int*);
+        int* num2 = va_arg(argsCopy, int*);
+        float* num3 = va_arg(argsCopy, float*);
+        double num4 = va_arg(argsCopy, double);
+
+        assert(*num1 == 17);
+        assert(*num2 == 59);
+        assert(*num3 == 80.0f);
+        assert(num4 == 120.0f);
+
+        va_end(argsCopy);
+    });
 }

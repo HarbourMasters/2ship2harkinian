@@ -230,14 +230,23 @@ void GameInteractor_ExecuteOnItemGive(u8 item) {
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnItemGive>(item);
 }
 
-bool GameInteractor_Should(GIVanillaBehavior flag, bool result, void* opt) {
-    GameInteractor::Instance->ExecuteHooks<GameInteractor::ShouldVanillaBehavior>(flag, &result, opt);
-    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::ShouldVanillaBehavior>(flag, flag, &result, opt);
+bool GameInteractor_Should(GIVanillaBehavior flag, bool result, void* opt, ...) {
+    // Only the external function can use the Variadic Function syntax
+    // To pass the va args to the next caller must be done using va_list and reading the args into it
+    // Because there can be N subscribers registered to each template call, the subscribers will be responsible for
+    // creating a copy of this va_list to avoid incrementing the original pointer between calls
+    va_list args;
+    va_start(args, opt);
+
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::ShouldVanillaBehavior>(flag, &result, opt, args);
+    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::ShouldVanillaBehavior>(flag, flag, &result, opt, args);
     if (opt != nullptr) {
         GameInteractor::Instance->ExecuteHooksForPtr<GameInteractor::ShouldVanillaBehavior>((uintptr_t)opt, flag,
-                                                                                            &result, opt);
+                                                                                            &result, opt, args);
     }
-    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::ShouldVanillaBehavior>(flag, &result, opt);
+    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::ShouldVanillaBehavior>(flag, &result, opt, args);
+
+    va_end(args);
     return result;
 }
 
