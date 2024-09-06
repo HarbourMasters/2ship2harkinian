@@ -530,6 +530,10 @@ void DrawEnhancementsMenu() {
                                     { .tooltip = "Fixes a missing gDPSetEnvColor, which causes the ammo count to be "
                                                  "the wrong color prior to obtaining magic or other conditions." });
 
+            UIWidgets::CVarCheckbox("Fix Fierce Deity Z-Target movement",
+                                    "gEnhancements.Fixes.FierceDeityZTargetMovement",
+                                    { .tooltip = "Fixes Fierce Deity movement being choppy when Z-targeting" });
+
             UIWidgets::CVarCheckbox("Fix Hess and Weirdshot Crash", "gEnhancements.Fixes.HessCrash",
                                     { .tooltip = "Fixes a crash that can occur when performing a HESS or Weirdshot.",
                                       .defaultValue = true });
@@ -672,6 +676,8 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Pause Owl Warp", "gEnhancements.Songs.PauseOwlWarp",
                                     { .tooltip = "Allows the player to use the pause menu map to owl warp instead of "
                                                  "having to play the Song of Soaring." });
+            UIWidgets::CVarSliderInt("Zora Eggs For Bossa Nova", "gEnhancements.Songs.ZoraEggCount", 1, 7, 7,
+                                     { .tooltip = "The number of eggs required to unlock new wave bossa nova." });
 
             ImGui::EndMenu();
         }

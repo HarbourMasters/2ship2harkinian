@@ -30,6 +30,9 @@ void InitEnhancements() {
     RegisterSkipMagicArrowEquip();
     RegisterInstantRecall();
 
+    // Fixes
+    RegisterFierceDeityZTargetMovement();
+
     // Graphics
     RegisterDisableBlackBars();
     RegisterHyruleWarriorsStyledLink();
@@ -53,6 +56,7 @@ void InitEnhancements() {
     // Songs
     RegisterEnableSunsSong();
     RegisterPauseOwlWarp();
+    RegisterZoraEggCount();
 
     // Restorations
     RegisterPowerCrouchStab();
