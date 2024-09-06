@@ -1204,6 +1204,12 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
                     sampleDataChunkSize = ALIGN16((numFramesToDecode * frameSize) + SAMPLES_PER_FRAME);
                     sampleDataDmemAddr = DMEM_COMPRESSED_ADPCM_DATA - sampleDataChunkSize;
 
+                    uintptr_t actualAddrLoaded = samplesToLoadAddr - sampleDataChunkAlignPad;
+                    uintptr_t offset = actualAddrLoaded - (uintptr_t)sampleAddr;
+                    if (offset + sampleDataChunkSize > sample->size) {
+                        sampleDataChunkSize -= (offset + sampleDataChunkSize - sample->size);
+                    }
+
                     // BEN: This will crash the asan. We can just ignore alignment since we don't have those strictures.
                     // if (sampleDataChunkSize + sampleAddrOffset > sample->size) {
                     //    sampleDataChunkSize = sample->size - sampleAddrOffset;
