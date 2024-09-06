@@ -285,6 +285,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
             sequence->sequence.seqDataSize = writer.ToVector().size();
         }
     }
+
     return sequence;
 }
 } // namespace SOH

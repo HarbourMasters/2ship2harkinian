@@ -403,7 +403,6 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLSoundFontV0::ReadResource(std
         }
         child = child->NextSiblingElement();
     }
-
     return audioSoundFont;
 }
 

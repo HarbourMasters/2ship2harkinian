@@ -9,6 +9,8 @@
 #define DR_MP3_IMPLEMENTATION
 #include "dr_mp3.h"
 
+#define DR_FLAC_IMPLEMENTATION
+#include "dr_flac.h"
 
 #include "vorbis/vorbisfile.h"
 
@@ -71,7 +73,30 @@ static const ov_callbacks vorbisCallbacks = {
     VorbisCloseCallback,
     VorbisTellCallback,
 };
-#include <chrono>
+
+static void Mp3DecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std::shared_ptr<Ship::File> sampleFile) {
+    drmp3 mp3;
+    drwav_uint64 numFrames;
+    drmp3_bool32 ret =
+       drmp3_init_memory(&mp3, sampleFile->Buffer.get()->data(), sampleFile->Buffer.get()->size(), nullptr);
+    numFrames = drmp3_get_pcm_frame_count(&mp3);
+    drwav_uint64 channels = mp3.channels;
+    drwav_uint64 sampleRate = mp3.sampleRate;
+
+    audioSample->audioSampleData.reserve(numFrames * channels * 2); // 2 for sizeof(s16)
+    drmp3_read_pcm_frames_s16(&mp3, numFrames, (int16_t*)audioSample->audioSampleData.data());
+    audioSample->sample.sampleAddr = audioSample->audioSampleData.data();
+
+}
+
+static void FlacDecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std::shared_ptr<Ship::File> sampleFile) {
+    drflac* flac = drflac_open_memory(sampleFile->Buffer.get()->data(), sampleFile->Buffer.get()->size(), nullptr);
+    drflac_uint64 numFrames = flac->totalPCMFrameCount;
+    audioSample->audioSampleData.reserve(numFrames * flac->channels * 2);
+    drflac_read_pcm_frames_s16(flac, numFrames, (int16_t*)audioSample->audioSampleData.data());
+    audioSample->sample.sampleAddr = audioSample->audioSampleData.data();
+}
+
 static void OggDecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std::shared_ptr<Ship::File> sampleFile) {
         OggVorbis_File vf;
         char dataBuff[4096];
@@ -85,9 +110,6 @@ static void OggDecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std:
         };
         int ret = ov_open_callbacks(&fileData, &vf, nullptr, 0, vorbisCallbacks);
         
-        if (ret < 0) {
-            assert(!"ohno");
-        }
         vorbis_info* vi = ov_info(&vf, -1);
 
         uint64_t numFrames = ov_pcm_total(&vf, -1);
@@ -206,6 +228,8 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
     initData->IsCustom = false;
     initData->ByteOrder = Ship::Endianness::Native;
     auto sampleFile = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->LoadFile(path, initData);
+    // Compressed files can take a really long time to decode (~250ms per). 
+    // This worked when we tested it (09/04/2024) (Works on my machine)
     if (customFormatStr != nullptr && strcmp(customFormatStr, "wav") == 0) {
         drwav wav;
         drwav_uint64 numFrames;
@@ -219,20 +243,16 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
         
         drwav_read_pcm_frames_s16(&wav, numFrames, (int16_t*)audioSample->audioSampleData.data());
     } else if (customFormatStr != nullptr && strcmp(customFormatStr, "mp3") == 0) {
-        drmp3 mp3;
-        drwav_uint64 numFrames;
-        drmp3_bool32 ret =
-            drmp3_init_memory(&mp3, sampleFile->Buffer.get()->data(), sampleFile->Buffer.get()->size(), nullptr);
-        numFrames = drmp3_get_pcm_frame_count(&mp3);
-        drwav_uint64 channels = mp3.channels;
-        drwav_uint64 sampleRate = mp3.sampleRate;
-
-        audioSample->audioSampleData.reserve(numFrames * channels * 2); // 2 for sizeof(s16)
-        drmp3_read_pcm_frames_s16(&mp3, numFrames, (int16_t*)audioSample->audioSampleData.data());
+        audioSample->fileDecoderThread = std::thread(Mp3DecoderWorker, audioSample, sampleFile);
+        audioSample->fileDecoderThread.detach();
+        return audioSample;
     } else if (customFormatStr != nullptr && strcmp(customFormatStr, "ogg") == 0) {
-        // OGGs take a really long time to decode (~250ms per). This worked when we tested it (09/04/2024) (Works on my machine)
-        audioSample->oggLoadThread = std::thread(OggDecoderWorker, audioSample, sampleFile);
-        audioSample->oggLoadThread.detach();
+        audioSample->fileDecoderThread = std::thread(OggDecoderWorker, audioSample, sampleFile);
+        audioSample->fileDecoderThread.detach();
+        return audioSample;
+    } else if (customFormatStr != nullptr && strcmp(customFormatStr, "flac") == 0) {
+        audioSample->fileDecoderThread = std::thread(FlacDecoderWorker, audioSample, sampleFile);
+        audioSample->fileDecoderThread.detach();
         return audioSample;
     }
     else {
