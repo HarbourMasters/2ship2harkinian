@@ -110,7 +110,7 @@ s32 gAudioCtxInitalized = false;
 char** sequenceMap;
 size_t sequenceMapSize;
 u8 seqCachePolicyMap[MAX_AUTHENTIC_SEQID];
-char* fontMap[256];
+char** fontMap;
 
 void AudioLoad_DecreaseSampleDmaTtls(void) {
     u32 i;
@@ -1272,8 +1272,8 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
     char** fntList = ResourceMgr_ListFiles("audio/fonts*", &fntListSize);
     char** customFntList = ResourceMgr_ListFiles("custom/fonts/*", &customFntListSize);
 
-
     gAudioCtx.fontLoadStatus = malloc(customFntListSize + fntListSize);
+    fontMap = calloc(customFntListSize + fntListSize, sizeof(char*));
     for (int i = 0; i < fntListSize; i++) {
         SoundFont* sf = ResourceMgr_LoadAudioSoundFont(fntList[i]);
 
@@ -1292,8 +1292,6 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
 
         char* str = malloc(strlen(customFntList[i - customFontStart]) + 1);
         strcpy(str, customFntList[i - customFontStart]);
-        // BENTODO remove this
-        assert(i < 255);
         fontMap[i] = str;
     }
     free(customFntList);

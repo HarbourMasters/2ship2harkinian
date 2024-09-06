@@ -8,7 +8,7 @@ void AudioPlayback_NoteInitForLayer(Note* note, SequenceLayer* layer);
 
 SoundFont* ResourceMgr_LoadAudioSoundFont(const char* path);
 
-extern char* fontMap[256];
+extern char** fontMap;
 
 void AudioPlayback_InitSampleState(Note* note, NoteSampleState* sampleState, NoteSubAttributes* subAttrs) {
     f32 volLeft;
