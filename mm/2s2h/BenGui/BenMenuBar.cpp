@@ -656,6 +656,14 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Tatl ISG", "gEnhancements.Restorations.TatlISG",
                                     { .tooltip = "Restores Navi ISG from OOT, but now with Tatl." });
 
+            if (UIWidgets::CVarCheckbox(
+                    "Woodfall Mountain Appearance", "gEnhancements.Restorations.WoodfallMountainAppearance",
+                    { .tooltip = "Restores the appearance of Woodfall mountain to not look poisoned "
+                                 "when viewed from Termina Field after clearing Woodfall Temple\n\n"
+                                 "Requires a scene reload to take effect" })) {
+                RegisterWoodfallMountainAppearance();
+            }
+
             ImGui::EndMenu();
         }
 
