@@ -104,7 +104,7 @@ struct WidgetOptions {
     CVarVariant min;
     CVarVariant max;
     CVarVariant defaultVariant;
-    std::map<int32_t, const char*> comboBoxOptions;
+    std::unordered_map<int32_t, const char*> comboBoxOptions;
     ImVec4 color = COLOR_NONE;
     const char* windowName = "";
 };
