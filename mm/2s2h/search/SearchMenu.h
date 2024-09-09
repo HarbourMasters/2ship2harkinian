@@ -59,14 +59,15 @@ typedef enum {
     WIDGET_SLIDER_INT,
     WIDGET_SLIDER_FLOAT,
     WIDGET_BUTTON,
-    WIDGET_COLOR_24,
-    WIDGET_COLOR_32,
+    WIDGET_COLOR_24, // color picker without alpha
+    WIDGET_COLOR_32, // color picker with alpha
     WIDGET_SEARCH,
     WIDGET_SEPARATOR,
     WIDGET_SEPARATOR_TEXT,
     WIDGET_WINDOW_BUTTON,
-    WIDGET_AUDIO_BACKEND,
-    WIDGET_VIDEO_BACKEND
+    WIDGET_AUDIO_BACKEND, // needed because of special operations that can't be handled easily with the normal combobox
+                          // widget
+    WIDGET_VIDEO_BACKEND  // same as above
 } WidgetType;
 
 typedef enum {
@@ -85,13 +86,25 @@ typedef enum {
     DEBUG_LOG_OFF,
 };
 
+// holds the widget values for a widget, contains all CVar types available from LUS. int32_t is used for boolean
+// evaluation
 using CVarVariant = std::variant<int32_t, const char*, float, Color_RGBA8, Color_RGB8>;
 
+// contains various information used to display specific types of widgets
+// `min` and `max` are usually only used by sliders
+// `defaultVariant` can be used by all widgetTypes, but defaults to 0, "", 0.0f, and white respectively, so only needed
+// when you want to change those defaults
+// `comboBoxOptions` is the list of dropdown options to be added to a dropdown.
+// this needs to be a map of int32_t to const char*, but can also be enum values
+// `color` can be used in any way, depending on the widget. color pickers (COLOR_24 and COLOR_32) will eventually
+// use this for storing its current value; WIDGET_SEPARATOR_TEXT uses this to change the text color `windowName`
+// is used when using WIDGET_WINDOW_BUTTON, which optionally draws windows, like Stats, in the menu with a button
+// to pop the window out of the main menu overlay
 struct WidgetOptions {
     CVarVariant min;
     CVarVariant max;
     CVarVariant defaultVariant;
-    std::unordered_map<int32_t, const char*> comboBoxOptions;
+    std::map<int32_t, const char*> comboBoxOptions;
     ImVec4 color = COLOR_NONE;
     const char* windowName = "";
 };
@@ -139,9 +152,23 @@ std::unordered_map<ColorOption, ImVec4> menuTheme = { { COLOR_WHITE, UIWidgets::
                                                       { COLOR_DARK_GREEN, UIWidgets::Colors::DarkGreen },
                                                       { COLOR_YELLOW, UIWidgets::Colors::Yellow } };
 
+// All the info needed for display and search of all widgets in the menu. WidgetName is the label displayed,
+// `widgetCVar` is the string representation of the CVar used to store the widget value
+// `widgetTooltip` is what is displayed when hovering (except when disabled, more on that later)
+// `widgetType` is the WidgetType for the widget, which is what determines how the information is used in the draw
+// function. all of the preceding are required parts for every widget except for the special widgets (backend dropdowns,
+// separators, etc) various parts of widgetOptions are required depending on what widget type you're using
+// `widgetCallback` is a lambda used for running code on widget change
+// `modifierFunc` is a lambda used to determine a widget's status, whether disabled or hidden.
+// Both lambdas accept a `widgetInfo` pointer in case it needs information on the widget for these operations
+// `activeDisables` is a vector of DisableOptions for specifying what reasons a widget is disabled, which are displayed
+// in the disabledTooltip for the widget. Can display multiple reasons. Handling the reasons is done in `modifierFunc`.
+// It is recommended to utilize `disabledInfo`/`DisableReason` to list out all reasons for disabling and isHidden so
+// the info can be shown.
+// `isHidden` just prevents the widget from being drawn under whatever circumstances you specify in the `modifierFunc`
 struct widgetInfo {
-    const char* widgetName;
-    const char* widgetCVar;
+    const char* widgetName; // Used by all widgets
+    const char* widgetCVar; // Used by all widgets except
     const char* widgetTooltip;
     WidgetType widgetType;
     WidgetOptions widgetOptions;
@@ -151,19 +178,31 @@ struct widgetInfo {
     bool isHidden = false;
 };
 
+// `disabledInfo` holds information on various reasons for disabling a widget, as well as an evaluation lambda that is
+// run once per frame to update its status (this is done to prevent dozens of redundant CVarGets in each frame loop)
+// `evaluation` returns a bool which can be determined by whatever code you want that changes its status
+// `reason` is the text displayed in the disabledTooltip when a widget is disabled by a particular DisableReason
+// `active` is what's referenced when determining disabled status for a widget that uses this This can also be used to
+// hold reasons to hide widgets so taht their evaluations are also only run once per frame
 struct disabledInfo {
     ConditionFunc evaluation;
     const char* reason;
     bool active = false;
-    int32_t state = 0;
 };
 
+// Contains the name displayed in the sidebar (label), the number of columns to use in drawing (columnCount; for visual
+// separation, 1-3), and nested vectors of the widgets, grouped by column (columnWidgets). The number of widget vectors
+// added to the column groups does not need to match the specified columnCount, e.g. you can have one vector added to
+// the sidebar, but still separate the window into 3 columns and display only in the first column
 struct SidebarEntry {
     std::string label;
     uint32_t columnCount;
     std::vector<std::vector<widgetInfo>> columnWidgets;
 };
 
+// Contains entries for what's listed in the header at the top, including the name displayed on the top bar (label),
+// a vector of the SidebarEntries for that header entry, and the name of the cvar used to track what sidebar entry is
+// the last viewed for that header.
 struct MainMenuEntry {
     std::string label;
     std::vector<SidebarEntry> sidebarEntries;
