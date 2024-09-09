@@ -751,7 +751,7 @@ void AddEnhancements() {
                 WIDGET_CHECKBOX } } } });
     // Graphics Enhancements
     enhancementsSidebar.push_back(
-        { "Gameplay",
+        { "Graphics",
           3,
           { { { .widgetName = "Clock", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Clock Type",
