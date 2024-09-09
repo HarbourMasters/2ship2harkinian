@@ -358,7 +358,12 @@ void GameInteractor_ExecuteOnItemGive(u8 item);
 bool GameInteractor_Should(GIVanillaBehavior flag, bool result, void* optionalArg, ...);
 #define REGISTER_VB_SHOULD(flag, body)                                                      \
     GameInteractor::Instance->RegisterGameHookForID<GameInteractor::ShouldVanillaBehavior>( \
-        flag, [](GIVanillaBehavior _, bool* should, void* opt, va_list originalArgs) body)
+        flag, [](GIVanillaBehavior _, bool* should, void* opt, va_list originalArgs) {      \
+            va_list args;                                                                   \
+            va_copy(args, originalArgs);                                                    \
+            body;                                                                           \
+            va_end(args);                                                                   \
+        })
 
 int GameInteractor_InvertControl(GIInvertType type);
 uint32_t GameInteractor_Dpad(GIDpadType type, uint32_t buttonCombo);

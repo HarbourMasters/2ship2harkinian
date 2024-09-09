@@ -209,19 +209,14 @@ void Register3DItemDrops() {
                                                                                            DrawSlime3DItemVArgsTest);
 
     REGISTER_VB_SHOULD(GI_VB_DRAW_SLIME_BODY_ITEM, {
-        va_list argsCopy;
-        va_copy(argsCopy, originalArgs);
-
-        int* num1 = va_arg(argsCopy, int*);
-        int* num2 = va_arg(argsCopy, int*);
-        float* num3 = va_arg(argsCopy, float*);
-        double num4 = va_arg(argsCopy, double);
+        int* num1 = va_arg(args, int*);
+        int* num2 = va_arg(args, int*);
+        float* num3 = va_arg(args, float*);
+        double num4 = va_arg(args, double);
 
         assert(*num1 == 17);
         assert(*num2 == 59);
         assert(*num3 == 80.0f);
         assert(num4 == 120.0f);
-
-        va_end(argsCopy);
     });
 }
