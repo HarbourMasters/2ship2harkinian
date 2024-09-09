@@ -1,5 +1,6 @@
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
+#include "2s2h/Enhancements/Graphics/3DItemDrops.h"
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "2s2h/BenGui/BenMenuBar.h"
 #include <variant>
@@ -245,6 +246,7 @@ static const std::unordered_map<int32_t, const char*> alwaysWinDoggyraceOptions 
 
 static const std::unordered_map<int32_t, const char*> clockTypeOptions = {
     { CLOCK_TYPE_ORIGINAL, "Original" },
+    { CLOCK_TYPE_3DS, "MM3D style" },
     { CLOCK_TYPE_TEXT_BASED, "Text only" },
 };
 
@@ -281,6 +283,12 @@ static std::unordered_map<Ship::WindowBackend, const char*> windowBackendsMap = 
     { Ship::WindowBackend::FAST3D_DXGI_DX11, "DirectX" },
     { Ship::WindowBackend::FAST3D_SDL_OPENGL, "OpenGL" },
     { Ship::WindowBackend::FAST3D_SDL_METAL, "Metal" },
+};
+
+static const std::unordered_map<int32_t, const char*> timeStopOptions = {
+    { TIME_STOP_OFF, "Off" },
+    { TIME_STOP_TEMPLES, "Temples" },
+    { TIME_STOP_TEMPLES_DUNGEONS, "Temples + Mini Dungeons" },
 };
 
 void FreeLookPitchMinMax() {
@@ -668,7 +676,17 @@ void AddEnhancements() {
                 "Holding L makes you float into the air.",
                 WIDGET_CHECKBOX,
                 {},
-                [](widgetInfo& info) { RegisterMoonJumpOnL(); } } } } });
+                [](widgetInfo& info) { RegisterMoonJumpOnL(); } },
+              { "Stop Time in Dungeons",
+                "gCheats.TempleTimeStop",
+                "Stops time from advancing in selected areas. Requires a room change to update.\n\n"
+                    "- Off: Vanilla behaviour.\n"
+                    "- Temples: Stops time in Woodfall, Snowhead, Great Bay, and Stone Tower Temples.\n"
+                    "- Temples + Mini Dungeons: In addition to the above temples, stops time in both Spider "
+                    "Houses, Pirate's Fortress, Beneath the Well, Ancient Castle of Ikana, and Secret Shrine.",
+                WIDGET_COMBOBOX,
+                { .comboBoxOptions = timeStopOptions }
+              } } } });
     // Gameplay Enhancements
     enhancementsSidebar.push_back(
         { "Gameplay",
@@ -795,6 +813,13 @@ void AddEnhancements() {
                 WIDGET_SLIDER_INT,
                 { 0, 255, 180 } },
               { .widgetName = "Other", .widgetType = WIDGET_SEPARATOR_TEXT },
+              { "3D Item Drops", "gEnhancements.Graphics.3DItemDrops",
+                "Makes item drops 3D", WIDGET_CHECKBOX,
+                {},
+                [](widgetInfo& info) {
+                    Register3DItemDrops();
+                }
+              },
               { "Authentic Logo", "gEnhancements.Graphics.AuthenticLogo",
                 "Hide the game version and build details and display the authentic "
                 "model and texture on the boot logo start screen",
@@ -812,6 +837,10 @@ void AddEnhancements() {
               { "Disable Scene Geometry Distance Check", "gEnhancements.Graphics.DisableSceneGeometryDistanceCheck",
                 "Disables the distance check for scene geometry, allowing it to be drawn no matter how far "
                 "away it is from the player. This may have unintended side effects.",
+                WIDGET_CHECKBOX },
+              { "Widescreen Actor Culling", "gEnhancements.Graphics.ActorCullingAccountsForWidescreen",
+                "Adjusts the culling planes to account for widescreen resolutions. "
+                "This may have unintended side effects.", 
                 WIDGET_CHECKBOX },
               { "Increase Actor Draw Distance: %dx",
                 "gEnhancements.Graphics.IncreaseActorDrawDistance",
@@ -844,6 +873,14 @@ void AddEnhancements() {
                 "Removes the delay when using transormation masks.", WIDGET_CHECKBOX },
               { "Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere",
                 "Allow using Fierce Deity's mask outside of boss rooms.", WIDGET_CHECKBOX },
+              { "Persistent Bunny Hood", "gEnhancements.Masks.PersistentBunnyHood.Enabled",
+                "Permanantly toggle a speed boost from the bunny hood by pressing "
+                "'A' on it in the mask menu.",
+                WIDGET_CHECKBOX,
+                {},
+                [](widgetInfo& info) {
+                    UpdatePersistentMasksState();
+                } },
               { "No Blast Mask Cooldown", "gEnhancements.Masks.NoBlastMaskCooldown",
                 "Eliminates the Cooldown between Blast Mask usage.", WIDGET_CHECKBOX } },
             // Song Enhancements
@@ -855,6 +892,14 @@ void AddEnhancements() {
                 WIDGET_CHECKBOX },
               { "Dpad Ocarina", "gEnhancements.Playback.DpadOcarina", "Enables using the Dpad for Ocarina playback.",
                 WIDGET_CHECKBOX },
+              { "Pause Owl Warp", "gEnhancements.Songs.PauseOwlWarp",
+                "Allows the player to use the pause menu map to owl warp instead of "
+                "having to play the Song of Soaring.",
+                WIDGET_CHECKBOX },
+              { "Zora Eggs For Bossa Nova", "gEnhancements.Songs.ZoraEggCount",
+                "The number of eggs required to unlock new wave bossa nova.",
+                WIDGET_SLIDER_INT,
+                { 1, 7, 7 } },
               { "Prevent Dropped Ocarina Inputs", "gEnhancements.Playback.NoDropOcarinaInput",
                 "Prevent dropping inputs when playing the ocarina quickly.", WIDGET_CHECKBOX } } } });
     enhancementsSidebar.push_back(
@@ -885,12 +930,14 @@ void AddEnhancements() {
                 WIDGET_CHECKBOX },
               { "Fast Text", "gEnhancements.Dialogue.FastText",
                 "Speeds up text rendering, and enables holding of B progress to next message.", WIDGET_CHECKBOX },
-              {
-                  "Fast Magic Arrow Equip Animation",
-                  "gEnhancements.Equipment.MagicArrowEquipSpeed",
-                  "Removes the animation for equipping Magic Arrows.",
-                  WIDGET_CHECKBOX,
-              } } } });
+              { "Fast Magic Arrow Equip Animation",
+                "gEnhancements.Equipment.MagicArrowEquipSpeed",
+                "Removes the animation for equipping Magic Arrows.",
+                WIDGET_CHECKBOX },
+              { "Instant Fin Boomerangs Recall", "gEnhancements.PlayerActions.InstantRecall",
+                "Pressing B will instantly recall the fin boomerang back to Zora Link after they are thrown.",
+                WIDGET_CHECKBOX }
+            } } });
     enhancementsSidebar.push_back(
         { "Fixes",
           3,
@@ -899,6 +946,10 @@ void AddEnhancements() {
               { "Fix Ammo Count Color", "gFixes.FixAmmoCountEnvColor",
                 "Fixes a missing gDPSetEnvColor, which causes the ammo count to be "
                 "the wrong color prior to obtaining magic or other conditions.",
+                WIDGET_CHECKBOX },
+              { "Fix Fierce Deity Z-Target movement",
+                "gEnhancements.Fixes.FierceDeityZTargetMovement",
+                "Fixes Fierce Deity movement being choppy when Z-targeting",
                 WIDGET_CHECKBOX },
               { "Fix Hess and Weirdshot Crash", "gEnhancements.Fixes.HessCrash",
                 "Fixes a crash that can occur when performing a HESS or Weirdshot.", WIDGET_CHECKBOX },
@@ -919,7 +970,16 @@ void AddEnhancements() {
               { "Side Rolls", "gEnhancements.Restorations.SideRoll", "Restores side rolling from OoT.",
                 WIDGET_CHECKBOX },
               { "Tatl ISG", "gEnhancements.Restorations.TatlISG", "Restores Navi ISG from OoT, but now with Tatl.",
-                WIDGET_CHECKBOX } } } });
+                WIDGET_CHECKBOX },
+              { "Woodfall Mountain Appearance", "gEnhancements.Restorations.WoodfallMountainAppearance",
+                "Restores the appearance of Woodfall mountain to not look poisoned "
+                "when viewed from Termina Field after clearing Woodfall Temple\n\n"
+                "Requires a scene reload to take effect",
+                WIDGET_CHECKBOX,
+                {},
+                [](widgetInfo& info) {
+                    RegisterWoodfallMountainAppearance();
+                }} } } });
     enhancementsSidebar.push_back({ "HUD Editor",
                                     2,
                                     { // HUD Editor

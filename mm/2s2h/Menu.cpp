@@ -331,8 +331,8 @@ void BenMenu::DrawElement() {
     const char* sidebarCvar = menuEntries.at(headerIndex).sidebarCvar;
 
     uint8_t sectionIndex = CVarGetInteger(sidebarCvar, 0);
-    if (sectionIndex > sidebar.size())
-        sectionIndex = sidebar.size();
+    if (sectionIndex > sidebar.size() - 1)
+        sectionIndex = sidebar.size() - 1;
     if (sectionIndex < 0)
         sectionIndex = 0;
     float sectionCenterX = pos.x + (sidebarWidth / 2);
