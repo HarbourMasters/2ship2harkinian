@@ -246,7 +246,9 @@ void HudEditorWindow::DrawElement() {
         }
         if (CVarGetInteger(hudEditorElements[i].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) >=
             HUD_EDITOR_ELEMENT_MODE_MOVABLE_43) {
-            if (ImGui::BeginTable("##table", 3, ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_NoBordersInBody)) {
+            if (ImGui::BeginTable("##table", 3,
+                                  ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_NoBordersInBody |
+                                      ImGuiTableFlags_SizingStretchSame)) {
                 ImGui::TableNextColumn();
                 UIWidgets::CVarSliderInt("X", hudEditorElements[i].xCvar, -10, 330, hudEditorElements[i].defaultX,
                                          {

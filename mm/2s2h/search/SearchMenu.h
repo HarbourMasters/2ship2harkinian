@@ -1012,7 +1012,7 @@ void AddEnhancements() {
                 {},
                 [](widgetInfo& info) { RegisterWoodfallMountainAppearance(); } } } } });
     enhancementsSidebar.push_back({ "HUD Editor",
-                                    2,
+                                    1,
                                     { // HUD Editor
                                       { { "Popout HUD Editor",
                                           "gWindows.HudEditor",
@@ -1121,7 +1121,7 @@ void AddDevTools() {
               { "Advance (Hold)", "", "Advance frames while the button is held.", WIDGET_BUTTON } } } });
     // dev tools windows
     devToolsSidebar.push_back({ "Collision Viewer",
-                                2,
+                                1,
                                 { { { "Popout Collision Viewer",
                                       "gWindows.CollisionViewer",
                                       "Makes collision visible on screen",
@@ -1129,7 +1129,7 @@ void AddDevTools() {
                                       { .windowName = "Collision Viewer" } } } } });
     devToolsSidebar.push_back(
         { "Stats",
-          2,
+          1,
           { { { "Popout Stats",
                 "gOpenWindows.Stats",
                 "Shows the stats window, with your FPS and frametimes, and the OS you're playing on",
@@ -1137,7 +1137,7 @@ void AddDevTools() {
                 { .windowName = "Stats" } } } } });
     devToolsSidebar.push_back(
         { "Console",
-          2,
+          1,
           { { { "Popout Console",
                 "gOpenWindows.Console",
                 "Enables the console window, allowing you to input commands. Type help for some examples",
@@ -1145,28 +1145,28 @@ void AddDevTools() {
                 { .windowName = "Console" } } } } });
     devToolsSidebar.push_back(
         { "Gfx Debugger",
-          2,
+          1,
           { { { "Popout Gfx Debugger",
                 "gOpenWindows.GfxDebugger",
                 "Enables the Gfx Debugger window, allowing you to input commands, type help for some examples",
                 WIDGET_WINDOW_BUTTON,
                 { .windowName = "GfxDebuggerWindow" } } } } });
     devToolsSidebar.push_back({ "Save Editor",
-                                2,
+                                1,
                                 { { { "Popout Save Editor",
                                       "gWindows.SaveEditor",
                                       "Enables the Save Editor window, allowing you to edit your save file",
                                       WIDGET_WINDOW_BUTTON,
                                       { .windowName = "Save Editor" } } } } });
     devToolsSidebar.push_back({ "Actor Viewer",
-                                2,
+                                1,
                                 { { { "Popout Actor Viewer",
                                       "gWindows.ActorViewer",
                                       "Enables the Actor Viewer window, allowing you to view actors in the world.",
                                       WIDGET_WINDOW_BUTTON,
                                       { .windowName = "Actor Viewer" } } } } });
     devToolsSidebar.push_back({ "Event Log",
-                                2,
+                                1,
                                 { { { "Popout Event Log",
                                       "gWindows.EventLog",
                                       "Enables the event log window",
