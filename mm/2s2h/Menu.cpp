@@ -340,7 +340,7 @@ void BenMenu::DrawElement() {
     ImGui::SetNextWindowSizeConstraints({ sidebarWidth, 0 }, { sidebarWidth, columnHeight });
     ImGui::BeginChild((menuEntries.at(headerIndex).label + " Section").c_str(), { sidebarWidth, columnHeight * 3 },
                       ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize, ImGuiWindowFlags_NoTitleBar);
-    for (int i = 0; i < sidebar.size(); i++) {
+    for (size_t i = 0; i < sidebar.size(); i++) {
         auto sidebarEntry = sidebar.at(i);
         uint8_t nextIndex = i;
         if (sectionIndex != i) {
@@ -369,7 +369,7 @@ void BenMenu::DrawElement() {
     float sectionWidth = menuSize.x - sidebarWidth - 4 - style.ItemSpacing.x * 4;
     std::string sectionMenuId = sidebar.at(sectionIndex).label + " Settings";
     int columns = sidebar.at(sectionIndex).columnCount;
-    int columnFuncs = sidebar.at(sectionIndex).columnWidgets.size();
+    size_t columnFuncs = sidebar.at(sectionIndex).columnWidgets.size();
     if (windowWidth < 800) {
         columns = 1;
     }
