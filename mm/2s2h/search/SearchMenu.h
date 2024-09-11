@@ -31,7 +31,7 @@ typedef enum {
     DISABLE_FOR_FREE_LOOK_ON,
     DISABLE_FOR_FREE_LOOK_OFF,
     DISABLE_FOR_AUTO_SAVE_OFF,
-    DISABLE_FOR_SAVE_NOT_LOADED,
+    DISABLE_FOR_NULL_PLAY_STATE,
     DISABLE_FOR_DEBUG_MODE_OFF,
     DISABLE_FOR_NO_VSYNC,
     DISABLE_FOR_NO_WINDOWED_FULLSCREEN,
@@ -39,12 +39,14 @@ typedef enum {
     DISABLE_FOR_NOT_DIRECTX,
     DISABLE_FOR_MATCH_REFRESH_RATE_ON,
     DISABLE_FOR_MOTION_BLUR_MODE,
-    DISABLE_FOR_MOTION_BLUR_OFF
+    DISABLE_FOR_MOTION_BLUR_OFF,
+    DISABLE_FOR_FRAME_ADVANCE_OFF
 } DisableOption;
 
 struct widgetInfo;
+struct disabledInfo;
 using VoidFunc = void (*)();
-using ConditionFunc = bool (*)();
+using DisableInfoFunc = bool (*)(disabledInfo&);
 using DisableVec = std::vector<DisableOption>;
 using WidgetFunc = void (*)(widgetInfo&);
 std::string disabledTempTooltip;
@@ -58,6 +60,10 @@ typedef enum {
     WIDGET_COMBOBOX,
     WIDGET_SLIDER_INT,
     WIDGET_SLIDER_FLOAT,
+    WIDGET_CVAR_CHECKBOX,
+    WIDGET_CVAR_COMBOBOX,
+    WIDGET_CVAR_SLIDER_INT,
+    WIDGET_CVAR_SLIDER_FLOAT,
     WIDGET_BUTTON,
     WIDGET_COLOR_24, // color picker without alpha
     WIDGET_COLOR_32, // color picker with alpha
@@ -105,8 +111,12 @@ struct WidgetOptions {
     CVarVariant max;
     CVarVariant defaultVariant;
     std::unordered_map<int32_t, const char*> comboBoxOptions;
+    std::variant<bool*, int32_t*, float*> valuePointer;
+    ImVec2 size = UIWidgets::Sizes::Fill;
     ImVec4 color = COLOR_NONE;
     const char* windowName = "";
+    UIWidgets::LabelPosition labelPosition = UIWidgets::LabelPosition::None;
+    bool sameLine = false;
 };
 
 bool operator==(Color_RGB8 const& l, Color_RGB8 const& r) noexcept {
@@ -174,6 +184,7 @@ struct widgetInfo {
     WidgetOptions widgetOptions;
     WidgetFunc widgetCallback = nullptr;
     WidgetFunc modifierFunc = nullptr;
+    VoidFunc postFunc = nullptr;
     DisableVec activeDisables = {};
     bool isHidden = false;
 };
@@ -185,9 +196,10 @@ struct widgetInfo {
 // `active` is what's referenced when determining disabled status for a widget that uses this This can also be used to
 // hold reasons to hide widgets so taht their evaluations are also only run once per frame
 struct disabledInfo {
-    ConditionFunc evaluation;
+    DisableInfoFunc evaluation;
     const char* reason;
     bool active = false;
+    int32_t value = 0;
 };
 
 // Contains the name displayed in the sidebar (label), the number of columns to use in drawing (columnCount; for visual
@@ -221,47 +233,52 @@ std::vector<SidebarEntry> settingsSidebar;
 std::vector<SidebarEntry> enhancementsSidebar;
 std::vector<SidebarEntry> devToolsSidebar;
 
-static std::pair<DisableOption, disabledInfo> disabledMap[] = {
+static std::map<DisableOption, disabledInfo> disabledMap = {
     { DISABLE_FOR_CAMERAS_OFF,
-      { []() -> bool {
+      { [](disabledInfo& info) -> bool {
            return !CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0) &&
                   !CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0);
        },
         "Both Debug Camera and Free Look are Disabled" } },
     { DISABLE_FOR_DEBUG_CAM_ON,
-      { []() -> bool { return CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0); },
+      { [](disabledInfo& info) -> bool { return CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0); },
         "Debug Camera is Enabled" } },
     { DISABLE_FOR_DEBUG_CAM_OFF,
-      { []() -> bool { return !CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0); },
+      { [](disabledInfo& info) -> bool { return !CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0); },
         "Debug Camera is Disabled" } },
     { DISABLE_FOR_FREE_LOOK_ON,
-      { []() -> bool { return CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0); }, "Free Look is Enabled" } },
+      { [](disabledInfo& info) -> bool { return CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0); }, "Free Look is Enabled" } },
     { DISABLE_FOR_FREE_LOOK_OFF,
-      { []() -> bool { return !CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0); },
+      { [](disabledInfo& info) -> bool { return !CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0); },
         "Free Look is Disabled" } },
     { DISABLE_FOR_AUTO_SAVE_OFF,
-      { []() -> bool { return !CVarGetInteger("gEnhancements.Saving.Autosave", 0); }, "AutoSave is Disabled" } },
-    { DISABLE_FOR_SAVE_NOT_LOADED, { []() -> bool { return gPlayState == NULL; }, "Save Not Loaded" } },
+      { [](disabledInfo& info) -> bool { return !CVarGetInteger("gEnhancements.Saving.Autosave", 0); }, "AutoSave is Disabled" } },
+    { DISABLE_FOR_NULL_PLAY_STATE, { [](disabledInfo& info) -> bool { return gPlayState == NULL; }, "Save Not Loaded" } },
     { DISABLE_FOR_DEBUG_MODE_OFF,
-      { []() -> bool { return !CVarGetInteger("gDeveloperTools.DebugEnabled", 0); }, "Save Not Loaded" } },
+      { [](disabledInfo& info) -> bool { return !CVarGetInteger("gDeveloperTools.DebugEnabled", 0); }, "Save Not Loaded" } },
     { DISABLE_FOR_NO_VSYNC,
-      { []() -> bool { return !Ship::Context::GetInstance()->GetWindow()->CanDisableVerticalSync(); },
+      { [](disabledInfo& info) -> bool { return !Ship::Context::GetInstance()->GetWindow()->CanDisableVerticalSync(); },
         "Disabling VSync not supported" } },
     { DISABLE_FOR_NO_WINDOWED_FULLSCREEN,
-      { []() -> bool { return !Ship::Context::GetInstance()->GetWindow()->SupportsWindowedFullscreen(); },
+      { [](disabledInfo& info) -> bool { return !Ship::Context::GetInstance()->GetWindow()->SupportsWindowedFullscreen(); },
         "Windowed Fullscreen not supported" } },
     { DISABLE_FOR_NO_MULTI_VIEWPORT,
-      { []() -> bool { return !Ship::Context::GetInstance()->GetWindow()->GetGui()->SupportsViewports(); },
+      { [](disabledInfo& info) -> bool { return !Ship::Context::GetInstance()->GetWindow()->GetGui()->SupportsViewports(); },
         "Multi-viewports not supported" } },
     { DISABLE_FOR_MATCH_REFRESH_RATE_ON,
-      { []() -> bool { return !CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0); },
+      { [](disabledInfo& info) -> bool { return !CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0); },
         "Free Look is Disabled" } },
     { DISABLE_FOR_MOTION_BLUR_MODE,
-      { []() -> bool { return !CVarGetInteger("gEnhancements.Graphics.MotionBlur.Mode", 0); },
-        "Free Look is Disabled" } },
+      { [](disabledInfo& info) -> bool {
+        info.value = CVarGetInteger("gEnhancements.Graphics.MotionBlur.Mode", 0);
+        return !info.value; },
+        "Motion Blur Mode mismatch" } },
     { DISABLE_FOR_MOTION_BLUR_OFF,
-      { []() -> bool { return !CVarGetInteger("gEnhancements.Graphics.MotionBlur.Toggle", 0); },
-        "Free Look is Disabled" } }
+      { [](disabledInfo& info) -> bool { return !R_MOTION_BLUR_ENABLED; },
+        "Motion Blur is Disabled" } },
+    { DISABLE_FOR_FRAME_ADVANCE_OFF,
+      { [](disabledInfo& info) -> bool { return !(gPlayState != nullptr && gPlayState->frameAdvCtx.enabled); },
+        "Frame Advance is Disabled" } }
 };
 
 std::unordered_map<int32_t, const char*> menuThemeOptions = {
@@ -350,18 +367,18 @@ void AddSettings() {
           { { { "Menu Theme",
                 "gSettings.MenuTheme",
                 "Changes the Theme of the Menu Widgets.",
-                WIDGET_COMBOBOX,
+                WIDGET_CVAR_COMBOBOX,
                 { .comboBoxOptions = menuThemeOptions } },
 #if not defined(__SWITCH__) and not defined(__WIIU__)
               { "Menubar Controller Navigation", CVAR_IMGUI_CONTROLLER_NAV,
                 "Allows controller navigation of the SOH menu bar (Settings, Enhancements,...)\nCAUTION: "
                 "This will disable game inputs while the menubar is visible.\n\nD-pad to move between "
                 "items, A to select, and X to grab focus on the menu bar",
-                WIDGET_CHECKBOX },
+                WIDGET_CVAR_CHECKBOX },
               { "Cursor Always Visible",
                 "gSettings.CursorVisibility",
                 "Makes the cursor always visible, even in full screen.",
-                WIDGET_CHECKBOX,
+                WIDGET_CVAR_CHECKBOX,
                 {},
                 [](widgetInfo& info) {
                     Ship::Context::GetInstance()->GetWindow()->SetForceCursorVisibility(
@@ -371,7 +388,7 @@ void AddSettings() {
               { "Hide Menu Hotkey Text", "gSettings.DisableMenuShortcutNotify",
                 "Prevents showing the text telling you the shortcut to open the menu\n"
                 "when the menu isn't open.",
-                WIDGET_CHECKBOX } } } });
+                WIDGET_CVAR_CHECKBOX } } } });
     // Audio Settings
     settingsSidebar.push_back(
         { "Audio",
@@ -379,12 +396,12 @@ void AddSettings() {
           { { { "Master Volume: %.2f%%",
                 "gSettings.Audio.MasterVolume",
                 "Adjust overall sound volume.",
-                WIDGET_SLIDER_FLOAT,
+                WIDGET_CVAR_SLIDER_FLOAT,
                 { 0.0f, 100.0f, 100.0f } },
               { "Main Music Volume: %.2f%%",
                 "gSettings.Audio.MainMusicVolume",
                 "Adjust the Background Music volume.",
-                WIDGET_SLIDER_FLOAT,
+                WIDGET_CVAR_SLIDER_FLOAT,
                 { 0.0f, 100.0f, 100.0f },
                 [](widgetInfo& info) {
                     AudioSeq_SetPortVolumeScale(SEQ_PLAYER_BGM_MAIN,
@@ -393,7 +410,7 @@ void AddSettings() {
               { "Sub Music Volume: %.2f%%",
                 "gSettings.Audio.SubMusicVolume",
                 "Adjust the Sub Music volume.",
-                WIDGET_SLIDER_FLOAT,
+                WIDGET_CVAR_SLIDER_FLOAT,
                 { 0.0f, 100.0f, 100.0f },
                 [](widgetInfo& info) {
                     AudioSeq_SetPortVolumeScale(SEQ_PLAYER_BGM_SUB,
@@ -402,7 +419,7 @@ void AddSettings() {
               { "Sound Effects Volume: %.2f%%",
                 "gSettings.Audio.SoundEffectsVolume",
                 "Adjust the Sound Effects volume.",
-                WIDGET_SLIDER_FLOAT,
+                WIDGET_CVAR_SLIDER_FLOAT,
                 { 0.0f, 100.0f, 100.0f },
                 [](widgetInfo& info) {
                     AudioSeq_SetPortVolumeScale(SEQ_PLAYER_SFX,
@@ -411,7 +428,7 @@ void AddSettings() {
               { "Fanfare Volume: %.2f%%",
                 "gSettings.Audio.FanfareVolume",
                 "Adjust the Fanfare volume.",
-                WIDGET_SLIDER_FLOAT,
+                WIDGET_CVAR_SLIDER_FLOAT,
                 { 0.0f, 100.0f, 100.0f },
                 [](widgetInfo& info) {
                     AudioSeq_SetPortVolumeScale(SEQ_PLAYER_FANFARE,
@@ -420,7 +437,7 @@ void AddSettings() {
               { "Ambience Volume: %.2f%%",
                 "gSettings.Audio.AmbienceVolume",
                 "Adjust the Ambient Sound volume.",
-                WIDGET_SLIDER_FLOAT,
+                WIDGET_CVAR_SLIDER_FLOAT,
                 { 0.0f, 100.0f, 100.0f },
                 [](widgetInfo& info) {
                     AudioSeq_SetPortVolumeScale(SEQ_PLAYER_AMBIENCE,
@@ -447,7 +464,7 @@ void AddSettings() {
           { { { "Toggle Fullscreen",
                 "gSettings.Fullscreen",
                 "Toggles Fullscreen On/Off.",
-                WIDGET_CHECKBOX,
+                WIDGET_CVAR_CHECKBOX,
                 {},
                 [](widgetInfo& info) { Ship::Context::GetInstance()->GetWindow()->ToggleFullscreen(); } },
 #ifndef __APPLE__
@@ -455,7 +472,7 @@ void AddSettings() {
                 CVAR_INTERNAL_RESOLUTION,
                 "Multiplies your output resolution by the value inputted, as a more intensive but effective "
                 "form of anti-aliasing.",
-                WIDGET_SLIDER_FLOAT,
+                WIDGET_CVAR_SLIDER_FLOAT,
                 { 50.0f, 200.0f, 100.0f },
                 [](widgetInfo& info) {
                     Ship::Context::GetInstance()->GetWindow()->SetResolutionMultiplier(
@@ -468,7 +485,7 @@ void AddSettings() {
                 "Activates MSAA (multi-sample anti-aliasing) from 2x up to 8x, to smooth the edges of rendered "
                 "geometry.\n"
                 "Higher sample count will result in smoother edges on models, but may reduce performance.",
-                WIDGET_SLIDER_INT,
+                WIDGET_CVAR_SLIDER_INT,
                 { 1, 8, 1 },
                 [](widgetInfo& info) {
                     Ship::Context::GetInstance()->GetWindow()->SetMsaaLevel(CVarGetInteger(CVAR_MSAA_VALUE, 1));
@@ -478,7 +495,7 @@ void AddSettings() {
               { "Current FPS: %d",
                 "gInterpolationFPS",
                 tooltip.c_str(),
-                WIDGET_SLIDER_INT,
+                WIDGET_CVAR_SLIDER_INT,
                 { 20, maxFps, 20 },
                 [](widgetInfo& info) {
                     int32_t defaultVariant = std::get<int32_t>(info.widgetOptions.defaultVariant);
@@ -489,7 +506,7 @@ void AddSettings() {
                     }
                 },
                 [](widgetInfo& info) {
-                    if (disabledMap[DISABLE_FOR_MATCH_REFRESH_RATE_ON].second.active)
+                    if (disabledMap.at(DISABLE_FOR_MATCH_REFRESH_RATE_ON).active)
                         info.activeDisables.push_back(DISABLE_FOR_MATCH_REFRESH_RATE_ON);
                 } },
               { "Match Refresh Rate",
@@ -505,18 +522,20 @@ void AddSettings() {
                     }
                 },
                 [](widgetInfo& info) {
-                    if (disabledMap[DISABLE_FOR_NOT_DIRECTX].second.active)
+                    if (disabledMap.at(DISABLE_FOR_NOT_DIRECTX).active) {
                         info.isHidden = true;
+                    }
                 } },
               { "Match Refresh Rate",
                 "gMatchRefreshRate",
                 "Matches interpolation value to the current game's window refresh rate.",
-                WIDGET_CHECKBOX,
+                WIDGET_CVAR_CHECKBOX,
                 {},
                 nullptr,
                 [](widgetInfo& info) {
-                    if (!disabledMap[DISABLE_FOR_NOT_DIRECTX].second.active)
+                    if (!disabledMap.at(DISABLE_FOR_NOT_DIRECTX).active) {
                         info.isHidden = true;
+                    }
                 } },
               { "Jitter fix : >= % d FPS",
                 "gExtraLatencyThreshold",
@@ -524,38 +543,38 @@ void AddSettings() {
                 "lag (e.g. 16.6 ms for 60 FPS) in order to avoid jitter. This setting allows the "
                 "CPU to work on one frame while GPU works on the previous frame.\nThis setting "
                 "should be used when your computer is too slow to do CPU + GPU work in time.",
-                WIDGET_SLIDER_INT,
+                WIDGET_CVAR_SLIDER_INT,
                 { 0, 360, 80 },
                 nullptr,
-                [](widgetInfo& info) { info.isHidden = disabledMap[DISABLE_FOR_NOT_DIRECTX].second.active; } },
+                [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_NOT_DIRECTX).active; } },
               { "Renderer API (Needs reload)", NULL, "Sets the renderer API used by the game.", WIDGET_VIDEO_BACKEND },
               { "Enable Vsync",
                 CVAR_VSYNC_ENABLED,
                 "Enables Vsync.",
-                WIDGET_CHECKBOX,
+                WIDGET_CVAR_CHECKBOX,
                 {},
                 nullptr,
-                [](widgetInfo& info) { info.isHidden = disabledMap[DISABLE_FOR_NO_VSYNC].second.active; } },
+                [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_NO_VSYNC).active; } },
               { "Windowed Fullscreen",
                 CVAR_SDL_WINDOWED_FULLSCREEN,
                 "Enables Windowed Fullscreen Mode.",
-                WIDGET_CHECKBOX,
+                WIDGET_CVAR_CHECKBOX,
                 {},
                 nullptr,
                 [](widgetInfo& info) {
-                    info.isHidden = disabledMap[DISABLE_FOR_NO_WINDOWED_FULLSCREEN].second.active;
+                    info.isHidden = disabledMap.at(DISABLE_FOR_NO_WINDOWED_FULLSCREEN).active;
                 } },
               { "Allow multi-windows",
                 CVAR_ENABLE_MULTI_VIEWPORTS,
                 "Allows multiple windows to be opened at once. Requires a reload to take effect.",
-                WIDGET_CHECKBOX,
+                WIDGET_CVAR_CHECKBOX,
                 {},
                 nullptr,
-                [](widgetInfo& info) { info.isHidden = disabledMap[DISABLE_FOR_NO_MULTI_VIEWPORT].second.active; } },
+                [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_NO_MULTI_VIEWPORT).active; } },
               { "Texture Filter (Needs reload)",
                 CVAR_TEXTURE_FILTER,
                 "Sets the applied Texture Filtering.",
-                WIDGET_COMBOBOX,
+                WIDGET_CVAR_COMBOBOX,
                 { .comboBoxOptions = textureFilteringMap } } } } });
     // Input Editor
     settingsSidebar.push_back({ "Input Editor",
@@ -564,8 +583,9 @@ void AddSettings() {
                                       "gWindows.BenInputEditor",
                                       "Enables the separate Input Editor window.",
                                       WIDGET_WINDOW_BUTTON,
-                                      { .windowName = "2S2H Input Editor" } } } } });
+                                      { .size = UIWidgets::Sizes::Inline, .windowName = "2S2H Input Editor" } } } } });
 }
+int32_t motionBlurStrength;
 
 void AddEnhancements() {
     // Camera Snap Fix
@@ -576,7 +596,7 @@ void AddEnhancements() {
               { "Fix Targetting Camera Snap",
                 "gEnhancements.Camera.FixTargettingCameraSnap",
                 "Fixes the camera snap that occurs when you are moving and press the targetting button.",
-                WIDGET_CHECKBOX,
+                WIDGET_CVAR_CHECKBOX,
                 {} } },
             // Camera Enhancements
             { { .widgetName = "Cameras", .widgetType = WIDGET_SEPARATOR_TEXT },
@@ -584,93 +604,93 @@ void AddEnhancements() {
                 "gEnhancements.Camera.FreeLook.Enable",
                 "Enables free look camera control\nNote: You must remap C buttons off of the right "
                 "stick in the controller config menu, and map the camera stick to the right stick.",
-                WIDGET_CHECKBOX,
+                WIDGET_CVAR_CHECKBOX,
                 {},
                 [](widgetInfo& info) { RegisterCameraFreeLook(); },
                 [](widgetInfo& info) {
-                    if (disabledMap[DISABLE_FOR_DEBUG_CAM_ON].second.active)
+                    if (disabledMap.at(DISABLE_FOR_DEBUG_CAM_ON).active)
                         info.activeDisables.push_back(DISABLE_FOR_DEBUG_CAM_ON);
                 } },
               { "Camera Distance: %d",
                 "gEnhancements.Camera.FreeLook.MaxCameraDistance",
                 "Maximum Camera Distance for Free Look.",
-                WIDGET_SLIDER_INT,
+                WIDGET_CVAR_SLIDER_INT,
                 { 100, 900, 185 },
                 nullptr,
-                [](widgetInfo& info) { info.isHidden = disabledMap[DISABLE_FOR_FREE_LOOK_OFF].second.active; } },
+                [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_FREE_LOOK_OFF).active; } },
               { "Camera Transition Speed: %d",
                 "gEnhancements.Camera.FreeLook.TransitionSpeed",
                 "Can someone help me?",
-                WIDGET_SLIDER_INT,
+                WIDGET_CVAR_SLIDER_INT,
                 { 1, 900, 25 },
                 nullptr,
-                [](widgetInfo& info) { info.isHidden = disabledMap[DISABLE_FOR_FREE_LOOK_OFF].second.active; } },
+                [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_FREE_LOOK_OFF).active; } },
               { "Max Camera Height Angle: %.0f\xC2\xB0",
                 "gEnhancements.Camera.FreeLook.MaxPitch",
                 "Maximum Height of the Camera.",
-                WIDGET_SLIDER_FLOAT,
+                WIDGET_CVAR_SLIDER_FLOAT,
                 { -8900.0f, 8900.0f, 7200.0f },
                 [](widgetInfo& info) { FreeLookPitchMinMax(); },
-                [](widgetInfo& info) { info.isHidden = disabledMap[DISABLE_FOR_FREE_LOOK_OFF].second.active; } },
+                [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_FREE_LOOK_OFF).active; } },
               { "Min Camera Height Angle: %.0f\xC2\xB0",
                 "gEnhancements.Camera.FreeLook.MinPitch",
                 "Minimum Height of the Camera.",
-                WIDGET_SLIDER_FLOAT,
+                WIDGET_CVAR_SLIDER_FLOAT,
                 { -8900.0f, 8900.0f, -4900.0f },
                 [](widgetInfo& info) { FreeLookPitchMinMax(); },
-                [](widgetInfo& info) { info.isHidden = disabledMap[DISABLE_FOR_FREE_LOOK_OFF].second.active; } },
+                [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_FREE_LOOK_OFF).active; } },
               { "Debug Camera",
                 "gEnhancements.Camera.DebugCam.Enable",
                 "Enables free camera control.",
-                WIDGET_CHECKBOX,
+                WIDGET_CVAR_CHECKBOX,
                 {},
                 ([](widgetInfo& info) { RegisterDebugCam(); }),
                 [](widgetInfo& info) {
-                    if (disabledMap[DISABLE_FOR_FREE_LOOK_ON].second.active) {
+                    if (disabledMap.at(DISABLE_FOR_FREE_LOOK_ON).active) {
                         info.activeDisables.push_back(DISABLE_FOR_FREE_LOOK_ON);
                     }
                 } },
               { "Invert Camera X Axis",
                 "gEnhancements.Camera.RightStick.InvertXAxis",
                 "Inverts the Camera X Axis",
-                WIDGET_CHECKBOX,
+                WIDGET_CVAR_CHECKBOX,
                 {},
                 nullptr,
                 [](widgetInfo& info) {
-                    if (disabledMap[DISABLE_FOR_CAMERAS_OFF].second.active) {
+                    if (disabledMap.at(DISABLE_FOR_CAMERAS_OFF).active) {
                         info.activeDisables.push_back(DISABLE_FOR_CAMERAS_OFF);
                     }
                 } },
               { "Invert Camera Y Axis",
                 "gEnhancements.Camera.RightStick.InvertYAxis",
                 "Inverts the Camera Y Axis",
-                WIDGET_CHECKBOX,
+                WIDGET_CVAR_CHECKBOX,
                 {},
                 nullptr,
                 [](widgetInfo& info) {
-                    if (disabledMap[DISABLE_FOR_CAMERAS_OFF].second.active) {
+                    if (disabledMap.at(DISABLE_FOR_CAMERAS_OFF).active) {
                         info.activeDisables.push_back(DISABLE_FOR_CAMERAS_OFF);
                     }
                 } },
               { "Third-Person Horizontal Sensitivity: %.0f",
                 "gEnhancements.Camera.RightStick.CameraSensitivity.X",
                 "Adjust the Sensitivity of the x axis when in Third Person.",
-                WIDGET_SLIDER_FLOAT,
+                WIDGET_CVAR_SLIDER_FLOAT,
                 { 1.0f, 500.0f, 100.0f },
                 nullptr,
                 [](widgetInfo& info) {
-                    if (disabledMap[DISABLE_FOR_CAMERAS_OFF].second.active) {
+                    if (disabledMap.at(DISABLE_FOR_CAMERAS_OFF).active) {
                         info.activeDisables.push_back(DISABLE_FOR_CAMERAS_OFF);
                     }
                 } },
               { "Third-Person Vertical Sensitivity: %.0f",
                 "gEnhancements.Camera.RightStick.CameraSensitivity.Y",
                 "Adjust the Sensitivity of the x axis when in Third Person.",
-                WIDGET_SLIDER_FLOAT,
+                WIDGET_CVAR_SLIDER_FLOAT,
                 { 1.0f, 500.0f, 100.0f },
                 nullptr,
                 [](widgetInfo& info) {
-                    if (disabledMap[DISABLE_FOR_CAMERAS_OFF].second.active) {
+                    if (disabledMap.at(DISABLE_FOR_CAMERAS_OFF).active) {
                         info.activeDisables.push_back(DISABLE_FOR_CAMERAS_OFF);
                     }
                 } },
@@ -679,41 +699,41 @@ void AddEnhancements() {
                 "This allows for all six degrees of movement with the camera, NOTE: Yaw will work "
                 "differently in this system, instead rotating around the focal point"
                 ", rather than a polar axis.",
-                WIDGET_CHECKBOX,
+                WIDGET_CVAR_CHECKBOX,
                 {},
                 nullptr,
-                [](widgetInfo& info) { info.isHidden = disabledMap[DISABLE_FOR_DEBUG_CAM_OFF].second.active; } },
+                [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_DEBUG_CAM_OFF).active; } },
               { "Camera Speed: %.0f",
                 "gEnhancements.Camera.DebugCam.CameraSpeed",
                 "Adjusts the speed of the Camera.",
-                WIDGET_SLIDER_FLOAT,
+                WIDGET_CVAR_SLIDER_FLOAT,
                 { 10.0f, 300.0f, 50.0f },
                 nullptr,
-                [](widgetInfo& info) { info.isHidden = disabledMap[DISABLE_FOR_DEBUG_CAM_OFF].second.active; } } } } });
+                [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_DEBUG_CAM_OFF).active; } } } } });
     // Cheats
     enhancementsSidebar.push_back(
         { "Cheats",
           3,
-          { { { "Infinite Health", "gCheats.InfiniteHealth", "Always have full Hearts.", WIDGET_CHECKBOX, {} },
-              { "Infinite Magic", "gCheats.InfiniteMagic", "Always have full Magic.", WIDGET_CHECKBOX, {} },
-              { "Infinite Rupees", "gCheats.InfiniteRupees", "Always have a full Wallet.", WIDGET_CHECKBOX, {} },
+          { { { "Infinite Health", "gCheats.InfiniteHealth", "Always have full Hearts.", WIDGET_CVAR_CHECKBOX, {} },
+              { "Infinite Magic", "gCheats.InfiniteMagic", "Always have full Magic.", WIDGET_CVAR_CHECKBOX, {} },
+              { "Infinite Rupees", "gCheats.InfiniteRupees", "Always have a full Wallet.", WIDGET_CVAR_CHECKBOX, {} },
               { "Infinite Consumables", "gCheats.InfiniteConsumables",
-                "Always have max Consumables, you must have collected the consumables first.", WIDGET_CHECKBOX },
+                "Always have max Consumables, you must have collected the consumables first.", WIDGET_CVAR_CHECKBOX },
               { "Longer Deku Flower Glide",
                 "gCheats.LongerFlowerGlide",
                 "Allows Deku Link to glide longer, no longer dropping after a certain distance.",
-                WIDGET_CHECKBOX,
+                WIDGET_CVAR_CHECKBOX,
                 {},
                 [](widgetInfo& info) { RegisterLongerFlowerGlide(); } },
-              { "No Clip", "gCheats.NoClip", "Allows Link to phase through collision.", WIDGET_CHECKBOX },
+              { "No Clip", "gCheats.NoClip", "Allows Link to phase through collision.", WIDGET_CVAR_CHECKBOX },
               { "Unbreakable Razor Sword", "gCheats.UnbreakableRazorSword",
-                "Allows to Razor Sword to be used indefinitely without dulling its blade.", WIDGET_CHECKBOX },
+                "Allows to Razor Sword to be used indefinitely without dulling its blade.", WIDGET_CVAR_CHECKBOX },
               { "Unrestricted Items", "gCheats.UnrestrictedItems", "Allows all Forms to use all Items.",
-                WIDGET_CHECKBOX },
+                WIDGET_CVAR_CHECKBOX },
               { "Moon Jump on L",
                 "gCheats.MoonJumpOnL",
                 "Holding L makes you float into the air.",
-                WIDGET_CHECKBOX,
+                WIDGET_CVAR_CHECKBOX,
                 {},
                 [](widgetInfo& info) { RegisterMoonJumpOnL(); } },
               { "Stop Time in Dungeons",
@@ -723,7 +743,7 @@ void AddEnhancements() {
                 "- Temples: Stops time in Woodfall, Snowhead, Great Bay, and Stone Tower Temples.\n"
                 "- Temples + Mini Dungeons: In addition to the above temples, stops time in both Spider "
                 "Houses, Pirate's Fortress, Beneath the Well, Ancient Castle of Ikana, and Secret Shrine.",
-                WIDGET_COMBOBOX,
+                WIDGET_CVAR_COMBOBOX,
                 { .comboBoxOptions = timeStopOptions } } } } });
     // Gameplay Enhancements
     enhancementsSidebar.push_back(
@@ -733,29 +753,29 @@ void AddEnhancements() {
               { "Fast Deku Flower Launch",
                 "gEnhancements.Player.FastFlowerLaunch",
                 "Speeds up the time it takes to be able to get maximum height from launching out of a deku flower",
-                WIDGET_CHECKBOX,
+                WIDGET_CVAR_CHECKBOX,
                 {},
                 ([](widgetInfo& info) { RegisterFastFlowerLaunch(); }) },
               { "Instant Putaway", "gEnhancements.Player.InstantPutaway",
-                "Allows Link to instantly puts away held item without waiting.", WIDGET_CHECKBOX },
+                "Allows Link to instantly puts away held item without waiting.", WIDGET_CVAR_CHECKBOX },
               { "Climb speed",
                 "gEnhancements.PlayerMovement.ClimbSpeed",
                 "Increases the speed at which Link climbs vines and ladders.",
-                WIDGET_SLIDER_INT,
+                WIDGET_CVAR_SLIDER_INT,
                 { 1, 5, 1 } },
               { "Dpad Equips", "gEnhancements.Dpad.DpadEquips", "Allows you to equip items to your d-pad",
-                WIDGET_CHECKBOX },
+                WIDGET_CVAR_CHECKBOX },
               { "Always Win Doggy Race",
                 "gEnhancements.Minigames.AlwaysWinDoggyRace",
                 "Makes the Doggy Race easier to win.",
-                WIDGET_COMBOBOX,
+                WIDGET_CVAR_COMBOBOX,
                 { .comboBoxOptions = alwaysWinDoggyraceOptions } } },
             { { .widgetName = "Modes", .widgetType = WIDGET_SEPARATOR_TEXT },
-              { "Play as Kafei", "gModes.PlayAsKafei", "Requires scene reload to take effect.", WIDGET_CHECKBOX },
+              { "Play as Kafei", "gModes.PlayAsKafei", "Requires scene reload to take effect.", WIDGET_CVAR_CHECKBOX },
               { "Time Moves when you Move",
                 "gModes.TimeMovesWhenYouMove",
                 "Time only moves when Link is not standing still.",
-                WIDGET_CHECKBOX,
+                WIDGET_CVAR_CHECKBOX,
                 {},
                 ([](widgetInfo& info) { RegisterTimeMovesWhenYouMove(); }) } },
             { { .widgetName = "Saving", .widgetType = WIDGET_SEPARATOR_TEXT },
@@ -763,48 +783,48 @@ void AddEnhancements() {
                 "Continuing a save will not remove the owl save. Playing Song of "
                 "Time, allowing the moon to crash or finishing the "
                 "game will remove the owl save and become the new last save.",
-                WIDGET_CHECKBOX },
+                WIDGET_CVAR_CHECKBOX },
               { "Pause Menu Save", "gEnhancements.Saving.PauseSave",
                 "Re-introduce the pause menu save system. Pressing B in the pause menu will give you the "
                 "option to create a persistent Owl Save from your current location.\n\nWhen loading back "
                 "into the game, you will be placed either at the entrance of the dungeon you saved in, or "
                 "in South Clock Town.",
-                WIDGET_CHECKBOX },
+                WIDGET_CVAR_CHECKBOX },
               { "Autosave",
                 "gEnhancements.Saving.Autosave",
                 "Automatically create a persistent Owl Save on the chosen interval.\n\nWhen loading "
                 "back into the game, you will be placed either at the entrance of the dungeon you "
                 "saved in, or in South Clock Town.",
-                WIDGET_CHECKBOX,
+                WIDGET_CVAR_CHECKBOX,
                 {},
                 ([](widgetInfo& info) { RegisterAutosave(); }) },
               { "Autosave Interval: %d minutes",
                 "gEnhancements.Saving.AutosaveInterval",
                 "Sets the interval between Autosaves.",
-                WIDGET_SLIDER_INT,
+                WIDGET_CVAR_SLIDER_INT,
                 { 1, 60, 5 },
                 nullptr,
                 [](widgetInfo& info) {
-                    if (disabledMap[DISABLE_FOR_AUTO_SAVE_OFF].second.active) {
+                    if (disabledMap.at(DISABLE_FOR_AUTO_SAVE_OFF).active) {
                         info.activeDisables.push_back(DISABLE_FOR_AUTO_SAVE_OFF);
                     }
                 } },
               { .widgetName = "Time Cycle", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Do not reset Bottle content", "gEnhancements.Cycle.DoNotResetBottleContent",
-                "Playing the Song Of Time will not reset the bottles' content.", WIDGET_CHECKBOX },
+                "Playing the Song Of Time will not reset the bottles' content.", WIDGET_CVAR_CHECKBOX },
               { "Do not reset Consumables", "gEnhancements.Cycle.DoNotResetConsumables",
-                "Playing the Song Of Time will not reset the consumables.", WIDGET_CHECKBOX },
+                "Playing the Song Of Time will not reset the consumables.", WIDGET_CVAR_CHECKBOX },
               { "Do not reset Razor Sword", "gEnhancements.Cycle.DoNotResetRazorSword",
-                "Playing the Song Of Time will not reset the Sword back to Kokiri Sword.", WIDGET_CHECKBOX },
+                "Playing the Song Of Time will not reset the Sword back to Kokiri Sword.", WIDGET_CVAR_CHECKBOX },
               { "Do not reset Rupees", "gEnhancements.Cycle.DoNotResetRupees",
-                "Playing the Song Of Time will not reset the your rupees.", WIDGET_CHECKBOX },
+                "Playing the Song Of Time will not reset the your rupees.", WIDGET_CVAR_CHECKBOX },
               { .widgetName = "Unstable",
                 .widgetType = WIDGET_SEPARATOR_TEXT,
                 .widgetOptions = { .color = UIWidgets::Colors::Yellow } },
               { "Disable Save Delay", "gEnhancements.Saving.DisableSaveDelay",
                 "Removes the arbitrary 2 second timer for saving from the original game. This is known to "
                 "cause issues when attempting the 0th Day Glitch",
-                WIDGET_CHECKBOX } } } });
+                WIDGET_CVAR_CHECKBOX } } } });
     // Graphics Enhancements
     enhancementsSidebar.push_back(
         { "Graphics",
@@ -813,76 +833,92 @@ void AddEnhancements() {
               { "Clock Type",
                 "gEnhancements.Graphics.ClockType",
                 "Swaps between Graphical and Text only Clock types.",
-                WIDGET_COMBOBOX,
+                WIDGET_CVAR_COMBOBOX,
                 { .comboBoxOptions = clockTypeOptions } },
               { "24 Hours Clock", "gEnhancements.Graphics.24HoursClock", "Changes from a 12 Hour to a 24 Hour Clock",
-                WIDGET_CHECKBOX },
+                WIDGET_CVAR_CHECKBOX },
               { .widgetName = "Motion Blur", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Motion Blur Mode",
                 "gEnhancements.Graphics.MotionBlur.Mode",
                 "Selects the Mode for Motion Blur.",
-                WIDGET_COMBOBOX,
-                { .comboBoxOptions = motionBlurOptions },
-                [](widgetInfo& info) {
-                    if (CVarGetInteger("gEnhancements.Graphics.MotionBlur.Mode", 0) == 1) {
-                        CVarSetInteger("gEnhancements.Graphics.MotionBlur.Toggle", 0);
-                    }
-                } },
+                WIDGET_CVAR_COMBOBOX,
+                {.comboBoxOptions = motionBlurOptions, .labelPosition = UIWidgets::LabelPosition::None } },
               { "Interpolate", "gEnhancements.Graphics.MotionBlur.Interpolate",
                 "Change motion blur capture to also happen on interpolated frames instead of only on game frames.\n"
                 "This notably reduces the overall motion blur strength but smooths out the trails.",
-                WIDGET_CHECKBOX },
+                WIDGET_CVAR_CHECKBOX,
+                {},
+                nullptr,
+                [](widgetInfo& info) {
+                    info.isHidden = disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value == 1;
+                }},
               { "On/Off",
-                "gEnhancements.Graphics.MotionBlur.Toggle",
+                "",
                 "Enables Motion Blur.",
                 WIDGET_CHECKBOX,
-                {},
+                { .valuePointer = (bool*)&R_MOTION_BLUR_ENABLED },
+                nullptr,
                 [](widgetInfo& info) {
-                    if (CVarGetInteger("gEnhancements.Graphics.MotionBlur.Toggle", 0) == 0) {
-                        R_MOTION_BLUR_ENABLED;
-                        R_MOTION_BLUR_ALPHA = CVarGetInteger("gEnhancements.Graphics.MotionBlur.Strength", 0);
-                    } else {
-                        !R_MOTION_BLUR_ENABLED;
-                    }
+                    info.widgetOptions.valuePointer = (bool*)&R_MOTION_BLUR_ENABLED;
+                    info.isHidden = disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value != 0;
                 } },
               { "Strength",
                 "gEnhancements.Graphics.MotionBlur.Strength",
                 "Motion Blur strength.",
+                WIDGET_CVAR_SLIDER_INT,
+                { 0, 255, 180 },
+                nullptr,
+                [](widgetInfo& info) {
+                   info.isHidden = disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value != 2;
+                }},
+              { "Strength",
+                "",
+                "Motion Blur strength.",
                 WIDGET_SLIDER_INT,
-                { 0, 255, 180 } },
+                { 0, 255, 180, {}, &motionBlurStrength},
+                [](widgetInfo& info) { 
+                    R_MOTION_BLUR_ALPHA = motionBlurStrength;
+                },
+                [](widgetInfo& info) {
+                   info.isHidden = disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value != 0 ||
+                       disabledMap.at(DISABLE_FOR_MOTION_BLUR_OFF).active;
+                },
+                []() {
+                   motionBlurStrength = R_MOTION_BLUR_ALPHA;
+                } },
               { .widgetName = "Other", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "3D Item Drops",
                 "gEnhancements.Graphics.3DItemDrops",
                 "Makes item drops 3D",
-                WIDGET_CHECKBOX,
+                WIDGET_CVAR_CHECKBOX,
                 {},
                 [](widgetInfo& info) { Register3DItemDrops(); } },
               { "Authentic Logo", "gEnhancements.Graphics.AuthenticLogo",
                 "Hide the game version and build details and display the authentic "
                 "model and texture on the boot logo start screen",
-                WIDGET_CHECKBOX },
+                WIDGET_CVAR_CHECKBOX },
               { "Bow Reticle", "gEnhancements.Graphics.BowReticle", "Gives the bow a reticle when you draw an arrow.",
-                WIDGET_CHECKBOX },
+                WIDGET_CVAR_CHECKBOX },
               { "Disable Black Bar Letterboxes", "gEnhancements.Graphics.DisableBlackBars",
                 "Disables Black Bar Letterboxes during cutscenes and Z-targeting\nNote: there may be "
                 "minor visual glitches that were covered up by the black bars\nPlease disable this "
                 "setting before reporting a bug.",
-                WIDGET_CHECKBOX },
+                WIDGET_CVAR_CHECKBOX },
               { .widgetName = "Unstable",
                 .widgetType = WIDGET_SEPARATOR_TEXT,
                 .widgetOptions = { .color = UIWidgets::Colors::Yellow } },
               { "Disable Scene Geometry Distance Check", "gEnhancements.Graphics.DisableSceneGeometryDistanceCheck",
                 "Disables the distance check for scene geometry, allowing it to be drawn no matter how far "
                 "away it is from the player. This may have unintended side effects.",
-                WIDGET_CHECKBOX },
+                WIDGET_CVAR_CHECKBOX },
               { "Widescreen Actor Culling", "gEnhancements.Graphics.ActorCullingAccountsForWidescreen",
                 "Adjusts the culling planes to account for widescreen resolutions. "
                 "This may have unintended side effects.",
-                WIDGET_CHECKBOX },
+                WIDGET_CVAR_CHECKBOX },
               { "Increase Actor Draw Distance: %dx",
                 "gEnhancements.Graphics.IncreaseActorDrawDistance",
                 "Increase the range in which Actors are drawn. This may have unintended side effects.",
-                WIDGET_SLIDER_INT,
+                WIDGET_CVAR_SLIDER_INT,
                 { 1, 5, 1 },
                 [](widgetInfo& info) {
                     CVarSetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance",
@@ -892,7 +928,7 @@ void AddEnhancements() {
               { "Increase Actor Update Distance: %dx",
                 "gEnhancements.Graphics.IncreaseActorUpdateDistance",
                 "Increase the range in which Actors are updated. This may have unintended side effects.",
-                WIDGET_SLIDER_INT,
+                WIDGET_CVAR_SLIDER_INT,
                 { 1, 5, 1 },
                 [](widgetInfo& info) {
                     CVarSetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance",
@@ -905,73 +941,73 @@ void AddEnhancements() {
           { // Mask Enhancements
             { { .widgetName = "Masks", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Blast Mask has Powder Keg Force", "gEnhancements.Masks.BlastMaskKeg",
-                "Blast Mask can also destroy objects only the Powder Keg can.", WIDGET_CHECKBOX },
+                "Blast Mask can also destroy objects only the Powder Keg can.", WIDGET_CVAR_CHECKBOX },
               { "Fast Transformation", "gEnhancements.Masks.FastTransformation",
-                "Removes the delay when using transormation masks.", WIDGET_CHECKBOX },
+                "Removes the delay when using transormation masks.", WIDGET_CVAR_CHECKBOX },
               { "Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere",
-                "Allow using Fierce Deity's mask outside of boss rooms.", WIDGET_CHECKBOX },
+                "Allow using Fierce Deity's mask outside of boss rooms.", WIDGET_CVAR_CHECKBOX },
               { "Persistent Bunny Hood",
                 "gEnhancements.Masks.PersistentBunnyHood.Enabled",
                 "Permanantly toggle a speed boost from the bunny hood by pressing "
                 "'A' on it in the mask menu.",
-                WIDGET_CHECKBOX,
+                WIDGET_CVAR_CHECKBOX,
                 {},
                 [](widgetInfo& info) { UpdatePersistentMasksState(); } },
               { "No Blast Mask Cooldown", "gEnhancements.Masks.NoBlastMaskCooldown",
-                "Eliminates the Cooldown between Blast Mask usage.", WIDGET_CHECKBOX } },
+                "Eliminates the Cooldown between Blast Mask usage.", WIDGET_CVAR_CHECKBOX } },
             // Song Enhancements
             { { .widgetName = "Ocarina", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Enable Sun's Song", "gEnhancements.Songs.EnableSunsSong",
                 "Enables the partially implemented Sun's Song. RIGHT-DOWN-UP-RIGHT-DOWN-UP to play it. "
                 "This song will make time move very fast until either Link moves to a different scene, "
                 "or when the time switches to a new time period.",
-                WIDGET_CHECKBOX },
+                WIDGET_CVAR_CHECKBOX },
               { "Dpad Ocarina", "gEnhancements.Playback.DpadOcarina", "Enables using the Dpad for Ocarina playback.",
-                WIDGET_CHECKBOX },
+                WIDGET_CVAR_CHECKBOX },
               { "Pause Owl Warp", "gEnhancements.Songs.PauseOwlWarp",
                 "Allows the player to use the pause menu map to owl warp instead of "
                 "having to play the Song of Soaring.",
-                WIDGET_CHECKBOX },
+                WIDGET_CVAR_CHECKBOX },
               { "Zora Eggs For Bossa Nova",
                 "gEnhancements.Songs.ZoraEggCount",
                 "The number of eggs required to unlock new wave bossa nova.",
-                WIDGET_SLIDER_INT,
+                WIDGET_CVAR_SLIDER_INT,
                 { 1, 7, 7 } },
               { "Prevent Dropped Ocarina Inputs", "gEnhancements.Playback.NoDropOcarinaInput",
-                "Prevent dropping inputs when playing the ocarina quickly.", WIDGET_CHECKBOX } } } });
+                "Prevent dropping inputs when playing the ocarina quickly.", WIDGET_CVAR_CHECKBOX } } } });
     enhancementsSidebar.push_back(
         { "Time Savers",
           3,
           { // Cutscene Skips
             { { .widgetName = "Cutscenes", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Hide Title Cards", "gEnhancements.Cutscenes.HideTitleCards", "Hides Title Cards when entering areas.",
-                WIDGET_CHECKBOX },
+                WIDGET_CVAR_CHECKBOX },
               { "Skip Entrance Cutscenes", "gEnhancements.Cutscenes.SkipEntranceCutscenes",
-                "Skip cutscenes that occur when first entering a new area.", WIDGET_CHECKBOX },
+                "Skip cutscenes that occur when first entering a new area.", WIDGET_CVAR_CHECKBOX },
               { "Skip to File Select", "gEnhancements.Cutscenes.SkipToFileSelect",
                 "Skip the opening title sequence and go straight to the file select menu after boot.",
-                WIDGET_CHECKBOX },
+                WIDGET_CVAR_CHECKBOX },
               { "Skip Intro Sequence", "gEnhancements.Cutscenes.SkipIntroSequence",
-                "When starting a game you will be taken straight to South Clock Town as Deku Link.", WIDGET_CHECKBOX },
+                "When starting a game you will be taken straight to South Clock Town as Deku Link.", WIDGET_CVAR_CHECKBOX },
               { "Skip Story Cutscenes", "gEnhancements.Cutscenes.SkipStoryCutscenes",
                 "Disclaimer: This doesn't do much yet, we will be progressively adding more skips over time.",
-                WIDGET_CHECKBOX },
+                WIDGET_CVAR_CHECKBOX },
               { "Skip Misc Interactions", "gEnhancements.Cutscenes.SkipMiscInteractions",
                 "Disclaimer: This doesn't do much yet, we will be progressively adding more skips over time.",
-                WIDGET_CHECKBOX } },
+                WIDGET_CVAR_CHECKBOX } },
             // Dialogue Enhancements
             { { .widgetName = "Dialogue", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Fast Bank Selection", "gEnhancements.Dialogue.FastBankSelection",
                 "Pressing the Z or R buttons while the Deposit/Withdrawl Rupees dialogue is open will set "
                 "the Rupees to Links current Rupees or 0 respectively.",
-                WIDGET_CHECKBOX },
+                WIDGET_CVAR_CHECKBOX },
               { "Fast Text", "gEnhancements.Dialogue.FastText",
-                "Speeds up text rendering, and enables holding of B progress to next message.", WIDGET_CHECKBOX },
+                "Speeds up text rendering, and enables holding of B progress to next message.", WIDGET_CVAR_CHECKBOX },
               { "Fast Magic Arrow Equip Animation", "gEnhancements.Equipment.MagicArrowEquipSpeed",
-                "Removes the animation for equipping Magic Arrows.", WIDGET_CHECKBOX },
+                "Removes the animation for equipping Magic Arrows.", WIDGET_CVAR_CHECKBOX },
               { "Instant Fin Boomerangs Recall", "gEnhancements.PlayerActions.InstantRecall",
                 "Pressing B will instantly recall the fin boomerang back to Zora Link after they are thrown.",
-                WIDGET_CHECKBOX } } } });
+                WIDGET_CVAR_CHECKBOX } } } });
     enhancementsSidebar.push_back(
         { "Fixes",
           3,
@@ -980,35 +1016,35 @@ void AddEnhancements() {
               { "Fix Ammo Count Color", "gFixes.FixAmmoCountEnvColor",
                 "Fixes a missing gDPSetEnvColor, which causes the ammo count to be "
                 "the wrong color prior to obtaining magic or other conditions.",
-                WIDGET_CHECKBOX },
+                WIDGET_CVAR_CHECKBOX },
               { "Fix Fierce Deity Z-Target movement", "gEnhancements.Fixes.FierceDeityZTargetMovement",
-                "Fixes Fierce Deity movement being choppy when Z-targeting", WIDGET_CHECKBOX },
+                "Fixes Fierce Deity movement being choppy when Z-targeting", WIDGET_CVAR_CHECKBOX },
               { "Fix Hess and Weirdshot Crash", "gEnhancements.Fixes.HessCrash",
-                "Fixes a crash that can occur when performing a HESS or Weirdshot.", WIDGET_CHECKBOX },
+                "Fixes a crash that can occur when performing a HESS or Weirdshot.", WIDGET_CVAR_CHECKBOX },
               { "Fix Text Control Characters", "gEnhancements.Fixes.ControlCharacters",
                 "Fixes certain control characters not functioning properly "
                 "depending on their position within the text.",
-                WIDGET_CHECKBOX } } } });
+                WIDGET_CVAR_CHECKBOX } } } });
     enhancementsSidebar.push_back(
         { "Restorations",
           3,
           { // Restorations
             { { .widgetName = "Restorations", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Constant Distance Backflips and Sidehops", "gEnhancements.Restorations.ConstantFlipsHops",
-                "Backflips and Sidehops travel a constant distance as they did in OoT.", WIDGET_CHECKBOX },
+                "Backflips and Sidehops travel a constant distance as they did in OoT.", WIDGET_CVAR_CHECKBOX },
               { "Power Crouch Stab", "gEnhancements.Restorations.PowerCrouchStab",
                 "Crouch stabs will use the power of Link's previous melee attack, as is in MM JP 1.0 and OoT.",
-                WIDGET_CHECKBOX },
+                WIDGET_CVAR_CHECKBOX },
               { "Side Rolls", "gEnhancements.Restorations.SideRoll", "Restores side rolling from OoT.",
-                WIDGET_CHECKBOX },
+                WIDGET_CVAR_CHECKBOX },
               { "Tatl ISG", "gEnhancements.Restorations.TatlISG", "Restores Navi ISG from OoT, but now with Tatl.",
-                WIDGET_CHECKBOX },
+                WIDGET_CVAR_CHECKBOX },
               { "Woodfall Mountain Appearance",
                 "gEnhancements.Restorations.WoodfallMountainAppearance",
                 "Restores the appearance of Woodfall mountain to not look poisoned "
                 "when viewed from Termina Field after clearing Woodfall Temple\n\n"
                 "Requires a scene reload to take effect",
-                WIDGET_CHECKBOX,
+                WIDGET_CVAR_CHECKBOX,
                 {},
                 [](widgetInfo& info) { RegisterWoodfallMountainAppearance(); } } } } });
     enhancementsSidebar.push_back({ "HUD Editor",
@@ -1018,7 +1054,7 @@ void AddEnhancements() {
                                           "gWindows.HudEditor",
                                           "Enables the HUD Editor window, allowing you to modify your HUD",
                                           WIDGET_WINDOW_BUTTON,
-                                          { .windowName = "HUD Editor" } } } } });
+                                          { .size = UIWidgets::Sizes::Inline, .windowName = "HUD Editor" } } } } });
 }
 
 void AddDevTools() {
@@ -1026,7 +1062,7 @@ void AddDevTools() {
         { "General",
           3,
           { { { "Popout Menu", "gSettings.Menu.Popout", "Changes the menu display from overlay to windowed.",
-                WIDGET_CHECKBOX },
+                WIDGET_CVAR_CHECKBOX },
               { "Open App Files Folder",
                 "",
                 "Opens the folder that contains the save and mods folders, etc,",
@@ -1039,7 +1075,7 @@ void AddDevTools() {
               { "Debug Mode",
                 "gDeveloperTools.DebugEnabled",
                 "Enables Debug Mode, allowing you to select maps with L + R + Z.",
-                WIDGET_CHECKBOX,
+                WIDGET_CVAR_CHECKBOX,
                 {},
                 [](widgetInfo& info) {
                     if (!CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
@@ -1058,67 +1094,85 @@ void AddDevTools() {
                     }
                 } },
               { "Better Map Select", "gDeveloperTools.BetterMapSelect.Enabled",
-                "Overrides the original map select with a translated, more user-friendly version.", WIDGET_CHECKBOX },
+                "Overrides the original map select with a translated, more user-friendly version.", WIDGET_CVAR_CHECKBOX },
               { "Debug Save File Mode",
                 "gDeveloperTools.DebugSaveFileMode",
                 "Change the behavior of creating saves while debug mode is enabled:\n\n"
                 "- Empty Save: The default 3 heart save file in first cycle\n"
                 "- Vanilla Debug Save: Uses the title screen save info (8 hearts, all items and masks)\n"
                 "- 100\% Save: All items, equipment, mask, quast status and bombers notebook complete",
-                WIDGET_COMBOBOX,
+                WIDGET_CVAR_COMBOBOX,
                 { 0, 0, 0, debugSaveOptions },
                 [](widgetInfo& info) { RegisterDebugSaveCreate(); } },
               { "Prevent Actor Update",
                 "gDeveloperTools.PreventActorUpdate",
                 "Prevents Actors from updating.",
-                WIDGET_CHECKBOX,
+                WIDGET_CVAR_CHECKBOX,
                 {},
                 [](widgetInfo& info) { RegisterPreventActorUpdateHooks(); } },
               { "Prevent Actor Draw",
                 "gDeveloperTools.PreventActorDraw",
                 "Prevents Actors from drawing.",
-                WIDGET_CHECKBOX,
+                WIDGET_CVAR_CHECKBOX,
                 {},
                 [](widgetInfo& info) { RegisterPreventActorDrawHooks(); } },
               { "Prevent Actor Init",
                 "gDeveloperTools.PreventActorInit",
                 "Prevents Actors from initializing.",
-                WIDGET_CHECKBOX,
+                WIDGET_CVAR_CHECKBOX,
                 {},
                 [](widgetInfo& info) { RegisterPreventActorInitHooks(); } },
               { "Disable Object Dependency", "gDeveloperTools.DisableObjectDependency",
-                "Disables dependencies when loading objects.", WIDGET_CHECKBOX },
+                "Disables dependencies when loading objects.", WIDGET_CVAR_CHECKBOX },
               { "Log Level",
                 "gDeveloperTools.LogLevel",
                 "The log level determines which messages are printed to the "
                 "console. This does not affect the log file output",
-                WIDGET_COMBOBOX,
+                WIDGET_CVAR_COMBOBOX,
                 { 0, 0, 0, logLevels },
                 [](widgetInfo& info) {
                     Ship::Context::GetInstance()->GetLogger()->set_level(
                         (spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
                 } },
               { "Frame Advance",
-                "gDeveloperTools.FrameAdvance",
+                "",
                 "This allows you to advance through the game one frame at a time on command. "
                 "To advance a frame, hold Z and tap R on the second controller. Holding Z "
                 "and R will advance a frame every half second. You can also use the buttons below.",
                 WIDGET_CHECKBOX,
-                {},
+                {.valuePointer = (bool*)&gPlayState->frameAdvCtx.enabled },
+                nullptr,
                 [](widgetInfo& info) {
-                    if (CVarGetInteger("gDeveloperTools.FrameAdvance", 0) == 1) {
-                        gPlayState->frameAdvCtx.enabled = true;
-                    } else {
-                        gPlayState->frameAdvCtx.enabled = false;
-                    };
+                    if (disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active) {
+                        info.isHidden = true;
+                    }
+                    if (!std::holds_alternative<bool*>(info.widgetOptions.valuePointer) ||
+                            std::get<bool*>(info.widgetOptions.valuePointer) != (bool*)&gPlayState->frameAdvCtx.enabled) {
+                            info.widgetOptions.valuePointer = (bool*)&gPlayState->frameAdvCtx.enabled;
+                    }
                 } },
               { "Advance 1",
                 "",
                 "Advance 1 frame.",
                 WIDGET_BUTTON,
-                {},
-                [](widgetInfo& info) { CVarSetInteger("gDeveloperTools.FrameAdvanceTick", 1); } },
-              { "Advance (Hold)", "", "Advance frames while the button is held.", WIDGET_BUTTON } } } });
+                { .size = UIWidgets::Sizes::Inline },
+                [](widgetInfo& info) { CVarSetInteger("gDeveloperTools.FrameAdvanceTick", 1); },
+                [](widgetInfo& info) {
+                    if (disabledMap.at(DISABLE_FOR_FRAME_ADVANCE_OFF).active) {
+                        info.isHidden = true;
+                    }
+                } },
+              { "Advance (Hold)", "", "Advance frames while the button is held.", WIDGET_BUTTON,
+                { .size = UIWidgets::Sizes::Inline, .sameLine = true }, nullptr,
+                [](widgetInfo& info) {
+                    if (disabledMap.at(DISABLE_FOR_FRAME_ADVANCE_OFF).active) {
+                        info.isHidden = true;
+                    }
+                },
+                []() { 
+                    if (ImGui::IsItemActive()) {
+                        CVarSetInteger("gDeveloperTools.FrameAdvanceTick", 1);
+                }}} } } });
     // dev tools windows
     devToolsSidebar.push_back({ "Collision Viewer",
                                 1,
@@ -1126,7 +1180,7 @@ void AddDevTools() {
                                       "gWindows.CollisionViewer",
                                       "Makes collision visible on screen",
                                       WIDGET_WINDOW_BUTTON,
-                                      { .windowName = "Collision Viewer" } } } } });
+                                      { .size = UIWidgets::Sizes::Inline, .windowName = "Collision Viewer" } } } } });
     devToolsSidebar.push_back(
         { "Stats",
           1,
@@ -1134,7 +1188,7 @@ void AddDevTools() {
                 "gOpenWindows.Stats",
                 "Shows the stats window, with your FPS and frametimes, and the OS you're playing on",
                 WIDGET_WINDOW_BUTTON,
-                { .windowName = "Stats" } } } } });
+                { .size = UIWidgets::Sizes::Inline, .windowName = "Stats" } } } } });
     devToolsSidebar.push_back(
         { "Console",
           1,
@@ -1142,7 +1196,7 @@ void AddDevTools() {
                 "gOpenWindows.Console",
                 "Enables the console window, allowing you to input commands. Type help for some examples",
                 WIDGET_WINDOW_BUTTON,
-                { .windowName = "Console" } } } } });
+                {.size = UIWidgets::Sizes::Inline, .windowName = "Console" } } } } });
     devToolsSidebar.push_back(
         { "Gfx Debugger",
           1,
@@ -1150,28 +1204,28 @@ void AddDevTools() {
                 "gOpenWindows.GfxDebugger",
                 "Enables the Gfx Debugger window, allowing you to input commands, type help for some examples",
                 WIDGET_WINDOW_BUTTON,
-                { .windowName = "GfxDebuggerWindow" } } } } });
+                { .size = UIWidgets::Sizes::Inline, .windowName = "GfxDebuggerWindow" } } } } });
     devToolsSidebar.push_back({ "Save Editor",
                                 1,
                                 { { { "Popout Save Editor",
                                       "gWindows.SaveEditor",
                                       "Enables the Save Editor window, allowing you to edit your save file",
                                       WIDGET_WINDOW_BUTTON,
-                                      { .windowName = "Save Editor" } } } } });
+                                      { .size = UIWidgets::Sizes::Inline, .windowName = "Save Editor" } } } } });
     devToolsSidebar.push_back({ "Actor Viewer",
                                 1,
                                 { { { "Popout Actor Viewer",
                                       "gWindows.ActorViewer",
                                       "Enables the Actor Viewer window, allowing you to view actors in the world.",
                                       WIDGET_WINDOW_BUTTON,
-                                      { .windowName = "Actor Viewer" } } } } });
+                                      { .size = UIWidgets::Sizes::Inline, .windowName = "Actor Viewer" } } } } });
     devToolsSidebar.push_back({ "Event Log",
                                 1,
                                 { { { "Popout Event Log",
                                       "gWindows.EventLog",
                                       "Enables the event log window",
                                       WIDGET_WINDOW_BUTTON,
-                                      { .windowName = "Event Log" } } } } });
+                                      { .size = UIWidgets::Sizes::Inline, .windowName = "Event Log" } } } } });
 }
 
 void SearchMenuGetItem(widgetInfo& widget) {
@@ -1189,189 +1243,263 @@ void SearchMenuGetItem(widgetInfo& widget) {
         if (!widget.activeDisables.empty()) {
             disabledValue = true;
             for (auto option : widget.activeDisables) {
-                disabledTempTooltip += std::string("- ") + disabledMap[option].second.reason + std::string("\n");
+                disabledTempTooltip += std::string("- ") + disabledMap.at(option).reason + std::string("\n");
             }
             disabledTooltip = disabledTempTooltip.c_str();
         }
     }
 
-    switch (widget.widgetType) {
-        case WIDGET_CHECKBOX:
-            if (UIWidgets::CVarCheckbox(
-                    widget.widgetName, widget.widgetCVar,
-                    {
-                        .color = menuTheme[menuThemeIndex],
-                        .tooltip = widget.widgetTooltip,
-                        .disabled = disabledValue,
-                        .disabledTooltip = disabledTooltip,
-                        .defaultValue = static_cast<bool>(std::get<int32_t>(widget.widgetOptions.defaultVariant)),
-                    })) {
-                if (widget.widgetCallback != nullptr) {
-                    widget.widgetCallback(widget);
-                }
-            };
-            break;
-        case WIDGET_AUDIO_BACKEND: {
-            auto currentAudioBackend = Ship::Context::GetInstance()->GetAudio()->GetAudioBackend();
-            if (UIWidgets::Combobox(
-                    "Audio API", &currentAudioBackend, audioBackendsMap,
-                    { .color = menuTheme[menuThemeIndex],
-                      .tooltip = widget.widgetTooltip,
-                      .disabled = Ship::Context::GetInstance()->GetAudio()->GetAvailableAudioBackends()->size() <= 1,
-                      .disabledTooltip = "Only one audio API is available on this platform." })) {
-                Ship::Context::GetInstance()->GetAudio()->SetAudioBackend(currentAudioBackend);
-            }
-        } break;
-        case WIDGET_VIDEO_BACKEND: {
-            if (UIWidgets::Combobox("Renderer API (Needs reload)", &configWindowBackend, availableWindowBackendsMap,
-                                    { .color = menuTheme[menuThemeIndex],
-                                      .tooltip = widget.widgetTooltip,
-                                      .disabled = availableWindowBackends->size() <= 1,
-                                      .disabledTooltip = "Only one renderer API is available on this platform." })) {
-                Ship::Context::GetInstance()->GetConfig()->SetInt("Window.Backend.Id",
-                                                                  static_cast<int32_t>(configWindowBackend));
-                Ship::Context::GetInstance()->GetConfig()->SetString("Window.Backend.Name",
-                                                                     windowBackendsMap.at(configWindowBackend));
-                Ship::Context::GetInstance()->GetConfig()->Save();
-                UpdateWindowBackendObjects();
-            }
-        } break;
-        case WIDGET_SEPARATOR:
-            ImGui::Separator();
-            break;
-        case WIDGET_SEPARATOR_TEXT:
-            if (widget.widgetOptions.color != COLOR_NONE) {
-                ImGui::PushStyleColor(ImGuiCol_Text, widget.widgetOptions.color);
-            }
-            ImGui::SeparatorText(widget.widgetName);
-            if (widget.widgetOptions.color != COLOR_NONE) {
-                ImGui::PopStyleColor();
-            }
-            break;
-        case WIDGET_COMBOBOX:
-            if (UIWidgets::CVarCombobox(
-                    widget.widgetName, widget.widgetCVar, widget.widgetOptions.comboBoxOptions,
-                    {
-                        .color = menuTheme[menuThemeIndex],
-                        .tooltip = widget.widgetTooltip,
-                        .disabled = disabledValue,
-                        .disabledTooltip = disabledTooltip,
-                        .defaultIndex = static_cast<uint32_t>(std::get<int32_t>(widget.widgetOptions.defaultVariant)),
-                    })) {
-                if (widget.widgetCallback != nullptr) {
-                    widget.widgetCallback(widget);
-                }
-            }
-            break;
-        case WIDGET_SLIDER_INT:
-            if (UIWidgets::CVarSliderInt(
-                    widget.widgetName, widget.widgetCVar, std::get<int32_t>(widget.widgetOptions.min),
-                    std::get<int32_t>(widget.widgetOptions.max), std::get<int32_t>(widget.widgetOptions.defaultVariant),
-                    {
-                        .color = menuTheme[menuThemeIndex],
-                        .tooltip = widget.widgetTooltip,
-                        .disabled = disabledValue,
-                        .disabledTooltip = disabledTooltip,
-                    })) {
-                if (widget.widgetCallback != nullptr) {
-                    widget.widgetCallback(widget);
-                }
-            };
-            break;
-        case WIDGET_SLIDER_FLOAT: {
-            float floatMin = (std::get<float>(widget.widgetOptions.min) / 100);
-            float floatMax = (std::get<float>(widget.widgetOptions.max) / 100);
-            float floatDefault = (std::get<float>(widget.widgetOptions.defaultVariant) / 100);
-            if (UIWidgets::CVarSliderFloat(widget.widgetName, widget.widgetCVar, floatMin, floatMax, floatDefault,
-                                           {
-                                               .color = menuTheme[menuThemeIndex],
-                                               .tooltip = widget.widgetTooltip,
-                                               .disabled = disabledValue,
-                                               .disabledTooltip = disabledTooltip,
-                                           })) {
-                if (widget.widgetCallback != nullptr) {
-                    widget.widgetCallback(widget);
-                }
-            }
-        } break;
-        case WIDGET_BUTTON:
-            if (UIWidgets::Button(widget.widgetName, {
-                                                         .color = menuTheme[menuThemeIndex],
-                                                         .tooltip = widget.widgetTooltip,
-                                                         .disabled = disabledValue,
-                                                         .disabledTooltip = disabledTooltip,
-                                                     })) {
-                if (widget.widgetCallback != nullptr) {
-                    widget.widgetCallback(widget);
-                }
-            }
-            break;
-        case WIDGET_WINDOW_BUTTON: {
-            if (widget.widgetOptions.windowName == "") {
-                std::string msg =
-                    fmt::format("Error drawing window contents for {}: windowName not defined", widget.widgetName);
-                SPDLOG_ERROR(msg.c_str());
-                break;
-            }
-            auto window =
-                Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow(widget.widgetOptions.windowName);
-            if (!window) {
-                std::string msg = fmt::format("Error drawing window contents: windowName {} does not exist",
-                                              widget.widgetOptions.windowName);
-                SPDLOG_ERROR(msg.c_str());
-                break;
-            }
-            UIWidgets::WindowButton(widget.widgetName, widget.widgetCVar, window, { .tooltip = widget.widgetTooltip });
-            if (!window->IsVisible()) {
-                window->DrawElement();
-            }
-        } break;
-        case WIDGET_SEARCH: {
-            if (ImGui::Button("Clear")) {
-                menuSearch.Clear();
-            }
-            ImGui::SameLine();
-            menuSearch.Draw();
-            std::string menuSearchText(menuSearch.InputBuf);
+    if (widget.widgetOptions.sameLine) {
+        ImGui::SameLine();
+    }
 
-            if (menuSearchText == "") {
-                ImGui::Text("Start typing to see results.");
-                return;
+    switch (widget.widgetType) {
+    case WIDGET_CHECKBOX: {
+        bool* pointer = std::holds_alternative<bool*>(widget.widgetOptions.valuePointer) 
+            ? std::get<bool*>(widget.widgetOptions.valuePointer) : nullptr;
+        if (UIWidgets::Checkbox(widget.widgetName, pointer,
+            {
+                .color = menuTheme[menuThemeIndex],
+                .tooltip = widget.widgetTooltip,
+                .disabled = disabledValue,
+                .disabledTooltip = disabledTooltip,
+                .labelPosition = widget.widgetOptions.labelPosition == UIWidgets::LabelPosition::None ?
+                                UIWidgets::LabelPosition::Near : widget.widgetOptions.labelPosition
+            })) {
+            if (widget.widgetCallback != nullptr) {
+                widget.widgetCallback(widget);
             }
-            ImGui::BeginChild("Search Results");
-            for (auto& [menuLabel, menuSidebar, cvar] : menuEntries) {
-                for (auto& sidebar : menuSidebar) {
-                    for (auto& widgets : sidebar.columnWidgets) {
-                        int column = 1;
-                        for (auto& info : widgets) {
-                            if (info.widgetType == WIDGET_SEARCH || info.widgetType == WIDGET_SEPARATOR ||
-                                info.widgetType == WIDGET_SEPARATOR_TEXT || info.isHidden) {
-                                continue;
-                            }
-                            std::string widgetStr = std::string(info.widgetName) + std::string(info.widgetTooltip);
-                            std::transform(menuSearchText.begin(), menuSearchText.end(), menuSearchText.begin(),
-                                           ::tolower);
-                            menuSearchText.erase(std::remove(menuSearchText.begin(), menuSearchText.end(), ' '),
-                                                 menuSearchText.end());
-                            std::transform(widgetStr.begin(), widgetStr.end(), widgetStr.begin(), ::tolower);
-                            widgetStr.erase(std::remove(widgetStr.begin(), widgetStr.end(), ' '), widgetStr.end());
-                            if (widgetStr.find(menuSearchText) != std::string::npos) {
-                                SearchMenuGetItem(info);
-                                ImGui::PushStyleColor(ImGuiCol_Text, UIWidgets::Colors::Gray);
-                                std::string origin =
-                                    fmt::format("  ({} -> {}, Clmn {})", menuLabel, sidebar.label, column);
-                                ImGui::Text(origin.c_str());
-                                ImGui::PopStyleColor();
-                            }
+        }
+    } break;
+    case WIDGET_CVAR_CHECKBOX:
+        if (UIWidgets::CVarCheckbox(
+            widget.widgetName, widget.widgetCVar,
+            {
+                .color = menuTheme[menuThemeIndex],
+                .tooltip = widget.widgetTooltip,
+                .disabled = disabledValue,
+                .disabledTooltip = disabledTooltip,
+                .defaultValue = static_cast<bool>(std::get<int32_t>(widget.widgetOptions.defaultVariant)),
+                .labelPosition = widget.widgetOptions.labelPosition == UIWidgets::LabelPosition::None ?
+                                UIWidgets::LabelPosition::Near : widget.widgetOptions.labelPosition
+            })) {
+            if (widget.widgetCallback != nullptr) {
+                widget.widgetCallback(widget);
+            }
+        };
+        break;
+    case WIDGET_AUDIO_BACKEND: {
+        auto currentAudioBackend = Ship::Context::GetInstance()->GetAudio()->GetAudioBackend();
+        if (UIWidgets::Combobox(
+                "Audio API", &currentAudioBackend, audioBackendsMap,
+                { .color = menuTheme[menuThemeIndex],
+                    .tooltip = widget.widgetTooltip,
+                    .disabled = Ship::Context::GetInstance()->GetAudio()->GetAvailableAudioBackends()->size() <= 1,
+                    .disabledTooltip = "Only one audio API is available on this platform." })) {
+            Ship::Context::GetInstance()->GetAudio()->SetAudioBackend(currentAudioBackend);
+        }
+    } break;
+    case WIDGET_VIDEO_BACKEND: {
+        if (UIWidgets::Combobox("Renderer API (Needs reload)", &configWindowBackend, availableWindowBackendsMap,
+                                { .color = menuTheme[menuThemeIndex],
+                                    .tooltip = widget.widgetTooltip,
+                                    .disabled = availableWindowBackends->size() <= 1,
+                                    .disabledTooltip = "Only one renderer API is available on this platform." })) {
+            Ship::Context::GetInstance()->GetConfig()->SetInt("Window.Backend.Id",
+                                                                static_cast<int32_t>(configWindowBackend));
+            Ship::Context::GetInstance()->GetConfig()->SetString("Window.Backend.Name",
+                                                                    windowBackendsMap.at(configWindowBackend));
+            Ship::Context::GetInstance()->GetConfig()->Save();
+            UpdateWindowBackendObjects();
+        }
+    } break;
+    case WIDGET_SEPARATOR:
+        ImGui::Separator();
+        break;
+    case WIDGET_SEPARATOR_TEXT:
+        if (widget.widgetOptions.color != COLOR_NONE) {
+            ImGui::PushStyleColor(ImGuiCol_Text, widget.widgetOptions.color);
+        }
+        ImGui::SeparatorText(widget.widgetName);
+        if (widget.widgetOptions.color != COLOR_NONE) {
+            ImGui::PopStyleColor();
+        }
+        break;
+    case WIDGET_COMBOBOX: {
+        int32_t* pointer = std::holds_alternative<int32_t*>(widget.widgetOptions.valuePointer)
+            ? std::get<int32_t*>(widget.widgetOptions.valuePointer) : nullptr;
+        if (UIWidgets::Combobox(
+            widget.widgetName, pointer, widget.widgetOptions.comboBoxOptions,
+            {
+                .color = menuTheme[menuThemeIndex],
+                .tooltip = widget.widgetTooltip,
+                .disabled = disabledValue,
+                .disabledTooltip = disabledTooltip,
+                .labelPosition = widget.widgetOptions.labelPosition == UIWidgets::LabelPosition::None ?
+                                UIWidgets::LabelPosition::Above : widget.widgetOptions.labelPosition
+            })) {
+            if (widget.widgetCallback != nullptr) {
+                widget.widgetCallback(widget);
+            }
+        };
+    } break;
+    case WIDGET_CVAR_COMBOBOX:
+        if (UIWidgets::CVarCombobox(
+            widget.widgetName, widget.widgetCVar, widget.widgetOptions.comboBoxOptions,
+            {
+                .color = menuTheme[menuThemeIndex],
+                .tooltip = widget.widgetTooltip,
+                .disabled = disabledValue,
+                .disabledTooltip = disabledTooltip,
+                .defaultIndex = static_cast<uint32_t>(std::get<int32_t>(widget.widgetOptions.defaultVariant)),
+                .labelPosition = widget.widgetOptions.labelPosition == UIWidgets::LabelPosition::None ?
+                                UIWidgets::LabelPosition::Above : widget.widgetOptions.labelPosition
+            })) {
+            if (widget.widgetCallback != nullptr) {
+                widget.widgetCallback(widget);
+            }
+        }
+        break;
+    case WIDGET_SLIDER_INT:
+        if (UIWidgets::SliderInt(
+            widget.widgetName, std::get<int32_t*>(widget.widgetOptions.valuePointer), std::get<int32_t>(widget.widgetOptions.min),
+            std::get<int32_t>(widget.widgetOptions.max),
+            {
+                .color = menuTheme[menuThemeIndex],
+                .tooltip = widget.widgetTooltip,
+                .disabled = disabledValue,
+                .disabledTooltip = disabledTooltip,
+            })) {
+            if (widget.widgetCallback != nullptr) {
+                widget.widgetCallback(widget);
+            }
+        };
+        break;
+    case WIDGET_SLIDER_FLOAT: {
+        float floatMin = (std::get<float>(widget.widgetOptions.min) / 100);
+        float floatMax = (std::get<float>(widget.widgetOptions.max) / 100);
+        float floatDefault = (std::get<float>(widget.widgetOptions.defaultVariant) / 100);
+        if (UIWidgets::SliderFloat(widget.widgetName, std::get<float*>(widget.widgetOptions.valuePointer), floatMin, floatMax,
+            {
+                .color = menuTheme[menuThemeIndex],
+                .tooltip = widget.widgetTooltip,
+                .disabled = disabledValue,
+                .disabledTooltip = disabledTooltip,
+            })) {
+            if (widget.widgetCallback != nullptr) {
+                widget.widgetCallback(widget);
+            }
+        }
+    } break;
+    case WIDGET_CVAR_SLIDER_INT:
+        if (UIWidgets::CVarSliderInt(
+                widget.widgetName, widget.widgetCVar, std::get<int32_t>(widget.widgetOptions.min),
+                std::get<int32_t>(widget.widgetOptions.max), std::get<int32_t>(widget.widgetOptions.defaultVariant),
+                {
+                    .color = menuTheme[menuThemeIndex],
+                    .tooltip = widget.widgetTooltip,
+                    .disabled = disabledValue,
+                    .disabledTooltip = disabledTooltip,
+                })) {
+            if (widget.widgetCallback != nullptr) {
+                widget.widgetCallback(widget);
+            }
+        };
+        break;
+    case WIDGET_CVAR_SLIDER_FLOAT: {
+        float floatMin = (std::get<float>(widget.widgetOptions.min) / 100);
+        float floatMax = (std::get<float>(widget.widgetOptions.max) / 100);
+        float floatDefault = (std::get<float>(widget.widgetOptions.defaultVariant) / 100);
+        if (UIWidgets::CVarSliderFloat(widget.widgetName, widget.widgetCVar, floatMin, floatMax, floatDefault,
+                                        {
+                                            .color = menuTheme[menuThemeIndex],
+                                            .tooltip = widget.widgetTooltip,
+                                            .disabled = disabledValue,
+                                            .disabledTooltip = disabledTooltip,
+                                        })) {
+            if (widget.widgetCallback != nullptr) {
+                widget.widgetCallback(widget);
+            }
+        }
+    } break;
+    case WIDGET_BUTTON:
+        if (UIWidgets::Button(widget.widgetName, { menuTheme[menuThemeIndex], widget.widgetOptions.size,
+                widget.widgetTooltip, disabledValue, disabledTooltip })) {
+            if (widget.widgetCallback != nullptr) {
+                widget.widgetCallback(widget);
+            }
+        }
+        break;
+    case WIDGET_WINDOW_BUTTON: {
+        if (widget.widgetOptions.windowName == "") {
+            std::string msg =
+                fmt::format("Error drawing window contents for {}: windowName not defined", widget.widgetName);
+            SPDLOG_ERROR(msg.c_str());
+            break;
+        }
+        auto window =
+            Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow(widget.widgetOptions.windowName);
+        if (!window) {
+            std::string msg = fmt::format("Error drawing window contents: windowName {} does not exist",
+                                            widget.widgetOptions.windowName);
+            SPDLOG_ERROR(msg.c_str());
+            break;
+        }
+        UIWidgets::WindowButton(widget.widgetName, widget.widgetCVar, window,
+            { .size = widget.widgetOptions.size, .tooltip = widget.widgetTooltip });
+        if (!window->IsVisible()) {
+            window->DrawElement();
+        }
+    } break;
+    case WIDGET_SEARCH: {
+        if (ImGui::Button("Clear")) {
+            menuSearch.Clear();
+        }
+        ImGui::SameLine();
+        menuSearch.Draw();
+        std::string menuSearchText(menuSearch.InputBuf);
+
+        if (menuSearchText == "") {
+            ImGui::Text("Start typing to see results.");
+            return;
+        }
+        ImGui::BeginChild("Search Results");
+        for (auto& [menuLabel, menuSidebar, cvar] : menuEntries) {
+            for (auto& sidebar : menuSidebar) {
+                for (auto& widgets : sidebar.columnWidgets) {
+                    int column = 1;
+                    for (auto& info : widgets) {
+                        if (info.widgetType == WIDGET_SEARCH || info.widgetType == WIDGET_SEPARATOR ||
+                            info.widgetType == WIDGET_SEPARATOR_TEXT || info.isHidden) {
+                            continue;
                         }
-                        column++;
+                        std::string widgetStr = std::string(info.widgetName) + std::string(info.widgetTooltip);
+                        std::transform(menuSearchText.begin(), menuSearchText.end(), menuSearchText.begin(),
+                                        ::tolower);
+                        menuSearchText.erase(std::remove(menuSearchText.begin(), menuSearchText.end(), ' '),
+                                                menuSearchText.end());
+                        std::transform(widgetStr.begin(), widgetStr.end(), widgetStr.begin(), ::tolower);
+                        widgetStr.erase(std::remove(widgetStr.begin(), widgetStr.end(), ' '), widgetStr.end());
+                        if (widgetStr.find(menuSearchText) != std::string::npos) {
+                            SearchMenuGetItem(info);
+                            ImGui::PushStyleColor(ImGuiCol_Text, UIWidgets::Colors::Gray);
+                            std::string origin =
+                                fmt::format("  ({} -> {}, Clmn {})", menuLabel, sidebar.label, column);
+                            ImGui::Text(origin.c_str());
+                            ImGui::PopStyleColor();
+                        }
                     }
+                    column++;
                 }
             }
-            ImGui::EndChild();
-        } break;
-        default:
-            break;
+        }
+        ImGui::EndChild();
+    } break;
+    default:
+        break;
+    }
+    if (widget.postFunc != nullptr) {
+        widget.postFunc();
     }
 }
 } // namespace BenGui

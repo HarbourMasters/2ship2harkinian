@@ -168,7 +168,7 @@ void BenMenu::Draw() {
 
 void BenMenu::DrawElement() {
     for (auto& [reason, info] : disabledMap) {
-        info.active = info.evaluation();
+        info.active = info.evaluation(info);
     }
     menuThemeIndex = static_cast<ColorOption>(CVarGetInteger("gSettings.MenuTheme", 3));
 
