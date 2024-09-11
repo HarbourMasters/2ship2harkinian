@@ -169,8 +169,11 @@ std::unordered_map<ColorOption, ImVec4> menuTheme = { { COLOR_WHITE, UIWidgets::
 // function. all of the preceding are required parts for every widget except for the special widgets (backend dropdowns,
 // separators, etc) various parts of widgetOptions are required depending on what widget type you're using
 // `widgetCallback` is a lambda used for running code on widget change
-// `modifierFunc` is a lambda used to determine a widget's status, whether disabled or hidden.
-// Both lambdas accept a `widgetInfo` pointer in case it needs information on the widget for these operations
+// `preFunc` is a lambda called before drawing code starts. It can be used to determine a widget's status,
+// whether disabled or hidden, as well as update pointers for non-CVar widget types.
+// `postFunc` is a lambda called after all drawing code is finished, for reacting to states other than
+// widgets having been changed, like holding buttons.
+// All three lambdas accept a `widgetInfo` pointer in case it needs information on the widget for these operations
 // `activeDisables` is a vector of DisableOptions for specifying what reasons a widget is disabled, which are displayed
 // in the disabledTooltip for the widget. Can display multiple reasons. Handling the reasons is done in `modifierFunc`.
 // It is recommended to utilize `disabledInfo`/`DisableReason` to list out all reasons for disabling and isHidden so
@@ -183,8 +186,8 @@ struct widgetInfo {
     WidgetType widgetType;
     WidgetOptions widgetOptions;
     WidgetFunc widgetCallback = nullptr;
-    WidgetFunc modifierFunc = nullptr;
-    VoidFunc postFunc = nullptr;
+    WidgetFunc preFunc = nullptr;
+    WidgetFunc postFunc = nullptr;
     DisableVec activeDisables = {};
     bool isHidden = false;
 };
@@ -884,7 +887,7 @@ void AddEnhancements() {
                     info.isHidden = disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value != 0 ||
                                     disabledMap.at(DISABLE_FOR_MOTION_BLUR_OFF).active;
                 },
-                []() { motionBlurStrength = R_MOTION_BLUR_ALPHA; } },
+                [](widgetInfo& info) { motionBlurStrength = R_MOTION_BLUR_ALPHA; } },
               { .widgetName = "Other", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "3D Item Drops",
                 "gEnhancements.Graphics.3DItemDrops",
@@ -1174,7 +1177,7 @@ void AddDevTools() {
                         info.isHidden = true;
                     }
                 },
-                []() {
+                [](widgetInfo& info) {
                     if (ImGui::IsItemActive()) {
                         CVarSetInteger("gDeveloperTools.FrameAdvanceTick", 1);
                     }
@@ -1239,10 +1242,10 @@ void SearchMenuGetItem(widgetInfo& widget) {
     disabledValue = false;
     disabledTooltip = " ";
 
-    if (widget.modifierFunc != nullptr) {
+    if (widget.preFunc != nullptr) {
         widget.activeDisables.clear();
         widget.isHidden = false;
-        widget.modifierFunc(widget);
+        widget.preFunc(widget);
         if (widget.isHidden) {
             return;
         }
@@ -1505,7 +1508,7 @@ void SearchMenuGetItem(widgetInfo& widget) {
             break;
     }
     if (widget.postFunc != nullptr) {
-        widget.postFunc();
+        widget.postFunc(widget);
     }
 }
 } // namespace BenGui
