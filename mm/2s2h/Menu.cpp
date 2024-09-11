@@ -15,7 +15,7 @@
 #include "DeveloperTools/EventLog.h"
 #include "2s2h/BenGui/HudEditor.h"
 
-#include "2s2h/search/SearchMenu.h"
+#include "2s2h/BenGui/SearchableMenuItems.h"
 
 extern "C" {
 #include "z64.h"
