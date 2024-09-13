@@ -285,7 +285,6 @@ class GameInteractor {
     DEFINE_HOOK(OnActorDraw, (Actor * actor));
     DEFINE_HOOK(OnActorKill, (Actor * actor));
     DEFINE_HOOK(OnPlayerPostLimbDraw, (Player * player, s32 limbIndex));
-    DEFINE_HOOK(OnPlayerPostLimbDraw, (Player * player, s32 limbIndex));
 
     DEFINE_HOOK(OnSceneFlagSet, (s16 sceneId, FlagType flagType, u32 flag));
     DEFINE_HOOK(OnSceneFlagUnset, (s16 sceneId, FlagType flagType, u32 flag));
