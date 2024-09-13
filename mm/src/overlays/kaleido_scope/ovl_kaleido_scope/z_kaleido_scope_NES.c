@@ -741,7 +741,9 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
 
             POLY_OPA_DISP = KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->itemPageVtx, sItemPageBgTextures);
 
+            GameInteractor_ExecuteBeforeKaleidoDrawPage(pauseCtx, PAUSE_ITEM);
             KaleidoScope_DrawItemSelect(play);
+            GameInteractor_ExecuteAfterKaleidoDrawPage(pauseCtx, PAUSE_ITEM);
         }
 
         if ((pauseCtx->pageIndex != PAUSE_MAP) && (pauseCtx->pageIndex != PAUSE_MASK)) {
@@ -761,6 +763,7 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
 
             POLY_OPA_DISP = KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->mapPageVtx, sMapPageBgTextures);
 
+            GameInteractor_ExecuteBeforeKaleidoDrawPage(pauseCtx, PAUSE_MAP);
             if (sInDungeonScene) {
                 KaleidoScope_DrawDungeonMap(play);
                 Gfx_SetupDL42_Opa(gfxCtx);
@@ -769,6 +772,7 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
             } else {
                 KaleidoScope_DrawWorldMap(play);
             }
+            GameInteractor_ExecuteAfterKaleidoDrawPage(pauseCtx, PAUSE_MAP);
         }
 
         if ((pauseCtx->pageIndex != PAUSE_QUEST) && (pauseCtx->pageIndex != PAUSE_ITEM)) {
@@ -790,7 +794,9 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
 
             POLY_OPA_DISP = KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->questPageVtx, sQuestPageBgTextures);
 
+            GameInteractor_ExecuteBeforeKaleidoDrawPage(pauseCtx, PAUSE_QUEST);
             KaleidoScope_DrawQuestStatus(play);
+            GameInteractor_ExecuteAfterKaleidoDrawPage(pauseCtx, PAUSE_QUEST);
         }
 
         if ((pauseCtx->pageIndex != PAUSE_MASK) && (pauseCtx->pageIndex != PAUSE_MAP)) {
@@ -812,7 +818,9 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
 
             POLY_OPA_DISP = KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->maskPageVtx, sMaskPageBgTextures);
 
+            GameInteractor_ExecuteBeforeKaleidoDrawPage(pauseCtx, PAUSE_MASK);
             KaleidoScope_DrawMaskSelect(play);
+            GameInteractor_ExecuteAfterKaleidoDrawPage(pauseCtx, PAUSE_MASK);
         }
 
         switch (pauseCtx->pageIndex) {
