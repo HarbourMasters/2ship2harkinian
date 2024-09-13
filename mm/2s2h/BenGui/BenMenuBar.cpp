@@ -48,6 +48,7 @@ static std::unordered_map<Ship::WindowBackend, const char*> windowBackendsMap = 
 
 static const std::unordered_map<int32_t, const char*> clockTypeOptions = {
     { CLOCK_TYPE_ORIGINAL, "Original" },
+    { CLOCK_TYPE_3DS, "MM3D style" },
     { CLOCK_TYPE_TEXT_BASED, "Text only" },
 };
 
@@ -514,6 +515,12 @@ void DrawEnhancementsMenu() {
         if (UIWidgets::BeginMenu("Equipment")) {
             UIWidgets::CVarCheckbox("Fast Magic Arrow Equip Animation", "gEnhancements.Equipment.MagicArrowEquipSpeed",
                                     { .tooltip = "Removes the animation for equipping Magic Arrows." });
+
+            UIWidgets::CVarCheckbox(
+                "Instant Fin Boomerangs Recall", "gEnhancements.PlayerActions.InstantRecall",
+                { .tooltip =
+                      "Pressing B will instantly recall the fin boomerang back to Zora Link after they are thrown." });
+
             ImGui::EndMenu();
         }
 
@@ -521,6 +528,10 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Fix Ammo Count Color", "gFixes.FixAmmoCountEnvColor",
                                     { .tooltip = "Fixes a missing gDPSetEnvColor, which causes the ammo count to be "
                                                  "the wrong color prior to obtaining magic or other conditions." });
+
+            UIWidgets::CVarCheckbox("Fix Fierce Deity Z-Target movement",
+                                    "gEnhancements.Fixes.FierceDeityZTargetMovement",
+                                    { .tooltip = "Fixes Fierce Deity movement being choppy when Z-targeting" });
 
             UIWidgets::CVarCheckbox("Fix Hess and Weirdshot Crash", "gEnhancements.Fixes.HessCrash",
                                     { .tooltip = "Fixes a crash that can occur when performing a HESS or Weirdshot.",
@@ -593,6 +604,11 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere",
                                     { .tooltip = "Allow using Fierce Deity's mask outside of boss rooms." });
             UIWidgets::CVarCheckbox("No Blast Mask Cooldown", "gEnhancements.Masks.NoBlastMaskCooldown", {});
+            if (UIWidgets::CVarCheckbox("Persistent Bunny Hood", "gEnhancements.Masks.PersistentBunnyHood.Enabled",
+                                        { .tooltip = "Permanantly toggle a speed boost from the bunny hood by pressing "
+                                                     "'A' on it in the mask menu." })) {
+                UpdatePersistentMasksState();
+            }
             UIWidgets::CVarCheckbox(
                 "Easy Mask Equip", "gEnhancements.Masks.EasyMaskEquip",
                 { .tooltip = "Allows you to equip masks directly from the pause menu by pressing A." });
@@ -615,6 +631,7 @@ void DrawEnhancementsMenu() {
             }
             ImGui::EndMenu();
         }
+
         if (UIWidgets::BeginMenu("Player")) {
             UIWidgets::CVarSliderInt("Climb speed", "gEnhancements.Player.ClimbSpeed", 1, 5, 1,
                                      { .tooltip = "Increases the speed at which Link climbs vines and ladders." });
@@ -642,6 +659,14 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Tatl ISG", "gEnhancements.Restorations.TatlISG",
                                     { .tooltip = "Restores Navi ISG from OOT, but now with Tatl." });
 
+            if (UIWidgets::CVarCheckbox(
+                    "Woodfall Mountain Appearance", "gEnhancements.Restorations.WoodfallMountainAppearance",
+                    { .tooltip = "Restores the appearance of Woodfall mountain to not look poisoned "
+                                 "when viewed from Termina Field after clearing Woodfall Temple\n\n"
+                                 "Requires a scene reload to take effect" })) {
+                RegisterWoodfallMountainAppearance();
+            }
+
             ImGui::EndMenu();
         }
 
@@ -658,6 +683,8 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Pause Owl Warp", "gEnhancements.Songs.PauseOwlWarp",
                                     { .tooltip = "Allows the player to use the pause menu map to owl warp instead of "
                                                  "having to play the Song of Soaring." });
+            UIWidgets::CVarSliderInt("Zora Eggs For Bossa Nova", "gEnhancements.Songs.ZoraEggCount", 1, 7, 7,
+                                     { .tooltip = "The number of eggs required to unlock new wave bossa nova." });
 
             ImGui::EndMenu();
         }
