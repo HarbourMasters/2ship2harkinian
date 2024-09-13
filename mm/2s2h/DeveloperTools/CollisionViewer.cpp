@@ -8,6 +8,7 @@
 #include <random>
 #include <libultraship/bridge.h>
 #include <libultraship/libultraship.h>
+#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 
 extern "C" {
 #include <z64.h>
@@ -298,11 +299,6 @@ void CreateSphereData() {
     }
 
     sphereGfx.push_back(gsSPEndDisplayList());
-}
-
-void CollisionViewerWindow::InitElement() {
-    CreateCylinderData();
-    CreateSphereData();
 }
 
 // Initializes the display list for a ColRenderSetting
@@ -735,4 +731,11 @@ extern "C" void DrawCollisionViewer() {
     }
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
+}
+
+void CollisionViewerWindow::InitElement() {
+    CreateCylinderData();
+    CreateSphereData();
+
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnPlayDrawWorldEnd>(DrawCollisionViewer);
 }
