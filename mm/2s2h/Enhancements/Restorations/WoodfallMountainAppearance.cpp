@@ -8,7 +8,7 @@ extern "C" {
 }
 
 typedef enum {
-    /*  2 */ BGBREAKWALL_F_2 = 3, // Poisoned Woodfall Mountain
+    /*  2 */ BGBREAKWALL_F_2 = 2, // Poisoned Woodfall Mountain
     /*  3 */ BGBREAKWALL_F_3 = 3, // Spring Woodfall Mountain
 } BgBreakwallParamEx;
 
