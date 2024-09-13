@@ -188,11 +188,6 @@ void ApplyMaskIconGrayscale(PauseContext* pauseCtx, GraphicsContext* gfxCtx) {
     CLOSE_DISPS(gfxCtx);
 }
 
-// Placeholder for additional grayscale functionality on the item page
-void ApplyItemPageMaskGrayscale(PauseContext* pauseCtx, GraphicsContext* gfxCtx) {
-    // TODO: Implement, but I'm at a loss for how to do this.
-}
-
 // Handle equipping masks based on player input
 void HandleEasyMaskEquip(PauseContext* pauseCtx) {
     if (pauseCtx->state != PAUSE_STATE_MAIN || pauseCtx->mainState != PAUSE_MAIN_STATE_IDLE)
@@ -244,14 +239,6 @@ void RegisterEasyMaskEquip() {
         PAUSE_MASK, [](PauseContext* pauseCtx, u16) {
             if (EasyMaskEquip_IsEnabled()) {
                 ApplyMaskIconGrayscale(pauseCtx, gPlayState->state.gfxCtx);
-            }
-        });
-
-    // Apply grayscale to item page masks after drawing the item page
-    gameInteractor->RegisterGameHookForID<GameInteractor::AfterKaleidoDrawPage>(
-        PAUSE_ITEM, [](PauseContext* pauseCtx, u16) {
-            if (EasyMaskEquip_IsEnabled()) {
-                ApplyItemPageMaskGrayscale(pauseCtx, gPlayState->state.gfxCtx);
             }
         });
 
