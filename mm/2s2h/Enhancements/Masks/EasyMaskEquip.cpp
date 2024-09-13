@@ -89,6 +89,15 @@ bool ShouldEquipMask(s16 cursorItem) {
     bool isAirborne = !(player->actor.bgCheckFlags & BGCHECKFLAG_GROUND);
     bool notInWater = !(Player_GetEnvironmentalHazard(gPlayState) >= PLAYER_ENV_HAZARD_UNDERWATER_FLOOR &&
                         Player_GetEnvironmentalHazard(gPlayState) <= PLAYER_ENV_HAZARD_UNDERWATER_FREE);
+
+    // Add a check for Zora transformation and a small delay after transformation
+    if (player->transformation == PLAYER_FORM_ZORA) {
+        // Ensure the player is fully transformed and not in the middle of an animation
+        if (player->skelAnime.curFrame < player->skelAnime.endFrame) {
+            return false; // Still transforming, don't allow mask change
+        }
+    }
+
     if (isAirborne && notInWater) {
         if (player->transformation == PLAYER_FORM_HUMAN && IsTransformationMask(static_cast<ItemId>(cursorItem))) {
             return true;
@@ -124,8 +133,11 @@ bool ShouldEquipMask(s16 cursorItem) {
                       heldAction == PLAYER_IA_BOMBCHU || heldAction == PLAYER_IA_HOOKSHOT ||
                       heldAction == PLAYER_IA_POWDER_KEG;
 
-        if (isBusy)
+        bool isSwingingWeapon = player->meleeWeaponState != PLAYER_MELEE_WEAPON_STATE_0;
+
+        if (isBusy || isSwingingWeapon) {
             return true;
+        }
     }
 
     return false;
