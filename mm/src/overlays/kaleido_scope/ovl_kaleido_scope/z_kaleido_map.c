@@ -556,7 +556,7 @@ void KaleidoScope_DrawWorldMap(PlayState* play) {
     if ((pauseCtx->pageIndex == PAUSE_MAP) && (pauseCtx->state == PAUSE_STATE_MAIN) &&
         ((pauseCtx->mainState == PAUSE_MAIN_STATE_IDLE) || (pauseCtx->mainState == PAUSE_MAIN_STATE_EQUIP_ITEM)) &&
         YREG(6) && (pauseCtx->state != PAUSE_STATE_SAVEPROMPT) && !IS_PAUSE_STATE_GAMEOVER) {
-        char* tex = ResourceMgr_LoadTexOrDListByName(gWorldMapImageTex);
+
         // Draw the world map image flat
         // Because it is flat, the texture is loaded by filling it in 8 rows at a time.
         // 8 is chosen because it is smaller than `TMEM_SIZE / 2 / textureWidth` and divides the texture's height.
@@ -574,9 +574,19 @@ void KaleidoScope_DrawWorldMap(PlayState* play) {
         // Process the 128 rows of pixels for gWorldMapImageTex, 8 rows at a time over 16 iterations
         // Loop over yPos (t), textureIndex (j)
         for (t = 62, j = 0; j < 16; j++, t += 8) {
-            gDPLoadTextureBlock(POLY_OPA_DISP++, &tex[j * (WORLD_MAP_IMAGE_WIDTH * 8)], G_IM_FMT_CI, G_IM_SIZ_8b,
-                                WORLD_MAP_IMAGE_WIDTH, 8, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP,
-                                G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            // 2S2H [Port][HD Textures] Here and below we use LoadMultTile and SetTileSize to allow us to pass the
+            // resource path to the renderer and calculate the tile offset after the renderer loads it
+            /*
+            gDPLoadTextureBlock(POLY_OPA_DISP++, (u8*)gWorldMapImageTex + j * (WORLD_MAP_IMAGE_WIDTH * 8), G_IM_FMT_CI,
+                                G_IM_SIZ_8b, WORLD_MAP_IMAGE_WIDTH, 8, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            */
+            gDPLoadMultiTile(POLY_OPA_DISP++, gWorldMapImageTex, 0, G_TX_RENDERTILE, G_IM_FMT_CI, G_IM_SIZ_8b,
+                             WORLD_MAP_IMAGE_WIDTH, WORLD_MAP_IMAGE_HEIGHT, 0, j * 8, WORLD_MAP_IMAGE_WIDTH - 1,
+                             (j + 1) * 8 - 1, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
+                             G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            gDPSetTileSize(POLY_OPA_DISP++, G_TX_RENDERTILE, 0, 0, (WORLD_MAP_IMAGE_WIDTH - 1) << G_TEXTURE_IMAGE_FRAC,
+                           (8 - 1) << G_TEXTURE_IMAGE_FRAC);
 
             rectLeft = 51 << 2;
             rectRight = rectLeft + (WORLD_MAP_IMAGE_WIDTH << 2);
@@ -610,12 +620,19 @@ void KaleidoScope_DrawWorldMap(PlayState* play) {
 
         // Process the first 72 rows of pixels for gWorldMapImageTex, 9 rows at a time over 8 iterations
         // Loop over quadIndex of this loop (i), quadIndex of the entire texture (k), vtxIndex (j)
-        char* tex = ResourceMgr_LoadTexOrDListByName(gWorldMapImageTex);
         for (i = 0, k = 0, j = 0; i < 8; i++, k++, j += 4) {
-            gDPLoadTextureBlock(POLY_OPA_DISP++, &tex[k * (WORLD_MAP_IMAGE_WIDTH * WORLD_MAP_IMAGE_FRAG_HEIGHT)],
-                                G_IM_FMT_CI, G_IM_SIZ_8b, WORLD_MAP_IMAGE_WIDTH, WORLD_MAP_IMAGE_FRAG_HEIGHT, 0,
-                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                G_TX_NOLOD, G_TX_NOLOD);
+            /*
+            gDPLoadTextureBlock(
+                POLY_OPA_DISP++, (u8*)gWorldMapImageTex + k * (WORLD_MAP_IMAGE_WIDTH * WORLD_MAP_IMAGE_FRAG_HEIGHT),
+                G_IM_FMT_CI, G_IM_SIZ_8b, WORLD_MAP_IMAGE_WIDTH, WORLD_MAP_IMAGE_FRAG_HEIGHT, 0,
+                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+             */
+            gDPLoadMultiTile(POLY_OPA_DISP++, gWorldMapImageTex, 0, G_TX_RENDERTILE, G_IM_FMT_CI, G_IM_SIZ_8b,
+                             WORLD_MAP_IMAGE_WIDTH, WORLD_MAP_IMAGE_HEIGHT, 0, k * 9, WORLD_MAP_IMAGE_WIDTH - 1,
+                             (k + 1) * 9 - 1, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
+                             G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            gDPSetTileSize(POLY_OPA_DISP++, G_TX_RENDERTILE, 0, 0, (WORLD_MAP_IMAGE_WIDTH - 1) << G_TEXTURE_IMAGE_FRAC,
+                           (9 - 1) << G_TEXTURE_IMAGE_FRAC);
 
             gSP1Quadrangle(POLY_OPA_DISP++, j, j + 2, j + 3, j + 1, 0);
         }
@@ -627,19 +644,36 @@ void KaleidoScope_DrawWorldMap(PlayState* play) {
         // Process the next 54 rows of pixels for gWorldMapImageTex, 9 rows at a time over 6 iterations
         // Loop over quadIndex of this loop (i), quadIndex of the entire texture (k), vtxIndex (j)
         for (i = 0, j = 0; i < 6; i++, k++, j += 4) {
-            gDPLoadTextureBlock(POLY_OPA_DISP++, &tex[k * (WORLD_MAP_IMAGE_WIDTH * WORLD_MAP_IMAGE_FRAG_HEIGHT)],
-                                G_IM_FMT_CI, G_IM_SIZ_8b, WORLD_MAP_IMAGE_WIDTH, WORLD_MAP_IMAGE_FRAG_HEIGHT, 0,
-                                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
-                                G_TX_NOLOD, G_TX_NOLOD);
+            /*
+            gDPLoadTextureBlock(
+                POLY_OPA_DISP++, (u8*)gWorldMapImageTex + k * (WORLD_MAP_IMAGE_WIDTH * WORLD_MAP_IMAGE_FRAG_HEIGHT),
+                G_IM_FMT_CI, G_IM_SIZ_8b, WORLD_MAP_IMAGE_WIDTH, WORLD_MAP_IMAGE_FRAG_HEIGHT, 0,
+                G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            */
+            gDPLoadMultiTile(POLY_OPA_DISP++, gWorldMapImageTex, 0, G_TX_RENDERTILE, G_IM_FMT_CI, G_IM_SIZ_8b,
+                             WORLD_MAP_IMAGE_WIDTH, WORLD_MAP_IMAGE_HEIGHT, 0, k * 9, WORLD_MAP_IMAGE_WIDTH - 1,
+                             (k + 1) * 9 - 1, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
+                             G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+            gDPSetTileSize(POLY_OPA_DISP++, G_TX_RENDERTILE, 0, 0, (WORLD_MAP_IMAGE_WIDTH - 1) << G_TEXTURE_IMAGE_FRAC,
+                           (9 - 1) << G_TEXTURE_IMAGE_FRAC);
 
             gSP1Quadrangle(POLY_OPA_DISP++, j, j + 2, j + 3, j + 1, 0);
         }
 
         // Process the last 2 rows of pixels for gWorldMapImageTex
-        gDPLoadTextureBlock(POLY_OPA_DISP++, &tex[k * (WORLD_MAP_IMAGE_WIDTH * WORLD_MAP_IMAGE_FRAG_HEIGHT)],
-                            G_IM_FMT_CI, G_IM_SIZ_8b, WORLD_MAP_IMAGE_WIDTH,
-                            WORLD_MAP_IMAGE_HEIGHT % WORLD_MAP_IMAGE_FRAG_HEIGHT, 0, G_TX_NOMIRROR | G_TX_WRAP,
-                            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        /*
+        gDPLoadTextureBlock(
+            POLY_OPA_DISP++, (u8*)gWorldMapImageTex + k * (WORLD_MAP_IMAGE_WIDTH * WORLD_MAP_IMAGE_FRAG_HEIGHT),
+            G_IM_FMT_CI, G_IM_SIZ_8b, WORLD_MAP_IMAGE_WIDTH, WORLD_MAP_IMAGE_HEIGHT % WORLD_MAP_IMAGE_FRAG_HEIGHT, 0,
+            G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        */
+        gDPLoadMultiTile(POLY_OPA_DISP++, gWorldMapImageTex, 0, G_TX_RENDERTILE, G_IM_FMT_CI, G_IM_SIZ_8b,
+                         WORLD_MAP_IMAGE_WIDTH, WORLD_MAP_IMAGE_HEIGHT, 0, k * 9, WORLD_MAP_IMAGE_WIDTH - 1,
+                         (k * 9 + 2) - 1, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK,
+                         G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        gDPSetTileSize(POLY_OPA_DISP++, G_TX_RENDERTILE, 0, 0, (WORLD_MAP_IMAGE_WIDTH - 1) << G_TEXTURE_IMAGE_FRAC,
+                       (2 - 1) << G_TEXTURE_IMAGE_FRAC);
+
         gSP1Quadrangle(POLY_OPA_DISP++, j, j + 2, j + 3, j + 1, 0);
     }
 

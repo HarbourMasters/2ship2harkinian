@@ -8,6 +8,7 @@
 #include "Cheats/Infinite.h"
 #include "Dialogue/Dialogue.h"
 #include "Graphics/TextBasedClock.h"
+#include "Graphics/3DSClock.h"
 #include "Cheats/Cheats.h"
 #include "Cheats/UnbreakableRazorSword.h"
 #include "Cheats/UnrestrictedItems.h"
@@ -15,6 +16,7 @@
 #include "Cycle/EndOfCycle.h"
 #include "Equipment/SkipMagicArrowEquip.h"
 #include "Equipment/GreatFairySwordOnB.h"
+#include "Fixes/Fixes.h"
 #include "Masks/BlastMaskKeg.h"
 #include "Masks/FierceDeityAnywhere.h"
 #include "Masks/NoBlastMaskCooldown.h"
@@ -24,13 +26,16 @@
 #include "Cutscenes/Cutscenes.h"
 #include "Restorations/FlipHopVariable.h"
 #include "Restorations/PowerCrouchStab.h"
+#include "Restorations/Restorations.h"
 #include "Restorations/SideRoll.h"
 #include "Restorations/TatlISG.h"
 #include "Graphics/3DItemDrops.h"
 #include "Graphics/PlayAsKafei.h"
+#include "Equipment/InstantRecall.h"
 #include "Player/Player.h"
 #include "Songs/EnableSunsSong.h"
 #include "Songs/PauseOwlWarp.h"
+#include "Songs/ZoraEggCount.h"
 #include "Saving/SavingEnhancements.h"
 #include "Graphics/DisableBlackBars.h"
 #include "Modes/TimeMovesWhenYouMove.h"
@@ -49,6 +54,7 @@ enum TimeStopOptions {
 
 enum ClockTypeOptions {
     CLOCK_TYPE_ORIGINAL,
+    CLOCK_TYPE_3DS,
     CLOCK_TYPE_TEXT_BASED,
 };
 

@@ -9595,6 +9595,9 @@ s32 func_8083E404(Player* this, f32 arg1, s16 arg2) {
         func_8083C62C(this, func_800B7128(this) || func_8082EF20(this));
     }
 
+    // Using Should hook, but ignoring return value, to be able to modify the speed argument
+    GameInteractor_Should(GI_VB_ZTARGET_SPEED_CHECK, false, &arg1);
+
     temp_fv1 = fabsf(sp1C) / 0x8000;
     if (((SQ(temp_fv1) * 50.0f) + 6.0f) < arg1) {
         return 1;

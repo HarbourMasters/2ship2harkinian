@@ -1,6 +1,5 @@
 #include "global.h"
 #include <libultraship/bridge.h>
-#include "BenPort.h"
 
 f32 Math_CosS(s16 angle) {
     return coss(angle) * SHT_MINV;
@@ -677,11 +676,12 @@ f32 Math_Vec3f_StepTo(Vec3f* start, Vec3f* target, f32 speed) {
 void Lib_Nop801004FC(void) {
 }
 
+// 2S2H [Port] For the port, resources aren't loaded into memory addresses like on console.
+// Instead we deal with resource strings and leave systems to deal with pointers later (renderer, etc).
+// We've modified the macros used below and similar ones to just return what its given (noop).
+
 void* Lib_SegmentedToVirtual(void* ptr) {
-    if (ResourceMgr_OTRSigCheck(ptr)) {
-        return ResourceGetDataByName(ptr); // SEGMENTED_TO_VIRTUAL(ptr);
-    }
-    return ptr;
+    return SEGMENTED_TO_K0(ptr);
 }
 
 void* Lib_SegmentedToVirtualNull(void* ptr) {

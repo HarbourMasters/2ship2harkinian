@@ -16,6 +16,7 @@ void InitEnhancements() {
 
     // Clock
     RegisterTextBasedClock();
+    Register3DSClock();
 
     // Cycle & Saving
     RegisterEndOfCycleSaveHooks();
@@ -28,6 +29,10 @@ void InitEnhancements() {
     // Equipment
     RegisterSkipMagicArrowEquip();
     RegisterGreatFairySwordOnB();
+    RegisterInstantRecall();
+
+    // Fixes
+    RegisterFierceDeityZTargetMovement();
 
     // Graphics
     RegisterDisableBlackBars();
@@ -51,12 +56,14 @@ void InitEnhancements() {
     // Songs
     RegisterEnableSunsSong();
     RegisterPauseOwlWarp();
+    RegisterZoraEggCount();
 
     // Restorations
     RegisterPowerCrouchStab();
     RegisterSideRoll();
     RegisterTatlISG();
     RegisterVariableFlipHop();
+    RegisterWoodfallMountainAppearance();
 
     // Cutscenes
     RegisterCutscenes();
