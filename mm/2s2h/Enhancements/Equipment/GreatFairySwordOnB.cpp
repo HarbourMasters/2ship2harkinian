@@ -174,16 +174,21 @@ void RegisterGreatFairySwordOnB() {
         ItemId* itemId = (ItemId*)opt;
         Player* player = GET_PLAYER(gPlayState);
         if (CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB.Enabled", 0) &&
-            player->transformation == PLAYER_FORM_HUMAN && (*itemId & 0xFF) == ITEM_SWORD_GREAT_FAIRY &&
-            !(player->currentMask == PLAYER_MASK_BREMEN || player->currentMask == PLAYER_MASK_BLAST ||
-              player->currentMask == PLAYER_MASK_KAMARO)) {
+            (*itemId & 0xFF) == ITEM_SWORD_GREAT_FAIRY) {
             *should = false;
-            CVarSetInteger("gEnhancements.Equipment.GreatFairySwordB.State",
-                           !CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB.State", 0));
-            if (CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB.State", 0)) {
-                EquipSword();
+            if (player->transformation == PLAYER_FORM_HUMAN &&
+                !(player->currentMask == PLAYER_MASK_BREMEN || player->currentMask == PLAYER_MASK_BLAST ||
+                  player->currentMask == PLAYER_MASK_KAMARO)) {
+                CVarSetInteger("gEnhancements.Equipment.GreatFairySwordB.State",
+                               !CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB.State", 0));
+                if (CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB.State", 0)) {
+                    EquipSword();
+                } else {
+                    RestoreSwordState();
+                }
             } else {
-                RestoreSwordState();
+                // Play error sound when in a state that we prevent equipping/unequipping gfs on B
+                Audio_PlaySfx(NA_SE_SY_ERROR);
             }
         }
     });
