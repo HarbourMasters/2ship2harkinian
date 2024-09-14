@@ -967,7 +967,9 @@ void TitleCard_Draw(GameState* gameState, TitleCardContext* titleCtx) {
         OPEN_DISPS(gameState->gfxCtx);
 
         if (width * height > TMEM_SIZE) {
-            height = TMEM_SIZE / width;
+            // 2S2H [HD Textures] Commenting out the below so that we can render the full texture in one rectangle,
+            // as we are not restricted to the console TMEM limit
+            // height = TMEM_SIZE / width;
         }
 
         titleSecondY = titleY + (height * 4);
@@ -3646,6 +3648,9 @@ Actor* Actor_Delete(ActorContext* actorCtx, Actor* actor, PlayState* play) {
     Player* player = GET_PLAYER(play);
     Actor* newHead;
     ActorOverlay* overlayEntry = actor->overlayEntry;
+
+    // Execute before actor memory is freed
+    GameInteractor_ExecuteOnActorDestroy(actor);
 
     if ((player != NULL) && (actor == player->lockOnActor)) {
         Player_Untarget(player);

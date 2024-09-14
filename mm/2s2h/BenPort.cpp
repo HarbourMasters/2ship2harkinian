@@ -476,7 +476,7 @@ extern "C" void InitOTR() {
 
     OTRMessage_Init();
     OTRAudio_Init();
-    // OTRExtScanner();
+    OTRExtScanner();
 
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnFileDropped>(Ben_ProcessDroppedFiles);
 
@@ -1080,6 +1080,25 @@ extern "C" size_t ResourceMgr_GetArraySizeByName(const char* path) {
 
     return res->Scalars.size();
 }
+
+// Loads U8 data from an Array resource into an externally managed buffer, or mallocs a new buffer
+// if the passed in a nullptr. This malloced buffer must be freed by the caller.
+extern "C" u8* ResourceMgr_LoadArrayByNameAsU8(const char* path, u8* buffer) {
+    auto res = std::static_pointer_cast<SOH::Array>(GetResourceByName(path));
+
+    if (buffer == nullptr) {
+        buffer = (u8*)malloc(sizeof(u8) * res->Scalars.size());
+    }
+
+    for (size_t i = 0; i < res->Scalars.size(); i++) {
+        buffer[i] = res->Scalars[i].u8;
+    }
+
+    return buffer;
+}
+
+// Loads Vec3s data from an Array resource.
+// mallocs a new buffer that must be freed by the caller.
 extern "C" char* ResourceMgr_LoadArrayByNameAsVec3s(const char* path) {
     auto res = std::static_pointer_cast<SOH::Array>(GetResourceByName(path));
 

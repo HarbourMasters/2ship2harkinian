@@ -2376,6 +2376,14 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
             }
         }
 
+        // #region 2S2H [Dpad]
+        for (s16 j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++) {
+            if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_ENABLED) {
+                gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
+            }
+        }
+        // #endregion
+
         Interface_SetHudVisibility(HUD_VISIBILITY_B);
     } else if (CHECK_WEEKEVENTREG(WEEKEVENTREG_82_08)) {
         // Swordsman's log minigame
@@ -2384,6 +2392,14 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                 gSaveContext.buttonStatus[i] = BTN_DISABLED;
             }
         }
+
+        // #region 2S2H [Dpad]
+        for (s16 j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++) {
+            if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_ENABLED) {
+                gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
+            }
+        }
+        // #endregion
 
         Interface_SetHudVisibility(HUD_VISIBILITY_A_B_HEARTS_MAGIC_MINIMAP);
     } else if (CHECK_WEEKEVENTREG(WEEKEVENTREG_84_20)) {
@@ -2460,7 +2476,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
             gSaveContext.buttonStatus[i] = BTN_DISABLED;
         }
         // #region 2S2H [Dpad]
-        for (s16 j = EQUIP_SLOT_C_LEFT; j <= EQUIP_SLOT_C_RIGHT; j++) {
+        for (s16 j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++) {
             if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_ENABLED) {
                 restoreHudVisibility = true;
             }
