@@ -10,6 +10,7 @@ extern "C" {
 #include "variables.h"
 extern u16 sMasksGivenOnMoonBits[];
 extern s16 sPauseMenuVerticalOffset;
+void Player_Action_93(Player* player, PlayState* play);
 }
 
 static Vtx* easyMaskEquipVtx = nullptr;
@@ -83,64 +84,88 @@ void UpdateEasyMaskEquipVtx(PauseContext* pauseCtx) {
 
 // Determine if a mask should be equipped based on various conditions
 bool ShouldEquipMask(s16 cursorItem) {
-    const Player* player = GET_PLAYER(gPlayState);
+    Player* player = GET_PLAYER(gPlayState);
 
-    // Check if player is airborne and attempting to equip a transformation mask
-    bool isAirborne = !(player->actor.bgCheckFlags & BGCHECKFLAG_GROUND);
-    bool notInWater = !(Player_GetEnvironmentalHazard(gPlayState) >= PLAYER_ENV_HAZARD_UNDERWATER_FLOOR &&
-                        Player_GetEnvironmentalHazard(gPlayState) <= PLAYER_ENV_HAZARD_UNDERWATER_FREE);
-
-    // Add a check for Zora transformation and a small delay after transformation
-    if (player->transformation == PLAYER_FORM_ZORA) {
-        // Ensure the player is fully transformed and not in the middle of an animation
-        if (player->skelAnime.curFrame < player->skelAnime.endFrame) {
-            return false; // Still transforming, don't allow mask change
+    // Check if the player is underwater
+    if ((Player_GetEnvironmentalHazard(gPlayState) >= PLAYER_ENV_HAZARD_UNDERWATER_FLOOR) &&
+        (Player_GetEnvironmentalHazard(gPlayState) <= PLAYER_ENV_HAZARD_UNDERWATER_FREE)) {
+        
+        // Only allow equipping Zora Mask underwater
+        if (cursorItem != ITEM_MASK_ZORA) {
+            return false;  // Prevent equipping any mask other than Zora Mask
         }
     }
 
-    if (isAirborne && notInWater) {
-        if (player->transformation == PLAYER_FORM_HUMAN && IsTransformationMask(static_cast<ItemId>(cursorItem))) {
-            return true;
-        }
-        if (player->transformation != PLAYER_FORM_HUMAN) {
-            return true;
-        }
+    // Check if the player is climbing (some of these might be redundant, but it works)
+    if ((player->stateFlags1 & (PLAYER_STATE1_4 | PLAYER_STATE1_4000 | PLAYER_STATE1_40000 | PLAYER_STATE1_200000)) &&
+        IsTransformationMask(static_cast<ItemId>(cursorItem))) {
+        // Player is climbing and trying to equip a transformation mask, do not allow
+        return false;
     }
 
-    // Check if underwater and trying to equip non-Zora masks
-    auto hazard = Player_GetEnvironmentalHazard(gPlayState);
-    if (hazard >= PLAYER_ENV_HAZARD_UNDERWATER_FLOOR && hazard <= PLAYER_ENV_HAZARD_UNDERWATER_FREE &&
-        cursorItem != ITEM_MASK_ZORA) {
-        return true;
-    }
-
-    // Check if the mask is given on the moon. Need to test this.
-    if (cursorItem >= ITEM_NUM_SLOTS && (cursorItem - ITEM_NUM_SLOTS) < MASK_NUM_SLOTS &&
-        CHECK_GIVEN_MASK_ON_MOON(cursorItem - ITEM_NUM_SLOTS)) {
-        return true;
-    }
-
-    // Check if player is busy and trying to equip a transformation mask
+    // Prevent equipping transformation masks if interacting with an object
     if (IsTransformationMask(static_cast<ItemId>(cursorItem))) {
-        const auto& flags1 = player->stateFlags1;
-        const auto& flags2 = player->stateFlags2;
-        const auto heldAction = player->heldItemAction;
-
-        bool isBusy = flags1 & (PLAYER_STATE1_800 | PLAYER_STATE1_400 | PLAYER_STATE1_20000000) ||
-                      flags2 & (PLAYER_STATE2_10 | PLAYER_STATE2_80) || heldAction == PLAYER_IA_BOW ||
-                      heldAction == PLAYER_IA_BOW_FIRE || heldAction == PLAYER_IA_BOW_ICE ||
-                      heldAction == PLAYER_IA_BOW_LIGHT || heldAction == PLAYER_IA_BOMB ||
-                      heldAction == PLAYER_IA_BOMBCHU || heldAction == PLAYER_IA_HOOKSHOT ||
-                      heldAction == PLAYER_IA_POWDER_KEG;
-
-        bool isSwingingWeapon = player->meleeWeaponState != PLAYER_MELEE_WEAPON_STATE_0;
-
-        if (isBusy || isSwingingWeapon) {
-            return true;
+        if ((player->stateFlags2 & PLAYER_STATE2_10) ||  // Pushing/Pulling
+            (player->stateFlags1 & PLAYER_STATE1_800) || // Carrying
+            (player->stateFlags2 & PLAYER_STATE2_1)) {   // Grabbing
+            return false;
         }
     }
 
-    return false;
+    // Check if the player is interacting with Epona
+    if (player->rideActor != NULL && player->rideActor->id == ACTOR_EN_HORSE &&
+        IsTransformationMask(static_cast<ItemId>(cursorItem))) {
+        return false;  // Prevent equipping transformation masks while interacting with Epona
+    }
+
+    // Check if a minigame timer is active (prevent equipping masks during minigames)
+    if (gSaveContext.timerStates[TIMER_ID_MINIGAME_1] != TIMER_STATE_OFF ||
+        gSaveContext.timerStates[TIMER_ID_MINIGAME_2] != TIMER_STATE_OFF) {
+        // If a minigame timer is active, do not equip any mask
+        return false;
+    }
+
+    // Prevent equipping transformation masks when swinging a melee weapon 
+    if (player->meleeWeaponState != PLAYER_MELEE_WEAPON_STATE_0 && IsTransformationMask(static_cast<ItemId>(cursorItem))) {
+        return false;
+    }
+
+    // Check if the player is holding a bow (including ice, fire, light variants) or hookshot 
+    if ((player->heldItemAction == PLAYER_IA_BOW ||
+         player->heldItemAction == PLAYER_IA_BOW_FIRE ||
+         player->heldItemAction == PLAYER_IA_BOW_ICE ||
+         player->heldItemAction == PLAYER_IA_BOW_LIGHT ||
+         Player_IsHoldingHookshot(player)) &&
+        IsTransformationMask(static_cast<ItemId>(cursorItem))) {
+        // Prevent equipping transformation masks while holding bow or hookshot
+        return false;
+    }        
+
+    // Check if the mask is Fierce Deity Mask and if the player is in an allowed location
+    if (cursorItem == ITEM_MASK_FIERCE_DEITY) {
+        if (gPlayState->sceneId != SCENE_MITURIN_BS &&
+            gPlayState->sceneId != SCENE_HAKUGIN_BS &&
+            gPlayState->sceneId != SCENE_SEA_BS &&
+            gPlayState->sceneId != SCENE_INISIE_BS &&
+            gPlayState->sceneId != SCENE_LAST_BS) {
+            return false;  // Prevent equipping Fierce Deity Mask outside allowed locations
+        }
+    }
+
+    // Check if the player is in the air (not on the ground) and if the mask is a transformation mask
+    if (!(player->actor.bgCheckFlags & BGCHECKFLAG_GROUND) && 
+        (IsTransformationMask(static_cast<ItemId>(cursorItem)) || player->transformation != PLAYER_FORM_HUMAN)) {
+        return false; // Player is in the air and in a transformation form, cannot equip any mask
+    }
+
+    // Check if the player is interacting with a Deku Flower (some might be redundant because of the above check, but it works)
+    if (player->stateFlags3 & (PLAYER_STATE3_200 | PLAYER_STATE3_2000 | PLAYER_STATE3_100)) {
+        return false;  // Prevent equipping any mask while interacting with a Deku Flower
+    }
+
+    //We can add tons more checks here, but I need help to account for all scenarios
+
+    return true;  // Allow equipping other masks
 }
 
 // Draw the border around the equipped mask
@@ -188,7 +213,7 @@ void ApplyMaskIconGrayscale(PauseContext* pauseCtx, GraphicsContext* gfxCtx) {
 
     for (int i = 0; i < MASK_NUM_SLOTS; ++i) {
         const s16 cursorItem = gSaveContext.save.saveInfo.inventory.items[i + ITEM_NUM_SLOTS];
-        if (cursorItem != ITEM_NONE && ShouldEquipMask(cursorItem)) {
+        if (cursorItem != ITEM_NONE && !ShouldEquipMask(cursorItem)) {
             gDPSetGrayscaleColor(POLY_OPA_DISP++, 109, 109, 109, 255);
             gSPGrayscale(POLY_OPA_DISP++, true);
             gSPVertex(POLY_OPA_DISP++, reinterpret_cast<uintptr_t>(&pauseCtx->maskVtx[i * 4]), 4, 0); // Fixed cast
@@ -218,7 +243,7 @@ void HandleEasyMaskEquip(PauseContext* pauseCtx) {
                 return;
             }
 
-            if (ShouldEquipMask(cursorItem)) {
+            if (!ShouldEquipMask(cursorItem)) {
                 Audio_PlaySfx(NA_SE_SY_ERROR);
                 return;
             }
