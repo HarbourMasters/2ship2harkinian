@@ -265,8 +265,11 @@ void KaleidoScope_DrawItemSelect(PlayState* play) {
     for (i = 0, j = ITEM_NUM_SLOTS * 4; i < 3; i++, j += 4) {
         if (GET_CUR_FORM_BTN_ITEM(i + 1) != ITEM_NONE) {
             if (GET_CUR_FORM_BTN_SLOT(i + 1) < ITEM_NUM_SLOTS) {
-                gSPVertex(POLY_OPA_DISP++, &pauseCtx->itemVtx[j], 4, 0);
-                POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gEquippedItemOutlineTex, 32, 32, 0);
+                ItemId item = GET_CUR_FORM_BTN_ITEM(i + 1);
+                if (GameInteractor_Should(GI_VB_DRAW_ITEM_EQUIPPED_OUTLINE, true, &item)) {
+                    gSPVertex(POLY_OPA_DISP++, &pauseCtx->itemVtx[j], 4, 0);
+                    POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gEquippedItemOutlineTex, 32, 32, 0);
+                }
             }
         }
     }
@@ -275,8 +278,11 @@ void KaleidoScope_DrawItemSelect(PlayState* play) {
         for (i = EQUIP_SLOT_D_RIGHT; i <= EQUIP_SLOT_D_UP; i++, j += 4) {
             if (DPAD_GET_CUR_FORM_BTN_ITEM(i) != ITEM_NONE) {
                 if (DPAD_GET_CUR_FORM_BTN_SLOT(i) < ITEM_NUM_SLOTS) {
-                    gSPVertex(POLY_OPA_DISP++, &pauseCtx->itemVtx[j], 4, 0);
-                    POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gEquippedItemOutlineTex, 32, 32, 0);
+                    ItemId item = DPAD_GET_CUR_FORM_BTN_ITEM(i);
+                    if (GameInteractor_Should(GI_VB_DRAW_ITEM_EQUIPPED_OUTLINE, true, &item)) {
+                        gSPVertex(POLY_OPA_DISP++, &pauseCtx->itemVtx[j], 4, 0);
+                        POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gEquippedItemOutlineTex, 32, 32, 0);
+                    }
                 }
             }
         }

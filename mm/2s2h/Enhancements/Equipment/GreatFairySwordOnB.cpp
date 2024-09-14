@@ -10,10 +10,6 @@ extern "C" {
 extern PlayState* gPlayState;
 }
 
-// TODO: Decide whether to allow equiping GFS on C while active. If so, should the white border be suppressed?
-// TODO: Bremen and Blast mask actions aren't available when state is on. Should that be changed?
-// TODO: What sfx should be used when equiping/unequiping GFS to/from B?
-
 void RestoreSwordState() {
     u8 bItemId = ITEM_SWORD_KOKIRI + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI;
     // Check to prevent Light Arrows from being set to B if you're missing your normal sword.
@@ -23,6 +19,14 @@ void RestoreSwordState() {
         BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_NONE;
     }
     Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_B);
+    Audio_PlaySfx(NA_SE_SY_CAMERA_ZOOM_UP);
+}
+
+void EquipSword() {
+    BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_GREAT_FAIRY;
+    Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_B);
+    // Audio_PlaySfx(NA_SE_SY_CAMERA_ZOOM_DOWN);
+    Audio_PlaySfx(NA_SE_SY_FAIRY_MASK_SUCCESS);
 }
 
 void UpdateGreatFairySwordState() {
@@ -133,8 +137,7 @@ void RegisterGreatFairySwordOnB() {
                 CVarClear("gEnhancements.Equipment.GreatFairySwordB.State");
                 RestoreSwordState();
             } else if (item >= ITEM_SWORD_KOKIRI && item <= ITEM_SWORD_GILDED) {
-                BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_GREAT_FAIRY;
-                Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_B);
+                EquipSword();
             }
         }
     });
@@ -151,33 +154,46 @@ void RegisterGreatFairySwordOnB() {
         }
     });
 
+    // When equipping masks with special B actions, clear state
+    REGISTER_VB_SHOULD(GI_VB_USE_ITEM_EQUIP_MASK, {
+        if (CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB.Enabled", 0)) {
+            PlayerMask* maskId = (PlayerMask*)opt;
+            Player* player = GET_PLAYER(gPlayState);
+
+            if (*maskId == PLAYER_MASK_BREMEN || *maskId == PLAYER_MASK_BLAST || *maskId == PLAYER_MASK_KAMARO) {
+                CVarClear("gEnhancements.Equipment.GreatFairySwordB.State");
+                if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) == ITEM_SWORD_GREAT_FAIRY) {
+                    RestoreSwordState();
+                }
+            }
+        }
+    });
+
     // Override "A" press behavior on kaleido scope to toggle the item state
     REGISTER_VB_SHOULD(GI_VB_KALEIDO_DISPLAY_ITEM_TEXT, {
         ItemId* itemId = (ItemId*)opt;
         Player* player = GET_PLAYER(gPlayState);
         if (CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB.Enabled", 0) &&
-            player->transformation == PLAYER_FORM_HUMAN && (*itemId & 0xFF) == ITEM_SWORD_GREAT_FAIRY) {
+            player->transformation == PLAYER_FORM_HUMAN && (*itemId & 0xFF) == ITEM_SWORD_GREAT_FAIRY &&
+            !(player->currentMask == PLAYER_MASK_BREMEN || player->currentMask == PLAYER_MASK_BLAST ||
+              player->currentMask == PLAYER_MASK_KAMARO)) {
             *should = false;
             CVarSetInteger("gEnhancements.Equipment.GreatFairySwordB.State",
                            !CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB.State", 0));
             if (CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB.State", 0)) {
-                BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) = ITEM_SWORD_GREAT_FAIRY;
-                Interface_LoadItemIconImpl(gPlayState, EQUIP_SLOT_B);
-                // Audio_PlaySfx(NA_SE_SY_CAMERA_ZOOM_DOWN);
-                Audio_PlaySfx(NA_SE_SY_FAIRY_MASK_SUCCESS);
+                EquipSword();
             } else {
                 RestoreSwordState();
-                Audio_PlaySfx(NA_SE_SY_CAMERA_ZOOM_UP);
             }
         }
     });
 
-    // Update for GFS or delete
-    // // Prevent the "equipped" white border from being drawn so ours shows instead (ours was drawn before it, so it's
-    // // underneath)
-    // REGISTER_VB_SHOULD(GI_VB_DRAW_ITEM_EQUIPPED_OUTLINE, {
-    //     if (*(ItemId*)opt == ITEM_MASK_BUNNY && CVarGetInteger("gEnhancements.Masks.PersistentBunnyHood.State", 0)) {
-    //         *should = false;
-    //     }
-    // });
+    // Prevent the "equipped" white border from being drawn so ours shows instead (ours was drawn before it, so it's
+    // underneath)
+    REGISTER_VB_SHOULD(GI_VB_DRAW_ITEM_EQUIPPED_OUTLINE, {
+        if (*(ItemId*)opt == ITEM_SWORD_GREAT_FAIRY &&
+            CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB.State", 0)) {
+            *should = false;
+        }
+    });
 }
