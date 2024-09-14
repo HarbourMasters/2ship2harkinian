@@ -89,10 +89,10 @@ bool ShouldEquipMask(s16 cursorItem) {
     // Check if the player is underwater
     if ((Player_GetEnvironmentalHazard(gPlayState) >= PLAYER_ENV_HAZARD_UNDERWATER_FLOOR) &&
         (Player_GetEnvironmentalHazard(gPlayState) <= PLAYER_ENV_HAZARD_UNDERWATER_FREE)) {
-        
+
         // Only allow equipping Zora Mask underwater
         if (cursorItem != ITEM_MASK_ZORA) {
-            return false;  // Prevent equipping any mask other than Zora Mask
+            return false; // Prevent equipping any mask other than Zora Mask
         }
     }
 
@@ -115,7 +115,7 @@ bool ShouldEquipMask(s16 cursorItem) {
     // Check if the player is interacting with Epona
     if (player->rideActor != NULL && player->rideActor->id == ACTOR_EN_HORSE &&
         IsTransformationMask(static_cast<ItemId>(cursorItem))) {
-        return false;  // Prevent equipping transformation masks while interacting with Epona
+        return false; // Prevent equipping transformation masks while interacting with Epona
     }
 
     // Check if a minigame timer is active (prevent equipping masks during minigames)
@@ -125,47 +125,45 @@ bool ShouldEquipMask(s16 cursorItem) {
         return false;
     }
 
-    // Prevent equipping transformation masks when swinging a melee weapon 
-    if (player->meleeWeaponState != PLAYER_MELEE_WEAPON_STATE_0 && IsTransformationMask(static_cast<ItemId>(cursorItem))) {
+    // Prevent equipping transformation masks when swinging a melee weapon
+    if (player->meleeWeaponState != PLAYER_MELEE_WEAPON_STATE_0 &&
+        IsTransformationMask(static_cast<ItemId>(cursorItem))) {
         return false;
     }
 
-    // Check if the player is holding a bow (including ice, fire, light variants) or hookshot 
-    if ((player->heldItemAction == PLAYER_IA_BOW ||
-         player->heldItemAction == PLAYER_IA_BOW_FIRE ||
-         player->heldItemAction == PLAYER_IA_BOW_ICE ||
-         player->heldItemAction == PLAYER_IA_BOW_LIGHT ||
+    // Check if the player is holding a bow (including ice, fire, light variants) or hookshot
+    if ((player->heldItemAction == PLAYER_IA_BOW || player->heldItemAction == PLAYER_IA_BOW_FIRE ||
+         player->heldItemAction == PLAYER_IA_BOW_ICE || player->heldItemAction == PLAYER_IA_BOW_LIGHT ||
          Player_IsHoldingHookshot(player)) &&
         IsTransformationMask(static_cast<ItemId>(cursorItem))) {
         // Prevent equipping transformation masks while holding bow or hookshot
         return false;
-    }        
+    }
 
     // Check if the mask is Fierce Deity Mask and if the player is in an allowed location
     if (cursorItem == ITEM_MASK_FIERCE_DEITY) {
-        if (gPlayState->sceneId != SCENE_MITURIN_BS &&
-            gPlayState->sceneId != SCENE_HAKUGIN_BS &&
-            gPlayState->sceneId != SCENE_SEA_BS &&
-            gPlayState->sceneId != SCENE_INISIE_BS &&
+        if (gPlayState->sceneId != SCENE_MITURIN_BS && gPlayState->sceneId != SCENE_HAKUGIN_BS &&
+            gPlayState->sceneId != SCENE_SEA_BS && gPlayState->sceneId != SCENE_INISIE_BS &&
             gPlayState->sceneId != SCENE_LAST_BS) {
-            return false;  // Prevent equipping Fierce Deity Mask outside allowed locations
+            return false; // Prevent equipping Fierce Deity Mask outside allowed locations
         }
     }
 
     // Check if the player is in the air (not on the ground) and if the mask is a transformation mask
-    if (!(player->actor.bgCheckFlags & BGCHECKFLAG_GROUND) && 
+    if (!(player->actor.bgCheckFlags & BGCHECKFLAG_GROUND) &&
         (IsTransformationMask(static_cast<ItemId>(cursorItem)) || player->transformation != PLAYER_FORM_HUMAN)) {
         return false; // Player is in the air and in a transformation form, cannot equip any mask
     }
 
-    // Check if the player is interacting with a Deku Flower (some might be redundant because of the above check, but it works)
+    // Check if the player is interacting with a Deku Flower (some might be redundant because of the above check, but it
+    // works)
     if (player->stateFlags3 & (PLAYER_STATE3_200 | PLAYER_STATE3_2000 | PLAYER_STATE3_100)) {
-        return false;  // Prevent equipping any mask while interacting with a Deku Flower
+        return false; // Prevent equipping any mask while interacting with a Deku Flower
     }
 
-    //We can add tons more checks here, but I need help to account for all scenarios
+    // We can add tons more checks here, but I need help to account for all scenarios
 
-    return true;  // Allow equipping other masks
+    return true; // Allow equipping other masks
 }
 
 // Draw the border around the equipped mask
