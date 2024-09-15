@@ -135,15 +135,6 @@ bool ShouldEquipMask(s16 cursorItem) {
         return false;
     }
 
-    // Check if the player is holding a bow (including ice, fire, light variants) or hookshot
-    if ((player->heldItemAction == PLAYER_IA_BOW || player->heldItemAction == PLAYER_IA_BOW_FIRE ||
-         player->heldItemAction == PLAYER_IA_BOW_ICE || player->heldItemAction == PLAYER_IA_BOW_LIGHT ||
-         Player_IsHoldingHookshot(player)) &&
-        IsTransformationMask(static_cast<ItemId>(cursorItem))) {
-        // Prevent equipping transformation masks while holding bow or hookshot
-        return false;
-    }
-
     // Check if the mask is Fierce Deity Mask and if the player is in an allowed location
     if (cursorItem == ITEM_MASK_FIERCE_DEITY) {
         if (!CVarGetInteger("gEnhancements.Masks.FierceDeitysAnywhere", 0) && gPlayState->sceneId != SCENE_MITURIN_BS &&
@@ -165,11 +156,26 @@ bool ShouldEquipMask(s16 cursorItem) {
         return false; // Prevent equipping any mask while interacting with a Deku Flower
     }
 
-    // Check if the mask is Giant's Mask and if the player is in the allowed location
+    // Check if the mask is Giant's Mask and if the player is in the allowed location with enough magic
     if (cursorItem == ITEM_MASK_GIANT) {
-        if (gPlayState->sceneId != SCENE_INISIE_BS) {
-            return false; // Prevent equipping Giant's Mask outside SCENE_INISIE_BS
+        if (gPlayState->sceneId != SCENE_INISIE_BS || gSaveContext.save.saveInfo.playerData.magic == 0) {
+            return false; // Prevent equipping Giant's Mask outside SCENE_INISIE_BS or if magic is depleted
         }
+    }
+
+    // Prevent equipping any mask if Giant's Mask is already equipped, except for Giant's Mask
+    if (player->currentMask == PLAYER_MASK_GIANT && cursorItem != ITEM_MASK_GIANT) {
+        return false;
+    }
+    
+    // Prevent equipping Giant's Mask while wearing a transformation mask
+    if ((player->transformation != PLAYER_FORM_HUMAN) && cursorItem == ITEM_MASK_GIANT) {
+        return false; // Prevent equipping Giant's Mask while wearing a transformation mask
+    }
+
+    // Prevent equipping transformation masks in first-person mode
+    if ((player->stateFlags1 & PLAYER_STATE1_100000) && IsTransformationMask(static_cast<ItemId>(cursorItem))) {
+        return false;
     }
 
     // We can add tons more checks here, but I need help to account for all scenarios
