@@ -364,8 +364,15 @@ void RegisterEasyMaskEquip() {
         }
     });
 
-    // Register the hook for GI_VB_KALEIDO_DISPLAY_ITEM_TEXT
+    // Disable selected item textbox
     REGISTER_VB_SHOULD(GI_VB_KALEIDO_DISPLAY_ITEM_TEXT, {
+        if (EasyMaskEquip_IsEnabled()) {
+            *should = false;
+        }
+    });
+
+    // Remove restriction requiring masks be equipped from C or D buttons
+    REGISTER_VB_SHOULD(GI_VB_ALLOW_EQUIP_MASK, {
         if (EasyMaskEquip_IsEnabled()) {
             *should = false;
         }
