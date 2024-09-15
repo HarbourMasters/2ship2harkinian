@@ -146,10 +146,9 @@ bool ShouldEquipMask(s16 cursorItem) {
 
     // Check if the mask is Fierce Deity Mask and if the player is in an allowed location
     if (cursorItem == ITEM_MASK_FIERCE_DEITY) {
-        if (!CVarGetInteger("gEnhancements.Masks.FierceDeitysAnywhere", 0) &&
-            gPlayState->sceneId != SCENE_MITURIN_BS && gPlayState->sceneId != SCENE_HAKUGIN_BS &&
-            gPlayState->sceneId != SCENE_SEA_BS && gPlayState->sceneId != SCENE_INISIE_BS &&
-            gPlayState->sceneId != SCENE_LAST_BS) {
+        if (!CVarGetInteger("gEnhancements.Masks.FierceDeitysAnywhere", 0) && gPlayState->sceneId != SCENE_MITURIN_BS &&
+            gPlayState->sceneId != SCENE_HAKUGIN_BS && gPlayState->sceneId != SCENE_SEA_BS &&
+            gPlayState->sceneId != SCENE_INISIE_BS && gPlayState->sceneId != SCENE_LAST_BS) {
             return false; // Prevent equipping Fierce Deity Mask outside allowed locations
         }
     }
@@ -172,7 +171,6 @@ bool ShouldEquipMask(s16 cursorItem) {
             return false; // Prevent equipping Giant's Mask outside SCENE_INISIE_BS
         }
     }
-
 
     // We can add tons more checks here, but I need help to account for all scenarios
 
