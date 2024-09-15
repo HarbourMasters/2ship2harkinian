@@ -10,7 +10,6 @@ extern "C" {
 #include "variables.h"
 extern u16 sMasksGivenOnMoonBits[];
 extern s16 sPauseMenuVerticalOffset;
-void Player_Action_93(Player* player, PlayState* play);
 }
 
 static Vtx* easyMaskEquipVtx = nullptr;
@@ -86,6 +85,11 @@ void UpdateEasyMaskEquipVtx(PauseContext* pauseCtx) {
 bool ShouldEquipMask(s16 cursorItem) {
     Player* player = GET_PLAYER(gPlayState);
 
+    // Allow all masks to be equipped if the Unrestricted Items cheat is enabled
+    if (CVarGetInteger("gCheats.UnrestrictedItems", 0)) {
+        return true;
+    }
+
     // Check if the player is underwater
     if ((Player_GetEnvironmentalHazard(gPlayState) >= PLAYER_ENV_HAZARD_UNDERWATER_FLOOR) &&
         (Player_GetEnvironmentalHazard(gPlayState) <= PLAYER_ENV_HAZARD_UNDERWATER_FREE)) {
@@ -142,7 +146,8 @@ bool ShouldEquipMask(s16 cursorItem) {
 
     // Check if the mask is Fierce Deity Mask and if the player is in an allowed location
     if (cursorItem == ITEM_MASK_FIERCE_DEITY) {
-        if (gPlayState->sceneId != SCENE_MITURIN_BS && gPlayState->sceneId != SCENE_HAKUGIN_BS &&
+        if (!CVarGetInteger("gEnhancements.Masks.FierceDeitysAnywhere", 0) &&
+            gPlayState->sceneId != SCENE_MITURIN_BS && gPlayState->sceneId != SCENE_HAKUGIN_BS &&
             gPlayState->sceneId != SCENE_SEA_BS && gPlayState->sceneId != SCENE_INISIE_BS &&
             gPlayState->sceneId != SCENE_LAST_BS) {
             return false; // Prevent equipping Fierce Deity Mask outside allowed locations
@@ -160,6 +165,14 @@ bool ShouldEquipMask(s16 cursorItem) {
     if (player->stateFlags3 & (PLAYER_STATE3_200 | PLAYER_STATE3_2000 | PLAYER_STATE3_100)) {
         return false; // Prevent equipping any mask while interacting with a Deku Flower
     }
+
+    // Check if the mask is Giant's Mask and if the player is in the allowed location
+    if (cursorItem == ITEM_MASK_GIANT) {
+        if (gPlayState->sceneId != SCENE_INISIE_BS) {
+            return false; // Prevent equipping Giant's Mask outside SCENE_INISIE_BS
+        }
+    }
+
 
     // We can add tons more checks here, but I need help to account for all scenarios
 
