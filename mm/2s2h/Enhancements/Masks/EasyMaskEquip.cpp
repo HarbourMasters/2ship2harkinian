@@ -167,7 +167,7 @@ bool ShouldEquipMask(s16 cursorItem) {
     if (player->currentMask == PLAYER_MASK_GIANT && cursorItem != ITEM_MASK_GIANT) {
         return false;
     }
-    
+
     // Prevent equipping Giant's Mask while wearing a transformation mask
     if ((player->transformation != PLAYER_FORM_HUMAN) && cursorItem == ITEM_MASK_GIANT) {
         return false; // Prevent equipping Giant's Mask while wearing a transformation mask
