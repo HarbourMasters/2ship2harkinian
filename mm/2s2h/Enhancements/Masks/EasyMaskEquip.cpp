@@ -251,6 +251,11 @@ void HandleEasyMaskEquip(PauseContext* pauseCtx) {
     if (CHECK_BTN_ALL(pressedButtons, BTN_A)) {
         s16 cursorItem = pauseCtx->cursorItem[PAUSE_MASK];
         if (cursorItem != PAUSE_ITEM_NONE) {
+            // Check if PersistentBunnyHood is enabled and the mask is Bunny Hood
+            if (CVarGetInteger("gEnhancements.Masks.PersistentBunnyHood.Enabled", 0) && cursorItem == ITEM_MASK_BUNNY) {
+                return; // Do nothing if trying to equip Bunny Hood and PersistentBunnyHood is enabled
+            }
+
             // If sPendingMask is already the cursor item, remove the border and reset sPendingMask
             if (sPendingMask == cursorItem) {
                 sPendingMask = ITEM_NONE;
@@ -356,6 +361,13 @@ void RegisterEasyMaskEquip() {
                 sPendingMask = ITEM_NONE;
                 sIsTransforming = false;
             }
+        }
+    });
+
+    // Register the hook for GI_VB_KALEIDO_DISPLAY_ITEM_TEXT
+    REGISTER_VB_SHOULD(GI_VB_KALEIDO_DISPLAY_ITEM_TEXT, {
+        if (EasyMaskEquip_IsEnabled()) {
+            *should = false;
         }
     });
 }
