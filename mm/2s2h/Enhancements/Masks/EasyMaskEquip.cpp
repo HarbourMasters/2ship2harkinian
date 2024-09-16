@@ -94,14 +94,17 @@ bool ShouldEquipMask(s16 cursorItem) {
     if ((Player_GetEnvironmentalHazard(gPlayState) >= PLAYER_ENV_HAZARD_UNDERWATER_FLOOR) &&
         (Player_GetEnvironmentalHazard(gPlayState) <= PLAYER_ENV_HAZARD_UNDERWATER_FREE)) {
 
-        // Only allow equipping Zora Mask underwater
-        if (cursorItem != ITEM_MASK_ZORA) {
+        // Allow equipping Zora Mask underwater
+        if (cursorItem == ITEM_MASK_ZORA) {
+            return true; // Explicitly allow equipping the Zora Mask
+        } else {
             return false; // Prevent equipping any mask other than Zora Mask
         }
     }
 
     // Check if the player is climbing (some of these might be redundant, but it works)
-    if ((player->stateFlags1 & (PLAYER_STATE1_4 | PLAYER_STATE1_4000 | PLAYER_STATE1_40000 | PLAYER_STATE1_200000)) &&
+    if ((player->stateFlags1 &
+         (PLAYER_STATE1_4 | PLAYER_STATE1_4000 | PLAYER_STATE1_40000 | PLAYER_STATE1_200000 | PLAYER_STATE1_2000)) &&
         IsTransformationMask(static_cast<ItemId>(cursorItem))) {
         // Player is climbing and trying to equip a transformation mask, do not allow
         return false;
