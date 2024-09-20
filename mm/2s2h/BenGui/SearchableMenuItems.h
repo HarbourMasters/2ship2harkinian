@@ -37,6 +37,7 @@ typedef enum {
     DISABLE_FOR_NO_WINDOWED_FULLSCREEN,
     DISABLE_FOR_NO_MULTI_VIEWPORT,
     DISABLE_FOR_NOT_DIRECTX,
+    DISABLE_FOR_DIRECTX,
     DISABLE_FOR_MATCH_REFRESH_RATE_ON,
     DISABLE_FOR_MOTION_BLUR_MODE,
     DISABLE_FOR_MOTION_BLUR_OFF,
@@ -281,7 +282,13 @@ static std::map<DisableOption, disabledInfo> disabledMap = {
            return Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() !=
                   Ship::WindowBackend::FAST3D_DXGI_DX11;
        },
-        "Multi-viewports not supported" } },
+        "Available Only on DirectX" } },
+    { DISABLE_FOR_DIRECTX,
+      { [](disabledInfo& info) -> bool {
+           return Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() ==
+                  Ship::WindowBackend::FAST3D_DXGI_DX11;
+       },
+        "Not Available on DirectX" } },
     { DISABLE_FOR_MATCH_REFRESH_RATE_ON,
       { [](disabledInfo& info) -> bool { return CVarGetInteger("gMatchRefreshRate", 0); },
         "Match Refresh Rate is Enabled" } },
@@ -464,11 +471,11 @@ void AddSettings() {
                 WIDGET_AUDIO_BACKEND } } } });
     // Graphics Settings
     static int32_t maxFps;
-    std::string tooltip = "";
+    const char* tooltip = "";
     if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::FAST3D_DXGI_DX11) {
         maxFps = 360;
         tooltip = "Uses Matrix Interpolation to create extra frames, resulting in smoother graphics. This is "
-                  "purely visual and does not impact game logic, execution of glitches etc.\n\n A higher target "
+                  "purely visual and does not impact game logic, execution of glitches etc.\n\nA higher target "
                   "FPS than your monitor's refresh rate will waste resources, and might give a worse result.";
     } else {
         maxFps = Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
@@ -511,7 +518,7 @@ void AddSettings() {
 
               { "Current FPS: %d",
                 "gInterpolationFPS",
-                tooltip.c_str(),
+                tooltip,
                 WIDGET_CVAR_SLIDER_INT,
                 { 20, maxFps, 20 },
                 [](widgetInfo& info) {
@@ -538,16 +545,14 @@ void AddSettings() {
                         Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
                     }
                 },
-                [](widgetInfo& info) {
-                    if (disabledMap.at(DISABLE_FOR_NOT_DIRECTX).active) {
-                        info.isHidden = true;
-                    }
-                } },
+                [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_NOT_DIRECTX).active; } },
               { "Match Refresh Rate",
                 "gMatchRefreshRate",
                 "Matches interpolation value to the current game's window refresh rate.",
                 WIDGET_CVAR_CHECKBOX,
-                {} },
+                {},
+                nullptr,
+                [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_DIRECTX).active; } },
               { "Jitter fix : >= % d FPS",
                 "gExtraLatencyThreshold",
                 "When Interpolation FPS setting is at least this threshold, add one frame of input "
@@ -1532,7 +1537,7 @@ void SearchMenuGetItem(widgetInfo& widget) {
             widget.postFunc(widget);
         }
     } catch (const std::bad_variant_access& e) {
-        SPDLOG_ERROR(e.what());
+        SPDLOG_ERROR("Failed to draw menu item \"{}\" due to: {}", widget.widgetName, e.what());
         assert(false);
     }
 }
