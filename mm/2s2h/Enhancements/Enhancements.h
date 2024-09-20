@@ -25,6 +25,7 @@
 #include "Cutscenes/Cutscenes.h"
 #include "Restorations/FlipHopVariable.h"
 #include "Restorations/PowerCrouchStab.h"
+#include "Restorations/Restorations.h"
 #include "Restorations/SideRoll.h"
 #include "Restorations/TatlISG.h"
 #include "Graphics/3DItemDrops.h"

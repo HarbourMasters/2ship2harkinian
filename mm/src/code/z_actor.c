@@ -3649,6 +3649,9 @@ Actor* Actor_Delete(ActorContext* actorCtx, Actor* actor, PlayState* play) {
     Actor* newHead;
     ActorOverlay* overlayEntry = actor->overlayEntry;
 
+    // Execute before actor memory is freed
+    GameInteractor_ExecuteOnActorDestroy(actor);
+
     if ((player != NULL) && (actor == player->lockOnActor)) {
         Player_Untarget(player);
         Camera_ChangeMode(Play_GetCamera(play, Play_GetActiveCamId(play)), CAM_MODE_NORMAL);

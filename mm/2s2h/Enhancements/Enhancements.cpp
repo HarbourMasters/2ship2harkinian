@@ -63,6 +63,7 @@ void InitEnhancements() {
     RegisterSideRoll();
     RegisterTatlISG();
     RegisterVariableFlipHop();
+    RegisterWoodfallMountainAppearance();
 
     // Cutscenes
     RegisterCutscenes();
