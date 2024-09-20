@@ -28,6 +28,7 @@ void InitEnhancements() {
 
     // Equipment
     RegisterSkipMagicArrowEquip();
+    RegisterGreatFairySwordOnB();
     RegisterInstantRecall();
 
     // Fixes

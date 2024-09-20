@@ -230,6 +230,13 @@ void GameInteractor_ExecuteOnItemGive(u8 item) {
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnItemGive>(item);
 }
 
+void GameInteractor_ExecuteOnItemStolen(u8 item) {
+    SPDLOG_DEBUG("OnItemStolen: item: {}", item);
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnItemStolen>(item);
+    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnItemStolen>(item, item);
+    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnItemStolen>(item);
+}
+
 bool GameInteractor_Should(GIVanillaBehavior flag, bool result, void* opt) {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::ShouldVanillaBehavior>(flag, &result, opt);
     GameInteractor::Instance->ExecuteHooksForID<GameInteractor::ShouldVanillaBehavior>(flag, flag, &result, opt);

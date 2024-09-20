@@ -15,6 +15,7 @@
 #include "Cheats/TimeStop.h"
 #include "Cycle/EndOfCycle.h"
 #include "Equipment/SkipMagicArrowEquip.h"
+#include "Equipment/GreatFairySwordOnB.h"
 #include "Fixes/Fixes.h"
 #include "Masks/BlastMaskKeg.h"
 #include "Masks/FierceDeityAnywhere.h"

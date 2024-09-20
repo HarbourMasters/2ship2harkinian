@@ -303,6 +303,8 @@ class GameInteractor {
     DEFINE_HOOK(ShouldItemGive, (u8 item, bool* should));
     DEFINE_HOOK(OnItemGive, (u8 item));
 
+    DEFINE_HOOK(OnItemStolen, (u8 item));
+
     DEFINE_HOOK(ShouldVanillaBehavior, (GIVanillaBehavior flag, bool* should, void* optionalArg));
 };
 
@@ -352,6 +354,7 @@ void GameInteractor_ExecuteOnOpenText(u16 textId);
 
 bool GameInteractor_ShouldItemGive(u8 item);
 void GameInteractor_ExecuteOnItemGive(u8 item);
+void GameInteractor_ExecuteOnItemStolen(u8 item);
 
 bool GameInteractor_Should(GIVanillaBehavior flag, bool result, void* optionalArg);
 #define REGISTER_VB_SHOULD(flag, body)                                                      \

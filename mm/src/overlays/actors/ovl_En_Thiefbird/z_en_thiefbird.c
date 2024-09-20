@@ -9,6 +9,7 @@
 #include "overlays/actors/ovl_En_Clear_Tag/z_en_clear_tag.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
 
 #define FLAGS \
     (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_200 | ACTOR_FLAG_IGNORE_QUAKE | ACTOR_FLAG_80000000)
@@ -257,6 +258,7 @@ s32 func_80C10B0C(EnThiefbird* this, PlayState* play) {
             Message_StartTextbox(play, 0xF4, NULL);
         }
         itemId1 = ITEM_BOTTLE;
+        GameInteractor_ExecuteOnItemStolen(itemId2);
     } else if (phi_a3 != 0) {
         if (phi_a3 >= 5) {
             if (Rand_ZeroOne() < 0.5f) {
@@ -271,10 +273,12 @@ s32 func_80C10B0C(EnThiefbird* this, PlayState* play) {
             Inventory_DeleteItem(ITEM_SWORD_GREAT_FAIRY, SLOT_SWORD_GREAT_FAIRY);
             this->unk_3E8 = gTakkuriStolenGreatFairysSwordDL;
             itemId1 = ITEM_SWORD_GREAT_FAIRY;
+            GameInteractor_ExecuteOnItemStolen(ITEM_SWORD_GREAT_FAIRY);
         } else {
             CUR_FORM_EQUIP(EQUIP_SLOT_B) = ITEM_NONE;
             SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, EQUIP_VALUE_SWORD_NONE);
             this->unk_3E8 = D_80C13680[phi_a3 - 1];
+            GameInteractor_ExecuteOnItemStolen(itemId1);
         }
 
         if (Message_GetState(&play->msgCtx) == TEXT_STATE_NONE) {
