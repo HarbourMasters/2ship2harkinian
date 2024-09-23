@@ -63,6 +63,7 @@ typedef enum {
     VB_CLOCK_TOWER_OPENING_CONSIDER_THIS_FIRST_CYCLE,
     VB_DRAW_SLIME_BODY_ITEM,
     VB_ZTARGET_SPEED_CHECK,
+    GI_VB_THIEF_BIRD_STEAL,
 } GIVanillaBehavior;
 
 typedef enum {
