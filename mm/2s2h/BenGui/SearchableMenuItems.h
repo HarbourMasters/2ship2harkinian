@@ -503,15 +503,14 @@ void AddSettings() {
                 {},
                 [](widgetInfo& info) { Ship::Context::GetInstance()->GetWindow()->ToggleFullscreen(); } },
 #ifndef __APPLE__
-              { "Internal Resolution: %f%%",
+              { "Internal Resolution: %.0f%%",
                 CVAR_INTERNAL_RESOLUTION,
                 "Multiplies your output resolution by the value inputted, as a more intensive but effective "
                 "form of anti-aliasing.",
                 WIDGET_CVAR_SLIDER_FLOAT,
-                { 50.0f, 200.0f, 100.0f },
+                { .min = 50.0f, .max = 200.0f, .defaultVariant = 100.0f, .showButtons = false, .format = "", .isPercentage = true },
                 [](widgetInfo& info) {
-                    Ship::Context::GetInstance()->GetWindow()->SetResolutionMultiplier(
-                        CVarGetFloat(CVAR_INTERNAL_RESOLUTION, 1));
+                    Ship::Context::GetInstance()->GetWindow()->SetResolutionMultiplier(CVarGetFloat(CVAR_INTERNAL_RESOLUTION, 1));
                 } },
 #endif
 #ifndef __WIIU__
