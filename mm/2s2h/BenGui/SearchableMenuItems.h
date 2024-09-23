@@ -103,10 +103,18 @@ using CVarVariant = std::variant<int32_t, const char*, float, Color_RGBA8, Color
 // when you want to change those defaults
 // `comboBoxOptions` is the list of dropdown options to be added to a dropdown.
 // this needs to be a map of int32_t to const char*, but can also be enum values
+// `valuePointer` is used for non-CVar sliders to track current widgetValue
+// `size` applies only to buttons, determines whether it stretches to fill its current container or only fits its text
 // `color` can be used in any way, depending on the widget. color pickers (COLOR_24 and COLOR_32) will eventually
 // use this for storing its current value; WIDGET_SEPARATOR_TEXT uses this to change the text color `windowName`
 // is used when using WIDGET_WINDOW_BUTTON, which optionally draws windows, like Stats, in the menu with a button
 // to pop the window out of the main menu overlay
+// `windowName` is what is displayed and searched for `windowButton` type and window interactions
+// `labelPosition` applies to checkbox, combobox and button types. specifies label orientation compared to widget body
+// `sameLine` allows widgets to be displayed on the same line as the previously registered widget
+// the next three only apply to sliders. `showButtons` shows or hides the +/- buttons on either side of a slider
+// `format` specifies how info is displayed within the slider
+// `isPercentage` toggles the float slider's value being multiplied by 100 to show percentages instead of direct floats
 struct WidgetOptions {
     CVarVariant min;
     CVarVariant max;
@@ -118,6 +126,9 @@ struct WidgetOptions {
     const char* windowName = "";
     UIWidgets::LabelPosition labelPosition = UIWidgets::LabelPosition::None;
     bool sameLine = false;
+    bool showButtons = true;
+    const char* format = "%f";
+    bool isPercentage = false;
 };
 
 bool operator==(Color_RGB8 const& l, Color_RGB8 const& r) noexcept {
@@ -417,52 +428,52 @@ void AddSettings() {
     settingsSidebar.push_back(
         { "Audio",
           3,
-          { { { "Master Volume: %.2f%%",
+          { { { "Master Volume: %.0f%%",
                 "gSettings.Audio.MasterVolume",
                 "Adjust overall sound volume.",
                 WIDGET_CVAR_SLIDER_FLOAT,
-                { 0.0f, 100.0f, 100.0f } },
-              { "Main Music Volume: %.2f%%",
+                { .min = 0.0f, .max = 100.0f, .defaultVariant = 100.0f, .showButtons = false, .format = "", .isPercentage = true } },
+              { "Main Music Volume: %.0f%%",
                 "gSettings.Audio.MainMusicVolume",
                 "Adjust the Background Music volume.",
                 WIDGET_CVAR_SLIDER_FLOAT,
-                { 0.0f, 100.0f, 100.0f },
+                { .min = 0.0f, .max = 100.0f, .defaultVariant = 100.0f, .showButtons = false, .format = "", .isPercentage = true },
                 [](widgetInfo& info) {
                     AudioSeq_SetPortVolumeScale(SEQ_PLAYER_BGM_MAIN,
                                                 CVarGetFloat("gSettings.Audio.MainMusicVolume", 1.0f));
                 } },
-              { "Sub Music Volume: %.2f%%",
+              { "Sub Music Volume: %.0f%%",
                 "gSettings.Audio.SubMusicVolume",
                 "Adjust the Sub Music volume.",
                 WIDGET_CVAR_SLIDER_FLOAT,
-                { 0.0f, 100.0f, 100.0f },
+                { .min = 0.0f, .max = 100.0f, .defaultVariant = 100.0f, .showButtons = false, .format = "", .isPercentage = true },
                 [](widgetInfo& info) {
                     AudioSeq_SetPortVolumeScale(SEQ_PLAYER_BGM_SUB,
                                                 CVarGetFloat("gSettings.Audio.SubMusicVolume", 1.0f));
                 } },
-              { "Sound Effects Volume: %.2f%%",
+              { "Sound Effects Volume: %.0f%%",
                 "gSettings.Audio.SoundEffectsVolume",
                 "Adjust the Sound Effects volume.",
                 WIDGET_CVAR_SLIDER_FLOAT,
-                { 0.0f, 100.0f, 100.0f },
+                { .min = 0.0f, .max = 100.0f, .defaultVariant = 100.0f, .showButtons = false, .format = "", .isPercentage = true },
                 [](widgetInfo& info) {
                     AudioSeq_SetPortVolumeScale(SEQ_PLAYER_SFX,
                                                 CVarGetFloat("gSettings.Audio.SoundEffectsVolume", 1.0f));
                 } },
-              { "Fanfare Volume: %.2f%%",
+              { "Fanfare Volume: %.0f%%",
                 "gSettings.Audio.FanfareVolume",
                 "Adjust the Fanfare volume.",
                 WIDGET_CVAR_SLIDER_FLOAT,
-                { 0.0f, 100.0f, 100.0f },
+                { .min = 0.0f, .max = 100.0f, .defaultVariant = 100.0f, .showButtons = false, .format = "", .isPercentage = true },
                 [](widgetInfo& info) {
                     AudioSeq_SetPortVolumeScale(SEQ_PLAYER_FANFARE,
                                                 CVarGetFloat("gSettings.Audio.FanfareVolume", 1.0f));
                 } },
-              { "Ambience Volume: %.2f%%",
+              { "Ambience Volume: %.0f%%",
                 "gSettings.Audio.AmbienceVolume",
                 "Adjust the Ambient Sound volume.",
                 WIDGET_CVAR_SLIDER_FLOAT,
-                { 0.0f, 100.0f, 100.0f },
+                { .min = 0.0f, .max = 100.0f, .defaultVariant = 100.0f, .showButtons = false, .format = "", .isPercentage = true },
                 [](widgetInfo& info) {
                     AudioSeq_SetPortVolumeScale(SEQ_PLAYER_AMBIENCE,
                                                 CVarGetFloat("gSettings.Audio.AmbienceVolume", 1.0f));
@@ -783,7 +794,12 @@ void AddEnhancements() {
                 "gEnhancements.Minigames.AlwaysWinDoggyRace",
                 "Makes the Doggy Race easier to win.",
                 WIDGET_CVAR_COMBOBOX,
-                { .comboBoxOptions = alwaysWinDoggyraceOptions } } },
+                { .comboBoxOptions = alwaysWinDoggyraceOptions } },
+              { "Fast Magic Arrow Equip Animation", "gEnhancements.Equipment.MagicArrowEquipSpeed",
+                "Removes the animation for equipping Magic Arrows.", WIDGET_CVAR_CHECKBOX },
+              { "Instant Fin Boomerangs Recall", "gEnhancements.PlayerActions.InstantRecall",
+                "Pressing B will instantly recall the fin boomerang back to Zora Link after they are thrown.",
+                WIDGET_CVAR_CHECKBOX } },
             { { .widgetName = "Modes", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Play as Kafei", "gModes.PlayAsKafei", "Requires scene reload to take effect.", WIDGET_CVAR_CHECKBOX },
               { "Time Moves when you Move",
@@ -1010,12 +1026,7 @@ void AddEnhancements() {
                 "the Rupees to Links current Rupees or 0 respectively.",
                 WIDGET_CVAR_CHECKBOX },
               { "Fast Text", "gEnhancements.Dialogue.FastText",
-                "Speeds up text rendering, and enables holding of B progress to next message.", WIDGET_CVAR_CHECKBOX },
-              { "Fast Magic Arrow Equip Animation", "gEnhancements.Equipment.MagicArrowEquipSpeed",
-                "Removes the animation for equipping Magic Arrows.", WIDGET_CVAR_CHECKBOX },
-              { "Instant Fin Boomerangs Recall", "gEnhancements.PlayerActions.InstantRecall",
-                "Pressing B will instantly recall the fin boomerang back to Zora Link after they are thrown.",
-                WIDGET_CVAR_CHECKBOX } } } });
+                "Speeds up text rendering, and enables holding of B progress to next message.", WIDGET_CVAR_CHECKBOX } } } });
     enhancementsSidebar.push_back(
         { "Fixes",
           3,
@@ -1408,6 +1419,7 @@ void SearchMenuGetItem(widgetInfo& widget) {
                 float floatMax = (std::get<float>(widget.widgetOptions.max) / 100);
                 float floatDefault = (std::get<float>(widget.widgetOptions.defaultVariant) / 100);
                 float* pointer = std::get<float*>(widget.widgetOptions.valuePointer);
+
                 if (pointer == nullptr) {
                     SPDLOG_ERROR("float Slider Widget requires a value pointer, currently nullptr");
                     assert(false);
@@ -1419,6 +1431,9 @@ void SearchMenuGetItem(widgetInfo& widget) {
                                                .tooltip = widget.widgetTooltip,
                                                .disabled = disabledValue,
                                                .disabledTooltip = disabledTooltip,
+                                               .showButtons = widget.widgetOptions.showButtons,
+                                               .format = widget.widgetOptions.format,
+                                               .isPercentage = widget.widgetOptions.isPercentage
                                            })) {
                     if (widget.widgetCallback != nullptr) {
                         widget.widgetCallback(widget);
@@ -1451,6 +1466,9 @@ void SearchMenuGetItem(widgetInfo& widget) {
                                                    .tooltip = widget.widgetTooltip,
                                                    .disabled = disabledValue,
                                                    .disabledTooltip = disabledTooltip,
+                                                   .showButtons = widget.widgetOptions.showButtons,
+                                                   .format = widget.widgetOptions.format,
+                                                   .isPercentage = widget.widgetOptions.isPercentage
                                                })) {
                     if (widget.widgetCallback != nullptr) {
                         widget.widgetCallback(widget);
