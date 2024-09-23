@@ -1,7 +1,7 @@
 #include "Menu.h"
 #include "BenPort.h"
-#include "2s2h/BenGui/BenGui.hpp"
-#include "2s2h/BenGui/UIWidgets.hpp"
+#include "BenGui.hpp"
+#include "UIWidgets.hpp"
 #include "graphic/Fast3D/gfx_rendering_api.h"
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/Enhancements/Graphics/MotionBlur.h"
@@ -13,9 +13,9 @@
 #include "DeveloperTools/ActorViewer.h"
 #include "DeveloperTools/CollisionViewer.h"
 #include "DeveloperTools/EventLog.h"
-#include "2s2h/BenGui/HudEditor.h"
+#include "HudEditor.h"
 
-#include "2s2h/BenGui/SearchableMenuItems.h"
+#include "SearchableMenuItems.h"
 
 extern "C" {
 #include "z64.h"

@@ -1,8 +1,8 @@
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "2s2h/Enhancements/Graphics/3DItemDrops.h"
-#include "2s2h/BenGui/UIWidgets.hpp"
-#include "2s2h/BenGui/BenMenuBar.h"
+#include "UIWidgets.hpp"
+#include "BenMenuBar.h"
 #include <variant>
 #include <tuple>
 
