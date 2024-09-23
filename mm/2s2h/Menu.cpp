@@ -127,10 +127,10 @@ bool ModernMenuSidebarEntry(std::string label) {
         ImGui::MarkItemEdited(sidebarId);
     }
     window->DrawList->AddRectFilled(pos - style.FramePadding, pos + labelSize + style.FramePadding,
-                                    ImGui::GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive
-                                                       : hovered         ? ImGuiCol_FrameBgHovered
-                                                                         : ImGuiCol_FrameBg),
-                                    true, style.FrameRounding);
+                                    ImGui::GetColorU32((held && hovered) ? ImGuiCol_ButtonActive
+                                                       : hovered         ? ImGuiCol_ButtonHovered
+                                                                         : ImGuiCol_Button),
+                                    3.0f);
     UIWidgets::RenderText(pos, label.c_str(), ImGui::FindRenderedTextEnd(label.c_str()), true);
     return pressed;
 }
@@ -148,10 +148,10 @@ bool ModernMenuHeaderEntry(std::string label) {
     bool hovered, held;
     bool pressed = ImGui::ButtonBehavior(bb, headerId, &hovered, &held);
     window->DrawList->AddRectFilled(bb.Min, bb.Max,
-                                    ImGui::GetColorU32((held && hovered) ? ImGuiCol_FrameBgActive
-                                                       : hovered         ? ImGuiCol_FrameBgHovered
-                                                                         : ImGuiCol_FrameBg),
-                                    true, style.FrameRounding);
+                                    ImGui::GetColorU32((held && hovered) ? ImGuiCol_ButtonActive
+                                                       : hovered         ? ImGuiCol_ButtonHovered
+                                                                         : ImGuiCol_Button),
+                                    3.0f);
     pos += style.FramePadding;
     UIWidgets::RenderText(pos, label.c_str(), ImGui::FindRenderedTextEnd(label.c_str()), true);
     return pressed;
@@ -272,8 +272,9 @@ void BenMenu::DrawElement() {
     for (int i = 0; i < sectionCount; i++) {
         auto entry = menuEntries.at(i);
         uint8_t nextIndex = i;
+        UIWidgets::PushStyleButton(menuTheme[menuThemeIndex]);
         if (headerIndex != i) {
-            ImGui::PushStyleColor(ImGuiCol_FrameBg, { 0, 0, 0, 0 });
+            ImGui::PushStyleColor(ImGuiCol_Button, { 0, 0, 0, 0 });
         }
         if (ModernMenuHeaderEntry(entry.label)) {
             CVarSetInteger(headerCvar, i);
@@ -283,6 +284,7 @@ void BenMenu::DrawElement() {
         if (headerIndex != i) {
             ImGui::PopStyleColor();
         }
+        UIWidgets::PopStyleButton();
         if (headerIndex == i) {
             sidebar = entry.sidebarEntries;
         }
@@ -343,8 +345,9 @@ void BenMenu::DrawElement() {
     for (size_t i = 0; i < sidebar.size(); i++) {
         auto sidebarEntry = sidebar.at(i);
         uint8_t nextIndex = i;
+        UIWidgets::PushStyleButton(menuTheme[menuThemeIndex]);
         if (sectionIndex != i) {
-            ImGui::PushStyleColor(ImGuiCol_FrameBg, { 0, 0, 0, 0 });
+            ImGui::PushStyleColor(ImGuiCol_Button, { 0, 0, 0, 0 });
         }
         if (ModernMenuSidebarEntry(sidebarEntry.label)) {
             CVarSetInteger(sidebarCvar, i);
@@ -354,6 +357,7 @@ void BenMenu::DrawElement() {
         if (sectionIndex != i) {
             ImGui::PopStyleColor();
         }
+        UIWidgets::PopStyleButton();
         if (nextIndex != i) {
             sectionIndex = i;
         }
