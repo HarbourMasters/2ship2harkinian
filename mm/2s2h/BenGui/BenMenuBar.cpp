@@ -481,6 +481,9 @@ void DrawEnhancementsMenu() {
                 "Do not reset Time Speed", "gEnhancements.Cycle.DoNotResetTimeSpeed",
                 { .tooltip =
                       "Playing the Song Of Time will not reset the current time speed set by Inverted Song of Time." });
+            UIWidgets::CVarCheckbox("Disable Takkuri Steal", "gEnhancements.Cheats.DisableTakkuriSteal",
+                                    { .tooltip = "Prevents the Takkuri from stealing key items like bottles and "
+                                                 "swords. It may still steal other items." });
 
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 0, 255));
             ImGui::SeparatorText("Unstable");

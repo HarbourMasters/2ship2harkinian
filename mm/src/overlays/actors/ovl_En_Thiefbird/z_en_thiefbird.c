@@ -215,6 +215,9 @@ void func_80C10984(EnThiefbird* this, s32 arg1) {
 }
 
 s32 func_80C10B0C(EnThiefbird* this, PlayState* play) {
+    if (CVarGetInteger("gEnhancements.Cheats.DisableTakkuriSteal", 0)) {
+        return false;
+    }
     static Gfx* D_80C13680[] = {
         gTakkuriStolenKokiriSwordDL,
         gTakkuriStolenRazorSwordDL,
