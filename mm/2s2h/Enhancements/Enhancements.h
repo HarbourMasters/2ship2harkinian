@@ -7,6 +7,7 @@
 #include "Cheats/MoonJump.h"
 #include "Cheats/Infinite.h"
 #include "Dialogue/Dialogue.h"
+#include "DifficultyOptions/DisableTakkuriSteal.h"
 #include "Graphics/TextBasedClock.h"
 #include "Graphics/3DSClock.h"
 #include "Cheats/Cheats.h"
