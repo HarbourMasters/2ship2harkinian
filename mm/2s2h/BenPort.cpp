@@ -1206,9 +1206,14 @@ extern "C" SoundFontSample* ResourceMgr_LoadAudioSample(const char* path) {
 }
 #endif
 
-extern "C" SoundFont* ResourceMgr_LoadAudioSoundFont(const char* path) {
+extern "C" SoundFont* ResourceMgr_LoadAudioSoundFontByName(const char* path) {
     return (SoundFont*)ResourceGetDataByName(path);
 }
+
+extern "C" SoundFont* ResourceMgr_LoadAudioSoundFontByCRC(uint64_t crc) {
+    return (SoundFont*)ResourceGetDataByCrc(crc);
+}
+
 extern "C" int ResourceMgr_OTRSigCheck(char* imgData) {
     uintptr_t i = (uintptr_t)(imgData);
 

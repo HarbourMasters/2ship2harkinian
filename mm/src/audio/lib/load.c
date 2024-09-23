@@ -69,7 +69,8 @@ void AudioLoad_RelocateFontAndPreloadSamples(s32 fontId, SoundFontData* fontData
 s32 AudioLoad_ProcessSamplePreloads(s32 resetStatus);
 
 SequenceData ResourceMgr_LoadSeqByName(const char* path);
-SoundFont* ResourceMgr_LoadAudioSoundFont(const char* path);
+SoundFont* ResourceMgr_LoadAudioSoundFontByName(const char* path);
+SoundFont* ResourceMgr_LoadAudioSoundFontByCRC(uint64_t crc);
 
 // TODO: what's that for? it seems to rely on an uninitizalied variable in soh
 static uint32_t fontOffsets[8192];
@@ -718,7 +719,7 @@ SoundFontData* AudioLoad_SyncLoadFont(u32 fontId) {
         return NULL;
     }
 
-    SoundFont* sf = ResourceMgr_LoadAudioSoundFont(fontMap[fontId]);
+    SoundFont* sf = ResourceMgr_LoadAudioSoundFontByName(fontMap[fontId]);
     sampleBankId1 = sf->sampleBankId1;
     sampleBankId2 = sf->sampleBankId2;
 
@@ -784,7 +785,7 @@ void* AudioLoad_SyncLoad(s32 tableType, u32 id, s32* didAllocate) {
             cachePolicy = sData.cachePolicy;
             romAddr = 0;
         } else if (tableType == FONT_TABLE) {
-            fnt = ResourceMgr_LoadAudioSoundFont(fontMap[id]);
+            fnt = ResourceMgr_LoadAudioSoundFontByName(fontMap[id]);
             size = sizeof(SoundFont);
             medium = 2;
             cachePolicy = 0;
@@ -1243,6 +1244,7 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
     // AudioLoad_InitTable(gAudioCtx.sampleBankTable, SEGMENT_ROM_START(Audiotable), 0);
     
     // #region 2S2H [Port] Audio in the archive and custom sequences
+    // Only load the original sequences right now because custom songs may require data from sound fonts and samples
     int seqListSize = 0;
     int customSeqListSize = 0;
     char** seqList = ResourceMgr_ListFiles("audio/sequences*", &seqListSize);
@@ -1275,7 +1277,7 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
     gAudioCtx.fontLoadStatus = malloc(customFntListSize + fntListSize);
     fontMap = calloc(customFntListSize + fntListSize, sizeof(char*));
     for (int i = 0; i < fntListSize; i++) {
-        SoundFont* sf = ResourceMgr_LoadAudioSoundFont(fntList[i]);
+        SoundFont* sf = ResourceMgr_LoadAudioSoundFontByName(fntList[i]);
 
         char* str = malloc(strlen(fntList[i]) + 1);
         strcpy(str, fntList[i]);
@@ -1287,7 +1289,7 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
     
     int customFontStart = fntListSize;
     for (int i = customFontStart; i < customFntListSize + fntListSize; i++) {
-        SoundFont* sf = ResourceMgr_LoadAudioSoundFont(customFntList[i - customFontStart]);
+        SoundFont* sf = ResourceMgr_LoadAudioSoundFontByName(customFntList[i - customFontStart]);
         sf->fntIndex = i;
 
         char* str = malloc(strlen(customFntList[i - customFontStart]) + 1);
@@ -1323,7 +1325,7 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
             memcpy(&crc, sDat->fonts, sizeof(uint64_t));
             //crc = _byteswap_uint64(crc);
             const char* res = ResourceGetNameByCrc(crc);
-            SoundFont* sf = ResourceMgr_LoadAudioSoundFont(res);
+            SoundFont* sf = ResourceMgr_LoadAudioSoundFontByName(res);
             sDat->fonts[0] = sf->fntIndex;
             memset(&sDat->fonts[1], 0, sizeof(sDat->fonts) - sizeof(uint16_t));
             sDat->numFonts = 1;
@@ -2070,7 +2072,7 @@ void AudioLoad_PreloadSamplesForFont(s32 fontId, s32 async, SampleBankRelocInfo*
 
     gAudioCtx.numUsedSamples = 0;
 
-    SoundFont* sf = ResourceMgr_LoadAudioSoundFont(fontMap[fontId]);
+    SoundFont* sf = ResourceMgr_LoadAudioSoundFontByName(fontMap[fontId]);
     numDrums = sf->numDrums;
     numInstruments = sf->numInstruments;
     numSfx = sf->numSfx;
@@ -2197,7 +2199,7 @@ void AudioLoad_LoadPermanentSamples(void) {
         if (gAudioCtx.permanentEntries[i].tableType == FONT_TABLE) {
             fontId = AudioLoad_GetRealTableIndex(FONT_TABLE, gAudioCtx.permanentEntries[i].id);
             // 2S2H [Port] Audio assets in the archive
-            SoundFont* sf = ResourceMgr_LoadAudioSoundFont(fontMap[fontId]);
+            SoundFont* sf = ResourceMgr_LoadAudioSoundFontByName(fontMap[fontId]);
             sampleBankReloc.sampleBankId1 = sf->sampleBankId1;
             sampleBankReloc.sampleBankId2 = sf->sampleBankId2;
             // sampleBankReloc.sampleBankId1 = gAudioCtx.soundFontList[fontId].sampleBankId1;
