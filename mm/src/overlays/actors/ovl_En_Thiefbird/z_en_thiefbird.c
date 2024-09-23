@@ -245,9 +245,7 @@ s32 func_80C10B0C(EnThiefbird* this, PlayState* play) {
     }
 
     if (isItemFound && (phi_a3 != 0)) {
-        bool shouldSteal = true;
-        GameInteractor_Should(GI_VB_THIEF_BIRD_STEAL, shouldSteal, NULL);
-        if (shouldSteal && Rand_ZeroOne() < 0.6f) {
+        if (Rand_ZeroOne() < 0.6f) {
             isItemFound = false;
         } else {
             phi_a3 = 0;
