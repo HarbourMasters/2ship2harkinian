@@ -35,8 +35,6 @@ typedef struct {
     /* 0x04 */ u8* sampleAddr;
     /* 0x08 */ AdpcmLoop* loop;
     /* 0x0C */ AdpcmBook* book;
-    u32 sampleRateMagicValue; // For wav samples only...
-    s32 sampleRate;           // For wav samples only...
 } Sample;                     // size = 0x10
 
 class AudioSample : public Ship::Resource<Sample> {
@@ -58,5 +56,7 @@ class AudioSample : public Ship::Resource<Sample> {
     AdpcmBook book;
     uint32_t bookDataCount;
     std::vector<int16_t> bookData;
+    // Only applies to streamed audio
+    float tuning = -1.0f;
 };
 }; // namespace SOH

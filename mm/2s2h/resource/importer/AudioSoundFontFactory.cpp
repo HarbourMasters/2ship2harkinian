@@ -279,7 +279,11 @@ void SOH::ResourceFactoryXMLSoundFontV0::ParseInstruments(AudioSoundFont* soundF
             instrument->lowNotesSound.tuning = instrumentElement->FloatAttribute("Tuning");
             const char* sampleStr = instrumentElement->Attribute("SampleRef");
             if (sampleStr != nullptr && sampleStr[0] != 0) {
-                auto res = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(sampleStr);
+                std::shared_ptr<SOH::AudioSample> res = static_pointer_cast<SOH::AudioSample>(
+                    Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(sampleStr));
+                if (res->tuning != -1.0f) {
+                    instrument->lowNotesSound.tuning = res->tuning;
+                }
                 instrument->lowNotesSound.sample = static_cast<Sample*>(res ? res->GetRawPointer() : nullptr);
             }
             instrumentElement = instrumentElement->NextSiblingElement();
@@ -289,7 +293,10 @@ void SOH::ResourceFactoryXMLSoundFontV0::ParseInstruments(AudioSoundFont* soundF
             instrument->normalNotesSound.tuning = instrumentElement->FloatAttribute("Tuning");
             const char* sampleStr = instrumentElement->Attribute("SampleRef");
             if (sampleStr != nullptr && sampleStr[0] != 0) {
-                auto res = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(sampleStr);
+                std::shared_ptr <SOH::AudioSample> res = static_pointer_cast<SOH::AudioSample>(Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(sampleStr));
+                if (res->tuning != -1.0f) {
+                    instrument->normalNotesSound.tuning = res->tuning;
+                }
                 instrument->normalNotesSound.sample = static_cast<Sample*>(res ? res->GetRawPointer() : nullptr);
             }
             instrumentElement = instrumentElement->NextSiblingElement();
@@ -299,7 +306,11 @@ void SOH::ResourceFactoryXMLSoundFontV0::ParseInstruments(AudioSoundFont* soundF
             instrument->highNotesSound.tuning = instrumentElement->FloatAttribute("Tuning");
             const char* sampleStr = instrumentElement->Attribute("SampleRef");
             if (sampleStr != nullptr && sampleStr[0] != 0) {
-                auto res = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(sampleStr);
+                std::shared_ptr<SOH::AudioSample> res = static_pointer_cast<SOH::AudioSample>(
+                    Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(sampleStr));
+                if (res->tuning != -1.0f) {
+                    instrument->highNotesSound.tuning = res->tuning;
+                }
                 instrument->highNotesSound.sample = static_cast<Sample*>(res ? res->GetRawPointer() : nullptr);
             }
             instrumentElement = instrumentElement->NextSiblingElement();
@@ -331,7 +342,11 @@ void SOH::ResourceFactoryXMLSoundFontV0::ParseSfxTable(AudioSoundFont* soundFont
 
         sound.tuning = element->FloatAttribute("Tuning");
         if (sampleStr != nullptr && sampleStr[0] != 0) {
-            auto res = Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(sampleStr);
+            auto res = static_pointer_cast<SOH::AudioSample>(
+                Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(sampleStr));
+            if (res->tuning != -1.0f) {
+                sound.tuning = res->tuning;
+            }
             sound.sample = static_cast<Sample*>(res ? res->GetRawPointer() : nullptr);
         }
     skip:

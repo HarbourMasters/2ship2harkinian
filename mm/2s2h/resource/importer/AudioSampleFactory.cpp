@@ -195,10 +195,10 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
     audioSample->loop.count = child->IntAttribute("LoopCount");
     
     // CODEC_ADPCM || CODEC_SMALL_ADPCM
+    memset(audioSample->loop.state, 0, sizeof(audioSample->loop.state));
     if (audioSample->sample.codec == 0 || audioSample->sample.codec == 3) {
         tinyxml2::XMLElement* loopElement = child->FirstChildElement();
         size_t i = 0;
-        memset(audioSample->loop.state, 0, sizeof(audioSample->loop.state));
         if (loopElement != nullptr) {
             while (strcmp(loopElement->Name(), "LoopState") == 0) {
                 audioSample->loop.state[i] = loopElement->IntAttribute("Loop");
@@ -238,8 +238,9 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
             drwav_init_memory(&wav, sampleFile->Buffer.get()->data(), sampleFile->Buffer.get()->size(), nullptr);
 
         drwav_get_length_in_pcm_frames(&wav, &numFrames);
-
-        audioSample->audioSampleData.reserve(numFrames * 4);
+        
+        audioSample->tuning = (wav.sampleRate * wav.channels) / 32000.0f;
+        audioSample->audioSampleData.reserve(numFrames * wav.channels * 2);
         
         drwav_read_pcm_frames_s16(&wav, numFrames, (int16_t*)audioSample->audioSampleData.data());
     } else if (customFormatStr != nullptr && strcmp(customFormatStr, "mp3") == 0) {
