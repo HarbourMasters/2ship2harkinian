@@ -46,6 +46,7 @@ void InitEnhancements() {
 
     // Minigames
     RegisterAlwaysWinDoggyRace();
+    RegisterSwordsmanSchool();
 
     // Player
     RegisterClimbSpeed();
