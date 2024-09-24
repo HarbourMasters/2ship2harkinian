@@ -430,7 +430,7 @@ void AddSettings() {
                         CVarGetInteger("gSettings.CursorVisibility", 0));
                 } }
 #endif
-              } } });
+          } } });
     // Audio Settings
     settingsSidebar.push_back(
         { "Audio",
@@ -439,12 +439,22 @@ void AddSettings() {
                 "gSettings.Audio.MasterVolume",
                 "Adjust overall sound volume.",
                 WIDGET_CVAR_SLIDER_FLOAT,
-                { .min = 0.0f, .max = 100.0f, .defaultVariant = 100.0f, .showButtons = false, .format = "", .isPercentage = true } },
+                { .min = 0.0f,
+                  .max = 100.0f,
+                  .defaultVariant = 100.0f,
+                  .showButtons = false,
+                  .format = "",
+                  .isPercentage = true } },
               { "Main Music Volume: %.0f%%",
                 "gSettings.Audio.MainMusicVolume",
                 "Adjust the Background Music volume.",
                 WIDGET_CVAR_SLIDER_FLOAT,
-                { .min = 0.0f, .max = 100.0f, .defaultVariant = 100.0f, .showButtons = false, .format = "", .isPercentage = true },
+                { .min = 0.0f,
+                  .max = 100.0f,
+                  .defaultVariant = 100.0f,
+                  .showButtons = false,
+                  .format = "",
+                  .isPercentage = true },
                 [](widgetInfo& info) {
                     AudioSeq_SetPortVolumeScale(SEQ_PLAYER_BGM_MAIN,
                                                 CVarGetFloat("gSettings.Audio.MainMusicVolume", 1.0f));
@@ -453,7 +463,12 @@ void AddSettings() {
                 "gSettings.Audio.SubMusicVolume",
                 "Adjust the Sub Music volume.",
                 WIDGET_CVAR_SLIDER_FLOAT,
-                { .min = 0.0f, .max = 100.0f, .defaultVariant = 100.0f, .showButtons = false, .format = "", .isPercentage = true },
+                { .min = 0.0f,
+                  .max = 100.0f,
+                  .defaultVariant = 100.0f,
+                  .showButtons = false,
+                  .format = "",
+                  .isPercentage = true },
                 [](widgetInfo& info) {
                     AudioSeq_SetPortVolumeScale(SEQ_PLAYER_BGM_SUB,
                                                 CVarGetFloat("gSettings.Audio.SubMusicVolume", 1.0f));
@@ -462,7 +477,12 @@ void AddSettings() {
                 "gSettings.Audio.SoundEffectsVolume",
                 "Adjust the Sound Effects volume.",
                 WIDGET_CVAR_SLIDER_FLOAT,
-                { .min = 0.0f, .max = 100.0f, .defaultVariant = 100.0f, .showButtons = false, .format = "", .isPercentage = true },
+                { .min = 0.0f,
+                  .max = 100.0f,
+                  .defaultVariant = 100.0f,
+                  .showButtons = false,
+                  .format = "",
+                  .isPercentage = true },
                 [](widgetInfo& info) {
                     AudioSeq_SetPortVolumeScale(SEQ_PLAYER_SFX,
                                                 CVarGetFloat("gSettings.Audio.SoundEffectsVolume", 1.0f));
@@ -471,7 +491,12 @@ void AddSettings() {
                 "gSettings.Audio.FanfareVolume",
                 "Adjust the Fanfare volume.",
                 WIDGET_CVAR_SLIDER_FLOAT,
-                { .min = 0.0f, .max = 100.0f, .defaultVariant = 100.0f, .showButtons = false, .format = "", .isPercentage = true },
+                { .min = 0.0f,
+                  .max = 100.0f,
+                  .defaultVariant = 100.0f,
+                  .showButtons = false,
+                  .format = "",
+                  .isPercentage = true },
                 [](widgetInfo& info) {
                     AudioSeq_SetPortVolumeScale(SEQ_PLAYER_FANFARE,
                                                 CVarGetFloat("gSettings.Audio.FanfareVolume", 1.0f));
@@ -480,7 +505,12 @@ void AddSettings() {
                 "gSettings.Audio.AmbienceVolume",
                 "Adjust the Ambient Sound volume.",
                 WIDGET_CVAR_SLIDER_FLOAT,
-                { .min = 0.0f, .max = 100.0f, .defaultVariant = 100.0f, .showButtons = false, .format = "", .isPercentage = true },
+                { .min = 0.0f,
+                  .max = 100.0f,
+                  .defaultVariant = 100.0f,
+                  .showButtons = false,
+                  .format = "",
+                  .isPercentage = true },
                 [](widgetInfo& info) {
                     AudioSeq_SetPortVolumeScale(SEQ_PLAYER_AMBIENCE,
                                                 CVarGetFloat("gSettings.Audio.AmbienceVolume", 1.0f));
@@ -515,9 +545,15 @@ void AddSettings() {
                 "Multiplies your output resolution by the value inputted, as a more intensive but effective "
                 "form of anti-aliasing.",
                 WIDGET_CVAR_SLIDER_FLOAT,
-                { .min = 50.0f, .max = 200.0f, .defaultVariant = 100.0f, .showButtons = false, .format = "", .isPercentage = true },
+                { .min = 50.0f,
+                  .max = 200.0f,
+                  .defaultVariant = 100.0f,
+                  .showButtons = false,
+                  .format = "",
+                  .isPercentage = true },
                 [](widgetInfo& info) {
-                    Ship::Context::GetInstance()->GetWindow()->SetResolutionMultiplier(CVarGetFloat(CVAR_INTERNAL_RESOLUTION, 1));
+                    Ship::Context::GetInstance()->GetWindow()->SetResolutionMultiplier(
+                        CVarGetFloat(CVAR_INTERNAL_RESOLUTION, 1));
                 } },
 #endif
 #ifndef __WIIU__
@@ -1032,7 +1068,8 @@ void AddEnhancements() {
                 "the Rupees to Links current Rupees or 0 respectively.",
                 WIDGET_CVAR_CHECKBOX },
               { "Fast Text", "gEnhancements.Dialogue.FastText",
-                "Speeds up text rendering, and enables holding of B progress to next message.", WIDGET_CVAR_CHECKBOX } } } });
+                "Speeds up text rendering, and enables holding of B progress to next message.",
+                WIDGET_CVAR_CHECKBOX } } } });
     enhancementsSidebar.push_back(
         { "Fixes",
           3,
@@ -1097,7 +1134,9 @@ void AddDevTools() {
                     std::string filesPath = Ship::Context::GetInstance()->GetAppDirectoryPath();
                     SDL_OpenURL(std::string("file:///" + std::filesystem::absolute(filesPath).string()).c_str());
                 } },
-              { "Set Warp Point", "", "Creates warp point that you can teleport to later",
+              { "Set Warp Point",
+                "",
+                "Creates warp point that you can teleport to later",
                 WIDGET_BUTTON,
                 {},
                 [](widgetInfo& info) {
@@ -1112,19 +1151,24 @@ void AddDevTools() {
                     CVarSetInteger(WARP_POINT_CVAR "Saved", 1);
                     Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
                 },
-                [](widgetInfo& info) {
-                    info.isHidden = disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active;
-                } },
-              { "Scene Room ID", "", "", WIDGET_TEXT,
+                [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active; } },
+              { "Scene Room ID",
+                "",
+                "",
+                WIDGET_TEXT,
                 {},
                 nullptr,
                 [](widgetInfo& info) {
-                    u32 sceneId = Entrance_GetSceneIdAbsolute(CVarGetInteger(WARP_POINT_CVAR "Entrance", ENTRANCE(SOUTH_CLOCK_TOWN, 0)));
-                    info.widgetName = fmt::format("{} Room {}", warpPointSceneList[sceneId], CVarGetInteger(WARP_POINT_CVAR "Room", 0));
+                    u32 sceneId = Entrance_GetSceneIdAbsolute(
+                        CVarGetInteger(WARP_POINT_CVAR "Entrance", ENTRANCE(SOUTH_CLOCK_TOWN, 0)));
+                    info.widgetName = fmt::format("{} Room {}", warpPointSceneList[sceneId],
+                                                  CVarGetInteger(WARP_POINT_CVAR "Room", 0));
                     info.isHidden = disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active ||
-                        disabledMap.at(DISABLE_FOR_WARP_POINT_NOT_SET).active;
+                                    disabledMap.at(DISABLE_FOR_WARP_POINT_NOT_SET).active;
                 } },
-              { ICON_FA_TIMES, "", "Clear warp point",
+              { ICON_FA_TIMES,
+                "",
+                "Clear warp point",
                 WIDGET_BUTTON,
                 { .size = UIWidgets::Sizes::Inline, .sameLine = true },
                 [](widgetInfo& info) {
@@ -1139,17 +1183,17 @@ void AddDevTools() {
                 },
                 [](widgetInfo& info) {
                     info.isHidden = disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active ||
-                        disabledMap.at(DISABLE_FOR_WARP_POINT_NOT_SET).active;
+                                    disabledMap.at(DISABLE_FOR_WARP_POINT_NOT_SET).active;
                 } },
-              { "Warp", "", "Teleport to the set warp point",
+              { "Warp",
+                "",
+                "Teleport to the set warp point",
                 WIDGET_BUTTON,
-                {.size = UIWidgets::Sizes::Inline, .sameLine = true },
+                { .size = UIWidgets::Sizes::Inline, .sameLine = true },
+                [](widgetInfo& info) { Warp(); },
                 [](widgetInfo& info) {
-                    Warp();
-                },
-                [](widgetInfo& info) {
-                    info.isHidden = disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active || 
-                        disabledMap.at(DISABLE_FOR_WARP_POINT_NOT_SET).active;
+                    info.isHidden = disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active ||
+                                    disabledMap.at(DISABLE_FOR_WARP_POINT_NOT_SET).active;
                 } } },
             { { "Debug Mode",
                 "gDeveloperTools.DebugEnabled",
@@ -1172,7 +1216,8 @@ void AddDevTools() {
                         RegisterPreventActorInitHooks();
                     }
                 } },
-              { "Better Map Select", "gDeveloperTools.BetterMapSelect.Enabled",
+              { "Better Map Select",
+                "gDeveloperTools.BetterMapSelect.Enabled",
                 "Overrides the original map select with a translated, more user-friendly version.",
                 WIDGET_CVAR_CHECKBOX,
                 {},
@@ -1209,8 +1254,10 @@ void AddDevTools() {
                 {},
                 [](widgetInfo& info) { RegisterPreventActorInitHooks(); },
                 [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; } },
-              { "Disable Object Dependency", "gDeveloperTools.DisableObjectDependency",
-                "Disables dependencies when loading objects.", WIDGET_CVAR_CHECKBOX,
+              { "Disable Object Dependency",
+                "gDeveloperTools.DisableObjectDependency",
+                "Disables dependencies when loading objects.",
+                WIDGET_CVAR_CHECKBOX,
                 {},
                 nullptr,
                 [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; } },
@@ -1235,7 +1282,7 @@ void AddDevTools() {
                 nullptr,
                 [](widgetInfo& info) {
                     info.isHidden = disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active ||
-                        disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active;
+                                    disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active;
                     if (gPlayState != nullptr) {
                         info.widgetOptions.valuePointer = (bool*)&gPlayState->frameAdvCtx.enabled;
                     } else {
@@ -1250,7 +1297,7 @@ void AddDevTools() {
                 [](widgetInfo& info) { CVarSetInteger("gDeveloperTools.FrameAdvanceTick", 1); },
                 [](widgetInfo& info) {
                     info.isHidden = disabledMap.at(DISABLE_FOR_FRAME_ADVANCE_OFF).active ||
-                        disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active;
+                                    disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active;
                 } },
               { "Advance (Hold)",
                 "",
@@ -1260,7 +1307,7 @@ void AddDevTools() {
                 nullptr,
                 [](widgetInfo& info) {
                     info.isHidden = disabledMap.at(DISABLE_FOR_FRAME_ADVANCE_OFF).active ||
-                        disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active;
+                                    disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active;
                 },
                 [](widgetInfo& info) {
                     if (ImGui::IsItemActive()) {
@@ -1473,7 +1520,8 @@ void SearchMenuGetItem(widgetInfo& widget) {
                     assert(false);
                     return;
                 }
-                if (UIWidgets::SliderInt(widget.widgetName.c_str(), pointer, std::get<int32_t>(widget.widgetOptions.min),
+                if (UIWidgets::SliderInt(widget.widgetName.c_str(), pointer,
+                                         std::get<int32_t>(widget.widgetOptions.min),
                                          std::get<int32_t>(widget.widgetOptions.max),
                                          {
                                              .color = menuTheme[menuThemeIndex],
@@ -1498,15 +1546,13 @@ void SearchMenuGetItem(widgetInfo& widget) {
                     return;
                 }
                 if (UIWidgets::SliderFloat(widget.widgetName.c_str(), pointer, floatMin, floatMax,
-                                           {
-                                               .color = menuTheme[menuThemeIndex],
-                                               .tooltip = widget.widgetTooltip,
-                                               .disabled = disabledValue,
-                                               .disabledTooltip = disabledTooltip,
-                                               .showButtons = widget.widgetOptions.showButtons,
-                                               .format = widget.widgetOptions.format,
-                                               .isPercentage = widget.widgetOptions.isPercentage
-                                           })) {
+                                           { .color = menuTheme[menuThemeIndex],
+                                             .tooltip = widget.widgetTooltip,
+                                             .disabled = disabledValue,
+                                             .disabledTooltip = disabledTooltip,
+                                             .showButtons = widget.widgetOptions.showButtons,
+                                             .format = widget.widgetOptions.format,
+                                             .isPercentage = widget.widgetOptions.isPercentage })) {
                     if (widget.widgetCallback != nullptr) {
                         widget.widgetCallback(widget);
                     }
@@ -1532,24 +1578,24 @@ void SearchMenuGetItem(widgetInfo& widget) {
                 float floatMin = (std::get<float>(widget.widgetOptions.min) / 100);
                 float floatMax = (std::get<float>(widget.widgetOptions.max) / 100);
                 float floatDefault = (std::get<float>(widget.widgetOptions.defaultVariant) / 100);
-                if (UIWidgets::CVarSliderFloat(widget.widgetName.c_str(), widget.widgetCVar, floatMin, floatMax, floatDefault,
-                                               {
-                                                   .color = menuTheme[menuThemeIndex],
-                                                   .tooltip = widget.widgetTooltip,
-                                                   .disabled = disabledValue,
-                                                   .disabledTooltip = disabledTooltip,
-                                                   .showButtons = widget.widgetOptions.showButtons,
-                                                   .format = widget.widgetOptions.format,
-                                                   .isPercentage = widget.widgetOptions.isPercentage
-                                               })) {
+                if (UIWidgets::CVarSliderFloat(widget.widgetName.c_str(), widget.widgetCVar, floatMin, floatMax,
+                                               floatDefault,
+                                               { .color = menuTheme[menuThemeIndex],
+                                                 .tooltip = widget.widgetTooltip,
+                                                 .disabled = disabledValue,
+                                                 .disabledTooltip = disabledTooltip,
+                                                 .showButtons = widget.widgetOptions.showButtons,
+                                                 .format = widget.widgetOptions.format,
+                                                 .isPercentage = widget.widgetOptions.isPercentage })) {
                     if (widget.widgetCallback != nullptr) {
                         widget.widgetCallback(widget);
                     }
                 }
             } break;
             case WIDGET_BUTTON:
-                if (UIWidgets::Button(widget.widgetName.c_str(), { menuTheme[menuThemeIndex], widget.widgetOptions.size,
-                                                           widget.widgetTooltip, disabledValue, disabledTooltip })) {
+                if (UIWidgets::Button(widget.widgetName.c_str(),
+                                      { menuTheme[menuThemeIndex], widget.widgetOptions.size, widget.widgetTooltip,
+                                        disabledValue, disabledTooltip })) {
                     if (widget.widgetCallback != nullptr) {
                         widget.widgetCallback(widget);
                     }

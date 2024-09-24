@@ -419,11 +419,9 @@ void ClampFloat(float* value, float min, float max, float step) {
     int factor = 1 * std::pow(10, ticks);
     if (*value < min) {
         *value = min;
-    }
-    else if (*value > max) {
+    } else if (*value > max) {
         *value = max;
-    }
-    else {
+    } else {
         *value = std::round(*value * factor) / factor;
         std::stringstream ss;
         ss << std::setprecision(ticks) << std::setiosflags(std::ios_base::fixed) << *value;

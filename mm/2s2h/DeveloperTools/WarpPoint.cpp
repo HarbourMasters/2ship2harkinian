@@ -28,7 +28,8 @@ std::unordered_map<s16, const char*> warpPointSceneList = {
 #undef DEFINE_SCENE_UNSET
 
 void Warp() {
-    Vec3f pos = { CVarGetFloat(WARP_POINT_CVAR "X", 0.0f), CVarGetFloat(WARP_POINT_CVAR "Y", 0.0f), CVarGetFloat(WARP_POINT_CVAR "Z", 0.0f) };
+    Vec3f pos = { CVarGetFloat(WARP_POINT_CVAR "X", 0.0f), CVarGetFloat(WARP_POINT_CVAR "Y", 0.0f),
+                  CVarGetFloat(WARP_POINT_CVAR "Z", 0.0f) };
     s32 entrance = CVarGetInteger(WARP_POINT_CVAR "Entrance", ENTRANCE(SOUTH_CLOCK_TOWN, 0));
 
     if (gPlayState == NULL) {
@@ -66,8 +67,8 @@ void Warp() {
 
 void RegisterWarpPoint() {
     GameInteractor::Instance->RegisterGameHook<GameInteractor::OnConsoleLogoUpdate>([]() {
-        if (!CVarGetInteger("gEnhancements.Cutscenes.SkipToFileSelect", 0) && CVarGetInteger(WARP_POINT_CVAR "BootToWarpPoint", 0) &&
-            CVarGetInteger(WARP_POINT_CVAR "Saved", 0)) {
+        if (!CVarGetInteger("gEnhancements.Cutscenes.SkipToFileSelect", 0) &&
+            CVarGetInteger(WARP_POINT_CVAR "BootToWarpPoint", 0) && CVarGetInteger(WARP_POINT_CVAR "Saved", 0)) {
             // Normally called on console logo screen
             gSaveContext.seqId = (u8)NA_BGM_DISABLED;
             gSaveContext.ambienceId = AMBIENCE_ID_DISABLED;
@@ -94,7 +95,8 @@ void RenderWarpPointSection() {
         Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
     }
     if (CVarGetInteger(WARP_POINT_CVAR "Saved", 0)) {
-        u32 sceneId = Entrance_GetSceneIdAbsolute(CVarGetInteger(WARP_POINT_CVAR "Entrance", ENTRANCE(SOUTH_CLOCK_TOWN, 0)));
+        u32 sceneId =
+            Entrance_GetSceneIdAbsolute(CVarGetInteger(WARP_POINT_CVAR "Entrance", ENTRANCE(SOUTH_CLOCK_TOWN, 0)));
         ImGui::AlignTextToFramePadding();
         ImGui::Text("%s Room %d", warpPointSceneList[sceneId], CVarGetInteger(WARP_POINT_CVAR "Room", 0));
         ImGui::SameLine();
