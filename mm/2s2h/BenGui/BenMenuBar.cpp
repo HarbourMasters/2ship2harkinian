@@ -687,6 +687,8 @@ void DrawEnhancementsMenu() {
                              "-Hug: Get the hugging cutscene\n"
                              "-Rupee: Get the rupee reward",
                   .defaultIndex = CREMIA_REWARD_RANDOM });
+            UIWidgets::CVarSliderInt("Swordsman School Winning Score: %d",
+                                     "gEnhancements.Minigames.SwordsmanSchoolScore", 1, 30, 30);
 
             ImGui::EndMenu();
         }
