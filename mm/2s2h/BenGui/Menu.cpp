@@ -266,6 +266,8 @@ void BenMenu::DrawElement() {
     if (scrollbar) {
         headerSelSize.y += style.ScrollbarSize;
     }
+    bool autoFocus = CVarGetInteger("gSettings.SearchAutofocus", 0);
+    bool headerSearch = !CVarGetInteger("gSettings.SidebarSearch", 0);
     ImGui::BeginChild("Header Selection", headerSelSize,
                       ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize,
                       ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_HorizontalScrollbar);
@@ -277,7 +279,9 @@ void BenMenu::DrawElement() {
             ImGui::PushStyleColor(ImGuiCol_Button, { 0, 0, 0, 0 });
         }
         if (ModernMenuHeaderEntry(entry.label)) {
-            menuSearch.Clear();
+            if (autoFocus) {
+                menuSearch.Clear();
+            }
             CVarSetInteger(headerCvar, i);
             CVarSave();
             nextIndex = i;
@@ -296,19 +300,22 @@ void BenMenu::DrawElement() {
             headerIndex = nextIndex;
         }
     }
-    ImGui::SameLine();
-    if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && !ImGui::IsAnyItemActive() &&
-        !ImGui::IsMouseClicked(0)) {
-        ImGui::SetKeyboardFocusHere(0);
+    std::string menuSearchText = "";
+    if (headerSearch) {
+        ImGui::SameLine();
+        if (autoFocus && ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && !ImGui::IsAnyItemActive() &&
+            !ImGui::IsMouseClicked(0)) {
+            ImGui::SetKeyboardFocusHere(0);
+        }
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, { 0, 0, 0, 0 });
+        menuSearch.Draw("##search", 200.0f);
+        menuSearchText = menuSearch.InputBuf;
+        if (menuSearchText.length() < 1) {
+            ImGui::SameLine(headerWidth - 200.0f + style.ItemSpacing.x);
+            ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.4f), "Search...");
+        }
+        ImGui::PopStyleColor();
     }
-    ImGui::PushStyleColor(ImGuiCol_FrameBg, { 0, 0, 0, 0 });
-    menuSearch.Draw("##search", 200.0f);
-    std::string menuSearchText(menuSearch.InputBuf);
-    if (menuSearchText.length() < 1) {
-        ImGui::SameLine(headerWidth - 200.0f + style.ItemSpacing.x);
-        ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.4f), "Search...");
-    }
-    ImGui::PopStyleColor();
     ImGui::EndChild();
     ImGui::SameLine(menuSize.x - (buttonSize.x * 2) - style.ItemSpacing.x);
     if (UIWidgets::Button(ICON_FA_UNDO, { .color = UIWidgets::Colors::Red,
@@ -364,7 +371,9 @@ void BenMenu::DrawElement() {
             ImGui::PushStyleColor(ImGuiCol_Button, { 0, 0, 0, 0 });
         }
         if (ModernMenuSidebarEntry(sidebarEntry.label)) {
-            menuSearch.Clear();
+            if (autoFocus) {
+                menuSearch.Clear();
+            }
             CVarSetInteger(sidebarCvar, i);
             CVarSave();
             nextIndex = i;
@@ -394,13 +403,13 @@ void BenMenu::DrawElement() {
     }
     float columnWidth = (sectionWidth - style.ItemSpacing.x * columns) / columns;
     bool useColumns = columns > 1;
-    if (!useColumns || menuSearchText.length() > 0) {
+    if (!useColumns || (headerSearch && menuSearchText.length() > 0)) {
         ImGui::SameLine();
         ImGui::SetNextWindowSizeConstraints({ sectionWidth, 0 }, { sectionWidth, columnHeight });
         ImGui::BeginChild(sectionMenuId.c_str(), { sectionWidth, windowHeight * 4 }, ImGuiChildFlags_AutoResizeY,
                           ImGuiWindowFlags_NoTitleBar);
     }
-    if (menuSearchText.length() > 0) {
+    if (headerSearch && menuSearchText.length() > 0) {
         ImGui::BeginChild("Search Results");
         int searchCount = 0;
         for (auto& [menuLabel, menuSidebar, cvar] : menuEntries) {

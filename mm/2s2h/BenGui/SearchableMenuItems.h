@@ -71,6 +71,7 @@ typedef enum {
     WIDGET_BUTTON,
     WIDGET_COLOR_24, // color picker without alpha
     WIDGET_COLOR_32, // color picker with alpha
+    WIDGET_SEARCH,
     WIDGET_SEPARATOR,
     WIDGET_SEPARATOR_TEXT,
     WIDGET_TEXT,
@@ -252,6 +253,12 @@ static ImGuiTextFilter menuSearch;
 std::vector<SidebarEntry> settingsSidebar;
 std::vector<SidebarEntry> enhancementsSidebar;
 std::vector<SidebarEntry> devToolsSidebar;
+uint8_t searchSidebarIndex = 0;
+SidebarEntry searchSidebarEntry = {
+    "Search",
+    1,
+    { { { "Menu Theme", "", "Searches all menus for the given text, including tooltips.", WIDGET_SEARCH } } }
+};
 
 static std::map<DisableOption, disabledInfo> disabledMap = {
     { DISABLE_FOR_CAMERAS_OFF,
@@ -402,7 +409,8 @@ void AddSettings() {
     settingsSidebar.push_back(
         { "General",
           3,
-          { { { "Menu Theme",
+          { {
+              { "Menu Theme",
                 "gSettings.MenuTheme",
                 "Changes the Theme of the Menu Widgets.",
                 WIDGET_CVAR_COMBOBOX,
@@ -422,8 +430,35 @@ void AddSettings() {
                 [](widgetInfo& info) {
                     Ship::Context::GetInstance()->GetWindow()->SetForceCursorVisibility(
                         CVarGetInteger("gSettings.CursorVisibility", 0));
-                } }
+                } },
 #endif
+              { "Open App Files Folder",
+                "",
+                "Opens the folder that contains the save and mods folders, etc.",
+                WIDGET_BUTTON,
+                {},
+                [](widgetInfo& info) {
+                    std::string filesPath = Ship::Context::GetInstance()->GetAppDirectoryPath();
+                    SDL_OpenURL(std::string("file:///" + std::filesystem::absolute(filesPath).string()).c_str());
+                } },
+              { "Search In Sidebar",
+                "gSettings.SidebarSearch",
+                "Displays the Search menu as a sidebar entry in Settings instead of in the header.",
+                WIDGET_CVAR_CHECKBOX,
+                {},
+                [](widgetInfo& info) {
+                    if (CVarGetInteger("gSettings.SidebarSearch", 0)) {
+                        menuEntries[0].sidebarEntries.insert(menuEntries[0].sidebarEntries.begin() + searchSidebarIndex,
+                                                             searchSidebarEntry);
+                        CVarSetInteger(menuEntries[0].sidebarCvar, CVarGetInteger(menuEntries[0].sidebarCvar, 0) + 1);
+                    } else {
+                        menuEntries[0].sidebarEntries.erase(menuEntries[0].sidebarEntries.begin() + searchSidebarIndex);
+                        CVarSetInteger(menuEntries[0].sidebarCvar, CVarGetInteger(menuEntries[0].sidebarCvar, 0) - 1);
+                    }
+                } },
+              { "Search Input Autofocus", "gSettings.SearchAutofocus",
+                "Search input box gets autofocus when visible. Does not affect using other widgets.",
+                WIDGET_CVAR_CHECKBOX },
           } } });
     // Audio Settings
     settingsSidebar.push_back(
@@ -1119,15 +1154,6 @@ void AddDevTools() {
           3,
           { { { "Popout Menu", "gSettings.Menu.Popout", "Changes the menu display from overlay to windowed.",
                 WIDGET_CVAR_CHECKBOX },
-              { "Open App Files Folder",
-                "",
-                "Opens the folder that contains the save and mods folders, etc,",
-                WIDGET_BUTTON,
-                {},
-                [](widgetInfo& info) {
-                    std::string filesPath = Ship::Context::GetInstance()->GetAppDirectoryPath();
-                    SDL_OpenURL(std::string("file:///" + std::filesystem::absolute(filesPath).string()).c_str());
-                } },
               { "Set Warp Point",
                 "",
                 "Creates warp point that you can teleport to later",
@@ -1615,6 +1641,55 @@ void SearchMenuGetItem(widgetInfo& widget) {
                 if (!window->IsVisible()) {
                     window->DrawElement();
                 }
+            } break;
+            case WIDGET_SEARCH: {
+                if (ImGui::Button("Clear")) {
+                    menuSearch.Clear();
+                }
+                ImGui::SameLine();
+                if (CVarGetInteger("gSettings.SearchAutofocus", 0) &&
+                    ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && !ImGui::IsAnyItemActive() &&
+                    !ImGui::IsMouseClicked(0)) {
+                    ImGui::SetKeyboardFocusHere(0);
+                }
+                menuSearch.Draw();
+                std::string menuSearchText(menuSearch.InputBuf);
+
+                if (menuSearchText == "") {
+                    ImGui::Text("Start typing to see results.");
+                    return;
+                }
+                ImGui::BeginChild("Search Results");
+                for (auto& [menuLabel, menuSidebar, cvar] : menuEntries) {
+                    for (auto& sidebar : menuSidebar) {
+                        for (auto& widgets : sidebar.columnWidgets) {
+                            int column = 1;
+                            for (auto& info : widgets) {
+                                if (info.widgetType == WIDGET_SEARCH || info.widgetType == WIDGET_SEPARATOR ||
+                                    info.widgetType == WIDGET_SEPARATOR_TEXT || info.isHidden) {
+                                    continue;
+                                }
+                                std::string widgetStr = std::string(info.widgetName) + std::string(info.widgetTooltip);
+                                std::transform(menuSearchText.begin(), menuSearchText.end(), menuSearchText.begin(),
+                                               ::tolower);
+                                menuSearchText.erase(std::remove(menuSearchText.begin(), menuSearchText.end(), ' '),
+                                                     menuSearchText.end());
+                                std::transform(widgetStr.begin(), widgetStr.end(), widgetStr.begin(), ::tolower);
+                                widgetStr.erase(std::remove(widgetStr.begin(), widgetStr.end(), ' '), widgetStr.end());
+                                if (widgetStr.find(menuSearchText) != std::string::npos) {
+                                    SearchMenuGetItem(info);
+                                    ImGui::PushStyleColor(ImGuiCol_Text, UIWidgets::Colors::Gray);
+                                    std::string origin =
+                                        fmt::format("  ({} -> {}, Clmn {})", menuLabel, sidebar.label, column);
+                                    ImGui::Text("%s", origin.c_str());
+                                    ImGui::PopStyleColor();
+                                }
+                            }
+                            column++;
+                        }
+                    }
+                }
+                ImGui::EndChild();
             } break;
             default:
                 break;
