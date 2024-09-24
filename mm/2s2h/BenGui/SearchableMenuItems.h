@@ -1627,6 +1627,10 @@ void SearchMenuGetItem(widgetInfo& widget) {
                     menuSearch.Clear();
                 }
                 ImGui::SameLine();
+                if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && !ImGui::IsAnyItemActive() &&
+                    !ImGui::IsMouseClicked(0)) {
+                    ImGui::SetKeyboardFocusHere(0);
+                }
                 menuSearch.Draw();
                 std::string menuSearchText(menuSearch.InputBuf);
 
