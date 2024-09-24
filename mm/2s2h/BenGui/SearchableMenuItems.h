@@ -3,6 +3,8 @@
 #include "2s2h/Enhancements/Graphics/3DItemDrops.h"
 #include "UIWidgets.hpp"
 #include "BenMenuBar.h"
+#include "macros.h"
+#include "variables.h"
 #include <variant>
 #include <tuple>
 
@@ -41,7 +43,8 @@ typedef enum {
     DISABLE_FOR_MATCH_REFRESH_RATE_ON,
     DISABLE_FOR_MOTION_BLUR_MODE,
     DISABLE_FOR_MOTION_BLUR_OFF,
-    DISABLE_FOR_FRAME_ADVANCE_OFF
+    DISABLE_FOR_FRAME_ADVANCE_OFF,
+    DISABLE_FOR_WARP_POINT_NOT_SET
 } DisableOption;
 
 struct widgetInfo;
@@ -71,6 +74,7 @@ typedef enum {
     WIDGET_SEARCH,
     WIDGET_SEPARATOR,
     WIDGET_SEPARATOR_TEXT,
+    WIDGET_TEXT,
     WIDGET_WINDOW_BUTTON,
     WIDGET_AUDIO_BACKEND, // needed because of special operations that can't be handled easily with the normal combobox
                           // widget
@@ -192,7 +196,7 @@ std::unordered_map<ColorOption, ImVec4> menuTheme = { { COLOR_WHITE, UIWidgets::
 // the info can be shown.
 // `isHidden` just prevents the widget from being drawn under whatever circumstances you specify in the `modifierFunc`
 struct widgetInfo {
-    const char* widgetName; // Used by all widgets
+    std::string widgetName; // Used by all widgets
     const char* widgetCVar; // Used by all widgets except
     const char* widgetTooltip;
     WidgetType widgetType;
@@ -235,6 +239,8 @@ struct MainMenuEntry {
     std::vector<SidebarEntry> sidebarEntries;
     const char* sidebarCvar;
 };
+extern std::unordered_map<s16, const char*> warpPointSceneList;
+extern void Warp();
 
 namespace BenGui {
 extern std::shared_ptr<std::vector<Ship::WindowBackend>> availableWindowBackends;
@@ -313,7 +319,10 @@ static std::map<DisableOption, disabledInfo> disabledMap = {
       { [](disabledInfo& info) -> bool { return !R_MOTION_BLUR_ENABLED; }, "Motion Blur is Disabled" } },
     { DISABLE_FOR_FRAME_ADVANCE_OFF,
       { [](disabledInfo& info) -> bool { return !(gPlayState != nullptr && gPlayState->frameAdvCtx.enabled); },
-        "Frame Advance is Disabled" } }
+        "Frame Advance is Disabled" } },
+    { DISABLE_FOR_WARP_POINT_NOT_SET,
+      { [](disabledInfo& info) -> bool { return !CVarGetInteger(WARP_POINT_CVAR "Saved", 0); },
+        "Warp Point Not Saved" } }
 };
 
 std::unordered_map<int32_t, const char*> menuThemeOptions = {
@@ -419,12 +428,9 @@ void AddSettings() {
                 [](widgetInfo& info) {
                     Ship::Context::GetInstance()->GetWindow()->SetForceCursorVisibility(
                         CVarGetInteger("gSettings.CursorVisibility", 0));
-                } },
+                } }
 #endif
-              { "Hide Menu Hotkey Text", "gSettings.DisableMenuShortcutNotify",
-                "Prevents showing the text telling you the shortcut to open the menu\n"
-                "when the menu isn't open.",
-                WIDGET_CVAR_CHECKBOX } } } });
+              } } });
     // Audio Settings
     settingsSidebar.push_back(
         { "Audio",
@@ -1091,7 +1097,61 @@ void AddDevTools() {
                     std::string filesPath = Ship::Context::GetInstance()->GetAppDirectoryPath();
                     SDL_OpenURL(std::string("file:///" + std::filesystem::absolute(filesPath).string()).c_str());
                 } },
-              { "Debug Mode",
+              { "Set Warp Point", "", "Creates warp point that you can teleport to later",
+                WIDGET_BUTTON,
+                {},
+                [](widgetInfo& info) {
+                    Player* player = GET_PLAYER(gPlayState);
+
+                    CVarSetInteger(WARP_POINT_CVAR "Entrance", gSaveContext.save.entrance);
+                    CVarSetInteger(WARP_POINT_CVAR "Room", gPlayState->roomCtx.curRoom.num);
+                    CVarSetFloat(WARP_POINT_CVAR "X", player->actor.world.pos.x);
+                    CVarSetFloat(WARP_POINT_CVAR "Y", player->actor.world.pos.y);
+                    CVarSetFloat(WARP_POINT_CVAR "Z", player->actor.world.pos.z);
+                    CVarSetFloat(WARP_POINT_CVAR "Rotation", player->actor.shape.rot.y);
+                    CVarSetInteger(WARP_POINT_CVAR "Saved", 1);
+                    Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+                },
+                [](widgetInfo& info) {
+                    info.isHidden = disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active;
+                } },
+              { "Scene Room ID", "", "", WIDGET_TEXT,
+                {},
+                nullptr,
+                [](widgetInfo& info) {
+                    u32 sceneId = Entrance_GetSceneIdAbsolute(CVarGetInteger(WARP_POINT_CVAR "Entrance", ENTRANCE(SOUTH_CLOCK_TOWN, 0)));
+                    info.widgetName = fmt::format("{} Room {}", warpPointSceneList[sceneId], CVarGetInteger(WARP_POINT_CVAR "Room", 0));
+                    info.isHidden = disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active ||
+                        disabledMap.at(DISABLE_FOR_WARP_POINT_NOT_SET).active;
+                } },
+              { ICON_FA_TIMES, "", "Clear warp point",
+                WIDGET_BUTTON,
+                { .size = UIWidgets::Sizes::Inline, .sameLine = true },
+                [](widgetInfo& info) {
+                    CVarClear(WARP_POINT_CVAR "Entrance");
+                    CVarClear(WARP_POINT_CVAR "Room");
+                    CVarClear(WARP_POINT_CVAR "X");
+                    CVarClear(WARP_POINT_CVAR "Y");
+                    CVarClear(WARP_POINT_CVAR "Z");
+                    CVarClear(WARP_POINT_CVAR "Rotation");
+                    CVarClear(WARP_POINT_CVAR "Saved");
+                    Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+                },
+                [](widgetInfo& info) {
+                    info.isHidden = disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active ||
+                        disabledMap.at(DISABLE_FOR_WARP_POINT_NOT_SET).active;
+                } },
+              { "Warp", "", "Teleport to the set warp point",
+                WIDGET_BUTTON,
+                {.size = UIWidgets::Sizes::Inline, .sameLine = true },
+                [](widgetInfo& info) {
+                    Warp();
+                },
+                [](widgetInfo& info) {
+                    info.isHidden = disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active || 
+                        disabledMap.at(DISABLE_FOR_WARP_POINT_NOT_SET).active;
+                } } },
+            { { "Debug Mode",
                 "gDeveloperTools.DebugEnabled",
                 "Enables Debug Mode, allowing you to select maps with L + R + Z.",
                 WIDGET_CVAR_CHECKBOX,
@@ -1114,7 +1174,10 @@ void AddDevTools() {
                 } },
               { "Better Map Select", "gDeveloperTools.BetterMapSelect.Enabled",
                 "Overrides the original map select with a translated, more user-friendly version.",
-                WIDGET_CVAR_CHECKBOX },
+                WIDGET_CVAR_CHECKBOX,
+                {},
+                nullptr,
+                [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; } },
               { "Debug Save File Mode",
                 "gDeveloperTools.DebugSaveFileMode",
                 "Change the behavior of creating saves while debug mode is enabled:\n\n"
@@ -1123,27 +1186,34 @@ void AddDevTools() {
                 "- 100\% Save: All items, equipment, mask, quast status and bombers notebook complete",
                 WIDGET_CVAR_COMBOBOX,
                 { 0, 0, 0, debugSaveOptions },
-                [](widgetInfo& info) { RegisterDebugSaveCreate(); } },
+                [](widgetInfo& info) { RegisterDebugSaveCreate(); },
+                [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; } },
               { "Prevent Actor Update",
                 "gDeveloperTools.PreventActorUpdate",
                 "Prevents Actors from updating.",
                 WIDGET_CVAR_CHECKBOX,
                 {},
-                [](widgetInfo& info) { RegisterPreventActorUpdateHooks(); } },
+                [](widgetInfo& info) { RegisterPreventActorUpdateHooks(); },
+                [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; } },
               { "Prevent Actor Draw",
                 "gDeveloperTools.PreventActorDraw",
                 "Prevents Actors from drawing.",
                 WIDGET_CVAR_CHECKBOX,
                 {},
-                [](widgetInfo& info) { RegisterPreventActorDrawHooks(); } },
+                [](widgetInfo& info) { RegisterPreventActorDrawHooks(); },
+                [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; } },
               { "Prevent Actor Init",
                 "gDeveloperTools.PreventActorInit",
                 "Prevents Actors from initializing.",
                 WIDGET_CVAR_CHECKBOX,
                 {},
-                [](widgetInfo& info) { RegisterPreventActorInitHooks(); } },
+                [](widgetInfo& info) { RegisterPreventActorInitHooks(); },
+                [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; } },
               { "Disable Object Dependency", "gDeveloperTools.DisableObjectDependency",
-                "Disables dependencies when loading objects.", WIDGET_CVAR_CHECKBOX },
+                "Disables dependencies when loading objects.", WIDGET_CVAR_CHECKBOX,
+                {},
+                nullptr,
+                [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; } },
               { "Log Level",
                 "gDeveloperTools.LogLevel",
                 "The log level determines which messages are printed to the "
@@ -1153,7 +1223,8 @@ void AddDevTools() {
                 [](widgetInfo& info) {
                     Ship::Context::GetInstance()->GetLogger()->set_level(
                         (spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
-                } },
+                },
+                [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; } },
               { "Frame Advance",
                 "",
                 "This allows you to advance through the game one frame at a time on command. "
@@ -1163,9 +1234,8 @@ void AddDevTools() {
                 {},
                 nullptr,
                 [](widgetInfo& info) {
-                    if (disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active) {
-                        info.isHidden = true;
-                    }
+                    info.isHidden = disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active ||
+                        disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active;
                     if (gPlayState != nullptr) {
                         info.widgetOptions.valuePointer = (bool*)&gPlayState->frameAdvCtx.enabled;
                     } else {
@@ -1179,9 +1249,8 @@ void AddDevTools() {
                 { .size = UIWidgets::Sizes::Inline },
                 [](widgetInfo& info) { CVarSetInteger("gDeveloperTools.FrameAdvanceTick", 1); },
                 [](widgetInfo& info) {
-                    if (disabledMap.at(DISABLE_FOR_FRAME_ADVANCE_OFF).active) {
-                        info.isHidden = true;
-                    }
+                    info.isHidden = disabledMap.at(DISABLE_FOR_FRAME_ADVANCE_OFF).active ||
+                        disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active;
                 } },
               { "Advance (Hold)",
                 "",
@@ -1190,9 +1259,8 @@ void AddDevTools() {
                 { .size = UIWidgets::Sizes::Inline, .sameLine = true },
                 nullptr,
                 [](widgetInfo& info) {
-                    if (disabledMap.at(DISABLE_FOR_FRAME_ADVANCE_OFF).active) {
-                        info.isHidden = true;
-                    }
+                    info.isHidden = disabledMap.at(DISABLE_FOR_FRAME_ADVANCE_OFF).active ||
+                        disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active;
                 },
                 [](widgetInfo& info) {
                     if (ImGui::IsItemActive()) {
@@ -1289,7 +1357,7 @@ void SearchMenuGetItem(widgetInfo& widget) {
                     return;
                 }
                 if (UIWidgets::Checkbox(
-                        widget.widgetName, pointer,
+                        widget.widgetName.c_str(), pointer,
                         { .color = menuTheme[menuThemeIndex],
                           .tooltip = widget.widgetTooltip,
                           .disabled = disabledValue,
@@ -1304,7 +1372,7 @@ void SearchMenuGetItem(widgetInfo& widget) {
             } break;
             case WIDGET_CVAR_CHECKBOX:
                 if (UIWidgets::CVarCheckbox(
-                        widget.widgetName, widget.widgetCVar,
+                        widget.widgetName.c_str(), widget.widgetCVar,
                         { .color = menuTheme[menuThemeIndex],
                           .tooltip = widget.widgetTooltip,
                           .disabled = disabledValue,
@@ -1352,10 +1420,14 @@ void SearchMenuGetItem(widgetInfo& widget) {
                 if (widget.widgetOptions.color != COLOR_NONE) {
                     ImGui::PushStyleColor(ImGuiCol_Text, widget.widgetOptions.color);
                 }
-                ImGui::SeparatorText(widget.widgetName);
+                ImGui::SeparatorText(widget.widgetName.c_str());
                 if (widget.widgetOptions.color != COLOR_NONE) {
                     ImGui::PopStyleColor();
                 }
+                break;
+            case WIDGET_TEXT:
+                ImGui::AlignTextToFramePadding();
+                ImGui::Text(widget.widgetName.c_str());
                 break;
             case WIDGET_COMBOBOX: {
                 int32_t* pointer = std::get<int32_t*>(widget.widgetOptions.valuePointer);
@@ -1365,7 +1437,7 @@ void SearchMenuGetItem(widgetInfo& widget) {
                     return;
                 }
                 if (UIWidgets::Combobox(
-                        widget.widgetName, pointer, widget.widgetOptions.comboBoxOptions,
+                        widget.widgetName.c_str(), pointer, widget.widgetOptions.comboBoxOptions,
                         { .color = menuTheme[menuThemeIndex],
                           .tooltip = widget.widgetTooltip,
                           .disabled = disabledValue,
@@ -1380,7 +1452,7 @@ void SearchMenuGetItem(widgetInfo& widget) {
             } break;
             case WIDGET_CVAR_COMBOBOX:
                 if (UIWidgets::CVarCombobox(
-                        widget.widgetName, widget.widgetCVar, widget.widgetOptions.comboBoxOptions,
+                        widget.widgetName.c_str(), widget.widgetCVar, widget.widgetOptions.comboBoxOptions,
                         { .color = menuTheme[menuThemeIndex],
                           .tooltip = widget.widgetTooltip,
                           .disabled = disabledValue,
@@ -1401,7 +1473,7 @@ void SearchMenuGetItem(widgetInfo& widget) {
                     assert(false);
                     return;
                 }
-                if (UIWidgets::SliderInt(widget.widgetName, pointer, std::get<int32_t>(widget.widgetOptions.min),
+                if (UIWidgets::SliderInt(widget.widgetName.c_str(), pointer, std::get<int32_t>(widget.widgetOptions.min),
                                          std::get<int32_t>(widget.widgetOptions.max),
                                          {
                                              .color = menuTheme[menuThemeIndex],
@@ -1425,7 +1497,7 @@ void SearchMenuGetItem(widgetInfo& widget) {
                     assert(false);
                     return;
                 }
-                if (UIWidgets::SliderFloat(widget.widgetName, pointer, floatMin, floatMax,
+                if (UIWidgets::SliderFloat(widget.widgetName.c_str(), pointer, floatMin, floatMax,
                                            {
                                                .color = menuTheme[menuThemeIndex],
                                                .tooltip = widget.widgetTooltip,
@@ -1441,7 +1513,7 @@ void SearchMenuGetItem(widgetInfo& widget) {
                 }
             } break;
             case WIDGET_CVAR_SLIDER_INT:
-                if (UIWidgets::CVarSliderInt(widget.widgetName, widget.widgetCVar,
+                if (UIWidgets::CVarSliderInt(widget.widgetName.c_str(), widget.widgetCVar,
                                              std::get<int32_t>(widget.widgetOptions.min),
                                              std::get<int32_t>(widget.widgetOptions.max),
                                              std::get<int32_t>(widget.widgetOptions.defaultVariant),
@@ -1460,7 +1532,7 @@ void SearchMenuGetItem(widgetInfo& widget) {
                 float floatMin = (std::get<float>(widget.widgetOptions.min) / 100);
                 float floatMax = (std::get<float>(widget.widgetOptions.max) / 100);
                 float floatDefault = (std::get<float>(widget.widgetOptions.defaultVariant) / 100);
-                if (UIWidgets::CVarSliderFloat(widget.widgetName, widget.widgetCVar, floatMin, floatMax, floatDefault,
+                if (UIWidgets::CVarSliderFloat(widget.widgetName.c_str(), widget.widgetCVar, floatMin, floatMax, floatDefault,
                                                {
                                                    .color = menuTheme[menuThemeIndex],
                                                    .tooltip = widget.widgetTooltip,
@@ -1476,7 +1548,7 @@ void SearchMenuGetItem(widgetInfo& widget) {
                 }
             } break;
             case WIDGET_BUTTON:
-                if (UIWidgets::Button(widget.widgetName, { menuTheme[menuThemeIndex], widget.widgetOptions.size,
+                if (UIWidgets::Button(widget.widgetName.c_str(), { menuTheme[menuThemeIndex], widget.widgetOptions.size,
                                                            widget.widgetTooltip, disabledValue, disabledTooltip })) {
                     if (widget.widgetCallback != nullptr) {
                         widget.widgetCallback(widget);
@@ -1498,7 +1570,7 @@ void SearchMenuGetItem(widgetInfo& widget) {
                     SPDLOG_ERROR(msg.c_str());
                     break;
                 }
-                UIWidgets::WindowButton(widget.widgetName, widget.widgetCVar, window,
+                UIWidgets::WindowButton(widget.widgetName.c_str(), widget.widgetCVar, window,
                                         { .size = widget.widgetOptions.size, .tooltip = widget.widgetTooltip });
                 if (!window->IsVisible()) {
                     window->DrawElement();
