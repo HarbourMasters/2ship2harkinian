@@ -230,7 +230,7 @@ void GameInteractor_ExecuteOnItemGive(u8 item) {
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnItemGive>(item);
 }
 
-bool GameInteractor_Should(GIVanillaBehavior flag, bool result, ...) {
+bool GameInteractor_Should(GIVanillaBehavior flag, uint32_t result, ...) {
     // Only the external function can use the Variadic Function syntax
     // To pass the va args to the next caller must be done using va_list and reading the args into it
     // Because there can be N subscribers registered to each template call, the subscribers will be responsible for
@@ -238,12 +238,17 @@ bool GameInteractor_Should(GIVanillaBehavior flag, bool result, ...) {
     va_list args;
     va_start(args, result);
 
-    GameInteractor::Instance->ExecuteHooks<GameInteractor::ShouldVanillaBehavior>(flag, &result, args);
-    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::ShouldVanillaBehavior>(flag, flag, &result, args);
-    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::ShouldVanillaBehavior>(flag, &result, args);
+    // Because of default argument promotion, even though our incoming "result" is just a bool, it needs to be typed as
+    // an int to be permitted to be used in `va_start`, otherwise it is undefined behavior.
+    // Here we downcast back to a bool for our actual hook handlers
+    bool boolResult = static_cast<bool>(result);
+
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::ShouldVanillaBehavior>(flag, &boolResult, args);
+    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::ShouldVanillaBehavior>(flag, flag, &boolResult, args);
+    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::ShouldVanillaBehavior>(flag, &boolResult, args);
 
     va_end(args);
-    return result;
+    return boolResult;
 }
 
 // Returns 1 or -1 based on a number of factors like CVars or other game states.

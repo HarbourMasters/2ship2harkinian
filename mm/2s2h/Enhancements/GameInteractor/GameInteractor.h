@@ -355,7 +355,7 @@ void GameInteractor_ExecuteOnOpenText(u16 textId);
 bool GameInteractor_ShouldItemGive(u8 item);
 void GameInteractor_ExecuteOnItemGive(u8 item);
 
-bool GameInteractor_Should(GIVanillaBehavior flag, bool result, ...);
+bool GameInteractor_Should(GIVanillaBehavior flag, uint32_t result, ...);
 #define REGISTER_VB_SHOULD(flag, body)                                                      \
     GameInteractor::Instance->RegisterGameHookForID<GameInteractor::ShouldVanillaBehavior>( \
         flag, [](GIVanillaBehavior _, bool* should, va_list originalArgs) {                 \
