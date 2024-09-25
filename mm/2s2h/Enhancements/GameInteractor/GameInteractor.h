@@ -305,7 +305,7 @@ class GameInteractor {
     DEFINE_HOOK(ShouldItemGive, (u8 item, bool* should));
     DEFINE_HOOK(OnItemGive, (u8 item));
 
-    DEFINE_HOOK(ShouldVanillaBehavior, (GIVanillaBehavior flag, bool* should, void* optionalArg, va_list originalArgs));
+    DEFINE_HOOK(ShouldVanillaBehavior, (GIVanillaBehavior flag, bool* should, va_list originalArgs));
 };
 
 extern "C" {
@@ -355,10 +355,10 @@ void GameInteractor_ExecuteOnOpenText(u16 textId);
 bool GameInteractor_ShouldItemGive(u8 item);
 void GameInteractor_ExecuteOnItemGive(u8 item);
 
-bool GameInteractor_Should(GIVanillaBehavior flag, bool result, void* optionalArg, ...);
+bool GameInteractor_Should(GIVanillaBehavior flag, bool result, ...);
 #define REGISTER_VB_SHOULD(flag, body)                                                      \
     GameInteractor::Instance->RegisterGameHookForID<GameInteractor::ShouldVanillaBehavior>( \
-        flag, [](GIVanillaBehavior _, bool* should, void* opt, va_list originalArgs) {      \
+        flag, [](GIVanillaBehavior _, bool* should, va_list originalArgs) {                 \
             va_list args;                                                                   \
             va_copy(args, originalArgs);                                                    \
             body;                                                                           \

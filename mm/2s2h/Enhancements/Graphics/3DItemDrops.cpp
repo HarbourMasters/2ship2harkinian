@@ -114,9 +114,9 @@ void EnItem00_3DItemsDraw(Actor* actor, PlayState* play) {
     }
 }
 
-void DrawSlime3DItem(GIVanillaBehavior _, bool* should, void* opt, va_list originalArgs) {
+void DrawSlime3DItem(Actor* actor, bool* should) {
     *should = false;
-    EnSlime* slime = static_cast<EnSlime*>(opt);
+    EnSlime* slime = (EnSlime*)actor;
 
     // Rotate 3D item with chu body
     Matrix_RotateYS(slime->actor.shape.rot.y, MTXMODE_APPLY);
@@ -135,13 +135,14 @@ void DrawSlime3DItem(GIVanillaBehavior _, bool* should, void* opt, va_list origi
     }
 }
 
-void DrawSlime3DItemVArgsTest(GIVanillaBehavior _, bool* should, void* opt, va_list originalArgs) {
+void DrawSlime3DItemVArgsTest(GIVanillaBehavior _, bool* should, va_list originalArgs) {
     // Must create a copy of the original args, so that other subscribers are unaffected
     va_list argsCopy;
     va_copy(argsCopy, originalArgs);
 
     // Read args in order. Can be any pointer type or standard type after "default argument promotion"
     // (e.g. bool,char,short -> int, float -> double)
+    Actor* slime = va_arg(argsCopy, Actor*);
     int* num1 = va_arg(argsCopy, int*);
     int* num2 = va_arg(argsCopy, int*);
     float* num3 = va_arg(argsCopy, float*);
@@ -201,14 +202,17 @@ void Register3DItemDrops() {
                 actor->shape.rot.y += 0x3C0;
             }
         });
-    slimeVBHookID = GameInteractor::Instance->RegisterGameHookForID<GameInteractor::ShouldVanillaBehavior>(
-        GI_VB_DRAW_SLIME_BODY_ITEM, DrawSlime3DItem);
+    slimeVBHookID = REGISTER_VB_SHOULD(GI_VB_DRAW_SLIME_BODY_ITEM, {
+        Actor* actor = va_arg(args, Actor*);
+        DrawSlime3DItem(actor, should);
+    });
 
     // Example hooks registrations for va_list demo
     GameInteractor::Instance->RegisterGameHookForID<GameInteractor::ShouldVanillaBehavior>(GI_VB_DRAW_SLIME_BODY_ITEM,
                                                                                            DrawSlime3DItemVArgsTest);
 
     REGISTER_VB_SHOULD(GI_VB_DRAW_SLIME_BODY_ITEM, {
+        Actor* slime = va_arg(args, Actor*);
         int* num1 = va_arg(args, int*);
         int* num2 = va_arg(args, int*);
         float* num3 = va_arg(args, float*);
