@@ -41,29 +41,6 @@ extern std::unordered_map<Ship::WindowBackend, const char*> availableWindowBacke
 extern Ship::WindowBackend configWindowBackend;
 extern void UpdateWindowBackendObjects();
 
-//#if not defined(__SWITCH__) and not defined(__WIIU__)
-//    SearchMenuGetItem(MENU_ITEM_MENUBAR_CONTROLLER_NAV);
-//    SearchMenuGetItem(MENU_ITEM_CURSOR_VISIBILITY);
-// bool cursor = Ship::Context::GetInstance()->GetWindow()->ShouldForceCursorVisibility();
-// if (UIWidgets::Checkbox("Cursor Always Visible", &cursor,
-//                         { .tooltip = "Makes the cursor always visible, even in full screen." })) {
-//     Ship::Context::GetInstance()->GetWindow()->SetForceCursorVisibility(cursor);
-// }
-//#endif
-
-/* ImGui::SeparatorText("Motion Blur");
- SearchMenuGetItem(MENU_ITEM_MOTION_BLUR_MODE);
- SearchMenuGetItem(MENU_ITEM_MOTION_BLUR_INTERPOLATE);
- if (CVarGetInteger("gEnhancements.Graphics.MotionBlur.Mode", 0) == 0) {
-     SearchMenuGetItem(MENU_ITEM_MOTION_BLUR_ENABLE);
- } else if (CVarGetInteger("gEnhancements.Graphics.MotionBlur.Mode", 0) == 1) {
-
- }
- if (CVarGetInteger("gEnhancements.Graphics.MotionBlur.Mode", 0) == 2 ||
-     CVarGetInteger("gEnhancements.Graphics.MotionBlur.Toggle", 0) == 1) {
-     SearchMenuGetItem(MENU_ITEM_MOTION_BLUR_STRENGTH);
- }*/
-
 // BENTODO: Not implemented yet
 // UIWidgets::CVarCheckbox("Widescreen Actor Culling",
 //                         "gEnhancements.Graphics.ActorCullingAccountsForWidescreen",
@@ -337,6 +314,9 @@ void BenMenu::DrawElement() {
     if (UIWidgets::Button(
             ICON_FA_POWER_OFF,
             { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline, .tooltip = "Quit 2S2H" })) {
+        if (!popped) {
+            ToggleVisibility();
+        }
         Ship::Context::GetInstance()->GetWindow()->Close();
     }
     ImGui::PopStyleVar();
