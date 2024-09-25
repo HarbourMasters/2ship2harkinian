@@ -1242,12 +1242,7 @@ void EnSlime_Draw(Actor* thisx, PlayState* play) {
         Matrix_Translate(this->actor.world.pos.x, this->actor.world.pos.y + (2000.0f * this->actor.scale.y),
                          this->actor.world.pos.z, MTXMODE_NEW);
 
-        int num1 = 17;
-        int num2 = 59;
-        float num3 = 80.f;
-        float num4 = 120.f;
-
-        if (GameInteractor_Should(GI_VB_DRAW_SLIME_BODY_ITEM, true, this, &num1, &num2, &num3, num4)) {
+        if (GameInteractor_Should(GI_VB_DRAW_SLIME_BODY_ITEM, true, this)) {
             Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY);
 
             gSPSegment(POLY_OPA_DISP++, 8, (uintptr_t)this->itemDropTex);

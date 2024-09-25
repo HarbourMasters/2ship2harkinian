@@ -135,28 +135,6 @@ void DrawSlime3DItem(Actor* actor, bool* should) {
     }
 }
 
-void DrawSlime3DItemVArgsTest(GIVanillaBehavior _, bool* should, va_list originalArgs) {
-    // Must create a copy of the original args, so that other subscribers are unaffected
-    va_list argsCopy;
-    va_copy(argsCopy, originalArgs);
-
-    // Read args in order. Can be any pointer type or standard type after "default argument promotion"
-    // (e.g. bool,char,short -> int, float -> double)
-    Actor* slime = va_arg(argsCopy, Actor*);
-    int* num1 = va_arg(argsCopy, int*);
-    int* num2 = va_arg(argsCopy, int*);
-    float* num3 = va_arg(argsCopy, float*);
-    double num4 = va_arg(argsCopy, double);
-
-    assert(*num1 == 17);
-    assert(*num2 == 59);
-    assert(*num3 == 80.0f);
-    assert(num4 == 120.0f);
-
-    // Always end the copy when done reading args
-    va_end(argsCopy);
-}
-
 void Register3DItemDrops() {
     static HOOK_ID actorInitHookID = 0;
     static HOOK_ID actorUpdateHookID = 0;
@@ -205,22 +183,5 @@ void Register3DItemDrops() {
     slimeVBHookID = REGISTER_VB_SHOULD(GI_VB_DRAW_SLIME_BODY_ITEM, {
         Actor* actor = va_arg(args, Actor*);
         DrawSlime3DItem(actor, should);
-    });
-
-    // Example hooks registrations for va_list demo
-    GameInteractor::Instance->RegisterGameHookForID<GameInteractor::ShouldVanillaBehavior>(GI_VB_DRAW_SLIME_BODY_ITEM,
-                                                                                           DrawSlime3DItemVArgsTest);
-
-    REGISTER_VB_SHOULD(GI_VB_DRAW_SLIME_BODY_ITEM, {
-        Actor* slime = va_arg(args, Actor*);
-        int* num1 = va_arg(args, int*);
-        int* num2 = va_arg(args, int*);
-        float* num3 = va_arg(args, float*);
-        double num4 = va_arg(args, double);
-
-        assert(*num1 == 17);
-        assert(*num2 == 59);
-        assert(*num3 == 80.0f);
-        assert(num4 == 120.0f);
     });
 }
