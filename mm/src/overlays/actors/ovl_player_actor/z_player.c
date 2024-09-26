@@ -3817,7 +3817,7 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
 
                 if (bomb != NULL) {
                     bomb->timer = 0;
-                    if (GameInteractor_Should(GI_VB_SET_BLAST_MASK_COOLDOWN_TIMER, true, NULL)) {
+                    if (GameInteractor_Should(GI_VB_SET_BLAST_MASK_COOLDOWN_TIMER, true)) {
                         this->blastMaskTimer = 310;
                     }
                 }
@@ -6723,7 +6723,7 @@ void func_80836AD8(PlayState* play, Player* this) {
 }
 
 void func_80836B3C(PlayState* play, Player* this, f32 arg2) {
-    if (GameInteractor_Should(GI_VB_PATCH_SIDEROLL, true, NULL)) {
+    if (GameInteractor_Should(GI_VB_PATCH_SIDEROLL, true)) {
         this->currentYaw = this->actor.shape.rot.y;
         this->actor.world.rot.y = this->actor.shape.rot.y;
     }
@@ -7817,7 +7817,7 @@ s32 Player_ActionChange_4(Player* this, PlayState* play) {
                                 // !CutsceneManager_IsNext(CS_ID_GLOBAL_TALK), which is what prevented Tatl ISG from
                                 // working
                                 bool vanillaCondition = !CutsceneManager_IsNext(CS_ID_GLOBAL_TALK);
-                                if (GameInteractor_Should(GI_VB_TATL_CONVERSATION_AVAILABLE, vanillaCondition, NULL) ||
+                                if (GameInteractor_Should(GI_VB_TATL_CONVERSATION_AVAILABLE, vanillaCondition) ||
                                     !CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_CUP)) {
                                     return false;
                                 }
@@ -10101,7 +10101,7 @@ s32 func_8083FD80(Player* this, PlayState* play) {
     if (!Player_IsGoronOrDeku(this) && (Player_GetMeleeWeaponHeld(this) != PLAYER_MELEEWEAPON_NONE) &&
         (this->transformation != PLAYER_FORM_ZORA) && sPlayerUseHeldItem) {
         //! Calling this function sets the meleeWeaponQuads' damage properties correctly, patching "Power Crouch Stab".
-        if (GameInteractor_Should(GI_VB_PATCH_POWER_CROUCH_STAB, true, NULL)) {
+        if (GameInteractor_Should(GI_VB_PATCH_POWER_CROUCH_STAB, true)) {
             func_8083375C(this, PLAYER_MWA_STAB_1H);
         }
         Player_AnimationPlayOnce(play, this, &gPlayerAnim_link_normal_defense_kiru);
@@ -10148,7 +10148,7 @@ s32 func_8083FF30(PlayState* play, Player* this) {
 s32 func_8083FFEC(PlayState* play, Player* this) {
     if (this->heldItemAction == PLAYER_IA_SWORD_RAZOR) {
         if (gSaveContext.save.saveInfo.playerData.swordHealth > 0) {
-            if (GameInteractor_Should(GI_VB_LOWER_RAZOR_SWORD_DURABILITY, true, NULL)) {
+            if (GameInteractor_Should(GI_VB_LOWER_RAZOR_SWORD_DURABILITY, true)) {
                 gSaveContext.save.saveInfo.playerData.swordHealth--;
             }
             if (gSaveContext.save.saveInfo.playerData.swordHealth <= 0) {
@@ -11258,7 +11258,7 @@ void Player_SetDoAction(PlayState* play, Player* this) {
         }
 
         if (doActionA != DO_ACTION_PUTAWAY) {
-            if (GameInteractor_Should(GI_VB_RESET_PUTAWAY_TIMER, true, NULL)) {
+            if (GameInteractor_Should(GI_VB_RESET_PUTAWAY_TIMER, true)) {
                 this->putAwayCountdown = 20;
             }
         } else if (this->putAwayCountdown != 0) {
@@ -14897,7 +14897,7 @@ void Player_Action_25(Player* this, PlayState* play) {
                 Math_StepToF(&this->unk_B10[1], 0.0f, this->unk_B10[0]);
             }
         } else {
-            if (GameInteractor_Should(GI_VB_FLIP_HOP_VARIABLE, true, NULL)) {
+            if (GameInteractor_Should(GI_VB_FLIP_HOP_VARIABLE, true)) {
                 func_8083CBC4(this, speedTarget, yawTarget, 1.0f, 0.05f, 0.1f, 0xC8);
             }
         }
@@ -18286,7 +18286,7 @@ void Player_Action_86(Player* this, PlayState* play) {
     struct_8085D910* sp4C = D_8085D910;
     s32 sp48 = false;
 
-    if (GameInteractor_Should(GI_VB_PREVENT_MASK_TRANSFORMATION_CS, false, NULL))
+    if (GameInteractor_Should(GI_VB_PREVENT_MASK_TRANSFORMATION_CS, false))
         return;
 
     func_808323C0(this, play->playerCsIds[PLAYER_CS_ID_MASK_TRANSFORMATION]);

@@ -112,7 +112,8 @@ void Register3DSClock() {
                     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
                     OVERLAY_DISP =
                         Gfx_DrawTexRectIA8(OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSFillTex, CLOCK_SECTION_WIDTH, 12,
-                                           posX - CLOCK_SECTION_WIDTH, posY, CLOCK_SECTION_WIDTH, 12, 1 << 10, 1 << 10);
+                                           posX - CLOCK_SECTION_HALFWIDTH - CLOCK_SECTION_WIDTH, posY,
+                                           CLOCK_SECTION_WIDTH, 12, 1 << 10, 1 << 10);
 
                     fillalpha = 64;
                     if (gSaveContext.save.day == 2) {
