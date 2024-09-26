@@ -587,8 +587,7 @@ void func_80C1193C(EnThiefbird* this, PlayState* play) {
             if (!(this->collider.base.atFlags & AT_BOUNCED)) {
                 if ((D_80C1392C != 0) && CUR_UPG_VALUE(UPG_QUIVER) &&
                     ((STOLEN_ITEM_1 == STOLEN_ITEM_NONE) || (STOLEN_ITEM_2 == STOLEN_ITEM_NONE)) &&
-                    GameInteractor_Should(GI_VB_THIEF_BIRD_STEAL, Rand_ZeroOne() < 0.5f, NULL) &&
-                    func_80C10B0C(this, play)) {
+                    GameInteractor_Should(GI_VB_THIEF_BIRD_STEAL, Rand_ZeroOne() < 0.5f) && func_80C10B0C(this, play)) {
                     func_80C1242C(this);
                 } else if (func_80C10E98(play)) {
                     func_80C11338(this, play);
