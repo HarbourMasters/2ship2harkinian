@@ -462,16 +462,6 @@ typedef struct CollisionCheckInfo {
     /* 0x1B */ u8 acHitEffect;
 } CollisionCheckInfo; // size = 0x1C
 
-// #region 2S2H - Enhancements - Convenience struct used for passing damage effect information into hooks
-typedef struct DamageAndEffectHookInfo {
-    DamageTable* damageTable;
-    u8 index;
-    f32* damage;
-    u32* effect;
-    f32* multipliers;
-    struct Actor* actor;
-} DamageAndEffectHookInfo;
-// #endregion
 
 DamageTable* DamageTable_Get(s32 index);
 void DamageTable_Clear(DamageTable* damageTable);

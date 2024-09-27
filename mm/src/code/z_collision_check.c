@@ -50,16 +50,6 @@ f32 CollisionCheck_GetDamageAndEffectOnBumper(Collider* at, ColliderInfo* atInfo
     *effect = 0;
     damage = CollisionCheck_GetToucherDamage(at, atInfo, ac, acInfo);
 
-    // #region 2S2H - Enhancements - Damage Multiplier and Effect
-    // Store damage information for hook purposes
-    DamageAndEffectHookInfo damageAndEffectInfo;
-    damageAndEffectInfo.damageTable = ac->actor->colChkInfo.damageTable;
-    damageAndEffectInfo.damage = &damage;
-    damageAndEffectInfo.multipliers = damageMultipliers;
-    damageAndEffectInfo.effect = effect;
-    damageAndEffectInfo.actor = ac->actor;
-    // #endregion
-
     if (ac->actor->colChkInfo.damageTable != NULL) {
         dmgFlags = atInfo->toucher.dmgFlags;
 
@@ -71,12 +61,13 @@ f32 CollisionCheck_GetDamageAndEffectOnBumper(Collider* at, ColliderInfo* atInfo
         }
 
         // #region 2S2H - Enhancements - Damage Multiplier and Effect
-        damageAndEffectInfo.index = i;
-        if ((GameInteractor_Should(GI_VB_DAMAGE_MULTIPLIER, true, &damageAndEffectInfo))) {
+        if ((GameInteractor_Should(GI_VB_DAMAGE_MULTIPLIER, true, i, ac->actor->colChkInfo.damageTable, &damage,
+                                   damageMultipliers, effect, ac->actor))) {
             damage *= damageMultipliers[ac->actor->colChkInfo.damageTable->attack[i] & 0xF];
         }
 
-        if ((GameInteractor_Should(GI_VB_DAMAGE_EFFECT, true, &damageAndEffectInfo))) {
+        if ((GameInteractor_Should(GI_VB_DAMAGE_EFFECT, true, i, ac->actor->colChkInfo.damageTable, &damage,
+                                   damageMultipliers, effect, ac->actor))) {
             *effect = (ac->actor->colChkInfo.damageTable->attack[i] >> 4) & 0xF;
         }
         // #endregion

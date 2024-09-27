@@ -25,53 +25,61 @@ void RegisterFierceDeityAnywhere() {
 
     REGISTER_VB_SHOULD(GI_VB_DAMAGE_MULTIPLIER, {
         if (CVarGetInteger("gEnhancements.Masks.FierceDeitysAnywhere", 0)) {
-            DamageAndEffectHookInfo damageInfo = *((DamageAndEffectHookInfo*)(opt));
+            int index = va_arg(args, int);
+            DamageTable* damageTable = va_arg(args, DamageTable*);
+            f32* damage = va_arg(args, f32*);
+            f32* damageMultipliers = va_arg(args, f32*);
+
             /*
              * 25 is the index of the sword beam damage effect.
              */
-            if (damageInfo.index == 25) {
+            if (index == 25) {
                 *should = false;
                 /*
                  * If the existing damage multiplier for sword beams is 0, use a damage multiplier of 1.0 instead.
                  */
-                u8 defaultMultiplier = damageInfo.damageTable->attack[damageInfo.index] & 0xF;
-                (*damageInfo.damage) *= damageInfo.multipliers[defaultMultiplier == 0 ? 1 : defaultMultiplier];
+                u8 defaultMultiplier = damageTable->attack[index] & 0xF;
+                *damage *= damageMultipliers[defaultMultiplier == 0 ? 1 : defaultMultiplier];
             }
         }
     });
 
     REGISTER_VB_SHOULD(GI_VB_DAMAGE_EFFECT, {
         if (CVarGetInteger("gEnhancements.Masks.FierceDeitysAnywhere", 0)) {
-            Player* player = GET_PLAYER(gPlayState);
-            DamageAndEffectHookInfo damageInfo = *((DamageAndEffectHookInfo*)(opt));
+            int index = va_arg(args, int);
+            DamageTable* damageTable = va_arg(args, DamageTable*);
+            f32* damage = va_arg(args, f32*);
+            f32* damageMultipliers = va_arg(args, f32*);
+            u32* effect = va_arg(args, u32*);
+            Actor* actor = va_arg(args, Actor*);
             /*
              * 25 is the index of the sword beam damage effect.
              */
-            if (damageInfo.index == 25) {
+            if (index == 25) {
                 *should = false;
                 /*
                  * If the sword beam effect is 0, use the light arrow effect instead.
                  */
-                u8 defaultEffect = (damageInfo.damageTable->attack[damageInfo.index] >> 4) & 0xF;
+                u8 defaultEffect = (damageTable->attack[index] >> 4) & 0xF;
                 if (defaultEffect == 0) {
                     // 13 is the index of the light arrow damage effect
-                    (*damageInfo.effect) = (damageInfo.damageTable->attack[13] >> 4) & 0xF;
+                    *effect = (damageTable->attack[13] >> 4) & 0xF;
                 } else {
-                    (*damageInfo.effect) = defaultEffect;
+                    *effect = defaultEffect;
                 }
                 /*
                  * shape.face is unused for any actor besides the player. We are hijacking this because we need to have
                  * some variable connected to the specific actor to indicate that the damage they received comes from a
                  * sword beam. Each stage of the pipeline (update, draw) goes through all actors in a batch.
                  */
-                damageInfo.actor->shape.face = HIT_BY_SWORD_BEAM;
-            } else if (damageInfo.index != 9) {
+                actor->shape.face = HIT_BY_SWORD_BEAM;
+            } else if (index != 9) {
                 /*
                  * 9 is the index of the sword damage effect. With how FD plays, it is possible for the sword to connect
                  * after sword beams have dealt damage. Without this check, the damage effect would revert back to the
                  * light arrows effect upon sword collision.
                  */
-                damageInfo.actor->shape.face = NOT_HIT_BY_SWORD_BEAM;
+                actor->shape.face = NOT_HIT_BY_SWORD_BEAM;
             }
         }
     });
@@ -91,7 +99,7 @@ void RegisterFierceDeityAnywhere() {
     REGISTER_VB_SHOULD(GI_VB_DRAW_DAMAGE_EFFECT, {
         if (CVarGetInteger("gEnhancements.Masks.FierceDeitysAnywhere", 0)) {
             if (lightArrowsAsSwordBeams) {
-                u8* type = (u8*)opt;
+                u8* type = va_arg(args, u8*);
                 if (*type == ACTOR_DRAW_DMGEFF_LIGHT_ORBS) {
                     *type = ACTOR_DRAW_DMGEFF_BLUE_LIGHT_ORBS;
                 }
@@ -107,7 +115,7 @@ void RegisterFierceDeityAnywhere() {
      */
     REGISTER_VB_SHOULD(GI_VB_CHECK_BUMPER_COLLISION, {
         if (CVarGetInteger("gEnhancements.Masks.FierceDeitysAnywhere", 0)) {
-            ColliderInfo* bumper = (ColliderInfo*)opt;
+            ColliderInfo* bumper = va_arg(args, ColliderInfo*);
             *should = isSwordBeamCollision = bumper->bumper.dmgFlags & DMG_SWORD_BEAM;
         }
     });
