@@ -258,6 +258,7 @@ void Scene_CommandTransiActorList(PlayState* play, SOH::ISceneCommand* cmd) {
 
     play->transitionActors.count = list->numTransitionActors;
     play->transitionActors.list = (TransitionActorEntry*)list->GetRawPointer();
+    MapDisp_InitTransitionActorData(play, play->transitionActors.count, play->transitionActors.list);
 }
 
 void Scene_CommandEnvLightSettings(PlayState* play, SOH::ISceneCommand* cmd) {
