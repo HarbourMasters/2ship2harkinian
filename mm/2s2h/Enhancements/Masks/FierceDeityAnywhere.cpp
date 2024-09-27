@@ -48,8 +48,6 @@ void RegisterFierceDeityAnywhere() {
         if (CVarGetInteger("gEnhancements.Masks.FierceDeitysAnywhere", 0)) {
             int index = va_arg(args, int);
             DamageTable* damageTable = va_arg(args, DamageTable*);
-            f32* damage = va_arg(args, f32*);
-            f32* damageMultipliers = va_arg(args, f32*);
             u32* effect = va_arg(args, u32*);
             Actor* actor = va_arg(args, Actor*);
             /*

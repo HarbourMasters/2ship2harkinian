@@ -62,12 +62,12 @@ f32 CollisionCheck_GetDamageAndEffectOnBumper(Collider* at, ColliderInfo* atInfo
 
         // #region 2S2H - Enhancements - Damage Multiplier and Effect
         if ((GameInteractor_Should(GI_VB_DAMAGE_MULTIPLIER, true, i, ac->actor->colChkInfo.damageTable, &damage,
-                                   damageMultipliers, effect, ac->actor))) {
+                                   damageMultipliers))) {
             damage *= damageMultipliers[ac->actor->colChkInfo.damageTable->attack[i] & 0xF];
         }
 
-        if ((GameInteractor_Should(GI_VB_DAMAGE_EFFECT, true, i, ac->actor->colChkInfo.damageTable, &damage,
-                                   damageMultipliers, effect, ac->actor))) {
+        if ((GameInteractor_Should(GI_VB_DAMAGE_EFFECT, true, i, ac->actor->colChkInfo.damageTable, effect,
+                                   ac->actor))) {
             *effect = (ac->actor->colChkInfo.damageTable->attack[i] >> 4) & 0xF;
         }
         // #endregion
