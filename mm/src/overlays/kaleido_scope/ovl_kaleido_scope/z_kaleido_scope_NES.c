@@ -2918,12 +2918,16 @@ void KaleidoScope_UpdateCursorSize(PlayState* play) {
                         pauseCtx->cursorX = sWorldMapCursorsX[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]];
                         pauseCtx->cursorY = sWorldMapCursorsY[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]];
                     }
-                    if (!IS_PAUSE_STATE_OWLWARP) {
+                    if (!IS_PAUSE_STATE_OWLWARP && !PauseOwlWarp_IsOwlWarpEnabled()) {
                         pauseCtx->cursorHeight = 10.0f;
                         pauseCtx->cursorWidth = 10.0f;
                     } else {
                         pauseCtx->cursorHeight = 15.0f;
                         pauseCtx->cursorWidth = 15.0f;
+                    }
+                    // Flip the position of the cursor with an additional offset to align with flipped map points
+                    if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
+                        pauseCtx->cursorX = (pauseCtx->cursorX * -1.0) + 5.0f;
                     }
                 } else {
                     pauseCtx->cursorX = sDungeonMapCursorsX[pauseCtx->cursorPoint[PAUSE_MAP]];
@@ -3109,10 +3113,6 @@ void KaleidoScope_Draw(PlayState* play) {
     InterfaceContext* interfaceCtx = &play->interfaceCtx;
 
     OPEN_DISPS(play->state.gfxCtx);
-    if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
-        gSPClearExtraGeometryMode(POLY_OPA_DISP++, G_EX_INVERT_CULLING);
-        gSPClearExtraGeometryMode(POLY_XLU_DISP++, G_EX_INVERT_CULLING);
-    }
 
     gSPSegment(POLY_OPA_DISP++, 0x02, interfaceCtx->parameterSegment);
     gSPSegment(POLY_OPA_DISP++, 0x08, pauseCtx->iconItemSegment);
@@ -3173,14 +3173,6 @@ void KaleidoScope_Draw(PlayState* play) {
 
     if ((pauseCtx->debugEditor == DEBUG_EDITOR_INVENTORY_INIT) || (pauseCtx->debugEditor == DEBUG_EDITOR_INVENTORY)) {
         KaleidoScope_DrawInventoryEditor(play);
-    }
-
-    // Flip the OPA and XLU projections again as the set view call above reset the original flips from z_play
-    if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
-        gSPMatrix(POLY_OPA_DISP++, play->view.shipMirrorProjectionPtr, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
-        gSPMatrix(POLY_XLU_DISP++, play->view.shipMirrorProjectionPtr, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
-        gSPMatrix(POLY_OPA_DISP++, play->view.viewingPtr, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_PROJECTION);
-        gSPMatrix(POLY_XLU_DISP++, play->view.viewingPtr, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_PROJECTION);
     }
 
     CLOSE_DISPS(play->state.gfxCtx);

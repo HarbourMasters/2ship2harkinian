@@ -1248,7 +1248,8 @@ void Play_DrawMain(PlayState* this) {
 
         View_Apply(&this->view, 0xF);
 
-        if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
+        // Setup mirror mode matrix handling when we are not drawing kaleido
+        if (R_PAUSE_BG_PRERENDER_STATE <= PAUSE_BG_PRERENDER_SETUP && CVarGetInteger("gModes.MirroredWorld.State", 0)) {
             gSPSetExtraGeometryMode(POLY_OPA_DISP++, G_EX_INVERT_CULLING);
             gSPSetExtraGeometryMode(POLY_XLU_DISP++, G_EX_INVERT_CULLING);
             gSPMatrix(POLY_OPA_DISP++, this->view.shipMirrorProjectionPtr,
