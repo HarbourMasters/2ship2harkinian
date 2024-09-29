@@ -73,6 +73,8 @@ typedef enum {
     GI_INVERT_SHOP_X,
     GI_INVERT_HORSE_X,
     GI_INVERT_ZORA_SWIM_X,
+    GI_INVERT_DEBUG_DPAD_X,
+    GI_INVERT_TELESCOPE_X,
 } GIInvertType;
 
 typedef enum {

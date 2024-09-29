@@ -278,7 +278,11 @@ int GameInteractor_InvertControl(GIInvertType type) {
             case GI_INVERT_SHOP_X:
             case GI_INVERT_HORSE_X:
             case GI_INVERT_ZORA_SWIM_X:
+            case GI_INVERT_DEBUG_DPAD_X:
+            case GI_INVERT_TELESCOPE_X:
                 result *= -1;
+                break;
+            default:
                 break;
         }
     }

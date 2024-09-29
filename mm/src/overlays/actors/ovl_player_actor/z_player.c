@@ -8330,6 +8330,7 @@ void func_8083A98C(Actor* thisx, PlayState* play2) {
 
             // Yaw: shape.rot.y is used as a fixed starting position
             inputX = sPlayerControlInput->rel.stick_x * -4;
+            inputX *= GameInteractor_InvertControl(GI_INVERT_TELESCOPE_X);
             // Start from current position: no input -> no change
             newYaw = thisx->focus.rot.y - thisx->shape.rot.y;
             // Add input, clamped to prevent turning too fast
@@ -12562,9 +12563,9 @@ s32 Player_UpdateNoclip(Player* this, PlayState* play) {
                 if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_DDOWN)) {
                     angle = temp + 0x8000;
                 } else if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_DLEFT)) {
-                    angle = temp + 0x4000;
+                    angle = temp + 0x4000 * GameInteractor_InvertControl(GI_INVERT_DEBUG_DPAD_X);
                 } else if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_DRIGHT)) {
-                    angle = temp - 0x4000;
+                    angle = temp - 0x4000 * GameInteractor_InvertControl(GI_INVERT_DEBUG_DPAD_X);
                 }
 
                 this->actor.world.pos.x += speed * Math_SinS(angle);
@@ -16008,6 +16009,8 @@ void Player_Action_50(Player* this, PlayState* play) {
     DynaPolyActor* dyna;
     PlayerAnimationHeader* anim1;
     PlayerAnimationHeader* anim2;
+
+    xStick *= GameInteractor_InvertControl(GI_INVERT_MOVEMENT_X);
 
     this->fallStartHeight = this->actor.world.pos.y;
 
