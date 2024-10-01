@@ -163,70 +163,70 @@ jobs:
         path: 2ship.o2r
         retention-days: 1
 
-  build-macos:
-    needs: generate-2ship-otr
-    runs-on: macos-14
-    steps:
-    - uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: ccache
-      uses: hendrikmuhs/ccache-action@v1.2.13
-      with:
-        create-symlink: true
-        key: ${{ runner.os }}-14-ccache-${{ github.ref }}-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-14-ccache-${{ github.ref }}
-          ${{ runner.os }}-14-ccache-
-    # Needed to apply sudo for macports cache restore
-    - name: Install gtar wrapper
-      run: |
-        sudo mv /opt/homebrew/bin/gtar /opt/homebrew/bin/gtar.orig
-        sudo cp .github/workflows/gtar /opt/homebrew/bin/gtar
-        sudo chmod +x /opt/homebrew/bin/gtar
-    - name: Cache MacPorts
-      id: cache-macports
-      uses: actions/cache@v4
-      with:
-        path: /opt/local/
-        key: ${{ runner.os }}-14-macports-${{ hashFiles('.github/workflows/macports-deps.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-14-macports-
-    - name: Install MacPorts (if necessary)
-      run: |
-        if [ command -v port &>/dev/null ]; then
-          echo "MacPorts already installed"
-        else
-          wget https://github.com/macports/macports-base/releases/download/v2.9.3/MacPorts-2.9.3-14-Sonoma.pkg
-          sudo installer -pkg ./MacPorts-2.9.3-14-Sonoma.pkg -target /
-        fi
-        echo "/opt/local/bin:/opt/local/sbin" >> $GITHUB_PATH
-    - name: Install dependencies
-      run: |
-        brew uninstall --ignore-dependencies libpng
-        sudo port install $(cat .github/workflows/macports-deps.txt)
-        brew install ninja
-    - name: Download 2ship.o2r
-      uses: actions/download-artifact@v4
-      with:
-        name: 2ship.o2r
-        path: build-cmake/mm
-    - name: Build 2Ship
-      run: |
-        export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-        cmake --no-warn-unused-cli -H. -Bbuild-cmake -GNinja -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"
-        cmake --build build-cmake --config Release --parallel 10
-        (cd build-cmake && cpack)
+  # build-macos:
+  #   needs: generate-2ship-otr
+  #   runs-on: macos-14
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #     with:
+  #       submodules: true
+  #   - name: ccache
+  #     uses: hendrikmuhs/ccache-action@v1.2.13
+  #     with:
+  #       create-symlink: true
+  #       key: ${{ runner.os }}-14-ccache-${{ github.ref }}-${{ github.sha }}
+  #       restore-keys: |
+  #         ${{ runner.os }}-14-ccache-${{ github.ref }}
+  #         ${{ runner.os }}-14-ccache-
+  #   # Needed to apply sudo for macports cache restore
+  #   - name: Install gtar wrapper
+  #     run: |
+  #       sudo mv /opt/homebrew/bin/gtar /opt/homebrew/bin/gtar.orig
+  #       sudo cp .github/workflows/gtar /opt/homebrew/bin/gtar
+  #       sudo chmod +x /opt/homebrew/bin/gtar
+  #   - name: Cache MacPorts
+  #     id: cache-macports
+  #     uses: actions/cache@v4
+  #     with:
+  #       path: /opt/local/
+  #       key: ${{ runner.os }}-14-macports-${{ hashFiles('.github/workflows/macports-deps.txt') }}
+  #       restore-keys: |
+  #         ${{ runner.os }}-14-macports-
+  #   - name: Install MacPorts (if necessary)
+  #     run: |
+  #       if [ command -v port &>/dev/null ]; then
+  #         echo "MacPorts already installed"
+  #       else
+  #         wget https://github.com/macports/macports-base/releases/download/v2.9.3/MacPorts-2.9.3-14-Sonoma.pkg
+  #         sudo installer -pkg ./MacPorts-2.9.3-14-Sonoma.pkg -target /
+  #       fi
+  #       echo "/opt/local/bin:/opt/local/sbin" >> $GITHUB_PATH
+  #   - name: Install dependencies
+  #     run: |
+  #       brew uninstall --ignore-dependencies libpng
+  #       sudo port install $(cat .github/workflows/macports-deps.txt)
+  #       brew install ninja
+  #   - name: Download 2ship.o2r
+  #     uses: actions/download-artifact@v4
+  #     with:
+  #       name: 2ship.o2r
+  #       path: build-cmake/mm
+  #   - name: Build 2Ship
+  #     run: |
+  #       export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+  #       cmake --no-warn-unused-cli -H. -Bbuild-cmake -GNinja -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"
+  #       cmake --build build-cmake --config Release --parallel 10
+  #       (cd build-cmake && cpack)
 
-        mv _packages/*.dmg 2Ship.dmg
-        mv README.md readme.txt
-    - name: Upload build
-      uses: actions/upload-artifact@v4
-      with:
-        name: 2ship-mac
-        path: |
-          2Ship.dmg
-          readme.txt
+  #       mv _packages/*.dmg 2Ship.dmg
+  #       mv README.md readme.txt
+  #   - name: Upload build
+  #     uses: actions/upload-artifact@v4
+  #     with:
+  #       name: 2ship-mac
+  #       path: |
+  #         2Ship.dmg
+  #         readme.txt
 
   build-linux:
     needs: generate-2ship-otr
@@ -322,59 +322,59 @@ jobs:
           2ship.appimage
           readme.txt
 
-  build-windows:
-    needs: generate-2ship-otr
-    runs-on: windows-latest
-    steps:
-    - name: Install dependencies
-      run: |
-        choco install ninja -y
-        Remove-Item -Path "C:\ProgramData\Chocolatey\bin\ccache.exe" -Force -ErrorAction SilentlyContinue
-    - uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: ccache
-      uses: hendrikmuhs/ccache-action@v1.2.13
-      with:
-        variant: sccache
-        max-size: "1G"
-        key: ${{ runner.os }}-ccache1-${{ github.ref }}-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-ccache1-${{ github.ref }}
-          ${{ runner.os }}-ccache1-
-    - name: Cache build folder
-      uses: actions/cache@v4
-      with:
-        save-always: true
-        key: ${{ runner.os }}-build1-${{ github.ref }}-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-build1-${{ github.ref }}
-          ${{ runner.os }}-build1-
-        path: |
-          build-windows
-          vcpkg
-    - name: Configure Developer Command Prompt
-      uses: ilammy/msvc-dev-cmd@v1
-    - name: Download 2ship.o2r
-      uses: actions/download-artifact@v4
-      with:
-        name: 2ship.o2r
-        path: build-windows/mm
-    - name: Build 2Ship
-      env:
-        VCPKG_ROOT: ${{github.workspace}}/vcpkg
-      run: |
-        set $env:PATH="$env:USERPROFILE/.cargo/bin;$env:PATH"
-        cmake -S . -B build-windows -G Ninja -DCMAKE_MAKE_PROGRAM=ninja -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
-        cmake --build build-windows --config Release --parallel 10
+  # build-windows:
+  #   needs: generate-2ship-otr
+  #   runs-on: windows-latest
+  #   steps:
+  #   - name: Install dependencies
+  #     run: |
+  #       choco install ninja -y
+  #       Remove-Item -Path "C:\ProgramData\Chocolatey\bin\ccache.exe" -Force -ErrorAction SilentlyContinue
+  #   - uses: actions/checkout@v4
+  #     with:
+  #       submodules: true
+  #   - name: ccache
+  #     uses: hendrikmuhs/ccache-action@v1.2.13
+  #     with:
+  #       variant: sccache
+  #       max-size: "1G"
+  #       key: ${{ runner.os }}-ccache1-${{ github.ref }}-${{ github.sha }}
+  #       restore-keys: |
+  #         ${{ runner.os }}-ccache1-${{ github.ref }}
+  #         ${{ runner.os }}-ccache1-
+  #   - name: Cache build folder
+  #     uses: actions/cache@v4
+  #     with:
+  #       save-always: true
+  #       key: ${{ runner.os }}-build1-${{ github.ref }}-${{ github.sha }}
+  #       restore-keys: |
+  #         ${{ runner.os }}-build1-${{ github.ref }}
+  #         ${{ runner.os }}-build1-
+  #       path: |
+  #         build-windows
+  #         vcpkg
+  #   - name: Configure Developer Command Prompt
+  #     uses: ilammy/msvc-dev-cmd@v1
+  #   - name: Download 2ship.o2r
+  #     uses: actions/download-artifact@v4
+  #     with:
+  #       name: 2ship.o2r
+  #       path: build-windows/mm
+  #   - name: Build 2Ship
+  #     env:
+  #       VCPKG_ROOT: ${{github.workspace}}/vcpkg
+  #     run: |
+  #       set $env:PATH="$env:USERPROFILE/.cargo/bin;$env:PATH"
+  #       cmake -S . -B build-windows -G Ninja -DCMAKE_MAKE_PROGRAM=ninja -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
+  #       cmake --build build-windows --config Release --parallel 10
 
-        (cd build-windows && cpack)
-        cd ..
-        mv _packages/*.zip _packages/2ship-windows.zip
-    - name: Unzip package
-      run: Expand-Archive -Path _packages/2ship-windows.zip -DestinationPath 2ship-windows
-    - name: Upload build
-      uses: actions/upload-artifact@v4
-      with:
-        name: 2ship-windows
-        path: 2ship-windows
+  #       (cd build-windows && cpack)
+  #       cd ..
+  #       mv _packages/*.zip _packages/2ship-windows.zip
+  #   - name: Unzip package
+  #     run: Expand-Archive -Path _packages/2ship-windows.zip -DestinationPath 2ship-windows
+  #   - name: Upload build
+  #     uses: actions/upload-artifact@v4
+  #     with:
+  #       name: 2ship-windows
+  #       path: 2ship-windows
