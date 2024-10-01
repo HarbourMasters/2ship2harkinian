@@ -147,7 +147,9 @@ OTRGlobals::OTRGlobals() {
                                                  OOT_PAL_GC,     OOT_PAL_GC_DBG1,   OOT_PAL_GC_DBG2 };
     // tell LUS to reserve 3 SoH specific threads (Game, Audio, Save)
     context =
-        Ship::Context::CreateInstance("2 Ship 2 Harkinian", appShortName, "2ship2harkinian.json", archiveFiles, {}, 3);
+        Ship::Context::CreateInstance("2 Ship 2 Harkinian", appShortName, "2ship2harkinian.json", archiveFiles, {}, 3,
+                                      { .SampleRate = 44100, .SampleLength = 1024, .DesiredBuffered = 2480 });
+
     prevAltAssets = CVarGetInteger("gAltAssets", 0);
     context->GetResourceManager()->SetAltAssetsEnabled(prevAltAssets);
 
