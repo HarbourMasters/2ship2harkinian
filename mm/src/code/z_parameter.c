@@ -8610,7 +8610,15 @@ void Interface_Draw(PlayState* play) {
         Map_DrawMinimap(play);
 
         if ((R_PAUSE_BG_PRERENDER_STATE != 2) && (R_PAUSE_BG_PRERENDER_STATE != 3)) {
+            if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
+                gSPMatrix(OVERLAY_DISP++, interfaceCtx->view.shipMirrorProjectionPtr,
+                          G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
+            }
             Target_Draw(&play->actorCtx.targetCtx, play);
+            if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
+                gSPMatrix(OVERLAY_DISP++, interfaceCtx->view.projectionPtr,
+                          G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
+            }
         }
 
         Gfx_SetupDL39_Overlay(play->state.gfxCtx);

@@ -2918,12 +2918,16 @@ void KaleidoScope_UpdateCursorSize(PlayState* play) {
                         pauseCtx->cursorX = sWorldMapCursorsX[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]];
                         pauseCtx->cursorY = sWorldMapCursorsY[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]];
                     }
-                    if (!IS_PAUSE_STATE_OWLWARP) {
+                    if (!IS_PAUSE_STATE_OWLWARP && !PauseOwlWarp_IsOwlWarpEnabled()) {
                         pauseCtx->cursorHeight = 10.0f;
                         pauseCtx->cursorWidth = 10.0f;
                     } else {
                         pauseCtx->cursorHeight = 15.0f;
                         pauseCtx->cursorWidth = 15.0f;
+                    }
+                    // Flip the position of the cursor with an additional offset to align with flipped map points
+                    if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
+                        pauseCtx->cursorX = (pauseCtx->cursorX * -1.0) + 5.0f;
                     }
                 } else {
                     pauseCtx->cursorX = sDungeonMapCursorsX[pauseCtx->cursorPoint[PAUSE_MAP]];
