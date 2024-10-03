@@ -541,6 +541,10 @@ void DrawEnhancementsMenu() {
                                     { .tooltip = "Fixes certain control characters not functioning properly "
                                                  "depending on their position within the text." });
 
+            UIWidgets::CVarCheckbox("Fix Ikana Great Fairy Fountain Color", "gFixes.FixIkanaGreatFairyFountainColor",
+                                    { .tooltip = "Fixes a bug that results in the Ikana Great Fairy fountain looking "
+                                                 "green instead of yellow, this was fixed in the EU version" });
+
             ImGui::EndMenu();
         }
 

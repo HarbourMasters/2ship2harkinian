@@ -1127,6 +1127,10 @@ void AddEnhancements() {
               { "Fix Text Control Characters", "gEnhancements.Fixes.ControlCharacters",
                 "Fixes certain control characters not functioning properly "
                 "depending on their position within the text.",
+                WIDGET_CVAR_CHECKBOX },
+              { "Fix Ikana Great Fairy Fountain Color", "gFixes.FixIkanaGreatFairyFountainColor",
+                "Fixes a bug that results in the Ikana Great Fairy fountain looking green instead of yellow, this was "
+                "fixed in the EU version",
                 WIDGET_CVAR_CHECKBOX } } } });
     enhancementsSidebar.push_back(
         { "Restorations",
