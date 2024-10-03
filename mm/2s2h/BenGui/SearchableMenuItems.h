@@ -930,6 +930,17 @@ void AddEnhancements() {
                 "Playing the Song Of Time will not reset the Sword back to Kokiri Sword.", WIDGET_CVAR_CHECKBOX },
               { "Do not reset Rupees", "gEnhancements.Cycle.DoNotResetRupees",
                 "Playing the Song Of Time will not reset the your rupees.", WIDGET_CVAR_CHECKBOX },
+              { "Do not reset Time Speed", "gEnhancements.Cycle.DoNotResetTimeSpeed",
+                "Playing the Song Of Time will not reset the current time speed set by Inverted Song of Time.",
+                WIDGET_CVAR_CHECKBOX },
+              {
+                  .widgetName = "Keep Express Mail",
+                  .widgetCVar = "gEnhancements.Cycle.KeepExpressMail",
+                  .widgetTooltip = "Allows the player to keep the Express Mail in their inventory after delivering it "
+                                   "the first time, so that both deliveries can be done within one cycle",
+                  .widgetType = WIDGET_CVAR_CHECKBOX,
+                  .widgetCallback = [](widgetInfo& info) { RegisterKeepExpressMail(); },
+              },
               { .widgetName = "Unstable",
                 .widgetType = WIDGET_SEPARATOR_TEXT,
                 .widgetOptions = { .color = UIWidgets::Colors::Yellow } },

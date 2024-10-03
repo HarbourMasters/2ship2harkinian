@@ -14,7 +14,7 @@ void CheckScene(s16 sceneId) {
         return;
     }
 
-    onItemDeleteID = REGISTER_VB_SHOULD(GI_VB_MSG_SCRIPT_DEL_ITEM, {
+    onItemDeleteID = REGISTER_VB_SHOULD(VB_MSG_SCRIPT_DEL_ITEM, {
         Actor* actor = va_arg(args, Actor*);
         ItemId itemId = va_arg(args, ItemId);
 
