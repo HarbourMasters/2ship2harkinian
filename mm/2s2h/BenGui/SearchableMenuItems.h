@@ -878,7 +878,19 @@ void AddEnhancements() {
                 "Time only moves when Link is not standing still.",
                 WIDGET_CVAR_CHECKBOX,
                 {},
-                ([](widgetInfo& info) { RegisterTimeMovesWhenYouMove(); }) } },
+                ([](widgetInfo& info) { RegisterTimeMovesWhenYouMove(); }) },
+              { "Mirrored World",
+                "gModes.MirroredWorld.Mode",
+                "Mirrors the world horizontally.",
+                WIDGET_CVAR_CHECKBOX,
+                {},
+                ([](widgetInfo& info) {
+                    if (CVarGetInteger("gModes.MirroredWorld.Mode", 0)) {
+                        CVarSetInteger("gModes.MirroredWorld.State", 1);
+                    } else {
+                        CVarClear("gModes.MirroredWorld.State");
+                    }
+                }) } },
             { { .widgetName = "Saving", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Persistent Owl Saves", "gEnhancements.Saving.PersistentOwlSaves",
                 "Continuing a save will not remove the owl save. Playing Song of "
