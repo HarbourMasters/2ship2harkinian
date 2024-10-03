@@ -29,7 +29,6 @@ class AudioSequence : public Ship::Resource<Sequence> {
 
     Sequence sequence;
     std::vector<char> sequenceData;
-    std::unique_ptr<short[]> customSeqData = nullptr;
     uint32_t sampleRate = 0; // Streamed audio only
     uint8_t numChannels = 0;
 };

@@ -237,14 +237,16 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
         sequence->sequenceData = *seqFile->Buffer.get();
         sequence->sequence.seqData = sequence->sequenceData.data();
     } else {    
+        // setting numFonts to -1 tells the game's audio engine the sound font to used is CRC64 encoded in the font indicies.
+        sequence->sequence.numFonts = -1;
         if (path != nullptr) {
             sequence->sequenceData = *seqFile->Buffer.get();
             sequence->sequence.seqData = sequence->sequenceData.data();
-            sequence->sequence.numFonts = -1;
             sequence->sequence.seqDataSize = seqFile->Buffer.get()->size();
         }
         else {
             unsigned int length = child->UnsignedAttribute("Length");
+            bool looped = child->BoolAttribute("Looped", true);
             Ship::BinaryWriter writer = Ship::BinaryWriter();
             writer.SetEndianness(Ship::Endianness::Big);
             // Placeholder off is the offset of the instruction to be replaced. The second variable is the target adress
@@ -252,12 +254,13 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
             uint16_t loopPoint;
             uint16_t channelPlaceholderOff, channelStart;
             uint16_t layerPlaceholderOff, layerStart;
-            // 1 second = 60 / (bpm * 48)
-            constexpr uint8_t TEMPO = 5;
+
+            // 1 second worth of ticks can be found by using `ticks = 60 / (bpm * 48)`
+            // Get the number of ticks per second and then divide the length by this number to get the number of ticks for the song.
+            constexpr uint8_t TEMPO = 1;
             constexpr float TEMPO_F = TEMPO;
             // Use floats for this first calculation so we can round up
             float delayF = length / (60.0f / (TEMPO_F * 48.0f));
-            //delayF = ceilf(delayF);
             // Convert to u16. This way this value is encoded changes depending on the value.
             // It can be at most 0xFFFF so store it in a u16 for now.
             uint16_t delay;
@@ -266,6 +269,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
             } else {
                 delay = delayF;
             }
+            
             // Write seq header
 
             // These two values are always the same in OOT and MM
@@ -284,7 +288,9 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
             WriteTempo(&writer, TEMPO);
 
             WriteDelay(&writer, delay);
-            WriteJump(&writer, loopPoint);
+            if (looped) {
+                WriteJump(&writer, loopPoint);
+            }
             WriteDisablecan(&writer, 1);
             writer.Write(static_cast<uint8_t>(0xFF));
 
@@ -302,7 +308,6 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
             WriteVolCHeader(&writer, 127); // Max volume
             WriteBend(&writer, 0);
             WriteInstrument(&writer, 0);
-            // Max delay. ~113 minutes.
             WriteDelay(&writer, delay);
             writer.Write(static_cast<uint8_t>(0xFF));
 
@@ -314,14 +319,12 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
             // Note layer
             WriteTranspose(&writer, 0);
             WriteLegato(&writer);
-            //WriteNotedv(&writer, 39 + 0x40, delay-1, 127); // todo move the +40 into the function
             WriteNotedvg(&writer, 39, 0x7FFF - 1, static_cast<uint8_t>(0x7F), static_cast<uint8_t>(1));
 
             writer.Write(static_cast<uint8_t>(0xFF));
 
             sequence->sequenceData = writer.ToVector();
             sequence->sequence.seqData = sequence->sequenceData.data();
-            sequence->sequence.numFonts = -1;
             sequence->sequence.seqDataSize = writer.ToVector().size();
         }
     }
