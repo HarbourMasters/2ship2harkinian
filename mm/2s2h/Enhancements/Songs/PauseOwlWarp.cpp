@@ -18,51 +18,32 @@ extern "C" bool PauseOwlWarp_IsOwlWarpEnabled() {
            gPlayState->pauseCtx.debugEditor == DEBUG_EDITOR_NONE;
 }
 
-static bool sIsConfirming = false;
-static u16 sStickAdjTimer = 0;
-
-void ResetMessageContext() {
-    gPlayState->msgCtx.msgLength = 0;
-    gPlayState->msgCtx.msgMode = MSGMODE_NONE;
-}
-
-void ClosePauseMenu(PauseContext* pauseCtx) {
-    Interface_SetAButtonDoAction(gPlayState, DO_ACTION_NONE);
-    Audio_PlaySfx_PauseMenuOpenOrClose(SFX_PAUSE_MENU_CLOSE);
-    gPlayState->msgCtx.ocarinaMode = OCARINA_MODE_END;
-    gSaveContext.prevHudVisibility = HUD_VISIBILITY_ALL;
-    sIsConfirming = false;
-    Message_CloseTextbox(gPlayState);
-    pauseCtx->state = PAUSE_STATE_UNPAUSE_SETUP;
-}
-
 void HandleConfirmingState(PauseContext* pauseCtx, Input* input) {
     if (Message_ShouldAdvance(gPlayState)) {
-        ResetMessageContext();
-        sIsConfirming = false;
         if (gPlayState->msgCtx.choiceIndex == 0) { // Yes
             Interface_SetAButtonDoAction(gPlayState, DO_ACTION_NONE);
+            pauseCtx->state = PAUSE_STATE_UNPAUSE_SETUP;
+            sPauseMenuVerticalOffset = -6240.0f;
             Audio_PlaySfx_PauseMenuOpenOrClose(SFX_PAUSE_MENU_CLOSE);
             gPlayState->msgCtx.ocarinaMode = sCursorPointsToOcarinaModes[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]];
             Audio_PlaySfx(NA_SE_SY_DECIDE);
+
             Message_CloseTextbox(gPlayState);
-            sPauseMenuVerticalOffset = -6240.0f;
-            pauseCtx->state = PAUSE_STATE_UNPAUSE_SETUP;
+
             gPlayState->nextEntrance = D_80AF343C[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]];
             gPlayState->transitionTrigger = TRANS_TRIGGER_START;
             gPlayState->transitionType = TRANS_TYPE_FADE_WHITE;
         } else { // No
             Interface_SetAButtonDoAction(gPlayState, DO_ACTION_WARP);
-            Audio_PlaySfx(NA_SE_SY_MESSAGE_PASS);
             Message_CloseTextbox(gPlayState);
+            Audio_PlaySfx(NA_SE_SY_MESSAGE_PASS);
+            pauseCtx->itemDescriptionOn = false;
         }
-    } else if (CHECK_BTN_ALL(input->press.button, BTN_B)) {
-        ResetMessageContext();
-        sIsConfirming = false;
-        Audio_PlaySfx(NA_SE_SY_MESSAGE_PASS);
+    } else if (CHECK_BTN_ALL(input->press.button, BTN_START) || CHECK_BTN_ALL(input->press.button, BTN_B)) {
+        Interface_SetAButtonDoAction(gPlayState, DO_ACTION_WARP);
         Message_CloseTextbox(gPlayState);
-    } else if (CHECK_BTN_ALL(input->press.button, BTN_START)) {
-        ClosePauseMenu(pauseCtx);
+        Audio_PlaySfx(NA_SE_SY_MESSAGE_PASS);
+        pauseCtx->itemDescriptionOn = false;
     }
 }
 
@@ -97,7 +78,7 @@ void UpdateCursorForOwlWarpPoints(PauseContext* pauseCtx) {
                 gSaveContext.hudVisibility = HUD_VISIBILITY_IDLE;
                 Interface_SetHudVisibility(HUD_VISIBILITY_ALL);
             }
-            if (!sIsConfirming && interfaceCtx->aButtonHorseDoAction != DO_ACTION_WARP) {
+            if (interfaceCtx->aButtonHorseDoAction != DO_ACTION_WARP) {
                 Interface_SetAButtonDoAction(gPlayState, DO_ACTION_WARP);
             }
         } else {
@@ -172,46 +153,16 @@ void HandlePauseOwlWarp(PauseContext* pauseCtx) {
 
     // Special condition for when only the 15th owl statue is activated
     if (gSaveContext.save.saveInfo.playerData.owlActivationFlags == (1 << 15)) {
-        for (int i = REGION_GREAT_BAY; i < REGION_MAX; i++) {
+        for (int i = REGION_GREAT_BAY; i < REGION_STONE_TOWER; i++) {
             if ((gSaveContext.save.saveInfo.regionsVisited >> i) & 1) {
-                switch (i) {
-                    case REGION_GREAT_BAY:
-                        pauseCtx->worldMapPoints[OWL_WARP_GREAT_BAY_COAST] = true;
-                        break;
-                    case REGION_ZORA_HALL:
-                        pauseCtx->worldMapPoints[OWL_WARP_ZORA_CAPE] = true;
-                        break;
-                    case REGION_ROMANI_RANCH:
-                        pauseCtx->worldMapPoints[OWL_WARP_SNOWHEAD] = true;
-                        break;
-                    case REGION_DEKU_PALACE:
-                        pauseCtx->worldMapPoints[OWL_WARP_MOUNTAIN_VILLAGE] = true;
-                        break;
-                    case REGION_WOODFALL:
-                        pauseCtx->worldMapPoints[OWL_WARP_CLOCK_TOWN] = true;
-                        break;
-                    case REGION_CLOCK_TOWN:
-                        pauseCtx->worldMapPoints[OWL_WARP_MILK_ROAD] = true;
-                        break;
-                    case REGION_SNOWHEAD:
-                        pauseCtx->worldMapPoints[OWL_WARP_WOODFALL] = true;
-                        break;
-                    case REGION_IKANA_GRAVEYARD:
-                        pauseCtx->worldMapPoints[OWL_WARP_SOUTHERN_SWAMP] = true;
-                        break;
-                    case REGION_IKANA_CANYON:
-                        pauseCtx->worldMapPoints[OWL_WARP_IKANA_CANYON] = true;
-                        break;
-                    case REGION_GORON_VILLAGE:
-                        pauseCtx->worldMapPoints[OWL_WARP_STONE_TOWER] = true;
-                        break;
-                }
+                pauseCtx->worldMapPoints[i] = true;
             }
         }
     }
 
-    // Ensure cursor starts at an activated point
-    if (!pauseCtx->worldMapPoints[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]]) {
+    // Ensure cursor starts at an activated point and is not on the broken stone tower region point
+    if (!pauseCtx->worldMapPoints[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]] ||
+        pauseCtx->cursorPoint[PAUSE_WORLD_MAP] > OWL_WARP_STONE_TOWER) {
         for (int i = OWL_WARP_GREAT_BAY_COAST; i <= OWL_WARP_STONE_TOWER; i++) {
             if (pauseCtx->worldMapPoints[i]) {
                 pauseCtx->cursorPoint[PAUSE_WORLD_MAP] = i;
@@ -220,26 +171,23 @@ void HandlePauseOwlWarp(PauseContext* pauseCtx) {
         }
     }
 
-    Player* player = GET_PLAYER(gPlayState);
     Input* input = &gPlayState->state.input[0];
 
-    if ((pauseCtx->state == PAUSE_STATE_MAIN && pauseCtx->pageIndex == PAUSE_MAP && pauseCtx->mapPageRoll == 0) ||
-        sIsConfirming) {
-        if (CHECK_BTN_ALL(input->press.button, BTN_START) || CHECK_BTN_ALL(input->press.button, BTN_B)) {
-            ClosePauseMenu(pauseCtx);
-        } else if (CHECK_BTN_ALL(input->press.button, BTN_A) && !sIsConfirming) {
-            if (pauseCtx->cursorSpecialPos == 0 && pauseCtx->worldMapPoints[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]]) {
-                Audio_PlaySfx(NA_SE_SY_DECIDE);
-                Message_StartTextbox(gPlayState, 0x1B93, NULL);
-                sIsConfirming = true;
-            }
-        } else if (sIsConfirming) {
+    if (pauseCtx->state == PAUSE_STATE_MAIN && pauseCtx->pageIndex == PAUSE_MAP && pauseCtx->mapPageRoll == 0) {
+        if (pauseCtx->itemDescriptionOn) {
             HandleConfirmingState(pauseCtx, input);
         } else {
-            KaleidoScope_UpdateOwlWarpNamePanel(gPlayState);
-        }
+            UpdateCursorForOwlWarpPoints(pauseCtx);
 
-        UpdateCursorForOwlWarpPoints(pauseCtx);
+            if (CHECK_BTN_ALL(input->press.button, BTN_A) && pauseCtx->cursorSpecialPos == 0 &&
+                pauseCtx->worldMapPoints[pauseCtx->cursorPoint[PAUSE_WORLD_MAP]]) {
+                pauseCtx->itemDescriptionOn = true;
+                Audio_PlaySfx(NA_SE_SY_DECIDE);
+                // Use Kaleido's open text variant that sets the dark black message box
+                func_801514B0(gPlayState, 0x1B93, 3);
+                gPlayState->msgCtx.choiceIndex = 0;
+            }
+        }
     }
 }
 
