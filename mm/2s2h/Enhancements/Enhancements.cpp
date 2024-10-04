@@ -68,6 +68,7 @@ void InitEnhancements() {
     RegisterCutscenes();
 
     // Modes
+    RegisterInvisibleEnemies();
     RegisterPlayAsKafei();
     RegisterTimeMovesWhenYouMove();
 }
