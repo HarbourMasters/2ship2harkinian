@@ -325,8 +325,8 @@ s32 AudioLoad_IsFontLoadComplete(s32 fontId) {
     }
 }
 
-//2S2H [Port] [Custom Audio] Sequences and samples are always loaded now, so we don't
-// need to check.
+// 2S2H [Port] [Custom Audio] Sequences and samples are always loaded now, so we don't
+//  need to check.
 s32 AudioLoad_IsSeqLoadComplete(s32 seqId) {
     return true;
 #if 0
@@ -661,9 +661,9 @@ u8* AudioLoad_SyncLoadSeq(s32 seqId) {
     s32 pad;
     s32 didAllocate;
 
-    //if (gAudioCtx.seqLoadStatus[AudioLoad_GetRealTableIndex(SEQUENCE_TABLE, seqId)] == LOAD_STATUS_IN_PROGRESS) {
-    //    return NULL;
-    //}
+    // if (gAudioCtx.seqLoadStatus[AudioLoad_GetRealTableIndex(SEQUENCE_TABLE, seqId)] == LOAD_STATUS_IN_PROGRESS) {
+    //     return NULL;
+    // }
 
     return AudioLoad_SyncLoad(SEQUENCE_TABLE, seqId, &didAllocate);
 }
@@ -1242,7 +1242,7 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
     // AudioLoad_InitTable(gAudioCtx.sequenceTable, SEGMENT_ROM_START(Audioseq), 0);
     // AudioLoad_InitTable(gAudioCtx.soundFontTable, SEGMENT_ROM_START(Audiobank), 0);
     // AudioLoad_InitTable(gAudioCtx.sampleBankTable, SEGMENT_ROM_START(Audiotable), 0);
-    
+
     // #region 2S2H [Port] Audio in the archive and custom sequences
     // Only load the original sequences right now because custom songs may require data from sound fonts and samples
     int seqListSize = 0;
@@ -1252,7 +1252,7 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
     sequenceMapSize = (size_t)(AudioCollection_SequenceMapSize() + customSeqListSize);
     sequenceMap = malloc(sequenceMapSize * sizeof(char*));
 
-    //gAudioCtx.seqLoadStatus = calloc(sequenceMapSize, 1);
+    // gAudioCtx.seqLoadStatus = calloc(sequenceMapSize, 1);
     gAudioCtx.seqLoadStatus = malloc(sequenceMapSize);
     memset(gAudioCtx.seqLoadStatus, 5, sequenceMapSize);
     for (size_t i = 0; i < seqListSize; i++) {
@@ -1286,7 +1286,7 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
     }
 
     free(fntList);
-    
+
     int customFontStart = fntListSize;
     for (int i = customFontStart; i < customFntListSize + fntListSize; i++) {
         SoundFont* sf = ResourceMgr_LoadAudioSoundFontByName(customFntList[i - customFontStart]);
@@ -1297,7 +1297,7 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
         fontMap[i] = str;
     }
     free(customFntList);
-    
+
     // 2S2H Port I think we need to take use seqListSize because entry 0x7A is missing.
     int startingSeqNum = seqListSize; // MAX_AUTHENTIC_SEQID; // 109 is the highest vanilla sequence
     qsort(customSeqList, customSeqListSize, sizeof(char*), strcmp_sort);
@@ -1323,7 +1323,7 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
             uint64_t crc;
 
             memcpy(&crc, sDat->fonts, sizeof(uint64_t));
-            //crc = _byteswap_uint64(crc);
+            // crc = _byteswap_uint64(crc);
             const char* res = ResourceGetNameByCrc(crc);
             SoundFont* sf = ResourceMgr_LoadAudioSoundFontByName(res);
             sDat->fonts[0] = sf->fntIndex;
@@ -1340,10 +1340,8 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
 
     free(customSeqList);
 
-
     numFonts = fntListSize;
 
-    
     // #end region
     gAudioCtx.soundFontList = AudioHeap_Alloc(&gAudioCtx.initPool, numFonts * sizeof(SoundFont));
 

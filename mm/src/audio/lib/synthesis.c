@@ -1166,7 +1166,7 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
                         // See note in AudioSampleFactory.cpp
                         if (sampleAddr != NULL) {
                             aLoadBuffer(cmd++, sampleAddr + (synthState->samplePosInt * 2), DMEM_UNCOMPRESSED_NOTE,
-                                    bytesToRead);
+                                        bytesToRead);
                         }
 
                         goto skip;

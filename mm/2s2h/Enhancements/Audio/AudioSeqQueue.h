@@ -9,7 +9,6 @@
 #include <mutex>
 #include <condition_variable>
 
-
 // A threadsafe-queue.
 template <class T> class SafeQueue {
   public:
@@ -57,7 +56,8 @@ extern "C" {
 void AudioQueue_Enqueue(char* seqId);
 char* AudioQueue_Dequeue(void);
 int32_t AudioQueue_IsEmpty(void);
-void AudioQueue_GetSeqInfo(const char* path, uint64_t* numFrames, uint32_t* numChannels, uint32_t* sampleRate, int16_t** sampleData);
+void AudioQueue_GetSeqInfo(const char* path, uint64_t* numFrames, uint32_t* numChannels, uint32_t* sampleRate,
+                           int16_t** sampleData);
 
 #ifdef __cplusplus
 }

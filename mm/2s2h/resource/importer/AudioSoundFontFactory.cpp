@@ -34,7 +34,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSoundFontV2::ReadReso
     audioSoundFont->soundFont.numSfx = soundEffectCount;
 
     // 🥁 DRUMS 🥁
-    //audioSoundFont->drums.reserve(audioSoundFont->soundFont.numDrums);
+    // audioSoundFont->drums.reserve(audioSoundFont->soundFont.numDrums);
     audioSoundFont->drumAddresses.reserve(audioSoundFont->soundFont.numDrums);
     for (uint32_t i = 0; i < audioSoundFont->soundFont.numDrums; i++) {
         Drum* drum = new Drum;
@@ -64,8 +64,8 @@ std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSoundFontV2::ReadReso
             drum->sound.sample = static_cast<Sample*>(res ? res->GetRawPointer() : nullptr);
         }
 
-        //audioSoundFont->drums.push_back(drum);
-        // BENTODO clean this up in V3.
+        // audioSoundFont->drums.push_back(drum);
+        //  BENTODO clean this up in V3.
         if (drum->sound.sample == nullptr) {
             delete[] drum->envelope;
             delete drum;
@@ -91,7 +91,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSoundFontV2::ReadReso
         uint32_t envelopeCount = reader->ReadInt32();
         instrument->envelope = new AdsrEnvelope[envelopeCount];
 
-        for (uint32_t j = 0; j <envelopeCount; j++) {
+        for (uint32_t j = 0; j < envelopeCount; j++) {
             int16_t delay = reader->ReadInt16();
             int16_t arg = reader->ReadInt16();
 
@@ -238,7 +238,6 @@ void ResourceFactoryXMLSoundFontV0::ParseDrums(AudioSoundFont* soundFont, tinyxm
             drum->envelope = nullptr;
         }
 
-
         if (drum->sound.sample == nullptr) {
             soundFont->drumAddresses.push_back(nullptr);
         } else {
@@ -293,7 +292,8 @@ void SOH::ResourceFactoryXMLSoundFontV0::ParseInstruments(AudioSoundFont* soundF
             instrument->normalNotesSound.tuning = instrumentElement->FloatAttribute("Tuning");
             const char* sampleStr = instrumentElement->Attribute("SampleRef");
             if (sampleStr != nullptr && sampleStr[0] != 0) {
-                std::shared_ptr <SOH::AudioSample> res = static_pointer_cast<SOH::AudioSample>(Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(sampleStr));
+                std::shared_ptr<SOH::AudioSample> res = static_pointer_cast<SOH::AudioSample>(
+                    Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(sampleStr));
                 if (res->tuning != -1.0f) {
                     instrument->normalNotesSound.tuning = res->tuning;
                 }
@@ -301,7 +301,7 @@ void SOH::ResourceFactoryXMLSoundFontV0::ParseInstruments(AudioSoundFont* soundF
             }
             instrumentElement = instrumentElement->NextSiblingElement();
         }
-        
+
         if (instrumentElement != nullptr && !strcmp("HighNotesSound", instrumentElement->Name())) {
             instrument->highNotesSound.tuning = instrumentElement->FloatAttribute("Tuning");
             const char* sampleStr = instrumentElement->Attribute("SampleRef");
@@ -317,7 +317,7 @@ void SOH::ResourceFactoryXMLSoundFontV0::ParseInstruments(AudioSoundFont* soundF
         }
 
         soundFont->instrumentAddresses.push_back(instrument);
-        
+
         element = instrumentElementCopy;
         element = (tinyxml2::XMLElement*)element->Parent();
         element = element->NextSiblingElement();
@@ -359,7 +359,7 @@ void SOH::ResourceFactoryXMLSoundFontV0::ParseSfxTable(AudioSoundFont* soundFont
 
 std::vector<AdsrEnvelope> SOH::ResourceFactoryXMLSoundFontV0::ParseEnvelopes(AudioSoundFont* soundFont,
                                                                              tinyxml2::XMLElement* element,
-                                                                          unsigned int* count) {
+                                                                             unsigned int* count) {
     std::vector<AdsrEnvelope> envelopes;
     unsigned int total = 0;
     element = element->FirstChildElement("Envelope");

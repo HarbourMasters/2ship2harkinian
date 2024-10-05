@@ -90,8 +90,8 @@ AudioCollection::AudioCollection() {
         SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_EPONA, "Epona's Song", "NA_BGM_OCARINA_EPONA", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_SUNS, "Sun's Song", "NA_BGM_OCARINA_SUNS", SEQ_OCARINA, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_TIME, "Song Of Time", "NA_BGM_OCARINA_TIME", SEQ_OCARINA, true, true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_STORM, "Song of Storms (Ocarina)", "NA_BGM_OCARINA_STORM", SEQ_OCARINA,
-                           true, true),
+        SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_STORM, "Song of Storms (Ocarina)", "NA_BGM_OCARINA_STORM", SEQ_OCARINA, true,
+                           true),
         SEQUENCE_MAP_ENTRY(NA_BGM_ZORA_HALL, "Zora Hall", "NA_BGM_ZORA_HALL", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_GET_NEW_MASK, "Get Mask", "NA_BGM_GET_NEW_MASK", SEQ_FANFARE, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_MINI_BOSS, "Mini Boss", "NA_BGM_MINI_BOSS", SEQ_BGM_BATTLE, true, true),
@@ -118,13 +118,13 @@ AudioCollection::AudioCollection() {
                            true),
         SEQUENCE_MAP_ENTRY(NA_BGM_INVERTED_SONG_OF_TIME, "Inverted Song Of Time", "NA_BGM_INVERTED_SONG_OF_TIME",
                            SEQ_OCARINA, true, true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_SONG_OF_DOUBLE_TIME, "Song Of Double Time", "NA_BGM_SONG_OF_DOUBLE_TIME",
-                           SEQ_OCARINA, true, true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_SONATA_OF_AWAKENING, "Sonata Of Awakening", "NA_BGM_SONATA_OF_AWAKENING",
-                           SEQ_OCARINA, true, true),
+        SEQUENCE_MAP_ENTRY(NA_BGM_SONG_OF_DOUBLE_TIME, "Song Of Double Time", "NA_BGM_SONG_OF_DOUBLE_TIME", SEQ_OCARINA,
+                           true, true),
+        SEQUENCE_MAP_ENTRY(NA_BGM_SONATA_OF_AWAKENING, "Sonata Of Awakening", "NA_BGM_SONATA_OF_AWAKENING", SEQ_OCARINA,
+                           true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_GORON_LULLABY, "Goron Lullaby", "NA_BGM_GORON_LULLABY", SEQ_OCARINA, true, true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_NEW_WAVE_BOSSA_NOVA, "New Wave Bossa Nova", "NA_BGM_NEW_WAVE_BOSSA_NOVA",
-                           SEQ_OCARINA, true, true),
+        SEQUENCE_MAP_ENTRY(NA_BGM_NEW_WAVE_BOSSA_NOVA, "New Wave Bossa Nova", "NA_BGM_NEW_WAVE_BOSSA_NOVA", SEQ_OCARINA,
+                           true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_ELEGY_OF_EMPTINESS, "Elegy Of Emptiness", "NA_BGM_ELEGY_OF_EMPTINESS", SEQ_OCARINA,
                            true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_OATH_TO_ORDER, "Oath To Order", "NA_BGM_OATH_TO_ORDER", SEQ_OCARINA, true, true),
@@ -144,10 +144,9 @@ AudioCollection::AudioCollection() {
         SEQUENCE_MAP_ENTRY(NA_BGM_MIKAU_RIFF, "Mikau Riff", "NA_BGM_MIKAU_RIFF", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_MIKAU_FINALE, "Mikau Finale", "NA_BGM_MIKAU_FINALE", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_FROG_SONG, "Frog Song", "NA_BGM_FROG_SONG", SEQ_BGM_WORLD, true, true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_SONATA, "Sonata Of Awakening (Ocarina)", "NA_BGM_OCARINA_SONATA",
-                           SEQ_OCARINA, true, true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_LULLABY, "Goron Lullaby", "NA_BGM_OCARINA_LULLABY", SEQ_OCARINA, true,
-                           true),
+        SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_SONATA, "Sonata Of Awakening (Ocarina)", "NA_BGM_OCARINA_SONATA", SEQ_OCARINA,
+                           true, true),
+        SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_LULLABY, "Goron Lullaby", "NA_BGM_OCARINA_LULLABY", SEQ_OCARINA, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_NEW_WAVE, "New Wave Bossa Nova (Ocarina)", "NA_BGM_OCARINA_NEW_WAVE",
                            SEQ_OCARINA, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_ELEGY, "Elegy Of Emptiness (Ocarina)", "NA_BGM_OCARINA_ELEGY", SEQ_OCARINA,
@@ -259,7 +258,6 @@ uint16_t AudioCollection::GetReplacementSequence(uint16_t seqId) {
     }
     return static_cast<uint16_t>(replacementSeq);
 }
-
 
 uint16_t AudioCollection::GetOriginalSequence(uint16_t seqId) {
     // BENTODO there is probably a better way to do this.

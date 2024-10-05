@@ -5608,7 +5608,7 @@ void Audio_StopSequenceInCutscene(u16 seqId) {
 
 s32 Audio_IsSequencePlaying(u8 seqId) {
     u8 origSeqId = AudioEditor_GetOriginalSeq(seqId);
-    
+
     u8 seqPlayerIndex = SEQ_PLAYER_BGM_MAIN;
 
     if (sSeqFlags[origSeqId & 0xFF] & SEQ_FLAG_FANFARE) {
@@ -5841,7 +5841,6 @@ void Audio_SetSequenceMode(u8 seqMode) {
 void Audio_UpdateEnemyBgmVolume(f32 dist) {
     f32 adjDist;
     u16 seqId = AudioEditor_GetOriginalSeq(gActiveSeqs[SEQ_PLAYER_BGM_MAIN].seqId);
-
 
     if (sPrevSeqMode == (SEQ_MODE_ENEMY | 0x80)) {
         if (dist != sBgmEnemyDist) {
@@ -6438,7 +6437,8 @@ void Audio_PlayAmbience(u8 ambienceId) {
     u8 ioData;
 
     if (!((gActiveSeqs[SEQ_PLAYER_AMBIENCE].seqId != NA_BGM_DISABLED) &&
-          (sSeqFlags[AudioEditor_GetOriginalSeq(gActiveSeqs[SEQ_PLAYER_AMBIENCE].seqId) & 0xFF & 0xFF] & SEQ_FLAG_NO_AMBIENCE))) {
+          (sSeqFlags[AudioEditor_GetOriginalSeq(gActiveSeqs[SEQ_PLAYER_AMBIENCE].seqId) & 0xFF & 0xFF] &
+           SEQ_FLAG_NO_AMBIENCE))) {
         if (gActiveSeqs[SEQ_PLAYER_AMBIENCE].seqId != NA_BGM_AMBIENCE) {
             sPrevAmbienceSeqId = gActiveSeqs[SEQ_PLAYER_AMBIENCE].seqId;
         }

@@ -30,15 +30,15 @@ static size_t VorbisReadCallback(void* out, size_t size, size_t elems, void* src
 
     memcpy(out, static_cast<uint8_t*>(data->data) + data->pos, toRead);
     data->pos += toRead;
-    
+
     return toRead / size;
 }
 
 static int VorbisSeekCallback(void* src, ogg_int64_t pos, int whence) {
     OggFileData* data = static_cast<OggFileData*>(src);
     size_t newPos;
-    
-    switch(whence) {
+
+    switch (whence) {
         case SEEK_SET:
             newPos = pos;
             break;
@@ -78,7 +78,7 @@ static void Mp3DecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std:
     drmp3 mp3;
     drwav_uint64 numFrames;
     drmp3_bool32 ret =
-       drmp3_init_memory(&mp3, sampleFile->Buffer.get()->data(), sampleFile->Buffer.get()->size(), nullptr);
+        drmp3_init_memory(&mp3, sampleFile->Buffer.get()->data(), sampleFile->Buffer.get()->size(), nullptr);
     numFrames = drmp3_get_pcm_frame_count(&mp3);
     drwav_uint64 channels = mp3.channels;
     drwav_uint64 sampleRate = mp3.sampleRate;
@@ -86,7 +86,6 @@ static void Mp3DecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std:
     audioSample->audioSampleData.reserve(numFrames * channels * 2); // 2 for sizeof(s16)
     drmp3_read_pcm_frames_s16(&mp3, numFrames, (int16_t*)audioSample->audioSampleData.data());
     audioSample->sample.sampleAddr = audioSample->audioSampleData.data();
-
 }
 
 static void FlacDecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std::shared_ptr<Ship::File> sampleFile) {
@@ -98,33 +97,33 @@ static void FlacDecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std
 }
 
 static void OggDecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std::shared_ptr<Ship::File> sampleFile) {
-        OggVorbis_File vf;
-        char dataBuff[4096];
-        long read = 0;
-        size_t pos = 0;
+    OggVorbis_File vf;
+    char dataBuff[4096];
+    long read = 0;
+    size_t pos = 0;
 
-        OggFileData fileData =  {
-            .data = sampleFile->Buffer.get()->data(),
-            .pos = 0,
-            .size = sampleFile->Buffer.get()->size(),
-        };
-        int ret = ov_open_callbacks(&fileData, &vf, nullptr, 0, vorbisCallbacks);
-        
-        vorbis_info* vi = ov_info(&vf, -1);
+    OggFileData fileData = {
+        .data = sampleFile->Buffer.get()->data(),
+        .pos = 0,
+        .size = sampleFile->Buffer.get()->size(),
+    };
+    int ret = ov_open_callbacks(&fileData, &vf, nullptr, 0, vorbisCallbacks);
 
-        uint64_t numFrames = ov_pcm_total(&vf, -1);
-        uint64_t sampleRate = vi->rate;
-        uint64_t numChannels = vi->channels;
-        int bitStream = 0;
-        size_t toRead = numFrames * numChannels * 2;
-        audioSample->audioSampleData.reserve(toRead);
-        do {
-            read = ov_read(&vf, dataBuff, 4096, 0, 2, 1, &bitStream);
-            memcpy(audioSample->audioSampleData.data() + pos, dataBuff, read);
-            pos += read;
-        } while (read != 0);
-        audioSample->sample.sampleAddr = audioSample->audioSampleData.data();
-        ov_clear(&vf);
+    vorbis_info* vi = ov_info(&vf, -1);
+
+    uint64_t numFrames = ov_pcm_total(&vf, -1);
+    uint64_t sampleRate = vi->rate;
+    uint64_t numChannels = vi->channels;
+    int bitStream = 0;
+    size_t toRead = numFrames * numChannels * 2;
+    audioSample->audioSampleData.reserve(toRead);
+    do {
+        read = ov_read(&vf, dataBuff, 4096, 0, 2, 1, &bitStream);
+        memcpy(audioSample->audioSampleData.data() + pos, dataBuff, read);
+        pos += read;
+    } while (read != 0);
+    audioSample->sample.sampleAddr = audioSample->audioSampleData.data();
+    ov_clear(&vf);
 }
 
 namespace SOH {
@@ -175,7 +174,6 @@ std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSampleV2::ReadResourc
     return audioSample;
 }
 
-
 std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(std::shared_ptr<Ship::File> file) {
     if (!FileHasValidFormatAndReader(file)) {
         return nullptr;
@@ -193,7 +191,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
     audioSample->loop.start = child->IntAttribute("LoopStart");
     audioSample->loop.end = child->IntAttribute("LoopEnd");
     audioSample->loop.count = child->IntAttribute("LoopCount");
-    
+
     // CODEC_ADPCM || CODEC_SMALL_ADPCM
     memset(audioSample->loop.state, 0, sizeof(audioSample->loop.state));
     if (audioSample->sample.codec == 0 || audioSample->sample.codec == 3) {
@@ -215,7 +213,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
         }
         audioSample->book.npredictors = child->IntAttribute("Npredictors");
         audioSample->book.order = child->IntAttribute("Order");
-        
+
         audioSample->book.book = audioSample->bookData.data();
         audioSample->sample.book = &audioSample->book;
     }
@@ -228,7 +226,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
     initData->IsCustom = false;
     initData->ByteOrder = Ship::Endianness::Native;
     auto sampleFile = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->LoadFile(path, initData);
-    // Compressed files can take a really long time to decode (~250ms per). 
+    // Compressed files can take a really long time to decode (~250ms per).
     // This worked when we tested it (09/04/2024) (Works on my machine)
     if (customFormatStr != nullptr && strcmp(customFormatStr, "wav") == 0) {
         drwav wav;
@@ -238,10 +236,10 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
             drwav_init_memory(&wav, sampleFile->Buffer.get()->data(), sampleFile->Buffer.get()->size(), nullptr);
 
         drwav_get_length_in_pcm_frames(&wav, &numFrames);
-        
+
         audioSample->tuning = (wav.sampleRate * wav.channels) / 32000.0f;
         audioSample->audioSampleData.reserve(numFrames * wav.channels * 2);
-        
+
         drwav_read_pcm_frames_s16(&wav, numFrames, (int16_t*)audioSample->audioSampleData.data());
     } else if (customFormatStr != nullptr && strcmp(customFormatStr, "mp3") == 0) {
         std::thread fileDecoderThread = std::thread(Mp3DecoderWorker, audioSample, sampleFile);
@@ -255,8 +253,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
         std::thread fileDecoderThread = std::thread(FlacDecoderWorker, audioSample, sampleFile);
         fileDecoderThread.detach();
         return audioSample;
-    }
-    else {
+    } else {
         audioSample->audioSampleData.reserve(size);
         for (uint32_t i = 0; i < size; i++) {
             audioSample->audioSampleData.push_back((char)(sampleFile->Buffer.get()->at(i)));
@@ -286,7 +283,6 @@ uint8_t ResourceFactoryXMLAudioSampleV0::CodecStrToInt(const char* str) {
         return 7;
     } else {
         assert(0);
-
     }
 }
 } // namespace SOH

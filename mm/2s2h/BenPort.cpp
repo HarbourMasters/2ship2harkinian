@@ -217,7 +217,6 @@ OTRGlobals::OTRGlobals() {
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLAudioSampleV0>(), RESOURCE_FORMAT_XML,
                                     "Sample", static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSample), 0);
 
-
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryAudioSoundFontV2>(),
                                     RESOURCE_FORMAT_BINARY, "AudioSoundFont",
                                     static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSoundFont), 2);
