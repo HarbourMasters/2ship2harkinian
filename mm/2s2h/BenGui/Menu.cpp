@@ -287,6 +287,7 @@ void BenMenu::DrawElement() {
         ImGui::PushStyleColor(ImGuiCol_FrameBg, { 0, 0, 0, 0 });
         menuSearch.Draw("##search", 200.0f);
         menuSearchText = menuSearch.InputBuf;
+        menuSearchText.erase(std::remove(menuSearchText.begin(), menuSearchText.end(), ' '), menuSearchText.end());
         if (menuSearchText.length() < 1) {
             ImGui::SameLine(headerWidth - 200.0f + style.ItemSpacing.x);
             ImGui::TextColored(ImVec4(1.0f, 1.0f, 1.0f, 0.4f), "Search...");
@@ -403,8 +404,6 @@ void BenMenu::DrawElement() {
                         }
                         std::string widgetStr = std::string(info.widgetName) + std::string(info.widgetTooltip);
                         std::transform(menuSearchText.begin(), menuSearchText.end(), menuSearchText.begin(), ::tolower);
-                        menuSearchText.erase(std::remove(menuSearchText.begin(), menuSearchText.end(), ' '),
-                                             menuSearchText.end());
                         std::transform(widgetStr.begin(), widgetStr.end(), widgetStr.begin(), ::tolower);
                         widgetStr.erase(std::remove(widgetStr.begin(), widgetStr.end(), ' '), widgetStr.end());
                         if (widgetStr.find(menuSearchText) != std::string::npos) {
