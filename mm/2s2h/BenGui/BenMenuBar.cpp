@@ -620,6 +620,10 @@ void DrawEnhancementsMenu() {
         if (UIWidgets::BeginMenu("Minigames")) {
             UIWidgets::CVarCombobox("Always Win Doggy Race", "gEnhancements.Minigames.AlwaysWinDoggyRace",
                                     alwaysWinDoggyraceOptions);
+            ImGui::SeparatorText("Swordsman School");
+            UIWidgets::CVarCheckbox("Finish Early", "gEnhancements.Minigames.SwordsmanSchool.FinishEarly");
+            UIWidgets::CVarSliderInt("Winning Score: %d", "gEnhancements.Minigames.SwordsmanSchool.WinningScore", 1, 30,
+                                     30);
 
             ImGui::EndMenu();
         }
