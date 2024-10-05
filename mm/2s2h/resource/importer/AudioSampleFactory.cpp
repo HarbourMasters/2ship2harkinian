@@ -4,13 +4,13 @@
 #include "StringHelper.h"
 #include "libultraship/libultraship.h"
 #define DR_WAV_IMPLEMENTATION
-#include "dr_wav.h"
+#include "2s2h/Enhancements/Audio/dr_libs/dr_wav.h"
 
 #define DR_MP3_IMPLEMENTATION
-#include "dr_mp3.h"
+#include "2s2h/Enhancements/Audio/dr_libs/dr_mp3.h"
 
 #define DR_FLAC_IMPLEMENTATION
-#include "dr_flac.h"
+#include "2s2h/Enhancements/Audio/dr_libs/dr_flac.h"
 
 #include "vorbis/vorbisfile.h"
 
