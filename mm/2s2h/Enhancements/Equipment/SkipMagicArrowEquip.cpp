@@ -1,9 +1,9 @@
 #include <libultraship/bridge.h>
 #include "Enhancements/GameInteractor/GameInteractor.h"
-#include "z64.h"
-#include "src/overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 
 extern "C" {
+#include "z64.h"
+#include "src/overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 extern s16 sEquipState;
 extern s16 sEquipAnimTimer;
 }

@@ -4,8 +4,6 @@
 #include "UIWidgets.hpp"
 #include "graphic/Fast3D/gfx_rendering_api.h"
 #include "2s2h/Enhancements/Enhancements.h"
-#include "2s2h/Enhancements/Graphics/MotionBlur.h"
-#include "2s2h/Enhancements/Graphics/PlayAsKafei.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "window/gui/GuiMenuBar.h"
 #include "window/gui/GuiElement.h"
