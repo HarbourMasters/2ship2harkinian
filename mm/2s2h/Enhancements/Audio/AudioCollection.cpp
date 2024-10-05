@@ -250,7 +250,7 @@ uint16_t AudioCollection::GetReplacementSequence(uint16_t seqId) {
 // For custom sequences, we need to get the original sequence ID for sequence flag lookups
 uint16_t AudioCollection::GetOriginalSequence(uint16_t seqId) {
     // BENTODO there is probably a better way to do this.
-    // There are 127 original sequences. If the ID is less than that we don't need to do 
+    // There are 127 original sequences. If the ID is less than that we don't need to do
     // any lookups
     if (seqId < 128) {
         return seqId;
