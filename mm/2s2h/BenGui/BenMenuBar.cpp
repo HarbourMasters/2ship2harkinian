@@ -8,13 +8,7 @@
 #include <unordered_map>
 #include <string>
 #include "2s2h/Enhancements/Enhancements.h"
-#include "2s2h/Enhancements/Graphics/3DItemDrops.h"
-#include "2s2h/Enhancements/Graphics/MotionBlur.h"
-#include "2s2h/Enhancements/Graphics/PlayAsKafei.h"
-#include "2s2h/Enhancements/Modes/TimeMovesWhenYouMove.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
-#include "2s2h/Enhancements/Cheats/Cheats.h"
-#include "2s2h/Enhancements/Player/Player.h"
 #include "HudEditor.h"
 
 extern "C" {

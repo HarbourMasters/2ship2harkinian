@@ -1,9 +1,8 @@
 #include <libultraship/bridge.h>
 #include "Enhancements/GameInteractor/GameInteractor.h"
-#include "InstantRecall.h"
-#include "src/overlays/actors/ovl_En_Boom/z_en_boom.h"
 
 extern "C" {
+#include "src/overlays/actors/ovl_En_Boom/z_en_boom.h"
 extern PlayState* gPlayState;
 }
 

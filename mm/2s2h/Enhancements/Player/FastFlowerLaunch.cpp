@@ -1,6 +1,5 @@
 #include <libultraship/bridge.h>
 #include "Enhancements/GameInteractor/GameInteractor.h"
-#include "spdlog/spdlog.h"
 
 extern "C" {
 #include "macros.h"

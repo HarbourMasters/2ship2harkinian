@@ -1,6 +1,5 @@
 #include <libultraship/bridge.h>
 #include "Enhancements/GameInteractor/GameInteractor.h"
-#include "DisableBlackBars.h"
 
 void RegisterDisableBlackBars() {
     REGISTER_VB_SHOULD(VB_DISABLE_LETTERBOX, {
