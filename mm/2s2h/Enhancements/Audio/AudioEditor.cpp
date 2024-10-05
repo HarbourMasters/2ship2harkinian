@@ -11,7 +11,7 @@
 #include <utils/StringHelper.h>
 #include "../../BenGui/UIWidgets.hpp"
 #include "AudioCollection.h"
-#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
+#include "GameInteractor/GameInteractor.h"
 
 extern "C" Vec3f gZeroVec3f;
 extern "C" f32 gSfxDefaultFreqAndVolScale;
