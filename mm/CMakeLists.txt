@@ -120,7 +120,12 @@ source_group("include" FILES ${Header_Files__include})
 # }}}
 
 file(GLOB_RECURSE ship__ RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "2s2h/*.c" "2s2h/*.cpp" "2s2h/*.h" "2s2h/*.hpp")
-source_group("2s2h" FILES ${ship__})
+# Create source groups that match the real file directory paths
+foreach(source IN LISTS ship__)
+    get_filename_component(source_path "${source}" PATH)
+    string(REPLACE "/" "\\" source_path_adjusted "${source_path}")
+    source_group("${source_path_adjusted}" FILES "${source}")
+endforeach()
 
 file(GLOB_RECURSE libultra_headers RELATIVE ${CMAKE_CURRENT_SOURCE_DIR}
     "include/PR/*.h"
