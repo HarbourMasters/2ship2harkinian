@@ -13,7 +13,7 @@ extern PlayState* gPlayState;
 }
 
 void RegisterTextBasedClock() {
-    REGISTER_VB_SHOULD(GI_VB_PREVENT_CLOCK_DISPLAY, {
+    REGISTER_VB_SHOULD(VB_PREVENT_CLOCK_DISPLAY, {
         if (CVarGetInteger("gEnhancements.Graphics.ClockType", CLOCK_TYPE_ORIGINAL) == CLOCK_TYPE_TEXT_BASED) {
             *should = true;
 

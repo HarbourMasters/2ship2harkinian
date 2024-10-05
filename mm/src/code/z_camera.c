@@ -7554,7 +7554,7 @@ Vec3s Camera_Update(Camera* camera) {
     }
 
     // Call the camera update function
-    if (GameInteractor_Should(GI_VB_USE_CUSTOM_CAMERA, true, camera)) {
+    if (GameInteractor_Should(VB_USE_CUSTOM_CAMERA, true, camera)) {
         sCameraUpdateHandlers[sCameraSettings[camera->setting].cameraModes[camera->mode].funcId](camera);
     }
 

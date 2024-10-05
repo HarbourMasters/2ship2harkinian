@@ -327,7 +327,7 @@ void KaleidoScope_DrawItemSelect(PlayState* play) {
             // but this matches the behavior of the original code
             u16 itemId = gSaveContext.save.saveInfo.inventory.items[i];
             u8 itemRestricted = GameInteractor_Should(
-                GI_VB_ITEM_BE_RESTRICTED, !gPlayerFormItemRestrictions[GET_PLAYER_FORM][(s32)itemId], &itemId);
+                VB_ITEM_BE_RESTRICTED, !gPlayerFormItemRestrictions[GET_PLAYER_FORM][(s32)itemId], &itemId);
             if (itemRestricted) {
                 gDPSetGrayscaleColor(POLY_OPA_DISP++, 109, 109, 109, 255);
                 gSPGrayscale(POLY_OPA_DISP++, true);

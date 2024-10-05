@@ -6,7 +6,7 @@ extern "C" {
 }
 
 void RegisterFierceDeityZTargetMovement() {
-    REGISTER_VB_SHOULD(GI_VB_ZTARGET_SPEED_CHECK, {
+    REGISTER_VB_SHOULD(VB_ZTARGET_SPEED_CHECK, {
         Player* player = GET_PLAYER(gPlayState);
         float* speedArg = va_arg(args, float*);
 

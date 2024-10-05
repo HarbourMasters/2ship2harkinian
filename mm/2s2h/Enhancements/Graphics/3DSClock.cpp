@@ -50,7 +50,7 @@ s16 finalHoursClockSlots[8];
 
 void Register3DSClock() {
 
-    REGISTER_VB_SHOULD(GI_VB_PREVENT_CLOCK_DISPLAY, {
+    REGISTER_VB_SHOULD(VB_PREVENT_CLOCK_DISPLAY, {
         if (CVarGetInteger("gEnhancements.Graphics.ClockType", CLOCK_TYPE_ORIGINAL) == CLOCK_TYPE_3DS) {
             *should = true;
 

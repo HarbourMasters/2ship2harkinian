@@ -80,7 +80,7 @@ void ShrinkWindow_Draw(GraphicsContext* gfxCtx) {
     s8 letterboxSize = sShrinkWindowPtr->letterboxSize;
     s8 pillarboxSize = sShrinkWindowPtr->pillarboxSize;
 
-    if (GameInteractor_Should(GI_VB_DISABLE_LETTERBOX, false)) {
+    if (GameInteractor_Should(VB_DISABLE_LETTERBOX, false)) {
         return;
     }
 
