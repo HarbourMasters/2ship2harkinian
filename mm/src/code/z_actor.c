@@ -22,7 +22,7 @@
 
 #include <string.h>
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
-#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/BenPort.h"
 
 // bss

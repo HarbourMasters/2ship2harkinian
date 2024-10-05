@@ -6,7 +6,7 @@
 
 #include "z_en_ossan.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
-#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY | ACTOR_FLAG_10)
 

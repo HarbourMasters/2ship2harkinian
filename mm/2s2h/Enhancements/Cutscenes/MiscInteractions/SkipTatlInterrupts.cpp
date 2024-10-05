@@ -1,5 +1,5 @@
 #include <libultraship/bridge.h>
-#include "Enhancements/GameInteractor/GameInteractor.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define ELFMSG3_GET_SWITCH_FLAG(thisx) (((thisx)->params & 0x7F00) >> 8)
 

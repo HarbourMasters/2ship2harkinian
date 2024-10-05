@@ -1,7 +1,7 @@
 #include <libultraship/libultraship.h>
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "window/gui/IconsFontAwesome4.h"
-#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 
 extern "C" {

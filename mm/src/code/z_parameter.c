@@ -20,7 +20,7 @@
 #include <string.h>
 #include "BenGui/HudEditor.h"
 #include "2s2h_assets.h"
-#include "Enhancements/GameInteractor/GameInteractor.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 // 2S2H [Port] This was originally static but needs to be global so it can be accessed in z_kaleido_collect,
 // z_kaleido_debug, and z_kaleido_draw.

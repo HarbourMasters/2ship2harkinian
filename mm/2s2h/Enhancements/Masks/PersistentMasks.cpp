@@ -1,7 +1,7 @@
 #include <libultraship/bridge.h>
 #include <spdlog/spdlog.h>
-#include "Enhancements/GameInteractor/GameInteractor.h"
-#include "Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 extern "C" {
 #include "z64.h"

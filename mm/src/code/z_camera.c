@@ -63,7 +63,7 @@ Vec3f D_801EDDD0;
 Vec3f D_801EDDE0;
 Vec3f D_801EDDF0;
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
-#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/Enhancements/Camera/Camera.h"
 
 // Camera will reload its paramData. Usually that means setting the read-only data from what is stored in
