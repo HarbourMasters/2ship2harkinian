@@ -231,7 +231,7 @@ void RegisterDebugCam() {
     }
 
     if (CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0)) {
-        freeCamVBHookId = REGISTER_VB_SHOULD(GI_VB_USE_CUSTOM_CAMERA, {
+        freeCamVBHookId = REGISTER_VB_SHOULD(VB_USE_CUSTOM_CAMERA, {
             Camera* camera = va_arg(args, Camera*);
             Camera_DebugCam(camera);
             *should = false;

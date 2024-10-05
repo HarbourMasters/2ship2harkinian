@@ -172,7 +172,7 @@ void RegisterCameraFreeLook() {
     }
 
     if (CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0)) {
-        freeLookCameraVBHookId = REGISTER_VB_SHOULD(GI_VB_USE_CUSTOM_CAMERA, {
+        freeLookCameraVBHookId = REGISTER_VB_SHOULD(VB_USE_CUSTOM_CAMERA, {
             Camera* camera = va_arg(args, Camera*);
             switch (sCameraSettings[camera->setting].cameraModes[camera->mode].funcId) {
                 case CAM_FUNC_NORMAL0:

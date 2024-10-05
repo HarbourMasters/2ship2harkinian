@@ -147,7 +147,7 @@ void HandleAutoSave() {
 }
 
 void RegisterSavingEnhancements() {
-    REGISTER_VB_SHOULD(GI_VB_DELETE_OWL_SAVE, {
+    REGISTER_VB_SHOULD(VB_DELETE_OWL_SAVE, {
         if (CVarGetInteger("gEnhancements.Saving.PersistentOwlSaves", 0) ||
             gSaveContext.save.shipSaveInfo.pauseSaveEntrance != -1) {
             *should = false;
