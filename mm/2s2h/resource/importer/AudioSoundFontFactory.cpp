@@ -1,5 +1,7 @@
 #include "2s2h/resource/importer/AudioSoundFontFactory.h"
 #include "2s2h/resource/type/AudioSoundFont.h"
+#include "audio/soundfont.h"
+#include "audio/load.h"
 #include "spdlog/spdlog.h"
 #include "libultraship/libultraship.h"
 #include "StringHelper.h"
@@ -169,16 +171,16 @@ std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSoundFontV2::ReadReso
 
 int8_t ResourceFactoryXMLSoundFontV0::MediumStrToInt(const char* str) {
     if (!strcmp("Ram", str)) {
-        return 0;
+        return MEDIUM_RAM;
     } else if (!strcmp("Unk", str)) {
-        return 1;
+        return MEDIUM_UNK;
     } else if (!strcmp("Cart", str)) {
-        return 2;
+        return MEDIUM_CART;
     } else if (!strcmp("Disk", str)) {
-        return 3;
+        return MEDIUM_DISK_DRIVE;
         // 4 is skipped
     } else if (!strcmp("RamUnloaded", str)) {
-        return 5;
+        return MEDIUM_RAM_UNLOADED;
     } else {
         throw std::runtime_error(
             StringHelper::Sprintf("Bad medium value. Got %s, expected Ram, Unk, Cart, or Disk.", str));
@@ -187,13 +189,13 @@ int8_t ResourceFactoryXMLSoundFontV0::MediumStrToInt(const char* str) {
 
 int8_t ResourceFactoryXMLSoundFontV0::CachePolicyToInt(const char* str) {
     if (!strcmp("Temporary", str)) {
-        return 0;
+        return CACHE_TEMPORARY;
     } else if (!strcmp("Persistent", str)) {
-        return 1;
+        return CACHE_PERSISTENT;
     } else if (!strcmp("Either", str)) {
-        return 2;
+        return CACHE_EITHER;
     } else if (!strcmp("Permanent", str)) {
-        return 3;
+        return CACHE_PERMANENT;
     } else {
         throw std::runtime_error(StringHelper::Sprintf(
             "Bad cache policy value. Got %s, expected Temporary, Persistent, Either, or Permanent.", str));

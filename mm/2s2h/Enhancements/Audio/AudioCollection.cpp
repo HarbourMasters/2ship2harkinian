@@ -234,18 +234,6 @@ void AudioCollection::AddToCollection(char* otrPath, uint16_t seqNum) {
 }
 
 uint16_t AudioCollection::GetReplacementSequence(uint16_t seqId) {
-    // if Hyrule Field Morning is about to play, but Hyrule Field is swapped, get the replacement sequence
-    // for Hyrule Field instead. Otherwise, leave it alone, so that without any sfx editor modifications we will
-    // play the normal track as usual.
-
-    // BENTODO what did this do in ship?
-    // if (seqId == NA_BGM_FIELD_MORNING) {
-    //    if (CVarGetInteger(CVAR_AUDIO("ReplacedSequences.NA_BGM_FIELD_LOGIC.value"), NA_BGM_FIELD_LOGIC) !=
-    //    NA_BGM_FIELD_LOGIC) {
-    //        seqId = NA_BGM_FIELD_LOGIC;
-    //    }
-    //}
-
     if (mSequenceMap.find(seqId) == mSequenceMap.end()) {
         return seqId;
     }
@@ -259,9 +247,12 @@ uint16_t AudioCollection::GetReplacementSequence(uint16_t seqId) {
     return static_cast<uint16_t>(replacementSeq);
 }
 
+// For custom sequences, we need to get the original sequence ID for sequence flag lookups
 uint16_t AudioCollection::GetOriginalSequence(uint16_t seqId) {
     // BENTODO there is probably a better way to do this.
-    if (seqId <= 0x7f) {
+    // There are 127 original sequences. If the ID is less than that we don't need to do 
+    // any lookups
+    if (seqId < 128) {
         return seqId;
     }
 

@@ -1,6 +1,7 @@
 #include "2s2h/resource/importer/AudioSampleFactory.h"
 #include "2s2h/resource/type/AudioSample.h"
 #include "2s2h/resource/importer/AudioSoundFontFactory.h"
+#include "audio/soundfont.h"
 #include "StringHelper.h"
 #include "libultraship/libultraship.h"
 #define DR_WAV_IMPLEMENTATION
@@ -13,6 +14,7 @@
 #include "2s2h/Enhancements/Audio/dr_libs/dr_flac.h"
 
 #include "vorbis/vorbisfile.h"
+
 
 struct OggFileData {
     void* data;
@@ -254,6 +256,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
         fileDecoderThread.detach();
         return audioSample;
     } else {
+        // Not a normal streamed sample. Fallback to the original ADPCM sample to be decoded by the audio engine.
         audioSample->audioSampleData.reserve(size);
         for (uint32_t i = 0; i < size; i++) {
             audioSample->audioSampleData.push_back((char)(sampleFile->Buffer.get()->at(i)));
@@ -266,92 +269,23 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
 #include <cassert>
 uint8_t ResourceFactoryXMLAudioSampleV0::CodecStrToInt(const char* str) {
     if (strcmp("ADPCM", str) == 0) {
-        return 0;
+        return CODEC_ADPCM;
     } else if (strcmp("S8", str) == 0) {
-        return 1;
+        return CODEC_S8;
     } else if (strcmp("S16MEM", str) == 0) {
-        return 2;
+        return CODEC_S16_INMEMORY;
     } else if (strcmp("ADPCMSMALL", str) == 0) {
-        return 3;
+        return CODEC_SMALL_ADPCM;
     } else if (strcmp("REVERB", str) == 0) {
-        return 4;
+        return CODEC_REVERB;
     } else if (strcmp("S16", str) == 0) {
-        return 5;
+        return CODEC_S16;
     } else if (strcmp("UNK6", str) == 0) {
-        return 6;
+        return CODEC_UNK6;
     } else if (strcmp("UNK7", str) == 0) {
-        return 7;
+        return CODEC_UNK7;
     } else {
         assert(0);
     }
 }
 } // namespace SOH
-
-/*
-in ResourceMgr_LoadAudioSample we used to have
---------------
-    if (cachedCustomSFs.find(path) != cachedCustomSFs.end())
-        return cachedCustomSFs[path];
-
-    SoundFontSample* cSample = ReadCustomSample(path);
-
-    if (cSample != nullptr)
-        return cSample;
---------------
-before the rest of the standard sample reading, this is the ReadCustomSample code we used to have
-
-extern "C" SoundFontSample* ReadCustomSample(const char* path) {
-
-    if (!ExtensionCache.contains(path))
-        return nullptr;
-
-    ExtensionEntry entry = ExtensionCache[path];
-
-    auto sampleRaw = Ship::Context::GetInstance()->GetResourceManager()->LoadFile(entry.path);
-    uint32_t* strem = (uint32_t*)sampleRaw->Buffer.get();
-    uint8_t* strem2 = (uint8_t*)strem;
-
-    SoundFontSample* sampleC = new SoundFontSample;
-
-    if (entry.ext == "wav") {
-        drwav_uint32 channels;
-        drwav_uint32 sampleRate;
-        drwav_uint64 totalPcm;
-        drmp3_int16* pcmData =
-            drwav_open_memory_and_read_pcm_frames_s16(strem2, sampleRaw->BufferSize, &channels, &sampleRate, &totalPcm,
-NULL); sampleC->size = totalPcm; sampleC->sampleAddr = (uint8_t*)pcmData; sampleC->codec = CODEC_S16;
-
-        sampleC->loop = new AdpcmLoop;
-        sampleC->loop->start = 0;
-        sampleC->loop->end = sampleC->size - 1;
-        sampleC->loop->count = 0;
-        sampleC->sampleRateMagicValue = 'RIFF';
-        sampleC->sampleRate = sampleRate;
-
-        cachedCustomSFs[path] = sampleC;
-        return sampleC;
-    } else if (entry.ext == "mp3") {
-        drmp3_config mp3Info;
-        drmp3_uint64 totalPcm;
-        drmp3_int16* pcmData =
-            drmp3_open_memory_and_read_pcm_frames_s16(strem2, sampleRaw->BufferSize, &mp3Info, &totalPcm, NULL);
-
-        sampleC->size = totalPcm * mp3Info.channels * sizeof(short);
-        sampleC->sampleAddr = (uint8_t*)pcmData;
-        sampleC->codec = CODEC_S16;
-
-        sampleC->loop = new AdpcmLoop;
-        sampleC->loop->start = 0;
-        sampleC->loop->end = sampleC->size;
-        sampleC->loop->count = 0;
-        sampleC->sampleRateMagicValue = 'RIFF';
-        sampleC->sampleRate = mp3Info.sampleRate;
-
-        cachedCustomSFs[path] = sampleC;
-        return sampleC;
-    }
-
-    return nullptr;
-}
-
-*/
