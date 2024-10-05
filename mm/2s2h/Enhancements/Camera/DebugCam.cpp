@@ -172,7 +172,7 @@ void Camera_DebugCam(Camera* camera) {
     if (CVarGetInteger("gEnhancements.Camera.DebugCam.6DOF", 0)) {
         camera->roll += (CHECK_BTN_ANY(sCamPlayState->state.input[controllerPort].cur.button, BTN_DLEFT) -
                          CHECK_BTN_ANY(sCamPlayState->state.input[controllerPort].cur.button, BTN_DRIGHT)) *
-                        1200.0f * camSpeed;
+                        1200.0f * camSpeed * GameInteractor_InvertControl(GI_INVERT_DEBUG_DPAD_X);
     } else {
         camera->roll = Camera_ScaledStepToCeilS(0, camera->roll, 0.1f, 5);
     }
@@ -232,7 +232,7 @@ void RegisterDebugCam() {
 
     if (CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0)) {
         freeCamVBHookId = REGISTER_VB_SHOULD(GI_VB_USE_CUSTOM_CAMERA, {
-            Camera* camera = static_cast<Camera*>(opt);
+            Camera* camera = va_arg(args, Camera*);
             Camera_DebugCam(camera);
             *should = false;
         });

@@ -1,0 +1,6 @@
+#ifndef EQUIPMENT_INSTAND_RECALL_H
+#define EQUIPMENT_INSTAND_RECALL_H
+
+void RegisterInstantRecall();
+
+#endif // EQUIPMENT_INSTAND_RECALL_H

@@ -1,12 +1,12 @@
 #ifndef GAME_INTERACTOR_H
 #define GAME_INTERACTOR_H
 
+#include <stdarg.h>
+
 #ifdef __cplusplus
 #include <string>
 extern "C" {
 #endif
-#include "z64actor.h"
-#include "z64camera.h"
 #include "z64.h"
 #ifdef __cplusplus
 }
@@ -48,6 +48,11 @@ typedef enum {
     GI_VB_SONG_AVAILABLE_TO_PLAY,
     GI_VB_USE_CUSTOM_CAMERA,
     GI_VB_DELETE_OWL_SAVE,
+    GI_VB_CONSIDER_BUNNY_HOOD_EQUIPPED,
+    GI_VB_USE_ITEM_EQUIP_MASK,
+    GI_VB_KALEIDO_DISPLAY_ITEM_TEXT,
+    GI_VB_USE_ITEM_CONSIDER_LINK_HUMAN,
+    GI_VB_DRAW_ITEM_EQUIPPED_OUTLINE,
     GI_VB_PLAY_TRANSITION_CS,
     GI_VB_TATL_INTERUPT_MSG3,
     GI_VB_TATL_INTERUPT_MSG6,
@@ -55,11 +60,21 @@ typedef enum {
     GI_VB_FLIP_HOP_VARIABLE,
     GI_VB_DISABLE_LETTERBOX,
     GI_VB_CLOCK_TOWER_OPENING_CONSIDER_THIS_FIRST_CYCLE,
+    GI_VB_DRAW_SLIME_BODY_ITEM,
+    GI_VB_ZTARGET_SPEED_CHECK,
 } GIVanillaBehavior;
 
 typedef enum {
     GI_INVERT_CAMERA_RIGHT_STICK_X,
     GI_INVERT_CAMERA_RIGHT_STICK_Y,
+    GI_INVERT_MOVEMENT_X,
+    GI_INVERT_FIRST_PERSON_AIM_X,
+    GI_INVERT_SHIELD_X,
+    GI_INVERT_SHOP_X,
+    GI_INVERT_HORSE_X,
+    GI_INVERT_ZORA_SWIM_X,
+    GI_INVERT_DEBUG_DPAD_X,
+    GI_INVERT_TELESCOPE_X,
 } GIInvertType;
 
 typedef enum {
@@ -257,7 +272,10 @@ class GameInteractor {
     DEFINE_HOOK(OnGameStateMainFinish, ());
     DEFINE_HOOK(OnGameStateDrawFinish, ());
     DEFINE_HOOK(OnGameStateUpdate, ());
+    DEFINE_HOOK(OnConsoleLogoUpdate, ());
     DEFINE_HOOK(OnKaleidoUpdate, (PauseContext * pauseCtx));
+    DEFINE_HOOK(BeforeKaleidoDrawPage, (PauseContext * pauseCtx, u16 pauseIndex));
+    DEFINE_HOOK(AfterKaleidoDrawPage, (PauseContext * pauseCtx, u16 pauseIndex));
     DEFINE_HOOK(OnSaveInit, (s16 fileNum));
     DEFINE_HOOK(BeforeEndOfCycleSave, ());
     DEFINE_HOOK(AfterEndOfCycleSave, ());
@@ -265,6 +283,8 @@ class GameInteractor {
 
     DEFINE_HOOK(OnSceneInit, (s8 sceneId, s8 spawnNum));
     DEFINE_HOOK(OnRoomInit, (s8 sceneId, s8 roomNum));
+    DEFINE_HOOK(AfterRoomSceneCommands, (s8 sceneId, s8 roomNum));
+    DEFINE_HOOK(OnPlayDrawWorldEnd, ());
     DEFINE_HOOK(OnPlayDestroy, ());
 
     DEFINE_HOOK(ShouldActorInit, (Actor * actor, bool* should));
@@ -274,6 +294,8 @@ class GameInteractor {
     DEFINE_HOOK(ShouldActorDraw, (Actor * actor, bool* should));
     DEFINE_HOOK(OnActorDraw, (Actor * actor));
     DEFINE_HOOK(OnActorKill, (Actor * actor));
+    DEFINE_HOOK(OnActorDestroy, (Actor * actor));
+    DEFINE_HOOK(OnPlayerPostLimbDraw, (Player * player, s32 limbIndex));
 
     DEFINE_HOOK(OnSceneFlagSet, (s16 sceneId, FlagType flagType, u32 flag));
     DEFINE_HOOK(OnSceneFlagUnset, (s16 sceneId, FlagType flagType, u32 flag));
@@ -291,7 +313,7 @@ class GameInteractor {
     DEFINE_HOOK(ShouldItemGive, (u8 item, bool* should));
     DEFINE_HOOK(OnItemGive, (u8 item));
 
-    DEFINE_HOOK(ShouldVanillaBehavior, (GIVanillaBehavior flag, bool* should, void* optionalArg));
+    DEFINE_HOOK(ShouldVanillaBehavior, (GIVanillaBehavior flag, bool* should, va_list originalArgs));
 };
 
 extern "C" {
@@ -300,7 +322,10 @@ extern "C" {
 void GameInteractor_ExecuteOnGameStateMainFinish();
 void GameInteractor_ExecuteOnGameStateDrawFinish();
 void GameInteractor_ExecuteOnGameStateUpdate();
+void GameInteractor_ExecuteOnConsoleLogoUpdate();
 void GameInteractor_ExecuteOnKaleidoUpdate(PauseContext* pauseCtx);
+void GameInteractor_ExecuteBeforeKaleidoDrawPage(PauseContext* pauseCtx, u16 pauseIndex);
+void GameInteractor_ExecuteAfterKaleidoDrawPage(PauseContext* pauseCtx, u16 pauseIndex);
 void GameInteractor_ExecuteOnSaveInit(s16 fileNum);
 void GameInteractor_ExecuteBeforeEndOfCycleSave();
 void GameInteractor_ExecuteAfterEndOfCycleSave();
@@ -308,6 +333,8 @@ void GameInteractor_ExecuteBeforeMoonCrashSaveReset();
 
 void GameInteractor_ExecuteOnSceneInit(s16 sceneId, s8 spawnNum);
 void GameInteractor_ExecuteOnRoomInit(s16 sceneId, s8 roomNum);
+void GameInteractor_ExecuteAfterRoomSceneCommands(s16 sceneId, s8 roomNum);
+void GameInteractor_ExecuteOnPlayDrawWorldEnd();
 void GameInteractor_ExecuteOnPlayDestroy();
 
 bool GameInteractor_ShouldActorInit(Actor* actor);
@@ -317,6 +344,8 @@ void GameInteractor_ExecuteOnActorUpdate(Actor* actor);
 bool GameInteractor_ShouldActorDraw(Actor* actor);
 void GameInteractor_ExecuteOnActorDraw(Actor* actor);
 void GameInteractor_ExecuteOnActorKill(Actor* actor);
+void GameInteractor_ExecuteOnActorDestroy(Actor* actor);
+void GameInteractor_ExecuteOnPlayerPostLimbDraw(Player* player, s32 limbIndex);
 
 void GameInteractor_ExecuteOnSceneFlagSet(s16 sceneId, FlagType flagType, u32 flag);
 void GameInteractor_ExecuteOnSceneFlagUnset(s16 sceneId, FlagType flagType, u32 flag);
@@ -334,10 +363,15 @@ void GameInteractor_ExecuteOnOpenText(u16 textId);
 bool GameInteractor_ShouldItemGive(u8 item);
 void GameInteractor_ExecuteOnItemGive(u8 item);
 
-bool GameInteractor_Should(GIVanillaBehavior flag, bool result, void* optionalArg);
+bool GameInteractor_Should(GIVanillaBehavior flag, uint32_t result, ...);
 #define REGISTER_VB_SHOULD(flag, body)                                                      \
     GameInteractor::Instance->RegisterGameHookForID<GameInteractor::ShouldVanillaBehavior>( \
-        flag, [](GIVanillaBehavior _, bool* should, void* opt) body)
+        flag, [](GIVanillaBehavior _, bool* should, va_list originalArgs) {                 \
+            va_list args;                                                                   \
+            va_copy(args, originalArgs);                                                    \
+            body;                                                                           \
+            va_end(args);                                                                   \
+        })
 
 int GameInteractor_InvertControl(GIInvertType type);
 uint32_t GameInteractor_Dpad(GIDpadType type, uint32_t buttonCombo);

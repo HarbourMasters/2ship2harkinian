@@ -723,7 +723,9 @@ void Environment_Init(PlayState* play2, EnvironmentContext* envCtx, s32 arg2) {
     if (gSaveContext.retainWeatherMode || (gSaveContext.respawnFlag != 0)) {
         switch ((u32)gWeatherMode) {
             case WEATHER_MODE_2:
-                if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_STONE_TOWER_TEMPLE)) {
+                if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_STONE_TOWER_TEMPLE) &&
+                    (!CVarGetInteger("gFixes.FixIkanaGreatFairyFountainColor", 0) ||
+                     (play->sceneId != SCENE_YOUSEI_IZUMI))) {
                     play->skyboxId = SKYBOX_3;
                     envCtx->lightConfig = 5;
                     envCtx->changeLightNextConfig = 5;
@@ -1049,28 +1051,44 @@ void Environment_UpdateSkybox(u8 skyboxId, EnvironmentContext* envCtx, SkyboxCon
 
         if ((envCtx->skybox1Index != skybox1Index) && (envCtx->skyboxDmaState == SKYBOX_DMA_INACTIVE)) {
             envCtx->skyboxDmaState = SKYBOX_DMA_TEXTURE1_START;
-            size = sNormalSkyFiles[skybox1Index].file.vromEnd - sNormalSkyFiles[skybox1Index].file.vromStart;
-            osCreateMesgQueue(&envCtx->loadQueue, envCtx->loadMsg, ARRAY_COUNT(envCtx->loadMsg));
-            DmaMgr_SendRequestImpl(&envCtx->dmaRequest, skyboxCtx->staticSegments[0],
-                                   sNormalSkyFiles[skybox1Index].file.vromStart, size, 0, &envCtx->loadQueue,
-                                   OS_MESG_PTR(NULL));
+            // size = sNormalSkyFiles[skybox1Index].file.vromEnd - sNormalSkyFiles[skybox1Index].file.vromStart;
+            // osCreateMesgQueue(&envCtx->loadQueue, envCtx->loadMsg, ARRAY_COUNT(envCtx->loadMsg));
+            // DmaMgr_SendRequestImpl(&envCtx->dmaRequest, skyboxCtx->staticSegments[0],
+            //                        sNormalSkyFiles[skybox1Index].file.vromStart, size, 0, &envCtx->loadQueue,
+            //                        OS_MESG_PTR(NULL));
+
+            // 2S2h [Port] Bypass DMA request and assign each skybox texture directly to the static segment
+            for (size_t i = 0; i < ARRAY_COUNTU(skyboxCtx->staticSegments[0]); i++) {
+                skyboxCtx->staticSegments[0][i] = sSkyboxTextures[skybox1Index][i];
+            }
+
             envCtx->skybox1Index = skybox1Index;
         }
 
         if ((envCtx->skybox2Index != skybox2Index) && (envCtx->skyboxDmaState == SKYBOX_DMA_INACTIVE)) {
             envCtx->skyboxDmaState = SKYBOX_DMA_TEXTURE2_START;
-            size = sNormalSkyFiles[skybox2Index].file.vromEnd - sNormalSkyFiles[skybox2Index].file.vromStart;
-            osCreateMesgQueue(&envCtx->loadQueue, envCtx->loadMsg, ARRAY_COUNT(envCtx->loadMsg));
-            DmaMgr_SendRequestImpl(&envCtx->dmaRequest, skyboxCtx->staticSegments[1],
-                                   sNormalSkyFiles[skybox2Index].file.vromStart, size, 0, &envCtx->loadQueue,
-                                   OS_MESG_PTR(NULL));
+            // size = sNormalSkyFiles[skybox2Index].file.vromEnd - sNormalSkyFiles[skybox2Index].file.vromStart;
+            // osCreateMesgQueue(&envCtx->loadQueue, envCtx->loadMsg, ARRAY_COUNT(envCtx->loadMsg));
+            // DmaMgr_SendRequestImpl(&envCtx->dmaRequest, skyboxCtx->staticSegments[1],
+            //                        sNormalSkyFiles[skybox2Index].file.vromStart, size, 0, &envCtx->loadQueue,
+            //                        OS_MESG_PTR(NULL));
+
+            for (size_t i = 0; i < ARRAY_COUNTU(skyboxCtx->staticSegments[1]); i++) {
+                skyboxCtx->staticSegments[1][i] = sSkyboxTextures[skybox2Index][i];
+            }
+
             envCtx->skybox2Index = skybox2Index;
         }
 
         if ((envCtx->skyboxDmaState == SKYBOX_DMA_TEXTURE1_START) ||
             (envCtx->skyboxDmaState == SKYBOX_DMA_TEXTURE2_START)) {
-            if (osRecvMesg(&envCtx->loadQueue, NULL, 0) == 0) {
+            // if (osRecvMesg(&envCtx->loadQueue, NULL, 0) == 0) {
+            if (true) {
                 envCtx->skyboxDmaState = SKYBOX_DMA_INACTIVE;
+                // 2S2H [Port] Since the skybox static segments point to OTR strings, we need to re-create the skybox
+                // display lists to have the new textures loaded
+                func_80143148(skyboxCtx, 5);
+                // #endregion
             }
         }
 
@@ -3310,6 +3328,9 @@ void Environment_DrawSkyboxStarsImpl(PlayState* play, Gfx** gfxP) {
 
             if ((scale >= 1.0f) && (imgX > -adjustedXBounds) && (imgX < adjustedXBounds) && (imgY > -1.0f) &&
                 (imgY < 1.0f)) {
+                if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
+                    imgX *= -1.0f;
+                }
                 // #endregion
                 imgX = (imgX * (SCREEN_WIDTH / 2)) + (SCREEN_WIDTH / 2);
                 imgY = (imgY * -(SCREEN_HEIGHT / 2)) + (SCREEN_HEIGHT / 2);

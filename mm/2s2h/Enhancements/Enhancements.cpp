@@ -12,9 +12,11 @@ void InitEnhancements() {
     RegisterMoonJumpOnL();
     RegisterUnbreakableRazorSword();
     RegisterUnrestrictedItems();
+    RegisterTimeStopInTemples();
 
     // Clock
     RegisterTextBasedClock();
+    Register3DSClock();
 
     // Cycle & Saving
     RegisterEndOfCycleSaveHooks();
@@ -26,15 +28,21 @@ void InitEnhancements() {
 
     // Equipment
     RegisterSkipMagicArrowEquip();
+    RegisterInstantRecall();
+
+    // Fixes
+    RegisterFierceDeityZTargetMovement();
 
     // Graphics
     RegisterDisableBlackBars();
+    Register3DItemDrops();
 
     // Masks
     RegisterFastTransformation();
     RegisterFierceDeityAnywhere();
     RegisterBlastMaskKeg();
     RegisterNoBlastMaskCooldown();
+    RegisterPersistentMasks();
 
     // Minigames
     RegisterAlwaysWinDoggyRace();
@@ -46,12 +54,15 @@ void InitEnhancements() {
 
     // Songs
     RegisterEnableSunsSong();
+    RegisterPauseOwlWarp();
+    RegisterZoraEggCount();
 
     // Restorations
     RegisterPowerCrouchStab();
     RegisterSideRoll();
     RegisterTatlISG();
     RegisterVariableFlipHop();
+    RegisterWoodfallMountainAppearance();
 
     // Cutscenes
     RegisterCutscenes();

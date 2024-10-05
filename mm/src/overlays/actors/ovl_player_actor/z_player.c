@@ -3814,7 +3814,7 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
 
                 if (bomb != NULL) {
                     bomb->timer = 0;
-                    if (GameInteractor_Should(GI_VB_SET_BLAST_MASK_COOLDOWN_TIMER, true, NULL)) {
+                    if (GameInteractor_Should(GI_VB_SET_BLAST_MASK_COOLDOWN_TIMER, true)) {
                         this->blastMaskTimer = 310;
                     }
                 }
@@ -4471,7 +4471,9 @@ void Player_UseItem(PlayState* play, Player* this, ItemId item) {
          (itemAction == PLAYER_IA_MASK_ZORA) ||
          ((this->currentBoots >= PLAYER_BOOTS_ZORA_UNDERWATER) && (this->actor.bgCheckFlags & BGCHECKFLAG_GROUND)))) {
         s32 var_v1 = ((itemAction >= PLAYER_IA_MASK_MIN) && (itemAction <= PLAYER_IA_MASK_MAX) &&
-                      ((this->transformation != PLAYER_FORM_HUMAN) || (itemAction >= PLAYER_IA_MASK_GIANT)));
+                      (!GameInteractor_Should(GI_VB_USE_ITEM_CONSIDER_LINK_HUMAN,
+                                              this->transformation == PLAYER_FORM_HUMAN, &itemAction) ||
+                       (itemAction >= PLAYER_IA_MASK_GIANT)));
         CollisionPoly* sp5C;
         s32 sp58;
         f32 sp54;
@@ -4531,20 +4533,23 @@ void Player_UseItem(PlayState* play, Player* this, ItemId item) {
             } else {
                 Audio_PlaySfx(NA_SE_SY_ERROR);
             }
-        } else if ((this->transformation == PLAYER_FORM_HUMAN) && (itemAction >= PLAYER_IA_MASK_MIN) &&
-                   (itemAction < PLAYER_IA_MASK_GIANT)) {
+        } else if (GameInteractor_Should(GI_VB_USE_ITEM_CONSIDER_LINK_HUMAN, this->transformation == PLAYER_FORM_HUMAN,
+                                         &itemAction) &&
+                   (itemAction >= PLAYER_IA_MASK_MIN) && (itemAction < PLAYER_IA_MASK_GIANT)) {
             PlayerMask maskId = GET_MASK_FROM_IA(itemAction);
 
-            // Handle wearable masks
-            this->prevMask = this->currentMask;
-            if (maskId == this->currentMask) {
-                this->currentMask = PLAYER_MASK_NONE;
-                func_8082E1F0(this, NA_SE_PL_TAKE_OUT_SHIELD);
-            } else {
-                this->currentMask = maskId;
-                func_8082E1F0(this, NA_SE_PL_CHANGE_ARMS);
+            if (GameInteractor_Should(GI_VB_USE_ITEM_EQUIP_MASK, true, &maskId)) {
+                // Handle wearable masks
+                this->prevMask = this->currentMask;
+                if (maskId == this->currentMask) {
+                    this->currentMask = PLAYER_MASK_NONE;
+                    func_8082E1F0(this, NA_SE_PL_TAKE_OUT_SHIELD);
+                } else {
+                    this->currentMask = maskId;
+                    func_8082E1F0(this, NA_SE_PL_CHANGE_ARMS);
+                }
+                gSaveContext.save.equippedMask = this->currentMask;
             }
-            gSaveContext.save.equippedMask = this->currentMask;
         } else if ((itemAction != this->heldItemAction) ||
                    ((this->heldActor == NULL) && (Player_ExplosiveFromIA(this, itemAction) > PLAYER_EXPLOSIVE_NONE))) {
             u8 nextAnimType;
@@ -6715,7 +6720,7 @@ void func_80836AD8(PlayState* play, Player* this) {
 }
 
 void func_80836B3C(PlayState* play, Player* this, f32 arg2) {
-    if (GameInteractor_Should(GI_VB_PATCH_SIDEROLL, true, NULL)) {
+    if (GameInteractor_Should(GI_VB_PATCH_SIDEROLL, true)) {
         this->currentYaw = this->actor.shape.rot.y;
         this->actor.world.rot.y = this->actor.shape.rot.y;
     }
@@ -7809,7 +7814,7 @@ s32 Player_ActionChange_4(Player* this, PlayState* play) {
                                 // !CutsceneManager_IsNext(CS_ID_GLOBAL_TALK), which is what prevented Tatl ISG from
                                 // working
                                 bool vanillaCondition = !CutsceneManager_IsNext(CS_ID_GLOBAL_TALK);
-                                if (GameInteractor_Should(GI_VB_TATL_CONVERSATION_AVAILABLE, vanillaCondition, NULL) ||
+                                if (GameInteractor_Should(GI_VB_TATL_CONVERSATION_AVAILABLE, vanillaCondition) ||
                                     !CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_CUP)) {
                                     return false;
                                 }
@@ -8325,6 +8330,7 @@ void func_8083A98C(Actor* thisx, PlayState* play2) {
 
             // Yaw: shape.rot.y is used as a fixed starting position
             inputX = sPlayerControlInput->rel.stick_x * -4;
+            inputX *= GameInteractor_InvertControl(GI_INVERT_TELESCOPE_X);
             // Start from current position: no input -> no change
             newYaw = thisx->focus.rot.y - thisx->shape.rot.y;
             // Add input, clamped to prevent turning too fast
@@ -9590,6 +9596,9 @@ s32 func_8083E404(Player* this, f32 arg1, s16 arg2) {
         func_8083C62C(this, func_800B7128(this) || func_8082EF20(this));
     }
 
+    // Using Should hook, but ignoring return value, to be able to modify the speed argument
+    GameInteractor_Should(GI_VB_ZTARGET_SPEED_CHECK, false, &arg1);
+
     temp_fv1 = fabsf(sp1C) / 0x8000;
     if (((SQ(temp_fv1) * 50.0f) + 6.0f) < arg1) {
         return 1;
@@ -10090,7 +10099,7 @@ s32 func_8083FD80(Player* this, PlayState* play) {
     if (!Player_IsGoronOrDeku(this) && (Player_GetMeleeWeaponHeld(this) != PLAYER_MELEEWEAPON_NONE) &&
         (this->transformation != PLAYER_FORM_ZORA) && sPlayerUseHeldItem) {
         //! Calling this function sets the meleeWeaponQuads' damage properties correctly, patching "Power Crouch Stab".
-        if (GameInteractor_Should(GI_VB_PATCH_POWER_CROUCH_STAB, true, NULL)) {
+        if (GameInteractor_Should(GI_VB_PATCH_POWER_CROUCH_STAB, true)) {
             func_8083375C(this, PLAYER_MWA_STAB_1H);
         }
         Player_AnimationPlayOnce(play, this, &gPlayerAnim_link_normal_defense_kiru);
@@ -10137,7 +10146,7 @@ s32 func_8083FF30(PlayState* play, Player* this) {
 s32 func_8083FFEC(PlayState* play, Player* this) {
     if (this->heldItemAction == PLAYER_IA_SWORD_RAZOR) {
         if (gSaveContext.save.saveInfo.playerData.swordHealth > 0) {
-            if (GameInteractor_Should(GI_VB_LOWER_RAZOR_SWORD_DURABILITY, true, NULL)) {
+            if (GameInteractor_Should(GI_VB_LOWER_RAZOR_SWORD_DURABILITY, true)) {
                 gSaveContext.save.saveInfo.playerData.swordHealth--;
             }
             if (gSaveContext.save.saveInfo.playerData.swordHealth <= 0) {
@@ -11247,7 +11256,7 @@ void Player_SetDoAction(PlayState* play, Player* this) {
         }
 
         if (doActionA != DO_ACTION_PUTAWAY) {
-            if (GameInteractor_Should(GI_VB_RESET_PUTAWAY_TIMER, true, NULL)) {
+            if (GameInteractor_Should(GI_VB_RESET_PUTAWAY_TIMER, true)) {
                 this->putAwayCountdown = 20;
             }
         } else if (this->putAwayCountdown != 0) {
@@ -12193,7 +12202,7 @@ void Player_UpdateCommon(Player* this, PlayState* play, Input* input) {
 
         this->actor.shape.face = ((play->gameplayFrames & 0x20) ? 0 : 3) + this->blinkInfo.eyeTexIndex;
 
-        if (this->currentMask == PLAYER_MASK_BUNNY) {
+        if (GameInteractor_Should(GI_VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY, this)) {
             Player_UpdateBunnyEars(this);
         }
 
@@ -12554,9 +12563,9 @@ s32 Player_UpdateNoclip(Player* this, PlayState* play) {
                 if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_DDOWN)) {
                     angle = temp + 0x8000;
                 } else if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_DLEFT)) {
-                    angle = temp + 0x4000;
+                    angle = temp + 0x4000 * GameInteractor_InvertControl(GI_INVERT_DEBUG_DPAD_X);
                 } else if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_DRIGHT)) {
-                    angle = temp - 0x4000;
+                    angle = temp - 0x4000 * GameInteractor_InvertControl(GI_INVERT_DEBUG_DPAD_X);
                 }
 
                 this->actor.world.pos.x += speed * Math_SinS(angle);
@@ -12998,12 +13007,15 @@ void Player_Destroy(Actor* thisx, PlayState* play) {
 s32 func_80847190(PlayState* play, Player* this, s32 arg2) {
     s32 pad;
     s16 var_s0;
+    s32 stickX = sPlayerControlInput->rel.stick_x;
+
+    stickX *= GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_AIM_X);
 
     if (!func_800B7128(this) && !func_8082EF20(this) && !arg2) {
         var_s0 = sPlayerControlInput->rel.stick_y * 0xF0;
         Math_SmoothStepToS(&this->actor.focus.rot.x, var_s0, 0xE, 0xFA0, 0x1E);
 
-        var_s0 = sPlayerControlInput->rel.stick_x * -0x10;
+        var_s0 = stickX * -0x10;
         var_s0 = CLAMP(var_s0, -0xBB8, 0xBB8);
         this->actor.focus.rot.y += var_s0;
     } else {
@@ -13020,8 +13032,7 @@ s32 func_80847190(PlayState* play, Player* this, s32 arg2) {
         }
 
         var_s0 = this->actor.focus.rot.y - this->actor.shape.rot.y;
-        temp3 = ((sPlayerControlInput->rel.stick_x >= 0) ? 1 : -1) *
-                (s32)((1.0f - Math_CosS(sPlayerControlInput->rel.stick_x * 0xC8)) * -1500.0f);
+        temp3 = ((stickX >= 0) ? 1 : -1) * (s32)((1.0f - Math_CosS(stickX * 0xC8)) * -1500.0f);
         var_s0 += temp3;
 
         this->actor.focus.rot.y = CLAMP(var_s0, -0x4AAA, 0x4AAA) + this->actor.shape.rot.y;
@@ -14458,7 +14469,7 @@ void Player_Action_13(Player* this, PlayState* play) {
 
     Player_GetMovementSpeedAndYaw(this, &speedTarget, &yawTarget, SPEED_MODE_CURVED, play);
 
-    if (this->currentMask == PLAYER_MASK_BUNNY) {
+    if (GameInteractor_Should(GI_VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY, this)) {
         speedTarget *= 1.5f;
     }
 
@@ -14622,6 +14633,7 @@ void Player_Action_18(Player* this, PlayState* play) {
         s16 var_a2;
         s16 var_a3;
 
+        xStick *= GameInteractor_InvertControl(GI_INVERT_SHIELD_X);
         var_a1 = (yStick * Math_CosS(temp_a0)) + (Math_SinS(temp_a0) * xStick);
         temp_ft5 = (xStick * Math_CosS(temp_a0)) - (Math_SinS(temp_a0) * yStick);
 
@@ -14886,7 +14898,7 @@ void Player_Action_25(Player* this, PlayState* play) {
                 Math_StepToF(&this->unk_B10[1], 0.0f, this->unk_B10[0]);
             }
         } else {
-            if (GameInteractor_Should(GI_VB_FLIP_HOP_VARIABLE, true, NULL)) {
+            if (GameInteractor_Should(GI_VB_FLIP_HOP_VARIABLE, true)) {
                 func_8083CBC4(this, speedTarget, yawTarget, 1.0f, 0.05f, 0.1f, 0xC8);
             }
         }
@@ -15998,6 +16010,8 @@ void Player_Action_50(Player* this, PlayState* play) {
     PlayerAnimationHeader* anim1;
     PlayerAnimationHeader* anim2;
 
+    xStick *= GameInteractor_InvertControl(GI_INVERT_MOVEMENT_X);
+
     this->fallStartHeight = this->actor.world.pos.y;
 
     this->stateFlags2 |= PLAYER_STATE2_40;
@@ -16556,11 +16570,14 @@ void func_80850BA8(Player* this) {
 void func_80850BF8(Player* this, f32 arg1) {
     f32 temp_fv0;
     s16 temp_ft0;
+    s8 stickX = sPlayerControlInput->rel.stick_x;
+
+    stickX *= GameInteractor_InvertControl(GI_INVERT_ZORA_SWIM_X);
 
     Math_AsymStepToF(&this->unk_B48, arg1, 1.0f, (fabsf(this->unk_B48) * 0.01f) + 0.4f);
-    temp_fv0 = Math_CosS(sPlayerControlInput->rel.stick_x * 0x10E);
+    temp_fv0 = Math_CosS(stickX * 0x10E);
 
-    temp_ft0 = (((sPlayerControlInput->rel.stick_x >= 0) ? 1 : -1) * (1.0f - temp_fv0) * -1100.0f);
+    temp_ft0 = (((stickX >= 0) ? 1 : -1) * (1.0f - temp_fv0) * -1100.0f);
     temp_ft0 = CLAMP(temp_ft0, -0x1F40, 0x1F40);
 
     this->currentYaw += temp_ft0;
@@ -16577,6 +16594,9 @@ void Player_Action_56(Player* this, PlayState* play) {
     s16 sp3E;
     s16 sp3C;
     s16 sp3A;
+    s8 stickX = sPlayerControlInput->rel.stick_x;
+
+    stickX *= GameInteractor_InvertControl(GI_INVERT_ZORA_SWIM_X);
 
     this->stateFlags2 |= PLAYER_STATE2_20;
 
@@ -16626,7 +16646,7 @@ void Player_Action_56(Player* this, PlayState* play) {
             }
         }
 
-        Math_SmoothStepToS(&this->unk_B86[1], sPlayerControlInput->rel.stick_x * 0xC8, 0xA, 0x3E8, 0x64);
+        Math_SmoothStepToS(&this->unk_B86[1], stickX * 0xC8, 0xA, 0x3E8, 0x64);
         Math_SmoothStepToS(&this->unk_B8E, this->unk_B86[1], IREG(40) + 1, IREG(41), IREG(42));
     } else if (this->unk_B86[0] == 0) {
         PlayerAnimation_Update(play, &this->skelAnime);
@@ -16654,7 +16674,7 @@ void Player_Action_56(Player* this, PlayState* play) {
         Math_SmoothStepToS(&this->unk_AAA, sp3E, 4, 0xFA0, 0x190);
 
         // X
-        sp42 = sPlayerControlInput->rel.stick_x * 0x64;
+        sp42 = stickX * 0x64;
         if (Math_ScaledStepToS(&this->unk_B8A, sp42, 0x384) && (sp42 == 0)) {
             Math_SmoothStepToS(&this->unk_B86[1], 0, 4, 0x5DC, 0x64);
             Math_SmoothStepToS(&this->unk_B8E, this->unk_B86[1], IREG(44) + 1, IREG(45), IREG(46));
@@ -18275,7 +18295,7 @@ void Player_Action_86(Player* this, PlayState* play) {
     struct_8085D910* sp4C = D_8085D910;
     s32 sp48 = false;
 
-    if (GameInteractor_Should(GI_VB_PREVENT_MASK_TRANSFORMATION_CS, false, NULL))
+    if (GameInteractor_Should(GI_VB_PREVENT_MASK_TRANSFORMATION_CS, false))
         return;
 
     func_808323C0(this, play->playerCsIds[PLAYER_CS_ID_MASK_TRANSFORMATION]);

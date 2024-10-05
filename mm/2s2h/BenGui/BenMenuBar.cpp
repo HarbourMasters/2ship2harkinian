@@ -8,11 +8,11 @@
 #include <unordered_map>
 #include <string>
 #include "2s2h/Enhancements/Enhancements.h"
+#include "2s2h/Enhancements/Graphics/3DItemDrops.h"
 #include "2s2h/Enhancements/Graphics/MotionBlur.h"
 #include "2s2h/Enhancements/Graphics/PlayAsKafei.h"
 #include "2s2h/Enhancements/Modes/TimeMovesWhenYouMove.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
-#include "2s2h/DeveloperTools/WarpPoint.h"
 #include "2s2h/Enhancements/Cheats/Cheats.h"
 #include "2s2h/Enhancements/Player/Player.h"
 #include "2s2h/Enhancements/Audio/AudioEditor.h"
@@ -49,6 +49,7 @@ static std::unordered_map<Ship::WindowBackend, const char*> windowBackendsMap = 
 
 static const std::unordered_map<int32_t, const char*> clockTypeOptions = {
     { CLOCK_TYPE_ORIGINAL, "Original" },
+    { CLOCK_TYPE_3DS, "MM3D style" },
     { CLOCK_TYPE_TEXT_BASED, "Text only" },
 };
 
@@ -58,7 +59,31 @@ static const std::unordered_map<int32_t, const char*> alwaysWinDoggyraceOptions 
     { ALWAYS_WIN_DOGGY_RACE_ALWAYS, "Always" },
 };
 
+static const std::unordered_map<int32_t, const char*> timeStopOptions = {
+    { TIME_STOP_OFF, "Off" },
+    { TIME_STOP_TEMPLES, "Temples" },
+    { TIME_STOP_TEMPLES_DUNGEONS, "Temples + Mini Dungeons" },
+};
+
 namespace BenGui {
+std::shared_ptr<std::vector<Ship::WindowBackend>> availableWindowBackends;
+std::unordered_map<Ship::WindowBackend, const char*> availableWindowBackendsMap;
+Ship::WindowBackend configWindowBackend;
+
+void UpdateWindowBackendObjects() {
+    Ship::WindowBackend runningWindowBackend = Ship::Context::GetInstance()->GetWindow()->GetWindowBackend();
+    int32_t configWindowBackendId = Ship::Context::GetInstance()->GetConfig()->GetInt("Window.Backend.Id", -1);
+    if (Ship::Context::GetInstance()->GetWindow()->IsAvailableWindowBackend(configWindowBackendId)) {
+        configWindowBackend = static_cast<Ship::WindowBackend>(configWindowBackendId);
+    } else {
+        configWindowBackend = runningWindowBackend;
+    }
+
+    availableWindowBackends = Ship::Context::GetInstance()->GetWindow()->GetAvailableWindowBackends();
+    for (auto& backend : *availableWindowBackends) {
+        availableWindowBackendsMap[backend] = windowBackendsMap[backend];
+    }
+}
 
 void DrawMenuBarIcon() {
     static bool gameIconLoaded = false;
@@ -129,7 +154,7 @@ void DrawBenMenu() {
     }
 }
 
-extern std::shared_ptr<Ship::GuiWindow> mInputEditorWindow;
+extern std::shared_ptr<BenInputEditorWindow> mBenInputEditorWindow;
 
 void DrawSettingsMenu() {
     if (UIWidgets::BeginMenu("Settings")) {
@@ -251,31 +276,17 @@ void DrawSettingsMenu() {
             // UIWidgets::PaddedSeparator(true, true, 3.0f, 3.0f);
             //  #endregion */
 
-            Ship::WindowBackend runningWindowBackend = Ship::Context::GetInstance()->GetWindow()->GetWindowBackend();
-            Ship::WindowBackend configWindowBackend;
-            int32_t configWindowBackendId = Ship::Context::GetInstance()->GetConfig()->GetInt("Window.Backend.Id", -1);
-            if (Ship::Context::GetInstance()->GetWindow()->IsAvailableWindowBackend(configWindowBackendId)) {
-                configWindowBackend = static_cast<Ship::WindowBackend>(configWindowBackendId);
-            } else {
-                configWindowBackend = runningWindowBackend;
-            }
-
-            auto availableWindowBackends = Ship::Context::GetInstance()->GetWindow()->GetAvailableWindowBackends();
-            std::unordered_map<Ship::WindowBackend, const char*> availableWindowBackendsMap;
-            for (auto& backend : *availableWindowBackends) {
-                availableWindowBackendsMap[backend] = windowBackendsMap[backend];
-            }
-
             if (UIWidgets::Combobox(
                     "Renderer API (Needs reload)", &configWindowBackend, availableWindowBackendsMap,
                     { .tooltip = "Sets the renderer API used by the game. Requires a relaunch to take effect.",
-                      .disabled = Ship::Context::GetInstance()->GetWindow()->GetAvailableWindowBackends()->size() <= 1,
+                      .disabled = availableWindowBackends->size() <= 1,
                       .disabledTooltip = "Only one renderer API is available on this platform." })) {
                 Ship::Context::GetInstance()->GetConfig()->SetInt("Window.Backend.Id",
                                                                   static_cast<int32_t>(configWindowBackend));
                 Ship::Context::GetInstance()->GetConfig()->SetString("Window.Backend.Name",
                                                                      windowBackendsMap.at(configWindowBackend));
                 Ship::Context::GetInstance()->GetConfig()->Save();
+                UpdateWindowBackendObjects();
             }
 
             if (Ship::Context::GetInstance()->GetWindow()->CanDisableVerticalSync()) {
@@ -302,8 +313,8 @@ void DrawSettingsMenu() {
         // #region 2S2H [Todo] None of this works yet
         /*
         if (UIWidgets::BeginMenu("Controller")) { */
-        if (mInputEditorWindow) {
-            UIWidgets::WindowButton("Controller Mapping", "gWindows.InputEditor", mInputEditorWindow);
+        if (mBenInputEditorWindow) {
+            UIWidgets::WindowButton("Controller Mapping", "gWindows.InputEditor", mBenInputEditorWindow);
         }
         /*
         #ifndef __SWITCH__
@@ -467,6 +478,10 @@ void DrawEnhancementsMenu() {
                 { .tooltip = "Playing the Song Of Time will not reset the Sword back to Kokiri Sword." });
             UIWidgets::CVarCheckbox("Do not reset Rupees", "gEnhancements.Cycle.DoNotResetRupees",
                                     { .tooltip = "Playing the Song Of Time will not reset the your rupees." });
+            UIWidgets::CVarCheckbox(
+                "Do not reset Time Speed", "gEnhancements.Cycle.DoNotResetTimeSpeed",
+                { .tooltip =
+                      "Playing the Song Of Time will not reset the current time speed set by Inverted Song of Time." });
 
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 0, 255));
             ImGui::SeparatorText("Unstable");
@@ -501,6 +516,12 @@ void DrawEnhancementsMenu() {
         if (UIWidgets::BeginMenu("Equipment")) {
             UIWidgets::CVarCheckbox("Fast Magic Arrow Equip Animation", "gEnhancements.Equipment.MagicArrowEquipSpeed",
                                     { .tooltip = "Removes the animation for equipping Magic Arrows." });
+
+            UIWidgets::CVarCheckbox(
+                "Instant Fin Boomerangs Recall", "gEnhancements.PlayerActions.InstantRecall",
+                { .tooltip =
+                      "Pressing B will instantly recall the fin boomerang back to Zora Link after they are thrown." });
+
             ImGui::EndMenu();
         }
 
@@ -509,6 +530,10 @@ void DrawEnhancementsMenu() {
                                     { .tooltip = "Fixes a missing gDPSetEnvColor, which causes the ammo count to be "
                                                  "the wrong color prior to obtaining magic or other conditions." });
 
+            UIWidgets::CVarCheckbox("Fix Fierce Deity Z-Target movement",
+                                    "gEnhancements.Fixes.FierceDeityZTargetMovement",
+                                    { .tooltip = "Fixes Fierce Deity movement being choppy when Z-targeting" });
+
             UIWidgets::CVarCheckbox("Fix Hess and Weirdshot Crash", "gEnhancements.Fixes.HessCrash",
                                     { .tooltip = "Fixes a crash that can occur when performing a HESS or Weirdshot.",
                                       .defaultValue = true });
@@ -516,6 +541,10 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Fix Text Control Characters", "gEnhancements.Fixes.ControlCharacters",
                                     { .tooltip = "Fixes certain control characters not functioning properly "
                                                  "depending on their position within the text." });
+
+            UIWidgets::CVarCheckbox("Fix Ikana Great Fairy Fountain Color", "gFixes.FixIkanaGreatFairyFountainColor",
+                                    { .tooltip = "Fixes a bug that results in the Ikana Great Fairy fountain looking "
+                                                 "green instead of yellow, this was fixed in the EU version" });
 
             ImGui::EndMenu();
         }
@@ -531,6 +560,10 @@ void DrawEnhancementsMenu() {
                                                  "model and texture on the boot logo start screen" });
             UIWidgets::CVarCheckbox("Bow Reticle", "gEnhancements.Graphics.BowReticle",
                                     { .tooltip = "Gives the bow a reticle when you draw an arrow" });
+            if (UIWidgets::CVarCheckbox("3D Item Drops", "gEnhancements.Graphics.3DItemDrops",
+                                        { .tooltip = "Makes item drops 3D" })) {
+                Register3DItemDrops();
+            }
             UIWidgets::CVarCheckbox(
                 "Disable Black Bar Letterboxes", "gEnhancements.Graphics.DisableBlackBars",
                 { .tooltip = "Disables Black Bar Letterboxes during cutscenes and Z-targeting\nNote: there may be "
@@ -545,11 +578,10 @@ void DrawEnhancementsMenu() {
                 { .tooltip =
                       "Disables the distance check for scene geometry, allowing it to be drawn no matter how far "
                       "away it is from the player. This may have unintended side effects." });
-            // BENTODO: Not implemented yet
-            // UIWidgets::CVarCheckbox("Widescreen Actor Culling",
-            //                         "gEnhancements.Graphics.ActorCullingAccountsForWidescreen",
-            //                         { .tooltip = "Adjusts the culling planes to account for widescreen resolutions. "
-            //                                      "This may have unintended side effects." });
+            UIWidgets::CVarCheckbox("Widescreen Actor Culling",
+                                    "gEnhancements.Graphics.ActorCullingAccountsForWidescreen",
+                                    { .tooltip = "Adjusts the culling planes to account for widescreen resolutions. "
+                                                 "This may have unintended side effects." });
             if (UIWidgets::CVarSliderInt(
                     "Increase Actor Draw Distance: %dx", "gEnhancements.Graphics.IncreaseActorDrawDistance", 1, 5, 1,
                     { .tooltip =
@@ -577,6 +609,11 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere",
                                     { .tooltip = "Allow using Fierce Deity's mask outside of boss rooms." });
             UIWidgets::CVarCheckbox("No Blast Mask Cooldown", "gEnhancements.Masks.NoBlastMaskCooldown", {});
+            if (UIWidgets::CVarCheckbox("Persistent Bunny Hood", "gEnhancements.Masks.PersistentBunnyHood.Enabled",
+                                        { .tooltip = "Permanantly toggle a speed boost from the bunny hood by pressing "
+                                                     "'A' on it in the mask menu." })) {
+                UpdatePersistentMasksState();
+            }
 
             ImGui::EndMenu();
         }
@@ -594,8 +631,17 @@ void DrawEnhancementsMenu() {
             if (UIWidgets::CVarCheckbox("Time Moves When You Move", "gModes.TimeMovesWhenYouMove")) {
                 RegisterTimeMovesWhenYouMove();
             }
+            if (UIWidgets::CVarCheckbox("Mirrored World", "gModes.MirroredWorld.Mode")) {
+                if (CVarGetInteger("gModes.MirroredWorld.Mode", 0)) {
+                    CVarSetInteger("gModes.MirroredWorld.State", 1);
+                } else {
+                    CVarClear("gModes.MirroredWorld.State");
+                }
+            }
+
             ImGui::EndMenu();
         }
+
         if (UIWidgets::BeginMenu("Player")) {
             UIWidgets::CVarSliderInt("Climb speed", "gEnhancements.Player.ClimbSpeed", 1, 5, 1,
                                      { .tooltip = "Increases the speed at which Link climbs vines and ladders." });
@@ -623,6 +669,14 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Tatl ISG", "gEnhancements.Restorations.TatlISG",
                                     { .tooltip = "Restores Navi ISG from OOT, but now with Tatl." });
 
+            if (UIWidgets::CVarCheckbox(
+                    "Woodfall Mountain Appearance", "gEnhancements.Restorations.WoodfallMountainAppearance",
+                    { .tooltip = "Restores the appearance of Woodfall mountain to not look poisoned "
+                                 "when viewed from Termina Field after clearing Woodfall Temple\n\n"
+                                 "Requires a scene reload to take effect" })) {
+                RegisterWoodfallMountainAppearance();
+            }
+
             ImGui::EndMenu();
         }
 
@@ -636,6 +690,11 @@ void DrawEnhancementsMenu() {
                                     { .tooltip = "Enables using the Dpad for Ocarina playback." });
             UIWidgets::CVarCheckbox("Prevent Dropped Ocarina Inputs", "gEnhancements.Playback.NoDropOcarinaInput",
                                     { .tooltip = "Prevent dropping inputs when playing the ocarina quickly" });
+            UIWidgets::CVarCheckbox("Pause Owl Warp", "gEnhancements.Songs.PauseOwlWarp",
+                                    { .tooltip = "Allows the player to use the pause menu map to owl warp instead of "
+                                                 "having to play the Song of Soaring." });
+            UIWidgets::CVarSliderInt("Zora Eggs For Bossa Nova", "gEnhancements.Songs.ZoraEggCount", 1, 7, 7,
+                                     { .tooltip = "The number of eggs required to unlock new wave bossa nova." });
 
             ImGui::EndMenu();
         }
@@ -667,6 +726,14 @@ void DrawCheatsMenu() {
                                     { .tooltip = "Holding L makes you float into the air" })) {
             RegisterMoonJumpOnL();
         }
+        UIWidgets::CVarCombobox(
+            "Stop Time in Dungeons", "gCheats.TempleTimeStop", timeStopOptions,
+            { .tooltip = "Stops time from advancing in selected areas. Requires a room change to update.\n\n"
+                         "- Off: Vanilla behaviour.\n"
+                         "- Temples: Stops time in Woodfall, Snowhead, Great Bay, and Stone Tower Temples.\n"
+                         "- Temples + Mini Dungeons: In addition to the above temples, stops time in both Spider "
+                         "Houses, Pirate's Fortress, Beneath the Well, Ancient Castle of Ikana, and Secret Shrine.",
+              .defaultIndex = TIME_STOP_OFF });
 
         ImGui::EndMenu();
     }
@@ -814,6 +881,10 @@ void DrawDeveloperToolsMenu() {
 
         ImGui::EndMenu();
     }
+}
+
+void BenMenuBar::InitElement() {
+    UpdateWindowBackendObjects();
 }
 
 void BenMenuBar::DrawElement() {

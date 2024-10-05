@@ -2376,6 +2376,14 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
             }
         }
 
+        // #region 2S2H [Dpad]
+        for (s16 j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++) {
+            if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_ENABLED) {
+                gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
+            }
+        }
+        // #endregion
+
         Interface_SetHudVisibility(HUD_VISIBILITY_B);
     } else if (CHECK_WEEKEVENTREG(WEEKEVENTREG_82_08)) {
         // Swordsman's log minigame
@@ -2384,6 +2392,14 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                 gSaveContext.buttonStatus[i] = BTN_DISABLED;
             }
         }
+
+        // #region 2S2H [Dpad]
+        for (s16 j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++) {
+            if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_ENABLED) {
+                gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
+            }
+        }
+        // #endregion
 
         Interface_SetHudVisibility(HUD_VISIBILITY_A_B_HEARTS_MAGIC_MINIMAP);
     } else if (CHECK_WEEKEVENTREG(WEEKEVENTREG_84_20)) {
@@ -2460,7 +2476,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
             gSaveContext.buttonStatus[i] = BTN_DISABLED;
         }
         // #region 2S2H [Dpad]
-        for (s16 j = EQUIP_SLOT_C_LEFT; j <= EQUIP_SLOT_C_RIGHT; j++) {
+        for (s16 j = EQUIP_SLOT_D_RIGHT; j <= EQUIP_SLOT_D_UP; j++) {
             if (gSaveContext.shipSaveContext.dpad.status[j] == BTN_ENABLED) {
                 restoreHudVisibility = true;
             }
@@ -2807,7 +2823,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                         (play->sceneId != SCENE_MITURIN_BS) && (play->sceneId != SCENE_HAKUGIN_BS) &&
                         (play->sceneId != SCENE_SEA_BS) && (play->sceneId != SCENE_INISIE_BS) &&
                         (play->sceneId != SCENE_LAST_BS);
-                    if (GameInteractor_Should(GI_VB_DISABLE_FD_MASK, vanillaSceneConditionResult, NULL)) {
+                    if (GameInteractor_Should(GI_VB_DISABLE_FD_MASK, vanillaSceneConditionResult)) {
                         if (gSaveContext.buttonStatus[i] != BTN_DISABLED) {
                             gSaveContext.buttonStatus[i] = BTN_DISABLED;
                             restoreHudVisibility = true;
@@ -2954,7 +2970,7 @@ void Interface_UpdateButtonsPart2(PlayState* play) {
                         (play->sceneId != SCENE_MITURIN_BS) && (play->sceneId != SCENE_HAKUGIN_BS) &&
                         (play->sceneId != SCENE_SEA_BS) && (play->sceneId != SCENE_INISIE_BS) &&
                         (play->sceneId != SCENE_LAST_BS);
-                    if (GameInteractor_Should(GI_VB_DISABLE_FD_MASK, vanillaSceneConditionResult, NULL)) {
+                    if (GameInteractor_Should(GI_VB_DISABLE_FD_MASK, vanillaSceneConditionResult)) {
                         if (gSaveContext.shipSaveContext.dpad.status[j] != BTN_DISABLED) {
                             gSaveContext.shipSaveContext.dpad.status[j] = BTN_DISABLED;
                             restoreHudVisibility = true;
@@ -4325,7 +4341,7 @@ s32 Inventory_ConsumeFairy(PlayState* play) {
             }
             // #region 2S2H [Dpad]
             if (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0)) {
-                for (u8 dpadBtn = EQUIP_SLOT_C_LEFT; dpadBtn <= EQUIP_SLOT_C_RIGHT; dpadBtn++) {
+                for (u8 dpadBtn = EQUIP_SLOT_D_RIGHT; dpadBtn <= EQUIP_SLOT_D_UP; dpadBtn++) {
                     if (DPAD_GET_CUR_FORM_BTN_ITEM(dpadBtn) == ITEM_FAIRY) {
                         DPAD_SET_CUR_FORM_BTN_ITEM(dpadBtn, ITEM_BOTTLE);
                         Interface_Dpad_LoadItemIconImpl(play, dpadBtn);
@@ -6135,7 +6151,7 @@ void Interface_DrawClock(PlayState* play) {
     s16 finalHoursClockSlots[8];
     s16 index;
 
-    if (GameInteractor_Should(GI_VB_PREVENT_CLOCK_DISPLAY, false, NULL)) {
+    if (GameInteractor_Should(GI_VB_PREVENT_CLOCK_DISPLAY, false)) {
         return;
     }
 
@@ -8025,9 +8041,34 @@ void Interface_DrawMinigameIcons(PlayState* play) {
                     gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->aAlpha);
                 }
 
-                gSPTextureRectangle(OVERLAY_DISP++, rectX << 2, rectY << 2, (rectX + 16) << 2, (rectY + 16) << 2,
-                                    G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+                // #region 2S2H [Cosmetic] Hud Editor Carrots
+                HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CARROT);
+                if (HudEditor_ShouldOverrideDraw()) {
+                    // Derived from the original call to gSPTextureRectangle below
+                    // Y pos set to 56 in override mode to ignore minigame state differences
+                    s16 newX = rectX;
+                    s16 newY = 56;
+                    s16 newWidth = 16;
+                    s16 newHeight = 16;
+                    s16 dsdx = 512;
+                    s16 dtdy = 512;
+
+                    if (HudEditor_IsActiveElementHidden()) {
+                        break;
+                    }
+
+                    HudEditor_ModifyDrawValues(&newX, &newY, &newWidth, &newHeight, &dsdx, &dtdy);
+
+                    gSPWideTextureRectangle(OVERLAY_DISP++, newX << 2, newY << 2, (newX + newWidth) << 2,
+                                            (newY + newHeight) << 2, G_TX_RENDERTILE, 0, 0, dsdx << 1, dtdy << 1);
+                } else {
+                    // #endregion
+                    gSPTextureRectangle(OVERLAY_DISP++, rectX << 2, rectY << 2, (rectX + 16) << 2, (rectY + 16) << 2,
+                                        G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+                }
             }
+
+            hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
         }
 
         if (gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE) {
@@ -8569,7 +8610,15 @@ void Interface_Draw(PlayState* play) {
         Map_DrawMinimap(play);
 
         if ((R_PAUSE_BG_PRERENDER_STATE != 2) && (R_PAUSE_BG_PRERENDER_STATE != 3)) {
+            if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
+                gSPMatrix(OVERLAY_DISP++, interfaceCtx->view.shipMirrorProjectionPtr,
+                          G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
+            }
             Target_Draw(&play->actorCtx.targetCtx, play);
+            if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
+                gSPMatrix(OVERLAY_DISP++, interfaceCtx->view.projectionPtr,
+                          G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
+            }
         }
 
         Gfx_SetupDL39_Overlay(play->state.gfxCtx);

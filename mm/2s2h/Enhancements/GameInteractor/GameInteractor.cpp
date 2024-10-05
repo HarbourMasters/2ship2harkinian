@@ -19,8 +19,23 @@ void GameInteractor_ExecuteOnGameStateUpdate() {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnGameStateUpdate>();
 }
 
+void GameInteractor_ExecuteOnConsoleLogoUpdate() {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnConsoleLogoUpdate>();
+}
+
 void GameInteractor_ExecuteOnKaleidoUpdate(PauseContext* pauseCtx) {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnKaleidoUpdate>(pauseCtx);
+}
+
+void GameInteractor_ExecuteBeforeKaleidoDrawPage(PauseContext* pauseCtx, u16 pauseIndex) {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::BeforeKaleidoDrawPage>(pauseCtx, pauseIndex);
+    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::BeforeKaleidoDrawPage>(pauseIndex, pauseCtx,
+                                                                                       pauseIndex);
+}
+
+void GameInteractor_ExecuteAfterKaleidoDrawPage(PauseContext* pauseCtx, u16 pauseIndex) {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::AfterKaleidoDrawPage>(pauseCtx, pauseIndex);
+    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::AfterKaleidoDrawPage>(pauseIndex, pauseCtx, pauseIndex);
 }
 
 void GameInteractor_ExecuteOnSaveInit(s16 fileNum) {
@@ -51,6 +66,17 @@ void GameInteractor_ExecuteOnRoomInit(s16 sceneId, s8 roomNum) {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnRoomInit>(sceneId, roomNum);
     GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnRoomInit>(sceneId, sceneId, roomNum);
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnRoomInit>(sceneId, roomNum);
+}
+
+void GameInteractor_ExecuteAfterRoomSceneCommands(s16 sceneId, s8 roomNum) {
+    SPDLOG_DEBUG("AfterRoomSceneCommands: sceneId: {}, roomNum: {}", sceneId, roomNum);
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::AfterRoomSceneCommands>(sceneId, roomNum);
+    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::AfterRoomSceneCommands>(sceneId, sceneId, roomNum);
+    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::AfterRoomSceneCommands>(sceneId, roomNum);
+}
+
+void GameInteractor_ExecuteOnPlayDrawWorldEnd() {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnPlayDrawWorldEnd>();
 }
 
 void GameInteractor_ExecuteOnPlayDestroy() {
@@ -110,6 +136,19 @@ void GameInteractor_ExecuteOnActorKill(Actor* actor) {
     GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnActorKill>(actor->id, actor);
     GameInteractor::Instance->ExecuteHooksForPtr<GameInteractor::OnActorKill>((uintptr_t)actor, actor);
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnActorKill>(actor);
+}
+
+void GameInteractor_ExecuteOnActorDestroy(Actor* actor) {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnActorDestroy>(actor);
+    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnActorDestroy>(actor->id, actor);
+    GameInteractor::Instance->ExecuteHooksForPtr<GameInteractor::OnActorDestroy>((uintptr_t)actor, actor);
+    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnActorDestroy>(actor);
+}
+
+void GameInteractor_ExecuteOnPlayerPostLimbDraw(Player* player, s32 limbIndex) {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnPlayerPostLimbDraw>(player, limbIndex);
+    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnPlayerPostLimbDraw>(limbIndex, player, limbIndex);
+    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnPlayerPostLimbDraw>(player, limbIndex);
 }
 
 void GameInteractor_ExecuteOnSceneFlagSet(s16 sceneId, FlagType flagType, u32 flag) {
@@ -191,15 +230,25 @@ void GameInteractor_ExecuteOnItemGive(u8 item) {
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnItemGive>(item);
 }
 
-bool GameInteractor_Should(GIVanillaBehavior flag, bool result, void* opt) {
-    GameInteractor::Instance->ExecuteHooks<GameInteractor::ShouldVanillaBehavior>(flag, &result, opt);
-    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::ShouldVanillaBehavior>(flag, flag, &result, opt);
-    if (opt != nullptr) {
-        GameInteractor::Instance->ExecuteHooksForPtr<GameInteractor::ShouldVanillaBehavior>((uintptr_t)opt, flag,
-                                                                                            &result, opt);
-    }
-    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::ShouldVanillaBehavior>(flag, &result, opt);
-    return result;
+bool GameInteractor_Should(GIVanillaBehavior flag, uint32_t result, ...) {
+    // Only the external function can use the Variadic Function syntax
+    // To pass the va args to the next caller must be done using va_list and reading the args into it
+    // Because there can be N subscribers registered to each template call, the subscribers will be responsible for
+    // creating a copy of this va_list to avoid incrementing the original pointer between calls
+    va_list args;
+    va_start(args, result);
+
+    // Because of default argument promotion, even though our incoming "result" is just a bool, it needs to be typed as
+    // an int to be permitted to be used in `va_start`, otherwise it is undefined behavior.
+    // Here we downcast back to a bool for our actual hook handlers
+    bool boolResult = static_cast<bool>(result);
+
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::ShouldVanillaBehavior>(flag, &boolResult, args);
+    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::ShouldVanillaBehavior>(flag, flag, &boolResult, args);
+    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::ShouldVanillaBehavior>(flag, &boolResult, args);
+
+    va_end(args);
+    return boolResult;
 }
 
 // Returns 1 or -1 based on a number of factors like CVars or other game states.
@@ -219,16 +268,24 @@ int GameInteractor_InvertControl(GIInvertType type) {
             break;
     }
 
-    /*
     // Invert all X axis inputs if the Mirrored World mode is enabled
     if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
         switch (type) {
             case GI_INVERT_CAMERA_RIGHT_STICK_X:
+            case GI_INVERT_MOVEMENT_X:
+            case GI_INVERT_FIRST_PERSON_AIM_X:
+            case GI_INVERT_SHIELD_X:
+            case GI_INVERT_SHOP_X:
+            case GI_INVERT_HORSE_X:
+            case GI_INVERT_ZORA_SWIM_X:
+            case GI_INVERT_DEBUG_DPAD_X:
+            case GI_INVERT_TELESCOPE_X:
                 result *= -1;
+                break;
+            default:
                 break;
         }
     }
-    */
 
     /*
     if (CrowdControl::State::InvertedInputs) {
