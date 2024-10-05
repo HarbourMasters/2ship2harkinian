@@ -35,7 +35,7 @@ typedef struct {
     /* 0x04 */ u8* sampleAddr;
     /* 0x08 */ AdpcmLoop* loop;
     /* 0x0C */ AdpcmBook* book;
-} Sample;                     // size = 0x10
+} Sample; // size = 0x10
 
 class AudioSample : public Ship::Resource<Sample> {
   public:

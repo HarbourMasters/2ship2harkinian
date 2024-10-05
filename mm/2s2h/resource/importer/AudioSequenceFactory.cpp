@@ -6,7 +6,6 @@
 #include "BinaryWriter.h"
 #include <type_traits>
 
-
 namespace SOH {
 std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSequenceV2::ReadResource(std::shared_ptr<Ship::File> file) {
     if (!FileHasValidFormatAndReader(file)) {
@@ -37,7 +36,6 @@ std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSequenceV2::ReadResou
 
     return audioSequence;
 }
-
 
 int8_t SOH::ResourceFactoryXMLAudioSequenceV0::MediumStrToInt(const char* str) {
     if (!strcmp("Ram", str)) {
@@ -72,8 +70,7 @@ int8_t ResourceFactoryXMLAudioSequenceV0::CachePolicyToInt(const char* str) {
     }
 }
 
-template <typename T>
-static void WriteInsnOneArg(Ship::BinaryWriter* writer, uint8_t opcode, T arg) {
+template <typename T> static void WriteInsnOneArg(Ship::BinaryWriter* writer, uint8_t opcode, T arg) {
     static_assert(std::is_fundamental<T>::value);
     writer->Write(opcode);
     writer->Write(arg);
@@ -99,7 +96,6 @@ static void WriteInsnThreeArg(Ship::BinaryWriter* writer, uint8_t opcode, T1 arg
 static void WriteInsnNoArg(Ship::BinaryWriter* writer, uint8_t opcode) {
     writer->Write(opcode);
 }
-
 
 static void WriteLegato(Ship::BinaryWriter* writer) {
     WriteInsnNoArg(writer, 0xC4);
@@ -177,14 +173,11 @@ static void WriteDelay(Ship::BinaryWriter* writer, uint16_t delay) {
     }
 }
 
-template <typename T> 
-static void WriteLDelay(Ship::BinaryWriter* writer, T delay) {
+template <typename T> static void WriteLDelay(Ship::BinaryWriter* writer, T delay) {
     WriteInsnOneArg(writer, 0xC0, delay);
 }
 
-template <typename T>
-static void WriteNotedv(Ship::BinaryWriter* writer, uint8_t note, T delay,
-                                                    uint8_t velocity) {
+template <typename T> static void WriteNotedv(Ship::BinaryWriter* writer, uint8_t note, T delay, uint8_t velocity) {
     WriteInsnTwoArg(writer, note, delay, velocity);
 }
 
@@ -212,7 +205,6 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
     sequence->sequence.seqNumber = child->IntAttribute("Index");
     bool streamed = child->BoolAttribute("Streamed");
 
-    
     memset(sequence->sequence.fonts, 0, sizeof(sequence->sequence.fonts));
 
     tinyxml2::XMLElement* fontsElement = child->FirstChildElement();
@@ -236,15 +228,15 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
     if (!streamed) {
         sequence->sequenceData = *seqFile->Buffer.get();
         sequence->sequence.seqData = sequence->sequenceData.data();
-    } else {    
-        // setting numFonts to -1 tells the game's audio engine the sound font to used is CRC64 encoded in the font indicies.
+    } else {
+        // setting numFonts to -1 tells the game's audio engine the sound font to used is CRC64 encoded in the font
+        // indicies.
         sequence->sequence.numFonts = -1;
         if (path != nullptr) {
             sequence->sequenceData = *seqFile->Buffer.get();
             sequence->sequence.seqData = sequence->sequenceData.data();
             sequence->sequence.seqDataSize = seqFile->Buffer.get()->size();
-        }
-        else {
+        } else {
             unsigned int length = child->UnsignedAttribute("Length");
             bool looped = child->BoolAttribute("Looped", true);
             Ship::BinaryWriter writer = Ship::BinaryWriter();
@@ -256,7 +248,8 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
             uint16_t layerPlaceholderOff, layerStart;
 
             // 1 second worth of ticks can be found by using `ticks = 60 / (bpm * 48)`
-            // Get the number of ticks per second and then divide the length by this number to get the number of ticks for the song.
+            // Get the number of ticks per second and then divide the length by this number to get the number of ticks
+            // for the song.
             constexpr uint8_t TEMPO = 1;
             constexpr float TEMPO_F = TEMPO;
             // Use floats for this first calculation so we can round up
@@ -264,12 +257,12 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
             // Convert to u16. This way this value is encoded changes depending on the value.
             // It can be at most 0xFFFF so store it in a u16 for now.
             uint16_t delay;
-            if(delayF >= 65535.0f) {
+            if (delayF >= 65535.0f) {
                 delay = 0x7FFF;
             } else {
                 delay = delayF;
             }
-            
+
             // Write seq header
 
             // These two values are always the same in OOT and MM
