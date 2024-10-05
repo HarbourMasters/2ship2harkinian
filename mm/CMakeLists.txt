@@ -151,13 +151,6 @@ else()
     )
 endif()
 
-# 2s2h/resource {{{
-source_group("2s2h\\resource\\type" REGULAR_EXPRESSION "2s2h/resource/type/*")
-source_group("2s2h\\resource\\type\\scenecommand" REGULAR_EXPRESSION "2s2h/resource/type/scenecommand/*")
-source_group("2s2h\\resource\\importer" REGULAR_EXPRESSION "2s2h/resource/importer/*")
-source_group("2s2h\\resource\\importer\\scenecommand" REGULAR_EXPRESSION "2s2h/resource/importer/scenecommand/*")
-# }}}
-
 # src (decomp) {{{
 file(GLOB_RECURSE src__ RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "src/*.c" "src/*.h")
 
