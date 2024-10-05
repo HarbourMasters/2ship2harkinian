@@ -50,8 +50,8 @@ CrowdControl* CrowdControl::Instance;
 #include <libultraship/libultraship.h>
 #include <BenGui/BenGui.hpp>
 
-#include "Enhancements/GameInteractor/GameInteractor.h"
-#include "Enhancements/Enhancements.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
+#include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/Enhancements/GfxPatcher/AuthenticGfxPatches.h"
 #include "2s2h/DeveloperTools/DebugConsole.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"

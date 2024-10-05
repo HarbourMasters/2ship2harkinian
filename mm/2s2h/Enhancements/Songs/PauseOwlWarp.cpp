@@ -1,6 +1,5 @@
-#include "PauseOwlWarp.h"
 #include <libultraship/libultraship.h>
-#include "Enhancements/GameInteractor/GameInteractor.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 extern "C" {
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"

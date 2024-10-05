@@ -45,7 +45,7 @@
 #include "objects/object_link_nuts/object_link_nuts.h"
 #include "objects/object_link_child/object_link_child.h"
 
-#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define THIS ((Player*)thisx)
 
@@ -3814,7 +3814,7 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
 
                 if (bomb != NULL) {
                     bomb->timer = 0;
-                    if (GameInteractor_Should(GI_VB_SET_BLAST_MASK_COOLDOWN_TIMER, true)) {
+                    if (GameInteractor_Should(VB_SET_BLAST_MASK_COOLDOWN_TIMER, true)) {
                         this->blastMaskTimer = 310;
                     }
                 }
@@ -4471,7 +4471,7 @@ void Player_UseItem(PlayState* play, Player* this, ItemId item) {
          (itemAction == PLAYER_IA_MASK_ZORA) ||
          ((this->currentBoots >= PLAYER_BOOTS_ZORA_UNDERWATER) && (this->actor.bgCheckFlags & BGCHECKFLAG_GROUND)))) {
         s32 var_v1 = ((itemAction >= PLAYER_IA_MASK_MIN) && (itemAction <= PLAYER_IA_MASK_MAX) &&
-                      (!GameInteractor_Should(GI_VB_USE_ITEM_CONSIDER_LINK_HUMAN,
+                      (!GameInteractor_Should(VB_USE_ITEM_CONSIDER_LINK_HUMAN,
                                               this->transformation == PLAYER_FORM_HUMAN, &itemAction) ||
                        (itemAction >= PLAYER_IA_MASK_GIANT)));
         CollisionPoly* sp5C;
@@ -4533,12 +4533,12 @@ void Player_UseItem(PlayState* play, Player* this, ItemId item) {
             } else {
                 Audio_PlaySfx(NA_SE_SY_ERROR);
             }
-        } else if (GameInteractor_Should(GI_VB_USE_ITEM_CONSIDER_LINK_HUMAN, this->transformation == PLAYER_FORM_HUMAN,
+        } else if (GameInteractor_Should(VB_USE_ITEM_CONSIDER_LINK_HUMAN, this->transformation == PLAYER_FORM_HUMAN,
                                          &itemAction) &&
                    (itemAction >= PLAYER_IA_MASK_MIN) && (itemAction < PLAYER_IA_MASK_GIANT)) {
             PlayerMask maskId = GET_MASK_FROM_IA(itemAction);
 
-            if (GameInteractor_Should(GI_VB_USE_ITEM_EQUIP_MASK, true, &maskId)) {
+            if (GameInteractor_Should(VB_USE_ITEM_EQUIP_MASK, true, &maskId)) {
                 // Handle wearable masks
                 this->prevMask = this->currentMask;
                 if (maskId == this->currentMask) {
@@ -6720,7 +6720,7 @@ void func_80836AD8(PlayState* play, Player* this) {
 }
 
 void func_80836B3C(PlayState* play, Player* this, f32 arg2) {
-    if (GameInteractor_Should(GI_VB_PATCH_SIDEROLL, true)) {
+    if (GameInteractor_Should(VB_PATCH_SIDEROLL, true)) {
         this->currentYaw = this->actor.shape.rot.y;
         this->actor.world.rot.y = this->actor.shape.rot.y;
     }
@@ -7814,7 +7814,7 @@ s32 Player_ActionChange_4(Player* this, PlayState* play) {
                                 // !CutsceneManager_IsNext(CS_ID_GLOBAL_TALK), which is what prevented Tatl ISG from
                                 // working
                                 bool vanillaCondition = !CutsceneManager_IsNext(CS_ID_GLOBAL_TALK);
-                                if (GameInteractor_Should(GI_VB_TATL_CONVERSATION_AVAILABLE, vanillaCondition) ||
+                                if (GameInteractor_Should(VB_TATL_CONVERSATION_AVAILABLE, vanillaCondition) ||
                                     !CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_CUP)) {
                                     return false;
                                 }
@@ -9597,7 +9597,7 @@ s32 func_8083E404(Player* this, f32 arg1, s16 arg2) {
     }
 
     // Using Should hook, but ignoring return value, to be able to modify the speed argument
-    GameInteractor_Should(GI_VB_ZTARGET_SPEED_CHECK, false, &arg1);
+    GameInteractor_Should(VB_ZTARGET_SPEED_CHECK, false, &arg1);
 
     temp_fv1 = fabsf(sp1C) / 0x8000;
     if (((SQ(temp_fv1) * 50.0f) + 6.0f) < arg1) {
@@ -10099,7 +10099,7 @@ s32 func_8083FD80(Player* this, PlayState* play) {
     if (!Player_IsGoronOrDeku(this) && (Player_GetMeleeWeaponHeld(this) != PLAYER_MELEEWEAPON_NONE) &&
         (this->transformation != PLAYER_FORM_ZORA) && sPlayerUseHeldItem) {
         //! Calling this function sets the meleeWeaponQuads' damage properties correctly, patching "Power Crouch Stab".
-        if (GameInteractor_Should(GI_VB_PATCH_POWER_CROUCH_STAB, true)) {
+        if (GameInteractor_Should(VB_PATCH_POWER_CROUCH_STAB, true)) {
             func_8083375C(this, PLAYER_MWA_STAB_1H);
         }
         Player_AnimationPlayOnce(play, this, &gPlayerAnim_link_normal_defense_kiru);
@@ -10146,7 +10146,7 @@ s32 func_8083FF30(PlayState* play, Player* this) {
 s32 func_8083FFEC(PlayState* play, Player* this) {
     if (this->heldItemAction == PLAYER_IA_SWORD_RAZOR) {
         if (gSaveContext.save.saveInfo.playerData.swordHealth > 0) {
-            if (GameInteractor_Should(GI_VB_LOWER_RAZOR_SWORD_DURABILITY, true)) {
+            if (GameInteractor_Should(VB_LOWER_RAZOR_SWORD_DURABILITY, true)) {
                 gSaveContext.save.saveInfo.playerData.swordHealth--;
             }
             if (gSaveContext.save.saveInfo.playerData.swordHealth <= 0) {
@@ -11256,7 +11256,7 @@ void Player_SetDoAction(PlayState* play, Player* this) {
         }
 
         if (doActionA != DO_ACTION_PUTAWAY) {
-            if (GameInteractor_Should(GI_VB_RESET_PUTAWAY_TIMER, true)) {
+            if (GameInteractor_Should(VB_RESET_PUTAWAY_TIMER, true)) {
                 this->putAwayCountdown = 20;
             }
         } else if (this->putAwayCountdown != 0) {
@@ -12202,7 +12202,7 @@ void Player_UpdateCommon(Player* this, PlayState* play, Input* input) {
 
         this->actor.shape.face = ((play->gameplayFrames & 0x20) ? 0 : 3) + this->blinkInfo.eyeTexIndex;
 
-        if (GameInteractor_Should(GI_VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY, this)) {
+        if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY, this)) {
             Player_UpdateBunnyEars(this);
         }
 
@@ -14469,7 +14469,7 @@ void Player_Action_13(Player* this, PlayState* play) {
 
     Player_GetMovementSpeedAndYaw(this, &speedTarget, &yawTarget, SPEED_MODE_CURVED, play);
 
-    if (GameInteractor_Should(GI_VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY, this)) {
+    if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY, this)) {
         speedTarget *= 1.5f;
     }
 
@@ -14898,7 +14898,7 @@ void Player_Action_25(Player* this, PlayState* play) {
                 Math_StepToF(&this->unk_B10[1], 0.0f, this->unk_B10[0]);
             }
         } else {
-            if (GameInteractor_Should(GI_VB_FLIP_HOP_VARIABLE, true)) {
+            if (GameInteractor_Should(VB_FLIP_HOP_VARIABLE, true)) {
                 func_8083CBC4(this, speedTarget, yawTarget, 1.0f, 0.05f, 0.1f, 0xC8);
             }
         }
@@ -16036,7 +16036,7 @@ void Player_Action_50(Player* this, PlayState* play) {
         var_fv1 = -1.0f;
     }
 
-    if (GameInteractor_Should(GI_VB_SET_CLIMB_SPEED, true, &var_fv1)) {
+    if (GameInteractor_Should(VB_SET_CLIMB_SPEED, true, &var_fv1)) {
         this->skelAnime.playSpeed = var_fv1 * var_fv0;
     }
 
@@ -18295,7 +18295,7 @@ void Player_Action_86(Player* this, PlayState* play) {
     struct_8085D910* sp4C = D_8085D910;
     s32 sp48 = false;
 
-    if (GameInteractor_Should(GI_VB_PREVENT_MASK_TRANSFORMATION_CS, false))
+    if (GameInteractor_Should(VB_PREVENT_MASK_TRANSFORMATION_CS, false))
         return;
 
     func_808323C0(this, play->playerCsIds[PLAYER_CS_ID_MASK_TRANSFORMATION]);

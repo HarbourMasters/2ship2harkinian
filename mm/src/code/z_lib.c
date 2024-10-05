@@ -1,7 +1,7 @@
 #include "global.h"
 #include <libultraship/bridge.h>
 #include "BenPort.h"
-#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 f32 Math_CosS(s16 angle) {
     return coss(angle) * SHT_MINV;

@@ -2,7 +2,7 @@
 #include "z64shrink_window.h"
 #include "z64view.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
-#include "Enhancements/GameInteractor/GameInteractor.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 s32 View_ApplyPerspective(View* view);
 s32 View_ApplyOrtho(View* view);
@@ -160,7 +160,7 @@ void View_ApplyLetterbox(View* view) {
     s32 lrx;
     s32 lry;
 
-    if (GameInteractor_Should(GI_VB_DISABLE_LETTERBOX, false)) {
+    if (GameInteractor_Should(VB_DISABLE_LETTERBOX, false)) {
         return;
     }
 
