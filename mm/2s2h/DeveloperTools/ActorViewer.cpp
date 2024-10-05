@@ -1,7 +1,7 @@
 #include "ActorViewer.h"
 #include "2s2h/BenGui/UIWidgets.hpp"
-#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
-#include "2s2h/Enhancements/NameTag/NameTag.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
+#include "2s2h/NameTag/NameTag.h"
 #include <spdlog/fmt/fmt.h>
 #include <string>
 #include <vector>

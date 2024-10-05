@@ -1,6 +1,6 @@
 #include <libultraship/libultraship.h>
 #include "2s2h/BenGui/HudEditor.h"
-#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 

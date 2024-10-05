@@ -1,6 +1,6 @@
 #include "global.h"
 
-#include "Enhancements/GameInteractor/GameInteractor.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 typedef struct {
     /* 0x0 */ s8 x;

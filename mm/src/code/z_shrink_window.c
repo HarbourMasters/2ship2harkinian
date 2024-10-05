@@ -7,7 +7,7 @@
 #include "global.h"
 #include "z64shrink_window.h"
 #include <string.h>
-#include "Enhancements/GameInteractor/GameInteractor.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #include "BenPort.h"
 
