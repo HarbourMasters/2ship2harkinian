@@ -12397,7 +12397,7 @@ DRFLAC_API drflac_bool32 drflac_seek_to_pcm_frame(drflac* pFlac, drflac_uint64 p
             }                                                                                                          \
                                                                                                                        \
             /* At this point everything should be decoded, but we just want to fill the unused part buffer with        \
-               silence - need to protect those ears from random noise! */                                                                              \
+               silence - need to protect those ears from random noise! */                                              \
             DRFLAC_ZERO_MEMORY(pSampleData + (totalPCMFrameCount * pFlac->channels),                                   \
                                (size_t)(sampleDataBufferSize - totalPCMFrameCount * pFlac->channels * sizeof(type)));  \
         } else {                                                                                                       \
