@@ -406,7 +406,7 @@ void FreeLookPitchMinMax() {
 
 void InsertSidebarSearch() {
     menuEntries[0].sidebarEntries.insert(menuEntries[0].sidebarEntries.begin() + searchSidebarIndex,
-        searchSidebarEntry);
+                                         searchSidebarEntry);
     CVarSetInteger(menuEntries[0].sidebarCvar, CVarGetInteger(menuEntries[0].sidebarCvar, 0) + 1);
 }
 
