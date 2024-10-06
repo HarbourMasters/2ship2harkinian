@@ -1,6 +1,6 @@
-#include "EasyMaskEquip.h"
+#include "2s2h/Enhancements/Enhancements.h"
 #include <libultraship/bridge.h>
-#include "Enhancements/GameInteractor/GameInteractor.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 #include "Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 extern "C" {
@@ -368,7 +368,7 @@ void RegisterEasyMaskEquip() {
     });
 
     // Disable selected item textbox
-    REGISTER_VB_SHOULD(GI_VB_KALEIDO_DISPLAY_ITEM_TEXT, {
+    REGISTER_VB_SHOULD(VB_KALEIDO_DISPLAY_ITEM_TEXT, {
         if (EasyMaskEquip_IsEnabled()) {
             *should = false;
         }
