@@ -1180,6 +1180,14 @@ void AddEnhancements() {
                 WIDGET_CVAR_CHECKBOX,
                 {},
                 [](widgetInfo& info) { RegisterWoodfallMountainAppearance(); } } } } });
+    enhancementsSidebar.push_back(
+        { "Difficulty Options",
+          3,
+          { { { "Disable Takkuri Steal", "gEnhancements.Cheats.DisableTakkuriSteal",
+                "Prevents the Takkuri from stealing key items like bottles and swords. It may still steal other items.",
+                WIDGET_CVAR_CHECKBOX,
+                {},
+                [](widgetInfo& info) { RegisterDisableTakkuriSteal(); } } } } });
     enhancementsSidebar.push_back({ "HUD Editor",
                                     1,
                                     { // HUD Editor
