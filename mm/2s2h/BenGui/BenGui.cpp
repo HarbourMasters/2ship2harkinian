@@ -98,11 +98,11 @@ void SetupGuiElements() {
     mEventLogWindow = std::make_shared<EventLogWindow>("gWindows.EventLog", "Event Log", ImVec2(520, 600));
     gui->AddGuiWindow(mEventLogWindow);
 
-    mItemTrackerWindow = std::make_shared<ItemTrackerWindow>("gWindows.ItemTracker", "Item Tracker");
+    mItemTrackerWindow = std::make_shared<ItemTrackerWindow>("gWindows.ItemTracker", "Item Tracker", ImVec2(800, 400));
     gui->AddGuiWindow(mItemTrackerWindow);
 
     mItemTrackerSettingsWindow =
-        std::make_shared<ItemTrackerSettingsWindow>("gWindows.ItemTrackerSettings", "Item Tracker Settings");
+        std::make_shared<ItemTrackerSettingsWindow>("gWindows.ItemTrackerSettings", "Item Tracker Settings", ImVec2(800, 400));
     gui->AddGuiWindow(mItemTrackerSettingsWindow);
     gui->SetPadBtnTogglesMenu();
 }

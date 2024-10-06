@@ -486,6 +486,10 @@ bool* ItemTrackerWindow::GetCapacityModePtr(ItemTrackerCapacityMode mode) {
     return &mCapacityModes[mode];
 }
 
+void ItemTrackerWindow::Draw() {
+    DrawElement();
+}
+
 void ItemTrackerWindow::InitElement() {
 }
 

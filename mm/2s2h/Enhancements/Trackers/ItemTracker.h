@@ -39,6 +39,7 @@ class ItemTrackerWindow : public Ship::GuiWindow {
     using GuiWindow::GuiWindow;
     ItemTrackerWindow(const std::string& consoleVariable, const std::string& name);
     ~ItemTrackerWindow();
+    void Draw() override;
     ImVec4* GetBgColorPtr();
     float* GetIconSizePtr();
     float* GetIconSpacingPtr();
