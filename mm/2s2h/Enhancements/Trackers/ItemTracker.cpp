@@ -25,18 +25,20 @@ ItemTrackerWindow::ItemTrackerWindow(const std::string& consoleVariable, const s
         (TrackerWindowType)config->GetInteger(CFG_TRACKER_ITEM("WindowType"), (int8_t)TrackerWindowType::Floating);
     mIsDraggable = config->GetInteger(CFG_TRACKER_ITEM("IsDraggable"), false);
     mOnlyDrawPaused = config->GetInteger(CFG_TRACKER_ITEM("OnlyDrawPaused"), false);
-    mCapacityModes[ItemTrackerCapacityMode::DrawCurrent] = config->GetInteger(CFG_TRACKER_ITEM("DrawCurrentAmmo"), false);
-    mCapacityModes[ItemTrackerCapacityMode::DrawCurCapacity] = config->GetInteger(CFG_TRACKER_ITEM("DrawMaxAmmo"), false);
+    mCapacityModes[ItemTrackerCapacityMode::DrawCurrent] =
+        config->GetInteger(CFG_TRACKER_ITEM("DrawCurrentAmmo"), false);
+    mCapacityModes[ItemTrackerCapacityMode::DrawCurCapacity] =
+        config->GetInteger(CFG_TRACKER_ITEM("DrawMaxAmmo"), false);
     mCapacityModes[ItemTrackerCapacityMode::DrawMaxCapacity] =
         config->GetInteger(CFG_TRACKER_ITEM("DrawMaxCapacity"), false);
-    mItemDrawModes[SECTION_INVENTORY] = (ItemTrackerDisplayType)config->GetInteger(CFG_TRACKER_ITEM("InventoryDrawMode"),
-                                                                               (int32_t)ItemTrackerDisplayType::Hidden);
+    mItemDrawModes[SECTION_INVENTORY] = (ItemTrackerDisplayType)config->GetInteger(
+        CFG_TRACKER_ITEM("InventoryDrawMode"), (int32_t)ItemTrackerDisplayType::Hidden);
     mItemDrawModes[SECTION_MASKS] = (ItemTrackerDisplayType)config->GetInteger(CFG_TRACKER_ITEM("MasksDrawMode"),
-                                                                           (int32_t)ItemTrackerDisplayType::Hidden);
+                                                                               (int32_t)ItemTrackerDisplayType::Hidden);
     mItemDrawModes[SECTION_SONGS] = (ItemTrackerDisplayType)config->GetInteger(CFG_TRACKER_ITEM("SongsDrawMode"),
-                                                                           (int32_t)ItemTrackerDisplayType::Hidden);
-    mItemDrawModes[SECTION_DUNGEON] = (ItemTrackerDisplayType)config->GetInteger(CFG_TRACKER_ITEM("DungeonDrawMode"),
-                                                                             (int32_t)ItemTrackerDisplayType::Hidden);
+                                                                               (int32_t)ItemTrackerDisplayType::Hidden);
+    mItemDrawModes[SECTION_DUNGEON] = (ItemTrackerDisplayType)config->GetInteger(
+        CFG_TRACKER_ITEM("DungeonDrawMode"), (int32_t)ItemTrackerDisplayType::Hidden);
 }
 
 ItemTrackerWindow::~ItemTrackerWindow() {

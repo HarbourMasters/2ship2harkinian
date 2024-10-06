@@ -101,8 +101,8 @@ void SetupGuiElements() {
     mItemTrackerWindow = std::make_shared<ItemTrackerWindow>("gWindows.ItemTracker", "Item Tracker", ImVec2(800, 400));
     gui->AddGuiWindow(mItemTrackerWindow);
 
-    mItemTrackerSettingsWindow =
-        std::make_shared<ItemTrackerSettingsWindow>("gWindows.ItemTrackerSettings", "Item Tracker Settings", ImVec2(800, 400));
+    mItemTrackerSettingsWindow = std::make_shared<ItemTrackerSettingsWindow>("gWindows.ItemTrackerSettings",
+                                                                             "Item Tracker Settings", ImVec2(800, 400));
     gui->AddGuiWindow(mItemTrackerSettingsWindow);
     gui->SetPadBtnTogglesMenu();
 }
