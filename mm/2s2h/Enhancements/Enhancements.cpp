@@ -70,4 +70,8 @@ void InitEnhancements() {
     // Modes
     RegisterPlayAsKafei();
     RegisterTimeMovesWhenYouMove();
+
+    // Uncomment to enable the demo behavior, this shows of different modding capabilities
+    // void RegisterDemoBehavior();
+    // RegisterDemoBehavior();
 }

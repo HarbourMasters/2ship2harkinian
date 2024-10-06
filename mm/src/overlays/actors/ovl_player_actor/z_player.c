@@ -46,6 +46,7 @@
 #include "objects/object_link_child/object_link_child.h"
 
 #include "2s2h/GameInteractor/GameInteractor.h"
+#include "2s2h/CustomMessage/CustomMessage.h"
 
 #define THIS ((Player*)thisx)
 
@@ -2565,6 +2566,11 @@ GetItemEntry sGetItemTable[GI_MAX - 1] = {
     // GI_TINGLE_MAP_STONE_TOWER
     GET_ITEM(ITEM_TINGLE_MAP, OBJECT_GI_FIELDMAP, GID_TINGLE_MAP, 0xB9, GIFIELD(GIFIELD_20 | GIFIELD_NO_COLLECTIBLE, 0),
              CHEST_ANIM_LONG),
+    // #region 2S2H [Enhancement] Added to enable custom item gives
+    // GI_SHIP
+    GET_ITEM(ITEM_SHIP, OBJECT_UNSET_0, GID_NONE, CUSTOM_MESSAGE_ID, GIFIELD(GIFIELD_20 | GIFIELD_NO_COLLECTIBLE, 0),
+             0),
+    // #endregion
 };
 
 // Player_UpdateCurrentGetItemDrawId?

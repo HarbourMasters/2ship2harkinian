@@ -1,11 +1,14 @@
 #include "GameInteractor.h"
 #include "spdlog/spdlog.h"
+#include <libultraship/bridge.h>
+#include "2s2h/CustomItem/CustomItem.h"
+#include "2s2h/CustomMessage/CustomMessage.h"
 
 extern "C" {
 #include "z64actor.h"
+#include "variables.h"
+#include "functions.h"
 }
-
-#include <libultraship/bridge.h>
 
 void GameInteractor_ExecuteOnGameStateMainFinish() {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnGameStateMainFinish>();
@@ -208,11 +211,11 @@ void GameInteractor_ExecuteOnPassPlayerInputs(Input* input) {
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnPassPlayerInputs>(input);
 }
 
-void GameInteractor_ExecuteOnOpenText(u16 textId) {
-    SPDLOG_DEBUG("OnOpenText: textId: {}", textId);
-    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnOpenText>(textId);
-    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnOpenText>(textId, textId);
-    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnOpenText>(textId);
+void GameInteractor_ExecuteOnOpenText(u16* textId, bool* loadFromMessageTable) {
+    SPDLOG_DEBUG("OnOpenText: textId: {}", *textId);
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnOpenText>(textId, loadFromMessageTable);
+    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnOpenText>(*textId, textId, loadFromMessageTable);
+    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnOpenText>(textId, loadFromMessageTable);
 }
 
 bool GameInteractor_ShouldItemGive(u8 item) {
@@ -313,4 +316,106 @@ uint32_t GameInteractor_Dpad(GIDpadType type, uint32_t buttonCombo) {
     }
 
     return result;
+}
+
+void ProcessEvents(Actor* actor) {
+    Player* player = GET_PLAYER(gPlayState);
+
+    // If the player has a message active, stop
+    if (gPlayState->msgCtx.msgMode != 0) {
+        return;
+    }
+
+    // If the player is in a blocking cutscene, stop
+    if (Player_InBlockingCsMode(gPlayState, player)) {
+        return;
+    }
+
+    // If player is dead, stop
+    if (player->stateFlags1 & PLAYER_STATE1_80) {
+        return;
+    }
+
+    // If there is an event active, stop
+    const auto& currentEvent = GameInteractor::Instance->currentEvent;
+    if (auto e = std::get_if<GIEventNone>(&currentEvent)) {
+        // no-op
+    } else {
+        return;
+    }
+
+    // If there are no events that need to happen, stop
+    if (GameInteractor::Instance->events.empty()) {
+        return;
+    }
+
+    GameInteractor::Instance->currentEvent = GameInteractor::Instance->events.front();
+    const auto& nextEvent = GameInteractor::Instance->currentEvent;
+
+    if (auto e = std::get_if<GIEventGiveItem>(&nextEvent)) {
+        EnItem00* enItem00;
+        // If the player is climbing or in the air, deliver the item without a cutscene but freeze the player
+        if (!e->showGetItemCutscene ||
+            (player->stateFlags1 & (PLAYER_STATE1_1000 | PLAYER_STATE1_2000 | PLAYER_STATE1_4000 | PLAYER_STATE1_40000 |
+                                    PLAYER_STATE1_80000 | PLAYER_STATE1_100000 | PLAYER_STATE1_200000)) ||
+            (Player_GetExplosiveHeld(player) > PLAYER_EXPLOSIVE_NONE)) {
+            enItem00 = CustomItem::Spawn(
+                player->actor.world.pos.x, player->actor.world.pos.y, player->actor.world.pos.z, 0,
+                CustomItem::GIVE_OVERHEAD | CustomItem::HIDE_TILL_OVERHEAD | CustomItem::KEEP_ON_PLAYER, e->param,
+                [](Actor* actor, PlayState* play) {
+                    Player* player = GET_PLAYER(gPlayState);
+                    const auto& nextEvent = GameInteractor::Instance->currentEvent;
+                    if (auto e = std::get_if<GIEventGiveItem>(&nextEvent)) {
+                        e->giveItem(actor, play);
+                        if (e->showGetItemCutscene) {
+                            player->actor.freezeTimer = 30;
+                        }
+                    }
+                },
+                e->drawItem);
+        } else {
+            enItem00 = CustomItem::Spawn(
+                player->actor.world.pos.x, player->actor.world.pos.y, player->actor.world.pos.z, 0,
+                CustomItem::GIVE_ITEM_CUTSCENE | CustomItem::HIDE_TILL_OVERHEAD | CustomItem::KEEP_ON_PLAYER, e->param,
+                e->giveItem, e->drawItem);
+        }
+        enItem00->actor.destroy = [](Actor* actor, PlayState* play) {
+            if (!(CUSTOM_ITEM_FLAGS & CustomItem::CALLED_ACTION)) {
+                // Event was not handled, requeue it
+                GameInteractor::Instance->events.push_back(GameInteractor::Instance->currentEvent);
+            }
+
+            GameInteractor::Instance->currentEvent = GIEventNone{};
+        };
+    } else if (auto e = std::get_if<GIEventTransition>(&nextEvent)) {
+        gPlayState->nextEntrance = e->entrance;
+        gSaveContext.nextCutsceneIndex = e->cutsceneIndex;
+        gPlayState->transitionTrigger = e->transitionTrigger;
+        gPlayState->transitionType = e->transitionType;
+        GameInteractor::Instance->currentEvent = GIEventNone{};
+    } else if (auto e = std::get_if<GIEventSpawnActor>(&nextEvent)) {
+        // if true, the coordinates are made relative to the player's position and rotation, 0 rotation is facing the
+        // same direction as the player, x+ is to the players right, y+ is up, z+ is in front of the player
+        if (e->relativeCoords) {
+            f32 x = player->actor.world.pos.x;
+            f32 y = player->actor.world.pos.y;
+            f32 z = player->actor.world.pos.z;
+            f32 s = sin(player->actor.world.rot.y);
+            f32 c = cos(player->actor.world.rot.y);
+            f32 x2 = e->posX * c - e->posZ * s;
+            f32 z2 = e->posX * s + e->posZ * c;
+            Actor_Spawn(&gPlayState->actorCtx, gPlayState, e->actorId, x + x2, y + e->posY, z + z2, 0,
+                        e->rot + player->actor.world.rot.y, 0, e->params);
+        } else {
+            Actor_Spawn(&gPlayState->actorCtx, gPlayState, e->actorId, e->posX, e->posY, e->posZ, 0, e->rot, 0,
+                        e->params);
+        }
+        GameInteractor::Instance->currentEvent = GIEventNone{};
+    }
+
+    GameInteractor::Instance->events.erase(GameInteractor::Instance->events.begin());
+}
+
+void GameInteractor::RegisterOwnHooks() {
+    GameInteractor::Instance->RegisterGameHookForID<GameInteractor::OnActorUpdate>(ACTOR_PLAYER, ProcessEvents);
 }

@@ -55,6 +55,8 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/DeveloperTools/DebugConsole.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "2s2h/SaveManager/SaveManager.h"
+#include "2s2h/CustomMessage/CustomMessage.h"
+#include "2s2h/CustomItem/CustomItem.h"
 
 // Resource Types/Factories
 #include "resource/type/Blob.h"
@@ -517,6 +519,9 @@ extern "C" void InitOTR() {
     InitDeveloperTools();
     GfxPatcher_ApplyNecessaryAuthenticPatches();
     DebugConsole_Init();
+    GameInteractor::Instance->RegisterOwnHooks();
+    CustomItem::RegisterHooks();
+    CustomMessage::RegisterHooks();
 
     OTRMessage_Init();
     OTRAudio_Init();
