@@ -15,7 +15,6 @@
 
 #include "vorbis/vorbisfile.h"
 
-
 struct OggFileData {
     void* data;
     size_t pos;
