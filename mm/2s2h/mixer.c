@@ -298,8 +298,8 @@ void aEnvMixerImpl(uint16_t in_addr, uint16_t n_samples, bool swap_reverb, bool 
     } while (n > 0);
 }
 
-#include <immintrin.h>
 #if 0
+#include <immintrin.h>
 #include "align_asset_macro.h"
 #pragma GCC target("avx2")
 
