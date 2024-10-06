@@ -90,6 +90,7 @@ typedef enum {
 #include <unordered_map>
 #include <cstdint>
 #include <algorithm>
+#include <variant>
 
 typedef uint32_t HOOK_ID;
 

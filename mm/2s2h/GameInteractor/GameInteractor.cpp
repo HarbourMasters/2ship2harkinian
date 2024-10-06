@@ -1,4 +1,5 @@
 #include "GameInteractor.h"
+#include <variant>
 #include "spdlog/spdlog.h"
 #include <libultraship/bridge.h>
 #include "2s2h/CustomItem/CustomItem.h"

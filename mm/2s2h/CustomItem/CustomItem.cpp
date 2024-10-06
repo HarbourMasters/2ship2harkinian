@@ -13,7 +13,7 @@ extern "C" {
 EnItem00* CustomItem::Spawn(f32 posX, f32 posY, f32 posZ, s16 rot, s16 flags, s16 params, ActorFunc actionFunc,
                             ActorFunc drawFunc) {
     if (!gPlayState) {
-        return;
+        return nullptr;
     }
 
     Actor* actor = Actor_Spawn(&gPlayState->actorCtx, gPlayState, ACTOR_EN_ITEM00, posX, posY, posZ, flags, rot, params,
