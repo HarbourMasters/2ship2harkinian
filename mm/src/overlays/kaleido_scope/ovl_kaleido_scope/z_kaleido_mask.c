@@ -158,6 +158,8 @@ u8 gMaskPlayerFormSlotRestrictions[PLAYER_FORM_MAX][MASK_NUM_SLOTS] = {
 
 #define SET_MOON_MASK_BIT(masksGivenOnMoonIndex, masksGivenOnMoonFlag) \
     ((masksGivenOnMoonIndex) << 8 | (masksGivenOnMoonFlag))
+#define CHECK_GIVEN_MASK_ON_MOON(maskIndex) \
+    (gSaveContext.masksGivenOnMoon[sMasksGivenOnMoonBits[maskIndex] >> 8] & (u8)sMasksGivenOnMoonBits[maskIndex])
 
 u16 sMasksGivenOnMoonBits[] = {
     SET_MOON_MASK_BIT(1, 0x1),  // SLOT_MASK_POSTMAN
@@ -673,8 +675,7 @@ void KaleidoScope_UpdateMaskCursor(PlayState* play) {
                 } else if ((pauseCtx->debugEditor == DEBUG_EDITOR_NONE) && (pauseCtx->state == PAUSE_STATE_MAIN) &&
                            (pauseCtx->mainState == PAUSE_MAIN_STATE_IDLE) &&
                            CHECK_BTN_ALL(input->press.button, BTN_A) && (msgCtx->msgLength == 0)) {
-                    if (GameInteractor_Should(VB_KALEIDO_DISPLAY_ITEM_TEXT, true,
-                                              &pauseCtx->cursorItem[PAUSE_MASK])) {
+                    if (GameInteractor_Should(VB_KALEIDO_DISPLAY_ITEM_TEXT, true, &pauseCtx->cursorItem[PAUSE_MASK])) {
                         // Give description on item through a message box
                         pauseCtx->itemDescriptionOn = true;
                         if (pauseCtx->cursorYIndex[PAUSE_MASK] < 2) {
