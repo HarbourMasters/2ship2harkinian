@@ -239,14 +239,15 @@ void RegisterEventLogHooks() {
         TrimEventLog();
     });
 
-    onOpenTextHookId = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnOpenText>([](s16 textId) {
-        eventLogEntries.insert(eventLogEntries.begin(), {
-                                                            .timestamp = CurrentTime(),
-                                                            .type = EVENT_LOG_ENTRY_TYPE_OPEN_TEXT,
-                                                            .meta = fmt::format("0x{:02x}", textId),
-                                                        });
-        TrimEventLog();
-    });
+    onOpenTextHookId = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnOpenText>(
+        [](u16* textId, bool* loadFromMessageTable) {
+            eventLogEntries.insert(eventLogEntries.begin(), {
+                                                                .timestamp = CurrentTime(),
+                                                                .type = EVENT_LOG_ENTRY_TYPE_OPEN_TEXT,
+                                                                .meta = fmt::format("0x{:02x}", *textId),
+                                                            });
+            TrimEventLog();
+        });
 
     onItemGiveHookId = GameInteractor::Instance->RegisterGameHook<GameInteractor::OnItemGive>([](u8 item) {
         eventLogEntries.insert(eventLogEntries.begin(), {

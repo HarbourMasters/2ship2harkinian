@@ -85,11 +85,13 @@ typedef enum {
 
 #ifdef __cplusplus
 
+#include "2s2h/CustomMessage/CustomMessage.h"
 #include <vector>
 #include <functional>
 #include <unordered_map>
 #include <cstdint>
 #include <algorithm>
+#include <variant>
 
 typedef uint32_t HOOK_ID;
 
@@ -99,12 +101,50 @@ typedef uint32_t HOOK_ID;
         typedef std::function<bool args> filter; \
     }
 
+struct GIEventNone {};
+
+struct GIEventGiveItem {
+    // Whether or not to show the get item cutscene. If true and the player is in the air, the
+    // player will instead be frozen for a few seconds. If this is true you _must_ call
+    // CustomMessage::SetActiveCustomMessage in the giveItem function otherwise you'll just see a blank message.
+    bool showGetItemCutscene;
+    // Arbitrary s16 that can be accessed from within the give/draw functions with CUSTOM_ITEM_PARAM
+    s16 param;
+    // These are run in the context of an item00 actor. This isn't super important but can be useful in some cases
+    ActorFunc giveItem;
+    ActorFunc drawItem;
+};
+
+struct GIEventSpawnActor {
+    s16 actorId;
+    f32 posX;
+    f32 posY;
+    f32 posZ;
+    s16 rot;
+    s32 params;
+    // if true, the coordinates are made relative to the player's position and rotation, 0 rotation is facing the same
+    // direction as the player, x+ is to the players right, y+ is up, z+ is in front of the player
+    bool relativeCoords;
+};
+
+struct GIEventTransition {
+    u16 entrance;
+    u16 cutsceneIndex;
+    s8 transitionTrigger;
+    u8 transitionType;
+};
+
+typedef std::variant<GIEventNone, GIEventGiveItem, GIEventSpawnActor, GIEventTransition> GIEvent;
+
 class GameInteractor {
   public:
     static GameInteractor* Instance;
 
+    void RegisterOwnHooks();
+
     // Game State
-    class State {};
+    std::vector<GIEvent> events = {};
+    GIEvent currentEvent = GIEventNone();
 
     // Game Hooks
     HOOK_ID nextHookId = 1;
@@ -309,7 +349,7 @@ class GameInteractor {
 
     DEFINE_HOOK(OnPassPlayerInputs, (Input * input));
 
-    DEFINE_HOOK(OnOpenText, (u16 textId));
+    DEFINE_HOOK(OnOpenText, (u16 * textId, bool* loadFromMessageTable));
 
     DEFINE_HOOK(ShouldItemGive, (u8 item, bool* should));
     DEFINE_HOOK(OnItemGive, (u8 item));
@@ -359,7 +399,7 @@ void GameInteractor_ExecuteOnCameraChangeSettingsFlags(Camera* camera);
 
 void GameInteractor_ExecuteOnPassPlayerInputs(Input* input);
 
-void GameInteractor_ExecuteOnOpenText(u16 textId);
+void GameInteractor_ExecuteOnOpenText(u16* textId, bool* loadFromMessageTable);
 
 bool GameInteractor_ShouldItemGive(u8 item);
 void GameInteractor_ExecuteOnItemGive(u8 item);

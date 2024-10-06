@@ -4005,7 +4005,7 @@ u8 Item_GiveImpl(PlayState* play, u8 item) {
 
 // #region 2S2H [Enhancements] This is our wrapper around the original Item_Give function for hooking purposes
 u8 Item_Give(PlayState* play, u8 item) {
-    if (!GameInteractor_ShouldItemGive(item)) {
+    if (!GameInteractor_ShouldItemGive(item) || item == ITEM_SHIP) {
         return ITEM_NONE;
     }
 
@@ -4020,6 +4020,10 @@ u8 Item_CheckObtainabilityImpl(u8 item) {
     s16 i;
     u8 slot;
     u8 bottleSlot;
+
+    if (item == ITEM_SHIP) {
+        return ITEM_NONE;
+    }
 
     slot = SLOT(item);
     if (item >= ITEM_DEKU_STICKS_5) {
