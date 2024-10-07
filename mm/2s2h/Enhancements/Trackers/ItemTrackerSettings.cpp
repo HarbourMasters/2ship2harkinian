@@ -22,8 +22,8 @@ void ItemTrackerSettingsWindow::DrawElement() {
     ImGui::SetNextWindowSize(ImVec2(733, 472), ImGuiCond_FirstUseEver);
     const UIWidgets::FloatSliderOptions sliderOpts = { .format = "%.0f", .step = 1.0f };
 
-    if (!ImGui::Begin("Item Tracker Settings", &mIsVisible, ImGuiWindowFlags_NoFocusOnAppearing)) {
-        ImGui::End();
+    if (!ImGui::BeginChild("Item Tracker Settings")) {
+        ImGui::EndChild();
         return;
     }
 
@@ -70,5 +70,5 @@ void ItemTrackerSettingsWindow::DrawElement() {
     ImGui::PopStyleVar(1);
     ImGui::EndTable();
 
-    ImGui::End();
+    ImGui::EndChild();
 }

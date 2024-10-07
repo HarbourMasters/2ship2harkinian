@@ -489,14 +489,17 @@ bool* ItemTrackerWindow::GetCapacityModePtr(ItemTrackerCapacityMode mode) {
 }
 
 void ItemTrackerWindow::Draw() {
-    DrawElement();
+    if (!IsVisible()) {
+        return;
+    }
+    BeginFloatingWindows("Inventory Items Tracker");
+    DrawItemsInRows();
+    EndFloatingWindows();
 }
 
 void ItemTrackerWindow::InitElement() {
 }
 
 void ItemTrackerWindow::DrawElement() {
-    BeginFloatingWindows("Inventory Items Tracker");
-    DrawItemsInRows();
-    EndFloatingWindows();
+
 }
