@@ -72,4 +72,7 @@ void InitEnhancements() {
     // Modes
     RegisterPlayAsKafei();
     RegisterTimeMovesWhenYouMove();
+
+    // Difficulty Options
+    RegisterDisableTakkuriSteal();
 }

@@ -16,6 +16,7 @@
 #include "Restorations/Restorations.h"
 #include "Saving/SavingEnhancements.h"
 #include "Songs/Songs.h"
+#include "DifficultyOptions/DifficultyOptions.h"
 
 enum AlwaysWinDoggyRaceOptions {
     ALWAYS_WIN_DOGGY_RACE_OFF,

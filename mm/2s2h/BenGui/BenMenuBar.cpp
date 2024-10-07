@@ -743,6 +743,15 @@ void DrawEnhancementsMenu() {
             ImGui::EndMenu();
         }
 
+        if (UIWidgets::BeginMenu("Difficulty Options")) {
+            if (UIWidgets::CVarCheckbox("Disable Takkuri Steal", "gEnhancements.Cheats.DisableTakkuriSteal",
+                                        { .tooltip = "Prevents the Takkuri from stealing key items like bottles and "
+                                                     "swords. It may still steal other items." })) {
+                RegisterDisableTakkuriSteal();
+            }
+            ImGui::EndMenu();
+        }
+
         if (mHudEditorWindow) {
             UIWidgets::WindowButton("Hud Editor", "gWindows.HudEditor", mHudEditorWindow,
                                     { .tooltip = "Enables the Hud Editor window, allowing you to edit your hud" });
