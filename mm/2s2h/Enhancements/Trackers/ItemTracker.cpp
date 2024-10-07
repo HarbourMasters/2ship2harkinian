@@ -501,5 +501,4 @@ void ItemTrackerWindow::InitElement() {
 }
 
 void ItemTrackerWindow::DrawElement() {
-
 }
