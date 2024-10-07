@@ -45,7 +45,7 @@
 #include "objects/object_link_nuts/object_link_nuts.h"
 #include "objects/object_link_child/object_link_child.h"
 
-#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define THIS ((Player*)thisx)
 
@@ -3814,7 +3814,7 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
 
                 if (bomb != NULL) {
                     bomb->timer = 0;
-                    if (GameInteractor_Should(GI_VB_SET_BLAST_MASK_COOLDOWN_TIMER, true, NULL)) {
+                    if (GameInteractor_Should(VB_SET_BLAST_MASK_COOLDOWN_TIMER, true)) {
                         this->blastMaskTimer = 310;
                     }
                 }
@@ -4471,7 +4471,7 @@ void Player_UseItem(PlayState* play, Player* this, ItemId item) {
          (itemAction == PLAYER_IA_MASK_ZORA) ||
          ((this->currentBoots >= PLAYER_BOOTS_ZORA_UNDERWATER) && (this->actor.bgCheckFlags & BGCHECKFLAG_GROUND)))) {
         s32 var_v1 = ((itemAction >= PLAYER_IA_MASK_MIN) && (itemAction <= PLAYER_IA_MASK_MAX) &&
-                      (!GameInteractor_Should(GI_VB_USE_ITEM_CONSIDER_LINK_HUMAN,
+                      (!GameInteractor_Should(VB_USE_ITEM_CONSIDER_LINK_HUMAN,
                                               this->transformation == PLAYER_FORM_HUMAN, &itemAction) ||
                        (itemAction >= PLAYER_IA_MASK_GIANT)));
         CollisionPoly* sp5C;
@@ -4533,12 +4533,12 @@ void Player_UseItem(PlayState* play, Player* this, ItemId item) {
             } else {
                 Audio_PlaySfx(NA_SE_SY_ERROR);
             }
-        } else if (GameInteractor_Should(GI_VB_USE_ITEM_CONSIDER_LINK_HUMAN, this->transformation == PLAYER_FORM_HUMAN,
+        } else if (GameInteractor_Should(VB_USE_ITEM_CONSIDER_LINK_HUMAN, this->transformation == PLAYER_FORM_HUMAN,
                                          &itemAction) &&
                    (itemAction >= PLAYER_IA_MASK_MIN) && (itemAction < PLAYER_IA_MASK_GIANT)) {
             PlayerMask maskId = GET_MASK_FROM_IA(itemAction);
 
-            if (GameInteractor_Should(GI_VB_USE_ITEM_EQUIP_MASK, true, &maskId)) {
+            if (GameInteractor_Should(VB_USE_ITEM_EQUIP_MASK, true, &maskId)) {
                 // Handle wearable masks
                 this->prevMask = this->currentMask;
                 if (maskId == this->currentMask) {
@@ -6720,7 +6720,7 @@ void func_80836AD8(PlayState* play, Player* this) {
 }
 
 void func_80836B3C(PlayState* play, Player* this, f32 arg2) {
-    if (GameInteractor_Should(GI_VB_PATCH_SIDEROLL, true, NULL)) {
+    if (GameInteractor_Should(VB_PATCH_SIDEROLL, true)) {
         this->currentYaw = this->actor.shape.rot.y;
         this->actor.world.rot.y = this->actor.shape.rot.y;
     }
@@ -7814,7 +7814,7 @@ s32 Player_ActionChange_4(Player* this, PlayState* play) {
                                 // !CutsceneManager_IsNext(CS_ID_GLOBAL_TALK), which is what prevented Tatl ISG from
                                 // working
                                 bool vanillaCondition = !CutsceneManager_IsNext(CS_ID_GLOBAL_TALK);
-                                if (GameInteractor_Should(GI_VB_TATL_CONVERSATION_AVAILABLE, vanillaCondition, NULL) ||
+                                if (GameInteractor_Should(VB_TATL_CONVERSATION_AVAILABLE, vanillaCondition) ||
                                     !CHECK_BTN_ALL(sPlayerControlInput->press.button, BTN_CUP)) {
                                     return false;
                                 }
@@ -8330,6 +8330,7 @@ void func_8083A98C(Actor* thisx, PlayState* play2) {
 
             // Yaw: shape.rot.y is used as a fixed starting position
             inputX = sPlayerControlInput->rel.stick_x * -4;
+            inputX *= GameInteractor_InvertControl(GI_INVERT_TELESCOPE_X);
             // Start from current position: no input -> no change
             newYaw = thisx->focus.rot.y - thisx->shape.rot.y;
             // Add input, clamped to prevent turning too fast
@@ -9596,7 +9597,7 @@ s32 func_8083E404(Player* this, f32 arg1, s16 arg2) {
     }
 
     // Using Should hook, but ignoring return value, to be able to modify the speed argument
-    GameInteractor_Should(GI_VB_ZTARGET_SPEED_CHECK, false, &arg1);
+    GameInteractor_Should(VB_ZTARGET_SPEED_CHECK, false, &arg1);
 
     temp_fv1 = fabsf(sp1C) / 0x8000;
     if (((SQ(temp_fv1) * 50.0f) + 6.0f) < arg1) {
@@ -10098,7 +10099,7 @@ s32 func_8083FD80(Player* this, PlayState* play) {
     if (!Player_IsGoronOrDeku(this) && (Player_GetMeleeWeaponHeld(this) != PLAYER_MELEEWEAPON_NONE) &&
         (this->transformation != PLAYER_FORM_ZORA) && sPlayerUseHeldItem) {
         //! Calling this function sets the meleeWeaponQuads' damage properties correctly, patching "Power Crouch Stab".
-        if (GameInteractor_Should(GI_VB_PATCH_POWER_CROUCH_STAB, true, NULL)) {
+        if (GameInteractor_Should(VB_PATCH_POWER_CROUCH_STAB, true)) {
             func_8083375C(this, PLAYER_MWA_STAB_1H);
         }
         Player_AnimationPlayOnce(play, this, &gPlayerAnim_link_normal_defense_kiru);
@@ -10145,7 +10146,7 @@ s32 func_8083FF30(PlayState* play, Player* this) {
 s32 func_8083FFEC(PlayState* play, Player* this) {
     if (this->heldItemAction == PLAYER_IA_SWORD_RAZOR) {
         if (gSaveContext.save.saveInfo.playerData.swordHealth > 0) {
-            if (GameInteractor_Should(GI_VB_LOWER_RAZOR_SWORD_DURABILITY, true, NULL)) {
+            if (GameInteractor_Should(VB_LOWER_RAZOR_SWORD_DURABILITY, true)) {
                 gSaveContext.save.saveInfo.playerData.swordHealth--;
             }
             if (gSaveContext.save.saveInfo.playerData.swordHealth <= 0) {
@@ -11255,7 +11256,7 @@ void Player_SetDoAction(PlayState* play, Player* this) {
         }
 
         if (doActionA != DO_ACTION_PUTAWAY) {
-            if (GameInteractor_Should(GI_VB_RESET_PUTAWAY_TIMER, true, NULL)) {
+            if (GameInteractor_Should(VB_RESET_PUTAWAY_TIMER, true)) {
                 this->putAwayCountdown = 20;
             }
         } else if (this->putAwayCountdown != 0) {
@@ -12201,7 +12202,7 @@ void Player_UpdateCommon(Player* this, PlayState* play, Input* input) {
 
         this->actor.shape.face = ((play->gameplayFrames & 0x20) ? 0 : 3) + this->blinkInfo.eyeTexIndex;
 
-        if (GameInteractor_Should(GI_VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY, this)) {
+        if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY, this)) {
             Player_UpdateBunnyEars(this);
         }
 
@@ -12562,9 +12563,9 @@ s32 Player_UpdateNoclip(Player* this, PlayState* play) {
                 if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_DDOWN)) {
                     angle = temp + 0x8000;
                 } else if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_DLEFT)) {
-                    angle = temp + 0x4000;
+                    angle = temp + 0x4000 * GameInteractor_InvertControl(GI_INVERT_DEBUG_DPAD_X);
                 } else if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_DRIGHT)) {
-                    angle = temp - 0x4000;
+                    angle = temp - 0x4000 * GameInteractor_InvertControl(GI_INVERT_DEBUG_DPAD_X);
                 }
 
                 this->actor.world.pos.x += speed * Math_SinS(angle);
@@ -13003,15 +13004,133 @@ void Player_Destroy(Actor* thisx, PlayState* play) {
     func_80831454(this);
 }
 
+s32 Ship_HandleFirstPersonAiming(PlayState* play, Player* this, s32 arg2) {
+    s16 var_s0;
+    s32 stickX = 0;
+    s32 stickY = 0;
+    float gyroX = 0.0f;
+    float gyroY = 0.0f;
+
+    if (!CVarGetInteger("gEnhancements.Camera.FirstPerson.MoveInFirstPerson", 0)) {
+        s32 leftStickX = sPlayerControlInput->rel.stick_x; // -60 to 60
+        s32 leftStickY = sPlayerControlInput->rel.stick_y; // -60 to 60
+
+        leftStickX *= GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_AIM_X);
+        leftStickY *= -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_AIM_Y);
+
+        stickX += leftStickX * CVarGetFloat("gEnhancements.Camera.FirstPerson.SensitivityX", 1.0f);
+        stickY += leftStickY * CVarGetFloat("gEnhancements.Camera.FirstPerson.SensitivityY", 1.0f);
+    }
+
+    if (CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroEnabled", 0)) {
+        gyroX = sPlayerControlInput->cur.gyro_y * 720; // -40 to 40, avg -4 to 4
+        gyroY = sPlayerControlInput->cur.gyro_x * 720; // -20 to 20, avg -2 to 2
+
+        gyroX *= GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_GYRO_X);
+        gyroY *= -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_GYRO_Y);
+
+        gyroX *= CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityX", 1.0f);
+        gyroY *= CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityY", 1.0f);
+    }
+
+    if (CVarGetInteger("gEnhancements.Camera.FirstPerson.RightStickEnabled", 0)) {
+        s32 rightStickX = sPlayerControlInput->cur.right_stick_x; // -40 to 40, avg -4 to 4
+        s32 rightStickY = sPlayerControlInput->cur.right_stick_y; // -20 to 20, avg -2 to 2
+
+        rightStickX *= GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_RIGHT_STICK_X);
+        rightStickY *= -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_RIGHT_STICK_Y);
+
+        stickX += rightStickX * CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityX", 1.0f);
+        stickY += rightStickY * CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityY", 1.0f);
+    }
+
+    stickX = CLAMP(stickX, -60, 60);
+    stickY = CLAMP(stickY, -60, 60);
+
+    if (!func_800B7128(this) && !func_8082EF20(this) && !arg2) { // First person without weapon
+        var_s0 = stickY * 0xF0;
+        if (CVarGetInteger("gEnhancements.Camera.FirstPerson.DisableFirstPersonAutoCenterView", 0) ||
+            CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroEnabled", 0)) {
+            this->actor.focus.rot.x += var_s0 * 0.1f;
+        } else {
+            Math_SmoothStepToS(&this->actor.focus.rot.x, var_s0, 0xE, 0xFA0, 0x1E);
+        }
+        this->actor.focus.rot.x += gyroY;
+        this->actor.focus.rot.x = CLAMP(this->actor.focus.rot.x, -14000, 14000);
+
+        var_s0 = stickX * -0x10;
+        var_s0 = CLAMP(var_s0, -0xBB8, 0xBB8);
+        this->actor.focus.rot.y += var_s0 + gyroX;
+    } else { // First person with weapon
+        s16 temp3;
+
+        temp3 = ((stickY >= 0) ? 1 : -1) * (s32)((1.0f - Math_CosS(stickY * 0xC8)) * 1500.0f);
+        this->actor.focus.rot.x += temp3 + gyroY;
+
+        if (this->stateFlags1 & PLAYER_STATE1_800000) {
+            this->actor.focus.rot.x = CLAMP(this->actor.focus.rot.x, -0x1F40, 0xFA0);
+        } else {
+            this->actor.focus.rot.x = CLAMP(this->actor.focus.rot.x, -0x36B0, 0x36B0);
+        }
+
+        var_s0 = this->actor.focus.rot.y - this->actor.shape.rot.y;
+        temp3 = ((stickX >= 0) ? 1 : -1) * (s32)((1.0f - Math_CosS(stickX * 0xC8)) * -1500.0f);
+        var_s0 += temp3;
+
+        this->actor.focus.rot.y = CLAMP(var_s0 + gyroX, -0x4AAA, 0x4AAA) + this->actor.shape.rot.y;
+    }
+
+    if (CVarGetInteger("gEnhancements.Camera.FirstPerson.MoveInFirstPerson", 0) &&
+        CVarGetInteger("gEnhancements.Camera.FirstPerson.RightStickEnabled", 0)) {
+        f32 movementSpeed = 8.25f; // account for form
+        if (this->currentMask == PLAYER_MASK_BUNNY) {
+            movementSpeed *= 1.5f;
+        }
+
+        f32 relX =
+            (-sPlayerControlInput->rel.stick_x / 10) * GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_MOVING_X);
+        f32 relY = (sPlayerControlInput->rel.stick_y / 10);
+
+        // Normalize so that diagonal movement isn't faster
+        f32 relMag = sqrtf((relX * relX) + (relY * relY));
+        if (relMag > 1.0f) {
+            relX /= relMag;
+            relY /= relMag;
+        }
+
+        // Determine what left and right mean based on camera angle
+        f32 relX2 = relX * Math_CosS(this->actor.focus.rot.y) + relY * Math_SinS(this->actor.focus.rot.y);
+        f32 relY2 = relY * Math_CosS(this->actor.focus.rot.y) - relX * Math_SinS(this->actor.focus.rot.y);
+
+        // Calculate distance for footstep sound
+        f32 distance = sqrtf((relX2 * relX2) + (relY2 * relY2)) * movementSpeed;
+        func_8083EA44(this, distance / 4.5f);
+
+        this->actor.world.pos.x += (relX2 * movementSpeed) + this->actor.colChkInfo.displacement.x;
+        this->actor.world.pos.z += (relY2 * movementSpeed) + this->actor.colChkInfo.displacement.z;
+    }
+
+    this->unk_AA6 |= 2;
+
+    return func_80832754(this, (play->bButtonAmmoPlusOne != 0) || func_800B7128(this) || func_8082EF20(this));
+}
+
 s32 func_80847190(PlayState* play, Player* this, s32 arg2) {
+    // #region 2S2H [Enhancements] Use our own heavily modified version of this for customizations
+    return Ship_HandleFirstPersonAiming(play, this, arg2);
+    // #endregion
+
     s32 pad;
     s16 var_s0;
+    s32 stickX = sPlayerControlInput->rel.stick_x;
+
+    stickX *= GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_AIM_X);
 
     if (!func_800B7128(this) && !func_8082EF20(this) && !arg2) {
         var_s0 = sPlayerControlInput->rel.stick_y * 0xF0;
         Math_SmoothStepToS(&this->actor.focus.rot.x, var_s0, 0xE, 0xFA0, 0x1E);
 
-        var_s0 = sPlayerControlInput->rel.stick_x * -0x10;
+        var_s0 = stickX * -0x10;
         var_s0 = CLAMP(var_s0, -0xBB8, 0xBB8);
         this->actor.focus.rot.y += var_s0;
     } else {
@@ -13028,8 +13147,7 @@ s32 func_80847190(PlayState* play, Player* this, s32 arg2) {
         }
 
         var_s0 = this->actor.focus.rot.y - this->actor.shape.rot.y;
-        temp3 = ((sPlayerControlInput->rel.stick_x >= 0) ? 1 : -1) *
-                (s32)((1.0f - Math_CosS(sPlayerControlInput->rel.stick_x * 0xC8)) * -1500.0f);
+        temp3 = ((stickX >= 0) ? 1 : -1) * (s32)((1.0f - Math_CosS(stickX * 0xC8)) * -1500.0f);
         var_s0 += temp3;
 
         this->actor.focus.rot.y = CLAMP(var_s0, -0x4AAA, 0x4AAA) + this->actor.shape.rot.y;
@@ -14466,7 +14584,7 @@ void Player_Action_13(Player* this, PlayState* play) {
 
     Player_GetMovementSpeedAndYaw(this, &speedTarget, &yawTarget, SPEED_MODE_CURVED, play);
 
-    if (GameInteractor_Should(GI_VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY, this)) {
+    if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY, this)) {
         speedTarget *= 1.5f;
     }
 
@@ -14630,6 +14748,7 @@ void Player_Action_18(Player* this, PlayState* play) {
         s16 var_a2;
         s16 var_a3;
 
+        xStick *= GameInteractor_InvertControl(GI_INVERT_SHIELD_X);
         var_a1 = (yStick * Math_CosS(temp_a0)) + (Math_SinS(temp_a0) * xStick);
         temp_ft5 = (xStick * Math_CosS(temp_a0)) - (Math_SinS(temp_a0) * yStick);
 
@@ -14894,7 +15013,7 @@ void Player_Action_25(Player* this, PlayState* play) {
                 Math_StepToF(&this->unk_B10[1], 0.0f, this->unk_B10[0]);
             }
         } else {
-            if (GameInteractor_Should(GI_VB_FLIP_HOP_VARIABLE, true, NULL)) {
+            if (GameInteractor_Should(VB_FLIP_HOP_VARIABLE, true)) {
                 func_8083CBC4(this, speedTarget, yawTarget, 1.0f, 0.05f, 0.1f, 0xC8);
             }
         }
@@ -16006,6 +16125,8 @@ void Player_Action_50(Player* this, PlayState* play) {
     PlayerAnimationHeader* anim1;
     PlayerAnimationHeader* anim2;
 
+    xStick *= GameInteractor_InvertControl(GI_INVERT_MOVEMENT_X);
+
     this->fallStartHeight = this->actor.world.pos.y;
 
     this->stateFlags2 |= PLAYER_STATE2_40;
@@ -16030,7 +16151,7 @@ void Player_Action_50(Player* this, PlayState* play) {
         var_fv1 = -1.0f;
     }
 
-    if (GameInteractor_Should(GI_VB_SET_CLIMB_SPEED, true, &var_fv1)) {
+    if (GameInteractor_Should(VB_SET_CLIMB_SPEED, true, &var_fv1)) {
         this->skelAnime.playSpeed = var_fv1 * var_fv0;
     }
 
@@ -16564,11 +16685,14 @@ void func_80850BA8(Player* this) {
 void func_80850BF8(Player* this, f32 arg1) {
     f32 temp_fv0;
     s16 temp_ft0;
+    s8 stickX = sPlayerControlInput->rel.stick_x;
+
+    stickX *= GameInteractor_InvertControl(GI_INVERT_ZORA_SWIM_X);
 
     Math_AsymStepToF(&this->unk_B48, arg1, 1.0f, (fabsf(this->unk_B48) * 0.01f) + 0.4f);
-    temp_fv0 = Math_CosS(sPlayerControlInput->rel.stick_x * 0x10E);
+    temp_fv0 = Math_CosS(stickX * 0x10E);
 
-    temp_ft0 = (((sPlayerControlInput->rel.stick_x >= 0) ? 1 : -1) * (1.0f - temp_fv0) * -1100.0f);
+    temp_ft0 = (((stickX >= 0) ? 1 : -1) * (1.0f - temp_fv0) * -1100.0f);
     temp_ft0 = CLAMP(temp_ft0, -0x1F40, 0x1F40);
 
     this->currentYaw += temp_ft0;
@@ -16585,6 +16709,9 @@ void Player_Action_56(Player* this, PlayState* play) {
     s16 sp3E;
     s16 sp3C;
     s16 sp3A;
+    s8 stickX = sPlayerControlInput->rel.stick_x;
+
+    stickX *= GameInteractor_InvertControl(GI_INVERT_ZORA_SWIM_X);
 
     this->stateFlags2 |= PLAYER_STATE2_20;
 
@@ -16634,7 +16761,7 @@ void Player_Action_56(Player* this, PlayState* play) {
             }
         }
 
-        Math_SmoothStepToS(&this->unk_B86[1], sPlayerControlInput->rel.stick_x * 0xC8, 0xA, 0x3E8, 0x64);
+        Math_SmoothStepToS(&this->unk_B86[1], stickX * 0xC8, 0xA, 0x3E8, 0x64);
         Math_SmoothStepToS(&this->unk_B8E, this->unk_B86[1], IREG(40) + 1, IREG(41), IREG(42));
     } else if (this->unk_B86[0] == 0) {
         PlayerAnimation_Update(play, &this->skelAnime);
@@ -16662,7 +16789,7 @@ void Player_Action_56(Player* this, PlayState* play) {
         Math_SmoothStepToS(&this->unk_AAA, sp3E, 4, 0xFA0, 0x190);
 
         // X
-        sp42 = sPlayerControlInput->rel.stick_x * 0x64;
+        sp42 = stickX * 0x64;
         if (Math_ScaledStepToS(&this->unk_B8A, sp42, 0x384) && (sp42 == 0)) {
             Math_SmoothStepToS(&this->unk_B86[1], 0, 4, 0x5DC, 0x64);
             Math_SmoothStepToS(&this->unk_B8E, this->unk_B86[1], IREG(44) + 1, IREG(45), IREG(46));
@@ -18283,7 +18410,7 @@ void Player_Action_86(Player* this, PlayState* play) {
     struct_8085D910* sp4C = D_8085D910;
     s32 sp48 = false;
 
-    if (GameInteractor_Should(GI_VB_PREVENT_MASK_TRANSFORMATION_CS, false, NULL))
+    if (GameInteractor_Should(VB_PREVENT_MASK_TRANSFORMATION_CS, false))
         return;
 
     func_808323C0(this, play->playerCsIds[PLAYER_CS_ID_MASK_TRANSFORMATION]);

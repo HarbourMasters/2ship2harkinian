@@ -8,14 +8,7 @@
 #include <unordered_map>
 #include <string>
 #include "2s2h/Enhancements/Enhancements.h"
-#include "2s2h/Enhancements/Graphics/3DItemDrops.h"
-#include "2s2h/Enhancements/Graphics/MotionBlur.h"
-#include "2s2h/Enhancements/Graphics/PlayAsKafei.h"
-#include "2s2h/Enhancements/Graphics/HyruleWarriorsStyledLink.h"
-#include "2s2h/Enhancements/Modes/TimeMovesWhenYouMove.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
-#include "2s2h/Enhancements/Cheats/Cheats.h"
-#include "2s2h/Enhancements/Player/Player.h"
 #include "HudEditor.h"
 
 extern "C" {
@@ -154,7 +147,7 @@ void DrawBenMenu() {
     }
 }
 
-extern std::shared_ptr<Ship::GuiWindow> mInputEditorWindow;
+extern std::shared_ptr<BenInputEditorWindow> mBenInputEditorWindow;
 
 void DrawSettingsMenu() {
     if (UIWidgets::BeginMenu("Settings")) {
@@ -313,8 +306,8 @@ void DrawSettingsMenu() {
         // #region 2S2H [Todo] None of this works yet
         /*
         if (UIWidgets::BeginMenu("Controller")) { */
-        if (mInputEditorWindow) {
-            UIWidgets::WindowButton("Controller Mapping", "gWindows.InputEditor", mInputEditorWindow);
+        if (mBenInputEditorWindow) {
+            UIWidgets::WindowButton("Controller Mapping", "gWindows.InputEditor", mBenInputEditorWindow);
         }
         /*
         #ifndef __SWITCH__
@@ -354,6 +347,50 @@ void DrawEnhancementsMenu() {
                 "Fix Targetting Camera Snap", "gEnhancements.Camera.FixTargettingCameraSnap",
                 { .tooltip =
                       "Fixes the camera snap that occurs when you are moving and press the targetting button." });
+
+            ImGui::SeparatorText("First Person");
+            UIWidgets::CVarCheckbox("Disable Auto-Centering",
+                                    "gEnhancements.Camera.FirstPerson.DisableFirstPersonAutoCenterView");
+            UIWidgets::CVarCheckbox("Invert X Axis", "gEnhancements.Camera.FirstPerson.InvertX");
+            UIWidgets::CVarCheckbox("Invert Y Axis", "gEnhancements.Camera.FirstPerson.InvertY",
+                                    { .defaultValue = true });
+            UIWidgets::CVarSliderFloat("X Axis Sensitivity: %.0f%%", "gEnhancements.Camera.FirstPerson.SensitivityX",
+                                       0.1f, 2.0f, 1.0f, { .isPercentage = true });
+            UIWidgets::CVarSliderFloat("Y Axis Sensitivity: %.0f%%", "gEnhancements.Camera.FirstPerson.SensitivityY",
+                                       0.1f, 2.0f, 1.0f, { .isPercentage = true });
+            UIWidgets::CVarCheckbox(
+                "Gyro Aiming", "gEnhancements.Camera.FirstPerson.GyroEnabled",
+                { .tooltip = "Enables gyro aiming in first person mode. Requires a controller with gyro support, and "
+                             "for it to be mapped in the Controller Mapping menu" });
+            if (CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroEnabled", 0)) {
+                UIWidgets::CVarCheckbox("Invert Gyro X Axis", "gEnhancements.Camera.FirstPerson.GyroInvertX");
+                UIWidgets::CVarCheckbox("Invert Gyro Y Axis", "gEnhancements.Camera.FirstPerson.GyroInvertY");
+                UIWidgets::CVarSliderFloat("Gyro X Axis Sensitivity: %.0f%%",
+                                           "gEnhancements.Camera.FirstPerson.GyroSensitivityX", 0.1f, 2.0f, 1.0f,
+                                           { .isPercentage = true });
+                UIWidgets::CVarSliderFloat("Gyro Y Axis Sensitivity: %.0f%%",
+                                           "gEnhancements.Camera.FirstPerson.GyroSensitivityY", 0.1f, 2.0f, 1.0f,
+                                           { .isPercentage = true });
+            }
+
+            UIWidgets::CVarCheckbox(
+                "Right Stick Aiming", "gEnhancements.Camera.FirstPerson.RightStickEnabled",
+                { .tooltip = "Enables right stick aiming in first person mode. Requires the controller right stick to "
+                             "be mapped in the Controller Mapping menu" });
+            if (CVarGetInteger("gEnhancements.Camera.FirstPerson.RightStickEnabled", 0)) {
+                UIWidgets::CVarCheckbox("Move with left stick while in first person",
+                                        "gEnhancements.Camera.FirstPerson.MoveInFirstPerson");
+                UIWidgets::CVarCheckbox("Invert Right Stick X Axis",
+                                        "gEnhancements.Camera.FirstPerson.RightStickInvertX");
+                UIWidgets::CVarCheckbox("Invert Right Stick Y Axis",
+                                        "gEnhancements.Camera.FirstPerson.RightStickInvertY", { .defaultValue = true });
+                UIWidgets::CVarSliderFloat("Right Stick X Axis Sensitivity: %.0f%%",
+                                           "gEnhancements.Camera.FirstPerson.RightStickSensitivityX", 0.1f, 2.0f, 1.0f,
+                                           { .isPercentage = true });
+                UIWidgets::CVarSliderFloat("Right Stick Y Axis Sensitivity: %.0f%%",
+                                           "gEnhancements.Camera.FirstPerson.RightStickSensitivityY", 0.1f, 2.0f, 1.0f,
+                                           { .isPercentage = true });
+            }
 
             ImGui::SeparatorText("Free Look");
             if (UIWidgets::CVarCheckbox(
@@ -483,6 +520,13 @@ void DrawEnhancementsMenu() {
                 { .tooltip =
                       "Playing the Song Of Time will not reset the current time speed set by Inverted Song of Time." });
 
+            if (UIWidgets::CVarCheckbox(
+                    "Keep Express Mail", "gEnhancements.Cycle.KeepExpressMail",
+                    { .tooltip = "Allows the player to keep the Express Mail in their inventory after delivering it "
+                                 "the first time, so that both deliveries can be done within one cycle" })) {
+                RegisterKeepExpressMail();
+            }
+
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 0, 255));
             ImGui::SeparatorText("Unstable");
             ImGui::PopStyleColor();
@@ -541,6 +585,10 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Fix Text Control Characters", "gEnhancements.Fixes.ControlCharacters",
                                     { .tooltip = "Fixes certain control characters not functioning properly "
                                                  "depending on their position within the text." });
+
+            UIWidgets::CVarCheckbox("Fix Ikana Great Fairy Fountain Color", "gFixes.FixIkanaGreatFairyFountainColor",
+                                    { .tooltip = "Fixes a bug that results in the Ikana Great Fairy fountain looking "
+                                                 "green instead of yellow, this was fixed in the EU version" });
 
             ImGui::EndMenu();
         }
@@ -630,6 +678,14 @@ void DrawEnhancementsMenu() {
             if (UIWidgets::CVarCheckbox("Time Moves When You Move", "gModes.TimeMovesWhenYouMove")) {
                 RegisterTimeMovesWhenYouMove();
             }
+            if (UIWidgets::CVarCheckbox("Mirrored World", "gModes.MirroredWorld.Mode")) {
+                if (CVarGetInteger("gModes.MirroredWorld.Mode", 0)) {
+                    CVarSetInteger("gModes.MirroredWorld.State", 1);
+                } else {
+                    CVarClear("gModes.MirroredWorld.State");
+                }
+            }
+
             ImGui::EndMenu();
         }
 
@@ -687,6 +743,15 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarSliderInt("Zora Eggs For Bossa Nova", "gEnhancements.Songs.ZoraEggCount", 1, 7, 7,
                                      { .tooltip = "The number of eggs required to unlock new wave bossa nova." });
 
+            ImGui::EndMenu();
+        }
+
+        if (UIWidgets::BeginMenu("Difficulty Options")) {
+            if (UIWidgets::CVarCheckbox("Disable Takkuri Steal", "gEnhancements.Cheats.DisableTakkuriSteal",
+                                        { .tooltip = "Prevents the Takkuri from stealing key items like bottles and "
+                                                     "swords. It may still steal other items." })) {
+                RegisterDisableTakkuriSteal();
+            }
             ImGui::EndMenu();
         }
 

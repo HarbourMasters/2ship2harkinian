@@ -1,7 +1,7 @@
 #include <libultraship/bridge.h>
 #include <spdlog/spdlog.h>
-#include "Enhancements/GameInteractor/GameInteractor.h"
-#include "Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 extern "C" {
 #include "z64.h"
@@ -137,23 +137,24 @@ void RegisterPersistentMasks() {
         [](s8 sceneId, s8 spawnNum) { UpdatePersistentMasksState(); });
 
     // Speed the player up when the bunny hood state is active
-    REGISTER_VB_SHOULD(GI_VB_CONSIDER_BUNNY_HOOD_EQUIPPED, {
+    REGISTER_VB_SHOULD(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, {
         if (CVarGetInteger("gEnhancements.Masks.PersistentBunnyHood.State", 0)) {
             *should = true;
         }
     });
 
     // Overrides allowing them to equip a mask while transformed
-    REGISTER_VB_SHOULD(GI_VB_USE_ITEM_CONSIDER_LINK_HUMAN, {
+    REGISTER_VB_SHOULD(VB_USE_ITEM_CONSIDER_LINK_HUMAN, {
+        PlayerItemAction* itemAction = va_arg(args, PlayerItemAction*);
         if (CVarGetInteger("gEnhancements.Masks.PersistentBunnyHood.Enabled", 0) &&
-            *(PlayerItemAction*)opt == PLAYER_IA_MASK_BUNNY) {
+            *itemAction == PLAYER_IA_MASK_BUNNY) {
             *should = true;
         }
     });
 
     // When they do equip the mask, prevent it and instead set our state
-    REGISTER_VB_SHOULD(GI_VB_USE_ITEM_EQUIP_MASK, {
-        PlayerMask* maskId = (PlayerMask*)opt;
+    REGISTER_VB_SHOULD(VB_USE_ITEM_EQUIP_MASK, {
+        PlayerMask* maskId = va_arg(args, PlayerMask*);
         Player* player = GET_PLAYER(gPlayState);
 
         if (*maskId == PLAYER_MASK_BUNNY && CVarGetInteger("gEnhancements.Masks.PersistentBunnyHood.Enabled", 0)) {
@@ -171,22 +172,24 @@ void RegisterPersistentMasks() {
 
     // Prevent the "equipped" white border from being drawn so ours shows instead (ours was drawn before it, so it's
     // underneath)
-    REGISTER_VB_SHOULD(GI_VB_DRAW_ITEM_EQUIPPED_OUTLINE, {
-        if (*(ItemId*)opt == ITEM_MASK_BUNNY && CVarGetInteger("gEnhancements.Masks.PersistentBunnyHood.State", 0)) {
+    REGISTER_VB_SHOULD(VB_DRAW_ITEM_EQUIPPED_OUTLINE, {
+        ItemId* itemId = va_arg(args, ItemId*);
+        if (*itemId == ITEM_MASK_BUNNY && CVarGetInteger("gEnhancements.Masks.PersistentBunnyHood.State", 0)) {
             *should = false;
         }
     });
 
     // Typically when you are in a transformation all masks are dimmed on the C-Buttons
-    REGISTER_VB_SHOULD(GI_VB_ITEM_BE_RESTRICTED, {
-        if (*(ItemId*)opt == ITEM_MASK_BUNNY && CVarGetInteger("gEnhancements.Masks.PersistentBunnyHood.Enabled", 0)) {
+    REGISTER_VB_SHOULD(VB_ITEM_BE_RESTRICTED, {
+        ItemId* itemId = va_arg(args, ItemId*);
+        if (*itemId == ITEM_MASK_BUNNY && CVarGetInteger("gEnhancements.Masks.PersistentBunnyHood.Enabled", 0)) {
             *should = false;
         }
     });
 
     // Override "A" press behavior on kaleido scope to toggle the mask state
-    REGISTER_VB_SHOULD(GI_VB_KALEIDO_DISPLAY_ITEM_TEXT, {
-        ItemId* itemId = (ItemId*)opt;
+    REGISTER_VB_SHOULD(VB_KALEIDO_DISPLAY_ITEM_TEXT, {
+        ItemId* itemId = va_arg(args, ItemId*);
         if (CVarGetInteger("gEnhancements.Masks.PersistentBunnyHood.Enabled", 0) && *itemId == ITEM_MASK_BUNNY) {
             *should = false;
             CVarSetInteger("gEnhancements.Masks.PersistentBunnyHood.State",

@@ -230,15 +230,25 @@ void GameInteractor_ExecuteOnItemGive(u8 item) {
     GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::OnItemGive>(item);
 }
 
-bool GameInteractor_Should(GIVanillaBehavior flag, bool result, void* opt) {
-    GameInteractor::Instance->ExecuteHooks<GameInteractor::ShouldVanillaBehavior>(flag, &result, opt);
-    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::ShouldVanillaBehavior>(flag, flag, &result, opt);
-    if (opt != nullptr) {
-        GameInteractor::Instance->ExecuteHooksForPtr<GameInteractor::ShouldVanillaBehavior>((uintptr_t)opt, flag,
-                                                                                            &result, opt);
-    }
-    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::ShouldVanillaBehavior>(flag, &result, opt);
-    return result;
+bool GameInteractor_Should(GIVanillaBehavior flag, uint32_t result, ...) {
+    // Only the external function can use the Variadic Function syntax
+    // To pass the va args to the next caller must be done using va_list and reading the args into it
+    // Because there can be N subscribers registered to each template call, the subscribers will be responsible for
+    // creating a copy of this va_list to avoid incrementing the original pointer between calls
+    va_list args;
+    va_start(args, result);
+
+    // Because of default argument promotion, even though our incoming "result" is just a bool, it needs to be typed as
+    // an int to be permitted to be used in `va_start`, otherwise it is undefined behavior.
+    // Here we downcast back to a bool for our actual hook handlers
+    bool boolResult = static_cast<bool>(result);
+
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::ShouldVanillaBehavior>(flag, &boolResult, args);
+    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::ShouldVanillaBehavior>(flag, flag, &boolResult, args);
+    GameInteractor::Instance->ExecuteHooksForFilter<GameInteractor::ShouldVanillaBehavior>(flag, &boolResult, args);
+
+    va_end(args);
+    return boolResult;
 }
 
 // Returns 1 or -1 based on a number of factors like CVars or other game states.
@@ -256,18 +266,59 @@ int GameInteractor_InvertControl(GIInvertType type) {
                 result *= -1;
             }
             break;
+        case GI_INVERT_FIRST_PERSON_AIM_X:
+            if (CVarGetInteger("gEnhancements.Camera.FirstPerson.InvertX", 0)) {
+                result *= -1;
+            }
+            break;
+        case GI_INVERT_FIRST_PERSON_AIM_Y:
+            if (CVarGetInteger("gEnhancements.Camera.FirstPerson.InvertY", 1)) {
+                result *= -1;
+            }
+            break;
+        case GI_INVERT_FIRST_PERSON_GYRO_X:
+            if (CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroInvertX", 0)) {
+                result *= -1;
+            }
+            break;
+        case GI_INVERT_FIRST_PERSON_GYRO_Y:
+            if (CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroInvertY", 0)) {
+                result *= -1;
+            }
+            break;
+        case GI_INVERT_FIRST_PERSON_RIGHT_STICK_X:
+            if (CVarGetInteger("gEnhancements.Camera.FirstPerson.RightStickInvertX", 0)) {
+                result *= -1;
+            }
+            break;
+        case GI_INVERT_FIRST_PERSON_RIGHT_STICK_Y:
+            if (CVarGetInteger("gEnhancements.Camera.FirstPerson.RightStickInvertY", 1)) {
+                result *= -1;
+            }
+            break;
     }
 
-    /*
     // Invert all X axis inputs if the Mirrored World mode is enabled
     if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
         switch (type) {
             case GI_INVERT_CAMERA_RIGHT_STICK_X:
+            case GI_INVERT_MOVEMENT_X:
+            case GI_INVERT_SHIELD_X:
+            case GI_INVERT_SHOP_X:
+            case GI_INVERT_HORSE_X:
+            case GI_INVERT_ZORA_SWIM_X:
+            case GI_INVERT_DEBUG_DPAD_X:
+            case GI_INVERT_TELESCOPE_X:
+            case GI_INVERT_FIRST_PERSON_AIM_X:
+            case GI_INVERT_FIRST_PERSON_GYRO_X:
+            case GI_INVERT_FIRST_PERSON_RIGHT_STICK_X:
+            case GI_INVERT_FIRST_PERSON_MOVING_X:
                 result *= -1;
+                break;
+            default:
                 break;
         }
     }
-    */
 
     /*
     if (CrowdControl::State::InvertedInputs) {
