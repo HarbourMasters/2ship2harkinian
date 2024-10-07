@@ -266,6 +266,36 @@ int GameInteractor_InvertControl(GIInvertType type) {
                 result *= -1;
             }
             break;
+        case GI_INVERT_FIRST_PERSON_AIM_X:
+            if (CVarGetInteger("gEnhancements.Camera.FirstPerson.InvertX", 0)) {
+                result *= -1;
+            }
+            break;
+        case GI_INVERT_FIRST_PERSON_AIM_Y:
+            if (CVarGetInteger("gEnhancements.Camera.FirstPerson.InvertY", 1)) {
+                result *= -1;
+            }
+            break;
+        case GI_INVERT_FIRST_PERSON_GYRO_X:
+            if (CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroInvertX", 0)) {
+                result *= -1;
+            }
+            break;
+        case GI_INVERT_FIRST_PERSON_GYRO_Y:
+            if (CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroInvertY", 0)) {
+                result *= -1;
+            }
+            break;
+        case GI_INVERT_FIRST_PERSON_RIGHT_STICK_X:
+            if (CVarGetInteger("gEnhancements.Camera.FirstPerson.RightStickInvertX", 0)) {
+                result *= -1;
+            }
+            break;
+        case GI_INVERT_FIRST_PERSON_RIGHT_STICK_Y:
+            if (CVarGetInteger("gEnhancements.Camera.FirstPerson.RightStickInvertY", 1)) {
+                result *= -1;
+            }
+            break;
     }
 
     // Invert all X axis inputs if the Mirrored World mode is enabled
@@ -273,13 +303,16 @@ int GameInteractor_InvertControl(GIInvertType type) {
         switch (type) {
             case GI_INVERT_CAMERA_RIGHT_STICK_X:
             case GI_INVERT_MOVEMENT_X:
-            case GI_INVERT_FIRST_PERSON_AIM_X:
             case GI_INVERT_SHIELD_X:
             case GI_INVERT_SHOP_X:
             case GI_INVERT_HORSE_X:
             case GI_INVERT_ZORA_SWIM_X:
             case GI_INVERT_DEBUG_DPAD_X:
             case GI_INVERT_TELESCOPE_X:
+            case GI_INVERT_FIRST_PERSON_AIM_X:
+            case GI_INVERT_FIRST_PERSON_GYRO_X:
+            case GI_INVERT_FIRST_PERSON_RIGHT_STICK_X:
+            case GI_INVERT_FIRST_PERSON_MOVING_X:
                 result *= -1;
                 break;
             default:
