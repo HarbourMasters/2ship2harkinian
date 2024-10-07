@@ -2,6 +2,7 @@
 #define SONGS_H
 
 void RegisterEnableSunsSong();
+void RegisterFasterSongPlayback();
 void RegisterZoraEggCount();
 void RegisterPauseOwlWarp();
 
