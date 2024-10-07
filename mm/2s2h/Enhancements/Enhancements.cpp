@@ -55,6 +55,7 @@ void InitEnhancements() {
 
     // Songs
     RegisterEnableSunsSong();
+    RegisterFasterSongPlayback();
     RegisterPauseOwlWarp();
     RegisterZoraEggCount();
 
