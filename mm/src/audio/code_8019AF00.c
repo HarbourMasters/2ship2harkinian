@@ -2086,7 +2086,7 @@ void PreviewSequence(u16 seqId) {
     }
 
     SEQCMD_PLAY_SEQUENCE(SEQ_PLAYER_BGM_MAIN, 1, seqId);
-    
+
     // }
 }
 

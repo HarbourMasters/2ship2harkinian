@@ -20,8 +20,8 @@ AudioCollection::AudioCollection() {
     //                    (originalSequenceId,                  label,                                      sfxKey,
     //                    category,    canBeReplaced, canBeUsedAsReplacement),
     mSequenceMap = {
-        //SEQUENCE_MAP_ENTRY(NA_BGM_GENERAL_SFX, "General SFX", "SEQUENCE_MAP_ENTRY", SEQ_BGM_WORLD, true, true),
-        //SEQUENCE_MAP_ENTRY(NA_BGM_AMBIENCE, "Ambience", "NA_BGM_AMBIENCE", SEQ_BGM_WORLD, true, true),
+        // SEQUENCE_MAP_ENTRY(NA_BGM_GENERAL_SFX, "General SFX", "SEQUENCE_MAP_ENTRY", SEQ_BGM_WORLD, true, true),
+        // SEQUENCE_MAP_ENTRY(NA_BGM_AMBIENCE, "Ambience", "NA_BGM_AMBIENCE", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_TERMINA_FIELD, "Termina Field", "NA_BGM_TERMINA_FIELD", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_CHASE, "Chase", "NA_BGM_CHASE", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_MAJORAS_THEME, "Majoras Theme", "NA_BGM_MAJORAS_THEME", SEQ_BGM_WORLD, true, true),
