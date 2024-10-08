@@ -88,8 +88,7 @@ void PatchArrowTipTexture() {
                              G_TX_MIRROR | G_TX_WRAP, 5, 5, 1, 1),
     };
 
-    bool fixTexturesOOB = true;
-    // bool fixTexturesOOB = CVarGetInteger("gEnhancements.Fixes.FixTexturesOOB", 0);
+    bool fixTexturesOOB = CVarGetInteger("gEnhancements.Fixes.FixTexturesOOB", 0);
 
     for (const auto& patchInfo : arrowTipDListPatchInfos) {
         const char* dlist = patchInfo.dlist;
@@ -141,8 +140,7 @@ void PatchFreezardBodyTexture() {
                              G_TX_NOMIRROR | G_TX_WRAP, 5, 5, G_TX_NOLOD, G_TX_NOLOD),
     };
 
-    bool fixTexturesOOB = true;
-    // bool fixTexturesOOB = CVarGetInteger("gEnhancements.Fixes.FixTexturesOOB", 0);
+    bool fixTexturesOOB = CVarGetInteger("gEnhancements.Fixes.FixTexturesOOB", 0);
 
     for (const auto& patchInfo : freezardBodyDListPatchInfos) {
         const char* dlist = patchInfo.dlist;
@@ -194,8 +192,7 @@ void PatchIronKnuckleFireTexture() {
                                 G_TX_MIRROR | G_TX_WRAP, 5, 6, G_TX_NOLOD, G_TX_NOLOD),
     };
 
-    bool fixTexturesOOB = true;
-    // bool fixTexturesOOB = CVarGetInteger("gEnhancements.Fixes.FixTexturesOOB", 0);
+    bool fixTexturesOOB = CVarGetInteger("gEnhancements.Fixes.FixTexturesOOB", 0);
 
     for (const auto& patchInfo : ironKnuckleDListPatchInfos) {
         const char* dlist = patchInfo.dlist;
