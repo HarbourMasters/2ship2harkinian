@@ -8,7 +8,7 @@ extern "C" {
 
 void RegisterCremiaHugs() {
     REGISTER_VB_SHOULD(VB_PLAY_CREMIA_HUG_CUTSCENE, {
-        uint8_t selectedOption = CVarGetInteger("gEnhancements.Cutscenes.CremiaHugs", 0);
+        uint8_t selectedOption = CVarGetInteger("gEnhancements.Minigames.CremiaHugs", 0);
         if (selectedOption == CREMIA_REWARD_ALWAYS_HUG) {
             *should = true;
         } else if (selectedOption == CREMIA_REWARD_ALWAYS_RUPEE) {

@@ -53,9 +53,9 @@ static const std::unordered_map<int32_t, const char*> alwaysWinDoggyraceOptions 
 };
 
 static const std::unordered_map<int32_t, const char*> cremiaRewardOptions = {
-    { CREMIA_REWARD_RANDOM, "Vanilla. Reward is random" },
-    { CREMIA_REWARD_ALWAYS_HUG, "Always get the hug cutscene" },
-    { CREMIA_REWARD_ALWAYS_RUPEE, "Always get the rupee reward" },
+    { CREMIA_REWARD_RANDOM, "Vanilla" },
+    { CREMIA_REWARD_ALWAYS_HUG, "Hug" },
+    { CREMIA_REWARD_ALWAYS_RUPEE, "Rupee" },
 };
 
 static const std::unordered_map<int32_t, const char*> timeStopOptions = {
@@ -484,7 +484,6 @@ void DrawEnhancementsMenu() {
                     .tooltip =
                         "Disclaimer: This doesn't do much yet, we will be progressively adding more skips over time",
                 });
-            UIWidgets::CVarCombobox("Cremia Reward Options", "gEnhancements.Cutscenes.CremiaHugs", cremiaRewardOptions);
 
             ImGui::EndMenu();
         }
@@ -672,6 +671,12 @@ void DrawEnhancementsMenu() {
         if (UIWidgets::BeginMenu("Minigames")) {
             UIWidgets::CVarCombobox("Always Win Doggy Race", "gEnhancements.Minigames.AlwaysWinDoggyRace",
                                     alwaysWinDoggyraceOptions);
+            UIWidgets::CVarCombobox("Milk Run Reward Options", "gEnhancements.Minigames.CremiaHugs", cremiaRewardOptions, 
+            { .tooltip = "Choose what reward you get for winning the Milk Run minigame after the first time. \n"
+                "-Vanilla: Reward is Random\n"
+                "-Hug: Get the hugging cutscene\n"
+                "-Rupee: Get the rupee reward",
+              .defaultIndex = CREMIA_REWARD_RANDOM });
 
             ImGui::EndMenu();
         }

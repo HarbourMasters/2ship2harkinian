@@ -16,6 +16,4 @@ void RegisterSkipEntranceCutscenes();
 void RegisterSkipIntroSequence();
 void RegisterSkipToFileSelect();
 
-void RegisterCremiaHugs();
-
 #endif // CUTSCENES_H
