@@ -671,12 +671,13 @@ void DrawEnhancementsMenu() {
         if (UIWidgets::BeginMenu("Minigames")) {
             UIWidgets::CVarCombobox("Always Win Doggy Race", "gEnhancements.Minigames.AlwaysWinDoggyRace",
                                     alwaysWinDoggyraceOptions);
-            UIWidgets::CVarCombobox("Milk Run Reward Options", "gEnhancements.Minigames.CremiaHugs", cremiaRewardOptions, 
-            { .tooltip = "Choose what reward you get for winning the Milk Run minigame after the first time. \n"
-                "-Vanilla: Reward is Random\n"
-                "-Hug: Get the hugging cutscene\n"
-                "-Rupee: Get the rupee reward",
-              .defaultIndex = CREMIA_REWARD_RANDOM });
+            UIWidgets::CVarCombobox(
+                "Milk Run Reward Options", "gEnhancements.Minigames.CremiaHugs", cremiaRewardOptions,
+                { .tooltip = "Choose what reward you get for winning the Milk Run minigame after the first time. \n"
+                             "-Vanilla: Reward is Random\n"
+                             "-Hug: Get the hugging cutscene\n"
+                             "-Rupee: Get the rupee reward",
+                  .defaultIndex = CREMIA_REWARD_RANDOM });
 
             ImGui::EndMenu();
         }

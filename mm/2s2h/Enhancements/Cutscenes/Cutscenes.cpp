@@ -13,5 +13,4 @@ void RegisterCutscenes() {
     RegisterSkipEntranceCutscenes();
     RegisterSkipIntroSequence();
     RegisterSkipToFileSelect();
-    
 }
