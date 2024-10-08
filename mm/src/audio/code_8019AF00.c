@@ -2085,7 +2085,8 @@ void PreviewSequence(u16 seqId) {
         osSyncPrintf("Middle Boss BGM Start not stack \n");
     }
 
-    AudioSeq_QueueSeqCmd(seqId);
+    SEQCMD_PLAY_SEQUENCE(SEQ_PLAYER_BGM_MAIN, 1, seqId);
+    
     // }
 }
 
