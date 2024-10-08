@@ -1,5 +1,5 @@
 #include <libultraship/bridge.h>
-#include "Enhancements/GameInteractor/GameInteractor.h"
+#include "GameInteractor/GameInteractor.h"
 #include "Enhancements/Enhancements.h"
 
 extern "C" {
@@ -7,7 +7,7 @@ extern "C" {
 }
 
 void RegisterCremiaHugs() {
-    REGISTER_VB_SHOULD(GI_VB_RANDOM_COMPARISON, {
+    REGISTER_VB_SHOULD(VB_PLAY_CREMIA_HUG_CUTSCENE, {
         uint8_t selectedOption = CVarGetInteger("gEnhancements.Cutscenes.CremiaHugs", 0);
         if (selectedOption == CREMIA_REWARD_ALWAYS_HUG) {
             *should = true;
