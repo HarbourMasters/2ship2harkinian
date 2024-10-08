@@ -56,6 +56,7 @@ void InitEnhancements() {
 
     // Songs
     RegisterEnableSunsSong();
+    RegisterFasterSongPlayback();
     RegisterPauseOwlWarp();
     RegisterZoraEggCount();
 
@@ -72,4 +73,7 @@ void InitEnhancements() {
     // Modes
     RegisterPlayAsKafei();
     RegisterTimeMovesWhenYouMove();
+
+    // Difficulty Options
+    RegisterDisableTakkuriSteal();
 }
