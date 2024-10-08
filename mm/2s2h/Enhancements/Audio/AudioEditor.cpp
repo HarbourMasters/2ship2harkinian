@@ -505,10 +505,10 @@ void AudioEditor::DrawElement() {
         }
 
         static ImVec2 cellPadding(8.0f, 8.0f);
+#if 0
         if (ImGui::BeginTabItem("Options")) {
             // BENTODO implement this
             ImGui::Text("TODO: Implement this");
-#if 0
             ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, cellPadding);
             ImGui::BeginTable("Options", 1, ImGuiTableFlags_SizingStretchSame);
             ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
@@ -557,8 +557,8 @@ void AudioEditor::DrawElement() {
             ImGui::PopStyleVar(1);
             ImGui::EndTabItem();
             }
-#endif
         }
+#endif
 
         static bool excludeTabOpen = false;
         if (ImGui::BeginTabItem("Audio Shuffle Pool Management")) {
