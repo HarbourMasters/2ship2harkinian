@@ -65,6 +65,7 @@ typedef enum {
     VB_ZTARGET_SPEED_CHECK,
     VB_THIEF_BIRD_STEAL,
     VB_FD_ALWAYS_WIELD_SWORD,
+    VB_SHOULD_PUTAWAY,
 } GIVanillaBehavior;
 
 typedef enum {
