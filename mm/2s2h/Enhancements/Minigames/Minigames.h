@@ -3,4 +3,6 @@
 
 void RegisterAlwaysWinDoggyRace();
 
+void RegisterCremiaHugs();
+
 #endif // MINIGAMES_H

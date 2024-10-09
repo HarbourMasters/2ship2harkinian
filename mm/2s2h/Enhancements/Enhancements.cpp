@@ -47,6 +47,7 @@ void InitEnhancements() {
 
     // Minigames
     RegisterAlwaysWinDoggyRace();
+    RegisterCremiaHugs();
 
     // Player
     RegisterClimbSpeed();
