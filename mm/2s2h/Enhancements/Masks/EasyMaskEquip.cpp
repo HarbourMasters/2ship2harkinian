@@ -375,7 +375,7 @@ void RegisterEasyMaskEquip() {
     });
 
     // Remove restriction requiring masks be equipped from C or D buttons
-    REGISTER_VB_SHOULD(GI_VB_ALLOW_EQUIP_MASK, {
+    REGISTER_VB_SHOULD(VB_ALLOW_EQUIP_MASK, {
         if (EasyMaskEquip_IsEnabled()) {
             *should = false;
         }

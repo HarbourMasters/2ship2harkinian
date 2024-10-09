@@ -3731,7 +3731,7 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
                     maskIdMinusOne = this->currentMask - 1;
                 }
 
-                if (GameInteractor_Should(GI_VB_ALLOW_EQUIP_MASK, false)) {
+                if (GameInteractor_Should(VB_ALLOW_EQUIP_MASK, false)) {
                     Player_UseItem(play, this, Player_MaskIdToItemId(maskIdMinusOne));
                     return;
                 }
