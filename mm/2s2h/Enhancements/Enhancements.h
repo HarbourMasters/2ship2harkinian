@@ -36,6 +36,12 @@ enum ClockTypeOptions {
     CLOCK_TYPE_TEXT_BASED,
 };
 
+enum CremiaRewardsOptions {
+    CREMIA_REWARD_RANDOM,
+    CREMIA_REWARD_ALWAYS_HUG,
+    CREMIA_REWARD_ALWAYS_RUPEE,
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -363,6 +363,12 @@ static const std::unordered_map<int32_t, const char*> alwaysWinDoggyraceOptions 
     { ALWAYS_WIN_DOGGY_RACE_ALWAYS, "Always" },
 };
 
+static const std::unordered_map<int32_t, const char*> cremiaRewardOptions = {
+    { CREMIA_REWARD_RANDOM, "Vanilla" },
+    { CREMIA_REWARD_ALWAYS_HUG, "Hug" },
+    { CREMIA_REWARD_ALWAYS_RUPEE, "Rupee" },
+};
+
 static const std::unordered_map<int32_t, const char*> clockTypeOptions = {
     { CLOCK_TYPE_ORIGINAL, "Original" },
     { CLOCK_TYPE_3DS, "MM3D style" },
@@ -1003,6 +1009,14 @@ void AddEnhancements() {
                 "Makes the Doggy Race easier to win.",
                 WIDGET_CVAR_COMBOBOX,
                 { .comboBoxOptions = alwaysWinDoggyraceOptions } },
+              { "Milk Run Reward Options",
+                "gEnhancements.Minigames.CremiaHugs",
+                "Choose what reward you get for winning the Milk Run minigame after the first time. \n"
+                "-Vanilla: Reward is Random\n"
+                "-Hug: Get the hugging cutscene\n"
+                "-Rupee: Get the rupee reward",
+                WIDGET_CVAR_COMBOBOX,
+                { .comboBoxOptions = cremiaRewardOptions } },
               { "Fast Magic Arrow Equip Animation", "gEnhancements.Equipment.MagicArrowEquipSpeed",
                 "Removes the animation for equipping Magic Arrows.", WIDGET_CVAR_CHECKBOX },
               { "Instant Fin Boomerangs Recall", "gEnhancements.PlayerActions.InstantRecall",
