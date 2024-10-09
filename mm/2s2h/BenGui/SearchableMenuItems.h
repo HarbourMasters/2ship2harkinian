@@ -973,6 +973,12 @@ void AddEnhancements() {
                 WIDGET_CVAR_CHECKBOX,
                 {},
                 [](widgetInfo& info) { RegisterMoonJumpOnL(); } },
+              { "Elegy of Emptiness Anywhere",
+                "gCheats.ElegyAnywhere",
+                "Allows Elegy of Emptiness outside of Ikana",
+                WIDGET_CVAR_CHECKBOX,
+                {},
+                [](widgetInfo& info) { RegisterMoonJumpOnL(); } },
               { "Stop Time in Dungeons",
                 "gCheats.TempleTimeStop",
                 "Stops time from advancing in selected areas. Requires a room change to update.\n\n"
