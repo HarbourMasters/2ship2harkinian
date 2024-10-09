@@ -11,7 +11,7 @@ extern PlayState* gPlayState;
 void RegisterSkipScarecrowSong() {
     REGISTER_VB_SHOULD(VB_NEED_SCARECROW_SONG, {
         if (CVarGetInteger("gEnhancements.Playback.SkipScarecrowSong", 0)) {
-            EnKakasi* enKakasi = (EnKakasi*)opt;
+            EnKakasi* enKakasi = va_arg(args, EnKakasi*);
             /*
              * This is somewhat similar to the condition that the scarecrow normally checks, except it checks if the
              * instrument is being played at all instead of having played the Scarecrow's Song in particular, and it
