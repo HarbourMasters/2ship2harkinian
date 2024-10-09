@@ -1249,7 +1249,7 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
     int customSeqListSize = 0;
     char** seqList = ResourceMgr_ListFiles("audio/sequences*", &seqListSize);
     char** customSeqList = ResourceMgr_ListFiles("custom/music/*", &customSeqListSize);
-    sequenceMapSize = (size_t)(AudioCollection_SequenceMapSize() + customSeqListSize);
+    sequenceMapSize = (size_t)(seqListSize + customSeqListSize);
     sequenceMap = malloc(sequenceMapSize * sizeof(char*));
 
     // gAudioCtx.seqLoadStatus = calloc(sequenceMapSize, 1);

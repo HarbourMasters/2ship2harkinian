@@ -744,8 +744,8 @@ typedef struct {
     /* 0x79E4 */ OSMesg threadCmdProcMsgBuf[4];
     /* 0x79F4 */ AudioCmd threadCmdBuf[0x100]; // Audio commands used to transfer audio requests from the graph thread to the audio thread
     /* 0x81F4 */ UNK_TYPE1 unk_81F4[4];
-    u16 seqToPlay[4];
-    u8 seqReplaced[4];
+    u16 seqToPlay[5];
+    u8 seqReplaced[5];
 } AudioContext; // size = 0x81F8
 
 typedef struct {
