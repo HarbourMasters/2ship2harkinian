@@ -13,6 +13,7 @@ void InitEnhancements() {
     RegisterUnbreakableRazorSword();
     RegisterUnrestrictedItems();
     RegisterTimeStopInTemples();
+    RegisterElegyAnywhere();
 
     // Clock
     RegisterTextBasedClock();
@@ -33,6 +34,7 @@ void InitEnhancements() {
 
     // Fixes
     RegisterFierceDeityZTargetMovement();
+    RegisterTwoHandedSwordSpinAttack();
 
     // Graphics
     RegisterDisableBlackBars();
@@ -54,12 +56,14 @@ void InitEnhancements() {
     RegisterClimbSpeed();
     RegisterFastFlowerLaunch();
     RegisterInstantPutaway();
+    RegisterFierceDeityPutaway();
 
     // Songs
     RegisterEnableSunsSong();
     RegisterFasterSongPlayback();
     RegisterPauseOwlWarp();
     RegisterZoraEggCount();
+    RegisterSkipScarecrowSong();
 
     // Restorations
     RegisterPowerCrouchStab();

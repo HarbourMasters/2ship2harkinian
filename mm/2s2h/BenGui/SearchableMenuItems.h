@@ -46,7 +46,8 @@ typedef enum {
     DISABLE_FOR_MOTION_BLUR_MODE,
     DISABLE_FOR_MOTION_BLUR_OFF,
     DISABLE_FOR_FRAME_ADVANCE_OFF,
-    DISABLE_FOR_WARP_POINT_NOT_SET
+    DISABLE_FOR_WARP_POINT_NOT_SET,
+    DISABLE_FOR_INTRO_SKIP_OFF,
 } DisableOption;
 
 struct widgetInfo;
@@ -341,7 +342,10 @@ static std::map<DisableOption, disabledInfo> disabledMap = {
         "Frame Advance is Disabled" } },
     { DISABLE_FOR_WARP_POINT_NOT_SET,
       { [](disabledInfo& info) -> bool { return !CVarGetInteger(WARP_POINT_CVAR "Saved", 0); },
-        "Warp Point Not Saved" } }
+        "Warp Point Not Saved" } },
+    { DISABLE_FOR_INTRO_SKIP_OFF,
+      { [](disabledInfo& info) -> bool { return !CVarGetInteger("gEnhancements.Cutscenes.SkipIntroSequence", 0); },
+        "Intro Skip Not Selected" } }
 };
 
 std::unordered_map<int32_t, const char*> menuThemeOptions = {
@@ -973,6 +977,8 @@ void AddEnhancements() {
                 WIDGET_CVAR_CHECKBOX,
                 {},
                 [](widgetInfo& info) { RegisterMoonJumpOnL(); } },
+              { "Elegy of Emptiness Anywhere", "gCheats.ElegyAnywhere", "Allows Elegy of Emptiness outside of Ikana",
+                WIDGET_CVAR_CHECKBOX },
               { "Stop Time in Dungeons",
                 "gCheats.TempleTimeStop",
                 "Stops time from advancing in selected areas. Requires a room change to update.\n\n"
@@ -995,6 +1001,8 @@ void AddEnhancements() {
                 ([](widgetInfo& info) { RegisterFastFlowerLaunch(); }) },
               { "Instant Putaway", "gEnhancements.Player.InstantPutaway",
                 "Allows Link to instantly puts away held item without waiting.", WIDGET_CVAR_CHECKBOX },
+              { "Fierce Deity Putaway", "gEnhancements.Player.FierceDeityPutaway",
+                "Allows Fierce Deity Link to put away his sword.", WIDGET_CVAR_CHECKBOX },
               { "Climb speed",
                 "gEnhancements.PlayerMovement.ClimbSpeed",
                 "Increases the speed at which Link climbs vines and ladders.",
@@ -1019,6 +1027,9 @@ void AddEnhancements() {
                 "Removes the animation for equipping Magic Arrows.", WIDGET_CVAR_CHECKBOX },
               { "Instant Fin Boomerangs Recall", "gEnhancements.PlayerActions.InstantRecall",
                 "Pressing B will instantly recall the fin boomerang back to Zora Link after they are thrown.",
+                WIDGET_CVAR_CHECKBOX },
+              { "Two-Handed Sword Spin Attack", "gEnhancements.Equipment.TwoHandedSwordSpinAttack",
+                "Enables magic spin attacks for the Fierce Deity Sword and Great Fairy's Sword.",
                 WIDGET_CVAR_CHECKBOX } },
             { { .widgetName = "Modes", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Play as Kafei", "gModes.PlayAsKafei", "Requires scene reload to take effect.", WIDGET_CVAR_CHECKBOX },
@@ -1243,6 +1254,8 @@ void AddEnhancements() {
                 { 1, 7, 7 } },
               { "Prevent Dropped Ocarina Inputs", "gEnhancements.Playback.NoDropOcarinaInput",
                 "Prevent dropping inputs when playing the ocarina quickly.", WIDGET_CVAR_CHECKBOX },
+              { "Skip Scarecrow Song", "gEnhancements.Playback.SkipScarecrowSong",
+                "Pierre appears when the Ocarina is pulled out.", WIDGET_CVAR_CHECKBOX },
               { "Faster Song Playback",
                 "gEnhancements.Songs.FasterSongPlayback",
                 "Speeds up the playback of songs.",
@@ -1264,6 +1277,14 @@ void AddEnhancements() {
               { "Skip Intro Sequence", "gEnhancements.Cutscenes.SkipIntroSequence",
                 "When starting a game you will be taken straight to South Clock Town as Deku Link.",
                 WIDGET_CVAR_CHECKBOX },
+              { "Skip First Cycle",
+                "gEnhancements.Cutscenes.SkipFirstCycle",
+                "When starting a game you will be taken straight to South Clock Town as Human Link "
+                "with Deku Mask, Ocarina, Song of Time, and Song of Healing.",
+                WIDGET_CVAR_CHECKBOX,
+                {},
+                nullptr,
+                [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_INTRO_SKIP_OFF).active; } },
               { "Skip Story Cutscenes", "gEnhancements.Cutscenes.SkipStoryCutscenes",
                 "Disclaimer: This doesn't do much yet, we will be progressively adding more skips over time.",
                 WIDGET_CVAR_CHECKBOX },

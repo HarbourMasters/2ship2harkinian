@@ -472,6 +472,12 @@ void DrawEnhancementsMenu() {
                 {
                     .tooltip = "When starting a game you will be taken straight to South Clock Town as Deku Link.",
                 });
+            if (CVarGetInteger("gEnhancements.Cutscenes.SkipIntroSequence", 0)) {
+                UIWidgets::CVarCheckbox(
+                    "Skip First Cycle", "gEnhancements.Cutscenes.SkipFirstCycle",
+                    { .tooltip = "When starting a game you will be taken straight to South Clock Town as Human Link "
+                                 "with Deku Mask, Ocarina, Song of Time, and Song of Healing." });
+            }
             UIWidgets::CVarCheckbox(
                 "Skip Story Cutscenes", "gEnhancements.Cutscenes.SkipStoryCutscenes",
                 {
@@ -572,6 +578,9 @@ void DrawEnhancementsMenu() {
                 { .tooltip =
                       "Pressing B will instantly recall the fin boomerang back to Zora Link after they are thrown." });
 
+            UIWidgets::CVarCheckbox(
+                "Two-Handed Sword Spin Attack", "gEnhancements.Equipment.TwoHandedSwordSpinAttack",
+                { .tooltip = "Enables magic spin attacks for the Fierce Deity Sword and Great Fairy's Sword." });
             ImGui::EndMenu();
         }
 
@@ -713,6 +722,8 @@ void DrawEnhancementsMenu() {
             }
             UIWidgets::CVarCheckbox("Instant Putaway", "gEnhancements.Player.InstantPutaway",
                                     { .tooltip = "Allows Link to instantly puts away held item without waiting." });
+            UIWidgets::CVarCheckbox("Fierce Deity Putaway", "gEnhancements.Player.FierceDeityPutaway",
+                                    { .tooltip = "Allows Fierce Deity Link to put away his sword." });
             ImGui::EndMenu();
         }
 
@@ -750,6 +761,8 @@ void DrawEnhancementsMenu() {
                                     { .tooltip = "Enables using the Dpad for Ocarina playback." });
             UIWidgets::CVarCheckbox("Prevent Dropped Ocarina Inputs", "gEnhancements.Playback.NoDropOcarinaInput",
                                     { .tooltip = "Prevent dropping inputs when playing the ocarina quickly" });
+            UIWidgets::CVarCheckbox("Skip Scarecrow Song", "gEnhancements.Playback.SkipScarecrowSong",
+                                    { .tooltip = "Pierre appears when the Ocarina is pulled out." });
             UIWidgets::CVarCheckbox("Pause Owl Warp", "gEnhancements.Songs.PauseOwlWarp",
                                     { .tooltip = "Allows the player to use the pause menu map to owl warp instead of "
                                                  "having to play the Song of Soaring." });
@@ -795,6 +808,8 @@ void DrawCheatsMenu() {
                                     { .tooltip = "Holding L makes you float into the air" })) {
             RegisterMoonJumpOnL();
         }
+        UIWidgets::CVarCheckbox("Elegy of Emptiness Anywhere", "gCheats.ElegyAnywhere",
+                                { .tooltip = "Allows Elegy of Emptiness outside of Ikana" });
         UIWidgets::CVarCombobox(
             "Stop Time in Dungeons", "gCheats.TempleTimeStop", timeStopOptions,
             { .tooltip = "Stops time from advancing in selected areas. Requires a room change to update.\n\n"
