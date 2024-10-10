@@ -1269,7 +1269,7 @@ void AddEnhancements() {
               { "Skip First Cycle",
                 "gEnhancements.Cutscenes.SkipFirstCycle",
                 "When starting a game you will be taken straight to South Clock Town as Human Link "
-                                 "with Deku Mask, Ocarina, Song of Time, and Song of Healing.",
+                "with Deku Mask, Ocarina, Song of Time, and Song of Healing.",
                 WIDGET_CVAR_CHECKBOX,
                 {},
                 nullptr,
