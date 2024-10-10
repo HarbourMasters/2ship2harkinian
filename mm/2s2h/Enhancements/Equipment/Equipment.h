@@ -3,5 +3,6 @@
 
 void RegisterInstantRecall();
 void RegisterSkipMagicArrowEquip();
+void RegisterTwoHandedSwordSpinAttack();
 
 #endif // EQUIPMENT_H
