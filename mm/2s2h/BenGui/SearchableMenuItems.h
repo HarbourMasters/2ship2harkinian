@@ -1249,6 +1249,8 @@ void AddEnhancements() {
                 { 1, 7, 7 } },
               { "Prevent Dropped Ocarina Inputs", "gEnhancements.Playback.NoDropOcarinaInput",
                 "Prevent dropping inputs when playing the ocarina quickly.", WIDGET_CVAR_CHECKBOX },
+              { "Skip Scarecrow Song", "gEnhancements.Playback.SkipScarecrowSong",
+                "Pierre appears when the Ocarina is pulled out.", WIDGET_CVAR_CHECKBOX },
               { "Faster Song Playback",
                 "gEnhancements.Songs.FasterSongPlayback",
                 "Speeds up the playback of songs.",

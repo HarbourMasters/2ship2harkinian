@@ -5,6 +5,7 @@ void RegisterEnableSunsSong();
 void RegisterFasterSongPlayback();
 void RegisterZoraEggCount();
 void RegisterPauseOwlWarp();
+void RegisterSkipScarecrowSong();
 
 #ifdef __cplusplus
 extern "C" {
