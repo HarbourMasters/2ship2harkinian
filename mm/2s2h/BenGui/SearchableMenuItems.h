@@ -1001,6 +1001,8 @@ void AddEnhancements() {
                 ([](widgetInfo& info) { RegisterFastFlowerLaunch(); }) },
               { "Instant Putaway", "gEnhancements.Player.InstantPutaway",
                 "Allows Link to instantly puts away held item without waiting.", WIDGET_CVAR_CHECKBOX },
+              { "Fierce Deity Putaway", "gEnhancements.Player.FierceDeityPutaway",
+                "Allows Fierce Deity Link to put away his sword.", WIDGET_CVAR_CHECKBOX },
               { "Climb speed",
                 "gEnhancements.PlayerMovement.ClimbSpeed",
                 "Increases the speed at which Link climbs vines and ladders.",
