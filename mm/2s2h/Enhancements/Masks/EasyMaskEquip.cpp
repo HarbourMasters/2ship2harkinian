@@ -23,7 +23,7 @@ constexpr std::array<ItemId, 5> TransformationMasks = { ITEM_MASK_DEKU, ITEM_MAS
 
 // Helper function to check if a mask is a transformation mask
 bool IsTransformationMask(ItemId mask) {
-    return std::find(TransformationMasks.begin(), TransformationMasks.end(), mask) != TransformationMasks.end();
+    return std::binary_search(TransformationMasks.begin(), TransformationMasks.end(), mask);
 }
 
 // Check if EasyMaskEquip is enabled
@@ -225,19 +225,22 @@ void AllocateEasyMaskEquipVtx(GraphicsContext* gfxCtx) {
     }
 }
 
-// Apply grayscale to mask icons that shouldn't be equipped
-void ApplyMaskIconGrayscale(PauseContext* pauseCtx, GraphicsContext* gfxCtx) {
+// Draw the mask item, applying grayscale if it should not be equipped
+void RenderMaskItem(PauseContext* pauseCtx, u16 itemId, s16 j) {
+    GraphicsContext* gfxCtx = gPlayState->state.gfxCtx;
     OPEN_DISPS(gfxCtx);
 
-    for (int i = 0; i < MASK_NUM_SLOTS; ++i) {
-        const s16 cursorItem = gSaveContext.save.saveInfo.inventory.items[i + ITEM_NUM_SLOTS];
-        if (cursorItem != ITEM_NONE && !ShouldEquipMask(cursorItem)) {
-            gDPSetGrayscaleColor(POLY_OPA_DISP++, 109, 109, 109, 255);
-            gSPGrayscale(POLY_OPA_DISP++, true);
-            gSPVertex(POLY_OPA_DISP++, reinterpret_cast<uintptr_t>(&pauseCtx->maskVtx[i * 4]), 4, 0); // Fixed cast
-            KaleidoScope_DrawTexQuadRGBA32(gfxCtx, gItemIcons[cursorItem], 32, 32, 0);
-            gSPGrayscale(POLY_OPA_DISP++, false);
-        }
+    bool shouldGrayscale = !ShouldEquipMask(itemId);
+    if (shouldGrayscale) {
+        gDPSetGrayscaleColor(POLY_OPA_DISP++, 109, 109, 109, 255);
+        gSPGrayscale(POLY_OPA_DISP++, true);
+    }
+
+    gSPVertex(POLY_OPA_DISP++, reinterpret_cast<uintptr_t>(&pauseCtx->maskVtx[j]), 4, 0);
+    KaleidoScope_DrawTexQuadRGBA32(gfxCtx, gItemIcons[itemId], 32, 32, 0);
+
+    if (shouldGrayscale) {
+        gSPGrayscale(POLY_OPA_DISP++, false);
     }
 
     CLOSE_DISPS(gfxCtx);
@@ -254,12 +257,12 @@ void HandleEasyMaskEquip(PauseContext* pauseCtx) {
     if (CHECK_BTN_ALL(pressedButtons, BTN_A)) {
         s16 cursorItem = pauseCtx->cursorItem[PAUSE_MASK];
         if (cursorItem != PAUSE_ITEM_NONE) {
-            // Check if PersistentBunnyHood is enabled and the mask is Bunny Hood
+            // Handle Persistent Bunny Hood early exit
             if (CVarGetInteger("gEnhancements.Masks.PersistentBunnyHood.Enabled", 0) && cursorItem == ITEM_MASK_BUNNY) {
-                return; // Do nothing if trying to equip Bunny Hood and PersistentBunnyHood is enabled
+                return;
             }
 
-            // If sPendingMask is already the cursor item, remove the border and reset sPendingMask
+            // Toggle mask selection
             if (sPendingMask == cursorItem) {
                 sPendingMask = ITEM_NONE;
                 sIsTransforming = false;
@@ -294,11 +297,14 @@ void RegisterEasyMaskEquip() {
         }
     });
 
-    // Apply grayscale to mask icons after drawing the mask page
-    gameInteractor->RegisterGameHookForID<GameInteractor::AfterKaleidoDrawPage>(
-        PAUSE_MASK, [](PauseContext* pauseCtx, u16) {
-            if (EasyMaskEquip_IsEnabled()) {
-                ApplyMaskIconGrayscale(pauseCtx, gPlayState->state.gfxCtx);
+    // Override mask item rendering to apply grayscale if necessary
+    gameInteractor->RegisterGameHook<GameInteractor::ShouldVanillaBehavior>(
+        [](GIVanillaBehavior flag, bool* should, va_list args) {
+            if (flag == VB_DRAW_MASK_ITEM && EasyMaskEquip_IsEnabled()) {
+                u16* itemId = va_arg(args, u16*);
+                s16* j = va_arg(args, s16*);
+                *should = false;
+                RenderMaskItem(&gPlayState->pauseCtx, *itemId, *j);
             }
         });
 
@@ -306,12 +312,9 @@ void RegisterEasyMaskEquip() {
     gameInteractor->RegisterGameHookForID<GameInteractor::BeforeKaleidoDrawPage>(
         PAUSE_MASK, [](PauseContext* pauseCtx, u16) {
             if (EasyMaskEquip_IsEnabled() && pauseCtx->pageIndex == PAUSE_MASK) {
-                GraphicsContext* gfxCtx = gPlayState->state.gfxCtx;
-                OPEN_DISPS(gfxCtx);
-                AllocateEasyMaskEquipVtx(gfxCtx);
+                AllocateEasyMaskEquipVtx(gPlayState->state.gfxCtx);
                 UpdateEasyMaskEquipVtx(pauseCtx);
                 DrawEasyMaskEquipBorder(pauseCtx);
-                CLOSE_DISPS(gfxCtx);
             }
         });
 

@@ -66,6 +66,7 @@ typedef enum {
     VB_THIEF_BIRD_STEAL,
     VB_PLAY_CREMIA_HUG_CUTSCENE,
     VB_ALLOW_EQUIP_MASK,
+    VB_DRAW_MASK_ITEM,
 } GIVanillaBehavior;
 
 typedef enum {
