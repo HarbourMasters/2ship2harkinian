@@ -35,9 +35,9 @@ u8 sMotionBlurStatus;
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "debug.h"
 #include "BenPort.h"
-#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
-#include "2s2h/Enhancements/Graphics/MotionBlur.h"
+#include "2s2h/Enhancements/Graphics/Graphics.h"
 #include "2s2h/DeveloperTools/CollisionViewer.h"
 #include "2s2h/framebuffer_effects.h"
 #include <string.h>
@@ -1248,6 +1248,18 @@ void Play_DrawMain(PlayState* this) {
 
         View_Apply(&this->view, 0xF);
 
+        // Setup mirror mode matrix handling when we are not drawing kaleido
+        if (R_PAUSE_BG_PRERENDER_STATE <= PAUSE_BG_PRERENDER_SETUP && CVarGetInteger("gModes.MirroredWorld.State", 0)) {
+            gSPSetExtraGeometryMode(POLY_OPA_DISP++, G_EX_INVERT_CULLING);
+            gSPSetExtraGeometryMode(POLY_XLU_DISP++, G_EX_INVERT_CULLING);
+            gSPMatrix(POLY_OPA_DISP++, this->view.shipMirrorProjectionPtr,
+                      G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
+            gSPMatrix(POLY_XLU_DISP++, this->view.shipMirrorProjectionPtr,
+                      G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
+            gSPMatrix(POLY_OPA_DISP++, this->view.viewingPtr, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_PROJECTION);
+            gSPMatrix(POLY_XLU_DISP++, this->view.viewingPtr, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_PROJECTION);
+        }
+
         // The billboard matrix temporarily stores the viewing matrix
         Matrix_MtxToMtxF(&this->view.viewing, &this->billboardMtxF);
         Matrix_MtxToMtxF(&this->view.projection, &this->viewProjectionMtxF);
@@ -1514,13 +1526,19 @@ void Play_DrawMain(PlayState* this) {
                 }
             }
 
-            // Draw collision before the PostWorldDraw label so that collision is not drawn during pause
-            DrawCollisionViewer();
+            // Draw Enhancements that need to be placed in the world. This happens before the PostWorldDraw
+            // so that they aren't drawn when the pause menu is up (e.g. collision viewer, actor name tags)
+            GameInteractor_ExecuteOnPlayDrawWorldEnd();
 
         PostWorldDraw:
             if (1) {
                 Play_PostWorldDraw(this);
             }
+        }
+
+        if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
+            gSPClearExtraGeometryMode(POLY_OPA_DISP++, G_EX_INVERT_CULLING);
+            gSPClearExtraGeometryMode(POLY_XLU_DISP++, G_EX_INVERT_CULLING);
         }
     }
 
@@ -2194,9 +2212,6 @@ void Play_FillScreen(GameState* thisx, s16 fillScreenOn, u8 red, u8 green, u8 bl
 
 void Play_Init(GameState* thisx) {
     PlayState* this = (PlayState*)thisx;
-    // #region 2S2H [General] Making gPlayState available
-    gPlayState = this;
-    // #endregion
     GraphicsContext* gfxCtx = this->state.gfxCtx;
     s32 pad;
     uintptr_t zAlloc;
@@ -2229,6 +2244,11 @@ void Play_Init(GameState* thisx) {
         SET_NEXT_GAMESTATE(&this->state, TitleSetup_Init, sizeof(TitleSetupState));
         return;
     }
+
+    // #region 2S2H [General] Making gPlayState available
+    // Setting after the early returns, so that Play_Destroy is registered to unset the ptr later
+    gPlayState = this;
+    // #endregion
 
     if ((gSaveContext.nextCutsceneIndex == 0xFFEF) || (gSaveContext.nextCutsceneIndex == 0xFFF0)) {
         scene = ((void)0, gSaveContext.save.entrance) >> 9;

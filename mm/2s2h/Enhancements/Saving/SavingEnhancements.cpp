@@ -1,6 +1,6 @@
 #include <libultraship/libultraship.h>
 #include "BenPort.h"
-#include "Enhancements/GameInteractor/GameInteractor.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 extern "C" {
 #include <variables.h>
@@ -74,6 +74,13 @@ extern "C" bool SavingEnhancements_CanSave() {
         return false;
     }
 
+    // Not in minigames that set temporary flags
+    if (CHECK_WEEKEVENTREG(WEEKEVENTREG_08_01) || CHECK_WEEKEVENTREG(WEEKEVENTREG_82_08) ||
+        CHECK_WEEKEVENTREG(WEEKEVENTREG_90_20) || CHECK_WEEKEVENTREG(WEEKEVENTREG_KICKOUT_WAIT) ||
+        CHECK_EVENTINF(EVENTINF_34) || CHECK_EVENTINF(EVENTINF_41)) {
+        return false;
+    }
+
     return true;
 }
 
@@ -140,7 +147,7 @@ void HandleAutoSave() {
 }
 
 void RegisterSavingEnhancements() {
-    REGISTER_VB_SHOULD(GI_VB_DELETE_OWL_SAVE, {
+    REGISTER_VB_SHOULD(VB_DELETE_OWL_SAVE, {
         if (CVarGetInteger("gEnhancements.Saving.PersistentOwlSaves", 0) ||
             gSaveContext.save.shipSaveInfo.pauseSaveEntrance != -1) {
             *should = false;

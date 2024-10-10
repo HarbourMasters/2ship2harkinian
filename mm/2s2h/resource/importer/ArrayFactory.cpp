@@ -43,11 +43,33 @@ std::shared_ptr<Ship::IResource> ResourceFactoryBinaryArrayV0::ReadResource(std:
                 ScalarData data;
 
                 switch (array->ArrayScalarType) {
+                    case ScalarType::ZSCALAR_S8:
+                        data.s8 = reader->ReadInt8();
+                        break;
+                    case ScalarType::ZSCALAR_U8:
+                    case ScalarType::ZSCALAR_X8:
+                        data.u8 = reader->ReadUByte();
+                        break;
                     case ScalarType::ZSCALAR_S16:
                         data.s16 = reader->ReadInt16();
                         break;
                     case ScalarType::ZSCALAR_U16:
+                    case ScalarType::ZSCALAR_X16:
                         data.u16 = reader->ReadUInt16();
+                        break;
+                    case ScalarType::ZSCALAR_S32:
+                        data.s32 = reader->ReadInt32();
+                        break;
+                    case ScalarType::ZSCALAR_U32:
+                    case ScalarType::ZSCALAR_X32:
+                        data.u32 = reader->ReadUInt32();
+                        break;
+                    case ScalarType::ZSCALAR_S64:
+                        data.s64 = reader->ReadInt64();
+                        break;
+                    case ScalarType::ZSCALAR_U64:
+                    case ScalarType::ZSCALAR_X64:
+                        data.u64 = reader->ReadUInt64();
                         break;
                     default:
                         // OTRTODO: IMPLEMENT OTHER TYPES!
