@@ -46,7 +46,8 @@ typedef enum {
     DISABLE_FOR_MOTION_BLUR_MODE,
     DISABLE_FOR_MOTION_BLUR_OFF,
     DISABLE_FOR_FRAME_ADVANCE_OFF,
-    DISABLE_FOR_WARP_POINT_NOT_SET
+    DISABLE_FOR_WARP_POINT_NOT_SET,
+    DISABLE_FOR_INTRO_SKIP_OFF,
 } DisableOption;
 
 struct widgetInfo;
@@ -341,7 +342,10 @@ static std::map<DisableOption, disabledInfo> disabledMap = {
         "Frame Advance is Disabled" } },
     { DISABLE_FOR_WARP_POINT_NOT_SET,
       { [](disabledInfo& info) -> bool { return !CVarGetInteger(WARP_POINT_CVAR "Saved", 0); },
-        "Warp Point Not Saved" } }
+        "Warp Point Not Saved" } },
+    { DISABLE_FOR_INTRO_SKIP_OFF,
+      { [](disabledInfo& info) -> bool { return !CVarGetInteger("gEnhancements.Cutscenes.SkipIntroSequence", 0); },
+        "Intro Skip Not Selected" } }
 };
 
 std::unordered_map<int32_t, const char*> menuThemeOptions = {
@@ -973,6 +977,8 @@ void AddEnhancements() {
                 WIDGET_CVAR_CHECKBOX,
                 {},
                 [](widgetInfo& info) { RegisterMoonJumpOnL(); } },
+              { "Elegy of Emptiness Anywhere", "gCheats.ElegyAnywhere", "Allows Elegy of Emptiness outside of Ikana",
+                WIDGET_CVAR_CHECKBOX },
               { "Stop Time in Dungeons",
                 "gCheats.TempleTimeStop",
                 "Stops time from advancing in selected areas. Requires a room change to update.\n\n"
@@ -1264,6 +1270,14 @@ void AddEnhancements() {
               { "Skip Intro Sequence", "gEnhancements.Cutscenes.SkipIntroSequence",
                 "When starting a game you will be taken straight to South Clock Town as Deku Link.",
                 WIDGET_CVAR_CHECKBOX },
+              { "Skip First Cycle",
+                "gEnhancements.Cutscenes.SkipFirstCycle",
+                "When starting a game you will be taken straight to South Clock Town as Human Link "
+                "with Deku Mask, Ocarina, Song of Time, and Song of Healing.",
+                WIDGET_CVAR_CHECKBOX,
+                {},
+                nullptr,
+                [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_INTRO_SKIP_OFF).active; } },
               { "Skip Story Cutscenes", "gEnhancements.Cutscenes.SkipStoryCutscenes",
                 "Disclaimer: This doesn't do much yet, we will be progressively adding more skips over time.",
                 WIDGET_CVAR_CHECKBOX },

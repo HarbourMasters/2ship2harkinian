@@ -67,6 +67,7 @@ typedef enum {
     VB_PLAY_CREMIA_HUG_CUTSCENE,
     VB_FD_ALWAYS_WIELD_SWORD,
     VB_SHOULD_PUTAWAY,
+    VB_ELEGY_CHECK_SCENE,
 } GIVanillaBehavior;
 
 typedef enum {

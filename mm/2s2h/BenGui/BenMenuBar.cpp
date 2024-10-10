@@ -472,6 +472,12 @@ void DrawEnhancementsMenu() {
                 {
                     .tooltip = "When starting a game you will be taken straight to South Clock Town as Deku Link.",
                 });
+            if (CVarGetInteger("gEnhancements.Cutscenes.SkipIntroSequence", 0)) {
+                UIWidgets::CVarCheckbox(
+                    "Skip First Cycle", "gEnhancements.Cutscenes.SkipFirstCycle",
+                    { .tooltip = "When starting a game you will be taken straight to South Clock Town as Human Link "
+                                 "with Deku Mask, Ocarina, Song of Time, and Song of Healing." });
+            }
             UIWidgets::CVarCheckbox(
                 "Skip Story Cutscenes", "gEnhancements.Cutscenes.SkipStoryCutscenes",
                 {
@@ -794,6 +800,8 @@ void DrawCheatsMenu() {
                                     { .tooltip = "Holding L makes you float into the air" })) {
             RegisterMoonJumpOnL();
         }
+        UIWidgets::CVarCheckbox("Elegy of Emptiness Anywhere", "gCheats.ElegyAnywhere",
+                                { .tooltip = "Allows Elegy of Emptiness outside of Ikana" });
         UIWidgets::CVarCombobox(
             "Stop Time in Dungeons", "gCheats.TempleTimeStop", timeStopOptions,
             { .tooltip = "Stops time from advancing in selected areas. Requires a room change to update.\n\n"
