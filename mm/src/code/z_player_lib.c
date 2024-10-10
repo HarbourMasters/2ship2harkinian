@@ -43,7 +43,6 @@
 
 // Assets for other actors
 #include "overlays/actors/ovl_En_Arrow/z_en_arrow.h"
-#include "2s2h/GameInteractor/GameInteractor.h"
 
 #include "2s2h/BenPort.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
