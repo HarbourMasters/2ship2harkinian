@@ -792,6 +792,8 @@ void DrawCheatsMenu() {
                                     { .tooltip = "Holding L makes you float into the air" })) {
             RegisterMoonJumpOnL();
         }
+        UIWidgets::CVarCheckbox("Elegy of Emptiness Anywhere", "gCheats.ElegyAnywhere",
+                                { .tooltip = "Allows Elegy of Emptiness outside of Ikana" });
         UIWidgets::CVarCombobox(
             "Stop Time in Dungeons", "gCheats.TempleTimeStop", timeStopOptions,
             { .tooltip = "Stops time from advancing in selected areas. Requires a room change to update.\n\n"
