@@ -1,7 +1,5 @@
 #include <libultraship/bridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
-#include "z64save.h"
-#include "macros.h"
 #include "overlays/actors/ovl_En_M_Thunder/z_en_m_thunder.h"
 
 extern "C" {
