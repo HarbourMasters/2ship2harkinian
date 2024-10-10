@@ -3,8 +3,8 @@
 #include "overlays/actors/ovl_En_M_Thunder/z_en_m_thunder.h"
 
 extern "C" {
-PlayState* gPlayState;
-Input* sPlayerControlInput;
+extern PlayState* gPlayState;
+extern Input* sPlayerControlInput;
 }
 
 void RegisterTwoHandedSwordSpinAttack() {
