@@ -99,8 +99,7 @@ void RandomizeGroup(SeqType type) {
         if (!values.size())
             return;
     }
-    // BENTODO implement random
-    // Shuffle(values);
+    //Shuffle(values);
     for (const auto& [seqId, seqData] : AudioCollection::Instance->GetAllSequences()) {
         const std::string cvarKey = AudioCollection::Instance->GetCvarKey(seqData.sfxKey);
         const std::string cvarLockKey = AudioCollection::Instance->GetCvarLockKey(seqData.sfxKey);
@@ -162,27 +161,25 @@ void UnlockGroup(const std::map<u16, SequenceInfo>& map, SeqType type) {
         }
     }
 }
-
 extern "C" void Audio_ForceRestorePreviousBgm(void);
 extern "C" void PreviewSequence(u16 seqId);
-
-void AudioEditor::DrawPreviewButton(uint16_t sequenceId, std::string sfxKey, SeqType sequenceType) {
+void DrawPreviewButton(uint16_t sequenceId, std::string sfxKey, SeqType sequenceType) {
     const std::string cvarKey = AudioCollection::Instance->GetCvarKey(sfxKey);
     const std::string hiddenKey = "##" + cvarKey;
     const std::string stopButton = ICON_FA_STOP + hiddenKey;
     const std::string previewButton = ICON_FA_PLAY + hiddenKey;
 
-    if (mPlayingSeq == sequenceId) {
+    if (CVarGetInteger(CVAR_AUDIO("Playing"), 0) == sequenceId) {
         if (ImGui::Button(stopButton.c_str())) {
             Audio_ForceRestorePreviousBgm();
-            mPlayingSeq = 0;
+            CVarSetInteger(CVAR_AUDIO("Playing"), 0);
         }
         UIWidgets::Tooltip("Stop Preview");
     } else {
         if (ImGui::Button(previewButton.c_str())) {
-            if (mPlayingSeq != 0) {
+            if (CVarGetInteger(CVAR_AUDIO("Playing"), 0) != 0) {
                 Audio_ForceRestorePreviousBgm();
-                mPlayingSeq = 0;
+                CVarSetInteger(CVAR_AUDIO("Playing"), 0);
             } else {
                 if (sequenceType == SEQ_SFX || sequenceType == SEQ_VOICE) {
                     AudioSfx_PlaySfx(sequenceId, &gZeroVec3f, 4, &gSfxDefaultFreqAndVolScale,
@@ -193,7 +190,7 @@ void AudioEditor::DrawPreviewButton(uint16_t sequenceId, std::string sfxKey, Seq
                 } else {
                     // TODO: Cant do both here, so have to click preview button twice
                     PreviewSequence(sequenceId);
-                    mPlayingSeq = sequenceId;
+                    CVarSetInteger(CVAR_AUDIO("Playing"), sequenceId);
                 }
             }
         }
@@ -201,9 +198,7 @@ void AudioEditor::DrawPreviewButton(uint16_t sequenceId, std::string sfxKey, Seq
     }
 }
 
-#define CVAR_AUDIO(var) CVAR_PREFIX_AUDIO "." var
-
-void AudioEditor::Draw_SfxTab(const std::string& tabId, SeqType type) {
+void Draw_SfxTab(const std::string& tabId, SeqType type) {
     const std::map<u16, SequenceInfo>& map = AudioCollection::Instance->GetAllSequences();
 
     const std::string hiddenTabId = "##" + tabId;
@@ -446,12 +441,6 @@ void AudioEditor::InitElement() {
 void AudioEditor::DrawElement() {
     AudioCollection::Instance->InitializeShufflePool();
 
-    ImGui::SetNextWindowSize(ImVec2(820, 630), ImGuiCond_FirstUseEver);
-    if (!ImGui::Begin("Audio Editor", &mIsVisible)) {
-        ImGui::End();
-        return;
-    }
-
     float buttonSegments = ImGui::GetContentRegionAvail().x / 4;
     if (ImGui::Button("Randomize All Groups", ImVec2(buttonSegments, 30.0f))) {
         AudioEditor_RandomizeAll();
@@ -505,10 +494,8 @@ void AudioEditor::DrawElement() {
         }
 
         static ImVec2 cellPadding(8.0f, 8.0f);
-#if 0
+        #if 0
         if (ImGui::BeginTabItem("Options")) {
-            // BENTODO implement this
-            ImGui::Text("TODO: Implement this");
             ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, cellPadding);
             ImGui::BeginTable("Options", 1, ImGuiTableFlags_SizingStretchSame);
             ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthStretch);
@@ -516,49 +503,63 @@ void AudioEditor::DrawElement() {
             ImGui::TableNextColumn();
             if (ImGui::BeginChild("SfxOptions", ImVec2(0, -8))) {
                 ImGui::PushItemWidth(-FLT_MIN);
-                UIWidgets::CVarCheckbox("Disable Enemy Proximity Music", CVAR_AUDIO("EnemyBGMDisable"));
-                UIWidgets::Tooltip(
+                UIWidgets::EnhancementCheckbox("Disable Enemy Proximity Music", CVAR_AUDIO("EnemyBGMDisable"));
+                UIWidgets::InsertHelpHoverText(
                     "Disables the music change when getting close to enemies. Useful for hearing "
                     "your custom music for each scene more often.");
-                UIWidgets::CVarCheckbox("Display Sequence Name on Overlay", CVAR_AUDIO("SeqNameOverlay"));
-                UIWidgets::Tooltip(
+                UIWidgets::EnhancementCheckbox("Disable Leading Music in Lost Woods",
+                                               CVAR_AUDIO("LostWoodsConsistentVolume"));
+                UIWidgets::InsertHelpHoverText(
+                    "Disables the volume shifting in the Lost Woods. Useful for hearing "
+                    "your custom music in the Lost Woods if you don't need the navigation assitance "
+                    "the volume changing provides. If toggling this while in the Lost Woods, reload "
+                    "the area for the effect to kick in.");
+                UIWidgets::EnhancementCheckbox("Display Sequence Name on Overlay", CVAR_AUDIO("SeqNameOverlay"));
+                UIWidgets::InsertHelpHoverText(
                     "Displays the name of the current sequence in the corner of the screen whenever a new sequence "
-                    "is loaded to the main sequence player (does not apply to fanfares or enemy BGM)."
-                );
+                    "is loaded to the main sequence player (does not apply to fanfares or enemy BGM).");
                 ImGui::SameLine();
                 ImGui::PushItemWidth(ImGui::GetContentRegionAvail().x);
-                UIWidgets::CVarSliderInt("Overlay Duration: %d seconds", CVAR_AUDIO("SeqNameOverlayDuration"), 1, 10, 5);
+                UIWidgets::EnhancementSliderInt("Overlay Duration: %d seconds", "##SeqNameOverlayDuration",
+                                                CVAR_AUDIO("SeqNameOverlayDuration"), 1, 10, "", 5);
                 ImGui::PopItemWidth();
                 ImGui::NewLine();
                 ImGui::PopItemWidth();
-                UIWidgets::CVarSliderFloat("Link's voice pitch multiplier: %.1f %%", CVAR_AUDIO("LinkVoiceFreqMultiplier"), 0.4, 2.5, 1.0);
+                UIWidgets::EnhancementSliderFloat("Link's voice pitch multiplier: %.1f %%", "##linkVoiceFreqMultiplier",
+                                                  CVAR_AUDIO("LinkVoiceFreqMultiplier"), 0.4, 2.5, "", 1.0, true, true);
                 ImGui::SameLine();
-                if (ImGui::Button("Reset##linkVoiceFreqMultiplier")) {
+                const std::string resetButton = "Reset##linkVoiceFreqMultiplier";
+                if (ImGui::Button(resetButton.c_str())) {
                     CVarSetFloat(CVAR_AUDIO("LinkVoiceFreqMultiplier"), 1.0f);
                     Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
                 }
 
                 ImGui::NewLine();
-                UIWidgets::CVarCheckbox("Randomize All Music and Sound Effects on New Scene", CVAR_AUDIO("RandomizeAllOnNewScene"));
-                UIWidgets::Tooltip("Enables randomizing all unlocked music and sound effects when you enter a new scene.");
+                UIWidgets::EnhancementCheckbox("Randomize All Music and Sound Effects on New Scene",
+                                               CVAR_AUDIO("RandomizeAllOnNewScene"));
+                UIWidgets::Tooltip(
+                    "Enables randomizing all unlocked music and sound effects when you enter a new scene.");
 
                 ImGui::NewLine();
                 ImGui::PushItemWidth(-FLT_MIN);
-                //UIWidgets::PaddedSeparator();
-                //UIWidgets::PaddedText("The following options are experimental and may cause music\nto sound odd or have other undesireable effects.");
-                UIWidgets::CVarCheckbox("Lower Octaves of Unplayable High Notes", CVAR_AUDIO("ExperimentalOctaveDrop"));
-                UIWidgets::Tooltip("Some custom sequences may have notes that are too high for the game's audio "
-                                            "engine to play. Enabling this checkbox will cause these notes to drop a "
-                                            "couple of octaves so they can still harmonize with the other notes of the "
-                                            "sequence.");
+                UIWidgets::PaddedSeparator();
+                UIWidgets::PaddedText("The following options are experimental and may cause music\nto sound odd or "
+                                      "have other undesireable effects.");
+                UIWidgets::EnhancementCheckbox("Lower Octaves of Unplayable High Notes",
+                                               CVAR_AUDIO("ExperimentalOctaveDrop"));
+                UIWidgets::Tooltip(
+                    "Some custom sequences may have notes that are too high for the game's audio "
+                    "engine to play. Enabling this checkbox will cause these notes to drop a "
+                    "couple of octaves so they can still harmonize with the other notes of the "
+                    "sequence.");
                 ImGui::PopItemWidth();
+            }
             ImGui::EndChild();
             ImGui::EndTable();
             ImGui::PopStyleVar(1);
             ImGui::EndTabItem();
-            }
         }
-#endif
+        #endif
 
         static bool excludeTabOpen = false;
         if (ImGui::BeginTabItem("Audio Shuffle Pool Management")) {
@@ -710,11 +711,10 @@ void AudioEditor::DrawElement() {
 
         ImGui::EndTabBar();
     }
-    ImGui::End();
 }
 
-static constexpr std::array<SeqType, 8> allTypes = { SEQ_BGM_WORLD, SEQ_BGM_EVENT,  SEQ_BGM_BATTLE, SEQ_OCARINA,
-                                                     SEQ_FANFARE,   SEQ_INSTRUMENT, SEQ_SFX,        SEQ_VOICE };
+static std::array<SeqType, 8> allTypes = { SEQ_BGM_WORLD, SEQ_BGM_EVENT,  SEQ_BGM_BATTLE, SEQ_OCARINA,
+                                  SEQ_FANFARE,   SEQ_INSTRUMENT, SEQ_SFX,        SEQ_VOICE };
 
 void AudioEditor_RandomizeAll() {
     for (auto type : allTypes) {
