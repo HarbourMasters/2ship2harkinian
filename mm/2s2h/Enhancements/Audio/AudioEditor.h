@@ -21,8 +21,8 @@ class AudioEditor : public Ship::GuiWindow {
     ~AudioEditor(){};
 
   private:
-    //void DrawPreviewButton(uint16_t sequenceId, std::string sfxKey, SeqType sequenceType);
-    //void Draw_SfxTab(const std::string& tabId, SeqType type);
+    // void DrawPreviewButton(uint16_t sequenceId, std::string sfxKey, SeqType sequenceType);
+    // void Draw_SfxTab(const std::string& tabId, SeqType type);
     uint16_t mPlayingSeq = 0;
 };
 

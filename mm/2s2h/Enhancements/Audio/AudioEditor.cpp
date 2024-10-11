@@ -99,7 +99,7 @@ void RandomizeGroup(SeqType type) {
         if (!values.size())
             return;
     }
-    //Shuffle(values);
+    // Shuffle(values);
     for (const auto& [seqId, seqData] : AudioCollection::Instance->GetAllSequences()) {
         const std::string cvarKey = AudioCollection::Instance->GetCvarKey(seqData.sfxKey);
         const std::string cvarLockKey = AudioCollection::Instance->GetCvarLockKey(seqData.sfxKey);
@@ -494,7 +494,7 @@ void AudioEditor::DrawElement() {
         }
 
         static ImVec2 cellPadding(8.0f, 8.0f);
-        #if 0
+#if 0
         if (ImGui::BeginTabItem("Options")) {
             ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, cellPadding);
             ImGui::BeginTable("Options", 1, ImGuiTableFlags_SizingStretchSame);
@@ -559,7 +559,7 @@ void AudioEditor::DrawElement() {
             ImGui::PopStyleVar(1);
             ImGui::EndTabItem();
         }
-        #endif
+#endif
 
         static bool excludeTabOpen = false;
         if (ImGui::BeginTabItem("Audio Shuffle Pool Management")) {
@@ -714,7 +714,7 @@ void AudioEditor::DrawElement() {
 }
 
 static std::array<SeqType, 8> allTypes = { SEQ_BGM_WORLD, SEQ_BGM_EVENT,  SEQ_BGM_BATTLE, SEQ_OCARINA,
-                                  SEQ_FANFARE,   SEQ_INSTRUMENT, SEQ_SFX,        SEQ_VOICE };
+                                           SEQ_FANFARE,   SEQ_INSTRUMENT, SEQ_SFX,        SEQ_VOICE };
 
 void AudioEditor_RandomizeAll() {
     for (auto type : allTypes) {
