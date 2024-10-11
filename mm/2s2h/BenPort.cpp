@@ -1176,6 +1176,10 @@ extern "C" Vtx* ResourceMgr_LoadVtxByName(char* path) {
     return (Vtx*)ResourceGetDataByName(path);
 }
 
+extern "C" Mtx* ResourceMgr_LoadMtxByName(char* path) {
+    return (Mtx*)ResourceGetDataByName(path);
+}
+
 extern "C" SequenceData ResourceMgr_LoadSeqByName(const char* path) {
     SequenceData* sequence = (SequenceData*)ResourceGetDataByName(path);
     return *sequence;
