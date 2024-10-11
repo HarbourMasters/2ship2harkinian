@@ -13,6 +13,7 @@ void InitEnhancements() {
     RegisterUnbreakableRazorSword();
     RegisterUnrestrictedItems();
     RegisterTimeStopInTemples();
+    RegisterElegyAnywhere();
 
     // Clock
     RegisterTextBasedClock();
@@ -33,6 +34,7 @@ void InitEnhancements() {
 
     // Fixes
     RegisterFierceDeityZTargetMovement();
+    RegisterTwoHandedSwordSpinAttack();
 
     // Graphics
     RegisterDisableBlackBars();
@@ -47,16 +49,20 @@ void InitEnhancements() {
 
     // Minigames
     RegisterAlwaysWinDoggyRace();
+    RegisterCremiaHugs();
 
     // Player
     RegisterClimbSpeed();
     RegisterFastFlowerLaunch();
     RegisterInstantPutaway();
+    RegisterFierceDeityPutaway();
 
     // Songs
     RegisterEnableSunsSong();
+    RegisterFasterSongPlayback();
     RegisterPauseOwlWarp();
     RegisterZoraEggCount();
+    RegisterSkipScarecrowSong();
 
     // Restorations
     RegisterPowerCrouchStab();
@@ -71,4 +77,7 @@ void InitEnhancements() {
     // Modes
     RegisterPlayAsKafei();
     RegisterTimeMovesWhenYouMove();
+
+    // Difficulty Options
+    RegisterDisableTakkuriSteal();
 }

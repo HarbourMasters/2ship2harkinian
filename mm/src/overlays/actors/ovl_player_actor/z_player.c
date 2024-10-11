@@ -3761,8 +3761,9 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
         ItemId item;
         EquipSlot i = func_8082FDC4();
 
-        i = ((i >= EQUIP_SLOT_A) && (this->transformation == PLAYER_FORM_FIERCE_DEITY) &&
-             (this->heldItemAction != PLAYER_IA_SWORD_TWO_HANDED))
+        i = GameInteractor_Should(VB_FD_ALWAYS_WIELD_SWORD, (i >= EQUIP_SLOT_A) &&
+                                                                (this->transformation == PLAYER_FORM_FIERCE_DEITY) &&
+                                                                (this->heldItemAction != PLAYER_IA_SWORD_TWO_HANDED))
                 ? EQUIP_SLOT_B
                 : i;
 
@@ -5267,7 +5268,9 @@ void func_808332A0(PlayState* play, Player* this, s32 magicCost, s32 isSwordBeam
     }
 
     this->stateFlags1 |= PLAYER_STATE1_1000;
-    if ((this->actor.id == ACTOR_PLAYER) && (isSwordBeam || (this->transformation == PLAYER_FORM_HUMAN))) {
+    if ((this->actor.id == ACTOR_PLAYER) &&
+        (isSwordBeam || (GameInteractor_Should(VB_MAGIC_SPIN_ATTACK_CHECK_FORM,
+                                               this->transformation == PLAYER_FORM_HUMAN, this->transformation)))) {
         s16 pitch = 0;
         Actor* thunder;
 
@@ -8115,7 +8118,7 @@ s32 Player_ActionChange_6(Player* this, PlayState* play) {
             }
 
             if ((this->putAwayCountdown == 0) && (this->heldItemAction >= PLAYER_IA_SWORD_KOKIRI) &&
-                (this->transformation != PLAYER_FORM_FIERCE_DEITY)) {
+                GameInteractor_Should(VB_SHOULD_PUTAWAY, (this->transformation != PLAYER_FORM_FIERCE_DEITY))) {
                 Player_UseItem(play, this, ITEM_NONE);
             } else {
                 this->stateFlags2 ^= PLAYER_STATE2_100000;
@@ -8191,13 +8194,16 @@ s32 func_8083A4A4(Player* this, f32* arg1, s16* arg2, f32 arg3) {
 }
 
 void func_8083A548(Player* this) {
-    if ((this->unk_ADC > 0) && !CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B)) {
+    if ((this->unk_ADC > 0) &&
+        !GameInteractor_Should(VB_CHECK_HELD_ITEM_BUTTON_PRESS, CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B),
+                               sDpadItemButtons, sPlayerItemButtons)) {
         this->unk_ADC = -this->unk_ADC;
     }
 }
 
 s32 Player_ActionChange_8(Player* this, PlayState* play) {
-    if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B)) {
+    if (GameInteractor_Should(VB_CHECK_HELD_ITEM_BUTTON_PRESS, CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B),
+                              sDpadItemButtons, sPlayerItemButtons)) {
         if (!(this->stateFlags1 & PLAYER_STATE1_400000) &&
             (Player_GetMeleeWeaponHeld(this) != PLAYER_MELEEWEAPON_NONE)) {
             if ((this->unk_ADC > 0) && (((this->transformation == PLAYER_FORM_ZORA)) ||
@@ -10461,7 +10467,9 @@ s32 func_80840A30(PlayState* play, Player* this, f32* arg2, f32 arg3) {
 s32 func_80840CD4(Player* this, PlayState* play) {
     if (Player_StartCsAction(play, this)) {
         this->stateFlags2 |= PLAYER_STATE2_20000;
-    } else if (!CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B)) {
+    } else if (!GameInteractor_Should(VB_CHECK_HELD_ITEM_BUTTON_PRESS,
+                                      CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B), sDpadItemButtons,
+                                      sPlayerItemButtons)) {
         PlayerMeleeWeaponAnimation meleeWeaponAnim;
 
         if ((this->unk_B08 >= 0.85f) || func_808333CC(this)) {
@@ -11243,8 +11251,8 @@ void Player_SetDoAction(PlayState* play, Player* this) {
                 } else if ((this->transformation == PLAYER_FORM_DEKU) && !(this->stateFlags1 & PLAYER_STATE1_8000000) &&
                            (this->actor.bgCheckFlags & BGCHECKFLAG_GROUND)) {
                     doActionA = DO_ACTION_ATTACK;
-                } else if (((this->transformation == PLAYER_FORM_HUMAN) ||
-                            (this->transformation == PLAYER_FORM_ZORA)) &&
+                } else if (GameInteractor_Should(VB_SHOULD_PUTAWAY, ((this->transformation == PLAYER_FORM_HUMAN) ||
+                                                                     (this->transformation == PLAYER_FORM_ZORA))) &&
                            ((this->heldItemAction >= PLAYER_IA_SWORD_KOKIRI) ||
                             ((this->stateFlags2 & PLAYER_STATE2_100000) &&
                              (play->actorCtx.targetCtx.fairyActor == NULL)))) {
@@ -13004,7 +13012,122 @@ void Player_Destroy(Actor* thisx, PlayState* play) {
     func_80831454(this);
 }
 
+s32 Ship_HandleFirstPersonAiming(PlayState* play, Player* this, s32 arg2) {
+    s16 var_s0;
+    s32 stickX = 0;
+    s32 stickY = 0;
+    float gyroX = 0.0f;
+    float gyroY = 0.0f;
+
+    if (!CVarGetInteger("gEnhancements.Camera.FirstPerson.MoveInFirstPerson", 0)) {
+        s32 leftStickX = sPlayerControlInput->rel.stick_x; // -60 to 60
+        s32 leftStickY = sPlayerControlInput->rel.stick_y; // -60 to 60
+
+        leftStickX *= GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_AIM_X);
+        leftStickY *= -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_AIM_Y);
+
+        stickX += leftStickX * CVarGetFloat("gEnhancements.Camera.FirstPerson.SensitivityX", 1.0f);
+        stickY += leftStickY * CVarGetFloat("gEnhancements.Camera.FirstPerson.SensitivityY", 1.0f);
+    }
+
+    if (CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroEnabled", 0)) {
+        gyroX = sPlayerControlInput->cur.gyro_y * 720; // -40 to 40, avg -4 to 4
+        gyroY = sPlayerControlInput->cur.gyro_x * 720; // -20 to 20, avg -2 to 2
+
+        gyroX *= GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_GYRO_X);
+        gyroY *= -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_GYRO_Y);
+
+        gyroX *= CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityX", 1.0f);
+        gyroY *= CVarGetFloat("gEnhancements.Camera.FirstPerson.GyroSensitivityY", 1.0f);
+    }
+
+    if (CVarGetInteger("gEnhancements.Camera.FirstPerson.RightStickEnabled", 0)) {
+        s32 rightStickX = sPlayerControlInput->cur.right_stick_x; // -40 to 40, avg -4 to 4
+        s32 rightStickY = sPlayerControlInput->cur.right_stick_y; // -20 to 20, avg -2 to 2
+
+        rightStickX *= GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_RIGHT_STICK_X);
+        rightStickY *= -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_RIGHT_STICK_Y);
+
+        stickX += rightStickX * CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityX", 1.0f);
+        stickY += rightStickY * CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityY", 1.0f);
+    }
+
+    stickX = CLAMP(stickX, -60, 60);
+    stickY = CLAMP(stickY, -60, 60);
+
+    if (!func_800B7128(this) && !func_8082EF20(this) && !arg2) { // First person without weapon
+        var_s0 = stickY * 0xF0;
+        if (CVarGetInteger("gEnhancements.Camera.FirstPerson.DisableFirstPersonAutoCenterView", 0) ||
+            CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroEnabled", 0)) {
+            this->actor.focus.rot.x += var_s0 * 0.1f;
+        } else {
+            Math_SmoothStepToS(&this->actor.focus.rot.x, var_s0, 0xE, 0xFA0, 0x1E);
+        }
+        this->actor.focus.rot.x += gyroY;
+        this->actor.focus.rot.x = CLAMP(this->actor.focus.rot.x, -14000, 14000);
+
+        var_s0 = stickX * -0x10;
+        var_s0 = CLAMP(var_s0, -0xBB8, 0xBB8);
+        this->actor.focus.rot.y += var_s0 + gyroX;
+    } else { // First person with weapon
+        s16 temp3;
+
+        temp3 = ((stickY >= 0) ? 1 : -1) * (s32)((1.0f - Math_CosS(stickY * 0xC8)) * 1500.0f);
+        this->actor.focus.rot.x += temp3 + gyroY;
+
+        if (this->stateFlags1 & PLAYER_STATE1_800000) {
+            this->actor.focus.rot.x = CLAMP(this->actor.focus.rot.x, -0x1F40, 0xFA0);
+        } else {
+            this->actor.focus.rot.x = CLAMP(this->actor.focus.rot.x, -0x36B0, 0x36B0);
+        }
+
+        var_s0 = this->actor.focus.rot.y - this->actor.shape.rot.y;
+        temp3 = ((stickX >= 0) ? 1 : -1) * (s32)((1.0f - Math_CosS(stickX * 0xC8)) * -1500.0f);
+        var_s0 += temp3;
+
+        this->actor.focus.rot.y = CLAMP(var_s0 + gyroX, -0x4AAA, 0x4AAA) + this->actor.shape.rot.y;
+    }
+
+    if (CVarGetInteger("gEnhancements.Camera.FirstPerson.MoveInFirstPerson", 0) &&
+        CVarGetInteger("gEnhancements.Camera.FirstPerson.RightStickEnabled", 0)) {
+        f32 movementSpeed = 8.25f; // account for form
+        if (this->currentMask == PLAYER_MASK_BUNNY) {
+            movementSpeed *= 1.5f;
+        }
+
+        f32 relX =
+            (-sPlayerControlInput->rel.stick_x / 10) * GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_MOVING_X);
+        f32 relY = (sPlayerControlInput->rel.stick_y / 10);
+
+        // Normalize so that diagonal movement isn't faster
+        f32 relMag = sqrtf((relX * relX) + (relY * relY));
+        if (relMag > 1.0f) {
+            relX /= relMag;
+            relY /= relMag;
+        }
+
+        // Determine what left and right mean based on camera angle
+        f32 relX2 = relX * Math_CosS(this->actor.focus.rot.y) + relY * Math_SinS(this->actor.focus.rot.y);
+        f32 relY2 = relY * Math_CosS(this->actor.focus.rot.y) - relX * Math_SinS(this->actor.focus.rot.y);
+
+        // Calculate distance for footstep sound
+        f32 distance = sqrtf((relX2 * relX2) + (relY2 * relY2)) * movementSpeed;
+        func_8083EA44(this, distance / 4.5f);
+
+        this->actor.world.pos.x += (relX2 * movementSpeed) + this->actor.colChkInfo.displacement.x;
+        this->actor.world.pos.z += (relY2 * movementSpeed) + this->actor.colChkInfo.displacement.z;
+    }
+
+    this->unk_AA6 |= 2;
+
+    return func_80832754(this, (play->bButtonAmmoPlusOne != 0) || func_800B7128(this) || func_8082EF20(this));
+}
+
 s32 func_80847190(PlayState* play, Player* this, s32 arg2) {
+    // #region 2S2H [Enhancements] Use our own heavily modified version of this for customizations
+    return Ship_HandleFirstPersonAiming(play, this, arg2);
+    // #endregion
+
     s32 pad;
     s16 var_s0;
     s32 stickX = sPlayerControlInput->rel.stick_x;
@@ -14445,7 +14568,9 @@ void Player_Action_12(Player* this, PlayState* play) {
     if (!func_80847880(play, this)) {
         if (!Player_TryActionChangeList(play, this, sPlayerActionChangeList7, false) ||
             (Player_Action_12 == this->actionFunc)) {
-            if (!CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B)) {
+            if (!GameInteractor_Should(VB_CHECK_HELD_ITEM_BUTTON_PRESS,
+                                       CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B), sDpadItemButtons,
+                                       sPlayerItemButtons)) {
                 func_80839E74(this, play);
             }
         }
@@ -15130,7 +15255,9 @@ void Player_Action_30(Player* this, PlayState* play) {
             if (this->unk_B08 >= 0.1f) {
                 this->unk_ADD = 0;
                 this->av2.actionVar2 = 1;
-            } else if (!CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B)) {
+            } else if (!GameInteractor_Should(VB_CHECK_HELD_ITEM_BUTTON_PRESS,
+                                              CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B), sDpadItemButtons,
+                                              sPlayerItemButtons)) {
                 func_80840E5C(this, play);
             }
         } else if (!func_80840CD4(this, play)) {

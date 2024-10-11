@@ -7,5 +7,6 @@ void RegisterMoonJumpOnL();
 void RegisterTimeStopInTemples();
 void RegisterUnbreakableRazorSword();
 void RegisterUnrestrictedItems();
+void RegisterElegyAnywhere();
 
 #endif // CHEATS_H

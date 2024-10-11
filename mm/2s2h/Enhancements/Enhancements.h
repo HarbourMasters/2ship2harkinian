@@ -16,6 +16,7 @@
 #include "Restorations/Restorations.h"
 #include "Saving/SavingEnhancements.h"
 #include "Songs/Songs.h"
+#include "DifficultyOptions/DifficultyOptions.h"
 
 enum AlwaysWinDoggyRaceOptions {
     ALWAYS_WIN_DOGGY_RACE_OFF,
@@ -33,6 +34,12 @@ enum ClockTypeOptions {
     CLOCK_TYPE_ORIGINAL,
     CLOCK_TYPE_3DS,
     CLOCK_TYPE_TEXT_BASED,
+};
+
+enum CremiaRewardsOptions {
+    CREMIA_REWARD_RANDOM,
+    CREMIA_REWARD_ALWAYS_HUG,
+    CREMIA_REWARD_ALWAYS_RUPEE,
 };
 
 #ifdef __cplusplus
