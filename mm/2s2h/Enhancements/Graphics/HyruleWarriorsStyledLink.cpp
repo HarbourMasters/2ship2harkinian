@@ -1,6 +1,5 @@
-#include "HyruleWarriorsStyledLink.h"
 #include "libultraship/libultraship.h"
-#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 #include "Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 extern "C" {
