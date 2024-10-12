@@ -63,7 +63,7 @@ void ReplayCurrentBGM() {
     // TODO: replace with Audio_StartSeq when the macro is shared
     // The fade time and audio player flags will always be 0 in the case of replaying the BGM, so they are not set here
     // AudioSeq_QueueSeqCmd(0x00000000 | curSeqId);
-    SEQCMD_PLAY_SEQUENCE(SEQ_PLAYER_MAX, 0, curSeqId);
+    SEQCMD_PLAY_SEQUENCE(SEQ_PLAYER_BGM_MAIN, 0, curSeqId);
 }
 
 // Attempt to update the BGM if it matches the current sequence that is being played
