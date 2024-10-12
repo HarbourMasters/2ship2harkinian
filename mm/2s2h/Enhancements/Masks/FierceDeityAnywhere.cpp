@@ -8,13 +8,9 @@
 #define NOT_HIT_BY_SWORD_BEAM 0
 
 /*
- * Flag indicating that the damage effect comes from a sword beam
+ * Stored to handle cases where the drawn actor is null (e.g. Leevers)
  */
-static bool lightArrowsAsSwordBeams = false;
-/*
- * Flag indicating that the collision being processed involves a sword beam. Only currently used for Big Octos.
- */
-static bool isSwordBeamCollision = false;
+static Actor* currentlyDrawnActor = nullptr;
 
 void RegisterFierceDeityAnywhere() {
     REGISTER_VB_SHOULD(VB_DISABLE_FD_MASK, {
@@ -23,7 +19,7 @@ void RegisterFierceDeityAnywhere() {
         }
     });
 
-    REGISTER_VB_SHOULD(GI_VB_DAMAGE_MULTIPLIER, {
+    REGISTER_VB_SHOULD(VB_DAMAGE_MULTIPLIER, {
         if (CVarGetInteger("gEnhancements.Masks.FierceDeitysAnywhere", 0)) {
             int index = va_arg(args, int);
             DamageTable* damageTable = va_arg(args, DamageTable*);
@@ -44,7 +40,7 @@ void RegisterFierceDeityAnywhere() {
         }
     });
 
-    REGISTER_VB_SHOULD(GI_VB_DAMAGE_EFFECT, {
+    REGISTER_VB_SHOULD(VB_DAMAGE_EFFECT, {
         if (CVarGetInteger("gEnhancements.Masks.FierceDeitysAnywhere", 0)) {
             int index = va_arg(args, int);
             DamageTable* damageTable = va_arg(args, DamageTable*);
@@ -83,20 +79,19 @@ void RegisterFierceDeityAnywhere() {
     });
 
     /*
-     * Use a hook before an actor draws to confirm that the effect being drawn is the sword beam effect. This extra
-     * flag is necessary because some actors call Actor_DrawDamageEffects() with a null actor (e.g. leevers), so we
-     * cannot just check the same flag as before in the draw damage effect hook.
+     * Use a hook before an actor draws to store which actor is being drawn. Some actors call Actor_DrawDamageEffects()
+     * with a null actor (e.g. leevers), so we cannot just check the actor in the draw damage hook directly.
      */
     GameInteractor::Instance->RegisterGameHook<GameInteractor::ShouldActorDraw>(
-        [](Actor* actor, bool* result) { lightArrowsAsSwordBeams = actor->shape.face & HIT_BY_SWORD_BEAM; });
+        [](Actor* actor, bool* result) { currentlyDrawnActor = actor; });
 
     /*
      * If we're drawing the light arrow damage effect, but we know it's from a sword beam, then quietly change the type
      * to the blue lights effect.
      */
-    REGISTER_VB_SHOULD(GI_VB_DRAW_DAMAGE_EFFECT, {
+    REGISTER_VB_SHOULD(VB_DRAW_DAMAGE_EFFECT, {
         if (CVarGetInteger("gEnhancements.Masks.FierceDeitysAnywhere", 0)) {
-            if (lightArrowsAsSwordBeams) {
+            if (currentlyDrawnActor->shape.face & HIT_BY_SWORD_BEAM) {
                 u8* type = va_arg(args, u8*);
                 if (*type == ACTOR_DRAW_DMGEFF_LIGHT_ORBS) {
                     *type = ACTOR_DRAW_DMGEFF_BLUE_LIGHT_ORBS;
@@ -107,14 +102,16 @@ void RegisterFierceDeityAnywhere() {
 
     /*
      * If this is a sword beam collision, just hand wave it as a valid collision. This allows for sword beams to hit
-     * enemies in a damaging way, such as Skulltulas and Big Octos. The isSwordBeamCollision flag exists for the sole
-     * purpose of having the blue light orbs effect on Big Octos; that actor handles damage effects differently from
-     * most other enemies.
+     * enemies in a damaging way, such as Skulltulas and Big Octos.
      */
-    REGISTER_VB_SHOULD(GI_VB_CHECK_BUMPER_COLLISION, {
+    REGISTER_VB_SHOULD(VB_CHECK_BUMPER_COLLISION, {
         if (CVarGetInteger("gEnhancements.Masks.FierceDeitysAnywhere", 0)) {
+            ColliderInfo* toucher = va_arg(args, ColliderInfo*);
             ColliderInfo* bumper = va_arg(args, ColliderInfo*);
-            *should = isSwordBeamCollision = bumper->bumper.dmgFlags & DMG_SWORD_BEAM;
+            if (toucher->toucher.dmgFlags & DMG_SWORD_BEAM) {
+                bumper->bumper.dmgFlags |= DMG_SWORD_BEAM;
+                *should = false;
+            }
         }
     });
 
@@ -126,7 +123,8 @@ void RegisterFierceDeityAnywhere() {
         ACTOR_EN_BIGOKUTA, [](Actor* actor, bool* result) {
             if (CVarGetInteger("gEnhancements.Masks.FierceDeitysAnywhere", 0)) {
                 EnBigokuta* enBigOkuta = (EnBigokuta*)actor;
-                if (isSwordBeamCollision && enBigOkuta->bodyCollider.base.acFlags & AC_HIT) {
+                if (enBigOkuta->bodyCollider.base.acFlags & AC_HIT &&
+                    enBigOkuta->bodyCollider.info.acHitInfo->toucher.dmgFlags & DMG_SWORD_BEAM) {
                     enBigOkuta->drawDmgEffType = ACTOR_DRAW_DMGEFF_BLUE_LIGHT_ORBS;
                     enBigOkuta->drawDmgEffScale = 1.2f;
                     enBigOkuta->drawDmgEffAlpha = 4.0f;
@@ -135,7 +133,6 @@ void RegisterFierceDeityAnywhere() {
                                 enBigOkuta->bodyCollider.info.bumper.hitPos.y,
                                 enBigOkuta->bodyCollider.info.bumper.hitPos.z, 0, 0, 0,
                                 CLEAR_TAG_PARAMS(CLEAR_TAG_LARGE_LIGHT_RAYS));
-                    isSwordBeamCollision = false;
                 }
             }
         });
