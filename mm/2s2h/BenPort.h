@@ -145,6 +145,8 @@ void Gfx_UnregisterBlendedTexture(const char* name);
 void Gfx_TextureCacheDelete(const uint8_t* texAddr);
 void CheckTracker_OnMessageClose();
 
+void Messagebox_ShowErrorBox(char* title, char* body);
+
 int32_t GetGIID(uint32_t itemID);
 #endif
 

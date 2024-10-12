@@ -1674,3 +1674,7 @@ extern "C" int Controller_ShouldRumble(size_t slot) {
 
     return 0;
 }
+
+extern "C" void Messagebox_ShowErrorBox(char* title, char* body) {
+    Extractor::ShowErrorBox(title, body);
+}

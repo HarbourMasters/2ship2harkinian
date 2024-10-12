@@ -1309,6 +1309,12 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
     // specific ranges in AudioCollection for types, or unifying AudioCollection and the various maps in here
     int seqNum = startingSeqNum;
 
+    // BENTODO remove the limit. TL;DR seqid is cast to u8 in a bunch of places.
+    if (startingSeqNum + customSeqListSize > 255) {
+        Messagebox_ShowErrorBox(
+            "Too many sequences",
+            "More than 255 sequences loaded. The game will run but custom sequences may not work correctly.");
+    }
     for (size_t i = startingSeqNum; i < startingSeqNum + customSeqListSize; i++) {
         // ensure that what would be the next sequence number is actually unassigned in AudioCollection
         while (AudioCollection_HasSequenceNum(seqNum)) {
