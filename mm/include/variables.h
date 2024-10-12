@@ -1746,7 +1746,7 @@ extern u8 sVoiceMaskPattern[];
 // extern UNK_TYPE1 D_801FD610;
 extern ActiveSfx gActiveSfx[7][3];
 extern SeqRequest sSeqRequests[][5];
-extern u8 sNumSeqRequests[5];
+extern u8 sNumSeqRequests[];
 extern u32 sAudioSeqCmds[0x100];
 extern ActiveSequence gActiveSeqs[];
 extern u8 sResetAudioHeapTimer;

@@ -165,6 +165,7 @@ list(FILTER src__ EXCLUDE REGEX "src/libultra/libc/*")
 list(FILTER src__ EXCLUDE REGEX "src/libultra/os/*")
 list(FILTER src__ EXCLUDE REGEX "src/libultra/rmon/*")
 list(FILTER src__ EXCLUDE REGEX "src/libultra/*")
+list(FILTER ship__ EXCLUDE REGEX "2s2h/Enhancements/Audio/dr_libs/*")
 #list(APPEND src__ "src/libultra/libc/sprintf.c")
 #list(REMOVE_ITEM src__ "src/libultra/gu/cosf.c")
 #list(REMOVE_ITEM src__ "src/libultra/gu/lookat.c")
@@ -552,6 +553,12 @@ endif()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     find_package(glfw3 REQUIRED)
+
+    find_package(Ogg CONFIG REQUIRED)
+    link_libraries(Ogg::ogg)
+
+    find_package(Vorbis CONFIG REQUIRED)
+    link_libraries(Vorbis::vorbisfile)
 	set(ADDITIONAL_LIBRARY_DEPENDENCIES
 		"libultraship;"
 		"ZAPDLib;"
@@ -563,7 +570,11 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 		"winmm;"
 		"imm32;"
 		"version;"
-		"setupapi"
+		"setupapi;"
+        "Ogg::ogg"
+        "Vorbis::vorbis"
+        "Vorbis::vorbisenc"
+        "Vorbis::vorbisfile"
 	)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
     find_package(SDL2)
@@ -589,15 +600,24 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "CafeOS")
 else()
     find_package(SDL2)
     set(THREADS_PREFER_PTHREAD_FLAG ON)
+    
     find_package(Threads REQUIRED)
- 	set(ADDITIONAL_LIBRARY_DEPENDENCIES
+    find_package(PkgConfig REQUIRED)
+    pkg_check_modules(OGG REQUIRED ogg)
+    pkg_check_modules(VORBIS REQUIRED vorbis)
+    pkg_check_modules(VORBISFILE REQUIRED vorbisfile)
+    set(ADDITIONAL_LIBRARY_DEPENDENCIES
         "libultraship;"
 		"ZAPDLib;"
+        "ogg"
+        "vorbis"
+        "vorbisfile"
 		SDL2::SDL2
  #       "$<$<BOOL:${BUILD_CROWD_CONTROL}>:SDL2_net::SDL2_net>"
 		${CMAKE_DL_LIBS}
 		Threads::Threads
 	)
+
 endif()
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "NintendoSwitch|CafeOS")

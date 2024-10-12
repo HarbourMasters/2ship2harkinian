@@ -13,7 +13,7 @@ void AudioHeap_ApplySampleBankCacheInternal(s32 apply, s32 sampleBankId);
 void AudioHeap_DiscardSampleBanks(void);
 void AudioHeap_InitReverb(s32 reverbIndex, ReverbSettings* settings, s32 isFirstInit);
 
-extern size_t gSequenceToResourceSize;
+extern size_t sequenceMapSize;
 
 #define gTatumsPerBeat (gAudioTatumInit[1])
 
@@ -55,10 +55,13 @@ void AudioHeap_InitAdsrDecayTable(void) {
 
 void AudioHeap_ResetLoadStatus(void) {
     s32 i;
+    // 2S2H [Port] [Custom audio] These are initialized with `calloc` in AudioLoad_Init
 
-    for (i = 0; i < ARRAY_COUNT(gAudioCtx.fontLoadStatus); i++) {
-        if (gAudioCtx.fontLoadStatus[i] != LOAD_STATUS_PERMANENT) {
-            gAudioCtx.fontLoadStatus[i] = LOAD_STATUS_NOT_LOADED;
+    if (gAudioCtx.fontLoadStatus != NULL) {
+        for (i = 0; i < ARRAY_COUNT(gAudioCtx.fontLoadStatus); i++) {
+            if (gAudioCtx.fontLoadStatus[i] != LOAD_STATUS_PERMANENT) {
+                gAudioCtx.fontLoadStatus[i] = LOAD_STATUS_NOT_LOADED;
+            }
         }
     }
 
@@ -68,9 +71,11 @@ void AudioHeap_ResetLoadStatus(void) {
         }
     }
 
-    for (i = 0; i < gSequenceToResourceSize; i++) {
-        if (gAudioCtx.seqLoadStatus[i] != LOAD_STATUS_PERMANENT) {
-            gAudioCtx.seqLoadStatus[i] = LOAD_STATUS_NOT_LOADED;
+    if (gAudioCtx.seqLoadStatus != NULL) {
+        for (i = 0; i < sequenceMapSize; i++) {
+            if (gAudioCtx.seqLoadStatus[i] != LOAD_STATUS_PERMANENT) {
+                gAudioCtx.seqLoadStatus[i] = LOAD_STATUS_NOT_LOADED;
+            }
         }
     }
 }
