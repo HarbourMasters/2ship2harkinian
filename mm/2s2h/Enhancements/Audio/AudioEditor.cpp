@@ -12,6 +12,7 @@
 #include "../../BenGui/UIWidgets.hpp"
 #include "AudioCollection.h"
 #include "GameInteractor/GameInteractor.h"
+#include <random>
 
 extern "C" Vec3f gZeroVec3f;
 extern "C" f32 gSfxDefaultFreqAndVolScale;
@@ -99,7 +100,10 @@ void RandomizeGroup(SeqType type) {
         if (!values.size())
             return;
     }
-    // Shuffle(values);
+    std::random_device rd;
+    std::mt19937 g(rd());
+
+    std::shuffle(values.begin(), values.end(), g);
     for (const auto& [seqId, seqData] : AudioCollection::Instance->GetAllSequences()) {
         const std::string cvarKey = AudioCollection::Instance->GetCvarKey(seqData.sfxKey);
         const std::string cvarLockKey = AudioCollection::Instance->GetCvarLockKey(seqData.sfxKey);
@@ -305,9 +309,10 @@ void Draw_SfxTab(const std::string& tabId, SeqType type) {
         }
         ImGui::TableNextColumn();
         ImGui::PushItemWidth(-FLT_MIN);
-        DrawPreviewButton((type == SEQ_SFX || type == SEQ_VOICE || type == SEQ_INSTRUMENT) ? defaultValue
-                                                                                           : currentValue,
-                          seqData.sfxKey, type);
+        // BENTODO ship checks for some values and passes either the replaced value or the default value. For some
+        // reason, likely an edge case, the original -> replacement lookup is done twice. Passing the original value
+        // here seems to work.
+        DrawPreviewButton(defaultValue, seqData.sfxKey, type);
         auto locked = CVarGetInteger(cvarLockKey.c_str(), 0) == 1;
         ImGui::SameLine();
         ImGui::PushItemWidth(-FLT_MIN);
