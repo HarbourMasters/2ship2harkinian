@@ -5,7 +5,7 @@
 #include "vt.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include <stdio.h>
-#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #include "2s2h/BenPort.h"
 
@@ -4277,7 +4277,7 @@ u32 SurfaceType_GetEcho(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId)
 }
 
 u32 SurfaceType_IsHookshotSurface(CollisionContext* colCtx, CollisionPoly* poly, s32 bgId) {
-    return GameInteractor_Should(GI_VB_BE_HOOKSHOT_SURFACE,
+    return GameInteractor_Should(VB_BE_HOOKSHOT_SURFACE,
     SurfaceType_GetData(colCtx, poly, bgId, 1) >> 17 & 1,
     poly, bgId);
 }
