@@ -8,5 +8,6 @@ void RegisterTimeStopInTemples();
 void RegisterUnbreakableRazorSword();
 void RegisterUnrestrictedItems();
 void RegisterElegyAnywhere();
+void RegisterHookshotAnywhere();
 
 #endif // CHEATS_H
