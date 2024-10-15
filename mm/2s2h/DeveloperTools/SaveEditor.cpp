@@ -302,13 +302,38 @@ void DrawTempleClears() {
     }
 
     // Stone Tower
-    // Stone Tower Temple is always open so there is no need to have an option to open it.
     cleared = CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_STONE_TOWER_TEMPLE);
     if (UIWidgets::Checkbox("Stone Tower cleared", &cleared)) {
         if (cleared) {
             SET_WEEKEVENTREG(WEEKEVENTREG_CLEARED_STONE_TOWER_TEMPLE);
         } else {
             CLEAR_WEEKEVENTREG(WEEKEVENTREG_CLEARED_STONE_TOWER_TEMPLE);
+        }
+    }
+
+    if (gPlayState == NULL) {
+        return;
+    }
+
+    ImGui::SameLine();
+
+    if (Play_GetOriginalSceneId(gPlayState->sceneId) == SCENE_F40) {
+        cleared = Flags_GetSwitch(gPlayState, 20);
+        if (UIWidgets::Checkbox("Stone Tower Inverted", &cleared)) {
+            if (cleared) {
+                Flags_SetSwitch(gPlayState, 20);
+            } else {
+                Flags_UnsetSwitch(gPlayState, 20);
+            }
+        }
+    } else {
+        cleared = gSaveContext.cycleSceneFlags[SCENE_F40].switch0 & (1 << 20);
+        if (UIWidgets::Checkbox("Stone Tower Inverted", &cleared)) {
+            if (cleared) {
+                gSaveContext.cycleSceneFlags[SCENE_F40].switch0 |= 1 << 20;
+            } else {
+                gSaveContext.cycleSceneFlags[SCENE_F40].switch0 &= ~(1 << 20);
+            }
         }
     }
 }
