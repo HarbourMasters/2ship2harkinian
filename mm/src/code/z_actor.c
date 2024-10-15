@@ -5059,6 +5059,10 @@ TexturePtr sElectricSparkTextures[] = {
  */
 void Actor_DrawDamageEffects(PlayState* play, Actor* actor, Vec3f bodyPartsPos[], s16 bodyPartsCount, f32 effectScale,
                              f32 frozenSteamScale, f32 effectAlpha, u8 type) {
+    if (!GameInteractor_Should(VB_DRAW_DAMAGE_EFFECT, true, &type)) {
+        return;
+    }
+
     if (effectAlpha > 0.001f) {
         s32 twoTexScrollParam;
         s16 bodyPartIndex;
