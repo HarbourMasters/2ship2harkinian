@@ -1358,6 +1358,15 @@ void AddEnhancements() {
                                           "Enables the HUD Editor window, allowing you to modify your HUD",
                                           WIDGET_WINDOW_BUTTON,
                                           { .size = UIWidgets::Sizes::Inline, .windowName = "HUD Editor" } } } } });
+    enhancementsSidebar.push_back(
+        { "Item Tracker Editor",
+          1,
+          { // Item Tracker Editor
+            { { "Popout Item Tracker Editor",
+                "gWindows.ItemTrackerSettings",
+                "",
+                WIDGET_WINDOW_BUTTON,
+                { .size = UIWidgets::Sizes::Inline, .windowName = "Item Tracker Settings" } } } } });
 }
 
 void AddDevTools() {
