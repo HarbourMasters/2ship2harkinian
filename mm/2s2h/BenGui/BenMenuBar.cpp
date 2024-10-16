@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <string>
 #include "2s2h/Enhancements/Enhancements.h"
+#include "2s2h/Enhancements/GfxPatcher/AuthenticGfxPatches.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "HudEditor.h"
 
@@ -604,6 +605,13 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Fix Ikana Great Fairy Fountain Color", "gFixes.FixIkanaGreatFairyFountainColor",
                                     { .tooltip = "Fixes a bug that results in the Ikana Great Fairy fountain looking "
                                                  "green instead of yellow, this was fixed in the EU version" });
+
+            if (UIWidgets::CVarCheckbox(
+                    "Fix Texture overflow OOB", "gEnhancements.Fixes.FixTexturesOOB",
+                    { .tooltip = "Fixes textures that normally overflow to be patched with the correct size or format",
+                      .defaultValue = true })) {
+                GfxPatcher_ApplyOverflowTexturePatches();
+            }
 
             ImGui::EndMenu();
         }

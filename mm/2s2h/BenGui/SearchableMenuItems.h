@@ -1,5 +1,6 @@
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
+#include "2s2h/Enhancements/GfxPatcher/AuthenticGfxPatches.h"
 #include "UIWidgets.hpp"
 #include "BenMenuBar.h"
 #include "macros.h"
@@ -1318,7 +1319,13 @@ void AddEnhancements() {
               { "Fix Ikana Great Fairy Fountain Color", "gFixes.FixIkanaGreatFairyFountainColor",
                 "Fixes a bug that results in the Ikana Great Fairy fountain looking green instead of yellow, this was "
                 "fixed in the EU version",
-                WIDGET_CVAR_CHECKBOX } } } });
+                WIDGET_CVAR_CHECKBOX },
+              { .widgetName = "Fix Texture overflow OOB",
+                .widgetCVar = "gEnhancements.Fixes.FixTexturesOOB",
+                .widgetTooltip = "Fixes textures that normally overflow to be patched with the correct size or format",
+                .widgetType = WIDGET_CVAR_CHECKBOX,
+                .widgetOptions = { .defaultVariant = true },
+                .widgetCallback = [](widgetInfo& info) { GfxPatcher_ApplyOverflowTexturePatches(); } } } } });
     enhancementsSidebar.push_back(
         { "Restorations",
           3,
