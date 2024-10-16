@@ -1033,6 +1033,10 @@ void AddEnhancements() {
                 WIDGET_CVAR_CHECKBOX } },
             { { .widgetName = "Modes", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Play as Kafei", "gModes.PlayAsKafei", "Requires scene reload to take effect.", WIDGET_CVAR_CHECKBOX },
+              { "Hyrule Warriors Styled Link", "gModes.HyruleWarriorsStyledLink",
+                "When acquired, places the Keaton and Fierce Deity masks on Link similarly to how he wears them in "
+                "Hyrule Warriors",
+                WIDGET_CVAR_CHECKBOX },
               { "Time Moves when you Move",
                 "gModes.TimeMovesWhenYouMove",
                 "Time only moves when Link is not standing still.",
