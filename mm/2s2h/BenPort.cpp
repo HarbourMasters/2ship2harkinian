@@ -484,7 +484,8 @@ void CheckAndCreateFoldersAndFile() {
 #if defined(__APPLE__)
     if (const char* fpath = std::getenv("SHIP_HOME")) {
         std::string homeDir = getenv("HOME") ? getenv("HOME") : getpwuid(getuid())->pw_dir;
-        std::string modsPath = (fpath[0] == '~') ? (homeDir + std::string(fpath).substr(1)) : std::string(fpath);
+        std::string modsPath = (fpath[0] == '~') ? (homeDir + std::string(fpath).substr(1)) 
+        : std::string(fpath);
         modsPath += "/mods"; 
         std::string filePath = modsPath + "/custom_mod_files_go_here.txt";
         if (std::filesystem::create_directories(modsPath) || !std::filesystem::exists(filePath)) {
