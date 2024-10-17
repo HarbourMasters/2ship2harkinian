@@ -16,31 +16,37 @@ static Vtx* easyMaskEquipVtx = nullptr;
 static s16 sPendingMask = ITEM_NONE;
 static s16 sLastEquippedMask = ITEM_NONE;
 static bool sIsTransforming = false;
+static bool sShouldUnequipMask = false;
 
 // Define transformation masks for easy reference
 constexpr std::array<ItemId, 5> TransformationMasks = { ITEM_MASK_DEKU, ITEM_MASK_GORON, ITEM_MASK_ZORA,
                                                         ITEM_MASK_FIERCE_DEITY, ITEM_MASK_GIANT };
 
-// Helper function to check if a mask is a transformation mask
+// Helper function to check if a given mask is a transformation mask
 bool IsTransformationMask(ItemId mask) {
     return std::binary_search(TransformationMasks.begin(), TransformationMasks.end(), mask);
 }
 
-// Check if EasyMaskEquip is enabled
+// Check if the Easy Mask Equip feature is enabled
 bool EasyMaskEquip_IsEnabled() {
     return CVarGetInteger("gEnhancements.Masks.EasyMaskEquip", 0) &&
            gPlayState->pauseCtx.debugEditor == DEBUG_EDITOR_NONE;
 }
 
-// Get the equipped mask slot, prioritizing pending masks
+// Get the slot index of the currently equipped mask, prioritizing any pending mask
 s16 GetEquippedMaskSlot() {
+    if (sShouldUnequipMask) {
+        // We intend to unequip the mask, so return -1 to indicate no mask
+        return -1;
+    }
+
     s16 maskToCheck =
         (sPendingMask != ITEM_NONE && !sIsTransforming) ? sPendingMask : Player_GetCurMaskItemId(gPlayState);
     maskToCheck = (maskToCheck == ITEM_NONE || sIsTransforming) ? sLastEquippedMask : maskToCheck;
 
     auto& items = gSaveContext.save.saveInfo.inventory.items;
 
-    // Search for pending mask first
+    // Search for the pending mask first
     if (sPendingMask != ITEM_NONE) {
         for (s16 i = 0; i < MASK_NUM_SLOTS; ++i) {
             if (items[i + ITEM_NUM_SLOTS] == sPendingMask) {
@@ -49,17 +55,17 @@ s16 GetEquippedMaskSlot() {
         }
     }
 
-    // Then search for the equipped mask
+    // Then search for the currently equipped mask
     for (s16 i = 0; i < MASK_NUM_SLOTS; ++i) {
         if (items[i + ITEM_NUM_SLOTS] == maskToCheck) {
             return i;
         }
     }
 
-    return -1;
+    return -1; // Mask not found
 }
 
-// Update vertex positions based on the equipped mask slot
+// Update the vertex positions of the mask equip border based on the equipped mask slot
 void UpdateEasyMaskEquipVtx(PauseContext* pauseCtx) {
     s16 slot = GetEquippedMaskSlot();
     if (slot == -1)
@@ -81,9 +87,13 @@ void UpdateEasyMaskEquipVtx(PauseContext* pauseCtx) {
     }
 }
 
-// Determine if a mask should be equipped based on various conditions
+// Determine if a mask can be equipped based on various conditions
 bool ShouldEquipMask(s16 cursorItem) {
     Player* player = GET_PLAYER(gPlayState);
+
+    if (CVarGetInteger("gEnhancements.Masks.PersistentBunnyHood.Enabled", 0) && cursorItem == ITEM_MASK_BUNNY) {
+        return true; // Always allow equipping the Bunny Hood if the persistent option is enabled
+    }
 
     // Allow all masks to be equipped if the Unrestricted Items cheat is enabled
     if (CVarGetInteger("gCheats.UnrestrictedItems", 0)) {
@@ -94,23 +104,22 @@ bool ShouldEquipMask(s16 cursorItem) {
     if ((Player_GetEnvironmentalHazard(gPlayState) >= PLAYER_ENV_HAZARD_UNDERWATER_FLOOR) &&
         (Player_GetEnvironmentalHazard(gPlayState) <= PLAYER_ENV_HAZARD_UNDERWATER_FREE)) {
 
-        // Allow equipping Zora Mask underwater
+        // Only allow equipping the Zora Mask underwater
         if (cursorItem == ITEM_MASK_ZORA) {
-            return true; // Explicitly allow equipping the Zora Mask
+            return true;
         } else {
-            return false; // Prevent equipping any mask other than Zora Mask
+            return false;
         }
     }
 
-    // Check if the player is climbing (some of these might be redundant, but it works)
+    // Prevent equipping transformation masks while climbing
     if ((player->stateFlags1 &
          (PLAYER_STATE1_4 | PLAYER_STATE1_4000 | PLAYER_STATE1_40000 | PLAYER_STATE1_200000 | PLAYER_STATE1_2000)) &&
         IsTransformationMask(static_cast<ItemId>(cursorItem))) {
-        // Player is climbing and trying to equip a transformation mask, do not allow
         return false;
     }
 
-    // Prevent equipping transformation masks if interacting with an object
+    // Prevent equipping transformation masks while interacting with objects
     if (IsTransformationMask(static_cast<ItemId>(cursorItem))) {
         if ((player->stateFlags2 & PLAYER_STATE2_10) ||  // Pushing/Pulling
             (player->stateFlags1 & PLAYER_STATE1_800) || // Carrying
@@ -119,61 +128,59 @@ bool ShouldEquipMask(s16 cursorItem) {
         }
     }
 
-    // Check if the player is interacting with Epona
+    // Prevent equipping transformation masks while riding Epona
     if (player->rideActor != NULL && player->rideActor->id == ACTOR_EN_HORSE &&
         IsTransformationMask(static_cast<ItemId>(cursorItem))) {
-        return false; // Prevent equipping transformation masks while interacting with Epona
-    }
-
-    // Check if a minigame timer is active (prevent equipping masks during minigames)
-    if (gSaveContext.timerStates[TIMER_ID_MINIGAME_1] != TIMER_STATE_OFF ||
-        gSaveContext.timerStates[TIMER_ID_MINIGAME_2] != TIMER_STATE_OFF) {
-        // If a minigame timer is active, do not equip any mask
         return false;
     }
 
-    // Prevent equipping transformation masks when swinging a melee weapon
+    // Prevent equipping masks during minigames with active timers
+    if (gSaveContext.timerStates[TIMER_ID_MINIGAME_1] != TIMER_STATE_OFF ||
+        gSaveContext.timerStates[TIMER_ID_MINIGAME_2] != TIMER_STATE_OFF) {
+        return false;
+    }
+
+    // Prevent equipping transformation masks while swinging a melee weapon
     if (player->meleeWeaponState != PLAYER_MELEE_WEAPON_STATE_0 &&
         IsTransformationMask(static_cast<ItemId>(cursorItem))) {
         return false;
     }
 
-    // Check if the mask is Fierce Deity Mask and if the player is in an allowed location
+    // Prevent equipping Fierce Deity Mask outside allowed locations if the enhancement is not enabled
     if (cursorItem == ITEM_MASK_FIERCE_DEITY) {
         if (!CVarGetInteger("gEnhancements.Masks.FierceDeitysAnywhere", 0) && gPlayState->sceneId != SCENE_MITURIN_BS &&
             gPlayState->sceneId != SCENE_HAKUGIN_BS && gPlayState->sceneId != SCENE_SEA_BS &&
             gPlayState->sceneId != SCENE_INISIE_BS && gPlayState->sceneId != SCENE_LAST_BS) {
-            return false; // Prevent equipping Fierce Deity Mask outside allowed locations
+            return false;
         }
     }
 
-    // Check if the player is in the air (not on the ground) and if the mask is a transformation mask
+    // Prevent equipping transformation masks while in the air (not on the ground)
     if (!(player->actor.bgCheckFlags & BGCHECKFLAG_GROUND) &&
         (IsTransformationMask(static_cast<ItemId>(cursorItem)) || player->transformation != PLAYER_FORM_HUMAN)) {
-        return false; // Player is in the air and in a transformation form, cannot equip any mask
+        return false;
     }
 
-    // Check if the player is interacting with a Deku Flower (some might be redundant because of the above check, but it
-    // works)
+    // Prevent equipping any mask while interacting with a Deku Flower
     if (player->stateFlags3 & (PLAYER_STATE3_200 | PLAYER_STATE3_2000 | PLAYER_STATE3_100)) {
-        return false; // Prevent equipping any mask while interacting with a Deku Flower
+        return false;
     }
 
-    // Check if the mask is Giant's Mask and if the player is in the allowed location with enough magic
+    // Prevent equipping Giant's Mask outside of the allowed scene or without magic
     if (cursorItem == ITEM_MASK_GIANT) {
         if (gPlayState->sceneId != SCENE_INISIE_BS || gSaveContext.save.saveInfo.playerData.magic == 0) {
-            return false; // Prevent equipping Giant's Mask outside SCENE_INISIE_BS or if magic is depleted
+            return false;
         }
     }
 
-    // Prevent equipping any mask if Giant's Mask is already equipped, except for Giant's Mask
+    // Prevent equipping any mask other than Giant's Mask if already wearing the Giant's Mask
     if (player->currentMask == PLAYER_MASK_GIANT && cursorItem != ITEM_MASK_GIANT) {
         return false;
     }
 
-    // Prevent equipping Giant's Mask while wearing a transformation mask
+    // Prevent equipping Giant's Mask while wearing another transformation mask
     if ((player->transformation != PLAYER_FORM_HUMAN) && cursorItem == ITEM_MASK_GIANT) {
-        return false; // Prevent equipping Giant's Mask while wearing a transformation mask
+        return false;
     }
 
     // Prevent equipping transformation masks in first-person mode
@@ -181,17 +188,17 @@ bool ShouldEquipMask(s16 cursorItem) {
         return false;
     }
 
-    // We can add tons more checks here, but I need help to account for all scenarios
+    // Additional checks can be added here to account for more scenarios
 
-    return true; // Allow equipping other masks
+    return true; // Allow equipping the mask
 }
 
-// Draw the border around the equipped mask
+// Draw the border around the equipped mask in the pause menu
 void DrawEasyMaskEquipBorder(PauseContext* pauseCtx) {
     s16 slot = GetEquippedMaskSlot();
     if (slot == -1 || gSaveContext.save.saveInfo.inventory.items[slot + ITEM_NUM_SLOTS] == ITEM_NONE ||
         Player_GetCurMaskItemId(gPlayState) == sPendingMask) {
-        return;
+        return; // No mask equipped or pending
     }
 
     GraphicsContext* gfxCtx = gPlayState->state.gfxCtx;
@@ -199,12 +206,13 @@ void DrawEasyMaskEquipBorder(PauseContext* pauseCtx) {
 
     UpdateEasyMaskEquipVtx(pauseCtx);
 
+    // Set up drawing parameters
     gDPPipeSync(POLY_OPA_DISP++);
-    gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 255, 255, 255, pauseCtx->alpha);
+    gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 230, 190, 255, pauseCtx->alpha); // Lavender color
     gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE,
                       ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
     gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 0);
-    gSPVertex(POLY_OPA_DISP++, reinterpret_cast<uintptr_t>(easyMaskEquipVtx), 4, 0); // Fixed cast
+    gSPVertex(POLY_OPA_DISP++, reinterpret_cast<uintptr_t>(easyMaskEquipVtx), 4, 0);
     gDPLoadTextureBlock(POLY_OPA_DISP++, gEquippedItemOutlineTex, G_IM_FMT_IA, G_IM_SIZ_8b, 32, 32, 0,
                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                         G_TX_NOLOD);
@@ -213,7 +221,7 @@ void DrawEasyMaskEquipBorder(PauseContext* pauseCtx) {
     CLOSE_DISPS(gfxCtx);
 }
 
-// Allocate memory for the vertex buffer
+// Allocate memory for the vertex buffer used in drawing the equip border
 void AllocateEasyMaskEquipVtx(GraphicsContext* gfxCtx) {
     easyMaskEquipVtx = static_cast<Vtx*>(GRAPH_ALLOC(gfxCtx, 4 * sizeof(Vtx)));
     for (int i = 0; i < 4; ++i) {
@@ -221,11 +229,11 @@ void AllocateEasyMaskEquipVtx(GraphicsContext* gfxCtx) {
         easyMaskEquipVtx[i].v.flag = 0;
         easyMaskEquipVtx[i].v.tc[0] = (i & 1) ? 32 << 5 : 0;
         easyMaskEquipVtx[i].v.tc[1] = (i & 2) ? 32 << 5 : 0;
-        std::fill(std::begin(easyMaskEquipVtx[i].v.cn), std::end(easyMaskEquipVtx[i].v.cn), static_cast<u8>(255));
+        std::fill(std::begin(easyMaskEquipVtx[i].v.cn), std::end(easyMaskEquipVtx[i].v.cn), 255);
     }
 }
 
-// Draw the mask item, applying grayscale if it should not be equipped
+// Render the mask item in the pause menu, applying grayscale if it cannot be equipped
 void RenderMaskItem(PauseContext* pauseCtx, u16 itemId, s16 j) {
     GraphicsContext* gfxCtx = gPlayState->state.gfxCtx;
     OPEN_DISPS(gfxCtx);
@@ -246,26 +254,57 @@ void RenderMaskItem(PauseContext* pauseCtx, u16 itemId, s16 j) {
     CLOSE_DISPS(gfxCtx);
 }
 
-// Handle equipping masks based on player input
+// Handle equipping masks based on player input in the pause menu
 void HandleEasyMaskEquip(PauseContext* pauseCtx) {
     if (pauseCtx->state != PAUSE_STATE_MAIN || pauseCtx->mainState != PAUSE_MAIN_STATE_IDLE)
         return;
 
-    // Directly access the pressed buttons without using a Controller* variable
     u16 pressedButtons = CONTROLLER1(&gPlayState->state)->press.button;
 
     if (CHECK_BTN_ALL(pressedButtons, BTN_A)) {
         s16 cursorItem = pauseCtx->cursorItem[PAUSE_MASK];
         if (cursorItem != PAUSE_ITEM_NONE) {
-            // Handle Persistent Bunny Hood early exit
+            // Handle early exit for Persistent Bunny Hood
             if (CVarGetInteger("gEnhancements.Masks.PersistentBunnyHood.Enabled", 0) && cursorItem == ITEM_MASK_BUNNY) {
                 return;
             }
 
-            // Toggle mask selection
-            if (sPendingMask == cursorItem) {
+            Player* player = GET_PLAYER(gPlayState);
+            bool isTransformation = IsTransformationMask(static_cast<ItemId>(cursorItem));
+            bool isCurrentlyTransformed = (player->transformation != PLAYER_FORM_HUMAN);
+            s16 currentMaskItemId = Player_GetCurMaskItemId(gPlayState);
+
+            if (cursorItem == currentMaskItemId) {
+                if (sPendingMask == ITEM_NONE && !sShouldUnequipMask) {
+                    // Currently wearing the mask, no pending action
+                    // Initiate unequip action
+                    sShouldUnequipMask = true;
+                    Audio_PlaySfx(NA_SE_SY_CANCEL); // Play the cancel sound
+                } else if (sShouldUnequipMask) {
+                    // Cancel the unequip action
+                    sShouldUnequipMask = false;
+                    Audio_PlaySfx(NA_SE_SY_DECIDE); // Play the select sound
+                } else if (sPendingMask != ITEM_NONE) {
+                    // Cancel pending mask equip and keep current mask
+                    sPendingMask = ITEM_NONE;
+                    sIsTransforming = false;
+                    sShouldUnequipMask = false;
+                    Audio_PlaySfx(NA_SE_SY_DECIDE); // Play the select sound
+                }
+                return;
+            }
+
+            if (cursorItem == sPendingMask) {
+                // Mask is already pending, cancel pending equip
                 sPendingMask = ITEM_NONE;
                 sIsTransforming = false;
+                Audio_PlaySfx(NA_SE_SY_CANCEL);
+
+                if (currentMaskItemId != ITEM_NONE) {
+                    // Set flag to unequip current mask
+                    sShouldUnequipMask = true;
+                }
+
                 return;
             }
 
@@ -274,23 +313,37 @@ void HandleEasyMaskEquip(PauseContext* pauseCtx) {
                 return;
             }
 
-            sPendingMask = cursorItem;
-            sIsTransforming = IsTransformationMask(static_cast<ItemId>(cursorItem));
-            UpdateEasyMaskEquipVtx(pauseCtx);
-            Audio_PlaySfx(NA_SE_SY_DECIDE);
+            // Determine if we can equip the mask immediately
+            if (!isTransformation && !isCurrentlyTransformed) {
+                // Regular mask and player is human, equip immediately
+                Player_UseItem(gPlayState, player, static_cast<ItemId>(cursorItem));
+                sLastEquippedMask = cursorItem;
+                sPendingMask = ITEM_NONE;
+                sIsTransforming = false;
+                sShouldUnequipMask = false;
+                Audio_PlaySfx(NA_SE_SY_DECIDE);
+            } else {
+                // Transformation mask or player is transformed, set as pending
+                sPendingMask = cursorItem;
+                sIsTransforming = isTransformation;
+                sShouldUnequipMask = false;
+                Audio_PlaySfx(NA_SE_SY_DECIDE);
+            }
         }
     } else if (CHECK_BTN_ALL(pressedButtons, BTN_B)) {
+        // Cancel any pending mask equip or unequip action
         sPendingMask = ITEM_NONE;
         sIsTransforming = false;
         sLastEquippedMask = ITEM_NONE;
+        sShouldUnequipMask = false;
     }
 }
 
-// Register hooks for the EasyMaskEquip functionality
+// Register the Easy Mask Equip functionality with the game interactor
 void RegisterEasyMaskEquip() {
     auto gameInteractor = GameInteractor::Instance;
 
-    // Handle mask equipping logic during KaleidoScope update
+    // Handle mask equipping logic during pause menu update
     gameInteractor->RegisterGameHook<GameInteractor::OnKaleidoUpdate>([](PauseContext* pauseCtx) {
         if (EasyMaskEquip_IsEnabled() && pauseCtx->pageIndex == PAUSE_MASK) {
             HandleEasyMaskEquip(pauseCtx);
@@ -318,31 +371,38 @@ void RegisterEasyMaskEquip() {
             }
         });
 
-    // Handle mask equipping when KaleidoScope closes
+    // Handle mask equipping when the pause menu closes
     gameInteractor->RegisterGameHook<GameInteractor::OnKaleidoClose>([]() {
         if (!EasyMaskEquip_IsEnabled() || gPlayState->pauseCtx.pageIndex != PAUSE_MASK)
             return;
 
         Player* player = GET_PLAYER(gPlayState);
-        if (sPendingMask == ITEM_NONE)
-            return;
 
+        if (sPendingMask == ITEM_NONE) {
+            if (sShouldUnequipMask) {
+                // No pending mask to equip, but we intend to unequip the current mask
+                s16 currentMaskItemId = Player_GetCurMaskItemId(gPlayState);
+                if (currentMaskItemId != ITEM_NONE) {
+                    // Simulate using the current mask to unequip it
+                    Player_UseItem(gPlayState, player, static_cast<ItemId>(currentMaskItemId));
+                    sLastEquippedMask = ITEM_NONE;
+                }
+                sShouldUnequipMask = false; // Reset the flag
+            }
+            return;
+        }
+
+        // Equip pending mask
         bool isTransformation = IsTransformationMask(static_cast<ItemId>(sPendingMask));
         bool isCurrentlyTransformed = (player->transformation != PLAYER_FORM_HUMAN);
 
         if (!isTransformation) {
             if (isCurrentlyTransformed) {
-                // Equip a regular mask while transformed: transform back to human first
+                // Equip a regular mask after transforming back to human
                 Player_UseItem(gPlayState, player, static_cast<ItemId>(sPendingMask));
                 sLastEquippedMask = sPendingMask;
                 // Retain sPendingMask to equip after transformation
                 sIsTransforming = true;
-            } else {
-                // Equip a regular mask while already human
-                Player_UseItem(gPlayState, player, static_cast<ItemId>(sPendingMask));
-                sLastEquippedMask = sPendingMask;
-                sPendingMask = ITEM_NONE;
-                sIsTransforming = false;
             }
         } else {
             // Equip a transformation mask
@@ -359,9 +419,9 @@ void RegisterEasyMaskEquip() {
             return;
 
         Player* player = reinterpret_cast<Player*>(actor);
-        if (sIsTransforming && player->transformation == PLAYER_FORM_HUMAN &&
-            player->skelAnime.curFrame >= player->skelAnime.endFrame) {
+        if (sIsTransforming && player->transformation == PLAYER_FORM_HUMAN) {
             if (sPendingMask != ITEM_NONE) {
+                // If we have a pending mask, equip it now
                 Player_UseItem(gPlayState, player, static_cast<ItemId>(sPendingMask));
                 sLastEquippedMask = sPendingMask;
                 sPendingMask = ITEM_NONE;
@@ -370,17 +430,36 @@ void RegisterEasyMaskEquip() {
         }
     });
 
-    // Disable selected item textbox
+    // Disable the selected item textbox in the pause menu
     REGISTER_VB_SHOULD(VB_KALEIDO_DISPLAY_ITEM_TEXT, {
         if (EasyMaskEquip_IsEnabled()) {
             *should = false;
         }
     });
 
-    // Remove restriction requiring masks be equipped from C or D buttons
+    // Remove the restriction requiring masks to be equipped from C or D buttons
     REGISTER_VB_SHOULD(VB_ALLOW_EQUIP_MASK, {
         if (EasyMaskEquip_IsEnabled()) {
             *should = false;
+        }
+    });
+
+    // Prevent the white "equipped" border from being drawn for masks that are currently equipped or pending to be
+    // equipped
+    REGISTER_VB_SHOULD(VB_DRAW_ITEM_EQUIPPED_OUTLINE, {
+        ItemId* itemId = va_arg(args, ItemId*);
+        if (EasyMaskEquip_IsEnabled()) {
+            s16 currentMaskItemId = Player_GetCurMaskItemId(gPlayState);
+
+            // Suppress white border for the pending mask (lavender border will be drawn)
+            if (*itemId == sPendingMask) {
+                *should = false;
+            }
+            // Suppress white border for the currently equipped mask, if not being unequipped
+            else if (sPendingMask == ITEM_NONE && !sShouldUnequipMask && *itemId == currentMaskItemId) {
+                *should = false;
+            }
+            // Else, allow the white border to be drawn (default behavior)
         }
     });
 }
