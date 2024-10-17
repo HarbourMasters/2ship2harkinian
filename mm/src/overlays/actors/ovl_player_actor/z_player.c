@@ -3730,8 +3730,11 @@ void Player_ProcessItemButtons(Player* this, PlayState* play) {
                 if ((maskIdMinusOne < PLAYER_MASK_TRUTH - 1) || (maskIdMinusOne >= PLAYER_MASK_MAX - 1)) {
                     maskIdMinusOne = this->currentMask - 1;
                 }
-                Player_UseItem(play, this, Player_MaskIdToItemId(maskIdMinusOne));
-                return;
+
+                if (GameInteractor_Should(VB_ALLOW_EQUIP_MASK, false)) {
+                    Player_UseItem(play, this, Player_MaskIdToItemId(maskIdMinusOne));
+                    return;
+                }
             }
 
             if ((this->currentMask == PLAYER_MASK_GIANT) && (gSaveContext.save.saveInfo.playerData.magic == 0)) {
