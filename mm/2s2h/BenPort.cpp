@@ -32,6 +32,8 @@
 #include <Fast3D/gfx_rendering_api.h>
 
 #ifdef __APPLE__
+#include <unistd.h>
+#include <pwd.h>
 #include <SDL_scancode.h>
 #else
 #include <SDL2/SDL_scancode.h>
@@ -478,8 +480,23 @@ void Ben_ProcessDroppedFiles(std::string filePath) {
     }
 }
 
+void CheckAndCreateFoldersAndFile() {
+#if defined(__APPLE__)
+    if (const char* fpath = std::getenv("SHIP_HOME")) {
+        std::string homeDir = getenv("HOME") ? getenv("HOME") : getpwuid(getuid())->pw_dir;
+        std::string modsPath = (fpath[0] == '~') ? (homeDir + std::string(fpath).substr(1)) : std::string(fpath);
+        modsPath += "/mods";
+        std::string filePath = modsPath + "/custom_mod_files_go_here.txt";
+        if (std::filesystem::create_directories(modsPath) || !std::filesystem::exists(filePath)) {
+            std::ofstream(filePath).close();
+        }
+    }
+#endif
+}
+
 extern "C" void InitOTR() {
 #if not defined(__SWITCH__) && not defined(__WIIU__)
+    CheckAndCreateFoldersAndFile();
     if (!std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.o2r", appShortName)) &&
         !std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.zip", appShortName)) &&
         !std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.otr", appShortName))) {

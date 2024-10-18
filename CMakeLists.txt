@@ -220,6 +220,7 @@ install(FILES "${CMAKE_SOURCE_DIR}/OTRExporter/CFG/SymbolMap_MM.txt" DESTINATION
 install(CODE "
    include(BundleUtilities)
    fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/2s2h-macos\" \"\" \"${dirs}\")
+   execute_process(COMMAND rm -f \"\${CMAKE_INSTALL_PREFIX}/2s2h-macos\")
    ")
 
 endif()
