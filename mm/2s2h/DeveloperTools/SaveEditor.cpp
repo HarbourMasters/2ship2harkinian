@@ -217,6 +217,8 @@ void UpdateGameTime(u16 gameTime) {
 void DrawTempleClears() {
     bool cleared;
     bool open;
+    bool inverted = false;
+    bool inStoneTower = false;
 
     // Woodfall
     cleared = CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_WOODFALL_TEMPLE);
@@ -311,29 +313,19 @@ void DrawTempleClears() {
         }
     }
 
-    if (gPlayState == NULL) {
-        return;
+    if (gPlayState != NULL) {
+        inStoneTower = Play_GetOriginalSceneId(gPlayState->sceneId) == SCENE_F40;
+        inverted = Flags_GetSwitch(gPlayState, 20);
     }
 
     ImGui::SameLine();
 
-    if (Play_GetOriginalSceneId(gPlayState->sceneId) == SCENE_F40) {
-        cleared = Flags_GetSwitch(gPlayState, 20);
-        if (UIWidgets::Checkbox("Stone Tower Inverted", &cleared)) {
-            if (cleared) {
-                Flags_SetSwitch(gPlayState, 20);
-            } else {
-                Flags_UnsetSwitch(gPlayState, 20);
-            }
-        }
-    } else {
-        cleared = gSaveContext.cycleSceneFlags[SCENE_F40].switch0 & (1 << 20);
-        if (UIWidgets::Checkbox("Stone Tower Inverted", &cleared)) {
-            if (cleared) {
-                gSaveContext.cycleSceneFlags[SCENE_F40].switch0 |= 1 << 20;
-            } else {
-                gSaveContext.cycleSceneFlags[SCENE_F40].switch0 &= ~(1 << 20);
-            }
+    if (UIWidgets::Checkbox("Stone Tower Inverted", &inverted,
+                            { .tooltip = "Can only invert while in Stone Tower", .disabled = !inStoneTower })) {
+        if (inverted) {
+            Flags_SetSwitch(gPlayState, 20);
+        } else {
+            Flags_UnsetSwitch(gPlayState, 20);
         }
     }
 }
