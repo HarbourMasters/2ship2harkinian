@@ -1231,7 +1231,9 @@ void AddEnhancements() {
                 {},
                 [](widgetInfo& info) { UpdatePersistentMasksState(); } },
               { "No Blast Mask Cooldown", "gEnhancements.Masks.NoBlastMaskCooldown",
-                "Eliminates the Cooldown between Blast Mask usage.", WIDGET_CVAR_CHECKBOX } },
+                "Eliminates the Cooldown between Blast Mask usage.", WIDGET_CVAR_CHECKBOX },
+              { "Easy Mask Equip", "gEnhancements.Masks.EasyMaskEquip",
+                "Allows you to equip masks directly from the pause menu by pressing A.", WIDGET_CVAR_CHECKBOX } },
             // Song Enhancements
             { { .widgetName = "Ocarina", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Enable Sun's Song", "gEnhancements.Songs.EnableSunsSong",

@@ -7,5 +7,6 @@ void RegisterFierceDeityAnywhere();
 void RegisterNoBlastMaskCooldown();
 void RegisterPersistentMasks();
 void UpdatePersistentMasksState();
+void RegisterEasyMaskEquip();
 
 #endif // MASKS_H

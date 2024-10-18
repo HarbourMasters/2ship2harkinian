@@ -275,11 +275,14 @@ void KaleidoScope_DrawMaskSelect(PlayState* play) {
                             pauseCtx->maskVtx[j + 0].v.ob[1] - 32;
                     }
                 }
-
-                gSPVertex(POLY_OPA_DISP++, &pauseCtx->maskVtx[j + 0], 4, 0);
-                KaleidoScope_DrawTexQuadRGBA32(
-                    play->state.gfxCtx,
-                    gItemIcons[((void)0, gSaveContext.save.saveInfo.inventory.items[i + ITEM_NUM_SLOTS])], 32, 32, 0);
+                u16 itemId = gSaveContext.save.saveInfo.inventory.items[i + ITEM_NUM_SLOTS];
+                if (GameInteractor_Should(VB_DRAW_MASK_ITEM, true, &itemId, &j)) {
+                    gSPVertex(POLY_OPA_DISP++, &pauseCtx->maskVtx[j + 0], 4, 0);
+                    KaleidoScope_DrawTexQuadRGBA32(
+                        play->state.gfxCtx,
+                        gItemIcons[((void)0, gSaveContext.save.saveInfo.inventory.items[i + ITEM_NUM_SLOTS])], 32, 32,
+                        0);
+                }
             }
         }
     }
