@@ -6,6 +6,8 @@
 #include "z64environment.h"
 #include "z64transition.h"
 #include <string.h>
+#include "z64.h"
+#include <BenPort.h>
 
 SaveContext gSaveContext ALIGNED(16);
 
@@ -25,7 +27,7 @@ void SaveContext_Init(void) {
     gSaveContext.nextTransitionType = TRANS_NEXT_TYPE_DEFAULT;
     gSaveContext.prevHudVisibility = HUD_VISIBILITY_ALL;
 
-    gSaveContext.options.language = LANGUAGE_ENG;
+    gSaveContext.options.language = ResourceMgr_GetGameDefaultLanguage(0);
     gSaveContext.options.audioSetting = SAVE_AUDIO_STEREO;
     gSaveContext.options.zTargetSetting = 0;
 }

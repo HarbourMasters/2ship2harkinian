@@ -166,7 +166,11 @@ void EnMag_Init(Actor* thisx, PlayState* play) {
         gSaveContext.transWipeSpeed = 255;
     }
 
-    Font_LoadOrderedFont(&this->font);
+    if (ResourceMgr_GetGameDefaultLanguage(0) == LANGUAGE_JPN) {
+        Font_LoadOrderedFont_JP(&this->font);
+    } else {
+        Font_LoadOrderedFont(&this->font);
+    }
 
     this->unk11F58 = 0;
     this->unk11F5A = 0;
@@ -987,6 +991,295 @@ void EnMag_DrawInner(Actor* thisx, PlayState* play, Gfx** gfxp) {
     *gfxp = gfx;
 }
 
+// Region [2S2H] Decomped JP Functions:
+
+// MATCHING
+void func_80950EA0_cj0(Gfx** gfxp, void* maskTex, void* effectTex, s16 maskWidth, s16 maskHeight, s16 effectWidth,
+                       s16 effectHeight, s16 rectLeft, s16 rectTop, u16 shifts, u16 shiftt, u16 index, EnMag* this) {
+    Gfx* gfx = *gfxp;
+
+    gDPLoadMultiBlock(gfx++, maskTex, 0x0000, G_TX_RENDERTILE, G_IM_FMT_I, G_IM_SIZ_8b, maskWidth, maskHeight, 0,
+                      G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
+                      G_TX_NOLOD);
+
+    gDPLoadMultiBlock(gfx++, effectTex, 0x0100, 1, G_IM_FMT_I, G_IM_SIZ_8b, effectWidth, effectHeight, 0,
+                      G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, 5, 5, shifts, shiftt);
+
+    gDPSetTileSize(gfx++, 1, this->effectScrollSs[index] & 0x7F, this->effectScrollTs[index] & 0x7F,
+                   (this->effectScrollSs[index] & 0x7F) + 7, (this->effectScrollTs[index] & 0x7F));
+
+    gSPTextureRectangle(gfx++, rectLeft << 2, rectTop << 2, (rectLeft + maskWidth) << 2, (rectTop + maskHeight) << 2,
+                        G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+
+    *gfxp = gfx;
+}
+
+// NON_MATCHING
+void func_80951820_cj0(Actor* thisx, PlayState* play, Gfx** gfxp) {
+    static u8 pressStartFontIndices[] = {
+        0x19, 0x1B, 0x0E, 0x1C, 0x1C, 0x1C, 0x1D, 0x0A, 0x1B, 0x1D,
+    }; // Indices into this->font.fontBuf
+    static TexturePtr sAppearEffectMaskTextures[] = {
+        gTitleScreenAppearEffectMask00Tex, gTitleScreenAppearEffectMask01Tex, gTitleScreenAppearEffectMask02Tex,
+        gTitleScreenAppearEffectMask10Tex, gTitleScreenAppearEffectMask11Tex, gTitleScreenAppearEffectMask12Tex,
+    }; // Visible when mask appearing
+    static TexturePtr sDisplayEffectMaskTextures[] = {
+        gTitleScreenDisplayEffectMask00Tex, gTitleScreenDisplayEffectMask01Tex, gTitleScreenDisplayEffectMask02Tex,
+        gTitleScreenDisplayEffectMask10Tex, gTitleScreenDisplayEffectMask11Tex, gTitleScreenDisplayEffectMask12Tex,
+    }; // Visible when full game logo displayed
+    static TexturePtr sEffectTextures[] = {
+        gTitleScreenFlame0Tex, gTitleScreenFlame1Tex, gTitleScreenFlame1Tex,
+        gTitleScreenFlame2Tex, gTitleScreenFlame3Tex, gTitleScreenFlame3Tex,
+    };
+    static s16 sEffectScrollVelocitySs[] = { -1, 1, 1, -1, 1, 1 };
+    static s16 sEffectScrollVelocityTs[] = { -2, -2, -2, 2, 2, 2 };
+    static s16 sTextAlpha = 0; // For drawing both the No Controller message and "PRESS START"
+    static s16 sTextAlphaTargets[] = { 255, 0 };
+
+    s32 pad;
+    EnMag* this = THIS;
+    Font* font = &this->font;
+    Gfx* gfx = *gfxp;
+    u16 i;
+    u16 j;
+    u16 k;
+    s32 rectLeft;
+    s32 rectTop;
+    s16 step;
+
+    gSPSegment(gfx++, 0x06, play->objectCtx.slots[this->actor.objectSlot].segment);
+    Gfx_SetupDL39_Ptr(&gfx);
+
+    gDPPipeSync(gfx++);
+    gDPSetCycleType(gfx++, G_CYC_2CYCLE);
+    gDPSetAlphaCompare(gfx++, G_AC_THRESHOLD);
+    gDPSetRenderMode(gfx++, G_RM_PASS, G_RM_CLD_SURF2);
+    gDPSetCombineLERP(gfx++, TEXEL1, PRIMITIVE, PRIM_LOD_FRAC, TEXEL0, TEXEL1, 1, PRIM_LOD_FRAC, TEXEL0, PRIMITIVE,
+                      ENVIRONMENT, COMBINED, ENVIRONMENT, COMBINED, 0, PRIMITIVE, 0);
+
+    gDPSetPrimColor(gfx++, 0, this->appearEffectPrimLodFrac, this->appearEffectPrimColor[0],
+                    this->appearEffectPrimColor[1], this->appearEffectPrimColor[2], this->appearEffectAlpha);
+    gDPSetEnvColor(gfx++, this->appearEffectEnvColor[0], this->appearEffectEnvColor[1], this->appearEffectEnvColor[2],
+                   255);
+
+    if (this->appearEffectPrimLodFrac != 0) {
+        rectTop = 0x26;
+        k = 0;
+        i = 0;
+
+        for (k = 0, i = 0, rectTop = 0x26; i < 2; i++, rectTop += 0x40) {
+            for (j = 0, rectLeft = 0x39; j < 3; j++, k++, rectLeft += 0x40) {
+                this->effectScrollSs[k] += sEffectScrollVelocitySs[k];
+                this->effectScrollTs[k] += sEffectScrollVelocityTs[k];
+                EnMag_DrawEffectTextures(&gfx, sAppearEffectMaskTextures[k], sEffectTextures[k], 0x40, 0x40, 0x20, 0x20,
+                                         rectLeft, rectTop, 1, 1, k, this);
+            }
+        }
+    }
+    Gfx_SetupDL39_Ptr(&gfx);
+
+    if (this->majorasMaskAlpha != 0) {
+        gDPSetCombineLERP(gfx++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE,
+                          ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
+
+        gDPSetPrimColor(gfx++, 0, 0, 255, 255, 255, this->majorasMaskAlpha);
+        gDPSetEnvColor(gfx++, this->majorasMaskEnvColor[0], this->majorasMaskEnvColor[1], this->majorasMaskEnvColor[2],
+                       255);
+
+        EnMag_DrawImageRGBA32(&gfx, 0x7C, 0x67, gTitleScreenMajorasMaskTex, 0x80, 0x70);
+    }
+
+    gDPPipeSync(gfx++);
+    gDPSetCycleType(gfx++, G_CYC_2CYCLE);
+    gDPSetAlphaCompare(gfx++, G_AC_THRESHOLD);
+    gDPSetRenderMode(gfx++, G_RM_PASS, G_RM_CLD_SURF2);
+    gDPSetCombineLERP(gfx++, TEXEL1, PRIMITIVE, PRIM_LOD_FRAC, TEXEL0, TEXEL1, 1, PRIM_LOD_FRAC, TEXEL0, PRIMITIVE,
+                      ENVIRONMENT, COMBINED, ENVIRONMENT, COMBINED, 0, PRIMITIVE, 0);
+
+    gDPSetPrimColor(gfx++, 0, this->displayEffectPrimLodFrac, this->displayEffectPrimColor[0],
+                    this->displayEffectPrimColor[1], this->displayEffectPrimColor[2], this->displayEffectAlpha);
+    gDPSetEnvColor(gfx++, this->displayEffectEnvColor[0], this->displayEffectEnvColor[1],
+                   this->displayEffectEnvColor[2], 255);
+
+    if (this->displayEffectPrimLodFrac != 0) {
+        for (k = 0, i = 0, rectTop = 0x26; i < 2; i++, rectTop += 0x40) {
+            for (j = 0, rectLeft = 0x39; j < 3; j++, k++, rectLeft += 0x40) {
+                EnMag_DrawEffectTextures(&gfx, sDisplayEffectMaskTextures[k], sEffectTextures[k], 0x40, 0x40, 0x20,
+                                         0x20, rectLeft, rectTop, 1, 1, k, this);
+            }
+        }
+    }
+    if (this->subtitleAlpha != 0) {
+        Gfx_SetupDL39_Ptr(&gfx);
+
+        gDPSetAlphaCompare(gfx++, G_AC_NONE);
+        gDPSetCombineMode(gfx++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+
+        if (this->mainTitleAlpha < 100) {
+            gDPSetRenderMode(gfx++, G_RM_CLD_SURF, G_RM_CLD_SURF2);
+        } else {
+            gDPSetRenderMode(gfx++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+        }
+
+        gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, this->subtitleAlpha);
+        gDPSetEnvColor(gfx++, 100, 0, 100, 255);
+
+        EnMag_DrawTextureI8(&gfx, gTitleScreenMajorasMaskSubtitleMaskTex, 0x78, 0x10, 0x85, 0x8A);
+    }
+    gDPPipeSync(gfx++);
+    gDPSetCycleType(gfx++, G_CYC_2CYCLE);
+    gDPSetAlphaCompare(gfx++, G_AC_THRESHOLD);
+    gDPSetRenderMode(gfx++, G_RM_PASS, G_RM_CLD_SURF2);
+    gDPSetCombineLERP(gfx++, TEXEL1, PRIMITIVE, PRIM_LOD_FRAC, TEXEL0, 0, 0, 0, TEXEL0, PRIMITIVE, ENVIRONMENT,
+                      COMBINED, ENVIRONMENT, COMBINED, 0, PRIMITIVE, 0);
+    gDPSetPrimColor(gfx++, 0, 120, 255, 255, 255, this->subtitleAlpha);
+    gDPSetEnvColor(gfx++, 55, 255, 255, 255);
+
+    if (this->appearEffectPrimLodFrac != 0) {
+        this->unk_11F42++;
+        func_80950EA0_cj0(&gfx, gTitleScreenMajorasMaskSubtitleTex, gTitleScreenFlame0Tex, 0x78, 0x10, 0x20, 0x20, 0x85,
+                          0x8A, 1, 1, 6, this);
+    }
+    Gfx_SetupDL39_Ptr(&gfx);
+    gDPSetAlphaCompare(gfx++, G_AC_NONE);
+    gDPSetCombineMode(gfx++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+
+    if (this->mainTitleAlpha != 0) {
+        gDPSetPrimColor(gfx++, 0, 0, 255, 255, 255, this->mainTitleAlpha);
+
+        EnMag_DrawImageRGBA32(&gfx, 0xB1, 0x69, gTitleScreenZeldaLogoTex, 0x90, 0x40);
+
+        gDPPipeSync(gfx++);
+
+        if (this->mainTitleAlpha < 100) {
+            gDPSetRenderMode(gfx++, G_RM_CLD_SURF, G_RM_CLD_SURF2);
+        } else {
+            gDPSetRenderMode(gfx++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+        }
+
+        gDPSetPrimColor(gfx++, 0, 0, 208, 102, 222, this->mainTitleAlpha);
+
+        EnMag_DrawTextureI8(&gfx, gTitleScreenTheLegendOfTextTex, 0x48, 8, 0x9E, 0x47);
+    }
+
+    if (this->subtitleAlpha != 0) {
+        gDPPipeSync(gfx++);
+
+        if (this->subtitleAlpha < 100) {
+            gDPSetRenderMode(gfx++, G_RM_CLD_SURF, G_RM_CLD_SURF2);
+        } else {
+            gDPSetRenderMode(gfx++, G_RM_XLU_SURF, G_RM_XLU_SURF2);
+        }
+
+        gDPSetPrimColor(gfx++, 0, 0, 255, 200, 140, this->subtitleAlpha);
+        EnMag_DrawTextureIA8(&gfx, gTitleScreenMajorasMaskSecondSubtitleJPNTex, 0x50, 0x10, 0x9A, 0x7D);
+    }
+    Gfx_SetupDL39_Ptr(&gfx);
+
+    if (this->copyrightAlpha != 0) {
+        gDPSetAlphaCompare(gfx++, G_AC_NONE);
+        gDPSetCombineMode(gfx++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
+        gDPSetPrimColor(gfx++, 0, 0, this->copyrightAlpha, this->copyrightAlpha, this->copyrightAlpha,
+                        this->copyrightAlpha);
+        EnMag_DrawTextureIA8(&gfx, gTitleScreenCopyright2000NintendoTex, 0xC8, 0x10, 0x3A, 0xC6);
+    }
+    if (gSaveContext.fileNum == 0xFEDC) {
+
+        TIMED_STEP_TO(sTextAlpha, sTextAlphaTargets[sTextAlphaTargetIndex], sTextAlphaTimer, step);
+
+        gDPPipeSync(gfx++);
+        gDPSetAlphaCompare(gfx++, G_AC_THRESHOLD);
+
+        gDPSetCombineLERP(gfx++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE,
+                          0);
+        gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, sTextAlpha);
+        gDPLoadTextureBlock_4b(gfx++, gTitleScreenControllerNotConnectedTextTex, G_IM_FMT_I,
+                               NO_CONTROLLER_FIRST_TEX_WIDTH, NO_CONTROLLER_FIRST_TEX_HEIGHT, 0,
+                               G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
+                               G_TX_NOLOD, G_TX_NOLOD);
+        // Texture shadow
+        gSPTextureRectangle(gfx++, (NO_CONTROLLER_FIRST_TEX_LEFT + 1) << 2, (NO_CONTROLLER_FIRST_TEX_TOP + 1) << 2,
+                            (NO_CONTROLLER_FIRST_TEX_LEFT + 1 + NO_CONTROLLER_FIRST_TEX_WIDTH) << 2,
+                            (NO_CONTROLLER_FIRST_TEX_TOP + 1 + NO_CONTROLLER_FIRST_TEX_HEIGHT) << 2, G_TX_RENDERTILE, 0,
+                            0, 1 << 10, 1 << 10);
+        // Actual texture
+        gDPSetPrimColor(gfx++, 0, 0, 205, 255, 255, sTextAlpha);
+        gSPTextureRectangle(gfx++, NO_CONTROLLER_FIRST_TEX_LEFT << 2, NO_CONTROLLER_FIRST_TEX_TOP << 2,
+                            (NO_CONTROLLER_FIRST_TEX_LEFT + NO_CONTROLLER_FIRST_TEX_WIDTH) << 2,
+                            (NO_CONTROLLER_FIRST_TEX_TOP + NO_CONTROLLER_FIRST_TEX_HEIGHT) << 2, G_TX_RENDERTILE, 0, 0,
+                            1 << 10, 1 << 10);
+
+        gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, sTextAlpha);
+        gDPLoadTextureBlock_4b(gfx++, gTitleScreenInsertControllerTextTex, G_IM_FMT_I, NO_CONTROLLER_SECOND_TEX_WIDTH,
+                               NO_CONTROLLER_SECOND_TEX_HEIGHT, 0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP,
+                               G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+        // Texture shadow
+        gSPTextureRectangle(gfx++, (NO_CONTROLLER_SECOND_TEX_LEFT + 1) << 2, (NO_CONTROLLER_SECOND_TEX_TOP + 1) << 2,
+                            (NO_CONTROLLER_SECOND_TEX_LEFT + 1 + NO_CONTROLLER_SECOND_TEX_WIDTH) << 2,
+                            (NO_CONTROLLER_SECOND_TEX_TOP + 1 + NO_CONTROLLER_SECOND_TEX_HEIGHT) << 2, G_TX_RENDERTILE,
+                            0, 0, 1 << 10, 1 << 10);
+        // Actual texture
+        gDPSetPrimColor(gfx++, 0, 0, 205, 255, 255, sTextAlpha);
+        gSPTextureRectangle(gfx++, NO_CONTROLLER_SECOND_TEX_LEFT << 2, NO_CONTROLLER_SECOND_TEX_TOP << 2,
+                            (NO_CONTROLLER_SECOND_TEX_LEFT + NO_CONTROLLER_SECOND_TEX_WIDTH) << 2,
+                            (NO_CONTROLLER_SECOND_TEX_TOP + NO_CONTROLLER_SECOND_TEX_HEIGHT) << 2, G_TX_RENDERTILE, 0,
+                            0, 1 << 10, 1 << 10);
+        sTextAlphaTimer--;
+        if (sTextAlphaTimer == 0) {
+            sTextAlpha = sTextAlphaTargets[sTextAlphaTargetIndex];
+            if (gSaveContext.fileNum == 0xFEDC) {
+                sTextAlphaTimer = 40;
+            } else {
+                sTextAlphaTimer = 20;
+            }
+            sTextAlphaTargetIndex ^= 1;
+            if (sTextAlphaTargetIndex == 0) {
+                gSaveContext.unk_3CA6 = (gSaveContext.unk_3CA6 + 1) & 3;
+            }
+        }
+    } else if (this->copyrightAlpha != 0) {
+        TIMED_STEP_TO(sTextAlpha, sTextAlphaTargets[sTextAlphaTargetIndex], sTextAlphaTimer, step);
+
+        // Text shadow
+        gDPPipeSync(gfx++);
+        gDPSetCombineLERP(gfx++, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE, 0, 0, 0, 0, PRIMITIVE, TEXEL0, 0, PRIMITIVE,
+                          0);
+        gDPSetPrimColor(gfx++, 0, 0, 0, 0, 0, sTextAlpha);
+
+        rectLeft = 0x77 + 1;
+        for (i = 0; i < ARRAY_COUNT(pressStartFontIndices); i++) {
+            EnMag_DrawCharTexture(&gfx, font->fontBuf + pressStartFontIndices[i] * FONT_CHAR_TEX_SIZE, rectLeft,
+                                  0xAE + 1);
+
+            rectLeft += 7;
+            if (i == 4) {
+                rectLeft += 5;
+            }
+        }
+        gDPPipeSync(gfx++);
+        gDPSetPrimColor(gfx++, 0, 0, 255, 30, 30, sTextAlpha);
+
+        rectLeft = 0x77;
+        for (i = 0; i < ARRAY_COUNT(pressStartFontIndices); i++) {
+            EnMag_DrawCharTexture(&gfx, font->fontBuf + pressStartFontIndices[i] * FONT_CHAR_TEX_SIZE, rectLeft, 0xAE);
+            rectLeft += 7;
+            if (i == 4) {
+                rectLeft += 5;
+            }
+        }
+        sTextAlphaTimer--;
+        if (sTextAlphaTimer == 0) {
+            sTextAlpha = sTextAlphaTargets[sTextAlphaTargetIndex];
+            sTextAlphaTimer = 20;
+            sTextAlphaTargetIndex ^= 1;
+            if (sTextAlphaTargetIndex == 0) {
+                gSaveContext.unk_3CA6 = (gSaveContext.unk_3CA6 + 1) & 3;
+            }
+        }
+    }
+    *gfxp = gfx;
+}
+
 /**
  * Jumps drawing to POLY_OPA_DISP to take advantage of the extra space available, but jmups back and actually draws
  * using OVERLAY_DISP.
@@ -1002,7 +1295,12 @@ void EnMag_Draw(Actor* thisx, PlayState* play) {
     gfx = Graph_GfxPlusOne(gfxRef);
     gSPDisplayList(OVERLAY_DISP++, gfx);
 
-    EnMag_DrawInner(thisx, play, &gfx);
+    if (ResourceMgr_GetGameVersion(0) == MM_NTSC_JP_GC) {
+        // May need a different function for N64 JP but can use GetDefaultLanguage if it ends up the same
+        func_80951820_cj0(thisx, play, &gfx);
+    } else { // Default: US 1.0 & US GC
+        EnMag_DrawInner(thisx, play, &gfx);
+    }
 
     gSPEndDisplayList(gfx++);
     Graph_BranchDlist(gfxRef, gfx);
