@@ -816,6 +816,11 @@ void DrawCheatsMenu() {
                          "Houses, Pirate's Fortress, Beneath the Well, Ancient Castle of Ikana, and Secret Shrine.",
               .defaultIndex = TIME_STOP_OFF });
 
+        if (UIWidgets::CVarCheckbox("Hookshot Anywhere", "gCheats.HookshotAnywhere",
+                                    { .tooltip = "Allows most surfaces hookshot-able" })) {
+            RegisterHookshotAnywhere();
+        }
+
         ImGui::EndMenu();
     }
 }
