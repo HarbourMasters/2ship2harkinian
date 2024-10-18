@@ -14,7 +14,8 @@
 #include "buffers.h"
 #include <string.h>
 #include <stdlib.h>
-
+#include "2s2h/Enhancements/Audio/AudioCollection.h"
+#include "2s2h/Enhancements/Audio/AudioEditor.h"
 #include "BenPort.h"
 
 /**
@@ -68,7 +69,8 @@ void AudioLoad_RelocateFontAndPreloadSamples(s32 fontId, SoundFontData* fontData
 s32 AudioLoad_ProcessSamplePreloads(s32 resetStatus);
 
 SequenceData ResourceMgr_LoadSeqByName(const char* path);
-SoundFont* ResourceMgr_LoadAudioSoundFont(const char* path);
+SoundFont* ResourceMgr_LoadAudioSoundFontByName(const char* path);
+SoundFont* ResourceMgr_LoadAudioSoundFontByCRC(uint64_t crc);
 
 // TODO: what's that for? it seems to rely on an uninitizalied variable in soh
 static uint32_t fontOffsets[8192];
@@ -106,10 +108,10 @@ DmaHandler sDmaHandler; //= osEPiStartDma;
 void* sUnusedHandler = NULL;
 s32 gAudioCtxInitalized = false;
 
-char** gSequenceToResource;
-size_t gSequenceToResourceSize;
+char** sequenceMap;
+size_t sequenceMapSize;
 u8 seqCachePolicyMap[MAX_AUTHENTIC_SEQID];
-char* gFontToResource[256];
+char** fontMap;
 
 void AudioLoad_DecreaseSampleDmaTtls(void) {
     u32 i;
@@ -323,7 +325,11 @@ s32 AudioLoad_IsFontLoadComplete(s32 fontId) {
     }
 }
 
+// 2S2H [Port] [Custom Audio] Sequences and samples are always loaded now, so we don't
+//  need to check.
 s32 AudioLoad_IsSeqLoadComplete(s32 seqId) {
+    return true;
+#if 0
     if (seqId == 0xFF) {
         return true;
     } else if (gAudioCtx.seqLoadStatus[seqId] >= LOAD_STATUS_COMPLETE) {
@@ -333,9 +339,12 @@ s32 AudioLoad_IsSeqLoadComplete(s32 seqId) {
     } else {
         return false;
     }
+#endif
 }
 
 s32 AudioLoad_IsSampleLoadComplete(s32 sampleBankId) {
+    return true;
+#if 0
     if (sampleBankId == 0xFF) {
         return true;
     } else if (gAudioCtx.sampleFontLoadStatus[sampleBankId] >= LOAD_STATUS_COMPLETE) {
@@ -346,6 +355,7 @@ s32 AudioLoad_IsSampleLoadComplete(s32 sampleBankId) {
     } else {
         return false;
     }
+#endif
 }
 
 void AudioLoad_SetFontLoadStatus(s32 fontId, s32 loadStatus) {
@@ -355,6 +365,7 @@ void AudioLoad_SetFontLoadStatus(s32 fontId, s32 loadStatus) {
 }
 
 void AudioLoad_SetSeqLoadStatus(s32 seqId, s32 loadStatus) {
+    seqId = AudioEditor_GetOriginalSeq(seqId);
     if ((seqId != 0xFF) && (gAudioCtx.seqLoadStatus[seqId] != LOAD_STATUS_PERMANENT)) {
         gAudioCtx.seqLoadStatus[seqId] = loadStatus;
     }
@@ -510,11 +521,11 @@ u8* AudioLoad_GetFontsForSequence(s32 seqId, u32* outNumFonts, u8* buff) {
 
     // TODO: Sequence Remplacements
 
-    if (seqId > gSequenceToResourceSize || !gSequenceToResource[seqId]) {
+    if (seqId > sequenceMapSize || !sequenceMap[seqId]) {
         return NULL;
     }
 
-    SequenceData seqData = ResourceMgr_LoadSeqByName(gSequenceToResource[seqId]);
+    SequenceData seqData = ResourceMgr_LoadSeqByName(sequenceMap[seqId]);
 
     *outNumFonts = seqData.numFonts;
     if (seqData.numFonts == 0)
@@ -611,7 +622,7 @@ s32 AudioLoad_SyncInitSeqPlayerInternal(s32 playerIndex, s32 seqId, s32 arg2) {
         authCachePolicy = seqCachePolicyMap[seqId];
         seqId = gAudioCtx.seqToPlay[playerIndex];
     }
-    SequenceData seqData2 = ResourceMgr_LoadSeqByName(gSequenceToResource[seqId]);
+    SequenceData seqData2 = ResourceMgr_LoadSeqByName(sequenceMap[seqId]);
     if (authCachePolicy != -1) {
         seqData2.cachePolicy = authCachePolicy;
     }
@@ -650,9 +661,9 @@ u8* AudioLoad_SyncLoadSeq(s32 seqId) {
     s32 pad;
     s32 didAllocate;
 
-    if (gAudioCtx.seqLoadStatus[AudioLoad_GetRealTableIndex(SEQUENCE_TABLE, seqId)] == LOAD_STATUS_IN_PROGRESS) {
-        return NULL;
-    }
+    // if (gAudioCtx.seqLoadStatus[AudioLoad_GetRealTableIndex(SEQUENCE_TABLE, seqId)] == LOAD_STATUS_IN_PROGRESS) {
+    //     return NULL;
+    // }
 
     return AudioLoad_SyncLoad(SEQUENCE_TABLE, seqId, &didAllocate);
 }
@@ -708,7 +719,7 @@ SoundFontData* AudioLoad_SyncLoadFont(u32 fontId) {
         return NULL;
     }
 
-    SoundFont* sf = ResourceMgr_LoadAudioSoundFont(gFontToResource[fontId]);
+    SoundFont* sf = ResourceMgr_LoadAudioSoundFontByName(fontMap[fontId]);
     sampleBankId1 = sf->sampleBankId1;
     sampleBankId2 = sf->sampleBankId2;
 
@@ -767,14 +778,14 @@ void* AudioLoad_SyncLoad(s32 tableType, u32 id, s32* didAllocate) {
         SoundFont* fnt;
 
         if (tableType == SEQUENCE_TABLE) {
-            SequenceData sData = ResourceMgr_LoadSeqByName(gSequenceToResource[id]);
+            SequenceData sData = ResourceMgr_LoadSeqByName(sequenceMap[id]);
             seqData = sData.seqData;
             size = sData.seqDataSize;
             medium = sData.medium;
             cachePolicy = sData.cachePolicy;
             romAddr = 0;
         } else if (tableType == FONT_TABLE) {
-            fnt = ResourceMgr_LoadAudioSoundFont(gFontToResource[id]);
+            fnt = ResourceMgr_LoadAudioSoundFontByName(fontMap[id]);
             size = sizeof(SoundFont);
             medium = 2;
             cachePolicy = 0;
@@ -1116,6 +1127,20 @@ void AudioLoad_InitSoundFont(s32 fontId) {
     font->numSfx = entry->shortData3;
 }
 
+// #region 2S2H [Port] Audio assets in the archive file and custom sequenes
+int strcmp_sort(const void* str1, const void* str2) {
+    char* const* pp1 = str1;
+    char* const* pp2 = str2;
+    return strcmp(*pp1, *pp2);
+}
+
+char** sequenceMap;
+size_t sequenceMapSize;
+extern AudioContext gAudioCtx;
+// #end region
+#include "resourcebridge.h"
+#include "assert.h"
+
 void AudioLoad_Init(void* heap, size_t heapSize) {
     s32 pad1[9];
     s32 numFonts;
@@ -1218,37 +1243,113 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
     // AudioLoad_InitTable(gAudioCtx.soundFontTable, SEGMENT_ROM_START(Audiobank), 0);
     // AudioLoad_InitTable(gAudioCtx.sampleBankTable, SEGMENT_ROM_START(Audiotable), 0);
 
+    // #region 2S2H [Port] Audio in the archive and custom sequences
+    // Only load the original sequences right now because custom songs may require data from sound fonts and samples
     int seqListSize = 0;
+    int customSeqListSize = 0;
     char** seqList = ResourceMgr_ListFiles("audio/sequences*", &seqListSize);
-    gSequenceToResourceSize = seqListSize;
-    gSequenceToResource = malloc(gSequenceToResourceSize * sizeof(*gSequenceToResource));
-    gAudioCtx.seqLoadStatus = malloc(gSequenceToResourceSize * sizeof(*gAudioCtx.seqLoadStatus));
+    char** customSeqList = ResourceMgr_ListFiles("custom/music/*", &customSeqListSize);
+    sequenceMapSize = (size_t)(seqListSize + customSeqListSize);
+    sequenceMap = malloc(sequenceMapSize * sizeof(char*));
 
+    // gAudioCtx.seqLoadStatus = calloc(sequenceMapSize, 1);
+    gAudioCtx.seqLoadStatus = malloc(sequenceMapSize);
+    memset(gAudioCtx.seqLoadStatus, 5, sequenceMapSize);
     for (size_t i = 0; i < seqListSize; i++) {
         SequenceData sDat = ResourceMgr_LoadSeqByName(seqList[i]);
-        char* seqName = strdup(seqList[i]);
-        gSequenceToResource[sDat.seqNumber] = seqName;
+
+        char* str = malloc(strlen(seqList[i]) + 1);
+        strcpy(str, seqList[i]);
+
+        sequenceMap[sDat.seqNumber] = str;
         seqCachePolicyMap[sDat.seqNumber] = sDat.cachePolicy;
     }
 
     free(seqList);
 
+    // 2S2H [Streamed Audio] We need to load the custom songs after the fonts because streamed songs will use a hash to
+    // find its soundfont
     int fntListSize = 0;
+    int customFntListSize = 0;
     char** fntList = ResourceMgr_ListFiles("audio/fonts*", &fntListSize);
+    char** customFntList = ResourceMgr_ListFiles("custom/fonts/*", &customFntListSize);
 
+    gAudioCtx.fontLoadStatus = malloc(customFntListSize + fntListSize);
+    fontMap = calloc(customFntListSize + fntListSize, sizeof(char*));
     for (int i = 0; i < fntListSize; i++) {
-        SoundFont* sf = ResourceMgr_LoadAudioSoundFont(fntList[i]);
-        gFontToResource[sf->fntIndex] = strdup(fntList[i]);
+        SoundFont* sf = ResourceMgr_LoadAudioSoundFontByName(fntList[i]);
+
+        char* str = malloc(strlen(fntList[i]) + 1);
+        strcpy(str, fntList[i]);
+
+        fontMap[sf->fntIndex] = str;
     }
 
     free(fntList);
 
-    numFonts = fntListSize;
-    gAudioCtx.soundFontList = AudioHeap_Alloc(&gAudioCtx.initPool, numFonts * sizeof(SoundFont));
+    int customFontStart = fntListSize;
+    for (int i = customFontStart; i < customFntListSize + fntListSize; i++) {
+        SoundFont* sf = ResourceMgr_LoadAudioSoundFontByName(customFntList[i - customFontStart]);
+        sf->fntIndex = i;
 
-    // for (i = 0; i < numFonts; i++) {
-    //     AudioLoad_InitSoundFont(i);
-    // }
+        char* str = malloc(strlen(customFntList[i - customFontStart]) + 1);
+        strcpy(str, customFntList[i - customFontStart]);
+        fontMap[i] = str;
+    }
+    free(customFntList);
+
+    // 2S2H Port I think we need to take use seqListSize because entry 0x7A is missing.
+    int startingSeqNum = seqListSize; // MAX_AUTHENTIC_SEQID; // 109 is the highest vanilla sequence
+    qsort(customSeqList, customSeqListSize, sizeof(char*), strcmp_sort);
+
+    // Because AudioCollection's sequenceMap actually has more than sequences (including instruments from 130-135 and
+    // sfx in the 2000s, 6000s, 10000s, 14000s, 18000s, and 26000s), it's better here to keep track of the next empty
+    // seqNum in AudioCollection instead of just skipping past the instruments at 130 with a higher MAX_AUTHENTIC_SEQID,
+    // especially if those others could be added to in the future. However, this really needs to be streamlined with
+    // specific ranges in AudioCollection for types, or unifying AudioCollection and the various maps in here
+    int seqNum = startingSeqNum;
+
+    // BENTODO remove the limit. TL;DR seqid is cast to u8 in a bunch of places.
+    if (startingSeqNum + customSeqListSize > 255) {
+        Messagebox_ShowErrorBox(
+            "Too many sequences",
+            "More than 255 sequences loaded. The game will run but custom sequences may not work correctly.");
+    }
+    for (size_t i = startingSeqNum; i < startingSeqNum + customSeqListSize; i++) {
+        // ensure that what would be the next sequence number is actually unassigned in AudioCollection
+        while (AudioCollection_HasSequenceNum(seqNum)) {
+            seqNum++;
+        }
+        int j = i - startingSeqNum;
+        AudioCollection_AddToCollection(customSeqList[j], seqNum);
+        SequenceData* sDat = ResourceMgr_LoadSeqPtrByName(customSeqList[j]);
+        sDat->seqNumber = seqNum;
+
+        if (sDat->numFonts == -1) {
+            uint64_t crc;
+
+            memcpy(&crc, sDat->fonts, sizeof(uint64_t));
+            // crc = _byteswap_uint64(crc);
+            const char* res = ResourceGetNameByCrc(crc);
+            SoundFont* sf = ResourceMgr_LoadAudioSoundFontByName(res);
+            sDat->fonts[0] = sf->fntIndex;
+            memset(&sDat->fonts[1], 0, sizeof(sDat->fonts) - sizeof(uint16_t));
+            sDat->numFonts = 1;
+        }
+
+        char* str = malloc(strlen(customSeqList[j]) + 1);
+        strcpy(str, customSeqList[j]);
+
+        sequenceMap[sDat->seqNumber] = str;
+        seqNum++;
+    }
+
+    free(customSeqList);
+
+    numFonts = fntListSize;
+
+    // #end region
+    gAudioCtx.soundFontList = AudioHeap_Alloc(&gAudioCtx.initPool, numFonts * sizeof(SoundFont));
 
     if (addr = AudioHeap_Alloc(&gAudioCtx.initPool, gAudioHeapInitSizes.permanentPoolSize), addr == NULL) {
         // cast away const from gAudioHeapInitSizes
@@ -1434,6 +1535,24 @@ s32 AudioLoad_SlowLoadSeq(s32 seqId, u8* ramAddr, s8* isDone) {
     }
 
     seqId = AudioLoad_GetRealTableIndex(SEQUENCE_TABLE, seqId);
+    // #region 2S2H [Port] Custom sequences
+    u16 newSeqId = AudioEditor_GetReplacementSeq(seqId);
+    if (seqId != newSeqId) {
+        gAudioCtx.seqToPlay[SEQ_PLAYER_BGM_MAIN] = newSeqId;
+        gAudioCtx.seqReplaced[SEQ_PLAYER_BGM_MAIN] = 1;
+        // This sequence command starts playing a sequence specified by seqId on the main BGM seq player.
+        // The sequence command is a bitpacked u32 where different bits of the number indicated different parameters.
+        // What those parameters are is dependent on the first 8 bits which represent an operation.
+        // First two digits (bits 31-24) - Sequence Command Operation (0x0 = play sequence immediately)
+        // Next two digits (bits 23-16) - Index of the SeqPlayer to operate on. (0, which is the main BGM player.)
+        // Next two digits (bits 15-8) - Fade Timer (0 in this case, we don't want any fade-in or out here.)
+        // Last two digits (bits 7-0) - the sequence ID to play. Not actually sure why it is cast to u16 instead of u8,
+        // copied this from authentic game code and adapted it. I think it might be so that you can choose to encode the
+        // fade timer into the seqId if you want to for some reason.
+        AudioSeq_QueueSeqCmd(0x00000000 | ((u8)SEQ_PLAYER_BGM_MAIN << 24) | ((u8)(0) << 16) | (u16)seqId);
+        return 0;
+    }
+    // #end region
     seqTable = AudioLoad_GetLoadTable(SEQUENCE_TABLE);
     slowLoad = &gAudioCtx.slowLoads[gAudioCtx.slowLoadPos];
     if (slowLoad->status == LOAD_STATUS_DONE) {
@@ -1443,7 +1562,7 @@ s32 AudioLoad_SlowLoadSeq(s32 seqId, u8* ramAddr, s8* isDone) {
     slowLoad->sample.sampleAddr = NULL;
     slowLoad->isDone = isDone;
 
-    SequenceData sData = ResourceMgr_LoadSeqByName(gSequenceToResource[seqId]);
+    SequenceData sData = ResourceMgr_LoadSeqByName(sequenceMap[seqId]);
     size = sData.seqDataSize;
     slowLoad->curDevAddr = sData.seqData;
     slowLoad->medium = seqTable->entries[seqId].medium;
@@ -1957,7 +2076,7 @@ void AudioLoad_PreloadSamplesForFont(s32 fontId, s32 async, SampleBankRelocInfo*
 
     gAudioCtx.numUsedSamples = 0;
 
-    SoundFont* sf = ResourceMgr_LoadAudioSoundFont(gFontToResource[fontId]);
+    SoundFont* sf = ResourceMgr_LoadAudioSoundFontByName(fontMap[fontId]);
     numDrums = sf->numDrums;
     numInstruments = sf->numInstruments;
     numSfx = sf->numSfx;
@@ -2083,8 +2202,8 @@ void AudioLoad_LoadPermanentSamples(void) {
 
         if (gAudioCtx.permanentEntries[i].tableType == FONT_TABLE) {
             fontId = AudioLoad_GetRealTableIndex(FONT_TABLE, gAudioCtx.permanentEntries[i].id);
-
-            SoundFont* sf = ResourceMgr_LoadAudioSoundFont(gFontToResource[fontId]);
+            // 2S2H [Port] Audio assets in the archive
+            SoundFont* sf = ResourceMgr_LoadAudioSoundFontByName(fontMap[fontId]);
             sampleBankReloc.sampleBankId1 = sf->sampleBankId1;
             sampleBankReloc.sampleBankId2 = sf->sampleBankId2;
             // sampleBankReloc.sampleBankId1 = gAudioCtx.soundFontList[fontId].sampleBankId1;

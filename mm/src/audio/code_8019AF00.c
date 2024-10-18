@@ -1,5 +1,7 @@
 #include "global.h"
 
+#include "GameInteractor/GameInteractor.h"
+#include "2s2h/Enhancements/Audio/AudioEditor.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 
 typedef struct {
@@ -2070,6 +2072,24 @@ const char sAudioOcarinaUnusedText5[] = "last key is bad !!! %d %d %02X %02X\n";
 const char sAudioOcarinaUnusedText6[] = "last key step is too short !!! %d:%d %d<%d\n";
 const char sAudioOcarinaUnusedText7[] = "check is over!!! %d %d %d\n";
 
+// BENTODO find a final place for this function
+// 2S2H [Port] Part of the audio editor
+void PreviewSequence(u16 seqId) {
+    u16 curSeqId = AudioSeq_GetActiveSeqId(SEQ_PLAYER_BGM_MAIN);
+
+    // if ((curSeqId & 0xFF) != NA_BGM_GANON_TOWER && (curSeqId & 0xFF) != NA_BGM_ESCAPE && curSeqId != seqId) {
+    Audio_SetSequenceMode(SEQ_MODE_IGNORE);
+    if (curSeqId != NA_BGM_DISABLED) {
+        sPrevMainBgmSeqId = curSeqId;
+    } else {
+        osSyncPrintf("Middle Boss BGM Start not stack \n");
+    }
+
+    SEQCMD_PLAY_SEQUENCE(SEQ_PLAYER_BGM_MAIN, 1, seqId);
+
+    // }
+}
+
 void AudioOcarina_ReadControllerInput(void) {
     Input inputs[MAXCONTROLLERS];
     Input* input = &inputs[0];
@@ -2760,6 +2780,14 @@ void AudioOcarina_SetOcarinaDisableTimer(u8 unused, u8 timer) {
 
 void AudioOcarina_SetInstrument(u8 ocarinaInstrumentId) {
     if ((sOcarinaInstrumentId != ocarinaInstrumentId) || (ocarinaInstrumentId == OCARINA_INSTRUMENT_DEFAULT)) {
+        // #region 2S2H [Port] Custom Sequnces
+        u16 sfxEditorId = ocarinaInstrumentId + 0x81;
+        u16 neSeq = AudioEditor_GetReplacementSeq(sfxEditorId);
+        if (neSeq != sfxEditorId) {
+            gAudioCtx.seqReplaced[SEQ_PLAYER_SFX] = 1;
+            ocarinaInstrumentId = neSeq - 0x81;
+        }
+        // #end region
         SEQCMD_SET_CHANNEL_IO(SEQ_PLAYER_SFX, SFX_CHANNEL_OCARINA, 1, ocarinaInstrumentId);
         sOcarinaInstrumentId = ocarinaInstrumentId;
 
@@ -4047,6 +4075,7 @@ void AudioSfx_SetProperties(u8 bankId, u8 entryIndex, u8 channelIndex) {
                           2);
                 filter &= 0xFF;
             } else if ((sSoundMode == SOUNDMODE_SURROUND_EXTERNAL) && !(entry->sfxParams & SFX_FLAG_VOLUME_NO_DIST)) {
+                // BENTODO look into this
                 filter = AudioSfx_ComputeSurroundSoundFilter(behindScreenZ, entry, panSigned);
             }
             break;
@@ -5450,6 +5479,7 @@ void Audio_PlaySceneSequence(u16 seqId, u8 dayMinusOne) {
 void Audio_StartSceneSequence(u16 seqId) {
     u8 fadeInDuration = 0;
     u8 skipHarpIntro;
+    seqId = AudioEditor_GetOriginalSeq(seqId);
 
     if ((sSeqFlags[sPrevSceneSeqId] & SEQ_FLAG_RESUME_PREV) && (sSeqFlags[seqId & 0xFF & 0xFF] & SEQ_FLAG_RESUME)) {
         // Resume the sequence from the point where it left off last time it was played in the scene
@@ -5482,6 +5512,10 @@ void Audio_StartSceneSequence(u16 seqId) {
 
 void Audio_UpdateSceneSequenceResumePoint(void) {
     u16 seqId = AudioSeq_GetActiveSeqId(SEQ_PLAYER_BGM_MAIN);
+    if (seqId = 0xa0) {
+        int bp = 4;
+    }
+    seqId = AudioEditor_GetOriginalSeq(seqId);
 
     if ((seqId != NA_BGM_DISABLED) && (sSeqFlags[seqId & 0xFF & 0xFF] & SEQ_FLAG_RESUME)) {
         if (sSeqResumePoint != SEQ_RESUME_POINT_NONE) {
@@ -5547,6 +5581,7 @@ void Audio_IncreaseTempoForTimedMinigame(void) {
 }
 
 void Audio_PlaySequenceInCutscene(u16 seqId) {
+    seqId = AudioEditor_GetOriginalSeq(seqId);
     if (sSeqFlags[seqId & 0xFF & 0xFF] & SEQ_FLAG_FANFARE) {
         Audio_PlayFanfare(seqId);
     } else if (sSeqFlags[seqId & 0xFF & 0xFF] & SEQ_FLAG_FANFARE_KAMARO) {
@@ -5562,6 +5597,7 @@ void Audio_PlaySequenceInCutscene(u16 seqId) {
 }
 
 void Audio_StopSequenceInCutscene(u16 seqId) {
+    seqId = AudioEditor_GetOriginalSeq(seqId);
     if (sSeqFlags[seqId & 0xFF & 0xFF] & SEQ_FLAG_FANFARE) {
         SEQCMD_STOP_SEQUENCE(SEQ_PLAYER_FANFARE, 0);
     } else if (sSeqFlags[seqId & 0xFF & 0xFF] & SEQ_FLAG_FANFARE_KAMARO) {
@@ -5574,11 +5610,13 @@ void Audio_StopSequenceInCutscene(u16 seqId) {
 }
 
 s32 Audio_IsSequencePlaying(u8 seqId) {
+    u8 origSeqId = AudioEditor_GetOriginalSeq(seqId);
+
     u8 seqPlayerIndex = SEQ_PLAYER_BGM_MAIN;
 
-    if (sSeqFlags[seqId & 0xFF] & SEQ_FLAG_FANFARE) {
+    if (sSeqFlags[origSeqId & 0xFF] & SEQ_FLAG_FANFARE) {
         seqPlayerIndex = SEQ_PLAYER_FANFARE;
-    } else if (sSeqFlags[seqId & 0xFF] & SEQ_FLAG_FANFARE_KAMARO) {
+    } else if (sSeqFlags[origSeqId & 0xFF] & SEQ_FLAG_FANFARE_KAMARO) {
         seqPlayerIndex = SEQ_PLAYER_FANFARE;
     }
 
@@ -5591,7 +5629,7 @@ s32 Audio_IsSequencePlaying(u8 seqId) {
 
 void Audio_PlayBgm_StorePrevBgm(u16 seqId) {
     u16 curSeqId = AudioSeq_GetActiveSeqId(SEQ_PLAYER_BGM_MAIN);
-
+    u64 origSeqId = AudioEditor_GetOriginalSeq(curSeqId);
     if (curSeqId == NA_BGM_DISABLED) {
         curSeqId = NA_BGM_GENERAL_SFX;
     }
@@ -5600,7 +5638,7 @@ void Audio_PlayBgm_StorePrevBgm(u16 seqId) {
         Audio_SetSequenceMode(SEQ_MODE_IGNORE);
 
         // Ensure the sequence about to be stored isn't also storing a separate sequence
-        if (!(sSeqFlags[curSeqId] & SEQ_FLAG_RESTORE)) {
+        if (!(sSeqFlags[origSeqId] & SEQ_FLAG_RESTORE)) {
             sPrevMainBgmSeqId = curSeqId;
         }
 
@@ -5735,7 +5773,7 @@ void Audio_SetSequenceMode(u8 seqMode) {
         // clang-format on
 
         seqId = gActiveSeqs[SEQ_PLAYER_BGM_MAIN].seqId;
-
+        seqId = AudioEditor_GetOriginalSeq(seqId);
         if ((seqId == NA_BGM_DISABLED) || (sSeqFlags[(u8)(seqId & 0xFF)] & SEQ_FLAG_ENEMY) ||
             ((sPrevSeqMode & 0x7F) == SEQ_MODE_ENEMY)) {
             if (seqMode != (sPrevSeqMode & 0x7F)) {
@@ -5805,7 +5843,7 @@ void Audio_SetSequenceMode(u8 seqMode) {
 
 void Audio_UpdateEnemyBgmVolume(f32 dist) {
     f32 adjDist;
-    u16 seqId = gActiveSeqs[SEQ_PLAYER_BGM_MAIN].seqId;
+    u16 seqId = AudioEditor_GetOriginalSeq(gActiveSeqs[SEQ_PLAYER_BGM_MAIN].seqId);
 
     if (sPrevSeqMode == (SEQ_MODE_ENEMY | 0x80)) {
         if (dist != sBgmEnemyDist) {
@@ -6402,7 +6440,8 @@ void Audio_PlayAmbience(u8 ambienceId) {
     u8 ioData;
 
     if (!((gActiveSeqs[SEQ_PLAYER_AMBIENCE].seqId != NA_BGM_DISABLED) &&
-          (sSeqFlags[gActiveSeqs[SEQ_PLAYER_AMBIENCE].seqId & 0xFF & 0xFF] & SEQ_FLAG_NO_AMBIENCE))) {
+          (sSeqFlags[AudioEditor_GetOriginalSeq(gActiveSeqs[SEQ_PLAYER_AMBIENCE].seqId) & 0xFF & 0xFF] &
+           SEQ_FLAG_NO_AMBIENCE))) {
         if (gActiveSeqs[SEQ_PLAYER_AMBIENCE].seqId != NA_BGM_AMBIENCE) {
             sPrevAmbienceSeqId = gActiveSeqs[SEQ_PLAYER_AMBIENCE].seqId;
         }
