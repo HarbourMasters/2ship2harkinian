@@ -34,8 +34,8 @@ u8 sSoundModeList[] = {
 u8 gAudioSpecId = 0;
 u8 gAudioHeapResetState = AUDIO_HEAP_RESET_STATE_NONE;
 u32 sResetAudioHeapSeqCmd = 0;
-
-void AudioSeq_StartSequence(u8 seqPlayerIndex, u8 seqId, u8 seqArgs, u16 fadeInDuration) {
+// 2S2H [Custom Audio] seqId and seqArgs updated to use u16 instead of u8
+void AudioSeq_StartSequence(u8 seqPlayerIndex, u16 seqId, u16 seqArgs, u16 fadeInDuration) {
     u8 channelIndex;
     u16 skipTicks;
     s32 pad;
@@ -82,6 +82,7 @@ void AudioSeq_StopSequence(u8 seqPlayerIndex, u16 fadeOutDuration) {
     gActiveSeqs[seqPlayerIndex].seqId = NA_BGM_DISABLED;
 }
 
+// 2S2H [Custom Audio] Updated seqId to be 16 bit.
 void AudioSeq_ProcessSeqCmd(u32 cmd) {
     s32 priority;
     s32 channelMaskEnable;
@@ -94,7 +95,7 @@ void AudioSeq_ProcessSeqCmd(u32 cmd) {
     u8 op;
     u8 subOp;
     u8 seqPlayerIndex;
-    u8 seqId;
+    u16 seqId;
     u8 seqArgs;
     u8 found;
     u8 ioPort;
@@ -110,7 +111,7 @@ void AudioSeq_ProcessSeqCmd(u32 cmd) {
     switch (op) {
         case SEQCMD_OP_PLAY_SEQUENCE:
             // Play a new sequence
-            seqId = cmd & SEQCMD_SEQID_MASK;
+            seqId = cmd & SEQCMD_SEQID_MASK_16;
             seqArgs = (cmd & 0xFF00) >> 8;
             // `fadeTimer` is only shifted 13 bits instead of 16 bits.
             // `fadeTimer` continues to be scaled in `AudioSeq_StartSequence`
@@ -435,15 +436,16 @@ void AudioSeq_ProcessSeqCmd(u32 cmd) {
  * Add the sequence cmd to the `sAudioSeqCmds` queue
  */
 void AudioSeq_QueueSeqCmd(u32 cmd) {
-    // 2S2H [Port] Allow loading custom sequences
+    // 2S2H [Port] Allow loading custom sequences and use 16 bit seqId
     u8 op = cmd >> 28;
-    if (op == 0 || op == 2 || op == 12) {
-        u8 seqId = cmd & 0xFF;
+    // Ship had a check for op 12 but it doesn't seem like the seqId is set there
+    if (op == 0 || op == 2) {
+        u16 seqId = cmd & SEQCMD_SEQID_MASK_16;
         u8 playerIdx = (cmd & 0xF000000) >> 24;
         u16 newSeqId = AudioEditor_GetReplacementSeq(seqId);
         gAudioCtx.seqReplaced[playerIdx] = (seqId != newSeqId);
         gAudioCtx.seqToPlay[playerIdx] = newSeqId;
-        cmd |= (seqId & 0xFF);
+        cmd |= (seqId & SEQCMD_SEQID_MASK_16);
     }
 
     sAudioSeqCmds[sSeqCmdWritePos++] = cmd;

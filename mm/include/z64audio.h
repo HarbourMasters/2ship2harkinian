@@ -224,7 +224,8 @@ typedef struct SequencePlayer {
     /* 0x001 */ u8 state;
     /* 0x002 */ u8 noteAllocPolicy;
     /* 0x003 */ u8 muteFlags;
-    /* 0x004 */ u8 seqId;
+    // 2S2H [Custom Audio]. Was originally u8 seqId. Made 16 bit to allow for more than 255 sequences.
+    /* 0x004 */ u16 seqId;
     /* 0x005 */ u8 defaultFont;
     /* 0x006 */ u8 unk_06[1];
     /* 0x007 */ s8 playerIndex;
@@ -804,7 +805,7 @@ typedef struct {
 } ActiveSequence; // size = 0x21C
 
 typedef struct {
-    /* 0x0 */ u8 seqId;
+    /* 0x0 */ u16 seqId;
     /* 0x1 */ u8 priority;
 } SeqRequest; // size = 0x02
 

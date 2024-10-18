@@ -366,7 +366,8 @@ void AudioLoad_SetFontLoadStatus(s32 fontId, s32 loadStatus) {
 
 void AudioLoad_SetSeqLoadStatus(s32 seqId, s32 loadStatus) {
     seqId = AudioEditor_GetOriginalSeq(seqId);
-    if ((seqId != 0xFF) && (gAudioCtx.seqLoadStatus[seqId] != LOAD_STATUS_PERMANENT)) {
+    // 2S2H [Custom Audio] Remove the cast because seqId is not 16 bit.
+    if ((seqId != NA_BGM_DISABLED) && (gAudioCtx.seqLoadStatus[seqId] != LOAD_STATUS_PERMANENT)) {
         gAudioCtx.seqLoadStatus[seqId] = loadStatus;
     }
 }
@@ -515,7 +516,8 @@ void AudioLoad_AsyncLoadFont(s32 fontId, s32 arg1, s32 retData, OSMesgQueue* ret
 }
 
 u8* AudioLoad_GetFontsForSequence(s32 seqId, u32* outNumFonts, u8* buff) {
-    if (seqId == NA_BGM_DISABLED || seqId == 0xFF) {
+    // 2S2H [Custom Audio] There was a second check for `seqId == 0xFF`. Removed because it is no longer useful.
+    if (seqId == NA_BGM_DISABLED) {
         return NULL;
     }
 
