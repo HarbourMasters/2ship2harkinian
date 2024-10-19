@@ -13523,7 +13523,8 @@ s32 func_808482E0(PlayState* play, Player* this) {
 
             if ((this->getItemId == GI_HEART_CONTAINER) ||
                 ((this->getItemId == GI_HEART_PIECE) && EQ_MAX_QUEST_HEART_PIECE_COUNT)) {
-                // BENTODO This and NA_BGM_GET_ITEM had | 0x900 which interfered with the 16 bit sequence IDs. Removing it doesn't seem to do anything bad.
+                // BENTODO This and NA_BGM_GET_ITEM had | 0x900 which interfered with the 16 bit sequence IDs. Removing
+                // it doesn't seem to do anything bad.
                 seqId = NA_BGM_GET_HEART;
             } else {
                 s32 var_v1;

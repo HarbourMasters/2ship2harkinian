@@ -5101,7 +5101,8 @@ void Audio_PlayObjSoundBgm(Vec3f* pos, s16 seqId) {
             Audio_SetObjSoundProperties(SEQ_PLAYER_BGM_MAIN, pos, 0x20, 100.0f, 1500.0f, 0.9f, 0.0f);
         } else {
             if (sObjSoundMainBgmSeqId == NA_BGM_GENERAL_SFX) {
-                // 2S2H [Custom Audio] was originally `seqId + 7F00` This value did not work with the bit packing done for 16 bit seqIds.
+                // 2S2H [Custom Audio] was originally `seqId + 7F00` This value did not work with the bit packing done
+                // for 16 bit seqIds.
                 temp_a0 = ((((AudioThread_NextRandom() % 30) & 0xFF) + 1) << 0x10) | (seqId + 0x7800);
                 SEQCMD_PLAY_SEQUENCE(SEQ_PLAYER_BGM_MAIN, 0, temp_a0);
                 sObjSoundMainBgmSeqId = seqId;
@@ -5711,7 +5712,8 @@ void Audio_PlayFanfare(u16 seqId) {
     u8 fontBuff[16];
     u16 prevSeqId = AudioSeq_GetActiveSeqId(SEQ_PLAYER_FANFARE);
     u32 outNumFonts;
-    // 2S2H [Custom Audio] `prevSeqId` and `seqId` had a `& 0xFF`. This was likely OK because we always load soundFonts but it was removed anyway just in case.
+    // 2S2H [Custom Audio] `prevSeqId` and `seqId` had a `& 0xFF`. This was likely OK because we always load soundFonts
+    // but it was removed anyway just in case.
     u8* prevFontId = AudioThread_GetFontsForSequence(prevSeqId, &outNumFonts, prevFontBuff);
     u8* fontId = AudioThread_GetFontsForSequence(seqId, &outNumFonts, fontBuff);
     // BENTODO
