@@ -95,6 +95,7 @@ static void FlacDecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std
     audioSample->audioSampleData.reserve(numFrames * flac->channels * 2);
     drflac_read_pcm_frames_s16(flac, numFrames, (int16_t*)audioSample->audioSampleData.data());
     audioSample->sample.sampleAddr = audioSample->audioSampleData.data();
+    drflac_close(flac);
 }
 
 static void OggDecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std::shared_ptr<Ship::File> sampleFile) {
@@ -227,39 +228,43 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
     initData->IsCustom = false;
     initData->ByteOrder = Ship::Endianness::Native;
     auto sampleFile = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->LoadFile(path, initData);
-    // Compressed files can take a really long time to decode (~250ms per).
-    // This worked when we tested it (09/04/2024) (Works on my machine)
-    if (customFormatStr != nullptr && strcmp(customFormatStr, "wav") == 0) {
-        drwav wav;
-        drwav_uint64 numFrames;
+    if (customFormatStr != nullptr) {
+        // Compressed files can take a really long time to decode (~250ms per).
+        // This worked when we tested it (09/04/2024) (Works on my machine)
+        if (strcmp(customFormatStr, "wav") == 0) {
+            drwav wav;
+            drwav_uint64 numFrames;
 
-        drwav_bool32 ret =
-            drwav_init_memory(&wav, sampleFile->Buffer.get()->data(), sampleFile->Buffer.get()->size(), nullptr);
+            drwav_bool32 ret =
+                drwav_init_memory(&wav, sampleFile->Buffer.get()->data(), sampleFile->Buffer.get()->size(), nullptr);
 
-        drwav_get_length_in_pcm_frames(&wav, &numFrames);
+            drwav_get_length_in_pcm_frames(&wav, &numFrames);
 
-        audioSample->tuning = (wav.sampleRate * wav.channels) / 32000.0f;
-        audioSample->audioSampleData.reserve(numFrames * wav.channels * 2);
+            audioSample->tuning = (wav.sampleRate * wav.channels) / 32000.0f;
+            audioSample->audioSampleData.reserve(numFrames * wav.channels * 2);
 
-        drwav_read_pcm_frames_s16(&wav, numFrames, (int16_t*)audioSample->audioSampleData.data());
-    } else if (customFormatStr != nullptr && strcmp(customFormatStr, "mp3") == 0) {
-        std::thread fileDecoderThread = std::thread(Mp3DecoderWorker, audioSample, sampleFile);
-        fileDecoderThread.detach();
-        return audioSample;
-    } else if (customFormatStr != nullptr && strcmp(customFormatStr, "ogg") == 0) {
-        std::thread fileDecoderThread = std::thread(OggDecoderWorker, audioSample, sampleFile);
-        fileDecoderThread.detach();
-        return audioSample;
-    } else if (customFormatStr != nullptr && strcmp(customFormatStr, "flac") == 0) {
-        std::thread fileDecoderThread = std::thread(FlacDecoderWorker, audioSample, sampleFile);
-        fileDecoderThread.detach();
-        return audioSample;
-    } else {
-        // Not a normal streamed sample. Fallback to the original ADPCM sample to be decoded by the audio engine.
-        audioSample->audioSampleData.reserve(size);
-        for (uint32_t i = 0; i < size; i++) {
-            audioSample->audioSampleData.push_back((char)(sampleFile->Buffer.get()->at(i)));
+            drwav_read_pcm_frames_s16(&wav, numFrames, (int16_t*)audioSample->audioSampleData.data());
+            audioSample->sample.sampleAddr = audioSample->audioSampleData.data();
+            return audioSample;
+        } else if (strcmp(customFormatStr, "mp3") == 0) {
+            std::thread fileDecoderThread = std::thread(Mp3DecoderWorker, audioSample, sampleFile);
+            fileDecoderThread.detach();
+            return audioSample;
+        } else if (strcmp(customFormatStr, "ogg") == 0) {
+            std::thread fileDecoderThread = std::thread(OggDecoderWorker, audioSample, sampleFile);
+            fileDecoderThread.detach();
+            return audioSample;
+        } else if (strcmp(customFormatStr, "flac") == 0) {
+            std::thread fileDecoderThread = std::thread(FlacDecoderWorker, audioSample, sampleFile);
+            fileDecoderThread.detach();
+            return audioSample;
         }
+    }
+    // Not a normal streamed sample. Fallback to the original ADPCM sample to be decoded by the audio engine.
+    audioSample->audioSampleData.resize(size);
+    // Can't use memcpy due to endianness issues.
+    for (uint32_t i = 0; i < size; i++) {
+        audioSample->audioSampleData[i] = sampleFile->Buffer.get()->data()[i];
     }
     audioSample->sample.sampleAddr = audioSample->audioSampleData.data();
 

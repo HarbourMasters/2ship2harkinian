@@ -12,11 +12,16 @@
 
 #include "global.h"
 #include "buffers.h"
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "2s2h/Enhancements/Audio/AudioCollection.h"
 #include "2s2h/Enhancements/Audio/AudioEditor.h"
 #include "BenPort.h"
+// Windows deprecated the use of `strdup` it uses _strdup. Linux/Unix doesn't have _strdup.
+#ifdef _MSC_VER
+#define strdup _strdup
+#endif
 
 /**
  * SoundFont Notes:
@@ -73,7 +78,7 @@ SoundFont* ResourceMgr_LoadAudioSoundFontByName(const char* path);
 SoundFont* ResourceMgr_LoadAudioSoundFontByCRC(uint64_t crc);
 
 // TODO: what's that for? it seems to rely on an uninitizalied variable in soh
-static uint32_t fontOffsets[8192];
+// static uint32_t fontOffsets[8192];
 
 #define MK_ASYNC_MSG(retData, tableType, id, loadStatus) \
     (((retData) << 24) | ((tableType) << 16) | ((id) << 8) | (loadStatus))
@@ -1254,16 +1259,11 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
     sequenceMapSize = (size_t)(seqListSize + customSeqListSize);
     sequenceMap = malloc(sequenceMapSize * sizeof(char*));
 
-    // gAudioCtx.seqLoadStatus = calloc(sequenceMapSize, 1);
     gAudioCtx.seqLoadStatus = malloc(sequenceMapSize);
     memset(gAudioCtx.seqLoadStatus, 5, sequenceMapSize);
     for (size_t i = 0; i < seqListSize; i++) {
         SequenceData sDat = ResourceMgr_LoadSeqByName(seqList[i]);
-
-        char* str = malloc(strlen(seqList[i]) + 1);
-        strcpy(str, seqList[i]);
-
-        sequenceMap[sDat.seqNumber] = str;
+        sequenceMap[sDat.seqNumber] = strdup(seqList[i]);
         seqCachePolicyMap[sDat.seqNumber] = sDat.cachePolicy;
     }
 
@@ -1280,11 +1280,7 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
     fontMap = calloc(customFntListSize + fntListSize, sizeof(char*));
     for (int i = 0; i < fntListSize; i++) {
         SoundFont* sf = ResourceMgr_LoadAudioSoundFontByName(fntList[i]);
-
-        char* str = malloc(strlen(fntList[i]) + 1);
-        strcpy(str, fntList[i]);
-
-        fontMap[sf->fntIndex] = str;
+        fontMap[sf->fntIndex] = strdup(fntList[i]);
     }
 
     free(fntList);
@@ -1293,10 +1289,7 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
     for (int i = customFontStart; i < customFntListSize + fntListSize; i++) {
         SoundFont* sf = ResourceMgr_LoadAudioSoundFontByName(customFntList[i - customFontStart]);
         sf->fntIndex = i;
-
-        char* str = malloc(strlen(customFntList[i - customFontStart]) + 1);
-        strcpy(str, customFntList[i - customFontStart]);
-        fontMap[i] = str;
+        fontMap[i] = strdup(customFntList[i - customFontStart]);
     }
     free(customFntList);
 
@@ -1311,38 +1304,44 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
     // specific ranges in AudioCollection for types, or unifying AudioCollection and the various maps in here
     int seqNum = startingSeqNum;
 
-    // BENTODO remove the limit. TL;DR seqid is cast to u8 in a bunch of places.
-    if (startingSeqNum + customSeqListSize > 255) {
-        Messagebox_ShowErrorBox(
-            "Too many sequences",
-            "More than 255 sequences loaded. The game will run but custom sequences may not work correctly.");
-    }
     for (size_t i = startingSeqNum; i < startingSeqNum + customSeqListSize; i++) {
         // ensure that what would be the next sequence number is actually unassigned in AudioCollection
-        while (AudioCollection_HasSequenceNum(seqNum)) {
-            seqNum++;
-        }
         int j = i - startingSeqNum;
-        AudioCollection_AddToCollection(customSeqList[j], seqNum);
         SequenceData* sDat = ResourceMgr_LoadSeqPtrByName(customSeqList[j]);
-        sDat->seqNumber = seqNum;
 
         if (sDat->numFonts == -1) {
             uint64_t crc;
 
             memcpy(&crc, sDat->fonts, sizeof(uint64_t));
-            // crc = _byteswap_uint64(crc);
             const char* res = ResourceGetNameByCrc(crc);
+            if (res == NULL) {
+                // Passing a null buffer and length of 0 to snprintf will return the required numbers of characters the
+                // buffer needs to be.
+                int len =
+                    snprintf(NULL, 0, "Could not find sound font for sequence %s. It will not be in the audio editor.",
+                             customSeqList[j]);
+                char* error = malloc(len + 1);
+                snprintf(error, len, "Could not find sound font for sequence %s. It will not be in the audio editor.",
+                         customSeqList[j]);
+                LUSLOG_ERROR("%s", error);
+                Messagebox_ShowErrorBox("Invalid Sequence", error);
+                free(error);
+                continue;
+            }
             SoundFont* sf = ResourceMgr_LoadAudioSoundFontByName(res);
+            memset(&sDat->fonts[0], 0, sizeof(sDat->fonts));
             sDat->fonts[0] = sf->fntIndex;
-            memset(&sDat->fonts[1], 0, sizeof(sDat->fonts) - sizeof(uint16_t));
             sDat->numFonts = 1;
         }
 
-        char* str = malloc(strlen(customSeqList[j]) + 1);
-        strcpy(str, customSeqList[j]);
+        while (AudioCollection_HasSequenceNum(seqNum)) {
+            seqNum++;
+        }
 
-        sequenceMap[sDat->seqNumber] = str;
+        AudioCollection_AddToCollection(customSeqList[j], seqNum);
+
+        sDat->seqNumber = seqNum;
+        sequenceMap[sDat->seqNumber] = strdup(customSeqList[j]);
         seqNum++;
     }
 
