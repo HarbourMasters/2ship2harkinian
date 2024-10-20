@@ -94,8 +94,10 @@ void SetupGuiElements() {
 
     mEventLogWindow = std::make_shared<EventLogWindow>("gWindows.EventLog", "Event Log", ImVec2(520, 600));
     gui->AddGuiWindow(mEventLogWindow);
+
     mAudioEditorWindow = std::make_shared<AudioEditor>("gWindows.AudioEditor", "Audio Editor");
     gui->AddGuiWindow(mAudioEditorWindow);
+    
     gui->SetPadBtnTogglesMenu();
 }
 
