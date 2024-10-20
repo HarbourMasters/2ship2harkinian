@@ -625,6 +625,10 @@ s32 AudioLoad_SyncInitSeqPlayerInternal(s32 playerIndex, s32 seqId, s32 arg2) {
     AudioScript_SequencePlayerDisable(seqPlayer);
 
     fontId = 0xFF;
+    // Resetting all sounds in a state where there is silence, IE map select will crash. This feels like a band-aid fix bit it works.
+    if (seqId == 0x7FF) {
+        return 0;
+    }
     if (gAudioCtx.seqReplaced[playerIndex]) {
         authCachePolicy = seqCachePolicyMap[seqId];
         seqId = gAudioCtx.seqToPlay[playerIndex];

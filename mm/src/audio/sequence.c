@@ -435,12 +435,23 @@ void AudioSeq_ProcessSeqCmd(u32 cmd) {
 /**
  * Add the sequence cmd to the `sAudioSeqCmds` queue
  */
+static uint8_t sClockTownDaySeqIds[4] = {
+    NA_BGM_CLOCK_TOWN_DAY_1,
+    NA_BGM_CLOCK_TOWN_DAY_2,
+    NA_BGM_CLOCK_TOWN_DAY_3,
+    // Through glitches and the save editor it is possible to reach the 4th day.
+    NA_BGM_CLOCK_TOWN_DAY_1,
+};
 void AudioSeq_QueueSeqCmd(u32 cmd) {
     // 2S2H [Port] Allow loading custom sequences and use 16 bit seqId
     u8 op = cmd >> 28;
     // Ship had a check for op 12 but it doesn't seem like the seqId is set there
     if (op == 0 || op == 2) {
         u16 seqId = cmd & SEQCMD_SEQID_MASK_16;
+        if (seqId == NA_BGM_CLOCK_TOWN_MAIN_SEQUENCE) {
+            // Clock town uses one sequence id for all 3 songs. We need to manually figure out which day it is and replace the sequence id our self.
+            seqId = sClockTownDaySeqIds[CURRENT_DAY - 1];
+        }
         u8 playerIdx = (cmd & 0xF000000) >> 24;
         u16 newSeqId = AudioEditor_GetReplacementSeq(seqId);
         gAudioCtx.seqReplaced[playerIdx] = (seqId != newSeqId);
