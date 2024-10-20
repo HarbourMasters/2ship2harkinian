@@ -97,7 +97,7 @@ void SetupGuiElements() {
 
     mAudioEditorWindow = std::make_shared<AudioEditor>("gWindows.AudioEditor", "Audio Editor");
     gui->AddGuiWindow(mAudioEditorWindow);
-    
+
     gui->SetPadBtnTogglesMenu();
 }
 

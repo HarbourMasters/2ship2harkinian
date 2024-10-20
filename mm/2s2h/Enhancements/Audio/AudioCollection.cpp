@@ -99,7 +99,8 @@ AudioCollection::AudioCollection() {
         SEQUENCE_MAP_ENTRY(NA_BGM_ASTRAL_OBSERVATORY, "Astral Observatory", "NA_BGM_ASTRAL_OBSERVATORY", SEQ_BGM_WORLD,
                            true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_CAVERN, "Cavern", "NA_BGM_CAVERN", SEQ_BGM_WORLD, true, true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_MILK_BAR, "Milk Bar", "NA_BGM_MILK_BAR", SEQ_BGM_WORLD, false, false), // Marked as false because the duplicate entry is used. Can this be removed?
+        SEQUENCE_MAP_ENTRY(NA_BGM_MILK_BAR, "Milk Bar", "NA_BGM_MILK_BAR", SEQ_BGM_WORLD, false,
+                           false), // Marked as false because the duplicate entry is used. Can this be removed?
         SEQUENCE_MAP_ENTRY(NA_BGM_ZELDA_APPEAR, "Zelda Appear", "NA_BGM_ZELDA_APPEAR", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_SARIAS_SONG, "Saria's Song", "NA_BGM_SARIAS_SONG", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_GORON_GOAL, "Goron Race Goal", "NA_BGM_GORON_GOAL", SEQ_FANFARE, true, true),
@@ -141,9 +142,12 @@ AudioCollection::AudioCollection() {
         SEQUENCE_MAP_ENTRY(NA_BGM_MILK_BAR_DUPLICATE, "Milk Bar Duplicate", "NA_BGM_MILK_BAR_DUPLICATE", SEQ_BGM_WORLD,
                            true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_FINAL_HOURS, "Final Hours", "NA_BGM_FINAL_HOURS", SEQ_BGM_WORLD, true, true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_MIKAU_RIFF, "Mikau Riff", "NA_BGM_MIKAU_RIFF", SEQ_BGM_WORLD, true, true),// This is looped but gets annoying quickly...
-        SEQUENCE_MAP_ENTRY(NA_BGM_MIKAU_FINALE, "Mikau Finale", "NA_BGM_MIKAU_FINALE", SEQ_BGM_WORLD, true, true), // Ocarina or Fanfare? Not looped
-        SEQUENCE_MAP_ENTRY(NA_BGM_FROG_SONG, "Frog Song", "NA_BGM_FROG_SONG", SEQ_BGM_WORLD, true, true), // This is looped but gets annoying quickly...
+        SEQUENCE_MAP_ENTRY(NA_BGM_MIKAU_RIFF, "Mikau Riff", "NA_BGM_MIKAU_RIFF", SEQ_BGM_WORLD, true,
+                           true), // This is looped but gets annoying quickly...
+        SEQUENCE_MAP_ENTRY(NA_BGM_MIKAU_FINALE, "Mikau Finale", "NA_BGM_MIKAU_FINALE", SEQ_BGM_WORLD, true,
+                           true), // Ocarina or Fanfare? Not looped
+        SEQUENCE_MAP_ENTRY(NA_BGM_FROG_SONG, "Frog Song", "NA_BGM_FROG_SONG", SEQ_BGM_WORLD, true,
+                           true), // This is looped but gets annoying quickly...
         SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_SONATA, "Sonata Of Awakening (Ocarina)", "NA_BGM_OCARINA_SONATA", SEQ_OCARINA,
                            true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_LULLABY, "Goron Lullaby", "NA_BGM_OCARINA_LULLABY", SEQ_OCARINA, true, true),
@@ -157,7 +161,7 @@ AudioCollection::AudioCollection() {
         SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_LULLABY_INTRO_PTR, "Lullaby Intro Pointer",
                            "NA_BGM_OCARINA_LULLABY_INTRO_PTR", SEQ_OCARINA, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_GUITAR_BASS_SESSION, "Jam Session Bass", "NA_BGM_OCARINA_GUITAR_BASS_SESSION",
-                           SEQ_BGM_WORLD, true, true),// Ocarina or fanfare? Its a little long for both.
+                           SEQ_BGM_WORLD, true, true), // Ocarina or fanfare? Its a little long for both.
         SEQUENCE_MAP_ENTRY(NA_BGM_PIANO_SESSION, "Jam Session Piano", "NA_BGM_PIANO_SESSION", SEQ_BGM_WORLD, true,
                            true), // Ocarina or fanfare? Its a little long for both.
         SEQUENCE_MAP_ENTRY(NA_BGM_INDIGO_GO_SESSION, "Indigo Go Session (Credits)", "NA_BGM_INDIGO_GO_SESSION",
@@ -168,7 +172,8 @@ AudioCollection::AudioCollection() {
                            true),
         SEQUENCE_MAP_ENTRY(NA_BGM_NEW_WAVE_SAXOPHONE, "New Wave Saxophone", "NA_BGM_NEW_WAVE_SAXOPHONE", SEQ_BGM_WORLD,
                            true, true), // Doesn't seem to work outside the cutscene
-        SEQUENCE_MAP_ENTRY(NA_BGM_NEW_WAVE_VOCAL, "New Wave Vocal", "NA_BGM_NEW_WAVE_VOCAL", SEQ_BGM_WORLD, true, true),// Doesn't seem to work outside the cutscene
+        SEQUENCE_MAP_ENTRY(NA_BGM_NEW_WAVE_VOCAL, "New Wave Vocal", "NA_BGM_NEW_WAVE_VOCAL", SEQ_BGM_WORLD, true,
+                           true), // Doesn't seem to work outside the cutscene
         SEQUENCE_MAP_ENTRY(NA_BGM_MAJORAS_WRATH, "Majora's Wrath", "NA_BGM_MAJORAS_WRATH", SEQ_BGM_BATTLE, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_MAJORAS_INCARNATION, "Majora's Incarnation", "NA_BGM_MAJORAS_INCARNATION",
                            SEQ_BGM_BATTLE, true, true),
