@@ -322,10 +322,8 @@ void KaleidoScope_DrawItemSelect(PlayState* play) {
                         pauseCtx->itemVtx[j + 0].v.ob[1] - 32;
                 }
             }
-            // #region 2S2H [Port] Originally this was done in KaleidoScope_Update, but now we are using gSPGrayscale on
-            // the fly It reads odd here to assign a u8 to a u16, then cast it to s32 for gPlayerFormItemRestrictions
-            // but this matches the behavior of the original code
-            u16 itemId = gSaveContext.save.saveInfo.inventory.items[i];
+            // #region 2S2H [Port] Originally this was done in KaleidoScope_Update, but now we are using gSPGrayscale.
+            ItemId itemId = gSaveContext.save.saveInfo.inventory.items[i];
             u8 itemRestricted = GameInteractor_Should(
                 VB_ITEM_BE_RESTRICTED, !gPlayerFormItemRestrictions[GET_PLAYER_FORM][(s32)itemId], &itemId);
             if (itemRestricted) {
