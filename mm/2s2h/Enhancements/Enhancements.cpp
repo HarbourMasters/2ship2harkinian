@@ -66,6 +66,7 @@ void InitEnhancements() {
 
     // Restorations
     RegisterPowerCrouchStab();
+    RegisterHiddenCredits();
     RegisterSideRoll();
     RegisterTatlISG();
     RegisterVariableFlipHop();

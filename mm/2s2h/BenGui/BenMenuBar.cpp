@@ -744,6 +744,10 @@ void DrawEnhancementsMenu() {
                                  "Requires a scene reload to take effect" })) {
                 RegisterWoodfallMountainAppearance();
             }
+            if (UIWidgets::CVarCheckbox("Hidden Credits", "gEnhancements.Restorations.HiddenCredits",
+                                        { .tooltip = "I wonder what this does?" })) {
+                RegisterHiddenCredits();
+            }
 
             ImGui::EndMenu();
         }
