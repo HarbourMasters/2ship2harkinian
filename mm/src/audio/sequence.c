@@ -449,7 +449,8 @@ void AudioSeq_QueueSeqCmd(u32 cmd) {
     if (op == 0 || op == 2) {
         u16 seqId = cmd & SEQCMD_SEQID_MASK_16;
         if (seqId == NA_BGM_CLOCK_TOWN_MAIN_SEQUENCE) {
-            // Clock town uses one sequence id for all 3 songs. We need to manually figure out which day it is and replace the sequence id our self.
+            // Clock town uses one sequence id for all 3 songs. We need to manually figure out which day it is and
+            // replace the sequence id our self.
             seqId = sClockTownDaySeqIds[CURRENT_DAY - 1];
         }
         u8 playerIdx = (cmd & 0xF000000) >> 24;
