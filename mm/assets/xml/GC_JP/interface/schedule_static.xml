@@ -1,0 +1,46 @@
+<Root>
+    <File Name="schedule_static" Segment="8">
+        <Texture Name="gBombersNotebookEntryIconExclamationPointTex" OutName="bombers_notebook_entry_icon_exlamation_point" Format="ia8" Width="16" Height="16" Offset="0x0000"/>
+        <Texture Name="gBombersNotebookStampTex" OutName="bombers_notebook_stamp" Format="ia8" Width="32" Height="48" Offset="0x0100"/>
+        <!-- English -->
+        <Texture Name="gBombersNotebookDay1stENGTex" OutName="bombers_notebook_day_1st_eng" Format="ia8" Width="48" Height="22" Offset="0x700"/>
+        <Texture Name="gBombersNotebookDay2ndENGTex" OutName="bombers_notebook_day_2nd_eng" Format="ia8" Width="48" Height="22" Offset="0xB20"/>
+        <Texture Name="gBombersNotebookDayFinalENGTex" OutName="bombers_notebook_day_final_eng" Format="ia8" Width="48" Height="22" Offset="0xF40"/>
+
+        <Texture Name="gBombersNotebookArrowTex" OutName="bombers_notebook_arrow" Format="ia8" Width="24" Height="16" Offset="0x1360"/>
+        <Texture Name="gBombersNotebookConnectorTex" OutName="bombers_notebook_connector" Format="ia8" Width="32" Height="14" Offset="0x14E0"/>
+        <Texture Name="gBombersNotebookEmptyPhotoTex" OutName="bombers_notebook_empty_photo" Format="rgba16" Width="32" Height="32" Offset="0x16A0"/>
+        <Texture Name="gBombersNotebookEntryBoxEndTex" OutName="bombers_notebook_entry_end" Format="rgba16" Width="4" Height="16" Offset="0x1EA0"/>
+        <Texture Name="gBombersNotebookEntryBoxMiddleTex" OutName="bombers_notebook_entry_middle" Format="rgba16" Width="4" Height="16" Offset="0x1F20"/>
+        <Texture Name="gBombersNotebookSubColumnBoxTex" OutName="bombers_notebook_sub_column_box" Format="i4" Width="48" Height="1" Offset="0x1FA0"/>
+        <Texture Name="gBombersNotebookCircleTex" OutName="bombers_notebook_circle" Format="i4" Width="16" Height="16" Offset="0x1FB8"/>        
+        <Texture Name="gBombersNotebookBackgroundTex" OutName="bombers_notebook_background" Format="i8" Width="32" Height="32" Offset="0x2038"/>
+        <Texture Name="gBombersNotebookHeaderBoxTex" OutName="bombers_notebook_header_box" Format="i8" Width="8" Height="24" Offset="0x2438"/>
+        <Texture Name="gBombersNotebookLineTex" OutName="bombers_notebook_line" Format="i8" Width="8" Height="1" Offset="0x24F8"/>
+        <Texture Name="gBombersNotebookBarSmallTex" OutName="bombers_notebook_bar_small" Format="i8" Width="8" Height="2" Offset="0x2500"/> <!-- Unused -->
+        <Texture Name="gBombersNotebookBarTex" OutName="bombers_notebook_bar" Format="i8" Width="8" Height="4" Offset="0x2510"/>
+        <Texture Name="gBombersNotebookCursorTex" OutName="bombers_notebook_cursor" Format="ia4" Width="16" Height="16" Offset="0x2530"/>
+        <Texture Name="gBombersNoteoobkTimeOfDayBoxTex" OutName="bombers_notebook_time_of_day_box" Format="ia4" Width="64" Height="28" Offset="0x25B0"/>
+        <Texture Name="gBombersNotebookTimeBoxLeftTex" OutName="bombers_notebook_time_box_left" Format="ia4" Width="16" Height="28" Offset="0x2930"/>
+        <Texture Name="gBombersNotebookTimeBoxRightTex" OutName="bombers_notebook_time_box_right" Format="ia4" Width="16" Height="28" Offset="0x2A10"/>
+        <Texture Name="gBombersNotebookTimeBoxMiddleTex" OutName="bombers_notebook_time_box_middle" Format="ia4" Width="16" Height="28" Offset="0x2AF0"/>
+        <Texture Name="gBombersNotebook1800Tex" OutName="bombers_notebook_1800" Format="ia4" Width="48" Height="11" Offset="0x2BD0"/>
+
+        <Texture Name="gBombersNotebookJP2CD8Tex" OutName="bombers_notebook_jp_2CD8" Format="ia8" Width="48" Height="20" Offset="0x2CD8"/>
+        <!-- <Texture Name="gBombersNotebookTimeOfDayENGTex" OutName="bombers_notebook_time_of_day_eng" Format="i4" Width="96" Height="20" Offset="0x1360"/> -->
+
+        <Texture Name="gBombersNotebookDigit0Tex" OutName="bombers_notebook_digit_0" Format="i4" Width="16" Height="17" Offset="0x3098"/>
+        <Texture Name="gBombersNotebookDigit1Tex" OutName="bombers_notebook_digit_1" Format="i4" Width="16" Height="17" Offset="0x3120"/>
+        <Texture Name="gBombersNotebookDigit2Tex" OutName="bombers_notebook_digit_2" Format="i4" Width="16" Height="17" Offset="0x31A8"/>
+        <Texture Name="gBombersNotebookDigit3Tex" OutName="bombers_notebook_digit_3" Format="i4" Width="16" Height="17" Offset="0x3230"/>
+        <Texture Name="gBombersNotebookDigit4Tex" OutName="bombers_notebook_digit_4" Format="i4" Width="16" Height="17" Offset="0x32B8"/>
+        <Texture Name="gBombersNotebookDigit5Tex" OutName="bombers_notebook_digit_5" Format="i4" Width="16" Height="17" Offset="0x3340"/>
+        <Texture Name="gBombersNotebookDigit6Tex" OutName="bombers_notebook_digit_6" Format="i4" Width="16" Height="17" Offset="0x33C8"/>
+        <Texture Name="gBombersNotebookDigit7Tex" OutName="bombers_notebook_digit_7" Format="i4" Width="16" Height="17" Offset="0x3450"/>
+        <Texture Name="gBombersNotebookDigit8Tex" OutName="bombers_notebook_digit_8" Format="i4" Width="16" Height="17" Offset="0x34D8"/>
+        <Texture Name="gBombersNotebookDigit9Tex" OutName="bombers_notebook_digit_9" Format="i4" Width="16" Height="17" Offset="0x3560"/>
+        <Texture Name="gBombersNotebookColonTex" OutName="bombers_notebook_colon" Format="i4" Width="16" Height="17" Offset="0x35E8"/>
+
+
+    </File>
+</Root>
