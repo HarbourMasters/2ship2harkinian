@@ -45,6 +45,8 @@ class AudioCollection {
     std::set<SequenceInfo*, compareSequenceLabel> excludedSequences;
     bool shufflePoolInitialized = false;
 
+    std::map<SeqType, size_t> mSequenceTypeCounts;
+
   public:
     static AudioCollection* Instance;
     AudioCollection();
@@ -68,6 +70,8 @@ class AudioCollection {
     size_t SequenceMapSize();
     std::string GetCvarKey(std::string sfxKey);
     std::string GetCvarLockKey(std::string sfxKey);
+    size_t CountSequencesByType(SeqType type);
+    uint16_t GetMaxOriginalSeqId() const;
 };
 #else
 void AudioCollection_AddToCollection(char* otrPath, uint16_t seqNum);

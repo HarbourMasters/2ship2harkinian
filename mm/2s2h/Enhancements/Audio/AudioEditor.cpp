@@ -31,28 +31,7 @@ extern "C" s8 gSfxDefaultReverb;
 #define SEQ_COUNT_VOICE 108
 
 size_t AuthenticCountBySequenceType(SeqType type) {
-    switch (type) {
-        case SEQ_NOSHUFFLE:
-            return SEQ_COUNT_NOSHUFFLE;
-        case SEQ_BGM_WORLD:
-            return SEQ_COUNT_BGM_WORLD;
-        case SEQ_BGM_EVENT:
-            return SEQ_COUNT_BGM_EVENT;
-        case SEQ_BGM_BATTLE:
-            return SEQ_COUNT_BGM_BATTLE;
-        case SEQ_OCARINA:
-            return SEQ_COUNT_OCARINA;
-        case SEQ_FANFARE:
-            return SEQ_COUNT_FANFARE;
-        case SEQ_SFX:
-            return SEQ_COUNT_SFX;
-        case SEQ_INSTRUMENT:
-            return SEQ_COUNT_INSTRUMENT;
-        case SEQ_VOICE:
-            return SEQ_COUNT_VOICE;
-        default:
-            return 0;
-    }
+    return AudioCollection::Instance->CountSequencesByType(type);
 }
 
 #define CVAR_AUDIO(var) CVAR_PREFIX_AUDIO "." var
@@ -89,16 +68,22 @@ void RandomizeGroup(SeqType type) {
     }
 
     // use a while loop to add duplicates if we don't have enough included sequences
-    while (values.size() < AuthenticCountBySequenceType(type)) {
+    while (values.size() < AudioCollection::Instance->CountSequencesByType(type)) {
+        size_t initialSize = values.size();
         for (const auto& seqData : AudioCollection::Instance->GetIncludedSequences()) {
             if (seqData->category & type && seqData->canBeUsedAsReplacement) {
                 values.push_back(seqData->sequenceId);
             }
         }
 
-        // if we didn't find any, return early without shuffling to prevent an infinite loop
-        if (!values.size())
+        // if we didn't add any new values, return early to prevent an infinite loop
+        if (values.size() == initialSize) {
             return;
+        }
+    }
+
+    if (values.empty()) {
+        return;
     }
     std::random_device rd;
     std::mt19937 g(rd());
@@ -115,9 +100,11 @@ void RandomizeGroup(SeqType type) {
                 seqData.canBeReplaced == false) {
                 continue;
             }
-            const int randomValue = values.back();
-            CVarSetInteger(cvarKey.c_str(), randomValue);
-            values.pop_back();
+            if (!values.empty()) {
+                const int randomValue = values.back();
+                CVarSetInteger(cvarKey.c_str(), randomValue);
+                values.pop_back();
+            }
         }
     }
 }

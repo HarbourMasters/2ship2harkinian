@@ -203,6 +203,30 @@ AudioCollection::AudioCollection() {
         SEQUENCE_MAP_ENTRY(NA_BGM_END_CREDITS_SECOND_HALF, "Credits (Second Half)", "NA_BGM_END_CREDITS_SECOND_HALF",
                            SEQ_BGM_WORLD, true, true),
     };
+
+    // Initialize counts for each type
+    for (const auto& [seqId, seqInfo] : mSequenceMap) {
+        // Don't count sequences that are marked as custom BGM
+        if (!(seqInfo.category == SEQ_BGM_CUSTOM)) {
+            // Check each type flag individually
+            if (seqInfo.category & SEQ_BGM_WORLD)
+                mSequenceTypeCounts[SEQ_BGM_WORLD]++;
+            if (seqInfo.category & SEQ_BGM_EVENT)
+                mSequenceTypeCounts[SEQ_BGM_EVENT]++;
+            if (seqInfo.category & SEQ_BGM_BATTLE)
+                mSequenceTypeCounts[SEQ_BGM_BATTLE]++;
+            if (seqInfo.category & SEQ_OCARINA)
+                mSequenceTypeCounts[SEQ_OCARINA]++;
+            if (seqInfo.category & SEQ_FANFARE)
+                mSequenceTypeCounts[SEQ_FANFARE]++;
+            if (seqInfo.category & SEQ_SFX)
+                mSequenceTypeCounts[SEQ_SFX]++;
+            if (seqInfo.category & SEQ_INSTRUMENT)
+                mSequenceTypeCounts[SEQ_INSTRUMENT]++;
+            if (seqInfo.category & SEQ_VOICE)
+                mSequenceTypeCounts[SEQ_VOICE]++;
+        }
+    }
 }
 #define CVAR_AUDIO(var) CVAR_PREFIX_AUDIO "." var
 std::string AudioCollection::GetCvarKey(std::string sfxKey) {
@@ -257,7 +281,7 @@ uint16_t AudioCollection::GetOriginalSequence(uint16_t seqId) {
     // BENTODO there is probably a better way to do this.
     // There are 127 original sequences. If the ID is less than that we don't need to do
     // any lookups
-    if (seqId < 128) {
+    if (seqId <= GetMaxOriginalSeqId()) {
         return seqId;
     }
 
@@ -335,4 +359,19 @@ extern "C" bool AudioCollection_HasSequenceNum(uint16_t seqId) {
 
 extern "C" size_t AudioCollection_SequenceMapSize() {
     return AudioCollection::Instance->SequenceMapSize();
+}
+
+size_t AudioCollection::CountSequencesByType(SeqType type) {
+    auto it = mSequenceTypeCounts.find(type);
+    return it != mSequenceTypeCounts.end() ? it->second : 0;
+}
+
+uint16_t AudioCollection::GetMaxOriginalSeqId() const {
+    uint16_t maxId = 0;
+    for (const auto& [seqId, seqInfo] : mSequenceMap) {
+        if (!(seqInfo.category & SEQ_BGM_CUSTOM) && seqId > maxId) {
+            maxId = seqId;
+        }
+    }
+    return maxId;
 }
