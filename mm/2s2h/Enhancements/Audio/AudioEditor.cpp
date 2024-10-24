@@ -474,6 +474,7 @@ void AudioEditor::DrawElement() {
         if (ImGui::BeginTabItem("Ocarina")) {
             Draw_SfxTab("instrument", SEQ_INSTRUMENT);
             Draw_SfxTab("ocarina", SEQ_OCARINA);
+            Draw_SfxTab("songs", SEQ_BGM_SONGS);
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Sound Effects")) {

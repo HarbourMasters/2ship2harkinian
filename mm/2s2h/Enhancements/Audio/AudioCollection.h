@@ -17,6 +17,7 @@ enum SeqType {
     SEQ_INSTRUMENT = 1 << 7,
     SEQ_VOICE = 1 << 8,
     SEQ_BGM_CUSTOM = SEQ_BGM_WORLD | SEQ_BGM_EVENT | SEQ_BGM_BATTLE,
+    SEQ_BGM_SONGS = 1 << 9,
 };
 
 #define INSTRUMENT_OFFSET 0x81
