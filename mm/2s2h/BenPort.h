@@ -103,8 +103,8 @@ Vtx* ResourceMgr_LoadVtxByCRC(uint64_t crc);
 char* ResourceMgr_LoadVtxArrayByName(const char* path);
 size_t ResourceMgr_GetVtxArraySizeByName(const char* path);
 Vtx* ResourceMgr_LoadVtxByName(char* path);
+SequenceData* ResourceMgr_LoadSeqPtrByName(const char* path);
 Mtx* ResourceMgr_LoadMtxByName(char* path);
-
 KeyFrameSkeleton* ResourceMgr_LoadKeyFrameSkelByName(const char* path);
 KeyFrameAnimation* ResourceMgr_LoadKeyFrameAnimByName(const char* path);
 
@@ -145,6 +145,8 @@ void Gfx_RegisterBlendedTexture(const char* name, u8* mask, u8* replacement);
 void Gfx_UnregisterBlendedTexture(const char* name);
 void Gfx_TextureCacheDelete(const uint8_t* texAddr);
 void CheckTracker_OnMessageClose();
+
+void Messagebox_ShowErrorBox(char* title, char* body);
 
 int32_t GetGIID(uint32_t itemID);
 #endif

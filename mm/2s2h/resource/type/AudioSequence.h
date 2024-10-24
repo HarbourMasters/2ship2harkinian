@@ -9,11 +9,11 @@ namespace SOH {
 
 typedef struct {
     char* seqData;
-    int32_t seqDataSize;
+    uint32_t seqDataSize;
     uint16_t seqNumber;
     uint8_t medium;
     uint8_t cachePolicy;
-    int32_t numFonts;
+    uint32_t numFonts;
     uint8_t fonts[16];
 } Sequence;
 
@@ -29,5 +29,7 @@ class AudioSequence : public Ship::Resource<Sequence> {
 
     Sequence sequence;
     std::vector<char> sequenceData;
+    uint32_t sampleRate = 0; // Streamed audio only
+    uint8_t numChannels = 0;
 };
 }; // namespace SOH

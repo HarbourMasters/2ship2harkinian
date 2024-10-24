@@ -4,6 +4,7 @@
 #include <vector>
 #include "Resource.h"
 #include <libultraship/libultra/types.h>
+#include <thread>
 
 namespace SOH {
 typedef struct {
@@ -27,17 +28,14 @@ typedef struct {
             /* 0x00 */ u32 medium : 2;
             /* 0x00 */ u32 unk_bit26 : 1;
             /* 0x00 */ u32 unk_bit25 : 1; // this has been named isRelocated in zret
-            /* 0x01 */ u32 size : 24;
         };
         u32 asU32;
     };
-
+    /* 0x01 */ u32 size;
     /* 0x04 */ u8* sampleAddr;
     /* 0x08 */ AdpcmLoop* loop;
     /* 0x0C */ AdpcmBook* book;
-    u32 sampleRateMagicValue; // For wav samples only...
-    s32 sampleRate;           // For wav samples only...
-} Sample;                     // size = 0x10
+} Sample; // size = 0x10
 
 class AudioSample : public Ship::Resource<Sample> {
   public:
@@ -58,5 +56,7 @@ class AudioSample : public Ship::Resource<Sample> {
     AdpcmBook book;
     uint32_t bookDataCount;
     std::vector<int16_t> bookData;
+    // Only applies to streamed audio
+    float tuning = -1.0f;
 };
 }; // namespace SOH

@@ -503,7 +503,9 @@ void EnElforg_FreeFloating(EnElforg* this, PlayState* play) {
                 Message_StartTextbox(play, 0x11, NULL);
                 if (gSaveContext.save.saveInfo.inventory.strayFairies[(void)0, gSaveContext.dungeonIndex] >=
                     STRAY_FAIRY_SCATTERED_TOTAL) {
-                    Audio_PlayFanfare(NA_BGM_GET_ITEM | 0x900);
+                    // BENTODO This had | 0x900 which interfered with the 16 bit sequence IDs. Removing it doesn't seem
+                    // to do anything bad.
+                    Audio_PlayFanfare(NA_BGM_GET_ITEM);
                 }
             }
         }

@@ -9,6 +9,9 @@
 #include <string>
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
+#include "2s2h/Enhancements/Cheats/Cheats.h"
+#include "2s2h/Enhancements/Player/Player.h"
+#include "2s2h/Enhancements/Audio/AudioEditor.h"
 #include "HudEditor.h"
 
 extern "C" {
@@ -828,6 +831,8 @@ extern std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 extern std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
 extern std::shared_ptr<EventLogWindow> mEventLogWindow;
 
+extern std::shared_ptr<AudioEditor> mAudioEditorWindow;
+
 const char* logLevels[] = {
     "trace", "debug", "info", "warn", "error", "critical", "off",
 };
@@ -953,6 +958,11 @@ void DrawDeveloperToolsMenu() {
         if (mEventLogWindow) {
             UIWidgets::WindowButton("Event Log", "gWindows.EventLog", mEventLogWindow);
         }
+
+        if (mAudioEditorWindow) {
+            UIWidgets::WindowButton("Audio Editor", "gWindows.AudioEditor", mAudioEditorWindow);
+        }
+
         ImGui::EndMenu();
     }
 }

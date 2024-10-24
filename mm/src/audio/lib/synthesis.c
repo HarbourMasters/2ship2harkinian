@@ -1151,8 +1151,24 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
                                                (numSamplesToLoadAdj + SAMPLES_PER_FRAME) * SAMPLE_SIZE);
                         flags = A_CONTINUE;
                         skipBytes = 0;
-                        numSamplesProcessed = numSamplesToLoadAdj;
+                        numSamplesProcessed += numSamplesToLoadAdj;
                         dmemUncompressedAddrOffset1 = numSamplesToLoadAdj;
+                        size_t bytesToRead;
+
+                        if (((synthState->samplePosInt * 2) + (numSamplesToLoadAdj + SAMPLES_PER_FRAME) * SAMPLE_SIZE) <
+                            sample->size) {
+                            bytesToRead = (numSamplesToLoadAdj + SAMPLES_PER_FRAME) * SAMPLE_SIZE;
+                        } else {
+                            bytesToRead = sample->size - (synthState->samplePosInt * 2);
+                        }
+                        // 2S2H [Port] [Custom audio]
+                        // TLDR samples are loaded async and might be null the first time they are played.
+                        // See note in AudioSampleFactory.cpp
+                        if (sampleAddr != NULL) {
+                            aLoadBuffer(cmd++, sampleAddr + (synthState->samplePosInt * 2), DMEM_UNCOMPRESSED_NOTE,
+                                        bytesToRead);
+                        }
+
                         goto skip;
 
                     default:
@@ -1191,6 +1207,12 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
                     sampleDataChunkAlignPad = (uintptr_t)samplesToLoadAddr & 0xF;
                     sampleDataChunkSize = ALIGN16((numFramesToDecode * frameSize) + SAMPLES_PER_FRAME);
                     sampleDataDmemAddr = DMEM_COMPRESSED_ADPCM_DATA - sampleDataChunkSize;
+
+                    uintptr_t actualAddrLoaded = samplesToLoadAddr - sampleDataChunkAlignPad;
+                    uintptr_t offset = actualAddrLoaded - (uintptr_t)sampleAddr;
+                    if (offset + sampleDataChunkSize > sample->size) {
+                        sampleDataChunkSize -= (offset + sampleDataChunkSize - sample->size);
+                    }
 
                     // BEN: This will crash the asan. We can just ignore alignment since we don't have those strictures.
                     // if (sampleDataChunkSize + sampleAddrOffset > sample->size) {

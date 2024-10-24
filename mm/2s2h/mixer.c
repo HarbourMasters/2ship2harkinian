@@ -298,6 +298,66 @@ void aEnvMixerImpl(uint16_t in_addr, uint16_t n_samples, bool swap_reverb, bool 
     } while (n > 0);
 }
 
+#if 0
+#include <immintrin.h>
+#include "align_asset_macro.h"
+#pragma GCC target("avx2")
+
+static const ALIGN_ASSET(32) int16_t x7fff[16] = {0x7FFF,0x7fff, 0x7fff, 0x7fff, 0x7fff, 0x7fff, 0x7fff, 0x7fff, 0x7fff, 0x7fff, 0x7fff, 0x7fff, 0x7fff, 0x7fff, 0x7fff, 0x7fff};
+static const ALIGN_ASSET(32) int32_t x4000[8] = {0x4000,0x4000, 0x4000, 0x4000, 0x4000, 0x4000, 0x4000, 0x4000};
+
+void aMixImpl(uint16_t count, int16_t gain, uint16_t in_addr, uint16_t out_addr) {
+    int nbytes = ROUND_UP_32(ROUND_DOWN_16(count << 4));
+    int16_t* in = BUF_S16(in_addr);
+    int16_t* out = BUF_S16(out_addr);
+    int i;
+    int32_t sample;
+    // This seems to never get hit. So no need to vectorize...
+    if (gain == -0x8000) {
+        while (nbytes > 0) {
+            for (i = 0; i < 16; i++) {
+                sample = *out - *in++;
+                *out++ = clamp16(sample);
+            }
+            nbytes -= 16 * sizeof(int16_t);
+        }
+    }
+
+    __m256i x7fffVec= _mm256_load_si256((__m256i*)x7fff);
+    __m256i x4000Vec= _mm256_load_si256((__m256i*)x4000);
+    __m256i gainVec = _mm256_set1_epi16(gain);
+    while (nbytes > 0) {
+        __m256i outVec = _mm256_loadu_si256((__m256i*)out);
+        __m256i inVec = _mm256_loadu_si256((__m256i*)in);
+
+        __m256i outx7fffLoVec = _mm256_mullo_epi16(outVec, x7fffVec);
+        __m256i outx7fffHiVec = _mm256_mulhi_epi16(outVec, x7fffVec);
+        __m256i inxGainLoVec = _mm256_mullo_epi16(inVec, gainVec);
+        __m256i inxGainHiVec = _mm256_mulhi_epi16(inVec, gainVec);
+
+        outx7fffLoVec = _mm256_unpacklo_epi16(outx7fffLoVec, outx7fffHiVec);
+        outx7fffHiVec = _mm256_unpackhi_epi16(outx7fffLoVec, outx7fffHiVec);
+        inxGainLoVec = _mm256_unpacklo_epi16(inxGainLoVec, inxGainHiVec);
+        inxGainHiVec = _mm256_unpackhi_epi16(inxGainLoVec, inxGainHiVec);
+        
+        __m256i addLoVec = _mm256_add_epi32(outx7fffLoVec, inxGainLoVec);
+        __m256i addHiVec = _mm256_add_epi32(outx7fffHiVec, inxGainHiVec);
+        addLoVec = _mm256_add_epi32(addLoVec, x4000Vec);
+        addHiVec = _mm256_add_epi32(addHiVec, x4000Vec);
+        __m256i shiftedLoVec = _mm256_srai_epi32(addLoVec, 15);
+        __m256i shiftedHiVec = _mm256_srai_epi32(addHiVec, 15);
+        outVec = _mm256_packs_epi32(shiftedLoVec, shiftedHiVec);
+        _mm256_storeu_si256((__m256i*)out, outVec);
+
+
+        in += 16;
+        out+=16;
+        nbytes -= 16 * sizeof(int16_t);
+    }
+}
+#endif
+#if 1
+#include <assert.h>
 void aMixImpl(uint16_t count, int16_t gain, uint16_t in_addr, uint16_t out_addr) {
     int nbytes = ROUND_UP_32(ROUND_DOWN_16(count << 4));
     int16_t* in = BUF_S16(in_addr);
@@ -324,6 +384,7 @@ void aMixImpl(uint16_t count, int16_t gain, uint16_t in_addr, uint16_t out_addr)
         nbytes -= 16 * sizeof(int16_t);
     }
 }
+#endif
 
 void aS8DecImpl(uint8_t flags, ADPCM_STATE state) {
     uint8_t* in = BUF_U8(rspa.in);
