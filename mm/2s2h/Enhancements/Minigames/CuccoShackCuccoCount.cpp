@@ -6,7 +6,6 @@ extern "C" {
 #include "overlays/actors/ovl_En_Nwc/z_en_nwc.h"
 
 void func_8095345C(EnHs* enHs, PlayState* play);
-void EnNwc_SpawnDust(EnNwc* enNwc, PlayState* play);
 }
 
 void RegisterCuccoShackCuccoCount() {
