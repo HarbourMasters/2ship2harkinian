@@ -89,7 +89,7 @@ AudioCollection::AudioCollection() {
         SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_EPONA, "Epona's Song", "NA_BGM_OCARINA_EPONA", SEQ_OCARINA, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_SUNS, "Sun's Song", "NA_BGM_OCARINA_SUNS", SEQ_OCARINA, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_TIME, "Song Of Time", "NA_BGM_OCARINA_TIME", SEQ_OCARINA, true, true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_STORM, "Song of Storms (Ocarina)", "SEQ_INSTRUMENT", SEQ_INSTRUMENT, true,
+        SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_STORM, "Song of Storms (Ocarina)", "NA_BGM_OCARINA_STORM", SEQ_OCARINA, true,
                            true),
         SEQUENCE_MAP_ENTRY(NA_BGM_ZORA_HALL, "Zora Hall", "NA_BGM_ZORA_HALL", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_GET_NEW_MASK, "Get Mask", "NA_BGM_GET_NEW_MASK", SEQ_FANFARE, true, true),
@@ -141,26 +141,27 @@ AudioCollection::AudioCollection() {
         SEQUENCE_MAP_ENTRY(NA_BGM_MILK_BAR_DUPLICATE, "Milk Bar Duplicate", "NA_BGM_MILK_BAR_DUPLICATE", SEQ_BGM_WORLD,
                            true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_FINAL_HOURS, "Final Hours", "NA_BGM_FINAL_HOURS", SEQ_BGM_WORLD, true, true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_MIKAU_RIFF, "Mikau Riff", "NA_BGM_MIKAU_RIFF", SEQ_INSTRUMENT, true,
+        SEQUENCE_MAP_ENTRY(NA_BGM_MIKAU_RIFF, "Mikau Riff", "NA_BGM_MIKAU_RIFF", SEQ_BGM_SONGS, true,
                            true), // Looping instrument
-        SEQUENCE_MAP_ENTRY(NA_BGM_MIKAU_FINALE, "Mikau Finale", "NA_BGM_MIKAU_FINALE", SEQ_INSTRUMENT, true,
+        SEQUENCE_MAP_ENTRY(NA_BGM_MIKAU_FINALE, "Mikau Finale", "NA_BGM_MIKAU_FINALE", SEQ_BGM_SONGS, true,
                            true), // Instrument finale
         SEQUENCE_MAP_ENTRY(NA_BGM_FROG_SONG, "Frog Song", "NA_BGM_FROG_SONG", SEQ_BGM_WORLD, true, true), // Looping BGM
         SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_SONATA, "Sonata Of Awakening (Ocarina)", "NA_BGM_OCARINA_SONATA",
-                           SEQ_INSTRUMENT, true, true),
+                           SEQ_OCARINA, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_LULLABY, "Goron Lullaby", "NA_BGM_OCARINA_LULLABY", SEQ_OCARINA, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_NEW_WAVE, "New Wave Bossa Nova (Ocarina)", "NA_BGM_OCARINA_NEW_WAVE",
-                           SEQ_INSTRUMENT, true, true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_ELEGY, "Elegy Of Emptiness (Ocarina)", "NA_BGM_OCARINA_ELEGY", SEQ_INSTRUMENT,
+                           SEQ_OCARINA, true, true),
+        SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_ELEGY, "Elegy Of Emptiness (Ocarina)", "NA_BGM_OCARINA_ELEGY",
+                           SEQ_OCARINA,
                            true, true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_OATH, "Oath To Order (Ocarina)", "NA_BGM_OCARINA_OATH", SEQ_INSTRUMENT, true,
+        SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_OATH, "Oath To Order (Ocarina)", "NA_BGM_OCARINA_OATH", SEQ_OCARINA, true,
                            true),
         SEQUENCE_MAP_ENTRY(NA_BGM_MAJORAS_LAIR, "Majora's Lair", "NA_BGM_MAJORAS_LAIR", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_LULLABY_INTRO_PTR, "Lullaby Intro Pointer",
                            "NA_BGM_OCARINA_LULLABY_INTRO_PTR", SEQ_OCARINA, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_GUITAR_BASS_SESSION, "Jam Session Bass", "NA_BGM_OCARINA_GUITAR_BASS_SESSION",
-                           SEQ_INSTRUMENT, true, true), // Instrument session
-        SEQUENCE_MAP_ENTRY(NA_BGM_PIANO_SESSION, "Jam Session Piano", "NA_BGM_PIANO_SESSION", SEQ_INSTRUMENT, true,
+                           SEQ_BGM_SONGS, true, true), // Instrument session
+        SEQUENCE_MAP_ENTRY(NA_BGM_PIANO_SESSION, "Jam Session Piano", "NA_BGM_PIANO_SESSION", SEQ_BGM_SONGS, true,
                            true), // Instrument session
         SEQUENCE_MAP_ENTRY(NA_BGM_INDIGO_GO_SESSION, "Indigo Go Session (Credits)", "NA_BGM_INDIGO_GO_SESSION",
                            SEQ_BGM_WORLD, true, true),
@@ -168,17 +169,17 @@ AudioCollection::AudioCollection() {
                            true),
         SEQUENCE_MAP_ENTRY(NA_BGM_GREAT_BAY_TEMPLE, "Great Bay Temple", "NA_BGM_GREAT_BAY_TEMPLE", SEQ_BGM_WORLD, true,
                            true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_NEW_WAVE_SAXOPHONE, "New Wave Saxophone", "NA_BGM_NEW_WAVE_SAXOPHONE", SEQ_INSTRUMENT,
-                           true, true), // Instrument
-        SEQUENCE_MAP_ENTRY(NA_BGM_NEW_WAVE_VOCAL, "New Wave Vocal", "NA_BGM_NEW_WAVE_VOCAL", SEQ_INSTRUMENT, true,
+        SEQUENCE_MAP_ENTRY(NA_BGM_NEW_WAVE_SAXOPHONE, "New Wave Saxophone", "NA_BGM_NEW_WAVE_SAXOPHONE", SEQ_BGM_SONGS,
+                           false, false), // Doesn't play outside the original cutscene
+        SEQUENCE_MAP_ENTRY(NA_BGM_NEW_WAVE_VOCAL, "New Wave Vocal", "NA_BGM_NEW_WAVE_VOCAL", SEQ_BGM_SONGS, true,
                            true), // Vocal
         SEQUENCE_MAP_ENTRY(NA_BGM_MAJORAS_WRATH, "Majora's Wrath", "NA_BGM_MAJORAS_WRATH", SEQ_BGM_BATTLE, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_MAJORAS_INCARNATION, "Majora's Incarnation", "NA_BGM_MAJORAS_INCARNATION",
                            SEQ_BGM_BATTLE, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_MAJORAS_MASK, "Majora's Mask", "NA_BGM_MAJORAS_MASK", SEQ_BGM_BATTLE, true, true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_BASS_PLAY, "Bass Play", "NA_BGM_BASS_PLAY", SEQ_INSTRUMENT, true, true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_DRUMS_PLAY, "Drums Play", "NA_BGM_DRUMS_PLAY", SEQ_INSTRUMENT, true, true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_PIANO_PLAY, "Piano Play", "NA_BGM_PIANO_PLAY", SEQ_INSTRUMENT, true, true),
+        SEQUENCE_MAP_ENTRY(NA_BGM_BASS_PLAY, "Bass Play", "NA_BGM_BASS_PLAY", SEQ_BGM_SONGS, true, true),
+        SEQUENCE_MAP_ENTRY(NA_BGM_DRUMS_PLAY, "Drums Play", "NA_BGM_DRUMS_PLAY", SEQ_BGM_SONGS, true, true),
+        SEQUENCE_MAP_ENTRY(NA_BGM_PIANO_PLAY, "Piano Play", "NA_BGM_PIANO_PLAY", SEQ_BGM_SONGS, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_IKANA_CASTLE, "Ikana Castle", "NA_BGM_IKANA_CASTLE", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_GATHERING_GIANTS, "Gathering Giants", "NA_BGM_GATHERING_GIANTS", SEQ_BGM_WORLD, true,
                            true),
@@ -219,8 +220,8 @@ AudioCollection::AudioCollection() {
                 mSequenceTypeCounts[SEQ_FANFARE]++;
             if (seqInfo.category & SEQ_SFX)
                 mSequenceTypeCounts[SEQ_SFX]++;
-            if (seqInfo.category & SEQ_INSTRUMENT)
-                mSequenceTypeCounts[SEQ_INSTRUMENT]++;
+            if (seqInfo.category & SEQ_BGM_SONGS)
+                mSequenceTypeCounts[SEQ_BGM_SONGS]++;
             if (seqInfo.category & SEQ_VOICE)
                 mSequenceTypeCounts[SEQ_VOICE]++;
         }
