@@ -189,6 +189,149 @@ static void WriteNotedvg(Ship::BinaryWriter* writer, uint8_t note, uint16_t dela
     }
 }
 
+static void WriteMonoSeq(Ship::BinaryWriter* writer, uint16_t delay, uint8_t tempo, bool looped) {
+    uint16_t channelStart;
+    uint16_t channelPlaceholderOff;
+    uint16_t loopPoint;
+    uint16_t layerPlaceholderOff;
+    uint16_t layerStart;
+    // Write seq header
+
+    // These two values are always the same in OOT and MM
+    WriteMuteBhv(writer, 0x20);
+    WriteMuteScale(writer, 0x32);
+
+    // We only have one channel
+    WriteInitchan(writer, 0b11);
+    // Store the current position so we can write the address of the channel when we are ready.
+    channelPlaceholderOff = writer->GetBaseAddress();
+    // Store the current position so we can loop here after the song ends.
+    loopPoint = writer->GetBaseAddress();
+    WriteLdchan(writer, 0, 0); // Fill in the actual address later
+
+    WriteVolSHeader(writer, 127); // Max volume
+    WriteTempo(writer, tempo);
+
+    WriteDelay(writer, delay);
+    if (looped) {
+        WriteJump(writer, loopPoint);
+    }
+    WriteDisablecan(writer, 0b11);
+    writer->Write(static_cast<uint8_t>(0xFF));
+
+    // Fill in the ldchan from before
+    channelStart = writer->GetBaseAddress();
+    writer->Seek(channelPlaceholderOff, Ship::SeekOffsetType::Start);
+    WriteLdchan(writer, 0, channelStart);
+    writer->Seek(channelStart, Ship::SeekOffsetType::Start);
+
+    // Channel header
+    layerPlaceholderOff = writer->GetBaseAddress();
+    WriteNoshort(writer);
+    WriteLdlayer(writer, 0, 0);
+    WritePan(writer, 64);
+    WriteVolCHeader(writer, 127); // Max volume
+    WriteBend(writer, 0);
+    WriteInstrument(writer, 0);
+    WriteDelay(writer, delay);
+    writer->Write(static_cast<uint8_t>(0xFF));
+
+    layerStart = writer->GetBaseAddress();
+    writer->Seek(layerPlaceholderOff, Ship::SeekOffsetType::Start);
+    WriteLdlayer(writer, 0, layerStart);
+    writer->Seek(layerStart, Ship::SeekOffsetType::Start);
+
+    // Note layer
+    WriteLegato(writer);
+    WriteNotedvg(writer, 39, 0x7FFF - 1, static_cast<uint8_t>(0x7F), static_cast<uint8_t>(1));
+    writer->Write(static_cast<uint8_t>(0xFF));
+}
+
+static void WriteStereoSeq(Ship::BinaryWriter* writer, uint16_t delay, uint8_t tempo, bool looped) {
+    uint16_t lChannelStart;
+    uint16_t rChannelStart;
+    uint16_t channelPlaceholderOff;
+    uint16_t loopPoint;
+    uint16_t lLayerPlaceholderOff;
+    uint16_t rLayerPlaceholderOff;
+    uint16_t lLayerOffset;
+    uint16_t rLayerOffset;
+
+    uint16_t layerStart;
+    // Write seq header
+
+    // These two values are always the same in OOT and MM
+    WriteMuteBhv(writer, 0x20);
+    WriteMuteScale(writer, 0x32);
+
+    // We only have one channel
+    WriteInitchan(writer, 0b11);
+    // Store the current position so we can write the address of the channel when we are ready.
+    channelPlaceholderOff = writer->GetBaseAddress();
+    // Store the current position so we can loop here after the song ends.
+    loopPoint = writer->GetBaseAddress();
+    // Left note channel
+    WriteLdchan(writer, 0, 0); // Fill in the actual address later
+    // Right note channel
+    WriteLdchan(writer, 1, 0); // Fill in the actual address later
+
+    WriteVolSHeader(writer, 127); // Max volume
+    WriteTempo(writer, tempo);
+
+    WriteDelay(writer, delay);
+    if (looped) {
+        WriteJump(writer, loopPoint);
+    }
+    WriteDisablecan(writer, 0b11);
+    writer->Write(static_cast<uint8_t>(0xFF));
+
+    lChannelStart = writer->GetBaseAddress();
+    // Left Channel header
+    WriteNoshort(writer);
+    lLayerPlaceholderOff = writer->GetBaseAddress();
+    WriteLdlayer(writer, 0, 0);
+    WritePan(writer, 0);
+    WriteVolCHeader(writer, 127); // Max volume
+    WriteBend(writer, 0);
+    WriteInstrument(writer, 0);
+    WriteDelay(writer, delay);
+    writer->Write(static_cast<uint8_t>(0xFF));
+
+    rChannelStart = writer->GetBaseAddress();
+    // Right Channel header
+    WriteNoshort(writer);
+    rLayerPlaceholderOff = writer->GetBaseAddress();
+    WriteLdlayer(writer, 1, 0);
+    WritePan(writer, 127);
+    WriteVolCHeader(writer, 127); // Max volume
+    WriteBend(writer, 0);
+    WriteInstrument(writer, 1);
+    WriteDelay(writer, delay);
+    writer->Write(static_cast<uint8_t>(0xFF));
+    uint16_t placeHolder = writer->GetBaseAddress();
+    writer->Seek(channelPlaceholderOff, Ship::SeekOffsetType::Start);
+    WriteLdchan(writer, 0, lChannelStart);
+    WriteLdchan(writer, 1, rChannelStart);
+    writer->Seek(placeHolder, Ship::SeekOffsetType::Start);
+
+    // Left Note layer
+    lLayerOffset = writer->GetBaseAddress();
+    WriteLegato(writer);
+    WriteNotedvg(writer, 39, 0x7FFF - 1, static_cast<uint8_t>(0x7F), static_cast<uint8_t>(1));
+    writer->Write(static_cast<uint8_t>(0xFF));
+
+    // Right Note layer
+    rLayerOffset = writer->GetBaseAddress();
+    WriteLegato(writer);
+    WriteNotedvg(writer, 39, 0x7FFF - 1, static_cast<uint8_t>(0x7F), static_cast<uint8_t>(1));
+    writer->Write(static_cast<uint8_t>(0xFF));
+    
+    writer->Seek(lLayerPlaceholderOff, Ship::SeekOffsetType::Start);
+    WriteLdlayer(writer, 0, lLayerOffset);
+    writer->Seek(rLayerPlaceholderOff, Ship::SeekOffsetType::Start);
+    WriteLdlayer(writer, 1, rLayerOffset);
+}
+
 std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource(std::shared_ptr<Ship::File> file) {
     if (!FileHasValidFormatAndReader(file)) {
         return nullptr;
@@ -239,6 +382,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
         } else {
             unsigned int length = child->UnsignedAttribute("Length");
             bool looped = child->BoolAttribute("Looped", true);
+            bool stereo = child->BoolAttribute("Stereo", false);
             Ship::BinaryWriter writer = Ship::BinaryWriter();
             writer.SetEndianness(Ship::Endianness::Big);
             // Placeholder off is the offset of the instruction to be replaced. The second variable is the target adress
@@ -262,59 +406,11 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
             } else {
                 delay = delayF;
             }
-
-            // Write seq header
-
-            // These two values are always the same in OOT and MM
-            WriteMuteBhv(&writer, 0x20);
-            WriteMuteScale(&writer, 0x32);
-
-            // We only have one channel
-            WriteInitchan(&writer, 1);
-            // Store the current position so we can write the address of the channel when we are ready.
-            channelPlaceholderOff = writer.GetBaseAddress();
-            // Store the current position so we can loop here after the song ends.
-            loopPoint = writer.GetBaseAddress();
-            WriteLdchan(&writer, 0, 0); // Fill in the actual address later
-
-            WriteVolSHeader(&writer, 127); // Max volume
-            WriteTempo(&writer, TEMPO);
-
-            WriteDelay(&writer, delay);
-            if (looped) {
-                WriteJump(&writer, loopPoint);
+            if (stereo) {
+                WriteStereoSeq(&writer, delay, TEMPO, looped);
+            } else {
+                WriteMonoSeq(&writer, delay, TEMPO, looped);
             }
-            WriteDisablecan(&writer, 1);
-            writer.Write(static_cast<uint8_t>(0xFF));
-
-            // Fill in the ldchan from before
-            channelStart = writer.GetBaseAddress();
-            writer.Seek(channelPlaceholderOff, Ship::SeekOffsetType::Start);
-            WriteLdchan(&writer, 0, channelStart);
-            writer.Seek(channelStart, Ship::SeekOffsetType::Start);
-
-            // Channel header
-            WriteNoshort(&writer);
-            layerPlaceholderOff = writer.GetBaseAddress();
-            WriteLdlayer(&writer, 0, 0);
-            WritePan(&writer, 64);
-            WriteVolCHeader(&writer, 127); // Max volume
-            WriteBend(&writer, 0);
-            WriteInstrument(&writer, 0);
-            WriteDelay(&writer, delay);
-            writer.Write(static_cast<uint8_t>(0xFF));
-
-            layerStart = writer.GetBaseAddress();
-            writer.Seek(layerPlaceholderOff, Ship::SeekOffsetType::Start);
-            WriteLdlayer(&writer, 0, layerStart);
-            writer.Seek(layerStart, Ship::SeekOffsetType::Start);
-
-            // Note layer
-            WriteTranspose(&writer, 0);
-            WriteLegato(&writer);
-            WriteNotedvg(&writer, 39, 0x7FFF - 1, static_cast<uint8_t>(0x7F), static_cast<uint8_t>(1));
-
-            writer.Write(static_cast<uint8_t>(0xFF));
 
             sequence->sequenceData = writer.ToVector();
             sequence->sequence.seqData = sequence->sequenceData.data();
