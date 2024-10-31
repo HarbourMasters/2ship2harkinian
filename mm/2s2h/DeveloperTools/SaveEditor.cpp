@@ -321,7 +321,7 @@ void DrawTempleClears() {
     ImGui::SameLine();
 
     if (UIWidgets::Checkbox("Stone Tower Inverted", &inverted,
-                            { .tooltip = "Can only invert while in Stone Tower", .disabled = !inStoneTower })) {
+                            { .disabled = !inStoneTower, .disabledTooltip = "Can only invert while in Stone Tower" })) {
         if (inverted) {
             Flags_SetSwitch(gPlayState, 20);
         } else {
