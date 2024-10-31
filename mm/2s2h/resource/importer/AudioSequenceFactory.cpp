@@ -325,7 +325,7 @@ static void WriteStereoSeq(Ship::BinaryWriter* writer, uint16_t delay, uint8_t t
     WriteLegato(writer);
     WriteNotedvg(writer, 39, 0x7FFF - 1, static_cast<uint8_t>(0x7F), static_cast<uint8_t>(1));
     writer->Write(static_cast<uint8_t>(0xFF));
-    
+
     writer->Seek(lLayerPlaceholderOff, Ship::SeekOffsetType::Start);
     WriteLdlayer(writer, 0, lLayerOffset);
     writer->Seek(rLayerPlaceholderOff, Ship::SeekOffsetType::Start);

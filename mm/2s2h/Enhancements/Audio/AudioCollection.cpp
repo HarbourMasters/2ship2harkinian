@@ -146,13 +146,12 @@ AudioCollection::AudioCollection() {
         SEQUENCE_MAP_ENTRY(NA_BGM_MIKAU_FINALE, "Mikau Finale", "NA_BGM_MIKAU_FINALE", SEQ_BGM_SONGS, true,
                            true), // Instrument finale
         SEQUENCE_MAP_ENTRY(NA_BGM_FROG_SONG, "Frog Song", "NA_BGM_FROG_SONG", SEQ_BGM_WORLD, true, true), // Looping BGM
-        SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_SONATA, "Sonata Of Awakening (Ocarina)", "NA_BGM_OCARINA_SONATA",
-                           SEQ_OCARINA, true, true),
+        SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_SONATA, "Sonata Of Awakening (Ocarina)", "NA_BGM_OCARINA_SONATA", SEQ_OCARINA,
+                           true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_LULLABY, "Goron Lullaby", "NA_BGM_OCARINA_LULLABY", SEQ_OCARINA, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_NEW_WAVE, "New Wave Bossa Nova (Ocarina)", "NA_BGM_OCARINA_NEW_WAVE",
                            SEQ_OCARINA, true, true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_ELEGY, "Elegy Of Emptiness (Ocarina)", "NA_BGM_OCARINA_ELEGY",
-                           SEQ_OCARINA,
+        SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_ELEGY, "Elegy Of Emptiness (Ocarina)", "NA_BGM_OCARINA_ELEGY", SEQ_OCARINA,
                            true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_OCARINA_OATH, "Oath To Order (Ocarina)", "NA_BGM_OCARINA_OATH", SEQ_OCARINA, true,
                            true),
