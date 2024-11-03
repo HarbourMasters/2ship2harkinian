@@ -189,12 +189,15 @@ static void WriteNotedvg(Ship::BinaryWriter* writer, uint8_t note, uint16_t dela
     }
 }
 
-static void WriteMonoSeq(Ship::BinaryWriter* writer, uint16_t delay, uint8_t tempo, bool looped) {
+static void WriteMonoSingleSeq(Ship::BinaryWriter* writer, uint16_t delay, uint8_t tempo, bool looped) {
     uint16_t channelStart;
     uint16_t channelPlaceholderOff;
     uint16_t loopPoint;
     uint16_t layerPlaceholderOff;
     uint16_t layerStart;
+    if (looped) {
+        delay = 0x7FFF;
+    }
     // Write seq header
 
     // These two values are always the same in OOT and MM
@@ -247,7 +250,8 @@ static void WriteMonoSeq(Ship::BinaryWriter* writer, uint16_t delay, uint8_t tem
     writer->Write(static_cast<uint8_t>(0xFF));
 }
 
-static void WriteStereoSeq(Ship::BinaryWriter* writer, uint16_t delay, uint8_t tempo, bool looped) {
+
+static void WriteStereoSingleSeq(Ship::BinaryWriter* writer, uint16_t delay, uint8_t tempo, bool looped) {
     uint16_t lChannelStart;
     uint16_t rChannelStart;
     uint16_t channelPlaceholderOff;
@@ -259,7 +263,9 @@ static void WriteStereoSeq(Ship::BinaryWriter* writer, uint16_t delay, uint8_t t
 
     uint16_t layerStart;
     // Write seq header
-
+    if (looped) {
+        delay = 0x7FFF;
+    }
     // These two values are always the same in OOT and MM
     WriteMuteBhv(writer, 0x20);
     WriteMuteScale(writer, 0x32);
@@ -407,9 +413,9 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
                 delay = delayF;
             }
             if (stereo) {
-                WriteStereoSeq(&writer, delay, TEMPO, looped);
+                WriteStereoSingleSeq(&writer, delay, TEMPO, looped);
             } else {
-                WriteMonoSeq(&writer, delay, TEMPO, looped);
+                WriteMonoSingleSeq(&writer, delay, TEMPO, looped);
             }
 
             sequence->sequenceData = writer.ToVector();
