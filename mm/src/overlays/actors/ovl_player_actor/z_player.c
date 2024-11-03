@@ -14568,9 +14568,7 @@ void Player_Action_12(Player* this, PlayState* play) {
     if (!func_80847880(play, this)) {
         if (!Player_TryActionChangeList(play, this, sPlayerActionChangeList7, false) ||
             (Player_Action_12 == this->actionFunc)) {
-            if (!GameInteractor_Should(VB_CHECK_HELD_ITEM_BUTTON_PRESS,
-                                       CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B), sDpadItemButtons,
-                                       sPlayerItemButtons)) {
+            if (!CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B)) {
                 func_80839E74(this, play);
             }
         }
