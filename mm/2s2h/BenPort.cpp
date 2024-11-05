@@ -57,6 +57,7 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "2s2h/SaveManager/SaveManager.h"
 #include "2s2h/Enhancements/Audio/AudioCollection.h"
+#include "2s2h/ShipUtils.h"
 
 // Resource Types/Factories
 #include "resource/type/Blob.h"
@@ -526,6 +527,7 @@ extern "C" void InitOTR() {
     OTRGlobals::Instance = new OTRGlobals();
     GameInteractor::Instance = new GameInteractor();
     AudioCollection::Instance = new AudioCollection();
+    LoadGuiTextures();
     BenGui::SetupGuiElements();
     InitEnhancements();
     InitDeveloperTools();

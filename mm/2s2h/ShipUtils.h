@@ -1,10 +1,13 @@
 #ifndef SHIP_UTILS_H
 #define SHIP_UTILS_H
 
-#include <libultraship/libultra.h>
+#include <libultraship/libultraship.h>
 #include "PR/ultratypes.h"
 
 #ifdef __cplusplus
+
+void LoadGuiTextures();
+
 extern "C" {
 #endif
 

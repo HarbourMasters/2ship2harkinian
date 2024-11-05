@@ -2,6 +2,7 @@
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "UIWidgets.hpp"
 #include "BenMenuBar.h"
+#include "Notification.h"
 #include "macros.h"
 #include "variables.h"
 #include <variant>
@@ -420,6 +421,10 @@ static const std::unordered_map<int32_t, const char*> timeStopOptions = {
     { TIME_STOP_TEMPLES_DUNGEONS, "Temples + Mini Dungeons" },
 };
 
+static const std::unordered_map<int32_t, const char*> notificationPosition = {
+    { 0, "Top Left" }, { 1, "Top Right" }, { 2, "Bottom Left" }, { 3, "Bottom Right" }, { 4, "Hidden" },
+};
+
 void FreeLookPitchMinMax() {
     f32 maxY = CVarGetFloat("gEnhancements.Camera.FreeLook.MaxPitch", 72.0f);
     f32 minY = CVarGetFloat("gEnhancements.Camera.FreeLook.MinPitch", -49.0f);
@@ -715,6 +720,44 @@ void AddSettings() {
                                       "Enables the separate Input Editor window.",
                                       WIDGET_WINDOW_BUTTON,
                                       { .size = UIWidgets::Sizes::Inline, .windowName = "2S2H Input Editor" } } } } });
+
+    settingsSidebar.push_back({ "Notifications",
+                                1,
+                                { {
+                                    { "Position",
+                                      "gNotifications.Position",
+                                      "Which corner of the screen notifications appear in.",
+                                      WIDGET_CVAR_COMBOBOX,
+                                      { .defaultVariant = 3, .comboBoxOptions = notificationPosition } },
+                                    { "Duration: %.0f seconds",
+                                      "gNotifications.Duration",
+                                      "How long notifications are displayed for.",
+                                      WIDGET_CVAR_SLIDER_FLOAT,
+                                      { .min = 300.0f, .max = 3000.0f, .defaultVariant = 1000.0f } },
+                                    { "Background Opacity: %.0f%%",
+                                      "gNotifications.BgOpacity",
+                                      "How opaque the background of notifications is.",
+                                      WIDGET_CVAR_SLIDER_FLOAT,
+                                      { .min = 0.0f, .max = 100.0f, .defaultVariant = 50.0f, .isPercentage = true } },
+                                    { "Size %.1f",
+                                      "gNotifications.Size",
+                                      "How large notifications are.",
+                                      WIDGET_CVAR_SLIDER_FLOAT,
+                                      { .min = 100.0f, .max = 500.0f, .defaultVariant = 180.0f } },
+                                    { "Test Notification",
+                                      "",
+                                      "Displays a test notification.",
+                                      WIDGET_BUTTON,
+                                      {},
+                                      [](widgetInfo& info) {
+                                          Notification::Emit({
+                                              .itemIcon = "__OTR__icon_item_24_static_yar/gQuestIconGoldSkulltulaTex",
+                                              .prefix = "This",
+                                              .message = "is a",
+                                              .suffix = "test.",
+                                          });
+                                      } },
+                                } } });
 
     if (CVarGetInteger("gSettings.SidebarSearch", 0)) {
         settingsSidebar.insert(settingsSidebar.begin() + searchSidebarIndex, searchSidebarEntry);
@@ -1023,6 +1066,11 @@ void AddEnhancements() {
                 "-Rupee: Get the rupee reward",
                 WIDGET_CVAR_COMBOBOX,
                 { .comboBoxOptions = cremiaRewardOptions } },
+              { "Swordsman School Winning Score",
+                "gEnhancements.Minigames.SwordsmanSchoolScore",
+                "Sets the score required to win the Swordsman School.",
+                WIDGET_CVAR_SLIDER_INT,
+                { 1, 30, 30 } },
               { "Fast Magic Arrow Equip Animation", "gEnhancements.Equipment.MagicArrowEquipSpeed",
                 "Removes the animation for equipping Magic Arrows.", WIDGET_CVAR_CHECKBOX },
               { "Instant Fin Boomerangs Recall", "gEnhancements.PlayerActions.InstantRecall",

@@ -9,6 +9,7 @@
 #include "UIWidgets.hpp"
 #include "HudEditor.h"
 #include "../Enhancements/Audio/AudioEditor.h"
+#include "Notification.h"
 
 #ifdef __APPLE__
 #include "graphic/Fast3D/gfx_metal.h"
@@ -38,6 +39,7 @@ std::shared_ptr<EventLogWindow> mEventLogWindow;
 std::shared_ptr<AudioEditor> mAudioEditorWindow;
 std::shared_ptr<BenMenu> mBenMenu;
 std::shared_ptr<BenInputEditorWindow> mBenInputEditorWindow;
+std::shared_ptr<Notification::Window> mNotificationWindow;
 
 void SetupGuiElements() {
     auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
@@ -99,6 +101,10 @@ void SetupGuiElements() {
     gui->AddGuiWindow(mAudioEditorWindow);
 
     gui->SetPadBtnTogglesMenu();
+
+    mNotificationWindow = std::make_shared<Notification::Window>("gWindows.Notifications", "Notifications Window");
+    gui->AddGuiWindow(mNotificationWindow);
+    mNotificationWindow->Show();
 }
 
 void Destroy() {
@@ -110,6 +116,7 @@ void Destroy() {
     mGfxDebuggerWindow = nullptr;
     mCollisionViewerWindow = nullptr;
     mEventLogWindow = nullptr;
+    mNotificationWindow = nullptr;
 
     mSaveEditorWindow = nullptr;
     mHudEditorWindow = nullptr;
