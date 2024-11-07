@@ -620,6 +620,12 @@ void DrawEnhancementsMenu() {
             ImGui::SeparatorText("Clock");
             UIWidgets::CVarCombobox("Clock Type", "gEnhancements.Graphics.ClockType", clockTypeOptions);
             UIWidgets::CVarCheckbox("24 Hours Clock", "gEnhancements.Graphics.24HoursClock");
+
+            ImGui::SeparatorText("Mods");
+            UIWidgets::CVarCheckbox("Use Alternate Assets", "gEnhancements.Mods.AlternateAssets",
+                                    { .tooltip = "Toggle between standard assets and alternate assets. Usually mods "
+                                                 "will indicate if this setting has to be used or not." });
+
             MotionBlur_RenderMenuOptions();
             ImGui::SeparatorText("Other");
             UIWidgets::CVarCheckbox("Authentic logo", "gEnhancements.Graphics.AuthenticLogo",

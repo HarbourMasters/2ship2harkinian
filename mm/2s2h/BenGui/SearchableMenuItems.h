@@ -1170,6 +1170,12 @@ void AddEnhancements() {
                 { .comboBoxOptions = clockTypeOptions } },
               { "24 Hours Clock", "gEnhancements.Graphics.24HoursClock", "Changes from a 12 Hour to a 24 Hour Clock",
                 WIDGET_CVAR_CHECKBOX },
+              { .widgetName = "Mods", .widgetType = WIDGET_SEPARATOR_TEXT },
+              { .widgetName = "Use Alternate Assets",
+                .widgetCVar = "gEnhancements.Mods.AlternateAssets",
+                .widgetTooltip = "Toggle between standard assets and alternate assets. Usually mods will indicate if "
+                                 "this setting has to be used or not.",
+                .widgetType = WIDGET_CVAR_CHECKBOX },
               { .widgetName = "Motion Blur", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Motion Blur Mode",
                 "gEnhancements.Graphics.MotionBlur.Mode",

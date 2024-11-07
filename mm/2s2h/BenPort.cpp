@@ -154,7 +154,7 @@ OTRGlobals::OTRGlobals() {
         Ship::Context::CreateInstance("2 Ship 2 Harkinian", appShortName, "2ship2harkinian.json", archiveFiles, {}, 3,
                                       { .SampleRate = 44100, .SampleLength = 1024, .DesiredBuffered = 2480 });
 
-    prevAltAssets = CVarGetInteger("gAltAssets", 0);
+    prevAltAssets = CVarGetInteger("gEnhancements.Mods.AlternateAssets", 0);
     context->GetResourceManager()->SetAltAssetsEnabled(prevAltAssets);
 
     // Override LUS defaults
@@ -688,8 +688,8 @@ extern "C" void Graph_StartFrame() {
 #endif
         case KbScancode::LUS_KB_TAB: {
             // Toggle HD Assets
-            CVarSetInteger("gAltAssets", !CVarGetInteger("gAltAssets", 0));
-            // ShouldClearTextureCacheAtEndOfFrame = true;
+            CVarSetInteger("gEnhancements.Mods.AlternateAssets",
+                           !CVarGetInteger("gEnhancements.Mods.AlternateAssets", 0));
             break;
         }
     }
@@ -778,7 +778,7 @@ extern "C" void Graph_ProcessGfxCommands(Gfx* commands) {
         }
     }
 
-    bool curAltAssets = CVarGetInteger("gAltAssets", 0);
+    bool curAltAssets = CVarGetInteger("gEnhancements.Mods.AlternateAssets", 0);
     if (prevAltAssets != curAltAssets) {
         prevAltAssets = curAltAssets;
         Ship::Context::GetInstance()->GetResourceManager()->SetAltAssetsEnabled(curAltAssets);
