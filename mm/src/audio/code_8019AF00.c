@@ -5519,9 +5519,6 @@ void Audio_StartSceneSequence(u16 seqId) {
 
 void Audio_UpdateSceneSequenceResumePoint(void) {
     u16 seqId = AudioSeq_GetActiveSeqId(SEQ_PLAYER_BGM_MAIN);
-    if (seqId = 0xa0) {
-        int bp = 4;
-    }
     seqId = AudioEditor_GetOriginalSeq(seqId);
 
     if ((seqId != NA_BGM_DISABLED) && (sSeqFlags[seqId] & SEQ_FLAG_RESUME)) {

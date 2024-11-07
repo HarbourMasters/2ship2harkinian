@@ -250,7 +250,6 @@ static void WriteMonoSingleSeq(Ship::BinaryWriter* writer, uint16_t delay, uint8
     writer->Write(static_cast<uint8_t>(0xFF));
 }
 
-
 static void WriteStereoSingleSeq(Ship::BinaryWriter* writer, uint16_t delay, uint8_t tempo, bool looped) {
     uint16_t lChannelStart;
     uint16_t rChannelStart;
