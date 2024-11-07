@@ -27,7 +27,7 @@ void ItemTrackerSettingsWindow::DrawElement() {
         return;
     }
 
-    UIWidgets::WindowButton("Item Tracker", "gWindows.ItemTracker", mItemTrackerWindow,
+    UIWidgets::WindowButton("Show/Hide Item Tracker", "gWindows.ItemTracker", mItemTrackerWindow,
                             { .size = UIWidgets::Sizes::Inline });
 
     ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, { 8.0f, 8.0f });
