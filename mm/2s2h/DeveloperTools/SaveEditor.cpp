@@ -1,6 +1,7 @@
 #include "SaveEditor.h"
 #include "2s2h/BenGui/UIWidgets.hpp"
 #include "2s2h/GameInteractor/GameInteractor.h"
+#include "2s2h/BenGui/Notification.h"
 
 #include "interface/icon_item_dungeon_static/icon_item_dungeon_static.h"
 #include "archives/icon_item_24_static/icon_item_24_static_yar.h"
@@ -217,6 +218,8 @@ void UpdateGameTime(u16 gameTime) {
 void DrawTempleClears() {
     bool cleared;
     bool open;
+    bool inverted = false;
+    bool inStoneTower = false;
 
     // Woodfall
     cleared = CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_WOODFALL_TEMPLE);
@@ -302,13 +305,28 @@ void DrawTempleClears() {
     }
 
     // Stone Tower
-    // Stone Tower Temple is always open so there is no need to have an option to open it.
     cleared = CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_STONE_TOWER_TEMPLE);
     if (UIWidgets::Checkbox("Stone Tower cleared", &cleared)) {
         if (cleared) {
             SET_WEEKEVENTREG(WEEKEVENTREG_CLEARED_STONE_TOWER_TEMPLE);
         } else {
             CLEAR_WEEKEVENTREG(WEEKEVENTREG_CLEARED_STONE_TOWER_TEMPLE);
+        }
+    }
+
+    if (gPlayState != NULL) {
+        inStoneTower = Play_GetOriginalSceneId(gPlayState->sceneId) == SCENE_F40;
+        inverted = Flags_GetSwitch(gPlayState, 20);
+    }
+
+    ImGui::SameLine();
+
+    if (UIWidgets::Checkbox("Stone Tower Inverted", &inverted,
+                            { .disabled = !inStoneTower, .disabledTooltip = "Can only invert while in Stone Tower" })) {
+        if (inverted) {
+            Flags_SetSwitch(gPlayState, 20);
+        } else {
+            Flags_UnsetSwitch(gPlayState, 20);
         }
     }
 }
@@ -1994,24 +2012,6 @@ void SaveEditorWindow::DrawElement() {
     }
 }
 
-const char* textureLoad[8] = { gDungeonStrayFairyWoodfallIconTex,
-                               gDungeonStrayFairySnowheadIconTex,
-                               gDungeonStrayFairyGreatBayIconTex,
-                               gDungeonStrayFairyStoneTowerIconTex,
-                               gQuestIconDungeonMapTex,
-                               gQuestIconCompassTex,
-                               gQuestIconSmallKeyTex,
-                               gQuestIconBossKeyTex };
-
 void SaveEditorWindow::InitElement() {
     initSafeItemsForInventorySlot();
-
-    for (TexturePtr entry : gItemIcons) {
-        const char* path = static_cast<const char*>(entry);
-        Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture(path, path, ImVec4(1, 1, 1, 1));
-    }
-    for (int i = 0; i <= 7; i++) {
-        Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture(textureLoad[i], textureLoad[i],
-                                                                            ImVec4(1, 1, 1, 1));
-    }
 }

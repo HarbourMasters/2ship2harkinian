@@ -4821,12 +4821,14 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
 
                     if (msgCtx->ocarinaAction == OCARINA_ACTION_FREE_PLAY_DONE) {
                         if (sLastPlayedSong == OCARINA_SONG_ELEGY) {
-                            if ((play->sceneId == SCENE_F40) || (play->sceneId == SCENE_F41) ||
-                                (play->sceneId == SCENE_IKANAMAE) || (play->sceneId == SCENE_CASTLE) ||
-                                (play->sceneId == SCENE_IKNINSIDE) || (play->sceneId == SCENE_IKANA) ||
-                                (play->sceneId == SCENE_INISIE_N) || (play->sceneId == SCENE_INISIE_R) ||
-                                (play->sceneId == SCENE_INISIE_BS) || (play->sceneId == SCENE_RANDOM) ||
-                                (play->sceneId == SCENE_REDEAD) || (play->sceneId == SCENE_TOUGITES)) {
+                            if (GameInteractor_Should(
+                                    VB_ELEGY_CHECK_SCENE,
+                                    (play->sceneId == SCENE_F40) || (play->sceneId == SCENE_F41) ||
+                                        (play->sceneId == SCENE_IKANAMAE) || (play->sceneId == SCENE_CASTLE) ||
+                                        (play->sceneId == SCENE_IKNINSIDE) || (play->sceneId == SCENE_IKANA) ||
+                                        (play->sceneId == SCENE_INISIE_N) || (play->sceneId == SCENE_INISIE_R) ||
+                                        (play->sceneId == SCENE_INISIE_BS) || (play->sceneId == SCENE_RANDOM) ||
+                                        (play->sceneId == SCENE_REDEAD) || (play->sceneId == SCENE_TOUGITES))) {
                                 play->msgCtx.ocarinaMode = OCARINA_MODE_EVENT;
                             } else {
                                 sLastPlayedSong = 0xFF;

@@ -103,6 +103,7 @@ Vtx* ResourceMgr_LoadVtxByCRC(uint64_t crc);
 char* ResourceMgr_LoadVtxArrayByName(const char* path);
 size_t ResourceMgr_GetVtxArraySizeByName(const char* path);
 Vtx* ResourceMgr_LoadVtxByName(char* path);
+Mtx* ResourceMgr_LoadMtxByName(char* path);
 
 KeyFrameSkeleton* ResourceMgr_LoadKeyFrameSkelByName(const char* path);
 KeyFrameAnimation* ResourceMgr_LoadKeyFrameAnimByName(const char* path);

@@ -1,7 +1,9 @@
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
+#include "2s2h/Enhancements/GfxPatcher/AuthenticGfxPatches.h"
 #include "UIWidgets.hpp"
 #include "BenMenuBar.h"
+#include "Notification.h"
 #include "macros.h"
 #include "variables.h"
 #include <variant>
@@ -31,6 +33,9 @@ typedef enum {
     DISABLE_FOR_DEBUG_CAM_OFF,
     DISABLE_FOR_FREE_LOOK_ON,
     DISABLE_FOR_FREE_LOOK_OFF,
+    DISABLE_FOR_GYRO_OFF,
+    DISABLE_FOR_GYRO_ON,
+    DISABLE_FOR_RIGHT_STICK_OFF,
     DISABLE_FOR_AUTO_SAVE_OFF,
     DISABLE_FOR_NULL_PLAY_STATE,
     DISABLE_FOR_DEBUG_MODE_OFF,
@@ -43,7 +48,8 @@ typedef enum {
     DISABLE_FOR_MOTION_BLUR_MODE,
     DISABLE_FOR_MOTION_BLUR_OFF,
     DISABLE_FOR_FRAME_ADVANCE_OFF,
-    DISABLE_FOR_WARP_POINT_NOT_SET
+    DISABLE_FOR_WARP_POINT_NOT_SET,
+    DISABLE_FOR_INTRO_SKIP_OFF,
 } DisableOption;
 
 struct widgetInfo;
@@ -278,6 +284,17 @@ static std::map<DisableOption, disabledInfo> disabledMap = {
     { DISABLE_FOR_FREE_LOOK_OFF,
       { [](disabledInfo& info) -> bool { return !CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0); },
         "Free Look is Disabled" } },
+    { DISABLE_FOR_GYRO_OFF,
+      { [](disabledInfo& info) -> bool { return !CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroEnabled", 0); },
+        "Gyro Aiming is Disabled" } },
+    { DISABLE_FOR_GYRO_ON,
+      { [](disabledInfo& info) -> bool { return CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroEnabled", 0); },
+        "Gyro Aiming is Enabled" } },
+    { DISABLE_FOR_RIGHT_STICK_OFF,
+      { [](disabledInfo& info) -> bool {
+           return !CVarGetInteger("gEnhancements.Camera.FirstPerson.RightStickEnabled", 0);
+       },
+        "Right Stick Aiming is Disabled" } },
     { DISABLE_FOR_AUTO_SAVE_OFF,
       { [](disabledInfo& info) -> bool { return !CVarGetInteger("gEnhancements.Saving.Autosave", 0); },
         "AutoSave is Disabled" } },
@@ -327,7 +344,10 @@ static std::map<DisableOption, disabledInfo> disabledMap = {
         "Frame Advance is Disabled" } },
     { DISABLE_FOR_WARP_POINT_NOT_SET,
       { [](disabledInfo& info) -> bool { return !CVarGetInteger(WARP_POINT_CVAR "Saved", 0); },
-        "Warp Point Not Saved" } }
+        "Warp Point Not Saved" } },
+    { DISABLE_FOR_INTRO_SKIP_OFF,
+      { [](disabledInfo& info) -> bool { return !CVarGetInteger("gEnhancements.Cutscenes.SkipIntroSequence", 0); },
+        "Intro Skip Not Selected" } }
 };
 
 std::unordered_map<int32_t, const char*> menuThemeOptions = {
@@ -347,6 +367,12 @@ static const std::unordered_map<int32_t, const char*> alwaysWinDoggyraceOptions 
     { ALWAYS_WIN_DOGGY_RACE_OFF, "Off" },
     { ALWAYS_WIN_DOGGY_RACE_MASKOFTRUTH, "When owning Mask of Truth" },
     { ALWAYS_WIN_DOGGY_RACE_ALWAYS, "Always" },
+};
+
+static const std::unordered_map<int32_t, const char*> cremiaRewardOptions = {
+    { CREMIA_REWARD_RANDOM, "Vanilla" },
+    { CREMIA_REWARD_ALWAYS_HUG, "Hug" },
+    { CREMIA_REWARD_ALWAYS_RUPEE, "Rupee" },
 };
 
 static const std::unordered_map<int32_t, const char*> clockTypeOptions = {
@@ -394,6 +420,10 @@ static const std::unordered_map<int32_t, const char*> timeStopOptions = {
     { TIME_STOP_OFF, "Off" },
     { TIME_STOP_TEMPLES, "Temples" },
     { TIME_STOP_TEMPLES_DUNGEONS, "Temples + Mini Dungeons" },
+};
+
+static const std::unordered_map<int32_t, const char*> notificationPosition = {
+    { 0, "Top Left" }, { 1, "Top Right" }, { 2, "Bottom Left" }, { 3, "Bottom Right" }, { 4, "Hidden" },
 };
 
 void FreeLookPitchMinMax() {
@@ -692,6 +722,44 @@ void AddSettings() {
                                       WIDGET_WINDOW_BUTTON,
                                       { .size = UIWidgets::Sizes::Inline, .windowName = "2S2H Input Editor" } } } } });
 
+    settingsSidebar.push_back({ "Notifications",
+                                1,
+                                { {
+                                    { "Position",
+                                      "gNotifications.Position",
+                                      "Which corner of the screen notifications appear in.",
+                                      WIDGET_CVAR_COMBOBOX,
+                                      { .defaultVariant = 3, .comboBoxOptions = notificationPosition } },
+                                    { "Duration: %.0f seconds",
+                                      "gNotifications.Duration",
+                                      "How long notifications are displayed for.",
+                                      WIDGET_CVAR_SLIDER_FLOAT,
+                                      { .min = 300.0f, .max = 3000.0f, .defaultVariant = 1000.0f } },
+                                    { "Background Opacity: %.0f%%",
+                                      "gNotifications.BgOpacity",
+                                      "How opaque the background of notifications is.",
+                                      WIDGET_CVAR_SLIDER_FLOAT,
+                                      { .min = 0.0f, .max = 100.0f, .defaultVariant = 50.0f, .isPercentage = true } },
+                                    { "Size %.1f",
+                                      "gNotifications.Size",
+                                      "How large notifications are.",
+                                      WIDGET_CVAR_SLIDER_FLOAT,
+                                      { .min = 100.0f, .max = 500.0f, .defaultVariant = 180.0f } },
+                                    { "Test Notification",
+                                      "",
+                                      "Displays a test notification.",
+                                      WIDGET_BUTTON,
+                                      {},
+                                      [](widgetInfo& info) {
+                                          Notification::Emit({
+                                              .itemIcon = "__OTR__icon_item_24_static_yar/gQuestIconGoldSkulltulaTex",
+                                              .prefix = "This",
+                                              .message = "is a",
+                                              .suffix = "test.",
+                                          });
+                                      } },
+                                } } });
+
     if (CVarGetInteger("gSettings.SidebarSearch", 0)) {
         settingsSidebar.insert(settingsSidebar.begin() + searchSidebarIndex, searchSidebarEntry);
     }
@@ -703,12 +771,118 @@ void AddEnhancements() {
     enhancementsSidebar.push_back(
         { "Camera",
           3,
-          { { { .widgetName = "Fixes", .widgetType = WIDGET_SEPARATOR_TEXT },
-              { "Fix Targetting Camera Snap",
-                "gEnhancements.Camera.FixTargettingCameraSnap",
-                "Fixes the camera snap that occurs when you are moving and press the targetting button.",
-                WIDGET_CVAR_CHECKBOX,
-                {} } },
+          { {
+                { .widgetName = "Fixes", .widgetType = WIDGET_SEPARATOR_TEXT },
+                { "Fix Targetting Camera Snap",
+                  "gEnhancements.Camera.FixTargettingCameraSnap",
+                  "Fixes the camera snap that occurs when you are moving and press the targetting button.",
+                  WIDGET_CVAR_CHECKBOX,
+                  {} },
+                { .widgetName = "First Person", .widgetType = WIDGET_SEPARATOR_TEXT },
+                { "Disable Auto-Centering",
+                  "gEnhancements.Camera.FirstPerson.DisableFirstPersonAutoCenterView",
+                  "Disables the auto-centering of the camera in first person mode.",
+                  WIDGET_CVAR_CHECKBOX,
+                  {},
+                  nullptr,
+                  [](widgetInfo& info) {
+                      if (disabledMap.at(DISABLE_FOR_GYRO_ON).active)
+                          info.activeDisables.push_back(DISABLE_FOR_GYRO_ON);
+                  } },
+                { "Invert X Axis", "gEnhancements.Camera.FirstPerson.InvertX",
+                  "Inverts the X Axis of the Camera in First Person Mode.", WIDGET_CVAR_CHECKBOX },
+                { "Invert Y Axis",
+                  "gEnhancements.Camera.FirstPerson.InvertY",
+                  "Inverts the Y Axis of the Camera in First Person Mode.",
+                  WIDGET_CVAR_CHECKBOX,
+                  { .defaultVariant = true } },
+                { "X Axis Sensitivity: %.0f%%",
+                  "gEnhancements.Camera.FirstPerson.SensitivityX",
+                  "Adjusts the Sensitivity of the X Axis in First Person Mode.",
+                  WIDGET_CVAR_SLIDER_FLOAT,
+                  { .min = 10.0f, .max = 200.0f, .defaultVariant = 100.0f, .format = "%.0f%%", .isPercentage = true },
+                  nullptr },
+                { "Y Axis Sensitivity: %.0f%%",
+                  "gEnhancements.Camera.FirstPerson.SensitivityY",
+                  "Adjusts the Sensitivity of the Y Axis in First Person Mode.",
+                  WIDGET_CVAR_SLIDER_FLOAT,
+                  { .min = 10.0f, .max = 200.0f, .defaultVariant = 100.0f, .format = "%.0f%%", .isPercentage = true },
+                  nullptr },
+                { "Gyro Aiming",
+                  "gEnhancements.Camera.FirstPerson.GyroEnabled",
+                  "Enables Gyro Aiming in First Person Mode.",
+                  WIDGET_CVAR_CHECKBOX,
+                  {},
+                  nullptr },
+                { "Invert Gyro X Axis",
+                  "gEnhancements.Camera.FirstPerson.GyroInvertX",
+                  "Inverts the X Axis of the Gyro in First Person Mode.",
+                  WIDGET_CVAR_CHECKBOX,
+                  {},
+                  nullptr,
+                  [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_GYRO_OFF).active; } },
+                { "Invert Gyro Y Axis",
+                  "gEnhancements.Camera.FirstPerson.GyroInvertY",
+                  "Inverts the Y Axis of the Gyro in First Person Mode.",
+                  WIDGET_CVAR_CHECKBOX,
+                  {},
+                  nullptr,
+                  [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_GYRO_OFF).active; } },
+                { "Gyro X Axis Sensitivity: %.0f%%",
+                  "gEnhancements.Camera.FirstPerson.GyroSensitivityX",
+                  "Adjusts the Sensitivity of the X Axis of the Gyro in First Person Mode.",
+                  WIDGET_CVAR_SLIDER_FLOAT,
+                  { .min = 10.0f, .max = 200.0f, .defaultVariant = 100.0f, .format = "%.0f%%", .isPercentage = true },
+                  nullptr,
+                  [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_GYRO_OFF).active; } },
+                { "Gyro Y Axis Sensitivity: %.0f%%",
+                  "gEnhancements.Camera.FirstPerson.GyroSensitivityY",
+                  "Adjusts the Sensitivity of the Y Axis of the Gyro in First Person Mode.",
+                  WIDGET_CVAR_SLIDER_FLOAT,
+                  { .min = 10.0f, .max = 200.0f, .defaultVariant = 100.0f, .format = "%.0f%%", .isPercentage = true },
+                  nullptr,
+                  [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_GYRO_OFF).active; } },
+                { "Right Stick Aiming", "gEnhancements.Camera.FirstPerson.RightStickEnabled",
+                  "Enables Right Stick Aiming in First Person Mode.", WIDGET_CVAR_CHECKBOX },
+                { "Move while aiming",
+                  "gEnhancements.Camera.FirstPerson.MoveInFirstPerson",
+                  "Allows movement with the left stick while in first person mode.",
+                  WIDGET_CVAR_CHECKBOX,
+                  {},
+                  nullptr,
+                  [](widgetInfo& info) {
+                      if (disabledMap.at(DISABLE_FOR_RIGHT_STICK_OFF).active)
+                          info.activeDisables.push_back(DISABLE_FOR_RIGHT_STICK_OFF);
+                  } },
+                { "Invert Right Stick X Axis",
+                  "gEnhancements.Camera.FirstPerson.RightStickInvertX",
+                  "Inverts the X Axis of the Right Stick in First Person Mode.",
+                  WIDGET_CVAR_CHECKBOX,
+                  {},
+                  nullptr,
+                  [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_RIGHT_STICK_OFF).active; } },
+                { "Invert Right Stick Y Axis",
+                  "gEnhancements.Camera.FirstPerson.RightStickInvertY",
+                  "Inverts the Y Axis of the Right Stick in First Person Mode.",
+                  WIDGET_CVAR_CHECKBOX,
+                  { .defaultVariant = true },
+                  nullptr,
+                  [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_RIGHT_STICK_OFF).active; } },
+                { "Right Stick X Axis Sensitivity: %.0f%%",
+                  "gEnhancements.Camera.FirstPerson.RightStickSensitivityX",
+                  "Adjusts the Sensitivity of the X Axis of the Right Stick in First Person Mode.",
+                  WIDGET_CVAR_SLIDER_FLOAT,
+                  { .min = 10.0f, .max = 200.0f, .defaultVariant = 100.0f, .format = "%.0f%%", .isPercentage = true },
+                  nullptr,
+                  [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_RIGHT_STICK_OFF).active; } },
+                { "Right Stick Y Axis Sensitivity: %.0f%%",
+                  "gEnhancements.Camera.FirstPerson.RightStickSensitivityY",
+                  "Adjusts the Sensitivity of the Y Axis of the Right Stick in First Person Mode.",
+                  WIDGET_CVAR_SLIDER_FLOAT,
+                  { .min = 10.0f, .max = 200.0f, .defaultVariant = 100.0f, .format = "%.0f%%", .isPercentage = true },
+                  nullptr,
+                  [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_RIGHT_STICK_OFF).active; } },
+            },
             // Camera Enhancements
             { { .widgetName = "Cameras", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Free Look",
@@ -847,6 +1021,8 @@ void AddEnhancements() {
                 WIDGET_CVAR_CHECKBOX,
                 {},
                 [](widgetInfo& info) { RegisterMoonJumpOnL(); } },
+              { "Elegy of Emptiness Anywhere", "gCheats.ElegyAnywhere", "Allows Elegy of Emptiness outside of Ikana",
+                WIDGET_CVAR_CHECKBOX },
               { "Stop Time in Dungeons",
                 "gCheats.TempleTimeStop",
                 "Stops time from advancing in selected areas. Requires a room change to update.\n\n"
@@ -869,6 +1045,8 @@ void AddEnhancements() {
                 ([](widgetInfo& info) { RegisterFastFlowerLaunch(); }) },
               { "Instant Putaway", "gEnhancements.Player.InstantPutaway",
                 "Allows Link to instantly puts away held item without waiting.", WIDGET_CVAR_CHECKBOX },
+              { "Fierce Deity Putaway", "gEnhancements.Player.FierceDeityPutaway",
+                "Allows Fierce Deity Link to put away his sword.", WIDGET_CVAR_CHECKBOX },
               { "Climb speed",
                 "gEnhancements.PlayerMovement.ClimbSpeed",
                 "Increases the speed at which Link climbs vines and ladders.",
@@ -881,10 +1059,26 @@ void AddEnhancements() {
                 "Makes the Doggy Race easier to win.",
                 WIDGET_CVAR_COMBOBOX,
                 { .comboBoxOptions = alwaysWinDoggyraceOptions } },
+              { "Milk Run Reward Options",
+                "gEnhancements.Minigames.CremiaHugs",
+                "Choose what reward you get for winning the Milk Run minigame after the first time. \n"
+                "-Vanilla: Reward is Random\n"
+                "-Hug: Get the hugging cutscene\n"
+                "-Rupee: Get the rupee reward",
+                WIDGET_CVAR_COMBOBOX,
+                { .comboBoxOptions = cremiaRewardOptions } },
+              { "Swordsman School Winning Score",
+                "gEnhancements.Minigames.SwordsmanSchoolScore",
+                "Sets the score required to win the Swordsman School.",
+                WIDGET_CVAR_SLIDER_INT,
+                { 1, 30, 30 } },
               { "Fast Magic Arrow Equip Animation", "gEnhancements.Equipment.MagicArrowEquipSpeed",
                 "Removes the animation for equipping Magic Arrows.", WIDGET_CVAR_CHECKBOX },
               { "Instant Fin Boomerangs Recall", "gEnhancements.PlayerActions.InstantRecall",
                 "Pressing B will instantly recall the fin boomerang back to Zora Link after they are thrown.",
+                WIDGET_CVAR_CHECKBOX },
+              { "Two-Handed Sword Spin Attack", "gEnhancements.Equipment.TwoHandedSwordSpinAttack",
+                "Enables magic spin attacks for the Fierce Deity Sword and Great Fairy's Sword.",
                 WIDGET_CVAR_CHECKBOX } },
             { { .widgetName = "Modes", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Play as Kafei", "gModes.PlayAsKafei", "Requires scene reload to take effect.", WIDGET_CVAR_CHECKBOX },
@@ -1106,7 +1300,15 @@ void AddEnhancements() {
                 WIDGET_CVAR_SLIDER_INT,
                 { 1, 7, 7 } },
               { "Prevent Dropped Ocarina Inputs", "gEnhancements.Playback.NoDropOcarinaInput",
-                "Prevent dropping inputs when playing the ocarina quickly.", WIDGET_CVAR_CHECKBOX } } } });
+                "Prevent dropping inputs when playing the ocarina quickly.", WIDGET_CVAR_CHECKBOX },
+              { "Skip Scarecrow Song", "gEnhancements.Playback.SkipScarecrowSong",
+                "Pierre appears when the Ocarina is pulled out.", WIDGET_CVAR_CHECKBOX },
+              { "Faster Song Playback",
+                "gEnhancements.Songs.FasterSongPlayback",
+                "Speeds up the playback of songs.",
+                WIDGET_CVAR_CHECKBOX,
+                {},
+                [](widgetInfo& info) { RegisterFasterSongPlayback(); } } } } });
     enhancementsSidebar.push_back(
         { "Time Savers",
           3,
@@ -1122,6 +1324,14 @@ void AddEnhancements() {
               { "Skip Intro Sequence", "gEnhancements.Cutscenes.SkipIntroSequence",
                 "When starting a game you will be taken straight to South Clock Town as Deku Link.",
                 WIDGET_CVAR_CHECKBOX },
+              { "Skip First Cycle",
+                "gEnhancements.Cutscenes.SkipFirstCycle",
+                "When starting a game you will be taken straight to South Clock Town as Human Link "
+                "with Deku Mask, Ocarina, Song of Time, and Song of Healing.",
+                WIDGET_CVAR_CHECKBOX,
+                {},
+                nullptr,
+                [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_INTRO_SKIP_OFF).active; } },
               { "Skip Story Cutscenes", "gEnhancements.Cutscenes.SkipStoryCutscenes",
                 "Disclaimer: This doesn't do much yet, we will be progressively adding more skips over time.",
                 WIDGET_CVAR_CHECKBOX },
@@ -1157,7 +1367,13 @@ void AddEnhancements() {
               { "Fix Ikana Great Fairy Fountain Color", "gFixes.FixIkanaGreatFairyFountainColor",
                 "Fixes a bug that results in the Ikana Great Fairy fountain looking green instead of yellow, this was "
                 "fixed in the EU version",
-                WIDGET_CVAR_CHECKBOX } } } });
+                WIDGET_CVAR_CHECKBOX },
+              { .widgetName = "Fix Texture overflow OOB",
+                .widgetCVar = "gEnhancements.Fixes.FixTexturesOOB",
+                .widgetTooltip = "Fixes textures that normally overflow to be patched with the correct size or format",
+                .widgetType = WIDGET_CVAR_CHECKBOX,
+                .widgetOptions = { .defaultVariant = true },
+                .widgetCallback = [](widgetInfo& info) { GfxPatcher_ApplyOverflowTexturePatches(); } } } } });
     enhancementsSidebar.push_back(
         { "Restorations",
           3,
@@ -1180,6 +1396,15 @@ void AddEnhancements() {
                 WIDGET_CVAR_CHECKBOX,
                 {},
                 [](widgetInfo& info) { RegisterWoodfallMountainAppearance(); } } } } });
+    enhancementsSidebar.push_back(
+        { "Difficulty Options",
+          3,
+          { { { "Disable Takkuri Steal",
+                "gEnhancements.Cheats.DisableTakkuriSteal",
+                "Prevents the Takkuri from stealing key items like bottles and swords. It may still steal other items.",
+                WIDGET_CVAR_CHECKBOX,
+                {},
+                [](widgetInfo& info) { RegisterDisableTakkuriSteal(); } } } } });
     enhancementsSidebar.push_back({ "HUD Editor",
                                     1,
                                     { // HUD Editor

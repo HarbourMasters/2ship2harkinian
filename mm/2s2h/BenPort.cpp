@@ -55,6 +55,7 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/DeveloperTools/DebugConsole.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "2s2h/SaveManager/SaveManager.h"
+#include "2s2h/ShipUtils.h"
 
 // Resource Types/Factories
 #include "resource/type/Blob.h"
@@ -512,6 +513,7 @@ extern "C" void InitOTR() {
 
     OTRGlobals::Instance = new OTRGlobals();
     GameInteractor::Instance = new GameInteractor();
+    LoadGuiTextures();
     BenGui::SetupGuiElements();
     InitEnhancements();
     InitDeveloperTools();
@@ -1174,6 +1176,10 @@ extern "C" CollisionHeader* ResourceMgr_LoadColByName(const char* path) {
 
 extern "C" Vtx* ResourceMgr_LoadVtxByName(char* path) {
     return (Vtx*)ResourceGetDataByName(path);
+}
+
+extern "C" Mtx* ResourceMgr_LoadMtxByName(char* path) {
+    return (Mtx*)ResourceGetDataByName(path);
 }
 
 extern "C" SequenceData ResourceMgr_LoadSeqByName(const char* path) {
