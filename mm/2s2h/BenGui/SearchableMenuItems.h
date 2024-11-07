@@ -449,7 +449,7 @@ void AddSettings() {
                 "gSettings.MenuTheme",
                 "Changes the Theme of the Menu Widgets.",
                 WIDGET_CVAR_COMBOBOX,
-                { .comboBoxOptions = menuThemeOptions } },
+                { .defaultVariant = COLOR_INDIGO, .comboBoxOptions = menuThemeOptions } },
 #if not defined(__SWITCH__) and not defined(__WIIU__)
               { "Menubar Controller Navigation", CVAR_IMGUI_CONTROLLER_NAV,
                 "Allows controller navigation of the SOH menu bar (Settings, Enhancements,...)\nCAUTION: "
@@ -467,15 +467,6 @@ void AddSettings() {
                         CVarGetInteger("gSettings.CursorVisibility", 0));
                 } },
 #endif
-              { "Open App Files Folder",
-                "",
-                "Opens the folder that contains the save and mods folders, etc.",
-                WIDGET_BUTTON,
-                {},
-                [](widgetInfo& info) {
-                    std::string filesPath = Ship::Context::GetInstance()->GetAppDirectoryPath();
-                    SDL_OpenURL(std::string("file:///" + std::filesystem::absolute(filesPath).string()).c_str());
-                } },
               { "Search In Sidebar",
                 "gSettings.SidebarSearch",
                 "Displays the Search menu as a sidebar entry in Settings instead of in the header.",
@@ -500,6 +491,20 @@ void AddSettings() {
               { "Search Input Autofocus", "gSettings.SearchAutofocus",
                 "Search input box gets autofocus when visible. Does not affect using other widgets.",
                 WIDGET_CVAR_CHECKBOX },
+              { .widgetName = "Alt Assets Tab hotkey",
+                .widgetCVar = "gEnhancements.Mods.AlternateAssetsHotkey",
+                .widgetTooltip = "Allows pressing the Tab key to toggle alternate assets",
+                .widgetType = WIDGET_CVAR_CHECKBOX,
+                .widgetOptions = { .defaultVariant = true } },
+              { "Open App Files Folder",
+                "",
+                "Opens the folder that contains the save and mods folders, etc.",
+                WIDGET_BUTTON,
+                {},
+                [](widgetInfo& info) {
+                    std::string filesPath = Ship::Context::GetInstance()->GetAppDirectoryPath();
+                    SDL_OpenURL(std::string("file:///" + std::filesystem::absolute(filesPath).string()).c_str());
+                } },
           } } });
     // Audio Settings
     settingsSidebar.push_back(

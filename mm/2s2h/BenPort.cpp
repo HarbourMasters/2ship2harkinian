@@ -688,8 +688,10 @@ extern "C" void Graph_StartFrame() {
 #endif
         case KbScancode::LUS_KB_TAB: {
             // Toggle HD Assets
-            CVarSetInteger("gEnhancements.Mods.AlternateAssets",
-                           !CVarGetInteger("gEnhancements.Mods.AlternateAssets", 0));
+            if (CVarGetInteger("gEnhancements.Mods.AlternateAssetsHotkey", 1)) {
+                CVarSetInteger("gEnhancements.Mods.AlternateAssets",
+                               !CVarGetInteger("gEnhancements.Mods.AlternateAssets", 0));
+            }
             break;
         }
     }
