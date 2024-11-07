@@ -1189,10 +1189,10 @@ void AddEnhancements() {
                                           WIDGET_WINDOW_BUTTON,
                                           { .size = UIWidgets::Sizes::Inline, .windowName = "HUD Editor" } } } } });
     enhancementsSidebar.push_back(
-        { "Item Tracker Editor",
+        { "Item Tracker",
           1,
-          { // Item Tracker Editor
-            { { "Popout Item Tracker Editor",
+          { // Item Tracker Settings
+            { { "Popout Item Tracker Settings",
                 "gWindows.ItemTrackerSettings",
                 "",
                 WIDGET_WINDOW_BUTTON,

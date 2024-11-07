@@ -27,6 +27,9 @@ void ItemTrackerSettingsWindow::DrawElement() {
         return;
     }
 
+    UIWidgets::WindowButton("Item Tracker", "gWindows.ItemTracker", mItemTrackerWindow,
+                            { .size = UIWidgets::Sizes::Inline });
+
     ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, { 8.0f, 8.0f });
     ImGui::BeginTable("itemTrackerSettingsTable", 2, ImGuiTableFlags_BordersH | ImGuiTableFlags_BordersV);
     ImGui::TableSetupColumn("General settings", ImGuiTableColumnFlags_WidthStretch, 200.0f);

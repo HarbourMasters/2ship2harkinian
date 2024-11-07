@@ -8,39 +8,6 @@
 
 using namespace Ship;
 
-ItemTrackerWindow::ItemTrackerWindow(const std::string& consoleVariable, const std::string& name) {
-    auto config = Context::GetInstance()->GetConsoleVariables();
-
-    mCapacityModes.fill(false);
-
-    mBgColor.x = config->GetFloat(CFG_TRACKER_ITEM("BgColorR"), 0.0f);
-    mBgColor.y = config->GetFloat(CFG_TRACKER_ITEM("BgColorG"), 0.0f);
-    mBgColor.z = config->GetFloat(CFG_TRACKER_ITEM("BgColorB"), 0.0f);
-    mBgColor.w = config->GetFloat(CFG_TRACKER_ITEM("BgColorA"), 0.0f);
-    mIconSize = config->GetFloat(CFG_TRACKER_ITEM("Iconsize"), 13.0f);
-    mIconSpacing = config->GetFloat(CFG_TRACKER_ITEM("IconSpacing"), 12.0f);
-    mTextSize = config->GetFloat(CFG_TRACKER_ITEM("TextSize"), 13.0f);
-    mTextOffset = config->GetFloat(CFG_TRACKER_ITEM("TextOffset"), 0.0f);
-    mWindowType =
-        (TrackerWindowType)config->GetInteger(CFG_TRACKER_ITEM("WindowType"), (int8_t)TrackerWindowType::Floating);
-    mIsDraggable = config->GetInteger(CFG_TRACKER_ITEM("IsDraggable"), false);
-    mOnlyDrawPaused = config->GetInteger(CFG_TRACKER_ITEM("OnlyDrawPaused"), false);
-    mCapacityModes[ItemTrackerCapacityMode::DrawCurrent] =
-        config->GetInteger(CFG_TRACKER_ITEM("DrawCurrentAmmo"), false);
-    mCapacityModes[ItemTrackerCapacityMode::DrawCurCapacity] =
-        config->GetInteger(CFG_TRACKER_ITEM("DrawMaxAmmo"), false);
-    mCapacityModes[ItemTrackerCapacityMode::DrawMaxCapacity] =
-        config->GetInteger(CFG_TRACKER_ITEM("DrawMaxCapacity"), false);
-    mItemDrawModes[SECTION_INVENTORY] = (ItemTrackerDisplayType)config->GetInteger(
-        CFG_TRACKER_ITEM("InventoryDrawMode"), (int32_t)ItemTrackerDisplayType::Hidden);
-    mItemDrawModes[SECTION_MASKS] = (ItemTrackerDisplayType)config->GetInteger(CFG_TRACKER_ITEM("MasksDrawMode"),
-                                                                               (int32_t)ItemTrackerDisplayType::Hidden);
-    mItemDrawModes[SECTION_SONGS] = (ItemTrackerDisplayType)config->GetInteger(CFG_TRACKER_ITEM("SongsDrawMode"),
-                                                                               (int32_t)ItemTrackerDisplayType::Hidden);
-    mItemDrawModes[SECTION_DUNGEON] = (ItemTrackerDisplayType)config->GetInteger(
-        CFG_TRACKER_ITEM("DungeonDrawMode"), (int32_t)ItemTrackerDisplayType::Hidden);
-}
-
 ItemTrackerWindow::~ItemTrackerWindow() {
     auto config = Context::GetInstance()->GetConsoleVariables();
 
@@ -62,6 +29,41 @@ ItemTrackerWindow::~ItemTrackerWindow() {
     config->SetInteger(CFG_TRACKER_ITEM("MasksDrawMode"), (int8_t)mItemDrawModes[SECTION_MASKS]);
     config->SetInteger(CFG_TRACKER_ITEM("SongsDrawMode"), (int8_t)mItemDrawModes[SECTION_SONGS]);
     config->SetInteger(CFG_TRACKER_ITEM("DungeonDrawMode"), (int8_t)mItemDrawModes[SECTION_DUNGEON]);
+
+    config->Save();
+}
+
+void ItemTrackerWindow::LoadSettings() {
+    auto config = Context::GetInstance()->GetConsoleVariables();
+
+    mCapacityModes.fill(false);
+
+    mBgColor.x = config->GetFloat(CFG_TRACKER_ITEM("BgColorR"), 0.0f);
+    mBgColor.y = config->GetFloat(CFG_TRACKER_ITEM("BgColorG"), 0.0f);
+    mBgColor.z = config->GetFloat(CFG_TRACKER_ITEM("BgColorB"), 0.0f);
+    mBgColor.w = config->GetFloat(CFG_TRACKER_ITEM("BgColorA"), 0.0f);
+    mIconSize = config->GetFloat(CFG_TRACKER_ITEM("IconSize"), 13.0f);
+    mIconSpacing = config->GetFloat(CFG_TRACKER_ITEM("IconSpacing"), 12.0f);
+    mTextSize = config->GetFloat(CFG_TRACKER_ITEM("TextSize"), 13.0f);
+    mTextOffset = config->GetFloat(CFG_TRACKER_ITEM("TextOffset"), 0.0f);
+    mWindowType =
+        (TrackerWindowType)config->GetInteger(CFG_TRACKER_ITEM("WindowType"), (int8_t)TrackerWindowType::Floating);
+    mIsDraggable = config->GetInteger(CFG_TRACKER_ITEM("IsDraggable"), false);
+    mOnlyDrawPaused = config->GetInteger(CFG_TRACKER_ITEM("OnlyDrawPaused"), false);
+    mCapacityModes[ItemTrackerCapacityMode::DrawCurrent] =
+        config->GetInteger(CFG_TRACKER_ITEM("DrawCurrentAmmo"), false);
+    mCapacityModes[ItemTrackerCapacityMode::DrawCurCapacity] =
+        config->GetInteger(CFG_TRACKER_ITEM("DrawMaxAmmo"), false);
+    mCapacityModes[ItemTrackerCapacityMode::DrawMaxCapacity] =
+        config->GetInteger(CFG_TRACKER_ITEM("DrawMaxCapacity"), false);
+    mItemDrawModes[SECTION_INVENTORY] = (ItemTrackerDisplayType)config->GetInteger(
+        CFG_TRACKER_ITEM("InventoryDrawMode"), (int32_t)ItemTrackerDisplayType::Hidden);
+    mItemDrawModes[SECTION_MASKS] = (ItemTrackerDisplayType)config->GetInteger(CFG_TRACKER_ITEM("MasksDrawMode"),
+                                                                               (int32_t)ItemTrackerDisplayType::Hidden);
+    mItemDrawModes[SECTION_SONGS] = (ItemTrackerDisplayType)config->GetInteger(CFG_TRACKER_ITEM("SongsDrawMode"),
+                                                                               (int32_t)ItemTrackerDisplayType::Hidden);
+    mItemDrawModes[SECTION_DUNGEON] = (ItemTrackerDisplayType)config->GetInteger(
+        CFG_TRACKER_ITEM("DungeonDrawMode"), (int32_t)ItemTrackerDisplayType::Hidden);
 }
 
 void ItemTrackerWindow::BeginFloatingWindows(const char* name, ImGuiWindowFlags flags) {
@@ -252,7 +254,7 @@ int ItemTrackerWindow::DrawItems(int columns, int prevDrawnColumns) {
     int topPadding = 0;
     size_t i = 0;
     // Draw items minus bottles
-    for (; i < (std::size(gSaveContext.save.saveInfo.inventory.items) / 2) - 6; i++) {
+    for (; i < 24 - BOTTLE_MAX; i++) {
         bool drawFaded = false;
         int row = prevDrawnColumns + (i / columns);
         int column = i % columns;
@@ -496,8 +498,8 @@ void ItemTrackerWindow::Draw() {
     DrawItemsInRows();
     EndFloatingWindows();
 }
-
 void ItemTrackerWindow::InitElement() {
+    LoadSettings();
 }
 
 void ItemTrackerWindow::DrawElement() {
