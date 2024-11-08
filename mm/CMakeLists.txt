@@ -610,16 +610,15 @@ else()
     set(THREADS_PREFER_PTHREAD_FLAG ON)
     
     find_package(Threads REQUIRED)
-    find_package(PkgConfig REQUIRED)
-    pkg_check_modules(OGG REQUIRED ogg)
-    pkg_check_modules(VORBIS REQUIRED vorbis)
-    pkg_check_modules(VORBISFILE REQUIRED vorbisfile)
+    find_package(Ogg REQUIRED)
+    find_package(Vorbis REQUIRED)
     set(ADDITIONAL_LIBRARY_DEPENDENCIES
         "libultraship;"
 		"ZAPDLib;"
-        "ogg"
-        "vorbis"
-        "vorbisfile"
+        "Ogg::ogg"
+        "Vorbis::vorbis"
+        "Vorbis::vorbisenc"
+        "Vorbis::vorbisfile"
 		SDL2::SDL2
  #       "$<$<BOOL:${BUILD_CROWD_CONTROL}>:SDL2_net::SDL2_net>"
 		${CMAKE_DL_LIBS}
