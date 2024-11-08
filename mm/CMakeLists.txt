@@ -33,6 +33,7 @@ endif()
 FetchContent_Declare(
     dr_libs
     GIT_REPOSITORY https://github.com/mackron/dr_libs.git
+	GIT_TAG da35f9d6c7374a95353fd1df1d394d44ab66cf01
 )
 FetchContent_MakeAvailable(dr_libs)
 
