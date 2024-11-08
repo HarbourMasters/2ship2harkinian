@@ -5104,11 +5104,11 @@ void Audio_PlayObjSoundBgm(Vec3f* pos, s16 seqId) {
                 // 2S2H [Custom Audio] was originally `seqId + 7F00` This value did not work with the bit packing done
                 // for 16 bit seqIds.
                 /*
-                *  0x7F00 -> 0b0111 1111 0000 0000
-                *  0x7800 -> 0b0111 1000 0000 0000
-                *  0x07FF -> 0b0000 0111 1111 1111
-                *  The 7F00 mask will erase the top bits of the sequence id.
-                */
+                 *  0x7F00 -> 0b0111 1111 0000 0000
+                 *  0x7800 -> 0b0111 1000 0000 0000
+                 *  0x07FF -> 0b0000 0111 1111 1111
+                 *  The 7F00 mask will erase the top bits of the sequence id.
+                 */
                 temp_a0 = ((((AudioThread_NextRandom() % 30) & 0xFF) + 1) << 0x10) | (seqId + 0x7800);
                 SEQCMD_PLAY_SEQUENCE(SEQ_PLAYER_BGM_MAIN, 0, temp_a0);
                 sObjSoundMainBgmSeqId = seqId;
