@@ -15,6 +15,9 @@
 #include "2s2h/Enhancements/Audio/AudioEditor.h"
 #include "HudEditor.h"
 
+#include "2s2h/Enhancements/Trackers/ItemTracker.h"
+#include "2s2h/Enhancements/Trackers/ItemTrackerSettings.h"
+
 extern "C" {
 #include "z64.h"
 #include "functions.h"
@@ -348,6 +351,8 @@ void DrawSettingsMenu() {
 }
 
 extern std::shared_ptr<HudEditorWindow> mHudEditorWindow;
+extern std::shared_ptr<ItemTrackerWindow> mItemTrackerWindow;
+extern std::shared_ptr<ItemTrackerSettingsWindow> mItemTrackerSettingsWindow;
 
 void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
@@ -623,6 +628,12 @@ void DrawEnhancementsMenu() {
             ImGui::SeparatorText("Clock");
             UIWidgets::CVarCombobox("Clock Type", "gEnhancements.Graphics.ClockType", clockTypeOptions);
             UIWidgets::CVarCheckbox("24 Hours Clock", "gEnhancements.Graphics.24HoursClock");
+
+            ImGui::SeparatorText("Mods");
+            UIWidgets::CVarCheckbox("Use Alternate Assets", "gEnhancements.Mods.AlternateAssets",
+                                    { .tooltip = "Toggle between standard assets and alternate assets. Usually mods "
+                                                 "will indicate if this setting has to be used or not." });
+
             MotionBlur_RenderMenuOptions();
             ImGui::SeparatorText("Other");
             UIWidgets::CVarCheckbox("Authentic logo", "gEnhancements.Graphics.AuthenticLogo",
@@ -794,6 +805,15 @@ void DrawEnhancementsMenu() {
         if (mHudEditorWindow) {
             UIWidgets::WindowButton("Hud Editor", "gWindows.HudEditor", mHudEditorWindow,
                                     { .tooltip = "Enables the Hud Editor window, allowing you to edit your hud" });
+        }
+
+        if (mItemTrackerWindow) {
+            UIWidgets::WindowButton("Item Tracker", "gWindows.ItemTracker", mItemTrackerWindow);
+        }
+
+        if (mItemTrackerSettingsWindow) {
+            UIWidgets::WindowButton("Item Tracker Settings", "gWindows.ItemTrackerSettings",
+                                    mItemTrackerSettingsWindow);
         }
 
         ImGui::EndMenu();
