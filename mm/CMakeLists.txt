@@ -29,6 +29,13 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	endif()
 endif()
 
+
+FetchContent_Declare(
+    dr_libs
+    GIT_REPOSITORY https://github.com/mackron/dr_libs.git
+)
+FetchContent_MakeAvailable(dr_libs)
+
 ################################################################################
 # Global configuration types
 ################################################################################
@@ -165,7 +172,6 @@ list(FILTER src__ EXCLUDE REGEX "src/libultra/libc/*")
 list(FILTER src__ EXCLUDE REGEX "src/libultra/os/*")
 list(FILTER src__ EXCLUDE REGEX "src/libultra/rmon/*")
 list(FILTER src__ EXCLUDE REGEX "src/libultra/*")
-list(FILTER ship__ EXCLUDE REGEX "2s2h/Enhancements/Audio/dr_libs/*")
 #list(APPEND src__ "src/libultra/libc/sprintf.c")
 #list(REMOVE_ITEM src__ "src/libultra/gu/cosf.c")
 #list(REMOVE_ITEM src__ "src/libultra/gu/lookat.c")
@@ -316,6 +322,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE assets
     ${SDL2-NET-INCLUDE}
     ${BOOST-INCLUDE}
 	${CMAKE_CURRENT_SOURCE_DIR}/assets/
+	${dr_libs_SOURCE_DIR}
 	.
 )
 
