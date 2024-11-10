@@ -1053,7 +1053,7 @@ void AddEnhancements() {
               { "Fierce Deity Putaway", "gEnhancements.Player.FierceDeityPutaway",
                 "Allows Fierce Deity Link to put away his sword.", WIDGET_CVAR_CHECKBOX },
               { "Climb speed",
-                "gEnhancements.PlayerMovement.ClimbSpeed",
+                "gEnhancements.Player.ClimbSpeed",
                 "Increases the speed at which Link climbs vines and ladders.",
                 WIDGET_CVAR_SLIDER_INT,
                 { 1, 5, 1 } },
