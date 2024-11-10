@@ -1244,10 +1244,13 @@ void AddEnhancements() {
               { .widgetName = "Unstable",
                 .widgetType = WIDGET_SEPARATOR_TEXT,
                 .widgetOptions = { .color = UIWidgets::Colors::Yellow } },
-              { "Disable Scene Geometry Distance Check", "gEnhancements.Graphics.DisableSceneGeometryDistanceCheck",
+              { "Disable Scene Geometry Distance Check",
+                "gEnhancements.Graphics.DisableSceneGeometryDistanceCheck",
                 "Disables the distance check for scene geometry, allowing it to be drawn no matter how far "
                 "away it is from the player. This may have unintended side effects.",
-                WIDGET_CVAR_CHECKBOX },
+                WIDGET_CVAR_CHECKBOX,
+                {},
+                [](widgetInfo& info) { GfxPatcher_ApplyGeometryIssuePatches(); } },
               { "Widescreen Actor Culling", "gEnhancements.Graphics.ActorCullingAccountsForWidescreen",
                 "Adjusts the culling planes to account for widescreen resolutions. "
                 "This may have unintended side effects.",
