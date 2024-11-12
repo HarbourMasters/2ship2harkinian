@@ -98,8 +98,7 @@ AudioCollection::AudioCollection() {
         SEQUENCE_MAP_ENTRY(NA_BGM_ASTRAL_OBSERVATORY, "Astral Observatory", "NA_BGM_ASTRAL_OBSERVATORY", SEQ_BGM_WORLD,
                            true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_CAVERN, "Cavern", "NA_BGM_CAVERN", SEQ_BGM_WORLD, true, true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_MILK_BAR, "Milk Bar", "NA_BGM_MILK_BAR", SEQ_BGM_WORLD, false,
-                           false), // Duplicate entry used
+        SEQUENCE_MAP_ENTRY(NA_BGM_MILK_BAR, "Milk Bar Day", "NA_BGM_MILK_BAR", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_ZELDA_APPEAR, "Zelda Appear", "NA_BGM_ZELDA_APPEAR", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_SARIAS_SONG, "Saria's Song", "NA_BGM_SARIAS_SONG", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_GORON_GOAL, "Goron Race Goal", "NA_BGM_GORON_GOAL", SEQ_FANFARE, true, true),
@@ -138,7 +137,7 @@ AudioCollection::AudioCollection() {
                            SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_SONG_OF_SOARING, "Song Of Soaring", "NA_BGM_SONG_OF_SOARING", SEQ_BGM_SONGS, true,
                            true),
-        SEQUENCE_MAP_ENTRY(NA_BGM_MILK_BAR_DUPLICATE, "Milk Bar Duplicate", "NA_BGM_MILK_BAR_DUPLICATE", SEQ_BGM_WORLD,
+        SEQUENCE_MAP_ENTRY(NA_BGM_MILK_BAR_DUPLICATE, "Milk Bar Night", "NA_BGM_MILK_BAR_DUPLICATE", SEQ_BGM_WORLD,
                            true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_FINAL_HOURS, "Final Hours", "NA_BGM_FINAL_HOURS", SEQ_BGM_WORLD, true, true),
         SEQUENCE_MAP_ENTRY(NA_BGM_MIKAU_RIFF, "Mikau Riff", "NA_BGM_MIKAU_RIFF", SEQ_BGM_SONGS, true,
