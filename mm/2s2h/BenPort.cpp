@@ -1533,7 +1533,6 @@ extern "C" void OTRGfxPrint(const char* str, void* printer, void (*printImpl)(vo
     std::wstring wstr = StringToU16(str);
 
     for (const auto& c : wstr) {
-        unsigned char convt = ' ';
         if (c < 0x80) {
             printImpl(printer, c);
         } else if (c >= u'｡' && c <= u'ﾟ') { // katakana
