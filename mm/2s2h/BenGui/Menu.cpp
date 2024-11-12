@@ -174,7 +174,7 @@ void BenMenu::DrawElement() {
         ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), windowCond, { 0.5f, 0.5f });
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     }
-    if (!ImGui::Begin("Main Menu", NULL, windowFlags | ImGuiWindowFlags_NoBringToFrontOnFocus)) {
+    if (!ImGui::Begin("Main Menu", NULL, windowFlags)) {
         if (!popout) {
             ImGui::PopStyleVar();
         }
