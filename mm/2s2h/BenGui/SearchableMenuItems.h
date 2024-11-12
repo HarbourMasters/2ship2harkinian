@@ -218,7 +218,7 @@ struct widgetInfo {
 // `evaluation` returns a bool which can be determined by whatever code you want that changes its status
 // `reason` is the text displayed in the disabledTooltip when a widget is disabled by a particular DisableReason
 // `active` is what's referenced when determining disabled status for a widget that uses this This can also be used to
-// hold reasons to hide widgets so taht their evaluations are also only run once per frame
+// hold reasons to hide widgets so that their evaluations are also only run once per frame
 struct disabledInfo {
     DisableInfoFunc evaluation;
     const char* reason;
@@ -778,9 +778,9 @@ void AddEnhancements() {
           3,
           { {
                 { .widgetName = "Fixes", .widgetType = WIDGET_SEPARATOR_TEXT },
-                { "Fix Targetting Camera Snap",
+                { "Fix Targeting Camera Snap",
                   "gEnhancements.Camera.FixTargettingCameraSnap",
-                  "Fixes the camera snap that occurs when you are moving and press the targetting button.",
+                  "Fixes the camera snap that occurs when you are moving and press the targeting button.",
                   WIDGET_CVAR_CHECKBOX,
                   {} },
                 { .widgetName = "First Person", .widgetType = WIDGET_SEPARATOR_TEXT },
@@ -1280,12 +1280,12 @@ void AddEnhancements() {
               { "Blast Mask has Powder Keg Force", "gEnhancements.Masks.BlastMaskKeg",
                 "Blast Mask can also destroy objects only the Powder Keg can.", WIDGET_CVAR_CHECKBOX },
               { "Fast Transformation", "gEnhancements.Masks.FastTransformation",
-                "Removes the delay when using transormation masks.", WIDGET_CVAR_CHECKBOX },
+                "Removes the delay when using transformation masks.", WIDGET_CVAR_CHECKBOX },
               { "Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere",
                 "Allow using Fierce Deity's mask outside of boss rooms.", WIDGET_CVAR_CHECKBOX },
               { "Persistent Bunny Hood",
                 "gEnhancements.Masks.PersistentBunnyHood.Enabled",
-                "Permanantly toggle a speed boost from the bunny hood by pressing "
+                "Permanently toggle a speed boost from the bunny hood by pressing "
                 "'A' on it in the mask menu.",
                 WIDGET_CVAR_CHECKBOX,
                 {},
@@ -1352,7 +1352,7 @@ void AddEnhancements() {
             // Dialogue Enhancements
             { { .widgetName = "Dialogue", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Fast Bank Selection", "gEnhancements.Dialogue.FastBankSelection",
-                "Pressing the Z or R buttons while the Deposit/Withdrawl Rupees dialogue is open will set "
+                "Pressing the Z or R buttons while the Deposit/Withdrawal Rupees dialogue is open will set "
                 "the Rupees to Links current Rupees or 0 respectively.",
                 WIDGET_CVAR_CHECKBOX },
               { "Fast Text", "gEnhancements.Dialogue.FastText",
@@ -1535,7 +1535,7 @@ void AddDevTools() {
                 "Change the behavior of creating saves while debug mode is enabled:\n\n"
                 "- Empty Save: The default 3 heart save file in first cycle\n"
                 "- Vanilla Debug Save: Uses the title screen save info (8 hearts, all items and masks)\n"
-                "- 100\% Save: All items, equipment, mask, quast status and bombers notebook complete",
+                "- 100\% Save: All items, equipment, mask, quest status and bombers notebook complete",
                 WIDGET_CVAR_COMBOBOX,
                 { 0, 0, 0, debugSaveOptions },
                 [](widgetInfo& info) { RegisterDebugSaveCreate(); },

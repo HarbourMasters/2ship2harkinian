@@ -356,9 +356,8 @@ void DrawEnhancementsMenu() {
         if (UIWidgets::BeginMenu("Camera")) {
             ImGui::SeparatorText("Fixes");
             UIWidgets::CVarCheckbox(
-                "Fix Targetting Camera Snap", "gEnhancements.Camera.FixTargettingCameraSnap",
-                { .tooltip =
-                      "Fixes the camera snap that occurs when you are moving and press the targetting button." });
+                "Fix Targeting Camera Snap", "gEnhancements.Camera.FixTargettingCameraSnap",
+                { .tooltip = "Fixes the camera snap that occurs when you are moving and press the targeting button." });
 
             ImGui::SeparatorText("First Person");
             UIWidgets::CVarCheckbox("Disable Auto-Centering",
@@ -559,8 +558,9 @@ void DrawEnhancementsMenu() {
         if (UIWidgets::BeginMenu("Dialogue")) {
             UIWidgets::CVarCheckbox(
                 "Fast Bank Selection", "gEnhancements.Dialogue.FastBankSelection",
-                { .tooltip = "Pressing the Z or R buttons while the Deposit/Withdrawl Rupees dialogue is open will set "
-                             "the Rupees to Links current Rupees or 0 respectively." });
+                { .tooltip =
+                      "Pressing the Z or R buttons while the Deposit/Withdrawal Rupees dialogue is open will set "
+                      "the Rupees to Links current Rupees or 0 respectively." });
             UIWidgets::CVarCheckbox(
                 "Fast Text", "gEnhancements.Dialogue.FastText",
                 { .tooltip = "Speeds up text rendering, and enables holding of B progress to next message" });
@@ -688,7 +688,7 @@ void DrawEnhancementsMenu() {
                                     { .tooltip = "Allow using Fierce Deity's mask outside of boss rooms." });
             UIWidgets::CVarCheckbox("No Blast Mask Cooldown", "gEnhancements.Masks.NoBlastMaskCooldown", {});
             if (UIWidgets::CVarCheckbox("Persistent Bunny Hood", "gEnhancements.Masks.PersistentBunnyHood.Enabled",
-                                        { .tooltip = "Permanantly toggle a speed boost from the bunny hood by pressing "
+                                        { .tooltip = "Permanently toggle a speed boost from the bunny hood by pressing "
                                                      "'A' on it in the mask menu." })) {
                 UpdatePersistentMasksState();
             }
@@ -902,7 +902,7 @@ void DrawDeveloperToolsMenu() {
                           "Change the behavior of creating saves while debug mode is enabled:\n\n"
                           "- Empty Save: The default 3 heart save file in first cycle\n"
                           "- Vanilla Debug Save: Uses the title screen save info (8 hearts, all items and masks)\n"
-                          "- 100\% Save: All items, equipment, mask, quast status and bombers notebook complete",
+                          "- 100\% Save: All items, equipment, mask, quest status and bombers notebook complete",
                       .defaultIndex = DEBUG_SAVE_INFO_NONE })) {
                 RegisterDebugSaveCreate();
             }
