@@ -175,7 +175,7 @@ void UpdateGameTime(u16 gameTime) {
 
     // Clear weather from day 2
     gWeatherMode = WEATHER_MODE_CLEAR;
-    gPlayState->envCtx.lightningState = LIGHTNING_LAST;
+    gPlayState->envCtx.lightningState = LIGHTNING_OFF;
 
     // When transitioning over night boundaries, stop the sequences and ask to replay, then respawn actors
     if (newTimeIsNight != prevTimeIsNight) {
@@ -448,7 +448,7 @@ void DrawGeneralTab() {
             func_800FEAF4(&gPlayState->envCtx);
             // Clear weather from day 2
             gWeatherMode = WEATHER_MODE_CLEAR;
-            gPlayState->envCtx.lightningState = LIGHTNING_LAST;
+            gPlayState->envCtx.lightningState = LIGHTNING_OFF;
         }
     }
     // Time speed slider
