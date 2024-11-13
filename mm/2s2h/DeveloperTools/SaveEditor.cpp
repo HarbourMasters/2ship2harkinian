@@ -559,13 +559,15 @@ void DrawGeneralTab() {
     if (ImGui::SliderInt("##setBank", &bankedRupees, 0, 5000, "Banked Rupees: %d")) {
         HS_SET_BANK_RUPEES(bankedRupees);
     }
-    UIWidgets::Tooltip("To recieve the rewards, set the bank to 199, 999, or 4,999 then deposit a single rupee");
+    UIWidgets::Tooltip("To receive the rewards, set the bank to 199, 999, or 4,999 then deposit a single rupee");
     UIWidgets::PopStyleSlider();
 
     DrawTempleClears();
 
     UIWidgets::Checkbox("Has Tatl", (bool*)&gSaveContext.save.hasTatl, { .color = UIWidgets::Colors::Gray });
     UIWidgets::Checkbox("Is Owl Save", (bool*)&gSaveContext.save.isOwlSave, { .color = UIWidgets::Colors::Gray });
+    UIWidgets::Checkbox("Finished Intro Sequence", (bool*)&gSaveContext.save.isFirstCycle,
+                        { .color = UIWidgets::Colors::Gray });
     ImGui::EndGroup();
 
     ImGui::PopItemWidth();

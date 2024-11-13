@@ -1958,7 +1958,9 @@ void SearchMenuGetItem(widgetInfo& widget) {
                                     info.widgetType == WIDGET_SEPARATOR_TEXT || info.isHidden) {
                                     continue;
                                 }
-                                std::string widgetStr = std::string(info.widgetName) + std::string(info.widgetTooltip);
+                                std::string widgetStr =
+                                    std::string(info.widgetName) +
+                                    std::string(info.widgetTooltip != NULL ? info.widgetTooltip : "");
                                 std::transform(menuSearchText.begin(), menuSearchText.end(), menuSearchText.begin(),
                                                ::tolower);
                                 menuSearchText.erase(std::remove(menuSearchText.begin(), menuSearchText.end(), ' '),

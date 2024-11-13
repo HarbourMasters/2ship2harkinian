@@ -31,6 +31,7 @@ namespace UIWidgets {
         }
     };
 
+    bool IsCStringEmpty(const char* str);
     std::string WrappedText(const char* text, unsigned int charactersPerLine = 60);
     std::string WrappedText(const std::string& text, unsigned int charactersPerLine = 60);
     void Tooltip(const char* text);
@@ -129,7 +130,7 @@ namespace UIWidgets {
         PushStyleCombobox(options.color);
         if (options.alignment == ComponentAlignment::Left) {
             if (options.labelPosition == LabelPosition::Above) {
-                ImGui::Text(label);
+                ImGui::Text("%s", label);
                 ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
             } else if (options.labelPosition == LabelPosition::Near) {
                 ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(label).x - ImGui::GetStyle().ItemSpacing.x * 2);
@@ -140,7 +141,7 @@ namespace UIWidgets {
             if (options.labelPosition == LabelPosition::Above) {
                 ImGui::NewLine();
                 ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(label).x);
-                ImGui::Text(label);
+                ImGui::Text("%s", label);
                 ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
             } else if (options.labelPosition == LabelPosition::Near) {
                 ImGui::SameLine(ImGui::CalcTextSize(label).x + ImGui::GetStyle().ItemSpacing.x * 2);
@@ -167,23 +168,23 @@ namespace UIWidgets {
         if (options.alignment == ComponentAlignment::Left) {
             if (options.labelPosition == LabelPosition::Near) {
                 ImGui::SameLine();
-                ImGui::Text(label);
+                ImGui::Text("%s", label);
             } else if (options.labelPosition == LabelPosition::Far) {
                 ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(label).x);
-                ImGui::Text(label);
+                ImGui::Text("%s", label);
             }
         } else if (options.alignment == ComponentAlignment::Right) {
             if (options.labelPosition == LabelPosition::Near || options.labelPosition == LabelPosition::Far) {
                 ImGui::SameLine(startX);
-                ImGui::Text(label);
+                ImGui::Text("%s", label);
             }
         }
         PopStyleCombobox();
         ImGui::EndDisabled();
         ImGui::EndGroup();
-        if (options.disabled && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && strcmp(options.disabledTooltip, "") != 0) {
+        if (options.disabled && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && !IsCStringEmpty(options.disabledTooltip)) {
             ImGui::SetTooltip("%s", WrappedText(options.disabledTooltip).c_str());
-        } else if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && strcmp(options.tooltip, "") != 0) {
+        } else if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && !IsCStringEmpty(options.tooltip)) {
             ImGui::SetTooltip("%s", WrappedText(options.tooltip).c_str());
         }
         ImGui::PopID();
@@ -256,9 +257,9 @@ namespace UIWidgets {
         PopStyleCombobox();
         ImGui::EndDisabled();
         ImGui::EndGroup();
-        if (options.disabled && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && strcmp(options.disabledTooltip, "") != 0) {
+        if (options.disabled && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && !IsCStringEmpty(options.disabledTooltip)) {
             ImGui::SetTooltip("%s", WrappedText(options.disabledTooltip).c_str());
-        } else if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && strcmp(options.tooltip, "") != 0) {
+        } else if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && !IsCStringEmpty(options.tooltip)) {
             ImGui::SetTooltip("%s", WrappedText(options.tooltip).c_str());
         }
         ImGui::PopID();
@@ -281,7 +282,7 @@ namespace UIWidgets {
         PushStyleCombobox(options.color);
         if (options.alignment == ComponentAlignment::Left) {
             if (options.labelPosition == LabelPosition::Above) {
-                ImGui::Text(label);
+                ImGui::Text("%s", label);
                 ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
             } else if (options.labelPosition == LabelPosition::Near) {
                 ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(label).x - ImGui::GetStyle().ItemSpacing.x * 2);
@@ -292,7 +293,7 @@ namespace UIWidgets {
             if (options.labelPosition == LabelPosition::Above) {
                 ImGui::NewLine();
                 ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(label).x);
-                ImGui::Text(label);
+                ImGui::Text("%s", label);
                 ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
             } else if (options.labelPosition == LabelPosition::Near) {
                 ImGui::SameLine(ImGui::CalcTextSize(label).x + ImGui::GetStyle().ItemSpacing.x * 2);
@@ -320,23 +321,23 @@ namespace UIWidgets {
         if (options.alignment == ComponentAlignment::Left) {
             if (options.labelPosition == LabelPosition::Near) {
                 ImGui::SameLine();
-                ImGui::Text(label);
+                ImGui::Text("%s", label);
             } else if (options.labelPosition == LabelPosition::Far) {
                 ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize(label).x);
-                ImGui::Text(label);
+                ImGui::Text("%s", label);
             }
         } else if (options.alignment == ComponentAlignment::Right) {
             if (options.labelPosition == LabelPosition::Near || options.labelPosition == LabelPosition::Far) {
                 ImGui::SameLine(startX);
-                ImGui::Text(label);
+                ImGui::Text("%s", label);
             }
         }
         PopStyleCombobox();
         ImGui::EndDisabled();
         ImGui::EndGroup();
-        if (options.disabled && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && strcmp(options.disabledTooltip, "") != 0) {
+        if (options.disabled && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && !IsCStringEmpty(options.disabledTooltip)) {
             ImGui::SetTooltip("%s", WrappedText(options.disabledTooltip).c_str());
-        } else if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && strcmp(options.tooltip, "") != 0) {
+        } else if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && !IsCStringEmpty(options.tooltip)) {
             ImGui::SetTooltip("%s", WrappedText(options.tooltip).c_str());
         }
         ImGui::PopID();
