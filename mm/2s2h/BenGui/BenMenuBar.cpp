@@ -662,23 +662,9 @@ void DrawEnhancementsMenu() {
                                     "gEnhancements.Graphics.ActorCullingAccountsForWidescreen",
                                     { .tooltip = "Adjusts the culling planes to account for widescreen resolutions. "
                                                  "This may have unintended side effects." });
-            if (UIWidgets::CVarSliderInt(
-                    "Increase Actor Draw Distance: %dx", "gEnhancements.Graphics.IncreaseActorDrawDistance", 1, 5, 1,
-                    { .tooltip =
-                          "Increase the range in which Actors are drawn. This may have unintended side effects." })) {
-                CVarSetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance",
-                               MIN(CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1),
-                                   CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1)));
-            }
-            if (UIWidgets::CVarSliderInt(
-                    "Increase Actor Update Distance: %dx", "gEnhancements.Graphics.IncreaseActorUpdateDistance", 1, 5,
-                    1,
-                    { .tooltip =
-                          "Increase the range in which Actors are updated. This may have unintended side effects." })) {
-                CVarSetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance",
-                               MAX(CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1),
-                                   CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1)));
-            }
+            UIWidgets::CVarSliderInt(
+                "Increase Actor Draw Distance: %dx", "gEnhancements.Graphics.IncreaseActorDrawDistance", 1, 5, 1,
+                { .tooltip = "Increase the range in which Actors are drawn. This may have unintended side effects." });
 
             ImGui::EndMenu();
         }

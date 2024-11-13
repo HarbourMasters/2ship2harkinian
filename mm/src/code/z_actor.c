@@ -3088,17 +3088,15 @@ s32 Ship_CalcShouldDrawAndUpdate(PlayState* play, Actor* actor, Vec3f* projected
         return true;
     }
 
-    s32 updateMulti = CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1);
-    s32 drawMulti = CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1);
-    updateMulti = MAX(updateMulti, 1);
-    drawMulti = MAX(drawMulti, 1);
-    // Apply distance scale to forward cullzone check
-    bool updateCheck = (-actor->uncullZoneScale < projectedPos->z) &&
-                       (projectedPos->z < ((actor->uncullZoneForward * updateMulti) + actor->uncullZoneScale));
-    bool drawCheck = (-actor->uncullZoneScale < projectedPos->z) &&
-                     (projectedPos->z < ((actor->uncullZoneForward * drawMulti) + actor->uncullZoneScale));
+    s32 multiplier = CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1);
+    multiplier = MAX(multiplier, 1);
 
-    if (updateCheck || drawCheck) {
+    // Apply distance scale to forward cullzone check
+    bool isWithingForwardCullZone =
+        (-actor->uncullZoneScale < projectedPos->z) &&
+        (projectedPos->z < ((actor->uncullZoneForward * multiplier) + actor->uncullZoneScale));
+
+    if (isWithingForwardCullZone) {
         // Ensure the projected W value is at least 1.0
         f32 clampedProjectedW = CLAMP_MIN(projectedW, 1.0f);
         f32 ratioAdjusted = 1.0f;
@@ -3132,8 +3130,10 @@ s32 Ship_CalcShouldDrawAndUpdate(PlayState* play, Actor* actor, Vec3f* projected
         bool isBelowTopOfCullZone = ((projectedPos->y - uncullZoneDownwardAdjusted) < clampedProjectedW);
 
         if (isWithinHorizontalCullZone && isAboveBottomOfCullZone && isBelowTopOfCullZone) {
-            *shouldDraw = drawCheck;
-            *shouldUpdate = updateCheck;
+            // Add additional overries here for glitch useful actors when those are reported
+
+            *shouldDraw = true;
+            *shouldUpdate = true;
             return true;
         }
     }
@@ -3181,7 +3181,6 @@ void Actor_DrawAll(PlayState* play, ActorContext* actorCtx) {
             bool shipShouldDraw = false;
             bool shipShouldUpdate = false;
             if (CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1) > 1 ||
-                CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1) > 1 ||
                 CVarGetInteger("gEnhancements.Graphics.ActorCullingAccountsForWidescreen", 0)) {
                 Ship_CalcShouldDrawAndUpdate(play, actor, &actor->projectedPos, actor->projectedW, &shipShouldDraw,
                                              &shipShouldUpdate);

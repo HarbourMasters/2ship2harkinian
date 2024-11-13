@@ -1166,7 +1166,8 @@ void AddEnhancements() {
     enhancementsSidebar.push_back(
         { "Graphics",
           3,
-          { { { .widgetName = "Clock", .widgetType = WIDGET_SEPARATOR_TEXT },
+          { {
+              { .widgetName = "Clock", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Clock Type",
                 "gEnhancements.Graphics.ClockType",
                 "Swaps between Graphical and Text only Clock types.",
@@ -1254,26 +1255,14 @@ void AddEnhancements() {
                 "Adjusts the culling planes to account for widescreen resolutions. "
                 "This may have unintended side effects.",
                 WIDGET_CVAR_CHECKBOX },
-              { "Increase Actor Draw Distance: %dx",
-                "gEnhancements.Graphics.IncreaseActorDrawDistance",
-                "Increase the range in which Actors are drawn. This may have unintended side effects.",
-                WIDGET_CVAR_SLIDER_INT,
-                { 1, 5, 1 },
-                [](widgetInfo& info) {
-                    CVarSetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance",
-                                   MIN(CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1),
-                                       CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1)));
-                } },
-              { "Increase Actor Update Distance: %dx",
-                "gEnhancements.Graphics.IncreaseActorUpdateDistance",
-                "Increase the range in which Actors are updated. This may have unintended side effects.",
-                WIDGET_CVAR_SLIDER_INT,
-                { 1, 5, 1 },
-                [](widgetInfo& info) {
-                    CVarSetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance",
-                                   MAX(CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1),
-                                       CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1)));
-                } } } } });
+              {
+                  "Increase Actor Draw Distance: %dx",
+                  "gEnhancements.Graphics.IncreaseActorDrawDistance",
+                  "Increase the range in which Actors are drawn. This may have unintended side effects.",
+                  WIDGET_CVAR_SLIDER_INT,
+                  { 1, 5, 1 },
+              },
+          } } });
     enhancementsSidebar.push_back(
         { "Items/Songs",
           3,
