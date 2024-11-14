@@ -189,8 +189,8 @@ void RegisterPersistentMasks() {
 
     // Override "A" press behavior on kaleido scope to toggle the mask state
     REGISTER_VB_SHOULD(VB_KALEIDO_DISPLAY_ITEM_TEXT, {
-        ItemId* itemId = va_arg(args, ItemId*);
-        if (CVarGetInteger("gEnhancements.Masks.PersistentBunnyHood.Enabled", 0) && *itemId == ITEM_MASK_BUNNY) {
+        ItemId itemId = (ItemId)*va_arg(args, u16*);
+        if (CVarGetInteger("gEnhancements.Masks.PersistentBunnyHood.Enabled", 0) && itemId == ITEM_MASK_BUNNY) {
             *should = false;
             CVarSetInteger("gEnhancements.Masks.PersistentBunnyHood.State",
                            !CVarGetInteger("gEnhancements.Masks.PersistentBunnyHood.State", 0));
@@ -200,7 +200,7 @@ void RegisterPersistentMasks() {
                 Audio_PlaySfx(NA_SE_SY_CAMERA_ZOOM_UP);
             }
         } else if (CVarGetInteger("gEnhancements.Masks.PersistentGreatFairyMask.Enabled", 0) &&
-                   *itemId == ITEM_MASK_GREAT_FAIRY) {
+                   itemId == ITEM_MASK_GREAT_FAIRY) {
             *should = false;
             CVarSetInteger("gEnhancements.Masks.PersistentGreatFairyMask.State",
                            !CVarGetInteger("gEnhancements.Masks.PersistentGreatFairyMask.State", 0));
