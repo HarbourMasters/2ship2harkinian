@@ -8,8 +8,12 @@
 #include <unordered_map>
 #include <string>
 #include "2s2h/Enhancements/Enhancements.h"
+#include "2s2h/Enhancements/GfxPatcher/AuthenticGfxPatches.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "HudEditor.h"
+
+#include "2s2h/Enhancements/Trackers/ItemTracker.h"
+#include "2s2h/Enhancements/Trackers/ItemTrackerSettings.h"
 
 extern "C" {
 #include "z64.h"
@@ -344,15 +348,16 @@ void DrawSettingsMenu() {
 }
 
 extern std::shared_ptr<HudEditorWindow> mHudEditorWindow;
+extern std::shared_ptr<ItemTrackerWindow> mItemTrackerWindow;
+extern std::shared_ptr<ItemTrackerSettingsWindow> mItemTrackerSettingsWindow;
 
 void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
         if (UIWidgets::BeginMenu("Camera")) {
             ImGui::SeparatorText("Fixes");
             UIWidgets::CVarCheckbox(
-                "Fix Targetting Camera Snap", "gEnhancements.Camera.FixTargettingCameraSnap",
-                { .tooltip =
-                      "Fixes the camera snap that occurs when you are moving and press the targetting button." });
+                "Fix Targeting Camera Snap", "gEnhancements.Camera.FixTargettingCameraSnap",
+                { .tooltip = "Fixes the camera snap that occurs when you are moving and press the targeting button." });
 
             ImGui::SeparatorText("First Person");
             UIWidgets::CVarCheckbox("Disable Auto-Centering",
@@ -553,8 +558,9 @@ void DrawEnhancementsMenu() {
         if (UIWidgets::BeginMenu("Dialogue")) {
             UIWidgets::CVarCheckbox(
                 "Fast Bank Selection", "gEnhancements.Dialogue.FastBankSelection",
-                { .tooltip = "Pressing the Z or R buttons while the Deposit/Withdrawl Rupees dialogue is open will set "
-                             "the Rupees to Links current Rupees or 0 respectively." });
+                { .tooltip =
+                      "Pressing the Z or R buttons while the Deposit/Withdrawal Rupees dialogue is open will set "
+                      "the Rupees to Links current Rupees or 0 respectively." });
             UIWidgets::CVarCheckbox(
                 "Fast Text", "gEnhancements.Dialogue.FastText",
                 { .tooltip = "Speeds up text rendering, and enables holding of B progress to next message" });
@@ -605,6 +611,13 @@ void DrawEnhancementsMenu() {
                                     { .tooltip = "Fixes a bug that results in the Ikana Great Fairy fountain looking "
                                                  "green instead of yellow, this was fixed in the EU version" });
 
+            if (UIWidgets::CVarCheckbox(
+                    "Fix Texture overflow OOB", "gEnhancements.Fixes.FixTexturesOOB",
+                    { .tooltip = "Fixes textures that normally overflow to be patched with the correct size or format",
+                      .defaultValue = true })) {
+                GfxPatcher_ApplyOverflowTexturePatches();
+            }
+
             ImGui::EndMenu();
         }
 
@@ -612,6 +625,12 @@ void DrawEnhancementsMenu() {
             ImGui::SeparatorText("Clock");
             UIWidgets::CVarCombobox("Clock Type", "gEnhancements.Graphics.ClockType", clockTypeOptions);
             UIWidgets::CVarCheckbox("24 Hours Clock", "gEnhancements.Graphics.24HoursClock");
+
+            ImGui::SeparatorText("Mods");
+            UIWidgets::CVarCheckbox("Use Alternate Assets", "gEnhancements.Mods.AlternateAssets",
+                                    { .tooltip = "Toggle between standard assets and alternate assets. Usually mods "
+                                                 "will indicate if this setting has to be used or not." });
+
             MotionBlur_RenderMenuOptions();
             ImGui::SeparatorText("Other");
             UIWidgets::CVarCheckbox("Authentic logo", "gEnhancements.Graphics.AuthenticLogo",
@@ -632,32 +651,20 @@ void DrawEnhancementsMenu() {
             ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(255, 255, 0, 255));
             ImGui::SeparatorText("Unstable");
             ImGui::PopStyleColor();
-            UIWidgets::CVarCheckbox(
-                "Disable Scene Geometry Distance Check", "gEnhancements.Graphics.DisableSceneGeometryDistanceCheck",
-                { .tooltip =
-                      "Disables the distance check for scene geometry, allowing it to be drawn no matter how far "
-                      "away it is from the player. This may have unintended side effects." });
+            if (UIWidgets::CVarCheckbox(
+                    "Disable Scene Geometry Distance Check", "gEnhancements.Graphics.DisableSceneGeometryDistanceCheck",
+                    { .tooltip =
+                          "Disables the distance check for scene geometry, allowing it to be drawn no matter how far "
+                          "away it is from the player. This may have unintended side effects." })) {
+                GfxPatcher_ApplyGeometryIssuePatches();
+            }
             UIWidgets::CVarCheckbox("Widescreen Actor Culling",
                                     "gEnhancements.Graphics.ActorCullingAccountsForWidescreen",
                                     { .tooltip = "Adjusts the culling planes to account for widescreen resolutions. "
                                                  "This may have unintended side effects." });
-            if (UIWidgets::CVarSliderInt(
-                    "Increase Actor Draw Distance: %dx", "gEnhancements.Graphics.IncreaseActorDrawDistance", 1, 5, 1,
-                    { .tooltip =
-                          "Increase the range in which Actors are drawn. This may have unintended side effects." })) {
-                CVarSetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance",
-                               MIN(CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1),
-                                   CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1)));
-            }
-            if (UIWidgets::CVarSliderInt(
-                    "Increase Actor Update Distance: %dx", "gEnhancements.Graphics.IncreaseActorUpdateDistance", 1, 5,
-                    1,
-                    { .tooltip =
-                          "Increase the range in which Actors are updated. This may have unintended side effects." })) {
-                CVarSetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance",
-                               MAX(CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1),
-                                   CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1)));
-            }
+            UIWidgets::CVarSliderInt(
+                "Increase Actor Draw Distance: %dx", "gEnhancements.Graphics.IncreaseActorDrawDistance", 1, 5, 1,
+                { .tooltip = "Increase the range in which Actors are drawn. This may have unintended side effects." });
 
             ImGui::EndMenu();
         }
@@ -669,7 +676,7 @@ void DrawEnhancementsMenu() {
                                     { .tooltip = "Allow using Fierce Deity's mask outside of boss rooms." });
             UIWidgets::CVarCheckbox("No Blast Mask Cooldown", "gEnhancements.Masks.NoBlastMaskCooldown", {});
             if (UIWidgets::CVarCheckbox("Persistent Bunny Hood", "gEnhancements.Masks.PersistentBunnyHood.Enabled",
-                                        { .tooltip = "Permanantly toggle a speed boost from the bunny hood by pressing "
+                                        { .tooltip = "Permanently toggle a speed boost from the bunny hood by pressing "
                                                      "'A' on it in the mask menu." })) {
                 UpdatePersistentMasksState();
             }
@@ -687,6 +694,8 @@ void DrawEnhancementsMenu() {
                              "-Hug: Get the hugging cutscene\n"
                              "-Rupee: Get the rupee reward",
                   .defaultIndex = CREMIA_REWARD_RANDOM });
+            UIWidgets::CVarSliderInt("Swordsman School Winning Score: %d",
+                                     "gEnhancements.Minigames.SwordsmanSchoolScore", 1, 30, 30);
 
             ImGui::EndMenu();
         }
@@ -786,6 +795,15 @@ void DrawEnhancementsMenu() {
                                     { .tooltip = "Enables the Hud Editor window, allowing you to edit your hud" });
         }
 
+        if (mItemTrackerWindow) {
+            UIWidgets::WindowButton("Item Tracker", "gWindows.ItemTracker", mItemTrackerWindow);
+        }
+
+        if (mItemTrackerSettingsWindow) {
+            UIWidgets::WindowButton("Item Tracker Settings", "gWindows.ItemTrackerSettings",
+                                    mItemTrackerSettingsWindow);
+        }
+
         ImGui::EndMenu();
     }
 }
@@ -875,7 +893,7 @@ void DrawDeveloperToolsMenu() {
                           "Change the behavior of creating saves while debug mode is enabled:\n\n"
                           "- Empty Save: The default 3 heart save file in first cycle\n"
                           "- Vanilla Debug Save: Uses the title screen save info (8 hearts, all items and masks)\n"
-                          "- 100\% Save: All items, equipment, mask, quast status and bombers notebook complete",
+                          "- 100\% Save: All items, equipment, mask, quest status and bombers notebook complete",
                       .defaultIndex = DEBUG_SAVE_INFO_NONE })) {
                 RegisterDebugSaveCreate();
             }

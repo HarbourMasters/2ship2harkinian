@@ -524,18 +524,22 @@ endif()
 ################################################################################
 # Pre build events
 ################################################################################
+if (CMAKE_GENERATOR MATCHES "Visual Studio")
+    set(VS_COPY_ASSETS_CMD ${CMAKE_COMMAND} -E copy_directory $<TARGET_FILE_DIR:2ship>/assets ${CMAKE_BINARY_DIR}/mm/assets)
+endif()
 if(NOT CMAKE_SYSTEM_NAME MATCHES "NintendoSwitch|CafeOS")
     add_custom_command(
-		TARGET ${PROJECT_NAME}
-		POST_BUILD
-		COMMENT "Copying asset xmls..."
+        TARGET ${PROJECT_NAME}
+        POST_BUILD
+        COMMENT "Copying asset xmls..."
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/mm/assets/extractor $<TARGET_FILE_DIR:2ship>/assets/extractor
-		COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/mm/assets/xml $<TARGET_FILE_DIR:2ship>/assets/extractor/xmls
+        COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/mm/assets/xml $<TARGET_FILE_DIR:2ship>/assets/extractor/xmls
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/OTRExporter/CFG/filelists $<TARGET_FILE_DIR:2ship>/assets/extractor/filelists
         COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:2ship>/assets/extractor/symbols
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/OTRExporter/CFG/ActorList_MM.txt $<TARGET_FILE_DIR:2ship>/assets/extractor/symbols
         COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/OTRExporter/CFG/ObjectList_MM.txt $<TARGET_FILE_DIR:2ship>/assets/extractor/symbols
-	    COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/OTRExporter/CFG/SymbolMap_MM.txt $<TARGET_FILE_DIR:2ship>/assets/extractor/symbols
+        COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/OTRExporter/CFG/SymbolMap_MM.txt $<TARGET_FILE_DIR:2ship>/assets/extractor/symbols
+        COMMAND ${VS_COPY_ASSETS_CMD}
     )
 endif()
 ################################################################################
