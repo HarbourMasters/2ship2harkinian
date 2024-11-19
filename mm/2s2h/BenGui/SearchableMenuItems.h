@@ -971,6 +971,8 @@ void AddEnhancements() {
                 "Allows to Razor Sword to be used indefinitely without dulling its blade.", WIDGET_CVAR_CHECKBOX },
               { "Unrestricted Items", "gCheats.UnrestrictedItems", "Allows all Forms to use all Items.",
                 WIDGET_CVAR_CHECKBOX },
+              { "Hookshot Anywhere", "gCheats.HookshotAnywhere", "Allows most surfaces to be hookshot-able",
+                WIDGET_CVAR_CHECKBOX },
               { "Moon Jump on L",
                 "gCheats.MoonJumpOnL",
                 "Holding L makes you float into the air.",

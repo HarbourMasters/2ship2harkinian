@@ -1,6 +1,0 @@
-#ifndef CHEATS_HOOKSHOT_ANYWHERE_H
-#define CHEATS_HOOKSHOT_ANYWHERE_H
-
-void RegisterHookshotAnywhere();
-
-#endif // CHEATS_HOOKSHOT_ANYWHERE_H
