@@ -417,6 +417,7 @@ namespace UIWidgets {
     void DrawFlagArray32(const std::string& name, uint32_t& flags);
     void DrawFlagArray16(const std::string& name, uint16_t& flags);
     void DrawFlagArray8(const std::string& name, uint8_t& flags);
+    void DrawFlagArray8Hex(const std::string& name, uint8_t& flags);
 }
 
 #endif /* UIWidgets_hpp */

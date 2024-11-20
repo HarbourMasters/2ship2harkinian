@@ -593,4 +593,27 @@ void DrawFlagArray8(const std::string& name, uint8_t& flags) {
     }
     ImGui::PopID();
 }
+
+void DrawFlagArray8Hex(const std::string& name, uint8_t& flags) {
+    ImGui::PushID(name.c_str());
+    for (int8_t flagIndex = 0; flagIndex < 8; flagIndex++) {
+        if ((flagIndex % 8) != 0) {
+            ImGui::SameLine();
+        }
+        ImGui::PushID(flagIndex);
+        uint8_t bitMask = 1 << flagIndex;
+        bool flag = (flags & bitMask) != 0;
+        std::string label = std::format("0x{:02x}", bitMask);
+        if (UIWidgets::Checkbox(label.c_str(), &flag,
+                                { .tooltip = label.c_str(), .labelPosition = LabelPosition::None })) {
+            if (flag) {
+                flags |= bitMask;
+            } else {
+                flags &= ~bitMask;
+            }
+        }
+        ImGui::PopID();
+    }
+    ImGui::PopID();
+}
 } // namespace UIWidgets
