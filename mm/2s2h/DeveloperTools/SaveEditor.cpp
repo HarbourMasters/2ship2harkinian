@@ -1731,7 +1731,7 @@ void DrawFlagsTab() {
                 ImGui::PushID(i);
                 ImGui::Text("%02d", i);
                 ImGui::SameLine();
-                UIWidgets::DrawFlagArray8Index("##", gSaveContext.eventInf[i]);
+                UIWidgets::DrawFlagArray8("##", gSaveContext.eventInf[i]);
                 ImGui::PopID();
             }
             break;

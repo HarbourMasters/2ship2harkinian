@@ -571,7 +571,7 @@ void DrawFlagArray16(const std::string& name, uint16_t& flags) {
     ImGui::PopID();
 }
 
-void DrawFlagArray8Index(const std::string& name, uint8_t& flags) {
+void DrawFlagArray8(const std::string& name, uint8_t& flags) {
     ImGui::PushID(name.c_str());
     for (int8_t flagIndex = 0; flagIndex < 8; flagIndex++) {
         if ((flagIndex % 8) != 0) {
@@ -580,7 +580,7 @@ void DrawFlagArray8Index(const std::string& name, uint8_t& flags) {
         ImGui::PushID(flagIndex);
         uint8_t bitMask = 1 << flagIndex;
         bool flag = (flags & bitMask) != 0;
-        std::string label = std::to_string(flagIndex);
+        std::string label = std::format("0x{:02x}", flagIndex);
         if (UIWidgets::Checkbox(label.c_str(), &flag,
                                 { .tooltip = label.c_str(), .labelPosition = LabelPosition::None })) {
             if (flag) {
