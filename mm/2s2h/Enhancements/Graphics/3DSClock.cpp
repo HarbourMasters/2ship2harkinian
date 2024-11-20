@@ -1,6 +1,6 @@
 #include <libultraship/libultraship.h>
 #include "2s2h/BenGui/HudEditor.h"
-#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "misc/title_static/title_static.h"
@@ -50,7 +50,7 @@ s16 finalHoursClockSlots[8];
 
 void Register3DSClock() {
 
-    REGISTER_VB_SHOULD(GI_VB_PREVENT_CLOCK_DISPLAY, {
+    REGISTER_VB_SHOULD(VB_PREVENT_CLOCK_DISPLAY, {
         if (CVarGetInteger("gEnhancements.Graphics.ClockType", CLOCK_TYPE_ORIGINAL) == CLOCK_TYPE_3DS) {
             *should = true;
 
@@ -112,7 +112,8 @@ void Register3DSClock() {
                     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_CLOCK);
                     OVERLAY_DISP =
                         Gfx_DrawTexRectIA8(OVERLAY_DISP, (TexturePtr)gThreeDayClock3DSFillTex, CLOCK_SECTION_WIDTH, 12,
-                                           posX - CLOCK_SECTION_WIDTH, posY, CLOCK_SECTION_WIDTH, 12, 1 << 10, 1 << 10);
+                                           posX - CLOCK_SECTION_HALFWIDTH - CLOCK_SECTION_WIDTH, posY,
+                                           CLOCK_SECTION_WIDTH, 12, 1 << 10, 1 << 10);
 
                     fillalpha = 64;
                     if (gSaveContext.save.day == 2) {

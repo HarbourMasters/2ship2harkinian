@@ -24,20 +24,24 @@ class OTRGlobals {
   public:
     static OTRGlobals* Instance;
 
+    ImFont* fontStandard;
+    ImFont* fontStandardLarger;
+    ImFont* fontStandardLargest;
+    ImFont* fontMono;
+    ImFont* fontMonoLarger;
+    ImFont* fontMonoLargest;
+
     std::shared_ptr<Ship::Context> context;
 
     OTRGlobals();
     ~OTRGlobals();
 
-    bool HasMasterQuest();
-    bool HasOriginal();
     uint32_t GetInterpolationFPS();
     std::shared_ptr<std::vector<std::string>> ListFiles(std::string path);
 
   private:
+    ImFont* CreateFontWithSize(float size, std::string fontPath = "");
     void CheckSaveFile(size_t sramSize) const;
-    bool hasMasterQuest;
-    bool hasOriginal;
 };
 
 uint32_t IsGameMasterQuest();
@@ -95,6 +99,7 @@ Vtx* ResourceMgr_LoadVtxByCRC(uint64_t crc);
 char* ResourceMgr_LoadVtxArrayByName(const char* path);
 size_t ResourceMgr_GetVtxArraySizeByName(const char* path);
 Vtx* ResourceMgr_LoadVtxByName(char* path);
+Mtx* ResourceMgr_LoadMtxByName(char* path);
 
 KeyFrameSkeleton* ResourceMgr_LoadKeyFrameSkelByName(const char* path);
 KeyFrameAnimation* ResourceMgr_LoadKeyFrameAnimByName(const char* path);

@@ -1,6 +1,6 @@
 #include <libultraship/bridge.h>
 #include <spdlog/spdlog.h>
-#include "Enhancements/GameInteractor/GameInteractor.h"
+#include "GameInteractor/GameInteractor.h"
 #include "Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 extern "C" {
@@ -130,17 +130,17 @@ void RegisterGreatFairySwordOnB() {
 
     // If sword is stolen while GFS is on B, either clear the state or restore GFS to B depending on which sword is
     // stolen
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnItemStolen>([](u8 item) {
-        if (CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB.Enabled", 0) &&
-            CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB.State", 0)) {
-            if (item == ITEM_SWORD_GREAT_FAIRY) {
-                CVarClear("gEnhancements.Equipment.GreatFairySwordB.State");
-                RestoreSwordState();
-            } else if (item >= ITEM_SWORD_KOKIRI && item <= ITEM_SWORD_GILDED) {
-                EquipSword();
-            }
-        }
-    });
+    // GameInteractor::Instance->RegisterGameHook<GameInteractor::OnItemStolen>([](u8 item) {
+    //     if (CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB.Enabled", 0) &&
+    //         CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB.State", 0)) {
+    //         if (item == ITEM_SWORD_GREAT_FAIRY) {
+    //             CVarClear("gEnhancements.Equipment.GreatFairySwordB.State");
+    //             RestoreSwordState();
+    //         } else if (item >= ITEM_SWORD_KOKIRI && item <= ITEM_SWORD_GILDED) {
+    //             EquipSword();
+    //         }
+    //     }
+    // });
 
     // When transforming from FD, clear the state.
     // In testing, this always executed before FastTransformation's hook. If execution order changed,

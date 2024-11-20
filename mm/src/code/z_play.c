@@ -35,9 +35,9 @@ u8 sMotionBlurStatus;
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "debug.h"
 #include "BenPort.h"
-#include "2s2h/Enhancements/GameInteractor/GameInteractor.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
-#include "2s2h/Enhancements/Graphics/MotionBlur.h"
+#include "2s2h/Enhancements/Graphics/Graphics.h"
 #include "2s2h/DeveloperTools/CollisionViewer.h"
 #include "2s2h/framebuffer_effects.h"
 #include <string.h>
@@ -1184,16 +1184,17 @@ void Play_DrawMain(PlayState* this) {
     // Track render size when paused and that a copy was performed
     static u32 lastPauseWidth;
     static u32 lastPauseHeight;
-    static u8 hasCapturedPauseBuffer;
+    static bool lastAltAssets;
+    static bool hasCapturedPauseBuffer;
     u8 recapturePauseBuffer = false;
 
-    // If the size has changed or dropped frames leading to the buffer not being copied,
+    // If the size has changed, alt assets toggled or dropped frames leading to the buffer not being copied,
     // set the prerender state back to setup to copy a new frame.
-    // This requires not rendering kaleido during this copy to avoid kaleido being copied
+    // This requires not rendering kaleido during this copy to avoid kaleido itself being copied too.
     if ((R_PAUSE_BG_PRERENDER_STATE == PAUSE_BG_PRERENDER_PROCESS ||
          R_PAUSE_BG_PRERENDER_STATE == PAUSE_BG_PRERENDER_READY) &&
         (lastPauseWidth != OTRGetGameRenderWidth() || lastPauseHeight != OTRGetGameRenderHeight() ||
-         !hasCapturedPauseBuffer || sJustClosedBomberNotebook)) {
+         lastAltAssets != ResourceMgr_IsAltAssetsEnabled() || !hasCapturedPauseBuffer || sJustClosedBomberNotebook)) {
         R_PAUSE_BG_PRERENDER_STATE = PAUSE_BG_PRERENDER_SETUP;
         recapturePauseBuffer = true;
     }
@@ -1247,6 +1248,18 @@ void Play_DrawMain(PlayState* this) {
         View_SetPerspective(&this->view, this->view.fovy, this->view.zNear, zFar);
 
         View_Apply(&this->view, 0xF);
+
+        // Setup mirror mode matrix handling when we are not drawing kaleido
+        if (R_PAUSE_BG_PRERENDER_STATE <= PAUSE_BG_PRERENDER_SETUP && CVarGetInteger("gModes.MirroredWorld.State", 0)) {
+            gSPSetExtraGeometryMode(POLY_OPA_DISP++, G_EX_INVERT_CULLING);
+            gSPSetExtraGeometryMode(POLY_XLU_DISP++, G_EX_INVERT_CULLING);
+            gSPMatrix(POLY_OPA_DISP++, this->view.shipMirrorProjectionPtr,
+                      G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
+            gSPMatrix(POLY_XLU_DISP++, this->view.shipMirrorProjectionPtr,
+                      G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
+            gSPMatrix(POLY_OPA_DISP++, this->view.viewingPtr, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_PROJECTION);
+            gSPMatrix(POLY_XLU_DISP++, this->view.viewingPtr, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_PROJECTION);
+        }
 
         // The billboard matrix temporarily stores the viewing matrix
         Matrix_MtxToMtxF(&this->view.viewing, &this->billboardMtxF);
@@ -1475,6 +1488,7 @@ void Play_DrawMain(PlayState* this) {
                     // #region 2S2H [Port] Custom handling for pause prerender background capture
                     lastPauseWidth = OTRGetGameRenderWidth();
                     lastPauseHeight = OTRGetGameRenderHeight();
+                    lastAltAssets = ResourceMgr_IsAltAssetsEnabled();
                     hasCapturedPauseBuffer = false;
 
                     FB_CopyToFramebuffer(&sp74, 0, gPauseFrameBuffer, false, &hasCapturedPauseBuffer);
@@ -1522,6 +1536,11 @@ void Play_DrawMain(PlayState* this) {
             if (1) {
                 Play_PostWorldDraw(this);
             }
+        }
+
+        if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
+            gSPClearExtraGeometryMode(POLY_OPA_DISP++, G_EX_INVERT_CULLING);
+            gSPClearExtraGeometryMode(POLY_XLU_DISP++, G_EX_INVERT_CULLING);
         }
     }
 
