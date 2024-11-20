@@ -10,6 +10,10 @@ extern "C" {
 extern PlayState* gPlayState;
 }
 
+// TODO: Unchecking enhancment in archery minigame, results in GFS being on B after the game.
+// This is fixed on scene load. Should check other minigames or situations where B is updated
+// TODO: Look at thief bird again. Either readd hook from before merge or implement alt solution
+
 void RestoreSwordState() {
     u8 bItemId = ITEM_SWORD_KOKIRI + GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SWORD) - EQUIP_VALUE_SWORD_KOKIRI;
     // Check to prevent Light Arrows from being set to B if you're missing your normal sword.
@@ -145,7 +149,7 @@ void RegisterGreatFairySwordOnB() {
     // When transforming from FD, clear the state.
     // In testing, this always executed before FastTransformation's hook. If execution order changed,
     // this would execute when transforming TO FD, which I would consider preferable.
-    REGISTER_VB_SHOULD(GI_VB_PREVENT_MASK_TRANSFORMATION_CS, {
+    REGISTER_VB_SHOULD(VB_PREVENT_MASK_TRANSFORMATION_CS, {
         if (CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB.Enabled", 0)) {
             Player* player = GET_PLAYER(gPlayState);
             if (player->transformation == PLAYER_FORM_FIERCE_DEITY) {
@@ -155,12 +159,12 @@ void RegisterGreatFairySwordOnB() {
     });
 
     // When equipping masks with special B actions, clear state
-    REGISTER_VB_SHOULD(GI_VB_USE_ITEM_EQUIP_MASK, {
+    REGISTER_VB_SHOULD(VB_USE_ITEM_EQUIP_MASK, {
+        PlayerMask maskId = (PlayerMask)*va_arg(args, u16*);
         if (CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB.Enabled", 0)) {
-            PlayerMask* maskId = (PlayerMask*)opt;
             Player* player = GET_PLAYER(gPlayState);
 
-            if (*maskId == PLAYER_MASK_BREMEN || *maskId == PLAYER_MASK_BLAST || *maskId == PLAYER_MASK_KAMARO) {
+            if (maskId == PLAYER_MASK_BREMEN || maskId == PLAYER_MASK_BLAST || maskId == PLAYER_MASK_KAMARO) {
                 CVarClear("gEnhancements.Equipment.GreatFairySwordB.State");
                 if (BUTTON_ITEM_EQUIP(0, EQUIP_SLOT_B) == ITEM_SWORD_GREAT_FAIRY) {
                     RestoreSwordState();
@@ -170,11 +174,10 @@ void RegisterGreatFairySwordOnB() {
     });
 
     // Override "A" press behavior on kaleido scope to toggle the item state
-    REGISTER_VB_SHOULD(GI_VB_KALEIDO_DISPLAY_ITEM_TEXT, {
-        ItemId* itemId = (ItemId*)opt;
+    REGISTER_VB_SHOULD(VB_KALEIDO_DISPLAY_ITEM_TEXT, {
+        ItemId itemId = (ItemId)*va_arg(args, u16*);
         Player* player = GET_PLAYER(gPlayState);
-        if (CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB.Enabled", 0) &&
-            (*itemId & 0xFF) == ITEM_SWORD_GREAT_FAIRY) {
+        if (CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB.Enabled", 0) && itemId == ITEM_SWORD_GREAT_FAIRY) {
             *should = false;
             if (player->transformation == PLAYER_FORM_HUMAN &&
                 !(player->currentMask == PLAYER_MASK_BREMEN || player->currentMask == PLAYER_MASK_BLAST ||
@@ -195,9 +198,9 @@ void RegisterGreatFairySwordOnB() {
 
     // Prevent the "equipped" white border from being drawn so ours shows instead (ours was drawn before it, so it's
     // underneath)
-    REGISTER_VB_SHOULD(GI_VB_DRAW_ITEM_EQUIPPED_OUTLINE, {
-        if (*(ItemId*)opt == ITEM_SWORD_GREAT_FAIRY &&
-            CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB.State", 0)) {
+    REGISTER_VB_SHOULD(VB_DRAW_ITEM_EQUIPPED_OUTLINE, {
+        ItemId itemId = (ItemId)*va_arg(args, u16*);
+        if (itemId == ITEM_SWORD_GREAT_FAIRY && CVarGetInteger("gEnhancements.Equipment.GreatFairySwordB.State", 0)) {
             *should = false;
         }
     });

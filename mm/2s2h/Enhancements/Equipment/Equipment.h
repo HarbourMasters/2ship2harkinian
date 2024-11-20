@@ -4,5 +4,7 @@
 void RegisterInstantRecall();
 void RegisterSkipMagicArrowEquip();
 void RegisterTwoHandedSwordSpinAttack();
+void RegisterGreatFairySwordOnB();
+void UpdateGreatFairySwordState();
 
 #endif // EQUIPMENT_H

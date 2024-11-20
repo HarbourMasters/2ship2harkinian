@@ -266,7 +266,7 @@ void KaleidoScope_DrawItemSelect(PlayState* play) {
         if (GET_CUR_FORM_BTN_ITEM(i + 1) != ITEM_NONE) {
             if (GET_CUR_FORM_BTN_SLOT(i + 1) < ITEM_NUM_SLOTS) {
                 ItemId item = GET_CUR_FORM_BTN_ITEM(i + 1);
-                if (GameInteractor_Should(GI_VB_DRAW_ITEM_EQUIPPED_OUTLINE, true, &item)) {
+                if (GameInteractor_Should(VB_DRAW_ITEM_EQUIPPED_OUTLINE, true, &item)) {
                     gSPVertex(POLY_OPA_DISP++, &pauseCtx->itemVtx[j], 4, 0);
                     POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gEquippedItemOutlineTex, 32, 32, 0);
                 }
@@ -279,7 +279,7 @@ void KaleidoScope_DrawItemSelect(PlayState* play) {
             if (DPAD_GET_CUR_FORM_BTN_ITEM(i) != ITEM_NONE) {
                 if (DPAD_GET_CUR_FORM_BTN_SLOT(i) < ITEM_NUM_SLOTS) {
                     ItemId item = DPAD_GET_CUR_FORM_BTN_ITEM(i);
-                    if (GameInteractor_Should(GI_VB_DRAW_ITEM_EQUIPPED_OUTLINE, true, &item)) {
+                    if (GameInteractor_Should(VB_DRAW_ITEM_EQUIPPED_OUTLINE, true, &item)) {
                         gSPVertex(POLY_OPA_DISP++, &pauseCtx->itemVtx[j], 4, 0);
                         POLY_OPA_DISP = Gfx_DrawTexQuadIA8(POLY_OPA_DISP, gEquippedItemOutlineTex, 32, 32, 0);
                     }
@@ -771,8 +771,7 @@ void KaleidoScope_UpdateItemCursor(PlayState* play) {
                 } else if ((pauseCtx->debugEditor == DEBUG_EDITOR_NONE) && (pauseCtx->state == PAUSE_STATE_MAIN) &&
                            (pauseCtx->mainState == PAUSE_MAIN_STATE_IDLE) &&
                            CHECK_BTN_ALL(CONTROLLER1(&play->state)->press.button, BTN_A) && (msgCtx->msgLength == 0)) {
-                    if (GameInteractor_Should(GI_VB_KALEIDO_DISPLAY_ITEM_TEXT, true,
-                                              &pauseCtx->cursorItem[PAUSE_ITEM])) {
+                    if (GameInteractor_Should(VB_KALEIDO_DISPLAY_ITEM_TEXT, true, &pauseCtx->cursorItem[PAUSE_ITEM])) {
                         // Give description on item through a message box
                         pauseCtx->itemDescriptionOn = true;
                         if (pauseCtx->cursorYIndex[PAUSE_ITEM] < 2) {
