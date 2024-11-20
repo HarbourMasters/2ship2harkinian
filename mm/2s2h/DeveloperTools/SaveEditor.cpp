@@ -1722,7 +1722,7 @@ void DrawFlagsTab() {
                 ImGui::PushID(i);
                 ImGui::Text("%02d", i);
                 ImGui::SameLine();
-                UIWidgets::DrawFlagArray8Hex("##", gSaveContext.save.saveInfo.weekEventReg[i]);
+                UIWidgets::DrawFlagArray8Mask("##", gSaveContext.save.saveInfo.weekEventReg[i]);
                 ImGui::PopID();
             }
             break;
@@ -1731,7 +1731,7 @@ void DrawFlagsTab() {
                 ImGui::PushID(i);
                 ImGui::Text("%02d", i);
                 ImGui::SameLine();
-                UIWidgets::DrawFlagArray8("##", gSaveContext.eventInf[i]);
+                UIWidgets::DrawFlagArray8Index("##", gSaveContext.eventInf[i]);
                 ImGui::PopID();
             }
             break;
