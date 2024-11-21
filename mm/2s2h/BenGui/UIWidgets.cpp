@@ -535,7 +535,7 @@ void DrawFlagArray32(const std::string& name, uint32_t& flags) {
         ImGui::PushID(flagIndex);
         uint32_t bitMask = 1 << flagIndex;
         bool flag = (flags & bitMask) != 0;
-        std::string label = fmt::format("0x{:02x} ({})", flagIndex, flagIndex);
+        std::string label = fmt::format("0x{:02X} ({})", flagIndex, flagIndex);
         if (UIWidgets::Checkbox(label.c_str(), &flag,
                                 { .tooltip = label.c_str(), .labelPosition = LabelPosition::None })) {
             if (flag) {
@@ -558,7 +558,7 @@ void DrawFlagArray16(const std::string& name, uint16_t& flags) {
         ImGui::PushID(flagIndex);
         uint16_t bitMask = 1 << flagIndex;
         bool flag = (flags & bitMask) != 0;
-        std::string label = fmt::format("0x{:02x} ({})", flagIndex, flagIndex);
+        std::string label = fmt::format("0x{:02X} ({})", flagIndex, flagIndex);
         if (UIWidgets::Checkbox(label.c_str(), &flag,
                                 { .tooltip = label.c_str(), .labelPosition = LabelPosition::None })) {
             if (flag) {
@@ -581,7 +581,7 @@ void DrawFlagArray8(const std::string& name, uint8_t& flags) {
         ImGui::PushID(flagIndex);
         uint8_t bitMask = 1 << flagIndex;
         bool flag = (flags & bitMask) != 0;
-        std::string label = fmt::format("0x{:02x} ({})", flagIndex, flagIndex);
+        std::string label = fmt::format("0x{:02X} ({})", flagIndex, flagIndex);
         if (UIWidgets::Checkbox(label.c_str(), &flag,
                                 { .tooltip = label.c_str(), .labelPosition = LabelPosition::None })) {
             if (flag) {
@@ -604,7 +604,7 @@ void DrawFlagArray8Mask(const std::string& name, uint8_t& flags) {
         ImGui::PushID(flagIndex);
         uint8_t bitMask = 1 << flagIndex;
         bool flag = (flags & bitMask) != 0;
-        std::string label = fmt::format("0x{:02x} ({})", bitMask, flagIndex);
+        std::string label = fmt::format("0x{:02X} ({})", bitMask, flagIndex);
         if (UIWidgets::Checkbox(label.c_str(), &flag,
                                 { .tooltip = label.c_str(), .labelPosition = LabelPosition::None })) {
             if (flag) {
