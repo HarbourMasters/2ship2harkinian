@@ -548,6 +548,7 @@ void DrawFlagArray32(const std::string& name, uint32_t& flags) {
     }
     ImGui::PopID();
 }
+
 void DrawFlagArray16(const std::string& name, uint16_t& flags) {
     ImGui::PushID(name.c_str());
     for (int16_t flagIndex = 0; flagIndex < 16; flagIndex++) {
