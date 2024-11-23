@@ -328,11 +328,11 @@ static void FORCE_OPTIMIZE aMixImplRef(uint16_t count, int16_t gain, uint16_t in
 }
 
 void aMixImpl(uint16_t count, int16_t gain, uint16_t in_addr, uint16_t out_addr) {
-    #if __SSE2__
+#if __SSE2__
     aMixImplSSE2(count, gain, in_addr, out_addr);
-    #else
-    aMixImplRef(count, gain,in_addr, out_addr);
-    #endif
+#else
+    aMixImplRef(count, gain, in_addr, out_addr);
+#endif
 }
 
 void aS8DecImpl(uint8_t flags, ADPCM_STATE state) {
@@ -570,13 +570,21 @@ void aUnkCmd19Impl(uint8_t f, uint16_t count, uint16_t out_addr, uint16_t in_add
 
 // From here on there are SIMD implementations of the various mixer functions.
 // A note about FORCE_OPTIMIZE...
-// Compilers don't handle SIMD code well when not optimizing. It is unlikely that this code will need to be debugged outside of specific audio issues. We can assume it should always be optimized.
-#if defined (__SSE2__)
+// Compilers don't handle SIMD code well when not optimizing. It is unlikely that this code will need to be debugged
+// outside of specific audio issues. We can assume it should always be optimized.
+#if defined(__SSE2__)
 #include <immintrin.h>
 #include "align_asset_macro.h"
 
-static const ALIGN_ASSET(16) int16_t x7fff[8] = { 0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF,};
-static const ALIGN_ASSET(16) int32_t x4000[4] = { 0x4000, 0x4000, 0x4000, 0x4000,};
+static const ALIGN_ASSET(16) int16_t x7fff[8] = {
+    0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF,
+};
+static const ALIGN_ASSET(16) int32_t x4000[4] = {
+    0x4000,
+    0x4000,
+    0x4000,
+    0x4000,
+};
 
 FORCE_OPTIMIZE static void aMixImplSSE2(uint16_t count, int16_t gain, uint16_t in_addr, uint16_t out_addr) {
     int nbytes = ROUND_UP_32(ROUND_DOWN_16(count << 4));
@@ -587,13 +595,13 @@ FORCE_OPTIMIZE static void aMixImplSSE2(uint16_t count, int16_t gain, uint16_t i
     if (gain == -0x8000) {
         while (nbytes > 0) {
             for (unsigned int i = 0; i < 2; i++) {
-                __m128i outVec =_mm_loadu_si128((__m128i*)out);
-                __m128i inVec =_mm_loadu_si128((__m128i*)in);
-                __m128i subsVec =_mm_subs_epi16(outVec, inVec);
+                __m128i outVec = _mm_loadu_si128((__m128i*)out);
+                __m128i inVec = _mm_loadu_si128((__m128i*)in);
+                __m128i subsVec = _mm_subs_epi16(outVec, inVec);
                 _mm_storeu_si128(out, subsVec);
                 nbytes -= 8 * sizeof(int16_t);
                 in += 8;
-                out+=8;
+                out += 8;
             }
         }
     }
