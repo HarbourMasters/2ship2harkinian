@@ -14,6 +14,7 @@ void InitEnhancements() {
     RegisterUnrestrictedItems();
     RegisterTimeStopInTemples();
     RegisterElegyAnywhere();
+    RegisterHookshotAnywhere();
 
     // Clock
     RegisterTextBasedClock();
@@ -35,6 +36,7 @@ void InitEnhancements() {
     // Fixes
     RegisterFierceDeityZTargetMovement();
     RegisterTwoHandedSwordSpinAttack();
+    RegisterCompletedHeartContainerAudio();
 
     // Graphics
     RegisterDisableBlackBars();

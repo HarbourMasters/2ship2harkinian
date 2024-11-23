@@ -10,7 +10,6 @@
 #include <File.h>
 #include <DisplayList.h>
 #include <Window.h>
-#include <GameVersions.h>
 
 #include "z64animation.h"
 #include "z64bgcheck.h"
@@ -28,6 +27,7 @@
 #include "macros.h"
 #include <utils/StringHelper.h>
 #include <nlohmann/json.hpp>
+#include "build.h"
 
 #include <Fast3D/gfx_pc.h>
 #include <Fast3D/gfx_rendering_api.h>
@@ -148,10 +148,9 @@ OTRGlobals::OTRGlobals() {
             }
         }
     }
-    std::unordered_set<uint32_t> ValidHashes = { OOT_PAL_MQ,     OOT_NTSC_JP_MQ,    OOT_NTSC_US_MQ, OOT_PAL_GC_MQ_DBG,
-                                                 OOT_NTSC_US_10, OOT_NTSC_US_11,    OOT_NTSC_US_12, OOT_PAL_10,
-                                                 OOT_PAL_11,     OOT_NTSC_JP_GC_CE, OOT_NTSC_JP_GC, OOT_NTSC_US_GC,
-                                                 OOT_PAL_GC,     OOT_PAL_GC_DBG1,   OOT_PAL_GC_DBG2 };
+
+    std::unordered_set<uint32_t> validHashes = { MM_NTSC_US_10, MM_NTSC_US_GC };
+
     // tell LUS to reserve 3 SoH specific threads (Game, Audio, Save)
     context =
         Ship::Context::CreateInstance("2 Ship 2 Harkinian", appShortName, "2ship2harkinian.json", archiveFiles, {}, 3,
@@ -164,8 +163,6 @@ OTRGlobals::OTRGlobals() {
     Ship::Context::GetInstance()->GetLogger()->set_level(
         (spdlog::level::level_enum)CVarGetInteger("gDeveloperTools.LogLevel", 1));
     Ship::Context::GetInstance()->GetLogger()->set_pattern("[%H:%M:%S.%e] [%s:%#] [%l] %v");
-
-    // context = Ship::Context::CreateUninitializedInstance("Ship of Harkinian", appShortName, "shipofharkinian.json");
 
     auto overlay = context->GetInstance()->GetWindow()->GetGui()->GetGameOverlay();
     overlay->LoadFont("Press Start 2P", "fonts/PressStart2P-Regular.ttf", 12.0f);
@@ -243,59 +240,22 @@ OTRGlobals::OTRGlobals() {
 
     // gSaveStateMgr = std::make_shared<SaveStateMgr>();
     // gRandomizer = std::make_shared<Randomizer>();
-    hasMasterQuest = hasOriginal = false;
-
-    // Move the camera strings from read only memory onto the heap (writable memory)
-    // This is in OTRGlobals right now because this is a place that will only ever be run once at the beginning of
-    // startup. We should probably find some code in db_camera that does initialization and only run once, and then
-    // dealloc on deinitialization.
-    // cameraStrings = (char**)malloc(sizeof(constCameraStrings));
-    // for (int32_t i = 0; i < sizeof(constCameraStrings) / sizeof(char*); i++) {
-    //    // OTRTODO: never deallocated...
-    //    auto dup = strdup(constCameraStrings[i]);
-    //    cameraStrings[i] = dup;
-    //}
 
     auto versions = context->GetResourceManager()->GetArchiveManager()->GetGameVersions();
-#if 0
     for (uint32_t version : versions) {
-        if (!ValidHashes.contains(version)) {
+        if (!validHashes.contains(version)) {
 #if defined(__SWITCH__)
-            SPDLOG_ERROR("Invalid OTR File!");
+            SPDLOG_ERROR("Invalid O2R File!");
 #elif defined(__WIIU__)
             Ship::WiiU::ThrowInvalidOTR();
 #else
-            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Invalid OTR File",
-                                     "Attempted to load an invalid OTR file. Try regenerating.", nullptr);
-            SPDLOG_ERROR("Invalid OTR File!");
+            SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Invalid O2R File",
+                                     "Attempted to load an invalid O2R file. Try regenerating.", nullptr);
+            SPDLOG_ERROR("Invalid O2R File!");
 #endif
             exit(1);
         }
-        switch (version) {
-            case OOT_PAL_MQ:
-            case OOT_NTSC_JP_MQ:
-            case OOT_NTSC_US_MQ:
-            case OOT_PAL_GC_MQ_DBG:
-                hasMasterQuest = true;
-                break;
-            case OOT_NTSC_US_10:
-            case OOT_NTSC_US_11:
-            case OOT_NTSC_US_12:
-            case OOT_PAL_10:
-            case OOT_PAL_11:
-            case OOT_NTSC_JP_GC_CE:
-            case OOT_NTSC_JP_GC:
-            case OOT_NTSC_US_GC:
-            case OOT_PAL_GC:
-            case OOT_PAL_GC_DBG1:
-            case OOT_PAL_GC_DBG2:
-                hasOriginal = true;
-                break;
-            default:
-                break;
-        }
     }
-#endif
 
     fontMono = CreateFontWithSize(16.0f, "fonts/Inconsolata-Regular.ttf");
     fontMonoLarger = CreateFontWithSize(20.0f, "fonts/Inconsolata-Regular.ttf");
@@ -307,14 +267,6 @@ OTRGlobals::OTRGlobals() {
 }
 
 OTRGlobals::~OTRGlobals() {
-}
-
-bool OTRGlobals::HasMasterQuest() {
-    return hasMasterQuest;
-}
-
-bool OTRGlobals::HasOriginal() {
-    return hasOriginal;
 }
 
 uint32_t OTRGlobals::GetInterpolationFPS() {
@@ -492,23 +444,198 @@ void Ben_ProcessDroppedFiles(std::string filePath) {
     }
 }
 
-extern "C" void InitOTR() {
+typedef struct {
+    uint16_t major;
+    uint16_t minor;
+    uint16_t patch;
+} ArchiveVersion;
+
+// Read the port version from an archive file
+ArchiveVersion ReadPortVersionFromArchive(std::string archivePath, bool isO2rType) {
+    ArchiveVersion version = {};
+
+    // Use a temporary archive instance to load the archive appropriately and read the version file
+    std::shared_ptr<Ship::Archive> archive;
+    if (isO2rType) {
+        archive = make_shared<Ship::O2rArchive>(archivePath);
+    } else {
+        archive = make_shared<Ship::OtrArchive>(archivePath);
+    }
+    if (archive->Open()) {
+        auto t = archive->LoadFile("portVersion", std::make_shared<Ship::ResourceInitData>());
+        if (t != nullptr && t->IsLoaded) {
+            auto stream = std::make_shared<Ship::MemoryStream>(t->Buffer->data(), t->Buffer->size());
+            auto reader = std::make_shared<Ship::BinaryReader>(stream);
+            Ship::Endianness endianness = (Ship::Endianness)reader->ReadUByte();
+            reader->SetEndianness(endianness);
+            version.major = reader->ReadUInt16();
+            version.minor = reader->ReadUInt16();
+            version.patch = reader->ReadUInt16();
+        }
+        archive->Close();
+    }
+
+    return version;
+}
+
+// Check that a 2ship.o2r exists and matches the version of 2ship running
+// Otherwise show a message and exit
+void Check2ShipArchiveVersion(std::string archivePath) {
+    std::string msg;
+
+#if defined(__SWITCH__)
+    msg = "\x1b[4;2HPlease re-extract it from the download."
+          "\x1b[6;2HPress the Home button to exit...";
+#elif defined(__WIIU__)
+    msg = "Please extract the 2ship.o2r from the 2 Ship 2 Harkinian download\nto your folder.\n\n"
+          "Press and hold the power button to shutdown...";
+#else
+    msg = "Please extract the 2ship.o2r from the 2 Ship 2 Harkinian download to your folder.\n\nExiting...";
+#endif
+
+    if (!std::filesystem::exists(archivePath)) {
 #if not defined(__SWITCH__) && not defined(__WIIU__)
-    if (!std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.o2r", appShortName)) &&
-        !std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.zip", appShortName)) &&
-        !std::filesystem::exists(Ship::Context::LocateFileAcrossAppDirs("mm.otr", appShortName))) {
+        Extractor::ShowErrorBox("2ship.o2r file is missing", msg.c_str());
+        exit(1);
+#elif defined(__SWITCH__)
+        Ship::Switch::PrintErrorMessageToScreen(("\x1b[2;2HYou are missing the 2ship.o2r file." + msg).c_str());
+#elif defined(__WIIU__)
+        OSFatal(("You are missing the 2ship.o2r file\n\n" + msg).c_str());
+#endif
+    }
+
+    ArchiveVersion archiveVer = ReadPortVersionFromArchive(archivePath, true);
+
+    if (archiveVer.major != gBuildVersionMajor || archiveVer.minor != gBuildVersionMinor ||
+        archiveVer.patch != gBuildVersionPatch) {
+#if not defined(__SWITCH__) && not defined(__WIIU__)
+        Extractor::ShowErrorBox("2ship.o2r file version does not match", msg.c_str());
+        exit(1);
+#elif defined(__SWITCH__)
+        Ship::Switch::PrintErrorMessageToScreen(("\x1b[2;2HYou have an old 2ship.o2r file." + msg).c_str());
+#elif defined(__WIIU__)
+        OSFatal(("You have an old 2ship.o2r file\n\n" + msg).c_str());
+#endif
+    }
+}
+
+// Checks the program version stored in the o2r and compares the major/minor value to 2ship
+// For Windows/Mac/Linux if the version doesn't match, offer to regenerate it
+void DetectArchiveVersion(std::string fileName, bool isO2rType) {
+    bool isArchiveOld = false;
+    std::string archivePath = Ship::Context::LocateFileAcrossAppDirs(fileName, appShortName);
+
+    // Doesn't exist so nothing to do here
+    if (!std::filesystem::exists(archivePath)) {
+        return;
+    }
+
+    ArchiveVersion archiveVer = ReadPortVersionFromArchive(archivePath, isO2rType);
+
+    // Check both major and minor for game archives
+    if (archiveVer.major != gBuildVersionMajor || archiveVer.minor != gBuildVersionMinor) {
+        isArchiveOld = true;
+    }
+
+    if (isArchiveOld) {
+#if not defined(__SWITCH__) && not defined(__WIIU__)
+        char msgBuf[250];
+        char version[18]; // 5 digits for int16_max (x3) + separators + terminator
+
+        if (archiveVer.major != 0 || archiveVer.minor != 0 || archiveVer.patch != 0) {
+            snprintf(version, 18, "%d.%d.%d", archiveVer.major, archiveVer.minor, archiveVer.patch);
+        } else {
+            snprintf(version, 18, "no version found");
+        }
+
+        snprintf(msgBuf, 250,
+                 "The %s file was generated with a different version of 2 Ship 2 Harkinian.\n"
+                 "O2R version: %s\n\n"
+                 "You must regenerate to be able to play, otherwise the program will exit.\n"
+                 "Would you like to regenerate it now?",
+                 fileName.c_str(), version);
+
+        if (Extractor::ShowYesNoBox("Old O2R File Found", msgBuf) == IDYES) {
+            std::string installPath = Ship::Context::GetAppBundlePath();
+            if (!std::filesystem::exists(installPath + "/assets/extractor")) {
+                Extractor::ShowErrorBox(
+                    "Extractor assets not found",
+                    "Unable to regenerate. Missing assets/extractor folder needed to generate O2R file.\n\nExiting...");
+                exit(1);
+            }
+
+            Extractor extract;
+            if (!extract.Run(Ship::Context::GetAppDirectoryPath(appShortName))) {
+                Extractor::ShowErrorBox("Error", "An error occurred, no O2R file was generated.\n\nExiting...");
+                exit(1);
+            }
+
+            // We can only regenerate O2R archives, so we should just delete the old OTR file
+            if (!isO2rType) {
+                std::filesystem::remove(archivePath);
+            }
+
+            extract.CallZapd(installPath, Ship::Context::GetAppDirectoryPath(appShortName));
+
+            // Rename the new O2R with the previously used extension
+            if (isO2rType) {
+                std::filesystem::rename(Ship::Context::LocateFileAcrossAppDirs("mm.o2r", appShortName), archivePath);
+            }
+        } else {
+            exit(1);
+        }
+
+#elif defined(__SWITCH__)
+        Ship::Switch::PrintErrorMessageToScreen("\x1b[2;2HYou've launched the 2Ship with an old game O2R file."
+                                                "\x1b[4;2HPlease regenerate a new game O2R and relaunch."
+                                                "\x1b[6;2HPress the Home button to exit...");
+#elif defined(__WIIU__)
+        OSFatal("You've launched the 2Ship with an old a game O2R file.\n\n"
+                "Please generate a game O2R and relaunch.\n\n"
+                "Press and hold the Power button to shutdown...");
+#endif
+    }
+}
+
+extern "C" void InitOTR() {
+
+#ifdef __SWITCH__
+    Ship::Switch::Init(Ship::PreInitPhase);
+#elif defined(__WIIU__)
+    Ship::WiiU::Init(appShortName);
+#endif
+
+    // BENTODO: OTRExporter is filling the version file with garbage. Uncomment once fixed.
+    // Check2ShipArchiveVersion(Ship::Context::GetPathRelativeToAppBundle("2ship.o2r"));
+
+    std::string mmPathO2R = Ship::Context::LocateFileAcrossAppDirs("mm.o2r", appShortName);
+    std::string mmPathZIP = Ship::Context::LocateFileAcrossAppDirs("mm.zip", appShortName);
+    std::string mmPathOtr = Ship::Context::LocateFileAcrossAppDirs("mm.otr", appShortName);
+
+    // Check game archives in preferred order
+    if (std::filesystem::exists(mmPathO2R)) {
+        DetectArchiveVersion("mm.o2r", true);
+    } else if (std::filesystem::exists(mmPathZIP)) {
+        DetectArchiveVersion("mm.zip", true);
+    } else if (std::filesystem::exists(mmPathOtr)) {
+        DetectArchiveVersion("mm.otr", false);
+    }
+
+#if not defined(__SWITCH__) && not defined(__WIIU__)
+    if (!std::filesystem::exists(mmPathO2R) && !std::filesystem::exists(mmPathZIP) &&
+        !std::filesystem::exists(mmPathOtr)) {
         std::string installPath = Ship::Context::GetAppBundlePath();
         if (!std::filesystem::exists(installPath + "/assets/extractor")) {
             Extractor::ShowErrorBox(
                 "Extractor assets not found",
-                "No game O2R files found. Missing assets/extractor folder needed to generate O2R file. Exiting...");
+                "No game O2R file found. Missing assets/extractor folder needed to generate O2R file. Exiting...");
             exit(1);
         }
 
-        if (Extractor::ShowYesNoBox("No O2R Files", "No O2R files found. Generate one now?") == IDYES) {
+        if (Extractor::ShowYesNoBox("No O2R File", "No O2R files found. Generate one now?") == IDYES) {
             Extractor extract;
-            if (!extract.Run()) {
-                Extractor::ShowErrorBox("Error", "An error occurred, no OTR file was generated. Exiting...");
+            if (!extract.Run(Ship::Context::GetAppDirectoryPath(appShortName))) {
+                Extractor::ShowErrorBox("Error", "An error occurred, no O2R file was generated. Exiting...");
                 exit(1);
             }
             extract.CallZapd(installPath, Ship::Context::GetAppDirectoryPath(appShortName));
@@ -516,12 +643,6 @@ extern "C" void InitOTR() {
             exit(1);
         }
     }
-#endif
-
-#ifdef __SWITCH__
-    Ship::Switch::Init(Ship::PreInitPhase);
-#elif defined(__WIIU__)
-    Ship::WiiU::Init("soh");
 #endif
 
     OTRGlobals::Instance = new OTRGlobals();
@@ -854,22 +975,8 @@ extern "C" uint32_t ResourceMgr_GetGamePlatform(int index) {
         Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->GetGameVersions()[index];
 
     switch (version) {
-        case OOT_NTSC_US_10:
-        case OOT_NTSC_US_11:
-        case OOT_NTSC_US_12:
-        case OOT_PAL_10:
-        case OOT_PAL_11:
         case MM_NTSC_US_10:
             return GAME_PLATFORM_N64;
-        case OOT_NTSC_JP_GC:
-        case OOT_NTSC_US_GC:
-        case OOT_PAL_GC:
-        case OOT_NTSC_JP_MQ:
-        case OOT_NTSC_US_MQ:
-        case OOT_PAL_MQ:
-        case OOT_PAL_GC_DBG1:
-        case OOT_PAL_GC_DBG2:
-        case OOT_PAL_GC_MQ_DBG:
         case MM_NTSC_US_GC:
             return GAME_PLATFORM_GC;
     }
@@ -880,24 +987,9 @@ extern "C" uint32_t ResourceMgr_GetGameRegion(int index) {
         Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->GetGameVersions()[index];
 
     switch (version) {
-        case OOT_NTSC_US_10:
-        case OOT_NTSC_US_11:
-        case OOT_NTSC_US_12:
-        case OOT_NTSC_JP_GC:
-        case OOT_NTSC_US_GC:
-        case OOT_NTSC_JP_MQ:
-        case OOT_NTSC_US_MQ:
         case MM_NTSC_US_10:
         case MM_NTSC_US_GC:
             return GAME_REGION_NTSC;
-        case OOT_PAL_10:
-        case OOT_PAL_11:
-        case OOT_PAL_GC:
-        case OOT_PAL_MQ:
-        case OOT_PAL_GC_DBG1:
-        case OOT_PAL_GC_DBG2:
-        case OOT_PAL_GC_MQ_DBG:
-            return GAME_REGION_PAL;
     }
 }
 
@@ -1328,7 +1420,7 @@ extern "C" SkeletonHeader* ResourceMgr_LoadSkeletonByName(const char* path, Skel
     }
 
     // This function is only called when a skeleton is initialized.
-    // Therefore we can take this oppurtunity to take note of the Skeleton that is created...
+    // Therefore we can take this opportunity to take note of the Skeleton that is created...
     if (skelAnime != nullptr) {
         auto stringPath = std::string(path);
         // Ship::SkeletonPatcher::RegisterSkeleton(stringPath, skelAnime);
@@ -1465,7 +1557,6 @@ extern "C" void OTRGfxPrint(const char* str, void* printer, void (*printImpl)(vo
     std::wstring wstr = StringToU16(str);
 
     for (const auto& c : wstr) {
-        unsigned char convt = ' ';
         if (c < 0x80) {
             printImpl(printer, c);
         } else if (c >= u'｡' && c <= u'ﾟ') { // katakana
