@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.16.0 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.16.0 FATAL_ERROR)
 
 set(CMAKE_SYSTEM_VERSION 10.0 CACHE STRING "" FORCE)
 
@@ -530,6 +530,12 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
         )
     endif()
 endif()
+
+# This file contains a few SIMD functions. Those functions are much more inefficient without optimizations. MSVC and GCC allow for optimizing a single function, but clang does not.
+set_source_files_properties(2s2h/mixer.c PROPERTIES
+COMPILE_FLAGS "-O2"
+)
+
 ################################################################################
 # Pre build events
 ################################################################################

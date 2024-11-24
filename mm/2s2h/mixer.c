@@ -1,10 +1,10 @@
+//! This file is always optimized by a rule in the CMakeList. This is done because the SIMD functions are very large when unoptimized and clang does not allow optimizing a single function.
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 #include <stdio.h>
 
 #include "mixer.h"
-#include "attributes.h"
 #ifndef __clang__
 #pragma GCC optimize("unroll-loops")
 #endif
@@ -69,6 +69,7 @@ static int16_t resample_table[64][4] = {
 };
 
 static void aMixImplSSE2(uint16_t count, int16_t gain, uint16_t in_addr, uint16_t out_addr);
+static void aMixImplNEON(uint16_t count, int16_t gain, uint16_t in_addr, uint16_t out_addr);
 
 static inline int16_t clamp16(int32_t v) {
     if (v < -0x8000) {
@@ -300,7 +301,7 @@ void aEnvMixerImpl(uint16_t in_addr, uint16_t n_samples, bool swap_reverb, bool 
     } while (n > 0);
 }
 
-static void FORCE_OPTIMIZE aMixImplRef(uint16_t count, int16_t gain, uint16_t in_addr, uint16_t out_addr) {
+static void aMixImplRef(uint16_t count, int16_t gain, uint16_t in_addr, uint16_t out_addr) {
     int nbytes = ROUND_UP_32(ROUND_DOWN_16(count << 4));
     int16_t* in = BUF_S16(in_addr);
     int16_t* out = BUF_S16(out_addr);
@@ -330,6 +331,8 @@ static void FORCE_OPTIMIZE aMixImplRef(uint16_t count, int16_t gain, uint16_t in
 void aMixImpl(uint16_t count, int16_t gain, uint16_t in_addr, uint16_t out_addr) {
 #if __SSE2__
     aMixImplSSE2(count, gain, in_addr, out_addr);
+#elif defined (__ARM_NEON)
+    aMixImplNEON(count, gain, in_addr, out_addr);
 #else
     aMixImplRef(count, gain, in_addr, out_addr);
 #endif
@@ -572,9 +575,13 @@ void aUnkCmd19Impl(uint8_t f, uint16_t count, uint16_t out_addr, uint16_t in_add
 // A note about FORCE_OPTIMIZE...
 // Compilers don't handle SIMD code well when not optimizing. It is unlikely that this code will need to be debugged
 // outside of specific audio issues. We can assume it should always be optimized.
+
+// SIMD operations expect aligned data
+#include "align_asset_macro.h"
+
 #if defined(__SSE2__)
 #include <immintrin.h>
-#include "align_asset_macro.h"
+
 
 static const ALIGN_ASSET(16) int16_t x7fff[8] = {
     0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF,
@@ -586,7 +593,7 @@ static const ALIGN_ASSET(16) int32_t x4000[4] = {
     0x4000,
 };
 
-FORCE_OPTIMIZE static void aMixImplSSE2(uint16_t count, int16_t gain, uint16_t in_addr, uint16_t out_addr) {
+static void aMixImplSSE2(uint16_t count, int16_t gain, uint16_t in_addr, uint16_t out_addr) {
     int nbytes = ROUND_UP_32(ROUND_DOWN_16(count << 4));
     int16_t* in = BUF_S16(in_addr);
     int16_t* out = BUF_S16(out_addr);
@@ -653,13 +660,75 @@ FORCE_OPTIMIZE static void aMixImplSSE2(uint16_t count, int16_t gain, uint16_t i
     }
 }
 #endif
+#if defined (__ARM_NEON)
+#include <arm_neon.h>
+static const int32_t x4000Arr[4] = {0x4000, 0x4000, 0x4000, 0x4000};
+void aMixImplNEON(uint16_t count, int16_t gain, uint16_t in_addr, uint16_t out_addr) {
+    int nbytes = ROUND_UP_32(ROUND_DOWN_16(count << 4));
+    int16_t* in = BUF_S16(in_addr);
+    int16_t* out = BUF_S16(out_addr);
+    int i;
+    int32_t sample;
+
+
+    if (gain == -0x8000) {
+        while (nbytes > 0) {
+            for (unsigned int i = 0; i < 2; i++) {
+                int16x8_t outVec = vld1q_s16(out);
+                int16x8_t inVec = vld1q_s16(in);
+                int16x8_t subVec = vqsubq_s16(outVec, inVec);
+                vst1q_s16(out, subVec);
+                nbytes -= 8 * sizeof(int16_t);
+                out += 8;
+                in += 8;
+            }
+        }
+    }
+    int16x8_t gainVec = vdupq_n_s16(gain);
+    int32x4_t x4000Vec = vld1q_s32(x4000Arr);
+    while (nbytes > 0) {
+        for (unsigned int i = 0; i < 2; i++) {
+        //for (i = 0; i < 16; i++) {
+        int16x8_t outVec = vld1q_s16(out);
+        int16x8_t inVec = vld1q_s16(in);
+        int16x4_t outLoVec = vget_low_s16(outVec);
+        int16x8_t outLoVec2 = vcombine_s16(outLoVec, outLoVec);
+        int16x4_t inLoVec = vget_low_s16(inVec);
+        int16x8_t inLoVec2 = vcombine_s16(inLoVec, inLoVec);
+        int32x4_t outX7fffHiVec = vmull_high_n_s16(outVec, 0x7FFF);
+        int32x4_t outX7fffLoVec = vmull_high_n_s16(outLoVec2, 0x7FFF);
+
+        int32x4_t inGainLoVec = vmull_high_s16(inLoVec2, gainVec);
+        int32x4_t inGainHiVec = vmull_high_s16(inVec, gainVec);
+        int32x4_t addVecLo = vaddq_s32(outX7fffLoVec, inGainLoVec);
+        int32x4_t addVecHi = vaddq_s32(outX7fffHiVec, inGainHiVec);
+        addVecHi = vaddq_s32(addVecHi, x4000Vec);
+        addVecLo = vaddq_s32(addVecLo, x4000Vec);
+        int32x4_t shiftVecHi = vshrq_n_s32(addVecHi, 15);
+        int32x4_t shiftVecLo = vshrq_n_s32(addVecLo, 15);
+        int16x4_t shiftedNarrowHiVec = vqmovn_s32(shiftVecHi);
+        int16x4_t shiftedNarrowLoVec = vqmovn_s32(shiftVecLo);
+        vst1_s16(out, shiftedNarrowLoVec);
+        out += 4;
+        vst1_s16(out, shiftedNarrowHiVec);
+        //int16x8_t finalVec = vcombine_s16(shiftedNarrowLoVec, shiftedNarrowHiVec);
+        //vst1q_s16(out, finalVec);
+        out += 4;
+        in +=8;
+
+        nbytes -= 8 * sizeof(int16_t);
+        }
+    }
+}
+#endif
+
 #if 0
 static const ALIGN_ASSET(32) int16_t x7fff[16] = { 0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF, 0x7FFF,};
 static const ALIGN_ASSET(32) int32_t x4000[8] = { 0x4000, 0x4000, 0x4000, 0x4000, 0x4000, 0x4000, 0x4000, 0x4000};
 
 #pragma GCC target("avx2")
 // AVX2 version of the SSE2 implementation above. AVX2 wasn't released until 2014 and I don't have a good way of checking for it at compile time.
-FORCE_OPTIMIZE void aMixImpl256(uint16_t count, int16_t gain, uint16_t in_addr, uint16_t out_addr) {
+void aMixImpl256(uint16_t count, int16_t gain, uint16_t in_addr, uint16_t out_addr) {
     int nbytes = ROUND_UP_32(ROUND_DOWN_16(count << 4));
     int16_t* in = BUF_S16(in_addr);
     int16_t* out = BUF_S16(out_addr);
