@@ -3199,18 +3199,24 @@ void Ship_DrawSkyboxStarInterpolated(Gfx** gfxP, PlayState* play, Vec3f pos, u32
         // of the loaded view projection, which caused those stars to be clipped away.
         // 5500 was choosen as this is roughly the largest distance that the sun is ever from the view eye.
         f32 eyeDist = Math3D_Vec3f_DistXYZ(&pos, &play->view.eye);
-        f32 ratio = 5500.0f / eyeDist;
+        f32 distRatio = 5500.0f / eyeDist;
 
-        f32 x = play->view.eye.x + (pos.x - play->view.eye.x) * ratio;
-        f32 y = play->view.eye.y + (pos.y - play->view.eye.y) * ratio;
-        f32 z = play->view.eye.z + (pos.z - play->view.eye.z) * ratio;
+        f32 x = play->view.eye.x + (pos.x - play->view.eye.x) * distRatio;
+        f32 y = play->view.eye.y + (pos.y - play->view.eye.y) * distRatio;
+        f32 z = play->view.eye.z + (pos.z - play->view.eye.z) * distRatio;
+
+        // This scale mulitplier is set to draw the stars at a matching size as the texture rectangle
+        // and made to cancel out field of view changes so that the stars always have the same
+        // apparent size, preventing stars from appearing larger in first person mode or when looking through the
+        // telescope.
+        f32 scaleMultiplier = 3.0f / (60.0f / play->view.fovy);
 
         Matrix_Push();
 
         // Set the matrix so the star renders billboarded and scale to "stretch" it so that it matches
         // roughly how the texture rectangle would have looked
         Matrix_Translate(x, y, z, MTXMODE_NEW);
-        Matrix_Scale(width * 3.0f, height * 3.0f, 1.0f, MTXMODE_APPLY);
+        Matrix_Scale(width * scaleMultiplier, height * scaleMultiplier, 1.0f, MTXMODE_APPLY);
         Matrix_ReplaceRotation(&origBillboardMtxF);
 
         gSPMatrix(gfx++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
