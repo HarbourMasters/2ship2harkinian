@@ -330,7 +330,7 @@ static void aMixImplRef(uint16_t count, int16_t gain, uint16_t in_addr, uint16_t
 }
 
 void aMixImpl(uint16_t count, int16_t gain, uint16_t in_addr, uint16_t out_addr) {
-#if __SSE2__
+#if defined(__SSE2__) || defined(_M_AMD64)
     aMixImplSSE2(count, gain, in_addr, out_addr);
 #elif defined(__ARM_NEON)
     aMixImplNEON(count, gain, in_addr, out_addr);
@@ -580,7 +580,7 @@ void aUnkCmd19Impl(uint8_t f, uint16_t count, uint16_t out_addr, uint16_t in_add
 // SIMD operations expect aligned data
 #include "align_asset_macro.h"
 
-#if defined(__SSE2__)
+#if defined(__SSE2__) || defined(_M_AMD64)
 #include <immintrin.h>
 
 static const ALIGN_ASSET(16) int16_t x7fff[8] = {
