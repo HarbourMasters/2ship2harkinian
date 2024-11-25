@@ -17597,7 +17597,7 @@ void Player_Action_68(Player* this, PlayState* play) {
             if (this->av2.actionVar2 == 0) {
                 Message_StartTextbox(play, D_8085D798[this->av1.actionVar1 - 1].textId, &this->actor);
 
-                Audio_PlayFanfare(NA_BGM_GET_ITEM | 0x900);
+                Audio_PlayFanfare(NA_BGM_GET_ITEM);
                 this->av2.actionVar2 = 1;
             } else if (Message_GetState(&play->msgCtx) == TEXT_STATE_CLOSING) {
                 Actor* talkActor;
