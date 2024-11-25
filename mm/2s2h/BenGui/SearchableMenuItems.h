@@ -1304,6 +1304,10 @@ void AddEnhancements() {
                 "Eliminates the Cooldown between Blast Mask usage.", WIDGET_CVAR_CHECKBOX } },
             // Song Enhancements
             { { .widgetName = "Ocarina", .widgetType = WIDGET_SEPARATOR_TEXT },
+              { "Better Song of Double Time", "gEnhancements.Songs.BetterSongOfDoubleTime",
+                "When playing the Song of Double Time, you can now choose the exact time you want to go to, similar to "
+                "the 3DS version.",
+                WIDGET_CVAR_CHECKBOX },
               { "Enable Sun's Song", "gEnhancements.Songs.EnableSunsSong",
                 "Enables the partially implemented Sun's Song. RIGHT-DOWN-UP-RIGHT-DOWN-UP to play it. "
                 "This song will make time move very fast until either Link moves to a different scene, "

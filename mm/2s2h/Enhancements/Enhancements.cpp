@@ -63,6 +63,7 @@ void InitEnhancements() {
     RegisterFierceDeityPutaway();
 
     // Songs
+    RegisterBetterSongOfDoubleTime();
     RegisterEnableSunsSong();
     RegisterFasterSongPlayback();
     RegisterPauseOwlWarp();

@@ -1,6 +1,7 @@
 #ifndef SONGS_H
 #define SONGS_H
 
+void RegisterBetterSongOfDoubleTime();
 void RegisterEnableSunsSong();
 void RegisterFasterSongPlayback();
 void RegisterZoraEggCount();
