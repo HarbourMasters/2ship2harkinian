@@ -3,14 +3,12 @@
 #include "z64.h"
 #include "overlays/actors/ovl_En_Bigokuta/z_en_bigokuta.h"
 #include "overlays/actors/ovl_En_Clear_Tag/z_en_clear_tag.h"
+#include "overlays/actors/ovl_En_Firefly/z_en_firefly.h"
+#include "overlays/actors/ovl_En_Fz/z_en_fz.h"
+#include "overlays/actors/ovl_En_Neo_Reeba/z_en_neo_reeba.h"
 
 #define HIT_BY_SWORD_BEAM 1
 #define NOT_HIT_BY_SWORD_BEAM 0
-
-/*
- * Stored to handle cases where the drawn actor is null (e.g. Leevers)
- */
-static Actor* currentlyDrawnActor = nullptr;
 
 void RegisterFierceDeityAnywhere() {
     REGISTER_VB_SHOULD(VB_DISABLE_FD_MASK, {
@@ -79,11 +77,38 @@ void RegisterFierceDeityAnywhere() {
     });
 
     /*
-     * Use a hook before an actor draws to store which actor is being drawn. Some actors call Actor_DrawDamageEffects()
-     * with a null actor (e.g. leevers), so we cannot just check the actor in the draw damage hook directly.
+     * Keese, Freezards, and Leevers are unique in that they call Actor_DrawDamageEffects() with NULL for the actor.
+     * Normally, that method only uses the actor for playing positional sound effects. For sword beams only, we
+     * overwrite these calls and pass in the actor so that the sword beam draws can be handled properly in the
+     * VB_DRAW_DAMAGE_EFFECT hook.
      */
-    GameInteractor::Instance->RegisterGameHook<GameInteractor::ShouldActorDraw>(
-        [](Actor* actor, bool* result) { currentlyDrawnActor = actor; });
+    REGISTER_VB_SHOULD(VB_USE_NULL_FOR_DRAW_DAMAGE_EFFECTS, {
+        if (CVarGetInteger("gEnhancements.Masks.FierceDeitysAnywhere", 0)) {
+            Actor* actor = va_arg(args, Actor*);
+            // Only change the call if there is a sword beam collision
+            if (actor->shape.face & HIT_BY_SWORD_BEAM) {
+                *should = false;
+                if (actor->id == ACTOR_EN_FIREFLY) { // Keese
+                    EnFirefly* enFireFly = (EnFirefly*)actor;
+                    Actor_DrawDamageEffects(gPlayState, actor, enFireFly->bodyPartsPos, KEESE_BODYPART_MAX,
+                                            enFireFly->drawDmgEffScale * actor->scale.y * 200.0f,
+                                            enFireFly->drawDmgEffFrozenSteamScale, enFireFly->drawDmgEffAlpha,
+                                            enFireFly->drawDmgEffType);
+                } else if (actor->id == ACTOR_EN_FZ) { // Freezard
+                    EnFz* enFz = (EnFz*)actor;
+                    Vec3f* bodyPartsPos = va_arg(args, Vec3f*);
+                    Actor_DrawDamageEffects(gPlayState, actor, bodyPartsPos, ARRAY_COUNT(bodyPartsPos),
+                                            enFz->drawDmgEffScale * 4.0f, 0.5f, enFz->drawDmgEffAlpha,
+                                            ACTOR_DRAW_DMGEFF_LIGHT_ORBS);
+                } else if (actor->id == ACTOR_EN_NEO_REEBA) { // Leever
+                    EnNeoReeba* enNeoReeba = (EnNeoReeba*)actor;
+                    Actor_DrawDamageEffects(gPlayState, actor, enNeoReeba->bodyPartsPos, EN_NEO_REEBA_BODYPART_MAX,
+                                            enNeoReeba->drawEffectScale, 0.5f, enNeoReeba->drawEffectAlpha,
+                                            enNeoReeba->drawEffectType);
+                }
+            }
+        }
+    });
 
     /*
      * If we're drawing the light arrow damage effect, but we know it's from a sword beam, then quietly change the type
@@ -91,7 +116,8 @@ void RegisterFierceDeityAnywhere() {
      */
     REGISTER_VB_SHOULD(VB_DRAW_DAMAGE_EFFECT, {
         if (CVarGetInteger("gEnhancements.Masks.FierceDeitysAnywhere", 0)) {
-            if (currentlyDrawnActor->shape.face & HIT_BY_SWORD_BEAM) {
+            Actor* actor = va_arg(args, Actor*);
+            if (actor != nullptr && actor->shape.face & HIT_BY_SWORD_BEAM) {
                 u8* type = va_arg(args, u8*);
                 if (*type == ACTOR_DRAW_DMGEFF_LIGHT_ORBS) {
                     *type = ACTOR_DRAW_DMGEFF_BLUE_LIGHT_ORBS;
