@@ -845,7 +845,8 @@ void EnFirefly_Draw(Actor* thisx, PlayState* play) {
         POLY_OPA_DISP = gfx;
     }
 
-    if (GameInteractor_Should(VB_USE_NULL_FOR_DRAW_DAMAGE_EFFECTS, true, this)) {
+    if (GameInteractor_Should(VB_USE_NULL_FOR_DRAW_DAMAGE_EFFECTS, true, this, this->bodyPartsPos,
+                              KEESE_BODYPART_MAX)) {
         Actor_DrawDamageEffects(play, NULL, this->bodyPartsPos, KEESE_BODYPART_MAX,
                                 this->drawDmgEffScale * this->actor.scale.y * 200.0f, this->drawDmgEffFrozenSteamScale,
                                 this->drawDmgEffAlpha, this->drawDmgEffType);

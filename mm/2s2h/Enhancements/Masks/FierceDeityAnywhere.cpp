@@ -88,21 +88,22 @@ void RegisterFierceDeityAnywhere() {
             // Only change the call if there is a sword beam collision
             if (actor->shape.face & HIT_BY_SWORD_BEAM) {
                 *should = false;
+                Vec3f* bodyPartsPos = va_arg(args, Vec3f*);
+                int bodyPartsCount = va_arg(args, int);
                 if (actor->id == ACTOR_EN_FIREFLY) { // Keese
                     EnFirefly* enFireFly = (EnFirefly*)actor;
-                    Actor_DrawDamageEffects(gPlayState, actor, enFireFly->bodyPartsPos, KEESE_BODYPART_MAX,
+                    Actor_DrawDamageEffects(gPlayState, actor, bodyPartsPos, bodyPartsCount,
                                             enFireFly->drawDmgEffScale * actor->scale.y * 200.0f,
                                             enFireFly->drawDmgEffFrozenSteamScale, enFireFly->drawDmgEffAlpha,
                                             enFireFly->drawDmgEffType);
                 } else if (actor->id == ACTOR_EN_FZ) { // Freezard
                     EnFz* enFz = (EnFz*)actor;
-                    Vec3f* bodyPartsPos = va_arg(args, Vec3f*);
-                    Actor_DrawDamageEffects(gPlayState, actor, bodyPartsPos, ARRAY_COUNT(bodyPartsPos),
+                    Actor_DrawDamageEffects(gPlayState, actor, bodyPartsPos, bodyPartsCount,
                                             enFz->drawDmgEffScale * 4.0f, 0.5f, enFz->drawDmgEffAlpha,
                                             ACTOR_DRAW_DMGEFF_LIGHT_ORBS);
                 } else if (actor->id == ACTOR_EN_NEO_REEBA) { // Leever
                     EnNeoReeba* enNeoReeba = (EnNeoReeba*)actor;
-                    Actor_DrawDamageEffects(gPlayState, actor, enNeoReeba->bodyPartsPos, EN_NEO_REEBA_BODYPART_MAX,
+                    Actor_DrawDamageEffects(gPlayState, actor, bodyPartsPos, bodyPartsCount,
                                             enNeoReeba->drawEffectScale, 0.5f, enNeoReeba->drawEffectAlpha,
                                             enNeoReeba->drawEffectType);
                 }

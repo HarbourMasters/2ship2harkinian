@@ -657,7 +657,8 @@ void EnNeoReeba_DrawEffects(EnNeoReeba* this, PlayState* play) {
         }
 
         this->bodyPartsPos[EN_NEO_REEBA_BODYPART_3] = this->actor.world.pos;
-        if (GameInteractor_Should(VB_USE_NULL_FOR_DRAW_DAMAGE_EFFECTS, true, this)) {
+        if (GameInteractor_Should(VB_USE_NULL_FOR_DRAW_DAMAGE_EFFECTS, true, this, this->bodyPartsPos,
+                                  EN_NEO_REEBA_BODYPART_MAX)) {
             Actor_DrawDamageEffects(play, NULL, this->bodyPartsPos, EN_NEO_REEBA_BODYPART_MAX, this->drawEffectScale,
                                     0.5f, this->drawEffectAlpha, this->drawEffectType);
         }

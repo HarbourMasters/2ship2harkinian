@@ -872,7 +872,8 @@ void EnFz_Draw(Actor* thisx, PlayState* play) {
         bodyPartsPos[1] = this->actor.world.pos;
         bodyPartsPos[0].y += 20.0f;
         bodyPartsPos[1].y += 40.0f;
-        if (GameInteractor_Should(VB_USE_NULL_FOR_DRAW_DAMAGE_EFFECTS, true, this, bodyPartsPos)) {
+        if (GameInteractor_Should(VB_USE_NULL_FOR_DRAW_DAMAGE_EFFECTS, true, this, bodyPartsPos,
+                                  ARRAY_COUNT(bodyPartsPos))) {
             Actor_DrawDamageEffects(play, NULL, bodyPartsPos, ARRAY_COUNT(bodyPartsPos), this->drawDmgEffScale * 4.0f,
                                     0.5f, this->drawDmgEffAlpha, ACTOR_DRAW_DMGEFF_LIGHT_ORBS);
         }
