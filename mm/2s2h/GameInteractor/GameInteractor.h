@@ -76,6 +76,8 @@ typedef enum {
     VB_DAMAGE_EFFECT,
     VB_DRAW_DAMAGE_EFFECT,
     VB_CHECK_BUMPER_COLLISION,
+    VB_PLAY_HEART_CONTAINER_GET_FANFARE,
+    VB_BE_HOOKSHOT_SURFACE,
 } GIVanillaBehavior;
 
 typedef enum {

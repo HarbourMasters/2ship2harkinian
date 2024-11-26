@@ -5269,8 +5269,8 @@ void func_808332A0(PlayState* play, Player* this, s32 magicCost, s32 isSwordBeam
 
     this->stateFlags1 |= PLAYER_STATE1_1000;
     if ((this->actor.id == ACTOR_PLAYER) &&
-        (isSwordBeam || (GameInteractor_Should(VB_MAGIC_SPIN_ATTACK_CHECK_FORM,
-                                               this->transformation == PLAYER_FORM_HUMAN, this->transformation)))) {
+        (isSwordBeam ||
+         (GameInteractor_Should(VB_MAGIC_SPIN_ATTACK_CHECK_FORM, this->transformation == PLAYER_FORM_HUMAN)))) {
         s16 pitch = 0;
         Actor* thunder;
 
@@ -13521,8 +13521,9 @@ s32 func_808482E0(PlayState* play, Player* this) {
         } else {
             s32 seqId;
 
-            if ((this->getItemId == GI_HEART_CONTAINER) ||
-                ((this->getItemId == GI_HEART_PIECE) && EQ_MAX_QUEST_HEART_PIECE_COUNT)) {
+            bool vanillaCondition = (this->getItemId == GI_HEART_CONTAINER) ||
+                                    ((this->getItemId == GI_HEART_PIECE) && EQ_MAX_QUEST_HEART_PIECE_COUNT);
+            if (GameInteractor_Should(VB_PLAY_HEART_CONTAINER_GET_FANFARE, vanillaCondition, this->getItemId)) {
                 seqId = NA_BGM_GET_HEART | 0x900;
             } else {
                 s32 var_v1;
@@ -14568,9 +14569,7 @@ void Player_Action_12(Player* this, PlayState* play) {
     if (!func_80847880(play, this)) {
         if (!Player_TryActionChangeList(play, this, sPlayerActionChangeList7, false) ||
             (Player_Action_12 == this->actionFunc)) {
-            if (!GameInteractor_Should(VB_CHECK_HELD_ITEM_BUTTON_PRESS,
-                                       CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B), sDpadItemButtons,
-                                       sPlayerItemButtons)) {
+            if (!CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B)) {
                 func_80839E74(this, play);
             }
         }
