@@ -1,7 +1,9 @@
 #include "2s2h/Enhancements/Enhancements.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
+#include "2s2h/Enhancements/GfxPatcher/AuthenticGfxPatches.h"
 #include "UIWidgets.hpp"
 #include "BenMenuBar.h"
+#include "Notification.h"
 #include "macros.h"
 #include "variables.h"
 #include <variant>
@@ -216,7 +218,7 @@ struct widgetInfo {
 // `evaluation` returns a bool which can be determined by whatever code you want that changes its status
 // `reason` is the text displayed in the disabledTooltip when a widget is disabled by a particular DisableReason
 // `active` is what's referenced when determining disabled status for a widget that uses this This can also be used to
-// hold reasons to hide widgets so taht their evaluations are also only run once per frame
+// hold reasons to hide widgets so that their evaluations are also only run once per frame
 struct disabledInfo {
     DisableInfoFunc evaluation;
     const char* reason;
@@ -420,6 +422,10 @@ static const std::unordered_map<int32_t, const char*> timeStopOptions = {
     { TIME_STOP_TEMPLES_DUNGEONS, "Temples + Mini Dungeons" },
 };
 
+static const std::unordered_map<int32_t, const char*> notificationPosition = {
+    { 0, "Top Left" }, { 1, "Top Right" }, { 2, "Bottom Left" }, { 3, "Bottom Right" }, { 4, "Hidden" },
+};
+
 void FreeLookPitchMinMax() {
     f32 maxY = CVarGetFloat("gEnhancements.Camera.FreeLook.MaxPitch", 72.0f);
     f32 minY = CVarGetFloat("gEnhancements.Camera.FreeLook.MinPitch", -49.0f);
@@ -443,13 +449,12 @@ void AddSettings() {
                 "gSettings.MenuTheme",
                 "Changes the Theme of the Menu Widgets.",
                 WIDGET_CVAR_COMBOBOX,
-                { .comboBoxOptions = menuThemeOptions } },
+                { .defaultVariant = COLOR_INDIGO, .comboBoxOptions = menuThemeOptions } },
 #if not defined(__SWITCH__) and not defined(__WIIU__)
-              { "Menubar Controller Navigation", CVAR_IMGUI_CONTROLLER_NAV,
-                "Allows controller navigation of the SOH menu bar (Settings, Enhancements,...)\nCAUTION: "
+              { "Menu Controller Navigation", CVAR_IMGUI_CONTROLLER_NAV,
+                "Allows controller navigation of the 2Ship menu (Settings, Enhancements,...)\nCAUTION: "
                 "This will disable game inputs while the menu is visible.\n\nD-pad to move between "
-                "items, A to select, B to move up in scope. DEV NOTE: SDL is weird currently, pad button only "
-                "works with menubar open.",
+                "items, A to select, B to move up in scope.",
                 WIDGET_CVAR_CHECKBOX },
               { "Cursor Always Visible",
                 "gSettings.CursorVisibility",
@@ -461,15 +466,6 @@ void AddSettings() {
                         CVarGetInteger("gSettings.CursorVisibility", 0));
                 } },
 #endif
-              { "Open App Files Folder",
-                "",
-                "Opens the folder that contains the save and mods folders, etc.",
-                WIDGET_BUTTON,
-                {},
-                [](widgetInfo& info) {
-                    std::string filesPath = Ship::Context::GetInstance()->GetAppDirectoryPath();
-                    SDL_OpenURL(std::string("file:///" + std::filesystem::absolute(filesPath).string()).c_str());
-                } },
               { "Search In Sidebar",
                 "gSettings.SidebarSearch",
                 "Displays the Search menu as a sidebar entry in Settings instead of in the header.",
@@ -494,6 +490,20 @@ void AddSettings() {
               { "Search Input Autofocus", "gSettings.SearchAutofocus",
                 "Search input box gets autofocus when visible. Does not affect using other widgets.",
                 WIDGET_CVAR_CHECKBOX },
+              { .widgetName = "Alt Assets Tab hotkey",
+                .widgetCVar = "gEnhancements.Mods.AlternateAssetsHotkey",
+                .widgetTooltip = "Allows pressing the Tab key to toggle alternate assets",
+                .widgetType = WIDGET_CVAR_CHECKBOX,
+                .widgetOptions = { .defaultVariant = true } },
+              { "Open App Files Folder",
+                "",
+                "Opens the folder that contains the save and mods folders, etc.",
+                WIDGET_BUTTON,
+                {},
+                [](widgetInfo& info) {
+                    std::string filesPath = Ship::Context::GetInstance()->GetAppDirectoryPath();
+                    SDL_OpenURL(std::string("file:///" + std::filesystem::absolute(filesPath).string()).c_str());
+                } },
           } } });
     // Audio Settings
     settingsSidebar.push_back(
@@ -716,6 +726,44 @@ void AddSettings() {
                                       WIDGET_WINDOW_BUTTON,
                                       { .size = UIWidgets::Sizes::Inline, .windowName = "2S2H Input Editor" } } } } });
 
+    settingsSidebar.push_back({ "Notifications",
+                                1,
+                                { {
+                                    { "Position",
+                                      "gNotifications.Position",
+                                      "Which corner of the screen notifications appear in.",
+                                      WIDGET_CVAR_COMBOBOX,
+                                      { .defaultVariant = 3, .comboBoxOptions = notificationPosition } },
+                                    { "Duration: %.0f seconds",
+                                      "gNotifications.Duration",
+                                      "How long notifications are displayed for.",
+                                      WIDGET_CVAR_SLIDER_FLOAT,
+                                      { .min = 300.0f, .max = 3000.0f, .defaultVariant = 1000.0f } },
+                                    { "Background Opacity: %.0f%%",
+                                      "gNotifications.BgOpacity",
+                                      "How opaque the background of notifications is.",
+                                      WIDGET_CVAR_SLIDER_FLOAT,
+                                      { .min = 0.0f, .max = 100.0f, .defaultVariant = 50.0f, .isPercentage = true } },
+                                    { "Size %.1f",
+                                      "gNotifications.Size",
+                                      "How large notifications are.",
+                                      WIDGET_CVAR_SLIDER_FLOAT,
+                                      { .min = 100.0f, .max = 500.0f, .defaultVariant = 180.0f } },
+                                    { "Test Notification",
+                                      "",
+                                      "Displays a test notification.",
+                                      WIDGET_BUTTON,
+                                      {},
+                                      [](widgetInfo& info) {
+                                          Notification::Emit({
+                                              .itemIcon = "__OTR__icon_item_24_static_yar/gQuestIconGoldSkulltulaTex",
+                                              .prefix = "This",
+                                              .message = "is a",
+                                              .suffix = "test.",
+                                          });
+                                      } },
+                                } } });
+
     if (CVarGetInteger("gSettings.SidebarSearch", 0)) {
         settingsSidebar.insert(settingsSidebar.begin() + searchSidebarIndex, searchSidebarEntry);
     }
@@ -729,9 +777,9 @@ void AddEnhancements() {
           3,
           { {
                 { .widgetName = "Fixes", .widgetType = WIDGET_SEPARATOR_TEXT },
-                { "Fix Targetting Camera Snap",
+                { "Fix Targeting Camera Snap",
                   "gEnhancements.Camera.FixTargettingCameraSnap",
-                  "Fixes the camera snap that occurs when you are moving and press the targetting button.",
+                  "Fixes the camera snap that occurs when you are moving and press the targeting button.",
                   WIDGET_CVAR_CHECKBOX,
                   {} },
                 { .widgetName = "First Person", .widgetType = WIDGET_SEPARATOR_TEXT },
@@ -971,6 +1019,8 @@ void AddEnhancements() {
                 "Allows to Razor Sword to be used indefinitely without dulling its blade.", WIDGET_CVAR_CHECKBOX },
               { "Unrestricted Items", "gCheats.UnrestrictedItems", "Allows all Forms to use all Items.",
                 WIDGET_CVAR_CHECKBOX },
+              { "Hookshot Anywhere", "gCheats.HookshotAnywhere", "Allows most surfaces to be hookshot-able",
+                WIDGET_CVAR_CHECKBOX },
               { "Moon Jump on L",
                 "gCheats.MoonJumpOnL",
                 "Holding L makes you float into the air.",
@@ -1004,7 +1054,7 @@ void AddEnhancements() {
               { "Fierce Deity Putaway", "gEnhancements.Player.FierceDeityPutaway",
                 "Allows Fierce Deity Link to put away his sword.", WIDGET_CVAR_CHECKBOX },
               { "Climb speed",
-                "gEnhancements.PlayerMovement.ClimbSpeed",
+                "gEnhancements.Player.ClimbSpeed",
                 "Increases the speed at which Link climbs vines and ladders.",
                 WIDGET_CVAR_SLIDER_INT,
                 { 1, 5, 1 } },
@@ -1028,6 +1078,11 @@ void AddEnhancements() {
                 "Choose how many cuccos you need to raise to make Grog happy.",
                 WIDGET_CVAR_SLIDER_INT,
                 { 1, 10, 10 } },
+              { "Swordsman School Winning Score",
+                "gEnhancements.Minigames.SwordsmanSchoolScore",
+                "Sets the score required to win the Swordsman School.",
+                WIDGET_CVAR_SLIDER_INT,
+                { 1, 30, 30 } },
               { "Fast Magic Arrow Equip Animation", "gEnhancements.Equipment.MagicArrowEquipSpeed",
                 "Removes the animation for equipping Magic Arrows.", WIDGET_CVAR_CHECKBOX },
               { "Instant Fin Boomerangs Recall", "gEnhancements.PlayerActions.InstantRecall",
@@ -1118,7 +1173,8 @@ void AddEnhancements() {
     enhancementsSidebar.push_back(
         { "Graphics",
           3,
-          { { { .widgetName = "Clock", .widgetType = WIDGET_SEPARATOR_TEXT },
+          { {
+              { .widgetName = "Clock", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Clock Type",
                 "gEnhancements.Graphics.ClockType",
                 "Swaps between Graphical and Text only Clock types.",
@@ -1126,6 +1182,12 @@ void AddEnhancements() {
                 { .comboBoxOptions = clockTypeOptions } },
               { "24 Hours Clock", "gEnhancements.Graphics.24HoursClock", "Changes from a 12 Hour to a 24 Hour Clock",
                 WIDGET_CVAR_CHECKBOX },
+              { .widgetName = "Mods", .widgetType = WIDGET_SEPARATOR_TEXT },
+              { .widgetName = "Use Alternate Assets",
+                .widgetCVar = "gEnhancements.Mods.AlternateAssets",
+                .widgetTooltip = "Toggle between standard assets and alternate assets. Usually mods will indicate if "
+                                 "this setting has to be used or not.",
+                .widgetType = WIDGET_CVAR_CHECKBOX },
               { .widgetName = "Motion Blur", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Motion Blur Mode",
                 "gEnhancements.Graphics.MotionBlur.Mode",
@@ -1189,34 +1251,25 @@ void AddEnhancements() {
               { .widgetName = "Unstable",
                 .widgetType = WIDGET_SEPARATOR_TEXT,
                 .widgetOptions = { .color = UIWidgets::Colors::Yellow } },
-              { "Disable Scene Geometry Distance Check", "gEnhancements.Graphics.DisableSceneGeometryDistanceCheck",
+              { "Disable Scene Geometry Distance Check",
+                "gEnhancements.Graphics.DisableSceneGeometryDistanceCheck",
                 "Disables the distance check for scene geometry, allowing it to be drawn no matter how far "
                 "away it is from the player. This may have unintended side effects.",
-                WIDGET_CVAR_CHECKBOX },
+                WIDGET_CVAR_CHECKBOX,
+                {},
+                [](widgetInfo& info) { GfxPatcher_ApplyGeometryIssuePatches(); } },
               { "Widescreen Actor Culling", "gEnhancements.Graphics.ActorCullingAccountsForWidescreen",
                 "Adjusts the culling planes to account for widescreen resolutions. "
                 "This may have unintended side effects.",
                 WIDGET_CVAR_CHECKBOX },
-              { "Increase Actor Draw Distance: %dx",
-                "gEnhancements.Graphics.IncreaseActorDrawDistance",
-                "Increase the range in which Actors are drawn. This may have unintended side effects.",
-                WIDGET_CVAR_SLIDER_INT,
-                { 1, 5, 1 },
-                [](widgetInfo& info) {
-                    CVarSetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance",
-                                   MIN(CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1),
-                                       CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1)));
-                } },
-              { "Increase Actor Update Distance: %dx",
-                "gEnhancements.Graphics.IncreaseActorUpdateDistance",
-                "Increase the range in which Actors are updated. This may have unintended side effects.",
-                WIDGET_CVAR_SLIDER_INT,
-                { 1, 5, 1 },
-                [](widgetInfo& info) {
-                    CVarSetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance",
-                                   MAX(CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1),
-                                       CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1)));
-                } } } } });
+              {
+                  "Increase Actor Draw Distance: %dx",
+                  "gEnhancements.Graphics.IncreaseActorDrawDistance",
+                  "Increase the range in which Actors are drawn. This may have unintended side effects.",
+                  WIDGET_CVAR_SLIDER_INT,
+                  { 1, 5, 1 },
+              },
+          } } });
     enhancementsSidebar.push_back(
         { "Items/Songs",
           3,
@@ -1225,12 +1278,12 @@ void AddEnhancements() {
               { "Blast Mask has Powder Keg Force", "gEnhancements.Masks.BlastMaskKeg",
                 "Blast Mask can also destroy objects only the Powder Keg can.", WIDGET_CVAR_CHECKBOX },
               { "Fast Transformation", "gEnhancements.Masks.FastTransformation",
-                "Removes the delay when using transormation masks.", WIDGET_CVAR_CHECKBOX },
+                "Removes the delay when using transformation masks.", WIDGET_CVAR_CHECKBOX },
               { "Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere",
                 "Allow using Fierce Deity's mask outside of boss rooms.", WIDGET_CVAR_CHECKBOX },
               { "Persistent Bunny Hood",
                 "gEnhancements.Masks.PersistentBunnyHood.Enabled",
-                "Permanantly toggle a speed boost from the bunny hood by pressing "
+                "Permanently toggle a speed boost from the bunny hood by pressing "
                 "'A' on it in the mask menu.",
                 WIDGET_CVAR_CHECKBOX,
                 {},
@@ -1297,7 +1350,7 @@ void AddEnhancements() {
             // Dialogue Enhancements
             { { .widgetName = "Dialogue", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Fast Bank Selection", "gEnhancements.Dialogue.FastBankSelection",
-                "Pressing the Z or R buttons while the Deposit/Withdrawl Rupees dialogue is open will set "
+                "Pressing the Z or R buttons while the Deposit/Withdrawal Rupees dialogue is open will set "
                 "the Rupees to Links current Rupees or 0 respectively.",
                 WIDGET_CVAR_CHECKBOX },
               { "Fast Text", "gEnhancements.Dialogue.FastText",
@@ -1323,6 +1376,16 @@ void AddEnhancements() {
               { "Fix Ikana Great Fairy Fountain Color", "gFixes.FixIkanaGreatFairyFountainColor",
                 "Fixes a bug that results in the Ikana Great Fairy fountain looking green instead of yellow, this was "
                 "fixed in the EU version",
+                WIDGET_CVAR_CHECKBOX },
+              { .widgetName = "Fix Texture overflow OOB",
+                .widgetCVar = "gEnhancements.Fixes.FixTexturesOOB",
+                .widgetTooltip = "Fixes textures that normally overflow to be patched with the correct size or format",
+                .widgetType = WIDGET_CVAR_CHECKBOX,
+                .widgetOptions = { .defaultVariant = true },
+                .widgetCallback = [](widgetInfo& info) { GfxPatcher_ApplyOverflowTexturePatches(); } },
+              { "Fix Completed Heart Container Audio", "gEnhancements.Fixes.CompletedHeartContainerAudio",
+                "Fixes a bug that results in the wrong audio playing upon receiving a 4th piece of heart to "
+                "fill a new heart container.",
                 WIDGET_CVAR_CHECKBOX } } } });
     enhancementsSidebar.push_back(
         { "Restorations",
@@ -1363,6 +1426,15 @@ void AddEnhancements() {
                                           "Enables the HUD Editor window, allowing you to modify your HUD",
                                           WIDGET_WINDOW_BUTTON,
                                           { .size = UIWidgets::Sizes::Inline, .windowName = "HUD Editor" } } } } });
+    enhancementsSidebar.push_back(
+        { "Item Tracker",
+          1,
+          { // Item Tracker Settings
+            { { "Popout Item Tracker Settings",
+                "gWindows.ItemTrackerSettings",
+                "",
+                WIDGET_WINDOW_BUTTON,
+                { .size = UIWidgets::Sizes::Inline, .windowName = "Item Tracker Settings" } } } } });
 }
 
 void AddDevTools() {
@@ -1465,7 +1537,7 @@ void AddDevTools() {
                 "Change the behavior of creating saves while debug mode is enabled:\n\n"
                 "- Empty Save: The default 3 heart save file in first cycle\n"
                 "- Vanilla Debug Save: Uses the title screen save info (8 hearts, all items and masks)\n"
-                "- 100\% Save: All items, equipment, mask, quast status and bombers notebook complete",
+                "- 100\% Save: All items, equipment, mask, quest status and bombers notebook complete",
                 WIDGET_CVAR_COMBOBOX,
                 { 0, 0, 0, debugSaveOptions },
                 [](widgetInfo& info) { RegisterDebugSaveCreate(); },
@@ -1886,7 +1958,9 @@ void SearchMenuGetItem(widgetInfo& widget) {
                                     info.widgetType == WIDGET_SEPARATOR_TEXT || info.isHidden) {
                                     continue;
                                 }
-                                std::string widgetStr = std::string(info.widgetName) + std::string(info.widgetTooltip);
+                                std::string widgetStr =
+                                    std::string(info.widgetName) +
+                                    std::string(info.widgetTooltip != NULL ? info.widgetTooltip : "");
                                 std::transform(menuSearchText.begin(), menuSearchText.end(), menuSearchText.begin(),
                                                ::tolower);
                                 menuSearchText.erase(std::remove(menuSearchText.begin(), menuSearchText.end(), ' '),
