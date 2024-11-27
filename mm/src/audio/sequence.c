@@ -435,7 +435,7 @@ void AudioSeq_ProcessSeqCmd(u32 cmd) {
 /**
  * Add the sequence cmd to the `sAudioSeqCmds` queue
  */
-static uint8_t sClockTownDaySeqIds[4] = {
+static const uint8_t sClockTownDaySeqIds[4] = {
     NA_BGM_CLOCK_TOWN_DAY_1,
     NA_BGM_CLOCK_TOWN_DAY_2,
     NA_BGM_CLOCK_TOWN_DAY_3,
@@ -449,17 +449,19 @@ void AudioSeq_QueueSeqCmd(u32 cmd) {
     if (op == 0 || op == 2) {
         u16 seqId = cmd & SEQCMD_SEQID_MASK_16;
         if (seqId == NA_BGM_CLOCK_TOWN_MAIN_SEQUENCE) {
-            // Clock town uses one sequence id for all 3 songs. We need to manually figure out which day it is and
-            // replace the sequence id our self.
+            // Clock town uses one sequence id for all 3 songs. We need to manually figure out which day it is
             seqId = sClockTownDaySeqIds[CURRENT_DAY - 1];
+            // Don't update the command as that will break the morning sequence.
         }
         u8 playerIdx = (cmd & 0xF000000) >> 24;
         u16 newSeqId = AudioEditor_GetReplacementSeq(seqId);
         gAudioCtx.seqReplaced[playerIdx] = (seqId != newSeqId);
         gAudioCtx.seqToPlay[playerIdx] = newSeqId;
-        cmd |= (seqId & SEQCMD_SEQID_MASK_16);
+        // Don't overwrite the seqId we just set for Clock Town
+        if (seqId != sClockTownDaySeqIds[CURRENT_DAY - 1]) {
+            cmd |= (seqId & SEQCMD_SEQID_MASK_16);
+        }
     }
-
     sAudioSeqCmds[sSeqCmdWritePos++] = cmd;
 }
 
