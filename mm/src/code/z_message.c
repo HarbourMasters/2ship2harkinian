@@ -4581,7 +4581,8 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
                 // 0xFE means the staff is up but nothing has been played
                 // 0xFF means no staff is up
                 if (msgCtx->ocarinaStaff->state != 0xFE && msgCtx->ocarinaStaff->state != 0xFF) {
-                    vanillaOwnedSongCheck = vanillaOwnedSongCheck || CHECK_QUEST_ITEM(QUEST_SONG_SONATA + msgCtx->ocarinaStaff->state);
+                    vanillaOwnedSongCheck =
+                        vanillaOwnedSongCheck || CHECK_QUEST_ITEM(QUEST_SONG_SONATA + msgCtx->ocarinaStaff->state);
                 }
 
                 if (msgCtx->ocarinaStaff->state <= OCARINA_SONG_SCARECROW_SPAWN) {

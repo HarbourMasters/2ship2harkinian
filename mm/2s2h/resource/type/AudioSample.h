@@ -4,7 +4,6 @@
 #include <vector>
 #include "Resource.h"
 #include <libultraship/libultra/types.h>
-#include <thread>
 
 namespace SOH {
 typedef struct {
