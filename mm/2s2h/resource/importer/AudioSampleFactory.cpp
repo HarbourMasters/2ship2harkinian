@@ -84,17 +84,15 @@ static void Mp3DecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std:
     drwav_uint64 channels = mp3.channels;
     drwav_uint64 sampleRate = mp3.sampleRate;
 
-    audioSample->audioSampleData.reserve(numFrames * channels * 2); // 2 for sizeof(s16)
-    drmp3_read_pcm_frames_s16(&mp3, numFrames, (int16_t*)audioSample->audioSampleData.data());
-    audioSample->sample.sampleAddr = audioSample->audioSampleData.data();
+    audioSample->sample.sampleAddr = new uint8_t[numFrames * channels * 2];
+    drmp3_read_pcm_frames_s16(&mp3, numFrames, (int16_t*)audioSample->sample.sampleAddr);
 }
 
 static void FlacDecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std::shared_ptr<Ship::File> sampleFile) {
     drflac* flac = drflac_open_memory(sampleFile->Buffer.get()->data(), sampleFile->Buffer.get()->size(), nullptr);
     drflac_uint64 numFrames = flac->totalPCMFrameCount;
-    audioSample->audioSampleData.reserve(numFrames * flac->channels * 2);
-    drflac_read_pcm_frames_s16(flac, numFrames, (int16_t*)audioSample->audioSampleData.data());
-    audioSample->sample.sampleAddr = audioSample->audioSampleData.data();
+    audioSample->sample.sampleAddr = new uint8_t[numFrames * flac->channels * 2];
+    drflac_read_pcm_frames_s16(flac, numFrames, (int16_t*)audioSample->sample.sampleAddr);
     drflac_close(flac);
 }
 
@@ -118,13 +116,12 @@ static void OggDecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std:
     uint64_t numChannels = vi->channels;
     int bitStream = 0;
     size_t toRead = numFrames * numChannels * 2;
-    audioSample->audioSampleData.reserve(toRead);
+    audioSample->sample.sampleAddr = new uint8_t[toRead];
     do {
         read = ov_read(&vf, dataBuff, 4096, 0, 2, 1, &bitStream);
-        memcpy(audioSample->audioSampleData.data() + pos, dataBuff, read);
+        memcpy(audioSample->sample.sampleAddr + pos, dataBuff, read);
         pos += read;
     } while (read != 0);
-    audioSample->sample.sampleAddr = audioSample->audioSampleData.data();
     ov_clear(&vf);
 }
 
@@ -143,34 +140,34 @@ std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSampleV2::ReadResourc
     audioSample->sample.unk_bit25 = reader->ReadUByte();
     audioSample->sample.size = reader->ReadUInt32();
 
-    audioSample->audioSampleData.reserve(audioSample->sample.size);
+    audioSample->sample.sampleAddr = new uint8_t[audioSample->sample.size];
     for (uint32_t i = 0; i < audioSample->sample.size; i++) {
-        audioSample->audioSampleData.push_back(reader->ReadUByte());
+        audioSample->sample.sampleAddr[i] = reader->ReadUByte();
     }
-    audioSample->sample.sampleAddr = audioSample->audioSampleData.data();
 
     audioSample->loop.start = reader->ReadUInt32();
     audioSample->loop.end = reader->ReadUInt32();
     audioSample->loop.count = reader->ReadUInt32();
 
-    audioSample->loopStateCount = reader->ReadUInt32();
+    // This always seems to be 16. Can it be removed in V3?
+    uint32_t loopStateCount = reader->ReadUInt32();
     for (int i = 0; i < 16; i++) {
         audioSample->loop.state[i] = 0;
     }
-    for (uint32_t i = 0; i < audioSample->loopStateCount; i++) {
+    for (uint32_t i = 0; i < loopStateCount; i++) {
         audioSample->loop.state[i] = reader->ReadInt16();
     }
     audioSample->sample.loop = &audioSample->loop;
 
     audioSample->book.order = reader->ReadInt32();
     audioSample->book.npredictors = reader->ReadInt32();
-    audioSample->bookDataCount = reader->ReadUInt32();
+    uint32_t bookDataCount = reader->ReadUInt32();
 
-    audioSample->bookData.reserve(audioSample->bookDataCount);
-    for (uint32_t i = 0; i < audioSample->bookDataCount; i++) {
-        audioSample->bookData.push_back(reader->ReadInt16());
+    audioSample->book.book = new int16_t[bookDataCount];
+    
+    for (uint32_t i = 0; i < bookDataCount; i++) {
+        audioSample->book.book[i] = reader->ReadInt16();
     }
-    audioSample->book.book = audioSample->bookData.data();
     audioSample->sample.book = &audioSample->book;
 
     return audioSample;
@@ -186,44 +183,44 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
     std::shared_ptr<Ship::ResourceInitData> initData = std::make_shared<Ship::ResourceInitData>();
     const char* customFormatStr = child->Attribute("CustomFormat");
     memset(&audioSample->sample, 0, sizeof(audioSample->sample));
+    audioSample->sample.unk_bit25 = 0;
     audioSample->sample.codec = CodecStrToInt(child->Attribute("Codec"));
     audioSample->sample.medium = ResourceFactoryXMLSoundFontV0::MediumStrToInt(child->Attribute("Medium"));
-    audioSample->sample.unk_bit25 = child->IntAttribute("Relocated");
     audioSample->sample.unk_bit26 = child->IntAttribute("bit26");
-    audioSample->loop.start = child->IntAttribute("LoopStart");
-    audioSample->loop.end = child->IntAttribute("LoopEnd");
-    audioSample->loop.count = child->IntAttribute("LoopCount");
 
-    // CODEC_ADPCM || CODEC_SMALL_ADPCM
-    memset(audioSample->loop.state, 0, sizeof(audioSample->loop.state));
-    if (audioSample->sample.codec == 0 || audioSample->sample.codec == 3) {
-        tinyxml2::XMLElement* loopElement = child->FirstChildElement();
+    tinyxml2::XMLElement* loopRoot = child->FirstChildElement("ADPCMLoop");
+    if (loopRoot != nullptr) {
         size_t i = 0;
-        if (loopElement != nullptr) {
-            while (strcmp(loopElement->Name(), "LoopState") == 0) {
-                audioSample->loop.state[i] = loopElement->IntAttribute("Loop");
-                loopElement = loopElement->NextSiblingElement();
-                i++;
-            }
-            audioSample->loop.count = i;
-            i = 0;
-            while (loopElement != nullptr && strcmp(loopElement->Name(), "Books") == 0) {
-                audioSample->bookData.push_back(loopElement->IntAttribute("Book"));
-                loopElement = loopElement->NextSiblingElement();
-                i++;
-            }
+        audioSample->loop.start = loopRoot->UnsignedAttribute("Start");
+        audioSample->loop.end = loopRoot->UnsignedAttribute("End");
+        audioSample->loop.count = loopRoot->UnsignedAttribute("Count");
+        tinyxml2::XMLElement* predictor = loopRoot->FirstChildElement("Predictor");
+        while (predictor != nullptr) {
+            audioSample->loop.state[i++] = predictor->IntAttribute("State");
+            predictor = predictor->NextSiblingElement();
         }
-        audioSample->book.npredictors = child->IntAttribute("Npredictors");
-        audioSample->book.order = child->IntAttribute("Order");
+    }
 
-        audioSample->book.book = audioSample->bookData.data();
+    tinyxml2::XMLElement* bookRoot = child->FirstChildElement("ADPCMBook");
+    if (bookRoot != nullptr) {
+        size_t i = 0;
+        audioSample->book.npredictors = bookRoot->IntAttribute("Npredictors");
+        audioSample->book.order = bookRoot->IntAttribute("Order");
+        tinyxml2::XMLElement* book = bookRoot->FirstChildElement("Book");
+        size_t numBooks = audioSample->book.npredictors * audioSample->book.order * 8;
+        audioSample->book.book = new int16_t[numBooks];
+        while (book != nullptr) {
+            audioSample->book.book[i] = book->IntAttribute("Page");
+            book = book->NextSiblingElement();
+        }
         audioSample->sample.book = &audioSample->book;
     }
+
     audioSample->sample.loop = &audioSample->loop;
-    size_t size = child->Int64Attribute("SampleSize");
+    size_t size = child->Int64Attribute("Size");
     audioSample->sample.size = size;
 
-    const char* path = child->Attribute("SamplePath");
+    const char* path = child->Attribute("Path");
     initData->Path = path;
     initData->IsCustom = false;
     initData->ByteOrder = Ship::Endianness::Native;
@@ -241,10 +238,9 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
             drwav_get_length_in_pcm_frames(&wav, &numFrames);
 
             audioSample->tuning = (wav.sampleRate * wav.channels) / 32000.0f;
-            audioSample->audioSampleData.reserve(numFrames * wav.channels * 2);
+            audioSample->sample.sampleAddr = new uint8_t[numFrames * wav.channels * 2];
 
-            drwav_read_pcm_frames_s16(&wav, numFrames, (int16_t*)audioSample->audioSampleData.data());
-            audioSample->sample.sampleAddr = audioSample->audioSampleData.data();
+            drwav_read_pcm_frames_s16(&wav, numFrames, (int16_t*)audioSample->sample.sampleAddr);
             return audioSample;
         } else if (strcmp(customFormatStr, "mp3") == 0) {
             std::thread fileDecoderThread = std::thread(Mp3DecoderWorker, audioSample, sampleFile);
@@ -261,12 +257,11 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
         }
     }
     // Not a normal streamed sample. Fallback to the original ADPCM sample to be decoded by the audio engine.
-    audioSample->audioSampleData.resize(size);
+    audioSample->sample.sampleAddr = new uint8_t[size];
     // Can't use memcpy due to endianness issues.
     for (uint32_t i = 0; i < size; i++) {
-        audioSample->audioSampleData[i] = sampleFile->Buffer.get()->data()[i];
+        audioSample->sample.sampleAddr[i] = sampleFile->Buffer.get()->data()[i];
     }
-    audioSample->sample.sampleAddr = audioSample->audioSampleData.data();
 
     return audioSample;
 }

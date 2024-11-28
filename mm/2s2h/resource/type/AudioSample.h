@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <vector>
 #include "Resource.h"
 #include <libultraship/libultra/types.h>
 
@@ -42,19 +41,14 @@ class AudioSample : public Ship::Resource<Sample> {
 
     AudioSample() : Resource(std::shared_ptr<Ship::ResourceInitData>()) {
     }
+    ~AudioSample();
 
     Sample* GetPointer();
     size_t GetPointerSize();
 
     Sample sample;
-    std::vector<uint8_t> audioSampleData;
-
     AdpcmLoop loop;
-    uint32_t loopStateCount;
-
     AdpcmBook book;
-    uint32_t bookDataCount;
-    std::vector<int16_t> bookData;
     // Only applies to streamed audio
     float tuning = -1.0f;
 };
