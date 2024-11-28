@@ -14,6 +14,7 @@ void AudioHeap_DiscardSampleBanks(void);
 void AudioHeap_InitReverb(s32 reverbIndex, ReverbSettings* settings, s32 isFirstInit);
 
 extern size_t sequenceMapSize;
+extern size_t fontMapSize;
 
 #define gTatumsPerBeat (gAudioTatumInit[1])
 
@@ -55,13 +56,10 @@ void AudioHeap_InitAdsrDecayTable(void) {
 
 void AudioHeap_ResetLoadStatus(void) {
     s32 i;
-    // 2S2H [Port] [Custom audio] These are initialized with `calloc` in AudioLoad_Init
 
-    if (gAudioCtx.fontLoadStatus != NULL) {
-        for (i = 0; i < ARRAY_COUNT(gAudioCtx.fontLoadStatus); i++) {
-            if (gAudioCtx.fontLoadStatus[i] != LOAD_STATUS_PERMANENT) {
-                gAudioCtx.fontLoadStatus[i] = LOAD_STATUS_NOT_LOADED;
-            }
+    for (i = 0; i < fontMapSize; i++) {
+        if (gAudioCtx.fontLoadStatus[i] != LOAD_STATUS_PERMANENT) {
+            gAudioCtx.fontLoadStatus[i] = LOAD_STATUS_NOT_LOADED;
         }
     }
 

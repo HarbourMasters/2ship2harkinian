@@ -164,7 +164,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSampleV2::ReadResourc
     uint32_t bookDataCount = reader->ReadUInt32();
 
     audioSample->book.book = new int16_t[bookDataCount];
-    
+
     for (uint32_t i = 0; i < bookDataCount; i++) {
         audioSample->book.book[i] = reader->ReadInt16();
     }

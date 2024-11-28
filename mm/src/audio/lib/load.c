@@ -117,6 +117,7 @@ char** sequenceMap;
 size_t sequenceMapSize;
 u8 seqCachePolicyMap[MAX_AUTHENTIC_SEQID];
 char** fontMap;
+size_t fontMapSize;
 
 void AudioLoad_DecreaseSampleDmaTtls(void) {
     u32 i;
@@ -1147,7 +1148,6 @@ int strcmp_sort(const void* str1, const void* str2) {
 }
 
 char** sequenceMap;
-size_t sequenceMapSize;
 extern AudioContext gAudioCtx;
 // #end region
 #include "resourcebridge.h"
@@ -1283,6 +1283,7 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
 
     gAudioCtx.fontLoadStatus = malloc(customFntListSize + fntListSize);
     fontMap = calloc(customFntListSize + fntListSize, sizeof(char*));
+    fontMapSize = customFntListSize + fntListSize;
     for (int i = 0; i < fntListSize; i++) {
         SoundFont* sf = ResourceMgr_LoadAudioSoundFontByName(fntList[i]);
         fontMap[sf->fntIndex] = strdup(fntList[i]);
