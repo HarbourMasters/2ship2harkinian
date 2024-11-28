@@ -534,7 +534,7 @@ void Boss02_SpawnEffectSand(TwinmoldEffect* effects, Vec3f* pos, f32 scale) {
             effects->timer = 0;
             effects->targetScale = 2.0f * scale;
             effects->accel.x = effects->accel.z = 0.0f;
-            effects->justSpawned = true;
+            effects->epoch++;
             break;
         }
     }
@@ -557,7 +557,7 @@ void Boss02_SpawnEffectFragment(TwinmoldEffect* effects, Vec3f* pos) {
             effects->scale = Rand_ZeroFloat(0.04f) + 0.02f;
             effects->rotY = Rand_ZeroFloat(32767.0f);
             effects->rotX = Rand_ZeroFloat(32767.0f);
-            effects->justSpawned = true;
+            effects->epoch++;
             break;
         }
     }
@@ -574,7 +574,7 @@ void Boss02_SpawnEffectFlash(TwinmoldEffect* effects, Vec3f* pos) {
             Math_Vec3f_Copy(&effects->accel, &gZeroVec3f);
             effects->alpha = 255;
             effects->scale = 0.0f;
-            effects->justSpawned = true;
+            effects->epoch++;
             break;
         }
     }
@@ -1573,10 +1573,9 @@ void Boss02_DrawEffects(PlayState* play) {
 
     for (i = 0; i < TWINMOLD_EFFECT_COUNT; i++, effect++) {
         if (effect->type == TWINMOLD_EFFECT_SAND) {
-            // Here and below, set a highbit for effects that just spawned to skip interoplating from an old effect
-            FrameInterpolation_RecordOpenChild(effect, effect->type | (effect->justSpawned ? (1 << 30) : 0));
+            // Here and below, key by effect type merged with epoch
+            FrameInterpolation_RecordOpenChild(effect, (effect->epoch << 4) | effect->type);
             FrameInterpolation_IgnoreActorMtx();
-            effect->justSpawned = false;
             if (!flag) {
                 gSPDisplayList(POLY_XLU_DISP++, gTwinmoldDustMaterialDL);
                 gDPSetEnvColor(POLY_XLU_DISP++, 185, 140, 70, 128);
@@ -1607,9 +1606,8 @@ void Boss02_DrawEffects(PlayState* play) {
     effect = (TwinmoldEffect*)play->specialEffects;
     for (i = 0, flag = false; i < TWINMOLD_EFFECT_COUNT; i++, effect++) {
         if (effect->type == TWINMOLD_EFFECT_FRAGMENT) {
-            FrameInterpolation_RecordOpenChild(effect, effect->type | (effect->justSpawned ? (1 << 30) : 0));
+            FrameInterpolation_RecordOpenChild(effect, (effect->epoch << 4) | effect->type);
             FrameInterpolation_IgnoreActorMtx();
-            effect->justSpawned = false;
             if (!flag) {
                 gDPSetCombineLERP(POLY_OPA_DISP++, SHADE, 0, PRIMITIVE, 0, SHADE, 0, PRIMITIVE, 0, SHADE, 0, PRIMITIVE,
                                   0, SHADE, 0, PRIMITIVE, 0);
@@ -1632,9 +1630,8 @@ void Boss02_DrawEffects(PlayState* play) {
     effect = (TwinmoldEffect*)play->specialEffects;
     for (i = 0, flag = false; i < TWINMOLD_EFFECT_COUNT; i++, effect++) {
         if (effect->type == TWINMOLD_EFFECT_FLASH) {
-            FrameInterpolation_RecordOpenChild(effect, effect->type | (effect->justSpawned ? (1 << 30) : 0));
+            FrameInterpolation_RecordOpenChild(effect, (effect->epoch << 4) | effect->type);
             FrameInterpolation_IgnoreActorMtx();
-            effect->justSpawned = false;
             if (!flag) { //! @bug - dev forgot to set flag to 1, should only apply to first entry?
                 gSPDisplayList(POLY_XLU_DISP++, gLightOrbMaterial1DL);
                 gDPSetEnvColor(POLY_XLU_DISP++, 255, 0, 0, 128);
@@ -1656,9 +1653,8 @@ void Boss02_DrawEffects(PlayState* play) {
     effect = (TwinmoldEffect*)play->specialEffects;
     for (i = 0, flag = false; i < TWINMOLD_EFFECT_COUNT; i++, effect++) {
         if (effect->type == TWINMOLD_EFFECT_BLACK_DUST) {
-            FrameInterpolation_RecordOpenChild(effect, effect->type | (effect->justSpawned ? (1 << 30) : 0));
+            FrameInterpolation_RecordOpenChild(effect, (effect->epoch << 4) | effect->type);
             FrameInterpolation_IgnoreActorMtx();
-            effect->justSpawned = false;
             if (!flag) {
                 gSPDisplayList(POLY_XLU_DISP++, gTwinmoldDustMaterialDL);
                 gDPSetEnvColor(POLY_XLU_DISP++, 30, 30, 30, 128);
@@ -2365,6 +2361,6 @@ void Boss02_Reset(void) {
 
     for (int i = 0; i < TWINMOLD_EFFECT_COUNT; i++) {
         sTwinmoldEffects[i].type = TWINMOLD_EFFECT_NONE;
-        sTwinmoldEffects[i].justSpawned = false;
+        sTwinmoldEffects[i].epoch = 0;
     }
 }

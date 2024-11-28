@@ -281,6 +281,7 @@ void func_808DC454(ObjectKankyo* this, PlayState* play) {
 
                 if (((this->unk_14C[i].unk_00 + this->unk_14C[i].unk_0C) - temp_f24) > temp_120) {
                     this->unk_14C[i].unk_00 = temp_f24 - temp_120;
+                    // 2S2H [Interpolation] Here and below, skip particle interp on next frame when position moves
                     this->unk_14C[i].epoch++;
                 }
 
@@ -455,6 +456,7 @@ void func_808DCDB4(ObjectKankyo* this, PlayState* play) {
 
                 if (((this->unk_14C[i].unk_00 + this->unk_14C[i].unk_0C) - temp_f26) > temp_80) {
                     this->unk_14C[i].unk_00 = temp_f26 - temp_80;
+                    // 2S2H [Interpolation] Here and below, skip particle interp on next frame when position moves
                     this->unk_14C[i].epoch++;
                 }
 
@@ -588,7 +590,6 @@ void func_808DD3C8(Actor* thisx, PlayState* play2) {
             Matrix_Scale(0.05f + tempf, 0.05f + tempf, 0.05f + tempf, MTXMODE_APPLY);
             temp_f2 = Math_Vec3f_DistXYZ(&worldPos, &play->view.eye) / 300.0f;
             temp_f2 = ((1.0f < temp_f2) ? 0.0f : (((1.0f - temp_f2) > 1.0f) ? 1.0f : 1.0f - temp_f2));
-            temp_f2 = 1.59375f;
 
             gDPPipeSync(POLY_XLU_DISP++);
             gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 255, 255, 255, (u8)(160.0f * temp_f2));
@@ -658,7 +659,6 @@ void func_808DD970(Actor* thisx, PlayState* play2) {
             Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY);
             temp_f0 = Math_Vec3f_DistXYZ(&worldPos, &play->view.eye);
             temp_f0 = (u8)(255.0f * phi_f26) * (1.0f - (temp_f0 / 300.0f));
-            temp_f0 = 255;
 
             gDPPipeSync(POLY_XLU_DISP++);
             gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 255, 255, 55, temp_f0);

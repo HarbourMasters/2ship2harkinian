@@ -399,7 +399,7 @@ void DemoKakyo_MoonSparklesActionFunc(DemoKankyo* this, PlayState* play) {
                 }
 
                 if (((this->effects[i].posBase.x + this->effects[i].posOffset.x) - newEye.x) > halfScreenHeight) {
-                    // 2S2H [Interpolation] Here and below, skip particle interpolation on next frame when positionmoves
+                    // 2S2H [Interpolation] Here and below, skip particle interp on next frame when position moves
                     if (ABS(this->effects[i].posBase.x - (newEye.x - halfScreenHeight)) >= 120.0f) {
                         this->effects[i].epoch++;
                     }
