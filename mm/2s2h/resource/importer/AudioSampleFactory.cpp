@@ -210,7 +210,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
         size_t numBooks = audioSample->book.npredictors * audioSample->book.order * 8;
         audioSample->book.book = new int16_t[numBooks];
         while (book != nullptr) {
-            audioSample->book.book[i] = book->IntAttribute("Page");
+            audioSample->book.book[i++] = book->IntAttribute("Page");
             book = book->NextSiblingElement();
         }
         audioSample->sample.book = &audioSample->book;

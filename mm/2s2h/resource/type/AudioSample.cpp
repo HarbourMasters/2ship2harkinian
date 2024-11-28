@@ -2,7 +2,7 @@
 
 namespace SOH {
 AudioSample::~AudioSample() {
-    if (sample.book->book != nullptr) {
+    if (sample.book != nullptr && sample.book->book != nullptr) {
         delete[] sample.book->book;
     }
     if (sample.sampleAddr != nullptr) {
