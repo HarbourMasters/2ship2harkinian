@@ -100,10 +100,48 @@ extern "C" void gDPSetPrimColorWithOverride(Gfx* pkt, u8 m, u8 l, u8 r, u8 g, u8
     gDPSetPrimColor(pkt, m, l, setColor.r, setColor.g, setColor.b, a);
 }
 
+void CosmeticEditorRandomizeElement(CosmeticEditorElement id) {
+    Color_RGBA8 colorSelected;
+    colorSelected.r = static_cast<uint8_t>((rand() % 256) * 255.0f);
+    colorSelected.g = static_cast<uint8_t>((rand() % 256) * 255.0f);
+    colorSelected.b = static_cast<uint8_t>((rand() % 256) * 255.0f);
+    colorSelected.a = static_cast<uint8_t>(255);
+
+    CVarSetColor(id.colorCvar, colorSelected);
+    CVarSetInteger(id.colorChangedCvar, true);
+    Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+}
+
+void CosmeticEditorRandomizeAllElements() {
+    for (auto& element : cosmeticEditorElements) {
+        CosmeticEditorRandomizeElement(element);
+    }
+}
+
+void CosmeticEditorResetAllElements() {
+    for (auto& element : cosmeticEditorElements) {
+        CVarClear(element.colorCvar);
+        CVarClear(element.colorChangedCvar);
+    }
+}
+
 void CosmeticEditorDrawColorTab() {
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 1.0f, 1.0f, 0.2f));
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 1.0f, 1.0f, 0.1f));
+    std::string resetAllText = ICON_FA_UNDO;
+    resetAllText += " All";
+    std::string randomAllText = ICON_FA_RECYCLE;
+    randomAllText += " All";
+    if (ImGui::Button(resetAllText.c_str())) {
+        CosmeticEditorResetAllElements();
+    }
+    UIWidgets::Tooltip("Resets All Elements to their Defaults");
+    ImGui::SameLine();
+    if (ImGui::Button(randomAllText.c_str())) {
+        CosmeticEditorRandomizeAllElements();
+    }
+    UIWidgets::Tooltip("Randomizes All Elements");
     for (auto& parent : cosmeticEditorParentElements) {
         ImGui::SeparatorText(parent);
         ImGui::BeginTable(parent, 2);
@@ -136,10 +174,14 @@ void CosmeticEditorDrawColorTab() {
                 Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
             }
             ImGui::SameLine();
-            if (ImGui::Button(ICON_FA_REFRESH, ImVec2(27.0f, 27.0f))) {
+            if (ImGui::Button(ICON_FA_UNDO, ImVec2(27.0f, 27.0f))) {
                 CVarClear(entry.colorCvar);
                 CVarClear(entry.colorChangedCvar);
                 Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+            }
+            ImGui::SameLine();
+            if (ImGui::Button(ICON_FA_RECYCLE, ImVec2(27.0f, 27.0f))) {
+                CosmeticEditorRandomizeElement(entry);
             }
             ImGui::SameLine();
             ImGui::TextColored(CVarGetInteger(entry.colorChangedCvar, 0) ? UIWidgets::Colors::LightGreen
@@ -152,6 +194,7 @@ void CosmeticEditorDrawColorTab() {
     ImGui::PopStyleColor(3);
 }
 
+// Tab Bar is unused until other options are available.
 void CosmeticEditorDrawTabBar() {
     ImGui::BeginTabBar("Cosmetic Tab Bar");
     if (ImGui::BeginTabItem("Colors")) {
@@ -162,7 +205,7 @@ void CosmeticEditorDrawTabBar() {
 }
 
 void CosmeticEditorWindow::DrawElement() {
-    CosmeticEditorDrawTabBar();
+    CosmeticEditorDrawColorTab();
 }
 
 void CosmeticEditorWindow::InitElement() {
