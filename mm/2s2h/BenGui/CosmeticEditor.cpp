@@ -4,6 +4,17 @@
 
 std::vector<const char*> cosmeticEditorParentElements;
 
+extern "C" {
+Gfx* Gfx_DrawTexRectIA8_DropShadow(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 textureHeight, s16 rectLeft,
+                                   s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy, s16 r, s16 g, s16 b,
+                                   s16 a);
+Gfx* Gfx_DrawRect_DropShadow(Gfx* gfx, s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy,
+                             s16 r, s16 g, s16 b, s16 a);
+Gfx* Gfx_DrawTexRectIA16_DropShadow(Gfx* gfx, TexturePtr texture, s16 textureWidth, s16 textureHeight, s16 rectLeft,
+                                    s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy, s16 r, s16 g, s16 b,
+                                    s16 a);
+}
+
 CosmeticEditorElement cosmeticEditorElements[COSMETIC_ELEMENT_MAX] = {
     COSMETIC_EDITOR_ELEMENT(COSMETIC_ELEMENT_HEART_NORMAL, "Hearts", "Normal", "Hearts.Normal", 255, 70, 50, 255),
     COSMETIC_EDITOR_ELEMENT(COSMETIC_ELEMENT_HEART_NORMAL_BEATING, "Hearts", "Beating", "Hearts.Beating", 255, 70, 50,
@@ -98,6 +109,30 @@ extern "C" void gDPSetEnvColorWithOverride(Gfx* pkt, u8 r, u8 g, u8 b, u8 a, con
 extern "C" void gDPSetPrimColorWithOverride(Gfx* pkt, u8 m, u8 l, u8 r, u8 g, u8 b, u8 a, const char* cvar) {
     Color_RGBA8 setColor = CosmeticEditor_getChangedColor(r, g, b, a, cvar);
     gDPSetPrimColor(pkt, m, l, setColor.r, setColor.g, setColor.b, a);
+}
+
+extern "C" Gfx* Gfx_DrawTexRectIA8_DropShadowWithOverride(Gfx* pkt, TexturePtr texture, s16 textureWidth,
+                                                          s16 textureHeight, s16 rectLeft, s16 rectTop, s16 rectWidth,
+                                                          s16 rectHeight, u16 dsdx, u16 dtdy, s16 r, s16 g, s16 b,
+                                                          s16 a, const char* cvar) {
+    Color_RGBA8 setColor = CosmeticEditor_getChangedColor(r, g, b, a, cvar);
+    return Gfx_DrawTexRectIA8_DropShadow(pkt, texture, textureWidth, textureHeight, rectLeft, rectTop, rectWidth,
+                                         rectHeight, dsdx, dtdy, setColor.r, setColor.g, setColor.b, a);
+}
+
+extern "C" Gfx* Gfx_DrawRect_DropShadowWithOverride(Gfx* pkt, s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight,
+                                                    u16 dsdx, u16 dtdy, s16 r, s16 g, s16 b, s16 a, const char* cvar) {
+    Color_RGBA8 setColor = CosmeticEditor_getChangedColor(r, g, b, a, cvar);
+    return Gfx_DrawRect_DropShadow(pkt, rectLeft, rectTop, rectWidth, rectHeight, dsdx, dtdy, setColor.r, setColor.g,
+                                   setColor.b, a);
+}
+extern "C" Gfx* Gfx_DrawTexRectIA16_DropShadowWithOverride(Gfx* pkt, TexturePtr texture, s16 textureWidth,
+                                                           s16 textureHeight, s16 rectLeft, s16 rectTop, s16 rectWidth,
+                                                           s16 rectHeight, u16 dsdx, u16 dtdy, s16 r, s16 g, s16 b,
+                                                           s16 a, const char* cvar) {
+    Color_RGBA8 setColor = CosmeticEditor_getChangedColor(r, g, b, a, cvar);
+    return Gfx_DrawTexRectIA16_DropShadow(pkt, texture, textureWidth, textureHeight, rectLeft, rectTop, rectWidth,
+                                          rectHeight, dsdx, dtdy, setColor.r, setColor.g, setColor.b, a);
 }
 
 void CosmeticEditorRandomizeElement(CosmeticEditorElement id) {

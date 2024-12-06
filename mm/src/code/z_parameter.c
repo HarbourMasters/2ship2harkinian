@@ -23,9 +23,6 @@
 #include "2s2h_assets.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 
-// 2S2H [Port] Used for modifying Button Colors in CosmeticEditor.cpp
-static Color_RGBA8 sModifiedColor;
-
 // 2S2H [Port] This was originally static but needs to be global so it can be accessed in z_kaleido_collect,
 // z_kaleido_debug, and z_kaleido_draw.
 const char* sCounterTextures[] = {
@@ -5275,51 +5272,44 @@ void Interface_DrawItemButtons(PlayState* play) {
                     interfaceCtx->shipInterface.dpad.dDownAlpha),
                 interfaceCtx->shipInterface.dpad.dUpAlpha);
         HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_D_PAD);
-        sModifiedColor = CosmeticEditor_getChangedColor(255, 255, 255, dpadAlpha, "Buttons.DPad");
-        OVERLAY_DISP = Gfx_DrawTexRectIA16_DropShadow(OVERLAY_DISP, gDPadTex, 32, 32, 271, 55, 32, 32, 1024, 1024,
-                                                      sModifiedColor.r, sModifiedColor.g, sModifiedColor.b, dpadAlpha);
+        OVERLAY_DISP = Gfx_DrawTexRectIA16_DropShadowWithOverride(OVERLAY_DISP, gDPadTex, 32, 32, 271, 55, 32, 32, 1024,
+                                                                  1024, 255, 255, 255, dpadAlpha, "Buttons.DPad");
         gDPPipeSync(OVERLAY_DISP++);
     }
     // #endregion
 
     // B Button Color & Texture
     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_B);
-    sModifiedColor = CosmeticEditor_getChangedColor(100, 255, 120, interfaceCtx->bAlpha, "Buttons.B");
-    OVERLAY_DISP = Gfx_DrawTexRectIA8_DropShadow(
+    OVERLAY_DISP = Gfx_DrawTexRectIA8_DropShadowWithOverride(
         OVERLAY_DISP, gButtonBackgroundTex, 0x20, 0x20, D_801BF9D4[EQUIP_SLOT_B], D_801BF9DC[EQUIP_SLOT_B],
         D_801BFAF4[EQUIP_SLOT_B], D_801BFAF4[EQUIP_SLOT_B], D_801BF9E4[EQUIP_SLOT_B] * 2, D_801BF9E4[EQUIP_SLOT_B] * 2,
-        sModifiedColor.r, sModifiedColor.g, sModifiedColor.b, interfaceCtx->bAlpha);
+        100, 255, 120, interfaceCtx->bAlpha, "Buttons.B");
     gDPPipeSync(OVERLAY_DISP++);
 
     // C-Left Button Color & Texture
     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_LEFT);
-    sModifiedColor = CosmeticEditor_getChangedColor(255, 240, 0, interfaceCtx->cLeftAlpha, "Buttons.CLeft");
-    OVERLAY_DISP = Gfx_DrawRect_DropShadow(
+    OVERLAY_DISP = Gfx_DrawRect_DropShadowWithOverride(
         OVERLAY_DISP, D_801BF9D4[EQUIP_SLOT_C_LEFT], D_801BF9DC[EQUIP_SLOT_C_LEFT], D_801BFAF4[EQUIP_SLOT_C_LEFT],
-        D_801BFAF4[EQUIP_SLOT_C_LEFT], D_801BF9E4[EQUIP_SLOT_C_LEFT] * 2, D_801BF9E4[EQUIP_SLOT_C_LEFT] * 2,
-        sModifiedColor.r, sModifiedColor.g, sModifiedColor.b, interfaceCtx->cLeftAlpha);
+        D_801BFAF4[EQUIP_SLOT_C_LEFT], D_801BF9E4[EQUIP_SLOT_C_LEFT] * 2, D_801BF9E4[EQUIP_SLOT_C_LEFT] * 2, 255, 240,
+        0, interfaceCtx->cLeftAlpha, "Buttons.CLeft");
     // C-Down Button Color & Texture
     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_DOWN);
-    sModifiedColor = CosmeticEditor_getChangedColor(255, 240, 0, interfaceCtx->cDownAlpha, "Buttons.CDown");
-    OVERLAY_DISP = Gfx_DrawRect_DropShadow(
+    OVERLAY_DISP = Gfx_DrawRect_DropShadowWithOverride(
         OVERLAY_DISP, D_801BF9D4[EQUIP_SLOT_C_DOWN], D_801BF9DC[EQUIP_SLOT_C_DOWN], D_801BFAF4[EQUIP_SLOT_C_DOWN],
-        D_801BFAF4[EQUIP_SLOT_C_DOWN], D_801BF9E4[EQUIP_SLOT_C_DOWN] * 2, D_801BF9E4[EQUIP_SLOT_C_DOWN] * 2,
-        sModifiedColor.r, sModifiedColor.g, sModifiedColor.b, interfaceCtx->cDownAlpha);
+        D_801BFAF4[EQUIP_SLOT_C_DOWN], D_801BF9E4[EQUIP_SLOT_C_DOWN] * 2, D_801BF9E4[EQUIP_SLOT_C_DOWN] * 2, 255, 240,
+        0, interfaceCtx->cDownAlpha, "Buttons.CDown");
     // C-Right Button Color & Texture
     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_RIGHT);
-    sModifiedColor = CosmeticEditor_getChangedColor(255, 240, 0, interfaceCtx->cRightAlpha, "Buttons.CRight");
-    OVERLAY_DISP = Gfx_DrawRect_DropShadow(
+    OVERLAY_DISP = Gfx_DrawRect_DropShadowWithOverride(
         OVERLAY_DISP, D_801BF9D4[EQUIP_SLOT_C_RIGHT], D_801BF9DC[EQUIP_SLOT_C_RIGHT], D_801BFAF4[EQUIP_SLOT_C_RIGHT],
-        D_801BFAF4[EQUIP_SLOT_C_RIGHT], D_801BF9E4[EQUIP_SLOT_C_RIGHT] * 2, D_801BF9E4[EQUIP_SLOT_C_RIGHT] * 2,
-        sModifiedColor.r, sModifiedColor.g, sModifiedColor.b, interfaceCtx->cRightAlpha);
+        D_801BFAF4[EQUIP_SLOT_C_RIGHT], D_801BF9E4[EQUIP_SLOT_C_RIGHT] * 2, D_801BF9E4[EQUIP_SLOT_C_RIGHT] * 2, 255,
+        240, 0, interfaceCtx->cRightAlpha, "Buttons.CRight");
 
     if (!IS_PAUSE_STATE_GAMEOVER) {
         if ((play->pauseCtx.state != PAUSE_STATE_OFF) || (play->pauseCtx.debugEditor != DEBUG_EDITOR_NONE)) {
             HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_START);
-            sModifiedColor =
-                CosmeticEditor_getChangedColor(0xFF, 0x82, 0x3C, interfaceCtx->startAlpha, "Buttons.Start");
-            OVERLAY_DISP = Gfx_DrawRect_DropShadow(OVERLAY_DISP, 0x88, 0x11, 0x16, 0x16, 0x5B6, 0x5B6, sModifiedColor.r,
-                                                   sModifiedColor.g, sModifiedColor.b, interfaceCtx->startAlpha);
+            OVERLAY_DISP = Gfx_DrawRect_DropShadowWithOverride(OVERLAY_DISP, 0x88, 0x11, 0x16, 0x16, 0x5B6, 0x5B6, 0xFF,
+                                                               0x82, 0x3C, interfaceCtx->startAlpha, "Buttons.Start");
             // Start Button Texture, Color & Label
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->startAlpha);
