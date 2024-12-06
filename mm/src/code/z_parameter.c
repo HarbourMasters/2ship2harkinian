@@ -5024,20 +5024,19 @@ void Magic_DrawMeter(PlayState* play) {
         gDPSetEnvColor(OVERLAY_DISP++, 100, 50, 50, 255);
 
         HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_MAGIC_METER);
-        sModifiedColor =
-            CosmeticEditor_getChangedColor(sMagicMeterOutlinePrimRed, sMagicMeterOutlinePrimGreen,
-                                           sMagicMeterOutlinePrimBlue, interfaceCtx->magicAlpha, "Magic.Border");
-        OVERLAY_DISP = Gfx_DrawTexRectIA8_DropShadow(OVERLAY_DISP, gMagicMeterEndTex, 8, 16, 18, magicBarY, 8, 16,
-                                                     1 << 10, 1 << 10, sModifiedColor.r, sModifiedColor.g,
-                                                     sModifiedColor.b, interfaceCtx->magicAlpha);
+        OVERLAY_DISP = Gfx_DrawTexRectIA8_DropShadowWithOverride(
+            OVERLAY_DISP, gMagicMeterEndTex, 8, 16, 18, magicBarY, 8, 16, 1 << 10, 1 << 10, sMagicMeterOutlinePrimRed,
+            sMagicMeterOutlinePrimGreen, sMagicMeterOutlinePrimBlue, interfaceCtx->magicAlpha, "Magic.Border");
         HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_MAGIC_METER);
-        OVERLAY_DISP = Gfx_DrawTexRectIA8_DropShadow(
+        OVERLAY_DISP = Gfx_DrawTexRectIA8_DropShadowWithOverride(
             OVERLAY_DISP, gMagicMeterMidTex, 24, 16, 26, magicBarY, ((void)0, gSaveContext.magicCapacity), 16, 1 << 10,
-            1 << 10, sModifiedColor.r, sModifiedColor.g, sModifiedColor.b, interfaceCtx->magicAlpha);
+            1 << 10, sMagicMeterOutlinePrimRed, sMagicMeterOutlinePrimGreen, sMagicMeterOutlinePrimBlue,
+            interfaceCtx->magicAlpha, "Magic.Border");
         HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_MAGIC_METER);
-        OVERLAY_DISP = Gfx_DrawTexRectIA8_DropShadowOffset(
+        OVERLAY_DISP = Gfx_DrawTexRectIA8_DropShadowOffsetWithOverride(
             OVERLAY_DISP, gMagicMeterEndTex, 8, 16, ((void)0, gSaveContext.magicCapacity) + 26, magicBarY, 8, 16,
-            1 << 10, 1 << 10, sModifiedColor.r, sModifiedColor.g, sModifiedColor.b, interfaceCtx->magicAlpha, 3, 0x100);
+            1 << 10, 1 << 10, sMagicMeterOutlinePrimRed, sMagicMeterOutlinePrimGreen, sMagicMeterOutlinePrimBlue,
+            interfaceCtx->magicAlpha, 3, 0x100, "Magic.Border");
 
         gDPPipeSync(OVERLAY_DISP++);
         gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, 0, 0, 0, PRIMITIVE, PRIMITIVE,

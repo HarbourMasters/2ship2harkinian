@@ -24,6 +24,10 @@ Gfx* Gfx_DrawRect_DropShadowWithOverride(Gfx* pkt, s16 rectLeft, s16 rectTop, s1
 Gfx* Gfx_DrawTexRectIA16_DropShadowWithOverride(Gfx* pkt, TexturePtr texture, s16 textureWidth, s16 textureHeight,
                                                 s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx,
                                                 u16 dtdy, s16 r, s16 g, s16 b, s16 a, const char* cvar);
+Gfx* Gfx_DrawTexRectIA8_DropShadowOffsetWithOverride(Gfx* pkt, TexturePtr texture, s16 textureWidth, s16 textureHeight,
+                                                     s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx,
+                                                     u16 dtdy, s16 r, s16 g, s16 b, s16 a, s32 masks, s32 rects,
+                                                     const char* cvar);
 Color_RGBA8 CosmeticEditor_getChangedColor(u8 r, u8 g, u8 b, u8 a, const char* cvar);
 
 typedef enum {
