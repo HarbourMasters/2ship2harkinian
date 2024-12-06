@@ -269,6 +269,7 @@ void ArrowFire_Draw(Actor* thisx, PlayState* play) {
             gSPDisplayList(POLY_XLU_DISP++, D_0E000000_TO_SEGMENTED(fillRect));
         }
         Gfx_SetupDL25_Xlu(play->state.gfxCtx);
+
         gDPSetPrimColorWithOverride(POLY_XLU_DISP++, 0x80, 0x80, 255, 200, 0, this->alpha, "Effects.FireArrowPrim");
         gDPSetEnvColorWithOverride(POLY_XLU_DISP++, 255, 0, 0, 128, "Effects.FireArrowSec");
 

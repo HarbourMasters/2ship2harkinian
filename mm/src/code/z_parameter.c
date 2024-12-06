@@ -24,7 +24,7 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 
 // 2S2H [Port] Used for modifying Button Colors in CosmeticEditor.cpp
-Color_RGBA8 modifiedColor;
+static Color_RGBA8 modifiedColor;
 
 // 2S2H [Port] This was originally static but needs to be global so it can be accessed in z_kaleido_collect,
 // z_kaleido_debug, and z_kaleido_draw.
@@ -5982,7 +5982,6 @@ void Interface_DrawAButton(PlayState* play) {
     Interface_SetPerspectiveView(play, 23 + R_A_BTN_Y_OFFSET, 68 + R_A_BTN_Y_OFFSET, 190, 235);
     gSPVertex(OVERLAY_DISP++, &interfaceCtx->actionVtx[0], 4, 0);
     gDPSetPrimColorWithOverride(OVERLAY_DISP++, 0, 0, 100, 200, 255, interfaceCtx->aAlpha, "Buttons.A");
-    // gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 100, 200, 255, interfaceCtx->aAlpha);
     gSP1Quadrangle(OVERLAY_DISP++, 0, 2, 3, 1, 0);
 
     // Draw A Button Do-Action

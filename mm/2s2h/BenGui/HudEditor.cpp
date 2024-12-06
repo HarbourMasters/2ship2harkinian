@@ -148,21 +148,6 @@ extern "C" void HudEditor_ModifyDrawValues(s16* rectLeft, s16* rectTop, s16* rec
     *dtdy /= CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f);
 }
 
-// extern "C" void gDPSetPrimColorWithOverride(Gfx* pkt, u8 m, u8 l, u8 r, u8 g, u8 b, u8 a, const char* cvar) {
-//     std::string cvarString = "gColors.";
-//     cvarString += cvar;
-//
-//     if (CVarGetInteger((cvarString + ".Changed").c_str(), false)) {
-//         Color_RGBA8 changedColor = CVarGetColor((cvarString + ".Color").c_str(), {});
-//         r = changedColor.r;
-//         g = changedColor.g;
-//         b = changedColor.b;
-//         a = changedColor.a;
-//     }
-//
-//     gDPSetPrimColor(pkt, m, l, r, g, b, a);
-// }
-
 const char* modeNames[] = {
     "Vanilla (4:3)", "Hidden", "Movable (Align Center)", "Movable (Align Left)", "Movable (Align Right)",
 };
