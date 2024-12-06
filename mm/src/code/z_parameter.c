@@ -24,7 +24,7 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 
 // 2S2H [Port] Used for modifying Button Colors in CosmeticEditor.cpp
-static Color_RGBA8 modifiedColor;
+static Color_RGBA8 sModifiedColor;
 
 // 2S2H [Port] This was originally static but needs to be global so it can be accessed in z_kaleido_collect,
 // z_kaleido_debug, and z_kaleido_draw.
@@ -5027,20 +5027,20 @@ void Magic_DrawMeter(PlayState* play) {
         gDPSetEnvColor(OVERLAY_DISP++, 100, 50, 50, 255);
 
         HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_MAGIC_METER);
-        modifiedColor =
+        sModifiedColor =
             CosmeticEditor_getChangedColor(sMagicMeterOutlinePrimRed, sMagicMeterOutlinePrimGreen,
                                            sMagicMeterOutlinePrimBlue, interfaceCtx->magicAlpha, "Magic.Border");
         OVERLAY_DISP = Gfx_DrawTexRectIA8_DropShadow(OVERLAY_DISP, gMagicMeterEndTex, 8, 16, 18, magicBarY, 8, 16,
-                                                     1 << 10, 1 << 10, modifiedColor.r, modifiedColor.g,
-                                                     modifiedColor.b, interfaceCtx->magicAlpha);
+                                                     1 << 10, 1 << 10, sModifiedColor.r, sModifiedColor.g,
+                                                     sModifiedColor.b, interfaceCtx->magicAlpha);
         HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_MAGIC_METER);
         OVERLAY_DISP = Gfx_DrawTexRectIA8_DropShadow(
             OVERLAY_DISP, gMagicMeterMidTex, 24, 16, 26, magicBarY, ((void)0, gSaveContext.magicCapacity), 16, 1 << 10,
-            1 << 10, modifiedColor.r, modifiedColor.g, modifiedColor.b, interfaceCtx->magicAlpha);
+            1 << 10, sModifiedColor.r, sModifiedColor.g, sModifiedColor.b, interfaceCtx->magicAlpha);
         HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_MAGIC_METER);
         OVERLAY_DISP = Gfx_DrawTexRectIA8_DropShadowOffset(
             OVERLAY_DISP, gMagicMeterEndTex, 8, 16, ((void)0, gSaveContext.magicCapacity) + 26, magicBarY, 8, 16,
-            1 << 10, 1 << 10, modifiedColor.r, modifiedColor.g, modifiedColor.b, interfaceCtx->magicAlpha, 3, 0x100);
+            1 << 10, 1 << 10, sModifiedColor.r, sModifiedColor.g, sModifiedColor.b, interfaceCtx->magicAlpha, 3, 0x100);
 
         gDPPipeSync(OVERLAY_DISP++);
         gDPSetCombineLERP(OVERLAY_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, 0, 0, 0, PRIMITIVE, PRIMITIVE,
@@ -5275,50 +5275,51 @@ void Interface_DrawItemButtons(PlayState* play) {
                     interfaceCtx->shipInterface.dpad.dDownAlpha),
                 interfaceCtx->shipInterface.dpad.dUpAlpha);
         HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_D_PAD);
-        modifiedColor = CosmeticEditor_getChangedColor(255, 255, 255, dpadAlpha, "Buttons.DPad");
+        sModifiedColor = CosmeticEditor_getChangedColor(255, 255, 255, dpadAlpha, "Buttons.DPad");
         OVERLAY_DISP = Gfx_DrawTexRectIA16_DropShadow(OVERLAY_DISP, gDPadTex, 32, 32, 271, 55, 32, 32, 1024, 1024,
-                                                      modifiedColor.r, modifiedColor.g, modifiedColor.b, dpadAlpha);
+                                                      sModifiedColor.r, sModifiedColor.g, sModifiedColor.b, dpadAlpha);
         gDPPipeSync(OVERLAY_DISP++);
     }
     // #endregion
 
     // B Button Color & Texture
     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_B);
-    modifiedColor = CosmeticEditor_getChangedColor(100, 255, 120, interfaceCtx->bAlpha, "Buttons.B");
+    sModifiedColor = CosmeticEditor_getChangedColor(100, 255, 120, interfaceCtx->bAlpha, "Buttons.B");
     OVERLAY_DISP = Gfx_DrawTexRectIA8_DropShadow(
         OVERLAY_DISP, gButtonBackgroundTex, 0x20, 0x20, D_801BF9D4[EQUIP_SLOT_B], D_801BF9DC[EQUIP_SLOT_B],
         D_801BFAF4[EQUIP_SLOT_B], D_801BFAF4[EQUIP_SLOT_B], D_801BF9E4[EQUIP_SLOT_B] * 2, D_801BF9E4[EQUIP_SLOT_B] * 2,
-        modifiedColor.r, modifiedColor.g, modifiedColor.b, interfaceCtx->bAlpha);
+        sModifiedColor.r, sModifiedColor.g, sModifiedColor.b, interfaceCtx->bAlpha);
     gDPPipeSync(OVERLAY_DISP++);
 
     // C-Left Button Color & Texture
     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_LEFT);
-    modifiedColor = CosmeticEditor_getChangedColor(255, 240, 0, interfaceCtx->cLeftAlpha, "Buttons.CLeft");
-    OVERLAY_DISP = Gfx_DrawRect_DropShadow(OVERLAY_DISP, D_801BF9D4[EQUIP_SLOT_C_LEFT], D_801BF9DC[EQUIP_SLOT_C_LEFT],
-                                           D_801BFAF4[EQUIP_SLOT_C_LEFT], D_801BFAF4[EQUIP_SLOT_C_LEFT],
-                                           D_801BF9E4[EQUIP_SLOT_C_LEFT] * 2, D_801BF9E4[EQUIP_SLOT_C_LEFT] * 2,
-                                           modifiedColor.r, modifiedColor.g, modifiedColor.b, interfaceCtx->cLeftAlpha);
+    sModifiedColor = CosmeticEditor_getChangedColor(255, 240, 0, interfaceCtx->cLeftAlpha, "Buttons.CLeft");
+    OVERLAY_DISP = Gfx_DrawRect_DropShadow(
+        OVERLAY_DISP, D_801BF9D4[EQUIP_SLOT_C_LEFT], D_801BF9DC[EQUIP_SLOT_C_LEFT], D_801BFAF4[EQUIP_SLOT_C_LEFT],
+        D_801BFAF4[EQUIP_SLOT_C_LEFT], D_801BF9E4[EQUIP_SLOT_C_LEFT] * 2, D_801BF9E4[EQUIP_SLOT_C_LEFT] * 2,
+        sModifiedColor.r, sModifiedColor.g, sModifiedColor.b, interfaceCtx->cLeftAlpha);
     // C-Down Button Color & Texture
     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_DOWN);
-    modifiedColor = CosmeticEditor_getChangedColor(255, 240, 0, interfaceCtx->cDownAlpha, "Buttons.CDown");
-    OVERLAY_DISP = Gfx_DrawRect_DropShadow(OVERLAY_DISP, D_801BF9D4[EQUIP_SLOT_C_DOWN], D_801BF9DC[EQUIP_SLOT_C_DOWN],
-                                           D_801BFAF4[EQUIP_SLOT_C_DOWN], D_801BFAF4[EQUIP_SLOT_C_DOWN],
-                                           D_801BF9E4[EQUIP_SLOT_C_DOWN] * 2, D_801BF9E4[EQUIP_SLOT_C_DOWN] * 2,
-                                           modifiedColor.r, modifiedColor.g, modifiedColor.b, interfaceCtx->cDownAlpha);
+    sModifiedColor = CosmeticEditor_getChangedColor(255, 240, 0, interfaceCtx->cDownAlpha, "Buttons.CDown");
+    OVERLAY_DISP = Gfx_DrawRect_DropShadow(
+        OVERLAY_DISP, D_801BF9D4[EQUIP_SLOT_C_DOWN], D_801BF9DC[EQUIP_SLOT_C_DOWN], D_801BFAF4[EQUIP_SLOT_C_DOWN],
+        D_801BFAF4[EQUIP_SLOT_C_DOWN], D_801BF9E4[EQUIP_SLOT_C_DOWN] * 2, D_801BF9E4[EQUIP_SLOT_C_DOWN] * 2,
+        sModifiedColor.r, sModifiedColor.g, sModifiedColor.b, interfaceCtx->cDownAlpha);
     // C-Right Button Color & Texture
     HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_C_RIGHT);
-    modifiedColor = CosmeticEditor_getChangedColor(255, 240, 0, interfaceCtx->cRightAlpha, "Buttons.CRight");
+    sModifiedColor = CosmeticEditor_getChangedColor(255, 240, 0, interfaceCtx->cRightAlpha, "Buttons.CRight");
     OVERLAY_DISP = Gfx_DrawRect_DropShadow(
         OVERLAY_DISP, D_801BF9D4[EQUIP_SLOT_C_RIGHT], D_801BF9DC[EQUIP_SLOT_C_RIGHT], D_801BFAF4[EQUIP_SLOT_C_RIGHT],
         D_801BFAF4[EQUIP_SLOT_C_RIGHT], D_801BF9E4[EQUIP_SLOT_C_RIGHT] * 2, D_801BF9E4[EQUIP_SLOT_C_RIGHT] * 2,
-        modifiedColor.r, modifiedColor.g, modifiedColor.b, interfaceCtx->cRightAlpha);
+        sModifiedColor.r, sModifiedColor.g, sModifiedColor.b, interfaceCtx->cRightAlpha);
 
     if (!IS_PAUSE_STATE_GAMEOVER) {
         if ((play->pauseCtx.state != PAUSE_STATE_OFF) || (play->pauseCtx.debugEditor != DEBUG_EDITOR_NONE)) {
             HudEditor_SetActiveElement(HUD_EDITOR_ELEMENT_START);
-            modifiedColor = CosmeticEditor_getChangedColor(0xFF, 0x82, 0x3C, interfaceCtx->startAlpha, "Buttons.Start");
-            OVERLAY_DISP = Gfx_DrawRect_DropShadow(OVERLAY_DISP, 0x88, 0x11, 0x16, 0x16, 0x5B6, 0x5B6, modifiedColor.r,
-                                                   modifiedColor.g, modifiedColor.b, interfaceCtx->startAlpha);
+            sModifiedColor =
+                CosmeticEditor_getChangedColor(0xFF, 0x82, 0x3C, interfaceCtx->startAlpha, "Buttons.Start");
+            OVERLAY_DISP = Gfx_DrawRect_DropShadow(OVERLAY_DISP, 0x88, 0x11, 0x16, 0x16, 0x5B6, 0x5B6, sModifiedColor.r,
+                                                   sModifiedColor.g, sModifiedColor.b, interfaceCtx->startAlpha);
             // Start Button Texture, Color & Label
             gDPPipeSync(OVERLAY_DISP++);
             gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->startAlpha);
