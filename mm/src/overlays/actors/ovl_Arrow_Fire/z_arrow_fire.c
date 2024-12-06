@@ -6,6 +6,7 @@
 
 #include "z_arrow_fire.h"
 #include "overlays/actors/ovl_En_Arrow/z_en_arrow.h"
+#include "BenGui/CosmeticEditor.h"
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_2000000)
 
@@ -268,9 +269,8 @@ void ArrowFire_Draw(Actor* thisx, PlayState* play) {
             gSPDisplayList(POLY_XLU_DISP++, D_0E000000_TO_SEGMENTED(fillRect));
         }
         Gfx_SetupDL25_Xlu(play->state.gfxCtx);
-
-        gDPSetPrimColor(POLY_XLU_DISP++, 0x80, 0x80, 255, 200, 0, this->alpha);
-        gDPSetEnvColor(POLY_XLU_DISP++, 255, 0, 0, 128);
+        gDPSetPrimColorWithOverride(POLY_XLU_DISP++, 0x80, 0x80, 255, 200, 0, this->alpha, "Effects.FireArrowPrim");
+        gDPSetEnvColorWithOverride(POLY_XLU_DISP++, 255, 0, 0, 128, "Effects.FireArrowSec");
 
         Matrix_RotateZYX(0x4000, 0, 0, MTXMODE_APPLY);
 
