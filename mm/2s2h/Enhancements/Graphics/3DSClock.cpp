@@ -77,7 +77,7 @@ void Register3DSClock() {
 
                     static s32 sFinalHoursIntro = 0;
 
-                    sThreeDayClockAlpha = gPlayState->interfaceCtx.aAlpha;
+                    sThreeDayClockAlpha = gPlayState->interfaceCtx.bAlpha;
 
                     OPEN_DISPS(gPlayState->state.gfxCtx);
                     s16 posX = 160;

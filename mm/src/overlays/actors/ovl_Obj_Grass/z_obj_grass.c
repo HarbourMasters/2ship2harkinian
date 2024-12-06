@@ -467,9 +467,8 @@ void ObjGrass_DrawOpa(Actor* thisx, PlayState* play2) {
             for (j = 0; j < grassGroup->count; j++) {
                 grassElem = &grassGroup->elements[j];
 
-                FrameInterpolation_RecordOpenChild(grassGroup, i + j);
-
                 if ((grassElem->flags & OBJ_GRASS_ELEM_DRAW) && (grassElem->alpha == 255)) {
+                    FrameInterpolation_RecordOpenChild(grassElem, 0);
                     rot.y = grassElem->rotY;
                     Matrix_SetTranslateRotateYXZ(grassElem->pos.x, grassElem->pos.y, grassElem->pos.z, &rot);
                     Matrix_Scale(this->actor.scale.x, this->actor.scale.y, this->actor.scale.z, MTXMODE_APPLY);
@@ -480,9 +479,8 @@ void ObjGrass_DrawOpa(Actor* thisx, PlayState* play2) {
                     gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx),
                               G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                     gSPDisplayList(POLY_OPA_DISP++, gObjGrass_D_809AAAE0);
+                    FrameInterpolation_RecordCloseChild();
                 }
-
-                FrameInterpolation_RecordCloseChild();
             }
         }
     }
@@ -511,9 +509,8 @@ void ObjGrass_DrawXlu(Actor* thisx, PlayState* play) {
             for (j = 0; j < grassGroup->count; j++) {
                 grassElem = &grassGroup->elements[j];
 
-                FrameInterpolation_RecordOpenChild(grassGroup, i + j);
-
                 if ((grassElem->flags & OBJ_GRASS_ELEM_DRAW) && (grassElem->alpha > 0) && (grassElem->alpha < 255)) {
+                    FrameInterpolation_RecordOpenChild(grassElem, 0);
                     rot.y = grassElem->rotY;
                     Matrix_SetTranslateRotateYXZ(grassElem->pos.x, grassElem->pos.y, grassElem->pos.z, &rot);
                     Matrix_Scale(this->actor.scale.x, this->actor.scale.y, this->actor.scale.z, MTXMODE_APPLY);
@@ -522,9 +519,8 @@ void ObjGrass_DrawXlu(Actor* thisx, PlayState* play) {
                               G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                     gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 255, 255, 255, grassElem->alpha);
                     gSPDisplayList(POLY_XLU_DISP++, gObjGrass_D_809AAAE0);
+                    FrameInterpolation_RecordCloseChild();
                 }
-
-                FrameInterpolation_RecordCloseChild();
             }
         }
     }
