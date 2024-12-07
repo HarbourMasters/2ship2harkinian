@@ -13,13 +13,22 @@
 #define DR_FLAC_IMPLEMENTATION
 #include <dr_flac.h>
 
+#include <ogg/ogg.h>
+#include <vorbis/codec.h>
 #include "vorbis/vorbisfile.h"
+#include <opus.h>
 
 struct OggFileData {
     void* data;
     size_t pos;
     size_t size;
 };
+
+typedef enum class OggType {
+    None = -1,
+    Vorbis,
+    Opus,
+} OggType;
 
 static size_t VorbisReadCallback(void* out, size_t size, size_t elems, void* src) {
     OggFileData* data = static_cast<OggFileData*>(src);
@@ -75,6 +84,36 @@ static const ov_callbacks vorbisCallbacks = {
     VorbisTellCallback,
 };
 
+static OggType GetOggType(OggFileData* data) {
+    ogg_sync_state oy;
+    ogg_stream_state os;
+    ogg_page og;
+    ogg_packet op;
+    OggType type;
+    // The first page as the header information, containing, among other things, what kind of data this ogg holds.
+    ogg_sync_init(&oy);
+    char* buffer = ogg_sync_buffer(&oy, 4096);
+    VorbisReadCallback(buffer, 4096, 1, data);
+    ogg_sync_wrote(&oy, 4096);
+
+    ogg_sync_pageout(&oy, &og);
+    ogg_stream_init(&os, ogg_page_serialno(&og));
+    ogg_stream_pagein(&os, &og);
+    ogg_stream_packetout(&os, &op);
+
+    // Can't use strmp because op.packet isn't a null terminated string.
+    if (memcmp((char*)op.packet, "\x01vorbis", 7) == 0) {
+        type = OggType::Vorbis;
+    } else if (memcmp((char*)op.packet, "OpusHead", 8) == 0) {
+        type = OggType::Opus;
+    } else {
+        type = OggType::None;
+    }
+    ogg_stream_clear(&os);
+    ogg_sync_clear(&oy);
+    return type;
+}
+
 static void Mp3DecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std::shared_ptr<Ship::File> sampleFile) {
     drmp3 mp3;
     drwav_uint64 numFrames;
@@ -107,22 +146,133 @@ static void OggDecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std:
         .pos = 0,
         .size = sampleFile->Buffer.get()->size(),
     };
-    int ret = ov_open_callbacks(&fileData, &vf, nullptr, 0, vorbisCallbacks);
+    switch (GetOggType(&fileData)) {
+        case OggType::Vorbis: {
+            // Getting the type advanced the position. We are going to use a different library to decode the file which
+            // assumes the file starts at 0
+            fileData.pos = 0;
+            int ret = ov_open_callbacks(&fileData, &vf, nullptr, 0, vorbisCallbacks);
 
-    vorbis_info* vi = ov_info(&vf, -1);
+            vorbis_info* vi = ov_info(&vf, -1);
 
-    uint64_t numFrames = ov_pcm_total(&vf, -1);
-    uint64_t sampleRate = vi->rate;
-    uint64_t numChannels = vi->channels;
-    int bitStream = 0;
-    size_t toRead = numFrames * numChannels * 2;
-    audioSample->sample.sampleAddr = new uint8_t[toRead];
-    do {
-        read = ov_read(&vf, dataBuff, 4096, 0, 2, 1, &bitStream);
-        memcpy(audioSample->sample.sampleAddr + pos, dataBuff, read);
-        pos += read;
-    } while (read != 0);
-    ov_clear(&vf);
+            uint64_t numFrames = ov_pcm_total(&vf, -1);
+            uint64_t sampleRate = vi->rate;
+            uint64_t numChannels = vi->channels;
+            int bitStream = 0;
+            size_t toRead = numFrames * numChannels * 2;
+            audioSample->sample.sampleAddr = new uint8_t[toRead];
+            do {
+                read = ov_read(&vf, dataBuff, 4096, 0, 2, 1, &bitStream);
+                memcpy(audioSample->sample.sampleAddr + pos, dataBuff, read);
+                pos += read;
+            } while (read != 0);
+            ov_clear(&vf);
+            break;
+        }
+        case OggType::Opus: {
+            // This looks like a lot but its not so bad. The basic operation here is:
+            // Create a buffer, read some amount of data (usually 4096 bytes) into that buffer, tell the library there
+            // is new data in the buffer, read a page, read packets until the page is exhausted, read a new page, repeat
+            // the packet reading, repeat the page reading until the file is exhausted.
+            fileData.pos = 0;
+            ogg_sync_state oy;
+            ogg_stream_state os;
+            ogg_page og;
+            ogg_packet op;
+            char* buffer;
+
+            ogg_sync_init(&oy);
+            // Read the first page
+            buffer = ogg_sync_buffer(&oy, 4096);
+            VorbisReadCallback(buffer, 4096, 1, &fileData);
+            // It would be best to use the number of bytes read from the callback but if its too small the file is
+            // probably invalid anyway
+            ogg_sync_wrote(&oy, 4096); // Tell the libogg data was put into its buffer for processing
+            ogg_sync_pageout(&oy, &og);
+            ogg_stream_init(&os, ogg_page_serialno(&og));
+            ogg_stream_pagein(&os, &og);
+            ogg_stream_packetout(&os, &op);
+
+            int i = 0;
+            // Consume the next header
+            while (i < 1) {
+                while (i < 1) {
+                    int result = ogg_sync_pageout(&oy, &og);
+                    if (result == 0)
+                        break; // Need more data
+                    if (result == 1) {
+                        ogg_stream_pagein(&os, &og);
+                        while (i < 1) {
+                            result = ogg_stream_packetout(&os, &op);
+                            if (result == 0) // Again, needs more data. Get more from pageout, pagein
+                                break;
+                            if (result < 0) {
+                                // This is bad. Handle it at some point...
+                            }
+                            i++;
+                        }
+                    }
+                }
+                /* no harm in not checking before adding more */
+                buffer = ogg_sync_buffer(&oy, 4096);
+                VorbisReadCallback(buffer, 4096, 1, &fileData);
+                ogg_sync_wrote(&oy, 4096);
+            }
+
+            // Read the actual audio data
+            OpusDecoder* dec = opus_decoder_create(48000, 1, nullptr);
+            int eos = 0;
+            int read = 0;
+            std::vector<int16_t> samples;
+            size_t pos = 0;
+            while (!eos) {
+                while (!eos) {
+                    int res = ogg_sync_pageout(&oy, &og);
+                    if (res == 0) // Need more data
+                        break;
+                    if (res < 0) {
+                        // This is bad...
+                    }
+                    ogg_stream_pagein(&os, &og);
+                    while (1) {
+                        res = ogg_stream_packetout(&os, &op);
+                        if (res == 0)
+                            break;
+                        if (res < 0) {
+                            // You should know by now this is bad...
+                        }
+                        opus_int16 pcm[960 * 6 * 2]; // Largest possible size
+                        // Decode opus encoded samples
+                        int frameSize = opus_decode(dec, op.packet, op.bytes, pcm, 960 * 6, 0);
+                        // There isn't a good way to know how long an opus file is, so we need to keep filling a buffer
+                        // like this.
+                        samples.resize(samples.size() + frameSize * 2);
+                        memcpy(samples.data() + pos, pcm, frameSize * 2);
+                        pos += frameSize;
+                    }
+                    eos = ogg_page_eos(&og);
+                }
+                if (!eos) {
+                    buffer = ogg_sync_buffer(&oy, 4096);
+                    // Needs to read 4096 elements due to how the return works.
+                    read = VorbisReadCallback(buffer, 1, 4096, &fileData);
+                    ogg_sync_wrote(&oy, read);
+                    if (read == 0) {
+                        eos = 1;
+                    }
+                }
+            }
+            audioSample->sample.sampleAddr = new uint8_t[samples.size() * 2];
+            // Hardcoded to 48KHz because that is what the opus spec expects and that is what future will always use.
+            audioSample->tuning = (48000.0f / 32000);
+            // Write the final decoded sample data into the sample array
+            memcpy(audioSample->sample.sampleAddr, samples.data(), samples.size() * 2);
+            // Clean everything up
+            opus_decoder_destroy(dec);
+            ogg_stream_clear(&os);
+            ogg_sync_clear(&oy);
+        }
+    }
 }
 
 namespace SOH {

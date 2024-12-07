@@ -577,6 +577,9 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 
     find_package(Vorbis CONFIG REQUIRED)
     link_libraries(Vorbis::vorbisfile)
+    find_package(Opus CONFIG REQUIRED)
+    link_libraries(Opus::opus)
+
 	set(ADDITIONAL_LIBRARY_DEPENDENCIES
 		"libultraship;"
 		"ZAPDLib;"
@@ -590,6 +593,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 		"version;"
 		"setupapi;"
         "Ogg::ogg"
+        "Opus::opus"
         "Vorbis::vorbis"
         "Vorbis::vorbisenc"
         "Vorbis::vorbisfile"
@@ -622,6 +626,7 @@ else()
     find_package(Threads REQUIRED)
     find_package(Ogg REQUIRED)
     find_package(Vorbis REQUIRED)
+    find_package(Opus REQUIRED)
     set(ADDITIONAL_LIBRARY_DEPENDENCIES
         "libultraship;"
 		"ZAPDLib;"
@@ -629,6 +634,7 @@ else()
         "Vorbis::vorbis"
         "Vorbis::vorbisenc"
         "Vorbis::vorbisfile"
+        "Opus::opus"
 		SDL2::SDL2
  #       "$<$<BOOL:${BUILD_CROWD_CONTROL}>:SDL2_net::SDL2_net>"
 		${CMAKE_DL_LIBS}
