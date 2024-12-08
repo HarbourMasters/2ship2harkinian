@@ -265,6 +265,11 @@ void ObjHamishi_Draw(Actor* thisx, PlayState* play) {
 
     OPEN_DISPS(play->state.gfxCtx);
 
+    f32 origProjZ = thisx->projectedPos.z;
+    s32 multiplier = CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1);
+    multiplier = MAX(multiplier, 1);
+    thisx->projectedPos.z /= multiplier;
+
     if ((thisx->projectedPos.z <= 2150.0f) || ((this->unk_1A2 & 1) && (thisx->projectedPos.z < 2250.0f))) {
         thisx->shape.shadowAlpha = 160;
         Gfx_SetupDL25_Opa(play->state.gfxCtx);
@@ -286,6 +291,8 @@ void ObjHamishi_Draw(Actor* thisx, PlayState* play) {
     } else {
         thisx->shape.shadowAlpha = 0;
     }
+
+    thisx->projectedPos.z = origProjZ;
 
     CLOSE_DISPS(play->state.gfxCtx);
 }
