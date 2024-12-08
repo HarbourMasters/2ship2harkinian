@@ -134,9 +134,6 @@ void Audio_osInvalDCache(void* buf, s32 size) {
 void Audio_osWritebackDCache(void* mem, s32 size) {
 }
 
-void Audio_SetBGM(u32 bgmId) {
-}
-
 OSPiHandle* osDriveRomInit() {
 }
 
@@ -231,8 +228,6 @@ void gSPInvalidateTexCache(Gfx* pkt, uintptr_t texAddr) {
     __gSPInvalidateTexCache(pkt, texAddr);
 }
 
-u16 func_801A5100(void) {
-}
 void __osDispatchThread(void) {
 }
 
