@@ -3100,7 +3100,7 @@ s32 Ship_CalcShouldDrawAndUpdate(PlayState* play, Actor* actor, Vec3f* projected
     // Apply distance scale to forward cullzone check
     bool isWithingForwardCullZone =
         (-actor->uncullZoneScale < projectedPos->z) &&
-        (projectedPos->z < ((actor->uncullZoneForward * multiplier) + actor->uncullZoneScale));
+        (projectedPos->z < ((actor->uncullZoneForward + actor->uncullZoneScale) * multiplier));
 
     if (isWithingForwardCullZone) {
         // Ensure the projected W value is at least 1.0
