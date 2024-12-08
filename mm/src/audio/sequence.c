@@ -159,7 +159,7 @@ void AudioSeq_ProcessSeqCmd(u32 cmd) {
 
         case SEQCMD_OP_QUEUE_SEQUENCE:
             // Queue a sequence into `sSeqRequests`
-            seqId = cmd & SEQCMD_SEQID_MASK;
+            seqId = cmd & SEQCMD_SEQID_MASK_16;
             seqArgs = (cmd & 0xFF00) >> 8;
             fadeTimer = (cmd & 0xFF0000) >> 13;
             priority = seqArgs;
@@ -213,7 +213,7 @@ void AudioSeq_ProcessSeqCmd(u32 cmd) {
 
             found = sNumSeqRequests[seqPlayerIndex];
             for (i = 0; i < sNumSeqRequests[seqPlayerIndex]; i++) {
-                seqId = cmd & SEQCMD_SEQID_MASK;
+                seqId = cmd & SEQCMD_SEQID_MASK_16;
                 if (sSeqRequests[seqPlayerIndex][i].seqId == seqId) {
                     found = i;
                     i = sNumSeqRequests[seqPlayerIndex]; // "break;"
@@ -447,19 +447,20 @@ void AudioSeq_QueueSeqCmd(u32 cmd) {
     u8 op = cmd >> 28;
     // Ship had a check for op 12 but it doesn't seem like the seqId is set there
     if (op == 0 || op == 2) {
+        u8 playerIdx = (cmd & SEQCMD_OP_MASK) >> 24;
         u16 seqId = cmd & SEQCMD_SEQID_MASK_16;
         if (seqId == NA_BGM_CLOCK_TOWN_MAIN_SEQUENCE) {
             // Clock town uses one sequence id for all 3 songs. We need to manually figure out which day it is
             seqId = sClockTownDaySeqIds[CURRENT_DAY - 1];
             // Don't update the command as that will break the morning sequence.
         }
-        u8 playerIdx = (cmd & 0xF000000) >> 24;
         u16 newSeqId = AudioEditor_GetReplacementSeq(seqId);
         gAudioCtx.seqReplaced[playerIdx] = (seqId != newSeqId);
         gAudioCtx.seqToPlay[playerIdx] = newSeqId;
         // Don't overwrite the seqId we just set for Clock Town
         if (seqId != sClockTownDaySeqIds[CURRENT_DAY - 1]) {
-            cmd |= (seqId & SEQCMD_SEQID_MASK_16);
+            cmd &= ~(uint16_t)SEQCMD_SEQID_MASK_16;
+            cmd |= seqId & SEQCMD_SEQID_MASK_16;
         }
     }
     sAudioSeqCmds[sSeqCmdWritePos++] = cmd;
