@@ -453,16 +453,19 @@ void func_8093A418(Actor* thisx, PlayState* play) {
     ObjBombiwa* this = THIS;
     f32 sp28;
 
-    if ((this->actor.projectedPos.z <= 2200.0f) || ((this->unk_203 & 1) && (this->actor.projectedPos.z < 2300.0f))) {
+    s32 multiplier = CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1);
+    multiplier = MAX(multiplier, 1);
+
+    if ((this->actor.projectedPos.z <= (2200.0f * multiplier)) || ((this->unk_203 & 1) && (this->actor.projectedPos.z < (2300.0f * multiplier)))) {
         this->actor.shape.shadowAlpha = 160;
         Gfx_DrawDListOpa(play, object_bombiwa_DL_0009E0);
         return;
     }
 
-    if (this->actor.projectedPos.z < 2300.0f) {
+    if (this->actor.projectedPos.z < (2300.0f * multiplier)) {
         OPEN_DISPS(play->state.gfxCtx);
 
-        sp28 = (2300.0f - this->actor.projectedPos.z) * 2.55f;
+        sp28 = ((2300.0f * multiplier) - this->actor.projectedPos.z) * 2.55f / multiplier;
 
         this->actor.shape.shadowAlpha = sp28 * (32.0f / 51);
         Gfx_SetupDL25_Xlu(play->state.gfxCtx);
@@ -486,9 +489,12 @@ void func_8093A608(Actor* thisx, PlayState* play) {
 
     OPEN_DISPS(play->state.gfxCtx);
 
+    s32 multiplier = CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1);
+    multiplier = MAX(multiplier, 1);
+
     if (this->actionFunc == func_80939EF4) {
-        if ((this->actor.projectedPos.z <= 2200.0f) ||
-            ((this->unk_203 & 1) && (this->actor.projectedPos.z < 2300.0f))) {
+        if ((this->actor.projectedPos.z <= (2200.0f * multiplier)) ||
+            ((this->unk_203 & 1) && (this->actor.projectedPos.z < (2300.0f * multiplier)))) {
             Gfx_SetupDL25_Opa(play->state.gfxCtx);
 
             gSPSegment(POLY_OPA_DISP++, 0x08, D_801AEFA0);
@@ -500,8 +506,8 @@ void func_8093A608(Actor* thisx, PlayState* play) {
 
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_XLU_DISP++, object_bombiwa_DL_004688);
-        } else if (this->actor.projectedPos.z < 2300.0f) {
-            sp38 = (2300.0f - this->actor.projectedPos.z) * 2.55f;
+        } else if (this->actor.projectedPos.z < (2300.0f * multiplier)) {
+            sp38 = ((2300.0f * multiplier) - this->actor.projectedPos.z) * 2.55f / multiplier;
             Gfx_SetupDL25_Xlu(play->state.gfxCtx);
 
             gSPSegment(POLY_XLU_DISP++, 0x08, D_801AEF88);
