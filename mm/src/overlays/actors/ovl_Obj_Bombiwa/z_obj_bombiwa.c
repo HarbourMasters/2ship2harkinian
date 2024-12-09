@@ -7,6 +7,8 @@
 #include "z_obj_bombiwa.h"
 #include "objects/object_bombiwa/object_bombiwa.h"
 
+#include "2s2h/ShipUtils.h"
+
 #define FLAGS 0x00000000
 
 #define THIS ((ObjBombiwa*)thisx)
@@ -453,19 +455,18 @@ void func_8093A418(Actor* thisx, PlayState* play) {
     ObjBombiwa* this = THIS;
     f32 sp28;
 
-    s32 multiplier = CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1);
-    multiplier = MAX(multiplier, 1);
+    Ship_ExtendedCullingActorAdjustProjectedZ(&this->actor);
 
-    if ((this->actor.projectedPos.z <= (2200.0f * multiplier)) || ((this->unk_203 & 1) && (this->actor.projectedPos.z < (2300.0f * multiplier)))) {
+    if ((this->actor.projectedPos.z <= 2200.0f) || ((this->unk_203 & 1) && (this->actor.projectedPos.z < 2300.0f))) {
         this->actor.shape.shadowAlpha = 160;
         Gfx_DrawDListOpa(play, object_bombiwa_DL_0009E0);
         return;
     }
 
-    if (this->actor.projectedPos.z < (2300.0f * multiplier)) {
+    if (this->actor.projectedPos.z < 2300.0f) {
         OPEN_DISPS(play->state.gfxCtx);
 
-        sp28 = ((2300.0f * multiplier) - this->actor.projectedPos.z) * 2.55f / multiplier;
+        sp28 = (2300.0f - this->actor.projectedPos.z) * 2.55f;
 
         this->actor.shape.shadowAlpha = sp28 * (32.0f / 51);
         Gfx_SetupDL25_Xlu(play->state.gfxCtx);
@@ -478,6 +479,8 @@ void func_8093A418(Actor* thisx, PlayState* play) {
     } else {
         this->actor.shape.shadowAlpha = 0;
     }
+
+    Ship_ExtendedCullingActorRestoreProjectedPos(play, &this->actor);
 }
 
 void func_8093A608(Actor* thisx, PlayState* play) {
@@ -489,12 +492,11 @@ void func_8093A608(Actor* thisx, PlayState* play) {
 
     OPEN_DISPS(play->state.gfxCtx);
 
-    s32 multiplier = CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1);
-    multiplier = MAX(multiplier, 1);
+    Ship_ExtendedCullingActorAdjustProjectedZ(&this->actor);
 
     if (this->actionFunc == func_80939EF4) {
-        if ((this->actor.projectedPos.z <= (2200.0f * multiplier)) ||
-            ((this->unk_203 & 1) && (this->actor.projectedPos.z < (2300.0f * multiplier)))) {
+        if ((this->actor.projectedPos.z <= 2200.0f) ||
+            ((this->unk_203 & 1) && (this->actor.projectedPos.z < 2300.0f))) {
             Gfx_SetupDL25_Opa(play->state.gfxCtx);
 
             gSPSegment(POLY_OPA_DISP++, 0x08, D_801AEFA0);
@@ -506,8 +508,8 @@ void func_8093A608(Actor* thisx, PlayState* play) {
 
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_XLU_DISP++, object_bombiwa_DL_004688);
-        } else if (this->actor.projectedPos.z < (2300.0f * multiplier)) {
-            sp38 = ((2300.0f * multiplier) - this->actor.projectedPos.z) * 2.55f / multiplier;
+        } else if (this->actor.projectedPos.z < 2300.0f) {
+            sp38 = (2300.0f - this->actor.projectedPos.z) * 2.55f;
             Gfx_SetupDL25_Xlu(play->state.gfxCtx);
 
             gSPSegment(POLY_XLU_DISP++, 0x08, D_801AEF88);
@@ -531,6 +533,8 @@ void func_8093A608(Actor* thisx, PlayState* play) {
             }
         }
     }
+
+    Ship_ExtendedCullingActorRestoreProjectedPos(play, &this->actor);
 
     CLOSE_DISPS(play->state.gfxCtx);
 }

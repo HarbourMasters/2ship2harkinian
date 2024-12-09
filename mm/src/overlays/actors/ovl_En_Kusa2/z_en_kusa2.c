@@ -8,6 +8,8 @@
 #include "z_en_kusa2.h"
 #include "objects/gameplay_field_keep/gameplay_field_keep.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
+
+#include "2s2h/ShipUtils.h"
 #include <string.h>
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_800000)
@@ -920,6 +922,9 @@ void func_80A5D618(EnKusa2* this) {
 }
 
 void func_80A5D62C(EnKusa2* this, PlayState* play) {
+    Ship_ExtendedCullingActorAdjustProjectedX(&this->actor);
+    Ship_ExtendedCullingActorAdjustProjectedZ(&this->actor);
+
     if (this->unk_1BE != 0) {
         func_80A5B490(this, play);
         func_80A5D754(this);
@@ -927,6 +932,8 @@ void func_80A5D62C(EnKusa2* this, PlayState* play) {
         func_80A5B160(this, play);
         func_80A5D6B0(this);
     }
+
+    Ship_ExtendedCullingActorRestoreProjectedPos(play, &this->actor);
 }
 
 void func_80A5D6B0(EnKusa2* this) {
@@ -935,6 +942,10 @@ void func_80A5D6B0(EnKusa2* this) {
 
 void func_80A5D6C4(EnKusa2* this, PlayState* play) {
     func_80A5B3BC(this);
+
+    Ship_ExtendedCullingActorAdjustProjectedX(&this->actor);
+    Ship_ExtendedCullingActorAdjustProjectedZ(&this->actor);
+
     if (this->unk_1BE != 0) {
         func_80A5B490(this, play);
         func_80A5D754(this);
@@ -942,6 +953,8 @@ void func_80A5D6C4(EnKusa2* this, PlayState* play) {
         func_80A5B334(this, play);
         func_80A5D618(this);
     }
+
+    Ship_ExtendedCullingActorRestoreProjectedPos(play, &this->actor);
 }
 
 void func_80A5D754(EnKusa2* this) {
@@ -1357,6 +1370,8 @@ void func_80A5E80C(PlayState* play, s32 arg1) {
 void EnKusa2_Draw(Actor* thisx, PlayState* play) {
     EnKusa2* this = THIS;
 
+    Ship_ExtendedCullingActorAdjustProjectedZ(&this->actor);
+
     if (this->actor.projectedPos.z <= 1200.0f) {
         if ((play->roomCtx.curRoom.behaviorType1 == ROOM_BEHAVIOR_TYPE1_0) && (this->actor.projectedPos.z > -150.0f) &&
             (this->actor.projectedPos.z < 400.0f)) {
@@ -1366,6 +1381,8 @@ void EnKusa2_Draw(Actor* thisx, PlayState* play) {
     } else if (this->actor.projectedPos.z < 1300.0f) {
         func_80A5E80C(play, (1300.0f - this->actor.projectedPos.z) * 2.55f);
     }
+
+    Ship_ExtendedCullingActorRestoreProjectedPos(play, &this->actor);
 }
 
 void func_80A5E9B4(Actor* thisx, PlayState* play) {

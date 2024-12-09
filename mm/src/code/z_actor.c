@@ -24,6 +24,7 @@
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/BenPort.h"
+#include "2s2h/ShipUtils.h"
 
 // bss
 // FaultClient sActorFaultClient; // 2 funcs
@@ -3094,18 +3095,18 @@ s32 Ship_CalcShouldDrawAndUpdate(PlayState* play, Actor* actor, Vec3f* projected
         return true;
     }
 
-    s32 multiplier = CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1);
-    multiplier = MAX(multiplier, 1);
+    s32 distMultiplier = CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1);
+    distMultiplier = MAX(distMultiplier, 1);
 
     // Apply distance scale to forward cullzone check
     bool isWithingForwardCullZone =
         (-actor->uncullZoneScale < projectedPos->z) &&
-        (projectedPos->z < ((actor->uncullZoneForward + actor->uncullZoneScale) * multiplier));
+        (projectedPos->z < ((actor->uncullZoneForward + actor->uncullZoneScale) * distMultiplier));
 
     if (isWithingForwardCullZone) {
         // Ensure the projected W value is at least 1.0
         f32 clampedProjectedW = CLAMP_MIN(projectedW, 1.0f);
-        f32 ratioAdjusted = 1.0f;
+        f32 aspectMultiplier = 1.0f;
         f32 uncullZoneScaleDiagonal;
         f32 uncullZoneScaleVertical;
         f32 uncullZoneDownwardAdjusted;
@@ -3124,14 +3125,12 @@ s32 Ship_CalcShouldDrawAndUpdate(PlayState* play, Actor* actor, Vec3f* projected
         }
 
         if (CVarGetInteger("gEnhancements.Graphics.ActorCullingAccountsForWidescreen", 0)) {
-            float originalAspectRatio = 4.0f / 3.0f;
-            float currentAspectRatio = OTRGetAspectRatio();
-            ratioAdjusted = MAX(currentAspectRatio / originalAspectRatio, 1.0f);
+            aspectMultiplier = Ship_GetExtendedAspectRatioMultiplier();
         }
 
         // Apply adjsuted aspect ratio to just the horizontal cullzone check
         bool isWithinHorizontalCullZone =
-            ((fabsf(projectedPos->x) - uncullZoneScaleDiagonal) < (clampedProjectedW * ratioAdjusted));
+            ((fabsf(projectedPos->x) - uncullZoneScaleDiagonal) < (clampedProjectedW * aspectMultiplier));
         bool isAboveBottomOfCullZone = ((-clampedProjectedW < (projectedPos->y + uncullZoneScaleVertical)));
         bool isBelowTopOfCullZone = ((projectedPos->y - uncullZoneDownwardAdjusted) < clampedProjectedW);
 
