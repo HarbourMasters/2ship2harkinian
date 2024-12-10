@@ -3,7 +3,6 @@
 
 #include <libultraship/libultraship.h>
 #include "PR/ultratypes.h"
-#include "z64.h"
 
 #ifdef __cplusplus
 
@@ -11,6 +10,9 @@ void LoadGuiTextures();
 
 extern "C" {
 #endif
+
+struct PlayState;
+struct Actor;
 
 f32 Ship_GetExtendedAspectRatioMultiplier();
 void Ship_ExtendedCullingActorAdjustProjectedZ(Actor* actor);
