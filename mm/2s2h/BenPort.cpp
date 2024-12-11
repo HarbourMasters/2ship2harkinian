@@ -165,6 +165,8 @@ OTRGlobals::OTRGlobals() {
         Ship::Context::CreateInstance("2 Ship 2 Harkinian", appShortName, "2ship2harkinian.json", archiveFiles, {}, 3,
                                       { .SampleRate = 44100, .SampleLength = 1024, .DesiredBuffered = 2480 });
 
+    SPDLOG_INFO("Starting 2 Ship 2 Harkinian version {}", (char*)gBuildVersion);
+
     prevAltAssets = CVarGetInteger("gEnhancements.Mods.AlternateAssets", 0);
     context->GetResourceManager()->SetAltAssetsEnabled(prevAltAssets);
 
