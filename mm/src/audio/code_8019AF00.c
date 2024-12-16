@@ -5520,7 +5520,7 @@ void Audio_StartSceneSequence(u16 seqId) {
             sSeqResumePoint = SEQ_RESUME_POINT_NONE;
         }
     }
-    sPrevSceneSeqId = seqId & SEQCMD_SEQID_MASK_16;
+    sPrevSceneSeqId = seqId & 0xFF;
 }
 
 void Audio_UpdateSceneSequenceResumePoint(void) {
