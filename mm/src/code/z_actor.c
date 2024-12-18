@@ -2794,6 +2794,10 @@ void Actor_UpdateAll(PlayState* play, ActorContext* actorCtx) {
     DynaPoly_UpdateBgActorTransforms(play, &play->colCtx.dyna);
 }
 
+// 2S2H [Port] Extern these for use below in interpolation checks
+extern void Player_Action_93(Player* this, PlayState* play);
+extern void Player_Action_95(Player* this, PlayState* play);
+
 void Actor_Draw(PlayState* play, Actor* actor) {
     Lights* light;
 
@@ -2808,6 +2812,12 @@ void Actor_Draw(PlayState* play, Actor* actor) {
     Lights_BindAll(light, play->lightCtx.listHead,
                    (actor->flags & (ACTOR_FLAG_10000000 | ACTOR_FLAG_400000)) ? NULL : &actor->world.pos, play);
     Lights_Draw(light, play->state.gfxCtx);
+
+    // If the player is performing a Deku spin or entering a Deku flower, set it so that angles
+    if (actor->id == ACTOR_PLAYER &&
+        (((Player*)actor)->actionFunc == Player_Action_93 || ((Player*)actor)->actionFunc == Player_Action_95)) {
+        FrameInterpolation_InterpolateWiderAngles();
+    }
 
     FrameInterpolation_RecordActorPosRotMatrix();
     if (actor->flags & ACTOR_FLAG_IGNORE_QUAKE) {
