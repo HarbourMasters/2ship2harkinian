@@ -170,6 +170,7 @@ static void OggDecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std:
             break;
         }
         case OggType::Opus: {
+            #if 0
             // This looks like a lot but its not so bad. The basic operation here is:
             // Create a buffer, read some amount of data (usually 4096 bytes) into that buffer, tell the library there
             // is new data in the buffer, read a page, read packets until the page is exhausted, read a new page, repeat
@@ -223,7 +224,7 @@ static void OggDecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std:
             OpusDecoder* dec = opus_decoder_create(48000, 1, nullptr);
             int eos = 0;
             int read = 0;
-            std::vector<int16_t> samples;
+            std::vector<int8_t> samples;
             size_t pos = 0;
             while (!eos) {
                 while (!eos) {
@@ -243,12 +244,16 @@ static void OggDecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std:
                         }
                         opus_int16 pcm[960 * 6 * 2]; // Largest possible size
                         // Decode opus encoded samples
-                        int frameSize = opus_decode(dec, op.packet, op.bytes, pcm, 960 * 6, 0);
+                        //int frameSize = opus_decode(dec, op.packet, op.bytes, pcm, 960 * 6, 0);
                         // There isn't a good way to know how long an opus file is, so we need to keep filling a buffer
                         // like this.
-                        samples.resize(samples.size() + frameSize * 2);
-                        memcpy(samples.data() + pos, pcm, frameSize * 2);
-                        pos += frameSize;
+                        samples.resize(samples.size() + op.bytes + 4);
+                        int packetSize = op.bytes;
+                        memcpy(samples.data() + pos, &packetSize, 4);
+                        //printf("Packet Size: %d\n", packetSize);
+                        pos += 4;
+                        memcpy(samples.data() + pos, op.packet, op.bytes);
+                        pos += op.bytes;
                     }
                     eos = ogg_page_eos(&og);
                 }
@@ -262,16 +267,22 @@ static void OggDecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std:
                     }
                 }
             }
-            audioSample->sample.sampleAddr = new uint8_t[samples.size() * 2];
+            audioSample->sample.codec = CODEC_OPUS;
+            audioSample->sample.sampleAddr = new uint8_t[samples.size()];
             // Hardcoded to 48KHz because that is what the opus spec expects and that is what future will always use.
-            audioSample->tuning = (48000.0f / 32000);
+            audioSample->tuning = (44100.0f / 32000.0f);
             // Write the final decoded sample data into the sample array
-            memcpy(audioSample->sample.sampleAddr, samples.data(), samples.size() * 2);
+            memcpy(audioSample->sample.sampleAddr, samples.data(), samples.size());
             // Clean everything up
             opus_decoder_destroy(dec);
             ogg_stream_clear(&os);
             ogg_sync_clear(&oy);
+        #endif
         }
+        audioSample->sample.codec = CODEC_OPUS;
+        audioSample->tuning = (48000.0f / 32000.0f);
+        audioSample->sample.sampleAddr = new uint8_t[sampleFile->Buffer.get()->size()];
+        memcpy(audioSample->sample.sampleAddr, sampleFile->Buffer.get()->data(), sampleFile->Buffer.get()->size());
     }
 }
 
@@ -287,7 +298,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSampleV2::ReadResourc
     audioSample->sample.codec = reader->ReadUByte();
     audioSample->sample.medium = reader->ReadUByte();
     audioSample->sample.unk_bit26 = reader->ReadUByte();
-    audioSample->sample.unk_bit25 = reader->ReadUByte();
+    audioSample->sample.isRelocated = reader->ReadUByte();
     audioSample->sample.size = reader->ReadUInt32();
 
     audioSample->sample.sampleAddr = new uint8_t[audioSample->sample.size];
@@ -333,7 +344,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
     std::shared_ptr<Ship::ResourceInitData> initData = std::make_shared<Ship::ResourceInitData>();
     const char* customFormatStr = child->Attribute("CustomFormat");
     memset(&audioSample->sample, 0, sizeof(audioSample->sample));
-    audioSample->sample.unk_bit25 = 0;
+    audioSample->sample.isRelocated = 0;
     audioSample->sample.codec = CodecStrToInt(child->Attribute("Codec"));
     audioSample->sample.medium = ResourceFactoryXMLSoundFontV0::MediumStrToInt(child->Attribute("Medium"));
     audioSample->sample.unk_bit26 = child->IntAttribute("bit26");
@@ -375,6 +386,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
     initData->IsCustom = false;
     initData->ByteOrder = Ship::Endianness::Native;
     auto sampleFile = Ship::Context::GetInstance()->GetResourceManager()->GetArchiveManager()->LoadFile(path, initData);
+    audioSample->sample.fileSize = sampleFile->Buffer.get()->size();
     if (customFormatStr != nullptr) {
         // Compressed files can take a really long time to decode (~250ms per).
         // This worked when we tested it (09/04/2024) (Works on my machine)
@@ -398,7 +410,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
             return audioSample;
         } else if (strcmp(customFormatStr, "ogg") == 0) {
             std::thread fileDecoderThread = std::thread(OggDecoderWorker, audioSample, sampleFile);
-            fileDecoderThread.detach();
+            fileDecoderThread.join();
             return audioSample;
         } else if (strcmp(customFormatStr, "flac") == 0) {
             std::thread fileDecoderThread = std::thread(FlacDecoderWorker, audioSample, sampleFile);

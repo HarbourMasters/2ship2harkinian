@@ -423,6 +423,8 @@ typedef struct {
     /* 0x1E0 */ s16 surroundEffectState[128];
 } NoteSynthesisBuffers; // size = 0x2E0
 
+struct OggOpusFile;
+
 typedef struct {
     /* 0x00 */ u8 atLoopPoint : 1;
     /* 0x00 */ u8 stopLoop : 1;
@@ -440,7 +442,8 @@ typedef struct {
     /* 0x18 */ UNK_TYPE1 unk_14[0x6];
     /* 0x1E */ u8 combFilterNeedsInit;
     /* 0x1F */ u8 unk_1F;
-    /* 0x20 */ UNK_TYPE1 unk_20[0x4];
+    struct OggOpusFile* opusFile; // Only for streamed opus audio
+    ///* 0x20 */ UNK_TYPE1 unk_20[0x4];
 } NoteSynthesisState; // size = 0x24
 
 typedef enum {

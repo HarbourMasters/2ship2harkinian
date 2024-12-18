@@ -881,6 +881,10 @@ Acmd* AudioSynth_ProcessSamples(s16* aiBuf, s32 numSamplesPerUpdate, Acmd* cmd, 
     return cmd;
 }
 
+void aOPUSdecImpl(void* source_addr, uint16_t dest_addr, uint16_t nbytes, OpusDecodeState* decState, int32_t pos, uint32_t size);
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, NoteSynthesisState* synthState, s16* aiBuf,
                                s32 numSamplesPerUpdate, Acmd* cmd, s32 updateIndex) {
     s32 pad1[2];
@@ -1146,25 +1150,30 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
                         dmemUncompressedAddrOffset1 = numSamplesToLoadAdj;
                         goto skip;
 
+                    case CODEC_OPUS:
                     case CODEC_S16:
                         AudioSynth_ClearBuffer(cmd++, DMEM_UNCOMPRESSED_NOTE,
                                                (numSamplesToLoadAdj + SAMPLES_PER_FRAME) * SAMPLE_SIZE);
                         flags = A_CONTINUE;
                         skipBytes = 0;
+                        size_t bytesToRead;
                         numSamplesProcessed += numSamplesToLoadAdj;
                         dmemUncompressedAddrOffset1 = numSamplesToLoadAdj;
-                        size_t bytesToRead;
 
-                        if (((synthState->samplePosInt * 2) + (numSamplesToLoadAdj + SAMPLES_PER_FRAME) * SAMPLE_SIZE) <
+                        if (((synthState->samplePosInt * 2) + (numSamplesToLoadAdj ) * SAMPLE_SIZE) <
                             sample->size) {
-                            bytesToRead = (numSamplesToLoadAdj + SAMPLES_PER_FRAME) * SAMPLE_SIZE;
+                            bytesToRead = (numSamplesToLoadAdj ) * SAMPLE_SIZE;
                         } else {
                             bytesToRead = sample->size - (synthState->samplePosInt * 2);
                         }
                         // 2S2H [Port] [Custom audio]
                         // TLDR samples are loaded async and might be null the first time they are played.
                         // See note in AudioSampleFactory.cpp
-                        if (sampleAddr != NULL) {
+                        
+                        if (sample->codec == CODEC_OPUS) {
+                            aOPUSdecImpl(sampleAddr, DMEM_UNCOMPRESSED_NOTE, bytesToRead, &synthState->opusFile,
+                                         synthState->samplePosInt, sample->fileSize);
+                        } else {
                             aLoadBuffer(cmd++, sampleAddr + (synthState->samplePosInt * 2), DMEM_UNCOMPRESSED_NOTE,
                                         bytesToRead);
                         }
@@ -1314,7 +1323,6 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
                 flags = A_CONTINUE;
 
             skip:
-
                 // Update what to do with the samples next
                 if (sampleFinished) {
                     if ((numSamplesToLoadAdj - numSamplesProcessed) != 0) {
@@ -1391,7 +1399,7 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
 
     // Apply the gain to the mono-signal to adjust the volume
     gain = sampleState->gain;
-    if (gain != 0) {
+     if (gain != 0) {
         // A gain of 0x10 (a UQ4.4 number) is equivalent to 1.0 and represents no volume change
         if (gain < 0x10) {
             gain = 0x10;

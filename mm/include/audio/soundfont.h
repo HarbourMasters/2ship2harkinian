@@ -31,7 +31,9 @@ typedef enum SampleCodec {
     /* 4 */ CODEC_REVERB,
     /* 5 */ CODEC_S16,
     /* 6 */ CODEC_UNK6,
-    /* 7 */ CODEC_UNK7 // processed as uncompressed samples
+    /* 7 */ CODEC_UNK7, // processed as uncompressed samples
+    // 2S2H [Custom Audio] allow decoding other audio formats
+    /* 8 */ CODEC_OPUS,
 } SampleCodec;
 
 typedef enum SampleMedium {
@@ -55,11 +57,10 @@ typedef struct Sample {
         u32 asU32;
     };
     /* 0x1 */ u32 size;  // Size of the sample
+    u32 fileSize;
     /* 0x4 */ u8* sampleAddr; // Raw sample data. Offset from the start of the sample bank or absolute address to either rom or ram
     /* 0x8 */ AdpcmLoop* loop; // Adpcm loop parameters used by the sample. Offset from the start of the sound font / pointer to ram
     /* 0xC */ AdpcmBook* book; // Adpcm book parameters used by the sample. Offset from the start of the sound font / pointer to ram
-    u32 sampleRateMagicValue; // For wav samples only...
-    s32 sampleRate;           // For wav samples only...
 } Sample; // size = 0x10
 
 typedef struct TunedSample {

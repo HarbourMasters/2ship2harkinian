@@ -579,6 +579,8 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     link_libraries(Vorbis::vorbisfile)
     find_package(Opus CONFIG REQUIRED)
     link_libraries(Opus::opus)
+	find_package(OpusFile CONFIG REQUIRED)
+    link_libraries(OpusFile::opusfile CONFIG REQUIRED)
 
 	set(ADDITIONAL_LIBRARY_DEPENDENCIES
 		"libultraship;"
@@ -597,6 +599,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
         "Vorbis::vorbis"
         "Vorbis::vorbisenc"
         "Vorbis::vorbisfile"
+		"OpusFile::opusfile"
 	)
 elseif(CMAKE_SYSTEM_NAME STREQUAL "NintendoSwitch")
     find_package(SDL2)

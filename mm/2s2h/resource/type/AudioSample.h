@@ -19,21 +19,26 @@ typedef struct {
     /* 0x08 */ s16* book; // size 8 * order * npredictors. 8-byte aligned
 } AdpcmBook;              // s
 
-typedef struct {
+typedef struct Sample {
     union {
         struct {
-            /* 0x00 */ u32 codec : 4;
-            /* 0x00 */ u32 medium : 2;
-            /* 0x00 */ u32 unk_bit26 : 1;
-            /* 0x00 */ u32 unk_bit25 : 1; // this has been named isRelocated in zret
+            ///* 0x0 */ u32 unk_0 : 1;
+            /* 0x0 */ u32 codec : 4;  // The state of compression or decompression, See `SampleCodec`
+            /* 0x0 */ u32 medium : 2; // Medium where sample is currently stored. See `SampleMedium`
+            /* 0x0 */ u32 unk_bit26 : 1;
+            /* 0x0 */ u32 isRelocated : 1; // Has the sample header been relocated (offsets to pointers)
         };
         u32 asU32;
     };
-    /* 0x01 */ u32 size;
-    /* 0x04 */ u8* sampleAddr;
-    /* 0x08 */ AdpcmLoop* loop;
-    /* 0x0C */ AdpcmBook* book;
-} Sample; // size = 0x10
+    /* 0x1 */ u32 size; // Size of the sample
+    u32 fileSize;
+    /* 0x4 */ u8* sampleAddr; // Raw sample data. Offset from the start of the sample bank or absolute address to either
+                              // rom or ram
+    /* 0x8 */ AdpcmLoop*
+        loop; // Adpcm loop parameters used by the sample. Offset from the start of the sound font / pointer to ram
+    /* 0xC */ AdpcmBook*
+        book; // Adpcm book parameters used by the sample. Offset from the start of the sound font / pointer to ram
+} Sample;     // size = 0x10
 
 class AudioSample : public Ship::Resource<Sample> {
   public:
