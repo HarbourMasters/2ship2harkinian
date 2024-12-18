@@ -195,6 +195,7 @@ Recording previous_recording;
 bool next_is_actor_pos_rot_matrix;
 bool has_inv_actor_mtx;
 bool ignore_inv_actor_mtx;
+size_t ignore_inv_actor_mtx_path_index;
 MtxF inv_actor_mtx;
 size_t inv_actor_mtx_path_index;
 
@@ -495,7 +496,9 @@ void FrameInterpolation_RecordCloseChild(void) {
     if (has_inv_actor_mtx && current_path.size() == inv_actor_mtx_path_index) {
         has_inv_actor_mtx = false;
     }
-    ignore_inv_actor_mtx = false;
+    if (ignore_inv_actor_mtx && current_path.size() == ignore_inv_actor_mtx_path_index) {
+        ignore_inv_actor_mtx = false;
+    }
     current_path.pop_back();
 }
 
@@ -507,8 +510,11 @@ int FrameInterpolation_GetCameraEpoch(void) {
     return (int)camera_epoch;
 }
 
+// Marks the current record path and its children to not apply the matrix result
+// against the recorded actor inverted matrix
 void FrameInterpolation_IgnoreActorMtx() {
     ignore_inv_actor_mtx = true;
+    ignore_inv_actor_mtx_path_index = current_path.size();
 }
 
 void FrameInterpolation_RecordActorPosRotMatrix(void) {
