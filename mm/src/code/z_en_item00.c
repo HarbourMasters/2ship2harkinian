@@ -5,6 +5,8 @@
 #include "overlays/actors/ovl_En_Elf/z_en_elf.h"
 #include "overlays/actors/ovl_En_Elforg/z_en_elforg.h"
 
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+
 #define FLAGS 0x00000000
 
 #define THIS ((EnItem00*)thisx)
@@ -485,6 +487,8 @@ void func_800A6A40(EnItem00* this, PlayState* play) {
     if (LINK_IS_ADULT) {
         this->actor.world.pos.y += 20.0f;
     }
+
+    this->snappedToPlayer = true;
 }
 
 void EnItem00_Update(Actor* thisx, PlayState* play) {
@@ -705,6 +709,9 @@ void EnItem00_Draw(Actor* thisx, PlayState* play) {
     EnItem00* this = THIS;
 
     if (!(this->unk14E & this->unk150)) {
+        FrameInterpolation_RecordOpenChild(this, this->snappedToPlayer ? 1 : 0);
+        FrameInterpolation_IgnoreActorMtx();
+
         switch (this->actor.params) {
             case ITEM00_RUPEE_GREEN:
             case ITEM00_RUPEE_BLUE:
@@ -774,6 +781,8 @@ void EnItem00_Draw(Actor* thisx, PlayState* play) {
             case ITEM00_BIG_FAIRY:
                 break;
         }
+
+        FrameInterpolation_RecordCloseChild();
     }
 }
 

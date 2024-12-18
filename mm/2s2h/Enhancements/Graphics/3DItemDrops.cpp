@@ -1,5 +1,6 @@
 #include "libultraship/libultraship.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 extern "C" {
 #include "z64.h"
@@ -27,6 +28,9 @@ void EnItem00_3DItemsDraw(Actor* actor, PlayState* play) {
     EnItem00* enItem00 = (EnItem00*)actor;
 
     if (!(enItem00->unk14E & enItem00->unk150)) {
+        FrameInterpolation_RecordOpenChild(enItem00, enItem00->snappedToPlayer ? 1 : 0);
+        FrameInterpolation_IgnoreActorMtx();
+
         switch (enItem00->actor.params) {
             case ITEM00_RUPEE_GREEN:
                 Matrix_Scale(25.0f, 25.0f, 25.0f, MTXMODE_APPLY);
@@ -110,6 +114,8 @@ void EnItem00_3DItemsDraw(Actor* actor, PlayState* play) {
                 GetItem_Draw(play, GID_COMPASS);
                 break;
         }
+
+        FrameInterpolation_RecordCloseChild();
     }
 }
 
