@@ -9,6 +9,7 @@
 #include "objects/gameplay_field_keep/gameplay_field_keep.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
 
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h/ShipUtils.h"
 #include <string.h>
 
@@ -1344,11 +1345,14 @@ void func_80A5E6F0(Actor* thisx, PlayState* play) {
         EnKusa2UnkBssSubStruct2* s = &D_80A5F1C0.unk_0480[i];
 
         if (s->unk_2C > 0) {
+            FrameInterpolation_RecordOpenChild(s, 0);
+            FrameInterpolation_IgnoreActorMtx();
             Matrix_SetTranslateRotateYXZ(s->unk_04.x, s->unk_04.y, s->unk_04.z, &s->unk_20);
             Matrix_Scale(s->unk_00, s->unk_00, s->unk_00, MTXMODE_APPLY);
 
             gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_OPA_DISP++, D_80A5EB68[i & 1]);
+            FrameInterpolation_RecordCloseChild();
         }
     }
 
