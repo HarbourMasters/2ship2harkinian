@@ -2813,7 +2813,8 @@ void Actor_Draw(PlayState* play, Actor* actor) {
                    (actor->flags & (ACTOR_FLAG_10000000 | ACTOR_FLAG_400000)) ? NULL : &actor->world.pos, play);
     Lights_Draw(light, play->state.gfxCtx);
 
-    // If the player is performing a Deku spin or entering a Deku flower, set it so that angles
+    // If the player is performing a Deku spin or entering a Deku flower, set it so that interpolation allows for >90
+    // angle changes to be interpolated smoothly
     if (actor->id == ACTOR_PLAYER &&
         (((Player*)actor)->actionFunc == Player_Action_93 || ((Player*)actor)->actionFunc == Player_Action_95)) {
         FrameInterpolation_InterpolateWiderAngles();

@@ -487,8 +487,6 @@ void func_800A6A40(EnItem00* this, PlayState* play) {
     if (LINK_IS_ADULT) {
         this->actor.world.pos.y += 20.0f;
     }
-
-    this->snappedToPlayer = true;
 }
 
 void EnItem00_Update(Actor* thisx, PlayState* play) {
@@ -709,7 +707,11 @@ void EnItem00_Draw(Actor* thisx, PlayState* play) {
     EnItem00* this = THIS;
 
     if (!(this->unk14E & this->unk150)) {
-        FrameInterpolation_RecordOpenChild(this, this->snappedToPlayer ? 1 : 0);
+        // 2S2H [Interpolation] Skip interpolation when the item moves from the ground to over the player head
+        Player* player = GET_PLAYER(play);
+        bool itemOnPlayer =
+            player->actor.home.pos.x == this->actor.world.pos.x && player->actor.home.pos.z == this->actor.world.pos.z;
+        FrameInterpolation_RecordOpenChild(this, itemOnPlayer ? 1 : 0);
         FrameInterpolation_IgnoreActorMtx();
 
         switch (this->actor.params) {

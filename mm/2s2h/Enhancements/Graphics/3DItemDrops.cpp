@@ -28,7 +28,10 @@ void EnItem00_3DItemsDraw(Actor* actor, PlayState* play) {
     EnItem00* enItem00 = (EnItem00*)actor;
 
     if (!(enItem00->unk14E & enItem00->unk150)) {
-        FrameInterpolation_RecordOpenChild(enItem00, enItem00->snappedToPlayer ? 1 : 0);
+        Player* player = GET_PLAYER(play);
+        bool itemOnPlayer = player->actor.home.pos.x == enItem00->actor.world.pos.x &&
+                            player->actor.home.pos.z == enItem00->actor.world.pos.z;
+        FrameInterpolation_RecordOpenChild(enItem00, itemOnPlayer ? 1 : 0);
         FrameInterpolation_IgnoreActorMtx();
 
         switch (enItem00->actor.params) {

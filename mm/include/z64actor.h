@@ -258,8 +258,6 @@ typedef struct EnItem00 {
     /* 0x154 */ f32 unk154;
     /* 0x158 */ ColliderCylinder collider;
     /* 0x1A4 */ s8 unk1A4;
-    // 2S2H [Port]
-    /*       */ u8 snappedToPlayer; // Used for interpolation skipping as the item is moved over player's head
 } EnItem00; // size = 0x1A8
 
 struct EnAObj;
