@@ -127,6 +127,10 @@ void aOPUSdecImpl(void* source_addr, uint16_t dest_addr, uint16_t nbytes, struct
     }
 }
 
+void aOPUSFree(struct OggOpusFile* opusFile) {
+    op_free(opusFile);
+}
+
 #if 0
 void aOPUSdecImplOld(void* source_addr, uint16_t dest_addr, uint16_t nbytes, int32_t* toDecode) {
     if (decState->dec == NULL) {

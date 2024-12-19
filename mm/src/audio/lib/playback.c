@@ -153,6 +153,7 @@ void AudioPlayback_NoteInit(Note* note) {
     note->sampleState = gDefaultSampleState;
 }
 
+extern void aOPUSFree(struct OggOpusFile* opusFile);
 void AudioPlayback_NoteDisable(Note* note) {
     if (note->sampleState.bitField0.needsInit == true) {
         note->sampleState.bitField0.needsInit = false;
@@ -165,6 +166,11 @@ void AudioPlayback_NoteDisable(Note* note) {
     note->playbackState.prevParentLayer = NO_LAYER;
     note->playbackState.adsr.action.s.status = ADSR_STATUS_DISABLED;
     note->playbackState.adsr.current = 0;
+    // 2S2H [Custom Audio] Free the decoded opus data if needed.
+    if (note->synthesisState.opusFile != NULL) {
+        aOPUSFree(note->synthesisState.opusFile);
+        note->synthesisState.opusFile = NULL;
+    }
 }
 
 void AudioPlayback_ProcessNotes(void) {
