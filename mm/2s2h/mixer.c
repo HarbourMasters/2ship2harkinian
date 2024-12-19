@@ -108,7 +108,7 @@ void aLoadBufferImpl(const void* source_addr, uint16_t dest_addr, uint16_t nbyte
 #include <opus/opus.h>
 #include <opusfile.h>
 
-extern void aOPUSdecImpl(void* source_addr, uint16_t dest_addr, uint16_t nbytes, OggOpusFile** decState, int32_t pos, uint32_t size) {
+void aOPUSdecImpl(void* source_addr, uint16_t dest_addr, uint16_t nbytes, struct OggOpusFile** decState, int32_t pos, uint32_t size) {
     int readSamples = 0;
     if (*decState == NULL) {
         *decState = op_open_memory(source_addr, size, NULL);

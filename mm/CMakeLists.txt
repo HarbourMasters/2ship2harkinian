@@ -630,6 +630,7 @@ else()
     find_package(Ogg REQUIRED)
     find_package(Vorbis REQUIRED)
     find_package(Opus REQUIRED)
+    find_package(OpusFile REQUIRED)
     set(ADDITIONAL_LIBRARY_DEPENDENCIES
         "libultraship;"
 		"ZAPDLib;"
@@ -638,6 +639,7 @@ else()
         "Vorbis::vorbisenc"
         "Vorbis::vorbisfile"
         "Opus::opus"
+        "Opusfile::Opusfile"
 		SDL2::SDL2
  #       "$<$<BOOL:${BUILD_CROWD_CONTROL}>:SDL2_net::SDL2_net>"
 		${CMAKE_DL_LIBS}

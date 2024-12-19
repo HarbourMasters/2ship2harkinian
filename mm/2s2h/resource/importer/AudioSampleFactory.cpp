@@ -278,11 +278,11 @@ static void OggDecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std:
             ogg_stream_clear(&os);
             ogg_sync_clear(&oy);
         #endif
+            // OPUS encoded data is decoded by the audio driver.
+            audioSample->sample.codec = CODEC_OPUS;
+            audioSample->sample.sampleAddr = new uint8_t[sampleFile->Buffer.get()->size()];
+            memcpy(audioSample->sample.sampleAddr, sampleFile->Buffer.get()->data(), sampleFile->Buffer.get()->size());
         }
-        audioSample->sample.codec = CODEC_OPUS;
-        audioSample->tuning = (48000.0f / 32000.0f);
-        audioSample->sample.sampleAddr = new uint8_t[sampleFile->Buffer.get()->size()];
-        memcpy(audioSample->sample.sampleAddr, sampleFile->Buffer.get()->data(), sampleFile->Buffer.get()->size());
     }
 }
 

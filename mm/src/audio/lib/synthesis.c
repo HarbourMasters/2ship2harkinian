@@ -881,10 +881,8 @@ Acmd* AudioSynth_ProcessSamples(s16* aiBuf, s32 numSamplesPerUpdate, Acmd* cmd, 
     return cmd;
 }
 
-void aOPUSdecImpl(void* source_addr, uint16_t dest_addr, uint16_t nbytes, OpusDecodeState* decState, int32_t pos, uint32_t size);
 #include <string.h>
 #include <stdlib.h>
-#include <stdio.h>
 Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, NoteSynthesisState* synthState, s16* aiBuf,
                                s32 numSamplesPerUpdate, Acmd* cmd, s32 updateIndex) {
     s32 pad1[2];
