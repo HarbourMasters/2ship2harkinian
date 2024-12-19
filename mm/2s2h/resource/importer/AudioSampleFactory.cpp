@@ -170,7 +170,7 @@ static void OggDecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std:
             break;
         }
         case OggType::Opus: {
-            #if 0
+#if 0
             // This looks like a lot but its not so bad. The basic operation here is:
             // Create a buffer, read some amount of data (usually 4096 bytes) into that buffer, tell the library there
             // is new data in the buffer, read a page, read packets until the page is exhausted, read a new page, repeat
@@ -277,7 +277,7 @@ static void OggDecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std:
             opus_decoder_destroy(dec);
             ogg_stream_clear(&os);
             ogg_sync_clear(&oy);
-        #endif
+#endif
             // OPUS encoded data is decoded by the audio driver.
             audioSample->sample.codec = CODEC_OPUS;
             audioSample->sample.sampleAddr = new uint8_t[sampleFile->Buffer.get()->size()];

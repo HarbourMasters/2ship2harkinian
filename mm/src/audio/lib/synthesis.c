@@ -1156,16 +1156,15 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
                         numSamplesProcessed += numSamplesToLoadAdj;
                         dmemUncompressedAddrOffset1 = numSamplesToLoadAdj;
 
-                        if (((synthState->samplePosInt * 2) + (numSamplesToLoadAdj ) * SAMPLE_SIZE) <
-                            sample->size) {
-                            bytesToRead = (numSamplesToLoadAdj ) * SAMPLE_SIZE;
+                        if (((synthState->samplePosInt * 2) + (numSamplesToLoadAdj)*SAMPLE_SIZE) < sample->size) {
+                            bytesToRead = (numSamplesToLoadAdj)*SAMPLE_SIZE;
                         } else {
                             bytesToRead = sample->size - (synthState->samplePosInt * 2);
                         }
                         // 2S2H [Port] [Custom audio]
                         // TLDR samples are loaded async and might be null the first time they are played.
                         // See note in AudioSampleFactory.cpp
-                        
+
                         if (sample->codec == CODEC_OPUS) {
                             aOPUSdecImpl(sampleAddr, DMEM_UNCOMPRESSED_NOTE, bytesToRead, &synthState->opusFile,
                                          synthState->samplePosInt, sample->fileSize);
@@ -1395,7 +1394,7 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
 
     // Apply the gain to the mono-signal to adjust the volume
     gain = sampleState->gain;
-     if (gain != 0) {
+    if (gain != 0) {
         // A gain of 0x10 (a UQ4.4 number) is equivalent to 1.0 and represents no volume change
         if (gain < 0x10) {
             gain = 0x10;
