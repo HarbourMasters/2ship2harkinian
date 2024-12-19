@@ -9,7 +9,7 @@
 # Search for the OpusFile header
 find_path(OPUSFILE_INCLUDE_DIR
     NAMES opusfile.h
-    PATH_SUFFIXES opusfile
+    PATHS /usr/include /usr/local/include
     DOC "Directory where opusfile.h is located"
 )
 
