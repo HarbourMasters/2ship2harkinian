@@ -11,7 +11,6 @@
 #include "2s2h/Enhancements/Graphics/Graphics.h"
 #include "2s2h/Enhancements/GfxPatcher/AuthenticGfxPatches.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
-#include "2s2h/Enhancements/Cheats/Cheats.h"
 #include "2s2h/Enhancements/Player/Player.h"
 #include "2s2h/Enhancements/Audio/AudioEditor.h"
 #include "HudEditor.h"
