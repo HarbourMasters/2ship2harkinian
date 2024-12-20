@@ -137,6 +137,7 @@ struct WidgetOptions {
     bool sameLine = false;
     bool showButtons = true;
     const char* format = "%f";
+    float step = 0.01f;
     bool isPercentage = false;
 };
 
@@ -426,6 +427,12 @@ static const std::unordered_map<int32_t, const char*> notificationPosition = {
     { 0, "Top Left" }, { 1, "Top Right" }, { 2, "Bottom Left" }, { 3, "Bottom Right" }, { 4, "Hidden" },
 };
 
+static const std::unordered_map<int32_t, const char*> dekuGuardSearchBallsOptions = {
+    { DEKU_GUARD_SEARCH_BALLS_NEVER, "Never" },
+    { DEKU_GUARD_SEARCH_BALLS_NIGHT_ONLY, "Night Only" },
+    { DEKU_GUARD_SEARCH_BALLS_ALWAYS, "Always" },
+};
+
 void FreeLookPitchMinMax() {
     f32 maxY = CVarGetFloat("gEnhancements.Camera.FreeLook.MaxPitch", 72.0f);
     f32 minY = CVarGetFloat("gEnhancements.Camera.FreeLook.MinPitch", -49.0f);
@@ -514,8 +521,8 @@ void AddSettings() {
                 "Adjust overall sound volume.",
                 WIDGET_CVAR_SLIDER_FLOAT,
                 { .min = 0.0f,
-                  .max = 100.0f,
-                  .defaultVariant = 100.0f,
+                  .max = 1.0f,
+                  .defaultVariant = 1.0f,
                   .showButtons = false,
                   .format = "",
                   .isPercentage = true } },
@@ -524,8 +531,8 @@ void AddSettings() {
                 "Adjust the Background Music volume.",
                 WIDGET_CVAR_SLIDER_FLOAT,
                 { .min = 0.0f,
-                  .max = 100.0f,
-                  .defaultVariant = 100.0f,
+                  .max = 1.0f,
+                  .defaultVariant = 1.0f,
                   .showButtons = false,
                   .format = "",
                   .isPercentage = true },
@@ -538,8 +545,8 @@ void AddSettings() {
                 "Adjust the Sub Music volume.",
                 WIDGET_CVAR_SLIDER_FLOAT,
                 { .min = 0.0f,
-                  .max = 100.0f,
-                  .defaultVariant = 100.0f,
+                  .max = 1.0f,
+                  .defaultVariant = 1.0f,
                   .showButtons = false,
                   .format = "",
                   .isPercentage = true },
@@ -552,8 +559,8 @@ void AddSettings() {
                 "Adjust the Sound Effects volume.",
                 WIDGET_CVAR_SLIDER_FLOAT,
                 { .min = 0.0f,
-                  .max = 100.0f,
-                  .defaultVariant = 100.0f,
+                  .max = 1.0f,
+                  .defaultVariant = 1.0f,
                   .showButtons = false,
                   .format = "",
                   .isPercentage = true },
@@ -566,8 +573,8 @@ void AddSettings() {
                 "Adjust the Fanfare volume.",
                 WIDGET_CVAR_SLIDER_FLOAT,
                 { .min = 0.0f,
-                  .max = 100.0f,
-                  .defaultVariant = 100.0f,
+                  .max = 1.0f,
+                  .defaultVariant = 1.0f,
                   .showButtons = false,
                   .format = "",
                   .isPercentage = true },
@@ -580,8 +587,8 @@ void AddSettings() {
                 "Adjust the Ambient Sound volume.",
                 WIDGET_CVAR_SLIDER_FLOAT,
                 { .min = 0.0f,
-                  .max = 100.0f,
-                  .defaultVariant = 100.0f,
+                  .max = 1.0f,
+                  .defaultVariant = 1.0f,
                   .showButtons = false,
                   .format = "",
                   .isPercentage = true },
@@ -619,9 +626,9 @@ void AddSettings() {
                 "Multiplies your output resolution by the value inputted, as a more intensive but effective "
                 "form of anti-aliasing.",
                 WIDGET_CVAR_SLIDER_FLOAT,
-                { .min = 50.0f,
-                  .max = 200.0f,
-                  .defaultVariant = 100.0f,
+                { .min = 0.5f,
+                  .max = 2.0f,
+                  .defaultVariant = 1.0f,
                   .showButtons = false,
                   .format = "",
                   .isPercentage = true },
@@ -726,43 +733,44 @@ void AddSettings() {
                                       WIDGET_WINDOW_BUTTON,
                                       { .size = UIWidgets::Sizes::Inline, .windowName = "2S2H Input Editor" } } } } });
 
-    settingsSidebar.push_back({ "Notifications",
-                                1,
-                                { {
-                                    { "Position",
-                                      "gNotifications.Position",
-                                      "Which corner of the screen notifications appear in.",
-                                      WIDGET_CVAR_COMBOBOX,
-                                      { .defaultVariant = 3, .comboBoxOptions = notificationPosition } },
-                                    { "Duration: %.0f seconds",
-                                      "gNotifications.Duration",
-                                      "How long notifications are displayed for.",
-                                      WIDGET_CVAR_SLIDER_FLOAT,
-                                      { .min = 300.0f, .max = 3000.0f, .defaultVariant = 1000.0f } },
-                                    { "Background Opacity: %.0f%%",
-                                      "gNotifications.BgOpacity",
-                                      "How opaque the background of notifications is.",
-                                      WIDGET_CVAR_SLIDER_FLOAT,
-                                      { .min = 0.0f, .max = 100.0f, .defaultVariant = 50.0f, .isPercentage = true } },
-                                    { "Size %.1f",
-                                      "gNotifications.Size",
-                                      "How large notifications are.",
-                                      WIDGET_CVAR_SLIDER_FLOAT,
-                                      { .min = 100.0f, .max = 500.0f, .defaultVariant = 180.0f } },
-                                    { "Test Notification",
-                                      "",
-                                      "Displays a test notification.",
-                                      WIDGET_BUTTON,
-                                      {},
-                                      [](widgetInfo& info) {
-                                          Notification::Emit({
-                                              .itemIcon = "__OTR__icon_item_24_static_yar/gQuestIconGoldSkulltulaTex",
-                                              .prefix = "This",
-                                              .message = "is a",
-                                              .suffix = "test.",
-                                          });
-                                      } },
-                                } } });
+    settingsSidebar.push_back(
+        { "Notifications",
+          1,
+          { {
+              { "Position",
+                "gNotifications.Position",
+                "Which corner of the screen notifications appear in.",
+                WIDGET_CVAR_COMBOBOX,
+                { .defaultVariant = 3, .comboBoxOptions = notificationPosition } },
+              { "Duration: %.0f seconds",
+                "gNotifications.Duration",
+                "How long notifications are displayed for.",
+                WIDGET_CVAR_SLIDER_FLOAT,
+                { .min = 3.0f, .max = 30.0f, .defaultVariant = 10.0f, .format = "%.1f", .step = 0.1f } },
+              { "Background Opacity: %.0f%%",
+                "gNotifications.BgOpacity",
+                "How opaque the background of notifications is.",
+                WIDGET_CVAR_SLIDER_FLOAT,
+                { .min = 0.0f, .max = 1.0f, .defaultVariant = 0.5f, .format = "%.0f%%", .isPercentage = true } },
+              { "Size %.1f",
+                "gNotifications.Size",
+                "How large notifications are.",
+                WIDGET_CVAR_SLIDER_FLOAT,
+                { .min = 1.0f, .max = 5.0f, .defaultVariant = 1.8f, .format = "%.1f", .step = 0.1f } },
+              { "Test Notification",
+                "",
+                "Displays a test notification.",
+                WIDGET_BUTTON,
+                {},
+                [](widgetInfo& info) {
+                    Notification::Emit({
+                        .itemIcon = "__OTR__icon_item_24_static_yar/gQuestIconGoldSkulltulaTex",
+                        .prefix = "This",
+                        .message = "is a",
+                        .suffix = "test.",
+                    });
+                } },
+          } } });
 
     if (CVarGetInteger("gSettings.SidebarSearch", 0)) {
         settingsSidebar.insert(settingsSidebar.begin() + searchSidebarIndex, searchSidebarEntry);
@@ -804,13 +812,13 @@ void AddEnhancements() {
                   "gEnhancements.Camera.FirstPerson.SensitivityX",
                   "Adjusts the Sensitivity of the X Axis in First Person Mode.",
                   WIDGET_CVAR_SLIDER_FLOAT,
-                  { .min = 10.0f, .max = 200.0f, .defaultVariant = 100.0f, .format = "%.0f%%", .isPercentage = true },
+                  { .min = 0.01f, .max = 2.0f, .defaultVariant = 1.0f, .format = "%.0f%%", .isPercentage = true },
                   nullptr },
                 { "Y Axis Sensitivity: %.0f%%",
                   "gEnhancements.Camera.FirstPerson.SensitivityY",
                   "Adjusts the Sensitivity of the Y Axis in First Person Mode.",
                   WIDGET_CVAR_SLIDER_FLOAT,
-                  { .min = 10.0f, .max = 200.0f, .defaultVariant = 100.0f, .format = "%.0f%%", .isPercentage = true },
+                  { .min = 0.01f, .max = 2.0f, .defaultVariant = 1.0f, .format = "%.0f%%", .isPercentage = true },
                   nullptr },
                 { "Gyro Aiming",
                   "gEnhancements.Camera.FirstPerson.GyroEnabled",
@@ -836,14 +844,14 @@ void AddEnhancements() {
                   "gEnhancements.Camera.FirstPerson.GyroSensitivityX",
                   "Adjusts the Sensitivity of the X Axis of the Gyro in First Person Mode.",
                   WIDGET_CVAR_SLIDER_FLOAT,
-                  { .min = 10.0f, .max = 200.0f, .defaultVariant = 100.0f, .format = "%.0f%%", .isPercentage = true },
+                  { .min = 0.01f, .max = 2.0f, .defaultVariant = 1.0f, .format = "%.0f%%", .isPercentage = true },
                   nullptr,
                   [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_GYRO_OFF).active; } },
                 { "Gyro Y Axis Sensitivity: %.0f%%",
                   "gEnhancements.Camera.FirstPerson.GyroSensitivityY",
                   "Adjusts the Sensitivity of the Y Axis of the Gyro in First Person Mode.",
                   WIDGET_CVAR_SLIDER_FLOAT,
-                  { .min = 10.0f, .max = 200.0f, .defaultVariant = 100.0f, .format = "%.0f%%", .isPercentage = true },
+                  { .min = 0.01f, .max = 2.0f, .defaultVariant = 1.0f, .format = "%.0f%%", .isPercentage = true },
                   nullptr,
                   [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_GYRO_OFF).active; } },
                 { "Right Stick Aiming", "gEnhancements.Camera.FirstPerson.RightStickEnabled",
@@ -876,14 +884,14 @@ void AddEnhancements() {
                   "gEnhancements.Camera.FirstPerson.RightStickSensitivityX",
                   "Adjusts the Sensitivity of the X Axis of the Right Stick in First Person Mode.",
                   WIDGET_CVAR_SLIDER_FLOAT,
-                  { .min = 10.0f, .max = 200.0f, .defaultVariant = 100.0f, .format = "%.0f%%", .isPercentage = true },
+                  { .min = 0.01f, .max = 2.0f, .defaultVariant = 1.0f, .format = "%.0f%%", .isPercentage = true },
                   nullptr,
                   [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_RIGHT_STICK_OFF).active; } },
                 { "Right Stick Y Axis Sensitivity: %.0f%%",
                   "gEnhancements.Camera.FirstPerson.RightStickSensitivityY",
                   "Adjusts the Sensitivity of the Y Axis of the Right Stick in First Person Mode.",
                   WIDGET_CVAR_SLIDER_FLOAT,
-                  { .min = 10.0f, .max = 200.0f, .defaultVariant = 100.0f, .format = "%.0f%%", .isPercentage = true },
+                  { .min = 0.01f, .max = 2.0f, .defaultVariant = 1.0f, .format = "%.0f%%", .isPercentage = true },
                   nullptr,
                   [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_RIGHT_STICK_OFF).active; } },
             },
@@ -895,7 +903,7 @@ void AddEnhancements() {
                 "stick in the controller config menu, and map the camera stick to the right stick.",
                 WIDGET_CVAR_CHECKBOX,
                 {},
-                [](widgetInfo& info) { RegisterCameraFreeLook(); },
+                nullptr,
                 [](widgetInfo& info) {
                     if (disabledMap.at(DISABLE_FOR_DEBUG_CAM_ON).active)
                         info.activeDisables.push_back(DISABLE_FOR_DEBUG_CAM_ON);
@@ -918,14 +926,14 @@ void AddEnhancements() {
                 "gEnhancements.Camera.FreeLook.MaxPitch",
                 "Maximum Height of the Camera.",
                 WIDGET_CVAR_SLIDER_FLOAT,
-                { -8900.0f, 8900.0f, 7200.0f },
+                { .min = -89.0f, .max = 89.0f, .defaultVariant = 72.0f, .format = "%.0f\xC2\xB0" },
                 [](widgetInfo& info) { FreeLookPitchMinMax(); },
                 [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_FREE_LOOK_OFF).active; } },
               { "Min Camera Height Angle: %.0f\xC2\xB0",
                 "gEnhancements.Camera.FreeLook.MinPitch",
                 "Minimum Height of the Camera.",
                 WIDGET_CVAR_SLIDER_FLOAT,
-                { -8900.0f, 8900.0f, -4900.0f },
+                { .min = -89.0f, .max = 89.0f, .defaultVariant = -49.0f, .format = "%.0f\xC2\xB0" },
                 [](widgetInfo& info) { FreeLookPitchMinMax(); },
                 [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_FREE_LOOK_OFF).active; } },
               { "Debug Camera",
@@ -933,7 +941,7 @@ void AddEnhancements() {
                 "Enables free camera control.",
                 WIDGET_CVAR_CHECKBOX,
                 {},
-                ([](widgetInfo& info) { RegisterDebugCam(); }),
+                nullptr,
                 [](widgetInfo& info) {
                     if (disabledMap.at(DISABLE_FOR_FREE_LOOK_ON).active) {
                         info.activeDisables.push_back(DISABLE_FOR_FREE_LOOK_ON);
@@ -965,7 +973,7 @@ void AddEnhancements() {
                 "gEnhancements.Camera.RightStick.CameraSensitivity.X",
                 "Adjust the Sensitivity of the x axis when in Third Person.",
                 WIDGET_CVAR_SLIDER_FLOAT,
-                { 1.0f, 500.0f, 100.0f },
+                { .min = 0.01f, .max = 5.0f, .defaultVariant = 1.0f, .format = "%.0f%%", .isPercentage = true },
                 nullptr,
                 [](widgetInfo& info) {
                     if (disabledMap.at(DISABLE_FOR_CAMERAS_OFF).active) {
@@ -976,7 +984,7 @@ void AddEnhancements() {
                 "gEnhancements.Camera.RightStick.CameraSensitivity.Y",
                 "Adjust the Sensitivity of the x axis when in Third Person.",
                 WIDGET_CVAR_SLIDER_FLOAT,
-                { 1.0f, 500.0f, 100.0f },
+                { .min = 0.01f, .max = 5.0f, .defaultVariant = 1.0f, .format = "%.0f%%", .isPercentage = true },
                 nullptr,
                 [](widgetInfo& info) {
                     if (disabledMap.at(DISABLE_FOR_CAMERAS_OFF).active) {
@@ -996,7 +1004,7 @@ void AddEnhancements() {
                 "gEnhancements.Camera.DebugCam.CameraSpeed",
                 "Adjusts the speed of the Camera.",
                 WIDGET_CVAR_SLIDER_FLOAT,
-                { 10.0f, 300.0f, 50.0f },
+                { .min = 0.1f, .max = 3.0f, .defaultVariant = 0.5f, .format = "%.0f%%", .isPercentage = true },
                 nullptr,
                 [](widgetInfo& info) { info.isHidden = disabledMap.at(DISABLE_FOR_DEBUG_CAM_OFF).active; } } } } });
     // Cheats
@@ -1008,12 +1016,9 @@ void AddEnhancements() {
               { "Infinite Rupees", "gCheats.InfiniteRupees", "Always have a full Wallet.", WIDGET_CVAR_CHECKBOX, {} },
               { "Infinite Consumables", "gCheats.InfiniteConsumables",
                 "Always have max Consumables, you must have collected the consumables first.", WIDGET_CVAR_CHECKBOX },
-              { "Longer Deku Flower Glide",
-                "gCheats.LongerFlowerGlide",
+              { "Longer Deku Flower Glide", "gCheats.LongerFlowerGlide",
                 "Allows Deku Link to glide longer, no longer dropping after a certain distance.",
-                WIDGET_CVAR_CHECKBOX,
-                {},
-                [](widgetInfo& info) { RegisterLongerFlowerGlide(); } },
+                WIDGET_CVAR_CHECKBOX },
               { "No Clip", "gCheats.NoClip", "Allows Link to phase through collision.", WIDGET_CVAR_CHECKBOX },
               { "Unbreakable Razor Sword", "gCheats.UnbreakableRazorSword",
                 "Allows to Razor Sword to be used indefinitely without dulling its blade.", WIDGET_CVAR_CHECKBOX },
@@ -1021,12 +1026,8 @@ void AddEnhancements() {
                 WIDGET_CVAR_CHECKBOX },
               { "Hookshot Anywhere", "gCheats.HookshotAnywhere", "Allows most surfaces to be hookshot-able",
                 WIDGET_CVAR_CHECKBOX },
-              { "Moon Jump on L",
-                "gCheats.MoonJumpOnL",
-                "Holding L makes you float into the air.",
-                WIDGET_CVAR_CHECKBOX,
-                {},
-                [](widgetInfo& info) { RegisterMoonJumpOnL(); } },
+              { "Moon Jump on L", "gCheats.MoonJumpOnL", "Holding L makes you float into the air.",
+                WIDGET_CVAR_CHECKBOX },
               { "Elegy of Emptiness Anywhere", "gCheats.ElegyAnywhere", "Allows Elegy of Emptiness outside of Ikana",
                 WIDGET_CVAR_CHECKBOX },
               { "Stop Time in Dungeons",
@@ -1043,12 +1044,9 @@ void AddEnhancements() {
         { "Gameplay",
           3,
           { { { .widgetName = "Player", .widgetType = WIDGET_SEPARATOR_TEXT },
-              { "Fast Deku Flower Launch",
-                "gEnhancements.Player.FastFlowerLaunch",
+              { "Fast Deku Flower Launch", "gEnhancements.Player.FastFlowerLaunch",
                 "Speeds up the time it takes to be able to get maximum height from launching out of a deku flower",
-                WIDGET_CVAR_CHECKBOX,
-                {},
-                ([](widgetInfo& info) { RegisterFastFlowerLaunch(); }) },
+                WIDGET_CVAR_CHECKBOX },
               { "Instant Putaway", "gEnhancements.Player.InstantPutaway",
                 "Allows Link to instantly puts away held item without waiting.", WIDGET_CVAR_CHECKBOX },
               { "Fierce Deity Putaway", "gEnhancements.Player.FierceDeityPutaway",
@@ -1073,6 +1071,11 @@ void AddEnhancements() {
                 "-Rupee: Get the rupee reward",
                 WIDGET_CVAR_COMBOBOX,
                 { .comboBoxOptions = cremiaRewardOptions } },
+              { "Cucco Shack Cucco Count",
+                "gEnhancements.Minigames.CuccoShackCuccoCount",
+                "Choose how many cuccos you need to raise to make Grog happy.",
+                WIDGET_CVAR_SLIDER_INT,
+                { 1, 10, 10 } },
               { "Swordsman School Winning Score",
                 "gEnhancements.Minigames.SwordsmanSchoolScore",
                 "Sets the score required to win the Swordsman School.",
@@ -1088,12 +1091,12 @@ void AddEnhancements() {
                 WIDGET_CVAR_CHECKBOX } },
             { { .widgetName = "Modes", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Play as Kafei", "gModes.PlayAsKafei", "Requires scene reload to take effect.", WIDGET_CVAR_CHECKBOX },
-              { "Time Moves when you Move",
-                "gModes.TimeMovesWhenYouMove",
-                "Time only moves when Link is not standing still.",
-                WIDGET_CVAR_CHECKBOX,
-                {},
-                ([](widgetInfo& info) { RegisterTimeMovesWhenYouMove(); }) },
+              { "Hyrule Warriors Styled Link", "gModes.HyruleWarriorsStyledLink",
+                "When acquired, places the Keaton and Fierce Deity masks on Link similarly to how he wears them in "
+                "Hyrule Warriors",
+                WIDGET_CVAR_CHECKBOX },
+              { "Time Moves when you Move", "gModes.TimeMovesWhenYouMove",
+                "Time only moves when Link is not standing still.", WIDGET_CVAR_CHECKBOX },
               { "Mirrored World",
                 "gModes.MirroredWorld.Mode",
                 "Mirrors the world horizontally.",
@@ -1226,12 +1229,7 @@ void AddEnhancements() {
                                     disabledMap.at(DISABLE_FOR_MOTION_BLUR_OFF).active;
                 } },
               { .widgetName = "Other", .widgetType = WIDGET_SEPARATOR_TEXT },
-              { "3D Item Drops",
-                "gEnhancements.Graphics.3DItemDrops",
-                "Makes item drops 3D",
-                WIDGET_CVAR_CHECKBOX,
-                {},
-                [](widgetInfo& info) { Register3DItemDrops(); } },
+              { "3D Item Drops", "gEnhancements.Graphics.3DItemDrops", "Makes item drops 3D", WIDGET_CVAR_CHECKBOX },
               { "Authentic Logo", "gEnhancements.Graphics.AuthenticLogo",
                 "Hide the game version and build details and display the authentic "
                 "model and texture on the boot logo start screen",
@@ -1276,17 +1274,18 @@ void AddEnhancements() {
                 "Removes the delay when using transformation masks.", WIDGET_CVAR_CHECKBOX },
               { "Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere",
                 "Allow using Fierce Deity's mask outside of boss rooms.", WIDGET_CVAR_CHECKBOX },
-              { "Persistent Bunny Hood",
-                "gEnhancements.Masks.PersistentBunnyHood.Enabled",
+              { "Persistent Bunny Hood", "gEnhancements.Masks.PersistentBunnyHood.Enabled",
                 "Permanently toggle a speed boost from the bunny hood by pressing "
                 "'A' on it in the mask menu.",
-                WIDGET_CVAR_CHECKBOX,
-                {},
-                [](widgetInfo& info) { UpdatePersistentMasksState(); } },
+                WIDGET_CVAR_CHECKBOX },
               { "No Blast Mask Cooldown", "gEnhancements.Masks.NoBlastMaskCooldown",
                 "Eliminates the Cooldown between Blast Mask usage.", WIDGET_CVAR_CHECKBOX } },
             // Song Enhancements
             { { .widgetName = "Ocarina", .widgetType = WIDGET_SEPARATOR_TEXT },
+              { "Better Song of Double Time", "gEnhancements.Songs.BetterSongOfDoubleTime",
+                "When playing the Song of Double Time, you can now choose the exact time you want to go to, similar to "
+                "the 3DS version.",
+                WIDGET_CVAR_CHECKBOX },
               { "Enable Sun's Song", "gEnhancements.Songs.EnableSunsSong",
                 "Enables the partially implemented Sun's Song. RIGHT-DOWN-UP-RIGHT-DOWN-UP to play it. "
                 "This song will make time move very fast until either Link moves to a different scene, "
@@ -1307,12 +1306,8 @@ void AddEnhancements() {
                 "Prevent dropping inputs when playing the ocarina quickly.", WIDGET_CVAR_CHECKBOX },
               { "Skip Scarecrow Song", "gEnhancements.Playback.SkipScarecrowSong",
                 "Pierre appears when the Ocarina is pulled out.", WIDGET_CVAR_CHECKBOX },
-              { "Faster Song Playback",
-                "gEnhancements.Songs.FasterSongPlayback",
-                "Speeds up the playback of songs.",
-                WIDGET_CVAR_CHECKBOX,
-                {},
-                [](widgetInfo& info) { RegisterFasterSongPlayback(); } } } } });
+              { "Faster Song Playback", "gEnhancements.Songs.FasterSongPlayback", "Speeds up the playback of songs.",
+                WIDGET_CVAR_CHECKBOX } } } });
     enhancementsSidebar.push_back(
         { "Time Savers",
           3,
@@ -1396,23 +1391,27 @@ void AddEnhancements() {
                 WIDGET_CVAR_CHECKBOX },
               { "Tatl ISG", "gEnhancements.Restorations.TatlISG", "Restores Navi ISG from OoT, but now with Tatl.",
                 WIDGET_CVAR_CHECKBOX },
-              { "Woodfall Mountain Appearance",
-                "gEnhancements.Restorations.WoodfallMountainAppearance",
+              { "Woodfall Mountain Appearance", "gEnhancements.Restorations.WoodfallMountainAppearance",
                 "Restores the appearance of Woodfall mountain to not look poisoned "
                 "when viewed from Termina Field after clearing Woodfall Temple\n\n"
                 "Requires a scene reload to take effect",
-                WIDGET_CVAR_CHECKBOX,
-                {},
-                [](widgetInfo& info) { RegisterWoodfallMountainAppearance(); } } } } });
+                WIDGET_CVAR_CHECKBOX } } } });
+
     enhancementsSidebar.push_back(
         { "Difficulty Options",
           3,
-          { { { "Disable Takkuri Steal",
-                "gEnhancements.Cheats.DisableTakkuriSteal",
+          { { { "Disable Takkuri Steal", "gEnhancements.Cheats.DisableTakkuriSteal",
                 "Prevents the Takkuri from stealing key items like bottles and swords. It may still steal other items.",
-                WIDGET_CVAR_CHECKBOX,
-                {},
-                [](widgetInfo& info) { RegisterDisableTakkuriSteal(); } } } } });
+                WIDGET_CVAR_CHECKBOX },
+              { "Deku Guard Search Balls",
+                "gEnhancements.Cheats.DekuGuardSearchBalls",
+                "Choose when to show the Deku Palace Guards' search balls\n"
+                "- Never: Never show the search balls. This matches Majora's Mask 3D behaviour\n"
+                "- Night Only: Only show the search balls at night. This matches original N64 behaviour.\n"
+                "- Always: Always show the search balls.",
+                WIDGET_CVAR_COMBOBOX,
+                { .defaultVariant = DEKU_GUARD_SEARCH_BALLS_NIGHT_ONLY,
+                  .comboBoxOptions = dekuGuardSearchBallsOptions } } } } });
     enhancementsSidebar.push_back({ "HUD Editor",
                                     1,
                                     { // HUD Editor
@@ -1846,9 +1845,6 @@ void SearchMenuGetItem(widgetInfo& widget) {
                 };
             } break;
             case WIDGET_SLIDER_FLOAT: {
-                float floatMin = (std::get<float>(widget.widgetOptions.min) / 100);
-                float floatMax = (std::get<float>(widget.widgetOptions.max) / 100);
-                float floatDefault = (std::get<float>(widget.widgetOptions.defaultVariant) / 100);
                 float* pointer = std::get<float*>(widget.widgetOptions.valuePointer);
 
                 if (pointer == nullptr) {
@@ -1856,13 +1852,16 @@ void SearchMenuGetItem(widgetInfo& widget) {
                     assert(false);
                     return;
                 }
-                if (UIWidgets::SliderFloat(widget.widgetName.c_str(), pointer, floatMin, floatMax,
+                if (UIWidgets::SliderFloat(widget.widgetName.c_str(), pointer,
+                                           std::get<float>(widget.widgetOptions.min),
+                                           std::get<float>(widget.widgetOptions.max),
                                            { .color = menuTheme[menuThemeIndex],
                                              .tooltip = widget.widgetTooltip,
                                              .disabled = disabledValue,
                                              .disabledTooltip = disabledTooltip,
                                              .showButtons = widget.widgetOptions.showButtons,
                                              .format = widget.widgetOptions.format,
+                                             .step = widget.widgetOptions.step,
                                              .isPercentage = widget.widgetOptions.isPercentage })) {
                     if (widget.widgetCallback != nullptr) {
                         widget.widgetCallback(widget);
@@ -1886,18 +1885,17 @@ void SearchMenuGetItem(widgetInfo& widget) {
                 };
                 break;
             case WIDGET_CVAR_SLIDER_FLOAT: {
-                float floatMin = (std::get<float>(widget.widgetOptions.min) / 100);
-                float floatMax = (std::get<float>(widget.widgetOptions.max) / 100);
-                float floatDefault = (std::get<float>(widget.widgetOptions.defaultVariant) / 100);
-                if (UIWidgets::CVarSliderFloat(widget.widgetName.c_str(), widget.widgetCVar, floatMin, floatMax,
-                                               floatDefault,
-                                               { .color = menuTheme[menuThemeIndex],
-                                                 .tooltip = widget.widgetTooltip,
-                                                 .disabled = disabledValue,
-                                                 .disabledTooltip = disabledTooltip,
-                                                 .showButtons = widget.widgetOptions.showButtons,
-                                                 .format = widget.widgetOptions.format,
-                                                 .isPercentage = widget.widgetOptions.isPercentage })) {
+                if (UIWidgets::CVarSliderFloat(
+                        widget.widgetName.c_str(), widget.widgetCVar, std::get<float>(widget.widgetOptions.min),
+                        std::get<float>(widget.widgetOptions.max), std::get<float>(widget.widgetOptions.defaultVariant),
+                        { .color = menuTheme[menuThemeIndex],
+                          .tooltip = widget.widgetTooltip,
+                          .disabled = disabledValue,
+                          .disabledTooltip = disabledTooltip,
+                          .showButtons = widget.widgetOptions.showButtons,
+                          .format = widget.widgetOptions.format,
+                          .step = widget.widgetOptions.step,
+                          .isPercentage = widget.widgetOptions.isPercentage })) {
                     if (widget.widgetCallback != nullptr) {
                         widget.widgetCallback(widget);
                     }

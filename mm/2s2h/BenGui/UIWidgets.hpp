@@ -10,6 +10,7 @@
 #include <libultraship/libultraship.h>
 #include <unordered_map>
 #include "2s2h/ShipUtils.h"
+#include "2s2h/ShipInit.hpp"
 
 namespace UIWidgets {
 
@@ -351,6 +352,7 @@ namespace UIWidgets {
         if (Combobox<T>(label, &value, comboMap, options)) {
             CVarSetInteger(cvarName, value);
             Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+            ShipInit::Init(cvarName);
             dirty = true;
         }
         return dirty;
@@ -363,6 +365,7 @@ namespace UIWidgets {
         if (Combobox<T>(label, &value, comboVector, options)) {
             CVarSetInteger(cvarName, value);
             Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+            ShipInit::Init(cvarName);
             dirty = true;
         }
         return dirty;
@@ -375,6 +378,7 @@ namespace UIWidgets {
         if (Combobox<T>(label, &value, comboArray, options)) {
             CVarSetInteger(cvarName, value);
             Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+            ShipInit::Init(cvarName);
             dirty = true;
         }
         return dirty;

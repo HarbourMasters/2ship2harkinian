@@ -72,8 +72,15 @@ typedef enum {
     VB_CHECK_HELD_ITEM_BUTTON_PRESS,
     VB_MAGIC_SPIN_ATTACK_CHECK_FORM,
     VB_TRANSFORM_THUNDER_MATRIX,
+    VB_DAMAGE_MULTIPLIER,
+    VB_DAMAGE_EFFECT,
+    VB_DRAW_DAMAGE_EFFECT,
+    VB_USE_NULL_FOR_DRAW_DAMAGE_EFFECTS,
+    VB_CHECK_BUMPER_COLLISION,
     VB_PLAY_HEART_CONTAINER_GET_FANFARE,
     VB_BE_HOOKSHOT_SURFACE,
+    VB_DEKU_GUARD_SHOW_SEARCH_BALLS,
+    VB_DISPLAY_SONG_OF_DOUBLE_TIME_PROMPT,
 } GIVanillaBehavior;
 
 typedef enum {
@@ -390,6 +397,33 @@ bool GameInteractor_Should(GIVanillaBehavior flag, uint32_t result, ...);
             body;                                                                           \
             va_end(args);                                                                   \
         })
+#define COND_HOOK(hookType, condition, body)                                                     \
+    {                                                                                            \
+        static HOOK_ID hookId = 0;                                                               \
+        GameInteractor::Instance->UnregisterGameHook<GameInteractor::hookType>(hookId);          \
+        hookId = 0;                                                                              \
+        if (condition) {                                                                         \
+            hookId = GameInteractor::Instance->RegisterGameHook<GameInteractor::hookType>(body); \
+        }                                                                                        \
+    }
+#define COND_ID_HOOK(hookType, id, condition, body)                                                       \
+    {                                                                                                     \
+        static HOOK_ID hookId = 0;                                                                        \
+        GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::hookType>(hookId);              \
+        hookId = 0;                                                                                       \
+        if (condition) {                                                                                  \
+            hookId = GameInteractor::Instance->RegisterGameHookForID<GameInteractor::hookType>(id, body); \
+        }                                                                                                 \
+    }
+#define COND_VB_SHOULD(id, condition, body)                                                               \
+    {                                                                                                     \
+        static HOOK_ID hookId = 0;                                                                        \
+        GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::ShouldVanillaBehavior>(hookId); \
+        hookId = 0;                                                                                       \
+        if (condition) {                                                                                  \
+            hookId = REGISTER_VB_SHOULD(id, body);                                                        \
+        }                                                                                                 \
+    }
 
 int GameInteractor_InvertControl(GIInvertType type);
 uint32_t GameInteractor_Dpad(GIDpadType type, uint32_t buttonCombo);
