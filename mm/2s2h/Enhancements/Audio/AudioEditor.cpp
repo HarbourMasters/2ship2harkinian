@@ -472,11 +472,18 @@ void AudioEditor::DrawElement() {
             ImGui::EndTabItem();
         }
         if (ImGui::BeginTabItem("Ocarina")) {
-            Draw_SfxTab("instrument", SEQ_INSTRUMENT);
             Draw_SfxTab("ocarina", SEQ_OCARINA);
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Instrument")) {
+            Draw_SfxTab("instrument", SEQ_INSTRUMENT);
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Songs")) {
             Draw_SfxTab("songs", SEQ_BGM_SONGS);
             ImGui::EndTabItem();
         }
+#if 0
         if (ImGui::BeginTabItem("Sound Effects")) {
             Draw_SfxTab("sfx", SEQ_SFX);
             ImGui::EndTabItem();
@@ -484,8 +491,7 @@ void AudioEditor::DrawElement() {
         if (ImGui::BeginTabItem("Voices")) {
             Draw_SfxTab("voice", SEQ_VOICE);
             ImGui::EndTabItem();
-        }
-
+#endif
         static ImVec2 cellPadding(8.0f, 8.0f);
 #if 0
         if (ImGui::BeginTabItem("Options")) {
