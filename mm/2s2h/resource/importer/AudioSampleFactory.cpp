@@ -2,8 +2,8 @@
 #include "2s2h/resource/type/AudioSample.h"
 #include "2s2h/resource/importer/AudioSoundFontFactory.h"
 #include "audio/soundfont.h"
-#include "StringHelper.h"
-#include "libultraship/libultraship.h"
+#include "Context.h"
+#include "resource/archive/Archive.h"
 #define DR_WAV_IMPLEMENTATION
 #include <dr_wav.h>
 
@@ -170,118 +170,17 @@ static void OggDecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std:
             break;
         }
         case OggType::Opus: {
-#if 0
-            // This looks like a lot but its not so bad. The basic operation here is:
-            // Create a buffer, read some amount of data (usually 4096 bytes) into that buffer, tell the library there
-            // is new data in the buffer, read a page, read packets until the page is exhausted, read a new page, repeat
-            // the packet reading, repeat the page reading until the file is exhausted.
-            fileData.pos = 0;
-            ogg_sync_state oy;
-            ogg_stream_state os;
-            ogg_page og;
-            ogg_packet op;
-            char* buffer;
-
-            ogg_sync_init(&oy);
-            // Read the first page
-            buffer = ogg_sync_buffer(&oy, 4096);
-            VorbisReadCallback(buffer, 4096, 1, &fileData);
-            // It would be best to use the number of bytes read from the callback but if its too small the file is
-            // probably invalid anyway
-            ogg_sync_wrote(&oy, 4096); // Tell the libogg data was put into its buffer for processing
-            ogg_sync_pageout(&oy, &og);
-            ogg_stream_init(&os, ogg_page_serialno(&og));
-            ogg_stream_pagein(&os, &og);
-            ogg_stream_packetout(&os, &op);
-
-            int i = 0;
-            // Consume the next header
-            while (i < 1) {
-                while (i < 1) {
-                    int result = ogg_sync_pageout(&oy, &og);
-                    if (result == 0)
-                        break; // Need more data
-                    if (result == 1) {
-                        ogg_stream_pagein(&os, &og);
-                        while (i < 1) {
-                            result = ogg_stream_packetout(&os, &op);
-                            if (result == 0) // Again, needs more data. Get more from pageout, pagein
-                                break;
-                            if (result < 0) {
-                                // This is bad. Handle it at some point...
-                            }
-                            i++;
-                        }
-                    }
-                }
-                /* no harm in not checking before adding more */
-                buffer = ogg_sync_buffer(&oy, 4096);
-                VorbisReadCallback(buffer, 4096, 1, &fileData);
-                ogg_sync_wrote(&oy, 4096);
-            }
-
-            // Read the actual audio data
-            OpusDecoder* dec = opus_decoder_create(48000, 1, nullptr);
-            int eos = 0;
-            int read = 0;
-            std::vector<int8_t> samples;
-            size_t pos = 0;
-            while (!eos) {
-                while (!eos) {
-                    int res = ogg_sync_pageout(&oy, &og);
-                    if (res == 0) // Need more data
-                        break;
-                    if (res < 0) {
-                        // This is bad...
-                    }
-                    ogg_stream_pagein(&os, &og);
-                    while (1) {
-                        res = ogg_stream_packetout(&os, &op);
-                        if (res == 0)
-                            break;
-                        if (res < 0) {
-                            // You should know by now this is bad...
-                        }
-                        opus_int16 pcm[960 * 6 * 2]; // Largest possible size
-                        // Decode opus encoded samples
-                        //int frameSize = opus_decode(dec, op.packet, op.bytes, pcm, 960 * 6, 0);
-                        // There isn't a good way to know how long an opus file is, so we need to keep filling a buffer
-                        // like this.
-                        samples.resize(samples.size() + op.bytes + 4);
-                        int packetSize = op.bytes;
-                        memcpy(samples.data() + pos, &packetSize, 4);
-                        //printf("Packet Size: %d\n", packetSize);
-                        pos += 4;
-                        memcpy(samples.data() + pos, op.packet, op.bytes);
-                        pos += op.bytes;
-                    }
-                    eos = ogg_page_eos(&og);
-                }
-                if (!eos) {
-                    buffer = ogg_sync_buffer(&oy, 4096);
-                    // Needs to read 4096 elements due to how the return works.
-                    read = VorbisReadCallback(buffer, 1, 4096, &fileData);
-                    ogg_sync_wrote(&oy, read);
-                    if (read == 0) {
-                        eos = 1;
-                    }
-                }
-            }
-            audioSample->sample.codec = CODEC_OPUS;
-            audioSample->sample.sampleAddr = new uint8_t[samples.size()];
-            // Hardcoded to 48KHz because that is what the opus spec expects and that is what future will always use.
-            audioSample->tuning = (44100.0f / 32000.0f);
-            // Write the final decoded sample data into the sample array
-            memcpy(audioSample->sample.sampleAddr, samples.data(), samples.size());
-            // Clean everything up
-            opus_decoder_destroy(dec);
-            ogg_stream_clear(&os);
-            ogg_sync_clear(&oy);
-#endif
             // OPUS encoded data is decoded by the audio driver.
             audioSample->sample.codec = CODEC_OPUS;
             audioSample->sample.sampleAddr = new uint8_t[sampleFile->Buffer.get()->size()];
             memcpy(audioSample->sample.sampleAddr, sampleFile->Buffer.get()->data(), sampleFile->Buffer.get()->size());
+            break;
+        }
+        case OggType::None: {
+            char buff[2048];
+            snprintf(buff, 2048, "Ogg file %s is not Vorbis or OPUS", sampleFile->InitData->Path.c_str());
+            throw std::runtime_error(buff);
+            break;
         }
     }
 }
@@ -345,8 +244,8 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
     const char* customFormatStr = child->Attribute("CustomFormat");
     memset(&audioSample->sample, 0, sizeof(audioSample->sample));
     audioSample->sample.isRelocated = 0;
-    audioSample->sample.codec = CodecStrToInt(child->Attribute("Codec"));
-    audioSample->sample.medium = ResourceFactoryXMLSoundFontV0::MediumStrToInt(child->Attribute("Medium"));
+    audioSample->sample.codec = CodecStrToInt(child->Attribute("Codec"), file->InitData->Path.c_str());
+    audioSample->sample.medium = ResourceFactoryXMLSoundFontV0::MediumStrToInt(child->Attribute("Medium"), file->InitData->Path.c_str());
     audioSample->sample.unk_bit26 = child->IntAttribute("bit26");
 
     tinyxml2::XMLElement* loopRoot = child->FirstChildElement("ADPCMLoop");
@@ -410,7 +309,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
             return audioSample;
         } else if (strcmp(customFormatStr, "ogg") == 0) {
             std::thread fileDecoderThread = std::thread(OggDecoderWorker, audioSample, sampleFile);
-            fileDecoderThread.join();
+            fileDecoderThread.detach();
             return audioSample;
         } else if (strcmp(customFormatStr, "flac") == 0) {
             std::thread fileDecoderThread = std::thread(FlacDecoderWorker, audioSample, sampleFile);
@@ -427,8 +326,8 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
 
     return audioSample;
 }
-#include <cassert>
-uint8_t ResourceFactoryXMLAudioSampleV0::CodecStrToInt(const char* str) {
+
+uint8_t ResourceFactoryXMLAudioSampleV0::CodecStrToInt(const char* str, const char* file) {
     if (strcmp("ADPCM", str) == 0) {
         return CODEC_ADPCM;
     } else if (strcmp("S8", str) == 0) {
@@ -446,7 +345,10 @@ uint8_t ResourceFactoryXMLAudioSampleV0::CodecStrToInt(const char* str) {
     } else if (strcmp("UNK7", str) == 0) {
         return CODEC_UNK7;
     } else {
-        assert(0);
+        char buff[2048];
+        snprintf(buff, 2048,
+                 "Invalid codec in %s. Got %s, expected ADPCM, S8, S16MEM, ADPCMSMALL, REVERB, S16, UNK6, UNK7.", file, str);
+        throw std::runtime_error(buff);
     }
 }
 } // namespace SOH

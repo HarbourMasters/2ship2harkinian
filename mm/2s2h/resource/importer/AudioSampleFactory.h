@@ -15,7 +15,7 @@ class ResourceFactoryXMLAudioSampleV0 : public Ship::ResourceFactoryXML {
     std::shared_ptr<Ship::IResource> ReadResource(std::shared_ptr<Ship::File> file) override;
 
   private:
-    uint8_t CodecStrToInt(const char* str);
+    static uint8_t CodecStrToInt(const char* str, const char* file);
 };
 
 } // namespace SOH

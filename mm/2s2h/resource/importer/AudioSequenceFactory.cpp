@@ -1,8 +1,8 @@
 #include "2s2h/resource/importer/AudioSequenceFactory.h"
 #include "2s2h/resource/type/AudioSequence.h"
-#include "BinaryWriter.h"
-#include "StringHelper.h"
-#include "libultraship/libultraship.h"
+#include "2s2h/resource/importer/AudioSoundFontFactory.h"
+#include "Context.h"
+#include "resource/archive/Archive.h"
 #include "BinaryWriter.h"
 #include <type_traits>
 
@@ -35,39 +35,6 @@ std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSequenceV2::ReadResou
     }
 
     return audioSequence;
-}
-
-int8_t SOH::ResourceFactoryXMLAudioSequenceV0::MediumStrToInt(const char* str) {
-    if (!strcmp("Ram", str)) {
-        return 0;
-    } else if (!strcmp("Unk", str)) {
-        return 1;
-    } else if (!strcmp("Cart", str)) {
-        return 2;
-    } else if (!strcmp("Disk", str)) {
-        return 3;
-        // 4 is skipped
-    } else if (!strcmp("RamUnloaded", str)) {
-        return 5;
-    } else {
-        throw std::runtime_error(
-            StringHelper::Sprintf("Bad medium value. Got %s, expected Ram, Unk, Cart, or Disk.", str));
-    }
-}
-
-int8_t ResourceFactoryXMLAudioSequenceV0::CachePolicyToInt(const char* str) {
-    if (!strcmp("Temporary", str)) {
-        return 0;
-    } else if (!strcmp("Persistent", str)) {
-        return 1;
-    } else if (!strcmp("Either", str)) {
-        return 2;
-    } else if (!strcmp("Permanent", str)) {
-        return 3;
-    } else {
-        throw std::runtime_error(StringHelper::Sprintf(
-            "Bad cache policy value. Got %s, expected Temporary, Persistent, Either, or Permanent.", str));
-    }
 }
 
 template <typename T> static void WriteInsnOneArg(Ship::BinaryWriter* writer, uint8_t opcode, T arg) {
@@ -347,8 +314,9 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
     unsigned int i = 0;
     std::shared_ptr<Ship::ResourceInitData> initData = std::make_shared<Ship::ResourceInitData>();
 
-    sequence->sequence.medium = MediumStrToInt(child->Attribute("Medium"));
-    sequence->sequence.cachePolicy = CachePolicyToInt(child->Attribute("CachePolicy"));
+    sequence->sequence.medium = ResourceFactoryXMLSoundFontV0::MediumStrToInt(child->Attribute("Medium"), file->InitData->Path.c_str());
+    sequence->sequence.cachePolicy =
+        ResourceFactoryXMLSoundFontV0::CachePolicyToInt(child->Attribute("CachePolicy"), file->InitData->Path.c_str());
     sequence->sequence.seqDataSize = child->IntAttribute("Size");
     sequence->sequence.seqNumber = child->IntAttribute("Index");
     bool streamed = child->BoolAttribute("Streamed");
@@ -390,11 +358,6 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
             bool stereo = child->BoolAttribute("Stereo", false);
             Ship::BinaryWriter writer = Ship::BinaryWriter();
             writer.SetEndianness(Ship::Endianness::Big);
-            // Placeholder off is the offset of the instruction to be replaced. The second variable is the target adress
-            // of what we need to load of jump to
-            uint16_t loopPoint;
-            uint16_t channelPlaceholderOff, channelStart;
-            uint16_t layerPlaceholderOff, layerStart;
 
             // 1 second worth of ticks can be found by using `ticks = 60 / (bpm * 48)`
             // Get the number of ticks per second and then divide the length by this number to get the number of ticks
