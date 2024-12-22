@@ -3,11 +3,11 @@
 #include "2s2h/ShipInit.hpp"
 
 extern "C" {
-    #include "macros.h"
-    #include "variables.h"
-    #include "functions.h"
-    u8 sMagicArrowCosts[];
-    void Player_InitItemAction(PlayState* play, Player* thisx, PlayerItemAction itemAction);
+#include "macros.h"
+#include "variables.h"
+#include "functions.h"
+u8 sMagicArrowCosts[];
+void Player_InitItemAction(PlayState* play, Player* thisx, PlayerItemAction itemAction);
 }
 
 #define CVAR_NAME "gEnhancements.PlayerActions.ArrowCycle"
@@ -15,16 +15,13 @@ extern "C" {
 
 // Check if player is holding a bow
 static bool holdingBow(Player* player) {
-    return player->heldItemAction == PLAYER_IA_BOW || 
-           player->heldItemAction == PLAYER_IA_BOW_FIRE || 
-           player->heldItemAction == PLAYER_IA_BOW_ICE || 
-           player->heldItemAction == PLAYER_IA_BOW_LIGHT;
+    return player->heldItemAction == PLAYER_IA_BOW || player->heldItemAction == PLAYER_IA_BOW_FIRE ||
+           player->heldItemAction == PLAYER_IA_BOW_ICE || player->heldItemAction == PLAYER_IA_BOW_LIGHT;
 }
 
 // Check if player is holding a magic arrow
 static bool holdingMagicArrow(Player* player) {
-    return player->heldItemAction == PLAYER_IA_BOW_FIRE || 
-           player->heldItemAction == PLAYER_IA_BOW_ICE || 
+    return player->heldItemAction == PLAYER_IA_BOW_FIRE || player->heldItemAction == PLAYER_IA_BOW_ICE ||
            player->heldItemAction == PLAYER_IA_BOW_LIGHT;
 }
 
@@ -61,7 +58,7 @@ static s32 bowItemForArrow(PlayerItemAction arrowType) {
 // Update equipped bow item
 static void updateEquippedBow(PlayState* play, s8 arrowType) {
     s32 bowItem = bowItemForArrow(static_cast<PlayerItemAction>(arrowType));
-    
+
     for (s32 i = 0; i < 3; i++) {
         if ((BUTTON_ITEM_EQUIP(0, i) == ITEM_BOW) ||
             (BUTTON_ITEM_EQUIP(0, i) >= ITEM_BOW_FIRE && BUTTON_ITEM_EQUIP(0, i) <= ITEM_BOW_LIGHT)) {
@@ -71,7 +68,7 @@ static void updateEquippedBow(PlayState* play, s8 arrowType) {
             gSaveContext.buttonStatus[i] = BTN_ENABLED;
         }
     }
-    
+
     for (s32 i = 0; i < 4; i++) {
         if ((DPAD_BUTTON_ITEM_EQUIP(0, i) == ITEM_BOW) ||
             (DPAD_BUTTON_ITEM_EQUIP(0, i) >= ITEM_BOW_FIRE && DPAD_BUTTON_ITEM_EQUIP(0, i) <= ITEM_BOW_LIGHT)) {
@@ -106,8 +103,9 @@ void RegisterArrowCycle() {
 
     // Handle magic consumption when arrow is fired instead of on draw
     COND_HOOK(OnGameStateUpdate, CVAR, []() {
-        if (gPlayState == nullptr) return;
-        
+        if (gPlayState == nullptr)
+            return;
+
         Player* player = GET_PLAYER(gPlayState);
         static bool wasHoldingArrow = false;
         static s32 lastArrowType = PLAYER_IA_BOW;
@@ -135,13 +133,14 @@ void RegisterArrowCycle() {
 
     // Handle arrow cycling when L is pressed
     COND_HOOK(OnGameStateUpdate, CVAR, []() {
-        if (gPlayState == nullptr) return;
-        
+        if (gPlayState == nullptr)
+            return;
+
         Player* player = GET_PLAYER(gPlayState);
         Input* input = CONTROLLER1(&gPlayState->state);
-        
+
         if (holdingBow(player) && CHECK_BTN_ALL(input->press.button, BTN_L)) {
-            // Cycle to the next arrow type  
+            // Cycle to the next arrow type
             s8 nextArrow = nextArrowType(player->heldItemAction);
 
             // Kill the original arrow actor

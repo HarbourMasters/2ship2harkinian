@@ -243,16 +243,16 @@ void Map_Update(PlayState* play) {
     s32 pad2;
 
     if ((play->pauseCtx.state <= PAUSE_STATE_OPENING_2) && (CHECK_BTN_ALL(controller->press.button, BTN_L)) &&
-       !Play_InCsMode(play) && !MapDisp_IsMinimapToggleBlocked(play)) {
-       if (GameInteractor_Should(VB_MINIMAP_TOGGLE, true)) {
-           if (!R_MINIMAP_DISABLED) {
-               Audio_PlaySfx(NA_SE_SY_CAMERA_ZOOM_UP);
-           } else {
-               Audio_PlaySfx(NA_SE_SY_CAMERA_ZOOM_DOWN);
-           }
+        !Play_InCsMode(play) && !MapDisp_IsMinimapToggleBlocked(play)) {
+        if (GameInteractor_Should(VB_MINIMAP_TOGGLE, true)) {
+            if (!R_MINIMAP_DISABLED) {
+                Audio_PlaySfx(NA_SE_SY_CAMERA_ZOOM_UP);
+            } else {
+                Audio_PlaySfx(NA_SE_SY_CAMERA_ZOOM_DOWN);
+            }
             R_MINIMAP_DISABLED ^= 1;
-       }
-   }
+        }
+    }
 
     MapDisp_Update(play);
 
