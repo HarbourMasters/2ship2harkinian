@@ -3,6 +3,8 @@
 #include "2s2h/ShipInit.hpp"
 #include "z64player.h"
 #include "z64item.h"
+#include "z64interface.h"
+#include "z64save.h"
 
 extern "C" {
 #include "macros.h"
