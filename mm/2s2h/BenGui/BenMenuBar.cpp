@@ -358,6 +358,8 @@ void DrawSettingsMenu() {
 extern std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 extern std::shared_ptr<ItemTrackerWindow> mItemTrackerWindow;
 extern std::shared_ptr<ItemTrackerSettingsWindow> mItemTrackerSettingsWindow;
+extern std::shared_ptr<AudioEditor> mAudioEditorWindow;
+
 
 void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
@@ -806,6 +808,9 @@ void DrawEnhancementsMenu() {
             UIWidgets::WindowButton("Item Tracker Settings", "gWindows.ItemTrackerSettings",
                                     mItemTrackerSettingsWindow);
         }
+        if (mAudioEditorWindow) {
+            UIWidgets::WindowButton("Audio Editor", "gWindows.AudioEditor", mAudioEditorWindow);
+        }
 
         ImGui::EndMenu();
     }
@@ -850,8 +855,6 @@ extern std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
 extern std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 extern std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
 extern std::shared_ptr<EventLogWindow> mEventLogWindow;
-
-extern std::shared_ptr<AudioEditor> mAudioEditorWindow;
 
 const char* logLevels[] = {
     "trace", "debug", "info", "warn", "error", "critical", "off",
@@ -977,10 +980,6 @@ void DrawDeveloperToolsMenu() {
         }
         if (mEventLogWindow) {
             UIWidgets::WindowButton("Event Log", "gWindows.EventLog", mEventLogWindow);
-        }
-
-        if (mAudioEditorWindow) {
-            UIWidgets::WindowButton("Audio Editor", "gWindows.AudioEditor", mAudioEditorWindow);
         }
 
         ImGui::EndMenu();
