@@ -12,7 +12,7 @@ void Player_InitItemAction(PlayState* play, Player* thisx, PlayerItemAction item
 #define CVAR_NAME "gEnhancements.PlayerActions.ArrowCycle"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
-//Copy of the magic arrow costs from z_player.c
+// Copy of the magic arrow costs from z_player.c
 static u8 sArrowCycleCosts[] = {
     4, // ARROW_MAGIC_FIRE
     4, // ARROW_MAGIC_ICE
