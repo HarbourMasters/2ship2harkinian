@@ -2,6 +2,7 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 #include "z64player.h"
+#include "z64item.h"
 
 extern "C" {
 #include "macros.h"
