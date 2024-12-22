@@ -587,6 +587,11 @@ void DrawEnhancementsMenu() {
                       "Pressing B will instantly recall the fin boomerang back to Zora Link after they are thrown." });
 
             UIWidgets::CVarCheckbox(
+                "Arrow Type Cycling", "gEnhancements.PlayerActions.ArrowCycle",
+                { .tooltip = 
+                      "While aiming the bow, use L/R to cycle between Normal, Fire, Ice and Light arrows." });
+
+            UIWidgets::CVarCheckbox(
                 "Two-Handed Sword Spin Attack", "gEnhancements.Equipment.TwoHandedSwordSpinAttack",
                 { .tooltip = "Enables magic spin attacks for the Fierce Deity Sword and Great Fairy's Sword." });
             ImGui::EndMenu();
