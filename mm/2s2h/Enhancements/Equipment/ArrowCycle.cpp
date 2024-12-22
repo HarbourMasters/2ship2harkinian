@@ -1,22 +1,24 @@
 #include <libultraship/bridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
-#include "z64player.h"
-#include "z64item.h"
-#include "z64interface.h"
-#include "z64save.h"
-#include "z64.h"
 
 extern "C" {
 #include "macros.h"
 #include "variables.h"
 #include "functions.h"
-u8 sMagicArrowCosts[];
 void Player_InitItemAction(PlayState* play, Player* thisx, PlayerItemAction itemAction);
 }
 
 #define CVAR_NAME "gEnhancements.PlayerActions.ArrowCycle"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
+
+//Copy of the magic arrow costs from z_player.c
+static u8 sArrowCycleCosts[] = {
+    4, // ARROW_MAGIC_FIRE
+    4, // ARROW_MAGIC_ICE
+    8, // ARROW_MAGIC_LIGHT
+    2, // ARROW_MAGIC_DEKU_BUBBLE
+};
 
 // Check if player is holding a bow
 static bool holdingBow(Player* player) {
@@ -124,7 +126,7 @@ void RegisterArrowCycle() {
         // Consume magic when releasing a magic arrow
         if (wasHoldingArrow && !isHoldingArrow) {
             if (lastArrowType == player->heldItemAction && holdingMagicArrow(player)) {
-                u8 magicCost = sMagicArrowCosts[player->heldItemAction - PLAYER_IA_BOW_FIRE];
+                u8 magicCost = sArrowCycleCosts[player->heldItemAction - PLAYER_IA_BOW_FIRE];
                 if (gSaveContext.save.saveInfo.playerData.magic >= magicCost) {
                     gSaveContext.save.saveInfo.playerData.magic -= magicCost;
                     if (gSaveContext.magicState == MAGIC_STATE_IDLE) {
