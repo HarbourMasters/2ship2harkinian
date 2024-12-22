@@ -5,6 +5,7 @@
 #include "z64item.h"
 #include "z64interface.h"
 #include "z64save.h"
+#include "z64.h"
 
 extern "C" {
 #include "macros.h"
