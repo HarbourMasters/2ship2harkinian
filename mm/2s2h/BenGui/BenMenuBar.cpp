@@ -589,7 +589,7 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox(
                 "Arrow Type Cycling", "gEnhancements.PlayerActions.ArrowCycle",
                 { .tooltip = 
-                      "While aiming the bow, use L/R to cycle between Normal, Fire, Ice and Light arrows." });
+                      "While aiming the bow, use L to cycle between Normal, Fire, Ice and Light arrows." });
 
             UIWidgets::CVarCheckbox(
                 "Two-Handed Sword Spin Attack", "gEnhancements.Equipment.TwoHandedSwordSpinAttack",
