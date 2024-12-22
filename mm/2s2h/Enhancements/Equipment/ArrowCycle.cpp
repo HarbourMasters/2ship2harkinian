@@ -1,6 +1,7 @@
 #include <libultraship/bridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
+#include "z64player.h"
 
 extern "C" {
 #include "macros.h"
