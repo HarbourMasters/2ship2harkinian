@@ -124,10 +124,9 @@ static bool canCycleArrows() {
     if (INV_CONTENT(SLOT_BOW) != ITEM_BOW) {
         return false;
     }
-    
+
     // Check if player has at least one magic arrow type
-    return (INV_CONTENT(ITEM_ARROW_FIRE) == ITEM_ARROW_FIRE) ||
-           (INV_CONTENT(ITEM_ARROW_ICE) == ITEM_ARROW_ICE) ||
+    return (INV_CONTENT(ITEM_ARROW_FIRE) == ITEM_ARROW_FIRE) || (INV_CONTENT(ITEM_ARROW_ICE) == ITEM_ARROW_ICE) ||
            (INV_CONTENT(ITEM_ARROW_LIGHT) == ITEM_ARROW_LIGHT);
 }
 
@@ -191,7 +190,7 @@ void RegisterArrowCycle() {
         Input* input = CONTROLLER1(&gPlayState->state);
 
         // Don't allow cycling during magic consumption states (link is tired)
-        if (gSaveContext.magicState >= MAGIC_STATE_CONSUME_SETUP && 
+        if (gSaveContext.magicState >= MAGIC_STATE_CONSUME_SETUP &&
             gSaveContext.magicState <= MAGIC_STATE_METER_FLASH_3) {
             if (holdingBow(player) && CHECK_BTN_ALL(input->press.button, BTN_L)) {
                 Audio_PlaySfx(NA_SE_SY_ERROR);
