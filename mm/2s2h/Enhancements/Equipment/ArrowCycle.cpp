@@ -12,12 +12,11 @@ void Player_InitItemAction(PlayState* play, Player* thisx, PlayerItemAction item
 #define CVAR_NAME "gEnhancements.PlayerActions.ArrowCycle"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
-// Copy of the magic arrow costs from z_player.c
+// The magic arrow costs from z_player.c
 static u8 sArrowCycleCosts[] = {
     4, // ARROW_MAGIC_FIRE
     4, // ARROW_MAGIC_ICE
     8, // ARROW_MAGIC_LIGHT
-    2, // ARROW_MAGIC_DEKU_BUBBLE
 };
 
 // Check if player is holding a bow
@@ -32,20 +31,52 @@ static bool holdingMagicArrow(Player* player) {
            player->heldItemAction == PLAYER_IA_BOW_LIGHT;
 }
 
+// Returns true if the given arrow type is available in the player's inventory
+static bool hasArrowType(PlayerItemAction arrowType) {
+    switch (arrowType) {
+        case PLAYER_IA_BOW:
+            // Normal arrows are always considered available if we have the bow
+            return true;
+        case PLAYER_IA_BOW_FIRE:
+            return (INV_CONTENT(ITEM_ARROW_FIRE) == ITEM_ARROW_FIRE);
+        case PLAYER_IA_BOW_ICE:
+            return (INV_CONTENT(ITEM_ARROW_ICE) == ITEM_ARROW_ICE);
+        case PLAYER_IA_BOW_LIGHT:
+            return (INV_CONTENT(ITEM_ARROW_LIGHT) == ITEM_ARROW_LIGHT);
+        default:
+            return false;
+    }
+}
+
 // Get the next arrow type when cycling
 static s8 nextArrowType(s8 currentArrowType) {
-    switch (currentArrowType) {
-        case PLAYER_IA_BOW:
-            return PLAYER_IA_BOW_FIRE;
-        case PLAYER_IA_BOW_FIRE:
-            return PLAYER_IA_BOW_ICE;
-        case PLAYER_IA_BOW_ICE:
-            return PLAYER_IA_BOW_LIGHT;
-        case PLAYER_IA_BOW_LIGHT:
-            return PLAYER_IA_BOW;
-        default:
-            return PLAYER_IA_BOW;
+    // The order in which we cycle
+    static const PlayerItemAction arrowOrder[] = {
+        PLAYER_IA_BOW,
+        PLAYER_IA_BOW_FIRE,
+        PLAYER_IA_BOW_ICE,
+        PLAYER_IA_BOW_LIGHT,
+    };
+
+    // Find the current arrow's position in the cycle
+    int currentIndex = 0;
+    for (int i = 0; i < (int)ARRAY_COUNT(arrowOrder); i++) {
+        if (arrowOrder[i] == currentArrowType) {
+            currentIndex = i;
+            break;
+        }
     }
+
+    // Try each subsequent arrow in the cycle
+    for (int offset = 1; offset <= (int)ARRAY_COUNT(arrowOrder); offset++) {
+        int nextIndex = (currentIndex + offset) % ARRAY_COUNT(arrowOrder);
+        if (hasArrowType(arrowOrder[nextIndex])) {
+            return arrowOrder[nextIndex];
+        }
+    }
+
+    // Fallback (should never happen if we have at least normal arrows)
+    return PLAYER_IA_BOW;
 }
 
 // Get the bow item for an arrow type
@@ -87,10 +118,23 @@ static void updateEquippedBow(PlayState* play, s8 arrowType) {
     }
 }
 
+// Check if arrow cycling should be allowed
+static bool canCycleArrows() {
+    // Check if player has bow
+    if (INV_CONTENT(SLOT_BOW) != ITEM_BOW) {
+        return false;
+    }
+    
+    // Check if player has at least one magic arrow type
+    return (INV_CONTENT(ITEM_ARROW_FIRE) == ITEM_ARROW_FIRE) ||
+           (INV_CONTENT(ITEM_ARROW_ICE) == ITEM_ARROW_ICE) ||
+           (INV_CONTENT(ITEM_ARROW_LIGHT) == ITEM_ARROW_LIGHT);
+}
+
 void RegisterArrowCycle() {
     // Prevent minimap toggle when holding bow
     COND_VB_SHOULD(VB_MINIMAP_TOGGLE, CVAR, {
-        if (CVAR && gPlayState != NULL) {
+        if (CVAR && gPlayState != NULL && canCycleArrows()) {
             Player* player = GET_PLAYER(gPlayState);
             if (holdingBow(player)) {
                 *should = false;
@@ -100,7 +144,7 @@ void RegisterArrowCycle() {
 
     // Prevent magic consumption for magic arrows
     COND_VB_SHOULD(VB_MAGIC_ARROW_CONSUME, CVAR, {
-        if (CVAR && gPlayState != NULL) {
+        if (CVAR && gPlayState != NULL && canCycleArrows()) {
             Player* player = GET_PLAYER(gPlayState);
             if (holdingMagicArrow(player)) {
                 *should = false;
@@ -110,7 +154,7 @@ void RegisterArrowCycle() {
 
     // Handle magic consumption when arrow is fired instead of on draw
     COND_HOOK(OnGameStateUpdate, CVAR, []() {
-        if (gPlayState == nullptr)
+        if (gPlayState == nullptr || !canCycleArrows())
             return;
 
         Player* player = GET_PLAYER(gPlayState);
@@ -140,11 +184,20 @@ void RegisterArrowCycle() {
 
     // Handle arrow cycling when L is pressed
     COND_HOOK(OnGameStateUpdate, CVAR, []() {
-        if (gPlayState == nullptr)
+        if (gPlayState == nullptr || !canCycleArrows())
             return;
 
         Player* player = GET_PLAYER(gPlayState);
         Input* input = CONTROLLER1(&gPlayState->state);
+
+        // Don't allow cycling during magic consumption states (link is tired)
+        if (gSaveContext.magicState >= MAGIC_STATE_CONSUME_SETUP && 
+            gSaveContext.magicState <= MAGIC_STATE_METER_FLASH_3) {
+            if (holdingBow(player) && CHECK_BTN_ALL(input->press.button, BTN_L)) {
+                Audio_PlaySfx(NA_SE_SY_ERROR);
+            }
+            return;
+        }
 
         if (holdingBow(player) && CHECK_BTN_ALL(input->press.button, BTN_L)) {
             // Cycle to the next arrow type
@@ -163,11 +216,11 @@ void RegisterArrowCycle() {
                 }
             }
 
+            // Update player's held item and initialize the new arrow type
             player->heldItemAction = nextArrow;
-
             Player_InitItemAction(gPlayState, player, static_cast<PlayerItemAction>(nextArrow));
-
             updateEquippedBow(gPlayState, nextArrow);
+            Audio_PlaySfx(NA_SE_PL_CHANGE_ARMS);
         }
     });
 }
