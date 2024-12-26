@@ -32,12 +32,12 @@ static u8 sArrowCycleCosts[] = {
 };
 
 // Arrow types for better code readability
-static enum ArrowType {
+static const enum {
     ARROW_NORMAL = PLAYER_IA_BOW,
     ARROW_FIRE = PLAYER_IA_BOW_FIRE,
     ARROW_ICE = PLAYER_IA_BOW_ICE,
     ARROW_LIGHT = PLAYER_IA_BOW_LIGHT,
-};
+} ArrowType;
 
 // Arrow cycling order
 static const PlayerItemAction arrowCycleOrder[] = {
