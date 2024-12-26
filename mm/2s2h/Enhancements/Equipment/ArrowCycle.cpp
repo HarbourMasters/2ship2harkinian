@@ -198,7 +198,11 @@ void RegisterArrowCycle() {
             return;
         }
 
-        if (holdingBow(player) && CHECK_BTN_ALL(input->press.button, BTN_L)) {
+        // Rapidly calling Player_InitItemAction while cycling arrows causes animation/camera glitches
+        // Only allow cycling when the current animation is complete (unk_ACE == 2) to prevent this
+        if (holdingBow(player) && 
+            player->unk_ACE == 2 && 
+            CHECK_BTN_ALL(input->press.button, BTN_L)) {
             // Cycle to the next arrow type
             s8 nextArrow = nextArrowType(player->heldItemAction);
 
@@ -206,13 +210,6 @@ void RegisterArrowCycle() {
             if (player->heldActor != NULL) {
                 Actor_Kill(player->heldActor);
                 player->heldActor = NULL;
-            }
-
-            // Reset magic state if switching to a magic arrow
-            if (nextArrow >= PLAYER_IA_BOW_FIRE && nextArrow <= PLAYER_IA_BOW_LIGHT) {
-                if (gSaveContext.magicState != MAGIC_STATE_IDLE) {
-                    gSaveContext.magicState = MAGIC_STATE_IDLE;
-                }
             }
 
             // Update player's held item and initialize the new arrow type
