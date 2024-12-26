@@ -13,9 +13,9 @@ void Player_InitItemAction(PlayState* play, Player* thisx, PlayerItemAction item
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 // Flash effect constants
-static const s16 BUTTON_FLASH_DURATION = 3;  // Shorter duration for quicker blink
-static const s16 BUTTON_FLASH_COUNT = 2;     // Number of blinks
-static const s16 BUTTON_HIGHLIGHT_ALPHA = 128;  // Alpha value for highlight state
+static const s16 BUTTON_FLASH_DURATION = 3;    // Shorter duration for quicker blink
+static const s16 BUTTON_FLASH_COUNT = 2;       // Number of blinks
+static const s16 BUTTON_HIGHLIGHT_ALPHA = 128; // Alpha value for highlight state
 static s16 sButtonFlashTimer = 0;
 static s16 sButtonFlashCount = 0;
 
@@ -79,7 +79,7 @@ static bool hasEnoughMagic(PlayerItemAction arrowType) {
     if (arrowType == ARROW_NORMAL) {
         return true;
     }
-    
+
     u8 magicCost = sArrowCycleCosts[arrowType - ARROW_FIRE];
     return gSaveContext.save.saveInfo.playerData.magic >= magicCost;
 }
@@ -171,65 +171,74 @@ static bool canCycleArrows() {
 static void updateButtonAlpha(s16 flashAlpha, bool isButtonBow, s16* buttonAlpha) {
     if (isButtonBow) {
         *buttonAlpha = flashAlpha;
-        if (sButtonFlashTimer == 0) *buttonAlpha = 255;  // Restore visibility
+        if (sButtonFlashTimer == 0)
+            *buttonAlpha = 255; // Restore visibility
     }
 }
 
 // Update flash effect for all buttons
 static void updateFlashEffect(PlayState* play) {
-    if (sButtonFlashTimer <= 0) return;
-    
+    if (sButtonFlashTimer <= 0)
+        return;
+
     sButtonFlashTimer--;
     s16 flashAlpha = (sButtonFlashTimer % 2) ? 255 : BUTTON_HIGHLIGHT_ALPHA;
-    
+
     if (sButtonFlashTimer == 0 && sButtonFlashCount < BUTTON_FLASH_COUNT) {
         sButtonFlashTimer = BUTTON_FLASH_DURATION;
         sButtonFlashCount++;
     }
 
     // C buttons
-    updateButtonAlpha(flashAlpha, 
-        (GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_C_LEFT) == ITEM_BOW) || 
-        (GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_C_LEFT) >= ITEM_BOW_FIRE && GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_C_LEFT) <= ITEM_BOW_LIGHT),
-        &play->interfaceCtx.cLeftAlpha);
-    
     updateButtonAlpha(flashAlpha,
-        (GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_C_DOWN) == ITEM_BOW) || 
-        (GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_C_DOWN) >= ITEM_BOW_FIRE && GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_C_DOWN) <= ITEM_BOW_LIGHT),
-        &play->interfaceCtx.cDownAlpha);
-    
+                      (GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_C_LEFT) == ITEM_BOW) ||
+                          (GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_C_LEFT) >= ITEM_BOW_FIRE &&
+                           GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_C_LEFT) <= ITEM_BOW_LIGHT),
+                      &play->interfaceCtx.cLeftAlpha);
+
     updateButtonAlpha(flashAlpha,
-        (GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_C_RIGHT) == ITEM_BOW) || 
-        (GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_C_RIGHT) >= ITEM_BOW_FIRE && GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_C_RIGHT) <= ITEM_BOW_LIGHT),
-        &play->interfaceCtx.cRightAlpha);
-    
+                      (GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_C_DOWN) == ITEM_BOW) ||
+                          (GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_C_DOWN) >= ITEM_BOW_FIRE &&
+                           GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_C_DOWN) <= ITEM_BOW_LIGHT),
+                      &play->interfaceCtx.cDownAlpha);
+
+    updateButtonAlpha(flashAlpha,
+                      (GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_C_RIGHT) == ITEM_BOW) ||
+                          (GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_C_RIGHT) >= ITEM_BOW_FIRE &&
+                           GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_C_RIGHT) <= ITEM_BOW_LIGHT),
+                      &play->interfaceCtx.cRightAlpha);
+
     // D-pad buttons
     updateButtonAlpha(flashAlpha,
-        (DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_RIGHT) == ITEM_BOW) || 
-        (DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_RIGHT) >= ITEM_BOW_FIRE && DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_RIGHT) <= ITEM_BOW_LIGHT),
-        &play->interfaceCtx.shipInterface.dpad.dRightAlpha);
-    
+                      (DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_RIGHT) == ITEM_BOW) ||
+                          (DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_RIGHT) >= ITEM_BOW_FIRE &&
+                           DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_RIGHT) <= ITEM_BOW_LIGHT),
+                      &play->interfaceCtx.shipInterface.dpad.dRightAlpha);
+
     updateButtonAlpha(flashAlpha,
-        (DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_LEFT) == ITEM_BOW) || 
-        (DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_LEFT) >= ITEM_BOW_FIRE && DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_LEFT) <= ITEM_BOW_LIGHT),
-        &play->interfaceCtx.shipInterface.dpad.dLeftAlpha);
-    
+                      (DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_LEFT) == ITEM_BOW) ||
+                          (DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_LEFT) >= ITEM_BOW_FIRE &&
+                           DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_LEFT) <= ITEM_BOW_LIGHT),
+                      &play->interfaceCtx.shipInterface.dpad.dLeftAlpha);
+
     updateButtonAlpha(flashAlpha,
-        (DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_DOWN) == ITEM_BOW) || 
-        (DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_DOWN) >= ITEM_BOW_FIRE && DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_DOWN) <= ITEM_BOW_LIGHT),
-        &play->interfaceCtx.shipInterface.dpad.dDownAlpha);
-    
+                      (DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_DOWN) == ITEM_BOW) ||
+                          (DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_DOWN) >= ITEM_BOW_FIRE &&
+                           DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_DOWN) <= ITEM_BOW_LIGHT),
+                      &play->interfaceCtx.shipInterface.dpad.dDownAlpha);
+
     updateButtonAlpha(flashAlpha,
-        (DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_UP) == ITEM_BOW) || 
-        (DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_UP) >= ITEM_BOW_FIRE && DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_UP) <= ITEM_BOW_LIGHT),
-        &play->interfaceCtx.shipInterface.dpad.dUpAlpha);
+                      (DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_UP) == ITEM_BOW) ||
+                          (DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_UP) >= ITEM_BOW_FIRE &&
+                           DPAD_GET_CUR_FORM_BTN_ITEM(EQUIP_SLOT_D_UP) <= ITEM_BOW_LIGHT),
+                      &play->interfaceCtx.shipInterface.dpad.dUpAlpha);
 }
 
 // Handle cycling to next arrow type and updating player state
 static void cycleToNextArrow(PlayState* play, Player* player) {
     // Check if any magic arrows are affordable before cycling
     bool canCycleMagic = false;
-    for (int i = 1; i < 4; i++) {  // Start from 1 to skip normal arrows
+    for (int i = 1; i < 4; i++) { // Start from 1 to skip normal arrows
         PlayerItemAction arrowType = static_cast<PlayerItemAction>(PLAYER_IA_BOW + i);
         if (hasArrowType(arrowType) && hasEnoughMagic(arrowType)) {
             canCycleMagic = true;
