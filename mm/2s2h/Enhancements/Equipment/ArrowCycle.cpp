@@ -198,11 +198,15 @@ void RegisterArrowCycle() {
             return;
         }
 
-        // Rapidly calling Player_InitItemAction while cycling arrows causes animation/camera glitches
-        // Only allow cycling when the current animation is complete (unk_ACE == 2) to prevent this
-        if (holdingBow(player) && 
-            player->unk_ACE == 2 && 
-            CHECK_BTN_ALL(input->press.button, BTN_L)) {
+        // Block cycling during bow draw (PLAYER_STATE3_40=aim mode, unk_ACE=0=drawing)
+        // Prevents rapid cycling from breaking camera transition and arrow spawn
+        if ((player->stateFlags3 & PLAYER_STATE3_40) && player->unk_ACE == 0) {
+            if (holdingBow(player) && CHECK_BTN_ALL(input->press.button, BTN_L)) {
+                return;
+            }
+        }
+
+        if (holdingBow(player) && CHECK_BTN_ALL(input->press.button, BTN_L)) {
             // Cycle to the next arrow type
             s8 nextArrow = nextArrowType(player->heldItemAction);
 
