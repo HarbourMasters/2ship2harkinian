@@ -3,6 +3,7 @@
 
 void Register3DItemDrops();
 void Register3DSClock();
+void RegisterBowReticle();
 void RegisterDisableBlackBars();
 void MotionBlur_RenderMenuOptions();
 void RegisterPlayAsKafei();

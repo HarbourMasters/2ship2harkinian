@@ -37,6 +37,7 @@ void InitEnhancements() {
     RegisterTwoHandedSwordSpinAttack();
 
     // Graphics
+    RegisterBowReticle();
     RegisterDisableBlackBars();
     Register3DItemDrops();
 
