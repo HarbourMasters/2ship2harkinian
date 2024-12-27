@@ -3991,10 +3991,9 @@ s32 func_808306F8(Player* this, PlayState* play) {
                     this->heldActor = Actor_SpawnAsChild(
                         &play->actorCtx, &this->actor, play, ACTOR_EN_ARROW, this->actor.world.pos.x,
                         this->actor.world.pos.y, this->actor.world.pos.z, 0, this->actor.shape.rot.y, 0, arrowType);
+
                     if ((this->heldActor != NULL) && (magicArrowType > ARROW_MAGIC_INVALID)) {
-                        if (GameInteractor_Should(VB_MAGIC_ARROW_CONSUME, true)) {
-                            Magic_Consume(play, sMagicArrowCosts[magicArrowType], MAGIC_CONSUME_NOW);
-                        }
+                        Magic_Consume(play, sMagicArrowCosts[magicArrowType], MAGIC_CONSUME_NOW);
                     }
                 }
             }

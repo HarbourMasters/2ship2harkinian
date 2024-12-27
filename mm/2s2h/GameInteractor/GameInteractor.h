@@ -82,7 +82,6 @@ typedef enum {
     VB_DEKU_GUARD_SHOW_SEARCH_BALLS,
     VB_DISPLAY_SONG_OF_DOUBLE_TIME_PROMPT,
     VB_MINIMAP_TOGGLE,
-    VB_MAGIC_ARROW_CONSUME,
 } GIVanillaBehavior;
 
 typedef enum {
