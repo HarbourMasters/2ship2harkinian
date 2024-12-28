@@ -59,8 +59,9 @@ void RegisterBowReticle() {
 
                 if (func_800B7128(player) != 0) {
                     // Rotation from link's right hand that aligns with arrow projection
-                    Matrix_RotateZYX(0, -0x3B70, -0x4458, MTXMODE_APPLY);
-                    Matrix_Translate(500.0f, 300.0f, 0.0f, MTXMODE_APPLY);
+                    Matrix_RotateZYX(0, -0x3B33, -0x4423, MTXMODE_APPLY);
+                    Matrix_Translate(575.0f, 345.0f, 0.0f, MTXMODE_APPLY);
+
                     // 341000 as a value is selected roughly as a ratio of the hookshot value to maximum hookshot
                     // distance from player, multiplied by maximum arrow distance from player -- (77600 / 770) * 3385
                     DrawBowReticle(gPlayState, player, 341000.0f);
