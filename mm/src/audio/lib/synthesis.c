@@ -1161,10 +1161,7 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
                         } else {
                             bytesToRead = sample->size - (synthState->samplePosInt * 2);
                         }
-                        // 2S2H [Port] [Custom audio]
-                        // TLDR samples are loaded async and might be null the first time they are played.
-                        // See note in AudioSampleFactory.cpp
-
+                        // 2S2H [Port] [Custom audio] Handle decoding OPUS data
                         if (sample->codec == CODEC_OPUS) {
                             aOPUSdecImpl(sampleAddr, DMEM_UNCOMPRESSED_NOTE, bytesToRead, &synthState->opusFile,
                                          synthState->samplePosInt, sample->fileSize);
@@ -1211,13 +1208,14 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
                     sampleDataChunkAlignPad = (uintptr_t)samplesToLoadAddr & 0xF;
                     sampleDataChunkSize = ALIGN16((numFramesToDecode * frameSize) + SAMPLES_PER_FRAME);
                     sampleDataDmemAddr = DMEM_COMPRESSED_ADPCM_DATA - sampleDataChunkSize;
-
+                    // 2S2H [Port] This fixes an overflow that crashes the asan, but causes some ADPCM sounds to cut off early.
+#if 0
                     uintptr_t actualAddrLoaded = samplesToLoadAddr - sampleDataChunkAlignPad;
                     uintptr_t offset = actualAddrLoaded - (uintptr_t)sampleAddr;
                     if (offset + sampleDataChunkSize > sample->size) {
                         sampleDataChunkSize -= (offset + sampleDataChunkSize - sample->size);
                     }
-
+#endif
                     // BEN: This will crash the asan. We can just ignore alignment since we don't have those strictures.
                     // if (sampleDataChunkSize + sampleAddrOffset > sample->size) {
                     //    sampleDataChunkSize = sample->size - sampleAddrOffset;

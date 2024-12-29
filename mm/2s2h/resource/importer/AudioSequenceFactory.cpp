@@ -16,11 +16,10 @@ std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSequenceV2::ReadResou
     auto reader = std::get<std::shared_ptr<Ship::BinaryReader>>(file->Reader);
 
     audioSequence->sequence.seqDataSize = reader->ReadUInt32();
-    audioSequence->sequenceData.reserve(audioSequence->sequence.seqDataSize);
+    audioSequence->sequence.seqData = new char[audioSequence->sequence.seqDataSize];
     for (uint32_t i = 0; i < audioSequence->sequence.seqDataSize; i++) {
-        audioSequence->sequenceData.push_back(reader->ReadChar());
+        audioSequence->sequence.seqData[i] = reader->ReadChar();
     }
-    audioSequence->sequence.seqData = audioSequence->sequenceData.data();
 
     audioSequence->sequence.seqNumber = reader->ReadUByte();
     audioSequence->sequence.medium = reader->ReadUByte();
@@ -374,16 +373,17 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
     }
 
     if (!streamed) {
-        sequence->sequenceData = *seqFile->Buffer.get();
-        sequence->sequence.seqData = sequence->sequenceData.data();
+        sequence->sequence.seqDataSize = seqFile->Buffer.get()->size();
+        sequence->sequence.seqData = new char[seqFile->Buffer.get()->size()];
+        memcpy(sequence->sequence.seqData, seqFile->Buffer.get()->data(), seqFile->Buffer.get()->size());
     } else {
         // setting numFonts to -1 tells the game's audio engine the sound font to used is CRC64 encoded in the font
         // indicies.
         sequence->sequence.numFonts = -1;
         if (path != nullptr) {
-            sequence->sequenceData = *seqFile->Buffer.get();
-            sequence->sequence.seqData = sequence->sequenceData.data();
             sequence->sequence.seqDataSize = seqFile->Buffer.get()->size();
+            sequence->sequence.seqData = new char[seqFile->Buffer.get()->size()];
+            memcpy(sequence->sequence.seqData, seqFile->Buffer.get()->data(), seqFile->Buffer.get()->size());
         } else {
             unsigned int length = child->UnsignedAttribute("Length");
             bool looped = child->BoolAttribute("Looped", true);
@@ -416,10 +416,9 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
             } else {
                 WriteMonoSingleSeq(&writer, delay, TEMPO, looped);
             }
-
-            sequence->sequenceData = writer.ToVector();
-            sequence->sequence.seqData = sequence->sequenceData.data();
             sequence->sequence.seqDataSize = writer.ToVector().size();
+            sequence->sequence.seqData = new char[sequence->sequence.seqDataSize ];
+            memcpy(sequence->sequence.seqData, writer.ToVector().data(), sequence->sequence.seqDataSize);
         }
     }
 

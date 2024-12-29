@@ -1192,7 +1192,7 @@ void AudioScript_SetInstrument(SequenceChannel* channel, u8 instId) {
 void AudioScript_SequenceChannelSetVolume(SequenceChannel* channel, u8 volume) {
     channel->volume = (s32)volume / 127.0f;
 }
-#include <string.h>
+
 void AudioScript_SequenceChannelProcessScript(SequenceChannel* channel) {
     s32 i;
     u8* data;

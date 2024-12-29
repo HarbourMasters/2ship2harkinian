@@ -392,6 +392,12 @@ extern "C" void OTRAudio_Init() {
     }
 }
 
+extern char** sequenceMap;
+extern size_t sequenceMapSize;
+
+extern char** fontMap;
+extern size_t fontMapSize;
+
 extern "C" void OTRAudio_Exit() {
     // Tell the audio thread to stop
     {
@@ -402,6 +408,17 @@ extern "C" void OTRAudio_Exit() {
 
     // Wait until the audio thread quit
     audio.thread.join();
+    for (size_t i = 0; i < sequenceMapSize; i++) {
+        free(sequenceMap[i]);
+    }
+    free(sequenceMap);
+
+    for (size_t i = 0; i < fontMapSize; i++) {
+        free(fontMap[i]);
+    }
+    free(fontMap);
+    free(gAudioCtx.seqLoadStatus);
+    free(gAudioCtx.fontLoadStatus);
 }
 
 extern "C" void OTRExtScanner() {

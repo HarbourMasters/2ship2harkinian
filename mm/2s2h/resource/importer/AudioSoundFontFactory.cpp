@@ -395,9 +395,6 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLSoundFontV0::ReadResource(std
 
     const char* cachePolicyStr = child->Attribute("CachePolicy");
     audioSoundFont->cachePolicy = CachePolicyToInt(cachePolicyStr);
-    if (audioSoundFont->soundFont.fntIndex == 1) {
-        int bp = 1;
-    }
 
     audioSoundFont->data1 = child->IntAttribute("Data1");
     audioSoundFont->data2 = child->IntAttribute("Data2");

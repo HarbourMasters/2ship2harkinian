@@ -1,3 +1,4 @@
+#if 0
 #include "AudioSeqQueue.h"
 
 #include "resource/type/AudioSequence.h"
@@ -37,3 +38,4 @@ void AudioQueue_GetSeqInfo(const char* path, uint64_t* numFrames, uint32_t* numC
     *sampleData = (s16*)seqData->sequence.seqData;
 }
 }
+#endif

@@ -23,13 +23,11 @@ class AudioSequence : public Ship::Resource<Sequence> {
 
     AudioSequence() : Resource(std::shared_ptr<Ship::ResourceInitData>()) {
     }
+    ~AudioSequence();
 
     Sequence* GetPointer();
     size_t GetPointerSize();
 
     Sequence sequence;
-    std::vector<char> sequenceData;
-    uint32_t sampleRate = 0; // Streamed audio only
-    uint8_t numChannels = 0;
 };
 }; // namespace SOH

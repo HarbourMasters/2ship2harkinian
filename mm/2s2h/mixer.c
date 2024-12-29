@@ -117,7 +117,7 @@ void aOPUSdecImpl(void* source_addr, uint16_t dest_addr, uint16_t nbytes, struct
     op_pcm_seek(*decState, pos);
     int ret = op_read(*decState, BUF_S16(dest_addr), nbytes / 2, NULL);
     if (ret < 0) {
-        int bp = 0;
+        return;
     }
     readSamples += ret;
     while (readSamples < nbytes / 2) {

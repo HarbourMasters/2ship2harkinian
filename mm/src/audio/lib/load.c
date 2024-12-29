@@ -791,11 +791,11 @@ void* AudioLoad_SyncLoad(s32 tableType, u32 id, s32* didAllocate) {
         SoundFont* fnt;
 
         if (tableType == SEQUENCE_TABLE) {
-            SequenceData sData = ResourceMgr_LoadSeqByName(sequenceMap[id]);
-            seqData = sData.seqData;
-            size = sData.seqDataSize;
-            medium = sData.medium;
-            cachePolicy = sData.cachePolicy;
+            SequenceData* sData = ResourceMgr_LoadSeqPtrByName(sequenceMap[id]);
+            seqData = sData->seqData;
+            size = sData->seqDataSize;
+            medium = sData->medium;
+            cachePolicy = sData->cachePolicy;
             romAddr = 0;
         } else if (tableType == FONT_TABLE) {
             fnt = ResourceMgr_LoadAudioSoundFontByName(fontMap[id]);
@@ -1147,11 +1147,9 @@ int strcmp_sort(const void* str1, const void* str2) {
     return strcmp(*pp1, *pp2);
 }
 
-char** sequenceMap;
 extern AudioContext gAudioCtx;
 // #end region
 #include "resourcebridge.h"
-#include "assert.h"
 
 void AudioLoad_Init(void* heap, size_t heapSize) {
     s32 pad1[9];
