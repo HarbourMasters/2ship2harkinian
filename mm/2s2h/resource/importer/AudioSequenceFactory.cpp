@@ -313,7 +313,8 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
     unsigned int i = 0;
     std::shared_ptr<Ship::ResourceInitData> initData = std::make_shared<Ship::ResourceInitData>();
 
-    sequence->sequence.medium = ResourceFactoryXMLSoundFontV0::MediumStrToInt(child->Attribute("Medium"), file->InitData->Path.c_str());
+    sequence->sequence.medium =
+        ResourceFactoryXMLSoundFontV0::MediumStrToInt(child->Attribute("Medium"), file->InitData->Path.c_str());
     sequence->sequence.cachePolicy =
         ResourceFactoryXMLSoundFontV0::CachePolicyToInt(child->Attribute("CachePolicy"), file->InitData->Path.c_str());
     sequence->sequence.seqDataSize = child->IntAttribute("Size");
@@ -380,7 +381,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSequenceV0::ReadResource
                 WriteMonoSingleSeq(&writer, delay, TEMPO, looped);
             }
             sequence->sequence.seqDataSize = writer.ToVector().size();
-            sequence->sequence.seqData = new char[sequence->sequence.seqDataSize ];
+            sequence->sequence.seqData = new char[sequence->sequence.seqDataSize];
             memcpy(sequence->sequence.seqData, writer.ToVector().data(), sequence->sequence.seqDataSize);
         }
     }

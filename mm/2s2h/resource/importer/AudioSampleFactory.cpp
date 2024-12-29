@@ -245,7 +245,8 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLAudioSampleV0::ReadResource(s
     memset(&audioSample->sample, 0, sizeof(audioSample->sample));
     audioSample->sample.isRelocated = 0;
     audioSample->sample.codec = CodecStrToInt(child->Attribute("Codec"), file->InitData->Path.c_str());
-    audioSample->sample.medium = ResourceFactoryXMLSoundFontV0::MediumStrToInt(child->Attribute("Medium"), file->InitData->Path.c_str());
+    audioSample->sample.medium =
+        ResourceFactoryXMLSoundFontV0::MediumStrToInt(child->Attribute("Medium"), file->InitData->Path.c_str());
     audioSample->sample.unk_bit26 = child->IntAttribute("bit26");
 
     tinyxml2::XMLElement* loopRoot = child->FirstChildElement("ADPCMLoop");
@@ -347,7 +348,8 @@ uint8_t ResourceFactoryXMLAudioSampleV0::CodecStrToInt(const char* str, const ch
     } else {
         char buff[2048];
         snprintf(buff, 2048,
-                 "Invalid codec in %s. Got %s, expected ADPCM, S8, S16MEM, ADPCMSMALL, REVERB, S16, UNK6, UNK7.", file, str);
+                 "Invalid codec in %s. Got %s, expected ADPCM, S8, S16MEM, ADPCMSMALL, REVERB, S16, UNK6, UNK7.", file,
+                 str);
         throw std::runtime_error(buff);
     }
 }

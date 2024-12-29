@@ -198,8 +198,9 @@ int8_t ResourceFactoryXMLSoundFontV0::CachePolicyToInt(const char* str, const ch
         return CACHE_PERMANENT;
     } else {
         char buff[2048];
-        snprintf(buff, 2048, "Bad cache policy value in %s. Got %s, expected Temporary, Persistent, Either, or Permanent.",
-                 file, str);
+        snprintf(buff, 2048,
+                 "Bad cache policy value in %s. Got %s, expected Temporary, Persistent, Either, or Permanent.", file,
+                 str);
         throw std::runtime_error(buff);
     }
 }
@@ -397,7 +398,6 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLSoundFontV0::ReadResource(std
 
     const char* cachePolicyStr = child->Attribute("CachePolicy");
     audioSoundFont->cachePolicy = CachePolicyToInt(cachePolicyStr, file->InitData->Path.c_str());
-
 
     audioSoundFont->data1 = child->IntAttribute("Data1");
     audioSoundFont->data2 = child->IntAttribute("Data2");

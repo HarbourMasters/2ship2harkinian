@@ -360,7 +360,6 @@ extern std::shared_ptr<ItemTrackerWindow> mItemTrackerWindow;
 extern std::shared_ptr<ItemTrackerSettingsWindow> mItemTrackerSettingsWindow;
 extern std::shared_ptr<AudioEditor> mAudioEditorWindow;
 
-
 void DrawEnhancementsMenu() {
     if (UIWidgets::BeginMenu("Enhancements")) {
         if (UIWidgets::BeginMenu("Camera")) {
