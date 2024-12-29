@@ -194,6 +194,7 @@ Recording previous_recording;
 
 bool next_is_actor_pos_rot_matrix;
 bool has_inv_actor_mtx;
+bool ignore_inv_actor_mtx;
 MtxF inv_actor_mtx;
 size_t inv_actor_mtx_path_index;
 
@@ -494,6 +495,7 @@ void FrameInterpolation_RecordCloseChild(void) {
     if (has_inv_actor_mtx && current_path.size() == inv_actor_mtx_path_index) {
         has_inv_actor_mtx = false;
     }
+    ignore_inv_actor_mtx = false;
     current_path.pop_back();
 }
 
@@ -503,6 +505,10 @@ void FrameInterpolation_DontInterpolateCamera(void) {
 
 int FrameInterpolation_GetCameraEpoch(void) {
     return (int)camera_epoch;
+}
+
+void FrameInterpolation_IgnoreActorMtx() {
+    ignore_inv_actor_mtx = true;
 }
 
 void FrameInterpolation_RecordActorPosRotMatrix(void) {
@@ -590,7 +596,7 @@ void FrameInterpolation_RecordMatrixToMtx(Mtx* dest, char* file, s32 line) {
     if (!is_recording)
         return;
     auto& d = append(Op::MatrixToMtx).matrix_to_mtx = { dest };
-    if (has_inv_actor_mtx) {
+    if (has_inv_actor_mtx && !ignore_inv_actor_mtx) {
         d.has_adjusted = true;
         SkinMatrix_MtxFMtxFMult(&inv_actor_mtx, Matrix_GetCurrent(), &d.src);
     } else {

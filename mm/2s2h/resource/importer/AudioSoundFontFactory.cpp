@@ -2,9 +2,8 @@
 #include "2s2h/resource/type/AudioSoundFont.h"
 #include "audio/soundfont.h"
 #include "audio/load.h"
-#include "spdlog/spdlog.h"
-#include "libultraship/libultraship.h"
-#include "StringHelper.h"
+#include "Context.h"
+#include "resource/archive/Archive.h"
 
 namespace SOH {
 std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSoundFontV2::ReadResource(std::shared_ptr<Ship::File> file) {
@@ -169,7 +168,7 @@ std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSoundFontV2::ReadReso
     return audioSoundFont;
 }
 
-int8_t ResourceFactoryXMLSoundFontV0::MediumStrToInt(const char* str) {
+int8_t ResourceFactoryXMLSoundFontV0::MediumStrToInt(const char* str, const char* file) {
     if (!strcmp("Ram", str)) {
         return MEDIUM_RAM;
     } else if (!strcmp("Unk", str)) {
@@ -182,12 +181,13 @@ int8_t ResourceFactoryXMLSoundFontV0::MediumStrToInt(const char* str) {
     } else if (!strcmp("RamUnloaded", str)) {
         return MEDIUM_RAM_UNLOADED;
     } else {
-        throw std::runtime_error(
-            StringHelper::Sprintf("Bad medium value. Got %s, expected Ram, Unk, Cart, or Disk.", str));
+        char buff[2048];
+        snprintf(buff, 2048, "Bad medium value in %s. Got %s, expected Ram, Unk, Cart, or Disk.", file, str);
+        throw std::runtime_error(buff);
     }
 }
 
-int8_t ResourceFactoryXMLSoundFontV0::CachePolicyToInt(const char* str) {
+int8_t ResourceFactoryXMLSoundFontV0::CachePolicyToInt(const char* str, const char* file) {
     if (!strcmp("Temporary", str)) {
         return CACHE_TEMPORARY;
     } else if (!strcmp("Persistent", str)) {
@@ -197,8 +197,10 @@ int8_t ResourceFactoryXMLSoundFontV0::CachePolicyToInt(const char* str) {
     } else if (!strcmp("Permanent", str)) {
         return CACHE_PERMANENT;
     } else {
-        throw std::runtime_error(StringHelper::Sprintf(
-            "Bad cache policy value. Got %s, expected Temporary, Persistent, Either, or Permanent.", str));
+        char buff[2048];
+        snprintf(buff, 2048, "Bad cache policy value in %s. Got %s, expected Temporary, Persistent, Either, or Permanent.",
+                 file, str);
+        throw std::runtime_error(buff);
     }
 }
 
@@ -391,10 +393,11 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLSoundFontV0::ReadResource(std
     audioSoundFont->soundFont.fntIndex = child->IntAttribute("Num", 0);
 
     const char* mediumStr = child->Attribute("Medium");
-    audioSoundFont->medium = MediumStrToInt(mediumStr);
+    audioSoundFont->medium = MediumStrToInt(mediumStr, file->InitData->Path.c_str());
 
     const char* cachePolicyStr = child->Attribute("CachePolicy");
-    audioSoundFont->cachePolicy = CachePolicyToInt(cachePolicyStr);
+    audioSoundFont->cachePolicy = CachePolicyToInt(cachePolicyStr, file->InitData->Path.c_str());
+
 
     audioSoundFont->data1 = child->IntAttribute("Data1");
     audioSoundFont->data2 = child->IntAttribute("Data2");
