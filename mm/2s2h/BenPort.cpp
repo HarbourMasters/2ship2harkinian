@@ -409,11 +409,11 @@ extern "C" void OTRAudio_Init() {
     }
 }
 
-extern char** sequenceMap;
-extern size_t sequenceMapSize;
+extern "C" char** sequenceMap;
+extern "C" size_t sequenceMapSize;
 
-extern char** fontMap;
-extern size_t fontMapSize;
+extern "C" char** fontMap;
+extern "C" size_t fontMapSize;
 
 extern "C" void OTRAudio_Exit() {
     // Tell the audio thread to stop
