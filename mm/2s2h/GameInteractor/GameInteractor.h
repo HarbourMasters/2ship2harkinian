@@ -81,6 +81,7 @@ typedef enum {
     VB_BE_HOOKSHOT_SURFACE,
     VB_DEKU_GUARD_SHOW_SEARCH_BALLS,
     VB_DISPLAY_SONG_OF_DOUBLE_TIME_PROMPT,
+    VB_ALLOW_SONG_DOUBLE_TIME
 } GIVanillaBehavior;
 
 typedef enum {
