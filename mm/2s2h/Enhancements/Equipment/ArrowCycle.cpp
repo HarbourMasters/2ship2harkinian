@@ -7,6 +7,7 @@ extern "C" {
 #include "macros.h"
 #include "variables.h"
 #include "functions.h"
+#include "z64horse.h"
 void Player_InitItemAction(PlayState* play, Player* thisx, PlayerItemAction itemAction);
 }
 
@@ -79,7 +80,17 @@ static s32 GetBowItemForArrow(PlayerItemAction arrowType) {
 }
 
 static bool CanCycleArrows() {
-    return INV_CONTENT(SLOT_BOW) == ITEM_BOW &&
+    Player* player = GET_PLAYER(gPlayState);
+
+    // Don't allow cycling during bow minigames in specific scenes
+    if (gSaveContext.minigameStatus == MINIGAME_STATUS_ACTIVE &&
+        (gPlayState->sceneId == SCENE_SYATEKI_MIZU || // Town Shooting Gallery
+         gPlayState->sceneId == SCENE_SYATEKI_MORI || // Swamp Shooting Gallery
+         gPlayState->sceneId == SCENE_20SICHITAI2)) { // Tourist Center boat cruise
+        return false;
+    }
+
+    return !gHorseIsMounted && player->rideActor == NULL && INV_CONTENT(SLOT_BOW) == ITEM_BOW &&
            (INV_CONTENT(ITEM_ARROW_FIRE) == ITEM_ARROW_FIRE || INV_CONTENT(ITEM_ARROW_ICE) == ITEM_ARROW_ICE ||
             INV_CONTENT(ITEM_ARROW_LIGHT) == ITEM_ARROW_LIGHT);
 }
@@ -211,14 +222,11 @@ static void CycleToNextArrow(PlayState* play, Player* player) {
 
         if (arrow->actor.child != NULL) {
             Actor_Kill(arrow->actor.child);
-            arrow->actor.child = NULL;
         }
 
         Actor_Kill(&arrow->actor);
-        player->heldActor = NULL;
     }
 
-    player->heldItemAction = nextArrow;
     Player_InitItemAction(play, player, static_cast<PlayerItemAction>(nextArrow));
     UpdateEquippedBow(play, nextArrow);
     Audio_PlaySfx(NA_SE_PL_CHANGE_ARMS);
@@ -255,14 +263,17 @@ void RegisterArrowCycle() {
         }
         sWasAiming = isAiming;
 
-        // Block cycling during bow draw to prevent rapid cycling from breaking camera transition and arrow spawn
+        // Block camera changes when cycling arrows while drawing the bow
         if ((player->stateFlags3 & PLAYER_STATE3_40) && player->unk_ACE == 0) {
-            if (IsHoldingBow(player) && CHECK_BTN_ALL(input->press.button, BTN_L)) {
-                return;
-            }
+            return;
         }
 
         if (IsHoldingBow(player) && CHECK_BTN_ALL(input->press.button, BTN_L)) {
+            if (IsHoldingMagicArrow(player) && gSaveContext.magicState != MAGIC_STATE_IDLE &&
+                player->heldActor == NULL) {
+                Audio_PlaySfx(NA_SE_SY_ERROR);
+                return;
+            }
             if (IsHoldingMagicArrow(player)) {
                 sNeedsMagicRefund = true;
                 sMagicToRefund = sMagicArrowCosts[player->heldItemAction - PLAYER_IA_BOW_FIRE];
