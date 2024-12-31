@@ -163,7 +163,7 @@ void RegisterBetterSongOfDoubleTime() {
         CLOSE_DISPS(gPlayState->state.gfxCtx);
     });
 
-    COND_VB_SHOULD(VB_ALLOW_SONG_DOUBLE_TIME, CVAR, { 
+    COND_VB_SHOULD(VB_ALLOW_SONG_DOUBLE_TIME_ON_FINAL_NIGHT, CVAR, { 
         *should = true;
     });
 }
