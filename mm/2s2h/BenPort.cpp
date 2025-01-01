@@ -164,7 +164,7 @@ OTRGlobals::OTRGlobals() {
     // tell LUS to reserve 3 SoH specific threads (Game, Audio, Save)
     context =
         Ship::Context::CreateInstance("2 Ship 2 Harkinian", appShortName, "2ship2harkinian.json", archiveFiles, {}, 3,
-                                      { .SampleRate = 44100, .SampleLength = 1024, .DesiredBuffered = 2480 });
+                                      { .SampleRate = 32000, .SampleLength = 1024, .DesiredBuffered = 2480 });
 
     SPDLOG_INFO("Starting 2 Ship 2 Harkinian version {}", (char*)gBuildVersion);
 
@@ -362,9 +362,16 @@ void OTRAudio_Thread() {
 //#define SAMPLES_HIGH 656
 //#define SAMPLES_LOW 624
 
-// 44KHZ values
+#if 0
+// Values for 44100 hz
 #define SAMPLES_HIGH 752
 #define SAMPLES_LOW 720
+#else
+// Values for 32000 hz
+#define SAMPLES_HIGH 560
+#define SAMPLES_LOW 528
+
+#endif
 
 #define AUDIO_FRAMES_PER_UPDATE (R_UPDATE_RATE > 0 ? R_UPDATE_RATE : 1)
 #define NUM_AUDIO_CHANNELS 2
