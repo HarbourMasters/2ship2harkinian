@@ -353,14 +353,14 @@ void OTRAudio_Thread() {
             }
         }
         std::unique_lock<std::mutex> Lock(audio.mutex);
-// AudioMgr_ThreadEntry(&gAudioMgr);
-//  528 and 544 relate to 60 fps at 32 kHz 32000/60 = 533.333..
-//  in an ideal world, one third of the calls should use num_samples=544 and two thirds num_samples=528
-//#define SAMPLES_HIGH 560
-//#define SAMPLES_LOW 528
-//  PAL values
-//#define SAMPLES_HIGH 656
-//#define SAMPLES_LOW 624
+        // AudioMgr_ThreadEntry(&gAudioMgr);
+        //  528 and 544 relate to 60 fps at 32 kHz 32000/60 = 533.333..
+        //  in an ideal world, one third of the calls should use num_samples=544 and two thirds num_samples=528
+        //#define SAMPLES_HIGH 560
+        //#define SAMPLES_LOW 528
+        //  PAL values
+        //#define SAMPLES_HIGH 656
+        //#define SAMPLES_LOW 624
 
 #if 0
 // Values for 44100 hz
