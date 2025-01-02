@@ -1347,6 +1347,11 @@ void AddEnhancements() {
                 WIDGET_CVAR_CHECKBOX },
               { "Fast Text", "gEnhancements.Dialogue.FastText",
                 "Speeds up text rendering, and enables holding of B progress to next message.",
+                WIDGET_CVAR_CHECKBOX } },
+            // Other
+            { { .widgetName = "Other", .widgetType = WIDGET_SEPARATOR_TEXT },
+              { "Faster Swamp Boat", "gEnhancements.Timesavers.SwampBoatSpeed",
+                "Hold Z to speed up boat rides. For archery, requires a score of 20+ first.",
                 WIDGET_CVAR_CHECKBOX } } } });
     enhancementsSidebar.push_back(
         { "Fixes",

@@ -1,0 +1,52 @@
+#include <libultraship/bridge.h>
+#include "2s2h/GameInteractor/GameInteractor.h"
+#include "2s2h/ShipInit.hpp"
+
+extern "C" {
+#include "overlays/actors/ovl_Bg_Ingate/z_bg_ingate.h"
+}
+
+#define CVAR_NAME "gEnhancements.Timesavers.SwampBoatSpeed"
+#define CVAR CVarGetInteger(CVAR_NAME, 5)
+
+void RegisterSwampBoatSpeed() {
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnActorUpdate>([](Actor* actor) {
+        if (actor->id == ACTOR_BG_INGATE) {
+            BgIngate* boat = (BgIngate*)actor;
+            if (CVAR >= 1 && DynaPolyActor_IsPlayerOnTop(&boat->dyna)) {
+                if (!CHECK_EVENTINF(EVENTINF_35)) {
+                    // Pictograph Tour
+                    if (CHECK_BTN_ALL(CONTROLLER1(&gPlayState->state)->cur.button, BTN_Z)) {
+                        boat->timePathTimeSpeed = (s16)(4 * CVAR);
+                    } else {
+                        boat->timePathTimeSpeed = 4; // Default speed
+                    }
+                } else if (CHECK_EVENTINF(EVENTINF_35) && HS_GET_BOAT_ARCHERY_HIGH_SCORE() >= 20) {
+                    // Archery Minigame
+                    if (CHECK_BTN_ALL(CONTROLLER1(&gPlayState->state)->cur.button, BTN_Z)) {
+                        boat->timePathTimeSpeed = (s16)(1 * CVAR);
+                    } else {
+                        boat->timePathTimeSpeed = 1; // Default speed
+                    }
+                } else if (CHECK_EVENTINF(EVENTINF_35) && gSaveContext.minigameScore >= 20) { // Current score
+                    // Update boat archery high score early
+                    // Leaving minigame early prevents the score from being updated
+                    if (gSaveContext.minigameScore > HS_GET_BOAT_ARCHERY_HIGH_SCORE()) {
+                        HS_SET_BOAT_ARCHERY_HIGH_SCORE(gSaveContext.minigameScore);
+                        SET_EVENTINF(EVENTINF_37);
+                    }
+
+                    // Leave the minigame
+                    gPlayState->nextEntrance = ENTRANCE(TOURIST_INFORMATION, 1); // 1 = Koume
+                    gSaveContext.nextCutsceneIndex = 0;
+                    gPlayState->transitionTrigger = TRANS_TRIGGER_START;
+                    gPlayState->transitionType = TRANS_TYPE_FADE_WHITE;
+                    gSaveContext.nextTransitionType = TRANS_TYPE_FADE_WHITE;
+                    return;
+                }
+            }
+        }
+    });
+}
+
+static RegisterShipInitFunc initFunc(RegisterSwampBoatSpeed, { CVAR_NAME });

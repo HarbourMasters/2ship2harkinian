@@ -565,7 +565,15 @@ void DrawEnhancementsMenu() {
                       "the Rupees to Links current Rupees or 0 respectively." });
             UIWidgets::CVarCheckbox(
                 "Fast Text", "gEnhancements.Dialogue.FastText",
-                { .tooltip = "Speeds up text rendering, and enables holding of B progress to next message" });
+                { .tooltip = "Speeds up text rendering, and enables holding of B progress to next message." });
+
+            ImGui::EndMenu();
+        }
+
+        if (UIWidgets::BeginMenu("TimeSavers")) {
+            UIWidgets::CVarCheckbox(
+                "Faster Swamp Boat", "gEnhancements.Timesavers.SwampBoatSpeed",
+                { .tooltip = "Hold Z to speed up boat rides. For archery, requires a score of 20+ first." });
 
             ImGui::EndMenu();
         }
