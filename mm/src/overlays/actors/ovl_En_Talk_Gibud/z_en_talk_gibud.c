@@ -716,7 +716,7 @@ void EnTalkGibud_GetNextTextBoxId(EnTalkGibud* this, PlayState* play) {
 s32 EnTalkGibud_PresentedItemMatchesRequest(EnTalkGibud* this, PlayState* play, PlayerItemAction presentedItemAction) {
     EnTalkGibudRequestedItem* requestedItem = &sRequestedItemTable[this->requestedItemIndex];
     if (GameInteractor_Should(VB_GIBDO_TRADE_SEQUENCE_ACCEPT_RED_POTION, false, requestedItem->itemAction,
-                              presentedItemAction)) { // If requested Blue Potion but presented Red Potion, switch 
+                              presentedItemAction)) { // If requested Blue Potion but presented Red Potion, switch
                                                       // requested item to red potion
         requestedItem = &sRequestedItemTable[EN_TALK_GIBUD_REQUESTED_ITEM_INDEX_POTION_RED];
     }
