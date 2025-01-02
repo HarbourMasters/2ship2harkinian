@@ -3,7 +3,7 @@
  * Overlay: ovl_En_Talk_Gibud
  * Description: Gibdos requesting items Beneath the Well
  */
-
+#include "2s2h/GameInteractor/GameInteractor.h"
 #include "z_en_talk_gibud.h"
 #include "z64rumble.h"
 
@@ -71,7 +71,8 @@ typedef enum {
     /*  6 */ EN_TALK_GIBUD_REQUESTED_ITEM_INDEX_BOMBS,
     /*  7 */ EN_TALK_GIBUD_REQUESTED_ITEM_INDEX_HOT_SPRING_WATER,
     /*  8 */ EN_TALK_GIBUD_REQUESTED_ITEM_INDEX_BIG_POE,
-    /*  9 */ EN_TALK_GIBUD_REQUESTED_ITEM_INDEX_MILK
+    /*  9 */ EN_TALK_GIBUD_REQUESTED_ITEM_INDEX_MILK,
+    /* 10 */ EN_TALK_GIBUD_REQUESTED_ITEM_INDEX_POTION_RED,
 } EnTalkGibudRequestedItemIndex;
 
 typedef enum {
@@ -210,6 +211,7 @@ static EnTalkGibudRequestedItem sRequestedItemTable[] = {
     { PLAYER_IA_BOTTLE_HOT_SPRING_WATER, ITEM_HOT_SPRING_WATER, 1, true },
     { PLAYER_IA_BOTTLE_BIG_POE, ITEM_BIG_POE, 1, true },
     { PLAYER_IA_BOTTLE_MILK, ITEM_MILK_BOTTLE, 1, true },
+    { PLAYER_IA_BOTTLE_POTION_RED, ITEM_POTION_RED, 1, true },
 };
 
 static InitChainEntry sInitChain[] = {
@@ -713,10 +715,14 @@ void EnTalkGibud_GetNextTextBoxId(EnTalkGibud* this, PlayState* play) {
 
 s32 EnTalkGibud_PresentedItemMatchesRequest(EnTalkGibud* this, PlayState* play, PlayerItemAction presentedItemAction) {
     EnTalkGibudRequestedItem* requestedItem = &sRequestedItemTable[this->requestedItemIndex];
-
+    if (GameInteractor_Should(VB_GIBDO_TRADE_SEQUENCE_ACCEPT_RED_POTION, false, requestedItem->itemAction,
+        presentedItemAction)) { // If requested Blue Potion but presented Red Potion, switch requested item to red potion
+        requestedItem = &sRequestedItemTable[EN_TALK_GIBUD_REQUESTED_ITEM_INDEX_POTION_RED];
+    }
     if (requestedItem->itemAction == presentedItemAction) {
         if (!requestedItem->isBottledItem) {
-            if (AMMO(requestedItem->item) >= requestedItem->amount) {
+            if ((AMMO(requestedItem->item) >= requestedItem->amount) 
+                || GameInteractor_Should(VB_GIBDO_TRADE_SEQUENCE_SUFFICIENT_QUANTITY_PRESENTED, false, requestedItem->item)) {
                 return EN_TALK_GIBUD_REQUESTED_ITEM_MET;
             } else {
                 return EN_TALK_GIBUD_REQUESTED_ITEM_NOT_ENOUGH_AMMO;
@@ -782,8 +788,13 @@ void EnTalkGibud_SetupPassiveIdle(EnTalkGibud* this) {
 void EnTalkGibud_PassiveIdle(EnTalkGibud* this, PlayState* play) {
     if (Actor_ProcessTalkRequest(&this->actor, &play->state)) {
         this->isTalking = true;
-        Message_StartTextbox(play, 0x1388, &this->actor);
-        this->textId = 0x1388;
+        if (GameInteractor_Should(VB_GIBDO_TRADE_SEQUENCE_DO_TRADE, true)) {
+            Message_StartTextbox(play, 0x1388, &this->actor);
+            this->textId = 0x1388;
+        } else {
+            Message_StartTextbox(play, 0x138A, &this->actor);
+            this->textId = 0x138A;
+        }
         Actor_PlaySfx(&this->actor, NA_SE_EN_REDEAD_AIM);
         EnTalkGibud_SetupTalk(this);
     } else if (this->actor.xzDistToPlayer < 100.0f && !(this->collider.base.acFlags & AC_HIT)) {
@@ -828,10 +839,16 @@ void EnTalkGibud_Talk(EnTalkGibud* this, PlayState* play) {
                 if (this->textId == 0x138A) {
                     // Remove the requested item/amount from the player's inventory
                     requestedItem = &sRequestedItemTable[this->requestedItemIndex];
-                    if (!requestedItem->isBottledItem) {
-                        Inventory_ChangeAmmo(requestedItem->item, -requestedItem->amount);
-                    } else {
-                        Player_UpdateBottleHeld(play, player, ITEM_BOTTLE, PLAYER_IA_BOTTLE_EMPTY);
+                    if (GameInteractor_Should(VB_GIBDO_TRADE_SEQUENCE_DO_TRADE,true)) { // We don't want to try to change their inventory if they don't need to trade anything
+                        if (!requestedItem->isBottledItem) {
+                            if (GameInteractor_Should(VB_GIBDO_TRADE_SEQUENCE_TAKE_MORE_THAN_ONE_ITEM, true)) {
+                                Inventory_ChangeAmmo(requestedItem->item, -requestedItem->amount);
+                            } else {
+                                Inventory_ChangeAmmo(requestedItem->item, -1);
+                            }
+                        } else {
+                            Player_UpdateBottleHeld(play, player, ITEM_BOTTLE, PLAYER_IA_BOTTLE_EMPTY);
+                        }
                     }
                     player->stateFlags1 |= PLAYER_STATE1_20;
                     player->stateFlags1 |= PLAYER_STATE1_20000000;
