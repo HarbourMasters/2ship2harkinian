@@ -716,13 +716,15 @@ void EnTalkGibud_GetNextTextBoxId(EnTalkGibud* this, PlayState* play) {
 s32 EnTalkGibud_PresentedItemMatchesRequest(EnTalkGibud* this, PlayState* play, PlayerItemAction presentedItemAction) {
     EnTalkGibudRequestedItem* requestedItem = &sRequestedItemTable[this->requestedItemIndex];
     if (GameInteractor_Should(VB_GIBDO_TRADE_SEQUENCE_ACCEPT_RED_POTION, false, requestedItem->itemAction,
-        presentedItemAction)) { // If requested Blue Potion but presented Red Potion, switch requested item to red potion
+                                presentedItemAction)) { // If requested Blue Potion but presented Red Potion, switch 
+                                                        // requested item to red potion
         requestedItem = &sRequestedItemTable[EN_TALK_GIBUD_REQUESTED_ITEM_INDEX_POTION_RED];
     }
     if (requestedItem->itemAction == presentedItemAction) {
         if (!requestedItem->isBottledItem) {
-            if ((AMMO(requestedItem->item) >= requestedItem->amount) 
-                || GameInteractor_Should(VB_GIBDO_TRADE_SEQUENCE_SUFFICIENT_QUANTITY_PRESENTED, false, requestedItem->item)) {
+            if ((AMMO(requestedItem->item) >= requestedItem->amount)  ||
+                GameInteractor_Should(VB_GIBDO_TRADE_SEQUENCE_SUFFICIENT_QUANTITY_PRESENTED, false, 
+                                       requestedItem->item)) {
                 return EN_TALK_GIBUD_REQUESTED_ITEM_MET;
             } else {
                 return EN_TALK_GIBUD_REQUESTED_ITEM_NOT_ENOUGH_AMMO;
@@ -839,7 +841,9 @@ void EnTalkGibud_Talk(EnTalkGibud* this, PlayState* play) {
                 if (this->textId == 0x138A) {
                     // Remove the requested item/amount from the player's inventory
                     requestedItem = &sRequestedItemTable[this->requestedItemIndex];
-                    if (GameInteractor_Should(VB_GIBDO_TRADE_SEQUENCE_DO_TRADE,true)) { // We don't want to try to change their inventory if they don't need to trade anything
+                    if (GameInteractor_Should(VB_GIBDO_TRADE_SEQUENCE_DO_TRADE,
+                        true)) { // We don't want to try to change their inventory if they don't
+                                 // need to trade anything
                         if (!requestedItem->isBottledItem) {
                             if (GameInteractor_Should(VB_GIBDO_TRADE_SEQUENCE_TAKE_MORE_THAN_ONE_ITEM, true)) {
                                 Inventory_ChangeAmmo(requestedItem->item, -requestedItem->amount);
