@@ -327,6 +327,16 @@ int GameInteractor_InvertControl(GIInvertType type) {
                 result *= -1;
             }
             break;
+        case GI_INVERT_CAMERA_MOUSE_X:
+            if (CVarGetInteger("gEnhancements.Camera.Mouse.InvertX", 0)) {
+                result *= -1;
+            }
+            break;
+        case GI_INVERT_CAMERA_MOUSE_Y:
+            if (CVarGetInteger("gEnhancements.Camera.Mouse.InvertY", 1)) {
+                result *= -1;
+            }
+            break;
         case GI_INVERT_FIRST_PERSON_AIM_X:
         case GI_INVERT_TELESCOPE_X:
             if (CVarGetInteger("gEnhancements.Camera.FirstPerson.InvertX", 0)) {
@@ -361,6 +371,13 @@ int GameInteractor_InvertControl(GIInvertType type) {
             break;
         case GI_INVERT_SHIELD_Y:
             if (CVarGetInteger("gEnhancements.Equipment.InvertShieldY", 0)) {
+        case GI_INVERT_FIRST_PERSON_MOUSE_X:
+            if (CVarGetInteger("gEnhancements.Camera.Mouse.FirstPerson.InvertX", 0)) {
+                result *= -1;
+            }
+            break;
+        case GI_INVERT_FIRST_PERSON_MOUSE_Y:
+            if (CVarGetInteger("gEnhancements.Camera.Mouse.FirstPerson.InvertY", 1)) {
                 result *= -1;
             }
             break;
@@ -375,6 +392,7 @@ int GameInteractor_InvertControl(GIInvertType type) {
     if (CVarGetInteger("gModes.MirroredWorld.State", 0)) {
         switch (type) {
             case GI_INVERT_CAMERA_RIGHT_STICK_X:
+            case GI_INVERT_CAMERA_MOUSE_X:
             case GI_INVERT_MOVEMENT_X:
             case GI_INVERT_SHIELD_X:
             case GI_INVERT_SHOP_X:
@@ -385,6 +403,7 @@ int GameInteractor_InvertControl(GIInvertType type) {
             case GI_INVERT_FIRST_PERSON_AIM_X:
             case GI_INVERT_FIRST_PERSON_GYRO_X:
             case GI_INVERT_FIRST_PERSON_RIGHT_STICK_X:
+            case GI_INVERT_FIRST_PERSON_MOUSE_X:
             case GI_INVERT_FIRST_PERSON_MOVING_X:
                 result *= -1;
                 break;
