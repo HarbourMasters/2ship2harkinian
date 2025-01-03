@@ -2,6 +2,7 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
 #include "CameraUtils.h"
+#include "Mouse.h"
 
 extern "C" {
 #include "macros.h"
@@ -103,6 +104,18 @@ bool Camera_FreeLook(Camera* camera) {
     yaw += yawDiff * GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_X);
     pitch += pitchDiff * -GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_Y);
 
+    if (CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured()
+        // Disable mouse movement when holding down the shield
+        // TODO: test if this check still needed
+        // !(player->stateFlags1 & 0x400000)
+    ) {
+        MouseDelta mouseDelta = Mouse_GetDelta();
+        yaw -= mouseDelta.x * 40.0f * CVarGetFloat("gEnhancements.Camera.Mouse.CameraSensitivity.X", 1.0f) *
+               GameInteractor_InvertControl(GI_INVERT_CAMERA_MOUSE_X);
+        pitch += mouseDelta.y * 40.0f * CVarGetFloat("gEnhancements.Camera.Mouse.CameraSensitivity.Y", 1.0f) *
+                 -GameInteractor_InvertControl(GI_INVERT_CAMERA_MOUSE_Y);
+    }
+
     s16 maxPitch = DEG_TO_BINANG(CVarGetFloat("gEnhancements.Camera.FreeLook.MaxPitch", 72.0f));
     s16 minPitch = DEG_TO_BINANG(CVarGetFloat("gEnhancements.Camera.FreeLook.MinPitch", -49.0f));
 
@@ -153,9 +166,17 @@ bool Camera_FreeLook(Camera* camera) {
 bool Camera_CanFreeLook(Camera* camera) {
     f32 camX = sCamPlayState->state.input[0].cur.right_stick_x * 10.0f;
     f32 camY = sCamPlayState->state.input[0].cur.right_stick_y * 10.0f;
+
+    if (CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured()) {
+        MouseDelta mouseDelta = Mouse_GetDelta();
+        camX -= mouseDelta.x * 40.0f;
+        camY += mouseDelta.y * 40.0f;
+    }
+
     if (!sCanFreeLook && (fabsf(camX) >= 15.0f || fabsf(camY) >= 15.0f)) {
         sCanFreeLook = true;
     }
+    // TODO: check Z target mode potential
     // Pressing Z will "Reset" Camera
     if (CHECK_BTN_ALL(sCamPlayState->state.input[0].press.button, BTN_Z)) {
         sCanFreeLook = false;

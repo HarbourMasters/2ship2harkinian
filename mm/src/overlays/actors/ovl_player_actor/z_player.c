@@ -48,7 +48,10 @@
 #include "2s2h/BenPort.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/CustomMessage/CustomMessage.h"
+#include "2s2h/Enhancements/Camera/Mouse.h"
 #include <libultraship/bridge/consolevariablebridge.h>
+
+#define THIS ((Player*)thisx)
 
 void Player_Init(Actor* thisx, PlayState* play);
 void Player_Destroy(Actor* thisx, PlayState* play);
@@ -13526,6 +13529,21 @@ s32 Ship_HandleFirstPersonAiming(PlayState* play, Player* this, s32 arg2) {
 
         stickX += leftStickX * CVarGetFloat("gEnhancements.Camera.FirstPerson.SensitivityX", 1.0f);
         stickY += leftStickY * CVarGetFloat("gEnhancements.Camera.FirstPerson.SensitivityY", 1.0f);
+    }
+
+    if (CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured()) {
+        MouseDelta mouseDelta = Mouse_GetDelta();
+
+        if (mouseDelta.x != 0) {
+            this->actor.focus.rot.y += mouseDelta.x * 12.0f *
+                                       CVarGetFloat("gEnhancements.Camera.Mouse.FirstPerson.SensitivityX", 1.0f) *
+                                       -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_MOUSE_X);
+        }
+        if (mouseDelta.y != 0) {
+            this->actor.focus.rot.x += mouseDelta.y * 12.0f *
+                                       CVarGetFloat("gEnhancements.Camera.Mouse.FirstPerson.SensitivityY", 1.0f) *
+                                       -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_MOUSE_Y);
+        }
     }
 
     if (CVarGetInteger("gEnhancements.Camera.FirstPerson.GyroEnabled", 0)) {
