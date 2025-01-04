@@ -6,7 +6,6 @@ extern "C" {
 #include "variables.h"
 #include "functions.h"
 #include "src/overlays/actors/ovl_En_Mnk/z_en_mnk.h"
-void EnMnk_Monkey_SetupDrop(EnMnk* thisx);
 void EnMnk_Monkey_SetupRunAfterTalk(EnMnk* thisx, PlayState* play);
 void EnMnk_Monkey_ApproachPlayer(EnMnk* thisx, PlayState* play);
 void EnMnk_Monkey_WaitOutsideWoods(EnMnk* thisx, PlayState* play);
@@ -16,8 +15,8 @@ void EnMnk_Monkey_WaitOutsideWoods(EnMnk* thisx, PlayState* play);
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 void RegisterSkipBothersomeMonkey() {
-    COND_HOOK(OnActorUpdate, CVAR, [](Actor* actor) {
-        if (actor->id == ACTOR_EN_MNK && MONKEY_GET_TYPE(actor) == MONKEY_OUTSIDEWOODS) {
+    COND_ID_HOOK(OnActorUpdate, ACTOR_EN_MNK, CVAR, [](Actor* actor) {
+        if (MONKEY_GET_TYPE(actor) == MONKEY_OUTSIDEWOODS) {
             EnMnk* monkey = (EnMnk*)actor;
             PlayState* play = gPlayState;
 
