@@ -297,7 +297,6 @@ typedef enum {
     /* 3 */ PICTO_PHOTO_STATE_READY
 } PictoPhotoState;
 
-
 #ifdef __cplusplus
 }
 #endif

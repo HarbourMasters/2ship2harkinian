@@ -250,7 +250,7 @@ void Draw_SfxTab(const std::string& tabId, SeqType type) {
             continue;
         }
         // Do not display custom sequences in the list
-        if ((((seqData.category & SEQ_BGM_CUSTOM) || seqData.category == SEQ_FANFARE) &&
+        if ((((seqData.category & SEQ_BGM_CUSTOM) || seqData.category == SEQ_BGM_CUSTOM_FANFARE) &&
              defaultValue >= MAX_AUTHENTIC_SEQID) ||
             seqData.canBeReplaced == false) {
             continue;

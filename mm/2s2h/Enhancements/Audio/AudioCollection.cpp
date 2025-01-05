@@ -247,7 +247,7 @@ void AudioCollection::AddToCollection(char* otrPath, uint16_t seqNum) {
             typeString[i] = std::tolower(typeString[i], loc);
         }
         if (typeString == "fanfare") {
-            type = SEQ_FANFARE;
+            type = SEQ_BGM_CUSTOM_FANFARE;
         }
     }
     std::string sequenceName = fileName.substr(0, underscorePos - 1);
