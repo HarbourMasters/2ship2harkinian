@@ -1639,15 +1639,15 @@ extern "C" void OTRControllerCallback(uint8_t rumble) {
     static std::shared_ptr<BenInputEditorWindow> controllerConfigWindow = nullptr;
     if (controllerConfigWindow == nullptr) {
         controllerConfigWindow = std::dynamic_pointer_cast<BenInputEditorWindow>(
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Input Editor"));
-        // TODO: Add SoH Controller Config window rumble testing to upstream LUS config window
-        //       note: the current implementation may not be desired in LUS, as "true" rumble support
-        //             using osMotor calls is planned: https://github.com/Kenix3/libultraship/issues/9
-        //
-        // } else if (controllerConfigWindow->TestingRumble()) {
-        //     return;
+            Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("2S2H Input Editor"));
+        // note: the current implementation may not be desired in LUS, as "true" rumble support
+        //    using osMotor calls is planned: https://github.com/Kenix3/libultraship/issues/9
+    }
+    if (controllerConfigWindow->TestingRumble()) {
+        return;
     }
 
+    // TODO: other ports?
     if (rumble) {
         Ship::Context::GetInstance()->GetControlDeck()->GetControllerByPort(0)->GetRumble()->StartRumble();
     } else {
