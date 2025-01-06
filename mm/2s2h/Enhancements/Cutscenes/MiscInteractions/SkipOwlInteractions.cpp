@@ -40,11 +40,11 @@ void RegisterSkipOwlInteractions() {
     });
 
     // Ditto, after the owl has made it across the invisible platforms in the Winter Village
-    COND_ID_HOOK(OnActorUpdate, ACTOR_EN_OWL, CVAR, [](Actor* actor) {
-        EnOwl* enOwl = (EnOwl*)actor;
-        if (enOwl->actionFunc == func_8095B574) { // Owl is perched on the far side of the invisible platforms
-            enOwl->actionFunc = flyOnApproach;
-        }
+    COND_VB_SHOULD(VB_OWL_TELL_ABOUT_SHRINE, CVAR, {
+        EnOwl* enOwl = va_arg(args, EnOwl*);
+        EnOwl_ChangeMode(enOwl, flyOnApproach, func_8095C484, &enOwl->skelAnimePerching,
+                         (AnimationHeader*)&gOwlPerchAnim, 0.0f);
+        *should = false;
     });
 }
 
