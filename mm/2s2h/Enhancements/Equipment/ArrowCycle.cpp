@@ -235,7 +235,7 @@ static void CycleToNextArrow(PlayState* play, Player* player) {
 // Registration and Hooks
 void RegisterArrowCycle() {
     COND_VB_SHOULD(VB_MINIMAP_TOGGLE, CVAR, {
-        if (CVAR && gPlayState != NULL && CanCycleArrows()) {
+        if (CanCycleArrows()) {
             Player* player = GET_PLAYER(gPlayState);
             if (IsHoldingBow(player)) {
                 *should = false;
