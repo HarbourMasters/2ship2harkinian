@@ -1058,29 +1058,6 @@ void AddEnhancements() {
                 { 1, 5, 1 } },
               { "Dpad Equips", "gEnhancements.Dpad.DpadEquips", "Allows you to equip items to your d-pad",
                 WIDGET_CVAR_CHECKBOX },
-              { "Always Win Doggy Race",
-                "gEnhancements.Minigames.AlwaysWinDoggyRace",
-                "Makes the Doggy Race easier to win.",
-                WIDGET_CVAR_COMBOBOX,
-                { .comboBoxOptions = alwaysWinDoggyraceOptions } },
-              { "Milk Run Reward Options",
-                "gEnhancements.Minigames.CremiaHugs",
-                "Choose what reward you get for winning the Milk Run minigame after the first time. \n"
-                "-Vanilla: Reward is Random\n"
-                "-Hug: Get the hugging cutscene\n"
-                "-Rupee: Get the rupee reward",
-                WIDGET_CVAR_COMBOBOX,
-                { .comboBoxOptions = cremiaRewardOptions } },
-              { "Cucco Shack Cucco Count",
-                "gEnhancements.Minigames.CuccoShackCuccoCount",
-                "Choose how many cuccos you need to raise to make Grog happy.",
-                WIDGET_CVAR_SLIDER_INT,
-                { 1, 10, 10 } },
-              { "Swordsman School Winning Score",
-                "gEnhancements.Minigames.SwordsmanSchoolScore",
-                "Sets the score required to win the Swordsman School.",
-                WIDGET_CVAR_SLIDER_INT,
-                { 1, 30, 30 } },
               { "Fast Magic Arrow Equip Animation", "gEnhancements.Equipment.MagicArrowEquipSpeed",
                 "Removes the animation for equipping Magic Arrows.", WIDGET_CVAR_CHECKBOX },
               { "Instant Fin Boomerangs Recall", "gEnhancements.PlayerActions.InstantRecall",
@@ -1089,26 +1066,80 @@ void AddEnhancements() {
               { "Two-Handed Sword Spin Attack", "gEnhancements.Equipment.TwoHandedSwordSpinAttack",
                 "Enables magic spin attacks for the Fierce Deity Sword and Great Fairy's Sword.",
                 WIDGET_CVAR_CHECKBOX } },
-            { { .widgetName = "Modes", .widgetType = WIDGET_SEPARATOR_TEXT },
-              { "Play as Kafei", "gModes.PlayAsKafei", "Requires scene reload to take effect.", WIDGET_CVAR_CHECKBOX },
-              { "Hyrule Warriors Styled Link", "gModes.HyruleWarriorsStyledLink",
-                "When acquired, places the Keaton and Fierce Deity masks on Link similarly to how he wears them in "
-                "Hyrule Warriors",
-                WIDGET_CVAR_CHECKBOX },
-              { "Time Moves when you Move", "gModes.TimeMovesWhenYouMove",
-                "Time only moves when Link is not standing still.", WIDGET_CVAR_CHECKBOX },
-              { "Mirrored World",
-                "gModes.MirroredWorld.Mode",
-                "Mirrors the world horizontally.",
-                WIDGET_CVAR_CHECKBOX,
-                {},
-                ([](widgetInfo& info) {
-                    if (CVarGetInteger("gModes.MirroredWorld.Mode", 0)) {
-                        CVarSetInteger("gModes.MirroredWorld.State", 1);
-                    } else {
-                        CVarClear("gModes.MirroredWorld.State");
-                    }
-                }) } },
+            {
+                { .widgetName = "Modes", .widgetType = WIDGET_SEPARATOR_TEXT },
+                { "Play as Kafei", "gModes.PlayAsKafei", "Requires scene reload to take effect.",
+                  WIDGET_CVAR_CHECKBOX },
+                { "Hyrule Warriors Styled Link", "gModes.HyruleWarriorsStyledLink",
+                  "When acquired, places the Keaton and Fierce Deity masks on Link similarly to how he wears them in "
+                  "Hyrule Warriors",
+                  WIDGET_CVAR_CHECKBOX },
+                { "Time Moves when you Move", "gModes.TimeMovesWhenYouMove",
+                  "Time only moves when Link is not standing still.", WIDGET_CVAR_CHECKBOX },
+                { "Mirrored World",
+                  "gModes.MirroredWorld.Mode",
+                  "Mirrors the world horizontally.",
+                  WIDGET_CVAR_CHECKBOX,
+                  {},
+                  ([](widgetInfo& info) {
+                      if (CVarGetInteger("gModes.MirroredWorld.Mode", 0)) {
+                          CVarSetInteger("gModes.MirroredWorld.State", 1);
+                      } else {
+                          CVarClear("gModes.MirroredWorld.State");
+                      }
+                  }) },
+                { .widgetName = "Minigames", .widgetType = WIDGET_SEPARATOR_TEXT },
+                { "Always Win Doggy Race",
+                  "gEnhancements.Minigames.AlwaysWinDoggyRace",
+                  "Makes the Doggy Race easier to win.",
+                  WIDGET_CVAR_COMBOBOX,
+                  { .comboBoxOptions = alwaysWinDoggyraceOptions } },
+                { "Milk Run Reward Options",
+                  "gEnhancements.Minigames.CremiaHugs",
+                  "Choose what reward you get for winning the Milk Run minigame after the first time. \n"
+                  "-Vanilla: Reward is Random\n"
+                  "-Hug: Get the hugging cutscene\n"
+                  "-Rupee: Get the rupee reward",
+                  WIDGET_CVAR_COMBOBOX,
+                  { .comboBoxOptions = cremiaRewardOptions } },
+                { "Cucco Shack Cucco Count",
+                  "gEnhancements.Minigames.CuccoShackCuccoCount",
+                  "Choose how many cuccos you need to raise to make Grog happy.",
+                  WIDGET_CVAR_SLIDER_INT,
+                  { 1, 10, 10 } },
+                { "Swordsman School Winning Score",
+                  "gEnhancements.Minigames.SwordsmanSchoolScore",
+                  "Sets the score required to win the Swordsman School.",
+                  WIDGET_CVAR_SLIDER_INT,
+                  { 1, 30, 30 } },
+                { "Swamp Archery Perfect Score",
+                  "gEnhancements.Minigames.SwampArcheryScore",
+                  "Sets the score required to win the Swamp Archery minigame, if this is changed it also speeds up the "
+                  "final score counting.",
+                  WIDGET_CVAR_SLIDER_INT,
+                  { 1000, 2180, 2180 } },
+                { "Town Archery Perfect Score",
+                  "gEnhancements.Minigames.TownArcheryScore",
+                  "Sets the score required to win the Town Archery minigame. Reaching this score will end the "
+                  "minigame.",
+                  WIDGET_CVAR_SLIDER_INT,
+                  { 1, 50, 50 } },
+                { "Honey & Darling Day 1 (Bombchus)",
+                  "gEnhancements.Minigames.HoneyAndDarlingDay1",
+                  "Sets the score required to win the Honey & Darling minigame on Day 1.",
+                  WIDGET_CVAR_SLIDER_INT,
+                  { 1, 8, 8 } },
+                { "Honey & Darling Day 2 (Bombs)",
+                  "gEnhancements.Minigames.HoneyAndDarlingDay2",
+                  "Sets the score required to win the Honey & Darling minigame on Day 2.",
+                  WIDGET_CVAR_SLIDER_INT,
+                  { 1, 8, 8 } },
+                { "Honey & Darling Day 3 (Bow)",
+                  "gEnhancements.Minigames.HoneyAndDarlingDay3",
+                  "Sets the score required to win the Honey & Darling minigame on Day 3.",
+                  WIDGET_CVAR_SLIDER_INT,
+                  { 1, 16, 16 } },
+            },
             { { .widgetName = "Saving", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Persistent Owl Saves", "gEnhancements.Saving.PersistentOwlSaves",
                 "Continuing a save will not remove the owl save. Playing Song of "
