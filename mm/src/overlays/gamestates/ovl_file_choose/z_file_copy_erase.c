@@ -433,8 +433,9 @@ void FileSelect_CopyConfirm(GameState* thisx) {
         if (!gSaveContext.flashSaveAvailable) {
             this->configMode = CM_COPY_ANIM_1;
         } else {
-            Sram_SetFlashPagesDefault(sramCtx, gFlashSaveStartPages[this->copyDestFileIndex * 2],
-                                      gFlashSpecialSaveNumPages[this->copyDestFileIndex * 2]);
+            Sram_SetFlashPagesDefault(sramCtx,
+                                      gFlashSaveStartPages[this->copyDestFileIndex * FLASH_SAVE_MAIN_MULTIPLIER],
+                                      gFlashSpecialSaveNumPages[this->copyDestFileIndex * FLASH_SAVE_MAIN_MULTIPLIER]);
             Sram_StartWriteToFlashDefault(sramCtx);
             this->configMode = CM_COPY_WAIT_FOR_FLASH_SAVE;
         }
@@ -972,8 +973,9 @@ void FileSelect_EraseConfirm(GameState* thisx) {
         if (!gSaveContext.flashSaveAvailable) {
             this->configMode = CM_ERASE_ANIM_1;
         } else {
-            Sram_SetFlashPagesDefault(sramCtx, gFlashSaveStartPages[this->selectedFileIndex * 2],
-                                      gFlashSpecialSaveNumPages[this->selectedFileIndex * 2]);
+            Sram_SetFlashPagesDefault(sramCtx,
+                                      gFlashSaveStartPages[this->selectedFileIndex * FLASH_SAVE_MAIN_MULTIPLIER],
+                                      gFlashSpecialSaveNumPages[this->selectedFileIndex * FLASH_SAVE_MAIN_MULTIPLIER]);
             Sram_StartWriteToFlashDefault(sramCtx);
             this->configMode = CM_ERASE_WAIT_FOR_FLASH_SAVE;
         }
