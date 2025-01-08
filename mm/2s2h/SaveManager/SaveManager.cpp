@@ -5,15 +5,14 @@
 #include <nlohmann/json.hpp>
 #include <libultraship/libultraship.h>
 
-#include "macros.h"
 #include "BenJsonConversions.hpp"
 #include "BenPort.h"
 
 extern "C" {
+#include "z64save.h"
+#include "macros.h"
 #include "src/overlays/gamestates/ovl_file_choose/z_file_select.h"
 extern FileSelectState* gFileSelectState;
-
-u16 Sram_CalcChecksum(void* data, size_t count);
 }
 
 // This entire thing is temporary until we have a more robust save system that
@@ -30,9 +29,13 @@ typedef enum FlashSlotFile {
     /*  7 */ FLASH_SLOT_FILE_2_OWL_SAVE_BACKUP,
     /*  8 */ FLASH_SLOT_FILE_SRAM_HEADER,
     /*  9 */ FLASH_SLOT_FILE_SRAM_HEADER_BACKUP,
+    /* 10 */ FLASH_SLOT_MAX,
 } FlashSlotFile;
 
+#undef GET_NEWF
+
 #define GET_NEWF(save, index) (save.saveInfo.playerData.newf[index])
+
 #define IS_VALID_FILE(save)                                                                    \
     ((GET_NEWF(save, 0) == 'Z') && (GET_NEWF(save, 1) == 'E') && (GET_NEWF(save, 2) == 'L') && \
      (GET_NEWF(save, 3) == 'D') && (GET_NEWF(save, 4) == 'A') && (GET_NEWF(save, 5) == '3'))
@@ -184,7 +187,7 @@ int SaveManager_GetOpenFileSlot() {
 FlashSlotFile SaveManager_GetFlashSlotFileFromPages(u32 pageNum, u32 pageCount) {
     FlashSlotFile flashSlotFile = FLASH_SLOT_FILE_UNAVAILABLE;
 
-    for (u32 i = 0; i < ARRAY_COUNT(gFlashSaveStartPages) - 1; i++) {
+    for (u32 i = 0; i < FLASH_SLOT_MAX; i++) {
         // Verify that the requested pages align with expected values
         if (pageNum == (u32)gFlashSaveStartPages[i] &&
             (pageCount == (u32)gFlashSaveNumPages[i] || pageCount == (u32)gFlashSpecialSaveNumPages[i])) {
@@ -299,7 +302,9 @@ extern "C" void SaveManager_SysFlashrom_WriteData(u8* saveBuffer, u32 pageNum, u
     }
 
     // A new cycle save with the "special" page count means that both the regular slot and the backup slot should be
-    // saved together. We replicate that here by running the save again on the matching backup slot
+    // saved together. We replicate that here by running the save again on the matching backup slot.
+    // Note: This is not accounting for the sram header writing a disk backup. It does not feel important to do so.
+    // If we ever feel like we want a global save backup, then we just need to add it to this condition.
     if ((flashSlotFile == FLASH_SLOT_FILE_1_NEW_CYCLE || flashSlotFile == FLASH_SLOT_FILE_2_NEW_CYCLE) &&
         pageCount == (u32)gFlashSpecialSaveNumPages[flashSlotFile]) {
         SaveManager_SysFlashrom_WriteData(saveBuffer, gFlashSaveStartPages[flashSlotFile + 1],
@@ -393,6 +398,8 @@ extern "C" void SaveManager_SysFlashrom_WriteData(u8* saveBuffer, u32 pageNum, u
             }
             break;
         }
+        default:
+            break;
     }
 }
 

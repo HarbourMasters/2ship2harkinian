@@ -304,7 +304,7 @@ u8 gAmmoItems[ITEM_NUM_SLOTS] = {
 };
 
 // Stores flash start page number
-s32 gFlashSaveStartPages[10] = {
+s32 gFlashSaveStartPages[] = {
     0,     // File 1 New Cycle Save
     0x40,  // File 1 New Cycle Save Backup
     0x80,  // File 2 New Cycle Save
