@@ -251,35 +251,35 @@ void LifeMeter_Draw(PlayState* play) {
                     curColorSet = 0;
                     gDPPipeSync(OVERLAY_DISP++);
                     // Normal Heart
-                    gDPSetPrimColorWithOverride(OVERLAY_DISP++, 0, 0, interfaceCtx->heartsPrimR[0],
-                                                interfaceCtx->heartsPrimG[0], interfaceCtx->heartsPrimB[0],
-                                                interfaceCtx->healthAlpha, COSMETIC_ELEMENT_HEART_NORMAL);
+                    gDPSetPrimColorOverride(OVERLAY_DISP++, 0, 0, interfaceCtx->heartsPrimR[0],
+                                            interfaceCtx->heartsPrimG[0], interfaceCtx->heartsPrimB[0],
+                                            interfaceCtx->healthAlpha, COSMETIC_ELEMENT_HEART_NORMAL);
                     // Normal Heart Border
-                    gDPSetEnvColorWithOverride(OVERLAY_DISP++, interfaceCtx->heartsEnvR[0], interfaceCtx->heartsEnvG[0],
-                                               interfaceCtx->heartsEnvB[0], 255, COSMETIC_ELEMENT_HEART_BORDER);
+                    gDPSetEnvColorOverride(OVERLAY_DISP++, interfaceCtx->heartsEnvR[0], interfaceCtx->heartsEnvG[0],
+                                           interfaceCtx->heartsEnvB[0], 255, COSMETIC_ELEMENT_HEART_BORDER);
                 }
             } else if (i == fullHeartCount) {
                 if (curColorSet != 1) {
                     curColorSet = 1;
                     gDPPipeSync(OVERLAY_DISP++);
                     // Normal Beating Heart
-                    gDPSetPrimColorWithOverride(OVERLAY_DISP++, 0, 0, interfaceCtx->beatingHeartPrim[0],
-                                                interfaceCtx->beatingHeartPrim[1], interfaceCtx->beatingHeartPrim[2],
-                                                interfaceCtx->healthAlpha, COSMETIC_ELEMENT_HEART_NORMAL_BEATING);
+                    gDPSetPrimColorOverride(OVERLAY_DISP++, 0, 0, interfaceCtx->beatingHeartPrim[0],
+                                            interfaceCtx->beatingHeartPrim[1], interfaceCtx->beatingHeartPrim[2],
+                                            interfaceCtx->healthAlpha, COSMETIC_ELEMENT_HEART_NORMAL_BEATING);
                     // Normal Beating Heart Border
-                    gDPSetEnvColorWithOverride(OVERLAY_DISP++, interfaceCtx->beatingHeartEnv[0],
-                                               interfaceCtx->beatingHeartEnv[1], interfaceCtx->beatingHeartEnv[2], 255,
-                                               COSMETIC_ELEMENT_HEART_BORDER);
+                    gDPSetEnvColorOverride(OVERLAY_DISP++, interfaceCtx->beatingHeartEnv[0],
+                                           interfaceCtx->beatingHeartEnv[1], interfaceCtx->beatingHeartEnv[2], 255,
+                                           COSMETIC_ELEMENT_HEART_BORDER);
                 }
             } else if (fullHeartCount < i) {
                 if (curColorSet != 2) {
                     curColorSet = 2;
                     gDPPipeSync(OVERLAY_DISP++);
-                    gDPSetPrimColorWithOverride(OVERLAY_DISP++, 0, 0, interfaceCtx->heartsPrimR[0],
-                                                interfaceCtx->heartsPrimG[0], interfaceCtx->heartsPrimB[0],
-                                                interfaceCtx->healthAlpha, COSMETIC_ELEMENT_HEART_NORMAL);
-                    gDPSetEnvColorWithOverride(OVERLAY_DISP++, interfaceCtx->heartsEnvR[0], interfaceCtx->heartsEnvG[0],
-                                               interfaceCtx->heartsEnvB[0], 255, COSMETIC_ELEMENT_HEART_BORDER);
+                    gDPSetPrimColorOverride(OVERLAY_DISP++, 0, 0, interfaceCtx->heartsPrimR[0],
+                                            interfaceCtx->heartsPrimG[0], interfaceCtx->heartsPrimB[0],
+                                            interfaceCtx->healthAlpha, COSMETIC_ELEMENT_HEART_NORMAL);
+                    gDPSetEnvColorOverride(OVERLAY_DISP++, interfaceCtx->heartsEnvR[0], interfaceCtx->heartsEnvG[0],
+                                           interfaceCtx->heartsEnvB[0], 255, COSMETIC_ELEMENT_HEART_BORDER);
                 }
             } else {
                 if (curColorSet != 3) {
@@ -305,36 +305,36 @@ void LifeMeter_Draw(PlayState* play) {
                     curColorSet = 4;
                     gDPPipeSync(OVERLAY_DISP++);
                     // Double Defense Heart Border
-                    gDPSetPrimColorWithOverride(OVERLAY_DISP++, 0, 0, sHeartsDDPrim[0][0], sHeartsDDPrim[0][1],
-                                                sHeartsDDPrim[0][2], interfaceCtx->healthAlpha,
-                                                COSMETIC_ELEMENT_HEART_DD_BORDER);
+                    gDPSetPrimColorOverride(OVERLAY_DISP++, 0, 0, sHeartsDDPrim[0][0], sHeartsDDPrim[0][1],
+                                            sHeartsDDPrim[0][2], interfaceCtx->healthAlpha,
+                                            COSMETIC_ELEMENT_HEART_DD_BORDER);
                     // Double Defense Non Active Heart
-                    gDPSetEnvColorWithOverride(OVERLAY_DISP++, sHeartsDDEnv[0][0], sHeartsDDEnv[0][1],
-                                               sHeartsDDEnv[0][2], 255, COSMETIC_ELEMENT_HEART_DD);
+                    gDPSetEnvColorOverride(OVERLAY_DISP++, sHeartsDDEnv[0][0], sHeartsDDEnv[0][1], sHeartsDDEnv[0][2],
+                                           255, COSMETIC_ELEMENT_HEART_DD);
                 }
             } else if (i == fullHeartCount) {
                 if (curColorSet != 5) {
                     curColorSet = 5;
                     gDPPipeSync(OVERLAY_DISP++);
                     // Double Defense Beating Heart Border
-                    gDPSetPrimColorWithOverride(OVERLAY_DISP++, 0, 0, sBeatingHeartsDDPrim[0], sBeatingHeartsDDPrim[1],
-                                                sBeatingHeartsDDPrim[2], interfaceCtx->healthAlpha,
-                                                COSMETIC_ELEMENT_HEART_DD_BORDER);
+                    gDPSetPrimColorOverride(OVERLAY_DISP++, 0, 0, sBeatingHeartsDDPrim[0], sBeatingHeartsDDPrim[1],
+                                            sBeatingHeartsDDPrim[2], interfaceCtx->healthAlpha,
+                                            COSMETIC_ELEMENT_HEART_DD_BORDER);
                     // Double Defense Beating Heart
-                    gDPSetEnvColorWithOverride(OVERLAY_DISP++, sBeatingHeartsDDEnv[0], sBeatingHeartsDDEnv[1],
-                                               sBeatingHeartsDDEnv[2], 255, COSMETIC_ELEMENT_HEART_DD_BEATING);
+                    gDPSetEnvColorOverride(OVERLAY_DISP++, sBeatingHeartsDDEnv[0], sBeatingHeartsDDEnv[1],
+                                           sBeatingHeartsDDEnv[2], 255, COSMETIC_ELEMENT_HEART_DD_BEATING);
                 }
             } else if (i > fullHeartCount) {
                 if (curColorSet != 6) {
                     curColorSet = 6;
                     gDPPipeSync(OVERLAY_DISP++);
                     // Double Defense Empty Heart Border
-                    gDPSetPrimColorWithOverride(OVERLAY_DISP++, 0, 0, sHeartsDDPrim[0][0], sHeartsDDPrim[0][1],
-                                                sHeartsDDPrim[0][2], interfaceCtx->healthAlpha,
-                                                COSMETIC_ELEMENT_HEART_DD_BORDER);
+                    gDPSetPrimColorOverride(OVERLAY_DISP++, 0, 0, sHeartsDDPrim[0][0], sHeartsDDPrim[0][1],
+                                            sHeartsDDPrim[0][2], interfaceCtx->healthAlpha,
+                                            COSMETIC_ELEMENT_HEART_DD_BORDER);
                     // Double Defense Empty Heart
-                    gDPSetEnvColorWithOverride(OVERLAY_DISP++, sHeartsDDEnv[0][0], sHeartsDDEnv[0][1],
-                                               sHeartsDDEnv[0][2], 255, COSMETIC_ELEMENT_HEART_DD);
+                    gDPSetEnvColorOverride(OVERLAY_DISP++, sHeartsDDEnv[0][0], sHeartsDDEnv[0][1], sHeartsDDEnv[0][2],
+                                           255, COSMETIC_ELEMENT_HEART_DD);
                 }
             } else if (curColorSet != 7) {
                 curColorSet = 7;

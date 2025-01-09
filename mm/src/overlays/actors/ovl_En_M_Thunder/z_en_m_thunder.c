@@ -516,15 +516,15 @@ void EnMThunder_Draw(Actor* thisx, PlayState* play2) {
 
     switch (this->subtype) {
         case ENMTHUNDER_SUBTYPE_SPIN_GREAT:
-            gDPSetPrimColorWithOverride(POLY_XLU_DISP++, 0, 0x80, 255, 255, 170, (u16)(this->alphaFrac * 255.0f),
-                                        COSMETIC_ELEMENT_GREAT_SPIN_BURST);
+            gDPSetPrimColorOverride(POLY_XLU_DISP++, 0, 0x80, 255, 255, 170, (u16)(this->alphaFrac * 255.0f),
+                                    COSMETIC_ELEMENT_GREAT_SPIN_BURST);
             gSPDisplayList(POLY_XLU_DISP++, gGreatSpinAttackDiskDL);
             gSPDisplayList(POLY_XLU_DISP++, gGreatSpinAttackCylinderDL);
             break;
 
         case ENMTHUNDER_SUBTYPE_SPIN_REGULAR:
-            gDPSetPrimColorWithOverride(POLY_XLU_DISP++, 0, 0x80, 170, 255, 255, (u16)(this->alphaFrac * 255.0f),
-                                        COSMETIC_ELEMENT_SPIN_SLASH_BURST);
+            gDPSetPrimColorOverride(POLY_XLU_DISP++, 0, 0x80, 170, 255, 255, (u16)(this->alphaFrac * 255.0f),
+                                    COSMETIC_ELEMENT_SPIN_SLASH_BURST);
             gSPDisplayList(POLY_XLU_DISP++, gSpinAttackDiskDL);
             gSPDisplayList(POLY_XLU_DISP++, gSpinAttackCylinderDL);
             break;
@@ -561,14 +561,14 @@ void EnMThunder_Draw(Actor* thisx, PlayState* play2) {
 
     if (this->unk1B0 >= 0.85f) {
         scale = (sScales[play->gameplayFrames & 7] * 6.0f) + 1.0f;
-        gDPSetPrimColorWithOverride(POLY_XLU_DISP++, 0, 0x80, 255, 255, 170, this->chargingAlpha,
-                                    COSMETIC_ELEMENT_GREAT_SPIN_CHARGE);
+        gDPSetPrimColorOverride(POLY_XLU_DISP++, 0, 0x80, 255, 255, 170, this->chargingAlpha,
+                                COSMETIC_ELEMENT_GREAT_SPIN_CHARGE);
         gDPSetEnvColor(POLY_XLU_DISP++, 255, 100, 0, 128);
         y2Scroll = 40;
     } else {
         scale = (sScales[play->gameplayFrames & 7] * 2.0f) + 1.0f;
-        gDPSetPrimColorWithOverride(POLY_XLU_DISP++, 0, 0x80, 170, 255, 255, this->chargingAlpha,
-                                    COSMETIC_ELEMENT_SPIN_SLASH_CHARGE);
+        gDPSetPrimColorOverride(POLY_XLU_DISP++, 0, 0x80, 170, 255, 255, this->chargingAlpha,
+                                COSMETIC_ELEMENT_SPIN_SLASH_CHARGE);
         gDPSetEnvColor(POLY_XLU_DISP++, 0, 100, 255, 128);
         y2Scroll = 20;
     }

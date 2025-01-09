@@ -103,44 +103,42 @@ extern "C" Color_RGBA8 CosmeticEditor_GetChangedColor(u8 r, u8 g, u8 b, u8 a, u8
     return returnedColor;
 }
 
-extern "C" void gDPSetEnvColorWithOverride(Gfx* pkt, u8 r, u8 g, u8 b, u8 a, u8 elementId) {
+extern "C" void gDPSetEnvColorOverride(Gfx* pkt, u8 r, u8 g, u8 b, u8 a, u8 elementId) {
     Color_RGBA8 setColor = CosmeticEditor_GetChangedColor(r, g, b, a, elementId);
     gDPSetEnvColor(pkt, setColor.r, setColor.g, setColor.b, a);
 }
 
-extern "C" void gDPSetPrimColorWithOverride(Gfx* pkt, u8 m, u8 l, u8 r, u8 g, u8 b, u8 a, u8 elementId) {
+extern "C" void gDPSetPrimColorOverride(Gfx* pkt, u8 m, u8 l, u8 r, u8 g, u8 b, u8 a, u8 elementId) {
     Color_RGBA8 setColor = CosmeticEditor_GetChangedColor(r, g, b, a, elementId);
     gDPSetPrimColor(pkt, m, l, setColor.r, setColor.g, setColor.b, a);
 }
 
-extern "C" Gfx* Gfx_DrawTexRectIA8_DropShadowWithOverride(Gfx* pkt, TexturePtr texture, s16 textureWidth,
-                                                          s16 textureHeight, s16 rectLeft, s16 rectTop, s16 rectWidth,
-                                                          s16 rectHeight, u16 dsdx, u16 dtdy, s16 r, s16 g, s16 b,
-                                                          s16 a, u8 elementId) {
+extern "C" Gfx* Gfx_DrawTexRectIA8_DropShadowOverride(Gfx* pkt, TexturePtr texture, s16 textureWidth, s16 textureHeight,
+                                                      s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight,
+                                                      u16 dsdx, u16 dtdy, s16 r, s16 g, s16 b, s16 a, u8 elementId) {
     Color_RGBA8 setColor = CosmeticEditor_GetChangedColor(r, g, b, a, elementId);
     return Gfx_DrawTexRectIA8_DropShadow(pkt, texture, textureWidth, textureHeight, rectLeft, rectTop, rectWidth,
                                          rectHeight, dsdx, dtdy, setColor.r, setColor.g, setColor.b, a);
 }
 
-extern "C" Gfx* Gfx_DrawRect_DropShadowWithOverride(Gfx* pkt, s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight,
-                                                    u16 dsdx, u16 dtdy, s16 r, s16 g, s16 b, s16 a, u8 elementId) {
+extern "C" Gfx* Gfx_DrawRect_DropShadowOverride(Gfx* pkt, s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight,
+                                                u16 dsdx, u16 dtdy, s16 r, s16 g, s16 b, s16 a, u8 elementId) {
     Color_RGBA8 setColor = CosmeticEditor_GetChangedColor(r, g, b, a, elementId);
     return Gfx_DrawRect_DropShadow(pkt, rectLeft, rectTop, rectWidth, rectHeight, dsdx, dtdy, setColor.r, setColor.g,
                                    setColor.b, a);
 }
-extern "C" Gfx* Gfx_DrawTexRectIA16_DropShadowWithOverride(Gfx* pkt, TexturePtr texture, s16 textureWidth,
-                                                           s16 textureHeight, s16 rectLeft, s16 rectTop, s16 rectWidth,
-                                                           s16 rectHeight, u16 dsdx, u16 dtdy, s16 r, s16 g, s16 b,
-                                                           s16 a, u8 elementId) {
+extern "C" Gfx* Gfx_DrawTexRectIA16_DropShadowOverride(Gfx* pkt, TexturePtr texture, s16 textureWidth,
+                                                       s16 textureHeight, s16 rectLeft, s16 rectTop, s16 rectWidth,
+                                                       s16 rectHeight, u16 dsdx, u16 dtdy, s16 r, s16 g, s16 b, s16 a,
+                                                       u8 elementId) {
     Color_RGBA8 setColor = CosmeticEditor_GetChangedColor(r, g, b, a, elementId);
     return Gfx_DrawTexRectIA16_DropShadow(pkt, texture, textureWidth, textureHeight, rectLeft, rectTop, rectWidth,
                                           rectHeight, dsdx, dtdy, setColor.r, setColor.g, setColor.b, a);
 }
-extern "C" Gfx* Gfx_DrawTexRectIA8_DropShadowOffsetWithOverride(Gfx* pkt, TexturePtr texture, s16 textureWidth,
-                                                                s16 textureHeight, s16 rectLeft, s16 rectTop,
-                                                                s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy,
-                                                                s16 r, s16 g, s16 b, s16 a, s32 masks, s32 rects,
-                                                                u8 elementId) {
+extern "C" Gfx* Gfx_DrawTexRectIA8_DropShadowOffsetOverride(Gfx* pkt, TexturePtr texture, s16 textureWidth,
+                                                            s16 textureHeight, s16 rectLeft, s16 rectTop, s16 rectWidth,
+                                                            s16 rectHeight, u16 dsdx, u16 dtdy, s16 r, s16 g, s16 b,
+                                                            s16 a, s32 masks, s32 rects, u8 elementId) {
     Color_RGBA8 setColor = CosmeticEditor_GetChangedColor(r, g, b, a, elementId);
     return Gfx_DrawTexRectIA8_DropShadowOffset(pkt, texture, textureWidth, textureHeight, rectLeft, rectTop, rectWidth,
                                                rectHeight, dsdx, dtdy, setColor.r, setColor.g, setColor.b, a, masks,
