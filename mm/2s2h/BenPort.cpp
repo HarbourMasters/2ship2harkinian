@@ -56,6 +56,7 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "2s2h/SaveManager/SaveManager.h"
 #include "2s2h/ShipUtils.h"
+#include "2s2h/ShipInit.hpp"
 
 // Resource Types/Factories
 #include "resource/type/Blob.h"
@@ -163,7 +164,9 @@ OTRGlobals::OTRGlobals() {
     // tell LUS to reserve 3 SoH specific threads (Game, Audio, Save)
     context =
         Ship::Context::CreateInstance("2 Ship 2 Harkinian", appShortName, "2ship2harkinian.json", archiveFiles, {}, 3,
-                                      { .SampleRate = 44100, .SampleLength = 1024, .DesiredBuffered = 2480 });
+                                      { .SampleRate = 32000, .SampleLength = 1024, .DesiredBuffered = 1680 });
+
+    SPDLOG_INFO("Starting 2 Ship 2 Harkinian version {}", (char*)gBuildVersion);
 
     prevAltAssets = CVarGetInteger("gEnhancements.Mods.AlternateAssets", 0);
     context->GetResourceManager()->SetAltAssetsEnabled(prevAltAssets);
@@ -353,15 +356,8 @@ void OTRAudio_Thread() {
 // AudioMgr_ThreadEntry(&gAudioMgr);
 //  528 and 544 relate to 60 fps at 32 kHz 32000/60 = 533.333..
 //  in an ideal world, one third of the calls should use num_samples=544 and two thirds num_samples=528
-//#define SAMPLES_HIGH 560
-//#define SAMPLES_LOW 528
-//  PAL values
-//#define SAMPLES_HIGH 656
-//#define SAMPLES_LOW 624
-
-// 44KHZ values
-#define SAMPLES_HIGH 752
-#define SAMPLES_LOW 720
+#define SAMPLES_HIGH 560
+#define SAMPLES_LOW 528
 
 #define AUDIO_FRAMES_PER_UPDATE (R_UPDATE_RATE > 0 ? R_UPDATE_RATE : 1)
 #define NUM_AUDIO_CHANNELS 2
@@ -652,6 +648,7 @@ extern "C" void InitOTR() {
     GameInteractor::Instance = new GameInteractor();
     LoadGuiTextures();
     BenGui::SetupGuiElements();
+    ShipInit::InitAll();
     InitEnhancements();
     InitDeveloperTools();
     GfxPatcher_ApplyNecessaryAuthenticPatches();
@@ -1635,15 +1632,15 @@ extern "C" void OTRControllerCallback(uint8_t rumble) {
     static std::shared_ptr<BenInputEditorWindow> controllerConfigWindow = nullptr;
     if (controllerConfigWindow == nullptr) {
         controllerConfigWindow = std::dynamic_pointer_cast<BenInputEditorWindow>(
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Input Editor"));
-        // TODO: Add SoH Controller Config window rumble testing to upstream LUS config window
-        //       note: the current implementation may not be desired in LUS, as "true" rumble support
-        //             using osMotor calls is planned: https://github.com/Kenix3/libultraship/issues/9
-        //
-        // } else if (controllerConfigWindow->TestingRumble()) {
-        //     return;
+            Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("2S2H Input Editor"));
+        // note: the current implementation may not be desired in LUS, as "true" rumble support
+        //    using osMotor calls is planned: https://github.com/Kenix3/libultraship/issues/9
+    }
+    if (controllerConfigWindow->TestingRumble()) {
+        return;
     }
 
+    // TODO: other ports?
     if (rumble) {
         Ship::Context::GetInstance()->GetControlDeck()->GetControllerByPort(0)->GetRumble()->StartRumble();
     } else {

@@ -8,6 +8,7 @@
 #include <unordered_map>
 #include <string>
 #include "2s2h/Enhancements/Enhancements.h"
+#include "2s2h/Enhancements/Graphics/Graphics.h"
 #include "2s2h/Enhancements/GfxPatcher/AuthenticGfxPatches.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "HudEditor.h"
@@ -412,13 +413,11 @@ void DrawEnhancementsMenu() {
             }
 
             ImGui::SeparatorText("Free Look");
-            if (UIWidgets::CVarCheckbox(
-                    "Free Look", "gEnhancements.Camera.FreeLook.Enable",
-                    { .tooltip = "Enables free look camera control\nNote: You must remap C buttons off of the right "
-                                 "stick in the controller config menu, and map the camera stick to the right stick.",
-                      .disabled = CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0) != 0 })) {
-                RegisterCameraFreeLook();
-            }
+            UIWidgets::CVarCheckbox(
+                "Free Look", "gEnhancements.Camera.FreeLook.Enable",
+                { .tooltip = "Enables free look camera control\nNote: You must remap C buttons off of the right "
+                             "stick in the controller config menu, and map the camera stick to the right stick.",
+                  .disabled = CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0) != 0 });
 
             if (CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0)) {
                 UIWidgets::CVarCheckbox("Invert Camera X Axis", "gEnhancements.Camera.RightStick.InvertXAxis",
@@ -445,12 +444,9 @@ void DrawEnhancementsMenu() {
             }
 
             ImGui::SeparatorText("'Debug' Camera");
-            if (UIWidgets::CVarCheckbox(
-                    "Debug Camera", "gEnhancements.Camera.DebugCam.Enable",
-                    { .tooltip = "Enables free camera control.",
-                      .disabled = CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0) != 0 })) {
-                RegisterDebugCam();
-            }
+            UIWidgets::CVarCheckbox("Debug Camera", "gEnhancements.Camera.DebugCam.Enable",
+                                    { .tooltip = "Enables free camera control.",
+                                      .disabled = CVarGetInteger("gEnhancements.Camera.FreeLook.Enable", 0) != 0 });
 
             if (CVarGetInteger("gEnhancements.Camera.DebugCam.Enable", 0)) {
                 UIWidgets::CVarCheckbox("Invert Camera X Axis", "gEnhancements.Camera.RightStick.InvertXAxis",
@@ -571,7 +567,17 @@ void DrawEnhancementsMenu() {
                       "the Rupees to Links current Rupees or 0 respectively." });
             UIWidgets::CVarCheckbox(
                 "Fast Text", "gEnhancements.Dialogue.FastText",
-                { .tooltip = "Speeds up text rendering, and enables holding of B progress to next message" });
+                { .tooltip = "Speeds up text rendering, and enables holding of B progress to next message." });
+
+            ImGui::EndMenu();
+        }
+
+        if (UIWidgets::BeginMenu("TimeSavers")) {
+            UIWidgets::CVarCheckbox(
+                "Swamp Boat Timesaver", "gEnhancements.Timesavers.SwampBoatSpeed",
+                { .tooltip = "Pictograph Tour: Hold Z to speed up the boat. Archery: Score 20 points to unlock boat "
+                             "speed up for future attempts. When reaching 20 points, you'll be automatically "
+                             "transported back to Koume, completing the minigame." });
 
             ImGui::EndMenu();
         }
@@ -591,6 +597,10 @@ void DrawEnhancementsMenu() {
                 "Instant Fin Boomerangs Recall", "gEnhancements.PlayerActions.InstantRecall",
                 { .tooltip =
                       "Pressing B will instantly recall the fin boomerang back to Zora Link after they are thrown." });
+
+            UIWidgets::CVarCheckbox(
+                "Arrow Type Cycling", "gEnhancements.PlayerActions.ArrowCycle",
+                { .tooltip = "While aiming the bow, use L to cycle between Normal, Fire, Ice and Light arrows." });
 
             UIWidgets::CVarCheckbox(
                 "Two-Handed Sword Spin Attack", "gEnhancements.Equipment.TwoHandedSwordSpinAttack",
@@ -651,10 +661,8 @@ void DrawEnhancementsMenu() {
                                                  "model and texture on the boot logo start screen" });
             UIWidgets::CVarCheckbox("Bow Reticle", "gEnhancements.Graphics.BowReticle",
                                     { .tooltip = "Gives the bow a reticle when you draw an arrow" });
-            if (UIWidgets::CVarCheckbox("3D Item Drops", "gEnhancements.Graphics.3DItemDrops",
-                                        { .tooltip = "Makes item drops 3D" })) {
-                Register3DItemDrops();
-            }
+            UIWidgets::CVarCheckbox("3D Item Drops", "gEnhancements.Graphics.3DItemDrops",
+                                    { .tooltip = "Makes item drops 3D" });
             UIWidgets::CVarCheckbox(
                 "Disable Black Bar Letterboxes", "gEnhancements.Graphics.DisableBlackBars",
                 { .tooltip = "Disables Black Bar Letterboxes during cutscenes and Z-targeting\nNote: there may be "
@@ -688,11 +696,9 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere",
                                     { .tooltip = "Allow using Fierce Deity's mask outside of boss rooms." });
             UIWidgets::CVarCheckbox("No Blast Mask Cooldown", "gEnhancements.Masks.NoBlastMaskCooldown", {});
-            if (UIWidgets::CVarCheckbox("Persistent Bunny Hood", "gEnhancements.Masks.PersistentBunnyHood.Enabled",
-                                        { .tooltip = "Permanently toggle a speed boost from the bunny hood by pressing "
-                                                     "'A' on it in the mask menu." })) {
-                UpdatePersistentMasksState();
-            }
+            UIWidgets::CVarCheckbox("Persistent Bunny Hood", "gEnhancements.Masks.PersistentBunnyHood.Enabled",
+                                    { .tooltip = "Permanently toggle a speed boost from the bunny hood by pressing "
+                                                 "'A' on it in the mask menu." });
 
             ImGui::EndMenu();
         }
@@ -719,9 +725,7 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Hyrule Warriors Young Link", "gModes.HyruleWarriorsStyledLink",
                                     { .tooltip = "When acquired, places the Keaton and Fierce Deity masks on Link "
                                                  "similarly to how he wears them in Hyrule Warriors" });
-            if (UIWidgets::CVarCheckbox("Time Moves When You Move", "gModes.TimeMovesWhenYouMove")) {
-                RegisterTimeMovesWhenYouMove();
-            }
+            UIWidgets::CVarCheckbox("Time Moves When You Move", "gModes.TimeMovesWhenYouMove");
             if (UIWidgets::CVarCheckbox("Mirrored World", "gModes.MirroredWorld.Mode")) {
                 if (CVarGetInteger("gModes.MirroredWorld.Mode", 0)) {
                     CVarSetInteger("gModes.MirroredWorld.State", 1);
@@ -736,12 +740,9 @@ void DrawEnhancementsMenu() {
         if (UIWidgets::BeginMenu("Player")) {
             UIWidgets::CVarSliderInt("Climb speed", "gEnhancements.Player.ClimbSpeed", 1, 5, 1,
                                      { .tooltip = "Increases the speed at which Link climbs vines and ladders." });
-            if (UIWidgets::CVarCheckbox("Fast Deku Flower Launch", "gEnhancements.Player.FastFlowerLaunch",
-                                        { .tooltip =
-                                              "Speeds up the time it takes to be able to get maximum height from "
-                                              "launching out of a deku flower" })) {
-                RegisterFastFlowerLaunch();
-            }
+            UIWidgets::CVarCheckbox("Fast Deku Flower Launch", "gEnhancements.Player.FastFlowerLaunch",
+                                    { .tooltip = "Speeds up the time it takes to be able to get maximum height from "
+                                                 "launching out of a deku flower" });
             UIWidgets::CVarCheckbox("Instant Putaway", "gEnhancements.Player.InstantPutaway",
                                     { .tooltip = "Allows Link to instantly puts away held item without waiting." });
             UIWidgets::CVarCheckbox("Fierce Deity Putaway", "gEnhancements.Player.FierceDeityPutaway",
@@ -762,13 +763,11 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Tatl ISG", "gEnhancements.Restorations.TatlISG",
                                     { .tooltip = "Restores Navi ISG from OOT, but now with Tatl." });
 
-            if (UIWidgets::CVarCheckbox(
-                    "Woodfall Mountain Appearance", "gEnhancements.Restorations.WoodfallMountainAppearance",
-                    { .tooltip = "Restores the appearance of Woodfall mountain to not look poisoned "
-                                 "when viewed from Termina Field after clearing Woodfall Temple\n\n"
-                                 "Requires a scene reload to take effect" })) {
-                RegisterWoodfallMountainAppearance();
-            }
+            UIWidgets::CVarCheckbox("Woodfall Mountain Appearance",
+                                    "gEnhancements.Restorations.WoodfallMountainAppearance",
+                                    { .tooltip = "Restores the appearance of Woodfall mountain to not look poisoned "
+                                                 "when viewed from Termina Field after clearing Woodfall Temple\n\n"
+                                                 "Requires a scene reload to take effect" });
 
             ImGui::EndMenu();
         }
@@ -786,8 +785,12 @@ void DrawEnhancementsMenu() {
             UIWidgets::CVarCheckbox("Skip Scarecrow Song", "gEnhancements.Playback.SkipScarecrowSong",
                                     { .tooltip = "Pierre appears when the Ocarina is pulled out." });
             UIWidgets::CVarCheckbox("Pause Owl Warp", "gEnhancements.Songs.PauseOwlWarp",
-                                    { .tooltip = "Allows the player to use the pause menu map to owl warp instead of "
-                                                 "having to play the Song of Soaring." });
+                                    { .tooltip =
+                                          "Allows warping to registered Owl Statues from the pause menu map screen. "
+                                          "Requires that you can play Song of Soaring normally.\n\n"
+                                          "Accounts for Index-Warp being active, by presenting all valid warps for "
+                                          "the registered map points. "
+                                          "Great Bay Coast warp is always given for index 0 warp as a convenience." });
             UIWidgets::CVarSliderInt("Zora Eggs For Bossa Nova", "gEnhancements.Songs.ZoraEggCount", 1, 7, 7,
                                      { .tooltip = "The number of eggs required to unlock new wave bossa nova." });
 
@@ -795,11 +798,9 @@ void DrawEnhancementsMenu() {
         }
 
         if (UIWidgets::BeginMenu("Difficulty Options")) {
-            if (UIWidgets::CVarCheckbox("Disable Takkuri Steal", "gEnhancements.Cheats.DisableTakkuriSteal",
-                                        { .tooltip = "Prevents the Takkuri from stealing key items like bottles and "
-                                                     "swords. It may still steal other items." })) {
-                RegisterDisableTakkuriSteal();
-            }
+            UIWidgets::CVarCheckbox("Disable Takkuri Steal", "gEnhancements.Cheats.DisableTakkuriSteal",
+                                    { .tooltip = "Prevents the Takkuri from stealing key items like bottles and "
+                                                 "swords. It may still steal other items." });
 
             UIWidgets::CVarCombobox(
                 "Deku Guard Search Balls", "gEnhancements.Cheats.DekuGuardSearchBalls", dekuGuardSearchBallsOptions,
@@ -841,21 +842,17 @@ void DrawCheatsMenu() {
         UIWidgets::CVarCheckbox("Infinite Magic", "gCheats.InfiniteMagic");
         UIWidgets::CVarCheckbox("Infinite Rupees", "gCheats.InfiniteRupees");
         UIWidgets::CVarCheckbox("Infinite Consumables", "gCheats.InfiniteConsumables");
-        if (UIWidgets::CVarCheckbox(
-                "Longer Deku Flower Glide", "gCheats.LongerFlowerGlide",
-                { .tooltip = "Allows Deku Link to glide longer, no longer dropping after a certain distance" })) {
-            RegisterLongerFlowerGlide();
-        }
+        UIWidgets::CVarCheckbox(
+            "Longer Deku Flower Glide", "gCheats.LongerFlowerGlide",
+            { .tooltip = "Allows Deku Link to glide longer, no longer dropping after a certain distance" });
         UIWidgets::CVarCheckbox("No Clip", "gCheats.NoClip");
         UIWidgets::CVarCheckbox("Unbreakable Razor Sword", "gCheats.UnbreakableRazorSword");
         UIWidgets::CVarCheckbox("Unrestricted Items", "gCheats.UnrestrictedItems");
         UIWidgets::CVarCheckbox("Hookshot Anywhere", "gCheats.HookshotAnywhere",
                                 { .tooltip = "Allows most surfaces to be hookshot-able" });
 
-        if (UIWidgets::CVarCheckbox("Moon Jump on L", "gCheats.MoonJumpOnL",
-                                    { .tooltip = "Holding L makes you float into the air" })) {
-            RegisterMoonJumpOnL();
-        }
+        UIWidgets::CVarCheckbox("Moon Jump on L", "gCheats.MoonJumpOnL",
+                                { .tooltip = "Holding L makes you float into the air" });
         UIWidgets::CVarCheckbox("Elegy of Emptiness Anywhere", "gCheats.ElegyAnywhere",
                                 { .tooltip = "Allows Elegy of Emptiness outside of Ikana" });
         UIWidgets::CVarCombobox(

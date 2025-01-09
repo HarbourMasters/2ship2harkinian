@@ -903,7 +903,7 @@ void AddEnhancements() {
                 "stick in the controller config menu, and map the camera stick to the right stick.",
                 WIDGET_CVAR_CHECKBOX,
                 {},
-                [](widgetInfo& info) { RegisterCameraFreeLook(); },
+                nullptr,
                 [](widgetInfo& info) {
                     if (disabledMap.at(DISABLE_FOR_DEBUG_CAM_ON).active)
                         info.activeDisables.push_back(DISABLE_FOR_DEBUG_CAM_ON);
@@ -941,7 +941,7 @@ void AddEnhancements() {
                 "Enables free camera control.",
                 WIDGET_CVAR_CHECKBOX,
                 {},
-                ([](widgetInfo& info) { RegisterDebugCam(); }),
+                nullptr,
                 [](widgetInfo& info) {
                     if (disabledMap.at(DISABLE_FOR_FREE_LOOK_ON).active) {
                         info.activeDisables.push_back(DISABLE_FOR_FREE_LOOK_ON);
@@ -1016,12 +1016,12 @@ void AddEnhancements() {
               { "Infinite Rupees", "gCheats.InfiniteRupees", "Always have a full Wallet.", WIDGET_CVAR_CHECKBOX, {} },
               { "Infinite Consumables", "gCheats.InfiniteConsumables",
                 "Always have max Consumables, you must have collected the consumables first.", WIDGET_CVAR_CHECKBOX },
-              { "Longer Deku Flower Glide",
-                "gCheats.LongerFlowerGlide",
+              { "Easy Frame Advance", "gCheats.EasyFrameAdvance",
+                "Continue holding START button when unpausing to only advance a single frame and then re-pause",
+                WIDGET_CVAR_CHECKBOX },
+              { "Longer Deku Flower Glide", "gCheats.LongerFlowerGlide",
                 "Allows Deku Link to glide longer, no longer dropping after a certain distance.",
-                WIDGET_CVAR_CHECKBOX,
-                {},
-                [](widgetInfo& info) { RegisterLongerFlowerGlide(); } },
+                WIDGET_CVAR_CHECKBOX },
               { "No Clip", "gCheats.NoClip", "Allows Link to phase through collision.", WIDGET_CVAR_CHECKBOX },
               { "Unbreakable Razor Sword", "gCheats.UnbreakableRazorSword",
                 "Allows to Razor Sword to be used indefinitely without dulling its blade.", WIDGET_CVAR_CHECKBOX },
@@ -1029,12 +1029,8 @@ void AddEnhancements() {
                 WIDGET_CVAR_CHECKBOX },
               { "Hookshot Anywhere", "gCheats.HookshotAnywhere", "Allows most surfaces to be hookshot-able",
                 WIDGET_CVAR_CHECKBOX },
-              { "Moon Jump on L",
-                "gCheats.MoonJumpOnL",
-                "Holding L makes you float into the air.",
-                WIDGET_CVAR_CHECKBOX,
-                {},
-                [](widgetInfo& info) { RegisterMoonJumpOnL(); } },
+              { "Moon Jump on L", "gCheats.MoonJumpOnL", "Holding L makes you float into the air.",
+                WIDGET_CVAR_CHECKBOX },
               { "Elegy of Emptiness Anywhere", "gCheats.ElegyAnywhere", "Allows Elegy of Emptiness outside of Ikana",
                 WIDGET_CVAR_CHECKBOX },
               { "Stop Time in Dungeons",
@@ -1051,12 +1047,9 @@ void AddEnhancements() {
         { "Gameplay",
           3,
           { { { .widgetName = "Player", .widgetType = WIDGET_SEPARATOR_TEXT },
-              { "Fast Deku Flower Launch",
-                "gEnhancements.Player.FastFlowerLaunch",
+              { "Fast Deku Flower Launch", "gEnhancements.Player.FastFlowerLaunch",
                 "Speeds up the time it takes to be able to get maximum height from launching out of a deku flower",
-                WIDGET_CVAR_CHECKBOX,
-                {},
-                ([](widgetInfo& info) { RegisterFastFlowerLaunch(); }) },
+                WIDGET_CVAR_CHECKBOX },
               { "Instant Putaway", "gEnhancements.Player.InstantPutaway",
                 "Allows Link to instantly puts away held item without waiting.", WIDGET_CVAR_CHECKBOX },
               { "Fierce Deity Putaway", "gEnhancements.Player.FierceDeityPutaway",
@@ -1068,29 +1061,6 @@ void AddEnhancements() {
                 { 1, 5, 1 } },
               { "Dpad Equips", "gEnhancements.Dpad.DpadEquips", "Allows you to equip items to your d-pad",
                 WIDGET_CVAR_CHECKBOX },
-              { "Always Win Doggy Race",
-                "gEnhancements.Minigames.AlwaysWinDoggyRace",
-                "Makes the Doggy Race easier to win.",
-                WIDGET_CVAR_COMBOBOX,
-                { .comboBoxOptions = alwaysWinDoggyraceOptions } },
-              { "Milk Run Reward Options",
-                "gEnhancements.Minigames.CremiaHugs",
-                "Choose what reward you get for winning the Milk Run minigame after the first time. \n"
-                "-Vanilla: Reward is Random\n"
-                "-Hug: Get the hugging cutscene\n"
-                "-Rupee: Get the rupee reward",
-                WIDGET_CVAR_COMBOBOX,
-                { .comboBoxOptions = cremiaRewardOptions } },
-              { "Cucco Shack Cucco Count",
-                "gEnhancements.Minigames.CuccoShackCuccoCount",
-                "Choose how many cuccos you need to raise to make Grog happy.",
-                WIDGET_CVAR_SLIDER_INT,
-                { 1, 10, 10 } },
-              { "Swordsman School Winning Score",
-                "gEnhancements.Minigames.SwordsmanSchoolScore",
-                "Sets the score required to win the Swordsman School.",
-                WIDGET_CVAR_SLIDER_INT,
-                { 1, 30, 30 } },
               { "Fast Magic Arrow Equip Animation", "gEnhancements.Equipment.MagicArrowEquipSpeed",
                 "Removes the animation for equipping Magic Arrows.", WIDGET_CVAR_CHECKBOX },
               { "Instant Fin Boomerangs Recall", "gEnhancements.PlayerActions.InstantRecall",
@@ -1098,31 +1068,84 @@ void AddEnhancements() {
                 WIDGET_CVAR_CHECKBOX },
               { "Two-Handed Sword Spin Attack", "gEnhancements.Equipment.TwoHandedSwordSpinAttack",
                 "Enables magic spin attacks for the Fierce Deity Sword and Great Fairy's Sword.",
-                WIDGET_CVAR_CHECKBOX } },
-            { { .widgetName = "Modes", .widgetType = WIDGET_SEPARATOR_TEXT },
-              { "Play as Kafei", "gModes.PlayAsKafei", "Requires scene reload to take effect.", WIDGET_CVAR_CHECKBOX },
-              { "Hyrule Warriors Styled Link", "gModes.HyruleWarriorsStyledLink",
-                "When acquired, places the Keaton and Fierce Deity masks on Link similarly to how he wears them in "
-                "Hyrule Warriors",
                 WIDGET_CVAR_CHECKBOX },
-              { "Time Moves when you Move",
-                "gModes.TimeMovesWhenYouMove",
-                "Time only moves when Link is not standing still.",
-                WIDGET_CVAR_CHECKBOX,
-                {},
-                ([](widgetInfo& info) { RegisterTimeMovesWhenYouMove(); }) },
-              { "Mirrored World",
-                "gModes.MirroredWorld.Mode",
-                "Mirrors the world horizontally.",
-                WIDGET_CVAR_CHECKBOX,
-                {},
-                ([](widgetInfo& info) {
-                    if (CVarGetInteger("gModes.MirroredWorld.Mode", 0)) {
-                        CVarSetInteger("gModes.MirroredWorld.State", 1);
-                    } else {
-                        CVarClear("gModes.MirroredWorld.State");
-                    }
-                }) } },
+              { "Arrow Type Cycling", "gEnhancements.PlayerActions.ArrowCycle",
+                "While aiming the bow, use L to cycle between Normal, Fire, Ice and Light arrows.",
+                WIDGET_CVAR_CHECKBOX } },
+            {
+                { .widgetName = "Modes", .widgetType = WIDGET_SEPARATOR_TEXT },
+                { "Play as Kafei", "gModes.PlayAsKafei", "Requires scene reload to take effect.",
+                  WIDGET_CVAR_CHECKBOX },
+                { "Hyrule Warriors Styled Link", "gModes.HyruleWarriorsStyledLink",
+                  "When acquired, places the Keaton and Fierce Deity masks on Link similarly to how he wears them in "
+                  "Hyrule Warriors",
+                  WIDGET_CVAR_CHECKBOX },
+                { "Time Moves when you Move", "gModes.TimeMovesWhenYouMove",
+                  "Time only moves when Link is not standing still.", WIDGET_CVAR_CHECKBOX },
+                { "Mirrored World",
+                  "gModes.MirroredWorld.Mode",
+                  "Mirrors the world horizontally.",
+                  WIDGET_CVAR_CHECKBOX,
+                  {},
+                  ([](widgetInfo& info) {
+                      if (CVarGetInteger("gModes.MirroredWorld.Mode", 0)) {
+                          CVarSetInteger("gModes.MirroredWorld.State", 1);
+                      } else {
+                          CVarClear("gModes.MirroredWorld.State");
+                      }
+                  }) },
+                { .widgetName = "Minigames", .widgetType = WIDGET_SEPARATOR_TEXT },
+                { "Always Win Doggy Race",
+                  "gEnhancements.Minigames.AlwaysWinDoggyRace",
+                  "Makes the Doggy Race easier to win.",
+                  WIDGET_CVAR_COMBOBOX,
+                  { .comboBoxOptions = alwaysWinDoggyraceOptions } },
+                { "Milk Run Reward Options",
+                  "gEnhancements.Minigames.CremiaHugs",
+                  "Choose what reward you get for winning the Milk Run minigame after the first time. \n"
+                  "-Vanilla: Reward is Random\n"
+                  "-Hug: Get the hugging cutscene\n"
+                  "-Rupee: Get the rupee reward",
+                  WIDGET_CVAR_COMBOBOX,
+                  { .comboBoxOptions = cremiaRewardOptions } },
+                { "Cucco Shack Cucco Count",
+                  "gEnhancements.Minigames.CuccoShackCuccoCount",
+                  "Choose how many cuccos you need to raise to make Grog happy.",
+                  WIDGET_CVAR_SLIDER_INT,
+                  { 1, 10, 10 } },
+                { "Swordsman School Winning Score",
+                  "gEnhancements.Minigames.SwordsmanSchoolScore",
+                  "Sets the score required to win the Swordsman School.",
+                  WIDGET_CVAR_SLIDER_INT,
+                  { 1, 30, 30 } },
+                { "Swamp Archery Perfect Score",
+                  "gEnhancements.Minigames.SwampArcheryScore",
+                  "Sets the score required to win the Swamp Archery minigame, if this is changed it also speeds up the "
+                  "final score counting.",
+                  WIDGET_CVAR_SLIDER_INT,
+                  { 1000, 2180, 2180 } },
+                { "Town Archery Perfect Score",
+                  "gEnhancements.Minigames.TownArcheryScore",
+                  "Sets the score required to win the Town Archery minigame. Reaching this score will end the "
+                  "minigame.",
+                  WIDGET_CVAR_SLIDER_INT,
+                  { 1, 50, 50 } },
+                { "Honey & Darling Day 1 (Bombchus)",
+                  "gEnhancements.Minigames.HoneyAndDarlingDay1",
+                  "Sets the score required to win the Honey & Darling minigame on Day 1.",
+                  WIDGET_CVAR_SLIDER_INT,
+                  { 1, 8, 8 } },
+                { "Honey & Darling Day 2 (Bombs)",
+                  "gEnhancements.Minigames.HoneyAndDarlingDay2",
+                  "Sets the score required to win the Honey & Darling minigame on Day 2.",
+                  WIDGET_CVAR_SLIDER_INT,
+                  { 1, 8, 8 } },
+                { "Honey & Darling Day 3 (Bow)",
+                  "gEnhancements.Minigames.HoneyAndDarlingDay3",
+                  "Sets the score required to win the Honey & Darling minigame on Day 3.",
+                  WIDGET_CVAR_SLIDER_INT,
+                  { 1, 16, 16 } },
+            },
             { { .widgetName = "Saving", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Persistent Owl Saves", "gEnhancements.Saving.PersistentOwlSaves",
                 "Continuing a save will not remove the owl save. Playing Song of "
@@ -1243,12 +1266,7 @@ void AddEnhancements() {
                                     disabledMap.at(DISABLE_FOR_MOTION_BLUR_OFF).active;
                 } },
               { .widgetName = "Other", .widgetType = WIDGET_SEPARATOR_TEXT },
-              { "3D Item Drops",
-                "gEnhancements.Graphics.3DItemDrops",
-                "Makes item drops 3D",
-                WIDGET_CVAR_CHECKBOX,
-                {},
-                [](widgetInfo& info) { Register3DItemDrops(); } },
+              { "3D Item Drops", "gEnhancements.Graphics.3DItemDrops", "Makes item drops 3D", WIDGET_CVAR_CHECKBOX },
               { "Authentic Logo", "gEnhancements.Graphics.AuthenticLogo",
                 "Hide the game version and build details and display the authentic "
                 "model and texture on the boot logo start screen",
@@ -1293,13 +1311,10 @@ void AddEnhancements() {
                 "Removes the delay when using transformation masks.", WIDGET_CVAR_CHECKBOX },
               { "Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere",
                 "Allow using Fierce Deity's mask outside of boss rooms.", WIDGET_CVAR_CHECKBOX },
-              { "Persistent Bunny Hood",
-                "gEnhancements.Masks.PersistentBunnyHood.Enabled",
+              { "Persistent Bunny Hood", "gEnhancements.Masks.PersistentBunnyHood.Enabled",
                 "Permanently toggle a speed boost from the bunny hood by pressing "
                 "'A' on it in the mask menu.",
-                WIDGET_CVAR_CHECKBOX,
-                {},
-                [](widgetInfo& info) { UpdatePersistentMasksState(); } },
+                WIDGET_CVAR_CHECKBOX },
               { "No Blast Mask Cooldown", "gEnhancements.Masks.NoBlastMaskCooldown",
                 "Eliminates the Cooldown between Blast Mask usage.", WIDGET_CVAR_CHECKBOX } },
             // Song Enhancements
@@ -1316,8 +1331,10 @@ void AddEnhancements() {
               { "Dpad Ocarina", "gEnhancements.Playback.DpadOcarina", "Enables using the Dpad for Ocarina playback.",
                 WIDGET_CVAR_CHECKBOX },
               { "Pause Owl Warp", "gEnhancements.Songs.PauseOwlWarp",
-                "Allows the player to use the pause menu map to owl warp instead of "
-                "having to play the Song of Soaring.",
+                "Allows warping to registered Owl Statues from the pause menu map screen. "
+                "Requires that you can play Song of Soaring normally.\n\n"
+                "Accounts for Index-Warp being active, by presenting all valid warps for the registered map points. "
+                "Great Bay Coast warp is always given for index 0 warp as a convenience.",
                 WIDGET_CVAR_CHECKBOX },
               { "Zora Eggs For Bossa Nova",
                 "gEnhancements.Songs.ZoraEggCount",
@@ -1328,12 +1345,8 @@ void AddEnhancements() {
                 "Prevent dropping inputs when playing the ocarina quickly.", WIDGET_CVAR_CHECKBOX },
               { "Skip Scarecrow Song", "gEnhancements.Playback.SkipScarecrowSong",
                 "Pierre appears when the Ocarina is pulled out.", WIDGET_CVAR_CHECKBOX },
-              { "Faster Song Playback",
-                "gEnhancements.Songs.FasterSongPlayback",
-                "Speeds up the playback of songs.",
-                WIDGET_CVAR_CHECKBOX,
-                {},
-                [](widgetInfo& info) { RegisterFasterSongPlayback(); } } } } });
+              { "Faster Song Playback", "gEnhancements.Songs.FasterSongPlayback", "Speeds up the playback of songs.",
+                WIDGET_CVAR_CHECKBOX } } } });
     enhancementsSidebar.push_back(
         { "Time Savers",
           3,
@@ -1371,6 +1384,13 @@ void AddEnhancements() {
                 WIDGET_CVAR_CHECKBOX },
               { "Fast Text", "gEnhancements.Dialogue.FastText",
                 "Speeds up text rendering, and enables holding of B progress to next message.",
+                WIDGET_CVAR_CHECKBOX } },
+            // Other
+            { { .widgetName = "Other", .widgetType = WIDGET_SEPARATOR_TEXT },
+              { "Swamp Boat Timesaver", "gEnhancements.Timesavers.SwampBoatSpeed",
+                "Pictograph Tour: Hold Z to speed up the boat. Archery: Score 20 points to unlock boat speed up for "
+                "future attempts. When reaching 20 points, you'll be automatically transported back to Koume, "
+                "completing the minigame.",
                 WIDGET_CVAR_CHECKBOX } } } });
     enhancementsSidebar.push_back(
         { "Fixes",
@@ -1417,24 +1437,18 @@ void AddEnhancements() {
                 WIDGET_CVAR_CHECKBOX },
               { "Tatl ISG", "gEnhancements.Restorations.TatlISG", "Restores Navi ISG from OoT, but now with Tatl.",
                 WIDGET_CVAR_CHECKBOX },
-              { "Woodfall Mountain Appearance",
-                "gEnhancements.Restorations.WoodfallMountainAppearance",
+              { "Woodfall Mountain Appearance", "gEnhancements.Restorations.WoodfallMountainAppearance",
                 "Restores the appearance of Woodfall mountain to not look poisoned "
                 "when viewed from Termina Field after clearing Woodfall Temple\n\n"
                 "Requires a scene reload to take effect",
-                WIDGET_CVAR_CHECKBOX,
-                {},
-                [](widgetInfo& info) { RegisterWoodfallMountainAppearance(); } } } } });
+                WIDGET_CVAR_CHECKBOX } } } });
 
     enhancementsSidebar.push_back(
         { "Difficulty Options",
           3,
-          { { { "Disable Takkuri Steal",
-                "gEnhancements.Cheats.DisableTakkuriSteal",
+          { { { "Disable Takkuri Steal", "gEnhancements.Cheats.DisableTakkuriSteal",
                 "Prevents the Takkuri from stealing key items like bottles and swords. It may still steal other items.",
-                WIDGET_CVAR_CHECKBOX,
-                {},
-                [](widgetInfo& info) { RegisterDisableTakkuriSteal(); } },
+                WIDGET_CVAR_CHECKBOX },
               { "Deku Guard Search Balls",
                 "gEnhancements.Cheats.DekuGuardSearchBalls",
                 "Choose when to show the Deku Palace Guards' search balls\n"
