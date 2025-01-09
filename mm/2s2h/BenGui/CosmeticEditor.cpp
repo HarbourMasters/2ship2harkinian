@@ -82,14 +82,13 @@ void CopyFloatArray(CosmeticEditorElementID id, float currentColor[4], bool isCh
     }
 };
 
-Color_RGBA8 CosmeticEditor_getChangedColor(u8 r, u8 g, u8 b, u8 a, const char* cvar) {
-    std::string cvarString = "gCosmetic.";
-    cvarString += cvar;
+extern "C" Color_RGBA8 CosmeticEditor_GetChangedColor(u8 r, u8 g, u8 b, u8 a, u8 elementId) {
+    CosmeticEditorElement element = cosmeticEditorElements[elementId];
 
     Color_RGBA8 returnedColor;
 
-    if (CVarGetInteger((cvarString + ".Changed").c_str(), false)) {
-        Color_RGBA8 changedColor = CVarGetColor((cvarString + ".Color").c_str(), {});
+    if (CVarGetInteger(element.colorChangedCvar, false)) {
+        Color_RGBA8 changedColor = CVarGetColor(element.colorCvar, {});
         returnedColor.r = static_cast<uint8_t>(changedColor.r);
         returnedColor.g = static_cast<uint8_t>(changedColor.g);
         returnedColor.b = static_cast<uint8_t>(changedColor.b);
@@ -104,36 +103,36 @@ Color_RGBA8 CosmeticEditor_getChangedColor(u8 r, u8 g, u8 b, u8 a, const char* c
     return returnedColor;
 }
 
-extern "C" void gDPSetEnvColorWithOverride(Gfx* pkt, u8 r, u8 g, u8 b, u8 a, const char* cvar) {
-    Color_RGBA8 setColor = CosmeticEditor_getChangedColor(r, g, b, a, cvar);
+extern "C" void gDPSetEnvColorWithOverride(Gfx* pkt, u8 r, u8 g, u8 b, u8 a, u8 elementId) {
+    Color_RGBA8 setColor = CosmeticEditor_GetChangedColor(r, g, b, a, elementId);
     gDPSetEnvColor(pkt, setColor.r, setColor.g, setColor.b, a);
 }
 
-extern "C" void gDPSetPrimColorWithOverride(Gfx* pkt, u8 m, u8 l, u8 r, u8 g, u8 b, u8 a, const char* cvar) {
-    Color_RGBA8 setColor = CosmeticEditor_getChangedColor(r, g, b, a, cvar);
+extern "C" void gDPSetPrimColorWithOverride(Gfx* pkt, u8 m, u8 l, u8 r, u8 g, u8 b, u8 a, u8 elementId) {
+    Color_RGBA8 setColor = CosmeticEditor_GetChangedColor(r, g, b, a, elementId);
     gDPSetPrimColor(pkt, m, l, setColor.r, setColor.g, setColor.b, a);
 }
 
 extern "C" Gfx* Gfx_DrawTexRectIA8_DropShadowWithOverride(Gfx* pkt, TexturePtr texture, s16 textureWidth,
                                                           s16 textureHeight, s16 rectLeft, s16 rectTop, s16 rectWidth,
                                                           s16 rectHeight, u16 dsdx, u16 dtdy, s16 r, s16 g, s16 b,
-                                                          s16 a, const char* cvar) {
-    Color_RGBA8 setColor = CosmeticEditor_getChangedColor(r, g, b, a, cvar);
+                                                          s16 a, u8 elementId) {
+    Color_RGBA8 setColor = CosmeticEditor_GetChangedColor(r, g, b, a, elementId);
     return Gfx_DrawTexRectIA8_DropShadow(pkt, texture, textureWidth, textureHeight, rectLeft, rectTop, rectWidth,
                                          rectHeight, dsdx, dtdy, setColor.r, setColor.g, setColor.b, a);
 }
 
 extern "C" Gfx* Gfx_DrawRect_DropShadowWithOverride(Gfx* pkt, s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight,
-                                                    u16 dsdx, u16 dtdy, s16 r, s16 g, s16 b, s16 a, const char* cvar) {
-    Color_RGBA8 setColor = CosmeticEditor_getChangedColor(r, g, b, a, cvar);
+                                                    u16 dsdx, u16 dtdy, s16 r, s16 g, s16 b, s16 a, u8 elementId) {
+    Color_RGBA8 setColor = CosmeticEditor_GetChangedColor(r, g, b, a, elementId);
     return Gfx_DrawRect_DropShadow(pkt, rectLeft, rectTop, rectWidth, rectHeight, dsdx, dtdy, setColor.r, setColor.g,
                                    setColor.b, a);
 }
 extern "C" Gfx* Gfx_DrawTexRectIA16_DropShadowWithOverride(Gfx* pkt, TexturePtr texture, s16 textureWidth,
                                                            s16 textureHeight, s16 rectLeft, s16 rectTop, s16 rectWidth,
                                                            s16 rectHeight, u16 dsdx, u16 dtdy, s16 r, s16 g, s16 b,
-                                                           s16 a, const char* cvar) {
-    Color_RGBA8 setColor = CosmeticEditor_getChangedColor(r, g, b, a, cvar);
+                                                           s16 a, u8 elementId) {
+    Color_RGBA8 setColor = CosmeticEditor_GetChangedColor(r, g, b, a, elementId);
     return Gfx_DrawTexRectIA16_DropShadow(pkt, texture, textureWidth, textureHeight, rectLeft, rectTop, rectWidth,
                                           rectHeight, dsdx, dtdy, setColor.r, setColor.g, setColor.b, a);
 }
@@ -141,22 +140,22 @@ extern "C" Gfx* Gfx_DrawTexRectIA8_DropShadowOffsetWithOverride(Gfx* pkt, Textur
                                                                 s16 textureHeight, s16 rectLeft, s16 rectTop,
                                                                 s16 rectWidth, s16 rectHeight, u16 dsdx, u16 dtdy,
                                                                 s16 r, s16 g, s16 b, s16 a, s32 masks, s32 rects,
-                                                                const char* cvar) {
-    Color_RGBA8 setColor = CosmeticEditor_getChangedColor(r, g, b, a, cvar);
+                                                                u8 elementId) {
+    Color_RGBA8 setColor = CosmeticEditor_GetChangedColor(r, g, b, a, elementId);
     return Gfx_DrawTexRectIA8_DropShadowOffset(pkt, texture, textureWidth, textureHeight, rectLeft, rectTop, rectWidth,
                                                rectHeight, dsdx, dtdy, setColor.r, setColor.g, setColor.b, a, masks,
                                                rects);
 }
 
-void CosmeticEditorRandomizeElement(CosmeticEditorElement id) {
+void CosmeticEditorRandomizeElement(CosmeticEditorElement element) {
     Color_RGBA8 colorSelected;
     colorSelected.r = static_cast<uint8_t>((rand() % 256) * 255.0f);
     colorSelected.g = static_cast<uint8_t>((rand() % 256) * 255.0f);
     colorSelected.b = static_cast<uint8_t>((rand() % 256) * 255.0f);
     colorSelected.a = static_cast<uint8_t>(255);
 
-    CVarSetColor(id.colorCvar, colorSelected);
-    CVarSetInteger(id.colorChangedCvar, true);
+    CVarSetColor(element.colorCvar, colorSelected);
+    CVarSetInteger(element.colorChangedCvar, true);
     Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
 }
 

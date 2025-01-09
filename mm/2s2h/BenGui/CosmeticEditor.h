@@ -14,21 +14,21 @@ class CosmeticEditorWindow : public Ship::GuiWindow {
 extern "C" {
 #endif //__cplusplus
 
-void gDPSetPrimColorWithOverride(Gfx* pkt, u8 m, u8 l, u8 r, u8 g, u8 b, u8 a, const char* cvar);
-void gDPSetEnvColorWithOverride(Gfx* pkt, u8 r, u8 g, u8 b, u8 a, const char* cvar);
+void gDPSetPrimColorWithOverride(Gfx* pkt, u8 m, u8 l, u8 r, u8 g, u8 b, u8 a, u8 elementId);
+void gDPSetEnvColorWithOverride(Gfx* pkt, u8 r, u8 g, u8 b, u8 a, u8 elementId);
 Gfx* Gfx_DrawTexRectIA8_DropShadowWithOverride(Gfx* pkt, TexturePtr texture, s16 textureWidth, s16 textureHeight,
                                                s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx,
-                                               u16 dtdy, s16 r, s16 g, s16 b, s16 a, const char* cvar);
+                                               u16 dtdy, s16 r, s16 g, s16 b, s16 a, u8 elementId);
 Gfx* Gfx_DrawRect_DropShadowWithOverride(Gfx* pkt, s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx,
-                                         u16 dtdy, s16 r, s16 g, s16 b, s16 a, const char* cvar);
+                                         u16 dtdy, s16 r, s16 g, s16 b, s16 a, u8 elementId);
 Gfx* Gfx_DrawTexRectIA16_DropShadowWithOverride(Gfx* pkt, TexturePtr texture, s16 textureWidth, s16 textureHeight,
                                                 s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx,
-                                                u16 dtdy, s16 r, s16 g, s16 b, s16 a, const char* cvar);
+                                                u16 dtdy, s16 r, s16 g, s16 b, s16 a, u8 elementId);
 Gfx* Gfx_DrawTexRectIA8_DropShadowOffsetWithOverride(Gfx* pkt, TexturePtr texture, s16 textureWidth, s16 textureHeight,
                                                      s16 rectLeft, s16 rectTop, s16 rectWidth, s16 rectHeight, u16 dsdx,
                                                      u16 dtdy, s16 r, s16 g, s16 b, s16 a, s32 masks, s32 rects,
-                                                     const char* cvar);
-Color_RGBA8 CosmeticEditor_getChangedColor(u8 r, u8 g, u8 b, u8 a, const char* cvar);
+                                                     u8 elementId);
+Color_RGBA8 CosmeticEditor_GetChangedColor(u8 r, u8 g, u8 b, u8 a, u8 elementId);
 
 typedef enum {
     COSMETIC_ELEMENT_HEART_NORMAL,

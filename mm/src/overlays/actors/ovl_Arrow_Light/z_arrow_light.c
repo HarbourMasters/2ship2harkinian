@@ -206,8 +206,9 @@ void ArrowLight_Draw(Actor* thisx, PlayState* play) {
 
         Gfx_SetupDL25_Xlu(play->state.gfxCtx);
 
-        gDPSetPrimColorWithOverride(POLY_XLU_DISP++, 0x80, 0x80, 255, 255, 170, this->alpha, "Effects.LightArrowPrim");
-        gDPSetEnvColorWithOverride(POLY_XLU_DISP++, 255, 255, 0, 128, "Effects.LightArrowSec");
+        gDPSetPrimColorWithOverride(POLY_XLU_DISP++, 0x80, 0x80, 255, 255, 170, this->alpha,
+                                    COSMETIC_ELEMENT_LIGHT_ARROW_PRIMARY);
+        gDPSetEnvColorWithOverride(POLY_XLU_DISP++, 255, 255, 0, 128, COSMETIC_ELEMENT_LIGHT_ARROW_SECONDARY);
 
         Matrix_RotateZYX(0x4000, 0, 0, MTXMODE_APPLY);
         if (this->timer != 0) {
