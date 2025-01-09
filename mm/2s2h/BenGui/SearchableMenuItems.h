@@ -1147,6 +1147,11 @@ void AddEnhancements() {
                   { 1, 16, 16 } },
             },
             { { .widgetName = "Saving", .widgetType = WIDGET_SEPARATOR_TEXT },
+              { "3rd Save File Slot",
+                "gEnhancements.Saving.FileSlot3",
+                "Adds a 3rd file slot that can be used for saves",
+                WIDGET_CVAR_CHECKBOX,
+                { .defaultVariant = true } },
               { "Persistent Owl Saves", "gEnhancements.Saving.PersistentOwlSaves",
                 "Continuing a save will not remove the owl save. Playing Song of "
                 "Time, allowing the moon to crash or finishing the "

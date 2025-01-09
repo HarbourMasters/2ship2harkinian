@@ -169,6 +169,11 @@ int SaveManager_GetOpenFileSlot() {
         return 2;
     }
 
+    fileName = "file3.json";
+    if (!std::filesystem::exists(savesFolderPath / fileName)) {
+        return 3;
+    }
+
     return -1;
 }
 
@@ -199,18 +204,38 @@ std::string SaveManager_GetFileNameFromFlashSave(FlashSave flashSave) {
         return "global.json";
     }
 
-    bool isBackup = flashSave == FLASH_SAVE_FILE_1_NEW_CYCLE_SAVE_BACKUP ||
-                    flashSave == FLASH_SAVE_FILE_2_NEW_CYCLE_SAVE_BACKUP ||
-                    flashSave == FLASH_SAVE_FILE_1_OWL_SAVE_BACKUP || flashSave == FLASH_SAVE_FILE_2_OWL_SAVE_BACKUP;
+    bool isBackup =
+        flashSave == FLASH_SAVE_FILE_1_NEW_CYCLE_SAVE_BACKUP || flashSave == FLASH_SAVE_FILE_1_OWL_SAVE_BACKUP ||
+        flashSave == FLASH_SAVE_FILE_2_NEW_CYCLE_SAVE_BACKUP || flashSave == FLASH_SAVE_FILE_2_OWL_SAVE_BACKUP ||
+        flashSave == FLASH_SAVE_FILE_3_NEW_CYCLE_SAVE_BACKUP || flashSave == FLASH_SAVE_FILE_3_OWL_SAVE_BACKUP;
 
-    int fileNum =
-        (flashSave == FLASH_SAVE_FILE_1_NEW_CYCLE_SAVE_BACKUP || flashSave == FLASH_SAVE_FILE_1_NEW_CYCLE_SAVE ||
-         flashSave == FLASH_SAVE_FILE_1_OWL_SAVE_BACKUP || flashSave == FLASH_SAVE_FILE_1_OWL_SAVE)
-            ? 1
-            : 2;
+    int fileNum = -1;
+    switch (flashSave) {
+        case FLASH_SAVE_FILE_1_NEW_CYCLE_SAVE:
+        case FLASH_SAVE_FILE_1_NEW_CYCLE_SAVE_BACKUP:
+        case FLASH_SAVE_FILE_1_OWL_SAVE:
+        case FLASH_SAVE_FILE_1_OWL_SAVE_BACKUP:
+            fileNum = 1;
+            break;
+        case FLASH_SAVE_FILE_2_NEW_CYCLE_SAVE:
+        case FLASH_SAVE_FILE_2_NEW_CYCLE_SAVE_BACKUP:
+        case FLASH_SAVE_FILE_2_OWL_SAVE:
+        case FLASH_SAVE_FILE_2_OWL_SAVE_BACKUP:
+            fileNum = 2;
+            break;
+        case FLASH_SAVE_FILE_3_NEW_CYCLE_SAVE:
+        case FLASH_SAVE_FILE_3_NEW_CYCLE_SAVE_BACKUP:
+        case FLASH_SAVE_FILE_3_OWL_SAVE:
+        case FLASH_SAVE_FILE_3_OWL_SAVE_BACKUP:
+            fileNum = 3;
+            break;
+        default:
+            break;
+    }
 
-    bool isOwlSave = (flashSave == FLASH_SAVE_FILE_1_OWL_SAVE || flashSave == FLASH_SAVE_FILE_1_OWL_SAVE_BACKUP ||
-                      flashSave == FLASH_SAVE_FILE_2_OWL_SAVE || flashSave == FLASH_SAVE_FILE_2_OWL_SAVE_BACKUP);
+    bool isOwlSave = flashSave == FLASH_SAVE_FILE_1_OWL_SAVE || flashSave == FLASH_SAVE_FILE_1_OWL_SAVE_BACKUP ||
+                     flashSave == FLASH_SAVE_FILE_2_OWL_SAVE || flashSave == FLASH_SAVE_FILE_2_OWL_SAVE_BACKUP ||
+                     flashSave == FLASH_SAVE_FILE_3_OWL_SAVE || flashSave == FLASH_SAVE_FILE_3_OWL_SAVE_BACKUP;
 
     return "file" + std::to_string(fileNum) + (isBackup ? "backup" : "") + ".json";
 }
@@ -292,7 +317,8 @@ extern "C" void SaveManager_SysFlashrom_WriteData(u8* saveBuffer, u32 pageNum, u
     // saved together. We replicate that here by running the save again on the matching backup slot.
     // Note: This is not accounting for the sram header writing a disk backup. It does not feel important to do so.
     // If we ever feel like we want a global save backup, then we just need to add it to this condition.
-    if ((flashSave == FLASH_SAVE_FILE_1_NEW_CYCLE_SAVE || flashSave == FLASH_SAVE_FILE_2_NEW_CYCLE_SAVE) &&
+    if ((flashSave == FLASH_SAVE_FILE_1_NEW_CYCLE_SAVE || flashSave == FLASH_SAVE_FILE_2_NEW_CYCLE_SAVE ||
+         flashSave == FLASH_SAVE_FILE_3_NEW_CYCLE_SAVE) &&
         pageCount == (u32)gFlashSpecialSaveNumPages[flashSave]) {
         SaveManager_SysFlashrom_WriteData(saveBuffer, gFlashSaveStartPages[flashSave + 1],
                                           gFlashSaveNumPages[flashSave + 1]);
@@ -301,10 +327,12 @@ extern "C" void SaveManager_SysFlashrom_WriteData(u8* saveBuffer, u32 pageNum, u
     switch (flashSave) {
         case FLASH_SAVE_FILE_1_NEW_CYCLE_SAVE_BACKUP:
         case FLASH_SAVE_FILE_2_NEW_CYCLE_SAVE_BACKUP:
+        case FLASH_SAVE_FILE_3_NEW_CYCLE_SAVE_BACKUP:
             isBackup = true;
             // fallthrough
         case FLASH_SAVE_FILE_1_NEW_CYCLE_SAVE:
-        case FLASH_SAVE_FILE_2_NEW_CYCLE_SAVE: {
+        case FLASH_SAVE_FILE_2_NEW_CYCLE_SAVE:
+        case FLASH_SAVE_FILE_3_NEW_CYCLE_SAVE: {
             Save save;
             memcpy(&save, saveBuffer, sizeof(Save));
 
@@ -340,10 +368,12 @@ extern "C" void SaveManager_SysFlashrom_WriteData(u8* saveBuffer, u32 pageNum, u
         }
         case FLASH_SAVE_FILE_1_OWL_SAVE_BACKUP:
         case FLASH_SAVE_FILE_2_OWL_SAVE_BACKUP:
+        case FLASH_SAVE_FILE_3_OWL_SAVE_BACKUP:
             isBackup = true;
             // fallthrough
         case FLASH_SAVE_FILE_1_OWL_SAVE:
-        case FLASH_SAVE_FILE_2_OWL_SAVE: {
+        case FLASH_SAVE_FILE_2_OWL_SAVE:
+        case FLASH_SAVE_FILE_3_OWL_SAVE: {
             SaveContext saveContext;
             memcpy(&saveContext, saveBuffer, offsetof(SaveContext, fileNum));
 
@@ -423,8 +453,9 @@ extern "C" s32 SaveManager_SysFlashrom_ReadData(void* saveBuffer, u32 pageNum, u
         }
     }
 
-    bool isOwlSave = (flashSave == FLASH_SAVE_FILE_1_OWL_SAVE || flashSave == FLASH_SAVE_FILE_1_OWL_SAVE_BACKUP ||
-                      flashSave == FLASH_SAVE_FILE_2_OWL_SAVE || flashSave == FLASH_SAVE_FILE_2_OWL_SAVE_BACKUP);
+    bool isOwlSave = flashSave == FLASH_SAVE_FILE_1_OWL_SAVE || flashSave == FLASH_SAVE_FILE_1_OWL_SAVE_BACKUP ||
+                     flashSave == FLASH_SAVE_FILE_2_OWL_SAVE || flashSave == FLASH_SAVE_FILE_2_OWL_SAVE_BACKUP ||
+                     flashSave == FLASH_SAVE_FILE_3_OWL_SAVE || flashSave == FLASH_SAVE_FILE_3_OWL_SAVE_BACKUP;
 
     nlohmann::json j;
     int result = SaveManager_ReadSaveFile(fileName, j);

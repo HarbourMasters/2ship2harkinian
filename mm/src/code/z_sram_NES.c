@@ -304,43 +304,58 @@ u8 gAmmoItems[ITEM_NUM_SLOTS] = {
 };
 
 // Stores flash start page number
+// 2S2H [Enhancement] Extended for file 3 support
 s32 gFlashSaveStartPages[] = {
     0,     // File 1 New Cycle Save
     0x40,  // File 1 New Cycle Save Backup
     0x80,  // File 2 New Cycle Save
     0xC0,  // File 2 New Cycle Save Backup
+    0x400, // File 3 New Cycle Save
+    0x440, // File 3 New Cycle Save Backup
     0x100, // File 1 Owl Save
     0x180, // File 1 Owl Save Backup
     0x200, // File 2 Owl Save
     0x280, // File 2 Owl Save Backup
+    0x480, // File 3 Owl Save
+    0x500, // File 3 Owl Save Backup
     0x300, // Sram Header (SaveOptions)
     0x380, // Sram Header Backup (SaveOptions)
 };
 
 // Flash rom number of pages
+// 2S2H [Enhancement] Extended for file 3 support
 s32 gFlashSaveNumPages[] = {
     0x40, // File 1 New Cycle Save
     0x40, // File 1 New Cycle Save Backup
     0x40, // File 2 New Cycle Save
     0x40, // File 2 New Cycle Save Backup
+    0x40, // File 3 New Cycle Save
+    0x40, // File 3 New Cycle Save Backup
     0x80, // File 1 Owl Save
     0x80, // File 1 Owl Save Backup
     0x80, // File 2 Owl Save
     0x80, // File 2 Owl Save Backup
+    0x80, // File 3 Owl Save
+    0x80, // File 3 Owl Save Backup
     1,    // Sram Header (SaveOptions)
     1,    // Sram Header Backup (SaveOptions)
 };
 
 // Flash rom number of pages on very first time Player enters South Clock Town from the Clock Tower
+// 2S2H [Enhancement] Extended for file 3 support
 s32 gFlashSpecialSaveNumPages[] = {
     0x80, // File 1 New Cycle Save
     0x80, // File 1 New Cycle Save Backup
     0x80, // File 2 New Cycle Save
     0x80, // File 2 New Cycle Save Backup
+    0x80, // File 3 New Cycle Save
+    0x80, // File 3 New Cycle Save Backup
     0x80, // File 1 Owl Save
     0x80, // File 1 Owl Save Backup
     0x80, // File 2 Owl Save
     0x80, // File 2 Owl Save Backup
+    0x80, // File 3 Owl Save
+    0x80, // File 3 Owl Save Backup
     1,    // Sram Header (SaveOptions)
     1,    // Sram Header Backup (SaveOptions)
 };
@@ -351,6 +366,9 @@ s32 gFlashOwlSaveStartPages[] = {
     0x180, // File 1 Owl Save Backup
     0x200, // File 2 Owl Save
     0x280, // File 2 Owl Save Backup
+    // 2S2H [Enhancement] Extended for file 3 support
+    0x480, // File 3 Owl Save
+    0x500, // File 3 Owl Save Backup
 };
 
 // Owl Save flash rom number of pages
@@ -359,6 +377,9 @@ s32 gFlashOwlSaveNumPages[] = {
     0x80, // File 1 Owl Save Backup
     0x80, // File 2 Owl Save
     0x80, // File 2 Owl Save Backup
+    // 2S2H [Enhancement] Extended for file 3 support
+    0x80, // File 3 Owl Save
+    0x80, // File 3 Owl Save Backup
 };
 
 // Save Options Sram Header flash rom start page number
@@ -374,15 +395,20 @@ s32 gFlashOptionsSaveNumPages[] = {
 };
 
 // Flash rom actual size needed
+// 2S2H [Enhancement] Extended for file 3 support
 s32 gFlashSaveSizes[] = {
     sizeof(Save),                   // size = 0x100C - File 1 New Cycle Save
     sizeof(Save),                   // size = 0x100C - File 1 New Cycle Save Backup
     sizeof(Save),                   // size = 0x100C - File 2 New Cycle Save
     sizeof(Save),                   // size = 0x100C - File 2 New Cycle Save Backup
+    sizeof(Save),                   // size = 0x100C - File 3 New Cycle Save
+    sizeof(Save),                   // size = 0x100C - File 3 New Cycle Save Backup
     offsetof(SaveContext, fileNum), // size = 0x3CA0 - File 1 Owl Save
     offsetof(SaveContext, fileNum), // size = 0x3CA0 - File 1 Owl Save Backup
     offsetof(SaveContext, fileNum), // size = 0x3CA0 - File 2 Owl Save
     offsetof(SaveContext, fileNum), // size = 0x3CA0 - File 2 Owl Save Backup
+    offsetof(SaveContext, fileNum), // size = 0x3CA0 - File 3 Owl Save
+    offsetof(SaveContext, fileNum), // size = 0x3CA0 - File 3 Owl Save Backup
 };
 
 // Bit Flag array in which sBitFlags8[n] is (1 << n)
