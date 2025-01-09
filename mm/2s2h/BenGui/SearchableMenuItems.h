@@ -725,13 +725,36 @@ void AddSettings() {
                 WIDGET_CVAR_COMBOBOX,
                 { .comboBoxOptions = textureFilteringMap } } } } });
     // Input Editor
-    settingsSidebar.push_back({ "Input Editor",
-                                1,
-                                { { { "Popout Input Editor",
-                                      "gWindows.BenInputEditor",
-                                      "Enables the separate Input Editor window.",
-                                      WIDGET_WINDOW_BUTTON,
-                                      { .size = UIWidgets::Sizes::Inline, .windowName = "2S2H Input Editor" } } } } });
+    settingsSidebar.push_back(
+        { "Controls",
+          1,
+          { { {
+                  "Simulated Input Lag: %d frames",
+                  CVAR_SIMULATED_INPUT_LAG,
+                  "Buffers your inputs to be executed a specified amount of frames later",
+                  WIDGET_CVAR_SLIDER_INT,
+                  { 0, 6, 0 },
+              },
+              { .widgetName =
+                    "This interface can be a little daunting. Please bear with us as we work to improve the experience "
+                    "and address some known issues.\n"
+                    "\n"
+                    "At first glance, you may notice several input devices displayed below the 'Clear All' button. "
+                    "Some of these might be other controllers connected to your computer, while others may be "
+                    "duplicated controllers (a known issue). We recommend clicking on the box with the " ICON_FA_EYE
+                    " icon and the name of any disconnected or unused controllers to hide their inputs. Make sure the "
+                    "target controller remains visible.\n"
+                    "\n"
+                    "If you encounter issues connecting your controller or registering inputs, try closing Steam or "
+                    "any other external input software. Alternatively, test a different controller to determine if "
+                    "it's a compatibility issue.\n",
+                .widgetType = WIDGET_TEXT },
+              { .widgetName = "Bindings", .widgetType = WIDGET_SEPARATOR_TEXT },
+              { "Popout Bindings Window",
+                "gWindows.BenInputEditor",
+                "Enables the separate Input Editor window.",
+                WIDGET_WINDOW_BUTTON,
+                { .size = UIWidgets::Sizes::Inline, .windowName = "2S2H Input Editor" } } } } });
 
     settingsSidebar.push_back(
         { "Notifications",
@@ -1823,7 +1846,7 @@ void SearchMenuGetItem(widgetInfo& widget) {
                 break;
             case WIDGET_TEXT:
                 ImGui::AlignTextToFramePadding();
-                ImGui::Text(widget.widgetName.c_str());
+                ImGui::TextWrapped(widget.widgetName.c_str());
                 break;
             case WIDGET_COMBOBOX: {
                 int32_t* pointer = std::get<int32_t*>(widget.widgetOptions.valuePointer);
