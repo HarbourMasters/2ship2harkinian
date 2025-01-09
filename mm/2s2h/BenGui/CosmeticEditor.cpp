@@ -32,8 +32,9 @@ CosmeticEditorElement cosmeticEditorElements[COSMETIC_ELEMENT_MAX] = {
     COSMETIC_EDITOR_ELEMENT(COSMETIC_ELEMENT_MAGIC_CHATEAU, "Magic Meter", "Chateau", "Magic.Chateau", 0, 0, 200, 255),
     COSMETIC_EDITOR_ELEMENT(COSMETIC_ELEMENT_MAGIC_CONSUMED, "Magic Meter", "Active", "Magic.Active", 250, 250, 0, 255),
     COSMETIC_EDITOR_ELEMENT(COSMETIC_ELEMENT_MAGIC_BORDER, "Magic Meter", "Border", "Magic.Border", 255, 255, 255, 255),
-    COSMETIC_EDITOR_ELEMENT(COSMETIC_ELEMENT_SMALL_KEY, "Items", "Small Key", "Items.SmallKey", 0, 200, 230, 255),
-    COSMETIC_EDITOR_ELEMENT(COSMETIC_ELEMENT_RUPEE_ICON, "Items", "Rupee Icon", "Items.RupeeIcon", 200, 255, 100, 255),
+    COSMETIC_EDITOR_ELEMENT(COSMETIC_ELEMENT_SMALL_KEY, "HUD", "Small Key", "HUD.SmallKey", 0, 200, 230, 255),
+    COSMETIC_EDITOR_ELEMENT(COSMETIC_ELEMENT_RUPEE_ICON, "HUD", "Rupee Icon", "HUD.RupeeIcon", 200, 255, 100, 255),
+    COSMETIC_EDITOR_ELEMENT(COSMETIC_ELEMENT_MINIMAP, "HUD", "Minimap", "HUD.Minimap", 0, 255, 255, 160),
     COSMETIC_EDITOR_ELEMENT(COSMETIC_ELEMENT_SPIN_SLASH_CHARGE, "Effects", "Spin Slash Charge",
                             "Effects.SpinSlashCharge", 170, 255, 255, 255),
     COSMETIC_EDITOR_ELEMENT(COSMETIC_ELEMENT_SPIN_SLASH_BURST, "Effects", "Spin Slash Burst", "Effects.SpinSlashBurst",
@@ -202,7 +203,7 @@ void CosmeticEditorDrawColorTab() {
             ImGui::TableNextColumn();
             ImGui::SetCursorPosY(ImGui::GetCursorPosY() +
                                  ((ImGui::GetFrameHeight() - (ImGui::CalcTextSize(entry.name).y)) / 2.0f));
-            ImGui::Text(entry.name);
+            ImGui::Text("%s", entry.name);
             ImGui::TableNextColumn();
             CopyFloatArray(entry.id, currentColor, CVarGetInteger(entry.colorChangedCvar, false));
             bool colorChanged =
@@ -255,11 +256,11 @@ void CosmeticEditorWindow::DrawElement() {
 
 void CosmeticEditorWindow::InitElement() {
     cosmeticEditorParentElements.clear();
-    for (auto& insert : cosmeticEditorElements) {
-        if (std::find(cosmeticEditorParentElements.begin(), cosmeticEditorParentElements.end(), insert.parentName) !=
+    for (auto& element : cosmeticEditorElements) {
+        if (std::find(cosmeticEditorParentElements.begin(), cosmeticEditorParentElements.end(), element.parentName) !=
             cosmeticEditorParentElements.end()) {
             continue;
         }
-        cosmeticEditorParentElements.push_back(insert.parentName);
+        cosmeticEditorParentElements.push_back(element.parentName);
     }
 }
