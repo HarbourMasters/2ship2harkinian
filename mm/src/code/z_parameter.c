@@ -18,8 +18,8 @@
 #include "misc/title_static/title_static.h"
 #include "BenPort.h"
 #include <string.h>
-#include "BenGui/HudEditor.h"
-#include "BenGui/CosmeticEditor.h"
+#include "2s2h/BenGui/HudEditor.h"
+#include "2s2h/BenGui/CosmeticEditor.h"
 #include "2s2h_assets.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 

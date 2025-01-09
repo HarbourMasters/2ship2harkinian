@@ -16,7 +16,7 @@
 #include "2s2h_assets.h"
 #include <string.h>
 #include "BenPort.h"
-#include "BenGui/CosmeticEditor.h"
+#include "2s2h/BenGui/CosmeticEditor.h"
 
 s32 D_808144F10 = 100;
 f32 D_808144F14 = 8.0f;

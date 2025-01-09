@@ -9,7 +9,7 @@
 #include "misc/title_static/title_static.h"
 #include "overlays/ovl_file_choose/ovl_file_choose.h"
 #include "BenPort.h"
-#include "BenGui/CosmeticEditor.h"
+#include "2s2h/BenGui/CosmeticEditor.h"
 
 void FileSelect_DrawTexQuadI4(GraphicsContext* gfxCtx, TexturePtr texture, s16 point) {
     OPEN_DISPS(gfxCtx);

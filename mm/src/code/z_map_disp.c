@@ -8,7 +8,7 @@
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 
 #include "BenPort.h"
-#include "BenGui/HudEditor.h"
+#include "2s2h/BenGui/HudEditor.h"
 #include "assets/2s2h_assets.h"
 
 void MapDisp_DestroyMapI(PlayState* play);

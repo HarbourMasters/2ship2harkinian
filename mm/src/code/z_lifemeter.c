@@ -2,10 +2,10 @@
 #include "global.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "interface/parameter_static/parameter_static.h"
-#include "BenGui/HudEditor.h"
-#include "BenGui/CosmeticEditor.h"
 
 #include "BenPort.h"
+#include "2s2h/BenGui/HudEditor.h"
+#include "2s2h/BenGui/CosmeticEditor.h"
 
 s16 sHeartsPrimColors[3][3] = { { 255, 70, 50 }, { 255, 190, 0 }, { 100, 100, 255 } };
 s16 sHeartsEnvColors[3][3] = { { 50, 40, 60 }, { 255, 0, 0 }, { 0, 0, 255 } };
