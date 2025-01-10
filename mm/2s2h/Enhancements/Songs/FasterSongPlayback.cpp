@@ -13,7 +13,8 @@ extern u8 sPlaybackState;
 
 void RegisterFasterSongPlayback() {
     COND_ID_HOOK(OnActorUpdate, ACTOR_PLAYER, CVAR, [](Actor* actor) {
-        if (gPlayState->msgCtx.msgMode >= MSGMODE_SONG_PLAYED && gPlayState->msgCtx.msgMode <= MSGMODE_17) {
+        if (gPlayState->msgCtx.msgMode >= MSGMODE_SONG_PLAYED && gPlayState->msgCtx.msgMode <= MSGMODE_17 &&
+            !gPlayState->csCtx.state) {
             if (gPlayState->msgCtx.stateTimer > 1) {
                 gPlayState->msgCtx.stateTimer = 1;
             }
