@@ -3033,6 +3033,18 @@ void KaleidoScope_DrawCursor(PlayState* play) {
     PauseContext* pauseCtx = &play->pauseCtx;
     s16 i;
 
+    // #region 2S2H [Port] Track cursor position so we can skip interpolation for one frame whenever it moves
+    static f32 prevX = 0;
+    static f32 prevY = 0;
+    static u8 cursorInterpState = 0;
+
+    if (prevX != pauseCtx->cursorX || prevY != pauseCtx->cursorY) {
+        cursorInterpState ^= 1; // Flip state
+    }
+    prevX = pauseCtx->cursorX;
+    prevY = pauseCtx->cursorY;
+    // #endregion
+
     OPEN_DISPS(play->state.gfxCtx);
 
     if ((pauseCtx->mainState == PAUSE_MAIN_STATE_IDLE) ||
@@ -3040,6 +3052,7 @@ void KaleidoScope_DrawCursor(PlayState* play) {
         ((pauseCtx->pageIndex == PAUSE_QUEST) && ((pauseCtx->mainState <= PAUSE_MAIN_STATE_SONG_PLAYBACK) ||
                                                   (pauseCtx->mainState == PAUSE_MAIN_STATE_SONG_PROMPT) ||
                                                   (pauseCtx->mainState == PAUSE_MAIN_STATE_IDLE_CURSOR_ON_SONG)))) {
+        FrameInterpolation_RecordOpenChild("Pause cursor", cursorInterpState ? 1 : 0);
         gDPPipeSync(POLY_OPA_DISP++);
         gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
                           PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
@@ -3064,6 +3077,7 @@ void KaleidoScope_DrawCursor(PlayState* play) {
 
         gDPPipeSync(POLY_OPA_DISP++);
         gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
+        FrameInterpolation_RecordCloseChild();
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -3569,9 +3583,10 @@ void KaleidoScope_Update(PlayState* play) {
                                 pauseCtx->savePromptState = PAUSE_SAVEPROMPT_STATE_5;
                             } else {
                                 if (CVarGetInteger("gEnhancements.Saving.PauseSave", 0)) {
-                                    Sram_SetFlashPagesOwlSave(sramCtx,
-                                                              gFlashOwlSaveStartPages[gSaveContext.fileNum * 2],
-                                                              gFlashOwlSaveNumPages[gSaveContext.fileNum * 2]);
+                                    Sram_SetFlashPagesOwlSave(
+                                        sramCtx,
+                                        gFlashOwlSaveStartPages[gSaveContext.fileNum * FLASH_SAVE_MAIN_MULTIPLIER],
+                                        gFlashOwlSaveNumPages[gSaveContext.fileNum * FLASH_SAVE_MAIN_MULTIPLIER]);
                                     Sram_StartWriteToFlashOwlSave(sramCtx);
                                     gSaveContext.save.isOwlSave = false;
                                     gSaveContext.save.shipSaveInfo.pauseSaveEntrance = -1;

@@ -72,8 +72,22 @@ typedef enum {
     VB_CHECK_HELD_ITEM_BUTTON_PRESS,
     VB_MAGIC_SPIN_ATTACK_CHECK_FORM,
     VB_TRANSFORM_THUNDER_MATRIX,
-    VB_ALLOW_EQUIP_MASK,
-    VB_DRAW_MASK_ITEM,
+    VB_DAMAGE_MULTIPLIER,
+    VB_DAMAGE_EFFECT,
+    VB_DRAW_DAMAGE_EFFECT,
+    VB_USE_NULL_FOR_DRAW_DAMAGE_EFFECTS,
+    VB_CHECK_BUMPER_COLLISION,
+    VB_PLAY_HEART_CONTAINER_GET_FANFARE,
+    VB_BE_HOOKSHOT_SURFACE,
+    VB_DEKU_GUARD_SHOW_SEARCH_BALLS,
+    VB_DISPLAY_SONG_OF_DOUBLE_TIME_PROMPT,
+    VB_ALLOW_SONG_DOUBLE_TIME_ON_FINAL_NIGHT,
+    VB_OWL_TELL_ABOUT_SHRINE,
+    VB_ARCHERY_ADD_BONUS_POINTS,
+    VB_HONEY_AND_DARLING_MINIGAME_FINISH,
+    VB_MINIMAP_TOGGLE,
+    VB_MONKEY_WAIT_TO_TALK_AFTER_APPROACH,
+    VB_MULTIPLY_INFLICTED_DMG,
 } GIVanillaBehavior;
 
 typedef enum {
@@ -287,6 +301,7 @@ class GameInteractor {
 
     DEFINE_HOOK(OnFileDropped, (std::string path));
 
+    DEFINE_HOOK(OnGameStateMainStart, ());
     DEFINE_HOOK(OnGameStateMainFinish, ());
     DEFINE_HOOK(OnGameStateDrawFinish, ());
     DEFINE_HOOK(OnGameStateUpdate, ());
@@ -294,7 +309,6 @@ class GameInteractor {
     DEFINE_HOOK(OnKaleidoUpdate, (PauseContext * pauseCtx));
     DEFINE_HOOK(BeforeKaleidoDrawPage, (PauseContext * pauseCtx, u16 pauseIndex));
     DEFINE_HOOK(AfterKaleidoDrawPage, (PauseContext * pauseCtx, u16 pauseIndex));
-    DEFINE_HOOK(OnKaleidoClose, ());
     DEFINE_HOOK(OnSaveInit, (s16 fileNum));
     DEFINE_HOOK(BeforeEndOfCycleSave, ());
     DEFINE_HOOK(AfterEndOfCycleSave, ());
@@ -338,6 +352,7 @@ class GameInteractor {
 extern "C" {
 #endif // __cplusplus
 
+void GameInteractor_ExecuteOnGameStateMainStart();
 void GameInteractor_ExecuteOnGameStateMainFinish();
 void GameInteractor_ExecuteOnGameStateDrawFinish();
 void GameInteractor_ExecuteOnGameStateUpdate();
@@ -345,7 +360,6 @@ void GameInteractor_ExecuteOnConsoleLogoUpdate();
 void GameInteractor_ExecuteOnKaleidoUpdate(PauseContext* pauseCtx);
 void GameInteractor_ExecuteBeforeKaleidoDrawPage(PauseContext* pauseCtx, u16 pauseIndex);
 void GameInteractor_ExecuteAfterKaleidoDrawPage(PauseContext* pauseCtx, u16 pauseIndex);
-void GameInteractor_ExecuteOnKaleidoClose();
 void GameInteractor_ExecuteOnSaveInit(s16 fileNum);
 void GameInteractor_ExecuteBeforeEndOfCycleSave();
 void GameInteractor_ExecuteAfterEndOfCycleSave();
@@ -392,6 +406,33 @@ bool GameInteractor_Should(GIVanillaBehavior flag, uint32_t result, ...);
             body;                                                                           \
             va_end(args);                                                                   \
         })
+#define COND_HOOK(hookType, condition, body)                                                     \
+    {                                                                                            \
+        static HOOK_ID hookId = 0;                                                               \
+        GameInteractor::Instance->UnregisterGameHook<GameInteractor::hookType>(hookId);          \
+        hookId = 0;                                                                              \
+        if (condition) {                                                                         \
+            hookId = GameInteractor::Instance->RegisterGameHook<GameInteractor::hookType>(body); \
+        }                                                                                        \
+    }
+#define COND_ID_HOOK(hookType, id, condition, body)                                                       \
+    {                                                                                                     \
+        static HOOK_ID hookId = 0;                                                                        \
+        GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::hookType>(hookId);              \
+        hookId = 0;                                                                                       \
+        if (condition) {                                                                                  \
+            hookId = GameInteractor::Instance->RegisterGameHookForID<GameInteractor::hookType>(id, body); \
+        }                                                                                                 \
+    }
+#define COND_VB_SHOULD(id, condition, body)                                                               \
+    {                                                                                                     \
+        static HOOK_ID hookId = 0;                                                                        \
+        GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::ShouldVanillaBehavior>(hookId); \
+        hookId = 0;                                                                                       \
+        if (condition) {                                                                                  \
+            hookId = REGISTER_VB_SHOULD(id, body);                                                        \
+        }                                                                                                 \
+    }
 
 int GameInteractor_InvertControl(GIInvertType type);
 uint32_t GameInteractor_Dpad(GIDpadType type, uint32_t buttonCombo);

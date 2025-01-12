@@ -7,6 +7,10 @@ extern "C" {
 
 #include <libultraship/bridge.h>
 
+void GameInteractor_ExecuteOnGameStateMainStart() {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnGameStateMainStart>();
+}
+
 void GameInteractor_ExecuteOnGameStateMainFinish() {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnGameStateMainFinish>();
 }

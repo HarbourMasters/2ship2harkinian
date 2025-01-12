@@ -5272,8 +5272,8 @@ void func_808332A0(PlayState* play, Player* this, s32 magicCost, s32 isSwordBeam
 
     this->stateFlags1 |= PLAYER_STATE1_1000;
     if ((this->actor.id == ACTOR_PLAYER) &&
-        (isSwordBeam || (GameInteractor_Should(VB_MAGIC_SPIN_ATTACK_CHECK_FORM,
-                                               this->transformation == PLAYER_FORM_HUMAN, this->transformation)))) {
+        (isSwordBeam ||
+         (GameInteractor_Should(VB_MAGIC_SPIN_ATTACK_CHECK_FORM, this->transformation == PLAYER_FORM_HUMAN)))) {
         s16 pitch = 0;
         Actor* thunder;
 
@@ -5517,7 +5517,7 @@ s32 func_808339D4(PlayState* play, Player* this, s32 damage) {
         return Actor_ApplyDamage(&this->actor);
     }
 
-    if (this->currentMask == PLAYER_MASK_GIANT) {
+    if (GameInteractor_Should(VB_MULTIPLY_INFLICTED_DMG, this->currentMask == PLAYER_MASK_GIANT, &damage)) {
         damage >>= 2;
     }
 
@@ -12213,7 +12213,7 @@ void Player_UpdateCommon(Player* this, PlayState* play, Input* input) {
 
         this->actor.shape.face = ((play->gameplayFrames & 0x20) ? 0 : 3) + this->blinkInfo.eyeTexIndex;
 
-        if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY, this)) {
+        if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY)) {
             Player_UpdateBunnyEars(this);
         }
 
@@ -13091,10 +13091,14 @@ s32 Ship_HandleFirstPersonAiming(PlayState* play, Player* this, s32 arg2) {
         this->actor.focus.rot.y = CLAMP(var_s0 + gyroX, -0x4AAA, 0x4AAA) + this->actor.shape.rot.y;
     }
 
-    if (CVarGetInteger("gEnhancements.Camera.FirstPerson.MoveInFirstPerson", 0) &&
+    bool playerMovementLocked = (this->actionFunc == Player_Action_52) || // Riding on Epona
+                                (this->actionFunc == Player_Action_80) || // Riding swamp boat (non-archery)
+                                (this->actionFunc == Player_Action_81);   // Bow minigames
+
+    if (!playerMovementLocked && CVarGetInteger("gEnhancements.Camera.FirstPerson.MoveInFirstPerson", 0) &&
         CVarGetInteger("gEnhancements.Camera.FirstPerson.RightStickEnabled", 0)) {
         f32 movementSpeed = 8.25f; // account for form
-        if (this->currentMask == PLAYER_MASK_BUNNY) {
+        if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY)) {
             movementSpeed *= 1.5f;
         }
 
@@ -13524,8 +13528,9 @@ s32 func_808482E0(PlayState* play, Player* this) {
         } else {
             s32 seqId;
 
-            if ((this->getItemId == GI_HEART_CONTAINER) ||
-                ((this->getItemId == GI_HEART_PIECE) && EQ_MAX_QUEST_HEART_PIECE_COUNT)) {
+            bool vanillaCondition = (this->getItemId == GI_HEART_CONTAINER) ||
+                                    ((this->getItemId == GI_HEART_PIECE) && EQ_MAX_QUEST_HEART_PIECE_COUNT);
+            if (GameInteractor_Should(VB_PLAY_HEART_CONTAINER_GET_FANFARE, vanillaCondition, this->getItemId)) {
                 seqId = NA_BGM_GET_HEART | 0x900;
             } else {
                 s32 var_v1;
@@ -14571,9 +14576,7 @@ void Player_Action_12(Player* this, PlayState* play) {
     if (!func_80847880(play, this)) {
         if (!Player_TryActionChangeList(play, this, sPlayerActionChangeList7, false) ||
             (Player_Action_12 == this->actionFunc)) {
-            if (!GameInteractor_Should(VB_CHECK_HELD_ITEM_BUTTON_PRESS,
-                                       CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B), sDpadItemButtons,
-                                       sPlayerItemButtons)) {
+            if (!CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_B)) {
                 func_80839E74(this, play);
             }
         }
@@ -14597,7 +14600,7 @@ void Player_Action_13(Player* this, PlayState* play) {
 
     Player_GetMovementSpeedAndYaw(this, &speedTarget, &yawTarget, SPEED_MODE_CURVED, play);
 
-    if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY, this)) {
+    if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY)) {
         speedTarget *= 1.5f;
     }
 

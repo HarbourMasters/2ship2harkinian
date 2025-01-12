@@ -7,6 +7,7 @@
 #include "z_en_firefly.h"
 #include "overlays/actors/ovl_En_Clear_Tag/z_en_clear_tag.h"
 #include "overlays/actors/ovl_Obj_Syokudai/z_obj_syokudai.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_IGNORE_QUAKE | ACTOR_FLAG_4000)
 
@@ -844,9 +845,12 @@ void EnFirefly_Draw(Actor* thisx, PlayState* play) {
         POLY_OPA_DISP = gfx;
     }
 
-    Actor_DrawDamageEffects(play, NULL, this->bodyPartsPos, KEESE_BODYPART_MAX,
-                            this->drawDmgEffScale * this->actor.scale.y * 200.0f, this->drawDmgEffFrozenSteamScale,
-                            this->drawDmgEffAlpha, this->drawDmgEffType);
+    if (GameInteractor_Should(VB_USE_NULL_FOR_DRAW_DAMAGE_EFFECTS, true, this, this->bodyPartsPos,
+                              KEESE_BODYPART_MAX)) {
+        Actor_DrawDamageEffects(play, NULL, this->bodyPartsPos, KEESE_BODYPART_MAX,
+                                this->drawDmgEffScale * this->actor.scale.y * 200.0f, this->drawDmgEffFrozenSteamScale,
+                                this->drawDmgEffAlpha, this->drawDmgEffType);
+    }
     this->lastDrawnFrame = play->gameplayFrames;
 
     CLOSE_DISPS(play->state.gfxCtx);

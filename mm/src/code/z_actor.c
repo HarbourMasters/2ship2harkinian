@@ -24,6 +24,7 @@
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/BenPort.h"
+#include "2s2h/ShipUtils.h"
 
 // bss
 // FaultClient sActorFaultClient; // 2 funcs
@@ -131,6 +132,9 @@ void ActorShadow_Draw(Actor* actor, Lights* lights, PlayState* play, Gfx* dlist,
 
             if ((dlist != gCircleShadowDL) || (actor->scale.x != actor->scale.z)) {
                 Matrix_RotateYS(actor->shape.rot.y, MTXMODE_APPLY);
+            } else {
+                // Mark non-rotating shadows to ignore the actor mtx prevents interpolation glitches when actor moves
+                FrameInterpolation_IgnoreActorMtx();
             }
 
             shadowScale *= actor->shape.shadowScale;
@@ -178,6 +182,9 @@ void ActorShadow_DrawFoot(PlayState* play, Light* light, MtxF* arg2, s32 lightNu
     f32 dir0;
 
     OPEN_DISPS(play->state.gfxCtx);
+
+    // Ignore the players rotation prevents feet shadow from glitching when turning abruptly
+    FrameInterpolation_IgnoreActorMtx();
 
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 0, 0, 0, (u8)(CLAMP_MAX(lightNum * 1.3e-05f, 1.0f) * shadowAlpha));
 
@@ -2787,6 +2794,10 @@ void Actor_UpdateAll(PlayState* play, ActorContext* actorCtx) {
     DynaPoly_UpdateBgActorTransforms(play, &play->colCtx.dyna);
 }
 
+// 2S2H [Port] Extern these for use below in interpolation checks
+extern void Player_Action_93(Player* this, PlayState* play);
+extern void Player_Action_95(Player* this, PlayState* play);
+
 void Actor_Draw(PlayState* play, Actor* actor) {
     Lights* light;
 
@@ -2801,6 +2812,13 @@ void Actor_Draw(PlayState* play, Actor* actor) {
     Lights_BindAll(light, play->lightCtx.listHead,
                    (actor->flags & (ACTOR_FLAG_10000000 | ACTOR_FLAG_400000)) ? NULL : &actor->world.pos, play);
     Lights_Draw(light, play->state.gfxCtx);
+
+    // If the player is performing a Deku spin or entering a Deku flower, set it so that interpolation allows for >90
+    // angle changes to be interpolated smoothly
+    if (actor->id == ACTOR_PLAYER &&
+        (((Player*)actor)->actionFunc == Player_Action_93 || ((Player*)actor)->actionFunc == Player_Action_95)) {
+        FrameInterpolation_InterpolateWiderAngles();
+    }
 
     FrameInterpolation_RecordActorPosRotMatrix();
     if (actor->flags & ACTOR_FLAG_IGNORE_QUAKE) {
@@ -3079,20 +3097,27 @@ s32 func_800BA2FC(PlayState* play, Actor* actor, Vec3f* projectedPos, f32 projec
 
 // #region 2S2H [Enhancements] Allows us to increase the draw and update distance independently, mostly a modified
 // version of the function above
-void Ship_CalcShouldDrawAndUpdate(PlayState* play, Actor* actor, Vec3f* projectedPos, f32 projectedW, bool* shouldDraw,
-                                  bool* shouldUpdate) {
-    s32 updateMulti = CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1);
-    s32 drawMulti = CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1);
-    bool updateCheck =
-        (-(actor->uncullZoneScale * updateMulti) < projectedPos->z) &&
-        (projectedPos->z < ((actor->uncullZoneForward * updateMulti) + (actor->uncullZoneScale * updateMulti)));
-    bool drawCheck =
-        (-(actor->uncullZoneScale * drawMulti) < projectedPos->z) &&
-        (projectedPos->z < ((actor->uncullZoneForward * drawMulti) + (actor->uncullZoneScale * drawMulti)));
+s32 Ship_CalcShouldDrawAndUpdate(PlayState* play, Actor* actor, Vec3f* projectedPos, f32 projectedW, bool* shouldDraw,
+                                 bool* shouldUpdate) {
+    // Check if the actor passes its original/vanilla culling requirements
+    if (func_800BA2FC(play, actor, projectedPos, projectedW)) {
+        *shouldUpdate = true;
+        *shouldDraw = true;
+        return true;
+    }
 
-    if (updateCheck || drawCheck) {
+    s32 distMultiplier = CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1);
+    distMultiplier = MAX(distMultiplier, 1);
+
+    // Apply distance scale to forward cullzone check
+    bool isWithingForwardCullZone =
+        (-actor->uncullZoneScale < projectedPos->z) &&
+        (projectedPos->z < ((actor->uncullZoneForward + actor->uncullZoneScale) * distMultiplier));
+
+    if (isWithingForwardCullZone) {
         // Ensure the projected W value is at least 1.0
         f32 clampedProjectedW = CLAMP_MIN(projectedW, 1.0f);
+        f32 aspectMultiplier = 1.0f;
         f32 uncullZoneScaleDiagonal;
         f32 uncullZoneScaleVertical;
         f32 uncullZoneDownwardAdjusted;
@@ -3111,22 +3136,25 @@ void Ship_CalcShouldDrawAndUpdate(PlayState* play, Actor* actor, Vec3f* projecte
         }
 
         if (CVarGetInteger("gEnhancements.Graphics.ActorCullingAccountsForWidescreen", 0)) {
-            float originalAspectRatio = 4.0f / 3.0f;
-            float currentAspectRatio = OTRGetAspectRatio();
-            float aspectRatioMultiplier = MAX(currentAspectRatio / originalAspectRatio, 1.0f);
-
-            clampedProjectedW *= aspectRatioMultiplier;
+            aspectMultiplier = Ship_GetExtendedAspectRatioMultiplier();
         }
 
-        bool isWithinHorizontalCullZone = ((fabsf(projectedPos->x) - uncullZoneScaleDiagonal) < clampedProjectedW);
+        // Apply adjsuted aspect ratio to just the horizontal cullzone check
+        bool isWithinHorizontalCullZone =
+            ((fabsf(projectedPos->x) - uncullZoneScaleDiagonal) < (clampedProjectedW * aspectMultiplier));
         bool isAboveBottomOfCullZone = ((-clampedProjectedW < (projectedPos->y + uncullZoneScaleVertical)));
         bool isBelowTopOfCullZone = ((projectedPos->y - uncullZoneDownwardAdjusted) < clampedProjectedW);
 
         if (isWithinHorizontalCullZone && isAboveBottomOfCullZone && isBelowTopOfCullZone) {
-            *shouldDraw = drawCheck;
-            *shouldUpdate = updateCheck;
+            // Add additional overries here for glitch useful actors when those are reported
+
+            *shouldDraw = true;
+            *shouldUpdate = true;
+            return true;
         }
     }
+
+    return false;
 }
 // #endregion
 
@@ -3165,11 +3193,10 @@ void Actor_DrawAll(PlayState* play, ActorContext* actorCtx) {
                 Actor_UpdateFlaggedAudio(actor);
             }
 
-            // #region 2S2H
+            // #region 2S2H [Enhancement] Extended culling updates
             bool shipShouldDraw = false;
             bool shipShouldUpdate = false;
             if (CVarGetInteger("gEnhancements.Graphics.IncreaseActorDrawDistance", 1) > 1 ||
-                CVarGetInteger("gEnhancements.Graphics.IncreaseActorUpdateDistance", 1) > 1 ||
                 CVarGetInteger("gEnhancements.Graphics.ActorCullingAccountsForWidescreen", 0)) {
                 Ship_CalcShouldDrawAndUpdate(play, actor, &actor->projectedPos, actor->projectedW, &shipShouldDraw,
                                              &shipShouldUpdate);
@@ -3187,8 +3214,15 @@ void Actor_DrawAll(PlayState* play, ActorContext* actorCtx) {
                 }
             }
 
+            // Copied flags so we can set the "is active" flag for the draw check below without modifying the actor.
+            // This ensures that overrides for song of soaring or song of time cutscenes still hide actors.
+            s32 shipActorFlagsCopy = actor->flags;
+            if (shipShouldDraw) {
+                shipActorFlagsCopy |= ACTOR_FLAG_40;
+            }
+
             actor->isDrawn = false;
-            if ((actor->init == NULL) && (actor->draw != NULL) && ((actor->flags & actorFlags) || shipShouldDraw)) {
+            if ((actor->init == NULL) && (actor->draw != NULL) && (shipActorFlagsCopy & actorFlags)) {
                 // #endregion
                 if ((actor->flags & ACTOR_FLAG_REACT_TO_LENS) &&
                     ((play->roomCtx.curRoom.lensMode == LENS_MODE_HIDE_ACTORS) ||
@@ -5059,6 +5093,10 @@ TexturePtr sElectricSparkTextures[] = {
  */
 void Actor_DrawDamageEffects(PlayState* play, Actor* actor, Vec3f bodyPartsPos[], s16 bodyPartsCount, f32 effectScale,
                              f32 frozenSteamScale, f32 effectAlpha, u8 type) {
+    if (!GameInteractor_Should(VB_DRAW_DAMAGE_EFFECT, true, actor, &type)) {
+        return;
+    }
+
     if (effectAlpha > 0.001f) {
         s32 twoTexScrollParam;
         s16 bodyPartIndex;
@@ -5071,7 +5109,6 @@ void Actor_DrawDamageEffects(PlayState* play, Actor* actor, Vec3f bodyPartsPos[]
         Vec3f* bodyPartsPosStart = bodyPartsPos;
         u32 gameplayFrames = play->gameplayFrames;
         f32 effectAlphaScaled;
-        static int effectEpoch = 0;
 
         currentMatrix = Matrix_GetCurrent();
 
@@ -5111,8 +5148,7 @@ void Actor_DrawDamageEffects(PlayState* play, Actor* actor, Vec3f bodyPartsPos[]
 
                 // Apply and draw ice over each body part of frozen actor
                 for (bodyPartIndex = 0; bodyPartIndex < bodyPartsCount; bodyPartIndex++, bodyPartsPos++) {
-                    // BENTODO is using bodyPartsPos OK here? should actor be used instead?
-                    FrameInterpolation_RecordOpenChild(bodyPartsPos, effectEpoch++);
+                    FrameInterpolation_RecordOpenChild(bodyPartsPos, type);
                     alpha = bodyPartIndex & 3;
                     alpha = effectAlphaScaled - (30.0f * alpha);
                     if (effectAlphaScaled < (30.0f * (bodyPartIndex & 3))) {
@@ -5159,7 +5195,7 @@ void Actor_DrawDamageEffects(PlayState* play, Actor* actor, Vec3f bodyPartsPos[]
 
                 // Apply and draw steam over each body part of frozen actor
                 for (bodyPartIndex = 0; bodyPartIndex < bodyPartsCount; bodyPartIndex++, bodyPartsPos++) {
-                    FrameInterpolation_RecordOpenChild(bodyPartsPos, effectEpoch++);
+                    FrameInterpolation_RecordOpenChild(bodyPartsPos, type);
                     twoTexScrollParam = ((bodyPartIndex * 3) + gameplayFrames);
                     gSPSegment(POLY_XLU_DISP++, 0x08,
                                Gfx_TwoTexScroll(play->state.gfxCtx, 0, twoTexScrollParam * 3, twoTexScrollParam * -12,
@@ -5195,7 +5231,7 @@ void Actor_DrawDamageEffects(PlayState* play, Actor* actor, Vec3f bodyPartsPos[]
 
                 // Apply and draw fire on every body part
                 for (bodyPartIndex = 0; bodyPartIndex < bodyPartsCount; bodyPartIndex++, bodyPartsPos++) {
-                    FrameInterpolation_RecordOpenChild(bodyPartsPos, effectEpoch++);
+                    FrameInterpolation_RecordOpenChild(bodyPartsPos, type);
                     alpha = bodyPartIndex & 3;
                     alpha = effectAlphaScaled - 30.0f * alpha;
                     if (effectAlphaScaled < 30.0f * (bodyPartIndex & 3)) {
@@ -5257,7 +5293,7 @@ void Actor_DrawDamageEffects(PlayState* play, Actor* actor, Vec3f bodyPartsPos[]
 
                 // Apply and draw a light orb over each body part of frozen actor
                 for (bodyPartIndex = 0; bodyPartIndex < bodyPartsCount; bodyPartIndex++, bodyPartsPos++) {
-                    FrameInterpolation_RecordOpenChild(bodyPartsPos, effectEpoch++);
+                    FrameInterpolation_RecordOpenChild(bodyPartsPos, type);
                     Matrix_RotateZF(Rand_CenteredFloat(2 * M_PI), MTXMODE_APPLY);
                     currentMatrix->mf[3][0] = bodyPartsPos->x;
                     currentMatrix->mf[3][1] = bodyPartsPos->y;
@@ -5297,7 +5333,7 @@ void Actor_DrawDamageEffects(PlayState* play, Actor* actor, Vec3f bodyPartsPos[]
 
                 // Every body part draws two electric sparks at random orientations
                 for (bodyPartIndex = 0; bodyPartIndex < bodyPartsCount; bodyPartIndex++, bodyPartsPos++) {
-                    FrameInterpolation_RecordOpenChild(bodyPartsPos, effectEpoch++);
+                    FrameInterpolation_RecordOpenChild(bodyPartsPos, type);
                     // first electric spark
                     Matrix_RotateXFApply(Rand_ZeroFloat(2 * M_PI));
                     Matrix_RotateZF(Rand_ZeroFloat(2 * M_PI), MTXMODE_APPLY);
@@ -5326,7 +5362,7 @@ void Actor_DrawDamageEffects(PlayState* play, Actor* actor, Vec3f bodyPartsPos[]
 
                 break;
         }
-        effectEpoch = 0;
+
         CLOSE_DISPS(play->state.gfxCtx);
     }
 }

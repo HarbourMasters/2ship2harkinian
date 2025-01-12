@@ -6,6 +6,8 @@
 #include <string>
 #include <unordered_map>
 #include <libultraship/libultra/types.h>
+#include "2s2h/ShipUtils.h"
+#include <spdlog/fmt/fmt.h>
 
 namespace UIWidgets {
 // Automatically adds newlines to break up text longer than a specified number of characters
@@ -113,9 +115,9 @@ bool Button(const char* label, const ButtonOptions& options) {
     PopStyleButton();
     ImGui::EndDisabled();
     if (options.disabled && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) &&
-        strcmp(options.disabledTooltip, "") != 0) {
+        !Ship_IsCStringEmpty(options.disabledTooltip)) {
         ImGui::SetTooltip("%s", WrappedText(options.disabledTooltip).c_str());
-    } else if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && strcmp(options.tooltip, "") != 0) {
+    } else if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && !Ship_IsCStringEmpty(options.tooltip)) {
         ImGui::SetTooltip("%s", WrappedText(options.tooltip).c_str());
     }
     return dirty;
@@ -260,9 +262,9 @@ bool Checkbox(const char* _label, bool* value, const CheckboxOptions& options) {
     PopStyleCheckbox();
     ImGui::EndDisabled();
     if (options.disabled && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) &&
-        strcmp(options.disabledTooltip, "") != 0) {
+        !Ship_IsCStringEmpty(options.disabledTooltip)) {
         ImGui::SetTooltip("%s", WrappedText(options.disabledTooltip).c_str());
-    } else if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && strcmp(options.tooltip, "") != 0) {
+    } else if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && !Ship_IsCStringEmpty(options.tooltip)) {
         ImGui::SetTooltip("%s", WrappedText(options.tooltip).c_str());
     }
     return pressed;
@@ -274,6 +276,7 @@ bool CVarCheckbox(const char* label, const char* cvarName, const CheckboxOptions
     if (Checkbox(label, &value, options)) {
         CVarSetInteger(cvarName, value);
         Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+        ShipInit::Init(cvarName);
         dirty = true;
     }
     return dirty;
@@ -342,7 +345,6 @@ bool SliderInt(const char* label, int32_t* value, int32_t min, int32_t max, cons
             *value -= options.step;
             if (*value < min)
                 *value = min;
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
             dirty = true;
         }
         ImGui::SameLine(0, 3.0f);
@@ -351,7 +353,6 @@ bool SliderInt(const char* label, int32_t* value, int32_t min, int32_t max, cons
         ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x);
     }
     if (ImGui::SliderScalar(invisibleLabel, ImGuiDataType_S32, value, &min, &max, options.format, options.flags)) {
-        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
         dirty = true;
     }
     if (options.showButtons) {
@@ -361,7 +362,6 @@ bool SliderInt(const char* label, int32_t* value, int32_t min, int32_t max, cons
             *value += options.step;
             if (*value > max)
                 *value = max;
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
             dirty = true;
         }
     }
@@ -369,9 +369,9 @@ bool SliderInt(const char* label, int32_t* value, int32_t min, int32_t max, cons
     ImGui::EndDisabled();
     ImGui::EndGroup();
     if (options.disabled && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) &&
-        strcmp(options.disabledTooltip, "") != 0) {
+        !Ship_IsCStringEmpty(options.disabledTooltip)) {
         ImGui::SetTooltip("%s", WrappedText(options.disabledTooltip).c_str());
-    } else if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && strcmp(options.tooltip, "") != 0) {
+    } else if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && !Ship_IsCStringEmpty(options.tooltip)) {
         ImGui::SetTooltip("%s", WrappedText(options.tooltip).c_str());
     }
     ImGui::PopID();
@@ -385,6 +385,7 @@ bool CVarSliderInt(const char* label, const char* cvarName, int32_t min, int32_t
     if (SliderInt(label, &value, min, max, options)) {
         CVarSetInteger(cvarName, value);
         Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+        ShipInit::Init(cvarName);
         dirty = true;
     }
     return dirty;
@@ -423,10 +424,8 @@ void ClampFloat(float* value, float min, float max, float step) {
     } else if (*value > max) {
         *value = max;
     } else {
-        *value = std::round(*value * factor) / factor;
-        std::stringstream ss;
-        ss << std::setprecision(ticks) << std::setiosflags(std::ios_base::fixed) << *value;
-        *value = std::stof(ss.str());
+        int trunc = (int)std::round(*value * factor);
+        *value = (float)trunc / factor;
     }
 }
 
@@ -456,7 +455,6 @@ bool SliderFloat(const char* label, float* value, float min, float max, const Fl
         if (Button("-", { .color = options.color, .size = Sizes::Inline }) && *value > min) {
             *value -= options.step;
             ClampFloat(value, min, max, options.step);
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
             dirty = true;
         }
         ImGui::SameLine(0, 3.0f);
@@ -468,7 +466,6 @@ bool SliderFloat(const char* label, float* value, float min, float max, const Fl
                             options.format, options.flags)) {
         *value = options.isPercentage ? valueToDisplay / 100.0f : valueToDisplay;
         ClampFloat(value, min, max, options.step);
-        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
         dirty = true;
     }
     if (options.showButtons) {
@@ -477,7 +474,6 @@ bool SliderFloat(const char* label, float* value, float min, float max, const Fl
         if (Button("+", { .color = options.color, .size = Sizes::Inline }) && *value < max) {
             *value += options.step;
             ClampFloat(value, min, max, options.step);
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
             dirty = true;
         }
     }
@@ -485,9 +481,9 @@ bool SliderFloat(const char* label, float* value, float min, float max, const Fl
     ImGui::EndDisabled();
     ImGui::EndGroup();
     if (options.disabled && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) &&
-        strcmp(options.disabledTooltip, "") != 0) {
+        !Ship_IsCStringEmpty(options.disabledTooltip)) {
         ImGui::SetTooltip("%s", WrappedText(options.disabledTooltip).c_str());
-    } else if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && strcmp(options.tooltip, "") != 0) {
+    } else if (ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled) && !Ship_IsCStringEmpty(options.tooltip)) {
         ImGui::SetTooltip("%s", WrappedText(options.tooltip).c_str());
     }
     ImGui::PopID();
@@ -501,6 +497,7 @@ bool CVarSliderFloat(const char* label, const char* cvarName, float min, float m
     if (SliderFloat(label, &value, min, max, options)) {
         CVarSetFloat(cvarName, value);
         Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+        ShipInit::Init(cvarName);
         dirty = true;
     }
     return dirty;
@@ -518,6 +515,7 @@ bool CVarColorPicker(const char* label, const char* cvarName, Color_RGBA8 defaul
         color.a = (uint8_t)(colorVec.w * 255.0f);
         CVarSetColor(cvarName, color);
         Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+        ShipInit::Init(cvarName);
         changed = true;
     }
     PopStyleCombobox();
@@ -533,7 +531,7 @@ void DrawFlagArray32(const std::string& name, uint32_t& flags) {
         ImGui::PushID(flagIndex);
         uint32_t bitMask = 1 << flagIndex;
         bool flag = (flags & bitMask) != 0;
-        std::string label = std::to_string(flagIndex);
+        std::string label = fmt::format("0x{:02X} ({})", flagIndex, flagIndex);
         if (UIWidgets::Checkbox(label.c_str(), &flag,
                                 { .tooltip = label.c_str(), .labelPosition = LabelPosition::None })) {
             if (flag) {
@@ -556,7 +554,7 @@ void DrawFlagArray16(const std::string& name, uint16_t& flags) {
         ImGui::PushID(flagIndex);
         uint16_t bitMask = 1 << flagIndex;
         bool flag = (flags & bitMask) != 0;
-        std::string label = std::to_string(flagIndex);
+        std::string label = fmt::format("0x{:02X} ({})", flagIndex, flagIndex);
         if (UIWidgets::Checkbox(label.c_str(), &flag,
                                 { .tooltip = label.c_str(), .labelPosition = LabelPosition::None })) {
             if (flag) {
@@ -579,7 +577,30 @@ void DrawFlagArray8(const std::string& name, uint8_t& flags) {
         ImGui::PushID(flagIndex);
         uint8_t bitMask = 1 << flagIndex;
         bool flag = (flags & bitMask) != 0;
-        std::string label = std::to_string(flagIndex);
+        std::string label = fmt::format("0x{:02X} ({})", flagIndex, flagIndex);
+        if (UIWidgets::Checkbox(label.c_str(), &flag,
+                                { .tooltip = label.c_str(), .labelPosition = LabelPosition::None })) {
+            if (flag) {
+                flags |= bitMask;
+            } else {
+                flags &= ~bitMask;
+            }
+        }
+        ImGui::PopID();
+    }
+    ImGui::PopID();
+}
+
+void DrawFlagArray8Mask(const std::string& name, uint8_t& flags) {
+    ImGui::PushID(name.c_str());
+    for (int8_t flagIndex = 0; flagIndex < 8; flagIndex++) {
+        if ((flagIndex % 8) != 0) {
+            ImGui::SameLine();
+        }
+        ImGui::PushID(flagIndex);
+        uint8_t bitMask = 1 << flagIndex;
+        bool flag = (flags & bitMask) != 0;
+        std::string label = fmt::format("0x{:02X} ({})", bitMask, flagIndex);
         if (UIWidgets::Checkbox(label.c_str(), &flag,
                                 { .tooltip = label.c_str(), .labelPosition = LabelPosition::None })) {
             if (flag) {

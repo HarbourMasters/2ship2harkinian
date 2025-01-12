@@ -174,7 +174,7 @@ void BenMenu::DrawElement() {
         ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), windowCond, { 0.5f, 0.5f });
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
     }
-    if (!ImGui::Begin("Main Menu", NULL, windowFlags | ImGuiWindowFlags_NoBringToFrontOnFocus)) {
+    if (!ImGui::Begin("Main Menu", NULL, windowFlags)) {
         if (!popout) {
             ImGui::PopStyleVar();
         }
@@ -234,6 +234,15 @@ void BenMenu::DrawElement() {
     }
     if (UIWidgets::Button(ICON_FA_TIMES_CIRCLE, { .size = UIWidgets::Sizes::Inline, .tooltip = "Close Menu (Esc)" })) {
         ToggleVisibility();
+
+        // Update gamepad navigation after close based on if other menus are still visible
+        auto mImGuiIo = &ImGui::GetIO();
+        if (CVarGetInteger(CVAR_IMGUI_CONTROLLER_NAV, 0) &&
+            Ship::Context::GetInstance()->GetWindow()->GetGui()->GetMenuOrMenubarVisible()) {
+            mImGuiIo->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+        } else {
+            mImGuiIo->ConfigFlags &= ~ImGuiConfigFlags_NavEnableGamepad;
+        }
     }
     ImGui::SameLine();
     ImGui::SetNextWindowSizeConstraints({ 0, headerHeight }, { headerWidth, headerHeight });
@@ -400,7 +409,8 @@ void BenMenu::DrawElement() {
                             info.isHidden) {
                             continue;
                         }
-                        std::string widgetStr = std::string(info.widgetName) + std::string(info.widgetTooltip);
+                        std::string widgetStr = std::string(info.widgetName) +
+                                                std::string(info.widgetTooltip != NULL ? info.widgetTooltip : "");
                         std::transform(menuSearchText.begin(), menuSearchText.end(), menuSearchText.begin(), ::tolower);
                         std::transform(widgetStr.begin(), widgetStr.end(), widgetStr.begin(), ::tolower);
                         widgetStr.erase(std::remove(widgetStr.begin(), widgetStr.end(), ' '), widgetStr.end());

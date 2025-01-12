@@ -46,6 +46,7 @@
 
 #include "2s2h/BenPort.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 void PlayerCall_Init(Actor* thisx, PlayState* play);
 void PlayerCall_Destroy(Actor* thisx, PlayState* play);
@@ -3186,6 +3187,9 @@ void Player_DrawBunnyHood(PlayState* play) {
 
     OPEN_DISPS(play->state.gfxCtx);
 
+    // Ignoring the players actor mtx allows the bunny hood to render interpolated without issues
+    FrameInterpolation_IgnoreActorMtx();
+
     gSPSegment(POLY_OPA_DISP++, 0x0B, mtx);
 
     Matrix_Push();
@@ -3675,21 +3679,6 @@ void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList1, G
                     if (func_800B7128(player)) {
                         Matrix_Translate(500.0f, 300.0f, 0.0f, MTXMODE_APPLY);
                         Player_DrawHookshotReticle(play, player, 77600.0f);
-                    }
-                }
-            } else if (CVarGetInteger("gEnhancements.Graphics.BowReticle", 0) &&
-                       ((player->heldItemAction == PLAYER_IA_BOW_FIRE) ||
-                        (player->heldItemAction == PLAYER_IA_BOW_ICE) ||
-                        (player->heldItemAction == PLAYER_IA_BOW_LIGHT) || (player->heldItemAction == PLAYER_IA_BOW))) {
-                if (heldActor != NULL) {
-                    MtxF sp44;
-
-                    Matrix_RotateZYX(0, -15216, -17496, MTXMODE_APPLY);
-                    Matrix_Get(&sp44);
-
-                    if (func_800B7128(player) != 0) {
-                        Matrix_Translate(500.0f, 300.0f, 0.0f, MTXMODE_APPLY);
-                        Player_DrawHookshotReticle(play, player, 776000.0f);
                     }
                 }
             } else if (player->meleeWeaponState != PLAYER_MELEE_WEAPON_STATE_0) {
