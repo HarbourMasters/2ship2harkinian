@@ -19315,10 +19315,11 @@ void Player_Action_96(Player* this, PlayState* play) {
             speedTarget = 18.0f;
             Math_StepToC(&this->av1.actionVar1, 4, 1);
 
-            if ((this->stateFlags3 & PLAYER_STATE3_80000) &&
-                (!CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_A) ||
-                 (gSaveContext.save.saveInfo.playerData.magic == 0) ||
-                 ((this->av1.actionVar1 == 4) && (this->unk_B08 < 12.0f)))) {
+            uint8_t vanillaSpikeModeCondition =
+                (this->stateFlags3 & PLAYER_STATE3_80000) && (!CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_A) ||
+                                                              (gSaveContext.save.saveInfo.playerData.magic == 0) ||
+                                                              ((this->av1.actionVar1 == 4) && (this->unk_B08 < 12.0f)));
+            if (GameInteractor_Should(VB_GORON_ROLL_DISABLE_SPIKE_MODE, vanillaSpikeModeCondition)) {
                 if (Math_StepToS(&this->unk_B86[1], 0, 1)) {
                     this->stateFlags3 &= ~PLAYER_STATE3_80000;
                     Magic_Reset(play);
@@ -19372,7 +19373,9 @@ void Player_Action_96(Player* this, PlayState* play) {
                 if (this->unk_B86[1] == 0) {
                     this->unk_B0C = 0.0f;
                     if (this->av1.actionVar1 >= 0x36) {
-                        Magic_Consume(play, 2, MAGIC_CONSUME_GORON_ZORA);
+                        if (GameInteractor_Should(VB_GORON_ROLL_CONSUME_MAGIC, true)) {
+                            Magic_Consume(play, 2, MAGIC_CONSUME_GORON_ZORA);
+                        }
                         this->unk_B08 = 18.0f;
                         this->unk_B86[1] = 1;
                         this->stateFlags3 |= PLAYER_STATE3_80000;
@@ -19434,8 +19437,8 @@ void Player_Action_96(Player* this, PlayState* play) {
                     f32 var_fa1;
 
                     if (this->unk_B86[1] == 0) {
-                        if ((gSaveContext.magicState == MAGIC_STATE_IDLE) &&
-                            (gSaveContext.save.saveInfo.playerData.magic >= 2) && (this->av2.actionVar2 >= 0x36B0)) {
+                        if (GameInteractor_Should(VB_GORON_ROLL_INCREASE_SPIKE_LEVEL, (gSaveContext.magicState == MAGIC_STATE_IDLE) &&
+                            (gSaveContext.save.saveInfo.playerData.magic >= 2) && (this->av2.actionVar2 >= 0x36B0))) {
                             this->av1.actionVar1++;
                             Actor_PlaySfx_FlaggedCentered1(&this->actor, NA_SE_PL_GORON_BALL_CHARGE - SFX_FLAG);
                         } else {
