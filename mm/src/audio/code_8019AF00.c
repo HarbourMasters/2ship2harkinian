@@ -2197,10 +2197,6 @@ void AudioOcarina_MapSongFromPitchToButton(u8 noteSongIndex, u8 buttonSongIndex,
 void AudioOcarina_Start(u32 ocarinaFlags) {
     u8 songIndex;
 
-    if (sCurOcarinaPitch != OCARINA_PITCH_NONE && CVarGetInteger("gEnhancements.Playback.NoDropOcarinaInput", 0)) {
-        return;
-    }
-
     if ((sOcarinaSongNotes[OCARINA_SONG_SCARECROW_SPAWN][1].volume != 0xFF) &&
         ((ocarinaFlags & OCARINA_SONGS_PLAYABLE_FLAGS) == OCARINA_SONGS_PLAYABLE_FLAGS)) {
         ocarinaFlags |= (1 << OCARINA_SONG_SCARECROW_SPAWN);
