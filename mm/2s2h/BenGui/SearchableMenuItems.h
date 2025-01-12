@@ -989,7 +989,7 @@ void AddEnhancements() {
                 "gEnhancements.Camera.RightStick.InvertYAxis",
                 "Inverts the Camera Y Axis",
                 WIDGET_CVAR_CHECKBOX,
-                {},
+                { .defaultVariant = true },
                 nullptr,
                 [](widgetInfo& info) {
                     if (disabledMap.at(DISABLE_FOR_CAMERAS_OFF).active) {
