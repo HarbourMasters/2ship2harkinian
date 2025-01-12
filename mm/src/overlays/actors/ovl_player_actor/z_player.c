@@ -19437,8 +19437,10 @@ void Player_Action_96(Player* this, PlayState* play) {
                     f32 var_fa1;
 
                     if (this->unk_B86[1] == 0) {
-                        if (GameInteractor_Should(VB_GORON_ROLL_INCREASE_SPIKE_LEVEL, (gSaveContext.magicState == MAGIC_STATE_IDLE) &&
-                            (gSaveContext.save.saveInfo.playerData.magic >= 2) && (this->av2.actionVar2 >= 0x36B0))) {
+                        if (GameInteractor_Should(VB_GORON_ROLL_INCREASE_SPIKE_LEVEL,
+                                                  (gSaveContext.magicState == MAGIC_STATE_IDLE) &&
+                                                      (gSaveContext.save.saveInfo.playerData.magic >= 2) &&
+                                                      (this->av2.actionVar2 >= 0x36B0))) {
                             this->av1.actionVar1++;
                             Actor_PlaySfx_FlaggedCentered1(&this->actor, NA_SE_PL_GORON_BALL_CHARGE - SFX_FLAG);
                         } else {
