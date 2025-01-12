@@ -22,8 +22,8 @@ void RegisterGoronRollingIgnoresMagic() {
     // Mimicking the vanilla condition minus the magic check
     COND_VB_SHOULD(VB_GORON_ROLL_DISABLE_SPIKE_MODE, CVAR, {
         Player* player = GET_PLAYER(gPlayState);
-        bool disableSpikes =
-            (player->stateFlags3 & PLAYER_STATE3_80000) && (!CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_A) ||
+        bool disableSpikes = (player->stateFlags3 & PLAYER_STATE3_80000) &&
+                             (!CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_A) ||
                               ((player->av1.actionVar1 == 4) && (player->unk_B08 < 12.0f)));
         if (!disableSpikes) {
             *should = false;
