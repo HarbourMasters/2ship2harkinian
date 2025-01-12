@@ -1353,8 +1353,7 @@ void AddEnhancements() {
                 "Goron rolling will use spikes even when Link doesn't have magic, and doesn't consume any.",
                 WIDGET_CVAR_CHECKBOX },
               { "Goron Rolling Fast Spikes", "gEnhancements.Masks.GoronRollingFastSpikes",
-                "Speeds up the wind-up towards spiky rolling to be near instant.",
-                WIDGET_CVAR_CHECKBOX } },
+                "Speeds up the wind-up towards spiky rolling to be near instant.", WIDGET_CVAR_CHECKBOX } },
             // Song Enhancements
             { { .widgetName = "Ocarina", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Better Song of Double Time", "gEnhancements.Songs.BetterSongOfDoubleTime",
