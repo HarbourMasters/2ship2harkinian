@@ -6990,7 +6990,7 @@ s32 func_808373F8(PlayState* play, Player* this, u16 sfxId) {
             Player_PlaySfx(this, (NA_SE_PL_DEKUNUTS_JUMP5 + 1 - this->remainingHopsCounter));
             Player_AnimSfx_PlayVoice(this, sfxId);
             this->remainingHopsCounter--;
-            if (this->remainingHopsCounter == 0) {
+            if (GameInteractor_Should(VB_DEKU_LINK_SPIN_ON_LAST_HOP, this->remainingHopsCounter == 0)) {
                 this->stateFlags2 |= PLAYER_STATE2_80000;
                 func_808373A4(play, this);
             }

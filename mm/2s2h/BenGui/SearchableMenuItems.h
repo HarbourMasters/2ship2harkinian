@@ -1077,6 +1077,8 @@ void AddEnhancements() {
               { "Fast Deku Flower Launch", "gEnhancements.Player.FastFlowerLaunch",
                 "Speeds up the time it takes to be able to get maximum height from launching out of a deku flower",
                 WIDGET_CVAR_CHECKBOX },
+              { "Infinite Deku Hopping", "gEnhancements.Player.InfiniteDekuHopping",
+                "Allows Deku Link to hop indefinitely in water without drowning.", WIDGET_CVAR_CHECKBOX },
               { "Instant Putaway", "gEnhancements.Player.InstantPutaway",
                 "Allows Link to instantly puts away held item without waiting.", WIDGET_CVAR_CHECKBOX },
               { "Fierce Deity Putaway", "gEnhancements.Player.FierceDeityPutaway",
