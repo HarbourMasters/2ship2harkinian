@@ -29,8 +29,10 @@ void RegisterEndOfCycleSaveHooks() {
         timeSpeedOffsetCopy = gSaveContext.save.timeSpeedOffset;
     });
 
-    COND_HOOK(AfterEndOfCycleSave, CVAR_RUPEES,
-              []() { gSaveContext.save.saveInfo.playerData.rupees = saveInfoCopy.playerData.rupees; });
+    COND_HOOK(AfterEndOfCycleSave, CVAR_RUPEES, []() {
+        gSaveContext.save.saveInfo.playerData.rupees = saveInfoCopy.playerData.rupees;
+        CLEAR_EVENTINF(EVENTINF_THREEDAYRESET_LOST_RUPEES);
+    });
 
     COND_HOOK(AfterEndOfCycleSave, CVAR_CONSUME, []() {
         if (INV_CONTENT(ITEM_BOMB) == ITEM_BOMB) {
@@ -61,6 +63,11 @@ void RegisterEndOfCycleSaveHooks() {
                 }
             }
         }
+
+        CLEAR_EVENTINF(EVENTINF_THREEDAYRESET_LOST_BOMB_AMMO);
+        CLEAR_EVENTINF(EVENTINF_THREEDAYRESET_LOST_NUT_AMMO);
+        CLEAR_EVENTINF(EVENTINF_THREEDAYRESET_LOST_STICK_AMMO);
+        CLEAR_EVENTINF(EVENTINF_THREEDAYRESET_LOST_ARROW_AMMO);
     });
 
     COND_HOOK(AfterEndOfCycleSave, CVAR_BOTTLE, []() {
