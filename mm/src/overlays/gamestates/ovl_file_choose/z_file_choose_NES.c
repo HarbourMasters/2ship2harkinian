@@ -16,6 +16,7 @@
 #include "2s2h_assets.h"
 #include <string.h>
 #include "BenPort.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 s32 D_808144F10 = 100;
 f32 D_808144F14 = 8.0f;
@@ -266,6 +267,8 @@ void FileSelect_UpdateMainMenu(GameState* thisx) {
                     this->newFileNameCharCount = 0;
                     this->nameEntryBoxPosX = 120;
                     this->nameEntryBoxAlpha = 0;
+                    if (GameInteractor_Should(VB_PREVENT_FILESELECT_EMPTY_NAME, false))
+                        return;
                     memcpy(&this->fileNames[this->buttonIndex], &sEmptyName, ARRAY_COUNT(sEmptyName));
                 } else {
                     Audio_PlaySfx(NA_SE_SY_FSEL_DECIDE_L);
@@ -290,6 +293,8 @@ void FileSelect_UpdateMainMenu(GameState* thisx) {
                 this->newFileNameCharCount = 0;
                 this->nameEntryBoxPosX = 120;
                 this->nameEntryBoxAlpha = 0;
+                if (GameInteractor_Should(VB_PREVENT_FILESELECT_EMPTY_NAME, false))
+                    return;
                 memcpy(&this->fileNames[this->buttonIndex], &sEmptyName, ARRAY_COUNT(sEmptyName));
             } else {
                 Audio_PlaySfx(NA_SE_SY_FSEL_DECIDE_L);

@@ -1426,6 +1426,9 @@ void AddEnhancements() {
                 WIDGET_CVAR_CHECKBOX } },
             // Other
             { { .widgetName = "Other", .widgetType = WIDGET_SEPARATOR_TEXT },
+              { "Link as default name", "gEnhancements.Timesavers.LinkAsDefaultName", 
+                "Default the player name to Link during a new save file creation.",
+                WIDGET_CVAR_CHECKBOX },
               { "Swamp Boat Timesaver", "gEnhancements.Timesavers.SwampBoatSpeed",
                 "Pictograph Tour: Hold Z to speed up the boat. Archery: Score 20 points to unlock boat speed up for "
                 "future attempts. When reaching 20 points, you'll be automatically transported back to Koume, "
