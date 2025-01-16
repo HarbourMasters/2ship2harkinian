@@ -1466,21 +1466,31 @@ void AddEnhancements() {
         { "Restorations",
           3,
           { // Restorations
-            { { .widgetName = "Restorations", .widgetType = WIDGET_SEPARATOR_TEXT },
-              { "Constant Distance Backflips and Sidehops", "gEnhancements.Restorations.ConstantFlipsHops",
-                "Backflips and Sidehops travel a constant distance as they did in OoT.", WIDGET_CVAR_CHECKBOX },
-              { "Power Crouch Stab", "gEnhancements.Restorations.PowerCrouchStab",
-                "Crouch stabs will use the power of Link's previous melee attack, as is in MM JP 1.0 and OoT.",
-                WIDGET_CVAR_CHECKBOX },
-              { "Side Rolls", "gEnhancements.Restorations.SideRoll", "Restores side rolling from OoT.",
-                WIDGET_CVAR_CHECKBOX },
-              { "Tatl ISG", "gEnhancements.Restorations.TatlISG", "Restores Navi ISG from OoT, but now with Tatl.",
-                WIDGET_CVAR_CHECKBOX },
-              { "Woodfall Mountain Appearance", "gEnhancements.Restorations.WoodfallMountainAppearance",
-                "Restores the appearance of Woodfall mountain to not look poisoned "
-                "when viewed from Termina Field after clearing Woodfall Temple\n\n"
-                "Requires a scene reload to take effect",
-                WIDGET_CVAR_CHECKBOX } } } });
+            {
+                { .widgetName = "Restorations", .widgetType = WIDGET_SEPARATOR_TEXT },
+                { "Constant Distance Backflips and Sidehops", "gEnhancements.Restorations.ConstantFlipsHops",
+                  "Backflips and Sidehops travel a constant distance as they did in OoT.", WIDGET_CVAR_CHECKBOX },
+                { "Power Crouch Stab", "gEnhancements.Restorations.PowerCrouchStab",
+                  "Crouch stabs will use the power of Link's previous melee attack, as is in MM JP 1.0 and OoT.",
+                  WIDGET_CVAR_CHECKBOX },
+                { "Side Rolls", "gEnhancements.Restorations.SideRoll", "Restores side rolling from OoT.",
+                  WIDGET_CVAR_CHECKBOX },
+                { "Tatl ISG", "gEnhancements.Restorations.TatlISG", "Restores Navi ISG from OoT, but now with Tatl.",
+                  WIDGET_CVAR_CHECKBOX },
+                { "Woodfall Mountain Appearance", "gEnhancements.Restorations.WoodfallMountainAppearance",
+                  "Restores the appearance of Woodfall mountain to not look poisoned "
+                  "when viewed from Termina Field after clearing Woodfall Temple\n\n"
+                  "Requires a scene reload to take effect",
+                  WIDGET_CVAR_CHECKBOX },
+                {
+                    "Pause Buffer Input Window",
+                    "gEnhancements.Restorations.PauseBufferWindow",
+                    "Amount of time in frames you have to buffer an input while unpausing the game. Original hardware "
+                    "is around 20",
+                    WIDGET_CVAR_SLIDER_INT,
+                    { 0, 40, 0 },
+                },
+            } } });
 
     enhancementsSidebar.push_back(
         { "Difficulty Options",
