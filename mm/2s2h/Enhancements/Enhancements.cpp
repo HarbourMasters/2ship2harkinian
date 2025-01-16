@@ -4,5 +4,4 @@ void InitEnhancements() {
     // Cycle & Saving
     RegisterSavingEnhancements();
     RegisterAutosave();
-    RegisterKeepExpressMail();
 }

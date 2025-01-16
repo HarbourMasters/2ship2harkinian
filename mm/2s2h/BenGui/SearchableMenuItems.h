@@ -1229,7 +1229,6 @@ void AddEnhancements() {
                   .widgetTooltip = "Allows the player to keep the Express Mail in their inventory after delivering it "
                                    "the first time, so that both deliveries can be done within one cycle",
                   .widgetType = WIDGET_CVAR_CHECKBOX,
-                  .widgetCallback = [](widgetInfo& info) { RegisterKeepExpressMail(); },
               },
               { .widgetName = "Unstable",
                 .widgetType = WIDGET_SEPARATOR_TEXT,
