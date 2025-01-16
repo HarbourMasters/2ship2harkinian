@@ -1219,7 +1219,7 @@ void AddEnhancements() {
               { "Do not reset Razor Sword", "gEnhancements.Cycle.DoNotResetRazorSword",
                 "Playing the Song Of Time will not reset the Sword back to Kokiri Sword.", WIDGET_CVAR_CHECKBOX },
               { "Do not reset Rupees", "gEnhancements.Cycle.DoNotResetRupees",
-                "Playing the Song Of Time will not reset the your rupees.", WIDGET_CVAR_CHECKBOX },
+                "Playing the Song Of Time will not reset your rupees.", WIDGET_CVAR_CHECKBOX },
               { "Do not reset Time Speed", "gEnhancements.Cycle.DoNotResetTimeSpeed",
                 "Playing the Song Of Time will not reset the current time speed set by Inverted Song of Time.",
                 WIDGET_CVAR_CHECKBOX },
@@ -1360,7 +1360,8 @@ void AddEnhancements() {
             { { .widgetName = "Ocarina", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Better Song of Double Time", "gEnhancements.Songs.BetterSongOfDoubleTime",
                 "When playing the Song of Double Time, you can now choose the exact time you want to go to, similar to "
-                "the 3DS version.",
+                "the 3DS version.\n"
+                "Holding the Z button allows for more precise time selection.",
                 WIDGET_CVAR_CHECKBOX },
               { "Enable Sun's Song", "gEnhancements.Songs.EnableSunsSong",
                 "Enables the partially implemented Sun's Song. RIGHT-DOWN-UP-RIGHT-DOWN-UP to play it. "
