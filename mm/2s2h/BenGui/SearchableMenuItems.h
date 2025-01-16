@@ -1360,7 +1360,7 @@ void AddEnhancements() {
             { { .widgetName = "Ocarina", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Better Song of Double Time", "gEnhancements.Songs.BetterSongOfDoubleTime",
                 "When playing the Song of Double Time, you can now choose the exact time you want to go to, similar to "
-                "the 3DS version.\n"
+                "the 3DS version.\n\n"
                 "Holding the Z button allows for more precise time selection.",
                 WIDGET_CVAR_CHECKBOX },
               { "Enable Sun's Song", "gEnhancements.Songs.EnableSunsSong",
