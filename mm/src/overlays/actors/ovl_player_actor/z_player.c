@@ -12210,7 +12210,7 @@ void Player_UpdateCommon(Player* this, PlayState* play, Input* input) {
 
         this->actor.shape.face = ((play->gameplayFrames & 0x20) ? 0 : 3) + this->blinkInfo.eyeTexIndex;
 
-        if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY)) {
+        if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY, this)) {
             Player_UpdateBunnyEars(this);
         }
 
@@ -13095,7 +13095,7 @@ s32 Ship_HandleFirstPersonAiming(PlayState* play, Player* this, s32 arg2) {
     if (!playerMovementLocked && CVarGetInteger("gEnhancements.Camera.FirstPerson.MoveInFirstPerson", 0) &&
         CVarGetInteger("gEnhancements.Camera.FirstPerson.RightStickEnabled", 0)) {
         f32 movementSpeed = 8.25f; // account for form
-        if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY)) {
+        if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY, this)) {
             movementSpeed *= 1.5f;
         }
 
@@ -14597,7 +14597,7 @@ void Player_Action_13(Player* this, PlayState* play) {
 
     Player_GetMovementSpeedAndYaw(this, &speedTarget, &yawTarget, SPEED_MODE_CURVED, play);
 
-    if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY)) {
+    if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY, this)) {
         speedTarget *= 1.5f;
     }
 

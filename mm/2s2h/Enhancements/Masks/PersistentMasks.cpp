@@ -152,8 +152,12 @@ void RegisterPersistentMasks() {
 
     // Speed the player up when the bunny hood state is active
     COND_VB_SHOULD(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, CVAR, {
+        Player* player = va_arg(args, Player*);
+
         // But don't speed up if the player is non-human and controller input is being overriden for cutscenes/minigames
-        if (STATE_CVAR && (GET_PLAYER_FORM == PLAYER_FORM_HUMAN || gPlayState->actorCtx.unk268 == 0)) {
+        // or if player is Kafei
+        if (STATE_CVAR && player->actor.id == ACTOR_PLAYER &&
+            (GET_PLAYER_FORM == PLAYER_FORM_HUMAN || gPlayState->actorCtx.unk268 == 0)) {
             *should = true;
         }
     });
