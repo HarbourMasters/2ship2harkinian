@@ -1147,6 +1147,11 @@ void AddEnhancements() {
                   "Sets the score required to win the Swordsman School.",
                   WIDGET_CVAR_SLIDER_INT,
                   { 1, 30, 30 } },
+                { "Beaver Race Rings Collected",
+                  "gEnhancements.Minigames.BeaverRaceRingsCollected",
+                  "Sets the number of rings required for both Beavers. If the slider is set to 20, the first Beaver will require 20 rings, and the second Beaver will require 25 rings, which are their vanilla values",
+                  WIDGET_CVAR_SLIDER_INT,
+                  { 1, 20, 20 } },
                 { "Swamp Archery Perfect Score",
                   "gEnhancements.Minigames.SwampArcheryScore",
                   "Sets the score required to win the Swamp Archery minigame, if this is changed it also speeds up the "
