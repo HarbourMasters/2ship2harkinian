@@ -15,10 +15,10 @@ void func_80A97F9C(EnAz* thisx, PlayState* play);
 static bool minigameScoreSet = false; // Flag to track if the score has been set
 
 void RegisterBeaverRace() {
-    COND_ID_HOOK(ShouldActorUpdate, ACTOR_EN_AZ, CVAR <20, [](Actor* actor, bool* should) {
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_EN_AZ, CVAR < 20, [](Actor* actor, bool* should) {
         EnAz* enAz = (EnAz*)actor;
         Player* player = GET_PLAYER(gPlayState);
-        
+
         if (!minigameScoreSet) {
             gSaveContext.minigameScore = CVAR;
             minigameScoreSet = true; // Set the flag after assignment
@@ -30,7 +30,6 @@ void RegisterBeaverRace() {
         }
 
         // Check if minigameScore has already been set
-        
 
         bool allRingsCollected = false;
 
@@ -57,7 +56,6 @@ void RegisterBeaverRace() {
             gSaveContext.nextTransitionType = TRANS_TYPE_FADE_WHITE;
             enAz->actor.speed = 0.0f;
             func_80A979DC(enAz, gPlayState);
-            
         }
     });
 }
