@@ -1430,7 +1430,9 @@ void AddEnhancements() {
                 "Pictograph Tour: Hold Z to speed up the boat. Archery: Score 20 points to unlock boat speed up for "
                 "future attempts. When reaching 20 points, you'll be automatically transported back to Koume, "
                 "completing the minigame.",
-                WIDGET_CVAR_CHECKBOX } } } });
+                WIDGET_CVAR_CHECKBOX },
+              { "Fast Marine Lab Fish", "gEnhancements.Timesavers.MarineLabHP",
+                "Only requires a single fish to be fed for the Piece of Heart to spawn.", WIDGET_CVAR_CHECKBOX } } } });
     enhancementsSidebar.push_back(
         { "Fixes",
           3,
