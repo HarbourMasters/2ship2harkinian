@@ -986,7 +986,8 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Songs.BetterSongOfDoubleTime")
         .Options(CheckboxOptions().Tooltip(
             "When playing the Song of Double Time, you can now choose the exact time you want to go "
-            "to, similar to the 3DS version."));
+            "to, similar to the 3DS version.\n\n"
+            "Holding Z allows decreasing the time adjustment factor, while holding R will increase the factor"));
     AddWidget(path, "Enable Sun's Song", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Songs.EnableSunsSong")
         .Options(CheckboxOptions().Tooltip(
