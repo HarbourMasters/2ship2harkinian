@@ -56,7 +56,7 @@ typedef enum {
     WIDGET_TEXT,
     WIDGET_WINDOW_BUTTON,
     WIDGET_AUDIO_BACKEND, // needed for special operations that can't be handled easily with the normal combobox widget
-    WIDGET_VIDEO_BACKEND,  // same as above
+    WIDGET_VIDEO_BACKEND, // same as above
     WIDGET_CUSTOM,
 } WidgetType;
 
@@ -79,8 +79,9 @@ typedef enum {
 // holds the widget values for a widget, contains all CVar types available from LUS. int32_t is used for boolean
 // evaluation
 using CVarVariant = std::variant<int32_t, const char*, float, Color_RGBA8, Color_RGB8>;
-using OptionsVariant = std::variant<UIWidgets::ButtonOptions, UIWidgets::CheckboxOptions, UIWidgets::ComboboxOptions,
-                                    UIWidgets::FloatSliderOptions, UIWidgets::IntSliderOptions, UIWidgets::WidgetOptions>;
+using OptionsVariant =
+    std::variant<UIWidgets::ButtonOptions, UIWidgets::CheckboxOptions, UIWidgets::ComboboxOptions,
+                 UIWidgets::FloatSliderOptions, UIWidgets::IntSliderOptions, UIWidgets::WidgetOptions>;
 
 // All the info needed for display and search of all widgets in the menu.
 // `name` is the label displayed,
@@ -123,33 +124,35 @@ struct WidgetInfo {
     }
     WidgetInfo& Options(OptionsVariant options_) {
         switch (type) {
-        case WIDGET_AUDIO_BACKEND:
-        case WIDGET_VIDEO_BACKEND:
-        case WIDGET_COMBOBOX:
-        case WIDGET_CVAR_COMBOBOX:
-            options = std::make_shared<UIWidgets::ComboboxOptions>(std::get<UIWidgets::ComboboxOptions>(options_));
-            break;
-        case WIDGET_CHECKBOX:
-        case WIDGET_CVAR_CHECKBOX:
-            options = std::make_shared<UIWidgets::CheckboxOptions>(std::get<UIWidgets::CheckboxOptions>(options_));
-            break;
-        case WIDGET_SLIDER_FLOAT:
-        case WIDGET_CVAR_SLIDER_FLOAT:
-            options = std::make_shared<UIWidgets::FloatSliderOptions>(std::get<UIWidgets::FloatSliderOptions>(options_));
-            break;
-        case WIDGET_SLIDER_INT:
-        case WIDGET_CVAR_SLIDER_INT:
-            options = std::make_shared<UIWidgets::IntSliderOptions>(std::get<UIWidgets::IntSliderOptions>(options_));
-            break;
-        case WIDGET_BUTTON:
-        case WIDGET_WINDOW_BUTTON:
-            options = std::make_shared<UIWidgets::ButtonOptions>(std::get<UIWidgets::ButtonOptions>(options_));
-            break;
-        case WIDGET_TEXT:
-        case WIDGET_SEPARATOR_TEXT:
-        case WIDGET_SEPARATOR:
-        default:
-            options = std::make_shared<UIWidgets::WidgetOptions>(std::get<UIWidgets::WidgetOptions>(options_));
+            case WIDGET_AUDIO_BACKEND:
+            case WIDGET_VIDEO_BACKEND:
+            case WIDGET_COMBOBOX:
+            case WIDGET_CVAR_COMBOBOX:
+                options = std::make_shared<UIWidgets::ComboboxOptions>(std::get<UIWidgets::ComboboxOptions>(options_));
+                break;
+            case WIDGET_CHECKBOX:
+            case WIDGET_CVAR_CHECKBOX:
+                options = std::make_shared<UIWidgets::CheckboxOptions>(std::get<UIWidgets::CheckboxOptions>(options_));
+                break;
+            case WIDGET_SLIDER_FLOAT:
+            case WIDGET_CVAR_SLIDER_FLOAT:
+                options =
+                    std::make_shared<UIWidgets::FloatSliderOptions>(std::get<UIWidgets::FloatSliderOptions>(options_));
+                break;
+            case WIDGET_SLIDER_INT:
+            case WIDGET_CVAR_SLIDER_INT:
+                options =
+                    std::make_shared<UIWidgets::IntSliderOptions>(std::get<UIWidgets::IntSliderOptions>(options_));
+                break;
+            case WIDGET_BUTTON:
+            case WIDGET_WINDOW_BUTTON:
+                options = std::make_shared<UIWidgets::ButtonOptions>(std::get<UIWidgets::ButtonOptions>(options_));
+                break;
+            case WIDGET_TEXT:
+            case WIDGET_SEPARATOR_TEXT:
+            case WIDGET_SEPARATOR:
+            default:
+                options = std::make_shared<UIWidgets::WidgetOptions>(std::get<UIWidgets::WidgetOptions>(options_));
         }
         return *this;
     }

@@ -350,7 +350,8 @@ void EventLogWindow::DrawElement() {
 
     ImGui::SameLine(0);
 
-    if (UIWidgets::Button("Clear", UIWidgets::ButtonOptions{ .color = UIWidgets::Colors::Red }.Size(UIWidgets::Sizes::Inline))) {
+    if (UIWidgets::Button("Clear",
+                          UIWidgets::ButtonOptions{ .color = UIWidgets::Colors::Red }.Size(UIWidgets::Sizes::Inline))) {
         eventLogEntries.clear();
     }
 

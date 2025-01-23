@@ -78,7 +78,6 @@ void DrawBenMenu() {
 }
 
 void BenMenuBar::InitElement() {
-
 }
 
 void BenMenuBar::DrawElement() {
@@ -98,7 +97,8 @@ void BenMenuBar::DrawElement() {
             ImGui::PushStyleColor(ImGuiCol_Text, UIWidgets::ColorValues.at(UIWidgets::Colors::Orange));
             ImGui::SeparatorText("NOTICE");
             ImGui::PopStyleColor();
-            ImGui::Text("All settings have now been moved to the new menu,\nwhich can be accessed with the Esc button.");
+            ImGui::Text(
+                "All settings have now been moved to the new menu,\nwhich can be accessed with the Esc button.");
             ImGui::EndMenu();
         }
 

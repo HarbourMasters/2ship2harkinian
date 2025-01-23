@@ -44,10 +44,10 @@ class Menu : public GuiWindow {
     std::vector<disabledInfo> disabledVector;
     const SidebarEntry searchSidebarEntry = {
         .columnCount = 1,
-        .columnWidgets = { { { 
-                .name = "Sidebar Search",
-                .type = WIDGET_SEARCH,
-                .options = std::make_shared<UIWidgets::WidgetOptions>(UIWidgets::WidgetOptions{}.Tooltip("Searches all menus for the given text, including tooltips.")) }}}
+        .columnWidgets = { { { .name = "Sidebar Search",
+                               .type = WIDGET_SEARCH,
+                               .options = std::make_shared<UIWidgets::WidgetOptions>(UIWidgets::WidgetOptions{}.Tooltip(
+                                   "Searches all menus for the given text, including tooltips.")) } } }
     };
 
   private:

@@ -178,15 +178,15 @@ uint32_t Menu::DrawSearchResults(std::string& menuSearchText) {
             auto& sidebar = menuEntry.sidebars[sidebarLabel];
             int column = 1;
             for (auto& info : sidebar.columnWidgets[column - 1]) {
-                if (info.type == WIDGET_SEARCH || info.type == WIDGET_SEPARATOR ||
-                    info.type == WIDGET_SEPARATOR_TEXT || info.isHidden) {
+                if (info.type == WIDGET_SEARCH || info.type == WIDGET_SEPARATOR || info.type == WIDGET_SEPARATOR_TEXT ||
+                    info.isHidden) {
                     continue;
                 }
                 const char* tooltip = info.options->tooltip;
                 std::string widgetStr = std::string(info.name) + std::string(tooltip != NULL ? tooltip : "");
                 std::transform(menuSearchText.begin(), menuSearchText.end(), menuSearchText.begin(), ::tolower);
                 menuSearchText.erase(std::remove(menuSearchText.begin(), menuSearchText.end(), ' '),
-                    menuSearchText.end());
+                                     menuSearchText.end());
                 std::transform(widgetStr.begin(), widgetStr.end(), widgetStr.begin(), ::tolower);
                 widgetStr.erase(std::remove(widgetStr.begin(), widgetStr.end(), ' '), widgetStr.end());
                 if (widgetStr.find(menuSearchText) != std::string::npos) {
@@ -247,7 +247,8 @@ void Menu::MenuDrawItem(WidgetInfo& widget, uint32_t width) {
                 }
                 auto options = std::static_pointer_cast<UIWidgets::CheckboxOptions>(widget.options);
                 options->color = menuThemeIndex;
-                if (UIWidgets::Checkbox(UIWidgets::WrappedText(widget.name.c_str(), width).c_str(), pointer, *options)) {
+                if (UIWidgets::Checkbox(UIWidgets::WrappedText(widget.name.c_str(), width).c_str(), pointer,
+                                        *options)) {
                     if (widget.callback != nullptr) {
                         widget.callback(widget);
                     }
@@ -256,7 +257,8 @@ void Menu::MenuDrawItem(WidgetInfo& widget, uint32_t width) {
             case WIDGET_CVAR_CHECKBOX: {
                 auto options = std::static_pointer_cast<UIWidgets::CheckboxOptions>(widget.options);
                 options->color = menuThemeIndex;
-                if (UIWidgets::CVarCheckbox(UIWidgets::WrappedText(widget.name.c_str(), width).c_str(), widget.cVar, *options)) {
+                if (UIWidgets::CVarCheckbox(UIWidgets::WrappedText(widget.name.c_str(), width).c_str(), widget.cVar,
+                                            *options)) {
                     if (widget.callback != nullptr) {
                         widget.callback(widget);
                     }
@@ -279,9 +281,8 @@ void Menu::MenuDrawItem(WidgetInfo& widget, uint32_t width) {
                 options.tooltip = "Sets the renderer API used by the game.";
                 options.disabled = availableWindowBackends->size() <= 1;
                 options.disabledTooltip = "Only one renderer API is available on this platform.";
-                if (UIWidgets::Combobox(
-                        "Renderer API (Needs reload)", &configWindowBackend, availableWindowBackendsMap,
-                        options)) {
+                if (UIWidgets::Combobox("Renderer API (Needs reload)", &configWindowBackend, availableWindowBackendsMap,
+                                        options)) {
                     Ship::Context::GetInstance()->GetConfig()->SetInt("Window.Backend.Id",
                                                                       (int32_t)(configWindowBackend));
                     Ship::Context::GetInstance()->GetConfig()->SetString("Window.Backend.Name",
@@ -637,11 +638,11 @@ void Menu::DrawElement() {
     options2.size = UIWidgets::Sizes::Inline;
     options2.tooltip = "Reset"
 #ifdef __APPLE__
-        " (Command-R)"
+                       " (Command-R)"
 #elif !defined(__SWITCH__) && !defined(__WIIU__)
-        " (Ctrl+R)"
+                       " (Ctrl+R)"
 #else
-        ""
+                       ""
 #endif
         ;
     if (UIWidgets::Button(ICON_FA_UNDO, options2)) {

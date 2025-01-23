@@ -241,7 +241,7 @@ void DrawTempleClears() {
     } else {
         open = CHECK_WEEKEVENTREG(WEEKEVENTREG_20_01);
     }
-    if (UIWidgets::Checkbox("Woodfall Open", &open, {{ .disabled = cleared }})) {
+    if (UIWidgets::Checkbox("Woodfall Open", &open, { { .disabled = cleared } })) {
         if (open) {
             SET_WEEKEVENTREG(WEEKEVENTREG_20_01);
         } else {
@@ -267,7 +267,7 @@ void DrawTempleClears() {
     } else {
         open = CHECK_WEEKEVENTREG(WEEKEVENTREG_30_01);
     }
-    if (UIWidgets::Checkbox("Snowhead Open", &open, {{ .disabled = cleared }})) {
+    if (UIWidgets::Checkbox("Snowhead Open", &open, { { .disabled = cleared } })) {
         if (open) {
             SET_WEEKEVENTREG(WEEKEVENTREG_30_01);
         } else {
@@ -296,7 +296,7 @@ void DrawTempleClears() {
     } else {
         open = CHECK_WEEKEVENTREG(WEEKEVENTREG_53_20);
     }
-    if (UIWidgets::Checkbox("Great Bay Open", &open, {{ .disabled = cleared }})) {
+    if (UIWidgets::Checkbox("Great Bay Open", &open, { { .disabled = cleared } })) {
         if (open) {
             SET_WEEKEVENTREG(WEEKEVENTREG_53_20);
             SET_WEEKEVENTREG(WEEKEVENTREG_93_08);
@@ -323,8 +323,9 @@ void DrawTempleClears() {
 
     ImGui::SameLine();
 
-    if (UIWidgets::Checkbox("Stone Tower Inverted", &inverted,
-                            {{ .disabled = !inStoneTower, .disabledTooltip = "Can only invert while in Stone Tower" }} )) {
+    if (UIWidgets::Checkbox(
+            "Stone Tower Inverted", &inverted,
+            { { .disabled = !inStoneTower, .disabledTooltip = "Can only invert while in Stone Tower" } })) {
         if (inverted) {
             Flags_SetSwitch(gPlayState, 20);
         } else {
@@ -428,7 +429,8 @@ void DrawGeneralTab() {
     };
     for (size_t i = 0; i < timeSkipAmounts.size(); i++) {
         const auto& skip = timeSkipAmounts.at(i);
-        if (UIWidgets::Button(skip.second, { .size = UIWidgets::Sizes::Inline, .color = UIWidgets::Colors::DarkBlue })) {
+        if (UIWidgets::Button(skip.second,
+                              { .size = UIWidgets::Sizes::Inline, .color = UIWidgets::Colors::DarkBlue })) {
             UpdateGameTime(gSaveContext.save.time + CLOCK_TIME(0, skip.first));
         }
         if (i < timeSkipAmounts.size() - 1) {
@@ -1531,9 +1533,8 @@ void DrawFlagsTab() {
                             });
         if (gPlayState != NULL) {
             ImGui::SameLine();
-            if (UIWidgets::Button("Current", UIWidgets::ButtonOptions{
-                                    {.color = UIWidgets::Colors::Gray}}
-                                    .Size(UIWidgets::Sizes::Inline))) {
+            if (UIWidgets::Button("Current", UIWidgets::ButtonOptions{ { .color = UIWidgets::Colors::Gray } }.Size(
+                                                 UIWidgets::Sizes::Inline))) {
                 selectedScene = gPlayState->sceneId;
             }
         }
