@@ -60,4 +60,5 @@ class Menu : public GuiWindow {
     float windowWidth;
 };
 } // namespace Ship
+
 #endif // MENU_H

@@ -113,4 +113,5 @@ class BenMenu : public Ship::Menu {
     std::vector<std::string> devToolsOrder;
 };
 } // namespace BenGui
+
 #endif // BENMENU_H

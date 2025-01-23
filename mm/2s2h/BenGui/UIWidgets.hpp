@@ -280,19 +280,19 @@ namespace UIWidgets {
             format = format_;
             return *this;
         }
-        FloatSliderOptions& Step(int32_t step_) {
+        FloatSliderOptions& Step(float step_) {
             step = step_;
             return *this;
         }
-        FloatSliderOptions& Min(int32_t min_) {
+        FloatSliderOptions& Min(float min_) {
             min = min_;
             return *this;
         }
-        FloatSliderOptions& Max(int32_t max_) {
+        FloatSliderOptions& Max(float max_) {
             max = max_;
             return *this;
         }
-        FloatSliderOptions& DefaultValue(int32_t defaultValue_) {
+        FloatSliderOptions& DefaultValue(float defaultValue_) {
             defaultValue = defaultValue_;
             return *this;
         }

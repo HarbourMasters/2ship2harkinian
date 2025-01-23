@@ -267,4 +267,5 @@ static const std::unordered_map<Ship::WindowBackend, const char*> windowBackends
     { Ship::WindowBackend::FAST3D_SDL_OPENGL, "OpenGL" },
     { Ship::WindowBackend::FAST3D_SDL_METAL, "Metal" },
 };
+
 #endif // MENUTYPES_H
