@@ -1,4 +1,5 @@
-#pragma once
+#ifndef BENMENU_H
+#define BENMNEU_H
 
 #include <libultraship/libultraship.h>
 #include "UIWidgets.hpp"
@@ -112,3 +113,4 @@ class BenMenu : public Ship::Menu {
     std::vector<std::string> devToolsOrder;
 };
 } // namespace BenGui
+#endif // BENMENU_H

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef MENU_H
+#define MENU_H
 
 #include <libultraship/libultraship.h>
 #include "UIWidgets.hpp"
@@ -59,3 +60,4 @@ class Menu : public GuiWindow {
     float windowWidth;
 };
 } // namespace Ship
+#endif // MENU_H

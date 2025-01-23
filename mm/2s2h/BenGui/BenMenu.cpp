@@ -1413,7 +1413,7 @@ void BenMenu::InitElement() {
     AddSettings();
     AddEnhancements();
     AddDevTools();
-    RegisterResolutionWidgets();
+    // RegisterResolutionWidgets();
 
     menuEntries = { { "Settings", settingsSidebar, "gSettings.Menu.SettingsSidebarSection", settingsOrder },
                     { "Enhancements", enhancementsSidebar, "gSettings.Menu.EnhancementsSidebarSection",
@@ -1528,10 +1528,13 @@ void BenMenu::InitElement() {
 
 void BenMenu::UpdateElement() {
     Ship::Menu::UpdateElement();
-    UpdateResolutionVars();
 }
 
 void BenMenu::Draw() {
+    // if (CVarGetInteger("gSettings.Menu.SelectedHeader", 0) &&
+    // CVarGetInteger("gSettings.Menu.EnhancementsSidebarSection", 0)) {
+    //     UpdateResolutionVars();
+    // }
     Ship::Menu::Draw();
 }
 
