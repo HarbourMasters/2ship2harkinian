@@ -109,6 +109,7 @@ void OnPlayerUpdate(Actor* actor) {
         Audio_PlaySfx_MessageCancel();
         gPlayState->msgCtx.ocarinaMode = OCARINA_MODE_END;
         sActivelyChangingTime = false;
+        return;
     }
 
     // Pressing A should confirm the song
@@ -148,16 +149,47 @@ void OnPlayerUpdate(Actor* actor) {
             GameInteractor::Instance->UnregisterGameHook<GameInteractor::OnPlayDestroy>(onPlayDestroyHookId);
             onPlayDestroyHookId = 0;
         });
+
+        return;
     }
 
     AdjustDirection adjustMode = ADJUST_DIRECTION_NONE;
     f32 interval = (CLOCK_TIME_MINUTE_F * 30);
 
+    static s8 sDPadRepeatState = 0;
+    static s8 sDPadRepeatTimer = 0;
+
     // Check for DPad movement first, inheriting full speed
-    if (CHECK_BTN_ALL(input->press.button, BTN_DLEFT)) {
-        adjustMode = ADJUST_DIRECTION_REVERSE;
-    } else if (CHECK_BTN_ALL(input->press.button, BTN_DRIGHT)) {
-        adjustMode = ADJUST_DIRECTION_FORWARD;
+    if (CHECK_BTN_ALL(input->cur.button, BTN_DLEFT)) {
+        if (sDPadRepeatState == -1) {
+            sDPadRepeatTimer--;
+            if (sDPadRepeatTimer < 0) {
+                // Allow the input to register and apply the delay for all subsequent repeated inputs
+                sDPadRepeatTimer = 2;
+                adjustMode = ADJUST_DIRECTION_REVERSE;
+            }
+        } else {
+            // Allow the input to register and apply the delay for the first repeated input
+            sDPadRepeatTimer = 10;
+            sDPadRepeatState = -1;
+            adjustMode = ADJUST_DIRECTION_REVERSE;
+        }
+    } else if (CHECK_BTN_ALL(input->cur.button, BTN_DRIGHT)) {
+        if (sDPadRepeatState == 1) {
+            sDPadRepeatTimer--;
+            if (sDPadRepeatTimer < 0) {
+                // Allow the input to register and apply the delay for all subsequent repeated inputs
+                sDPadRepeatTimer = 2;
+                adjustMode = ADJUST_DIRECTION_FORWARD;
+            }
+        } else {
+            // Allow the input to register and apply the delay for the first repeated input
+            sDPadRepeatTimer = 10;
+            sDPadRepeatState = 1;
+            adjustMode = ADJUST_DIRECTION_FORWARD;
+        }
+    } else {
+        sDPadRepeatState = 0;
     }
 
     // Then analog stick direction, clamped to 30 minutes
@@ -334,6 +366,9 @@ void RegisterBetterSongOfDoubleTime() {
             gPlayState->msgCtx.ocarinaMode = OCARINA_MODE_PROCESS_RESTRICTED_SONG;
             return;
         }
+
+        Interface_SetAButtonDoAction(gPlayState, DO_ACTION_DECIDE);
+        Interface_SetHudVisibility(HUD_VISIBILITY_A_B);
 
         gPlayState->msgCtx.ocarinaMode = OCARINA_MODE_PROCESS_DOUBLE_TIME;
         sActivelyChangingTime = true;
