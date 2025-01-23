@@ -3575,9 +3575,10 @@ void KaleidoScope_Update(PlayState* play) {
                                 pauseCtx->savePromptState = PAUSE_SAVEPROMPT_STATE_5;
                             } else {
                                 if (CVarGetInteger("gEnhancements.Saving.PauseSave", 0)) {
-                                    Sram_SetFlashPagesOwlSave(sramCtx,
-                                                              gFlashOwlSaveStartPages[gSaveContext.fileNum * 2],
-                                                              gFlashOwlSaveNumPages[gSaveContext.fileNum * 2]);
+                                    Sram_SetFlashPagesOwlSave(
+                                        sramCtx,
+                                        gFlashOwlSaveStartPages[gSaveContext.fileNum * FLASH_SAVE_MAIN_MULTIPLIER],
+                                        gFlashOwlSaveNumPages[gSaveContext.fileNum * FLASH_SAVE_MAIN_MULTIPLIER]);
                                     Sram_StartWriteToFlashOwlSave(sramCtx);
                                     gSaveContext.save.isOwlSave = false;
                                     gSaveContext.save.shipSaveInfo.pauseSaveEntrance = -1;
@@ -4118,6 +4119,9 @@ void KaleidoScope_Update(PlayState* play) {
             break;
 
         case PAUSE_STATE_UNPAUSE_CLOSE:
+            if (!GameInteractor_Should(VB_KALEIDO_UNPAUSE_CLOSE, true)) {
+                break;
+            }
             pauseCtx->state = PAUSE_STATE_OFF;
             GameState_SetFramerateDivisor(&play->state, 3);
             R_PAUSE_BG_PRERENDER_STATE = PAUSE_BG_PRERENDER_UNK4;

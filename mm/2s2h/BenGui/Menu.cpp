@@ -16,6 +16,7 @@
 #include "variables.h"
 #include <variant>
 #include <tuple>
+#include "CosmeticEditor.h"
 
 extern "C" {
 #include "z64.h"
@@ -306,7 +307,7 @@ void Menu::MenuDrawItem(WidgetInfo& widget, uint32_t width) {
                     ImGui::PushStyleColor(ImGuiCol_Text, UIWidgets::ColorValues.at(widget.options->color));
                 }
                 ImGui::AlignTextToFramePadding();
-                ImGui::Text("%s", widget.name.c_str());
+                ImGui::TextWrapped("%s", widget.name.c_str());
                 if (widget.options->color != UIWidgets::Colors::NoColor) {
                     ImGui::PopStyleColor();
                 }

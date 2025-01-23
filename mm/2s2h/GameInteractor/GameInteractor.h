@@ -34,6 +34,7 @@ typedef enum {
     // Vanilla condition: gSaveContext.showTitleCard
     VB_SHOW_TITLE_CARD,
     VB_PLAY_ENTRANCE_CS,
+    VB_KALEIDO_UNPAUSE_CLOSE,
     VB_DISABLE_FD_MASK,
     VB_DOGGY_RACE_SET_MAX_SPEED,
     VB_LOWER_RAZOR_SWORD_DURABILITY,
@@ -81,6 +82,17 @@ typedef enum {
     VB_BE_HOOKSHOT_SURFACE,
     VB_DEKU_GUARD_SHOW_SEARCH_BALLS,
     VB_DISPLAY_SONG_OF_DOUBLE_TIME_PROMPT,
+    VB_ALLOW_SONG_DOUBLE_TIME_ON_FINAL_NIGHT,
+    VB_OWL_TELL_ABOUT_SHRINE,
+    VB_ARCHERY_ADD_BONUS_POINTS,
+    VB_HONEY_AND_DARLING_MINIGAME_FINISH,
+    VB_MINIMAP_TOGGLE,
+    VB_MONKEY_WAIT_TO_TALK_AFTER_APPROACH,
+    VB_MULTIPLY_INFLICTED_DMG,
+    VB_GORON_ROLL_CONSUME_MAGIC,
+    VB_GORON_ROLL_INCREASE_SPIKE_LEVEL,
+    VB_GORON_ROLL_DISABLE_SPIKE_MODE,
+    VB_DEKU_LINK_SPIN_ON_LAST_HOP,
 } GIVanillaBehavior;
 
 typedef enum {
@@ -294,6 +306,7 @@ class GameInteractor {
 
     DEFINE_HOOK(OnFileDropped, (std::string path));
 
+    DEFINE_HOOK(OnGameStateMainStart, ());
     DEFINE_HOOK(OnGameStateMainFinish, ());
     DEFINE_HOOK(OnGameStateDrawFinish, ());
     DEFINE_HOOK(OnGameStateUpdate, ());
@@ -344,6 +357,7 @@ class GameInteractor {
 extern "C" {
 #endif // __cplusplus
 
+void GameInteractor_ExecuteOnGameStateMainStart();
 void GameInteractor_ExecuteOnGameStateMainFinish();
 void GameInteractor_ExecuteOnGameStateDrawFinish();
 void GameInteractor_ExecuteOnGameStateUpdate();

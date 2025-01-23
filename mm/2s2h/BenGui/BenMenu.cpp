@@ -309,13 +309,27 @@ void BenMenu::AddSettings() {
         .Options(ComboboxOptions().Tooltip("Sets the applied Texture Filtering.")
             .ComboMap(textureFilteringMap));
 
-    path.sidebarName = "Input Editor";
-    AddSidebarEntry("Settings", "Input Editor", 1);
-    AddWidget(path, "Popout Input Editor", WIDGET_WINDOW_BUTTON)
+    path.sidebarName = "Controls";
+    AddSidebarEntry("Settings", "Controls", 1);
+    AddWidget(path, 
+        "This interface can be a little daunting. Please bear with us as we work to improve the experience "
+        "and address some known issues.\n"
+        "\n"
+        "At first glance, you may notice several input devices displayed below the 'Clear All' button. "
+        "Some of these might be other controllers connected to your computer, while others may be "
+        "duplicated controllers (a known issue). We recommend clicking on the box with the " ICON_FA_EYE
+        " icon and the name of any disconnected or unused controllers to hide their inputs. Make sure the "
+        "target controller remains visible.\n"
+        "\n"
+        "If you encounter issues connecting your controller or registering inputs, try closing Steam or "
+        "any other external input software. Alternatively, test a different controller to determine if "
+        "it's a compatibility issue.\n", WIDGET_TEXT);
+    AddWidget(path, "Bindings", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Popout Bindings Window", WIDGET_WINDOW_BUTTON)
         .CVar("gWindows.BenInputEditor")
         .WindowName("2S2H Input Editor")
-        .Options(ButtonOptions().Tooltip("Enables the separate Input Editor window.")
-            .Size(Sizes::Inline));
+        .Options(ButtonOptions().Tooltip("Enables the separate Bindings Window.")
+        .Size(Sizes::Inline));
 
     path.sidebarName = "Notifications";
     AddSidebarEntry("Settings", "Notifications", 1);
@@ -493,7 +507,7 @@ void BenMenu::AddEnhancements() {
                 info.activeDisables.push_back(DISABLE_FOR_CAMERAS_OFF);
             }
         })
-        .Options(CheckboxOptions().Tooltip("Inverts the Camera Y Axis"));
+        .Options(CheckboxOptions().Tooltip("Inverts the Camera Y Axis").DefaultValue(true));
     AddWidget(path, "Third-Person Horizontal Sensitivity: %.0f", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar("gEnhancements.Camera.RightStick.CameraSensitivity.X")
         .PreFunc([](WidgetInfo& info) {
@@ -537,6 +551,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Infinite Consumables", WIDGET_CVAR_CHECKBOX)
         .CVar("gCheats.InfiniteConsumables")
         .Options(CheckboxOptions().Tooltip("Always have max Consumables, you must have collected the consumables first."));
+    AddWidget(path, "Easy Frame Advance", WIDGET_CVAR_CHECKBOX)
+        .CVar("gCheats.EasyFrameAdvance")
+        .Options(CheckboxOptions().Tooltip("Continue holding START button when unpausing to only advance a single frame and then re-pause"));
     AddWidget(path, "Longer Deku Flower Glide", WIDGET_CVAR_CHECKBOX)
         .CVar("gCheats.LongerFlowerGlide")
         .Options(CheckboxOptions().Tooltip("Allows Deku Link to glide longer, no longer dropping after a certain distance."));
@@ -576,6 +593,9 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Player.FastFlowerLaunch")
         .Options(CheckboxOptions().Tooltip("Speeds up the time it takes to be able to get maximum height from"
             "launching out of a deku flower"));
+    AddWidget(path, "Infinite Deku Hopping", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Player.InfiniteDekuHopping")
+        .Options(CheckboxOptions().Tooltip("Allows Deku Link to hop indefinitely in water without drowning."));
     AddWidget(path, "Instant Putaway", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Player.InstantPutaway")
         .Options(CheckboxOptions().Tooltip("Allows Link to instantly puts away held item without waiting."));
@@ -589,25 +609,6 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Dpad Equips", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Dpad.DpadEquips")
         .Options(CheckboxOptions().Tooltip("Allows you to equip items to your d-pad"));
-    AddWidget(path, "Always Win Doggy Race", WIDGET_CVAR_COMBOBOX)
-        .CVar("gEnhancements.Minigames.AlwaysWinDoggyRace")
-        .Options(ComboboxOptions().Tooltip("Makes the Doggy Race easier to win.")
-        .ComboMap(alwaysWinDoggyraceOptions));
-    AddWidget(path, "Milk Run Reward Options", WIDGET_CVAR_COMBOBOX)
-        .CVar("gEnhancements.Minigames.CremiaHugs")
-        .Options(ComboboxOptions().Tooltip("Choose what reward you get for winning the Milk Run minigame after the first time. \n"
-                 "-Vanilla: Reward is Random\n"
-                 "-Hug: Get the hugging cutscene\n"
-                 "-Rupee: Get the rupee reward")
-            .ComboMap(cremiaRewardOptions));
-    AddWidget(path, "Cucco Shack Cucco Count", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.CuccoShackCuccoCount")
-        .Options(IntSliderOptions().Tooltip("Choose how many cuccos you need to raise to make Grog happy.")
-            .Min(1).Max(10).DefaultValue(10));
-    AddWidget(path, "Swordsman School Winning Score", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.SwordsmanSchoolScore")
-        .Options(IntSliderOptions().Tooltip("Sets the score required to win the Swordsman School.")
-            .Min(1).Max(30).DefaultValue(30));
     AddWidget(path, "Fast Magic Arrow Equip Animation", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Equipment.MagicArrowEquipSpeed")
         .Options(CheckboxOptions().Tooltip("Removes the animation for equipping Magic Arrows."));
@@ -617,6 +618,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Two-Handed Sword Spin Attack", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Equipment.TwoHandedSwordSpinAttack")
         .Options(CheckboxOptions().Tooltip("Enables magic spin attacks for the Fierce Deity Sword and Great Fairy's Sword."));
+    AddWidget(path, "Arrow Type Cycling", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.PlayerActions.ArrowCycle")
+        .Options(CheckboxOptions().Tooltip("While aiming the bow, use L to cycle between Normal, Fire, Ice and Light arrows."));
 
     path.column = 2;
     AddWidget(path, "Modes", WIDGET_SEPARATOR_TEXT);
@@ -640,9 +644,52 @@ void BenMenu::AddEnhancements() {
             }
         })
         .Options(CheckboxOptions().Tooltip("Mirrors the world horizontally."));
+    AddWidget(path, "Minigames", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Always Win Doggy Race", WIDGET_CVAR_COMBOBOX)
+        .CVar("gEnhancements.Minigames.AlwaysWinDoggyRace")
+        .Options(ComboboxOptions().Tooltip("Makes the Doggy Race easier to win.")
+        .ComboMap(alwaysWinDoggyraceOptions));
+    AddWidget(path, "Milk Run Reward Options", WIDGET_CVAR_COMBOBOX)
+        .CVar("gEnhancements.Minigames.CremiaHugs")
+        .Options(ComboboxOptions().Tooltip("Choose what reward you get for winning the Milk Run minigame after the first time. \n"
+                 "-Vanilla: Reward is Random\n"
+                 "-Hug: Get the hugging cutscene\n"
+                 "-Rupee: Get the rupee reward")
+            .ComboMap(cremiaRewardOptions));
+    AddWidget(path, "Cucco Shack Cucco Count", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.CuccoShackCuccoCount")
+        .Options(IntSliderOptions().Tooltip("Choose how many cuccos you need to raise to make Grog happy.")
+            .Min(1).Max(10).DefaultValue(10));
+    AddWidget(path, "Swordsman School Winning Score", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.SwordsmanSchoolScore")
+        .Options(IntSliderOptions().Tooltip("Sets the score required to win the Swordsman School.")
+            .Min(1).Max(30).DefaultValue(30));
+    AddWidget(path, "Swamp Archery Perfect Score", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.SwampArcheryScore")
+        .Options(IntSliderOptions().Tooltip("Sets the score required to win the Swamp Archery minigame, if this is changed it also speeds up the final score counting.")
+            .Min(1000).Max(2180).DefaultValue(2180));
+    AddWidget(path, "Town Archery Perfect Score", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.TownArcheryScore")
+        .Options(IntSliderOptions().Tooltip("Sets the score required to win the Town Archery minigame. Reaching this score will end the minigame.")
+            .Min(1).Max(50).DefaultValue(50));
+    AddWidget(path, "Honey & Darling Day 1 (Bombchus)", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.HoneyAndDarlingDay1")
+        .Options(IntSliderOptions().Tooltip("Sets the score required to win the Honey & Darling minigame on Day 1.")
+            .Min(1).Max(8).DefaultValue(8));
+    AddWidget(path, "Honey & Darling Day 2 (Bombs)", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.HoneyAndDarlingDay2")
+        .Options(IntSliderOptions().Tooltip("Sets the score required to win the Honey & Darling minigame on Day 2.")
+            .Min(1).Max(8).DefaultValue(8));
+    AddWidget(path, "Honey & Darling Day 3 (Bow)", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.HoneyAndDarlingDay3")
+        .Options(IntSliderOptions().Tooltip("Sets the score required to win the Honey & Darling minigame on Day 3.")
+            .Min(1).Max(16).DefaultValue(16));
 
     path.column = 3;
     AddWidget(path, "Saving", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "3rd Save File Slot", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Saving.FileSlot3")
+        .Options(CheckboxOptions().Tooltip("Adds a 3rd file slot that can be used for saves").DefaultValue(true));
     AddWidget(path, "Persistent Owl Saves", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Saving.PersistentOwlSaves")
         .Options(CheckboxOptions().Tooltip("Continuing a save will not remove the owl save. Playing Song of "
@@ -798,6 +845,12 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "No Blast Mask Cooldown", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Masks.NoBlastMaskCooldown")
         .Options(CheckboxOptions().Tooltip("Eliminates the Cooldown between Blast Mask usage."));
+    AddWidget(path, "Goron Rolling Ignores Magic", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Masks.GoronRollingIgnoresMagic")
+        .Options(CheckboxOptions().Tooltip("Goron rolling will use spikes even when Link doesn't have magic, and doesn't consume any."));
+    AddWidget(path, "Goron Rolling Fast Spikes", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Masks.GoronRollingFastSpikes")
+        .Options(CheckboxOptions().Tooltip("Speeds up the wind-up towards spiky rolling to be near instant."));
 
     // Song Enhancements
     path.column = 2;
@@ -873,6 +926,11 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Fast Text", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Dialogue.FastText")
         .Options(CheckboxOptions().Tooltip("Speeds up text rendering, and enables holding of B progress to next message."));
+    path.column = 3;
+    AddWidget(path, "Other", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Swamp Boat Timesaver", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.SwampBoatSpeed")
+        .Options(CheckboxOptions().Tooltip("Hold Z to speed up the boat ride in through the Swamp."));
 
     // Fixes
     path = { "Enhancements", "Fixes", 1 };
@@ -928,6 +986,14 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip("Restores the appearance of Woodfall mountain to not look poisoned "
                  "when viewed from Termina Field after clearing Woodfall Temple\n\n"
                  "Requires a scene reload to take effect"));
+    AddWidget(path, "Simulated Input Lag", WIDGET_CVAR_SLIDER_INT)
+        .CVar(CVAR_SIMULATED_INPUT_LAG)
+        .Options(IntSliderOptions().Tooltip("Buffers your inputs to be executed a specified amount of frames later")
+            .Min(0).Max(6).DefaultValue(0));
+    AddWidget(path, "Pause Buffer Input Window", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Restorations.PauseBufferWindow")
+        .Options(IntSliderOptions().Tooltip("Amount of time in frames you have to buffer an input while unpausing the game. Original hardware is around 20")
+            .Min(0).Max(40).DefaultValue(0));
 
     // Difficulty Options
     path = { "Enhancements", "Difficulty Options", 1 };
@@ -945,6 +1011,19 @@ void BenMenu::AddEnhancements() {
                 "- Always: Always show the search balls.")
             .DefaultIndex(DekuGuardSearchBallsOptions::DEKU_GUARD_SEARCH_BALLS_NIGHT_ONLY)
             .ComboMap(dekuGuardSearchBallsOptions));
+
+    path.column = 2;
+    AddWidget(path, "Damage Multiplier", WIDGET_CVAR_COMBOBOX)
+        .CVar("gEnhancements.DifficultyOptions.DamageMultiplier")
+        .Options(ComboboxOptions()
+            .Tooltip("Adjusts the amount of damage Link takes from all sources.")
+            .ComboMap(damageMultiplierOptions));
+    AddWidget(path, "Permanent Heart Loss", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.DifficultyOptions.PermanentHeartLoss")
+        .Options(CheckboxOptions().Tooltip("When you lose 4 quarters of a heart you will permanently lose that heart container.\n\nDisabling this after the fact will not restore any received heart containers."));
+    AddWidget(path, "Delete File on Death", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.DifficultyOptions.DeleteFileOnDeath")
+        .Options(CheckboxOptions().Tooltip("Dying will delete your file\n\n     " ICON_FA_EXCLAMATION_TRIANGLE " WARNING " ICON_FA_EXCLAMATION_TRIANGLE "\nTHIS IS NOT REVERSABLE\nUSE AT YOUR OWN RISK!"));
 
     // HUD Editor
     path = { "Enhancements", "HUD Editor", 1 };
