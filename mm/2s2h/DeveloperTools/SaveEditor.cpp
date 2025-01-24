@@ -430,7 +430,7 @@ void DrawGeneralTab() {
     for (size_t i = 0; i < timeSkipAmounts.size(); i++) {
         const auto& skip = timeSkipAmounts.at(i);
         if (UIWidgets::Button(skip.second,
-                              { .size = UIWidgets::Sizes::Inline, .color = UIWidgets::Colors::DarkBlue })) {
+                              { .size = UIWidgets::Sizes::Inline, .color = UIWidgets::Colors::LightBlue })) {
             UpdateGameTime(gSaveContext.save.time + CLOCK_TIME(0, skip.first));
         }
         if (i < timeSkipAmounts.size() - 1) {
@@ -1261,7 +1261,7 @@ void GetPlayerForm(uint32_t form) {
             break;
         case PLAYER_FORM_ZORA:
             curForm = "Zora";
-            formColor = UIWidgets::Colors::DarkBlue;
+            formColor = UIWidgets::Colors::LightBlue;
             formObject = OBJECT_LINK_ZORA;
             break;
         case PLAYER_FORM_DEKU:
