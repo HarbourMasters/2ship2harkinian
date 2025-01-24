@@ -628,7 +628,9 @@ void Menu::DrawElement() {
             !ImGui::IsMouseClicked(0)) {
             ImGui::SetKeyboardFocusHere(0);
         }
-        ImGui::PushStyleColor(ImGuiCol_FrameBg, { 0, 0, 0, 0 });
+        auto color = UIWidgets::ColorValues.at(menuThemeIndex);
+        color.w = 0.2f;
+        ImGui::PushStyleColor(ImGuiCol_FrameBg, color);
         menuSearch.Draw("##search", 200.0f);
         menuSearchText = menuSearch.InputBuf;
         menuSearchText.erase(std::remove(menuSearchText.begin(), menuSearchText.end(), ' '), menuSearchText.end());
