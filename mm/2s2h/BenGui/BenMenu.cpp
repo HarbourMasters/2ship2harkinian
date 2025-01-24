@@ -1167,7 +1167,7 @@ void BenMenu::AddEnhancements() {
                 .DefaultIndex(DekuGuardSearchBallsOptions::DEKU_GUARD_SEARCH_BALLS_NIGHT_ONLY)
                 .ComboMap(dekuGuardSearchBallsOptions));
     AddWidget(path, "Gibdo Trade Sequence Options", WIDGET_CVAR_COMBOBOX)
-        .CVar("gEnhancements.Minigames.GibdoTradeSequence")
+        .CVar("gEnhancements.Cheats.GibdoTradeSequence")
         .Options(
             ComboboxOptions()
                 .Tooltip(
