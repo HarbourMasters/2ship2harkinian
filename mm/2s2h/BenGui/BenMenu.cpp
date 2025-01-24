@@ -109,7 +109,7 @@ void BenMenu::AddSettings() {
     AddSidebarEntry("Settings", "General", 3);
     WidgetPath path = { "Settings", "General", 1 };
     AddWidget(path, "Menu Theme", WIDGET_CVAR_COMBOBOX)
-        .CVar("gSettings.MenuTheme")
+        .CVar("gSettings.Menu.Theme")
         .Options(ComboboxOptions()
                      .Tooltip("Changes the Theme of the Menu Widgets.")
                      .ComboMap(menuThemeOptions)
@@ -1405,7 +1405,8 @@ void BenMenu::AddDevTools() {
         .WindowName("Event Log");
 }
 
-BenMenu::BenMenu(const std::string& consoleVariable, const std::string& name) : Menu(consoleVariable, name, 0, UIWidgets::Colors::LightBlue) {
+BenMenu::BenMenu(const std::string& consoleVariable, const std::string& name)
+    : Menu(consoleVariable, name, 0, UIWidgets::Colors::LightBlue) {
 }
 
 void BenMenu::InitElement() {

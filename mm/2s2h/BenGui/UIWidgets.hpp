@@ -74,7 +74,7 @@ namespace UIWidgets {
         { Colors::Cyan, ImVec4(0.0f, 0.9f, 0.9f, 1.0f) },
         { Colors::LightBlue, ImVec4(0.0f, 0.24f, 0.8f, 1.0f) },
         { Colors::Blue, ImVec4(0.08f, 0.03f, 0.65f, 1.0f) },
-        { Colors::DarkBlue, ImVec4(0.03f, 0.0f, 0.5f, 1.0f) },
+        { Colors::LightBlue, ImVec4(0.03f, 0.0f, 0.5f, 1.0f) },
         { Colors::Indigo, ImVec4(0.35f, 0.0f, 0.87f, 1.0f) },
         { Colors::Violet, ImVec4(0.5f, 0.0f, 0.9f, 1.0f) },
         { Colors::Purple, ImVec4(0.31f, 0.0f, 0.67f, 1.0f) },
@@ -147,7 +147,7 @@ namespace UIWidgets {
         bool defaultValue = false; // Only applicable to CVarCheckbox
         ComponentAlignment alignment = ComponentAlignment::Left;
         LabelPosition labelPosition = LabelPosition::Near;
-        Colors color = WidgetOptions::color = Colors::DarkBlue;
+        Colors color = WidgetOptions::color = Colors::LightBlue;
 
         CheckboxOptions& DefaultValue(bool defaultValue_) {
             defaultValue = defaultValue_;
@@ -177,7 +177,7 @@ namespace UIWidgets {
         ComponentAlignment alignment = ComponentAlignment::Left;
         LabelPosition labelPosition = LabelPosition::Above;
         ImGuiComboFlags flags = 0;
-        Colors color = Colors::DarkBlue;
+        Colors color = Colors::LightBlue;
 
         ComboboxOptions& ComboMap(std::unordered_map<int32_t, const char*> comboMap_) {
             comboMap = comboMap_;
@@ -322,14 +322,14 @@ namespace UIWidgets {
     };
 
     void PushStyleMenu(const ImVec4& color);
-    void PushStyleMenu(Colors color = Colors::DarkBlue);
+    void PushStyleMenu(Colors color = Colors::LightBlue);
     void PopStyleMenu();
-    bool BeginMenu(const char* label, Colors color = Colors::DarkBlue);
+    bool BeginMenu(const char* label, Colors color = Colors::LightBlue);
 
     void PushStyleMenuItem(const ImVec4& color);
-    void PushStyleMenuItem(Colors color = Colors::DarkBlue);
+    void PushStyleMenuItem(Colors color = Colors::LightBlue);
     void PopStyleMenuItem();
-    bool MenuItem(const char* label, const char* shortcut = NULL, Colors color = Colors::DarkBlue);
+    bool MenuItem(const char* label, const char* shortcut = NULL, Colors color = Colors::LightBlue);
 
     void PushStyleButton(const ImVec4& color);
     void PushStyleButton(Colors color = Colors::Gray);
@@ -338,14 +338,14 @@ namespace UIWidgets {
     bool WindowButton(const char* label, const char* cvarName, std::shared_ptr<Ship::GuiWindow> windowPtr, const ButtonOptions& options = {});
 
     void PushStyleCheckbox(const ImVec4& color);
-    void PushStyleCheckbox(Colors color = Colors::DarkBlue);
+    void PushStyleCheckbox(Colors color = Colors::LightBlue);
     void PopStyleCheckbox();
     void RenderText(ImVec2 pos, const char* text, const char* text_end, bool hide_text_after_hash);
     bool Checkbox(const char* label, bool* v, const CheckboxOptions& options = {});
     bool CVarCheckbox(const char* label, const char* cvarName, const CheckboxOptions& options = {});
 
     void PushStyleCombobox(const ImVec4& color);
-    void PushStyleCombobox(Colors color = Colors::DarkBlue);
+    void PushStyleCombobox(Colors color = Colors::LightBlue);
     void PopStyleCombobox();
 
     /*using ComboVariant = std::variant<const std::unordered_map<int32_t, const char*>&, const std::vector<const char*>&>;
@@ -699,7 +699,7 @@ namespace UIWidgets {
         return dirty;
     }
 
-    void PushStyleSlider(Colors color = Colors::DarkBlue);
+    void PushStyleSlider(Colors color = Colors::LightBlue);
     void PopStyleSlider();
     bool SliderInt(const char* label, int32_t* value, const IntSliderOptions& options = {});
     bool CVarSliderInt(const char* label, const char* cvarName, const IntSliderOptions& options = {});
