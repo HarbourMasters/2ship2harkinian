@@ -600,7 +600,7 @@ void Menu::DrawElement() {
             ImGui::PushStyleColor(ImGuiCol_Button, { 0, 0, 0, 0 });
         }
         if (ModernMenuHeaderEntry(entry.label)) {
-            if (autoFocus) {
+            if (headerSearch) {
                 menuSearch.Clear();
             }
             CVarSetInteger(headerCvar, i);
@@ -698,7 +698,7 @@ void Menu::DrawElement() {
             ImGui::PushStyleColor(ImGuiCol_Button, { 0, 0, 0, 0 });
         }
         if (ModernMenuSidebarEntry(sidebarLabel)) {
-            if (autoFocus) {
+            if (headerSearch) {
                 menuSearch.Clear();
             }
             CVarSetString(sidebarCvar, sidebarLabel.c_str());
