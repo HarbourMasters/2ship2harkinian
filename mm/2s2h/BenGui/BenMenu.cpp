@@ -113,7 +113,7 @@ void BenMenu::AddSettings() {
         .Options(ComboboxOptions()
                      .Tooltip("Changes the Theme of the Menu Widgets.")
                      .ComboMap(menuThemeOptions)
-                     .DefaultIndex(Colors::DarkBlue));
+                     .DefaultIndex(Colors::LightBlue));
 #if not defined(__SWITCH__) and not defined(__WIIU__)
     AddWidget(path, "Menu Controller Navigation", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_IMGUI_CONTROLLER_NAV)
@@ -130,9 +130,9 @@ void BenMenu::AddSettings() {
         .Options(CheckboxOptions().Tooltip("Makes the cursor always visible, even in full screen."));
 #endif
     AddWidget(path, "Search In Sidebar", WIDGET_CVAR_CHECKBOX)
-        .CVar("gSettings.SidebarSearch")
+        .CVar("gSettings.Menu.SidebarSearch")
         .Callback([](WidgetInfo& info) {
-            if (CVarGetInteger("gSettings.SidebarSearch", 0)) {
+            if (CVarGetInteger("gSettings.Menu.SidebarSearch", 0)) {
                 mBenMenu->InsertSidebarSearch();
             } else {
                 mBenMenu->RemoveSidebarSearch();
@@ -141,7 +141,7 @@ void BenMenu::AddSettings() {
         .Options(CheckboxOptions().Tooltip(
             "Displays the Search menu as a sidebar entry in Settings instead of in the header."));
     AddWidget(path, "Search Input Autofocus", WIDGET_CVAR_CHECKBOX)
-        .CVar("gSettings.SearchAutofocus")
+        .CVar("gSettings.Menu.SearchAutofocus")
         .Options(CheckboxOptions().Tooltip(
             "Search input box gets autofocus when visible. Does not affect using other widgets."));
     AddWidget(path, "Alt Assets Tab hotkey", WIDGET_CVAR_CHECKBOX)
@@ -1405,7 +1405,7 @@ void BenMenu::AddDevTools() {
         .WindowName("Event Log");
 }
 
-BenMenu::BenMenu(const std::string& consoleVariable, const std::string& name) : Menu(consoleVariable, name) {
+BenMenu::BenMenu(const std::string& consoleVariable, const std::string& name) : Menu(consoleVariable, name, 0, UIWidgets::Colors::LightBlue) {
 }
 
 void BenMenu::InitElement() {
@@ -1420,7 +1420,7 @@ void BenMenu::InitElement() {
                       enhancementsOrder },
                     { "Developer Tools", devToolsSidebar, "gSettings.Menu.DevToolsSidebarSection", devToolsOrder } };
 
-    if (CVarGetInteger("gSettings.SidebarSearch", 0)) {
+    if (CVarGetInteger("gSettings.Menu.SidebarSearch", 0)) {
         InsertSidebarSearch();
     }
 

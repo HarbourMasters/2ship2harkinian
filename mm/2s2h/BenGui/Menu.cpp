@@ -84,9 +84,15 @@ void Menu::InsertSidebarSearch() {
 }
 
 void Menu::RemoveSidebarSearch() {
+    uint32_t curIndex = GetVectorIndexOf(menuEntries[0].sidebarOrder, CVarGetString(menuEntries[0].sidebarCvar, ""));
     menuEntries[0].sidebars.erase("Search");
     std::erase_if(menuEntries[0].sidebarOrder, [](std::string& name) { return name == "Search"; });
-    CVarSetString(menuEntries[0].sidebarCvar, menuEntries[0].sidebarOrder.at(searchSidebarIndex).c_str());
+    if (curIndex > searchSidebarIndex) {
+        curIndex--;
+    } else if (curIndex >= menuEntries[0].sidebarOrder.size()) {
+        curIndex = menuEntries[0].sidebarOrder.size() - 1;
+    }
+    CVarSetString(menuEntries[0].sidebarCvar, menuEntries[0].sidebarOrder.at(curIndex).c_str());
 }
 
 void Menu::UpdateWindowBackendObjects() {
@@ -105,8 +111,8 @@ void Menu::UpdateWindowBackendObjects() {
 }
 
 Menu::Menu(const std::string& cVar, const std::string& name, uint8_t searchSidebarIndex_,
-           UIWidgets::Colors menuThemeIndex_)
-    : GuiWindow(cVar, name), searchSidebarIndex(searchSidebarIndex_), menuThemeIndex(menuThemeIndex_) {
+           UIWidgets::Colors defaultThemeIndex_)
+    : GuiWindow(cVar, name), searchSidebarIndex(searchSidebarIndex_), defaultThemeIndex(defaultThemeIndex_) {
 }
 
 void Menu::InitElement() {
@@ -171,6 +177,7 @@ bool ModernMenuHeaderEntry(std::string label) {
 }
 
 uint32_t Menu::DrawSearchResults(std::string& menuSearchText) {
+    auto menuThemeIndex = static_cast<UIWidgets::Colors>(CVarGetInteger("gSettings.Menu.Theme", defaultThemeIndex));
     ImGui::BeginChild("Search Results");
     int searchCount = 0;
     for (auto& menuEntry : menuEntries) {
@@ -190,7 +197,7 @@ uint32_t Menu::DrawSearchResults(std::string& menuSearchText) {
                 std::transform(widgetStr.begin(), widgetStr.end(), widgetStr.begin(), ::tolower);
                 widgetStr.erase(std::remove(widgetStr.begin(), widgetStr.end(), ' '), widgetStr.end());
                 if (widgetStr.find(menuSearchText) != std::string::npos) {
-                    MenuDrawItem(info, 90 / sidebar.columnCount);
+                    MenuDrawItem(info, 90 / sidebar.columnCount, menuThemeIndex);
                     ImGui::PushStyleColor(ImGuiCol_Text, UIWidgets::ColorValues.at(UIWidgets::Colors::Gray));
                     std::string origin = fmt::format("  ({} -> {}, Col {})", menuEntry.label, sidebarLabel, column);
                     ImGui::Text("%s", origin.c_str());
@@ -212,7 +219,7 @@ std::unordered_map<uint32_t, disabledInfo>& Menu::GetDisabledMap() {
     return disabledMap;
 }
 
-void Menu::MenuDrawItem(WidgetInfo& widget, uint32_t width) {
+void Menu::MenuDrawItem(WidgetInfo& widget, uint32_t width, UIWidgets::Colors menuThemeIndex) {
     disabledTempTooltip = "This setting is disabled because: \n\n";
     disabledValue = false;
     disabledTooltip = " ";
@@ -427,7 +434,7 @@ void Menu::MenuDrawItem(WidgetInfo& widget, uint32_t width) {
                     menuSearch.Clear();
                 }
                 ImGui::SameLine();
-                if (CVarGetInteger("gSettings.SearchAutofocus", 0) &&
+                if (CVarGetInteger("gSettings.Menu.SearchAutofocus", 0) &&
                     ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && !ImGui::IsAnyItemActive() &&
                     !ImGui::IsMouseClicked(0)) {
                     ImGui::SetKeyboardFocusHere(0);
@@ -472,7 +479,7 @@ void Menu::DrawElement() {
     for (auto& [reason, info] : disabledMap) {
         info.active = info.evaluation(info);
     }
-    menuThemeIndex = static_cast<UIWidgets::Colors>(CVarGetInteger("gSettings.MenuTheme", 3));
+    auto menuThemeIndex = static_cast<UIWidgets::Colors>(CVarGetInteger("gSettings.Menu.Theme", defaultThemeIndex));
 
     windowHeight = ImGui::GetMainViewport()->WorkSize.y;
     windowWidth = ImGui::GetMainViewport()->WorkSize.x;
@@ -580,8 +587,8 @@ void Menu::DrawElement() {
     if (scrollbar) {
         headerSelSize.y += style.ScrollbarSize;
     }
-    bool autoFocus = CVarGetInteger("gSettings.SearchAutofocus", 0);
-    bool headerSearch = !CVarGetInteger("gSettings.SidebarSearch", 0);
+    bool autoFocus = CVarGetInteger("gSettings.Menu.SearchAutofocus", 0);
+    bool headerSearch = !CVarGetInteger("gSettings.Menu.SidebarSearch", 0);
     ImGui::BeginChild("Header Selection", headerSelSize,
                       ImGuiChildFlags_AutoResizeX | ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysAutoResize,
                       ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_HorizontalScrollbar);
@@ -755,7 +762,7 @@ void Menu::DrawElement() {
             }
             // for (auto& entryName : sidebar->at(sectionIndex).sidebarOrder) {
             for (auto& entry : sidebar->at(sectionIndex).columnWidgets.at(i)) {
-                MenuDrawItem(entry, 90 / sidebar->at(sectionIndex).columnCount);
+                MenuDrawItem(entry, 90 / sidebar->at(sectionIndex).columnCount, menuThemeIndex);
             }
             //}
             if (useColumns) {
