@@ -4119,6 +4119,9 @@ void KaleidoScope_Update(PlayState* play) {
             break;
 
         case PAUSE_STATE_UNPAUSE_CLOSE:
+            if (!GameInteractor_Should(VB_KALEIDO_UNPAUSE_CLOSE, true)) {
+                break;
+            }
             pauseCtx->state = PAUSE_STATE_OFF;
             GameState_SetFramerateDivisor(&play->state, 3);
             R_PAUSE_BG_PRERENDER_STATE = PAUSE_BG_PRERENDER_UNK4;

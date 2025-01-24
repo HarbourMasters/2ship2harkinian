@@ -34,6 +34,7 @@ typedef enum {
     // Vanilla condition: gSaveContext.showTitleCard
     VB_SHOW_TITLE_CARD,
     VB_PLAY_ENTRANCE_CS,
+    VB_KALEIDO_UNPAUSE_CLOSE,
     VB_DISABLE_FD_MASK,
     VB_DOGGY_RACE_SET_MAX_SPEED,
     VB_LOWER_RAZOR_SWORD_DURABILITY,
