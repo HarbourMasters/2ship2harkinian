@@ -74,7 +74,7 @@ namespace UIWidgets {
         { Colors::Cyan, ImVec4(0.0f, 0.9f, 0.9f, 1.0f) },
         { Colors::LightBlue, ImVec4(0.0f, 0.24f, 0.8f, 1.0f) },
         { Colors::Blue, ImVec4(0.08f, 0.03f, 0.65f, 1.0f) },
-        { Colors::LightBlue, ImVec4(0.03f, 0.0f, 0.5f, 1.0f) },
+        { Colors::DarkBlue, ImVec4(0.03f, 0.0f, 0.5f, 1.0f) },
         { Colors::Indigo, ImVec4(0.35f, 0.0f, 0.87f, 1.0f) },
         { Colors::Violet, ImVec4(0.5f, 0.0f, 0.9f, 1.0f) },
         { Colors::Purple, ImVec4(0.31f, 0.0f, 0.67f, 1.0f) },
