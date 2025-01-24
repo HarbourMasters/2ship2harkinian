@@ -1020,6 +1020,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Faster Song Playback", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Songs.FasterSongPlayback")
         .Options(CheckboxOptions().Tooltip("Speeds up the playback of songs."));
+    AddWidget(path, "Skip Song of Time cutscenes", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Songs.SkipSoTCutscenes")
+        .Options(CheckboxOptions().Tooltip("Skips the cutscenes when playing any of the Song of Time songs"));
 
     // Time Savers
     path = { "Enhancements", "Time Savers", 1 };
