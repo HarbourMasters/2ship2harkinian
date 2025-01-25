@@ -679,7 +679,8 @@ void BenMenu::AddEnhancements() {
                                            "launching out of a deku flower"));
     AddWidget(path, "Infinite Deku Hopping", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Player.InfiniteDekuHopping")
-        .Options(CheckboxOptions().Tooltip("Allows Deku Link to hop indefinitely in water without drowning."));
+        .Options(CheckboxOptions().Tooltip("Allows Deku Link to hop indefinitely in water without drowning. This also "
+                                           "prevents the velocity loss while in the air."));
     AddWidget(path, "Instant Putaway", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Player.InstantPutaway")
         .Options(CheckboxOptions().Tooltip("Allows Link to instantly puts away held item without waiting."));
