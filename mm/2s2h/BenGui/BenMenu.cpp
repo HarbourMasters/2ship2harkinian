@@ -1074,7 +1074,7 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Fast Marine Lab Fish", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.MarineLabHP")
         .Options(CheckboxOptions().Tooltip("Only requires a single fish to be fed for the Piece of Heart to spawn. "
-            "Requires a Scene Reload to take effect."));
+                                           "Requires a Scene Reload to take effect."));
 
     // Fixes
     path = { "Enhancements", "Fixes", 1 };
