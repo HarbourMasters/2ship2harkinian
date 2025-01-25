@@ -13240,7 +13240,9 @@ void func_808477D0(PlayState* play, Player* this, Input* input, f32 arg3) {
     }
 
     var_fv0 = var_fv0 * arg3;
-    var_fv0 = CLAMP(var_fv0, 1.0f, 2.5f);
+    if (GameInteractor_Should(VB_CLAMP_ANIMATION_SPEED, true, &var_fv0)) {
+        var_fv0 = CLAMP(var_fv0, 1.0f, 2.5f);
+    }
     this->skelAnime.playSpeed = var_fv0;
 
     PlayerAnimation_Update(play, &this->skelAnime);

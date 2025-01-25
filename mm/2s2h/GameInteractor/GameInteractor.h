@@ -93,6 +93,7 @@ typedef enum {
     VB_GORON_ROLL_INCREASE_SPIKE_LEVEL,
     VB_GORON_ROLL_DISABLE_SPIKE_MODE,
     VB_DEKU_LINK_SPIN_ON_LAST_HOP,
+    VB_CLAMP_ANIMATION_SPEED,
 } GIVanillaBehavior;
 
 typedef enum {

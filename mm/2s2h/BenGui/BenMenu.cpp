@@ -1120,6 +1120,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Side Rolls", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Restorations.SideRoll")
         .Options(CheckboxOptions().Tooltip("Restores side rolling from OoT."));
+    AddWidget(path, "Faster Swim", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Restorations.OoTFasterSwim")
+        .Options(CheckboxOptions().Tooltip("Restores the ability to swim faster by spamming the B button, as in OoT."));
     AddWidget(path, "Tatl ISG", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Restorations.TatlISG")
         .Options(CheckboxOptions().Tooltip("Restores Navi ISG from OoT, but now with Tatl."));
