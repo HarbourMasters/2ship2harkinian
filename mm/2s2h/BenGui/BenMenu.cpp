@@ -762,6 +762,15 @@ void BenMenu::AddEnhancements() {
                      .Min(1)
                      .Max(30)
                      .DefaultValue(30));
+    AddWidget(path, "Beaver Race Rings Collected", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.BeaverRaceRingsCollected")
+        .Options(IntSliderOptions()
+                     .Tooltip("Sets the number of rings required for both Beavers. If the slider is set to 20, the "
+                              "first Beaver will require 20 rings, and the second Beaver will require 25 rings, which "
+                              "are their vanilla values.")
+                     .Min(1)
+                     .Max(20)
+                     .DefaultValue(20));
     AddWidget(path, "Swamp Archery Perfect Score", WIDGET_CVAR_SLIDER_INT)
         .CVar("gEnhancements.Minigames.SwampArcheryScore")
         .Options(IntSliderOptions()
