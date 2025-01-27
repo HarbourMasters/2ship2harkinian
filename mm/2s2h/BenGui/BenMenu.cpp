@@ -1077,6 +1077,17 @@ void BenMenu::AddEnhancements() {
     path = { "Enhancements", "Fixes", 1 };
     AddSidebarEntry("Enhancements", "Fixes", 3);
     AddWidget(path, "Fixes", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Fix Console Crashes", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Fixes.ConsoleCrashes")
+        .Options(CheckboxOptions()
+                     .Tooltip("Fixes crashes that would typically happen on Console. "
+                              "Disabling this option will simply soft reset 2Ship when encountering these "
+                              "crashes instead of actually crashing the program.\n\n"
+                              "Includes the following:\n"
+                              "- HESS/Weirdshot crashes\n"
+                              "- Action Swap crash without arrow ammo\n"
+                              "- Owl Warp menu crash when moving the cursor with Index-Warp active")
+                     .DefaultValue(true));
     AddWidget(path, "Fix Ammo Count Color", WIDGET_CVAR_CHECKBOX)
         .CVar("gFixes.FixAmmoCountEnvColor")
         .Options(CheckboxOptions().Tooltip("Fixes a missing gDPSetEnvColor, which causes the ammo count to be "
@@ -1084,9 +1095,6 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Fix Fierce Deity Z-Target movement", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Fixes.FierceDeityZTargetMovement")
         .Options(CheckboxOptions().Tooltip("Fixes Fierce Deity movement being choppy when Z-targeting"));
-    AddWidget(path, "Fix Hess and Weirdshot Crash", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Fixes.HessCrash")
-        .Options(CheckboxOptions().Tooltip("Fixes a crash that can occur when performing a HESS or Weirdshot."));
     AddWidget(path, "Fix Text Control Characters", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Fixes.ControlCharacters")
         .Options(CheckboxOptions().Tooltip("Fixes certain control characters not functioning properly "

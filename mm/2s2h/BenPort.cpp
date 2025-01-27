@@ -1766,7 +1766,12 @@ extern "C" int Controller_ShouldRumble(size_t slot) {
 }
 
 // Helper to redirect the user to the boot screen in place of known console crash scenarios, and emits a notification
-extern "C" void Ship_HandleConsoleCrashAsReset() {
+extern "C" bool Ship_HandleConsoleCrashAsReset() {
+    // If fix crashes is on, return false and let fallback handling process in source
+    if (CVarGetInteger("gEnhancements.Fixes.ConsoleCrashes", 1)) {
+        return false;
+    }
+
     std::reinterpret_pointer_cast<Ship::ConsoleWindow>(
         Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Console"))
         ->Dispatch("reset");
@@ -1776,4 +1781,6 @@ extern "C" void Ship_HandleConsoleCrashAsReset() {
         .message = "Crash prevented!",
         .remainingTime = 10.0f,
     });
+
+    return true;
 }

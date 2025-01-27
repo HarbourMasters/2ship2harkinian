@@ -13794,7 +13794,7 @@ s32 Player_UpperAction_7(Player* this, PlayState* play) {
                     // For the port hard crashing is not desirable, so we are opting to clear the game state
                     if (this->unk_B28 - 1 < 0) {
                         Ship_HandleConsoleCrashAsReset();
-                        return 0;
+                        Player_PlaySfx(this, NA_SE_NONE);
                     } else {
                         Player_PlaySfx(this, D_8085D5FC[this->unk_B28 - 1]);
                     }
