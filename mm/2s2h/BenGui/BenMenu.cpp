@@ -762,6 +762,15 @@ void BenMenu::AddEnhancements() {
                      .Min(1)
                      .Max(30)
                      .DefaultValue(30));
+    AddWidget(path, "Beaver Race Rings Collected", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.BeaverRaceRingsCollected")
+        .Options(IntSliderOptions()
+                     .Tooltip("Sets the number of rings required for both Beavers. If the slider is set to 20, the "
+                              "first Beaver will require 20 rings, and the second Beaver will require 25 rings, which "
+                              "are their vanilla values.")
+                     .Min(1)
+                     .Max(20)
+                     .DefaultValue(20));
     AddWidget(path, "Swamp Archery Perfect Score", WIDGET_CVAR_SLIDER_INT)
         .CVar("gEnhancements.Minigames.SwampArcheryScore")
         .Options(IntSliderOptions()
@@ -986,7 +995,8 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Songs.BetterSongOfDoubleTime")
         .Options(CheckboxOptions().Tooltip(
             "When playing the Song of Double Time, you can now choose the exact time you want to go "
-            "to, similar to the 3DS version."));
+            "to, similar to the 3DS version.\n\n"
+            "Holding Z allows decreasing the time adjustment factor, while holding R will increase the factor"));
     AddWidget(path, "Enable Sun's Song", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Songs.EnableSunsSong")
         .Options(CheckboxOptions().Tooltip(
@@ -1071,11 +1081,26 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Swamp Boat Timesaver", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Timesavers.SwampBoatSpeed")
         .Options(CheckboxOptions().Tooltip("Hold Z to speed up the boat ride in through the Swamp."));
+    AddWidget(path, "Fast Marine Lab Fish", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.MarineLabHP")
+        .Options(CheckboxOptions().Tooltip("Only requires a single fish to be fed for the Piece of Heart to spawn. "
+                                           "Requires a Scene Reload to take effect."));
 
     // Fixes
     path = { "Enhancements", "Fixes", 1 };
     AddSidebarEntry("Enhancements", "Fixes", 3);
     AddWidget(path, "Fixes", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Fix Console Crashes", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Fixes.ConsoleCrashes")
+        .Options(CheckboxOptions()
+                     .Tooltip("Fixes crashes that would typically happen on Console. "
+                              "Disabling this option will simply soft reset 2Ship when encountering these "
+                              "crashes instead of actually crashing the program.\n\n"
+                              "Includes the following:\n"
+                              "- HESS/Weirdshot crashes\n"
+                              "- Action Swap crash without arrow ammo\n"
+                              "- Owl Warp menu crash when moving the cursor with Index-Warp active")
+                     .DefaultValue(true));
     AddWidget(path, "Fix Ammo Count Color", WIDGET_CVAR_CHECKBOX)
         .CVar("gFixes.FixAmmoCountEnvColor")
         .Options(CheckboxOptions().Tooltip("Fixes a missing gDPSetEnvColor, which causes the ammo count to be "
@@ -1083,9 +1108,6 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Fix Fierce Deity Z-Target movement", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Fixes.FierceDeityZTargetMovement")
         .Options(CheckboxOptions().Tooltip("Fixes Fierce Deity movement being choppy when Z-targeting"));
-    AddWidget(path, "Fix Hess and Weirdshot Crash", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Fixes.HessCrash")
-        .Options(CheckboxOptions().Tooltip("Fixes a crash that can occur when performing a HESS or Weirdshot."));
     AddWidget(path, "Fix Text Control Characters", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Fixes.ControlCharacters")
         .Options(CheckboxOptions().Tooltip("Fixes certain control characters not functioning properly "

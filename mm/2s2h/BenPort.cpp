@@ -55,6 +55,7 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/DeveloperTools/DebugConsole.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "2s2h/SaveManager/SaveManager.h"
+#include "2s2h/BenGui/Notification.h"
 #include "2s2h/ShipUtils.h"
 #include "2s2h/ShipInit.hpp"
 
@@ -1762,4 +1763,24 @@ extern "C" int Controller_ShouldRumble(size_t slot) {
     }
 
     return 0;
+}
+
+// Helper to redirect the user to the boot screen in place of known console crash scenarios, and emits a notification
+extern "C" bool Ship_HandleConsoleCrashAsReset() {
+    // If fix crashes is on, return false and let fallback handling process in source
+    if (CVarGetInteger("gEnhancements.Fixes.ConsoleCrashes", 1)) {
+        return false;
+    }
+
+    std::reinterpret_pointer_cast<Ship::ConsoleWindow>(
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Console"))
+        ->Dispatch("reset");
+
+    Notification::Emit({
+        .itemIcon = "__OTR__icon_item_24_static_yar/gQuestIconGoldSkulltulaTex",
+        .message = "Crash prevented!",
+        .remainingTime = 10.0f,
+    });
+
+    return true;
 }
