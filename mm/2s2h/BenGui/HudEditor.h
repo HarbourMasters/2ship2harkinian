@@ -46,6 +46,7 @@ typedef enum {
 } HudEditorElementID;
 
 typedef enum {
+    HUD_EDITOR_ELEMENT_MODE_NONE = -1,
     HUD_EDITOR_ELEMENT_MODE_VANILLA,
     HUD_EDITOR_ELEMENT_MODE_HIDDEN,
     HUD_EDITOR_ELEMENT_MODE_MOVABLE_43,
@@ -53,6 +54,7 @@ typedef enum {
     HUD_EDITOR_ELEMENT_MODE_MOVABLE_RIGHT,
 } HudEditorElementMode;
 
+void HudEditor_OverrideNextElementMode(HudEditorElementMode mode);
 void HudEditor_SetActiveElement(HudEditorElementID id);
 bool HudEditor_ShouldOverrideDraw();
 bool HudEditor_IsActiveElementHidden();
@@ -80,14 +82,15 @@ typedef struct {
     const char* yCvar;
     const char* scaleCvar;
     const char* colorCvar;
+    const char* colorChangedCvar;
     const char* modeCvar;
 } HudEditorElement;
 
 #define HUD_EDITOR_ELEMENT(id, name, cvar, defaultX, defaultY, defaultR, defaultG, defaultB, defaultA)          \
     {                                                                                                           \
         id, name, defaultX, defaultY, defaultR, defaultG, defaultB, defaultA, "gHudEditor." cvar ".Position.X", \
-            "gHudEditor." cvar ".Position.Y", "gHudEditor." cvar ".Scale", "gHudEditor." cvar ".Color.Value",   \
-            "gHudEditor." cvar ".Mode"                                                                          \
+            "gHudEditor." cvar ".Position.Y", "gHudEditor." cvar ".Scale", "gColors." cvar ".Color",            \
+            "gColors." cvar ".Changed", "gHudEditor." cvar ".Mode"                                              \
     }
 
 extern HudEditorElementID hudEditorActiveElement;

@@ -7,6 +7,10 @@ extern "C" {
 
 #include <libultraship/bridge.h>
 
+void GameInteractor_ExecuteOnGameStateMainStart() {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnGameStateMainStart>();
+}
+
 void GameInteractor_ExecuteOnGameStateMainFinish() {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnGameStateMainFinish>();
 }
@@ -52,6 +56,14 @@ void GameInteractor_ExecuteAfterEndOfCycleSave() {
 
 void GameInteractor_ExecuteBeforeMoonCrashSaveReset() {
     GameInteractor::Instance->ExecuteHooks<GameInteractor::BeforeMoonCrashSaveReset>();
+}
+
+void GameInteractor_ExecuteAfterInterfaceClockDraw() {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::AfterInterfaceClockDraw>();
+}
+
+void GameInteractor_ExecuteBeforeInterfaceClockDraw() {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::BeforeInterfaceClockDraw>();
 }
 
 void GameInteractor_ExecuteOnSceneInit(s16 sceneId, s8 spawnNum) {

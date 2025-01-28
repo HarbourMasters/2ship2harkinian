@@ -14,7 +14,6 @@
 #include "z64animation.h"
 #include "z64bgcheck.h"
 #include <libultraship/libultra/gbi.h>
-#include "stb_image.h"
 #include <Fonts.h>
 #ifdef _WIN32
 #include <Windows.h>
@@ -56,7 +55,7 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/DeveloperTools/DebugConsole.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
 #include "2s2h/SaveManager/SaveManager.h"
-#include "2s2h/Enhancements/Audio/AudioCollection.h"
+#include "2s2h/BenGui/Notification.h"
 #include "2s2h/ShipUtils.h"
 #include "2s2h/ShipInit.hpp"
 
@@ -102,6 +101,7 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/resource/importer/KeyFrameFactory.h"
 #include "window/gui/resource/Font.h"
 #include "window/gui/resource/FontFactory.h"
+#include "2s2h/Enhancements/Audio/AudioCollection.h"
 
 OTRGlobals* OTRGlobals::Instance;
 GameInteractor* GameInteractor::Instance;
@@ -167,7 +167,9 @@ OTRGlobals::OTRGlobals() {
     // tell LUS to reserve 3 SoH specific threads (Game, Audio, Save)
     context =
         Ship::Context::CreateInstance("2 Ship 2 Harkinian", appShortName, "2ship2harkinian.json", archiveFiles, {}, 3,
-                                      { .SampleRate = 44100, .SampleLength = 1024, .DesiredBuffered = 2480 });
+                                      { .SampleRate = 32000, .SampleLength = 1024, .DesiredBuffered = 1680 });
+
+    SPDLOG_INFO("Starting 2 Ship 2 Harkinian version {}", (char*)gBuildVersion);
 
     prevAltAssets = CVarGetInteger("gEnhancements.Mods.AlternateAssets", 0);
     context->GetResourceManager()->SetAltAssetsEnabled(prevAltAssets);
@@ -367,15 +369,8 @@ void OTRAudio_Thread() {
 // AudioMgr_ThreadEntry(&gAudioMgr);
 //  528 and 544 relate to 60 fps at 32 kHz 32000/60 = 533.333..
 //  in an ideal world, one third of the calls should use num_samples=544 and two thirds num_samples=528
-//#define SAMPLES_HIGH 560
-//#define SAMPLES_LOW 528
-//  PAL values
-//#define SAMPLES_HIGH 656
-//#define SAMPLES_LOW 624
-
-// 44KHZ values
-#define SAMPLES_HIGH 752
-#define SAMPLES_LOW 720
+#define SAMPLES_HIGH 560
+#define SAMPLES_LOW 528
 
 #define AUDIO_FRAMES_PER_UPDATE (R_UPDATE_RATE > 0 ? R_UPDATE_RATE : 1)
 #define NUM_AUDIO_CHANNELS 2
@@ -1678,15 +1673,15 @@ extern "C" void OTRControllerCallback(uint8_t rumble) {
     static std::shared_ptr<BenInputEditorWindow> controllerConfigWindow = nullptr;
     if (controllerConfigWindow == nullptr) {
         controllerConfigWindow = std::dynamic_pointer_cast<BenInputEditorWindow>(
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Input Editor"));
-        // TODO: Add SoH Controller Config window rumble testing to upstream LUS config window
-        //       note: the current implementation may not be desired in LUS, as "true" rumble support
-        //             using osMotor calls is planned: https://github.com/Kenix3/libultraship/issues/9
-        //
-        // } else if (controllerConfigWindow->TestingRumble()) {
-        //     return;
+            Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("2S2H Input Editor"));
+        // note: the current implementation may not be desired in LUS, as "true" rumble support
+        //    using osMotor calls is planned: https://github.com/Kenix3/libultraship/issues/9
+    }
+    if (controllerConfigWindow->TestingRumble()) {
+        return;
     }
 
+    // TODO: other ports?
     if (rumble) {
         Ship::Context::GetInstance()->GetControlDeck()->GetControllerByPort(0)->GetRumble()->StartRumble();
     } else {
@@ -1813,3 +1808,24 @@ extern "C" int Controller_ShouldRumble(size_t slot) {
 extern "C" void Messagebox_ShowErrorBox(char* title, char* body) {
     Extractor::ShowErrorBox(title, body);
 }
+
+// Helper to redirect the user to the boot screen in place of known console crash scenarios, and emits a notification
+extern "C" bool Ship_HandleConsoleCrashAsReset() {
+    // If fix crashes is on, return false and let fallback handling process in source
+    if (CVarGetInteger("gEnhancements.Fixes.ConsoleCrashes", 1)) {
+        return false;
+    }
+
+    std::reinterpret_pointer_cast<Ship::ConsoleWindow>(
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Console"))
+        ->Dispatch("reset");
+
+    Notification::Emit({
+        .itemIcon = "__OTR__icon_item_24_static_yar/gQuestIconGoldSkulltulaTex",
+        .message = "Crash prevented!",
+        .remainingTime = 10.0f,
+    });
+
+    return true;
+}
+

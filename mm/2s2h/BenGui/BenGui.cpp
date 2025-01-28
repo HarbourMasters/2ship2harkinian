@@ -8,7 +8,9 @@
 #include <Fast3D/gfx_pc.h>
 #include "UIWidgets.hpp"
 #include "HudEditor.h"
+
 #include "2s2h/Enhancements/Audio/AudioEditor.h"
+#include "CosmeticEditor.h"
 #include "Notification.h"
 
 #ifdef __APPLE__
@@ -24,6 +26,7 @@
 
 #include "Enhancements/Trackers/ItemTracker.h"
 #include "Enhancements/Trackers/ItemTrackerSettings.h"
+#include "BenMenu.h"
 
 namespace BenGui {
 // MARK: - Delegates
@@ -36,6 +39,7 @@ std::shared_ptr<Ship::GuiWindow> mGfxDebuggerWindow;
 
 std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
 std::shared_ptr<HudEditorWindow> mHudEditorWindow;
+std::shared_ptr<CosmeticEditorWindow> mCosmeticEditorWindow;
 std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
 std::shared_ptr<EventLogWindow> mEventLogWindow;
@@ -52,7 +56,7 @@ void SetupGuiElements() {
     auto& style = ImGui::GetStyle();
     style.FramePadding = ImVec2(4.0f, 6.0f);
     style.ItemSpacing = ImVec2(8.0f, 6.0f);
-    style.Colors[ImGuiCol_MenuBarBg] = UIWidgets::Colors::DarkGray;
+    style.Colors[ImGuiCol_MenuBarBg] = UIWidgets::ColorValues.at(UIWidgets::Colors::DarkGray);
 
     mBenMenuBar = std::make_shared<BenMenuBar>(CVAR_MENU_BAR_OPEN, CVarGetInteger(CVAR_MENU_BAR_OPEN, 0));
     gui->SetMenuBar(std::reinterpret_pointer_cast<Ship::GuiMenuBar>(mBenMenuBar));
@@ -91,6 +95,10 @@ void SetupGuiElements() {
 
     mHudEditorWindow = std::make_shared<HudEditorWindow>("gWindows.HudEditor", "HUD Editor", ImVec2(480, 600));
     gui->AddGuiWindow(mHudEditorWindow);
+
+    mCosmeticEditorWindow =
+        std::make_shared<CosmeticEditorWindow>("gWindows.CosmeticEditor", "Cosmetic Editor", ImVec2(480, 600));
+    gui->AddGuiWindow(mCosmeticEditorWindow);
 
     mActorViewerWindow = std::make_shared<ActorViewerWindow>("gWindows.ActorViewer", "Actor Viewer", ImVec2(520, 600));
     gui->AddGuiWindow(mActorViewerWindow);
@@ -134,6 +142,7 @@ void Destroy() {
     mNotificationWindow = nullptr;
     mSaveEditorWindow = nullptr;
     mHudEditorWindow = nullptr;
+    mCosmeticEditorWindow = nullptr;
     mActorViewerWindow = nullptr;
     mAudioEditorWindow = nullptr;
     mItemTrackerWindow = nullptr;

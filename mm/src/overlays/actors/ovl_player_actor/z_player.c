@@ -45,6 +45,7 @@
 #include "objects/object_link_nuts/object_link_nuts.h"
 #include "objects/object_link_child/object_link_child.h"
 
+#include "2s2h/BenPort.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 
 #define THIS ((Player*)thisx)
@@ -3968,7 +3969,14 @@ s32 func_808306F8(Player* this, PlayState* play) {
             ArrowMagic magicArrowType;
 
             if (var_v1 != 2) {
-                Player_PlaySfx(this, D_8085CFB0[var_v1 - 1]);
+                // 2S2H [Port] When using action swap, D_8085CFB0 is indexed with -1 leading
+                // to UB sent into Player_PlaySfx. On console this resolves as 1 and nothing noticable happens.
+                // For the port, sometimes this UB would crash so we are opting to just request NA_SE_NONE instead.
+                if (var_v1 - 1 < 0) {
+                    Player_PlaySfx(this, NA_SE_NONE);
+                } else {
+                    Player_PlaySfx(this, D_8085CFB0[var_v1 - 1]);
+                }
             }
 
             if (!Player_IsHoldingHookshot(this) && (func_808305BC(play, this, &item, &arrowType) > 0)) {
@@ -5514,7 +5522,7 @@ s32 func_808339D4(PlayState* play, Player* this, s32 damage) {
         return Actor_ApplyDamage(&this->actor);
     }
 
-    if (this->currentMask == PLAYER_MASK_GIANT) {
+    if (GameInteractor_Should(VB_MULTIPLY_INFLICTED_DMG, this->currentMask == PLAYER_MASK_GIANT, &damage)) {
         damage >>= 2;
     }
 
@@ -6990,7 +6998,7 @@ s32 func_808373F8(PlayState* play, Player* this, u16 sfxId) {
             Player_PlaySfx(this, (NA_SE_PL_DEKUNUTS_JUMP5 + 1 - this->remainingHopsCounter));
             Player_AnimSfx_PlayVoice(this, sfxId);
             this->remainingHopsCounter--;
-            if (this->remainingHopsCounter == 0) {
+            if (GameInteractor_Should(VB_DEKU_LINK_SPIN_ON_LAST_HOP, this->remainingHopsCounter == 0)) {
                 this->stateFlags2 |= PLAYER_STATE2_80000;
                 func_808373A4(play, this);
             }
@@ -12210,7 +12218,7 @@ void Player_UpdateCommon(Player* this, PlayState* play, Input* input) {
 
         this->actor.shape.face = ((play->gameplayFrames & 0x20) ? 0 : 3) + this->blinkInfo.eyeTexIndex;
 
-        if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY)) {
+        if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY, this)) {
             Player_UpdateBunnyEars(this);
         }
 
@@ -13095,7 +13103,7 @@ s32 Ship_HandleFirstPersonAiming(PlayState* play, Player* this, s32 arg2) {
     if (!playerMovementLocked && CVarGetInteger("gEnhancements.Camera.FirstPerson.MoveInFirstPerson", 0) &&
         CVarGetInteger("gEnhancements.Camera.FirstPerson.RightStickEnabled", 0)) {
         f32 movementSpeed = 8.25f; // account for form
-        if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY)) {
+        if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY, this)) {
             movementSpeed *= 1.5f;
         }
 
@@ -13240,7 +13248,9 @@ void func_808477D0(PlayState* play, Player* this, Input* input, f32 arg3) {
     }
 
     var_fv0 = var_fv0 * arg3;
-    var_fv0 = CLAMP(var_fv0, 1.0f, 2.5f);
+    if (GameInteractor_Should(VB_CLAMP_ANIMATION_SPEED, true, &var_fv0)) {
+        var_fv0 = CLAMP(var_fv0, 1.0f, 2.5f);
+    }
     this->skelAnime.playSpeed = var_fv0;
 
     PlayerAnimation_Update(play, &this->skelAnime);
@@ -13778,7 +13788,15 @@ s32 Player_UpperAction_7(Player* this, PlayState* play) {
         if (this->unk_B28 >= 0) {
             if (index != 0) {
                 if (!func_80831194(play, this)) {
-                    Player_PlaySfx(this, D_8085D5FC[this->unk_B28 - 1]);
+                    // 2S2H [Port] When using action swap without arrows, D_8085D5FC is indexed with -1 leading
+                    // to UB sent into Player_PlaySfx. On console this resolves as 58104 and causes a crash.
+                    // For the port hard crashing is not desirable, so we are opting to clear the game state
+                    if (this->unk_B28 - 1 < 0) {
+                        Ship_HandleConsoleCrashAsReset();
+                        Player_PlaySfx(this, NA_SE_NONE);
+                    } else {
+                        Player_PlaySfx(this, D_8085D5FC[this->unk_B28 - 1]);
+                    }
                 }
 
                 if (this->transformation == PLAYER_FORM_DEKU) {
@@ -14596,7 +14614,7 @@ void Player_Action_13(Player* this, PlayState* play) {
 
     Player_GetMovementSpeedAndYaw(this, &speedTarget, &yawTarget, SPEED_MODE_CURVED, play);
 
-    if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY)) {
+    if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY, this)) {
         speedTarget *= 1.5f;
     }
 
@@ -15015,7 +15033,9 @@ void Player_Action_25(Player* this, PlayState* play) {
             s16 prevYaw = this->currentYaw;
 
             func_808378FC(play, this);
-            func_8083CBC4(this, speedTarget * 0.5f, yawTarget, 2.0f, 0.2f, 0.1f, 0x190);
+            if (GameInteractor_Should(VB_APPLY_AIR_CONTROL, true, &speedTarget)) {
+                func_8083CBC4(this, speedTarget * 0.5f, yawTarget, 2.0f, 0.2f, 0.1f, 0x190);
+            }
 
             if (BEN_ANIM_EQUAL(this->skelAnime.animation, gPlayerAnim_pn_attack)) {
                 this->stateFlags2 |= (PLAYER_STATE2_20 | PLAYER_STATE2_40);
@@ -15025,7 +15045,7 @@ void Player_Action_25(Player* this, PlayState* play) {
                 Math_StepToF(&this->unk_B10[1], 0.0f, this->unk_B10[0]);
             }
         } else {
-            if (GameInteractor_Should(VB_FLIP_HOP_VARIABLE, true)) {
+            if (GameInteractor_Should(VB_APPLY_AIR_CONTROL, true, &speedTarget)) {
                 func_8083CBC4(this, speedTarget, yawTarget, 1.0f, 0.05f, 0.1f, 0xC8);
             }
         }
@@ -17228,8 +17248,10 @@ void Player_Action_63(Player* this, PlayState* play) {
           (BEN_ANIM_EQUAL(this->skelAnime.animation, D_8085D17C[this->transformation]))) ||
          ((this->skelAnime.mode == 0) && (this->av2.actionVar2 == 0)))) {
         func_808525C4(play, this);
-        if (!(this->actor.flags & ACTOR_FLAG_20000000) || (this->unk_A90->id == ACTOR_EN_ZOT)) {
-            Message_DisplayOcarinaStaff(play, OCARINA_ACTION_FREE_PLAY);
+        if (!CVarGetInteger("gEnhancements.Playback.NoDropOcarinaInput", 0) || this->av2.actionVar2 == 1) {
+            if (!(this->actor.flags & ACTOR_FLAG_20000000) || (this->unk_A90->id == ACTOR_EN_ZOT)) {
+                Message_DisplayOcarinaStaff(play, OCARINA_ACTION_FREE_PLAY);
+            }
         }
     } else if (this->av2.actionVar2 != 0) {
         if (play->msgCtx.ocarinaMode == OCARINA_MODE_END) {
@@ -19314,10 +19336,11 @@ void Player_Action_96(Player* this, PlayState* play) {
             speedTarget = 18.0f;
             Math_StepToC(&this->av1.actionVar1, 4, 1);
 
-            if ((this->stateFlags3 & PLAYER_STATE3_80000) &&
-                (!CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_A) ||
-                 (gSaveContext.save.saveInfo.playerData.magic == 0) ||
-                 ((this->av1.actionVar1 == 4) && (this->unk_B08 < 12.0f)))) {
+            uint8_t vanillaSpikeModeCondition =
+                (this->stateFlags3 & PLAYER_STATE3_80000) && (!CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_A) ||
+                                                              (gSaveContext.save.saveInfo.playerData.magic == 0) ||
+                                                              ((this->av1.actionVar1 == 4) && (this->unk_B08 < 12.0f)));
+            if (GameInteractor_Should(VB_GORON_ROLL_DISABLE_SPIKE_MODE, vanillaSpikeModeCondition)) {
                 if (Math_StepToS(&this->unk_B86[1], 0, 1)) {
                     this->stateFlags3 &= ~PLAYER_STATE3_80000;
                     Magic_Reset(play);
@@ -19371,7 +19394,9 @@ void Player_Action_96(Player* this, PlayState* play) {
                 if (this->unk_B86[1] == 0) {
                     this->unk_B0C = 0.0f;
                     if (this->av1.actionVar1 >= 0x36) {
-                        Magic_Consume(play, 2, MAGIC_CONSUME_GORON_ZORA);
+                        if (GameInteractor_Should(VB_GORON_ROLL_CONSUME_MAGIC, true)) {
+                            Magic_Consume(play, 2, MAGIC_CONSUME_GORON_ZORA);
+                        }
                         this->unk_B08 = 18.0f;
                         this->unk_B86[1] = 1;
                         this->stateFlags3 |= PLAYER_STATE3_80000;
@@ -19433,8 +19458,10 @@ void Player_Action_96(Player* this, PlayState* play) {
                     f32 var_fa1;
 
                     if (this->unk_B86[1] == 0) {
-                        if ((gSaveContext.magicState == MAGIC_STATE_IDLE) &&
-                            (gSaveContext.save.saveInfo.playerData.magic >= 2) && (this->av2.actionVar2 >= 0x36B0)) {
+                        if (GameInteractor_Should(VB_GORON_ROLL_INCREASE_SPIKE_LEVEL,
+                                                  (gSaveContext.magicState == MAGIC_STATE_IDLE) &&
+                                                      (gSaveContext.save.saveInfo.playerData.magic >= 2) &&
+                                                      (this->av2.actionVar2 >= 0x36B0))) {
                             this->av1.actionVar1++;
                             Actor_PlaySfx_FlaggedCentered1(&this->actor, NA_SE_PL_GORON_BALL_CHARGE - SFX_FLAG);
                         } else {
