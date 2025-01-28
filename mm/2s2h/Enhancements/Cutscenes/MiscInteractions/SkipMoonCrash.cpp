@@ -10,11 +10,7 @@ extern "C" {
 #define CVAR_NAME "gEnhancements.Cutscenes.SkipMiscInteractions"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
-// Didn't end up using these few cutscene values, but they are captured here as documentation in case they
-// are relevant in the future
 #define TERMINA_FIELD_MOON_CRASH_CS_ENTRANCE 0x54C0
-#define VOID_FIRE_WALL_CS_ENTRANCE 0x1C00
-#define VOID_FIRE_WALL_CS_INDEX 0xFFF8
 
 #define MOON_CRASH_NEW_CYCLE_CS_ID 13
 #define MOON_CRASH_NEW_CYCLE_ENTRANCE_ID 0xC030
