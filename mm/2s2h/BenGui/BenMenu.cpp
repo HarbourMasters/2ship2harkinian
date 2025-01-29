@@ -1085,6 +1085,9 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Timesavers.MarineLabHP")
         .Options(CheckboxOptions().Tooltip("Only requires a single fish to be fed for the Piece of Heart to spawn. "
                                            "Requires a Scene Reload to take effect."));
+    AddWidget(path, "Fast Dampe Flame Digging", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.DampeDiggingSkip")
+        .Options(CheckboxOptions().Tooltip("Only requires digging up one flame to spawn the big poe."));
 
     // Fixes
     path = { "Enhancements", "Fixes", 1 };
