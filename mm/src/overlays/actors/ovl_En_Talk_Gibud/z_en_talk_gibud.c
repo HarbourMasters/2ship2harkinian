@@ -48,6 +48,13 @@ s32 EnTalkGibud_PlayerOutOfRange(EnTalkGibud* this, PlayState* play);
 void EnTalkGibud_TurnTowardsPlayer(EnTalkGibud* this, PlayState* play);
 s32 EnTalkGibud_MoveToIdealGrabPositionAndRotation(EnTalkGibud* this, PlayState* play);
 
+typedef struct {
+    /* 0x0 */ PlayerItemAction itemAction;
+    /* 0x4 */ ItemId item;
+    /* 0x8 */ s32 amount;
+    /* 0xC */ s16 isBottledItem;
+} EnTalkGibudRequestedItem; // size = 0x10
+
 typedef enum {
     /* 0 */ EN_TALK_GIBUD_REQUESTED_ITEM_MET,
     /* 1 */ EN_TALK_GIBUD_REQUESTED_ITEM_NOT_ENOUGH_AMMO,

@@ -11,6 +11,14 @@ extern "C" {
 #include "functions.h"
 #include "variables.h"
 #include "overlays/actors/ovl_En_Talk_Gibud/z_en_talk_gibud.h"
+
+// redefinition
+typedef struct {
+    /* 0x0 */ PlayerItemAction itemAction;
+    /* 0x4 */ ItemId item;
+    /* 0x8 */ s32 amount;
+    /* 0xC */ s16 isBottledItem;
+} EnTalkGibudRequestedItem; // size = 0x10
 }
 
 static EnTalkGibudRequestedItem redPotionRequestedItem = { PLAYER_IA_BOTTLE_POTION_RED, ITEM_POTION_RED, 1, true };
