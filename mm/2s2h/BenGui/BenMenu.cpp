@@ -712,6 +712,11 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.PlayerActions.ArrowCycle")
         .Options(CheckboxOptions().Tooltip(
             "While aiming the bow, use L to cycle between Normal, Fire, Ice and Light arrows."));
+    AddWidget(path, "Remote Bombchu Control", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.PlayerActions.RemoteBombchu")
+        .Options(CheckboxOptions().Tooltip(
+            "Allows you to control the direction of the Bombchu while it is moving. Press B to detonate. Press A to "
+            "stop controlling the Bombchu."));
 
     path.column = 2;
     AddWidget(path, "Modes", WIDGET_SEPARATOR_TEXT);
