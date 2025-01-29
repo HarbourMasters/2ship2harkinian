@@ -694,6 +694,9 @@ void BenMenu::AddEnhancements() {
                      .Min(1)
                      .Max(5)
                      .DefaultValue(1));
+    AddWidget(path, "Prevent Diving Over Water", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Player.PreventDiveOverWater")
+        .Options(CheckboxOptions().Tooltip("Prevents Link from automatically diving over bodies of water."));
     AddWidget(path, "Dpad Equips", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Dpad.DpadEquips")
         .Options(CheckboxOptions().Tooltip("Allows you to equip items to your d-pad"));
