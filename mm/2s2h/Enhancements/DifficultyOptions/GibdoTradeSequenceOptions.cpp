@@ -25,15 +25,15 @@ static EnTalkGibudRequestedItem redPotionRequestedItem = { PLAYER_IA_BOTTLE_POTI
 
 void RegisterGibdoTradeSequenceOptions() {
     COND_VB_SHOULD(VB_GIBDO_TRADE_SEQUENCE_SUFFICIENT_QUANTITY_PRESENTED, CVAR != GIBDO_TRADE_SEQUENCE_VANILLA, {
-        ItemId requestedItemId = va_arg(args, ItemId);
+        ItemId requestedItemId = (ItemId)va_arg(args, int);
         if (AMMO(requestedItemId) >= 1) {
             *should = true;
         }
     });
 
     COND_VB_SHOULD(VB_GIBDO_TRADE_SEQUENCE_ACCEPT_RED_POTION, CVAR == GIBDO_TRADE_SEQUENCE_MM3D, {
-        PlayerItemAction requestedItemAction = va_arg(args, PlayerItemAction);
-        PlayerItemAction presentedItemAction = va_arg(args, PlayerItemAction);
+        PlayerItemAction requestedItemAction = (PlayerItemAction)va_arg(args, int);
+        PlayerItemAction presentedItemAction = (PlayerItemAction)va_arg(args, int);
 
         EnTalkGibudRequestedItem** requestedItem = va_arg(args, EnTalkGibudRequestedItem**);
 
@@ -59,11 +59,10 @@ void RegisterGibdoTradeSequenceOptions() {
         *should = false;
 
         EnTalkGibud* gibudCtx = va_arg(args, EnTalkGibud*);
-        PlayState* play = va_arg(args, PlayState*);
         bool doEndTradeMessage = va_arg(args, bool);
 
         if (doEndTradeMessage) {
-            Message_StartTextbox(play, 0x138A, &gibudCtx->actor);
+            Message_StartTextbox(gPlayState, 0x138A, &gibudCtx->actor);
             gibudCtx->textId = 0x138A;
         }
     });
