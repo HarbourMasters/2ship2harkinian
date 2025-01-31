@@ -1032,6 +1032,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Faster Song Playback", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Songs.FasterSongPlayback")
         .Options(CheckboxOptions().Tooltip("Speeds up the playback of songs."));
+    AddWidget(path, "Skip Song of Time cutscenes", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Songs.SkipSoTCutscenes")
+        .Options(CheckboxOptions().Tooltip("Skips the cutscenes when playing any of the Song of Time songs"));
 
     // Time Savers
     path = { "Enhancements", "Time Savers", 1 };
@@ -1177,12 +1180,12 @@ void BenMenu::AddEnhancements() {
     path = { "Enhancements", "Difficulty Options", 1 };
     AddSidebarEntry("Enhancements", "Difficulty Options", 3);
     AddWidget(path, "Disable Takkuri Steal", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Cheats.DisableTakkuriSteal")
+        .CVar("gEnhancements.DifficultyOptions.DisableTakkuriSteal")
         .Options(CheckboxOptions().Tooltip(
             "Prevents the Takkuri from stealing key items like bottles and swords. It may still steal "
             "other items."));
     AddWidget(path, "Deku Guard Search Balls", WIDGET_CVAR_COMBOBOX)
-        .CVar("gEnhancements.Cheats.DekuGuardSearchBalls")
+        .CVar("gEnhancements.DifficultyOptions.DekuGuardSearchBalls")
         .Options(
             ComboboxOptions()
                 .Tooltip("Choose when to show the Deku Palace Guards' search balls\n"
@@ -1191,6 +1194,18 @@ void BenMenu::AddEnhancements() {
                          "- Always: Always show the search balls.")
                 .DefaultIndex(DekuGuardSearchBallsOptions::DEKU_GUARD_SEARCH_BALLS_NIGHT_ONLY)
                 .ComboMap(dekuGuardSearchBallsOptions));
+    AddWidget(path, "Gibdo Trade Sequence Options", WIDGET_CVAR_COMBOBOX)
+        .CVar("gEnhancements.DifficultyOptions.GibdoTradeSequence")
+        .Options(
+            ComboboxOptions()
+                .Tooltip(
+                    "Changes the way the Gibdo Trade Sequence works\n"
+                    "-Vanilla: Works normally\n"
+                    "-MM3D: Gibdos will only take one quantity of the item they request, as they do in MM3D. The Gibdo "
+                    "requesting a blue potion will also accept a red potion.\n"
+                    "-No trade: Gibdos will vanish without taking items")
+                .DefaultIndex(GibdoTradeSequenceOptions::GIBDO_TRADE_SEQUENCE_VANILLA)
+                .ComboMap(gibdoTradeSequenceOptions));
 
     path.column = 2;
     AddWidget(path, "Damage Multiplier", WIDGET_CVAR_COMBOBOX)
