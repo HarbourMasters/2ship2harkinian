@@ -1102,7 +1102,8 @@ void BenMenu::AddEnhancements() {
                               "Includes the following:\n"
                               "- HESS/Weirdshot crashes\n"
                               "- Action Swap crash without arrow ammo\n"
-                              "- Owl Warp menu crash when moving the cursor with Index-Warp active")
+                              "- Owl Warp menu crash when moving the cursor with Index-Warp active\n"
+                              "- Remote Hookshot Hookslide crashes when over voids in Great Bay Temple")
                      .DefaultValue(true));
     AddWidget(path, "Fix Ammo Count Color", WIDGET_CVAR_CHECKBOX)
         .CVar("gFixes.FixAmmoCountEnvColor")
