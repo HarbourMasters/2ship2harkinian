@@ -1177,12 +1177,12 @@ void BenMenu::AddEnhancements() {
     path = { "Enhancements", "Difficulty Options", 1 };
     AddSidebarEntry("Enhancements", "Difficulty Options", 3);
     AddWidget(path, "Disable Takkuri Steal", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Cheats.DisableTakkuriSteal")
+        .CVar("gEnhancements.DifficultyOptions.DisableTakkuriSteal")
         .Options(CheckboxOptions().Tooltip(
             "Prevents the Takkuri from stealing key items like bottles and swords. It may still steal "
             "other items."));
     AddWidget(path, "Deku Guard Search Balls", WIDGET_CVAR_COMBOBOX)
-        .CVar("gEnhancements.Cheats.DekuGuardSearchBalls")
+        .CVar("gEnhancements.DifficultyOptions.DekuGuardSearchBalls")
         .Options(
             ComboboxOptions()
                 .Tooltip("Choose when to show the Deku Palace Guards' search balls\n"
@@ -1192,7 +1192,7 @@ void BenMenu::AddEnhancements() {
                 .DefaultIndex(DekuGuardSearchBallsOptions::DEKU_GUARD_SEARCH_BALLS_NIGHT_ONLY)
                 .ComboMap(dekuGuardSearchBallsOptions));
     AddWidget(path, "Gibdo Trade Sequence Options", WIDGET_CVAR_COMBOBOX)
-        .CVar("gEnhancements.Cheats.GibdoTradeSequence")
+        .CVar("gEnhancements.DifficultyOptions.GibdoTradeSequence")
         .Options(
             ComboboxOptions()
                 .Tooltip(

@@ -4,7 +4,7 @@
 #include "2s2h/ShipInit.hpp"
 #include <stdarg.h>
 
-#define CVAR_NAME "gEnhancements.Cheats.GibdoTradeSequence"
+#define CVAR_NAME "gEnhancements.DifficultyOptions.GibdoTradeSequence"
 #define CVAR CVarGetInteger(CVAR_NAME, GIBDO_TRADE_SEQUENCE_VANILLA)
 
 extern "C" {
