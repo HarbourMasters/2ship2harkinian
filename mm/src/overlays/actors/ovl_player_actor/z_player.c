@@ -21070,7 +21070,8 @@ PlayerItemAction func_8085B854(PlayState* play, Player* this, ItemId itemId) {
     PlayerItemAction itemAction = Player_ItemToItemAction(this, itemId);
 
     if ((itemAction >= PLAYER_IA_MASK_MIN) && (itemAction <= PLAYER_IA_MASK_MAX) &&
-        (itemAction == GET_IA_FROM_MASK(this->currentMask))) {
+        GameInteractor_Should(VB_GET_ITEM_ACTION_FROM_MASK, itemAction == GET_IA_FROM_MASK(this->currentMask),
+                              itemAction)) {
         itemAction = PLAYER_IA_NONE;
     }
 
