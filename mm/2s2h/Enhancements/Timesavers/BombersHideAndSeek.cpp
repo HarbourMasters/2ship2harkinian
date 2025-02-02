@@ -8,7 +8,7 @@ void func_80C02CA4(EnBomjimb* thisx, PlayState* play);
 void func_80C02A14(EnBomjimb* thisx, PlayState* play);
 }
 
-#define CVAR_NAME "gEnhancements.Timesavers.BombersHideAndSeek"
+#define CVAR_NAME "gEnhancements.Minigames.BombersHideAndSeek"
 #define CVAR CVarGetInteger(CVAR_NAME, 5)
 
 void RegisterBombersHideAndSeek() {
