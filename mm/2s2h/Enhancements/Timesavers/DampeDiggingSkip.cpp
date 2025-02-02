@@ -18,15 +18,21 @@ void RegisterDampeDiggingSkip() {
 
     COND_ID_HOOK(ShouldActorDraw, ACTOR_EN_BIGPO, CVAR, [](Actor* actor, bool* should) {
         EnBigpo* firePo = (EnBigpo*)actor;
+        bool dampeCutsceneTriggered = false;
 
         if (firePo->actionFunc == EnBigpo_RevealedFireIdle) {
-            EnBigpo_SetupSpawnCutscene((EnBigpo*)firePo->actor.parent);
+            dampeCutsceneTriggered = false;
 
-            Actor* dampeActor = SubS_FindActor(gPlayState, NULL, ACTORCAT_NPC, ACTOR_EN_TK);
-            if (dampeActor != NULL) {
-                EnTk* dampe = (EnTk*)dampeActor;
-                if (dampe->unk_2CA) {
-                    func_80AEDBEC(dampe, gPlayState);
+            if (!dampeCutsceneTriggered) {
+                EnBigpo_SetupSpawnCutscene((EnBigpo*)firePo->actor.parent);
+
+                Actor* dampeActor = SubS_FindActor(gPlayState, NULL, ACTORCAT_NPC, ACTOR_EN_TK);
+                if (dampeActor != NULL) {
+                    EnTk* dampe = (EnTk*)dampeActor;
+                    if (dampe->unk_2CA) {
+                        func_80AEDBEC(dampe, gPlayState);
+                        dampeCutsceneTriggered = true;
+                    }
                 }
             }
         }
