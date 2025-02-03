@@ -2,7 +2,6 @@
 
 #include <spdlog/spdlog.h>
 #include <imgui.h>
-#define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui_internal.h>
 #include <libultraship/libultraship.h>
 #include <Fast3D/gfx_pc.h>
@@ -34,6 +33,7 @@ std::shared_ptr<BenMenuBar> mBenMenuBar;
 std::shared_ptr<Ship::GuiWindow> mConsoleWindow;
 std::shared_ptr<Ship::GuiWindow> mStatsWindow;
 std::shared_ptr<Ship::GuiWindow> mGfxDebuggerWindow;
+std::shared_ptr<Ship::GuiWindow> mInputEditorWindow;
 
 std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
 std::shared_ptr<HudEditorWindow> mHudEditorWindow;
@@ -42,7 +42,6 @@ std::shared_ptr<ActorViewerWindow> mActorViewerWindow;
 std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
 std::shared_ptr<EventLogWindow> mEventLogWindow;
 std::shared_ptr<BenMenu> mBenMenu;
-std::shared_ptr<BenInputEditorWindow> mBenInputEditorWindow;
 std::shared_ptr<Notification::Window> mNotificationWindow;
 std::shared_ptr<ItemTrackerWindow> mItemTrackerWindow;
 std::shared_ptr<ItemTrackerSettingsWindow> mItemTrackerSettingsWindow;
@@ -84,8 +83,10 @@ void SetupGuiElements() {
         SPDLOG_ERROR("Could not find input GfxDebuggerWindow");
     }
 
-    mBenInputEditorWindow = std::make_shared<BenInputEditorWindow>("gWindows.BenInputEditor", "2S2H Input Editor");
-    gui->AddGuiWindow(mBenInputEditorWindow);
+    mInputEditorWindow = gui->GetGuiWindow("2S2H Input Editor");
+    if (mInputEditorWindow == nullptr) {
+        SPDLOG_ERROR("Could not find input editor window");
+    }
 
     mSaveEditorWindow = std::make_shared<SaveEditorWindow>("gWindows.SaveEditor", "Save Editor", ImVec2(480, 600));
     gui->AddGuiWindow(mSaveEditorWindow);
@@ -127,8 +128,8 @@ void Destroy() {
     mBenMenu = nullptr;
     mStatsWindow = nullptr;
     mConsoleWindow = nullptr;
-    mBenInputEditorWindow = nullptr;
     mGfxDebuggerWindow = nullptr;
+    mInputEditorWindow = nullptr;
     mCollisionViewerWindow = nullptr;
     mEventLogWindow = nullptr;
     mNotificationWindow = nullptr;

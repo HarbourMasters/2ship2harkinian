@@ -5,7 +5,6 @@
 #include <vector>
 #include <span>
 #include <stdint.h>
-#define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui.h>
 #include <libultraship/libultraship.h>
 #include <unordered_map>

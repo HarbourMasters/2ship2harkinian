@@ -734,8 +734,13 @@ void DrawSlot(InventorySlot slot) {
             (const char*)gItemIcons[currentItemId]);
     }
 
-    if (ImGui::ImageButton(textureId, ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), 0,
-                           ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, currentItemId == ITEM_NONE ? 0.4f : 1.0f))) {
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+    bool buttonPressed =
+        ImGui::ImageButton((const char*)gItemIcons[safeItemsForInventorySlot[slot][0]], textureId,
+                           ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1),
+                           ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, currentItemId == ITEM_NONE ? 0.4f : 1.0f));
+    ImGui::PopStyleVar();
+    if (buttonPressed) {
         if (safeMode && safeItemsForInventorySlot[slot].size() < 2) {
             NextItemInSlot(slot);
         } else {
@@ -765,9 +770,13 @@ void DrawSlot(InventorySlot slot) {
             }
             ItemId id = safeMode ? safeItemsForInventorySlot[selectedInventorySlot][pickerIndex]
                                  : static_cast<ItemId>(pickerIndex);
-            if (ImGui::ImageButton(
-                    Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[id]),
-                    ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), 0)) {
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
+            bool buttonPressed = ImGui::ImageButton(
+                (const char*)gItemIcons[id],
+                Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[id]),
+                ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE));
+            ImGui::PopStyleVar();
+            if (buttonPressed) {
                 gSaveContext.save.saveInfo.inventory.items[selectedInventorySlot] = id;
                 ImGui::CloseCurrentPopup();
             }
