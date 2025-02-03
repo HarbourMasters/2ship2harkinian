@@ -113,7 +113,6 @@ void SetupGuiElements() {
     mItemTrackerSettingsWindow = std::make_shared<ItemTrackerSettingsWindow>("gWindows.ItemTrackerSettings",
                                                                              "Item Tracker Settings", ImVec2(800, 400));
     gui->AddGuiWindow(mItemTrackerSettingsWindow);
-    gui->SetPadBtnTogglesMenu();
 
     mNotificationWindow = std::make_shared<Notification::Window>("gWindows.Notifications", "Notifications Window");
     gui->AddGuiWindow(mNotificationWindow);

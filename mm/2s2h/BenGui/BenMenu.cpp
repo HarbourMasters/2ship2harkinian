@@ -292,7 +292,7 @@ void BenMenu::AddSettings() {
             int hz = Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
             if (hz >= 20 && hz <= 360) {
                 CVarSetInteger("gInterpolationFPS", hz);
-                Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+                Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
             }
         })
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_NOT_DIRECTX).active; })
@@ -1257,7 +1257,7 @@ void BenMenu::AddDevTools() {
             CVarSetFloat(WARP_POINT_CVAR "Z", player->actor.world.pos.z);
             CVarSetFloat(WARP_POINT_CVAR "Rotation", player->actor.shape.rot.y);
             CVarSetInteger(WARP_POINT_CVAR "Saved", 1);
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
         })
         .PreFunc(
             [](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active; });
@@ -1278,7 +1278,7 @@ void BenMenu::AddDevTools() {
             CVarClear(WARP_POINT_CVAR "Z");
             CVarClear(WARP_POINT_CVAR "Rotation");
             CVarClear(WARP_POINT_CVAR "Saved");
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
         })
         .PreFunc([](WidgetInfo& info) {
             info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active ||
