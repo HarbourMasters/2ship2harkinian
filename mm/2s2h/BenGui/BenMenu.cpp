@@ -335,21 +335,6 @@ void BenMenu::AddSettings() {
 
     path.sidebarName = "Controls";
     AddSidebarEntry("Settings", "Controls", 1);
-    AddWidget(path,
-              "This interface can be a little daunting. Please bear with us as we work to improve the experience "
-              "and address some known issues.\n"
-              "\n"
-              "At first glance, you may notice several input devices displayed below the 'Clear All' button. "
-              "Some of these might be other controllers connected to your computer, while others may be "
-              "duplicated controllers (a known issue). We recommend clicking on the box with the " ICON_FA_EYE
-              " icon and the name of any disconnected or unused controllers to hide their inputs. Make sure the "
-              "target controller remains visible.\n"
-              "\n"
-              "If you encounter issues connecting your controller or registering inputs, try closing Steam or "
-              "any other external input software. Alternatively, test a different controller to determine if "
-              "it's a compatibility issue.\n",
-              WIDGET_TEXT);
-    AddWidget(path, "Bindings", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Popout Bindings Window", WIDGET_WINDOW_BUTTON)
         .CVar("gWindows.BenInputEditor")
         .WindowName("2S2H Input Editor")
