@@ -46,7 +46,7 @@ class BenInputEditorWindow : public Ship::GuiWindow {
     void DrawStickDirectionLineEditMappingButton(uint8_t port, uint8_t stick, Ship::Direction direction,
                                                  std::string id);
     void DrawStickDirectionLineAddMappingButton(uint8_t port, uint8_t stick, Ship::Direction direction);
-    void DrawStickSection(uint8_t port, uint8_t stick, int32_t id, ImVec4 color);
+    void DrawStickSection(uint8_t port, uint8_t stick, ImVec4 color);
 
     void DrawRumbleSection(uint8_t port);
     void DrawRemoveRumbleMappingButton(uint8_t port, std::string id);

@@ -616,8 +616,7 @@ void BenInputEditorWindow::DrawStickDirectionLine(const char* axisDirectionName,
     DrawStickDirectionLineAddMappingButton(port, stick, direction);
 }
 
-void BenInputEditorWindow::DrawStickSection(uint8_t port, uint8_t stick, int32_t id,
-                                            ImVec4 color = CHIP_COLOR_N64_GREY) {
+void BenInputEditorWindow::DrawStickSection(uint8_t port, uint8_t stick, ImVec4 color = CHIP_COLOR_N64_GREY) {
     static int8_t sX, sY;
     std::shared_ptr<Ship::ControllerStick> controllerStick = nullptr;
     if (stick == Ship::LEFT) {
@@ -626,20 +625,21 @@ void BenInputEditorWindow::DrawStickSection(uint8_t port, uint8_t stick, int32_t
         controllerStick = Ship::Context::GetInstance()->GetControlDeck()->GetControllerByPort(port)->GetRightStick();
     }
     controllerStick->Process(sX, sY);
-    DrawAnalogPreview(StringHelper::Sprintf("##AnalogPreview%d", id).c_str(), ImVec2(sX, sY));
+    DrawAnalogPreview(StringHelper::Sprintf("##AnalogPreview%d", stick).c_str(), ImVec2(sX, sY));
 
     ImGui::SameLine();
     ImGui::BeginGroup();
-    DrawStickDirectionLine(StringHelper::Sprintf("%s##%d", ICON_FA_ARROW_UP, id).c_str(), port, stick, Ship::UP, color);
-    DrawStickDirectionLine(StringHelper::Sprintf("%s##%d", ICON_FA_ARROW_DOWN, id).c_str(), port, stick, Ship::DOWN,
+    DrawStickDirectionLine(StringHelper::Sprintf("%s##%d", ICON_FA_ARROW_UP, stick).c_str(), port, stick, Ship::UP,
                            color);
-    DrawStickDirectionLine(StringHelper::Sprintf("%s##%d", ICON_FA_ARROW_LEFT, id).c_str(), port, stick, Ship::LEFT,
+    DrawStickDirectionLine(StringHelper::Sprintf("%s##%d", ICON_FA_ARROW_DOWN, stick).c_str(), port, stick, Ship::DOWN,
                            color);
-    DrawStickDirectionLine(StringHelper::Sprintf("%s##%d", ICON_FA_ARROW_RIGHT, id).c_str(), port, stick, Ship::RIGHT,
+    DrawStickDirectionLine(StringHelper::Sprintf("%s##%d", ICON_FA_ARROW_LEFT, stick).c_str(), port, stick, Ship::LEFT,
                            color);
+    DrawStickDirectionLine(StringHelper::Sprintf("%s##%d", ICON_FA_ARROW_RIGHT, stick).c_str(), port, stick,
+                           Ship::RIGHT, color);
     ImGui::EndGroup();
     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-    if (ImGui::TreeNode(StringHelper::Sprintf("Analog Stick Options##%d", id).c_str())) {
+    if (ImGui::TreeNode(StringHelper::Sprintf("Analog Stick Options##%d", stick).c_str())) {
         ImGui::Text("Sensitivity:");
 
         int32_t sensitivityPercentage = controllerStick->GetSensitivityPercentage();
@@ -647,7 +647,7 @@ void BenInputEditorWindow::DrawStickSection(uint8_t port, uint8_t stick, int32_t
             ImGui::BeginDisabled();
         }
         ImGui::PushButtonRepeat(true);
-        if (ImGui::Button(StringHelper::Sprintf("-##Sensitivity%d", id).c_str())) {
+        if (ImGui::Button(StringHelper::Sprintf("-##Sensitivity%d", stick).c_str())) {
             controllerStick->SetSensitivity(sensitivityPercentage - 1);
         }
         ImGui::PopButtonRepeat();
@@ -656,7 +656,7 @@ void BenInputEditorWindow::DrawStickSection(uint8_t port, uint8_t stick, int32_t
         }
         ImGui::SameLine(0.0f, 0.0f);
         ImGui::SetNextItemWidth(SCALE_IMGUI_SIZE(160.0f));
-        if (ImGui::SliderInt(StringHelper::Sprintf("##Sensitivity%d", id).c_str(), &sensitivityPercentage, 0, 200,
+        if (ImGui::SliderInt(StringHelper::Sprintf("##Sensitivity%d", stick).c_str(), &sensitivityPercentage, 0, 200,
                              "%d%%", ImGuiSliderFlags_AlwaysClamp)) {
             controllerStick->SetSensitivity(sensitivityPercentage);
         }
@@ -665,7 +665,7 @@ void BenInputEditorWindow::DrawStickSection(uint8_t port, uint8_t stick, int32_t
             ImGui::BeginDisabled();
         }
         ImGui::PushButtonRepeat(true);
-        if (ImGui::Button(StringHelper::Sprintf("+##Sensitivity%d", id).c_str())) {
+        if (ImGui::Button(StringHelper::Sprintf("+##Sensitivity%d", stick).c_str())) {
             controllerStick->SetSensitivity(sensitivityPercentage + 1);
         }
         ImGui::PopButtonRepeat();
@@ -674,7 +674,7 @@ void BenInputEditorWindow::DrawStickSection(uint8_t port, uint8_t stick, int32_t
         }
         if (!controllerStick->SensitivityIsDefault()) {
             ImGui::SameLine();
-            if (ImGui::Button(StringHelper::Sprintf("Reset to Default###resetStickSensitivity%d", id).c_str())) {
+            if (ImGui::Button(StringHelper::Sprintf("Reset to Default###resetStickSensitivity%d", stick).c_str())) {
                 controllerStick->ResetSensitivityToDefault();
             }
         }
@@ -686,7 +686,7 @@ void BenInputEditorWindow::DrawStickSection(uint8_t port, uint8_t stick, int32_t
             ImGui::BeginDisabled();
         }
         ImGui::PushButtonRepeat(true);
-        if (ImGui::Button(StringHelper::Sprintf("-##Deadzone%d", id).c_str())) {
+        if (ImGui::Button(StringHelper::Sprintf("-##Deadzone%d", stick).c_str())) {
             controllerStick->SetDeadzone(deadzonePercentage - 1);
         }
         ImGui::PopButtonRepeat();
@@ -695,7 +695,7 @@ void BenInputEditorWindow::DrawStickSection(uint8_t port, uint8_t stick, int32_t
         }
         ImGui::SameLine(0.0f, 0.0f);
         ImGui::SetNextItemWidth(SCALE_IMGUI_SIZE(160.0f));
-        if (ImGui::SliderInt(StringHelper::Sprintf("##Deadzone%d", id).c_str(), &deadzonePercentage, 0, 100, "%d%%",
+        if (ImGui::SliderInt(StringHelper::Sprintf("##Deadzone%d", stick).c_str(), &deadzonePercentage, 0, 100, "%d%%",
                              ImGuiSliderFlags_AlwaysClamp)) {
             controllerStick->SetDeadzone(deadzonePercentage);
         }
@@ -704,7 +704,7 @@ void BenInputEditorWindow::DrawStickSection(uint8_t port, uint8_t stick, int32_t
             ImGui::BeginDisabled();
         }
         ImGui::PushButtonRepeat(true);
-        if (ImGui::Button(StringHelper::Sprintf("+##Deadzone%d", id).c_str())) {
+        if (ImGui::Button(StringHelper::Sprintf("+##Deadzone%d", stick).c_str())) {
             controllerStick->SetDeadzone(deadzonePercentage + 1);
         }
         ImGui::PopButtonRepeat();
@@ -713,7 +713,7 @@ void BenInputEditorWindow::DrawStickSection(uint8_t port, uint8_t stick, int32_t
         }
         if (!controllerStick->DeadzoneIsDefault()) {
             ImGui::SameLine();
-            if (ImGui::Button(StringHelper::Sprintf("Reset to Default###resetStickDeadzone%d", id).c_str())) {
+            if (ImGui::Button(StringHelper::Sprintf("Reset to Default###resetStickDeadzone%d", stick).c_str())) {
                 controllerStick->ResetDeadzoneToDefault();
             }
         }
@@ -724,7 +724,7 @@ void BenInputEditorWindow::DrawStickSection(uint8_t port, uint8_t stick, int32_t
             ImGui::BeginDisabled();
         }
         ImGui::PushButtonRepeat(true);
-        if (ImGui::Button(StringHelper::Sprintf("-##NotchProximityThreshold%d", id).c_str())) {
+        if (ImGui::Button(StringHelper::Sprintf("-##NotchProximityThreshold%d", stick).c_str())) {
             controllerStick->SetNotchSnapAngle(notchSnapAngle - 1);
         }
         ImGui::PopButtonRepeat();
@@ -733,8 +733,8 @@ void BenInputEditorWindow::DrawStickSection(uint8_t port, uint8_t stick, int32_t
         }
         ImGui::SameLine(0.0f, 0.0f);
         ImGui::SetNextItemWidth(SCALE_IMGUI_SIZE(160.0f));
-        if (ImGui::SliderInt(StringHelper::Sprintf("##NotchProximityThreshold%d", id).c_str(), &notchSnapAngle, 0, 45,
-                             "%d°", ImGuiSliderFlags_AlwaysClamp)) {
+        if (ImGui::SliderInt(StringHelper::Sprintf("##NotchProximityThreshold%d", stick).c_str(), &notchSnapAngle, 0,
+                             45, "%d°", ImGuiSliderFlags_AlwaysClamp)) {
             controllerStick->SetNotchSnapAngle(notchSnapAngle);
         }
         ImGui::SameLine(0.0f, 0.0f);
@@ -742,7 +742,7 @@ void BenInputEditorWindow::DrawStickSection(uint8_t port, uint8_t stick, int32_t
             ImGui::BeginDisabled();
         }
         ImGui::PushButtonRepeat(true);
-        if (ImGui::Button(StringHelper::Sprintf("+##NotchProximityThreshold%d", id).c_str())) {
+        if (ImGui::Button(StringHelper::Sprintf("+##NotchProximityThreshold%d", stick).c_str())) {
             controllerStick->SetNotchSnapAngle(notchSnapAngle + 1);
         }
         ImGui::PopButtonRepeat();
@@ -751,7 +751,7 @@ void BenInputEditorWindow::DrawStickSection(uint8_t port, uint8_t stick, int32_t
         }
         if (!controllerStick->NotchSnapAngleIsDefault()) {
             ImGui::SameLine();
-            if (ImGui::Button(StringHelper::Sprintf("Reset to Default###resetStickSnap%d", id).c_str())) {
+            if (ImGui::Button(StringHelper::Sprintf("Reset to Default###resetStickSnap%d", stick).c_str())) {
                 controllerStick->ResetNotchSnapAngleToDefault();
             }
         }
@@ -1365,11 +1365,11 @@ void BenInputEditorWindow::DrawPortTabContents(uint8_t portIndex) {
     }
 
     if (ImGui::CollapsingHeader("Analog Stick", NULL, ImGuiTreeNodeFlags_DefaultOpen)) {
-        DrawStickSection(portIndex, Ship::LEFT, 0);
+        DrawStickSection(portIndex, Ship::LEFT);
     }
 
     if (ImGui::CollapsingHeader("Additional (\"Right\") Stick")) {
-        DrawStickSection(portIndex, Ship::RIGHT, 1, CHIP_COLOR_N64_YELLOW);
+        DrawStickSection(portIndex, Ship::RIGHT, CHIP_COLOR_N64_YELLOW);
     }
 
     if (ImGui::CollapsingHeader("Rumble")) {
