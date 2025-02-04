@@ -630,10 +630,13 @@ void BenInputEditorWindow::DrawStickSection(uint8_t port, uint8_t stick, int32_t
 
     ImGui::SameLine();
     ImGui::BeginGroup();
-    DrawStickDirectionLine(ICON_FA_ARROW_UP, port, stick, Ship::UP, color);
-    DrawStickDirectionLine(ICON_FA_ARROW_DOWN, port, stick, Ship::DOWN, color);
-    DrawStickDirectionLine(ICON_FA_ARROW_LEFT, port, stick, Ship::LEFT, color);
-    DrawStickDirectionLine(ICON_FA_ARROW_RIGHT, port, stick, Ship::RIGHT, color);
+    DrawStickDirectionLine(StringHelper::Sprintf("%s##%d", ICON_FA_ARROW_UP, id).c_str(), port, stick, Ship::UP, color);
+    DrawStickDirectionLine(StringHelper::Sprintf("%s##%d", ICON_FA_ARROW_DOWN, id).c_str(), port, stick, Ship::DOWN,
+                           color);
+    DrawStickDirectionLine(StringHelper::Sprintf("%s##%d", ICON_FA_ARROW_LEFT, id).c_str(), port, stick, Ship::LEFT,
+                           color);
+    DrawStickDirectionLine(StringHelper::Sprintf("%s##%d", ICON_FA_ARROW_RIGHT, id).c_str(), port, stick, Ship::RIGHT,
+                           color);
     ImGui::EndGroup();
     ImGui::SetNextItemOpen(true, ImGuiCond_Once);
     if (ImGui::TreeNode(StringHelper::Sprintf("Analog Stick Options##%d", id).c_str())) {
@@ -1355,10 +1358,10 @@ void BenInputEditorWindow::DrawPortTabContents(uint8_t portIndex) {
     }
 
     if (ImGui::CollapsingHeader("D-Pad", NULL, ImGuiTreeNodeFlags_DefaultOpen)) {
-        DrawButtonLine(StringHelper::Sprintf("%s", ICON_FA_ARROW_UP).c_str(), portIndex, BTN_DUP);
-        DrawButtonLine(StringHelper::Sprintf("%s", ICON_FA_ARROW_DOWN).c_str(), portIndex, BTN_DDOWN);
-        DrawButtonLine(StringHelper::Sprintf("%s", ICON_FA_ARROW_LEFT).c_str(), portIndex, BTN_DLEFT);
-        DrawButtonLine(StringHelper::Sprintf("%s", ICON_FA_ARROW_RIGHT).c_str(), portIndex, BTN_DRIGHT);
+        DrawButtonLine(StringHelper::Sprintf("%s##DPad", ICON_FA_ARROW_UP).c_str(), portIndex, BTN_DUP);
+        DrawButtonLine(StringHelper::Sprintf("%s##DPad", ICON_FA_ARROW_DOWN).c_str(), portIndex, BTN_DDOWN);
+        DrawButtonLine(StringHelper::Sprintf("%s##DPad", ICON_FA_ARROW_LEFT).c_str(), portIndex, BTN_DLEFT);
+        DrawButtonLine(StringHelper::Sprintf("%s##DPad", ICON_FA_ARROW_RIGHT).c_str(), portIndex, BTN_DRIGHT);
     }
 
     if (ImGui::CollapsingHeader("Analog Stick", NULL, ImGuiTreeNodeFlags_DefaultOpen)) {
