@@ -999,7 +999,7 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Camera.Mouse.InvertY")
         .Options(CheckboxOptions().Tooltip("Inverts the Camera Y Axis.").DefaultValue(true))
         .PreFunc([](WidgetInfo& info) {
-            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active;s
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active;
         });
     AddWidget(path, "Third-Person Horizontal Sensitivity: %.0f", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar("gEnhancements.Camera.Mouse.CameraSensitivity.X")
