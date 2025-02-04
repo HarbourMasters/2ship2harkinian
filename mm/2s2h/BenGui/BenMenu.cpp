@@ -918,17 +918,13 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Camera.Mouse.InvertX")
         .Options(CheckboxOptions().Tooltip("Inverts the Camera X Axis."))
         .PreFunc([](WidgetInfo& info) {
-            if (mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active) {
-                info.activeDisables.push_back(DISABLE_FOR_MOUSE_OFF);
-            }
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active;
         });
     AddWidget(path, "Invert Camera Y Axis", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Camera.Mouse.InvertY")
         .Options(CheckboxOptions().Tooltip("Inverts the Camera Y Axis.").DefaultValue(true))
         .PreFunc([](WidgetInfo& info) {
-            if (mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active) {
-                info.activeDisables.push_back(DISABLE_FOR_MOUSE_OFF);
-            }
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active;s
         });
     AddWidget(path, "Third-Person Horizontal Sensitivity: %.0f", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar("gEnhancements.Camera.Mouse.CameraSensitivity.X")
@@ -940,9 +936,7 @@ void BenMenu::AddEnhancements() {
                      .DefaultValue(1.0f)
                      .IsPercentage())
         .PreFunc([](WidgetInfo& info) {
-            if (mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active) {
-                info.activeDisables.push_back(DISABLE_FOR_MOUSE_OFF);
-            }
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active;
         });
     AddWidget(path, "Third-Person Vertical Sensitivity: %.0f", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar("gEnhancements.Camera.Mouse.CameraSensitivity.Y")
@@ -954,24 +948,18 @@ void BenMenu::AddEnhancements() {
                      .DefaultValue(1.0f)
                      .IsPercentage())
         .PreFunc([](WidgetInfo& info) {
-            if (mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active) {
-                info.activeDisables.push_back(DISABLE_FOR_MOUSE_OFF);
-            }
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active;
         });
     AddWidget(path, "First-Person invert X Axis", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Camera.Mouse.FirstPerson.InvertX")
         .PreFunc([](WidgetInfo& info) {
-            if (mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active) {
-                info.activeDisables.push_back(DISABLE_FOR_MOUSE_OFF);
-            }
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active;
         });
     AddWidget(path, "First-Person invert Y Axis", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Camera.Mouse.FirstPerson.InvertY")
         .Options(CheckboxOptions().DefaultValue(true))
         .PreFunc([](WidgetInfo& info) {
-            if (mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active) {
-                info.activeDisables.push_back(DISABLE_FOR_MOUSE_OFF);
-            }
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active;
         });
     AddWidget(path, "First-Person Horizontal Sensitivity: %.0f", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar("gEnhancements.Camera.Mouse.FirstPerson.SensitivityX")
@@ -983,9 +971,7 @@ void BenMenu::AddEnhancements() {
                      .DefaultValue(1.0f)
                      .IsPercentage())
         .PreFunc([](WidgetInfo& info) {
-            if (mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active) {
-                info.activeDisables.push_back(DISABLE_FOR_MOUSE_OFF);
-            }
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active;
         });
     AddWidget(path, "First-Person Vertical Sensitivity: %.0f", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar("gEnhancements.Camera.Mouse.FirstPerson.SensitivityY")
@@ -997,9 +983,7 @@ void BenMenu::AddEnhancements() {
                      .DefaultValue(1.0f)
                      .IsPercentage())
         .PreFunc([](WidgetInfo& info) {
-            if (mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active) {
-                info.activeDisables.push_back(DISABLE_FOR_MOUSE_OFF);
-            }
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_OFF).active;
         });
 
     path = { "Enhancements", "Cheats", SECTION_COLUMN_1 };
