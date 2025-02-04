@@ -987,11 +987,7 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Mouse", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Mouse Enabled", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Camera.Mouse.Enabled")
-        .Options(CheckboxOptions().DefaultValue(false))
-        .PreFunc([](WidgetInfo& info) {
-            if (mBenMenu->disabledMap.at(DISABLE_FOR_MOUSE_ON).active)
-                info.activeDisables.push_back(DISABLE_FOR_MOUSE_ON);
-        });
+        .Options(CheckboxOptions().DefaultValue(false));
     AddWidget(path, "Invert Camera X Axis", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Camera.Mouse.InvertX")
         .Options(CheckboxOptions().Tooltip("Inverts the Camera X Axis."))
