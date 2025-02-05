@@ -33,7 +33,7 @@
     <string>public.app-category.games</string>
     <key>LSMinimumSystemVersion</key>
     <string>10.15</string>
-     <key>LSEnvironment</key>
+    <key>LSEnvironment</key>
     <dict>
         <key>SHIP_HOME</key>
         <string>~/Library/Application Support/com.2ship2harkinian.2s2h</string>
