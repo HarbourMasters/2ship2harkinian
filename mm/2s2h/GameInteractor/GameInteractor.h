@@ -34,6 +34,7 @@ typedef enum {
     // Vanilla condition: gSaveContext.showTitleCard
     VB_SHOW_TITLE_CARD,
     VB_PLAY_ENTRANCE_CS,
+    VB_KALEIDO_UNPAUSE_CLOSE,
     VB_DISABLE_FD_MASK,
     VB_DOGGY_RACE_SET_MAX_SPEED,
     VB_LOWER_RAZOR_SWORD_DURABILITY,
@@ -58,7 +59,7 @@ typedef enum {
     VB_TATL_INTERUPT_MSG3,
     VB_TATL_INTERUPT_MSG6,
     VB_ITEM_BE_RESTRICTED,
-    VB_FLIP_HOP_VARIABLE,
+    VB_APPLY_AIR_CONTROL,
     VB_DISABLE_LETTERBOX,
     VB_CLOCK_TOWER_OPENING_CONSIDER_THIS_FIRST_CYCLE,
     VB_DRAW_SLIME_BODY_ITEM,
@@ -72,6 +73,32 @@ typedef enum {
     VB_CHECK_HELD_ITEM_BUTTON_PRESS,
     VB_MAGIC_SPIN_ATTACK_CHECK_FORM,
     VB_TRANSFORM_THUNDER_MATRIX,
+    VB_DAMAGE_MULTIPLIER,
+    VB_DAMAGE_EFFECT,
+    VB_DRAW_DAMAGE_EFFECT,
+    VB_USE_NULL_FOR_DRAW_DAMAGE_EFFECTS,
+    VB_CHECK_BUMPER_COLLISION,
+    VB_PLAY_HEART_CONTAINER_GET_FANFARE,
+    VB_BE_HOOKSHOT_SURFACE,
+    VB_DEKU_GUARD_SHOW_SEARCH_BALLS,
+    VB_DISPLAY_SONG_OF_DOUBLE_TIME_PROMPT,
+    VB_ALLOW_SONG_DOUBLE_TIME_ON_FINAL_NIGHT,
+    VB_OWL_TELL_ABOUT_SHRINE,
+    VB_ARCHERY_ADD_BONUS_POINTS,
+    VB_HONEY_AND_DARLING_MINIGAME_FINISH,
+    VB_MINIMAP_TOGGLE,
+    VB_MONKEY_WAIT_TO_TALK_AFTER_APPROACH,
+    VB_MULTIPLY_INFLICTED_DMG,
+    VB_GORON_ROLL_CONSUME_MAGIC,
+    VB_GORON_ROLL_INCREASE_SPIKE_LEVEL,
+    VB_GORON_ROLL_DISABLE_SPIKE_MODE,
+    VB_DEKU_LINK_SPIN_ON_LAST_HOP,
+    VB_CLAMP_ANIMATION_SPEED,
+    VB_GIBDO_TRADE_SEQUENCE_SUFFICIENT_QUANTITY_PRESENTED,
+    VB_GIBDO_TRADE_SEQUENCE_ACCEPT_RED_POTION,
+    VB_GIBDO_TRADE_SEQUENCE_TAKE_MORE_THAN_ONE_ITEM,
+    VB_GIBDO_TRADE_SEQUENCE_DO_TRADE,
+    VB_GET_ITEM_ACTION_FROM_MASK,
 } GIVanillaBehavior;
 
 typedef enum {
@@ -285,6 +312,7 @@ class GameInteractor {
 
     DEFINE_HOOK(OnFileDropped, (std::string path));
 
+    DEFINE_HOOK(OnGameStateMainStart, ());
     DEFINE_HOOK(OnGameStateMainFinish, ());
     DEFINE_HOOK(OnGameStateDrawFinish, ());
     DEFINE_HOOK(OnGameStateUpdate, ());
@@ -296,6 +324,8 @@ class GameInteractor {
     DEFINE_HOOK(BeforeEndOfCycleSave, ());
     DEFINE_HOOK(AfterEndOfCycleSave, ());
     DEFINE_HOOK(BeforeMoonCrashSaveReset, ());
+    DEFINE_HOOK(AfterInterfaceClockDraw, ());
+    DEFINE_HOOK(BeforeInterfaceClockDraw, ());
 
     DEFINE_HOOK(OnSceneInit, (s8 sceneId, s8 spawnNum));
     DEFINE_HOOK(OnRoomInit, (s8 sceneId, s8 roomNum));
@@ -335,6 +365,7 @@ class GameInteractor {
 extern "C" {
 #endif // __cplusplus
 
+void GameInteractor_ExecuteOnGameStateMainStart();
 void GameInteractor_ExecuteOnGameStateMainFinish();
 void GameInteractor_ExecuteOnGameStateDrawFinish();
 void GameInteractor_ExecuteOnGameStateUpdate();
@@ -346,6 +377,8 @@ void GameInteractor_ExecuteOnSaveInit(s16 fileNum);
 void GameInteractor_ExecuteBeforeEndOfCycleSave();
 void GameInteractor_ExecuteAfterEndOfCycleSave();
 void GameInteractor_ExecuteBeforeMoonCrashSaveReset();
+void GameInteractor_ExecuteAfterInterfaceClockDraw();
+void GameInteractor_ExecuteBeforeInterfaceClockDraw();
 
 void GameInteractor_ExecuteOnSceneInit(s16 sceneId, s8 spawnNum);
 void GameInteractor_ExecuteOnRoomInit(s16 sceneId, s8 roomNum);
@@ -388,6 +421,33 @@ bool GameInteractor_Should(GIVanillaBehavior flag, uint32_t result, ...);
             body;                                                                           \
             va_end(args);                                                                   \
         })
+#define COND_HOOK(hookType, condition, body)                                                     \
+    {                                                                                            \
+        static HOOK_ID hookId = 0;                                                               \
+        GameInteractor::Instance->UnregisterGameHook<GameInteractor::hookType>(hookId);          \
+        hookId = 0;                                                                              \
+        if (condition) {                                                                         \
+            hookId = GameInteractor::Instance->RegisterGameHook<GameInteractor::hookType>(body); \
+        }                                                                                        \
+    }
+#define COND_ID_HOOK(hookType, id, condition, body)                                                       \
+    {                                                                                                     \
+        static HOOK_ID hookId = 0;                                                                        \
+        GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::hookType>(hookId);              \
+        hookId = 0;                                                                                       \
+        if (condition) {                                                                                  \
+            hookId = GameInteractor::Instance->RegisterGameHookForID<GameInteractor::hookType>(id, body); \
+        }                                                                                                 \
+    }
+#define COND_VB_SHOULD(id, condition, body)                                                               \
+    {                                                                                                     \
+        static HOOK_ID hookId = 0;                                                                        \
+        GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::ShouldVanillaBehavior>(hookId); \
+        hookId = 0;                                                                                       \
+        if (condition) {                                                                                  \
+            hookId = REGISTER_VB_SHOULD(id, body);                                                        \
+        }                                                                                                 \
+    }
 
 int GameInteractor_InvertControl(GIInvertType type);
 uint32_t GameInteractor_Dpad(GIDpadType type, uint32_t buttonCombo);

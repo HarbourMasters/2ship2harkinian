@@ -11,6 +11,9 @@
 #include "overlays/actors/ovl_En_Bom/z_en_bom.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
 
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
+
 #define FLAGS \
     (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY | ACTOR_FLAG_10 | ACTOR_FLAG_2000000 | ACTOR_FLAG_CANT_LOCK_ON)
 
@@ -800,9 +803,12 @@ void func_80962F4C(EnFu* this, PlayState* play) {
         Message_StartTextbox(play, 0x288B, &this->actor);
     }
 
-    if ((!DynaPolyActor_IsPlayerAbove((DynaPolyActor*)this->actor.child) &&
-         (player->actor.bgCheckFlags & BGCHECKFLAG_GROUND)) ||
-        (gSaveContext.timerCurTimes[TIMER_ID_MINIGAME_2] <= SECONDS_TO_TIMER(0)) || (this->unk_548 == this->unk_54C)) {
+    if (GameInteractor_Should(VB_HONEY_AND_DARLING_MINIGAME_FINISH,
+                              (!DynaPolyActor_IsPlayerAbove((DynaPolyActor*)this->actor.child) &&
+                               (player->actor.bgCheckFlags & BGCHECKFLAG_GROUND)) ||
+                                  (gSaveContext.timerCurTimes[TIMER_ID_MINIGAME_2] <= SECONDS_TO_TIMER(0)) ||
+                                  (this->unk_548 == this->unk_54C),
+                              this)) {
         player->stateFlags3 &= ~PLAYER_STATE3_400000;
         func_80961E88(play);
         player->stateFlags1 |= PLAYER_STATE1_20;
@@ -1490,6 +1496,7 @@ void func_80964950(PlayState* play, EnFuUnkStruct* ptr, s32 len) {
 
     for (i = 0; i < len; i++, ptr++) {
         if (ptr->unk_36 == 1) {
+            FrameInterpolation_RecordOpenChild(ptr, i);
             if (!flag) {
                 gSPDisplayList(POLY_OPA_DISP++, gHoneyAndDarlingHeartMaterialDL);
                 flag = true;
@@ -1501,6 +1508,7 @@ void func_80964950(PlayState* play, EnFuUnkStruct* ptr, s32 len) {
             gSPSegment(POLY_OPA_DISP++, 0x08, Lib_SegmentedToVirtual(gDropRecoveryHeartTex));
             gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_OPA_DISP++, gHoneyAndDarlingHeartModelDL);
+            FrameInterpolation_RecordCloseChild();
         }
     }
 

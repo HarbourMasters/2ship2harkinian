@@ -1,8 +1,12 @@
 #ifndef BenJsonConversions_hpp
 #define BenJsonConversions_hpp
 
-#include "z64.h"
 #include <nlohmann/json.hpp>
+
+extern "C" {
+#include "z64save.h"
+#include "macros.h"
+}
 
 using json = nlohmann::json;
 

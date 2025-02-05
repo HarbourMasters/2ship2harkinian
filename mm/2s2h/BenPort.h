@@ -36,16 +36,12 @@ class OTRGlobals {
     OTRGlobals();
     ~OTRGlobals();
 
-    bool HasMasterQuest();
-    bool HasOriginal();
     uint32_t GetInterpolationFPS();
     std::shared_ptr<std::vector<std::string>> ListFiles(std::string path);
 
   private:
     ImFont* CreateFontWithSize(float size, std::string fontPath = "");
     void CheckSaveFile(size_t sramSize) const;
-    bool hasMasterQuest;
-    bool hasOriginal;
 };
 
 uint32_t IsGameMasterQuest();
@@ -140,11 +136,14 @@ void Controller_BlockGameInput();
 void Controller_UnblockGameInput();
 void Overlay_DisplayText(float duration, const char* text);
 void Overlay_DisplayText_Seconds(int seconds, const char* text);
+uint32_t Ship_GetInterpolationFPS();
 
 void Gfx_RegisterBlendedTexture(const char* name, u8* mask, u8* replacement);
 void Gfx_UnregisterBlendedTexture(const char* name);
 void Gfx_TextureCacheDelete(const uint8_t* texAddr);
 void CheckTracker_OnMessageClose();
+
+bool Ship_HandleConsoleCrashAsReset();
 
 int32_t GetGIID(uint32_t itemID);
 #endif
