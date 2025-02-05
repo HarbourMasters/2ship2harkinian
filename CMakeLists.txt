@@ -217,10 +217,11 @@ install(FILES "${CMAKE_SOURCE_DIR}/OTRExporter/CFG/SymbolMap_MM.txt" DESTINATION
 #         PERMISSIONS ${PROGRAM_PERMISSIONS_EXECUTE}
 #         )
 
+# Rename the installed soh binary to drop the macos suffix
+INSTALL(CODE "FILE(RENAME \${CMAKE_INSTALL_PREFIX}/../MacOS/soh-macos \${CMAKE_INSTALL_PREFIX}/../MacOS/soh)")
 install(CODE "
    include(BundleUtilities)
-   fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/2s2h-macos\" \"\" \"${dirs}\")
-   execute_process(COMMAND rm -f \"\${CMAKE_INSTALL_PREFIX}/2s2h-macos\")
+  fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/../MacOS/soh\" \"\" \"${dirs}\")
    ")
 
 endif()
