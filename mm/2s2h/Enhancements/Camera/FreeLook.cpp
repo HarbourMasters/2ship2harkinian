@@ -112,7 +112,7 @@ bool Camera_FreeLook(Camera* camera) {
         MouseDelta mouseDelta = Mouse_GetDelta();
         yaw -= mouseDelta.x * 40.0f * CVarGetFloat("gEnhancements.Camera.Mouse.CameraSensitivity.X", 1.0f) *
                GameInteractor_InvertControl(GI_INVERT_CAMERA_MOUSE_X);
-        pitch += mouseDelta.y * 40.0f * CVarGetFloat("gEnhancements.Camera.Mouse.CameraSensitivity.Y", 1.0f) *
+        pitch -= mouseDelta.y * 40.0f * CVarGetFloat("gEnhancements.Camera.Mouse.CameraSensitivity.Y", 1.0f) *
                  -GameInteractor_InvertControl(GI_INVERT_CAMERA_MOUSE_Y);
     }
 
@@ -170,7 +170,7 @@ bool Camera_CanFreeLook(Camera* camera) {
     if (CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured()) {
         MouseDelta mouseDelta = Mouse_GetDelta();
         camX -= mouseDelta.x * 40.0f;
-        camY += mouseDelta.y * 40.0f;
+        camY -= mouseDelta.y * 40.0f;
     }
 
     if (!sCanFreeLook && (fabsf(camX) >= 15.0f || fabsf(camY) >= 15.0f)) {
