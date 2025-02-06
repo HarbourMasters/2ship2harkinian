@@ -7,13 +7,14 @@
 extern "C" {
 #endif
 
-typedef struct MouseDelta {
+typedef struct MouseCoords {
     s32 x;
     s32 y;
-} MouseDelta;
+} MouseCoords;
 
 void Mouse_Update();
-MouseDelta Mouse_GetDelta();
+MouseCoords Mouse_GetDelta();
+MouseCoords Mouse_GetCursorPos();
 void Mouse_SetCursorPos(s32 x, s32 y);
 bool Mouse_IsCaptured();
 
