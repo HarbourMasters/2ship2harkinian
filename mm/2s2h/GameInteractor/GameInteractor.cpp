@@ -358,8 +358,6 @@ int GameInteractor_InvertControl(GIInvertType type) {
                 result *= -1;
             }
             break;
-        case GI_INVERT_SHIELD_Y:
-            if (CVarGetInteger("gEnhancements.Equipment.InvertShieldY", 0)) {
         case GI_INVERT_FIRST_PERSON_MOUSE_X:
             if (CVarGetInteger("gEnhancements.Camera.Mouse.FirstPerson.InvertX", 0)) {
                 result *= -1;
@@ -367,6 +365,16 @@ int GameInteractor_InvertControl(GIInvertType type) {
             break;
         case GI_INVERT_FIRST_PERSON_MOUSE_Y:
             if (CVarGetInteger("gEnhancements.Camera.Mouse.FirstPerson.InvertY", 1)) {
+                result *= -1;
+            }
+            break;
+        case GI_INVERT_SHIELD_X:
+            if (CVarGetInteger("gEnhancements.Equipment.InvertShieldX", 0)) {
+                result *= -1;
+            }
+            break;
+        case GI_INVERT_SHIELD_Y:
+            if (CVarGetInteger("gEnhancements.Equipment.InvertShieldY", 1)) {
                 result *= -1;
             }
             break;
