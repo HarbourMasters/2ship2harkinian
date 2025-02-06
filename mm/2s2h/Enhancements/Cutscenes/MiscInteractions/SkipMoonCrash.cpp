@@ -7,7 +7,7 @@ extern "C" {
 #include "variables.h"
 }
 
-#define CVAR_NAME "gEnhancements.Cutscenes.SkipMiscInteractions"
+#define CVAR_NAME "gEnhancements.Cutscenes.SkipStoryCutscenes"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 #define TERMINA_FIELD_MOON_CRASH_CS_ENTRANCE 0x54C0
