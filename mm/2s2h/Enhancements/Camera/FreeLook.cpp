@@ -105,9 +105,6 @@ bool Camera_FreeLook(Camera* camera) {
     pitch += pitchDiff * -GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_Y);
 
     if (CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured()
-        // Disable mouse movement when holding down the shield
-        // TODO: test if this check still needed
-        // !(player->stateFlags1 & 0x400000)
     ) {
         MouseDelta mouseDelta = Mouse_GetDelta();
         yaw -= mouseDelta.x * 40.0f * CVarGetFloat("gEnhancements.Camera.Mouse.CameraSensitivity.X", 1.0f) *
