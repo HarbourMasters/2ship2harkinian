@@ -105,8 +105,10 @@ bool Camera_FreeLook(Camera* camera) {
     pitch += pitchDiff * -GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_Y);
 
     if (CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured()
+        // Disable mouse camera control when holding up a shield
+        && !(CVarGetInteger("gEnhancements.Mouse.Shield.Enabled", 0) && player->stateFlags1 & PLAYER_STATE1_400000)
     ) {
-        MouseDelta mouseDelta = Mouse_GetDelta();
+        MouseCoords mouseDelta = Mouse_GetDelta();
         yaw -= mouseDelta.x * 40.0f * CVarGetFloat("gEnhancements.Camera.Mouse.CameraSensitivity.X", 1.0f) *
                GameInteractor_InvertControl(GI_INVERT_CAMERA_MOUSE_X);
         pitch -= mouseDelta.y * 40.0f * CVarGetFloat("gEnhancements.Camera.Mouse.CameraSensitivity.Y", 1.0f) *
@@ -165,7 +167,7 @@ bool Camera_CanFreeLook(Camera* camera) {
     f32 camY = sCamPlayState->state.input[0].cur.right_stick_y * 10.0f;
 
     if (CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured()) {
-        MouseDelta mouseDelta = Mouse_GetDelta();
+        MouseCoords mouseDelta = Mouse_GetDelta();
         camX -= mouseDelta.x * 40.0f;
         camY -= mouseDelta.y * 40.0f;
     }

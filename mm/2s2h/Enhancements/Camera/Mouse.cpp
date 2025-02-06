@@ -2,7 +2,7 @@
 
 #include "Context.h"
 
-static MouseDelta current;
+static MouseCoords current;
 
 #ifdef __cplusplus
 extern "C" {
@@ -14,8 +14,13 @@ void Mouse_Update() {
     current.y = coords.y;
 }
 
-MouseDelta Mouse_GetDelta() {
+MouseCoords Mouse_GetDelta() {
     return current;
+}
+
+MouseCoords Mouse_GetCursorPos() {
+    Ship::Coords coords = Ship::Context::GetInstance()->GetWindow()->GetMousePos();
+    return { coords.x, coords.y };
 }
 
 void Mouse_SetCursorPos(s32 x, s32 y) {

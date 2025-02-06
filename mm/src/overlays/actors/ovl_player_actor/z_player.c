@@ -13532,7 +13532,7 @@ s32 Ship_HandleFirstPersonAiming(PlayState* play, Player* this, s32 arg2) {
     }
 
     if (CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured()) {
-        MouseDelta mouseDelta = Mouse_GetDelta();
+        MouseCoords mouseDelta = Mouse_GetDelta();
 
         if (mouseDelta.x != 0) {
             this->actor.focus.rot.y += mouseDelta.x * 12.0f *
@@ -15334,6 +15334,24 @@ void Player_Action_18(Player* this, PlayState* play) {
         s16 temp_ft5;
         s16 var_a2;
         s16 var_a3;
+
+        if (CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Mouse.Shield.Enabled", 0)) {
+            MouseCoords mousePos = Mouse_GetCursorPos();
+            u32 width = OTRGetCurrentWidth();
+            u32 height = OTRGetCurrentHeight();
+            // FIXME: hook boundaries to variable
+            /*
+             * Y: -12800 ~ +12700
+             * X: -15360 ~ +15240
+             */
+            f32 xBound = 15360 / ((f32)width / 2);
+            f32 yBound = 12800 / ((f32)height / 2);
+            yStick += +(mousePos.x - (height) / 2) * yBound;
+            xStick -= +(mousePos.y - (width) / 2) * xBound;
+
+            // Plain shield movement instead of camera-relative one
+            temp_a0 = 0;
+        }
 
         yStick *= GameInteractor_InvertControl(GI_INVERT_SHIELD_Y);
         xStick *= GameInteractor_InvertControl(GI_INVERT_SHIELD_X);
