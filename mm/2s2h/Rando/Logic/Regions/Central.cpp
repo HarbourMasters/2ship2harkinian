@@ -126,6 +126,9 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_CLOCK_TOWN_LAUNDRY_FREESTANDING_RUPEE_03,  true),
             CHECK(RC_CLOCK_TOWN_LAUNDRY_GURU_GURU,              true),
             CHECK(RC_CLOCK_TOWN_LAUNDRY_SMALL_CRATE,            true),
+            CHECK(RC_CLOCK_TOWN_LAUNDRY_POOL_GRASS_01, true),
+            CHECK(RC_CLOCK_TOWN_LAUNDRY_POOL_GRASS_02, true),
+            CHECK(RC_CLOCK_TOWN_LAUNDRY_POOL_GRASS_03, true),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(SOUTH_CLOCK_TOWN, 6),             ENTRANCE(LAUNDRY_POOL, 0), true),
