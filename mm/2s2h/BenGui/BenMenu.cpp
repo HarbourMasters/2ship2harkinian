@@ -292,7 +292,7 @@ void BenMenu::AddSettings() {
             int hz = Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
             if (hz >= 20 && hz <= 360) {
                 CVarSetInteger("gInterpolationFPS", hz);
-                Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+                Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
             }
         })
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_NOT_DIRECTX).active; })
@@ -335,21 +335,6 @@ void BenMenu::AddSettings() {
 
     path.sidebarName = "Controls";
     AddSidebarEntry("Settings", "Controls", 1);
-    AddWidget(path,
-              "This interface can be a little daunting. Please bear with us as we work to improve the experience "
-              "and address some known issues.\n"
-              "\n"
-              "At first glance, you may notice several input devices displayed below the 'Clear All' button. "
-              "Some of these might be other controllers connected to your computer, while others may be "
-              "duplicated controllers (a known issue). We recommend clicking on the box with the " ICON_FA_EYE
-              " icon and the name of any disconnected or unused controllers to hide their inputs. Make sure the "
-              "target controller remains visible.\n"
-              "\n"
-              "If you encounter issues connecting your controller or registering inputs, try closing Steam or "
-              "any other external input software. Alternatively, test a different controller to determine if "
-              "it's a compatibility issue.\n",
-              WIDGET_TEXT);
-    AddWidget(path, "Bindings", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Popout Bindings Window", WIDGET_WINDOW_BUTTON)
         .CVar("gWindows.BenInputEditor")
         .WindowName("2S2H Input Editor")
@@ -694,6 +679,9 @@ void BenMenu::AddEnhancements() {
                      .Min(1)
                      .Max(5)
                      .DefaultValue(1));
+    AddWidget(path, "Prevent Diving Over Water", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Player.PreventDiveOverWater")
+        .Options(CheckboxOptions().Tooltip("Prevents Link from automatically diving over bodies of water."));
     AddWidget(path, "Dpad Equips", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Dpad.DpadEquips")
         .Options(CheckboxOptions().Tooltip("Allows you to equip items to your d-pad"));
@@ -1029,6 +1017,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Faster Song Playback", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Songs.FasterSongPlayback")
         .Options(CheckboxOptions().Tooltip("Speeds up the playback of songs."));
+    AddWidget(path, "Skip Song of Time cutscenes", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Songs.SkipSoTCutscenes")
+        .Options(CheckboxOptions().Tooltip("Skips the cutscenes when playing any of the Song of Time songs"));
 
     // Time Savers
     path = { "Enhancements", "Time Savers", 1 };
@@ -1102,7 +1093,8 @@ void BenMenu::AddEnhancements() {
                               "Includes the following:\n"
                               "- HESS/Weirdshot crashes\n"
                               "- Action Swap crash without arrow ammo\n"
-                              "- Owl Warp menu crash when moving the cursor with Index-Warp active")
+                              "- Owl Warp menu crash when moving the cursor with Index-Warp active\n"
+                              "- Remote Hookshot Hookslide crashes when over voids in Great Bay Temple")
                      .DefaultValue(true));
     AddWidget(path, "Fix Ammo Count Color", WIDGET_CVAR_CHECKBOX)
         .CVar("gFixes.FixAmmoCountEnvColor")
@@ -1177,12 +1169,12 @@ void BenMenu::AddEnhancements() {
     path = { "Enhancements", "Difficulty Options", 1 };
     AddSidebarEntry("Enhancements", "Difficulty Options", 3);
     AddWidget(path, "Disable Takkuri Steal", WIDGET_CVAR_CHECKBOX)
-        .CVar("gEnhancements.Cheats.DisableTakkuriSteal")
+        .CVar("gEnhancements.DifficultyOptions.DisableTakkuriSteal")
         .Options(CheckboxOptions().Tooltip(
             "Prevents the Takkuri from stealing key items like bottles and swords. It may still steal "
             "other items."));
     AddWidget(path, "Deku Guard Search Balls", WIDGET_CVAR_COMBOBOX)
-        .CVar("gEnhancements.Cheats.DekuGuardSearchBalls")
+        .CVar("gEnhancements.DifficultyOptions.DekuGuardSearchBalls")
         .Options(
             ComboboxOptions()
                 .Tooltip("Choose when to show the Deku Palace Guards' search balls\n"
@@ -1191,6 +1183,18 @@ void BenMenu::AddEnhancements() {
                          "- Always: Always show the search balls.")
                 .DefaultIndex(DekuGuardSearchBallsOptions::DEKU_GUARD_SEARCH_BALLS_NIGHT_ONLY)
                 .ComboMap(dekuGuardSearchBallsOptions));
+    AddWidget(path, "Gibdo Trade Sequence Options", WIDGET_CVAR_COMBOBOX)
+        .CVar("gEnhancements.DifficultyOptions.GibdoTradeSequence")
+        .Options(
+            ComboboxOptions()
+                .Tooltip(
+                    "Changes the way the Gibdo Trade Sequence works\n"
+                    "-Vanilla: Works normally\n"
+                    "-MM3D: Gibdos will only take one quantity of the item they request, as they do in MM3D. The Gibdo "
+                    "requesting a blue potion will also accept a red potion.\n"
+                    "-No trade: Gibdos will vanish without taking items")
+                .DefaultIndex(GibdoTradeSequenceOptions::GIBDO_TRADE_SEQUENCE_VANILLA)
+                .ComboMap(gibdoTradeSequenceOptions));
 
     path.column = 2;
     AddWidget(path, "Damage Multiplier", WIDGET_CVAR_COMBOBOX)
@@ -1245,7 +1249,7 @@ void BenMenu::AddDevTools() {
             CVarSetFloat(WARP_POINT_CVAR "Z", player->actor.world.pos.z);
             CVarSetFloat(WARP_POINT_CVAR "Rotation", player->actor.shape.rot.y);
             CVarSetInteger(WARP_POINT_CVAR "Saved", 1);
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
         })
         .PreFunc(
             [](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active; });
@@ -1266,7 +1270,7 @@ void BenMenu::AddDevTools() {
             CVarClear(WARP_POINT_CVAR "Z");
             CVarClear(WARP_POINT_CVAR "Rotation");
             CVarClear(WARP_POINT_CVAR "Saved");
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
         })
         .PreFunc([](WidgetInfo& info) {
             info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active ||
