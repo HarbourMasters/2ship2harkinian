@@ -13,6 +13,7 @@
 
 #include "2s2h/ShipUtils.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
@@ -112,8 +113,10 @@ void ObjGrass_OverrideMatrixCurrent(MtxF* matrix) {
 }
 
 void ObjGrass_DropCollectible(ObjGrassElement* grassElem, PlayState* play) {
-    if (!(grassElem->dropTable & 0x10)) {
-        Item_DropCollectibleRandom(play, NULL, &grassElem->pos, grassElem->dropTable * 0x10);
+    if (GameInteractor_Should(VB_GRASS_DROP_COLLECTIBLE, true, ACTOR_OBJ_GRASS, grassElem)) {
+        if (!(grassElem->dropTable & 0x10)) {
+            Item_DropCollectibleRandom(play, NULL, &grassElem->pos, grassElem->dropTable * 0x10);
+        }
     }
 }
 

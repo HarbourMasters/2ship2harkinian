@@ -56,6 +56,11 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_GREAT_BAY_COAST_LEDGE_POT_03, HAS_ITEM(ITEM_HOOKSHOT)),
             CHECK(RC_GREAT_BAY_COAST_TINGLE_MAP_01, (HAS_ITEM(ITEM_BOW) || HAS_ITEM(ITEM_HOOKSHOT)) && CAN_AFFORD(RC_GREAT_BAY_COAST_TINGLE_MAP_01)),
             CHECK(RC_GREAT_BAY_COAST_TINGLE_MAP_02, (HAS_ITEM(ITEM_BOW) || HAS_ITEM(ITEM_HOOKSHOT)) && CAN_AFFORD(RC_GREAT_BAY_COAST_TINGLE_MAP_02)),
+            CHECK(RC_GREAT_BAY_COAST_GRASS_01, true),
+            CHECK(RC_GREAT_BAY_COAST_GRASS_02, true),
+            CHECK(RC_GREAT_BAY_COAST_GRASS_03, true),
+            CHECK(RC_GREAT_BAY_COAST_GRASS_04, true),
+            CHECK(RC_GREAT_BAY_COAST_GRASS_05, true),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(TERMINA_FIELD, 2),                ENTRANCE(GREAT_BAY_COAST, 0), true),
