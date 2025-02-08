@@ -324,6 +324,8 @@ static RegisterShipInitFunc initFunc([]() {
     Regions[RR_TERMINA_FIELD_BIO_BABA_GROTTO] = RandoRegion{ .name = "Termina Field Bio Baba", .sceneId = SCENE_KAKUSIANA,
         .checks = {
             CHECK(RC_TERMINA_FIELD_BIO_BABA_GROTTO, CAN_BE_ZORA),
+            CHECK(RC_TERMINA_FIELD_BIO_BABA_GROTTO_GRASS_01, true),
+            CHECK(RC_TERMINA_FIELD_BIO_BABA_GROTTO_GRASS_02, true),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(TERMINA_FIELD, 0),                ENTRANCE(GROTTOS, 11), true), // TODO: Grotto mapping
@@ -435,6 +437,13 @@ static RegisterShipInitFunc initFunc([]() {
         },
     };
     Regions[RR_TERMINA_FIELD_GOSSIP_STONE_GROTTO_3] = RandoRegion{ .name = "Termina Field Gossip Stone #3", .sceneId = SCENE_KAKUSIANA,
+        .checks = {
+            CHECK(RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_3_GRASS_01, true),
+            CHECK(RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_3_GRASS_02, true),
+            CHECK(RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_3_GRASS_03, true),
+            CHECK(RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_3_GRASS_04, true),
+            CHECK(RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_3_GRASS_05, true),
+        },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(TERMINA_FIELD, 0),                ENTRANCE(GROTTOS, 0), true), // TODO: Grotto mapping
         },
@@ -461,6 +470,20 @@ static RegisterShipInitFunc initFunc([]() {
     Regions[RR_TERMINA_FIELD_PILLAR_GROTTO] = RandoRegion{ .name = "Termina Field Pillar", .sceneId = SCENE_KAKUSIANA,
         .checks = {
             CHECK(RC_TERMINA_FIELD_PILLAR_GROTTO_CHEST, true),
+            CHECK(RC_TERMINA_FIELD_PILLAR_GROTTO_GRASS_01, true),
+            CHECK(RC_TERMINA_FIELD_PILLAR_GROTTO_GRASS_02, true),
+            CHECK(RC_TERMINA_FIELD_PILLAR_GROTTO_GRASS_03, true),
+            CHECK(RC_TERMINA_FIELD_PILLAR_GROTTO_GRASS_04, true),
+            CHECK(RC_TERMINA_FIELD_PILLAR_GROTTO_GRASS_05, true),
+            CHECK(RC_TERMINA_FIELD_PILLAR_GROTTO_GRASS_06, true),
+            CHECK(RC_TERMINA_FIELD_PILLAR_GROTTO_GRASS_07, true),
+            CHECK(RC_TERMINA_FIELD_PILLAR_GROTTO_GRASS_08, true),
+            CHECK(RC_TERMINA_FIELD_PILLAR_GROTTO_GRASS_09, true),
+            CHECK(RC_TERMINA_FIELD_PILLAR_GROTTO_GRASS_10, true),
+            CHECK(RC_TERMINA_FIELD_PILLAR_GROTTO_GRASS_11, true),
+            CHECK(RC_TERMINA_FIELD_PILLAR_GROTTO_GRASS_12, true),
+            CHECK(RC_TERMINA_FIELD_PILLAR_GROTTO_GRASS_13, true),
+            CHECK(RC_TERMINA_FIELD_PILLAR_GROTTO_GRASS_14, true),
         },
         .connections = {
             CONNECTION(RR_TERMINA_FIELD, true), // TODO: Grotto mapping
