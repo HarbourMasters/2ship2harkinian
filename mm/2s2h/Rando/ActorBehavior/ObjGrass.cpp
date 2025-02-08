@@ -456,7 +456,7 @@ void Rando::ActorBehavior::InitObjGrassBehavior() {
     });*/
 
     COND_VB_SHOULD(VB_GRASS_DROP_COLLECTIBLE, IS_RANDO, {
-        auto actorId = static_cast<ActorId>(va_arg(args, ActorId));
+        auto actorId = static_cast<ActorId>(va_arg(args, int32_t));
         ObjGrassElement* grassElemActor;
         EnKusa* kusaActor;
         Vec3f pos;
