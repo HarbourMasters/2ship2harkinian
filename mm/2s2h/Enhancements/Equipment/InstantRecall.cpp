@@ -17,13 +17,16 @@ void Player_ReturnBoomerangs() {
         return;
     }
 
-    EnBoom* boomerangs = (EnBoom*)player->boomerangActor;
+    EnBoom* firstBoomerang = (EnBoom*)player->boomerangActor;
 
-    // Kill both boomerangs
-    if (boomerangs != NULL) {
-        Actor_Kill(&boomerangs->actor);
-        if (boomerangs->actor.child != NULL) {
-            Actor_Kill(boomerangs->actor.child);
+    // Kill both boomerangs as long as they are not carrying an actor
+    if (firstBoomerang != NULL) {
+        if (firstBoomerang->unk_1C8 == NULL) {
+            Actor_Kill(&firstBoomerang->actor);
+        }
+        EnBoom* secondBoomerang = (EnBoom*)firstBoomerang->actor.child;
+        if (secondBoomerang != NULL && secondBoomerang->unk_1C8 == NULL) {
+            Actor_Kill(&secondBoomerang->actor);
         }
     }
 }
