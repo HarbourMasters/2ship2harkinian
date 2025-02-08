@@ -10,31 +10,19 @@ extern "C" {
 #define CVAR_NAME "gEnhancements.PlayerActions.InstantRecall"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
-void Player_ReturnBoomerangs() {
-    Player* player = GET_PLAYER(gPlayState);
+void ReturnBoomerang(Actor* actor) {
+    EnBoom* boomerang = (EnBoom*)actor;
 
-    if (player == NULL) {
-        return;
-    }
-
-    EnBoom* firstBoomerang = (EnBoom*)player->boomerangActor;
-
-    // Kill both boomerangs as long as they are not carrying an actor
-    if (firstBoomerang != NULL) {
-        if (firstBoomerang->unk_1C8 == NULL) {
-            Actor_Kill(&firstBoomerang->actor);
-        }
-        EnBoom* secondBoomerang = (EnBoom*)firstBoomerang->actor.child;
-        if (secondBoomerang != NULL && secondBoomerang->unk_1C8 == NULL) {
-            Actor_Kill(&secondBoomerang->actor);
-        }
+    // Kill the boomerang as long as it is not carrying an actor
+    if (boomerang->unk_1C8 == NULL) {
+        Actor_Kill(&boomerang->actor);
     }
 }
 
 void RegisterInstantRecall() {
     COND_ID_HOOK(OnActorUpdate, ACTOR_EN_BOOM, CVAR, [](Actor* actor) {
         if (CHECK_BTN_ALL(gPlayState->state.input->press.button, BTN_B)) {
-            Player_ReturnBoomerangs();
+            ReturnBoomerang(actor);
         }
     });
 }
