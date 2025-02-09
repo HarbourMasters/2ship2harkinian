@@ -236,6 +236,20 @@ static RegisterShipInitFunc initFunc([]() {
     Regions[RR_PATH_TO_SNOWHEAD_GROTTO] = RandoRegion{ .name = "Path To Snowhead Grotto", .sceneId = SCENE_KAKUSIANA,
         .checks = {
             CHECK(RC_PATH_TO_SNOWHEAD_GROTTO_CHEST, true),
+            CHECK(RC_PATH_TO_SNOWHEAD_GROTTO_GRASS_01, true),
+            CHECK(RC_PATH_TO_SNOWHEAD_GROTTO_GRASS_02, true),
+            CHECK(RC_PATH_TO_SNOWHEAD_GROTTO_GRASS_03, true),
+            CHECK(RC_PATH_TO_SNOWHEAD_GROTTO_GRASS_04, true),
+            CHECK(RC_PATH_TO_SNOWHEAD_GROTTO_GRASS_05, true),
+            CHECK(RC_PATH_TO_SNOWHEAD_GROTTO_GRASS_06, true),
+            CHECK(RC_PATH_TO_SNOWHEAD_GROTTO_GRASS_07, true),
+            CHECK(RC_PATH_TO_SNOWHEAD_GROTTO_GRASS_08, true),
+            CHECK(RC_PATH_TO_SNOWHEAD_GROTTO_GRASS_09, true),
+            CHECK(RC_PATH_TO_SNOWHEAD_GROTTO_GRASS_10, true),
+            CHECK(RC_PATH_TO_SNOWHEAD_GROTTO_GRASS_11, true),
+            CHECK(RC_PATH_TO_SNOWHEAD_GROTTO_GRASS_12, true),
+            CHECK(RC_PATH_TO_SNOWHEAD_GROTTO_GRASS_13, true),
+            CHECK(RC_PATH_TO_SNOWHEAD_GROTTO_GRASS_14, true),
         },
         .connections = {
             CONNECTION(RR_PATH_TO_SNOWHEAD_UPPER, true), // TODO: Grotto mapping

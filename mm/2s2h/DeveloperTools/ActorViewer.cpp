@@ -18,6 +18,7 @@ extern "C" {
 }
 
 static ImGuiTextFilter sActorListFilter;
+s16 respawnData;
 
 typedef struct ActorInfo {
     u16 id;
@@ -259,9 +260,16 @@ void ActorViewer_DrawSceneViewerTab() {
     if (ImGui::Button("Export Actors")) {
         ActorViewer_ExportActors();
     }
+    ImGui::SameLine();
     if (ImGui::Button("Clear Grass")) {
         ActorViewer_ClearGrass();
     }
+    ImGui::SameLine();
+    if (ImGui::Button("Get RespawnData")) {
+        respawnData = gSaveContext.respawn[RESPAWN_MODE_UNK_3].data;
+    }
+
+    ImGui::Text("RespawnData: %s", std::to_string(respawnData).c_str());
 
     UIWidgets::PushStyleCombobox();
     sActorListFilter.Draw();
