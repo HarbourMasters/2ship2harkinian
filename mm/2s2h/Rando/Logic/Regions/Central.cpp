@@ -452,6 +452,13 @@ static RegisterShipInitFunc initFunc([]() {
         },
     };
     Regions[RR_TERMINA_FIELD_GOSSIP_STONE_GROTTO_4] = RandoRegion{ .name = "Termina Field Gossip Stone #4", .sceneId = SCENE_KAKUSIANA,
+        .checks = {
+            CHECK(RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_4_GRASS_01, true),
+            CHECK(RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_4_GRASS_02, true),
+            CHECK(RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_4_GRASS_03, true),
+            CHECK(RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_4_GRASS_04, true),
+            CHECK(RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_4_GRASS_05, true),
+        },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(TERMINA_FIELD, 0),                ENTRANCE(GROTTOS, 2), true), // TODO: Grotto mapping
         },
@@ -462,6 +469,18 @@ static RegisterShipInitFunc initFunc([]() {
     Regions[RR_TERMINA_FIELD_PEAHAT_GROTTO] = RandoRegion{ .name = "Termina Field Peahat", .sceneId = SCENE_KAKUSIANA,
         .checks = {
             CHECK(RC_TERMINA_FIELD_PEAHAT_GROTTO_CHEST, CAN_USE_SWORD || CAN_BE_ZORA || CAN_BE_GORON),
+            CHECK(RC_TERMINA_FIELD_PEAHAT_GROTTO_GRASS_01, true),
+            CHECK(RC_TERMINA_FIELD_PEAHAT_GROTTO_GRASS_02, true),
+            CHECK(RC_TERMINA_FIELD_PEAHAT_GROTTO_GRASS_03, true),
+            CHECK(RC_TERMINA_FIELD_PEAHAT_GROTTO_GRASS_04, true),
+            CHECK(RC_TERMINA_FIELD_PEAHAT_GROTTO_GRASS_05, true),
+            CHECK(RC_TERMINA_FIELD_PEAHAT_GROTTO_GRASS_06, true),
+            CHECK(RC_TERMINA_FIELD_PEAHAT_GROTTO_GRASS_07, true),
+            CHECK(RC_TERMINA_FIELD_PEAHAT_GROTTO_GRASS_08, true),
+            CHECK(RC_TERMINA_FIELD_PEAHAT_GROTTO_GRASS_09, true),
+            CHECK(RC_TERMINA_FIELD_PEAHAT_GROTTO_GRASS_10, true),
+            CHECK(RC_TERMINA_FIELD_PEAHAT_GROTTO_GRASS_11, true),
+            CHECK(RC_TERMINA_FIELD_PEAHAT_GROTTO_GRASS_12, true),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(TERMINA_FIELD, 0),                ENTRANCE(GROTTOS, 13), true), // TODO: Grotto mapping
