@@ -106,7 +106,7 @@ bool Camera_FreeLook(Camera* camera) {
 
     if (CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured()
         // Disable mouse camera control when holding up a shield
-        && !(CVarGetInteger("gEnhancements.Mouse.Shield.Enabled", 0) && player->stateFlags1 & PLAYER_STATE1_400000)
+        && !(CVarGetInteger("gEnhancements.Mouse.Shield.Enabled", 1) && player->stateFlags1 & PLAYER_STATE1_400000)
     ) {
         MouseCoords mouseDelta = Mouse_GetDelta();
         yaw -= mouseDelta.x * 40.0f * CVarGetFloat("gEnhancements.Camera.Mouse.CameraSensitivity.X", 1.0f) *

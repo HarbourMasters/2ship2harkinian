@@ -15332,7 +15332,7 @@ void Player_Action_18(Player* this, PlayState* play) {
         s16 camRelativeCurrentYRot = this->actor.shape.rot.y - Camera_GetInputDirYaw(GET_ACTIVE_CAM(play));
         s16 rotXTarget, rotYTarget, rotXStep, rotYStep;
 
-        if (CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Mouse.Shield.Enabled", 0)) {
+        if (CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Mouse.Shield.Enabled", 1)) {
             MouseCoords mousePos = Mouse_GetCursorPos();
             u32 width = OTRGetCurrentWidth();
             u32 height = OTRGetCurrentHeight();
