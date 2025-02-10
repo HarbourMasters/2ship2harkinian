@@ -34,6 +34,7 @@ typedef enum {
     // Vanilla condition: gSaveContext.showTitleCard
     VB_SHOW_TITLE_CARD,
     VB_PLAY_ENTRANCE_CS,
+    VB_KALEIDO_UNPAUSE_CLOSE,
     VB_DISABLE_FD_MASK,
     VB_DOGGY_RACE_SET_MAX_SPEED,
     VB_LOWER_RAZOR_SWORD_DURABILITY,
@@ -58,7 +59,7 @@ typedef enum {
     VB_TATL_INTERUPT_MSG3,
     VB_TATL_INTERUPT_MSG6,
     VB_ITEM_BE_RESTRICTED,
-    VB_FLIP_HOP_VARIABLE,
+    VB_APPLY_AIR_CONTROL,
     VB_DISABLE_LETTERBOX,
     VB_CLOCK_TOWER_OPENING_CONSIDER_THIS_FIRST_CYCLE,
     VB_DRAW_SLIME_BODY_ITEM,
@@ -88,6 +89,17 @@ typedef enum {
     VB_MINIMAP_TOGGLE,
     VB_MONKEY_WAIT_TO_TALK_AFTER_APPROACH,
     VB_MULTIPLY_INFLICTED_DMG,
+    VB_GORON_ROLL_CONSUME_MAGIC,
+    VB_GORON_ROLL_INCREASE_SPIKE_LEVEL,
+    VB_GORON_ROLL_DISABLE_SPIKE_MODE,
+    VB_DEKU_LINK_SPIN_ON_LAST_HOP,
+    VB_CLAMP_ANIMATION_SPEED,
+    VB_LINK_DIVE_OVER_WATER,
+    VB_GIBDO_TRADE_SEQUENCE_SUFFICIENT_QUANTITY_PRESENTED,
+    VB_GIBDO_TRADE_SEQUENCE_ACCEPT_RED_POTION,
+    VB_GIBDO_TRADE_SEQUENCE_TAKE_MORE_THAN_ONE_ITEM,
+    VB_GIBDO_TRADE_SEQUENCE_DO_TRADE,
+    VB_GET_ITEM_ACTION_FROM_MASK,
     VB_DRAW_MASK_ITEM,
 } GIVanillaBehavior;
 
@@ -315,6 +327,8 @@ class GameInteractor {
     DEFINE_HOOK(BeforeEndOfCycleSave, ());
     DEFINE_HOOK(AfterEndOfCycleSave, ());
     DEFINE_HOOK(BeforeMoonCrashSaveReset, ());
+    DEFINE_HOOK(AfterInterfaceClockDraw, ());
+    DEFINE_HOOK(BeforeInterfaceClockDraw, ());
 
     DEFINE_HOOK(OnSceneInit, (s8 sceneId, s8 spawnNum));
     DEFINE_HOOK(OnRoomInit, (s8 sceneId, s8 roomNum));
@@ -362,11 +376,12 @@ void GameInteractor_ExecuteOnConsoleLogoUpdate();
 void GameInteractor_ExecuteOnKaleidoUpdate(PauseContext* pauseCtx);
 void GameInteractor_ExecuteBeforeKaleidoDrawPage(PauseContext* pauseCtx, u16 pauseIndex);
 void GameInteractor_ExecuteAfterKaleidoDrawPage(PauseContext* pauseCtx, u16 pauseIndex);
-void GameInteractor_ExecuteOnKaleidoClose(u16 pauseIndex);
 void GameInteractor_ExecuteOnSaveInit(s16 fileNum);
 void GameInteractor_ExecuteBeforeEndOfCycleSave();
 void GameInteractor_ExecuteAfterEndOfCycleSave();
 void GameInteractor_ExecuteBeforeMoonCrashSaveReset();
+void GameInteractor_ExecuteAfterInterfaceClockDraw();
+void GameInteractor_ExecuteBeforeInterfaceClockDraw();
 
 void GameInteractor_ExecuteOnSceneInit(s16 sceneId, s8 spawnNum);
 void GameInteractor_ExecuteOnRoomInit(s16 sceneId, s8 roomNum);
