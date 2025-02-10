@@ -265,7 +265,7 @@ void EventLogWindow::DrawElement() {
 
     ImGui::SameLine();
 
-    if (UIWidgets::Button("Filters", { .size = UIWidgets::Sizes::Inline })) {
+    if (UIWidgets::Button("Filters", UIWidgets::ButtonOptions{}.Size(UIWidgets::Sizes::Inline))) {
         ImGui::OpenPopup("eventLogFiltersPopup");
     }
 
@@ -313,7 +313,7 @@ void EventLogWindow::DrawElement() {
                 CVarSetInteger("gEventLog.Filter.OpenText", 0);
                 CVarSetInteger("gEventLog.Filter.ItemGive", 0);
             }
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
         }
         g->CurrentItemFlags = backup_item_flags;
 
@@ -342,7 +342,7 @@ void EventLogWindow::DrawElement() {
     s32 maxEntries = CVarGetInteger("gEventLog.MaxEntries", 1000);
     if (ImGui::InputScalar("##maxEntriesInput", ImGuiDataType_S32, &maxEntries)) {
         CVarSetInteger("gEventLog.MaxEntries", MAX(0, maxEntries));
-        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
         TrimEventLog();
     }
     ImGui::PopItemWidth();
@@ -350,7 +350,8 @@ void EventLogWindow::DrawElement() {
 
     ImGui::SameLine(0);
 
-    if (UIWidgets::Button("Clear", { .color = UIWidgets::Colors::Red, .size = UIWidgets::Sizes::Inline })) {
+    if (UIWidgets::Button("Clear",
+                          UIWidgets::ButtonOptions{ .color = UIWidgets::Colors::Red }.Size(UIWidgets::Sizes::Inline))) {
         eventLogEntries.clear();
     }
 

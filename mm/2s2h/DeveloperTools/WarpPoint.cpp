@@ -92,7 +92,7 @@ void RenderWarpPointSection() {
         CVarSetFloat(WARP_POINT_CVAR "Z", player->actor.world.pos.z);
         CVarSetFloat(WARP_POINT_CVAR "Rotation", player->actor.shape.rot.y);
         CVarSetInteger(WARP_POINT_CVAR "Saved", 1);
-        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
     }
     if (CVarGetInteger(WARP_POINT_CVAR "Saved", 0)) {
         u32 sceneId =
@@ -108,7 +108,7 @@ void RenderWarpPointSection() {
             CVarClear(WARP_POINT_CVAR "Z");
             CVarClear(WARP_POINT_CVAR "Rotation");
             CVarClear(WARP_POINT_CVAR "Saved");
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
+            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
         }
         ImGui::SameLine();
         if (UIWidgets::Button("Warp", { .size = UIWidgets::Sizes::Inline })) {

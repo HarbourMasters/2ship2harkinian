@@ -1,7 +1,6 @@
 #ifndef ENHANCEMENTS_H
 #define ENHANCEMENTS_H
 
-#include "Cycle/Cycle.h"
 #include "Saving/SavingEnhancements.h"
 
 enum AlwaysWinDoggyRaceOptions {
@@ -26,6 +25,12 @@ enum CremiaRewardsOptions {
     CREMIA_REWARD_RANDOM,
     CREMIA_REWARD_ALWAYS_HUG,
     CREMIA_REWARD_ALWAYS_RUPEE,
+};
+
+enum GibdoTradeSequenceOptions {
+    GIBDO_TRADE_SEQUENCE_VANILLA,
+    GIBDO_TRADE_SEQUENCE_MM3D,
+    GIBDO_TRADE_SEQUENCE_NO_TRADE,
 };
 
 enum DekuGuardSearchBallsOptions {
