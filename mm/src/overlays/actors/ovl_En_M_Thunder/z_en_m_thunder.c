@@ -8,8 +8,6 @@
 #include "z64rumble.h"
 #include "overlays/actors/ovl_Eff_Dust/z_eff_dust.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
-
-#include "2s2h/BenGui/CosmeticEditor.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_10)
@@ -517,15 +515,13 @@ void EnMThunder_Draw(Actor* thisx, PlayState* play2) {
 
     switch (this->subtype) {
         case ENMTHUNDER_SUBTYPE_SPIN_GREAT:
-            gDPSetPrimColorOverride(POLY_XLU_DISP++, 0, 0x80, 255, 255, 170, (u16)(this->alphaFrac * 255.0f),
-                                    COSMETIC_ELEMENT_GREAT_SPIN_BURST);
+            gDPSetPrimColor(POLY_XLU_DISP++, 0, 0x80, 255, 255, 170, (u16)(this->alphaFrac * 255.0f));
             gSPDisplayList(POLY_XLU_DISP++, gGreatSpinAttackDiskDL);
             gSPDisplayList(POLY_XLU_DISP++, gGreatSpinAttackCylinderDL);
             break;
 
         case ENMTHUNDER_SUBTYPE_SPIN_REGULAR:
-            gDPSetPrimColorOverride(POLY_XLU_DISP++, 0, 0x80, 170, 255, 255, (u16)(this->alphaFrac * 255.0f),
-                                    COSMETIC_ELEMENT_SPIN_SLASH_BURST);
+            gDPSetPrimColor(POLY_XLU_DISP++, 0, 0x80, 170, 255, 255, (u16)(this->alphaFrac * 255.0f));
             gSPDisplayList(POLY_XLU_DISP++, gSpinAttackDiskDL);
             gSPDisplayList(POLY_XLU_DISP++, gSpinAttackCylinderDL);
             break;
@@ -562,14 +558,12 @@ void EnMThunder_Draw(Actor* thisx, PlayState* play2) {
 
     if (this->unk1B0 >= 0.85f) {
         scale = (sScales[play->gameplayFrames & 7] * 6.0f) + 1.0f;
-        gDPSetPrimColorOverride(POLY_XLU_DISP++, 0, 0x80, 255, 255, 170, this->chargingAlpha,
-                                COSMETIC_ELEMENT_GREAT_SPIN_CHARGE);
+        gDPSetPrimColor(POLY_XLU_DISP++, 0, 0x80, 255, 255, 170, this->chargingAlpha);
         gDPSetEnvColor(POLY_XLU_DISP++, 255, 100, 0, 128);
         y2Scroll = 40;
     } else {
         scale = (sScales[play->gameplayFrames & 7] * 2.0f) + 1.0f;
-        gDPSetPrimColorOverride(POLY_XLU_DISP++, 0, 0x80, 170, 255, 255, this->chargingAlpha,
-                                COSMETIC_ELEMENT_SPIN_SLASH_CHARGE);
+        gDPSetPrimColor(POLY_XLU_DISP++, 0, 0x80, 170, 255, 255, this->chargingAlpha);
         gDPSetEnvColor(POLY_XLU_DISP++, 0, 100, 255, 128);
         y2Scroll = 20;
     }

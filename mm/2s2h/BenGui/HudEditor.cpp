@@ -6,7 +6,6 @@ extern "C" int16_t OTRGetRectDimensionFromLeftEdge(float v);
 extern "C" int16_t OTRGetRectDimensionFromRightEdge(float v);
 
 HudEditorElementID hudEditorActiveElement = HUD_EDITOR_ELEMENT_NONE;
-HudEditorElementMode hudEditorOverrideNextElemMode = HUD_EDITOR_ELEMENT_MODE_NONE;
 
 HudEditorElement hudEditorElements[HUD_EDITOR_ELEMENT_MAX] = {
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_B, "B Button", "B", 167, 17, 100, 255, 120, 255),
@@ -31,18 +30,10 @@ HudEditorElement hudEditorElements[HUD_EDITOR_ELEMENT_MAX] = {
     HUD_EDITOR_ELEMENT(HUD_EDITOR_ELEMENT_SKULLTULA_COUNTER, "Skulltulas", "Skulltulas", 26, 190, 255, 255, 255, 255),
 };
 
-// Allows specifying an override mode to the next active element.
-// Must be called again with HUD_EDITOR_ELEMENT_MODE_NONE when done overriding.
-extern "C" void HudEditor_OverrideNextElementMode(HudEditorElementMode mode) {
-    hudEditorOverrideNextElemMode = mode;
-}
-
 extern "C" bool HudEditor_ShouldOverrideDraw() {
     return hudEditorActiveElement != HUD_EDITOR_ELEMENT_NONE &&
-           (hudEditorOverrideNextElemMode != HUD_EDITOR_ELEMENT_MODE_NONE
-                ? hudEditorOverrideNextElemMode
-                : CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar,
-                                 HUD_EDITOR_ELEMENT_MODE_VANILLA)) != HUD_EDITOR_ELEMENT_MODE_VANILLA;
+           CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) !=
+               HUD_EDITOR_ELEMENT_MODE_VANILLA;
 }
 
 extern "C" void HudEditor_SetActiveElement(HudEditorElementID id) {
@@ -50,16 +41,14 @@ extern "C" void HudEditor_SetActiveElement(HudEditorElementID id) {
 }
 
 extern "C" bool HudEditor_IsActiveElementHidden() {
-    return hudEditorActiveElement != HUD_EDITOR_ELEMENT_NONE &&
-           (hudEditorOverrideNextElemMode != HUD_EDITOR_ELEMENT_MODE_NONE
-                ? hudEditorOverrideNextElemMode
-                : CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar,
-                                 HUD_EDITOR_ELEMENT_MODE_VANILLA)) == HUD_EDITOR_ELEMENT_MODE_HIDDEN;
+    return hudEditorActiveElement != HUD_EDITOR_ELEMENT_NONE
+               ? CVarGetInteger(hudEditorElements[hudEditorActiveElement].modeCvar, HUD_EDITOR_ELEMENT_MODE_VANILLA) ==
+                     HUD_EDITOR_ELEMENT_MODE_HIDDEN
+               : false;
 }
 
 extern "C" f32 HudEditor_GetActiveElementScale() {
-    return (hudEditorActiveElement != HUD_EDITOR_ELEMENT_NONE &&
-            hudEditorOverrideNextElemMode == HUD_EDITOR_ELEMENT_MODE_NONE)
+    return hudEditorActiveElement != HUD_EDITOR_ELEMENT_NONE
                ? CVarGetFloat(hudEditorElements[hudEditorActiveElement].scaleCvar, 1.0f)
                : 1.0f;
 }
@@ -235,46 +224,19 @@ void HudEditorWindow::DrawElement() {
                 break;
             }
         }
-        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
     }
 
     for (int i = HUD_EDITOR_ELEMENT_B; i < HUD_EDITOR_ELEMENT_MAX; i++) {
         ImGui::PushID(hudEditorElements[i].name);
         ImGui::SeparatorText(hudEditorElements[i].name);
-        bool colorChanged = CVarGetInteger(hudEditorElements[i].colorChangedCvar, false);
-        float defaultColor[4] = { hudEditorElements[i].defaultR, hudEditorElements[i].defaultG,
-                                  hudEditorElements[i].defaultB, hudEditorElements[i].defaultA };
-        float color[4] = { defaultColor[0], defaultColor[1], defaultColor[2], defaultColor[3] };
-
-        // Move to Function
-        if (colorChanged) {
-            Color_RGBA8 changedColor = CVarGetColor(hudEditorElements[i].colorCvar, {});
-            color[0] = (float)changedColor.r / 255;
-            color[1] = (float)changedColor.g / 255;
-            color[2] = (float)changedColor.b / 255;
-            color[3] = (float)changedColor.a / 255;
-            colorChanged = false;
-        }
-        //
-        colorChanged = ImGui::ColorEdit3("Color", color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
-        if (colorChanged) {
-            Color_RGBA8 colorSelected;
-            colorSelected.r = static_cast<uint8_t>(color[0] * 255.0f);
-            colorSelected.g = static_cast<uint8_t>(color[1] * 255.0f);
-            colorSelected.b = static_cast<uint8_t>(color[2] * 255.0f);
-            colorSelected.a = static_cast<uint8_t>(255.0f);
-
-            CVarSetColor(hudEditorElements[i].colorCvar, colorSelected);
-            CVarSetInteger(hudEditorElements[i].colorChangedCvar, true);
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-        }
-        ImGui::SameLine();
-        if (ImGui::Button(ICON_FA_REFRESH)) {
-            float color[4] = { defaultColor[0], defaultColor[1], defaultColor[2], defaultColor[3] };
-            CVarClear(hudEditorElements[i].colorCvar);
-            CVarClear(hudEditorElements[i].colorChangedCvar);
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-        }
+        float color[3] = { (float)hudEditorElements[i].defaultR / 255, (float)hudEditorElements[i].defaultG / 255,
+                           (float)hudEditorElements[i].defaultB / 255 };
+        // BENTODO: This color picker currently doesn't do anything other than serve as a visual indicator. Eventually
+        // it will be used to set the color of the element.
+        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+        ImGui::ColorEdit3("Color", color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+        ImGui::PopItemFlag();
         ImGui::SameLine();
         if (UIWidgets::CVarCombobox("Mode", hudEditorElements[i].modeCvar, modeNames,
                                     { .labelPosition = UIWidgets::LabelPosition::None })) {
@@ -288,33 +250,24 @@ void HudEditorWindow::DrawElement() {
                                   ImGuiTableFlags_NoSavedSettings | ImGuiTableFlags_NoBordersInBody |
                                       ImGuiTableFlags_SizingStretchSame)) {
                 ImGui::TableNextColumn();
-                UIWidgets::CVarSliderInt("X", hudEditorElements[i].xCvar,
+                UIWidgets::CVarSliderInt("X", hudEditorElements[i].xCvar, -10, 330, hudEditorElements[i].defaultX,
                                          {
                                              .showButtons = false,
                                              .format = "X: %d",
-                                             .min = -10,
-                                             .max = 330,
-                                             .defaultValue = hudEditorElements[i].defaultX,
                                              .labelPosition = UIWidgets::LabelPosition::None,
                                          });
                 ImGui::TableNextColumn();
-                UIWidgets::CVarSliderInt("Y", hudEditorElements[i].yCvar,
+                UIWidgets::CVarSliderInt("Y", hudEditorElements[i].yCvar, -10, 250, hudEditorElements[i].defaultY,
                                          {
                                              .showButtons = false,
                                              .format = "Y: %d",
-                                             .min = -10,
-                                             .max = 250,
-                                             .defaultValue = hudEditorElements[i].defaultY,
                                              .labelPosition = UIWidgets::LabelPosition::None,
                                          });
                 ImGui::TableNextColumn();
-                UIWidgets::CVarSliderFloat("Scale", hudEditorElements[i].scaleCvar,
+                UIWidgets::CVarSliderFloat("Scale", hudEditorElements[i].scaleCvar, 0.25f, 4.0f, 1.0f,
                                            {
                                                .showButtons = false,
                                                .format = "Scale: %.2f",
-                                               .min = 0.25f,
-                                               .max = 4.0f,
-                                               .defaultValue = 1.0f,
                                                .labelPosition = UIWidgets::LabelPosition::None,
                                            });
                 ImGui::EndTable();

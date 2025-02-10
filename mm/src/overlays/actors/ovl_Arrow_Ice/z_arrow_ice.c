@@ -7,8 +7,6 @@
 #include "z_arrow_ice.h"
 #include "overlays/actors/ovl_En_Arrow/z_en_arrow.h"
 
-#include "2s2h/BenGui/CosmeticEditor.h"
-
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_2000000)
 
 #define THIS ((ArrowIce*)thisx)
@@ -215,9 +213,8 @@ void ArrowIce_Draw(Actor* thisx, PlayState* play) {
 
         // Draw ice on the arrow
         Gfx_SetupDL25_Xlu(play->state.gfxCtx);
-        gDPSetPrimColorOverride(POLY_XLU_DISP++, 0x80, 0x80, 170, 255, 255, (s32)(this->alpha * 0.5f) & 0xFF,
-                                COSMETIC_ELEMENT_ICE_ARROW_PRIMARY);
-        gDPSetEnvColorOverride(POLY_XLU_DISP++, 0, 0, 255, 128, COSMETIC_ELEMENT_ICE_ARROW_SECONDARY);
+        gDPSetPrimColor(POLY_XLU_DISP++, 0x80, 0x80, 170, 255, 255, (s32)(this->alpha * 0.5f) & 0xFF);
+        gDPSetEnvColor(POLY_XLU_DISP++, 0, 0, 255, 128);
         Matrix_RotateZYX(0x4000, 0, 0, MTXMODE_APPLY);
         if (this->timer != 0) {
             Matrix_Translate(0.0f, 0.0f, 0.0f, MTXMODE_APPLY);

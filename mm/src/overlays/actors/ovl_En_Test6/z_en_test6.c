@@ -17,7 +17,6 @@ void EnTest6_Init(Actor* thisx, PlayState* play2);
 void EnTest6_Destroy(Actor* thisx, PlayState* play2);
 void EnTest6_Update(Actor* thisx, PlayState* play);
 void EnTest6_Draw(Actor* thisx, PlayState* play);
-void EnTest6_Reset(void);
 
 struct SoTCsAmmoDrops;
 
@@ -62,7 +61,6 @@ ActorInit En_Test6_InitVars = {
     /**/ EnTest6_Destroy,
     /**/ EnTest6_Update,
     /**/ EnTest6_Draw,
-    /**/ EnTest6_Reset,
 };
 
 CutsceneData sDoubleSoTCsCamData[] = {
@@ -1442,11 +1440,5 @@ void EnTest6_Draw(Actor* thisx, PlayState* play) {
             default:
                 break;
         }
-    }
-}
-
-void EnTest6_Reset(void) {
-    for (int i = 0; i < ARRAY_COUNT(sSoTCsAmmoDrops); i++) {
-        sSoTCsAmmoDrops[i].type = SOTCS_AMMO_DROP_NONE;
     }
 }

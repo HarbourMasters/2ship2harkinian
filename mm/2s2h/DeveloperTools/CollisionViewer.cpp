@@ -64,7 +64,7 @@ void CollisionViewerWindow::DrawElement() {
         CVarClear("gCollisionViewer.ATCollisionColor");
         CVarClear("gCollisionViewer.SpecialSurfaceColor");
         CVarClear("gCollisionViewer.InteractableColor");
-        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesOnNextTick();
     }
 
     ImGui::SeparatorText("Collision Types");
