@@ -218,6 +218,7 @@ typedef enum {
     VB_GET_ITEM_ACTION_FROM_MASK,
     VB_GRASS_DRAW_BE_OVERRIDDEN,
     VB_GRASS_DROP_COLLECTIBLE,
+    VB_GRANT_MAGIC_UPON_REQUEST,
 } GIVanillaBehavior;
 
 typedef enum {
