@@ -17,25 +17,20 @@ extern "C" {
 
 // State definitions
 enum MaskEquipState {
-    MASK_EQUIP_NONE,           // No pending operation.
-    MASK_EQUIP_PENDING_EQUIP,    // A new transformation mask is pending equip.
-    MASK_EQUIP_PENDING_UNEQUIP,  // A transformation mask is pending unequip.
-    MASK_EQUIP_TRANSFORMING      // The transformation is in progress.
+    MASK_EQUIP_NONE,            // No pending operation.
+    MASK_EQUIP_PENDING_EQUIP,   // A new transformation mask is pending equip.
+    MASK_EQUIP_PENDING_UNEQUIP, // A transformation mask is pending unequip.
+    MASK_EQUIP_TRANSFORMING     // The transformation is in progress.
 };
 
 static MaskEquipState gMaskEquipState = MASK_EQUIP_NONE;
 static ItemId gPendingMask = ITEM_NONE;      // Pending equip mask (if any)
-static ItemId gLastEquippedMask = ITEM_NONE;   // Last equipped transformation mask
-static Vtx* gEasyMaskEquipVtx = nullptr;       // Vertex buffer for drawing the equip border
+static ItemId gLastEquippedMask = ITEM_NONE; // Last equipped transformation mask
+static Vtx* gEasyMaskEquipVtx = nullptr;     // Vertex buffer for drawing the equip border
 
 // Transformation Mask Definitions
-constexpr std::array<ItemId, 5> kTransformationMasks = { 
-    ITEM_MASK_DEKU, 
-    ITEM_MASK_GORON, 
-    ITEM_MASK_ZORA,
-    ITEM_MASK_FIERCE_DEITY, 
-    ITEM_MASK_GIANT 
-};
+constexpr std::array<ItemId, 5> kTransformationMasks = { ITEM_MASK_DEKU, ITEM_MASK_GORON, ITEM_MASK_ZORA,
+                                                         ITEM_MASK_FIERCE_DEITY, ITEM_MASK_GIANT };
 
 // Helper Functions
 
@@ -52,8 +47,8 @@ s16 getEquippedMaskSlot() {
 
     auto& items = gSaveContext.save.saveInfo.inventory.items;
     // If pending an equip, use that mask; otherwise use the last equipped one.
-    ItemId target = (gMaskEquipState == MASK_EQUIP_PENDING_EQUIP && gPendingMask != ITEM_NONE)
-                      ? gPendingMask : gLastEquippedMask;
+    ItemId target =
+        (gMaskEquipState == MASK_EQUIP_PENDING_EQUIP && gPendingMask != ITEM_NONE) ? gPendingMask : gLastEquippedMask;
     if (target != ITEM_NONE) {
         for (s16 slot = 0; slot < MASK_NUM_SLOTS; ++slot) {
             if (items[slot + ITEM_NUM_SLOTS] == target)
@@ -66,12 +61,12 @@ s16 getEquippedMaskSlot() {
 /// Updates the vertex positions for the equip border based on the mask’s slot.
 void updateEquipBorderVertices(PauseContext* pauseCtx) {
     if (const s16 slot = getEquippedMaskSlot(); slot != -1) {
-        const s16 slotX    = slot % MASK_GRID_COLS;
-        const s16 slotY    = slot / MASK_GRID_COLS;
+        const s16 slotX = slot % MASK_GRID_COLS;
+        const s16 slotY = slot / MASK_GRID_COLS;
         const s16 initialX = -(MASK_GRID_COLS * MASK_GRID_CELL_WIDTH) / 2;
         const s16 initialY = (MASK_GRID_ROWS * MASK_GRID_CELL_HEIGHT) / 2 - 6;
-        const s16 posX     = initialX + (slotX * MASK_GRID_CELL_WIDTH);
-        const s16 posY     = initialY - (slotY * MASK_GRID_CELL_HEIGHT) + pauseCtx->offsetY;
+        const s16 posX = initialX + (slotX * MASK_GRID_CELL_WIDTH);
+        const s16 posY = initialY - (slotY * MASK_GRID_CELL_HEIGHT) + pauseCtx->offsetY;
 
         const std::array<s16, 4> xCoords = { posX, posX + MASK_GRID_CELL_WIDTH, posX, posX + MASK_GRID_CELL_WIDTH };
         const std::array<s16, 4> yCoords = { posY, posY, posY - MASK_GRID_CELL_HEIGHT, posY - MASK_GRID_CELL_HEIGHT };
@@ -99,11 +94,10 @@ bool shouldEquipMask(s16 cursorItem) {
         return mask == ITEM_MASK_ZORA;
 
     Player* player = GET_PLAYER(gPlayState);
-    if (player->stateFlags1 & (PLAYER_STATE1_4 | PLAYER_STATE1_4000 | PLAYER_STATE1_40000 |
-                               PLAYER_STATE1_200000 | PLAYER_STATE1_2000))
+    if (player->stateFlags1 &
+        (PLAYER_STATE1_4 | PLAYER_STATE1_4000 | PLAYER_STATE1_40000 | PLAYER_STATE1_200000 | PLAYER_STATE1_2000))
         return false;
-    if ((player->stateFlags2 & PLAYER_STATE2_10) ||
-        (player->stateFlags1 & PLAYER_STATE1_800) ||
+    if ((player->stateFlags2 & PLAYER_STATE2_10) || (player->stateFlags1 & PLAYER_STATE1_800) ||
         (player->stateFlags2 & PLAYER_STATE2_1))
         return false;
     if (player->rideActor != nullptr && player->rideActor->id == ACTOR_EN_HORSE)
@@ -116,13 +110,9 @@ bool shouldEquipMask(s16 cursorItem) {
 
     // Restrictions for Fierce Deity.
     if (mask == ITEM_MASK_FIERCE_DEITY) {
-        if (!CVarGetInteger("gEnhancements.Masks.FierceDeitysAnywhere", 0) &&
-            gPlayState->sceneId != SCENE_MITURIN_BS &&
-            gPlayState->sceneId != SCENE_HAKUGIN_BS &&
-            gPlayState->sceneId != SCENE_SEA_BS &&
-            gPlayState->sceneId != SCENE_INISIE_BS &&
-            gPlayState->sceneId != SCENE_LAST_BS)
-        {
+        if (!CVarGetInteger("gEnhancements.Masks.FierceDeitysAnywhere", 0) && gPlayState->sceneId != SCENE_MITURIN_BS &&
+            gPlayState->sceneId != SCENE_HAKUGIN_BS && gPlayState->sceneId != SCENE_SEA_BS &&
+            gPlayState->sceneId != SCENE_INISIE_BS && gPlayState->sceneId != SCENE_LAST_BS) {
             return false;
         }
     }
@@ -149,10 +139,8 @@ bool shouldEquipMask(s16 cursorItem) {
 /// Draws the lavender equip border for the transformation mask.
 void drawEquipBorder(PauseContext* pauseCtx) {
     const s16 slot = getEquippedMaskSlot();
-    if (slot == -1 ||
-        gSaveContext.save.saveInfo.inventory.items[slot + ITEM_NUM_SLOTS] == ITEM_NONE ||
-        Player_GetCurMaskItemId(gPlayState) == gPendingMask)
-    {
+    if (slot == -1 || gSaveContext.save.saveInfo.inventory.items[slot + ITEM_NUM_SLOTS] == ITEM_NONE ||
+        Player_GetCurMaskItemId(gPlayState) == gPendingMask) {
         return;
     }
 
@@ -163,15 +151,13 @@ void drawEquipBorder(PauseContext* pauseCtx) {
 
     gDPPipeSync(POLY_OPA_DISP++);
     gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 230, 190, 255, pauseCtx->alpha);
-    gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT,
-                      TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT,
-                      TEXEL0, 0, PRIMITIVE, 0);
+    gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0, PRIMITIVE,
+                      ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
     gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 0);
     gSPVertex(POLY_OPA_DISP++, reinterpret_cast<uintptr_t>(gEasyMaskEquipVtx), 4, 0);
-    gDPLoadTextureBlock(POLY_OPA_DISP++, gEquippedItemOutlineTex, G_IM_FMT_IA, G_IM_SIZ_8b,
-                         32, 32, 0,
-                         G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP,
-                         G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD, G_TX_NOLOD);
+    gDPLoadTextureBlock(POLY_OPA_DISP++, gEquippedItemOutlineTex, G_IM_FMT_IA, G_IM_SIZ_8b, 32, 32, 0,
+                        G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
+                        G_TX_NOLOD);
     gSP1Quadrangle(POLY_OPA_DISP++, 0, 2, 3, 1, 0);
 
     CLOSE_DISPS(gfxCtx);
@@ -182,11 +168,10 @@ void allocateEquipBorderVertices(GraphicsContext* gfxCtx) {
     gEasyMaskEquipVtx = static_cast<Vtx*>(GRAPH_ALLOC(gfxCtx, 4 * sizeof(Vtx)));
     for (int i = 0; i < 4; ++i) {
         gEasyMaskEquipVtx[i].v.ob[2] = 0;
-        gEasyMaskEquipVtx[i].v.flag   = 0;
-        gEasyMaskEquipVtx[i].v.tc[0]  = (i & 1) ? (32 << 5) : 0;
-        gEasyMaskEquipVtx[i].v.tc[1]  = (i & 2) ? (32 << 5) : 0;
-        std::fill(std::begin(gEasyMaskEquipVtx[i].v.cn),
-                  std::end(gEasyMaskEquipVtx[i].v.cn), 255);
+        gEasyMaskEquipVtx[i].v.flag = 0;
+        gEasyMaskEquipVtx[i].v.tc[0] = (i & 1) ? (32 << 5) : 0;
+        gEasyMaskEquipVtx[i].v.tc[1] = (i & 2) ? (32 << 5) : 0;
+        std::fill(std::begin(gEasyMaskEquipVtx[i].v.cn), std::end(gEasyMaskEquipVtx[i].v.cn), 255);
     }
 }
 
@@ -236,12 +221,10 @@ void handleEasyMaskEquip(PauseContext* pauseCtx) {
     if (CHECK_BTN_ALL(pressedButtons, BTN_A)) {
         // If the selected mask is already equipped (or was last equipped), toggle unequip.
         if (cursorItem == currentMask || cursorItem == gLastEquippedMask) {
-            if (gMaskEquipState == MASK_EQUIP_NONE)
-            {
+            if (gMaskEquipState == MASK_EQUIP_NONE) {
                 gMaskEquipState = MASK_EQUIP_PENDING_UNEQUIP;
                 Audio_PlaySfx(NA_SE_SY_CANCEL);
-            }
-            else  // (either pending unequip or pending equip)
+            } else // (either pending unequip or pending equip)
             {
                 gPendingMask = ITEM_NONE;
                 gMaskEquipState = MASK_EQUIP_NONE;
@@ -287,7 +270,7 @@ void RegisterEasyMaskEquip() {
     // Hook for drawing mask icons.
     COND_VB_SHOULD(VB_DRAW_MASK_ITEM, CVAR, {
         u16* itemId = va_arg(args, u16*);
-        s16* index  = va_arg(args, s16*);
+        s16* index = va_arg(args, s16*);
         if (isTransformationMask(static_cast<ItemId>(*itemId))) {
             renderMaskItem(&gPlayState->pauseCtx, *itemId, *index);
             *should = false;
@@ -316,8 +299,7 @@ void RegisterEasyMaskEquip() {
                 Player_UseItem(gPlayState, player, static_cast<ItemId>(Player_GetCurMaskItemId(gPlayState)));
             gLastEquippedMask = ITEM_NONE;
             gMaskEquipState = MASK_EQUIP_NONE;
-        }
-        else if (gMaskEquipState == MASK_EQUIP_PENDING_EQUIP) {
+        } else if (gMaskEquipState == MASK_EQUIP_PENDING_EQUIP) {
             Player_UseItem(gPlayState, player, gPendingMask);
             gLastEquippedMask = gPendingMask;
             gPendingMask = ITEM_NONE;

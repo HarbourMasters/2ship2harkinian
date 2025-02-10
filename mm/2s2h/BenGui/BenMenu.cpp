@@ -958,6 +958,10 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Fast Transformation", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Masks.FastTransformation")
         .Options(CheckboxOptions().Tooltip("Removes the delay when using transformation masks."));
+    AddWidget(path, "Easy Mask Equip", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Masks.EasyMaskEquip")
+        .Options(CheckboxOptions().Tooltip("Allows you to equip transformation masks directly from the pause menu by "
+                                           "pressing A. Works best with Fast Transformations enabled."));
     AddWidget(path, "Fierce Deity's Mask Anywhere", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Masks.FierceDeitysAnywhere")
         .Options(CheckboxOptions().Tooltip("Allow using Fierce Deity's mask outside of boss rooms."));

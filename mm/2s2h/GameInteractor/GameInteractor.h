@@ -374,6 +374,7 @@ void GameInteractor_ExecuteOnGameStateDrawFinish();
 void GameInteractor_ExecuteOnGameStateUpdate();
 void GameInteractor_ExecuteOnConsoleLogoUpdate();
 void GameInteractor_ExecuteOnKaleidoUpdate(PauseContext* pauseCtx);
+void GameInteractor_ExecuteOnKaleidoClose(u16 pauseIndex);
 void GameInteractor_ExecuteBeforeKaleidoDrawPage(PauseContext* pauseCtx, u16 pauseIndex);
 void GameInteractor_ExecuteAfterKaleidoDrawPage(PauseContext* pauseCtx, u16 pauseIndex);
 void GameInteractor_ExecuteOnSaveInit(s16 fileNum);
