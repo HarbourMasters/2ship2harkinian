@@ -4161,7 +4161,7 @@ void KaleidoScope_Update(PlayState* play) {
             gSaveContext.hudVisibility = HUD_VISIBILITY_IDLE;
             Interface_SetHudVisibility(sUnpausedHudVisibility);
             Audio_SetPauseState(false);
-            GameInteractor_ExecuteOnKaleidoClose();
+            GameInteractor_ExecuteOnKaleidoClose(pauseCtx->pageIndex);
             break;
 
         default:

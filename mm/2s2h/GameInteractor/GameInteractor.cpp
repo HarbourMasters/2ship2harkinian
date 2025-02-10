@@ -42,8 +42,9 @@ void GameInteractor_ExecuteAfterKaleidoDrawPage(PauseContext* pauseCtx, u16 paus
     GameInteractor::Instance->ExecuteHooksForID<GameInteractor::AfterKaleidoDrawPage>(pauseIndex, pauseCtx, pauseIndex);
 }
 
-void GameInteractor_ExecuteOnKaleidoClose() {
-    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnKaleidoClose>();
+void GameInteractor_ExecuteOnKaleidoClose(u16 pauseIndex) {
+    GameInteractor::Instance->ExecuteHooks<GameInteractor::OnKaleidoClose>(pauseIndex);
+    GameInteractor::Instance->ExecuteHooksForID<GameInteractor::OnKaleidoClose>(pauseIndex, pauseIndex);
 }
 
 void GameInteractor_ExecuteOnSaveInit(s16 fileNum) {

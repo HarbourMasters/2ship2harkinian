@@ -50,6 +50,7 @@ typedef enum {
     DISABLE_FOR_FRAME_ADVANCE_OFF,
     DISABLE_FOR_WARP_POINT_NOT_SET,
     DISABLE_FOR_INTRO_SKIP_OFF,
+    DISABLE_FOR_FAST_TRANSFORMATION_OFF,
 } DisableOption;
 
 struct widgetInfo;
@@ -348,7 +349,10 @@ static std::map<DisableOption, disabledInfo> disabledMap = {
         "Warp Point Not Saved" } },
     { DISABLE_FOR_INTRO_SKIP_OFF,
       { [](disabledInfo& info) -> bool { return !CVarGetInteger("gEnhancements.Cutscenes.SkipIntroSequence", 0); },
-        "Intro Skip Not Selected" } }
+        "Intro Skip Not Selected" } },
+    { DISABLE_FOR_FAST_TRANSFORMATION_OFF,
+      { [](disabledInfo& info) -> bool { return !CVarGetInteger("gEnhancements.Masks.FastTransformation", 0); },
+        "Fast Transformation is Disabled" } }
 };
 
 std::unordered_map<int32_t, const char*> menuThemeOptions = {
@@ -1340,7 +1344,24 @@ void AddEnhancements() {
               { "Blast Mask has Powder Keg Force", "gEnhancements.Masks.BlastMaskKeg",
                 "Blast Mask can also destroy objects only the Powder Keg can.", WIDGET_CVAR_CHECKBOX },
               { "Fast Transformation", "gEnhancements.Masks.FastTransformation",
-                "Removes the delay when using transformation masks.", WIDGET_CVAR_CHECKBOX },
+                "Removes the delay when using transformation masks.", 
+                WIDGET_CVAR_CHECKBOX,
+                {},
+                [](widgetInfo& info) {
+                    // If Fast Transformation is being disabled, also disable Easy Mask Equip
+                    if (!CVarGetInteger("gEnhancements.Masks.FastTransformation", 0)) {
+                        CVarClear("gEnhancements.Masks.EasyMaskEquip");
+                    }
+                } },
+              { "Easy Mask Equip", "gEnhancements.Masks.EasyMaskEquip",
+                "Allows you to equip transformation masks directly from the pause menu by pressing A.", 
+                WIDGET_CVAR_CHECKBOX,
+                {},
+                nullptr,
+                [](widgetInfo& info) {
+                    if (disabledMap.at(DISABLE_FOR_FAST_TRANSFORMATION_OFF).active)
+                        info.activeDisables.push_back(DISABLE_FOR_FAST_TRANSFORMATION_OFF);
+                } },
               { "Fierce Deity's Mask Anywhere", "gEnhancements.Masks.FierceDeitysAnywhere",
                 "Allow using Fierce Deity's mask outside of boss rooms.", WIDGET_CVAR_CHECKBOX },
               { "Persistent Bunny Hood", "gEnhancements.Masks.PersistentBunnyHood.Enabled",
@@ -1348,9 +1369,7 @@ void AddEnhancements() {
                 "'A' on it in the mask menu.",
                 WIDGET_CVAR_CHECKBOX },
               { "No Blast Mask Cooldown", "gEnhancements.Masks.NoBlastMaskCooldown",
-                "Eliminates the Cooldown between Blast Mask usage.", WIDGET_CVAR_CHECKBOX },
-              { "Easy Mask Equip", "gEnhancements.Masks.EasyMaskEquip",
-                "Allows you to equip masks directly from the pause menu by pressing A.", WIDGET_CVAR_CHECKBOX } },
+                "Eliminates the Cooldown between Blast Mask usage.", WIDGET_CVAR_CHECKBOX } },
             // Song Enhancements
             { { .widgetName = "Ocarina", .widgetType = WIDGET_SEPARATOR_TEXT },
               { "Better Song of Double Time", "gEnhancements.Songs.BetterSongOfDoubleTime",
