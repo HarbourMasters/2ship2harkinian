@@ -28,7 +28,7 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
         gSaveContext.save.hasTatl = true;
         gSaveContext.save.playerForm = PLAYER_FORM_HUMAN;
         gSaveContext.save.saveInfo.playerData.threeDayResetCount = 1;
-        gSaveContext.save.isFirstCycle = false;
+        gSaveContext.save.isFirstCycle = true;
         SET_WEEKEVENTREG(WEEKEVENTREG_59_04);                                                  // Tatl
         SET_WEEKEVENTREG(WEEKEVENTREG_31_04);                                                  // Tatl
         gSaveContext.save.saveInfo.permanentSceneFlags[SCENE_INSIDETOWER].switch0 |= (1 << 0); // Happy Mask Salesman
@@ -61,7 +61,7 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     uint32_t defaults = 0;
                     switch (randoOptionId) {
                         case RO_STARTING_ITEMS_2:
-                            defaults = -2145385984;
+                            defaults = 2149581312;
                             break;
                         case RO_STARTING_ITEMS_3:
                             defaults = 2048;
@@ -72,7 +72,7 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                         default:
                             break;
                     }
-                    RANDO_SAVE_OPTIONS[randoOptionId] = CVarGetInteger(randoStaticOption.cvar, defaults);
+                    RANDO_SAVE_OPTIONS[randoOptionId] = (uint32_t)CVarGetInteger(randoStaticOption.cvar, defaults);
                 }
 
                 if (RANDO_SAVE_OPTIONS[RO_STARTING_HEALTH] != 3) {
@@ -125,6 +125,12 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                 for (auto& [randoRegionId, randoRegion] : Rando::Logic::Regions) {
                     for (auto& [randoCheckId, _] : randoRegion.checks) {
                         auto& randoStaticCheck = Rando::StaticData::Checks[randoCheckId];
+
+                        // Initialize the check with it's vanilla item
+                        if (randoStaticCheck.randoCheckId != RC_UNKNOWN) {
+                            RANDO_SAVE_CHECKS[randoCheckId].randoItemId = randoStaticCheck.randoItemId;
+                        }
+
                         // Skip checks that are already in the pool
                         if (checkPool.find(randoCheckId) != checkPool.end()) {
                             continue;
