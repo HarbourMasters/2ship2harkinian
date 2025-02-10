@@ -453,6 +453,18 @@ std::map<SceneId, std::map<std::pair<float, float>, RandoCheckId>> overworldGras
           { { -1411.00f, 964.00f }, RC_TWIN_ISLANDS_SPRING_GRASS_11 },
           { { -1381.00f, 1001.00f }, RC_TWIN_ISLANDS_SPRING_GRASS_12 },
       } },
+    { SCENE_BOTI,
+      {
+           { { -597.00f, -1943.00f }, RC_IKANA_GRAVEYARD_GRASS_01 },
+           { { -597.00f, -1863.00f }, RC_IKANA_GRAVEYARD_GRASS_02 },
+           { { -540.00f, -1886.00f }, RC_IKANA_GRAVEYARD_GRASS_03 },
+           { { -517.00f, -1943.00f }, RC_IKANA_GRAVEYARD_GRASS_04 },
+           { { -540.00f, -2000.00f }, RC_IKANA_GRAVEYARD_GRASS_05 },
+           { { -597.00f, -2023.00f }, RC_IKANA_GRAVEYARD_GRASS_06 },
+           { { -654.00f, -2000.00f }, RC_IKANA_GRAVEYARD_GRASS_07 },
+           { { -677.00f, -1943.00f }, RC_IKANA_GRAVEYARD_GRASS_08 },
+           { { -654.00f, -1886.00f }, RC_IKANA_GRAVEYARD_GRASS_09 },
+      } },
 };
 
 std::map<s16, std::map<std::pair<float, float>, RandoCheckId>> grottoGrassMap = {
@@ -647,6 +659,23 @@ std::map<s16, std::map<std::pair<float, float>, RandoCheckId>> grottoGrassMap = 
           { { 2524.00f, 58.00f }, RC_MOUNTAIN_VILLAGE_TUNNEL_GROTTO_GRASS_13 },
           { { 2534.00f, -190.00f }, RC_MOUNTAIN_VILLAGE_TUNNEL_GROTTO_GRASS_14 },
       } },
+    { -72, 
+      {
+          { { 2339.00f, 129.00f }, RC_IKANA_GRAVEYARD_GROTTO_GRASS_01 },
+          { { 2345.00f, -174.00f }, RC_IKANA_GRAVEYARD_GROTTO_GRASS_02 },
+          { { 2355.00f, -310.00f }, RC_IKANA_GRAVEYARD_GROTTO_GRASS_03 },
+          { { 2355.00f, -225.00f }, RC_IKANA_GRAVEYARD_GROTTO_GRASS_04 },
+          { { 2391.00f, -313.00f }, RC_IKANA_GRAVEYARD_GROTTO_GRASS_05 },
+          { { 2403.00f, -360.00f }, RC_IKANA_GRAVEYARD_GROTTO_GRASS_06 },
+          { { 2460.00f, 215.00f }, RC_IKANA_GRAVEYARD_GROTTO_GRASS_07 },
+          { { 2484.00f, -213.00f }, RC_IKANA_GRAVEYARD_GROTTO_GRASS_08 },
+          { { 2500.00f, 26.00f }, RC_IKANA_GRAVEYARD_GROTTO_GRASS_09 },
+          { { 2508.00f, 152.00f }, RC_IKANA_GRAVEYARD_GROTTO_GRASS_10 },
+          { { 2520.00f, -463.00f }, RC_IKANA_GRAVEYARD_GROTTO_GRASS_11 },
+          { { 2522.00f, -243.00f }, RC_IKANA_GRAVEYARD_GROTTO_GRASS_12 },
+          { { 2524.00f, 58.00f }, RC_IKANA_GRAVEYARD_GROTTO_GRASS_13 },
+          { { 2534.00f, -190.00f }, RC_IKANA_GRAVEYARD_GROTTO_GRASS_14 },
+      } },
     { -103, 
       {
           { { 2339.00f, 129.00f }, RC_TWIN_ISLANDS_RAMP_GROTTO_GRASS_01 },
@@ -663,7 +692,24 @@ std::map<s16, std::map<std::pair<float, float>, RandoCheckId>> grottoGrassMap = 
           { { 2522.00f, -243.00f }, RC_TWIN_ISLANDS_RAMP_GROTTO_GRASS_12 },
           { { 2524.00f, 58.00f }, RC_TWIN_ISLANDS_RAMP_GROTTO_GRASS_13 },
           { { 2534.00f, -190.00f }, RC_TWIN_ISLANDS_RAMP_GROTTO_GRASS_14 },
-      } }
+      } },
+    { -106, 
+      { 
+          { { 2339.00f, 129.00f }, RC_ROAD_TO_IKANA_GROTTO_GRASS_01 },
+          { { 2345.00f, -174.00f }, RC_ROAD_TO_IKANA_GROTTO_GRASS_02 },
+          { { 2355.00f, -310.00f }, RC_ROAD_TO_IKANA_GROTTO_GRASS_03 },
+          { { 2355.00f, -225.00f }, RC_ROAD_TO_IKANA_GROTTO_GRASS_04 },
+          { { 2391.00f, -313.00f }, RC_ROAD_TO_IKANA_GROTTO_GRASS_05 },
+          { { 2403.00f, -360.00f }, RC_ROAD_TO_IKANA_GROTTO_GRASS_06 },
+          { { 2460.00f, 215.00f }, RC_ROAD_TO_IKANA_GROTTO_GRASS_07 },
+          { { 2484.00f, -213.00f }, RC_ROAD_TO_IKANA_GROTTO_GRASS_08 },
+          { { 2500.00f, 26.00f }, RC_ROAD_TO_IKANA_GROTTO_GRASS_09 },
+          { { 2508.00f, 152.00f }, RC_ROAD_TO_IKANA_GROTTO_GRASS_10 },
+          { { 2520.00f, -463.00f }, RC_ROAD_TO_IKANA_GROTTO_GRASS_11 },
+          { { 2522.00f, -243.00f }, RC_ROAD_TO_IKANA_GROTTO_GRASS_12 },
+          { { 2524.00f, 58.00f }, RC_ROAD_TO_IKANA_GROTTO_GRASS_13 },
+          { { 2534.00f, -190.00f }, RC_ROAD_TO_IKANA_GROTTO_GRASS_14 },
+      } },
 };
 // clang-format on
 
