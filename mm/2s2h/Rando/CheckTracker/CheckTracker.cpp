@@ -82,6 +82,7 @@ std::vector<const char*> checkTypeIconList = {
     /*RCTYPE_SKULL_TOKEN*/ gQuestIconGoldSkulltulaTex,
     /*RCTYPE_SONG*/ gItemIconSongNoteTex,
     /*RCTYPE_STRAY_FAIRY*/ gStrayFairyGreatBayIconTex,
+    /*RCTYPE_TINGLE_SHOP*/ gItemIconAdultsWalletTex,
 };
 
 std::string totalChecksFound() {
@@ -193,16 +194,8 @@ void CheckTrackerDrawLogicalList() {
         }
 
         for (auto& event : randoRegion.events) {
-            if (!sCheckTrackerFilter.PassFilter(event.name.c_str())) {
-                continue;
-            }
-
-            if (!event.isApplied() && event.condition()) {
-                if (event.applyWhenAccessible) {
-                    event.onApply();
-                } else {
-                    availableEvents.push_back({ event.name, event.conditionString });
-                }
+            if (!RANDO_EVENTS[event.first] && event.second()) {
+                RANDO_EVENTS[event.first]++;
             }
         }
 
@@ -297,7 +290,10 @@ void RefreshChecksInLogic() {
     lastFrame = gGameState->frames;
     checksInLogic.clear();
 
-    std::set<RandoRegionId> reachableRegions = {};
+    std::set<RandoRegionId> reachableRegions = {
+        RR_MAX,
+        Rando::Logic::GetRegionIdFromEntrance(gSaveContext.save.entrance),
+    };
     // Get connected entrances from starting & warp points
     Rando::Logic::FindReachableRegions(RR_MAX, reachableRegions);
     // Get connected regions from current entrance (TODO: Make this optional)
@@ -316,10 +312,8 @@ void RefreshChecksInLogic() {
         }
 
         for (auto& event : randoRegion.events) {
-            if (!event.isApplied() && event.condition()) {
-                if (event.applyWhenAccessible) {
-                    event.onApply();
-                }
+            if (!RANDO_EVENTS[event.first] && event.second()) {
+                RANDO_EVENTS[event.first]++;
             }
         }
     }

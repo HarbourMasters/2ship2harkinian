@@ -181,6 +181,19 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                             continue;
                         }
 
+                        if (randoStaticCheck.randoCheckType == RCTYPE_COW &&
+                            RANDO_SAVE_OPTIONS[RO_SHUFFLE_COWS] == RO_GENERIC_NO) {
+                            continue;
+                        }
+
+                        if (randoStaticCheck.randoCheckType == RCTYPE_TINGLE_SHOP &&
+                            RANDO_SAVE_OPTIONS[RO_SHUFFLE_TINGLE_SHOPS] == RO_GENERIC_NO) {
+                            continue;
+                        } else {
+                            int price = Ship_Random(0, 200);
+                            RANDO_SAVE_CHECKS[randoCheckId].price = price;
+                        }
+
                         if (randoStaticCheck.randoCheckType == RCTYPE_SHOP) {
                             // We always want shuffle RC_CURIOSITY_SHOP_SPECIAL_ITEM &
                             // RC_BOMB_SHOP_ITEM_04_OR_CURIOSITY_SHOP_ITEM
