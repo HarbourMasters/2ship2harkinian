@@ -218,6 +218,15 @@ static RegisterShipInitFunc initFunc([]() {
         },
     };
     Regions[RR_PATH_TO_MOUNTAIN_VILLAGE_LOWER] = RandoRegion{ .name = "Lower", .sceneId = SCENE_13HUBUKINOMITI,
+        .checks = {
+            CHECK(RC_PATH_TO_MOUNTAIN_VILLAGE_LARGE_SNOWBALL_01, CanKillEnemy(ACTOR_OBJ_SNOWBALL)),
+            CHECK(RC_PATH_TO_MOUNTAIN_VILLAGE_LARGE_SNOWBALL_02, CanKillEnemy(ACTOR_OBJ_SNOWBALL)),
+            CHECK(RC_PATH_TO_MOUNTAIN_VILLAGE_LARGE_SNOWBALL_03, CanKillEnemy(ACTOR_OBJ_SNOWBALL)),
+            CHECK(RC_PATH_TO_MOUNTAIN_VILLAGE_LARGE_SNOWBALL_04, CanKillEnemy(ACTOR_OBJ_SNOWBALL)),
+            CHECK(RC_PATH_TO_MOUNTAIN_VILLAGE_SMALL_SNOWBALL_01, true),
+            CHECK(RC_PATH_TO_MOUNTAIN_VILLAGE_SMALL_SNOWBALL_02, true),
+            CHECK(RC_PATH_TO_MOUNTAIN_VILLAGE_SMALL_SNOWBALL_03, true),
+        },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(MOUNTAIN_VILLAGE_WINTER, 6),      ENTRANCE(PATH_TO_MOUNTAIN_VILLAGE, 1), true),
         },
@@ -226,6 +235,16 @@ static RegisterShipInitFunc initFunc([]() {
         },
     };
     Regions[RR_PATH_TO_MOUNTAIN_VILLAGE_UPPER] = RandoRegion{ .name = "Upper", .sceneId = SCENE_13HUBUKINOMITI,
+        .checks = {
+            CHECK(RC_PATH_TO_MOUNTAIN_VILLAGE_LARGE_SNOWBALL_05, CanKillEnemy(ACTOR_OBJ_SNOWBALL)),
+            CHECK(RC_PATH_TO_MOUNTAIN_VILLAGE_LARGE_SNOWBALL_06, CanKillEnemy(ACTOR_OBJ_SNOWBALL)),
+            CHECK(RC_PATH_TO_MOUNTAIN_VILLAGE_LARGE_SNOWBALL_07, CanKillEnemy(ACTOR_OBJ_SNOWBALL)),
+            CHECK(RC_PATH_TO_MOUNTAIN_VILLAGE_LARGE_SNOWBALL_08, CanKillEnemy(ACTOR_OBJ_SNOWBALL)),
+            CHECK(RC_PATH_TO_MOUNTAIN_VILLAGE_LARGE_SNOWBALL_09, CanKillEnemy(ACTOR_OBJ_SNOWBALL)),
+            CHECK(RC_PATH_TO_MOUNTAIN_VILLAGE_LARGE_SNOWBALL_10, CanKillEnemy(ACTOR_OBJ_SNOWBALL)),
+            CHECK(RC_PATH_TO_MOUNTAIN_VILLAGE_LARGE_SNOWBALL_11, CanKillEnemy(ACTOR_OBJ_SNOWBALL)),
+            CHECK(RC_PATH_TO_MOUNTAIN_VILLAGE_SMALL_SNOWBALL_04, true),
+        },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(TERMINA_FIELD, 3),                ENTRANCE(PATH_TO_MOUNTAIN_VILLAGE, 0), true),
         },
