@@ -94,7 +94,8 @@ void func_80B38E88(ObjSnowball2* this, PlayState* play) {
         if (this->unk_1AE == 0) {
             temp_v0 = func_800A8150(ENOBJSNOWBALL2_GET_3F(&this->actor));
             if (temp_v0 >= 0) {
-                Item_DropCollectible(play, &this->actor.world.pos, (ENOBJSNOWBALL2_GET_7F00(&this->actor) << 8) | temp_v0);
+                Item_DropCollectible(play, &this->actor.world.pos,
+                                     (ENOBJSNOWBALL2_GET_7F00(&this->actor) << 8) | temp_v0);
                 this->unk_1AE = 1;
             }
         }

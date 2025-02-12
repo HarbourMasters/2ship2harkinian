@@ -68,7 +68,7 @@ std::map<std::pair<float, float>, RandoCheckId> snowballMap = {
     { { -1349.00f, -2399.00f }, RC_PATH_TO_SNOWHEAD_LARGE_SNOWBALL_04 },
     { { -1015.00f, -2395.00f }, RC_PATH_TO_SNOWHEAD_SMALL_SNOWBALL_01 },
     { { -912.00f, -2314.00f }, RC_PATH_TO_SNOWHEAD_SMALL_SNOWBALL_02 },
-    { { -1023.00f, -2268.00f },RC_PATH_TO_SNOWHEAD_SMALL_SNOWBALL_03 },
+    { { -1023.00f, -2268.00f }, RC_PATH_TO_SNOWHEAD_SMALL_SNOWBALL_03 },
     { { -129.00f, 1195.00f }, RC_SNOWHEAD_LARGE_SNOWBALL_01 },
     { { -1054.00f, 766.00f }, RC_SNOWHEAD_LARGE_SNOWBALL_02 },
     { { 887.00f, 766.00f }, RC_SNOWHEAD_LARGE_SNOWBALL_03 },
@@ -86,7 +86,7 @@ std::map<std::pair<float, float>, RandoCheckId> snowballMap = {
     { { 644.00f, 240.00f }, RC_SNOWHEAD_TEMPLE_CENTRAL_ROOM_LEVEL_2_SMALL_SNOWBALL_03 },
     { { -690.00f, -75.00f }, RC_SNOWHEAD_TEMPLE_CENTRAL_ROOM_LEVEL_2_SMALL_SNOWBALL_04 },
     { { -675.00f, 60.00f }, RC_SNOWHEAD_TEMPLE_CENTRAL_ROOM_LEVEL_2_SMALL_SNOWBALL_05 },
-    { { -660.00f, -60.00f },RC_SNOWHEAD_TEMPLE_CENTRAL_ROOM_LEVEL_2_SMALL_SNOWBALL_06 },
+    { { -660.00f, -60.00f }, RC_SNOWHEAD_TEMPLE_CENTRAL_ROOM_LEVEL_2_SMALL_SNOWBALL_06 },
     { { 0.00f, 300.00f }, RC_SNOWHEAD_TEMPLE_CENTRAL_ROOM_LEVEL_3_LARGE_SNOWBALL_01 },
     { { 0.00f, 390.00f }, RC_SNOWHEAD_TEMPLE_CENTRAL_ROOM_LEVEL_3_LARGE_SNOWBALL_02 },
     { { 0.00f, 480.00f }, RC_SNOWHEAD_TEMPLE_CENTRAL_ROOM_LEVEL_3_LARGE_SNOWBALL_03 },
@@ -135,7 +135,6 @@ RandoCheckId IdentifySnowball(Vec3f pos) {
     }
 
     return it->second;
-
 }
 
 void SpawnSnowballDrop(Vec3f pos, RandoCheckId randoCheckId) {
@@ -154,50 +153,49 @@ void SpawnSnowballDrop(Vec3f pos, RandoCheckId randoCheckId) {
         });
 }
 
-
-//void ObjSnowball_RandoDraw(Actor* actor, PlayState* play) {
-//    if (!CVarGetInteger("gRando.CSMC", 0)) {
-//        Gfx_DrawDListOpa(play, (Gfx*)gBarrelJunkDL);
-//        return;
-//    }
+// void ObjSnowball_RandoDraw(Actor* actor, PlayState* play) {
+//     if (!CVarGetInteger("gRando.CSMC", 0)) {
+//         Gfx_DrawDListOpa(play, (Gfx*)gBarrelJunkDL);
+//         return;
+//     }
 //
-//    RandoItemId randoItemId = Rando::ConvertItem(RANDO_SAVE_CHECKS[OBJTARU_RC].randoItemId, (RandoCheckId)OBJTARU_RC);
-//    RandoItemType randoItemType = Rando::StaticData::Items[randoItemId].randoItemType;
+//     RandoItemId randoItemId = Rando::ConvertItem(RANDO_SAVE_CHECKS[OBJTARU_RC].randoItemId,
+//     (RandoCheckId)OBJTARU_RC); RandoItemType randoItemType = Rando::StaticData::Items[randoItemId].randoItemType;
 //
-//    switch (randoItemType) {
-//        case RITYPE_BOSS_KEY:
-//            Gfx_DrawDListOpa(play, (Gfx*)gBarrelBossKeyDL);
-//            break;
-//        case RITYPE_HEALTH:
-//            Gfx_DrawDListOpa(play, (Gfx*)gBarrelHeartDL);
-//            break;
-//        case RITYPE_LESSER:
-//            Gfx_DrawDListOpa(play, (Gfx*)gBarrelMinorDL);
-//            break;
-//        case RITYPE_MAJOR:
-//            Gfx_DrawDListOpa(play, (Gfx*)gBarrelMajorDL);
-//            break;
-//        case RITYPE_MASK:
-//            Gfx_DrawDListOpa(play, (Gfx*)gBarrelMaskDL);
-//            break;
-//        case RITYPE_SKULLTULA_TOKEN:
-//            Gfx_DrawDListOpa(play, (Gfx*)gBarrelTokenDL);
-//            break;
-//        case RITYPE_SMALL_KEY:
-//            Gfx_DrawDListOpa(play, (Gfx*)gBarrelSmallKeyDL);
-//            break;
-//        case RITYPE_STRAY_FAIRY:
-//            Gfx_DrawDListOpa(play, (Gfx*)gBarrelFairyDL);
-//            break;
-//        default:
-//            Gfx_DrawDListOpa(play, (Gfx*)gBarrelJunkDL);
-//            break;
-//    }
-//}
+//     switch (randoItemType) {
+//         case RITYPE_BOSS_KEY:
+//             Gfx_DrawDListOpa(play, (Gfx*)gBarrelBossKeyDL);
+//             break;
+//         case RITYPE_HEALTH:
+//             Gfx_DrawDListOpa(play, (Gfx*)gBarrelHeartDL);
+//             break;
+//         case RITYPE_LESSER:
+//             Gfx_DrawDListOpa(play, (Gfx*)gBarrelMinorDL);
+//             break;
+//         case RITYPE_MAJOR:
+//             Gfx_DrawDListOpa(play, (Gfx*)gBarrelMajorDL);
+//             break;
+//         case RITYPE_MASK:
+//             Gfx_DrawDListOpa(play, (Gfx*)gBarrelMaskDL);
+//             break;
+//         case RITYPE_SKULLTULA_TOKEN:
+//             Gfx_DrawDListOpa(play, (Gfx*)gBarrelTokenDL);
+//             break;
+//         case RITYPE_SMALL_KEY:
+//             Gfx_DrawDListOpa(play, (Gfx*)gBarrelSmallKeyDL);
+//             break;
+//         case RITYPE_STRAY_FAIRY:
+//             Gfx_DrawDListOpa(play, (Gfx*)gBarrelFairyDL);
+//             break;
+//         default:
+//             Gfx_DrawDListOpa(play, (Gfx*)gBarrelJunkDL);
+//             break;
+//     }
+// }
 
 void Rando::ActorBehavior::InitObjSnowballBehavior() {
-    //COND_ID_HOOK(OnActorInit, ACTOR_OBJ_SNOWBALL, IS_RANDO, [](Actor* actor) {
-    //    RandoCheckId randoCheckId = RC_UNKNOWN;
+    // COND_ID_HOOK(OnActorInit, ACTOR_OBJ_SNOWBALL, IS_RANDO, [](Actor* actor) {
+    //     RandoCheckId randoCheckId = RC_UNKNOWN;
 
     //    auto it = snowballMap.find({ actor->home.pos.x, actor->home.pos.z });
     //    if (it == snowballMap.end()) {
@@ -214,8 +212,8 @@ void Rando::ActorBehavior::InitObjSnowballBehavior() {
     //    //actor->draw = ObjSnowball_RandoDraw;
     //});
 
-    //COND_ID_HOOK(OnActorInit, ACTOR_OBJ_SNOWBALL2, IS_RANDO, [](Actor* actor) {
-    //    RandoCheckId randoCheckId = RC_UNKNOWN;
+    // COND_ID_HOOK(OnActorInit, ACTOR_OBJ_SNOWBALL2, IS_RANDO, [](Actor* actor) {
+    //     RandoCheckId randoCheckId = RC_UNKNOWN;
 
     //    auto it = snowballMap.find({ actor->home.pos.x, actor->home.pos.z });
     //    if (it == snowballMap.end()) {
@@ -233,7 +231,7 @@ void Rando::ActorBehavior::InitObjSnowballBehavior() {
     //});
 
     COND_HOOK(OnActorKill, IS_RANDO, [](Actor* actor) {
-         if (actor->id != ACTOR_OBJ_SNOWBALL && actor->id != ACTOR_OBJ_SNOWBALL2) {
+        if (actor->id != ACTOR_OBJ_SNOWBALL && actor->id != ACTOR_OBJ_SNOWBALL2) {
             return;
         }
 
