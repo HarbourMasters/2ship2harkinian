@@ -78,6 +78,7 @@ void InitEnZowBehavior();
 void InitItemBHeartBehavior();
 void InitObjKibakoBehavior();
 void InitObjMoonStoneBehavior();
+void InitObjSnowballBehavior();
 void InitObjTaruBehavior();
 void InitObjTsuboBehavior();
 void InitObjWarpstoneBehavior();
