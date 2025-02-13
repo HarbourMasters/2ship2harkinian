@@ -679,6 +679,9 @@ void BenMenu::AddEnhancements() {
                      .Min(1)
                      .Max(5)
                      .DefaultValue(1));
+    AddWidget(path, "Prevent Diving Over Water", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Player.PreventDiveOverWater")
+        .Options(CheckboxOptions().Tooltip("Prevents Link from automatically diving over bodies of water."));
     AddWidget(path, "Dpad Equips", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Dpad.DpadEquips")
         .Options(CheckboxOptions().Tooltip("Allows you to equip items to your d-pad"));
@@ -1073,6 +1076,9 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Timesavers.MarineLabHP")
         .Options(CheckboxOptions().Tooltip("Only requires a single fish to be fed for the Piece of Heart to spawn. "
                                            "Requires a Scene Reload to take effect."));
+    AddWidget(path, "Fast Dampe Flame Digging", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Timesavers.DampeDiggingSkip")
+        .Options(CheckboxOptions().Tooltip("Only requires digging up one flame to spawn the big poe."));
 
     // Fixes
     path = { "Enhancements", "Fixes", 1 };

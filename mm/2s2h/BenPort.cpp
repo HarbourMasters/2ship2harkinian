@@ -614,6 +614,23 @@ void DetectArchiveVersion(std::string fileName, bool isO2rType) {
     }
 }
 
+void CheckAndCreateModFolder() {
+    try {
+        std::string modsPath = Ship::Context::LocateFileAcrossAppDirs("mods", appShortName);
+        if (!std::filesystem::exists(modsPath)) {
+            // Create mods folder relative to app dir
+            modsPath = Ship::Context::GetPathRelativeToAppDirectory("mods", appShortName);
+            std::string filePath = modsPath + "/custom_mod_files_go_here.txt";
+            if (std::filesystem::create_directories(modsPath)) {
+                std::ofstream(filePath).close();
+            }
+        }
+    } catch (std::filesystem::filesystem_error const& ex) {
+        // Couldn't make the folder, continue silently
+        return;
+    }
+}
+
 extern "C" void InitOTR() {
 
 #ifdef __SWITCH__
@@ -639,6 +656,7 @@ extern "C" void InitOTR() {
     }
 
 #if not defined(__SWITCH__) && not defined(__WIIU__)
+    CheckAndCreateModFolder();
     if (!std::filesystem::exists(mmPathO2R) && !std::filesystem::exists(mmPathZIP) &&
         !std::filesystem::exists(mmPathOtr)) {
         std::string installPath = Ship::Context::GetAppBundlePath();
