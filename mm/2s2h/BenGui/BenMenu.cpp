@@ -1515,12 +1515,12 @@ void BenMenu::InitElement() {
         { DISABLE_FOR_NO_WINDOWED_FULLSCREEN,
           { [](disabledInfo& info) -> bool {
 #ifdef __APPLE__
-              return !Ship::Context::GetInstance()->GetWindow()->SupportsWindowedFullscreen() ||
+               return !Ship::Context::GetInstance()->GetWindow()->SupportsWindowedFullscreen() ||
                      Ship::Context::GetInstance()->GetWindow()->IsFullscreen();
-          },
+           },
             "Windowed Fullscreen not supported or Fullscreen already active" } },
 #else
-              return !Ship::Context::GetInstance()->GetWindow()->SupportsWindowedFullscreen();
+               return !Ship::Context::GetInstance()->GetWindow()->SupportsWindowedFullscreen();
            },
             "Windowed Fullscreen not supported" } },
 #endif
