@@ -17,6 +17,7 @@ void RegisterSkipBothersomeMonkey() {
         EnMnk* monkey = (EnMnk*)va_arg(args, EnMnk*);
         *should = false;
         SET_EVENTINF(EVENTINF_25);
+        Flags_SetSwitch(gPlayState, 0x02);
         monkey->actionFunc = EnMnk_Monkey_WaitToRun;
     });
 }
