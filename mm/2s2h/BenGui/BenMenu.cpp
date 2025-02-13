@@ -1516,7 +1516,7 @@ void BenMenu::InitElement() {
           { [](disabledInfo& info) -> bool {
 #ifdef __APPLE__
                return !Ship::Context::GetInstance()->GetWindow()->SupportsWindowedFullscreen() ||
-                     Ship::Context::GetInstance()->GetWindow()->IsFullscreen();
+                      Ship::Context::GetInstance()->GetWindow()->IsFullscreen();
            },
             "Windowed Fullscreen not supported or Fullscreen already active" } },
 #else
