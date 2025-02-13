@@ -317,12 +317,20 @@ void BenMenu::AddSettings() {
         .CVar(CVAR_VSYNC_ENABLED)
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_NO_VSYNC).active; })
         .Options(CheckboxOptions().Tooltip("Enables Vsync."));
+#ifdef __APPLE__
+    AddWidget(path, "Exclusive Fullscreen", WIDGET_CVAR_CHECKBOX)
+#else
     AddWidget(path, "Windowed Fullscreen", WIDGET_CVAR_CHECKBOX)
+#endif
         .CVar(CVAR_SDL_WINDOWED_FULLSCREEN)
         .PreFunc([](WidgetInfo& info) {
             info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_NO_WINDOWED_FULLSCREEN).active;
         })
+#ifdef __APPLE__
+        .Options(CheckboxOptions().Tooltip("Enables Exclusive Fullscreen Mode."));
+#else
         .Options(CheckboxOptions().Tooltip("Enables Windowed Fullscreen Mode."));
+#endif
     AddWidget(path, "Allow multi-windows", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_ENABLE_MULTI_VIEWPORTS)
         .PreFunc(
@@ -1506,9 +1514,16 @@ void BenMenu::InitElement() {
             "Disabling VSync not supported" } },
         { DISABLE_FOR_NO_WINDOWED_FULLSCREEN,
           { [](disabledInfo& info) -> bool {
-               return !Ship::Context::GetInstance()->GetWindow()->SupportsWindowedFullscreen();
-           },
-            "Windowed Fullscreen not supported" } },
+#ifdef __APPLE__
+              return !Ship::Context::GetInstance()->GetWindow()->SupportsWindowedFullscreen() ||
+              Ship::Context::GetInstance()->GetWindow()->IsFullscreen();
+          },
+             "Windowed Fullscreen not supported or Fullscreen already active" } },
+         #else
+                return !Ship::Context::GetInstance()->GetWindow()->SupportsWindowedFullscreen();
+    },
+     "Windowed Fullscreen not supported" } },
+ #endif
         { DISABLE_FOR_NO_MULTI_VIEWPORT,
           { [](disabledInfo& info) -> bool {
                return !Ship::Context::GetInstance()->GetWindow()->GetGui()->SupportsViewports();
