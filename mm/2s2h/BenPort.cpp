@@ -41,9 +41,11 @@
 //#include <functions.h>
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
-#ifdef ENABLE_CROWD_CONTROL
-#include "Enhancements/crowd-control/CrowdControl.h"
-CrowdControl* CrowdControl::Instance;
+#ifdef ENABLE_NETWORKING
+#include "2s2h/Network/Sail.h"
+Sail* Sail::Instance;
+#include "2s2h/Network/Anchor/Anchor.h"
+Anchor* Anchor::Instance;
 #endif
 
 #include <libultraship/libultraship.h>
@@ -718,7 +720,13 @@ extern "C" void InitOTR() {
     OTRGlobals::Instance = new OTRGlobals();
     GameInteractor::Instance = new GameInteractor();
     AudioCollection::Instance = new AudioCollection();
+#ifdef ENABLE_NETWORKING
+    Sail::Instance = new Sail();
+    Anchor::Instance = new Anchor();
+#endif
+
     LoadGuiTextures();
+
     BenGui::SetupGuiElements();
     ShipInit::InitAll();
     InitEnhancements();
@@ -745,13 +753,13 @@ extern "C" void InitOTR() {
     }
 
     srand(now);
-#ifdef ENABLE_CROWD_CONTROL
-    CrowdControl::Instance = new CrowdControl();
-    CrowdControl::Instance->Init();
-    if (CVarGetInteger("gCrowdControl", 0)) {
-        CrowdControl::Instance->Enable();
-    } else {
-        CrowdControl::Instance->Disable();
+#ifdef ENABLE_NETWORKING
+    SDLNet_Init();
+    if (CVarGetInteger("gNetwork.Sail.Enabled", 0)) {
+        Sail::Instance->Enable();
+    }
+    if (CVarGetInteger("gNetwork.Anchor.Enabled", 0)) {
+        Anchor::Instance->Enable();
     }
 #endif
 
@@ -765,9 +773,14 @@ extern "C" void SaveManager_ThreadPoolWait() {
 extern "C" void DeinitOTR() {
     SaveManager_ThreadPoolWait();
     OTRAudio_Exit();
-#ifdef ENABLE_CROWD_CONTROL
-    CrowdControl::Instance->Disable();
-    CrowdControl::Instance->Shutdown();
+#ifdef ENABLE_NETWORKING
+    if (CVarGetInteger("gNetwork.Sail.Enabled", 0)) {
+        Sail::Instance->Disable();
+    }
+    if (CVarGetInteger("gNetwork.Anchor.Enabled", 0)) {
+        Anchor::Instance->Disable();
+    }
+    SDLNet_Quit();
 #endif
 
     // Destroying gui here because we have shared ptrs to LUS objects which output to SPDLOG which is destroyed before

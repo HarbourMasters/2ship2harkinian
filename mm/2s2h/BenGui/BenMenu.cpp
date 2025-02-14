@@ -20,6 +20,7 @@
 #include <tuple>
 #include "ResolutionEditor.h"
 #include "2s2h/Rando/Rando.h"
+#include "2s2h/Network/Anchor/Anchor.h"
 
 extern "C" {
 #include "z64.h"
@@ -418,6 +419,11 @@ void BenMenu::AddSettings() {
     path.sidebarName = "Presets";
     AddSidebarEntry("Settings", "Presets", 1);
     AddWidget(path, "Presets", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { PresetManager_Draw(); });
+
+    path.sidebarName = "Network";
+    path.column = 1;
+    AddSidebarEntry("Settings", "Network", 2);
+    AddWidget(path, "Anchor", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { Anchor::Instance->DrawMenu(); });
 }
 int32_t motionBlurStrength;
 

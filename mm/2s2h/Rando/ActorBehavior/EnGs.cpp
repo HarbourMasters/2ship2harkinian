@@ -93,7 +93,9 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
 
             entry.msg = "They say %g{{item}}%w is hidden at %y{{location}}%w.";
 
-            CustomMessage::Replace(&entry.msg, "{{item}}", Rando::StaticData::GetItemName(saveCheck.randoItemId));
+            CustomMessage::Replace(
+                &entry.msg, "{{item}}",
+                Rando::StaticData::GetItemName(saveCheck.randoItemId, true, saveCheck.multiWorldTeamIndex));
             CustomMessage::Replace(&entry.msg, "{{location}}",
                                    Ship_GetSceneName(Rando::StaticData::Checks[randoCheckId].sceneId));
 
@@ -141,8 +143,9 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
 
                     entry.msg = "Wise choice... They say %g{{item}}%w is hidden at %y{{location}}%w.";
 
-                    CustomMessage::Replace(&entry.msg, "{{item}}",
-                                           Rando::StaticData::GetItemName(saveCheck.randoItemId));
+                    CustomMessage::Replace(
+                        &entry.msg, "{{item}}",
+                        Rando::StaticData::GetItemName(saveCheck.randoItemId, true, saveCheck.multiWorldTeamIndex));
                     CustomMessage::Replace(&entry.msg, "{{location}}",
                                            Ship_GetSceneName(Rando::StaticData::Checks[randoCheckId].sceneId));
 

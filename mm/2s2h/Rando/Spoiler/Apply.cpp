@@ -94,6 +94,9 @@ void ApplyToSaveContext(nlohmann::json spoiler) {
             RANDO_SAVE_CHECKS[randoCheckId].shuffled = true;
         }
     }
+
+    RANDO_SAVE_CHECKS[RC_STARTING_ITEM_DEKU_MASK].eligible = true;
+    RANDO_SAVE_CHECKS[RC_STARTING_ITEM_SONG_OF_HEALING].eligible = true;
 }
 
 } // namespace Spoiler

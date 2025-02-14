@@ -8,6 +8,7 @@ extern "C" {
 #include "overlays/actors/ovl_En_Ossan/z_en_ossan.h"
 #include "overlays/actors/ovl_En_Sob1/z_en_sob1.h"
 #include "overlays/actors/ovl_En_Trt/z_en_trt.h"
+#include "2s2h/Network/Anchor/Anchor.h"
 
 void EnGirlA_Update2(EnGirlA* enGirlA, PlayState* play);
 void EnGirlA_DoNothing(EnGirlA* enGirlA, PlayState* play);
@@ -65,8 +66,20 @@ void EnGirlA_RandoBuyFunc(PlayState* play, EnGirlA* enGirlA) {
     auto& randoSaveCheck = RANDO_SAVE_CHECKS[enGirlA->actor.world.rot.z];
     RandoItemId randoItemId = Rando::ConvertItem(randoSaveCheck.randoItemId, (RandoCheckId)enGirlA->actor.world.rot.z);
     randoSaveCheck.obtained = true;
+    randoSaveCheck.cycleObtained = true;
     Rupees_ChangeBy(-play->msgCtx.unk1206C);
-    Rando::GiveItem(randoItemId);
+
+    bool isForYou = Anchor::Instance->roomState.teams.size() < 2 ||
+                    Anchor::Instance->roomState.teams[randoSaveCheck.multiWorldTeamIndex] ==
+                        std::string(CVarGetString("gNetwork.Anchor.TeamId", "default"));
+    if (isForYou) {
+        Rando::GiveItem(randoItemId);
+        Anchor::Instance->SendPacket_GiveItem(1, randoItemId);
+        Anchor::Instance->SendPacket_SetCheckStatus((RandoCheckId)enGirlA->actor.world.rot.z);
+    } else {
+        Anchor::Instance->SendPacket_GiveItem(1, randoItemId,
+                                              Anchor::Instance->roomState.teams[randoSaveCheck.multiWorldTeamIndex]);
+    }
 }
 
 void EnGirlA_RandoBuyFanfareFunc(PlayState* play, EnGirlA* enGirlA) {
@@ -279,7 +292,7 @@ void Rando::ActorBehavior::InitEnGirlABehavior() {
             return;
         }
 
-        auto randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
+        auto& randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
         auto randoStaticItem = Rando::StaticData::Items[randoSaveCheck.randoItemId];
 
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
@@ -287,7 +300,9 @@ void Rando::ActorBehavior::InitEnGirlABehavior() {
         entry.autoFormat = false;
         entry.msg = "\x01{{itemName}}: {{rupees}} Rupees\x11\x00";
         entry.msg += '\x00';
-        CustomMessage::Replace(&entry.msg, "{{itemName}}", randoStaticItem.name);
+        CustomMessage::Replace(
+            &entry.msg, "{{itemName}}",
+            Rando::StaticData::GetItemName(randoSaveCheck.randoItemId, false, randoSaveCheck.multiWorldTeamIndex));
         CustomMessage::Replace(&entry.msg, "{{rupees}}", std::to_string(randoSaveCheck.price));
 
         if (!Rando::IsItemObtainable(randoSaveCheck.randoItemId, randoCheckId) && randoSaveCheck.obtained) {
@@ -309,7 +324,7 @@ void Rando::ActorBehavior::InitEnGirlABehavior() {
             return;
         }
 
-        auto randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
+        auto& randoSaveCheck = RANDO_SAVE_CHECKS[randoCheckId];
         auto randoStaticItem = Rando::StaticData::Items[randoSaveCheck.randoItemId];
 
         auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
@@ -317,7 +332,9 @@ void Rando::ActorBehavior::InitEnGirlABehavior() {
         entry.autoFormat = false;
         entry.firstItemCost = randoSaveCheck.price;
         entry.msg = "\x01{{itemName}}: {{rupees}} Rupees\x02\x11\xC2I'll buy it\x11No thanks\xBF";
-        CustomMessage::Replace(&entry.msg, "{{itemName}}", randoStaticItem.name);
+        CustomMessage::Replace(
+            &entry.msg, "{{itemName}}",
+            Rando::StaticData::GetItemName(randoSaveCheck.randoItemId, false, randoSaveCheck.multiWorldTeamIndex));
         CustomMessage::Replace(&entry.msg, "{{rupees}}", std::to_string(randoSaveCheck.price));
 
         CustomMessage::LoadCustomMessageIntoFont(entry);

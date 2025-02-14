@@ -1,6 +1,7 @@
 #ifndef BenJsonConversions_hpp
 #define BenJsonConversions_hpp
 
+#include <libultraship/libultraship.h>
 #include <nlohmann/json.hpp>
 #include "build.h"
 
@@ -9,23 +10,29 @@ extern "C" {
 #include "macros.h"
 }
 
+extern "C" {
+#include "macros.h"
+#include "z64actor.h"
+#include "z64save.h"
+}
+
 using json = nlohmann::json;
 
-void to_json(json& j, const DpadSaveInfo& dpadEquips) {
+inline void to_json(json& j, const DpadSaveInfo& dpadEquips) {
     j = json{
         { "dpadItems", dpadEquips.dpadItems },
         { "dpadSlots", dpadEquips.dpadSlots },
     };
 }
 
-void from_json(const json& j, DpadSaveInfo& dpadEquips) {
+inline void from_json(const json& j, DpadSaveInfo& dpadEquips) {
     for (int i = 0; i < ARRAY_COUNT(dpadEquips.dpadItems); i++) {
         j.at("dpadItems").at(i).get_to(dpadEquips.dpadItems[i]);
         j.at("dpadSlots").at(i).get_to(dpadEquips.dpadSlots[i]);
     }
 }
 
-void to_json(json& j, const RandoSaveCheck& randoSaveCheck) {
+inline void to_json(json& j, const RandoSaveCheck& randoSaveCheck) {
     j = json{
         { "randoItemId", randoSaveCheck.randoItemId },
         { "eligible", randoSaveCheck.eligible },
@@ -34,10 +41,11 @@ void to_json(json& j, const RandoSaveCheck& randoSaveCheck) {
         { "shuffled", randoSaveCheck.shuffled },
         { "skipped", randoSaveCheck.skipped },
         { "price", randoSaveCheck.price },
+        { "multiWorldTeamIndex", randoSaveCheck.multiWorldTeamIndex },
     };
 }
 
-void from_json(const json& j, RandoSaveCheck& randoSaveCheck) {
+inline void from_json(const json& j, RandoSaveCheck& randoSaveCheck) {
     j.at("randoItemId").get_to(randoSaveCheck.randoItemId);
     j.at("eligible").get_to(randoSaveCheck.eligible);
     j.at("cycleObtained").get_to(randoSaveCheck.cycleObtained);
@@ -45,9 +53,10 @@ void from_json(const json& j, RandoSaveCheck& randoSaveCheck) {
     j.at("shuffled").get_to(randoSaveCheck.shuffled);
     j.at("skipped").get_to(randoSaveCheck.skipped);
     j.at("price").get_to(randoSaveCheck.price);
+    j.at("multiWorldTeamIndex").get_to(randoSaveCheck.multiWorldTeamIndex);
 }
 
-void to_json(json& j, const RandoSaveInfo& rando) {
+inline void to_json(json& j, const RandoSaveInfo& rando) {
     j = json{
         { "randoInf", rando.randoInf },
         { "randoEvents", rando.randoEvents },
@@ -58,7 +67,7 @@ void to_json(json& j, const RandoSaveInfo& rando) {
     };
 }
 
-void from_json(const json& j, RandoSaveInfo& rando) {
+inline void from_json(const json& j, RandoSaveInfo& rando) {
     j.at("randoInf").get_to(rando.randoInf);
     j.at("randoEvents").get_to(rando.randoEvents);
     j.at("randoSaveChecks").get_to(rando.randoSaveChecks);
@@ -67,7 +76,7 @@ void from_json(const json& j, RandoSaveInfo& rando) {
     j.at("foundDungeonKeys").get_to(rando.foundDungeonKeys);
 }
 
-void to_json(json& j, const ShipSaveInfo& shipSaveInfo) {
+inline void to_json(json& j, const ShipSaveInfo& shipSaveInfo) {
     uint8_t commitHash[8];
     memcpy(commitHash, shipSaveInfo.commitHash, sizeof(commitHash));
 
@@ -85,7 +94,7 @@ void to_json(json& j, const ShipSaveInfo& shipSaveInfo) {
     }
 }
 
-void from_json(const json& j, ShipSaveInfo& shipSaveInfo) {
+inline void from_json(const json& j, ShipSaveInfo& shipSaveInfo) {
     j.at("dpadEquips").get_to(shipSaveInfo.dpadEquips);
     j.at("pauseSaveEntrance").get_to(shipSaveInfo.pauseSaveEntrance);
     j.at("saveType").get_to(shipSaveInfo.saveType);
@@ -103,7 +112,7 @@ void from_json(const json& j, ShipSaveInfo& shipSaveInfo) {
     }
 }
 
-void to_json(json& j, const ItemEquips& itemEquips) {
+inline void to_json(json& j, const ItemEquips& itemEquips) {
     j = json{
         { "buttonItems", itemEquips.buttonItems },
         { "cButtonSlots", itemEquips.cButtonSlots },
@@ -111,7 +120,7 @@ void to_json(json& j, const ItemEquips& itemEquips) {
     };
 }
 
-void from_json(const json& j, ItemEquips& itemEquips) {
+inline void from_json(const json& j, ItemEquips& itemEquips) {
     j.at("equipment").get_to(itemEquips.equipment);
     // buttonItems and cButtonSlots are arrays of arrays, so we need to manually parse them
     for (int i = 0; i < ARRAY_COUNT(itemEquips.buttonItems); i++) {
@@ -120,7 +129,7 @@ void from_json(const json& j, ItemEquips& itemEquips) {
     }
 }
 
-void to_json(json& j, const Inventory& inventory) {
+inline void to_json(json& j, const Inventory& inventory) {
     // Setup and copy u8 arrays to avoid json treating char[] as strings
     // These char[] are not null-terminated, so saving as strings causes overflow/corruption
     uint8_t dekuPlaygroundPlayerName[3][8];
@@ -139,7 +148,7 @@ void to_json(json& j, const Inventory& inventory) {
     };
 }
 
-void from_json(const json& j, Inventory& inventory) {
+inline void from_json(const json& j, Inventory& inventory) {
     j.at("items").get_to(inventory.items);
     j.at("ammo").get_to(inventory.ammo);
     j.at("upgrades").get_to(inventory.upgrades);
@@ -154,7 +163,7 @@ void from_json(const json& j, Inventory& inventory) {
     }
 }
 
-void to_json(json& j, const PermanentSceneFlags& permanentSceneFlags) {
+inline void to_json(json& j, const PermanentSceneFlags& permanentSceneFlags) {
     j = json{
         { "chest", permanentSceneFlags.chest },
         { "switch0", permanentSceneFlags.switch0 },
@@ -166,7 +175,7 @@ void to_json(json& j, const PermanentSceneFlags& permanentSceneFlags) {
     };
 }
 
-void from_json(const json& j, PermanentSceneFlags& permanentSceneFlags) {
+inline void from_json(const json& j, PermanentSceneFlags& permanentSceneFlags) {
     j.at("chest").get_to(permanentSceneFlags.chest);
     j.at("switch0").get_to(permanentSceneFlags.switch0);
     j.at("switch1").get_to(permanentSceneFlags.switch1);
@@ -176,7 +185,7 @@ void from_json(const json& j, PermanentSceneFlags& permanentSceneFlags) {
     j.at("rooms").get_to(permanentSceneFlags.rooms);
 }
 
-void to_json(json& j, const SavePlayerData& savePlayerData) {
+inline void to_json(json& j, const SavePlayerData& savePlayerData) {
     // Setup and copy u8 arrays to avoid json treating char[] as strings
     // These char[] are not null-terminated, so saving as strings causes overflow/corruption
     u8 newf[6];
@@ -206,7 +215,7 @@ void to_json(json& j, const SavePlayerData& savePlayerData) {
     };
 }
 
-void from_json(const json& j, SavePlayerData& savePlayerData) {
+inline void from_json(const json& j, SavePlayerData& savePlayerData) {
     j.at("newf").get_to(savePlayerData.newf);
     j.at("threeDayResetCount").get_to(savePlayerData.threeDayResetCount);
     j.at("playerName").get_to(savePlayerData.playerName);
@@ -227,7 +236,35 @@ void from_json(const json& j, SavePlayerData& savePlayerData) {
     j.at("savedSceneId").get_to(savePlayerData.savedSceneId);
 }
 
-void to_json(json& j, const Vec3s& vec) {
+inline void from_json(const json& j, Color_RGB8& color) {
+    j.at("r").get_to(color.r);
+    j.at("g").get_to(color.g);
+    j.at("b").get_to(color.b);
+}
+
+inline void to_json(json& j, const Color_RGB8& color) {
+    j = json{
+        {"r", color.r},
+        {"g", color.g},
+        {"b", color.b}
+    };
+}
+
+inline void to_json(json& j, const Vec3f& vec) {
+    j = json{
+        {"x", vec.x},
+        {"y", vec.y},
+        {"z", vec.z}
+    };
+}
+
+inline void from_json(const json& j, Vec3f& vec) {
+    j.at("x").get_to(vec.x);
+    j.at("y").get_to(vec.y);
+    j.at("z").get_to(vec.z);
+}
+
+inline void to_json(json& j, const Vec3s& vec) {
     j = json{
         { "x", vec.x },
         { "y", vec.y },
@@ -235,13 +272,25 @@ void to_json(json& j, const Vec3s& vec) {
     };
 }
 
-void from_json(const json& j, Vec3s& vec) {
+inline void from_json(const json& j, Vec3s& vec) {
     j.at("x").get_to(vec.x);
     j.at("y").get_to(vec.y);
     j.at("z").get_to(vec.z);
 }
 
-void to_json(json& j, const HorseData& horseData) {
+inline void to_json(json& j, const PosRot& posRot) {
+    j = json{
+        {"pos", posRot.pos},
+        {"rot", posRot.rot}
+    };
+}
+
+inline void from_json(const json& j, PosRot& posRot) {
+    j.at("pos").get_to(posRot.pos);
+    j.at("rot").get_to(posRot.rot);
+}
+
+inline void to_json(json& j, const HorseData& horseData) {
     j = json{
         { "sceneId", horseData.sceneId },
         { "pos", horseData.pos },
@@ -249,13 +298,13 @@ void to_json(json& j, const HorseData& horseData) {
     };
 }
 
-void from_json(const json& j, HorseData& horseData) {
+inline void from_json(const json& j, HorseData& horseData) {
     j.at("sceneId").get_to(horseData.sceneId);
     j.at("pos").get_to(horseData.pos);
     j.at("yaw").get_to(horseData.yaw);
 }
 
-void to_json(json& j, const SaveInfo& saveInfo) {
+inline void to_json(json& j, const SaveInfo& saveInfo) {
     j = json{
         { "playerData", saveInfo.playerData },
         { "equips", saveInfo.equips },
@@ -292,7 +341,7 @@ void to_json(json& j, const SaveInfo& saveInfo) {
     };
 }
 
-void from_json(const json& j, SaveInfo& saveInfo) {
+inline void from_json(const json& j, SaveInfo& saveInfo) {
     j.at("playerData").get_to(saveInfo.playerData);
     j.at("equips").get_to(saveInfo.equips);
     j.at("inventory").get_to(saveInfo.inventory);
@@ -330,7 +379,7 @@ void from_json(const json& j, SaveInfo& saveInfo) {
     j.at("checksum").get_to(saveInfo.checksum);
 }
 
-void to_json(json& j, const Save& save) {
+inline void to_json(json& j, const Save& save) {
     j = json{
         { "entrance", save.entrance },
         { "equippedMask", save.equippedMask },
@@ -353,7 +402,7 @@ void to_json(json& j, const Save& save) {
     };
 }
 
-void from_json(const json& j, Save& save) {
+inline void from_json(const json& j, Save& save) {
     j.at("entrance").get_to(save.entrance);
     j.at("equippedMask").get_to(save.equippedMask);
     j.at("isFirstCycle").get_to(save.isFirstCycle);
@@ -374,7 +423,7 @@ void from_json(const json& j, Save& save) {
     j.at("shipSaveInfo").get_to(save.shipSaveInfo);
 }
 
-void to_json(json& j, const SaveContext& saveContext) {
+inline void to_json(json& j, const SaveContext& saveContext) {
     j = json{
         { "save", saveContext.save },
         { "eventInf", saveContext.eventInf },
@@ -391,7 +440,7 @@ void to_json(json& j, const SaveContext& saveContext) {
     };
 }
 
-void from_json(const json& j, SaveContext& saveContext) {
+inline void from_json(const json& j, SaveContext& saveContext) {
     j.at("save").get_to(saveContext.save);
     j.at("eventInf").get_to(saveContext.eventInf);
     j.at("unk_1014").get_to(saveContext.unk_1014);
@@ -406,7 +455,7 @@ void from_json(const json& j, SaveContext& saveContext) {
     j.at("pictoPhotoI5").get_to(saveContext.pictoPhotoI5);
 }
 
-void to_json(json& j, const SaveOptions& saveOptions) {
+inline void to_json(json& j, const SaveOptions& saveOptions) {
     j = json{
         { "optionId", saveOptions.optionId },
         { "language", saveOptions.language },
@@ -416,7 +465,7 @@ void to_json(json& j, const SaveOptions& saveOptions) {
     };
 }
 
-void from_json(const json& j, SaveOptions& saveOptions) {
+inline void from_json(const json& j, SaveOptions& saveOptions) {
     j.at("optionId").get_to(saveOptions.optionId);
     j.at("language").get_to(saveOptions.language);
     j.at("audioSetting").get_to(saveOptions.audioSetting);

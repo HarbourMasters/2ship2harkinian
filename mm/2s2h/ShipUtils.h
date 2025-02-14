@@ -6,6 +6,8 @@
 
 #ifdef __cplusplus
 
+#include <string>
+
 void LoadGuiTextures();
 std::string convertEnumToReadableName(const std::string& input);
 extern std::vector<const char*> digitList;
@@ -30,6 +32,7 @@ s32 Ship_Random(s32 min, s32 max);
 
 #ifdef __cplusplus
 }
+bool isStringEmpty(std::string str);
 #endif
 
 #endif // SHIP_UTILS_H
