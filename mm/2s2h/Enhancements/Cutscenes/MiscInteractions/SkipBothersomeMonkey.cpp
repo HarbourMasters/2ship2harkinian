@@ -32,7 +32,6 @@ void RegisterSkipBothersomeMonkey() {
             }
             monkey->actionFunc = EnMnk_Monkey_SetupRunAfterTalk;
         }
-        
     });
 }
 
