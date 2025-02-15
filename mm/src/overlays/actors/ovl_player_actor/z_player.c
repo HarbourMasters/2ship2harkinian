@@ -15330,47 +15330,50 @@ void Ship_HandleShielding(Player* this, PlayState* play) {
     }
 
     if (this->av2.actionVar2 != 0) {
-        f32 yStick = sPlayerControlInput->rel.stick_y * 180;
         f32 xStick = sPlayerControlInput->rel.stick_x * -120;
+        f32 yStick = sPlayerControlInput->rel.stick_y * 180;
         s16 camRelativeCurrentYRot = this->actor.shape.rot.y - Camera_GetInputDirYaw(GET_ACTIVE_CAM(play));
-        s16 rotXTarget, rotYTarget, rotXStep, rotYStep;
 
         bool mouseControl = (CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Mouse.Shield.Enabled", 1));
         if (mouseControl) {
             MouseCoords mousePos = Mouse_GetPos();
-            u32 height = OTRGetCurrentHeight();
             u32 width = OTRGetCurrentWidth();
-            f32 centerY, centerX;
-            centerY = (f32)height / 2;
+            u32 height = OTRGetCurrentHeight();
+            f32 centerX, centerY;
             centerX = (f32)width / 2;
-            yStick += ((f32)mousePos.y - centerY) * (60 * 180) / centerY;
+            centerY = (f32)height / 2;
             xStick += ((f32)mousePos.x - centerX) * (60 * -120) / centerX;
+            yStick += ((f32)mousePos.y - centerY) * (60 * 180) / centerY;
         }
 
-        yStick *= GameInteractor_InvertControl(GI_INVERT_SHIELD_Y);
         xStick *= GameInteractor_InvertControl(GI_INVERT_SHIELD_X);
+        yStick *= GameInteractor_InvertControl(GI_INVERT_SHIELD_Y);
 
+        s16 rotXTarget, rotYTarget;
         if (mouseControl) {
             // Plain shield movement instead of camera-relative one
+            // TODO: control via cvar?
             camRelativeCurrentYRot = 0;
             // Simplification
-            rotXTarget = yStick;
             rotYTarget = xStick;
+            rotXTarget = yStick;
         } else {
-            rotXTarget = (yStick * Math_CosS(camRelativeCurrentYRot)) + (Math_SinS(camRelativeCurrentYRot) * xStick);
-            rotYTarget = (xStick * Math_CosS(camRelativeCurrentYRot)) - (Math_SinS(camRelativeCurrentYRot) * yStick);
+            rotYTarget = (xStick * Math_CosS(camRelativeCurrentYRot)) - (yStick * Math_SinS(camRelativeCurrentYRot));
+            rotXTarget = (yStick * Math_CosS(camRelativeCurrentYRot)) + (xStick * Math_SinS(camRelativeCurrentYRot));
         }
 
-        rotXTarget = CLAMP_MAX(rotXTarget, 0xDAC);
-        rotXStep = ABS_ALT(rotXTarget - this->actor.focus.rot.x) * 0.25f;
-        rotXStep = CLAMP_MIN(rotXStep, 0x64);
+        rotYTarget = CLAMP(rotYTarget, -60 * 120, 60 * 120);
+        rotXTarget = CLAMP(rotXTarget, -60 * 180, 0xDAC);
 
-        rotYStep = ABS_ALT(rotYTarget - this->upperLimbRot.y) * 0.25f;
+        s16 rotXStep, rotYStep;
+        rotYStep = ABS_ALT(rotYTarget - this->upperLimbRot.y) / 4;
         rotYStep = CLAMP_MIN(rotYStep, 0x32);
-        Math_ScaledStepToS(&this->actor.focus.rot.x, rotXTarget, rotXStep);
+        rotXStep = ABS_ALT(rotXTarget - this->actor.focus.rot.x) / 4;
+        rotXStep = CLAMP_MIN(rotXStep, 0x64);
 
         this->upperLimbRot.x = this->actor.focus.rot.x;
         Math_ScaledStepToS(&this->upperLimbRot.y, rotYTarget, rotYStep);
+        Math_ScaledStepToS(&this->actor.focus.rot.x, rotXTarget, rotXStep);
 
         if (this->av1.actionVar1 != 0) {
             if (!func_808401F4(play, this)) {
