@@ -517,6 +517,15 @@ std::map<SceneId, std::map<std::pair<float, float>, RandoCheckId>> overworldGras
           { { -1702.00f, -24.00f }, RC_WOODS_OF_MYSTERY_GRASS_20 },
           { { 100.00f, -970.00f }, RC_WOODS_OF_MYSTERY_GRASS_21 },
       } },
+    { SCENE_21MITURINMAE,
+      {
+          { { -135.00f, -1401.00f }, RC_WOODFALL_GRASS_01 },
+          { { -200.00f, -1447.00f }, RC_WOODFALL_GRASS_02 },
+          { { -186.00f, -1379.00f }, RC_WOODFALL_GRASS_03 },
+          { { 70.00f, -1409.00f }, RC_WOODFALL_GRASS_04 },
+          { { 126.00f, -1455.00f }, RC_WOODFALL_GRASS_05 },
+          { { 114.00f, -1377.00f }, RC_WOODFALL_GRASS_06 },
+      } },
 };
 
 std::map<s16, std::map<std::pair<float, float>, RandoCheckId>> grottoGrassMap = {
@@ -960,6 +969,23 @@ std::map<s16, std::map<std::pair<float, float>, RandoCheckId>> grottoGrassMap = 
           { { 2522.00f, -243.00f }, RC_ROAD_TO_IKANA_GROTTO_GRASS_12 },
           { { 2524.00f, 58.00f }, RC_ROAD_TO_IKANA_GROTTO_GRASS_13 },
           { { 2534.00f, -190.00f }, RC_ROAD_TO_IKANA_GROTTO_GRASS_14 },
+      } },
+    { -107, 
+      {
+          { { 2339.00f, 129.00f }, RC_ZORA_CAPE_GROTTO_GRASS_01 },
+          { { 2345.00f, -174.00f }, RC_ZORA_CAPE_GROTTO_GRASS_02 },
+          { { 2355.00f, -310.00f }, RC_ZORA_CAPE_GROTTO_GRASS_03 },
+          { { 2355.00f, -225.00f }, RC_ZORA_CAPE_GROTTO_GRASS_04 },
+          { { 2391.00f, -313.00f }, RC_ZORA_CAPE_GROTTO_GRASS_05 },
+          { { 2403.00f, -360.00f }, RC_ZORA_CAPE_GROTTO_GRASS_06 },
+          { { 2460.00f, 215.00f }, RC_ZORA_CAPE_GROTTO_GRASS_07 },
+          { { 2484.00f, -213.00f }, RC_ZORA_CAPE_GROTTO_GRASS_08 },
+          { { 2500.00f, 26.00f }, RC_ZORA_CAPE_GROTTO_GRASS_09 },
+          { { 2508.00f, 152.00f }, RC_ZORA_CAPE_GROTTO_GRASS_10 },
+          { { 2520.00f, -463.00f }, RC_ZORA_CAPE_GROTTO_GRASS_11 },
+          { { 2522.00f, -243.00f }, RC_ZORA_CAPE_GROTTO_GRASS_12 },
+          { { 2524.00f, 58.00f }, RC_ZORA_CAPE_GROTTO_GRASS_13 },
+          { { 2534.00f, -190.00f }, RC_ZORA_CAPE_GROTTO_GRASS_14 },
       } },
 };
 // clang-format on

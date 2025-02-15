@@ -560,6 +560,12 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_WOODFALL_POT_02, CAN_BE_DEKU || CAN_OWL_WARP(OWL_WARP_WOODFALL)),
             CHECK(RC_WOODFALL_POT_03, CAN_BE_DEKU || CAN_OWL_WARP(OWL_WARP_WOODFALL)),
             CHECK(RC_WOODFALL_FREESTANDING_RUPEE, CAN_BE_DEKU),
+            CHECK(RC_WOODFALL_GRASS_01, true),
+            CHECK(RC_WOODFALL_GRASS_02, true),
+            CHECK(RC_WOODFALL_GRASS_03, true),
+            CHECK(RC_WOODFALL_GRASS_04, true),
+            CHECK(RC_WOODFALL_GRASS_05, true),
+            CHECK(RC_WOODFALL_GRASS_06, true),
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(SOUTHERN_SWAMP_POISONED, 2),      ENTRANCE(WOODFALL, 0), true),
