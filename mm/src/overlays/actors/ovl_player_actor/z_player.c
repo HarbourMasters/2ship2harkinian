@@ -15283,8 +15283,138 @@ void Player_Action_17(Player* this, PlayState* play) {
     }
 }
 
+void Ship_HandleShielding(Player* this, PlayState* play) {
+    func_80832F24(this);
+
+    if (this->transformation == PLAYER_FORM_GORON) {
+        SkelAnime_Update(&this->unk_2C8);
+
+        if (!func_8083FE38(this, play)) {
+            if (!Player_ActionChange_11(this, play)) {
+                this->stateFlags1 &= ~PLAYER_STATE1_400000;
+
+                if (this->itemAction <= PLAYER_IA_MINUS1) {
+                    func_80123C58(this);
+                }
+
+                func_80836A98(this, D_8085BE84[PLAYER_ANIMGROUP_21][this->modelAnimType], play);
+                func_80830B38(this);
+            } else {
+                this->stateFlags1 |= PLAYER_STATE1_400000;
+            }
+        }
+
+        return;
+    }
+
+    if (PlayerAnimation_Update(play, &this->skelAnime)) {
+        if (!Player_IsGoronOrDeku(this)) {
+            Player_AnimationPlayLoop(play, this, D_8085BE84[PLAYER_ANIMGROUP_20][this->modelAnimType]);
+        }
+
+        this->av2.actionVar2 = 1;
+        this->av1.actionVar1 = 0;
+    }
+
+    if (!Player_IsGoronOrDeku(this)) {
+        this->stateFlags1 |= PLAYER_STATE1_400000;
+        Player_UpdateUpperBody(this, play);
+        this->stateFlags1 &= ~PLAYER_STATE1_400000;
+        if (this->transformation == PLAYER_FORM_ZORA) {
+            func_8082F164(this, BTN_R | BTN_B);
+        }
+    }
+
+    if (this->av2.actionVar2 != 0) {
+        f32 yStick = sPlayerControlInput->rel.stick_y * 180;
+        f32 xStick = sPlayerControlInput->rel.stick_x * -120;
+        s16 camRelativeCurrentYRot = this->actor.shape.rot.y - Camera_GetInputDirYaw(GET_ACTIVE_CAM(play));
+        s16 rotXTarget, rotYTarget, rotXStep, rotYStep;
+
+        bool mouseControl = (CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Mouse.Shield.Enabled", 1));
+        if (mouseControl) {
+            MouseCoords mousePos = Mouse_GetPos();
+            u32 height = OTRGetCurrentHeight();
+            u32 width = OTRGetCurrentWidth();
+            f32 centerY, centerX;
+            centerY = (f32)height / 2;
+            centerX = (f32)width / 2;
+            yStick += ((f32)mousePos.y - centerY) * (60 * 180) / centerY;
+            xStick += ((f32)mousePos.x - centerX) * (60 * -120) / centerX;
+        }
+
+        yStick *= GameInteractor_InvertControl(GI_INVERT_SHIELD_Y);
+        xStick *= GameInteractor_InvertControl(GI_INVERT_SHIELD_X);
+
+        if (mouseControl) {
+            // Plain shield movement instead of camera-relative one
+            camRelativeCurrentYRot = 0;
+            // Simplification
+            rotXTarget = yStick;
+            rotYTarget = xStick;
+        } else {
+            rotXTarget = (yStick * Math_CosS(camRelativeCurrentYRot)) + (Math_SinS(camRelativeCurrentYRot) * xStick);
+            rotYTarget = (xStick * Math_CosS(camRelativeCurrentYRot)) - (Math_SinS(camRelativeCurrentYRot) * yStick);
+        }
+
+        rotXTarget = CLAMP_MAX(rotXTarget, 0xDAC);
+        rotXStep = ABS_ALT(rotXTarget - this->actor.focus.rot.x) * 0.25f;
+        rotXStep = CLAMP_MIN(rotXStep, 0x64);
+
+        rotYStep = ABS_ALT(rotYTarget - this->upperLimbRot.y) * 0.25f;
+        rotYStep = CLAMP_MIN(rotYStep, 0x32);
+        Math_ScaledStepToS(&this->actor.focus.rot.x, rotXTarget, rotXStep);
+
+        this->upperLimbRot.x = this->actor.focus.rot.x;
+        Math_ScaledStepToS(&this->upperLimbRot.y, rotYTarget, rotYStep);
+
+        if (this->av1.actionVar1 != 0) {
+            if (!func_808401F4(play, this)) {
+                if (this->skelAnime.curFrame < 2.0f) {
+                    func_8082FA5C(play, this, PLAYER_MELEE_WEAPON_STATE_1);
+                }
+            } else {
+                this->av2.actionVar2 = 1;
+                this->av1.actionVar1 = 0;
+            }
+        } else if (!func_8083FE38(this, play)) {
+            if (Player_ActionChange_11(this, play)) {
+                func_8083FD80(this, play);
+            } else {
+                this->stateFlags1 &= ~PLAYER_STATE1_400000;
+                func_8082DC38(this);
+
+                if (Player_IsGoronOrDeku(this)) {
+                    func_80836A5C(this, play);
+                    PlayerAnimation_Change(play, &this->skelAnime, this->skelAnime.animation, 1.0f,
+                                           Animation_GetLastFrame(this->skelAnime.animation), 0.0f, 2, 0.0f);
+                } else {
+                    if (this->itemAction <= PLAYER_IA_MINUS1) {
+                        func_80123C58(this);
+                    }
+
+                    func_80836A98(this, D_8085BE84[PLAYER_ANIMGROUP_21][this->modelAnimType], play);
+                }
+
+                Player_PlaySfx(this, NA_SE_IT_SHIELD_REMOVE);
+                return;
+            }
+        } else {
+            return;
+        }
+    }
+
+    this->stateFlags1 |= PLAYER_STATE1_400000;
+    Player_SetModelsForHoldingShield(this);
+    this->unk_AA6 |= 0xC1;
+}
+
 // Player_Action_Shielding
 void Player_Action_18(Player* this, PlayState* play) {
+    // #region 2S2H [Enhancements] custom handle for shielding
+    return Ship_HandleShielding(this, play);
+    // #endregion
+
     Player_DecelerateToZero(this);
 
     if (this->transformation == PLAYER_FORM_GORON) {
