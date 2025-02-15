@@ -7,6 +7,8 @@ extern "C" {
 #include "variables.h"
 #include "src/overlays/actors/ovl_Obj_Snowball/z_obj_snowball.h"
 #include "src/overlays/actors/ovl_Obj_Snowball2/z_obj_snowball2.h"
+
+void func_80B02D58(ObjSnowball* snowballActor, PlayState* play);
 }
 
 std::map<std::pair<float, float>, RandoCheckId> snowballMap = {
@@ -194,54 +196,6 @@ void SpawnSnowballDrop(Vec3f pos, RandoCheckId randoCheckId) {
 // }
 
 void Rando::ActorBehavior::InitObjSnowballBehavior() {
-    // COND_ID_HOOK(OnActorInit, ACTOR_OBJ_SNOWBALL, IS_RANDO, [](Actor* actor) {
-    //     RandoCheckId randoCheckId = RC_UNKNOWN;
-
-    //    auto it = snowballMap.find({ actor->home.pos.x, actor->home.pos.z });
-    //    if (it == snowballMap.end()) {
-    //        return;
-    //    }
-
-    //    randoCheckId = it->second;
-
-    //    if (!RANDO_SAVE_CHECKS[randoCheckId].shuffled || RANDO_SAVE_CHECKS[randoCheckId].cycleObtained) {
-    //        return;
-    //    }
-
-    //    OBJSNOWBALL_RC = randoCheckId;
-    //    //actor->draw = ObjSnowball_RandoDraw;
-    //});
-
-    // COND_ID_HOOK(OnActorInit, ACTOR_OBJ_SNOWBALL2, IS_RANDO, [](Actor* actor) {
-    //     RandoCheckId randoCheckId = RC_UNKNOWN;
-
-    //    auto it = snowballMap.find({ actor->home.pos.x, actor->home.pos.z });
-    //    if (it == snowballMap.end()) {
-    //        return;
-    //    }
-
-    //    randoCheckId = it->second;
-
-    //    if (!RANDO_SAVE_CHECKS[randoCheckId].shuffled || RANDO_SAVE_CHECKS[randoCheckId].cycleObtained) {
-    //        return;
-    //    }
-
-    //    OBJSNOWBALL_RC = randoCheckId;
-    //    //actor->draw = ObjSnowball_RandoDraw;
-    //});
-
-    COND_HOOK(OnActorKill, IS_RANDO, [](Actor* actor) {
-        if (actor->id != ACTOR_OBJ_SNOWBALL && actor->id != ACTOR_OBJ_SNOWBALL2) {
-            return;
-        }
-
-        if (IdentifySnowball(actor->home.pos) == RC_UNKNOWN) {
-            return;
-        } else {
-            SpawnSnowballDrop(actor->home.pos, IdentifySnowball(actor->home.pos));
-        }
-    });
-
     COND_VB_SHOULD(VB_SNOWBALL_DROP_COLLECTIBLE, IS_RANDO, {
         Actor* actor = va_arg(args, Actor*);
 
@@ -249,10 +203,39 @@ void Rando::ActorBehavior::InitObjSnowballBehavior() {
             return;
         }
 
-        if (IdentifySnowball(actor->home.pos) == RC_UNKNOWN) {
+        RandoCheckId randoCheckId = IdentifySnowball(actor->home.pos);
+
+        if (randoCheckId == RC_UNKNOWN) {
             return;
+        } else {
+            SpawnSnowballDrop(actor->home.pos, randoCheckId);
         }
 
         *should = false;
+    });
+
+    COND_VB_SHOULD(VB_SNOWBALL_SPAWN_ITEM, IS_RANDO, {
+        Actor* actor = va_arg(args, Actor*);
+        ActorId actorToSpawn = va_arg(args, ActorId);
+        ObjSnowballActionFunc actorFunction = va_arg(args, ObjSnowballActionFunc);
+    
+        if (actorToSpawn == ACTOR_EN_JG) {
+            *should = false;
+            return;
+        }
+
+        if (actorFunction == func_80B02D58) {
+            *should = false;
+            return;
+        }
+    
+        RandoCheckId randoCheckId = IdentifySnowball(actor->home.pos);
+    
+        if (randoCheckId == RC_UNKNOWN) {
+            return;
+        } else {
+            SpawnSnowballDrop(actor->home.pos, randoCheckId);
+        }
+        
     });
 }

@@ -233,6 +233,7 @@ typedef enum {
     VB_PLAY_LOW_HP_ALARM,
     VB_PLAY_GORON_CHILD_CRY,
     VB_SNOWBALL_DROP_COLLECTIBLE,
+    VB_SNOWBALL_SPAWN_ITEM,
 } GIVanillaBehavior;
 
 typedef enum {

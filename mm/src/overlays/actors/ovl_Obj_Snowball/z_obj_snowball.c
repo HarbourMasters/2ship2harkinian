@@ -442,6 +442,7 @@ void func_80B03FF8(ObjSnowball* this, PlayState* play) {
     if (sp18->unk_04 != NULL) {
         sp18->unk_04(this, play);
     }
+    GameInteractor_Should(VB_SNOWBALL_SPAWN_ITEM, true, this, sp18->unk_00, sp18->unk_04);
 
     Actor_PlaySfx(&this->actor, NA_SE_EV_SNOWBALL_BROKEN);
 
