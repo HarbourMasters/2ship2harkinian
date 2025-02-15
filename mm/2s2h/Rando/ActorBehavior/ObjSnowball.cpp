@@ -218,7 +218,7 @@ void Rando::ActorBehavior::InitObjSnowballBehavior() {
         Actor* actor = va_arg(args, Actor*);
         ActorId actorToSpawn = va_arg(args, ActorId);
         ObjSnowballActionFunc actorFunction = va_arg(args, ObjSnowballActionFunc);
-    
+
         if (actorToSpawn == ACTOR_EN_JG) {
             *should = false;
             return;
@@ -228,14 +228,13 @@ void Rando::ActorBehavior::InitObjSnowballBehavior() {
             *should = false;
             return;
         }
-    
+
         RandoCheckId randoCheckId = IdentifySnowball(actor->home.pos);
-    
+
         if (randoCheckId == RC_UNKNOWN) {
             return;
         } else {
             SpawnSnowballDrop(actor->home.pos, randoCheckId);
         }
-        
     });
 }
