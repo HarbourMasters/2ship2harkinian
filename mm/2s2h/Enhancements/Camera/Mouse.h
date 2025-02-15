@@ -14,7 +14,7 @@ typedef struct MouseCoords {
 
 void Mouse_Update();
 MouseCoords Mouse_GetDelta();
-MouseCoords Mouse_GetCursorPos();
+MouseCoords Mouse_GetPos();
 void Mouse_SetCursorPos(s32 x, s32 y);
 bool Mouse_IsCaptured();
 

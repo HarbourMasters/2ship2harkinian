@@ -15336,29 +15336,31 @@ void Player_Action_18(Player* this, PlayState* play) {
         s16 camRelativeCurrentYRot = this->actor.shape.rot.y - Camera_GetInputDirYaw(GET_ACTIVE_CAM(play));
         s16 rotXTarget, rotYTarget, rotXStep, rotYStep;
 
-        if (CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Mouse.Shield.Enabled", 1)) {
-            MouseCoords mousePos = Mouse_GetCursorPos();
-            u32 width = OTRGetCurrentWidth();
+        bool mouseControl = (CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Mouse.Shield.Enabled", 1));
+        if (mouseControl) {
+            MouseCoords mousePos = Mouse_GetPos();
             u32 height = OTRGetCurrentHeight();
-            // FIXME: hook boundaries to variable
-            /*
-             * Y: -12800 ~ +12700
-             * X: -15360 ~ +15240
-             */
-            f32 xBound = 15360 / ((f32)width / 2);
-            f32 yBound = 12800 / ((f32)height / 2);
-            yStick += +(mousePos.x - (height) / 2) * yBound;
-            xStick -= +(mousePos.y - (width) / 2) * xBound;
-
-            // Plain shield movement instead of camera-relative one
-            camRelativeCurrentYRot = 0;
+            u32 width = OTRGetCurrentWidth();
+            f32 centerY, centerX;
+            centerY = (f32)height / 2;
+            centerX = (f32)width / 2;
+            yStick += ((f32)mousePos.y - centerY) * (60 * 180) / centerY;
+            xStick += ((f32)mousePos.x - centerX) * (60 * -120) / centerX;
         }
 
         yStick *= GameInteractor_InvertControl(GI_INVERT_SHIELD_Y);
         xStick *= GameInteractor_InvertControl(GI_INVERT_SHIELD_X);
 
-        rotXTarget = (yStick * Math_CosS(camRelativeCurrentYRot)) + (Math_SinS(camRelativeCurrentYRot) * xStick);
-        rotYTarget = (xStick * Math_CosS(camRelativeCurrentYRot)) - (Math_SinS(camRelativeCurrentYRot) * yStick);
+        if (mouseControl) {
+            // Plain shield movement instead of camera-relative one
+            camRelativeCurrentYRot = 0;
+            // Simplification
+            rotXTarget = yStick;
+            rotYTarget = xStick;
+        } else {
+            rotXTarget = (yStick * Math_CosS(camRelativeCurrentYRot)) + (Math_SinS(camRelativeCurrentYRot) * xStick);
+            rotYTarget = (xStick * Math_CosS(camRelativeCurrentYRot)) - (Math_SinS(camRelativeCurrentYRot) * yStick);
+        }
 
         rotXTarget = CLAMP_MAX(rotXTarget, 0xDAC);
         rotXStep = ABS_ALT(rotXTarget - this->actor.focus.rot.x) * 0.25f;
