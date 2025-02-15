@@ -249,6 +249,20 @@ static RegisterShipInitFunc initFunc([]() {
     Regions[RR_ZORA_CAPE_GROTTO] = RandoRegion{ .name = "Zora Cape Grotto", .sceneId = SCENE_KAKUSIANA,
         .checks = {
             CHECK(RC_ZORA_CAPE_GROTTO_CHEST, true),
+            CHECK(RC_ZORA_CAPE_GROTTO_GRASS_01, true),
+            CHECK(RC_ZORA_CAPE_GROTTO_GRASS_02, true),
+            CHECK(RC_ZORA_CAPE_GROTTO_GRASS_03, true),
+            CHECK(RC_ZORA_CAPE_GROTTO_GRASS_04, true),
+            CHECK(RC_ZORA_CAPE_GROTTO_GRASS_05, true),
+            CHECK(RC_ZORA_CAPE_GROTTO_GRASS_06, true),
+            CHECK(RC_ZORA_CAPE_GROTTO_GRASS_07, true),
+            CHECK(RC_ZORA_CAPE_GROTTO_GRASS_08, true),
+            CHECK(RC_ZORA_CAPE_GROTTO_GRASS_09, true),
+            CHECK(RC_ZORA_CAPE_GROTTO_GRASS_10, true),
+            CHECK(RC_ZORA_CAPE_GROTTO_GRASS_11, true),
+            CHECK(RC_ZORA_CAPE_GROTTO_GRASS_12, true),
+            CHECK(RC_ZORA_CAPE_GROTTO_GRASS_13, true),
+            CHECK(RC_ZORA_CAPE_GROTTO_GRASS_14, true),
         },
         .connections = {
             CONNECTION(RR_ZORA_CAPE, true), // TODO: Grotto mapping
