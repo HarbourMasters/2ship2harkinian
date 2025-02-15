@@ -218,6 +218,7 @@ typedef enum {
     VB_GET_ITEM_ACTION_FROM_MASK,
     VB_GRANT_MAGIC_UPON_REQUEST,
     VB_SNOWBALL_DROP_COLLECTIBLE,
+    VB_SNOWBALL_SPAWN_ITEM,
 } GIVanillaBehavior;
 
 typedef enum {
