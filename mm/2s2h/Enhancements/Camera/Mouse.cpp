@@ -18,7 +18,7 @@ MouseCoords Mouse_GetDelta() {
     return current;
 }
 
-MouseCoords Mouse_GetCursorPos() {
+MouseCoords Mouse_GetPos() {
     Ship::Coords coords = Ship::Context::GetInstance()->GetWindow()->GetMousePos();
     return { coords.x, coords.y };
 }
