@@ -213,8 +213,7 @@ void ObjGrassCarry_Main(ObjGrassCarry* this, PlayState* play) {
         ObjGrassCarry_SetupLiftedUp(this);
         if (this->grassElem != NULL) {
             if (!GameInteractor_Should(VB_GRASS_STORE_RANDO_CHECK_ID, true, this)) {
-                this->grassElem->flags |=
-                    OBJ_GRASS_ELEM_REMOVED; // here should but dont stop //clear variable on scenechange and file load
+                this->grassElem->flags |= OBJ_GRASS_ELEM_REMOVED;
             }
         }
         thisx->draw = ObjGrassCarry_Draw;
