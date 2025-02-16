@@ -959,58 +959,44 @@ void DrawItemsAndMasksTab() {
 void SongInfo(int32_t itemID) {
     switch (itemID) {
         case QUEST_SONG_SONATA:
-            colorTint = ImVec4(0.588f, 1.0f, 0.392f, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
             songTooltip = "Sonata of Awakening";
             break;
         case QUEST_SONG_LULLABY:
-            colorTint = ImVec4(1.0f, 0.313f, 0.156f,
-                               (CHECK_QUEST_ITEM(itemID) || CHECK_QUEST_ITEM(QUEST_SONG_LULLABY_INTRO)) ? 1.0f : 0.4f);
             songTooltip = (!CHECK_QUEST_ITEM(itemID) && CHECK_QUEST_ITEM(QUEST_SONG_LULLABY_INTRO))
                               ? "Goron Lullaby Intro"
                               : "Goron Lullaby";
             break;
         case QUEST_SONG_BOSSA_NOVA:
-            colorTint = ImVec4(0.392f, 0.588f, 1.0f, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
             songTooltip = "New Wave Bossa Nova";
             break;
         case QUEST_SONG_ELEGY:
-            colorTint = ImVec4(1.0f, 0.627f, 0.0f, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
             songTooltip = "Elegy of Emptiness";
             break;
         case QUEST_SONG_OATH:
-            colorTint = ImVec4(1.0f, 0.392f, 1.0f, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
             songTooltip = "Oath to Order";
             break;
         case QUEST_SONG_TIME:
-            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
             songTooltip = "Song of Time";
             break;
         case QUEST_SONG_HEALING:
-            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
             songTooltip = "Song of Healing";
             break;
         case QUEST_SONG_EPONA:
-            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
             songTooltip = "Eponas Song";
             break;
         case QUEST_SONG_SOARING:
-            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
             songTooltip = "Song of Soaring";
             break;
         case QUEST_SONG_STORMS:
-            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
             songTooltip = "Song of Storms";
             break;
         case QUEST_SONG_SARIA:
-            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
             songTooltip = "Saria's Song (Unused?)";
             break;
         case QUEST_SONG_SUN:
-            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
             songTooltip = "Sun's Song (Not Obtainable)";
             break;
         default:
-            colorTint = ImVec4(1, 1, 1, CHECK_QUEST_ITEM(itemID) ? 1.0f : 0.4f);
             songTooltip = " ";
             break;
     }
@@ -1096,6 +1082,8 @@ void DrawQuestSlot(QuestItem slot) {
 
 void DrawSong(QuestItem slot) {
     SongInfo(slot);
+    colorTint = iconColor((int16_t)slot);
+
     if (ImGui::ImageButton(std::to_string(slot).c_str(),
                            Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
                                (const char*)gItemIcons[questToItemMap[(QuestItem)slot]]),

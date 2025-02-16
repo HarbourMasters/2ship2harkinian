@@ -270,7 +270,7 @@ static void DrawItemsTab() {
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 1.0f, 1.0f, 0.2f));
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 1.0f, 1.0f, 0.1f));
             if (ImGui::ImageButton(std::to_string(i).c_str(), textureId, ImVec2(columnWidth / 8, columnWidth / 8),
-                                   ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
+                                   ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), iconColor((int16_t)itemId))) {
                 startingItems &= ~(1 << i);
                 CVarSetInteger(Rando::StaticData::Options[optionId].cvar, startingItems);
                 Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
@@ -315,7 +315,7 @@ static void DrawItemsTab() {
             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 1.0f, 1.0f, 0.2f));
             ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 1.0f, 1.0f, 0.1f));
             if (ImGui::ImageButton(std::to_string(i).c_str(), textureId, ImVec2(columnWidth / 8, columnWidth / 8),
-                                   ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), ImVec4(1, 1, 1, 1))) {
+                                   ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), iconColor((int16_t)itemId))) {
                 startingItems |= (1 << i);
                 CVarSetInteger(Rando::StaticData::Options[optionId].cvar, startingItems);
                 Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();

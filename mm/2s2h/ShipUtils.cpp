@@ -67,6 +67,26 @@ std::vector<const char*> digitList = { gCounterDigit0Tex, gCounterDigit1Tex, gCo
                                        gCounterDigit4Tex, gCounterDigit5Tex, gCounterDigit6Tex, gCounterDigit7Tex,
                                        gCounterDigit8Tex, gCounterDigit9Tex, gCounterColonTex };
 
+std::map<std::vector<int16_t>, ImVec4> iconColorMap = {
+    { { QUEST_SONG_SONATA, RI_SONG_SONATA }, ImVec4(0.588f, 1.0f, 0.392f, 1.0f) },
+    { { QUEST_SONG_LULLABY, QUEST_SONG_LULLABY_INTRO, RI_SONG_LULLABY, RI_SONG_LULLABY_INTRO, RI_PROGRESSIVE_LULLABY },
+      ImVec4(1.0f, 0.313f, 0.156f, 1.0f) },
+    { { QUEST_SONG_BOSSA_NOVA, RI_SONG_NOVA }, ImVec4(0.392f, 0.588f, 1.0f, 1.0f) },
+    { { QUEST_SONG_ELEGY, RI_SONG_ELEGY }, ImVec4(1.0f, 0.627f, 0.0f, 1.0f) },
+    { { QUEST_SONG_OATH, RI_SONG_OATH }, ImVec4(1.0f, 0.392f, 1.0f, 1.0f) },
+};
+
+extern ImVec4 iconColor(int16_t item) {
+    ImVec4 foundColor = ImVec4(1, 1, 1, 1);
+    for (auto& [key, color] : iconColorMap) {
+        if (std::find(key.begin(), key.end(), item) != key.end()) {
+            foundColor = color;
+            break;
+        }
+    }
+    return foundColor;
+}
+
 extern "C" const char* Ship_GetSceneName(s16 sceneId) {
     if (sceneNames.contains(sceneId)) {
         return sceneNames[sceneId];
