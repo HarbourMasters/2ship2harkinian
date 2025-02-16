@@ -206,7 +206,7 @@ int8_t ResourceFactoryXMLSoundFontV0::CachePolicyToInt(const char* str, const ch
 }
 
 void ResourceFactoryXMLSoundFontV0::ParseDrums(AudioSoundFont* soundFont, tinyxml2::XMLElement* element) {
-    element = (tinyxml2::XMLElement*)element->FirstChildElement();
+    element = element->FirstChildElement();
     // No drums
     if (element == nullptr) {
         soundFont->soundFont.drums = nullptr;
@@ -215,7 +215,13 @@ void ResourceFactoryXMLSoundFontV0::ParseDrums(AudioSoundFont* soundFont, tinyxm
     }
 
     do {
-        Drum* drum = new Drum;
+        int patch = element->IntAttribute("Patches", -1);
+        Drum* drum;
+        if (patch != -1) {
+            drum = soundFont->drumAddresses[patch];
+        } else {
+            drum = new Drum;
+        }
         std::vector<AdsrEnvelope> envelopes;
         drum->releaseRate = element->IntAttribute("ReleaseRate");
         drum->pan = element->IntAttribute("Pan");
@@ -230,14 +236,18 @@ void ResourceFactoryXMLSoundFontV0::ParseDrums(AudioSoundFont* soundFont, tinyxm
             drum->sound.sample = nullptr;
         }
 
-        element = (tinyxml2::XMLElement*)element->FirstChildElement();
+        element = element->FirstChildElement();
         if (!strcmp(element->Name(), "Envelopes")) {
             // element = (tinyxml2::XMLElement*)element->FirstChildElement();
             unsigned int envCount = 0;
             envelopes = ParseEnvelopes(soundFont, element, &envCount);
             element = (tinyxml2::XMLElement*)element->Parent();
             soundFont->drumEnvelopeArrays.push_back(envelopes);
-            drum->envelope = new AdsrEnvelope[envelopes.size()];
+            // If we are applying a patch the envelopes are already allocated
+            // TODO revert this if we enable editing envelopes in a patch
+            if (patch == -1) {
+                drum->envelope = new AdsrEnvelope[envelopes.size()];
+            }
             memcpy(drum->envelope, envelopes.data(), envelopes.size() * sizeof(AdsrEnvelope));
         } else {
             drum->envelope = nullptr;
@@ -256,11 +266,21 @@ void ResourceFactoryXMLSoundFontV0::ParseDrums(AudioSoundFont* soundFont, tinyxm
     soundFont->soundFont.drums = soundFont->drumAddresses.data();
 }
 
-void SOH::ResourceFactoryXMLSoundFontV0::ParseInstruments(AudioSoundFont* soundFont, tinyxml2::XMLElement* element) {
+void ResourceFactoryXMLSoundFontV0::ParseInstruments(AudioSoundFont* soundFont, tinyxml2::XMLElement* element) {
     element = element->FirstChildElement();
+    if (element == nullptr) {
+        return;
+    }
     do {
-        Instrument* instrument = new Instrument;
-        memset(instrument, 0, sizeof(Instrument));
+        int patch = element->IntAttribute("Patches", -1);
+        Instrument* instrument;
+        // Same as drums, if applying a patch, don't re-allocate and clear.
+        if (patch != -1) {
+            instrument = soundFont->instrumentAddresses[patch];
+        } else {
+            instrument = new Instrument;
+            memset(instrument, 0, sizeof(Instrument));
+        }
         unsigned int envCount = 0;
         std::vector<AdsrEnvelope> envelopes;
 
@@ -274,7 +294,9 @@ void SOH::ResourceFactoryXMLSoundFontV0::ParseInstruments(AudioSoundFont* soundF
 
         if (instrumentElement != nullptr && !strcmp(instrumentElement->Name(), "Envelopes")) {
             envelopes = ParseEnvelopes(soundFont, instrumentElement, &envCount);
-            instrument->envelope = new AdsrEnvelope[envelopes.size()];
+            if (patch == -1) {
+                instrument->envelope = new AdsrEnvelope[envelopes.size()];
+            }
             memcpy(instrument->envelope, envelopes.data(), envelopes.size() * sizeof(AdsrEnvelope));
             instrumentElement = instrumentElement->NextSiblingElement();
         }
@@ -320,9 +342,10 @@ void SOH::ResourceFactoryXMLSoundFontV0::ParseInstruments(AudioSoundFont* soundF
             }
             instrumentElement = instrumentElement->NextSiblingElement();
         }
-
-        soundFont->instrumentAddresses.push_back(instrument);
-
+        // Don't add it to the list if applying a patch
+        if (patch == -1) {
+            soundFont->instrumentAddresses.push_back(instrument);
+        }
         element = instrumentElementCopy;
         element = (tinyxml2::XMLElement*)element->Parent();
         element = element->NextSiblingElement();
@@ -332,13 +355,16 @@ void SOH::ResourceFactoryXMLSoundFontV0::ParseInstruments(AudioSoundFont* soundF
     soundFont->soundFont.numInstruments = soundFont->instrumentAddresses.size();
 }
 
-void SOH::ResourceFactoryXMLSoundFontV0::ParseSfxTable(AudioSoundFont* soundFont, tinyxml2::XMLElement* element) {
+void ResourceFactoryXMLSoundFontV0::ParseSfxTable(AudioSoundFont* soundFont, tinyxml2::XMLElement* element) {
     size_t count = element->IntAttribute("Count");
 
-    element = (tinyxml2::XMLElement*)element->FirstChildElement();
+    element = element->FirstChildElement();
 
     while (element != nullptr) {
-        SoundFontSound sound = { 0 };
+        int patch = element->IntAttribute("Patches", -1);
+
+        SoundFontSound sound = {};
+
         const char* sampleStr = element->Attribute("SampleRef");
         // Insert an empty sound effect. The game assumes the empty slots are
         // filled so we can't just skip them
@@ -346,7 +372,7 @@ void SOH::ResourceFactoryXMLSoundFontV0::ParseSfxTable(AudioSoundFont* soundFont
             goto skip;
 
         sound.tuning = element->FloatAttribute("Tuning");
-        if (sampleStr != nullptr && sampleStr[0] != 0) {
+        if (sampleStr[0] != 0) {
             auto res = static_pointer_cast<SOH::AudioSample>(
                 Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(sampleStr));
             if (res->tuning != -1.0f) {
@@ -356,7 +382,11 @@ void SOH::ResourceFactoryXMLSoundFontV0::ParseSfxTable(AudioSoundFont* soundFont
         }
     skip:
         element = element->NextSiblingElement();
-        soundFont->soundEffects.push_back(sound);
+        if (patch != -1) {
+            soundFont->soundEffects[patch] = sound;
+        } else {
+            soundFont->soundEffects.push_back(sound);
+        }
     }
     soundFont->soundFont.soundEffects = soundFont->soundEffects.data();
     soundFont->soundFont.numSfx = soundFont->soundEffects.size();
@@ -387,10 +417,21 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLSoundFontV0::ReadResource(std
     if (!FileHasValidFormatAndReader(file)) {
         return nullptr;
     }
-    auto audioSoundFont = std::make_shared<AudioSoundFont>(file->InitData);
+
     auto child = std::get<std::shared_ptr<tinyxml2::XMLDocument>>(file->Reader)->FirstChildElement();
+    const char* patch = child->Attribute("Patches");
+    std::shared_ptr<Ship::IResource> sf;
+    std::shared_ptr<AudioSoundFont> audioSoundFont;
+    // If we are patching an existing SF, load the original, otherwise create and clear a new one.
+    if (patch != nullptr) {
+        std::string origName = "audio/fonts/";
+        origName += patch;
+        audioSoundFont = dynamic_pointer_cast<AudioSoundFont>(Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(origName));
+    } else {
+        audioSoundFont = std::make_shared<AudioSoundFont>(file->InitData);
+        memset(&audioSoundFont->soundFont, 0, sizeof(audioSoundFont->soundFont));
+    }
     // Header data
-    memset(&audioSoundFont->soundFont, 0, sizeof(audioSoundFont->soundFont));
     audioSoundFont->soundFont.fntIndex = child->IntAttribute("Num", 0);
 
     const char* mediumStr = child->Attribute("Medium");
