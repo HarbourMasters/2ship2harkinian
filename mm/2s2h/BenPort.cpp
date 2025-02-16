@@ -1828,4 +1828,3 @@ extern "C" bool Ship_HandleConsoleCrashAsReset() {
 
     return true;
 }
-

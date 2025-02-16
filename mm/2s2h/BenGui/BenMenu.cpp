@@ -1224,9 +1224,11 @@ void BenMenu::AddEnhancements() {
         .WindowName("Item Tracker Settings");
 
     // Audio Editor
-    path = {"Enhancements", "Audio Editor", 1};
+    path = { "Enhancements", "Audio Editor", 1 };
     AddSidebarEntry("Enhancements", "Audio Editor", 1);
-    AddWidget(path, "Popout Audio Editor", WIDGET_WINDOW_BUTTON).CVar("gWindows.AudioEditor").WindowName("Audio Editor");
+    AddWidget(path, "Popout Audio Editor", WIDGET_WINDOW_BUTTON)
+        .CVar("gWindows.AudioEditor")
+        .WindowName("Audio Editor");
 }
 
 void BenMenu::AddDevTools() {
