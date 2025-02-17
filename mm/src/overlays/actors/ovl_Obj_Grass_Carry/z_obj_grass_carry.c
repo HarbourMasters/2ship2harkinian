@@ -212,9 +212,7 @@ void ObjGrassCarry_Main(ObjGrassCarry* this, PlayState* play) {
     if (Actor_HasParent(thisx, play)) {
         ObjGrassCarry_SetupLiftedUp(this);
         if (this->grassElem != NULL) {
-            if (!GameInteractor_Should(VB_GRASS_STORE_RANDO_CHECK_ID, true, this)) {
-                this->grassElem->flags |= OBJ_GRASS_ELEM_REMOVED;
-            }
+            this->grassElem->flags |= OBJ_GRASS_ELEM_REMOVED;
         }
         thisx->draw = ObjGrassCarry_Draw;
         thisx->shape.shadowDraw = ActorShadow_DrawCircle;
