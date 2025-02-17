@@ -990,8 +990,6 @@ std::map<s16, std::map<std::pair<float, float>, RandoCheckId>> grottoGrassMap = 
 };
 // clang-format on
 
-Vec3f grassCarryHome = gZeroVec3f;
-
 float roundUpToTwoDecimalPlaces(float value) {
     int rounded = std::round(value);
     float fnum = static_cast<float>(rounded);
@@ -1001,6 +999,8 @@ float roundUpToTwoDecimalPlaces(float value) {
 
 RandoCheckId IdentifyGrass(Vec3f pos) {
     RandoCheckId randoCheckId = RC_UNKNOWN;
+    pos.x = roundUpToTwoDecimalPlaces(pos.x);
+    pos.z = roundUpToTwoDecimalPlaces(pos.z);
 
     if (gPlayState->sceneId != SCENE_KAKUSIANA) {
         auto it = overworldGrassMap.find((SceneId)gPlayState->sceneId);
@@ -1082,8 +1082,6 @@ void SpawnGrassDrop(Vec3f pos, RandoCheckId randoCheckId) {
 // }
 
 void Rando::ActorBehavior::InitObjGrassBehavior() {
-    grassCarryHome = gZeroVec3f;
-
     /*COND_VB_SHOULD(VB_GRASS_DRAW_BE_OVERRIDDEN, IS_RANDO, {
         Actor* actor = va_arg(args, Actor*);
         if (OBJGRASS_RC != RC_UNKNOWN) {
@@ -1091,17 +1089,6 @@ void Rando::ActorBehavior::InitObjGrassBehavior() {
             actor->draw = ObjGrass_RandoDraw;
         }
     });*/
-
-    COND_VB_SHOULD(VB_GRASS_STORE_RANDO_CHECK_ID, IS_RANDO, {
-        grassCarryHome = gZeroVec3f;
-        ObjGrassCarry* grassActor = va_arg(args, ObjGrassCarry*);
-
-        grassCarryHome = grassActor->actor.world.pos;
-        grassCarryHome.x = roundUpToTwoDecimalPlaces(grassCarryHome.x);
-        grassCarryHome.z = roundUpToTwoDecimalPlaces(grassCarryHome.z);
-
-        *should = false;
-    });
 
     COND_VB_SHOULD(VB_GRASS_DROP_COLLECTIBLE, IS_RANDO, {
         auto actorId = static_cast<ActorId>(va_arg(args, int32_t));
@@ -1121,10 +1108,8 @@ void Rando::ActorBehavior::InitObjGrassBehavior() {
             pos = grassCarryActor->actor.world.pos;
         }
 
-        pos.x = roundUpToTwoDecimalPlaces(pos.x);
-        pos.z = roundUpToTwoDecimalPlaces(pos.z);
-
-        RandoCheckId randoCheckId = IdentifyGrass(actorId == ACTOR_OBJ_GRASS_CARRY ? grassCarryHome : pos);
+        RandoCheckId randoCheckId =
+            IdentifyGrass(actorId == ACTOR_OBJ_GRASS_CARRY ? grassCarryActor->grassElem->pos : pos);
         if (randoCheckId == RC_UNKNOWN) {
             return;
         }
@@ -1132,6 +1117,4 @@ void Rando::ActorBehavior::InitObjGrassBehavior() {
         SpawnGrassDrop(pos, randoCheckId);
         *should = false;
     });
-
-    COND_HOOK(OnSceneInit, IS_RANDO, [](s8 sceneId, s8 spawnNum) { grassCarryHome = gZeroVec3f; });
 }
