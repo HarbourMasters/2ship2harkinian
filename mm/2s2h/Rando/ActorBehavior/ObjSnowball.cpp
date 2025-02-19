@@ -155,46 +155,6 @@ void SpawnSnowballDrop(Vec3f pos, RandoCheckId randoCheckId) {
         });
 }
 
-// void ObjSnowball_RandoDraw(Actor* actor, PlayState* play) {
-//     if (!CVarGetInteger("gRando.CSMC", 0)) {
-//         Gfx_DrawDListOpa(play, (Gfx*)gBarrelJunkDL);
-//         return;
-//     }
-//
-//     RandoItemId randoItemId = Rando::ConvertItem(RANDO_SAVE_CHECKS[OBJTARU_RC].randoItemId,
-//     (RandoCheckId)OBJTARU_RC); RandoItemType randoItemType = Rando::StaticData::Items[randoItemId].randoItemType;
-//
-//     switch (randoItemType) {
-//         case RITYPE_BOSS_KEY:
-//             Gfx_DrawDListOpa(play, (Gfx*)gBarrelBossKeyDL);
-//             break;
-//         case RITYPE_HEALTH:
-//             Gfx_DrawDListOpa(play, (Gfx*)gBarrelHeartDL);
-//             break;
-//         case RITYPE_LESSER:
-//             Gfx_DrawDListOpa(play, (Gfx*)gBarrelMinorDL);
-//             break;
-//         case RITYPE_MAJOR:
-//             Gfx_DrawDListOpa(play, (Gfx*)gBarrelMajorDL);
-//             break;
-//         case RITYPE_MASK:
-//             Gfx_DrawDListOpa(play, (Gfx*)gBarrelMaskDL);
-//             break;
-//         case RITYPE_SKULLTULA_TOKEN:
-//             Gfx_DrawDListOpa(play, (Gfx*)gBarrelTokenDL);
-//             break;
-//         case RITYPE_SMALL_KEY:
-//             Gfx_DrawDListOpa(play, (Gfx*)gBarrelSmallKeyDL);
-//             break;
-//         case RITYPE_STRAY_FAIRY:
-//             Gfx_DrawDListOpa(play, (Gfx*)gBarrelFairyDL);
-//             break;
-//         default:
-//             Gfx_DrawDListOpa(play, (Gfx*)gBarrelJunkDL);
-//             break;
-//     }
-// }
-
 void Rando::ActorBehavior::InitObjSnowballBehavior() {
     COND_VB_SHOULD(VB_SNOWBALL_DROP_COLLECTIBLE, IS_RANDO, {
         Actor* actor = va_arg(args, Actor*);
