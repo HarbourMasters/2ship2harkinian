@@ -6,6 +6,7 @@
 #include "BenPort.h"
 #include "2s2h/BenGui/HudEditor.h"
 #include "2s2h/BenGui/CosmeticEditor.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 s16 sHeartsPrimColors[3][3] = { { 255, 70, 50 }, { 255, 190, 0 }, { 100, 100, 255 } };
 s16 sHeartsEnvColors[3][3] = { { 50, 40, 60 }, { 255, 0, 0 }, { 0, 0, 255 } };
@@ -478,7 +479,9 @@ void LifeMeter_UpdateSizeAndBeep(PlayState* play) {
             interfaceCtx->lifeSizeChangeDirection = 0;
             if (!Player_InCsMode(play) && (play->pauseCtx.state == PAUSE_STATE_OFF) &&
                 (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE) && LifeMeter_IsCritical() && !Play_InCsMode(play)) {
-                Audio_PlaySfx(NA_SE_SY_HITPOINT_ALARM);
+                if (GameInteractor_Should(VB_PLAY_LOW_HP_ALARM, true)) {
+                    Audio_PlaySfx(NA_SE_SY_HITPOINT_ALARM);
+                }
             }
         }
     } else {

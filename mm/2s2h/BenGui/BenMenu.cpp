@@ -729,6 +729,14 @@ void BenMenu::AddEnhancements() {
             }
         })
         .Options(CheckboxOptions().Tooltip("Mirrors the world horizontally."));
+    AddWidget(path, "SFX", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Mute Low HP Alarm", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Sfx.LowHpAlarm")
+        .Options(CheckboxOptions().Tooltip("Mutes the beeping alarm when you are critically low on health."));
+    AddWidget(path, "Mute Carpenter Sounds", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Sfx.MuteCarpenterSfx")
+        .Options(CheckboxOptions().Tooltip("Requires scene reload to take effect. Mutes the carpenter sounds coming "
+                                           "from the tower in South Clocktown."));
     AddWidget(path, "Minigames", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Always Win Doggy Race", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Minigames.AlwaysWinDoggyRace")

@@ -101,6 +101,7 @@ typedef enum {
     VB_GIBDO_TRADE_SEQUENCE_DO_TRADE,
     VB_GET_ITEM_ACTION_FROM_MASK,
     VB_PERFORM_AC_COLLISION,
+    VB_PLAY_LOW_HP_ALARM,
 } GIVanillaBehavior;
 
 typedef enum {
