@@ -739,7 +739,7 @@ void BenMenu::AddEnhancements() {
                                            "from the tower in South Clock Town."));
     AddWidget(path, "Mute Crying Goron Child", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Sfx.ChildGoronCry")
-        .Options(CheckboxOptions().Tooltip("Mutes crying Goron Child inside of Goron Shrine."));
+        .Options(CheckboxOptions().Tooltip("Mutes the crying Goron child inside Goron Shrine."));
     AddWidget(path, "Minigames", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Always Win Doggy Race", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Minigames.AlwaysWinDoggyRace")
