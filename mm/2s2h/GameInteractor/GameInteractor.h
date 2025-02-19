@@ -102,6 +102,7 @@ typedef enum {
     VB_GET_ITEM_ACTION_FROM_MASK,
     VB_PERFORM_AC_COLLISION,
     VB_PLAY_LOW_HP_ALARM,
+    VB_PLAY_GORON_CHILD_CRY,
 } GIVanillaBehavior;
 
 typedef enum {

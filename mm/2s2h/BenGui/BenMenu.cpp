@@ -737,6 +737,9 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Sfx.MuteCarpenterSfx")
         .Options(CheckboxOptions().Tooltip("Requires scene reload to take effect. Mutes the carpenter sounds coming "
                                            "from the tower in South Clock Town."));
+    AddWidget(path, "Mute Crying Goron Child", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Sfx.ChildGoronCry")
+        .Options(CheckboxOptions().Tooltip("Mutes crying Goron Child inside of Goron Shrine."));
     AddWidget(path, "Minigames", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Always Win Doggy Race", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Minigames.AlwaysWinDoggyRace")
