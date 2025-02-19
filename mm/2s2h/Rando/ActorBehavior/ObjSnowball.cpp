@@ -193,8 +193,9 @@ void Rando::ActorBehavior::InitObjSnowballBehavior() {
 
         if (randoCheckId == RC_UNKNOWN) {
             return;
-        } else {
-            SpawnSnowballDrop(actor->home.pos, randoCheckId);
         }
+
+        SpawnSnowballDrop(actor->home.pos, randoCheckId);
+        *should = false;
     });
 }
