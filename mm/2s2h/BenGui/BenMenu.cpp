@@ -736,7 +736,7 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Mute Carpenter Sounds", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Sfx.MuteCarpenterSfx")
         .Options(CheckboxOptions().Tooltip("Requires scene reload to take effect. Mutes the carpenter sounds coming "
-                                           "from the tower in South Clocktown."));
+                                           "from the tower in South Clock Town."));
     AddWidget(path, "Minigames", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Always Win Doggy Race", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Minigames.AlwaysWinDoggyRace")
