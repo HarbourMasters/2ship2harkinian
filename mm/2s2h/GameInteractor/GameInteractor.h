@@ -178,11 +178,6 @@ struct HookRegisteringInfo {
 struct HookInfo {
     uint32_t calls;
     HookRegisteringInfo registering;
-
-    HookInfo() : calls(0), registering(HookRegisteringInfo{}) {
-    }
-    HookInfo(HookRegisteringInfo _registering) : calls(0), registering(_registering) {
-    }
 };
 
 #ifdef __cpp_lib_source_location
@@ -236,7 +231,8 @@ class GameInteractor {
         }
 
         RegisteredGameHooks<H>::functions[this->nextHookId] = h;
-        RegisteredGameHooks<H>::hookData[this->nextHookId] = HookInfo{ GET_CURRENT_REGISTERING_INFO(HOOK_TYPE_NORMAL) };
+        RegisteredGameHooks<H>::hookData[this->nextHookId] =
+            HookInfo{ 0, GET_CURRENT_REGISTERING_INFO(HOOK_TYPE_NORMAL) };
         return this->nextHookId++;
     }
     template <typename H> void UnregisterGameHook(HOOK_ID hookId) {
@@ -272,7 +268,7 @@ class GameInteractor {
         }
 
         RegisteredGameHooks<H>::functionsForID[id][this->nextHookId] = h;
-        RegisteredGameHooks<H>::hookData[this->nextHookId] = HookInfo{ GET_CURRENT_REGISTERING_INFO(HOOK_TYPE_ID) };
+        RegisteredGameHooks<H>::hookData[this->nextHookId] = HookInfo{ 0, GET_CURRENT_REGISTERING_INFO(HOOK_TYPE_ID) };
         return this->nextHookId++;
     }
     template <typename H> void UnregisterGameHookForID(HOOK_ID hookId) {
@@ -317,7 +313,7 @@ class GameInteractor {
         }
 
         RegisteredGameHooks<H>::functionsForPtr[ptr][this->nextHookId] = h;
-        RegisteredGameHooks<H>::hookData[this->nextHookId] = HookInfo{ GET_CURRENT_REGISTERING_INFO(HOOK_TYPE_PTR) };
+        RegisteredGameHooks<H>::hookData[this->nextHookId] = HookInfo{ 0, GET_CURRENT_REGISTERING_INFO(HOOK_TYPE_PTR) };
         return this->nextHookId++;
     }
     template <typename H> void UnregisterGameHookForPtr(HOOK_ID hookId) {
@@ -363,7 +359,8 @@ class GameInteractor {
         }
 
         RegisteredGameHooks<H>::functionsForFilter[this->nextHookId] = std::make_pair(f, h);
-        RegisteredGameHooks<H>::hookData[this->nextHookId] = HookInfo{ GET_CURRENT_REGISTERING_INFO(HOOK_TYPE_FILTER) };
+        RegisteredGameHooks<H>::hookData[this->nextHookId] =
+            HookInfo{ 0, GET_CURRENT_REGISTERING_INFO(HOOK_TYPE_FILTER) };
         return this->nextHookId++;
     }
     template <typename H> void UnregisterGameHookForFilter(HOOK_ID hookId) {
