@@ -4,6 +4,8 @@
 #include "Rando/Logic/Logic.h"
 #include <boost_custom/container_hash/hash_32.hpp>
 
+#include <bitset>
+
 extern "C" {
 #include "functions.h"
 #include "variables.h"
@@ -71,19 +73,32 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                 }
 
                 std::vector<RandoItemId> startingItems = {};
-                for (size_t i = 0; i < Rando::StaticData::StartingItemsMap.size(); i++) {
-                    RandoItemId itemId = Rando::StaticData::StartingItemsMap[i];
-                    RandoOptionId optionId;
-                    if (i < 32) {
-                        optionId = RO_STARTING_ITEMS_1;
-                    } else if (i < 64) {
-                        optionId = RO_STARTING_ITEMS_2;
-                    } else {
-                        optionId = RO_STARTING_ITEMS_3;
-                    }
-                    uint32_t startingItemsBits = RANDO_SAVE_OPTIONS[optionId];
-                    if ((startingItemsBits & (1 << (i % 32))) != 0) {
-                        startingItems.push_back(itemId);
+                std::bitset<32> selectedItemsBitset;
+
+                for (auto& category : Rando::StaticData::StartingItemsMap) {
+                    for (auto& item : Rando::StaticData::StartingItemsMap[category.first]) {
+                        if (item <= RI_DEKU_NUTS_5) {
+                            selectedItemsBitset =
+                                CVarGetInteger(Rando::StaticData::Options[RO_STARTING_ITEMS_1].cvar, 0);
+                        } else if (item <= RI_MASK_CAPTAIN) {
+                            selectedItemsBitset =
+                                CVarGetInteger(Rando::StaticData::Options[RO_STARTING_ITEMS_2].cvar, 0);
+                        } else if (item <= RI_OWL_SOUTHERN_SWAMP) {
+                            selectedItemsBitset =
+                                CVarGetInteger(Rando::StaticData::Options[RO_STARTING_ITEMS_3].cvar, 0);
+                        } else if (item <= RI_SNOWHEAD_BOSS_KEY) {
+                            selectedItemsBitset =
+                                CVarGetInteger(Rando::StaticData::Options[RO_STARTING_ITEMS_4].cvar, 0);
+                        } else if (item <= RI_TINGLE_MAP_CLOCK_TOWN) {
+                            selectedItemsBitset =
+                                CVarGetInteger(Rando::StaticData::Options[RO_STARTING_ITEMS_5].cvar, 0);
+                        } else {
+                            selectedItemsBitset =
+                                CVarGetInteger(Rando::StaticData::Options[RO_STARTING_ITEMS_6].cvar, 0);
+                        }
+                        if (selectedItemsBitset.test(item % 32)) {
+                            startingItems.push_back(item);
+                        }
                     }
                 }
 
