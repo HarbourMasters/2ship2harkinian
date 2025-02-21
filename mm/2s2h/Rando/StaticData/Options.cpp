@@ -39,8 +39,11 @@ std::map<RandoOptionId, RandoStaticOption> Options = {
     RO(RO_STARTING_CONSUMABLES,        RO_GENERIC_OFF),
     RO(RO_STARTING_HEALTH,             3),
     RO(RO_STARTING_ITEMS_1,            0),
-    RO(RO_STARTING_ITEMS_2,            2149581312),
-    RO(RO_STARTING_ITEMS_3,            2048),
+    RO(RO_STARTING_ITEMS_2,            0),
+    RO(RO_STARTING_ITEMS_3,            0),
+    RO(RO_STARTING_ITEMS_4,            0),
+    RO(RO_STARTING_ITEMS_5,            0),
+    RO(RO_STARTING_ITEMS_6,            0),
     RO(RO_STARTING_MAPS_AND_COMPASSES, RO_GENERIC_OFF),
     RO(RO_STARTING_RUPEES,             RO_GENERIC_OFF),
 };
