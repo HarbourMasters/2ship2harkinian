@@ -241,11 +241,13 @@ class GameInteractor {
         HooksToUnregister<H>::hooks.push_back(hookId);
     }
     template <typename H, typename... Args> void ExecuteHooks(Args&&... args) {
+        // Remove pending hooks for this type
         for (auto& hookId : HooksToUnregister<H>::hooks) {
             RegisteredGameHooks<H>::functions.erase(hookId);
             RegisteredGameHooks<H>::hookData.erase(hookId);
         }
         HooksToUnregister<H>::hooks.clear();
+        // Execute hooks
         for (auto& hook : RegisteredGameHooks<H>::functions) {
             hook.second(std::forward<Args>(args)...);
             RegisteredGameHooks<H>::hookData[hook.first].calls += 1;
@@ -277,20 +279,34 @@ class GameInteractor {
         HooksToUnregister<H>::hooksForID.push_back(hookId);
     }
     template <typename H, typename... Args> void ExecuteHooksForID(int32_t id, Args&&... args) {
-        for (auto& hookId : HooksToUnregister<H>::hooksForID) {
+        // Remove pending hooks for this type
+        for (auto hookIdIt = HooksToUnregister<H>::hooksForID.begin();
+             hookIdIt != HooksToUnregister<H>::hooksForID.end();) {
+            bool remove = false;
+
+            if (RegisteredGameHooks<H>::functionsForID[id].size() == 0) {
+                break;
+            }
+
             for (auto it = RegisteredGameHooks<H>::functionsForID[id].begin();
                  it != RegisteredGameHooks<H>::functionsForID[id].end();) {
-                if (it->first == hookId) {
+                if (it->first == *hookIdIt) {
                     it = RegisteredGameHooks<H>::functionsForID[id].erase(it);
-                    HooksToUnregister<H>::hooksForID.erase(std::remove(HooksToUnregister<H>::hooksForID.begin(),
-                                                                       HooksToUnregister<H>::hooksForID.end(), hookId),
-                                                           HooksToUnregister<H>::hooksForID.end());
-                    RegisteredGameHooks<H>::hookData.erase(hookId);
+                    RegisteredGameHooks<H>::hookData.erase(*hookIdIt);
+                    remove = true;
+                    break;
                 } else {
                     ++it;
                 }
             }
+
+            if (remove) {
+                hookIdIt = HooksToUnregister<H>::hooksForID.erase(hookIdIt);
+            } else {
+                ++hookIdIt;
+            }
         }
+        // Execute hooks
         for (auto& hook : RegisteredGameHooks<H>::functionsForID[id]) {
             hook.second(std::forward<Args>(args)...);
             RegisteredGameHooks<H>::hookData[hook.first].calls += 1;
@@ -322,21 +338,34 @@ class GameInteractor {
         HooksToUnregister<H>::hooksForPtr.push_back(hookId);
     }
     template <typename H, typename... Args> void ExecuteHooksForPtr(uintptr_t ptr, Args&&... args) {
-        for (auto& hookId : HooksToUnregister<H>::hooksForPtr) {
+        // Remove pending hooks for this type
+        for (auto hookIdIt = HooksToUnregister<H>::hooksForPtr.begin();
+             hookIdIt != HooksToUnregister<H>::hooksForPtr.end();) {
+            bool remove = false;
+
+            if (RegisteredGameHooks<H>::functionsForPtr[ptr].size() == 0) {
+                break;
+            }
+
             for (auto it = RegisteredGameHooks<H>::functionsForPtr[ptr].begin();
                  it != RegisteredGameHooks<H>::functionsForPtr[ptr].end();) {
-                if (it->first == hookId) {
+                if (it->first == *hookIdIt) {
                     it = RegisteredGameHooks<H>::functionsForPtr[ptr].erase(it);
-                    HooksToUnregister<H>::hooksForPtr.erase(std::remove(HooksToUnregister<H>::hooksForPtr.begin(),
-                                                                        HooksToUnregister<H>::hooksForPtr.end(),
-                                                                        hookId),
-                                                            HooksToUnregister<H>::hooksForPtr.end());
-                    RegisteredGameHooks<H>::hookData.erase(hookId);
+                    RegisteredGameHooks<H>::hookData.erase(*hookIdIt);
+                    remove = true;
+                    break;
                 } else {
                     ++it;
                 }
             }
+
+            if (remove) {
+                hookIdIt = HooksToUnregister<H>::hooksForPtr.erase(hookIdIt);
+            } else {
+                ++hookIdIt;
+            }
         }
+        // Execute hooks
         for (auto& hook : RegisteredGameHooks<H>::functionsForPtr[ptr]) {
             hook.second(std::forward<Args>(args)...);
             RegisteredGameHooks<H>::hookData[hook.first].calls += 1;
@@ -369,17 +398,73 @@ class GameInteractor {
         HooksToUnregister<H>::hooksForFilter.push_back(hookId);
     }
     template <typename H, typename... Args> void ExecuteHooksForFilter(Args&&... args) {
+        // Remove pending hooks for this type
         for (auto& hookId : HooksToUnregister<H>::hooksForFilter) {
             RegisteredGameHooks<H>::functionsForFilter.erase(hookId);
             RegisteredGameHooks<H>::hookData.erase(hookId);
         }
         HooksToUnregister<H>::hooksForFilter.clear();
+        // Execute hooks
         for (auto& hook : RegisteredGameHooks<H>::functionsForFilter) {
             if (hook.second.first(std::forward<Args>(args)...)) {
                 hook.second.second(std::forward<Args>(args)...);
                 RegisteredGameHooks<H>::hookData[hook.first].calls += 1;
             }
         }
+    }
+
+    template <typename H> void ProcessUnregisteredHooks() {
+        // Normal
+        for (auto& hookId : HooksToUnregister<H>::hooks) {
+            RegisteredGameHooks<H>::functions.erase(hookId);
+            RegisteredGameHooks<H>::hookData.erase(hookId);
+        }
+        HooksToUnregister<H>::hooks.clear();
+
+        // ID
+        for (auto& hookId : HooksToUnregister<H>::hooksForID) {
+            for (auto& idGroup : RegisteredGameHooks<H>::functionsForID) {
+                for (auto it = idGroup.second.begin(); it != idGroup.second.end();) {
+                    if (it->first == hookId) {
+                        it = idGroup.second.erase(it);
+                        RegisteredGameHooks<H>::hookData.erase(hookId);
+                    } else {
+                        ++it;
+                    }
+                }
+            }
+        }
+        HooksToUnregister<H>::hooksForID.clear();
+
+        // Ptr
+        for (auto& hookId : HooksToUnregister<H>::hooksForPtr) {
+            for (auto& ptrGroup : RegisteredGameHooks<H>::functionsForPtr) {
+                for (auto it = ptrGroup.second.begin(); it != ptrGroup.second.end();) {
+                    if (it->first == hookId) {
+                        it = ptrGroup.second.erase(it);
+                        RegisteredGameHooks<H>::hookData.erase(hookId);
+                    } else {
+                        ++it;
+                    }
+                }
+            }
+        }
+        HooksToUnregister<H>::hooksForPtr.clear();
+
+        // Filter
+        for (auto& hookId : HooksToUnregister<H>::hooksForFilter) {
+            RegisteredGameHooks<H>::functionsForFilter.erase(hookId);
+            RegisteredGameHooks<H>::hookData.erase(hookId);
+        }
+        HooksToUnregister<H>::hooksForFilter.clear();
+    }
+
+    void RemoveAllQueuedHooks() {
+#define DEFINE_HOOK(name, _) ProcessUnregisteredHooks<name>();
+
+#include "GameInteractor_HookTable.h"
+
+#undef DEFINE_HOOK
     }
 
     class HookFilter {

@@ -8,6 +8,9 @@ extern "C" {
 #include <libultraship/bridge.h>
 
 void GameInteractor_ExecuteOnGameStateMainStart() {
+    // Cleanup all hooks at the start of each frame
+    GameInteractor::Instance->RemoveAllQueuedHooks();
+
     GameInteractor::Instance->ExecuteHooks<GameInteractor::OnGameStateMainStart>();
 }
 
