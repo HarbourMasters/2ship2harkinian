@@ -1427,6 +1427,13 @@ void BenMenu::AddDevTools() {
             "Enables the Gfx Debugger window, allowing you to input commands, type help for some examples"))
         .WindowName("GfxDebuggerWindow");
 
+    path = { "Dev Tools", "Hook Debugger", 1 };
+    AddSidebarEntry("Dev Tools", "Hook Debugger", 1);
+    AddWidget(path, "Popout Hook Debugger", WIDGET_WINDOW_BUTTON)
+        .CVar("gWindows.HookDebugger")
+        .Options(ButtonOptions().Tooltip("Enables the Hook Debugger window, for viewing info about registered hooks"))
+        .WindowName("Hook Debugger");
+
     path = { "Dev Tools", "Save Editor", 1 };
     AddSidebarEntry("Dev Tools", "Save Editor", 1);
     AddWidget(path, "Popout Save Editor", WIDGET_WINDOW_BUTTON)
