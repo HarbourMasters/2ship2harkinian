@@ -8718,6 +8718,7 @@ void func_8083A98C(Actor* thisx, PlayState* play2) {
             Message_StartTextbox(play, (play->sceneId == SCENE_AYASHIISHOP) ? 0x2A00 : 0x5E6, NULL);
         }
     } else {
+        // TODO: add mouse
         sPlayerControlInput = play->state.input;
         if (play->view.fovy >= 25.0f) {
             s16 prevFocusX = thisx->focus.rot.x;
@@ -15350,7 +15351,7 @@ void Ship_HandleShielding(Player* this, PlayState* play) {
         xStick *= GameInteractor_InvertControl(GI_INVERT_SHIELD_X);
         yStick *= GameInteractor_InvertControl(GI_INVERT_SHIELD_Y);
 
-        s16 rotXTarget, rotYTarget;
+        s16 rotYTarget, rotXTarget;
         if (mouseControl) {
             // Plain shield movement instead of camera-relative one
             // TODO: control via cvar?
@@ -15366,7 +15367,7 @@ void Ship_HandleShielding(Player* this, PlayState* play) {
         rotYTarget = CLAMP(rotYTarget, -60 * 120, 60 * 120);
         rotXTarget = CLAMP(rotXTarget, -60 * 180, 0xDAC);
 
-        s16 rotXStep, rotYStep;
+        s16 rotYStep, rotXStep;
         rotYStep = ABS_ALT(rotYTarget - this->upperLimbRot.y) / 4;
         rotYStep = CLAMP_MIN(rotYStep, 0x32);
         rotXStep = ABS_ALT(rotXTarget - this->actor.focus.rot.x) / 4;
