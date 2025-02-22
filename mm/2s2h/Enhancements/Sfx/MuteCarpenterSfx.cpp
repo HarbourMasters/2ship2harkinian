@@ -20,7 +20,7 @@ void RegisterMuteCarpenterSfx() {
         }
 
         if ((objSound->actor.params & OBJ_SOUND_ID_MASK) == 16) {
-            Actor_Kill(&objSound->actor);
+            *should = false;
         }
     });
 }
