@@ -104,7 +104,7 @@ bool Camera_FreeLook(Camera* camera) {
         && !(CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 0) && player->stateFlags1 & PLAYER_STATE1_400000)
     ) {
         MouseCoords mouseDelta = Mouse_GetDelta();
-        yawDiff += mouseDelta.x * 40.0f;
+        yawDiff -= mouseDelta.x * 40.0f;
         pitchDiff -= mouseDelta.y * 40.0f;
     }
 
