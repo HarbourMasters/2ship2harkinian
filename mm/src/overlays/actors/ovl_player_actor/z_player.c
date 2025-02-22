@@ -13534,6 +13534,7 @@ s32 Ship_HandleFirstPersonAiming(PlayState* play, Player* this, s32 arg2) {
     if (CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured()) {
         MouseCoords mouseDelta = Mouse_GetDelta();
 
+        // TODO: gyro?
         if (mouseDelta.x != 0) {
             this->actor.focus.rot.y += mouseDelta.x * 12.0f *
                                        CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityX", 1.0f) *

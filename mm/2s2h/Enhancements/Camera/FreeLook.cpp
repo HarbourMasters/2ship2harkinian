@@ -125,6 +125,7 @@ bool Camera_FreeLook(Camera* camera) {
     }
 
     f32 distTarget = CVarGetInteger("gEnhancements.Camera.FreeLook.MaxCameraDistance", roData->unk_04);
+    // TODO: try with different transition
     f32 transitionSpeed = CVarGetInteger("gEnhancements.Camera.FreeLook.TransitionSpeed", 25);
     // Smooth step camera away to max camera distance. Camera collision is calculated later
     camera->dist = Camera_ScaledStepToCeilF(distTarget, camera->dist,
