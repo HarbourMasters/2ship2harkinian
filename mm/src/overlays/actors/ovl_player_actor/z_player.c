@@ -13541,7 +13541,7 @@ s32 Ship_HandleFirstPersonAiming(PlayState* play, Player* this, s32 arg2) {
                                        -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_RIGHT_STICK_X);
         }
         if (mouseDelta.y != 0) {
-            this->actor.focus.rot.x += mouseDelta.y * 12.0f *
+            this->actor.focus.rot.x -= mouseDelta.y * 12.0f *
                                        CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityY", 1.0f) *
                                        -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_RIGHT_STICK_Y);
         }

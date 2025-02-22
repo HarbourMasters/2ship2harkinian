@@ -163,19 +163,21 @@ bool Camera_FreeLook(Camera* camera) {
 }
 
 bool Camera_CanFreeLook(Camera* camera) {
-    f32 camX = sCamPlayState->state.input[0].cur.right_stick_x * 10.0f;
-    f32 camY = sCamPlayState->state.input[0].cur.right_stick_y * 10.0f;
-
-    if (CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured()) {
+    if (!sCanFreeLook && CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured()) {
         MouseCoords mouseDelta = Mouse_GetDelta();
-        camX -= mouseDelta.x * 40.0f;
-        camY -= mouseDelta.y * 40.0f;
-        sCanFreeLook = true;
+        if (mouseDelta.x != 0 || mouseDelta.y != 0) {
+            sCanFreeLook = true;
+        }
     }
 
-    if (!sCanFreeLook && (fabsf(camX) >= 15.0f || fabsf(camY) >= 15.0f)) {
-        sCanFreeLook = true;
+    if (!sCanFreeLook) {
+        f32 camX = sCamPlayState->state.input[0].cur.right_stick_x * 10.0f;
+        f32 camY = sCamPlayState->state.input[0].cur.right_stick_y * 10.0f;
+        if (fabsf(camX) >= 15.0f || fabsf(camY) >= 15.0f) {
+            sCanFreeLook = true;
+        }
     }
+
     // TODO: check Z target mode potential
     // Pressing Z will "Reset" Camera
     if (CHECK_BTN_ALL(sCamPlayState->state.input[0].press.button, BTN_Z)) {
