@@ -13536,13 +13536,13 @@ s32 Ship_HandleFirstPersonAiming(PlayState* play, Player* this, s32 arg2) {
 
         if (mouseDelta.x != 0) {
             this->actor.focus.rot.y += mouseDelta.x * 12.0f *
-                                       CVarGetFloat("gEnhancements.Camera.Mouse.FirstPerson.SensitivityX", 1.0f) *
-                                       -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_MOUSE_X);
+                                       CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityX", 1.0f) *
+                                       -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_RIGHT_STICK_X);
         }
         if (mouseDelta.y != 0) {
             this->actor.focus.rot.x += mouseDelta.y * 12.0f *
-                                       CVarGetFloat("gEnhancements.Camera.Mouse.FirstPerson.SensitivityY", 1.0f) *
-                                       -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_MOUSE_Y);
+                                       CVarGetFloat("gEnhancements.Camera.FirstPerson.RightStickSensitivityY", 1.0f) *
+                                       -GameInteractor_InvertControl(GI_INVERT_FIRST_PERSON_RIGHT_STICK_Y);
         }
     }
 
@@ -15330,7 +15330,7 @@ void Ship_HandleShielding(Player* this, PlayState* play) {
         f32 yStick = sPlayerControlInput->rel.stick_y * 180;
         s16 camRelativeCurrentYRot = this->actor.shape.rot.y - Camera_GetInputDirYaw(GET_ACTIVE_CAM(play));
 
-        bool mouseControl = (CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 1));
+        bool mouseControl = (CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 0));
         if (mouseControl) {
             MouseCoords mousePos = Mouse_GetPos();
             u32 width = OTRGetCurrentWidth();

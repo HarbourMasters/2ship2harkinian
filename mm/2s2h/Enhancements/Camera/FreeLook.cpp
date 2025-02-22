@@ -96,24 +96,23 @@ bool Camera_FreeLook(Camera* camera) {
 
     Camera_ResetActionFuncState(camera, camera->mode);
 
-    f32 yawDiff = -sCamPlayState->state.input[0].cur.right_stick_x * 10.0f *
-                  (CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.X", 1.0f));
-    f32 pitchDiff = sCamPlayState->state.input[0].cur.right_stick_y * 10.0f *
-                    (CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.Y", 1.0f));
-
-    yaw += yawDiff * GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_X);
-    pitch += pitchDiff * -GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_Y);
+    f32 yawDiff = -sCamPlayState->state.input[0].cur.right_stick_x * 10.0f;
+    f32 pitchDiff = sCamPlayState->state.input[0].cur.right_stick_y * 10.0f;
 
     if (CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured()
         // Disable mouse camera control when holding up a shield
-        && !(CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 1) && player->stateFlags1 & PLAYER_STATE1_400000)
+        && !(CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 0) && player->stateFlags1 & PLAYER_STATE1_400000)
     ) {
         MouseCoords mouseDelta = Mouse_GetDelta();
-        yaw -= mouseDelta.x * 40.0f * CVarGetFloat("gEnhancements.Camera.Mouse.CameraSensitivity.X", 1.0f) *
-               GameInteractor_InvertControl(GI_INVERT_CAMERA_MOUSE_X);
-        pitch -= mouseDelta.y * 40.0f * CVarGetFloat("gEnhancements.Camera.Mouse.CameraSensitivity.Y", 1.0f) *
-                 -GameInteractor_InvertControl(GI_INVERT_CAMERA_MOUSE_Y);
+        yaw -= mouseDelta.x * 40.0f;
+        pitch -= mouseDelta.y * 40.0f;
     }
+
+    yawDiff *= CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.X", 1.0f) * GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_X);
+    pitchDiff *= CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.Y", 1.0f) * -GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_Y);
+
+    yaw += yawDiff;
+    pitch += pitchDiff;
 
     s16 maxPitch = DEG_TO_BINANG(CVarGetFloat("gEnhancements.Camera.FreeLook.MaxPitch", 72.0f));
     s16 minPitch = DEG_TO_BINANG(CVarGetFloat("gEnhancements.Camera.FreeLook.MinPitch", -49.0f));
