@@ -50,15 +50,12 @@ extern "C" {
 #include "archives/icon_item_24_static/icon_item_24_static_yar.h"
 }
 
-std::bitset<32> loadedItemBitset;
-
 std::bitset<32> LoadBitset(RandoOptionId optionId) {
     std::bitset<32> selectedItemsBitset = CVarGetInteger(Rando::StaticData::Options[optionId].cvar, 0);
     return selectedItemsBitset;
 }
 
-bool CheckStartingItemsBitset(RandoItemId randoItemId) {
-    uint32_t item = randoItemId % 32;
+std::bitset<32> GetBitset(RandoItemId randoItemId) {
     std::bitset<32> selectedItemsBitset;
     if (randoItemId <= RI_DEKU_NUTS_5) {
         selectedItemsBitset = LoadBitset(RO_STARTING_ITEMS_1);
@@ -73,48 +70,7 @@ bool CheckStartingItemsBitset(RandoItemId randoItemId) {
     } else {
         selectedItemsBitset = LoadBitset(RO_STARTING_ITEMS_6);
     }
-
-    return selectedItemsBitset.test(item);
-}
-
-static void SetStartingItemsBitset(RandoItemId randoItemId) {
-    uint32_t item = randoItemId % 32;
-    std::bitset<32> selectedItemsBitset;
-    if (randoItemId <= RI_DEKU_NUTS_5) {
-        selectedItemsBitset = LoadBitset(RO_STARTING_ITEMS_1);
-    } else if (randoItemId <= RI_MASK_CAPTAIN) {
-        selectedItemsBitset = LoadBitset(RO_STARTING_ITEMS_2);
-    } else if (randoItemId <= RI_OWL_SOUTHERN_SWAMP) {
-        selectedItemsBitset = LoadBitset(RO_STARTING_ITEMS_3);
-    } else if (randoItemId <= RI_SNOWHEAD_BOSS_KEY) {
-        selectedItemsBitset = LoadBitset(RO_STARTING_ITEMS_4);
-    } else if (randoItemId <= RI_TINGLE_MAP_CLOCK_TOWN) {
-        selectedItemsBitset = LoadBitset(RO_STARTING_ITEMS_5);
-    } else {
-        selectedItemsBitset = LoadBitset(RO_STARTING_ITEMS_6);
-    }
-    selectedItemsBitset.set(item);
-    loadedItemBitset = selectedItemsBitset;
-}
-
-static void UnSetStartingItemsBitset(RandoItemId randoItemId) {
-    uint32_t item = randoItemId % 32;
-    std::bitset<32> selectedItemsBitset;
-    if (randoItemId <= RI_DEKU_NUTS_5) {
-        selectedItemsBitset = LoadBitset(RO_STARTING_ITEMS_1);
-    } else if (randoItemId <= RI_MASK_CAPTAIN) {
-        selectedItemsBitset = LoadBitset(RO_STARTING_ITEMS_2);
-    } else if (randoItemId <= RI_OWL_SOUTHERN_SWAMP) {
-        selectedItemsBitset = LoadBitset(RO_STARTING_ITEMS_3);
-    } else if (randoItemId <= RI_SNOWHEAD_BOSS_KEY) {
-        selectedItemsBitset = LoadBitset(RO_STARTING_ITEMS_4);
-    } else if (randoItemId <= RI_TINGLE_MAP_CLOCK_TOWN) {
-        selectedItemsBitset = LoadBitset(RO_STARTING_ITEMS_5);
-    } else {
-        selectedItemsBitset = LoadBitset(RO_STARTING_ITEMS_6);
-    }
-    selectedItemsBitset.reset(item);
-    loadedItemBitset = selectedItemsBitset;
+    return selectedItemsBitset;
 }
 
 static void SaveStartingItemsBitset(std::bitset<32> bitset, RandoItemId randoItemId) {
@@ -135,49 +91,255 @@ static void SaveStartingItemsBitset(std::bitset<32> bitset, RandoItemId randoIte
     CVarSetInteger(Rando::StaticData::Options[optionId].cvar, bitset.to_ulong());
 }
 
+bool CheckStartingItemsBitset(RandoItemId randoItemId) {
+    uint32_t item = randoItemId % 32;
+    std::bitset<32> selectedItemsBitset = GetBitset(randoItemId);
+
+    return selectedItemsBitset.test(item);
+}
+
+static void SetStartingItemsBit(RandoItemId randoItemId) {
+    uint32_t item = randoItemId % 32;
+    std::bitset<32> selectedItemsBitset = GetBitset(randoItemId);
+    selectedItemsBitset.set(item);
+    SaveStartingItemsBitset(selectedItemsBitset, randoItemId);
+}
+
+static void ResetStartingItemsBit(RandoItemId randoItemId) {
+    uint32_t item = randoItemId % 32;
+    std::bitset<32> selectedItemsBitset = GetBitset(randoItemId);
+    selectedItemsBitset.reset(item);
+    SaveStartingItemsBitset(selectedItemsBitset, randoItemId);
+}
+
+static void FlipStartingItemsBitset(RandoItemId randoItemId) {
+    uint32_t item = randoItemId % 32;
+    std::bitset<32> selectedItemsBitset;
+
+    switch (randoItemId) {
+        case RI_PROGRESSIVE_BOW:
+            if (CheckStartingItemsBitset(RI_QUIVER_50)) {
+                ResetStartingItemsBit(RI_QUIVER_50);
+                ResetStartingItemsBit(RI_QUIVER_40);
+                ResetStartingItemsBit(RI_BOW);
+                ResetStartingItemsBit(RI_PROGRESSIVE_BOW);
+            } else if (CheckStartingItemsBitset(RI_QUIVER_40)) {
+                SetStartingItemsBit(RI_QUIVER_50);
+            } else if (CheckStartingItemsBitset(RI_BOW)) {
+                SetStartingItemsBit(RI_QUIVER_40);
+            } else {
+                SetStartingItemsBit(RI_BOW);
+                SetStartingItemsBit(RI_PROGRESSIVE_BOW);
+            }
+            break;
+        case RI_PROGRESSIVE_BOMB_BAG:
+            if (CheckStartingItemsBitset(RI_BOMB_BAG_40)) {
+                ResetStartingItemsBit(RI_BOMB_BAG_40);
+                ResetStartingItemsBit(RI_BOMB_BAG_30);
+                ResetStartingItemsBit(RI_BOMB_BAG_20);
+                ResetStartingItemsBit(RI_BOMBCHU);
+                ResetStartingItemsBit(RI_PROGRESSIVE_BOMB_BAG);
+            } else if (CheckStartingItemsBitset(RI_BOMB_BAG_30)) {
+                SetStartingItemsBit(RI_BOMB_BAG_40);
+            } else if (CheckStartingItemsBitset(RI_BOMB_BAG_20)) {
+                SetStartingItemsBit(RI_BOMB_BAG_30);
+            } else {
+                SetStartingItemsBit(RI_BOMB_BAG_20);
+                SetStartingItemsBit(RI_BOMBCHU);
+                SetStartingItemsBit(RI_PROGRESSIVE_BOMB_BAG);
+            }
+            break;
+        case RI_PROGRESSIVE_MAGIC:
+            if (CheckStartingItemsBitset(RI_DOUBLE_MAGIC)) {
+                ResetStartingItemsBit(RI_DOUBLE_MAGIC);
+                ResetStartingItemsBit(RI_SINGLE_MAGIC);
+                ResetStartingItemsBit(RI_PROGRESSIVE_MAGIC);
+            } else if (CheckStartingItemsBitset(RI_SINGLE_MAGIC)) {
+                SetStartingItemsBit(RI_DOUBLE_MAGIC);
+            } else {
+                SetStartingItemsBit(RI_SINGLE_MAGIC);
+                SetStartingItemsBit(RI_PROGRESSIVE_MAGIC);
+            }
+            break;
+        case RI_PROGRESSIVE_SWORD:
+            if (CheckStartingItemsBitset(RI_SWORD_GILDED)) {
+                ResetStartingItemsBit(RI_SWORD_GILDED);
+                ResetStartingItemsBit(RI_SWORD_RAZOR);
+                ResetStartingItemsBit(RI_SWORD_KOKIRI);
+                ResetStartingItemsBit(RI_PROGRESSIVE_SWORD);
+            } else if (CheckStartingItemsBitset(RI_SWORD_RAZOR)) {
+                SetStartingItemsBit(RI_SWORD_GILDED);
+            } else if (CheckStartingItemsBitset(RI_SWORD_KOKIRI)) {
+                SetStartingItemsBit(RI_SWORD_RAZOR);
+            } else {
+                SetStartingItemsBit(RI_SWORD_KOKIRI);
+                SetStartingItemsBit(RI_PROGRESSIVE_SWORD);
+            }
+            break;
+        case RI_PROGRESSIVE_WALLET:
+            if (CheckStartingItemsBitset(RI_WALLET_GIANT)) {
+                ResetStartingItemsBit(RI_WALLET_GIANT);
+                ResetStartingItemsBit(RI_WALLET_ADULT);
+                ResetStartingItemsBit(RI_PROGRESSIVE_WALLET);
+            } else if (CheckStartingItemsBitset(RI_WALLET_ADULT)) {
+                SetStartingItemsBit(RI_WALLET_GIANT);
+            } else {
+                SetStartingItemsBit(RI_WALLET_ADULT);
+                SetStartingItemsBit(RI_PROGRESSIVE_WALLET);
+            }
+            break;
+        case RI_PROGRESSIVE_LULLABY:
+            if (CheckStartingItemsBitset(RI_SONG_LULLABY)) {
+                ResetStartingItemsBit(RI_SONG_LULLABY);
+                ResetStartingItemsBit(RI_SONG_LULLABY_INTRO);
+                ResetStartingItemsBit(RI_PROGRESSIVE_LULLABY);
+            } else if (CheckStartingItemsBitset(RI_SONG_LULLABY_INTRO)) {
+                SetStartingItemsBit(RI_SONG_LULLABY);
+            } else {
+                SetStartingItemsBit(RI_SONG_LULLABY_INTRO);
+                SetStartingItemsBit(RI_PROGRESSIVE_LULLABY);
+            }
+            break;
+        case RI_SHIELD_HERO:
+            if (CheckStartingItemsBitset(RI_SHIELD_MIRROR)) {
+                ResetStartingItemsBit(RI_SHIELD_MIRROR);
+                ResetStartingItemsBit(RI_SHIELD_HERO);
+            } else if (CheckStartingItemsBitset(RI_SHIELD_HERO)) {
+                SetStartingItemsBit(RI_SHIELD_MIRROR);
+            } else {
+                SetStartingItemsBit(RI_SHIELD_HERO);
+            }
+            break;
+        default:
+            selectedItemsBitset = GetBitset(randoItemId);
+            selectedItemsBitset.flip(item);
+            SaveStartingItemsBitset(selectedItemsBitset, randoItemId);
+            break;
+    }
+}
+
+ImVec4 GetBorderColor(RandoItemId randoItemId, bool isChecked) {
+    switch (randoItemId) {
+        case RI_PROGRESSIVE_BOW:
+            if (CheckStartingItemsBitset(RI_QUIVER_50)) {
+                return UIWidgets::ColorValues.at(UIWidgets::Colors::Orange);
+            } else if (CheckStartingItemsBitset(RI_QUIVER_40)) {
+                return UIWidgets::ColorValues.at(UIWidgets::Colors::Purple);
+            } else if (CheckStartingItemsBitset(RI_BOW)) {
+                return UIWidgets::ColorValues.at(UIWidgets::Colors::White);
+            } else {
+                return ImVec4(1.0f, 1.0f, 1.0f, 0.0f);
+            }
+            break;
+        case RI_PROGRESSIVE_BOMB_BAG:
+            if (CheckStartingItemsBitset(RI_BOMB_BAG_40)) {
+                return UIWidgets::ColorValues.at(UIWidgets::Colors::Orange);
+            } else if (CheckStartingItemsBitset(RI_BOMB_BAG_30)) {
+                return UIWidgets::ColorValues.at(UIWidgets::Colors::Purple);
+            } else if (CheckStartingItemsBitset(RI_BOMB_BAG_20)) {
+                return UIWidgets::ColorValues.at(UIWidgets::Colors::White);
+            } else {
+                return ImVec4(1.0f, 1.0f, 1.0f, 0.0f);
+            }
+            break;
+        case RI_PROGRESSIVE_MAGIC:
+            if (CheckStartingItemsBitset(RI_DOUBLE_MAGIC)) {
+                return UIWidgets::ColorValues.at(UIWidgets::Colors::Purple);
+            } else if (CheckStartingItemsBitset(RI_SINGLE_MAGIC)) {
+                return UIWidgets::ColorValues.at(UIWidgets::Colors::White);
+            } else {
+                return ImVec4(1.0f, 1.0f, 1.0f, 0.0f);
+            }
+            break;
+        case RI_PROGRESSIVE_SWORD:
+            if (CheckStartingItemsBitset(RI_SWORD_GILDED)) {
+                return UIWidgets::ColorValues.at(UIWidgets::Colors::Orange);
+            } else if (CheckStartingItemsBitset(RI_SWORD_RAZOR)) {
+                return UIWidgets::ColorValues.at(UIWidgets::Colors::Purple);
+            } else if (CheckStartingItemsBitset(RI_SWORD_KOKIRI)) {
+                return UIWidgets::ColorValues.at(UIWidgets::Colors::White);
+            } else {
+                return ImVec4(1.0f, 1.0f, 1.0f, 0.0f);
+            }
+            break;
+        case RI_PROGRESSIVE_WALLET:
+            if (CheckStartingItemsBitset(RI_WALLET_GIANT)) {
+                return UIWidgets::ColorValues.at(UIWidgets::Colors::Purple);
+            } else if (CheckStartingItemsBitset(RI_WALLET_ADULT)) {
+                return UIWidgets::ColorValues.at(UIWidgets::Colors::White);
+            } else {
+                return ImVec4(1.0f, 1.0f, 1.0f, 0.0f);
+            }
+            break;
+        case RI_PROGRESSIVE_LULLABY:
+            if (CheckStartingItemsBitset(RI_SONG_LULLABY)) {
+                return UIWidgets::ColorValues.at(UIWidgets::Colors::Purple);
+            } else if (CheckStartingItemsBitset(RI_SONG_LULLABY_INTRO)) {
+                return UIWidgets::ColorValues.at(UIWidgets::Colors::White);
+            } else {
+                return ImVec4(1.0f, 1.0f, 1.0f, 0.0f);
+            }
+            break;
+        case RI_SHIELD_HERO:
+            if (CheckStartingItemsBitset(RI_SHIELD_MIRROR)) {
+                return UIWidgets::ColorValues.at(UIWidgets::Colors::Purple);
+            } else if (CheckStartingItemsBitset(RI_SHIELD_HERO)) {
+                return UIWidgets::ColorValues.at(UIWidgets::Colors::White);
+            } else {
+                return ImVec4(1.0f, 1.0f, 1.0f, 0.0f);
+            }
+            break;
+        default:
+            if (isChecked) {
+                return UIWidgets::ColorValues.at(UIWidgets::Colors::White);
+            } else {
+                return ImVec4(1.0f, 1.0f, 1.0f, 0.0f);
+            }
+            break;
+    }
+}
+
 static void DrawStartingItemSlot(RandoItemId item, f32 columnWidth, int8_t columnCount) {
     ImGui::PushID(item);
     std::string itemName = Rando::StaticData::Items[item].name;
     ImTextureID textureId = 0;
-    const char* texturePath = "";
+    const char* texturePath = Rando::StaticData::GetIconTexturePath(item);
 
-    bool checked = CheckStartingItemsBitset(item);
+    bool checked =
+        item == RI_BOMBCHU && CheckStartingItemsBitset(RI_PROGRESSIVE_BOMB_BAG) ? true : CheckStartingItemsBitset(item);
     bool isSong = item >= RI_SONG_ELEGY && item <= RI_SONG_TIME || item == RI_PROGRESSIVE_LULLABY;
 
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, isSong ? ImVec2(6.8f, 1.0f) : ImVec2(1.0f, 1.0f));
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding,
+                        isSong ? ImVec2(columnWidth / columnCount * 0.115f, 1.0f) : ImVec2(1.0f, 1.0f));
     ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(1.0f, 1.0f));
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 1.0f, 1.0f, 0.2f));
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 1.0f, 1.0f, 0.1f));
-    ImGui::PushStyleColor(ImGuiCol_Border, checked ? UIWidgets::ColorValues.at(UIWidgets::Colors::White)
-                                                   : ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
+    ImGui::PushStyleColor(ImGuiCol_Border, GetBorderColor(item, checked));
     ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 3.0f);
 
     ImVec2 buttonSize =
-        ImVec2((columnWidth / columnCount) * (isSong ? 0.65f : 0.85f), (columnWidth / columnCount) * 0.85f);
-    ImVec2 buttonPos = ImGui::GetCursorScreenPos();
-    ImVec4 buttonAlpha = iconColor((int16_t)item);
+        ImVec2((columnWidth / columnCount) * (isSong ? 0.55f : 0.75f), (columnWidth / columnCount) * 0.75f);
 
-    texturePath = Rando::StaticData::GetIconTexturePath(item);
-    textureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(texturePath);
-
-    if (item == RI_BOMBCHU && !CheckStartingItemsBitset(RI_PROGRESSIVE_BOMB_BAG)) {
-        buttonAlpha.w = 0.4f;
-    }
-
-    if (ImGui::ImageButton(
-            std::to_string(item).c_str(), textureId,
-            ImVec2((columnWidth / columnCount) * (isSong ? 0.65f : 0.85f), (columnWidth / columnCount) * 0.85f),
-            ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), buttonAlpha)) {
-        if (item != RI_BOMBCHU) {
-            loadedItemBitset = 0;
-            if (checked) {
-                UnSetStartingItemsBitset(item);
-            } else {
-                SetStartingItemsBitset(item);
+    for (auto& progressive : Rando::StaticData::ProgressiveItemsMap) {
+        if (progressive.first != item) {
+            continue;
+        }
+        for (auto& upgItem : progressive.second) {
+            if (CheckStartingItemsBitset(upgItem)) {
+                texturePath = Rando::StaticData::GetIconTexturePath(upgItem);
+                break;
             }
         }
-        SaveStartingItemsBitset(loadedItemBitset, item);
+    }
+
+    textureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(texturePath);
+
+    if (ImGui::ImageButton(std::to_string(item).c_str(), textureId, buttonSize, ImVec2(0, 0), ImVec2(1, 1),
+                           ImVec4(0, 0, 0, 0), iconColor((int16_t)item))) {
+        if (item != RI_BOMBCHU) {
+            FlipStartingItemsBitset(item);
+        }
 
         Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
     }
@@ -373,71 +535,25 @@ static void DrawItemsTab() {
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
     ImGui::EndChild();
     ImGui::BeginChild("randoItemsStarting", ImVec2(0, 0));
-    // ImGui::BeginChild("randoStartingItemsColumn1", ImVec2(columnWidth, 0));
-    // ImGui::SeparatorText("Starting Options");
-    // CVarCheckbox("Wallet Full", Rando::StaticData::Options[RO_STARTING_RUPEES].cvar);
-    // CVarCheckbox("Consumables Full", Rando::StaticData::Options[RO_STARTING_CONSUMABLES].cvar);
-    // CVarCheckbox("Maps and Compasses", Rando::StaticData::Options[RO_STARTING_MAPS_AND_COMPASSES].cvar);
-    // CVarSliderInt("Health", Rando::StaticData::Options[RO_STARTING_HEALTH].cvar,
-    //               IntSliderOptions()
-    //                   .Min(1)
-    //                   .Max(20)
-    //                   .DefaultValue(3)
-    //                   .LabelPosition(LabelPosition::None)
-    //                   .Format("%d Hearts")
-    //                   .Color(Colors::Red));
-    // ImGui::EndChild();
-    // ImGui::SameLine();
-    // ImGui::BeginChild("randoStartingItemsColumn2", ImVec2(columnWidth, 0));
-    // ImGui::SeparatorText("Starting Items");
-    // int checkedItemIndex = 0;
-    // for (size_t i = 0; i < Rando::StaticData::StartingItemsMap.size(); i++) {
-    //     RandoItemId itemId = Rando::StaticData::StartingItemsMap[i];
-    //     std::string itemName = Rando::StaticData::Items[itemId].name;
-    //     RandoOptionId optionId;
-    //     uint32_t defaults = 0;
-    //     if (i < 32) {
-    //         optionId = RO_STARTING_ITEMS_1;
-    //     } else if (i < 64) {
-    //         optionId = RO_STARTING_ITEMS_2;
-    //         defaults = -2145385984;
-    //     } else {
-    //         optionId = RO_STARTING_ITEMS_3;
-    //         defaults = 2048;
-    //     }
-    //     uint32_t startingItems = CVarGetInteger(Rando::StaticData::Options[optionId].cvar, defaults);
-    //
-    //     bool checked = (startingItems & (1 << i)) != 0;
-    //     if (checked) {
-    //         const char* texturePath = Rando::StaticData::GetIconTexturePath(itemId);
-    //         ImTextureID textureId =
-    //         Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(texturePath);
-    //         ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
-    //         ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0, 0));
-    //         ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
-    //         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 1.0f, 1.0f, 0.2f));
-    //         ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(1.0f, 1.0f, 1.0f, 0.1f));
-    //         if (ImGui::ImageButton(std::to_string(i).c_str(), textureId, ImVec2(columnWidth / 8, columnWidth / 8),
-    //                                ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0), iconColor((int16_t)itemId))) {
-    //             startingItems &= ~(1 << i);
-    //             CVarSetInteger(Rando::StaticData::Options[optionId].cvar, startingItems);
-    //             Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-    //         }
-    //         ImGui::PopStyleColor(3);
-    //         ImGui::PopStyleVar(2);
-    //         UIWidgets::Tooltip(itemName.c_str());
-    //         checkedItemIndex++;
-    //     }
-    //     if (checkedItemIndex % 8 != 0) {
-    //         ImGui::SameLine(0, 0);
-    //     }
-    // }
-    // ImGui::EndChild();
-    // ImGui::SameLine();
-    ImGui::BeginChild("randoStartingItemsColumn1",
+    ImGui::BeginChild("randoStartingItemsColumn1", ImVec2(columnWidth, 0));
+    ImGui::SeparatorText("Starting Options");
+    CVarCheckbox("Wallet Full", Rando::StaticData::Options[RO_STARTING_RUPEES].cvar);
+    CVarCheckbox("Consumables Full", Rando::StaticData::Options[RO_STARTING_CONSUMABLES].cvar);
+    CVarCheckbox("Maps and Compasses", Rando::StaticData::Options[RO_STARTING_MAPS_AND_COMPASSES].cvar);
+    CVarSliderInt("Health", Rando::StaticData::Options[RO_STARTING_HEALTH].cvar,
+                  IntSliderOptions()
+                      .Min(1)
+                      .Max(20)
+                      .DefaultValue(3)
+                      .LabelPosition(LabelPosition::None)
+                      .Format("%d Hearts")
+                      .Color(Colors::Red));
+    ImGui::EndChild();
+    ImGui::SameLine();
+    ImGui::BeginChild("randoStartingItemsColumn2",
                       ImVec2(ImGui::GetContentRegionAvail().x - (ImGui::GetStyle().ItemSpacing.x * 2), 0));
     ImGui::SeparatorText("Available Items");
-    if (ImGui::BeginTable("Starting Items Table", 3, 0,
+    if (ImGui::BeginTable("Starting Items Table", 2, 0,
                           ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y))) {
         ImGui::TableNextColumn();
         for (auto& category : Rando::StaticData::StartingItemsMap) {
@@ -446,14 +562,19 @@ static void DrawItemsTab() {
             int uncheckedItemIndex = 0;
             int8_t columnCount = startingItemCategoryLabels[category.first].second;
 
-            ImGui::SeparatorText(startingItemCategoryLabels[category.first].first);
-
             for (auto& item : Rando::StaticData::StartingItemsMap[category.first]) {
+                if (std::find(Rando::StaticData::StartingItemsExclusions.begin(),
+                              Rando::StaticData::StartingItemsExclusions.end(),
+                              item) != Rando::StaticData::StartingItemsExclusions.end()) {
+                    continue;
+                }
                 DrawStartingItemSlot(item, columnWidth, columnCount);
                 uncheckedItemIndex++;
 
                 if (uncheckedItemIndex % columnCount != 0) {
-                    ImGui::SameLine(0, 0);
+                    ImGui::SameLine(0, 7.0f);
+                } else {
+                    ImGui::Dummy(ImVec2(0, 0));
                 }
             }
             ImGui::EndChild();
