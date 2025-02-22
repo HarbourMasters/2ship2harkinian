@@ -42,7 +42,8 @@ struct RandoStaticItem {
 
 extern std::map<RandoItemId, RandoStaticItem> Items;
 extern std::unordered_map<StartingItemCategory, std::vector<RandoItemId>> StartingItemsMap;
-extern std::vector<RandoItemId> StartingItemsMaps;
+extern std::vector<RandoItemId> StartingItemsExclusions;
+extern std::unordered_map<RandoItemId, std::vector<RandoItemId>> ProgressiveItemsMap;
 
 RandoItemId GetItemIdFromName(const char* name);
 u8 GetIconForZMessage(RandoItemId itemId);
