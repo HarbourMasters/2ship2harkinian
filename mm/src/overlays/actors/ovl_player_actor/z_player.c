@@ -15344,7 +15344,7 @@ void Ship_HandleShielding(Player* this, PlayState* play) {
             centerX = (f32)width / 2;
             centerY = (f32)height / 2;
             xStick += ((f32)mousePos.x - centerX) * (60 * -120) / centerX;
-            yStick += ((f32)mousePos.y - centerY) * (60 * 180) / centerY;
+            yStick -= ((f32)mousePos.y - centerY) * (60 * 180) / centerY;
         }
 
         xStick *= GameInteractor_InvertControl(GI_INVERT_SHIELD_X);
