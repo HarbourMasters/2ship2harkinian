@@ -377,28 +377,26 @@ ItemTrackerWindow::CountInfo ItemTrackerWindow::GetItemCountInfo(int itemId) {
                 .maxCap = 15,
             };
             break;
-        case TRACKER_ITEM_GOLD_SKULLTULA_TOKEN_SWAMP:
-            {
-                u32 swampTokenCount = (gSaveContext.save.saveInfo.skullTokenCount >> 16) & 0xFFFF;
-            
-                info = {
-                    .cur = (uint16_t) swampTokenCount,
-                    .curCap = 30,
-                    .maxCap = 30,
-                };
-                break;
-            }
-        case TRACKER_ITEM_GOLD_SKULLTULA_TOKEN_OCEAN:
-            {
-                u32 oceanTokenCount = gSaveContext.save.saveInfo.skullTokenCount & 0xFFFF;
+        case TRACKER_ITEM_GOLD_SKULLTULA_TOKEN_SWAMP: {
+            u32 swampTokenCount = (gSaveContext.save.saveInfo.skullTokenCount >> 16) & 0xFFFF;
 
-                info = {
-                    .cur = (uint16_t) oceanTokenCount,
-                    .curCap = 30,
-                    .maxCap = 30,
-                };
-                break;
-            }
+            info = {
+                .cur = (uint16_t)swampTokenCount,
+                .curCap = 30,
+                .maxCap = 30,
+            };
+            break;
+        }
+        case TRACKER_ITEM_GOLD_SKULLTULA_TOKEN_OCEAN: {
+            u32 oceanTokenCount = gSaveContext.save.saveInfo.skullTokenCount & 0xFFFF;
+
+            info = {
+                .cur = (uint16_t)oceanTokenCount,
+                .curCap = 30,
+                .maxCap = 30,
+            };
+            break;
+        }
         case TRACKER_ITEM_KEY_WOODFALL:
         case TRACKER_ITEM_KEY_SNOWHEAD:
         case TRACKER_ITEM_KEY_GREAT_BAY:
@@ -647,8 +645,7 @@ int ItemTrackerWindow::DrawGoldSkulltulas(int columns, int prevDrawnColumns) {
         ImGui::SetCursorPos(pos);
         ImGui::BeginGroup();
 
-        DrawItem((char*)sGoldSkulltulaTextures[i], i == 0 ? swampTokenCount == 0: oceanTokenCount == 0,
-                    mIconSize);
+        DrawItem((char*)sGoldSkulltulaTextures[i], i == 0 ? swampTokenCount == 0 : oceanTokenCount == 0, mIconSize);
         DrawItemCount(i + TRACKER_ITEM_GOLD_SKULLTULA_TOKEN_SWAMP, pos);
 
         ImGui::EndGroup();
