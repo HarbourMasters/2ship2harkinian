@@ -15334,7 +15334,7 @@ void Ship_HandleShielding(Player* this, PlayState* play) {
         f32 yStick = sPlayerControlInput->rel.stick_y * 180;
         s16 camRelativeCurrentYRot = this->actor.shape.rot.y - Camera_GetInputDirYaw(GET_ACTIVE_CAM(play));
 
-        bool mouseControl = (CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Mouse.Shield.Enabled", 1));
+        bool mouseControl = (CVarGetInteger("gEnhancements.Camera.Mouse.Enabled", 0) && Mouse_IsCaptured() && CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 1));
         if (mouseControl) {
             MouseCoords mousePos = Mouse_GetPos();
             u32 width = OTRGetCurrentWidth();
