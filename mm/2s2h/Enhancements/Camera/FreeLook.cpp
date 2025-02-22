@@ -104,8 +104,8 @@ bool Camera_FreeLook(Camera* camera) {
         && !(CVarGetInteger("gEnhancements.Mouse.Shielding.Enabled", 0) && player->stateFlags1 & PLAYER_STATE1_400000)
     ) {
         MouseCoords mouseDelta = Mouse_GetDelta();
-        yaw -= mouseDelta.x * 40.0f;
-        pitch -= mouseDelta.y * 40.0f;
+        yawDiff += mouseDelta.x * 40.0f;
+        pitchDiff -= mouseDelta.y * 40.0f;
     }
 
     yawDiff *= CVarGetFloat("gEnhancements.Camera.RightStick.CameraSensitivity.X", 1.0f) * GameInteractor_InvertControl(GI_INVERT_CAMERA_RIGHT_STICK_X);
@@ -170,6 +170,7 @@ bool Camera_CanFreeLook(Camera* camera) {
         MouseCoords mouseDelta = Mouse_GetDelta();
         camX -= mouseDelta.x * 40.0f;
         camY -= mouseDelta.y * 40.0f;
+        sCanFreeLook = true;
     }
 
     if (!sCanFreeLook && (fabsf(camX) >= 15.0f || fabsf(camY) >= 15.0f)) {
