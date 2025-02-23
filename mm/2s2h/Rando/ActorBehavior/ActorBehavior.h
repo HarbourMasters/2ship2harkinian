@@ -45,6 +45,7 @@ void InitEnGsBehavior();
 void InitEnHgBehavior();
 void InitEnInBehavior();
 void InitEnItem00Behavior();
+void InitEnJgameTsnBehavior();
 void InitEnJgBehavior();
 void InitEnJsBehavior();
 void InitEnKgyBehavior();
