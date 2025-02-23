@@ -502,7 +502,7 @@ static void DrawLocationsTab() {
 static void DrawItemsTab() {
     f32 columnWidth = ImGui::GetContentRegionAvail().x / 3 - (ImGui::GetStyle().ItemSpacing.x * 2);
     f32 halfHeight = ImGui::GetContentRegionAvail().y / 3 - (ImGui::GetStyle().ItemSpacing.y * 2);
-    ImGui::BeginChild("randoItemsColumn1", ImVec2(columnWidth, halfHeight + 20.0f));
+    ImGui::BeginChild("randoItemsColumn1", ImVec2(columnWidth, halfHeight));
     CVarCheckbox("Bronze Scale", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
     CVarCheckbox("Deku Stick Bag", "gPlaceholderBool",
