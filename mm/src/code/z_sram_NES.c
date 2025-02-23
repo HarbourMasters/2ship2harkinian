@@ -741,6 +741,8 @@ void Sram_ResetSave(void) {
     gSaveContext.save.isOwlSave = false;
 
     memset(&gSaveContext.save.saveInfo, 0, sizeof(SaveInfo));
+    // 2S2H
+    memset(&gSaveContext.save.shipSaveInfo, 0, sizeof(ShipSaveInfo));
 }
 
 /**
@@ -1008,9 +1010,9 @@ void Sram_InitNewSave(void) {
 
     // #region 2S2H
     memcpy(&gSaveContext.save.shipSaveInfo.dpadEquips, &sSaveDefaultDpadItemEquips, sizeof(DpadSaveInfo));
-    gSaveContext.save.shipSaveInfo.pauseSaveEntrance = -1;
     memcpy(&gSaveContext.save.shipSaveInfo.commitHash, &gGitCommitHash,
            sizeof(gSaveContext.save.shipSaveInfo.commitHash));
+    gSaveContext.save.shipSaveInfo.pauseSaveEntrance = -1;
     gSaveContext.save.shipSaveInfo.saveType = SAVETYPE_VANILLA;
     gSaveContext.save.shipSaveInfo.fileCreatedAt = 0;
     //  #endregion
@@ -1237,8 +1239,11 @@ void Sram_InitDebugSave(void) {
 
     // #region 2S2H
     memcpy(&gSaveContext.save.shipSaveInfo.dpadEquips, &sSaveDefaultDpadItemEquips, sizeof(DpadSaveInfo));
+    memcpy(&gSaveContext.save.shipSaveInfo.commitHash, &gGitCommitHash,
+           sizeof(gSaveContext.save.shipSaveInfo.commitHash));
     gSaveContext.save.shipSaveInfo.pauseSaveEntrance = -1;
     gSaveContext.save.shipSaveInfo.saveType = SAVETYPE_VANILLA;
+    gSaveContext.save.shipSaveInfo.fileCreatedAt = 0;
     // #endregion
 
     Sram_GenerateRandomSaveFields();

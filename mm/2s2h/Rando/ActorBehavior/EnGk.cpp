@@ -30,7 +30,11 @@ void Rando::ActorBehavior::InitEnGKBehavior() {
         }
     });
 
-    // Played Lullaby Intro for Baby Goron
+    COND_VB_SHOULD(VB_GIVE_ITEM_FROM_GK_LULLABY, IS_RANDO, {
+        // Override vanilla cutscene skip item grant behavior to use rando queue instead
+        *should = false;
+    });
+
     COND_VB_SHOULD(VB_START_CUTSCENE, IS_RANDO, {
         s16* csId = va_arg(args, s16*);
         Actor* actor = va_arg(args, Actor*);
@@ -39,12 +43,12 @@ void Rando::ActorBehavior::InitEnGKBehavior() {
             return;
         }
 
-        EnGk* enGk = (EnGk*)actor;
-
-        enGk->unk_1E4 &= ~0x20;
         *should = false;
+
         SET_WEEKEVENTREG(WEEKEVENTREG_24_80); // Ensure Goron Elder check is available
-        RANDO_SAVE_CHECKS[RC_GORON_SHRINE_FULL_LULLABY].eligible = true;
+        if (!RANDO_SAVE_CHECKS[RC_GORON_SHRINE_FULL_LULLABY].obtained) {
+            RANDO_SAVE_CHECKS[RC_GORON_SHRINE_FULL_LULLABY].eligible = true;
+        }
     });
 
     // Played Full Lullaby for Baby Goron
