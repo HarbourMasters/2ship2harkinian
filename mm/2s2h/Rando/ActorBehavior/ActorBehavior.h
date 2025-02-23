@@ -35,6 +35,7 @@ void InitEnFish2Behavior();
 void InitEnFsnBehavior();
 void InitEnFuBehavior();
 void InitEnGamelupyBehavior();
+void InitEnGb2Behavior();
 void InitEnGegBehavior();
 void InitEnGgBehavior();
 void InitEnGinkoBehavior();
