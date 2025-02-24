@@ -1124,8 +1124,14 @@ void MapSelect_Init(GameState* thisx) {
     }
 
     GameState_SetFramerateDivisor(&this->state, 1);
+
+    // 2S2H [Enhancement] Init better menu and abort early to retain player form
+    BetterMapSelect_Init(this);
+    if (CVarGetInteger("gDeveloperTools.BetterMapSelect.Enabled", 0)) {
+        return;
+    }
+
     gSaveContext.save.cutsceneIndex = 0;
     gSaveContext.save.playerForm = PLAYER_FORM_HUMAN;
     gSaveContext.save.linkAge = 0;
-    BetterMapSelect_Init(this);
 }
