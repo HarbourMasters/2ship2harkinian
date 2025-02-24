@@ -1253,6 +1253,16 @@ void BenMenu::AddEnhancements() {
                      .Tooltip("Enables the HUD Editor window, allowing you to modify your HUD")
                      .Size(Sizes::Inline));
 
+    // Cosmetics Editor
+    path = { "Enhancements", "Cosmetic Editor", 1 };
+    AddSidebarEntry("Enhancements", "Cosmetic Editor", 1);
+    AddWidget(path, "Popout Cosmetic Editor", WIDGET_WINDOW_BUTTON)
+        .CVar("gWindows.CosmeticEditor")
+        .WindowName("Cosmetic Editor")
+        .Options(ButtonOptions()
+                     .Tooltip("Enables the Cosmetic Editor window, allowing you to modify various colors in the game")
+                     .Size(Sizes::Inline));
+
     // Item Tracker Settings
     path = { "Enhancements", "Item Tracker", 1 };
     AddSidebarEntry("Enhancements", "Item Tracker", 1);
