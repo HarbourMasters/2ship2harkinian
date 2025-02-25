@@ -443,7 +443,7 @@ void func_80B03FF8(ObjSnowball* this, PlayState* play) {
     if (sp18->unk_04 != NULL) {
         sp18->unk_04(this, play);
     }
-    
+
     Actor_PlaySfx(&this->actor, NA_SE_EV_SNOWBALL_BROKEN);
 
     if (GameInteractor_Should(VB_SNOWBALL_SET_FLAG, rotY == 5, this, sp18->unk_00, sp18->unk_04)) {
