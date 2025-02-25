@@ -1048,11 +1048,11 @@ void Rando::ActorBehavior::InitObjGrassBehavior() {
             collectiblePos = kusaActor->actor.world.pos;
         } else if (actorId == ACTOR_OBJ_GRASS_CARRY) {
             grassCarryActor = va_arg(args, ObjGrassCarry*);
+            grassIdPos = grassCarryActor->grassElem->pos;
             collectiblePos = grassCarryActor->actor.world.pos;
         }
 
-        RandoCheckId randoCheckId =
-            IdentifyGrass(actorId == ACTOR_OBJ_GRASS_CARRY ? grassCarryActor->grassElem->pos : grassIdPos);
+        RandoCheckId randoCheckId = IdentifyGrass(grassIdPos);
         if (randoCheckId == RC_UNKNOWN) {
             return;
         }
