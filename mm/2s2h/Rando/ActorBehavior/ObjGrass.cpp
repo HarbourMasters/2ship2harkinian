@@ -994,10 +994,11 @@ RandoCheckId IdentifyGrass(Vec3f pos) {
     pos.z = roundToWholeNumber(pos.z);
 
     const auto& grassMap = (gPlayState->sceneId != SCENE_KAKUSIANA) ? overworldGrassMap : grottoGrassMap;
-    uint32_t key = (gPlayState->sceneId != SCENE_KAKUSIANA) ? static_cast<uint16_t>(gPlayState->sceneId)
+    uint32_t key =
+        (gPlayState->sceneId != SCENE_KAKUSIANA) ? static_cast<uint16_t>(gPlayState->sceneId)
         : (gSaveContext.save.entrance == ENTRANCE(GROTTOS, 4) || gSaveContext.save.entrance == ENTRANCE(GROTTOS, 10))
-                       ? gSaveContext.respawn[RESPAWN_MODE_UNK_3].data
-                       : gSaveContext.save.entrance;
+            ? gSaveContext.respawn[RESPAWN_MODE_UNK_3].data
+            : gSaveContext.save.entrance;
 
     auto it = grassMap.find(key);
     if (it == grassMap.end()) {
