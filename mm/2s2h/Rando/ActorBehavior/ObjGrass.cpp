@@ -16,7 +16,7 @@ void ObjGrass_Draw(Actor* actor, PlayState* play);
 }
 
 // clang-format off
-std::map<SceneId, std::map<std::pair<float, float>, RandoCheckId>> overworldGrassMap = {
+std::map<int16_t, std::map<std::pair<float, float>, RandoCheckId>> overworldGrassMap = {
     // Termina Field //
     { SCENE_00KEIKOKU,
       {
@@ -460,7 +460,7 @@ std::map<SceneId, std::map<std::pair<float, float>, RandoCheckId>> overworldGras
       } },
 };
 
-std::map<s16, std::map<std::pair<float, float>, RandoCheckId>> grottoGrassMap = {
+std::map<int16_t, std::map<std::pair<float, float>, RandoCheckId>> grottoGrassMap = {
     { -1,
       {
           { { 2285.00f, 883.00f }, RC_GREAT_BAY_COAST_COW_GROTTO_GRASS_01 },
@@ -536,7 +536,7 @@ std::map<s16, std::map<std::pair<float, float>, RandoCheckId>> grottoGrassMap = 
           { { 2565.00f, 988.00f }, RC_GREAT_BAY_COAST_COW_GROTTO_GRASS_71 },
           { { 2595.00f, 1025.00f }, RC_GREAT_BAY_COAST_COW_GROTTO_GRASS_72 },
       } },
-    { 0,
+    { 5376,
       {
           { { 4323.00f, -466.00f }, RC_LONE_PEAK_SHRINE_GRASS_01 },
           { { 4301.00f, -436.00f }, RC_LONE_PEAK_SHRINE_GRASS_02 },
@@ -562,6 +562,9 @@ std::map<s16, std::map<std::pair<float, float>, RandoCheckId>> grottoGrassMap = 
           { { 4516.00f, -690.00f }, RC_LONE_PEAK_SHRINE_GRASS_22 },
           { { 4564.00f, -698.00f }, RC_LONE_PEAK_SHRINE_GRASS_23 },
           { { 4594.00f, -661.00f }, RC_LONE_PEAK_SHRINE_GRASS_24 },
+      } },
+      { 5312, 
+        {
           { { 4137.00f, 1073.00f }, RC_DEKU_PALACE_BEAN_SALESMAN_GROTTO_GRASS_01 },
           { { 4115.00f, 1103.00f }, RC_DEKU_PALACE_BEAN_SALESMAN_GROTTO_GRASS_02 },
           { { 4073.00f, 1099.00f }, RC_DEKU_PALACE_BEAN_SALESMAN_GROTTO_GRASS_03 },
@@ -574,11 +577,9 @@ std::map<s16, std::map<std::pair<float, float>, RandoCheckId>> grottoGrassMap = 
           { { 4061.00f, 996.00f }, RC_DEKU_PALACE_BEAN_SALESMAN_GROTTO_GRASS_10 },
           { { 4109.00f, 988.00f }, RC_DEKU_PALACE_BEAN_SALESMAN_GROTTO_GRASS_11 },
           { { 4139.00f, 1025.00f }, RC_DEKU_PALACE_BEAN_SALESMAN_GROTTO_GRASS_12 },
-      } },
+        } },
     { 31,
       {
-          { { 2927.00f, 1308.00f }, RC_TERMINA_FIELD_BIO_BABA_GROTTO_GRASS_01 },
-          { { 2966.00f, 1409.00f }, RC_TERMINA_FIELD_BIO_BABA_GROTTO_GRASS_02 },
           { { 2285.00f, 883.00f }, RC_TERMINA_FIELD_COW_GROTTO_GRASS_01 },
           { { 2263.00f, 913.00f }, RC_TERMINA_FIELD_COW_GROTTO_GRASS_02 },
           { { 2221.00f, 909.00f }, RC_TERMINA_FIELD_COW_GROTTO_GRASS_03 },
@@ -651,16 +652,14 @@ std::map<s16, std::map<std::pair<float, float>, RandoCheckId>> grottoGrassMap = 
           { { 2517.00f, 996.00f }, RC_TERMINA_FIELD_COW_GROTTO_GRASS_70 },
           { { 2565.00f, 988.00f }, RC_TERMINA_FIELD_COW_GROTTO_GRASS_71 },
           { { 2595.00f, 1025.00f }, RC_TERMINA_FIELD_COW_GROTTO_GRASS_72 },
-          { { -42.00f, -3.00f }, RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_3_GRASS_01 },
-          { { 87.00f, -26.00f }, RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_3_GRASS_02 },
-          { { 103.00f, -112.00f }, RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_3_GRASS_03 },
-          { { 113.00f, 43.00f }, RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_3_GRASS_04 },
-          { { 137.00f, 93.00f }, RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_3_GRASS_05 },
-          { { 1153.00f, 218.00f }, RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_4_GRASS_01 },
-          { { 1199.00f, -365.00f }, RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_4_GRASS_02 },
-          { { 1252.00f, -372.00f }, RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_4_GRASS_03 },
-          { { 1295.00f, 27.00f }, RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_4_GRASS_04 },
-          { { 1321.00f, 113.00f }, RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_4_GRASS_05 },
+      } },
+      { 5296, 
+        {
+          { { 2927.00f, 1308.00f }, RC_TERMINA_FIELD_BIO_BABA_GROTTO_GRASS_01 },
+          { { 2966.00f, 1409.00f }, RC_TERMINA_FIELD_BIO_BABA_GROTTO_GRASS_02 },
+        } },
+      { 5328, 
+        {
           { { 5415.00f, 454.00f }, RC_TERMINA_FIELD_PEAHAT_GROTTO_GRASS_01 },
           { { 5393.00f, 484.00f }, RC_TERMINA_FIELD_PEAHAT_GROTTO_GRASS_02 },
           { { 5351.00f, 480.00f }, RC_TERMINA_FIELD_PEAHAT_GROTTO_GRASS_03 },
@@ -673,7 +672,23 @@ std::map<s16, std::map<std::pair<float, float>, RandoCheckId>> grottoGrassMap = 
           { { 5339.00f, 377.00f }, RC_TERMINA_FIELD_PEAHAT_GROTTO_GRASS_10 },
           { { 5387.00f, 369.00f }, RC_TERMINA_FIELD_PEAHAT_GROTTO_GRASS_11 },
           { { 5417.00f, 406.00f }, RC_TERMINA_FIELD_PEAHAT_GROTTO_GRASS_12 },
-      } },
+        } },
+      { 5152, 
+        {
+          { { 1153.00f, 218.00f }, RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_4_GRASS_01 },
+          { { 1199.00f, -365.00f }, RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_4_GRASS_02 },
+          { { 1252.00f, -372.00f }, RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_4_GRASS_03 },
+          { { 1295.00f, 27.00f }, RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_4_GRASS_04 },
+          { { 1321.00f, 113.00f }, RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_4_GRASS_05 },
+        } },
+      { 5120, 
+        {
+          { { -42.00f, -3.00f }, RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_3_GRASS_01 },
+          { { 87.00f, -26.00f }, RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_3_GRASS_02 },
+          { { 103.00f, -112.00f }, RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_3_GRASS_03 },
+          { { 113.00f, 43.00f }, RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_3_GRASS_04 },
+          { { 137.00f, 93.00f }, RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_3_GRASS_05 },
+        } },
     { 51,
       {
           { { 2339.00f, 129.00f }, RC_PATH_TO_SNOWHEAD_GROTTO_GRASS_01 },
@@ -727,30 +742,6 @@ std::map<s16, std::map<std::pair<float, float>, RandoCheckId>> grottoGrassMap = 
       } },
     { 61,
       {
-          { { 4323.00f, -466.00f }, RC_LONE_PEAK_SHRINE_GRASS_01 },
-          { { 4301.00f, -436.00f }, RC_LONE_PEAK_SHRINE_GRASS_02 },
-          { { 4259.00f, -440.00f }, RC_LONE_PEAK_SHRINE_GRASS_03 },
-          { { 4243.00f, -478.00f }, RC_LONE_PEAK_SHRINE_GRASS_04 },
-          { { 4283.00f, -492.00f }, RC_LONE_PEAK_SHRINE_GRASS_05 },
-          { { 4354.00f, -436.00f }, RC_LONE_PEAK_SHRINE_GRASS_06 },
-          { { 4283.00f, -392.00f }, RC_LONE_PEAK_SHRINE_GRASS_07 },
-          { { 4212.00f, -436.00f }, RC_LONE_PEAK_SHRINE_GRASS_08 },
-          { { 4212.00f, -508.00f }, RC_LONE_PEAK_SHRINE_GRASS_09 },
-          { { 4247.00f, -543.00f }, RC_LONE_PEAK_SHRINE_GRASS_10 },
-          { { 4295.00f, -551.00f }, RC_LONE_PEAK_SHRINE_GRASS_11 },
-          { { 4325.00f, -514.00f }, RC_LONE_PEAK_SHRINE_GRASS_12 },
-          { { 4592.00f, -613.00f }, RC_LONE_PEAK_SHRINE_GRASS_13 },
-          { { 4570.00f, -583.00f }, RC_LONE_PEAK_SHRINE_GRASS_14 },
-          { { 4528.00f, -587.00f }, RC_LONE_PEAK_SHRINE_GRASS_15 },
-          { { 4512.00f, -625.00f }, RC_LONE_PEAK_SHRINE_GRASS_16 },
-          { { 4552.00f, -639.00f }, RC_LONE_PEAK_SHRINE_GRASS_17 },
-          { { 4623.00f, -583.00f }, RC_LONE_PEAK_SHRINE_GRASS_18 },
-          { { 4552.00f, -539.00f }, RC_LONE_PEAK_SHRINE_GRASS_19 },
-          { { 4481.00f, -583.00f }, RC_LONE_PEAK_SHRINE_GRASS_20 },
-          { { 4481.00f, -655.00f }, RC_LONE_PEAK_SHRINE_GRASS_21 },
-          { { 4516.00f, -690.00f }, RC_LONE_PEAK_SHRINE_GRASS_22 },
-          { { 4564.00f, -698.00f }, RC_LONE_PEAK_SHRINE_GRASS_23 },
-          { { 4594.00f, -661.00f }, RC_LONE_PEAK_SHRINE_GRASS_24 },
           { { 2339.00f, 129.00f }, RC_SOUTHERN_SWAMP_GROTTO_GRASS_01 },
           { { 2345.00f, -174.00f }, RC_SOUTHERN_SWAMP_GROTTO_GRASS_02 },
           { { 2355.00f, -310.00f }, RC_SOUTHERN_SWAMP_GROTTO_GRASS_03 },
@@ -922,7 +913,7 @@ std::map<s16, std::map<std::pair<float, float>, RandoCheckId>> grottoGrassMap = 
 };
 // clang-format on
 
-float roundUpToTwoDecimalPlaces(float value) {
+float roundToWholeNumber(float value) {
     int rounded = std::round(value);
     float fnum = static_cast<float>(rounded);
 
@@ -931,30 +922,26 @@ float roundUpToTwoDecimalPlaces(float value) {
 
 RandoCheckId IdentifyGrass(Vec3f pos) {
     RandoCheckId randoCheckId = RC_UNKNOWN;
-    pos.x = roundUpToTwoDecimalPlaces(pos.x);
-    pos.z = roundUpToTwoDecimalPlaces(pos.z);
+    pos.x = roundToWholeNumber(pos.x);
+    pos.z = roundToWholeNumber(pos.z);
 
-    if (gPlayState->sceneId != SCENE_KAKUSIANA) {
-        auto it = overworldGrassMap.find((SceneId)gPlayState->sceneId);
-        if (it == overworldGrassMap.end()) {
-            return randoCheckId;
-        }
-        auto innerIt = it->second.find({ pos.x, pos.z });
-        if (innerIt == it->second.end()) {
-            return randoCheckId;
-        }
-        return innerIt->second;
-    } else {
-        auto it = grottoGrassMap.find(gSaveContext.respawn[RESPAWN_MODE_UNK_3].data);
-        if (it == grottoGrassMap.end()) {
-            return randoCheckId;
-        }
-        auto innerIt = it->second.find({ pos.x, pos.z });
-        if (innerIt == it->second.end()) {
-            return randoCheckId;
-        }
-        return innerIt->second;
+    const auto& grassMap = (gPlayState->sceneId != SCENE_KAKUSIANA) ? overworldGrassMap : grottoGrassMap;
+    uint32_t key = (gPlayState->sceneId != SCENE_KAKUSIANA) ? static_cast<uint16_t>(gPlayState->sceneId)
+                   : (gSaveContext.save.entrance == 5184 || gSaveContext.save.entrance == 5280)
+                       ? gSaveContext.respawn[RESPAWN_MODE_UNK_3].data
+                       : gSaveContext.save.entrance;
+
+    auto it = grassMap.find(key);
+    if (it == grassMap.end()) {
+        return randoCheckId;
     }
+
+    auto innerIt = it->second.find({ pos.x, pos.z });
+    if (innerIt == it->second.end()) {
+        return randoCheckId;
+    }
+
+    return innerIt->second;
 }
 
 void SpawnGrassDrop(Vec3f pos, RandoCheckId randoCheckId) {
@@ -973,80 +960,35 @@ void SpawnGrassDrop(Vec3f pos, RandoCheckId randoCheckId) {
         });
 }
 
-// void ObjGrass_RandoDraw(Actor* actor, PlayState* play) {
-//     if (!CVarGetInteger("gRando.CSMC", 0)) {
-//         Gfx_DrawDListOpa(play, (Gfx*)gPotStandardDL);
-//         return;
-//     }
-//
-//     RandoItemId randoItemId = Rando::ConvertItem(RANDO_SAVE_CHECKS[OBJGRASS_RC].randoItemId,
-//     (RandoCheckId)OBJGRASS_RC); RandoItemType randoItemType = Rando::StaticData::Items[randoItemId].randoItemType;
-//
-//     switch (randoItemType) {
-//         case RITYPE_BOSS_KEY:
-//             Gfx_DrawDListOpa(play, (Gfx*)gPotBossKeyDL);
-//             break;
-//         case RITYPE_HEALTH:
-//             Gfx_DrawDListOpa(play, (Gfx*)gPotHeartDL);
-//             break;
-//         case RITYPE_LESSER:
-//             Gfx_DrawDListOpa(play, (Gfx*)gPotMinorDL);
-//             break;
-//         case RITYPE_MAJOR:
-//             Gfx_DrawDListOpa(play, (Gfx*)gPotMajorDL);
-//             break;
-//         case RITYPE_MASK:
-//             Gfx_DrawDListOpa(play, (Gfx*)gPotMaskDL);
-//             break;
-//         case RITYPE_SKULLTULA_TOKEN:
-//             Gfx_DrawDListOpa(play, (Gfx*)gPotTokenDL);
-//             break;
-//         case RITYPE_SMALL_KEY:
-//             Gfx_DrawDListOpa(play, (Gfx*)gPotSmallKeyDL);
-//             break;
-//         case RITYPE_STRAY_FAIRY:
-//             Gfx_DrawDListOpa(play, (Gfx*)gPotFairyDL);
-//             break;
-//         default:
-//             Gfx_DrawDListOpa(play, (Gfx*)gPotStandardDL);
-//             break;
-//     }
-// }
-
 void Rando::ActorBehavior::InitObjGrassBehavior() {
-    /*COND_VB_SHOULD(VB_GRASS_DRAW_BE_OVERRIDDEN, IS_RANDO, {
-        Actor* actor = va_arg(args, Actor*);
-        if (OBJGRASS_RC != RC_UNKNOWN) {
-            *should = false;
-            actor->draw = ObjGrass_RandoDraw;
-        }
-    });*/
-
     COND_VB_SHOULD(VB_GRASS_DROP_COLLECTIBLE, IS_RANDO, {
         auto actorId = static_cast<ActorId>(va_arg(args, int32_t));
         ObjGrassElement* grassElemActor;
         EnKusa* kusaActor;
         ObjGrassCarry* grassCarryActor;
-        Vec3f pos = gZeroVec3f;
+        Vec3f GrassIdPos = gZeroVec3f;
+        Vec3f collectiblePos = gZeroVec3f;
 
         if (actorId == ACTOR_OBJ_GRASS) {
             grassElemActor = va_arg(args, ObjGrassElement*);
-            pos = grassElemActor->pos;
+            GrassIdPos = grassElemActor->pos;
+            collectiblePos = GrassIdPos;
         } else if (actorId == ACTOR_EN_KUSA) {
             kusaActor = va_arg(args, EnKusa*);
-            pos = kusaActor->actor.home.pos;
+            GrassIdPos = kusaActor->actor.home.pos;
+            collectiblePos = kusaActor->actor.world.pos;
         } else if (actorId == ACTOR_OBJ_GRASS_CARRY) {
             grassCarryActor = va_arg(args, ObjGrassCarry*);
-            pos = grassCarryActor->actor.world.pos;
+            collectiblePos = grassCarryActor->actor.world.pos;
         }
 
         RandoCheckId randoCheckId =
-            IdentifyGrass(actorId == ACTOR_OBJ_GRASS_CARRY ? grassCarryActor->grassElem->pos : pos);
+            IdentifyGrass(actorId == ACTOR_OBJ_GRASS_CARRY ? grassCarryActor->grassElem->pos : GrassIdPos);
         if (randoCheckId == RC_UNKNOWN) {
             return;
         }
 
-        SpawnGrassDrop(pos, randoCheckId);
+        SpawnGrassDrop(collectiblePos, randoCheckId);
         *should = false;
     });
 }
