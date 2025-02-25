@@ -771,6 +771,17 @@ void BenMenu::AddEnhancements() {
             }
         })
         .Options(CheckboxOptions().Tooltip("Mirrors the world horizontally."));
+    AddWidget(path, "SFX", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Mute Low HP Alarm", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Sfx.LowHpAlarm")
+        .Options(CheckboxOptions().Tooltip("Mutes the beeping alarm when you are critically low on health."));
+    AddWidget(path, "Mute Carpenter Sounds", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Sfx.MuteCarpenterSfx")
+        .Options(CheckboxOptions().Tooltip("Requires scene reload to take effect. Mutes the carpenter sounds coming "
+                                           "from the tower in South Clock Town."));
+    AddWidget(path, "Mute Crying Goron Child", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Sfx.ChildGoronCry")
+        .Options(CheckboxOptions().Tooltip("Mutes the crying Goron child inside Goron Shrine."));
     AddWidget(path, "Minigames", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Always Win Doggy Race", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Minigames.AlwaysWinDoggyRace")
@@ -923,6 +934,11 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip(
             "Allows the player to keep the Express Mail in their inventory after delivering it "
             "the first time, so that both deliveries can be done within one cycle"));
+    AddWidget(path, "Stop Oceanside Spider House squatter", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Cycle.StopOceansideSpiderHouseSquatter")
+        .Options(
+            CheckboxOptions().Tooltip("The Oceanside Spider House squatter will not move in until the player interacts "
+                                      "with him. Forced on for randomizers."));
     AddWidget(path, "Unstable", WIDGET_SEPARATOR_TEXT).Options(WidgetOptions().Color(Colors::Orange));
     AddWidget(path, "Disable Save Delay", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Saving.DisableSaveDelay")
@@ -1220,10 +1236,17 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Constant Distance Backflips and Sidehops", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Restorations.ConstantFlipsHops")
         .Options(CheckboxOptions().Tooltip("Backflips and Sidehops travel a constant distance as they did in OoT."));
-    AddWidget(path, "Power Crouch Stab", WIDGET_CVAR_CHECKBOX)
+    AddWidget(path, "Power Crouch Stab", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Restorations.PowerCrouchStab")
-        .Options(CheckboxOptions().Tooltip(
-            "Crouch stabs will use the power of Link's previous melee attack, as is in MM JP 1.0 and OoT."));
+        .Options(
+            ComboboxOptions()
+                .Tooltip("Crouch stabs will use the power of Link's previous melee attack.\n"
+                         "- Patched: Crouch stabs will always do the same damage as a slash with your current weapon\n"
+                         "- Unpatched (JP): Glitch restored, and your initial damage is 0 (Can be useful to get ISG on "
+                         "pots)\n"
+                         "- Unpatched (OoT): Glitch restored, and your initial damage is 1 (a kokiri sword slash).")
+                .DefaultIndex(0)
+                .ComboMap(powerCrouchStabOptions));
     AddWidget(path, "Side Rolls", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Restorations.SideRoll")
         .Options(CheckboxOptions().Tooltip("Restores side rolling from OoT."));
@@ -1509,6 +1532,13 @@ void BenMenu::AddDevTools() {
         .Options(ButtonOptions().Tooltip(
             "Enables the Gfx Debugger window, allowing you to input commands, type help for some examples"))
         .WindowName("GfxDebuggerWindow");
+
+    path = { "Dev Tools", "Hook Debugger", 1 };
+    AddSidebarEntry("Dev Tools", "Hook Debugger", 1);
+    AddWidget(path, "Popout Hook Debugger", WIDGET_WINDOW_BUTTON)
+        .CVar("gWindows.HookDebugger")
+        .Options(ButtonOptions().Tooltip("Enables the Hook Debugger window, for viewing info about registered hooks"))
+        .WindowName("Hook Debugger");
 
     path = { "Dev Tools", "Save Editor", 1 };
     AddSidebarEntry("Dev Tools", "Save Editor", 1);

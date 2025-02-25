@@ -37,6 +37,7 @@ std::shared_ptr<Ship::GuiWindow> mStatsWindow;
 std::shared_ptr<Ship::GuiWindow> mGfxDebuggerWindow;
 std::shared_ptr<Ship::GuiWindow> mInputEditorWindow;
 
+std::shared_ptr<HookDebuggerWindow> mHookDebuggerWindow;
 std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
 std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 std::shared_ptr<CosmeticEditorWindow> mCosmeticEditorWindow;
@@ -92,6 +93,10 @@ void SetupGuiElements() {
     if (mInputEditorWindow == nullptr) {
         SPDLOG_ERROR("Could not find input editor window");
     }
+
+    mHookDebuggerWindow =
+        std::make_shared<HookDebuggerWindow>("gWindows.HookDebugger", "Hook Debugger", ImVec2(480, 600));
+    gui->AddGuiWindow(mHookDebuggerWindow);
 
     mSaveEditorWindow = std::make_shared<SaveEditorWindow>("gWindows.SaveEditor", "Save Editor", ImVec2(480, 600));
     gui->AddGuiWindow(mSaveEditorWindow);
@@ -152,6 +157,7 @@ void Destroy() {
     mRandoCheckTrackerWindow = nullptr;
     mRandoCheckTrackerSettingsWindow = nullptr;
 
+    mHookDebuggerWindow = nullptr;
     mSaveEditorWindow = nullptr;
     mHudEditorWindow = nullptr;
     mCosmeticEditorWindow = nullptr;

@@ -472,5 +472,9 @@ void ProcessEvents(Actor* actor) {
 }
 
 void GameInteractor::RegisterOwnHooks() {
+    // Cleanup all hooks at the start of each frame
+    GameInteractor::Instance->RegisterGameHook<GameInteractor::OnGameStateMainStart>(
+        []() { GameInteractor::Instance->RemoveAllQueuedHooks(); });
+
     GameInteractor::Instance->RegisterGameHookForID<GameInteractor::OnActorUpdate>(ACTOR_PLAYER, ProcessEvents);
 }
