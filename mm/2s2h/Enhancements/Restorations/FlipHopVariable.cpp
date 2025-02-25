@@ -13,7 +13,8 @@ void RegisterVariableFlipHop() {
     COND_VB_SHOULD(VB_APPLY_AIR_CONTROL, CVAR, {
         Player* player = GET_PLAYER(gPlayState);
 
-        if (player->stateFlags2 & PLAYER_STATE2_80000 &&
+        // actionVar1 == 5 is frontflips when running off a ledge
+        if (player->stateFlags2 & PLAYER_STATE2_80000 && player->av1.actionVar1 != 5 &&
             // Deku Hopping last hop is considered a backflip/sidehop so we make sure they aren't deku hopping
             !(player->transformation == PLAYER_FORM_DEKU && player->stateFlags3 & PLAYER_STATE3_200000)) {
             *should = false;

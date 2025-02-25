@@ -46,6 +46,9 @@ static RegisterShipInitFunc initFunc([]() {
         .connections = {
             CONNECTION(RR_ASTRAL_OBSERVATORY_PASSAGE, true),
         },
+        .events = {
+            EVENT(RE_TERMINA_FIELD_SCRUB_ENTERED_GROTTO, true),
+        },
     };
     Regions[RR_BOMB_SHOP] = RandoRegion{ .sceneId = SCENE_BOMYA,
         .checks = {
@@ -390,9 +393,9 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_TERMINA_FIELD_SCRUB_GROTTO] = RandoRegion{ .name = "Termina Field Scrub", .sceneId = SCENE_KAKUSIANA,
         .checks = {
+            CHECK(RC_TERMINA_FIELD_GROTTO_SCRUB, CUR_UPG_VALUE(UPG_WALLET) >= 1 && RANDO_EVENTS[RE_TERMINA_FIELD_SCRUB_ENTERED_GROTTO]),
             CHECK(RC_TERMINA_FIELD_SCRUB_LARGE_CRATE, true),
             CHECK(RC_TERMINA_FIELD_SCRUB_POT,         true),
-            // TODO: Add scrub HP
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(TERMINA_FIELD, 0),                ENTRANCE(GROTTOS, 9), true), // TODO: Grotto mapping
