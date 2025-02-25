@@ -112,11 +112,12 @@ void func_80B02CD0(ObjSnowball* this, PlayState* play) {
 
 void func_80B02D58(ObjSnowball* this, PlayState* play) {
     if (GameInteractor_Should(VB_SNOWBALL_DROP_COLLECTIBLE, true, this)) {
-        s32 temp_v0 = func_800A8150(OBJSNOWBALL_GET_SWITCH_FLAG(&this->actor));
+        return;
+    }
+    s32 temp_v0 = func_800A8150(OBJSNOWBALL_GET_SWITCH_FLAG(&this->actor));
 
-        if (temp_v0 >= 0) {
-            Item_DropCollectible(play, &this->actor.home.pos, (OBJSNOWBALL_GET_7F00(&this->actor) << 8) | temp_v0);
-        }
+    if (temp_v0 >= 0) {
+        Item_DropCollectible(play, &this->actor.home.pos, (OBJSNOWBALL_GET_7F00(&this->actor) << 8) | temp_v0);
     }
 }
 
@@ -442,11 +443,10 @@ void func_80B03FF8(ObjSnowball* this, PlayState* play) {
     if (sp18->unk_04 != NULL) {
         sp18->unk_04(this, play);
     }
-    GameInteractor_Should(VB_SNOWBALL_SPAWN_ITEM, true, this, sp18->unk_00, sp18->unk_04);
-
+    
     Actor_PlaySfx(&this->actor, NA_SE_EV_SNOWBALL_BROKEN);
 
-    if (rotY == 5) {
+    if (GameInteractor_Should(VB_SNOWBALL_SET_FLAG, rotY == 5, this, sp18->unk_00, sp18->unk_04)) {
         Flags_SetSwitch(play, OBJSNOWBALL_GET_SWITCH_FLAG(&this->actor));
     }
 }

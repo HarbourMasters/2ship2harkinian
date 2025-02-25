@@ -149,7 +149,6 @@ void SpawnSnowballDrop(Vec3f pos, RandoCheckId randoCheckId) {
         },
         [](Actor* actor, PlayState* play) {
             auto& randoSaveCheck = RANDO_SAVE_CHECKS[CUSTOM_ITEM_PARAM];
-            RandoItemId randoItemId = Rando::ConvertItem(randoSaveCheck.randoItemId);
             Matrix_Scale(30.0f, 30.0f, 30.0f, MTXMODE_APPLY);
             Rando::DrawItem(Rando::ConvertItem(randoSaveCheck.randoItemId, (RandoCheckId)CUSTOM_ITEM_PARAM), actor);
         });
@@ -174,9 +173,9 @@ void Rando::ActorBehavior::InitObjSnowballBehavior() {
         *should = false;
     });
 
-    COND_VB_SHOULD(VB_SNOWBALL_SPAWN_ITEM, IS_RANDO, {
+    COND_VB_SHOULD(VB_SNOWBALL_SET_FLAG, IS_RANDO, {
         Actor* actor = va_arg(args, Actor*);
-        ActorId actorToSpawn = va_arg(args, ActorId);
+        ActorId actorToSpawn = (ActorId)va_arg(args, s32);
         ObjSnowballActionFunc actorFunction = va_arg(args, ObjSnowballActionFunc);
 
         if (actorToSpawn == ACTOR_EN_JG) {
