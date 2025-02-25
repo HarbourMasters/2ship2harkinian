@@ -604,7 +604,7 @@ std::map<int16_t, std::map<std::pair<float, float>, RandoCheckId>> grottoGrassMa
           { { 2565.00f, 988.00f }, RC_GREAT_BAY_COAST_COW_GROTTO_GRASS_71 },
           { { 2595.00f, 1025.00f }, RC_GREAT_BAY_COAST_COW_GROTTO_GRASS_72 },
       } },
-    { 5376,
+    { ENTRANCE(GROTTOS, 16),
       {
           { { 4323.00f, -466.00f }, RC_LONE_PEAK_SHRINE_GRASS_01 },
           { { 4301.00f, -436.00f }, RC_LONE_PEAK_SHRINE_GRASS_02 },
@@ -631,7 +631,7 @@ std::map<int16_t, std::map<std::pair<float, float>, RandoCheckId>> grottoGrassMa
           { { 4564.00f, -698.00f }, RC_LONE_PEAK_SHRINE_GRASS_23 },
           { { 4594.00f, -661.00f }, RC_LONE_PEAK_SHRINE_GRASS_24 },
       } },
-      { 5312, 
+      { ENTRANCE(GROTTOS, 12), 
         {
           { { 4137.00f, 1073.00f }, RC_DEKU_PALACE_BEAN_SALESMAN_GROTTO_GRASS_01 },
           { { 4115.00f, 1103.00f }, RC_DEKU_PALACE_BEAN_SALESMAN_GROTTO_GRASS_02 },
@@ -721,12 +721,12 @@ std::map<int16_t, std::map<std::pair<float, float>, RandoCheckId>> grottoGrassMa
           { { 2565.00f, 988.00f }, RC_TERMINA_FIELD_COW_GROTTO_GRASS_71 },
           { { 2595.00f, 1025.00f }, RC_TERMINA_FIELD_COW_GROTTO_GRASS_72 },
       } },
-      { 5296, 
+      { ENTRANCE(GROTTOS, 11), 
         {
           { { 2927.00f, 1308.00f }, RC_TERMINA_FIELD_BIO_BABA_GROTTO_GRASS_01 },
           { { 2966.00f, 1409.00f }, RC_TERMINA_FIELD_BIO_BABA_GROTTO_GRASS_02 },
         } },
-      { 5328, 
+      { ENTRANCE(GROTTOS, 13), 
         {
           { { 5415.00f, 454.00f }, RC_TERMINA_FIELD_PEAHAT_GROTTO_GRASS_01 },
           { { 5393.00f, 484.00f }, RC_TERMINA_FIELD_PEAHAT_GROTTO_GRASS_02 },
@@ -741,7 +741,7 @@ std::map<int16_t, std::map<std::pair<float, float>, RandoCheckId>> grottoGrassMa
           { { 5387.00f, 369.00f }, RC_TERMINA_FIELD_PEAHAT_GROTTO_GRASS_11 },
           { { 5417.00f, 406.00f }, RC_TERMINA_FIELD_PEAHAT_GROTTO_GRASS_12 },
         } },
-      { 5152, 
+      { ENTRANCE(GROTTOS, 2), 
         {
           { { 1153.00f, 218.00f }, RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_4_GRASS_01 },
           { { 1199.00f, -365.00f }, RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_4_GRASS_02 },
@@ -749,7 +749,7 @@ std::map<int16_t, std::map<std::pair<float, float>, RandoCheckId>> grottoGrassMa
           { { 1295.00f, 27.00f }, RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_4_GRASS_04 },
           { { 1321.00f, 113.00f }, RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_4_GRASS_05 },
         } },
-      { 5120, 
+      { ENTRANCE(GROTTOS, 0), 
         {
           { { -42.00f, -3.00f }, RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_3_GRASS_01 },
           { { 87.00f, -26.00f }, RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO_3_GRASS_02 },
@@ -995,7 +995,7 @@ RandoCheckId IdentifyGrass(Vec3f pos) {
 
     const auto& grassMap = (gPlayState->sceneId != SCENE_KAKUSIANA) ? overworldGrassMap : grottoGrassMap;
     uint32_t key = (gPlayState->sceneId != SCENE_KAKUSIANA) ? static_cast<uint16_t>(gPlayState->sceneId)
-                   : (gSaveContext.save.entrance == 5184 || gSaveContext.save.entrance == 5280)
+        : (gSaveContext.save.entrance == ENTRANCE(GROTTOS, 4) || gSaveContext.save.entrance == ENTRANCE(GROTTOS, 10))
                        ? gSaveContext.respawn[RESPAWN_MODE_UNK_3].data
                        : gSaveContext.save.entrance;
 
@@ -1034,16 +1034,16 @@ void Rando::ActorBehavior::InitObjGrassBehavior() {
         ObjGrassElement* grassElemActor;
         EnKusa* kusaActor;
         ObjGrassCarry* grassCarryActor;
-        Vec3f GrassIdPos = gZeroVec3f;
+        Vec3f grassIdPos = gZeroVec3f;
         Vec3f collectiblePos = gZeroVec3f;
 
         if (actorId == ACTOR_OBJ_GRASS) {
             grassElemActor = va_arg(args, ObjGrassElement*);
-            GrassIdPos = grassElemActor->pos;
-            collectiblePos = GrassIdPos;
+            grassIdPos = grassElemActor->pos;
+            collectiblePos = grassIdPos;
         } else if (actorId == ACTOR_EN_KUSA) {
             kusaActor = va_arg(args, EnKusa*);
-            GrassIdPos = kusaActor->actor.home.pos;
+            grassIdPos = kusaActor->actor.home.pos;
             collectiblePos = kusaActor->actor.world.pos;
         } else if (actorId == ACTOR_OBJ_GRASS_CARRY) {
             grassCarryActor = va_arg(args, ObjGrassCarry*);
@@ -1051,7 +1051,7 @@ void Rando::ActorBehavior::InitObjGrassBehavior() {
         }
 
         RandoCheckId randoCheckId =
-            IdentifyGrass(actorId == ACTOR_OBJ_GRASS_CARRY ? grassCarryActor->grassElem->pos : GrassIdPos);
+            IdentifyGrass(actorId == ACTOR_OBJ_GRASS_CARRY ? grassCarryActor->grassElem->pos : grassIdPos);
         if (randoCheckId == RC_UNKNOWN) {
             return;
         }
