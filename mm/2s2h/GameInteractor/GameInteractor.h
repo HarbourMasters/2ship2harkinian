@@ -226,7 +226,7 @@ typedef enum {
     VB_GOHT_UNFREEZE,
     VB_PERFORM_AC_COLLISION,
     VB_SNOWBALL_DROP_COLLECTIBLE,
-    VB_SNOWBALL_SPAWN_ITEM,
+    VB_SNOWBALL_SET_FLAG,
 } GIVanillaBehavior;
 
 typedef enum {
