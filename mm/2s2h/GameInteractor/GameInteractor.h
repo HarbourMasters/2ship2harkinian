@@ -227,6 +227,7 @@ typedef enum {
     VB_GOHT_UNFREEZE,
     VB_PERFORM_AC_COLLISION,
     VB_GIVE_ITEM_FROM_GK_LULLABY,
+    VB_BUY_GORMAN_MILK,
 } GIVanillaBehavior;
 
 typedef enum {

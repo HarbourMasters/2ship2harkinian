@@ -434,7 +434,7 @@ void func_808F3BD4(EnIn* this, PlayState* play) {
     }
 }
 
-void func_808F3C40(EnIn* this, PlayState* play) {
+void func_808F3C40(EnIn* this, PlayState* play) { // buy milk
     u16 textId;
 
     if (Actor_HasParent(&this->actor, play)) {
@@ -501,9 +501,9 @@ u16 func_808F3DD4(PlayState* play, EnIn* this, u32 arg2) {
 
         case 1:
             if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_15_10)) {
-                textId = 0x3463;
+                textId = 0x3463; // day 1/2 talk to milk bro first time
             } else {
-                textId = 0x346B;
+                textId = 0x346B; // day 1/2 talk to milk bro second time
             }
             break;
 
@@ -533,9 +533,9 @@ u16 func_808F3DD4(PlayState* play, EnIn* this, u32 arg2) {
 
         case 5:
             if (func_808F33B8()) {
-                textId = 0x34B3;
+                textId = 0x34B3; // i hear some ghosts
             } else if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_16_02)) {
-                textId = 0x348E;
+                textId = 0x348E; // i hear some garos
             } else {
                 textId = 0x3493;
             }
@@ -795,7 +795,10 @@ s32 func_808F4414(PlayState* play, EnIn* this, s32 arg2) {
                     ret = false;
                     break;
 
-                case 0x3466:
+                case 0x3466: // buy milk
+                    if (GameInteractor_Should(VB_BUY_GORMAN_MILK, false, &ret, this)) {
+                        break;
+                    }
                     if (msgCtx->choiceIndex == 0) {
                         Audio_PlaySfx_MessageDecide();
                         if (gSaveContext.save.saveInfo.playerData.rupees >= play->msgCtx.unk1206C) {
@@ -969,7 +972,7 @@ s32 func_808F4414(PlayState* play, EnIn* this, s32 arg2) {
                     }
                     break;
 
-                case 0x347E:
+                case 0x347E: // won milk
                     func_808F35D8(this, play);
                     if (Inventory_HasEmptyBottle()) {
                         this->actionFunc = func_808F3B40;
@@ -1098,7 +1101,10 @@ s32 func_808F4414(PlayState* play, EnIn* this, s32 arg2) {
                     ret = false;
                     break;
 
-                case 0x3490:
+                case 0x3490: // buy milk
+                    if (GameInteractor_Should(VB_BUY_GORMAN_MILK, false, &ret, this)) {
+                        break;
+                    }
                     if (msgCtx->choiceIndex == 0) {
                         Audio_PlaySfx_MessageDecide();
                         if (gSaveContext.save.saveInfo.playerData.rupees >= play->msgCtx.unk1206C) {
@@ -1212,7 +1218,7 @@ s32 func_808F4414(PlayState* play, EnIn* this, s32 arg2) {
                     ret = true;
                     break;
 
-                case 0x34A1:
+                case 0x34A1: // won milk
                     func_808F35D8(this, play);
                     if (Inventory_HasEmptyBottle()) {
                         this->actionFunc = func_808F3B40;

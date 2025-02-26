@@ -158,6 +158,7 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_GORMAN_TRACK] = RandoRegion{ .sceneId = SCENE_KOEPONARACE,
         .checks = {
+            CHECK(RC_GORMAN_MILK_PURCHASE, true), // actually need can afford
             // TODO : Also apparently can be obtained using a trick with Goron mask and Bombs. Add trick later here
             CHECK(RC_GORMAN_TRACK_LARGE_CRATE, RANDO_EVENTS[RE_COWS_FROM_ALIENS]), // Night 2 only, after defending cows from aliens.
             CHECK(RC_GORMAN_TRACK_GARO_MASK, CAN_PLAY_SONG(EPONA)),
