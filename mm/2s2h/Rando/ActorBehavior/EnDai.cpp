@@ -7,16 +7,19 @@ extern "C" {
 
 // Handles opening Snowhead Temple based on form (Goron) or song (Goron Lullaby), or no requirements
 void Rando::ActorBehavior::InitEnDaiBehavior() {
-    bool shouldRegisterVB = IS_RANDO && (!RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_FORM] ||
-                                         !RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_SONG]);
+
     bool shouldRegisterOnSceneInit = IS_RANDO && !RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_FORM] &&
                                      !RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_SONG];
+    bool shouldRegisterVB = IS_RANDO && !shouldRegisterOnSceneInit &&
+                            (!RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_FORM] ||
+                             !RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_SONG]);
 
     COND_VB_SHOULD(VB_OPEN_SNOWHEAD_FROM_SONG, shouldRegisterVB, {
         EnDai* enDai = va_arg(args, EnDai*);
         Player* player = GET_PLAYER(gPlayState);
 
         *should =
+            !CHECK_WEEKEVENTREG(WEEKEVENTREG_30_01) &&
             (!RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_SONG] ||
              (gPlayState->msgCtx.ocarinaMode == OCARINA_MODE_EVENT &&
               gPlayState->msgCtx.lastPlayedSong == OCARINA_SONG_GORON_LULLABY)) &&

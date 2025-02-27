@@ -7,16 +7,21 @@ extern "C" {
 
 // Handles opening Great Bay Temple based on form (Zora) or song (New Wave), or no requirements
 void Rando::ActorBehavior::InitDmChar08Behavior() {
-    bool shouldRegisterVB = IS_RANDO && (!RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_FORM] ||
-                                         !RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_SONG]);
+
     bool shouldRegisterOnSceneInit = IS_RANDO && !RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_FORM] &&
                                      !RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_SONG];
+    bool shouldRegisterVB = IS_RANDO && !shouldRegisterOnSceneInit &&
+                            (!RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_FORM] ||
+                             !RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_SONG]);
 
     COND_VB_SHOULD(VB_OPEN_GREAT_BAY_FROM_SONG, shouldRegisterVB, {
         DmChar08* dmChar08 = va_arg(args, DmChar08*);
         Player* player = GET_PLAYER(gPlayState);
 
         *should =
+            !CHECK_WEEKEVENTREG(WEEKEVENTREG_53_20) &&
+            ((player->actor.world.pos.x > -5780.0f) && (player->actor.world.pos.x < -5385.0f) &&
+             (player->actor.world.pos.z > 1120.0f) && (player->actor.world.pos.z < 2100.0f)) &&
             (!RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_SONG] ||
              (gPlayState->msgCtx.ocarinaMode == OCARINA_MODE_EVENT &&
               gPlayState->msgCtx.lastPlayedSong == OCARINA_SONG_NEW_WAVE)) &&

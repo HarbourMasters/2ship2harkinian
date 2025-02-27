@@ -7,24 +7,29 @@ extern "C" {
 
 // Handles opening Woodfall Temple based on form (Deku) or song (Sonata of Awakening), or no requirements
 void Rando::ActorBehavior::InitDmChar01Behavior() {
-    bool shouldRegisterVB = IS_RANDO && (!RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_FORM] ||
-                                         !RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_SONG]);
+
     bool shouldRegisterOnSceneInit = IS_RANDO && !RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_FORM] &&
                                      !RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_SONG];
+    bool shouldRegisterVB = IS_RANDO && !shouldRegisterOnSceneInit &&
+                            (!RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_FORM] ||
+                             !RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_SONG]);
 
     COND_VB_SHOULD(VB_OPEN_WOODFALL_FROM_SONG, shouldRegisterVB, {
         DmChar01* dmChar01 = va_arg(args, DmChar01*);
         Player* player = GET_PLAYER(gPlayState);
 
         *should =
+            !CHECK_WEEKEVENTREG(WEEKEVENTREG_20_01) &&
             (!RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_SONG] ||
              (gPlayState->msgCtx.ocarinaMode == OCARINA_MODE_EVENT &&
               gPlayState->msgCtx.lastPlayedSong == OCARINA_SONG_SONATA)) &&
             (!RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_FORM] ||
              (player->transformation == PLAYER_FORM_DEKU && (gPlayState->msgCtx.ocarinaMode == OCARINA_MODE_EVENT ||
                                                              gPlayState->msgCtx.ocarinaMode == OCARINA_MODE_ACTIVE)));
+    });
 
-        if (*should) {
+    COND_HOOK(OnFlagSet, shouldRegisterVB, [](FlagType flagType, u32 flag) {
+        if (flagType == FLAG_WEEK_EVENT_REG && flag == WEEKEVENTREG_20_01) {
             AudioOcarina_SetInstrument(OCARINA_INSTRUMENT_OFF);
             gPlayState->msgCtx.ocarinaMode = OCARINA_MODE_END;
             Message_CloseTextbox(gPlayState);

@@ -135,10 +135,10 @@ static void DrawLogicConditionsTab() {
     ImGui::BeginChild("randoLogicColumn2", ImVec2(columnWidth, halfHeight));
     ImGui::SeparatorText("Dungeon Access");
     UIWidgets::Tooltip("Dungeon access requirements:\n\n"
-                       "Transformation only - Requires the corresponding form and pulling out the Ocarina.\n\n"
-                       "Song only - Requires playing the corresponding dungeon song.\n\n"
-                       "Both enabled (Vanilla) - Requires both the correct form and the song.\n\n"
-                       "Both disabled - Dungeons will be open with no requirements.");
+                       "Require Transformation - Requires the corresponding form and pulling out the Ocarina.\n\n"
+                       "Require Song - Requires playing the corresponding dungeon song.\n\n"
+                       "Require Both (Vanilla) - Requires both the correct form and the song.\n\n"
+                       "Require Neither - Dungeons will be open with no requirements.");
     CVarCheckbox("Require Transformation", Rando::StaticData::Options[RO_ACCESS_DUNGEONS_REQUIRES_FORM].cvar);
     CVarCheckbox("Require Song", Rando::StaticData::Options[RO_ACCESS_DUNGEONS_REQUIRES_SONG].cvar);
     UIWidgets::CVarSliderInt("Majora Access Remains Required",
