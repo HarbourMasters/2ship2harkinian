@@ -434,7 +434,7 @@ void func_808F3BD4(EnIn* this, PlayState* play) {
     }
 }
 
-void func_808F3C40(EnIn* this, PlayState* play) { // buy milk
+void func_808F3C40(EnIn* this, PlayState* play) {
     u16 textId;
 
     if (Actor_HasParent(&this->actor, play)) {
@@ -501,9 +501,9 @@ u16 func_808F3DD4(PlayState* play, EnIn* this, u32 arg2) {
 
         case 1:
             if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_15_10)) {
-                textId = 0x3463; // day 1/2 talk to milk bro first time
+                textId = 0x3463;
             } else {
-                textId = 0x346B; // day 1/2 talk to milk bro second time
+                textId = 0x346B;
             }
             break;
 
@@ -533,9 +533,9 @@ u16 func_808F3DD4(PlayState* play, EnIn* this, u32 arg2) {
 
         case 5:
             if (func_808F33B8()) {
-                textId = 0x34B3; // i hear some ghosts
+                textId = 0x34B3;
             } else if (!CHECK_WEEKEVENTREG(WEEKEVENTREG_16_02)) {
-                textId = 0x348E; // i hear some garos
+                textId = 0x348E;
             } else {
                 textId = 0x3493;
             }
@@ -795,7 +795,7 @@ s32 func_808F4414(PlayState* play, EnIn* this, s32 arg2) {
                     ret = false;
                     break;
 
-                case 0x3466: // buy milk
+                case 0x3466:
                     if (GameInteractor_Should(VB_BUY_GORMAN_MILK, false, &ret, this)) {
                         break;
                     }
@@ -972,7 +972,7 @@ s32 func_808F4414(PlayState* play, EnIn* this, s32 arg2) {
                     }
                     break;
 
-                case 0x347E: // won milk
+                case 0x347E:
                     func_808F35D8(this, play);
                     if (Inventory_HasEmptyBottle()) {
                         this->actionFunc = func_808F3B40;
@@ -1101,7 +1101,7 @@ s32 func_808F4414(PlayState* play, EnIn* this, s32 arg2) {
                     ret = false;
                     break;
 
-                case 0x3490: // buy milk
+                case 0x3490:
                     if (GameInteractor_Should(VB_BUY_GORMAN_MILK, false, &ret, this)) {
                         break;
                     }
@@ -1218,7 +1218,7 @@ s32 func_808F4414(PlayState* play, EnIn* this, s32 arg2) {
                     ret = true;
                     break;
 
-                case 0x34A1: // won milk
+                case 0x34A1:
                     func_808F35D8(this, play);
                     if (Inventory_HasEmptyBottle()) {
                         this->actionFunc = func_808F3B40;
