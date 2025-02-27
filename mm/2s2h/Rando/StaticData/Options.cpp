@@ -13,7 +13,8 @@ namespace StaticData {
 
 // clang-format off
 std::map<RandoOptionId, RandoStaticOption> Options = {
-    RO(RO_ACCESS_DUNGEONS,             RO_ACCESS_DUNGEONS_FORM_AND_SONG),
+    RO(RO_ACCESS_DUNGEONS_REQUIRES_FORM,   RO_GENERIC_ON),
+    RO(RO_ACCESS_DUNGEONS_REQUIRES_SONG,   RO_GENERIC_ON),
     RO(RO_ACCESS_MAJORA_REMAINS_COUNT, 0),
     RO(RO_ACCESS_MOON_REMAINS_COUNT,   4),
     RO(RO_ACCESS_TRIALS,               RO_ACCESS_TRIALS_20_MASKS),

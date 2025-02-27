@@ -1736,7 +1736,8 @@ typedef enum {
 } RandoRegionId;
 
 typedef enum {
-    RO_ACCESS_DUNGEONS,
+    RO_ACCESS_DUNGEONS_REQUIRES_FORM,
+    RO_ACCESS_DUNGEONS_REQUIRES_SONG,
     RO_ACCESS_MAJORA_REMAINS_COUNT,
     RO_ACCESS_MOON_REMAINS_COUNT,
     RO_ACCESS_TRIALS,
@@ -1786,11 +1787,6 @@ typedef enum {
     RO_LOGIC_FRENCH_VANILLA,
     RO_LOGIC_VANILLA,
 } RandoOptionLogic;
-
-typedef enum {
-    RO_ACCESS_DUNGEONS_FORM_AND_SONG,
-    RO_ACCESS_DUNGEONS_FORM_ONLY,
-} RandoOptionAccessDungeons;
 
 typedef enum {
     RO_ACCESS_TRIALS_20_MASKS,

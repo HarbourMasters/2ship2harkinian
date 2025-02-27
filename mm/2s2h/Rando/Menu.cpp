@@ -16,11 +16,6 @@ std::unordered_map<int32_t, const char*> logicOptions = {
     { RO_LOGIC_VANILLA, "Vanilla" },
 };
 
-std::unordered_map<int32_t, const char*> accessDungeonOptions = {
-    { RO_ACCESS_DUNGEONS_FORM_AND_SONG, "Requires Transformation & Song" },
-    { RO_ACCESS_DUNGEONS_FORM_ONLY, "Requires Transformation" },
-};
-
 std::unordered_map<int32_t, const char*> accessTrialsOptions = {
     { RO_ACCESS_TRIALS_20_MASKS, "2-6-12-20 Masks" },
     { RO_ACCESS_TRIALS_REMAINS, "Requires Associated Remains" },
@@ -138,8 +133,14 @@ static void DrawLogicConditionsTab() {
     ImGui::EndChild();
     ImGui::SameLine();
     ImGui::BeginChild("randoLogicColumn2", ImVec2(columnWidth, halfHeight));
-    UIWidgets::CVarCombobox("Dungeon Access", Rando::StaticData::Options[RO_ACCESS_DUNGEONS].cvar,
-                            accessDungeonOptions);
+    ImGui::SeparatorText("Dungeon Access");
+    UIWidgets::Tooltip("Dungeon access requirements:\n\n"
+                       "Transformation only - Requires the corresponding form and pulling out the Ocarina.\n\n"
+                       "Song only - Requires playing the corresponding dungeon song.\n\n"
+                       "Both enabled (Vanilla) - Requires both the correct form and the song.\n\n"
+                       "Both disabled - Dungeons will be open with no requirements.");
+    CVarCheckbox("Require Transformation", Rando::StaticData::Options[RO_ACCESS_DUNGEONS_REQUIRES_FORM].cvar);
+    CVarCheckbox("Require Song", Rando::StaticData::Options[RO_ACCESS_DUNGEONS_REQUIRES_SONG].cvar);
     UIWidgets::CVarSliderInt("Majora Access Remains Required",
                              Rando::StaticData::Options[RO_ACCESS_MAJORA_REMAINS_COUNT].cvar,
                              IntSliderOptions().Min(0).Max(4).DefaultValue(0));
