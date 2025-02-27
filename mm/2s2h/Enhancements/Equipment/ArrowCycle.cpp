@@ -1,14 +1,16 @@
 #include <libultraship/bridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h/ShipInit.hpp"
-#include "src/overlays/actors/ovl_En_Arrow/z_en_arrow.h"
 
 extern "C" {
 #include "macros.h"
 #include "variables.h"
 #include "functions.h"
 #include "z64horse.h"
+#include "overlays/actors/ovl_En_Arrow/z_en_arrow.h"
 void Player_InitItemAction(PlayState* play, Player* thisx, PlayerItemAction itemAction);
+s32 Player_UpperAction_7(Player* thisx, PlayState* play);
+s32 Player_UpperAction_8(Player* thisx, PlayState* play);
 }
 
 #define CVAR_NAME "gEnhancements.PlayerActions.ArrowCycle"
@@ -19,15 +21,13 @@ static const s16 sMagicArrowCosts[] = { 4, 4, 8 };
 
 // Button Flash Effect Configuration
 static const s16 BUTTON_FLASH_DURATION = 3;
-static const s16 BUTTON_FLASH_COUNT = 2;
+static const s16 BUTTON_FLASH_COUNT = 3;
 static const s16 BUTTON_HIGHLIGHT_ALPHA = 128;
 
 // State Variables
 static s16 sButtonFlashTimer = 0;
 static s16 sButtonFlashCount = 0;
-static bool sNeedsMagicRefund = false;
-static s16 sMagicToRefund = 0;
-static bool sWasAiming = false;
+static s8 sJustCycledFrames = 0;
 
 // Arrow Type Definitions
 static const PlayerItemAction ARROW_NORMAL = PLAYER_IA_BOW;
@@ -47,8 +47,13 @@ static bool IsHoldingBow(Player* player) {
     return player->heldItemAction >= ARROW_NORMAL && player->heldItemAction <= ARROW_LIGHT;
 }
 
-static bool IsHoldingMagicArrow(Player* player) {
+static bool IsHoldingMagicBow(Player* player) {
     return player->heldItemAction >= ARROW_FIRE && player->heldItemAction <= ARROW_LIGHT;
+}
+
+static bool IsAimingBow(Player* player) {
+    return IsHoldingBow(player) && ((player->unk_AA5 == PLAYER_UNKAA5_3) || /* Aiming box in first person */
+                                    (player->upperActionFunc == Player_UpperAction_7) /* Arrow pulled back on bow */);
 }
 
 static bool HasArrowType(PlayerItemAction arrowType) {
@@ -131,9 +136,9 @@ static void UpdateFlashEffect(PlayState* play) {
     }
 
     sButtonFlashTimer--;
-    s16 flashAlpha = (sButtonFlashTimer % 2) ? 255 : BUTTON_HIGHLIGHT_ALPHA;
+    s16 flashAlpha = (sButtonFlashTimer % 3) ? BUTTON_HIGHLIGHT_ALPHA : 255;
 
-    if (sButtonFlashTimer == 0 && sButtonFlashCount < BUTTON_FLASH_COUNT) {
+    if (sButtonFlashTimer == 0 && sButtonFlashCount < BUTTON_FLASH_COUNT - 1) {
         sButtonFlashTimer = BUTTON_FLASH_DURATION;
         sButtonFlashCount++;
     }
@@ -211,13 +216,15 @@ static void UpdateEquippedBow(PlayState* play, s8 arrowType) {
             sButtonFlashCount = 0;
         }
     }
+
+    UpdateFlashEffect(play);
 }
 
 // Core Arrow Cycling Function
 static void CycleToNextArrow(PlayState* play, Player* player) {
     s8 nextArrow = GetNextArrowType(player->heldItemAction);
 
-    if (player->heldActor != NULL) {
+    if (player->heldActor != NULL && player->heldActor->id == ACTOR_EN_ARROW) {
         EnArrow* arrow = (EnArrow*)player->heldActor;
 
         if (arrow->actor.child != NULL) {
@@ -232,55 +239,74 @@ static void CycleToNextArrow(PlayState* play, Player* player) {
     Audio_PlaySfx(NA_SE_PL_CHANGE_ARMS);
 }
 
+void ArrowCycleMain() {
+    if (sJustCycledFrames > 0) {
+        sJustCycledFrames--;
+    }
+
+    if (gPlayState == nullptr || !CanCycleArrows()) {
+        return;
+    }
+
+    UpdateFlashEffect(gPlayState);
+
+    Player* player = GET_PLAYER(gPlayState);
+    Input* input = CONTROLLER1(&gPlayState->state);
+
+    // Block camera changes when cycling arrows while drawing the bow
+    if ((player->stateFlags3 & PLAYER_STATE3_40) && player->unk_ACE == 0) {
+        return;
+    }
+
+    if (IsAimingBow(player) && CHECK_BTN_ANY(input->press.button, BTN_R)) {
+        if (IsHoldingMagicBow(player) && gSaveContext.magicState != MAGIC_STATE_IDLE && player->heldActor == NULL) {
+            Audio_PlaySfx(NA_SE_SY_ERROR);
+            return;
+        }
+
+        if (player->heldActor != NULL && player->heldActor->id == ACTOR_EN_ARROW) {
+            EnArrow* heldArrow = (EnArrow*)player->heldActor;
+
+            // If the held arrow itself is magical, then we should "restore" the consumed magic upon cycling
+            if (ARROW_IS_MAGICAL(heldArrow->actor.params)) {
+                Magic_Add(gPlayState, sMagicArrowCosts[ARROW_GET_MAGIC_FROM_TYPE(heldArrow->actor.params)]);
+            }
+        }
+
+        CycleToNextArrow(gPlayState, player);
+        // Track that we just cycled for 2 frames to prevent held R input from triggering the shield action when in
+        // Z-Target mode as the arrow is respawned (Player_UpperAction_8)
+        sJustCycledFrames = 2;
+    }
+}
+
 // Registration and Hooks
 void RegisterArrowCycle() {
-    COND_VB_SHOULD(VB_MINIMAP_TOGGLE, CVAR, {
+    COND_VB_SHOULD(VB_SHIELD_FROM_BUTTON_HOLD, CVAR, {
         if (CanCycleArrows()) {
             Player* player = GET_PLAYER(gPlayState);
-            if (IsHoldingBow(player)) {
+            Input* input = CONTROLLER1(&gPlayState->state);
+
+            // Suppress Shield input when holding an arrow in Z-Target mode
+            if (IsHoldingBow(player) && sJustCycledFrames > 0 && CHECK_BTN_ANY(input->cur.button, BTN_R)) {
                 *should = false;
             }
         }
     });
 
-    COND_HOOK(OnGameStateUpdate, CVAR, []() {
-        if (gPlayState == nullptr || !CanCycleArrows())
-            return;
+    COND_VB_SHOULD(VB_EXIT_FIRST_PERSON_MODE_FROM_BUTTON, CVAR, {
+        if (CanCycleArrows()) {
+            Player* player = GET_PLAYER(gPlayState);
+            Input* input = CONTROLLER1(&gPlayState->state);
 
-        UpdateFlashEffect(gPlayState);
-
-        Player* player = GET_PLAYER(gPlayState);
-        Input* input = CONTROLLER1(&gPlayState->state);
-
-        if (sNeedsMagicRefund && player->heldActor != NULL) {
-            Magic_Add(gPlayState, sMagicToRefund);
-            sNeedsMagicRefund = false;
-        }
-
-        bool isAiming = (player->stateFlags3 & PLAYER_STATE3_40) != 0;
-        if (sWasAiming && !isAiming && IsHoldingMagicArrow(player) && CHECK_BTN_ALL(input->cur.button, BTN_B)) {
-            Magic_Add(gPlayState, sMagicArrowCosts[player->heldItemAction - PLAYER_IA_BOW_FIRE]);
-        }
-        sWasAiming = isAiming;
-
-        // Block camera changes when cycling arrows while drawing the bow
-        if ((player->stateFlags3 & PLAYER_STATE3_40) && player->unk_ACE == 0) {
-            return;
-        }
-
-        if (IsHoldingBow(player) && CHECK_BTN_ALL(input->press.button, BTN_L)) {
-            if (IsHoldingMagicArrow(player) && gSaveContext.magicState != MAGIC_STATE_IDLE &&
-                player->heldActor == NULL) {
-                Audio_PlaySfx(NA_SE_SY_ERROR);
-                return;
+            // Suppress Shield input first person cancel when aiming the bow
+            if (IsAimingBow(player) && CHECK_BTN_ANY(input->cur.button, BTN_R)) {
+                *should = false;
             }
-            if (IsHoldingMagicArrow(player)) {
-                sNeedsMagicRefund = true;
-                sMagicToRefund = sMagicArrowCosts[player->heldItemAction - PLAYER_IA_BOW_FIRE];
-            }
-            CycleToNextArrow(gPlayState, player);
         }
     });
+
+    COND_ID_HOOK(OnActorUpdate, ACTOR_PLAYER, CVAR, [](Actor* actor) { ArrowCycleMain(); });
 }
 
 static RegisterShipInitFunc initFunc(RegisterArrowCycle, { CVAR_NAME });

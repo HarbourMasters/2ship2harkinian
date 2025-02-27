@@ -771,6 +771,17 @@ void BenMenu::AddEnhancements() {
             }
         })
         .Options(CheckboxOptions().Tooltip("Mirrors the world horizontally."));
+    AddWidget(path, "SFX", WIDGET_SEPARATOR_TEXT);
+    AddWidget(path, "Mute Low HP Alarm", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Sfx.LowHpAlarm")
+        .Options(CheckboxOptions().Tooltip("Mutes the beeping alarm when you are critically low on health."));
+    AddWidget(path, "Mute Carpenter Sounds", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Sfx.MuteCarpenterSfx")
+        .Options(CheckboxOptions().Tooltip("Requires scene reload to take effect. Mutes the carpenter sounds coming "
+                                           "from the tower in South Clock Town."));
+    AddWidget(path, "Mute Crying Goron Child", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Sfx.ChildGoronCry")
+        .Options(CheckboxOptions().Tooltip("Mutes the crying Goron child inside Goron Shrine."));
     AddWidget(path, "Minigames", WIDGET_SEPARATOR_TEXT);
     AddWidget(path, "Always Win Doggy Race", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Minigames.AlwaysWinDoggyRace")
@@ -1225,10 +1236,17 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Constant Distance Backflips and Sidehops", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Restorations.ConstantFlipsHops")
         .Options(CheckboxOptions().Tooltip("Backflips and Sidehops travel a constant distance as they did in OoT."));
-    AddWidget(path, "Power Crouch Stab", WIDGET_CVAR_CHECKBOX)
+    AddWidget(path, "Power Crouch Stab", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.Restorations.PowerCrouchStab")
-        .Options(CheckboxOptions().Tooltip(
-            "Crouch stabs will use the power of Link's previous melee attack, as is in MM JP 1.0 and OoT."));
+        .Options(
+            ComboboxOptions()
+                .Tooltip("Crouch stabs will use the power of Link's previous melee attack.\n"
+                         "- Patched: Crouch stabs will always do the same damage as a slash with your current weapon\n"
+                         "- Unpatched (JP): Glitch restored, and your initial damage is 0 (Can be useful to get ISG on "
+                         "pots)\n"
+                         "- Unpatched (OoT): Glitch restored, and your initial damage is 1 (a kokiri sword slash).")
+                .DefaultIndex(0)
+                .ComboMap(powerCrouchStabOptions));
     AddWidget(path, "Side Rolls", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Restorations.SideRoll")
         .Options(CheckboxOptions().Tooltip("Restores side rolling from OoT."));
@@ -1321,6 +1339,16 @@ void BenMenu::AddEnhancements() {
         .WindowName("HUD Editor")
         .Options(ButtonOptions()
                      .Tooltip("Enables the HUD Editor window, allowing you to modify your HUD")
+                     .Size(Sizes::Inline));
+
+    // Cosmetics Editor
+    path = { "Enhancements", "Cosmetic Editor", 1 };
+    AddSidebarEntry("Enhancements", "Cosmetic Editor", 1);
+    AddWidget(path, "Popout Cosmetic Editor", WIDGET_WINDOW_BUTTON)
+        .CVar("gWindows.CosmeticEditor")
+        .WindowName("Cosmetic Editor")
+        .Options(ButtonOptions()
+                     .Tooltip("Enables the Cosmetic Editor window, allowing you to modify various colors in the game")
                      .Size(Sizes::Inline));
 
     // Item Tracker Settings

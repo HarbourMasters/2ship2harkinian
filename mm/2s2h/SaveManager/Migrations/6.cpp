@@ -13,4 +13,7 @@ void SaveManager_Migration_6(nlohmann::json& j) {
     if (!j["save"]["shipSaveInfo"].contains("fileCreatedAt")) {
         j["save"]["shipSaveInfo"]["fileCreatedAt"] = 0;
     }
+    if (!j["save"]["shipSaveInfo"].contains("fileCompletedAt")) {
+        j["save"]["shipSaveInfo"]["fileCompletedAt"] = 0;
+    }
 }
