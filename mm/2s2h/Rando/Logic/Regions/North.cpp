@@ -283,8 +283,7 @@ static RegisterShipInitFunc initFunc([]() {
             EXIT(ENTRANCE(PATH_TO_SNOWHEAD, 1),             ENTRANCE(SNOWHEAD, 0), true),
         },
         .connections = {
-            CONNECTION(RR_SNOWHEAD_NEAR_TEMPLE, (!RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_SONG] || CAN_PLAY_SONG(LULLABY)) && 
-(!RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_FORM] || CAN_BE_GORON)
+            CONNECTION(RR_SNOWHEAD_NEAR_TEMPLE, CanAccessDungeon(DUNGEON_INDEX_SNOWHEAD_TEMPLE)
 ),
         },
         .oneWayEntrances = {

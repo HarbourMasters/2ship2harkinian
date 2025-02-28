@@ -5,27 +5,40 @@ extern "C" {
 #include "overlays/actors/ovl_Dm_Char01/z_dm_char01.h"
 }
 
-// Handles opening Woodfall Temple based on form (Deku) or song (Sonata of Awakening), or no requirements
 void Rando::ActorBehavior::InitDmChar01Behavior() {
 
-    bool shouldRegisterOnSceneInit = IS_RANDO && !RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_FORM] &&
-                                     !RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_SONG];
-    bool shouldRegisterVB = IS_RANDO && !shouldRegisterOnSceneInit &&
-                            (!RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_FORM] ||
-                             !RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_SONG]);
+    bool shouldRegisterOnSceneInit = IS_RANDO && RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS] == RO_ACCESS_DUNGEONS_OPEN;
+
+    bool shouldRegisterVB = IS_RANDO && RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS] >= RO_ACCESS_DUNGEONS_FORM_OR_SONG &&
+                            RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS] <= RO_ACCESS_DUNGEONS_SONG_ONLY;
 
     COND_VB_SHOULD(VB_OPEN_WOODFALL_FROM_SONG, shouldRegisterVB, {
         DmChar01* dmChar01 = va_arg(args, DmChar01*);
         Player* player = GET_PLAYER(gPlayState);
 
-        *should =
-            !CHECK_WEEKEVENTREG(WEEKEVENTREG_20_01) &&
-            (!RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_SONG] ||
-             (gPlayState->msgCtx.ocarinaMode == OCARINA_MODE_EVENT &&
-              gPlayState->msgCtx.lastPlayedSong == OCARINA_SONG_SONATA)) &&
-            (!RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_FORM] ||
-             (player->transformation == PLAYER_FORM_DEKU && (gPlayState->msgCtx.ocarinaMode == OCARINA_MODE_EVENT ||
-                                                             gPlayState->msgCtx.ocarinaMode == OCARINA_MODE_ACTIVE)));
+        if (CHECK_WEEKEVENTREG(WEEKEVENTREG_20_01)) {
+            return;
+        }
+
+        bool hasSongAccess = (gPlayState->msgCtx.ocarinaMode == OCARINA_MODE_EVENT &&
+                              gPlayState->msgCtx.lastPlayedSong == OCARINA_SONG_SONATA);
+
+        bool hasFormAccess =
+            (player->transformation == PLAYER_FORM_DEKU && (gPlayState->msgCtx.ocarinaMode == OCARINA_MODE_EVENT ||
+                                                            gPlayState->msgCtx.ocarinaMode == OCARINA_MODE_ACTIVE));
+        switch (RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS]) {
+            case RO_ACCESS_DUNGEONS_FORM_OR_SONG:
+                *should = hasSongAccess || hasFormAccess;
+                break;
+            case RO_ACCESS_DUNGEONS_FORM_ONLY:
+                *should = hasFormAccess;
+                break;
+            case RO_ACCESS_DUNGEONS_SONG_ONLY:
+                *should = hasSongAccess;
+                break;
+            default:
+                break;
+        }
     });
 
     COND_HOOK(OnFlagSet, shouldRegisterVB, [](FlagType flagType, u32 flag) {

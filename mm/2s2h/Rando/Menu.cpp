@@ -16,6 +16,14 @@ std::unordered_map<int32_t, const char*> logicOptions = {
     { RO_LOGIC_VANILLA, "Vanilla" },
 };
 
+std::unordered_map<int32_t, const char*> accessDungeonOptions = {
+    { RO_ACCESS_DUNGEONS_FORM_AND_SONG, "Requires Transformation & Song" },
+    { RO_ACCESS_DUNGEONS_FORM_OR_SONG, "Requires Transformation or Song" },
+    { RO_ACCESS_DUNGEONS_FORM_ONLY, "Requires Only Transformation" },
+    { RO_ACCESS_DUNGEONS_SONG_ONLY, "Requires Only Song" },
+    { RO_ACCESS_DUNGEONS_OPEN, "Open" },
+};
+
 std::unordered_map<int32_t, const char*> accessTrialsOptions = {
     { RO_ACCESS_TRIALS_20_MASKS, "2-6-12-20 Masks" },
     { RO_ACCESS_TRIALS_REMAINS, "Requires Associated Remains" },
@@ -133,14 +141,15 @@ static void DrawLogicConditionsTab() {
     ImGui::EndChild();
     ImGui::SameLine();
     ImGui::BeginChild("randoLogicColumn2", ImVec2(columnWidth, halfHeight));
-    ImGui::SeparatorText("Dungeon Access");
+
+    UIWidgets::CVarCombobox("Dungeon Access", Rando::StaticData::Options[RO_ACCESS_DUNGEONS].cvar,
+                            accessDungeonOptions);
     UIWidgets::Tooltip("Dungeon access requirements:\n\n"
-                       "Require Transformation - Requires the corresponding form and pulling out the Ocarina.\n\n"
-                       "Require Song - Requires playing the corresponding dungeon song.\n\n"
-                       "Require Both (Vanilla) - Requires both the correct form and the song.\n\n"
-                       "Require Neither - Dungeons will be open with no requirements.");
-    CVarCheckbox("Require Transformation", Rando::StaticData::Options[RO_ACCESS_DUNGEONS_REQUIRES_FORM].cvar);
-    CVarCheckbox("Require Song", Rando::StaticData::Options[RO_ACCESS_DUNGEONS_REQUIRES_SONG].cvar);
+                       "Requires Transformation & Song - Requires both the correct form and the song (Vanilla).\n\n"
+                       "Requires Transformation or Song - Requires either the correct form or the song.\n\n"
+                       "Requires Only Transformation - Requires only the correct form.\n\n"
+                       "Requires Only Song - Requires only the correct song.\n\n"
+                       "Open - Dungeons will be open with no requirements.");
     UIWidgets::CVarSliderInt("Majora Access Remains Required",
                              Rando::StaticData::Options[RO_ACCESS_MAJORA_REMAINS_COUNT].cvar,
                              IntSliderOptions().Min(0).Max(4).DefaultValue(0));

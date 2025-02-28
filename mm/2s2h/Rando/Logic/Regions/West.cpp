@@ -145,7 +145,7 @@ static RegisterShipInitFunc initFunc([]() {
         },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(ZORA_HALL,        1),             ENTRANCE(ZORA_CAPE, 2), true),
-            EXIT(ENTRANCE(GREAT_BAY_TEMPLE, 0),             ENTRANCE(ZORA_CAPE, 7), HAS_ITEM(ITEM_HOOKSHOT) && (!RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_SONG] || CAN_PLAY_SONG(BOSSA_NOVA)) && (!RANDO_SAVE_OPTIONS[RO_ACCESS_DUNGEONS_REQUIRES_FORM] || CAN_BE_ZORA)),
+            EXIT(ENTRANCE(GREAT_BAY_TEMPLE, 0),             ENTRANCE(ZORA_CAPE, 7), HAS_ITEM(ITEM_HOOKSHOT) && CanAccessDungeon(DUNGEON_INDEX_GREAT_BAY_TEMPLE)),
         },
         .connections = {
             CONNECTION(RR_ZORA_CAPE, CAN_BE_ZORA),
