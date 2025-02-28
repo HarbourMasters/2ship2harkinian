@@ -19,7 +19,7 @@ void Rando::ActorBehavior::InitEnGb2Behavior() {
             return;
         }
 
-        if (!RANDO_SAVE_CHECKS[RC_IKANA_CANYON_GHOST_HUT_PIECE_OF_HEART].obtained) {
+        if (!RANDO_SAVE_CHECKS[RC_IKANA_CANYON_GHOST_HUT_PIECE_OF_HEART].cycleObtained) {
             RANDO_SAVE_CHECKS[RC_IKANA_CANYON_GHOST_HUT_PIECE_OF_HEART].eligible = true;
         }
 
