@@ -44,6 +44,8 @@ ItemTrackerWindow::~ItemTrackerWindow() {
     config->SetFloat(CFG_TRACKER_ITEM("IconSpacing"), mIconSpacing);
     config->SetFloat(CFG_TRACKER_ITEM("TextSize"), mTextSize);
     config->SetFloat(CFG_TRACKER_ITEM("TextOffset"), mTextOffset);
+    config->SetColor(CFG_TRACKER_ITEM("SwampSkulltulaTint"), Color_RGBA8(256, 256, 256, 256));
+    config->SetColor(CFG_TRACKER_ITEM("OceanSkulltulaTint"), Color_RGBA8(256, 256, 256, 256));
     config->SetInteger(CFG_TRACKER_ITEM("WindowType"), (int8_t)mWindowType);
     config->SetInteger(CFG_TRACKER_ITEM("IsDraggable"), mIsDraggable);
     config->SetInteger(CFG_TRACKER_ITEM("OnlyDrawPaused"), mOnlyDrawPaused);
@@ -76,6 +78,10 @@ void ItemTrackerWindow::LoadSettings() {
     mIconSpacing = config->GetFloat(CFG_TRACKER_ITEM("IconSpacing"), 12.0f);
     mTextSize = config->GetFloat(CFG_TRACKER_ITEM("TextSize"), 10.0f);
     mTextOffset = config->GetFloat(CFG_TRACKER_ITEM("TextOffset"), 11.0f);
+    CVarSetColor(CFG_TRACKER_ITEM("SwampSkulltulaTint"),
+                 config->GetColor(CFG_TRACKER_ITEM("SwampSkulltulaTint"), Color_RGBA8(256, 256, 256, 256)));
+    CVarSetColor(CFG_TRACKER_ITEM("OceanSkulltulaTint"),
+                 config->GetColor(CFG_TRACKER_ITEM("OceanSkulltulaTint"), Color_RGBA8(256, 256, 256, 256)));
     mWindowType =
         (TrackerWindowType)config->GetInteger(CFG_TRACKER_ITEM("WindowType"), (int8_t)TrackerWindowType::Floating);
     mIsDraggable = config->GetInteger(CFG_TRACKER_ITEM("IsDraggable"), true);
@@ -146,6 +152,18 @@ void DrawItem(char* tex, bool drawFaded, float itemSize) {
 
     ImGui::Image(gui->GetTextureByName(tex), ImVec2(itemSize, itemSize), ImVec2(0, 0), ImVec2(1, 1),
                  drawFaded ? fadedTex : opaqueTex);
+}
+
+void DrawItemTinted(char* tex, bool drawFaded, float itemSize, ImVec4 tintColor) {
+    auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
+    if (!gui->HasTextureByName(tex)) {
+        return;
+    }
+
+    ImVec4 opacityMix = drawFaded ? fadedTex : opaqueTex;
+    ImVec4 color = ImVec4(opacityMix.x * tintColor.x, opacityMix.y * tintColor.y, opacityMix.z * tintColor.z,
+                          opacityMix.w * tintColor.w);
+    ImGui::Image(gui->GetTextureByName(tex), ImVec2(itemSize, itemSize), ImVec2(0, 0), ImVec2(1, 1), color);
 }
 
 static constexpr std::array<ImVec4, 5> songInfo = {
@@ -235,11 +253,6 @@ static constexpr std::array<const char*, 4> sStrayFairyTextures = {
     gDungeonStrayFairySnowheadIconTex,
     gDungeonStrayFairyGreatBayIconTex,
     gDungeonStrayFairyStoneTowerIconTex,
-};
-
-static constexpr std::array<const char*, 4> sGoldSkulltulaTextures = {
-    gQuestIconGoldSkulltulaTex,
-    gQuestIconGoldSkulltula2Tex,
 };
 
 static constexpr uint16_t sSmallKeyCounts[4] = { 1, 3, 1, 4 };
@@ -645,7 +658,25 @@ int ItemTrackerWindow::DrawGoldSkulltulas(int columns, int prevDrawnColumns) {
         ImGui::SetCursorPos(pos);
         ImGui::BeginGroup();
 
-        DrawItem((char*)sGoldSkulltulaTextures[i], i == 0 ? swampTokenCount == 0 : oceanTokenCount == 0, mIconSize);
+        // Determine tint color based on whether drawing Skulltula for Swamp or Ocean House
+        // Colors are not exactly their tints to account for Skulltula texture base colors
+        float r, g, b, a;
+        if (i == 0) {
+            r = static_cast<float>(CVarGetColor(CFG_TRACKER_ITEM("SwampSkulltulaTint"), Color_RGBA8()).r) / 255.0f;
+            g = static_cast<float>(CVarGetColor(CFG_TRACKER_ITEM("SwampSkulltulaTint"), Color_RGBA8()).g) / 255.0f;
+            b = static_cast<float>(CVarGetColor(CFG_TRACKER_ITEM("SwampSkulltulaTint"), Color_RGBA8()).b) / 255.0f;
+            a = 1.0f;
+        } else {
+            r = static_cast<float>(CVarGetColor(CFG_TRACKER_ITEM("OceanSkulltulaTint"), Color_RGBA8()).r) / 255.0f;
+            g = static_cast<float>(CVarGetColor(CFG_TRACKER_ITEM("OceanSkulltulaTint"), Color_RGBA8()).g) / 255.0f;
+            b = static_cast<float>(CVarGetColor(CFG_TRACKER_ITEM("OceanSkulltulaTint"), Color_RGBA8()).b) / 255.0f;
+            a = 1.0f;
+        }
+
+        ImVec4 tintColor = ImVec4(r, g, b, a);
+        bool drawFaded = i == 0 ? swampTokenCount == 0 : oceanTokenCount == 0;
+        DrawItem((char*)gQuestIconGoldSkulltulaTex, drawFaded, mIconSize);
+        DrawItemTinted((char*)gMagicArrowEquipEffectTex, drawFaded, mIconSize, tintColor);
         DrawItemCount(i + TRACKER_ITEM_GOLD_SKULLTULA_TOKEN_SWAMP, pos);
 
         ImGui::EndGroup();
