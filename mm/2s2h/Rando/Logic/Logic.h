@@ -132,15 +132,15 @@ inline bool CanAccessDungeon(DungeonIndex dungeonIndex) {
     switch (dungeonIndex) {
         case DUNGEON_INDEX_WOODFALL_TEMPLE:
             hasSongAccess = CAN_PLAY_SONG(SONATA);
-            hasFormAccess = CAN_BE_DEKU;
+            hasFormAccess = CAN_BE_DEKU && HAS_ITEM(ITEM_OCARINA_OF_TIME);
             break;
         case DUNGEON_INDEX_SNOWHEAD_TEMPLE:
             hasSongAccess = CAN_PLAY_SONG(LULLABY);
-            hasFormAccess = CAN_BE_GORON;
+            hasFormAccess = CAN_BE_GORON && HAS_ITEM(ITEM_OCARINA_OF_TIME);
             break;
         case DUNGEON_INDEX_GREAT_BAY_TEMPLE:
             hasSongAccess = CAN_PLAY_SONG(BOSSA_NOVA);
-            hasFormAccess = CAN_BE_ZORA;
+            hasFormAccess = CAN_BE_ZORA && HAS_ITEM(ITEM_OCARINA_OF_TIME);
             break;
         default:
             break;
