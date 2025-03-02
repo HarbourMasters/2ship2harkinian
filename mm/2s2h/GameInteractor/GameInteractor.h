@@ -692,6 +692,7 @@ void GameInteractor_ExecuteOnFileSelectSaveLoad(s16 fileNum, bool isOwlSave, Sav
 void GameInteractor_ExecuteBeforeEndOfCycleSave();
 void GameInteractor_ExecuteAfterEndOfCycleSave();
 void GameInteractor_ExecuteBeforeMoonCrashSaveReset();
+void GameInteractor_ExecuteOnInterfaceDrawStart();
 void GameInteractor_ExecuteAfterInterfaceClockDraw();
 void GameInteractor_ExecuteBeforeInterfaceClockDraw();
 
