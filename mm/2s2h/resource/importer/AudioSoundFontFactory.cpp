@@ -426,7 +426,8 @@ std::shared_ptr<Ship::IResource> ResourceFactoryXMLSoundFontV0::ReadResource(std
     if (patch != nullptr) {
         std::string origName = "audio/fonts/";
         origName += patch;
-        audioSoundFont = dynamic_pointer_cast<AudioSoundFont>(Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(origName));
+        audioSoundFont = dynamic_pointer_cast<AudioSoundFont>(
+            Ship::Context::GetInstance()->GetResourceManager()->LoadResourceProcess(origName));
     } else {
         audioSoundFont = std::make_shared<AudioSoundFont>(file->InitData);
         memset(&audioSoundFont->soundFont, 0, sizeof(audioSoundFont->soundFont));

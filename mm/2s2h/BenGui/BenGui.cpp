@@ -130,7 +130,7 @@ void SetupGuiElements() {
     mItemTrackerSettingsWindow = std::make_shared<ItemTrackerSettingsWindow>("gWindows.ItemTrackerSettings",
                                                                              "Item Tracker Settings", ImVec2(800, 400));
     gui->AddGuiWindow(mItemTrackerSettingsWindow);
-    gui->SetPadBtnTogglesMenu();
+    // gui->SetPadBtnTogglesMenu();
 
     mDisplayOverlayWindow = std::make_shared<DisplayOverlayWindow>("gWindows.DisplayOverlay", "Display Overlay");
     gui->AddGuiWindow(mDisplayOverlayWindow);
