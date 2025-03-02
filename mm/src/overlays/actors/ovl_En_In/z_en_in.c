@@ -7,6 +7,7 @@
 #include "z_en_in.h"
 #include "z64horse.h"
 #include "overlays/actors/ovl_En_Horse_Game_Check/z_en_horse_game_check.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY | ACTOR_FLAG_10)
 
@@ -795,6 +796,9 @@ s32 func_808F4414(PlayState* play, EnIn* this, s32 arg2) {
                     break;
 
                 case 0x3466:
+                    if (GameInteractor_Should(VB_BUY_GORMAN_MILK, false, &ret, this)) {
+                        break;
+                    }
                     if (msgCtx->choiceIndex == 0) {
                         Audio_PlaySfx_MessageDecide();
                         if (gSaveContext.save.saveInfo.playerData.rupees >= play->msgCtx.unk1206C) {
@@ -958,7 +962,7 @@ s32 func_808F4414(PlayState* play, EnIn* this, s32 arg2) {
                 case 0x347A:
                     EnIn_ChangeAnim(&this->skelAnime, ENIN_ANIM_1);
                     EnIn_ChangeAnim(&this->unk4A4->skelAnime, ENIN_ANIM_7);
-                    if (INV_CONTENT(ITEM_MASK_GARO) == ITEM_MASK_GARO) {
+                    if (GameInteractor_Should(VB_HAVE_GARO_MASK, INV_CONTENT(ITEM_MASK_GARO) == ITEM_MASK_GARO)) {
                         Actor_ContinueText(play, &this->actor, 0x347E);
                         ret = false;
                     } else {
@@ -1098,6 +1102,9 @@ s32 func_808F4414(PlayState* play, EnIn* this, s32 arg2) {
                     break;
 
                 case 0x3490:
+                    if (GameInteractor_Should(VB_BUY_GORMAN_MILK, false, &ret, this)) {
+                        break;
+                    }
                     if (msgCtx->choiceIndex == 0) {
                         Audio_PlaySfx_MessageDecide();
                         if (gSaveContext.save.saveInfo.playerData.rupees >= play->msgCtx.unk1206C) {
@@ -1186,7 +1193,7 @@ s32 func_808F4414(PlayState* play, EnIn* this, s32 arg2) {
                 case 0x349D:
                     EnIn_ChangeAnim(&this->skelAnime, ENIN_ANIM_1);
                     EnIn_ChangeAnim(&this->unk4A4->skelAnime, ENIN_ANIM_7);
-                    if (INV_CONTENT(ITEM_MASK_GARO) == ITEM_MASK_GARO) {
+                    if (GameInteractor_Should(VB_HAVE_GARO_MASK, INV_CONTENT(ITEM_MASK_GARO) == ITEM_MASK_GARO)) {
                         Actor_ContinueText(play, &this->actor, 0x34A1);
                         ret = false;
                     } else {

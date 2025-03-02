@@ -127,15 +127,16 @@ void OnPlayerUpdate(Actor* actor) {
 
                 gPlayState->nextEntrance = gSaveContext.save.entrance;
                 gPlayState->transitionTrigger = TRANS_TRIGGER_START;
-                gPlayState->transitionType = TRANS_TYPE_INSTANT;
+                gPlayState->transitionType = TRANS_TYPE_FADE_BLACK_FAST;
 
-                gSaveContext.respawn[RESPAWN_MODE_DOWN].entrance = gSaveContext.save.entrance;
-                gSaveContext.respawn[RESPAWN_MODE_DOWN].roomIndex = gPlayState->roomCtx.curRoom.num;
-                gSaveContext.respawn[RESPAWN_MODE_DOWN].pos = player->actor.world.pos;
-                gSaveContext.respawn[RESPAWN_MODE_DOWN].yaw = player->actor.shape.rot.y;
-                gSaveContext.respawn[RESPAWN_MODE_DOWN].playerParams = PLAYER_PARAMS(0xFF, PLAYER_INITMODE_D);
-                gSaveContext.nextTransitionType = TRANS_TYPE_FADE_BLACK_FAST;
-                gSaveContext.respawnFlag = -8;
+                Play_SetRespawnData(&gPlayState->state, RESPAWN_MODE_RETURN, gSaveContext.save.entrance,
+                                    gPlayState->roomCtx.curRoom.num, PLAYER_PARAMS(0xFF, PLAYER_INITMODE_B),
+                                    &player->actor.world.pos, player->actor.world.rot.y);
+                gSaveContext.nextTransitionType = TRANS_TYPE_FADE_BLACK;
+                gSaveContext.respawnFlag = 2;
+
+                // Stop BGM so that new day sequences can play
+                gSaveContext.seqId = (u8)NA_BGM_DISABLED;
 
                 GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::OnActorKill>(onEnTest6KillHookId);
                 onEnTest6KillHookId = 0;

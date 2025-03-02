@@ -13,6 +13,7 @@
 #include "interface/parameter_static/parameter_static.h"
 #include "misc/title_static/title_static.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 #include "2s2h_assets.h"
 #include <string.h>
 #include "BenPort.h"
@@ -1569,7 +1570,8 @@ void FileSelect_DrawFileInfo(GameState* thisx, s16 fileIndex) {
         }
     }
 
-    if (this->isOwlSave[fileIndex + FILE_NUM_OWL_SAVE_OFFSET]) {
+    if (GameInteractor_Should(VB_DRAW_FILE_SELECT_EXTRA_INFO_DETAILS,
+                              this->isOwlSave[fileIndex + FILE_NUM_OWL_SAVE_OFFSET], fileIndex)) {
         gDPPipeSync(POLY_OPA_DISP++);
         gDPSetCombineMode(POLY_OPA_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
 
@@ -1580,7 +1582,10 @@ void FileSelect_DrawFileInfo(GameState* thisx, s16 fileIndex) {
         gDPLoadTextureBlock(POLY_OPA_DISP++, gFileSelOwlSaveIconTex, G_IM_FMT_RGBA, G_IM_SIZ_32b, 24, 12, 0,
                             G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                             G_TX_NOLOD);
-        gSP1Quadrangle(POLY_OPA_DISP++, 0, 2, 3, 1, 0);
+
+        if (GameInteractor_Should(VB_DRAW_FILE_SELECT_OWL_SAVE_ICON, true, fileIndex)) {
+            gSP1Quadrangle(POLY_OPA_DISP++, 0, 2, 3, 1, 0);
+        }
 
         gDPPipeSync(POLY_OPA_DISP++);
         gDPSetCombineMode(POLY_OPA_DISP++, G_CC_MODULATEIA_PRIM, G_CC_MODULATEIA_PRIM);
@@ -1761,7 +1766,8 @@ void FileSelect_DrawWindowContents(GameState* thisx) {
                                 G_TX_NOLOD, G_TX_NOLOD);
             gSP1Quadrangle(POLY_OPA_DISP++, 8, 10, 11, 9, 0);
 
-            if (this->isOwlSave[i + FILE_NUM_OWL_SAVE_OFFSET]) {
+            if (GameInteractor_Should(VB_DRAW_FILE_SELECT_SMALL_EXTRA_INFO_BOX,
+                                      this->isOwlSave[i + FILE_NUM_OWL_SAVE_OFFSET], i)) {
                 gDPSetPrimColorOverride(POLY_OPA_DISP++, 0, 0, sWindowContentColors[0], sWindowContentColors[1],
                                         sWindowContentColors[2], this->nameBoxAlpha[i],
                                         COSMETIC_ELEMENT_FILE_SELECT_PLATES);
@@ -2241,6 +2247,8 @@ void FileSelect_LoadGame(GameState* thisx) {
     gSaveContext.hudVisibilityTimer = 0;
 
     gSaveContext.save.saveInfo.playerData.tatlTimer = 0;
+
+    GameInteractor_ExecuteOnSaveLoad(gSaveContext.fileNum);
 }
 
 void (*sSelectModeUpdateFuncs[])(GameState*) = {
@@ -2414,9 +2422,9 @@ void FileSelect_Main(GameState* thisx) {
 
     FileSelect_PulsateCursor(&this->state);
     gFileSelectUpdateFuncs[this->menuMode](&this->state);
-    FileSelect_UpdateAndDrawSkybox(this);
 
     FrameInterpolation_StartRecord();
+    FileSelect_UpdateAndDrawSkybox(this);
     gFileSelectDrawFuncs[this->menuMode](&this->state);
     FrameInterpolation_StopRecord();
 

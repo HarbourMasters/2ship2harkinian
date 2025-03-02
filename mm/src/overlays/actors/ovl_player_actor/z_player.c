@@ -47,6 +47,7 @@
 
 #include "2s2h/BenPort.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
+#include "2s2h/CustomMessage/CustomMessage.h"
 
 #define THIS ((Player*)thisx)
 
@@ -2566,6 +2567,11 @@ GetItemEntry sGetItemTable[GI_MAX - 1] = {
     // GI_TINGLE_MAP_STONE_TOWER
     GET_ITEM(ITEM_TINGLE_MAP, OBJECT_GI_FIELDMAP, GID_TINGLE_MAP, 0xB9, GIFIELD(GIFIELD_20 | GIFIELD_NO_COLLECTIBLE, 0),
              CHEST_ANIM_LONG),
+    // #region 2S2H [Enhancement] Added to enable custom item gives
+    // GI_SHIP
+    GET_ITEM(ITEM_SHIP, OBJECT_UNSET_0, GID_NONE, CUSTOM_MESSAGE_ID, GIFIELD(GIFIELD_20 | GIFIELD_NO_COLLECTIBLE, 0),
+             0),
+    // #endregion
 };
 
 // Player_UpdateCurrentGetItemDrawId?
@@ -4096,7 +4102,7 @@ void func_80830B38(Player* this) {
 }
 
 s32 func_80830B88(PlayState* play, Player* this) {
-    if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_R)) {
+    if (GameInteractor_Should(VB_SHIELD_FROM_BUTTON_HOLD, CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_R))) {
         if (!(this->stateFlags1 & (PLAYER_STATE1_400000 | PLAYER_STATE1_800000 | PLAYER_STATE1_20000000))) {
             if (!(this->stateFlags1 & PLAYER_STATE1_8000000) || ((this->currentBoots >= PLAYER_BOOTS_ZORA_UNDERWATER) &&
                                                                  (this->actor.bgCheckFlags & BGCHECKFLAG_GROUND))) {
@@ -7343,8 +7349,10 @@ void func_8083827C(Player* this, PlayState* play) {
                                 sp48 = func_80835CD8(play, this, &D_8085D154, &sp4C, &sp60, &sp5C);
                                 sp44 = this->actor.world.pos.y;
 
-                                if (WaterBox_GetSurface1(play, &play->colCtx, sp4C.x, sp4C.z, &sp44, &sp58) &&
-                                    ((sp44 - sp48) > 50.0f)) {
+                                if (GameInteractor_Should(
+                                        VB_LINK_DIVE_OVER_WATER,
+                                        WaterBox_GetSurface1(play, &play->colCtx, sp4C.x, sp4C.z, &sp44, &sp58) &&
+                                            ((sp44 - sp48) > 50.0f))) {
                                     func_80834DB8(this, &gPlayerAnim_link_normal_run_jump_water_fall, 6.0f, play);
                                     Player_SetAction(play, this, Player_Action_27, 0);
                                     return;
@@ -8138,8 +8146,8 @@ s32 Player_ActionChange_6(Player* this, PlayState* play) {
 }
 
 s32 Player_ActionChange_11(Player* this, PlayState* play) {
-    if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_R) && (this->unk_AA5 == PLAYER_UNKAA5_0) &&
-        (play->bButtonAmmoPlusOne == 0)) {
+    if (GameInteractor_Should(VB_SHIELD_FROM_BUTTON_HOLD, CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_R)) &&
+        (this->unk_AA5 == PLAYER_UNKAA5_0) && (play->bButtonAmmoPlusOne == 0)) {
         if (Player_IsGoronOrDeku(this) ||
             ((((this->transformation == PLAYER_FORM_ZORA) && !(this->stateFlags1 & PLAYER_STATE1_2000000)) ||
               ((this->transformation == PLAYER_FORM_HUMAN) && (this->currentShield != PLAYER_SHIELD_NONE))) &&
@@ -9238,7 +9246,11 @@ s32 Player_ActionChange_2(Player* this, PlayState* play) {
                                 giEntry = &sGetItemTable[-this->getItemId - 1];
                             }
 
-                            func_80832558(play, this, func_80837C78);
+                            if (GameInteractor_Should(VB_GIVE_ITEM_FROM_CHEST, true, chest)) {
+                                // This inverts the sign of the getItemId and sets the player's action to GetItem
+                                // (Player_Action_65)
+                                func_80832558(play, this, func_80837C78);
+                            }
                             this->stateFlags1 |= (PLAYER_STATE1_400 | PLAYER_STATE1_800 | PLAYER_STATE1_20000000);
                             func_80838830(this, giEntry->objectId);
 
@@ -13553,7 +13565,7 @@ s32 func_808482E0(PlayState* play, Player* this) {
             Audio_PlayFanfare(seqId);
         }
     } else if (Message_GetState(&play->msgCtx) == TEXT_STATE_CLOSING) {
-        if (this->getItemId == GI_OCARINA_OF_TIME) {
+        if (GameInteractor_Should(VB_PLAY_SONG_OF_TIME_CS, this->getItemId == GI_OCARINA_OF_TIME, this)) {
             // zelda teaching song of time cs?
             play->nextEntrance = ENTRANCE(CUTSCENE, 0);
             gSaveContext.nextCutsceneIndex = 0xFFF2;
@@ -15851,11 +15863,13 @@ void Player_Action_43(Player* this, PlayState* play) {
             ((this->unk_AA5 == PLAYER_UNKAA5_3) &&
              (((Player_ItemToItemAction(this, Inventory_GetBtnBItem(play)) != this->heldItemAction) &&
                CHECK_BTN_ANY(sPlayerControlInput->press.button, BTN_B)) ||
-              CHECK_BTN_ANY(sPlayerControlInput->press.button, BTN_R | BTN_A) || func_80123434(this) ||
-              (!func_800B7128(this) && !func_8082EF20(this))))) ||
+              (CHECK_BTN_ANY(sPlayerControlInput->press.button, BTN_R | BTN_A) &&
+               GameInteractor_Should(VB_EXIT_FIRST_PERSON_MODE_FROM_BUTTON, true)) ||
+              func_80123434(this) || (!func_800B7128(this) && !func_8082EF20(this))))) ||
            ((this->unk_AA5 == PLAYER_UNKAA5_1) &&
             CHECK_BTN_ANY(sPlayerControlInput->press.button,
-                          BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_CUP | BTN_R | BTN_B | BTN_A | BTN_DPAD_EQUIP))) ||
+                          BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_CUP | BTN_R | BTN_B | BTN_A | BTN_DPAD_EQUIP) &&
+            GameInteractor_Should(VB_EXIT_FIRST_PERSON_MODE_FROM_BUTTON, true))) ||
           Player_ActionChange_4(this, play)))) {
         func_80839ED0(this, play);
         Audio_PlaySfx(NA_SE_SY_CAMERA_ZOOM_UP);
@@ -20669,7 +20683,8 @@ void Player_CsAction_41(PlayState* play, Player* this, CsCmdActorCue* cue) {
                 this->getItemDrawIdPlusOne = GID_PENDANT_OF_MEMORIES + 1;
             }
         } else if (this->av2.actionVar2 < 0) {
-            if (Actor_HasParent(&this->actor, play)) {
+            if (Actor_HasParent(&this->actor, play) ||
+                !GameInteractor_Should(VB_GIVE_PENDANT_OF_MEMORIES_FROM_KAFEI, true)) {
                 this->actor.parent = NULL;
                 this->av2.actionVar2 = 1;
             } else {
@@ -21069,7 +21084,8 @@ PlayerItemAction func_8085B854(PlayState* play, Player* this, ItemId itemId) {
     PlayerItemAction itemAction = Player_ItemToItemAction(this, itemId);
 
     if ((itemAction >= PLAYER_IA_MASK_MIN) && (itemAction <= PLAYER_IA_MASK_MAX) &&
-        (itemAction == GET_IA_FROM_MASK(this->currentMask))) {
+        GameInteractor_Should(VB_GET_ITEM_ACTION_FROM_MASK, itemAction == GET_IA_FROM_MASK(this->currentMask),
+                              itemAction)) {
         itemAction = PLAYER_IA_NONE;
     }
 

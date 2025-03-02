@@ -20,6 +20,8 @@
 #include "objects/object_kaizoku_obj/object_kaizoku_obj.h"
 #include "objects/object_last_obj/object_last_obj.h"
 
+#include "2s2h/GameInteractor/GameInteractor.h"
+
 #define FLAGS (ACTOR_FLAG_10)
 
 #define THIS ((DoorShutter*)thisx)
@@ -370,8 +372,10 @@ void func_808A1090(DoorShutter* this, PlayState* play) {
             }
 
             if (this->doorType == 6) {
-                if (gSaveContext.save.saveInfo.playerData.healthCapacity <
-                    (DOORSHUTTER_GET_1F(&this->slidingDoor.dyna.actor) * 0x10)) {
+                if (GameInteractor_Should(VB_DOOR_HEALTH_CHECK_FAIL,
+                                          gSaveContext.save.saveInfo.playerData.healthCapacity <
+                                              (DOORSHUTTER_GET_1F(&this->slidingDoor.dyna.actor) * 0x10),
+                                          this)) {
                     player->doorType = PLAYER_DOORTYPE_TALKING;
                     this->slidingDoor.dyna.actor.textId = 0x14FC;
                 }

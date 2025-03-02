@@ -26,8 +26,13 @@ void ItemTrackerSettingsWindow::DrawElement() {
         return;
     }
 
-    UIWidgets::WindowButton("Show/Hide Item Tracker", "gWindows.ItemTracker", mItemTrackerWindow,
-                            { .size = UIWidgets::Sizes::Inline });
+    if (CVarGetInteger("gWindows.ItemTracker", 0)) {
+        UIWidgets::WindowButton("Hide Item Tracker", "gWindows.ItemTracker", mItemTrackerWindow,
+                                { .size = UIWidgets::Sizes::Inline });
+    } else {
+        UIWidgets::WindowButton("Show Item Tracker", "gWindows.ItemTracker", mItemTrackerWindow,
+                                { .size = UIWidgets::Sizes::Inline });
+    }
 
     ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, { 8.0f, 8.0f });
     ImGui::BeginTable("itemTrackerSettingsTable", 2, ImGuiTableFlags_BordersH | ImGuiTableFlags_BordersV);
@@ -61,8 +66,15 @@ void ItemTrackerSettingsWindow::DrawElement() {
 
     UIWidgets::Combobox("Inventory", mItemTrackerWindow->GetDrawModePtr(SECTION_INVENTORY), displayTypes);
     UIWidgets::Combobox("Masks", mItemTrackerWindow->GetDrawModePtr(SECTION_MASKS), displayTypes);
+    UIWidgets::Combobox("Equipment", mItemTrackerWindow->GetDrawModePtr(SECTION_EQUIPMENT), displayTypes);
+    UIWidgets::Combobox("Miscellaneous", mItemTrackerWindow->GetDrawModePtr(SECTION_MISC), displayTypes);
     UIWidgets::Combobox("Songs", mItemTrackerWindow->GetDrawModePtr(SECTION_SONGS), displayTypes);
+    UIWidgets::Combobox("Stray Fairies", mItemTrackerWindow->GetDrawModePtr(SECTION_STRAY_FAIRIES), displayTypes);
     UIWidgets::Combobox("Dungeon Items", mItemTrackerWindow->GetDrawModePtr(SECTION_DUNGEON), displayTypes);
+
+    UIWidgets::Checkbox(
+        "Include Maps and Compasses", mItemTrackerWindow->GetIncludeMapsAndCompassesPtr(),
+        UIWidgets::CheckboxOptions().Tooltip("Includes Maps and Compasses with the Dungeon Items section"));
 
     UIWidgets::Checkbox("Draw Current Ammo",
                         mItemTrackerWindow->GetCapacityModePtr(ItemTrackerCapacityMode::DrawCurrent));

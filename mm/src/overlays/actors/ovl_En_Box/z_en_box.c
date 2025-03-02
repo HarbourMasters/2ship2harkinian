@@ -8,6 +8,7 @@
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "objects/object_box/object_box.h"
 #include "overlays/actors/ovl_En_Elforg/z_en_elforg.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS 0x00000000
 

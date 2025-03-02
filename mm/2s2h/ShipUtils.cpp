@@ -1,6 +1,19 @@
 #include "ShipUtils.h"
 #include <libultraship/libultraship.h>
 #include "assets/2s2h_assets.h"
+#include <string>
+#include <random>
+#include <boost/random/mersenne_twister.hpp>
+#include <boost/random/uniform_int_distribution.hpp>
+#include <boost/random/uniform_real_distribution.hpp>
+#include <boost_custom/container_hash/hash_32.hpp>
+
+// Image Icons
+#include "assets/interface/parameter_static/parameter_static.h"
+#include "assets/archives/icon_item_24_static/icon_item_24_static_yar.h"
+#include "assets/archives/schedule_dma_static/schedule_dma_static_yar.h"
+#include "assets/interface/icon_item_dungeon_static/icon_item_dungeon_static.h"
+#include "assets/interface/icon_item_field_static/icon_item_field_static.h"
 
 extern "C" {
 #include "z64.h"
@@ -14,6 +27,52 @@ extern const char* fontTbl[156];
 extern TexturePtr gItemIcons[131];
 extern TexturePtr gQuestIcons[14];
 extern TexturePtr gBombersNotebookPhotos[24];
+}
+
+// 2S2H Added columns to scene table: entranceSceneId, betterMapSelectIndex, humanName
+#define DEFINE_SCENE(_name, enumValue, _textId, _drawConfig, _restrictionFlags, _persistentCycleFlags, \
+                     _entranceSceneId, _betterMapSelectIndex, humanName)                               \
+    { enumValue, humanName },
+#define DEFINE_SCENE_UNSET(_enumValue)
+
+std::unordered_map<s16, const char*> sceneNames = {
+#include "tables/scene_table.h"
+};
+
+#undef DEFINE_SCENE
+#undef DEFINE_SCENE_UNSET
+
+// These textures are not in existing lists that we iterate over.
+std::vector<const char*> miscellaneousTextures = {
+    gArcheryScoreIconTex,
+    gBarrelTrackerIcon,
+    gChestTrackerIcon,
+    gCrateTrackerIcon,
+    gDungeonStrayFairyGreatBayIconTex,
+    gDungeonStrayFairySnowheadIconTex,
+    gDungeonStrayFairyStoneTowerIconTex,
+    gDungeonStrayFairyWoodfallIconTex,
+    gPotTrackerIcon,
+    gQuestIconGoldSkulltulaTex,
+    gRupeeCounterIconTex,
+    gStrayFairyGreatBayIconTex,
+    gStrayFairySnowheadIconTex,
+    gStrayFairyStoneTowerIconTex,
+    gStrayFairyWoodfallIconTex,
+    gTimerClockIconTex,
+    gWorldMapOwlFaceTex,
+};
+
+std::vector<const char*> digitList = { gCounterDigit0Tex, gCounterDigit1Tex, gCounterDigit2Tex, gCounterDigit3Tex,
+                                       gCounterDigit4Tex, gCounterDigit5Tex, gCounterDigit6Tex, gCounterDigit7Tex,
+                                       gCounterDigit8Tex, gCounterDigit9Tex, gCounterColonTex };
+
+extern "C" const char* Ship_GetSceneName(s16 sceneId) {
+    if (sceneNames.contains(sceneId)) {
+        return sceneNames[sceneId];
+    }
+
+    return "Unknown";
 }
 
 constexpr f32 fourByThree = 4.0f / 3.0f;
@@ -100,6 +159,23 @@ extern "C" TexturePtr Ship_GetCharFontTextureNES(u8 character) {
     return (TexturePtr)fontTbl[adjustedChar];
 }
 
+static bool seeded = false;
+static boost::random::mt19937 generator;
+
+extern "C" void Ship_Random_Seed(u32 seed) {
+    seeded = true;
+    generator = boost::random::mt19937{ seed };
+}
+
+extern "C" s32 Ship_Random(s32 min, s32 max) {
+    if (!seeded) {
+        const auto seed = static_cast<uint32_t>(std::random_device{}());
+        Ship_Random_Seed(seed);
+    }
+    boost::random::uniform_int_distribution<uint32_t> distribution(min, max - 1);
+    return distribution(generator);
+}
+
 void LoadGuiTextures() {
     for (TexturePtr entry : gItemIcons) {
         const char* path = static_cast<const char*>(entry);
@@ -113,4 +189,53 @@ void LoadGuiTextures() {
         const char* path = static_cast<const char*>(entry);
         Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture(path, path, ImVec4(1, 1, 1, 1));
     }
+    for (auto& entry : miscellaneousTextures) {
+        const char* path = static_cast<const char*>(entry);
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture(path, path, ImVec4(1, 1, 1, 1));
+    }
+    for (auto& entry : digitList) {
+        const char* path = static_cast<const char*>(entry);
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->LoadGuiTexture(path, path, ImVec4(1, 1, 1, 1));
+    }
+}
+
+std::string convertEnumToReadableName(const std::string& input) {
+    std::string result;
+    std::string content = input;
+
+    // Step 1: Remove "RC_" prefix if present
+    const std::string prefix = "RC_";
+    if (content.rfind(prefix, 0) == 0) {
+        content = content.substr(prefix.size());
+    }
+
+    // Step 2: Split the string by '_'
+    std::vector<std::string> words;
+    std::string word;
+    std::istringstream stream(content);
+    while (std::getline(stream, word, '_')) {
+        words.push_back(word);
+    }
+
+    // Step 3: Capitalize the first letter of each word
+    for (auto& w : words) {
+        std::transform(w.begin(), w.end(), w.begin(), [](unsigned char c) { return std::tolower(c); });
+        if (!w.empty()) {
+            if (w == "hp") {
+                w = "HP";
+            } else {
+                w[0] = std::toupper(w[0]);
+            }
+        }
+    }
+
+    // Step 4: Join the words with spaces
+    for (size_t i = 0; i < words.size(); ++i) {
+        result += words[i];
+        if (i < words.size() - 1) {
+            result += " ";
+        }
+    }
+
+    return result;
 }

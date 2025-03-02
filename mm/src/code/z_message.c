@@ -7,6 +7,7 @@
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "BenPort.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
+#include "2s2h/CustomMessage/CustomMessage.h"
 #include "assets/archives/schedule_dma_static/schedule_dma_static_yar.h"
 #include "assets/archives/icon_item_static/icon_item_static_yar.h"
 #include "assets/archives/icon_item_24_static/icon_item_24_static_yar.h"
@@ -3280,7 +3281,8 @@ void Message_OpenText(PlayState* play, u16 textId) {
     Player* player = GET_PLAYER(play);
     f32 var_fv0;
 
-    GameInteractor_ExecuteOnOpenText(textId);
+    bool loadFromMessageTable = true;
+    GameInteractor_ExecuteOnOpenText(&textId, &loadFromMessageTable);
 
     // BENTODO do this somewhere else
     gSaveContext.options.language = LANGUAGE_ENG;
@@ -3358,7 +3360,9 @@ void Message_OpenText(PlayState* play, u16 textId) {
     sCharTexScale = 1024.0f / msgCtx->textCharScale;
     D_801F6B08 = 1024.0f / var_fv0;
     // BENTODO all of these
-    if (msgCtx->textIsCredits) {
+    if (!loadFromMessageTable) {
+        // no-op
+    } else if (msgCtx->textIsCredits) {
         Message_FindCreditsMessage(play, textId);
         MessageTableEntry* msgEntry = (MessageTableEntry*)font->messageStart;
         msgCtx->msgLength = msgEntry->msgSize;

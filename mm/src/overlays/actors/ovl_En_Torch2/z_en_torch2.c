@@ -6,6 +6,7 @@
 
 #include "z_en_torch2.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_10)
 
@@ -127,7 +128,9 @@ void EnTorch2_Update(Actor* thisx, PlayState* play) {
             CollisionCheck_SetOC(play, &play->colChkCtx, &this->collider.base);
             targetAlpha = 255;
         }
-        Math_StepToS(&this->alpha, targetAlpha, 8);
+        if (GameInteractor_Should(VB_ELEGY_STATUE_FADE_IN_OUT, true, this, &targetAlpha)) {
+            Math_StepToS(&this->alpha, targetAlpha, 8);
+        }
     }
 }
 

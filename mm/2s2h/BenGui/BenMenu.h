@@ -39,6 +39,12 @@ static const std::unordered_map<int32_t, const char*> cremiaRewardOptions = {
     { CREMIA_REWARD_ALWAYS_RUPEE, "Rupee" },
 };
 
+static const std::unordered_map<int32_t, const char*> gibdoTradeSequenceOptions = {
+    { GIBDO_TRADE_SEQUENCE_VANILLA, "Vanilla" },
+    { GIBDO_TRADE_SEQUENCE_MM3D, "MM3D" },
+    { GIBDO_TRADE_SEQUENCE_NO_TRADE, "No trade" },
+};
+
 static const std::unordered_map<int32_t, const char*> clockTypeOptions = {
     { CLOCK_TYPE_ORIGINAL, "Original" },
     { CLOCK_TYPE_3DS, "MM3D style" },
@@ -85,6 +91,19 @@ static const std::unordered_map<int32_t, const char*> dekuGuardSearchBallsOption
     { DEKU_GUARD_SEARCH_BALLS_ALWAYS, "Always" },
 };
 
+static const std::unordered_map<int32_t, const char*> skipGetItemCutscenesOptions = {
+    { 0, "Never" },
+    { 1, "Junk Items Only" },
+    { 2, "Everything But Major" },
+    { 3, "Always" },
+};
+
+static const std::unordered_map<int32_t, const char*> powerCrouchStabOptions = {
+    { 0, "Patched (US/EU)" },
+    { 1, "Unpatched (JP)" },
+    { 2, "Unpatched (OoT)" },
+};
+
 static const std::unordered_map<int32_t, const char*> damageMultiplierOptions = {
     { 0, "1x" }, { 1, "2x" }, { 2, "4x" }, { 3, "8x" }, { 4, "16x" }, { 10, "1 Hit KO" },
 };
@@ -111,6 +130,8 @@ class BenMenu : public Ship::Menu {
     std::vector<std::string> enhancementsOrder;
     std::unordered_map<std::string, SidebarEntry> devToolsSidebar;
     std::vector<std::string> devToolsOrder;
+    std::unordered_map<std::string, SidebarEntry> randoSidebar;
+    std::vector<std::string> randoOrder;
 };
 } // namespace BenGui
 

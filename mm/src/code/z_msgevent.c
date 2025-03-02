@@ -1145,7 +1145,8 @@ s32 MsgEvent_RunScript(Actor* actor, PlayState* play, MsgScript* script, MsgEven
         }
 
         // Run command handler
-    } while (sMsgEventCmdHandlers[cmdId](actor, play, &script, callback, &scriptDone) == MSCRIPT_CONTINUE);
+    } while (!GameInteractor_Should(VB_EXEC_MSG_EVENT, true, cmdId, actor, script, &callback) ||
+             sMsgEventCmdHandlers[cmdId](actor, play, &script, callback, &scriptDone) == MSCRIPT_CONTINUE);
 
     cur = script;
     if (!scriptDone) {

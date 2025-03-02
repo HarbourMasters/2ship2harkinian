@@ -40,13 +40,14 @@ const std::filesystem::path savesFolderPath(Ship::Context::GetPathRelativeToAppD
 // - Create the migration file in the Migrations folder with the name `{CURRENT_SAVE_VERSION}.cpp`
 // - Add the migration function definition below and add it to the `migrations` map with the key being the previous
 // version
-const uint32_t CURRENT_SAVE_VERSION = 5;
+const uint32_t CURRENT_SAVE_VERSION = 6;
 
 void SaveManager_Migration_1(nlohmann::json& j);
 void SaveManager_Migration_2(nlohmann::json& j);
 void SaveManager_Migration_3(nlohmann::json& j);
 void SaveManager_Migration_4(nlohmann::json& j);
 void SaveManager_Migration_5(nlohmann::json& j);
+void SaveManager_Migration_6(nlohmann::json& j);
 
 const std::unordered_map<uint32_t, std::function<void(nlohmann::json&)>> migrations = {
     // Pre-1.0.0 Migrations, deprecated
@@ -56,6 +57,7 @@ const std::unordered_map<uint32_t, std::function<void(nlohmann::json&)>> migrati
     { 3, SaveManager_Migration_4 },
     // Base Migration
     { 4, SaveManager_Migration_5 },
+    { 5, SaveManager_Migration_6 },
 };
 
 int SaveManager_MigrateSave(nlohmann::json& j) {
@@ -497,6 +499,11 @@ extern "C" s32 SaveManager_SysFlashrom_ReadData(void* saveBuffer, u32 pageNum, u
             SaveManager_MoveInvalidSaveFile(fileName,
                                             "Failed to parse save json, the original file has been backed up.");
             return -1;
+        } catch (...) {
+            SPDLOG_ERROR("Failed to parse owl save json");
+            SaveManager_MoveInvalidSaveFile(fileName,
+                                            "Failed to parse save json, the original file has been backed up.");
+            return -1;
         }
     } else {
         if (!j.contains("newCycleSave")) {
@@ -514,6 +521,11 @@ extern "C" s32 SaveManager_SysFlashrom_ReadData(void* saveBuffer, u32 pageNum, u
             return 0;
         } catch (nlohmann::json::exception& je) {
             SPDLOG_ERROR("Failed to parse new cycle save json: {}", je.what());
+            SaveManager_MoveInvalidSaveFile(fileName,
+                                            "Failed to parse save json, the original file has been backed up.");
+            return -1;
+        } catch (...) {
+            SPDLOG_ERROR("Failed to parse new cycle save json");
             SaveManager_MoveInvalidSaveFile(fileName,
                                             "Failed to parse save json, the original file has been backed up.");
             return -1;

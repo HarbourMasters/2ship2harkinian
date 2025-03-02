@@ -3171,7 +3171,9 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
 
                             if (play->bButtonAmmoPlusOne >= 2) {
                                 Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
-                            } else if (gSaveContext.save.saveInfo.inventory.items[SLOT_BOW] == ITEM_NONE) {
+                            } else if (GameInteractor_Should(
+                                           VB_CLEAR_B_BUTTON_FOR_NO_BOW,
+                                           (gSaveContext.save.saveInfo.inventory.items[SLOT_BOW] == ITEM_NONE))) {
                                 BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_NONE;
                             } else {
                                 Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
@@ -3246,7 +3248,8 @@ void Interface_UpdateButtonsPart1(PlayState* play) {
 
                 if (play->bButtonAmmoPlusOne >= 2) {
                     Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
-                } else if (gSaveContext.save.saveInfo.inventory.items[SLOT_BOW] == ITEM_NONE) {
+                } else if (GameInteractor_Should(VB_CLEAR_B_BUTTON_FOR_NO_BOW,
+                                                 gSaveContext.save.saveInfo.inventory.items[SLOT_BOW] == ITEM_NONE)) {
                     BUTTON_ITEM_EQUIP(CUR_FORM, EQUIP_SLOT_B) = ITEM_NONE;
                 } else {
                     Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
@@ -3552,7 +3555,6 @@ s16 sRupeeRefillCounts[] = { 1, 5, 10, 20, 50, 100, 200 };
 
 // 2S2H [Enhancements] This was originally Item_Give, we wrapped it for hooking purposes
 u8 Item_GiveImpl(PlayState* play, u8 item) {
-    Player* player = GET_PLAYER(play);
     u8 i;
     u8 temp;
     u8 slot;
@@ -3596,8 +3598,13 @@ u8 Item_GiveImpl(PlayState* play, u8 item) {
 
     } else if ((item >= ITEM_SWORD_KOKIRI) && (item <= ITEM_SWORD_GILDED)) {
         SET_EQUIP_VALUE(EQUIP_TYPE_SWORD, item - ITEM_SWORD_KOKIRI + EQUIP_VALUE_SWORD_KOKIRI);
-        CUR_FORM_EQUIP(EQUIP_SLOT_B) = item;
-        Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
+        if (GameInteractor_Should(VB_ITEM_GIVE_SWORD_SET_FORM_EQUIP, true, &item)) {
+            CUR_FORM_EQUIP(EQUIP_SLOT_B) = item;
+        }
+        // 2S2H [Randomizer] Added a nullptr check so that we can call this function outside of gameplay for logic
+        if (gPlayState != NULL) {
+            Interface_LoadItemIconImpl(play, EQUIP_SLOT_B);
+        }
         if (item == ITEM_SWORD_RAZOR) {
             gSaveContext.save.saveInfo.playerData.swordHealth = 100;
         }
@@ -3606,7 +3613,11 @@ u8 Item_GiveImpl(PlayState* play, u8 item) {
     } else if ((item >= ITEM_SHIELD_HERO) && (item <= ITEM_SHIELD_MIRROR)) {
         if (GET_CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD) != (u16)(item - ITEM_SHIELD_HERO + EQUIP_VALUE_SHIELD_HERO)) {
             SET_EQUIP_VALUE(EQUIP_TYPE_SHIELD, item - ITEM_SHIELD_HERO + EQUIP_VALUE_SHIELD_HERO);
-            Player_SetEquipmentData(play, player);
+            // 2S2H [Randomizer] Added a nullptr check so that we can call this function outside of gameplay for logic
+            if (gPlayState != NULL) {
+                Player* player = GET_PLAYER(play);
+                Player_SetEquipmentData(play, player);
+            }
             return ITEM_NONE;
         }
         return item;
@@ -4006,7 +4017,7 @@ u8 Item_GiveImpl(PlayState* play, u8 item) {
 
 // #region 2S2H [Enhancements] This is our wrapper around the original Item_Give function for hooking purposes
 u8 Item_Give(PlayState* play, u8 item) {
-    if (!GameInteractor_ShouldItemGive(item)) {
+    if (!GameInteractor_ShouldItemGive(item) || item == ITEM_SHIP) {
         return ITEM_NONE;
     }
 
@@ -4021,6 +4032,10 @@ u8 Item_CheckObtainabilityImpl(u8 item) {
     s16 i;
     u8 slot;
     u8 bottleSlot;
+
+    if (item == ITEM_SHIP) {
+        return ITEM_NONE;
+    }
 
     slot = SLOT(item);
     if (item >= ITEM_DEKU_STICKS_5) {
@@ -4759,7 +4774,7 @@ s32 Magic_Consume(PlayState* play, s16 magicToConsume, s16 type) {
 }
 
 void Magic_UpdateAddRequest(void) {
-    if (gSaveContext.isMagicRequested) {
+    if (GameInteractor_Should(VB_GRANT_MAGIC_UPON_REQUEST, gSaveContext.isMagicRequested)) {
         gSaveContext.save.saveInfo.playerData.magic += 4;
         Audio_PlaySfx(NA_SE_SY_GAUGE_UP - SFX_FLAG);
 
@@ -8411,8 +8426,9 @@ void Interface_Draw(PlayState* play) {
                 gDPSetPrimColor(OVERLAY_DISP++, 0, 0, 255, 255, 255, interfaceCtx->magicAlpha);
                 gDPSetEnvColor(OVERLAY_DISP++, 0, 0, 0, 255);
 
-                gDPLoadTextureBlock(OVERLAY_DISP++, gGoldSkulltulaCounterIconTex, G_IM_FMT_RGBA, G_IM_SIZ_32b, 24,
-                                    24, // 2S2H [Port] This last 24 was 18 in the minibuild, not sure why
+                // @bug: This texture has a size of 24x18, but the original code reads in 24x24, reading garbage data
+                // 2S2H [Port] We are opting to fix this by using the correct size
+                gDPLoadTextureBlock(OVERLAY_DISP++, gGoldSkulltulaCounterIconTex, G_IM_FMT_RGBA, G_IM_SIZ_32b, 24, 18,
                                     0, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMIRROR | G_TX_WRAP, G_TX_NOMASK, G_TX_NOMASK,
                                     G_TX_NOLOD, G_TX_NOLOD);
 

@@ -2,7 +2,6 @@
 
 #include <spdlog/spdlog.h>
 #include <imgui.h>
-#define IMGUI_DEFINE_MATH_OPERATORS
 #include <imgui_internal.h>
 #include <libultraship/libultraship.h>
 #include <Fast3D/gfx_pc.h>
@@ -12,6 +11,7 @@
 #include "2s2h/Enhancements/Audio/AudioEditor.h"
 #include "CosmeticEditor.h"
 #include "Notification.h"
+#include "2s2h/Rando/CheckTracker/CheckTracker.h"
 
 #ifdef __APPLE__
 #include "graphic/Fast3D/gfx_metal.h"
@@ -26,6 +26,7 @@
 
 #include "Enhancements/Trackers/ItemTracker.h"
 #include "Enhancements/Trackers/ItemTrackerSettings.h"
+#include "Enhancements/Trackers/DisplayOverlay.h"
 #include "BenMenu.h"
 
 namespace BenGui {
@@ -36,7 +37,9 @@ std::shared_ptr<BenMenuBar> mBenMenuBar;
 std::shared_ptr<Ship::GuiWindow> mConsoleWindow;
 std::shared_ptr<Ship::GuiWindow> mStatsWindow;
 std::shared_ptr<Ship::GuiWindow> mGfxDebuggerWindow;
+std::shared_ptr<Ship::GuiWindow> mInputEditorWindow;
 
+std::shared_ptr<HookDebuggerWindow> mHookDebuggerWindow;
 std::shared_ptr<SaveEditorWindow> mSaveEditorWindow;
 std::shared_ptr<HudEditorWindow> mHudEditorWindow;
 std::shared_ptr<CosmeticEditorWindow> mCosmeticEditorWindow;
@@ -45,10 +48,12 @@ std::shared_ptr<CollisionViewerWindow> mCollisionViewerWindow;
 std::shared_ptr<EventLogWindow> mEventLogWindow;
 std::shared_ptr<AudioEditor> mAudioEditorWindow;
 std::shared_ptr<BenMenu> mBenMenu;
-std::shared_ptr<BenInputEditorWindow> mBenInputEditorWindow;
 std::shared_ptr<Notification::Window> mNotificationWindow;
+std::shared_ptr<Rando::CheckTracker::CheckTrackerWindow> mRandoCheckTrackerWindow;
+std::shared_ptr<Rando::CheckTracker::SettingsWindow> mRandoCheckTrackerSettingsWindow;
 std::shared_ptr<ItemTrackerWindow> mItemTrackerWindow;
 std::shared_ptr<ItemTrackerSettingsWindow> mItemTrackerSettingsWindow;
+std::shared_ptr<DisplayOverlayWindow> mDisplayOverlayWindow;
 
 void SetupGuiElements() {
     auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
@@ -87,8 +92,14 @@ void SetupGuiElements() {
         SPDLOG_ERROR("Could not find input GfxDebuggerWindow");
     }
 
-    mBenInputEditorWindow = std::make_shared<BenInputEditorWindow>("gWindows.BenInputEditor", "2S2H Input Editor");
-    gui->AddGuiWindow(mBenInputEditorWindow);
+    mInputEditorWindow = gui->GetGuiWindow("2S2H Input Editor");
+    if (mInputEditorWindow == nullptr) {
+        SPDLOG_ERROR("Could not find input editor window");
+    }
+
+    mHookDebuggerWindow =
+        std::make_shared<HookDebuggerWindow>("gWindows.HookDebugger", "Hook Debugger", ImVec2(480, 600));
+    gui->AddGuiWindow(mHookDebuggerWindow);
 
     mSaveEditorWindow = std::make_shared<SaveEditorWindow>("gWindows.SaveEditor", "Save Editor", ImVec2(480, 600));
     gui->AddGuiWindow(mSaveEditorWindow);
@@ -119,12 +130,22 @@ void SetupGuiElements() {
     mItemTrackerSettingsWindow = std::make_shared<ItemTrackerSettingsWindow>("gWindows.ItemTrackerSettings",
                                                                              "Item Tracker Settings", ImVec2(800, 400));
     gui->AddGuiWindow(mItemTrackerSettingsWindow);
-
     gui->SetPadBtnTogglesMenu();
+
+    mDisplayOverlayWindow = std::make_shared<DisplayOverlayWindow>("gWindows.DisplayOverlay", "Display Overlay");
+    gui->AddGuiWindow(mDisplayOverlayWindow);
 
     mNotificationWindow = std::make_shared<Notification::Window>("gWindows.Notifications", "Notifications Window");
     gui->AddGuiWindow(mNotificationWindow);
     mNotificationWindow->Show();
+
+    mRandoCheckTrackerWindow = std::make_shared<Rando::CheckTracker::CheckTrackerWindow>(
+        "gWindows.CheckTracker", "Check Tracker", ImVec2(375, 460));
+    gui->AddGuiWindow(mRandoCheckTrackerWindow);
+
+    mRandoCheckTrackerSettingsWindow = std::make_shared<Rando::CheckTracker::SettingsWindow>(
+        "gWindows.CheckTrackerSettings", "Check Tracker Settings");
+    gui->AddGuiWindow(mRandoCheckTrackerSettingsWindow);
 }
 
 void Destroy() {
@@ -135,11 +156,15 @@ void Destroy() {
     mBenMenu = nullptr;
     mStatsWindow = nullptr;
     mConsoleWindow = nullptr;
-    mBenInputEditorWindow = nullptr;
     mGfxDebuggerWindow = nullptr;
+    mInputEditorWindow = nullptr;
     mCollisionViewerWindow = nullptr;
     mEventLogWindow = nullptr;
     mNotificationWindow = nullptr;
+    mRandoCheckTrackerWindow = nullptr;
+    mRandoCheckTrackerSettingsWindow = nullptr;
+
+    mHookDebuggerWindow = nullptr;
     mSaveEditorWindow = nullptr;
     mHudEditorWindow = nullptr;
     mCosmeticEditorWindow = nullptr;

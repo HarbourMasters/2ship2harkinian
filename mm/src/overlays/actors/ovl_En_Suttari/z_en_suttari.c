@@ -9,6 +9,7 @@
 #include "overlays/actors/ovl_En_Door/z_en_door.h"
 #include "overlays/actors/ovl_En_Elf/z_en_elf.h"
 #include "overlays/effects/ovl_Effect_Ss_Solder_Srch_Ball/z_eff_ss_solder_srch_ball.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY | ACTOR_FLAG_10)
 
@@ -191,9 +192,11 @@ void EnSuttari_UpdateCollider(EnSuttari* this, PlayState* play) {
         if (this->collider.base.acFlags & AC_HIT) {
             this->collider.base.acFlags &= ~AC_HIT;
             if (this->actor.colChkInfo.damageEffect == 0xF) {
-                this->flags1 |= 0x100;
-                this->flags1 &= ~0x40;
-                Enemy_StartFinishingBlow(play, &this->actor);
+                if (GameInteractor_Should(VB_SAKON_TAKE_DAMAGE, true, this)) {
+                    this->flags1 |= 0x100;
+                    this->flags1 &= ~0x40;
+                    Enemy_StartFinishingBlow(play, &this->actor);
+                }
             } else if (this->actor.colChkInfo.damageEffect == 0xE) {
                 this->flags1 |= 0x200;
                 this->flags1 &= ~0x40;
