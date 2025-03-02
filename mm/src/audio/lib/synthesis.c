@@ -1210,7 +1210,7 @@ Acmd* AudioSynth_ProcessSample(s32 noteIndex, NoteSampleState* sampleState, Note
                     sampleDataDmemAddr = DMEM_COMPRESSED_ADPCM_DATA - sampleDataChunkSize;
                     // 2S2H [Port] This fixes an overflow that crashes the asan, but causes some ADPCM sounds to cut off
                     // early.
-#if 0
+#if __SANITIZE_ADDRESS__
                     uintptr_t actualAddrLoaded = samplesToLoadAddr - sampleDataChunkAlignPad;
                     uintptr_t offset = actualAddrLoaded - (uintptr_t)sampleAddr;
                     if (offset + sampleDataChunkSize > sample->size) {

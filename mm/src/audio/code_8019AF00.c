@@ -5589,7 +5589,8 @@ void Audio_IncreaseTempoForTimedMinigame(void) {
         SEQCMD_SET_TEMPO(SEQ_PLAYER_BGM_MAIN, 5, 210);
     }
 }
-// 2S2H [Custom audio] The &0xFF wasn't hurting anything because by default the original sequence IDs will never  127, h
+// 2S2H [Custom audio] The &0xFF wasn't hurting anything because by default the original sequence IDs will never exceed
+// 127
 void Audio_PlaySequenceInCutscene(u16 seqId) {
     seqId = AudioEditor_GetOriginalSeq(seqId);
     if (sSeqFlags[seqId] & SEQ_FLAG_FANFARE) {

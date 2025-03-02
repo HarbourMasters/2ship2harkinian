@@ -32,7 +32,7 @@ s32 AudioScript_SeqLayerProcessScriptStep3(SequenceLayer* layer, s32 cmd);
 u8 AudioScript_GetInstrument(SequenceChannel* channel, u8 instId, Instrument** instOut, AdsrSettings* adsr);
 
 SequenceData ResourceMgr_LoadSeqByName(const char* path);
-extern char** sequenceMap;
+extern char** gSequenceMap;
 
 /**
  * sSeqInstructionArgsTable is a table for each sequence instruction
@@ -1299,7 +1299,7 @@ void AudioScript_SequenceChannelProcessScript(SequenceChannel* channel) {
                             gAudioCtx.seqReplaced[seqPlayer->playerIndex] = 0;
                         }
                         u16 seqId = AudioEditor_GetReplacementSeq(seqPlayer->seqId);
-                        SequenceData sDat = ResourceMgr_LoadSeqByName(sequenceMap[seqId]);
+                        SequenceData sDat = ResourceMgr_LoadSeqByName(gSequenceMap[seqId]);
                         cmd = sDat.fonts[sDat.numFonts - result - 1];
                     }
                     // #end region
@@ -1433,7 +1433,7 @@ void AudioScript_SequenceChannelProcessScript(SequenceChannel* channel) {
                             gAudioCtx.seqReplaced[seqPlayer->playerIndex] = 0;
                         }
                         u16 seqId = AudioEditor_GetReplacementSeq(seqPlayer->seqId);
-                        SequenceData sDat = ResourceMgr_LoadSeqByName(sequenceMap[seqId]);
+                        SequenceData sDat = ResourceMgr_LoadSeqByName(gSequenceMap[seqId]);
 
                         // The game apparantely would sometimes do negative array lookups, the result of which would get
                         // rejected by AudioHeap_SearchCaches, never changing the actual fontid.

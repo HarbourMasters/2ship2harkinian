@@ -8,7 +8,7 @@ void AudioPlayback_NoteInitForLayer(Note* note, SequenceLayer* layer);
 
 SoundFont* ResourceMgr_LoadAudioSoundFontByName(const char* path);
 
-extern char** fontMap;
+extern char** gFontMap;
 
 void AudioPlayback_InitSampleState(Note* note, NoteSampleState* sampleState, NoteSubAttributes* subAttrs) {
     f32 volLeft;
@@ -373,7 +373,7 @@ Instrument* AudioPlayback_GetInstrumentInner(s32 fontId, s32 instId) {
 
     int instCnt = 0;
     // 2S2H [Port] Audio assets in the archive
-    SoundFont* sf = ResourceMgr_LoadAudioSoundFontByName(fontMap[fontId]);
+    SoundFont* sf = ResourceMgr_LoadAudioSoundFontByName(gFontMap[fontId]);
 
     if (instId >= sf->numInstruments)
         return NULL;
@@ -400,7 +400,7 @@ Drum* AudioPlayback_GetDrum(s32 fontId, s32 drumId) {
         return NULL;
     }
     // 2S2H [Port] Audio assets in the archive
-    SoundFont* sf = ResourceMgr_LoadAudioSoundFontByName(fontMap[fontId]);
+    SoundFont* sf = ResourceMgr_LoadAudioSoundFontByName(gFontMap[fontId]);
     if (drumId < sf->numDrums) {
         drum = sf->drums[drumId];
     }
@@ -424,7 +424,7 @@ SoundEffect* AudioPlayback_GetSoundEffect(s32 fontId, s32 sfxId) {
         return NULL;
     }
     // 2S2H [Port] Audio assets in the archive
-    SoundFont* sf = ResourceMgr_LoadAudioSoundFontByName(fontMap[fontId]);
+    SoundFont* sf = ResourceMgr_LoadAudioSoundFontByName(gFontMap[fontId]);
     if (sfxId < sf->numSfx) {
         soundEffect = &sf->soundEffects[sfxId];
     }
