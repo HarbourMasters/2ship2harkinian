@@ -7,7 +7,6 @@
 #include <Fast3D/gfx_pc.h>
 #include "UIWidgets.hpp"
 #include "HudEditor.h"
-
 #include "2s2h/Enhancements/Audio/AudioEditor.h"
 #include "CosmeticEditor.h"
 #include "Notification.h"
@@ -121,7 +120,7 @@ void SetupGuiElements() {
     mEventLogWindow = std::make_shared<EventLogWindow>("gWindows.EventLog", "Event Log", ImVec2(520, 600));
     gui->AddGuiWindow(mEventLogWindow);
 
-    mAudioEditorWindow = std::make_shared<AudioEditor>("gWindows.AudioEditor", "Audio Editor");
+    mAudioEditorWindow = std::make_shared<AudioEditor>("gWindows.AudioEditor", "Audio Editor", ImVec2(520, 600));
     gui->AddGuiWindow(mAudioEditorWindow);
 
     mItemTrackerWindow = std::make_shared<ItemTrackerWindow>("gWindows.ItemTracker", "Item Tracker");
@@ -130,7 +129,6 @@ void SetupGuiElements() {
     mItemTrackerSettingsWindow = std::make_shared<ItemTrackerSettingsWindow>("gWindows.ItemTrackerSettings",
                                                                              "Item Tracker Settings", ImVec2(800, 400));
     gui->AddGuiWindow(mItemTrackerSettingsWindow);
-    // gui->SetPadBtnTogglesMenu();
 
     mDisplayOverlayWindow = std::make_shared<DisplayOverlayWindow>("gWindows.DisplayOverlay", "Display Overlay");
     gui->AddGuiWindow(mDisplayOverlayWindow);
