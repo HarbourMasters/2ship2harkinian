@@ -9,6 +9,7 @@
 #include "overlays/actors/ovl_Arrow_Light/z_arrow_light.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_10 | ACTOR_FLAG_20 | ACTOR_FLAG_IGNORE_QUAKE)
 
@@ -818,10 +819,12 @@ void EnDeath_SetupDeathCutscenePart1(EnDeath* this, PlayState* play) {
     eye.x = Math_SinS(this->actor.shape.rot.y + 0x900) * 179.0f + this->actor.world.pos.x;
     eye.z = Math_CosS(this->actor.shape.rot.y + 0x900) * 179.0f + this->actor.world.pos.z;
     eye.y = this->actor.home.pos.y + 30.0f;
-    Play_SetCameraAtEye(play, this->camId, &at, &eye);
-    this->camEyeSpeed = Math_Vec3f_DistXYZ(&eye, &this->camEyeTarget) * 0.05f;
-    this->actor.shape.rot.y += 0x2000;
-    Player_SetCsAction(play, &this->actor, 7);
+    if (GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
+        Play_SetCameraAtEye(play, this->camId, &at, &eye);
+        this->camEyeSpeed = Math_Vec3f_DistXYZ(&eye, &this->camEyeTarget) * 0.05f;
+        this->actor.shape.rot.y += 0x2000;
+        Player_SetCsAction(play, &this->actor, 7);
+    }
     Actor_PlaySfx(&this->actor, NA_SE_EN_DEATH_DEAD);
     this->actionFunc = EnDeath_DeathCutscenePart1;
 }
@@ -830,7 +833,9 @@ void EnDeath_DeathCutscenePart1(EnDeath* this, PlayState* play) {
     Camera* camera = Play_GetCamera(play, this->camId);
     f32 distToTarget = Math_Vec3f_StepTo(&camera->eye, &this->camEyeTarget, this->camEyeSpeed);
 
-    Play_SetCameraAtEye(play, this->camId, &camera->at, &camera->eye);
+    if (GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
+        Play_SetCameraAtEye(play, this->camId, &camera->at, &camera->eye);
+    }
 
     if (SkelAnime_Update(&this->skelAnime)) {
         this->actor.shape.rot.y += 0x2000;
@@ -874,18 +879,20 @@ void EnDeath_SetupDeathCutscenePart2(EnDeath* this, PlayState* play) {
     this->actionTimer = 30;
     player->actor.shape.rot.y = Actor_WorldYawTowardPoint(&player->actor, &this->actor.home.pos) + 0x1000;
     this->actor.shape.rot.y = player->actor.shape.rot.y + 0x6000;
-    sinRotY = Math_SinS(player->actor.shape.rot.y);
-    cosRotY = Math_CosS(player->actor.shape.rot.y);
-    this->actor.world.pos.x = player->actor.world.pos.x + (260.0f * sinRotY);
-    this->actor.world.pos.z = player->actor.world.pos.z + (260.0f * cosRotY);
-    this->actor.world.pos.y = this->actor.home.pos.y + 15.0f;
-    eye.x = (Math_SinS((s16)(player->actor.shape.rot.y - 0x2500)) * 182.0f) + this->actor.world.pos.x;
-    eye.z = (Math_CosS((s16)(player->actor.shape.rot.y - 0x2500)) * 182.0f) + this->actor.world.pos.z;
-    eye.y = this->actor.world.pos.y - 13.0f;
-    at.x = player->actor.world.pos.x + (120.0f * sinRotY);
-    at.y = player->actor.world.pos.y + 90.0f;
-    at.z = player->actor.world.pos.z + (120.0f * cosRotY);
-    Play_SetCameraAtEye(play, this->camId, &at, &eye);
+    if (GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
+        sinRotY = Math_SinS(player->actor.shape.rot.y);
+        cosRotY = Math_CosS(player->actor.shape.rot.y);
+        this->actor.world.pos.x = player->actor.world.pos.x + (260.0f * sinRotY);
+        this->actor.world.pos.z = player->actor.world.pos.z + (260.0f * cosRotY);
+        this->actor.world.pos.y = this->actor.home.pos.y + 15.0f;
+        eye.x = (Math_SinS((s16)(player->actor.shape.rot.y - 0x2500)) * 182.0f) + this->actor.world.pos.x;
+        eye.z = (Math_CosS((s16)(player->actor.shape.rot.y - 0x2500)) * 182.0f) + this->actor.world.pos.z;
+        eye.y = this->actor.world.pos.y - 13.0f;
+        at.x = player->actor.world.pos.x + (120.0f * sinRotY);
+        at.y = player->actor.world.pos.y + 90.0f;
+        at.z = player->actor.world.pos.z + (120.0f * cosRotY);
+        Play_SetCameraAtEye(play, this->camId, &at, &eye);
+    }
 
     lightSettings1 = &play->envCtx.lightSettingsList[20];
     lightSettings2 = &play->envCtx.lightSettingsList[21];

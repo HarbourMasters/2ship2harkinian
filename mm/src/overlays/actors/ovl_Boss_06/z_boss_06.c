@@ -13,6 +13,7 @@
 
 #include "2s2h/BenPort.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
@@ -182,9 +183,11 @@ void func_809F23CC(Boss06* this) {
 }
 
 void func_809F24A8(Boss06* this) {
-    this->actionFunc = func_809F24C8;
-    this->unk_A28 = 0.0f;
-    this->unk_1AC = 0.0f;
+    if (GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
+        this->actionFunc = func_809F24C8;
+        this->unk_A28 = 0.0f;
+        this->unk_1AC = 0.0f;
+    }
 }
 
 void func_809F24C8(Boss06* this, PlayState* play) {

@@ -9,6 +9,7 @@
 #include "overlays/actors/ovl_Mir_Ray3/z_mir_ray3.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "objects/object_knight/object_knight.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_10 | ACTOR_FLAG_20)
 
@@ -1848,7 +1849,9 @@ void func_809B6764(EnKnight* this, PlayState* play) {
     }
 
     if (D_809BEFD4->actor.draw == NULL && D_809BEFD8->actor.draw == NULL) {
-        func_809B7190(this, play);
+        if (GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
+            func_809B7190(this, play);
+        }
         this->unk17A = this->unk178 = this->unk176 = this->unk174 = 0;
     }
 

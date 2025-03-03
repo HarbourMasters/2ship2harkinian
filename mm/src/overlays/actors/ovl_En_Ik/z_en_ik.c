@@ -7,6 +7,7 @@
 #include "z_en_ik.h"
 #include "z64rumble.h"
 #include "overlays/actors/ovl_En_Clear_Tag/z_en_clear_tag.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_400)
 
@@ -646,7 +647,7 @@ void EnIk_SetupReactToAttack(EnIk* this, s32 arg1) {
 
 void EnIk_ReactToAttack(EnIk* this, PlayState* play) {
     Math_StepToF(&this->actor.speed, 0.0f, 1.0f);
-    if (this->subCamId != SUB_CAM_ID_DONE) {
+    if (GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, this->subCamId != SUB_CAM_ID_DONE, this)) {
         Play_SetCameraAtEye(play, this->subCamId, &this->actor.focus.pos, &Play_GetCamera(play, this->subCamId)->eye);
     }
     if (SkelAnime_Update(&this->skelAnime)) {
@@ -738,11 +739,13 @@ void EnIk_PlayCutscene(EnIk* this, PlayState* play) {
     if (CutsceneManager_IsNext(this->actor.csId)) {
         if (this->actor.csId != CS_ID_NONE) {
             CutsceneManager_StartWithPlayerCsAndSetFlag(this->actor.csId, &this->actor);
-            this->subCamId = CutsceneManager_GetCurrentSubCamId(this->actor.csId);
-            subCamEye.x = (Math_SinS((this->actor.shape.rot.y - 0x2000)) * 120.0f) + this->actor.focus.pos.x;
-            subCamEye.y = this->actor.focus.pos.y + 20.0f;
-            subCamEye.z = (Math_CosS((this->actor.shape.rot.y - 0x2000)) * 120.0f) + this->actor.focus.pos.z;
-            Play_SetCameraAtEye(play, this->subCamId, &this->actor.focus.pos, &subCamEye);
+            if (GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
+                this->subCamId = CutsceneManager_GetCurrentSubCamId(this->actor.csId);
+                subCamEye.x = (Math_SinS((this->actor.shape.rot.y - 0x2000)) * 120.0f) + this->actor.focus.pos.x;
+                subCamEye.y = this->actor.focus.pos.y + 20.0f;
+                subCamEye.z = (Math_CosS((this->actor.shape.rot.y - 0x2000)) * 120.0f) + this->actor.focus.pos.z;
+                Play_SetCameraAtEye(play, this->subCamId, &this->actor.focus.pos, &subCamEye);
+            }
         }
         if (this->actor.colChkInfo.health != 0) {
             EnIk_SetupReactToAttack(this, false);

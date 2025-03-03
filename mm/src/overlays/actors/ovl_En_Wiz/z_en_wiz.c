@@ -8,6 +8,7 @@
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "overlays/actors/ovl_En_Clear_Tag/z_en_clear_tag.h"
 #include "overlays/actors/ovl_En_Wiz_Brock/z_en_wiz_brock.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS                                                                                                  \
     (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_10 | ACTOR_FLAG_20 | ACTOR_FLAG_IGNORE_QUAKE | \
@@ -832,20 +833,22 @@ void EnWiz_Dance(EnWiz* this, PlayState* play) {
 }
 
 void EnWiz_SetupSecondPhaseCutscene(EnWiz* this, PlayState* play) {
-    s16 secondPhaseCsId = CutsceneManager_GetAdditionalCsId(this->actor.csId);
+    if (GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
+        s16 secondPhaseCsId = CutsceneManager_GetAdditionalCsId(this->actor.csId);
 
-    if (!CutsceneManager_IsNext(secondPhaseCsId)) {
-        CutsceneManager_Queue(secondPhaseCsId);
-    } else {
-        CutsceneManager_StartWithPlayerCsAndSetFlag(secondPhaseCsId, &this->actor);
-        this->subCamId = CutsceneManager_GetCurrentSubCamId(secondPhaseCsId);
-        this->actor.flags |= ACTOR_FLAG_100000;
-        EnWiz_ChangeAnim(this, EN_WIZ_ANIM_DANCE, false);
-        this->action = EN_WIZ_ACTION_RUN_BETWEEN_PLATFORMS;
-        this->nextPlatformIndex = 1;
-        this->hasRunToEveryPlatform = false;
-        Math_SmoothStepToS(&this->alpha, 255, 1, 5, 0);
-        this->actionFunc = EnWiz_SecondPhaseCutscene;
+        if (!CutsceneManager_IsNext(secondPhaseCsId)) {
+            CutsceneManager_Queue(secondPhaseCsId);
+        } else {
+            CutsceneManager_StartWithPlayerCsAndSetFlag(secondPhaseCsId, &this->actor);
+            this->subCamId = CutsceneManager_GetCurrentSubCamId(secondPhaseCsId);
+            this->actor.flags |= ACTOR_FLAG_100000;
+            EnWiz_ChangeAnim(this, EN_WIZ_ANIM_DANCE, false);
+            this->action = EN_WIZ_ACTION_RUN_BETWEEN_PLATFORMS;
+            this->nextPlatformIndex = 1;
+            this->hasRunToEveryPlatform = false;
+            Math_SmoothStepToS(&this->alpha, 255, 1, 5, 0);
+            this->actionFunc = EnWiz_SecondPhaseCutscene;
+        }
     }
 }
 

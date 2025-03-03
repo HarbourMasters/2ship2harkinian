@@ -247,6 +247,7 @@ typedef enum {
     VB_PLAY_SCENE_SEQUENCE,
     VB_DISABLE_ITEM_UNDERWATER_FLOOR,
     VB_BE_CLIMBABLE_SURFACE,
+    VB_ENEMY_CUTSCENE_ACTION,
 } GIVanillaBehavior;
 
 typedef enum {

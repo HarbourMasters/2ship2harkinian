@@ -13,6 +13,7 @@
 #include "overlays/effects/ovl_Effect_Ss_Hitmark/z_eff_ss_hitmark.h"
 
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_10 | ACTOR_FLAG_20 | ACTOR_FLAG_80000000)
 
@@ -1095,8 +1096,10 @@ void EnEgol_Death(EnEgol* this, PlayState* play) {
     this->subCamEye.y = this->actor.world.pos.y + 70.0f;
     this->subCamEye.z = this->actor.world.pos.z;
     Math_ApproachF(&this->subCamFov, this->subCamFovTarget, 0.3f, 10.0f);
-    Play_SetCameraAtEye(play, this->subCamId, &this->subCamEye, &this->subCamAt);
-    Play_SetCameraFov(play, this->subCamId, this->subCamFov);
+    if (GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
+        Play_SetCameraAtEye(play, this->subCamId, &this->subCamEye, &this->subCamAt);
+        Play_SetCameraFov(play, this->subCamId, this->subCamFov);
+    }
     if ((this->action == EYEGORE_ACTION_DEAD) && (this->waitTimer == 1)) {
         if (this->switchFlag > SWITCH_FLAG_NONE) {
             Flags_SetSwitch(play, this->switchFlag);

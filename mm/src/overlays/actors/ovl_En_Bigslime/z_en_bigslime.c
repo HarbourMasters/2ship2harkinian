@@ -12,6 +12,7 @@
 #include "objects/object_bigslime/object_bigslime.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 #include "BenPort.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_10 | ACTOR_FLAG_20 | ACTOR_FLAG_200)
@@ -819,16 +820,18 @@ void EnBigslime_JerkCameraPlayerHit(EnBigslime* this, PlayState* play) {
  * then zooms into the Gekko until the Gekko calls the minislimes down from the ceiling
  */
 void EnBigslime_UpdateCameraIntroCs(EnBigslime* this, PlayState* play, s32 noticeTimer) {
-    Camera* subCam = Play_GetCamera(play, this->subCamId);
-    Vec3f subCamEye;
-    f32 zoom = (noticeTimer * 19.0f) + 67.0f;
-    s16 yawOffset = this->actor.yawTowardsPlayer + (noticeTimer * 0x31);
+    if (GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
+        Camera* subCam = Play_GetCamera(play, this->subCamId);
+        Vec3f subCamEye;
+        f32 zoom = (noticeTimer * 19.0f) + 67.0f;
+        s16 yawOffset = this->actor.yawTowardsPlayer + (noticeTimer * 0x31);
 
-    subCamEye.x = Math_SinS(yawOffset) * zoom + subCam->at.x;
-    subCamEye.z = Math_CosS(yawOffset) * zoom + subCam->at.z;
-    subCamEye.y = subCam->at.y + -4.0f + (noticeTimer * 2.0f);
+        subCamEye.x = Math_SinS(yawOffset) * zoom + subCam->at.x;
+        subCamEye.z = Math_CosS(yawOffset) * zoom + subCam->at.z;
+        subCamEye.y = subCam->at.y + -4.0f + (noticeTimer * 2.0f);
 
-    Play_SetCameraAtEye(play, this->subCamId, &subCam->at, &subCamEye);
+        Play_SetCameraAtEye(play, this->subCamId, &subCam->at, &subCamEye);
+    }
 }
 
 /**
@@ -836,7 +839,9 @@ void EnBigslime_UpdateCameraIntroCs(EnBigslime* this, PlayState* play, s32 notic
  * center of the roof. This is used when the minislimes merges into bigslime.
  */
 void EnBigslime_UpdateCameraFormingBigslime(EnBigslime* this, PlayState* play) {
-    Play_SetCameraAtEye(play, this->subCamId, &this->actor.focus.pos, &Play_GetCamera(play, this->subCamId)->eye);
+    if (GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
+        Play_SetCameraAtEye(play, this->subCamId, &this->actor.focus.pos, &Play_GetCamera(play, this->subCamId)->eye);
+    }
 }
 
 void EnBigslime_EndCutscene(EnBigslime* this, PlayState* play) {
@@ -1009,7 +1014,9 @@ void EnBigslime_CallMinislime(EnBigslime* this, PlayState* play) {
         EnBigslime_InitFallMinislime(this);
         play->envCtx.lightSettingOverride = LIGHT_SETTING_OVERRIDE_NONE;
         this->callTimer = 35;
-        Player_SetCsActionWithHaltedActors(play, &this->actor, PLAYER_CSACTION_4);
+        if (GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
+            Player_SetCsActionWithHaltedActors(play, &this->actor, PLAYER_CSACTION_4);
+        }
     }
 }
 
@@ -2345,7 +2352,9 @@ void EnBigslime_SetupCutsceneDefeat(EnBigslime* this, PlayState* play) {
     subCamEye.x = (Math_SinS(yawOffset) * 250.0f) + subCamAt.x;
     subCamEye.y = subCamAt.y + 60.0f;
     subCamEye.z = (Math_CosS(yawOffset) * 250.0f) + subCamAt.z;
-    Play_SetCameraAtEye(play, this->subCamId, &subCamAt, &subCamEye);
+    if (GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
+        Play_SetCameraAtEye(play, this->subCamId, &subCamAt, &subCamEye);
+    }
 
     for (i = 0; i < MINISLIME_NUM_SPAWN; i++) {
         this->minislime[i]->actor.params = MINISLIME_DEFEAT_IDLE;
@@ -2368,11 +2377,13 @@ void EnBigslime_CutsceneDefeat(EnBigslime* this, PlayState* play) {
         EnBigslime_SetupGekkoDespawn(this, play);
     } else {
         // Continue for the camera to follow Gekko as it spins in defeat
-        subCam = Play_GetCamera(play, this->subCamId);
-        subCamAt.x = this->actor.world.pos.x;
-        subCamAt.y = this->actor.world.pos.y + 40.0f;
-        subCamAt.z = this->actor.world.pos.z;
-        Play_SetCameraAtEye(play, this->subCamId, &subCamAt, &subCam->eye);
+        if (GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
+            subCam = Play_GetCamera(play, this->subCamId);
+            subCamAt.x = this->actor.world.pos.x;
+            subCamAt.y = this->actor.world.pos.y + 40.0f;
+            subCamAt.z = this->actor.world.pos.z;
+            Play_SetCameraAtEye(play, this->subCamId, &subCamAt, &subCam->eye);
+        }
     }
 }
 
@@ -2407,12 +2418,14 @@ void EnBigslime_GekkoDespawn(EnBigslime* this, PlayState* play) {
     if (this->despawnTimer == 0) {
         EnBigslime_SetupFrogSpawn(this, play);
     } else {
-        subCam = Play_GetCamera(play, this->subCamId);
-        Math_Vec3f_Copy(&subCamAt, &subCam->at);
-        Math_Vec3f_Diff(&subCam->eye, &this->subCamDistToFrog, &subCamEye);
-        subCamEye.y -= 1.8f;
-        subCamAt.y -= 1.7f;
-        Play_SetCameraAtEye(play, this->subCamId, &subCamAt, &subCamEye);
+        if (GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
+            subCam = Play_GetCamera(play, this->subCamId);
+            Math_Vec3f_Copy(&subCamAt, &subCam->at);
+            Math_Vec3f_Diff(&subCam->eye, &this->subCamDistToFrog, &subCamEye);
+            subCamEye.y -= 1.8f;
+            subCamAt.y -= 1.7f;
+            Play_SetCameraAtEye(play, this->subCamId, &subCamAt, &subCamEye);
+        }
     }
 }
 
@@ -2469,7 +2482,9 @@ void EnBigslime_FrogSpawn(EnBigslime* this, PlayState* play) {
     subCamEye.x = subCam->at.x + (this->subCamDistToFrog.x * subCamZoom);
     subCamEye.z = subCam->at.z + (this->subCamDistToFrog.z * subCamZoom);
     subCamEye.y = subCam->at.y + (this->subCamDistToFrog.y * subCamZoom);
-    Play_SetCameraAtEye(play, this->subCamId, &subCam->at, &subCamEye);
+    if (GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
+        Play_SetCameraAtEye(play, this->subCamId, &subCam->at, &subCamEye);
+    }
 
     if (this->spawnFrogTimer == 0) {
         EnBigslime_EndCutscene(this, play);
@@ -2544,7 +2559,7 @@ void EnBigslime_PlayCutscene(EnBigslime* this, PlayState* play) {
         CutsceneManager_Queue(this->csId);
     } else if (CutsceneManager_IsNext(this->csId)) {
         CutsceneManager_Start(this->csId, &this->actor);
-        if (this->actionFuncStored != EnBigslime_SquishFlat) {
+        if (GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, this->actionFuncStored != EnBigslime_SquishFlat, this)) {
             Player_SetCsAction(play, &this->actor, PLAYER_CSACTION_WAIT);
         }
 
