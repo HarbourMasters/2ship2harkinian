@@ -833,22 +833,24 @@ void EnWiz_Dance(EnWiz* this, PlayState* play) {
 }
 
 void EnWiz_SetupSecondPhaseCutscene(EnWiz* this, PlayState* play) {
-    if (GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
-        s16 secondPhaseCsId = CutsceneManager_GetAdditionalCsId(this->actor.csId);
+    if (!GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
+        return;
+    }
 
-        if (!CutsceneManager_IsNext(secondPhaseCsId)) {
-            CutsceneManager_Queue(secondPhaseCsId);
-        } else {
-            CutsceneManager_StartWithPlayerCsAndSetFlag(secondPhaseCsId, &this->actor);
-            this->subCamId = CutsceneManager_GetCurrentSubCamId(secondPhaseCsId);
-            this->actor.flags |= ACTOR_FLAG_100000;
-            EnWiz_ChangeAnim(this, EN_WIZ_ANIM_DANCE, false);
-            this->action = EN_WIZ_ACTION_RUN_BETWEEN_PLATFORMS;
-            this->nextPlatformIndex = 1;
-            this->hasRunToEveryPlatform = false;
-            Math_SmoothStepToS(&this->alpha, 255, 1, 5, 0);
-            this->actionFunc = EnWiz_SecondPhaseCutscene;
-        }
+    s16 secondPhaseCsId = CutsceneManager_GetAdditionalCsId(this->actor.csId);
+
+    if (!CutsceneManager_IsNext(secondPhaseCsId)) {
+        CutsceneManager_Queue(secondPhaseCsId);
+    } else {
+        CutsceneManager_StartWithPlayerCsAndSetFlag(secondPhaseCsId, &this->actor);
+        this->subCamId = CutsceneManager_GetCurrentSubCamId(secondPhaseCsId);
+        this->actor.flags |= ACTOR_FLAG_100000;
+        EnWiz_ChangeAnim(this, EN_WIZ_ANIM_DANCE, false);
+        this->action = EN_WIZ_ACTION_RUN_BETWEEN_PLATFORMS;
+        this->nextPlatformIndex = 1;
+        this->hasRunToEveryPlatform = false;
+        Math_SmoothStepToS(&this->alpha, 255, 1, 5, 0);
+        this->actionFunc = EnWiz_SecondPhaseCutscene;
     }
 }
 

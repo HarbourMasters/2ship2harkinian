@@ -820,18 +820,20 @@ void EnBigslime_JerkCameraPlayerHit(EnBigslime* this, PlayState* play) {
  * then zooms into the Gekko until the Gekko calls the minislimes down from the ceiling
  */
 void EnBigslime_UpdateCameraIntroCs(EnBigslime* this, PlayState* play, s32 noticeTimer) {
-    if (GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
-        Camera* subCam = Play_GetCamera(play, this->subCamId);
-        Vec3f subCamEye;
-        f32 zoom = (noticeTimer * 19.0f) + 67.0f;
-        s16 yawOffset = this->actor.yawTowardsPlayer + (noticeTimer * 0x31);
-
-        subCamEye.x = Math_SinS(yawOffset) * zoom + subCam->at.x;
-        subCamEye.z = Math_CosS(yawOffset) * zoom + subCam->at.z;
-        subCamEye.y = subCam->at.y + -4.0f + (noticeTimer * 2.0f);
-
-        Play_SetCameraAtEye(play, this->subCamId, &subCam->at, &subCamEye);
+    if (!GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
+        return;
     }
+
+    Camera* subCam = Play_GetCamera(play, this->subCamId);
+    Vec3f subCamEye;
+    f32 zoom = (noticeTimer * 19.0f) + 67.0f;
+    s16 yawOffset = this->actor.yawTowardsPlayer + (noticeTimer * 0x31);
+
+    subCamEye.x = Math_SinS(yawOffset) * zoom + subCam->at.x;
+    subCamEye.z = Math_CosS(yawOffset) * zoom + subCam->at.z;
+    subCamEye.y = subCam->at.y + -4.0f + (noticeTimer * 2.0f);
+
+    Play_SetCameraAtEye(play, this->subCamId, &subCam->at, &subCamEye);
 }
 
 /**
@@ -839,9 +841,11 @@ void EnBigslime_UpdateCameraIntroCs(EnBigslime* this, PlayState* play, s32 notic
  * center of the roof. This is used when the minislimes merges into bigslime.
  */
 void EnBigslime_UpdateCameraFormingBigslime(EnBigslime* this, PlayState* play) {
-    if (GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
-        Play_SetCameraAtEye(play, this->subCamId, &this->actor.focus.pos, &Play_GetCamera(play, this->subCamId)->eye);
+    if (!GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
+        return;
     }
+
+    Play_SetCameraAtEye(play, this->subCamId, &this->actor.focus.pos, &Play_GetCamera(play, this->subCamId)->eye);
 }
 
 void EnBigslime_EndCutscene(EnBigslime* this, PlayState* play) {
@@ -2377,13 +2381,15 @@ void EnBigslime_CutsceneDefeat(EnBigslime* this, PlayState* play) {
         EnBigslime_SetupGekkoDespawn(this, play);
     } else {
         // Continue for the camera to follow Gekko as it spins in defeat
-        if (GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
-            subCam = Play_GetCamera(play, this->subCamId);
-            subCamAt.x = this->actor.world.pos.x;
-            subCamAt.y = this->actor.world.pos.y + 40.0f;
-            subCamAt.z = this->actor.world.pos.z;
-            Play_SetCameraAtEye(play, this->subCamId, &subCamAt, &subCam->eye);
+        if (!GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
+            return;
         }
+
+        subCam = Play_GetCamera(play, this->subCamId);
+        subCamAt.x = this->actor.world.pos.x;
+        subCamAt.y = this->actor.world.pos.y + 40.0f;
+        subCamAt.z = this->actor.world.pos.z;
+        Play_SetCameraAtEye(play, this->subCamId, &subCamAt, &subCam->eye);
     }
 }
 
@@ -2418,14 +2424,16 @@ void EnBigslime_GekkoDespawn(EnBigslime* this, PlayState* play) {
     if (this->despawnTimer == 0) {
         EnBigslime_SetupFrogSpawn(this, play);
     } else {
-        if (GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
-            subCam = Play_GetCamera(play, this->subCamId);
-            Math_Vec3f_Copy(&subCamAt, &subCam->at);
-            Math_Vec3f_Diff(&subCam->eye, &this->subCamDistToFrog, &subCamEye);
-            subCamEye.y -= 1.8f;
-            subCamAt.y -= 1.7f;
-            Play_SetCameraAtEye(play, this->subCamId, &subCamAt, &subCamEye);
+        if (!GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
+            return;
         }
+
+        subCam = Play_GetCamera(play, this->subCamId);
+        Math_Vec3f_Copy(&subCamAt, &subCam->at);
+        Math_Vec3f_Diff(&subCam->eye, &this->subCamDistToFrog, &subCamEye);
+        subCamEye.y -= 1.8f;
+        subCamAt.y -= 1.7f;
+        Play_SetCameraAtEye(play, this->subCamId, &subCamAt, &subCamEye);
     }
 }
 

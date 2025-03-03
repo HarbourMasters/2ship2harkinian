@@ -326,30 +326,34 @@ s32 func_8086A2CC(EnPametfrog* this, CollisionPoly* floorPoly) {
 }
 
 void EnPametfrog_ShakeCamera(EnPametfrog* this, PlayState* play, f32 magShakeXZ, f32 magShakeY) {
-    if (GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
-        Camera* subCam = Play_GetCamera(play, this->subCamId);
-        s16 subCamYaw;
-        Vec3f subCamEye;
-
-        subCamYaw = BINANG_ROT180(Camera_GetCamDirYaw(subCam));
-        subCamEye.x = (Math_SinS(subCamYaw) * magShakeXZ) + subCam->at.x;
-        subCamEye.y = subCam->at.y + magShakeY;
-        subCamEye.z = (Math_CosS(subCamYaw) * magShakeXZ) + subCam->at.z;
-        Play_SetCameraAtEye(play, this->subCamId, &subCam->at, &subCamEye);
+    if (!GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
+        return;
     }
+
+    Camera* subCam = Play_GetCamera(play, this->subCamId);
+    s16 subCamYaw;
+    Vec3f subCamEye;
+
+    subCamYaw = BINANG_ROT180(Camera_GetCamDirYaw(subCam));
+    subCamEye.x = (Math_SinS(subCamYaw) * magShakeXZ) + subCam->at.x;
+    subCamEye.y = subCam->at.y + magShakeY;
+    subCamEye.z = (Math_CosS(subCamYaw) * magShakeXZ) + subCam->at.z;
+    Play_SetCameraAtEye(play, this->subCamId, &subCam->at, &subCamEye);
 }
 
 void EnPametfrog_StopCutscene(EnPametfrog* this, PlayState* play) {
-    if (GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
-        Camera* subCam;
+    if (!GameInteractor_Should(VB_ENEMY_CUTSCENE_ACTION, true, this)) {
+        return;
+    }
 
-        if (this->subCamId != SUB_CAM_ID_DONE) {
-            subCam = Play_GetCamera(play, this->subCamId);
-            Play_SetCameraAtEye(play, CAM_ID_MAIN, &subCam->at, &subCam->eye);
-            this->subCamId = SUB_CAM_ID_DONE;
-            CutsceneManager_Stop(this->csId);
-            Player_SetCsAction(play, &this->actor, PLAYER_CSACTION_END);
-        }
+    Camera* subCam;
+
+    if (this->subCamId != SUB_CAM_ID_DONE) {
+        subCam = Play_GetCamera(play, this->subCamId);
+        Play_SetCameraAtEye(play, CAM_ID_MAIN, &subCam->at, &subCam->eye);
+        this->subCamId = SUB_CAM_ID_DONE;
+        CutsceneManager_Stop(this->csId);
+        Player_SetCsAction(play, &this->actor, PLAYER_CSACTION_END);
     }
 }
 
