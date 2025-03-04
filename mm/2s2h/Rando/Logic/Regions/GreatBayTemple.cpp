@@ -159,6 +159,9 @@ static RegisterShipInitFunc initFunc([]() {
         .connections = {
             CONNECTION(RR_GREAT_BAY_TEMPLE_COMPASS_ROOM_WITH_BOSS_KEY_CHEST,    CAN_USE_MAGIC_ARROW(ICE)),
         },
+        .events = {
+            EVENT(RE_ACCESS_FROG_PINK, CanKillEnemy(ACTOR_EN_BIGSLIME)),
+        },
     };
     Regions[RR_GREAT_BAY_TEMPLE_GREEN_PIPE_1] = RandoRegion{ .sceneId = SCENE_SEA,
         .checks = {
