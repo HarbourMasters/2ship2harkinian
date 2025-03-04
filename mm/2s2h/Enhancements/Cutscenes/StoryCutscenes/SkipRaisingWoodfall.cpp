@@ -1,8 +1,5 @@
 #include <libultraship/bridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
-#include "2s2h/CustomMessage/CustomMessage.h"
-#include "2s2h/CustomItem/CustomItem.h"
-#include "2s2h/Rando/Rando.h"
 #include "2s2h/ShipInit.hpp"
 
 extern "C" {
@@ -19,6 +16,9 @@ void RegisterSkipRaisingWoodfall() {
         if (gPlayState->sceneId == SCENE_21MITURINMAE) {
             if (*csId == 11) {
                 *should = false;
+
+                
+                Audio_PlaySequenceInCutscene(NA_BGM_DUNGEON_APPEAR);
 
                 // Need to reload the scene after WEEKEVENTREG_12_20 gets set for the temple to be up.
                 // Based on WarpPoint.cpp
