@@ -105,23 +105,24 @@ jobs:
       with:
         submodules: true
     - name: ccache
-      uses: hendrikmuhs/ccache-action@v1.2.13
+      uses: hendrikmuhs/ccache-action@v1.2
       with:
-        key: ${{ runner.os }}-otr-ccache-${{ github.ref }}-${{ github.sha }}
+        save: false
+        key: ${{ runner.os }}-ccache-${{ github.ref }}-${{ github.sha }}
         restore-keys: |
-          ${{ runner.os }}-otr-ccache-${{ github.ref }}
-          ${{ runner.os }}-otr-ccache-
+          ${{ runner.os }}-ccache-${{ github.ref }}
+          ${{ runner.os }}-ccache-
     - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y $(cat .github/workflows/apt-deps.txt) libzip-dev zipcmp zipmerge ziptool
-    - name: Cache build folders
-      uses: actions/cache@v4
+    - name: Restore Cached build folders
+      uses: actions/cache/restore@v4
       with:
-        key: ${{ runner.os }}-otr-build-${{ github.ref }}-${{ github.sha }}
+        key: ${{ runner.os }}-build-${{ github.ref }}-${{ github.sha }}
         restore-keys: |
-          ${{ runner.os }}-otr-build-${{ github.ref }}
-          ${{ runner.os }}-otr-build-
+          ${{ runner.os }}-build-${{ github.ref }}
+          ${{ runner.os }}-build-
         path: |
           build-cmake
           SDL2-2.28.5
@@ -171,9 +172,10 @@ jobs:
       with:
         submodules: true
     - name: ccache
-      uses: hendrikmuhs/ccache-action@v1.2.13
+      uses: hendrikmuhs/ccache-action@v1.2
       with:
         create-symlink: true
+        save: ${{ github.ref_name == github.event.repository.default_branch }}
         key: ${{ runner.os }}-14-ccache-${{ github.ref }}-${{ github.sha }}
         restore-keys: |
           ${{ runner.os }}-14-ccache-${{ github.ref }}
@@ -184,14 +186,14 @@ jobs:
         sudo mv /opt/homebrew/bin/gtar /opt/homebrew/bin/gtar.orig
         sudo cp .github/workflows/gtar /opt/homebrew/bin/gtar
         sudo chmod +x /opt/homebrew/bin/gtar
-    - name: Cache MacPorts
-      id: cache-macports
-      uses: actions/cache@v4
+    - name: Restore Cached MacPorts
+      id: restore-cache-macports
+      uses: actions/cache/restore@v4
       with:
-        path: /opt/local/
         key: ${{ runner.os }}-14-macports-${{ hashFiles('.github/workflows/macports-deps.txt') }}
         restore-keys: |
           ${{ runner.os }}-14-macports-
+        path: /opt/local/
     # Updated PATH applies to the next step and onwards
     - name: Install MacPorts (if necessary)
       run: |
@@ -215,7 +217,7 @@ jobs:
         path: build-cmake/mm
     - name: Build 2Ship
       run: |
-        export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
+        export PATH="/usr/lib/ccache:/opt/homebrew/opt/ccache/libexec:/usr/local/opt/ccache/libexec:$PATH"
         cmake --no-warn-unused-cli -H. -Bbuild-cmake -GNinja -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"
         cmake --build build-cmake --config Release --parallel 10
         (cd build-cmake && cpack)
@@ -229,6 +231,12 @@ jobs:
         path: |
           2Ship.dmg
           readme.txt
+    - name: Save Cache MacPorts
+      if: ${{ github.ref_name == github.event.repository.default_branch && steps.restore-cache-macports.outputs.cache-hit != 'true' }}
+      uses: actions/cache/save@v4
+      with:
+        key: ${{ steps.restore-cache-macports.outputs.cache-primary-key }}
+        path: /opt/local/
 
   build-linux:
     needs: generate-2ship-otr
@@ -242,19 +250,21 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y $(cat .github/workflows/apt-deps.txt)
     - name: ccache
-      uses: hendrikmuhs/ccache-action@v1.2.13
+      uses: hendrikmuhs/ccache-action@v1.2
       with:
-        key: linux-ccache-${{ github.ref }}-${{ github.sha }}
+        save: ${{ github.ref_name == github.event.repository.default_branch }}
+        key: ${{ runner.os }}-ccache-${{ github.ref }}-${{ github.sha }}
         restore-keys: |
-          linux-ccache-${{ github.ref }}
-          linux-ccache-
-    - name: Cache build folders
-      uses: actions/cache@v4
+          ${{ runner.os }}-ccache-${{ github.ref }}
+          ${{ runner.os }}-ccache-
+    - name: Restore Cached build folders
+      id: restore-cache-build
+      uses: actions/cache/restore@v4
       with:
-        key: linux-build-${{ github.ref }}-${{ github.sha }}
+        key: ${{ runner.os }}-build-${{ github.ref }}-${{ github.sha }}
         restore-keys: |
-          linux-build-${{ github.ref }}
-          linux-build-
+          ${{ runner.os }}-build-${{ github.ref }}
+          ${{ runner.os }}-build-
         path: |
           SDL2-2.30.3
           tinyxml2-10.0.0
@@ -323,6 +333,15 @@ jobs:
         path: |
           2ship.appimage
           readme.txt
+    - name: Save Cache build folders
+      if: ${{ github.ref_name == github.event.repository.default_branch }}
+      uses: actions/cache/save@v4
+      with:
+        key: ${{ steps.restore-cache-build.outputs.cache-primary-key }}
+        path: |
+          SDL2-2.30.3
+          tinyxml2-10.0.0
+          libzip-1.10.1
 
   build-windows:
     needs: generate-2ship-otr
@@ -336,22 +355,23 @@ jobs:
       with:
         submodules: true
     - name: ccache
-      uses: hendrikmuhs/ccache-action@v1.2.13
+      uses: hendrikmuhs/ccache-action@v1.2
       with:
         variant: sccache
         max-size: "1G"
-        key: ${{ runner.os }}-ccache1-${{ github.ref }}-${{ github.sha }}
+        save: ${{ github.ref_name == github.event.repository.default_branch }}
+        key: ${{ runner.os }}-ccache-${{ github.ref }}-${{ github.sha }}
         restore-keys: |
-          ${{ runner.os }}-ccache1-${{ github.ref }}
-          ${{ runner.os }}-ccache1-
-    - name: Cache build folder
-      uses: actions/cache@v4
+          ${{ runner.os }}-ccache-${{ github.ref }}
+          ${{ runner.os }}-ccache-
+    - name: Restore Cached build folder
+      id: restore-cache-build
+      uses: actions/cache/restore@v4
       with:
-        save-always: true
-        key: ${{ runner.os }}-build1-${{ github.ref }}-${{ github.sha }}
+        key: ${{ runner.os }}-build-${{ github.ref }}-${{ github.sha }}
         restore-keys: |
-          ${{ runner.os }}-build1-${{ github.ref }}
-          ${{ runner.os }}-build1-
+          ${{ runner.os }}-build-${{ github.ref }}
+          ${{ runner.os }}-build-
         path: |
           build-windows
           vcpkg
@@ -380,3 +400,11 @@ jobs:
       with:
         name: 2ship-windows
         path: 2ship-windows
+    - name: Save Cache build folders
+      if: ${{ github.ref_name == github.event.repository.default_branch }}
+      uses: actions/cache/save@v4
+      with:
+        key: ${{ steps.restore-cache-build.outputs.cache-primary-key }}
+        path: |
+          build-windows
+          vcpkg
