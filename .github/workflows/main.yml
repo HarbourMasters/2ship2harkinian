@@ -124,17 +124,17 @@ jobs:
           ${{ runner.os }}-build-${{ github.ref }}
           ${{ runner.os }}-build-
         path: |
-          build-cmake
-          SDL2-2.28.5
+          SDL2-2.30.3
           tinyxml2-10.0.0
+          libzip-1.10.1
     - name: Install latest SDL
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-        if [ ! -d "SDL2-2.28.5" ]; then
-          wget https://github.com/libsdl-org/SDL/releases/download/release-2.28.5/SDL2-2.28.5.tar.gz
-          tar -xzf SDL2-2.28.5.tar.gz
+        if [ ! -d "SDL2-2.30.3" ]; then
+          wget https://github.com/libsdl-org/SDL/releases/download/release-2.30.3/SDL2-2.30.3.tar.gz
+          tar -xzf SDL2-2.30.3.tar.gz
         fi
-        cd SDL2-2.28.5
+        cd SDL2-2.30.3
         ./configure --enable-hidapi-libusb
         make -j 10
         sudo make install
@@ -372,9 +372,7 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-build-${{ github.ref }}
           ${{ runner.os }}-build-
-        path: |
-          build-windows
-          vcpkg
+        path: vcpkg
     - name: Configure Developer Command Prompt
       uses: ilammy/msvc-dev-cmd@v1
     - name: Download 2ship.o2r
@@ -405,6 +403,4 @@ jobs:
       uses: actions/cache/save@v4
       with:
         key: ${{ steps.restore-cache-build.outputs.cache-primary-key }}
-        path: |
-          build-windows
-          vcpkg
+        path: vcpkg
