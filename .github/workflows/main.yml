@@ -107,34 +107,33 @@ jobs:
     - name: ccache
       uses: hendrikmuhs/ccache-action@v1.2
       with:
-        save: false
-        key: ${{ runner.os }}-ccache-${{ github.ref }}-${{ github.sha }}
+        save: ${{ github.ref_name == github.event.repository.default_branch }}
+        key: ${{ runner.os }}-otr-ccache-${{ github.ref }}-${{ github.sha }}
         restore-keys: |
-          ${{ runner.os }}-ccache-${{ github.ref }}
-          ${{ runner.os }}-ccache-
+          ${{ runner.os }}-otr-ccache-${{ github.ref }}
+          ${{ runner.os }}-otr-ccache-
     - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y $(cat .github/workflows/apt-deps.txt) libzip-dev zipcmp zipmerge ziptool
-    - name: Restore Cached build folders
+    - name: Restore Cached deps folder
       uses: actions/cache/restore@v4
       with:
-        key: ${{ runner.os }}-build-${{ github.ref }}-${{ github.sha }}
+        key: ${{ runner.os }}-deps-${{ github.ref }}-${{ github.sha }}
         restore-keys: |
-          ${{ runner.os }}-build-${{ github.ref }}
-          ${{ runner.os }}-build-
-        path: |
-          SDL2-2.30.3
-          tinyxml2-10.0.0
-          libzip-1.10.1
+          ${{ runner.os }}-deps-${{ github.ref }}
+          ${{ runner.os }}-deps-
+        path: deps
+    - name: Create deps folder
+      run: mkdir -p deps
     - name: Install latest SDL
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-        if [ ! -d "SDL2-2.30.3" ]; then
+        if [ ! -d "deps/SDL2-2.30.3" ]; then
           wget https://github.com/libsdl-org/SDL/releases/download/release-2.30.3/SDL2-2.30.3.tar.gz
-          tar -xzf SDL2-2.30.3.tar.gz
+          tar -xzf SDL2-2.30.3.tar.gz -C deps
         fi
-        cd SDL2-2.30.3
+        cd deps/SDL2-2.30.3
         ./configure --enable-hidapi-libusb
         make -j 10
         sudo make install
@@ -143,11 +142,11 @@ jobs:
       run: |
         sudo apt-get remove libtinyxml2-dev
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-        if [ ! -d "tinyxml2-10.0.0" ]; then
+        if [ ! -d "deps/tinyxml2-10.0.0" ]; then
           wget https://github.com/leethomason/tinyxml2/archive/refs/tags/10.0.0.tar.gz
-          tar -xzf 10.0.0.tar.gz
+          tar -xzf 10.0.0.tar.gz -C deps
         fi
-        cd tinyxml2-10.0.0
+        cd deps/tinyxml2-10.0.0
         mkdir -p build
         cd build
         cmake ..
@@ -257,26 +256,25 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-ccache-${{ github.ref }}
           ${{ runner.os }}-ccache-
-    - name: Restore Cached build folders
-      id: restore-cache-build
+    - name: Restore Cached deps folder
+      id: restore-cache-deps
       uses: actions/cache/restore@v4
       with:
-        key: ${{ runner.os }}-build-${{ github.ref }}-${{ github.sha }}
+        key: ${{ runner.os }}-deps-${{ github.ref }}-${{ github.sha }}
         restore-keys: |
-          ${{ runner.os }}-build-${{ github.ref }}
-          ${{ runner.os }}-build-
-        path: |
-          SDL2-2.30.3
-          tinyxml2-10.0.0
-          libzip-1.10.1
+          ${{ runner.os }}-deps-${{ github.ref }}
+          ${{ runner.os }}-deps-
+        path: deps
+    - name: Create deps folder
+      run: mkdir -p deps
     - name: Install latest SDL
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-        if [ ! -d "SDL2-2.30.3" ]; then
+        if [ ! -d "deps/SDL2-2.30.3" ]; then
           wget https://github.com/libsdl-org/SDL/releases/download/release-2.30.3/SDL2-2.30.3.tar.gz
-          tar -xzf SDL2-2.30.3.tar.gz
+          tar -xzf SDL2-2.30.3.tar.gz -C deps
         fi
-        cd SDL2-2.30.3
+        cd deps/SDL2-2.30.3
         ./configure --enable-hidapi-libusb
         make -j 10
         sudo make install
@@ -285,11 +283,11 @@ jobs:
       run: |
         sudo apt-get remove libtinyxml2-dev
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-        if [ ! -d "tinyxml2-10.0.0" ]; then
+        if [ ! -d "deps/tinyxml2-10.0.0" ]; then
           wget https://github.com/leethomason/tinyxml2/archive/refs/tags/10.0.0.tar.gz
-          tar -xzf 10.0.0.tar.gz
+          tar -xzf 10.0.0.tar.gz -C deps
         fi
-        cd tinyxml2-10.0.0
+        cd deps/tinyxml2-10.0.0
         mkdir -p build
         cd build
         cmake ..
@@ -298,11 +296,11 @@ jobs:
     - name: Install libzip without crypto
       run: |
         export PATH="/usr/lib/ccache:/usr/local/opt/ccache/libexec:$PATH"
-        if [ ! -d "libzip-1.10.1" ]; then
+        if [ ! -d "deps/libzip-1.10.1" ]; then
           wget https://github.com/nih-at/libzip/releases/download/v1.10.1/libzip-1.10.1.tar.gz
-          tar -xzf libzip-1.10.1.tar.gz
+          tar -xzf libzip-1.10.1.tar.gz -C deps
         fi
-        cd libzip-1.10.1
+        cd deps/libzip-1.10.1
         mkdir -p build
         cd build
         cmake .. -DENABLE_COMMONCRYPTO=OFF -DENABLE_GNUTLS=OFF -DENABLE_MBEDTLS=OFF -DENABLE_OPENSSL=OFF
@@ -333,15 +331,12 @@ jobs:
         path: |
           2ship.appimage
           readme.txt
-    - name: Save Cache build folders
+    - name: Save Cache deps folder
       if: ${{ github.ref_name == github.event.repository.default_branch }}
       uses: actions/cache/save@v4
       with:
-        key: ${{ steps.restore-cache-build.outputs.cache-primary-key }}
-        path: |
-          SDL2-2.30.3
-          tinyxml2-10.0.0
-          libzip-1.10.1
+        key: ${{ steps.restore-cache-deps.outputs.cache-primary-key }}
+        path: deps
 
   build-windows:
     needs: generate-2ship-otr
@@ -364,14 +359,14 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-ccache-${{ github.ref }}
           ${{ runner.os }}-ccache-
-    - name: Restore Cached build folder
-      id: restore-cache-build
+    - name: Restore Cached VCPKG folder
+      id: restore-cache-vcpkg
       uses: actions/cache/restore@v4
       with:
-        key: ${{ runner.os }}-build-${{ github.ref }}-${{ github.sha }}
+        key: ${{ runner.os }}-vcpkg-${{ github.ref }}-${{ github.sha }}
         restore-keys: |
-          ${{ runner.os }}-build-${{ github.ref }}
-          ${{ runner.os }}-build-
+          ${{ runner.os }}-vcpkg-${{ github.ref }}
+          ${{ runner.os }}-vcpkg-
         path: vcpkg
     - name: Configure Developer Command Prompt
       uses: ilammy/msvc-dev-cmd@v1
@@ -398,9 +393,9 @@ jobs:
       with:
         name: 2ship-windows
         path: 2ship-windows
-    - name: Save Cache build folders
+    - name: Save Cache VCPKG folder
       if: ${{ github.ref_name == github.event.repository.default_branch }}
       uses: actions/cache/save@v4
       with:
-        key: ${{ steps.restore-cache-build.outputs.cache-primary-key }}
+        key: ${{ steps.restore-cache-vcpkg.outputs.cache-primary-key }}
         path: vcpkg
