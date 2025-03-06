@@ -6,7 +6,6 @@
 
 #include "z_en_minifrog.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
-#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY | ACTOR_FLAG_10)
 
@@ -136,7 +135,7 @@ void EnMinifrog_Init(Actor* thisx, PlayState* play) {
             this->actor.flags &= ~ACTOR_FLAG_TARGETABLE;
 
             // Frog has been returned
-            if (GameInteractor_Should(VB_FROG_SAVED, CHECK_WEEKEVENTREG(sIsFrogReturnedFlags[this->frogIndex]))) {
+            if (CHECK_WEEKEVENTREG(sIsFrogReturnedFlags[this->frogIndex])) {
                 this->actionFunc = EnMinifrog_SetupNextFrogInit;
             } else {
                 this->actor.draw = NULL;
