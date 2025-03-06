@@ -18,8 +18,6 @@ void RegisterJinxedTimer() {
                 gSaveContext.jinxTimer = CVAR * 20;
             }
         }
-        // Log the timer value for debugging
-        printf("jinxTimer after modification: %d\n", gSaveContext.jinxTimer);
     });
 }
 
