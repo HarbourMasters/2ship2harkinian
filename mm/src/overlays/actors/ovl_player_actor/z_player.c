@@ -12138,6 +12138,8 @@ void Player_UpdateCommon(Player* this, PlayState* play, Input* input) {
 
     if (gSaveContext.jinxTimer != 0) {
         gSaveContext.jinxTimer--;
+
+        GameInteractor_Should(VB_MODIFY_JINX_TIMER, true, &gSaveContext.jinxTimer);
     }
 
     func_80122C20(play, &this->unk_3D0);
