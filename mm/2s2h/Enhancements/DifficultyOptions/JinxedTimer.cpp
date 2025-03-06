@@ -6,17 +6,20 @@
 #define CVAR CVarGetInteger(CVAR_NAME, 60)
 
 void RegisterJinxedTimer() {
-    COND_VB_SHOULD(VB_MODIFY_JINX_TIMER, CVAR < 60, {
-        s32* timer = va_arg(args, s32*);
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_PLAYER, CVAR < 60, [](Actor* actor, bool* should) {
+        if (gSaveContext.jinxTimer == 0) {
+            return;
+        }
 
         if (CVAR == 0) {
-            *timer = 0;
+            gSaveContext.jinxTimer = 0;
         } else {
-            // Prevent the timer from exceeding CVAR * 20 and resetting to 1200 if hit again while jinxed.
-            if (*timer > CVAR * 20) {
-                *timer = CVAR * 20;
+            if (gSaveContext.jinxTimer > CVAR * 20) {
+                gSaveContext.jinxTimer = CVAR * 20;
             }
         }
+        // Log the timer value for debugging
+        printf("jinxTimer after modification: %d\n", gSaveContext.jinxTimer);
     });
 }
 

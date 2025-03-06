@@ -233,7 +233,6 @@ typedef enum {
     VB_BUY_GORMAN_MILK,
     VB_PLAY_LOW_HP_ALARM,
     VB_PLAY_GORON_CHILD_CRY,
-    VB_MODIFY_JINX_TIMER,
 } GIVanillaBehavior;
 
 typedef enum {
