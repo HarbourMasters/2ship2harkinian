@@ -154,6 +154,7 @@ inline bool CanAccessDungeon(DungeonIndex dungeonIndex) {
             return hasSongAccess;
         case RO_ACCESS_DUNGEONS_OPEN:
             return true;
+        case RO_ACCESS_DUNGEONS_FORM_AND_SONG:
         default:
             return hasSongAccess && hasFormAccess;
     }
