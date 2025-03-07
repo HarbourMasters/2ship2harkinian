@@ -44,8 +44,6 @@ ItemTrackerWindow::~ItemTrackerWindow() {
     config->SetFloat(CFG_TRACKER_ITEM("IconSpacing"), mIconSpacing);
     config->SetFloat(CFG_TRACKER_ITEM("TextSize"), mTextSize);
     config->SetFloat(CFG_TRACKER_ITEM("TextOffset"), mTextOffset);
-    config->SetColor(CFG_TRACKER_ITEM("SwampSkulltulaTint"), Color_RGBA8(256, 256, 256, 256));
-    config->SetColor(CFG_TRACKER_ITEM("OceanSkulltulaTint"), Color_RGBA8(256, 256, 256, 256));
     config->SetInteger(CFG_TRACKER_ITEM("WindowType"), (int8_t)mWindowType);
     config->SetInteger(CFG_TRACKER_ITEM("IsDraggable"), mIsDraggable);
     config->SetInteger(CFG_TRACKER_ITEM("OnlyDrawPaused"), mOnlyDrawPaused);
@@ -78,10 +76,6 @@ void ItemTrackerWindow::LoadSettings() {
     mIconSpacing = config->GetFloat(CFG_TRACKER_ITEM("IconSpacing"), 12.0f);
     mTextSize = config->GetFloat(CFG_TRACKER_ITEM("TextSize"), 10.0f);
     mTextOffset = config->GetFloat(CFG_TRACKER_ITEM("TextOffset"), 11.0f);
-    CVarSetColor(CFG_TRACKER_ITEM("SwampSkulltulaTint"),
-                 config->GetColor(CFG_TRACKER_ITEM("SwampSkulltulaTint"), Color_RGBA8(256, 256, 256, 256)));
-    CVarSetColor(CFG_TRACKER_ITEM("OceanSkulltulaTint"),
-                 config->GetColor(CFG_TRACKER_ITEM("OceanSkulltulaTint"), Color_RGBA8(256, 256, 256, 256)));
     mWindowType =
         (TrackerWindowType)config->GetInteger(CFG_TRACKER_ITEM("WindowType"), (int8_t)TrackerWindowType::Floating);
     mIsDraggable = config->GetInteger(CFG_TRACKER_ITEM("IsDraggable"), true);
@@ -660,17 +654,14 @@ int ItemTrackerWindow::DrawGoldSkulltulas(int columns, int prevDrawnColumns) {
 
         // Determine tint color based on whether drawing Skulltula for Swamp or Ocean House
         // Colors are not exactly their tints to account for Skulltula texture base colors
-        float r, g, b, a;
+        ImVec4 defaultSwampTint = ImVec4(25.0f / 255.0f, 251.0f / 255.0f, 0.0f, 1.0f);
+        ImVec4 defaultOceanTint = ImVec4(0.0f, 209.0f / 256.0f, 231.0f / 256.0f, 1.0f);
+
+        ImVec4 tintColor;
         if (i == 0) {
-            r = static_cast<float>(CVarGetColor(CFG_TRACKER_ITEM("SwampSkulltulaTint"), Color_RGBA8()).r) / 255.0f;
-            g = static_cast<float>(CVarGetColor(CFG_TRACKER_ITEM("SwampSkulltulaTint"), Color_RGBA8()).g) / 255.0f;
-            b = static_cast<float>(CVarGetColor(CFG_TRACKER_ITEM("SwampSkulltulaTint"), Color_RGBA8()).b) / 255.0f;
-            a = 1.0f;
+            tintColor = defaultSwampTint;
         } else {
-            r = static_cast<float>(CVarGetColor(CFG_TRACKER_ITEM("OceanSkulltulaTint"), Color_RGBA8()).r) / 255.0f;
-            g = static_cast<float>(CVarGetColor(CFG_TRACKER_ITEM("OceanSkulltulaTint"), Color_RGBA8()).g) / 255.0f;
-            b = static_cast<float>(CVarGetColor(CFG_TRACKER_ITEM("OceanSkulltulaTint"), Color_RGBA8()).b) / 255.0f;
-            a = 1.0f;
+            tintColor = defaultOceanTint;
         }
 
         ImVec4 tintColor = ImVec4(r, g, b, a);
