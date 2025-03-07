@@ -593,7 +593,7 @@ void BenMenu::AddEnhancements() {
             }
         })
         .Options(CheckboxOptions().Tooltip("Inverts the Camera Y Axis").DefaultValue(true));
-    AddWidget(path, "Third-Person Horizontal Sensitivity: %.0f", WIDGET_CVAR_SLIDER_FLOAT)
+    AddWidget(path, "Third-Person Camera\nHorizontal Sensitivity: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar("gEnhancements.Camera.RightStick.CameraSensitivity.X")
         .PreFunc([](WidgetInfo& info) {
             if (mBenMenu->disabledMap.at(DISABLE_FOR_CAMERAS_OFF).active) {
@@ -607,7 +607,7 @@ void BenMenu::AddEnhancements() {
                      .Max(5.0f)
                      .DefaultValue(1.0f)
                      .IsPercentage());
-    AddWidget(path, "Third-Person Vertical Sensitivity: %.0f", WIDGET_CVAR_SLIDER_FLOAT)
+    AddWidget(path, "Third-Person Camera\nVertical Sensitivity: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar("gEnhancements.Camera.RightStick.CameraSensitivity.Y")
         .PreFunc([](WidgetInfo& info) {
             if (mBenMenu->disabledMap.at(DISABLE_FOR_CAMERAS_OFF).active) {
