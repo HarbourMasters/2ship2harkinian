@@ -664,10 +664,32 @@ int ItemTrackerWindow::DrawGoldSkulltulas(int columns, int prevDrawnColumns) {
             tintColor = defaultOceanTint;
         }
 
-        ImVec4 tintColor = ImVec4(r, g, b, a);
         bool drawFaded = i == 0 ? swampTokenCount == 0 : oceanTokenCount == 0;
+        const float arrowTexScalingFactor = 1.5f;
+        float posOffset = (mIconSize * arrowTexScalingFactor - mIconSize) / 2;
+
+        // Draw glowing background for skulltula
+        ImGui::SetNextItemAllowOverlap();
+        ImGui::SetCursorPos(ImVec2(pos.x - posOffset, pos.y - posOffset));
+        DrawItemTinted((char*)gMagicArrowEquipEffectTex, drawFaded, mIconSize * arrowTexScalingFactor, tintColor);
+
+        // Draw Skulltula icon
+        ImGui::SetCursorPos(pos);
         DrawItem((char*)gQuestIconGoldSkulltulaTex, drawFaded, mIconSize);
-        DrawItemTinted((char*)gMagicArrowEquipEffectTex, drawFaded, mIconSize, tintColor);
+        ImVec2 finalPos = ImGui::GetCursorPos();
+
+        // Draw Ocean/Swamp accessibility text
+        const char* skulltulaHouseText = i == 0 ? "Swamp" : "Ocean";
+        ImGui::SetWindowFontScale(mTextSize / 13.0f);
+
+        float x = finalPos.x + (mIconSize / 2.0f) - (ImGui::CalcTextSize(skulltulaHouseText).x / 2.0f);
+        float y = finalPos.y - (mTextOffset / 36.0f) * mIconSize - 16 * (mTextSize / 13.0f);
+
+        // Normalize the offset based on the icon being 36x36 to account for larger icons.
+        ImGui::SetCursorPos({ x, y });
+        ImGui::Text("%s", skulltulaHouseText);
+
+        ImGui::SetCursorPos(finalPos);
         DrawItemCount(i + TRACKER_ITEM_GOLD_SKULLTULA_TOKEN_SWAMP, pos);
 
         ImGui::EndGroup();
