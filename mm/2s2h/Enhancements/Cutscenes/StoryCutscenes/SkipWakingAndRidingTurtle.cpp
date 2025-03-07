@@ -5,6 +5,9 @@
 extern "C" {
 #include "variables.h"
 #include "functions.h"
+#include "overlays/actors/ovl_Dm_Char08/z_dm_char08.h"
+
+void DmChar08_Init(Actor* thisx, PlayState* play2);
 }
 
 #define CVAR_NAME "gEnhancements.Cutscenes.SkipStoryCutscenes"
@@ -18,25 +21,6 @@ void RegisterSkipWakingAndRidingTurtle() {
             if (*csId == 12 || *csId == 20) {
                 *should = false;
 
-                // Need to reload scene. Position is where Link ends up after CS
-                // Differences from no skip: Camera ends up behind Link, Lulu is gone
-                // Based on WarpPoint.cpp
-                // Player* player = GET_PLAYER(gPlayState);
-
-                // gPlayState->nextEntrance = ENTRANCE(ZORA_CAPE, 2);
-                // gPlayState->transitionTrigger = TRANS_TRIGGER_START;
-                // gPlayState->transitionType = TRANS_TYPE_INSTANT;
-
-                // gSaveContext.respawn[RESPAWN_MODE_DOWN].entrance = ENTRANCE(ZORA_CAPE, 2);
-                // gSaveContext.respawn[RESPAWN_MODE_DOWN].roomIndex = 0;
-                // gSaveContext.respawn[RESPAWN_MODE_DOWN].pos.x = -5525.0f;
-                // gSaveContext.respawn[RESPAWN_MODE_DOWN].pos.y = 14.0f;
-                // gSaveContext.respawn[RESPAWN_MODE_DOWN].pos.z = 1548.0f;
-                // gSaveContext.respawn[RESPAWN_MODE_DOWN].yaw = -16384;
-                // gSaveContext.respawn[RESPAWN_MODE_DOWN].playerParams = PLAYER_PARAMS(0xFF, PLAYER_INITMODE_D);
-                // gSaveContext.nextTransitionType = TRANS_TYPE_FADE_BLACK_FAST;
-                // gSaveContext.respawnFlag = -8;
-
                 Actor* turtle;
                 Actor* currentActor = gPlayState->actorCtx.actorLists[ACTORCAT_BG].first;
                 if (currentActor != nullptr) {
@@ -48,21 +32,23 @@ void RegisterSkipWakingAndRidingTurtle() {
                     }
                 }
 
-                // This gets sets a bit later after this hook executes, but needs to be set before respawning turtle
+                DmChar08* dmChar08 = (DmChar08*)turtle;
+
+                Actor_Kill(dmChar08->palmTree1);
+                Actor_Kill(dmChar08->palmTree2);
+
+                // This gets sets soon after this hook executes, but needs to be set before reinitializing turtle
                 SET_WEEKEVENTREG(WEEKEVENTREG_53_20);
-                // probably need to kill its palm trees too
-                Actor_Kill(turtle);
-
-                // posX: -6238.000000, posY: -320.000000, posZ: 1749.000000, rotX: 0, rotY: 0, rotZ: 0, params: 0, csId: c, half: 3ff, parent: 0
-                Actor_SpawnAsChildAndCutscene(&gPlayState->actorCtx, gPlayState, ACTOR_DM_CHAR08, -6238.0, -320.0, 1749.0, 0, 0, 0, 0, 0xc, 0x3ff, NULL);
-
-                //Can't seem to get this to play after respawing
-
+                
+                turtle->init = DmChar08_Init;
+                
                 Audio_PlayFanfare(NA_BGM_DUNGEON_APPEAR);
             }
             // 13 is turtle leaving zora cape first time, 15 is subsequent times
             if (*csId == 13 || *csId == 15) {
                 *should = false;
+                // It would be less jarring if *should was set to true, but we still triggered the 
+                // early transition to ENTRANCE(GREAT_BAY_TEMPLE, 0)
                 GameInteractor::Instance->events.emplace_back(GIEventTransition{
                     .entrance = ENTRANCE(GREAT_BAY_TEMPLE, 0),
                     .cutsceneIndex = 0,
