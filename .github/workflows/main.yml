@@ -353,8 +353,8 @@ jobs:
     - name: ccache
       uses: hendrikmuhs/ccache-action@v1.2
       with:
-        variant: sccache
-        max-size: "1G"
+        # variant: sccache
+        # max-size: "1G"
         save: ${{ github.ref_name == github.event.repository.default_branch }}
         key: ${{ runner.os }}-ccache-${{ github.ref }}-${{ github.sha }}
         restore-keys: |
@@ -379,18 +379,18 @@ jobs:
     - name: Build 2Ship
       env:
         VCPKG_ROOT: ${{github.workspace}}/vcpkg
-        SCCACHE_ERROR_LOG: ${{github.workspace}}/sccache_log.txt
-        SCCACHE_LOG: debug
+        # SCCACHE_ERROR_LOG: ${{github.workspace}}/sccache_log.txt
+        # SCCACHE_LOG: debug
       run: |
         set $env:PATH="$env:USERPROFILE/.cargo/bin;$env:PATH"
-        cmake -S . -B build-windows -G Ninja -DCMAKE_MAKE_PROGRAM=ninja -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_C_COMPILER_LAUNCHER=sccache -DCMAKE_CXX_COMPILER_LAUNCHER=sccache
+        cmake -S . -B build-windows -G Ninja -DCMAKE_MAKE_PROGRAM=ninja -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
         cmake --build build-windows --config Release --parallel 10
 
         (cd build-windows && cpack)
         cd ..
         mv _packages/*.zip _packages/2ship-windows.zip
-    - name: sccache log
-      run: cat ./sccache_log.txt
+    # - name: sccache log
+    #   run: cat ./sccache_log.txt
     - name: Unzip package
       run: Expand-Archive -Path _packages/2ship-windows.zip -DestinationPath 2ship-windows
     - name: Upload build
