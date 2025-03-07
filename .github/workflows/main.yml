@@ -379,8 +379,6 @@ jobs:
     - name: Build 2Ship
       env:
         VCPKG_ROOT: ${{github.workspace}}/vcpkg
-        # SCCACHE_ERROR_LOG: ${{github.workspace}}/sccache_log.txt
-        # SCCACHE_LOG: debug
       run: |
         set $env:PATH="$env:USERPROFILE/.cargo/bin;$env:PATH"
         cmake -S . -B build-windows -G Ninja -DCMAKE_MAKE_PROGRAM=ninja -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
@@ -389,8 +387,6 @@ jobs:
         (cd build-windows && cpack)
         cd ..
         mv _packages/*.zip _packages/2ship-windows.zip
-    # - name: sccache log
-    #   run: cat ./sccache_log.txt
     - name: Unzip package
       run: Expand-Archive -Path _packages/2ship-windows.zip -DestinationPath 2ship-windows
     - name: Upload build
