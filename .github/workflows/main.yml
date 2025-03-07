@@ -189,8 +189,9 @@ jobs:
       id: restore-cache-macports
       uses: actions/cache/restore@v4
       with:
-        key: ${{ runner.os }}-14-macports-${{ hashFiles('.github/workflows/macports-deps.txt') }}
+        key: ${{ runner.os }}-14-macports-${{ hashFiles('.github/workflows/macports-deps.txt') }}-${{ github.sha }}
         restore-keys: |
+          ${{ runner.os }}-14-macports-${{ hashFiles('.github/workflows/macports-deps.txt') }}-
           ${{ runner.os }}-14-macports-
         path: /opt/local/
     # Updated PATH applies to the next step and onwards
@@ -231,7 +232,7 @@ jobs:
           2Ship.dmg
           readme.txt
     - name: Save Cache MacPorts
-      if: ${{ github.ref_name == github.event.repository.default_branch && steps.restore-cache-macports.outputs.cache-hit != 'true' }}
+      if: ${{ github.ref_name == github.event.repository.default_branch }}
       uses: actions/cache/save@v4
       with:
         key: ${{ steps.restore-cache-macports.outputs.cache-primary-key }}
@@ -378,7 +379,7 @@ jobs:
     - name: Build 2Ship
       env:
         VCPKG_ROOT: ${{github.workspace}}/vcpkg
-        SCCACHE_ERROR_LOG: ./sccache_log.txt
+        SCCACHE_ERROR_LOG: ${{github.workspace}}/sccache_log.txt
         SCCACHE_LOG: debug
       run: |
         set $env:PATH="$env:USERPROFILE/.cargo/bin;$env:PATH"
