@@ -182,7 +182,7 @@ void Rando::ActorBehavior::InitObjSnowballBehavior() {
         }
 
         if (!RANDO_SAVE_CHECKS[randoCheckId].cycleObtained) {
-            SpawnSnowballDrop(actor->home.pos, randoCheckId);
+            SpawnSnowballDrop(actor->world.pos, randoCheckId);
             *should = false;
         }
     });
@@ -204,7 +204,7 @@ void Rando::ActorBehavior::InitObjSnowballBehavior() {
         }
 
         if (!RANDO_SAVE_CHECKS[randoCheckId].cycleObtained) {
-            SpawnSnowballDrop(actor->home.pos, randoCheckId);
+            SpawnSnowballDrop(actor->world.pos, randoCheckId);
         }
     });
 }
