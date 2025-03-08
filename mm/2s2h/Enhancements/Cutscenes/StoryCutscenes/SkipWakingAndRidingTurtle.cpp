@@ -19,29 +19,20 @@ void RegisterSkipWakingAndRidingTurtle() {
         if (gPlayState->sceneId == SCENE_31MISAKI) {
             // 12 is first time waking turtle, 20 is subsequent times
             if (*csId == 12 || *csId == 20) {
-                DmChar08* dmChar08;
-                Actor* currentActor = gPlayState->actorCtx.actorLists[ACTORCAT_BG].first;
-                if (currentActor != nullptr) {
-                    while (currentActor != nullptr) {
-                        if (currentActor->id == ACTOR_DM_CHAR08) {
-                            dmChar08 = (DmChar08*)currentActor;
-                        }
-                        currentActor = currentActor->next;
-                    }
-                }
-
-                if (dmChar08 == nullptr) {
+                DmChar08* dmChar08 = (DmChar08*)Actor_FindNearby(gPlayState, &GET_PLAYER(gPlayState)->actor,
+                                                                 ACTOR_DM_CHAR08, ACTORCAT_BG, 99999.9f);
+                if (!dmChar08) {
                     return;
                 }
 
                 *should = false;
 
-                // This gets sets soon after this hook executes, but needs to be set before reinitializing turtle
+                // This gets set soon after this hook executes, but needs to be set before reinitializing turtle
                 SET_WEEKEVENTREG(WEEKEVENTREG_53_20);
 
                 Actor_Kill(dmChar08->palmTree1);
                 Actor_Kill(dmChar08->palmTree2);
-                ((Actor*)dmChar08)->init = DmChar08_Init;
+                dmChar08->dyna.actor.init = DmChar08_Init;
 
                 Audio_PlayFanfare(NA_BGM_DUNGEON_APPEAR);
             }
