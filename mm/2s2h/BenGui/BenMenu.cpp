@@ -10,6 +10,7 @@
 #include "DeveloperTools/EventLog.h"
 #include "2s2h/Enhancements/GfxPatcher/AuthenticGfxPatches.h"
 #include "2s2h/PresetManager/PresetManager.h"
+#include "2s2h/SpeedrunCustomization/SpeedrunCustomization.h"
 #include "HudEditor.h"
 #include "Notification.h"
 #include <variant>
@@ -418,6 +419,11 @@ void BenMenu::AddSettings() {
     path.sidebarName = "Presets";
     AddSidebarEntry("Settings", "Presets", 1);
     AddWidget(path, "Presets", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { PresetManager_Draw(); });
+
+    path.column = 1;
+    path.sidebarName = "Speedrunning";
+    AddSidebarEntry("Settings", "Speedrunning", 1);
+    AddWidget(path, "Speedrunning", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { SpeedrunCustomization_Draw(); });
 }
 int32_t motionBlurStrength;
 
