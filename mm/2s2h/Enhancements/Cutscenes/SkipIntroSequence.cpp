@@ -12,6 +12,11 @@ void Flags_SetWeekEventReg(s32 flag);
 #define FIRST_CYCLE_CVAR_NAME "gEnhancements.Cutscenes.SkipFirstCycle"
 #define FIRST_CYCLE_CVAR CVarGetInteger(FIRST_CYCLE_CVAR_NAME, 0)
 
+#define INTRO_GIVE_NUTS_CVAR_NAME "gSpeedrun.CutsceneSkipBehavior.Intro.GrantDekuNuts"
+#define INTRO_GIVE_NUTS_CVAR CVarGetInteger(INTRO_GIVE_NUTS_CVAR_NAME, 1)
+#define FIRST_CYCLE_GIVE_BOMB_BAG_CVAR_NAME "gSpeedrun.CutsceneSkipBehavior.FirstCycle.GrantBombBag"
+#define FIRST_CYCLE_GIVE_BOMB_BAG_CVAR CVarGetInteger(FIRST_CYCLE_GIVE_BOMB_BAG_CVAR_NAME, 0)
+
 void RegisterSkipIntroSequence() {
     COND_VB_SHOULD(VB_PLAY_TRANSITION_CS, INTRO_CVAR, {
         // Intro cutscene
@@ -32,8 +37,10 @@ void RegisterSkipIntroSequence() {
         gSaveContext.save.isFirstCycle = true;
 
         // Mark chest as opened and give the player the Deku Nuts
-        gSaveContext.cycleSceneFlags[SCENE_OPENINGDAN].chest |= (1 << 0);
-        Item_Give(gPlayState, ITEM_DEKU_NUTS_10);
+        if (INTRO_GIVE_NUTS_CVAR) {
+            gSaveContext.cycleSceneFlags[SCENE_OPENINGDAN].chest |= (1 << 0);
+            Item_Give(gPlayState, ITEM_DEKU_NUTS_10);
+        }
 
         if (FIRST_CYCLE_CVAR) {
             gSaveContext.save.playerForm = PLAYER_FORM_HUMAN;
@@ -43,8 +50,13 @@ void RegisterSkipIntroSequence() {
             gSaveContext.save.saveInfo.inventory.questItems |= (1 << QUEST_SONG_TIME) | (1 << QUEST_SONG_HEALING);
             gSaveContext.save.saveInfo.playerData.threeDayResetCount = 1;
 
-            // Lose nuts
+            // Lose any nuts that may have been given
             AMMO(ITEM_DEKU_NUT) = 0;
+
+            if (FIRST_CYCLE_GIVE_BOMB_BAG_CVAR) {
+                Item_Give(gPlayState, ITEM_BOMB_BAG_20);
+                AMMO(ITEM_BOMB) = 0;
+            }
 
             // Tatl's text at seeing the broken great fairy
             gSaveContext.cycleSceneFlags[SCENE_YOUSEI_IZUMI].switch0 |= (1 << 10);
