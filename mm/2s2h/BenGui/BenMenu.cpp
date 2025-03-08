@@ -423,7 +423,9 @@ void BenMenu::AddSettings() {
     path.column = 1;
     path.sidebarName = "Speedrunning";
     AddSidebarEntry("Settings", "Speedrunning", 1);
-    AddWidget(path, "Speedrunning", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { SpeedrunCustomization_Draw(); });
+    AddWidget(path, "Speedrunning", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) {
+        SpeedrunCustomization_Draw();
+    });
 }
 int32_t motionBlurStrength;
 
