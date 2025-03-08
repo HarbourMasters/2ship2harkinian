@@ -19,36 +19,35 @@ void RegisterSkipWakingAndRidingTurtle() {
         if (gPlayState->sceneId == SCENE_31MISAKI) {
             // 12 is first time waking turtle, 20 is subsequent times
             if (*csId == 12 || *csId == 20) {
-                *should = false;
-
-                Actor* turtle;
+                DmChar08* dmChar08;
                 Actor* currentActor = gPlayState->actorCtx.actorLists[ACTORCAT_BG].first;
                 if (currentActor != nullptr) {
                     while (currentActor != nullptr) {
                         if (currentActor->id == ACTOR_DM_CHAR08) {
-                            turtle = currentActor;
+                            dmChar08 = (DmChar08*)currentActor;
                         }
                         currentActor = currentActor->next;
                     }
                 }
 
-                DmChar08* dmChar08 = (DmChar08*)turtle;
+                if (dmChar08 == nullptr) {
+                    return;
+                }
 
-                Actor_Kill(dmChar08->palmTree1);
-                Actor_Kill(dmChar08->palmTree2);
+                *should = false;
 
                 // This gets sets soon after this hook executes, but needs to be set before reinitializing turtle
                 SET_WEEKEVENTREG(WEEKEVENTREG_53_20);
-                
-                turtle->init = DmChar08_Init;
-                
+
+                Actor_Kill(dmChar08->palmTree1);
+                Actor_Kill(dmChar08->palmTree2);
+                ((Actor*)dmChar08)->init = DmChar08_Init;
+
                 Audio_PlayFanfare(NA_BGM_DUNGEON_APPEAR);
             }
             // 13 is turtle leaving zora cape first time, 15 is subsequent times
             if (*csId == 13 || *csId == 15) {
                 *should = false;
-                // It would be less jarring if *should was set to true, but we still triggered the 
-                // early transition to ENTRANCE(GREAT_BAY_TEMPLE, 0)
                 GameInteractor::Instance->events.emplace_back(GIEventTransition{
                     .entrance = ENTRANCE(GREAT_BAY_TEMPLE, 0),
                     .cutsceneIndex = 0,

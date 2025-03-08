@@ -17,9 +17,6 @@ void RegisterSkipRaisingWoodfall() {
             if (*csId == 11) {
                 *should = false;
 
-                
-                Audio_PlaySequenceInCutscene(NA_BGM_DUNGEON_APPEAR);
-
                 // Need to reload the scene after WEEKEVENTREG_12_20 gets set for the temple to be up.
                 // Based on WarpPoint.cpp
                 Player* player = GET_PLAYER(gPlayState);
@@ -37,6 +34,8 @@ void RegisterSkipRaisingWoodfall() {
                 gSaveContext.respawn[RESPAWN_MODE_DOWN].playerParams = PLAYER_PARAMS(0xFF, PLAYER_INITMODE_D);
                 gSaveContext.nextTransitionType = TRANS_TYPE_FADE_BLACK_FAST;
                 gSaveContext.respawnFlag = -8;
+
+                Audio_PlaySequenceInCutscene(NA_BGM_DUNGEON_APPEAR);
             }
         }
     });
