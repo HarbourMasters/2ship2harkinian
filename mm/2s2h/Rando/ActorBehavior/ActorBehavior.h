@@ -61,6 +61,7 @@ void InitEnMa4Behavior();
 void InitEnMaYtoBehavior();
 void InitEnMnkBehavior();
 void InitEnOsnBehavior();
+void InitEnOtBehavior();
 void InitEnOwlBehavior();
 void InitEnPmBehavior();
 void InitEnRuppecrowBehavior();
