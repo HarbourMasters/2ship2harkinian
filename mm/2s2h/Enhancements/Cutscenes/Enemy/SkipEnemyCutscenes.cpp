@@ -209,7 +209,6 @@ void RegisterSkipEnemyCutscenes() {
             case ACTOR_EN_GB2:
             case ACTOR_EN_IK:
             case ACTOR_EN_KAIZOKU:
-            case ACTOR_EN_PAMETFROG:
                 *should = false;
                 break;
             default:
