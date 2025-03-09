@@ -2100,6 +2100,22 @@ void AudioOcarina_ReadControllerInput(void) {
     sOcarinaInputButtonPrev = ocarinaInputButtonPrev;
     sOcarinaInputStickRel.x = input->rel.stick_x;
     sOcarinaInputStickRel.y = input->rel.stick_y;
+    if(!CVarGetInteger("gEnhancements.Playback.RightStickOcarina", 0)){
+        return;
+    }
+    s8 rstick_x = input->cur.right_stick_x;
+    s8 rstick_y = input->cur.right_stick_y;
+    const s8 sensitivity = 64;
+    if (rstick_x > sensitivity) {
+        sOcarinaInputButtonCur |= BTN_CRIGHT;
+    } else if (rstick_x < -sensitivity) {
+        sOcarinaInputButtonCur |= BTN_CLEFT;     
+    }
+    if (rstick_y > sensitivity) {
+        sOcarinaInputButtonCur |= BTN_CUP;
+    } else if (rstick_y < -sensitivity) {
+        sOcarinaInputButtonCur |= BTN_CDOWN;
+    }
 }
 
 /**
