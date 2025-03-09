@@ -115,7 +115,7 @@ static RegisterShipInitFunc initFunc([]() {
             CHECK(RC_PINNACLE_ROCK_POT_08,            CAN_BE_ZORA),
             CHECK(RC_PINNACLE_ROCK_POT_09,            CAN_BE_ZORA),
             CHECK(RC_PINNACLE_ROCK_POT_10,            CAN_BE_ZORA),
-            CHECK(RC_PINNACLE_ROCK_POT_11,           CAN_BE_ZORA),
+            CHECK(RC_PINNACLE_ROCK_POT_11,            CAN_BE_ZORA),
             CHECK(RC_PINNACLE_ROCK_REUNITE_SEAHORSE,  CAN_BE_ZORA && HAS_MAGIC),
         },
         .connections = {
