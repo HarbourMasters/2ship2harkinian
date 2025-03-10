@@ -73,6 +73,11 @@ void Rando::MiscBehavior::AfterEndOfCycleSave() {
                 // most of the others are handled by the game, with the exception of PERSISTENT_CYCLE_FLAGS_SET, not
                 // sure if any of these cases affect us yet so ignoring for now
         }
+        // Unset Treasure Game Goron HP flag
+        if (randoCheckId == RC_CLOCK_TOWN_EAST_TREAUSRE_CHEST_GAME_GORON) {
+            gSaveContext.save.saveInfo.permanentSceneFlags[SCENE_TAKARAYA].switch0 &= ~(2);
+            gSaveContext.cycleSceneFlags[SCENE_TAKARAYA].switch0 &= ~(2);
+        }
     }
 
     // Re-grant initial items, in the future we may only do this if it's a refill
