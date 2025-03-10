@@ -170,10 +170,6 @@ void Rando::ActorBehavior::InitEnGsBehavior() {
             return;
         }
 
-        if (!RANDO_SAVE_CHECKS[RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO].cycleObtained) {
-            RANDO_SAVE_CHECKS[RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO].eligible = true;
-        }
-
         *should = false;
 
         refActor->parent = &player->actor;
