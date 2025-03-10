@@ -4,14 +4,14 @@ set_config_specific_property("OUTPUT_DIRECTORY" "${CMAKE_SOURCE_DIR}$<$<NOT:$<ST
 
 if(MSVC)
     create_property_reader("DEFAULT_CXX_EXCEPTION_HANDLING")
-    # create_property_reader("DEFAULT_CXX_DEBUG_INFORMATION_FORMAT")
+    create_property_reader("DEFAULT_CXX_DEBUG_INFORMATION_FORMAT")
 
     set_target_properties("${PROPS_TARGET}" PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
     set_config_specific_property("DEFAULT_CXX_EXCEPTION_HANDLING" "/EHsc")
 
-    # if (CMAKE_C_COMPILER_LAUNCHER MATCHES "ccache|sccache")
-    #     set_config_specific_property("DEFAULT_CXX_DEBUG_INFORMATION_FORMAT" "/Z7")
-    # else()
-    #     set_config_specific_property("DEFAULT_CXX_DEBUG_INFORMATION_FORMAT" "/Zi")
-    # endif()
+    if (CMAKE_C_COMPILER_LAUNCHER MATCHES "ccache|sccache")
+        set_config_specific_property("DEFAULT_CXX_DEBUG_INFORMATION_FORMAT" "/Z7")
+    else()
+        set_config_specific_property("DEFAULT_CXX_DEBUG_INFORMATION_FORMAT" "/Zi")
+    endif()
 endif()

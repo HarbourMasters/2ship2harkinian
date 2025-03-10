@@ -50,18 +50,22 @@ set(CMAKE_CONFIGURATION_TYPES
 # Global compiler options
 ################################################################################
 if(MSVC)
+    message("CMAKE_MSVC_DEBUG_INFORMATION_FORMAT ${CMAKE_MSVC_DEBUG_INFORMATION_FORMAT}")
+    
     message("CMAKE_C_FLAGS ${CMAKE_C_FLAGS}")
+    message("CMAKE_C_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG}")
     message("CMAKE_C_FLAGS_RELEASE ${CMAKE_C_FLAGS_RELEASE}")
     message("CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS}")
+    message("CMAKE_CXX_FLAGS_DEBUG ${CMAKE_CXX_FLAGS_DEBUG}")
     message("CMAKE_CXX_FLAGS_RELEASE ${CMAKE_CXX_FLAGS_RELEASE}")
 
     # remove default flags provided with CMake for MSVC
-    # set(CMAKE_C_FLAGS "")
-    # set(CMAKE_C_FLAGS_DEBUG "")
-    # set(CMAKE_C_FLAGS_RELEASE "")
-    # set(CMAKE_CXX_FLAGS "")
-    # set(CMAKE_CXX_FLAGS_DEBUG "")
-    # set(CMAKE_CXX_FLAGS_RELEASE "")
+    set(CMAKE_C_FLAGS "")
+    set(CMAKE_C_FLAGS_DEBUG "")
+    set(CMAKE_C_FLAGS_RELEASE "")
+    set(CMAKE_CXX_FLAGS "")
+    set(CMAKE_CXX_FLAGS_DEBUG "")
+    set(CMAKE_CXX_FLAGS_RELEASE "")
 endif()
 
 ################################################################################
