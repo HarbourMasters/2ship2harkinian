@@ -52,8 +52,6 @@ add_compile_options($<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     if (CMAKE_C_COMPILER_LAUNCHER MATCHES "ccache|sccache")
-        message("SCCACHE WAS FOUND!!!!!!!!!!!!!!!!!!!!!")
-        message("CMAKE_MSVC_DEBUG_INFORMATION_FORMAT ${CMAKE_MSVC_DEBUG_INFORMATION_FORMAT}")
         set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT Embedded)
     endif()
 endif()
