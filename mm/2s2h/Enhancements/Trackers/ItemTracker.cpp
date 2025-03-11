@@ -14,6 +14,8 @@ extern "C" {
 }
 
 bool isInitialized = false;
+float iconSize = 32.0f;
+float bgOpacity = 0.5f;
 
 std::vector<ItemTrackerWindow::ItemTrackerPanel> panelList = {
     { TRACKER_INVENTORY, "Inventory", 6, {} }, { TRACKER_MASKS, "Masks", 6, {} },
@@ -31,7 +33,7 @@ std::vector<std::pair<const char*, const char*>> itemTrackerPanelOptions = {
 };
 
 std::vector<std::pair<const char*, const char*>> itemTrackerSettingsOptions = {
-    { "Show Capacity", "ItemTracker.Capacity" },
+    { "Show Capacity", "ItemTracker.Capacity" }, { "Hide Background", "ItemTracker.Background" }
 };
 
 int16_t getItemBySlot(InventorySlot slot) {
@@ -235,7 +237,8 @@ void ItemTrackerOverlayText(int16_t itemId, int16_t index) {
     // Overlay the item count text on the existing button
     ImVec2 imageMin = ImGui::GetItemRectMin();
     ImVec2 imageMax = ImGui::GetItemRectMax();
-    ImVec2 textPos = ImVec2(imageMin.x + 2, imageMax.y - ImGui::CalcTextSize("##").y - 2);
+    ImVec2 textPos =
+        ImVec2(ImVec2(imageMax.x - ImGui::CalcTextSize("##").x - 2, imageMax.y - ImGui::CalcTextSize("##").y - 2));
 
     std::string overlayText;
 
@@ -294,7 +297,8 @@ void DrawGroupPanels(ItemTrackerWindow::ItemTrackerPanel window) {
             for (auto& item : panel.panelContents) {
                 ImGui::Image(panel.panelId < TRACKER_DUNGEON ? textureId((ItemId)item, index)
                                                              : dungeonTextureId((ItemId)item, index),
-                             ImVec2(item >= ITEM_SONG_SONATA && item <= ITEM_SONG_STORMS ? 24.0f : 32.0f, 32.0f),
+                             ImVec2(item >= ITEM_SONG_SONATA && item <= ITEM_SONG_STORMS ? iconSize * 0.75f : iconSize,
+                                    iconSize),
                              ImVec2(0, 0), ImVec2(1, 1), imageColor((ItemId)item, index));
                 ItemTrackerOverlayText(item, index);
                 ImGui::TableNextColumn();
@@ -316,10 +320,11 @@ void DrawSinglePanels(ItemTrackerWindow::ItemTrackerPanel panel) {
     if (ImGui::BeginTable("Item Panel", panel.panelWidth)) {
         ImGui::TableNextColumn();
         for (auto& item : panel.panelContents) {
-            ImGui::Image(panel.panelId < TRACKER_DUNGEON ? textureId((ItemId)item, index)
-                                                         : dungeonTextureId((ItemId)item, index),
-                         ImVec2(item >= ITEM_SONG_SONATA && item <= ITEM_SONG_STORMS ? 24.0f : 32.0f, 32.0f),
-                         ImVec2(0, 0), ImVec2(1, 1), imageColor((ItemId)item, index));
+            ImGui::Image(
+                panel.panelId < TRACKER_DUNGEON ? textureId((ItemId)item, index)
+                                                : dungeonTextureId((ItemId)item, index),
+                ImVec2(item >= ITEM_SONG_SONATA && item <= ITEM_SONG_STORMS ? iconSize * 0.75f : iconSize, iconSize),
+                ImVec2(0, 0), ImVec2(1, 1), imageColor((ItemId)item, index));
             ItemTrackerOverlayText(item, index);
             ImGui::TableNextColumn();
             if (item == ITEM_COMPASS || item == ITEM_BOTTLE || item == ITEM_STRAY_FAIRIES || item == ITEM_SKULL_TOKEN) {
@@ -385,6 +390,11 @@ void UpdateTrackerWindows() {
     }
 }
 
+void UpdateTrackerSettings() {
+    iconSize = CVarGetInteger("ItemTracker.IconSize", 32) * 1.0f;
+    bgOpacity = CVarGetInteger("ItemTracker.Background", 0) ? 0 : 0.5f;
+}
+
 void ItemTrackerWindow::Draw() {
     if (!IsVisible()) {
         return;
@@ -395,17 +405,18 @@ void ItemTrackerWindow::Draw() {
             panel.panelContents = createItemVector(panel);
         }
         UpdateTrackerWindows();
+        UpdateTrackerSettings();
         isInitialized = true;
     }
 
-    ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImVec4(0, 0, 0, 0.5f));
-    ImGui::PushStyleColor(ImGuiCol_TitleBg, ImVec4(0, 0, 0, 0.5f));
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, 0.5f));
+    // ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImVec4(0, 0, 0, 0.5f));
+    // ImGui::PushStyleColor(ImGuiCol_TitleBg, ImVec4(0, 0, 0, 0.5f));
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, bgOpacity));
     ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 4.0f);
 
     DrawItemTrackerWindowPanels();
 
-    ImGui::PopStyleColor(4);
+    ImGui::PopStyleColor(2);
     ImGui::PopStyleVar(1);
 }

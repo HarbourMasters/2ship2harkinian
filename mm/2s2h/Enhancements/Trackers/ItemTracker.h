@@ -19,6 +19,7 @@ typedef enum {
 };
 
 void UpdateTrackerWindows();
+void UpdateTrackerSettings();
 extern std::vector<std::pair<const char*, const char*>> itemTrackerPanelOptions;
 extern std::vector<std::pair<const char*, const char*>> itemTrackerSettingsOptions;
 
@@ -33,7 +34,7 @@ class ItemTrackerWindow : public Ship::GuiWindow {
         std::vector<int16_t> panelContents;
     } ItemTrackerPanel;
 
-    void InitElement() override;
+    void InitElement() override{};
     void DrawElement() override{};
     void Draw() override;
     void UpdateElement() override{};

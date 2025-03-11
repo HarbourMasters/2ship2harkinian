@@ -28,7 +28,14 @@ void ItemTrackerSettingsWindow::DrawElement() {
     ImGui::TableSetupColumn("Options", ImGuiTableColumnFlags_WidthFixed, 300.0f);
     ImGui::TableNextColumn();
     for (auto& options : itemTrackerSettingsOptions) {
-        UIWidgets::CVarCheckbox(options.first, options.second, { .color = menuThemeIndex });
+        if (UIWidgets::CVarCheckbox(options.first, options.second, { .color = menuThemeIndex })) {
+            UpdateTrackerSettings();
+        }
+    }
+    if (UIWidgets::CVarSliderInt(
+            "Icon Size", "ItemTracker.IconSize",
+            { .showButtons = true, .min = 16, .max = 56, .defaultValue = 32, .color = menuThemeIndex })) {
+        UpdateTrackerSettings();
     }
     ImGui::TableNextColumn();
     for (auto& options : itemTrackerPanelOptions) {
