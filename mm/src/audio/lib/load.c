@@ -331,11 +331,7 @@ s32 AudioLoad_IsFontLoadComplete(s32 fontId) {
     }
 }
 
-// 2S2H [Port] [Custom Audio] Sequences and samples are always loaded now, so we don't
-//  need to check.
 s32 AudioLoad_IsSeqLoadComplete(s32 seqId) {
-    return true;
-#if 0
     if (seqId == 0xFF) {
         return true;
     } else if (gAudioCtx.seqLoadStatus[seqId] >= LOAD_STATUS_COMPLETE) {
@@ -345,12 +341,9 @@ s32 AudioLoad_IsSeqLoadComplete(s32 seqId) {
     } else {
         return false;
     }
-#endif
 }
 
 s32 AudioLoad_IsSampleLoadComplete(s32 sampleBankId) {
-    return true;
-#if 0
     if (sampleBankId == 0xFF) {
         return true;
     } else if (gAudioCtx.sampleFontLoadStatus[sampleBankId] >= LOAD_STATUS_COMPLETE) {
@@ -361,7 +354,6 @@ s32 AudioLoad_IsSampleLoadComplete(s32 sampleBankId) {
     } else {
         return false;
     }
-#endif
 }
 
 void AudioLoad_SetFontLoadStatus(s32 fontId, s32 loadStatus) {
@@ -372,7 +364,6 @@ void AudioLoad_SetFontLoadStatus(s32 fontId, s32 loadStatus) {
 
 void AudioLoad_SetSeqLoadStatus(s32 seqId, s32 loadStatus) {
     seqId = AudioEditor_GetOriginalSeq(seqId);
-    // 2S2H [Custom Audio] Remove the cast because seqId is not 16 bit.
     if ((seqId != NA_BGM_DISABLED) && (gAudioCtx.seqLoadStatus[seqId] != LOAD_STATUS_PERMANENT)) {
         gAudioCtx.seqLoadStatus[seqId] = loadStatus;
     }
@@ -672,9 +663,9 @@ u8* AudioLoad_SyncLoadSeq(s32 seqId) {
     s32 pad;
     s32 didAllocate;
 
-    // if (gAudioCtx.seqLoadStatus[AudioLoad_GetRealTableIndex(SEQUENCE_TABLE, seqId)] == LOAD_STATUS_IN_PROGRESS) {
-    //     return NULL;
-    // }
+    if (gAudioCtx.seqLoadStatus[AudioLoad_GetRealTableIndex(SEQUENCE_TABLE, seqId)] == LOAD_STATUS_IN_PROGRESS) {
+        return NULL;
+    }
 
     return AudioLoad_SyncLoad(SEQUENCE_TABLE, seqId, &didAllocate);
 }
@@ -1259,9 +1250,7 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
     char** customSeqList = ResourceMgr_ListFiles("custom/music/*", &customSeqListSize);
     gSequenceMapSize = (size_t)(seqListSize + customSeqListSize);
     gSequenceMap = malloc(gSequenceMapSize * sizeof(char*));
-
-    gAudioCtx.seqLoadStatus = malloc(gSequenceMapSize);
-    memset(gAudioCtx.seqLoadStatus, 5, gSequenceMapSize);
+    gAudioCtx.seqLoadStatus = calloc(gSequenceMapSize, 1);
     for (size_t i = 0; i < seqListSize; i++) {
         SequenceData sDat = ResourceMgr_LoadSeqByName(seqList[i]);
         gSequenceMap[sDat.seqNumber] = strdup(seqList[i]);
@@ -1276,8 +1265,7 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
     int customFntListSize = 0;
     char** fntList = ResourceMgr_ListFiles("audio/fonts*", &fntListSize);
     char** customFntList = ResourceMgr_ListFiles("custom/fonts/*", &customFntListSize);
-
-    gAudioCtx.fontLoadStatus = malloc(customFntListSize + fntListSize);
+    gAudioCtx.fontLoadStatus = calloc(customFntListSize + fntListSize, 1);
     gFontMap = calloc(customFntListSize + fntListSize, sizeof(char*));
     gFontMapSize = customFntListSize + fntListSize;
     for (int i = 0; i < fntListSize; i++) {
