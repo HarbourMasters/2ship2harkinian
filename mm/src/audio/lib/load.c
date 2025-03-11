@@ -1251,9 +1251,9 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
     char** customSeqList = ResourceMgr_ListFiles("custom/music/*", &customSeqListSize);
     gSequenceMapSize = (size_t)(seqListSize + customSeqListSize);
     gSequenceMap = malloc(gSequenceMapSize * sizeof(char*));
-    gAudioCtx.seqLoadStatus = calloc(gSequenceMapSize, 1);
+    gAudioCtx.seqLoadStatus = calloc(gSequenceMapSize, sizeof(u8));
 
-    memset(&gAudioCtx.seqLoadStatus[seqListSize], 5, customSeqListSize);
+    memset(&gAudioCtx.seqLoadStatus[seqListSize], LOAD_STATUS_PERMANENT, customSeqListSize);
     for (size_t i = 0; i < seqListSize; i++) {
         SequenceData sDat = ResourceMgr_LoadSeqByName(seqList[i]);
         gSequenceMap[sDat.seqNumber] = strdup(seqList[i]);
@@ -1268,7 +1268,7 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
     int customFntListSize = 0;
     char** fntList = ResourceMgr_ListFiles("audio/fonts*", &fntListSize);
     char** customFntList = ResourceMgr_ListFiles("custom/fonts/*", &customFntListSize);
-    gAudioCtx.fontLoadStatus = calloc(customFntListSize + fntListSize, 1);
+    gAudioCtx.fontLoadStatus = calloc(customFntListSize + fntListSize, sizeof(u8));
     gFontMap = calloc(customFntListSize + fntListSize, sizeof(char*));
     gFontMapSize = customFntListSize + fntListSize;
     for (int i = 0; i < fntListSize; i++) {
