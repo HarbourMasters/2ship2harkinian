@@ -16,6 +16,7 @@
 #include "assets/interface/icon_item_dungeon_static/icon_item_dungeon_static.h"
 #include "assets/interface/icon_item_field_static/icon_item_field_static.h"
 #include "assets/archives/icon_item_static/icon_item_static_yar.h"
+#include "assets/objects/gameplay_keep/gameplay_keep.h"
 
 extern "C" {
 #include "z64.h"
@@ -54,6 +55,7 @@ std::vector<const char*> miscellaneousTextures = {
     gDungeonStrayFairySnowheadIconTex,
     gDungeonStrayFairyStoneTowerIconTex,
     gDungeonStrayFairyWoodfallIconTex,
+    gItemIconEmptyBottleTex,
     gPotTrackerIcon,
     gQuestIconGoldSkulltulaTex,
     gMagicArrowEquipEffectTex,
@@ -69,6 +71,107 @@ std::vector<const char*> miscellaneousTextures = {
 std::vector<const char*> digitList = { gCounterDigit0Tex, gCounterDigit1Tex, gCounterDigit2Tex, gCounterDigit3Tex,
                                        gCounterDigit4Tex, gCounterDigit5Tex, gCounterDigit6Tex, gCounterDigit7Tex,
                                        gCounterDigit8Tex, gCounterDigit9Tex, gCounterColonTex };
+
+std::vector<int16_t> orderedInventoryItemList = {
+    ITEM_OCARINA_OF_TIME,
+    ITEM_BOW,
+    ITEM_ARROW_FIRE,
+    ITEM_ARROW_ICE,
+    ITEM_ARROW_LIGHT,
+    ITEM_MOONS_TEAR,
+    ITEM_BOMB,
+    ITEM_BOMBCHU,
+    ITEM_DEKU_STICK,
+    ITEM_DEKU_NUT,
+    ITEM_MAGIC_BEANS,
+    ITEM_ROOM_KEY,
+    ITEM_POWDER_KEG,
+    ITEM_PICTOGRAPH_BOX,
+    ITEM_LENS_OF_TRUTH,
+    ITEM_HOOKSHOT,
+    ITEM_SWORD_GREAT_FAIRY,
+    ITEM_LETTER_TO_KAFEI,
+    ITEM_BOTTLE,
+    ITEM_BOTTLE,
+    ITEM_BOTTLE,
+    ITEM_BOTTLE,
+    ITEM_BOTTLE,
+    ITEM_BOTTLE,
+    ITEM_MASK_POSTMAN,
+    ITEM_MASK_ALL_NIGHT,
+    ITEM_MASK_BLAST,
+    ITEM_MASK_STONE,
+    ITEM_MASK_GREAT_FAIRY,
+    ITEM_MASK_DEKU,
+    ITEM_MASK_KEATON,
+    ITEM_MASK_BREMEN,
+    ITEM_MASK_BUNNY,
+    ITEM_MASK_DON_GERO,
+    ITEM_MASK_SCENTS,
+    ITEM_MASK_GORON,
+    ITEM_MASK_ROMANI,
+    ITEM_MASK_CIRCUS_LEADER,
+    ITEM_MASK_KAFEIS_MASK,
+    ITEM_MASK_COUPLE,
+    ITEM_MASK_TRUTH,
+    ITEM_MASK_ZORA,
+    ITEM_MASK_KAMARO,
+    ITEM_MASK_GIBDO,
+    ITEM_MASK_GARO,
+    ITEM_MASK_CAPTAIN,
+    ITEM_MASK_GIANT,
+    ITEM_MASK_FIERCE_DEITY,
+};
+
+std::map<int16_t, int16_t> questToItemMap = {
+    { QUEST_REMAINS_ODOLWA, ITEM_REMAINS_ODOLWA },
+    { QUEST_REMAINS_GOHT, ITEM_REMAINS_GOHT },
+    { QUEST_REMAINS_GYORG, ITEM_REMAINS_GYORG },
+    { QUEST_REMAINS_TWINMOLD, ITEM_REMAINS_TWINMOLD },
+    { QUEST_SONG_SONATA, ITEM_SONG_SONATA },
+    { QUEST_SONG_LULLABY, ITEM_SONG_LULLABY },
+    { QUEST_SONG_BOSSA_NOVA, ITEM_SONG_NOVA },
+    { QUEST_SONG_ELEGY, ITEM_SONG_ELEGY },
+    { QUEST_SONG_OATH, ITEM_SONG_OATH },
+    { QUEST_SONG_SARIA, ITEM_SONG_SARIA },
+    { QUEST_SONG_TIME, ITEM_SONG_TIME },
+    { QUEST_SONG_HEALING, ITEM_SONG_HEALING },
+    { QUEST_SONG_EPONA, ITEM_SONG_EPONA },
+    { QUEST_SONG_SOARING, ITEM_SONG_SOARING },
+    { QUEST_SONG_STORMS, ITEM_SONG_STORMS },
+    { QUEST_SONG_SUN, ITEM_SONG_SUN },
+    { QUEST_BOMBERS_NOTEBOOK, ITEM_BOMBERS_NOTEBOOK },
+};
+
+ImVec4 Ship_SongColors(int16_t itemID) {
+    switch (itemID) {
+        case ITEM_SONG_SONATA:
+            return ImVec4(0.588f, 1, 0.392f, 1);
+        case ITEM_SONG_LULLABY:
+        case ITEM_SONG_LULLABY_INTRO:
+            return ImVec4(1, 0.313f, 0.156f, 1);
+        case ITEM_SONG_NOVA:
+            return ImVec4(0.392f, 0.588f, 1, 1);
+        case ITEM_SONG_ELEGY:
+            return ImVec4(1, 0.627f, 0, 1);
+        case ITEM_SONG_OATH:
+            return ImVec4(1, 0.392f, 1, 1);
+        default:
+            return ImVec4(1, 1, 1, 1);
+    }
+};
+
+const char* fairyIcons[] = { gDungeonStrayFairyWoodfallIconTex, gDungeonStrayFairySnowheadIconTex,
+                             gDungeonStrayFairyGreatBayIconTex, gDungeonStrayFairyStoneTowerIconTex };
+
+extern "C" int16_t findQuestByItem(int16_t itemId) {
+    for (auto& [quest, itemVal] : questToItemMap) {
+        if (itemVal == itemId) {
+            return quest;
+        }
+    }
+    return -1;
+}
 
 extern "C" const char* Ship_GetSceneName(s16 sceneId) {
     if (sceneNames.contains(sceneId)) {

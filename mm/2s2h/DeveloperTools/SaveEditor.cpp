@@ -1016,17 +1016,6 @@ void SongInfo(int32_t itemID) {
     }
 }
 
-std::map<QuestItem, ItemId> questToItemMap = {
-    { QUEST_REMAINS_ODOLWA, ITEM_REMAINS_ODOLWA }, { QUEST_REMAINS_GOHT, ITEM_REMAINS_GOHT },
-    { QUEST_REMAINS_GYORG, ITEM_REMAINS_GYORG },   { QUEST_REMAINS_TWINMOLD, ITEM_REMAINS_TWINMOLD },
-    { QUEST_SONG_SONATA, ITEM_SONG_SONATA },       { QUEST_SONG_LULLABY, ITEM_SONG_LULLABY },
-    { QUEST_SONG_BOSSA_NOVA, ITEM_SONG_NOVA },     { QUEST_SONG_ELEGY, ITEM_SONG_ELEGY },
-    { QUEST_SONG_OATH, ITEM_SONG_OATH },           { QUEST_SONG_SARIA, ITEM_SONG_SARIA },
-    { QUEST_SONG_TIME, ITEM_SONG_TIME },           { QUEST_SONG_HEALING, ITEM_SONG_HEALING },
-    { QUEST_SONG_EPONA, ITEM_SONG_EPONA },         { QUEST_SONG_SOARING, ITEM_SONG_SOARING },
-    { QUEST_SONG_STORMS, ITEM_SONG_STORMS },       { QUEST_SONG_SUN, ITEM_SONG_SUN }
-};
-
 void NextQuestInSlot(QuestItem slot) {
     if (!gPlayState) {
         return;
@@ -1265,8 +1254,7 @@ void SetDungeonItems(uint32_t dungeonItem, uint32_t dungeonId) {
 
 const char* dungeonNames[4] = { "Woodfall Temple", "Snowhead Temple", "Great Bay Temple", "Stone Tower Temple" };
 uint32_t smallKeyCounts[4] = { 1, 3, 1, 4 };
-const char* fairyIcons[] = { gDungeonStrayFairyWoodfallIconTex, gDungeonStrayFairySnowheadIconTex,
-                             gDungeonStrayFairyGreatBayIconTex, gDungeonStrayFairyStoneTowerIconTex };
+
 void DrawDungeonItemTab() {
     ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(1.0f, 1.0f, 1.0f, 0.0f));
     ImGui::PushStyleVar(ImGuiStyleVar_ChildRounding, 3.0f);
@@ -1286,7 +1274,8 @@ void DrawDungeonItemTab() {
         ImGui::Text("%s", dungeonNames[i]);
         if (ImGui::ImageButton(
                 stray_id.c_str(),
-                Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(fairyIcons[dungeonId]),
+                Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+                    (const char*)fairyIcons[dungeonId]),
                 ImVec2(INV_GRID_ICON_SIZE, INV_GRID_ICON_SIZE), ImVec2(0, 0), ImVec2(1, 1), ImVec4(0, 0, 0, 0),
                 ImVec4(1, 1, 1, gSaveContext.save.saveInfo.inventory.strayFairies[dungeonId] ? 1.0f : 0.4f))) {
             ImGui::OpenPopup("strayFairies");

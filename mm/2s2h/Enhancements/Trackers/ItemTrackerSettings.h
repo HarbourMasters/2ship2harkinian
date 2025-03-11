@@ -6,7 +6,7 @@ class ItemTrackerSettingsWindow : public Ship::GuiWindow {
     using GuiWindow::GuiWindow;
 
   protected:
-    void InitElement() override;
+    void InitElement() override{};
     void DrawElement() override;
-    void UpdateElement() override;
+    void UpdateElement() override{};
 };
