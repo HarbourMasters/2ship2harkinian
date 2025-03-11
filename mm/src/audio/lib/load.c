@@ -364,6 +364,7 @@ void AudioLoad_SetFontLoadStatus(s32 fontId, s32 loadStatus) {
 
 void AudioLoad_SetSeqLoadStatus(s32 seqId, s32 loadStatus) {
     seqId = AudioEditor_GetOriginalSeq(seqId);
+    // 2S2H [Custom Audio] Remove the cast because seqId is not 16 bit.
     if ((seqId != NA_BGM_DISABLED) && (gAudioCtx.seqLoadStatus[seqId] != LOAD_STATUS_PERMANENT)) {
         gAudioCtx.seqLoadStatus[seqId] = loadStatus;
     }
@@ -1251,6 +1252,9 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
     gSequenceMapSize = (size_t)(seqListSize + customSeqListSize);
     gSequenceMap = malloc(gSequenceMapSize * sizeof(char*));
     gAudioCtx.seqLoadStatus = calloc(gSequenceMapSize, 1);
+
+    memset(&gAudioCtx.seqLoadStatus[seqListSize], 5, customSeqListSize);
+    
     for (size_t i = 0; i < seqListSize; i++) {
         SequenceData sDat = ResourceMgr_LoadSeqByName(seqList[i]);
         gSequenceMap[sDat.seqNumber] = strdup(seqList[i]);
