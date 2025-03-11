@@ -1254,7 +1254,6 @@ void AudioLoad_Init(void* heap, size_t heapSize) {
     gAudioCtx.seqLoadStatus = calloc(gSequenceMapSize, 1);
 
     memset(&gAudioCtx.seqLoadStatus[seqListSize], 5, customSeqListSize);
-    
     for (size_t i = 0; i < seqListSize; i++) {
         SequenceData sDat = ResourceMgr_LoadSeqByName(seqList[i]);
         gSequenceMap[sDat.seqNumber] = strdup(seqList[i]);
