@@ -11,12 +11,8 @@ void RegisterJinxedTimer() {
             return;
         }
 
-        if (CVAR == 0) {
-            gSaveContext.jinxTimer = 0;
-        } else {
-            if (gSaveContext.jinxTimer > CVAR * 20) {
-                gSaveContext.jinxTimer = CVAR * 20;
-            }
+        if (gSaveContext.jinxTimer > CVAR * 20) {
+            gSaveContext.jinxTimer = CVAR * 20;
         }
     });
 }
