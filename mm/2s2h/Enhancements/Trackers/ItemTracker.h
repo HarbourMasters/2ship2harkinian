@@ -9,6 +9,7 @@ typedef enum {
     TRACKER_SONGS,
     TRACKER_DUNGEON,
     TRACKER_STRAY_FAIRIES,
+    TRACKER_RANDO,
 };
 
 typedef enum {

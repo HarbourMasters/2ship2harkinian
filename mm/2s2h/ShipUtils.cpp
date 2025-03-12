@@ -161,6 +161,21 @@ ImVec4 Ship_SongColors(int16_t itemID) {
     }
 };
 
+ImVec4 Ship_DungeonKeyColors(int16_t dungeonIndex) {
+    switch (dungeonIndex) {
+        case DUNGEON_INDEX_WOODFALL_TEMPLE:
+            return ImVec4(0.92f, 0.47f, 0.73f, 1.0f);
+        case DUNGEON_INDEX_SNOWHEAD_TEMPLE:
+            return ImVec4(0.5f, 0.68f, 0.27f, 1.0f);
+        case DUNGEON_INDEX_GREAT_BAY_TEMPLE:
+            return ImVec4(0.38f, 0.35f, 0.72f, 1.0f);
+        case DUNGEON_INDEX_STONE_TOWER_TEMPLE:
+            return ImVec4(0.69f, 0.65f, 0.32f, 1.0f);
+        default:
+            break;
+    }
+}
+
 const char* fairyIcons[] = { gDungeonStrayFairyWoodfallIconTex, gDungeonStrayFairySnowheadIconTex,
                              gDungeonStrayFairyGreatBayIconTex, gDungeonStrayFairyStoneTowerIconTex };
 

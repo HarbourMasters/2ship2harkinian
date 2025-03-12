@@ -13,6 +13,7 @@ extern std::vector<int16_t> orderedInventoryItemList;
 extern const char* fairyIcons[4];
 extern std::map<int16_t, int16_t> questToItemMap;
 extern ImVec4 Ship_SongColors(int16_t itemID);
+extern ImVec4 Ship_DungeonKeyColors(int16_t dungeonIndex);
 
 extern "C" {
 #endif

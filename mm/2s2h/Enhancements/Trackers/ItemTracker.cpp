@@ -3,10 +3,12 @@
 
 #include "ShipUtils.h"
 #include "2s2h/BenGui/UIWidgets.hpp"
+#include "2s2h/Rando/Rando.h"
 
 extern "C" {
 #include "z64save.h"
 #include "variables.h"
+#include "functions.h"
 #include "assets/archives/icon_item_static/icon_item_static_yar.h"
 #include "interface/icon_item_dungeon_static/icon_item_dungeon_static.h"
 #include "assets/objects/gameplay_keep/gameplay_keep.h"
@@ -21,23 +23,48 @@ std::vector<ItemTrackerWindow::ItemTrackerPanel> panelList = {
     { TRACKER_INVENTORY, "Inventory", 6, {} }, { TRACKER_MASKS, "Masks", 6, {} },
     { TRACKER_QUEST, "Quest", 5, {} },         { TRACKER_SONGS, "Songs", 5, {} },
     { TRACKER_DUNGEON, "Dungeon", 4, {} },     { TRACKER_STRAY_FAIRIES, "Stray Fairies", 5, {} },
+    { TRACKER_RANDO, "Randomizer", 5, {} },
 };
 std::vector<ItemTrackerWindow::ItemTrackerPanel> mainTrackerWindow;
 std::vector<ItemTrackerWindow::ItemTrackerPanel> subTrackerWindow;
 std::vector<ItemTrackerWindow::ItemTrackerPanel> separateTrackerWindow;
 
 std::vector<std::pair<const char*, const char*>> itemTrackerPanelOptions = {
-    { "Inventory", "ItemTracker.Inventory" }, { "Masks", "ItemTracker.Masks" },
-    { "Quest", "ItemTracker.Quest" },         { "Songs", "ItemTracker.Songs" },
-    { "Dungeon", "ItemTracker.Dungeon" },     { "Stray Fairies", "ItemTracker.StrayFairies" },
+    { "Inventory", "ItemTracker.Inventory" },   { "Masks", "ItemTracker.Masks" },
+    { "Quest", "ItemTracker.Quest" },           { "Songs", "ItemTracker.Songs" },
+    { "Dungeon", "ItemTracker.Dungeon" },       { "Stray Fairies", "ItemTracker.StrayFairies" },
+    { "Randomizer", "ItemTracker.Randomizer" },
 };
 
 std::vector<std::pair<const char*, const char*>> itemTrackerSettingsOptions = {
-    { "Show Capacity", "ItemTracker.Capacity" }, { "Hide Background", "ItemTracker.Background" }
+    { "Show Capacity", "ItemTracker.Capacity" },
+    { "Hide Background", "ItemTracker.Background" },
+    { "Hide Map/Compass", "ItemTracker.MapCompass" },
 };
 
 int16_t getItemBySlot(InventorySlot slot) {
     return orderedInventoryItemList[slot];
+}
+
+ImTextureID randoTextureId(RandoItemId randoItem) {
+    switch (randoItem) {
+        case RI_SOUL_GOHT:
+            return Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+                (const char*)gItemIcons[ITEM_REMAINS_GOHT]);
+        case RI_SOUL_GYORG:
+            return Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+                (const char*)gItemIcons[ITEM_REMAINS_GYORG]);
+        case RI_SOUL_MAJORA:
+            return 0;
+        case RI_SOUL_ODOLWA:
+            return Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+                (const char*)gItemIcons[ITEM_REMAINS_ODOLWA]);
+        case RI_SOUL_TWINMOLD:
+            return Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
+                (const char*)gItemIcons[ITEM_REMAINS_TWINMOLD]);
+        default:
+            break;
+    }
 }
 
 ImTextureID dungeonTextureId(ItemId dungeonItem, int16_t dungeonIndex) {
@@ -93,6 +120,13 @@ ImTextureID textureId(ItemId itemId, int16_t index) {
     return Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName((const char*)gItemIcons[itemId]);
 }
 
+ImVec4 randoImageColor(RandoItemId randoItem) {
+    if (randoItem >= RI_SOUL_GOHT && randoItem <= RI_SOUL_TWINMOLD) {
+        return ImVec4(1, 1, 1,
+                      Flags_GetRandoInf((randoItem - RI_SOUL_GOHT) + RANDO_INF_OBTAINED_SOUL_OF_GOHT) ? 1 : 0.4f);
+    }
+}
+
 ImVec4 imageColor(ItemId itemId, int16_t index) {
     ImVec4 alpha = ImVec4(1, 1, 1, 0.4f);
 
@@ -136,12 +170,16 @@ ImVec4 imageColor(ItemId itemId, int16_t index) {
                     alpha = ImVec4(1, 1, 1, 1);
                 }
             }
-        } else if (itemId != ITEM_KEY_SMALL) {
-            if (CHECK_DUNGEON_ITEM((itemId - ITEM_KEY_BOSS), index)) {
-                alpha = ImVec4(1, 1, 1, 1);
+        } else if (itemId == ITEM_KEY_SMALL || itemId == ITEM_KEY_BOSS) {
+            alpha = Ship_DungeonKeyColors(index);
+            if (itemId == ITEM_KEY_BOSS && !(CHECK_DUNGEON_ITEM(DUNGEON_BOSS_KEY, index))) {
+                alpha.w = 0.4f;
+            }
+            if (itemId == ITEM_KEY_SMALL && !(DUNGEON_KEY_COUNT(index) > 0)) {
+                alpha.w = 0.4f;
             }
         } else {
-            if (DUNGEON_KEY_COUNT(index) > 0) {
+            if (CHECK_DUNGEON_ITEM((itemId - ITEM_KEY_BOSS), index)) {
                 alpha = ImVec4(1, 1, 1, 1);
             }
         }
@@ -157,12 +195,12 @@ ImVec4 imageColor(ItemId itemId, int16_t index) {
         switch (index) {
             case 0: // Swamp
                 if (((gSaveContext.save.saveInfo.skullTokenCount >> 16) & 0xFFFF) > 0) {
-                    alpha = ImVec4(1, 1, 1, 1);
+                    alpha = ImVec4(1, 1, 1, 0.4f);
                 }
                 break;
             case 1: // Ocean
                 if ((gSaveContext.save.saveInfo.skullTokenCount & 0xFFFF) > 0) {
-                    alpha = ImVec4(1, 1, 1, 1);
+                    alpha = ImVec4(1, 1, 1, 0.8f);
                 }
                 break;
             default:
@@ -223,6 +261,11 @@ std::vector<int16_t> createItemVector(ItemTrackerWindow::ItemTrackerPanel panel)
                 itemList.push_back(ITEM_STRAY_FAIRIES);
             }
             break;
+        case TRACKER_RANDO:
+            for (int i = RI_SOUL_GOHT; i <= RI_SOUL_TWINMOLD; i++) {
+                itemList.push_back(i);
+            }
+            break;
         default:
             break;
     }
@@ -234,11 +277,6 @@ void ItemTrackerOverlayText(int16_t itemId, int16_t index) {
     if (!CVarGetInteger("ItemTracker.Capacity", 0)) {
         return;
     }
-    // Overlay the item count text on the existing button
-    ImVec2 imageMin = ImGui::GetItemRectMin();
-    ImVec2 imageMax = ImGui::GetItemRectMax();
-    ImVec2 textPos =
-        ImVec2(ImVec2(imageMax.x - ImGui::CalcTextSize("##").x - 2, imageMax.y - ImGui::CalcTextSize("##").y - 2));
 
     std::string overlayText;
 
@@ -271,22 +309,56 @@ void ItemTrackerOverlayText(int16_t itemId, int16_t index) {
             break;
     }
 
+    // Overlay the item count text on the existing button
+    ImVec2 imageMin = ImGui::GetItemRectMin();
+    ImVec2 imageMax = ImGui::GetItemRectMax();
+    ImVec2 textPos = ImVec2(ImVec2(imageMax.x - ImGui::CalcTextSize(overlayText.c_str()).x - 2,
+                                   imageMax.y - ImGui::CalcTextSize(overlayText.c_str()).y - 2));
+
     ImGui::SetCursorScreenPos(textPos);
     ImGui::TextColored(UIWidgets::ColorValues.at(UIWidgets::Colors::White), overlayText.c_str());
-    if (itemId == ITEM_SKULL_TOKEN) {
-        textPos = ImVec2(imageMin.x, imageMin.y);
-        ImGui::SetCursorScreenPos(textPos);
-        if (index == 0) {
-            ImGui::TextColored(UIWidgets::ColorValues.at(UIWidgets::Colors::Green), "S");
-        } else {
-            ImGui::TextColored(UIWidgets::ColorValues.at(UIWidgets::Colors::LightBlue), "O");
-        }
+}
+
+void DrawBossSoulColor(ImVec2 cursor, RandoItemId randoItem) {
+    ImVec4 color;
+    switch (randoItem) {
+        case RI_SOUL_GOHT:
+            color = ImVec4(0.5f, 0.68f, 0.27f, 1);
+            break;
+        case RI_SOUL_GYORG:
+            color = ImVec4(0.38f, 0.35f, 0.72f, 1);
+            break;
+        case RI_SOUL_MAJORA:
+            color = ImVec4(1.0f, 0.9f, 0.5f, 1.0f);
+            break;
+        case RI_SOUL_ODOLWA:
+            color = ImVec4(0.92f, 0.47f, 0.73f, 1);
+            break;
+        case RI_SOUL_TWINMOLD:
+            color = ImVec4(0.69f, 0.65f, 0.32f, 1);
+            break;
+        default:
+            break;
     }
+
+    ImGui::SetCursorPos(ImVec2(cursor.x - 2.0f, cursor.y - 5.0f));
+    ImGui::Image(Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(gMagicArrowEquipEffectTex),
+                 ImVec2(iconSize + 6.0f, iconSize + 6.0f), ImVec2(0, 0), ImVec2(1, 1), color);
+}
+
+void DrawSkulltulaColor(ImVec2 cursor, int16_t index) {
+    ImVec4 color = ImVec4(25.0f / 255.0f, 251.0f / 255.0f, 0.0f, 0.5f);
+    if (index != 0) {
+        color = ImVec4(0.0f, 209.0f / 256.0f, 231.0f / 256.0f, 1.0f);
+    }
+    ImGui::SetCursorPos(ImVec2(cursor.x - 2.0f, cursor.y - 5.0f));
+    ImGui::Image(Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(gMagicArrowEquipEffectTex),
+                 ImVec2(iconSize + 6.0f, iconSize + 6.0f), ImVec2(0, 0), ImVec2(1, 1), color);
 }
 
 void DrawGroupPanels(ItemTrackerWindow::ItemTrackerPanel window) {
     for (auto& panel : panelList) {
-        int16_t index = 0;
+        int16_t index = -1;
         if (panel.panelId != window.panelId) {
             continue;
         }
@@ -295,17 +367,41 @@ void DrawGroupPanels(ItemTrackerWindow::ItemTrackerPanel window) {
         if (ImGui::BeginTable("Item Panel", panel.panelWidth)) {
             ImGui::TableNextColumn();
             for (auto& item : panel.panelContents) {
-                ImGui::Image(panel.panelId < TRACKER_DUNGEON ? textureId((ItemId)item, index)
-                                                             : dungeonTextureId((ItemId)item, index),
-                             ImVec2(item >= ITEM_SONG_SONATA && item <= ITEM_SONG_STORMS ? iconSize * 0.75f : iconSize,
-                                    iconSize),
-                             ImVec2(0, 0), ImVec2(1, 1), imageColor((ItemId)item, index));
-                ItemTrackerOverlayText(item, index);
-                ImGui::TableNextColumn();
-                if (item == ITEM_COMPASS || item == ITEM_BOTTLE || item == ITEM_STRAY_FAIRIES ||
-                    item == ITEM_SKULL_TOKEN) {
+                if (panel.panelId != TRACKER_RANDO && (item == ITEM_KEY_BOSS || item == ITEM_BOTTLE ||
+                                                       item == ITEM_STRAY_FAIRIES || item == ITEM_SKULL_TOKEN)) {
                     index++;
                 }
+                if (panel.panelId != TRACKER_RANDO && (item == ITEM_DUNGEON_MAP || item == ITEM_COMPASS) &&
+                    CVarGetInteger("ItemTracker.MapCompass", 0)) {
+                    continue;
+                }
+
+                if (panel.panelId == TRACKER_RANDO) {
+                    ImVec2 cursorPos = ImGui::GetCursorPos();
+                    if (item >= RI_SOUL_GOHT && item <= RI_SOUL_TWINMOLD) {
+                        DrawBossSoulColor(cursorPos, (RandoItemId)item);
+                    }
+                    ImGui::SetCursorPos(cursorPos);
+                }
+
+                if (item == ITEM_SKULL_TOKEN) {
+                    ImVec2 cursorPos = ImGui::GetCursorPos();
+                    DrawSkulltulaColor(cursorPos, index);
+                    ImGui::SetNextItemAllowOverlap();
+                    ImGui::SetCursorPos(cursorPos);
+                }
+
+                ImGui::Image(panel.panelId == TRACKER_DUNGEON || panel.panelId == TRACKER_STRAY_FAIRIES
+                                 ? dungeonTextureId((ItemId)item, index)
+                             : panel.panelId == TRACKER_RANDO ? randoTextureId((RandoItemId)item)
+                                                              : textureId((ItemId)item, index),
+                             ImVec2(item >= ITEM_SONG_SONATA && item <= ITEM_SONG_STORMS ? iconSize * 0.75f : iconSize,
+                                    iconSize),
+                             ImVec2(0, 0), ImVec2(1, 1),
+                             panel.panelId == TRACKER_RANDO ? randoImageColor((RandoItemId)item)
+                                                            : imageColor((ItemId)item, index));
+                ItemTrackerOverlayText(item, index);
+                ImGui::TableNextColumn();
             }
             ImGui::EndTable();
         }
@@ -314,22 +410,45 @@ void DrawGroupPanels(ItemTrackerWindow::ItemTrackerPanel window) {
 }
 
 void DrawSinglePanels(ItemTrackerWindow::ItemTrackerPanel panel) {
-    int16_t index = 0;
+    int16_t index = -1;
     ImGui::PushID(panel.panelId);
     ImGui::Begin(panel.panelName, 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
     if (ImGui::BeginTable("Item Panel", panel.panelWidth)) {
         ImGui::TableNextColumn();
         for (auto& item : panel.panelContents) {
-            ImGui::Image(
-                panel.panelId < TRACKER_DUNGEON ? textureId((ItemId)item, index)
-                                                : dungeonTextureId((ItemId)item, index),
-                ImVec2(item >= ITEM_SONG_SONATA && item <= ITEM_SONG_STORMS ? iconSize * 0.75f : iconSize, iconSize),
-                ImVec2(0, 0), ImVec2(1, 1), imageColor((ItemId)item, index));
-            ItemTrackerOverlayText(item, index);
-            ImGui::TableNextColumn();
-            if (item == ITEM_COMPASS || item == ITEM_BOTTLE || item == ITEM_STRAY_FAIRIES || item == ITEM_SKULL_TOKEN) {
+            if (panel.panelId != TRACKER_RANDO && (item == ITEM_KEY_BOSS || item == ITEM_BOTTLE ||
+                                                   item == ITEM_STRAY_FAIRIES || item == ITEM_SKULL_TOKEN)) {
                 index++;
             }
+            if (panel.panelId != TRACKER_RANDO && (item == ITEM_DUNGEON_MAP || item == ITEM_COMPASS) &&
+                CVarGetInteger("ItemTracker.MapCompass", 0)) {
+                continue;
+            }
+
+            if (panel.panelId == TRACKER_RANDO) {
+                ImVec2 cursorPos = ImGui::GetCursorPos();
+                if (item >= RI_SOUL_GOHT && item <= RI_SOUL_TWINMOLD) {
+                    DrawBossSoulColor(cursorPos, (RandoItemId)item);
+                }
+                ImGui::SetCursorPos(cursorPos);
+            }
+
+            if (item == ITEM_SKULL_TOKEN) {
+                ImVec2 cursorPos = ImGui::GetCursorPos();
+                DrawSkulltulaColor(cursorPos, index);
+                ImGui::SetNextItemAllowOverlap();
+                ImGui::SetCursorPos(cursorPos);
+            }
+            ImGui::Image(
+                panel.panelId == TRACKER_DUNGEON || panel.panelId == TRACKER_STRAY_FAIRIES
+                    ? dungeonTextureId((ItemId)item, index)
+                : panel.panelId == TRACKER_RANDO ? randoTextureId((RandoItemId)item)
+                                                 : textureId((ItemId)item, index),
+                ImVec2(item >= ITEM_SONG_SONATA && item <= ITEM_SONG_STORMS ? iconSize * 0.75f : iconSize, iconSize),
+                ImVec2(0, 0), ImVec2(1, 1),
+                panel.panelId == TRACKER_RANDO ? randoImageColor((RandoItemId)item) : imageColor((ItemId)item, index));
+            ItemTrackerOverlayText(item, index);
+            ImGui::TableNextColumn();
         }
         ImGui::EndTable();
     }
@@ -393,6 +512,13 @@ void UpdateTrackerWindows() {
 void UpdateTrackerSettings() {
     iconSize = CVarGetInteger("ItemTracker.IconSize", 32) * 1.0f;
     bgOpacity = CVarGetInteger("ItemTracker.Background", 0) ? 0 : 0.5f;
+    if (CVarGetInteger("ItemTracker.MapCompass", 0)) {
+        panelList[TRACKER_DUNGEON].panelWidth = 2;
+    } else {
+        panelList[TRACKER_DUNGEON].panelWidth = 4;
+    }
+
+    UpdateTrackerWindows();
 }
 
 void ItemTrackerWindow::Draw() {
@@ -409,8 +535,6 @@ void ItemTrackerWindow::Draw() {
         isInitialized = true;
     }
 
-    // ImGui::PushStyleColor(ImGuiCol_TitleBgActive, ImVec4(0, 0, 0, 0.5f));
-    // ImGui::PushStyleColor(ImGuiCol_TitleBg, ImVec4(0, 0, 0, 0.5f));
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, bgOpacity));
     ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 4.0f);

@@ -25,8 +25,10 @@ void ItemTrackerSettingsWindow::DrawElement() {
                             { .size = UIWidgets::Sizes::Inline, .color = menuThemeIndex });
 
     ImGui::BeginTable("Settings Table", 2);
-    ImGui::TableSetupColumn("Options", ImGuiTableColumnFlags_WidthFixed, 300.0f);
+    ImGui::TableSetupColumn("Options", ImGuiTableColumnFlags_WidthFixed, (ImGui::GetContentRegionAvail().x / 2));
+
     ImGui::TableNextColumn();
+    ImGui::SeparatorText("Options");
     for (auto& options : itemTrackerSettingsOptions) {
         if (UIWidgets::CVarCheckbox(options.first, options.second, { .color = menuThemeIndex })) {
             UpdateTrackerSettings();
@@ -38,6 +40,7 @@ void ItemTrackerSettingsWindow::DrawElement() {
         UpdateTrackerSettings();
     }
     ImGui::TableNextColumn();
+    ImGui::SeparatorText("Window Layouts");
     for (auto& options : itemTrackerPanelOptions) {
         if (UIWidgets::CVarCombobox(options.first, options.second, displayTypes, { .color = menuThemeIndex })) {
             UpdateTrackerWindows();
