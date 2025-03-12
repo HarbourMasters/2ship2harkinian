@@ -865,10 +865,10 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Minigames.PowderKegCertification")
         .Options(CheckboxOptions().Tooltip(
             "Skips requiring to take the Powder Keg Test before being given the Certification."));
-    AddWidget(path, "Malon Target Practice Winning Score", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.MalonTargetPractice")
+    AddWidget(path, "Romani Target Practice Winning Score", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.RomaniTargetPractice")
         .Options(IntSliderOptions()
-                     .Tooltip("Sets the score required to win Malon's Target Practice.")
+                     .Tooltip("Sets the score required to win Romani's Target Practice.")
                      .Min(1)
                      .Max(10)
                      .DefaultValue(10));
