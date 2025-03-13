@@ -242,22 +242,22 @@ struct InterpolateCtx {
     float interpolate_angle(f32 o, f32 n) {
         if (o == n)
             return n;
-        o = fmodf(o, 2 * M_PIF);
+        o = fmodf(o, 2 * M_PI);
         if (o < 0.0f) {
-            o += 2 * M_PIF;
+            o += 2 * M_PI;
         }
-        n = fmodf(n, 2 * M_PIF);
+        n = fmodf(n, 2 * M_PI);
         if (n < 0.0f) {
-            n += 2 * M_PIF;
+            n += 2 * M_PI;
         }
-        if (fabsf(o - n) > M_PIF) {
+        if (fabsf(o - n) > M_PI) {
             if (o < n) {
-                o += 2 * M_PIF;
+                o += 2 * M_PI;
             } else {
-                n += 2 * M_PIF;
+                n += 2 * M_PI;
             }
         }
-        if (fabsf(o - n) > M_PIF / 2) {
+        if (fabsf(o - n) > M_PI / 2) {
             // return n;
         }
         return lerp(o, n);

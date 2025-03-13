@@ -1655,15 +1655,15 @@ void EnBigslime_AttackPlayerInBigslime(EnBigslime* this, PlayState* play) {
 void EnBigslime_SetupWindupThrowPlayer(EnBigslime* this) {
     Vtx* dynamicVtx;
     f32 dotXYZ;
-    f32 unitVecX = Math_SinS(this->actor.world.rot.y) * M_SQRT1_2;
-    f32 unitVecZ = Math_CosS(this->actor.world.rot.y) * M_SQRT1_2;
+    f32 unitVecX = Math_SinS(this->actor.world.rot.y) * M_SQRT1_2F;
+    f32 unitVecZ = Math_CosS(this->actor.world.rot.y) * M_SQRT1_2F;
     s32 i;
 
     for (i = 0; i < BIGSLIME_NUM_VTX; i++) {
         dynamicVtx = &sBigslimeDynamicVtxData[this->dynamicVtxState][i];
 
         // vector dot product between each dynamicVtx and the unit normal vector describing player's thrown direction
-        dotXYZ = (dynamicVtx->n.ob[0] * unitVecX + dynamicVtx->n.ob[1] * M_SQRT1_2 + dynamicVtx->n.ob[2] * unitVecZ) *
+        dotXYZ = (dynamicVtx->n.ob[0] * unitVecX + dynamicVtx->n.ob[1] * M_SQRT1_2F + dynamicVtx->n.ob[2] * unitVecZ) *
                  0.001f;
         if (dotXYZ < 0.01f) {
             this->vtxSurfacePerturbation[i] = 0.0f;

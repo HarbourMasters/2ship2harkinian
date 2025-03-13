@@ -87,11 +87,11 @@ f32 Math_FAtanTaylorF(f32 x) {
         return qNaN0x10000;
     }
 
-    if (t <= M_SQRT2 - 1.0f) {
+    if (t <= M_SQRT2F - 1.0f) {
         return Math_FAtanTaylorQF(x);
     }
 
-    if (t >= M_SQRT2 + 1.0f) {
+    if (t >= M_SQRT2F + 1.0f) {
         q = M_PIF / 2 - Math_FAtanTaylorQF(1.0f / t);
     } else { // in the interval (\sqrt{2} - 1, \sqrt{2} + 1)
         q = M_PIF / 4 - Math_FAtanTaylorQF((1.0f - t) / (1.0f + t));
