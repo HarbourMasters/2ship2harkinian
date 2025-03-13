@@ -30,8 +30,16 @@ void ItemTrackerSettingsWindow::DrawElement() {
     ImGui::TableNextColumn();
     ImGui::SeparatorText("Options");
     for (auto& options : itemTrackerSettingsOptions) {
-        if (UIWidgets::CVarCheckbox(options.first, options.second, { .color = menuThemeIndex })) {
-            UpdateTrackerSettings();
+        if (options.first == "Condensed Keys") {
+            ImGui::BeginDisabled(!CVarGetInteger("ItemTracker.MapCompass", 0));
+            if (UIWidgets::CVarCheckbox(options.first, options.second, { .color = menuThemeIndex })) {
+                UpdateTrackerSettings();
+            }
+            ImGui::EndDisabled();
+        } else {
+            if (UIWidgets::CVarCheckbox(options.first, options.second, { .color = menuThemeIndex })) {
+                UpdateTrackerSettings();
+            }
         }
     }
     if (UIWidgets::CVarSliderInt(

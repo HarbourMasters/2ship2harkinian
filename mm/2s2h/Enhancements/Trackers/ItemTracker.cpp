@@ -41,6 +41,7 @@ std::vector<std::pair<const char*, const char*>> itemTrackerSettingsOptions = {
     { "Show Capacity", "ItemTracker.Capacity" },
     { "Hide Background", "ItemTracker.Background" },
     { "Hide Map/Compass", "ItemTracker.MapCompass" },
+    { "Condensed Keys", "ItemTracker.KeyDisplay" },
 };
 
 int16_t getItemBySlot(InventorySlot slot) {
@@ -360,6 +361,7 @@ void DrawSkulltulaColor(ImVec2 cursor, int16_t index) {
 void DrawPanelItems(ItemTrackerWindow::ItemTrackerPanel panel, int16_t index) {
     if (ImGui::BeginTable("Item Panel", panel.panelWidth)) {
         ImGui::TableNextColumn();
+
         for (auto& item : panel.panelContents) {
             if (panel.panelId != TRACKER_RANDO && (item == ITEM_KEY_BOSS || item == ITEM_BOTTLE ||
                                                    item == ITEM_STRAY_FAIRIES || item == ITEM_SKULL_TOKEN)) {
@@ -482,11 +484,9 @@ void UpdateTrackerWindows() {
 void UpdateTrackerSettings() {
     iconSize = CVarGetInteger("ItemTracker.IconSize", 32) * 1.0f;
     bgOpacity = CVarGetInteger("ItemTracker.Background", 0) ? 0 : 0.5f;
-    if (CVarGetInteger("ItemTracker.MapCompass", 0)) {
-        panelList[TRACKER_DUNGEON].panelWidth = 2;
-    } else {
-        panelList[TRACKER_DUNGEON].panelWidth = 4;
-    }
+
+    panelList[TRACKER_DUNGEON].panelWidth =
+        CVarGetInteger("ItemTracker.MapCompass", 0) ? CVarGetInteger("ItemTracker.KeyDisplay", 0) ? 4 : 2 : 4;
 
     UpdateTrackerWindows();
 }
@@ -508,6 +508,7 @@ void ItemTrackerWindow::Draw() {
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, bgOpacity));
     ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 4.0f);
+    
 
     DrawItemTrackerWindowPanels();
 
