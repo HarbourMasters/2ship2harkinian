@@ -508,7 +508,6 @@ void ItemTrackerWindow::Draw() {
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0, 0, 0, bgOpacity));
     ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0, 0, 0, 0));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 4.0f);
-    
 
     DrawItemTrackerWindowPanels();
 
