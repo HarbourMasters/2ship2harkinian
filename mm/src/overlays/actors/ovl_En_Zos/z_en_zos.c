@@ -581,7 +581,7 @@ void func_80BBBDE0(EnZos* this, PlayState* play) {
     seqPos.x = this->actor.projectedPos.x;
     seqPos.y = this->actor.projectedPos.y;
     seqPos.z = this->actor.projectedPos.z;
-    Audio_PlaySequenceAtPos(SEQ_PLAYER_BGM_SUB, &seqPos, NA_BGM_PIANO_PLAY, 1000.0f);
+    Audio_PlaySequenceAtPos(SEQ_PLAYER_BGM_SUB, &seqPos, NA_BGM_PIFANO_PLAY, 1000.0f);
 }
 
 void func_80BBBFBC(EnZos* this, PlayState* play) {

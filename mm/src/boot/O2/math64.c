@@ -92,9 +92,9 @@ f32 Math_FAtanTaylorF(f32 x) {
     }
 
     if (t >= M_SQRT2 + 1.0f) {
-        q = M_PI / 2 - Math_FAtanTaylorQF(1.0f / t);
+        q = M_PIF / 2 - Math_FAtanTaylorQF(1.0f / t);
     } else { // in the interval (\sqrt{2} - 1, \sqrt{2} + 1)
-        q = M_PI / 4 - Math_FAtanTaylorQF((1.0f - t) / (1.0f + t));
+        q = M_PIF / 4 - Math_FAtanTaylorQF((1.0f - t) / (1.0f + t));
     }
 
     if (x > 0.0f) {
@@ -141,9 +141,9 @@ f32 Math_FAtanContFracF(f32 x) {
     if (sector == 0) {
         return conv;
     } else if (sector > 0) {
-        return M_PI / 2 - conv;
+        return M_PIF / 2 - conv;
     } else {
-        return -M_PI / 2 - conv;
+        return -M_PIF / 2 - conv;
     }
 }
 
@@ -167,18 +167,18 @@ f32 Math_FAtan2F(f32 y, f32 x) {
         if (y == 0.0f) {
             return 0.0f;
         } else if (y > 0.0f) {
-            return M_PI / 2;
+            return M_PIF / 2;
         } else if (y < 0.0f) {
-            return -M_PI / 2;
+            return -M_PIF / 2;
         } else {
             return qNaN0x10000;
         }
     } else if (x >= 0.0f) {
         return Math_FAtanF(y / x);
     } else if (y < 0.0f) {
-        return Math_FAtanF(y / x) - M_PI;
+        return Math_FAtanF(y / x) - M_PIF;
     } else {
-        return M_PI - Math_FAtanF(-(y / x));
+        return M_PIF - Math_FAtanF(-(y / x));
     }
 }
 
@@ -187,5 +187,5 @@ f32 Math_FAsinF(f32 x) {
 }
 
 f32 Math_FAcosF(f32 x) {
-    return M_PI / 2 - Math_FAsinF(x);
+    return M_PIF / 2 - Math_FAsinF(x);
 }

@@ -1560,9 +1560,9 @@ s32 Camera_CalcAtForFriendlyLockOn(Camera* camera, VecGeo* eyeAtDir, Vec3f* targ
             deltaY = focalActorPosRot->pos.y - *yPosOffset;
             temp_f0_6 = Math_FAtan2F(deltaY, OLib_Vec3fDistXZ(at, &camera->eye));
 
-            if (temp_f0_6 > 0.34906584f) { // (M_PI / 9)
+            if (temp_f0_6 > 0.34906584f) { // (M_PIF / 9)
                 phi_f16 = 1.0f - Math_SinF(temp_f0_6 - 0.34906584f);
-            } else if (temp_f0_6 < -0.17453292f) { // (M_PI / 18)
+            } else if (temp_f0_6 < -0.17453292f) { // (M_PIF / 18)
                 phi_f16 = 1.0f - Math_SinF(-0.17453292f - temp_f0_6);
             } else {
                 phi_f16 = 1.0f;
@@ -1646,9 +1646,9 @@ s32 Camera_CalcAtForEnemyLockOn(Camera* camera, VecGeo* arg1, Vec3f* arg2, f32 y
 
             focalActorAtOffsetTarget.y -= deltaY;
         } else {
-            if (temp_f0_3 > 0.34906584f) { // (M_PI / 9)
+            if (temp_f0_3 > 0.34906584f) { // (M_PIF / 9)
                 phi_f14 = 1.0f - Math_SinF(temp_f0_3 - 0.34906584f);
-            } else if (temp_f0_3 < -0.17453292f) { // (M_PI / 18)
+            } else if (temp_f0_3 < -0.17453292f) { // (M_PIF / 18)
                 phi_f14 = 1.0f - Math_SinF(-0.17453292f - temp_f0_3);
             } else {
                 phi_f14 = 1.0f;
