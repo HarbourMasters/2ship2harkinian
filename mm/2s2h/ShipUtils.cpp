@@ -17,7 +17,7 @@
 #include "assets/interface/icon_item_field_static/icon_item_field_static.h"
 #include "assets/archives/icon_item_static/icon_item_static_yar.h"
 #include "assets/objects/gameplay_keep/gameplay_keep.h"
-#include "assets/objects/object_open_obj/object_open_obj.h"
+#include "assets/objects/object_mag/object_mag.h"
 
 extern "C" {
 #include "z64.h"
@@ -67,7 +67,7 @@ std::vector<const char*> miscellaneousTextures = {
     gStrayFairyWoodfallIconTex,
     gTimerClockIconTex,
     gWorldMapOwlFaceTex,
-    object_open_obj_Tex_00E1C8,
+    gTitleScreenMajorasMaskTex,
 };
 
 std::vector<const char*> digitList = { gCounterDigit0Tex, gCounterDigit1Tex, gCounterDigit2Tex, gCounterDigit3Tex,
