@@ -13,6 +13,7 @@ extern "C" {
 #include "interface/icon_item_dungeon_static/icon_item_dungeon_static.h"
 #include "assets/objects/gameplay_keep/gameplay_keep.h"
 #include "archives/icon_item_24_static/icon_item_24_static_yar.h"
+#include "assets/objects/object_open_obj/object_open_obj.h"
 }
 
 bool isInitialized = false;
@@ -55,7 +56,7 @@ ImTextureID randoTextureId(RandoItemId randoItem) {
             return Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
                 (const char*)gItemIcons[ITEM_REMAINS_GYORG]);
         case RI_SOUL_MAJORA:
-            return 0;
+            return Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(object_open_obj_Tex_00E1C8);
         case RI_SOUL_ODOLWA:
             return Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(
                 (const char*)gItemIcons[ITEM_REMAINS_ODOLWA]);
@@ -122,8 +123,12 @@ ImTextureID textureId(ItemId itemId, int16_t index) {
 
 ImVec4 randoImageColor(RandoItemId randoItem) {
     if (randoItem >= RI_SOUL_GOHT && randoItem <= RI_SOUL_TWINMOLD) {
-        return ImVec4(1, 1, 1,
-                      Flags_GetRandoInf((randoItem - RI_SOUL_GOHT) + RANDO_INF_OBTAINED_SOUL_OF_GOHT) ? 1 : 0.4f);
+        if (randoItem == RI_SOUL_MAJORA) {
+            return ImVec4(0.85f, 0, 0.3f, Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_MAJORA) ? 1 : 0.4f);
+        } else {
+            return ImVec4(1, 1, 1,
+                          Flags_GetRandoInf((randoItem - RI_SOUL_GOHT) + RANDO_INF_OBTAINED_SOUL_OF_GOHT) ? 1 : 0.4f);
+        }
     }
 }
 
@@ -329,7 +334,7 @@ void DrawBossSoulColor(ImVec2 cursor, RandoItemId randoItem) {
             color = ImVec4(0.38f, 0.35f, 0.72f, 1);
             break;
         case RI_SOUL_MAJORA:
-            color = ImVec4(1.0f, 0.9f, 0.5f, 1.0f);
+            color = ImVec4(1.0f, 0.9f, 0.5f, 0.5f);
             break;
         case RI_SOUL_ODOLWA:
             color = ImVec4(0.92f, 0.47f, 0.73f, 1);
@@ -356,7 +361,7 @@ void DrawSkulltulaColor(ImVec2 cursor, int16_t index) {
                  ImVec2(iconSize + 6.0f, iconSize + 6.0f), ImVec2(0, 0), ImVec2(1, 1), color);
 }
 
-void DrawGroupPanels(ItemTrackerWindow::ItemTrackerPanel window) {
+void DrawGroupedPanels(ItemTrackerWindow::ItemTrackerPanel window) {
     for (auto& panel : panelList) {
         int16_t index = -1;
         if (panel.panelId != window.panelId) {
@@ -409,7 +414,7 @@ void DrawGroupPanels(ItemTrackerWindow::ItemTrackerPanel window) {
     }
 }
 
-void DrawSinglePanels(ItemTrackerWindow::ItemTrackerPanel panel) {
+void DrawSeparatePanels(ItemTrackerWindow::ItemTrackerPanel panel) {
     int16_t index = -1;
     ImGui::PushID(panel.panelId);
     ImGui::Begin(panel.panelName, 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
@@ -462,7 +467,7 @@ void DrawItemTrackerWindowPanels() {
             return;
         }
         ImGui::Begin("Main Tracker", 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
-        DrawGroupPanels(window);
+        DrawGroupedPanels(window);
         ImGui::End();
     }
     for (auto& window : subTrackerWindow) {
@@ -471,14 +476,14 @@ void DrawItemTrackerWindowPanels() {
         }
 
         ImGui::Begin("Sub Tracker", 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
-        DrawGroupPanels(window);
+        DrawGroupedPanels(window);
         ImGui::End();
     }
     for (auto& window : separateTrackerWindow) {
         if (separateTrackerWindow.size() == 0) {
             return;
         }
-        DrawSinglePanels(window);
+        DrawSeparatePanels(window);
     }
 }
 
