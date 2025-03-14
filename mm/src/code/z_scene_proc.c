@@ -87,8 +87,9 @@ void AnimatedMat_DrawTexScroll(PlayState* play, s32 segment, void* params) {
  */
 Gfx* AnimatedMat_TwoLayerTexScroll(PlayState* play, AnimatedMatTexScrollParams* params) {
     return Gfx_TwoTexScrollEx(play->state.gfxCtx, 0, params[0].xStep * sMatAnimStep, -(params[0].yStep * sMatAnimStep),
-                            params[0].width, params[0].height, 1, params[1].xStep * sMatAnimStep,
-                            -(params[1].yStep * sMatAnimStep), params[1].width, params[1].height, params[0].xStep, -(params[0].yStep), params[1].xStep, -(params[1].yStep));
+                              params[0].width, params[0].height, 1, params[1].xStep * sMatAnimStep,
+                              -(params[1].yStep * sMatAnimStep), params[1].width, params[1].height, params[0].xStep,
+                              -(params[0].yStep), params[1].xStep, -(params[1].yStep));
 }
 
 /**
