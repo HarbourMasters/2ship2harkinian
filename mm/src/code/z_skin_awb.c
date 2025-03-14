@@ -70,9 +70,9 @@ void Skin_Init(GameState* gameState, Skin* skin, SkeletonHeader* skeletonHeader,
         if ((((SkinLimb*)Lib_SegmentedToVirtual(skeleton[i]))->segmentType != SKIN_LIMB_TYPE_ANIMATED) ||
             (((SkinLimb*)Lib_SegmentedToVirtual(skeleton[i]))->segment == NULL)) {
             vtxEntry->index = 0;
-			
-			for (int j = 0; j < ARRAY_COUNT(vtxEntry->buf); j++)
-				vtxEntry->buf[j] = NULL;
+
+            for (int j = 0; j < ARRAY_COUNT(vtxEntry->buf); j++)
+                vtxEntry->buf[j] = NULL;
         } else {
             SkinAnimatedLimbData* animatedLimbData =
                 Lib_SegmentedToVirtual((((SkinLimb*)Lib_SegmentedToVirtual(skeleton[i]))->segment));
@@ -81,8 +81,8 @@ void Skin_Init(GameState* gameState, Skin* skin, SkeletonHeader* skeletonHeader,
 
             vtxEntry->index = 0;
 
-			for (int j = 0; j < ARRAY_COUNT(skin->vtxTable->buf); j++)
-				vtxEntry->buf[j] = ZeldaArena_Malloc(animatedLimbData->totalVtxCount * sizeof(Vtx));
+            for (int j = 0; j < ARRAY_COUNT(skin->vtxTable->buf); j++)
+                vtxEntry->buf[j] = ZeldaArena_Malloc(animatedLimbData->totalVtxCount * sizeof(Vtx));
 
             Skin_InitAnimatedLimb(gameState, skin, i);
         }
@@ -98,15 +98,13 @@ void Skin_Free(GameState* gameState, Skin* skin) {
     if (skin->vtxTable != NULL) {
         s32 i;
 
-        for (i = 0; i < skin->limbCount; i++) 
-		{
-			for (int j = 0; j < ARRAY_COUNT(skin->vtxTable->buf); j++)
-			{
-				if (skin->vtxTable[i].buf[j] != NULL) {
-					ZeldaArena_Free(skin->vtxTable[i].buf[j]);
-					skin->vtxTable[i].buf[j] = NULL;
-				}
-			}
+        for (i = 0; i < skin->limbCount; i++) {
+            for (int j = 0; j < ARRAY_COUNT(skin->vtxTable->buf); j++) {
+                if (skin->vtxTable[i].buf[j] != NULL) {
+                    ZeldaArena_Free(skin->vtxTable[i].buf[j]);
+                    skin->vtxTable[i].buf[j] = NULL;
+                }
+            }
         }
 
         if (skin->vtxTable != NULL) {
@@ -176,7 +174,6 @@ s32 Skin_ApplyAnimTransformations(Skin* skin, MtxF* limbMatrices, Actor* actor, 
         yTransl = jointRot->y;
         zTransl = jointRot->z;
         jointRot++;
-
 
         SkinMatrix_SetRotateRPYTranslate(limbMatrices, xRot, yRot, zRot, xTransl, yTransl, zTransl);
     } else {
