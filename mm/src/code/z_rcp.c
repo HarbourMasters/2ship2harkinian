@@ -1389,8 +1389,8 @@ Gfx* Gfx_TexScrollEx(GraphicsContext* gfxCtx, u32 x, u32 y, s32 width, s32 heigh
     x %= 2048;
     y %= 2048;
 
-	float xFlt = (float)x;
-	float yFlt = (float)y;
+    float xFlt = (float)x;
+    float yFlt = (float)y;
 
     float xInc = (float)xStep / (float)interpFrames;
     float yInc = (float)yStep / (float)interpFrames;
@@ -1404,7 +1404,7 @@ Gfx* Gfx_TexScrollEx(GraphicsContext* gfxCtx, u32 x, u32 y, s32 width, s32 heigh
         gDPSetTileSizeInterp(&gfx[idx], 0, xFlt, yFlt, (xFlt + ((width - 1) << 2)), (yFlt + ((height - 1) << 2)));
         idx += 3;
 
-		xFlt += xInc;
+        xFlt += xInc;
         yFlt += yInc;
     }
 
