@@ -680,12 +680,6 @@ void SkelAnime_GetFrameData(AnimationHeader* animation, float frame, float animF
 		if (frameBaseNext < 0)
 			frameBaseNext = animFrameCount - 1;
 
-		if (!isSkinnedSkeleton)
-		{
-			// TODO: We should just skip interpolation altogether
-			frameBaseNext = frameBase;
-		}
-
 		AnimationHeader* animHeader = Lib_SegmentedToVirtual(animation);
 		JointIndex* jointIndices = Lib_SegmentedToVirtual(animHeader->jointIndices);
 		s16* frameData = Lib_SegmentedToVirtual(animHeader->frameData);
