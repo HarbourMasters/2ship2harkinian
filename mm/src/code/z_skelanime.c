@@ -632,21 +632,25 @@ static s16 LerpS16(float a, float b, float t)
  * Indices below staticIndexMax are copied from that entry in the static frame data table.
  * Indices above staticIndexMax are offsets to a frame data array indexed by the frame.
  */
-void SkelAnime_GetFrameData(AnimationHeader* animation, float frame, float animFrameCount, float animSpeed, s32 limbCount, Vec3s* frameTable, Vec3s* interpFrameTable)
+void SkelAnime_GetFrameData(AnimationHeader* animation, float frame, float animFrameCount, float animSpeed, s32 limbCount, Vec3s* frameTable, Vec3s* interpFrameTable, bool isSkinnedSkeleton)
 {
     if (ResourceMgr_OTRSigCheck(animation))
         animation = ResourceMgr_LoadAnimByName(animation);
 
-	// TODO: This feels wrong, but it prevents graphical issues
-	// Need to give this some proper thought later
-	if (animSpeed > 0)
-		animSpeed = 1;
-	else
-		animSpeed = -1;
+	if (animSpeed != 0)
+	{
+		// TODO: This feels wrong, but it prevents graphical issues
+		// Need to give this some proper thought later
+		if (animSpeed > 0)
+			animSpeed = 1;
+		else
+			animSpeed = -1;
+	}
 
 	float fpsDiv = Ship_GetInterpolationFPS() / 20.0f;
 
 	Vec3s* originalFrameTable = frameTable;
+	int interpolatedFrameCount = isSkinnedSkeleton ? Ship_GetInterpolationFrameCount() : 1;
 
 	for (int j = 0; j < Ship_GetInterpolationFrameCount(); j++)
 	{
@@ -664,11 +668,6 @@ void SkelAnime_GetFrameData(AnimationHeader* animation, float frame, float animF
 			frameBaseNext = tmp;
 		}
 
-		if (animSpeed < 0)
-		{
-			int bp = 0;
-		}
-
 		if (animFrameCount != 0)
 		{
 			frameBase = fmodf(frameBase, animFrameCount);
@@ -676,13 +675,15 @@ void SkelAnime_GetFrameData(AnimationHeader* animation, float frame, float animF
 		}
 
 		if (frameBase < 0)
-		{
 			frameBase = animFrameCount - 1;
-		}
 
 		if (frameBaseNext < 0)
-		{
 			frameBaseNext = animFrameCount - 1;
+
+		if (!isSkinnedSkeleton)
+		{
+			// TODO: We should just skip interpolation altogether
+			frameBaseNext = frameBase;
 		}
 
 		AnimationHeader* animHeader = Lib_SegmentedToVirtual(animation);
@@ -695,13 +696,24 @@ void SkelAnime_GetFrameData(AnimationHeader* animation, float frame, float animF
 
 		for (i = 0; i < limbCount; i++)
 		{
-			s16 dynamicDataX = LerpS16(dynamicData[jointIndices->x], dynamicDataNext[jointIndices->x], framePerc);
-			s16 dynamicDataY = LerpS16(dynamicData[jointIndices->y], dynamicDataNext[jointIndices->y], framePerc);
-			s16 dynamicDataZ = LerpS16(dynamicData[jointIndices->z], dynamicDataNext[jointIndices->z], framePerc);
+			s16 dynamicDataX = 0;
+			s16 dynamicDataY = 0;
+			s16 dynamicDataZ = 0;
 
-			// Debug prints here, this is needed to prevent loop unrolling
-			if ((frameTable == NULL) || (jointIndices == NULL) || (dynamicData == NULL)) {}
-			
+
+			if (isSkinnedSkeleton)
+			{
+				dynamicDataX = LerpS16(dynamicData[jointIndices->x], dynamicDataNext[jointIndices->x], framePerc);
+				dynamicDataY = LerpS16(dynamicData[jointIndices->y], dynamicDataNext[jointIndices->y], framePerc);
+				dynamicDataZ = LerpS16(dynamicData[jointIndices->z], dynamicDataNext[jointIndices->z], framePerc);
+			}
+			else
+			{
+				dynamicDataX = dynamicData[jointIndices->x];
+				dynamicDataY = dynamicData[jointIndices->y];
+				dynamicDataZ = dynamicData[jointIndices->z];
+			}
+
 			frameTable->x = jointIndices->x >= staticIndexMax ? dynamicDataX : frameData[jointIndices->x];
 			frameTable->y = jointIndices->y >= staticIndexMax ? dynamicDataY : frameData[jointIndices->y];
 			frameTable->z = jointIndices->z >= staticIndexMax ? dynamicDataZ : frameData[jointIndices->z];
@@ -1714,6 +1726,8 @@ void SkelAnime_InitSkin(GameState* gameState, SkelAnime* skelAnime, SkeletonHead
 
 	skelAnime->extraJointTable = ZeldaArena_Malloc(sizeof(*skelAnime->jointTable) * skelAnime->limbCount * MAX_INTERP_FRAMES);
 
+	skelAnime->isSkinned = true;
+
     // Debug prints here, required to match.
     if (1) {}
 
@@ -1800,8 +1814,10 @@ s32 SkelAnime_MorphTaper(SkelAnime* skelAnime) {
 void SkelAnime_AnimateFrame(SkelAnime* skelAnime) {
     Vec3s nextjointTable[100 * MAX_INTERP_FRAMES];
 
-	SkelAnime_GetFrameData(skelAnime->animation, skelAnime->curFrame, skelAnime->animLength, skelAnime->playSpeed, skelAnime->limbCount, skelAnime->jointTable, skelAnime->extraJointTable);
-    if (skelAnime->mode & ANIM_INTERP) {
+	SkelAnime_GetFrameData(skelAnime->animation, skelAnime->curFrame, skelAnime->animLength, skelAnime->playSpeed, 
+		skelAnime->limbCount, skelAnime->jointTable, skelAnime->extraJointTable, skelAnime->isSkinned);
+    
+	if (skelAnime->mode & ANIM_INTERP) {
         s32 frame = skelAnime->curFrame;
         f32 partialFrame = skelAnime->curFrame - frame;
 
@@ -1809,7 +1825,8 @@ void SkelAnime_AnimateFrame(SkelAnime* skelAnime) {
         if (frame >= (s32)skelAnime->animLength) {
             frame = 0;
         }
-        SkelAnime_GetFrameData(skelAnime->animation, frame, skelAnime->animLength, skelAnime->playSpeed, skelAnime->limbCount, nextjointTable, skelAnime->extraJointTable);
+        SkelAnime_GetFrameData(skelAnime->animation, frame, skelAnime->animLength, skelAnime->playSpeed, skelAnime->limbCount, 
+			nextjointTable, skelAnime->extraJointTable, skelAnime->isSkinned);
         SkelAnime_InterpFrameTable(skelAnime->limbCount, skelAnime->jointTable, skelAnime->jointTable, nextjointTable,
                                    partialFrame);
     }
@@ -1866,7 +1883,8 @@ s32 SkelAnime_Once(SkelAnime* skelAnime) {
     f32 updateRate = gFramerateDivisorThird;
 
     if (skelAnime->curFrame == skelAnime->endFrame) {
-        SkelAnime_GetFrameData(skelAnime->animation, skelAnime->curFrame, skelAnime->animLength, skelAnime->playSpeed, skelAnime->limbCount, skelAnime->jointTable, skelAnime->extraJointTable);
+        SkelAnime_GetFrameData(skelAnime->animation, skelAnime->curFrame, skelAnime->animLength, skelAnime->playSpeed, skelAnime->limbCount, 
+			skelAnime->jointTable, skelAnime->extraJointTable, skelAnime->isSkinned);
         SkelAnime_AnimateFrame(skelAnime);
         return true;
     }
@@ -1917,13 +1935,15 @@ void Animation_ChangeImpl(SkelAnime* skelAnime, AnimationHeader* animation, f32 
             } else {
                 skelAnime->update.normal = SkelAnime_Morph;
             }
-            SkelAnime_GetFrameData(animation, startFrame, skelAnime->animLength, skelAnime->playSpeed, skelAnime->limbCount, skelAnime->morphTable, skelAnime->extraJointTable);
+            SkelAnime_GetFrameData(animation, startFrame, skelAnime->animLength, skelAnime->playSpeed, skelAnime->limbCount, 
+				skelAnime->morphTable, skelAnime->extraJointTable, skelAnime->isSkinned);
         }
         skelAnime->morphWeight = 1.0f;
         skelAnime->morphRate = 1.0f / morphFrames;
     } else {
         SkelAnime_SetUpdate(skelAnime);
-        SkelAnime_GetFrameData(animation, startFrame, skelAnime->animLength, skelAnime->playSpeed, skelAnime->limbCount, skelAnime->jointTable, skelAnime->extraJointTable);
+        SkelAnime_GetFrameData(animation, startFrame, skelAnime->animLength, skelAnime->playSpeed, skelAnime->limbCount, 
+			skelAnime->jointTable, skelAnime->extraJointTable, skelAnime->isSkinned);
         skelAnime->morphWeight = 0.0f;
     }
 
