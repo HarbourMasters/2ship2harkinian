@@ -1389,6 +1389,9 @@ Gfx* Gfx_TexScrollEx(GraphicsContext* gfxCtx, u32 x, u32 y, s32 width, s32 heigh
     x %= 2048;
     y %= 2048;
 
+	float xFlt = (float)x;
+	float yFlt = (float)y;
+
     float xInc = (float)xStep / (float)interpFrames;
     float yInc = (float)yStep / (float)interpFrames;
 
@@ -1398,11 +1401,11 @@ Gfx* Gfx_TexScrollEx(GraphicsContext* gfxCtx, u32 x, u32 y, s32 width, s32 heigh
 
     for (int i = 0; i < interpFrames; i++) {
         gDPSetInterpolation(&gfx[idx++], i);
-        gDPSetTileSizeInterp(&gfx[idx], 0, x, y, (x + ((width - 1) << 2)), (y + ((height - 1) << 2)));
+        gDPSetTileSizeInterp(&gfx[idx], 0, xFlt, yFlt, (xFlt + ((width - 1) << 2)), (yFlt + ((height - 1) << 2)));
         idx += 3;
 
-        x += xInc;
-        y += yInc;
+		xFlt += xInc;
+        yFlt += yInc;
     }
 
     gSPEndDisplayList(&gfx[idx++]);
