@@ -1377,13 +1377,21 @@ Gfx* func_8012CB28(GraphicsContext* gfxCtx, u32 x, u32 y) {
     return Gfx_TexScroll(gfxCtx, x, y, 0, 0);
 }
 
-Gfx* Gfx_TexScroll(GraphicsContext* gfxCtx, u32 x, u32 y, s32 width, s32 height) {
+Gfx* Gfx_TexScroll(GraphicsContext* gfxCtx, u32 x, u32 y, s32 width, s32 height)
+{
+	Gfx_TexScrollEx(gfxCtx, x, y, width, height, 0, 0);
+}
+
+Gfx* Gfx_TexScrollEx(GraphicsContext* gfxCtx, u32 x, u32 y, s32 width, s32 height, s32 xStep, s32 yStep) {
 	int interpFrames = Ship_GetInterpolationFrameCount();
 	
-	Gfx* gfx = GRAPH_ALLOC(gfxCtx, (3 + (interpFrames * 2)) * sizeof(Gfx));
+	Gfx* gfx = GRAPH_ALLOC(gfxCtx, (3 + (interpFrames * 4)) * sizeof(Gfx));
 
     x %= 2048;
     y %= 2048;
+
+	float xInc = (float)xStep / (float)interpFrames;
+	float yInc = (float)yStep / (float)interpFrames;
 
 	int idx = 0;
 
@@ -1392,7 +1400,11 @@ Gfx* Gfx_TexScroll(GraphicsContext* gfxCtx, u32 x, u32 y, s32 width, s32 height)
 	for (int i = 0; i < interpFrames; i++)
 	{
 		gDPSetInterpolation(&gfx[idx++], i);
-		gDPSetTileSizeInterp(&gfx[idx++], 0, x, y, (x + ((width - 1) << 2)), (y + ((height - 1) << 2)));
+		gDPSetTileSizeInterp(&gfx[idx], 0, x, y, (x + ((width - 1) << 2)), (y + ((height - 1) << 2)));
+		idx += 3;
+
+		x += xInc;
+		y += yInc;
 	}
 	
 	gSPEndDisplayList(&gfx[idx++]);
@@ -1406,30 +1418,26 @@ Gfx* Gfx_TwoTexScroll(GraphicsContext* gfxCtx, s32 tile1, u32 x1, u32 y1, s32 wi
 	Gfx_TwoTexScrollEx(gfxCtx, tile1, x1, y1, width1, height1, tile2, x2, y2, width2, height2, 0, 0, 0, 0);
 }
 
-// TODO: Put this in a dedicated math file
-// Actually there might already be something that accomplishes this...
-static s32 LerpS32(float a, float b, float t) {
-	return (s32)(a + (b - a) * t);
-}
-
 Gfx* Gfx_TwoTexScrollEx(GraphicsContext* gfxCtx, s32 tile1, u32 x1, u32 y1, s32 width1, s32 height1, s32 tile2, u32 x2,
                       u32 y2, s32 width2, s32 height2, s32 xStep1, s32 yStep1, s32 xStep2, s32 yStep2)
 {
 	int interpFrames = Ship_GetInterpolationFrameCount();
 	
-	Gfx* gfx = GRAPH_ALLOC(gfxCtx, (5 + (interpFrames * 4)) * sizeof(Gfx));
+	Gfx* gfx = GRAPH_ALLOC(gfxCtx, (5 + (interpFrames * 7)) * sizeof(Gfx));
 
     x1 %= 2048;
     y1 %= 2048;
     x2 %= 2048;
     y2 %= 2048;
 
+	float x1Flt = (float)x1;
+	float y1Flt = (float)y1;
+	float x2Flt = (float)x2;
+	float y2Flt = (float)y2;
+
 	int index = 0;
 
     gDPTileSync(&gfx[index++]);
-    
-	//LerpS32
-
 
 	float xInc1 = (float)xStep1 / (float)interpFrames;
 	float yInc1 = (float)yStep1 / (float)interpFrames;
@@ -1441,14 +1449,15 @@ Gfx* Gfx_TwoTexScrollEx(GraphicsContext* gfxCtx, s32 tile1, u32 x1, u32 y1, s32 
 	{
 		gDPSetInterpolation(&gfx[index++], i);
 
-		gDPSetTileSizeInterp(&gfx[index++], tile1, x1, y1, (x1 + ((width1 - 1) << 2)), (y1 + ((height1 - 1) << 2)));
-		gDPTileSync(&gfx[index++]);
-		gDPSetTileSizeInterp(&gfx[index++], tile2, x2, y2, (x2 + ((width2 - 1) << 2)), (y2 + ((height2 - 1) << 2)));
+		gDPSetTileSizeInterp(&gfx[index], tile1, x1Flt, y1Flt, (x1Flt + ((width1 - 1) << 2)), (y1Flt + ((height1 - 1) << 2)));
+		index += 3;
+		gDPSetTileSizeInterp(&gfx[index], tile2, x2Flt, y2Flt, (x2Flt + ((width2 - 1) << 2)), (y2Flt + ((height2 - 1) << 2)));
+		index += 3;
 
-		x1 += xInc1;
-		x2 += xInc2;
-		y1 += yInc1;
-		y2 += yInc2;
+		x1Flt += xInc1;
+		x2Flt += xInc2;
+		y1Flt += yInc1;
+		y2Flt += yInc2;
 	}
 
     gSPEndDisplayList(&gfx[index++]);
