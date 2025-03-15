@@ -73,15 +73,19 @@ void Rando::MiscBehavior::AfterEndOfCycleSave() {
             case FLAG_CYCL_SCENE_SWITCH:
                 // Clear the flag without triggering hook
                 if (gPlayState->sceneId == randoStaticCheck.sceneId) {
-                    gPlayState->actorCtx.sceneFlags.switches[(randoStaticCheck.flag & ~0x1F) >> 5] &= ~(1 << (randoStaticCheck.flag & 0x1F));
+                    gPlayState->actorCtx.sceneFlags.switches[(randoStaticCheck.flag & ~0x1F) >> 5] &=
+                        ~(1 << (randoStaticCheck.flag & 0x1F));
                 }
                 if ((randoStaticCheck.flag & ~0x1F) >> 5 == 0) {
-                    gSaveContext.save.saveInfo.permanentSceneFlags[randoStaticCheck.sceneId].switch0 &= ~(1 << (randoStaticCheck.flag & 0x1F));
-                    gSaveContext.cycleSceneFlags[randoStaticCheck.sceneId].switch0 &= ~(1 << (randoStaticCheck.flag & 0x1F));
+                    gSaveContext.save.saveInfo.permanentSceneFlags[randoStaticCheck.sceneId].switch0 &=
+                        ~(1 << (randoStaticCheck.flag & 0x1F));
+                    gSaveContext.cycleSceneFlags[randoStaticCheck.sceneId].switch0 &=
+                        ~(1 << (randoStaticCheck.flag & 0x1F));
                 } else if ((randoStaticCheck.flag & ~0x1F) >> 5 == 1) {
-                    gSaveContext.save.saveInfo.permanentSceneFlags[randoStaticCheck.sceneId].switch1 &= ~(1 << (randoStaticCheck.flag & 0x1F));
-                    gSaveContext.cycleSceneFlags[randoStaticCheck.sceneId].switch1 &= ~(1 << (randoStaticCheck.flag & 0x1F));
-                    
+                    gSaveContext.save.saveInfo.permanentSceneFlags[randoStaticCheck.sceneId].switch1 &=
+                        ~(1 << (randoStaticCheck.flag & 0x1F));
+                    gSaveContext.cycleSceneFlags[randoStaticCheck.sceneId].switch1 &=
+                        ~(1 << (randoStaticCheck.flag & 0x1F));
                 }
                 break;
                 // most of the others are handled by the game, with the exception of PERSISTENT_CYCLE_FLAGS_SET, not

@@ -30,7 +30,7 @@ static Gfx gBoxChestLidOrnateCopyDL[38];
 #define ENBOX_SET_ITEM(thisx, newItem) ((thisx)->params = (((thisx)->params & ~(0x7F << 5)) | ((newItem & 0x7F) << 5)))
 
 std::vector<std::vector<RandoCheckId>> treasureGameMap = {
-    { RC_UNKNOWN, RC_UNKNOWN}, // FD
+    { RC_UNKNOWN, RC_UNKNOWN }, // FD
     { RC_CLOCK_TOWN_EAST_TREASURE_CHEST_GAME_GORON, RC_UNKNOWN },
     { RC_CLOCK_TOWN_EAST_TREASURE_CHEST_GAME_ZORA, RC_UNKNOWN },
     { RC_CLOCK_TOWN_EAST_TREASURE_CHEST_GAME_DEKU, RC_UNKNOWN },

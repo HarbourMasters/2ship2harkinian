@@ -33,11 +33,13 @@ void Rando::ActorBehavior::InitEnTakarayaBehavior() {
     COND_ID_HOOK(OnActorUpdate, ACTOR_EN_TAKARAYA, IS_RANDO, [](Actor* actor) {
         EnTakaraya* enTakaraya = (EnTakaraya*)actor;
         if (enTakaraya->actionFunc == func_80ADF520) {
-            Actor* box = Actor_FindNearby(gPlayState, &GET_PLAYER(gPlayState)->actor, ACTOR_EN_BOX, ACTORCAT_CHEST, 99999.9f);
+            Actor* box =
+                Actor_FindNearby(gPlayState, &GET_PLAYER(gPlayState)->actor, ACTOR_EN_BOX, ACTORCAT_CHEST, 99999.9f);
             if (box == nullptr) {
                 return;
             }
-            if (box->home.rot.x >= RC_CLOCK_TOWN_EAST_TREASURE_CHEST_GAME_DEKU && box->home.rot.x <= RC_CLOCK_TOWN_EAST_TREASURE_CHEST_GAME_ZORA) {
+            if (box->home.rot.x >= RC_CLOCK_TOWN_EAST_TREASURE_CHEST_GAME_DEKU &&
+                box->home.rot.x <= RC_CLOCK_TOWN_EAST_TREASURE_CHEST_GAME_ZORA) {
                 ENTAKARAYA_RC = box->home.rot.x;
                 enTakaraya->actionFunc = func_80ADF520_modified;
             }
