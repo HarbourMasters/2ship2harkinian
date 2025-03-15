@@ -575,7 +575,6 @@ bool Extractor::CallZapd(std::string installPath, std::string exportdir) {
     argv[18] = "-oxml";
     argv[19] = "asq,asp";
 
-
 #ifdef _WIN32
     // Grab a handle to the command window.
     HWND cmdWindow = GetConsoleWindow();
