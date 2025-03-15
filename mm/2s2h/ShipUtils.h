@@ -10,7 +10,8 @@ void LoadGuiTextures();
 std::string convertEnumToReadableName(const std::string& input);
 extern std::vector<const char*> digitList;
 extern std::map<std::vector<int16_t>, ImVec4> iconColorMap;
-ImVec4 iconColor(int16_t item);
+ImVec4 Ship_SongColors(int16_t itemID);
+ImVec4 Ship_RandoSongColors(int16_t itemID);
 
 extern "C" {
 #endif

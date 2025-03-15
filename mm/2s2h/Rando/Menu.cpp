@@ -51,7 +51,8 @@ extern "C" {
 }
 
 std::bitset<32> LoadBitset(RandoOptionId optionId) {
-    std::bitset<32> selectedItemsBitset = CVarGetInteger(Rando::StaticData::Options[optionId].cvar, 0);
+    std::bitset<32> selectedItemsBitset =
+        CVarGetInteger(Rando::StaticData::Options[optionId].cvar, Rando::StaticData::Options[optionId].defaultValue);
     return selectedItemsBitset;
 }
 
@@ -336,7 +337,7 @@ static void DrawStartingItemSlot(RandoItemId item, f32 columnWidth, int8_t colum
     textureId = Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(texturePath);
 
     if (ImGui::ImageButton(std::to_string(item).c_str(), textureId, buttonSize, ImVec2(0, 0), ImVec2(1, 1),
-                           ImVec4(0, 0, 0, 0), iconColor((int16_t)item))) {
+                           ImVec4(0, 0, 0, 0), Ship_RandoSongColors((int16_t)item))) {
         if (item != RI_BOMBCHU) {
             FlipStartingItemsBitset(item);
         }
@@ -649,4 +650,12 @@ void Rando::RegisterMenu() {
     mBenMenu->AddSidebarEntry("Rando", "Hints", 1);
     path.sidebarName = "Hints";
     mBenMenu->AddWidget(path, "Hints", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawHintsTab(); });
+
+    // Save Defaults if Undefined in JSON
+    for (int i = RO_STARTING_ITEMS_1; i <= RO_STARTING_ITEMS_6; i++) {
+        if (CVarGetInteger(Rando::StaticData::Options[(RandoOptionId)i].cvar, 0) == 0) {
+            CVarSetInteger(Rando::StaticData::Options[(RandoOptionId)i].cvar,
+                           Rando::StaticData::Options[(RandoOptionId)i].defaultValue);
+        }
+    }
 }

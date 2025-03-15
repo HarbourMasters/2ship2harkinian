@@ -1082,7 +1082,7 @@ void DrawQuestSlot(QuestItem slot) {
 
 void DrawSong(QuestItem slot) {
     SongInfo(slot);
-    colorTint = iconColor((int16_t)slot);
+    colorTint = Ship_SongColors((int16_t)slot);
 
     if (ImGui::ImageButton(std::to_string(slot).c_str(),
                            Ship::Context::GetInstance()->GetWindow()->GetGui()->GetTextureByName(

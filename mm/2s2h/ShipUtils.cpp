@@ -67,15 +67,6 @@ std::vector<const char*> digitList = { gCounterDigit0Tex, gCounterDigit1Tex, gCo
                                        gCounterDigit4Tex, gCounterDigit5Tex, gCounterDigit6Tex, gCounterDigit7Tex,
                                        gCounterDigit8Tex, gCounterDigit9Tex, gCounterColonTex };
 
-std::map<std::vector<int16_t>, ImVec4> iconColorMap = {
-    { { QUEST_SONG_SONATA, RI_SONG_SONATA }, ImVec4(0.588f, 1.0f, 0.392f, 1.0f) },
-    { { QUEST_SONG_LULLABY, QUEST_SONG_LULLABY_INTRO, RI_SONG_LULLABY, RI_SONG_LULLABY_INTRO, RI_PROGRESSIVE_LULLABY },
-      ImVec4(1.0f, 0.313f, 0.156f, 1.0f) },
-    { { QUEST_SONG_BOSSA_NOVA, RI_SONG_NOVA }, ImVec4(0.392f, 0.588f, 1.0f, 1.0f) },
-    { { QUEST_SONG_ELEGY, RI_SONG_ELEGY }, ImVec4(1.0f, 0.627f, 0.0f, 1.0f) },
-    { { QUEST_SONG_OATH, RI_SONG_OATH }, ImVec4(1.0f, 0.392f, 1.0f, 1.0f) },
-};
-
 extern ImVec4 iconColor(int16_t item) {
     ImVec4 foundColor = ImVec4(1, 1, 1, 1);
     for (auto& [key, color] : iconColorMap) {
@@ -86,6 +77,43 @@ extern ImVec4 iconColor(int16_t item) {
     }
     return foundColor;
 }
+
+ImVec4 Ship_SongColors(int16_t itemID) {
+    switch (itemID) {
+        case ITEM_SONG_SONATA:
+            return ImVec4(0.588f, 1, 0.392f, 1);
+        case ITEM_SONG_LULLABY:
+        case ITEM_SONG_LULLABY_INTRO:
+            return ImVec4(1, 0.313f, 0.156f, 1);
+        case ITEM_SONG_NOVA:
+            return ImVec4(0.392f, 0.588f, 1, 1);
+        case ITEM_SONG_ELEGY:
+            return ImVec4(1, 0.627f, 0, 1);
+        case ITEM_SONG_OATH:
+            return ImVec4(1, 0.392f, 1, 1);
+        default:
+            return ImVec4(1, 1, 1, 1);
+    }
+};
+
+ImVec4 Ship_RandoSongColors(int16_t itemID) {
+    switch (itemID) {
+        case RI_SONG_SONATA:
+            return ImVec4(0.588f, 1, 0.392f, 1);
+        case RI_SONG_LULLABY:
+        case RI_SONG_LULLABY_INTRO:
+        case RI_PROGRESSIVE_LULLABY:
+            return ImVec4(1, 0.313f, 0.156f, 1);
+        case RI_SONG_NOVA:
+            return ImVec4(0.392f, 0.588f, 1, 1);
+        case RI_SONG_ELEGY:
+            return ImVec4(1, 0.627f, 0, 1);
+        case RI_SONG_OATH:
+            return ImVec4(1, 0.392f, 1, 1);
+        default:
+            return ImVec4(1, 1, 1, 1);
+    }
+};
 
 extern "C" const char* Ship_GetSceneName(s16 sceneId) {
     if (sceneNames.contains(sceneId)) {
