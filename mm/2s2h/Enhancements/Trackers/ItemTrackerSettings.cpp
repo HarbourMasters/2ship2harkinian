@@ -47,6 +47,11 @@ void ItemTrackerSettingsWindow::DrawElement() {
             { .showButtons = true, .min = 16, .max = 56, .defaultValue = 32, .color = menuThemeIndex })) {
         UpdateTrackerSettings();
     }
+    if (UIWidgets::CVarSliderInt(
+            "Icon Spacing", "ItemTracker.IconSpacing",
+            { .showButtons = true, .min = -4, .max = 10, .defaultValue = 2, .color = menuThemeIndex })) {
+        UpdateTrackerSettings();
+    }
     ImGui::TableNextColumn();
     ImGui::SeparatorText("Window Layouts");
     for (auto& options : itemTrackerPanelOptions) {

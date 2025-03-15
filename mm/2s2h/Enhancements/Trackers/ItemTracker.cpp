@@ -18,7 +18,9 @@ extern "C" {
 
 bool isInitialized = false;
 float iconSize = 32.0f;
+float iconSpacing = 4.0f;
 float bgOpacity = 0.5f;
+int16_t prevHeight = 0;
 
 std::vector<ItemTrackerWindow::ItemTrackerPanel> panelList = {
     { TRACKER_INVENTORY, "Inventory", 6, {} }, { TRACKER_MASKS, "Masks", 6, {} },
@@ -358,63 +360,56 @@ void DrawSkulltulaColor(ImVec2 cursor, int16_t index) {
                  ImVec2(iconSize + 6.0f, iconSize + 6.0f), ImVec2(0, 0), ImVec2(1, 1), color);
 }
 
-void DrawPanelItems(ItemTrackerWindow::ItemTrackerPanel panel, int16_t index) {
-    if (ImGui::BeginTable("Item Panel", panel.panelWidth)) {
-        ImGui::TableNextColumn();
+void DrawPanelItems(ItemTrackerWindow::ItemTrackerPanel panel, int16_t index, int16_t slotIndex, int16_t y) {
+    ImGui::BeginGroup();
+    int16_t slot = slotIndex;
+    for (auto& item : panel.panelContents) {
+        float posX = slot * (iconSize + iconSpacing) + 2.0f;
+        float posY = y * (iconSize + iconSpacing) + 2.0f;
 
-        for (auto& item : panel.panelContents) {
-            if (panel.panelId != TRACKER_RANDO && (item == ITEM_KEY_BOSS || item == ITEM_BOTTLE ||
-                                                   item == ITEM_STRAY_FAIRIES || item == ITEM_SKULL_TOKEN)) {
-                index++;
-            }
-            if (panel.panelId != TRACKER_RANDO && (item == ITEM_DUNGEON_MAP || item == ITEM_COMPASS) &&
-                CVarGetInteger("ItemTracker.MapCompass", 0)) {
-                continue;
-            }
+        ImGui::SetCursorPos(ImVec2(posX, posY));
 
-            if (panel.panelId == TRACKER_RANDO) {
-                ImVec2 cursorPos = ImGui::GetCursorPos();
-                if (item >= RI_SOUL_GOHT && item <= RI_SOUL_TWINMOLD) {
-                    DrawBossSoulColor(cursorPos, (RandoItemId)item);
-                }
-                ImGui::SetCursorPos(cursorPos);
-            }
-
-            if (item == ITEM_SKULL_TOKEN) {
-                ImVec2 cursorPos = ImGui::GetCursorPos();
-                DrawSkulltulaColor(cursorPos, index);
-                ImGui::SetNextItemAllowOverlap();
-                ImGui::SetCursorPos(cursorPos);
-            }
-
-            ImGui::Image(
-                panel.panelId == TRACKER_DUNGEON || panel.panelId == TRACKER_STRAY_FAIRIES
-                    ? dungeonTextureId((ItemId)item, index)
-                : panel.panelId == TRACKER_RANDO ? randoTextureId((RandoItemId)item)
-                                                 : textureId((ItemId)item, index),
-                ImVec2(item >= ITEM_SONG_SONATA && item <= ITEM_SONG_STORMS ? iconSize * 0.75f : iconSize, iconSize),
-                ImVec2(0, 0), ImVec2(1, 1),
-                panel.panelId == TRACKER_RANDO ? randoImageColor((RandoItemId)item) : imageColor((ItemId)item, index));
-            ItemTrackerOverlayText(item, index);
-            ImGui::TableNextColumn();
+        if (slot == panel.panelWidth - 1) {
+            y++;
+            slot = 0;
+        } else {
+            slot++;
         }
-        ImGui::EndTable();
-    }
-}
 
-void DrawGroupedPanels(ItemTrackerWindow::ItemTrackerPanel window) {
-    for (auto& panel : panelList) {
-        int16_t index = -1;
-        if (panel.panelId != window.panelId) {
+        if (panel.panelId != TRACKER_RANDO &&
+            (item == ITEM_KEY_BOSS || item == ITEM_BOTTLE || item == ITEM_STRAY_FAIRIES || item == ITEM_SKULL_TOKEN)) {
+            index++;
+        }
+        if (panel.panelId != TRACKER_RANDO && (item == ITEM_DUNGEON_MAP || item == ITEM_COMPASS) &&
+            CVarGetInteger("ItemTracker.MapCompass", 0)) {
             continue;
         }
 
-        ImGui::PushID(panel.panelId);
+        if (panel.panelId == TRACKER_RANDO) {
+            ImVec2 cursorPos = ImGui::GetCursorPos();
+            if (item >= RI_SOUL_GOHT && item <= RI_SOUL_TWINMOLD) {
+                DrawBossSoulColor(cursorPos, (RandoItemId)item);
+            }
+            ImGui::SetCursorPos(cursorPos);
+        }
+        if (item == ITEM_SKULL_TOKEN) {
+            ImVec2 cursorPos = ImGui::GetCursorPos();
+            DrawSkulltulaColor(cursorPos, index);
+            ImGui::SetNextItemAllowOverlap();
+            ImGui::SetCursorPos(cursorPos);
+        }
 
-        DrawPanelItems(panel, index);
-
-        ImGui::PopID();
+        ImGui::Image(
+            panel.panelId == TRACKER_DUNGEON || panel.panelId == TRACKER_STRAY_FAIRIES
+                ? dungeonTextureId((ItemId)item, index)
+            : panel.panelId == TRACKER_RANDO ? randoTextureId((RandoItemId)item)
+                                             : textureId((ItemId)item, index),
+            ImVec2(item >= ITEM_SONG_SONATA && item <= ITEM_SONG_STORMS ? iconSize * 0.75f : iconSize, iconSize),
+            ImVec2(0, 0), ImVec2(1, 1),
+            panel.panelId == TRACKER_RANDO ? randoImageColor((RandoItemId)item) : imageColor((ItemId)item, index));
+        ItemTrackerOverlayText(item, index);
     }
+    ImGui::EndGroup();
 }
 
 void DrawSeparatePanels(ItemTrackerWindow::ItemTrackerPanel panel) {
@@ -422,34 +417,64 @@ void DrawSeparatePanels(ItemTrackerWindow::ItemTrackerPanel panel) {
     ImGui::PushID(panel.panelId);
     ImGui::Begin(panel.panelName, 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
 
-    DrawPanelItems(panel, index);
+    DrawPanelItems(panel, index, 0, 0);
 
     ImGui::End();
     ImGui::PopID();
 }
 
 void DrawItemTrackerWindowPanels() {
+    int16_t y = 0;
+    prevHeight = 0;
+    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(2.0f, 2.0f));
+    ImGui::Begin("Main Tracker", 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
     for (auto& window : mainTrackerWindow) {
         if (mainTrackerWindow.size() == 0) {
             return;
         }
-        ImGui::Begin("Main Tracker", 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
-        DrawGroupedPanels(window);
-        ImGui::End();
+
+        int16_t index = -1;
+
+        y += prevHeight;
+        prevHeight = (window.panelContents.size() / window.panelWidth);
+        if (window.panelContents.size() % window.panelWidth != 0) {
+            prevHeight++;
+        }
+
+        ImGui::PushID(window.panelId);
+        DrawPanelItems(panelList[window.panelId], index, 0, y);
+        ImGui::PopID();
     }
+    ImGui::End();
+    ImGui::PopStyleVar(1);
+
+    y = 0;
+    prevHeight = 0;
+    ImGui::Begin("Sub Tracker", 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
     for (auto& window : subTrackerWindow) {
         if (subTrackerWindow.size() == 0) {
             return;
         }
 
-        ImGui::Begin("Sub Tracker", 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
-        DrawGroupedPanels(window);
-        ImGui::End();
+        int16_t index = -1;
+
+        y += prevHeight;
+        prevHeight = (window.panelContents.size() / window.panelWidth);
+        if (window.panelContents.size() % window.panelWidth != 0) {
+            prevHeight++;
+        }
+
+        ImGui::PushID(window.panelId);
+        DrawPanelItems(panelList[window.panelId], index, 0, y);
+        ImGui::PopID();
     }
+    ImGui::End();
+
     for (auto& window : separateTrackerWindow) {
         if (separateTrackerWindow.size() == 0) {
             return;
         }
+
         DrawSeparatePanels(window);
     }
 }
@@ -483,6 +508,7 @@ void UpdateTrackerWindows() {
 
 void UpdateTrackerSettings() {
     iconSize = CVarGetInteger("ItemTracker.IconSize", 32) * 1.0f;
+    iconSpacing = CVarGetInteger("ItemTracker.IconSpacing", 2) * 1.0f;
     bgOpacity = CVarGetInteger("ItemTracker.Background", 0) ? 0 : 0.5f;
 
     panelList[TRACKER_DUNGEON].panelWidth =
