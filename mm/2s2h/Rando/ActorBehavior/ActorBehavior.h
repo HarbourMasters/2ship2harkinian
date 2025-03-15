@@ -73,6 +73,7 @@ void InitEnSshBehavior();
 void InitEnStoneheishiBehavior();
 void InitEnSyatekiManBehavior();
 void InitEnTabBehavior();
+void InitEnTakarayaBehavior();
 void InitEnTalkBehavior();
 void InitEnTotoBehavior();
 void InitEnTrtBehavior();
