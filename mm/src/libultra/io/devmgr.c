@@ -35,7 +35,7 @@ void __osDevMgrMain(void* arg) {
             }
 
             osRecvMesg(devMgr->acsQueue, &sp6C, OS_MESG_BLOCK);
-            __osResetGlobalIntMask(OS_IM_PIF);
+            __osResetGlobalIntMask(OS_IM_PI);
             __osEPiRawWriteIo(ioMesg->piHandle, LEO_BM_CTL, transfer->bmCtlShadow | LEO_BM_CTL_START);
 
         readblock1:
@@ -54,7 +54,7 @@ void __osDevMgrMain(void* arg) {
                 }
                 block->errStatus = 4;
                 IO_WRITE(PI_STATUS_REG, PI_CLR_INTR);
-                __osSetGlobalIntMask(OS_IM_PIF | SR_IBIT4);
+                __osSetGlobalIntMask(OS_IM_PI | SR_IBIT4);
             }
             osSendMesg(ioMesg->hdr.retQueue, (OSMesg)ioMesg, OS_MESG_NOBLOCK);
 
