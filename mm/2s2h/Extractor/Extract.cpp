@@ -527,7 +527,7 @@ std::string Extractor::Mkdtemp() {
 extern "C" int zapd_main(int argc, char** argv);
 
 bool Extractor::CallZapd(std::string installPath, std::string exportdir) {
-    constexpr int argc = 18;
+    constexpr int argc = 20;
     char xmlPath[1024];
     char confPath[1024];
     char portVersion[18]; // 5 digits for int16_max (x3) + separators + terminator
@@ -572,6 +572,9 @@ bool Extractor::CallZapd(std::string installPath, std::string exportdir) {
     argv[15] = otrFile;
     argv[16] = "--portVer";
     argv[17] = portVersion;
+    argv[18] = "-oxml";
+    argv[19] = "asq,asp";
+
 
 #ifdef _WIN32
     // Grab a handle to the command window.
