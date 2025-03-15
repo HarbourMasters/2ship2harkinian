@@ -637,7 +637,8 @@ void EnSlime_ReactToBluntHit(EnSlime* this, PlayState* play) {
     if (this->timer == 15) {
         this->collider.base.acFlags |= AC_ON;
     }
-    this->actor.scale.y = ((Math_SinF((f32)this->timer * (2.0f * M_PIf / 5.0f)) * (0.07f * timerFactor)) + 1.0f) * 0.01f;
+    this->actor.scale.y =
+        ((Math_SinF((f32)this->timer * (2.0f * M_PIf / 5.0f)) * (0.07f * timerFactor)) + 1.0f) * 0.01f;
     this->actor.shape.rot.x = Rand_CenteredFloat(0x200) * timerFactor;
     this->actor.shape.rot.z = Rand_CenteredFloat(0x200) * timerFactor;
 
