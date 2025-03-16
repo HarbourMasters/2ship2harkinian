@@ -459,23 +459,18 @@ void UpdateTrackerWindows() {
     separateTrackerWindow.clear();
 
     for (auto& panel : panelList) {
-        for (auto& option : itemTrackerPanelOptions) {
-            if (panel.panelName != option.first) {
-                continue;
-            }
-            switch (CVarGetInteger(option.second, 0)) {
-                case SECTION_MAIN:
-                    mainTrackerWindow.push_back(panel);
-                    break;
-                case SECTION_SUB:
-                    subTrackerWindow.push_back(panel);
-                    break;
-                case SECTION_SEPARATE:
-                    separateTrackerWindow.push_back(panel);
-                    break;
-                default:
-                    break;
-            }
+        switch (CVarGetInteger(itemTrackerPanelOptions[panel.panelId].second, 1)) {
+            case SECTION_MAIN:
+                mainTrackerWindow.push_back(panel);
+                break;
+            case SECTION_SUB:
+                subTrackerWindow.push_back(panel);
+                break;
+            case SECTION_SEPARATE:
+                separateTrackerWindow.push_back(panel);
+                break;
+            default:
+                break;
         }
     }
     trackerWindowList.push_back(mainTrackerWindow);
@@ -494,7 +489,7 @@ void UpdateTrackerSettings() {
 }
 
 void ItemTrackerWindow::Draw() {
-    if (!IsVisible()) {
+    if (!CVarGetInteger("gWindows.ItemTracker", 0)) {
         return;
     }
 

@@ -18,7 +18,8 @@ void ItemTrackerSettingsWindow::DrawElement() {
         ImGui::EndChild();
         return;
     }
-    auto menuThemeIndex = static_cast<UIWidgets::Colors>(CVarGetInteger("gSettings.Menu.Theme", 0));
+    auto menuThemeIndex =
+        static_cast<UIWidgets::Colors>(CVarGetInteger("gSettings.Menu.Theme", UIWidgets::Colors::LightBlue));
 
     ImGui::SeparatorText("Item Tracker Settings");
     UIWidgets::WindowButton("Show Item Tracker", "gWindows.ItemTracker", mItemTrackerWindow,
@@ -55,7 +56,8 @@ void ItemTrackerSettingsWindow::DrawElement() {
     ImGui::TableNextColumn();
     ImGui::SeparatorText("Window Layouts");
     for (auto& options : itemTrackerPanelOptions) {
-        if (UIWidgets::CVarCombobox(options.first, options.second, displayTypes, { .color = menuThemeIndex })) {
+        if (UIWidgets::CVarCombobox(options.first, options.second, displayTypes,
+                                    { .defaultIndex = 1, .color = menuThemeIndex })) {
             UpdateTrackerWindows();
         }
     }
