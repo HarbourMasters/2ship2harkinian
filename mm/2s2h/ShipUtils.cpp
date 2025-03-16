@@ -67,17 +67,6 @@ std::vector<const char*> digitList = { gCounterDigit0Tex, gCounterDigit1Tex, gCo
                                        gCounterDigit4Tex, gCounterDigit5Tex, gCounterDigit6Tex, gCounterDigit7Tex,
                                        gCounterDigit8Tex, gCounterDigit9Tex, gCounterColonTex };
 
-extern ImVec4 iconColor(int16_t item) {
-    ImVec4 foundColor = ImVec4(1, 1, 1, 1);
-    for (auto& [key, color] : iconColorMap) {
-        if (std::find(key.begin(), key.end(), item) != key.end()) {
-            foundColor = color;
-            break;
-        }
-    }
-    return foundColor;
-}
-
 ImVec4 Ship_SongColors(int16_t itemID) {
     switch (itemID) {
         case ITEM_SONG_SONATA:
