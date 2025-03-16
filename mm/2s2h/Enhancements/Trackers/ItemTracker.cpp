@@ -20,7 +20,6 @@ bool isInitialized = false;
 float iconSize = 32.0f;
 float iconSpacing = 4.0f;
 float bgOpacity = 0.5f;
-int16_t prevHeight = 0;
 
 std::vector<ItemTrackerWindow::ItemTrackerPanel> panelList = {
     { TRACKER_INVENTORY, "Inventory", 6, {} }, { TRACKER_MASKS, "Masks", 6, {} },
@@ -31,6 +30,8 @@ std::vector<ItemTrackerWindow::ItemTrackerPanel> panelList = {
 std::vector<ItemTrackerWindow::ItemTrackerPanel> mainTrackerWindow;
 std::vector<ItemTrackerWindow::ItemTrackerPanel> subTrackerWindow;
 std::vector<ItemTrackerWindow::ItemTrackerPanel> separateTrackerWindow;
+
+std::vector<std::vector<ItemTrackerWindow::ItemTrackerPanel>> trackerWindowList;
 
 std::vector<std::pair<const char*, const char*>> itemTrackerPanelOptions = {
     { "Inventory", "ItemTracker.Inventory" },   { "Masks", "ItemTracker.Masks" },
@@ -360,22 +361,15 @@ void DrawSkulltulaColor(ImVec2 cursor, int16_t index) {
                  ImVec2(iconSize + 6.0f, iconSize + 6.0f), ImVec2(0, 0), ImVec2(1, 1), color);
 }
 
-void DrawPanelItems(ItemTrackerWindow::ItemTrackerPanel panel, int16_t index, int16_t slotIndex, int16_t y) {
-    ImGui::BeginGroup();
-    int16_t slot = slotIndex;
+void DrawPanelItems(ItemTrackerWindow::ItemTrackerPanel panel) {
+    int16_t index = -1;
+    ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(iconSpacing, iconSpacing));
+    ImGui::BeginTable(panel.panelName, panel.panelWidth);
+    for (int i = 0; i <= panel.panelWidth - 1; i++) {
+        ImGui::TableSetupColumn(std::to_string(i).c_str(), ImGuiTableColumnFlags_WidthFixed, iconSize + iconSpacing);
+    }
+    ImGui::TableNextColumn();
     for (auto& item : panel.panelContents) {
-        float posX = slot * (iconSize + iconSpacing) + 2.0f;
-        float posY = y * (iconSize + iconSpacing) + 2.0f;
-
-        ImGui::SetCursorPos(ImVec2(posX, posY));
-
-        if (slot == panel.panelWidth - 1) {
-            y++;
-            slot = 0;
-        } else {
-            slot++;
-        }
-
         if (panel.panelId != TRACKER_RANDO &&
             (item == ITEM_KEY_BOSS || item == ITEM_BOTTLE || item == ITEM_STRAY_FAIRIES || item == ITEM_SKULL_TOKEN)) {
             index++;
@@ -408,78 +402,58 @@ void DrawPanelItems(ItemTrackerWindow::ItemTrackerPanel panel, int16_t index, in
             ImVec2(0, 0), ImVec2(1, 1),
             panel.panelId == TRACKER_RANDO ? randoImageColor((RandoItemId)item) : imageColor((ItemId)item, index));
         ItemTrackerOverlayText(item, index);
+
+        ImGui::TableNextColumn();
     }
-    ImGui::EndGroup();
-}
-
-void DrawSeparatePanels(ItemTrackerWindow::ItemTrackerPanel panel) {
-    int16_t index = -1;
-    ImGui::PushID(panel.panelId);
-    ImGui::Begin(panel.panelName, 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
-
-    DrawPanelItems(panel, index, 0, 0);
-
-    ImGui::End();
-    ImGui::PopID();
+    ImGui::EndTable();
+    ImGui::PopStyleVar(1);
 }
 
 void DrawItemTrackerWindowPanels() {
-    int16_t y = 0;
-    prevHeight = 0;
-    ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(2.0f, 2.0f));
-    ImGui::Begin("Main Tracker", 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
-    for (auto& window : mainTrackerWindow) {
-        if (mainTrackerWindow.size() == 0) {
-            return;
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(30.0f, 0));
+    int16_t windowIndex = 0;
+    for (auto& window : trackerWindowList) {
+        if (window.size() == 0) {
+            windowIndex++;
+            continue;
         }
 
-        int16_t index = -1;
+        if (ImGui::Begin(std::to_string(windowIndex).c_str(), 0,
+                         ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar)) {
+            if (ImGui::IsWindowDocked()) {
+                ImGui::Dummy(ImVec2(5.0f, 0));
+                bgOpacity = 1.0f;
+            }
 
-        y += prevHeight;
-        prevHeight = (window.panelContents.size() / window.panelWidth);
-        if (window.panelContents.size() % window.panelWidth != 0) {
-            prevHeight++;
+            for (auto& panel : window) {
+                ImGui::PushID(panel.panelId);
+                DrawPanelItems(panelList[panel.panelId]);
+                ImGui::PopID();
+            }
+            ImGui::End();
         }
-
-        ImGui::PushID(window.panelId);
-        DrawPanelItems(panelList[window.panelId], index, 0, y);
-        ImGui::PopID();
+        windowIndex++;
     }
-    ImGui::End();
+
+    if (separateTrackerWindow.size() != 0) {
+        for (auto& panel : separateTrackerWindow) {
+            if (separateTrackerWindow.size() == 0) {
+                return;
+            }
+
+            if (ImGui::Begin(panel.panelName, 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar)) {
+                ImGui::PushID(panel.panelId);
+                DrawPanelItems(panelList[panel.panelId]);
+                ImGui::PopID();
+                ImGui::End();
+            }
+        }
+    }
     ImGui::PopStyleVar(1);
-
-    y = 0;
-    prevHeight = 0;
-    ImGui::Begin("Sub Tracker", 0, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar);
-    for (auto& window : subTrackerWindow) {
-        if (subTrackerWindow.size() == 0) {
-            return;
-        }
-
-        int16_t index = -1;
-
-        y += prevHeight;
-        prevHeight = (window.panelContents.size() / window.panelWidth);
-        if (window.panelContents.size() % window.panelWidth != 0) {
-            prevHeight++;
-        }
-
-        ImGui::PushID(window.panelId);
-        DrawPanelItems(panelList[window.panelId], index, 0, y);
-        ImGui::PopID();
-    }
-    ImGui::End();
-
-    for (auto& window : separateTrackerWindow) {
-        if (separateTrackerWindow.size() == 0) {
-            return;
-        }
-
-        DrawSeparatePanels(window);
-    }
 }
 
 void UpdateTrackerWindows() {
+    trackerWindowList.clear();
     mainTrackerWindow.clear();
     subTrackerWindow.clear();
     separateTrackerWindow.clear();
@@ -504,11 +478,13 @@ void UpdateTrackerWindows() {
             }
         }
     }
+    trackerWindowList.push_back(mainTrackerWindow);
+    trackerWindowList.push_back(subTrackerWindow);
 }
 
 void UpdateTrackerSettings() {
     iconSize = CVarGetInteger("ItemTracker.IconSize", 32) * 1.0f;
-    iconSpacing = CVarGetInteger("ItemTracker.IconSpacing", 2) * 1.0f;
+    iconSpacing = CVarGetInteger("ItemTracker.IconSpacing", 4) * 1.0f;
     bgOpacity = CVarGetInteger("ItemTracker.Background", 0) ? 0 : 0.5f;
 
     panelList[TRACKER_DUNGEON].panelWidth =

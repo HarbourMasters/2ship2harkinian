@@ -44,12 +44,12 @@ void ItemTrackerSettingsWindow::DrawElement() {
     }
     if (UIWidgets::CVarSliderInt(
             "Icon Size", "ItemTracker.IconSize",
-            { .showButtons = true, .min = 16, .max = 56, .defaultValue = 32, .color = menuThemeIndex })) {
+            { .showButtons = true, .min = 30, .max = 56, .defaultValue = 32, .color = menuThemeIndex })) {
         UpdateTrackerSettings();
     }
     if (UIWidgets::CVarSliderInt(
             "Icon Spacing", "ItemTracker.IconSpacing",
-            { .showButtons = true, .min = -4, .max = 10, .defaultValue = 2, .color = menuThemeIndex })) {
+            { .showButtons = true, .min = -2, .max = 10, .defaultValue = 2, .color = menuThemeIndex })) {
         UpdateTrackerSettings();
     }
     ImGui::TableNextColumn();
