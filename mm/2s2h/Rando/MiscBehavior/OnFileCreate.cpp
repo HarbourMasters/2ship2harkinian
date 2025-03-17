@@ -103,6 +103,9 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
 
                 std::unordered_map<RandoCheckId, bool> checkPool;
                 std::vector<RandoItemId> itemPool;
+                std::vector<RandoCheckId> excludedChecks;
+                bool initExcludedChecks = false;
+                std::string excludedChecksList = "";
 
                 // First loop through all regions and add checks/items to the pool
                 for (auto& [randoRegionId, randoRegion] : Rando::Logic::Regions) {
@@ -112,6 +115,27 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                         // Initialize the check with it's vanilla item
                         if (randoStaticCheck.randoCheckId != RC_UNKNOWN) {
                             RANDO_SAVE_CHECKS[randoCheckId].randoItemId = randoStaticCheck.randoItemId;
+                        }
+
+                        // Skip checks that have been excluded in the Locations menu
+                        if (!initExcludedChecks) {
+                            excludedChecksList = CVarGetString("gRando.ExcludedChecks", "");
+
+                            if (excludedChecksList != "") {
+                                std::string word;
+                                std::istringstream stream(excludedChecksList);
+                                while (std::getline(stream, word, ',')) {
+                                    excludedChecks.push_back((RandoCheckId)std::stoi(word));
+                                }
+                            }
+                            initExcludedChecks = true;
+                        }
+
+                        auto it = std::find(excludedChecks.begin(), excludedChecks.end(), randoCheckId);
+                        if (it != excludedChecks.end()) {
+                            RANDO_SAVE_CHECKS[randoCheckId].randoItemId = RI_JUNK;
+                            RANDO_SAVE_CHECKS[randoCheckId].skipped = true;
+                            continue;
                         }
 
                         // Skip checks that are already in the pool

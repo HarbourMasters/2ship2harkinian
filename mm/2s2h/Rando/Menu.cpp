@@ -31,6 +31,9 @@ std::unordered_map<int32_t, const char*> accessTrialsOptions = {
     { RO_ACCESS_TRIALS_OPEN, "Open" },
 };
 
+std::vector<RandoCheckId> checkExclusionList;
+bool isExcludedInitialized = false;
+
 namespace BenGui {
 extern std::shared_ptr<Rando::CheckTracker::CheckTrackerWindow> mRandoCheckTrackerWindow;
 extern std::shared_ptr<Rando::CheckTracker::SettingsWindow> mRandoCheckTrackerSettingsWindow;
@@ -42,6 +45,35 @@ using namespace UIWidgets;
 
 extern "C" {
 #include "archives/icon_item_24_static/icon_item_24_static_yar.h"
+}
+
+void SortExcludedChecks() {
+    std::sort(checkExclusionList.begin(), checkExclusionList.end());
+}
+
+void SaveExcludedChecks() {
+    std::string excludedString = "";
+    SortExcludedChecks();
+
+    for (auto& data : checkExclusionList) {
+        excludedString += std::to_string(data).c_str();
+        excludedString += ",";
+    }
+    CVarSetString("gRando.ExcludedChecks", excludedString.c_str());
+}
+
+void LoadExcludedChecks() {
+    std::vector<RandoCheckId> sortedExclusionList;
+    std::string checksList = CVarGetString("gRando.ExcludedChecks", "");
+
+    if (checksList != "") {
+        std::string word;
+        std::istringstream stream(checksList);
+        while (std::getline(stream, word, ',')) {
+            checkExclusionList.push_back((RandoCheckId)std::stoi(word));
+        }
+    }
+    SortExcludedChecks();
 }
 
 static void DrawGeneralTab() {
@@ -163,11 +195,11 @@ static void DrawLogicConditionsTab() {
     ImGui::EndChild();
 }
 
-static void DrawLocationsTab() {
+static void DrawShufflesTab() {
     f32 columnWidth = ImGui::GetContentRegionAvail().x / 3 - (ImGui::GetStyle().ItemSpacing.x * 2);
     f32 halfHeight = ImGui::GetContentRegionAvail().y / 2 - (ImGui::GetStyle().ItemSpacing.y * 2);
     ImGui::SeparatorText("Shuffle Options");
-    ImGui::BeginChild("randoLocationsColumn1", ImVec2(columnWidth, halfHeight));
+    ImGui::BeginChild("randoShufflesColumn1", ImVec2(columnWidth, halfHeight));
     CVarCheckbox("Shuffle Songs", "gPlaceholderBool",
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }).DefaultValue(true));
     CVarCheckbox("Shuffle Owl Statues", Rando::StaticData::Options[RO_SHUFFLE_OWL_STATUES].cvar);
@@ -181,7 +213,7 @@ static void DrawLocationsTab() {
         IntSliderOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }).Min(1).Max(30).DefaultValue(30));
     ImGui::EndChild();
     ImGui::SameLine();
-    ImGui::BeginChild("randoLocationsColumn2", ImVec2(columnWidth, halfHeight));
+    ImGui::BeginChild("randoShufflesColumn2", ImVec2(columnWidth, halfHeight));
     CVarCheckbox("Shuffle Pot Drops", Rando::StaticData::Options[RO_SHUFFLE_POT_DROPS].cvar);
     CVarCheckbox("Shuffle Crate Drops", Rando::StaticData::Options[RO_SHUFFLE_CRATE_DROPS].cvar);
     CVarCheckbox("Shuffle Barrel Drops", Rando::StaticData::Options[RO_SHUFFLE_BARREL_DROPS].cvar);
@@ -193,11 +225,68 @@ static void DrawLocationsTab() {
                  CheckboxOptions({ { .disabled = true, .disabledTooltip = "Coming Soon" } }));
     ImGui::EndChild();
     ImGui::SameLine();
-    ImGui::BeginChild("randoLocationsColumn3", ImVec2(columnWidth, halfHeight));
+    ImGui::BeginChild("randoShufflesColumn3", ImVec2(columnWidth, halfHeight));
     ImGui::EndChild();
-    ImGui::BeginChild("randoLocationsExclusions", ImVec2(0, 0));
-    ImGui::SeparatorText("Exclusions");
-    ImGui::TextWrapped("These checks will be gauranteed junk items, and marked as skipped in the check tracker.");
+}
+
+static void DrawLocationsTab() {
+    if (!isExcludedInitialized) {
+        LoadExcludedChecks();
+        isExcludedInitialized = true;
+    }
+
+    f32 columnWidth = ImGui::GetContentRegionAvail().x / 2 - (ImGui::GetStyle().ItemSpacing.x * 2);
+    ImGui::BeginChild("randoIncludedChecks", ImVec2(columnWidth, ImGui::GetContentRegionAvail().y));
+    ImGui::SeparatorText("Included Checks");
+    if (ImGui::BeginTable("Included Checks", 1)) {
+        ImGui::TableNextColumn();
+        for (auto& includedChecks : Rando::StaticData::Checks) {
+            if (includedChecks.first == RC_UNKNOWN) {
+                continue;
+            }
+
+            auto it = std::find(checkExclusionList.begin(), checkExclusionList.end(), includedChecks.first);
+            if (it != checkExclusionList.end()) {
+                continue;
+            }
+
+            ImGui::BeginGroup();
+            ImGui::Text("%s", convertEnumToReadableName(Rando::StaticData::Checks[includedChecks.first].name).c_str());
+            ImGui::SameLine();
+            ImGui::Dummy(ImVec2(ImGui::GetContentRegionAvail().x, 0));
+            ImGui::EndGroup();
+
+            ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0,
+                                   ImGui::IsItemHovered() ? IM_COL32(255, 255, 0, 128) : IM_COL32(255, 255, 255, 0));
+            if (ImGui::IsItemClicked()) {
+                checkExclusionList.push_back(includedChecks.first);
+                SaveExcludedChecks();
+            }
+            ImGui::TableNextColumn();
+        }
+        ImGui::EndTable();
+    }
+    ImGui::EndChild();
+    ImGui::SameLine();
+    ImGui::BeginChild("randoExcludedChecks", ImVec2(columnWidth, ImGui::GetContentRegionAvail().y));
+    ImGui::SeparatorText("Excluded Checks");
+    if (ImGui::BeginTable("Excluded Checks", 1)) {
+        ImGui::TableNextColumn();
+        int16_t index = 0;
+        for (auto& excludedChecks : checkExclusionList) {
+            ImGui::Text("%s", convertEnumToReadableName(Rando::StaticData::Checks[excludedChecks].name).c_str());
+
+            ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0,
+                                   ImGui::IsItemHovered() ? IM_COL32(255, 255, 0, 128) : IM_COL32(255, 255, 255, 0));
+            if (ImGui::IsItemClicked()) {
+                checkExclusionList.erase(checkExclusionList.begin() + index);
+                SaveExcludedChecks();
+            }
+            index++;
+            ImGui::TableNextColumn();
+        }
+        ImGui::EndTable();
+    }
     ImGui::EndChild();
 }
 
@@ -398,6 +487,9 @@ void Rando::RegisterMenu() {
     mBenMenu->AddWidget(path, "Logic/Conditions", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) {
         DrawLogicConditionsTab();
     });
+    mBenMenu->AddSidebarEntry("Rando", "Shuffle Options", 1);
+    path.sidebarName = "Shuffle Options";
+    mBenMenu->AddWidget(path, "Locations", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawShufflesTab(); });
     mBenMenu->AddSidebarEntry("Rando", "Locations", 1);
     path.sidebarName = "Locations";
     mBenMenu->AddWidget(path, "Locations", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawLocationsTab(); });
