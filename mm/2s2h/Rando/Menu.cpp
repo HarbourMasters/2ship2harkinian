@@ -457,7 +457,7 @@ static void DrawLocationsTab() {
     ImGui::EndChild();
     ImGui::SameLine();
     ImGui::BeginChild("randoExcludedChecks", ImVec2(columnWidth, ImGui::GetContentRegionAvail().y));
-    ImGui::SeparatorText("Junk Enforced Checks");
+    ImGui::SeparatorText("Forced Junk Checks");
 
     static ImGuiTextFilter excludedFilter;
     UIWidgets::PushStyleCombobox(menuThemeColor);
