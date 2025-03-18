@@ -32,6 +32,8 @@ std::unordered_map<int32_t, const char*> accessTrialsOptions = {
 };
 
 std::vector<RandoCheckId> checkExclusionList;
+std::vector<SceneId> sceneList;
+std::vector<std::string> sceneNames;
 bool isExcludedInitialized = false;
 
 namespace BenGui {
@@ -45,6 +47,7 @@ using namespace UIWidgets;
 
 extern "C" {
 #include "archives/icon_item_24_static/icon_item_24_static_yar.h"
+s16 Play_GetOriginalSceneId(s16 sceneId);
 }
 
 void SortExcludedChecks() {
@@ -74,6 +77,28 @@ void LoadExcludedChecks() {
         }
     }
     SortExcludedChecks();
+}
+
+void LoadSceneList() {
+    sceneList.clear();
+
+    for (auto& [_, randoStaticCheck] : Rando::StaticData::Checks) {
+        RandoSaveCheck& randoSaveCheck = RANDO_SAVE_CHECKS[randoStaticCheck.randoCheckId];
+
+        auto it = std::find(sceneList.begin(), sceneList.end(), randoStaticCheck.sceneId);
+        if (it != sceneList.end()) {
+            continue;
+        }
+
+        SceneId sceneId = (SceneId)Play_GetOriginalSceneId(randoStaticCheck.sceneId);
+        sceneList.push_back(sceneId);
+    }
+
+    std::sort(sceneList.begin(), sceneList.end());
+
+    for (auto& scene : sceneList) {
+        sceneNames.push_back(Ship_GetSceneName(scene));
+    }
 }
 
 static void DrawGeneralTab() {
@@ -229,67 +254,6 @@ static void DrawShufflesTab() {
     ImGui::EndChild();
 }
 
-static void DrawLocationsTab() {
-    if (!isExcludedInitialized) {
-        LoadExcludedChecks();
-        isExcludedInitialized = true;
-    }
-
-    f32 columnWidth = ImGui::GetContentRegionAvail().x / 2 - (ImGui::GetStyle().ItemSpacing.x * 2);
-    ImGui::BeginChild("randoIncludedChecks", ImVec2(columnWidth, ImGui::GetContentRegionAvail().y));
-    ImGui::SeparatorText("Included Checks");
-    if (ImGui::BeginTable("Included Checks", 1)) {
-        ImGui::TableNextColumn();
-        for (auto& includedChecks : Rando::StaticData::Checks) {
-            if (includedChecks.first == RC_UNKNOWN) {
-                continue;
-            }
-
-            auto it = std::find(checkExclusionList.begin(), checkExclusionList.end(), includedChecks.first);
-            if (it != checkExclusionList.end()) {
-                continue;
-            }
-
-            ImGui::BeginGroup();
-            ImGui::Text("%s", convertEnumToReadableName(Rando::StaticData::Checks[includedChecks.first].name).c_str());
-            ImGui::SameLine();
-            ImGui::Dummy(ImVec2(ImGui::GetContentRegionAvail().x, 0));
-            ImGui::EndGroup();
-
-            ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0,
-                                   ImGui::IsItemHovered() ? IM_COL32(255, 255, 0, 128) : IM_COL32(255, 255, 255, 0));
-            if (ImGui::IsItemClicked()) {
-                checkExclusionList.push_back(includedChecks.first);
-                SaveExcludedChecks();
-            }
-            ImGui::TableNextColumn();
-        }
-        ImGui::EndTable();
-    }
-    ImGui::EndChild();
-    ImGui::SameLine();
-    ImGui::BeginChild("randoExcludedChecks", ImVec2(columnWidth, ImGui::GetContentRegionAvail().y));
-    ImGui::SeparatorText("Excluded Checks");
-    if (ImGui::BeginTable("Excluded Checks", 1)) {
-        ImGui::TableNextColumn();
-        int16_t index = 0;
-        for (auto& excludedChecks : checkExclusionList) {
-            ImGui::Text("%s", convertEnumToReadableName(Rando::StaticData::Checks[excludedChecks].name).c_str());
-
-            ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0,
-                                   ImGui::IsItemHovered() ? IM_COL32(255, 255, 0, 128) : IM_COL32(255, 255, 255, 0));
-            if (ImGui::IsItemClicked()) {
-                checkExclusionList.erase(checkExclusionList.begin() + index);
-                SaveExcludedChecks();
-            }
-            index++;
-            ImGui::TableNextColumn();
-        }
-        ImGui::EndTable();
-    }
-    ImGui::EndChild();
-}
-
 static void DrawItemsTab() {
     f32 columnWidth = ImGui::GetContentRegionAvail().x / 3 - (ImGui::GetStyle().ItemSpacing.x * 2);
     f32 halfHeight = ImGui::GetContentRegionAvail().y / 3 - (ImGui::GetStyle().ItemSpacing.y * 2);
@@ -433,6 +397,113 @@ static void DrawItemsTab() {
     ImGui::EndChild();
 }
 
+static void DrawLocationsTab() {
+    auto menuThemeColor = UIWidgets::Colors(CVarGetInteger("gSettings.Menu.Theme", LightBlue));
+    bool clearExcluded = false;
+    if (!isExcludedInitialized) {
+        LoadExcludedChecks();
+        LoadSceneList();
+        isExcludedInitialized = true;
+    }
+
+    f32 columnWidth = ImGui::GetContentRegionAvail().x / 2 - (ImGui::GetStyle().ItemSpacing.x * 2);
+    ImGui::BeginChild("randoIncludedChecks", ImVec2(columnWidth, ImGui::GetContentRegionAvail().y));
+    ImGui::SeparatorText("Included Checks");
+
+    static ImGuiTextFilter includedFilter;
+    UIWidgets::PushStyleCombobox(menuThemeColor);
+
+    includedFilter.Draw("##filter", ImGui::GetContentRegionAvail().x - 5.0f);
+    UIWidgets::PopStyleCombobox();
+    if (!includedFilter.IsActive()) {
+        ImGui::SameLine(18.0f);
+        ImGui::Text("Included Search");
+    }
+
+    if (ImGui::BeginTable("Included Checks", 1)) {
+        ImGui::TableNextColumn();
+
+        for (auto& includedChecks : Rando::StaticData::Checks) {
+            if (includedChecks.first == RC_UNKNOWN) {
+                continue;
+            }
+
+            if (!includedFilter.PassFilter(
+                    convertEnumToReadableName(Rando::StaticData::Checks[includedChecks.first].name).c_str())) {
+                continue;
+            }
+
+            auto it = std::find(checkExclusionList.begin(), checkExclusionList.end(), includedChecks.first);
+            if (it != checkExclusionList.end()) {
+                continue;
+            }
+
+            ImGui::BeginGroup();
+            ImGui::Text("%s", convertEnumToReadableName(Rando::StaticData::Checks[includedChecks.first].name).c_str());
+            ImGui::SameLine();
+            ImGui::Dummy(ImVec2(ImGui::GetContentRegionAvail().x, 0));
+            ImGui::EndGroup();
+
+            ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0,
+                                   ImGui::IsItemHovered() ? IM_COL32(255, 255, 0, 128) : IM_COL32(255, 255, 255, 0));
+            if (ImGui::IsItemClicked()) {
+                checkExclusionList.push_back(includedChecks.first);
+                SaveExcludedChecks();
+            }
+            ImGui::TableNextColumn();
+        }
+        ImGui::EndTable();
+    }
+    ImGui::EndChild();
+    ImGui::SameLine();
+    ImGui::BeginChild("randoExcludedChecks", ImVec2(columnWidth, ImGui::GetContentRegionAvail().y));
+    ImGui::SeparatorText("Junk Enforced Checks");
+
+    static ImGuiTextFilter excludedFilter;
+    UIWidgets::PushStyleCombobox(menuThemeColor);
+    excludedFilter.Draw("##filter", ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("Clear All").x - 30.0f);
+    // UIWidgets::PopStyleCombobox();
+    if (!excludedFilter.IsActive()) {
+        ImGui::SameLine(18.0f);
+        ImGui::Text("Excluded Search");
+    }
+    ImGui::SameLine(ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("Clear All").x - 24.0f);
+    if (ImGui::Button("Clear All")) {
+        clearExcluded = true;
+    }
+    UIWidgets::PopStyleCombobox();
+
+    if (ImGui::BeginTable("Excluded Checks", 1)) {
+        ImGui::TableNextColumn();
+        int16_t index = 0;
+        for (auto& excludedChecks : checkExclusionList) {
+            if (!excludedFilter.PassFilter(
+                    convertEnumToReadableName(Rando::StaticData::Checks[excludedChecks].name).c_str())) {
+                continue;
+            }
+
+            ImGui::Text("%s", convertEnumToReadableName(Rando::StaticData::Checks[excludedChecks].name).c_str());
+
+            ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg0,
+                                   ImGui::IsItemHovered() ? IM_COL32(255, 255, 0, 128) : IM_COL32(255, 255, 255, 0));
+            if (ImGui::IsItemClicked()) {
+                checkExclusionList.erase(checkExclusionList.begin() + index);
+                SaveExcludedChecks();
+            }
+            index++;
+            ImGui::TableNextColumn();
+        }
+        ImGui::EndTable();
+    }
+    ImGui::EndChild();
+
+    if (clearExcluded) {
+        checkExclusionList.clear();
+        SaveExcludedChecks();
+        clearExcluded = false;
+    }
+}
+
 static void DrawHintsTab() {
     f32 columnWidth = ImGui::GetContentRegionAvail().x / 3 - (ImGui::GetStyle().ItemSpacing.x * 2);
     f32 halfHeight = ImGui::GetContentRegionAvail().y / 2 - (ImGui::GetStyle().ItemSpacing.y * 2);
@@ -491,11 +562,11 @@ void Rando::RegisterMenu() {
     path.sidebarName = "Shuffle Options";
     mBenMenu->AddWidget(path, "Locations", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawShufflesTab(); });
     mBenMenu->AddSidebarEntry("Rando", "Locations", 1);
-    path.sidebarName = "Locations";
-    mBenMenu->AddWidget(path, "Locations", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawLocationsTab(); });
     mBenMenu->AddSidebarEntry("Rando", "Items", 1);
     path.sidebarName = "Items";
     mBenMenu->AddWidget(path, "Items", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawItemsTab(); });
+    path.sidebarName = "Locations";
+    mBenMenu->AddWidget(path, "Locations", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawLocationsTab(); });
     mBenMenu->AddSidebarEntry("Rando", "Hints", 1);
     path.sidebarName = "Hints";
     mBenMenu->AddWidget(path, "Hints", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { DrawHintsTab(); });
