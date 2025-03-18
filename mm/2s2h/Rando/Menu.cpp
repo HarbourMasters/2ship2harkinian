@@ -32,7 +32,7 @@ std::unordered_map<int32_t, const char*> accessTrialsOptions = {
 };
 
 std::vector<RandoCheckId> checkExclusionList;
-std::vector<SceneId> sceneList;
+std::vector<SceneId> sceneIdList;
 std::vector<std::string> sceneNames;
 bool isExcludedInitialized = false;
 
@@ -80,23 +80,23 @@ void LoadExcludedChecks() {
 }
 
 void LoadSceneList() {
-    sceneList.clear();
+    sceneIdList.clear();
 
     for (auto& [_, randoStaticCheck] : Rando::StaticData::Checks) {
         RandoSaveCheck& randoSaveCheck = RANDO_SAVE_CHECKS[randoStaticCheck.randoCheckId];
 
-        auto it = std::find(sceneList.begin(), sceneList.end(), randoStaticCheck.sceneId);
-        if (it != sceneList.end()) {
+        auto it = std::find(sceneIdList.begin(), sceneIdList.end(), randoStaticCheck.sceneId);
+        if (it != sceneIdList.end()) {
             continue;
         }
 
         SceneId sceneId = (SceneId)Play_GetOriginalSceneId(randoStaticCheck.sceneId);
-        sceneList.push_back(sceneId);
+        sceneIdList.push_back(sceneId);
     }
 
-    std::sort(sceneList.begin(), sceneList.end());
+    std::sort(sceneIdList.begin(), sceneIdList.end());
 
-    for (auto& scene : sceneList) {
+    for (auto& scene : sceneIdList) {
         sceneNames.push_back(Ship_GetSceneName(scene));
     }
 }
