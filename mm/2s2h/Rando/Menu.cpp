@@ -32,8 +32,6 @@ std::unordered_map<int32_t, const char*> accessTrialsOptions = {
 };
 
 std::vector<RandoCheckId> checkExclusionList;
-std::vector<SceneId> sceneIdList;
-std::vector<std::string> sceneNames;
 bool isExcludedInitialized = false;
 
 namespace BenGui {
@@ -47,7 +45,6 @@ using namespace UIWidgets;
 
 extern "C" {
 #include "archives/icon_item_24_static/icon_item_24_static_yar.h"
-s16 Play_GetOriginalSceneId(s16 sceneId);
 }
 
 void SortExcludedChecks() {
@@ -77,28 +74,6 @@ void LoadExcludedChecks() {
         }
     }
     SortExcludedChecks();
-}
-
-void LoadSceneList() {
-    sceneIdList.clear();
-
-    for (auto& [_, randoStaticCheck] : Rando::StaticData::Checks) {
-        RandoSaveCheck& randoSaveCheck = RANDO_SAVE_CHECKS[randoStaticCheck.randoCheckId];
-
-        auto it = std::find(sceneIdList.begin(), sceneIdList.end(), randoStaticCheck.sceneId);
-        if (it != sceneIdList.end()) {
-            continue;
-        }
-
-        SceneId sceneId = (SceneId)Play_GetOriginalSceneId(randoStaticCheck.sceneId);
-        sceneIdList.push_back(sceneId);
-    }
-
-    std::sort(sceneIdList.begin(), sceneIdList.end());
-
-    for (auto& scene : sceneIdList) {
-        sceneNames.push_back(Ship_GetSceneName(scene));
-    }
 }
 
 static void DrawGeneralTab() {
@@ -402,7 +377,6 @@ static void DrawLocationsTab() {
     bool clearExcluded = false;
     if (!isExcludedInitialized) {
         LoadExcludedChecks();
-        LoadSceneList();
         isExcludedInitialized = true;
     }
 
