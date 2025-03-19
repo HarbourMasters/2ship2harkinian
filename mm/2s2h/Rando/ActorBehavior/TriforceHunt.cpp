@@ -19,20 +19,26 @@ void Rando::ActorBehavior::InitTriforceHuntBehavior() {
     bool shouldRegister = IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRIFORCE_PIECES] == RO_GENERIC_YES;
 
     REGISTER_VB_SHOULD(VB_WARP_TO_CREDITS, {
+        if (!gPlayState) {
+            return;
+        }
+
         s8 currentPieces = gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces;
-        s8 requiredPieces = CVarGetInteger("gRando.RequiredTriforcePieces", 15);
+        s8 requiredPieces = gSaveContext.save.shipSaveInfo.rando.requiredTriforcePieces;
 
         if (currentPieces == requiredPieces) {
             creditsWarpActive = true;
         }
+        SPDLOG_INFO("Current: {} | Required: {}", currentPieces, requiredPieces);
     });
 
     COND_ID_HOOK(OnActorUpdate, ACTOR_PLAYER, shouldRegister, [](Actor* actor) {
+        SPDLOG_INFO("Credits: {} | Paused = {}", creditsWarpActive, isGameplayPaused());
         if (creditsWarpActive && !isGameplayPaused()) {
+            creditsWarpActive = false;
             gPlayState->nextEntrance = 0x5400;
             gSaveContext.nextCutsceneIndex = 0xFFF7;
             gPlayState->transitionTrigger = TRANS_TRIGGER_START;
-            creditsWarpActive = false;
         }
     });
 }
