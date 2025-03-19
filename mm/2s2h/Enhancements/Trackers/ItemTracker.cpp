@@ -12,6 +12,7 @@ extern "C" {
 #include "assets/interface/icon_item_dungeon_static/icon_item_dungeon_static.h"
 #include "assets/interface/icon_item_field_static/icon_item_field_static.h"
 #include "assets/interface/parameter_static/parameter_static.h"
+#include "2s2h_assets.h"
 }
 
 #define CFG_TRACKER_ITEM(var) ("ItemTracker." var)
@@ -29,6 +30,7 @@ typedef enum {
     TRACKER_ITEM_KEY_SNOWHEAD,
     TRACKER_ITEM_KEY_GREAT_BAY,
     TRACKER_ITEM_KEY_STONE_TONER,
+    TRACKER_ITEM_TRIFORCE_PIECES,
 } ItemTrackerItems;
 
 using namespace Ship;
@@ -351,6 +353,7 @@ bool ItemTrackerWindow::HasItemCount(int itemId) {
         case TRACKER_ITEM_KEY_SNOWHEAD:
         case TRACKER_ITEM_KEY_GREAT_BAY:
         case TRACKER_ITEM_KEY_STONE_TONER:
+        case TRACKER_ITEM_TRIFORCE_PIECES:
             return true;
         default:
             return false;
@@ -415,6 +418,15 @@ ItemTrackerWindow::CountInfo ItemTrackerWindow::GetItemCountInfo(int itemId) {
                 .maxCap = sSmallKeyCounts[itemId - TRACKER_ITEM_KEY_WOODFALL + DUNGEON_INDEX_WOODFALL_TEMPLE],
             };
             break;
+        case TRACKER_ITEM_TRIFORCE_PIECES: {
+            u32 triforcePieceCount = gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces;
+            info = {
+                .cur = (uint16_t)triforcePieceCount,
+                .curCap = (uint16_t)gSaveContext.save.shipSaveInfo.rando.requiredTriforcePieces,
+                .maxCap = (uint16_t)gSaveContext.save.shipSaveInfo.rando.requiredTriforcePieces,
+            };
+            break;
+        }
         default:
             info = { 0 };
     }
@@ -583,6 +595,13 @@ int ItemTrackerWindow::DrawMisc(int columns, int prevDrawnColumns) {
     ImGui::BeginGroup();
     DrawOwlFace(gSaveContext.save.saveInfo.playerData.owlActivationFlags == 0);
     DrawItemCount(TRACKER_ITEM_OWL_ACTIVATIONS, pos);
+    pos = ImVec2((4 * (mIconSize + mIconSpacing) + 8.0f),
+                 (prevDrawnColumns * (mIconSize + mIconSpacing)) + 8.0f + topPadding);
+    ImGui::SetCursorPos(pos);
+    ImGui::EndGroup();
+    ImGui::BeginGroup();
+    DrawItem((char*)gTriforcePieceTex, gSaveContext.save.shipSaveInfo.rando.requiredTriforcePieces == 0, mIconSize);
+    DrawItemCount(TRACKER_ITEM_TRIFORCE_PIECES, pos);
     ImGui::EndGroup();
 
     // TODO: Heart counts once we have extra save stats

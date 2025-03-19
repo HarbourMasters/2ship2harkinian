@@ -63,6 +63,7 @@ std::vector<const char*> miscellaneousTextures = {
     gStrayFairyStoneTowerIconTex,
     gStrayFairyWoodfallIconTex,
     gTimerClockIconTex,
+    gTriforcePieceTex,
     gWorldMapOwlFaceTex,
 };
 

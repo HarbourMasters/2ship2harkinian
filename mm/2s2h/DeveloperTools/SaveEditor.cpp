@@ -2074,7 +2074,6 @@ void DrawFlagsTab() {
 }
 
 void DrawRandoTab() {
-    ImGui::Text(std::to_string(gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces).c_str());
     if (UIWidgets::Button("Generate Spoiler from Save", { .size = UIWidgets::Sizes::Inline })) {
         nlohmann::json spoiler = Rando::Spoiler::GenerateFromSaveContext();
         std::string inputSeed = std::to_string(Ship_Random(0, 1000000));
