@@ -3,7 +3,6 @@
 
 #include "window/gui/GuiMenuBar.h"
 
-
 namespace BenGui {
 class BenMenuBar : public Ship::GuiMenuBar {
   public:

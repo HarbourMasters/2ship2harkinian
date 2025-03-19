@@ -11,7 +11,6 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "public/bridge/consolevariablebridge.h"
 
-
 s16 sEquipState = EQUIP_STATE_MAGIC_ARROW_GROW_ORB;
 
 // Timer to hold magic arrow icon over magic arrow slot before moving when equipping.

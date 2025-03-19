@@ -20,7 +20,6 @@
 #include "2s2h/BenGui/CosmeticEditor.h"
 #include "public/bridge/consolevariablebridge.h"
 
-
 s32 D_808144F10 = 100;
 f32 D_808144F14 = 8.0f;
 f32 D_808144F18 = 100.0f;

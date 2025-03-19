@@ -5,7 +5,6 @@
 #include "z64visfbuf.h"
 #include "public/bridge/consolevariablebridge.h"
 
-
 // Variables are put before most headers as a hacky way to bypass bss reordering
 s16 sTransitionFillTimer;
 Input D_801F6C18;

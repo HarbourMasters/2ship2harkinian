@@ -25,7 +25,6 @@
 #include "2s2h/GameInteractor/GameInteractor.h"
 #include "public/bridge/consolevariablebridge.h"
 
-
 // 2S2H [Port] This was originally static but needs to be global so it can be accessed in z_kaleido_collect,
 // z_kaleido_debug, and z_kaleido_draw.
 const char* sCounterTextures[] = {

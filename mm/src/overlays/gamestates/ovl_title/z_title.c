@@ -18,7 +18,6 @@
 #include <stdlib.h>
 #include "public/bridge/consolevariablebridge.h"
 
-
 #define dgShipLogoDL "__OTR__misc/nintendo_rogo_static/gShipLogoDL"
 static const ALIGN_ASSET(2) char gShipLogoDL[] = dgShipLogoDL;
 

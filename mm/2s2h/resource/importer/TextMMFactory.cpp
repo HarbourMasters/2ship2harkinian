@@ -1,7 +1,6 @@
 #include "2s2h/resource/importer/TextMMFactory.h"
 #include "2s2h/resource/type/TextMM.h"
 
-
 namespace SOH {
 std::shared_ptr<Ship::IResource>
 ResourceFactoryBinaryTextMMV0::ReadResource(std::shared_ptr<Ship::File> file,

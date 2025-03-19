@@ -3,7 +3,6 @@
 #include "z64math.h"
 #include "public/bridge/consolevariablebridge.h"
 
-
 typedef enum {
     /* 0x00 */ LIGHTNING_BOLT_START,
     /* 0x01 */ LIGHTNING_BOLT_WAIT,

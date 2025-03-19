@@ -8,7 +8,6 @@
 #include "objects/object_wood02/object_wood02.h"
 #include "public/bridge/consolevariablebridge.h"
 
-
 #define FLAGS 0x00000000
 
 #define THIS ((EnWood02*)thisx)

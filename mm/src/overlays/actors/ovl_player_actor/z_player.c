@@ -50,7 +50,6 @@
 #include "2s2h/CustomMessage/CustomMessage.h"
 #include "public/bridge/consolevariablebridge.h"
 
-
 #define THIS ((Player*)thisx)
 
 void Player_Init(Actor* thisx, PlayState* play);

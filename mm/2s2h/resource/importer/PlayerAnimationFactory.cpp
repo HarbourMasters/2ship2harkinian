@@ -1,7 +1,6 @@
 #include "2s2h/resource/importer/PlayerAnimationFactory.h"
 #include "2s2h/resource/type/PlayerAnimation.h"
 
-
 namespace SOH {
 std::shared_ptr<Ship::IResource>
 ResourceFactoryBinaryPlayerAnimationV0::ReadResource(std::shared_ptr<Ship::File> file,

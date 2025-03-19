@@ -8,7 +8,6 @@
 #include "interface/parameter_static/parameter_static.h"
 #include "public/bridge/consolevariablebridge.h"
 
-
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_2000000)
 
 #define THIS ((EnGakufu*)thisx)
