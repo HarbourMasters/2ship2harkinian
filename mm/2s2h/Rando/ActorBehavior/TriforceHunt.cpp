@@ -29,11 +29,9 @@ void Rando::ActorBehavior::InitTriforceHuntBehavior() {
         if (currentPieces == requiredPieces) {
             creditsWarpActive = true;
         }
-        SPDLOG_INFO("Current: {} | Required: {}", currentPieces, requiredPieces);
     });
 
     COND_ID_HOOK(OnActorUpdate, ACTOR_PLAYER, shouldRegister, [](Actor* actor) {
-        SPDLOG_INFO("Credits: {} | Paused = {}", creditsWarpActive, isGameplayPaused());
         if (creditsWarpActive && !isGameplayPaused()) {
             creditsWarpActive = false;
             gPlayState->nextEntrance = 0x5400;
