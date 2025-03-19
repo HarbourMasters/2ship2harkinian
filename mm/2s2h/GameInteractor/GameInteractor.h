@@ -236,6 +236,7 @@ typedef enum {
     VB_SNOWBALL_DROP_COLLECTIBLE,
     VB_SNOWBALL_SET_FLAG,
     VB_START_JUMPSLASH,
+    VB_WARP_TO_CREDITS,
 } GIVanillaBehavior;
 
 typedef enum {

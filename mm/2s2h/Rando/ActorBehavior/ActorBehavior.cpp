@@ -135,6 +135,7 @@ void Rando::ActorBehavior::OnFileLoad() {
     Rando::ActorBehavior::InitObjTsuboBehavior();
     Rando::ActorBehavior::InitObjWarpstoneBehavior();
     Rando::ActorBehavior::InitSoulsBehavior();
+    Rando::ActorBehavior::InitTriforceHuntBehavior();
 
     COND_HOOK(ShouldVanillaBehavior, IS_RANDO, MiscVanillaBehaviorHandler);
 }

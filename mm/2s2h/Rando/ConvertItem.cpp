@@ -234,6 +234,7 @@ bool Rando::IsItemObtainable(RandoItemId randoItemId, RandoCheckId randoCheckId)
         case RI_STONE_TOWER_STRAY_FAIRY:
         case RI_GS_TOKEN_SWAMP:
         case RI_GS_TOKEN_OCEAN:
+        case RI_TRIFORCE_PIECE:
             if (hasObtainedCheck) {
                 return false;
             }

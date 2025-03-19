@@ -3,6 +3,7 @@
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h/ShipInit.hpp"
 #include "2s2h/Rando/DrawFuncs.h"
+#include "2s2h_assets.h"
 
 extern "C" {
 #include "variables.h"
@@ -297,6 +298,26 @@ void DrawSkulltulaToken(RandoItemId randoItemId, Actor* actor) {
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
 
+void DrawTriforcePiece(RandoItemId randoItemId) {
+    s8 currentTriforcePieces = gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces;
+    s8 requiredTriforcePieces = CVarGetInteger("gRando.RequiredTriforcePieces", 15);
+
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+
+    Gfx_SetupDL25_Xlu(gPlayState->state.gfxCtx);
+
+    Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY);
+
+    gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD);
+    if (currentTriforcePieces == requiredTriforcePieces) {
+        gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gTriforcePieceCompletedDL);
+    } else {
+        gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gTriforcePiece2DL);
+    }
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+}
+
 void DrawSparkles(RandoItemId randoItemId, Actor* actor) {
     if (actor == NULL) {
         return;
@@ -415,6 +436,9 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
             break;
         case RI_SOUL_TWINMOLD:
             DrawTwinmold();
+            break;
+        case RI_TRIFORCE_PIECE:
+            DrawTriforcePiece(randoItemId);
             break;
         case RI_NONE:
         case RI_UNKNOWN:

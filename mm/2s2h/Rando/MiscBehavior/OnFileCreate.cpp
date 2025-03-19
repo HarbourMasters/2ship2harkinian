@@ -63,6 +63,11 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                         gSaveContext.save.saveInfo.playerData.health = RANDO_SAVE_OPTIONS[RO_STARTING_HEALTH] * 0x10;
                 }
 
+                if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRIFORCE_PIECES] != RO_GENERIC_OFF) {
+                    gSaveContext.save.shipSaveInfo.rando.requiredTriforcePieces =
+                        CVarGetInteger("gRando.RequiredTriforcePieces", 15);
+                }
+
                 if (RANDO_SAVE_OPTIONS[RO_STARTING_CONSUMABLES]) {
                     GiveItem(RI_DEKU_STICK);
                     GiveItem(RI_DEKU_NUT);
@@ -214,6 +219,23 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     auto it = std::find(itemPool.begin(), itemPool.end(), startingItem);
                     if (it != itemPool.end()) {
                         itemPool.erase(it);
+                    }
+                }
+
+                // Shuffle Triforce Pieces, replacing RI_JUNK from the Pool
+                if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRIFORCE_PIECES] == RO_GENERIC_YES) {
+                    int piecesToShuffle = CVarGetInteger("gRando.MaxTriforcePieces", 15);
+                    for (auto& item : itemPool) {
+                        if (Rando::StaticData::Items[item].randoItemType != RITYPE_JUNK) {
+                            continue;
+                        }
+
+                        if (piecesToShuffle == 0) {
+                            break;
+                        }
+
+                        item = RI_TRIFORCE_PIECE;
+                        piecesToShuffle--;
                     }
                 }
 

@@ -91,6 +91,7 @@ void InitObjTaruBehavior();
 void InitObjTsuboBehavior();
 void InitObjWarpstoneBehavior();
 void InitSoulsBehavior();
+void InitTriforceHuntBehavior();
 
 } // namespace ActorBehavior
 

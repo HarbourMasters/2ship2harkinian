@@ -104,6 +104,10 @@ void Rando::GiveItem(RandoItemId randoItemId) {
                 gSaveContext.save.shipSaveInfo.rando.foundDungeonKeys[DUNGEON_INDEX_STONE_TOWER_TEMPLE]++;
             }
             break;
+        case RI_TRIFORCE_PIECE:
+            gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces++;
+            GameInteractor_Should(VB_WARP_TO_CREDITS, IS_RANDO);
+            break;
         // Technically these should never be used, but leaving them here just in case
         case RI_PROGRESSIVE_MAGIC:
         case RI_PROGRESSIVE_BOW:

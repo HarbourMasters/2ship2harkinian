@@ -55,6 +55,8 @@ void to_json(json& j, const RandoSaveInfo& rando) {
         { "finalSeed", rando.finalSeed },
         { "randoSaveOptions", rando.randoSaveOptions },
         { "foundDungeonKeys", rando.foundDungeonKeys },
+        { "foundTriforcePieces", rando.foundTriforcePieces },
+        { "requiredTriforcePieces", rando.requiredTriforcePieces },
     };
 }
 
@@ -65,6 +67,8 @@ void from_json(const json& j, RandoSaveInfo& rando) {
     j.at("finalSeed").get_to(rando.finalSeed);
     j.at("randoSaveOptions").get_to(rando.randoSaveOptions);
     j.at("foundDungeonKeys").get_to(rando.foundDungeonKeys);
+    j.at("foundTriforcePieces").get_to(rando.foundTriforcePieces);
+    j.at("requiredTriforcePieces").get_to(rando.requiredTriforcePieces);
 }
 
 void to_json(json& j, const ShipSaveInfo& shipSaveInfo) {
