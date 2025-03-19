@@ -2,12 +2,8 @@
 #include "UIWidgets.hpp"
 #include "BenPort.h"
 #include "BenInputEditorWindow.h"
-#include "window/gui/GuiMenuBar.h"
-#include "window/gui/GuiElement.h"
 #include "DeveloperTools/SaveEditor.h"
-#include "DeveloperTools/ActorViewer.h"
 #include "DeveloperTools/CollisionViewer.h"
-#include "DeveloperTools/EventLog.h"
 #include "2s2h/Enhancements/GfxPatcher/AuthenticGfxPatches.h"
 #include "2s2h/PresetManager/PresetManager.h"
 #include "HudEditor.h"
@@ -16,9 +12,6 @@
 #include "StringHelper.h"
 #include <spdlog/fmt/fmt.h>
 #include "variables.h"
-#include <variant>
-#include <tuple>
-#include "ResolutionEditor.h"
 #include "2s2h/Rando/Rando.h"
 
 extern "C" {

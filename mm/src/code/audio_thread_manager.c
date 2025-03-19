@@ -1,6 +1,8 @@
 #include "global.h"
 #include "audiomgr.h"
 #include <string.h>
+#include "public/bridge/consolevariablebridge.h"
+
 
 void AudioMgr_NotifyTaskDone(AudioMgr* audioMgr) {
     AudioTask* task = audioMgr->rspTask;

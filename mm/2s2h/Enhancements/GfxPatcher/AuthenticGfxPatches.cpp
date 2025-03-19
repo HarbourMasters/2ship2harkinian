@@ -1,7 +1,6 @@
 #include "AuthenticGfxPatches.h"
-#include "libultraship/libultraship.h"
-#include <cstring>
-
+#include "public/bridge/consolevariablebridge.h"
+#include "gfx.h"
 extern "C" {
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "objects/object_fz/object_fz.h"

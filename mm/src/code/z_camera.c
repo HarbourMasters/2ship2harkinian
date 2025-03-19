@@ -53,6 +53,8 @@
 #include "2s2h/BenPort.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
+#include "public/bridge/consolevariablebridge.h"
+
 
 void func_800DDFE0(Camera* camera);
 s32 Camera_ChangeMode(Camera* camera, s16 mode);
@@ -92,6 +94,12 @@ Vec3f D_801EDDF0;
 #define CAM_CHANGE_SETTING_1 (1 << 1)
 #define CAM_CHANGE_SETTING_2 (1 << 2)
 #define CAM_CHANGE_SETTING_3 (1 << 3)
+
+#define CHECK_BTN_DPAD(input) (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0) && \
+(CHECK_BTN_ALL(input, BTN_DRIGHT) || \
+CHECK_BTN_ALL(input, BTN_DLEFT)  || \
+CHECK_BTN_ALL(input, BTN_DDOWN)  || \
+CHECK_BTN_ALL(input, BTN_DUP)))
 
 /*===============================================================*/
 /*                   Camera Internal Functions                   */
