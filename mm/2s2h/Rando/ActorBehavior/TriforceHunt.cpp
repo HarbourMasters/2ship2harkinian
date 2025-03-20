@@ -37,7 +37,7 @@ void Rando::ActorBehavior::InitTriforceHuntBehavior() {
             gPlayState->transitionTrigger = TRANS_TRIGGER_START;
         }
         if (gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces ==
-            gSaveContext.save.shipSaveInfo.rando.requiredTriforcePieces && 
+                gSaveContext.save.shipSaveInfo.rando.requiredTriforcePieces &&
             !Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_MAJORA)) {
             Rando::GiveItem(RI_SOUL_MAJORA);
         }
