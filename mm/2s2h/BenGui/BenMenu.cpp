@@ -1637,7 +1637,7 @@ void BenMenu::InitElement() {
           { [](disabledInfo& info) -> bool { return !CVarGetInteger("gEnhancements.Saving.Autosave", 0); },
             "AutoSave is Disabled" } },
         { DISABLE_FOR_NULL_PLAY_STATE,
-          { [](disabledInfo& info) -> bool { return gPlayState == NULL; }, "Save Not Loaded" } },
+          { [](disabledInfo& info) -> bool { return gPlayState == NULL; }, "Not in game" } },
         { DISABLE_FOR_DEBUG_MODE_OFF,
           { [](disabledInfo& info) -> bool { return !CVarGetInteger("gDeveloperTools.DebugEnabled", 0); },
             "Debug Mode is Disabled" } },
