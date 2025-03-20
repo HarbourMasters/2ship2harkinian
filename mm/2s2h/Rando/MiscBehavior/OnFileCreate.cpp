@@ -225,7 +225,7 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                     }
                 }
 
-                // Shuffle Triforce Pieces, replacing RI_JUNK from the Pool
+                // Shuffle Triforce Pieces into the Pool
                 if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRIFORCE_PIECES] == RO_GENERIC_YES) {
                     int piecesToShuffle = CVarGetInteger("gRando.MaxTriforcePieces", 15);
                     for (auto& item : itemPool) {
