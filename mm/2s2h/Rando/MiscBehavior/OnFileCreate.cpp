@@ -210,6 +210,9 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                 // Add other items that don't have a vanilla location like Sun's Song or Song of Double Time
                 if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_BOSS_SOULS] == RO_GENERIC_YES) {
                     for (int i = RI_SOUL_GOHT; i <= RI_SOUL_TWINMOLD; i++) {
+                        if (i == RI_SOUL_MAJORA && RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRIFORCE_PIECES] == RO_GENERIC_YES) {
+                            continue;
+                        }
                         itemPool.push_back((RandoItemId)i);
                     }
                 }

@@ -50,8 +50,13 @@ void Rando::MiscBehavior::CheckQueue() {
                         if (randoItemId == RI_JUNK) {
                             randoItemId = Rando::CurrentJunkItem();
                         }
-
+                        SPDLOG_INFO("We made it! {}", std::to_string(randoItemId).c_str());
                         if (randoItemId == RI_TRIFORCE_PIECE) {
+                            if (gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces + 1 ==
+                                gSaveContext.save.shipSaveInfo.rando.requiredTriforcePieces) {
+                                prefix = "You";
+                                message = "completed the Triforce";
+                            }
                             randoItemId = RI_TRIFORCE_PIECE_PREVIOUS;
                         }
 

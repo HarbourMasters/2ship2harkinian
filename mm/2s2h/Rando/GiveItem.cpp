@@ -104,8 +104,8 @@ void Rando::GiveItem(RandoItemId randoItemId) {
                 gSaveContext.save.shipSaveInfo.rando.foundDungeonKeys[DUNGEON_INDEX_STONE_TOWER_TEMPLE]++;
             }
             break;
-        case RI_TRIFORCE_PIECE_PREVIOUS:
         case RI_TRIFORCE_PIECE:
+        case RI_TRIFORCE_PIECE_PREVIOUS:
             gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces++;
             GameInteractor_Should(VB_WARP_TO_CREDITS, IS_RANDO);
             break;

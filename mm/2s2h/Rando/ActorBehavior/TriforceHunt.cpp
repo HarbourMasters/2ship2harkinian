@@ -23,10 +23,8 @@ void Rando::ActorBehavior::InitTriforceHuntBehavior() {
             return;
         }
 
-        s8 currentPieces = gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces;
-        s8 requiredPieces = gSaveContext.save.shipSaveInfo.rando.requiredTriforcePieces;
-
-        if (currentPieces == requiredPieces) {
+        if (gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces ==
+            gSaveContext.save.shipSaveInfo.rando.requiredTriforcePieces) {
             creditsWarpActive = true;
         }
     });
@@ -37,6 +35,11 @@ void Rando::ActorBehavior::InitTriforceHuntBehavior() {
             gPlayState->nextEntrance = 0x5400;
             gSaveContext.nextCutsceneIndex = 0xFFF7;
             gPlayState->transitionTrigger = TRANS_TRIGGER_START;
+        }
+        if (gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces ==
+            gSaveContext.save.shipSaveInfo.rando.requiredTriforcePieces && 
+            !Flags_GetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_MAJORA)) {
+            Rando::GiveItem(RI_SOUL_MAJORA);
         }
     });
 }

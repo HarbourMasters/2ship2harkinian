@@ -10,6 +10,16 @@ extern "C" {
 void func_80B0CF24(BossHakugin*, PlayState*);
 }
 
+bool shouldMajoraRegister() {
+    bool registerStatus = false;
+    if (IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_BOSS_SOULS] == RO_GENERIC_YES) {
+        registerStatus = true;
+    } else if (IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRIFORCE_PIECES] == RO_GENERIC_YES) {
+        registerStatus = true;
+    }
+    return registerStatus;
+}
+
 void ShouldActorUpdate(Actor* actor, bool* should, RandoInf randoInf) {
     if (!Flags_GetRandoInf(randoInf)) {
         *should = false;
@@ -44,7 +54,7 @@ void Rando::ActorBehavior::InitSoulsBehavior() {
     COND_ID_HOOK(ShouldActorDraw, ACTOR_BOSS_03, shouldRegister,
                  [](Actor* actor, bool* should) { ShouldActorDraw(actor, should, RANDO_INF_OBTAINED_SOUL_OF_GYORG); });
 
-    COND_ID_HOOK(ShouldActorDraw, ACTOR_BOSS_07, shouldRegister,
+    COND_ID_HOOK(ShouldActorDraw, ACTOR_BOSS_07, shouldMajoraRegister(),
                  [](Actor* actor, bool* should) { ShouldActorDraw(actor, should, RANDO_INF_OBTAINED_SOUL_OF_MAJORA); });
 
     COND_ID_HOOK(ShouldActorDraw, ACTOR_BOSS_01, shouldRegister,
@@ -58,7 +68,7 @@ void Rando::ActorBehavior::InitSoulsBehavior() {
         ShouldActorUpdate(actor, should, RANDO_INF_OBTAINED_SOUL_OF_GYORG);
     });
 
-    COND_ID_HOOK(ShouldActorUpdate, ACTOR_BOSS_07, shouldRegister, [](Actor* actor, bool* should) {
+    COND_ID_HOOK(ShouldActorUpdate, ACTOR_BOSS_07, shouldMajoraRegister(), [](Actor* actor, bool* should) {
         ShouldActorUpdate(actor, should, RANDO_INF_OBTAINED_SOUL_OF_MAJORA);
     });
 
