@@ -22,6 +22,13 @@ typedef struct {
 } Vec3f; // size = 0xC
 
 typedef struct {
+	/* 0x0 */ f32 x;
+	/* 0x4 */ f32 y;
+	/* 0x8 */ f32 z;
+	/* 0xC */ f32 w;
+} Vec4f;
+
+typedef struct {
     /* 0x0 */ u16 x;
     /* 0x2 */ u16 y;
     /* 0x4 */ u16 z;

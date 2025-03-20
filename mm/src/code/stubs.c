@@ -662,7 +662,7 @@ void guOrtho(Mtx* m, float l, float r, float b, float t, float n, float f, float
     float mf[4][4];
     guOrthoF(mf, l, r, b, t, n, f, scale);
     FrameInterpolation_RecordOpenChild("ortho", 0);
-    Matrix_MtxFToMtx((MtxF*)mf, m);
+    Matrix_MtxFToMtx((MtxF*)mf, m, false);
     FrameInterpolation_RecordCloseChild();
     // guMtxF2L(mf, m);
 }
@@ -707,7 +707,7 @@ void guPerspective(Mtx* m, u16* perspNorm, float fovy, float aspect, float near,
     float mf[4][4];
 
     guPerspectiveF(mf, perspNorm, fovy, aspect, near, far, scale);
-    Matrix_MtxFToMtx((MtxF*)mf, m);
+    Matrix_MtxFToMtx((MtxF*)mf, m, false);
     // guPerspectiveF(mf, perspNorm, fovy, aspect, near, far, scale);
     // guMtxF2L(mf, m);
 }
@@ -774,8 +774,8 @@ void guLookAt(Mtx* m, f32 xEye, f32 yEye, f32 zEye, f32 xAt, f32 yAt, f32 zAt, f
 
     guLookAtF(mf, xEye, yEye, zEye, xAt, yAt, zAt, xUp, yUp, zUp);
 
-    Matrix_MtxFToMtx((MtxF*)mf, m);
-    // guMtxF2L(mf, m);
+    Matrix_MtxFToMtx((MtxF*)mf, m, true);
+    //guMtxF2L(mf, m);
 }
 void guRotateF(float m[4][4], float a, float x, float y, float z) {
     static float D_80097F90 = M_PI / 180.0f;

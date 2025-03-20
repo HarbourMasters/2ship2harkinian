@@ -37,6 +37,15 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(dr_libs)
 
+include(FetchContent)
+FetchContent_Declare(
+	glm
+	GIT_REPOSITORY	https://github.com/g-truc/glm.git
+	GIT_TAG 	bf71a834948186f4097caa076cd2663c69a10e1e #refs/tags/1.0.1
+)
+
+FetchContent_MakeAvailable(glm)
+
 ################################################################################
 # Global configuration types
 ################################################################################
@@ -324,6 +333,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE assets
     ${BOOST-INCLUDE}
 	${CMAKE_CURRENT_SOURCE_DIR}/assets/
 	${dr_libs_SOURCE_DIR}
+	${FETCHCONTENT_BASE_DIR}/glm-src/
 	.
 )
 

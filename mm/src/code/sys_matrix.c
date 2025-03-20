@@ -1181,8 +1181,8 @@ void Matrix_SetTranslateRotateYXZ(f32 x, f32 y, f32 z, Vec3s* rot) {
  *
  * @remark original name: "_MtxF_to_Mtx"
  */
-Mtx* Matrix_MtxFToMtx(MtxF* src, Mtx* dest) {
-    FrameInterpolation_RecordMatrixMtxFToMtx(src, dest);
+Mtx* Matrix_MtxFToMtx(MtxF* src, Mtx* dest, bool isViewMtx) {
+    FrameInterpolation_RecordMatrixMtxFToMtx(src, dest, isViewMtx);
     // 2S2H [Port] For compatibility with modern systems this has been changed to use guMtxF2L
     guMtxF2L(src, dest);
     return dest;
@@ -1231,7 +1231,7 @@ Mtx* Matrix_NewMtx(GraphicsContext* gfxCtx) {
  * @remark original name unknown, likely close to "_Matrix_MtxF_to_Mtx_new"
  */
 Mtx* Matrix_MtxFToNewMtx(MtxF* src, GraphicsContext* gfxCtx) {
-    return Matrix_MtxFToMtx(src, GRAPH_ALLOC(gfxCtx, sizeof(Mtx)));
+    return Matrix_MtxFToMtx(src, GRAPH_ALLOC(gfxCtx, sizeof(Mtx)), false);
 }
 
 /**

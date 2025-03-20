@@ -1278,7 +1278,7 @@ void Play_DrawMain(PlayState* this) {
 
         this->billboardMtx = GRAPH_ALLOC(this->state.gfxCtx, 2 * sizeof(Mtx));
 
-        Matrix_MtxFToMtx(&this->billboardMtxF, this->billboardMtx);
+        Matrix_MtxFToMtx(&this->billboardMtxF, this->billboardMtx, false);
         Matrix_RotateYF(BINANG_TO_RAD((s16)(Camera_GetCamDirYaw(GET_ACTIVE_CAM(this)) + 0x8000)), MTXMODE_NEW);
         Matrix_ToMtx(this->billboardMtx + 1);
 

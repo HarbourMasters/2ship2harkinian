@@ -52,7 +52,7 @@ void FrameInterpolation_RecordMatrixTranslateRotateZYX(Vec3f* translation, Vec3s
 
 void FrameInterpolation_RecordMatrixSetTranslateRotateYXZ(f32 translateX, f32 translateY, f32 translateZ, Vec3s* rot);
 
-void FrameInterpolation_RecordMatrixMtxFToMtx(MtxF* src, Mtx* dest);
+void FrameInterpolation_RecordMatrixMtxFToMtx(MtxF* src, Mtx* dest, bool isViewMtx);
 
 void FrameInterpolation_RecordMatrixToMtx(Mtx* dest, char* file, s32 line);
 
@@ -60,7 +60,7 @@ void FrameInterpolation_RecordMatrixReplaceRotation(MtxF* mf);
 
 void FrameInterpolation_RecordMatrixRotateAxis(f32 angle, Vec3f* axis, u8 mode);
 
-void FrameInterpolation_RecordSkinMatrixMtxFToMtx(MtxF* src, Mtx* dest);
+void FrameInterpolation_RecordSkinMatrixMtxFToMtx(MtxF* src, Mtx* dest, bool isViewMtx);
 
 #ifdef __cplusplus
 }
