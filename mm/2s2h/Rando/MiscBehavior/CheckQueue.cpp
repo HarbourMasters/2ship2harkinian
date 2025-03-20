@@ -51,6 +51,10 @@ void Rando::MiscBehavior::CheckQueue() {
                             randoItemId = Rando::CurrentJunkItem();
                         }
 
+                        if (randoItemId == RI_TRIFORCE_PIECE) {
+                            randoItemId = RI_TRIFORCE_PIECE_PREVIOUS;
+                        }
+
                         CustomMessage::Entry entry = {
                             .textboxType = 2,
                             .icon = Rando::StaticData::GetIconForZMessage(randoItemId),

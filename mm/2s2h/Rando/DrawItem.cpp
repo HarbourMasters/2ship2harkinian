@@ -299,6 +299,12 @@ void DrawSkulltulaToken(RandoItemId randoItemId, Actor* actor) {
 }
 
 void DrawTriforcePiece(RandoItemId randoItemId) {
+    Gfx* triforcePieceModels[3] = {
+        (Gfx*)gTriforcePiece0DL,
+        (Gfx*)gTriforcePiece1DL,
+        (Gfx*)gTriforcePiece2DL,
+    };
+
     s8 currentTriforcePieces = gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces;
     s8 requiredTriforcePieces = CVarGetInteger("gRando.RequiredTriforcePieces", 15);
 
@@ -312,7 +318,14 @@ void DrawTriforcePiece(RandoItemId randoItemId) {
     if (currentTriforcePieces == requiredTriforcePieces) {
         gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gTriforcePieceCompletedDL);
     } else {
-        gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gTriforcePiece2DL);
+        if (randoItemId == RI_TRIFORCE_PIECE_PREVIOUS) {
+            gSPDisplayList(
+                POLY_XLU_DISP++,
+                (Gfx*)triforcePieceModels[(gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces - 1) % 3]);
+        } else {
+            gSPDisplayList(POLY_XLU_DISP++,
+                           (Gfx*)triforcePieceModels[gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces % 3]);
+        }
     }
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
@@ -437,9 +450,11 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
         case RI_SOUL_TWINMOLD:
             DrawTwinmold();
             break;
-        case RI_TRIFORCE_PIECE:
+        case RI_TRIFORCE_PIECE_PREVIOUS:
+        case RI_TRIFORCE_PIECE: {
             DrawTriforcePiece(randoItemId);
             break;
+        }
         case RI_NONE:
         case RI_UNKNOWN:
             break;
