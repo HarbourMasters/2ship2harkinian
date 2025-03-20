@@ -1117,7 +1117,11 @@ void BenMenu::AddEnhancements() {
             "When starting a game you will be taken straight to South Clock Town as Deku Link."));
     AddWidget(path, "Skip First Cycle", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Cutscenes.SkipFirstCycle")
-        .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_INTRO_SKIP_OFF).active; })
+        .PreFunc([](WidgetInfo& info) {
+            if (mBenMenu->disabledMap.at(DISABLE_FOR_INTRO_SKIP_OFF).active) {
+                info.activeDisables.push_back(DISABLE_FOR_INTRO_SKIP_OFF);
+            }
+        })
         .Options(CheckboxOptions().Tooltip(
             "When starting a game you will be taken straight to South Clock Town as Human Link "
             "with Deku Mask, Ocarina, Song of Time, and Song of Healing."));
