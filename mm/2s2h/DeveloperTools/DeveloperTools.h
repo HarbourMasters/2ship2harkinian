@@ -13,7 +13,6 @@ void RegisterDebugSaveCreate();
 void RegisterPreventActorUpdateHooks();
 void RegisterPreventActorDrawHooks();
 void RegisterPreventActorInitHooks();
-void RegisterWarpPoint();
 void RenderWarpPointSection();
 
 #endif // DEVELOPER_TOOLS_H

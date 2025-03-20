@@ -1396,54 +1396,6 @@ void BenMenu::AddDevTools() {
     AddWidget(path, "Popout Menu", WIDGET_CVAR_CHECKBOX)
         .CVar("gSettings.Menu.Popout")
         .Options(CheckboxOptions().Tooltip("Changes the menu display from overlay to windowed."));
-    AddWidget(path, "Set Warp Point", WIDGET_BUTTON)
-        .Options(ButtonOptions().Tooltip("Creates warp point that you can teleport to later"))
-        .Callback([](WidgetInfo& info) {
-            Player* player = GET_PLAYER(gPlayState);
-
-            CVarSetInteger(WARP_POINT_CVAR "Entrance", gSaveContext.save.entrance);
-            CVarSetInteger(WARP_POINT_CVAR "Room", gPlayState->roomCtx.curRoom.num);
-            CVarSetFloat(WARP_POINT_CVAR "X", player->actor.world.pos.x);
-            CVarSetFloat(WARP_POINT_CVAR "Y", player->actor.world.pos.y);
-            CVarSetFloat(WARP_POINT_CVAR "Z", player->actor.world.pos.z);
-            CVarSetFloat(WARP_POINT_CVAR "Rotation", player->actor.shape.rot.y);
-            CVarSetInteger(WARP_POINT_CVAR "Saved", 1);
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-        })
-        .PreFunc(
-            [](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active; });
-    AddWidget(path, "Scene Room ID", WIDGET_TEXT).PreFunc([](WidgetInfo& info) {
-        u32 sceneId =
-            Entrance_GetSceneIdAbsolute(CVarGetInteger(WARP_POINT_CVAR "Entrance", ENTRANCE(SOUTH_CLOCK_TOWN, 0)));
-        info.name = fmt::format("{} Room {}", warpPointSceneList[sceneId], CVarGetInteger(WARP_POINT_CVAR "Room", 0));
-        info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active ||
-                        mBenMenu->disabledMap.at(DISABLE_FOR_WARP_POINT_NOT_SET).active;
-    });
-    AddWidget(path, ICON_FA_TIMES, WIDGET_BUTTON)
-        .Options(ButtonOptions().Tooltip("Clear warp point").Size(Sizes::Inline))
-        .Callback([](WidgetInfo& info) {
-            CVarClear(WARP_POINT_CVAR "Entrance");
-            CVarClear(WARP_POINT_CVAR "Room");
-            CVarClear(WARP_POINT_CVAR "X");
-            CVarClear(WARP_POINT_CVAR "Y");
-            CVarClear(WARP_POINT_CVAR "Z");
-            CVarClear(WARP_POINT_CVAR "Rotation");
-            CVarClear(WARP_POINT_CVAR "Saved");
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-        })
-        .PreFunc([](WidgetInfo& info) {
-            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active ||
-                            mBenMenu->disabledMap.at(DISABLE_FOR_WARP_POINT_NOT_SET).active;
-        })
-        .SameLine(true);
-    AddWidget(path, "Warp", WIDGET_BUTTON)
-        .Options(ButtonOptions().Tooltip("Teleport to the set warp point").Size(Sizes::Inline))
-        .Callback([](WidgetInfo& info) { Warp(); })
-        .PreFunc([](WidgetInfo& info) {
-            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active ||
-                            mBenMenu->disabledMap.at(DISABLE_FOR_WARP_POINT_NOT_SET).active;
-        })
-        .SameLine(true);
     AddWidget(path, "Debug Mode", WIDGET_CVAR_CHECKBOX)
         .CVar("gDeveloperTools.DebugEnabled")
         .Options(CheckboxOptions().Tooltip("Enables Debug Mode, allowing the following:\n\n"
@@ -1525,6 +1477,8 @@ void BenMenu::AddDevTools() {
             }
         })
         .SameLine(true);
+    path.column = 2;
+    AddWidget(path, "Warp Point", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { RenderWarpPointSection(); });
 
     // dev tools windows
     path = { "Dev Tools", "Collision Viewer", 1 };
@@ -1692,9 +1646,6 @@ void BenMenu::InitElement() {
         { DISABLE_FOR_FRAME_ADVANCE_OFF,
           { [](disabledInfo& info) -> bool { return !(gPlayState != nullptr && gPlayState->frameAdvCtx.enabled); },
             "Frame Advance is Disabled" } },
-        { DISABLE_FOR_WARP_POINT_NOT_SET,
-          { [](disabledInfo& info) -> bool { return !CVarGetInteger(WARP_POINT_CVAR "Saved", 0); },
-            "Warp Point Not Saved" } },
         { DISABLE_FOR_INTRO_SKIP_OFF,
           { [](disabledInfo& info) -> bool { return !CVarGetInteger("gEnhancements.Cutscenes.SkipIntroSequence", 0); },
             "Intro Skip Not Selected" } },
