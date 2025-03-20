@@ -1,7 +1,7 @@
 #include "AuthenticGfxPatches.h"
 #include "public/bridge/consolevariablebridge.h"
-#include "gfx.h"
 extern "C" {
+#include "gfx.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "objects/object_fz/object_fz.h"
 #include "objects/object_ik/object_ik.h"

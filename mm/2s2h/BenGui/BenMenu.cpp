@@ -11,13 +11,13 @@
 #include <variant>
 #include "StringHelper.h"
 #include <spdlog/fmt/fmt.h>
-#include "variables.h"
 #include "2s2h/Rando/Rando.h"
 
 extern "C" {
 #include "z64.h"
 #include "functions.h"
 extern PlayState* gPlayState;
+extern SaveContext gSaveContext;
 }
 extern std::unordered_map<s16, const char*> warpPointSceneList;
 extern void Warp();

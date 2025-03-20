@@ -94,11 +94,6 @@ Vec3f D_801EDDF0;
 #define CAM_CHANGE_SETTING_2 (1 << 2)
 #define CAM_CHANGE_SETTING_3 (1 << 3)
 
-#define CHECK_BTN_DPAD(input)                                                                                   \
-    (CVarGetInteger("gEnhancements.Dpad.DpadEquips", 0) &&                                                      \
-     (CHECK_BTN_ALL(input, BTN_DRIGHT) || CHECK_BTN_ALL(input, BTN_DLEFT) || CHECK_BTN_ALL(input, BTN_DDOWN) || \
-      CHECK_BTN_ALL(input, BTN_DUP)))
-
 /*===============================================================*/
 /*                   Camera Internal Functions                   */
 /*===============================================================*/

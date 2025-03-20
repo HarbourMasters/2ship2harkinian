@@ -5,7 +5,6 @@
 extern "C" {
 #include "functions.h"
 #include "variables.h"
-         "
 }
 
 #define CVAR_NAME "gEnhancements.Minigames.SkipBalladOfWindfish"
