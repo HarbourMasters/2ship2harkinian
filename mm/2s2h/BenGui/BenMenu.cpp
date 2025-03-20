@@ -714,7 +714,7 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Arrow Type Cycling", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.PlayerActions.ArrowCycle")
         .Options(CheckboxOptions().Tooltip(
-            "While aiming the bow, use L to cycle between Normal, Fire, Ice and Light arrows."));
+            "While aiming the bow, use R to cycle between Normal, Fire, Ice and Light arrows."));
     AddWidget(path, "Bombchu Drops", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Equipment.ChuDrops")
         .Options(
