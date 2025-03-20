@@ -951,8 +951,9 @@ void BenMenu::AddEnhancements() {
                      .ComboMap(motionBlurOptions));
     AddWidget(path, "Interpolate", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Graphics.MotionBlur.Interpolate")
-        .PreFunc(
-            [](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value == 1; })
+        .PreFunc([](WidgetInfo& info) {
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value == MOTION_BLUR_ALWAYS_OFF;
+        })
         .Options(CheckboxOptions().Tooltip(
             "Change motion blur capture to also happen on interpolated frames instead of only on game frames.\n"
             "This notably reduces the overall motion blur strength but smooths out the trails."));
@@ -960,13 +961,13 @@ void BenMenu::AddEnhancements() {
         .ValuePointer((bool*)&R_MOTION_BLUR_ENABLED)
         .PreFunc([](WidgetInfo& info) {
             info.valuePointer = (bool*)&R_MOTION_BLUR_ENABLED;
-            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value != 0;
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value != MOTION_BLUR_DYNAMIC;
         });
     AddWidget(path, "Strength", WIDGET_CVAR_SLIDER_INT)
         .CVar("gEnhancements.Graphics.MotionBlur.Strength")
         .Options(IntSliderOptions().Tooltip("Motion Blur strength.").Min(0).Max(255).DefaultValue(180))
         .PreFunc([](WidgetInfo& info) {
-            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value != 2;
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value != MOTION_BLUR_ALWAYS_ON;
         });
     AddWidget(path, "Strength", WIDGET_SLIDER_INT)
         .Options(IntSliderOptions().Tooltip("Motion Blur strength.").Min(0).Max(255).DefaultValue(180))
@@ -974,7 +975,7 @@ void BenMenu::AddEnhancements() {
         .Callback([](WidgetInfo& info) { R_MOTION_BLUR_ALPHA = motionBlurStrength; })
         .PreFunc([](WidgetInfo& info) {
             motionBlurStrength = R_MOTION_BLUR_ALPHA;
-            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value != 0 ||
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value != MOTION_BLUR_DYNAMIC ||
                             mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_OFF).active;
         });
 
