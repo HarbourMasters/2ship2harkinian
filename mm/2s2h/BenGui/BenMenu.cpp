@@ -1446,23 +1446,11 @@ void BenMenu::AddDevTools() {
         .SameLine(true);
     AddWidget(path, "Debug Mode", WIDGET_CVAR_CHECKBOX)
         .CVar("gDeveloperTools.DebugEnabled")
-        .Options(CheckboxOptions().Tooltip("Enables Debug Mode, allowing you to select maps with L + R + Z."))
-        .Callback([](WidgetInfo& info) {
-            if (!CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
-                CVarClear("gDeveloperTools.DebugSaveFileMode");
-                CVarClear("gDeveloperTools.PreventActorUpdate");
-                CVarClear("gDeveloperTools.PreventActorDraw");
-                CVarClear("gDeveloperTools.PreventActorInit");
-                CVarClear("gDeveloperTools.DisableObjectDependency");
-                if (gPlayState != NULL) {
-                    gPlayState->frameAdvCtx.enabled = false;
-                }
-                RegisterDebugSaveCreate();
-                RegisterPreventActorUpdateHooks();
-                RegisterPreventActorDrawHooks();
-                RegisterPreventActorInitHooks();
-            }
-        });
+        .Options(CheckboxOptions().Tooltip("Enables Debug Mode, allowing the following:\n\n"
+                                           "- Open debug warp menu with L + R + Z\n"
+                                           "- Enable debug no-clip mode with L + D-Right\n"
+                                           "- Open built-in debug inventory editor when paused with L\n"
+                                           "- Saves created will inherit inventory from \"Debug Save File Mode\""));
     AddWidget(path, "Better Map Select", WIDGET_CVAR_CHECKBOX)
         .CVar("gDeveloperTools.BetterMapSelect.Enabled")
         .Options(CheckboxOptions().Tooltip(
@@ -1476,22 +1464,18 @@ void BenMenu::AddDevTools() {
                               "- Vanilla Debug Save: Uses the title screen save info (8 hearts, all items and masks)\n"
                               "- 100\% Save: All items, equipment, mask, quest status and bombers notebook complete")
                      .ComboMap(debugSaveOptions))
-        .Callback([](WidgetInfo& info) { RegisterDebugSaveCreate(); })
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
     AddWidget(path, "Prevent Actor Update", WIDGET_CVAR_CHECKBOX)
         .CVar("gDeveloperTools.PreventActorUpdate")
         .Options(CheckboxOptions().Tooltip("Prevents Actors from updating."))
-        .Callback([](WidgetInfo& info) { RegisterPreventActorUpdateHooks(); })
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
     AddWidget(path, "Prevent Actor Draw", WIDGET_CVAR_CHECKBOX)
         .CVar("gDeveloperTools.PreventActorDraw")
         .Options(CheckboxOptions().Tooltip("Prevents Actors from drawing."))
-        .Callback([](WidgetInfo& info) { RegisterPreventActorDrawHooks(); })
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
     AddWidget(path, "Prevent Actor Init", WIDGET_CVAR_CHECKBOX)
         .CVar("gDeveloperTools.PreventActorInit")
         .Options(CheckboxOptions().Tooltip("Prevents Actors from initializing."))
-        .Callback([](WidgetInfo& info) { RegisterPreventActorInitHooks(); })
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
     AddWidget(path, "Disable Object Dependency", WIDGET_CVAR_CHECKBOX)
         .CVar("gDeveloperTools.DisableObjectDependency")
