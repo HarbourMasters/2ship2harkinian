@@ -1319,7 +1319,7 @@ void BenMenu::AddEnhancements() {
         .Options(
             ComboboxOptions()
                 .Tooltip(
-                    "Changes the way the Gibdo Trade Sequence works:\n"
+                    "Changes the way the Gibdo Trade Sequence works\n"
                     "- Vanilla: Works normally.\n"
                     "- MM3D: Gibdos will only take one quantity of the item they request, as they do in MM3D. "
                     "  The Gibdo requesting a blue potion will also accept a red potion.\n"
