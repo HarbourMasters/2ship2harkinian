@@ -1319,10 +1319,10 @@ void BenMenu::AddEnhancements() {
         .Options(
             ComboboxOptions()
                 .Tooltip("Changes the way the Gibdo Trade Sequence works:\n"
-                    "- Vanilla: Works normally.\n"
-                    "- MM3D: Gibdos will only take one quantity of the item they request, as they do in MM3D. "
-                    "The Gibdo requesting a blue potion will also accept a red potion.\n"
-                    "- No trade: Gibdos will vanish without taking items.")
+                         "- Vanilla: Works normally.\n"
+                         "- MM3D: Gibdos will only take one quantity of the item they request, as they do in MM3D. "
+                         "  The Gibdo requesting a blue potion will also accept a red potion.\n"
+                         "- No trade: Gibdos will vanish without taking items.")
                 .DefaultIndex(GibdoTradeSequenceOptions::GIBDO_TRADE_SEQUENCE_VANILLA)
                 .ComboMap(gibdoTradeSequenceOptions));
 
