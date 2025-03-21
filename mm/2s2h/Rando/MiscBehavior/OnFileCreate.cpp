@@ -64,8 +64,8 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                 }
 
                 if (RANDO_SAVE_OPTIONS[RO_SHUFFLE_TRIFORCE_PIECES] != RO_GENERIC_OFF) {
-                    gSaveContext.save.shipSaveInfo.rando.requiredTriforcePieces =
-                        CVarGetInteger("gRando.RequiredTriforcePieces", 15);
+                    RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_REQUIRED] =
+                        CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_REQUIRED].cvar, 15);
                 }
 
                 if (RANDO_SAVE_OPTIONS[RO_STARTING_CONSUMABLES]) {

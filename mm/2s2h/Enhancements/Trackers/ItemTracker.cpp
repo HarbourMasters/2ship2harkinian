@@ -3,6 +3,7 @@
 #include "Context.h"
 #include "config/Config.h"
 #include <bit>
+#include "Rando/Rando.h"
 
 extern "C" {
 #include "z64save.h"
@@ -422,8 +423,10 @@ ItemTrackerWindow::CountInfo ItemTrackerWindow::GetItemCountInfo(int itemId) {
             u32 triforcePieceCount = gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces;
             info = {
                 .cur = (uint16_t)triforcePieceCount,
-                .curCap = (uint16_t)gSaveContext.save.shipSaveInfo.rando.requiredTriforcePieces,
-                .maxCap = (uint16_t)gSaveContext.save.shipSaveInfo.rando.requiredTriforcePieces,
+                .curCap =
+                    (uint16_t)RANDO_SAVE_OPTIONS[Rando::StaticData::Options[RO_TRIFORCE_PIECES_REQUIRED].randoOptionId],
+                .maxCap =
+                    (uint16_t)RANDO_SAVE_OPTIONS[Rando::StaticData::Options[RO_TRIFORCE_PIECES_REQUIRED].randoOptionId],
             };
             break;
         }
@@ -600,7 +603,8 @@ int ItemTrackerWindow::DrawMisc(int columns, int prevDrawnColumns) {
     ImGui::SetCursorPos(pos);
     ImGui::EndGroup();
     ImGui::BeginGroup();
-    DrawItem((char*)gTriforcePieceTex, gSaveContext.save.shipSaveInfo.rando.requiredTriforcePieces == 0, mIconSize);
+    DrawItem((char*)gTriforcePieceTex,
+             RANDO_SAVE_OPTIONS[Rando::StaticData::Options[RO_TRIFORCE_PIECES_REQUIRED].randoOptionId] == 0, mIconSize);
     DrawItemCount(TRACKER_ITEM_TRIFORCE_PIECES, pos);
     ImGui::EndGroup();
 
