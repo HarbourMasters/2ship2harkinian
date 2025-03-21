@@ -392,6 +392,7 @@ if(MSVC)
         >
         $<$<CONFIG:Release>:
             /Oi;
+			/O2
             /Gy;
             /W3
         >
