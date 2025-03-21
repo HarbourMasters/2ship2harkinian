@@ -196,12 +196,17 @@ static void DrawLocationsTab() {
     ImGui::BeginChild("randoLocationsColumn3", ImVec2(columnWidth, halfHeight));
     CVarCheckbox("Triforce Hunt", Rando::StaticData::Options[RO_SHUFFLE_TRIFORCE_PIECES].cvar);
     ImGui::BeginDisabled(!CVarGetInteger(Rando::StaticData::Options[RO_SHUFFLE_TRIFORCE_PIECES].cvar, RO_GENERIC_OFF));
-    CVarSliderInt("Required Triforce Pieces", "gRando.RequiredTriforcePieces",
-                  IntSliderOptions({}).Min(1).Max(CVarGetInteger("gRando.MaxTriforcePieces", 1)).DefaultValue(15));
-    if (CVarSliderInt("Shuffled Triforce Pieces", "gRando.MaxTriforcePieces",
+    CVarSliderInt("Required Triforce Pieces", Rando::StaticData::Options[RO_TRIFORCE_PIECES_REQUIRED].cvar,
+                  IntSliderOptions({})
+                      .Min(1)
+                      .Max(CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar, 1))
+                      .DefaultValue(15));
+    if (CVarSliderInt("Shuffled Triforce Pieces", Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar,
                       IntSliderOptions({}).Min(1).Max(100).DefaultValue(15))) {
-        if (CVarGetInteger("gRando.RequiredTriforcePieces", 15) > CVarGetInteger("gRando.MaxTriforcePieces", 15)) {
-            CVarGetInteger("gRando.RequiredTriforcePieces", CVarGetInteger("gRando.MaxTriforcePieces", 15));
+        if (CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_REQUIRED].cvar, 15) >
+            CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar, 15)) {
+            CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_REQUIRED].cvar,
+                           CVarGetInteger(Rando::StaticData::Options[RO_TRIFORCE_PIECES_MAX].cvar, 15));
         }
     }
     ImGui::EndDisabled();

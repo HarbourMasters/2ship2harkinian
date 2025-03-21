@@ -107,7 +107,6 @@ void Rando::GiveItem(RandoItemId randoItemId) {
         case RI_TRIFORCE_PIECE:
         case RI_TRIFORCE_PIECE_PREVIOUS:
             gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces++;
-            GameInteractor_Should(VB_WARP_TO_CREDITS, IS_RANDO);
             break;
         // Technically these should never be used, but leaving them here just in case
         case RI_PROGRESSIVE_MAGIC:

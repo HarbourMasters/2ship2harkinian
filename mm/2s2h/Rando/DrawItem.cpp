@@ -305,8 +305,7 @@ void DrawTriforcePiece(RandoItemId randoItemId) {
         (Gfx*)gTriforcePiece2DL,
     };
 
-    s8 currentTriforcePieces = gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces;
-    s8 requiredTriforcePieces = CVarGetInteger("gRando.RequiredTriforcePieces", 15);
+    u8 currentTriforcePieces = gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces;
 
     OPEN_DISPS(gPlayState->state.gfxCtx);
 
@@ -315,16 +314,13 @@ void DrawTriforcePiece(RandoItemId randoItemId) {
     Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY);
 
     gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gPlayState->state.gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD);
-    if (currentTriforcePieces == requiredTriforcePieces) {
+    if (currentTriforcePieces == RANDO_SAVE_OPTIONS[RO_TRIFORCE_PIECES_REQUIRED]) {
         gSPDisplayList(POLY_XLU_DISP++, (Gfx*)gTriforcePieceCompletedDL);
     } else {
         if (randoItemId == RI_TRIFORCE_PIECE_PREVIOUS) {
-            gSPDisplayList(
-                POLY_XLU_DISP++,
-                (Gfx*)triforcePieceModels[(gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces - 1) % 3]);
+            gSPDisplayList(POLY_XLU_DISP++, (Gfx*)triforcePieceModels[(currentTriforcePieces - 1) % 3]);
         } else {
-            gSPDisplayList(POLY_XLU_DISP++,
-                           (Gfx*)triforcePieceModels[gSaveContext.save.shipSaveInfo.rando.foundTriforcePieces % 3]);
+            gSPDisplayList(POLY_XLU_DISP++, (Gfx*)triforcePieceModels[currentTriforcePieces % 3]);
         }
     }
 

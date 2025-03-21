@@ -45,6 +45,8 @@ std::map<RandoOptionId, RandoStaticOption> Options = {
     RO(RO_STARTING_ITEMS_3,            2048),
     RO(RO_STARTING_MAPS_AND_COMPASSES, RO_GENERIC_OFF),
     RO(RO_STARTING_RUPEES,             RO_GENERIC_OFF),
+    RO(RO_TRIFORCE_PIECES_MAX,         15),
+    RO(RO_TRIFORCE_PIECES_REQUIRED,    15),
 };
 // clang-format on
 
