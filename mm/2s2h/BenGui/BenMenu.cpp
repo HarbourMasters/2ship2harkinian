@@ -1133,7 +1133,7 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Skip One Point Cutscenes", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Cutscenes.SkipOnePointCutscenes")
         .Options(CheckboxOptions().Tooltip(
-            "Skips freezing Link to focus on various events like chest spawning, door unlocking, switch pressed, etc."));
+            "Skips freezing Link to focus on various events like chest spawning, door unlocking, switch pressed, etc"));
     AddWidget(path, "Skip Entrance Cutscenes", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Cutscenes.SkipEntranceCutscenes")
         .Options(CheckboxOptions().Tooltip("Skip cutscenes that occur when first entering a new area."));
@@ -1321,8 +1321,8 @@ void BenMenu::AddEnhancements() {
                 .Tooltip(
                     "Changes the way the Gibdo Trade Sequence works:\n"
                     "- Vanilla: Works normally.\n"
-                    "- MM3D: Gibdos will only take one quantity of the item they request, as they do in MM3D. The Gibdo "
-                    "  requesting a blue potion will also accept a red potion.\n"
+                    "- MM3D: Gibdos will only take one quantity of the item they request, as they do in MM3D. "
+                    "  The Gibdo requesting a blue potion will also accept a red potion.\n"
                     "- No trade: Gibdos will vanish without taking items.")
                 .DefaultIndex(GibdoTradeSequenceOptions::GIBDO_TRADE_SEQUENCE_VANILLA)
                 .ComboMap(gibdoTradeSequenceOptions));
@@ -1330,7 +1330,7 @@ void BenMenu::AddEnhancements() {
     path.column = 2;
     AddWidget(path, "Hyper Enemies", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.DifficultyOptions.HyperEnemies")
-        .Options(CheckboxOptions().Tooltip("Double the rate at which enemies are updated, making them more difficult."));
+        .Options(CheckboxOptions().Tooltip("Double the rate at which enemies are updated, making them more difficult"));
     AddWidget(path, "Damage Multiplier", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.DifficultyOptions.DamageMultiplier")
         .Options(ComboboxOptions()
