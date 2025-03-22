@@ -19,25 +19,25 @@ ActorExtensionId actorHitBySwordBeamExtId = 0;
 #define CVAR_NAME "gEnhancements.Masks.FierceDeitysAnywhere"
 #define CVAR CVarGetInteger(CVAR_NAME, 0)
 
-bool* GetActorHitBySwordBeam(Actor* actor) {
+bool GetActorHitBySwordBeam(Actor* actor) {
     bool* swordBeamCollisionFlag = (bool*)ActorExtension_Get(actor, actorHitBySwordBeamExtId);
     if (swordBeamCollisionFlag == NULL) {
-        return 0;
+        return false;
     }
 
-    return swordBeamCollisionFlag;
+    return *swordBeamCollisionFlag;
+}
+
+void SetActorHitBySwordBeam(Actor* actor, bool flag) {
+    bool* swordBeamCollisionFlag = (bool*)ActorExtension_Get(actor, actorHitBySwordBeamExtId);
+    if (swordBeamCollisionFlag != NULL) {
+        *swordBeamCollisionFlag = flag;
+    }
 }
 
 void RegisterFierceDeityAnywhere() {
     if (actorHitBySwordBeamExtId == 0) {
         actorHitBySwordBeamExtId = ActorExtension_CreateForAll(sizeof(bool));
-
-        GameInteractor::Instance->RegisterGameHook<GameInteractor::OnActorInit>([](Actor* actor) {
-            bool* swordBeamCollisionFlag = (bool*)ActorExtension_Get(actor, actorHitBySwordBeamExtId);
-            if (swordBeamCollisionFlag == NULL) {
-                assert(false && "Actor Extension memory not valid");
-            }
-        });
     }
 
     COND_VB_SHOULD(VB_DISABLE_FD_MASK, CVAR, { *should = false; });
@@ -66,7 +66,6 @@ void RegisterFierceDeityAnywhere() {
         DamageTable* damageTable = va_arg(args, DamageTable*);
         u32* effect = va_arg(args, u32*);
         Actor* actor = va_arg(args, Actor*);
-        bool* swordBeamCollisionFlag = GetActorHitBySwordBeam(actor);
         /*
          * 25 is the index of the sword beam damage effect.
          */
@@ -82,14 +81,14 @@ void RegisterFierceDeityAnywhere() {
             } else {
                 *effect = defaultEffect;
             }
-            *swordBeamCollisionFlag = true;
+            SetActorHitBySwordBeam(actor, true);
         } else if (index != 9) {
             /*
              * 9 is the index of the sword damage effect. With how FD plays, it is possible for the sword to connect
              * after sword beams have dealt damage. Without this check, the damage effect would revert back to the
              * light arrows effect upon sword collision.
              */
-            *swordBeamCollisionFlag = false;
+            SetActorHitBySwordBeam(actor, false);
         }
     });
 
@@ -102,7 +101,7 @@ void RegisterFierceDeityAnywhere() {
     COND_VB_SHOULD(VB_USE_NULL_FOR_DRAW_DAMAGE_EFFECTS, CVAR, {
         Actor* actor = va_arg(args, Actor*);
         // Only change the call if there is a sword beam collision
-        if (*(GetActorHitBySwordBeam(actor))) {
+        if (GetActorHitBySwordBeam(actor)) {
             *should = false;
             Vec3f* bodyPartsPos = va_arg(args, Vec3f*);
             int bodyPartsCount = va_arg(args, int);
@@ -130,7 +129,7 @@ void RegisterFierceDeityAnywhere() {
      */
     COND_VB_SHOULD(VB_DRAW_DAMAGE_EFFECT, CVAR, {
         Actor* actor = va_arg(args, Actor*);
-        if (actor != nullptr && *(GetActorHitBySwordBeam(actor))) {
+        if (actor != nullptr && GetActorHitBySwordBeam(actor)) {
             u8* type = va_arg(args, u8*);
             if (*type == ACTOR_DRAW_DMGEFF_LIGHT_ORBS) {
                 *type = ACTOR_DRAW_DMGEFF_BLUE_LIGHT_ORBS;
