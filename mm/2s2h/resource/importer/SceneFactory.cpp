@@ -106,7 +106,9 @@ ResourceFactoryBinarySceneV0::ParseSceneCommand(std::shared_ptr<Scene> scene,
     return result;
 }
 
-std::shared_ptr<Ship::IResource> ResourceFactoryBinarySceneV0::ReadResource(std::shared_ptr<Ship::File> file, std::shared_ptr<Ship::ResourceInitData> initData) {
+std::shared_ptr<Ship::IResource>
+ResourceFactoryBinarySceneV0::ReadResource(std::shared_ptr<Ship::File> file,
+                                           std::shared_ptr<Ship::ResourceInitData> initData) {
     if (!FileHasValidFormatAndReader(file, initData)) {
         return nullptr;
     }

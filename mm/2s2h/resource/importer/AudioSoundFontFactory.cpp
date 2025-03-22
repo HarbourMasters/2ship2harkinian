@@ -6,7 +6,9 @@
 #include "resource/archive/Archive.h"
 
 namespace SOH {
-std::shared_ptr<Ship::IResource> ResourceFactoryBinaryAudioSoundFontV2::ReadResource(std::shared_ptr<Ship::File> file, std::shared_ptr<Ship::ResourceInitData> initData) {
+std::shared_ptr<Ship::IResource>
+ResourceFactoryBinaryAudioSoundFontV2::ReadResource(std::shared_ptr<Ship::File> file,
+                                                    std::shared_ptr<Ship::ResourceInitData> initData) {
     if (!FileHasValidFormatAndReader(file, initData)) {
         return nullptr;
     }
@@ -413,7 +415,9 @@ std::vector<AdsrEnvelope> SOH::ResourceFactoryXMLSoundFontV0::ParseEnvelopes(Aud
     return envelopes;
 }
 
-std::shared_ptr<Ship::IResource> ResourceFactoryXMLSoundFontV0::ReadResource(std::shared_ptr<Ship::File> file, std::shared_ptr<Ship::ResourceInitData> initData) {
+std::shared_ptr<Ship::IResource>
+ResourceFactoryXMLSoundFontV0::ReadResource(std::shared_ptr<Ship::File> file,
+                                            std::shared_ptr<Ship::ResourceInitData> initData) {
     if (!FileHasValidFormatAndReader(file, initData)) {
         return nullptr;
     }
