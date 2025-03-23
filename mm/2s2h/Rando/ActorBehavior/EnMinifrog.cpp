@@ -9,6 +9,9 @@ extern "C" {
 // void Player_TalkWithPlayer(PlayState* play, Actor* actor);
 }
 
+
+// TODOs: Menu Option, Frog Shuffle Option stuff on seed gen, update text, logic, fix postLimbDraw crash
+
 void EnMinifrog_OnOpenText(u16* textId, bool* loadFromMessageTable){
 
     // Need to change depending on frog
