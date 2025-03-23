@@ -258,6 +258,9 @@ void Rando::GiveItem(RandoItemId randoItemId) {
         case RI_SOUL_TWINMOLD:
             Flags_SetRandoInf(RANDO_INF_OBTAINED_SOUL_OF_GOHT + (randoItemId - RI_SOUL_GOHT));
             break;
+        case RI_ABILITY_SWIM:
+            Flags_SetRandoInf(RANDO_INF_OBTAINED_SWIM);
+            break;
         case RI_JUNK:
         case RI_NONE:
             break;

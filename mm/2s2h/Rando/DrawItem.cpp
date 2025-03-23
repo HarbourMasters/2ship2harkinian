@@ -416,6 +416,9 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
         case RI_SOUL_TWINMOLD:
             DrawTwinmold();
             break;
+        case RI_ABILITY_SWIM:
+            GetItem_Draw(gPlayState, Rando::StaticData::Items[RI_PENDANT_OF_MEMORIES].drawId);
+            break;
         case RI_NONE:
         case RI_UNKNOWN:
             break;
@@ -426,6 +429,7 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
 
     switch (randoItemId) {
         case RI_NONE:
+        case RI_ABILITY_SWIM:
         case RI_PROGRESSIVE_MAGIC:
         case RI_SINGLE_MAGIC:
         case RI_DOUBLE_MAGIC:
