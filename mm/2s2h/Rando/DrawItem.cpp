@@ -15,8 +15,11 @@ extern "C" {
 #include "objects/object_gi_liquid/object_gi_liquid.h"
 #include "objects/object_sek/object_sek.h"
 #include "objects/object_st/object_st.h"
+/* Minifrog */  #include "objects/object_fr/object_fr.h"
 
 Gfx* ResourceMgr_LoadGfxByName(const char* path);
+void EnMinifrog_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Actor* enMini);
+s32 EnMinifrog_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* enMini);
 }
 
 s32 StrayFairyOverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx,
@@ -297,6 +300,38 @@ void DrawSkulltulaToken(RandoItemId randoItemId, Actor* actor) {
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
 
+void DrawMinifrog(Actor* actor) {
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    Matrix_Translate(0.0f, -20.0f, 0.0f, MTXMODE_APPLY);
+    Matrix_Scale(0.03f, 0.03f, 0.03f, MTXMODE_APPLY);
+
+    static bool initialized = false;
+    static SkelAnime skelAnime;
+    static Vec3s jointTable[FROG_LIMB_MAX];
+    static Vec3s otherTable[FROG_LIMB_MAX];
+    static u32 lastUpdate = 0;
+    if (!initialized) {
+        initialized = true;
+        SkelAnime_InitFlex(gPlayState, &skelAnime, (FlexSkeletonHeader*)&gFrogSkel, (AnimationHeader*)&gFrogIdleAnim,
+                           jointTable, otherTable, FROG_LIMB_MAX);
+    }
+    if (gPlayState != NULL && lastUpdate != gPlayState->state.frames) {
+        lastUpdate = gPlayState->state.frames;
+        SkelAnime_Update(&skelAnime);
+    }
+
+    Mtx* mtxHead = (Mtx*)GRAPH_ALLOC(gPlayState->state.gfxCtx, 23 * sizeof(Mtx));
+    gSPSegment(POLY_OPA_DISP++, 0x08, (uintptr_t)gFrogIrisOpenTex);
+    gSPSegment(POLY_OPA_DISP++, 0x09, (uintptr_t)gFrogIrisOpenTex);
+    SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable,
+                          FROG_LIMB_MAX, EnMinifrog_OverrideLimbDraw,
+                      EnMinifrog_PostLimbDraw, actor);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+}
+
 void DrawSparkles(RandoItemId randoItemId, Actor* actor) {
     if (actor == NULL) {
         return;
@@ -402,7 +437,7 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
             Rando::DrawItem(Rando::ConvertItem(randoItemId), actor);
             break;
         case RI_SOUL_GOHT:
-            DrawGoht();
+            DrawMinifrog(actor);
             break;
         case RI_SOUL_GYORG:
             DrawGyorg();
