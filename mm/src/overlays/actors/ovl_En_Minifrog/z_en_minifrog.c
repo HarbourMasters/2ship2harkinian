@@ -276,6 +276,10 @@ void EnMinifrog_ReturnFrogCutscene(EnMinifrog* this, PlayState* play) {
                     Message_ContinueTextbox(play, 0xD86);
                 }
 
+                if (GameInteractor_Should(VB_FROG_TEMP1, false, this)) {
+                    break;
+                }
+                
                 SET_WEEKEVENTREG(sIsFrogReturnedFlags[this->frogIndex]);
                 break;
 

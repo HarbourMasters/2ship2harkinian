@@ -62,7 +62,28 @@ void Rando::ActorBehavior::InitEnMinifrogBehavior() {
                 break;
         }
     });
+
+    COND_VB_SHOULD(VB_FROG_TEMP1, IS_RANDO /**/, {
+        EnMinifrog* enMinifrog = va_arg(args, EnMinifrog*);
+        *should = true;
+        switch (enMinifrog->frogIndex) {
+            case 0:
+                break;
+            case 1:
+                RANDO_SAVE_CHECKS[RC_WOODFALL_TEMPLE_GEKKO_FROG].eligible = true;
+                break;
+            case 2:
+                RANDO_SAVE_CHECKS[RC_GREAT_BAY_TEMPLE_GEKKO_FROG].eligible = true;
+                break;
+            case 3:
+                RANDO_SAVE_CHECKS[RC_SOUTHERN_SWAMP_FROG].eligible = true;
+                break;
+            case 4:
+                RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_LAUNDRY_FROG].eligible = true;
+                break;
+        }
+    });
     
     // Can I pass actor into this?
-    COND_ID_HOOK(OnOpenText, 0x0D82, IS_RANDO /*&& RANDO_SAVE_OPTIONS[RO_SHUFFLE_FROGS]*/, EnMinifrog_OnOpenText);
+    // COND_ID_HOOK(OnOpenText, 0x0D82, IS_RANDO /*&& RANDO_SAVE_OPTIONS[RO_SHUFFLE_FROGS]*/, EnMinifrog_OnOpenText);
 }

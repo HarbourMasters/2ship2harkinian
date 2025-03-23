@@ -139,6 +139,7 @@ static RegisterShipInitFunc initFunc([]() {
     };
     Regions[RR_GREAT_BAY_TEMPLE_GEKKO] = RandoRegion{ .sceneId = SCENE_SEA,
         .checks = {
+            CHECK(RC_GREAT_BAY_TEMPLE_GEKKO_FROG, CanKillEnemy(ACTOR_EN_BIGSLIME) && HAS_ITEM(ITEM_MASK_DON_GERO)),
             CHECK(RC_GREAT_BAY_TEMPLE_GEKKO_SMALL_CRATE_01, true),
             CHECK(RC_GREAT_BAY_TEMPLE_GEKKO_SMALL_CRATE_02, true),
             CHECK(RC_GREAT_BAY_TEMPLE_GEKKO_SMALL_CRATE_03, true),
