@@ -225,7 +225,7 @@ void BenMenu::AddSettings() {
 
     // Graphics Settings
     static int32_t maxFps = 360;
-    const char* tooltip = "Uses Matrix Interpolation to create extra frames, resulting in smoother graphics. This is "
+    static const char* tooltip = "Uses Matrix Interpolation to create extra frames, resulting in smoother graphics. This is "
                           "purely visual and does not impact game logic, execution of glitches etc.\n\nA higher target "
                           "FPS than your monitor's refresh rate will waste resources, and might give a worse result.";
     path.sidebarName = "Graphics";
