@@ -2,6 +2,7 @@
 #include "assets/2s2h_assets.h"
 #include <string>
 #include <random>
+#include <vector>
 #include <boost/random/mersenne_twister.hpp>
 #include <boost/random/uniform_int_distribution.hpp>
 #include <boost_custom/container_hash/hash_32.hpp>

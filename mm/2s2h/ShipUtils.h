@@ -7,7 +7,7 @@
 
 #ifdef __cplusplus
 #include <string>
-#include <vector>
+#include <array>
 void LoadGuiTextures();
 std::string convertEnumToReadableName(const std::string& input);
 extern std::array<const char*, 11> digitList;
