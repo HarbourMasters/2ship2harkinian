@@ -637,7 +637,6 @@ s32 View_UpdateViewingMatrix(View* view) {
     guLookAt(view->viewingPtr, view->eye.x, view->eye.y, view->eye.z, view->at.x, view->at.y, view->at.z, view->up.x,
              view->up.y, view->up.z);
 
-
     view->unkE0 = *view->viewingPtr;
     view->viewingPtr = &view->unkE0;
 

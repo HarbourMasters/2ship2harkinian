@@ -775,7 +775,7 @@ void guLookAt(Mtx* m, f32 xEye, f32 yEye, f32 zEye, f32 xAt, f32 yAt, f32 zAt, f
     guLookAtF(mf, xEye, yEye, zEye, xAt, yAt, zAt, xUp, yUp, zUp);
 
     Matrix_MtxFToMtx((MtxF*)mf, m, true);
-    //guMtxF2L(mf, m);
+    // guMtxF2L(mf, m);
 }
 void guRotateF(float m[4][4], float a, float x, float y, float z) {
     static float D_80097F90 = M_PIf / 180.0f;

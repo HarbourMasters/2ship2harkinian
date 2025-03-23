@@ -9,7 +9,6 @@
 #include "FrameInterpolation.h"
 #include "2s2h/BenPort.h"
 
-
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -160,8 +159,8 @@ union Data {
 
     struct {
         MtxF src;
-		Mtx* dest;
-		bool isViewMtx;
+        Mtx* dest;
+        bool isViewMtx;
     } matrix_mtxf_to_mtx;
 
     struct {
@@ -234,298 +233,273 @@ struct InterpolateCtx {
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
-	static void combine(float* a, float* b, float* res, float a1, float b1)
-	{
-		res[0] = (a[0] * a1) + (b[0] * b1);
-		res[1] = (a[1] * a1) + (b[1] * b1);
-		res[2] = (a[2] * a1) + (b[2] * b1);
-	}
+    static void combine(float* a, float* b, float* res, float a1, float b1) {
+        res[0] = (a[0] * a1) + (b[0] * b1);
+        res[1] = (a[1] * a1) + (b[1] * b1);
+        res[2] = (a[2] * a1) + (b[2] * b1);
+    }
 
-	static glm::mat4x4 ComposeRotationMatrix(glm::quat& quaternion)
-	{
-		return glm::toMat4(quaternion);
-	}
+    static glm::mat4x4 ComposeRotationMatrix(glm::quat& quaternion) {
+        return glm::toMat4(quaternion);
+    }
 
-	static MtxF ComposeScaleMatrix(glm::vec3* scales)
-	{
-		MtxF scaleMtx;
+    static MtxF ComposeScaleMatrix(glm::vec3* scales) {
+        MtxF scaleMtx;
 
-		memset(&scaleMtx, 0.0f, 4 * 4 * sizeof(float));
-		scaleMtx.mf[0][0] = scales->x;
-		scaleMtx.mf[1][1] = scales->y;
-		scaleMtx.mf[2][2] = scales->z;
-		scaleMtx.mf[3][3] = 1.0f;
+        memset(&scaleMtx, 0.0f, 4 * 4 * sizeof(float));
+        scaleMtx.mf[0][0] = scales->x;
+        scaleMtx.mf[1][1] = scales->y;
+        scaleMtx.mf[2][2] = scales->z;
+        scaleMtx.mf[3][3] = 1.0f;
 
-		return scaleMtx;
-	}
+        return scaleMtx;
+    }
 
-	static void ComposePerspective(MtxF* m, glm::vec4* perspective)
-	{
-		m->mf[0][3] = perspective->x;
-		m->mf[1][3] = perspective->y;
-		m->mf[2][3] = perspective->z;
-		m->mf[3][3] = perspective->w;
-	}
+    static void ComposePerspective(MtxF* m, glm::vec4* perspective) {
+        m->mf[0][3] = perspective->x;
+        m->mf[1][3] = perspective->y;
+        m->mf[2][3] = perspective->z;
+        m->mf[3][3] = perspective->w;
+    }
 
-	static void ComposeTranslation(MtxF* m, glm::vec3* translate)
-	{
-		m->mf[3][0] = translate->x;
-		m->mf[3][1] = translate->y;
-		m->mf[3][2] = translate->z;
-	}
+    static void ComposeTranslation(MtxF* m, glm::vec3* translate) {
+        m->mf[3][0] = translate->x;
+        m->mf[3][1] = translate->y;
+        m->mf[3][2] = translate->z;
+    }
 
-	static MtxF ComposeMatrix(glm::vec3* translate, glm::vec3* scales, glm::vec4* skew, glm::vec4* perspective, glm::quat* quaternion)
-	{
-		MtxF m;
-		guMtxIdentF(m.mf);
+    static MtxF ComposeMatrix(glm::vec3* translate, glm::vec3* scales, glm::vec4* skew, glm::vec4* perspective,
+                              glm::quat* quaternion) {
+        MtxF m;
+        guMtxIdentF(m.mf);
 
-		// Apply Perspective and Translation
-		ComposePerspective(&m, perspective);
-		ComposeTranslation(&m, translate);
+        // Apply Perspective and Translation
+        ComposePerspective(&m, perspective);
+        ComposeTranslation(&m, translate);
 
-		// Apply Rotation
-		glm::mat4x4 rotationMatrix = ComposeRotationMatrix(*quaternion);
-		multiply(m.mf, &rotationMatrix, m.mf);
+        // Apply Rotation
+        glm::mat4x4 rotationMatrix = ComposeRotationMatrix(*quaternion);
+        multiply(m.mf, &rotationMatrix, m.mf);
 
-		// Apply Skew
-		float temp[4][4];
-		guMtxIdentF(temp);
+        // Apply Skew
+        float temp[4][4];
+        guMtxIdentF(temp);
 
-		if (skew->z)
-		{
-			temp[2][1] = skew->z;
-			multiply(m.mf, temp, m.mf);
-			guMtxIdentF(temp);
-		}
+        if (skew->z) {
+            temp[2][1] = skew->z;
+            multiply(m.mf, temp, m.mf);
+            guMtxIdentF(temp);
+        }
 
-		if (skew->y)
-		{
-			temp[2][1] = 0;
-			temp[2][0] = skew->y;
-			multiply(m.mf, temp, m.mf);
-			guMtxIdentF(temp);
-		}
+        if (skew->y) {
+            temp[2][1] = 0;
+            temp[2][0] = skew->y;
+            multiply(m.mf, temp, m.mf);
+            guMtxIdentF(temp);
+        }
 
-		if (skew->x)
-		{
-			temp[2][0] = 0;
-			temp[1][0] = skew->x;
-			multiply(m.mf, temp, m.mf);
-			guMtxIdentF(temp);
-		}
+        if (skew->x) {
+            temp[2][0] = 0;
+            temp[1][0] = skew->x;
+            multiply(m.mf, temp, m.mf);
+            guMtxIdentF(temp);
+        }
 
-		// Apply Scale
-		multiply(m.mf, ComposeScaleMatrix(scales).mf, m.mf);
+        // Apply Scale
+        multiply(m.mf, ComposeScaleMatrix(scales).mf, m.mf);
 
-		return m;
-	}
+        return m;
+    }
 
-	static void DecomposeScaleAndSkew(MtxF* mtx, glm::mat3x3& row, glm::vec3* scale, glm::vec4* skew)
-	{
-		for (int i = 0; i < 3; i++)
-			for (int j = 0; j < 3; ++j)
-				row[i][j] = mtx->mf[i][j];
+    static void DecomposeScaleAndSkew(MtxF* mtx, glm::mat3x3& row, glm::vec3* scale, glm::vec4* skew) {
+        for (int i = 0; i < 3; i++)
+            for (int j = 0; j < 3; ++j)
+                row[i][j] = mtx->mf[i][j];
 
-		// Compute X scale factor and normalize first row.
-		scale->x = glm::length(row[0]);
-		row[0] = glm::normalize(row[0]);
+        // Compute X scale factor and normalize first row.
+        scale->x = glm::length(row[0]);
+        row[0] = glm::normalize(row[0]);
 
-		// Compute XY shear factor and make 2nd row orthogonal to 1st.
-		skew->x = glm::dot(row[0], row[1]);
-		combine((float*)&row[1], (float*)&row[0], (float*)&row[1], 1.0, -skew->x);
+        // Compute XY shear factor and make 2nd row orthogonal to 1st.
+        skew->x = glm::dot(row[0], row[1]);
+        combine((float*)&row[1], (float*)&row[0], (float*)&row[1], 1.0, -skew->x);
 
-		// Now, compute Y scale and normalize 2nd row.
-		scale->y = glm::length(row[1]);
-		row[1] = glm::normalize(row[1]);
-		skew->x /= scale->y;
+        // Now, compute Y scale and normalize 2nd row.
+        scale->y = glm::length(row[1]);
+        row[1] = glm::normalize(row[1]);
+        skew->x /= scale->y;
 
-		// Compute XZ and YZ shears, orthogonalize 3rd row
-		skew->y = glm::dot(row[0], row[2]);
-		combine((float*)&row[2], (float*)&row[0], (float*)&row[2], 1.0, -skew->y);
-		skew->z = glm::dot(row[1], row[2]);
-		combine((float*)&row[2], (float*)&row[1], (float*)&row[2], 1.0, -skew->z);
+        // Compute XZ and YZ shears, orthogonalize 3rd row
+        skew->y = glm::dot(row[0], row[2]);
+        combine((float*)&row[2], (float*)&row[0], (float*)&row[2], 1.0, -skew->y);
+        skew->z = glm::dot(row[1], row[2]);
+        combine((float*)&row[2], (float*)&row[1], (float*)&row[2], 1.0, -skew->z);
 
-		// Next, get Z scale and normalize 3rd row.
-		scale->z = glm::length(row[2]);
-		row[2] = glm::normalize(row[2]);
-		skew->y /= scale->z;
-		skew->z /= scale->z;
-	}
+        // Next, get Z scale and normalize 3rd row.
+        scale->z = glm::length(row[2]);
+        row[2] = glm::normalize(row[2]);
+        skew->y /= scale->z;
+        skew->z /= scale->z;
+    }
 
-	static void DecomposeRotation(glm::mat3x3& row, glm::quat& quaternion)
-	{
-		quaternion[0] = 0.5 * sqrt(MAX(1 + row[0][0] - row[1][1] - row[2][2], 0));
-		quaternion[1] = 0.5 * sqrt(MAX(1 - row[0][0] + row[1][1] - row[2][2], 0));
-		quaternion[2] = 0.5 * sqrt(MAX(1 - row[0][0] - row[1][1] + row[2][2], 0));
-		quaternion[3] = 0.5 * sqrt(MAX(1 + row[0][0] + row[1][1] + row[2][2], 0));
+    static void DecomposeRotation(glm::mat3x3& row, glm::quat& quaternion) {
+        quaternion[0] = 0.5 * sqrt(MAX(1 + row[0][0] - row[1][1] - row[2][2], 0));
+        quaternion[1] = 0.5 * sqrt(MAX(1 - row[0][0] + row[1][1] - row[2][2], 0));
+        quaternion[2] = 0.5 * sqrt(MAX(1 - row[0][0] - row[1][1] + row[2][2], 0));
+        quaternion[3] = 0.5 * sqrt(MAX(1 + row[0][0] + row[1][1] + row[2][2], 0));
 
-		if (row[2][1] > row[1][2])
-			quaternion[0] = -quaternion[0];
-		if (row[0][2] > row[2][0])
-			quaternion[1] = -quaternion[1];
-		if (row[1][0] > row[0][1])
-			quaternion[2] = -quaternion[2];
-	}
+        if (row[2][1] > row[1][2])
+            quaternion[0] = -quaternion[0];
+        if (row[0][2] > row[2][0])
+            quaternion[1] = -quaternion[1];
+        if (row[1][0] > row[0][1])
+            quaternion[2] = -quaternion[2];
+    }
 
-	static void DecomposeTranslate(MtxF* mtx, glm::vec3* translate)
-	{
-		translate->x = mtx->mf[3][0];
-		translate->y = mtx->mf[3][1];
-		translate->z = mtx->mf[3][2];
-	}
+    static void DecomposeTranslate(MtxF* mtx, glm::vec3* translate) {
+        translate->x = mtx->mf[3][0];
+        translate->y = mtx->mf[3][1];
+        translate->z = mtx->mf[3][2];
+    }
 
-	static bool DecomposePerspectiveMatrix(MtxF* mtx, glm::mat4x4& perspectiveMatrix, glm::vec4* perspective)
-	{
-		memcpy(&perspectiveMatrix, mtx->mf, 4 * 4 * sizeof(float));
+    static bool DecomposePerspectiveMatrix(MtxF* mtx, glm::mat4x4& perspectiveMatrix, glm::vec4* perspective) {
+        memcpy(&perspectiveMatrix, mtx->mf, 4 * 4 * sizeof(float));
 
-		for (int i = 0; i < 3; i++)
-			perspectiveMatrix[i][3] = 0.0f;
+        for (int i = 0; i < 3; i++)
+            perspectiveMatrix[i][3] = 0.0f;
 
-		perspectiveMatrix[3][3] = 1;
+        perspectiveMatrix[3][3] = 1;
 
-		if (glm::determinant(perspectiveMatrix) == 0)
-			return false;
+        if (glm::determinant(perspectiveMatrix) == 0)
+            return false;
 
-		// First, isolate perspective.
-		if (mtx->mf[0][3] != 0 || mtx->mf[1][3] != 0 || mtx->mf[2][3] != 0)
-		{
-			// Note: In practice, it seems we don't really work with perspective matrices...
-			glm::vec4 rightHandSide;
+        // First, isolate perspective.
+        if (mtx->mf[0][3] != 0 || mtx->mf[1][3] != 0 || mtx->mf[2][3] != 0) {
+            // Note: In practice, it seems we don't really work with perspective matrices...
+            glm::vec4 rightHandSide;
 
-			// rightHandSide is the right hand side of the equation.
-			rightHandSide.x = mtx->mf[0][3];
-			rightHandSide.y = mtx->mf[1][3];
-			rightHandSide.z = mtx->mf[2][3];
-			rightHandSide.w = mtx->mf[3][3];
+            // rightHandSide is the right hand side of the equation.
+            rightHandSide.x = mtx->mf[0][3];
+            rightHandSide.y = mtx->mf[1][3];
+            rightHandSide.z = mtx->mf[2][3];
+            rightHandSide.w = mtx->mf[3][3];
 
-			// Solve the equation by inverting perspectiveMatrix and multiplying
-			// rightHandSide by the inverse.
-			glm::mat4x4 inversePerspectiveMatrix = glm::inverse(perspectiveMatrix);
-			glm::mat4x4 transposedInversePerspectiveMatrix = glm::transpose(inversePerspectiveMatrix);
+            // Solve the equation by inverting perspectiveMatrix and multiplying
+            // rightHandSide by the inverse.
+            glm::mat4x4 inversePerspectiveMatrix = glm::inverse(perspectiveMatrix);
+            glm::mat4x4 transposedInversePerspectiveMatrix = glm::transpose(inversePerspectiveMatrix);
 
-			*perspective = transposedInversePerspectiveMatrix * rightHandSide;
-		}
-		else
-		{
-			// No perspective.
-			perspective->x = 0;
-			perspective->y = 0;
-			perspective->z = 0;
-			perspective->w = 1;
-		}
+            *perspective = transposedInversePerspectiveMatrix * rightHandSide;
+        } else {
+            // No perspective.
+            perspective->x = 0;
+            perspective->y = 0;
+            perspective->z = 0;
+            perspective->w = 1;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	// Implementation based on Graphics Gems II
-	static bool DecomposeMatrix(MtxF* mtx, glm::vec3* translate, glm::vec3* scale, glm::vec4* skew, glm::vec4* perspective, glm::quat& quaternion)
-	{
-		// Normalize the matrix.
-		if (mtx->mf[3][3] == 0)
-			return false;
+    // Implementation based on Graphics Gems II
+    static bool DecomposeMatrix(MtxF* mtx, glm::vec3* translate, glm::vec3* scale, glm::vec4* skew,
+                                glm::vec4* perspective, glm::quat& quaternion) {
+        // Normalize the matrix.
+        if (mtx->mf[3][3] == 0)
+            return false;
 
-		for (int i = 0; i < 4; i++)
-			for (int j = 0; j < 4; j++)
-				mtx->mf[i][j] /= mtx->mf[3][3];
+        for (int i = 0; i < 4; i++)
+            for (int j = 0; j < 4; j++)
+                mtx->mf[i][j] /= mtx->mf[3][3];
 
-		glm::mat4x4 perspectiveMatrix;
+        glm::mat4x4 perspectiveMatrix;
 
-		if (!DecomposePerspectiveMatrix(mtx, perspectiveMatrix, perspective))
-			return false;
-		
-		// Next take care of translation
-		DecomposeTranslate(mtx, translate);
+        if (!DecomposePerspectiveMatrix(mtx, perspectiveMatrix, perspective))
+            return false;
 
-		// Now get scale and shear. 'row' is a 3 element array of 3 component vectors
-		glm::mat3x3 row;
-		DecomposeScaleAndSkew(mtx, row, scale, skew);
+        // Next take care of translation
+        DecomposeTranslate(mtx, translate);
 
-		// At this point, the matrix (in rows) is orthonormal.
-		// Check for a coordinate system flip.  If the determinant
-		// is -1, then negate the matrix and the scaling factors.
-		glm::vec3 pdum3 = glm::cross(row[1], row[2]);
+        // Now get scale and shear. 'row' is a 3 element array of 3 component vectors
+        glm::mat3x3 row;
+        DecomposeScaleAndSkew(mtx, row, scale, skew);
 
-		if (glm::dot(row[0], pdum3) < 0)
-		{
-			for (int i = 0; i < 3; i++)
-			{
-				scale[i] *= -1;
+        // At this point, the matrix (in rows) is orthonormal.
+        // Check for a coordinate system flip.  If the determinant
+        // is -1, then negate the matrix and the scaling factors.
+        glm::vec3 pdum3 = glm::cross(row[1], row[2]);
 
-				row[i][0] *= -1;
-				row[i][1] *= -1;
-				row[i][2] *= -1;
-			}
-		}
+        if (glm::dot(row[0], pdum3) < 0) {
+            for (int i = 0; i < 3; i++) {
+                scale[i] *= -1;
 
-		// Now, get the rotations out
-		DecomposeRotation(row, quaternion);
+                row[i][0] *= -1;
+                row[i][1] *= -1;
+                row[i][2] *= -1;
+            }
+        }
 
-		return true;
-	}
+        // Now, get the rotations out
+        DecomposeRotation(row, quaternion);
 
-	static void multiply(float a[4][4], float b[4][4], float result[4][4]) 
-	{
-		SkinMatrix_MtxFMtxFMult((MtxF*)a, (MtxF*)b, (MtxF*)result);
-	}
+        return true;
+    }
 
-	static void multiply(float a[4][4], glm::mat4x4* b, float result[4][4])
-	{
-		SkinMatrix_MtxFMtxFMult((MtxF*)a, (MtxF*)b, (MtxF*)result);
-	}
+    static void multiply(float a[4][4], float b[4][4], float result[4][4]) {
+        SkinMatrix_MtxFMtxFMult((MtxF*)a, (MtxF*)b, (MtxF*)result);
+    }
 
-	void InterpolateMatricesLegacy(MtxF* res, MtxF* o, MtxF* n)
-	{
-		for (size_t i = 0; i < 4; i++)
-			for (size_t j = 0; j < 4; j++)
-				res->mf[i][j] = w * o->mf[i][j] + step * n->mf[i][j];
-	}
+    static void multiply(float a[4][4], glm::mat4x4* b, float result[4][4]) {
+        SkinMatrix_MtxFMtxFMult((MtxF*)a, (MtxF*)b, (MtxF*)result);
+    }
 
+    void InterpolateMatricesLegacy(MtxF* res, MtxF* o, MtxF* n) {
+        for (size_t i = 0; i < 4; i++)
+            for (size_t j = 0; j < 4; j++)
+                res->mf[i][j] = w * o->mf[i][j] + step * n->mf[i][j];
+    }
 
-    void interpolate_mtxf(MtxF* res, MtxF* o, MtxF* n, bool isViewMtx)
-	{
-		glm::vec3 translateO, translateN;
-		glm::vec3 scalesO, scalesN;
-		glm::vec4 skewO, skewN;
-		glm::vec4 perspectiveO, perspectiveN;
-		glm::quat quaternionO, quaternionN;
+    void interpolate_mtxf(MtxF* res, MtxF* o, MtxF* n, bool isViewMtx) {
+        glm::vec3 translateO, translateN;
+        glm::vec3 scalesO, scalesN;
+        glm::vec4 skewO, skewN;
+        glm::vec4 perspectiveO, perspectiveN;
+        glm::quat quaternionO, quaternionN;
 
-		// View matrices won't work with the new interpolation technique, 
-		// so we need to rely on how it was done before
-		if (isViewMtx)
-		{
-			InterpolateMatricesLegacy(res, o, n);
-			return;
-		}
+        // View matrices won't work with the new interpolation technique,
+        // so we need to rely on how it was done before
+        if (isViewMtx) {
+            InterpolateMatricesLegacy(res, o, n);
+            return;
+        }
 
-		bool success = DecomposeMatrix(o, &translateO, &scalesO, &skewO, &perspectiveO, quaternionO);
+        bool success = DecomposeMatrix(o, &translateO, &scalesO, &skewO, &perspectiveO, quaternionO);
 
-		if (!success)
-		{
-			InterpolateMatricesLegacy(res, o, n);
-			return;
-		}
+        if (!success) {
+            InterpolateMatricesLegacy(res, o, n);
+            return;
+        }
 
-		bool success2 = DecomposeMatrix(n, &translateN, &scalesN, &skewN, &perspectiveN, quaternionN);
+        bool success2 = DecomposeMatrix(n, &translateN, &scalesN, &skewN, &perspectiveN, quaternionN);
 
-		if (!success2)
-		{
-			InterpolateMatricesLegacy(res, o, n);
-			return;
-		}
+        if (!success2) {
+            InterpolateMatricesLegacy(res, o, n);
+            return;
+        }
 
-		// Take the shortest route
-		if (glm::dot(quaternionO, quaternionN) < 0.0f)
-			quaternionN = -quaternionN;
+        // Take the shortest route
+        if (glm::dot(quaternionO, quaternionN) < 0.0f)
+            quaternionN = -quaternionN;
 
-		quaternionO = glm::slerp(quaternionO, quaternionN, step);
+        quaternionO = glm::slerp(quaternionO, quaternionN, step);
 
-		translateO = glm::mix(translateO, translateN, step);
-		scalesO = glm::mix(scalesO, scalesN, step);
-		skewO = glm::mix(skewO, skewN, step);
-		perspectiveO = glm::mix(perspectiveO, perspectiveN, step);
+        translateO = glm::mix(translateO, translateN, step);
+        scalesO = glm::mix(scalesO, scalesN, step);
+        skewO = glm::mix(skewO, skewN, step);
+        perspectiveO = glm::mix(perspectiveO, perspectiveN, step);
 
-		MtxF m = ComposeMatrix(&translateO, &scalesO, &skewO, &perspectiveO, &quaternionO);
-		memcpy(res->mf, &m.mf, 4 * 4 * sizeof(float));
+        MtxF m = ComposeMatrix(&translateO, &scalesO, &skewO, &perspectiveO, &quaternionO);
+        memcpy(res->mf, &m.mf, 4 * 4 * sizeof(float));
     }
 
     float lerp(f32 o, f32 n) {
@@ -714,13 +688,15 @@ struct InterpolateCtx {
 
                         case Op::MatrixMtxFToMtx:
                             interpolate_mtxf(new_replacement(new_op.matrix_mtxf_to_mtx.dest),
-                                             &old_op.matrix_mtxf_to_mtx.src, &new_op.matrix_mtxf_to_mtx.src, old_op.matrix_mtxf_to_mtx.isViewMtx);
+                                             &old_op.matrix_mtxf_to_mtx.src, &new_op.matrix_mtxf_to_mtx.src,
+                                             old_op.matrix_mtxf_to_mtx.isViewMtx);
                             break;
 
                         case Op::MatrixToMtx: {
                             //*new_replacement(new_op.matrix_to_mtx.dest) = *Matrix_GetCurrent();
                             if (old_op.matrix_to_mtx.has_adjusted && new_op.matrix_to_mtx.has_adjusted) {
-                                interpolate_mtxf(&tmp_mtxf, &old_op.matrix_to_mtx.src, &new_op.matrix_to_mtx.src, false);
+                                interpolate_mtxf(&tmp_mtxf, &old_op.matrix_to_mtx.src, &new_op.matrix_to_mtx.src,
+                                                 false);
                                 SkinMatrix_MtxFMtxFMult(&actor_mtx, &tmp_mtxf,
                                                         new_replacement(new_op.matrix_to_mtx.dest));
                             } else {
