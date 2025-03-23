@@ -242,7 +242,6 @@ void BenMenu::AddSettings() {
         .CVar("gSettings.Fullscreen")
         .Callback([](WidgetInfo& info) { Ship::Context::GetInstance()->GetWindow()->ToggleFullscreen(); })
         .Options(CheckboxOptions().Tooltip("Toggles Fullscreen On/Off."));
-#ifndef __APPLE__
     AddWidget(path, "Internal Resolution: %.0f%%", WIDGET_CVAR_SLIDER_FLOAT)
         .CVar(CVAR_INTERNAL_RESOLUTION)
         .Callback([](WidgetInfo& info) {
@@ -267,7 +266,6 @@ void BenMenu::AddSettings() {
                 .Format("")
                 .Min(0.5f)
                 .Max(2.0f));
-#endif
 #ifndef __WIIU__
     AddWidget(path, "Anti-aliasing (MSAA): %d", WIDGET_CVAR_SLIDER_INT)
         .CVar(CVAR_MSAA_VALUE)
@@ -721,6 +719,9 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Prevent Diving Over Water", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Player.PreventDiveOverWater")
         .Options(CheckboxOptions().Tooltip("Prevents Link from automatically diving over bodies of water."));
+    AddWidget(path, "Manual Jump", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.Player.ManualJump")
+        .Options(CheckboxOptions().Tooltip("Z + A to Jump and B while midair to Jump Attack"));
     AddWidget(path, "Dpad Equips", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Dpad.DpadEquips")
         .Options(CheckboxOptions().Tooltip("Allows you to equip items to your d-pad"));
@@ -865,13 +866,20 @@ void BenMenu::AddEnhancements() {
         .CVar("gEnhancements.Minigames.PowderKegCertification")
         .Options(CheckboxOptions().Tooltip(
             "Skips requiring to take the Powder Keg Test before being given the Certification."));
-    AddWidget(path, "Malon Target Practice Winning Score", WIDGET_CVAR_SLIDER_INT)
-        .CVar("gEnhancements.Minigames.MalonTargetPractice")
+    AddWidget(path, "Romani Target Practice Winning Score", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.RomaniTargetPractice")
         .Options(IntSliderOptions()
-                     .Tooltip("Sets the score required to win Malon's Target Practice.")
+                     .Tooltip("Sets the score required to win Romani's Target Practice.")
                      .Min(1)
                      .Max(10)
                      .DefaultValue(10));
+    AddWidget(path, "Frog Choir Count", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.Minigames.FrogChoirCount")
+        .Options(IntSliderOptions()
+                     .Tooltip("Choose how many frogs you need to save for the choir performance.")
+                     .Min(1)
+                     .Max(5)
+                     .DefaultValue(5));
     AddWidget(path, "Skip Gorman Horse Race", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Minigames.SkipHorseRace")
         .Options(CheckboxOptions().Tooltip("Instantly win the Gorman Horse Race"));
@@ -1318,6 +1326,9 @@ void BenMenu::AddEnhancements() {
                 .ComboMap(gibdoTradeSequenceOptions));
 
     path.column = 2;
+    AddWidget(path, "Hyper Enemies", WIDGET_CVAR_CHECKBOX)
+        .CVar("gEnhancements.DifficultyOptions.HyperEnemies")
+        .Options(CheckboxOptions().Tooltip("Double the rate at which enemies are updated, making them more difficult"));
     AddWidget(path, "Damage Multiplier", WIDGET_CVAR_COMBOBOX)
         .CVar("gEnhancements.DifficultyOptions.DamageMultiplier")
         .Options(ComboboxOptions()
@@ -1333,6 +1344,14 @@ void BenMenu::AddEnhancements() {
         .Options(CheckboxOptions().Tooltip("Dying will delete your file\n\n     " ICON_FA_EXCLAMATION_TRIANGLE
                                            " WARNING " ICON_FA_EXCLAMATION_TRIANGLE
                                            "\nTHIS IS NOT REVERSABLE\nUSE AT YOUR OWN RISK!"));
+    AddWidget(path, "Jinxed Timer: %d seconds", WIDGET_CVAR_SLIDER_INT)
+        .CVar("gEnhancements.DifficultyOptions.JinxedTimer")
+        .Options(
+            IntSliderOptions()
+                .Tooltip("Set the duration of the Jinxed effect. Setting it to 0 will prevent the effect entirely.")
+                .Min(0)
+                .Max(60)
+                .DefaultValue(60));
 
     // HUD Editor
     path = { "Enhancements", "HUD Editor", 1 };

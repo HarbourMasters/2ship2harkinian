@@ -7,12 +7,12 @@ extern "C" {
 }
 
 // This is kind of a catch-all for things that are simple enough to not need their own file.
-void MiscVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, void* optionalArg) {
+void MiscVanillaBehaviorHandler(GIVanillaBehavior id, bool* should, va_list optionalArg) {
     switch (id) {
         case VB_MADAME_AROMA_ASK_FOR_HELP:
             *should = !CHECK_WEEKEVENTREG(WEEKEVENTREG_BOMBERS_NOTEBOOK_EVENT_RECEIVED_KAFEIS_MASK);
             break;
-        case VB_GIVE_ITEM_FROM_MALON:
+        case VB_GIVE_ITEM_FROM_ROMANI:
             *should = CHECK_QUEST_ITEM(QUEST_SONG_EPONA);
             break;
         // TODO: This should be configurable
@@ -104,13 +104,16 @@ void Rando::ActorBehavior::OnFileLoad() {
     Rando::ActorBehavior::InitEnMa4Behavior();
     Rando::ActorBehavior::InitEnMaYtoBehavior();
     Rando::ActorBehavior::InitEnMnkBehavior();
+    Rando::ActorBehavior::InitEnNbBehavior();
     Rando::ActorBehavior::InitEnOsnBehavior();
+    Rando::ActorBehavior::InitEnOtBehavior();
     Rando::ActorBehavior::InitEnOwlBehavior();
     Rando::ActorBehavior::InitEnPmBehavior();
     Rando::ActorBehavior::InitEnRuppecrowBehavior();
     Rando::ActorBehavior::InitEnRzBehavior();
     Rando::ActorBehavior::InitEnScopenutsBehavior();
     Rando::ActorBehavior::InitEnSellnutsBehavior();
+    Rando::ActorBehavior::InitEnShnBehavior();
     Rando::ActorBehavior::InitEnSiBehavior();
     Rando::ActorBehavior::InitEnSob1Behavior();
     Rando::ActorBehavior::InitEnSshBehavior();

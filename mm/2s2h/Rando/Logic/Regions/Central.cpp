@@ -153,6 +153,7 @@ static RegisterShipInitFunc initFunc([]() {
             EXIT(ENTRANCE(DEKU_SCRUB_PLAYGROUND, 0),        ENTRANCE(NORTH_CLOCK_TOWN, 4), CAN_BE_DEKU),
         },
         .events = {
+            EVENT(RE_ACCESS_PICTOGRAPH_TINGLE, HAS_ITEM(ITEM_PICTOGRAPH_BOX)), // Only in the day
             // Refer to z_en_suttari's damage table for more info. Damage effect 0xF stops him nonlethally, while 0xE kills.
             // FD sword beams can also kill him, but currently FD is not logically considered.
             EVENT(RE_SAVE_BOMB_SHOP_LADY, CAN_USE_SWORD || CAN_BE_ZORA || CAN_BE_GORON),
@@ -366,6 +367,9 @@ static RegisterShipInitFunc initFunc([]() {
         },
     };
     Regions[RR_TERMINA_FIELD_GOSSIP_STONE_GROTTO_3] = RandoRegion{ .name = "Termina Field Gossip Stone #3", .sceneId = SCENE_KAKUSIANA,
+        .checks = {
+            CHECK(RC_TERMINA_FIELD_GOSSIP_STONE_GROTTO, (CAN_BE_DEKU && CAN_PLAY_SONG(SONATA)) || (CAN_BE_GORON && CAN_PLAY_SONG(LULLABY)) || (CAN_BE_ZORA && CAN_PLAY_SONG(BOSSA_NOVA))),
+        },
         .exits = { //     TO                                         FROM
             EXIT(ENTRANCE(TERMINA_FIELD, 0),                ENTRANCE(GROTTOS, 0), true), // TODO: Grotto mapping
         },
