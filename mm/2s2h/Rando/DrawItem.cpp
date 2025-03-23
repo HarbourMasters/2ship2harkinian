@@ -17,6 +17,11 @@ extern "C" {
 #include "objects/object_st/object_st.h"
 
 Gfx* ResourceMgr_LoadGfxByName(const char* path);
+
+// Minifrog
+#include "objects/object_fr/object_fr.h"
+void EnMinifrog_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Actor* enMinifrog);
+s32 EnMinifrog_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* enMinifrog);
 }
 
 s32 StrayFairyOverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* thisx,
@@ -75,6 +80,44 @@ void DrawStrayFairy(RandoItemId randoItemId) {
                                        StrayFairyOverrideLimbDraw, NULL, NULL, POLY_XLU_DISP);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
+}
+
+void DrawMinifrog(Actor* actor) {
+    static bool initialized = false;
+    static SkelAnime skelAnime;
+    static Vec3s jointTable[FROG_LIMB_MAX];
+    static Vec3s morphTable[FROG_LIMB_MAX];
+    static u32 lastUpdate = 0;
+
+    OPEN_DISPS(gPlayState->state.gfxCtx);
+    Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
+    
+    Matrix_Scale(0.02f, 0.02f, 0.02f, MTXMODE_APPLY);
+    Matrix_Translate(0, -20, 0, MTXMODE_APPLY);
+
+    if (!initialized) {
+        initialized = true;
+        SkelAnime_InitFlex(gPlayState, &skelAnime, (FlexSkeletonHeader*)&gFrogSkel,
+                           (AnimationHeader*)&gFrogIdleAnim, jointTable, morphTable, FROG_LIMB_MAX);
+    }
+    if (gPlayState != NULL && lastUpdate != gPlayState->state.frames) {
+        lastUpdate = gPlayState->state.frames;
+        SkelAnime_Update(&skelAnime);
+    }
+
+    // envColor = &sFrogEnvColors[this->frogIndex];
+    // Set Frog to white, should change based on frog color
+    gDPSetEnvColor(POLY_OPA_DISP++, 190, 190, 190, 255 );
+    
+    Mtx* mtxHead = (Mtx*)GRAPH_ALLOC(gPlayState->state.gfxCtx, 23 * sizeof(Mtx));
+    gSPSegment(POLY_OPA_DISP++, 0x08, (uintptr_t)gFrogIrisOpenTex);
+    gSPSegment(POLY_OPA_DISP++, 0x09, (uintptr_t)gFrogIrisOpenTex);
+    SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable,
+                          FROG_LIMB_MAX, EnMinifrog_OverrideLimbDraw,
+                      EnMinifrog_PostLimbDraw, actor);
+
+    CLOSE_DISPS(gPlayState->state.gfxCtx);
+    
 }
 
 void DrawSong(RandoItemId randoItemId) {
@@ -415,6 +458,12 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
             break;
         case RI_SOUL_TWINMOLD:
             DrawTwinmold();
+            break;
+        case RI_FROG_BLUE:
+        case RI_FROG_CYAN:
+        case RI_FROG_PINK:
+        case RI_FROG_WHITE:
+            DrawMinifrog(actor);
             break;
         case RI_NONE:
         case RI_UNKNOWN:
