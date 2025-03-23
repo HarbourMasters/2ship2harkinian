@@ -10,7 +10,7 @@ extern "C" {
 }
 
 
-// TODOs: Menu Option, Frog Shuffle Option stuff on seed gen, update text, logic, fix postLimbDraw crash
+// TODOs: update text, logic, fix postLimbDraw crash, drawFrog colors, check tracker icon, cleanup (rename VBs)
 
 void EnMinifrog_OnOpenText(u16* textId, bool* loadFromMessageTable){
 
