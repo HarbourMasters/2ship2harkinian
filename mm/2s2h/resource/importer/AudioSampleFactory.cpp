@@ -135,7 +135,8 @@ static void FlacDecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std
     drflac_close(flac);
 }
 
-static void OggDecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std::shared_ptr<Ship::File> sampleFile, std::shared_ptr<Ship::ResourceInitData> initData) {
+static void OggDecoderWorker(std::shared_ptr<SOH::AudioSample> audioSample, std::shared_ptr<Ship::File> sampleFile,
+                             std::shared_ptr<Ship::ResourceInitData> initData) {
     OggVorbis_File vf;
     char dataBuff[4096];
     long read = 0;
