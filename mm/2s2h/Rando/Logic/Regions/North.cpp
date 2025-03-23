@@ -99,7 +99,8 @@ static RegisterShipInitFunc initFunc([]() {
         .checks = {
             CHECK(RC_GORON_VILLAGE_PIECE_OF_HEART, Flags_GetRandoInf(RANDO_INF_OBTAINED_DEED_SWAMP) && CAN_BE_DEKU),
             CHECK(RC_GORON_VILLAGE_LARGE_CRATE, CAN_USE_MAGIC_ARROW(FIRE) || RANDO_EVENTS[RE_CLEARED_SNOWHEAD_TEMPLE]),
-            CHECK(RC_GORON_VILLAGE_MEDIGORON, HAS_ITEM(ITEM_BOW) && HAS_ITEM(ITEM_ARROW_FIRE) && HAS_MAGIC && CAN_BE_GORON),
+            // FIXME: Update logic for Entrance Rando to account for being able to access the Racetrack Boulder
+            CHECK(RC_GORON_VILLAGE_MEDIGORON, (CAN_USE_MAGIC_ARROW(FIRE) || RANDO_EVENTS[RE_CLEARED_SNOWHEAD_TEMPLE]) && CAN_BE_GORON),
             CHECK(RC_GORON_VILLAGE_SCRUB_BOMB_BAG, (GET_CUR_UPG_VALUE(UPG_WALLET) >= 1) && CAN_BE_GORON),
             CHECK(RC_GORON_VILLAGE_SCRUB_DEED, Flags_GetRandoInf(RANDO_INF_OBTAINED_DEED_SWAMP) && CAN_BE_DEKU),
             CHECK(RC_GORON_VILLAGE_LARGE_SNOWBALL_01, CanKillEnemy(ACTOR_OBJ_SNOWBALL)),
@@ -272,6 +273,9 @@ static RegisterShipInitFunc initFunc([]() {
         .connections = {
             // TODO: This can be reached in entrance rando if coming from Goron Racetrack
             CONNECTION(RR_PATH_TO_GORON_VILLAGE_RAMP_GROTTO, CAN_USE_EXPLOSIVE && (CAN_BE_GORON || CAN_HOOK_SCARECROW)), // TODO: Grotto mapping
+        },
+        .events = {
+            EVENT(RE_ACCESS_PICTOGRAPH_TINGLE, HAS_ITEM(ITEM_PICTOGRAPH_BOX)),
         },
     };
     Regions[RR_PATH_TO_MOUNTAIN_VILLAGE_LOWER] = RandoRegion{ .name = "Lower", .sceneId = SCENE_13HUBUKINOMITI,
