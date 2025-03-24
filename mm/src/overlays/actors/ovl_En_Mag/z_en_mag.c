@@ -12,6 +12,9 @@
 
 #define THIS ((EnMag*)thisx)
 
+// #region 2S2H [JP Support]
+#define PRESS_START_CHAR_OFFSET ((ResourceMgr_GetGameDefaultLanguage(0) == LANGUAGE_JPN) ? 0xA1 : 0)
+
 void EnMag_Init(Actor* thisx, PlayState* play);
 void EnMag_Destroy(Actor* thisx, PlayState* play);
 void EnMag_Update(Actor* thisx, PlayState* play);
@@ -953,7 +956,7 @@ void EnMag_DrawInner(Actor* thisx, PlayState* play, Gfx** gfxp) {
 
         rectLeft = PRESS_START_LEFT + 1;
         for (i = 0; i < ARRAY_COUNT(pressStartFontIndices); i++) {
-            EnMag_DrawCharTexture(&gfx, font->fontBuf + pressStartFontIndices[i] * FONT_CHAR_TEX_SIZE, rectLeft,
+            EnMag_DrawCharTexture(&gfx, font->fontBuf + (pressStartFontIndices[i] + PRESS_START_CHAR_OFFSET) * FONT_CHAR_TEX_SIZE, rectLeft,
                                   PRESS_START_TOP + 1);
 
             rectLeft += PRESS_START_CHAR_SPACING;
@@ -968,7 +971,7 @@ void EnMag_DrawInner(Actor* thisx, PlayState* play, Gfx** gfxp) {
 
         rectLeft = PRESS_START_LEFT;
         for (i = 0; i < ARRAY_COUNT(pressStartFontIndices); i++) {
-            EnMag_DrawCharTexture(&gfx, font->fontBuf + pressStartFontIndices[i] * FONT_CHAR_TEX_SIZE, rectLeft,
+            EnMag_DrawCharTexture(&gfx, font->fontBuf + (pressStartFontIndices[i] + PRESS_START_CHAR_OFFSET) * FONT_CHAR_TEX_SIZE, rectLeft,
                                   PRESS_START_TOP);
             rectLeft += PRESS_START_CHAR_SPACING;
             if (i == 4) {
