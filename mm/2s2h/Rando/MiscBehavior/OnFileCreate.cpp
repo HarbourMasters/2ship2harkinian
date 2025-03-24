@@ -103,9 +103,15 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
 
                 std::unordered_map<RandoCheckId, bool> checkPool;
                 std::vector<RandoItemId> itemPool;
+
+                // Create Excluded Checks List to eliminate excluded checks from the pool
                 std::vector<RandoCheckId> excludedChecks;
-                bool initExcludedChecks = false;
-                std::string excludedChecksList = "";
+                std::string excludedChecksList = CVarGetString("gRando.ExcludedChecks", "");
+                std::string word;
+                std::istringstream stream(excludedChecksList);
+                while (std::getline(stream, word, ',')) {
+                    excludedChecks.push_back((RandoCheckId)std::stoi(word));
+                }
 
                 // First loop through all regions and add checks/items to the pool
                 for (auto& [randoRegionId, randoRegion] : Rando::Logic::Regions) {
@@ -117,22 +123,12 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                             RANDO_SAVE_CHECKS[randoCheckId].randoItemId = randoStaticCheck.randoItemId;
                         }
 
-                        // Skip checks that have been excluded in the Locations menu
-                        if (!initExcludedChecks) {
-                            excludedChecksList = CVarGetString("gRando.ExcludedChecks", "");
-
-                            if (excludedChecksList != "") {
-                                std::string word;
-                                std::istringstream stream(excludedChecksList);
-                                while (std::getline(stream, word, ',')) {
-                                    excludedChecks.push_back((RandoCheckId)std::stoi(word));
-                                }
-                            }
-                            initExcludedChecks = true;
-                        }
-
+                        // Skip checks that have been excluded in the Locations menu and add their vanilla item to the
+                        // pool
                         auto it = std::find(excludedChecks.begin(), excludedChecks.end(), randoCheckId);
                         if (it != excludedChecks.end()) {
+                            itemPool.push_back(RANDO_SAVE_CHECKS[randoCheckId].randoItemId);
+                            randoStaticCheck.randoItemId = RI_JUNK;
                             RANDO_SAVE_CHECKS[randoCheckId].randoItemId = RI_JUNK;
                             RANDO_SAVE_CHECKS[randoCheckId].skipped = true;
                             continue;
