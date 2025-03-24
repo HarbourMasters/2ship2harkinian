@@ -122,7 +122,7 @@ void Rando::MiscBehavior::OnFileCreate(s16 fileNum) {
                         if (randoStaticCheck.randoCheckId != RC_UNKNOWN) {
                             RANDO_SAVE_CHECKS[randoCheckId].randoItemId = randoStaticCheck.randoItemId;
                         }
-                                                
+
                         // Skip checks that are already in the pool
                         if (checkPool.find(randoCheckId) != checkPool.end()) {
                             continue;
