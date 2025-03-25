@@ -437,7 +437,7 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
             Rando::DrawItem(Rando::ConvertItem(randoItemId), actor);
             break;
         case RI_SOUL_GOHT:
-            DrawMinifrog(actor);
+            DrawGoht();
             break;
         case RI_SOUL_GYORG:
             DrawGyorg();
@@ -450,6 +450,12 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
             break;
         case RI_SOUL_TWINMOLD:
             DrawTwinmold();
+            break;
+        case RI_FROG_BLUE:
+        case RI_FROG_CYAN:
+        case RI_FROG_PINK:
+        case RI_FROG_WHITE:
+            DrawMinifrog(actor);
             break;
         case RI_NONE:
         case RI_UNKNOWN:

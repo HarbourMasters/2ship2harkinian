@@ -236,6 +236,9 @@ typedef enum {
     VB_SNOWBALL_DROP_COLLECTIBLE,
     VB_SNOWBALL_SET_FLAG,
     VB_START_JUMPSLASH,
+    VB_SPAWN_FROG,
+    VB_FROG_TEMP1,
+    VB_FROG_TEMP2,
 } GIVanillaBehavior;
 
 typedef enum {

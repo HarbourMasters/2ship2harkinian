@@ -6,6 +6,7 @@
 
 #include "z_en_minifrog.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY | ACTOR_FLAG_10)
 
@@ -110,7 +111,7 @@ void EnMinifrog_Init(Actor* thisx, PlayState* play) {
     if (1) {}
 
     if (!EN_FROG_IS_RETURNED(&this->actor)) {
-        if ((this->frogIndex == FROG_YELLOW) || CHECK_WEEKEVENTREG(sIsFrogReturnedFlags[this->frogIndex])) {
+        if ((this->frogIndex == FROG_YELLOW) || GameInteractor_Should(VB_SPAWN_FROG, CHECK_WEEKEVENTREG(sIsFrogReturnedFlags[this->frogIndex]), this)) {
             Actor_Kill(&this->actor);
             return;
         }
@@ -275,6 +276,10 @@ void EnMinifrog_ReturnFrogCutscene(EnMinifrog* this, PlayState* play) {
                     Message_ContinueTextbox(play, 0xD86);
                 }
 
+                if (GameInteractor_Should(VB_FROG_TEMP1, false, this)) {
+                    break;
+                }
+                
                 SET_WEEKEVENTREG(sIsFrogReturnedFlags[this->frogIndex]);
                 break;
 
