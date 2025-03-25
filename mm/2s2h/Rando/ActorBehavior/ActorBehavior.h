@@ -70,6 +70,7 @@ void InitEnRuppecrowBehavior();
 void InitEnRzBehavior();
 void InitEnScopenutsBehavior();
 void InitEnSellnutsBehavior();
+void InitEnShnBehavior();
 void InitEnSiBehavior();
 void InitEnSob1Behavior();
 void InitEnSshBehavior();
