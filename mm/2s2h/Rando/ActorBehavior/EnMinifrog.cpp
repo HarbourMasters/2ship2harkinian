@@ -5,12 +5,10 @@
 extern "C" {
 #include "variables.h"
 #include "overlays/actors/ovl_En_Minifrog/z_en_minifrog.h"
-
-// void Player_TalkWithPlayer(PlayState* play, Actor* actor);
 }
 
 
-// TODOs: update text, logic, fix postLimbDraw crash, drawFrog colors, check tracker icon, cleanup (rename VBs)
+// TODOs: update text, logic, fix postLimbDraw crash
 
 void EnMinifrog_OnOpenText(u16* textId, bool* loadFromMessageTable){
 
@@ -20,18 +18,40 @@ void EnMinifrog_OnOpenText(u16* textId, bool* loadFromMessageTable){
 
     auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
 
-    entry.msg = "Here's %y{{item}}%w!\x13";
+    entry.msg = "I understand. Have %y{{article}} {{item}}%w!\x13\x10";
 
     std::string itemName = Rando::StaticData::Items[riFrogCheck].name;
+    std::string itemArticle = Rando::StaticData::Items[riFrogCheck].article;
 
     CustomMessage::ReplaceColorChars(&entry.msg);
     CustomMessage::Replace(&entry.msg, "{{item}}", itemName);
-    CustomMessage::EnsureMessageEnd(&entry.msg);
-    if (CHECK_WEEKEVENTREG(WEEKEVENTREG_CLEARED_SNOWHEAD_TEMPLE)) {
-        entry.nextMessageID = 0x0D83;
-    } else {
-        entry.nextMessageID = 0x0D86;
-    }
+    CustomMessage::Replace(&entry.msg, "{{article}}", itemArticle);
+    entry.autoFormat = false;
+    // CustomMessage::EnsureMessageEnd(&entry.msg);
+    CustomMessage::LoadCustomMessageIntoFont(entry);
+    *loadFromMessageTable = false;
+}
+
+void EnMinifrog_OnOpenText2(u16* textId, bool* loadFromMessageTable){
+
+    // Need to change depending on frog
+    RandoSaveCheck frogCheck = RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_LAUNDRY_FROG];
+    RandoItemId riFrogCheck = Rando::ConvertItem(frogCheck.randoItemId, RC_CLOCK_TOWN_LAUNDRY_FROG);
+
+    auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
+
+    LUSLOG_DEBUG("%s", entry.msg.c_str());
+
+    entry.msg = "Find me again and I will\x11 definitely go to the mountains. \x11Have %y{{article}} {{item}}%w!";
+
+    std::string itemName = Rando::StaticData::Items[riFrogCheck].name;
+    std::string itemArticle = Rando::StaticData::Items[riFrogCheck].article;
+
+    CustomMessage::ReplaceColorChars(&entry.msg);
+    CustomMessage::Replace(&entry.msg, "{{item}}", itemName);
+    CustomMessage::Replace(&entry.msg, "{{article}}", itemArticle);
+    entry.autoFormat = false;
+    // CustomMessage::EnsureMessageEnd(&entry.msg);
     CustomMessage::LoadCustomMessageIntoFont(entry);
     *loadFromMessageTable = false;
 }
@@ -46,7 +66,7 @@ void EnMinifrog_OnOpenText(u16* textId, bool* loadFromMessageTable){
 
 void Rando::ActorBehavior::InitEnMinifrogBehavior() {
 
-    COND_VB_SHOULD(VB_SPAWN_FROG, IS_RANDO /*&& RANDO_SAVE_OPTIONS[RO_SHUFFLE_FROGS]*/, {
+    COND_VB_SHOULD(VB_SPAWN_FROG, IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_FROGS], {
         EnMinifrog* enMinifrog = va_arg(args, EnMinifrog*);
         switch (enMinifrog->frogIndex) {
             case 0:
@@ -66,7 +86,7 @@ void Rando::ActorBehavior::InitEnMinifrogBehavior() {
         }
     });
 
-    COND_VB_SHOULD(VB_FROG_TEMP1, IS_RANDO /**/, {
+    COND_VB_SHOULD(VB_FROG_SET_RETURN_FLAG, IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_FROGS], {
         EnMinifrog* enMinifrog = va_arg(args, EnMinifrog*);
         *should = true;
         switch (enMinifrog->frogIndex) {
@@ -87,6 +107,7 @@ void Rando::ActorBehavior::InitEnMinifrogBehavior() {
         }
     });
     
-    // Can I pass actor into this?
-    // COND_ID_HOOK(OnOpenText, 0x0D82, IS_RANDO /*&& RANDO_SAVE_OPTIONS[RO_SHUFFLE_FROGS]*/, EnMinifrog_OnOpenText);
+    COND_ID_HOOK(OnOpenText, 0x0D85, IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_FROGS], EnMinifrog_OnOpenText);
+    
+    COND_ID_HOOK(OnOpenText, 0x0D88, IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_FROGS], EnMinifrog_OnOpenText2);
 }

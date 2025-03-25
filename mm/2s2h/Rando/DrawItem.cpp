@@ -300,7 +300,7 @@ void DrawSkulltulaToken(RandoItemId randoItemId, Actor* actor) {
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
 
-void DrawMinifrog(Actor* actor) {
+void DrawMinifrog(RandoItemId randoItemId, Actor* actor) {
     OPEN_DISPS(gPlayState->state.gfxCtx);
 
     Gfx_SetupDL25_Opa(gPlayState->state.gfxCtx);
@@ -311,6 +311,7 @@ void DrawMinifrog(Actor* actor) {
     static SkelAnime skelAnime;
     static Vec3s jointTable[FROG_LIMB_MAX];
     static Vec3s otherTable[FROG_LIMB_MAX];
+    Color_RGBA8 envColor = { 200, 170, 0, 255 };   // FROG_YELLOW
     static u32 lastUpdate = 0;
     if (!initialized) {
         initialized = true;
@@ -322,12 +323,29 @@ void DrawMinifrog(Actor* actor) {
         SkelAnime_Update(&skelAnime);
     }
 
+    switch (randoItemId) {
+        case RI_FROG_BLUE:
+            envColor = { 120, 130, 230, 255 };
+            break;
+        case RI_FROG_CYAN:
+            envColor = { 0, 170, 200, 255 };
+            break;
+        case RI_FROG_PINK:
+            envColor = { 210, 120, 100, 255 };
+            break;
+        case RI_FROG_WHITE:
+            envColor = { 190, 190, 190, 255 };
+            break;
+    }
+
+    gDPSetEnvColor(POLY_OPA_DISP++, envColor.r, envColor.g, envColor.b, envColor.a );
+
     Mtx* mtxHead = (Mtx*)GRAPH_ALLOC(gPlayState->state.gfxCtx, 23 * sizeof(Mtx));
     gSPSegment(POLY_OPA_DISP++, 0x08, (uintptr_t)gFrogIrisOpenTex);
     gSPSegment(POLY_OPA_DISP++, 0x09, (uintptr_t)gFrogIrisOpenTex);
     SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable,
-                          FROG_LIMB_MAX, EnMinifrog_OverrideLimbDraw,
-                      EnMinifrog_PostLimbDraw, actor);
+                          FROG_LIMB_MAX, NULL,
+                      NULL, NULL); // TODO: Restore and fix
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
@@ -455,7 +473,7 @@ void Rando::DrawItem(RandoItemId randoItemId, Actor* actor) {
         case RI_FROG_CYAN:
         case RI_FROG_PINK:
         case RI_FROG_WHITE:
-            DrawMinifrog(actor);
+            DrawMinifrog(randoItemId, actor);
             break;
         case RI_NONE:
         case RI_UNKNOWN:

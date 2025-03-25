@@ -70,6 +70,7 @@ std::vector<const char*> checkTypeIconList = {
     /*RCTYPE_COW*/ gItemIconRomaniMaskTex,
     /*RCTYPE_CRATE*/ gCrateTrackerIcon,
     /*RCTYPE_FREESTANDING*/ gRupeeCounterIconTex,
+    /*RCTYPE_FROG*/ gItemIconDonGeroMaskTex,
     /*RCTYPE_HEART*/ gQuestIconPieceOfHeartTex,
     /*RCTYPE_MINIGAME*/ gArcheryScoreIconTex,
     /*RCTYPE_NPC*/ gItemIconBombersNotebookTex,

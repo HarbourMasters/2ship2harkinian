@@ -276,7 +276,7 @@ void EnMinifrog_ReturnFrogCutscene(EnMinifrog* this, PlayState* play) {
                     Message_ContinueTextbox(play, 0xD86);
                 }
 
-                if (GameInteractor_Should(VB_FROG_TEMP1, false, this)) {
+                if (GameInteractor_Should(VB_FROG_SET_RETURN_FLAG, false, this)) {
                     break;
                 }
                 
