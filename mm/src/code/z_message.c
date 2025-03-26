@@ -14,7 +14,6 @@
 #include "assets/interface/message_static/message_static.h"
 #include "assets/interface/message_texture_static/message_texture_static.h"
 #include <string.h>
-#include <GameVersions.h>
 
 #include "2s2h_assets.h"
 

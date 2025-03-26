@@ -1017,7 +1017,7 @@ void func_80950EA0_cj0(Gfx** gfxp, void* maskTex, void* effectTex, s16 maskWidth
 // NON_MATCHING
 void func_80951820_cj0(Actor* thisx, PlayState* play, Gfx** gfxp) {
     static u8 pressStartFontIndices[] = {
-        0x19, 0x1B, 0x0E, 0x1C, 0x1C, 0x1C, 0x1D, 0x0A, 0x1B, 0x1D,
+        0xBA, 0xBC, 0xAF, 0xBD, 0xBD, 0xBD, 0xBE, 0xAB, 0xBC, 0xBE,
     }; // Indices into this->font.fontBuf
     static TexturePtr sAppearEffectMaskTextures[] = {
         gTitleScreenAppearEffectMask00Tex, gTitleScreenAppearEffectMask01Tex, gTitleScreenAppearEffectMask02Tex,

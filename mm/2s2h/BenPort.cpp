@@ -281,7 +281,7 @@ OTRGlobals::OTRGlobals() {
 
     auto versions = context->GetResourceManager()->GetArchiveManager()->GetGameVersions();
     for (uint32_t version : versions) {
-        if (!ValidHashes.contains(version)) {
+        if (!validHashes.contains(version)) {
 #if defined(__SWITCH__)
             SPDLOG_ERROR("Invalid O2R File!");
 #elif defined(__WIIU__)
