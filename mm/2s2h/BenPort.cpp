@@ -54,8 +54,15 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/Enhancements/GfxPatcher/AuthenticGfxPatches.h"
 #include "2s2h/DeveloperTools/DebugConsole.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
+#include "2s2h/Rando/Rando.h"
+#include "2s2h/Rando/Spoiler/Spoiler.h"
 #include "2s2h/SaveManager/SaveManager.h"
+#include "2s2h/CustomMessage/CustomMessage.h"
+#include "2s2h/CustomItem/CustomItem.h"
+#include "2s2h/BenGui/Notification.h"
 #include "2s2h/ShipUtils.h"
+#include "2s2h/ShipInit.hpp"
+#include "2s2h/PresetManager/PresetManager.h"
 
 // Resource Types/Factories
 #include "resource/type/Blob.h"
@@ -99,9 +106,11 @@ CrowdControl* CrowdControl::Instance;
 #include "2s2h/resource/importer/KeyFrameFactory.h"
 #include "window/gui/resource/Font.h"
 #include "window/gui/resource/FontFactory.h"
+#include "2s2h/Enhancements/Audio/AudioCollection.h"
 
 OTRGlobals* OTRGlobals::Instance;
 GameInteractor* GameInteractor::Instance;
+AudioCollection* AudioCollection::Instance;
 
 extern "C" char** cameraStrings;
 bool prevAltAssets = false;
@@ -113,6 +122,7 @@ Color_RGB8 zoraColor = { 0x00, 0xEC, 0x64 };
 
 OTRGlobals::OTRGlobals() {
     std::vector<std::string> archiveFiles;
+    std::vector<std::string> patchFiles;
     std::string mmPathO2R = Ship::Context::LocateFileAcrossAppDirs("mm.o2r", appShortName);
     std::string mmPathZIP = Ship::Context::LocateFileAcrossAppDirs("mm.zip", appShortName);
     if (std::filesystem::exists(mmPathO2R)) {
@@ -136,23 +146,51 @@ OTRGlobals::OTRGlobals() {
         if (std::filesystem::is_directory(patchesPath)) {
             for (const auto& p : std::filesystem::recursive_directory_iterator(patchesPath)) {
                 if (StringHelper::IEquals(p.path().extension().string(), ".o2r")) {
-                    archiveFiles.push_back(p.path().generic_string());
+                    patchFiles.push_back(p.path().generic_string());
                 } else if (StringHelper::IEquals(p.path().extension().string(), ".zip")) {
-                    archiveFiles.push_back(p.path().generic_string());
+                    patchFiles.push_back(p.path().generic_string());
                 } else if (StringHelper::IEquals(p.path().extension().string(), ".otr")) {
-                    archiveFiles.push_back(p.path().generic_string());
+                    patchFiles.push_back(p.path().generic_string());
                 }
             }
         }
     }
-    std::unordered_set<uint32_t> ValidHashes = { MM_NTSC_US_10, MM_NTSC_US_GC, MM_NTSC_JP_GC };
-    // tell LUS to reserve 3 SoH specific threads (Game, Audio, Save)
-    context =
-        Ship::Context::CreateInstance("2 Ship 2 Harkinian", appShortName, "2ship2harkinian.json", archiveFiles, {}, 3,
-                                      { .SampleRate = 44100, .SampleLength = 1024, .DesiredBuffered = 2480 });
 
+    // Sort all patch files from the mods directory lexigraphically to guarantee sort order across all platforms
+    std::sort(patchFiles.begin(), patchFiles.end(), [](const std::string& a, const std::string& b) {
+        // Sort based on file name alone, excluding file extension, so that order is not impacted by archive format
+        const std::string aFileName = a.substr(0, a.find_last_of("."));
+        const std::string bFileName = b.substr(0, b.find_last_of("."));
+        return std::lexicographical_compare(aFileName.begin(), aFileName.end(), bFileName.begin(), bFileName.end(),
+                                            [](char c1, char c2) { return std::tolower(c1) < std::tolower(c2); });
+    });
+
+    archiveFiles.insert(archiveFiles.end(), patchFiles.begin(), patchFiles.end());
+
+    std::unordered_set<uint32_t> validHashes = { MM_NTSC_US_10, MM_NTSC_US_GC, MM_NTSC_JP_GC };
+
+    context = Ship::Context::CreateUninitializedInstance("2 Ship 2 Harkinian", appShortName, "2ship2harkinian.json");
+
+    context->InitLogging();
+    context->InitGfxDebugger();
+    context->InitConfiguration();
+    context->InitConsoleVariables();
+
+    // tell LUS to reserve 3 SoH specific threads (Game, Audio, Save)
+    context->InitResourceManager(archiveFiles, {}, 3);
     prevAltAssets = CVarGetInteger("gEnhancements.Mods.AlternateAssets", 0);
     context->GetResourceManager()->SetAltAssetsEnabled(prevAltAssets);
+
+    auto controlDeck = std::make_shared<LUS::ControlDeck>(std::vector<CONTROLLERBUTTONS_T>({}));
+    context->InitControlDeck(controlDeck);
+
+    context->InitCrashHandler();
+    context->InitConsole();
+
+    auto benInputEditorWindow = std::make_shared<BenInputEditorWindow>("gWindows.BenInputEditor", "2S2H Input Editor");
+    auto benFast3dWindow =
+        std::make_shared<Fast::Fast3dWindow>(std::vector<std::shared_ptr<Ship::GuiWindow>>({ benInputEditorWindow }));
+    context->InitWindow(benFast3dWindow);
 
     // Override LUS defaults
     Ship::Context::GetInstance()->GetLogger()->set_level(
@@ -160,27 +198,33 @@ OTRGlobals::OTRGlobals() {
     Ship::Context::GetInstance()->GetLogger()->set_pattern("[%H:%M:%S.%e] [%s:%#] [%l] %v");
 
     auto overlay = context->GetInstance()->GetWindow()->GetGui()->GetGameOverlay();
-    overlay->LoadFont("Press Start 2P", "fonts/PressStart2P-Regular.ttf", 12.0f);
-    overlay->LoadFont("Fipps", "fonts/Fipps-Regular.otf", 32.0f);
+    overlay->LoadFont("Press Start 2P", 12.0f, "fonts/PressStart2P-Regular.ttf");
+    overlay->LoadFont("Fipps", 32.0f, "fonts/Fipps-Regular.otf");
     overlay->SetCurrentFont(CVarGetString(CVAR_GAME_OVERLAY_FONT, "Press Start 2P"));
 
+    context->InitAudio({ .SampleRate = 32000, .SampleLength = 1024, .DesiredBuffered = 1680 });
+
+    SPDLOG_INFO("Starting 2 Ship 2 Harkinian version {} (Branch: {} | Commit: {})", (char*)gBuildVersion,
+                (char*)gGitBranch, (char*)gGitCommitHash);
+
     auto loader = context->GetResourceManager()->GetResourceLoader();
-    loader->RegisterResourceFactory(std::make_shared<LUS::ResourceFactoryBinaryTextureV0>(), RESOURCE_FORMAT_BINARY,
-                                    "Texture", static_cast<uint32_t>(LUS::ResourceType::Texture), 0);
-    loader->RegisterResourceFactory(std::make_shared<LUS::ResourceFactoryBinaryTextureV1>(), RESOURCE_FORMAT_BINARY,
-                                    "Texture", static_cast<uint32_t>(LUS::ResourceType::Texture), 1);
-    loader->RegisterResourceFactory(std::make_shared<LUS::ResourceFactoryBinaryVertexV0>(), RESOURCE_FORMAT_BINARY,
-                                    "Vertex", static_cast<uint32_t>(LUS::ResourceType::Vertex), 0);
-    loader->RegisterResourceFactory(std::make_shared<LUS::ResourceFactoryXMLVertexV0>(), RESOURCE_FORMAT_XML, "Vertex",
-                                    static_cast<uint32_t>(LUS::ResourceType::Vertex), 0);
-    loader->RegisterResourceFactory(std::make_shared<LUS::ResourceFactoryBinaryDisplayListV0>(), RESOURCE_FORMAT_BINARY,
-                                    "DisplayList", static_cast<uint32_t>(LUS::ResourceType::DisplayList), 0);
-    loader->RegisterResourceFactory(std::make_shared<LUS::ResourceFactoryXMLDisplayListV0>(), RESOURCE_FORMAT_XML,
-                                    "DisplayList", static_cast<uint32_t>(LUS::ResourceType::DisplayList), 0);
-    loader->RegisterResourceFactory(std::make_shared<LUS::ResourceFactoryBinaryMatrixV0>(), RESOURCE_FORMAT_BINARY,
-                                    "Matrix", static_cast<uint32_t>(LUS::ResourceType::Matrix), 0);
-    loader->RegisterResourceFactory(std::make_shared<LUS::ResourceFactoryBinaryBlobV0>(), RESOURCE_FORMAT_BINARY,
-                                    "Blob", static_cast<uint32_t>(LUS::ResourceType::Blob), 0);
+    loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryBinaryTextureV0>(), RESOURCE_FORMAT_BINARY,
+                                    "Texture", static_cast<uint32_t>(Fast::ResourceType::Texture), 0);
+    loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryBinaryTextureV1>(), RESOURCE_FORMAT_BINARY,
+                                    "Texture", static_cast<uint32_t>(Fast::ResourceType::Texture), 1);
+    loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryBinaryVertexV0>(), RESOURCE_FORMAT_BINARY,
+                                    "Vertex", static_cast<uint32_t>(Fast::ResourceType::Vertex), 0);
+    loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryXMLVertexV0>(), RESOURCE_FORMAT_XML, "Vertex",
+                                    static_cast<uint32_t>(Fast::ResourceType::Vertex), 0);
+    loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryBinaryDisplayListV0>(),
+                                    RESOURCE_FORMAT_BINARY, "DisplayList",
+                                    static_cast<uint32_t>(Fast::ResourceType::DisplayList), 0);
+    loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryXMLDisplayListV0>(), RESOURCE_FORMAT_XML,
+                                    "DisplayList", static_cast<uint32_t>(Fast::ResourceType::DisplayList), 0);
+    loader->RegisterResourceFactory(std::make_shared<Fast::ResourceFactoryBinaryMatrixV0>(), RESOURCE_FORMAT_BINARY,
+                                    "Matrix", static_cast<uint32_t>(Fast::ResourceType::Matrix), 0);
+    loader->RegisterResourceFactory(std::make_shared<Ship::ResourceFactoryBinaryBlobV0>(), RESOURCE_FORMAT_BINARY,
+                                    "Blob", static_cast<uint32_t>(Ship::ResourceType::Blob), 0);
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryArrayV0>(), RESOURCE_FORMAT_BINARY,
                                     "Array", static_cast<uint32_t>(SOH::ResourceType::SOH_Array), 0);
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryAnimationV0>(), RESOURCE_FORMAT_BINARY,
@@ -204,14 +248,24 @@ OTRGlobals::OTRGlobals() {
                                     "Cutscene", static_cast<uint32_t>(SOH::ResourceType::SOH_Cutscene), 0);
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryTextMMV0>(), RESOURCE_FORMAT_BINARY,
                                     "TextMM", static_cast<uint32_t>(SOH::ResourceType::TSH_TextMM), 0);
+
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryAudioSampleV2>(), RESOURCE_FORMAT_BINARY,
                                     "AudioSample", static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSample), 2);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLAudioSampleV0>(), RESOURCE_FORMAT_XML,
+                                    "Sample", static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSample), 0);
+
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryAudioSoundFontV2>(),
                                     RESOURCE_FORMAT_BINARY, "AudioSoundFont",
                                     static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSoundFont), 2);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLSoundFontV0>(), RESOURCE_FORMAT_XML,
+                                    "SoundFont", static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSoundFont), 0);
+
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryAudioSequenceV2>(),
                                     RESOURCE_FORMAT_BINARY, "AudioSequence",
                                     static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSequence), 2);
+    loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryXMLAudioSequenceV0>(), RESOURCE_FORMAT_XML,
+                                    "Sequence", static_cast<uint32_t>(SOH::ResourceType::SOH_AudioSequence), 0);
+
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryBackgroundV0>(), RESOURCE_FORMAT_BINARY,
                                     "Background", static_cast<uint32_t>(SOH::ResourceType::SOH_Background), 0);
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryTextureAnimationV0>(),
@@ -221,7 +275,6 @@ OTRGlobals::OTRGlobals() {
                                     "KeyFrameAnim", static_cast<uint32_t>(SOH::ResourceType::TSH_CKeyFrameAnim), 0);
     loader->RegisterResourceFactory(std::make_shared<SOH::ResourceFactoryBinaryKeyFrameSkel>(), RESOURCE_FORMAT_BINARY,
                                     "KeyFrameSkel", static_cast<uint32_t>(SOH::ResourceType::TSH_CKeyFrameSkel), 0);
-    context->GetControlDeck()->SetSinglePlayerMappingMode(true);
 
     // gSaveStateMgr = std::make_shared<SaveStateMgr>();
     // gRandomizer = std::make_shared<Randomizer>();
@@ -265,6 +318,10 @@ uint32_t OTRGlobals::GetInterpolationFPS() {
 
     return std::min<uint32_t>(Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate(),
                               CVarGetInteger("gInterpolationFPS", 20));
+}
+
+extern "C" uint32_t Ship_GetInterpolationFPS() {
+    return OTRGlobals::Instance->GetInterpolationFPS();
 }
 
 struct ExtensionEntry {
@@ -335,15 +392,8 @@ void OTRAudio_Thread() {
 // AudioMgr_ThreadEntry(&gAudioMgr);
 //  528 and 544 relate to 60 fps at 32 kHz 32000/60 = 533.333..
 //  in an ideal world, one third of the calls should use num_samples=544 and two thirds num_samples=528
-//#define SAMPLES_HIGH 560
-//#define SAMPLES_LOW 528
-//  PAL values
-//#define SAMPLES_HIGH 656
-//#define SAMPLES_LOW 624
-
-// 44KHZ values
-#define SAMPLES_HIGH 752
-#define SAMPLES_LOW 720
+#define SAMPLES_HIGH 560
+#define SAMPLES_LOW 528
 
 #define AUDIO_FRAMES_PER_UPDATE (R_UPDATE_RATE > 0 ? R_UPDATE_RATE : 1)
 #define NUM_AUDIO_CHANNELS 2
@@ -377,6 +427,12 @@ extern "C" void OTRAudio_Init() {
     }
 }
 
+extern "C" char** gSequenceMap;
+extern "C" size_t gSequenceMapSize;
+
+extern "C" char** gFontMap;
+extern "C" size_t gFontMapSize;
+
 extern "C" void OTRAudio_Exit() {
     // Tell the audio thread to stop
     {
@@ -387,6 +443,17 @@ extern "C" void OTRAudio_Exit() {
 
     // Wait until the audio thread quit
     audio.thread.join();
+    for (size_t i = 0; i < gSequenceMapSize; i++) {
+        free(gSequenceMap[i]);
+    }
+    free(gSequenceMap);
+
+    for (size_t i = 0; i < gFontMapSize; i++) {
+        free(gFontMap[i]);
+    }
+    free(gFontMap);
+    free(gAudioCtx.seqLoadStatus);
+    free(gAudioCtx.fontLoadStatus);
 }
 
 extern "C" void OTRExtScanner() {
@@ -415,13 +482,13 @@ void Ben_ProcessDroppedFiles(std::string filePath) {
         handled = BinarySaveConverter_HandleFileDropped(filePath);
     }
 
-    // if (!handled) {
-    //     handled = Randomizer_HandleFileDropped(filePath);
-    // }
+    if (!handled) {
+        handled = Rando::Spoiler::HandleFileDropped(filePath);
+    }
 
-    // if (!handled) {
-    //     handled = Presets_HandleFileDropped(filePath);
-    // }
+    if (!handled) {
+        handled = PresetManager_HandleFileDropped(filePath);
+    }
 
     if (!handled) {
         auto gui = Ship::Context::GetInstance()->GetWindow()->GetGui();
@@ -447,7 +514,7 @@ ArchiveVersion ReadPortVersionFromArchive(std::string archivePath, bool isO2rTyp
         archive = make_shared<Ship::OtrArchive>(archivePath);
     }
     if (archive->Open()) {
-        auto t = archive->LoadFile("portVersion", std::make_shared<Ship::ResourceInitData>());
+        auto t = archive->LoadFile("portVersion");
         if (t != nullptr && t->IsLoaded) {
             auto stream = std::make_shared<Ship::MemoryStream>(t->Buffer->data(), t->Buffer->size());
             auto reader = std::make_shared<Ship::BinaryReader>(stream);
@@ -582,6 +649,23 @@ void DetectArchiveVersion(std::string fileName, bool isO2rType) {
     }
 }
 
+void CheckAndCreateModFolder() {
+    try {
+        std::string modsPath = Ship::Context::LocateFileAcrossAppDirs("mods", appShortName);
+        if (!std::filesystem::exists(modsPath)) {
+            // Create mods folder relative to app dir
+            modsPath = Ship::Context::GetPathRelativeToAppDirectory("mods", appShortName);
+            std::string filePath = modsPath + "/custom_mod_files_go_here.txt";
+            if (std::filesystem::create_directories(modsPath)) {
+                std::ofstream(filePath).close();
+            }
+        }
+    } catch (std::filesystem::filesystem_error const& ex) {
+        // Couldn't make the folder, continue silently
+        return;
+    }
+}
+
 extern "C" void InitOTR() {
 
 #ifdef __SWITCH__
@@ -607,6 +691,7 @@ extern "C" void InitOTR() {
     }
 
 #if not defined(__SWITCH__) && not defined(__WIIU__)
+    CheckAndCreateModFolder();
     if (!std::filesystem::exists(mmPathO2R) && !std::filesystem::exists(mmPathZIP) &&
         !std::filesystem::exists(mmPathOtr)) {
         std::string installPath = Ship::Context::GetAppBundlePath();
@@ -632,12 +717,18 @@ extern "C" void InitOTR() {
 
     OTRGlobals::Instance = new OTRGlobals();
     GameInteractor::Instance = new GameInteractor();
+    AudioCollection::Instance = new AudioCollection();
     LoadGuiTextures();
     BenGui::SetupGuiElements();
+    ShipInit::InitAll();
     InitEnhancements();
     InitDeveloperTools();
+    Rando::Init();
     GfxPatcher_ApplyNecessaryAuthenticPatches();
     DebugConsole_Init();
+    GameInteractor::Instance->RegisterOwnHooks();
+    CustomItem::RegisterHooks();
+    CustomMessage::RegisterHooks();
 
     OTRMessage_Init();
     OTRAudio_Init();
@@ -684,6 +775,7 @@ extern "C" void DeinitOTR() {
     BenGui::Destroy();
 
     OTRGlobals::Instance->context = nullptr;
+    delete AudioCollection::Instance;
 }
 
 #ifdef _WIN32
@@ -824,14 +916,20 @@ extern "C" void Graph_StartFrame() {
         CVarClear(CVAR_NEW_FILE_DROPPED);
         CVarClear(CVAR_DROPPED_FILE);
     }
-
-    OTRGlobals::Instance->context->GetWindow()->StartFrame();
 }
 
 void RunCommands(Gfx* Commands, const std::vector<std::unordered_map<Mtx*, MtxF>>& mtx_replacements) {
+    auto wnd = std::dynamic_pointer_cast<Fast::Fast3dWindow>(OTRGlobals::Instance->context->GetWindow());
+
+    if (wnd == nullptr) {
+        return;
+    }
+
+    // Process window events for resize, mouse, keyboard events
+    wnd->HandleEvents();
+
     for (const auto& m : mtx_replacements) {
-        gfx_run(Commands, m);
-        gfx_end_frame();
+        wnd->DrawAndRunGraphicsCommands(Commands, m);
     }
 }
 
@@ -874,11 +972,8 @@ extern "C" void Graph_ProcessGfxCommands(Gfx* commands) {
 
     time -= fps;
 
-    int threshold = CVarGetInteger("gExtraLatencyThreshold", 80);
-
     if (wnd != nullptr) {
         wnd->SetTargetFps(fps);
-        wnd->SetMaximumFrameLatency(threshold > 0 && target_fps >= threshold ? 2 : 1);
     }
 
     // When the gfx debugger is active, only run with the final mtx
@@ -992,10 +1087,10 @@ extern "C" uint32_t ResourceMgr_GetGameDefaultLanguage(int index) {
 }
 
 extern "C" void ResourceMgr_LoadDirectory(const char* resName) {
-    Ship::Context::GetInstance()->GetResourceManager()->LoadDirectory(resName);
+    Ship::Context::GetInstance()->GetResourceManager()->LoadResources(resName);
 }
 extern "C" void ResourceMgr_DirtyDirectory(const char* resName) {
-    Ship::Context::GetInstance()->GetResourceManager()->DirtyDirectory(resName);
+    Ship::Context::GetInstance()->GetResourceManager()->DirtyResources(resName);
 }
 
 // OTRTODO: There is probably a more elegant way to go about this...
@@ -1095,8 +1190,8 @@ extern "C" uint16_t ResourceMgr_LoadTexHeightByName(char* texPath);
 extern "C" char* ResourceMgr_LoadTexOrDListByName(const char* filePath) {
     auto res = GetResourceByName(filePath);
 
-    if (res->GetInitData()->Type == static_cast<uint32_t>(LUS::ResourceType::DisplayList))
-        return (char*)&((std::static_pointer_cast<LUS::DisplayList>(res))->Instructions[0]);
+    if (res->GetInitData()->Type == static_cast<uint32_t>(Fast::ResourceType::DisplayList))
+        return (char*)&((std::static_pointer_cast<Fast::DisplayList>(res))->Instructions[0]);
     else if (res->GetInitData()->Type == static_cast<uint32_t>(SOH::ResourceType::SOH_Array))
         return (char*)(std::static_pointer_cast<SOH::Array>(res))->Vertices.data();
     else {
@@ -1107,8 +1202,8 @@ extern "C" char* ResourceMgr_LoadTexOrDListByName(const char* filePath) {
 extern "C" char* ResourceMgr_LoadIfDListByName(const char* filePath) {
     auto res = GetResourceByName(filePath);
 
-    if (res->GetInitData()->Type == static_cast<uint32_t>(LUS::ResourceType::DisplayList))
-        return (char*)&((std::static_pointer_cast<LUS::DisplayList>(res))->Instructions[0]);
+    if (res->GetInitData()->Type == static_cast<uint32_t>(Fast::ResourceType::DisplayList))
+        return (char*)&((std::static_pointer_cast<Fast::DisplayList>(res))->Instructions[0]);
 
     return nullptr;
 }
@@ -1128,7 +1223,7 @@ extern "C" void ResourceMgr_PushCurrentDirectory(char* path) {
 }
 
 extern "C" Gfx* ResourceMgr_LoadGfxByName(const char* path) {
-    auto res = std::static_pointer_cast<LUS::DisplayList>(GetResourceByName(path));
+    auto res = std::static_pointer_cast<Fast::DisplayList>(GetResourceByName(path));
     return (Gfx*)&res->Instructions[0];
 }
 
@@ -1142,7 +1237,7 @@ std::unordered_map<std::string, std::unordered_map<std::string, GfxPatch>> origi
 // Attention! This is primarily for cosmetics & bug fixes. For things like mods and model replacement you should be
 // using OTRs instead (When that is available). Index can be found using the commented out section below.
 extern "C" void ResourceMgr_PatchGfxByName(const char* path, const char* patchName, int index, Gfx instruction) {
-    auto res = std::static_pointer_cast<LUS::DisplayList>(
+    auto res = std::static_pointer_cast<Fast::DisplayList>(
         Ship::Context::GetInstance()->GetResourceManager()->LoadResource(path));
 
     // Leaving this here for people attempting to find the correct Dlist index to patch
@@ -1180,7 +1275,7 @@ extern "C" void ResourceMgr_PatchGfxByName(const char* path, const char* patchNa
 
 extern "C" void ResourceMgr_PatchGfxCopyCommandByName(const char* path, const char* patchName, int destinationIndex,
                                                       int sourceIndex) {
-    auto res = std::static_pointer_cast<LUS::DisplayList>(
+    auto res = std::static_pointer_cast<Fast::DisplayList>(
         Ship::Context::GetInstance()->GetResourceManager()->LoadResource(path));
 
     // Do not patch custom assets as they most likely do not have the same instructions as authentic assets
@@ -1200,7 +1295,7 @@ extern "C" void ResourceMgr_PatchGfxCopyCommandByName(const char* path, const ch
 
 extern "C" void ResourceMgr_UnpatchGfxByName(const char* path, const char* patchName) {
     if (originalGfx.contains(path) && originalGfx[path].contains(patchName)) {
-        auto res = std::static_pointer_cast<LUS::DisplayList>(
+        auto res = std::static_pointer_cast<Fast::DisplayList>(
             Ship::Context::GetInstance()->GetResourceManager()->LoadResource(path));
 
         Gfx* gfx = (Gfx*)&res->Instructions[originalGfx[path][patchName].index];
@@ -1293,6 +1388,10 @@ extern "C" SequenceData ResourceMgr_LoadSeqByName(const char* path) {
     SequenceData* sequence = (SequenceData*)ResourceGetDataByName(path);
     return *sequence;
 }
+extern "C" SequenceData* ResourceMgr_LoadSeqPtrByName(const char* path) {
+    SequenceData* sequence = (SequenceData*)ResourceGetDataByName(path);
+    return sequence;
+}
 extern "C" KeyFrameSkeleton* ResourceMgr_LoadKeyFrameSkelByName(const char* path) {
     return (KeyFrameSkeleton*)ResourceGetDataByName(path);
 }
@@ -1363,9 +1462,14 @@ extern "C" SoundFontSample* ResourceMgr_LoadAudioSample(const char* path) {
 }
 #endif
 
-extern "C" SoundFont* ResourceMgr_LoadAudioSoundFont(const char* path) {
+extern "C" SoundFont* ResourceMgr_LoadAudioSoundFontByName(const char* path) {
     return (SoundFont*)ResourceGetDataByName(path);
 }
+
+extern "C" SoundFont* ResourceMgr_LoadAudioSoundFontByCRC(uint64_t crc) {
+    return (SoundFont*)ResourceGetDataByCrc(crc);
+}
+
 extern "C" int ResourceMgr_OTRSigCheck(char* imgData) {
     uintptr_t i = (uintptr_t)(imgData);
 
@@ -1409,7 +1513,7 @@ extern "C" SkeletonHeader* ResourceMgr_LoadSkeletonByName(const char* path, Skel
     }
 
     // This function is only called when a skeleton is initialized.
-    // Therefore we can take this oppurtunity to take note of the Skeleton that is created...
+    // Therefore we can take this opportunity to take note of the Skeleton that is created...
     if (skelAnime != nullptr) {
         auto stringPath = std::string(path);
         // Ship::SkeletonPatcher::RegisterSkeleton(stringPath, skelAnime);
@@ -1546,7 +1650,6 @@ extern "C" void OTRGfxPrint(const char* str, void* printer, void (*printImpl)(vo
     std::wstring wstr = StringToU16(str);
 
     for (const auto& c : wstr) {
-        unsigned char convt = ' ';
         if (c < 0x80) {
             printImpl(printer, c);
         } else if (c >= u'｡' && c <= u'ﾟ') { // katakana
@@ -1633,15 +1736,15 @@ extern "C" void OTRControllerCallback(uint8_t rumble) {
     static std::shared_ptr<BenInputEditorWindow> controllerConfigWindow = nullptr;
     if (controllerConfigWindow == nullptr) {
         controllerConfigWindow = std::dynamic_pointer_cast<BenInputEditorWindow>(
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Input Editor"));
-        // TODO: Add SoH Controller Config window rumble testing to upstream LUS config window
-        //       note: the current implementation may not be desired in LUS, as "true" rumble support
-        //             using osMotor calls is planned: https://github.com/Kenix3/libultraship/issues/9
-        //
-        // } else if (controllerConfigWindow->TestingRumble()) {
-        //     return;
+            Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("2S2H Input Editor"));
+        // note: the current implementation may not be desired in LUS, as "true" rumble support
+        //    using osMotor calls is planned: https://github.com/Kenix3/libultraship/issues/9
+    }
+    if (controllerConfigWindow->TestingRumble()) {
+        return;
     }
 
+    // TODO: other ports?
     if (rumble) {
         Ship::Context::GetInstance()->GetControlDeck()->GetControllerByPort(0)->GetRumble()->StartRumble();
     } else {
@@ -1752,15 +1855,49 @@ extern "C" void AudioPlayer_Play(const uint8_t* buf, uint32_t len) {
 }
 
 extern "C" int Controller_ShouldRumble(size_t slot) {
-    for (auto [id, mapping] : Ship::Context::GetInstance()
-                                  ->GetControlDeck()
-                                  ->GetControllerByPort(static_cast<uint8_t>(slot))
-                                  ->GetRumble()
-                                  ->GetAllRumbleMappings()) {
-        if (mapping->PhysicalDeviceIsConnected()) {
-            return 1;
-        }
+    // don't rumble if we don't have rumble mappings
+    if (Ship::Context::GetInstance()
+            ->GetControlDeck()
+            ->GetControllerByPort(static_cast<uint8_t>(slot))
+            ->GetRumble()
+            ->GetAllRumbleMappings()
+            .empty()) {
+        return 0;
     }
 
-    return 0;
+    // don't rumble if we don't have connected gamepads
+    if (Ship::Context::GetInstance()
+            ->GetControlDeck()
+            ->GetConnectedPhysicalDeviceManager()
+            ->GetConnectedSDLGamepadsForPort(slot)
+            .empty()) {
+        return 0;
+    }
+
+    // rumble
+    return 1;
+}
+
+extern "C" void Messagebox_ShowErrorBox(char* title, char* body) {
+    Extractor::ShowErrorBox(title, body);
+}
+
+// Helper to redirect the user to the boot screen in place of known console crash scenarios, and emits a notification
+extern "C" bool Ship_HandleConsoleCrashAsReset() {
+    // If fix crashes is on, return false and let fallback handling process in source
+    if (CVarGetInteger("gEnhancements.Fixes.ConsoleCrashes", 1)) {
+        return false;
+    }
+
+    std::reinterpret_pointer_cast<Ship::ConsoleWindow>(
+        Ship::Context::GetInstance()->GetWindow()->GetGui()->GetGuiWindow("Console"))
+        ->Dispatch("reset");
+
+    Notification::Emit({
+        .itemIcon = "__OTR__icon_item_24_static_yar/gQuestIconGoldSkulltulaTex",
+        .message = "Crash prevented!",
+        .remainingTime = 10.0f,
+    });
+
+    return true;
 }

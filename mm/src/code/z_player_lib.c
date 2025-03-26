@@ -46,6 +46,7 @@
 
 #include "2s2h/BenPort.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 void PlayerCall_Init(Actor* thisx, PlayState* play);
 void PlayerCall_Destroy(Actor* thisx, PlayState* play);
@@ -1810,10 +1811,10 @@ void Player_DrawImpl(PlayState* play, void** skeleton, Vec3s* jointTable, s32 dL
 
     gfx = POLY_OPA_DISP;
 
-    if (CVarGetInteger("gEnhancements.Fixes.HessCrash", 1)) {
-        if (eyeIndex >= PLAYER_EYES_MAX) {
-            eyeIndex = 0;
-        }
+    // 2S2H [Port] Hess crash fix
+    if (eyeIndex >= PLAYER_EYES_MAX) {
+        Ship_HandleConsoleCrashAsReset();
+        eyeIndex = 0;
     }
 
     if (eyeIndex < 0) {
@@ -1830,10 +1831,10 @@ void Player_DrawImpl(PlayState* play, void** skeleton, Vec3s* jointTable, s32 dL
 
     gSPSegment(&gfx[0], 0x08, Lib_SegmentedToVirtual(sPlayerEyesTextures[playerForm][eyeIndex]));
 
-    if (CVarGetInteger("gEnhancements.Fixes.HessCrash", 1)) {
-        if (mouthIndex >= PLAYER_MOUTH_MAX) {
-            mouthIndex = 0;
-        }
+    // 2S2H [Port] Hess crash fix
+    if (mouthIndex >= PLAYER_MOUTH_MAX) {
+        Ship_HandleConsoleCrashAsReset();
+        mouthIndex = 0;
     }
 
     if (mouthIndex < 0) {
@@ -1953,9 +1954,9 @@ void Player_AdjustSingleLeg(PlayState* play, Player* player, SkelAnime* skelAnim
         temp_f20 = (temp_f20 < 0.0f) ? 0.0f : sqrtf(temp_f20);
 
         sp48 = Math_FAtan2F(temp_f20, sp58);
-        phi_t1 = (M_PI - (Math_FAtan2F(sp54, temp_f20) + ((M_PI / 2.0f) - sp48))) * (0x8000 / M_PI);
+        phi_t1 = (M_PIf - (Math_FAtan2F(sp54, temp_f20) + ((M_PIf / 2.0f) - sp48))) * (0x8000 / M_PIf);
         phi_t1 = -skelAnime->jointTable[shinLimbIndex].z + phi_t1;
-        temp_f8 = (sp48 - sp4C) * (0x8000 / M_PI);
+        temp_f8 = (sp48 - sp4C) * (0x8000 / M_PIf);
 
         if ((s16)(ABS_ALT(skelAnime->jointTable[shinLimbIndex].x) + ABS_ALT(skelAnime->jointTable[shinLimbIndex].y)) <
             0) {
@@ -2421,10 +2422,10 @@ s32 Player_OverrideLimbDrawGameplayDefault(PlayState* play, s32 limbIndex, Gfx**
 
                     if (handIndex != 0) {
                         handIndex = (handIndex >> 8) - 1;
-                        if (CVarGetInteger("gEnhancements.Fixes.HessCrash", 1)) {
-                            if (handIndex >= 2) {
-                                handIndex = 0;
-                            }
+                        // 2S2H [Port] Hess crash fix
+                        if (handIndex >= 2) {
+                            Ship_HandleConsoleCrashAsReset();
+                            handIndex = 0;
                         }
                         rightHandDLists = &D_801C0964[handIndex][D_801F59E0];
                     }
@@ -3186,6 +3187,9 @@ void Player_DrawBunnyHood(PlayState* play) {
 
     OPEN_DISPS(play->state.gfxCtx);
 
+    // Ignoring the players actor mtx allows the bunny hood to render interpolated without issues
+    FrameInterpolation_IgnoreActorMtx();
+
     gSPSegment(POLY_OPA_DISP++, 0x0B, mtx);
 
     Matrix_Push();
@@ -3675,21 +3679,6 @@ void Player_PostLimbDrawGameplay(PlayState* play, s32 limbIndex, Gfx** dList1, G
                     if (func_800B7128(player)) {
                         Matrix_Translate(500.0f, 300.0f, 0.0f, MTXMODE_APPLY);
                         Player_DrawHookshotReticle(play, player, 77600.0f);
-                    }
-                }
-            } else if (CVarGetInteger("gEnhancements.Graphics.BowReticle", 0) &&
-                       ((player->heldItemAction == PLAYER_IA_BOW_FIRE) ||
-                        (player->heldItemAction == PLAYER_IA_BOW_ICE) ||
-                        (player->heldItemAction == PLAYER_IA_BOW_LIGHT) || (player->heldItemAction == PLAYER_IA_BOW))) {
-                if (heldActor != NULL) {
-                    MtxF sp44;
-
-                    Matrix_RotateZYX(0, -15216, -17496, MTXMODE_APPLY);
-                    Matrix_Get(&sp44);
-
-                    if (func_800B7128(player) != 0) {
-                        Matrix_Translate(500.0f, 300.0f, 0.0f, MTXMODE_APPLY);
-                        Player_DrawHookshotReticle(play, player, 776000.0f);
                     }
                 }
             } else if (player->meleeWeaponState != PLAYER_MELEE_WEAPON_STATE_0) {

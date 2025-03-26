@@ -5,6 +5,7 @@
  */
 
 #include "z_en_stone_heishi.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_FRIENDLY | ACTOR_FLAG_REACT_TO_LENS)
 
@@ -356,7 +357,9 @@ void EnStoneheishi_DrinkBottleProcess(EnStoneheishi* this, PlayState* play) {
 
         case EN_STONE_DRINK_BOTTLE_STAND_UP:
             if (this->endFrame <= currentFrame) {
-                Audio_PlayFanfare(NA_BGM_GET_ITEM | 0x900);
+                // BENTODO This had | 0x900 which interfered with the 16 bit sequence IDs. Removing it doesn't seem to
+                // anything bad.
+                Audio_PlayFanfare(NA_BGM_GET_ITEM);
                 this->bottleDisplay = EN_STONE_BOTTLE_NONE;
                 EnStoneheishi_ChangeAnim(this, EN_STONE_HEISHI_ANIM_STAND_UP);
                 this->drinkBottleState++;
@@ -385,8 +388,10 @@ void EnStoneheishi_GiveItemReward(EnStoneheishi* this, PlayState* play) {
         Actor_OfferGetItem(&this->actor, play, GI_MASK_STONE, 300.0f, 300.0f);
     }
 
-    this->action = EN_STONE_ACTION_4;
-    this->actionFunc = func_80BC9D28;
+    if (GameInteractor_Should(VB_STONE_HEISHI_SET_ACTION, true)) {
+        this->action = EN_STONE_ACTION_4;
+        this->actionFunc = func_80BC9D28;
+    }
 }
 
 void func_80BC9D28(EnStoneheishi* this, PlayState* play) {

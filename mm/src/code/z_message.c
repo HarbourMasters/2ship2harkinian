@@ -7,6 +7,7 @@
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "BenPort.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
+#include "2s2h/CustomMessage/CustomMessage.h"
 #include "assets/archives/schedule_dma_static/schedule_dma_static_yar.h"
 #include "assets/archives/icon_item_static/icon_item_static_yar.h"
 #include "assets/archives/icon_item_24_static/icon_item_24_static_yar.h"
@@ -3498,7 +3499,8 @@ void Message_OpenText(PlayState* play, u16 textId) {
     Player* player = GET_PLAYER(play);
     f32 var_fv0;
 
-    GameInteractor_ExecuteOnOpenText(textId);
+    bool loadFromMessageTable = true;
+    GameInteractor_ExecuteOnOpenText(&textId, &loadFromMessageTable);
 
     // BENTODO do this somewhere else
     gSaveContext.options.language = ResourceMgr_GetGameDefaultLanguage(0);
@@ -3576,7 +3578,9 @@ void Message_OpenText(PlayState* play, u16 textId) {
     sCharTexScale = 1024.0f / msgCtx->textCharScale;
     D_801F6B08 = 1024.0f / var_fv0;
     // BENTODO all of these
-    if (msgCtx->textIsCredits) {
+    if (!loadFromMessageTable) {
+        // no-op
+    } else if (msgCtx->textIsCredits) {
         Message_FindCreditsMessage(play, textId);
         MessageTableEntry* msgEntry = (MessageTableEntry*)font->messageStart;
         msgCtx->msgLength = msgEntry->msgSize;
@@ -4786,7 +4790,10 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
                     if ((msgCtx->ocarinaAction == OCARINA_ACTION_PROMPT_EVAN_PART1_SECOND_HALF) ||
                         (msgCtx->ocarinaAction == OCARINA_ACTION_PROMPT_EVAN_PART2_SECOND_HALF)) {
                         AudioOcarina_StartForSongCheck(
-                            (1 << (OCARINA_ACTION_PROMPT_SONATA + msgCtx->ocarinaAction)) | 0x80000000, 4);
+                            (1 << ((msgCtx->ocarinaAction - OCARINA_ACTION_PROMPT_EVAN_PART1_SECOND_HALF) +
+                                   OCARINA_SONG_EVAN_PART1)) |
+                                0x80000000,
+                            4);
                         msgCtx->msgMode = MSGMODE_SONG_PROMPT;
                     } else {
                         if ((msgCtx->ocarinaAction >= OCARINA_ACTION_PROMPT_WIND_FISH_HUMAN) &&
@@ -4831,8 +4838,15 @@ void Message_DrawMain(PlayState* play, Gfx** gfxP) {
                 bool vanillaOwnedSongCheck = (msgCtx->ocarinaStaff->state == OCARINA_SONG_SCARECROW_SPAWN) ||
                                              (msgCtx->ocarinaStaff->state == OCARINA_SONG_INVERTED_TIME) ||
                                              (msgCtx->ocarinaStaff->state == OCARINA_SONG_DOUBLE_TIME) ||
-                                             (msgCtx->ocarinaStaff->state == OCARINA_SONG_GORON_LULLABY_INTRO) ||
-                                             CHECK_QUEST_ITEM(QUEST_SONG_SONATA + msgCtx->ocarinaStaff->state);
+                                             (msgCtx->ocarinaStaff->state == OCARINA_SONG_GORON_LULLABY_INTRO);
+                // 0xFE means the staff is up but nothing has been played
+                // 0xFF means no staff is up
+                //! @bug states 0xFE and 0xFF will index CHECK_QUEST_ITEM Out of bounds, causing ASAN to crash.
+                // 2S2H [Port] Fix this OOB with a check.
+                if (msgCtx->ocarinaStaff->state != 0xFE && msgCtx->ocarinaStaff->state != 0xFF) {
+                    vanillaOwnedSongCheck =
+                        vanillaOwnedSongCheck || CHECK_QUEST_ITEM(QUEST_SONG_SONATA + msgCtx->ocarinaStaff->state);
+                }
 
                 if (msgCtx->ocarinaStaff->state <= OCARINA_SONG_SCARECROW_SPAWN) {
                     if (msgCtx->ocarinaStaff->state == OCARINA_SONG_EVAN_PART1) {
@@ -6291,13 +6305,16 @@ void Message_Update(PlayState* play) {
                     }
                 } else if (sLastPlayedSong == OCARINA_SONG_DOUBLE_TIME) {
                     if (interfaceCtx->restrictions.songOfDoubleTime == 0) {
-                        if ((CURRENT_DAY != 3) || (gSaveContext.save.isNight == 0)) {
-                            if (gSaveContext.save.isNight) {
-                                Message_StartTextbox(play, D_801D0464[CURRENT_DAY - 1], NULL);
-                            } else {
-                                Message_StartTextbox(play, D_801D045C[CURRENT_DAY - 1], NULL);
+                        if (GameInteractor_Should(VB_ALLOW_SONG_DOUBLE_TIME_ON_FINAL_NIGHT,
+                                                  (CURRENT_DAY != 3) || (gSaveContext.save.isNight == 0))) {
+                            if (GameInteractor_Should(VB_DISPLAY_SONG_OF_DOUBLE_TIME_PROMPT, true)) {
+                                if (gSaveContext.save.isNight) {
+                                    Message_StartTextbox(play, D_801D0464[CURRENT_DAY - 1], NULL);
+                                } else {
+                                    Message_StartTextbox(play, D_801D045C[CURRENT_DAY - 1], NULL);
+                                }
+                                play->msgCtx.ocarinaMode = OCARINA_MODE_PROCESS_DOUBLE_TIME;
                             }
-                            play->msgCtx.ocarinaMode = OCARINA_MODE_PROCESS_DOUBLE_TIME;
                         } else {
                             Message_StartTextbox(play, 0x1B94, NULL);
                             play->msgCtx.ocarinaMode = OCARINA_MODE_END;
@@ -6418,8 +6435,9 @@ void Message_Update(PlayState* play) {
             gSaveContext.save.cutsceneIndex = sp44;
 
             if (gSaveContext.fileNum != 0xFF) {
-                Sram_SetFlashPagesDefault(&play->sramCtx, gFlashSaveStartPages[gSaveContext.fileNum * 2],
-                                          gFlashSpecialSaveNumPages[gSaveContext.fileNum * 2]);
+                Sram_SetFlashPagesDefault(&play->sramCtx,
+                                          gFlashSaveStartPages[gSaveContext.fileNum * FLASH_SAVE_MAIN_MULTIPLIER],
+                                          gFlashSpecialSaveNumPages[gSaveContext.fileNum * FLASH_SAVE_MAIN_MULTIPLIER]);
                 Sram_StartWriteToFlashDefault(&play->sramCtx);
             }
             msgCtx->msgMode = MSGMODE_NEW_CYCLE_1;
@@ -6445,8 +6463,9 @@ void Message_Update(PlayState* play) {
             func_8014546C(&play->sramCtx);
 
             if (gSaveContext.fileNum != 0xFF) {
-                Sram_SetFlashPagesOwlSave(&play->sramCtx, gFlashOwlSaveStartPages[gSaveContext.fileNum * 2],
-                                          gFlashOwlSaveNumPages[gSaveContext.fileNum * 2]);
+                Sram_SetFlashPagesOwlSave(&play->sramCtx,
+                                          gFlashOwlSaveStartPages[gSaveContext.fileNum * FLASH_SAVE_MAIN_MULTIPLIER],
+                                          gFlashOwlSaveNumPages[gSaveContext.fileNum * FLASH_SAVE_MAIN_MULTIPLIER]);
                 Sram_StartWriteToFlashOwlSave(&play->sramCtx);
             }
             msgCtx->msgMode = MSGMODE_OWL_SAVE_1;

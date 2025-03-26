@@ -9,6 +9,7 @@
 #include "objects/object_fz/object_fz.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_10)
 
@@ -871,8 +872,11 @@ void EnFz_Draw(Actor* thisx, PlayState* play) {
         bodyPartsPos[1] = this->actor.world.pos;
         bodyPartsPos[0].y += 20.0f;
         bodyPartsPos[1].y += 40.0f;
-        Actor_DrawDamageEffects(play, NULL, bodyPartsPos, ARRAY_COUNT(bodyPartsPos), this->drawDmgEffScale * 4.0f, 0.5f,
-                                this->drawDmgEffAlpha, ACTOR_DRAW_DMGEFF_LIGHT_ORBS);
+        if (GameInteractor_Should(VB_USE_NULL_FOR_DRAW_DAMAGE_EFFECTS, true, this, bodyPartsPos,
+                                  ARRAY_COUNT(bodyPartsPos))) {
+            Actor_DrawDamageEffects(play, NULL, bodyPartsPos, ARRAY_COUNT(bodyPartsPos), this->drawDmgEffScale * 4.0f,
+                                    0.5f, this->drawDmgEffAlpha, ACTOR_DRAW_DMGEFF_LIGHT_ORBS);
+        }
     }
 
     CLOSE_DISPS(play->state.gfxCtx);

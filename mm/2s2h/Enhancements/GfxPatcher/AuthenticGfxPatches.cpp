@@ -6,11 +6,14 @@ extern "C" {
 #include "objects/gameplay_keep/gameplay_keep.h"
 #include "objects/object_fz/object_fz.h"
 #include "objects/object_ik/object_ik.h"
+#include "objects/object_gi_mask03/object_gi_mask03.h"
 #include "overlays/ovl_En_Syateki_Okuta/ovl_En_Syateki_Okuta.h"
+#include "overlays/ovl_fbdemo_wipe1/ovl_fbdemo_wipe1.h"
 #include "overlays/ovl_Obj_Jgame_Light/ovl_Obj_Jgame_Light.h"
 
 void ResourceMgr_PatchGfxByName(const char* path, const char* patchName, int index, Gfx instruction);
 void ResourceMgr_UnpatchGfxByName(const char* path, const char* patchName);
+char* ResourceMgr_LoadTexOrDListByName(const char* path);
 Gfx* ResourceMgr_LoadGfxByName(const char* path);
 }
 
@@ -265,9 +268,83 @@ void PatchMiniGameCrossAndCircleSymbols() {
     }
 }
 
+void PatchKnifeChamberRoomGeometry() {
+    if (CVarGetInteger("gEnhancements.Graphics.DisableSceneGeometryDistanceCheck", 0)) {
+        ResourceMgr_PatchGfxByName("scenes/nonmq/Z2_YADOYA/Z2_YADOYA_room_00DL_012280", "disableDistanceCheck1", 5,
+                                   gsSPNoOp());
+        ResourceMgr_PatchGfxByName("scenes/nonmq/Z2_YADOYA/Z2_YADOYA_room_00DL_012280", "disableDistanceCheck2", 6,
+                                   gsSPNoOp());
+    } else {
+        ResourceMgr_UnpatchGfxByName("scenes/nonmq/Z2_YADOYA/Z2_YADOYA_room_00DL_012280", "disableDistanceCheck1");
+        ResourceMgr_UnpatchGfxByName("scenes/nonmq/Z2_YADOYA/Z2_YADOYA_room_00DL_012280", "disableDistanceCheck2");
+    }
+}
+
+void PatchClockTownBuildingGeometry() {
+    if (CVarGetInteger("gEnhancements.Graphics.DisableSceneGeometryDistanceCheck", 0)) {
+        ResourceMgr_PatchGfxByName("scenes/nonmq/Z2_00KEIKOKU/Z2_00KEIKOKU_room_00DL_00D490", "disableDistanceCheck1",
+                                   5, gsSPNoOp());
+        ResourceMgr_PatchGfxByName("scenes/nonmq/Z2_00KEIKOKU/Z2_00KEIKOKU_room_00DL_00D490", "disableDistanceCheck2",
+                                   6, gsSPNoOp());
+        ResourceMgr_PatchGfxByName("scenes/nonmq/Z2_00KEIKOKU/Z2_00KEIKOKU_room_00DL_00CD70", "disableDistanceCheck1",
+                                   5, gsSPNoOp());
+        ResourceMgr_PatchGfxByName("scenes/nonmq/Z2_00KEIKOKU/Z2_00KEIKOKU_room_00DL_00CD70", "disableDistanceCheck2",
+                                   6, gsSPNoOp());
+        ResourceMgr_PatchGfxByName("scenes/nonmq/Z2_00KEIKOKU/Z2_00KEIKOKU_room_00DL_00D9C8", "disableDistanceCheck1",
+                                   5, gsSPNoOp());
+        ResourceMgr_PatchGfxByName("scenes/nonmq/Z2_00KEIKOKU/Z2_00KEIKOKU_room_00DL_00D9C8", "disableDistanceCheck2",
+                                   6, gsSPNoOp());
+    } else {
+        ResourceMgr_UnpatchGfxByName("scenes/nonmq/Z2_00KEIKOKU/Z2_00KEIKOKU_room_00DL_00D490",
+                                     "disableDistanceCheck1");
+        ResourceMgr_UnpatchGfxByName("scenes/nonmq/Z2_00KEIKOKU/Z2_00KEIKOKU_room_00DL_00D490",
+                                     "disableDistanceCheck2");
+        ResourceMgr_UnpatchGfxByName("scenes/nonmq/Z2_00KEIKOKU/Z2_00KEIKOKU_room_00DL_00CD70",
+                                     "disableDistanceCheck1");
+        ResourceMgr_UnpatchGfxByName("scenes/nonmq/Z2_00KEIKOKU/Z2_00KEIKOKU_room_00DL_00CD70",
+                                     "disableDistanceCheck2");
+        ResourceMgr_UnpatchGfxByName("scenes/nonmq/Z2_00KEIKOKU/Z2_00KEIKOKU_room_00DL_00D9C8",
+                                     "disableDistanceCheck1");
+        ResourceMgr_UnpatchGfxByName("scenes/nonmq/Z2_00KEIKOKU/Z2_00KEIKOKU_room_00DL_00D9C8",
+                                     "disableDistanceCheck2");
+    }
+}
+
+void GfxPatcher_ApplyGeometryIssuePatches() {
+    PatchKnifeChamberRoomGeometry();
+    PatchClockTownBuildingGeometry();
+}
+
+void GfxPatcher_ApplyTransitionWipePatch() {
+    // Removing G_ZBUFFER as gsDPSetPrimDepth is unimplemented in LUS.
+    // This should have the same effect of using a depth test value of 0, and allows it to render over everything.
+    // LUSTODO: Remove patch once gsDPSetPrimDepth is implemented properly.
+    ResourceMgr_PatchGfxByName(sTransWipe1DL, "zbufferRemoval", 4, gsSPSetGeometryMode(G_SHADE | G_SHADING_SMOOTH));
+}
+
+void GfxPatcher_ApplyFierceDeityGIPatch() {
+    static char* grassTexture = ResourceMgr_LoadTexOrDListByName("scenes/nonmq/Z2_SOUGEN/Z2_SOUGENTex_0063D0");
+    static Gfx loadGrassDL[] = {
+        gsDPPipeSync(),
+        gsDPLoadMultiBlock(grassTexture, 0x0080, 1, G_IM_FMT_RGBA, G_IM_SIZ_16b, 32, 32, 0, G_TX_NOMIRROR | G_TX_WRAP,
+                           G_TX_NOMIRROR | G_TX_WRAP, 5, 5, G_TX_NOLOD, 15),
+        gsSPEndDisplayList(),
+    };
+    // The original DL uses TEXEL1 here, but doesn't actually load anything there. This happens to be a grass texture on
+    // the moon where this item would normally be drawn. We could patch the TEXEL1 to be TEXEL0 as an alternative "fix",
+    // but we're just opting to instead load the grass texture as it would have on the moon.
+    ResourceMgr_PatchGfxByName(gGiFierceDeityMaskHairAndHatDL, "TEXEL1Fix", 3, gsSPDisplayList(loadGrassDL));
+}
+
 // Applies required patches for authentic bugs to allow the game to play and render properly
 void GfxPatcher_ApplyNecessaryAuthenticPatches() {
     PatchMiniGameCrossAndCircleSymbols();
 
     GfxPatcher_ApplyOverflowTexturePatches();
+
+    GfxPatcher_ApplyGeometryIssuePatches();
+
+    GfxPatcher_ApplyTransitionWipePatch();
+
+    GfxPatcher_ApplyFierceDeityGIPatch();
 }

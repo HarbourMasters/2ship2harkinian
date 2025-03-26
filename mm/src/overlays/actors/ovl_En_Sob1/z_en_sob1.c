@@ -17,6 +17,7 @@
 void EnSob1_Init(Actor* thisx, PlayState* play);
 void EnSob1_Destroy(Actor* thisx, PlayState* play);
 void EnSob1_Update(Actor* thisx, PlayState* play);
+void EnSob1_Reset(void);
 
 void EnSob1_ZoraShopkeeper_Draw(Actor* thisx, PlayState* play);
 void EnSob1_GoronShopkeeper_Draw(Actor* thisx, PlayState* play);
@@ -75,6 +76,7 @@ ActorInit En_Sob1_InitVars = {
     /**/ EnSob1_Destroy,
     /**/ EnSob1_Update,
     /**/ NULL,
+    /**/ EnSob1_Reset,
 };
 
 static s16 sObjectIds[][3] = {
@@ -1657,7 +1659,9 @@ void EnSob1_BombShopkeeper_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dL
     OPEN_DISPS(play->state.gfxCtx);
 
     if (limbIndex == BOMB_SHOPKEEPER_LIMB_LEFT_HAND) {
-        gSPDisplayList(POLY_OPA_DISP++, gBombShopkeeperBombDL);
+        if (GameInteractor_Should(VB_DRAW_ITEM_FROM_SOB1, true, thisx)) {
+            gSPDisplayList(POLY_OPA_DISP++, gBombShopkeeperBombDL);
+        }
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -1750,4 +1754,8 @@ void EnSob1_BombShopkeeper_Draw(Actor* thisx, PlayState* play) {
     gDPSetEnvColor(POLY_XLU_DISP++, 255, 0, 0, 0);
 
     CLOSE_DISPS(play->state.gfxCtx);
+}
+
+void EnSob1_Reset(void) {
+    sShops[BOMB_SHOP][0].shopItemId = SI_BOMB_BAG_20_2;
 }

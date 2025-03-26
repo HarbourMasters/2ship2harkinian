@@ -5,6 +5,7 @@
  */
 
 #include "z_en_si.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_200)
 
@@ -103,10 +104,17 @@ void EnSi_GiveToken(EnSi* this, PlayState* play) {
     if ((chestFlag < 0x20) && (chestFlag >= 0)) {
         Flags_SetTreasure(play, chestFlag);
     }
+
+    if (!GameInteractor_Should(VB_GIVE_ITEM_FROM_SI, true, this)) {
+        return;
+    }
+
     Item_Give(play, ITEM_SKULL_TOKEN);
     if (Inventory_GetSkullTokenCount(play->sceneId) >= SPIDER_HOUSE_TOKENS_REQUIRED) {
         Message_StartTextbox(play, 0xFC, NULL); // You collected all tokens, curse lifted
-        Audio_PlayFanfare(NA_BGM_GET_ITEM | 0x900);
+        // BENTODO This had | 0x900 which interfered with the 16 bit sequence IDs. Removing it doesn't seem to
+        // anything bad.
+        Audio_PlayFanfare(NA_BGM_GET_ITEM);
     } else {
         Message_StartTextbox(play, 0x52, NULL); // You got one more gold token, your [count] one!
         Audio_PlayFanfare(NA_BGM_GET_SMALL_ITEM);

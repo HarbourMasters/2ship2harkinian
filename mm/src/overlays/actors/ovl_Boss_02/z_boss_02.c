@@ -11,6 +11,7 @@
 #include "overlays/actors/ovl_En_Tanron5/z_en_tanron5.h"
 #include "overlays/actors/ovl_Item_B_Heart/z_item_b_heart.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
+
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
 
@@ -533,6 +534,7 @@ void Boss02_SpawnEffectSand(TwinmoldEffect* effects, Vec3f* pos, f32 scale) {
             effects->timer = 0;
             effects->targetScale = 2.0f * scale;
             effects->accel.x = effects->accel.z = 0.0f;
+            effects->epoch++;
             break;
         }
     }
@@ -555,6 +557,7 @@ void Boss02_SpawnEffectFragment(TwinmoldEffect* effects, Vec3f* pos) {
             effects->scale = Rand_ZeroFloat(0.04f) + 0.02f;
             effects->rotY = Rand_ZeroFloat(32767.0f);
             effects->rotX = Rand_ZeroFloat(32767.0f);
+            effects->epoch++;
             break;
         }
     }
@@ -571,6 +574,7 @@ void Boss02_SpawnEffectFlash(TwinmoldEffect* effects, Vec3f* pos) {
             Math_Vec3f_Copy(&effects->accel, &gZeroVec3f);
             effects->alpha = 255;
             effects->scale = 0.0f;
+            effects->epoch++;
             break;
         }
     }
@@ -1034,7 +1038,7 @@ void func_809DAB78(Boss02* this, PlayState* play) {
 
             Math_Vec3f_Copy(&this->unk_01BC[i], &this->actor.world.pos);
             this->unk_0B1C[i].y += this->unk_0164;
-            Math_ApproachF(&this->unk_0B1C[i].x, -(M_PI / 2), 0.1f, 0.07f);
+            Math_ApproachF(&this->unk_0B1C[i].x, -(M_PIf / 2), 0.1f, 0.07f);
             Actor_MoveWithGravity(&this->actor);
             Actor_UpdateBgCheckInfo(play, &this->actor, 50.0f, 150.0f, 100.0f, UPDBGCHECKINFO_FLAG_4);
 
@@ -1061,13 +1065,13 @@ void func_809DAB78(Boss02* this, PlayState* play) {
         case 23:
             i = (this->unk_014E + 196) % ARRAY_COUNT(this->unk_01BC);
             Math_Vec3f_Copy(&this->unk_01BC[i], &this->actor.world.pos);
-            Math_ApproachF(&this->unk_0B1C[i].x, -(M_PI / 2), 0.05f, 0.07f);
+            Math_ApproachF(&this->unk_0B1C[i].x, -(M_PIf / 2), 0.05f, 0.07f);
 
             if (this->unk_0146[0] & 1) {
-                sp9C = Rand_ZeroFloat(M_PI);
+                sp9C = Rand_ZeroFloat(M_PIf);
 
                 for (i = 0; i < 15; i++) {
-                    Matrix_RotateYF(((2.0f * (i * M_PI)) / 15.0f) + sp9C, MTXMODE_NEW);
+                    Matrix_RotateYF(((2.0f * (i * M_PIf)) / 15.0f) + sp9C, MTXMODE_NEW);
                     Matrix_MultVecZ((10 - this->unk_0146[0]) * (sGiantModeScaleFactor * 300.0f) * 0.1f, &sp90);
                     spD0.x = this->unk_0170.x + sp90.x;
                     spD0.y = this->unk_0170.y + (1000.0f * sGiantModeScaleFactor);
@@ -1408,7 +1412,7 @@ void Boss02_Twinmold_Draw(Actor* thisx, PlayState* play2) {
         sp98 = 3100.0f;
     }
 
-    sp9C = this->unk_0152 * (M_PI / 4) * (1.0f / 15);
+    sp9C = this->unk_0152 * (M_PIf / 4) * (1.0f / 15);
     if (this->unk_0144 < 20) {
         spAC = Math_SinS(this->unk_014C * 0x2200) * sp9C * 0.5f;
         spA8 = Math_CosS(this->unk_014C * 0x3200) * sp9C;
@@ -1454,8 +1458,8 @@ void Boss02_Twinmold_Draw(Actor* thisx, PlayState* play2) {
         Matrix_RotateXFApply(spA4 - this->unk_0B1C[phi_v0].x);
         Matrix_RotateZF(this->unk_0B1C[phi_v0].z, MTXMODE_APPLY);
         Matrix_Scale(this->actor.scale.x, this->actor.scale.y, this->actor.scale.z, MTXMODE_APPLY);
-        Matrix_RotateYF(M_PI / 2, MTXMODE_APPLY);
-        Matrix_RotateXFApply(-(M_PI / 2));
+        Matrix_RotateYF(M_PIf / 2, MTXMODE_APPLY);
+        Matrix_RotateXFApply(-(M_PIf / 2));
         Matrix_ToMtx(mtx);
 
         gSPMatrix(POLY_OPA_DISP++, mtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
@@ -1569,7 +1573,9 @@ void Boss02_DrawEffects(PlayState* play) {
 
     for (i = 0; i < TWINMOLD_EFFECT_COUNT; i++, effect++) {
         if (effect->type == TWINMOLD_EFFECT_SAND) {
-            FrameInterpolation_RecordOpenChild(effect, i);
+            // Here and below, key by effect type merged with epoch
+            FrameInterpolation_RecordOpenChild(effect, (effect->epoch << 4) | effect->type);
+            FrameInterpolation_IgnoreActorMtx();
             if (!flag) {
                 gSPDisplayList(POLY_XLU_DISP++, gTwinmoldDustMaterialDL);
                 gDPSetEnvColor(POLY_XLU_DISP++, 185, 140, 70, 128);
@@ -1600,7 +1606,8 @@ void Boss02_DrawEffects(PlayState* play) {
     effect = (TwinmoldEffect*)play->specialEffects;
     for (i = 0, flag = false; i < TWINMOLD_EFFECT_COUNT; i++, effect++) {
         if (effect->type == TWINMOLD_EFFECT_FRAGMENT) {
-            FrameInterpolation_RecordOpenChild(effect, i);
+            FrameInterpolation_RecordOpenChild(effect, (effect->epoch << 4) | effect->type);
+            FrameInterpolation_IgnoreActorMtx();
             if (!flag) {
                 gDPSetCombineLERP(POLY_OPA_DISP++, SHADE, 0, PRIMITIVE, 0, SHADE, 0, PRIMITIVE, 0, SHADE, 0, PRIMITIVE,
                                   0, SHADE, 0, PRIMITIVE, 0);
@@ -1623,7 +1630,8 @@ void Boss02_DrawEffects(PlayState* play) {
     effect = (TwinmoldEffect*)play->specialEffects;
     for (i = 0, flag = false; i < TWINMOLD_EFFECT_COUNT; i++, effect++) {
         if (effect->type == TWINMOLD_EFFECT_FLASH) {
-            FrameInterpolation_RecordOpenChild(effect, i);
+            FrameInterpolation_RecordOpenChild(effect, (effect->epoch << 4) | effect->type);
+            FrameInterpolation_IgnoreActorMtx();
             if (!flag) { //! @bug - dev forgot to set flag to 1, should only apply to first entry?
                 gSPDisplayList(POLY_XLU_DISP++, gLightOrbMaterial1DL);
                 gDPSetEnvColor(POLY_XLU_DISP++, 255, 0, 0, 128);
@@ -1645,7 +1653,8 @@ void Boss02_DrawEffects(PlayState* play) {
     effect = (TwinmoldEffect*)play->specialEffects;
     for (i = 0, flag = false; i < TWINMOLD_EFFECT_COUNT; i++, effect++) {
         if (effect->type == TWINMOLD_EFFECT_BLACK_DUST) {
-            FrameInterpolation_RecordOpenChild(effect, i);
+            FrameInterpolation_RecordOpenChild(effect, (effect->epoch << 4) | effect->type);
+            FrameInterpolation_IgnoreActorMtx();
             if (!flag) {
                 gSPDisplayList(POLY_XLU_DISP++, gTwinmoldDustMaterialDL);
                 gDPSetEnvColor(POLY_XLU_DISP++, 30, 30, 30, 128);
@@ -2349,8 +2358,10 @@ void Boss02_Reset(void) {
     sTwinmoldStatic = NULL;
     sTwinmoldMusicStartTimer = 0;
     sBlueWarp = NULL;
+    sGiantModeScaleFactor = 1.0f;
 
     for (int i = 0; i < TWINMOLD_EFFECT_COUNT; i++) {
         sTwinmoldEffects[i].type = TWINMOLD_EFFECT_NONE;
+        sTwinmoldEffects[i].epoch = 0;
     }
 }

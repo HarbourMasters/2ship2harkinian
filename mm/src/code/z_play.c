@@ -638,13 +638,13 @@ void Play_UpdateTransition(PlayState* this) {
                     (!Environment_IsFinalHours(this) || (Entrance_GetSceneId(this->nextEntrance + sceneLayer) < 0) ||
                      (AudioSeq_GetActiveSeqId(SEQ_PLAYER_BGM_MAIN) != NA_BGM_FINAL_HOURS))) {
                     Audio_MuteAllSeqExceptSystemAndOcarina(20);
-                    gSaveContext.seqId = (u8)NA_BGM_DISABLED;
+                    gSaveContext.seqId = NA_BGM_DISABLED;
                     gSaveContext.ambienceId = AMBIENCE_ID_DISABLED;
                 }
 
                 if (Environment_IsForcedSequenceDisabled()) {
                     Audio_MuteAllSeqExceptSystemAndOcarina(20);
-                    gSaveContext.seqId = (u8)NA_BGM_DISABLED;
+                    gSaveContext.seqId = NA_BGM_DISABLED;
                     gSaveContext.ambienceId = AMBIENCE_ID_DISABLED;
                 }
 
@@ -1193,16 +1193,17 @@ void Play_DrawMain(PlayState* this) {
     // Track render size when paused and that a copy was performed
     static u32 lastPauseWidth;
     static u32 lastPauseHeight;
-    static u8 hasCapturedPauseBuffer;
+    static bool lastAltAssets;
+    static bool hasCapturedPauseBuffer;
     u8 recapturePauseBuffer = false;
 
-    // If the size has changed or dropped frames leading to the buffer not being copied,
+    // If the size has changed, alt assets toggled or dropped frames leading to the buffer not being copied,
     // set the prerender state back to setup to copy a new frame.
-    // This requires not rendering kaleido during this copy to avoid kaleido being copied
+    // This requires not rendering kaleido during this copy to avoid kaleido itself being copied too.
     if ((R_PAUSE_BG_PRERENDER_STATE == PAUSE_BG_PRERENDER_PROCESS ||
          R_PAUSE_BG_PRERENDER_STATE == PAUSE_BG_PRERENDER_READY) &&
         (lastPauseWidth != OTRGetGameRenderWidth() || lastPauseHeight != OTRGetGameRenderHeight() ||
-         !hasCapturedPauseBuffer || sJustClosedBomberNotebook)) {
+         lastAltAssets != ResourceMgr_IsAltAssetsEnabled() || !hasCapturedPauseBuffer || sJustClosedBomberNotebook)) {
         R_PAUSE_BG_PRERENDER_STATE = PAUSE_BG_PRERENDER_SETUP;
         recapturePauseBuffer = true;
     }
@@ -1496,6 +1497,7 @@ void Play_DrawMain(PlayState* this) {
                     // #region 2S2H [Port] Custom handling for pause prerender background capture
                     lastPauseWidth = OTRGetGameRenderWidth();
                     lastPauseHeight = OTRGetGameRenderHeight();
+                    lastAltAssets = ResourceMgr_IsAltAssetsEnabled();
                     hasCapturedPauseBuffer = false;
 
                     FB_CopyToFramebuffer(&sp74, 0, gPauseFrameBuffer, false, &hasCapturedPauseBuffer);
@@ -2295,7 +2297,8 @@ void Play_Init(GameState* thisx) {
         }
 
         // "First cycle" Termina Field
-        if (INV_CONTENT(ITEM_OCARINA_OF_TIME) != ITEM_OCARINA_OF_TIME) {
+        if (GameInteractor_Should(VB_TERMINA_FIELD_BE_EMPTY,
+                                  INV_CONTENT(ITEM_OCARINA_OF_TIME) != ITEM_OCARINA_OF_TIME)) {
             if ((scene == ENTR_SCENE_TERMINA_FIELD) &&
                 (((void)0, gSaveContext.save.entrance) != ENTRANCE(TERMINA_FIELD, 10))) {
                 gSaveContext.nextCutsceneIndex = 0xFFF4;

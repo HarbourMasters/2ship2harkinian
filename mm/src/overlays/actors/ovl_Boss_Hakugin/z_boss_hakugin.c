@@ -13,6 +13,7 @@
 #include "overlays/actors/ovl_Item_B_Heart/z_item_b_heart.h"
 #include "overlays/effects/ovl_Effect_Ss_Fhg_Flash/z_eff_ss_fhg_flash.h"
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #include "objects/gameplay_keep/gameplay_keep.h"
 
@@ -575,14 +576,14 @@ void func_80B057A4(Vec3f* arg0, Vec3f* arg1, f32 arg2) {
     } else if (temp_fa0 >= 1.0f) {
         var_fv1 = 0.0f;
     } else {
-        var_fv1 = M_PI;
+        var_fv1 = M_PIf;
     }
 
     if (var_fv1 < arg2) {
         arg2 = var_fv1;
     }
 
-    if (!(arg2 < (M_PI / 180.0f))) {
+    if (!(arg2 < (M_PIf / 180.0f))) {
         Math3D_Vec3f_Cross(arg0, arg1, &sp34);
         if (func_80B0573C(&sp34)) {
             Matrix_RotateAxisF(arg2, &sp34, MTXMODE_NEW);
@@ -1286,7 +1287,9 @@ void func_80B0813C(BossHakugin* this, PlayState* play) {
         DECR(this->unk_019C);
     }
 
-    if ((this->unk_0964.base.acFlags & AC_HIT) && (this->unk_0964.info.acHitInfo->toucher.dmgFlags == DMG_FIRE_ARROW)) {
+    if (GameInteractor_Should(VB_GOHT_UNFREEZE,
+                              (this->unk_0964.base.acFlags & AC_HIT) &&
+                                  (this->unk_0964.info.acHitInfo->toucher.dmgFlags == DMG_FIRE_ARROW))) {
         this->unk_0964.base.atFlags &= ~AT_HIT;
         this->unk_0964.base.acFlags &= ~AC_HIT;
         this->unk_0964.base.ocFlags1 &= ~OC1_HIT;
@@ -1972,7 +1975,7 @@ void func_80B0A2A4(BossHakugin* this, PlayState* play) {
     Math_SmoothStepToS(&this->actor.home.rot.y, this->unk_01A0, 5, 0x800, 0x100);
     this->unk_019C--;
     this->actor.shape.rot.y =
-        (s32)(Math_SinF(this->unk_019C * (M_PI / 18.0f)) * this->unk_01A2) + this->actor.home.rot.y;
+        (s32)(Math_SinF(this->unk_019C * (M_PIf / 18.0f)) * this->unk_01A2) + this->actor.home.rot.y;
 
     if (this->unk_019C == 0) {
         if (this->unk_01A2 > 0) {
@@ -1984,9 +1987,9 @@ void func_80B0A2A4(BossHakugin* this, PlayState* play) {
         this->unk_01AE = Rand_ZeroFloat(6144.0f);
     }
 
-    this->unk_0374.z = (8192.0f * Math_SinS(this->unk_01AE)) * Math_SinF(this->unk_019C * (M_PI / 9));
-    this->unk_0374.y = (8192.0f * Math_CosS(this->unk_01AE)) * Math_SinF(this->unk_019C * (M_PI / 9));
-    this->actor.shape.rot.z = Math_SinF(this->unk_019C * (M_PI / 18)) * -(this->unk_01A2 * 0.3f);
+    this->unk_0374.z = (8192.0f * Math_SinS(this->unk_01AE)) * Math_SinF(this->unk_019C * (M_PIf / 9));
+    this->unk_0374.y = (8192.0f * Math_CosS(this->unk_01AE)) * Math_SinF(this->unk_019C * (M_PIf / 9));
+    this->actor.shape.rot.z = Math_SinF(this->unk_019C * (M_PIf / 18)) * -(this->unk_01A2 * 0.3f);
     this->actor.world.rot.y = this->actor.shape.rot.y;
     at.x = (Math_SinS(this->actor.shape.rot.y) * 100.0f) + this->actor.world.pos.x;
     at.y = this->actor.world.pos.y + 200.0f;
@@ -2389,8 +2392,8 @@ void func_80B0B660(BossHakugin* this, PlayState* play) {
         }
     } else if (this->unk_0192 == 3) {
         sp60 = BINANG_TO_RAD(Math3D_Vec3fDistSq(sp6C, &spA4->actor.world.pos) * (1.0f / SQ(120.0f)) * 32.0f);
-        if (sp60 > M_PI / 4.0f) {
-            sp60 = M_PI / 4.0f;
+        if (sp60 > M_PIf / 4.0f) {
+            sp60 = M_PIf / 4.0f;
         }
         Math_Vec3f_Diff(&spA4->actor.world.pos, sp6C, &sp70);
         if (func_80B0573C(&sp70)) {
@@ -2653,27 +2656,27 @@ void func_80B0C398(BossHakugin* this, PlayState* play) {
     gSPDisplayList(POLY_OPA_DISP++, gGohtRockMaterialDL);
     for (i = 0; i < ARRAY_COUNT(this->unk_09F8); i++) {
         effect = &this->unk_09F8[i];
-        FrameInterpolation_RecordOpenChild(effect, i);
         if ((effect->unk_18 >= 0) && (effect->unk_1A == 0)) {
+            FrameInterpolation_RecordOpenChild(effect, effect->unk_1A);
             Matrix_SetTranslateRotateYXZ(effect->unk_0.x, effect->unk_0.y, effect->unk_0.z, &effect->unk_1C);
             Matrix_Scale(effect->unk_24, effect->unk_24, effect->unk_24, MTXMODE_APPLY);
             gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_OPA_DISP++, gGohtRockModelDL);
+            FrameInterpolation_RecordCloseChild();
         }
-        FrameInterpolation_RecordCloseChild();
     }
 
     gSPDisplayList(POLY_OPA_DISP++, gGohtStalactiteMaterialDL);
     for (i = 0; i < ARRAY_COUNT(this->unk_09F8); i++) {
         effect = &this->unk_09F8[i];
-        FrameInterpolation_RecordOpenChild(effect, i);
         if ((effect->unk_18 >= 0) && (effect->unk_1A == 1)) {
+            FrameInterpolation_RecordOpenChild(effect, effect->unk_1A);
             Matrix_SetTranslateRotateYXZ(effect->unk_0.x, effect->unk_0.y, effect->unk_0.z, &effect->unk_1C);
             Matrix_Scale(effect->unk_24, effect->unk_24, effect->unk_24, MTXMODE_APPLY);
             gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_OPA_DISP++, gGohtStalactiteModelDL);
+            FrameInterpolation_RecordCloseChild();
         }
-        FrameInterpolation_RecordCloseChild();
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -2696,8 +2699,8 @@ void func_80B0C570(BossHakugin* this, PlayState* play) {
     for (i = 0; i < ARRAY_COUNT(this->unk_3158); i++) {
         for (j = 0; j < ARRAY_COUNT(this->unk_3158[0]); j++) {
             iter = &this->unk_3158[i][j];
-            FrameInterpolation_RecordOpenChild(iter, j);
             if (iter->unk_10 > 0) {
+                FrameInterpolation_RecordOpenChild(iter, j);
                 gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 0, 0, 0, iter->unk_10);
                 gSPSegment(POLY_XLU_DISP++, 0x08,
                            Gfx_TwoTexScroll(play->state.gfxCtx, 0, iter->unk_12 * 3, iter->unk_12 * 15, 32, 64, 1, 0, 0,
@@ -2708,8 +2711,8 @@ void func_80B0C570(BossHakugin* this, PlayState* play) {
                 gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx),
                           G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
                 gSPDisplayList(POLY_XLU_DISP++, gFrozenSteamModelDL);
+                FrameInterpolation_RecordCloseChild();
             }
-            FrameInterpolation_RecordCloseChild();
         }
     }
 
@@ -2776,8 +2779,8 @@ void func_80B0CAF0(BossHakugin* this, PlayState* play) {
     for (i = 0; i < ARRAY_COUNT(this->unk_2618); i++) {
         iter = &this->unk_2618[i];
 
-        FrameInterpolation_RecordOpenChild(iter, i);
         if ((iter->unk_0C > 0) && (iter->unk_0C <= 255)) {
+            FrameInterpolation_RecordOpenChild(iter, i);
             Matrix_SetTranslateRotateYXZ(iter->unk_00.x, iter->unk_00.y, iter->unk_00.z, &iter->unk_0E);
             Matrix_Scale(1.0f, 1.0f, 1.0f, MTXMODE_APPLY);
 
@@ -2790,8 +2793,8 @@ void func_80B0CAF0(BossHakugin* this, PlayState* play) {
 
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_XLU_DISP++, gGohtLightningModelDL);
+            FrameInterpolation_RecordCloseChild();
         }
-        FrameInterpolation_RecordCloseChild();
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -2832,7 +2835,7 @@ void func_80B0CCD8(BossHakugin* this, PlayState* play2) {
     for (; i >= end; i--) {
         pos = &this->unk_3734[i];
 
-        FrameInterpolation_RecordOpenChild(this, i);
+        FrameInterpolation_RecordOpenChild(pos, 0);
         gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 255, 255, 255, alpha);
         Matrix_Translate(pos->x, pos->y, pos->z, MTXMODE_NEW);
         Matrix_ReplaceRotation(&play->billboardMtxF);
@@ -2840,11 +2843,11 @@ void func_80B0CCD8(BossHakugin* this, PlayState* play2) {
         Matrix_RotateZS(rotZ, MTXMODE_APPLY);
         gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
         gSPDisplayList(POLY_XLU_DISP++, gGohtLightOrbModelDL);
+        FrameInterpolation_RecordCloseChild();
 
         scale += 1.5f;
         alpha += 15;
         rotZ += 0x1000;
-        FrameInterpolation_RecordCloseChild();
     }
 
     CLOSE_DISPS(play->state.gfxCtx);

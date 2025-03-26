@@ -10,6 +10,7 @@
 
 #include "z_en_time_tag.h"
 #include "overlays/actors/ovl_En_Elf/z_en_elf.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_10)
 
@@ -104,8 +105,10 @@ void EnTimeTag_RooftopOath_Cutscene(EnTimeTag* this, PlayState* play) {
         this->actionFunc = EnTimeTag_RooftopOath_DoNothing;
         gSaveContext.timerStates[TIMER_ID_MOON_CRASH] = TIMER_STATE_OFF;
 
-        if (CHECK_QUEST_ITEM(QUEST_REMAINS_ODOLWA) && CHECK_QUEST_ITEM(QUEST_REMAINS_GOHT) &&
-            CHECK_QUEST_ITEM(QUEST_REMAINS_GYORG) && CHECK_QUEST_ITEM(QUEST_REMAINS_TWINMOLD)) {
+        if (GameInteractor_Should(VB_MEET_MOON_REQUIREMENTS, CHECK_QUEST_ITEM(QUEST_REMAINS_ODOLWA) &&
+                                                                 CHECK_QUEST_ITEM(QUEST_REMAINS_GOHT) &&
+                                                                 CHECK_QUEST_ITEM(QUEST_REMAINS_GYORG) &&
+                                                                 CHECK_QUEST_ITEM(QUEST_REMAINS_TWINMOLD))) {
             SET_WEEKEVENTREG(WEEKEVENTREG_25_02);
         }
     } else {
@@ -318,7 +321,8 @@ void EnTimeTag_KickOut_WaitForTime(EnTimeTag* this, PlayState* play) {
     s16 hour;
     s16 minute;
 
-    if ((play->sceneId == SCENE_YADOYA) && (INV_CONTENT(ITEM_ROOM_KEY) == ITEM_ROOM_KEY)) {
+    if ((play->sceneId == SCENE_YADOYA) &&
+        GameInteractor_Should(VB_CHECK_FOR_ROOM_KEY, INV_CONTENT(ITEM_ROOM_KEY) == ITEM_ROOM_KEY)) {
         // Having the room key allows you to stay in Stock Pot Inn
         return;
     }

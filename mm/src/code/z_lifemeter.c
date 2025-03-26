@@ -2,9 +2,11 @@
 #include "global.h"
 #include "overlays/kaleido_scope/ovl_kaleido_scope/z_kaleido_scope.h"
 #include "interface/parameter_static/parameter_static.h"
-#include "BenGui/HudEditor.h"
 
 #include "BenPort.h"
+#include "2s2h/BenGui/HudEditor.h"
+#include "2s2h/BenGui/CosmeticEditor.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 s16 sHeartsPrimColors[3][3] = { { 255, 70, 50 }, { 255, 190, 0 }, { 100, 100, 255 } };
 s16 sHeartsEnvColors[3][3] = { { 50, 40, 60 }, { 255, 0, 0 }, { 0, 0, 255 } };
@@ -249,29 +251,36 @@ void LifeMeter_Draw(PlayState* play) {
                 if (curColorSet != 0) {
                     curColorSet = 0;
                     gDPPipeSync(OVERLAY_DISP++);
-                    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, interfaceCtx->heartsPrimR[0], interfaceCtx->heartsPrimG[0],
-                                    interfaceCtx->heartsPrimB[0], interfaceCtx->healthAlpha);
-                    gDPSetEnvColor(OVERLAY_DISP++, interfaceCtx->heartsEnvR[0], interfaceCtx->heartsEnvG[0],
-                                   interfaceCtx->heartsEnvB[0], 255);
+                    // Normal Heart
+                    gDPSetPrimColorOverride(OVERLAY_DISP++, 0, 0, interfaceCtx->heartsPrimR[0],
+                                            interfaceCtx->heartsPrimG[0], interfaceCtx->heartsPrimB[0],
+                                            interfaceCtx->healthAlpha, COSMETIC_ELEMENT_HEART_NORMAL);
+                    // Normal Heart Border
+                    gDPSetEnvColorOverride(OVERLAY_DISP++, interfaceCtx->heartsEnvR[0], interfaceCtx->heartsEnvG[0],
+                                           interfaceCtx->heartsEnvB[0], 255, COSMETIC_ELEMENT_HEART_BORDER);
                 }
             } else if (i == fullHeartCount) {
                 if (curColorSet != 1) {
                     curColorSet = 1;
                     gDPPipeSync(OVERLAY_DISP++);
-                    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, interfaceCtx->beatingHeartPrim[0],
-                                    interfaceCtx->beatingHeartPrim[1], interfaceCtx->beatingHeartPrim[2],
-                                    interfaceCtx->healthAlpha);
-                    gDPSetEnvColor(OVERLAY_DISP++, interfaceCtx->beatingHeartEnv[0], interfaceCtx->beatingHeartEnv[1],
-                                   interfaceCtx->beatingHeartEnv[2], 255);
+                    // Normal Beating Heart
+                    gDPSetPrimColorOverride(OVERLAY_DISP++, 0, 0, interfaceCtx->beatingHeartPrim[0],
+                                            interfaceCtx->beatingHeartPrim[1], interfaceCtx->beatingHeartPrim[2],
+                                            interfaceCtx->healthAlpha, COSMETIC_ELEMENT_HEART_NORMAL_BEATING);
+                    // Normal Beating Heart Border
+                    gDPSetEnvColorOverride(OVERLAY_DISP++, interfaceCtx->beatingHeartEnv[0],
+                                           interfaceCtx->beatingHeartEnv[1], interfaceCtx->beatingHeartEnv[2], 255,
+                                           COSMETIC_ELEMENT_HEART_BORDER);
                 }
             } else if (fullHeartCount < i) {
                 if (curColorSet != 2) {
                     curColorSet = 2;
                     gDPPipeSync(OVERLAY_DISP++);
-                    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, interfaceCtx->heartsPrimR[0], interfaceCtx->heartsPrimG[0],
-                                    interfaceCtx->heartsPrimB[0], interfaceCtx->healthAlpha);
-                    gDPSetEnvColor(OVERLAY_DISP++, interfaceCtx->heartsEnvR[0], interfaceCtx->heartsEnvG[0],
-                                   interfaceCtx->heartsEnvB[0], 255);
+                    gDPSetPrimColorOverride(OVERLAY_DISP++, 0, 0, interfaceCtx->heartsPrimR[0],
+                                            interfaceCtx->heartsPrimG[0], interfaceCtx->heartsPrimB[0],
+                                            interfaceCtx->healthAlpha, COSMETIC_ELEMENT_HEART_NORMAL);
+                    gDPSetEnvColorOverride(OVERLAY_DISP++, interfaceCtx->heartsEnvR[0], interfaceCtx->heartsEnvG[0],
+                                           interfaceCtx->heartsEnvB[0], 255, COSMETIC_ELEMENT_HEART_BORDER);
                 }
             } else {
                 if (curColorSet != 3) {
@@ -296,26 +305,37 @@ void LifeMeter_Draw(PlayState* play) {
                 if (curColorSet != 4) {
                     curColorSet = 4;
                     gDPPipeSync(OVERLAY_DISP++);
-                    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, sHeartsDDPrim[0][0], sHeartsDDPrim[0][1], sHeartsDDPrim[0][2],
-                                    interfaceCtx->healthAlpha);
-                    gDPSetEnvColor(OVERLAY_DISP++, sHeartsDDEnv[0][0], sHeartsDDEnv[0][1], sHeartsDDEnv[0][2], 255);
+                    // Double Defense Heart Border
+                    gDPSetPrimColorOverride(OVERLAY_DISP++, 0, 0, sHeartsDDPrim[0][0], sHeartsDDPrim[0][1],
+                                            sHeartsDDPrim[0][2], interfaceCtx->healthAlpha,
+                                            COSMETIC_ELEMENT_HEART_DD_BORDER);
+                    // Double Defense Non Active Heart
+                    gDPSetEnvColorOverride(OVERLAY_DISP++, sHeartsDDEnv[0][0], sHeartsDDEnv[0][1], sHeartsDDEnv[0][2],
+                                           255, COSMETIC_ELEMENT_HEART_DD);
                 }
             } else if (i == fullHeartCount) {
                 if (curColorSet != 5) {
                     curColorSet = 5;
                     gDPPipeSync(OVERLAY_DISP++);
-                    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, sBeatingHeartsDDPrim[0], sBeatingHeartsDDPrim[1],
-                                    sBeatingHeartsDDPrim[2], interfaceCtx->healthAlpha);
-                    gDPSetEnvColor(OVERLAY_DISP++, sBeatingHeartsDDEnv[0], sBeatingHeartsDDEnv[1],
-                                   sBeatingHeartsDDEnv[2], 255);
+                    // Double Defense Beating Heart Border
+                    gDPSetPrimColorOverride(OVERLAY_DISP++, 0, 0, sBeatingHeartsDDPrim[0], sBeatingHeartsDDPrim[1],
+                                            sBeatingHeartsDDPrim[2], interfaceCtx->healthAlpha,
+                                            COSMETIC_ELEMENT_HEART_DD_BORDER);
+                    // Double Defense Beating Heart
+                    gDPSetEnvColorOverride(OVERLAY_DISP++, sBeatingHeartsDDEnv[0], sBeatingHeartsDDEnv[1],
+                                           sBeatingHeartsDDEnv[2], 255, COSMETIC_ELEMENT_HEART_DD_BEATING);
                 }
             } else if (i > fullHeartCount) {
                 if (curColorSet != 6) {
                     curColorSet = 6;
                     gDPPipeSync(OVERLAY_DISP++);
-                    gDPSetPrimColor(OVERLAY_DISP++, 0, 0, sHeartsDDPrim[0][0], sHeartsDDPrim[0][1], sHeartsDDPrim[0][2],
-                                    interfaceCtx->healthAlpha);
-                    gDPSetEnvColor(OVERLAY_DISP++, sHeartsDDEnv[0][0], sHeartsDDEnv[0][1], sHeartsDDEnv[0][2], 255);
+                    // Double Defense Empty Heart Border
+                    gDPSetPrimColorOverride(OVERLAY_DISP++, 0, 0, sHeartsDDPrim[0][0], sHeartsDDPrim[0][1],
+                                            sHeartsDDPrim[0][2], interfaceCtx->healthAlpha,
+                                            COSMETIC_ELEMENT_HEART_DD_BORDER);
+                    // Double Defense Empty Heart
+                    gDPSetEnvColorOverride(OVERLAY_DISP++, sHeartsDDEnv[0][0], sHeartsDDEnv[0][1], sHeartsDDEnv[0][2],
+                                           255, COSMETIC_ELEMENT_HEART_DD);
                 }
             } else if (curColorSet != 7) {
                 curColorSet = 7;
@@ -459,7 +479,9 @@ void LifeMeter_UpdateSizeAndBeep(PlayState* play) {
             interfaceCtx->lifeSizeChangeDirection = 0;
             if (!Player_InCsMode(play) && (play->pauseCtx.state == PAUSE_STATE_OFF) &&
                 (play->pauseCtx.debugEditor == DEBUG_EDITOR_NONE) && LifeMeter_IsCritical() && !Play_InCsMode(play)) {
-                Audio_PlaySfx(NA_SE_SY_HITPOINT_ALARM);
+                if (GameInteractor_Should(VB_PLAY_LOW_HP_ALARM, true)) {
+                    Audio_PlaySfx(NA_SE_SY_HITPOINT_ALARM);
+                }
             }
         }
     } else {

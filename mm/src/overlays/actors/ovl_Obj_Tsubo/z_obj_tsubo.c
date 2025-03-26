@@ -10,6 +10,8 @@
 #include "objects/object_tsubo/object_tsubo.h"
 #include "objects/object_racetsubo/object_racetsubo.h"
 
+#include "2s2h/GameInteractor/GameInteractor.h"
+
 #define FLAGS (ACTOR_FLAG_10 | ACTOR_FLAG_800000 | ACTOR_FLAG_CAN_PRESS_SWITCH)
 
 #define THIS ((ObjTsubo*)thisx)
@@ -113,7 +115,8 @@ s32 func_809275C0(ObjTsubo* this, PlayState* play) {
 }
 
 void func_8092762C(ObjTsubo* this, PlayState* play) {
-    if (!OBJ_TSUBO_P0010(&this->actor) && (OBJ_TSUBO_ZROT(&this->actor) != 2)) {
+    if (GameInteractor_Should(VB_POT_DROP_COLLECTIBLE,
+                              !OBJ_TSUBO_P0010(&this->actor) && (OBJ_TSUBO_ZROT(&this->actor) != 2), this)) {
         Item_DropCollectibleRandom(play, NULL, &this->actor.world.pos, OBJ_TSUBO_P000F(&this->actor) << 4);
     }
 }
@@ -121,7 +124,7 @@ void func_8092762C(ObjTsubo* this, PlayState* play) {
 void func_80927690(ObjTsubo* this, PlayState* play) {
     s32 itemDrop;
 
-    if (!this->unk_197 && (OBJ_TSUBO_ZROT(&this->actor) != 2)) {
+    if (GameInteractor_Should(VB_POT_DROP_COLLECTIBLE, !this->unk_197 && (OBJ_TSUBO_ZROT(&this->actor) != 2), this)) {
         itemDrop = func_800A8150(OBJ_TSUBO_P003F(&this->actor));
         if (itemDrop > ITEM00_NO_DROP) {
             Item_DropCollectible(play, &this->actor.world.pos, (OBJ_TSUBO_PFE00(&this->actor) << 8) | itemDrop);
@@ -437,7 +440,9 @@ void func_80928928(ObjTsubo* this, PlayState* play) {
 }
 
 void func_809289B4(ObjTsubo* this) {
-    this->actor.draw = ObjTsubo_Draw;
+    if (GameInteractor_Should(VB_POT_DRAW_BE_OVERRIDDEN, true, this)) {
+        this->actor.draw = ObjTsubo_Draw;
+    }
     this->actor.flags |= ACTOR_FLAG_10;
     this->unk_195 = false;
     this->actionFunc = func_809289E4;
@@ -640,7 +645,9 @@ void func_8092926C(ObjTsubo* this, PlayState* play) {
     if (this->unk_194 > 0) {
         this->unk_194--;
         if (this->unk_194 == 0) {
-            this->actor.draw = ObjTsubo_Draw;
+            if (GameInteractor_Should(VB_POT_DRAW_BE_OVERRIDDEN, true, this)) {
+                this->actor.draw = ObjTsubo_Draw;
+            }
         }
     } else {
         scale = sPotTypeData[OBJ_TSUBO_GET_TYPE(&this->actor)].scale;

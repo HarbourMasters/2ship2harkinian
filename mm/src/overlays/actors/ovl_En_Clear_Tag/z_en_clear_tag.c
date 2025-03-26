@@ -6,6 +6,7 @@
 
 #include "z_en_clear_tag.h"
 #include "objects/gameplay_keep/gameplay_keep.h"
+
 #include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_10 | ACTOR_FLAG_20)
@@ -132,8 +133,8 @@ void EnClearTag_CreateDebrisEffect(EnClearTag* this, Vec3f* pos, Vec3f* velocity
             effect->scale = scale;
 
             // Set the debris effects to spawn in a circle.
-            effect->rotationY = Rand_ZeroFloat(M_PI * 2);
-            effect->rotationX = Rand_ZeroFloat(M_PI * 2);
+            effect->rotationY = Rand_ZeroFloat(M_PIf * 2);
+            effect->rotationX = Rand_ZeroFloat(M_PIf * 2);
 
             effect->effectsTimer = effect->bounces = 0;
 
@@ -440,8 +441,8 @@ void EnClearTag_Init(Actor* thisx, PlayState* play) {
                 for (i = 0; i < 54; i++) {
                     lightRayMaxScale =
                         sLightRayMaxScale[thisx->params] + Rand_ZeroFloat(sLightRayMaxScale[thisx->params]);
-                    Matrix_RotateYF(Rand_ZeroFloat(M_PI * 2), MTXMODE_NEW);
-                    Matrix_RotateXFApply(Rand_ZeroFloat(M_PI * 2));
+                    Matrix_RotateYF(Rand_ZeroFloat(M_PIf * 2), MTXMODE_NEW);
+                    Matrix_RotateXFApply(Rand_ZeroFloat(M_PIf * 2));
                     Matrix_MultVecZ(lightRayMaxScale, &vel);
                     accel.x = vel.x * -0.03f;
                     accel.y = vel.y * -0.03f;
@@ -513,8 +514,8 @@ void EnClearTag_Init(Actor* thisx, PlayState* play) {
             pos = this->actor.world.pos;
             for (i = 0; i < 44; i++) {
                 lightRayMaxScale = sLightRayMaxScale[thisx->params] + Rand_ZeroFloat(sLightRayMaxScale[thisx->params]);
-                Matrix_RotateYF(Rand_ZeroFloat(2 * M_PI), MTXMODE_NEW);
-                Matrix_RotateXFApply(Rand_ZeroFloat(2 * M_PI));
+                Matrix_RotateYF(Rand_ZeroFloat(2 * M_PIf), MTXMODE_NEW);
+                Matrix_RotateXFApply(Rand_ZeroFloat(2 * M_PIf));
                 Matrix_MultVecZ(lightRayMaxScale, &vel);
                 accel.x = vel.x * -0.03f;
                 accel.y = vel.y * -0.03f;
@@ -751,7 +752,7 @@ void EnClearTag_UpdateEffects(EnClearTag* this, PlayState* play) {
                 }
             } else if (effect->type == CLEAR_TAG_EFFECT_LIGHT_RAYS) {
                 // Rotate the light ray effect.
-                effect->rotationZ += Rand_ZeroFloat(M_PI / 2) + (M_PI / 2);
+                effect->rotationZ += Rand_ZeroFloat(M_PIf / 2) + (M_PIf / 2);
 
                 // Fade the light ray effects.
                 effect->lightRayAlpha -= effect->lightRayAlphaDecrementSpeed;
@@ -815,7 +816,7 @@ void EnClearTag_DrawEffects(Actor* thisx, PlayState* play) {
     // Draw all Debris effects.
     for (i = 0; i < ARRAY_COUNT(this->effect); i++, effect++) {
         if (effect->type == CLEAR_TAG_EFFECT_DEBRIS) {
-            FrameInterpolation_RecordOpenChild(effect, i);
+            FrameInterpolation_RecordOpenChild(effect, effect->type);
             // Apply the debris effect material if it has not already been applied.
             if (!isMaterialApplied) {
                 isMaterialApplied++;
@@ -838,7 +839,7 @@ void EnClearTag_DrawEffects(Actor* thisx, PlayState* play) {
     if (this->actor.floorPoly != NULL) {
         for (i = 0; i < ARRAY_COUNT(this->effect); i++, effect++) {
             if (effect->type == CLEAR_TAG_EFFECT_SHOCKWAVE) {
-                FrameInterpolation_RecordOpenChild(effect, i);
+                FrameInterpolation_RecordOpenChild(effect, effect->type);
                 // Draw the shockwave effect.
                 gDPPipeSync(POLY_XLU_DISP++);
                 gDPSetEnvColor(POLY_XLU_DISP++, 255, 255, 255, (s8)effect->primColor.a);
@@ -859,7 +860,7 @@ void EnClearTag_DrawEffects(Actor* thisx, PlayState* play) {
     if (this->actor.floorPoly != NULL) {
         for (i = 0; i < ARRAY_COUNT(this->effect); i++, effect++) {
             if (effect->type == CLEAR_TAG_EFFECT_FLASH) {
-                FrameInterpolation_RecordOpenChild(effect, i);
+                FrameInterpolation_RecordOpenChild(effect, effect->type);
                 // Apply the flash ground effect material if it has not already been applied.
                 if (!isMaterialApplied) {
                     gDPPipeSync(POLY_XLU_DISP++);
@@ -884,7 +885,7 @@ void EnClearTag_DrawEffects(Actor* thisx, PlayState* play) {
     isMaterialApplied = false;
     for (i = 0; i < ARRAY_COUNT(this->effect); i++, effect++) {
         if ((effect->type == CLEAR_TAG_EFFECT_SMOKE) || (effect->type == CLEAR_TAG_EFFECT_ISOLATED_SMOKE)) {
-            FrameInterpolation_RecordOpenChild(effect, i);
+            FrameInterpolation_RecordOpenChild(effect, effect->type);
             // Apply the smoke effect material if it has not already been applied.
             if (!isMaterialApplied) {
                 gSPDisplayList(POLY_XLU_DISP++, gClearTagFireEffectMaterialDL);
@@ -914,7 +915,7 @@ void EnClearTag_DrawEffects(Actor* thisx, PlayState* play) {
     isMaterialApplied = false;
     for (i = 0; i < ARRAY_COUNT(this->effect); i++, effect++) {
         if (effect->type == CLEAR_TAG_EFFECT_FIRE) {
-            FrameInterpolation_RecordOpenChild(effect, i);
+            FrameInterpolation_RecordOpenChild(effect, effect->type);
             // Apply the fire effect material if it has not already been applied.
             if (!isMaterialApplied) {
                 gSPDisplayList(POLY_XLU_DISP++, gClearTagFireEffectMaterialDL);
@@ -940,7 +941,7 @@ void EnClearTag_DrawEffects(Actor* thisx, PlayState* play) {
     isMaterialApplied = false;
     for (i = 0; i < ARRAY_COUNT(this->effect); i++, effect++) {
         if (effect->type == CLEAR_TAG_EFFECT_FLASH) {
-            FrameInterpolation_RecordOpenChild(effect, i);
+            FrameInterpolation_RecordOpenChild(effect, effect->type);
             // Apply the flash billboard effect material if it has not already been applied.
             if (!isMaterialApplied) {
                 gDPPipeSync(POLY_XLU_DISP++);
@@ -964,7 +965,7 @@ void EnClearTag_DrawEffects(Actor* thisx, PlayState* play) {
     isMaterialApplied = false;
     for (i = 0; i < ARRAY_COUNT(this->effect); i++, effect++) {
         if (effect->type == CLEAR_TAG_EFFECT_LIGHT_RAYS) {
-            FrameInterpolation_RecordOpenChild(effect, i);
+            FrameInterpolation_RecordOpenChild(effect, effect->type);
             // Apply the light ray effect material if it has not already been applied.
             if (!isMaterialApplied) {
                 gDPPipeSync(POLY_XLU_DISP++);
@@ -982,7 +983,7 @@ void EnClearTag_DrawEffects(Actor* thisx, PlayState* play) {
             Matrix_RotateXFApply(effect->rotationX);
             Matrix_RotateZF(effect->rotationZ, MTXMODE_APPLY);
             Matrix_Scale(effect->scale * 0.5f, effect->scale * 0.5f, effect->maxScale * effect->scale, MTXMODE_APPLY);
-            Matrix_RotateXFApply(M_PI / 2);
+            Matrix_RotateXFApply(M_PIf / 2);
             gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
             gSPDisplayList(POLY_XLU_DISP++, gClearTagLightRayEffectDL);
             FrameInterpolation_RecordCloseChild();
@@ -993,7 +994,6 @@ void EnClearTag_DrawEffects(Actor* thisx, PlayState* play) {
     effect = firstEffect;
     for (i = 0; i < ARRAY_COUNT(this->effect); i++, effect++) {
         if (effect->type == CLEAR_TAG_EFFECT_SPLASH) {
-            FrameInterpolation_RecordOpenChild(effect, i);
             gDPPipeSync(POLY_XLU_DISP++);
             gDPSetEnvColor(POLY_XLU_DISP++, 255, 255, 255, 200);
             gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 255, 255, 255, 200);
@@ -1004,9 +1004,9 @@ void EnClearTag_DrawEffects(Actor* thisx, PlayState* play) {
 
             // Apply material 16 times along a circle to give the appearance of a splash
             for (j = 0; j < 16; j++) {
-                // BENTODO not sure if I did the math right.
-                FrameInterpolation_RecordOpenChild(effect, (i + ARRAY_COUNT(this->effect) + j));
-                Matrix_RotateYF(2.0f * (j * M_PI) * (1.0f / 16.0f), MTXMODE_NEW);
+                // Bit math to combine index with effect type
+                FrameInterpolation_RecordOpenChild(effect, effect->type + (j << 4));
+                Matrix_RotateYF(2.0f * (j * M_PIf) * (1.0f / 16.0f), MTXMODE_NEW);
                 Matrix_MultVecZ(effect->maxScale, &vec);
                 /**
                  * Get the water surface at point (`x`, `ySurface`, `z`). `ySurface` doubles as position y input
@@ -1019,7 +1019,7 @@ void EnClearTag_DrawEffects(Actor* thisx, PlayState* play) {
                     if ((effect->pos.y - ySurface) < 200.0f) {
                         // Draw the splash effect.
                         Matrix_Translate(effect->pos.x + vec.x, ySurface, effect->pos.z + vec.z, MTXMODE_NEW);
-                        Matrix_RotateYF(2.0f * (j * M_PI) * (1.0f / 16.0f), MTXMODE_APPLY);
+                        Matrix_RotateYF(2.0f * (j * M_PIf) * (1.0f / 16.0f), MTXMODE_APPLY);
                         Matrix_RotateXFApply(effect->rotationX);
                         Matrix_Scale(effect->scale, effect->scale, effect->scale, MTXMODE_APPLY);
                         gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
@@ -1028,7 +1028,6 @@ void EnClearTag_DrawEffects(Actor* thisx, PlayState* play) {
                 }
                 FrameInterpolation_RecordCloseChild();
             }
-            FrameInterpolation_RecordCloseChild();
         }
     }
 

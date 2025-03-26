@@ -824,7 +824,9 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
             POLY_OPA_DISP = KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->itemPageVtx,
                                                           GET_REGION_TEX(sItemPageBgTextures));
 
+            GameInteractor_ExecuteBeforeKaleidoDrawPage(pauseCtx, PAUSE_ITEM);
             KaleidoScope_DrawItemSelect(play);
+            GameInteractor_ExecuteAfterKaleidoDrawPage(pauseCtx, PAUSE_ITEM);
         }
 
         if ((pauseCtx->pageIndex != PAUSE_MAP) && (pauseCtx->pageIndex != PAUSE_MASK)) {
@@ -845,6 +847,7 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
             POLY_OPA_DISP =
                 KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->mapPageVtx, GET_REGION_TEX(sMapPageBgTextures));
 
+            GameInteractor_ExecuteBeforeKaleidoDrawPage(pauseCtx, PAUSE_MAP);
             if (sInDungeonScene) {
                 KaleidoScope_DrawDungeonMap(play);
                 Gfx_SetupDL42_Opa(gfxCtx);
@@ -853,6 +856,7 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
             } else {
                 KaleidoScope_DrawWorldMap(play);
             }
+            GameInteractor_ExecuteAfterKaleidoDrawPage(pauseCtx, PAUSE_MAP);
         }
 
         if ((pauseCtx->pageIndex != PAUSE_QUEST) && (pauseCtx->pageIndex != PAUSE_ITEM)) {
@@ -875,7 +879,9 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
             POLY_OPA_DISP = KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->questPageVtx,
                                                           GET_REGION_TEX(sQuestPageBgTextures));
 
+            GameInteractor_ExecuteBeforeKaleidoDrawPage(pauseCtx, PAUSE_QUEST);
             KaleidoScope_DrawQuestStatus(play);
+            GameInteractor_ExecuteAfterKaleidoDrawPage(pauseCtx, PAUSE_QUEST);
         }
 
         if ((pauseCtx->pageIndex != PAUSE_MASK) && (pauseCtx->pageIndex != PAUSE_MAP)) {
@@ -898,7 +904,9 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
             POLY_OPA_DISP = KaleidoScope_DrawPageSections(POLY_OPA_DISP, pauseCtx->maskPageVtx,
                                                           GET_REGION_TEX(sMaskPageBgTextures));
 
+            GameInteractor_ExecuteBeforeKaleidoDrawPage(pauseCtx, PAUSE_MASK);
             KaleidoScope_DrawMaskSelect(play);
+            GameInteractor_ExecuteAfterKaleidoDrawPage(pauseCtx, PAUSE_MASK);
         }
 
         switch (pauseCtx->pageIndex) {
@@ -3114,6 +3122,18 @@ void KaleidoScope_DrawCursor(PlayState* play) {
     PauseContext* pauseCtx = &play->pauseCtx;
     s16 i;
 
+    // #region 2S2H [Port] Track cursor position so we can skip interpolation for one frame whenever it moves
+    static f32 prevX = 0;
+    static f32 prevY = 0;
+    static u8 cursorInterpState = 0;
+
+    if (prevX != pauseCtx->cursorX || prevY != pauseCtx->cursorY) {
+        cursorInterpState ^= 1; // Flip state
+    }
+    prevX = pauseCtx->cursorX;
+    prevY = pauseCtx->cursorY;
+    // #endregion
+
     OPEN_DISPS(play->state.gfxCtx);
 
     if ((pauseCtx->mainState == PAUSE_MAIN_STATE_IDLE) ||
@@ -3121,6 +3141,7 @@ void KaleidoScope_DrawCursor(PlayState* play) {
         ((pauseCtx->pageIndex == PAUSE_QUEST) && ((pauseCtx->mainState <= PAUSE_MAIN_STATE_SONG_PLAYBACK) ||
                                                   (pauseCtx->mainState == PAUSE_MAIN_STATE_SONG_PROMPT) ||
                                                   (pauseCtx->mainState == PAUSE_MAIN_STATE_IDLE_CURSOR_ON_SONG)))) {
+        FrameInterpolation_RecordOpenChild("Pause cursor", cursorInterpState ? 1 : 0);
         gDPPipeSync(POLY_OPA_DISP++);
         gDPSetCombineLERP(POLY_OPA_DISP++, PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0,
                           PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, TEXEL0, 0, PRIMITIVE, 0);
@@ -3145,6 +3166,7 @@ void KaleidoScope_DrawCursor(PlayState* play) {
 
         gDPPipeSync(POLY_OPA_DISP++);
         gDPSetEnvColor(POLY_OPA_DISP++, 0, 0, 0, 255);
+        FrameInterpolation_RecordCloseChild();
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
@@ -3650,9 +3672,10 @@ void KaleidoScope_Update(PlayState* play) {
                                 pauseCtx->savePromptState = PAUSE_SAVEPROMPT_STATE_5;
                             } else {
                                 if (CVarGetInteger("gEnhancements.Saving.PauseSave", 0)) {
-                                    Sram_SetFlashPagesOwlSave(sramCtx,
-                                                              gFlashOwlSaveStartPages[gSaveContext.fileNum * 2],
-                                                              gFlashOwlSaveNumPages[gSaveContext.fileNum * 2]);
+                                    Sram_SetFlashPagesOwlSave(
+                                        sramCtx,
+                                        gFlashOwlSaveStartPages[gSaveContext.fileNum * FLASH_SAVE_MAIN_MULTIPLIER],
+                                        gFlashOwlSaveNumPages[gSaveContext.fileNum * FLASH_SAVE_MAIN_MULTIPLIER]);
                                     Sram_StartWriteToFlashOwlSave(sramCtx);
                                     gSaveContext.save.isOwlSave = false;
                                     gSaveContext.save.shipSaveInfo.pauseSaveEntrance = -1;
@@ -3771,7 +3794,7 @@ void KaleidoScope_Update(PlayState* play) {
                             STOP_GAMESTATE(&play->state);
                             SET_NEXT_GAMESTATE(&play->state, TitleSetup_Init, sizeof(TitleSetupState));
                             Audio_MuteAllSeqExceptSystemAndOcarina(20);
-                            gSaveContext.seqId = (u8)NA_BGM_DISABLED;
+                            gSaveContext.seqId = NA_BGM_DISABLED;
                             gSaveContext.ambienceId = AMBIENCE_ID_DISABLED;
                         }
                     }
@@ -4193,6 +4216,9 @@ void KaleidoScope_Update(PlayState* play) {
             break;
 
         case PAUSE_STATE_UNPAUSE_CLOSE:
+            if (!GameInteractor_Should(VB_KALEIDO_UNPAUSE_CLOSE, true)) {
+                break;
+            }
             pauseCtx->state = PAUSE_STATE_OFF;
             GameState_SetFramerateDivisor(&play->state, 3);
             R_PAUSE_BG_PRERENDER_STATE = PAUSE_BG_PRERENDER_UNK4;

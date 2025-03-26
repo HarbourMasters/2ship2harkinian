@@ -1,13 +1,16 @@
-#include "libultraship/libultraship.h"
+#include <libultraship/bridge.h>
 #include "2s2h/GameInteractor/GameInteractor.h"
+#include "2s2h/Enhancements/FrameInterpolation/FrameInterpolation.h"
+#include "2s2h/ShipInit.hpp"
 
 extern "C" {
-#include "z64.h"
-#include "functions.h"
+#include "variables.h"
 #include "overlays/actors/ovl_En_Slime/z_en_slime.h"
-extern PlayState* gPlayState;
 void EnItem00_Draw(Actor* thisx, PlayState* play);
 }
+
+#define CVAR_NAME "gEnhancements.Graphics.3DItemDrops"
+#define CVAR CVarGetInteger(CVAR_NAME, 0)
 
 bool ItemShouldSpinWhen3D(Actor* actor) {
     EnItem00* enItem00 = (EnItem00*)actor;
@@ -27,6 +30,12 @@ void EnItem00_3DItemsDraw(Actor* actor, PlayState* play) {
     EnItem00* enItem00 = (EnItem00*)actor;
 
     if (!(enItem00->unk14E & enItem00->unk150)) {
+        Player* player = GET_PLAYER(play);
+        bool itemOnPlayer = player->actor.home.pos.x == enItem00->actor.world.pos.x &&
+                            player->actor.home.pos.z == enItem00->actor.world.pos.z;
+        FrameInterpolation_RecordOpenChild(enItem00, itemOnPlayer ? 1 : 0);
+        FrameInterpolation_IgnoreActorMtx();
+
         switch (enItem00->actor.params) {
             case ITEM00_RUPEE_GREEN:
                 Matrix_Scale(25.0f, 25.0f, 25.0f, MTXMODE_APPLY);
@@ -110,6 +119,8 @@ void EnItem00_3DItemsDraw(Actor* actor, PlayState* play) {
                 GetItem_Draw(play, GID_COMPASS);
                 break;
         }
+
+        FrameInterpolation_RecordCloseChild();
     }
 }
 
@@ -135,24 +146,14 @@ void DrawSlime3DItem(Actor* actor, bool* should) {
 }
 
 void Register3DItemDrops() {
-    static HOOK_ID actorInitHookID = 0;
-    static HOOK_ID actorUpdateHookID = 0;
-    static HOOK_ID slimeVBHookID = 0;
-    GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::OnActorInit>(actorInitHookID);
-    GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::OnActorUpdate>(actorUpdateHookID);
-    GameInteractor::Instance->UnregisterGameHookForID<GameInteractor::ShouldVanillaBehavior>(slimeVBHookID);
-    actorInitHookID = 0;
-    actorUpdateHookID = 0;
-    slimeVBHookID = 0;
-
     if (gPlayState != NULL) {
         Actor* actor = gPlayState->actorCtx.actorLists[ACTORCAT_MISC].first;
 
         while (actor != NULL) {
             if (actor->id == ACTOR_EN_ITEM00) {
-                if (CVarGetInteger("gEnhancements.Graphics.3DItemDrops", 0)) {
+                if (CVAR && (actor->draw == EnItem00_Draw)) {
                     actor->draw = EnItem00_3DItemsDraw;
-                } else {
+                } else if (actor->draw == EnItem00_3DItemsDraw) {
                     actor->draw = EnItem00_Draw;
 
                     // Reset rotation for bill-boarded sprites
@@ -166,21 +167,23 @@ void Register3DItemDrops() {
         }
     }
 
-    if (!CVarGetInteger("gEnhancements.Graphics.3DItemDrops", 0)) {
-        return;
-    }
+    COND_ID_HOOK(OnActorInit, ACTOR_EN_ITEM00, CVAR, [](Actor* actor) {
+        if (actor->draw == EnItem00_Draw) {
+            actor->draw = EnItem00_3DItemsDraw;
+        }
+    });
 
-    actorInitHookID = GameInteractor::Instance->RegisterGameHookForID<GameInteractor::OnActorInit>(
-        ACTOR_EN_ITEM00, [](Actor* actor) { actor->draw = EnItem00_3DItemsDraw; });
-    actorUpdateHookID = GameInteractor::Instance->RegisterGameHookForID<GameInteractor::OnActorUpdate>(
-        ACTOR_EN_ITEM00, [](Actor* actor) {
-            // Add spin to normally bill-boarded items
-            if (ItemShouldSpinWhen3D(actor)) {
-                actor->shape.rot.y += 0x3C0;
-            }
-        });
-    slimeVBHookID = REGISTER_VB_SHOULD(VB_DRAW_SLIME_BODY_ITEM, {
+    COND_ID_HOOK(OnActorUpdate, ACTOR_EN_ITEM00, CVAR, [](Actor* actor) {
+        // Add spin to normally bill-boarded items
+        if (actor->draw == EnItem00_3DItemsDraw && ItemShouldSpinWhen3D(actor)) {
+            actor->shape.rot.y += 0x3C0;
+        }
+    });
+
+    COND_VB_SHOULD(VB_DRAW_SLIME_BODY_ITEM, CVAR, {
         Actor* actor = va_arg(args, Actor*);
         DrawSlime3DItem(actor, should);
     });
 }
+
+static RegisterShipInitFunc initFunc(Register3DItemDrops, { CVAR_NAME });

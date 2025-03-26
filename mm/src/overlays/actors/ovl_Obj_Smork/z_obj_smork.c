@@ -119,7 +119,9 @@ void func_80A3D9C4(ObjSmork* this, PlayState* play) {
 
         OPEN_DISPS(play->state.gfxCtx);
 
-        Gfx_SetupDL25_Opa(play->state.gfxCtx);
+        //! @bug Uses Gfx_SetupDL25_Opa instead of Gfx_SetupDL25_Xlu. Gfx setup from previous actor is inherited.
+        // 2S2H [Port] Opting to use correct XLU setup for proper rendering
+        Gfx_SetupDL25_Xlu(play->state.gfxCtx);
 
         gSPSegment(POLY_XLU_DISP++, 0x08,
                    Gfx_TwoTexScroll(play->state.gfxCtx, 0, 0, sp57, 0x20, 0x20, 1, 0, sp56, 0x20, 0x20));

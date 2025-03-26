@@ -45,7 +45,9 @@
 #include "objects/object_link_nuts/object_link_nuts.h"
 #include "objects/object_link_child/object_link_child.h"
 
+#include "2s2h/BenPort.h"
 #include "2s2h/GameInteractor/GameInteractor.h"
+#include "2s2h/CustomMessage/CustomMessage.h"
 
 #define THIS ((Player*)thisx)
 
@@ -2565,6 +2567,11 @@ GetItemEntry sGetItemTable[GI_MAX - 1] = {
     // GI_TINGLE_MAP_STONE_TOWER
     GET_ITEM(ITEM_TINGLE_MAP, OBJECT_GI_FIELDMAP, GID_TINGLE_MAP, 0xB9, GIFIELD(GIFIELD_20 | GIFIELD_NO_COLLECTIBLE, 0),
              CHEST_ANIM_LONG),
+    // #region 2S2H [Enhancement] Added to enable custom item gives
+    // GI_SHIP
+    GET_ITEM(ITEM_SHIP, OBJECT_UNSET_0, GID_NONE, CUSTOM_MESSAGE_ID, GIFIELD(GIFIELD_20 | GIFIELD_NO_COLLECTIBLE, 0),
+             0),
+    // #endregion
 };
 
 // Player_UpdateCurrentGetItemDrawId?
@@ -3968,7 +3975,14 @@ s32 func_808306F8(Player* this, PlayState* play) {
             ArrowMagic magicArrowType;
 
             if (var_v1 != 2) {
-                Player_PlaySfx(this, D_8085CFB0[var_v1 - 1]);
+                // 2S2H [Port] When using action swap, D_8085CFB0 is indexed with -1 leading
+                // to UB sent into Player_PlaySfx. On console this resolves as 1 and nothing noticable happens.
+                // For the port, sometimes this UB would crash so we are opting to just request NA_SE_NONE instead.
+                if (var_v1 - 1 < 0) {
+                    Player_PlaySfx(this, NA_SE_NONE);
+                } else {
+                    Player_PlaySfx(this, D_8085CFB0[var_v1 - 1]);
+                }
             }
 
             if (!Player_IsHoldingHookshot(this) && (func_808305BC(play, this, &item, &arrowType) > 0)) {
@@ -4088,7 +4102,7 @@ void func_80830B38(Player* this) {
 }
 
 s32 func_80830B88(PlayState* play, Player* this) {
-    if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_R)) {
+    if (GameInteractor_Should(VB_SHIELD_FROM_BUTTON_HOLD, CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_R))) {
         if (!(this->stateFlags1 & (PLAYER_STATE1_400000 | PLAYER_STATE1_800000 | PLAYER_STATE1_20000000))) {
             if (!(this->stateFlags1 & PLAYER_STATE1_8000000) || ((this->currentBoots >= PLAYER_BOOTS_ZORA_UNDERWATER) &&
                                                                  (this->actor.bgCheckFlags & BGCHECKFLAG_GROUND))) {
@@ -4613,7 +4627,7 @@ void func_80831F34(PlayState* play, Player* this, PlayerAnimationHeader* anim) {
             play->gameOverCtx.state = GAMEOVER_DEATH_START;
             Audio_StopFanfare(0);
             Audio_PlayFanfare(NA_BGM_GAME_OVER);
-            gSaveContext.seqId = (u8)NA_BGM_DISABLED;
+            gSaveContext.seqId = NA_BGM_DISABLED;
             gSaveContext.ambienceId = AMBIENCE_ID_DISABLED;
         }
 
@@ -5269,8 +5283,8 @@ void func_808332A0(PlayState* play, Player* this, s32 magicCost, s32 isSwordBeam
 
     this->stateFlags1 |= PLAYER_STATE1_1000;
     if ((this->actor.id == ACTOR_PLAYER) &&
-        (isSwordBeam || (GameInteractor_Should(VB_MAGIC_SPIN_ATTACK_CHECK_FORM,
-                                               this->transformation == PLAYER_FORM_HUMAN, this->transformation)))) {
+        (isSwordBeam ||
+         (GameInteractor_Should(VB_MAGIC_SPIN_ATTACK_CHECK_FORM, this->transformation == PLAYER_FORM_HUMAN)))) {
         s16 pitch = 0;
         Actor* thunder;
 
@@ -5514,7 +5528,7 @@ s32 func_808339D4(PlayState* play, Player* this, s32 damage) {
         return Actor_ApplyDamage(&this->actor);
     }
 
-    if (this->currentMask == PLAYER_MASK_GIANT) {
+    if (GameInteractor_Should(VB_MULTIPLY_INFLICTED_DMG, this->currentMask == PLAYER_MASK_GIANT, &damage)) {
         damage >>= 2;
     }
 
@@ -6239,7 +6253,7 @@ s32 Player_HandleExitsAndVoids(PlayState* play, Player* this, CollisionPoly* pol
                 if ((this->stateFlags1 & PLAYER_STATE1_8000000) && (this->floorProperty == FLOOR_PROPERTY_5)) {
                     Audio_PlaySfx_2(NA_SE_OC_TUNAMI);
                     Audio_MuteAllSeqExceptSystemAndOcarina(5);
-                    gSaveContext.seqId = (u8)NA_BGM_DISABLED;
+                    gSaveContext.seqId = NA_BGM_DISABLED;
                     gSaveContext.ambienceId = AMBIENCE_ID_DISABLED;
                 } else if (!(this->actor.bgCheckFlags & BGCHECKFLAG_GROUND) &&
                            (this->floorProperty == FLOOR_PROPERTY_12)) {
@@ -6261,7 +6275,7 @@ s32 Player_HandleExitsAndVoids(PlayState* play, Player* this, CollisionPoly* pol
                 if (floorType == FLOOR_TYPE_11) {
                     Audio_PlaySfx_2(NA_SE_OC_SECRET_HOLE_OUT);
                     Audio_MuteAllSeqExceptSystemAndOcarina(5);
-                    gSaveContext.seqId = (u8)NA_BGM_DISABLED;
+                    gSaveContext.seqId = NA_BGM_DISABLED;
                     gSaveContext.ambienceId = AMBIENCE_ID_DISABLED;
                 } else {
                     func_8085B74C(play);
@@ -6990,7 +7004,7 @@ s32 func_808373F8(PlayState* play, Player* this, u16 sfxId) {
             Player_PlaySfx(this, (NA_SE_PL_DEKUNUTS_JUMP5 + 1 - this->remainingHopsCounter));
             Player_AnimSfx_PlayVoice(this, sfxId);
             this->remainingHopsCounter--;
-            if (this->remainingHopsCounter == 0) {
+            if (GameInteractor_Should(VB_DEKU_LINK_SPIN_ON_LAST_HOP, this->remainingHopsCounter == 0)) {
                 this->stateFlags2 |= PLAYER_STATE2_80000;
                 func_808373A4(play, this);
             }
@@ -7335,8 +7349,10 @@ void func_8083827C(Player* this, PlayState* play) {
                                 sp48 = func_80835CD8(play, this, &D_8085D154, &sp4C, &sp60, &sp5C);
                                 sp44 = this->actor.world.pos.y;
 
-                                if (WaterBox_GetSurface1(play, &play->colCtx, sp4C.x, sp4C.z, &sp44, &sp58) &&
-                                    ((sp44 - sp48) > 50.0f)) {
+                                if (GameInteractor_Should(
+                                        VB_LINK_DIVE_OVER_WATER,
+                                        WaterBox_GetSurface1(play, &play->colCtx, sp4C.x, sp4C.z, &sp44, &sp58) &&
+                                            ((sp44 - sp48) > 50.0f))) {
                                     func_80834DB8(this, &gPlayerAnim_link_normal_run_jump_water_fall, 6.0f, play);
                                     Player_SetAction(play, this, Player_Action_27, 0);
                                     return;
@@ -7991,9 +8007,11 @@ s32 Player_ActionChange_10(Player* this, PlayState* play) {
                     } else {
                         func_80836B3C(play, this, 0.0f);
                     }
-                } else if (!(this->stateFlags1 & PLAYER_STATE1_8000000) &&
-                           (Player_GetMeleeWeaponHeld(this) != PLAYER_MELEEWEAPON_NONE) &&
-                           Player_CanUpdateItems(this) && (this->transformation != PLAYER_FORM_GORON)) {
+                } else if (GameInteractor_Should(VB_START_JUMPSLASH,
+                                                 !(this->stateFlags1 & PLAYER_STATE1_8000000) &&
+                                                     (Player_GetMeleeWeaponHeld(this) != PLAYER_MELEEWEAPON_NONE) &&
+                                                     Player_CanUpdateItems(this) &&
+                                                     (this->transformation != PLAYER_FORM_GORON))) {
                     func_808395F0(play, this, PLAYER_MWA_JUMPSLASH_START, 5.0f, 5.0f);
                 } else if (!func_80839A84(play, this)) {
                     func_80836B3C(play, this, 0.0f);
@@ -8130,8 +8148,8 @@ s32 Player_ActionChange_6(Player* this, PlayState* play) {
 }
 
 s32 Player_ActionChange_11(Player* this, PlayState* play) {
-    if (CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_R) && (this->unk_AA5 == PLAYER_UNKAA5_0) &&
-        (play->bButtonAmmoPlusOne == 0)) {
+    if (GameInteractor_Should(VB_SHIELD_FROM_BUTTON_HOLD, CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_R)) &&
+        (this->unk_AA5 == PLAYER_UNKAA5_0) && (play->bButtonAmmoPlusOne == 0)) {
         if (Player_IsGoronOrDeku(this) ||
             ((((this->transformation == PLAYER_FORM_ZORA) && !(this->stateFlags1 & PLAYER_STATE1_2000000)) ||
               ((this->transformation == PLAYER_FORM_HUMAN) && (this->currentShield != PLAYER_SHIELD_NONE))) &&
@@ -9230,7 +9248,11 @@ s32 Player_ActionChange_2(Player* this, PlayState* play) {
                                 giEntry = &sGetItemTable[-this->getItemId - 1];
                             }
 
-                            func_80832558(play, this, func_80837C78);
+                            if (GameInteractor_Should(VB_GIVE_ITEM_FROM_CHEST, true, chest)) {
+                                // This inverts the sign of the getItemId and sets the player's action to GetItem
+                                // (Player_Action_65)
+                                func_80832558(play, this, func_80837C78);
+                            }
                             this->stateFlags1 |= (PLAYER_STATE1_400 | PLAYER_STATE1_800 | PLAYER_STATE1_20000000);
                             func_80838830(this, giEntry->objectId);
 
@@ -13088,10 +13110,14 @@ s32 Ship_HandleFirstPersonAiming(PlayState* play, Player* this, s32 arg2) {
         this->actor.focus.rot.y = CLAMP(var_s0 + gyroX, -0x4AAA, 0x4AAA) + this->actor.shape.rot.y;
     }
 
-    if (CVarGetInteger("gEnhancements.Camera.FirstPerson.MoveInFirstPerson", 0) &&
+    bool playerMovementLocked = (this->actionFunc == Player_Action_52) || // Riding on Epona
+                                (this->actionFunc == Player_Action_80) || // Riding swamp boat (non-archery)
+                                (this->actionFunc == Player_Action_81);   // Bow minigames
+
+    if (!playerMovementLocked && CVarGetInteger("gEnhancements.Camera.FirstPerson.MoveInFirstPerson", 0) &&
         CVarGetInteger("gEnhancements.Camera.FirstPerson.RightStickEnabled", 0)) {
         f32 movementSpeed = 8.25f; // account for form
-        if (this->currentMask == PLAYER_MASK_BUNNY) {
+        if (GameInteractor_Should(VB_CONSIDER_BUNNY_HOOD_EQUIPPED, this->currentMask == PLAYER_MASK_BUNNY, this)) {
             movementSpeed *= 1.5f;
         }
 
@@ -13236,7 +13262,9 @@ void func_808477D0(PlayState* play, Player* this, Input* input, f32 arg3) {
     }
 
     var_fv0 = var_fv0 * arg3;
-    var_fv0 = CLAMP(var_fv0, 1.0f, 2.5f);
+    if (GameInteractor_Should(VB_CLAMP_ANIMATION_SPEED, true, &var_fv0)) {
+        var_fv0 = CLAMP(var_fv0, 1.0f, 2.5f);
+    }
     this->skelAnime.playSpeed = var_fv0;
 
     PlayerAnimation_Update(play, &this->skelAnime);
@@ -13520,10 +13548,10 @@ s32 func_808482E0(PlayState* play, Player* this) {
             Audio_PlaySfx(NA_SE_SY_GET_BOXITEM);
         } else {
             s32 seqId;
-
-            if ((this->getItemId == GI_HEART_CONTAINER) ||
-                ((this->getItemId == GI_HEART_PIECE) && EQ_MAX_QUEST_HEART_PIECE_COUNT)) {
-                seqId = NA_BGM_GET_HEART | 0x900;
+            bool vanillaCondition = (this->getItemId == GI_HEART_CONTAINER) ||
+                                    ((this->getItemId == GI_HEART_PIECE) && EQ_MAX_QUEST_HEART_PIECE_COUNT);
+            if (GameInteractor_Should(VB_PLAY_HEART_CONTAINER_GET_FANFARE, vanillaCondition, this->getItemId)) {
+                seqId = NA_BGM_GET_HEART;
             } else {
                 s32 var_v1;
 
@@ -13531,7 +13559,7 @@ s32 func_808482E0(PlayState* play, Player* this) {
                     ((this->getItemId >= GI_RUPEE_PURPLE) && (this->getItemId <= GI_RUPEE_HUGE))) {
                     var_v1 = NA_BGM_GET_SMALL_ITEM;
                 } else {
-                    var_v1 = NA_BGM_GET_ITEM | 0x900;
+                    var_v1 = NA_BGM_GET_ITEM;
                 }
                 seqId = var_v1;
             }
@@ -13539,7 +13567,7 @@ s32 func_808482E0(PlayState* play, Player* this) {
             Audio_PlayFanfare(seqId);
         }
     } else if (Message_GetState(&play->msgCtx) == TEXT_STATE_CLOSING) {
-        if (this->getItemId == GI_OCARINA_OF_TIME) {
+        if (GameInteractor_Should(VB_PLAY_SONG_OF_TIME_CS, this->getItemId == GI_OCARINA_OF_TIME, this)) {
             // zelda teaching song of time cs?
             play->nextEntrance = ENTRANCE(CUTSCENE, 0);
             gSaveContext.nextCutsceneIndex = 0xFFF2;
@@ -13774,7 +13802,15 @@ s32 Player_UpperAction_7(Player* this, PlayState* play) {
         if (this->unk_B28 >= 0) {
             if (index != 0) {
                 if (!func_80831194(play, this)) {
-                    Player_PlaySfx(this, D_8085D5FC[this->unk_B28 - 1]);
+                    // 2S2H [Port] When using action swap without arrows, D_8085D5FC is indexed with -1 leading
+                    // to UB sent into Player_PlaySfx. On console this resolves as 58104 and causes a crash.
+                    // For the port hard crashing is not desirable, so we are opting to clear the game state
+                    if (this->unk_B28 - 1 < 0) {
+                        Ship_HandleConsoleCrashAsReset();
+                        Player_PlaySfx(this, NA_SE_NONE);
+                    } else {
+                        Player_PlaySfx(this, D_8085D5FC[this->unk_B28 - 1]);
+                    }
                 }
 
                 if (this->transformation == PLAYER_FORM_DEKU) {
@@ -15011,7 +15047,9 @@ void Player_Action_25(Player* this, PlayState* play) {
             s16 prevYaw = this->currentYaw;
 
             func_808378FC(play, this);
-            func_8083CBC4(this, speedTarget * 0.5f, yawTarget, 2.0f, 0.2f, 0.1f, 0x190);
+            if (GameInteractor_Should(VB_APPLY_AIR_CONTROL, true, &speedTarget)) {
+                func_8083CBC4(this, speedTarget * 0.5f, yawTarget, 2.0f, 0.2f, 0.1f, 0x190);
+            }
 
             if (BEN_ANIM_EQUAL(this->skelAnime.animation, gPlayerAnim_pn_attack)) {
                 this->stateFlags2 |= (PLAYER_STATE2_20 | PLAYER_STATE2_40);
@@ -15021,7 +15059,7 @@ void Player_Action_25(Player* this, PlayState* play) {
                 Math_StepToF(&this->unk_B10[1], 0.0f, this->unk_B10[0]);
             }
         } else {
-            if (GameInteractor_Should(VB_FLIP_HOP_VARIABLE, true)) {
+            if (GameInteractor_Should(VB_APPLY_AIR_CONTROL, true, &speedTarget)) {
                 func_8083CBC4(this, speedTarget, yawTarget, 1.0f, 0.05f, 0.1f, 0xC8);
             }
         }
@@ -15827,11 +15865,13 @@ void Player_Action_43(Player* this, PlayState* play) {
             ((this->unk_AA5 == PLAYER_UNKAA5_3) &&
              (((Player_ItemToItemAction(this, Inventory_GetBtnBItem(play)) != this->heldItemAction) &&
                CHECK_BTN_ANY(sPlayerControlInput->press.button, BTN_B)) ||
-              CHECK_BTN_ANY(sPlayerControlInput->press.button, BTN_R | BTN_A) || func_80123434(this) ||
-              (!func_800B7128(this) && !func_8082EF20(this))))) ||
+              (CHECK_BTN_ANY(sPlayerControlInput->press.button, BTN_R | BTN_A) &&
+               GameInteractor_Should(VB_EXIT_FIRST_PERSON_MODE_FROM_BUTTON, true)) ||
+              func_80123434(this) || (!func_800B7128(this) && !func_8082EF20(this))))) ||
            ((this->unk_AA5 == PLAYER_UNKAA5_1) &&
             CHECK_BTN_ANY(sPlayerControlInput->press.button,
-                          BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_CUP | BTN_R | BTN_B | BTN_A | BTN_DPAD_EQUIP))) ||
+                          BTN_CRIGHT | BTN_CLEFT | BTN_CDOWN | BTN_CUP | BTN_R | BTN_B | BTN_A | BTN_DPAD_EQUIP) &&
+            GameInteractor_Should(VB_EXIT_FIRST_PERSON_MODE_FROM_BUTTON, true))) ||
           Player_ActionChange_4(this, play)))) {
         func_80839ED0(this, play);
         Audio_PlaySfx(NA_SE_SY_CAMERA_ZOOM_UP);
@@ -17224,8 +17264,10 @@ void Player_Action_63(Player* this, PlayState* play) {
           (BEN_ANIM_EQUAL(this->skelAnime.animation, D_8085D17C[this->transformation]))) ||
          ((this->skelAnime.mode == 0) && (this->av2.actionVar2 == 0)))) {
         func_808525C4(play, this);
-        if (!(this->actor.flags & ACTOR_FLAG_20000000) || (this->unk_A90->id == ACTOR_EN_ZOT)) {
-            Message_DisplayOcarinaStaff(play, OCARINA_ACTION_FREE_PLAY);
+        if (!CVarGetInteger("gEnhancements.Playback.NoDropOcarinaInput", 0) || this->av2.actionVar2 == 1) {
+            if (!(this->actor.flags & ACTOR_FLAG_20000000) || (this->unk_A90->id == ACTOR_EN_ZOT)) {
+                Message_DisplayOcarinaStaff(play, OCARINA_ACTION_FREE_PLAY);
+            }
         }
     } else if (this->av2.actionVar2 != 0) {
         if (play->msgCtx.ocarinaMode == OCARINA_MODE_END) {
@@ -17597,7 +17639,7 @@ void Player_Action_68(Player* this, PlayState* play) {
             if (this->av2.actionVar2 == 0) {
                 Message_StartTextbox(play, D_8085D798[this->av1.actionVar1 - 1].textId, &this->actor);
 
-                Audio_PlayFanfare(NA_BGM_GET_ITEM | 0x900);
+                Audio_PlayFanfare(NA_BGM_GET_ITEM);
                 this->av2.actionVar2 = 1;
             } else if (Message_GetState(&play->msgCtx) == TEXT_STATE_CLOSING) {
                 Actor* talkActor;
@@ -17993,7 +18035,7 @@ void Player_Action_77(Player* this, PlayState* play) {
         } else {
             play->transitionType = TRANS_TYPE_FADE_BLACK;
             gSaveContext.nextTransitionType = TRANS_TYPE_FADE_BLACK;
-            gSaveContext.seqId = (u8)NA_BGM_DISABLED;
+            gSaveContext.seqId = NA_BGM_DISABLED;
             gSaveContext.ambienceId = AMBIENCE_ID_DISABLED;
         }
 
@@ -19310,10 +19352,11 @@ void Player_Action_96(Player* this, PlayState* play) {
             speedTarget = 18.0f;
             Math_StepToC(&this->av1.actionVar1, 4, 1);
 
-            if ((this->stateFlags3 & PLAYER_STATE3_80000) &&
-                (!CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_A) ||
-                 (gSaveContext.save.saveInfo.playerData.magic == 0) ||
-                 ((this->av1.actionVar1 == 4) && (this->unk_B08 < 12.0f)))) {
+            uint8_t vanillaSpikeModeCondition =
+                (this->stateFlags3 & PLAYER_STATE3_80000) && (!CHECK_BTN_ALL(sPlayerControlInput->cur.button, BTN_A) ||
+                                                              (gSaveContext.save.saveInfo.playerData.magic == 0) ||
+                                                              ((this->av1.actionVar1 == 4) && (this->unk_B08 < 12.0f)));
+            if (GameInteractor_Should(VB_GORON_ROLL_DISABLE_SPIKE_MODE, vanillaSpikeModeCondition)) {
                 if (Math_StepToS(&this->unk_B86[1], 0, 1)) {
                     this->stateFlags3 &= ~PLAYER_STATE3_80000;
                     Magic_Reset(play);
@@ -19367,7 +19410,9 @@ void Player_Action_96(Player* this, PlayState* play) {
                 if (this->unk_B86[1] == 0) {
                     this->unk_B0C = 0.0f;
                     if (this->av1.actionVar1 >= 0x36) {
-                        Magic_Consume(play, 2, MAGIC_CONSUME_GORON_ZORA);
+                        if (GameInteractor_Should(VB_GORON_ROLL_CONSUME_MAGIC, true)) {
+                            Magic_Consume(play, 2, MAGIC_CONSUME_GORON_ZORA);
+                        }
                         this->unk_B08 = 18.0f;
                         this->unk_B86[1] = 1;
                         this->stateFlags3 |= PLAYER_STATE3_80000;
@@ -19429,8 +19474,10 @@ void Player_Action_96(Player* this, PlayState* play) {
                     f32 var_fa1;
 
                     if (this->unk_B86[1] == 0) {
-                        if ((gSaveContext.magicState == MAGIC_STATE_IDLE) &&
-                            (gSaveContext.save.saveInfo.playerData.magic >= 2) && (this->av2.actionVar2 >= 0x36B0)) {
+                        if (GameInteractor_Should(VB_GORON_ROLL_INCREASE_SPIKE_LEVEL,
+                                                  (gSaveContext.magicState == MAGIC_STATE_IDLE) &&
+                                                      (gSaveContext.save.saveInfo.playerData.magic >= 2) &&
+                                                      (this->av2.actionVar2 >= 0x36B0))) {
                             this->av1.actionVar1++;
                             Actor_PlaySfx_FlaggedCentered1(&this->actor, NA_SE_PL_GORON_BALL_CHARGE - SFX_FLAG);
                         } else {
@@ -20638,7 +20685,8 @@ void Player_CsAction_41(PlayState* play, Player* this, CsCmdActorCue* cue) {
                 this->getItemDrawIdPlusOne = GID_PENDANT_OF_MEMORIES + 1;
             }
         } else if (this->av2.actionVar2 < 0) {
-            if (Actor_HasParent(&this->actor, play)) {
+            if (Actor_HasParent(&this->actor, play) ||
+                !GameInteractor_Should(VB_GIVE_PENDANT_OF_MEMORIES_FROM_KAFEI, true)) {
                 this->actor.parent = NULL;
                 this->av2.actionVar2 = 1;
             } else {
@@ -21038,7 +21086,8 @@ PlayerItemAction func_8085B854(PlayState* play, Player* this, ItemId itemId) {
     PlayerItemAction itemAction = Player_ItemToItemAction(this, itemId);
 
     if ((itemAction >= PLAYER_IA_MASK_MIN) && (itemAction <= PLAYER_IA_MASK_MAX) &&
-        (itemAction == GET_IA_FROM_MASK(this->currentMask))) {
+        GameInteractor_Should(VB_GET_ITEM_ACTION_FROM_MASK, itemAction == GET_IA_FROM_MASK(this->currentMask),
+                              itemAction)) {
         itemAction = PLAYER_IA_NONE;
     }
 

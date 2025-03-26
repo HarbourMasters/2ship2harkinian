@@ -7,6 +7,7 @@
 #include "z64math.h"
 #include "unk.h"
 #include "z64item.h"
+#include "Rando/Types.h"
 
 struct GameState;
 struct PlayState;
@@ -32,7 +33,45 @@ typedef enum RespawnMode {
     /* 8 */ RESPAWN_MODE_MAX
 } RespawnMode;
 
-#define SAVE_BUFFER_SIZE 0x4000
+// 2S2H [Port] Quadruple the size of the Save Buffer to support more data, eg rando
+#define SAVE_BUFFER_SIZE 0x4000 * 4
+#define SAVE_BUFFER_SIZE_HALF (SAVE_BUFFER_SIZE / 2)
+
+// 2S2H [Enhancement] Extended for file 3 support
+typedef enum FileNum {
+    /* 0 */ FILE_NUM_1,
+    /* 1 */ FILE_NUM_2,
+    /* 2 */ FILE_NUM_3,
+    /* 3 */ FILE_NUM_MAX,
+    /* 3 */ FILE_NUM_1_OWL_SAVE = FILE_NUM_MAX,
+    /* 4 */ FILE_NUM_2_OWL_SAVE,
+    /* 5 */ FILE_NUM_3_OWL_SAVE,
+    /* 6 */ FILE_NUM_MAX_WITH_OWL_SAVE,
+} FileNum;
+
+#define FILE_NUM_OWL_SAVE_OFFSET FILE_NUM_1_OWL_SAVE
+
+// 2S2H [Enhancement] Extended for file 3 support
+typedef enum FlashSave {
+    /*  0 */ FLASH_SAVE_FILE_1_NEW_CYCLE_SAVE,
+    /*  1 */ FLASH_SAVE_FILE_1_NEW_CYCLE_SAVE_BACKUP,
+    /*  2 */ FLASH_SAVE_FILE_2_NEW_CYCLE_SAVE,
+    /*  3 */ FLASH_SAVE_FILE_2_NEW_CYCLE_SAVE_BACKUP,
+    /*  4 */ FLASH_SAVE_FILE_3_NEW_CYCLE_SAVE,
+    /*  5 */ FLASH_SAVE_FILE_3_NEW_CYCLE_SAVE_BACKUP,
+    /*  6 */ FLASH_SAVE_FILE_1_OWL_SAVE,
+    /*  7 */ FLASH_SAVE_FILE_1_OWL_SAVE_BACKUP,
+    /*  8 */ FLASH_SAVE_FILE_2_OWL_SAVE,
+    /*  9 */ FLASH_SAVE_FILE_2_OWL_SAVE_BACKUP,
+    /* 10 */ FLASH_SAVE_FILE_3_OWL_SAVE,
+    /* 11 */ FLASH_SAVE_FILE_3_OWL_SAVE_BACKUP,
+    /* 12 */ FLASH_SAVE_SRAM_HEADER,
+    /* 13 */ FLASH_SAVE_SRAM_HEADER_BACKUP,
+    /* 14 */ FLASH_SAVE_MAX,
+} FlashSave;
+
+#define FLASH_SAVE_MAIN_MULTIPLIER 2
+#define FLASH_SAVE_BACKUP_OFFSET 1
 
 typedef enum {
     /* 0  */ MAGIC_STATE_IDLE, // Regular gameplay
@@ -325,11 +364,40 @@ typedef struct DpadSaveInfo {
     u8 dpadSlots[4][4];
 } DpadSaveInfo;
 
+typedef enum {
+    SAVETYPE_VANILLA,
+    SAVETYPE_RANDO,
+} SaveType;
+
+typedef struct RandoSaveCheck {
+    RandoItemId randoItemId;
+    bool shuffled;
+    bool eligible;
+    bool cycleObtained;
+    bool obtained;
+    bool skipped;
+    u16 price; // Only applicable for shops/merchants
+} RandoSaveCheck;
+
+typedef struct RandoSaveInfo {
+    u16 randoInf[(RANDO_INF_MAX + 15) / 16];
+    u8 randoEvents[RE_MAX]; // This is purely for logic tracking, not to be used for anything else
+    RandoSaveCheck randoSaveChecks[RC_MAX];
+    u32 finalSeed;
+    u32 randoSaveOptions[RO_MAX]; // Type here may change in the future
+    s8 foundDungeonKeys[9]; // Tracks the number of dungeon keys found, opposed to the number of keys in the inventory
+} RandoSaveInfo;
+
 // These are values added by 2S2H that we need to be persisted to the save file
 // See `ShipSaveContext` for values on the SaveContext that aren't persisted.
 typedef struct ShipSaveInfo {
     DpadSaveInfo dpadEquips;
     s32 pauseSaveEntrance;
+    SaveType saveType;
+    uint64_t fileCreatedAt;
+    uint64_t fileCompletedAt; // For now this is always Majora final blow, has the potential to be something else later on
+    char commitHash[8];
+    RandoSaveInfo rando;
 } ShipSaveInfo;
 // #endregion
 
@@ -407,7 +475,8 @@ typedef struct SaveContext {
     /* 0x3EF8 */ s16 timerX[TIMER_ID_MAX];              // "event_xp"
     /* 0x3F06 */ s16 timerY[TIMER_ID_MAX];              // "event_yp"
     /* 0x3F14 */ s16 unk_3F14;                          // "character_change"
-    /* 0x3F16 */ u8 seqId;                              // "old_bgm"
+    // 2S2H [Custom Audio]. Was originally u8 seqId. Made 16 bit to allow for more than 255 sequences.
+    /* 0x3F16 */ u16 seqId;                              // "old_bgm"
     /* 0x3F17 */ u8 ambienceId;                         // "old_env"
     /* 0x3F18 */ u8 buttonStatus[6];                    // "button_item"
     /* 0x3F1E */ u8 hudVisibilityForceButtonAlphasByStatus; // if btn alphas are updated through Interface_UpdateButtonAlphas, instead update them through Interface_UpdateButtonAlphasByStatus "ck_fg"
@@ -1587,12 +1656,9 @@ typedef enum {
 
 #define GET_WEEKEVENTREG_HORSE_RACE_STATE (WEEKEVENTREG(92) & WEEKEVENTREG_HORSE_RACE_STATE_MASK)
 
-#define SET_WEEKEVENTREG_HORSE_RACE_STATE(state)                                                                       \
-    {                                                                                                                  \
-        WEEKEVENTREG(92) &= (u8)~WEEKEVENTREG_HORSE_RACE_STATE_MASK;                                                    \
-        WEEKEVENTREG(92) = WEEKEVENTREG(92) | (u8)((WEEKEVENTREG(92) & ~WEEKEVENTREG_HORSE_RACE_STATE_MASK) | (state)); \
-    }                                                                                                                  \
-    (void)0
+// #region 2S2H Originally these flags were all set with macros, for the port we want them to be in functions so we can hook into them
+#define SET_WEEKEVENTREG_HORSE_RACE_STATE(state) (Flags_SetWeekEventRegHorseRace(state))
+// #endregion
 
 #define GET_WEEKEVENTREG_DOG_RACE_TEXT(index, baseTextId)                         \
     (index % 2) ? (baseTextId + (((WEEKEVENTREG(42 + (index / 2))) & 0xF0) >> 4)) \
@@ -1762,7 +1828,7 @@ void func_80147314(SramContext* sramCtx, s32 fileNum); // Removes Owl Saves
 
 extern u32 gSramSlotOffsets[];
 extern u8 gAmmoItems[];
-extern s32 gFlashSaveStartPages[10];
+extern s32 gFlashSaveStartPages[];
 extern s32 gFlashSaveNumPages[];
 extern s32 gFlashSpecialSaveNumPages[];
 extern s32 gFlashOwlSaveStartPages[];

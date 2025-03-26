@@ -6,6 +6,7 @@
 
 #include "z_en_neo_reeba.h"
 #include "objects/object_rb/object_rb.h"
+#include "2s2h/GameInteractor/GameInteractor.h"
 
 #define FLAGS (ACTOR_FLAG_TARGETABLE | ACTOR_FLAG_UNFRIENDLY | ACTOR_FLAG_200)
 
@@ -656,8 +657,11 @@ void EnNeoReeba_DrawEffects(EnNeoReeba* this, PlayState* play) {
         }
 
         this->bodyPartsPos[EN_NEO_REEBA_BODYPART_3] = this->actor.world.pos;
-        Actor_DrawDamageEffects(play, NULL, this->bodyPartsPos, EN_NEO_REEBA_BODYPART_MAX, this->drawEffectScale, 0.5f,
-                                this->drawEffectAlpha, this->drawEffectType);
+        if (GameInteractor_Should(VB_USE_NULL_FOR_DRAW_DAMAGE_EFFECTS, true, this, this->bodyPartsPos,
+                                  EN_NEO_REEBA_BODYPART_MAX)) {
+            Actor_DrawDamageEffects(play, NULL, this->bodyPartsPos, EN_NEO_REEBA_BODYPART_MAX, this->drawEffectScale,
+                                    0.5f, this->drawEffectAlpha, this->drawEffectType);
+        }
     }
 }
 
