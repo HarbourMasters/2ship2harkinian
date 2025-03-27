@@ -5,109 +5,90 @@
 extern "C" {
 #include "variables.h"
 #include "overlays/actors/ovl_En_Minifrog/z_en_minifrog.h"
+void EnMinifrog_TurnToPlayer(EnMinifrog* enMinifrog);
+void EnMinifrog_Jump(EnMinifrog* enMinifrog);
+void EnMinifrog_JumpTimer(EnMinifrog* enMinifrog);
 }
 
 
-// TODOs: update text, logic, fix postLimbDraw crash
+// TODOs: logic, fix postLimbDraw crash
 
-void EnMinifrog_OnOpenText(u16* textId, bool* loadFromMessageTable){
-
-    // Need to change depending on frog
-    RandoSaveCheck frogCheck = RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_LAUNDRY_FROG];
-    RandoItemId riFrogCheck = Rando::ConvertItem(frogCheck.randoItemId, RC_CLOCK_TOWN_LAUNDRY_FROG);
-
-    auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-
-    entry.msg = "I understand. Have %y{{article}} {{item}}%w!\x13\x10";
-
-    std::string itemName = Rando::StaticData::Items[riFrogCheck].name;
-    std::string itemArticle = Rando::StaticData::Items[riFrogCheck].article;
-
-    CustomMessage::ReplaceColorChars(&entry.msg);
-    CustomMessage::Replace(&entry.msg, "{{item}}", itemName);
-    CustomMessage::Replace(&entry.msg, "{{article}}", itemArticle);
-    entry.autoFormat = false;
-    // CustomMessage::EnsureMessageEnd(&entry.msg);
-    CustomMessage::LoadCustomMessageIntoFont(entry);
-    *loadFromMessageTable = false;
+RandoCheckId GetFrogCheck(s16 index) {
+    switch (index) {
+        case 1:
+            return RC_WOODFALL_TEMPLE_GEKKO_FROG;
+        case 2:
+            return RC_GREAT_BAY_TEMPLE_GEKKO_FROG;
+        case 3:
+            return RC_SOUTHERN_SWAMP_FROG;
+        case 4:
+            return RC_CLOCK_TOWN_LAUNDRY_FROG;
+    }
+    return RC_UNKNOWN;
 }
 
-void EnMinifrog_OnOpenText2(u16* textId, bool* loadFromMessageTable){
+void MiniFrog_DrawCustom(Actor* thisx, PlayState* play) {
+    EnMinifrog* enMinifrog = (EnMinifrog*)thisx;
+    RandoCheckId frogCheck = GetFrogCheck(enMinifrog->frogIndex);
+    if (frogCheck == RC_UNKNOWN) {
+        return;
+    }
 
-    // Need to change depending on frog
-    RandoSaveCheck frogCheck = RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_LAUNDRY_FROG];
-    RandoItemId riFrogCheck = Rando::ConvertItem(frogCheck.randoItemId, RC_CLOCK_TOWN_LAUNDRY_FROG);
+    RandoItemId frogItem = RANDO_SAVE_CHECKS[frogCheck].randoItemId;
 
-    auto entry = CustomMessage::LoadVanillaMessageTableEntry(*textId);
-
-    LUSLOG_DEBUG("%s", entry.msg.c_str());
-
-    entry.msg = "Find me again and I will\x11 definitely go to the mountains. \x11Have %y{{article}} {{item}}%w!";
-
-    std::string itemName = Rando::StaticData::Items[riFrogCheck].name;
-    std::string itemArticle = Rando::StaticData::Items[riFrogCheck].article;
-
-    CustomMessage::ReplaceColorChars(&entry.msg);
-    CustomMessage::Replace(&entry.msg, "{{item}}", itemName);
-    CustomMessage::Replace(&entry.msg, "{{article}}", itemArticle);
-    entry.autoFormat = false;
-    // CustomMessage::EnsureMessageEnd(&entry.msg);
-    CustomMessage::LoadCustomMessageIntoFont(entry);
-    *loadFromMessageTable = false;
+    Rando::DrawItem(Rando::ConvertItem(frogItem, frogCheck), thisx);
 }
 
-// static u16 sIsFrogReturnedFlags[] = {
-//     0,                  // FROG_YELLOW
-//     WEEKEVENTREG_32_40, // FROG_CYAN
-//     WEEKEVENTREG_32_80, // FROG_PINK
-//     WEEKEVENTREG_33_01, // FROG_BLUE
-//     WEEKEVENTREG_33_02, // FROG_WHITE
-// };
+void MiniFrog_UpdateCustom(Actor* thisx, PlayState* play) {
+    EnMinifrog* enMinifrog = (EnMinifrog*)thisx;
+    RandoCheckId frogCheck = GetFrogCheck(enMinifrog->frogIndex);
+
+    EnMinifrog_TurnToPlayer(enMinifrog);
+    EnMinifrog_Jump(enMinifrog);
+    EnMinifrog_JumpTimer(enMinifrog);
+    
+    Actor_MoveWithGravity(&enMinifrog->actor);
+    Actor_UpdateBgCheckInfo(play, &enMinifrog->actor, 25.0f, 12.0f, 0.0f,
+                            UPDBGCHECKINFO_FLAG_1 | UPDBGCHECKINFO_FLAG_4 | UPDBGCHECKINFO_FLAG_8 |
+                                UPDBGCHECKINFO_FLAG_10);
+    enMinifrog->actor.focus.rot.y = enMinifrog->actor.shape.rot.y;
+
+    if ((thisx->xzDistToPlayer <= 30.0f) && (fabsf(thisx->playerHeightRel) <= fabsf(80.0f))) {
+        RANDO_SAVE_CHECKS[frogCheck].eligible = true;
+        Actor_Kill(&enMinifrog->actor);
+        return;
+    }
+    
+}
 
 void Rando::ActorBehavior::InitEnMinifrogBehavior() {
 
     COND_VB_SHOULD(VB_SPAWN_FROG, IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_FROGS], {
         EnMinifrog* enMinifrog = va_arg(args, EnMinifrog*);
-        switch (enMinifrog->frogIndex) {
-            case 0:
-                break;
-            case 1:
-                *should = RANDO_SAVE_CHECKS[RC_WOODFALL_TEMPLE_GEKKO_FROG].cycleObtained;
-                break;
-            case 2:
-                *should = RANDO_SAVE_CHECKS[RC_GREAT_BAY_TEMPLE_GEKKO_FROG].cycleObtained;
-                break;
-            case 3:
-                *should = RANDO_SAVE_CHECKS[RC_SOUTHERN_SWAMP_FROG].cycleObtained;
-                break;
-            case 4:
-                *should = RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_LAUNDRY_FROG].cycleObtained;
-                break;
+        RandoCheckId frogCheck = GetFrogCheck(enMinifrog->frogIndex);
+        if (frogCheck == RC_UNKNOWN) {
+            return;
         }
+        *should = RANDO_SAVE_CHECKS[frogCheck].cycleObtained;
     });
 
-    COND_VB_SHOULD(VB_FROG_SET_RETURN_FLAG, IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_FROGS], {
-        EnMinifrog* enMinifrog = va_arg(args, EnMinifrog*);
-        *should = true;
-        switch (enMinifrog->frogIndex) {
-            case 0:
-                break;
-            case 1:
-                RANDO_SAVE_CHECKS[RC_WOODFALL_TEMPLE_GEKKO_FROG].eligible = true;
-                break;
-            case 2:
-                RANDO_SAVE_CHECKS[RC_GREAT_BAY_TEMPLE_GEKKO_FROG].eligible = true;
-                break;
-            case 3:
-                RANDO_SAVE_CHECKS[RC_SOUTHERN_SWAMP_FROG].eligible = true;
-                break;
-            case 4:
-                RANDO_SAVE_CHECKS[RC_CLOCK_TOWN_LAUNDRY_FROG].eligible = true;
-                break;
+    COND_ID_HOOK(OnActorInit, ACTOR_EN_MINIFROG, IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_FROGS], [](Actor* actor) {
+        EnMinifrog* enMinifrog = (EnMinifrog*)actor;
+
+        if (EN_FROG_IS_RETURNED(&enMinifrog->actor)) {
+            return;
         }
+        
+        RandoCheckId frogCheck = GetFrogCheck(enMinifrog->frogIndex);
+        if (frogCheck == RC_UNKNOWN) {
+            return;
+        }
+
+        actor->draw = MiniFrog_DrawCustom;
+        actor->update = MiniFrog_UpdateCustom;
+        actor->shape.shadowDraw = NULL;
+        actor->flags &= ~ACTOR_FLAG_TARGETABLE;
+        Actor_SetScale(&enMinifrog->actor, 0.4f);
+        enMinifrog->actor.world.pos.y += 20; // not sure if this ends up doing anything
     });
-    
-    COND_ID_HOOK(OnOpenText, 0x0D85, IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_FROGS], EnMinifrog_OnOpenText);
-    
-    COND_ID_HOOK(OnOpenText, 0x0D88, IS_RANDO && RANDO_SAVE_OPTIONS[RO_SHUFFLE_FROGS], EnMinifrog_OnOpenText2);
 }

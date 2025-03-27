@@ -344,8 +344,11 @@ void DrawMinifrog(RandoItemId randoItemId, Actor* actor) {
     gSPSegment(POLY_OPA_DISP++, 0x08, (uintptr_t)gFrogIrisOpenTex);
     gSPSegment(POLY_OPA_DISP++, 0x09, (uintptr_t)gFrogIrisOpenTex);
     SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable,
-                          FROG_LIMB_MAX, NULL,
-                      NULL, NULL); // TODO: Restore and fix
+        FROG_LIMB_MAX, NULL,
+        NULL, NULL); // TODO: Restore and fix
+    // SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable,
+    //                       FROG_LIMB_MAX, EnMinifrog_OverrideLimbDraw,
+    //                       EnMinifrog_PostLimbDraw, actor);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
