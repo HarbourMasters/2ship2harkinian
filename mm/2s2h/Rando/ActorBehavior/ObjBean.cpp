@@ -10,7 +10,9 @@ void Rando::ActorBehavior::InitObjBeanBehavior() {
     COND_ID_HOOK(ShouldActorUpdate, ACTOR_OBJ_BEAN, IS_RANDO, [](Actor* actor, bool* should) {
         ObjBean* objBean = (ObjBean*)actor;
         // Bean is in moving state, and player is in Get Item state
-        if (objBean->actionFunc == func_809388A8 && GET_PLAYER(gPlayState)->stateFlags1 & PLAYER_STATE1_400) {
+        Player* player = GET_PLAYER(gPlayState);
+        if (objBean->actionFunc == func_809388A8 &&
+            ((player->stateFlags1 & PLAYER_STATE1_400) || player->actor.freezeTimer)) {
             *should = false;
         }
     });
