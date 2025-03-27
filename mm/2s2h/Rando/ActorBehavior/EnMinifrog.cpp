@@ -10,7 +10,6 @@ void EnMinifrog_Jump(EnMinifrog* enMinifrog);
 void EnMinifrog_JumpTimer(EnMinifrog* enMinifrog);
 }
 
-
 // TODOs: logic, fix postLimbDraw crash
 
 RandoCheckId GetFrogCheck(s16 index) {
@@ -46,7 +45,7 @@ void MiniFrog_UpdateCustom(Actor* thisx, PlayState* play) {
     EnMinifrog_TurnToPlayer(enMinifrog);
     EnMinifrog_Jump(enMinifrog);
     EnMinifrog_JumpTimer(enMinifrog);
-    
+
     Actor_MoveWithGravity(&enMinifrog->actor);
     Actor_UpdateBgCheckInfo(play, &enMinifrog->actor, 25.0f, 12.0f, 0.0f,
                             UPDBGCHECKINFO_FLAG_1 | UPDBGCHECKINFO_FLAG_4 | UPDBGCHECKINFO_FLAG_8 |
@@ -58,7 +57,6 @@ void MiniFrog_UpdateCustom(Actor* thisx, PlayState* play) {
         Actor_Kill(&enMinifrog->actor);
         return;
     }
-    
 }
 
 void Rando::ActorBehavior::InitEnMinifrogBehavior() {
@@ -78,7 +76,7 @@ void Rando::ActorBehavior::InitEnMinifrogBehavior() {
         if (EN_FROG_IS_RETURNED(&enMinifrog->actor)) {
             return;
         }
-        
+
         RandoCheckId frogCheck = GetFrogCheck(enMinifrog->frogIndex);
         if (frogCheck == RC_UNKNOWN) {
             return;

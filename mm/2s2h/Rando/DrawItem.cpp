@@ -15,9 +15,10 @@ extern "C" {
 #include "objects/object_gi_liquid/object_gi_liquid.h"
 #include "objects/object_sek/object_sek.h"
 #include "objects/object_st/object_st.h"
-/* Minifrog */  #include "objects/object_fr/object_fr.h"
+/* Minifrog */ #include "objects/object_fr/object_fr.h"
 
-Gfx* ResourceMgr_LoadGfxByName(const char* path);
+    Gfx*
+    ResourceMgr_LoadGfxByName(const char* path);
 void EnMinifrog_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Actor* enMini);
 s32 EnMinifrog_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* enMini);
 }
@@ -311,7 +312,7 @@ void DrawMinifrog(RandoItemId randoItemId, Actor* actor) {
     static SkelAnime skelAnime;
     static Vec3s jointTable[FROG_LIMB_MAX];
     static Vec3s otherTable[FROG_LIMB_MAX];
-    Color_RGBA8 envColor = { 200, 170, 0, 255 };   // FROG_YELLOW
+    Color_RGBA8 envColor = { 200, 170, 0, 255 }; // FROG_YELLOW
     static u32 lastUpdate = 0;
     if (!initialized) {
         initialized = true;
@@ -338,14 +339,13 @@ void DrawMinifrog(RandoItemId randoItemId, Actor* actor) {
             break;
     }
 
-    gDPSetEnvColor(POLY_OPA_DISP++, envColor.r, envColor.g, envColor.b, envColor.a );
+    gDPSetEnvColor(POLY_OPA_DISP++, envColor.r, envColor.g, envColor.b, envColor.a);
 
     Mtx* mtxHead = (Mtx*)GRAPH_ALLOC(gPlayState->state.gfxCtx, 23 * sizeof(Mtx));
     gSPSegment(POLY_OPA_DISP++, 0x08, (uintptr_t)gFrogIrisOpenTex);
     gSPSegment(POLY_OPA_DISP++, 0x09, (uintptr_t)gFrogIrisOpenTex);
-    SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable,
-        FROG_LIMB_MAX, NULL,
-        NULL, NULL); // TODO: Restore and fix
+    SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, FROG_LIMB_MAX, NULL, NULL,
+                          NULL); // TODO: Restore and fix
     // SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable,
     //                       FROG_LIMB_MAX, EnMinifrog_OverrideLimbDraw,
     //                       EnMinifrog_PostLimbDraw, actor);
