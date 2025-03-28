@@ -10,7 +10,7 @@ void EnMinifrog_Jump(EnMinifrog* enMinifrog);
 void EnMinifrog_JumpTimer(EnMinifrog* enMinifrog);
 }
 
-// TODOs: logic, fix postLimbDraw crash
+// TODOs: logic, check for persisting over cycle, verify non-shuffle behaivor/logic still work
 
 RandoCheckId GetFrogCheck(s16 index) {
     switch (index) {

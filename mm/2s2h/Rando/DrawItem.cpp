@@ -16,10 +16,11 @@ extern "C" {
 #include "objects/object_sek/object_sek.h"
 #include "objects/object_st/object_st.h"
 /* Minifrog */ #include "objects/object_fr/object_fr.h"
+#include "overlays/actors/ovl_En_Minifrog/z_en_minifrog.h"
 
     Gfx*
     ResourceMgr_LoadGfxByName(const char* path);
-void EnMinifrog_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Actor* enMini);
+// void EnMinifrog_PostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Actor* enMini);
 s32 EnMinifrog_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* pos, Vec3s* rot, Actor* enMini);
 }
 
@@ -301,6 +302,20 @@ void DrawSkulltulaToken(RandoItemId randoItemId, Actor* actor) {
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
 
+void EnMinifrogPostLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3s* rot, Actor* thisx) {
+    EnMinifrog* enMinifrog = (EnMinifrog*)thisx;
+
+    if ((limbIndex == FROG_LIMB_RIGHT_EYE) || (limbIndex == FROG_LIMB_LEFT_EYE)) {
+        OPEN_DISPS(play->state.gfxCtx);
+
+        Matrix_ReplaceRotation(&play->billboardMtxF);
+        gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+        gSPDisplayList(POLY_OPA_DISP++, *dList);
+
+        CLOSE_DISPS(play->state.gfxCtx);
+    }
+}
+
 void DrawMinifrog(RandoItemId randoItemId, Actor* actor) {
     OPEN_DISPS(gPlayState->state.gfxCtx);
 
@@ -344,11 +359,11 @@ void DrawMinifrog(RandoItemId randoItemId, Actor* actor) {
     Mtx* mtxHead = (Mtx*)GRAPH_ALLOC(gPlayState->state.gfxCtx, 23 * sizeof(Mtx));
     gSPSegment(POLY_OPA_DISP++, 0x08, (uintptr_t)gFrogIrisOpenTex);
     gSPSegment(POLY_OPA_DISP++, 0x09, (uintptr_t)gFrogIrisOpenTex);
-    SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, FROG_LIMB_MAX, NULL, NULL,
-                          NULL); // TODO: Restore and fix
-    // SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable,
-    //                       FROG_LIMB_MAX, EnMinifrog_OverrideLimbDraw,
-    //                       EnMinifrog_PostLimbDraw, actor);
+    // SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable, FROG_LIMB_MAX, NULL, NULL,
+    //                       NULL); // TODO: Restore and fix
+    SkelAnime_DrawFlexOpa(gPlayState, skelAnime.skeleton, skelAnime.jointTable,
+                          FROG_LIMB_MAX, EnMinifrog_OverrideLimbDraw,
+                          EnMinifrogPostLimbDraw, actor);
 
     CLOSE_DISPS(gPlayState->state.gfxCtx);
 }
