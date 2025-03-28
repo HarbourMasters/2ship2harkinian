@@ -38,6 +38,14 @@ void RegisterSkipOnePointCutscenes() {
                 }
 
                 ObjSyokudai* torch = (ObjSyokudai*)actor;
+                s32 switchFlag = OBJ_SYOKUDAI_GET_SWITCH_FLAG(actor);
+
+                // Set the flag if needed
+                if (torch->pendingAction >= OBJ_SYOKUDAI_PENDING_ACTION_CUTSCENE_AND_SWITCH) {
+                    Flags_SetSwitch(gPlayState, switchFlag);
+                }
+
+                torch->pendingAction = OBJ_SYOKUDAI_PENDING_ACTION_NONE;
                 torch->snuffTimer = OBJ_SYOKUDAI_SNUFF_NEVER;
                 *should = false;
                 break;
