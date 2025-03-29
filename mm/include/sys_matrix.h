@@ -49,7 +49,7 @@ void Matrix_SetTranslateRotateYXZ(f32 x, f32 y, f32 z, Vec3s* rot);
 
 /* Conversion and allocation operations */
 
-Mtx* Matrix_MtxFToMtx(MtxF* src, Mtx* dest);
+Mtx* Matrix_MtxFToMtx(MtxF* src, Mtx* dest, bool isViewMtx);
 Mtx* Matrix_ToMtx(Mtx* dest);
 Mtx* Matrix_NewMtx(struct GraphicsContext* gfxCtx);
 Mtx* Matrix_MtxFToNewMtx(MtxF* src, struct GraphicsContext* gfxCtx);

@@ -167,6 +167,27 @@ void gSPSegment(void* value, int segNum, uintptr_t target) {
     __gSPSegment(value, segNum, target);
 }
 
+void gSPSegmentInterp(void* value, int segNum, uintptr_t target) {
+    char* imgData = (char*)target;
+
+    int res = ResourceMgr_OTRSigCheck(imgData);
+
+    // OTRTODO: Disabled for now to fix an issue with HD Textures.
+    // With HD textures, we need to pass the path to F3D, not the raw texture data.
+    // Otherwise the needed metadata is not available for proper rendering...
+    // This should *not* cause any crashes, but some testing may be needed...
+    // UPDATE: To maintain compatability it will still do the old behavior if the resource is a display list.
+    // That should not affect HD textures.
+    if (res) {
+        uintptr_t desiredTarget = (uintptr_t)ResourceMgr_LoadIfDListByName(imgData);
+
+        if (desiredTarget != NULL)
+            target = desiredTarget;
+    }
+
+    __gSPSegmentInterp(value, segNum, target);
+}
+
 void gSPSegmentLoadRes(void* value, int segNum, uintptr_t target) {
     char* imgData = (char*)target;
 
@@ -198,6 +219,14 @@ void gSPDisplayList(Gfx* pkt, Gfx* dl) {
     }
 
     __gSPDisplayList(pkt, dl);
+}
+
+int gDPSetTileSizeInterp(Gfx* pkt, int t, float uls, float ult, float lrs, float lrt) {
+    __gDPSetTileSizeInterp(pkt++, t, 0, 0, 0, 0);
+    memcpy(&pkt[0].words.w0, &uls, sizeof(float));
+    memcpy(&pkt[0].words.w1, &ult, sizeof(float));
+    memcpy(&pkt[1].words.w0, &lrs, sizeof(float));
+    memcpy(&pkt[1].words.w1, &lrt, sizeof(float));
 }
 
 void gSPDisplayListOffset(Gfx* pkt, Gfx* dl, int offset) {
@@ -633,7 +662,7 @@ void guOrtho(Mtx* m, float l, float r, float b, float t, float n, float f, float
     float mf[4][4];
     guOrthoF(mf, l, r, b, t, n, f, scale);
     FrameInterpolation_RecordOpenChild("ortho", 0);
-    Matrix_MtxFToMtx((MtxF*)mf, m);
+    Matrix_MtxFToMtx((MtxF*)mf, m, false);
     FrameInterpolation_RecordCloseChild();
     // guMtxF2L(mf, m);
 }
@@ -678,7 +707,7 @@ void guPerspective(Mtx* m, u16* perspNorm, float fovy, float aspect, float near,
     float mf[4][4];
 
     guPerspectiveF(mf, perspNorm, fovy, aspect, near, far, scale);
-    Matrix_MtxFToMtx((MtxF*)mf, m);
+    Matrix_MtxFToMtx((MtxF*)mf, m, false);
     // guPerspectiveF(mf, perspNorm, fovy, aspect, near, far, scale);
     // guMtxF2L(mf, m);
 }
@@ -745,7 +774,7 @@ void guLookAt(Mtx* m, f32 xEye, f32 yEye, f32 zEye, f32 xAt, f32 yAt, f32 zAt, f
 
     guLookAtF(mf, xEye, yEye, zEye, xAt, yAt, zAt, xUp, yUp, zUp);
 
-    Matrix_MtxFToMtx((MtxF*)mf, m);
+    Matrix_MtxFToMtx((MtxF*)mf, m, true);
     // guMtxF2L(mf, m);
 }
 void guRotateF(float m[4][4], float a, float x, float y, float z) {

@@ -360,7 +360,7 @@ s32 View_ApplyPerspective(View* view) {
         MtxF projectionF;
         Matrix_MtxToMtxF(projection, &projectionF);
         SkinMatrix_MtxFMtxFMult(&projectionF, &flipF, &projectionF);
-        Matrix_MtxFToMtx(&projectionF, projectionFlipped);
+        Matrix_MtxFToMtx(&projectionF, projectionFlipped, false);
     }
 
     view->projection = *projection;
@@ -552,7 +552,7 @@ s32 View_ApplyOrthoToOverlay(View* view) {
         MtxF projectionF;
         Matrix_MtxToMtxF(projection, &projectionF);
         SkinMatrix_MtxFMtxFMult(&projectionF, &flipF, &projectionF);
-        Matrix_MtxFToMtx(&projectionF, projectionFlipped);
+        Matrix_MtxFToMtx(&projectionF, projectionFlipped, false);
     }
 
     view->projection = *projection;
