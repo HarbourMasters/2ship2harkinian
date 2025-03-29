@@ -224,11 +224,6 @@ void BenMenu::AddSettings() {
     AddWidget(path, "Audio API", WIDGET_AUDIO_BACKEND);
 
     // Graphics Settings
-    static int32_t maxFps = 360;
-    static const char* tooltip =
-        "Uses Matrix Interpolation to create extra frames, resulting in smoother graphics. This is "
-        "purely visual and does not impact game logic, execution of glitches etc.\n\nA higher target "
-        "FPS than your monitor's refresh rate will waste resources, and might give a worse result.";
     path.sidebarName = "Graphics";
     AddSidebarEntry("Settings", "Graphics", 3);
     AddWidget(path, "Toggle Fullscreen", WIDGET_CVAR_CHECKBOX)
@@ -289,7 +284,11 @@ void BenMenu::AddSettings() {
             if (mBenMenu->disabledMap.at(DISABLE_FOR_MATCH_REFRESH_RATE_ON).active)
                 info.activeDisables.push_back(DISABLE_FOR_MATCH_REFRESH_RATE_ON);
         })
-        .Options(IntSliderOptions().Tooltip(tooltip).Min(20).Max(maxFps).DefaultValue(20));
+        .Options(IntSliderOptions().Min(20).Max(360).DefaultValue(20).Tooltip(
+            "Uses Matrix Interpolation to create extra frames, resulting in smoother graphics. "
+            "This is purely visual and does not impact game logic, execution of glitches etc.\n\n"
+            "A higher target FPS than your monitor's refresh rate will waste resources, and might give a worse "
+            "result."));
     AddWidget(path, "Match Refresh Rate", WIDGET_CVAR_CHECKBOX)
         .CVar("gMatchRefreshRate")
         .Options(CheckboxOptions().Tooltip("Matches interpolation value to the refresh rate of your display."));
