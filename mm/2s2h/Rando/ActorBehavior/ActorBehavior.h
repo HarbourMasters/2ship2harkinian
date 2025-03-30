@@ -84,7 +84,7 @@ void InitEnZogBehavior();
 void InitEnZotBehavior();
 void InitEnZowBehavior();
 void InitItemBHeartBehavior();
-void InitObjBeanBehavior();
+void InitItemGetBehavior();
 void InitObjKibakoBehavior();
 void InitObjMoonStoneBehavior();
 void InitObjSnowballBehavior();
