@@ -191,6 +191,7 @@ static RegisterShipInitFunc initFunc(
                 u8* maxHealth = (u8*)ActorExtension_Get(actor, actorEnemyHealthExtId);
                 if (maxHealth == NULL) {
                     assert(false && "Actor Extension memory not valid");
+                    return;
                 }
 
                 *maxHealth = actor->colChkInfo.health;

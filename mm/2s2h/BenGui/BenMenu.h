@@ -5,8 +5,8 @@
 #include "UIWidgets.hpp"
 #include "Menu.h"
 #include "2s2h/Enhancements/Enhancements.h"
-#include "graphic/Fast3D/gfx_rendering_api.h"
 #include "2s2h/DeveloperTools/DeveloperTools.h"
+#include "graphic/Fast3D/gfx_rendering_api.h"
 
 namespace BenGui {
 

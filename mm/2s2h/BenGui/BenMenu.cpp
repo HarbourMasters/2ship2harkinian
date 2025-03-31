@@ -224,18 +224,6 @@ void BenMenu::AddSettings() {
     AddWidget(path, "Audio API", WIDGET_AUDIO_BACKEND);
 
     // Graphics Settings
-    static int32_t maxFps;
-    const char* tooltip = "";
-    if (Ship::Context::GetInstance()->GetWindow()->GetWindowBackend() == Ship::WindowBackend::FAST3D_DXGI_DX11) {
-        maxFps = 360;
-        tooltip = "Uses Matrix Interpolation to create extra frames, resulting in smoother graphics. This is "
-                  "purely visual and does not impact game logic, execution of glitches etc.\n\nA higher target "
-                  "FPS than your monitor's refresh rate will waste resources, and might give a worse result.";
-    } else {
-        maxFps = Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
-        tooltip = "Uses Matrix Interpolation to create extra frames, resulting in smoother graphics. This is "
-                  "purely visual and does not impact game logic, execution of glitches etc.";
-    }
     path.sidebarName = "Graphics";
     AddSidebarEntry("Settings", "Graphics", 3);
     AddWidget(path, "Toggle Fullscreen", WIDGET_CVAR_CHECKBOX)
@@ -296,26 +284,21 @@ void BenMenu::AddSettings() {
             if (mBenMenu->disabledMap.at(DISABLE_FOR_MATCH_REFRESH_RATE_ON).active)
                 info.activeDisables.push_back(DISABLE_FOR_MATCH_REFRESH_RATE_ON);
         })
-        .Options(IntSliderOptions().Tooltip(tooltip).Min(20).Max(maxFps).DefaultValue(20));
-    AddWidget(path, "Match Refresh Rate", WIDGET_BUTTON)
-        .Callback([](WidgetInfo& info) {
-            int hz = Ship::Context::GetInstance()->GetWindow()->GetCurrentRefreshRate();
-            if (hz >= 20 && hz <= 360) {
-                CVarSetInteger("gInterpolationFPS", hz);
-                Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-            }
-        })
-        .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_NOT_DIRECTX).active; })
-        .Options(ButtonOptions().Tooltip("Matches interpolation value to the current game's window refresh rate."));
+        .Options(IntSliderOptions().Min(20).Max(360).DefaultValue(20).Tooltip(
+            "Uses Matrix Interpolation to create extra frames, resulting in smoother graphics. "
+            "This is purely visual and does not impact game logic, execution of glitches etc.\n\n"
+            "A higher target FPS than your monitor's refresh rate will waste resources, and might give a worse "
+            "result."));
     AddWidget(path, "Match Refresh Rate", WIDGET_CVAR_CHECKBOX)
         .CVar("gMatchRefreshRate")
-        .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DIRECTX).active; })
-        .Options(CheckboxOptions().Tooltip("Matches interpolation value to the current game's window refresh rate."));
+        .Options(CheckboxOptions().Tooltip("Matches interpolation value to the refresh rate of your display."));
     AddWidget(path, "Renderer API (Needs reload)", WIDGET_VIDEO_BACKEND);
     AddWidget(path, "Enable Vsync", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_VSYNC_ENABLED)
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_NO_VSYNC).active; })
-        .Options(CheckboxOptions().Tooltip("Enables Vsync."));
+        .Options(CheckboxOptions()
+                     .Tooltip("Removes tearing, but clamps your max FPS to your displays refresh rate.")
+                     .DefaultValue(true));
     AddWidget(path, "Windowed Fullscreen", WIDGET_CVAR_CHECKBOX)
         .CVar(CVAR_SDL_WINDOWED_FULLSCREEN)
         .PreFunc([](WidgetInfo& info) {
@@ -732,7 +715,7 @@ void BenMenu::AddEnhancements() {
     AddWidget(path, "Arrow Type Cycling", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.PlayerActions.ArrowCycle")
         .Options(CheckboxOptions().Tooltip(
-            "While aiming the bow, use L to cycle between Normal, Fire, Ice and Light arrows."));
+            "While aiming the bow, use R to cycle between Normal, Fire, Ice and Light arrows."));
     AddWidget(path, "Bombchu Drops", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Equipment.ChuDrops")
         .Options(
@@ -969,8 +952,9 @@ void BenMenu::AddEnhancements() {
                      .ComboMap(motionBlurOptions));
     AddWidget(path, "Interpolate", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Graphics.MotionBlur.Interpolate")
-        .PreFunc(
-            [](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value == 1; })
+        .PreFunc([](WidgetInfo& info) {
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value == MOTION_BLUR_ALWAYS_OFF;
+        })
         .Options(CheckboxOptions().Tooltip(
             "Change motion blur capture to also happen on interpolated frames instead of only on game frames.\n"
             "This notably reduces the overall motion blur strength but smooths out the trails."));
@@ -978,13 +962,13 @@ void BenMenu::AddEnhancements() {
         .ValuePointer((bool*)&R_MOTION_BLUR_ENABLED)
         .PreFunc([](WidgetInfo& info) {
             info.valuePointer = (bool*)&R_MOTION_BLUR_ENABLED;
-            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value != 0;
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value != MOTION_BLUR_DYNAMIC;
         });
     AddWidget(path, "Strength", WIDGET_CVAR_SLIDER_INT)
         .CVar("gEnhancements.Graphics.MotionBlur.Strength")
         .Options(IntSliderOptions().Tooltip("Motion Blur strength.").Min(0).Max(255).DefaultValue(180))
         .PreFunc([](WidgetInfo& info) {
-            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value != 2;
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value != MOTION_BLUR_ALWAYS_ON;
         });
     AddWidget(path, "Strength", WIDGET_SLIDER_INT)
         .Options(IntSliderOptions().Tooltip("Motion Blur strength.").Min(0).Max(255).DefaultValue(180))
@@ -992,7 +976,7 @@ void BenMenu::AddEnhancements() {
         .Callback([](WidgetInfo& info) { R_MOTION_BLUR_ALPHA = motionBlurStrength; })
         .PreFunc([](WidgetInfo& info) {
             motionBlurStrength = R_MOTION_BLUR_ALPHA;
-            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value != 0 ||
+            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_MODE).value != MOTION_BLUR_DYNAMIC ||
                             mBenMenu->disabledMap.at(DISABLE_FOR_MOTION_BLUR_OFF).active;
         });
 
@@ -1134,7 +1118,11 @@ void BenMenu::AddEnhancements() {
             "When starting a game you will be taken straight to South Clock Town as Deku Link."));
     AddWidget(path, "Skip First Cycle", WIDGET_CVAR_CHECKBOX)
         .CVar("gEnhancements.Cutscenes.SkipFirstCycle")
-        .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_INTRO_SKIP_OFF).active; })
+        .PreFunc([](WidgetInfo& info) {
+            if (mBenMenu->disabledMap.at(DISABLE_FOR_INTRO_SKIP_OFF).active) {
+                info.activeDisables.push_back(DISABLE_FOR_INTRO_SKIP_OFF);
+            }
+        })
         .Options(CheckboxOptions().Tooltip(
             "When starting a game you will be taken straight to South Clock Town as Human Link "
             "with Deku Mask, Ocarina, Song of Time, and Song of Healing."));
@@ -1382,73 +1370,13 @@ void BenMenu::AddDevTools() {
     AddWidget(path, "Popout Menu", WIDGET_CVAR_CHECKBOX)
         .CVar("gSettings.Menu.Popout")
         .Options(CheckboxOptions().Tooltip("Changes the menu display from overlay to windowed."));
-    AddWidget(path, "Set Warp Point", WIDGET_BUTTON)
-        .Options(ButtonOptions().Tooltip("Creates warp point that you can teleport to later."))
-        .Callback([](WidgetInfo& info) {
-            Player* player = GET_PLAYER(gPlayState);
-
-            CVarSetInteger(WARP_POINT_CVAR "Entrance", gSaveContext.save.entrance);
-            CVarSetInteger(WARP_POINT_CVAR "Room", gPlayState->roomCtx.curRoom.num);
-            CVarSetFloat(WARP_POINT_CVAR "X", player->actor.world.pos.x);
-            CVarSetFloat(WARP_POINT_CVAR "Y", player->actor.world.pos.y);
-            CVarSetFloat(WARP_POINT_CVAR "Z", player->actor.world.pos.z);
-            CVarSetFloat(WARP_POINT_CVAR "Rotation", player->actor.shape.rot.y);
-            CVarSetInteger(WARP_POINT_CVAR "Saved", 1);
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-        })
-        .PreFunc(
-            [](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active; });
-    AddWidget(path, "Scene Room ID", WIDGET_TEXT).PreFunc([](WidgetInfo& info) {
-        u32 sceneId =
-            Entrance_GetSceneIdAbsolute(CVarGetInteger(WARP_POINT_CVAR "Entrance", ENTRANCE(SOUTH_CLOCK_TOWN, 0)));
-        info.name = fmt::format("{} Room {}", warpPointSceneList[sceneId], CVarGetInteger(WARP_POINT_CVAR "Room", 0));
-        info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active ||
-                        mBenMenu->disabledMap.at(DISABLE_FOR_WARP_POINT_NOT_SET).active;
-    });
-    AddWidget(path, ICON_FA_TIMES, WIDGET_BUTTON)
-        .Options(ButtonOptions().Tooltip("Clear warp point").Size(Sizes::Inline))
-        .Callback([](WidgetInfo& info) {
-            CVarClear(WARP_POINT_CVAR "Entrance");
-            CVarClear(WARP_POINT_CVAR "Room");
-            CVarClear(WARP_POINT_CVAR "X");
-            CVarClear(WARP_POINT_CVAR "Y");
-            CVarClear(WARP_POINT_CVAR "Z");
-            CVarClear(WARP_POINT_CVAR "Rotation");
-            CVarClear(WARP_POINT_CVAR "Saved");
-            Ship::Context::GetInstance()->GetWindow()->GetGui()->SaveConsoleVariablesNextFrame();
-        })
-        .PreFunc([](WidgetInfo& info) {
-            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active ||
-                            mBenMenu->disabledMap.at(DISABLE_FOR_WARP_POINT_NOT_SET).active;
-        })
-        .SameLine(true);
-    AddWidget(path, "Warp", WIDGET_BUTTON)
-        .Options(ButtonOptions().Tooltip("Teleport to the set warp point").Size(Sizes::Inline))
-        .Callback([](WidgetInfo& info) { Warp(); })
-        .PreFunc([](WidgetInfo& info) {
-            info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_NULL_PLAY_STATE).active ||
-                            mBenMenu->disabledMap.at(DISABLE_FOR_WARP_POINT_NOT_SET).active;
-        })
-        .SameLine(true);
     AddWidget(path, "Debug Mode", WIDGET_CVAR_CHECKBOX)
         .CVar("gDeveloperTools.DebugEnabled")
-        .Options(CheckboxOptions().Tooltip("Enables Debug Mode, allowing you to select maps with L + R + Z."))
-        .Callback([](WidgetInfo& info) {
-            if (!CVarGetInteger("gDeveloperTools.DebugEnabled", 0)) {
-                CVarClear("gDeveloperTools.DebugSaveFileMode");
-                CVarClear("gDeveloperTools.PreventActorUpdate");
-                CVarClear("gDeveloperTools.PreventActorDraw");
-                CVarClear("gDeveloperTools.PreventActorInit");
-                CVarClear("gDeveloperTools.DisableObjectDependency");
-                if (gPlayState != NULL) {
-                    gPlayState->frameAdvCtx.enabled = false;
-                }
-                RegisterDebugSaveCreate();
-                RegisterPreventActorUpdateHooks();
-                RegisterPreventActorDrawHooks();
-                RegisterPreventActorInitHooks();
-            }
-        });
+        .Options(CheckboxOptions().Tooltip("Enables Debug Mode, allowing the following:\n\n"
+                                           "- Open debug warp menu with L + R + Z\n"
+                                           "- Enable debug no-clip mode with L + D-Right\n"
+                                           "- Open built-in debug inventory editor when paused with L\n"
+                                           "- Saves created will inherit inventory from \"Debug Save File Mode\""));
     AddWidget(path, "Better Map Select", WIDGET_CVAR_CHECKBOX)
         .CVar("gDeveloperTools.BetterMapSelect.Enabled")
         .Options(CheckboxOptions().Tooltip(
@@ -1462,22 +1390,18 @@ void BenMenu::AddDevTools() {
                               "- Vanilla Debug Save: Uses the title screen save info (8 hearts, all items and masks).\n"
                               "- 100\% Save: All items, equipment, mask, quest status and Bombers' Notebook complete.")
                      .ComboMap(debugSaveOptions))
-        .Callback([](WidgetInfo& info) { RegisterDebugSaveCreate(); })
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
     AddWidget(path, "Prevent Actor Update", WIDGET_CVAR_CHECKBOX)
         .CVar("gDeveloperTools.PreventActorUpdate")
         .Options(CheckboxOptions().Tooltip("Prevents Actors from updating."))
-        .Callback([](WidgetInfo& info) { RegisterPreventActorUpdateHooks(); })
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
     AddWidget(path, "Prevent Actor Draw", WIDGET_CVAR_CHECKBOX)
         .CVar("gDeveloperTools.PreventActorDraw")
         .Options(CheckboxOptions().Tooltip("Prevents Actors from drawing."))
-        .Callback([](WidgetInfo& info) { RegisterPreventActorDrawHooks(); })
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
     AddWidget(path, "Prevent Actor Init", WIDGET_CVAR_CHECKBOX)
         .CVar("gDeveloperTools.PreventActorInit")
         .Options(CheckboxOptions().Tooltip("Prevents Actors from initializing."))
-        .Callback([](WidgetInfo& info) { RegisterPreventActorInitHooks(); })
         .PreFunc([](WidgetInfo& info) { info.isHidden = mBenMenu->disabledMap.at(DISABLE_FOR_DEBUG_MODE_OFF).active; });
     AddWidget(path, "Disable Object Dependency", WIDGET_CVAR_CHECKBOX)
         .CVar("gDeveloperTools.DisableObjectDependency")
@@ -1527,6 +1451,8 @@ void BenMenu::AddDevTools() {
             }
         })
         .SameLine(true);
+    path.column = 2;
+    AddWidget(path, "Warp Point", WIDGET_CUSTOM).CustomFunction([](WidgetInfo& info) { RenderWarpPointSection(); });
 
     // dev tools windows
     path = { "Dev Tools", "Collision Viewer", 1 };
@@ -1649,7 +1575,7 @@ void BenMenu::InitElement() {
           { [](disabledInfo& info) -> bool { return !CVarGetInteger("gEnhancements.Saving.Autosave", 0); },
             "AutoSave is Disabled" } },
         { DISABLE_FOR_NULL_PLAY_STATE,
-          { [](disabledInfo& info) -> bool { return gPlayState == NULL; }, "Save Not Loaded" } },
+          { [](disabledInfo& info) -> bool { return gPlayState == NULL; }, "Not in game" } },
         { DISABLE_FOR_DEBUG_MODE_OFF,
           { [](disabledInfo& info) -> bool { return !CVarGetInteger("gDeveloperTools.DebugEnabled", 0); },
             "Debug Mode is Disabled" } },
@@ -1694,9 +1620,6 @@ void BenMenu::InitElement() {
         { DISABLE_FOR_FRAME_ADVANCE_OFF,
           { [](disabledInfo& info) -> bool { return !(gPlayState != nullptr && gPlayState->frameAdvCtx.enabled); },
             "Frame Advance is Disabled" } },
-        { DISABLE_FOR_WARP_POINT_NOT_SET,
-          { [](disabledInfo& info) -> bool { return !CVarGetInteger(WARP_POINT_CVAR "Saved", 0); },
-            "Warp Point Not Saved" } },
         { DISABLE_FOR_INTRO_SKIP_OFF,
           { [](disabledInfo& info) -> bool { return !CVarGetInteger("gEnhancements.Cutscenes.SkipIntroSequence", 0); },
             "Intro Skip Not Selected" } },
