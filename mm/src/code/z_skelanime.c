@@ -2037,11 +2037,6 @@ void SkelAnime_Free(SkelAnime* skelAnime, PlayState* play) {
     if (skelAnime->morphTable != NULL) {
         ZeldaArena_Free(skelAnime->morphTable);
     }
-
-    if (skelAnime->extraJointTable != NULL) {
-        ZeldaArena_Free(skelAnime->extraJointTable);
-    }
-
     ResourceMgr_UnregisterSkeleton(skelAnime);
 }
 
